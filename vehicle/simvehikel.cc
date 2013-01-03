@@ -763,7 +763,7 @@ void vehikel_t::set_convoi(convoi_t *c)
 				}
 			}
 		}
-		// just correct freight deistinations
+		// just correct freight destinations
 		FOR(slist_tpl<ware_t>, & c, fracht) {
 			c.laden_abschliessen(welt, get_besitzer());
 		}
@@ -962,6 +962,7 @@ vehikel_t::unload_freight(halthandle_t halt)
 
 	ITERATE(kill_queue,i)
 	{
+		cnv->invalidate_weight_summary();
 		total_freight -= kill_queue[i].menge;
 		bool ok = fracht.remove(kill_queue[i]);
 		assert(ok);
@@ -1015,6 +1016,7 @@ bool vehikel_t::load_freight(halthandle_t halt, bool overcrowd)
 				if(ware.can_merge_with(tmp))
 				{
 					tmp.menge += ware.menge;
+					cnv->invalidate_weight_summary();
 					total_freight += ware.menge;
 					ware.menge = 0;
 					break;
@@ -1025,6 +1027,7 @@ bool vehikel_t::load_freight(halthandle_t halt, bool overcrowd)
 			if(ware.menge != 0) 
 			{
 				fracht.insert(ware);
+				cnv->invalidate_weight_summary();
 				total_freight += ware.menge;
 			}
 
@@ -1038,7 +1041,7 @@ bool vehikel_t::load_freight(halthandle_t halt, bool overcrowd)
 
 /**
  * Remove freight that no longer can reach its destination
- * i.e. becuase of a changed schedule
+ * i.e. because of a changed schedule
  * @author Hj. Malthaner
  */
 void vehikel_t::remove_stale_freight()
@@ -1080,6 +1083,7 @@ void vehikel_t::remove_stale_freight()
 
 		FOR(vector_tpl<ware_t>, const& c, kill_queue) {
 			fracht.remove(c);
+			cnv->invalidate_weight_summary();
 		}
 	}
 }
@@ -3783,7 +3787,7 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 		return false;
 	}
 
-	existing_convoy_t convoy(*cnv);
+	convoi_t &convoy = *cnv;
 	sint32 brake_steps = convoy.calc_min_braking_distance(welt->get_settings(), convoy.get_weight_summary(), cnv->get_akt_speed());
 	route_t &route = *cnv->get_route();
 	convoi_t::route_infos_t &route_infos = cnv->get_route_infos();
@@ -4974,7 +4978,7 @@ bool aircraft_t::ist_weg_frei( int & restart_speed, bool )
 	uint16 last_index = route.get_count() - 1;
 	if (next_block > 65000) 
 	{
-		existing_convoy_t convoy(*cnv);
+		convoi_t &convoy = *cnv;
 		const sint32 brake_steps = convoy.calc_min_braking_distance(welt->get_settings(), convoy.get_weight_summary(), cnv->get_akt_speed());
 		const sint32 route_steps = route_infos.calc_steps(route_infos.get_element(route_index).steps_from_start, route_infos.get_element(last_index).steps_from_start);
 		if (route_steps <= brake_steps)

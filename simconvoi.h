@@ -26,6 +26,7 @@
 #include "simconst.h"
 
 #include "simdings.h"
+#include "convoy.h"
 
 /*
  * Waiting time for infinite loading (ms)
@@ -50,7 +51,7 @@ class replace_data_t;
  *
  * @author Hj. Malthaner
  */
-class convoi_t : public sync_steppable, public overtaker_t
+class convoi_t : public sync_steppable, public overtaker_t, public lazy_convoy_t
 {
 public:
 	enum {
@@ -188,6 +189,49 @@ public:
 			}
 		}
 	};
+
+// BG, 31.12.2012: virtual methods of lazy_convoy_t:
+private:
+	weight_summary_t weight;
+protected:
+	virtual void update_vehicle_summary(vehicle_summary_t &vehicle);
+	virtual void update_adverse_summary(adverse_summary_t &adverse);
+	virtual void update_freight_summary(freight_summary_t &freight);
+	virtual void update_weight_summary(weight_summary_t &weight);
+	virtual float32e8_t get_brake_summary(/*const float32e8_t &speed /* in m/s */);
+	virtual float32e8_t get_force_summary(const float32e8_t &speed /* in m/s */);
+	virtual float32e8_t get_power_summary(const float32e8_t &speed /* in m/s */);
+public:
+	virtual sint16 get_current_friction();
+	
+	// weight_summary becomes invalid, when vehicle_summary or envirion_summary 
+	// becomes invalid.
+	inline void invalidate_weight_summary()
+	{
+		is_valid &= ~cd_weight_summary;
+	}
+
+	// weight_summary is valid if (is_valid & cd_weight_summary != 0)
+	inline void validate_weight_summary() {
+		if (!(is_valid & cd_weight_summary)) 
+		{
+			is_valid |= cd_weight_summary;
+			update_weight_summary(weight);
+		}
+	}
+
+	// weight_summary needs recaching only, if it is going to be used. 
+	inline const weight_summary_t &get_weight_summary() {
+		validate_weight_summary();
+		return weight;
+	}
+
+	inline void calc_move(const settings_t &settings, long delta_t, sint32 akt_speed_soll, sint32 next_speed_limit, sint32 steps_til_limit, sint32 steps_til_brake, sint32 &akt_speed, sint32 &sp_soll, float32e8_t &akt_v)
+	{
+		validate_weight_summary();
+		convoy_t::calc_move(settings, delta_t, weight, akt_speed_soll, next_speed_limit, steps_til_limit, steps_til_brake, akt_speed, sp_soll, akt_v);
+	}
+// BG, 31.12.2012: end of virtual methods of lazy_convoy_t.
 
 private:
 	/**
@@ -363,7 +407,7 @@ private:
 	// will be recalculated if
 	// recalc_data is true
 	bool recalc_data_front; // true when front vehicle in convoi hops
-	bool recalc_data; // true when any vehicle in convoi hops
+	//bool recalc_data; // true when any vehicle in convoi hops
 
 	sint64 sum_friction_weight;
 	sint32 speed_limit;
@@ -1240,7 +1284,7 @@ public:
 	//@author: isidoro
 	bool has_no_cargo() const;
 
-	void must_recalc_data() { recalc_data = true; }
+	void must_recalc_data() { invalidate_adverse_summary(); }
 
 	// Overtaking for convois
 	virtual bool can_overtake(overtaker_t *other_overtaker, sint32 other_speed, sint16 steps_other);

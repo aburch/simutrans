@@ -280,7 +280,7 @@ void convoi_info_t::zeichnen(koord pos, koord gr)
 	}
 	else {
 		//Bernd Gabriel, Dec, 02 2009: common existing_convoy_t for acceleration curve and weight/speed info.
-		existing_convoy_t convoy(*cnv.get_rep());
+		convoi_t &convoy = *cnv.get_rep();
 
 #ifdef ACCELERATION_BUTTON
 		//Bernd Gabriel, Sep, 24 2009: acceleration curve:

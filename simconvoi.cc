@@ -211,7 +211,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 
 	reversable = false;
 	reversed = false;
-	recalc_data = true;
+	//recalc_data = true;
 
 	livery_scheme_index = 0;
 }
@@ -826,7 +826,7 @@ void convoi_t::calc_acceleration(long delta_t)
 {
 	// existing_convoy_t is designed to become a part of convoi_t. 
 	// There it will help to minimize updating convoy summary data.
-	existing_convoy_t convoy(*this);
+	convoi_t &convoy = *this;
 	vehikel_t &front = *this->front();
 
 	const uint32 route_count = route.get_count(); // at least ziel will be there, even if calculating a route failed.
@@ -2099,6 +2099,7 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_
 		min_top_speed = min( min_top_speed, kmh_to_speed( v->get_besch()->get_geschw() ) );
 		sum_gesamtgewicht = sum_gewicht;
 		calc_loading();
+		invalidate_vehicle_summary();
 		freight_info_resort = true;
 		// Add good_catg_index:
 		if(v->get_fracht_max() != 0) {
@@ -2203,6 +2204,7 @@ DBG_MESSAGE("convoi_t::upgrade_vehicle()","at pos %i of %i totals.",i,max_vehicl
 	sum_gewicht -= info->get_gewicht();
 
 	calc_loading();
+	invalidate_vehicle_summary();
 	freight_info_resort = true;
 	recalc_catg_index();
 
@@ -2255,6 +2257,7 @@ vehikel_t *convoi_t::remove_vehikel_bei(uint16 i)
 		}
 		sum_gesamtgewicht = sum_gewicht;
 		calc_loading();
+		invalidate_vehicle_summary();
 		freight_info_resort = true;
 
 		// der convoi hat jetzt ein neues ende
@@ -2590,7 +2593,7 @@ void convoi_t::vorfahren()
 	set_tiles_overtaking( 0 );
 	uint16 reverse_delay = 0;
 
-	recalc_data = true;
+	must_recalc_data();
 
 	koord3d k0 = route.front();
 	grund_t *gr = welt->lookup(k0);
@@ -3008,6 +3011,7 @@ void convoi_t::rdwr(loadsave_t *file)
 		if(sp_soll < 0) {
 			sp_soll = 0;
 		}
+		set_akt_speed(akt_speed);
 	}
 
 	file->rdwr_str(name_and_id + name_offset, lengthof(name_and_id) - name_offset);
@@ -3165,6 +3169,8 @@ void convoi_t::rdwr(loadsave_t *file)
 	if(file->is_loading()) {
 		next_wolke = 0;
 		calc_loading();
+		set_akt_speed(akt_speed);
+		invalidate_vehicle_summary();
 	}
 
 	// Hajo: calculate new minimum top speed
@@ -3784,6 +3790,11 @@ void convoi_t::rdwr(loadsave_t *file)
 	if(  file->is_loading()  ) {
 		reserve_route();
 		recalc_catg_index();
+	}
+
+	if (akt_speed < 0)
+	{
+		set_akt_speed(0);
 	}
 }
 
@@ -5100,7 +5111,7 @@ sint64 convoi_t::calc_restwert() const
 
 
 /**
- * Calclulate loading_level and loading_limit. This depends on current state (loading or not).
+ * Calculate loading_level and loading_limit. This depends on current state (loading or not).
  * @author Volker Meyer
  * @date  20.06.2003
  */
@@ -5125,7 +5136,7 @@ void convoi_t::calc_loading()
 	free_seats = seats_max > seats_menge ? seats_max - seats_menge : 0;
 
 	// since weight has changed
-	recalc_data=true;
+	must_recalc_data();
 }
 
 
@@ -6567,3 +6578,109 @@ sint64 convoi_t::get_stat_converted(int month, int cost_type) const
 	}
 	return value;
 }
+
+// BG, 31.12.2012: virtual methods of lazy_convoy_t:
+// Bernd Gabriel, Dec, 25 2009
+sint16 convoi_t::get_current_friction()
+{
+	return get_vehikel_anzahl() > 0 ? get_friction_of_waytype(get_vehikel(0)->get_waytype()) : 0;
+}
+
+void convoi_t::update_vehicle_summary(vehicle_summary_t &vehicle)
+{
+	vehicle.clear();
+	uint32 count = get_vehikel_anzahl();
+	for (uint32 i = count; i-- > 0; )
+	{
+		vehicle.add_vehicle(*get_vehikel(i)->get_besch());
+	}
+	if (count > 0)
+	{
+		vehicle.update_summary(get_vehikel(count-1)->get_besch()->get_length());
+	}
+}
+
+
+void convoi_t::update_adverse_summary(adverse_summary_t &adverse)
+{
+	adverse.clear();
+	uint16 count = get_vehikel_anzahl();
+	for (uint16 i = count; i-- > 0; )
+	{
+		vehikel_t &v = *get_vehikel(i);
+		adverse.add_vehicle(v);
+	}
+	if (count > 0)
+	{
+		adverse.fr /= count;
+	}
+}
+
+
+void convoi_t::update_freight_summary(freight_summary_t &freight)
+{		
+	freight.clear();
+	for (uint16 i = get_vehikel_anzahl(); i-- > 0; )
+	{
+		const vehikel_besch_t &b = *get_vehikel(i)->get_besch();
+		freight.add_vehicle(b);
+	}
+}
+
+
+void convoi_t::update_weight_summary(weight_summary_t &weight)
+{
+	weight.clear();
+	for (uint16 i = get_vehikel_anzahl(); i-- > 0; )
+	{
+		vehikel_t &v = *get_vehikel(i);
+		weight.add_vehicle(v);
+	}
+}
+
+
+float32e8_t convoi_t::get_brake_summary(/*const float32e8_t &speed /* in m/s */)
+{
+	float32e8_t force = 0;
+	for (uint16 i = get_vehikel_anzahl(); i-- > 0; )
+	{
+		vehikel_t &v = *get_vehikel(i);
+		const uint16 bf = v.get_besch()->get_brake_force();
+		if (bf != BRAKE_FORCE_UNKNOWN)
+		{
+			force += bf * (uint32) 1000;
+		}
+		else
+		{
+			// Usual brake deceleration is about -0.5 .. -1.5 m/s² depending on vehicle and ground. 
+			// With F=ma, a = F/m follows that brake force in N is ~= 1/2 weight in kg
+			force += get_adverse_summary().br * v.get_gesamtgewicht();
+		}
+	}
+	return force;
+}
+ 
+
+float32e8_t convoi_t::get_force_summary(const float32e8_t &speed /* in m/s */)
+{
+	sint64 force = 0;
+	sint32 v = speed;
+	for (uint16 i = get_vehikel_anzahl(); i-- > 0; )
+	{
+		force += get_vehikel(i)->get_besch()->get_effective_force_index(v);
+	}
+	return power_index_to_power(force, get_welt()->get_settings().get_global_power_factor_percent());
+}
+
+
+float32e8_t convoi_t::get_power_summary(const float32e8_t &speed /* in m/s */)
+{
+	sint64 power = 0;
+	sint32 v = speed;
+	for (uint16 i = get_vehikel_anzahl(); i-- > 0; )
+	{
+		power += get_vehikel(i)->get_besch()->get_effective_power_index(v);
+	}
+	return power_index_to_power(power, get_welt()->get_settings().get_global_power_factor_percent());
+}
+// BG, 31.12.2012: end of virtual methods of lazy_convoy_t

@@ -68,9 +68,11 @@ a = (Fm - Frs - cf * v^2) / m
 #include "tpl/vector_tpl.h"
 #include "besch/vehikel_besch.h"
 #include "simtypes.h"
-#include "vehicle/simvehikel.h"
-#include "simconvoi.h"
+//#include "vehicle/simvehikel.h"
+//#include "simconvoi.h"
 #include "simworld.h"
+
+class vehikel_t;
 
 //// CF_*: constants related to air resistance
 //
@@ -201,12 +203,7 @@ struct weight_summary_t
 	 */
 	void add_weight(sint32 kgs, sint32 sin_alpha);
 
-	inline void add_vehicle(const vehikel_t &v)
-	{
-		// v.get_frictionfactor() between about -14 (downhill) and 50 (uphill). 
-		// Including the factor 1000 for tons to kg conversion, 50 corresponds to an inclination of 28 per mille.
-		add_weight(v.get_gesamtgewicht(), v.get_frictionfactor());
-	}
+	void add_vehicle(const vehikel_t &v);
 };
 
 /******************************************************************************/
@@ -516,7 +513,8 @@ public:
 		validate_adverse_summary();
 		convoy_t::calc_move(settings, delta_t, weight, akt_speed_soll, next_speed_limit, steps_til_limit, steps_til_break, akt_speed, sp_soll, akt_v);
 	}
-	virtual ~lazy_convoy_t(){}
+
+	//virtual ~lazy_convoy_t(){}
 };
 
 /******************************************************************************/
