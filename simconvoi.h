@@ -385,14 +385,14 @@ private:
 	* errechnet.
 	* @author Hj. Malthaner
 	*/
-	uint32 sum_leistung;
+	//uint32 sum_leistung;
 
 	/**
 	* Gesamtleistung mit Gear. Wird nicht gespeichert, sondern aus den Einzelleistungen
 	* errechnet.
 	* @author prissi
 	*/
-	sint32 sum_gear_und_leistung;
+	//sint32 sum_gear_und_leistung;
 
 	/* sum_gewicht: leergewichte aller vehicles *
 	* sum_gesamtgewicht: gesamtgewichte aller vehicles *
@@ -400,8 +400,8 @@ private:
 	* errechnet beim beladen/fahren.
 	* @author Hj. Malthaner, prissi
 	*/
-	sint64 sum_gewicht;
-	sint64 sum_gesamtgewicht;
+	//sint64 sum_gewicht;
+	//sint64 sum_gesamtgewicht;
 
 	// cached values
 	// will be recalculated if
@@ -409,15 +409,15 @@ private:
 	bool recalc_data_front; // true when front vehicle in convoi hops
 	//bool recalc_data; // true when any vehicle in convoi hops
 
-	sint64 sum_friction_weight;
-	sint32 speed_limit;
+	//sint64 sum_friction_weight;
+	//sint32 speed_limit;
 
 	/**
 	* Lowest top speed of all vehicles. Doesn't get saved, but calculated
 	* from the vehicles data
 	* @author Hj. Malthaner
 	*/
-	sint32 min_top_speed;
+	//sint32 min_top_speed;
 
 	/**
 	 * this give the index of the next signal or the end of the route
@@ -914,11 +914,11 @@ public:
 	 * @return total power of this convoi
 	 * @author Hj. Malthaner
 	 */
-	inline const uint32 & get_sum_leistung() const {return sum_leistung;}
-	inline const sint32 & get_min_top_speed() const {return min_top_speed;}
+	inline const uint32 get_sum_leistung() {return get_continuous_power();}
+	inline const sint32 get_min_top_speed() {return get_vehicle_summary().max_sim_speed;}
 
 	/// @returns weight of the convoy's vehicles (excluding freight)
-	inline const sint64 & get_sum_gewicht() const {return sum_gewicht;}
+	inline const sint64 get_sum_gewicht() {return get_vehicle_summary().weight;}
 
 	/// @returns weight of convoy including freight
 	//inline const sint64 & get_sum_gesamtgewicht() const {return sum_gesamtgewicht;}
@@ -927,7 +927,7 @@ public:
 	 * Get effective power in kW by dividing by GEAR_FACTOR, which is 64.
 	 * @author Bernd Gabriel, Nov, 14 2009
 	 */
-	inline const sint32 & get_power_index() { return sum_gear_und_leistung; }
+	//inline const sint32 & get_power_index() { return sum_gear_und_leistung; }
 
 	uint32 get_length() const;
 

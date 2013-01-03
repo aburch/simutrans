@@ -111,6 +111,7 @@ struct vehicle_summary_t
 	uint32 tiles;           // length of convoy in tiles.
 	sint32 weight;			// sum of vehicles' own weight without load in kg
 	sint32 max_speed;		// minimum of all vehicles' maximum speed in km/h
+	sint32 max_sim_speed;	// minimum of all vehicles' maximum speed in simutrans speed
 
 	inline void clear()
 	{
@@ -132,6 +133,7 @@ struct vehicle_summary_t
 	{
 		// this correction corresponds to the correction in convoi_t::get_tile_length()
 		tiles = (length + (max(8, length_of_last_vehicle) - length_of_last_vehicle) + OBJECT_OFFSET_STEPS - 1) / OBJECT_OFFSET_STEPS;
+		max_sim_speed = kmh_to_speed(max_speed);
 	}
 };
 

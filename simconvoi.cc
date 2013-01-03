@@ -105,24 +105,22 @@ static const char * state_names[convoi_t::MAX_STATES] =
  * Calculates speed of slowest vehicle in the given array
  * @author Hj. Matthaner
  */
-static int calc_min_top_speed(const array_tpl<vehikel_t*>& fahr, uint8 anz_vehikel)
-{
-	int min_top_speed = SPEED_UNLIMITED;
-	for(uint8 i=0; i<anz_vehikel; i++) {
-		min_top_speed = min(min_top_speed, kmh_to_speed( fahr[i]->get_besch()->get_geschw() ) );
-	}
-	return min_top_speed;
-}
+//static int calc_min_top_speed(const array_tpl<vehikel_t*>& fahr, uint8 anz_vehikel)
+//{
+//	int min_top_speed = SPEED_UNLIMITED;
+//	for(uint8 i=0; i<anz_vehikel; i++) {
+//		min_top_speed = min(min_top_speed, kmh_to_speed( fahr[i]->get_besch()->get_geschw() ) );
+//	}
+//	return min_top_speed;
+//}
 
 
 // Reset some values.  Used in init and replacing.
 void convoi_t::reset()
 {
 	is_electric = false;
-	//sum_gesamtgewicht = sum_gewicht = sum_gear_und_leistung = sum_leistung = power_from_steam = power_from_steam_with_gear = 0;
-	sum_gesamtgewicht = sum_gewicht = sum_leistung = sum_gear_und_leistung = 0;
+	//sum_gesamtgewicht = sum_gewicht = 0; 
 	previous_delta_v = 0;
-	min_top_speed = 9999999;
 
 	withdraw = false;
 	has_obsolete = false;
@@ -158,10 +156,6 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	departures = new inthashtable_tpl<uint16, departure_data_t>;
 
 	reset();
-	is_electric = false;
-	sum_gesamtgewicht = sum_gewicht = sum_gear_und_leistung = sum_leistung = 0;
-	previous_delta_v = 0;
-	min_top_speed = SPEED_UNLIMITED;
 
 	fpl = NULL;
 	replace = NULL;
@@ -918,7 +912,7 @@ void convoi_t::calc_acceleration(long delta_t)
 	/*
 	 * calculate movement in the next delta_t ticks.
 	 */
-	akt_speed_soll = min_top_speed;
+	akt_speed_soll = get_min_top_speed();
 	convoy.calc_move(welt->get_settings(), delta_t, akt_speed_soll, next_speed_limit, steps_til_limit, steps_til_brake, akt_speed, sp_soll, v);
 }
 
@@ -1183,7 +1177,7 @@ bool convoi_t::drive_to()
 			}
 		}
 
-		bool success = calc_route(start, ziel, speed_to_kmh(min_top_speed));
+		bool success = calc_route(start, ziel, speed_to_kmh(get_min_top_speed()));
 		grund_t* gr = welt->lookup(ziel);
 		bool extend_route = gr;
 		switch (fahr[0]->get_waytype())
@@ -2088,16 +2082,16 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_
 		if(info->get_leistung()) {
 			is_electric |= info->get_engine_type()==vehikel_besch_t::electric;
 		}
-		sum_leistung += info->get_leistung();
+		//sum_leistung += info->get_leistung();
 		//if(info->get_engine_type() == vehikel_besch_t::steam)
 		//{
 		//	power_from_steam += info->get_leistung();
 		//	power_from_steam_with_gear += info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor();
 		//}
-		sum_gear_und_leistung += (info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor_percent() + 50) / 100;
-		sum_gewicht += info->get_gewicht();
-		min_top_speed = min( min_top_speed, kmh_to_speed( v->get_besch()->get_geschw() ) );
-		sum_gesamtgewicht = sum_gewicht;
+		//sum_gear_und_leistung += (info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor_percent() + 50) / 100;
+		//sum_gewicht += info->get_gewicht();
+		//min_top_speed = min( min_top_speed, kmh_to_speed( v->get_besch()->get_geschw() ) );
+		//sum_gesamtgewicht = sum_gewicht;
 		calc_loading();
 		invalidate_vehicle_summary();
 		freight_info_resort = true;
@@ -2179,29 +2173,19 @@ DBG_MESSAGE("convoi_t::upgrade_vehicle()","at pos %i of %i totals.",i,max_vehicl
 		is_electric |= info->get_engine_type()==vehikel_besch_t::electric;
 	}
 
-	min_top_speed = calc_min_top_speed(fahr, anz_vehikel);
+	//min_top_speed = calc_min_top_speed(fahr, anz_vehikel);
 	
 	// Add power and weight of the new vehicle
-	sum_leistung += info->get_leistung();
-	//if(info->get_engine_type() == vehikel_besch_t::steam)
-	//{
-	//	power_from_steam += info->get_leistung();
-	//	power_from_steam_with_gear += info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor();
-	//}
-	sum_gear_und_leistung += (info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor_percent() + 50) / 100;
-	sum_gewicht += info->get_gewicht();
-	sum_gesamtgewicht = sum_gewicht;
+	//sum_leistung += info->get_leistung();
+	//sum_gear_und_leistung += (info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor_percent() + 50) / 100;
+	//sum_gewicht += info->get_gewicht();
+	//sum_gesamtgewicht = sum_gewicht;
 
 	// Remove power and weight of the old vehicle
-	info = old_vehicle->get_besch();
-	sum_leistung -= info->get_leistung();
-	//if(info->get_engine_type() == vehikel_besch_t::steam)
-	//{
-	//	power_from_steam -= info->get_leistung();
-	//	power_from_steam_with_gear -= info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor();
-	//}
-	sum_gear_und_leistung -= (info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor_percent() + 50) / 100;
-	sum_gewicht -= info->get_gewicht();
+	//info = old_vehicle->get_besch();
+	//sum_leistung -= info->get_leistung();
+	//sum_gear_und_leistung -= (info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor_percent() + 50) / 100;
+	//sum_gewicht -= info->get_gewicht();
 
 	calc_loading();
 	invalidate_vehicle_summary();
@@ -2246,16 +2230,11 @@ vehikel_t *convoi_t::remove_vehikel_bei(uint16 i)
 			recalc_catg_index();
 
 			const vehikel_besch_t *info = v->get_besch();
-			sum_leistung -= info->get_leistung();
-			//if(info->get_engine_type() == vehikel_besch_t::steam)
-			//{
-			//	power_from_steam -= info->get_leistung();
-			//	power_from_steam_with_gear -= info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor();
-			//}
-			sum_gear_und_leistung -= (info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor_percent() + 50) / 100;
-			sum_gewicht -= info->get_gewicht();
+			//sum_leistung -= info->get_leistung();
+			//sum_gear_und_leistung -= (info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor_percent() + 50) / 100;
+			//sum_gewicht -= info->get_gewicht();
 		}
-		sum_gesamtgewicht = sum_gewicht;
+		//sum_gesamtgewicht = sum_gewicht;
 		calc_loading();
 		invalidate_vehicle_summary();
 		freight_info_resort = true;
@@ -2266,7 +2245,7 @@ vehikel_t *convoi_t::remove_vehikel_bei(uint16 i)
 		}
 
 		// Hajo: calculate new minimum top speed
-		min_top_speed = calc_min_top_speed(fahr, anz_vehikel);
+		//min_top_speed = calc_min_top_speed(fahr, anz_vehikel);
 
 		// check for obsolete
 		if(has_obsolete) {
@@ -3088,14 +3067,9 @@ void convoi_t::rdwr(loadsave_t *file)
 			// game with a different vehicle.tab, there might be no vehicle
 			// info
 			if(info) {
-				sum_leistung += info->get_leistung();
-				//if(info->get_engine_type() == vehikel_besch_t::steam)
-				//{
-				//	power_from_steam += info->get_leistung();
-				//	power_from_steam_with_gear += info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor();
-				//}
-				sum_gear_und_leistung += (info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor_percent() + 50) / 100;
-				sum_gewicht += info->get_gewicht();
+				//sum_leistung += info->get_leistung();
+				//sum_gear_und_leistung += (info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor_percent() + 50) / 100;
+				//sum_gewicht += info->get_gewicht();
 				is_electric |= info->get_engine_type()==vehikel_besch_t::electric;
 			}
 			else {
@@ -3142,7 +3116,7 @@ void convoi_t::rdwr(loadsave_t *file)
 			// add to convoi
 			fahr[i] = v;
 		}
-		sum_gesamtgewicht = sum_gewicht;
+		//sum_gesamtgewicht = sum_gewicht;
 	}
 
 	bool has_fpl = (fpl != NULL);
@@ -3174,7 +3148,7 @@ void convoi_t::rdwr(loadsave_t *file)
 	}
 
 	// Hajo: calculate new minimum top speed
-	min_top_speed = calc_min_top_speed(fahr, anz_vehikel);
+	//min_top_speed = calc_min_top_speed(fahr, anz_vehikel);
 
 	// Hajo: since sp_ist became obsolete, sp_soll is used modulo 65536
 	sp_soll &= 65535;
@@ -5124,19 +5098,26 @@ void convoi_t::calc_loading()
 
 	for(unsigned i=0; i<anz_vehikel; i++) {
 		const vehikel_t* v = fahr[i];
-		fracht_max += v->get_fracht_max();
-		fracht_menge += v->get_fracht_menge();
 		if ( v->get_fracht_typ() == warenbauer_t::passagiere ) {
 			seats_max += v->get_fracht_max();
 			seats_menge += v->get_fracht_menge();
 		}
+		else {
+			fracht_max += v->get_fracht_max();
+			fracht_menge += v->get_fracht_menge();
+		}
+	}
+	if (seats_max)
+	{
+		fracht_max += seats_max;
+		fracht_menge += seats_menge;
 	}
 	loading_level = fracht_max > 0 ? (fracht_menge*100)/fracht_max : 100;
 	loading_limit = 0;	// will be set correctly from hat_gehalten() routine
 	free_seats = seats_max > seats_menge ? seats_max - seats_menge : 0;
 
 	// since weight has changed
-	must_recalc_data();
+	invalidate_weight_summary();
 }
 
 
