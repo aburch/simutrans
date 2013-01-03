@@ -109,16 +109,17 @@ const char* scenario_t::init( const char *scenario_base, const char *scenario_na
 	rotation = 0;
 	// register ourselves
 	welt->set_scenario(this);
+	welt->get_message()->clear();
+
+	// set start time
+	sint32 const time = welt->get_current_month();
+	welt->get_settings().set_starting_year( time / 12);
+	welt->get_settings().set_starting_month( time % 12);
 
 	// now call startup function
 	if ((err = script->call_function("start"))) {
 		dbg->warning("scenario_t::init", "error [%s] calling start", err);
 	}
-
-	sint32 const time = welt->get_current_month();
-	welt->get_settings().set_starting_year( time / 12);
-	welt->get_settings().set_starting_month( time % 12);
-	welt->get_message()->clear();
 
 	return NULL;
 }
