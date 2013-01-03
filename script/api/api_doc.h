@@ -95,7 +95,7 @@
  */
 
 /**
- * @example millionaire.nut
+ * @example millionaire/scenario.nut
  * This example is commented in detail at the page @ref page_script_mill.
  */
 
@@ -105,7 +105,7 @@
  * Let us inspect a sample script file. We will have a look into the pak64 Millionaire scenario.
  * The objective of this scenario is to get rich as fast as possible.
  *
- * @dontinclude millionaire.nut
+ * @dontinclude millionaire/scenario.nut
  * As first the savegame is specified:
  * @skipline map.file
  * Then we provide some meta-information about the ::scenario
@@ -131,7 +131,7 @@
  */
 
 /**
- * @example pharmacy-max.nut
+ * @example pharmacy-max/scenario.nut
  * This example is used to explain translatable texts at the page @ref page_script_pharm.
  */
 
@@ -143,7 +143,7 @@
  *
  * We will learn how to make the translation of the script's output possible.
  *
- * @dontinclude pharmacy-max.nut
+ * @dontinclude pharmacy-max/scenario.nut
  * We do not care about the meta information, and jump right into the @ref get_rule_text method.
  * @skip get_rule_text
  * @until }
