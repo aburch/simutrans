@@ -213,6 +213,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 				case SIM_KEY_BACKSPACE:
 					// backspace
 					// Knightly : check and remove any selected text first
+					text_dirty |= len>0;
 					if(  !remove_selection()  &&  head_cursor_pos>0  ) {
 						if (  head_cursor_pos<len  ) {
 							size_t prev_pos = head_cursor_pos;
@@ -252,6 +253,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 						// recalculate text length after deleting selection
 						len = strlen(text);
 					}
+					text_dirty = true;
 
 					// test, if we have top convert letter
 					char letter[8];
