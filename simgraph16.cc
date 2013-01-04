@@ -2250,11 +2250,13 @@ void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 u
 				printf("CImg %i failed!\n", n);
 				return;
 			}
-		} else {
+		}
+		else {
 			if (images[n].recode_flags&FLAG_REZOOM) {
 				rezoom_img(n);
 				recode_normal_img(n);
-			} else if (images[n].recode_flags&FLAG_NORMAL_RECODE) {
+			}
+			else if (images[n].recode_flags&FLAG_NORMAL_RECODE) {
 				recode_normal_img(n);
 			}
 			sp = images[n].data;
@@ -2324,7 +2326,8 @@ void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 u
 						mark_rect_dirty_nc(xp, yp, xp + w - 1, yp + h - 1);
 					}
 					display_img_nc(h, xp, yp, sp);
-				} else if (xp < clip_rect.xx  &&  xp + w > clip_rect.x) {
+				}
+				else if (xp < clip_rect.xx  &&  xp + w > clip_rect.x) {
 					display_img_wc(h, xp, yp, sp);
 					// since height may be reduced, start marking here
 					if (dirty) {

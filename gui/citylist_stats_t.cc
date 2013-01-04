@@ -128,22 +128,29 @@ void citylist_stats_t::zeichnen(koord offset)
 	}
 
 	uint32 sel = line_selected;
+	clip_dimension cl = display_get_clip_wh();
+
 	FORX(vector_tpl<stadt_t*>, const stadt, city_list, offset.y += LINESPACE + 1) {
+
 		sint32 bev = stadt->get_einwohner();
 		sint32 growth = stadt->get_wachstum();
+		if(  offset.y + LINESPACE > cl.y  &&  offset.y <= cl.yy  ) {
+			buf.clear();
+			buf.printf( "%s: ", stadt->get_name() );
+			buf.append( bev, 0 );
+			buf.append( " (" );
+			buf.append( growth/10.0, 1 );
+			buf.append( ")" );
+			display_proportional_clip(offset.x + 4 + 10, offset.y, buf, ALIGN_LEFT, COL_BLACK, true);
 
-		buf.clear();
-		buf.printf( "%s: ", stadt->get_name() );
-		buf.append( bev, 0 );
-		buf.append( " (" );
-		buf.append( growth/10.0, 1 );
-		buf.append( ")" );
-		display_proportional_clip(offset.x + 4 + 10, offset.y, buf, ALIGN_LEFT, COL_BLACK, true);
+			// goto button
+			image_id const img = sel-- != 0 ? button_t::arrow_right_normal : button_t::arrow_right_pushed;
+			display_color_img(img, offset.x + 2, offset.y, 0, false, true);
 
-		// goto button
-		image_id const img = sel-- != 0 ? button_t::arrow_right_normal : button_t::arrow_right_pushed;
-		display_color_img(img, offset.x + 2, offset.y, 0, false, true);
-
+			if(  win_get_magic( (ptrdiff_t)stadt )  ) {
+				display_blend_wh( offset.x, offset.y, groesse.x, LINESPACE, COL_BLACK, 25 );
+			}
+		}
 		total_bev    += bev;
 		total_growth += growth;
 	}
