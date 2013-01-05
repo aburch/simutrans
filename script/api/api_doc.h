@@ -221,5 +221,32 @@
  */
 
 /**
+ * @page pitfalls Common pitfalls
+ *
+ * @section pitfall_pass_by_reference Tables, arrays, strings, classes, instances etc are passed by reference
+ *
+ * @code
+ * local a = {}  // create an empty table
+ * local b = a   // b refers to the same table as a
+ * a.x <- 1      // b.x is now also 1
+ * b.x <- 2      // a.x is changed to 2
+ * @endcode
+ *
+ *
+ * @section nocalls_in_global_scope Do not call API-functions in global scope in the script
+ *
+ * @code
+ * local start_time = settings.get_start_time() // this call is executed BEFORE the savegame is loaded -> undefined
+ *
+ * local factory_coalmine = null                // we can create the variable ...
+ * function start()
+ * {
+ *        factory_coalmine = factory_x(40, 78)  // ... but we can initialize it safely only in a function
+ * }
+ * @endcode
+ *
+ */
+
+/**
  * @defgroup post-112-1 Functions introduced after 112.1
  */

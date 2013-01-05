@@ -88,6 +88,12 @@ function resume_game()
  */
 persistent = {}
 
+
+// Attention: do not call API functions here in global scope.
+// If you do so, they will be called before the savegame is loaded,
+// and result in undefined behavior.
+
+
 /**
  * Called when user clicks to build.
  * Error messages are sent back over network to clients.
