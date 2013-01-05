@@ -205,14 +205,14 @@ bool cbuffer_t::check_format_strings(const char* master, const char* translated)
 	get_format_mask(master, master_tm, lengthof(master_tm), buf);
 	if (buf.len() > 0) {
 		// broken master string ?!
-		dbg->warning("check_vsnprintf", "Broken master string '%s': %s", master, (const char*) buf);
+		dbg->warning("cbuffer_t::check_format_strings", "Broken master string '%s': %s", master, (const char*) buf);
 		return false;
 	}
 	// read out translated string
 	get_format_mask(translated, translated_tm, lengthof(translated_tm), buf);
 	if (buf.len() > 0) {
 		// broken translated string
-		dbg->warning("check_vsnprintf", "Broken translation string '%s': %s", translated, (const char*) buf);
+		dbg->warning("cbuffer_t::check_format_strings", "Broken translation string '%s': %s", translated, (const char*) buf);
 		return false;
 	}
 	// check for consistency
@@ -221,14 +221,14 @@ bool cbuffer_t::check_format_strings(const char* master, const char* translated)
 			// too much parameters requested...
 			// but some master strings like 1extern have no format specifiers - ignore these
 			if (master_tm[0]) {
-				dbg->warning("check_vsnprintf", "Translation string '%s' has more parameters than master string '%s'", translated, master);
+				dbg->warning("cbuffer_t::check_format_strings", "Translation string '%s' has more parameters than master string '%s'", translated, master);
 				return false;
 			}
 			return true;
 		}
 		else if (master_tm[i]!=translated_tm[i]) {
 			// wrong type
-			dbg->warning("check_vsnprintf", "Parameter %d in translation string '%s' of '%s' has to be of type '%%%c' instead of '%%%c', Typemasks: Master = %s vs Translated = %s",
+			dbg->warning("cbuffer_t::check_format_strings", "Parameter %d in translation string '%s' of '%s' has to be of type '%%%c' instead of '%%%c', Typemasks: Master = %s vs Translated = %s",
 			               i+1, translated, master, master_tm[i], translated_tm[i], master_tm,translated_tm);
 			return false;
 		}
