@@ -123,7 +123,6 @@ void export_scenario(HSQUIRRELVM vm)
 	 * @param pos_se 3d-coordinate of south-eastern corner of cube
 	 * @param err error message presented to user when trying to apply this tool
 	 * @see tool_ids way_types player_all
-	 * @ingroup post-112-1
 	 */
 	STATIC register_method(vm, &scenario_t::forbid_way_tool_cube, "forbid_way_tool_cube");
 
@@ -137,7 +136,6 @@ void export_scenario(HSQUIRRELVM vm)
 	 * @param pos_nw 3d-coordinate of north-western corner of cube
 	 * @param pos_se 3d-coordinate of south-eastern corner of cube
 	 * @see tool_ids way_types player_all
-	 * @ingroup post-112-1
 	 */
 	STATIC register_method(vm, &scenario_t::allow_way_tool_cube,  "allow_way_tool_cube");
 

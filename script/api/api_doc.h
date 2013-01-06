@@ -246,7 +246,3 @@
  * @endcode
  *
  */
-
-/**
- * @defgroup post-112-1 Functions introduced after 112.1
- */

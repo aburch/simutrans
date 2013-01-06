@@ -7,6 +7,7 @@ EXTRACT_PRIVATE        = YES
 INPUT                  = api_factory.cc \
 			 api_base.h \
 			 api_doc.h \
+			 changelog.h \
 			 api_skeleton.h \
 			 api_skeleton.cc \
 			 api_city.cc \
