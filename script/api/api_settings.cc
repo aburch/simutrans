@@ -23,7 +23,7 @@ SQInteger get_start_time(HSQUIRRELVM vm)
 	return push_time(vm, yearmonth );
 }
 
-void_t set_traffic_rate(settings_t*, sint16 rate)
+void_t set_traffic_level(settings_t*, sint16 rate)
 {
 	static char level[16];
 	sprintf(level, "%i", rate);
@@ -54,15 +54,15 @@ void export_settings(HSQUIRRELVM vm)
 	register_method(vm, &settings_t::set_industry_increase_every, "set_industry_increase_every");
 
 	/**
-	 * Get traffic rate.
+	 * Get traffic level.
 	 */
-	register_method(vm, &settings_t::get_verkehr_level, "get_traffic_rate");
+	register_method(vm, &settings_t::get_verkehr_level, "get_traffic_level");
 
 	/**
-	 * Set traffic rate. The higher the rate the more city cars will be created.
-	 * @param rate new traffic rate, must be between 0 and 16
+	 * Set traffic level. The higher the level the more city cars will be created.
+	 * @param rate new traffic level, must be between 0 and 16
 	 */
-	register_method(vm, &set_traffic_rate, "set_traffic_rate", true);
+	register_method(vm, &set_traffic_level, "set_traffic_level", true);
 
 	/**
 	 * Returns starting time of the game.
