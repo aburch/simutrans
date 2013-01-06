@@ -5,6 +5,8 @@
 #include "../api_class.h"
 #include "../api_function.h"
 #include "../../dataobj/einstellungen.h"
+#include "../../simmenu.h"
+#include "../../simworld.h"
 
 using namespace script_api;
 
@@ -21,6 +23,14 @@ SQInteger get_start_time(HSQUIRRELVM vm)
 	return push_time(vm, yearmonth );
 }
 
+void_t set_traffic_rate(settings_t*, sint16 rate)
+{
+	static char level[16];
+	sprintf(level, "%i", rate);
+	werkzeug_t::simple_tool[WKZ_TRAFFIC_LEVEL]->set_default_param( level );
+	welt->set_werkzeug( werkzeug_t::simple_tool[WKZ_TRAFFIC_LEVEL], welt->get_spieler(1) );
+	return void_t();
+}
 
 void export_settings(HSQUIRRELVM vm)
 {
@@ -51,9 +61,8 @@ void export_settings(HSQUIRRELVM vm)
 	/**
 	 * Set traffic rate. The higher the rate the more city cars will be created.
 	 * @param rate new traffic rate, must be between 0 and 16
-	 * @warning cannot be used in network games.
 	 */
-	register_method(vm, &settings_t::set_verkehr_level, "set_traffic_rate");
+	register_method(vm, &set_traffic_rate, "set_traffic_rate", true);
 
 	/**
 	 * Returns starting time of the game.
