@@ -44,6 +44,18 @@ void export_settings(HSQUIRRELVM vm)
 	register_method(vm, &settings_t::set_industry_increase_every, "set_industry_increase_every");
 
 	/**
+	 * Get traffic rate.
+	 */
+	register_method(vm, &settings_t::get_verkehr_level, "get_traffic_rate");
+
+	/**
+	 * Set traffic rate. The higher the rate the more city cars will be created.
+	 * @param rate new traffic rate, must be between 0 and 16
+	 * @warning cannot be used in network games.
+	 */
+	register_method(vm, &settings_t::set_verkehr_level, "set_traffic_rate");
+
+	/**
 	 * Returns starting time of the game.
 	 * @returns table { "year" = .., "month" = .. }
 	 * @typemask table()
