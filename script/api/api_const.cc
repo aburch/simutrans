@@ -97,7 +97,8 @@ void export_global_constants(HSQUIRRELVM vm)
 	enum_slot(vm, "tool_step_year", WKZ_STEP_YEAR | SIMPLE_TOOL);
 	/// fill area with trees
 	enum_slot(vm, "tool_fill_trees", WKZ_FILL_TREES | SIMPLE_TOOL);
-	///
+	/// set traffic level
+	enum_slot(vm, "tool_set_traffic_level", WKZ_TRAFFIC_LEVEL | SIMPLE_TOOL);
 
 	// tools to open certain windows
 	/// open factory editor window

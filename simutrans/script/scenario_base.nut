@@ -28,7 +28,7 @@ all_waytypes <- [wt_road, wt_rail, wt_water, wt_monorail, wt_maglev, wt_tram, wt
 // placeholder array for all the map editing tools
 map.editing_tools <- [ tool_add_city, tool_change_city_size, tool_land_chain, tool_city_chain,
                        tool_build_factory, tool_link_factory, tool_lock_game, tool_build_cityroad,
-		       tool_increase_industry, tool_step_year, tool_fill_trees,
+		       tool_increase_industry, tool_step_year, tool_fill_trees, tool_set_traffic_level,
 		       dialog_edit_factory, dialog_edit_attraction, dialog_edit_house, dialog_edit_tree, dialog_enlarge_map]
 
 // forbidden tools
