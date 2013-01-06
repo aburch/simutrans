@@ -4917,6 +4917,8 @@ DBG_DEBUG("karte_t::laden", "init felder ok");
 	next_month_ticks = 	( (ticks >> karte_t::ticks_per_world_month_shift) + 1 ) << karte_t::ticks_per_world_month_shift;
 	last_step_ticks = ticks;
 	steps = 0;
+	network_frame_count = 0;
+	sync_steps = 0;
 	step_mode = PAUSE_FLAG;
 
 DBG_MESSAGE("karte_t::laden()","savegame loading at tick count %i",ticks);
