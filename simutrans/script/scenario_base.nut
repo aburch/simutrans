@@ -44,6 +44,7 @@ scenario.forbidden_tools.append( tool_switch_player )
  */
 function is_tool_allowed(pl, tool_id, wt)
 {
+	if (pl == 1) return true
 	return scenario.forbidden_tools.find( tool_id ) ? false : true
 }
 
