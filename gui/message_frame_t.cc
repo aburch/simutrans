@@ -9,6 +9,7 @@
 #include "../simworld.h"
 #include "../simmenu.h"
 
+#include "../dataobj/scenario.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/umgebung.h"
 #include "message_frame_t.h"
@@ -21,14 +22,14 @@
 #include "components/action_listener.h"
 
 
-#define MAX_MESG_TABS (7)
+#define MAX_MESG_TABS (8)
 
 karte_t *message_frame_t::welt = NULL;
 
-static sint32 categories[MAX_MESG_TABS+1] =
+static sint32 categories[MAX_MESG_TABS] =
 {
-	-1,
 	(1 << message_t::chat),
+	(1 << message_t::scenario),
 	(1 << message_t::problems),
 	(1 << message_t::traffic_jams) | (1 << message_t::warnings),
 	(1 << message_t::full),
@@ -40,6 +41,7 @@ static sint32 categories[MAX_MESG_TABS+1] =
 static const char *tab_strings[]=
 {
 	"Chat_msg",
+	"Scenario_msg",
 	"Problems_msg",
 	"Warnings_msg",
 	"Station_msg",
@@ -63,8 +65,19 @@ message_frame_t::message_frame_t(karte_t *welt) :
 	// Knightly : add tabs for classifying messages
 	tabs.set_pos( koord(0, D_BUTTON_HEIGHT) );
 	tabs.add_tab( &scrolly, translator::translate("All") );
-	for(  int i=umgebung_t::networkmode ? 0 : 1;  i<MAX_MESG_TABS;  ++i  ) {
+	tab_categories.append( -1 );
+
+	if (umgebung_t::networkmode) {
+		tabs.add_tab( &scrolly, translator::translate(tab_strings[0]) );
+		tab_categories.append( categories[0] );
+	}
+	if (welt->get_scenario()->is_scripted()) {
+		tabs.add_tab( &scrolly, translator::translate(tab_strings[1]) );
+		tab_categories.append( categories[1] );
+	}
+	for(  int i=2;  i<MAX_MESG_TABS;  ++i  ) {
 		tabs.add_tab( &scrolly, translator::translate(tab_strings[i]) );
+		tab_categories.append( categories[i] );
 	}
 	tabs.add_listener(this);
 	add_komponente(&tabs);
@@ -123,7 +136,7 @@ bool message_frame_t::action_triggered( gui_action_creator_t *komp, value_t v )
 	}
 	else if(  komp==&tabs  ) {
 		// Knightly : filter messages by type where necessary
-		if(  stats.filter_messages( categories[umgebung_t::networkmode ? v.i : (v.i==0 ? 0 : v.i+1)] )  ) {
+		if(  stats.filter_messages( tab_categories[v.i] )  ) {
 			scrolly.set_scroll_position(0, 0);
 		}
 	}

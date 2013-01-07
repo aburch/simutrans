@@ -30,6 +30,7 @@ void register_export_function(HSQUIRRELVM vm, karte_t *welt_)
 	export_convoy(vm);
 	export_factory(vm);
 	export_goods_desc(vm);
+	export_gui(vm);
 	export_halt(vm);
 	export_player(vm);
 	export_scenario(vm);

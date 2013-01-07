@@ -36,6 +36,7 @@ private:
 	gui_textinput_t input;
 	button_t option_bt, send_bt;
 	static karte_t *welt;
+	vector_tpl<sint32> tab_categories;
 
 public:
 	message_frame_t(karte_t * welt);

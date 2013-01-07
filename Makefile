@@ -347,6 +347,7 @@ SOURCES += script/api/api_city.cc
 SOURCES += script/api/api_const.cc
 SOURCES += script/api/api_convoy.cc
 SOURCES += script/api/api_goods_desc.cc
+SOURCES += script/api/api_gui.cc
 SOURCES += script/api/api_factory.cc
 SOURCES += script/api/api_halt.cc
 SOURCES += script/api/api_player.cc

@@ -58,6 +58,8 @@ BEGIN {
 	export_types["factory_production_x::get_produced"] = "array<integer>()"
 	export_types["good_desc_x::get_catg_index"] = "integer()"
 	export_types["obj_desc_x::get_name"] = "string()"
+	export_types["::add_message_at"] = "void(string, coord)"
+	export_types["::add_message"] = "void(string)"
 	export_types["halt_x::get_arrived"] = "array<integer>()"
 	export_types["halt_x::get_departed"] = "array<integer>()"
 	export_types["halt_x::get_waiting"] = "array<integer>()"
