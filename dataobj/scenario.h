@@ -357,6 +357,12 @@ public:
 	void allow_way_tool_cube(uint8 player_nr, uint16 wkz_id, waytype_t wt, koord3d pos_nw, koord3d pos_se);
 
 	/**
+	 * Clears all rules.
+	 * @ingroup squirrel-api
+	 */
+	void clear_rules();
+
+	/**
 	 * Checks if player can use this tool at all.
 	 * Called for instance in karte_t::local_set_werkzeug to change active tool or when filling toolbars.
 	 * @return true if player can use this tool.

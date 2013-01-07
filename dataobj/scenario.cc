@@ -401,6 +401,12 @@ void scenario_t::allow_way_tool_cube(uint8 player_nr, uint16 wkz_id, waytype_t w
 }
 
 
+void scenario_t::clear_rules()
+{
+	clear_ptr_vector(forbidden_tools);
+}
+
+
 bool scenario_t::is_tool_allowed(spieler_t* sp, uint16 wkz_id, sint16 wt)
 {
 	if (what_scenario != SCRIPTED  &&  what_scenario != SCRIPTED_NETWORK) {

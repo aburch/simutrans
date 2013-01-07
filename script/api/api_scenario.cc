@@ -139,5 +139,13 @@ void export_scenario(HSQUIRRELVM vm)
 	 */
 	STATIC register_method(vm, &scenario_t::allow_way_tool_cube,  "allow_way_tool_cube");
 
+	/**
+	 * Clear all forbidding rules, effectively allowing all tools again that were forbidden using functions of the table @ref rules.
+	 *
+	 * Only effects tools forbidden by rules::forbid_tool, rules::forbid_way_tool, rules::forbid_way_tool_cube, rules::forbid_way_tool_rect.
+	 * The result of ::is_tool_allowed and ::is_work_allowed_here is not influenced.
+	 */
+	STATIC register_method(vm, &scenario_t::clear_rules,  "clear");
+
 	end_class();
 }

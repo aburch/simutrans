@@ -355,8 +355,16 @@ namespace script_api {
 	};
 	template<class C>
 	struct embed_call_t<void (C::*)()> {
-		static std::string get_typemask(bool) { return param<const C*>::typemask(); }
-		static uint16 get_nparams()           { return 1; }
+		static SQInteger call_function(HSQUIRRELVM vm, void (C::*func)(), bool)
+		{
+			if (C* instance = param<C*>::get(vm, 1)) {
+				(instance->*func)();
+				return 0;
+			}
+			else {
+				return -1;
+			}
+		}
 
 		typedef void_t    sig_return;  // return type
 		typedef C*        sig_class;   // type of class
