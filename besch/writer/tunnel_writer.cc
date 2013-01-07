@@ -103,7 +103,7 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 
 	str = obj.get("way");
 	if (!str.empty()) {
-		xref_writer_t::instance()->write_obj(fp, node, obj_way, str.c_str(), true);
+		xref_writer_t::instance()->write_obj(fp, node, obj_way, str.c_str(), false);
 		node.write_sint8(fp, 1, 20);
 	}
 	else {
