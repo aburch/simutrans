@@ -33,8 +33,9 @@
 
 #include "../gui/karte.h"	// to update map after construction of new industry
 
-// radius for checking places for construction
-#define DISTANCE 40
+
+
+static int DISTANCE = 40;
 
 
 // all factories and their exclusion areas
@@ -46,7 +47,7 @@ static sint32 fab_map_w=0;
 static void add_factory_to_fab_map(karte_t const* const welt, fabrik_t const* const fab)
 {
 	koord3d      const& pos     = fab->get_pos();
-	sint16       const  spacing = welt->get_settings().get_factory_spacing();
+	sint16       const  spacing = welt->get_settings().get_min_factory_spacing();
 	haus_besch_t const& hbesch  = *fab->get_besch()->get_haus();
 	sint16       const  rotate  = fab->get_rotate();
 	sint16       const  start_y = max(0, pos.y - spacing);
@@ -72,6 +73,12 @@ void init_fab_map( karte_t *welt )
 	}
 	FOR(slist_tpl<fabrik_t*>, const f, welt->get_fab_list()) {
 		add_factory_to_fab_map(welt, f);
+	}
+	if(  welt->get_settings().get_max_factory_spacing_percent()  ) {
+		DISTANCE = (welt->get_groesse_max() * welt->get_settings().get_max_factory_spacing_percent()) / 100l;
+	}
+	else {
+		DISTANCE = welt->get_settings().get_max_factory_spacing();
 	}
 }
 

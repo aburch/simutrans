@@ -164,7 +164,13 @@ beginner_price_factor = 1500
 #industry_increase_every = 2000
 
 # smallest distance between two adjacent factories
-factory_spacing = 6
+min_factory_spacing = 6
+
+# max distance for connected factories
+# if percentage>0, it will be in percent of the largest map dimension
+# percentage also overrides the absolute value
+max_factory_spacing_percentage = 25
+#max_factory_spacing = 40
 
 # allow all possible supplier to connect to your factories?
 # best to leave it in default position. (only on for simuTTD)
