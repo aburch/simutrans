@@ -508,6 +508,10 @@ const char* scenario_t::get_error_text()
 void scenario_t::step()
 {
 	if (!script) {
+		// update texts at clients if info window open
+		if (umgebung_t::networkmode  &&  !umgebung_t::server  &&  win_get_magic(magic_scenario_info)) {
+			update_scenario_texts();
+		}
 		return;
 	}
 
