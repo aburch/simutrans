@@ -30,6 +30,8 @@ void export_scenario(HSQUIRRELVM vm)
 	 * -# scenario-name/filename
 	 *
 	 * Here, iso refers to iso-abbreviation of currently active language.
+	 *
+	 * The content of the files is cached. The cache is cleared upon reloading of savegame.
 	 * @param file name of txt-file
 	 * @return content of loaded file
 	 */

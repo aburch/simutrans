@@ -8,16 +8,12 @@
 #include "../simmem.h"
 #include "../simmenu.h"
 
-#include "../dataobj/tabfile.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/umgebung.h"
 #include "../dataobj/network.h"
 #include "../dataobj/network_cmd_scenario.h"
 
-#include "../vehicle/simvehikel.h"
-
-#include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
 
 // error popup
@@ -29,9 +25,14 @@
 #include "../script/export_objs.h"
 #include "../script/api/api.h"
 
+#include "../tpl/plainstringhashtable_tpl.h"
+
 #include "scenario.h"
 
 #include <stdarg.h>
+
+// cache the scenario text files
+static plainstringhashtable_tpl<plainstring> cached_text_files;
 
 
 scenario_t::scenario_t(karte_t *w) :
@@ -50,6 +51,8 @@ scenario_t::scenario_t(karte_t *w) :
 	won = false;
 	lost = false;
 	rdwr_error = false;
+
+	cached_text_files.clear();
 }
 
 
@@ -59,6 +62,7 @@ scenario_t::~scenario_t()
 		delete script;
 	}
 	clear_ptr_vector(forbidden_tools);
+	cached_text_files.clear();
 }
 
 
@@ -104,6 +108,7 @@ const char* scenario_t::init( const char *scenario_base, const char *scenario_na
 
 	// load translations
 	translator::load_files_from_folder( scenario_path.c_str(), "scenario" );
+	cached_text_files.clear();
 
 	what_scenario = SCRIPTED;
 	rotation = 0;
@@ -593,7 +598,15 @@ plainstring scenario_t::load_language_file(const char* filename)
 {
 	std::string path = scenario_path.c_str();
 	// try user language
-	FILE* file = fopen((path + translator::get_lang()->iso + "/" + filename).c_str(), "rb");
+	std::string wanted_file = path + translator::get_lang()->iso + "/" + filename;
+
+	const plainstring& cached = cached_text_files.get(wanted_file.c_str());
+	if (cached != NULL) {
+		// file already cached
+		return cached;
+	}
+	// not cached: try to read file
+	FILE* file = fopen(wanted_file.c_str(), "rb");
 	if (file == NULL) {
 		// try English
 		file = fopen((path + "en/" + filename).c_str(), "rb");
@@ -617,6 +630,8 @@ plainstring scenario_t::load_language_file(const char* filename)
 		}
 		fclose(file);
 	}
+	// store text to cache
+	cached_text_files.put(wanted_file.c_str(), text);
 
 	return text;
 }
