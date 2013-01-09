@@ -68,9 +68,11 @@ a = (Fm - Frs - cf * v^2) / m
 #include "tpl/vector_tpl.h"
 #include "besch/vehikel_besch.h"
 #include "simtypes.h"
-#include "vehicle/simvehikel.h"
-#include "simconvoi.h"
+//#include "vehicle/simvehikel.h"
+//#include "simconvoi.h"
 #include "simworld.h"
+
+class vehikel_t;
 
 //// CF_*: constants related to air resistance
 //
@@ -109,6 +111,7 @@ struct vehicle_summary_t
 	uint32 tiles;           // length of convoy in tiles.
 	sint32 weight;			// sum of vehicles' own weight without load in kg
 	sint32 max_speed;		// minimum of all vehicles' maximum speed in km/h
+	sint32 max_sim_speed;	// minimum of all vehicles' maximum speed in simutrans speed
 
 	inline void clear()
 	{
@@ -130,6 +133,7 @@ struct vehicle_summary_t
 	{
 		// this correction corresponds to the correction in convoi_t::get_tile_length()
 		tiles = (length + (max(8, length_of_last_vehicle) - length_of_last_vehicle) + OBJECT_OFFSET_STEPS - 1) / OBJECT_OFFSET_STEPS;
+		max_sim_speed = kmh_to_speed(max_speed);
 	}
 };
 
@@ -201,12 +205,7 @@ struct weight_summary_t
 	 */
 	void add_weight(sint32 kgs, sint32 sin_alpha);
 
-	inline void add_vehicle(const vehikel_t &v)
-	{
-		// v.get_frictionfactor() between about -14 (downhill) and 50 (uphill). 
-		// Including the factor 1000 for tons to kg conversion, 50 corresponds to an inclination of 28 per mille.
-		add_weight(v.get_gesamtgewicht(), v.get_frictionfactor());
-	}
+	void add_vehicle(const vehikel_t &v);
 };
 
 /******************************************************************************/
@@ -516,7 +515,8 @@ public:
 		validate_adverse_summary();
 		convoy_t::calc_move(settings, delta_t, weight, akt_speed_soll, next_speed_limit, steps_til_limit, steps_til_break, akt_speed, sp_soll, akt_v);
 	}
-	virtual ~lazy_convoy_t(){}
+
+	//virtual ~lazy_convoy_t(){}
 };
 
 /******************************************************************************/

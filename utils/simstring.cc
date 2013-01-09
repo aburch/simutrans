@@ -101,7 +101,7 @@ void money_to_string(char * p, double f)
 	char   tmp[128];
 	char   *tp = tmp;
 	int    i,l;
-	bool   is_large = abs(f)>1000.0*large_number_factor;
+	bool   is_large = fabs(f)>1000.0*large_number_factor;
 
 	if(  is_large  ) {
 		sprintf( tp, "%.1f", f/large_number_factor );

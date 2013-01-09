@@ -174,6 +174,13 @@ void weight_summary_t::add_weight(sint32 kgs, sint32 sin_alpha)
 	}
 }
 
+void weight_summary_t::add_vehicle(const vehikel_t &v)
+{
+	// v.get_frictionfactor() between about -14 (downhill) and 50 (uphill). 
+	// Including the factor 1000 for tons to kg conversion, 50 corresponds to an inclination of 28 per mille.
+	add_weight(v.get_gesamtgewicht(), v.get_frictionfactor());
+}
+
 /******************************************************************************/
 
 sint32 convoy_t::calc_max_speed(const weight_summary_t &weight) 
@@ -301,7 +308,7 @@ void convoy_t::calc_move(const settings_t &settings, long delta_t, const weight_
 		const float32e8_t vlim = speed_to_v(next_speed_limit); // vlim in m/s, next_speed_limit in simutrans vehicle speed.
 		const float32e8_t xlim = settings.steps_to_meters(steps_til_limit); // xbrk in m, steps_til_limit in simutrans steps
 		const float32e8_t xbrk = settings.steps_to_meters(steps_til_brake); // xbrk in m, steps_til_brake in simutrans steps
-		float32e8_t vsoll = min(speed_to_v(akt_speed_soll), kmh2ms * min(adverse.max_speed, vehicle.max_speed)); // vsoll in m/s, akt_speed_soll in simutrans vehicle speed.
+		float32e8_t vsoll = min(speed_to_v(akt_speed_soll), kmh2ms * min(adverse.max_speed, get_vehicle_summary().max_speed)); // vsoll in m/s, akt_speed_soll in simutrans vehicle speed.
 		float32e8_t fvsoll = 0; // force in N needed to hold vsoll. calculated when needed.
 		float32e8_t speed_ratio = 0; // requested speed / convoy's max speed. calculated when needed.
 		float32e8_t dx = 0; // covered distance in m
