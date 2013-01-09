@@ -27,7 +27,7 @@
 /**
  * static data
  *
- * This classes are self-registering. The linker will not notify if there is a missing class, since it
+ * These classes are self-registering. The linker will not notify if there is a missing class, since it
  * may be also instantiated in the class itself. Therefore, all classes MUST be declared here to force
  * the linking and raise an error if we lack any of them.
  */
