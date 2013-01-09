@@ -65,7 +65,7 @@ void log_t::important(const char* format, ...)
 	va_start( argptr, format );
 
 	// Print to stdout for important messages
-	if (  log != stdout  ) {
+	if (  log != stderr  ) {
 		vfprintf( stdout, format, argptr );
 		fprintf( stdout, "\n" );
 		if (  force_flush  ) { fflush( stdout ); }
