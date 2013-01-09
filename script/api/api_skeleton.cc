@@ -32,20 +32,20 @@ register_function("get_about_text");
 /**
  * Text shown in the 'Rules' tab in the scenario info window.
  *
- * Text can contain several html-like tag:
- * - p, hr ... line break
- * - h1, em, i, st ... text between start and end tag will be colored. It's a matter of taste, of course.
- * - a ... insert hyper link
- *       - link to another tab of window: href="tabname", where tabname is one of: info, goal, rules, result, about
+ * Text can contain several html-like tags:
+ * - \<p\>, \<br\>: line break
+ * - \<h1\>, \<em\>, \<it\>, \<st\>: text between start and end tag will be colored. It's a matter of taste, of course.
+ * - \<a href="..."\>: insert hyper link, text between start and end tag will be colored blue.
+ *       - link to another tab of scenario info window: href="tabname", where tabname is one of: info, goal, rules, result, about
  *       - link to position on the map: href="(x,y)", click on link will jump to the map position
  *
  * @code
  * <h1>Here is an example.</h1>
- *
+ * <br>
  * Do not build anything at the position <a href='(47,11)'>near Cologne</a>.
- * The mayor of <a href='(8,15)'>Berlin</a> seems to frustrated with your airport building capabilities.
- *
- * Your results can be found in <a href='result'>results</a> tab.
+ * The mayor of <a href='(8,15)'>Berlin</a> seems to be frustrated with your airport building capabilities.
+ * <br>
+ * Your results can be found in the <a href='result'>results</a> tab.
  * @endcode
  *
  * @param pl player number of active player

@@ -9,6 +9,7 @@
  * - Added player_x::book_cash
  * - Added settings::get_traffic_level, settings::set_traffic_level, tool_set_traffic_level
  * - Added gui::add_message, gui::add_message_at
+ * - Added: hyperlinks to scenario window tabs and map positions are accepted in scenario info window
  *
  *
  * @section api-112-1 Releases 112.0 and 112.1

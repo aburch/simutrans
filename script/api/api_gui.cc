@@ -36,7 +36,8 @@ void export_gui(HSQUIRRELVM vm)
 	 * Message window has small view of world.
 	 *
 	 * @param text Text to be shown. Has to be a translated string or a translatable string.
-	 * @param position Position of the view on the map. Clicking on the message will center viewport at this position.	 *
+	 * @param position Position of the view on the map. Clicking on the message will center viewport at this position.
+	 * @warning Message only shown on server, but stored in savegame.
 	 */
 	STATIC register_method(vm, &add_scenario_message_at, "add_message_at");
 
@@ -45,6 +46,7 @@ void export_gui(HSQUIRRELVM vm)
 	 * Will be shown in ticker or as pop-up window depending on players preferences.
 	 *
 	 * @param text Text to be shown. Has to be a translated string or a translatable string.
+	 * @warning Message only shown on server, but stored in savegame.
 	 */
 	STATIC register_method_fv(vm, &add_scenario_message_at, "add_message", freevariable<koord>(koord::invalid) );
 
