@@ -390,7 +390,7 @@ Function DownloadInstallAddonZip
 #  DetailPrint "Download of $downloadname from\n$downloadlink to $archievename"
   Call ConnectInternet
   RMdir /r "$TEMP\simutrans"
-  NSISdl::download $downloadlink "$Temp\$archievename"
+  NSISdl::download $downloadlink "$TEMP\$archievename"
   Pop $R0 ;Get the return value
   StrCmp $R0 "success" +3
      MessageBox MB_OK "Download of $archievename failed: $R0"
@@ -410,7 +410,6 @@ FunctionEnd
 
 ; $downloadlink is then name of the link, $downloadname the name of the pak for error messages
 Function DownloadInstallZipWithoutSimutrans
-#  DetailPrint "Download of $downloadname from\n$downloadlink to $archievename"
   Call IsPakInstalledAndCurrent
   IntCmp $R0 2 DownloadInstallZipWithoutSimutransSkip
   IntCmp $R0 0 DownloadInstallZipWithoutSimutransDo
@@ -420,6 +419,7 @@ Function DownloadInstallZipWithoutSimutrans
   DetailPrint "Old $downloadname renamed to $downloadname.old"
 DownloadInstallZipWithoutSimutransDo:
   ; ok, now install
+  DetailPrint "Download of $downloadname from\n$downloadlink to $archievename"
   Call ConnectInternet
   RMdir /r "$TEMP\simutrans"
   CreateDirectory "$TEMP\simutrans"
@@ -427,7 +427,7 @@ DownloadInstallZipWithoutSimutransDo:
 #  inetc::get $downloadlink "$Temp\$archievename"
 #  Pop $R0 ;Get the return value
 #  StrCmp $R0 "OK" +3
-  NSISdl::download $downloadlink "$Temp\$archievename"
+  NSISdl::download $downloadlink "$TEMP\$archievename"
   Pop $R0 ;Get the return value
   StrCmp $R0 "success" +3
      MessageBox MB_OK "Download of $archievename failed: $R0"
@@ -450,29 +450,39 @@ FunctionEnd
 
 
 Function DownloadInstallCabWithoutSimutrans
-  DetailPrint "Download of $downloadname from\n$downloadlink to $archievename"
+  DetailPrint "Download of $downloadname from $downloadlink to $archievename"
+  Call IsPakInstalledAndCurrent
+  IntCmp $R0 2 DownloadInstallCabWithoutSimutransSkip
+  IntCmp $R0 0 DownloadInstallCabWithoutSimutransDo
+  SetOutPath $INSTDIR
+  RMdir /r "$downloadname.old"
+  Rename "$downloadname" "$downloadname.old"
+  DetailPrint "Old $downloadname renamed to $downloadname.old"
+DownloadInstallCabWithoutSimutransDo:
+  ; ok, needs update
   Call ConnectInternet
-  RMdir /r "$TEMP\simutrans"
   NSISdl::download $downloadlink "$Temp\$archievename"
   Pop $R0 ;Get the return value
-  StrCmp $R0 "success" +3
+  StrCmp $R0 "success" +4
+    DetailPrint "$R0" ;print error message to log
      MessageBox MB_OK "Download of $archievename failed: $R0"
      Quit
 
   CabDLL::CabView "$TEMP\$archievename"
-  DetailPrint "Download of $archievename to $TEMP"
-  CabDLL::CabExtractAll "$TEMP\$archievename" "$TEMP\Simutrans"
-  StrCmp $R0 "success" +4
+  DetailPrint "Install of $archievename to $INSTDIR"
+  CreateDirectory "$INSTDIR\$downloadname"
+  CreateDirectory "$INSTDIR\$downloadname\config"
+  CreateDirectory "$INSTDIR\$downloadname\sound"
+  CreateDirectory "$INSTDIR\$downloadname\text"
+  CabDLL::CabExtractAll "$TEMP\$archievename" "$INSTDIR"
+  StrCmp $R0 "0" +5
     DetailPrint "$0" ;print error message to log
     RMdir /r "$TEMP\simutrans"
+    Delete "$Temp\$archievename"
     Quit
 
-  CreateDirectory "$INSTDIR"
-  ; remove all old files before!
-  RMdir /r "$INSTDIR\$downloadname"
-  CopyFiles /silent "$TEMP\Simutrans\*.*" "$INSTDIR"
-  RMdir /r "$TEMP\Simutrans"
   Delete "$Temp\$archievename"
+DownloadInstallCabWithoutSimutransSkip:
 FunctionEnd
 
 
