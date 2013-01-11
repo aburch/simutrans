@@ -117,23 +117,30 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 		if(ware.get_besch()==warenbauer_t::nichts  ||  ware.menge==0) {
 			continue;
 		}
-//DBG_MESSAGE("freight_list_sorter_t::get_freight_info()","for halt %i",pos);
 		wlist[pos] = ware;
 		// for the sorting via the number for the next stop we unify entries
 		if (sort_mode == by_via_sum) {
-//DBG_MESSAGE("freight_list_sorter_t::get_freight_info()","for halt %i check connection",pos);
 			// only add it, if there is not another thing waiting with the same via but another destination
 			for( int i=0;  i<pos;  i++ ) {
 				ware_t& wi = wlist[i];
-				if(  wi.get_index()==ware.get_index()  &&  wi.get_zwischenziel()==ware.get_zwischenziel()  &&
-					( wi.get_ziel()==wi.get_zwischenziel() )==( ware.get_ziel()==ware.get_zwischenziel() )    ) {
-					wi.menge += ware.menge;
-					--pos;
-					break;
+				if(  wi.get_index()==ware.get_index()  &&  wi.get_zwischenziel()==ware.get_zwischenziel()  ) {
+					if (wi.get_zwischenziel().is_bound()) {
+						if(  (  wi.get_ziel()==wi.get_zwischenziel() )==( ware.get_ziel()==ware.get_zwischenziel() ) ) {
+							wi.menge += ware.menge;
+							--pos;
+							break;
+						}
+					}
+					else {
+						if(  wi.get_ziel()==ware.get_ziel() ) {
+							wi.menge += ware.menge;
+							--pos;
+							break;
+						}
+					}
 				}
 			}
 		}
-//DBG_MESSAGE("freight_list_sorter_t::get_freight_info()","for halt %i added",pos);
 		pos++;
 	}
 
