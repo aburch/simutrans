@@ -1,4 +1,5 @@
 	ADD: maximum radius of factories of a chain configurable
+	FIX: use more colors to show height levels in minimap
 
 Release of 112.1: (r6212 on 23-Dec-2012):
 	ADD: transparent chat window in networkmode

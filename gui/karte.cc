@@ -49,12 +49,18 @@ reliefkarte_t::MAP_MODES reliefkarte_t::mode = MAP_TOWN;
 reliefkarte_t::MAP_MODES reliefkarte_t::last_mode = MAP_TOWN;
 bool reliefkarte_t::is_visible = false;
 
+#define MAX_MAP_TYPE_LAND 31
+#define MAX_MAP_TYPE_WATER 5
 
 // color for the land
-const uint8 reliefkarte_t::map_type_color[MAX_MAP_TYPE_WATER+MAX_MAP_TYPE_LAND] =
+static const uint8 map_type_color[MAX_MAP_TYPE_WATER+MAX_MAP_TYPE_LAND] =
 {
 	97, 99, 19, 21, 23,
-	160, 161, 162, 163, 164, 165, 166, 167, 205, 206, 207, 173, 175, 214
+	160, 161, 162, 163, 164, 165, 166, 167,
+	205, 206, 207, 172, 174,
+	159, 158, 157, 156, /* 155 monorail */ 154,
+	115, 114, 113, 112,
+	216, 217, 218, 219, 220, 221, 222, 223, 224
 };
 
 const uint8 reliefkarte_t::severity_color[MAX_SEVERITY_COLORS] =
@@ -608,7 +614,7 @@ void reliefkarte_t::set_relief_farbe_area(koord k, int areasize, uint8 color)
  */
 uint8 reliefkarte_t::calc_hoehe_farbe(const sint16 hoehe, const sint16 grundwasser)
 {
-	return map_type_color[clamp( (hoehe-grundwasser)+MAX_MAP_TYPE_WATER-1, 0, MAX_MAP_TYPE_WATER+MAX_MAP_TYPE_LAND )];
+	return map_type_color[clamp( (hoehe-grundwasser)+MAX_MAP_TYPE_WATER-1, 0, MAX_MAP_TYPE_WATER+MAX_MAP_TYPE_LAND-1 )];
 }
 
 
