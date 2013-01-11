@@ -190,8 +190,7 @@ static halthandle_t suche_nahe_haltestelle(spieler_t *sp, karte_t *welt, koord3d
 	if(  const planquadrat_t *plan = welt->lookup(pos.get_2d())  ) {
 		halthandle_t halt = plan->get_halt();
 		if(  halt.is_bound()  ) {
-			return sp==halt->get_besitzer()  ||  halt->get_besitzer()->get_player_nr() ==1
-				? halt : halthandle_t();
+			return (sp==halt->get_besitzer()  ||  halt->get_besitzer()->get_player_nr()==1) ? halt : halthandle_t();
 		}
 	}
 
@@ -3268,17 +3267,17 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.
 	}
 	hausbauer_t::baue(welt, halt->get_besitzer(), bau_pos, layout, besch, &halt);
 	sint64 costs = welt->get_settings().cst_multiply_dock * besch->get_level();
-	if(sp!=halt->get_besitzer()) {
+	if(  sp!=halt->get_besitzer()  ) {
 		// public stops are expensive!
 		costs -= (welt->get_settings().maint_building * besch->get_level() * 60);
 	}
-	for(int i=0;  i<=len;  i++ ) {
+	for(  int i=0;  i<=len;  i++  ) {
 		koord p=pos-dx*i;
 		sp->buche( costs, p, COST_CONSTRUCTION);
 	}
 
 	halt->recalc_station_type();
-	if(umgebung_t::station_coverage_show  &&  welt->get_zeiger()->get_pos().get_2d()==pos) {
+	if(  umgebung_t::station_coverage_show  &&  welt->get_zeiger()->get_pos().get_2d()==pos  ) {
 		// since we are larger now ...
 		halt->mark_unmark_coverage( true );
 	}
@@ -3484,12 +3483,12 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 	sint64 old_cost = old_level * cost;
 	cost *= besch->get_level()*besch->get_b()*besch->get_h();
 	cost -= old_cost/2;
-	if(sp!=halt->get_besitzer()) {
+	if(  sp!=halt->get_besitzer()  ) {
 		// public stops are expensive!
 		cost -= (welt->get_settings().maint_building * besch->get_level() * besch->get_b() * besch->get_h() * 60);
 	}
 	sp->buche( cost, pos, COST_CONSTRUCTION);
-	if(umgebung_t::station_coverage_show  &&  welt->get_zeiger()->get_pos().get_2d()==pos) {
+	if(  umgebung_t::station_coverage_show  &&  welt->get_zeiger()->get_pos().get_2d()==pos  ) {
 		// since we are larger now ...
 		halt->mark_unmark_coverage( true );
 	}
