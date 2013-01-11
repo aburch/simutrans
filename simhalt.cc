@@ -1324,7 +1324,9 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 				// count the connected transfer halts (including end halt)
 				uint8 t = current_node.halt->is_transfer(ware_catg_idx);
 				FOR(vector_tpl<connection_t>, const& i, current_node.halt->connections[ware_catg_idx]) {
-					if (t > 1) break;
+					if (t > 1) {
+						break;
+					}
 					t += i.halt.is_bound() && i.halt->is_transfer(ware_catg_idx);
 				}
 				return_ware->set_zwischenziel(  t<=1  ?  current_halt_data.transfer  : halthandle_t());
@@ -1752,11 +1754,11 @@ void haltestelle_t::hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp
 	// this allows for separate high speed and normal service
 	vector_tpl<ware_t> *warray = waren[wtyp->get_catg_index()];
 
-	if (warray && !warray->empty()) {
+	if(  warray  &&  !warray->empty()  ) {
 		// da wir schon an der aktuellem haltestelle halten
 		// startet die schleife ab 1, d.h. dem naechsten halt
 		const uint8 count = fpl->get_count();
-		for(  uint8 i=1; i<count; i++  ) {
+		for(  uint8 i=1;  i<count;  i++  ) {
 			const uint8 wrap_i = (i + fpl->get_aktuell()) % count;
 
 			const halthandle_t plan_halt = haltestelle_t::get_halt(welt, fpl->eintrag[wrap_i].pos, sp);
@@ -1764,7 +1766,15 @@ void haltestelle_t::hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp
 				// we will come later here again ...
 				break;
 			}
-			else if(  plan_halt.is_bound()  ) {
+			else if(  !plan_halt.is_bound()  ) {
+				if(  grund_t *gr = welt->lookup( fpl->eintrag[wrap_i].pos )  ) {
+					if(  gr->get_depot()  ) {
+						// do not load for stops after a depot
+						break;
+					}
+				}
+			}
+			else {
 
 				// The random offset will ensure that all goods have an equal chance to be loaded.
 				sint32 offset = simrand(warray->get_count());
