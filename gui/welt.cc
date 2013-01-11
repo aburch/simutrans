@@ -310,16 +310,19 @@ void welt_gui_t::update_densities()
 {
 	if(  city_density!=0.0  ) {
 		inp_number_of_towns.set_value( max( 1, (sint32)(0.5+sqrt((double)sets->get_groesse_x()*sets->get_groesse_y())/city_density) ) );
+		sets->set_anzahl_staedte( inp_number_of_towns.get_value() );
 	}
 	if(  industry_density!=0.0  ) {
 		inp_other_industries.set_value( max( 1, (sint32)(0.5+sqrt((double)sets->get_groesse_x()*sets->get_groesse_y())/industry_density) ) );
+		sets->set_factory_count( inp_other_industries.get_value() );
 	}
 	if(  attraction_density!=0.0  ) {
 		inp_tourist_attractions.set_value( max( 1, (sint32)(0.5+sqrt((double)sets->get_groesse_x()*sets->get_groesse_y())/attraction_density) ) );
+		sets->set_tourist_attractions( inp_tourist_attractions.get_value() );
 	}
 	if(  river_density!=0.0  ) {
+		sets->river_number = max( 1, (sint32)(0.5+sqrt((double)sets->get_groesse_x()*sets->get_groesse_y())/river_density) );
 		if(  climate_gui_t *climate_gui = (climate_gui_t *)win_get_magic( magic_climate )  ) {
-			sets->river_number = max( 1, (sint32)(0.5+sqrt((double)sets->get_groesse_x()*sets->get_groesse_y())/river_density) );
 			climate_gui->update_river_number( sets->get_river_number() );
 		}
 	}
