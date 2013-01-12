@@ -5035,6 +5035,8 @@ DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
 	season = (2+letzter_monat/3)&3; // summer always zero
 	next_month_ticks = 	( (ticks >> karte_t::ticks_per_world_month_shift) + 1 ) << karte_t::ticks_per_world_month_shift;
 	last_step_ticks = ticks;
+	network_frame_count = 0;
+	sync_steps = 0;
 	steps = 0;
 	step_mode = PAUSE_FLAG;
 
