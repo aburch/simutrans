@@ -266,7 +266,7 @@ bool nwc_auth_player_t::execute(karte_t *welt)
 
 			// player activated for this client?
 			socket_info_t &info = socket_list_t::get_client(our_client_id);
-			if (info.is_player_unlocked(player_nr)) {
+			if (info.is_player_unlocked(player_nr)  ||  info.is_player_unlocked(1)  ||  info.state == socket_info_t::admin) {
 				dbg->message("nwc_auth_player_t::execute","set pwd for plnr = %d", player_nr);
 
 				// change password
