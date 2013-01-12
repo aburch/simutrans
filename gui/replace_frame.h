@@ -83,7 +83,7 @@ private:
 	// Some helper functions
 	void update_total_height(uint32 height);
 	void update_total_width(uint32 width);
-	void replace_convoy(convoihandle_t cnv, bool mark);
+	bool replace_convoy(convoihandle_t cnv, bool mark);
 	inline void start_replacing() {state=state_replace; replaced_so_far=0;}
 	uint8 get_present_state();
 

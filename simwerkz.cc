@@ -6102,18 +6102,24 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 		case 'R': // Add new replace
 		{
 			replace_data_t* rpl = new replace_data_t();
-			rpl->sscanf_replace(p);
-			cnv->set_replace(rpl);
-			cnv->set_depot_when_empty(rpl->get_autostart());
-			cnv->set_no_load(cnv->get_depot_when_empty());
-			// If already empty, no need to be emptied
-			if(cnv->get_replace() && cnv->get_depot_when_empty() && cnv->has_no_cargo()) 
+			if(rpl->sscanf_replace(p))
 			{
-				cnv->set_depot_when_empty(false);
-				cnv->set_no_load(false);
-				cnv->go_to_depot(false, rpl->get_use_home_depot());
+				// If the above method returns false, the replace creating has not worked,
+				// possibly because the data are corrupted. The replace ought not be set
+				// in this case.
+
+				cnv->set_replace(rpl);
+				cnv->set_depot_when_empty(rpl->get_autostart());
+				cnv->set_no_load(cnv->get_depot_when_empty());
+				// If already empty, no need to be emptied
+				if(cnv->get_replace() && cnv->get_depot_when_empty() && cnv->has_no_cargo()) 
+				{
+					cnv->set_depot_when_empty(false);
+					cnv->set_no_load(false);
+					cnv->go_to_depot(false, rpl->get_use_home_depot());
+				}
+				break;
 			}
-			break;
 		}
 
 		case 'P': // Go to depot
