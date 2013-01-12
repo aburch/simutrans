@@ -547,7 +547,8 @@ DBG_MESSAGE("wkz_remover()", "bound=%i",halt.is_bound());
 	if (gr->is_halt()  &&  halt.is_bound()  &&  fabrik_t::get_fab(welt,pos.get_2d())==NULL) {
 		// halt and not a factory (oil rig etc.)
 		const spieler_t* owner = halt->get_besitzer();
-		if(  spieler_t::check_owner( owner, sp )  ) {
+		if(spieler_t::check_owner( owner, sp ) || sp->get_player_nr() == 1) 
+		{
 			return haltestelle_t::remove(welt, sp, gr->get_pos(), msg);
 		}
 	}
