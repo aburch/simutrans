@@ -394,12 +394,12 @@ uint8 replace_frame_t::get_present_state() {
 	}
 
 
-void replace_frame_t::replace_convoy(convoihandle_t cnv_rpl, bool mark)
+bool replace_frame_t::replace_convoy(convoihandle_t cnv_rpl, bool mark)
 {
 	uint8 state=get_present_state();
 	if (!cnv_rpl.is_bound() || cnv_rpl->in_depot() || state==(uint8)(-1)) 
 	{
-		return;
+		return false;
 	}
 
 	switch (state) 
@@ -452,6 +452,7 @@ void replace_frame_t::replace_convoy(convoihandle_t cnv_rpl, bool mark)
 	}
 
 	replaced_so_far++;
+	return true;
 }
 
 bool replace_frame_t::action_triggered( gui_action_creator_t *komp,value_t /*p*/)
@@ -506,17 +507,21 @@ bool replace_frame_t::action_triggered( gui_action_creator_t *komp,value_t /*p*/
 				linehandle_t line = cnv.is_bound() ? cnv->get_line() : linehandle_t();
 				if (line.is_bound()) 
 				{
+					bool first_success = false;
 					for (uint32 i = 0; i < line->count_convoys(); i++) 
 					{
 						convoihandle_t cnv_aux = line->get_convoy(i);
 						if (cnv->has_same_vehicles(cnv_aux))
 						{
-							replace_convoy(cnv_aux, komp == &bt_mark);
+							first_success = replace_convoy(cnv_aux, komp == &bt_mark);
 							if(copy == false)
 							{
 								master_convoy = cnv_aux;
 							}
-							copy = true;
+							if(first_success)
+							{
+								copy = true;
+							}
 						}
 					}
 				}
@@ -528,17 +533,21 @@ bool replace_frame_t::action_triggered( gui_action_creator_t *komp,value_t /*p*/
 			else if (replace_all) 
 			{
 				karte_t *welt=cnv->get_welt();
+				bool first_success = false;
 				for (uint32 i=0; i<welt->convoys().get_count(); i++) 
 				{
 					convoihandle_t cnv_aux=welt->convoys()[i];
 					if (cnv_aux.is_bound() && cnv_aux->get_besitzer()==cnv->get_besitzer() && cnv->has_same_vehicles(cnv_aux)) 
 					{
-						replace_convoy(cnv_aux, komp == &bt_mark);
+						first_success = replace_convoy(cnv_aux, komp == &bt_mark);
 						if(copy == false)
 						{
 							master_convoy = cnv_aux;
 						}
-						copy = true;
+						if(first_success)
+						{
+							copy = true;
+						}
 					}
 				}
 			}

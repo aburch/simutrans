@@ -4376,13 +4376,15 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	const ware_besch_t* goods = ware.get_besch();
 	const sint64 starting_distance = ware.get_origin().is_bound() ? (sint64)shortest_distance(ware.get_origin()->get_basis_pos(), fahr[0]->get_pos().get_2d()) - (sint64)revenue_distance : 0ll;
 	const sint64 base_fare = goods->get_fare(revenue_distance, (starting_distance > 0 ? (uint32)starting_distance : 0));
-	const sint64 min_fare = base_fare / 10ll;
+	const sint64 min_fare = (base_fare * 1000ll) / 4ll;
+	const sint64 max_fare = base_fare * 4000ll;
 	const uint16 speed_bonus_rating = calc_adjusted_speed_bonus(goods->get_speed_bonus(), distance);
 	const sint64 ref_speed = welt->get_average_speed( fahr[0]->get_besch()->get_waytype() );
 	const sint64 speed_base = (100ll * average_speed) / ref_speed - 100ll;
 	const sint64 base_bonus = (base_fare * (1000ll + speed_base * speed_bonus_rating));
 	const sint64 min_revenue = max(min_fare, base_bonus);
-	const sint64 revenue = min_revenue * (sint64)ware.menge;
+	const sint64 max_revenue = min(max_fare, min_revenue);
+	const sint64 revenue = max_revenue * (sint64)ware.menge;
 	sint64 final_revenue = revenue;
 
 	const uint16 happy_percentage = ware.get_last_transfer().is_bound() ? ware.get_last_transfer()->get_unhappy_percentage(1) : 100;
@@ -4734,7 +4736,7 @@ uint16 convoi_t::calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance, k
 		return 0;
 	}
 
-	const uint16 global_multiplier =welt->get_settings().get_speed_bonus_multiplier_percent();
+	const uint16 global_multiplier = welt->get_settings().get_speed_bonus_multiplier_percent();
 	const uint16 max_distance = w != NULL ? w->get_settings().get_max_bonus_min_distance() : 16;
 	const uint16 multiplier = w != NULL ? w->get_settings().get_max_bonus_multiplier_percent() : 30;
 	
@@ -4829,6 +4831,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	bool second_run = false;
 	uint8 convoy_length = 0;
 	uint16 changed_loading_level = 0;
+	const uint16 TEST_cnv_id = self.get_id();
 	const koord old_last_stop_pos = fahr[0]->last_stop_pos;
 	for(int i = 0; i < anz_vehikel ; i++) 
 	{

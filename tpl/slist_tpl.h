@@ -253,7 +253,9 @@ public:
 		else {
 			head = other.head;
 		}
-		tail = other.tail;
+		if (other.tail) {
+			tail = other.tail;
+		}
 		node_count += other.node_count;
 
 		// empty other list

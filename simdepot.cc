@@ -163,7 +163,6 @@ void depot_t::convoi_arrived(convoihandle_t acnv, bool fpl_adjust)
 				fpl->set_aktuell( i );
 				fpl->remove();
 				acnv->set_schedule(fpl);
-				break;
 			}
 		}
 	}

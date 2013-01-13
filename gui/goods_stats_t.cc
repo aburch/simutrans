@@ -70,11 +70,13 @@ void goods_stats_t::zeichnen(koord offset)
 		// Modified by jamespetts 18 Apr. 2009
 
 		const sint64 base_fare = wtyp->get_fare(distance);
-		const sint64 min_fare = base_fare / 10ll;
+		const sint64 min_fare = (base_fare * 1000ll) / 4ll;
+		const sint64 max_fare = base_fare * 4000ll;
 		const sint64 speed_bonus_rating = (sint64)convoi_t::calc_adjusted_speed_bonus(wtyp->get_speed_bonus(), distance, welt);
-		const sint64 base_bonus = base_fare * (1000ll + ((sint64)bonus - 100ll) * speed_bonus_rating);
-		const sint64 revenue = max(min_fare, base_bonus);
+		const sint64 base_bonus = base_fare * (1000ll + (((sint64)bonus - 100ll) * speed_bonus_rating));
+		const sint64 revenue = min(max_fare, max(min_fare, base_bonus));
 		sint64 price = revenue;
+
 
 		//const uint16 journey_minutes = ((float)distance / (((float)welt->get_average_speed(way_type) * bonus) / 100)) *welt->get_settings().get_meters_per_tile() * 6;
 		const uint16 divider = (welt->get_average_speed(way_type) * bonus) / 100;
@@ -236,7 +238,7 @@ void goods_stats_t::zeichnen(koord offset)
 			}
 		}
 	
-		money_to_string( money_buf, price/300000.0 );
+		money_to_string( money_buf, (double)price/300000.0 );
 		buf.clear();
 		buf.printf(money_buf);
 		display_proportional_clip(offset.x + 170, yoff, buf, 	ALIGN_RIGHT, 	COL_BLACK, true);
