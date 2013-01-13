@@ -1690,7 +1690,7 @@ const char *wkz_transformer_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 	// underground: first build tunnel tile	at coordinate k
 	if(underground) {
 		if(gr->ist_wasser()) {
-			return "Transformer only next to factory!";
+			return "Cannot build transformer in water.";
 		}
 
 		if(welt->lookup(k)) {
@@ -1724,15 +1724,21 @@ const char *wkz_transformer_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 	// transformer will be build on tile pointed to by gr
 
 	// build source or drain depending on factory type
-	if(fab->get_besch()->is_electricity_producer()) {
+	leitung_t* check = NULL;
+	if(fab != NULL && fab->get_besch()->is_electricity_producer()) {
 		pumpe_t *p = new pumpe_t(welt, gr->get_pos(), sp);
 		gr->obj_add( p );
 		p->laden_abschliessen();
+		check = (leitung_t*)p;
 	}
 	else {
 		senke_t *s = new senke_t(welt, gr->get_pos(), sp, city);
 		gr->obj_add(s);
 		s->laden_abschliessen();
+		check = (leitung_t*)s;
+	}
+	if (fab != NULL) {
+		fab->set_transformer_connected( check );
 	}
 
 	return NULL;	// ok
