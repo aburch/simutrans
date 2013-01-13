@@ -1045,7 +1045,10 @@ void karte_t::distribute_groundobjs_cities( settings_t const * const sets, sint1
 
 printf("Creating cities ...\n");
 DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities sizes");
-	vector_tpl<sint32> city_population(new_anzahl_staedte);
+
+const uint32 city_population_target_count = stadt.empty() ? new_anzahl_staedte : new_anzahl_staedte + stadt.get_count() + 1;
+
+vector_tpl<sint32> city_population(city_population_target_count);
 	double median_population = sets->get_mittlere_einwohnerzahl();
 
 	// Generate random sizes to fit a Pareto distribution: P(x) = x_m / x^2 dx.
@@ -1055,7 +1058,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities sizes");
 	// We can generate a Pareto deviate from a uniform deviate on range [0,1)
 	// by taking m_x/u where u is the uniform deviate.
 
-	while (city_population.get_count() < new_anzahl_staedte) {
+	while (city_population.get_count() < city_population_target_count) {
 		uint32 population;
 		do {
 			uint32 rand;
@@ -1071,7 +1074,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities sizes");
 	}
 
 #ifdef DEBUG
-	for (unsigned i =0; i< new_anzahl_staedte; i++) 
+	for (unsigned i =0; i< city_population_target_count; i++) 
 	{
 		DBG_DEBUG("karte_t::distribute_groundobjs_cities()", "City rank %d -- %d", i, city_population[i]);
 	}	
@@ -1136,7 +1139,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 				// Hajo: do final init after world was loaded/created
 				stadt[i]->laden_abschliessen();
 
-				const uint32 citizens = city_population.get_count() < i ? city_population[i] : city_population.get_element(simrand(city_population.get_count() - 1, "void karte_t::distribute_groundobjs_cities"));
+				const uint32 citizens = city_population.get_count() > i ? city_population[i] : city_population.get_element(simrand(city_population.get_count() - 1, "void karte_t::distribute_groundobjs_cities"));
 
 				sint32 diff = (original_start_year-game_start)/2;
 				sint32 growth = 32;
@@ -5413,6 +5416,8 @@ DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
 	season = (2+letzter_monat/3)&3; // summer always zero
 	next_month_ticks = 	( (ticks >> karte_t::ticks_per_world_month_shift) + 1 ) << karte_t::ticks_per_world_month_shift;
 	last_step_ticks = ticks;
+	network_frame_count = 0;
+	sync_steps = 0;
 	steps = 0;
 	step_mode = PAUSE_FLAG;
 
