@@ -645,7 +645,7 @@ fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
 		besch = NULL; // to get rid of this broken factory later...
 	}
 	else {
-		baue(rotate, false);
+		baue(rotate, false, false);
 		// now get rid of construction image
 		for(  sint16 y=0;  y<besch->get_haus()->get_h(rotate);  y++  ) {
 			for(  sint16 x=0;  x<besch->get_haus()->get_b(rotate);  x++  ) {
@@ -755,7 +755,7 @@ fabrik_t::~fabrik_t()
 }
 
 
-void fabrik_t::baue(sint32 rotate, bool build_fields)
+void fabrik_t::baue(sint32 rotate, bool build_fields, bool force_initial_prodbase)
 {
 	this->rotate = rotate;
 	pos_origin = welt->lookup_kartenboden(pos_origin.get_2d())->get_pos();
@@ -795,7 +795,9 @@ void fabrik_t::baue(sint32 rotate, bool build_fields)
 			}
 			sint32 field_prod = prodbase - org_prodbase;
 			// adjust prodbase
-			set_base_production( max(field_prod, org_prodbase) );
+			if (force_initial_prodbase) {
+				set_base_production( max(field_prod, org_prodbase) );
+			}
 		}
 	}
 }
