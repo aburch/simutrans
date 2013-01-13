@@ -7,6 +7,7 @@
 
 #include "../../simmesg.h"
 #include "../../simworld.h"
+#include "../../dataobj/scenario.h"
 #include "../../player/simplay.h"
 
 using namespace script_api;
@@ -29,6 +30,11 @@ void export_gui(HSQUIRRELVM vm)
 	 * Table with methods to access gui functions.
 	 */
 	begin_class("gui", 0);
+
+	/**
+	 * Opens scenario info window.
+	 */
+	STATIC register_method(vm, &scenario_t::open_info_win, "open_info_win");
 
 	/**
 	 * Adds message to the players mailboxes.
