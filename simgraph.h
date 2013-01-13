@@ -110,6 +110,7 @@ int get_maus_x(void);
 int get_maus_y(void);
 
 void mark_rect_dirty_wc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2);
+void mark_screen_dirty();
 
 KOORD_VAL display_get_width(void);
 KOORD_VAL display_get_height(void);
@@ -269,9 +270,6 @@ void display_set_clip_wh(KOORD_VAL x, KOORD_VAL y, KOORD_VAL w, KOORD_VAL h);
 clip_dimension display_get_clip_wh();
 
 void display_snapshot( int x, int y, int w, int h );
-
-void display_set_progress_text(const char *text);
-void display_progress(int part, int total);
 
 #if COLOUR_DEPTH != 0
 extern COLOR_VAL display_day_lights[  LIGHT_COUNT * 3];

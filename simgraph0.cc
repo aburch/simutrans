@@ -183,6 +183,10 @@ void display_blend_wh(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, int, int )
 {
 }
 
+void mark_screen_dirty()
+{
+}
+
 void display_mark_img_dirty(unsigned, KOORD_VAL, KOORD_VAL)
 {
 }

@@ -394,6 +394,7 @@ SOURCES += simintr.cc
 SOURCES += simio.cc
 SOURCES += simline.cc
 SOURCES += simlinemgmt.cc
+SOURCES += simloadingscreen.cc
 SOURCES += simmain.cc
 SOURCES += simmem.cc
 SOURCES += simmenu.cc

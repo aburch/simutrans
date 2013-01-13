@@ -1081,6 +1081,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\simloadingscreen.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\simtools.cc"
 				>
 			</File>
@@ -2320,6 +2324,10 @@
 			</File>
 			<File
 				RelativePath=".\simticker.h"
+				>
+			</File>
+			<File
+				RelativePath=".\simloadingscreen.h"
 				>
 			</File>
 			<File

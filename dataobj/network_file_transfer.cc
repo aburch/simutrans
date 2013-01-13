@@ -1,5 +1,6 @@
 #include "network_file_transfer.h"
 #include "../simdebug.h"
+#include "../simloadingscreen.h"
 
 #include <string.h>
 #include <errno.h>
@@ -23,9 +24,9 @@ char const* network_receive_file(SOCKET const s, char const* const save_as, long
 	DBG_MESSAGE("network_receive_file", "File size %li", length );
 
 #ifndef NETTOOL // no display, no translator available
-	if(is_display_init()  &&  length>0) {
-		display_set_progress_text(translator::translate("Transferring game ..."));
-		display_progress(0, length);
+	if(length>0) {
+		loadingscreen::set_label(translator::translate("Transferring game ..."));
+		loadingscreen::set_progress(0, length);
 	}
 #endif
 
@@ -39,7 +40,7 @@ char const* network_receive_file(SOCKET const s, char const* const save_as, long
 				fwrite(rbuf, 1, i, f);
 				length_read += i;
 #ifndef NETTOOL
-				display_progress(length_read, length);
+				loadingscreen::set_progress(length_read, length);
 #endif
 			}
 			else {
@@ -109,6 +110,7 @@ const char *network_gameinfo(const char *cp, gameinfo_t *gi)
 		char filename[1024];
 		sprintf( filename, "client%i-network.sve", nwgi->len );
 		err = network_receive_file( my_client_socket, filename, len );
+		loadingscreen::hide();
 
 		// now into gameinfo
 		loadsave_t fd;
@@ -236,9 +238,9 @@ const char *network_send_file( uint32 client_id, const char *filename )
 	}
 
 	// good place to show a progress bar
-	if(is_display_init()  &&  length>0) {
-		display_set_progress_text(translator::translate("Transferring game ..."));
-		display_progress(0, length);
+	if(length>0) {
+		loadingscreen::set_label(translator::translate("Transferring game ..."));
+		loadingscreen::set_progress(0, length);
 	}
 
 	while(  !feof(fp)  ) {
@@ -249,13 +251,16 @@ const char *network_send_file( uint32 client_id, const char *filename )
 			goto error;
 		}
 		bytes_sent += bytes_read;
-		display_progress(bytes_sent, length);
+		loadingscreen::set_progress(bytes_sent, length);
 	}
+
+	loadingscreen::hide();
 
 	// ok, new client has savegame
 	fclose(fp);
 	return NULL;
 error:
+	loadingscreen::hide();
 	// an error occured: close file
 	fclose(fp);
 	return "Client closed connection during transfer";
