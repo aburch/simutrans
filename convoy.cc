@@ -257,8 +257,8 @@ sint32 convoy_t::calc_max_starting_weight(sint32 sin_alpha)
 // The timeslice to calculate acceleration, speed and covered distance in reasonable small chuncks. 
 #define DT_SLICE_SECONDS 2
 #define DT_SLICE (DT_TIME_FACTOR * DT_SLICE_SECONDS)
-static const float32e8_t fl_time_factor(DT_TIME_FACTOR, 1); 
-static const float32e8_t fl_time_divisor(1, DT_TIME_FACTOR); 
+//static const float32e8_t fl_time_factor(DT_TIME_FACTOR, 1);
+//static const float32e8_t fl_time_divisor(1, DT_TIME_FACTOR);
 static const float32e8_t fl_slice_seconds(DT_SLICE_SECONDS, 1);
 static const float32e8_t fl_max_seconds_til_vsoll(1800);
 
@@ -487,7 +487,7 @@ void potential_convoy_t::update_freight_summary(freight_summary_t &freight)
 	}
 }
 
-float32e8_t potential_convoy_t::get_brake_summary(/*const float32e8_t &speed /* in m/s */)
+float32e8_t potential_convoy_t::get_brake_summary(/*const float32e8_t &speed*/ /* in m/s */)
 {
 	float32e8_t force = 0;
 	for (uint32 i = vehicles.get_count(); i-- > 0; )
@@ -599,7 +599,7 @@ void existing_convoy_t::update_weight_summary(weight_summary_t &weight)
 }
 
 
-float32e8_t existing_convoy_t::get_brake_summary(/*const float32e8_t &speed /* in m/s */)
+float32e8_t existing_convoy_t::get_brake_summary(/*const float32e8_t &speed*/ /* in m/s */)
 {
 	float32e8_t force = 0;
 	for (uint16 i = convoy.get_vehikel_anzahl(); i-- > 0; )

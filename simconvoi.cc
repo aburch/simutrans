@@ -6620,7 +6620,7 @@ void convoi_t::update_weight_summary(weight_summary_t &weight)
 }
 
 
-float32e8_t convoi_t::get_brake_summary(/*const float32e8_t &speed /* in m/s */)
+float32e8_t convoi_t::get_brake_summary(/*const float32e8_t &speed*/ /* in m/s */)
 {
 	float32e8_t force = 0;
 	for (uint16 i = get_vehikel_anzahl(); i-- > 0; )

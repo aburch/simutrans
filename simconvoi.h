@@ -198,7 +198,7 @@ protected:
 	virtual void update_adverse_summary(adverse_summary_t &adverse);
 	virtual void update_freight_summary(freight_summary_t &freight);
 	virtual void update_weight_summary(weight_summary_t &weight);
-	virtual float32e8_t get_brake_summary(/*const float32e8_t &speed /* in m/s */);
+	virtual float32e8_t get_brake_summary(/*const float32e8_t &speed*/ /* in m/s */);
 	virtual float32e8_t get_force_summary(const float32e8_t &speed /* in m/s */);
 	virtual float32e8_t get_power_summary(const float32e8_t &speed /* in m/s */);
 public:
