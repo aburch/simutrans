@@ -50,7 +50,7 @@ void gui_tab_panel_t::set_groesse(koord gr)
 		i.component->set_groesse(get_groesse() - koord(0, HEADER_VSIZE));
 	}
 
-	if(  required_groesse.x>gr.x  ) {
+	if(  required_groesse.x>gr.x  ||  offset_tab > 0) {
 		left.set_pos( koord( 2, 5 ) );
 		right.set_pos( koord( gr.x-10, 5 ) );
 	}
@@ -136,7 +136,7 @@ void gui_tab_panel_t::zeichnen(koord parent_pos)
 	int xpos = parent_pos.x + pos.x;
 	const int ypos = parent_pos.y + pos.y;
 
-	if(  required_groesse.x>groesse.x  ) {
+	if(  required_groesse.x>groesse.x  ||  offset_tab > 0) {
 		left.zeichnen( parent_pos+pos );
 		right.zeichnen( parent_pos+pos );
 		display_fillbox_wh_clip(xpos, ypos+HEADER_VSIZE-1, 10, 1, COL_WHITE, true);
