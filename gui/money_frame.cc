@@ -431,7 +431,7 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	// warning/success messages
 	if(sp->get_player_nr()!=1  &&  sp->get_welt()->get_scenario()->active()) {
 		warn.set_color( COL_BLACK );
-		sint32 percent = sp->get_welt()->get_scenario()->completed( sp->get_player_nr() );
+		sint32 percent = sp->get_welt()->get_scenario()->get_completion(sp->get_player_nr());
 		if (percent >= 0) {
 			sprintf( str_buf[15], translator::translate("Scenario complete: %i%%"), percent );
 		}
