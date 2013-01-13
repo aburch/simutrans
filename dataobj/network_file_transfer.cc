@@ -7,7 +7,6 @@
 #include "../utils/cbuffer_t.h"
 
 #ifndef NETTOOL
-#include "../simgraph.h"
 #include "../dataobj/translator.h"
 #endif
 #include "../simversion.h"

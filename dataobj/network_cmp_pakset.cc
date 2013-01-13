@@ -4,7 +4,6 @@
 #include "network_socket_list.h"
 #include "translator.h"
 #include "umgebung.h"
-#include "../simgraph.h"
 #include "../utils/cbuffer_t.h"
 #include "../simloadingscreen.h"
 
@@ -233,7 +232,7 @@ void network_compare_pakset_with_server(const char* cp, std::string &msg)
 			}
 
 			// update progress bar
-			if(is_display_init()  &&  num_paks>0) {
+			if( num_paks > 0 ) {
 				loadingscreen::set_progress(progress, num_paks);
 			}
 			delete nwi;

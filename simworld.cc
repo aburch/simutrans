@@ -29,13 +29,13 @@
 #include "simintr.h"
 #include "simio.h"
 #include "simlinemgmt.h"
+#include "simloadingscreen.h"
 #include "simmenu.h"
 #include "simmesg.h"
 #include "simskin.h"
 #include "simsound.h"
 #include "simsys.h"
 #include "simticker.h"
-#include "simloadingscreen.h"
 #include "simtools.h"
 #include "simunits.h"
 #include "simversion.h"
@@ -4840,7 +4840,6 @@ void karte_t::laden(loadsave_t *file)
 
 	clear_random_mode(~LOAD_RANDOM);
 	set_random_mode(LOAD_RANDOM);
-
 	destroy();
 
 	loadingscreen::set_label(translator::translate("Loading map ..."));

@@ -6,7 +6,6 @@
 #include "../../simimg.h"
 #include "../../simsys.h"
 #include "../../simtypes.h"
-#include "../../simgraph.h"
 #include "../../simloadingscreen.h"
 
 #include "../skin_besch.h"	// just for the logo
