@@ -4849,7 +4849,6 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	bool second_run = false;
 	uint8 convoy_length = 0;
 	uint16 changed_loading_level = 0;
-	const uint16 TEST_cnv_id = self.get_id();
 	const koord old_last_stop_pos = fahr[0]->last_stop_pos;
 	for(int i = 0; i < anz_vehikel ; i++) 
 	{
