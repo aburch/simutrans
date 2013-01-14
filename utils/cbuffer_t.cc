@@ -182,6 +182,8 @@ static void get_format_mask(const char* format, char *typemask, int max_params, 
 				}
 				else {
 					// found valid format
+					if (pos >= max_params) 
+						error.printf("Too many parameters or illegal position %d not in supported range 0..%d.", pos, max_params - 1);
 					typemask[pos] = mask;
 					found++;
 				}
@@ -223,7 +225,7 @@ bool cbuffer_t::check_format_strings(const char* master, const char* translated)
 	}
 	static cbuffer_t buf;
 	buf.clear();
-	char master_tm[10], translated_tm[10];
+	char master_tm[32], translated_tm[32];
 	// read out master string
 	get_format_mask(master, master_tm, lengthof(master_tm), buf);
 	if (buf.len() > 0) {
