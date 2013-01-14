@@ -2635,6 +2635,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				if(!this)
 				{
 					// Probably superfluous, but best to be sure that this is really not a dud pointer.
+					dbg->error("void haltestelle_t::rdwr(loadsave_t *file)", "Handle to self not bound when saving a halt");
 					return;
 				}
 				if(self.get_rep() != this)
