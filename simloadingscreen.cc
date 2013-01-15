@@ -14,6 +14,8 @@
 #include "simgraph.h"
 #include "simevent.h"
 #include "dataobj/umgebung.h"
+#include "simticker.h"
+#include "tpl/slist_tpl.h"
 
 
 static bool hidden = true;
@@ -21,6 +23,7 @@ static const char *copyright = NULL;
 static const char *label = NULL;
 static unsigned int level;
 static unsigned int level_max;
+static slist_tpl<event_t *> queued_events;
 
 void loadingscreen::bootstrap()
 {
@@ -86,25 +89,33 @@ void loadingscreen::shadow_screen()
 
 void loadingscreen::handle_events()
 {
-	event_t ev;
+	event_t *ev = new event_t;
 
-	display_poll_event(&ev);
-	if(ev.ev_class==EVENT_SYSTEM) {
-		if (ev.ev_code==SYSTEM_RESIZE) {
+	display_poll_event(ev);
+	if(ev->ev_class==EVENT_SYSTEM) {
+		if (ev->ev_code==SYSTEM_RESIZE) {
 			// main window resized
-			simgraph_resize( ev.mx, ev.my );
+			simgraph_resize( ev->mx, ev->my );
 			dr_prepare_flush();
-			display_fillbox_wh( 0, 0, ev.mx, ev.my, COL_BLACK, true );
+			display_fillbox_wh( 0, 0, ev->mx, ev->my, COL_BLACK, true );
 			dr_flush();
 
 			//redraw loading screen
 
 			hidden=true;
 			set_progress(level, level_max);
-
 		}
-		else if (ev.ev_code == SYSTEM_QUIT) {
+		else if (ev->ev_code == SYSTEM_QUIT) {
 			umgebung_t::quit_simutrans = true;
+		}
+		delete ev;
+	}
+	else {
+		if ( ev->ev_class == EVENT_KEYBOARD ) {
+			queued_events.append(ev);
+		}
+		else {
+			delete ev;
 		}
 	}
 }
@@ -178,4 +189,6 @@ void loadingscreen::hide()
 	if (is_display_init()) {
 		mark_screen_dirty();
 	}
+	ticker::set_redraw_all(true);
+	queue_events(queued_events);
 }

@@ -729,9 +729,10 @@ int simu_main(int argc, char** argv)
 	// The loading screen needs to be initialized
 	loadingscreen::bootstrap();
 
+	show_pointer(1);
+
 	// if no object files given, we ask the user
 	if(  umgebung_t::objfilename.empty()  ) {
-		show_pointer(1);
 		ask_objfilename();
 		if(  umgebung_t::quit_simutrans  ) {
 			simgraph_exit();
@@ -754,7 +755,6 @@ int simu_main(int argc, char** argv)
 				return 0;
 			}
 		}
-		show_pointer(0);
 	}
 
 	// now find the pak specific tab file ...

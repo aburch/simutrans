@@ -12,6 +12,7 @@ static int cy = -1; // initialised to "nowhere"
 static int control_shift_state = 0;	// none pressed
 static event_t meta_event(EVENT_NONE);	// Knightly : for storing meta-events like double-clicks and triple-clicks
 static unsigned int last_meta_class = EVENT_NONE;
+static slist_tpl<event_t *> queued_events;
 
 int event_get_last_control_shift(void)
 {
@@ -220,12 +221,15 @@ static void fill_event(event_t* const ev)
 }
 
 
-/**
- * Holt ein Event ohne zu warten
- * @author Hj. Malthaner
- */
 void display_poll_event(event_t* const ev)
 {
+	if( !queued_events.empty() ) {
+		// We have a queued (injected programatically) event, return it.
+		event_t *elem = queued_events.remove_first();
+		*ev = *elem;
+		delete elem;
+		return ;
+	}
 	// Knightly : if there is any pending meta-event, consume it instead of fetching a new event from the system
 	if(  meta_event.ev_class!=EVENT_NONE  ) {
 		*ev = meta_event;
@@ -243,12 +247,15 @@ void display_poll_event(event_t* const ev)
 }
 
 
-/**
- * Holt ein Event mit warten
- * @author Hj. Malthaner
- */
 void display_get_event(event_t* const ev)
 {
+	if( !queued_events.empty() ) {
+		// We have a queued (injected programatically) event, return it.
+		event_t *elem = queued_events.remove_first();
+		*ev = *elem;
+		delete elem;
+		return ;
+	}
 	// Knightly : if there is any pending meta-event, consume it instead of fetching a new event from the system
 	if(  meta_event.ev_class!=EVENT_NONE  ) {
 		*ev = meta_event;
@@ -261,4 +268,9 @@ void display_get_event(event_t* const ev)
 		sys_event.type = SIM_NOEVENT;
 		sys_event.code = 0;
 	}
+}
+
+
+void queue_events(slist_tpl<event_t *> &events){
+	queued_events.append_list(events);
 }
