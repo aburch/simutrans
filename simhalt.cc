@@ -2727,20 +2727,51 @@ void haltestelle_t::rdwr(loadsave_t *file)
 	// BG, 07-MAR-2010: the number of good categories should be read from in the savegame, 
 	//  but currently it is not stored although goods and categories can be added by the user 
 	//  and thus do not depend on file version and therefore not predicatable by simutrans.
-	unsigned max_catg_count_game = warenbauer_t::get_max_catg_index();
-	unsigned max_catg_count_file = max_catg_count_game; 
+	
+	uint8 max_catg_count_game = warenbauer_t::get_max_catg_index();
+	uint8 max_catg_count_file;
+
+	if(file->is_saving() || file->get_experimental_version() <= 10)
+	{
+		max_catg_count_file = max_catg_count_game; 
+	}
+	
+	if(file->get_experimental_version() >= 11)
+	{
+		// Version 11 and above - the maximum category count is saved with the game.
+		file->rdwr_byte(max_catg_count_file);
+	}
 
 	const char *s;
 	init_pos = tiles.empty() ? koord::invalid : tiles.front().grund->get_pos().get_2d();
-	if(file->is_saving()) {
-		for(unsigned i=0; i<max_catg_count_file; i++) {
+	if(file->is_saving()) 
+	{
+		for(unsigned i=0; i<max_catg_count_file; i++) 
+		{
 			vector_tpl<ware_t> *warray = waren[i];
-			if(warray) {
+
+			if(warray) 
+			{
 				s = "y";	// needs to be non-empty
 				file->rdwr_str(s);
-				short count = warray->get_count();
-				file->rdwr_short(count);
-				FOR(vector_tpl<ware_t>, & ware, *warray) {
+				if(file->get_experimental_version() <= 10)
+				{
+					uint16 count = warray->get_count();
+					file->rdwr_short(count);
+				}
+				else
+				{
+					// Experimental version 11 and above - very large/busy halts might
+					// have a count > 65535, so use the proper uint32 value.
+					
+					// In previous versions, the use of "short" lead to corrupted saved
+					// games when the value was larger than 32,767.
+
+					uint32 count = warray->get_count();
+					file->rdwr_long(count);
+				}
+				FOR(vector_tpl<ware_t>, & ware, *warray) 
+				{
 					ware.rdwr(welt,file);
 				}
 			}
@@ -2771,10 +2802,20 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		// restoring all goods in the station
 		char s[256];
 		file->rdwr_str(s, lengthof(s));
+		uint32 count;
 		while(*s) 
 		{
-			short count;
-			file->rdwr_short(count);
+			if(file->get_experimental_version() >= 11)
+			{
+				file->rdwr_long(count);
+			}
+			else
+			{
+				// Older versions stored only 16-bit count values.
+				uint16 old_count = 0;
+				file->rdwr_short(old_count);
+				count = (uint32)old_count;
+			}
 			if(count > 0) 
 			{
 				for(int i = 0; i < count; i++) 
@@ -2884,7 +2925,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 
 	if(file->get_experimental_version() >= 2)
 	{
-		for(short i = 0; i < max_catg_count_file; i ++)
+		for(int i = 0; i < max_catg_count_file; i ++)
 		{
 			if(file->is_saving())
 			{
