@@ -43,6 +43,7 @@ private:
 	COLOR_VAL color;
 
 	const char * text;	// only for direct acess of non-translateable things. Do not use!
+	const char * tooltip;
 
 public:
 	gui_label_t(const char* text=NULL, COLOR_VAL color=COL_BLACK, align_t align=left);
@@ -56,16 +57,16 @@ public:
 	}
 
 	/**
-	 * setzt den Text des Labels
+	 * Sets the text to display, after translating it.
 	 * @author Hansjörg Malthaner
 	 */
 	void set_text(const char *text);
 
 	/**
-	 * set the text without translation
+	 * Sets the text without translation.
 	 * @author Hansjörg Malthaner
 	 */
-	void set_text_pointer(const char *text) { this->text = text; }
+	void set_text_pointer(const char *text);
 
 	/**
 	 * returns the pointer (i.e. for freeing untranslater contents)
@@ -74,7 +75,12 @@ public:
 	const char * get_text_pointer() { return text; }
 
 	/**
-	 * Zeichnet die Komponente
+	 * returns the tooltip pointer (i.e. for freeing untranslater contents)
+	 */
+	const char * get_tooltip_pointer() { return tooltip; }
+
+	/**
+	 * Draws the component.
 	 * @author Hj. Malthaner
 	 */
 	void zeichnen(koord offset);
@@ -90,8 +96,13 @@ public:
 	 * Sets the alignment of the label
 	 * @author Volker Meyer
 	 */
-
 	void set_align(align_t align) { this->align = align; }
+
+	/**
+	 * Sets the tooltip of this component.
+	 * @author Hj. Malthaner
+	 */
+	void set_tooltip(const char * t);
 };
 
 #endif

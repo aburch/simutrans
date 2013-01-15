@@ -272,6 +272,7 @@ void display_get_event(event_t* const ev)
 }
 
 
-void queue_events(slist_tpl<event_t *> &events){
+void queue_events(slist_tpl<event_t *> &events)
+{
 	queued_events.append_list(events);
 }

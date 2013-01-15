@@ -172,9 +172,17 @@ protected:
 	void set_filename(const char *fn);
 
 	/**
-	 * Translates '/' into '\', in Windows systems
+	 * Translates '/' into '\', in Windows systems, will capitalize the drive letter too.
 	 */
 	void cleanup_path(char *path);
+
+	/**
+	 * Outputs a shortened path removing characters in the middle of the input path, replacing them with "..."
+	 * @param dest output will be written here
+	 * @param orig input string
+	 * @param max_size the string will be truncated to this length
+	 */
+	void shorten_path(char *dest, const char *orig, const size_t max_size);
 
 	/**
 	 * extracts file name from a full path
