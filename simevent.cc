@@ -5,6 +5,7 @@
 
 #include "simevent.h"
 #include "simsys.h"
+#include "tpl/slist_tpl.h"
 
 
 static int cx = -1; // coordinates of last mouse click event

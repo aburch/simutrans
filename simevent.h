@@ -11,7 +11,7 @@
 #ifndef simevent_h
 #define simevent_h
 
-#include "tpl/slist_tpl.h"
+template<class T> class slist_tpl;
 
 /* Messageverarbeitung */
 
