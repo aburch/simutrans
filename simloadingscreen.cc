@@ -191,4 +191,5 @@ void loadingscreen::hide()
 	}
 	ticker::set_redraw_all(true);
 	queue_events(queued_events);
+	queued_events.clear();
 }
