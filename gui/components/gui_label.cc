@@ -89,12 +89,8 @@ void gui_label_t::zeichnen(koord offset)
 
 	if ( tooltip  &&  getroffen(get_maus_x()-offset.x, get_maus_y()-offset.y) ) {
 
-		const KOORD_VAL bx = offset.x + pos.x;
 		const KOORD_VAL by = offset.y + pos.y;
-
-		const KOORD_VAL bw = groesse.x;
 		const KOORD_VAL bh = groesse.y;
-
 
 		win_set_tooltip(get_maus_x() + 16, by + bh + 12, tooltip, this);
 	}
