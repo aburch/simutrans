@@ -6,12 +6,36 @@
 #include "../api_function.h"
 #include "../../dataobj/scenario.h"
 #include "../../dataobj/translator.h"
+#include "../../utils/simstring.h"
 
 using namespace script_api;
 
 #define begin_class(c,p) push_class(vm, c);
 #define end_class() sq_pop(vm,1);
 #define STATIC
+
+
+static char buf[40];
+
+static plainstring double_to_string(double f, sint32 decimals)
+{
+	number_to_string(buf, f, decimals);
+	return buf;
+}
+
+static plainstring integer_to_string(sint64 f)
+{
+	number_to_string(buf, f, 0);
+	return buf;
+}
+
+static plainstring money_to_string_intern(sint64 m)
+{
+	money_to_string(buf, m);
+	return buf;
+}
+
+
 
 void export_scenario(HSQUIRRELVM vm)
 {
@@ -22,6 +46,7 @@ void export_scenario(HSQUIRRELVM vm)
 	 */
 	// need to identify the correct overloaded function
 	register_method<const char* (*)(const char*)>(vm, &translator::translate, "translate");
+
 	/**
 	 * Helper method to load scenario-related translation files.
 	 * Tries to load files in the following order relative to pakxx/scenario:
@@ -36,6 +61,28 @@ void export_scenario(HSQUIRRELVM vm)
 	 * @return content of loaded file
 	 */
 	register_method(vm, &scenario_t::load_language_file, "load_language_file");
+
+	/**
+	 * Pretty-print floating point numbers, use language specific separator for powers of thousands.
+	 * @param value number to print
+	 * @param decimals how many decimals should be printed
+	 * @returns a nice string
+	 */
+	register_method(vm, &double_to_string, "double_to_string");
+
+	/**
+	 * Pretty-print integers, use language specific separator for powers of thousands.
+	 * @param value number to print
+	 * @returns a nice string
+	 */
+	register_method(vm, &integer_to_string, "integer_to_string");
+
+	/**
+	 * Pretty-print money values, use language specific separator for powers of thousands.
+	 * @param value number to print
+	 * @returns a nice string with trailing dollar-sign
+	 */
+	register_method(vm, &money_to_string_intern, "money_to_string");
 
 	/**
 	 * Table with methods to forbid and allow tools.
