@@ -3831,6 +3831,17 @@ void karte_t::step()
 	DBG_DEBUG4("karte_t::step", "step halts");
 	haltestelle_t::step_all();
 
+	// Re-check paths if the time has come. 
+	// Long months means that it might be necessary to do
+	// this more than once per month to get up to date
+	// routings for goods/passengers.
+	// Default: 8192 ~ 1h (game time) at 125m/tile.
+
+	if((steps % get_settings().get_reroute_check_interval_steps()) == 0)
+	{
+		path_explorer_t::refresh_all_categories(true);
+	}
+
 	// ok, next step
 	INT_CHECK("karte_t::step 6");
 

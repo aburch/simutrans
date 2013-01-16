@@ -138,6 +138,12 @@ way_leaving_road=25
 
 allow_routing_on_foot = 0
 
+# This setting determines how often that goods/passengers have their paths refreshed.
+# The number is in steps. The default, 8192, is equivalent to about 2 hours of in-game
+# time at 250m/tile, or 1 hour at 125m/tile. 
+
+reroute_check_interval_steps = 8192
+
 ################################ General gameplay settings ##############################
 # These settings are also pakset dependent
 

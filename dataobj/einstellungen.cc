@@ -448,6 +448,8 @@ settings_t::settings_t() :
 	max_city_size = 250000;
 
 	allow_making_public = true;
+
+	reroute_check_interval_steps = 8192;
 	
 	for(uint8 i = 0; i < 17; i ++)
 	{
@@ -1290,12 +1292,14 @@ void settings_t::rdwr(loadsave_t *file)
 		{
 			file->rdwr_longlong(private_car_toll_per_tile);
 			file->rdwr_bool(towns_adopt_player_roads);
+			file->rdwr_long(reroute_check_interval_steps);
 		}
 		else if(umgebung_t::networkmode)
 		{
 			// This is necessary to prevent desyncs.
 			private_car_toll_per_tile = 1;
 			towns_adopt_player_roads = true;
+			reroute_check_interval_steps = 8192;
 		}
 
 		if(file->get_version()>=111002 && file->get_experimental_version() == 0) 
@@ -1974,6 +1978,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	assume_everywhere_connected_by_road = (bool)(contents.get_int("assume_everywhere_connected_by_road", assume_everywhere_connected_by_road));
 
 	allow_making_public = (bool)(contents.get_int("allow_making_public", allow_making_public));
+	
+	reroute_check_interval_steps = contents.get_int("reroute_check_interval_steps", reroute_check_interval_steps);
 
 	for(uint8 i = road_wt; i <= air_wt; i ++)
 	{

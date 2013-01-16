@@ -281,6 +281,17 @@ private:
 	 */
 	bool towns_adopt_player_roads;
 
+	/**
+	 * This is the number of steps between each call
+	 * of the path explorer full refresh method. This
+	 * value determines how frequently that the pathing
+	 * information in the game is refreshed. 8192 ~
+	 * 2h in 250m/tile or ~ 1h in 125m/tile.
+	 * NOTE: This value will revert to the default
+	 * of 8192 on every save/load until major version 11.
+	 */
+	uint32 reroute_check_interval_steps;
+
 public:
 	//Cornering settings
 	//@author: jamespetts
@@ -951,6 +962,8 @@ public:
 	sint64 get_private_car_toll_per_tile() const { return private_car_toll_per_tile; }
 
 	bool get_towns_adopt_player_roads() const { return towns_adopt_player_roads; }
+
+	uint32 get_reroute_check_interval_steps() const { return reroute_check_interval_steps; }
 
 #ifndef NETTOOL
 	float32e8_t get_simtime_factor() const { return simtime_factor; }
