@@ -1,7 +1,6 @@
 # file used to generate doxygen documentation of squirrel API
 # needs to be copied to trunk/script/api
 BEGIN {
-	export_types["::open_info_win"] = "bool()"
 	export_types["city_x::get_name"] = "string()"
 	export_types["city_x::get_citizens"] = "array<integer>()"
 	export_types["city_x::get_growth"] = "array<integer>()"
@@ -58,6 +57,7 @@ BEGIN {
 	export_types["factory_production_x::get_produced"] = "array<integer>()"
 	export_types["good_desc_x::get_catg_index"] = "integer()"
 	export_types["obj_desc_x::get_name"] = "string()"
+	export_types["::open_info_win"] = "bool()"
 	export_types["::add_message_at"] = "void(string, coord)"
 	export_types["::add_message"] = "void(string)"
 	export_types["halt_x::get_arrived"] = "array<integer>()"
@@ -92,6 +92,9 @@ BEGIN {
 	export_types["player_x::book_cash"] = "void(integer)"
 	export_types["::translate"] = "string(string)"
 	export_types["::load_language_file"] = "string(string)"
+	export_types["::double_to_string"] = "string(float, integer)"
+	export_types["::integer_to_string"] = "string(integer)"
+	export_types["::money_to_string"] = "string(integer)"
 	export_types["::forbid_tool"] = "void(integer, integer)"
 	export_types["::allow_tool"] = "void(integer, integer)"
 	export_types["::forbid_way_tool"] = "void(integer, integer, way_types)"
