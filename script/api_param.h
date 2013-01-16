@@ -245,6 +245,8 @@ namespace script_api {
 	declare_specialized_param(sint64, "i", "integer");
 	declare_specialized_param(waytype_t, "i", "way_types");
 
+	declare_specialized_param(double, "f", "float");
+
 	// no string typemask, as we call to_string
 	declare_specialized_param(const char*, ".", "string");
 	declare_specialized_param(plainstring, ".", "string");

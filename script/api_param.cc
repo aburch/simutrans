@@ -125,6 +125,20 @@ namespace script_api {
 	{
 		return param<sint16>::push(vm, v);
 	}
+
+// floats
+	double param<double>::get(HSQUIRRELVM vm, SQInteger index)
+	{
+		SQFloat d;
+		sq_getfloat(vm, index, &d);
+		return d;
+	}
+	SQInteger param<double>::push(HSQUIRRELVM vm, double  const& v)
+	{
+		sq_pushfloat(vm, v);
+		return 1;
+	}
+
 // strings
 	const char* param<const char*>::get(HSQUIRRELVM vm, SQInteger index)
 	{
