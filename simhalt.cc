@@ -1571,15 +1571,15 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 #ifdef DEBUG_SIMRAND_CALLS
 				char buf[512];
 				sprintf(buf, "haltestelle_t::hole_ab halt \"%s\", ware \"%s\"", this->get_name(), wtyp->get_name());
-				sint32 offset = simrand(warray->get_count(), buf);
+				uint32 offset = simrand(warray->get_count(), buf);
 #else
-				sint32 offset = simrand(warray->get_count(), "haltestelle_t::hole_ab");
+				uint32 offset = simrand(warray->get_count(), "haltestelle_t::hole_ab");
 #endif
 
 				halthandle_t next_transfer;
 				uint8 catg_index;
 
-				for(uint16 i = 0;  i < warray->get_count();  i++) 
+				for(uint32 i = 0;  i < warray->get_count();  i++) 
 				{
 					ware_t &tmp = (*warray)[ i+offset ];
 					next_transfer = tmp.get_zwischenziel();
