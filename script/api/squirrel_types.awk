@@ -95,6 +95,7 @@ BEGIN {
 	export_types["::double_to_string"] = "string(float, integer)"
 	export_types["::integer_to_string"] = "string(integer)"
 	export_types["::money_to_string"] = "string(integer)"
+	export_types["::get_month_name"] = "string(integer)"
 	export_types["::forbid_tool"] = "void(integer, integer)"
 	export_types["::allow_tool"] = "void(integer, integer)"
 	export_types["::forbid_way_tool"] = "void(integer, integer, way_types)"

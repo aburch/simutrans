@@ -85,6 +85,13 @@ void export_scenario(HSQUIRRELVM vm)
 	register_method(vm, &money_to_string_intern, "money_to_string");
 
 	/**
+	 * Get name of given month.
+	 * @param month number between 0 (january) and 11 (december)
+	 * @returns month name in language of server
+	 */
+	register_method(vm, &translator::get_month_name, "get_month_name");
+
+	/**
 	 * Table with methods to forbid and allow tools.
 	 *
 	 * Tools that are set to forbidden using the forbid_* methods can be allowed
