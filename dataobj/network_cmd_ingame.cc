@@ -1036,8 +1036,16 @@ network_broadcast_world_command_t* nwc_tool_t::clone(karte_t *welt)
 				player_nr = 1;
 			default: ;
 		}
+		// scripts only run on server
+		if (socket_list_t::get_client_id(packet->get_sender()) != 0) {
+			// not sent by server, clear flag
+			flags &= ~werkzeug_t::WFL_SCRIPT;
+		}
+		// scripted calls do not need authentication check
+		bool const scripted_call = flags & werkzeug_t::WFL_SCRIPT;
+
 		socket_info_t const& info = socket_list_t::get_client(our_client_id);
-		if ( player_nr < PLAYER_UNOWNED  &&  !info.is_player_unlocked(player_nr) ) {
+		if ( !scripted_call  &&  player_nr < PLAYER_UNOWNED  &&  !info.is_player_unlocked(player_nr) ) {
 			if (wkz_id == (WKZ_ADD_MESSAGE_TOOL|SIMPLE_TOOL)) {
 				player_nr = PLAYER_UNOWNED;
 			}
@@ -1047,7 +1055,7 @@ network_broadcast_world_command_t* nwc_tool_t::clone(karte_t *welt)
 			}
 		}
 		// log that this client acted as this player
-		if (player_nr < PLAYER_UNOWNED) {
+		if ( !scripted_call  &&  player_nr < PLAYER_UNOWNED) {
 			connection_info_t *cinfo = new connection_info_t(info);
 			if(nwc_chg_player_t::company_active_clients[player_nr].insert_unique_ordered(cinfo, connection_info_t::compare) != NULL) {
 				delete cinfo; // entry exists already
@@ -1056,7 +1064,7 @@ network_broadcast_world_command_t* nwc_tool_t::clone(karte_t *welt)
 
 		// do scenario checks here, send error message back
 		scenario_t *scen = welt->get_scenario();
-		if ( scen->is_scripted() ) {
+		if ( !scripted_call  &&  scen->is_scripted() ) {
 			if (!scen->is_tool_allowed(welt->get_spieler(player_nr), wkz_id, wt)) {
 				dbg->warning("nwc_tool_t::clone", "wkz=%d  wt=%d tool not allowed", wkz_id, wt);
 				// TODO return error message ?

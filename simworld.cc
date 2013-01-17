@@ -2500,19 +2500,20 @@ void karte_t::set_werkzeug( werkzeug_t *w, spieler_t *sp )
 		dbg->warning("karte_t::set_werkzeug", "Ignored tool %i during loading.", w->get_id() );
 		return;
 	}
+	bool scripted_call = w->is_scripted();
 	// check for scenario conditions
-	if(  !scenario->is_tool_allowed(sp, w->get_id(), w->get_waytype())  ) {
+	if(  !scripted_call  &&  !scenario->is_tool_allowed(sp, w->get_id(), w->get_waytype())  ) {
 		return;
 	}
 	// check for password-protected players
-	if(  (!w->is_init_network_save()  ||  !w->is_work_network_save())  &&
+	if(  (!w->is_init_network_save()  ||  !w->is_work_network_save())  &&  !scripted_call  &&
 		 !(w->get_id()==(WKZ_SET_PLAYER_TOOL|SIMPLE_TOOL)  ||  w->get_id()==(WKZ_ADD_MESSAGE_TOOL|SIMPLE_TOOL))  &&
 		 sp  &&  sp->is_locked()  ) {
 		// player is currently password protected => request unlock first
 		create_win( -1, -1, new password_frame_t(sp), w_info, magic_pwd_t + sp->get_player_nr() );
 		return;
 	}
-	w->flags = event_get_last_control_shift();
+	w->flags |= event_get_last_control_shift();
 	if(!umgebung_t::networkmode  ||  w->is_init_network_save()  ) {
 		local_set_werkzeug(w, sp);
 	}

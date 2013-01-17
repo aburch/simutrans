@@ -185,15 +185,17 @@ public:
 	sint16 ok_sound;
 
 	enum {
-		WFL_SHIFT = 1,
-		WFL_CTRL  = 2,
-		WFL_LOCAL = 4
+		WFL_SHIFT  = 1, ///< shift-key was pressed when mouse-click happened
+		WFL_CTRL   = 2, ///< ctrl-key was pressed when mouse-click happened
+		WFL_LOCAL  = 4, ///< tool call was issued by local client
+		WFL_SCRIPT = 8  ///< tool call was issued by script (no password checks)
 	};
 	uint8 flags; // flags are set before init/work/move is called
 
-	bool is_ctrl_pressed() { return flags & WFL_CTRL; }
-	bool is_shift_pressed() { return flags & WFL_SHIFT; }
-	bool is_local_execution() { return flags & WFL_LOCAL; }
+	bool is_ctrl_pressed()    const { return flags & WFL_CTRL; }
+	bool is_shift_pressed()   const { return flags & WFL_SHIFT; }
+	bool is_local_execution() const { return flags & WFL_LOCAL; }
+	bool is_scripted()        const { return flags & WFL_SCRIPT; }
 
 	uint16 command_key;// key to toggle action for this function
 
