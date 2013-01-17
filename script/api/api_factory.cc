@@ -2,6 +2,7 @@
 
 /** @file api_factory.cc exports factory related functions. */
 
+#include "get_next.h"
 #include "../api_class.h"
 #include "../api_function.h"
 #include "../../dataobj/scenario.h"
@@ -81,11 +82,56 @@ vector_tpl<sint64> const& get_factory_production_stat(const ware_production_t *p
 	return v;
 }
 
+
+SQInteger world_get_next_factory(HSQUIRRELVM vm)
+{
+	return generic_get_next(vm, welt->get_fab_list().get_count());
+}
+
+
+SQInteger world_get_factory_by_index(HSQUIRRELVM vm)
+{
+	uint32 index = param<uint32>::get(vm, -1);
+	fabrik_t *fab = welt->get_fab(index);
+	koord pos(koord::invalid);
+	if (fab) {
+		pos = fab->get_pos().get_2d();
+		// transform coordinates
+		welt->get_scenario()->koord_w2sq(pos);
+	}
+	return push_instance(vm, "factory_x",  pos.x, pos.y);
+}
+
+
 #define begin_class(c,p) push_class(vm, c);
 #define end_class() sq_pop(vm,1);
 
 void export_factory(HSQUIRRELVM vm)
 {
+	/**
+	 * Implements iterator to iterate through the list of all factories on the map.
+	 *
+	 * Usage:
+	 * @code
+	 * local list = factory_list_x()
+	 * foreach(factory in list) {
+	 *     ... // factory is an instance of the factory_x class
+	 * }
+	 * @endcode
+	 */
+	begin_class("factory_list_x", 0);
+	/**
+	 * Meta-method to be used in foreach loops. Do not call them directly.
+	 */
+	register_function(vm, world_get_next_factory,     "_nexti",  2, "x o|i");
+	/**
+	 * Meta-method to be used in foreach loops. Do not call them directly.
+	 */
+	register_function(vm, world_get_factory_by_index, "_get",    2, "xi");
+
+	end_class();
+
+
 	/**
 	 * Class to access information about factories.
 	 * Identified by coordinate.
@@ -141,6 +187,12 @@ void export_factory(HSQUIRRELVM vm)
 	 * @returns array of coordinates of suppliers
 	 */
 	register_method(vm, &fabrik_t::get_suppliers, "get_suppliers");
+
+	/**
+	 * Get (untranslated) name of factory.
+	 * @returns name
+	 */
+	register_method(vm, &fabrik_t::get_name, "get_name");
 
 	/**
 	 * Get monthly statistics of production.

@@ -39,6 +39,7 @@ BEGIN {
 	export_types["convoy_x::get_traveled_distance"] = "array<integer>()"
 	export_types["factory_x::get_consumers"] = "array<coord>()"
 	export_types["factory_x::get_suppliers"] = "array<coord>()"
+	export_types["factory_x::get_name"] = "string()"
 	export_types["factory_x::get_production"] = "array<integer>()"
 	export_types["factory_x::get_power"] = "array<integer>()"
 	export_types["factory_x::get_boost_electric"] = "array<integer>()"

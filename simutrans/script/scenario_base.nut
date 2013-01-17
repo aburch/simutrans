@@ -331,6 +331,20 @@ class factory_production_x extends extend_get {
 }
 
 
+/**
+ * class to provide access to the game's list of all factories
+ */
+class factory_list_x {
+
+	/// meta-method to be called in a foreach loop
+	function _nexti(prev_index) {
+	}
+
+	/// meta method to retrieve factory by index in the global C++ array
+	function _get(index) {
+	}
+}
+
 
 /**
  * class that contains data to get access to an in-game player company
@@ -414,7 +428,7 @@ class convoy_x extends extend_get {
 
 
 /**
- * class to provide access to the game's list of all convoys
+ * class to provide access to the game's list of all cities
  */
 class city_list_x {
 

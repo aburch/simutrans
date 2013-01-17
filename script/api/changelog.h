@@ -11,6 +11,8 @@
  * - Added gui::add_message, gui::add_message_at
  * - Added hyperlinks to scenario window tabs and map positions are accepted in scenario info window
  * - Added ::double_to_string, ::integer_to_string, ::money_to_string, ::get_month_name
+ * - Added factory_list_x
+ * - Added factory_x::get_name
  *
  *
  * @section api-112-1 Releases 112.0 and 112.1
