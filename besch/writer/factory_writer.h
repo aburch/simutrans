@@ -112,7 +112,7 @@ class factory_upgrade_writer_t : public obj_writer_t
 	public:
 		static factory_upgrade_writer_t* instance() { return &the_instance; }
 
-		virtual obj_type get_type() const { return obj_factory; }
+		virtual obj_type get_type() const { return obj_fupgrade; }
 		virtual const char* get_type_name() const { return "factory upgrade"; }
 
 		void write_obj(FILE* outfp, obj_node_t& parent, const char* str);

@@ -35,6 +35,7 @@ enum obj_type
 	obj_fproduct    = C4ID('F','P','R','O'),
 	obj_fsmoke      = C4ID('F','S','M','O'),
 	obj_fsupplier   = C4ID('F','S','U','P'),
+	obj_fupgrade    = C4ID('F','U','P','G'),
 	obj_good        = C4ID('G','O','O','D'),
 	obj_ground      = C4ID('G','R','N','D'),
 	obj_groundobj   = C4ID('G','O','B','J'),
