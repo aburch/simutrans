@@ -2752,9 +2752,9 @@ void haltestelle_t::rdwr(loadsave_t *file)
 
 	const char *s;
 	init_pos = tiles.empty() ? koord::invalid : tiles.front().grund->get_pos().get_2d();
-	int ware_count = 0;
 	if(file->is_saving()) 
 	{
+		uint32 ware_count = 1;
 		for(unsigned i=0; i<max_catg_count_file; i++) 
 		{
 			vector_tpl<ware_t> *warray = waren[i];
@@ -2765,8 +2765,9 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				file->rdwr_str(s);
 				if(file->get_experimental_version() <= 10)
 				{
-					uint16 count = warray->get_count();
-					file->rdwr_short(count);
+					const uint32 count = warray->get_count();
+					uint16 short_count = min(count, 65535);
+					file->rdwr_short(short_count);
 				}
 				else
 				{
@@ -2781,7 +2782,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				}
 				FOR(vector_tpl<ware_t>, & ware, *warray) 
 				{
-					if(file->get_experimental_version() <= 11 && ware_count++ > 65535)
+					if(file->get_experimental_version() < 11 && ware_count++ > 65535)
 					{
 						// Discard ware packets > 65535 if the version is < 11, as trying
 						// to save greater than this number will corrupt the save.
@@ -2838,7 +2839,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			}
 			if(count > 0) 
 			{
-				for(int i = 0; i < count; i++) 
+				for(uint32 i = 0; i < count; i++) 
 				{
 					// add to internal storage (use this function, since the old categories were different)
 					ware_t ware(welt, file);
