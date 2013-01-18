@@ -2462,7 +2462,6 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		k.rdwr( file );
 	}
 
-	short count;
 	const char *s;
 	init_pos = tiles.empty() ? koord::invalid : tiles.front().grund->get_pos().get_2d();
 	if(file->is_saving()) {
@@ -2471,8 +2470,14 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			if(warray) {
 				s = "y";	// needs to be non-empty
 				file->rdwr_str(s);
-				count = warray->get_count();
-				file->rdwr_short(count);
+				if(  file->get_version() <= 112002  ) {
+					short count = warray->get_count();
+					file->rdwr_short(count);
+				}
+				else {
+					uint32 count = warray->get_count();
+					file->rdwr_short(count);
+				}
 				FOR(vector_tpl<ware_t>, & ware, *warray) {
 					ware.rdwr(welt,file);
 				}
@@ -2480,16 +2485,23 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		}
 		s = "";
 		file->rdwr_str(s);
-
 	}
 	else {
 		// restoring all goods in the station
 		char s[256];
 		file->rdwr_str(s, lengthof(s));
 		while(*s) {
-			file->rdwr_short(count);
+			uint32 count;
+			if(  file->get_version() <= 112002  ) {
+				short scount;
+				file->rdwr_short(scount);
+				count = scount;
+			}
+			else {
+				file->rdwr_short(count);
+			}
 			if(count>0) {
-				for(int i = 0; i < count; i++) {
+				for(  int i = 0;  i < count;  i++  ) {
 					// add to internal storage (use this function, since the old categories were different)
 					ware_t ware(welt,file);
 					if(  ware.menge>0  &&  welt->ist_in_kartengrenzen(ware.get_zielpos())  ) {
