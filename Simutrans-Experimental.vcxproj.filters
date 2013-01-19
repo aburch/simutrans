@@ -1946,6 +1946,9 @@
     <None Include="base_textes_experimental_10.17.dat">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="base_texts_experimental_10.22.dat">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="simres.rc">

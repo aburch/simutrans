@@ -1,0 +1,18 @@
+# Simutranslator settings for Simutrans-Experimental texts
+# Addendum for version 10.22
+#
+# Author: jamespetts
+# Created: January 2013
+#
+obj=program_text
+name="%s has built a new %s %s %s."
+note=Message shown when a player builds a new stop.
+-
+obj=program_text
+name=in
+note=Preposition used in new stop message when the new stop is within city limits
+-
+obj=program_text
+name=near
+note=Preposition used in new stop message when the new stop is outside city limits
+-
