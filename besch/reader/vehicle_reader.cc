@@ -398,7 +398,7 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		// new: weight in kgs
 		besch->base_price = decode_uint32(p);
 		besch->zuladung = decode_uint16(p);
-		if(experimental_version == 0)
+		if(!experimental)
 		{
 			// The new Standard datum for loading times is read here.
 			besch->min_loading_time = besch->max_loading_time = decode_uint16(p);
@@ -408,7 +408,7 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->axle_load = decode_uint16(p);
 		besch->leistung = decode_uint32(p);
 		besch->running_cost = decode_uint16(p);
-		if(experimental_version == 0)
+		if(!experimental)
 		{
 			// Experimental has this as a 32-bit integer, and reads it later.
 			besch->base_fixed_cost = decode_uint16(p);
@@ -427,8 +427,10 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->freight_image_type = decode_uint8(p);
 		if(experimental)
 		{
-			if(experimental_version <= 7)
+			if(experimental_version == 0)
 			{
+				// NOTE: Experimental version reset to 1 with incrementing of
+				// Standard version to 10.
 				besch->is_tilting = decode_uint8(p);
 				way_constraints.set_permissive(decode_uint8(p));
 				way_constraints.set_prohibitive(decode_uint8(p));
