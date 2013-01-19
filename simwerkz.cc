@@ -3684,8 +3684,18 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.
 	bool neu = !halt.is_bound();
 
 	if(neu) 
-	{ // neues dock
+	{ 
+		// new dock
 		halt = sp->halt_add(pos);
+		if(halt.is_bound() && umgebung_t::networkmode)
+		{
+			cbuffer_t message;
+			const stadt_t* nearest_city = welt->suche_naechste_stadt(pos);
+			const char * city_name = nearest_city ? nearest_city->get_name() : "open countryside";
+			const char* preposition = welt->get_city(pos) || !nearest_city ? "in" : "near";
+			message.printf("%s has built a new %s %s %s.", sp->get_name(), "Dock", preposition, city_name);
+			welt->get_message()->add_message(message, koord::invalid, message_t::ai, sp->get_player_color1());
+		}
 	}
 	hausbauer_t::baue(welt, halt->get_besitzer(), bau_pos, layout, besch, &halt);
 
@@ -3907,8 +3917,20 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 	// seems everything ok, lets build
 	bool neu = !halt.is_bound();
 
-	if(neu) {
+	if(neu) 
+	{
 		halt = sp->halt_add(pos);
+		if(halt.is_bound() && umgebung_t::networkmode)
+		{
+			cbuffer_t message;
+			const stadt_t* nearest_city = welt->suche_naechste_stadt(pos);
+			const char * city_name = nearest_city ? nearest_city->get_name() : "open countryside";
+			const char* preposition = welt->get_city(pos) || !nearest_city ? "in" : "near";
+			int const lang = welt->get_settings().get_name_language_id();
+			const char *stop = translator::translate(type_name, lang);
+			message.printf("%s has built a new %s %s %s.", sp->get_name(), stop, preposition, city_name);
+			welt->get_message()->add_message(message, koord::invalid, message_t::ai, sp->get_player_color1());
+		}
 	}
 	hausbauer_t::neues_gebaeude( welt, halt->get_besitzer(), bd->get_pos(), layout, besch, &halt);
 	halt->recalc_station_type();
