@@ -2471,12 +2471,12 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				s = "y";	// needs to be non-empty
 				file->rdwr_str(s);
 				if(  file->get_version() <= 112002  ) {
-					short count = warray->get_count();
+					uint16 count = warray->get_count();
 					file->rdwr_short(count);
 				}
 				else {
 					uint32 count = warray->get_count();
-					file->rdwr_short(count);
+					file->rdwr_long(count);
 				}
 				FOR(vector_tpl<ware_t>, & ware, *warray) {
 					ware.rdwr(welt,file);
@@ -2493,15 +2493,15 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		while(*s) {
 			uint32 count;
 			if(  file->get_version() <= 112002  ) {
-				short scount;
+				uint16 scount;
 				file->rdwr_short(scount);
 				count = scount;
 			}
 			else {
-				file->rdwr_short(count);
+				file->rdwr_long(count);
 			}
 			if(count>0) {
-				for(  int i = 0;  i < count;  i++  ) {
+				for(  uint32 i = 0;  i < count;  i++  ) {
 					// add to internal storage (use this function, since the old categories were different)
 					ware_t ware(welt,file);
 					if(  ware.menge>0  &&  welt->ist_in_kartengrenzen(ware.get_zielpos())  ) {
@@ -2522,6 +2522,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		// old games save the list with stations
 		// however, we have to rebuilt them anyway for the new format
 		if(file->get_version()<99013) {
+			uint16 count;
 			file->rdwr_short(count);
 			warenziel_t dummy;
 			for(int i=0; i<count; i++) {
