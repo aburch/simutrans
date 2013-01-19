@@ -1777,7 +1777,7 @@ void haltestelle_t::hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp
 			else {
 
 				// The random offset will ensure that all goods have an equal chance to be loaded.
-				sint32 offset = simrand(warray->get_count());
+				uint32 offset = simrand(warray->get_count());
 				for(  uint32 i=0;  i<warray->get_count();  i++  ) {
 					ware_t &tmp = (*warray)[ i+offset ];
 
