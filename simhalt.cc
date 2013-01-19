@@ -3116,7 +3116,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 void haltestelle_t::laden_abschliessen(bool need_recheck_for_walking_distance)
 {
 	// fix good destination coordinates
-	for(unsigned i=0; i<warenbauer_t::get_max_catg_index(); i++) 
+	for(uint8 i = 0; i < warenbauer_t::get_max_catg_index(); i++) 
 	{
 		if(waren[i]) 
 		{
@@ -3128,13 +3128,13 @@ void haltestelle_t::laden_abschliessen(bool need_recheck_for_walking_distance)
 			// merge identical entries (should only happen with old games)
 			ITERATE_PTR(warray,j)
 			{
-				if(  (*warray)[j].menge==0  ) 
+				if((*warray)[j].menge == 0) 
 				{
 					continue;
 				}
-				for(unsigned k=j+1; k<warray->get_count(); k++) 
+				for(uint32 k = j + 1; k < warray->get_count(); k++) 
 				{
-					if(  (*warray)[k].menge > 0  &&  (*warray)[j].can_merge_with( (*warray)[k] )  ) 
+					if((*warray)[k].menge > 0 && (*warray)[j].can_merge_with((*warray)[k])) 
 					{
 						(*warray)[j].menge += (*warray)[k].menge;
 						(*warray)[k].menge = 0;
