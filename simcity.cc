@@ -3083,7 +3083,8 @@ void stadt_t::step_passagiere()
 	}
 
 	// suitable start search
-	const koord origin_pos = gb->get_pos().get_2d();
+	const koord3d origin_pos_3d = gb->get_pos();
+	const koord origin_pos = origin_pos_3d.get_2d();
 	const planquadrat_t *const plan = welt->lookup(origin_pos);
 	const halthandle_t *const halt_list = plan->get_haltlist();
 
@@ -3110,556 +3111,611 @@ void stadt_t::step_passagiere()
 	koord best_bad_destination;
 	uint8 best_bad_start_halt;
 	bool too_slow_already_set;
+	bool no_possible_route = false;
+	
+	// Add 1 because the simuconf.tab setting is for maximum *alternative* destinations, whereas we need maximum *actual* desintations
+	// const uint8 max_destinations = has_private_car ? 1 : (welt->get_settings().get_max_alternative_destinations() < 16 ?welt->get_settings().get_max_alternative_destinations() : 15) + 1;
+	// Passengers with a private car will not tolerate second best destinations,
+	// and will use their private car to get to their first choice destination
+	// regardless of whether they might go to other destinations by public transport.
 
-	//Only continue if there are suitable start halts nearby, or the passengers have their own car.
-	if(!start_halts.empty() || has_private_car)
-	{		
-		// Add 1 because the simuconf.tab setting is for maximum *alternative* destinations, whereas we need maximum *actual* desintations
-		// const uint8 max_destinations = has_private_car ? 1 : (welt->get_settings().get_max_alternative_destinations() < 16 ?welt->get_settings().get_max_alternative_destinations() : 15) + 1;
-		// Passengers with a private car will not tolerate second best destinations,
-		// and will use their private car to get to their first choice destination
-		// regardless of whether they might go to other destinations by public transport.
+	// Now that private cars also have a journey time tolerance and check whether the roads are connected, passengers *might*
+	// not be able to get to their destination by private car either, so the above is redundant. 
+	const uint8 max_destinations = (s.get_max_alternative_destinations() < 16 ? s.get_max_alternative_destinations() : 15) + 1;
 
-		// Now that private cars also have a journey time tolerance and check whether the roads are connected, passengers *might*
-		// not be able to get to their destination by private car either, so the above is redundant. 
-		const uint8 max_destinations = (s.get_max_alternative_destinations() < 16 ? s.get_max_alternative_destinations() : 15) + 1;
+	// Find passenger destination
+	for(int pax_routed = 0, pax_left_to_do = 0; pax_routed < num_pax; pax_routed += pax_left_to_do) 
+	{	
+		/* number of passengers that want to travel
+		* Hajo: for efficiency we try to route not every
+		* single pax, but packets. If possible, we do 7 passengers at a time
+		* the last packet might have less then 7 pax
+		* Number now not fixed at 7, but set in simuconf.tab (@author: jamespetts)
+		*/
 
-		// Find passenger destination
-		for(  int pax_routed=0, pax_left_to_do=0;  pax_routed<num_pax;  pax_routed+=pax_left_to_do  ) 
-		{
-			
-			/* number of passengers that want to travel
-			* Hajo: for efficiency we try to route not every
-			* single pax, but packets. If possible, we do 7 passengers at a time
-			* the last packet might have less then 7 pax
-			* Number now not fixed at 7, but set in simuconf.tab (@author: jamespetts)
-			*/
+		pax_left_to_do = min(passenger_packet_size, num_pax - pax_routed);
 
-			pax_left_to_do = min(passenger_packet_size, num_pax - pax_routed);
+		// search target for the passenger
+		pax_return_type will_return;
 
-			// search target for the passenger
-			pax_return_type will_return;
+		const uint8 destination_count = simrand(max_destinations, "void stadt_t::step_passagiere() (number of destinations?)") + 1;
 
-			const uint8 destination_count = simrand(max_destinations, "void stadt_t::step_passagiere() (number of destinations?)") + 1;
-
-			// Split passengers: between local, midrange and long-distance
-			// according to the percentages set in simuconf.tab.
-			// Note: a random town will be found if there are no towns within range.
-			const uint8 passenger_routing_choice = simrand(100, "void stadt_t::step_passagiere() (passenger routing choice?)");
-			const journey_distance_type range = 
-				passenger_routing_choice <= passenger_routing_local_chance ? 
-				local :
-			passenger_routing_choice <= (passenger_routing_local_chance + passenger_routing_midrange_chance) ? 
-				midrange : longdistance;
-			const uint16 tolerance = 
-				wtyp != warenbauer_t::passagiere ? 
-				0 : 
-				range == local ? 
-					simrand_normal(max_local_tolerance, "void stadt_t::step_passagiere() (local tolerance?)") + min_local_tolerance : 
-				range == midrange ? 
-					simrand_normal(max_midrange_tolerance, "void stadt_t::step_passagiere() (midrange tolerance?)") + min_midrange_tolerance : 
-				/*longdistance*/
-				simrand_normal(max_longdistance_tolerance, "void stadt_t::step_passagiere() (longdistance tolerance?)") + min_longdistance_tolerance;
-			destination destinations[16];
-			for(int destinations_assigned = 0; destinations_assigned <= destination_count; destinations_assigned ++)
-			{				
-				if(range == local)
+		// Split passengers: between local, midrange and long-distance
+		// according to the percentages set in simuconf.tab.
+		// Note: a random town will be found if there are no towns within range.
+		const uint8 passenger_routing_choice = simrand(100, "void stadt_t::step_passagiere() (passenger routing choice?)");
+		const journey_distance_type range = 
+			passenger_routing_choice <= passenger_routing_local_chance ? 
+			local :
+		passenger_routing_choice <= (passenger_routing_local_chance + passenger_routing_midrange_chance) ? 
+			midrange : longdistance;
+		const uint16 tolerance = 
+			wtyp != warenbauer_t::passagiere ? 
+			0 : 
+			range == local ? 
+				simrand_normal(max_local_tolerance, "void stadt_t::step_passagiere() (local tolerance?)") + min_local_tolerance : 
+			range == midrange ? 
+				simrand_normal(max_midrange_tolerance, "void stadt_t::step_passagiere() (midrange tolerance?)") + min_midrange_tolerance : 
+			/*longdistance*/
+			simrand_normal(max_longdistance_tolerance, "void stadt_t::step_passagiere() (longdistance tolerance?)") + min_longdistance_tolerance;
+		destination destinations[16];
+		for(int destinations_assigned = 0; destinations_assigned <= destination_count; destinations_assigned ++)
+		{				
+			if(range == local)
+			{
+				//Local - a designated proportion will automatically go to destinations within the town.
+				if(passenger_routing_choice <= adjusted_passenger_routing_local_chance)
 				{
-					//Local - a designated proportion will automatically go to destinations within the town.
-					if(passenger_routing_choice <= adjusted_passenger_routing_local_chance)
-					{
-						// Will always be a destination in the current town.
-						destinations[destinations_assigned] = find_destination(target_factories, city_history_month[0][history_type+1], &will_return, 0, local_passengers_max_distance, origin_pos);	
-					}
-					else
-					{
-						destinations[destinations_assigned] = find_destination(target_factories, city_history_month[0][history_type+1], &will_return, local_passengers_min_distance, local_passengers_max_distance, origin_pos);
-					}
-				}
-				else if(range == midrange)
-				{
-					//Medium
-					destinations[destinations_assigned] = find_destination(target_factories, city_history_month[0][history_type+1], &will_return, midrange_passengers_min_distance, midrange_passengers_max_distance, origin_pos);
+					// Will always be a destination in the current town.
+					destinations[destinations_assigned] = find_destination(target_factories, city_history_month[0][history_type+1], &will_return, 0, local_passengers_max_distance, origin_pos);	
 				}
 				else
-				//else if(range == longdistance)
 				{
-					//Long distance
-					destinations[destinations_assigned] = find_destination(target_factories, city_history_month[0][history_type+1], &will_return, longdistance_passengers_min_distance, longdistance_passengers_max_distance, origin_pos); 
+					destinations[destinations_assigned] = find_destination(target_factories, city_history_month[0][history_type+1], &will_return, local_passengers_min_distance, local_passengers_max_distance, origin_pos);
 				}
 			}
+			else if(range == midrange)
+			{
+				//Medium
+				destinations[destinations_assigned] = find_destination(target_factories, city_history_month[0][history_type+1], &will_return, midrange_passengers_min_distance, midrange_passengers_max_distance, origin_pos);
+			}
+			else
+			//else if(range == longdistance)
+			{
+				//Long distance
+				destinations[destinations_assigned] = find_destination(target_factories, city_history_month[0][history_type+1], &will_return, longdistance_passengers_min_distance, longdistance_passengers_max_distance, origin_pos); 
+			}
+		}
 			
-			INT_CHECK( "simcity 3118" );
+		INT_CHECK( "simcity 3118" );
 
-			uint8 current_destination = 0;
+		uint8 current_destination = 0;
 
-			route_status route_good = no_route;
+		route_status route_good = no_route;
 			
-			const uint16 max_walking_distance = s.get_max_walking_distance();
-			uint16 car_minutes = 65535;
+		//const uint16 max_walking_distance = s.get_max_walking_distance();
 
-			best_bad_destination = destinations[0].location;
-			best_bad_start_halt = 0;
-			too_slow_already_set = false;
+		const uint32 straight_line_distance = shortest_distance(origin_pos, destinations[current_destination].location);
 
-			while(route_good != good && route_good != private_car_only && current_destination < destination_count)
-			{			
-				// Dario: Check if there's a stop near destination
-				const planquadrat_t* dest_plan = welt->lookup(destinations[current_destination].location);
-				const halthandle_t* dest_list = dest_plan->get_haltlist();
+		const uint32 journey_time_adjustment = (welt->get_settings().get_meters_per_tile() * 6u) / 10u;
+		// Walking speed is taken to be 5km/h: http://en.wikipedia.org/wiki/Walking
+		const uint32 walking_journey_time_factor = (journey_time_adjustment * 100u) / 5u;
+		const uint16 walking_time = (uint16)(straight_line_distance * walking_journey_time_factor) / 100u;
+		/** 
+		 * Tolerance is divided by two because passengers prefer not to walk for long distances,
+		 * as it is tiring.
+		 */
+		const bool can_walk = walking_time <= (tolerance / 2);
 
-				// Knightly : we can avoid duplicated efforts by building destination halt list here at the same time
-				minivec_tpl<halthandle_t> destination_list(dest_plan->get_haltlist_count());
+		if(!has_private_car && !can_walk && start_halts.empty())
+		{
+			/**
+			 * If the passengers have no private car, are not in reach of any public transport
+			 * facilities and the journey is too long on foot, do not continue to check other things.
+			 */
+			no_possible_route = true;
+			break;
+		}
 				
-				halthandle_t start_halt;
+		uint16 car_minutes = 65535;
+
+		best_bad_destination = destinations[0].location;
+		best_bad_start_halt = 0;
+		too_slow_already_set = false;
+
+		while(route_good != good && route_good != private_car_only && current_destination < destination_count)
+		{			
+			// Dario: Check if there's a stop near destination
+			const planquadrat_t* dest_plan = welt->lookup(destinations[current_destination].location);
+			const halthandle_t* dest_list = dest_plan->get_haltlist();
+			
+			// Knightly : we can avoid duplicated efforts by building destination halt list here at the same time
+			minivec_tpl<halthandle_t> destination_list(dest_plan->get_haltlist_count());
 				
-				// Check whether the destination is within walking distance first.
-				// @author: jamespetts, December 2009
-				if(shortest_distance(destinations[current_destination].location, origin_pos) <= max_walking_distance)
+			halthandle_t start_halt;
+				
+			//TODO: Remove this.
+			// Check whether the destination is within walking distance first.
+			// @author: jamespetts, December 2009
+			//if(shortest_distance(destinations[current_destination].location, origin_pos) <= max_walking_distance)
+			//{
+			//	// Passengers will always walk if they are close enough.
+			//	route_good = will_walk;
+			//}
+							
+			for (int h = dest_plan->get_haltlist_count() - 1; h >= 0; h--) 
+			{
+				halthandle_t halt = dest_list[h];
+				if (halt->is_enabled(wtyp)) 
 				{
-					// Passengers will always walk if they are close enough.
-					route_good = can_walk;
+					destination_list.append(halt);
 				}
+			}
 
-				if(route_good != can_walk)
+			if(start_halts.get_count() == 1 && destination_list.get_count() == 1 && start_halts[0] == destination_list[0])
+			{
+				/** There is no public transport route, as the only stop
+				 * for the origin is also the only stop for the desintation.
+				 * The passengers either take their car (if any) or walk.
+				 */
+				start_halt = start_halts[0];
+				if(has_private_car && s.get_base_car_preference_percent() > simrand(100, "void stadt_t::step_passagiere() (Use private car for local journey?)"))
 				{
-					for (int h = dest_plan->get_haltlist_count() - 1; h >= 0; h--) 
-					{
-						halthandle_t halt = dest_list[h];
-						if (halt->is_enabled(wtyp)) 
-						{
-							destination_list.append(halt);
-							ITERATE(start_halts, i)
-							{
-								if(halt == start_halts[i])
-								{
-									route_good = can_walk;
-									// Passengers will always walk if they are close enough.
-									start_halt = start_halts[i];
-									// Mail does not walk, but people delivering it do.
-									break;
-								}
-							}
-						}
-					}
+					// Some passengers prefer to walk.
+					route_good = private_car_only;
 				}
-
-				if (route_good == can_walk) 
+				else if(can_walk)
 				{
-					if(destinations[current_destination].factory_entry)
-					{
-						register_factory_passenger_generation(&pax_left_to_do, wtyp, target_factories, destinations[current_destination].factory_entry);
-						// workers who walk to the factory or customers who walk to the consumer store
-						destinations[current_destination].factory_entry->factory->book_stat( pax_left_to_do, ( wtyp==warenbauer_t::passagiere ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED ) );
-						destinations[current_destination].factory_entry->factory->liefere_an(wtyp, pax_left_to_do);
-					}
+					route_good = will_walk;
+				}
+			}
 
-					// so we have happy passengers
-	
-					// Passengers who can walk to their destination may be happy about it,
-					// but they are not happy *because* the player has made them happy. 
-					// Therefore, they should not show on the station's happy graph.
-					// @author: jamespetts, December 2009
-					
-					//start_halt->add_pax_happy(pax_left_to_do);
+			// Check whether public transport can be used.
+			ware_t pax(wtyp); //Journey start information needs to be added later.
+			pax.set_zielpos(destinations[current_destination].location);
+			pax.menge = pax_left_to_do;
+			pax.to_factory = ( destinations[current_destination].factory_entry ? 1 : 0 );
+			//"Menge" = volume (Google)
 
-					merke_passagier_ziel(destinations[current_destination].location, COL_DARK_YELLOW);
-					if (s.get_random_pedestrians() && wtyp == warenbauer_t::passagiere) 
-					{
-						if(!start_halts.empty() && !start_halt.is_bound())
-						{
-							start_halt = start_halts[0];
-						}
-						if(start_halt.is_bound())
-						{
-							haltestelle_t::erzeuge_fussgaenger(welt, start_halt->get_basis_pos3d(), pax_left_to_do);
-						}
-					}
+			// Search for a route using public transport. 
+
+			uint16 best_journey_time = 65535;
+			uint8 best_start_halt = 0;
+			uint16 current_journey_time;
+			koord destination_stop_pos = destinations[current_destination].location;
+
+			ITERATE(start_halts, i)
+			{
+				halthandle_t current_halt = start_halts[i];
+				
+				current_journey_time = current_halt->find_route(&destination_list, pax, best_journey_time, destinations[current_destination].location);
 					
-					add_walking_passengers(pax_left_to_do);
+				// Add walking time from the origin to the origin stop. 
+				// Note that the walking time to the destination stop is already added by find_route.
+				current_journey_time += (uint16)(shortest_distance(start_halts[i]->get_next_pos(origin_pos), origin_pos) * walking_journey_time_factor) / 100u;
+					
+				// TODO: Add facility to check whether station/stop has car parking facilities, and add the possibility of a (faster) private car journey.
+				// Use the private car journey time per tile from the passengers' origin to the city in which the stop is located.
+
+				if(current_journey_time < best_journey_time)
+				{
+					best_journey_time = current_journey_time;
+					best_start_halt = i;
+				}
+				if(pax.get_ziel().is_bound())
+				{
+					route_good = good;
+				}
+			}
+
+			if(best_journey_time == 0)
+			{
+				best_journey_time = 1;
+			}
+
+			if(best_journey_time > walking_time && can_walk)
+			{
+				// If walking is faster than public transport, passengers will walk.
+				route_good = will_walk;
+			}
+				
+			// Check first whether the best route is outside
+			// the passengers' tolerance.
+
+			if(route_good == good && tolerance > 0 && best_journey_time > tolerance)
+			{
+				route_good = too_slow;
+				
+				if(!too_slow_already_set)
+				{
+					best_bad_destination = destinations[current_destination].location;
+					best_bad_start_halt = best_start_halt;
+					too_slow_already_set = true;
+				}
+			}
+			else
+			{
+				// All passengers will use the quickest route.
+				if(start_halts.get_count() > 0)
+				{
+					start_halt = start_halts[best_start_halt];
+				}
+			}
+
+			INT_CHECK("simcity.cc 2993");
+			
+			if(has_private_car) 
+			{
+				uint16 time_per_tile = 65535;
+				switch(destinations[current_destination].type)
+				{
+				case 1:
+					//Town
+					time_per_tile = check_road_connexion_to(destinations[current_destination].object.town);
 					break;
-				}
-
-				// ok, they are not in walking distance
-				// Check whether public transport can be used.
-				ware_t pax(wtyp); //Journey start information needs to be added later.
-				pax.set_zielpos(destinations[current_destination].location);
-				pax.menge = pax_left_to_do;
-				pax.to_factory = ( destinations[current_destination].factory_entry ? 1 : 0 );
-				//"Menge" = volume (Google)
-
-				// now, finally search a route; this consumes most of the time
-
-				uint16 best_journey_time = 65535;
-				uint8 best_start_halt = 0;
-				
-				ITERATE(start_halts,i)
-				{
-					halthandle_t current_halt = start_halts[i];
-
-					uint16 current_journey_time = current_halt->find_route(&destination_list, pax, best_journey_time);
-					if(current_journey_time < best_journey_time)
-					{
-						best_journey_time = current_journey_time;
-						best_start_halt = i;
-					}
-					if(pax.get_ziel().is_bound())
-					{
-						route_good = good;
-					}
-				}
-
-				if(best_journey_time == 0)
-				{
-					best_journey_time = 1;
-				}
-				
-				// Check first whether the best route is outside
-				// the passengers' tolerance.
-
-				if(route_good == good && tolerance > 0 && best_journey_time > tolerance)
-				{
-					route_good = too_slow;
+				case FACTORY_PAX:
+					time_per_tile = check_road_connexion_to(destinations[current_destination].object.industry);
+					break;
+				case TOURIST_PAX:
+					time_per_tile = check_road_connexion_to(destinations[current_destination].object.attraction);
+					break;
+				default:
+					//Some error - this should not be reached.
+					dbg->error("simcity.cc", "Incorrect destination type detected");
+				};
 					
-					if(!too_slow_already_set)
-					{
-						best_bad_destination = destinations[current_destination].location;
-						best_bad_start_halt = best_start_halt;
-						too_slow_already_set = true;
-					}
+				if(time_per_tile < 65535)
+				{
+					// *Tenths* of minutes used here.
+					car_minutes =  time_per_tile * straight_line_distance;
 				}
 				else
 				{
-					// All passengers will use the quickest route.
-					if(start_halts.get_count() > 0)
-					{
-						start_halt = start_halts[best_start_halt];
-					}
+					car_minutes = 65535;
 				}
-
-				INT_CHECK("simcity.cc 2993");
-
-				if(has_private_car) 
+			}		
+				
+			if(car_minutes <= tolerance)
+			{
+				if(route_good != good)
 				{
-					const uint32 straight_line_distance = shortest_distance(origin_pos, destinations[current_destination].location);
-					uint16 time_per_tile = 65535;
-					switch(destinations[current_destination].type)
+					// The passengers can get to their destination by car but not by public transport.
+					// Therefore, they will certainly use their car unless it is faster to walk.
+					if(car_minutes > walking_time && can_walk)
 					{
-					case 1:
-						//Town
-						time_per_tile = check_road_connexion_to(destinations[current_destination].object.town);
-						break;
-					case FACTORY_PAX:
-						time_per_tile = check_road_connexion_to(destinations[current_destination].object.industry);
-						break;
-					case TOURIST_PAX:
-						time_per_tile = check_road_connexion_to(destinations[current_destination].object.attraction);
-						break;
-					default:
-						//Some error - this should not be reached.
-						dbg->error("simcity.cc", "Incorrect destination type detected");
-					};
-					
-					if(time_per_tile < 65535)
-					{
-						// *Tenths* of minutes used here.
-						car_minutes =  time_per_tile * straight_line_distance;
+						// If walking is faster than taking the car, passengers will walk.
+						route_good = will_walk;
 					}
 					else
 					{
-						car_minutes = 65535;
-					}
-				}		
-				
-				if(car_minutes <= tolerance)
-				{
-					if(route_good != good)
-					{
-						// The passengers can get to their destination by car but not by public transport.
-						// Therefore, they will certainly use their car. 
 						route_good = private_car_only;
 					}
+				}
 									
-					else
-					{
-						// The passengers can get to their destination both by car and public transport.
-						// Choose which they prefer.
+				else
+				{
+					// The passengers can get to their destination both by car and public transport.
+					// Choose which they prefer.
 
-						// Now, decide whether passengers would prefer to use their private cars,
-						// even though they can travel by public transport.
-						const uint32 distance = shortest_distance(destinations[current_destination].location, origin_pos);			
+					//Weighted random.
+					const uint16 private_car_chance = (uint16)simrand(100, "void stadt_t::step_passagiere() (private car chance?)");
+					bool public_transport_known_better = false;
+					
+					if(private_car_chance <= always_prefer_car_percent)
+					{
+						route_good = private_car_only;
+					}
+
+					if(car_minutes > walking_time && can_walk && route_good != private_car_only)
+					{
+						// If walking is better than taking the car, *and* route_good == good,
+						// then we take public transport, as we know that public transport must
+						// be faster than walking, or else route_good would == will_walk.
 						
-						//Weighted random.
-						const uint16 private_car_chance = (uint16)simrand(100, "void stadt_t::step_passagiere() (private car chance?)");
-						if(private_car_chance <= always_prefer_car_percent)
+						// However, some people will *always* use their car, because they find
+						// it more convenient, even if it takes longer, so take account of that
+						// (see the third condition in the if statement above).
+						public_transport_known_better = true;
+					}
+
+					if(route_good != private_car_only && !public_transport_known_better)
+					{
+						// If this is reached, there remains a real choice between public transport and private car use.
+						const uint32 distance = shortest_distance(destinations[current_destination].location, origin_pos);	
+							
+						// The basic preference for using a private car if available.
+						uint16 car_preference = s.get_base_car_preference_percent();
+										
+						// Firstly, congestion. Drivers will turn to public transport if the origin or destination towns are congested.
+						// TODO: Refactor congestion as affecting the journey time rather than having an arbitrary effect on choice.
+						// TODO: Refactor the private car choice algorithm as being based on comparative journey times rather than 
+						// on a series of arbitrary factors. This now makes more sense since we measure door to door journey times.
+
+						//Average congestion of origin and destination towns, and, at the same time, reduce factor.
+						uint16 congestion_total;
+						if(destinations[current_destination].type == 1 && destinations[current_destination].object.town != NULL)
 						{
-							route_good = private_car_only;
+							// Destination type is town and the destination town object can be found.
+							congestion_total = (city_history_month[0][HIST_CONGESTION] + destinations[current_destination].object.town->get_congestion()) / 4;
 						}
 						else
 						{
-							// The basic preference for using a private car if available.
-							uint16 car_preference = s.get_base_car_preference_percent();
-										
-							// Firstly, congestion. Drivers will turn to public transport if the origin or destination towns are congested.
-
-							//Average congestion of origin and destination towns, and, at the same time, reduce factor.
-							uint16 congestion_total;
-							if(destinations[current_destination].type == 1 && destinations[current_destination].object.town != NULL)
-							{
-								// Destination type is town and the destination town object can be found.
-								congestion_total = (city_history_month[0][HIST_CONGESTION] + destinations[current_destination].object.town->get_congestion()) / 4;
-							}
-							else
-							{
-								congestion_total = (city_history_month[0][HIST_CONGESTION] * 100) / 133;
-							}
-							car_preference -= congestion_total;
-
-							// Secondly, adjust for service quality of the public transport.
-							// Compare best journey speed on public transport with the 
-							// likely private car journey time.
-
-							INT_CHECK( "simcity 3004" );
-
-							// Journey times of private transport as a percentage of player journey times.
-							uint32 car_journey_time_percent = (100 * car_minutes) / best_journey_time;
-							// Set a limit to how much this affects things.
-							car_journey_time_percent = max(car_journey_time_percent, 15);
-							car_journey_time_percent = min(car_journey_time_percent, 250);
-							// Modify the preference by how much better or worse that the car journey time is than the player's.
-							car_preference = (car_preference * 100) / car_journey_time_percent;
-						
-							// If identical, no adjustment.
-
-							//Thirdly, the number of unhappy passengers at the start station compared with the number of happy passengers.
-							const uint16 unhappy_percentage = start_halt->get_unhappy_percentage(0);
-						
-							if(unhappy_percentage > 80)
-							{
-								car_preference = (car_preference * 100) / unhappy_percentage;
-							}
-						
-							//Finally, determine whether the private car is used.
-							if(private_car_chance <= car_preference)
-							{
-								// Private cars chosen by preference even though public transport is possible.
-								route_good = private_car_only;
-							}
+							congestion_total = (city_history_month[0][HIST_CONGESTION] * 100) / 133;
 						}
-					}
-				}
+						car_preference -= congestion_total;
+
+						// Secondly, adjust for service quality of the public transport.
+						// Compare best journey speed on public transport with the 
+						// likely private car journey time.
+
+						INT_CHECK( "simcity 3004" );
+
+						// Journey times of private transport as a percentage of player journey times.
+						uint32 car_journey_time_percent = (100 * car_minutes) / best_journey_time;
+						// Set a limit to how much this affects things.
+						car_journey_time_percent = max(car_journey_time_percent, 15);
+						car_journey_time_percent = min(car_journey_time_percent, 250);
+						// Modify the preference by how much better or worse that the car journey time is than the player's.
+						car_preference = (car_preference * 100) / car_journey_time_percent;
+						
+						// If identical, no adjustment.
+
+						//Thirdly, the number of unhappy passengers at the start station compared with the number of happy passengers.
+						const uint16 unhappy_percentage = start_halt->get_unhappy_percentage(0);
 					
-				if(route_good == good)
-				{
-					// Passengers can and will use public transport.
-					if(destinations[current_destination].factory_entry)
-					{
-						register_factory_passenger_generation(&pax_left_to_do, wtyp, target_factories, destinations[current_destination].factory_entry);
-						destinations[current_destination].factory_entry->factory->book_stat( pax.menge, ( wtyp==warenbauer_t::passagiere ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED ) );
-					}
-					pax.arrival_time = welt->get_zeit_ms();
-					pax.set_origin(start_halt);
-					start_halt->starte_mit_route(pax);
-					start_halt->unload_repeat_counter = 0;
-					merke_passagier_ziel(destinations[current_destination].location, COL_YELLOW);
-				}
-
-				else if(route_good == private_car_only)
-				{
-					// Passengers have either chosen to use their car or have no other choice.
-					if(destinations[current_destination].factory_entry)
-					{
-						register_factory_passenger_generation(&pax_left_to_do, wtyp, target_factories, destinations[current_destination].factory_entry);
-						destinations[current_destination].factory_entry->factory->book_stat( pax.menge, ( wtyp==warenbauer_t::passagiere ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED ) );
-					}
-					stadt_t* const destination_town = destinations[current_destination].type == 1 ? destinations[current_destination].object.town : NULL;
-					set_private_car_trip(num_pax, destination_town);
-					merke_passagier_ziel(destinations[current_destination].location, COL_TURQUOISE);
-#ifdef DESTINATION_CITYCARS
-					erzeuge_verkehrsteilnehmer(origin_pos, step_count, destinations[current_destination].location);
-#endif
-				}
-
-
-				// send them also back
-				// (Calculate a return journey)
-				if(will_return != no_return && (route_good == good || route_good == private_car_only))
-				{
-					// Because passengers/mail now register as transported on delivery, these are needed here
-					// to keep an accurate record of the proportion transported.
-					stadt_t* const destination_town = destinations[0].type == 1 ? destinations[0].object.town : NULL;
-					if(destination_town)
-					{
-						destination_town->set_generated_passengers(pax_left_to_do, history_type+1);
-					}
-					else
-					{
-						city_history_year[0][history_type+1] += pax_left_to_do;
-						city_history_month[0][history_type+1] += pax_left_to_do;
-					}
-
-					// this comes most of the times for free and balances also the amounts!
-					halthandle_t ret_halt = pax.get_ziel();
-					bool return_in_private_car = (route_good == private_car_only) || !ret_halt.is_bound();
-
-					if(!return_in_private_car)
-					{
-						// we just have to ensure that the ware can be delivered at this station
-						bool found = false;
-						for (uint i = 0; i < plan->get_haltlist_count(); i++) 
+						if(unhappy_percentage > 80)
 						{
-							halthandle_t test_halt = halt_list[i];
-
-							if(test_halt->is_enabled(wtyp) && (start_halt == test_halt || test_halt->get_connexions(wtyp->get_catg_index())->access(start_halt) != NULL))
-							{
-								found = true;
-								start_halt = test_halt;
-								break;
-							}
+							car_preference = (car_preference * 100) / unhappy_percentage;
 						}
-
-						// now try to add them to the target halt
-						if(!ret_halt->is_overcrowded(wtyp->get_catg_index())) 
+						
+						//Finally, determine whether the private car is used.
+						if(private_car_chance <= car_preference)
 						{
-							// prissi: not overcrowded and can recieve => add them
-							if(found) 
+							// Private cars chosen by preference even though public transport is possible.
+							route_good = private_car_only;
+						}
+					}
+				}
+			}
+					
+			if(route_good == good)
+			{
+				// Passengers can and will use public transport.
+				if(destinations[current_destination].factory_entry)
+				{
+					register_factory_passenger_generation(&pax_left_to_do, wtyp, target_factories, destinations[current_destination].factory_entry);
+					destinations[current_destination].factory_entry->factory->book_stat( pax.menge, ( wtyp==warenbauer_t::passagiere ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED ) );
+				}
+				pax.arrival_time = welt->get_zeit_ms();
+				pax.set_origin(start_halt);
+				start_halt->starte_mit_route(pax);
+				start_halt->unload_repeat_counter = 0;
+				merke_passagier_ziel(destinations[current_destination].location, COL_YELLOW);
+			}
+
+			else if(route_good == private_car_only)
+			{
+				// Passengers have either chosen to use their car or have no other choice.
+				if(destinations[current_destination].factory_entry)
+				{
+					register_factory_passenger_generation(&pax_left_to_do, wtyp, target_factories, destinations[current_destination].factory_entry);
+					destinations[current_destination].factory_entry->factory->book_stat( pax.menge, ( wtyp==warenbauer_t::passagiere ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED ) );
+				}
+				stadt_t* const destination_town = destinations[current_destination].type == 1 ? destinations[current_destination].object.town : NULL;
+				set_private_car_trip(num_pax, destination_town);
+				merke_passagier_ziel(destinations[current_destination].location, COL_TURQUOISE);
+#ifdef DESTINATION_CITYCARS
+				erzeuge_verkehrsteilnehmer(origin_pos, step_count, destinations[current_destination].location);
+#endif
+			}
+
+			else if(route_good == will_walk)
+			{
+				// Passengers will walk.
+				if(destinations[current_destination].factory_entry)
+				{
+					register_factory_passenger_generation(&pax_left_to_do, wtyp, target_factories, destinations[current_destination].factory_entry);
+					// workers who walk to the factory or customers who walk to the consumer store
+					destinations[current_destination].factory_entry->factory->book_stat( pax_left_to_do, ( wtyp==warenbauer_t::passagiere ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED ) );
+					destinations[current_destination].factory_entry->factory->liefere_an(wtyp, pax_left_to_do);
+				}
+
+				// Walking passengers are not marked as "happy", as the player has not made them happy.
+
+				merke_passagier_ziel(destinations[current_destination].location, COL_DARK_YELLOW);
+				if (s.get_random_pedestrians() && wtyp == warenbauer_t::passagiere) 
+				{
+					haltestelle_t::erzeuge_fussgaenger(welt, origin_pos_3d, pax_left_to_do);
+				}
+				
+				add_walking_passengers(pax_left_to_do);
+			}
+
+			// send them also back
+			// (Calculate a return journey)
+			if(will_return != no_return && (route_good == good || route_good == private_car_only || route_good == will_walk))
+			{
+				// Because passengers/mail now register as transported on delivery, these are needed here
+				// to keep an accurate record of the proportion transported.
+				stadt_t* const destination_town = destinations[0].type == 1 ? destinations[0].object.town : NULL;
+				if(destination_town)
+				{
+					destination_town->set_generated_passengers(pax_left_to_do, history_type+1);
+				}
+				else
+				{
+					city_history_year[0][history_type+1] += pax_left_to_do;
+					city_history_month[0][history_type+1] += pax_left_to_do;
+				}
+
+				// this comes most of the times for free and balances also the amounts!
+				halthandle_t ret_halt = pax.get_ziel();
+				bool return_in_private_car = (route_good == private_car_only) || (!ret_halt.is_bound() && has_private_car);
+				bool return_on_foot = (route_good == will_walk) || (!ret_halt.is_bound() && !has_private_car);
+
+				if(!return_in_private_car && !return_on_foot)
+				{
+					// we just have to ensure that the ware can be delivered at this station
+					bool found = false;
+					for (uint i = 0; i < plan->get_haltlist_count(); i++) 
+					{
+						halthandle_t test_halt = halt_list[i];
+						
+						if(test_halt->is_enabled(wtyp) && (start_halt == test_halt || test_halt->get_connexions(wtyp->get_catg_index())->access(start_halt) != NULL))
+						{
+							found = true;
+							start_halt = test_halt;
+							break;
+						}
+					}
+
+					// now try to add them to the target halt
+					if(!ret_halt->is_overcrowded(wtyp->get_catg_index())) 
+					{
+						// prissi: not overcrowded and can recieve => add them
+						if(found) 
+						{
+							ware_t return_pax(wtyp, ret_halt);
+							return_pax.to_factory = 0;
+							if(  will_return != city_return  &&  wtyp==warenbauer_t::post  ) 
 							{
-								ware_t return_pax(wtyp, ret_halt);
-								return_pax.to_factory = 0;
-								if(  will_return != city_return  &&  wtyp==warenbauer_t::post  ) 
-								{
-								// attractions/factory generate more mail than they recieve
-									return_pax.menge = pax_left_to_do * 3;
-								}
-								else 
-								{
-									// use normal amount for return pas/mail
-									return_pax.menge = pax_left_to_do;
-								}
-								return_pax.set_zielpos(origin_pos);
-								return_pax.set_ziel(start_halt);
-								if(ret_halt->find_route(return_pax) != 65535)
-								{
-									return_pax.arrival_time = welt->get_zeit_ms();
-									ret_halt->starte_mit_route(return_pax);
-									ret_halt->unload_repeat_counter = 0;
-									merke_passagier_ziel(destinations[current_destination].location, COL_YELLOW);
-									//ret_halt->add_pax_happy(pax_left_to_do); 
-									// Experimental 7.2 and onwards does this when passengers reach their destination
-								}
+							// attractions/factory generate more mail than they recieve
+								return_pax.menge = pax_left_to_do * 3;
 							}
 							else 
 							{
-								// no route back
-								if(car_minutes < 65535)
-								{
-									// This assumes that the journey time in both directions is identical: but 
-									// this may not be so if there are one-way routes.
-									return_in_private_car = true;
-								}
-								else
-								{	
-									ret_halt->add_pax_no_route(pax_left_to_do);
-									merke_passagier_ziel(destinations[current_destination].location, COL_DARK_ORANGE);
-								}
+								// use normal amount for return pas/mail
+								return_pax.menge = pax_left_to_do;
+							}
+							return_pax.set_zielpos(origin_pos);
+							return_pax.set_ziel(start_halt);
+							if(ret_halt->find_route(return_pax) != 65535)
+							{
+								return_pax.arrival_time = welt->get_zeit_ms();
+								ret_halt->starte_mit_route(return_pax);
+								ret_halt->unload_repeat_counter = 0;
+								merke_passagier_ziel(origin_pos, COL_YELLOW);
+								//ret_halt->add_pax_happy(pax_left_to_do); 
+								// Experimental 7.2 and onwards does this when passengers reach their destination
 							}
 						}
-						else
+						else 
 						{
-							// Return halt crowded. Either return by car or mark unhappy.
+							// no route back
 							if(car_minutes < 65535)
 							{
+								// This assumes that the journey time in both directions is identical: but 
+								// this may not be so if there are one-way routes.
 								return_in_private_car = true;
 							}
 							else
-							{
-								ret_halt->add_pax_unhappy(pax_left_to_do);
-								merke_passagier_ziel(destinations[current_destination].location, COL_RED);
+							{	
+								ret_halt->add_pax_no_route(pax_left_to_do);
+								merke_passagier_ziel(origin_pos, COL_DARK_ORANGE);
 							}
 						}
 					}
-					
-					if(return_in_private_car)
+					else
 					{
+						// Return halt crowded. Either return by car or mark unhappy.
 						if(car_minutes < 65535)
 						{
-							// Do not check tolerance, as they must come back!
-							set_private_car_trip(num_pax, destination_town);
-							merke_passagier_ziel(destinations[current_destination].location, COL_TURQUOISE);
-
-#ifdef DESTINATION_CITYCARS
-							//citycars with destination
-							erzeuge_verkehrsteilnehmer(origin_pos, step_count, destinations[0].location);
-#endif
-
+							return_in_private_car = true;
 						}
 						else
 						{
-							if(ret_halt.is_bound())
-							{
-								ret_halt->add_pax_no_route(pax_left_to_do);
-							}
-							merke_passagier_ziel(destinations[current_destination].location, COL_DARK_ORANGE);
+							ret_halt->add_pax_unhappy(pax_left_to_do);
+							merke_passagier_ziel(origin_pos, COL_RED);
 						}
 					}
-				} // Returning passengers
-
-				INT_CHECK( "simcity 3128" );
-				current_destination ++;
-			} // While loop (route_good)
-
-			if(route_good != good && route_good != private_car_only && route_good != can_walk)
-			{
-				if(destinations[0].factory_entry)
-				{
-					register_factory_passenger_generation(&pax_left_to_do, wtyp, target_factories, destinations[0].factory_entry);
 				}
-				if(start_halts.get_count() > 0)
+					
+				if(return_in_private_car)
 				{
-					// Passengers/mail cannot reach their destination at all, either by public transport or private car,
-					// *but* there are some stops in their locality. Record their inability to get where they are going
-					// at those local stops accordingly. 
-					halthandle_t start_halt = start_halts[best_bad_start_halt]; //If there is no route, it does not matter where passengers express their unhappiness.
-					if(!has_private_car || car_minutes > tolerance)
+					if(car_minutes < 65535)
 					{
-						// If the passengers are able to use a private car, then they should not record as "no route"						
-						if(too_slow_already_set)
+						// Do not check tolerance, as they must come back!
+						set_private_car_trip(num_pax, destination_town);
+						merke_passagier_ziel(origin_pos, COL_TURQUOISE);
+
+#ifdef DESTINATION_CITYCARS
+						//citycars with destination
+						erzeuge_verkehrsteilnehmer(destinations[0].location, step_count, origin_pos);
+#endif
+
+					}
+					else
+					{
+						if(ret_halt.is_bound())
 						{
-							if(start_halt.is_bound())
-							{
-								start_halt->add_pax_too_slow(pax_left_to_do);
-							}
-							merke_passagier_ziel(best_bad_destination, COL_LIGHT_PURPLE);
+							ret_halt->add_pax_no_route(pax_left_to_do);
 						}
-						else
+						merke_passagier_ziel(origin_pos, COL_DARK_ORANGE);
+					}
+				}
+
+				if(return_on_foot)
+				{
+					merke_passagier_ziel(origin_pos, COL_DARK_YELLOW);
+				}
+			} // Returning passengers
+
+			INT_CHECK( "simcity 3128" );
+			current_destination ++;
+		} // While loop (route_good)
+
+		if(route_good != good && route_good != private_car_only && route_good != will_walk)
+		{
+			if(destinations[0].factory_entry)
+			{
+				register_factory_passenger_generation(&pax_left_to_do, wtyp, target_factories, destinations[0].factory_entry);
+			}
+			if(start_halts.get_count() > 0)
+			{
+				// Passengers/mail cannot reach their destination at all, by public transport,  private car or on foot
+				// *but* there are some stops in their locality. Record their inability to get where they are going
+				// at those local stops accordingly. 
+				halthandle_t start_halt = start_halts[best_bad_start_halt]; //If there is no route, it does not matter where passengers express their unhappiness.
+				if(!has_private_car || car_minutes > tolerance)
+				{
+					// If the passengers are able to use a private car, then they should not record as "no route"						
+					if(too_slow_already_set)
+					{
+						if(start_halt.is_bound())
 						{
-							if(start_halt.is_bound())
-							{
-								start_halt->add_pax_no_route(pax_left_to_do);
-							}
-							merke_passagier_ziel(destinations[0].location, COL_DARK_ORANGE);
+							start_halt->add_pax_too_slow(pax_left_to_do);
 						}
+						merke_passagier_ziel(best_bad_destination, COL_LIGHT_PURPLE);
+					}
+					else
+					{
+						if(start_halt.is_bound())
+						{
+							start_halt->add_pax_no_route(pax_left_to_do);
+						}
+						merke_passagier_ziel(destinations[0].location, COL_DARK_ORANGE);
 					}
 				}
 			}
+		}
 			
-		} // For loop (passenger/mail packets)
+	} // For loop (passenger/mail packets)
 	
-	} // If statement (are some start halts, or passengers have private car)
 
-	else 
+	if(no_possible_route)
 	{
-		// The unhappy passengers will be added to all crowded stops
-		// however, there might be no stop too. 
-		// NOTE: Because of the conditional statement in the original loop,
-		// reaching this code means that passengers must not be able to use
-		// a private car for this journey.
+		/**The unhappy passengers will be added to any potential starting stops
+		 * that are crowded, and were therefore excluded from the initial search.
+		 * However, there might be no possible starting stop too. 
+		 * Note that the no_possible_route flag means that, if the code reaches
+		 * this point, the passengers cannot reach their destiantion by public
+		 * transport, car or on foot
+		 */
 
 		// all passengers without suitable start:
 		// fake one ride to get a proper display of destinations (although there may be more) ...
 		pax_return_type will_return;
 
-		//const koord ziel = finde_passagier_ziel(&will_return);
 		destination destination_now;
 		destination_now = find_destination(target_factories, city_history_month[0][history_type+1], &will_return);
 		sint32 amount = min(passenger_packet_size, num_pax);
@@ -3668,54 +3724,32 @@ void stadt_t::step_passagiere()
 			register_factory_passenger_generation(&amount, wtyp, target_factories, destination_now.factory_entry);
 		}
 
-		// First, check whether the passengers can *walk*. Just because
-		// they do not have a start halt does not mean that they cannot
-		// walk to their destination!
-		const uint32 tile_distance = shortest_distance(origin_pos, destination_now.location);
-		if(tile_distance <= s.get_max_walking_distance())
+	
+		// Re-search for start halts, which must be crowded, or else
+		// they would not have been excluded from the first search.
+		
+		bool crowded_halts = false;
+		for (int h = plan->get_haltlist_count() - 1; h >= 0; h--)
 		{
-			// Passengers will walk to their destination if it is within the specified range.
-			// (Default: 1.5km)
-			// workers who walk to the factory or customers who walk to the consumer store
-			if(destination_now.factory_entry)
+			halthandle_t halt = halt_list[h];
+			if (halt->is_enabled(wtyp)) 
 			{
-				destination_now.factory_entry->factory->book_stat( amount, ( wtyp==warenbauer_t::passagiere ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED ) );
-				destination_now.factory_entry->factory->liefere_an(wtyp, amount);
+				halt->add_pax_unhappy(num_pax);
+				crowded_halts = true;
 			}
-			merke_passagier_ziel(destination_now.location, COL_DARK_YELLOW);
-			
-			add_walking_passengers(amount);
 		}
+				
+		// Only show as being overcrowded if there are, in fact, potentially suitable but overcrowded stops.
+		if(crowded_halts)
+		{
+			merke_passagier_ziel(destination_now.location, COL_RED);		
+		}
+
 		else
 		{
-			// If the passengers cannot walk, they will be unhappy.
-
-			// Re-search for start halts, which must be crowded, or else
-			// they would not have been excluded from the first search.
-
-			bool crowded_halts = false;
-			for (int h = plan->get_haltlist_count() - 1; h >= 0; h--)
-			{
-				halthandle_t halt = halt_list[h];
-				if (halt->is_enabled(wtyp)) 
-				{
-					halt->add_pax_unhappy(num_pax);
-					crowded_halts = true;
-				}
-			}
-				
-			// Only show as being overcrowded if there are, in fact, potentially suitable but overcrowded stops.
-			if(crowded_halts)
-			{
-				merke_passagier_ziel(destination_now.location, COL_RED);		
-			}
-
-			else
-			{
-				merke_passagier_ziel(destination_now.location, COL_DARK_ORANGE);
-			}
-			// we do not show no route for destination stop!
+			merke_passagier_ziel(destination_now.location, COL_DARK_ORANGE);
 		}
+		// we do not show no route for destination stop!
 	}
 
 	//	long t1 = get_current_time_millis();

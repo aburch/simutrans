@@ -1358,7 +1358,7 @@ minivec_tpl<halthandle_t>* haltestelle_t::build_destination_list(ware_t &ware)
 	return ziel_list;
 }
 
-uint16 haltestelle_t::find_route(minivec_tpl<halthandle_t> *ziel_list, ware_t &ware, const uint16 previous_journey_time)
+uint16 haltestelle_t::find_route(minivec_tpl<halthandle_t> *ziel_list, ware_t &ware, const uint16 previous_journey_time, const koord destination_pos)
 {
 	uint16 journey_time = previous_journey_time;
 
@@ -1370,18 +1370,11 @@ uint16 haltestelle_t::find_route(minivec_tpl<halthandle_t> *ziel_list, ware_t &w
 		return 65535;
 	}
 
-	// check, if the shortest connection is not right to us ...
-	if(ziel_list->is_contained(self)) 
-	{
-		ware.set_ziel(self);
-		ware.set_zwischenziel( halthandle_t());
-		return 65535;
-	}
-
-
 	// Now, find the best route from here.
 	// Added by		: Knightly
 	// Adapted from : James' code
+	// Further adapted to incorporate walking
+	// times calculation: @jamespetts, January 2013
 
 	uint16 test_time;
 	halthandle_t test_transfer;
@@ -1389,11 +1382,28 @@ uint16 haltestelle_t::find_route(minivec_tpl<halthandle_t> *ziel_list, ware_t &w
 	halthandle_t best_destination;
 	halthandle_t best_transfer;
 
+	const uint32 journey_time_adjustment = (welt->get_settings().get_meters_per_tile() * 6u) / 10u;
+	// Walking speed is taken to be 5km/h: http://en.wikipedia.org/wiki/Walking
+	const uint32 walking_journey_time_factor = (journey_time_adjustment * 100u) / 5u;
+	koord destination_stop_pos = destination_pos;
+
 	const uint8 ware_catg = ware.get_besch()->get_catg_index();
 
 	for (uint8 i = 0; i < ziel_list->get_count(); i++)
 	{
 		path_explorer_t::get_catg_path_between(ware_catg, self, (*ziel_list)[i], test_time, test_transfer);
+
+		if(destination_pos != koord::invalid)
+		{
+			// Walking time is not relevant for freight.
+			if((*ziel_list)[i].is_bound())
+			{
+				destination_stop_pos = (*ziel_list)[i]->get_next_pos(destination_pos);
+			}
+
+			// Add the walking distance from the destination stop to the ultimate destination.
+			test_time += (uint16)(shortest_distance(destination_stop_pos, destination_stop_pos) * walking_journey_time_factor) / 100u;
+		}
 
 		if( test_time < journey_time )
 		{

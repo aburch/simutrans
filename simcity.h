@@ -63,7 +63,7 @@ enum route_status
 	too_slow = 1,
 	good = 2,
 	private_car_only = 3,
-	can_walk = 4
+	will_walk = 4
 };
 
 class road_destination_finder_t : public fahrer_t
