@@ -107,13 +107,13 @@ void convoi_detail_t::zeichnen(koord pos, koord gr)
 		display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, COL_BLACK, true );
 		offset_y += LINESPACE;
 
-		money_to_string( number, cnv->calc_restwert()/100.0 );
+		money_to_string( number, cnv->calc_restwert() / 100.0 );
 		buf.clear();
 		buf.printf("%s %s", translator::translate("Restwert:"), number );
 		display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, MONEY_PLUS, true );
 		offset_y += LINESPACE;
 
-		money_to_string( number, cnv->calc_restwert()/100.0 );
+		money_to_string( number, cnv->calc_restwert() / 100.0 );
 		buf.clear();
 		buf.printf(translator::translate("Bonusspeed: %i km/h"), cnv->get_speedbonus_kmh() );
 		display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, COL_BLACK, true );
@@ -272,15 +272,16 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 			extra_y += LINESPACE;
 
 			// age
-			sint32 month = v->get_insta_zeit();
 			buf.clear();
-			buf.printf( "%s %s %i", translator::translate("Manufactured:"), translator::get_month_name(month%12), month/12 );
+			{
+				const sint32 month = v->get_insta_zeit();
+				buf.printf( "%s %s %i", translator::translate("Manufactured:"), translator::get_month_name(month%12), month/12 );
+			}
 			display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, COL_BLACK, true );
 			extra_y += LINESPACE;
 
 			// value
-			sint32 current = v->calc_restwert();
-			money_to_string( number, current/100.0 );
+			money_to_string( number, v->calc_restwert() / 100.0 );
 			buf.clear();
 			buf.printf( "%s %s", translator::translate("Restwert:"), number );
 			display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, MONEY_PLUS, true );

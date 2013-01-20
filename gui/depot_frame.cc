@@ -918,9 +918,9 @@ void depot_frame_t::update_data()
 }
 
 
-sint32 depot_frame_t::calc_restwert(const vehikel_besch_t *veh_type)
+sint64 depot_frame_t::calc_restwert(const vehikel_besch_t *veh_type)
 {
-	sint32 wert = 0;
+	sint64 wert = 0;
 	FOR(slist_tpl<vehikel_t*>, const v, depot->get_vehicle_list()) {
 		if(  v->get_besch() == veh_type  ) {
 			wert += v->calc_restwert();
@@ -1317,11 +1317,16 @@ void depot_frame_t::zeichnen(koord pos, koord groesse)
 					convoi_length_too_slow_sb = 0;
 			}
 
-			txt_convoi_value.clear();
-			txt_convoi_value.printf("%s %6ld$", translator::translate("Restwert:"), (long)(cnv->calc_restwert() / 100) );
+			{
+				char buf[128];
+				txt_convoi_value.clear();
+				money_to_string(  buf, cnv->calc_restwert() / 100.0, false );
+				txt_convoi_value.printf("%s %8s", translator::translate("Restwert:"), buf );
 
-			txt_convoi_cost.clear();
-			txt_convoi_cost.printf( translator::translate("Cost: %6d$ (%.2f$/km)\n"), cnv->get_purchase_cost() / 100, (double)cnv->get_running_cost() / 100.0 );
+				txt_convoi_cost.clear();
+				money_to_string(  buf, cnv->get_purchase_cost() / 100.0, false );
+				txt_convoi_cost.printf( translator::translate("Cost: %8s (%.2f$/km)\n"), buf, (double)cnv->get_running_cost() / 100.0 );
+			}
 
 			txt_convoi_power.clear();
 			txt_convoi_power.printf( translator::translate("Power: %4d kW\n"), cnv->get_sum_leistung() );
@@ -1443,7 +1448,7 @@ void depot_frame_t::draw_vehicle_info_text(koord pos)
 		&waggons;
 	int x = get_maus_x();
 	int y = get_maus_y();
-	long resale_value = -1;
+	double resale_value = -1.0;
 	const vehikel_besch_t *veh_type = NULL;
 	bool new_vehicle_length_sb_force_zero = false;
 	koord relpos = koord( 0, ((gui_scrollpane_t *)tabs.get_aktives_tab())->get_scroll_y() );
@@ -1458,7 +1463,7 @@ void depot_frame_t::draw_vehicle_info_text(koord pos)
 			new_vehicle_length_sb_force_zero = true;
 		}
 		if(  vec[sel_index].count > 0  ) {
-			resale_value = calc_restwert( veh_type ) / 100;
+			resale_value = calc_restwert( veh_type );
 		}
 	}
 	else {
@@ -1467,7 +1472,7 @@ void depot_frame_t::draw_vehicle_info_text(koord pos)
 		if(  sel_index != -1  ) {
 			convoihandle_t cnv = depot->get_convoi( icnv );
 			veh_type = cnv->get_vehikel( sel_index )->get_besch();
-			resale_value = cnv->get_vehikel( sel_index )->calc_restwert() / 100;
+			resale_value = cnv->get_vehikel( sel_index )->calc_restwert();
 			new_vehicle_length_sb_force_zero = true;
 		}
 	}
@@ -1503,7 +1508,11 @@ void depot_frame_t::draw_vehicle_info_text(koord pos)
 			n += sprintf( buf + n, "\n");
 		}
 
-		n += sprintf( buf + n, translator::translate("Cost: %6d$ (%.2f$/km)\n"), veh_type->get_preis() / 100, veh_type->get_betriebskosten() / 100.0 );
+		{
+			char tmp[128];
+			money_to_string( tmp, veh_type->get_preis() / 100.0, false );
+			n += sprintf( buf + n, translator::translate("Cost: %8s (%.2f$/km)\n"), tmp, veh_type->get_betriebskosten() / 100.0 );
+		}
 
 		if(  veh_type->get_zuladung() > 0  ) { // must translate as "Capacity: %3d%s %s\n"
 			n += sprintf( buf + n, translator::translate("Capacity: %d%s %s\n"),
@@ -1558,8 +1567,10 @@ void depot_frame_t::draw_vehicle_info_text(koord pos)
 		}
 		n += sprintf( buf +  n, "\n");
 
-		if(  resale_value != -1  ) {
-			sprintf( buf + n, "%s %6ld$", translator::translate("Restwert:"), resale_value );
+		if(  resale_value != -1.0  ) {
+			char tmp[128];
+			money_to_string(  tmp, resale_value / 100.0, false );
+			sprintf( buf + n, "%s %8s", translator::translate("Restwert:"), tmp );
 		}
 
 		display_multiline_text( pos.x + second_column_x, pos.y + tabs.get_pos().y + tabs.get_groesse().y + 31 + LINESPACE * 2 + 4, buf, COL_BLACK);

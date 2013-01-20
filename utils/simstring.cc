@@ -95,7 +95,7 @@ void set_large_amout(const char *s, const double v)
  * are made!
  * @author Hj. Malthaner
  */
-void money_to_string(char * p, double f)
+void money_to_string(char * p, double f, const bool show_decimal)
 {
 	char   tmp[128];
 	char   *tp = tmp;
@@ -138,7 +138,7 @@ void money_to_string(char * p, double f)
 			*p++ = large_number_string[i];
 		}
 	}
-	else {
+	else if(  show_decimal  ) {
 		i = l+1;
 		// only decimals for smaller numbers
 		*p++ = fraction_sep;

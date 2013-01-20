@@ -2903,9 +2903,9 @@ sint32 convoi_t::get_running_cost() const
 }
 
 
-sint32 convoi_t::get_purchase_cost() const
+sint64 convoi_t::get_purchase_cost() const
 {
-	sint32 purchase_cost = 0;
+	sint64 purchase_cost = 0;
 	for(  unsigned i = 0;  i < get_vehikel_anzahl();  i++  ) {
 		purchase_cost += fahr[i]->get_besch()->get_preis();
 	}
