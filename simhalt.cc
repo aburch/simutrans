@@ -2754,10 +2754,10 @@ void haltestelle_t::rdwr(loadsave_t *file)
 	init_pos = tiles.empty() ? koord::invalid : tiles.front().grund->get_pos().get_2d();
 	if(file->is_saving()) 
 	{
-		uint32 ware_count = 1;
 		for(unsigned i=0; i<max_catg_count_file; i++) 
 		{
 			vector_tpl<ware_t> *warray = waren[i];
+			uint32 ware_count = 1;
 
 			if(warray) 
 			{
@@ -2792,8 +2792,6 @@ void haltestelle_t::rdwr(loadsave_t *file)
 					{
 						ware.rdwr(welt,file);
 					}
-					
-					
 				}
 			}
 		}

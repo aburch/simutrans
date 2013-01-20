@@ -826,7 +826,8 @@ void convoi_t::calc_acceleration(long delta_t)
 #endif
 	const sint32 brake_steps = convoy.calc_min_braking_distance(welt->get_settings(), convoy.get_weight_summary(), akt_speed);
 	// use get_route_infos() for the first time accessing route_infos to eventually initialize them.
-	if (get_route_infos().get_count() >= next_stop_index && next_stop_index > current_route_index)
+	const uint32 route_infos_count = get_route_infos().get_count();
+	if (route_infos_count > 0 && route_infos_count >= next_stop_index && next_stop_index > current_route_index)
 	{
 		uint32 i = current_route_index - 1;
 		const convoi_t::route_info_t &current_info = route_infos.get_element(i);
@@ -920,7 +921,7 @@ void convoi_t::route_infos_t::set_holding_pattern_indexes(sint32 current_route_i
 // extracted from convoi_t::calc_acceleration()
 convoi_t::route_infos_t& convoi_t::get_route_infos() 
 {
-	if (route_infos.get_count() == 0)
+	if (route_infos.get_count() == 0 && route.get_count() > 0)
 	{
 		vehikel_t &front = *this->front();
 		const uint32 route_count = route.get_count(); // at least ziel will be there, even if calculating a route failed.
