@@ -89,44 +89,15 @@ bool ai_t::is_connected( const koord start_pos, const koord dest_pos, const ware
 	// Dario: Check if there's a stop near destination
 	const planquadrat_t* start_plan = welt->lookup(start_pos);
 	const halthandle_t* start_list = start_plan->get_haltlist();
-
-	// Dario: Check if there's a stop near destination
-	const planquadrat_t* dest_plan = welt->lookup(dest_pos);
-	const halthandle_t* dest_list = dest_plan->get_haltlist();
-
-	// suitable end search
-	unsigned dest_count = 0;
-	for (uint16 h = 0; h<dest_plan->get_haltlist_count(); h++) {
-		halthandle_t halt = dest_list[h];
-		if (halt->is_enabled(wtyp)) {
-			for (uint16 hh = 0; hh<start_plan->get_haltlist_count(); hh++) {
-				if (halt == start_list[hh]) {
-					// connected with the start (i.e. too close)
-					return true;
-				}
-			}
-			dest_count ++;
-		}
-	}
-
-	if(dest_count==0) {
-		return false;
-	}
+	const uint16 start_halt_count  = start_plan->get_haltlist_count();
 
 	// now try to find a route
 	// ok, they are not in walking distance
 	ware_t ware(wtyp);
 	ware.set_zielpos(dest_pos);
 	ware.menge = 1;
-	for (uint16 hh = 0; hh<start_plan->get_haltlist_count(); hh++) {
-		if(  haltestelle_t::search_route( start_list+hh, 1u, false, ware ) != haltestelle_t::NO_ROUTE  ) {
-			// ok, already connected
-			return true;
-		}
-	}
 
-	// no connection possible between those
-	return false;
+	return (start_halt_count != 0)  &&  (haltestelle_t::search_route( start_list, start_halt_count, false, ware ) != haltestelle_t::NO_ROUTE);
 }
 
 
