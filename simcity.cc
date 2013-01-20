@@ -3281,7 +3281,7 @@ void stadt_t::step_passagiere()
 
 			uint16 best_journey_time = 65535;
 			uint8 best_start_halt = 0;
-			uint16 current_journey_time;
+			uint32 current_journey_time;
 			koord destination_stop_pos = destinations[current_destination].location;
 
 			ITERATE(start_halts, i)
@@ -3292,8 +3292,11 @@ void stadt_t::step_passagiere()
 					
 				// Add walking time from the origin to the origin stop. 
 				// Note that the walking time to the destination stop is already added by find_route.
-				current_journey_time += (uint16)(shortest_distance(start_halts[i]->get_next_pos(origin_pos), origin_pos) * walking_journey_time_factor) / 100u;
-					
+				current_journey_time += (shortest_distance(start_halts[i]->get_next_pos(origin_pos), origin_pos) * walking_journey_time_factor) / 100u;
+				if(current_journey_time > 65535)
+				{
+					current_journey_time = 65535;
+				}
 				// TODO: Add facility to check whether station/stop has car parking facilities, and add the possibility of a (faster) private car journey.
 				// Use the private car journey time per tile from the passengers' origin to the city in which the stop is located.
 

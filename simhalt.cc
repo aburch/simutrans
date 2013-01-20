@@ -1388,10 +1388,13 @@ uint16 haltestelle_t::find_route(minivec_tpl<halthandle_t> *ziel_list, ware_t &w
 	koord destination_stop_pos = destination_pos;
 
 	const uint8 ware_catg = ware.get_besch()->get_catg_index();
+	uint32 long_test_time;
 
 	for (uint8 i = 0; i < ziel_list->get_count(); i++)
 	{
 		path_explorer_t::get_catg_path_between(ware_catg, self, (*ziel_list)[i], test_time, test_transfer);
+
+		long_test_time = (uint32)test_time;
 
 		if(destination_pos != koord::invalid)
 		{
@@ -1400,12 +1403,21 @@ uint16 haltestelle_t::find_route(minivec_tpl<halthandle_t> *ziel_list, ware_t &w
 			{
 				destination_stop_pos = (*ziel_list)[i]->get_next_pos(destination_pos);
 			}
-
+			
 			// Add the walking distance from the destination stop to the ultimate destination.
-			test_time += (uint16)(shortest_distance(destination_stop_pos, destination_stop_pos) * walking_journey_time_factor) / 100u;
+			long_test_time += (shortest_distance(destination_stop_pos, destination_pos) * walking_journey_time_factor) / 100u;
 		}
 
-		if( test_time < journey_time )
+		if(long_test_time > 65535)
+		{
+			test_time = 65535;
+		}
+		else
+		{
+			test_time = long_test_time;
+		}
+
+		if(test_time < journey_time)
 		{
 			best_destination = (*ziel_list)[i];
 			journey_time = test_time;
@@ -1413,7 +1425,7 @@ uint16 haltestelle_t::find_route(minivec_tpl<halthandle_t> *ziel_list, ware_t &w
 		}
 	}
 		
-	if( journey_time < previous_journey_time )
+	if(journey_time < previous_journey_time)
 	{
 		ware.set_ziel(best_destination);
 		ware.set_zwischenziel(best_transfer);

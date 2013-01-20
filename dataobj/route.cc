@@ -200,10 +200,10 @@ void route_t::RELEASE_NODES(uint8 nodes_index)
 }
 
 
-/* find the route to an unknow location
+/* find the route to an unknown location
  * @author prissi
  */
-bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, const uint32 /*max_khm*/, uint8 start_dir, uint32 weight, uint32 max_depth )
+bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, const uint32 /*max_khm*/, uint8 start_dir, uint32 weight, uint32 max_depth)
 {
 	bool ok = false;
 
