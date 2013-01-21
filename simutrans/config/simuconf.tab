@@ -627,14 +627,6 @@ assume_everywhere_connected_by_road = 0
 
 city_isolation_factor = 32
 
-# Passengers will walk to their destination if it is close enough, rather than use
-# players' transport or private cars. This parameter defines how close that close
-# enough is. It is expressed in hundreds of meters (or tenths of kilometres), so
-# the default setting of 15 means that passnegers will walk to their destination if
-# it is within 1.5km of their origin.
-
-max_walking_distance_km_tenth = 15
-
 ################################## Industry settings #################################
 #
 # These are also pakset dependent

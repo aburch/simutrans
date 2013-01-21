@@ -3193,8 +3193,6 @@ void stadt_t::step_passagiere()
 
 		route_status route_good = no_route;
 			
-		//const uint16 max_walking_distance = s.get_max_walking_distance();
-
 		const uint32 straight_line_distance = shortest_distance(origin_pos, destinations[current_destination].location);
 
 		const uint32 journey_time_adjustment = (welt->get_settings().get_meters_per_tile() * 6u) / 10u;
@@ -3233,15 +3231,6 @@ void stadt_t::step_passagiere()
 			minivec_tpl<halthandle_t> destination_list(dest_plan->get_haltlist_count());
 				
 			halthandle_t start_halt;
-				
-			//TODO: Remove this.
-			// Check whether the destination is within walking distance first.
-			// @author: jamespetts, December 2009
-			//if(shortest_distance(destinations[current_destination].location, origin_pos) <= max_walking_distance)
-			//{
-			//	// Passengers will always walk if they are close enough.
-			//	route_good = will_walk;
-			//}
 							
 			for (int h = dest_plan->get_haltlist_count() - 1; h >= 0; h--) 
 			{

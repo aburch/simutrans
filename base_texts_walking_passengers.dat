@@ -1,0 +1,13 @@
+# Simutranslator settings for Simutrans-Experimental texts
+# Addendum for the "walking passengers" Github branch
+#
+# Author: jamespetts
+# Created: January 2013
+#
+obj=program_text
+name=Stops potentially within walking distance:
+note=Title text for the list of stops potentially within walking distance shown in the information window of each city building
+-
+obj=program_text
+name=Walking time
+note=Text describing walking times to nearby stops in the information window of each city building

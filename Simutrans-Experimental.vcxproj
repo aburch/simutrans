@@ -1147,6 +1147,7 @@
     <None Include="base_texts_experimental_forgotten_items_1.dat" />
     <None Include="base_texts_experimental_forgotten_items_2.dat" />
     <None Include="base_texts_experimental_forgotten_items_3.dat" />
+    <None Include="base_texts_walking_passengers.dat" />
     <None Include="config.default" />
     <None Include="config.template" />
     <None Include="Makefile" />

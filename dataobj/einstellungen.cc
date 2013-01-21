@@ -418,8 +418,6 @@ settings_t::settings_t() :
 	max_longdistance_tolerance = 330 * 10; // Five and a half hours
 	//max_longdistance_tolerance = 150;
 
-	max_walking_distance = 4;
-
 	used_vehicle_reduction = 0;
 
 	// some network thing to keep client in sync
@@ -1172,7 +1170,12 @@ void settings_t::rdwr(loadsave_t *file)
 		
 		if(file->get_experimental_version() >= 8)
 		{
-			file->rdwr_short(max_walking_distance);
+			if(file->get_experimental_version() < 11)
+			{
+				uint16 dummy = 0;
+				file->rdwr_short(dummy);
+				// Was max_walking_distance
+			}
 			file->rdwr_bool(quick_city_growth);
 			file->rdwr_bool(assume_everywhere_connected_by_road);
 			for(uint8 i = 0; i < 17; i ++)
@@ -1957,9 +1960,6 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	min_longdistance_tolerance = min_longdistance_tolerance_minutes * 10;
 	const uint16 max_longdistance_tolerance_minutes = contents.get_int("max_longdistance_tolerance", (max_longdistance_tolerance / 10));
 	max_longdistance_tolerance = max_longdistance_tolerance_minutes * 10;
-
-	const uint16 max_walking_distance_m = contents.get_int("max_walking_distance_km_tenth", (max_walking_distance * meters_per_tile) / 100) * 100;
-	max_walking_distance = ((uint32)max_walking_distance_m * distance_per_tile) / 100;
 
 	quick_city_growth = (bool)(contents.get_int("quick_city_growth", quick_city_growth));
 

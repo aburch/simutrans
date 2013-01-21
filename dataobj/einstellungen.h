@@ -441,12 +441,6 @@ public:
 	uint16 max_midrange_tolerance;
 	uint16 min_longdistance_tolerance;
 	uint16 max_longdistance_tolerance;
-
-	// The walking distance in tiles
-	// that people are prepared to 
-	// tolerate.
-	// @author: jamespetts, December 2009
-	uint16 max_walking_distance;
 	
 private:
 
@@ -911,7 +905,6 @@ public:
 	uint32 get_frames_per_second() const { return frames_per_second; }
 	uint32 get_frames_per_step() const { return frames_per_step; }
 
-	uint16 get_max_walking_distance() const { return max_walking_distance; }
 	bool get_quick_city_growth() const { return quick_city_growth; }
 	void set_quick_city_growth(bool value) { quick_city_growth = value; }
 	bool get_assume_everywhere_connected_by_road() const { return assume_everywhere_connected_by_road; }
