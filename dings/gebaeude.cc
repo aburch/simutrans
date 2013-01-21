@@ -638,7 +638,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 		if(desc != NULL) {
 			const char *trans_desc = translator::translate(desc);
 			if(trans_desc==desc) {
-				// no descrition here
+				// no description here
 				switch(get_haustyp()) {
 					case wohnung:
 						trans_desc = translator::translate("residential house");
@@ -715,6 +715,65 @@ void gebaeude_t::info(cbuffer_t & buf) const
 		if (char const* const maker = tile->get_besch()->get_copyright()) {
 			buf.append("\n");
 			buf.printf(translator::translate("Constructed by %s"), maker);
+		}
+
+		// List of stops potentially within walking distance.
+		const planquadrat_t* plan = welt->lookup(get_pos().get_2d());
+		const halthandle_t *const halt_list = plan->get_haltlist();
+		bool any_suitable_stops_passengers = false;
+		bool any_suitable_stops_mail = false;
+		const uint32 journey_time_adjustment = (welt->get_settings().get_meters_per_tile() * 6u) / 10u;
+		// Walking speed is taken to be 5km/h: http://en.wikipedia.org/wiki/Walking
+		const uint32 walking_journey_time_factor = (journey_time_adjustment * 100u) / 5u;
+		buf.append("\n\n");
+
+		if(plan->get_haltlist_count() > 0)
+		{
+			for (int h = plan->get_haltlist_count() - 1; h >= 0; h--) 
+			{
+				const halthandle_t const halt = halt_list[h];
+				if (halt->is_enabled(warenbauer_t::passagiere))
+				{
+					if(!any_suitable_stops_passengers)
+					{
+						buf.append(translator::translate("Stops potentially within walking distance:"));
+						buf.printf("\n(%s)\n\n", translator::translate("Passagiere"));
+						any_suitable_stops_passengers = true;
+					}
+					const uint16 walking_time = (uint16)(shortest_distance(get_pos().get_2d(), halt->get_next_pos(get_pos().get_2d())) * walking_journey_time_factor) / 100u;
+					char walking_time_as_clock[32];
+					halt->get_welt()->sprintf_time(walking_time_as_clock, sizeof(walking_time_as_clock), walking_time * 6);
+					buf.printf("%s\n%s: %s\n", halt->get_name(), translator::translate("Walking time"), walking_time_as_clock);
+				}
+			}
+			
+			for (int h = plan->get_haltlist_count() - 1; h >= 0; h--) 
+			{
+				const halthandle_t const halt = halt_list[h];
+				if (halt->is_enabled(warenbauer_t::post))
+				{
+					if(!any_suitable_stops_mail)
+					{
+						buf.printf("\n(%s)\n\n", translator::translate("Post"));
+						any_suitable_stops_mail = true;
+					}
+					const uint16 walking_time = (uint16)(shortest_distance(get_pos().get_2d(), halt->get_next_pos(get_pos().get_2d())) * walking_journey_time_factor) / 100u;
+					char walking_time_as_clock[32];
+					halt->get_welt()->sprintf_time(walking_time_as_clock, sizeof(walking_time_as_clock), walking_time * 6);
+					buf.printf("%s\n%s: %s\n", halt->get_name(), translator::translate("Walking time"), walking_time_as_clock);
+				}
+			}
+
+		}
+
+		if(!any_suitable_stops_passengers)
+		{
+			buf.append(translator::translate("No passenger stops within walking distance\n"));
+		}
+
+		if(!any_suitable_stops_mail)
+		{
+			buf.append(translator::translate("\nNo postboxes within walking distance"));
 		}
 	}
 }
