@@ -713,7 +713,7 @@ public:
 	/* marks a coverage area
 	* @author prissi
 	*/
-	void mark_unmark_coverage(const bool mark) const;
+	void mark_unmark_coverage(const bool mark, const bool factories = false) const;
 
 	// @author: jamespetts
 	// Returns the proportion of unhappy people of the total of

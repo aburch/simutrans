@@ -1226,7 +1226,7 @@ void haltestelle_t::verbinde_fabriken()
 	FOR(slist_tpl<tile_t>, const& i, tiles) {
 		koord const p = i.grund->get_pos().get_2d();
 
-		int const cov = welt->get_settings().get_station_coverage();
+		int const cov = welt->get_settings().get_station_coverage_factories();
 		FOR(vector_tpl<fabrik_t*>, const fab, fabrik_t::sind_da_welche(welt, p - koord(cov, cov), p + koord(cov, cov))) {
 			if(!fab_list.is_contained(fab)) {
 				fab_list.insert(fab);
@@ -3381,8 +3381,8 @@ bool haltestelle_t::add_grund(grund_t *gr)
 	welt->access(pos)->set_halt(self);
 
 	//DBG_MESSAGE("haltestelle_t::add_grund()","pos %i,%i,%i to %s added.",pos.x,pos.y,pos.z,get_name());
-
-	FOR(vector_tpl<fabrik_t*>, const fab, fabrik_t::sind_da_welche(welt, pos - koord(cov, cov), pos + koord(cov, cov))) {
+	int const ind_cov =  welt->get_settings().get_station_coverage_factories();
+	FOR(vector_tpl<fabrik_t*>, const fab, fabrik_t::sind_da_welche(welt, pos - koord(ind_cov, ind_cov), pos + koord(ind_cov, ind_cov))) {
 		if(!fab_list.is_contained(fab)) {
 			fab_list.insert(fab);
 			fab->link_halt(self);
@@ -3606,10 +3606,10 @@ koord haltestelle_t::get_next_pos( koord start ) const
 /* marks a coverage area
  * @author prissi
  */
-void haltestelle_t::mark_unmark_coverage(const bool mark) const
+void haltestelle_t::mark_unmark_coverage(const bool mark, const bool factories) const
 {
 	// iterate over all tiles
-	uint16 const cov = welt->get_settings().get_station_coverage();
+	uint16 const cov = factories ? welt->get_settings().get_station_coverage_factories() : welt->get_settings().get_station_coverage();
 	koord  const size(cov * 2 + 1, cov * 2 + 1);
 	FOR(slist_tpl<tile_t>, const& i, tiles) {
 		welt->mark_area(i.grund->get_pos() - size / 2, size, mark);

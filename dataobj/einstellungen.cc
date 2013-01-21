@@ -50,6 +50,7 @@ settings_t::settings_t() :
 	mittlere_einwohnerzahl = 1600;
 
 	station_coverage_size = 2;
+	station_coverage_size_factories = 1;
 
 	verkehr_level = 5;
 
@@ -513,6 +514,7 @@ void settings_t::rdwr(loadsave_t *file)
 		file->rdwr_double(map_roughness );
 
 		station_coverage_size = 3;
+		station_coverage_size_factories = 1;
 		beginner_mode = false;
 		rotation = 0;
 	}
@@ -539,7 +541,7 @@ void settings_t::rdwr(loadsave_t *file)
 		// rest
 		if(file->get_version() < 101000) {
 			uint32 dummy;	// was scroll dir
-			file->rdwr_long(dummy );
+			file->rdwr_long(dummy);
 		}
 		file->rdwr_long(verkehr_level );
 		file->rdwr_long(show_pax );
@@ -556,8 +558,13 @@ void settings_t::rdwr(loadsave_t *file)
 
 		if(file->get_version() >= 86003) {
 			dummy = station_coverage_size;
-			file->rdwr_long(dummy );
+			file->rdwr_long(dummy);
 			station_coverage_size = (uint16)dummy;
+		}
+
+		if(file->get_experimental_version() >= 11)
+		{
+			file->rdwr_short(station_coverage_size_factories);
 		}
 
 		if(file->get_version() >= 86006) {
@@ -1723,6 +1730,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	numbered_stations = contents.get_int("numbered_stations", numbered_stations );
 	station_coverage_size = contents.get_int("station_coverage", station_coverage_size );
+	station_coverage_size_factories = contents.get_int("station_coverage_factories", station_coverage_size_factories );
 
 	// time stuff
 	bits_per_month = contents.get_int("bits_per_month", bits_per_month );

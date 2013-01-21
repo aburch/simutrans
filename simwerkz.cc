@@ -3753,7 +3753,17 @@ bool wkz_station_t::init( karte_t *welt, spieler_t * )
 	}
 	else {
 set_area_cov:
-		uint16 const cov = welt->get_settings().get_station_coverage() * 2 + 1;
+		uint16 base_cov;
+		const bool freight_enabled = hb->get_enabled() & 4;
+		if(is_shift_pressed() != freight_enabled)
+		{
+			base_cov = welt->get_settings().get_station_coverage_factories();
+		}
+		else
+		{
+			base_cov = welt->get_settings().get_station_coverage();
+		}
+		uint16 const cov = base_cov * 2 + 1;
 		welt->get_zeiger()->set_area(koord(cov, cov), true);
 	}
 	return true;

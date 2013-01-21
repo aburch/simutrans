@@ -123,6 +123,8 @@ private:
 	bool factory_enforce_demand;
 
 	uint16 station_coverage_size;
+	// The coverage circle for factories - allows this to be smaller than for passengers/mail.
+	uint16 station_coverage_size_factories;
 
 	/**
 	 * ab welchem level erzeugen gebaeude verkehr ?
@@ -593,6 +595,8 @@ public:
 	double get_map_roughness() const {return map_roughness;}
 
 	uint16 get_station_coverage() const {return station_coverage_size;}
+
+	uint16 get_station_coverage_factories() const {return station_coverage_size_factories;}
 
 	void set_allow_player_change(char n) {allow_player_change=n;}	// prissi, Oct-2005
 	uint8 get_allow_player_change() const {return allow_player_change;}

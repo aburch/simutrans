@@ -40,8 +40,8 @@ field_t::~field_t()
 
 const char *field_t::ist_entfernbar(const spieler_t *)
 {
-	// we allow removal, if there is less than
-	return (fab->get_field_count() > fab->get_besch()->get_field_group()->get_min_fields()) ? NULL : "Not enough fields would remain.";
+	// Allow removal provided that the number of fields do not fall below half the minimum
+	return (fab->get_field_count() > fab->get_besch()->get_field_group()->get_min_fields() / 2) ? NULL : "Not enough fields would remain.";
 }
 
 
