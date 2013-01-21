@@ -436,7 +436,7 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 			sprintf( str_buf[15], translator::translate("Scenario complete: %i%%"), percent );
 		}
 		else {
-			sprintf( str_buf[15], translator::translate("Scenario lost!") );
+			tstrncpy(str_buf[15], translator::translate("Scenario lost!"), lengthof(str_buf[15]) );
 		}
 	}
 	else if(sp->get_finance_history_year(0, COST_NETWEALTH)<0) {
@@ -445,7 +445,7 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	}
 	else if(  sp->get_finance_history_year(0, COST_NETWEALTH)*10 < sp->get_welt()->get_settings().get_starting_money(sp->get_welt()->get_current_month()/12)  ){
 		warn.set_color( MONEY_MINUS );
-		sprintf(str_buf[15], translator::translate("Net wealth near zero"), sp->get_konto_ueberzogen() );
+		tstrncpy(str_buf[15], translator::translate("Net wealth near zero"), lengthof(str_buf[15]) );
 	}
 	else if(  sp->get_konto_ueberzogen()  ) {
 		warn.set_color( COL_YELLOW );
