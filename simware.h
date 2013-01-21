@@ -131,22 +131,15 @@ public:
 	inline bool can_merge_with (const ware_t &w) const
 	{
 		return index  == w.index  &&
-			menge == w.menge &&
 			to_factory == w.to_factory &&
 			ziel  == w.ziel  &&
-			// Only merge the destination *position* if the load is freight
-			(index < 2 || zielpos == w.zielpos) &&
+			// Only merge the destination *position* if the load is freight (since more than one factory might by connected!)
+			(!to_factory  ||  zielpos==w.get_zielpos()) &&
 			origin == w.origin &&
 			last_transfer == w.last_transfer;
 	}
 
 	int operator!=(const ware_t &w) { return !(*this == w); 	}
-
-	// mail and passengers just care about target station
-	// freight needs to obey coordinates (since more than one factory might by connected!)
-	inline bool same_destination(const ware_t &w) const {
-		return index==w.get_index()  &&  ziel==w.get_ziel()  &&  to_factory==w.to_factory  &&  (!to_factory  ||  zielpos==w.get_zielpos());
-	}
 };
 
 #endif
