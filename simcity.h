@@ -57,13 +57,13 @@ enum city_cost {
 	MAX_CITY_HISTORY		// Total number of items in array
 };
 
-enum route_status 
+enum route_status_type
 {
 	no_route = 0,
 	too_slow = 1,
-	good = 2,
-	private_car_only = 3,
-	will_walk = 4
+	public_transport = 2,
+	private_car = 3,
+	on_foot = 4
 };
 
 class road_destination_finder_t : public fahrer_t
