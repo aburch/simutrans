@@ -5076,7 +5076,7 @@ void stadt_t::baue(bool new_town)
 
 	// renovation (only done when nothing matches a certain location)
 	koord c( (ur.x + lo.x)/2 , (ur.y + lo.y)/2);
-	double maxdist(koord_distance(ur,c));
+	uint32 maxdist(koord_distance(ur,c));
 	if (maxdist < 10) {maxdist = 10;}
 	int was_renovated=0;
 	int try_nr = 0;
@@ -5084,8 +5084,8 @@ void stadt_t::baue(bool new_town)
 		while (was_renovated < renovations_count && try_nr++ < renovations_try) { // trial an errors parameters
 			// try to find a public owned building
 			gebaeude_t* const gb = pick_any(buildings);
-			double dist(koord_distance(c, gb->get_pos()));
-			uint32 distance_rate = uint32(100 * (1.0 - dist/maxdist));
+			const uint32 dist(koord_distance(c, gb->get_pos()));
+			const uint32 distance_rate = 100 - (dist * 100) / maxdist;
 			if(  spieler_t::check_owner(gb->get_besitzer(),NULL)  && simrand(100, "void stadt_t::baue") < distance_rate) {
 				if(renoviere_gebaeude(gb)) { was_renovated++;}
 			}
