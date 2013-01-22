@@ -3053,7 +3053,7 @@ void stadt_t::step_passagiere()
 	// "post or generate pax"
 	const ware_besch_t *const wtyp = (simrand(400, "void stadt_t::step_passagiere() (mail or passengers?"))<300 ? warenbauer_t::passagiere : warenbauer_t::post;
 	const city_cost history_type = (wtyp == warenbauer_t::passagiere) ? HIST_PAS_TRANSPORTED : HIST_MAIL_TRANSPORTED;
-	factory_set_t &target_factories = ( wtyp==warenbauer_t::passagiere ? target_factories_pax : target_factories_mail );
+	factory_set_t &target_factories = (wtyp==warenbauer_t::passagiere ? target_factories_pax : target_factories_mail);
 
 	// restart at first buiulding?
 	if (step_count >= buildings.get_count()) 
@@ -3061,7 +3061,8 @@ void stadt_t::step_passagiere()
 		step_count = 0;
 	}
 
-	if (buildings.empty()) {
+	if (buildings.empty())
+	{
 		return;
 	}
 	const gebaeude_t* gb = buildings[step_count];
@@ -3077,12 +3078,7 @@ void stadt_t::step_passagiere()
 	city_history_year[0][history_type+1] += num_pax;
 	city_history_month[0][history_type+1] += num_pax;
 			
-	// create pedestrians in the near area?
-	if (s.get_random_pedestrians() && wtyp == warenbauer_t::passagiere) {
-		haltestelle_t::erzeuge_fussgaenger(welt, gb->get_pos(), num_pax);
-	}
-
-	// suitable start search
+	// suitable start search (public transport)
 	const koord3d origin_pos_3d = gb->get_pos();
 	const koord origin_pos = origin_pos_3d.get_2d();
 	const planquadrat_t *const plan = welt->lookup(origin_pos);
@@ -3229,6 +3225,11 @@ void stadt_t::step_passagiere()
 			const halthandle_t* dest_list = dest_plan->get_haltlist();
 			
 			// Knightly : we can avoid duplicated efforts by building destination halt list here at the same time
+
+			// Note that, although factories are only *connected* now if they are within the smaller factory radius
+			// (default: 1), they can take passengers within the wider square of the passenger radius. This is intended,
+			// and is as a result of using the below method for all destination types.
+
 			minivec_tpl<halthandle_t> destination_list(dest_plan->get_haltlist_count());
 							
 			for (int h = dest_plan->get_haltlist_count() - 1; h >= 0; h--) 
@@ -3492,6 +3493,11 @@ void stadt_t::step_passagiere()
 			start_halt->unload_repeat_counter = 0;
 			merke_passagier_ziel(destinations[current_destination].location, COL_YELLOW);
 			set_return_trip = will_return != no_return;
+			// create pedestrians in the near area?
+			if (s.get_random_pedestrians() && wtyp == warenbauer_t::passagiere) 
+			{
+				haltestelle_t::erzeuge_fussgaenger(welt, origin_pos_3d, pax_left_to_do);
+			}
 			break;
 
 		case private_car:
