@@ -167,14 +167,14 @@ private:
 	// this counter will increment by one for every change => dialogs can question, if they need to update map
 	unsigned long pax_destinations_new_change;
 
-	koord pos;			// Gruendungsplanquadrat der Stadt ("founding grid square" - Google)
-	koord townhall_road; // road in front of townhall
-	koord lo, ur;		// max size of housing area
+	koord pos;				// Gruendungsplanquadrat der Stadt ("founding grid square" - Google)
+	koord townhall_road;	// road in front of townhall
+	koord lo, ur;			// max size of housing area
 	bool  has_low_density;	// in this case extend borders by two
 
-	bool allow_citygrowth;	// town can be static and will grow (true by default)
+	bool allow_citygrowth;	// Whether growth is permitted (true by default)
 
-	// this counter indicate which building will be processed next
+	// this counter indicates which building will be processed next
 	uint32 step_count;
 
 	/**

@@ -2732,7 +2732,7 @@ void stadt_t::step_bau()
 {
 	bool new_town = (bev == 0);
 	if (new_town) {
-		bev = (wachstum >> 4);
+		bev = (wachstum >> 4); // "wachstum" = "growth" (Google)
 		bool need_building = true;
 		uint32 buildings_count = buildings.get_count();
 		uint32 try_nr = 0;
@@ -2755,7 +2755,7 @@ void stadt_t::step_bau()
 	// Hajo: let city grow in steps of 1
 	// @author prissi: No growth without development
 	for (int n = 0; n < growth_step; n++) {
-		bev++; // Hajo: bevoelkerung wachsen lassen
+		bev++; // Hajo: bevoelkerung wachsen lassen ("densely populated grow" - Google)
 
 		for (int i = 0; i < 30 && bev * 2 > won + arb + 100; i++) {
 			baue(false);
@@ -3440,7 +3440,7 @@ void stadt_t::step_passagiere()
 						// Compare best journey speed on public transport with the 
 						// likely private car journey time.
 
-						INT_CHECK( "simcity 3004" );
+						INT_CHECK( "simcity 3443" );
 
 						// Journey times of private transport as a percentage of player journey times.
 						uint32 car_journey_time_percent = (100 * car_minutes) / best_journey_time;
@@ -3723,10 +3723,10 @@ void stadt_t::step_passagiere()
 					}
 					merke_passagier_ziel(origin_pos, COL_TURQUOISE);
 
-	#ifdef DESTINATION_CITYCARS
+#ifdef DESTINATION_CITYCARS
 					//citycars with destination
 					erzeuge_verkehrsteilnehmer(destinations[0].location, step_count, origin_pos);
-	#endif
+#endif
 
 				}
 				else
@@ -5089,10 +5089,10 @@ void stadt_t::baue(bool new_town)
 				uint32 rule = ( i+offset ) % num_road_rules;
 				bewerte_strasse(k, 8 + road_rules[rule]->chance, *road_rules[rule]);
 			}
-			// ok => then built road
+			// ok => then build road
 			if (best_strasse.found()) {
 				baue_strasse(best_strasse.get_pos(), NULL, false);
-				INT_CHECK("simcity 1156");
+				INT_CHECK("simcity 5095");
 				return;
 			}
 
@@ -5109,13 +5109,13 @@ void stadt_t::baue(bool new_town)
 			// one rule applied?
 			if (best_haus.found()) {
 				baue_gebaeude(best_haus.get_pos(), new_town);
-				INT_CHECK("simcity 1163");
+				INT_CHECK("simcity 5112");
 				return;
 			}
 		}
 	}
 
-	// renovation (only done when nothing matches a certain location)
+	// renovation 
 	koord c( (ur.x + lo.x)/2 , (ur.y + lo.y)/2);
 	double maxdist(koord_distance(ur,c));
 	if (maxdist < 10) {maxdist = 10;}
@@ -5123,7 +5123,7 @@ void stadt_t::baue(bool new_town)
 	int try_nr = 0;
 	if (!buildings.empty() && simrand(100, "void stadt_t::baue") <= renovation_percentage  ) {
 		while (was_renovated < renovations_count && try_nr++ < renovations_try) { // trial an errors parameters
-			// try to find a public owned building
+			// try to find a non-player owned building
 			gebaeude_t* const gb = pick_any(buildings);
 			double dist(koord_distance(c, gb->get_pos()));
 			uint32 distance_rate = uint32(100 * (1.0 - dist/maxdist));
@@ -5131,7 +5131,7 @@ void stadt_t::baue(bool new_town)
 				if(renoviere_gebaeude(gb)) { was_renovated++;}
 			}
 		}
-		INT_CHECK("simcity 3746");
+		INT_CHECK("simcity 5134");
 	}
 	if(!was_renovated && !welt->get_settings().get_quick_city_growth())
 	{
@@ -5172,7 +5172,7 @@ void stadt_t::baue(bool new_town)
 			// ok => then built road
 			if (best_strasse.found()) {
 				baue_strasse(best_strasse.get_pos(), NULL, false);
-				INT_CHECK("simcity 3787");
+				INT_CHECK("simcity 5175");
 				return;
 			}
 
@@ -5189,7 +5189,7 @@ void stadt_t::baue(bool new_town)
 			// one rule applied?
 			if (best_haus.found()) {
 				baue_gebaeude(best_haus.get_pos(), new_town);
-				INT_CHECK("simcity 3804");
+				INT_CHECK("simcity 5192");
 				return;
 			}
 

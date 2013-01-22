@@ -213,7 +213,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 		return false;
 	}
 
-	const uint8 enforce_weight_limits =welt->get_settings().get_enforce_weight_limits();
+	const uint8 enforce_weight_limits = welt->get_settings().get_enforce_weight_limits();
 
 	// some thing for the search
 	const waytype_t wegtyp = fahr->get_waytype();
