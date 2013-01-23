@@ -3203,6 +3203,7 @@ void stadt_t::step_passagiere()
 		{			
 			const uint32 straight_line_distance = shortest_distance(origin_pos, destinations[current_destination].location);
 			const uint16 walking_time = (straight_line_distance * walking_journey_time_factor) / 100u;
+			car_minutes = 65535;
 
 			/** 
 			 * Tolerance is divided by two because passengers prefer not to walk for long distances,
@@ -3362,12 +3363,8 @@ void stadt_t::step_passagiere()
 					// *Tenths* of minutes used here.
 					car_minutes = time_per_tile * straight_line_distance;
 				}
-				else
-				{
-					car_minutes = 65535;
-				}
 			}		
-				
+	
 			if(car_minutes <= tolerance)
 			{
 				if(route_status != public_transport)
@@ -3472,7 +3469,13 @@ void stadt_t::step_passagiere()
 			}
 			
 			INT_CHECK("simcity 3472");
-			current_destination ++;
+			if(route_status == no_route || route_status == too_slow)
+			{
+				// Do not increment the counter if there is a good status,
+				// or else entirely the wrong information will be recorded
+				// below!
+				current_destination ++;
+			}
 		} // While loop (route_status)
 
 		bool set_return_trip = false;
