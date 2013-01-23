@@ -294,6 +294,14 @@ private:
 	 */
 	uint32 reroute_check_interval_steps;
 
+	/** 
+	 * The speed at which pedestrians walk in km/h.
+	 * Used in journey time calculations. 
+	 * NOTE: The straight line distance is used
+	 * with this speed.
+	 */
+	uint8 walking_speed;
+
 public:
 	//Cornering settings
 	//@author: jamespetts
@@ -961,6 +969,8 @@ public:
 	bool get_towns_adopt_player_roads() const { return towns_adopt_player_roads; }
 
 	uint32 get_reroute_check_interval_steps() const { return reroute_check_interval_steps; }
+
+	uint8 get_walking_speed() const { return walking_speed; }
 
 #ifndef NETTOOL
 	float32e8_t get_simtime_factor() const { return simtime_factor; }

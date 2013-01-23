@@ -3109,8 +3109,7 @@ void stadt_t::step_passagiere()
 	bool too_slow_already_set;
 
 	const uint32 journey_time_adjustment = (welt->get_settings().get_meters_per_tile() * 6u) / 10u;
-	// Walking speed is taken to be 5km/h: http://en.wikipedia.org/wiki/Walking
-	const uint32 walking_journey_time_factor = (journey_time_adjustment * 100u) / 5u;
+	const uint32 walking_journey_time_factor = (journey_time_adjustment * 100u) / (uint32)welt->get_settings().get_walking_speed();
 	
 	// Add 1 because the simuconf.tab setting is for maximum *alternative* destinations, whereas we need maximum *actual* desintations 
 	const uint8 max_destinations = (s.get_max_alternative_destinations() < 16 ? s.get_max_alternative_destinations() : 15) + 1;

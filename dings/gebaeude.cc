@@ -723,8 +723,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 		bool any_suitable_stops_passengers = false;
 		bool any_suitable_stops_mail = false;
 		const uint32 journey_time_adjustment = (welt->get_settings().get_meters_per_tile() * 6u) / 10u;
-		// Walking speed is taken to be 5km/h: http://en.wikipedia.org/wiki/Walking
-		const uint32 walking_journey_time_factor = (journey_time_adjustment * 100u) / 5u;
+		const uint32 walking_journey_time_factor = (journey_time_adjustment * 100u) / (uint32)welt->get_settings().get_walking_speed();
 		buf.append("\n\n");
 
 		if(plan->get_haltlist_count() > 0)

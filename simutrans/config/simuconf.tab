@@ -59,7 +59,7 @@ max_route_steps = 1000000
 # (In older versions, this was used for both city buildings and factories)
 #
 # Default: 2
-station_coverage = 2
+station_coverage = 6
 
 # Size of the catchment area of a station/stop in tiles.
 # This is for factories only.
@@ -399,6 +399,13 @@ min_midrange_tolerance = 5
 max_midrange_tolerance = 240
 min_longdistance_tolerance = 30
 max_longdistance_tolerance = 4320
+
+# The following setting determines the walking speed of passengers in km/h.
+# See: http://en.wikipedia.org/wiki/Walking , which suggests that this should
+# be 5km/h. This is used in routing calculations for walking to/from stops and
+# in walking between stops. 
+
+walking_speed = 5
 
 #################################### Revenue settings ##################################
 #

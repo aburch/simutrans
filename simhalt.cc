@@ -1383,8 +1383,7 @@ uint16 haltestelle_t::find_route(minivec_tpl<halthandle_t> *ziel_list, ware_t &w
 	halthandle_t best_transfer;
 
 	const uint32 journey_time_adjustment = (welt->get_settings().get_meters_per_tile() * 6u) / 10u;
-	// Walking speed is taken to be 5km/h: http://en.wikipedia.org/wiki/Walking
-	const uint32 walking_journey_time_factor = (journey_time_adjustment * 100u) / 5u;
+	const uint32 walking_journey_time_factor = (journey_time_adjustment * 100u) / (journey_time_adjustment * 100u) / (uint32)welt->get_settings().get_walking_speed();
 	koord destination_stop_pos = destination_pos;
 
 	const uint8 ware_catg = ware.get_besch()->get_catg_index();

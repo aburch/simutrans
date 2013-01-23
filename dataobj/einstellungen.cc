@@ -449,6 +449,8 @@ settings_t::settings_t() :
 	allow_making_public = true;
 
 	reroute_check_interval_steps = 8192;
+
+	walking_speed = 5;
 	
 	for(uint8 i = 0; i < 17; i ++)
 	{
@@ -1303,6 +1305,7 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_longlong(private_car_toll_per_tile);
 			file->rdwr_bool(towns_adopt_player_roads);
 			file->rdwr_long(reroute_check_interval_steps);
+			file->rdwr_byte(walking_speed);
 		}
 		else if(umgebung_t::networkmode)
 		{
@@ -1310,6 +1313,7 @@ void settings_t::rdwr(loadsave_t *file)
 			private_car_toll_per_tile = 1;
 			towns_adopt_player_roads = true;
 			reroute_check_interval_steps = 8192;
+			walking_speed = 5;
 		}
 
 		if(file->get_version()>=111002 && file->get_experimental_version() == 0) 
@@ -1989,6 +1993,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	
 	reroute_check_interval_steps = contents.get_int("reroute_check_interval_steps", reroute_check_interval_steps);
 
+	walking_speed = contents.get_int("walking_speed", walking_speed);
+	
 	for(uint8 i = road_wt; i <= air_wt; i ++)
 	{
 		std::string buf;
