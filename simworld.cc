@@ -794,10 +794,6 @@ void karte_t::add_stadt(stadt_t *s)
 }
 
 
-/**
- * Removes town from map, houses will be left overs
- * @author prissi
- */
 bool karte_t::rem_stadt(stadt_t *s)
 {
 	if(s == NULL  ||  stadt.empty()) {
@@ -2421,10 +2417,6 @@ void karte_t::rdwr_player_password_hashes(loadsave_t *file)
 }
 
 
-/**
- * network safe method to init new players, change freeplay
- * @param param player type (human / ai) of new players
- */
 void karte_t::call_change_player_tool(uint8 cmd, uint8 player_nr, uint16 param)
 {
 	nwc_chg_player_t *nwc = new nwc_chg_player_t(sync_steps, map_counter, cmd, player_nr, param);
@@ -2493,7 +2485,6 @@ bool karte_t::change_player_tool(uint8 cmd, uint8 player_nr, uint16 param, bool 
 }
 
 
-// new tool definition
 void karte_t::set_werkzeug( werkzeug_t *w, spieler_t *sp )
 {
 	if(  get_random_mode()&LOAD_RANDOM  ) {
@@ -3958,11 +3949,6 @@ void karte_t::update_history()
 }
 
 
-/**
- * If this is true, the map will not be scrolled
- * on right-drag
- * @author Hj. Malthaner
- */
 void karte_t::set_scroll_lock(bool yesno)
 {
 	scroll_lock = yesno;
@@ -4078,10 +4064,6 @@ static sint8 median( sint8 a, sint8 b, sint8 c )
 }
 
 
-/**
- * returns the natural slope at a position using the actual slopes
- * @author prissi
- */
 uint8 karte_t::recalc_natural_slope( const koord pos, sint8 &new_height ) const
 {
 	grund_t *gr = lookup_kartenboden(pos);
@@ -4202,10 +4184,6 @@ uint8 karte_t::recalc_natural_slope( const koord pos, sint8 &new_height ) const
 }
 
 
-/**
- * returns the natural slope a a position using the grid
- * @author prissi
- */
 uint8 karte_t::calc_natural_slope( const koord pos ) const
 {
 	if(ist_in_gittergrenzen(pos.x, pos.y)) {
@@ -5401,11 +5379,6 @@ uint8 karte_t::sp2num(spieler_t *sp)
 }
 
 
-/**
- * Creates a map from a heightfield
- * @param sets game settings
- * @author Hj. Malthaner
- */
 void karte_t::load_heightfield(settings_t* const sets)
 {
 	sint16 w, h;
@@ -5423,10 +5396,6 @@ void karte_t::load_heightfield(settings_t* const sets)
 }
 
 
-/**
- * marks an area using the grund_t mark flag
- * @author prissi
- */
 void karte_t::mark_area( const koord3d pos, const koord size, const bool mark ) const
 {
 	for( sint16 y=pos.y;  y<pos.y+size.y;  y++  ) {

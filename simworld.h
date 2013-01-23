@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 1997 - 2001 Hj. Malthaner
  *
  * This file is part of the Simutrans project under the artistic license.
@@ -75,14 +75,14 @@ struct checklist_t
 };
 
 
-/// threaded function caller
+/**
+ * Threaded function caller.
+ */
 typedef void (karte_t::*xy_loop_func)(sint16, sint16, sint16, sint16);
 
 
 /**
- * Die Karte ist der zentrale Bestandteil der Simulation. Sie
- * speichert alle Daten und Objekte.
- *
+ * The map is the central part of the simulation. It stores all data and objects.
  * @author Hj. Malthaner
  */
 class karte_t
@@ -129,7 +129,7 @@ private:
 	// aus performancegruenden werden einige Einstellungen local gecached
 	sint16 cached_groesse_gitter_x;
 	sint16 cached_groesse_gitter_y;
-	// diese Werte sind um eins kleiner als die Werte fuer das Gitter
+	// these values ​​are one less than the values ​​for the grid
 	sint16 cached_groesse_karte_x;
 	sint16 cached_groesse_karte_y;
 	// maximum size for waitng bars etc.
@@ -141,22 +141,26 @@ private:
 	werkzeug_t *werkzeug[MAX_PLAYER_COUNT];
 
 	/**
-	 * redraw whole map
+	 * Redraw whole map.
 	 */
 	bool dirty;
 
-	// the rotation of the map when first loaded
+	// The rotation of the map when first loaded.
 	uint8 loaded_rotation;
 
 	/**
-	 * fuer softes scrolling
+	 * For soft scrolling.
 	 */
 	sint16 x_off, y_off;
 
-	/* current position */
+	/**
+	 * Current position.
+	 */
 	koord ij_off;
 
-	/* this is the current offset for getting from tile to screen */
+	/**
+	 * This is the current offset for getting from tile to screen.
+	 */
 	koord ansicht_ij_off;
 
 	/**
@@ -165,7 +169,9 @@ private:
 	 */
 	sint32 mi, mj;
 
-	/* time when last mouse moved to check for ambient sound events */
+	/**
+	 * Time when last mouse moved to check for ambient sound events.
+	 */
 	uint32 mouse_rest_time;
 	uint32 sound_wait_time;	// waiting time before next event
 
@@ -176,24 +182,27 @@ private:
 	 */
 	bool scroll_lock;
 
-	// if true, this map cannot be saved
+	/**
+	 * If true, this map cannot be saved.
+	 */
 	bool nosave;
 	bool nosave_warning;
 
 	/*
-	* the current convoi to follow
+	* The current convoi to follow.
 	* @author prissi
 	*/
 	convoihandle_t follow_convoi;
 
 	/**
-	 * water level height
+	 * Water level height.
 	 * @author Hj. Malthaner
 	 */
 	sint8 grundwasser;
 
 	/**
-	 * current snow height (might change during the game)
+	 * Current snow height.
+	 * @note Might change during the game.
 	 * @author prissi
 	 */
 	sint16 snowline;
@@ -336,13 +345,16 @@ private:
 	void lower_grid_to(sint16 x, sint16 y, sint8 h);
 
 	/**
-	 * Die fraktale Erzeugung der Karte ist nicht perfekt.
-	 * cleanup_karte() beseitigt etwaige Fehler.
+	 * The fractal generation of the map is not perfect.
+	 * cleanup_karte() eliminates errors.
 	 * @author Hj. Malthaner
 	 */
 	void cleanup_karte( int xoff, int yoff );
 
 	void blick_aendern(event_t *ev);
+	/**
+	 * Processes a pointer movement event.
+	 */
 	void bewege_zeiger(const event_t *ev);
 	void interactive_event(event_t &ev);
 
@@ -353,7 +365,7 @@ private:
 	marker_t marker;
 
 	/**
-	 * The players of the game
+	 * The players of the game.
 	 * @author Hj. Malthaner
 	 */
 	spieler_t *spieler[MAX_PLAYER_COUNT];   // Human player has index 0 (zero)
@@ -361,15 +373,14 @@ private:
 	uint8 active_player_nr;
 
 	/**
-	 * locally store password hashes
-	 * will be used after reconnect to a server
+	 * Locally stored password hashes, will be used after reconnect to a server.
 	 */
 	pwd_hash_t player_password_hash[MAX_PLAYER_COUNT];
 
 	/*
-	 * counter for schedules
-	 * if a new schedule is active, this counter will increment
-	 * stations check this counter and will reroute their goods if changed
+	 * Counter for schedules.
+	 * If a new schedule is active, this counter will increment
+	 * stations check this counter and will reroute their goods if changed.
 	 * @author prissi
 	 */
 	uint8 schedule_counter;
@@ -396,7 +407,7 @@ private:
 	uint32 fix_ratio_frame_time; // set in reset_timer()
 
 	/**
-	 * For performance comparison
+	 * For performance comparison.
 	 * @author Hj. Malthaner
 	 */
 	uint32 realFPS;
@@ -422,10 +433,14 @@ private:
 	bool is_sound;       // flag, that now no sound will play
 	bool finish_loop;    // flag for ending simutrans (true -> end simutrans)
 
-	// may change due to timeline
+	/**
+	 * May change due to timeline.
+	 */
 	const weg_besch_t *city_road;
 
-	// what game objectives
+	/**
+	 * What game objectives.
+	 */
 	scenario_t *scenario;
 
 	message_t *msg;
@@ -434,38 +449,43 @@ private:
 
 	uint32 tile_counter;
 
-	// to identify different stages of the same game
+	/**
+	 * To identify different stages of the same game.
+	 */
 	uint32 map_counter;
 
-	// recalculated speed boni for different vehicles
+	/**
+	 * Recalculated speed boni for different vehicles.
+	 */
 	void recalc_average_speed();
 
 	void neuer_monat();      // monthly actions
 	void neues_jahr();       // yearly actions
 
 	/**
-	 * internal saving method
+	 * Internal saving method.
 	 * @author Hj. Malthaner
 	 */
 	void speichern(loadsave_t *file,bool silent);
 
 	/**
-	 * internal loading method
+	 * Internal loading method.
 	 * @author Hj. Malthaner
 	 */
 	void laden(loadsave_t *file);
 
 	/**
-	 * entfernt alle objecte, loescht alle datenstrukturen
-	 * gibt allen erreichbaren speicher frei
+	 * Removes all objects, deletes all data structures and frees all accesible memory.
 	 * @author Hj. Malthaner
 	 */
 	void destroy();
 
-	// restores history for older savegames
+	/**
+	 * Restores history for older savegames.
+	 */
 	void restore_history();
 
-	/*
+	/**
 	 * Will create rivers.
 	 */
 	void create_rivers(sint16 number);
@@ -478,26 +498,35 @@ private:
 	 */
 	void distribute_groundobjs_cities(int new_cities, sint32 new_mittlere_einwohnerzahl, sint16 old_x, sint16 old_y);
 
-	// The last time when a server announce was performed (in ms)
+	/**
+	 * The last time when a server announce was performed (in ms).
+	 */
 	uint32 server_last_announce_time;
 
 	void world_xy_loop(xy_loop_func func, bool sync_x_steps);
 	static void *world_xy_loop_thread(void *);
 
-	// loops over plans after load
+	/**
+	 * Loops over plans after load.
+	 */
 	void plans_laden_abschliessen(sint16, sint16, sint16, sint16);
 
-	// updates all images
+	/**
+	 * Updates all images.
+	 */
 	void update_map_intern(sint16, sint16, sint16, sint16);
 
 public:
-	// Announce server and current state to listserver
-	// Single argument specifies what information should be announced
-	// or offline (the latter only in cases where it is shutting down)
+	/**
+	 * Announce server and current state to listserver.
+	 * @param status Specifies what information should be announced
+	 * or offline (the latter only in cases where it is shutting down)
+	 */
 	void announce_server(int status);
 
-	/* reads height data from 8 or 25 bit bmp or ppm files
-	 * @return either pointer to heightfield (use delete [] for it) or NULL
+	/**
+	 * Reads height data from 8 or 25 bit bmp or ppm files.
+	 * @return Either pointer to heightfield (use delete [] for it) or NULL.
 	 */
 	static bool get_height_data_from_file( const char *filename, sint8 grundwasser, sint8 *&hfield, sint16 &ww, sint16 &hh, bool update_only_values );
 
@@ -513,16 +542,18 @@ public:
 	void add_missing_paks( const char *name, missing_level_t critical_level );
 
 	/**
-	 * Absoluter Monat
+	 * Absoluter Monat.
 	 * @author prissi
 	 */
 	inline uint32 get_last_month() const { return letzter_monat; }
 
-	// @author hsiegeln
+	/**
+	 * @author hsiegeln
+	 */
 	inline sint32 get_last_year() const { return letztes_jahr; }
 
 	/**
-	 * dirty: redraw whole screen
+	 * dirty: redraw whole screen.
 	 * @author Hj. Malthaner
 	 */
 	void set_dirty() {dirty=true;}
@@ -539,14 +570,14 @@ public:
 	void set_scenario(scenario_t *s);
 
 	/**
-	* Returns the finance history for player
-	* @author hsiegeln
-	*/
+	 * Returns the finance history for player.
+	 * @author hsiegeln
+	 */
 	sint64 get_finance_history_year(int year, int type) const { return finance_history_year[year][type]; }
 	sint64 get_finance_history_month(int month, int type) const { return finance_history_month[month][type]; }
 
 	/**
-	 * Returns pointer to finance history for player
+	 * Returns pointer to finance history for player.
 	 * @author hsiegeln
 	 */
 	const sint64* get_finance_history_year() const { return *finance_history_year; }
@@ -559,7 +590,7 @@ public:
 	void set_ansicht(karte_ansicht_t *v) { view = v; }
 
 	/**
-	 * viewpoint in tile koordinates
+	 * Viewpoint in tile koordinates.
 	 * @author Hj. Malthaner
 	 */
 	koord get_world_position() const { return ij_off; }
@@ -569,7 +600,7 @@ public:
 	int get_y_off() const {return y_off;}
 
 	/**
-	 * set center viewport position
+	 * Set center viewport position.
 	 * @author prissi
 	 */
 	void change_world_position( koord ij, sint16 x=0, sint16 y=0 );
@@ -586,15 +617,14 @@ public:
 	koord get_ansicht_ij_offset() const { return ansicht_ij_off; }
 
 	/**
-	 * If this is true, the map will not be scrolled
-	 * on right-drag
+	 * If this is true, the map will not be scrolled on right-drag.
 	 * @author Hj. Malthaner
 	 */
 	void set_scroll_lock(bool yesno);
 
 	/* functions for following a convoi on the map
-	* give an unbound handle to unset
-	*/
+	 * give an unbound handle to unset
+	 */
 	void set_follow_convoi(convoihandle_t cnv) { follow_convoi = cnv; }
 	convoihandle_t get_follow_convoi() const { return follow_convoi; }
 
@@ -615,13 +645,15 @@ public:
 	bool is_fast_forward() const { return step_mode == FAST_FORWARD; }
 	void set_fast_forward(bool ff);
 
-	// (un)pause for network games
+	/**
+	 * (un)pause for network games.
+	 */
 	void network_game_set_pause(bool pause_, uint32 syncsteps_);
 
 	zeiger_t * get_zeiger() const { return zeiger; }
 
 	/**
-	 * marks an area using the grund_t mark flag
+	 * Marks an area using the grund_t mark flag.
 	 * @author prissi
 	 */
 	void mark_area( const koord3d center, const koord radius, const bool mark ) const;
@@ -642,48 +674,56 @@ public:
 	void remove_player(uint8 player_nr);
 
 	/**
-	 * network safe initiation of new and deletion of players
+	 * Network safe initiation of new and deletion of players, change freeplay.
+	 * @param param Player type (human / ai) of new players.
 	 */
 	void call_change_player_tool(uint8 cmd, uint8 player_nr, uint16 param);
 
 	enum change_player_tool_cmds { new_player=1, toggle_freeplay=2, delete_player=3 };
 	/**
-	 * @param exec: if false checks whether execution is allowed
-	 *              if true executes tool
-	 * @returns whether execution is allowed
+	 * @param exec If false checks whether execution is allowed, if true executes tool.
+	 * @returns Whether execution is allowed.
 	 */
 	bool change_player_tool(uint8 cmd, uint8 player_nr, uint16 param, bool public_player_unlocked, bool exec);
 
-	// if a schedule is changed, it will increment the schedule counter
-	// every step the haltestelle will check and reroute the goods if needed
+	/**
+	 * If a schedule is changed, it will increment the schedule counter
+	 * every step the haltestelle will check and reroute the goods if needed.
+	 */
 	uint8 get_schedule_counter() const { return schedule_counter; }
 	void set_schedule_counter();
 
-	// often used, therefore found here
+	/**
+	 * @note Often used, therefore found here.
+	 */
 	bool use_timeline() const { return settings.get_use_timeline(); }
 
 	void reset_timer();
 	void reset_interaction();
 	void step_year();
 
-	// jump one or more months ahead
-	// (updating history!)
+	/**
+	 * Jump one or more months ahead.
+	 * @note Updating history!
+	 */
 	void step_month( sint16 months=1 );
 
-	// returns either 0 or the current year*16 + month
+	/**
+	 * @return Either 0 or the current year*16 + month
+	 */
 	uint16 get_timeline_year_month() const { return settings.get_use_timeline() ? current_month : 0; }
 
 	/**
-	* anzahl ticks pro tag in bits
-	* @see ticks_per_world_month
-	* @author Hj. Malthaner
-	*/
+	 * Number of ticks per day in bits.
+	 * @see ticks_per_world_month
+	 * @author Hj. Malthaner
+	 */
 	uint32 ticks_per_world_month_shift;
 
 	/**
-	* anzahl ticks pro MONTH!
-	* @author Hj. Malthaner
-	*/
+	 * Number of ticks per MONTH!
+	 * @author Hj. Malthaner
+	 */
 	uint32 ticks_per_world_month;
 
 	void set_ticks_per_world_month_shift(uint32 bits) {ticks_per_world_month_shift = bits; ticks_per_world_month = (1 << ticks_per_world_month_shift); }
@@ -715,7 +755,7 @@ public:
 	void change_time_multiplier( sint32 delta );
 
 	/**
-	 * 0=winter, 1=spring, 2=summer, 3=autumn
+	 * @return 0=winter, 1=spring, 2=summer, 3=autumn
 	 * @author prissi
 	 */
 	uint8 get_jahreszeit() const { return season; }
@@ -727,7 +767,7 @@ public:
 	uint32 get_zeit_ms() const { return ticks; }
 
 	/**
-	 * absolute month (count start year zero)
+	 * Absolute month (count start year zero).
 	 * @author prissi
 	 */
 	uint32 get_current_month() const { return current_month; }
@@ -761,22 +801,22 @@ public:
 	uint32 get_simloops() const { return simloops; }
 
 	/**
-	* Holt den Grundwasserlevel der Karte
-	* @author Hj. Malthaner
-	*/
+	 * Returns the current waterline height.
+	 * @author Hj. Malthaner
+	 */
 	sint8 get_grundwasser() const { return grundwasser; }
 
 	/**
-	* returns the current snowline height
-	* @author prissi
-	*/
+	 * Returns the current snowline height.
+	 * @author prissi
+	 */
 	sint16 get_snowline() const { return snowline; }
 
 	/**
-	* returns the current climate for a given height
-	* uses as private lookup table for speed
-	* @author prissi
-	*/
+	 * Returns the current climate for a given height,
+	 * uses as private lookup table for speed.
+	 * @author prissi
+	 */
 	climate get_climate(sint16 height) const
 	{
 		const sint16 h=height-grundwasser;
@@ -788,9 +828,14 @@ public:
 		return (climate)height_to_climate[h];
 	}
 
-	// set a new tool as current: calls local_set_werkzeug or sends to server
+	/**
+	 * Set a new tool as current: calls local_set_werkzeug or sends to server.
+	 */
 	void set_werkzeug( werkzeug_t *w, spieler_t * sp );
-	// set a new tool on our client, calls init
+
+	/**
+	 * Set a new tool on our client, calls init.
+	 */
 	void local_set_werkzeug( werkzeug_t *w, spieler_t * sp );
 	werkzeug_t *get_werkzeug(uint8 nr) const { return werkzeug[nr]; }
 
@@ -833,18 +878,18 @@ public:
 	}
 
 	/**
-	* Inline because called very frequently!
-	* @return Planquadrat an koordinate pos
-	* @author Hj. Malthaner
-	*/
+	 * @return Planquadrat an koordinate pos
+	 * @note Inline because called very frequently!
+	 * @author Hj. Malthaner
+	 */
 	inline const planquadrat_t *lookup(const koord &k) const
 	{
 		return ist_in_kartengrenzen(k.x, k.y) ? &plan[k.x+k.y*cached_groesse_gitter_x] : 0;
 	}
 
 	/**
-	 * Inline because called very frequently!
 	 * @return grund an pos/hoehe
+	 * @note Inline because called very frequently!
 	 * @author Hj. Malthaner
 	 */
 	inline grund_t *lookup(const koord3d &pos) const
@@ -854,8 +899,8 @@ public:
 	}
 
 	/**
-	 * Inline because called very frequently!
 	 * @return grund at the bottom (where house will be build)
+	 * @note Inline because called very frequently!
 	 * @author Hj. Malthaner
 	 */
 	inline grund_t *lookup_kartenboden(const koord &pos) const
@@ -865,13 +910,16 @@ public:
 	}
 
 	/**
-	 * returns the natural slope at a position
-	 * uses the corner height for the best slope
+	 * @return The natural slope at a position.
+	 * @note Uses the corner height for the best slope.
 	 * @author prissi
 	 */
 	uint8	recalc_natural_slope( const koord pos, sint8 &new_height ) const;
 
-	// no checking, and only using the grind for calculation
+	/**
+	 * Returns the natural slope a a position using the grid.
+	 * @note No checking, and only using the grind for calculation.
+	 */
 	uint8	calc_natural_slope( const koord pos ) const;
 
 	/**
@@ -903,11 +951,11 @@ public:
 	inline bool ist_markiert(const grund_t* gr) const { return marker.ist_markiert(gr); }
 
 	 /**
-	 * Initialize map.
-	 * @param sets game settings
-	 * @param preselected_players defines which players the user has selected before he started the game
-	 * @author Hj. Malthaner
-	 */
+	  * Initialize map.
+	  * @param sets Game settings.
+	  * @param preselected_players Defines which players the user has selected before he started the game.
+	  * @author Hj. Malthaner
+	  */
 	void init(settings_t*, sint8 const* heights);
 
 	void init_felder();
@@ -918,41 +966,43 @@ public:
 
 	~karte_t();
 
-	// return an index to a halt (or creates a new one)
-	// only used during loading
+	/**
+	 * Returns an index to a halt (or creates a new one)
+	 * @note Only used during loading
+	 */
 	halthandle_t get_halt_koord_index(koord k);
 
 	/**
-	 * Prueft, ob das Planquadrat an Koordinate (x,y)
-	 * erniedrigt werden kann
+	 * Checks if the planquadrat at coordinate (x,y)
+	 * can be lowered at the specified height.
 	 * @author V. Meyer
 	 */
 	bool can_lower_plan_to(sint16 x, sint16 y, sint8 h) const;
 
 	/**
-	 * Prueft, ob das Planquadrat an Koordinate (x,y)
-	 * erhoeht werden kann
+	 * Checks if the planquadrat at coordinate (x,y)
+	 * can be raised at the specified height.
 	 * @author V. Meyer
 	 */
 	bool can_raise_plan_to(sint16 x, sint16 y, sint8 h) const;
 
 	/**
-	 * Prueft, ob das Planquadrat an Koordinate (x,y)
-	 * geaendert werden darf. (z.B. kann Wasser nicht geaendert werden)
+	 * Checks if the whole planquadrat at coordinates (x,y) height can
+	 * be changed ( for example, water height can't be changed ).
 	 * @author Hj. Malthaner
 	 */
 	bool is_plan_height_changeable(sint16 x, sint16 y) const;
 
 	/**
-	 * Erhoeht die Hoehe an Gitterkoordinate (x,y) um eins.
-	 * @param pos Gitterkoordinate
+	 * Increases the height of grid coordinate (x, y) by one.
+	 * @param pos Grid coordinate.
 	 * @author Hj. Malthaner
 	 */
 	int raise(koord pos);
 
 	/**
-	 * Erniedrigt die Hoehe an Gitterkoordinate (x,y) um eins.
-	 * @param pos Gitterkoordinate
+	 * Lowers the height of grid coordinate (x, y) by one.
+	 * @param pos Grid coordinate.
 	 * @author Hj. Malthaner
 	 */
 	int lower(koord pos);
@@ -967,11 +1017,16 @@ public:
 	vector_tpl<convoihandle_t> const& convoys() const { return convoi_array; }
 
 	/**
-	 * Zugriff auf das Staedte Array.
+	 * To access the cities array.
 	 * @author Hj. Malthaner
 	 */
 	const weighted_vector_tpl<stadt_t*>& get_staedte() const { return stadt; }
 	void add_stadt(stadt_t *s);
+
+	/**
+	 * Removes town from map, houses will be left overs.
+	 * @author prissi
+	 */
 	bool rem_stadt(stadt_t *s);
 
 	/* tourist attraction list */
@@ -989,11 +1044,13 @@ public:
 	fabrik_t* get_fab(unsigned index) const { return index < fab_list.get_count() ? fab_list.at(index) : NULL; }
 	const slist_tpl<fabrik_t*>& get_fab_list() const { return fab_list; }
 
-	// Returns a list of goods produced by factories that exist in current game
+	/**
+	 * Returns a list of goods produced by factories that exist in current game.
+	 */
 	const vector_tpl<const ware_besch_t*> &get_goods_list();
 
 	/**
-	 * sucht naechstgelegene Stadt an Position i,j
+	 * Seaches and returns the closest city to the supplied coordinates.
 	 * @author Hj. Malthaner
 	 */
 	stadt_t *suche_naechste_stadt(koord pos) const;
@@ -1021,7 +1078,9 @@ public:
 	void sync_way_eyecandy_step(long delta_t);	// currently one smoke from vehicles on ways
 
 
-	// for all stuff, that needs long and can be done less frequently
+	/**
+	 * For all stuff, that needs long and can be done less frequently.
+	 */
 	void step();
 
 	inline planquadrat_t *access(int i, int j) const {
@@ -1033,7 +1092,7 @@ public:
 	}
 
 	/**
-	 * @return Hoehe am Gitterpunkt i,j
+	 * @return Height at the grid point i, j
 	 * @author Hj. Malthaner
 	 */
 	inline sint8 lookup_hgt(koord k) const {
@@ -1048,13 +1107,13 @@ public:
 	void set_grid_hgt(koord k, sint8 hgt) { grid_hgts[k.x + k.y*(uint32)(cached_groesse_gitter_x+1)] = hgt; }
 
 	/**
-	 * @return Minimale Hoehe des Planquadrates i,j
+	 * @return Minimum height of the planquadrats at i, j.
 	 * @author Hj. Malthaner
 	 */
 	sint8 min_hgt(koord pos) const;
 
 	/**
-	 * @return Maximale Hoehe des Planquadrates i,j
+	 * @return Maximum height of the planquadrats at i, j.
 	 * @author Hj. Malthaner
 	 */
 	sint8 max_hgt(koord pos) const;
@@ -1072,8 +1131,8 @@ public:
 	bool ist_platz_frei(koord pos, sint16 w, sint16 h, int *last_y, climate_bits cl) const;
 
 	/**
-	 * @return eine Liste aller bebaubaren Plaetze mit Groesse w,h
-	 * only used for town creation at the moment
+	 * @return A list of all buildable squares with size w, h.
+	 * @note Only used for town creation at the moment.
 	 * @author Hj. Malthaner
 	 */
 	slist_tpl<koord> * finde_plaetze(sint16 w, sint16 h, climate_bits cl, sint16 old_x, sint16 old_y) const;
@@ -1090,22 +1149,22 @@ public:
 	void mute_sound( bool state ) { is_sound = !state; }
 
 	/**
-	 * Saves the map to a file
-	 * @param filename name of the file to write
+	 * Saves the map to a file.
+	 * @param Filename name of the file to write.
 	 * @author Hj. Malthaner
 	 */
 	void speichern(const char *filename, const loadsave_t::mode_t savemode, const char *version, bool silent);
 
 	/**
-	 * Loads a map from a file
-	 * @param filename name of the file to read
+	 * Loads a map from a file.
+	 * @param Filename name of the file to read.
 	 * @author Hj. Malthaner
 	 */
 	bool laden(const char *filename);
 
 	/**
-	 * Creates a map from a heightfield
-	 * @param sets game settings
+	 * Creates a map from a heightfield.
+	 * @param sets game settings.
 	 * @author Hj. Malthaner
 	 */
 	void load_heightfield(settings_t*);
@@ -1113,8 +1172,8 @@ public:
 	void beenden(bool b);
 
 	/**
-	 * main loop with event handling;
-	 * returns false to exit
+	 * Main loop with event handling.
+	 * @return false to exit.
 	 * @author Hj. Malthaner
 	 */
 	bool interactive(uint32 quit_month);
@@ -1136,12 +1195,12 @@ public:
 	void network_disconnect();
 
 	/**
-	 * to identify the current map
+	 * To identify the current map.
 	 */
 	uint32 get_map_counter() const { return map_counter; }
 	void set_map_counter(uint32 new_map_counter);
 	/**
-	 * called by the server before sending the sync commands
+	 * Called by the server before sending the sync commands.
 	 */
 	uint32 generate_new_map_counter() const;
 };
