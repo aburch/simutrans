@@ -739,7 +739,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 						buf.printf("\n(%s)\n\n", translator::translate("Passagiere"));
 						any_suitable_stops_passengers = true;
 					}
-					const uint16 walking_time = (uint16)(shortest_distance(get_pos().get_2d(), halt->get_next_pos(get_pos().get_2d())) * walking_journey_time_factor) / 100u;
+					const uint16 walking_time = (shortest_distance(get_pos().get_2d(), halt->get_next_pos(get_pos().get_2d())) * walking_journey_time_factor) / 100u;
 					char walking_time_as_clock[32];
 					halt->get_welt()->sprintf_time(walking_time_as_clock, sizeof(walking_time_as_clock), walking_time * 6);
 					buf.printf("%s\n%s: %s\n", halt->get_name(), translator::translate("Walking time"), walking_time_as_clock);
@@ -756,7 +756,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 						buf.printf("\n(%s)\n\n", translator::translate("Post"));
 						any_suitable_stops_mail = true;
 					}
-					const uint16 walking_time = (uint16)(shortest_distance(get_pos().get_2d(), halt->get_next_pos(get_pos().get_2d())) * walking_journey_time_factor) / 100u;
+					const uint16 walking_time = (shortest_distance(get_pos().get_2d(), halt->get_next_pos(get_pos().get_2d())) * walking_journey_time_factor) / 100u;
 					char walking_time_as_clock[32];
 					halt->get_welt()->sprintf_time(walking_time_as_clock, sizeof(walking_time_as_clock), walking_time * 6);
 					buf.printf("%s\n%s: %s\n", halt->get_name(), translator::translate("Walking time"), walking_time_as_clock);

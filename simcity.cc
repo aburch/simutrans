@@ -3202,7 +3202,8 @@ void stadt_t::step_passagiere()
 		while(route_status != public_transport && route_status != private_car && route_status != on_foot && current_destination < destination_count)
 		{			
 			const uint32 straight_line_distance = shortest_distance(origin_pos, destinations[current_destination].location);
-			const uint16 walking_time = (uint16)(straight_line_distance * walking_journey_time_factor) / 100u;
+			const uint16 walking_time = (straight_line_distance * walking_journey_time_factor) / 100u;
+
 			/** 
 			 * Tolerance is divided by two because passengers prefer not to walk for long distances,
 			 * as it is tiring. 
