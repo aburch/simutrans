@@ -3141,8 +3141,8 @@ void stadt_t::step_passagiere()
 		passenger_routing_choice <= (passenger_routing_local_chance + passenger_routing_midrange_chance) ? 
 			midrange : longdistance;
 		const uint16 tolerance = 
-			wtyp != warenbauer_t::passagiere ? 
-			0 : 
+			wtyp == warenbauer_t::post ? 
+			65535 : 
 			range == local ? 
 				simrand_normal(max_local_tolerance, "void stadt_t::step_passagiere() (local tolerance?)") + min_local_tolerance : 
 			range == midrange ? 
@@ -3189,7 +3189,7 @@ void stadt_t::step_passagiere()
 		 * by hand, the deliverer has a tolerance, but if it is sent through the postal system,
 		 * the mail packet itself does not have a tolerance. 
 		 */
-		const uint16 quasi_tolerance = tolerance == 0 ? simrand_normal(max_local_tolerance, "void stadt_t::step_passagiere() (local tolerance?)") + min_local_tolerance : tolerance;
+		const uint16 quasi_tolerance = tolerance == 65535 ? simrand_normal(max_local_tolerance, "void stadt_t::step_passagiere() (local tolerance?)") + min_local_tolerance : tolerance;
 				
 		uint16 car_minutes = 65535;
 
@@ -3308,7 +3308,7 @@ void stadt_t::step_passagiere()
 				// Check first whether the best route is outside
 				// the passengers' tolerance.
 
-				if(route_status == public_transport && tolerance > 0 && best_journey_time > tolerance)
+				if(route_status == public_transport && best_journey_time > tolerance)
 				{
 					route_status = too_slow;
 				

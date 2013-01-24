@@ -1882,7 +1882,6 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	{
 		passenger_routing_midrange_chance = 33;
 	}
-
 	always_prefer_car_percent = contents.get_int("always_prefer_car_percent", always_prefer_car_percent);
 	congestion_density_factor = contents.get_int("congestion_density_factor", congestion_density_factor);
 
