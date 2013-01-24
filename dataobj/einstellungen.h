@@ -386,7 +386,6 @@ public:
 	// @author: jamespetts
 	// Private car settings
 	uint8 always_prefer_car_percent;
-	uint8 base_car_preference_percent;
 	uint8 congestion_density_factor;
 
 	//@author: jamespetts
@@ -793,7 +792,6 @@ public:
 	void  set_passenger_routing_midrange_chance(uint8 value) { passenger_routing_midrange_chance = value; }
 
 	uint8 get_always_prefer_car_percent() const { return always_prefer_car_percent; }
-	uint8 get_base_car_preference_percent () const { return base_car_preference_percent; }
 	uint8 get_congestion_density_factor () const { return congestion_density_factor; }
 
 	sint32 get_max_corner_limit(waytype_t waytype) const { return kmh_to_speed(max_corner_limit[waytype]); }

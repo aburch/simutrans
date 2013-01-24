@@ -360,7 +360,6 @@ settings_t::settings_t() :
 	max_alternative_destinations = 3;
 
 	always_prefer_car_percent = 10;
-	base_car_preference_percent = 90;
 	congestion_density_factor = 12;
 
 	//@author: jamespetts
@@ -1033,7 +1032,12 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_byte(max_alternative_destinations);
 			file->rdwr_byte(passenger_routing_local_chance);
 			file->rdwr_byte(passenger_routing_midrange_chance);
-			file->rdwr_byte(base_car_preference_percent);
+			if(file->get_experimental_version() < 11)
+			{
+				// Was base_car_preference_percent
+				uint8 dummy = 0;
+				file->rdwr_byte(dummy);
+			}
 			file->rdwr_byte(always_prefer_car_percent);
 			file->rdwr_byte(congestion_density_factor);
 
@@ -1878,7 +1882,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	{
 		passenger_routing_midrange_chance = 33;
 	}
-	base_car_preference_percent = contents.get_int("base_car_preference_percent", base_car_preference_percent);
+
 	always_prefer_car_percent = contents.get_int("always_prefer_car_percent", always_prefer_car_percent);
 	congestion_density_factor = contents.get_int("congestion_density_factor", congestion_density_factor);
 

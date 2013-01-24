@@ -559,15 +559,8 @@ tpo_revenue=300
 # These settings relate to private car use. See /config/privatecar.tab for
 # the configuration of private car ownership for different years.
 #
-# "Base car preference percent" is the chance, expressed in percentage, that, all
-# other things being equal, a passenger with a private car will choose to use that
-# car in preference to using public (i.e., the player's) transport. Higher values
-# are more realistic; lower values make the game easier. 
-# 
 # "Always prefer car percent" is the percentage of drivers who prefer to use their
-# car no matter how congested the roads. The remaining percentage of drivers are 
-# deterred from using their car to go to or from (or within) towns that have a
-# high level of congestion. The default is 10. 
+# car even if walking or taking public transport is faster. The default is 10% 
 #
 # "Congestion density factor" is the factor by which the population density (in
 # citizens per tile) is divided to get a factor multiplied by the number of cars
@@ -577,12 +570,7 @@ tpo_revenue=300
 # transport instead. If "congestion density factor" is set to zero, then the congestion
 # will be calculated using a much simpler formula that does not depend on the city's
 # population density at all.  
-#
-# To revert to the behaviour of Simutrans Standard (with no competition from private cars 
-# at all), simply set "base_car_preference_percent" to 0. Passengers will then only choose
-# private cars if no public transport is available.
 
-base_car_preference_percent = 95
 always_prefer_car_percent = 10
 congestion_density_factor = 16
 

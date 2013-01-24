@@ -3242,101 +3242,94 @@ void stadt_t::step_passagiere()
 				}
 			}
 
+			uint16 best_journey_time = 65535;
+
 			if(start_halts.get_count() == 1 && destination_list.get_count() == 1 && start_halts[0] == destination_list[0])
 			{
 				/** There is no public transport route, as the only stop
 				 * for the origin is also the only stop for the desintation.
-				 * The passengers either take their car (if any) or walk.
 				 */
 				start_halt = start_halts[0];
-				if(has_private_car && s.get_base_car_preference_percent() > simrand(100, "void stadt_t::step_passagiere() (Use private car for local journey?)"))
-				{
-					// Some passengers prefer to walk.
-					route_status = private_car;
-				}
-				else if(can_walk)
-				{
-					route_status = on_foot;
-				}
-			}
-
-			// Check whether public transport can be used.
-			// Journey start information needs to be added later.
-			pax.reset();
-			pax.set_zielpos(destinations[current_destination].location);
-			pax.menge = pax_left_to_do;
-			pax.to_factory = ( destinations[current_destination].factory_entry ? 1 : 0 );
-			//"Menge" = volume (Google)
-
-			// Search for a route using public transport. 
-
-			uint16 best_journey_time = 65535;
-			uint8 best_start_halt = 0;
-			uint32 current_journey_time;
-			koord destination_stop_pos = destinations[current_destination].location;
-
-			ITERATE(start_halts, i)
-			{
-				halthandle_t current_halt = start_halts[i];
-				
-				current_journey_time = current_halt->find_route(&destination_list, pax, best_journey_time, destinations[current_destination].location);
-					
-				// Add walking time from the origin to the origin stop. 
-				// Note that the walking time to the destination stop is already added by find_route.
-				current_journey_time += (shortest_distance(start_halts[i]->get_next_pos(origin_pos), origin_pos) * walking_journey_time_factor) / 100u;
-				if(current_journey_time > 65535)
-				{
-					current_journey_time = 65535;
-				}
-				// TODO: Add facility to check whether station/stop has car parking facilities, and add the possibility of a (faster) private car journey.
-				// Use the private car journey time per tile from the passengers' origin to the city in which the stop is located.
-
-				if(current_journey_time < best_journey_time)
-				{
-					best_journey_time = current_journey_time;
-					best_start_halt = i;
-				}
-				if(pax.get_ziel().is_bound())
-				{
-					route_status = public_transport;
-				}
-			}
-
-			if(best_journey_time == 0)
-			{
-				best_journey_time = 1;
-			}
-
-			if(best_journey_time > walking_time && can_walk)
-			{
-				// If walking is faster than public transport, passengers will walk.
-				route_status = on_foot;
-			}
-				
-			// Check first whether the best route is outside
-			// the passengers' tolerance.
-
-			if(route_status == public_transport && tolerance > 0 && best_journey_time > tolerance)
-			{
-				route_status = too_slow;
-				
-				if(!too_slow_already_set)
-				{
-					best_bad_destination = destinations[current_destination].location;
-					best_bad_start_halt = best_start_halt;
-					too_slow_already_set = true;
-				}
 			}
 			else
 			{
-				// All passengers will use the quickest route.
-				if(start_halts.get_count() > 0)
+				// Check whether public transport can be used.
+				// Journey start information needs to be added later.
+				pax.reset();
+				pax.set_zielpos(destinations[current_destination].location);
+				pax.menge = pax_left_to_do;
+				pax.to_factory = ( destinations[current_destination].factory_entry ? 1 : 0 );
+				//"Menge" = volume (Google)
+
+				// Search for a route using public transport. 
+
+				uint8 best_start_halt = 0;
+				uint32 current_journey_time;
+				koord destination_stop_pos = destinations[current_destination].location;
+
+				ITERATE(start_halts, i)
 				{
-					start_halt = start_halts[best_start_halt];
+					halthandle_t current_halt = start_halts[i];
+				
+					current_journey_time = current_halt->find_route(&destination_list, pax, best_journey_time, destinations[current_destination].location);
+					
+					// Add walking time from the origin to the origin stop. 
+					// Note that the walking time to the destination stop is already added by find_route.
+					current_journey_time += (shortest_distance(start_halts[i]->get_next_pos(origin_pos), origin_pos) * walking_journey_time_factor) / 100u;
+					if(current_journey_time > 65535)
+					{
+						current_journey_time = 65535;
+					}
+					// TODO: Add facility to check whether station/stop has car parking facilities, and add the possibility of a (faster) private car journey.
+					// Use the private car journey time per tile from the passengers' origin to the city in which the stop is located.
+
+					if(current_journey_time < best_journey_time)
+					{
+						best_journey_time = current_journey_time;
+						best_start_halt = i;
+					}
+					if(pax.get_ziel().is_bound())
+					{
+						route_status = public_transport;
+					}
+				}
+
+				if(best_journey_time == 0)
+				{
+					best_journey_time = 1;
+				}
+
+				if(best_journey_time > walking_time && can_walk)
+				{
+					// If walking is faster than public transport, passengers will walk.
+					route_status = on_foot;
+				}
+				
+				// Check first whether the best route is outside
+				// the passengers' tolerance.
+
+				if(route_status == public_transport && tolerance > 0 && best_journey_time > tolerance)
+				{
+					route_status = too_slow;
+				
+					if(!too_slow_already_set)
+					{
+						best_bad_destination = destinations[current_destination].location;
+						best_bad_start_halt = best_start_halt;
+						too_slow_already_set = true;
+					}
+				}
+				else
+				{
+					// All passengers will use the quickest route.
+					if(start_halts.get_count() > 0)
+					{
+						start_halt = start_halts[best_start_halt];
+					}
 				}
 			}
 
-			INT_CHECK("simcity.cc 2993");
+			INT_CHECK("simcity.cc 3333");
 			
 			if(has_private_car) 
 			{
@@ -3362,16 +3355,44 @@ void stadt_t::step_passagiere()
 				{
 					// *Tenths* of minutes used here.
 					car_minutes = time_per_tile * straight_line_distance;
+
+					// Now, adjust the timings for congestion. 
+					// TODO: Take congestion into account when initially calculating the route timings for private cars
+					// so that it is not necessary to check it here.
+
+					// Congestion here is assumed to be on the percentage basis: i.e. the percentage of extra time that
+					// a journey takes owing to congestion. This is the measure used by the TomTom congestion index,
+					// compiled by the satellite navigation company of that name, which provides useful research data.
+					// See: http://www.tomtom.com/lib/doc/congestionindex/2012-0704-TomTom%20Congestion-index-2012Q1europe-mi.pdf
+							
+					//Average congestion of origin and destination towns.
+					uint16 congestion_total;
+					if(destinations[current_destination].type == 1 && destinations[current_destination].object.town != NULL)
+					{
+						// Destination type is town and the destination town object can be found.
+						congestion_total = (city_history_month[0][HIST_CONGESTION] + destinations[current_destination].object.town->get_congestion()) / 2;
+					}
+					else
+					{
+						congestion_total = city_history_month[0][HIST_CONGESTION];
+					}
+					
+					const uint32 congestion_extra_minutes = (car_minutes * congestion_total) / 100;
+
+					car_minutes += congestion_extra_minutes;
 				}
 			}		
 	
 			if(car_minutes <= tolerance)
 			{
+				const uint16 private_car_chance = (uint16)simrand(100, "void stadt_t::step_passagiere() (private car chance?)");
+
 				if(route_status != public_transport)
 				{
 					// The passengers can get to their destination by car but not by public transport.
-					// Therefore, they will always use their car unless it is faster to walk.
-					if(car_minutes > walking_time && can_walk)
+					// Therefore, they will always use their car unless it is faster to walk and they 
+					// are not people who always prefer to use the car.
+					if(car_minutes > walking_time && can_walk && private_car_chance > always_prefer_car_percent)
 					{
 						// If walking is faster than taking the car, passengers will walk.
 						route_status = on_foot;
@@ -3382,93 +3403,13 @@ void stadt_t::step_passagiere()
 					}
 				}
 									
-				else
+				else if(private_car_chance <= always_prefer_car_percent || car_minutes <= best_journey_time)
 				{
-					// The passengers can get to their destination both by car and public transport.
-					// Choose which they prefer.
-
-					//Weighted random.
-					const uint16 private_car_chance = (uint16)simrand(100, "void stadt_t::step_passagiere() (private car chance?)");
-					bool public_transport_known_better = false;
-					
-					if(private_car_chance <= always_prefer_car_percent)
-					{
-						route_status = private_car;
-					}
-
-					if(car_minutes > walking_time && can_walk && route_status != private_car)
-					{
-						// If walking is better than taking the car, *and* route_status == public_transport,
-						// then we take public transport, as we know that public transport must
-						// be faster than walking, or else route_status would == on_foot.
-						
-						// However, some people will *always* use their car, because they find
-						// it more convenient, even if it takes longer, so take account of that
-						// (see the third condition in the if statement above).
-						public_transport_known_better = true;
-					}
-
-					if(route_status != private_car && !public_transport_known_better)
-					{
-						// If this is reached, there remains a real choice between public transport and private car use.
-						const uint32 distance = shortest_distance(destinations[current_destination].location, origin_pos);	
-							
-						// The basic preference for using a private car if available.
-						uint16 car_preference = s.get_base_car_preference_percent();
-										
-						// Firstly, congestion. Drivers will turn to public transport if the origin or destination towns are congested.
-						// TODO: Refactor congestion as affecting the journey time rather than having an arbitrary effect on choice.
-						// TODO: Refactor the private car choice algorithm as being based on comparative journey times rather than 
-						// on a series of arbitrary factors. This now makes more sense since we measure door to door journey times.
-
-						//Average congestion of origin and destination towns, and, at the same time, reduce factor.
-						uint16 congestion_total;
-						if(destinations[current_destination].type == 1 && destinations[current_destination].object.town != NULL)
-						{
-							// Destination type is town and the destination town object can be found.
-							congestion_total = (city_history_month[0][HIST_CONGESTION] + destinations[current_destination].object.town->get_congestion()) / 4;
-						}
-						else
-						{
-							congestion_total = (city_history_month[0][HIST_CONGESTION] * 100) / 133;
-						}
-						car_preference -= congestion_total;
-
-						// Secondly, adjust for service quality of the public transport.
-						// Compare best journey speed on public transport with the 
-						// likely private car journey time.
-
-						INT_CHECK( "simcity 3443" );
-
-						// Journey times of private transport as a percentage of player journey times.
-						uint32 car_journey_time_percent = (100 * car_minutes) / best_journey_time;
-						// Set a limit to how much this affects things.
-						car_journey_time_percent = max(car_journey_time_percent, 15);
-						car_journey_time_percent = min(car_journey_time_percent, 250);
-						// Modify the preference by how much better or worse that the car journey time is than the player's.
-						car_preference = (car_preference * 100) / car_journey_time_percent;
-						
-						// If identical, no adjustment.
-
-						//Thirdly, the number of unhappy passengers at the start station compared with the number of happy passengers.
-						const uint16 unhappy_percentage = start_halt->get_unhappy_percentage(0);
-					
-						if(unhappy_percentage > 80)
-						{
-							car_preference = (car_preference * 100) / unhappy_percentage;
-						}
-						
-						//Finally, determine whether the private car is used.
-						if(private_car_chance <= car_preference)
-						{
-							// Private cars chosen by preference even though public transport is possible.
-							route_status = private_car;
-						}
-					}
+					route_status = private_car;
 				}
 			}
 			
-			INT_CHECK("simcity 3472");
+			INT_CHECK("simcity 3419");
 			if(route_status == no_route || route_status == too_slow)
 			{
 				// Do not increment the counter if there is a good status,
