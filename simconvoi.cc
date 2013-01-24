@@ -717,7 +717,8 @@ void convoi_t::increment_odometer(uint32 steps)
 	// Use steps, as only relative distance is important here.
 	sint8 player;
 	waytype_t waytpe = fahr[0]->get_waytype();
-	weg_t* way = welt->lookup(get_pos())->get_weg(waytpe);
+	const grund_t* gr = welt->lookup(get_pos());
+	weg_t* way = gr ? gr->get_weg(waytpe) : NULL;
 	if(way == NULL)
 	{
 		player = besitzer_p->get_player_nr();
@@ -772,7 +773,8 @@ void convoi_t::increment_odometer(uint32 steps)
 bool convoi_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed)
 {
 	route_infos.clear();
-	if(fahr[0]->get_waytype() == air_wt && welt->lookup(ziel)->get_halt().is_bound() && welt->lookup(ziel)->get_halt()->has_no_control_tower())
+	const grund_t* gr = welt->lookup(ziel);
+	if(gr && fahr[0]->get_waytype() == air_wt && gr->get_halt().is_bound() && welt->lookup(ziel)->get_halt()->has_no_control_tower())
 	{
 		return false;
 	}
@@ -2640,7 +2642,8 @@ void convoi_t::vorfahren()
 						
 						uint16 loading_time = current_loading_time;
 
-						if(welt->get_zeit_ms() - arrival_time > reverse_delay && welt->lookup(this->get_pos())->is_halt())
+						const grund_t* gr = welt->lookup(get_pos());
+						if(gr && welt->get_zeit_ms() - arrival_time > reverse_delay && gr->is_halt())
 						{
 							// The reversing time must not be cumulative with the loading time, as 
 							// passengers can board trains etc. while they are changing direction.
@@ -3563,15 +3566,19 @@ void convoi_t::rdwr(loadsave_t *file)
 	{
 		if(file->get_experimental_version() <= 9)
 		{
-			uint16 last_halt_id = welt->lookup(fahr[0]->last_stop_pos)->get_halt().get_id();
-			sint64 departure_time = departures->get(last_halt_id).departure_time;
-			file->rdwr_longlong(departure_time);
-			if(file->is_loading())
+			const planquadrat_t* plan = welt->lookup(fahr[0]->last_stop_pos);
+			if(plan)
 			{
-				departures->clear();
-				departure_data_t dep;
-				dep.departure_time = departure_time;
-				departures->put(last_halt_id, dep);
+				uint16 last_halt_id =plan->get_halt().get_id();
+				sint64 departure_time = departures->get(last_halt_id).departure_time;
+				file->rdwr_longlong(departure_time);
+				if(file->is_loading())
+				{
+					departures->clear();
+					departure_data_t dep;
+					dep.departure_time = departure_time;
+					departures->put(last_halt_id, dep);
+				}
 			}
 		}
 		else
@@ -4225,7 +4232,8 @@ write_basic_line:
 	FOR(departure_map, & iter, *departures)
 	{
 		// Accumulate distance 
-		if(is_circular_route() && iter.key == welt->lookup(fpl->get_current_eintrag().pos)->get_halt().get_id())
+		const grund_t* gr = welt->lookup(fpl->get_current_eintrag().pos);
+		if(gr && is_circular_route() && iter.key == gr->get_halt().get_id())
 		{
 			// If this is a circular route, reset distances from this halt,
 			// as the list of departures is never reset for a circular route,
@@ -4248,11 +4256,13 @@ write_basic_line:
 	{
 		const koord k = fpl->get_current_eintrag().pos.get_2d(); //"eintrag" = "entry" (Google)
 		const spieler_t* owner = halt->get_besitzer(); //"get owner" (Google)
-		const weg_t *w = welt->lookup(fpl->get_current_eintrag().pos)->get_weg(fpl->get_waytype());
+		const grund_t* gr = welt->lookup(fpl->get_current_eintrag().pos);
+		const weg_t *w = gr ? gr->get_weg(fpl->get_waytype()) : NULL;
 		bool tram_stop_public = false;
 		if(fpl->get_waytype() == tram_wt)
 		{
-			const weg_t *street = welt->lookup(fpl->get_current_eintrag().pos)->get_weg(road_wt);
+			const grund_t* gr = welt->lookup(fpl->get_current_eintrag().pos);
+			const weg_t *street = gr ? gr->get_weg(road_wt) : NULL;
 			if(street && (street->get_besitzer() == get_besitzer() || street->get_besitzer() == NULL || street->get_besitzer()->allows_access_to(get_besitzer()->get_player_nr())))
 			{
 				tram_stop_public = true;
@@ -4263,7 +4273,7 @@ write_basic_line:
 		{
 			// loading/unloading ...
 			// NOTE: Revenue is calculated here.
-			halt->request_loading( self );
+			halt->request_loading(self);
 		}
 	}
 
@@ -4346,7 +4356,8 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	uint16 journey_minutes = 0;
 	if(ware.get_last_transfer().is_bound())
 	{
-		journey_minutes = (get_average_journey_times()->get(id_pair(ware.get_last_transfer().get_id(), welt->lookup(fahr[0]->get_pos().get_2d())->get_halt().get_id())).get_average()) / 10;
+		const planquadrat_t* plan = welt->lookup(fahr[0]->get_pos().get_2d());
+		journey_minutes = plan ? (get_average_journey_times()->get(id_pair(ware.get_last_transfer().get_id(), plan->get_halt().get_id())).get_average()) / 10 : 0;
 	}
 
 	sint64 average_speed;
@@ -5784,7 +5795,8 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 			{
 				if(  route->get_count()-1 < shortest_route->get_count()-1 || shortest_route->empty()  ) 
 				{
-					if(shortest_route->empty() && welt->lookup(get_pos())->get_depot())
+					const grund_t* gr = welt->lookup(get_pos());
+					if(gr && shortest_route->empty() && gr->get_depot())
 					{
 						route->append(pos);
 					}
@@ -6129,7 +6141,8 @@ void convoi_t::snprintf_remaining_loading_time(char *p, size_t size) const
 	const uint16 reverse_delay = calc_reverse_delay();
 	uint16 loading_time = current_loading_time;
 	const sint64 current_ticks = welt->get_zeit_ms();
-	if(welt->get_zeit_ms() - arrival_time > reverse_delay && welt->lookup(this->get_pos())->is_halt())
+	const grund_t* gr = welt->lookup(this->get_pos());
+	if(gr && welt->get_zeit_ms() - arrival_time > reverse_delay && gr->is_halt())
 	{
 		// The reversing time must not be cumulative with the loading time, as 
 		// passengers can board trains etc. while they are changing direction.
@@ -6457,7 +6470,7 @@ void convoi_t::emergency_go_to_depot()
 	if(!go_to_depot(true))
 	{
 		// Teleport to depot if cannot get there by normal means.
-		depot_t* dep = welt->lookup(home_depot)->get_depot();
+		depot_t* dep = welt->lookup(home_depot) ? welt->lookup(home_depot)->get_depot() : NULL;
 		if(!dep)
 		{
 			dep = depot_t::find_depot(this->get_pos(), get_depot_type(), get_besitzer(), true);

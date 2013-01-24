@@ -2977,8 +2977,8 @@ uint16 stadt_t::check_road_connexion(koord3d dest)
 	ITERATE_PTR(private_car_route,i)
 	{
 		pos = private_car_route->position_bei(i);
-		road = welt->lookup(pos)->get_weg(road_wt);
-		top_speed = road->get_max_speed();
+		road = welt->lookup(pos) ? welt->lookup(pos)->get_weg(road_wt) : NULL;
+		top_speed = road ? road->get_max_speed() : 50;
 		speed_sum += min(top_speed, vehicle_speed_average);
 		count += road->is_diagonal() ? 7 : 10; //Use precalculated numbers to avoid division here.
 	}
@@ -4717,7 +4717,8 @@ bool stadt_t::renoviere_gebaeude(gebaeude_t* gb)
 	weg_t* way;
 	for(int i = 1; i <= narrowgauge_wt; i++)
 	{
-		way = welt->lookup(gb->get_pos())->get_weg((waytype_t)i);
+		grund_t* gr = welt->lookup(gb->get_pos());
+		way = gr ? gr->get_weg((waytype_t)i) : NULL;
 		if(way && (wegbauer_t::bautyp_t)way->get_besch()->get_wtyp() & wegbauer_t::elevated_flag)
 		{ 
 			// Limit this if any elevated way is found.
@@ -5439,7 +5440,7 @@ void stadt_t::remove_substation(senke_t* substation)
 bool road_destination_finder_t::ist_befahrbar( const grund_t* gr ) const
 { 
 	// Check to see whether the road prohibits private cars
-	if(welt->lookup(gr->get_pos())->get_weg(road_wt) && welt->lookup(gr->get_pos())->get_weg(road_wt)->has_sign())
+	if(gr && gr->get_weg(road_wt) && gr->get_weg(road_wt)->has_sign())
 	{
 		const roadsign_besch_t* rs_besch = gr->find<roadsign_t>()->get_besch();
 		if(rs_besch->is_private_way())

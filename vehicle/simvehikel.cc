@@ -2334,7 +2334,7 @@ bool vehikel_t::check_access(const weg_t* way) const
 		return true;
 	}
 	const grund_t* const gr = welt->lookup(get_pos());
-	const weg_t* const current_way = gr ? welt->lookup(get_pos())->get_weg(get_waytype()) : NULL;
+	const weg_t* const current_way = gr ? gr->get_weg(get_waytype()) : NULL;
 	if(current_way == NULL)
 	{
 		return true;
