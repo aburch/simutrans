@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) 1997 - 2001 Hj. Malthaner
  *
  * This file is part of the Simutrans project under the artistic license.
@@ -129,7 +129,7 @@ private:
 	// aus performancegruenden werden einige Einstellungen local gecached
 	sint16 cached_groesse_gitter_x;
 	sint16 cached_groesse_gitter_y;
-	// these values ​​are one less than the values ​​for the grid
+	// these values are one less than the values of the grid
 	sint16 cached_groesse_karte_x;
 	sint16 cached_groesse_karte_y;
 	// maximum size for waitng bars etc.
