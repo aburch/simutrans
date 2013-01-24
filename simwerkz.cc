@@ -6192,7 +6192,8 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 				// This convoy might already have been sent to a depot. This will need to be undone.
 				schedule_t* sch = cnv->get_schedule();
 				const linieneintrag_t le = sch->get_current_eintrag();
-				if(welt->lookup(le.pos)->get_depot())
+				const grund_t* gr = welt->lookup(le.pos);
+				if(gr && gr->get_depot())
 				{
 					sch->remove();
 					cnv->set_state(2);
@@ -6950,7 +6951,8 @@ bool wkz_access_t::init(karte_t* const welt, spieler_t *sp)
 			for(uint8 n = 0; n < fpl->get_count(); n ++)
 			{
 				pos = fpl->eintrag[n].pos;
-				halt = welt->lookup(pos)->get_halt();
+				const grund_t* gr = welt->lookup(pos);
+				halt = gr ? gr->get_halt() : halthandle_t();
 				halt_owner = halt.is_bound() ? halt->get_besitzer() : NULL;
 				if(halt_owner && receiving_player && halt_owner != receiving_player && !halt_owner->allows_access_to(receiving_player->get_player_nr()))
 				{
