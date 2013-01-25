@@ -3197,6 +3197,12 @@ void stadt_t::step_passagiere()
 				gb->add_passengers_generated_non_local(pax_left_to_do);
 			}
 		}
+
+		/** 
+		 * Tolerance is divided by two for non-local journeys because 
+		 * passengers prefer not to walk for long distances, as it is tiring. 
+		 */
+		const uint16 walking_tolerance_divider = range == local ? 1 : 2;
 			
 		INT_CHECK( "simcity 3118" );
 
@@ -3225,11 +3231,7 @@ void stadt_t::step_passagiere()
 			const uint16 walking_time = (straight_line_distance * walking_journey_time_factor) / 100u;
 			car_minutes = 65535;
 
-			/** 
-			 * Tolerance is divided by two because passengers prefer not to walk for long distances,
-			 * as it is tiring. 
-			 */
-			const bool can_walk = walking_time <= (quasi_tolerance / 2);
+			const bool can_walk = walking_time <= (quasi_tolerance / walking_tolerance_divider);
 			
 			if(!has_private_car && !can_walk && start_halts.empty())
 			{
