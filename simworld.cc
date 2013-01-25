@@ -3270,7 +3270,7 @@ void karte_t::neuer_monat()
 		dep->neuer_monat();
 	}
 
-	// recalc old settings (and maybe update the staops with the current values)
+	// recalc old settings (and maybe update the stops with the current values)
 	reliefkarte_t::get_karte()->neuer_monat();
 
 	INT_CHECK("simworld 3042");
@@ -3494,7 +3494,6 @@ DBG_MESSAGE("karte_t::neues_jahr()","speedbonus for %d %i, %i, %i, %i, %i, %i, %
 			spieler[i]->neues_jahr();
 		}
 	}
-
 }
 
 

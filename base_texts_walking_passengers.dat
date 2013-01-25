@@ -11,3 +11,19 @@ note=Title text for the list of stops potentially within walking distance shown 
 obj=program_text
 name=Walking time
 note=Text describing walking times to nearby stops in the information window of each city building
+-
+obj=program_text
+name=Passenger success rate this year (local):
+note=Text describing the propotion of passengers whose journey succeeded in the information window of each city building
+-
+obj=program_text
+name=Passenger success rate last year (local):
+note=Text describing the propotion of passengers whose journey succeeded in the information window of each city building
+-
+obj=program_text
+name=Passenger success rate this year (non-local):
+note=Text describing the propotion of passengers whose journey succeeded in the information window of each city building
+-
+obj=program_text
+name=Passenger success rate last year (non-local):
+note=Text describing the propotion of passengers whose journey succeeded in the information window of each city building

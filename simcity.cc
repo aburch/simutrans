@@ -2404,9 +2404,12 @@ void stadt_t::roll_history()
 	city_history_year[0][HIST_CONGESTION] = total_congestion / 12;
 
 	//need to roll year too?
-	if (welt->get_last_month() == 0) {
-		for (int i = MAX_CITY_HISTORY_YEARS - 1; i > 0; i--) {
-			for (int hist_type = 0; hist_type < MAX_CITY_HISTORY; hist_type++) {
+	if (welt->get_last_month() == 0) 
+	{
+		for (int i = MAX_CITY_HISTORY_YEARS - 1; i > 0; i--)
+		{
+			for (int hist_type = 0; hist_type < MAX_CITY_HISTORY; hist_type++) 
+			{
 				city_history_year[i][hist_type] = city_history_year[i - 1][hist_type];
 			}
 		}
@@ -2417,6 +2420,11 @@ void stadt_t::roll_history()
 		city_history_year[0][HIST_CITICENS] = get_einwohner();
 		city_history_year[0][HIST_BUILDING] = buildings.get_count();
 		city_history_year[0][HIST_GOODS_NEEDED] = 0;
+
+		for(weighted_vector_tpl<gebaeude_t *>::const_iterator i = buildings.begin(), end = buildings.end(); i != end; ++i)
+		{
+			(*i)->new_year();
+		}
 
 	}
 	outgoing_private_cars = 0;
@@ -3065,7 +3073,7 @@ void stadt_t::step_passagiere()
 	{
 		return;
 	}
-	const gebaeude_t* gb = buildings[step_count];
+	gebaeude_t* gb = buildings[step_count];
 
 	// prissi: since now backtravels occur, we damp the numbers a little
 	const int num_pax =
@@ -3175,6 +3183,18 @@ void stadt_t::step_passagiere()
 			{
 				//Long distance
 				destinations[destinations_assigned] = find_destination(target_factories, city_history_month[0][history_type+1], &will_return, longdistance_passengers_min_distance, longdistance_passengers_max_distance, origin_pos); 
+			}
+		}
+
+		if(wtyp != warenbauer_t::post)
+		{
+			if(range == local)
+			{
+				gb->add_passengers_generated_local(pax_left_to_do);
+			}
+			else
+			{
+				gb->add_passengers_generated_non_local(pax_left_to_do);
 			}
 		}
 			
@@ -3442,6 +3462,18 @@ void stadt_t::step_passagiere()
 			{
 				haltestelle_t::erzeuge_fussgaenger(welt, origin_pos_3d, pax_left_to_do);
 			}
+			// We cannot do this on arrival, as the ware packets do not remember their origin building.
+			if(wtyp != warenbauer_t::post)
+			{
+				if(range == local)
+				{
+					gb->add_passengers_succeeded_local(pax_left_to_do);
+				}
+				else
+				{
+					gb->add_passengers_succeeded_non_local(pax_left_to_do);
+				}
+			}
 			break;
 
 		case private_car:
@@ -3458,6 +3490,17 @@ void stadt_t::step_passagiere()
 			erzeuge_verkehrsteilnehmer(origin_pos, step_count, destinations[current_destination].location);
 #endif
 			set_return_trip = will_return != no_return;
+			if(wtyp != warenbauer_t::post)
+			{
+				if(range == local)
+				{
+					gb->add_passengers_succeeded_local(pax_left_to_do);
+				}
+				else
+				{
+					gb->add_passengers_succeeded_non_local(pax_left_to_do);
+				}
+			}
 			break;
 
 		case on_foot:
@@ -3483,6 +3526,17 @@ void stadt_t::step_passagiere()
 				add_walking_passengers(pax_left_to_do);
 			}
 			set_return_trip = will_return != no_return;
+			if(wtyp != warenbauer_t::post)
+			{
+				if(range == local)
+				{
+					gb->add_passengers_succeeded_local(pax_left_to_do);
+				}
+				else
+				{
+					gb->add_passengers_succeeded_non_local(pax_left_to_do);
+				}
+			}
 			break;
 
 		case too_slow:
@@ -3528,9 +3582,6 @@ void stadt_t::step_passagiere()
 				/** The unhappy passengers will be added to any potential starting stops
 				  * that are crowded, and were therefore excluded from the initial search.
 				  * However, there might be no possible starting stop too. 
-				  * Note that the no_possible_route flag means that, if the code reaches
-				  * this point, the passengers cannot reach their destiantion by public
-				  * transport, car or on foot
 				  */
 	
 				// Re-search for start halts, which must have been crowded, or else
@@ -3569,14 +3620,16 @@ void stadt_t::step_passagiere()
 			stadt_t* const destination_town = destinations[0].type == 1 ? destinations[0].object.town : NULL;
 			if(destination_town)
 			{
-				destination_town->set_generated_passengers(pax_left_to_do, history_type+1);
+				destination_town->set_generated_passengers(pax_left_to_do, history_type + 1);
 			}
 			else
 			{
 				city_history_year[0][history_type+1] += pax_left_to_do;
 				city_history_month[0][history_type+1] += pax_left_to_do;
+				// Cannot add success figures for buildings here as cannot get a building from a koord. 
+				// However, this should not matter much, as equally not recording generated passengers
+				// for all return journeys should still show accurate percentages overall. 
 			}
-
 		
 			halthandle_t ret_halt = pax.get_ziel();
 			bool return_in_private_car = (route_status == private_car) || (!ret_halt.is_bound() && has_private_car);
