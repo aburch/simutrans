@@ -98,6 +98,39 @@ public:
 	}
 };
 
+class private_car_destination_finder_t : public fahrer_t
+{
+private:
+	automobil_t *master;
+	karte_t* welt;
+	stadt_t* origin_city;
+	int accumulated_cost;
+	int current_tile_cost;
+
+public:
+	private_car_destination_finder_t(karte_t *w, automobil_t* m, stadt_t* o) 
+	{ 
+		welt = w;
+		master = m;
+		origin_city = o;
+		accumulated_cost = 0;
+	};
+	
+	virtual waytype_t get_waytype() const { return road_wt; };
+	virtual bool ist_befahrbar( const grund_t* gr ) const;
+
+	virtual bool ist_ziel(const grund_t* gr, const grund_t*);
+
+	virtual ribi_t::ribi get_ribi( const grund_t* gr) const;
+
+	virtual int get_kosten(const grund_t* gr, const sint32 max_speed, koord from_pos);
+
+	virtual ~private_car_destination_finder_t()
+	{
+		delete master;
+	}
+};
+
 /**
  * Die Objecte der Klasse stadt_t bilden die Staedte in Simu. Sie
  * wachsen automatisch.
@@ -498,6 +531,13 @@ private:
 	uint16 check_road_connexion_to(const fabrik_t* industry);
 	uint16 check_road_connexion_to(const gebaeude_t* attraction);
 	uint16 check_road_connexion(koord3d destination);
+
+	/**
+	 * This will check for private car routes from this to
+	 * all connected cities, populating the connected cities
+	 * list with journey time per tile values.
+	 */
+	void recheck_connected_cities();
 
 	// Adds a connexion back from a city when a route has been calculated.
 	void add_road_connexion(uint16 journey_time_per_tile, stadt_t* origin_city);

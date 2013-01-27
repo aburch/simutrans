@@ -224,9 +224,9 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 		INIT_NODES(welt->get_settings().get_max_route_steps(), welt->get_groesse_x(), welt->get_groesse_y());
 	}
 
-	INT_CHECK("route 347");
+	INT_CHECK("route 227");
 
-	// arrays for A*
+	// arrays for A*/Dijkstra's Algorithm
 	//static 
 	vector_tpl<ANode*> open;
 	vector_tpl<ANode*> close;
@@ -261,7 +261,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 	do {
 		// Hajo: this is too expensive to be called each step
 		if((step & 127) == 0) {
-			INT_CHECK("route 161");
+			INT_CHECK("route 264");
 		}
 
 		tmp = open[0];
@@ -327,7 +327,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 
 	} while(  !open.empty()  &&  step < MAX_STEP  &&  open.get_count() < max_depth  );
 
-	INT_CHECK("route 194");
+	INT_CHECK("route 330");
 
 //DBG_DEBUG("reached","");
 	// target reached?

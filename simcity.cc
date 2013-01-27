@@ -2776,6 +2776,13 @@ void stadt_t::step_bau()
 	}
 }
 
+void stadt_t::recheck_connected_cities()
+{
+	// TODO: Add content.
+	return;
+}
+
+
 uint16 stadt_t::check_road_connexion_to(stadt_t* city)
 {
 	if(welt->get_settings().get_assume_everywhere_connected_by_road())
@@ -3111,7 +3118,7 @@ void stadt_t::step_passagiere()
 	const bool has_private_car = private_car_percent > 0 ? simrand(100, "void stadt_t::step_passagiere() (has private car?)") <= (uint16)private_car_percent : false;
 	
 	// Record the most useful set of information about why passengers cannot reach their chosen destination:
-	//  Too slow > overcrowded > no route. Tiebreaker: higher destination preference.
+	// Too slow > overcrowded > no route. Tiebreaker: higher destination preference.
 	koord best_bad_destination;
 	uint8 best_bad_start_halt;
 	bool too_slow_already_set;
@@ -3785,8 +3792,8 @@ void stadt_t::set_private_car_trip(int passengers, stadt_t* destination_town)
 {
 	if(destination_town == NULL || (destination_town->get_pos().x == pos.x && destination_town->get_pos().y == pos.y))
 	{
-		// Destination town is not set - so going to a factory or tourist attraction.
-		// Or origin and destination towns are the same.
+		// Destination town is not set - so going to a factory or tourist attraction,
+		// or origin and destination towns are the same.
 		// Count as a local trip
 		city_history_year[0][HIST_CITYCARS] += passengers;
 		city_history_month[0][HIST_CITYCARS] += passengers;
@@ -5527,6 +5534,100 @@ int road_destination_finder_t::get_kosten( const grund_t* gr, sint32 max_speed, 
 		costs /= 1.4;
 	}
 
+	return costs;
+}
+
+bool private_car_destination_finder_t::ist_befahrbar( const grund_t* gr ) const
+{ 
+	// Check to see whether the road prohibits private cars
+	if(gr)
+	{
+		const strasse_t* const str = (strasse_t*)gr->get_weg(road_wt);
+		if(str)
+		{
+			const spieler_t *sp = str->get_besitzer();
+			if(sp != NULL && sp->get_player_nr() != 1 && !sp->allows_access_to(1) && !welt->get_city(str->get_pos().get_2d()))
+			{
+				// Private cas should have the same restrictions as to the roads on which to travel
+				// as players' vehicles.
+				return false;
+			}
+			
+			if(str->has_sign())
+			{
+				const roadsign_t* rs = gr->find<roadsign_t>();
+				const roadsign_besch_t* rs_besch = rs->get_besch();
+				if(rs_besch->get_min_speed() > master->get_besch()->get_geschw()  ||  (rs_besch->is_private_way()  &&  (rs->get_player_mask() & 2) == 0))
+				{
+					return false;
+				}
+			}
+		}
+	}
+	return master->ist_befahrbar(gr);
+}
+
+ribi_t::ribi private_car_destination_finder_t::get_ribi( const grund_t* gr) const
+{ 
+	return master->get_ribi(gr); 
+}
+
+bool private_car_destination_finder_t::ist_ziel(const grund_t* gr, const grund_t*)
+{
+	// TODO: Add method for checking whether we are at a city tile,
+	// and, if we are, fill the city connexion table with the appropriate
+	// journey time per tile value. This must return false to ensure
+	// that the route check continues. Thanks to Prissi for this ingenious
+	// suggestion.
+
+	accumulated_cost += current_tile_cost;
+
+	if(!gr)
+	{
+		return false;
+	}
+
+	const koord k = gr->get_pos().get_2d();
+	const stadt_t* city = welt->get_city(k);
+
+	if(!city)
+	{
+		return false;
+	}
+	else
+	{
+		if(city->get_townhall_road() == k)
+		{
+			// TODO - populate the list of cities here.
+		}
+	}
+
+	return false;
+}
+
+int private_car_destination_finder_t::get_kosten(const grund_t* gr, sint32 max_speed, koord from_pos)
+{
+	// TODO: Recast this method to use journey time per tile (in 100ths of a minute) as a cost.
+	
+	// first favor faster ways
+	const weg_t *w=gr->get_weg(road_wt);
+	if(!w) {
+		return 0xFFFF;
+	}
+
+	// max_speed?
+	uint32 max_tile_speed = w->get_max_speed();
+
+	// add cost for going (with maximum speed, cost is 1)
+	int costs = (max_speed<=max_tile_speed) ? 1 :  (max_speed*4)/(max_tile_speed*4);
+
+	if(w->is_diagonal())
+	{
+		// Diagonals are a *shorter* distance.
+		costs /= 1.4;
+	}
+
+	current_tile_cost = costs;
 	return costs;
 }
 
