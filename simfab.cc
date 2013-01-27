@@ -662,7 +662,7 @@ fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
 			for(  sint16 x=0;  x<besch->get_haus()->get_b(rotate);  x++  ) {
 				gebaeude_t *gb = welt->lookup_kartenboden( pos.get_2d()+koord(x,y) )->find<gebaeude_t>();
 				if(  gb  ) {
-					gb->add_alter(10000);
+					gb->add_alter(10000ll);
 				}
 			}
 		}
