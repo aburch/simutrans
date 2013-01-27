@@ -438,7 +438,7 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int org
 			// try to fake old building
 			else if(welt->get_zeit_ms() < 2) {
 				// Hajo: after staring a new map, build fake old buildings
-				gb->add_alter(10000);
+				gb->add_alter(10000ll);
 			}
 			grund_t *gr;
 			/*if(besch->get_allow_underground() == 1) 
