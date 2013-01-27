@@ -319,7 +319,7 @@ void gebaeude_t::set_tile(const haus_tile_besch_t *new_tile)
  */
 bool gebaeude_t::sync_step(long delta_t)
 {
-	if(insta_zeit > 5000ll)
+	if(insta_zeit > welt->get_zeit_ms())
 	{
 		// There were some integer overflow issues with 
 		// this when some intermediate values were uint32.
