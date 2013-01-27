@@ -319,18 +319,15 @@ void gebaeude_t::set_tile(const haus_tile_besch_t *new_tile)
  */
 bool gebaeude_t::sync_step(long delta_t)
 {
-#if EX_VERSION_MAJOR < 11
-	if(insta_zeit == 4294967296)
+	if(insta_zeit > 5000ll)
 	{
 		// There were some integer overflow issues with 
 		// this when some intermediate values were uint32.
 		insta_zeit = welt->get_zeit_ms() - 5000ll;
 	}
-#endif
 
 	if(zeige_baugrube) {
 		// still under construction?
-		const sint64 TEST_ms = welt->get_zeit_ms();
 		if(welt->get_zeit_ms() - insta_zeit > 5000ll) {
 			set_flag(ding_t::dirty);
 			mark_image_dirty(get_bild(),0);
