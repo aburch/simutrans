@@ -164,7 +164,11 @@ halthandle_t haltestelle_t::get_halt(const karte_t *welt, const koord3d pos, con
 			{
 				if(plan->get_haltlist()[i]->get_besitzer() == sp) 
 				{
-					return plan->get_haltlist()[i];
+					halthandle_t halt = plan->get_haltlist()[i];
+					if(halt->get_station_type() & dock) 
+					{
+						return halt;
+					}
 				}
 			}
 			// then for other stops to which access is allowed
@@ -174,7 +178,11 @@ halthandle_t haltestelle_t::get_halt(const karte_t *welt, const koord3d pos, con
 			{
 				if(plan->get_haltlist()[i]->check_access(sp))  
 				{
-					return plan->get_haltlist()[i];
+					halthandle_t halt = plan->get_haltlist()[i];
+					if(halt->get_station_type() & dock) 
+					{
+						return halt;
+					}
 				}
 			}
 			// so: nothing found
