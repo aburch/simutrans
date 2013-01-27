@@ -2977,8 +2977,8 @@ uint16 stadt_t::check_road_connexion(koord3d dest)
 	ITERATE_PTR(private_car_route,i)
 	{
 		pos = private_car_route->position_bei(i);
-		road = welt->lookup(pos)->get_weg(road_wt);
-		top_speed = road->get_max_speed();
+		road = welt->lookup(pos) ? welt->lookup(pos)->get_weg(road_wt) : NULL;
+		top_speed = road ? road->get_max_speed() : 50;
 		speed_sum += min(top_speed, vehicle_speed_average);
 		count += road->is_diagonal() ? 7 : 10; //Use precalculated numbers to avoid division here.
 	}
@@ -4151,7 +4151,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 				if (!new_town) {
 					cbuffer_t buf;
 					buf.printf( translator::translate("To attract more tourists\n%s built\na %s\nwith the aid of\n%i tax payers."), get_name(), make_single_line_string(translator::translate(besch->get_name()), 2), get_einwohner());
-					welt->get_message()->add_message(buf, best_pos, message_t::city, CITY_KI, besch->get_tile(0)->get_hintergrund(0, 0, 0));
+					welt->get_message()->add_message(buf, best_pos + koord(1, 1), message_t::city, CITY_KI, besch->get_tile(0)->get_hintergrund(0, 0, 0));
 				}
 			}
 		}
@@ -4717,7 +4717,8 @@ bool stadt_t::renoviere_gebaeude(gebaeude_t* gb)
 	weg_t* way;
 	for(int i = 1; i <= narrowgauge_wt; i++)
 	{
-		way = welt->lookup(gb->get_pos())->get_weg((waytype_t)i);
+		grund_t* gr = welt->lookup(gb->get_pos());
+		way = gr ? gr->get_weg((waytype_t)i) : NULL;
 		if(way && (wegbauer_t::bautyp_t)way->get_besch()->get_wtyp() & wegbauer_t::elevated_flag)
 		{ 
 			// Limit this if any elevated way is found.
@@ -5076,7 +5077,7 @@ void stadt_t::baue(bool new_town)
 
 	// renovation (only done when nothing matches a certain location)
 	koord c( (ur.x + lo.x)/2 , (ur.y + lo.y)/2);
-	double maxdist(koord_distance(ur,c));
+	uint32 maxdist(koord_distance(ur,c));
 	if (maxdist < 10) {maxdist = 10;}
 	int was_renovated=0;
 	int try_nr = 0;
@@ -5084,8 +5085,8 @@ void stadt_t::baue(bool new_town)
 		while (was_renovated < renovations_count && try_nr++ < renovations_try) { // trial an errors parameters
 			// try to find a public owned building
 			gebaeude_t* const gb = pick_any(buildings);
-			double dist(koord_distance(c, gb->get_pos()));
-			uint32 distance_rate = uint32(100 * (1.0 - dist/maxdist));
+			const uint32 dist(koord_distance(c, gb->get_pos()));
+			const uint32 distance_rate = 100 - (dist * 100) / maxdist;
 			if(  spieler_t::check_owner(gb->get_besitzer(),NULL)  && simrand(100, "void stadt_t::baue") < distance_rate) {
 				if(renoviere_gebaeude(gb)) { was_renovated++;}
 			}
@@ -5439,7 +5440,7 @@ void stadt_t::remove_substation(senke_t* substation)
 bool road_destination_finder_t::ist_befahrbar( const grund_t* gr ) const
 { 
 	// Check to see whether the road prohibits private cars
-	if(welt->lookup(gr->get_pos())->get_weg(road_wt) && welt->lookup(gr->get_pos())->get_weg(road_wt)->has_sign())
+	if(gr && gr->get_weg(road_wt) && gr->get_weg(road_wt)->has_sign())
 	{
 		const roadsign_besch_t* rs_besch = gr->find<roadsign_t>()->get_besch();
 		if(rs_besch->is_private_way())

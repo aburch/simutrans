@@ -936,7 +936,8 @@ void stadtauto_t::hop()
 {
 	// Check whether this private car should pay a road toll.
 
-	weg_t* way = welt->lookup(get_pos())->get_weg(road_wt);
+	const grund_t* gr = welt->lookup(get_pos());
+	weg_t* way = gr ? gr->get_weg(road_wt) : NULL;
 	if(way)
 	{
 		spieler_t *sp = way->get_besitzer();
@@ -987,7 +988,8 @@ void stadtauto_t::calc_bild()
 
 void stadtauto_t::calc_current_speed()
 {
-	const weg_t * weg = welt->lookup(get_pos())->get_weg(road_wt);
+	const grund_t* gr = welt->lookup(get_pos());
+	const weg_t * weg = gr ? gr->get_weg(road_wt) : NULL;
 	sint32 max_speed;
 	if(besch != NULL)
 	{

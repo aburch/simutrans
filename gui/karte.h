@@ -11,8 +11,6 @@ class stadt_t;
 class schedule_t;
 
 
-#define MAX_MAP_TYPE_LAND 14
-#define MAX_MAP_TYPE_WATER 5
 #define MAX_SEVERITY_COLORS 10
 #define MAX_MAP_ZOOM 4
 // set to zero to use the small font
@@ -68,8 +66,6 @@ private:
 	static MAP_MODES mode;
 
 	static const uint8 severity_color[MAX_SEVERITY_COLORS];
-
-	static const uint8 map_type_color[MAX_MAP_TYPE_LAND+MAX_MAP_TYPE_WATER];
 
 	inline void screen_to_karte(koord &) const;
 

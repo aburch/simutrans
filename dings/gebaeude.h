@@ -105,7 +105,7 @@ public:
 
 	typ get_haustyp() const;
 
-	void add_alter(uint32 a);
+	void add_alter(sint64 a);
 
 	void set_fab(fabrik_t *fb);
 	void set_stadt(stadt_t *s);

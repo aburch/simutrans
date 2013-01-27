@@ -2334,7 +2334,7 @@ bool vehikel_t::check_access(const weg_t* way) const
 		return true;
 	}
 	const grund_t* const gr = welt->lookup(get_pos());
-	const weg_t* const current_way = gr ? welt->lookup(get_pos())->get_weg(get_waytype()) : NULL;
+	const weg_t* const current_way = gr ? gr->get_weg(get_waytype()) : NULL;
 	if(current_way == NULL)
 	{
 		return true;
@@ -3234,12 +3234,12 @@ bool waggon_t::ist_befahrbar(const grund_t *bd) const
 	// now check for special signs
 	if(sch->has_sign()) {
 		const roadsign_t* rs = bd->find<roadsign_t>();
-		if(  rs->get_besch()->get_wtyp()==get_waytype()  ) {
-			if(  rs->get_besch()->get_min_speed() > 0  &&  rs->get_besch()->get_min_speed() > cnv->get_min_top_speed()  ) {
+		if(rs && rs->get_besch()->get_wtyp()==get_waytype()  ) {
+			if(rs->get_besch()->get_min_speed() > 0  &&  rs->get_besch()->get_min_speed() > cnv->get_min_top_speed()  ) {
 				// below speed limit
 				return false;
 			}
-			if(  rs->get_besch()->is_private_way()  &&  (rs->get_player_mask() & (1<<get_player_nr()) ) == 0  ) {
+			if(rs && rs->get_besch()->is_private_way()  &&  (rs->get_player_mask() & (1<<get_player_nr()) ) == 0  ) {
 				// prvate road
 				return false;
 			}
@@ -3413,7 +3413,7 @@ bool waggon_t::is_weg_frei_longblock_signal( signal_t *sig, uint16 next_block, i
 	while(  fahrplan_index != cnv->get_schedule()->get_aktuell()  ) {
 		// now search
 		// search for route
-		success = target_rt.calc_route( welt, cur_pos, cnv->get_schedule()->eintrag[fahrplan_index].pos, this, this->get_convoi()->get_heaviest_vehicle(), speed_to_kmh(cnv->get_min_top_speed()), 8888 /*cnv->get_tile_length()*/ );
+		success = target_rt.calc_route( welt, cur_pos, cnv->get_schedule()->eintrag[fahrplan_index].pos, this, get_convoi()->get_heaviest_vehicle(), speed_to_kmh(cnv->get_min_top_speed()), 8888 /*cnv->get_tile_length()*/ );
 		if(  success  ) {
 			success = block_reserver( &target_rt, 1, next_next_signal, dummy, 0, true, false );
 			block_reserver( &target_rt, 1, dummy, dummy, 0, false, false );
