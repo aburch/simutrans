@@ -86,11 +86,11 @@ public:
 	virtual waytype_t get_waytype() const { return road_wt; };
 	virtual bool ist_befahrbar( const grund_t* gr ) const;
 
-	virtual bool ist_ziel( const grund_t* gr, const grund_t* ) const;
+	virtual bool ist_ziel( const grund_t* gr, const grund_t* );
 
 	virtual ribi_t::ribi get_ribi( const grund_t* gr) const;
 
-	virtual int get_kosten( const grund_t* gr, const sint32 max_speed, koord from_pos) const;
+	virtual int get_kosten( const grund_t* gr, const sint32 max_speed, koord from_pos);
 
 	virtual ~road_destination_finder_t()
 	{
@@ -105,16 +105,12 @@ private:
 	karte_t* welt;
 	stadt_t* origin_city;
 	int accumulated_cost;
+	int number_of_tiles;
 	int current_tile_cost;
+	uint16 meters_per_tile_x100;
 
 public:
-	private_car_destination_finder_t(karte_t *w, automobil_t* m, stadt_t* o) 
-	{ 
-		welt = w;
-		master = m;
-		origin_city = o;
-		accumulated_cost = 0;
-	};
+	private_car_destination_finder_t(karte_t *w, automobil_t* m, stadt_t* o);	
 	
 	virtual waytype_t get_waytype() const { return road_wt; };
 	virtual bool ist_befahrbar( const grund_t* gr ) const;
@@ -124,6 +120,8 @@ public:
 	virtual ribi_t::ribi get_ribi( const grund_t* gr) const;
 
 	virtual int get_kosten(const grund_t* gr, const sint32 max_speed, koord from_pos);
+
+	void reset() { accumulated_cost = current_tile_cost = 0; }
 
 	virtual ~private_car_destination_finder_t()
 	{
@@ -292,6 +290,7 @@ private:
 	connexion_map connected_attractions;
 
 	road_destination_finder_t *finder;
+	private_car_destination_finder_t *car_finder;
 	route_t *private_car_route;
 
 	vector_tpl<senke_t*> substations;
@@ -532,15 +531,6 @@ private:
 	uint16 check_road_connexion_to(const gebaeude_t* attraction);
 	uint16 check_road_connexion(koord3d destination);
 
-	/**
-	 * This will check for private car routes from this to
-	 * all connected cities, populating the connected cities
-	 * list with journey time per tile values.
-	 */
-	void recheck_connected_cities();
-
-	// Adds a connexion back from a city when a route has been calculated.
-	void add_road_connexion(uint16 journey_time_per_tile, stadt_t* origin_city);
 	void set_no_connexion_to_industry(const fabrik_t* unconnected_industry);
 	void set_no_connexion_to_attraction(const gebaeude_t* unconnected_attraction);
 
@@ -712,6 +702,7 @@ public:
 		destination() { factory_entry = NULL; }
 	};
 
+	void add_road_connexion(uint16 journey_time_per_tile, const stadt_t* city);
 
 private:
 	/**
@@ -813,7 +804,7 @@ public:
 
 	void add_factory_arbeiterziel(fabrik_t *fab);
 
-	uint8 get_congestion() { return (uint8) city_history_month[0][HIST_CONGESTION]; }
+	uint8 get_congestion() const { return (uint8) city_history_month[0][HIST_CONGESTION]; }
 
 	void add_city_factory(fabrik_t *fab) { city_factories.append(fab); }
 	void remove_city_factory(fabrik_t *fab) { city_factories.remove(fab); }

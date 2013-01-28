@@ -1479,6 +1479,7 @@ stadt_t::~stadt_t()
 	}
 
 	delete finder;
+	delete car_finder;
 	delete private_car_route;
 
 	if(  reliefkarte_t::get_karte()->get_city() == this  ) {
@@ -1637,6 +1638,7 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 	calc_internal_passengers();
 
 	finder = new road_destination_finder_t(welt, new automobil_t(welt));
+	car_finder = new private_car_destination_finder_t(welt, new automobil_t(welt), this);
 	private_car_route = new route_t();
 	check_road_connexions = false;
 
@@ -1709,6 +1711,7 @@ stadt_t::stadt_t(karte_t* wl, loadsave_t* file) :
 	calc_internal_passengers();
 
 	finder = new road_destination_finder_t(welt, new automobil_t(welt));
+	car_finder = new private_car_destination_finder_t(welt, new automobil_t(welt), this);
 	private_car_route = new route_t();
 	check_road_connexions = false;
 }
@@ -2506,11 +2509,18 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 
 	const uint8 current_month = (uint8)(welt->get_current_month() % 12);
 
-	if(check_road_connexions && private_car_update_month == current_month)
+	if(/*check_road_connexions && private_car_update_month == current_month*/ true)
 	{
 		connected_cities.clear();
 		connected_industries.clear();
 		connected_attractions.clear();
+		
+		const uint32 depth = welt->get_max_road_check_depth();
+		const koord3d origin(townhall_road.x, townhall_road.y, welt->lookup_hgt(townhall_road));
+		// This will find the fastest route from the townhall road to *all* other townhall roads.
+		car_finder->reset();
+		private_car_route->find_route(welt, origin, car_finder, welt->get_citycar_speed_average(), 0, 0, depth);
+
 		check_road_connexions = false;
 	}
 	
@@ -2776,18 +2786,15 @@ void stadt_t::step_bau()
 	}
 }
 
-void stadt_t::recheck_connected_cities()
-{
-	// TODO: Add content.
-	return;
-}
-
 
 uint16 stadt_t::check_road_connexion_to(stadt_t* city)
 {
 	if(welt->get_settings().get_assume_everywhere_connected_by_road())
 	{
-		return city == this ? welt->get_generic_road_speed_city() : welt->get_generic_road_speed_intercity();
+		const uint16 speed = city == this ? welt->get_generic_road_speed_city() : welt->get_generic_road_speed_intercity();
+		// 1km/h = 0.06 minutes per meter. To get 100ths of minutes per meter, therefore, multiply the speed by 6.
+		// With this setting, we add congestion factoring at a later stage.
+		return speed * 6;
 	}
 
 	if(connected_cities.is_contained(city->get_pos()))
@@ -2808,12 +2815,15 @@ uint16 stadt_t::check_road_connexion_to(stadt_t* city)
 recalc:
 		const koord3d pos3d(townhall_road, welt->lookup_hgt(townhall_road));
 		const weg_t* road = welt->lookup(pos3d) ? welt->lookup(pos3d)->get_weg(road_wt) : NULL;
-		const uint16 journey_time_per_tile = road ? road->get_besch() == welt->get_city_road() ? welt->get_generic_road_speed_city() : welt->calc_generic_road_speed(road->get_besch()) : welt->get_generic_road_speed_city();
+		const uint16 journey_time_per_tile = road ? road->get_besch() == welt->get_city_road() ? welt->get_generic_road_speed_city() * 6 : welt->calc_generic_road_speed(road->get_besch()) * 6 : welt->get_generic_road_speed_city() * 6;
 		connected_cities.put(pos, journey_time_per_tile);
 		return journey_time_per_tile;
 	}
 	else
 	{
+		return 65535;
+		
+		// TODO: Remove the substance ot this method once the new system is fully tested.
 		const koord destination_road = city->get_townhall_road();
 		const koord3d desintation_koord(destination_road.x, destination_road.y, welt->lookup_hgt(destination_road));
 		const uint16 journey_time_per_tile = check_road_connexion(desintation_koord);
@@ -2837,7 +2847,9 @@ uint16 stadt_t::check_road_connexion_to(const fabrik_t* industry)
 {
 	if(welt->get_settings().get_assume_everywhere_connected_by_road())
 	{
-		return industry->get_city() && industry->get_city() == this ? welt->get_generic_road_speed_city() : welt->get_generic_road_speed_intercity();
+		// 1km/h = 0.06 minutes per meter. To get 100ths of minutes per meter, therefore, multiply the speed by 6.
+		// With this setting, we add congestion factoring at a later stage.
+		return industry->get_city() && industry->get_city() == this ? welt->get_generic_road_speed_city() * 6 : welt->get_generic_road_speed_intercity() * 6;
 	}
 	
 	if(connected_industries.is_contained(industry->get_pos().get_2d()))
@@ -2854,6 +2866,10 @@ uint16 stadt_t::check_road_connexion_to(const fabrik_t* industry)
 			return time_to_city;
 		}
 	}
+
+	return 65335;
+
+	// TODO: Remove the rest of the substance of this when the new system is fully set up and tested.
 
 	vector_tpl<koord> industry_tiles;
 	industry->get_tile_list(industry_tiles);
@@ -2913,7 +2929,9 @@ uint16 stadt_t::check_road_connexion_to(const gebaeude_t* attraction)
 {
 	if(welt->get_settings().get_assume_everywhere_connected_by_road())
 	{
-		return welt->get_generic_road_speed_intercity();
+		// 1km/h = 0.06 minutes per meter. To get 100ths of minutes per meter, therefore, multiply the speed by 6.
+		// With this setting, we add congestion factoring at a later stage.
+		return welt->get_generic_road_speed_intercity() * 6;
 	}
 	
 	if(connected_attractions.is_contained(attraction->get_pos().get_2d()))
@@ -2953,8 +2971,13 @@ uint16 stadt_t::check_road_connexion_to(const gebaeude_t* attraction)
 		{
 			(*j)->set_no_connexion_to_attraction(attraction);
 		}
-		return 65535;
+		return 65335;
 	}
+
+	return 65335;
+
+	// TODO: Remove the substance of this when the new system is tested.
+
 	const koord3d destination = road->get_pos();
 	const uint16 journey_time_per_tile = check_road_connexion(destination);
 
@@ -2974,6 +2997,8 @@ uint16 stadt_t::check_road_connexion_to(const gebaeude_t* attraction)
 
 uint16 stadt_t::check_road_connexion(koord3d dest)
 {
+	// This code should no longer be reached.
+	assert(false);
 	const koord3d origin(townhall_road.x, townhall_road.y, welt->lookup_hgt(townhall_road));
 	private_car_route->clear();
 	finder->set_destination(dest);
@@ -3004,14 +3029,13 @@ uint16 stadt_t::check_road_connexion(koord3d dest)
 	return journey_time / (straight_line_distance_tiles == 0 ? 1 : straight_line_distance_tiles);
 }
 
-void stadt_t::add_road_connexion(uint16 journey_time_per_tile, stadt_t* origin_city)
+void stadt_t::add_road_connexion(uint16 journey_time_per_tile, const stadt_t* city)
 {
-	
 	if(this == NULL)
 	{
 		return;
 	}
-	connected_cities.set(origin_city->get_pos(), journey_time_per_tile);
+	connected_cities.set(city->get_pos(), journey_time_per_tile);
 }
 
 void stadt_t::set_no_connexion_to_industry(const fabrik_t* unconnected_industry)
@@ -3362,6 +3386,8 @@ void stadt_t::step_passagiere()
 			
 			if(has_private_car) 
 			{
+				// time_per_tile here is in 100ths of minutes per tile.
+				// 1/100th of a minute per tile = km/h * 6.
 				uint16 time_per_tile = 65535;
 				switch(destinations[current_destination].type)
 				{
@@ -3382,33 +3408,39 @@ void stadt_t::step_passagiere()
 					
 				if(time_per_tile < 65535)
 				{
-					// *Tenths* of minutes used here.
-					car_minutes = time_per_tile * straight_line_distance;
+					// *Hundredths* of minutes used here for per tile times for accuracy.
+					// Convert to tenths, but only after multiplying to  preserve accuracy.
+					// Use a uint32 intermediary to avoid overflow.
+					const uint32 car_mins = (time_per_tile * straight_line_distance) / 10;
+					car_minutes = car_mins;
 
-					// Now, adjust the timings for congestion. 
-					// TODO: Take congestion into account when initially calculating the route timings for private cars
-					// so that it is not necessary to check it here.
+					// Now, adjust the timings for congestion (this is already taken into account if the route was
+					// calculated using the route finder; note that journeys inside cities are not calculated using
+					// the route finder). 
 
-					// Congestion here is assumed to be on the percentage basis: i.e. the percentage of extra time that
-					// a journey takes owing to congestion. This is the measure used by the TomTom congestion index,
-					// compiled by the satellite navigation company of that name, which provides useful research data.
-					// See: http://www.tomtom.com/lib/doc/congestionindex/2012-0704-TomTom%20Congestion-index-2012Q1europe-mi.pdf
+					if(s.get_assume_everywhere_connected_by_road() || destinations[current_destination].object.town == this)
+					{
+						// Congestion here is assumed to be on the percentage basis: i.e. the percentage of extra time that
+						// a journey takes owing to congestion. This is the measure used by the TomTom congestion index,
+						// compiled by the satellite navigation company of that name, which provides useful research data.
+						// See: http://www.tomtom.com/lib/doc/congestionindex/2012-0704-TomTom%20Congestion-index-2012Q1europe-mi.pdf
 							
-					//Average congestion of origin and destination towns.
-					uint16 congestion_total;
-					if(destinations[current_destination].type == 1 && destinations[current_destination].object.town != NULL)
-					{
-						// Destination type is town and the destination town object can be found.
-						congestion_total = (city_history_month[0][HIST_CONGESTION] + destinations[current_destination].object.town->get_congestion()) / 2;
-					}
-					else
-					{
-						congestion_total = city_history_month[0][HIST_CONGESTION];
-					}
+						//Average congestion of origin and destination towns.
+						uint16 congestion_total;
+						if(destinations[current_destination].type == 1 && destinations[current_destination].object.town != NULL && destinations[current_destination].object.town != this)
+						{
+							// Destination type is town and the destination town object can be found.
+							congestion_total = (city_history_month[0][HIST_CONGESTION] + destinations[current_destination].object.town->get_congestion()) / 2;
+						}
+						else
+						{
+							congestion_total = city_history_month[0][HIST_CONGESTION];
+						}
 					
-					const uint32 congestion_extra_minutes = (car_minutes * congestion_total) / 100;
+						const uint32 congestion_extra_minutes = (car_minutes * congestion_total) / 100;
 
-					car_minutes += congestion_extra_minutes;
+						car_minutes += congestion_extra_minutes;
+					}
 				}
 			}		
 	
@@ -5504,7 +5536,7 @@ bool road_destination_finder_t::ist_befahrbar( const grund_t* gr ) const
 	return master->ist_befahrbar(gr);
 }
 
-bool road_destination_finder_t::ist_ziel( const grund_t* gr, const grund_t* ) const 
+bool road_destination_finder_t::ist_ziel( const grund_t* gr, const grund_t* ) 
 { 
 	return gr->get_pos() == dest;
 }
@@ -5514,7 +5546,7 @@ ribi_t::ribi road_destination_finder_t::get_ribi( const grund_t* gr) const
 	return master->get_ribi(gr); 
 }
 
-int road_destination_finder_t::get_kosten( const grund_t* gr, sint32 max_speed, koord from_pos) const
+int road_destination_finder_t::get_kosten( const grund_t* gr, sint32 max_speed, koord from_pos) 
 {
 	// first favor faster ways
 	const weg_t *w=gr->get_weg(road_wt);
@@ -5535,6 +5567,16 @@ int road_destination_finder_t::get_kosten( const grund_t* gr, sint32 max_speed, 
 	}
 
 	return costs;
+}
+
+private_car_destination_finder_t::private_car_destination_finder_t(karte_t *w, automobil_t* m, stadt_t* o)
+{ 
+	welt = w;
+	master = m;
+	origin_city = o;
+	accumulated_cost = 0;
+	current_tile_cost = 0;
+	meters_per_tile_x100 = origin_city->get_welt()->get_settings().get_meters_per_tile() * 100; // For 100ths of a minute
 }
 
 bool private_car_destination_finder_t::ist_befahrbar( const grund_t* gr ) const
@@ -5557,7 +5599,7 @@ bool private_car_destination_finder_t::ist_befahrbar( const grund_t* gr ) const
 			{
 				const roadsign_t* rs = gr->find<roadsign_t>();
 				const roadsign_besch_t* rs_besch = rs->get_besch();
-				if(rs_besch->get_min_speed() > master->get_besch()->get_geschw()  ||  (rs_besch->is_private_way()  &&  (rs->get_player_mask() & 2) == 0))
+				if(rs_besch->get_min_speed() > master->get_besch()->get_geschw() || (rs_besch->is_private_way() && (rs->get_player_mask() & 2) == 0))
 				{
 					return false;
 				}
@@ -5574,11 +5616,8 @@ ribi_t::ribi private_car_destination_finder_t::get_ribi( const grund_t* gr) cons
 
 bool private_car_destination_finder_t::ist_ziel(const grund_t* gr, const grund_t*)
 {
-	// TODO: Add method for checking whether we are at a city tile,
-	// and, if we are, fill the city connexion table with the appropriate
-	// journey time per tile value. This must return false to ensure
-	// that the route check continues. Thanks to Prissi for this ingenious
-	// suggestion.
+	// This must return false to ensure that the route check continues.
+	// Thanks to Prissi for this ingenious suggestion.
 
 	accumulated_cost += current_tile_cost;
 
@@ -5592,13 +5631,17 @@ bool private_car_destination_finder_t::ist_ziel(const grund_t* gr, const grund_t
 
 	if(!city)
 	{
-		return false;
+		// TODO: Check also for non-city attractions and industries.
+		// Might be necessary to store connexion information in road
+		// tiles, as it might take a long time to search each tile here.
+
 	}
 	else
 	{
-		if(city->get_townhall_road() == k)
+		if(city->get_townhall_road() == k && city != origin_city)
 		{
-			// TODO - populate the list of cities here.
+			// We use a different system for determining travel speeds in the current city.
+			origin_city->add_road_connexion(accumulated_cost / number_of_tiles, city);
 		}
 	}
 
@@ -5607,28 +5650,52 @@ bool private_car_destination_finder_t::ist_ziel(const grund_t* gr, const grund_t
 
 int private_car_destination_finder_t::get_kosten(const grund_t* gr, sint32 max_speed, koord from_pos)
 {
-	// TODO: Recast this method to use journey time per tile (in 100ths of a minute) as a cost.
-	
-	// first favor faster ways
-	const weg_t *w=gr->get_weg(road_wt);
-	if(!w) {
+	const weg_t *w = gr->get_weg(road_wt);
+	if(!w) 
+	{
 		return 0xFFFF;
 	}
 
-	// max_speed?
-	uint32 max_tile_speed = w->get_max_speed();
+	const uint32 max_tile_speed = w->get_max_speed(); // This returns speed in km/h.
 
-	// add cost for going (with maximum speed, cost is 1)
-	int costs = (max_speed<=max_tile_speed) ? 1 :  (max_speed*4)/(max_tile_speed*4);
+	uint32 speed = min(max_speed, max_tile_speed);
+	const stadt_t* city = origin_city->get_welt()->get_city(gr->get_pos().get_2d());
 
+	if(city)
+	{
+		// If this is in a city, take account of congestion when calculating 
+		// the speed.
+
+		// Congestion here is assumed to be on the percentage basis: i.e. the percentage of extra time that
+		// a journey takes owing to congestion. This is the measure used by the TomTom congestion index,
+		// compiled by the satellite navigation company of that name, which provides useful research data.
+		// See: http://www.tomtom.com/lib/doc/congestionindex/2012-0704-TomTom%20Congestion-index-2012Q1europe-mi.pdf
+
+		const uint32 congestion = (uint32)city->get_congestion();
+		speed -= (speed * congestion) / 100;
+	}
+
+	// Time = distance / speed
 	if(w->is_diagonal())
 	{
 		// Diagonals are a *shorter* distance.
-		costs /= 1.4;
+		meters_per_tile_x100 = (meters_per_tile_x100 * 5) / 7;
 	}
 
-	current_tile_cost = costs;
-	return costs;
+	// T = d / (1000 / h)
+	// T = d / (h * 1000)
+	// T = d / ((h / 60) * (1000 / 60)
+	// m == h / 60
+	// T = d / (m * 16.67)
+	// (m / 100)
+	// T = d / ((m / 100) * (16.67 / 100)
+	// T = d / ((m / 100) * 0.167)
+	// T = (d * 100) / (m * 16.67) -- 100THS OF A MINUTE PER TILE
+
+	const int cost = (int)meters_per_tile_x100 / ((speed * 167) / 10);
+
+	current_tile_cost = cost;
+	return cost;
 }
 
 void stadt_t::remove_connected_city(stadt_t* city)

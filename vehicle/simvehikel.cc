@@ -2626,7 +2626,7 @@ bool automobil_t::ist_befahrbar(const grund_t *bd) const
 
 // how expensive to go here (for way search)
 // author prissi
-int automobil_t::get_kosten(const grund_t *gr, const sint32 max_speed, koord from_pos) const
+int automobil_t::get_kosten(const grund_t *gr, const sint32 max_speed, koord from_pos)
 {
 	// first favor faster ways
 	const weg_t *w=gr->get_weg(road_wt);
@@ -2671,7 +2671,7 @@ int automobil_t::get_kosten(const grund_t *gr, const sint32 max_speed, koord fro
 
 
 // this routine is called by find_route, to determined if we reached a destination
-bool automobil_t::ist_ziel(const grund_t *gr, const grund_t *prev_gr) const
+bool automobil_t::ist_ziel(const grund_t *gr, const grund_t *prev_gr)
 {
 	//  just check, if we reached a free stop position of this halt
 	if(gr->is_halt()  &&  gr->get_halt()==target_halt  &&  target_halt->is_reservable(gr,cnv->self)) {
@@ -3277,7 +3277,7 @@ bool waggon_t::ist_befahrbar(const grund_t *bd) const
 
 // how expensive to go here (for way search)
 // author prissi
-int waggon_t::get_kosten(const grund_t *gr, const sint32 max_speed, koord from_pos) const
+int waggon_t::get_kosten(const grund_t *gr, const sint32 max_speed, koord from_pos)
 {
 	// first favor faster ways
 	const weg_t *w = gr->get_weg(get_waytype());
@@ -3340,7 +3340,7 @@ int waggon_t::get_kosten(const grund_t *gr, const sint32 max_speed, koord from_p
 
 
 // this routine is called by find_route, to determined if we reached a destination
-bool waggon_t::ist_ziel(const grund_t *gr,const grund_t *prev_gr) const
+bool waggon_t::ist_ziel(const grund_t *gr,const grund_t *prev_gr)
 {
 	const schiene_t * sch1 = (const schiene_t *) gr->get_weg(get_waytype());
 	// first check blocks, if we can go there
@@ -4177,7 +4177,7 @@ schedule_t * schiff_t::erzeuge_neuen_fahrplan() const
 
 
 // this routine is called by find_route, to determined if we reached a destination
-bool aircraft_t::ist_ziel(const grund_t *gr,const grund_t *) const
+bool aircraft_t::ist_ziel(const grund_t *gr,const grund_t *)
 {
 	if(state!=looking_for_parking) 
 	{
@@ -4294,7 +4294,7 @@ aircraft_t::get_ribi(const grund_t *gr) const
 
 // how expensive to go here (for way search)
 // author prissi
-int aircraft_t::get_kosten(const grund_t *gr, const sint32, koord) const
+int aircraft_t::get_kosten(const grund_t *gr, const sint32, koord)
 {
 	// first favor faster ways
 	const weg_t *w=gr->get_weg(air_wt);

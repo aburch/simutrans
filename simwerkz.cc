@@ -2557,8 +2557,8 @@ class electron_t : public fahrer_t {
 	bool ist_befahrbar(const grund_t* gr) const { return gr->get_leitung()!=NULL; }
 	virtual ribi_t::ribi get_ribi(const grund_t* gr) const { return gr->get_leitung()->get_ribi(); }
 	virtual waytype_t get_waytype() const { return invalid_wt; }
-	virtual int get_kosten(const grund_t *, const sint32, koord) const { return 1; }
-	virtual bool ist_ziel(const grund_t *,const grund_t *) const { return false; }
+	virtual int get_kosten(const grund_t *, const sint32, koord) { return 1; }
+	virtual bool ist_ziel(const grund_t *,const grund_t *) { return false; }
 };
 
 void wkz_wayremover_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &start, const koord3d &end )

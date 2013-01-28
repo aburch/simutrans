@@ -5674,7 +5674,7 @@ public:
 	{ 
 		return master->ist_befahrbar(gr); 
 	};
-	virtual bool ist_ziel( const grund_t* gr, const grund_t* ) const 
+	virtual bool ist_ziel( const grund_t* gr, const grund_t* ) 
 	{ 
 		return gr->get_depot() && gr->get_depot()->get_besitzer() == master->get_besitzer() && gr->get_depot()->get_tile()->get_besch()->get_enabled() & traction_type; 
 	};
@@ -5682,7 +5682,7 @@ public:
 	{ 
 		return master->get_ribi(gr); 
 	};
-	virtual int get_kosten( const grund_t*, const sint32, koord from_pos) const 
+	virtual int get_kosten( const grund_t*, const sint32, koord from_pos) 
 	{ 
 		return 1; 
 	};

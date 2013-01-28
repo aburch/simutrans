@@ -613,14 +613,14 @@ public:
 	virtual void set_convoi(convoi_t *c);
 
 	// how expensive to go here (for way search)
-	virtual int get_kosten(const grund_t *, const sint32, koord) const;
+	virtual int get_kosten(const grund_t *, const sint32, koord);
 
 	virtual bool calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route);
 
 	virtual bool ist_weg_frei(int &restart_speed, bool second_check );
 
 	// returns true for the way search to an unknown target.
-	virtual bool ist_ziel(const grund_t *,const grund_t *) const;
+	virtual bool ist_ziel(const grund_t *,const grund_t *);
 
 	// since we must consider overtaking, we use this for offset calculation
 	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const;
@@ -663,10 +663,10 @@ public:
 	bool calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route);
 
 	// how expensive to go here (for way search)
-	virtual int get_kosten(const grund_t *, const sint32, koord) const;
+	virtual int get_kosten(const grund_t *, const sint32, koord);
 
 	// returns true for the way search to an unknown target.
-	virtual bool ist_ziel(const grund_t *,const grund_t *) const;
+	virtual bool ist_ziel(const grund_t *,const grund_t *);
 
 	// handles all block stuff and route choosing ...
 	virtual bool ist_weg_frei(int &restart_speed, bool );
@@ -764,7 +764,7 @@ class schiff_t : public vehikel_t
 {
 protected:
 	// how expensive to go here (for way search)
-	virtual int get_kosten(const grund_t *, const sint32, koord) const { return 1; }
+	virtual int get_kosten(const grund_t *, const sint32, koord) { return 1; }
 
 	void calc_drag_coefficient(const grund_t *gr);
 
@@ -776,7 +776,7 @@ public:
 	virtual bool ist_weg_frei(int &restart_speed, bool);
 
 	// returns true for the way search to an unknown target.
-	virtual bool ist_ziel(const grund_t *,const grund_t *) const {return 0;}
+	virtual bool ist_ziel(const grund_t *,const grund_t *) {return 0;}
 
 	schiff_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last);
 	schiff_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv); // start und fahrplan
@@ -861,7 +861,7 @@ public:
 	virtual waytype_t get_waytype() const { return air_wt; }
 
 	// returns true for the way search to an unknown target.
-	virtual bool ist_ziel(const grund_t *,const grund_t *) const;
+	virtual bool ist_ziel(const grund_t *,const grund_t *);
 
 	//bool can_takeoff_here(const grund_t *gr, ribi_t::ribi test_dir, uint8 len) const;
 
@@ -869,7 +869,7 @@ public:
 	virtual ribi_t::ribi get_ribi(const grund_t* ) const;
 
 	// how expensive to go here (for way search)
-	virtual int get_kosten(const grund_t *, const sint32, koord) const;
+	virtual int get_kosten(const grund_t *, const sint32, koord);
 
 	virtual bool ist_weg_frei(int &restart_speed, bool);
 
