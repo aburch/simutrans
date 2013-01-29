@@ -13,6 +13,7 @@
  * - Added ::double_to_string, ::integer_to_string, ::money_to_string, ::get_month_name
  * - Added factory_list_x
  * - Added factory_x::get_name
+ * - Added halt_x::get_name, halt_x::get_owner, halt_x::accepts_good
  *
  *
  * @section api-112-1 Releases 112.0 and 112.1

@@ -454,12 +454,12 @@ public:
 
 	// check, if we accepts this good
 	// often called, thus inline ...
-	bool is_enabled( const ware_besch_t *wtyp ) {
+	bool is_enabled( const ware_besch_t *wtyp ) const {
 		return is_enabled(wtyp->get_catg_index());
 	}
 
 	// a separate version for checking with goods category index
-	bool is_enabled( const uint8 catg_index )
+	bool is_enabled( const uint8 catg_index ) const
 	{
 		if (catg_index == warenbauer_t::INDEX_PAS) {
 			return enables&PAX;

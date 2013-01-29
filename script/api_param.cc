@@ -360,6 +360,13 @@ namespace script_api {
 	}
 
 
+	const haltestelle_t* param<const haltestelle_t*>::get(HSQUIRRELVM vm, SQInteger index)
+	{
+		halthandle_t halt = param<halthandle_t>::get(vm, index);
+		return halt.is_bound() ? halt.get_rep() : NULL;
+	}
+
+
 	SQInteger param<halthandle_t>::push(HSQUIRRELVM vm, halthandle_t const& v)
 	{
 		if (v.is_bound()) {
