@@ -269,7 +269,7 @@ private:
 	 * by private cars, they will pay this
 	 * much of a toll for every tile
 	 */
-	sint64 private_car_toll_per_tile;
+	sint64 private_car_toll_per_km;
 
 	/**
 	 * If this is enabled, player roads
@@ -962,7 +962,7 @@ public:
 
 	bool get_allow_making_public() const { return allow_making_public; }
 
-	sint64 get_private_car_toll_per_tile() const { return private_car_toll_per_tile; }
+	sint64 get_private_car_toll_per_km() const { return private_car_toll_per_km; }
 
 	bool get_towns_adopt_player_roads() const { return towns_adopt_player_roads; }
 

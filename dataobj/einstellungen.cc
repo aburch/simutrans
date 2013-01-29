@@ -434,7 +434,7 @@ settings_t::settings_t() :
 
 	toll_free_public_roads = false;
 
-	private_car_toll_per_tile = 1;
+	private_car_toll_per_km = 1;
 
 	towns_adopt_player_roads = true;
 
@@ -1306,7 +1306,7 @@ void settings_t::rdwr(loadsave_t *file)
 
 		if(file->get_experimental_version() >= 11)
 		{
-			file->rdwr_longlong(private_car_toll_per_tile);
+			file->rdwr_longlong(private_car_toll_per_km);
 			file->rdwr_bool(towns_adopt_player_roads);
 			file->rdwr_long(reroute_check_interval_steps);
 			file->rdwr_byte(walking_speed);
@@ -1314,7 +1314,7 @@ void settings_t::rdwr(loadsave_t *file)
 		else if(umgebung_t::networkmode)
 		{
 			// This is necessary to prevent desyncs.
-			private_car_toll_per_tile = 1;
+			private_car_toll_per_km = 1;
 			towns_adopt_player_roads = true;
 			reroute_check_interval_steps = 8192;
 			walking_speed = 5;
@@ -1984,7 +1984,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	toll_free_public_roads = (bool)contents.get_int("toll_free_public_roads", toll_free_public_roads);
 
-	private_car_toll_per_tile = contents.get_int("private_car_toll_per_tile", private_car_toll_per_tile);
+	private_car_toll_per_km = contents.get_int("private_car_toll_per_km", private_car_toll_per_km);
 
 	towns_adopt_player_roads = (bool)contents.get_int("towns_adopt_player_roads", towns_adopt_player_roads);
 

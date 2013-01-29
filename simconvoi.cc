@@ -746,7 +746,7 @@ void convoi_t::increment_odometer(uint32 steps)
 	}
 	
 	steps_since_last_odometer_increment += steps;
-	if ( steps_since_last_odometer_increment < welt->get_settings().get_steps_per_km())
+	if (steps_since_last_odometer_increment < welt->get_settings().get_steps_per_km())
 	{
 		return;
 	}
@@ -5682,9 +5682,9 @@ public:
 	{ 
 		return master->get_ribi(gr); 
 	};
-	virtual int get_kosten( const grund_t*, const sint32, koord from_pos) 
+	virtual int get_kosten( const grund_t* gr, const sint32, koord from_pos) 
 	{ 
-		return 1; 
+		return master->get_kosten(gr, 0, from_pos);
 	};
 };
 

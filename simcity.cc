@@ -3700,7 +3700,7 @@ void stadt_t::step_passagiere()
 					{
 						ware_t return_pax(wtyp, ret_halt);
 						return_pax.to_factory = 0;
-						if(  will_return != city_return  &&  wtyp==warenbauer_t::post  ) 
+						if(will_return != city_return && wtyp==warenbauer_t::post) 
 						{
 						// attractions/factory generate more mail than they recieve
 							return_pax.menge = pax_left_to_do * 3;
@@ -5641,7 +5641,13 @@ bool private_car_destination_finder_t::ist_ziel(const grund_t* gr, const grund_t
 		if(city->get_townhall_road() == k && city != origin_city)
 		{
 			// We use a different system for determining travel speeds in the current city.
-			origin_city->add_road_connexion(accumulated_cost / number_of_tiles, city);
+
+			// Cost should be journey time per *straight line* tile, as the private car route
+			// system needs to be able to approximate the total travelling time from the straight
+			// line distance.
+
+			const uint16 straight_line_distance = shortest_distance(city->get_townhall_road(), k);
+			origin_city->add_road_connexion(accumulated_cost / straight_line_distance, city);
 		}
 	}
 

@@ -300,7 +300,7 @@ toll_free_public_roads = 1
 # major version is incremented to 11. In a network game, this value
 # will default to 1.
 
-private_car_toll_per_tile = 1
+private_car_toll_per_km = 1
 
 # If this is set to 1, any road built in a town will be adopted
 # by that town (set to unowned), meaning that the building player

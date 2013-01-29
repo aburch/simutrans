@@ -105,7 +105,6 @@ private:
 	karte_t* welt;
 	stadt_t* origin_city;
 	int accumulated_cost;
-	int number_of_tiles;
 	int current_tile_cost;
 	uint16 meters_per_tile_x100;
 

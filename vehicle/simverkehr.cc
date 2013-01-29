@@ -58,6 +58,7 @@ verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt) :
 	set_besitzer( welt->get_spieler(1) );
 	time_to_life = 0;
 	weg_next = 0;
+	tiles_since_last_increment = 0;
 }
 
 
@@ -300,6 +301,15 @@ void verkehrsteilnehmer_t::rdwr(loadsave_t *file)
 	// the lifetime in ms
 	if(file->get_version()>89004) {
 		file->rdwr_long(time_to_life);
+	}
+
+	if(file->get_experimental_version() >= 11)
+	{
+		file->rdwr_byte(tiles_since_last_increment);
+	}
+	else if(umgebung_t::networkmode)
+	{
+		tiles_since_last_increment = 0;
 	}
 
 	// Hajo: avoid endless growth of the values
@@ -938,12 +948,14 @@ void stadtauto_t::hop()
 
 	const grund_t* gr = welt->lookup(get_pos());
 	weg_t* way = gr ? gr->get_weg(road_wt) : NULL;
-	if(way)
+	const uint32 tiles_per_km = 1000 / welt->get_settings().get_meters_per_tile();
+	if(way && tiles_since_last_increment++ > tiles_per_km)
 	{
+		tiles_since_last_increment -= tiles_per_km;
 		spieler_t *sp = way->get_besitzer();
 		if(sp && sp->get_player_nr() != 1)
 		{
-			const sint64 toll = welt->get_settings().get_private_car_toll_per_tile();
+			const sint64 toll = welt->get_settings().get_private_car_toll_per_km();
 			sp->buche(toll, COST_WAY_TOLLS);
 		}
 	}
