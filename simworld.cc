@@ -1943,7 +1943,7 @@ static int raise_frame_counter = 0;
 bool karte_t::can_raise_to(sint16 x, sint16 y, bool keep_water, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, uint8 ctest) const
 {
 	bool ok = false;
-	if(ist_in_kartengrenzen(x,y)) {
+	if(is_in_map_limits(x,y)) {
 		grund_t *gr = lookup_kartenboden(koord(x,y));
 		const sint8 h0 = gr->get_hoehe();
 		// which corners have to be raised?
@@ -2017,7 +2017,7 @@ bool karte_t::can_raise_to(sint16 x, sint16 y, bool keep_water, sint8 hsw, sint8
 int karte_t::raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw)
 {
 	int n=0;
-	if(ist_in_kartengrenzen(x,y)) {
+	if(is_in_map_limits(x,y)) {
 		grund_t *gr = lookup_kartenboden(koord(x,y));
 		const sint8 h0 = gr->get_hoehe();
 		// old height
@@ -2101,7 +2101,7 @@ int karte_t::raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 // raise height in the hgt-array
 void karte_t::raise_grid_to(sint16 x, sint16 y, sint8 h)
 {
-	if(ist_in_gittergrenzen(x,y)) {
+	if(is_in_grid_limits(x,y)) {
 		const sint32 offset = x + y*(cached_groesse_gitter_x+1);
 
 		if(  grid_hgts[offset] < h  ) {
@@ -2128,7 +2128,7 @@ void karte_t::raise_grid_to(sint16 x, sint16 y, sint8 h)
 int karte_t::raise(koord pos)
 {
 	int n = 0;
-	if(ist_in_kartengrenzen(pos)) {
+	if(is_in_map_limits(pos)) {
 		grund_t *gr = lookup_kartenboden(pos);
 		const sint8 hnew = gr->get_hoehe() + corner4(gr->get_grund_hang());
 		if (can_raise_to(pos.x, pos.y, false, hnew, hnew, hnew, hnew+1)) {
@@ -2145,7 +2145,7 @@ int karte_t::raise(koord pos)
 bool karte_t::can_lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, uint8 ctest) const
 {
 	bool ok = false;
-	if(ist_in_kartengrenzen(x,y)) {
+	if(is_in_map_limits(x,y)) {
 		grund_t *gr = lookup_kartenboden(koord(x,y));
 		const sint8 h0 = gr->get_hoehe();
 		// which corners have to be raised?
@@ -2217,7 +2217,7 @@ bool karte_t::can_lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, 
 int karte_t::lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw)
 {
 	int n=0;
-	if(ist_in_kartengrenzen(x,y)) {
+	if(is_in_map_limits(x,y)) {
 		grund_t *gr = lookup_kartenboden(koord(x,y));
 		const sint8 h0 = gr->get_hoehe();
 		// old height
@@ -2309,7 +2309,7 @@ int karte_t::lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 
 void karte_t::lower_grid_to(sint16 x, sint16 y, sint8 h)
 {
-	if(ist_in_gittergrenzen(x,y)) {
+	if(is_in_grid_limits(x,y)) {
 		const sint32 offset = x + y*(cached_groesse_gitter_x+1);
 
 		if(  grid_hgts[offset] > h  ) {
@@ -2336,7 +2336,7 @@ void karte_t::lower_grid_to(sint16 x, sint16 y, sint8 h)
 int karte_t::lower(koord pos)
 {
 	int n = 0;
-	if(ist_in_kartengrenzen(pos)) {
+	if(is_in_map_limits(pos)) {
 		grund_t *gr = lookup_kartenboden(pos);
 		const sint8 hnew = gr->ist_wasser() ? lookup_hgt(pos) : gr->get_hoehe() + corner4(gr->get_grund_hang());
 		if (can_lower_to(pos.x, pos.y, hnew, hnew, hnew, hnew-1)) {
@@ -2841,7 +2841,7 @@ stadt_t *karte_t::suche_naechste_stadt(const koord pos) const
 	long min_dist = 99999999;
 	stadt_t *best = NULL;
 
-	if(ist_in_kartengrenzen(pos)) {
+	if(is_in_map_limits(pos)) {
 		FOR(weighted_vector_tpl<stadt_t*>, const s, stadt) {
 			const koord k = s->get_pos();
 			const long dist = (pos.x-k.x)*(pos.x-k.x) + (pos.y-k.y)*(pos.y-k.y);
@@ -4186,7 +4186,7 @@ uint8 karte_t::recalc_natural_slope( const koord pos, sint8 &new_height ) const
 
 uint8 karte_t::calc_natural_slope( const koord pos ) const
 {
-	if(ist_in_gittergrenzen(pos.x, pos.y)) {
+	if(is_in_grid_limits(pos.x, pos.y)) {
 
 		const sint8 * p = &grid_hgts[pos.x + pos.y*(get_groesse_x()+1)];
 
@@ -4687,7 +4687,7 @@ DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 		else if(  umgebung_t::networkmode  ) {
 			step_mode = PAUSE_FLAG|FIX_RATIO;
 			switch_active_player( last_active_player_nr, true );
-			if(  ist_in_kartengrenzen(oldpos)  ) {
+			if(  is_in_map_limits(oldpos)  ) {
 				// go to position when last disconnected
 				change_world_position( oldpos );
 			}
@@ -5144,7 +5144,7 @@ DBG_MESSAGE("karte_t::laden()", "messages loaded");
 	file->rdwr_long(mi);
 	file->rdwr_long(mj);
 	DBG_MESSAGE("karte_t::laden()", "Setting view to %d,%d", mi,mj);
-	if(ist_in_kartengrenzen(mi,mj)) {
+	if(is_in_map_limits(mi,mj)) {
 		change_world_position( koord3d(mi,mj,min_hgt(koord(mi,mj))) );
 	}
 	else {
@@ -5352,7 +5352,7 @@ void karte_t::update_map()
 // only used during loading
 halthandle_t karte_t::get_halt_koord_index(koord k)
 {
-	if(!ist_in_kartengrenzen(k)) {
+	if(!is_in_map_limits(k)) {
 		return halthandle_t();
 	}
 	// already there?
@@ -5908,7 +5908,7 @@ void karte_t::interactive_event(event_t &ev)
 
 		DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "calling a tool");
 
-		if(ist_in_kartengrenzen(zeiger->get_pos().get_2d())) {
+		if(is_in_map_limits(zeiger->get_pos().get_2d())) {
 			const char *err = NULL;
 			bool result = true;
 			werkzeug_t *wkz = werkzeug[get_active_player_nr()];

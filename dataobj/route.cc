@@ -81,7 +81,7 @@ void route_t::remove_koord_from(uint32 i) {
  */
 bool route_t::append_straight_route(karte_t *welt, koord3d dest )
 {
-	if(  !welt->ist_in_kartengrenzen(dest.get_2d())  ) {
+	if(  !welt->is_in_map_limits(dest.get_2d())  ) {
 		return false;
 	}
 
@@ -98,7 +98,7 @@ DBG_MESSAGE("route_t::append_straight_route()","start from (%i,%i) to (%i,%i)",p
 		else {
 			pos.y += (pos.y>ziel.y) ? -1 : 1;
 		}
-		if(!welt->ist_in_kartengrenzen(pos)) {
+		if(!welt->is_in_map_limits(pos)) {
 			break;
 		}
 		route.append(welt->lookup_kartenboden(pos)->get_pos());

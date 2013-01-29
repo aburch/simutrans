@@ -484,7 +484,7 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int org
 				if(lt) {
 					gr->obj_add( lt );
 				}
-				if(needs_ground_recalc  &&  welt->ist_in_kartengrenzen(pos.get_2d()+k+koord(1,1))  &&  (k.y+1==dim.y  ||  k.x+1==dim.x)) {
+				if(needs_ground_recalc  &&  welt->is_in_map_limits(pos.get_2d()+k+koord(1,1))  &&  (k.y+1==dim.y  ||  k.x+1==dim.x)) {
 					welt->lookup_kartenboden(pos.get_2d()+k+koord(1,0))->calc_bild();
 					welt->lookup_kartenboden(pos.get_2d()+k+koord(0,1))->calc_bild();
 					welt->lookup_kartenboden(pos.get_2d()+k+koord(1,1))->calc_bild();

@@ -149,7 +149,7 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 			str += 1;
 			int x=-1, y=-1;
 			if (sscanf(str, "%d,%d", &x, &y) == 2) {
-				if (welt->ist_in_kartengrenzen(x,y)) {
+				if (welt->is_in_map_limits(x,y)) {
 					pos.x = x;
 					pos.y = y;
 					break; // success

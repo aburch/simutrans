@@ -154,7 +154,7 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, spieler_t *sp, koord3d pos, k
 			return koord3d::invalid;
 		}
 
-		if(!welt->ist_in_kartengrenzen(pos.get_2d())) {
+		if(!welt->is_in_map_limits(pos.get_2d())) {
 			error_msg = "Bridge is too long for this type!\n";
 			return koord3d::invalid;
 		}

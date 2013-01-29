@@ -354,7 +354,7 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 	sortierung = freight_list_sorter_t::by_name;
 	init_financial_history();
 
-	if(welt->ist_in_kartengrenzen(k)) {
+	if(welt->is_in_map_limits(k)) {
 		welt->access(k)->set_halt(self);
 	}
 }
@@ -2504,7 +2504,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				for(  uint32 i = 0;  i < count;  i++  ) {
 					// add to internal storage (use this function, since the old categories were different)
 					ware_t ware(welt,file);
-					if(  ware.menge>0  &&  welt->ist_in_kartengrenzen(ware.get_zielpos())  ) {
+					if(  ware.menge>0  &&  welt->is_in_map_limits(ware.get_zielpos())  ) {
 						add_ware_to_halt(ware);
 						if(  file->get_version() <= 112000  ) {
 							// restore intransit information

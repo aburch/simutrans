@@ -1202,7 +1202,7 @@ bool check_pos_win(event_t *ev)
 		if(  IS_LEFTCLICK(ev)  ) {
 			// goto infowin koordinate, if ticker is active
 			koord p = ticker::get_welt_pos();
-			if(wl->ist_in_kartengrenzen(p)) {
+			if(wl->is_in_map_limits(p)) {
 				wl->change_world_position(koord3d(p,wl->min_hgt(p)));
 			}
 		}

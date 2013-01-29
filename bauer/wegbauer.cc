@@ -1594,8 +1594,8 @@ bool wegbauer_t::intern_calc_route_runways(koord3d start3d, const koord3d ziel3d
 	const ribi_t::ribi ribi_gerade = ribi_t::doppelt(ribi);
 
 	// not too close to the border?
-	if(	 !(welt->ist_in_kartengrenzen(start-koord(5,5))  &&  welt->ist_in_kartengrenzen(start+koord(5,5)))  ||
-		 !(welt->ist_in_kartengrenzen(ziel-koord(5,5))  &&  welt->ist_in_kartengrenzen(ziel+koord(5,5)))  ) {
+	if(	 !(welt->is_in_map_limits(start-koord(5,5))  &&  welt->is_in_map_limits(start+koord(5,5)))  ||
+		 !(welt->is_in_map_limits(ziel-koord(5,5))  &&  welt->is_in_map_limits(ziel+koord(5,5)))  ) {
 		if(sp==welt->get_active_player()) {
 			create_win( new news_img("Zu nah am Kartenrand"), w_time_delete, magic_none);
 			return false;

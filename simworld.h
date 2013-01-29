@@ -844,7 +844,12 @@ public:
 	inline int get_groesse_y() const { return cached_groesse_gitter_y; }
 	inline int get_groesse_max() const { return cached_groesse_max; }
 
-	inline bool ist_in_kartengrenzen(koord k) const {
+	/**
+	 * @return True if the specified coordinate is inside the world tiles(planquadrat_t) limits, false otherwise.
+	 * @param k (x,y) coordinate.
+	 * @note Inline because called very frequently!
+	 */
+	inline bool is_in_map_limits(koord k) const {
 		// prissi: since negative values will make the whole result negative, we can use bitwise or
 		// faster, since pentiums and other long pipeline processors do not like jumps
 		return (k.x|k.y|(cached_groesse_karte_x-k.x)|(cached_groesse_karte_y-k.y))>=0;
@@ -852,28 +857,51 @@ public:
 		//return k.x>=0 &&  k.y>=0  &&  cached_groesse_karte_x>=k.x  &&  cached_groesse_karte_y>=k.y;
 	}
 
-	inline bool ist_in_kartengrenzen(sint16 x, sint16 y) const {
+	/**
+	 * @return True if the specified coordinate is inside the world tiles(planquadrat_t) limits, false otherwise.
+	 * @param x X coordinate.
+	 * @param y Y coordinate.
+	 * @note Inline because called very frequently!
+	 */
+	inline bool is_in_map_limits(sint16 x, sint16 y) const {
 	// prissi: since negative values will make the whole result negative, we can use bitwise or
 	// faster, since pentiums and other long pipeline processors do not like jumps
 		return (x|y|(cached_groesse_karte_x-x)|(cached_groesse_karte_y-y))>=0;
 //		return x>=0 &&  y>=0  &&  cached_groesse_karte_x>=x  &&  cached_groesse_karte_y>=y;
 	}
 
-	inline bool ist_in_gittergrenzen(const koord &k) const {
+	/**
+	 * @return True if the specified coordinate is inside the world height grid limits, false otherwise.
+	 * @param k (x,y) coordinate.
+	 * @note Inline because called very frequently!
+	 */
+	inline bool is_in_grid_limits(const koord &k) const {
 	// prissi: since negative values will make the whole result negative, we can use bitwise or
 	// faster, since pentiums and other long pipeline processors do not like jumps
 		return (k.x|k.y|(cached_groesse_gitter_x-k.x)|(cached_groesse_gitter_y-k.y))>=0;
 //		return k.x>=0 &&  k.y>=0  &&  cached_groesse_gitter_x>=k.x  &&  cached_groesse_gitter_y>=k.y;
 	}
 
-	inline bool ist_in_gittergrenzen(sint16 x, sint16 y) const {
+	/**
+	 * @return True if the specified coordinate is inside the world height grid limits, false otherwise.
+	 * @param x X coordinate.
+	 * @param y Y coordinate.
+	 * @note Inline because called very frequently!
+	 */
+	inline bool is_in_grid_limits(sint16 x, sint16 y) const {
 	// prissi: since negative values will make the whole result negative, we can use bitwise or
 	// faster, since pentiums and other long pipeline processors do not like jumps
 		return (x|y|(cached_groesse_gitter_x-x)|(cached_groesse_gitter_y-y))>=0;
 //		return x>=0 &&  y>=0  &&  cached_groesse_gitter_x>=x  &&  cached_groesse_gitter_y>=y;
 	}
 
-	inline bool ist_in_gittergrenzen(uint16 x, uint16 y) const {
+	/**
+	 * @return True if the specified coordinate is inside the world height grid limits, false otherwise.
+	 * @param x X coordinate.
+	 * @param y Y coordinate.
+	 * @note Inline because called very frequently!
+	 */
+	inline bool is_in_grid_limits(uint16 x, uint16 y) const {
 		return (x<=(unsigned)cached_groesse_gitter_x && y<=(unsigned)cached_groesse_gitter_y);
 	}
 
@@ -884,7 +912,7 @@ public:
 	 */
 	inline const planquadrat_t *lookup(const koord &k) const
 	{
-		return ist_in_kartengrenzen(k.x, k.y) ? &plan[k.x+k.y*cached_groesse_gitter_x] : 0;
+		return is_in_map_limits(k.x, k.y) ? &plan[k.x+k.y*cached_groesse_gitter_x] : 0;
 	}
 
 	/**
@@ -1084,11 +1112,11 @@ public:
 	void step();
 
 	inline planquadrat_t *access(int i, int j) const {
-		return ist_in_kartengrenzen(i, j) ? &plan[i + j*cached_groesse_gitter_x] : NULL;
+		return is_in_map_limits(i, j) ? &plan[i + j*cached_groesse_gitter_x] : NULL;
 	}
 
 	inline planquadrat_t *access(koord k) const {
-		return ist_in_kartengrenzen(k) ? &plan[k.x + k.y*cached_groesse_gitter_x] : NULL;
+		return is_in_map_limits(k) ? &plan[k.x + k.y*cached_groesse_gitter_x] : NULL;
 	}
 
 	/**
@@ -1096,7 +1124,7 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	inline sint8 lookup_hgt(koord k) const {
-		return ist_in_gittergrenzen(k.x, k.y) ? grid_hgts[k.x + k.y*(cached_groesse_gitter_x+1)] : grundwasser;
+		return is_in_grid_limits(k.x, k.y) ? grid_hgts[k.x + k.y*(cached_groesse_gitter_x+1)] : grundwasser;
 	}
 
 	/**
