@@ -396,7 +396,7 @@ grund_t::~grund_t()
 	set_text(NULL);
 
 	dinge.loesche_alle(NULL,0);
-	if(flags&is_halt_flag  &&  welt->is_in_map_limits(pos.get_2d())) {
+	if(flags&is_halt_flag  &&  welt->is_within_map_limits(pos.get_2d())) {
 		welt->lookup(pos.get_2d())->get_halt()->rem_grund(this);
 	}
 }

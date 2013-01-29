@@ -310,7 +310,7 @@ koord3d fabrikbauer_t::finde_zufallsbauplatz(karte_t *welt, const koord3d pos, c
 		// as offset % size == 1, we are guaranteed that the iteration hits all tiles and does not repeat itself
 		k = koord( pos.x-radius + (index / diam), pos.y-radius + (index % diam));
 
-		if (!welt->is_in_map_limits(k)) {
+		if (!welt->is_within_map_limits(k)) {
 			continue;
 		}
 		// to close to existing factory
@@ -424,7 +424,7 @@ fabrik_t* fabrikbauer_t::baue_fabrik(karte_t* welt, koord3d* parent, const fabri
 
 			for(k.x=pos.x; k.x<pos.x+dim.x; k.x++) {
 				for(k.y=pos.y; k.y<pos.y+dim.y; k.y++) {
-					if(welt->is_in_map_limits(k)) {
+					if(welt->is_within_map_limits(k)) {
 						// add all water to station
 						grund_t *gr = welt->lookup_kartenboden(k);
 						// build only on gb, otherwise can't remove it

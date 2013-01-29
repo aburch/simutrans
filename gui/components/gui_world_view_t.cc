@@ -47,7 +47,7 @@ bool world_view_t::infowin_event(const event_t* ev)
 {
 	if(IS_LEFTRELEASE(ev)) {
 		koord3d const& pos = get_location();
-		if (welt->is_in_map_limits(pos.get_2d())) {
+		if (welt->is_within_map_limits(pos.get_2d())) {
 			welt->change_world_position(pos);
 		}
 	}

@@ -1021,7 +1021,7 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 	pax_destinations_new(koord(PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE))
 {
 	welt = sp->get_welt();
-	assert(welt->is_in_map_limits(pos));
+	assert(welt->is_within_map_limits(pos));
 
 	step_count = 0;
 	pax_destinations_new_change = 0;
@@ -1862,7 +1862,7 @@ koord stadt_t::get_zufallspunkt() const
 	if(!buildings.empty()) {
 		gebaeude_t* const gb = pick_any_weighted(buildings);
 		koord k = gb->get_pos().get_2d();
-		if(!welt->is_in_map_limits(k)) {
+		if(!welt->is_within_map_limits(k)) {
 			// this building should not be in this list, since it has been already deleted!
 			dbg->error("stadt_t::get_zufallspunkt()", "illegal building in city list of %s: %p removing!", this->get_name(), gb);
 			const_cast<stadt_t*>(this)->buildings.remove(gb);
@@ -2555,7 +2555,7 @@ void stadt_t::erzeuge_verkehrsteilnehmer(koord pos, sint32 level, koord target)
 		koord k;
 		for (k.y = pos.y - 1; k.y <= pos.y + 1; k.y++) {
 			for (k.x = pos.x - 1; k.x <= pos.x + 1; k.x++) {
-				if (welt->is_in_map_limits(k)) {
+				if (welt->is_within_map_limits(k)) {
 					grund_t* gr = welt->lookup_kartenboden(k);
 					const weg_t* weg = gr->get_weg(road_wt);
 
@@ -2916,7 +2916,7 @@ void stadt_t::baue()
 	const koord k(lo + koord::koord_random(ur.x - lo.x + 2,ur.y - lo.y + 2)-koord(1,1) );
 
 	// do not build on any border tile
-	if(  !welt->is_in_map_limits(k+koord(1,1))  ||  k.x<=0  ||  k.y<=0  ) {
+	if(  !welt->is_within_map_limits(k+koord(1,1))  ||  k.x<=0  ||  k.y<=0  ) {
 		return;
 	}
 
