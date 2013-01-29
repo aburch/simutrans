@@ -348,6 +348,7 @@ public:
 
 	virtual bool calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route);
 	uint16 get_route_index() const {return route_index;}
+	void set_route_index(uint16 value) { route_index = value; }
 	const koord3d get_pos_prev() const {return pos_prev;}
 
 	/**

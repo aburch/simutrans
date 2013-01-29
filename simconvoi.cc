@@ -397,10 +397,14 @@ void convoi_t::laden_abschliessen()
 	bool realing_position = false;
 	if(  anz_vehikel>0  ) {
 DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", state_names[state], next_stop_index );
-		// only realign convois not leaving depot to avoid jumps through signals
+	
+	const uint32 max_route_index = get_route()->get_count() - 1;
+
+	// only realign convois not leaving depot to avoid jumps through signals
 		if(  steps_driven!=-1  ) {
 			for( uint8 i=0;  i<anz_vehikel;  i++ ) {
 				vehikel_t* v = fahr[i];
+				v->set_route_index(min(max_route_index - 1, v->get_route_index()));
 				v->set_erstes( i==0 );
 				v->set_letztes( i+1==anz_vehikel );
 				// this sets the convoi and will renew the block reservation, if needed!
@@ -414,6 +418,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", sta
 			uint8 const diagonal_vehicle_steps_per_tile = (uint8)(130560U / welt->get_settings().get_pak_diagonal_multiplier());
 			for( uint8 i=0;  i<anz_vehikel;  i++ ) {
 				vehikel_t* v = fahr[i];
+				v->set_route_index(min(max_route_index - 1, v->get_route_index()));
 				v->set_erstes( i==0 );
 				v->set_letztes( i+1==anz_vehikel );
 				// this sets the convoi and will renew the block reservation, if needed!
@@ -534,7 +539,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 	// when saving with open window, this can happen
 	if(  state==FAHRPLANEINGABE  ) {
 		if (umgebung_t::networkmode) {
-			wait_lock = 30000; // 60s to drive on, if the client in question had left
+			wait_lock = 30000; // 30s to drive on, if the client in question had left
 		}
 		fpl->eingabe_abschliessen();
 	}
@@ -831,7 +836,11 @@ void convoi_t::calc_acceleration(long delta_t)
 	const uint32 route_infos_count = get_route_infos().get_count();
 	if (route_infos_count > 0 && route_infos_count >= next_stop_index && next_stop_index > current_route_index)
 	{
-		uint32 i = current_route_index - 1;
+		sint32 i = current_route_index - 1;
+		if(i < 0)
+		{
+			i = 0;
+		}
 		const convoi_t::route_info_t &current_info = route_infos.get_element(i);
 		if (current_info.speed_limit != SPEED_UNLIMITED)
 		{
@@ -4391,7 +4400,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	const sint64 min_fare = (base_fare * 1000ll) / 4ll;
 	const sint64 max_fare = base_fare * 4000ll;
 	const uint16 speed_bonus_rating = calc_adjusted_speed_bonus(goods->get_speed_bonus(), distance);
-	const sint64 ref_speed = welt->get_average_speed( fahr[0]->get_besch()->get_waytype() );
+	const sint64 ref_speed = welt->get_average_speed(fahr[0]->get_besch()->get_waytype());
 	const sint64 speed_base = (100ll * average_speed) / ref_speed - 100ll;
 	const sint64 base_bonus = (base_fare * (1000ll + speed_base * speed_bonus_rating));
 	const sint64 min_revenue = max(min_fare, base_bonus);
