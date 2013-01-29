@@ -774,12 +774,14 @@ vehikel_t::unload_freight(halthandle_t halt)
 {
 	uint16 sum_menge = 0;
 
-	//slist_tpl<ware_t> kill_queue;
-	vector_tpl<ware_t> kill_queue;
-	if(halt->is_enabled( get_fracht_typ() )) 
+	if(halt->is_enabled(get_fracht_typ())) 
 	{
 		if (!fracht.empty())
 		{
+			halthandle_t end_halt;
+			halthandle_t via_halt;
+			vector_tpl<ware_t> kill_queue;
+			uint8 count = 0;
 			FOR(slist_tpl<ware_t>, & tmp, fracht) 
 			{
 				if(&tmp == NULL)
@@ -787,8 +789,13 @@ vehikel_t::unload_freight(halthandle_t halt)
 					continue;
 				}
 
-				halthandle_t end_halt = tmp.get_ziel();
-				halthandle_t via_halt = tmp.get_zwischenziel();
+				if(++count == 255)
+				{
+					INT_CHECK("simvehikel 793");
+				}
+
+				end_halt = tmp.get_ziel();
+				via_halt = tmp.get_zwischenziel();
 				
 				// probleme mit fehlerhafter ware
 				// vielleicht wurde zwischendurch die
@@ -812,7 +819,7 @@ vehikel_t::unload_freight(halthandle_t halt)
 					// hier sollte nur ordentliche ware verabeitet werden
 					// "here only tidy commodity should be processed" (Babelfish) 
 					
-					if(halt != end_halt && (tmp.is_passenger() && !halt->is_within_walking_distance_of(via_halt)) && halt->is_overcrowded(tmp.get_besch()->get_catg_index()) && welt->get_settings().is_avoid_overcrowding())
+					if(halt != end_halt && welt->get_settings().is_avoid_overcrowding() && tmp.is_passenger() && !halt->is_within_walking_distance_of(via_halt) && halt->is_overcrowded(tmp.get_besch()->get_catg_index()))
 					{
 						// Halt overcrowded - discard goods/passengers, and collect no revenue.
 						// Experimetal 7.2 - also calculate a refund.
@@ -946,17 +953,17 @@ vehikel_t::unload_freight(halthandle_t halt)
 					}				
 					kill_queue.append(tmp);
 
-					INT_CHECK("simvehikel 937");
+					INT_CHECK("simvehikel 955");
 				}
 			}
+			
+			ITERATE(kill_queue, i)
+			{
+				total_freight -= kill_queue[i].menge;
+				const bool ok = fracht.remove(kill_queue[i]);
+				assert(ok);
+			}
 		}
-	}
-
-	ITERATE(kill_queue,i)
-	{
-		total_freight -= kill_queue[i].menge;
-		bool ok = fracht.remove(kill_queue[i]);
-		assert(ok);
 	}
 
 	return sum_menge;
