@@ -3219,13 +3219,15 @@ void stadt_t::step_passagiere()
 
 		if(wtyp != warenbauer_t::post)
 		{
+			// Multiply by 4 here to allow for distinguishing between first, second and third and subsequent 
+			// destination preferences in success figures.
 			if(range == local)
 			{
-				gb->add_passengers_generated_local(pax_left_to_do);
+				gb->add_passengers_generated_local(pax_left_to_do * 4);
 			}
 			else
 			{
-				gb->add_passengers_generated_non_local(pax_left_to_do);
+				gb->add_passengers_generated_non_local(pax_left_to_do * 4);
 			}
 		}
 
@@ -3506,13 +3508,17 @@ void stadt_t::step_passagiere()
 			// We cannot do this on arrival, as the ware packets do not remember their origin building.
 			if(wtyp != warenbauer_t::post)
 			{
+				// The generated passengers were *4 above to allow for this discrimination by preference of
+				// destination. 1st choice (current_destination == 0): 100% - 2nd choice: 75%; 3rd or subsequent
+				// choice: 50%.
+				const int multiplier = current_destination == 0 ? 4 : current_destination == 1 ? 3 : 2;
 				if(range == local)
 				{
-					gb->add_passengers_succeeded_local(pax_left_to_do);
+					gb->add_passengers_succeeded_local(pax_left_to_do * multiplier);
 				}
 				else
 				{
-					gb->add_passengers_succeeded_non_local(pax_left_to_do);
+					gb->add_passengers_succeeded_non_local(pax_left_to_do * multiplier);
 				}
 			}
 			break;
@@ -3533,13 +3539,17 @@ void stadt_t::step_passagiere()
 			set_return_trip = will_return != no_return;
 			if(wtyp != warenbauer_t::post)
 			{
+				// The generated passengers were *4 above to allow for this discrimination by preference of
+				// destination. 1st choice (current_destination == 0): 100% - 2nd choice: 75%; 3rd or subsequent
+				// choice: 50%.
+				const int multiplier = current_destination == 0 ? 4 : current_destination == 1 ? 3 : 2;
 				if(range == local)
 				{
-					gb->add_passengers_succeeded_local(pax_left_to_do);
+					gb->add_passengers_succeeded_local(pax_left_to_do * multiplier);
 				}
 				else
 				{
-					gb->add_passengers_succeeded_non_local(pax_left_to_do);
+					gb->add_passengers_succeeded_non_local(pax_left_to_do * multiplier);
 				}
 			}
 			break;
@@ -3569,13 +3579,17 @@ void stadt_t::step_passagiere()
 			set_return_trip = will_return != no_return;
 			if(wtyp != warenbauer_t::post)
 			{
+				// The generated passengers were *4 above to allow for this discrimination by preference of
+				// destination. 1st choice (current_destination == 0): 100% - 2nd choice: 75%; 3rd or subsequent
+				// choice: 50%.
+				const int multiplier = current_destination == 0 ? 4 : current_destination == 1 ? 3 : 2;
 				if(range == local)
 				{
-					gb->add_passengers_succeeded_local(pax_left_to_do);
+					gb->add_passengers_succeeded_local(pax_left_to_do * multiplier);
 				}
 				else
 				{
-					gb->add_passengers_succeeded_non_local(pax_left_to_do);
+					gb->add_passengers_succeeded_non_local(pax_left_to_do * multiplier);
 				}
 			}
 			break;
