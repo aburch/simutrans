@@ -589,7 +589,7 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 	// first: check if cursor within map screen size
 	karte_t *welt=reliefkarte_t::get_karte()->get_welt();
 	koord ij = welt->get_world_position();
-	if(welt->is_within_map_limits(ij)) {
+	if(welt->is_valid_pos(ij)) {
 		reliefkarte_t::get_karte()->karte_to_screen(ij);
 		// only recenter if zoomed or world position has changed and its outside visible area
 		const koord groesse = scrolly.get_groesse();

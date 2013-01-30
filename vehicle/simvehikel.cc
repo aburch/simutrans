@@ -243,7 +243,7 @@ void vehikel_basis_t::verlasse_feld()
 		DBG_MESSAGE("vehikel_basis_t::verlasse_feld()","checking all plan squares");
 
 		// check, whether it is on another height ...
-		if(welt->is_within_map_limits( get_pos().get_2d() )) {
+		if(welt->is_valid_pos( get_pos().get_2d() )) {
 			gr = welt->lookup( get_pos().get_2d() )->get_boden_von_obj(this);
 			if(gr) {
 				gr->obj_remove(this);
@@ -910,7 +910,7 @@ void vehikel_t::neue_fahrt(uint16 start_route_index, bool recalc)
 	check_for_finish = false;
 	use_calc_height = true;
 
-	if(welt->is_within_map_limits(get_pos().get_2d())) {
+	if(welt->is_valid_pos(get_pos().get_2d())) {
 		// mark the region after the image as dirty
 		// better not try to twist your brain to follow the retransformation ...
 		mark_image_dirty( get_bild(), hoff );
@@ -1576,7 +1576,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 	else {
 		for(int i=0; i<fracht_count; i++) {
 			ware_t ware(welt,file);
-			if(  (besch==NULL  ||  ware.menge>0)  &&  welt->is_within_map_limits(ware.get_zielpos())  ) {	// also add, of the besch is unknown to find matching replacement
+			if(  (besch==NULL  ||  ware.menge>0)  &&  welt->is_valid_pos(ware.get_zielpos())  ) {	// also add, of the besch is unknown to find matching replacement
 				fracht.insert(ware);
 				if(  file->get_version() <= 112000  ) {
 					// restore intransit information
@@ -3501,7 +3501,7 @@ bool aircraft_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route
 			int over = 3;
 			// now add all runway + 3 ...
 			do {
-				if(!welt->is_within_map_limits(search_start.get_2d()+(start_dir*endi)) ) {
+				if(!welt->is_valid_pos(search_start.get_2d()+(start_dir*endi)) ) {
 					break;
 				}
 				gr = welt->lookup_kartenboden(search_start.get_2d()+(start_dir*endi));
@@ -3561,7 +3561,7 @@ bool aircraft_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route
 			int over = 3;
 			// now add all runway + 3 ...
 			do {
-				if(!welt->is_within_map_limits(search_end.get_2d()+(end_dir*endi)) ) {
+				if(!welt->is_valid_pos(search_end.get_2d()+(end_dir*endi)) ) {
 					break;
 				}
 				gr = welt->lookup_kartenboden(search_end.get_2d()+(end_dir*endi));
@@ -3602,7 +3602,7 @@ bool aircraft_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route
 		// circle to the left
 		for(  int  i=0;  i<16;  i++  ) {
 			circlepos += circle_koord[(offset+i+16)%16];
-			if(welt->is_within_map_limits(circlepos)) {
+			if(welt->is_valid_pos(circlepos)) {
 				route->append( welt->lookup_kartenboden(circlepos)->get_pos() );
 			}
 			else {

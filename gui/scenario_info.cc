@@ -129,7 +129,7 @@ bool scenario_info_t::action_triggered( gui_action_creator_t *komp, value_t v)
 				// jump to coordinate
 				int x=-1, y=-1;
 				int n = sscanf(link, "(%i,%i)", &x, &y);
-				if (n==2  &&  welt->is_within_map_limits(x,y)) {
+				if (n==2  &&  welt->is_valid_pos(x,y)) {
 					welt->change_world_position( welt->lookup_kartenboden(koord(x,y))->get_pos()  );
 				}
 			}

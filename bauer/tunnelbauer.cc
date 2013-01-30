@@ -144,7 +144,7 @@ koord3d tunnelbauer_t::finde_ende(karte_t *welt, spieler_t *sp, koord3d pos, koo
 
 	while(true) {
 		pos = pos + zv;
-		if(!welt->is_within_map_limits(pos.get_2d())) {
+		if(!welt->is_valid_pos(pos.get_2d())) {
 			return koord3d::invalid;
 		}
 
@@ -272,7 +272,7 @@ const char *tunnelbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, const 
 		}
 	}
 
-	if(!welt->is_within_map_limits(end.get_2d())) {
+	if(!welt->is_valid_pos(end.get_2d())) {
 		return "Tunnel must start on single way!";
 	}
 
