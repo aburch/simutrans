@@ -640,7 +640,7 @@ fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
 		dbg->warning( "fabrik_t::fabrik_t()", "No pak-file for factory at (%s) - will not be built!", pos.get_str() );
 		return;
 	}
-	else if(  !welt->is_valid_pos(pos.get_2d())  ) {
+	else if(  !welt->is_within_limits(pos.get_2d())  ) {
 		dbg->warning( "fabrik_t::fabrik_t()", "%s is not a valid position! (Will not be built!)", pos.get_str() );
 		besch = NULL; // to get rid of this broken factory later...
 	}

@@ -850,7 +850,7 @@ public:
 	 * @param k (x,y) coordinate.
 	 * @note Inline because called very frequently!
 	 */
-	inline bool is_valid_pos(koord k) const {
+	inline bool is_within_limits(koord k) const {
 		// prissi: since negative values will make the whole result negative, we can use bitwise or
 		// faster, since pentiums and other long pipeline processors do not like jumps
 		return (k.x|k.y|(cached_groesse_karte_x-k.x)|(cached_groesse_karte_y-k.y))>=0;
@@ -864,7 +864,7 @@ public:
 	 * @param y Y coordinate.
 	 * @note Inline because called very frequently!
 	 */
-	inline bool is_valid_pos(sint16 x, sint16 y) const {
+	inline bool is_within_limits(sint16 x, sint16 y) const {
 	// prissi: since negative values will make the whole result negative, we can use bitwise or
 	// faster, since pentiums and other long pipeline processors do not like jumps
 		return (x|y|(cached_groesse_karte_x-x)|(cached_groesse_karte_y-y))>=0;
@@ -876,7 +876,7 @@ public:
 	 * @param k (x,y) coordinate.
 	 * @note Inline because called very frequently!
 	 */
-	inline bool is_valid_pos_grid(const koord &k) const {
+	inline bool is_within_grid_limits(const koord &k) const {
 	// prissi: since negative values will make the whole result negative, we can use bitwise or
 	// faster, since pentiums and other long pipeline processors do not like jumps
 		return (k.x|k.y|(cached_groesse_gitter_x-k.x)|(cached_groesse_gitter_y-k.y))>=0;
@@ -889,7 +889,7 @@ public:
 	 * @param y Y coordinate.
 	 * @note Inline because called very frequently!
 	 */
-	inline bool is_valid_pos_grid(sint16 x, sint16 y) const {
+	inline bool is_within_grid_limits(sint16 x, sint16 y) const {
 	// prissi: since negative values will make the whole result negative, we can use bitwise or
 	// faster, since pentiums and other long pipeline processors do not like jumps
 		return (x|y|(cached_groesse_gitter_x-x)|(cached_groesse_gitter_y-y))>=0;
@@ -902,7 +902,7 @@ public:
 	 * @param y Y coordinate.
 	 * @note Inline because called very frequently!
 	 */
-	inline bool is_valid_pos_grid(uint16 x, uint16 y) const {
+	inline bool is_within_grid_limits(uint16 x, uint16 y) const {
 		return (x<=(unsigned)cached_groesse_gitter_x && y<=(unsigned)cached_groesse_gitter_y);
 	}
 
@@ -913,7 +913,7 @@ public:
 	 */
 	inline const planquadrat_t *lookup(const koord &k) const
 	{
-		return is_valid_pos(k.x, k.y) ? &plan[k.x+k.y*cached_groesse_gitter_x] : 0;
+		return is_within_limits(k.x, k.y) ? &plan[k.x+k.y*cached_groesse_gitter_x] : 0;
 	}
 
 	/**
@@ -1113,11 +1113,11 @@ public:
 	void step();
 
 	inline planquadrat_t *access(int i, int j) const {
-		return is_valid_pos(i, j) ? &plan[i + j*cached_groesse_gitter_x] : NULL;
+		return is_within_limits(i, j) ? &plan[i + j*cached_groesse_gitter_x] : NULL;
 	}
 
 	inline planquadrat_t *access(koord k) const {
-		return is_valid_pos(k) ? &plan[k.x + k.y*cached_groesse_gitter_x] : NULL;
+		return is_within_limits(k) ? &plan[k.x + k.y*cached_groesse_gitter_x] : NULL;
 	}
 
 	/**
@@ -1125,7 +1125,7 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	inline sint8 lookup_hgt(koord k) const {
-		return is_valid_pos_grid(k.x, k.y) ? grid_hgts[k.x + k.y*(cached_groesse_gitter_x+1)] : grundwasser;
+		return is_within_grid_limits(k.x, k.y) ? grid_hgts[k.x + k.y*(cached_groesse_gitter_x+1)] : grundwasser;
 	}
 
 	/**

@@ -60,7 +60,7 @@ void export_world(HSQUIRRELVM vm)
 	 * @param k coordinate
 	 * @returns true if coordinate is valid
 	 */
-	STATIC register_method< bool(karte_t::*)(koord) const>(vm, &karte_t::is_valid_pos,  "is_coord_valid");
+	STATIC register_method< bool(karte_t::*)(koord) const>(vm, &karte_t::is_within_limits,  "is_coord_valid");
 
 	/**
 	 * Searches city next to the given coordinate.

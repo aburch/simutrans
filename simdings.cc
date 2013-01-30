@@ -85,7 +85,7 @@ ding_t::~ding_t()
 {
 	destroy_win((ptrdiff_t)this);
 
-	if(flags&not_on_map  ||  !welt->is_valid_pos(pos.get_2d())) {
+	if(flags&not_on_map  ||  !welt->is_within_limits(pos.get_2d())) {
 		return;
 	}
 

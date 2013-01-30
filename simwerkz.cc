@@ -901,7 +901,7 @@ const char *wkz_raise_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 
 	CHECK_FUNDS();
 
-	if(welt->is_within_map_limits(pos)  &&  pos.x>0  &&  pos.y>0) {
+	if(welt->is_within_limits(pos)  &&  pos.x>0  &&  pos.y>0) {
 
 		grund_t *gr = welt->lookup_kartenboden(pos);
 		const sint8 hgt = gr->get_hoehe() + corner4(gr->get_grund_hang());
@@ -967,7 +967,7 @@ const char *wkz_lower_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 
 	CHECK_FUNDS();
 
-	if(welt->is_within_map_limits(pos)  &&  pos.x>0  &&  pos.y>0) {
+	if(welt->is_within_limits(pos)  &&  pos.x>0  &&  pos.y>0) {
 		grund_t *gr = welt->lookup_kartenboden(pos);
 		const sint8 hgt = gr->get_hoehe() + corner4(gr->get_grund_hang());
 
@@ -1053,7 +1053,7 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 			return "Tile not empty.";
 		}
 
-		if(  !welt->is_within_map_limits(pos.get_2d()+koord(1,1))  ||  !welt->is_within_map_limits(pos.get_2d()+koord(-1,-1))) {
+		if(  !welt->is_within_limits(pos.get_2d()+koord(1,1))  ||  !welt->is_within_limits(pos.get_2d()+koord(-1,-1))) {
 			return "Zu nah am Kartenrand";
 		}
 
@@ -1303,7 +1303,7 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 // set marker
 const char *wkz_marker_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 {
-	if(welt->is_within_map_limits(pos.get_2d())) {
+	if(welt->is_within_limits(pos.get_2d())) {
 		grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
 		if (gr) {
 			if(!gr->get_text()) {
@@ -2466,7 +2466,7 @@ uint8 wkz_wayremover_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord3
 	if(is_scenario()) {
 		error = welt->get_scenario()->is_work_allowed_here(sp, get_id(), wt, pos);
 		if (error) {
-			dbg->warning("wkz_wayremover_t::is_valid_pos()", error);
+			dbg->warning("wkz_wayremover_t::is_within_limits()", error);
 			return 0;
 		}
 	}
@@ -2769,7 +2769,7 @@ uint8 wkz_wayobj_t::is_valid_pos( karte_t * welt, spieler_t * sp, const koord3d&
 	// search for starting ground
 	grund_t *gr=wkz_intern_koord_to_weg_grund(sp, welt, pos, wt );
 	if(  gr == NULL  ) {
-		DBG_MESSAGE("wkz_wayobj_t::is_valid_pos()", "no ground on %s",pos.get_str());
+		DBG_MESSAGE("wkz_wayobj_t::is_within_limits()", "no ground on %s",pos.get_str());
 		// wrong ground or not this way here => exit
 		return 0;
 	}
@@ -3143,7 +3143,7 @@ const char *wkz_station_t::wkz_station_dock_aux(karte_t *welt, spieler_t *sp, ko
 	}
 	else {
 		for(int i=0;  i<=len;  i++  ) {
-			if(!welt->is_within_map_limits(pos-dx*i)) {
+			if(!welt->is_within_limits(pos-dx*i)) {
 				// need at least a single tile to navigate ...
 				return "Zu nah am Kartenrand";
 			}
@@ -4196,7 +4196,7 @@ built_sign:
 // built all types of depots
 const char *wkz_depot_t::wkz_depot_aux(karte_t *welt, spieler_t *sp, koord3d pos, const haus_besch_t *besch, waytype_t wegtype, sint64 cost)
 {
-	if(welt->is_within_map_limits(pos.get_2d())) {
+	if(welt->is_within_limits(pos.get_2d())) {
 		grund_t *bd=NULL;
 		// special for the seven seas ...
 		if(wegtype==water_wt) {
@@ -4792,7 +4792,7 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 		return "Not enough money!";
 	}
 
-	if(welt->is_within_map_limits(pos.get_2d())) {
+	if(welt->is_within_limits(pos.get_2d())) {
 		// check for underground ..
 		grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
 		if (!gr) {

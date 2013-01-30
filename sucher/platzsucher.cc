@@ -180,7 +180,7 @@ bool pos_liste_wh_t::get_naechste_pos(koord &k)
 
 bool platzsucher_t::ist_platz_ok(koord pos, sint16 b, sint16 h,climate_bits cl) const
 {
-	if(!welt->is_valid_pos(pos)) {
+	if(!welt->is_within_limits(pos)) {
 		return false;
 	}
 	koord k(b, h);

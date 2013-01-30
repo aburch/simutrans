@@ -542,7 +542,7 @@ void reliefkarte_t::set_relief_farbe(koord k, const int color)
 	// if map is in normal mode, set new color for map
 	// otherwise do nothing
 	// result: convois will not "paint over" special maps
-	if (relief==NULL  ||  !welt->is_valid_pos(k)) {
+	if (relief==NULL  ||  !welt->is_within_limits(k)) {
 		return;
 	}
 
@@ -1032,7 +1032,7 @@ bool reliefkarte_t::infowin_event(const event_t *ev)
 	if(IS_LEFTCLICK(ev) || IS_LEFTDRAG(ev)) {
 		welt->set_follow_convoi( convoihandle_t() );
 		int z = 0;
-		if(welt->is_valid_pos(k)) {
+		if(welt->is_within_limits(k)) {
 			z = welt->min_hgt(k);
 		}
 		welt->change_world_position(koord3d(k,z));
