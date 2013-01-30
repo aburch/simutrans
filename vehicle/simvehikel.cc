@@ -2337,7 +2337,7 @@ bool vehikel_t::check_access(const weg_t* way) const
 {
 	if(get_besitzer() && get_besitzer()->get_player_nr() == 1)
 	{
-		// The public player can always connect to ways. It has no vehicles.
+		// The public player can always connect to ways. 
 		return true;
 	}
 	const grund_t* const gr = welt->lookup(get_pos());

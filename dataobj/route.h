@@ -51,11 +51,13 @@ public:
 		uint16 count;
 
 		inline bool operator <= (const ANode &k) const { return f==k.f ? g<=k.g : f<=k.f; }
-		// next one only needed for sorted_heap_tpl
+#if defined(tpl_sorted_heap_tpl_h)
 		inline bool operator == (const ANode &k) const { return f==k.f  &&  g==k.g; }
-		// next two only needed for HOT-queues
-		//inline bool is_matching(const ANode &l) const { return gr==l.gr; }
-		//inline uint32 get_distance() const { return f; }
+#endif
+#if defined(tpl_HOT_queue_tpl_h)
+		inline bool is_matching(const ANode &l) const { return gr==l.gr; }
+		inline uint32 get_distance() const { return f; }
+#endif
 	};
 
 private:

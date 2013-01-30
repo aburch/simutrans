@@ -2519,7 +2519,7 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 		const koord3d origin(townhall_road.x, townhall_road.y, welt->lookup_hgt(townhall_road));
 		// This will find the fastest route from the townhall road to *all* other townhall roads.
 		car_finder->reset();
-		private_car_route->find_route(welt, origin, car_finder, welt->get_citycar_speed_average(), 0, 0, depth);
+		private_car_route->find_route(welt, origin, car_finder, welt->get_citycar_speed_average(), ribi_t::alle, 0, depth);
 
 		check_road_connexions = false;
 	}
@@ -5645,8 +5645,8 @@ bool private_car_destination_finder_t::ist_ziel(const grund_t* gr, const grund_t
 			// Cost should be journey time per *straight line* tile, as the private car route
 			// system needs to be able to approximate the total travelling time from the straight
 			// line distance.
-
-			const uint16 straight_line_distance = shortest_distance(city->get_townhall_road(), k);
+			
+			const uint16 straight_line_distance = shortest_distance(origin_city->get_townhall_road(), k);
 			origin_city->add_road_connexion(accumulated_cost / straight_line_distance, city);
 		}
 	}

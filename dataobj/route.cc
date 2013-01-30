@@ -203,13 +203,14 @@ void route_t::RELEASE_NODES(uint8 nodes_index)
 /* find the route to an unknown location
  * @author prissi
  */
-bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, const uint32 /*max_khm*/, uint8 start_dir, uint32 weight, uint32 max_depth)
+bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, const uint32 max_khm, uint8 start_dir, uint32 weight, uint32 max_depth)
 {
 	bool ok = false;
 
 	// check for existing koordinates
 	const grund_t* g = welt->lookup(start);
-	if (g == NULL) {
+	if (g == NULL)
+	{
 		return false;
 	}
 
@@ -226,19 +227,37 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 
 	INT_CHECK("route 227");
 
-	// arrays for A*/Dijkstra's Algorithm
-	//static 
-	vector_tpl<ANode*> open;
-	vector_tpl<ANode*> close;
+	// nothing in lists
+	// NOTE: This will have to be reworked substantially if this algorithm
+	// is to be multi-threaded anywhere: a specific vectoror hashtable will 
+	// have to be used instead.
+	welt->unmarkiere_alle();
+
+	// there are several variant for maintaining the open list
+	// however, only binary heap and HOT queue with binary heap are worth considering
+#if defined(tpl_HOT_queue_tpl_h)
+    // static 
+	HOT_queue_tpl <ANode *> queue;
+#elif defined(tpl_binary_heap_tpl_h)
+    //static 
+	binary_heap_tpl <ANode *> queue;
+#elif defined(tpl_sorted_heap_tpl_h)
+    //static 
+	sorted_heap_tpl <ANode *> queue;
+#else
+    //static 
+	prioqueue_tpl <ANode *> queue;
+#endif
 
 	// nothing in lists
-	open.clear();
+	queue.clear();
 
 	// we clear it here probably twice: does not hurt ...
 	route.clear();
 
 	// first tile is not valid?!?
-	if(  !fahr->ist_befahrbar(g)  ) {
+	if(!fahr->ist_befahrbar(g)) 
+	{
 		return false;
 	}
 
@@ -248,49 +267,60 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 	uint32 step = 0;
 	ANode* tmp = &nodes[step++];
 	if (route_t::max_used_steps < step)
+	{
 		route_t::max_used_steps = step;
+	}
 	tmp->parent = NULL;
 	tmp->gr = g;
 	tmp->count = 0;
 
 	// start in open
-	open.append(tmp);
+	queue.insert(tmp);
 
 //DBG_MESSAGE("route_t::find_route()","calc route from %d,%d,%d",start.x, start.y, start.z);
 	const grund_t* gr;
-	do {
+	do 
+	{
 		// Hajo: this is too expensive to be called each step
-		if((step & 127) == 0) {
+		if((step & 127) == 0)
+		{
 			INT_CHECK("route 264");
 		}
 
-		tmp = open[0];
-		open.remove_at( 0 );
+		ANode *test_tmp = queue.pop();
 
-		close.append(tmp);
+		// already in open or closed (i.e. all processed nodes) list?
+		if(welt->ist_markiert(test_tmp->gr))
+		{
+			// we were already here on a faster route, thus ignore this branch
+			// (trading speed against memory consumption)
+			continue;
+		}
+
+		tmp = test_tmp;
 		gr = tmp->gr;
+		welt->markiere(gr);
 
-//DBG_DEBUG("add to close","(%i,%i,%i) f=%i",gr->get_pos().x,gr->get_pos().y,gr->get_pos().z,tmp->f);
 		// already there
-		if(  fahr->ist_ziel( gr, tmp->parent==NULL ? NULL : tmp->parent->gr )  ) {
+		if(fahr->ist_ziel(gr, tmp->parent == NULL ? NULL : tmp->parent->gr))
+		{
 			// we added a target to the closed list: check for length
 			break;
 		}
 
 		// testing all four possible directions
-		const ribi_t::ribi ribi =  fahr->get_ribi(gr);
-		for(  int r=0;  r<4;  r++  ) {
+		const ribi_t::ribi ribi = fahr->get_ribi(gr);
+		for(int r = 0; r < 4; r++) 
+		{
 			// a way goes here, and it is not marked (i.e. in the closed list)
 			grund_t* to;
-			if(  (ribi & ribi_t::nsow[r] & start_dir)!=0  // allowed dir (we can restrict the first step by start_dir)
-				&& koord_distance(start.get_2d(),gr->get_pos().get_2d()+koord::nsow[r])<max_depth	// not too far away
+			if((ribi & ribi_t::nsow[r] & start_dir) != 0  // allowed dir (we can restrict the first step by start_dir)
+				&& koord_distance(start.get_2d(),gr->get_pos().get_2d()+koord::nsow[r]) < max_depth	// not too far away
 				&& gr->get_neighbour(to, wegtyp, ribi_t::nsow[r])  // is connected
 				&& fahr->ist_befahrbar(to)	// can be driven on
-			) {
-				// already in open list?
-				if (is_in_list(open,  to)) continue;
-				// already in closed list (i.e. all processed nodes)
-				if (is_in_list(close, to)) continue;
+				&& !welt->ist_markiert(to) // Not in the closed list
+			) 
+			{
 
 				weg_t* w = to->get_weg(fahr->get_waytype());
 				
@@ -310,37 +340,43 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 				// not in there or taken out => add new
 				ANode* k = &nodes[step++];
 				if (route_t::max_used_steps < step)
+				{
 					route_t::max_used_steps = step;
+				}
 
 				k->parent = tmp;
 				k->gr = to;
-				k->count = tmp->count+1;
+				k->count = tmp->count + 1;
+				k->g = fahr->get_kosten(to, max_khm, gr->get_pos().get_2d());
 
-//DBG_DEBUG("insert to open","%i,%i,%i",to->get_pos().x,to->get_pos().y,to->get_pos().z);
 				// insert here
-				open.append(k);
+				queue.insert(k);
 			}
 		}
 
 		// ok, now no more restrains
 		start_dir = ribi_t::alle;
 
-	} while(  !open.empty()  &&  step < MAX_STEP  &&  open.get_count() < max_depth  );
+	} while(!queue.empty()  &&  step < MAX_STEP  &&  queue.get_count() < max_depth);
 
 	INT_CHECK("route 330");
 
 //DBG_DEBUG("reached","");
 	// target reached?
-	if(!fahr->ist_ziel(gr,tmp->parent==NULL?NULL:tmp->parent->gr)  ||  step >= MAX_STEP) {
-		if(  step >= MAX_STEP  ) {
+	if(!fahr->ist_ziel(gr, tmp->parent == NULL ? NULL : tmp->parent->gr) || step >= MAX_STEP)
+	{
+		if(  step >= MAX_STEP  ) 
+		{
 			dbg->warning("route_t::find_route()","Too many steps (%i>=max %i) in route (too long/complex)",step,MAX_STEP);
 		}
 	}
-	else {
+	else
+	{
 		// reached => construct route
 		route.clear();
 		route.resize(tmp->count+16);
-		while(tmp != NULL) {
+		while(tmp != NULL) 
+		{
 			route.store_at( tmp->count, tmp->gr->get_pos() );
 //DBG_DEBUG("add","%i,%i",tmp->pos.x,tmp->pos.y);
 			tmp = tmp->parent;
@@ -425,7 +461,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 	// there are several variant for maintaining the open list
 	// however, only binary heap and HOT queue with binary heap are worth considering
 #if defined(tpl_HOT_queue_tpl_h)
-    ///static 
+    // static 
 	HOT_queue_tpl <ANode *> queue;
 #elif defined(tpl_binary_heap_tpl_h)
     //static 
@@ -468,7 +504,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 		// Hajo: this is too expensive to be called each step
 		if((beat++ & 255) == 0) 
 		{
-			INT_CHECK("route 161");
+			INT_CHECK("route 488");
 		}
 
 		ANode *test_tmp = queue.pop();
@@ -515,7 +551,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 			}
 
 			// a way goes here, and it is not marked (i.e. in the closed list)
-			if((to  ||  gr->get_neighbour(to, wegtyp, next_ribi[r]))  &&  fahr->ist_befahrbar(to)  &&  !welt->ist_markiert(to)) 
+			if((to || gr->get_neighbour(to, wegtyp, next_ribi[r])) && fahr->ist_befahrbar(to) && !welt->ist_markiert(to)) 
 			{
 				// Do not go on a tile, where a oneway sign forbids going.
 				// This saves time and fixed the bug, that a oneway sign on the final tile was ignored.
@@ -548,7 +584,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 				uint8 current_dir;
 				if(tmp->parent!=NULL) 
 				{
-					current_dir = ribi_typ( tmp->parent->gr->get_pos().get_2d(), to->get_pos().get_2d() );
+					current_dir = ribi_typ(tmp->parent->gr->get_pos().get_2d(), to->get_pos().get_2d());
 					if(tmp->dir!=current_dir)
 					{
 						new_g += 3;
