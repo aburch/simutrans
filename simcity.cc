@@ -3153,6 +3153,8 @@ void stadt_t::step_passagiere()
 	// Add 1 because the simuconf.tab setting is for maximum *alternative* destinations, whereas we need maximum *actual* desintations 
 	const uint8 max_destinations = (s.get_max_alternative_destinations() < 16 ? s.get_max_alternative_destinations() : 15) + 1;
 
+	minivec_tpl<halthandle_t> destination_list[16];
+
 	// Find passenger destination
 	for(int pax_routed = 0, pax_left_to_do = 0; pax_routed < num_pax; pax_routed += pax_left_to_do) 
 	{	
@@ -3286,20 +3288,19 @@ void stadt_t::step_passagiere()
 			// (default: 1), they can take passengers within the wider square of the passenger radius. This is intended,
 			// and is as a result of using the below method for all destination types.
 
-			minivec_tpl<halthandle_t> destination_list(dest_plan->get_haltlist_count());
 							
 			for (int h = dest_plan->get_haltlist_count() - 1; h >= 0; h--) 
 			{
 				halthandle_t halt = dest_list[h];
 				if (halt->is_enabled(wtyp)) 
 				{
-					destination_list.append(halt);
+					destination_list[current_destination].append(halt);
 				}
 			}
 
 			uint16 best_journey_time = 65535;
 
-			if(start_halts.get_count() == 1 && destination_list.get_count() == 1 && start_halts[0] == destination_list[0])
+			if(start_halts.get_count() == 1 && destination_list[current_destination].get_count() == 1 && start_halts[0] == destination_list[current_destination].get_element(0))
 			{
 				/** There is no public transport route, as the only stop
 				 * for the origin is also the only stop for the desintation.
@@ -3326,7 +3327,7 @@ void stadt_t::step_passagiere()
 				{
 					halthandle_t current_halt = start_halts[i];
 				
-					current_journey_time = current_halt->find_route(&destination_list, pax, best_journey_time, destinations[current_destination].location);
+					current_journey_time = current_halt->find_route(&destination_list[current_destination], pax, best_journey_time, destinations[current_destination].location);
 					
 					// Add walking time from the origin to the origin stop. 
 					// Note that the walking time to the destination stop is already added by find_route.
@@ -3619,6 +3620,7 @@ void stadt_t::step_passagiere()
 			}
 
 			bool crowded_halts = false;
+			int destinations_checked;
 
 			if(start_halts.get_count() > 0)
 			{
@@ -3641,22 +3643,32 @@ void stadt_t::step_passagiere()
 	
 				// Re-search for start halts, which must have been crowded, or else
 				// they would not have been excluded from the first search.
-		
-				for (int h = plan->get_haltlist_count() - 1; h >= 0; h--)
+				ware_t test_passengers(wtyp); 
+				for(int h = plan->get_haltlist_count() - 1; h >= 0; h--)
 				{
+					destinations_checked = 0;
 					halthandle_t halt = halt_list[h];
-					if (halt->is_enabled(wtyp)) 
+					for(; destinations_checked <= destination_count; destinations_checked ++)
 					{
-						halt->add_pax_unhappy(num_pax);
-						// Only show as being overcrowded if there are, in fact, potentially suitable but overcrowded stops.
-						crowded_halts = true;
+						// Only mark passengers as being unable to get to their destination due to crowded stops if the stops
+						// could actually have got the passengers to their destination if they were not crowded.
+						if(halt->is_enabled(wtyp) && halt->find_route(&destination_list[destinations_checked], test_passengers) < 65535)
+						{
+							halt->add_pax_unhappy(num_pax);
+							// Only show as being overcrowded if there are, in fact, potentially suitable but overcrowded stops.
+							crowded_halts = true;
+							break;
+						}
 					}
 				}
 			}	
 			
 			if(crowded_halts)
 			{
-				merke_passagier_ziel(destinations[0].location, COL_RED);		
+				// If the passengers cannot get to a stop that they might reach because of
+				// overcrowding, and all other stops are no route, mark the specific destination
+				// unavailable to the passengers because of overcrowding.
+				merke_passagier_ziel(destinations[destinations_checked].location, COL_RED);		
 			}
 
 			else
@@ -3707,9 +3719,15 @@ void stadt_t::step_passagiere()
 				}
 
 				// now try to add them to the target halt
-				if(!ret_halt->is_overcrowded(wtyp->get_catg_index())) 
+				ware_t test_passengers;
+				test_passengers.set_ziel(start_halts[best_bad_start_halt]);
+				const bool overcrowded_route = ret_halt->find_route(test_passengers) < 65535;
+				if(!ret_halt->is_overcrowded(wtyp->get_catg_index()) || !overcrowded_route)
 				{
 					// prissi: not overcrowded and can recieve => add them
+					// Only mark the passengers as unable to get to their destination
+					// due to overcrowding if they could get to their destination
+					// if the stop was not overcroweded.
 					if(found) 
 					{
 						ware_t return_pax(wtyp, ret_halt);
@@ -3731,7 +3749,6 @@ void stadt_t::step_passagiere()
 							return_pax.arrival_time = welt->get_zeit_ms();
 							ret_halt->starte_mit_route(return_pax);
 							ret_halt->unload_repeat_counter = 0;
-							merke_passagier_ziel(origin_pos, COL_YELLOW);
 						}
 					}
 					else 
@@ -3746,7 +3763,6 @@ void stadt_t::step_passagiere()
 						else
 						{	
 							ret_halt->add_pax_no_route(pax_left_to_do);
-							merke_passagier_ziel(origin_pos, COL_DARK_ORANGE);
 						}
 					}
 				}
@@ -3757,10 +3773,9 @@ void stadt_t::step_passagiere()
 					{
 						return_in_private_car = true;
 					}
-					else
+					else if(overcrowded_route)
 					{
 						ret_halt->add_pax_unhappy(pax_left_to_do);
-						merke_passagier_ziel(origin_pos, COL_RED);
 					}
 				}
 			}
@@ -3779,7 +3794,6 @@ void stadt_t::step_passagiere()
 						// Industry, attraction or local
 						set_private_car_trip(num_pax, NULL);
 					}
-					merke_passagier_ziel(origin_pos, COL_TURQUOISE);
 
 #ifdef DESTINATION_CITYCARS
 					//citycars with destination
@@ -5693,6 +5707,7 @@ int private_car_destination_finder_t::get_kosten(const grund_t* gr, sint32 max_s
 
 		const uint32 congestion = (uint32)city->get_congestion();
 		speed -= (speed * congestion) / 100;
+		speed = max(4, speed);
 	}
 
 	// Time = distance / speed
