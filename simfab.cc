@@ -1125,6 +1125,11 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		file->rdwr_long( lieferziele_active_last_month );
 	}
 
+	// suppliers / consumers will be recalculated in laden_abschliessen
+	if (file->is_loading()  &&  welt->get_settings().is_crossconnect_factories()) {
+		lieferziele.clear();
+	}
+
 	// information on fields ...
 	if(  file->get_version() > 99009  ) {
 		if(  file->is_saving()  ) {
