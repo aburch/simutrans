@@ -98,7 +98,7 @@ climate_gui_t::climate_gui_t(settings_t* const sets) :
 	add_komponente( numberinput_lbl+labelnr );
 	labelnr++;
 
-	snowline_winter.init( sets->get_winter_snowline(), 0, 24, gui_numberinput_t::AUTOLINEAR, false );
+	snowline_winter.init( sets->get_winter_snowline(), -10, 24, gui_numberinput_t::AUTOLINEAR, false );
 	snowline_winter.set_pos( koord(LEFT_ARROW,y) );
 	snowline_winter.set_groesse( koord(RIGHT_ARROW-LEFT_ARROW+10, D_BUTTON_HEIGHT) );
 	snowline_winter.add_listener( this );
@@ -123,7 +123,8 @@ climate_gui_t::climate_gui_t(settings_t* const sets) :
 		}
 		y += D_BUTTON_HEIGHT;
 	}
-	snowline_winter.set_limits( 0, arctic );
+	snowline_winter.set_limits( water_level.get_value(), arctic );
+	snowline_winter.set_value( snowline_winter.get_value() );
 	y += 5;
 
 	no_tree.init( button_t::square_state, "no tree", koord(10,y) ); // right align
@@ -213,27 +214,28 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	else if(komp==&snowline_winter) {
 		sets->winter_snowline = (sint16)v.i;
 	}
-	else {
-		// all climate borders from here on
 
-		// artic starts at maximum end of climate
-		sint16 arctic = 0;
-		for(  int i=desert_climate;  i<=rocky_climate;  i++  ) {
-			if(  komp==climate_borders_ui+i-1  ) {
-				sets->climate_borders[i] = (sint16)v.i;
-			}
-			if(sets->climate_borders[i]>arctic) {
-				arctic = sets->climate_borders[i];
-			}
-		}
-		sets->climate_borders[arctic_climate] = arctic;
+	// all climate borders from here on
 
-		// correct summer snowline too
-		if(arctic<sets->get_winter_snowline()) {
-			sets->winter_snowline = arctic;
+	// artic starts at maximum end of climate
+	sint16 arctic = 0;
+	for(  int i=desert_climate;  i<=rocky_climate;  i++  ) {
+		if(  komp==climate_borders_ui+i-1  ) {
+			sets->climate_borders[i] = (sint16)v.i;
 		}
-		snowline_winter.set_limits( 0, arctic );
+		if(sets->climate_borders[i]>arctic) {
+			arctic = sets->climate_borders[i];
+		}
 	}
+	sets->climate_borders[arctic_climate] = arctic;
+
+	// correct summer snowline too
+	if(arctic<sets->get_winter_snowline()) {
+		sets->winter_snowline = arctic;
+	}
+	snowline_winter.set_limits( water_level.get_value(), arctic );
+	snowline_winter.set_value( snowline_winter.get_value() );
+
 	sprintf( snowline_txt ,"%d", sets->get_climate_borders()[arctic_climate] );
 	return true;
 }
