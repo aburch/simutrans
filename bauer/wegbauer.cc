@@ -1409,10 +1409,11 @@ DBG_DEBUG("wegbauer_t::intern_calc_route()","steps=%i  (max %i) in route, open %
 
 	route_t::RELEASE_NODE();
 
-//DBG_DEBUG("reached","%i,%i",tmp->pos.x,tmp->pos.y);
 	// target reached?
 	if( !ziel.is_contained(gr->get_pos())  ||  step>=route_t::MAX_STEP  ||  tmp->parent==NULL) {
-		dbg->warning("wegbauer_t::intern_calc_route()","Too many steps (%i>=max %i) in route (too long/complex)",step,route_t::MAX_STEP);
+		if (step>=route_t::MAX_STEP) {
+			dbg->warning("wegbauer_t::intern_calc_route()","Too many steps (%i>=max %i) in route (too long/complex)",step,route_t::MAX_STEP);
+		}
 		return -1;
 	}
 	else {
@@ -1423,7 +1424,6 @@ DBG_DEBUG("wegbauer_t::intern_calc_route()","steps=%i  (max %i) in route, open %
 			if (tmp->count & terraform) {
 				terraform_index.append(route.get_count()-1);
 			}
-//DBG_DEBUG("add","%i,%i",tmp->pos.x,tmp->pos.y);
 			tmp = tmp->parent;
 		}
 		return cost;
