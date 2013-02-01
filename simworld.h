@@ -955,14 +955,12 @@ public:
 	 * Wird vom Strassenbauer als Orientierungshilfe benutzt.
 	 * @author Hj. Malthaner
 	 */
-	inline void markiere(koord3d k) { marker.markiere(lookup(k)); }
 	inline void markiere(const grund_t* gr) { marker.markiere(gr); }
 
 	/**
 	 * Wird vom Strassenbauer zum Entfernen der Orientierungshilfen benutzt.
 	 * @author Hj. Malthaner
 	 */
-	inline void unmarkiere(koord3d k) { marker.unmarkiere(lookup(k)); }
 	inline void unmarkiere(const grund_t* gr) { marker.unmarkiere(gr); }
 
 	/**
@@ -976,7 +974,6 @@ public:
 	 * @return Gibt true zurueck wenn der Untergrund markiert ist sonst false.
 	 * @author Hj. Malthaner
 	 */
-	inline bool ist_markiert(koord3d k) const { return marker.ist_markiert(lookup(k)); }
 	inline bool ist_markiert(const grund_t* gr) const { return marker.ist_markiert(gr); }
 
 	 /**
