@@ -123,22 +123,20 @@ void bruecke_t::laden_abschliessen()
 	}
 
 	spieler_t *sp=get_besitzer();
-	if(sp) {
-		// change maintenance
-		if(besch->get_waytype()!=powerline_wt) {
-			weg_t *weg = gr->get_weg(besch->get_waytype());
-			if(weg==NULL) {
-				dbg->error("bruecke_t::laden_abschliessen()","Bridge without way at(%s)!", gr->get_pos().get_str() );
-				weg = weg_t::alloc( besch->get_waytype() );
-				gr->neuen_weg_bauen( weg, 0, welt->get_spieler(1) );
-			}
-			weg->set_max_speed(besch->get_topspeed());
-			// take ownership of way
-			spieler_t::add_maintenance( weg->get_besitzer(), -weg->get_besch()->get_wartung());
-			weg->set_besitzer(sp);
+	// change maintenance
+	if(besch->get_waytype()!=powerline_wt) {
+		weg_t *weg = gr->get_weg(besch->get_waytype());
+		if(weg==NULL) {
+			dbg->error("bruecke_t::laden_abschliessen()","Bridge without way at(%s)!", gr->get_pos().get_str() );
+			weg = weg_t::alloc( besch->get_waytype() );
+			gr->neuen_weg_bauen( weg, 0, welt->get_spieler(1) );
 		}
-		spieler_t::add_maintenance( sp,  besch->get_wartung() );
+		weg->set_max_speed(besch->get_topspeed());
+		// take ownership of way
+		spieler_t::add_maintenance( weg->get_besitzer(), -weg->get_besch()->get_wartung());
+		weg->set_besitzer(sp);
 	}
+	spieler_t::add_maintenance( sp,  besch->get_wartung() );
 }
 
 
@@ -146,23 +144,21 @@ void bruecke_t::laden_abschliessen()
 void bruecke_t::entferne( spieler_t *sp2 )
 {
 	spieler_t *sp = get_besitzer();
-	if(sp) {
-		// on bridge => do nothing but change maintenance
-		const grund_t *gr = welt->lookup(get_pos());
-		if(gr) {
-			weg_t *weg = gr->get_weg( besch->get_waytype() );
-			if(weg) {
-				weg->set_max_speed( weg->get_besch()->get_topspeed() );
-				spieler_t::add_maintenance( sp,  weg->get_besch()->get_wartung());
-				// reset offsets
-				weg->set_yoff(0);
-				if (gr->get_weg_nr(1)) {
-					gr->get_weg_nr(1)->set_yoff(0);
-				}
+	// change maintenance, reset max-speed and y-offset
+	const grund_t *gr = welt->lookup(get_pos());
+	if(gr) {
+		weg_t *weg = gr->get_weg( besch->get_waytype() );
+		if(weg) {
+			weg->set_max_speed( weg->get_besch()->get_topspeed() );
+			spieler_t::add_maintenance( sp,  weg->get_besch()->get_wartung());
+			// reset offsets
+			weg->set_yoff(0);
+			if (gr->get_weg_nr(1)) {
+				gr->get_weg_nr(1)->set_yoff(0);
 			}
 		}
-		spieler_t::add_maintenance( sp,  -besch->get_wartung() );
 	}
+	spieler_t::add_maintenance( sp,  -besch->get_wartung() );
 	spieler_t::accounting( sp2, -besch->get_preis(), get_pos().get_2d(), COST_CONSTRUCTION );
 }
 
