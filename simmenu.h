@@ -216,7 +216,17 @@ public:
 
 	static uint16 const dummy_id = 0xFFFFU;
 
-	werkzeug_t(uint16 const id) : id(id), cursor_area(1,1) { cursor = icon = IMG_LEER; ok_sound = NO_SOUND; offset = Z_PLAN; default_param = NULL; command_key = 0; cursor_centered = false;}
+	werkzeug_t(uint16 const id) : id(id), cursor_area(1,1)
+	{
+		cursor = icon = IMG_LEER;
+		ok_sound = NO_SOUND;
+		offset = Z_PLAN;
+		default_param = NULL;
+		command_key = 0;
+		cursor_centered = false;
+		flags = 0;
+	}
+
 	virtual ~werkzeug_t() {}
 
 	virtual image_id get_icon(spieler_t *) const { return icon; }
