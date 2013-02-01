@@ -1478,8 +1478,6 @@ stadt_t::~stadt_t()
 		city_factories[i]->clear_city();
 	}
 
-	delete finder;
-	delete car_finder;
 	delete private_car_route;
 
 	if(  reliefkarte_t::get_karte()->get_city() == this  ) {
@@ -1637,8 +1635,6 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 
 	calc_internal_passengers();
 
-	finder = new road_destination_finder_t(welt, new automobil_t(welt));
-	car_finder = new private_car_destination_finder_t(welt, new automobil_t(welt), this);
 	private_car_route = new route_t();
 	check_road_connexions = false;
 
@@ -1710,8 +1706,6 @@ stadt_t::stadt_t(karte_t* wl, loadsave_t* file) :
 
 	calc_internal_passengers();
 
-	finder = new road_destination_finder_t(welt, new automobil_t(welt));
-	car_finder = new private_car_destination_finder_t(welt, new automobil_t(welt), this);
 	private_car_route = new route_t();
 	check_road_connexions = false;
 }
@@ -2518,8 +2512,7 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 		const uint32 depth = welt->get_max_road_check_depth();
 		const koord3d origin(townhall_road.x, townhall_road.y, welt->lookup_hgt(townhall_road));
 		// This will find the fastest route from the townhall road to *all* other townhall roads.
-		car_finder->reset();
-		private_car_route->find_route(welt, origin, car_finder, welt->get_citycar_speed_average(), ribi_t::alle, 0, depth);
+		private_car_route->find_route(welt, origin, &private_car_destination_finder_t(welt, new automobil_t(welt), this), welt->get_citycar_speed_average(), ribi_t::alle, 0, depth);
 
 		check_road_connexions = false;
 	}
@@ -2799,20 +2792,16 @@ uint16 stadt_t::check_road_connexion_to(stadt_t* city)
 
 	if(connected_cities.is_contained(city->get_pos()))
 	{
-		const uint16 journey_time_per_tile = connected_cities.get(city->get_pos());
-		if(journey_time_per_tile < 65535 || city != this)
+		const uint16 journey_time = connected_cities.get(city->get_pos());
+		if(city != this || journey_time < 65535)
 		{
-			// It should always be possible to travel in the current city.
-			return journey_time_per_tile;
-		}
-		else
-		{
-			goto recalc;
+			return journey_time;
 		}
 	}
-	else if(city == this)
+
+	if(city == this)
 	{
-recalc:
+		// Should always be possible to travel within the city.
 		const koord3d pos3d(townhall_road, welt->lookup_hgt(townhall_road));
 		const weg_t* road = welt->lookup(pos3d) ? welt->lookup(pos3d)->get_weg(road_wt) : NULL;
 		const uint16 journey_time_per_tile = road ? road->get_besch() == welt->get_city_road() ? welt->get_generic_road_speed_city() * 6 : welt->calc_generic_road_speed(road->get_besch()) * 6 : welt->get_generic_road_speed_city() * 6;
@@ -2822,24 +2811,6 @@ recalc:
 	else
 	{
 		return 65535;
-		
-		// TODO: Remove the substance ot this method once the new system is fully tested.
-		const koord destination_road = city->get_townhall_road();
-		const koord3d desintation_koord(destination_road.x, destination_road.y, welt->lookup_hgt(destination_road));
-		const uint16 journey_time_per_tile = check_road_connexion(desintation_koord);
-		connected_cities.put(city->get_pos(), journey_time_per_tile);
-		city->add_road_connexion(journey_time_per_tile, this);
-		if(journey_time_per_tile == 65535)
-		{
-			// We know that, if this city is not connected to any given city, then every city
-			// to which this city is connected must likewise not be connected. So, avoid
-			// unnecessary recalculation by propogating this now.
-			FOR(connexion_map, const& iter, connected_cities)
-			{
-				welt->get_city(iter.key)->add_road_connexion(65535, city);
-			}
-		}
-		return journey_time_per_tile;
 	}
 }
 
@@ -2871,7 +2842,7 @@ uint16 stadt_t::check_road_connexion_to(const fabrik_t* industry)
 
 	// TODO: Remove the rest of the substance of this when the new system is fully set up and tested.
 
-	vector_tpl<koord> industry_tiles;
+	/*vector_tpl<koord> industry_tiles;
 	industry->get_tile_list(industry_tiles);
 	weg_t* road = NULL;
 	ITERATE(industry_tiles, n)
@@ -2921,7 +2892,7 @@ uint16 stadt_t::check_road_connexion_to(const fabrik_t* industry)
 	{
 		(*j)->set_no_connexion_to_industry(industry);
 	}
-	return 65335;
+	return 65335;*/
 
 }
 
@@ -2978,7 +2949,7 @@ uint16 stadt_t::check_road_connexion_to(const gebaeude_t* attraction)
 
 	// TODO: Remove the substance of this when the new system is tested.
 
-	const koord3d destination = road->get_pos();
+	/*const koord3d destination = road->get_pos();
 	const uint16 journey_time_per_tile = check_road_connexion(destination);
 
 	connected_attractions.put(attraction->get_pos().get_2d(), journey_time_per_tile);
@@ -2992,41 +2963,7 @@ uint16 stadt_t::check_road_connexion_to(const gebaeude_t* attraction)
 			welt->get_city(iter.key)->set_no_connexion_to_attraction(attraction);
 		}
 	}
-	return journey_time_per_tile;
-}
-
-uint16 stadt_t::check_road_connexion(koord3d dest)
-{
-	// This code should no longer be reached.
-	assert(false);
-	const koord3d origin(townhall_road.x, townhall_road.y, welt->lookup_hgt(townhall_road));
-	private_car_route->clear();
-	finder->set_destination(dest);
-	const uint32 depth = welt->get_max_road_check_depth();
-	// Must use calc_route rather than find_route, or else this will be *far* too slow: only calc_route uses A*.
-	if(!private_car_route->calc_route(welt, origin, dest, finder, welt->get_citycar_speed_average(), 0, depth))
-	{
-		return 65535;
-	}
-	koord3d pos;
-	const sint32 vehicle_speed_average = welt->get_citycar_speed_average();
-	sint32 top_speed;
-	sint32 speed_sum = 0;
-	uint32 count = 0;
-	weg_t* road;
-	ITERATE_PTR(private_car_route,i)
-	{
-		pos = private_car_route->position_bei(i);
-		road = welt->lookup(pos) ? welt->lookup(pos)->get_weg(road_wt) : NULL;
-		top_speed = road ? road->get_max_speed() : 50;
-		speed_sum += min(top_speed, vehicle_speed_average);
-		count += road->is_diagonal() ? 7 : 10; //Use precalculated numbers to avoid division here.
-	}
-	const sint32 speed_average = (speed_sum * 100) / (count * 13); // was (float)(speed_sum / ((float)count / 10.0F))  / 1.3F;
-	const uint32 journey_distance_m = private_car_route->get_count() *welt->get_settings().get_meters_per_tile();
-	const uint16 journey_time = speed_average == 0 ? 65535 : (6 * journey_distance_m) / (10 * speed_average); // *Tenths* of minutes: hence *0.6, not *0.06.
-	const uint16 straight_line_distance_tiles = shortest_distance(origin.get_2d(), dest.get_2d());
-	return journey_time / (straight_line_distance_tiles == 0 ? 1 : straight_line_distance_tiles);
+	return journey_time_per_tile;*/
 }
 
 void stadt_t::add_road_connexion(uint16 journey_time_per_tile, const stadt_t* city)
@@ -3364,7 +3301,7 @@ void stadt_t::step_passagiere()
 				// Check first whether the best route is outside
 				// the passengers' tolerance.
 
-				if(route_status == public_transport && best_journey_time > tolerance)
+				if(route_status == public_transport && best_journey_time >= tolerance)
 				{
 					route_status = too_slow;
 				
@@ -3414,7 +3351,7 @@ void stadt_t::step_passagiere()
 					// *Hundredths* of minutes used here for per tile times for accuracy.
 					// Convert to tenths, but only after multiplying to  preserve accuracy.
 					// Use a uint32 intermediary to avoid overflow.
-					const uint32 car_mins = (time_per_tile * straight_line_distance) / 10;
+					const uint32 car_mins = (time_per_tile * straight_line_distance) / 100;
 					car_minutes = car_mins;
 
 					// Now, adjust the timings for congestion (this is already taken into account if the route was
@@ -3447,7 +3384,9 @@ void stadt_t::step_passagiere()
 				}
 			}		
 	
-			if(car_minutes <= tolerance)
+			// Cannot be <=, as mail has a tolerance of 65535, which is used as the car_minutes when
+			// a private car journey is not possible.
+			if(car_minutes < tolerance)
 			{
 				const uint16 private_car_chance = (uint16)simrand(100, "void stadt_t::step_passagiere() (private car chance?)");
 
@@ -5548,53 +5487,6 @@ void stadt_t::add_substation(senke_t* substation)
 void stadt_t::remove_substation(senke_t* substation)
 { 
 	substations.remove(substation); 
-}
-
-bool road_destination_finder_t::ist_befahrbar( const grund_t* gr ) const
-{ 
-	// Check to see whether the road prohibits private cars
-	if(gr && gr->get_weg(road_wt) && gr->get_weg(road_wt)->has_sign())
-	{
-		const roadsign_besch_t* rs_besch = gr->find<roadsign_t>()->get_besch();
-		if(rs_besch->is_private_way())
-		{
-			return false;
-		}
-	}
-	return master->ist_befahrbar(gr);
-}
-
-bool road_destination_finder_t::ist_ziel( const grund_t* gr, const grund_t* ) 
-{ 
-	return gr->get_pos() == dest;
-}
-
-ribi_t::ribi road_destination_finder_t::get_ribi( const grund_t* gr) const
-{ 
-	return master->get_ribi(gr); 
-}
-
-int road_destination_finder_t::get_kosten( const grund_t* gr, sint32 max_speed, koord from_pos) 
-{
-	// first favor faster ways
-	const weg_t *w=gr->get_weg(road_wt);
-	if(!w) {
-		return 0xFFFF;
-	}
-
-	// max_speed?
-	uint32 max_tile_speed = w->get_max_speed();
-
-	// add cost for going (with maximum speed, cost is 1)
-	int costs = (max_speed<=max_tile_speed) ? 1 :  (max_speed*4)/(max_tile_speed*4);
-
-	if(w->is_diagonal())
-	{
-		// Diagonals are a *shorter* distance.
-		costs /= 1.4;
-	}
-
-	return costs;
 }
 
 private_car_destination_finder_t::private_car_destination_finder_t(karte_t *w, automobil_t* m, stadt_t* o)

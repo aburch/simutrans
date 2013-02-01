@@ -66,38 +66,6 @@ enum route_status_type
 	on_foot = 4
 };
 
-class road_destination_finder_t : public fahrer_t
-{
-private:
-	automobil_t *master;
-	karte_t* welt;
-	koord3d dest;
-
-public:
-	road_destination_finder_t(karte_t *w, automobil_t* m) 
-	{ 
-		welt = w;
-		dest = koord3d::invalid;
-		master = m;
-	};
-
-	virtual void set_destination(koord3d d) { dest = d; }
-	
-	virtual waytype_t get_waytype() const { return road_wt; };
-	virtual bool ist_befahrbar( const grund_t* gr ) const;
-
-	virtual bool ist_ziel( const grund_t* gr, const grund_t* );
-
-	virtual ribi_t::ribi get_ribi( const grund_t* gr) const;
-
-	virtual int get_kosten( const grund_t* gr, const sint32 max_speed, koord from_pos);
-
-	virtual ~road_destination_finder_t()
-	{
-		delete master;
-	}
-};
-
 class private_car_destination_finder_t : public fahrer_t
 {
 private:
@@ -119,8 +87,6 @@ public:
 	virtual ribi_t::ribi get_ribi( const grund_t* gr) const;
 
 	virtual int get_kosten(const grund_t* gr, const sint32 max_speed, koord from_pos);
-
-	void reset() { accumulated_cost = current_tile_cost = 0; }
 
 	virtual ~private_car_destination_finder_t()
 	{
@@ -288,8 +254,6 @@ private:
 	connexion_map connected_industries;
 	connexion_map connected_attractions;
 
-	road_destination_finder_t *finder;
-	private_car_destination_finder_t *car_finder;
 	route_t *private_car_route;
 
 	vector_tpl<senke_t*> substations;
@@ -528,7 +492,6 @@ private:
 	uint16 check_road_connexion_to(stadt_t* city);
 	uint16 check_road_connexion_to(const fabrik_t* industry);
 	uint16 check_road_connexion_to(const gebaeude_t* attraction);
-	uint16 check_road_connexion(koord3d destination);
 
 	void set_no_connexion_to_industry(const fabrik_t* unconnected_industry);
 	void set_no_connexion_to_attraction(const gebaeude_t* unconnected_attraction);
