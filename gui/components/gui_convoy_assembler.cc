@@ -939,7 +939,7 @@ void gui_convoy_assembler_t::image_from_convoi_list(uint nr)
 	}
 	else
 	{
-		grund_t* gr = welt->lookup(replace_frame->get_convoy()->get_home_depot());
+		const grund_t* gr = welt->lookup(replace_frame->get_convoy()->get_home_depot());
 		depot = gr->get_depot();
 	}
 

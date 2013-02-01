@@ -2073,6 +2073,7 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="base_textes_experimental_10.17.dat" />
+    <None Include="base_texts_experimental_10.22.dat" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="simres.rc">

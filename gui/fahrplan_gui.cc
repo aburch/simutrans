@@ -228,7 +228,8 @@ void fahrplan_gui_stats_t::zeichnen(koord offset)
 
 			buf.clear();
 			buf.printf( "%i) ", i+1 );
-			bool no_control_tower = fpl->get_waytype() == air_wt && welt->lookup(fpl->eintrag[i].pos)->get_halt().is_bound() && welt->lookup(fpl->eintrag[i].pos)->get_halt()->has_no_control_tower();
+			const grund_t* gr = welt->lookup(fpl->eintrag[i].pos);
+			bool no_control_tower = fpl->get_waytype() == air_wt && welt->lookup(fpl->eintrag[i].pos)->get_halt().is_bound() && gr->get_halt()->has_no_control_tower();
 			fahrplan_gui_t::gimme_stop_name(buf, welt, sp, fpl->eintrag[i], no_control_tower);
 
 			sint16 const w = display_proportional_clip(offset.x + 4 + 10, halt_y, buf, ALIGN_LEFT, c, true);

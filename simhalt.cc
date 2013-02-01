@@ -164,7 +164,11 @@ halthandle_t haltestelle_t::get_halt(const karte_t *welt, const koord3d pos, con
 			{
 				if(plan->get_haltlist()[i]->get_besitzer() == sp) 
 				{
-					return plan->get_haltlist()[i];
+					halthandle_t halt = plan->get_haltlist()[i];
+					if(halt->get_station_type() & dock) 
+					{
+						return halt;
+					}
 				}
 			}
 			// then for other stops to which access is allowed
@@ -174,7 +178,11 @@ halthandle_t haltestelle_t::get_halt(const karte_t *welt, const koord3d pos, con
 			{
 				if(plan->get_haltlist()[i]->check_access(sp))  
 				{
-					return plan->get_haltlist()[i];
+					halthandle_t halt = plan->get_haltlist()[i];
+					if(halt->get_station_type() & dock) 
+					{
+						return halt;
+					}
 				}
 			}
 			// so: nothing found
@@ -1146,7 +1154,8 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 			}
 
 			// since also the factory halt list is added to the ground, we can use just this ...
-			if(welt->lookup(ware.get_zielpos())->is_connected(self)) 
+			const planquadrat_t* plan = welt->lookup(ware.get_zielpos());
+			if(plan && plan->is_connected(self)) 
 			{
 				// we are already there!
 				if(  ware.to_factory  )
@@ -2093,7 +2102,8 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 	}
 
 	// have we arrived?
-	if(welt->lookup(ware.get_zielpos())->is_connected(self)) 
+	const planquadrat_t* plan = welt->lookup(ware.get_zielpos());
+	if(plan && plan->is_connected(self)) 
 	{
 		if(ware.to_factory) 
 		{
@@ -2754,10 +2764,10 @@ void haltestelle_t::rdwr(loadsave_t *file)
 	init_pos = tiles.empty() ? koord::invalid : tiles.front().grund->get_pos().get_2d();
 	if(file->is_saving()) 
 	{
-		uint32 ware_count = 1;
 		for(unsigned i=0; i<max_catg_count_file; i++) 
 		{
 			vector_tpl<ware_t> *warray = waren[i];
+			uint32 ware_count = 1;
 
 			if(warray) 
 			{
@@ -2792,8 +2802,6 @@ void haltestelle_t::rdwr(loadsave_t *file)
 					{
 						ware.rdwr(welt,file);
 					}
-					
-					
 				}
 			}
 		}

@@ -782,12 +782,14 @@ vehikel_t::unload_freight(halthandle_t halt)
 {
 	uint16 sum_menge = 0;
 
-	//slist_tpl<ware_t> kill_queue;
-	vector_tpl<ware_t> kill_queue;
-	if(halt->is_enabled( get_fracht_typ() )) 
+	if(halt->is_enabled(get_fracht_typ())) 
 	{
 		if (!fracht.empty())
 		{
+			halthandle_t end_halt;
+			halthandle_t via_halt;
+			vector_tpl<ware_t> kill_queue;
+			uint8 count = 0;
 			FOR(slist_tpl<ware_t>, & tmp, fracht) 
 			{
 				if(&tmp == NULL)
@@ -795,8 +797,13 @@ vehikel_t::unload_freight(halthandle_t halt)
 					continue;
 				}
 
-				halthandle_t end_halt = tmp.get_ziel();
-				halthandle_t via_halt = tmp.get_zwischenziel();
+				if(++count == 255)
+				{
+					INT_CHECK("simvehikel 793");
+				}
+
+				end_halt = tmp.get_ziel();
+				via_halt = tmp.get_zwischenziel();
 				
 				// probleme mit fehlerhafter ware
 				// vielleicht wurde zwischendurch die
@@ -820,7 +827,7 @@ vehikel_t::unload_freight(halthandle_t halt)
 					// hier sollte nur ordentliche ware verabeitet werden
 					// "here only tidy commodity should be processed" (Babelfish) 
 					
-					if(halt != end_halt && (tmp.is_passenger() && !halt->is_within_walking_distance_of(via_halt)) && halt->is_overcrowded(tmp.get_besch()->get_catg_index()) && welt->get_settings().is_avoid_overcrowding())
+					if(halt != end_halt && welt->get_settings().is_avoid_overcrowding() && tmp.is_passenger() && !halt->is_within_walking_distance_of(via_halt) && halt->is_overcrowded(tmp.get_besch()->get_catg_index()))
 					{
 						// Halt overcrowded - discard goods/passengers, and collect no revenue.
 						// Experimetal 7.2 - also calculate a refund.
@@ -954,20 +961,19 @@ vehikel_t::unload_freight(halthandle_t halt)
 					}				
 					kill_queue.append(tmp);
 
-					INT_CHECK("simvehikel 937");
+					INT_CHECK("simvehikel 955");
 				}
+			}
+			
+			ITERATE(kill_queue, i)
+			{
+				cnv->invalidate_weight_summary();
+				total_freight -= kill_queue[i].menge;
+				bool ok = fracht.remove(kill_queue[i]);
+				assert(ok);
 			}
 		}
 	}
-
-	ITERATE(kill_queue,i)
-	{
-		cnv->invalidate_weight_summary();
-		total_freight -= kill_queue[i].menge;
-		bool ok = fracht.remove(kill_queue[i]);
-		assert(ok);
-	}
-
 	return sum_menge;
 }
 
@@ -2356,7 +2362,7 @@ bool vehikel_t::check_access(const weg_t* way) const
 		return true;
 	}
 	const grund_t* const gr = welt->lookup(get_pos());
-	const weg_t* const current_way = gr ? welt->lookup(get_pos())->get_weg(get_waytype()) : NULL;
+	const weg_t* const current_way = gr ? gr->get_weg(get_waytype()) : NULL;
 	if(current_way == NULL)
 	{
 		return true;
@@ -3348,12 +3354,12 @@ bool waggon_t::ist_befahrbar(const grund_t *bd) const
 	// now check for special signs
 	if(sch->has_sign()) {
 		const roadsign_t* rs = bd->find<roadsign_t>();
-		if(  rs->get_besch()->get_wtyp()==get_waytype()  ) {
-			if(  rs->get_besch()->get_min_speed() > 0  &&  rs->get_besch()->get_min_speed() > cnv->get_min_top_speed()  ) {
+		if(rs && rs->get_besch()->get_wtyp()==get_waytype()  ) {
+			if(rs->get_besch()->get_min_speed() > 0  &&  rs->get_besch()->get_min_speed() > cnv->get_min_top_speed()  ) {
 				// below speed limit
 				return false;
 			}
-			if(  rs->get_besch()->is_private_way()  &&  (rs->get_player_mask() & (1<<get_player_nr()) ) == 0  ) {
+			if(rs && rs->get_besch()->is_private_way()  &&  (rs->get_player_mask() & (1<<get_player_nr()) ) == 0  ) {
 				// prvate road
 				return false;
 			}
@@ -3529,7 +3535,7 @@ bool waggon_t::is_weg_frei_longblock_signal( signal_t *sig, uint16 next_block, i
 	while(  fahrplan_index != cnv->get_schedule()->get_aktuell()  ) {
 		// now search
 		// search for route
-		success = target_rt.calc_route( welt, cur_pos, cnv->get_schedule()->eintrag[fahrplan_index].pos, this, this->get_convoi()->get_heaviest_vehicle(), speed_to_kmh(cnv->get_min_top_speed()), 8888 /*cnv->get_tile_length()*/ );
+		success = target_rt.calc_route( welt, cur_pos, cnv->get_schedule()->eintrag[fahrplan_index].pos, this, get_convoi()->get_heaviest_vehicle(), speed_to_kmh(cnv->get_min_top_speed()), 8888 /*cnv->get_tile_length()*/ );
 		if(  success  ) {
 			success = block_reserver( &target_rt, 1, next_next_signal, dummy, 0, true, false );
 			block_reserver( &target_rt, 1, dummy, dummy, 0, false, false );

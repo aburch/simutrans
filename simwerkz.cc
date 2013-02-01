@@ -3694,7 +3694,7 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.
 			const char * city_name = nearest_city ? nearest_city->get_name() : "open countryside";
 			const char* preposition = welt->get_city(pos) || !nearest_city ? "in" : "near";
 			message.printf("%s has built a new %s %s %s.", sp->get_name(), "Dock", preposition, city_name);
-			welt->get_message()->add_message(message, koord::invalid, message_t::ai, sp->get_player_color1());
+			welt->get_message()->add_message(message, pos, message_t::ai, sp->get_player_color1());
 		}
 	}
 	hausbauer_t::baue(welt, halt->get_besitzer(), bau_pos, layout, besch, &halt);
@@ -3929,7 +3929,7 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 			int const lang = welt->get_settings().get_name_language_id();
 			const char *stop = translator::translate(type_name, lang);
 			message.printf("%s has built a new %s %s %s.", sp->get_name(), stop, preposition, city_name);
-			welt->get_message()->add_message(message, koord::invalid, message_t::ai, sp->get_player_color1());
+			welt->get_message()->add_message(message, pos, message_t::ai, sp->get_player_color1());
 		}
 	}
 	hausbauer_t::neues_gebaeude( welt, halt->get_besitzer(), bd->get_pos(), layout, besch, &halt);
@@ -6577,7 +6577,8 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 				// This convoy might already have been sent to a depot. This will need to be undone.
 				schedule_t* sch = cnv->get_schedule();
 				const linieneintrag_t le = sch->get_current_eintrag();
-				if(welt->lookup(le.pos)->get_depot())
+				const grund_t* gr = welt->lookup(le.pos);
+				if(gr && gr->get_depot())
 				{
 					sch->remove();
 					cnv->set_state(2);
@@ -7288,7 +7289,8 @@ bool wkz_access_t::init(karte_t* const welt, spieler_t *sp)
 				for(uint8 n = 0; n < fpl->get_count(); n ++)
 				{
 					pos = fpl->eintrag[n].pos;
-					halt = welt->lookup(pos)->get_halt();
+					const grund_t* gr = welt->lookup(pos);
+					halt = gr ?gr->get_halt() : halthandle_t();
 					halt_owner = halt.is_bound() ? halt->get_besitzer() : NULL;
 					if(halt_owner && receiving_player && halt_owner != receiving_player && !halt_owner->allows_access_to(receiving_player->get_player_nr()))
 					{
@@ -7335,7 +7337,8 @@ bool wkz_access_t::init(karte_t* const welt, spieler_t *sp)
 			for(uint8 n = 0; n < fpl->get_count(); n ++)
 			{
 				pos = fpl->eintrag[n].pos;
-				halt = welt->lookup(pos)->get_halt();
+				const grund_t* gr = welt->lookup(pos);
+				halt = gr ? gr->get_halt() : halthandle_t();
 				halt_owner = halt.is_bound() ? halt->get_besitzer() : NULL;
 				if(halt_owner && receiving_player && halt_owner != receiving_player && !halt_owner->allows_access_to(receiving_player->get_player_nr()))
 				{
