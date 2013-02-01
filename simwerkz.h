@@ -12,8 +12,6 @@
 #include "simmenu.h"
 #include "simdings.h"
 
-#include "besch/way_obj_besch.h"
-
 #include "boden/wege/schiene.h"
 
 #include "dataobj/umgebung.h"
@@ -32,6 +30,7 @@ class haus_besch_t;
 class roadsign_besch_t;
 class weg_besch_t;
 class route_t;
+class way_obj_besch_t;
 
 /****************************** helper functions: *****************************/
 
