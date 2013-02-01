@@ -570,6 +570,13 @@ const char *tunnelbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d start, w
 				t->entferne(sp);
 				delete t;
 			}
+			if (leitung_t *lt = gr->get_leitung()) {
+				// remove single powerlines
+				if ( (lt->get_ribi()  & ~ribi_typ(gr->get_grund_hang())) == ribi_t::keine ) {
+					lt->entferne(sp);
+					delete lt;
+				}
+			}
 		}
 		else {
 			ribi_t::ribi mask = gr->get_grund_hang()!=hang_t::flach ? ~ribi_typ(gr->get_grund_hang()) : ~ribi_typ(hang_t::gegenueber(gr->get_weg_hang()));
