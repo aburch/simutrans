@@ -5614,10 +5614,16 @@ int private_car_destination_finder_t::get_kosten(const grund_t* gr, sint32 max_s
 	}
 
 	// Time = distance / speed
+	int mpt;
+
 	if(w->is_diagonal())
 	{
 		// Diagonals are a *shorter* distance.
-		meters_per_tile_x100 = (meters_per_tile_x100 * 5) / 7;
+		mpt = ((int)meters_per_tile_x100 * 5) / 7;
+	}
+	else
+	{
+		mpt = (int)meters_per_tile_x100;
 	}
 
 	// T = d / (1000 / h)
@@ -5630,7 +5636,7 @@ int private_car_destination_finder_t::get_kosten(const grund_t* gr, sint32 max_s
 	// T = d / ((m / 100) * 0.167)
 	// T = (d * 100) / (m * 16.67) -- 100THS OF A MINUTE PER TILE
 
-	const int cost = (int)meters_per_tile_x100 / ((speed * 167) / 10);
+	const int cost = mpt / ((speed * 167) / 10);
 
 	current_tile_cost = cost;
 	return cost;
