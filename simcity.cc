@@ -2512,7 +2512,7 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 		const uint32 depth = welt->get_max_road_check_depth();
 		const koord3d origin(townhall_road.x, townhall_road.y, welt->lookup_hgt(townhall_road));
 		// This will find the fastest route from the townhall road to *all* other townhall roads.
-		private_car_route->find_route(welt, origin, &private_car_destination_finder_t(welt, new automobil_t(welt), this), welt->get_citycar_speed_average(), ribi_t::alle, 0, depth);
+		private_car_route->find_route(welt, origin, &private_car_destination_finder_t(welt, &automobil_t(welt), this), welt->get_citycar_speed_average(), ribi_t::alle, 0, depth);
 
 		check_road_connexions = false;
 	}
@@ -5534,7 +5534,7 @@ bool private_car_destination_finder_t::ist_befahrbar( const grund_t* gr ) const
 			{
 				const roadsign_t* rs = gr->find<roadsign_t>();
 				const roadsign_besch_t* rs_besch = rs->get_besch();
-				if(rs_besch->get_min_speed() > master->get_besch()->get_geschw() || (rs_besch->is_private_way() && (rs->get_player_mask() & 2) == 0))
+				if(rs_besch->get_min_speed() > welt->get_citycar_speed_average() || (rs_besch->is_private_way() && (rs->get_player_mask() & 2) == 0))
 				{
 					return false;
 				}

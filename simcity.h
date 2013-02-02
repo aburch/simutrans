@@ -91,11 +91,6 @@ public:
 	virtual ribi_t::ribi get_ribi( const grund_t* gr) const;
 
 	virtual int get_kosten(const grund_t* gr, const sint32 max_speed, koord from_pos);
-
-	virtual ~private_car_destination_finder_t()
-	{
-		delete master;
-	}
 };
 
 /**
