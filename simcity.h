@@ -253,8 +253,6 @@ private:
 	connexion_map connected_industries;
 	connexion_map connected_attractions;
 
-	route_t *private_car_route;
-
 	vector_tpl<senke_t*> substations;
 
 	// The month in which this city will update its private car routes

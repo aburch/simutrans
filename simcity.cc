@@ -62,6 +62,9 @@
 #include "utils/dbg_weightmap.h"
 #endif
 
+// For TESTing
+#include "simsys.h"
+
 #include "tpl/minivec_tpl.h"
 
 karte_t* stadt_t::welt = NULL; // one is enough ...
@@ -1478,8 +1481,6 @@ stadt_t::~stadt_t()
 		city_factories[i]->clear_city();
 	}
 
-	delete private_car_route;
-
 	if(  reliefkarte_t::get_karte()->get_city() == this  ) {
 		reliefkarte_t::get_karte()->set_city(NULL);
 	}
@@ -1635,7 +1636,6 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 
 	calc_internal_passengers();
 
-	private_car_route = new route_t();
 	check_road_connexions = false;
 
 	private_car_update_month = welt->step_next_private_car_update_month();
@@ -1706,7 +1706,6 @@ stadt_t::stadt_t(karte_t* wl, loadsave_t* file) :
 
 	calc_internal_passengers();
 
-	private_car_route = new route_t();
 	check_road_connexions = false;
 }
 
@@ -2503,7 +2502,7 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 
 	const uint8 current_month = (uint8)(welt->get_current_month() % 12);
 
-	if(/*check_road_connexions && private_car_update_month == current_month*/ true)
+	if(/*check_road_connexions &&*/ private_car_update_month == current_month)
 	{
 		connected_cities.clear();
 		connected_industries.clear();
@@ -2512,7 +2511,14 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 		const uint32 depth = welt->get_max_road_check_depth();
 		const koord3d origin(townhall_road.x, townhall_road.y, welt->lookup_hgt(townhall_road));
 		// This will find the fastest route from the townhall road to *all* other townhall roads.
-		private_car_route->find_route(welt, origin, &private_car_destination_finder_t(welt, &automobil_t(welt), this), welt->get_citycar_speed_average(), ribi_t::alle, 0, depth);
+		const sint64 TEST_time_before = dr_time();
+		route_t private_car_route;
+		private_car_route.find_route(welt, origin, &private_car_destination_finder_t(welt, &automobil_t(welt), this), welt->get_citycar_speed_average(), ribi_t::alle, 0, depth);
+		const sint64 TEST_time_after = dr_time();
+		const sint64 TEST_time_difference = TEST_time_after - TEST_time_before;
+		cbuffer_t buf;
+		buf.printf("Time for checking road connexions of %s: %ims", get_name(), TEST_time_difference);
+		welt->get_message()->add_message(buf, get_pos(), 0);
 
 		check_road_connexions = false;
 	}
