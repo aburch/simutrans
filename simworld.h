@@ -23,6 +23,7 @@
 #include "tpl/weighted_vector_tpl.h"
 #include "tpl/vector_tpl.h"
 #include "tpl/slist_tpl.h"
+#include "tpl/koordhashtable_tpl.h"
 
 #include "dataobj/marker.h"
 #include "dataobj/einstellungen.h"
@@ -477,6 +478,9 @@ private:
 
 	// The last time when a server announce was performed (in ms)
 	uint32 server_last_announce_time;
+
+	typedef koordhashtable_tpl<koord, stadt_t*> townhall_road_map;
+	townhall_road_map townhall_roads;
 
 public:
 	// Announce server and current state to listserver
@@ -1320,6 +1324,10 @@ public:
 	
 	// @author: jamespetts
 	void set_scale();
+
+	void add_townhall_road(stadt_t* city);
+	void remove_townhall_road(koord k);
+	stadt_t* check_townhall_road(koord k);
 
 
 #ifdef DEBUG_SIMRAND_CALLS

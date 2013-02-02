@@ -622,7 +622,7 @@ bool stadtauto_t::ist_weg_frei(grund_t *gr)
 
 	const spieler_t *sp = str->get_besitzer();
 
-	if(sp != NULL && sp->get_player_nr() != 1 && !sp->allows_access_to(1) && !welt->get_city(str->get_pos().get_2d()))
+	if(sp != NULL && sp->get_player_nr() != 1 && !sp->allows_access_to(1))
 	{
 		// Private cas should have the same restrictions as to the roads on which to travel
 		// as players' vehicles.

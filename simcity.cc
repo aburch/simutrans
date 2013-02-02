@@ -1472,6 +1472,8 @@ stadt_t::~stadt_t()
 	// close info win
 	destroy_win((long)this);
 
+	welt->remove_townhall_road(pos);
+
 	// Empty the list of city cars
 	current_cars.clear();
 
@@ -1642,6 +1644,7 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 
 	number_of_cars = 0;
 
+	welt->add_townhall_road(this);
 }
 
 
@@ -1707,6 +1710,8 @@ stadt_t::stadt_t(karte_t* wl, loadsave_t* file) :
 	calc_internal_passengers();
 
 	check_road_connexions = false;
+	
+	welt->add_townhall_road(this);
 }
 
 
@@ -5529,7 +5534,7 @@ bool private_car_destination_finder_t::ist_befahrbar( const grund_t* gr ) const
 		if(str)
 		{
 			const spieler_t *sp = str->get_besitzer();
-			if(sp != NULL && sp->get_player_nr() != 1 && !sp->allows_access_to(1) && !welt->get_city(str->get_pos().get_2d()))
+			if(sp != NULL && sp->get_player_nr() != 1 && !sp->allows_access_to(1))
 			{
 				// Private cas should have the same restrictions as to the roads on which to travel
 				// as players' vehicles.
@@ -5550,7 +5555,7 @@ bool private_car_destination_finder_t::ist_befahrbar( const grund_t* gr ) const
 	return master->ist_befahrbar(gr);
 }
 
-ribi_t::ribi private_car_destination_finder_t::get_ribi( const grund_t* gr) const
+ribi_t::ribi private_car_destination_finder_t::get_ribi(const grund_t* gr) const
 { 
 	return master->get_ribi(gr); 
 }
@@ -5568,28 +5573,23 @@ bool private_car_destination_finder_t::ist_ziel(const grund_t* gr, const grund_t
 	}
 
 	const koord k = gr->get_pos().get_2d();
-	const stadt_t* city = welt->get_city(k);
+	const stadt_t* city = welt->check_townhall_road(k);
 
-	if(!city)
+
+	// TODO: Check also for non-city attractions and industries.
+	// Might be necessary to store connexion information in road
+	// tiles, as it might take a long time to search each tile here.
+
+	if(city && city != origin_city)
 	{
-		// TODO: Check also for non-city attractions and industries.
-		// Might be necessary to store connexion information in road
-		// tiles, as it might take a long time to search each tile here.
+		// We use a different system for determining travel speeds in the current city.
 
-	}
-	else
-	{
-		if(city->get_townhall_road() == k && city != origin_city)
-		{
-			// We use a different system for determining travel speeds in the current city.
-
-			// Cost should be journey time per *straight line* tile, as the private car route
-			// system needs to be able to approximate the total travelling time from the straight
-			// line distance.
+		// Cost should be journey time per *straight line* tile, as the private car route
+		// system needs to be able to approximate the total travelling time from the straight
+		// line distance.
 			
-			const uint16 straight_line_distance = shortest_distance(origin_city->get_townhall_road(), k);
-			origin_city->add_road_connexion(accumulated_cost / straight_line_distance, city);
-		}
+		const uint16 straight_line_distance = shortest_distance(origin_city->get_townhall_road(), k);
+		origin_city->add_road_connexion(accumulated_cost / straight_line_distance, city);
 	}
 
 	return false;
@@ -5604,7 +5604,7 @@ int private_car_destination_finder_t::get_kosten(const grund_t* gr, sint32 max_s
 	}
 
 	const uint32 max_tile_speed = w->get_max_speed(); // This returns speed in km/h.
-	const stadt_t* city = origin_city->get_welt()->get_city(gr->get_pos().get_2d());
+	const stadt_t* city = welt->get_city(gr->get_pos().get_2d());
 	const bool is_diagonal = w->is_diagonal();
 
 	if(city == last_city && max_tile_speed == last_tile_speed)
