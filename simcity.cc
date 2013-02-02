@@ -2784,18 +2784,17 @@ uint16 stadt_t::check_road_connexion_to(stadt_t* city)
 {
 	if(welt->get_settings().get_assume_everywhere_connected_by_road())
 	{
-		const uint16 speed = city == this ? welt->get_generic_road_speed_city() : welt->get_generic_road_speed_intercity();
-		// 1km/h = 0.06 minutes per meter. To get 100ths of minutes per meter, therefore, multiply the speed by 6.
+		const uint16 journey_time_per_tile = city == this ? welt->get_generic_road_time_per_tile_city() : welt->get_generic_road_time_per_tile_intercity();
 		// With this setting, we add congestion factoring at a later stage.
-		return speed * 6;
+		return journey_time_per_tile * 6;
 	}
 
 	if(connected_cities.is_contained(city->get_pos()))
 	{
-		const uint16 journey_time = connected_cities.get(city->get_pos());
-		if(city != this || journey_time < 65535)
+		const uint16 journey_time_per_tile = connected_cities.get(city->get_pos());
+		if(city != this || journey_time_per_tile < 65535)
 		{
-			return journey_time;
+			return journey_time_per_tile;
 		}
 	}
 
@@ -2804,7 +2803,7 @@ uint16 stadt_t::check_road_connexion_to(stadt_t* city)
 		// Should always be possible to travel within the city.
 		const koord3d pos3d(townhall_road, welt->lookup_hgt(townhall_road));
 		const weg_t* road = welt->lookup(pos3d) ? welt->lookup(pos3d)->get_weg(road_wt) : NULL;
-		const uint16 journey_time_per_tile = road ? road->get_besch() == welt->get_city_road() ? welt->get_generic_road_speed_city() * 6 : welt->calc_generic_road_speed(road->get_besch()) * 6 : welt->get_generic_road_speed_city() * 6;
+		const uint16 journey_time_per_tile = road ? road->get_besch() == welt->get_city_road() ? welt->get_generic_road_time_per_tile_city() : welt->calc_generic_road_time_per_tile(road->get_besch()) : welt->get_generic_road_time_per_tile_city();
 		connected_cities.put(pos, journey_time_per_tile);
 		return journey_time_per_tile;
 	}
@@ -2818,9 +2817,8 @@ uint16 stadt_t::check_road_connexion_to(const fabrik_t* industry)
 {
 	if(welt->get_settings().get_assume_everywhere_connected_by_road())
 	{
-		// 1km/h = 0.06 minutes per meter. To get 100ths of minutes per meter, therefore, multiply the speed by 6.
 		// With this setting, we add congestion factoring at a later stage.
-		return industry->get_city() && industry->get_city() == this ? welt->get_generic_road_speed_city() * 6 : welt->get_generic_road_speed_intercity() * 6;
+		return industry->get_city() && industry->get_city() == this ? welt->get_generic_road_time_per_tile_city() : welt->get_generic_road_time_per_tile_intercity();
 	}
 	
 	if(connected_industries.is_contained(industry->get_pos().get_2d()))
@@ -2832,13 +2830,13 @@ uint16 stadt_t::check_road_connexion_to(const fabrik_t* industry)
 		// If an industry is in a city, presume that it is connected
 		// if the city is connected. Do not presume the converse.
 		const uint16 time_to_city = check_road_connexion_to(industry->get_city());
-		if(time_to_city < 65335)
+		if(time_to_city < 65535)
 		{
 			return time_to_city;
 		}
 	}
 
-	return 65335;
+	return 65535;
 
 	// TODO: Remove the rest of the substance of this when the new system is fully set up and tested.
 
@@ -2892,7 +2890,7 @@ uint16 stadt_t::check_road_connexion_to(const fabrik_t* industry)
 	{
 		(*j)->set_no_connexion_to_industry(industry);
 	}
-	return 65335;*/
+	return 65535;*/
 
 }
 
@@ -2902,7 +2900,7 @@ uint16 stadt_t::check_road_connexion_to(const gebaeude_t* attraction)
 	{
 		// 1km/h = 0.06 minutes per meter. To get 100ths of minutes per meter, therefore, multiply the speed by 6.
 		// With this setting, we add congestion factoring at a later stage.
-		return welt->get_generic_road_speed_intercity() * 6;
+		return welt->get_generic_road_time_per_tile_intercity() * 6;
 	}
 	
 	if(connected_attractions.is_contained(attraction->get_pos().get_2d()))
@@ -2942,10 +2940,10 @@ uint16 stadt_t::check_road_connexion_to(const gebaeude_t* attraction)
 		{
 			(*j)->set_no_connexion_to_attraction(attraction);
 		}
-		return 65335;
+		return 65535;
 	}
 
-	return 65335;
+	return 65535;
 
 	// TODO: Remove the substance of this when the new system is tested.
 
@@ -3349,10 +3347,10 @@ void stadt_t::step_passagiere()
 				if(time_per_tile < 65535)
 				{
 					// *Hundredths* of minutes used here for per tile times for accuracy.
-					// Convert to tenths, but only after multiplying to  preserve accuracy.
+					// Convert to tenths, but only after multiplying to preserve accuracy.
 					// Use a uint32 intermediary to avoid overflow.
-					const uint32 car_mins = (time_per_tile * straight_line_distance) / 100;
-					car_minutes = car_mins;
+					const uint32 car_mins = (time_per_tile * straight_line_distance) / 10;
+					car_minutes = car_mins > 0 ? car_mins : 1;
 
 					// Now, adjust the timings for congestion (this is already taken into account if the route was
 					// calculated using the route finder; note that journeys inside cities are not calculated using
@@ -3474,7 +3472,7 @@ void stadt_t::step_passagiere()
 			set_private_car_trip(num_pax, destination_town);
 			merke_passagier_ziel(destinations[current_destination].location, COL_TURQUOISE);
 #ifdef DESTINATION_CITYCARS
-			erzeuge_verkehrsteilnehmer(origin_pos, step_count, destinations[current_destination].location);
+			erzeuge_verkehrsteilnehmer(origin_pos, car_minutes, destinations[current_destination].location);
 #endif
 			set_return_trip = will_return != no_return;
 			if(wtyp != warenbauer_t::post)
@@ -3736,7 +3734,7 @@ void stadt_t::step_passagiere()
 
 #ifdef DESTINATION_CITYCARS
 					//citycars with destination
-					erzeuge_verkehrsteilnehmer(destinations[0].location, step_count, origin_pos);
+					erzeuge_verkehrsteilnehmer(destinations[0].location, car_minutes, origin_pos);
 #endif
 
 				}
@@ -3955,15 +3953,19 @@ stadt_t::destination stadt_t::find_destination(factory_set_t &target_factories, 
 		*will_return = factory_return;	// worker will return
 		current_destination.type = FACTORY_PAX;
 		uint8 counter = 0;
-		while(counter ++ < 32 && (shortest_distance(origin, entry->factory->get_pos().get_2d()) > max_distance || shortest_distance(origin, entry->factory->get_pos().get_2d()) < min_distance))
+		do
 		{
-			entry = target_factories.get_random_entry();
-			while(entry->factory == NULL)
+			while(counter ++ < 32 && (shortest_distance(origin, entry->factory->get_pos().get_2d()) > max_distance || shortest_distance(origin, entry->factory->get_pos().get_2d()) < min_distance))
 			{
 				entry = target_factories.get_random_entry();
-			} 
-		}
-		current_destination.location = entry->factory->get_pos().get_2d();
+				while(entry->factory == NULL)
+				{
+					entry = target_factories.get_random_entry();
+				} 
+			}
+			current_destination.location = entry->factory->get_pos().get_2d();
+		} while(current_destination.location == origin); // The destination must not be the same as the origin, so keep retrying until it is not.
+		
 		current_destination.object.industry = entry->factory;
 		current_destination.factory_entry = entry;
 		return current_destination;
@@ -3975,11 +3977,14 @@ stadt_t::destination stadt_t::find_destination(factory_set_t &target_factories, 
 		const gebaeude_t* gb = pick_any_weighted(target_attractions);
 		current_destination.type = TOURIST_PAX;
 		uint8 counter = 0;
-		while(counter ++ < 32 && (shortest_distance(origin, gb->get_pos().get_2d()) > max_distance || shortest_distance(origin, gb->get_pos().get_2d()) < min_distance))
+		do
 		{
-			gb =  pick_any_weighted(target_attractions);
-		}
-		current_destination.location = gb->get_pos().get_2d();
+			while(counter ++ < 32 && (shortest_distance(origin, gb->get_pos().get_2d()) > max_distance || shortest_distance(origin, gb->get_pos().get_2d()) < min_distance))
+			{
+				gb = pick_any_weighted(target_attractions);
+			}
+			current_destination.location = gb->get_pos().get_2d();
+		} while(current_destination.location == origin); // The destination must not be the same as the origin, so keep retrying until it is not.
 		current_destination.object.attraction = gb;
 		return current_destination;
 	}
@@ -3991,7 +3996,7 @@ stadt_t::destination stadt_t::find_destination(factory_set_t &target_factories, 
 		stadt_t* nearest_miss = NULL;
 		bool town_within_range = false;
 		uint32 difference;
-		uint32 nearest_miss_difference =  2147483647; // uint32 max.
+		uint32 nearest_miss_difference = 2147483647; // uint32 max.
 
 		if(max_distance == 0)
 		{
@@ -4083,9 +4088,12 @@ stadt_t::destination stadt_t::find_destination(factory_set_t &target_factories, 
 
 		// long distance traveller? => then we return
 		// zielstadt = "Destination city"
-		*will_return = (this != zielstadt) ? city_return : no_return;
-		current_destination.location = zielstadt->get_zufallspunkt(min_distance, max_distance, origin); //"random dot"
-		current_destination.object.town = zielstadt;
+		do
+		{
+			*will_return = (this != zielstadt) ? city_return : no_return;
+			current_destination.location = zielstadt->get_zufallspunkt(min_distance, max_distance, origin); //"random dot"
+			current_destination.object.town = zielstadt;
+		} while(current_destination.location == origin); // The destination must not be the same as the origin, so keep retrying until it is not.
 		return current_destination;
 	}
 }
@@ -4689,7 +4697,7 @@ void stadt_t::baue_gebaeude(const koord k, bool new_town)
 }
 
 
-void stadt_t::erzeuge_verkehrsteilnehmer(koord pos, sint32 /*level*/, koord target)
+void stadt_t::erzeuge_verkehrsteilnehmer(koord pos, uint16 journey_tenths_of_minutes, koord target)
 {
 	const int verkehr_level = welt->get_settings().get_verkehr_level();
 	//if (verkehr_level > 0 && level % (17 - verkehr_level) == 0) {
@@ -4712,8 +4720,11 @@ void stadt_t::erzeuge_verkehrsteilnehmer(koord pos, sint32 /*level*/, koord targ
 							continue;
 						}
 #endif
-						if (!stadtauto_t::list_empty()) {
+						if (!stadtauto_t::list_empty()) 
+						{
 							stadtauto_t* vt = new stadtauto_t(welt, gr->get_pos(), target, &current_cars);
+							const sint32 time_to_live = ((sint32)journey_tenths_of_minutes * 136584) / (sint32)welt->get_settings().get_meters_per_tile();
+							vt->set_time_to_life(time_to_live);
 							gr->obj_add(vt);
 							welt->sync_add(vt);
 							current_cars.append(vt);
@@ -5597,8 +5608,8 @@ int private_car_destination_finder_t::get_kosten(const grund_t* gr, sint32 max_s
 		// compiled by the satellite navigation company of that name, which provides useful research data.
 		// See: http://www.tomtom.com/lib/doc/congestionindex/2012-0704-TomTom%20Congestion-index-2012Q1europe-mi.pdf
 
-		const uint32 congestion = (uint32)city->get_congestion();
-		speed -= (speed * congestion) / 100;
+		const uint32 congestion = (uint32)city->get_congestion() + 100;
+		speed = (speed * 100) / congestion;
 		speed = max(4, speed);
 	}
 

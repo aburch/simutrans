@@ -441,7 +441,7 @@ private:
 	 * baut ein Gebaeude auf Planquadrat x,y
 	 */
 	void baue_gebaeude(koord pos, bool new_town);
-	void erzeuge_verkehrsteilnehmer(koord pos, sint32 level,koord target);
+	void erzeuge_verkehrsteilnehmer(koord pos, uint16 journey_tenths_of_minutes, koord target);
 	bool renoviere_gebaeude(gebaeude_t *gb);
 
 	/**

@@ -1524,8 +1524,8 @@ DBG_DEBUG("karte_t::init()","built timeline");
 	recalc_average_speed();
 
 	// @author: jamespetts
-	calc_generic_road_speed_city();
-	calc_generic_road_speed_intercity();
+	calc_generic_road_time_per_tile_city();
+	calc_generic_road_time_per_tile_intercity();
 	calc_max_road_check_depth();
 
 	for (int i = 0; i < MAX_PLAYER_COUNT; i++) {
@@ -3460,8 +3460,8 @@ void karte_t::neuer_monat()
 	path_explorer_t::refresh_all_categories(true);
 
 	set_citycar_speed_average();
-	calc_generic_road_speed_city();
-	calc_generic_road_speed_intercity();
+	calc_generic_road_time_per_tile_city();
+	calc_generic_road_time_per_tile_intercity();
 	calc_max_road_check_depth();
 }
 
@@ -4692,8 +4692,8 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved messages");
 		// Existing values now saved in order to prevent network desyncs
 		file->rdwr_long(citycar_speed_average);
 		file->rdwr_bool(recheck_road_connexions);
-		file->rdwr_short(generic_road_speed_city);
-		file->rdwr_short(generic_road_speed_intercity);
+		file->rdwr_short(generic_road_time_per_tile_city);
+		file->rdwr_short(generic_road_time_per_tile_intercity);
 		file->rdwr_long(max_road_check_depth);
 		if(file->get_experimental_version() < 10)
 		{
@@ -4910,8 +4910,8 @@ DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 	settings.set_filename(filename);
 	display_show_load_pointer(false);
 
-	calc_generic_road_speed_city();
-	calc_generic_road_speed_intercity();
+	calc_generic_road_time_per_tile_city();
+	calc_generic_road_time_per_tile_intercity();
 	calc_max_road_check_depth();
 
 	return ok;
@@ -5502,8 +5502,8 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 		// Existing values now saved in order to prevent network desyncs
 		file->rdwr_long(citycar_speed_average);
 		file->rdwr_bool(recheck_road_connexions);
-		file->rdwr_short(generic_road_speed_city);
-		file->rdwr_short(generic_road_speed_intercity);
+		file->rdwr_short(generic_road_time_per_tile_city);
+		file->rdwr_short(generic_road_time_per_tile_intercity);
 		file->rdwr_long(max_road_check_depth);
 		if(file->get_experimental_version() < 10)
 		{
@@ -6815,7 +6815,7 @@ void karte_t::set_citycar_speed_average()
 	citycar_speed_average = vehicle_speed_sum / count;
 }
 
-void karte_t::calc_generic_road_speed_intercity()
+void karte_t::calc_generic_road_time_per_tile_intercity()
 {
 	// This method is used only when private car connexion
 	// checking is turned off.
@@ -6825,12 +6825,12 @@ void karte_t::calc_generic_road_speed_intercity()
 	if(besch == NULL) 
 	{
 		// Hajo: try some default (might happen with timeline ... )
-		besch = wegbauer_t::weg_search(road_wt,80,get_timeline_year_month(),weg_t::type_flat);
+		besch = wegbauer_t::weg_search(road_wt, 80, get_timeline_year_month(),weg_t::type_flat);
 	}
-	generic_road_speed_intercity = (uint16)calc_generic_road_speed(besch);
+	generic_road_time_per_tile_intercity = (uint16)calc_generic_road_time_per_tile(besch);
 }
 
-sint32 karte_t::calc_generic_road_speed(const weg_besch_t* besch)
+sint32 karte_t::calc_generic_road_time_per_tile(const weg_besch_t* besch)
 {
 	sint32 speed_average = citycar_speed_average;
 	if(besch)
@@ -6850,12 +6850,19 @@ sint32 karte_t::calc_generic_road_speed(const weg_besch_t* besch)
 		}
 	}
 
+	// Reduce by 1/3 to reflect the fact that vehicles will not always
+	// be able to maintain maximum speed even in uncongested environs,
+	// and the fact that we are converting route distances to straight
+	// line distances.
+	speed_average *= 2;
+	speed_average /= 3; 
+
 	if(speed_average == 0)
 	{
 		speed_average = 1;
 	}
 	
-	return ((6 * 15) * settings.get_meters_per_tile()) /  (speed_average * 100);
+	return ((600 / speed_average) * settings.get_meters_per_tile()) / 100;
 }
 
 void karte_t::calc_max_road_check_depth()
