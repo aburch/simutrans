@@ -5507,6 +5507,10 @@ private_car_destination_finder_t::private_car_destination_finder_t(karte_t *w, a
 	origin_city = o;
 	accumulated_cost = 0;
 	current_tile_cost = 0;
+	last_tile_speed = 0;
+	last_tile_cost_diagonal = 0;
+	last_tile_cost_straight = 0;
+	last_city = NULL;
 	meters_per_tile_x100 = origin_city->get_welt()->get_settings().get_meters_per_tile() * 100; // For 100ths of a minute
 }
 
@@ -5594,9 +5598,26 @@ int private_car_destination_finder_t::get_kosten(const grund_t* gr, sint32 max_s
 	}
 
 	const uint32 max_tile_speed = w->get_max_speed(); // This returns speed in km/h.
+	const stadt_t* city = origin_city->get_welt()->get_city(gr->get_pos().get_2d());
+	const bool is_diagonal = w->is_diagonal();
+
+	if(city == last_city && max_tile_speed == last_tile_speed)
+	{
+		// Need not redo the whole calculation if nothing has changed.
+		if(is_diagonal && last_tile_cost_diagonal > 0)
+		{
+			return last_tile_cost_diagonal;
+		}
+		else if(last_tile_cost_straight > 0)
+		{
+			return last_tile_cost_straight;
+		}
+	}
+
+	last_city = city;
+	last_tile_speed = max_tile_speed;
 
 	uint32 speed = min(max_speed, max_tile_speed);
-	const stadt_t* city = origin_city->get_welt()->get_city(gr->get_pos().get_2d());
 
 	if(city)
 	{
@@ -5616,7 +5637,7 @@ int private_car_destination_finder_t::get_kosten(const grund_t* gr, sint32 max_s
 	// Time = distance / speed
 	int mpt;
 
-	if(w->is_diagonal())
+	if(is_diagonal)
 	{
 		// Diagonals are a *shorter* distance.
 		mpt = ((int)meters_per_tile_x100 * 5) / 7;
@@ -5639,6 +5660,14 @@ int private_car_destination_finder_t::get_kosten(const grund_t* gr, sint32 max_s
 	const int cost = mpt / ((speed * 167) / 10);
 
 	current_tile_cost = cost;
+	if(is_diagonal)
+	{
+		last_tile_cost_diagonal = cost;
+	}
+	else
+	{
+		last_tile_cost_straight = cost;
+	}
 	return cost;
 }
 
