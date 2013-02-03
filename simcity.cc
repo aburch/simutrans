@@ -2556,7 +2556,7 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 		// This will find the fastest route from the townhall road to *all* other townhall roads.
 		const sint64 TEST_time_before = dr_time();
 		route_t private_car_route;
-		private_car_route.find_route(welt, origin, &private_car_destination_finder_t(welt, &automobil_t(welt), this), welt->get_citycar_speed_average(), ribi_t::alle, 0, depth);
+		private_car_route.find_route(welt, origin, &private_car_destination_finder_t(welt, &automobil_t(welt), this), welt->get_citycar_speed_average(), ribi_t::alle, 0, depth, true);
 		const sint64 TEST_time_after = dr_time();
 		const sint64 TEST_time_difference = TEST_time_after - TEST_time_before;
 		cbuffer_t buf;
@@ -5554,8 +5554,6 @@ private_car_destination_finder_t::private_car_destination_finder_t(karte_t *w, a
 	welt = w;
 	master = m;
 	origin_city = o;
-	accumulated_cost = 0;
-	current_tile_cost = 0;
 	last_tile_speed = 0;
 	last_tile_cost_diagonal = 0;
 	last_tile_cost_straight = 0;
@@ -5603,8 +5601,6 @@ bool private_car_destination_finder_t::ist_ziel(const grund_t* gr, const grund_t
 	// This must return false to ensure that the route check continues.
 	// Thanks to Prissi for this ingenious suggestion.
 
-	accumulated_cost += current_tile_cost;
-
 	if(!gr)
 	{
 		return false;
@@ -5621,12 +5617,7 @@ bool private_car_destination_finder_t::ist_ziel(const grund_t* gr, const grund_t
 	{
 		// We use a different system for determining travel speeds in the current city.
 
-		// Cost should be journey time per *straight line* tile, as the private car route
-		// system needs to be able to approximate the total travelling time from the straight
-		// line distance.
-			
-		const uint16 straight_line_distance = shortest_distance(origin_city->get_townhall_road(), k);
-		origin_city->add_road_connexion(accumulated_cost / straight_line_distance, city);
+		return true;
 	}
 
 	return false;
@@ -5703,7 +5694,6 @@ int private_car_destination_finder_t::get_kosten(const grund_t* gr, sint32 max_s
 
 	const int cost = mpt / ((speed * 167) / 10);
 
-	current_tile_cost = cost;
 	if(is_diagonal)
 	{
 		last_tile_cost_diagonal = cost;

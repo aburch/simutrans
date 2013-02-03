@@ -14,6 +14,7 @@
 #endif
 
 #include "../simworld.h"
+#include "../simcity.h"
 #include "../simintr.h"
 #include "../simhalt.h"
 #include "../boden/wege/weg.h"
@@ -203,7 +204,7 @@ void route_t::RELEASE_NODES(uint8 nodes_index)
 /* find the route to an unknown location
  * @author prissi
  */
-bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, const uint32 max_khm, uint8 start_dir, uint32 weight, uint32 max_depth)
+bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, const uint32 max_khm, uint8 start_dir, uint32 weight, uint32 max_depth, bool private_car_checker)
 {
 	bool ok = false;
 
@@ -229,7 +230,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 
 	// nothing in lists
 	// NOTE: This will have to be reworked substantially if this algorithm
-	// is to be multi-threaded anywhere: a specific vectoror hashtable will 
+	// is to be multi-threaded anywhere: a specific vector or hashtable will 
 	// have to be used instead.
 	welt->unmarkiere_alle();
 
@@ -304,8 +305,23 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 		// already there
 		if(fahr->ist_ziel(gr, tmp->parent == NULL ? NULL : tmp->parent->gr))
 		{
-			// we added a target to the closed list: check for length
-			break;
+			if(!private_car_checker)
+			{
+				// we added a target to the closed list: check for length
+				break;
+			}
+			else
+			{
+				// Private car route checking does not reconstruct the route.
+				// Cost should be journey time per *straight line* tile, as the private car route
+				// system needs to be able to approximate the total travelling time from the straight
+				// line distance.
+				const koord k = gr->get_pos().get_2d();
+				stadt_t* origin_city = welt->lookup(start.get_2d())->get_city();
+				const uint16 straight_line_distance = shortest_distance(origin_city->get_townhall_road(), k);
+				origin_city->add_road_connexion(tmp->g / straight_line_distance, welt->lookup(k)->get_city());
+			}
+
 		}
 
 		// testing all four possible directions
@@ -337,7 +353,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 					}
 				}
 
-				// not in there or taken out => add new
+				// Add new node
 				ANode* k = &nodes[step++];
 				if (route_t::max_used_steps < step)
 				{
@@ -347,14 +363,14 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 				k->parent = tmp;
 				k->gr = to;
 				k->count = tmp->count + 1;
-				k->g = fahr->get_kosten(to, max_khm, gr->get_pos().get_2d());
+				k->g = tmp->g + fahr->get_kosten(to, max_khm, gr->get_pos().get_2d());
 
 				// insert here
 				queue.insert(k);
 			}
 		}
 
-		// ok, now no more restrains
+		// ok, now no more restraints
 		start_dir = ribi_t::alle;
 
 	} while(!queue.empty() && step < MAX_STEP  &&  queue.get_count() < max_depth);
@@ -372,16 +388,23 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 	}
 	else
 	{
-		// reached => construct route
-		route.clear();
-		route.resize(tmp->count+16);
-		while(tmp != NULL) 
+		if(!private_car_checker)
 		{
-			route.store_at(tmp->count, tmp->gr->get_pos());
-//DBG_DEBUG("add","%i,%i",tmp->pos.x,tmp->pos.y);
-			tmp = tmp->parent;
+			// reached => construct route
+			route.clear();
+			route.resize(tmp->count+16);
+			while(tmp != NULL) 
+			{
+				route.store_at(tmp->count, tmp->gr->get_pos());
+	//DBG_DEBUG("add","%i,%i",tmp->pos.x,tmp->pos.y);
+				tmp = tmp->parent;
+			}
+			ok = !route.empty();
 		}
-		ok = !route.empty();
+		else
+		{
+			ok = step < MAX_STEP;
+		}
 	}
 
 	RELEASE_NODES(ni);
