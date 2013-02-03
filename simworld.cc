@@ -2972,14 +2972,10 @@ stadt_t *karte_t::suche_naechste_stadt(const koord pos) const
 stadt_t *karte_t::get_city(const koord pos) const
 {
 	stadt_t* city = NULL;
-	if(pos == koord::invalid)
-	{
-		return NULL;
-	}
 
 	if(ist_in_kartengrenzen(pos)) 
 	{
-		uint16 cities = 0;
+		int cities = 0;
 		FOR(weighted_vector_tpl<stadt_t*>, const c, stadt) 
 		{
 			if(c->is_within_city_limits(pos))

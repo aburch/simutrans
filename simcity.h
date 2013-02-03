@@ -264,6 +264,13 @@ private:
 
 	sint32 number_of_cars;
 
+	/**
+	* Will fill the world's hashtable of tiles
+	* belonging to cities with all the tiles of
+	* this city
+	*/
+	void check_city_tiles(bool del = false);
+
 public:
 	/**
 	 * Returns pointer to history for city

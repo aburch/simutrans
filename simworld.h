@@ -479,8 +479,9 @@ private:
 	// The last time when a server announce was performed (in ms)
 	uint32 server_last_announce_time;
 
-	typedef koordhashtable_tpl<koord, stadt_t*> townhall_road_map;
-	townhall_road_map townhall_roads;
+	typedef koordhashtable_tpl<koord, stadt_t*> city_tile_map;
+	city_tile_map townhall_roads;
+
 
 public:
 	// Announce server and current state to listserver
@@ -1328,7 +1329,6 @@ public:
 	void add_townhall_road(stadt_t* city);
 	void remove_townhall_road(koord k);
 	stadt_t* check_townhall_road(koord k);
-
 
 #ifdef DEBUG_SIMRAND_CALLS
 	static vector_tpl<const char*> random_callers;

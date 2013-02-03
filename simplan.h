@@ -15,6 +15,7 @@
 class karte_t;
 class grund_t;
 class ding_t;
+class stadt_t;
 
 class planquadrat_t;
 void swap(planquadrat_t& a, planquadrat_t& b);
@@ -36,6 +37,12 @@ private:
 	/* only one station per ground xy tile */
 	halthandle_t this_halt;
 
+	/**
+	 * If this tile belongs to a city, a pointer to that city.
+	 * This saves much lookup time
+	 */
+	stadt_t* city;
+
 	union DATA {
 		grund_t ** some;    // valid if capacity > 1
 		grund_t * one;      // valid if capacity == 1
@@ -46,7 +53,7 @@ public:
 	 * Constructs a planquadrat with initial capacity of one ground
 	 * @author Hansjörg Malthaner
 	 */
-	planquadrat_t() { ground_size=0; data.one = NULL; halt_list_count=0;  halt_list=NULL; }
+	planquadrat_t() { ground_size=0; data.one = NULL; halt_list_count=0;  halt_list=NULL; city = NULL; }
 
 	~planquadrat_t();
 
@@ -156,6 +163,9 @@ public:
 	* @author Hj. Malthaner
 	*/
 	const halthandle_t get_halt() const {return this_halt;}
+
+	stadt_t* get_city() const { return city; }
+	void set_city(stadt_t* value) { city = value; }
 
 private:
 	// these functions are private helper functions for halt_list corrections

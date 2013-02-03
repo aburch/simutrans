@@ -1114,7 +1114,7 @@ void stadt_t::update_gebaeude_from_stadt(gebaeude_t* gb)
 }
 
 
-
+// "Check limits" (Google)
 void stadt_t::pruefe_grenzen(koord k)
 {
 	if(  has_low_density  ) {
@@ -1192,6 +1192,39 @@ bool stadt_t::is_within_city_limits(koord k) const
 	return inside;
 }
 
+
+void stadt_t::check_city_tiles(bool del)
+{
+	// ur = SE corner
+	// lo = NW corner
+	// x = W - E
+	// y = N - S
+	const sint16 limit_west = lo.x;
+	const sint16 limit_east = ur.x;
+	const sint16 limit_north = lo.y;
+	const sint16 limit_south = ur.y;
+
+	for(int x = limit_west; x < limit_east; x++)
+	{
+		for(int y = limit_north; y < limit_south; y++)
+		{
+			const koord k(x, y);
+			planquadrat_t* plan = welt->access(k);
+			if(plan)
+			{
+				if(!del)
+				{
+					plan->set_city(this);
+				}
+				else
+				{
+					plan->set_city(NULL);
+				}
+			}
+		}
+	}
+}
+
 // recalculate the spreading of a city
 // will be updated also after house deletion
 void stadt_t::recalc_city_size()
@@ -1237,6 +1270,8 @@ void stadt_t::recalc_city_size()
 	if (ur.y >= welt->get_groesse_y()) {
 		ur.y = welt->get_groesse_y()-1;
 	}
+
+	check_city_tiles();
 }
 
 
@@ -1473,6 +1508,7 @@ stadt_t::~stadt_t()
 	destroy_win((long)this);
 
 	welt->remove_townhall_road(pos);
+	check_city_tiles(true);
 
 	// Empty the list of city cars
 	current_cars.clear();
@@ -2507,7 +2543,7 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 
 	const uint8 current_month = (uint8)(welt->get_current_month() % 12);
 
-	if(/*check_road_connexions &&*/ private_car_update_month == current_month)
+	if(/*check_road_connexions && private_car_update_month == current_month*/ true)
 	{
 		connected_cities.clear();
 		connected_industries.clear();
@@ -5604,7 +5640,8 @@ int private_car_destination_finder_t::get_kosten(const grund_t* gr, sint32 max_s
 	}
 
 	const uint32 max_tile_speed = w->get_max_speed(); // This returns speed in km/h.
-	const stadt_t* city = welt->get_city(gr->get_pos().get_2d());
+	const planquadrat_t* plan = welt->lookup(gr->get_pos().get_2d());
+	const stadt_t* city = plan->get_city();
 	const bool is_diagonal = w->is_diagonal();
 
 	if(city == last_city && max_tile_speed == last_tile_speed)
