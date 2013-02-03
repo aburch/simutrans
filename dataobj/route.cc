@@ -17,12 +17,16 @@
 #include "../simcity.h"
 #include "../simintr.h"
 #include "../simhalt.h"
+#include "../simfab.h"
 #include "../boden/wege/weg.h"
 #include "../boden/grund.h"
 #include "../ifc/fahrer.h"
 #include "loadsave.h"
 #include "route.h"
 #include "umgebung.h"
+
+#include "../boden/wege/strasse.h"
+#include "../dings/gebaeude.h"
 
 
 // if defined, print some profiling informations into the file
@@ -317,9 +321,35 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 				// system needs to be able to approximate the total travelling time from the straight
 				// line distance.
 				const koord k = gr->get_pos().get_2d();
+				const stadt_t* destination_city = welt->lookup(k)->get_city();
 				stadt_t* origin_city = welt->lookup(start.get_2d())->get_city();
-				const uint16 straight_line_distance = shortest_distance(origin_city->get_townhall_road(), k);
-				origin_city->add_road_connexion(tmp->g / straight_line_distance, welt->lookup(k)->get_city());
+				if(destination_city && destination_city->get_townhall_road() == k)
+				{
+					// This is a city destination.
+					const uint16 straight_line_distance = shortest_distance(origin_city->get_townhall_road(), k);
+					origin_city->add_road_connexion(tmp->g / straight_line_distance, welt->lookup(k)->get_city());
+				}
+				
+				const strasse_t* str = (strasse_t*)gr->get_weg(road_wt);
+				if(str && str->connected_factories.get_count() > 0)
+				{
+					// This is a factory destination.
+					FOR(minivec_tpl<fabrik_t*>, const fab, str->connected_factories)
+					{
+						const uint16 straight_line_distance = shortest_distance(fab->get_pos().get_2d(), k);
+						origin_city->add_road_connexion(tmp->g / straight_line_distance, fab);
+					}
+				}
+
+				if(str && str->connected_attractions.get_count() > 0)
+				{
+					// This is an attraction destination.
+					FOR(minivec_tpl<gebaeude_t*>, const gb, str->connected_attractions)
+					{
+						const uint16 straight_line_distance = shortest_distance(gb->get_pos().get_2d(), k);
+						origin_city->add_road_connexion(tmp->g / straight_line_distance, gb);
+					}
+				}
 			}
 
 		}

@@ -495,9 +495,6 @@ private:
 	uint16 check_road_connexion_to(const fabrik_t* industry);
 	uint16 check_road_connexion_to(const gebaeude_t* attraction);
 
-	void set_no_connexion_to_industry(const fabrik_t* unconnected_industry);
-	void set_no_connexion_to_attraction(const gebaeude_t* unconnected_attraction);
-
 	bool check_road_connexions;
 
 	inline void register_factory_passenger_generation(int* pax_left_to_do, const ware_besch_t *const wtyp, factory_set_t &target_factories, factory_entry_t* &factory_entry);
@@ -667,6 +664,8 @@ public:
 	};
 
 	void add_road_connexion(uint16 journey_time_per_tile, const stadt_t* city);
+	void add_road_connexion(uint16 journey_time_per_tile, const fabrik_t* industry);
+	void add_road_connexion(uint16 journey_time_per_tile, const gebaeude_t* attraction);
 
 private:
 	/**

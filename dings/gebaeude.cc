@@ -114,6 +114,8 @@ gebaeude_t::gebaeude_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_til
 	if(gr  &&  gr->get_weg_hang()!=gr->get_grund_hang()) {
 		set_yoff(-TILE_HEIGHT_STEP);
 	}
+
+	check_road_tiles(false);
 }
 
 
@@ -135,6 +137,8 @@ gebaeude_t::~gebaeude_t()
 		sync = false;
 		welt->sync_remove(this);
 	}
+
+	check_road_tiles(true);
 
 	// tiles might be invalid, if no description is found during loading
 	if(tile  &&  tile->get_besch()  &&  tile->get_besch()->ist_ausflugsziel()) 
@@ -167,7 +171,38 @@ gebaeude_t::~gebaeude_t()
 	}
 }
 
-
+void gebaeude_t::check_road_tiles(bool del)
+{
+	//grund_t* gr;
+	//vector_tpl<koord> tile_list;
+	//get_tile_list(tile_list);
+	//FOR(vector_tpl<koord>, const k, tile_list)
+	//{
+	//	for(uint8 i = 0; i < 8; i ++)
+	//	{
+	//		// Check for connected roads. Only roads in immediately neighbouring tiles
+	//		// and only those on the same height will register a connexion.
+	//		koord3d pos3d(k + k.neighbours[i], pos.z);
+	//		gr = welt->lookup(pos3d);
+	//		if(!gr)
+	//		{
+	//			continue;
+	//		}
+	//		strasse_t* str = (strasse_t*)gr->get_weg(road_wt);
+	//		if(str)
+	//		{
+	//			if(del)
+	//			{
+	//				str->connected_factories.remove(this);
+	//			}
+	//			else
+	//			{
+	//				str->connected_factories.append_unique(this);
+	//			}
+	//		}
+	//	}
+	//}
+}
 
 void gebaeude_t::rotate90()
 {
@@ -1028,6 +1063,7 @@ void gebaeude_t::laden_abschliessen()
 			ptr.stadt = NULL;
 		}
 	}
+	check_road_tiles(false);
 }
 
 

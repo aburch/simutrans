@@ -352,6 +352,8 @@ private:
 	// create some smoke on the map
 	void smoke() const;
 
+	void mark_connected_roads(bool del);
+
 	/**
 	 * increase the amount for a time delta_t scaled to a fixed time PRODUCTION_DELTA_T
 	 * @author Hj. Malthaner - original

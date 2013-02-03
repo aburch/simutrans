@@ -104,6 +104,7 @@ private:
 	uint16 passengers_succeeded_non_local;
 	uint8 passenger_success_percent_last_year_non_local;
 
+	void check_road_tiles(bool del);
 
 protected:
 	gebaeude_t(karte_t *welt);

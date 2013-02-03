@@ -20,6 +20,7 @@
 #include "simcolor.h"
 #include "boden/grund.h"
 #include "boden/boden.h"
+#include "boden/wege/strasse.h"
 #include "boden/fundament.h"
 #include "simfab.h"
 #include "simcity.h"
@@ -669,7 +670,6 @@ fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
 	}
 }
 
-
 fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabesch) :
 	welt(spieler->get_welt()),
 	besch(fabesch),
@@ -792,6 +792,40 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 	update_scaled_electric_amount();
 	update_scaled_pax_demand();
 	update_scaled_mail_demand();
+	mark_connected_roads(false);
+}
+
+void fabrik_t::mark_connected_roads(bool del)
+{
+	grund_t* gr;
+	vector_tpl<koord> tile_list;
+	get_tile_list(tile_list);
+	FOR(vector_tpl<koord>, const k, tile_list)
+	{
+		for(uint8 i = 0; i < 8; i ++)
+		{
+			// Check for connected roads. Only roads in immediately neighbouring tiles
+			// and only those on the same height will register a connexion.
+			koord3d pos3d(k + k.neighbours[i], pos.z);
+			gr = welt->lookup(pos3d);
+			if(!gr)
+			{
+				continue;
+			}
+			strasse_t* str = (strasse_t*)gr->get_weg(road_wt);
+			if(str)
+			{
+				if(del)
+				{
+					str->connected_factories.remove(this);
+				}
+				else
+				{
+					str->connected_factories.append_unique(this);
+				}
+			}
+		}
+	}
 }
 
 void fabrik_t::delete_all_fields()
@@ -817,6 +851,7 @@ void fabrik_t::delete_all_fields()
 
 fabrik_t::~fabrik_t()
 {
+	mark_connected_roads(true);
 	delete_all_fields();
 
 	if(city != NULL)
@@ -1028,7 +1063,7 @@ bool fabrik_t::ist_bauplatz(karte_t *welt, koord pos, koord groesse,bool wasser,
 	return false;
 }
 
-
+// "Are there any?" (Google Translate)
 vector_tpl<fabrik_t *> &fabrik_t::sind_da_welche(karte_t *welt, koord min_pos, koord max_pos)
 {
 	static vector_tpl <fabrik_t*> fablist(16);
@@ -1997,6 +2032,8 @@ void fabrik_t::neuer_monat()
 
 	city = c;
 
+	mark_connected_roads(false);
+
 	// Check to see whether factory is obsolete.
 	// If it is, give it a chance of being closed down.
 	// @author: jamespetts
@@ -2422,6 +2459,7 @@ void fabrik_t::laden_abschliessen()
 	update_prodfactor_pax();
 	update_prodfactor_mail();
 	recalc_demands_at_target_cities();
+	mark_connected_roads(false);
 }
 
 

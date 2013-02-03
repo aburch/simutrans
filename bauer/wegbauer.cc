@@ -2216,8 +2216,10 @@ void wegbauer_t::baue_strasse()
 		gr->calc_bild();	// because it may be a crossing ...
 		reliefkarte_t::get_karte()->calc_map_pixel(k);
 		spieler_t::accounting(sp, cost, k, COST_CONSTRUCTION);
+
 	} // for
 	welt->set_recheck_road_connexions();
+
 }
 
 

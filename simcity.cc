@@ -2886,61 +2886,6 @@ uint16 stadt_t::check_road_connexion_to(const fabrik_t* industry)
 	}
 
 	return 65535;
-
-	// TODO: Remove the rest of the substance of this when the new system is fully set up and tested.
-
-	/*vector_tpl<koord> industry_tiles;
-	industry->get_tile_list(industry_tiles);
-	weg_t* road = NULL;
-	ITERATE(industry_tiles, n)
-	{
-		const koord pos = industry_tiles.get_element(n);
-		grund_t *gr;
-		for(uint8 i = 0; i < 16; i ++)
-		{
-			koord3d pos3d(pos + pos.second_neighbours[i], welt->lookup_hgt(pos + pos.second_neighbours[i]));
-			gr = welt->lookup(pos3d);
-			if(!gr)
-			{
-				pos3d.z ++;
-				gr = welt->lookup(pos3d);
-				if(!gr)
-				{
-					continue;
-				}
-			}
-			road = gr->get_weg(road_wt);
-			if(road != NULL)
-			{
-				const koord3d destination = road->get_pos();
-				const uint16 journey_time_per_tile = check_road_connexion(destination);
-				connected_industries.put(industry->get_pos().get_2d(), journey_time_per_tile);
-				if(journey_time_per_tile == 65535)
-				{
-					// We know that, if this city is not connected to any given industry, then every city
-					// to which this city is connected must likewise not be connected. So, avoid
-					// unnecessary recalculation by propogating this now.
-					FOR(connexion_map, const& iter, connected_cities)
-					{
-						welt->get_city(iter.key)->set_no_connexion_to_industry(industry);
-					}
-				}
-				return journey_time_per_tile;
-			}
-		}
-	}
-
-	// No road connecting to industry - no connexion at all.
-	// We should therefore set *every* city to register this
-	// industry as unconnected.
-	
-	const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
-	for(weighted_vector_tpl<stadt_t*>::const_iterator j = staedte.begin(), end = staedte.end(); j != end; ++j) 
-	{
-		(*j)->set_no_connexion_to_industry(industry);
-	}
-	return 65535;*/
-
 }
 
 uint16 stadt_t::check_road_connexion_to(const gebaeude_t* attraction)
@@ -2980,15 +2925,6 @@ uint16 stadt_t::check_road_connexion_to(const gebaeude_t* attraction)
 	}
 	if(road == NULL)
 	{
-		// No road connecting to attraction - no connexion at all.
-		// We should therefore set *every* city to register this
-		// industry as unconnected.
-		
-		const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
-		for(weighted_vector_tpl<stadt_t*>::const_iterator j = staedte.begin(), end = staedte.end(); j != end; ++j) 
-		{
-			(*j)->set_no_connexion_to_attraction(attraction);
-		}
 		return 65535;
 	}
 
@@ -3022,22 +2958,22 @@ void stadt_t::add_road_connexion(uint16 journey_time_per_tile, const stadt_t* ci
 	connected_cities.set(city->get_pos(), journey_time_per_tile);
 }
 
-void stadt_t::set_no_connexion_to_industry(const fabrik_t* unconnected_industry)
+void stadt_t::add_road_connexion(uint16 journey_time_per_tile, const fabrik_t* industry)
 {
 	if(this == NULL)
 	{
 		return;
 	}
-	connected_industries.set(unconnected_industry->get_pos().get_2d(), 65535);
+	connected_industries.set(industry->get_pos().get_2d(), journey_time_per_tile);
 }
 
-void stadt_t::set_no_connexion_to_attraction(const gebaeude_t* unconnected_attraction)
+void stadt_t::add_road_connexion(uint16 journey_time_per_tile, const gebaeude_t* attraction)
 {
 	if(this == NULL)
 	{
 		return;
 	}
-	connected_attractions.set(unconnected_attraction->get_pos().get_2d(), 65535);
+	connected_attractions.set(attraction->get_pos().get_2d(), journey_time_per_tile);
 }
 
 
@@ -5598,9 +5534,6 @@ ribi_t::ribi private_car_destination_finder_t::get_ribi(const grund_t* gr) const
 
 bool private_car_destination_finder_t::ist_ziel(const grund_t* gr, const grund_t*)
 {
-	// This must return false to ensure that the route check continues.
-	// Thanks to Prissi for this ingenious suggestion.
-
 	if(!gr)
 	{
 		return false;
@@ -5609,7 +5542,7 @@ bool private_car_destination_finder_t::ist_ziel(const grund_t* gr, const grund_t
 	const koord k = gr->get_pos().get_2d();
 	const stadt_t* city = welt->lookup(k)->get_city();
 
-	// TODO: Check also for non-city attractions and industries.
+	// TODO: Check also for non-city attractions
 	// Might be necessary to store connexion information in road
 	// tiles, as it might take a long time to search each tile here.
 
@@ -5617,6 +5550,12 @@ bool private_car_destination_finder_t::ist_ziel(const grund_t* gr, const grund_t
 	{
 		// We use a different system for determining travel speeds in the current city.
 
+		return true;
+	}
+
+	const strasse_t* str = (strasse_t*)gr->get_weg(road_wt);
+	if(str->connected_factories.get_count() > 0)
+	{
 		return true;
 	}
 
