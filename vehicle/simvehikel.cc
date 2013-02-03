@@ -891,7 +891,7 @@ vehikel_t::unload_freight(halthandle_t halt)
 										// If the stop is located outside the city, but the passengers
 										// come from a city, they will not record as transported.
 										origin_pos = tmp.get_origin()->get_init_pos();
-										origin_city = welt->get_city(origin_pos);
+										origin_city = welt->lookup(origin_pos)->get_city();
 									}
 									
 									if(!origin_city)
