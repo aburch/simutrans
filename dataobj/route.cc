@@ -147,6 +147,7 @@ static bool is_in_list(vector_tpl<route_t::ANode*> const& list, grund_t const* c
 uint32 route_t::MAX_STEP=0;
 uint32 route_t::max_used_steps=0;
 route_t::ANode *route_t::_nodes[MAX_NODES_ARRAY];
+route_t::DNode *route_t::_dnodes[MAX_NODES_ARRAY];
 bool route_t::_nodes_in_use[MAX_NODES_ARRAY]; // semaphores, since we only have few nodes arrays in memory
 
 void route_t::INIT_NODES(uint32 max_route_steps, uint32 world_width, uint32 world_height)
@@ -165,6 +166,22 @@ void route_t::INIT_NODES(uint32 max_route_steps, uint32 world_width, uint32 worl
 	}
 }
 
+void route_t::INIT_DNODES(uint32 max_route_steps, uint32 world_width, uint32 world_height)
+{
+	for (int i = 0; i < MAX_NODES_ARRAY; ++i)
+	{
+		_dnodes[i] = NULL;
+		_nodes_in_use[i] = false;
+	}
+
+	// may need very much memory => configurable
+	MAX_STEP = min(max_route_steps, world_width * world_height); 
+	for (int i = 0; i < MAX_NODES_ARRAY; ++i)
+	{
+		_dnodes[i] = new DNode[MAX_STEP + 4 + 2];
+	}
+}
+
 void route_t::TERM_NODES()
 {
 	if (MAX_STEP)
@@ -179,6 +196,20 @@ void route_t::TERM_NODES()
 	}
 }
 
+void route_t::TERM_DNODES()
+{
+	if (MAX_STEP)
+	{
+		MAX_STEP = 0;
+		for (int i = 0; i < MAX_NODES_ARRAY; ++i)
+		{
+			delete [] _dnodes[i];
+			_dnodes[i] = NULL;
+			_nodes_in_use[i] = false;
+		}
+	}
+}
+
 uint8 route_t::GET_NODES(ANode **nodes) 
 {
 	for (int i = 0; i < MAX_NODES_ARRAY; ++i)
@@ -186,6 +217,19 @@ uint8 route_t::GET_NODES(ANode **nodes)
 		{
 			_nodes_in_use[i] = true;
 			*nodes = _nodes[i];
+			return i;
+		}
+	dbg->fatal("GET_NODE","called while list in use");
+	return 0;
+}
+
+uint8 route_t::GET_DNODES(DNode **nodes) 
+{
+	for (int i = 0; i < MAX_NODES_ARRAY; ++i)
+		if (!_nodes_in_use[i])
+		{
+			_nodes_in_use[i] = true;
+			*nodes = _dnodes[i];
 			return i;
 		}
 	dbg->fatal("GET_NODE","called while list in use");
@@ -222,7 +266,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 	// memory in static list ...
 	if(!MAX_STEP)
 	{
-		INIT_NODES(welt->get_settings().get_max_route_steps(), welt->get_groesse_x(), welt->get_groesse_y());
+		INIT_DNODES(welt->get_settings().get_max_route_steps(), welt->get_groesse_x(), welt->get_groesse_y());
 	}
 
 	INT_CHECK("route 227");
@@ -237,16 +281,16 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 	// however, only binary heap and HOT queue with binary heap are worth considering
 #if defined(tpl_HOT_queue_tpl_h)
     // static 
-	HOT_queue_tpl <ANode *> queue;
+	HOT_queue_tpl <DNode *> queue;
 #elif defined(tpl_binary_heap_tpl_h)
     //static 
-	binary_heap_tpl <ANode *> queue;
+	binary_heap_tpl <DNode *> queue;
 #elif defined(tpl_sorted_heap_tpl_h)
     //static 
-	sorted_heap_tpl <ANode *> queue;
+	sorted_heap_tpl <DNode *> queue;
 #else
     //static 
-	prioqueue_tpl <ANode *> queue;
+	prioqueue_tpl <DNode *> queue;
 #endif
 
 	// nothing in lists
@@ -261,11 +305,11 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 		return false;
 	}
 
-	ANode *nodes;
-	uint8 ni = GET_NODES(&nodes);
+	DNode *nodes;
+	uint8 ni = GET_DNODES(&nodes);
 
 	uint32 step = 0;
-	ANode* tmp = &nodes[step++];
+	DNode* tmp = &nodes[step++];
 	if (route_t::max_used_steps < step)
 	{
 		route_t::max_used_steps = step;
@@ -287,7 +331,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 			INT_CHECK("route 264");
 		}
 
-		ANode *test_tmp = queue.pop();
+		DNode *test_tmp = queue.pop();
 
 		// already in open or closed (i.e. all processed nodes) list?
 		if(welt->ist_markiert(test_tmp->gr))
@@ -338,7 +382,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 				}
 
 				// not in there or taken out => add new
-				ANode* k = &nodes[step++];
+				DNode* k = &nodes[step++];
 				if (route_t::max_used_steps < step)
 				{
 					route_t::max_used_steps = step;
@@ -357,7 +401,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 		// ok, now no more restrains
 		start_dir = ribi_t::alle;
 
-	} while(!queue.empty()  &&  step < MAX_STEP  &&  queue.get_count() < max_depth);
+	} while(!queue.empty() && step < MAX_STEP  &&  queue.get_count() < max_depth);
 
 	INT_CHECK("route 330");
 
@@ -367,7 +411,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 	{
 		if(  step >= MAX_STEP  ) 
 		{
-			dbg->warning("route_t::find_route()","Too many steps (%i>=max %i) in route (too long/complex)",step,MAX_STEP);
+			dbg->warning("route_t::find_route()","Too many steps (%i>=max %i) in route (too long/complex)", step, MAX_STEP);
 		}
 	}
 	else
@@ -377,7 +421,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 		route.resize(tmp->count+16);
 		while(tmp != NULL) 
 		{
-			route.store_at( tmp->count, tmp->gr->get_pos() );
+			route.store_at(tmp->count, tmp->gr->get_pos());
 //DBG_DEBUG("add","%i,%i",tmp->pos.x,tmp->pos.y);
 			tmp = tmp->parent;
 		}

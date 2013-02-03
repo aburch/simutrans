@@ -41,7 +41,7 @@ private:
 	// Bernd Gabriel, Mar 10, 2010: weight limit info
 	uint32 max_weight;
 public:
-	// this class save the nodes during route search
+	// this class save the nodes during A* route search (calc_route)
 	class ANode {
 	public:
 		ANode * parent;
@@ -60,17 +60,37 @@ public:
 #endif
 	};
 
+		// this class save the nodes during Dijkstra's Algorithm route search (find_route)
+	class DNode {
+	public:
+		DNode * parent;
+		const grund_t* gr;
+		uint32 g;
+		uint8 dir;
+		uint16 count;
+
+		inline bool operator <= (const DNode &k) const { return g<=k.g; }
+#if defined(tpl_HOT_queue_tpl_h)
+		inline bool is_matching(const DNode &l) const { return gr==l.gr; }
+#endif
+	};
+
+// These will need to be made non-static if this is ever to be threaded.
 private:
 	static const uint8 MAX_NODES_ARRAY = 2;
-	static ANode *_nodes[MAX_NODES_ARRAY];
+	static ANode *_nodes[MAX_NODES_ARRAY]; 
+	static DNode *_dnodes[MAX_NODES_ARRAY];
 	static bool _nodes_in_use[MAX_NODES_ARRAY]; // semaphores, since we only have few nodes arrays in memory
 public:
 	static uint32 MAX_STEP;
 	static uint32 max_used_steps;
 	static void INIT_NODES(uint32 max_route_steps, uint32 world_width, uint32 world_height);
+	static void INIT_DNODES(uint32 max_route_steps, uint32 world_width, uint32 world_height);
 	static uint8 GET_NODES(ANode **nodes); 
+	static uint8 GET_DNODES(DNode **nodes); 
 	static void RELEASE_NODES(uint8 nodes_index);
 	static void TERM_NODES();
+	static void TERM_DNODES();
 
 	static inline uint32 calc_distance( const koord3d p1, const koord3d p2 )
 	{

@@ -1514,7 +1514,6 @@ stadt_t::~stadt_t()
 	// close info win
 	destroy_win((long)this);
 
-	welt->remove_townhall_road(pos);
 	check_city_tiles(true);
 
 	// Empty the list of city cars
