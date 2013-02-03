@@ -1212,6 +1212,13 @@ void stadt_t::check_city_tiles(bool del)
 			planquadrat_t* plan = welt->access(k);
 			if(plan)
 			{
+				// A city might be inside a city. The inner city
+				// should mark/unmark the tiles in that case.
+				const stadt_t* other_city = plan->get_city();
+				if(other_city != NULL && other_city != this && is_within_city_limits(other_city->get_pos()))
+				{
+					continue;
+				}
 				if(!del)
 				{
 					plan->set_city(this);
@@ -1679,8 +1686,6 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 	private_car_update_month = welt->step_next_private_car_update_month();
 
 	number_of_cars = 0;
-
-	welt->add_townhall_road(this);
 }
 
 
@@ -1746,8 +1751,6 @@ stadt_t::stadt_t(karte_t* wl, loadsave_t* file) :
 	calc_internal_passengers();
 
 	check_road_connexions = false;
-	
-	welt->add_townhall_road(this);
 }
 
 
@@ -5609,14 +5612,13 @@ bool private_car_destination_finder_t::ist_ziel(const grund_t* gr, const grund_t
 	}
 
 	const koord k = gr->get_pos().get_2d();
-	const stadt_t* city = welt->check_townhall_road(k);
-
+	const stadt_t* city = welt->lookup(k)->get_city();
 
 	// TODO: Check also for non-city attractions and industries.
 	// Might be necessary to store connexion information in road
 	// tiles, as it might take a long time to search each tile here.
 
-	if(city && city != origin_city)
+	if(city && city != origin_city && city->get_townhall_road() == k)
 	{
 		// We use a different system for determining travel speeds in the current city.
 

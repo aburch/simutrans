@@ -6925,28 +6925,6 @@ sint64 karte_t::ticks_to_seconds(sint64 ticks) const
 	return get_settings().get_meters_per_tile() * ticks * 30L * 6L / (4096L * 1000L);
 }
 
-void karte_t::add_townhall_road(stadt_t* city)
-{
-	townhall_roads.put(city->get_townhall_road(), city);
-}
-
-void karte_t::remove_townhall_road(koord k)
-{
-	townhall_roads.remove(k);
-}
-
-stadt_t* karte_t::check_townhall_road(koord k)
-{
-	if(townhall_roads.is_contained(k))
-	{
-		return townhall_roads.get(k);
-	}
-	else
-	{
-		return NULL;
-	}
-}
-
 static bool sort_ware_by_name(const ware_besch_t* a, const ware_besch_t* b)
 {
 	int diff = strcmp(translator::translate(a->get_name()), translator::translate(b->get_name()));
