@@ -1204,9 +1204,9 @@ void stadt_t::check_city_tiles(bool del)
 	const sint16 limit_north = lo.y;
 	const sint16 limit_south = ur.y;
 
-	for(int x = limit_west; x < limit_east; x++)
+	for(int x = limit_west; x <= limit_east; x++)
 	{
-		for(int y = limit_north; y < limit_south; y++)
+		for(int y = limit_north; y <= limit_south; y++)
 		{
 			const koord k(x, y);
 			planquadrat_t* plan = welt->access(k);
@@ -1215,9 +1215,20 @@ void stadt_t::check_city_tiles(bool del)
 				// A city might be inside a city. The inner city
 				// should mark/unmark the tiles in that case.
 				const stadt_t* other_city = plan->get_city();
-				if(other_city != NULL && other_city != this && is_within_city_limits(other_city->get_pos()))
+				if(other_city != NULL && other_city != this && (is_within_city_limits(other_city->get_pos()) || k == other_city->get_townhall_road()) && !del)
 				{
-					continue;
+					if(other_city->is_within_city_limits(pos) && k != other_city->get_townhall_road())
+					{
+						// Double overlapping cities. Return the smallest.
+						if(other_city->get_einwohner() < get_einwohner())
+						{
+							continue;
+						}
+					}
+					else
+					{
+						continue;
+					}
 				}
 				if(!del)
 				{
@@ -1225,7 +1236,10 @@ void stadt_t::check_city_tiles(bool del)
 				}
 				else
 				{
-					plan->set_city(NULL);
+					if(plan->get_city() == this)
+					{
+						plan->set_city(NULL);
+					}
 				}
 			}
 		}
