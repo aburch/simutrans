@@ -939,7 +939,15 @@ void karte_t::create_rivers( sint16 number )
 	}
 }
 
+void karte_t::remove_queued_city(stadt_t* city)
+{
+	cities_awaiting_private_car_route_check.remove(city);
+}
 
+void karte_t::add_queued_city(stadt_t* city)
+{
+	cities_awaiting_private_car_route_check.append(city);
+}
 
 void karte_t::distribute_groundobjs_cities( settings_t const * const sets, sint16 old_x, sint16 old_y)
 {
@@ -3338,7 +3346,13 @@ void karte_t::neuer_monat()
 	//	DBG_MESSAGE("karte_t::neuer_monat()","cities");
 	stadt.update_weights(get_population);
 	sint32 outstanding_cars = 0;
-	FOR(weighted_vector_tpl<stadt_t*>, const s, stadt) {
+	FOR(weighted_vector_tpl<stadt_t*>, const s, stadt) 
+	{
+		recheck_road_connexions = true; // Always on for TESTing purposes
+		if(recheck_road_connexions) 
+		{
+			cities_awaiting_private_car_route_check.append_unique(s);
+		}
 		s->neuer_monat(recheck_road_connexions);
 		outstanding_cars += s->get_outstanding_cars();
 		//INT_CHECK("simworld 3117");
@@ -3790,6 +3804,14 @@ void karte_t::step()
 			INT_CHECK("karte_t::step 5");
 		}
 	}
+
+	if(cities_awaiting_private_car_route_check.get_count() > 0 && (steps % 12) == 0)
+	{
+		stadt_t* city = cities_awaiting_private_car_route_check.remove_first();
+		city->check_all_private_car_routes();
+		city->set_check_road_connexions(false);
+	}
+
 
 	// now step all towns (to generate passengers)
 	DBG_DEBUG4("karte_t::step 6", "step cities");
@@ -4734,6 +4756,7 @@ bool karte_t::laden(const char *filename)
 	mute_sound(true);
 	display_show_load_pointer(true);
 	loadsave_t file;
+	cities_awaiting_private_car_route_check.clear();
 
 	// clear hash table with missing paks (may cause some small memory loss though)
 	missing_pak_names.clear();

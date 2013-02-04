@@ -478,6 +478,8 @@ private:
 
 	// The last time when a server announce was performed (in ms)
 	uint32 server_last_announce_time;
+	
+	slist_tpl<stadt_t*> cities_awaiting_private_car_route_check;
 
 public:
 	// Announce server and current state to listserver
@@ -1321,6 +1323,9 @@ public:
 	
 	// @author: jamespetts
 	void set_scale();
+
+	void remove_queued_city(stadt_t* stadt);
+	void add_queued_city(stadt_t* stadt);
 
 #ifdef DEBUG_SIMRAND_CALLS
 	static vector_tpl<const char*> random_callers;

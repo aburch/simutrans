@@ -1530,6 +1530,8 @@ stadt_t::~stadt_t()
 
 	check_city_tiles(true);
 
+	welt->remove_queued_city(this);
+
 	// Empty the list of city cars
 	current_cars.clear();
 
@@ -2172,6 +2174,10 @@ void stadt_t::laden_abschliessen()
 	// resolve target factories
 	target_factories_pax.resolve_factories();
 	target_factories_mail.resolve_factories();
+	if(check_road_connexions)
+	{
+		welt->add_queued_city(this);
+	}
 }
 
 
@@ -2483,6 +2489,26 @@ void stadt_t::roll_history()
 	outgoing_private_cars = 0;
 }
 
+void stadt_t::check_all_private_car_routes()
+{
+	connected_cities.clear();
+	connected_industries.clear();
+	connected_attractions.clear();
+		
+	const uint32 depth = welt->get_max_road_check_depth();
+	const koord3d origin(townhall_road.x, townhall_road.y, welt->lookup_hgt(townhall_road));
+	// This will find the fastest route from the townhall road to *all* other townhall roads.
+	const sint64 TEST_time_before = dr_time();
+	route_t private_car_route;
+	private_car_route.find_route(welt, origin, &private_car_destination_finder_t(welt, &automobil_t(welt), this), welt->get_citycar_speed_average(), ribi_t::alle, 0, depth, true);
+	const sint64 TEST_time_after = dr_time();
+	const sint64 TEST_time_difference = TEST_time_after - TEST_time_before;
+	cbuffer_t buf;
+	buf.printf("Time for checking road connexions of %s: %ims", get_name(), TEST_time_difference);
+	welt->get_message()->add_message(buf, get_pos(), 0);
+
+	check_road_connexions = false;
+}
 
 void stadt_t::neuer_monat(bool check) //"New month" (Google)
 {
@@ -2561,23 +2587,7 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 
 	if(/*check_road_connexions && private_car_update_month == current_month*/ true)
 	{
-		connected_cities.clear();
-		connected_industries.clear();
-		connected_attractions.clear();
-		
-		const uint32 depth = welt->get_max_road_check_depth();
-		const koord3d origin(townhall_road.x, townhall_road.y, welt->lookup_hgt(townhall_road));
-		// This will find the fastest route from the townhall road to *all* other townhall roads.
-		const sint64 TEST_time_before = dr_time();
-		route_t private_car_route;
-		private_car_route.find_route(welt, origin, &private_car_destination_finder_t(welt, &automobil_t(welt), this), welt->get_citycar_speed_average(), ribi_t::alle, 0, depth, true);
-		const sint64 TEST_time_after = dr_time();
-		const sint64 TEST_time_difference = TEST_time_after - TEST_time_before;
-		cbuffer_t buf;
-		buf.printf("Time for checking road connexions of %s: %ims", get_name(), TEST_time_difference);
-		welt->get_message()->add_message(buf, get_pos(), 0);
-
-		check_road_connexions = false;
+		//check_all_private_car_routes();
 	}
 	
 	if (!stadtauto_t::list_empty()) 

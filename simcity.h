@@ -146,6 +146,7 @@ public:
 	static void cityrules_rdwr(loadsave_t *file);
 	static void privatecar_rdwr(loadsave_t *file);
 	static void electricity_consumption_rdwr(loadsave_t *file);
+	void set_check_road_connexions(bool value) { check_road_connexions = value; }
 
 private:
 	static karte_t *welt;
@@ -666,6 +667,8 @@ public:
 	void add_road_connexion(uint16 journey_time_per_tile, const stadt_t* city);
 	void add_road_connexion(uint16 journey_time_per_tile, const fabrik_t* industry);
 	void add_road_connexion(uint16 journey_time_per_tile, const gebaeude_t* attraction);
+
+	void check_all_private_car_routes();
 
 private:
 	/**
