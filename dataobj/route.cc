@@ -326,8 +326,17 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 				if(destination_city && destination_city->get_townhall_road() == k)
 				{
 					// This is a city destination.
-					const uint16 straight_line_distance = shortest_distance(origin_city->get_townhall_road(), k);
-					origin_city->add_road_connexion(tmp->g / straight_line_distance, welt->lookup(k)->get_city());
+					if(start.get_2d() == k)
+					{
+						// Very rare, but happens occasionally - two cities share a townhall road tile.
+						// Must treat specially in order to avoid a division by zero error
+						origin_city->add_road_connexion(10, destination_city);
+					}
+					else
+					{
+						const uint16 straight_line_distance = shortest_distance(origin_city->get_townhall_road(), k);
+						origin_city->add_road_connexion(tmp->g / straight_line_distance, welt->lookup(k)->get_city());
+					}
 				}
 				
 				const strasse_t* str = (strasse_t*)gr->get_weg(road_wt);
