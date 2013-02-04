@@ -123,6 +123,8 @@ void haltestelle_t::step_all()
 	}
 
 	if (status_step == RECONNECTING) {
+		// reconnecting finished, compute connected components in one sweep
+		rebuild_connected_components();
 		// reroute in next call
 		status_step = REROUTING;
 	}
@@ -297,12 +299,7 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 	welt = wl;
 
 	waren = (vector_tpl<ware_t> **)calloc( warenbauer_t::get_max_catg_index(), sizeof(vector_tpl<ware_t> *) );
-	connections = new vector_tpl<connection_t>[ warenbauer_t::get_max_catg_index() ];
-	serving_schedules = new uint8[ warenbauer_t::get_max_catg_index() ];
-
-	for ( uint8 i = 0; i < warenbauer_t::get_max_catg_index(); i++ ) {
-		serving_schedules[i] = 0;
-	}
+	all_links = new link_t[ warenbauer_t::get_max_catg_index() ];
 
 	status_color = COL_YELLOW;
 
@@ -342,12 +339,7 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 	last_catg_index = 255;
 
 	waren = (vector_tpl<ware_t> **)calloc( warenbauer_t::get_max_catg_index(), sizeof(vector_tpl<ware_t> *) );
-	connections = new vector_tpl<connection_t>[ warenbauer_t::get_max_catg_index() ];
-	serving_schedules = new uint8[ warenbauer_t::get_max_catg_index() ];
-
-	for ( uint8 i = 0; i < warenbauer_t::get_max_catg_index(); i++ ) {
-		serving_schedules[i] = 0;
-	}
+	all_links = new link_t[ warenbauer_t::get_max_catg_index() ];
 
 	status_color = COL_YELLOW;
 
@@ -434,8 +426,7 @@ haltestelle_t::~haltestelle_t()
 		}
 	}
 	free( waren );
-	delete[] connections;
-	delete[] serving_schedules;
+	delete[] all_links;
 
 	// routes may have changed without this station ...
 	verbinde_fabriken();
@@ -938,7 +929,7 @@ bool haltestelle_t::reroute_goods(sint16 &units_remaining)
 
 			// delete, if nothing connects here
 			if(  new_warray->empty()  ) {
-				if(  connections[last_catg_index].empty()  ) {
+				if(  all_links[last_catg_index].connections.empty()  ) {
 					// no connections from here => delete
 					delete new_warray;
 					new_warray = NULL;
@@ -1042,8 +1033,7 @@ sint32 haltestelle_t::rebuild_connections()
 
 	// Hajo: first, remove all old entries
 	for(  uint8 i=0;  i<warenbauer_t::get_max_catg_index();  i++  ){
-		connections[i].clear();
-		serving_schedules[i] = 0;
+		all_links[i].clear();
 		consecutive_halts[i].clear();
 	}
 	resort_freight_info = true;	// might result in error in routing
@@ -1153,7 +1143,7 @@ sint32 haltestelle_t::rebuild_connections()
 					previous_halt[catg_index] = current_halt;
 
 					// either add a new connection or update the weight of an existing connection where necessary
-					connection_t *const existing_connection = connections[catg_index].insert_unique_ordered( connection_t( current_halt, aggregate_weight ), connection_t::compare );
+					connection_t *const existing_connection = all_links[catg_index].connections.insert_unique_ordered( connection_t( current_halt, aggregate_weight ), connection_t::compare );
 					if(  existing_connection  &&  aggregate_weight<existing_connection->weight  ) {
 						existing_connection->weight = aggregate_weight;
 					}
@@ -1172,16 +1162,43 @@ sint32 haltestelle_t::rebuild_connections()
 		if(  !consecutive_halts[i].empty()  ) {
 			if(  consecutive_halts[i].get_count() == max_consecutive_halts_fpl[i]  ) {
 				// one schedule reaches all consecutive halts -> this is not transfer halt
-				serving_schedules[i] = 1u;
 			}
 			else {
-				serving_schedules[i] = 2u;
+				all_links[i].is_transfer = true;
 			}
 		}
 	}
 	return connections_searched;
 }
 
+
+void haltestelle_t::fill_connected_component(uint8 catg_idx, uint16 comp)
+{
+	if (all_links[catg_idx].catg_connected_component != UNDECIDED_CONNECTED_COMPONENT) {
+		// already connected
+		return;
+	}
+	all_links[catg_idx].catg_connected_component = comp;
+
+	FOR(vector_tpl<connection_t>, &c, all_links[catg_idx].connections) {
+		c.halt->fill_connected_component(catg_idx, comp);
+	}
+}
+
+
+void haltestelle_t::rebuild_connected_components()
+{
+	for(uint8 catg_idx = 0; catg_idx<warenbauer_t::get_max_catg_index(); catg_idx++) {
+		uint16 comp = 0;
+		FOR(slist_tpl<halthandle_t>, halt, alle_haltestellen) {
+			if (halt->all_links[catg_idx].catg_connected_component == UNDECIDED_CONNECTED_COMPONENT) {
+				// start recursion
+				halt->fill_connected_component(catg_idx, comp);
+				comp++;
+			}
+		}
+	}
+}
 
 /**
  * Data for route searching
@@ -1224,6 +1241,13 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 	// but we can only use a subset of these
 	static vector_tpl<halthandle_t> end_halts(16);
 	end_halts.clear();
+	// target halts are in these connected components
+	// we start from halts only in the same components
+	static vector_tpl<uint16> end_conn_comp(16);
+	end_conn_comp.clear();
+	// if one target halt is undefined, we have to start search from all halts
+	bool end_conn_comp_undefined = false;
+
 	for( uint32 h=0;  h<plan->get_haltlist_count();  ++h ) {
 		halthandle_t halt = halt_list[h];
 		if(  halt.is_bound()  &&  halt->is_enabled(ware_catg_idx)  ) {
@@ -1241,6 +1265,19 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 				}
 			}
 			end_halts.append(halt);
+
+			// check connected component of target halt
+			uint16 endhalt_conn_comp = halt->all_links[ware_catg_idx].catg_connected_component;
+			if (endhalt_conn_comp == UNDECIDED_CONNECTED_COMPONENT) {
+				// undefined: all start halts are probably connected to this target
+				end_conn_comp_undefined = true;
+			}
+			else {
+				// store connected component
+				if (!end_conn_comp_undefined) {
+					end_conn_comp.append_unique( endhalt_conn_comp );
+				}
+			}
 		}
 	}
 
@@ -1284,6 +1321,12 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 	for(  ;  allocation_pointer<start_halt_count;  ++allocation_pointer  ) {
 		halthandle_t start_halt = start_halts[allocation_pointer];
 
+		uint16 start_conn_comp = start_halt->all_links[ware_catg_idx].catg_connected_component;
+
+		if (!end_conn_comp_undefined   &&  start_conn_comp != 0xffff  &&  !end_conn_comp.is_contained( start_conn_comp  )){
+			// this start halt will not lead to any target
+			continue;
+		}
 		open_list.insert( route_node_t(start_halt, 0) );
 
 		halt_data_t & start_data = halt_data[ start_halt.get_id() ];
@@ -1298,7 +1341,8 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 	}
 
 	// here the normal routing with overcrowded stops is done
-	do {
+	while (!open_list.empty())
+	{
 		route_node_t current_node = open_list.pop();
 		// do not use aggregate_weight as it is _not_ the weight of the current_node
 		// there might be a heuristic weight added
@@ -1323,7 +1367,7 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 				return_ware->set_zwischenziel(current_halt_data.transfer);
 				// count the connected transfer halts (including end halt)
 				uint8 t = current_node.halt->is_transfer(ware_catg_idx);
-				FOR(vector_tpl<connection_t>, const& i, current_node.halt->connections[ware_catg_idx]) {
+				FOR(vector_tpl<connection_t>, const& i, current_node.halt->all_links[ware_catg_idx].connections) {
 					if (t > 1) {
 						break;
 					}
@@ -1356,7 +1400,7 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 			continue;
 		}
 
-		FOR(vector_tpl<connection_t>, const& current_conn, current_node.halt->connections[ware_catg_idx]) {
+		FOR(vector_tpl<connection_t>, const& current_conn, current_node.halt->all_links[ware_catg_idx].connections) {
 
 			// halt may have been deleted or joined => test if still valid
 			if(  !current_conn.halt.is_bound()  ) {
@@ -1436,8 +1480,7 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 
 		// indicate that the current halt is in closed list
 		current_halt_data.best_weight = 0;
-
-	} while(  !open_list.empty()  );
+	}
 
 	// if the loop ends, nothing was found
 	ware.set_ziel( halthandle_t() );
@@ -1510,10 +1553,20 @@ void haltestelle_t::search_route_resumable(  ware_t &ware   )
 			return;
 		}
 	}
+	// we start in this connected component
+	uint16 const conn_comp = all_links[ ware_catg_idx ].catg_connected_component;
+
 	// find suitable destination halt(s), if any
 	for( uint8 h=0;  h<plan->get_haltlist_count();  ++h  ) {
 		const halthandle_t halt = halt_list[h];
 		if(  halt.is_bound()  &&  halt->is_enabled(ware_catg_idx)  ) {
+
+			// test for connected component
+			uint16 const dest_comp = halt->all_links[ ware_catg_idx ].catg_connected_component;
+			if (dest_comp != UNDECIDED_CONNECTED_COMPONENT  &&  conn_comp != UNDECIDED_CONNECTED_COMPONENT  &&  conn_comp != dest_comp) {
+				continue;
+			}
+
 			// initialisations for destination halts => save some checking inside search loop
 			if(  markers[ halt.get_id() ]!=current_marker  ) {
 				// first time -> initialise marker and all halt data
@@ -1598,7 +1651,7 @@ void haltestelle_t::search_route_resumable(  ware_t &ware   )
 			continue;
 		}
 
-		FOR(vector_tpl<connection_t>, const& current_conn, current_node.halt->connections[ware_catg_idx]) {
+		FOR(vector_tpl<connection_t>, const& current_conn, current_node.halt->all_links[ware_catg_idx].connections) {
 			const uint16 reachable_halt_id = current_conn.halt.get_id();
 
 			const uint16 total_weight = current_weight + current_conn.weight;

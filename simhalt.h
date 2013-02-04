@@ -105,6 +105,14 @@ private:
 	slist_tpl<convoihandle_t> loading_here;
 	long last_loading_step;
 
+	koord init_pos;	// for halt without grounds, created during game initialisation
+
+	/**
+	 * Handle for ourselves. Can be used like the 'this' pointer
+	 * @author Hj. Malthaner
+	 */
+	halthandle_t self;
+
 public:
 	// add convoi to loading queue
 	void request_loading( convoihandle_t cnv );
@@ -174,14 +182,6 @@ public:
 	 */
 	static void destroy_all(karte_t *);
 
-private:
-	/**
-	 * Handle for ourselves. Can be used like the 'this' pointer
-	 * @author Hj. Malthaner
-	 */
-	halthandle_t self;
-
-public:
 	/**
 	 * Liste aller felder (Grund-Objekte) die zu dieser Haltestelle gehören
 	 * @author Hj. Malthaner
@@ -205,7 +205,9 @@ public:
 	 */
 	struct connection_t
 	{
+		/// directly reachable halt
 		halthandle_t halt;
+		/// best connection weight to reach this destination
 		uint16 weight;
 
 		connection_t() : weight(0) { }
@@ -216,24 +218,65 @@ public:
 		static bool compare(const connection_t &a, const connection_t &b) { return a.halt.get_id() < b.halt.get_id(); }
 	};
 
-	bool is_transfer(const uint8 catg) const { return serving_schedules[catg] > 1u; }
+	bool is_transfer(const uint8 catg) const { return all_links[catg].is_transfer; }
 
 private:
 	slist_tpl<tile_t> tiles;
 
-	koord init_pos;	// for halt without grounds, created during game initialisation
-
-	// List of all directly reachable halts with their respective connection weights
-	vector_tpl<connection_t>* connections;
 
 	/**
-	 * A transfer/interchange is a halt whereby ware can change line or lineless convoy.
-	 * Thus, if a halt is served by 2 or more schedules (of lines or lineless convoys)
-	 * for a particular ware type, it is a transfer/interchange for that ware type.
-	 * Route searching is accelerated by differentiating transfer and non-transfer halts.
-	 * @author Knightly
+	 * Stores information about link to cargo network of a certain category
 	 */
-	uint8 *serving_schedules;
+	struct link_t {
+		/// List of all directly reachable halts with their respective connection weights
+		vector_tpl<connection_t> connections;
+
+		/**
+		 * A transfer/interchange is a halt whereby ware can change line or lineless convoy.
+		 * Thus, if a halt is served by 2 or more schedules (of lines or lineless convoys)
+		 * for a particular ware type, it is a transfer/interchange for that ware type.
+		 * Route searching is accelerated by differentiating transfer and non-transfer halts.
+		 * @author Knightly
+		 */
+		bool is_transfer;
+
+		/**
+		 * Id of connected component in link graph.
+		 * Two halts are connected if and only if they belong to the same connected component.
+		 * Exception: if value == UNDECIDED_CONNECTED_COMPONENT, then we are in the middle of
+		 * recalculating the link graph.
+		 */
+		uint16 catg_connected_component;
+
+#		define UNDECIDED_CONNECTED_COMPONENT (0xffff)
+
+		link_t() { clear(); }
+
+		void clear()
+		{
+			connections.clear();
+			is_transfer = false;
+			catg_connected_component = UNDECIDED_CONNECTED_COMPONENT;
+		}
+	};
+
+	/// All links to networks of all freight categories, filled by rebuild_connected_components.
+	link_t* all_links;
+
+	/**
+	 * Fills in catg_connected_component values for all halts and all categories.
+	 * Uses depth-first search.
+	 */
+	static void rebuild_connected_components();
+
+	/**
+	 * Helper method: This halt (and all its connected neighbors) belong
+	 * to the same component.
+	 * @param catg category of cargo network
+	 * @param comp number of component
+	 */
+	void fill_connected_component(uint8 catg, uint16 comp);
+
 
 	// Array with different categries that contains all waiting goods at this stop
 	vector_tpl<ware_t> **waren;
@@ -354,11 +397,11 @@ public:
 
 	void make_public_and_join( spieler_t *sp );
 
-	vector_tpl<connection_t> const& get_pax_connections()  const { return connections[warenbauer_t::INDEX_PAS];  }
-	vector_tpl<connection_t> const& get_mail_connections() const { return connections[warenbauer_t::INDEX_MAIL]; }
+	vector_tpl<connection_t> const& get_pax_connections()  const { return all_links[warenbauer_t::INDEX_PAS].connections;  }
+	vector_tpl<connection_t> const& get_mail_connections() const { return all_links[warenbauer_t::INDEX_MAIL].connections; }
 
 	// returns the matchin warenziele
-	vector_tpl<connection_t> const& get_connections(uint8 const catg_index) const { return connections[catg_index]; }
+	vector_tpl<connection_t> const& get_connections(uint8 const catg_index) const { return all_links[catg_index].connections; }
 
 	const slist_tpl<fabrik_t*>& get_fab_list() const { return fab_list; }
 
