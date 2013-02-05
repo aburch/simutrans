@@ -121,7 +121,7 @@ void stadt_info_t::resize(const koord delta)
 
 	// calculate new minimaps size : expand horizontally or vertically ?
 	const karte_t* const welt = stadt_t::get_welt();
-	const float world_aspect = (float)welt->get_groesse_x() / (float)welt->get_groesse_y();
+	const float world_aspect = (float)welt->get_size().x / (float)welt->get_size().y;
 
 	const koord space = koord(get_fenstergroesse().x - PAX_DEST_X - PAX_DEST_MARGIN - 1, max( allow_growth.get_pos().y + LINESPACE+1 - 5, get_fenstergroesse().y - 166 - (D_BUTTON_HEIGHT+2)*row ));
 	const float space_aspect = (float)space.x / (float)space.y;
@@ -229,8 +229,8 @@ void stadt_info_t::reset_city_name()
 void stadt_info_t::init_pax_dest( array2d_tpl<uint8> &pax_dest )
 {
 	karte_t *welt = stadt_t::get_welt();
-	const int gr_x = welt->get_groesse_x();
-	const int gr_y = welt->get_groesse_y();
+	const int gr_x = welt->get_size().x;
+	const int gr_y = welt->get_size().y;
 	for(  sint16 y = 0;  y < minimaps_size.y;  y++  ) {
 		for(  sint16 x = 0;  x < minimaps_size.x;  x++  ) {
 			const grund_t *gr = welt->lookup_kartenboden( koord( (x * gr_x) / minimaps_size.x, (y * gr_y) / minimaps_size.y ) );
@@ -385,8 +385,8 @@ bool stadt_info_t::infowin_event(const event_t *ev)
 			mx -= PAX_DEST_X;
 			my -= PAX_DEST_Y;
 			const koord p = koord(
-				(mx * stadt->get_welt()->get_groesse_x()) / (minimaps_size.x),
-				(my * stadt->get_welt()->get_groesse_y()) / (minimaps_size.y));
+				(mx * stadt->get_welt()->get_size().x) / (minimaps_size.x),
+				(my * stadt->get_welt()->get_size().y) / (minimaps_size.y));
 			stadt->get_welt()->change_world_position( p );
 		}
 	}

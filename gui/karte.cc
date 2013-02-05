@@ -144,7 +144,7 @@ void reliefkarte_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoin
 			continue;
 		}
 
-		const int key = temp_stop.x + temp_stop.y*welt->get_groesse_x();
+		const int key = temp_stop.x + temp_stop.y*welt->get_size().x;
 		waypoint_hash.put( key );
 		// now get the offset
 		slist_tpl<schedule_t *>*pt_list = waypoint_hash.access(key);
@@ -175,7 +175,7 @@ void reliefkarte_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoin
 				}
 				if(  stops == 2  ) {
 					// append first stop too, when this is called for the first time
-					const int key = first_stop.x + first_stop.y*welt->get_groesse_x();
+					const int key = first_stop.x + first_stop.y*welt->get_size().x;
 					waypoint_hash.put( key );
 					slist_tpl<schedule_t *>*pt_list = waypoint_hash.access(key);
 					if(  !pt_list->is_contained( fpl )  ) {
@@ -440,7 +440,7 @@ void reliefkarte_t::karte_to_screen( koord &k ) const
 	}
 	if(isometric) {
 		// 45 rotate view
-		sint32 x = welt->get_groesse_y()*zoom_in + (sint32)(k.x-k.y) - 1;
+		sint32 x = welt->get_size().y*zoom_in + (sint32)(k.x-k.y) - 1;
 		k.y = k.x/2+k.y/2;
 		k.x = x;
 	}
@@ -457,7 +457,7 @@ inline void reliefkarte_t::screen_to_karte( koord &k ) const
 	k = koord( (k.x*zoom_out)/zoom_in, (k.y*zoom_out)/zoom_in );
 	if(isometric) {
 		k.y *= 2;
-		k.x = (sint16)(((sint32)k.x+(sint32)k.y-(sint32)welt->get_groesse_y())/2);
+		k.x = (sint16)(((sint32)k.x+(sint32)k.y-(sint32)welt->get_size().y)/2);
 		k.y = k.y - k.x;
 	}
 }
@@ -475,7 +475,7 @@ bool reliefkarte_t::change_zoom_factor(bool magnify)
 		else {
 			// check here for maximum zoom-out, otherwise there will be integer overflows
 			// with large maps as we calculate with sint16 coordinates ...
-			int max_zoom_in = min( 32767 / (2*get_welt()->get_groesse_max()), 16);
+			int max_zoom_in = min( 32767 / (2*get_welt()->get_size_max()), 16);
 			if(  zoom_in < max_zoom_in  ) {
 				zoom_in++;
 				zoomed = true;
@@ -900,8 +900,8 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 
 void reliefkarte_t::calc_map_groesse()
 {
-	koord size( welt->get_groesse_x(), 0 );
-	koord down( welt->get_groesse_x(), welt->get_groesse_y() );
+	koord size( welt->get_size().x, 0 );
+	koord down( welt->get_size().x, welt->get_size().y );
 	karte_to_screen( size );
 	karte_to_screen( down );
 	size.y = down.y;
@@ -944,8 +944,8 @@ void reliefkarte_t::calc_map()
 			relief->init( COL_BLACK );
 		}
 		koord k;
-		for(  k.y=0;  k.y < welt->get_groesse_y();  k.y++  ) {
-			for(  k.x=0;  k.x < welt->get_groesse_x();  k.x++  ) {
+		for(  k.y=0;  k.y < welt->get_size().y;  k.y++  ) {
+			for(  k.x=0;  k.x < welt->get_size().x;  k.x++  ) {
 				calc_map_pixel(k);
 			}
 		}
@@ -1150,10 +1150,10 @@ void reliefkarte_t::zeichnen(koord pos)
 			uint8 color;
 			for(  uint16 i = 0;  i < pax_dests->get_data_count();  i++  ) {
 				pax_dests->get_nonzero( i, pos, color );
-				min = koord((pos.x*welt->get_groesse_x())/PAX_DESTINATIONS_SIZE,
-				            (pos.y*welt->get_groesse_y())/PAX_DESTINATIONS_SIZE);
-				max = koord(((pos.x+1)*welt->get_groesse_x())/PAX_DESTINATIONS_SIZE,
-				            ((pos.y+1)*welt->get_groesse_y())/PAX_DESTINATIONS_SIZE);
+				min = koord((pos.x*welt->get_size().x)/PAX_DESTINATIONS_SIZE,
+				            (pos.y*welt->get_size().y)/PAX_DESTINATIONS_SIZE);
+				max = koord(((pos.x+1)*welt->get_size().x)/PAX_DESTINATIONS_SIZE,
+				            ((pos.y+1)*welt->get_size().y)/PAX_DESTINATIONS_SIZE);
 				pos = min;
 				do {
 					do {
@@ -1306,11 +1306,11 @@ void reliefkarte_t::zeichnen(koord pos)
 
 			koord p1( 0, 0 );
 			karte_to_screen( p1 );
-			koord p2( welt->get_groesse_x(), 0 );
+			koord p2( welt->get_size().x, 0 );
 			karte_to_screen( p2 );
-			koord p3( welt->get_groesse_x(), welt->get_groesse_y() );
+			koord p3( welt->get_size().x, welt->get_size().y );
 			karte_to_screen( p3 );
-			koord p4( 0, welt->get_groesse_y() );
+			koord p4( 0, welt->get_size().y );
 			karte_to_screen( p4 );
 
 			// top and bottom part
@@ -1477,7 +1477,7 @@ void reliefkarte_t::zeichnen(koord pos)
 			// with control, show only circles
 			if(  event_get_last_control_shift()!=2  ) {
 				// else elongate them ...
-				const int key = station->get_basis_pos().x + station->get_basis_pos().y * welt->get_groesse_x();
+				const int key = station->get_basis_pos().x + station->get_basis_pos().y * welt->get_size().x;
 				diagonal_dist = waypoint_hash.get( key ).get_count();
 				if(  diagonal_dist  ) {
 					diagonal_dist--;

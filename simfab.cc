@@ -895,8 +895,8 @@ void fabrik_t::remove_field_at(koord pos)
 bool fabrik_t::ist_bauplatz(karte_t *welt, koord pos, koord groesse,bool wasser,climate_bits cl)
 {
 	if(pos.x > 0 && pos.y > 0 &&
-		pos.x+groesse.x < welt->get_groesse_x() && pos.y+groesse.y < welt->get_groesse_y() &&
-		( wasser  ||  welt->ist_platz_frei(pos, groesse.x, groesse.y, NULL, cl) )&&
+		pos.x+groesse.x < welt->get_size().x && pos.y+groesse.y < welt->get_size().y &&
+		( wasser  ||  welt->square_is_free(pos, groesse.x, groesse.y, NULL, cl) )&&
 		!ist_da_eine(welt,pos-koord(5,5),pos+groesse+koord(3,3))) {
 
 		// check for water (no shore in sight!)

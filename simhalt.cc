@@ -398,8 +398,8 @@ haltestelle_t::~haltestelle_t()
 	uint16 const cov = welt->get_settings().get_station_coverage();
 	ul.x = max(0, ul.x - cov);
 	ul.y = max(0, ul.y - cov);
-	lr.x = min(welt->get_groesse_x(), lr.x + 1 + cov);
-	lr.y = min(welt->get_groesse_y(), lr.y + 1 + cov);
+	lr.x = min(welt->get_size().x, lr.x + 1 + cov);
+	lr.y = min(welt->get_size().y, lr.y + 1 + cov);
 	for(  int y=ul.y;  y<lr.y;  y++  ) {
 		for(  int x=ul.x;  x<lr.x;  x++  ) {
 			planquadrat_t *plan = welt->access(x,y);

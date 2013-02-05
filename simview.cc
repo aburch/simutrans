@@ -98,7 +98,7 @@ void karte_ansicht_t::display(bool force_dirty)
 	display_set_clip_wh( 0, menu_height, disp_width, disp_height-menu_height );
 
 	// redraw everything?
-	force_dirty = force_dirty || welt->ist_dirty();
+	force_dirty = force_dirty || welt->is_dirty();
 	welt->set_dirty_zurueck();
 	if(force_dirty) {
 		mark_rect_dirty_wc( 0, 0, display_get_width(), display_get_height() );
@@ -109,7 +109,7 @@ void karte_ansicht_t::display(bool force_dirty)
 	const int dpy_height = (disp_real_height*4)/IMG_SIZE;
 
 	// these are the values needed to go directly from a tile to the display
-	welt->set_ansicht_ij_offset(
+	welt->set_view_ij_offset(
 		koord( - disp_width/(2*IMG_SIZE) - disp_real_height/IMG_SIZE,
 					disp_width/(2*IMG_SIZE) - disp_real_height/IMG_SIZE	)
 	);
@@ -255,7 +255,7 @@ void karte_ansicht_t::display(bool force_dirty)
 	DBG_DEBUG4("karte_ansicht_t::display", "display pointer");
 	if(zeiger) {
 		// better not try to twist your brain to follow the retransformation ...
-		const koord diff = zeiger->get_pos().get_2d()-welt->get_world_position()-welt->get_ansicht_ij_offset();
+		const koord diff = zeiger->get_pos().get_2d()-welt->get_world_position()-welt->get_view_ij_offset();
 		const sint16 x = (diff.x-diff.y)*(IMG_SIZE/2) + const_x_off;
 		const sint16 y = (diff.x+diff.y)*(IMG_SIZE/4) - tile_raster_scale_y( zeiger->get_pos().z*TILE_HEIGHT_STEP, IMG_SIZE) + ((display_get_width()/IMG_SIZE)&1)*(IMG_SIZE/4) + const_y_off;
 		// mark the cursor position for all tools (except lower/raise)

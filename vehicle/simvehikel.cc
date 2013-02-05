@@ -207,11 +207,11 @@ vehikel_basis_t::vehikel_basis_t(karte_t *welt, koord3d pos):
 void vehikel_basis_t::rotate90()
 {
 	koord3d pos_cur = get_pos();
-	pos_cur.rotate90( welt->get_groesse_y()-1 );
+	pos_cur.rotate90( welt->get_size().y-1 );
 	set_pos( pos_cur );
 	// directions are counterclockwise to ribis!
 	fahrtrichtung = ribi_t::rotate90( fahrtrichtung );
-	pos_next.rotate90( welt->get_groesse_y()-1 );
+	pos_next.rotate90( welt->get_size().y-1 );
 	// new offsets: very tricky ...
 	sint8 new_dx = -dy*2;
 	dy = dx/2;
@@ -255,8 +255,8 @@ void vehikel_basis_t::verlasse_feld()
 		koord k;
 		bool ok = false;
 
-		for(k.y=0; k.y<welt->get_groesse_y(); k.y++) {
-			for(k.x=0; k.x<welt->get_groesse_x(); k.x++) {
+		for(k.y=0; k.y<welt->get_size().y; k.y++) {
+			for(k.x=0; k.x<welt->get_size().x; k.x++) {
 				grund_t *gr = welt->lookup( k )->get_boden_von_obj(this);
 				if(gr && gr->obj_remove(this)) {
 					dbg->warning("vehikel_basis_t::verlasse_feld()","removed vehicle typ %i (%p) from %d %d",get_name(), this, k.x, k.y);
@@ -637,8 +637,8 @@ void vehikel_t::rotate90()
 {
 	vehikel_basis_t::rotate90();
 	alte_fahrtrichtung = ribi_t::rotate90( alte_fahrtrichtung );
-	pos_prev.rotate90( welt->get_groesse_y()-1 );
-	last_stop_pos.rotate90( welt->get_groesse_y()-1 );
+	pos_prev.rotate90( welt->get_size().y-1 );
+	last_stop_pos.rotate90( welt->get_size().y-1 );
 }
 
 
@@ -2675,7 +2675,7 @@ bool waggon_t::is_weg_frei_choose_signal( signal_t *sig, const uint16 start_bloc
 #ifdef MAX_CHOOSE_BLOCK_TILES
 		if(  !target_rt.find_route( welt, cnv->get_route()->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, MAX_CHOOSE_BLOCK_TILES )  ) {
 #else
-		if(  !target_rt.find_route( welt, cnv->get_route()->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, welt->get_groesse_x()+welt->get_groesse_y() )  ) {
+		if(  !target_rt.find_route( welt, cnv->get_route()->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, welt->get_size().x+welt->get_size().y )  ) {
 #endif
 			// nothing empty or not route with less than MAX_CHOOSE_BLOCK_TILES tiles
 			target_halt = halthandle_t();

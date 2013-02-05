@@ -60,10 +60,10 @@ void sve_info_t::rdwr(loadsave_t *file)
 void loadsave_frame_t::action(const char *filename)
 {
 	if(do_load) {
-		welt->laden(filename);
+		welt->load(filename);
 	}
 	else {
-		welt->speichern( filename, loadsave_t::save_mode, umgebung_t::savegame_version_str, false );
+		welt->save( filename, loadsave_t::save_mode, umgebung_t::savegame_version_str, false );
 		welt->set_dirty();
 		welt->reset_timer();
 	}

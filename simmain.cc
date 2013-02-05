@@ -995,7 +995,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 	karte_t *welt = new karte_t();
 	karte_ansicht_t *view = new karte_ansicht_t(welt);
-	welt->set_ansicht( view );
+	welt->set_view( view );
 
 	// some messages about old vehicle may appear ...
 	welt->get_message()->set_message_flags(0, 0, 0, 0);
@@ -1030,7 +1030,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	setsimrand(dr_time(), dr_time());
 	clear_random_mode( 7 );	// allow all
 
-	if(  loadgame==""  ||  !welt->laden(loadgame.c_str())  ) {
+	if(  loadgame==""  ||  !welt->load(loadgame.c_str())  ) {
 		// create a default map
 		DBG_MESSAGE("init with default map","(failing will be a pak error!)");
 		// no autosave on initial map during the first six month ...

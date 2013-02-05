@@ -94,7 +94,7 @@ static inthashtable_tpl<uint32, char*> ground_texts;
 
 void grund_t::set_text(const char *text)
 {
-	const uint32 n = get_ground_text_key(pos,welt->get_groesse_y());
+	const uint32 n = get_ground_text_key(pos,welt->get_size().y);
 	if(  text  ) {
 		char *new_text = strdup(text);
 		free(ground_texts.remove(n));
@@ -117,7 +117,7 @@ const char *grund_t::get_text() const
 {
 	const char *result = 0;
 	if(  get_flag(has_text)  ) {
-		result = ground_texts.get( get_ground_text_key(pos,welt->get_groesse_y()) );
+		result = ground_texts.get( get_ground_text_key(pos,welt->get_size().y) );
 		if(result==NULL) {
 			return "undef";
 		}
@@ -422,7 +422,7 @@ void grund_t::sort_trees()
 
 void grund_t::rotate90()
 {
-	pos.rotate90( welt->get_groesse_y()-1 );
+	pos.rotate90( welt->get_size().y-1 );
 	slope = hang_t::rotate90( slope );
 	// then rotate the things on this tile
 	uint8 trees = 0, offset = 0;
@@ -450,9 +450,9 @@ void grund_t::finish_rotate90()
 	text_map ground_texts_rotating;
 	// first get the old hashes
 	FOR(text_map, iter, ground_texts) {
-		koord3d k = get_ground_koord3d_key( iter.key, welt->get_groesse_y() );
-		k.rotate90( welt->get_groesse_y()-1 );
-		ground_texts_rotating.put( get_ground_text_key(k,welt->get_groesse_x()), iter.value );
+		koord3d k = get_ground_koord3d_key( iter.key, welt->get_size().y );
+		k.rotate90( welt->get_size().y-1 );
+		ground_texts_rotating.put( get_ground_text_key(k,welt->get_size().x), iter.value );
 	}
 	ground_texts.clear();
 	// then transfer all rotated texts
@@ -469,7 +469,7 @@ void grund_t::enlarge_map( sint16, sint16 new_size_y )
 	text_map ground_texts_enlarged;
 	// we have recalculate the keys
 	FOR(text_map, iter, ground_texts) {
-		koord3d k = get_ground_koord3d_key( iter.key, welt->get_groesse_y() );
+		koord3d k = get_ground_koord3d_key( iter.key, welt->get_size().y );
 		ground_texts_enlarged.put( get_ground_text_key(k,new_size_y), iter.value );
 	}
 	ground_texts.clear();
@@ -653,7 +653,7 @@ void grund_t::mark_image_dirty()
 	if(bild_nr!=IMG_LEER) {
 		// better not try to twist your brain to follow the retransformation ...
 		const sint16 rasterweite=get_tile_raster_width();
-		const koord diff = pos.get_2d()-welt->get_world_position()-welt->get_ansicht_ij_offset();
+		const koord diff = pos.get_2d()-welt->get_world_position()-welt->get_view_ij_offset();
 		const sint16 x = (diff.x-diff.y)*(rasterweite/2);
 		const sint16 y = (diff.x+diff.y)*(rasterweite/4) + tile_raster_scale_y( -get_disp_height()*TILE_HEIGHT_STEP, rasterweite) + ((display_get_width()/rasterweite)&1)*(rasterweite/4);
 		// mark the region after the image as dirty

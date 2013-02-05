@@ -147,10 +147,10 @@ bool optionen_gui_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 	}
 	else if(comp==&bt_new) {
 		destroy_all_win( true );
-		welt->beenden(false);
+		welt->stop(false);
 	}
 	else if(comp==&bt_quit) {
-		welt->beenden(true);
+		welt->stop(true);
 	}
 	else {
 		// not our?

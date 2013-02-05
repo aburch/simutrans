@@ -685,11 +685,11 @@ void stadt_t::pruefe_grenzen(koord k)
 	if (lo.y < 0) {
 		lo.y = 0;
 	}
-	if (ur.x >= welt->get_groesse_x()) {
-		ur.x = welt->get_groesse_x()-1;
+	if ( ur.x >= welt->get_size().x ) {
+		ur.x = welt->get_size().x-1;
 	}
-	if (ur.y >= welt->get_groesse_y()) {
-		ur.y = welt->get_groesse_y()-1;
+	if ( ur.y >= welt->get_size().y ) {
+		ur.y = welt->get_size().y-1;
 	}
 }
 
@@ -733,11 +733,11 @@ void stadt_t::recalc_city_size()
 	if (lo.y < 0) {
 		lo.y = 0;
 	}
-	if (ur.x >= welt->get_groesse_x()) {
-		ur.x = welt->get_groesse_x()-1;
+	if (ur.x >= welt->get_size().x) {
+		ur.x = welt->get_size().x-1;
 	}
-	if (ur.y >= welt->get_groesse_y()) {
-		ur.y = welt->get_groesse_y()-1;
+	if (ur.y >= welt->get_size().y) {
+		ur.y = welt->get_size().y-1;
 	}
 }
 
@@ -978,7 +978,7 @@ stadt_t::~stadt_t()
 	}
 
 	// olny if there is still a world left to delete from
-	if(welt->get_groesse_x()>1) {
+	if( welt->get_size().x > 1 ) {
 
 		welt->lookup_kartenboden(pos)->set_text(NULL);
 
@@ -1946,8 +1946,8 @@ koord stadt_t::find_destination(factory_set_t &target_factories, const sint64 ge
 void stadt_t::merke_passagier_ziel(koord k, uint8 color)
 {
 	const koord p = koord(
-		((k.x * PAX_DESTINATIONS_SIZE) / welt->get_groesse_x()) & (PAX_DESTINATIONS_SIZE-1),
-		((k.y * PAX_DESTINATIONS_SIZE) / welt->get_groesse_y()) & (PAX_DESTINATIONS_SIZE-1)
+		((k.x * PAX_DESTINATIONS_SIZE) / welt->get_size().x) & (PAX_DESTINATIONS_SIZE-1),
+		((k.y * PAX_DESTINATIONS_SIZE) / welt->get_size().y) & (PAX_DESTINATIONS_SIZE-1)
 	);
 	pax_destinations_new_change ++;
 	pax_destinations_new.set(p, color);
@@ -1969,7 +1969,7 @@ class bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t
 		int find_dist_next_special(koord pos) const
 		{
 			const weighted_vector_tpl<gebaeude_t*>& attractions = welt->get_ausflugsziele();
-			int dist = welt->get_groesse_x() * welt->get_groesse_y();
+			int dist = welt->get_size().x * welt->get_size().y;
 			FOR(  weighted_vector_tpl<gebaeude_t*>, const i, attractions  ) {
 				int const d = koord_distance(i->get_pos(), pos);
 				if(  d < dist  ) {
@@ -2988,15 +2988,15 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl,
 	}
 	DBG_DEBUG("karte_t::init()", "get random places in climates %x", cl);
 	// search at least places which are 5x5 squares large
-	slist_tpl<koord>* list = wl->finde_plaetze( 5, 5, (climate_bits)cl, old_x, old_y);
+	slist_tpl<koord>* list = wl->find_squares( 5, 5, (climate_bits)cl, old_x, old_y);
 	DBG_DEBUG("karte_t::init()", "found %i places", list->get_count());
 	vector_tpl<koord>* result = new vector_tpl<koord>(anzahl);
 
 	// pre processed array: max 1 city from each square can be built
 	// each entry represents a cell of minimum_city_distance/2 length and width
 	const uint32 minimum_city_distance = wl->get_settings().get_minimum_city_distance();
-	const uint32 xmax = (2*wl->get_groesse_x())/minimum_city_distance+1;
-	const uint32 ymax = (2*wl->get_groesse_y())/minimum_city_distance+1;
+	const uint32 xmax = (2*wl->get_size().x)/minimum_city_distance+1;
+	const uint32 ymax = (2*wl->get_size().y)/minimum_city_distance+1;
 	array2d_tpl< vector_tpl<koord> > places(xmax, ymax);
 	while (!list->empty()) {
 		const koord k = list->remove_first();
@@ -3015,8 +3015,8 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl,
 	// post-processing array:
 	// each entry represents a cell of minimum_city_distance length and width
 	// to limit the search for neighboring cities
-	const uint32 xmax2 = wl->get_groesse_x()/minimum_city_distance+1;
-	const uint32 ymax2 = wl->get_groesse_y()/minimum_city_distance+1;
+	const uint32 xmax2 = wl->get_size().x/minimum_city_distance+1;
+	const uint32 ymax2 = wl->get_size().y/minimum_city_distance+1;
 	array2d_tpl< vector_tpl<koord> > result_places(xmax2, ymax2);
 
 	for (int i = 0; i < anzahl; i++) {

@@ -1478,7 +1478,7 @@ void win_display_flush(double konto)
 	// @author prissi - also show date if desired
 	// since seaons 0 is always summer for backward compatibility
 	static char const* const seasons[] = { "q2", "q3", "q4", "q1" };
-	char const* const season = translator::translate(seasons[wl->get_jahreszeit()]);
+	char const* const season = translator::translate(seasons[wl->get_season()]);
 	char const* const month_ = translator::get_month_name(month % 12);
 	switch (umgebung_t::show_month) {
 		case umgebung_t::DATE_FMT_GERMAN_NO_SEASON:
@@ -1532,9 +1532,9 @@ void win_display_flush(double konto)
 	}
 
 	// season color
-	display_color_img( skinverwaltung_t::seasons_icons->get_bild_nr(wl->get_jahreszeit()), 2, disp_height-15, 0, false, true );
+	display_color_img( skinverwaltung_t::seasons_icons->get_bild_nr(wl->get_season()), 2, disp_height-15, 0, false, true );
 	if(  tooltip_check  &&  tooltip_xpos<14  ) {
-		tooltip_text = translator::translate(seasons[wl->get_jahreszeit()]);
+		tooltip_text = translator::translate(seasons[wl->get_season()]);
 		tooltip_check = false;
 	}
 

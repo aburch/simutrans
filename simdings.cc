@@ -108,8 +108,8 @@ ding_t::~ding_t()
 
 		// then search entire map
 		koord k;
-		for(k.y=0; k.y<welt->get_groesse_y(); k.y++) {
-			for(k.x=0; k.x<welt->get_groesse_x(); k.x++) {
+		for(k.y=0; k.y<welt->get_size().y; k.y++) {
+			for(k.x=0; k.x<welt->get_size().x; k.x++) {
 				grund_t *gr = welt->access(k)->get_boden_von_obj(this);
 				if (gr && gr->obj_remove(this)) {
 					dbg->warning("ding_t::~ding_t()",
@@ -264,7 +264,7 @@ void ding_t::display(int xpos, int ypos) const
 void ding_t::rotate90()
 {
 	// most basic: rotate coordinate
-	pos.rotate90( welt->get_groesse_y()-1 );
+	pos.rotate90( welt->get_size().y-1 );
 	if(xoff!=0) {
 		sint8 new_dx = -2*yoff;
 		yoff = xoff/2;
@@ -324,7 +324,7 @@ void ding_t::mark_image_dirty(image_id bild,sint16 yoff) const
 		}
 		// better not try to twist your brain to follow the retransformation ...
 		const sint16 rasterweite=get_tile_raster_width();
-		const koord diff = get_pos().get_2d()-welt->get_world_position()-welt->get_ansicht_ij_offset();
+		const koord diff = get_pos().get_2d()-welt->get_world_position()-welt->get_view_ij_offset();
 		const sint16 x = (diff.x-diff.y)*(rasterweite/2) + tile_raster_scale_x(get_xoff(), rasterweite) + xpos;
 		const sint16 y = (diff.x+diff.y)*(rasterweite/4) + tile_raster_scale_y( yoff+get_yoff()-get_pos().z*TILE_HEIGHT_STEP, rasterweite) + ((display_get_width()/rasterweite)&1)*(rasterweite/4) + ypos;
 		// mark the region after the image as dirty

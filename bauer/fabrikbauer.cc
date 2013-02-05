@@ -52,8 +52,8 @@ static void add_factory_to_fab_map(karte_t const* const welt, fabrik_t const* co
 	sint16       const  rotate  = fab->get_rotate();
 	sint16       const  start_y = max(0, pos.y - spacing);
 	sint16       const  start_x = max(0, pos.x - spacing);
-	sint16       const  end_y   = min(welt->get_groesse_y() - 1, pos.y + hbesch.get_h(rotate) + spacing);
-	sint16       const  end_x   = min(welt->get_groesse_x() - 1, pos.x + hbesch.get_b(rotate) + spacing);
+	sint16       const  end_y   = min(welt->get_size().y - 1, pos.y + hbesch.get_h(rotate) + spacing);
+	sint16       const  end_x   = min(welt->get_size().x - 1, pos.x + hbesch.get_b(rotate) + spacing);
 	for (sint16 y = start_y; y < end_y; ++y) {
 		for (sint16 x = start_x; x < end_x; ++x) {
 			fab_map[fab_map_w * y + x / 8] |= 1 << (x % 8);
@@ -66,16 +66,16 @@ static void add_factory_to_fab_map(karte_t const* const welt, fabrik_t const* co
 // create map with all factories and exclusion area
 void init_fab_map( karte_t *welt )
 {
-	fab_map_w = ((welt->get_groesse_x()+7)/8);
-	fab_map.resize( fab_map_w*welt->get_groesse_y() );
-	for( int i=0;  i<fab_map_w*welt->get_groesse_y();  i++ ) {
+	fab_map_w = ((welt->get_size().x+7)/8);
+	fab_map.resize( fab_map_w*welt->get_size().y );
+	for( int i=0;  i<fab_map_w*welt->get_size().y;  i++ ) {
 		fab_map[i] = 0;
 	}
 	FOR(slist_tpl<fabrik_t*>, const f, welt->get_fab_list()) {
 		add_factory_to_fab_map(welt, f);
 	}
 	if(  welt->get_settings().get_max_factory_spacing_percent()  ) {
-		DISTANCE = (welt->get_groesse_max() * welt->get_settings().get_max_factory_spacing_percent()) / 100l;
+		DISTANCE = (welt->get_size_max() * welt->get_settings().get_max_factory_spacing_percent()) / 100l;
 	}
 	else {
 		DISTANCE = welt->get_settings().get_max_factory_spacing();
@@ -346,7 +346,7 @@ void fabrikbauer_t::verteile_tourist(karte_t* welt, int max_number)
 
 	int retrys = max_number*4;
 	while(current_number<max_number  &&  retrys-->0) {
-		koord3d	pos=koord3d( koord::koord_random(welt->get_groesse_x(),welt->get_groesse_y()),1);
+		koord3d	pos=koord3d( koord::koord_random(welt->get_size().x,welt->get_size().y),1);
 		const haus_besch_t *attraction=hausbauer_t::waehle_sehenswuerdigkeit(welt->get_timeline_year_month(),true,(climate)simrand((int)arctic_climate+1));
 
 		// no attractions for that climate or too new
@@ -527,7 +527,7 @@ int fabrikbauer_t::baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, 
 	if(welt->cannot_save()  &&  parent==NULL  &&  !can_factory_tree_rotate(info)  ) {
 		org_rotation = welt->get_settings().get_rotation();
 		for(  int i=0;  i<3  &&  welt->cannot_save();  i++  ) {
-			pos->rotate90( welt->get_groesse_y()-info->get_haus()->get_h(rotate) );
+			pos->rotate90( welt->get_size().y-info->get_haus()->get_h(rotate) );
 			welt->rotate90();
 		}
 		assert( !welt->cannot_save() );
@@ -623,7 +623,7 @@ int fabrikbauer_t::baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, 
 		// must rotate back?
 		if(org_rotation>=0) {
 			for (int i = 0; i < 4 && welt->get_settings().get_rotation() != org_rotation; ++i) {
-				pos->rotate90( welt->get_groesse_y()-1 );
+				pos->rotate90( welt->get_size().y-1 );
 				welt->rotate90();
 			}
 			welt->update_map();
@@ -675,7 +675,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 			// for sources (oil fields, forests ... ) prefer thoses with a smaller distance
 			const unsigned distance = koord_distance(fab->get_pos(),our_fab->get_pos());
 
-			if(distance>6) {//  &&  distance < simrand(welt->get_groesse_x()+welt->get_groesse_y())) {
+			if(distance>6) {//  &&  distance < simrand(welt->get_size().x+welt->get_size().y)) {
 				// ok, this would match
 				// but can she supply enough?
 
@@ -952,7 +952,7 @@ next_ware_check:
 					// we cannot built this factory here
 					continue;
 				}
-				koord   testpos = in_city ? pick_any_weighted(welt->get_staedte())->get_pos() : koord::koord_random(welt->get_groesse_x(), welt->get_groesse_y());
+				koord   testpos = in_city ? pick_any_weighted(welt->get_staedte())->get_pos() : koord::koord_random(welt->get_size().x, welt->get_size().y);
 				koord3d pos =  welt->lookup_kartenboden( testpos )->get_pos();
 				int     rotation=simrand(fab->get_haus()->get_all_layouts()-1);
 				if(!in_city) {

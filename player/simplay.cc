@@ -182,7 +182,7 @@ void spieler_t::display_messages()
 	const sint16 yoffset = welt->get_y_off()+((display_get_width()/raster)&1)*(raster/4);
 
 	FOR(slist_tpl<income_message_t*>, const m, messages) {
-		const koord ij = m->pos - welt->get_world_position()-welt->get_ansicht_ij_offset();
+		const koord ij = m->pos - welt->get_world_position()-welt->get_view_ij_offset();
 		const sint16 x = (ij.x-ij.y)*(raster/2) + welt->get_x_off();
 		const sint16 y = (ij.x+ij.y)*(raster/4) + (m->alter >> 4) - tile_raster_scale_y( welt->lookup_hgt(m->pos)*TILE_HEIGHT_STEP, raster) + yoffset;
 		display_shadow_proportional( x, y, PLAYER_FLAG|(kennfarbe1+3), COL_BLACK, m->str, true);
@@ -261,7 +261,7 @@ bool spieler_t::neuer_monat()
 					destroy_all_win(true);
 					create_win( display_get_width()/2-128, 40, new news_img("Bankrott:\n\nDu bist bankrott.\n"), w_info, magic_none);
 					ticker::add_msg( translator::translate("Bankrott:\n\nDu bist bankrott.\n"), koord::invalid, PLAYER_FLAG + kennfarbe1 + 1 );
-					welt->beenden(false);
+					welt->stop(false);
 				}
 				else if(  get_finance_history_year(0, COST_NETWEALTH)*10 < welt->get_settings().get_starting_money(welt->get_current_month()/12)  ){
 					// tell the player (problem!)
@@ -617,8 +617,8 @@ void spieler_t::ai_bankrupt()
 	welt->set_werkzeug(werkzeug_t::general_tool[WKZ_ABFRAGE], this);
 
 	// next remove all ways, depot etc, that are not road or channels
-	for( int y=0;  y<welt->get_groesse_y();  y++  ) {
-		for( int x=0;  x<welt->get_groesse_x();  x++  ) {
+	for( int y=0;  y<welt->get_size().y;  y++  ) {
+		for( int x=0;  x<welt->get_size().x;  x++  ) {
 			planquadrat_t *plan = welt->access(x,y);
 			for (size_t b = plan->get_boden_count(); b-- != 0;) {
 				grund_t *gr = plan->get_boden_bei(b);

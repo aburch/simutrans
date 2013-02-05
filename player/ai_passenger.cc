@@ -146,8 +146,8 @@ koord ai_passenger_t::find_harbour_pos(karte_t* welt, const stadt_t *s )
 	sint32 bestdist = 999999;
 
 	// try to find an airport place as close to the city as possible
-	for(  k.y=max(6,s->get_linksoben().y-10); k.y<=min(welt->get_groesse_y()-3-6,s->get_rechtsunten().y+10); k.y++  ) {
-		for(  k.x=max(6,s->get_linksoben().x-25); k.x<=min(welt->get_groesse_x()-3-6,s->get_rechtsunten().x+10); k.x++  ) {
+	for(  k.y=max(6,s->get_linksoben().y-10); k.y<=min(welt->get_size().y-3-6,s->get_rechtsunten().y+10); k.y++  ) {
+		for(  k.x=max(6,s->get_linksoben().x-25); k.x<=min(welt->get_size().x-3-6,s->get_rechtsunten().x+10); k.x++  ) {
 			sint32 testdist = koord_distance( k, s->get_pos() );
 			if(  testdist<bestdist  ) {
 				if(  k.x+2<s->get_linksoben().x  ||  k.y+2<s->get_linksoben().y  ||  k.x>=s->get_rechtsunten().x  ||  k.y>=s->get_rechtsunten().y  ) {
@@ -443,7 +443,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int rotation)
 {
 	// not too close to border?
-	if(pos.x<6  ||  pos.y<6  ||  pos.x+3+6>=welt->get_groesse_x()  ||  pos.y+3+6>=welt->get_groesse_y()  ) {
+	if(pos.x<6  ||  pos.y<6  ||  pos.x+3+6>=welt->get_size().x  ||  pos.y+3+6>=welt->get_size().y  ) {
 		return halthandle_t();
 	}
 	// ok, not prematurely doomed
@@ -574,15 +574,15 @@ static koord find_airport_pos(karte_t* welt, const stadt_t *s )
 	sint32 bestdist = 999999;
 
 	// try to find an airport place as close to the city as possible
-	for(  k.y=max(6,s->get_linksoben().y-10); k.y<=min(welt->get_groesse_y()-3-6,s->get_rechtsunten().y+10); k.y++  ) {
-		for(  k.x=max(6,s->get_linksoben().x-25); k.x<=min(welt->get_groesse_x()-3-6,s->get_rechtsunten().x+10); k.x++  ) {
+	for(  k.y=max(6,s->get_linksoben().y-10); k.y<=min(welt->get_size().y-3-6,s->get_rechtsunten().y+10); k.y++  ) {
+		for(  k.x=max(6,s->get_linksoben().x-25); k.x<=min(welt->get_size().x-3-6,s->get_rechtsunten().x+10); k.x++  ) {
 			sint32 testdist = koord_distance( k, s->get_pos() );
 			if(  testdist<bestdist  ) {
 				if(  k.x+2<s->get_linksoben().x  ||  k.y+2<s->get_linksoben().y  ||  k.x>=s->get_rechtsunten().x  ||  k.y>=s->get_rechtsunten().y  ) {
 					// malus for out of town
 					testdist += 5;
 				}
-				if(  testdist<bestdist  &&  welt->ist_platz_frei( k, 3, 3, NULL, ALL_CLIMATES )  ) {
+				if(  testdist<bestdist  &&  welt->square_is_free( k, 3, 3, NULL, ALL_CLIMATES )  ) {
 					bestpos = k;
 					bestdist = testdist;
 				}

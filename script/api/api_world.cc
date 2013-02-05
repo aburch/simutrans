@@ -73,7 +73,7 @@ void export_world(HSQUIRRELVM vm)
 	 * Current season.
 	 * @returns season (0=winter, 1=spring, 2=summer, 3=autumn)
 	 */
-	STATIC register_method(vm, &karte_t::get_jahreszeit, "get_season");
+	STATIC register_method(vm, &karte_t::get_season, "get_season");
 
 	/**
 	 * Returns current in-game time.

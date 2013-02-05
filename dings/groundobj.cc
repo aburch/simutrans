@@ -138,7 +138,7 @@ void groundobj_t::calc_bild()
 		case 1: season = welt->get_snowline()<=get_pos().z;
 				break;
 				// summer, winter, snow
-		case 2: season = welt->get_snowline()<=get_pos().z ? 2 : welt->get_jahreszeit()==1;
+		case 2: season = welt->get_snowline()<=get_pos().z ? 2 : welt->get_season()==1;
 				break;
 		default: if(welt->get_snowline()<=get_pos().z) {
 					season = seasons;

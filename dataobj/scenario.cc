@@ -95,7 +95,7 @@ const char* scenario_t::init( const char *scenario_base, const char *scenario_na
 		// savegame location
 		buf.clear();
 		buf.printf("%s%s/%s", scenario_base, scenario_name_, mapfile.c_str());
-		if (!welt->laden( buf )) {
+		if (!welt->load( buf )) {
 			dbg->warning("scenario_t::init", "error loading savegame %s", err, (const char*)buf);
 			return "Could not load scenario map!";
 		}
@@ -160,9 +160,9 @@ void scenario_t::koord_w2sq(koord &k) const
 {
 	switch( rotation ) {
 		// 0: do nothing
-		case 1: k = koord(k.y, welt->get_groesse_y()-1 - k.x); break;
-		case 2: k = koord(welt->get_groesse_x()-1 - k.x, welt->get_groesse_y()-1 - k.y); break;
-		case 3: k = koord(welt->get_groesse_x()-1 - k.y, k.x); break;
+		case 1: k = koord(k.y, welt->get_size().y-1 - k.x); break;
+		case 2: k = koord(welt->get_size().x-1 - k.x, welt->get_size().y-1 - k.y); break;
+		case 3: k = koord(welt->get_size().x-1 - k.y, k.x); break;
 		default: break;
 	}
 }

@@ -64,8 +64,8 @@ enlarge_map_frame_t::enlarge_map_frame_t(spieler_t *, karte_t *w) :
 	memory(memory_str),
 	welt(w)
 {
-	sets->set_groesse_x(welt->get_groesse_x());
-	sets->set_groesse_y(welt->get_groesse_y());
+	sets->set_groesse_x(welt->get_size().x);
+	sets->set_groesse_y(welt->get_size().y);
 
 	changed_number_of_towns = false;
 	int intTopOfButton = 24;
@@ -77,7 +77,7 @@ enlarge_map_frame_t::enlarge_map_frame_t(spieler_t *, karte_t *w) :
 	inp_x_size.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
 	inp_x_size.add_listener(this);
 	inp_x_size.set_value( sets->get_groesse_x() );
-	inp_x_size.set_limits( welt->get_groesse_x(), min(32766,4194304/sets->get_groesse_y()) );
+	inp_x_size.set_limits( welt->get_size().x, min(32766,4194304/sets->get_groesse_y()) );
 	inp_x_size.set_increment_mode( sets->get_groesse_x()>=512 ? 128 : 64 );
 	inp_x_size.wrap_mode( false );
 	add_komponente( &inp_x_size );
@@ -86,7 +86,7 @@ enlarge_map_frame_t::enlarge_map_frame_t(spieler_t *, karte_t *w) :
 	inp_y_size.set_pos(koord(LEFT_ARROW,intTopOfButton) );
 	inp_y_size.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
 	inp_y_size.add_listener(this);
-	inp_y_size.set_limits( welt->get_groesse_y(), min(32766,4194304/sets->get_groesse_x()) );
+	inp_y_size.set_limits( welt->get_size().y, min(32766,4194304/sets->get_groesse_x()) );
 	inp_y_size.set_value( sets->get_groesse_y() );
 	inp_y_size.set_increment_mode( sets->get_groesse_y()>=512 ? 128 : 64 );
 	inp_y_size.wrap_mode( false );
@@ -138,13 +138,13 @@ bool enlarge_map_frame_t::action_triggered( gui_action_creator_t *komp,value_t v
 	if(komp==&inp_x_size) {
 		sets->set_groesse_x( v.i );
 		inp_x_size.set_increment_mode( v.i>=64 ? (v.i>=512 ? 128 : 64) : 8 );
-		inp_y_size.set_limits( welt->get_groesse_y(), min(32766,16777216/sets->get_groesse_x()) );
+		inp_y_size.set_limits( welt->get_size().y, min(32766,16777216/sets->get_groesse_x()) );
 		update_preview();
 	}
 	else if(komp==&inp_y_size) {
 		sets->set_groesse_y( v.i );
 		inp_y_size.set_increment_mode( v.i>=64 ? (v.i>=512 ? 128 : 64) : 8 );
-		inp_x_size.set_limits( welt->get_groesse_x(), min(32766,16777216/sets->get_groesse_y()) );
+		inp_x_size.set_limits( welt->get_size().x, min(32766,16777216/sets->get_groesse_y()) );
 		update_preview();
 	}
 	else if(komp==&inp_number_of_towns) {
@@ -203,8 +203,8 @@ void enlarge_map_frame_t::update_preview()
 	setsimrand(0xFFFFFFFF, welt->get_settings().get_karte_nummer());
 
 	// "welt" still knows the old size. The new size is saved in "sets".
-	sint16 old_x = welt->get_groesse_x();
-	sint16 old_y = welt->get_groesse_y();
+	sint16 old_x = welt->get_size().x;
+	sint16 old_y = welt->get_size().y;
 	sint16 pre_x = min(sets->get_groesse_x(), preview_size);
 	sint16 pre_y = min(sets->get_groesse_y(), preview_size);
 

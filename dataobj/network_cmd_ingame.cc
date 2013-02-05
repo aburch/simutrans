@@ -684,9 +684,9 @@ void nwc_sync_t::do_command(karte_t *welt)
 		bool old_restore_UI = umgebung_t::restore_UI;
 		umgebung_t::restore_UI = true;
 
-		welt->speichern( fn, loadsave_t::autosave_mode, SERVER_SAVEGAME_VER_NR, false );
+		welt->save( fn, loadsave_t::autosave_mode, SERVER_SAVEGAME_VER_NR, false );
 		uint32 old_sync_steps = welt->get_sync_steps();
-		welt->laden( fn );
+		welt->load( fn );
 		umgebung_t::restore_UI = old_restore_UI;
 
 		// pause clients, restore steps
@@ -726,7 +726,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 		sprintf( fn, "server%d-network.sve", umgebung_t::server );
 		bool old_restore_UI = umgebung_t::restore_UI;
 		umgebung_t::restore_UI = true;
-		welt->speichern( fn, loadsave_t::save_mode, SERVER_SAVEGAME_VER_NR, false );
+		welt->save( fn, loadsave_t::save_mode, SERVER_SAVEGAME_VER_NR, false );
 
 		// ok, now sending game
 		// this sends nwc_game_t
@@ -736,7 +736,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 		}
 
 		uint32 old_sync_steps = welt->get_sync_steps();
-		welt->laden( fn );
+		welt->load( fn );
 		umgebung_t::restore_UI = old_restore_UI;
 
 		// restore steps
@@ -1364,7 +1364,7 @@ bool nwc_service_t::execute(karte_t *welt)
 			break;
 
 		case SRVC_SHUTDOWN: {
-			welt->beenden( true );
+			welt->stop( true );
 			break;
 		}
 

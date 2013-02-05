@@ -54,8 +54,8 @@ void baum_t::distribute_trees(karte_t *welt, int dichte)
 	// best forests results are produced if forest size is tied to map size -
 	// but there is some nonlinearity to ensure good forests on small maps
 	settings_t const& s             = welt->get_settings();
-	sint32     const  x             = welt->get_groesse_x();
-	sint32     const  y             = welt->get_groesse_y();
+	sint32     const  x             = welt->get_size().x;
+	sint32     const  y             = welt->get_size().y;
 	unsigned   const t_forest_size  = (unsigned)pow(((double)x * (double)y), 0.25) * s.get_forest_base_size() / 11 + (x + y) / (2 * s.get_forest_map_size_divisor());
 	uint8      const c_forest_count = (unsigned)pow(((double)x * (double)y), 0.5)  / s.get_forest_count_divisor();
 
@@ -231,8 +231,8 @@ void baum_t::fill_trees(karte_t *welt, int dichte)
 	}
 DBG_MESSAGE("verteile_baeume()","distributing single trees");
 	koord pos;
-	for(  pos.y=0;  pos.y<welt->get_groesse_y();  pos.y++  ) {
-		for(  pos.x=0;  pos.x<welt->get_groesse_x();  pos.x++  ) {
+	for(  pos.y=0;  pos.y<welt->get_size().y;  pos.y++  ) {
+		for(  pos.x=0;  pos.x<welt->get_size().x;  pos.x++  ) {
 			grund_t *gr = welt->lookup_kartenboden(pos);
 			if(gr->get_top() == 0  &&  gr->get_typ() == grund_t::boden)  {
 				// plant spare trees, (those with low preffered density) or in an entirely tree climate
@@ -378,7 +378,7 @@ void baum_t::rotate90()
 void baum_t::calc_bild()
 {
 	// summer autumn winter spring
-	season = welt->get_jahreszeit();
+	season = welt->get_season();
 	if(welt->get_snowline()<=get_pos().z) {
 		// snowy winter graphics
 		season = 4;
