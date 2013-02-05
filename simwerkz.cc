@@ -4057,7 +4057,7 @@ const char* wkz_roadsign_t::check_pos_intern(karte_t *welt, spieler_t *sp, koord
 		return error;
 	}
 
-	if(grund_t::underground_mode==grund_t::ugm_all)
+	if(grund_t::underground_mode==grund_t::ugm_all || (grund_t::underground_mode==grund_t::ugm_level && welt->lookup_kartenboden(pos.get_2d())->get_hoehe() > grund_t::underground_level) ) 
 	{
 		// Do not build above ground only signals underground
 		if(besch->get_allow_underground() == 0)
