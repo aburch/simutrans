@@ -99,18 +99,18 @@ public:
 	static sint32 perlin_hoehe(settings_t const*, koord pos, koord size);
 
 	enum player_cost {
-		WORLD_CITICENS=0,		/// total people
-		WORLD_GROWTH,			/// growth (just for convenience)
-		WORLD_TOWNS,			/// number of all cities
-		WORLD_FACTORIES,		/// number of all consuming only factories
-		WORLD_CONVOIS,			/// total number of convois
-		WORLD_CITYCARS,			/// number of citycars generated
-		WORLD_PAS_RATIO,		/// percentage of passengers that started successful
-		WORLD_PAS_GENERATED,	/// total number generated
-		WORLD_MAIL_RATIO,		/// percentage of mail that started successful
-		WORLD_MAIL_GENERATED,	/// all letters generated
-		WORLD_GOODS_RATIO,		/// ratio of chain completeness
-		WORLD_TRANSPORTED_GOODS,/// all transported goods
+		WORLD_CITICENS=0,		//!< total people
+		WORLD_GROWTH,			//!< growth (just for convenience)
+		WORLD_TOWNS,			//!< number of all cities
+		WORLD_FACTORIES,		//!< number of all consuming only factories
+		WORLD_CONVOIS,			//!< total number of convois
+		WORLD_CITYCARS,			//!< number of citycars generated
+		WORLD_PAS_RATIO,		//!< percentage of passengers that started successful
+		WORLD_PAS_GENERATED,	//!< total number generated
+		WORLD_MAIL_RATIO,		//!< percentage of mail that started successful
+		WORLD_MAIL_GENERATED,	//!< all letters generated
+		WORLD_GOODS_RATIO,		//!< ratio of chain completeness
+		WORLD_TRANSPORTED_GOODS,//!< all transported goods
 		MAX_WORLD_COST
 	};
 
@@ -490,7 +490,7 @@ private:
 	void interactive_event(event_t &ev);
 
 	/**
-	 * @name Map data structures.
+	 * @name Map data structures
 	 *       This variables represent the simulated map.
 	 * @{
 	 */
@@ -556,7 +556,7 @@ private:
 	uint8 schedule_counter;
 
 	/**
-	 * @name Display timing and scheduling.
+	 * @name Display timing and scheduling
 	 *       These variables store system display timings in the past frames
 	 *       and allow for adecuate adjustments to adapt to the system performance
 	 *       and available resources (also in network mode).
