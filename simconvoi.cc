@@ -4397,7 +4397,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 
 	if(average_speed > speed_to_kmh(get_min_top_speed()))
 	{
-		dbg->warning("sint64 convoi_t::calc_revenue", "Average speed (%i) for %s exceeded maximum speed (%i); falling back to overall average", average_speed, get_name(), get_min_top_speed());
+		dbg->warning("sint64 convoi_t::calc_revenue", "Average speed (%i) for %s exceeded maximum speed (%i); falling back to overall average", average_speed, get_name(), speed_to_kmh(get_min_top_speed()));
 		journey_minutes = (((distance * 100) / overall_average_speed) * welt->get_settings().get_meters_per_tile()) / 1667;
 		average_speed = overall_average_speed;
 	}
