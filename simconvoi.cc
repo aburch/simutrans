@@ -398,7 +398,7 @@ void convoi_t::laden_abschliessen()
 	if(  anz_vehikel>0  ) {
 DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", state_names[state], next_stop_index );
 	
-	const uint32 max_route_index = get_route()->get_count() - 1;
+	const uint32 max_route_index = get_route() ? get_route()->get_count() - 1 : 0;
 
 	// only realign convois not leaving depot to avoid jumps through signals
 		if(  steps_driven!=-1  ) {
@@ -703,7 +703,7 @@ void convoi_t::add_running_cost(sint64 cost, const weg_t *weg)
 					ding_t *d = gr->obj_bei(i);
 					if(wayobj_t const* const wo = ding_cast<wayobj_t>(d))  
 					{
-						if(wo->get_waytype()==weg->get_waytype())
+						if(wo->get_waytype() == weg->get_waytype())
 						{
 							toll += (wo->get_besch()->get_wartung() * welt->get_settings().get_way_toll_waycost_percentage()) / 100l;
 							break;
@@ -1157,7 +1157,7 @@ bool convoi_t::sync_step(long delta_t)
  */
 bool convoi_t::drive_to()
 {
-	if(  anz_vehikel>0  ) 
+	if(  anz_vehikel>0 && fpl  ) 
 	{
 		koord3d start = fahr[0]->get_pos();
 		koord3d ziel = fpl->get_current_eintrag().pos;
@@ -4968,7 +4968,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 				}
 				besitzer_p->buche(-sp->interim_apportioned_revenue, COST_WAY_TOLLS);
 				book(-sp->interim_apportioned_revenue, CONVOI_PROFIT);
-				welt->get_spieler(i)->interim_apportioned_revenue = 0;
+				sp->interim_apportioned_revenue = 0;
 			}
 		}
 
