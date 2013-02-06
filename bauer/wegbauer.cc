@@ -1026,7 +1026,7 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 				sint8 num_slopes = (from->get_grund_hang() == hang_t::flach) ? 1 : -1;
 				// On the end tile, we haven't to subtract way_count_slope, since is_allowed_step isn't called with this tile.
 				num_slopes += (gr_end->get_grund_hang() == hang_t::flach) ? 1 : 0;
-				next_gr.append(next_gr_t(welt->lookup(end), length * cost_difference + num_slopes*welt->get_settings().way_count_slope, build_straight));
+				next_gr.append(next_gr_t(welt->lookup(end), length * cost_difference + num_slopes*welt->get_settings().way_count_slope, build_straight | build_tunnel_bridge));
 				min_length = length+1;
 			}
 			else {
@@ -1042,7 +1042,7 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 		koord3d end = tunnelbauer_t::finde_ende( welt, sp, from->get_pos(), zv, besch->get_wtyp());
 		if(  end != koord3d::invalid  &&  !ziel.is_contained(end)  ) {
 			uint32 length = koord_distance(from->get_pos(), end);
-			next_gr.append(next_gr_t(welt->lookup(end), length * cost_difference, build_straight ));
+			next_gr.append(next_gr_t(welt->lookup(end), length * cost_difference, build_straight | build_tunnel_bridge ));
 			return;
 		}
 	}
@@ -1303,7 +1303,7 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->get_pos().x,gr->get_pos().y,g
 				// now add it to the array ...
 				next_gr.append(next_gr_t(to, new_cost, do_terraform ? build_straight | terraform : 0));
 			}
-			else if(tmp->parent!=NULL  &&  r==straight_dir) {
+			else if(tmp->parent!=NULL  &&  r==straight_dir  &&  (tmp->count & build_tunnel_bridge)==0) {
 				// try to build a bridge or tunnel here, since we cannot go here ...
 				check_for_bridge(tmp->parent->gr,gr,ziel);
 			}
