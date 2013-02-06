@@ -396,9 +396,12 @@ bool ai_goods_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 	for(  int y = pos1.y - cov; y <= pos1.y + cov; ++y  ) {
 		for(  int x = pos1.x - cov; x <= pos1.x + cov; ++x  ) {
 			koord p(x,y);
-			// in water, the water tiles have no halt flag!
-			if(  halt == get_halt(p)  &&  koord_distance(best_pos,platz2)<koord_distance(p,platz2)  ) {
-				best_pos = p;
+			grund_t *gr = welt->lookup_kartenboden(p);
+			// check for water tile, do not start in depots
+			if(  gr->ist_wasser()  &&  halt == get_halt(p)  &&  gr->get_depot()==NULL  ) {
+				if(  koord_distance(best_pos,platz2)<koord_distance(p,platz2)  ) {
+					best_pos = p;
+				}
 			}
 		}
 	}
