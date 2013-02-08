@@ -5822,7 +5822,7 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
  * following simple command exists:
  * 'g' : apply new schedule to line [schedule follows]
  */
-bool wkz_change_line_t::init( karte_t *, spieler_t *sp )
+bool wkz_change_line_t::init( karte_t *welt, spieler_t *sp )
 {
 	uint16 line_id = 0;
 
@@ -5906,6 +5906,44 @@ bool wkz_change_line_t::init( karte_t *, spieler_t *sp )
 					else {
 						// could not read schedule, do not assign
 						delete fpl;
+					}
+				}
+			}
+			break;
+
+		case 'u':	// unite all lineless convois with similar schedules
+			{
+				array_tpl<vector_tpl<convoihandle_t>> cnvs(welt->convoys().get_count());
+				uint32 max_cnvs=0;
+				FOR(vector_tpl<convoihandle_t>, cnv, welt->convoys()) {
+					// only check lineless convoys
+					if(  !cnv->get_line().is_bound()  ) {
+						bool found = false;
+						// check, if already matches existing convois schedule
+						for(  uint32 i=0;  i<max_cnvs  &&  !found;  i++  ) {
+							FOR(vector_tpl<convoihandle_t>, cnvcomp, cnvs[i] ) {
+								if(  cnvcomp->get_schedule()->matches( welt, cnv->get_schedule() )  ) {
+									found = true;
+									cnvs[i].append( cnv );
+									break;
+								}
+							}
+						}
+						// not added: then may be new line for this?
+						if(  !found  ) {
+							cnvs[max_cnvs++].append( cnv );
+						}
+					}
+				}
+				// now we have an array of one or more lineless convois
+				for(  uint32 i=0;  i<max_cnvs;  i++  ) {
+					// if there is more than one convois => new line
+					if(  cnvs[i].get_count()>1  ) {
+						line = sp->simlinemgmt.create_line( cnvs[i][0]->get_schedule()->get_type(), sp, cnvs[i][0]->get_schedule() );
+						FOR(vector_tpl<convoihandle_t>, cnv, cnvs[i] ) {
+							line->add_convoy( cnv );
+							cnv->set_line( line );
+						}
 					}
 				}
 			}
