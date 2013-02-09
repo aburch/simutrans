@@ -5913,7 +5913,7 @@ bool wkz_change_line_t::init( karte_t *welt, spieler_t *sp )
 
 		case 'u':	// unite all lineless convois with similar schedules
 			{
-				array_tpl<vector_tpl<convoihandle_t>> cnvs(welt->convoys().get_count());
+				array_tpl<vector_tpl<convoihandle_t> > cnvs(welt->convoys().get_count());
 				uint32 max_cnvs=0;
 				FOR(vector_tpl<convoihandle_t>, cnv, welt->convoys()) {
 					// only check lineless convoys
