@@ -643,40 +643,47 @@ bool route_t::calc_route(karte_t *welt, const koord3d ziel, const koord3d start,
 
 	INT_CHECK("route 343");
 
-	if( !ok ) {
+	if(!ok)
+	{
 DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x, start.y, ziel.x, ziel.y);
 		// no route found
 		route.resize(1);
 		route.append(start); // just to be safe
 		return false;
 	}
-	// advance so all convoi fits into a halt (only set for trains and cars)
-	else if(  max_len>1  ) {
+	// advance so all convoy fits into a halt (only set for trains and cars)
+	else if(max_len > 1)
+	{
 
 		// we need a halt of course ...
 		halthandle_t halt = welt->lookup(start)->get_halt();
-		if(  halt.is_bound()  ) {
+		if(halt.is_bound()) 
+		{
 
 			// first: find out how many tiles I am already in the station
 			max_len--;
-			for(  sint32 i=route.get_count()-1;  i>=0  &&  max_len>0  &&  halt == haltestelle_t::get_halt( welt, route[i], NULL );  i--, max_len--  ) {
+			for(sint32 i = route.get_count() - 1; i >= 0 && max_len > 0 && halt == haltestelle_t::get_halt(welt, route[i], NULL); i--, max_len--) 
+			{
+				// Do nothing.
 			}
-
 			// and now go forward, if possible
-			if(  max_len>0  ) {
+			if(max_len > 0) 
+			{
 
-				const uint32 max_n = route.get_count()-1;
+				const uint32 max_n = route.get_count() - 1;
 				const koord zv = route[max_n].get_2d() - route[max_n - 1].get_2d();
 				const int ribi = ribi_typ(zv);//fahr->get_ribi(welt->lookup(start));
 
 				grund_t *gr = welt->lookup(start);
 				const waytype_t wegtyp=fahr->get_waytype();
 
-				while(  max_len>0  &&  gr->get_neighbour(gr,wegtyp,ribi)  &&  gr->get_halt()==halt  &&   fahr->ist_befahrbar(gr)   &&  (fahr->get_ribi(gr)&&ribi)!=0  ) {
-					// Do not go on a tile, where a oneway sign forbids going.
-					// This saves time and fixed the bug, that a oneway sign on the finaly tile was ignored.
+				while(max_len >= 0 && gr->get_neighbour(gr, wegtyp, ribi) && gr->get_halt() == halt && fahr->ist_befahrbar(gr) && (fahr->get_ribi(gr) && ribi) != 0)
+				{
+					// Do not go on a tile where a one way sign forbids going.
+					// This saves time and fixed the bug that a one way sign on the final tile was ignored.
 					ribi_t::ribi go_dir=gr->get_weg(wegtyp)->get_ribi_maske();
-					if(  (ribi&go_dir)!=0  ) {
+					if((ribi & go_dir) != 0)
+					{
 						break;
 					}
 					route.append(gr->get_pos());
