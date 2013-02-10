@@ -3803,7 +3803,7 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
  * return the last checked block
  * @author prissi
  */
-bool waggon_t::block_reserver(route_t *route, uint16 start_index, uint16 &next_signal_index, uint16 &next_crossing_index, int count, bool reserve, bool force_unreserve  ) const
+bool waggon_t::block_reserver(route_t *route, uint16 start_index, uint16 &next_signal_index, uint16 &next_crossing_index, int count, bool reserve, bool force_unreserve) const
 {
 	bool success=true;
 #ifdef MAX_CHOOSE_BLOCK_TILES
@@ -3826,14 +3826,17 @@ bool waggon_t::block_reserver(route_t *route, uint16 start_index, uint16 &next_s
 	ribi_t::ribi ribi = ribi_t::keine;
 	halthandle_t dest_halt = halthandle_t();
 	uint16 early_platform_index = INVALID_INDEX;
-	bool do_early_platform_search =	cnv != NULL
-		&& cnv->get_line().is_bound()
-		&& cnv->get_line()->get_schedule() != NULL
-		&& (cnv->get_line()->get_schedule()->is_mirrored() || cnv->get_line()->get_schedule()->is_bidirectional())
-		&& cnv->get_schedule() != NULL 
-		&& cnv->get_schedule()->get_current_eintrag().ladegrad == 0;
+	const schedule_t* fpl = NULL;
+	if(cnv != NULL)
+	{
+		fpl = cnv->get_schedule();
+	}
+	bool do_early_platform_search =	fpl != NULL
+		&& (fpl->is_mirrored() ||fpl->is_bidirectional())
+		&& fpl->get_current_eintrag().ladegrad == 0;
 
-	if( do_early_platform_search ) {
+	if(do_early_platform_search) 
+	{
 		platform_size_needed = cnv->get_tile_length();
 		dest_halt = haltestelle_t::get_halt(welt, cnv->get_schedule()->get_current_eintrag().pos, cnv->get_besitzer());
 	}
@@ -3881,6 +3884,8 @@ bool waggon_t::block_reserver(route_t *route, uint16 start_index, uint16 &next_s
 			{
 				if( early_platform_index==INVALID_INDEX ) 
 				{
+					/*const char* TEST_this_halt = gr->get_halt().is_bound() ? gr->get_halt()->get_name() : "NULL";
+					const char* TEST_dest_halt = dest_halt->get_name();*/
 					if( gr->get_halt().is_bound() && gr->get_halt()==dest_halt ) 
 					{
 						if( ribi==ribi_last )

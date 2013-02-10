@@ -2763,9 +2763,9 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		k.rdwr( file );
 	}
 
-	// BG, 07-MAR-2010: the number of good categories should be read from in the savegame, 
-	//  but currently it is not stored although goods and categories can be added by the user 
-	//  and thus do not depend on file version and therefore not predicatable by simutrans.
+	// BG, 07-MAR-2010: the number of goods categories should be read from in the savegame, 
+	// but currently it is not stored although goods and categories can be added by the user 
+	// and thus do not depend on file version and therefore not predicatable by simutrans.
 	
 	uint8 max_catg_count_game = warenbauer_t::get_max_catg_index();
 	uint8 max_catg_count_file;
