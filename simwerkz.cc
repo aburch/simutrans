@@ -1427,9 +1427,7 @@ const char *wkz_marker_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 		if (gr) 
 		{
 			// check for underground mode
-			if(  grund_t::underground_mode == grund_t::ugm_all  ||
-				(grund_t::underground_mode == grund_t::ugm_level  &&  gr->get_hoehe()>grund_t::underground_level)
-			) {
+			if (welt->lookup_kartenboden(pos.get_2d())->get_hoehe() > pos.z) { 
 				return "";
 			}
 			if(gr && !gr->get_text()) 
@@ -4067,7 +4065,7 @@ const char* wkz_roadsign_t::check_pos_intern(karte_t *welt, spieler_t *sp, koord
 		return error;
 	}
 
-	if(grund_t::underground_mode==grund_t::ugm_all)
+	if(welt->lookup_kartenboden(pos.get_2d())->get_hoehe() > pos.z) 
 	{
 		// Do not build above ground only signals underground
 		if(besch->get_allow_underground() == 0)

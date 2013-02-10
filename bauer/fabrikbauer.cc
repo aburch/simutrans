@@ -106,48 +106,38 @@ class factory_bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t  {
 public:
 	factory_bauplatz_mit_strasse_sucher_t(karte_t *welt) : bauplatz_sucher_t(welt) {}
 
-	bool strasse_bei(sint16 x, sint16 y) const {
-		grund_t *bd = welt->lookup_kartenboden( koord(x,y) );
-		return bd && bd->hat_weg(road_wt);
-	}
+	virtual bool ist_platz_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const
+	{
+		if(  !bauplatz_sucher_t::ist_platz_ok(pos, b, h, cl)  ) {
+			return false;
+		}
+		bool next_to_road = false;
 
-	virtual bool ist_platz_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const {
-		if(bauplatz_sucher_t::ist_platz_ok(pos, b, h, cl)) {
-			// try to built a little away from previous factory
-			for(sint16 y=pos.y;  y<pos.y+h;  y++  ) {
-				for(sint16 x=pos.x;  x<pos.x+b;  x++  ) {
-					if( is_factory_at(x,y)  ) {
-						return false;
-					}
-					grund_t *gr = welt->lookup_kartenboden(koord(x,y));
-					if(gr->get_leitung()!=NULL  ||  welt->lookup(gr->get_pos()+koord3d(0,0,1))!=NULL) {
+		for (sint16 x = -1; x < b; x++) {
+			for (sint16 y = -1;  y < h; y++) {
+				koord k(pos + koord(x,y));
+				grund_t *gr = welt->lookup_kartenboden(k);
+				if (	0 <= x  &&  x < b-1  &&  0 <= y  &&  y < h-1) {
+					// inside: nothing on top like elevated monorails?
+					if(  gr->get_leitung()!=NULL  ||  welt->lookup(gr->get_pos()+koord3d(0,0,1)  )!=NULL) {
 						// something on top (monorail or powerlines)
 						return false;
 					}
+
 				}
-			}
-			// check to not built on a road
-			int i, j;
-			for(j=pos.x; j<pos.x+b; j++) {
-				for(i=pos.y; i<pos.y+h; i++) {
-					if(strasse_bei(j,i)) {
+				else {
+					// border but not corner: near a road if possible
+					if (!next_to_road  &&  (0 <= x  ||  x < b-1)  &&  (0 <= y  ||  y < h-1)) {
+						next_to_road = gr->hat_weg(road_wt);
+					}
+					// try to built a little away from previous factory
+					if( is_factory_at(k.x, k.y)  ) {
 						return false;
 					}
 				}
 			}
-			// now check for road connection
-			for(i = pos.y; i < pos.y + h; i++) {
-				if(strasse_bei(pos.x - 1, i) ||  strasse_bei(pos.x + b, i)) {
-					return true;
-				}
-			}
-			for(i = pos.x; i < pos.x + b; i++) {
-				if(strasse_bei(i, pos.y - 1) ||  strasse_bei(i, pos.y + h)) {
-					return true;
-				}
-			}
 		}
-		return false;
+		return next_to_road;
 	}
 };
 
