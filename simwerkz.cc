@@ -2749,8 +2749,14 @@ const char *wkz_wayremover_t::do_work( karte_t *welt, spieler_t *sp, const koord
 						delete gr;
 					}
 				}
-				else {
+				else
+				{
 					can_delete &= gr->remove_everything_from_way(sp,wt,rem);
+					weg_t* const weg = gr->get_weg(wt);
+					if(weg)
+					{
+						weg->count_sign();
+					}
 				}
 			}
 			else {
