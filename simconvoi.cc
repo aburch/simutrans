@@ -534,7 +534,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 				// eventually reserve this again
 				grund_t *gr=welt->lookup(v->get_pos());
 				// airplanes may have no ground ...
-				if (schiene_t* const sch0 = ding_cast<schiene_t>(gr->get_weg(fahr[i]->get_waytype()))) {
+				if (gr && schiene_t* const sch0 = ding_cast<schiene_t>(gr->get_weg(fahr[i]->get_waytype()))) {
 					sch0->reserve(self,ribi_t::keine);
 				}
 			}
@@ -3112,7 +3112,7 @@ void convoi_t::rdwr(loadsave_t *file)
 					state = INITIAL;
 				}
 				// add to blockstrecke "block stretch" (Google). Possibly "block section"?
-				if(v->get_waytype()==track_wt  ||  v->get_waytype()==monorail_wt  ||  v->get_waytype()==maglev_wt  ||  v->get_waytype()==narrowgauge_wt) {
+				if(gr && (v->get_waytype()==track_wt  ||  v->get_waytype()==monorail_wt  ||  v->get_waytype()==maglev_wt  ||  v->get_waytype()==narrowgauge_wt)) {
 					schiene_t* sch = (schiene_t*)gr->get_weg(v->get_waytype());
 					if(sch) {
 						sch->reserve(self,ribi_t::keine);

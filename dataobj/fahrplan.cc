@@ -131,6 +131,12 @@ bool schedule_t::append(const grund_t* gr, uint16 ladegrad, uint8 waiting_time_s
 		return false;
 	}
 
+	if(!gr)
+	{
+		// This can occur in some cases if a depot is not found.
+		return false;
+	}
+
 	if(ist_halt_erlaubt(gr)) {
 		eintrag.append(linieneintrag_t(gr->get_pos(), ladegrad, waiting_time_shift, spacing_shift, false), 4);
 		return true;
