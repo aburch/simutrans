@@ -4070,7 +4070,6 @@ void convoi_t::laden() //"load" (Babelfish)
 					{
 						// Anomaly detected - check to see whether this can be caused by odd timetabling.
 						// If not, then this must be caused by traffic fluctuations, and should remain.
-						const koord3d pos = gr->get_pos();
 						const uint8 fpl_count = fpl->get_count();
 						uint32 this_stop_count = 0;
 						for(uint8 i = 0; i < fpl_count; i ++)
@@ -4128,7 +4127,6 @@ write_basic:
 						{
 							// Anomaly detected - check to see whether this can be caused by odd timetabling.
 							// If not, then this must be caused by traffic fluctuations, and should remain.
-							const koord3d pos = gr->get_pos();
 							const uint8 fpl_count = fpl->get_count();
 							uint32 this_stop_count = 0;
 							for(uint8 i = 0; i < fpl_count; i ++)
