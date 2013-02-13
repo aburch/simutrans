@@ -1848,6 +1848,10 @@ const weg_besch_t *wkz_wegebau_t::get_besch( uint16 timeline_year_month, bool re
 		}
 	}
 	assert(besch);
+	if(!besch)
+	{
+		return NULL;
+	}
 	if(  remember  ) {
 		if(  besch->get_styp() == weg_t::type_tram  ) {
 			defaults[ tram_wt ] = besch;
@@ -1868,7 +1872,11 @@ image_id wkz_wegebau_t::get_icon(spieler_t *) const
 
 const char* wkz_wegebau_t::get_tooltip(const spieler_t *sp) const
 {
-	const weg_besch_t *besch = get_besch(sp->get_welt()->get_timeline_year_month(),false);
+	const weg_besch_t *besch = get_besch(sp->get_welt()->get_timeline_year_month(), false);
+	if(!besch)
+	{
+		return "";
+	}
 	tooltip_with_price_maintenance(sp->get_welt(), besch->get_name(), -besch->get_base_price(), besch->get_base_maintenance());
 	size_t n= strlen(toolstr);
 	sprintf(toolstr+n, " / km, %dkm/h, %dt",
