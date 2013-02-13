@@ -534,7 +534,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 				// eventually reserve this again
 				grund_t *gr=welt->lookup(v->get_pos());
 				// airplanes may have no ground ...
-				if (gr && schiene_t* const sch0 = ding_cast<schiene_t>(gr->get_weg(fahr[i]->get_waytype()))) {
+				if(schiene_t* const sch0 = ding_cast<schiene_t>(gr->get_weg(fahr[i]->get_waytype()))) {
 					sch0->reserve(self,ribi_t::keine);
 				}
 			}
