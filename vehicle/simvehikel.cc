@@ -3216,7 +3216,8 @@ bool waggon_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t
 				dummy, target_halt.is_bound() ? 100000 : 1, false, true);
 	}
 	target_halt = halthandle_t(); // no block reserved
-	return route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight(), 8888 /*cnv->get_tile_length()*/ );
+	const uint16 tile_length = cnv->get_schedule()->get_current_eintrag().reverse ? 8888 : cnv->get_tile_length();
+	return route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight(), tile_length);
 }
 
 
@@ -3832,7 +3833,7 @@ bool waggon_t::block_reserver(route_t *route, uint16 start_index, uint16 &next_s
 		fpl = cnv->get_schedule();
 	}
 	bool do_early_platform_search =	fpl != NULL
-		&& (fpl->is_mirrored() ||fpl->is_bidirectional())
+		&& (fpl->is_mirrored() || fpl->is_bidirectional())
 		&& fpl->get_current_eintrag().ladegrad == 0;
 
 	if(do_early_platform_search) 
@@ -3841,7 +3842,7 @@ bool waggon_t::block_reserver(route_t *route, uint16 start_index, uint16 &next_s
 		dest_halt = haltestelle_t::get_halt(welt, cnv->get_schedule()->get_current_eintrag().pos, cnv->get_besitzer());
 	}
 
-	// find next blocksegment enroute
+	// find next block segment enroute
 	uint16 i=start_index;
 	uint16 skip_index=INVALID_INDEX;
 	next_signal_index=INVALID_INDEX;
@@ -3880,15 +3881,15 @@ bool waggon_t::block_reserver(route_t *route, uint16 start_index, uint16 &next_s
 				next_crossing_index = i;
 			}
 			// check if there is an early platform available to stop at
-			if ( do_early_platform_search )
+			if (do_early_platform_search)
 			{
-				if( early_platform_index==INVALID_INDEX ) 
+				if(early_platform_index == INVALID_INDEX)
 				{
 					/*const char* TEST_this_halt = gr->get_halt().is_bound() ? gr->get_halt()->get_name() : "NULL";
 					const char* TEST_dest_halt = dest_halt->get_name();*/
-					if( gr->get_halt().is_bound() && gr->get_halt()==dest_halt ) 
+					if(gr->get_halt().is_bound() && gr->get_halt() == dest_halt) 
 					{
-						if( ribi==ribi_last )
+						if(ribi == ribi_last)
 						{
 							platform_size_found++;
 						} 
@@ -3896,7 +3897,8 @@ bool waggon_t::block_reserver(route_t *route, uint16 start_index, uint16 &next_s
 						{
 							platform_size_found = 1;
 						}
-						if( platform_size_found>=platform_size_needed )
+
+						if(platform_size_found >= platform_size_needed)
 						{
 							// Now check to make sure that the actual destination tile is not just a few tiles down the same platform
 							uint16 route_ahead_check = i;
@@ -3904,7 +3906,8 @@ bool waggon_t::block_reserver(route_t *route, uint16 start_index, uint16 &next_s
 							while(current_pos != cnv->get_schedule()->get_current_eintrag().pos && haltestelle_t::get_halt(welt, current_pos, cnv->get_besitzer()) == dest_halt && route_ahead_check < route->get_count())
 							{
 								current_pos = route->position_bei(route_ahead_check);
-								route_ahead_check ++;
+								route_ahead_check++;
+								platform_size_found++;
 							}
 							if(current_pos != cnv->get_schedule()->get_current_eintrag().pos)
 							{
@@ -3922,14 +3925,24 @@ bool waggon_t::block_reserver(route_t *route, uint16 start_index, uint16 &next_s
 						platform_size_found = 0;
 					}
 				} 
-				else if( ribi_last==ribi && gr->get_halt().is_bound() && gr->get_halt()==dest_halt ) 
+				else if(ribi_last == ribi && gr->get_halt().is_bound() && gr->get_halt() == dest_halt)
 				{
-					// a platform was found, but it continues so go on to its end
+					// A platform was found, but it continues so go on to its end
 					early_platform_index = i;
 				} 
 				else 
 				{
-					// a platform was found, and has ended, thus the last index was fine.
+					// A platform was found, and has ended - check where this convoy should stop.
+					if(platform_size_needed < platform_size_found && !fpl->get_current_eintrag().reverse)
+					{
+						// Do not go to the end, but stop part way along the platform.
+						const uint16 difference = platform_size_found - platform_size_needed;
+						early_platform_index -= (difference / 2u);
+						if(difference > 2)
+						{
+							early_platform_index ++;
+						}
+					}
 					sch1->unreserve(cnv->self);
 					success = true;
 					break;

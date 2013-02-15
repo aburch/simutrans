@@ -1292,7 +1292,7 @@ public:
 		}
 	}
 
-	uint16 calc_reverse_delay() const;
+	uint32 calc_reverse_delay() const;
 
 	static uint16 get_waiting_minutes(uint32 waiting_ticks);
 	
