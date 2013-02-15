@@ -422,11 +422,11 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", sta
 			uint8 const diagonal_vehicle_steps_per_tile = (uint8)(130560U / welt->get_settings().get_pak_diagonal_multiplier());
 			for( uint8 i=0;  i<anz_vehikel;  i++ ) {
 				vehikel_t* v = fahr[i];
-				if(v->get_route_index() > max_route_index && max_route_index > 0 && i > 0)
+				/*if(v->get_route_index() > max_route_index && max_route_index > 0 && i > 0)
 				{
 					dbg->error("convoi_t::laden_abschliessen()", "Route index is %i, whereas maximum route index is %i for convoy %i", v->get_route_index(), max_route_index, self.get_id());
 					v->set_route_index(fahr[0]->get_route_index());
-				}
+				}*/
 				v->set_erstes( i==0 );
 				v->set_letztes( i+1==anz_vehikel );
 				// this sets the convoi and will renew the block reservation, if needed!
