@@ -419,6 +419,8 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 	unload_repeat_counter = 0;
 
 	control_towers = 0;
+
+	transfer_time = 0;
 }
 
 
@@ -3133,6 +3135,15 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		}
 	}
 
+	if(file->get_experimental_version() >= 11)
+	{
+		file->rdwr_short(transfer_time);
+	}
+	else
+	{
+		calc_transfer_time();
+	}
+
 	pedestrian_limit = 0;
 #ifdef DEBUG_SIMRAND_CALLS
 	loading = false;
@@ -3464,11 +3475,12 @@ bool haltestelle_t::add_grund(grund_t *gr)
 		}
 	}
 
-	assert(welt->lookup(pos)->get_halt() == self  &&  gr->is_halt());
+	assert(welt->lookup(pos)->get_halt() == self && gr->is_halt());
 	init_pos = tiles.front().grund->get_pos().get_2d();
-	path_explorer_t::refresh_all_categories(false);
-
 	check_nearby_halts();
+	calc_transfer_time();
+
+	path_explorer_t::refresh_all_categories(false);
 
 	return true;
 }
@@ -3575,6 +3587,9 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 	}
 
 	check_nearby_halts();
+	calc_transfer_time();
+
+	path_explorer_t::refresh_all_categories(false);
 
 	return true;
 }
@@ -3847,4 +3862,31 @@ bool haltestelle_t::check_access(const spieler_t* sp) const
 bool haltestelle_t::has_no_control_tower() const
 {
 	return welt->get_settings().get_allow_airports_without_control_towers() ? false : control_towers == 0;
+}
+
+void haltestelle_t::calc_transfer_time()
+{
+	koord ul(32767,32767);
+	koord lr(0,0);
+	koord pos;
+	tiles;
+	FOR(slist_tpl<tile_t>, const& tile, tiles)
+	{
+		pos = tile.grund->get_pos().get_2d();
+
+		if(ul.x > pos.x) ul.x = pos.x;
+		if(ul.y > pos.y) ul.y = pos.y;
+		if(lr.x < pos.x) lr.x = pos.x;
+		if(lr.y < pos.y) lr.y = pos.y;
+	}
+
+	const sint16 x_size = (lr.x - ul.x) + 1;
+	const sint16 y_size = (lr.y - ul.y) + 1;
+
+	const sint16 ave_dimension = ((x_size + y_size) / 2) - 1;
+
+	const uint32 journey_time_adjustment = (welt->get_settings().get_meters_per_tile() * 6u) / 10u;
+	const uint32 walking_journey_time_factor = (journey_time_adjustment * 100u) / (uint32)welt->get_settings().get_walking_speed();
+
+	transfer_time = ((ave_dimension / 2) * walking_journey_time_factor) / 100u;
 }

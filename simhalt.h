@@ -119,6 +119,15 @@ private:
 
 	uint8 control_towers;
 
+	/* 
+	 * The time (in 10ths of seconds)
+	 * that it takes passengers to walk
+	 * through this stop from one
+	 * connexion to another. This is
+	 * based on the size of the stop.
+	 */
+	uint16 transfer_time;
+
 public:
 	// add convoi to loading queue
 	void request_loading( convoihandle_t cnv );
@@ -223,6 +232,7 @@ public:
 		// Times in tenths of minutes
 		uint16 journey_time;
 		uint16 waiting_time;
+		uint16 transfer_time;
 		
 		// Convoy only used if line not used 
 		// (i.e., if the best route involves using a convoy without a line)
@@ -789,6 +799,9 @@ public:
 	bool check_access(const spieler_t* sp) const;
 
 	bool has_no_control_tower() const;
+
+	inline uint16 get_transfer_time() const { return transfer_time; }
+	void calc_transfer_time();
 };
 
 ENUM_BITSET(haltestelle_t::stationtyp)

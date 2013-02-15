@@ -179,6 +179,12 @@ inline sint32 v_to_speed(const float32e8_t &v)
 	return (sint32)(ms2simspeed * v + float32e8_t::half);
 }
 
+inline sint64 seconds_to_ticks(uint32 seconds, uint16 meters_per_tile)
+{
+	return ((sint64)seconds * 22764L) / (sint64)(meters_per_tile);
+}
+
+
 /**
  * Conversion between simutrans steps and meters
  */

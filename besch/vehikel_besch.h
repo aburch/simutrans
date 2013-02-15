@@ -714,11 +714,6 @@ public:
 
 	void calc_checksum(checksum_t *chk) const;
 
-	sint64 seconds_to_ticks(uint32 seconds, uint16 meters_per_tile) const
-	{
-		return ((sint64)seconds * 22764L) / (sint64)(meters_per_tile);
-	}
-
 	static uint32 get_air_default(sint8 waytype)
 	{
 		switch(waytype)
