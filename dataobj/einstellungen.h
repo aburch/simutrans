@@ -402,6 +402,10 @@ public:
 	uint32 hauled_reverse_time;
 	uint32 turntable_reverse_time;
 
+	uint16 unit_reverse_time_seconds;
+	uint16 hauled_reverse_time_seconds;
+	uint16 turntable_reverse_time_seconds;
+
 	//@author: jamespetts
 	uint16 global_power_factor_percent; 
 	
@@ -808,6 +812,10 @@ public:
 	uint32 get_hauled_reverse_time() const { return hauled_reverse_time; }
 	uint32 get_turntable_reverse_time() const { return turntable_reverse_time; }
 
+	uint16 get_unit_reverse_time_seconds() const { return unit_reverse_time_seconds; }
+	uint16 get_hauled_reverse_time_seconds() const { return hauled_reverse_time_seconds; }
+	uint16 get_turntable_reverse_time_seconds() const { return turntable_reverse_time_seconds; }
+
 	uint16 get_global_power_factor_percent() const { return global_power_factor_percent; }
 	void set_global_power_factor_percent(uint16 value) { global_power_factor_percent = value; }
 
@@ -973,6 +981,8 @@ public:
 #endif
 	uint8 get_max_elevated_way_building_level() const { return max_elevated_way_building_level; }
 	void set_max_elevated_way_building_level(uint8 value) { max_elevated_way_building_level = value; }
+
+	void set_scale();
 };
 
 #endif 

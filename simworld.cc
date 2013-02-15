@@ -1864,11 +1864,11 @@ karte_t::karte_t() :
 
 	city_road = NULL;
 
-	// Added by : Knightly
-	path_explorer_t::initialise(this);
-
 	// @author: jamespetts
 	set_scale();
+
+	// Added by : Knightly
+	path_explorer_t::initialise(this);
 
 	next_private_car_update_month = 1;
 }
@@ -1905,7 +1905,6 @@ void karte_t::set_scale()
 	}
 
 	// Ways
-
 	stringhashtable_tpl <weg_besch_t *> * ways = wegbauer_t::get_all_ways();
 
 	if(ways != NULL)
@@ -1917,7 +1916,6 @@ void karte_t::set_scale()
 	}
 
 	// Tunnels
-
 	stringhashtable_tpl <tunnel_besch_t *> * tunnels = tunnelbauer_t::get_all_tunnels();
 
 	if(tunnels != NULL)
@@ -1929,7 +1927,6 @@ void karte_t::set_scale()
 	}
 
 	// Bridges
-
 	stringhashtable_tpl <bruecke_besch_t *> * bridges = brueckenbauer_t::get_all_bridges();
 
 	if(bridges != NULL)
@@ -1940,28 +1937,27 @@ void karte_t::set_scale()
 		}
 	}
 
-
 	// Way objects
-	
 	FOR(stringhashtable_tpl<way_obj_besch_t *>, & info, *wayobj_t::get_all_wayobjects())
 	{
 		info.value->set_scale(scale_factor);
 	}
 
 	// Stations
-
 	ITERATE(hausbauer_t::modifiable_station_buildings, n)
 	{
 		hausbauer_t::modifiable_station_buildings[n]->set_scale(scale_factor); 
 	}
 
 	// Goods
-
 	const uint16 goods_count = warenbauer_t::get_waren_anzahl();
 	for(uint16 i = 0; i < goods_count; i ++)
 	{
 		warenbauer_t::get_modifiable_info(i)->set_scale(scale_factor);
 	}
+
+	// Settings
+	settings.set_scale();
 }
 
 
