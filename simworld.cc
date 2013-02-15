@@ -3339,6 +3339,13 @@ void karte_t::neuer_monat()
 
 	INT_CHECK("simworld 3105");
 
+	// Check attractions' road connexions
+	FOR(weighted_vector_tpl<gebaeude_t*>, const &i, ausflugsziele)
+	{
+		i->check_road_tiles(false);
+	}
+
+
 	//	DBG_MESSAGE("karte_t::neuer_monat()","cities");
 	stadt.update_weights(get_population);
 	sint32 outstanding_cars = 0;
@@ -3461,14 +3468,14 @@ void karte_t::neuer_monat()
 		speichern( buf, umgebung_t::savegame_version_str, umgebung_t::savegame_ex_version_str, true );
 	}
 
-	// Added by : Knightly
-	// Note		: This should be done after all lines and convoys have rolled their statistics
-	path_explorer_t::refresh_all_categories(true);
-
 	set_citycar_speed_average();
 	calc_generic_road_time_per_tile_city();
 	calc_generic_road_time_per_tile_intercity();
 	calc_max_road_check_depth();
+
+	// Added by : Knightly
+	// Note		: This should be done after all lines and convoys have rolled their statistics
+	path_explorer_t::refresh_all_categories(true);
 }
 
 
@@ -5547,6 +5554,12 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 			 */
 			rdwr_all_win( file );
 		}
+	}
+
+	// Check attractions' road connexions
+	FOR(weighted_vector_tpl<gebaeude_t*>, const &i, ausflugsziele)
+	{
+		i->check_road_tiles(false);
 	}
 
 	// Added by : Knightly

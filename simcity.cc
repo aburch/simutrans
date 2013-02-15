@@ -5566,10 +5566,6 @@ bool private_car_destination_finder_t::ist_ziel(const grund_t* gr, const grund_t
 	const koord k = gr->get_pos().get_2d();
 	const stadt_t* city = welt->lookup(k)->get_city();
 
-	// TODO: Check also for non-city attractions
-	// Might be necessary to store connexion information in road
-	// tiles, as it might take a long time to search each tile here.
-
 	if(city && city != origin_city && city->get_townhall_road() == k)
 	{
 		// We use a different system for determining travel speeds in the current city.
@@ -5579,6 +5575,10 @@ bool private_car_destination_finder_t::ist_ziel(const grund_t* gr, const grund_t
 
 	const strasse_t* str = (strasse_t*)gr->get_weg(road_wt);
 	if(str->connected_factories.get_count() > 0)
+	{
+		return true;
+	}
+	if(str->connected_attractions.get_count() > 0)
 	{
 		return true;
 	}

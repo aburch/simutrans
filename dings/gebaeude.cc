@@ -23,7 +23,7 @@
 #include "../simskin.h"
 
 #include "../boden/grund.h"
-
+#include "../boden/wege/strasse.h"
 
 #include "../besch/haus_besch.h"
 #include "../besch/intro_dates.h"
@@ -173,35 +173,52 @@ gebaeude_t::~gebaeude_t()
 
 void gebaeude_t::check_road_tiles(bool del)
 {
-	//grund_t* gr;
-	//vector_tpl<koord> tile_list;
-	//get_tile_list(tile_list);
-	//FOR(vector_tpl<koord>, const k, tile_list)
-	//{
-	//	for(uint8 i = 0; i < 8; i ++)
-	//	{
-	//		// Check for connected roads. Only roads in immediately neighbouring tiles
-	//		// and only those on the same height will register a connexion.
-	//		koord3d pos3d(k + k.neighbours[i], pos.z);
-	//		gr = welt->lookup(pos3d);
-	//		if(!gr)
-	//		{
-	//			continue;
-	//		}
-	//		strasse_t* str = (strasse_t*)gr->get_weg(road_wt);
-	//		if(str)
-	//		{
-	//			if(del)
-	//			{
-	//				str->connected_factories.remove(this);
-	//			}
-	//			else
-	//			{
-	//				str->connected_factories.append_unique(this);
-	//			}
-	//		}
-	//	}
-	//}
+	const haus_besch_t *hb = tile->get_besch();
+	const koord3d pos = get_pos() - koord3d(tile->get_offset(), 0);
+	koord size = tile->get_besch()->get_groesse(tile->get_layout());
+	koord k;
+	grund_t* gr_this;
+	
+	for(k.y = 0; k.y < size.y; k.y ++) 
+	{
+		for(k.x = 0; k.x < size.x; k.x ++) 
+		{
+			koord3d k_3d = koord3d(k, 0) + pos;
+			grund_t *gr = welt->lookup(k_3d);
+			if(gr) 
+			{
+				gebaeude_t *gb_part = gr->find<gebaeude_t>();
+				// there may be buildings with holes
+				if(gb_part && gb_part->get_tile()->get_besch() == hb) 
+				{
+					for(uint8 i = 0; i < 8; i ++)
+					{
+						// Check for connected roads. Only roads in immediately neighbouring tiles
+						// and only those on the same height will register a connexion.
+						koord pos_neighbour = k_3d.get_2d() + (k_3d.get_2d().neighbours[i]);
+						koord3d pos3d(pos_neighbour, k_3d.z);
+						gr_this = welt->lookup(pos3d);
+						if(!gr_this)
+						{
+							continue;
+						}
+						strasse_t* str = (strasse_t*)gr_this->get_weg(road_wt);
+						if(str)
+						{
+							if(del)
+							{
+								str->connected_attractions.remove(this);
+							}
+							else
+							{
+								str->connected_attractions.append_unique(this);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
 void gebaeude_t::rotate90()
@@ -1063,7 +1080,6 @@ void gebaeude_t::laden_abschliessen()
 			ptr.stadt = NULL;
 		}
 	}
-	check_road_tiles(false);
 }
 
 

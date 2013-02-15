@@ -104,8 +104,6 @@ private:
 	uint16 passengers_succeeded_non_local;
 	uint8 passenger_success_percent_last_year_non_local;
 
-	void check_road_tiles(bool del);
-
 protected:
 	gebaeude_t(karte_t *welt);
 
@@ -219,6 +217,8 @@ public:
 	uint16 get_average_passenger_success_percent_non_local() const { return (get_passenger_success_percent_this_year_non_local() + passenger_success_percent_last_year_non_local) / 2; }
 
 	void new_year();
+
+	void check_road_tiles(bool del);
 };
 
 

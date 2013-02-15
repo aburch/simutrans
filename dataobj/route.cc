@@ -278,6 +278,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 	tmp->parent = NULL;
 	tmp->gr = g;
 	tmp->count = 0;
+	tmp->g = 0;
 
 	// start in open
 	queue.insert(tmp);
@@ -305,6 +306,8 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 		tmp = test_tmp;
 		gr = tmp->gr;
 		welt->markiere(gr);
+
+		const koord TEST_k = gr->get_pos().get_2d();
 
 		// already there
 		if(fahr->ist_ziel(gr, tmp->parent == NULL ? NULL : tmp->parent->gr))
@@ -345,7 +348,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 					// This is a factory destination.
 					FOR(minivec_tpl<fabrik_t*>, const fab, str->connected_factories)
 					{
-						const uint16 straight_line_distance = shortest_distance(fab->get_pos().get_2d(), k);
+						const uint16 straight_line_distance = shortest_distance(origin_city->get_townhall_road(), k);
 						origin_city->add_road_connexion(tmp->g / straight_line_distance, fab);
 					}
 				}
@@ -355,7 +358,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 					// This is an attraction destination.
 					FOR(minivec_tpl<gebaeude_t*>, const gb, str->connected_attractions)
 					{
-						const uint16 straight_line_distance = shortest_distance(gb->get_pos().get_2d(), k);
+						const uint16 straight_line_distance = shortest_distance(origin_city->get_townhall_road(), k);
 						origin_city->add_road_connexion(tmp->g / straight_line_distance, gb);
 					}
 				}
