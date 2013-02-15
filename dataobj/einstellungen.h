@@ -398,9 +398,9 @@ public:
 
 	// Reversing settings
 	//@author: jamespetts
-	uint16 unit_reverse_time;
-	uint16 hauled_reverse_time;
-	uint16 turntable_reverse_time;
+	uint32 unit_reverse_time;
+	uint32 hauled_reverse_time;
+	uint32 turntable_reverse_time;
 
 	//@author: jamespetts
 	uint16 global_power_factor_percent; 
@@ -804,9 +804,9 @@ public:
 	bool bankruptsy_allowed() const { return allow_bankruptsy; }
 	bool insolvent_purchases_allowed() const { return allow_purhcases_when_insolvent; }
 
-	uint16 get_unit_reverse_time() const { return unit_reverse_time; }
-	uint16 get_hauled_reverse_time() const { return hauled_reverse_time; }
-	uint16 get_turntable_reverse_time() const { return turntable_reverse_time; }
+	uint32 get_unit_reverse_time() const { return unit_reverse_time; }
+	uint32 get_hauled_reverse_time() const { return hauled_reverse_time; }
+	uint32 get_turntable_reverse_time() const { return turntable_reverse_time; }
 
 	uint16 get_global_power_factor_percent() const { return global_power_factor_percent; }
 	void set_global_power_factor_percent(uint16 value) { global_power_factor_percent = value; }

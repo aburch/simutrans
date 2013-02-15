@@ -1100,9 +1100,42 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_bool(allow_bankruptsy);
 			file->rdwr_bool(allow_purhcases_when_insolvent);
 
-			file->rdwr_short(unit_reverse_time);
-			file->rdwr_short(hauled_reverse_time);
-			file->rdwr_short(turntable_reverse_time);
+			if(file->get_experimental_version() >= 11)
+			{
+				file->rdwr_long(unit_reverse_time);
+				file->rdwr_long(hauled_reverse_time);
+				file->rdwr_long(turntable_reverse_time);
+			}
+			else
+			{
+				if(umgebung_t::networkmode)
+				{
+					if(unit_reverse_time > 65535)
+					{
+						unit_reverse_time = 65535;
+					}
+					if(hauled_reverse_time > 65535)
+					{
+						hauled_reverse_time = 65535;
+					}
+					if(turntable_reverse_time > 65535)
+					{
+						turntable_reverse_time = 65535;
+					}
+				}
+				uint16 short_unit_reverse_time = unit_reverse_time < 65535 ? unit_reverse_time : 65535;
+				uint16 short_hauled_reverse_time = hauled_reverse_time < 65535 ? hauled_reverse_time : 65535;
+				uint16 short_turntable_reverse_time = turntable_reverse_time < 65535 ? turntable_reverse_time : 65535;
+
+				file->rdwr_short(short_unit_reverse_time);
+				file->rdwr_short(short_hauled_reverse_time);
+				file->rdwr_short(short_turntable_reverse_time);
+
+				unit_reverse_time = short_unit_reverse_time;
+				hauled_reverse_time = short_hauled_reverse_time;
+				turntable_reverse_time = short_turntable_reverse_time;
+			}
+			
 
 		}
 

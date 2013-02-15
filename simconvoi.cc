@@ -2581,7 +2581,7 @@ void convoi_t::vorfahren()
 	// Hajo: init speed settings
 	sp_soll = 0;
 	set_tiles_overtaking( 0 );
-	uint16 reverse_delay = 0;
+	uint32 reverse_delay = 0;
 
 	recalc_data = true;
 
@@ -5014,8 +5014,8 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 		return;
 	}
 
-	const uint16 reversing_time = fpl->get_current_eintrag().reverse ? calc_reverse_delay() : 0;
-	if(go_on_ticks==WAIT_INFINITE) 
+	const uint32 reversing_time = fpl->get_current_eintrag().reverse ? calc_reverse_delay() : 0;
+	if(go_on_ticks == WAIT_INFINITE) 
 	{
 		const sint64 departure_time = (arrival_time + current_loading_time) - reversing_time;
 		if (!loading_limit) 
@@ -6153,8 +6153,8 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
  */
 void convoi_t::snprintf_remaining_loading_time(char *p, size_t size) const
 {
-	const uint16 reverse_delay = calc_reverse_delay();
-	uint16 loading_time = current_loading_time;
+	const uint32 reverse_delay = calc_reverse_delay();
+	uint32 loading_time = current_loading_time;
 	const sint64 current_ticks = welt->get_zeit_ms();
 	const grund_t* gr = welt->lookup(this->get_pos());
 	if(gr && welt->get_zeit_ms() - arrival_time > reverse_delay && gr->is_halt())
@@ -6319,9 +6319,9 @@ void convoi_t::clear_replace()
 	 }
  }
 
- uint16 convoi_t::calc_reverse_delay() const
+ uint32 convoi_t::calc_reverse_delay() const
  {
-	uint16 reverse_delay;
+	uint32 reverse_delay;
 
 	if(reversable)
 	{
