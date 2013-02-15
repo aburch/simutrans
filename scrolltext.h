@@ -121,6 +121,7 @@
 " treiskin","beta testing",
 " Sholong","beta testing",
 " Mau","beta testing",
+" Chicken","beta testing",
 "","",
 "","",
 "Game Design Assistance:","",

@@ -1,0 +1,14 @@
+# Simutranslator settings for Simutrans-Experimental texts
+# Addendum for version 10.15
+#
+# Author: jamespetts
+# Created: December 2012
+#
+obj=program_text
+name=; brakes from max. speed in %i m
+note=Display of the braking distance in the depot window
+-
+obj=program_text
+name=; brakes from max. speed in %i - %i m
+note=Alternative display of the braking distance in the depot window
+-

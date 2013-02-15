@@ -1065,26 +1065,29 @@ curve_friction_factor_narrowgauge=0
 # around when it reaches the end of the line. They do not apply to road vehicles
 # or aircraft.
 #
-# "unit_reverse_time" refers to trains/convoys, such as multiple units, that have
+# "unit_reverse_time_seconds" refers to trains/convoys, such as multiple units, that have
 # a cab at each and, and can be driven in reverse without any re-arrangement of 
 # the order of the vehicles. These will generally take the least time to reverse.
 #
-# "hauled_reverse_time" refers to trains/convoys that cannot be driven from the
+# "hauled_reverse_time_seconds" refers to trains/convoys that cannot be driven from the
 # rear, so the locomotive at the front has to run around the train and attach
 # to the rear, but where that locomotive can itself be driven in either direction,
 # so that it does not need to turn around.
 #
-# "turntable_reverse_time" refers to trains/convoys that, as for the above category,
+# "turntable_reverse_time_seconds" refers to trains/convoys that, as for the above category,
 # cannot be driven from the rear, but that also require their locomotive to be turned
 # around to face the other direction (such as steam locomotives with tenders) at the
 # end of the journey. These will genearlly take the most time to reverse.
 #
-# All times are in milliseconds (1000 = 1 sec), assuming that the game is set to the 
-# normal speed (i.e., not fast-forwarded).
+# All times are in game seconds. In previous versions, these were specified in internal
+# milliseconds by "unit_reverse_time" (etc.) without "_seconds", but these values
+# had to be adjusted manually to match the meters per tile setting. The old keywords
+# "(unit_reverse_time)" etc. still work, but are overridden by the "..._seconds" version
+# where it is present. 
 
-unit_reverse_time=1500
-hauled_reverse_time=2500
-turntable_reverse_time=4000
+unit_reverse_time_seconds=45
+hauled_reverse_time_seconds=120
+turntable_reverse_time_seconds=320
 
 # This setting allows the power of all vehicles to be adjusted at once. It is a
 # percentage figure. Thus, if, for example, a vehicle has a power rating of 1,200kw
