@@ -487,13 +487,6 @@ public:
 	// or offline (the latter only in cases where it is shutting down)
 	void announce_server(int status);
 
-	// The month in which the next city generated will update its private car 
-	// routes if an update is needed. This spreads the computational load over
-	// a year instead of forcing it all into a month, thus improving 
-	// performance.
-	// @author: jamespetts, February 2011
-	uint8 next_private_car_update_month;
-
 	vector_tpl<fabrik_t*> closed_factories_this_month;
 
 	/* reads height data from 8 or 25 bit bmp or ppm files
@@ -1306,17 +1299,6 @@ public:
 	 */
 
 	uint32 generate_new_map_counter() const;
-
-	uint8 step_next_private_car_update_month() 
-	{ 
-		uint8 tmp = next_private_car_update_month;
-		next_private_car_update_month ++ ; 
-		if(next_private_car_update_month > 12)
-		{
-			next_private_car_update_month = 1;
-		}
-		return tmp;
-	}
 	
 	void sprintf_ticks(char *p, size_t size, sint64 ticks) const;
 	void sprintf_time(char *p, size_t size, uint32 seconds) const;

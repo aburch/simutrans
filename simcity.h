@@ -254,13 +254,6 @@ private:
 
 	vector_tpl<senke_t*> substations;
 
-	// The month in which this city will update its private car routes
-	// if an update is needed. This spreads the computational load over
-	// a year instead of forcing it all into a month, thus improving 
-	// performance.
-	// @author: jamespetts, February 2011
-	uint8 private_car_update_month;
-
 	sint32 number_of_cars;
 
 	/**

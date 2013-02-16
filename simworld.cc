@@ -1877,8 +1877,6 @@ karte_t::karte_t() :
 
 	// Added by : Knightly
 	path_explorer_t::initialise(this);
-
-	next_private_car_update_month = 1;
 }
 
 #ifdef DEBUG_SIMRAND_CALLS
@@ -3351,7 +3349,6 @@ void karte_t::neuer_monat()
 	sint32 outstanding_cars = 0;
 	FOR(weighted_vector_tpl<stadt_t*>, const s, stadt) 
 	{
-		recheck_road_connexions = true; // Always on for TESTing purposes
 		if(recheck_road_connexions) 
 		{
 			cities_awaiting_private_car_route_check.append_unique(s);
@@ -4708,7 +4705,12 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved messages");
 
 	if(file->get_experimental_version() >=9 && file->get_version() >= 110000)
 	{
-		file->rdwr_byte(next_private_car_update_month);
+		if(file->get_experimental_version() < 11)
+		{
+			// Was next_private_car_update_month
+			uint8 dummy;
+			file->rdwr_byte(dummy);
+		}
 		
 		// Existing values now saved in order to prevent network desyncs
 		file->rdwr_long(citycar_speed_average);
@@ -5519,7 +5521,12 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 
 	if(file->get_experimental_version() >=9 && file->get_version() >= 110000)
 	{
-		file->rdwr_byte(next_private_car_update_month);
+		if(file->get_experimental_version() < 11)
+		{
+			// Was next_private_car_update_month
+			uint8 dummy;
+			file->rdwr_byte(dummy);
+		}
 		
 		// Existing values now saved in order to prevent network desyncs
 		file->rdwr_long(citycar_speed_average);

@@ -3885,8 +3885,6 @@ bool waggon_t::block_reserver(route_t *route, uint16 start_index, uint16 &next_s
 			{
 				if(early_platform_index == INVALID_INDEX)
 				{
-					/*const char* TEST_this_halt = gr->get_halt().is_bound() ? gr->get_halt()->get_name() : "NULL";
-					const char* TEST_dest_halt = dest_halt->get_name();*/
 					if(gr->get_halt().is_bound() && gr->get_halt() == dest_halt) 
 					{
 						if(ribi == ribi_last)

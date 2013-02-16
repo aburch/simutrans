@@ -62,9 +62,6 @@
 #include "utils/dbg_weightmap.h"
 #endif
 
-// For TESTing
-#include "simsys.h"
-
 #include "tpl/minivec_tpl.h"
 
 karte_t* stadt_t::welt = NULL; // one is enough ...
@@ -1698,8 +1695,6 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 
 	check_road_connexions = false;
 
-	private_car_update_month = welt->step_next_private_car_update_month();
-
 	number_of_cars = 0;
 }
 
@@ -2008,7 +2003,12 @@ void stadt_t::rdwr(loadsave_t* file)
 	if(file->get_experimental_version() >=9 && file->get_version() >= 110000)
 	{
 		file->rdwr_bool(check_road_connexions);
-		file->rdwr_byte(private_car_update_month);
+		if(file->get_experimental_version() < 11)
+		{
+			// Was private_car_update_month
+			uint8 dummy;
+			file->rdwr_byte(dummy);
+		}
 
 		// Existing values now saved in order to prevent network desyncs
 		file->rdwr_long(outgoing_private_cars);
@@ -2498,14 +2498,8 @@ void stadt_t::check_all_private_car_routes()
 	const uint32 depth = welt->get_max_road_check_depth();
 	const koord3d origin(townhall_road.x, townhall_road.y, welt->lookup_hgt(townhall_road));
 	// This will find the fastest route from the townhall road to *all* other townhall roads.
-	const sint64 TEST_time_before = dr_time();
 	route_t private_car_route;
 	private_car_route.find_route(welt, origin, &private_car_destination_finder_t(welt, &automobil_t(welt), this), welt->get_citycar_speed_average(), ribi_t::alle, 0, depth, true);
-	const sint64 TEST_time_after = dr_time();
-	const sint64 TEST_time_difference = TEST_time_after - TEST_time_before;
-	cbuffer_t buf;
-	buf.printf("Time for checking road connexions of %s: %ims", get_name(), TEST_time_difference);
-	welt->get_message()->add_message(buf, get_pos(), 0);
 
 	check_road_connexions = false;
 }
@@ -2534,6 +2528,7 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 	// Used in determining growth and passenger preferences.
 	// From observations in game: anything < 2, not very congested.
 	// Anything > 4, very congested.
+	// TODO: Recalibrate this system based on real world data.
 	// @author: jamespetts
 	
 	const uint16 city_size = (ur.x - lo.x) * (ur.y - lo.y);
@@ -2584,11 +2579,6 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 	}
 
 	const uint8 current_month = (uint8)(welt->get_current_month() % 12);
-
-	if(/*check_road_connexions && private_car_update_month == current_month*/ true)
-	{
-		//check_all_private_car_routes();
-	}
 	
 	if (!stadtauto_t::list_empty()) 
 	{
@@ -2953,24 +2943,6 @@ uint16 stadt_t::check_road_connexion_to(const gebaeude_t* attraction)
 	}
 
 	return 65535;
-
-	// TODO: Remove the substance of this when the new system is tested.
-
-	/*const koord3d destination = road->get_pos();
-	const uint16 journey_time_per_tile = check_road_connexion(destination);
-
-	connected_attractions.put(attraction->get_pos().get_2d(), journey_time_per_tile);
-	if(journey_time_per_tile == 65535)
-	{
-		// We know that, if this city is not connected to any given industry, then every city
-		// to which this city is connected must likewise not be connected. So, avoid
-		// unnecessary recalculation by propogating this now.
-		FOR(connexion_map, const& iter, connected_cities)
-		{
-			welt->get_city(iter.key)->set_no_connexion_to_attraction(attraction);
-		}
-	}
-	return journey_time_per_tile;*/
 }
 
 void stadt_t::add_road_connexion(uint16 journey_time_per_tile, const stadt_t* city)
