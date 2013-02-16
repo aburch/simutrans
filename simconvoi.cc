@@ -5763,8 +5763,8 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 				traction_type |= shifter;
 			}
 		}
-		depot_finder_t finder( self, traction_type );
-		route.find_route( welt, get_vehikel(0)->get_pos(), &finder, 0, ribi_t::alle, get_heaviest_vehicle(), 0x7FFFFFFF);
+		depot_finder_t finder(self, traction_type);
+		route.find_route(welt, get_vehikel(0)->get_pos(), &finder, speed_to_kmh(get_min_top_speed()), ribi_t::alle, get_heaviest_vehicle(), 0x7FFFFFFF);
 	}
 
 	// if route to a depot has been found, update the convoy's schedule
@@ -5780,72 +5780,10 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 		}
 		else
 		{
-			depot_pos = route.position_bei(route.get_count()-1);
+			depot_pos = route.position_bei(route.get_count() - 1);
 		}		
 		fpl->insert(welt->lookup(depot_pos), 0, 0, besitzer_p == welt->get_active_player());
-		fpl->set_aktuell( (fpl->get_aktuell()+fpl->get_count()-1)%fpl->get_count() );
-		b_depot_found = set_schedule(fpl);
-	}
-	if(!b_depot_found && !use_home_depot)
-	{
-		// Second try - if the new system does not work, try the old system instead.
-		// iterate over all depots and try to find shortest route
-		route_t * shortest_route = new route_t();
-		route_t * route = new route_t();
-		koord3d home = koord3d(0,0,0);
-		FOR(slist_tpl<depot_t*>, depot, depot_t::get_depot_list())
-		{
-			if(depot->get_wegtyp()!=get_vehikel(0)->get_besch()->get_waytype() || depot->get_besitzer() != get_besitzer() || !depot->get_tile()->get_besch()->get_enabled() & traction_type) 
-			{
-				continue;
-			}
-			koord3d pos = depot->get_pos();
-			if(!shortest_route->empty() && koord_distance(pos.get_2d(),get_pos().get_2d())>=shortest_route->get_count()-1) 
-			{
-				// the current route is already shorter, no need to search further
-				continue;
-			}
-			bool found = calc_route(get_pos(), pos, 50); // do not care about speed
-			if (found) 
-			{
-				if(  route->get_count()-1 < shortest_route->get_count()-1 || shortest_route->empty()  ) 
-				{
-					const grund_t* gr = welt->lookup(get_pos());
-					if(gr && shortest_route->empty() && gr->get_depot())
-					{
-						route->append(pos);
-					}
-					else if(!route->empty())
-					{
-						shortest_route->kopiere(route);	
-					}
-					home = pos;
-				}
-			}
-		}
-		DBG_MESSAGE("shortest route has ", "%i hops", shortest_route->get_count()-1);
-
-		if(!shortest_route->empty()) 
-		{
-			koord3d depot_pos = route->position_bei(route->get_count()-1);
-			schedule_t *fpl = get_schedule();
-			fpl->insert(get_welt()->lookup(home), 0, 0, besitzer_p == welt->get_active_player());
-			fpl->set_aktuell( (fpl->get_aktuell()+fpl->get_count()-1)%fpl->get_count() );
-			b_depot_found = set_schedule(fpl);
-		}
-
-		delete shortest_route;
-		delete route;
-	}
-	
-	// Third and final try - use home depot
-	if(!b_depot_found)
-	{
-		schedule_t *fpl = get_schedule();
-		koord3d depot_pos;
-		depot_pos = home_depot;
-		fpl->insert(welt->lookup(depot_pos), 0, 0, besitzer_p == welt->get_active_player());
-		fpl->set_aktuell( (fpl->get_aktuell()+fpl->get_count()-1)%fpl->get_count() );
+		fpl->set_aktuell((fpl->get_aktuell()+fpl->get_count()-1)%fpl->get_count());
 		b_depot_found = set_schedule(fpl);
 	}
 
@@ -5861,11 +5799,12 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 	}
 	else if(!b_depot_found && !use_home_depot)
 	{
-	txt = "Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.";
+		txt = "Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.";
+		//sprintf(txt, "Sending to depot failed for %i convoy", self.get_id());
 	}
 	if ((!b_depot_found || show_success) && get_besitzer() == welt->get_active_player())
 	{
-		create_win( new news_img(txt), w_time_delete, magic_none);
+		create_win(new news_img(txt), w_time_delete, magic_none);
 	}
 	return b_depot_found;
 }
