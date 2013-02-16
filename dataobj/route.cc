@@ -307,8 +307,6 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 		gr = tmp->gr;
 		welt->markiere(gr);
 
-		const koord TEST_k = gr->get_pos().get_2d();
-
 		// already there
 		if(fahr->ist_ziel(gr, tmp->parent == NULL ? NULL : tmp->parent->gr))
 		{
@@ -358,8 +356,17 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 					// This is an attraction destination.
 					FOR(minivec_tpl<gebaeude_t*>, const gb, str->connected_attractions)
 					{
-						const uint16 straight_line_distance = shortest_distance(origin_city->get_townhall_road(), k);
-						origin_city->add_road_connexion(tmp->g / straight_line_distance, gb);
+						uint16 straight_line_distance = shortest_distance(origin_city->get_townhall_road(), k);
+						uint16 journey_time_per_tile;
+						if(straight_line_distance == 0)
+						{
+							journey_time_per_tile = 10;
+						}
+						else
+						{
+							journey_time_per_tile = tmp->g / straight_line_distance;
+						}
+						origin_city->add_road_connexion(journey_time_per_tile, gb);
 					}
 				}
 			}
