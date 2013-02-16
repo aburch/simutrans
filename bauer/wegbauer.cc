@@ -269,6 +269,10 @@ bool wegbauer_t::waytype_available( const waytype_t wtyp, uint16 time )
 const weg_besch_t * wegbauer_t::get_besch(const char * way_name,const uint16 time)
 {
 //DBG_MESSAGE("wegbauer_t::get_besch","return besch for %s in (%i)",way_name, time/12);
+	if(!way_name)
+	{
+		return NULL;
+	}
 	const weg_besch_t *besch = alle_wegtypen.get(way_name);
 	if(besch  &&  (time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time))  ) {
 		return besch;

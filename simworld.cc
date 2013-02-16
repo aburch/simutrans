@@ -1033,7 +1033,7 @@ void karte_t::distribute_groundobjs_cities( settings_t const * const sets, sint1
 {
 	DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing groundobjs");
 
-	double new_anzahl_staedte = sets->get_anzahl_staedte();
+	sint32 new_anzahl_staedte = abs(sets->get_anzahl_staedte());
 	const uint32 number_of_big_cities = umgebung_t::number_of_big_cities;
 
 	const uint32 max_city_size = sets->get_max_city_size();
@@ -1046,10 +1046,10 @@ void karte_t::distribute_groundobjs_cities( settings_t const * const sets, sint1
 printf("Creating cities ...\n");
 DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities sizes");
 
-const uint32 city_population_target_count = stadt.empty() ? new_anzahl_staedte : new_anzahl_staedte + stadt.get_count() + 1;
+const sint32 city_population_target_count = stadt.empty() ? new_anzahl_staedte : new_anzahl_staedte + stadt.get_count() + 1;
 
 vector_tpl<sint32> city_population(city_population_target_count);
-	double median_population = sets->get_mittlere_einwohnerzahl();
+	sint32 median_population = abs(sets->get_mittlere_einwohnerzahl());
 
 	// Generate random sizes to fit a Pareto distribution: P(x) = x_m / x^2 dx.
 	// This ensures that Zipf's law is satisfied in a random fashion, and
@@ -1967,11 +1967,11 @@ karte_t::karte_t() :
 
 	city_road = NULL;
 
-	// Added by : Knightly
-	path_explorer_t::initialise(this);
-
 	// @author: jamespetts
 	set_scale();
+
+	// Added by : Knightly
+	path_explorer_t::initialise(this);
 
 	next_private_car_update_month = 1;
 }
@@ -2008,7 +2008,6 @@ void karte_t::set_scale()
 	}
 
 	// Ways
-
 	stringhashtable_tpl <weg_besch_t *> * ways = wegbauer_t::get_all_ways();
 
 	if(ways != NULL)
@@ -2020,7 +2019,6 @@ void karte_t::set_scale()
 	}
 
 	// Tunnels
-
 	stringhashtable_tpl <tunnel_besch_t *> * tunnels = tunnelbauer_t::get_all_tunnels();
 
 	if(tunnels != NULL)
@@ -2032,7 +2030,6 @@ void karte_t::set_scale()
 	}
 
 	// Bridges
-
 	stringhashtable_tpl <bruecke_besch_t *> * bridges = brueckenbauer_t::get_all_bridges();
 
 	if(bridges != NULL)
@@ -2043,28 +2040,27 @@ void karte_t::set_scale()
 		}
 	}
 
-
 	// Way objects
-	
 	FOR(stringhashtable_tpl<way_obj_besch_t *>, & info, *wayobj_t::get_all_wayobjects())
 	{
 		info.value->set_scale(scale_factor);
 	}
 
 	// Stations
-
 	ITERATE(hausbauer_t::modifiable_station_buildings, n)
 	{
 		hausbauer_t::modifiable_station_buildings[n]->set_scale(scale_factor); 
 	}
 
 	// Goods
-
 	const uint16 goods_count = warenbauer_t::get_waren_anzahl();
 	for(uint16 i = 0; i < goods_count; i ++)
 	{
 		warenbauer_t::get_modifiable_info(i)->set_scale(scale_factor);
 	}
+
+	// Settings
+	settings.set_scale();
 }
 
 

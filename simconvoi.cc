@@ -414,7 +414,7 @@ void convoi_t::laden_abschliessen()
 	if(  anz_vehikel>0  ) {
 DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", state_names[state], next_stop_index );
 	
-	const uint32 max_route_index = get_route()->get_count() - 1;
+	const uint32 max_route_index = get_route() ? get_route()->get_count() - 1 : 0;
 
 	// only realign convois not leaving depot to avoid jumps through signals
 		if(  steps_driven!=-1  ) {
@@ -438,11 +438,11 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", sta
 			uint8 const diagonal_vehicle_steps_per_tile = (uint8)(130560U / welt->get_settings().get_pak_diagonal_multiplier());
 			for( uint8 i=0;  i<anz_vehikel;  i++ ) {
 				vehikel_t* v = fahr[i];
-				if(v->get_route_index() > max_route_index && max_route_index > 0 && i > 0)
+				/*if(v->get_route_index() > max_route_index && max_route_index > 0 && i > 0)
 				{
 					dbg->error("convoi_t::laden_abschliessen()", "Route index is %i, whereas maximum route index is %i for convoy %i", v->get_route_index(), max_route_index, self.get_id());
 					v->set_route_index(fahr[0]->get_route_index());
-				}
+				}*/
 				v->set_erstes( i==0 );
 				v->set_letztes( i+1==anz_vehikel );
 				// this sets the convoi and will renew the block reservation, if needed!
@@ -550,7 +550,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 				// eventually reserve this again
 				grund_t *gr=welt->lookup(v->get_pos());
 				// airplanes may have no ground ...
-				if (schiene_t* const sch0 = ding_cast<schiene_t>(gr->get_weg(fahr[i]->get_waytype()))) {
+				if(schiene_t* const sch0 = ding_cast<schiene_t>(gr->get_weg(fahr[i]->get_waytype()))) {
 					sch0->reserve(self,ribi_t::keine);
 				}
 			}
@@ -722,7 +722,7 @@ void convoi_t::add_running_cost(sint64 cost, const weg_t *weg)
 					ding_t *d = gr->obj_bei(i);
 					if(wayobj_t const* const wo = ding_cast<wayobj_t>(d))  
 					{
-						if(wo->get_waytype()==weg->get_waytype())
+						if(wo->get_waytype() == weg->get_waytype())
 						{
 							toll += (wo->get_besch()->get_wartung() * welt->get_settings().get_way_toll_waycost_percentage()) / 100l;
 							break;
@@ -1176,7 +1176,7 @@ bool convoi_t::sync_step(long delta_t)
  */
 bool convoi_t::drive_to()
 {
-	if(  anz_vehikel>0  ) 
+	if(  anz_vehikel>0 && fpl  ) 
 	{
 		koord3d start = fahr[0]->get_pos();
 		koord3d ziel = fpl->get_current_eintrag().pos;
@@ -2590,7 +2590,7 @@ void convoi_t::vorfahren()
 	// Hajo: init speed settings
 	sp_soll = 0;
 	set_tiles_overtaking( 0 );
-	uint16 reverse_delay = 0;
+	uint32 reverse_delay = 0;
 
 	must_recalc_data();
 
@@ -3117,7 +3117,7 @@ void convoi_t::rdwr(loadsave_t *file)
 					state = INITIAL;
 				}
 				// add to blockstrecke "block stretch" (Google). Possibly "block section"?
-				if(v->get_waytype()==track_wt  ||  v->get_waytype()==monorail_wt  ||  v->get_waytype()==maglev_wt  ||  v->get_waytype()==narrowgauge_wt) {
+				if(gr && (v->get_waytype()==track_wt  ||  v->get_waytype()==monorail_wt  ||  v->get_waytype()==maglev_wt  ||  v->get_waytype()==narrowgauge_wt)) {
 					schiene_t* sch = (schiene_t*)gr->get_weg(v->get_waytype());
 					if(sch) {
 						sch->reserve(self,ribi_t::keine);
@@ -4088,7 +4088,6 @@ void convoi_t::laden() //"load" (Babelfish)
 					{
 						// Anomaly detected - check to see whether this can be caused by odd timetabling.
 						// If not, then this must be caused by traffic fluctuations, and should remain.
-						const koord3d pos = gr->get_pos();
 						const uint8 fpl_count = fpl->get_count();
 						uint32 this_stop_count = 0;
 						for(uint8 i = 0; i < fpl_count; i ++)
@@ -4146,7 +4145,6 @@ write_basic:
 						{
 							// Anomaly detected - check to see whether this can be caused by odd timetabling.
 							// If not, then this must be caused by traffic fluctuations, and should remain.
-							const koord3d pos = gr->get_pos();
 							const uint8 fpl_count = fpl->get_count();
 							uint32 this_stop_count = 0;
 							for(uint8 i = 0; i < fpl_count; i ++)
@@ -4415,7 +4413,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 
 	if(average_speed > speed_to_kmh(get_min_top_speed()))
 	{
-		dbg->warning("sint64 convoi_t::calc_revenue", "Average speed (%i) for %s exceeded maximum speed (%i); falling back to overall average", average_speed, get_name(), get_min_top_speed());
+		dbg->warning("sint64 convoi_t::calc_revenue", "Average speed (%i) for %s exceeded maximum speed (%i); falling back to overall average", average_speed, get_name(), speed_to_kmh(get_min_top_speed()));
 		journey_minutes = (((distance * 100) / overall_average_speed) * welt->get_settings().get_meters_per_tile()) / 1667;
 		average_speed = overall_average_speed;
 	}
@@ -4986,7 +4984,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 				}
 				besitzer_p->buche(-sp->interim_apportioned_revenue, COST_WAY_TOLLS);
 				book(-sp->interim_apportioned_revenue, CONVOI_PROFIT);
-				welt->get_spieler(i)->interim_apportioned_revenue = 0;
+				sp->interim_apportioned_revenue = 0;
 			}
 		}
 
@@ -5034,8 +5032,8 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 		return;
 	}
 
-	const uint16 reversing_time = fpl->get_current_eintrag().reverse ? calc_reverse_delay() : 0;
-	if(go_on_ticks==WAIT_INFINITE) 
+	const uint32 reversing_time = fpl->get_current_eintrag().reverse ? calc_reverse_delay() : 0;
+	if(go_on_ticks == WAIT_INFINITE) 
 	{
 		const sint64 departure_time = (arrival_time + current_loading_time) - reversing_time;
 		if (!loading_limit) 
@@ -6203,8 +6201,8 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
  */
 void convoi_t::snprintf_remaining_loading_time(char *p, size_t size) const
 {
-	const uint16 reverse_delay = calc_reverse_delay();
-	uint16 loading_time = current_loading_time;
+	const uint32 reverse_delay = calc_reverse_delay();
+	uint32 loading_time = current_loading_time;
 	const sint64 current_ticks = welt->get_zeit_ms();
 	const grund_t* gr = welt->lookup(this->get_pos());
 	if(gr && welt->get_zeit_ms() - arrival_time > reverse_delay && gr->is_halt())
@@ -6369,9 +6367,9 @@ void convoi_t::clear_replace()
 	 }
  }
 
- uint16 convoi_t::calc_reverse_delay() const
+ uint32 convoi_t::calc_reverse_delay() const
  {
-	uint16 reverse_delay;
+	uint32 reverse_delay;
 
 	if(reversable)
 	{

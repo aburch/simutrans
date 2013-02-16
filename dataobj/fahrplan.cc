@@ -88,15 +88,21 @@ bool schedule_t::ist_halt_erlaubt(const grund_t *gr) const
 
 
 
-bool schedule_t::insert(const grund_t* gr, uint16 ladegrad, uint8 waiting_time_shift, sint16 spacing_shift, bool show_failure )
+bool schedule_t::insert(const grund_t* gr, uint16 ladegrad, uint8 waiting_time_shift, sint16 spacing_shift, bool show_failure)
 {
 	// stored in minivec, so we have to avoid adding too many
-	if(  eintrag.get_count()>=254  ) 
+	if(eintrag.get_count() >= 254) 
 	{
 		if(show_failure)
 		{
 			create_win( new news_img("Maximum 254 stops\nin a schedule!\n"), w_time_delete, magic_none);
 		}
+		return false;
+	}
+
+	if(!gr)
+	{
+		// This can occur in some cases if a depot is not found.
 		return false;
 	}
 
@@ -122,6 +128,12 @@ bool schedule_t::append(const grund_t* gr, uint16 ladegrad, uint8 waiting_time_s
 	// stored in minivec, so wie have to avoid adding too many
 	if(eintrag.get_count()>=254) {
 		create_win( new news_img("Maximum 254 stops\nin a schedule!\n"), w_time_delete, magic_none);
+		return false;
+	}
+
+	if(!gr)
+	{
+		// This can occur in some cases if a depot is not found.
 		return false;
 	}
 

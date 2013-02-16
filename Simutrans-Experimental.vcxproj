@@ -1175,6 +1175,7 @@
     <None Include="base_texts_experimental_10.15.dat" />
     <None Include="base_texts_experimental_10.2.dat" />
     <None Include="base_texts_experimental_10.22.dat" />
+    <None Include="base_texts_experimental_10.27.dat" />
     <None Include="base_texts_experimental_10.8.dat" />
     <None Include="base_texts_experimental_6_2.dat" />
     <None Include="base_texts_experimental_6_3.dat" />

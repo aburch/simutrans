@@ -595,7 +595,7 @@ void gui_convoy_assembler_t::zeichnen(koord parent_pos)
 		const sint32 brake_distance_min = convoy.calc_min_braking_distance(weight_summary_t(min_weight, friction), kmh2ms * max_speed);
 		const sint32 brake_distance_max = convoy.calc_min_braking_distance(weight_summary_t(max_weight, friction), kmh2ms * max_speed);
 		txt_convoi_speed_offs += sprintf(txt_convoi_speed + txt_convoi_speed_offs, 
-			brake_distance_min == brake_distance_max ? "; brakes from max. speed in %i m" : "; brakes from max. speed in %i - %i m", 
+			brake_distance_min == brake_distance_max ? translator::translate("; brakes from max. speed in %i m") : translator::translate("; brakes from max. speed in %i - %i m"), 
 			brake_distance_min, brake_distance_max);
 		lb_convoi_speed.set_color(col_convoi_speed);
 	}

@@ -72,11 +72,11 @@ const uint8 reliefkarte_t::severity_color[MAX_SEVERITY_COLORS] =
 #define STRASSE_KENN      (208)
 #define SCHIENE_KENN      (185)
 #define CHANNEL_KENN      (147)
-#define MONORAIL_KENN      (155)
-#define RUNWAY_KENN      (28)
-#define POWERLINE_KENN      (55)
+#define MONORAIL_KENN     (153)
+#define RUNWAY_KENN		  (28)
+#define POWERLINE_KENN    (55)
 #define HALT_KENN         COL_RED
-#define BUILDING_KENN      COL_GREY3
+#define BUILDING_KENN     COL_GREY3
 
 
 // helper function for line segment_t
