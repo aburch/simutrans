@@ -59,8 +59,8 @@ private:
 	gui_label_t lb_convois;
 	button_t bt_next;
 
-	gui_label_t lb_convoi_value;
-	gui_label_t lb_convoi_line;
+//	gui_label_t lb_convoi_value;
+//	gui_label_t lb_convoi_line;
 
 	button_t bt_start;
 	button_t bt_schedule;
@@ -95,8 +95,8 @@ private:
 	char txt_cnv_name[118];
 	char txt_old_cnv_name[118];
 
-	char txt_convoi_value[80];
-	char txt_convoi_line[128];
+//	char txt_convoi_value[80];
+//	char txt_convoi_line[128];
 
 	char txt_traction_types[256];
 

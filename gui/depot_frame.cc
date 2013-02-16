@@ -53,8 +53,8 @@ depot_frame_t::depot_frame_t(depot_t* depot) :
 	depot(depot),
 	icnv(depot->convoi_count()-1),
 	lb_convois(NULL, COL_BLACK, gui_label_t::left),
-	lb_convoi_value(NULL, COL_BLACK, gui_label_t::right),
-	lb_convoi_line(NULL, COL_BLACK, gui_label_t::left),
+//	lb_convoi_value(NULL, COL_BLACK, gui_label_t::right),
+//	lb_convoi_line(NULL, COL_BLACK, gui_label_t::left),
 	lb_traction_types(NULL, COL_BLACK, gui_label_t::left),
 	convoy_assembler(get_welt(), depot->get_wegtyp(), depot->get_player_nr(), check_way_electrified(true) )
 {
@@ -93,8 +93,8 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	add_komponente(&line_selector);
 	depot->get_besitzer()->simlinemgmt.sort_lines();
 
-	add_komponente(&lb_convoi_value);
-	add_komponente(&lb_convoi_line);
+//	add_komponente(&lb_convoi_value);
+//	add_komponente(&lb_convoi_line);
 	add_komponente(&lb_traction_types);
 
 	/*
@@ -150,8 +150,8 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 
 	// text will be translated by ourselves (after update data)!
 	lb_convois.set_text_pointer(txt_convois);
-	lb_convoi_value.set_text_pointer(txt_convoi_value);
-	lb_convoi_line.set_text_pointer(txt_convoi_line);
+//	lb_convoi_value.set_text_pointer(txt_convoi_value);
+//	lb_convoi_line.set_text_pointer(txt_convoi_line);
 	lb_traction_types.set_text_pointer(txt_traction_types);
 
 	check_way_electrified();
@@ -243,7 +243,7 @@ void depot_frame_t::layout(koord *gr)
 	*
 	*  PREV and NEXT are small buttons - Label is adjusted to total width.
 	*/
-	int SELECT_HEIGHT = 14;
+	const int SELECT_HEIGHT = 14;
 
 	/*
 	*	Structure of [ACTIONS] is a row of buttons:
@@ -251,24 +251,24 @@ void depot_frame_t::layout(koord *gr)
 	*	    [Start][Schedule][Destroy][Sell]
 	*      [new Route][change Route][delete Route]
 	*/
-	int ABUTTON_WIDTH = 128;
-	int ABUTTON_HEIGHT = 14;
-	int ACTIONS_WIDTH = 2+4*(ABUTTON_WIDTH+2);
-	int ACTIONS_HEIGHT = ABUTTON_HEIGHT + ABUTTON_HEIGHT; // @author hsiegeln: added "+ ABUTTON_HEIGHT"
+	const int ABUTTON_WIDTH = 128;
+	const int ABUTTON_HEIGHT = 14;
+	const int ACTIONS_WIDTH = 2+4*(ABUTTON_WIDTH+2);
+	const int ACTIONS_HEIGHT = ABUTTON_HEIGHT + ABUTTON_HEIGHT + 2; // @author hsiegeln: added "+ ABUTTON_HEIGHT"
 	convoy_assembler.set_convoy_tabs_skip(ACTIONS_HEIGHT);
 
 	/*
 	* Total width is the max from [CONVOI] and [ACTIONS] width.
 	*/
-	int MIN_DEPOT_FRAME_WIDTH = min((float)display_get_width() *0.7F, max(convoy_assembler.get_convoy_image_width(), ACTIONS_WIDTH));
-	int DEPOT_FRAME_WIDTH = min((float)display_get_width() * 0.7F, max(fgr.x,max(convoy_assembler.get_convoy_image_width(), ACTIONS_WIDTH)));
+	int MIN_DEPOT_FRAME_WIDTH = min(display_get_width(), max(convoy_assembler.get_convoy_image_width(), ACTIONS_WIDTH));
+	int DEPOT_FRAME_WIDTH = min(display_get_width(), max(fgr.x,max(convoy_assembler.get_convoy_image_width(), ACTIONS_WIDTH)));
 
 	/*
 	*	Now we can do the first vertical adjustement:
 	*/
-	int SELECT_VSTART = 16;
-	int ASSEMBLER_VSTART = SELECT_VSTART + SELECT_HEIGHT + LINESPACE;
-	int ACTIONS_VSTART = ASSEMBLER_VSTART + convoy_assembler.get_convoy_height();
+	const int SELECT_VSTART = 16;
+	const int ASSEMBLER_VSTART = SELECT_VSTART + SELECT_HEIGHT + LINESPACE;
+	const int ACTIONS_VSTART = ASSEMBLER_VSTART + convoy_assembler.get_convoy_height();
 
 	/*
 	* Now we determine the row/col layout for the panel and the total panel
@@ -281,8 +281,8 @@ void depot_frame_t::layout(koord *gr)
 	/*
 	 *	Now we can do the complete vertical adjustement:
 	 */
-	int TOTAL_HEIGHT = min((float)display_get_height() *0.9F, ASSEMBLER_VSTART + convoy_assembler.get_height());
-	int MIN_TOTAL_HEIGHT =  min((float)display_get_height() *0.9F, ASSEMBLER_VSTART + convoy_assembler.get_min_height());
+	int TOTAL_HEIGHT = min(display_get_height(), ASSEMBLER_VSTART + convoy_assembler.get_height());
+	int MIN_TOTAL_HEIGHT =  min(display_get_height(), ASSEMBLER_VSTART + convoy_assembler.get_min_height());
 
 	/*
 	* DONE with layout planning - now build everything.
@@ -325,8 +325,8 @@ void depot_frame_t::layout(koord *gr)
 	convoy_assembler.set_groesse(koord(DEPOT_FRAME_WIDTH,convoy_assembler.get_height()));
 	convoy_assembler.layout();
 
-	lb_convoi_value.set_pos(koord(DEPOT_FRAME_WIDTH-10, ASSEMBLER_VSTART + convoy_assembler.get_convoy_image_height()));
-	lb_convoi_line.set_pos(koord(4, ASSEMBLER_VSTART + convoy_assembler.get_convoy_image_height() + LINESPACE * 2));
+//	lb_convoi_value.set_pos(koord(DEPOT_FRAME_WIDTH-10, ASSEMBLER_VSTART + convoy_assembler.get_convoy_image_height()));
+//	lb_convoi_line.set_pos(koord(4, ASSEMBLER_VSTART + convoy_assembler.get_convoy_image_height() + LINESPACE * 2));
 	lb_traction_types.set_pos(koord(4, ACTIONS_VSTART + (ABUTTON_HEIGHT * 2)));
  
 
@@ -651,36 +651,36 @@ void depot_frame_t::zeichnen(koord pos, koord groesse)
 		cnv = depot->get_convoi(icnv);
 	}
 
-	if(cnv.is_bound()) {
-		if(cnv->get_vehikel_anzahl() > 0) {
-			char number[64];
-			money_to_string( number, cnv->calc_restwert()/100.0 );
-			sprintf(txt_convoi_value, "%s %s", translator::translate("Restwert:"), number);
-			// just recheck if schedules match
-			if(  cnv->get_line().is_bound()  &&  cnv->get_line()->get_schedule()->ist_abgeschlossen()  ) {
-				cnv->check_pending_updates();
-				if(  !cnv->get_line()->get_schedule()->matches( get_welt(), cnv->get_schedule() )  ) {
-					cnv->unset_line();
-				}
-			}
-			if(  cnv->get_line().is_bound()  ) {
-				sprintf(txt_convoi_line, "%s %s", translator::translate("Serves Line:"), cnv->get_line()->get_name());
+	//if(cnv.is_bound()) {
+	//	if(cnv->get_vehikel_anzahl() > 0) {
+	//		char number[64];
+	//		money_to_string( number, cnv->calc_restwert()/100.0 );
+	//		sprintf(txt_convoi_value, "%s %s", translator::translate("Restwert:"), number);
+	//		// just recheck if schedules match
+	//		if(  cnv->get_line().is_bound()  &&  cnv->get_line()->get_schedule()->ist_abgeschlossen()  ) {
+	//			cnv->check_pending_updates();
+	//			if(  !cnv->get_line()->get_schedule()->matches( get_welt(), cnv->get_schedule() )  ) {
+	//				cnv->unset_line();
+	//			}
+	//		}
+	//		if(  cnv->get_line().is_bound()  ) {
+	//			sprintf(txt_convoi_line, "%s %s", translator::translate("Serves Line:"), cnv->get_line()->get_name());
 
-			}
-			else {
-				sprintf(txt_convoi_line, "%s %s", translator::translate("Serves Line:"), no_line_text);
-			}
-		}
-		else {
-			*txt_convoi_value = '\0';
-		}
-	}
-	else {
-		static char empty[2] = "\0";
-		inp_name.set_text( empty, 0);
-		*txt_convoi_value = '\0';
-		*txt_convoi_line = '\0';
-	}
+	//		}
+	//		else {
+	//			sprintf(txt_convoi_line, "%s %s", translator::translate("Serves Line:"), no_line_text);
+	//		}
+	//	}
+	//	else {
+	//		*txt_convoi_value = '\0';
+	//	}
+	//}
+	//else {
+	//	static char empty[2] = "\0";
+	//	inp_name.set_text( empty, 0);
+	//	*txt_convoi_value = '\0';
+	//	*txt_convoi_line = '\0';
+	//}
 
 	gui_frame_t::zeichnen(pos, groesse);
 
