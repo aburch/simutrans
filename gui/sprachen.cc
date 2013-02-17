@@ -101,6 +101,8 @@ sprachengui_t::sprachengui_t() :
 	seperator.set_groesse( koord(DIALOG_WIDTH-D_MARGIN_RIGHT-flags.get_groesse().x-D_MARGIN_LEFT-D_V_SPACE,0) );
 	add_komponente( &seperator );
 
+	sint16 y_size = max( seperator.get_pos().y + seperator.get_groesse().y, flags.get_pos().y + flags.get_groesse().y) + D_H_SPACE;
+
 	const translator::lang_info* lang = translator::get_langs();
 	for (int i = 0; i < translator::get_language_count(); ++i, ++lang) {
 		button_t* b = new button_t();
@@ -156,14 +158,14 @@ sprachengui_t::sprachengui_t() :
 	{
 		const bool right = 2*i >= count;
 		const sint16 x = D_MARGIN_LEFT + (right  ? DIALOG_WIDTH/2 : 0);
-		const sint16 y = 44 + D_BUTTON_HEIGHT * (right ? i - (count+1)/2: i);
+		const sint16 y = y_size + D_BUTTON_HEIGHT * (right ? i - (count+1)/2: i);
 		buttons[i].button->set_pos(koord(x,y));
 		add_komponente( buttons[i].button );
 	}
 
 	chdir(umgebung_t::user_dir);
 
-	set_fenstergroesse( koord(DIALOG_WIDTH, D_MARGIN_BOTTOM+44+(translator::get_language_count()/2 + 1)*D_BUTTON_HEIGHT) );
+	set_fenstergroesse( koord(DIALOG_WIDTH, D_MARGIN_BOTTOM+y_size+(translator::get_language_count()/2 + 1)*D_BUTTON_HEIGHT) );
 }
 
 
