@@ -2419,9 +2419,9 @@ void karte_t::rdwr_player_password_hashes(loadsave_t *file)
 
 void karte_t::call_change_player_tool(uint8 cmd, uint8 player_nr, uint16 param)
 {
-	nwc_chg_player_t *nwc = new nwc_chg_player_t(sync_steps, map_counter, cmd, player_nr, param);
-
 	if (umgebung_t::networkmode) {
+		nwc_chg_player_t *nwc = new nwc_chg_player_t(sync_steps, map_counter, cmd, player_nr, param);
+
 		network_send_server(nwc);
 	}
 	else {
