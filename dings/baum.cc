@@ -259,55 +259,53 @@ bool baum_t::alles_geladen()
 {
 	if(  besch_names.empty()  ) {
 		DBG_MESSAGE("baum_t", "No trees found - feature disabled");
-		baum_typen.append( NULL );
 	}
-	else {
-		FOR(stringhashtable_tpl<baum_besch_t const*>, const& i, besch_names) {
-			baum_typen.insert_ordered(i.value, compare_baum_besch);
-			if(  baum_typen.get_count()==255  ) {
-				dbg->error( "baum_t::alles_geladen()", "Maximum tree count exceeded! (max 255 instead of %i)", besch_names.get_count() );
-				break;
+
+	FOR(stringhashtable_tpl<baum_besch_t const*>, const& i, besch_names) {
+		baum_typen.insert_ordered(i.value, compare_baum_besch);
+		if(  baum_typen.get_count()==255  ) {
+			dbg->error( "baum_t::alles_geladen()", "Maximum tree count exceeded! (max 255 instead of %i)", besch_names.get_count() );
+			break;
+		}
+	}
+	baum_typen.append( NULL );
+
+	if (baum_typen_per_climate) {
+		delete [] baum_typen_per_climate;
+	}
+	baum_typen_per_climate = new weighted_vector_tpl<uint32>[MAX_CLIMATES];
+
+	// clear cache
+	memset( baumtype_to_bild, -1, lengthof(baumtype_to_bild) );
+	// now register all trees for all fitting climates
+	for(  uint32 typ=0;  typ<baum_typen.get_count()-1;  typ++  ) {
+		// add this tree to climates
+		for(  uint8 j=0;  j<MAX_CLIMATES;  j++  ) {
+			if(  baum_typen[typ]->is_allowed_climate((climate)j)  ) {
+				baum_typen_per_climate[j].append(typ, baum_typen[typ]->get_distribution_weight());
 			}
 		}
-		baum_typen.append( NULL );
-
-		if (baum_typen_per_climate) {
-			delete [] baum_typen_per_climate;
-		}
-		baum_typen_per_climate = new weighted_vector_tpl<uint32>[MAX_CLIMATES];
-
-		// clear cache
-		memset( baumtype_to_bild, -1, lengthof(baumtype_to_bild) );
-		// now register all trees for all fitting climates
-		for(  uint32 typ=0;  typ<baum_typen.get_count()-1;  typ++  ) {
-			// add this tree to climates
-			for(  uint8 j=0;  j<MAX_CLIMATES;  j++  ) {
-				if(  baum_typen[typ]->is_allowed_climate((climate)j)  ) {
-					baum_typen_per_climate[j].append(typ, baum_typen[typ]->get_distribution_weight());
-				}
-			}
-			// create cache images
-			for(  uint8 season=0;  season<5;  season++  ) {
-				for(  uint8 age=0;  age<5;  age++  ) {
-					uint8 use_season = 0;
-					const sint16 seasons = baum_typen[typ]->get_seasons();
-					if(seasons>1) {
-						use_season = season;
-						// three possibilities
-						if(  seasons<4  ) {
-							// only summer and winter => season 4 with winter image
-							use_season = (season==4);
-						}
-						else if(  seasons==4  ) {
-							// all there, but the snowy special image missing
-							if(  season==4  ) {
-								// take spring image (gave best results with pak64, pak.german)
-								use_season = 2;
-							}
+		// create cache images
+		for(  uint8 season=0;  season<5;  season++  ) {
+			for(  uint8 age=0;  age<5;  age++  ) {
+				uint8 use_season = 0;
+				const sint16 seasons = baum_typen[typ]->get_seasons();
+				if(seasons>1) {
+					use_season = season;
+					// three possibilities
+					if(  seasons<4  ) {
+						// only summer and winter => season 4 with winter image
+						use_season = (season==4);
+					}
+					else if(  seasons==4  ) {
+						// all there, but the snowy special image missing
+						if(  season==4  ) {
+							// take spring image (gave best results with pak64, pak.german)
+							use_season = 2;
 						}
 					}
-					baumtype_to_bild[typ][season*5+age] = baum_typen[typ]->get_bild_nr( use_season, age );
 				}
+				baumtype_to_bild[typ][season*5+age] = baum_typen[typ]->get_bild_nr( use_season, age );
 			}
 		}
 	}
