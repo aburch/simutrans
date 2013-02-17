@@ -189,7 +189,9 @@ public:
 class wkz_plant_tree_t : public kartenboden_werkzeug_t {
 public:
 	wkz_plant_tree_t() : kartenboden_werkzeug_t(WKZ_PLANT_TREE | GENERAL_TOOL) {}
+	image_id get_icon(spieler_t *) const { return baum_t::get_anzahl_besch() > 0 ? icon : IMG_LEER; }
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate( "Plant tree" ); }
+	bool init(karte_t*, spieler_t*) { return baum_t::get_anzahl_besch() > 0; }
 	char const* move(karte_t* const welt, spieler_t* const sp, uint16 const b, koord3d const k) OVERRIDE;
 	char const* work(karte_t*, spieler_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
@@ -511,7 +513,9 @@ public:
 class wkz_forest_t : public two_click_werkzeug_t {
 public:
 	wkz_forest_t() : two_click_werkzeug_t(WKZ_FOREST | GENERAL_TOOL) {}
+	image_id get_icon(spieler_t *) const { return baum_t::get_anzahl_besch() > 0 ? icon : IMG_LEER; }
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("Add forest"); }
+	bool init( karte_t *welt, spieler_t *sp) { return  baum_t::get_anzahl_besch() > 0  &&  two_click_werkzeug_t::init(welt, sp); }
 private:
 	char const* do_work(karte_t*, spieler_t*, koord3d const&, koord3d const&) OVERRIDE;
 	void mark_tiles(karte_t*, spieler_t*, koord3d const&, koord3d const&) OVERRIDE;
@@ -819,8 +823,9 @@ class wkz_fill_trees_t : public werkzeug_t {
 public:
 	wkz_fill_trees_t() : werkzeug_t(WKZ_FILL_TREES | SIMPLE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("Fill trees"); }
+	image_id get_icon(spieler_t *) const { return baum_t::get_anzahl_besch() > 0 ? icon : IMG_LEER; }
 	bool init( karte_t *welt, spieler_t * ) {
-		if(  default_param  ) {
+		if(  baum_t::get_anzahl_besch() > 0  &&  default_param  ) {
 			baum_t::fill_trees( welt, atoi(default_param) );
 		}
 		return false;

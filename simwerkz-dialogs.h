@@ -403,14 +403,15 @@ public:
 	bool is_work_network_save() const OVERRIDE { return true; }
 };
 
-/* house building dialog */
+/* tree placing dialog */
 class wkz_treebuilder_t : public werkzeug_t {
 public:
 	wkz_treebuilder_t() : werkzeug_t(WKZ_EDIT_TREE | DIALOGE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("baum builder"); }
+	image_id get_icon(spieler_t *) const { return baum_t::get_anzahl_besch() > 0 ? icon : IMG_LEER; }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_edit_tree); }
 	bool init(karte_t* welt, spieler_t* sp) OVERRIDE {
-		if (!is_selected(welt)) {
+		if (baum_t::get_anzahl_besch() > 0  &&  !is_selected(welt)) {
 			create_win( new baum_edit_frame_t(sp,welt), w_info, magic_edit_tree );
 		}
 		return false;
