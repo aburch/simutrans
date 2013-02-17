@@ -1333,7 +1333,7 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 		start_data.best_weight = 65535u;
 		start_data.destination = 0;
 		start_data.depth       = 0;
-		start_data.overcrowded = no_routing_over_overcrowding  &&  start_halt->is_overcrowded(ware_catg_idx);
+		start_data.overcrowded = false; // start halt overcrowding is handled by routines calling this one
 		start_data.transfer    = halthandle_t();
 		overcrowded_nodes     += start_data.overcrowded;
 
