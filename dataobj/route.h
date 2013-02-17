@@ -45,6 +45,7 @@ public:
 		const grund_t* gr;
 		uint32  f, g;
 		uint8 dir;
+		uint8 ribi_from; /// we came from this direction
 		uint16 count;
 
 		inline bool operator <= (const ANode &k) const { return f==k.f ? g<=k.g : f<=k.f; }

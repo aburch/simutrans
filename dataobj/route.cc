@@ -326,6 +326,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 	tmp->g = 0;
 	tmp->dir = 0;
 	tmp->count = 0;
+	tmp->ribi_from = ribi_t::alle;
 
 	// nothing in lists
 	welt->unmarkiere_alle();
@@ -333,6 +334,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 	// clear the queue (should be empty anyhow)
 	queue.clear();
 	queue.insert(tmp);
+	ANode* new_top = NULL;
 
 //DBG_MESSAGE("route_t::itern_calc_route()","calc route from %d,%d,%d to %d,%d,%d",ziel.x, ziel.y, ziel.z, start.x, start.y, start.z);
 	uint32 beat=1;
@@ -342,19 +344,22 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 			INT_CHECK("route 161");
 		}
 
-		ANode *test_tmp = queue.pop();
-
-		if(welt->ist_markiert(test_tmp->gr)) {
-			// we were already here on a faster route, thus ignore this branch
-			// (trading speed against memory consumption)
-			continue;
+		if (new_top) {
+			// this is not in closed list, no check necessary
+			tmp = new_top;
+			new_top = NULL;
+		}
+		else {
+			tmp = queue.pop();
+			if(welt->ist_markiert(tmp->gr)) {
+				// we were already here on a faster route, thus ignore this branch
+				// (trading speed against memory consumption)
+				continue;
+			}
 		}
 
-		tmp = test_tmp;
 		gr = tmp->gr;
 		welt->markiere(gr);
-
-//DBG_DEBUG("add to close","(%i,%i,%i) f=%i",gr->get_pos().x,gr->get_pos().y,gr->get_pos().z,tmp->f);
 
 		// we took the target pos out of the closed list
 		if(ziel==gr->get_pos()) {
@@ -362,8 +367,12 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 			break;
 		}
 
+		uint32 topnode_g = !queue.empty() ? queue.front()->g : max_cost;
+
 		// testing all four possible directions
-		const ribi_t::ribi ribi =  fahr->get_ribi(gr);
+		// mask direction we came from
+		const ribi_t::ribi ribi =  fahr->get_ribi(gr)  &  ( ~ribi_t::rueckwaerts(tmp->ribi_from) );
+
 		const ribi_t::ribi *next_ribi = get_next_dirs(gr->get_pos().get_2d(),ziel.get_2d());
 		for(int r=0; r<4; r++) {
 
@@ -414,7 +423,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 
 				}
 				else {
-					 current_dir = ribi_typ( gr->get_pos().get_2d(), to->get_pos().get_2d() );
+					current_dir = ribi_typ( gr->get_pos().get_2d(), to->get_pos().get_2d() );
 				}
 
 				const uint32 new_f = new_g + calc_distance( to->get_pos(), ziel );
@@ -428,13 +437,24 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 				k->g = new_g;
 				k->f = new_f;
 				k->dir = current_dir;
+				k->ribi_from = next_ribi[r];
 				k->count = tmp->count+1;
 
-				queue.insert( k );
+				if (new_g <= topnode_g) {
+					// do not put in queue if the new node is the best one
+					topnode_g = new_g;
+					if (new_top) {
+						queue.insert(new_top);
+					}
+					new_top = k;
+				}
+				else {
+					queue.insert( k );
+				}
 			}
 		}
 
-	} while (!queue.empty() && !ziel_erreicht && step < MAX_STEP && tmp->g < max_cost);
+	} while (  (!queue.empty() ||  new_top) && step < MAX_STEP && tmp->g < max_cost);
 
 #ifdef DEBUG_ROUTES
 	// display marked route
