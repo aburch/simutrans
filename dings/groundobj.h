@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hj. Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -11,25 +11,24 @@
 #include "../tpl/stringhashtable_tpl.h"
 #include "../tpl/vector_tpl.h"
 #include "../besch/groundobj_besch.h"
-#include "../simcolor.h"
 #include "../dataobj/umgebung.h"
 
 /**
- * Bäume in Simutrans.
- * @author Hj. Malthaner
+ * Decorative objects, like rocks, ponds etc.
  */
 class groundobj_t : public ding_t
 {
 private:
-	// type of tree
-	uint16 groundobjtype:12;
-	uint16 season:4;
+	/// type of object, index into groundobj_typen
+	uint16 groundobjtype;
 
+	/// the image, cached
 	image_id bild;
-	uint16 age;	// in month
 
-	// static for administration
+	/// table to lookup object based on name
 	static stringhashtable_tpl<groundobj_besch_t *> besch_names;
+
+	/// all such objects
 	static vector_tpl<const groundobj_besch_t *> groundobj_typen;
 
 public:
@@ -38,20 +37,14 @@ public:
 
 	static const groundobj_besch_t *random_groundobj_for_climate(climate cl, hang_t::typ slope );
 
-	// only the load save constructor should be called outside
-	// otherwise I suggest use the plant tree function (see below)
 	groundobj_t(karte_t *welt, loadsave_t *file);
 	groundobj_t(karte_t *welt, koord3d pos, const groundobj_besch_t *);
 
 	void rdwr(loadsave_t *file);
 
-	// since the lookup of slopes is slow, image is cached
 	image_id get_bild() const { return bild; }
 
-	/**
-	 * Berechnet Alter und Bild abhängig vom Alter
-	 * @author Hj. Malthaner
-	 */
+	/// recalculates image depending on season and slope of ground
 	void calc_bild();
 
 	const char *get_name() const {return "Groundobj";}
