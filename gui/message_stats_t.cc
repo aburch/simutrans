@@ -109,6 +109,8 @@ void message_stats_t::recalc_size()
 {
 	sint16 x_size = 0;
 	sint16 y_size = 0;
+	// avoid overflow if too many messages are in the list
+	sint16 y_max = 0x7fff - LINESPACE - 1;
 
 	// loop copied from ::zeichnen(), trimmed to minimum for x_size calculation
 
@@ -153,6 +155,9 @@ void message_stats_t::recalc_size()
 		left += proportional_string_width(buf);
 		if(  left>x_size  ) {
 			x_size = left;
+		}
+		if(  y_size >= y_max) {
+			break;
 		}
 	}
 
