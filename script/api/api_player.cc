@@ -30,6 +30,12 @@ void_t change_player_account(spieler_t *sp, sint64 delta)
 }
 
 
+bool player_active(spieler_t *sp)
+{
+	return sp != NULL;
+}
+
+
 #define begin_class(c,p) push_class(vm, c);
 #define end_class() sq_pop(vm,1);
 
@@ -161,6 +167,11 @@ void export_player(HSQUIRRELVM vm)
 	 * @warning cannot be used in network games.
 	 */
 	register_method(vm, &change_player_account, "book_cash", true);
+
+	/**
+	 * Returns whether the player (still) exists in the game.
+	 */
+	register_method(vm, &player_active, "is_active", true);
 
 	end_class();
 }
