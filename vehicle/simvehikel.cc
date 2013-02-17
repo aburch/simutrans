@@ -1178,27 +1178,14 @@ void vehikel_t::calc_akt_speed(const grund_t *gr)
 void vehikel_t::rauche() const
 {
 	// raucht ueberhaupt ?
-	if(rauchen  &&  besch->get_rauch()) {
-
-		bool smoke = besch->get_engine_type()==vehikel_besch_t::steam;
-
-		if(!smoke) {
-			// Hajo: only produce smoke when heavily accelerating
-			//       or steam engine
-			sint32 akt_speed = kmh_to_speed(besch->get_geschw());
-			if(akt_speed > speed_limit) {
-				akt_speed = speed_limit;
-			}
-
-			smoke = (cnv->get_akt_speed() < (sint32)((akt_speed*7u)>>3));
-		}
-
-		if(smoke) {
-			grund_t * gr = welt->lookup( get_pos() );
-			if(gr) {
-				wolke_t *abgas =  new wolke_t(welt, get_pos(), get_xoff()+((dx*(sint16)((uint16)steps*OBJECT_OFFSET_STEPS))>>8), get_yoff()+((dy*(sint16)((uint16)steps*OBJECT_OFFSET_STEPS))>>8)+hoff, besch->get_rauch() );
-				if(  !gr->obj_add(abgas)  ) {
-					abgas->set_flag(ding_t::not_on_map);
+	if(  rauchen  &&  besch->get_rauch()  ) {
+		// Hajo: only produce smoke when heavily accelerating or steam engine
+		if(  cnv->get_akt_speed() < (sint32)((cnv->get_speed_limit() * 7u) >> 3)  ||  besch->get_engine_type() == vehikel_besch_t::steam  ) {
+			grund_t* const gr = welt->lookup( get_pos() );
+			if(  gr  ) {
+				wolke_t* const abgas =  new wolke_t( welt, get_pos(), get_xoff() + ((dx * (sint16)((uint16)steps * OBJECT_OFFSET_STEPS)) >> 8), get_yoff() + ((dy * (sint16)((uint16)steps * OBJECT_OFFSET_STEPS)) >> 8) + hoff, besch->get_rauch() );
+				if(  !gr->obj_add( abgas )  ) {
+					abgas->set_flag( ding_t::not_on_map );
 					delete abgas;
 				}
 				else {

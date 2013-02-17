@@ -564,6 +564,7 @@ public:
 	 */
 	const uint32 & get_sum_leistung() const {return sum_leistung;}
 	const sint32 & get_min_top_speed() const {return min_top_speed;}
+	const sint32 & get_speed_limit() const {return speed_limit;}
 
 	/// @returns weight of the convoy's vehicles (excluding freight)
 	const sint64 & get_sum_gewicht() const {return sum_gewicht;}
