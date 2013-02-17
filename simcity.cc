@@ -1963,7 +1963,10 @@ void stadt_t::merke_passagier_ziel(koord k, uint8 color)
 class bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t
 {
 	public:
-		bauplatz_mit_strasse_sucher_t(karte_t* welt) : bauplatz_sucher_t (welt) {}
+		/// if false, this will the check 'do not build next other to special buildings'
+		bool big_city;
+
+		bauplatz_mit_strasse_sucher_t(karte_t* welt, bool big) : bauplatz_sucher_t (welt), big_city(big) {}
 
 		// get distance to next special building
 		int find_dist_next_special(koord pos) const
@@ -1985,75 +1988,50 @@ class bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t
 			return dist;
 		}
 
-		bool strasse_bei(sint16 x, sint16 y) const
-		{
-			const grund_t* bd = welt->lookup_kartenboden(koord(x, y));
-			return bd != NULL && bd->hat_weg(road_wt);
-		}
-
 		virtual bool ist_platz_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const
 		{
-			if(  bauplatz_sucher_t::ist_platz_ok(pos, b, h, cl)  ) {
-				// nothing on top like elevated monorails?
-				for (sint16 y = pos.y;  y < pos.y + h; y++) {
-					for (sint16 x = pos.x; x < pos.x + b; x++) {
-						grund_t *gr = welt->lookup_kartenboden(koord(x,y));
+			if(  !bauplatz_sucher_t::ist_platz_ok(pos, b, h, cl)  ) {
+				return false;
+			}
+			bool next_to_road = false;
+			// not direct next to factories or townhalls
+			for (sint16 x = -1; x < b; x++) {
+				for (sint16 y = -1;  y < h; y++) {
+					grund_t *gr = welt->lookup_kartenboden(pos + koord(x,y));
+					if (	0 <= x  &&  x < b-1  &&  0 <= y  &&  y < h-1) {
+						// inside: nothing on top like elevated monorails?
 						if(  gr->get_leitung()!=NULL  ||  welt->lookup(gr->get_pos()+koord3d(0,0,1)  )!=NULL) {
 							// something on top (monorail or powerlines)
 							return false;
 						}
+
 					}
-				}
-				// not direct next to factories or townhalls
-				for (sint16 y = pos.y-1;  y < pos.y + h+1; y++) {
-					if(  grund_t *gr = welt->lookup_kartenboden( koord(pos.x-1,y) )  ) {
-						if(  gebaeude_t *gb=gr->find<gebaeude_t>()  ) {
-							if(  gb->get_haustyp() > 0  &&  gb->get_haustyp() < 8  ) {
-								return false;
+					else {
+						// border: not direct next to special buildings
+						if (big_city) {
+							if(  gebaeude_t *gb=gr->find<gebaeude_t>()  ) {
+								const haus_besch_t::utyp utyp = gb->get_tile()->get_besch()->get_utyp();
+								if(  haus_besch_t::attraction_city <= utyp  &&  utyp <= haus_besch_t::firmensitz) {
+									return false;
+								}
 							}
 						}
-					}
-					if(  grund_t *gr = welt->lookup_kartenboden( koord(pos.x+b,y) )  ) {
-						if(  gebaeude_t *gb=gr->find<gebaeude_t>()  ) {
-							if(  gb->get_haustyp() > 0  &&  gb->get_haustyp() < 8  ) {
-								return false;
-							}
+						// but near a road if possible
+						if (!next_to_road) {
+							next_to_road = gr->hat_weg(road_wt);
 						}
-					}
-				}
-				for (sint16 x = pos.x; x < pos.x + b; x++) {
-					if(  grund_t *gr = welt->lookup_kartenboden( koord(x,pos.y-1) )  ) {
-						if(  gebaeude_t *gb=gr->find<gebaeude_t>()  ) {
-							if(  gb->get_haustyp() > 0  &&  gb->get_haustyp() < 8  ) {
-								return false;
-							}
-						}
-					}
-					if(  grund_t *gr = welt->lookup_kartenboden( koord(x,pos.y+h) )  ) {
-						if(  gebaeude_t *gb=gr->find<gebaeude_t>()  ) {
-							if(  gb->get_haustyp() > 0  &&  gb->get_haustyp() < 8  ) {
-								return false;
-							}
-						}
-					}
-				}
-				// try to built a little away from previous ones
-				if (find_dist_next_special(pos) < b + h + welt->get_settings().get_special_building_distance()  ) {
-					return false;
-				}
-				// now check for road connection
-				for (int i = pos.y; i < pos.y + h; i++) {
-					if (strasse_bei(pos.x - 1, i) || strasse_bei(pos.x + b, i)) {
-						return true;
-					}
-				}
-				for (int i = pos.x; i < pos.x + b; i++) {
-					if (strasse_bei(i, pos.y - 1) || strasse_bei(i, pos.y + h)) {
-						return true;
 					}
 				}
 			}
-			return false;
+			if (!next_to_road) {
+				return false;
+			}
+
+			// try to built a little away from previous ones
+			if (big_city  &&  find_dist_next_special(pos) < b + h + welt->get_settings().get_special_building_distance()  ) {
+				return false;
+			}
+			return true;
 		}
 };
 
@@ -2064,9 +2042,11 @@ void stadt_t::check_bau_spezial(bool new_town)
 	const haus_besch_t* besch = hausbauer_t::get_special(bev, haus_besch_t::attraction_city, welt->get_timeline_year_month(), new_town, welt->get_climate(welt->max_hgt(pos)));
 	if (besch != NULL) {
 		if (simrand(100) < (uint)besch->get_chance()) {
-			// baue was immer es ist
+
+			bool big_city = buildings.get_count() >= 10;
 			bool is_rotate = besch->get_all_layouts() > 1;
-			koord best_pos = bauplatz_mit_strasse_sucher_t(welt).suche_platz(pos, besch->get_b(), besch->get_h(), besch->get_allowed_climate_bits(), &is_rotate);
+			// find place
+			koord best_pos = bauplatz_mit_strasse_sucher_t(welt, big_city).suche_platz(pos, besch->get_b(), besch->get_h(), besch->get_allowed_climate_bits(), &is_rotate);
 
 			if (best_pos != koord::invalid) {
 				// then built it
