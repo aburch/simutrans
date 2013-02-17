@@ -2417,15 +2417,15 @@ void karte_t::rdwr_player_password_hashes(loadsave_t *file)
 }
 
 
-void karte_t::call_change_player_tool(uint8 cmd, uint8 player_nr, uint16 param)
+void karte_t::call_change_player_tool(uint8 cmd, uint8 player_nr, uint16 param, bool scripted_call)
 {
 	if (umgebung_t::networkmode) {
-		nwc_chg_player_t *nwc = new nwc_chg_player_t(sync_steps, map_counter, cmd, player_nr, param);
+		nwc_chg_player_t *nwc = new nwc_chg_player_t(sync_steps, map_counter, cmd, player_nr, param, scripted_call);
 
 		network_send_server(nwc);
 	}
 	else {
-		change_player_tool(cmd, player_nr, param, !get_spieler(1)->is_locked(), true);
+		change_player_tool(cmd, player_nr, param, !get_spieler(1)->is_locked()  ||  scripted_call, true);
 		// update the window
 		ki_kontroll_t* playerwin = (ki_kontroll_t*)win_get_magic(magic_ki_kontroll_t);
 		if (playerwin) {

@@ -532,6 +532,12 @@ void scenario_t::step()
 			sint32 percentage = 0;
 			script->call_function("is_scenario_completed", percentage, (uint8)(sp ? sp->get_player_nr() : PLAYER_UNOWNED));
 
+			// script might have deleted the player
+			sp = welt->get_spieler(i);
+			if (sp == NULL) {
+				continue;
+			}
+
 			sp->set_scenario_completion(percentage);
 			// won ?
 			if (percentage >= 100) {

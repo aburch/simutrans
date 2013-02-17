@@ -269,8 +269,10 @@ private:
 class nwc_chg_player_t : public network_broadcast_world_command_t {
 public:
 	nwc_chg_player_t() : network_broadcast_world_command_t(NWC_CHG_PLAYER, 0, 0), pending_company_creator(NULL) { }
-	nwc_chg_player_t(uint32 sync_steps, uint32 map_counter, uint8 cmd_=255, uint8 player_nr_=255, uint16 param_=0)
-	: network_broadcast_world_command_t(NWC_CHG_PLAYER, sync_steps, map_counter), cmd(cmd_), player_nr(player_nr_), param(param_), pending_company_creator(NULL) {};
+	nwc_chg_player_t(uint32 sync_steps, uint32 map_counter, uint8 cmd_=255, uint8 player_nr_=255, uint16 param_=0, bool scripted_call_=false)
+	: network_broadcast_world_command_t(NWC_CHG_PLAYER, sync_steps, map_counter),
+	  cmd(cmd_), player_nr(player_nr_), param(param_), scripted_call(scripted_call_), pending_company_creator(NULL) {};
+
 	~nwc_chg_player_t();
 
 	virtual void rdwr();
@@ -282,6 +284,7 @@ public:
 	uint8 cmd;
 	uint8 player_nr;
 	uint16 param;
+	bool scripted_call;
 	connection_info_t* pending_company_creator; // this client want to create new company (not sent)
 
 	/// store information about client that created a company

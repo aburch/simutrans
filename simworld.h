@@ -1009,7 +1009,7 @@ public:
 	 * Network safe initiation of new and deletion of players, change freeplay.
 	 * @param param Player type (human / ai) of new players.
 	 */
-	void call_change_player_tool(uint8 cmd, uint8 player_nr, uint16 param);
+	void call_change_player_tool(uint8 cmd, uint8 player_nr, uint16 param, bool scripted_call=false);
 
 	enum change_player_tool_cmds { new_player=1, toggle_freeplay=2, delete_player=3 };
 	/**

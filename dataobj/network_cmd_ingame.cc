@@ -845,6 +845,7 @@ void nwc_chg_player_t::rdwr()
 	packet->rdwr_byte(cmd);
 	packet->rdwr_byte(player_nr);
 	packet->rdwr_short(param);
+	packet->rdwr_bool(scripted_call);
 }
 
 
@@ -855,7 +856,13 @@ network_broadcast_world_command_t* nwc_chg_player_t::clone(karte_t *welt)
 	}
 	socket_info_t const& info = socket_list_t::get_client(our_client_id);
 
-	if (!welt->change_player_tool(cmd, player_nr, param, info.is_player_unlocked(1), false)) {
+	// scripts only run on server
+	if (socket_list_t::get_client_id(packet->get_sender()) != 0) {
+		// not sent by server, clear flag
+		scripted_call = false;
+	}
+
+	if (!welt->change_player_tool(cmd, player_nr, param, info.is_player_unlocked(1)  ||  scripted_call, false)) {
 		return NULL;
 	}
 	// now create the new command
