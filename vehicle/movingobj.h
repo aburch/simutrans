@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hj. Malthaner
  *
  * This file is part of the Simutrans project under the artistic license.
  * (see license.txt)
@@ -23,23 +23,21 @@
 class movingobj_t : public vehikel_basis_t, public sync_steppable
 {
 private:
-	/**
-	 * Entfernungszaehler
-	 * @author Hj. Malthaner
-	 */
+	/// distance to move
 	uint32 weg_next;
 
-	// direction change
+	/// direction will change after this time
 	uint16 timetochange;
 
-	// type of tree
-	uint8 groundobjtype;
-	uint8 season;
+	/// type of object, index into movingobj_typen
+	uint8 movingobjtype;
 
 	koord pos_next_next;
 
-	// static for administration
+	/// static table to find besch by name
 	static stringhashtable_tpl<groundobj_besch_t *> besch_names;
+
+	/// static vector for fast lookup of besch
 	static vector_tpl<const groundobj_besch_t *> movingobj_typen;
 
 protected:
@@ -53,8 +51,6 @@ public:
 
 	static const groundobj_besch_t *random_movingobj_for_climate(climate cl);
 
-	// only the load save constructor should be called outside
-	// otherwise I suggest use the plant tree function (see below)
 	movingobj_t(karte_t *welt, loadsave_t *file);
 	movingobj_t(karte_t *welt, koord3d pos, const groundobj_besch_t *);
 	~movingobj_t();
@@ -79,7 +75,7 @@ public:
 
 	void entferne(spieler_t *sp);
 
-	const groundobj_besch_t* get_besch() const { return movingobj_typen[groundobjtype]; }
+	const groundobj_besch_t* get_besch() const { return movingobj_typen[movingobjtype]; }
 
 	void * operator new(size_t s);
 	void operator delete(void *p);
