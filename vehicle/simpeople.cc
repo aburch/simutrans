@@ -170,65 +170,57 @@ bool fussgaenger_t::sync_step(long delta_t)
 }
 
 
-void fussgaenger_t::hop()
+grund_t* fussgaenger_t::hop()
 {
-	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
 	grund_t *from = welt->lookup(pos_next);
-	grund_t *to;
-
 	if(!from) {
 		time_to_life = 0;
-		return;
+		return NULL;
 	}
 
-	grund_t *liste[4];
-	int count = 0;
-
-	// 1) find the allowed directions
+	// find the allowed directions
 	const weg_t *weg = from->get_weg(road_wt);
 	if(weg==NULL) {
-		// no gound here any more?
-		pos_next = get_pos();
-		from = welt->lookup(pos_next);
-		if(!from  ||  !from->hat_weg(road_wt)) {
-			// destroy it
-			time_to_life = 0;
-		}
-		return;
+		// no road anymore: destroy it
+		time_to_life = 0;
+		return NULL;
 	}
-
-	// add all good ribis here
+	// new target
+	grund_t *to = NULL;
+	// ribi opposite to current direction
 	ribi_t::ribi gegenrichtung = ribi_t::rueckwaerts( get_fahrtrichtung() );
-	int ribi = weg->get_ribi_unmasked();
-	for(int r = 0; r < 4; r++) {
-		if(  (ribi & ribi_t::nsow[r])!=0  &&  (ribi_t::nsow[r]&gegenrichtung)==0 &&
-			from->get_neighbour(to, road_wt, ribi_t::nsow[r])
-		) {
-			// check, if this is just a single tile deep
-			int next_ribi =  to->get_weg(road_wt)->get_ribi_unmasked();
-			if((ribi&next_ribi)!=0  ||  !ribi_t::ist_einfach(next_ribi)) {
-				liste[count++] = to;
-			}
+	// all possible directions
+	ribi_t::ribi ribi = weg->get_ribi_unmasked() & (~gegenrichtung);
+	// randomized offset
+	const uint8 offset = (ribi > 0  &&  ribi_t::ist_einfach(ribi)) ? 0 : simrand(4);
+
+	for(uint r = 0; r < 4; r++) {
+		ribi_t::ribi const test_ribi = ribi_t::nsow[ (r+offset) & 3];
+
+		if(  (ribi & test_ribi)!=0  &&  from->get_neighbour(to, road_wt, test_ribi) )	{
+			// this is our next target
+			break;
 		}
 	}
 
-	if(count > 1) {
-		pos_next = liste[simrand(count)]->get_pos();
-		fahrtrichtung = calc_set_richtung(get_pos().get_2d(), pos_next.get_2d());
-	}
-	else if(count==1) {
-		pos_next = liste[0]->get_pos();
+	if (to) {
+		pos_next = to->get_pos();
 		fahrtrichtung = calc_set_richtung(get_pos().get_2d(), pos_next.get_2d());
 	}
 	else {
+		// turn around
 		fahrtrichtung = gegenrichtung;
 		dx = -dx;
 		dy = -dy;
 		pos_next = get_pos();
+		// .. but this looks ugly, so disappear
+		time_to_life = 0;
 	}
 
 	verlasse_feld();
 	set_pos(from->get_pos());
 	calc_bild();
-	betrete_feld();
+	// no need to call betrete_feld();
+	from->obj_add(this);
+	return from;
 }

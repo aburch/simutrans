@@ -65,7 +65,7 @@ public:
 	virtual bool ist_befahrbar(const grund_t *) const;
 	virtual bool ist_weg_frei() { return 1; }
 	virtual bool hop_check();
-	virtual void hop();
+	virtual grund_t* hop();
 	virtual waytype_t get_waytype() const { return get_besch()->get_waytype(); }
 
 	const char *get_name() const {return "Movingobj";}

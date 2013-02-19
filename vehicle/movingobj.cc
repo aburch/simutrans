@@ -233,8 +233,8 @@ void movingobj_t::rdwr(loadsave_t *file)
 		}
 		// if not there, besch will be zero
 		use_calc_height = true;
-		// not saved, recalculate
-		hoff = calc_height();
+		// not saved, recalculate later
+		hoff = 0;
 	}
 	weg_next = 0;
 }
@@ -397,7 +397,7 @@ bool movingobj_t::hop_check()
 
 
 
-void movingobj_t::hop()
+grund_t* movingobj_t::hop()
 {
 	verlasse_feld();
 
@@ -416,10 +416,11 @@ void movingobj_t::hop()
 	}
 
 	set_pos(pos_next);
-	betrete_feld();
+	grund_t *gr = betrete_feld();
 	// next position
 	grund_t *gr_next = welt->lookup_kartenboden(pos_next_next);
 	pos_next = gr_next ? gr_next->get_pos() : get_pos();
+	return gr;
 }
 
 

@@ -106,10 +106,10 @@ public:
 
 	bool sync_step(long delta_t);
 
-	void hop();
+	grund_t* hop();
 	bool ist_weg_frei(grund_t *gr);
 
-	void betrete_feld();
+	grund_t* betrete_feld();
 
 	void calc_current_speed();
 	uint16 get_current_speed() const {return current_speed;}
