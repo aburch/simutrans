@@ -1404,6 +1404,11 @@ void reliefkarte_t::zeichnen(koord pos)
 	sint32 new_max_waiting_change = 1;
 	FOR(  vector_tpl<halthandle_t>, station, stop_cache  ) {
 
+		if (!station.is_bound()) {
+			// maybe deleted in the meanwhile
+			continue;
+		}
+
 		int radius = 0;
 		COLOR_VAL color;
 		koord temp_stop = station->get_basis_pos();
