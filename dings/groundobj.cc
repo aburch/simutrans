@@ -82,8 +82,8 @@ const groundobj_besch_t *groundobj_t::random_groundobj_for_climate(climate cl, h
 	}
 
 	int weight = 0;
-	FOR(vector_tpl<groundobj_besch_t const*>, const i, groundobj_typen) {
-		if (i->is_allowed_climate(cl) && (slope == hang_t::flach || i->get_phases() == 16)) {
+	FOR(  vector_tpl<groundobj_besch_t const*>,  const i,  groundobj_typen  ) {
+		if(  i->is_allowed_climate(cl)  &&  (slope == hang_t::flach  ||  i->get_phases() == 16)  ) {
 			weight += i->get_distribution_weight();
 		}
 	}

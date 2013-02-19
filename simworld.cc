@@ -1344,7 +1344,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing groundobjs");
 	if(  umgebung_t::ground_object_probability > 0  ) {
 		// add eyecandy like rocky, moles, flowers, ...
 		koord k;
-		sint32 queried = simrand(umgebung_t::ground_object_probability*2);
+		sint32 queried = simrand(umgebung_t::ground_object_probability*2-1);
 		for(  k.y=0;  k.y<get_size().y;  k.y++  ) {
 			for(  k.x=(k.y<old_y)?old_x:0;  k.x<get_size().x;  k.x++  ) {
 				grund_t *gr = lookup_kartenboden(k);
@@ -1353,7 +1353,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing groundobjs");
 					if(  queried<0  ) {
 						const groundobj_besch_t *besch = groundobj_t::random_groundobj_for_climate( get_climate(gr->get_hoehe()), gr->get_grund_hang() );
 						if(besch) {
-							queried = simrand(umgebung_t::ground_object_probability*2);
+							queried = simrand(umgebung_t::ground_object_probability*2-1);
 							gr->obj_add( new groundobj_t( this, gr->get_pos(), besch ) );
 						}
 					}
