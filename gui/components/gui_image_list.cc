@@ -11,7 +11,7 @@
 #include "../../simcolor.h"
 
 
-gui_image_list_t::gui_image_list_t(vector_tpl<image_data_t> *images) :
+gui_image_list_t::gui_image_list_t(vector_tpl<image_data_t*> *images) :
     grid(16, 16),
     placement(16, 16)
 {
@@ -57,7 +57,7 @@ int gui_image_list_t::index_at(koord parent_pos, int xpos, int ypos) const
 		row * columns + column :
 		column * rows + row;
 
-		if (bild_index < images->get_count()  &&  (*images)[bild_index].image != IMG_LEER) {
+		if (bild_index < images->get_count()  &&  (*images)[bild_index]->image != IMG_LEER) {
 			return bild_index;
 		}
 	}
@@ -83,7 +83,8 @@ void gui_image_list_t::zeichnen(koord parent_pos)
 	int xpos = xmin;
 	int ypos = ymin;
 
-	FOR(vector_tpl<image_data_t>, const& idata, *images) {
+	FOR(vector_tpl<image_data_t*>, const& iptr, *images) {
+		image_data_t const& idata = *iptr;
 		if(idata.count>=0) {
 			// display mark
 

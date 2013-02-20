@@ -124,13 +124,17 @@ private:
 	button_t bt_copy_convoi;
 	button_t bt_apply_line;
 
-	vector_tpl<gui_image_list_t::image_data_t> convoi_pics;
+	vector_tpl<gui_image_list_t::image_data_t*> convoi_pics;
 	gui_image_list_t convoi;
 
-	vector_tpl<gui_image_list_t::image_data_t> pas_vec;
-	vector_tpl<gui_image_list_t::image_data_t> electrics_vec;
-	vector_tpl<gui_image_list_t::image_data_t> loks_vec;
-	vector_tpl<gui_image_list_t::image_data_t> waggons_vec;
+	/// image list of passenger cars
+	vector_tpl<gui_image_list_t::image_data_t*> pas_vec;
+	/// image list of electrified passenger carrier units
+	vector_tpl<gui_image_list_t::image_data_t*> electrics_vec;
+	/// image list of all other powered vehicles (and vehicles without freight capacity)
+	vector_tpl<gui_image_list_t::image_data_t*> loks_vec;
+	/// image list of all other cars (freight, non-powered)
+	vector_tpl<gui_image_list_t::image_data_t*> waggons_vec;
 
 	gui_image_list_t pas;
 	gui_image_list_t electrics;
@@ -248,6 +252,8 @@ public:
 
 	// more general functions ...
 	depot_frame_t(depot_t* depot);
+
+	~depot_frame_t();
 
 	/**
 	 * Setzt die Fenstergroesse
