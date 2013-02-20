@@ -130,7 +130,12 @@ function recursive_save(table, indent, table_stack)
 	foreach(key, val in table) {
 		str += indent
 		if (!isarray) {
-			str += key + " = "
+			if (typeof(key)=="string") {
+				str += key + " = "
+			}
+			else {
+				str += "[" + key + "] = "
+			}
 		}
 		while( typeof(val) == "weakref" )
 			val = val.ref
@@ -158,9 +163,15 @@ function recursive_save(table, indent, table_stack)
 			default:
 				str += "\"unknown\""
 		}
-		str += "\n"
+		if (str.slice(-1) != "\n") {
+			str += ",\n"
+		}
+		else {
+			str = str.slice(0,-1) + ",\n"
+		}
+
 	}
-	str += (isarray ? "]" : "}") + "\n"
+	str += indent.slice(0,-1) + (isarray ? "]" : "}") + "\n"
 	return str
 }
 
