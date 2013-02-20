@@ -303,6 +303,7 @@ void convoi_info_t::zeichnen(koord pos, koord gr)
 		// Bernd Gabriel, 01.07.2009: show some colored texts and indicator
 		input.set_color(cnv->has_obsolete_vehicles() ? COL_DARK_BLUE : COL_BLACK);
 
+		// make titlebar dirty to display the correct coordinates
 		if(cnv->get_besitzer()==cnv->get_welt()->get_active_player()) {
 			if(  line_bound  &&  !cnv->get_line().is_bound()  ) {
 				remove_komponente( &line_button );
@@ -364,6 +365,7 @@ enable_home:
 
 		// all gui stuff set => display it
 		gui_frame_t::zeichnen(pos, gr);
+		set_dirty();
 
 		PUSH_CLIP(pos.x+1,pos.y+D_TITLEBAR_HEIGHT,gr.x-2,gr.y-D_TITLEBAR_HEIGHT);
 
@@ -709,7 +711,7 @@ void convoi_info_t::rename_cnv()
 			werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
 			w->set_default_param( buf );
 			cnv->get_welt()->set_werkzeug( w, cnv->get_besitzer());
-			// since init always returns false, it is save to delete immediately
+			// since init always returns false, it is safe to delete immediately
 			delete w;
 			// do not trigger this command again
 			tstrncpy(old_cnv_name, t, sizeof(old_cnv_name));

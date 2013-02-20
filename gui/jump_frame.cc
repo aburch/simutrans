@@ -55,7 +55,7 @@ bool jump_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 		//---------------------------------------
 		koord my_pos;
 		sscanf(buf, "%hd,%hd", &my_pos.x, &my_pos.y);
-		if(welt->ist_in_kartengrenzen(my_pos)) {
+		if(welt->is_within_limits(my_pos)) {
 			welt->change_world_position(koord3d(my_pos,welt->min_hgt(my_pos)));
 		}
 	}

@@ -168,8 +168,7 @@ public:
 	 * setzt die Bildnr. des anzuzeigenden Bodens
 	 * @author Hj. Malthaner
 	 */
-	inline void set_bild(image_id n)
-	{
+	inline void set_bild(image_id n) {
 		bild_nr = n;
 		set_flag(dirty);
 	}

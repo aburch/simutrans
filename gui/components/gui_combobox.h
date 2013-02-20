@@ -36,15 +36,14 @@ private:
 	 */
 	gui_scrolled_list_t droplist;
 
-	/*
-	 * flag for first call
-	 */
+	// flag for first call
 	bool first_call:1;
 
-	/*
-	 * flag for finish selection
-	 */
+	// flag for finish selection
 	bool finish:1;
+
+	// true to allow buttons to wrap around selection
+	bool wrapping:1;
 
 	/**
 	 * the max size this component can have
@@ -79,7 +78,7 @@ public:
 	 * add element to droplist
 	 * @author hsiegeln
 	 */
-	void append_element( gui_scrolled_list_t::scrollitem_t *item ) { droplist.append_element( item ); }
+	void append_element( gui_scrolled_list_t::scrollitem_t *item ) { droplist.append_element( item ); set_max_size( max_size ); }
 
 	/**
 	 * remove all elements from droplist
@@ -131,6 +130,10 @@ public:
 	 * @author hsiegeln
 	 */
 	void close_box();
+
+	void set_wrapping(const bool wrap) { wrapping = wrap; }
+
+	bool is_dropped() const { return droplist.is_visible(); }
 };
 
 #endif

@@ -59,8 +59,7 @@ endif
 ifeq ($(OSTYPE),mingw)
   CC ?= gcc
   SOURCES += simsys_w32_png.cc
-  CFLAGS  += -DPNG_STATIC -DZLIB_STATIC -march=pentium -DNOMINMAX=1
-  LDFLAGS += -static-libgcc -static-libstdc++
+  CFLAGS  += -DPNG_STATIC -DZLIB_STATIC -DNOMINMAX=1
   ifeq ($(BACKEND),gdi)
     LIBS += -lunicows
     ifeq  ($(WIN32_CONSOLE),)
@@ -133,7 +132,7 @@ ifneq  ($(MULTI_THREAD),)
 endif
 
 ifneq ($(WITH_REVISION),)
-  REV = $(shell git log|head -1|tail -c +8|cksum| awk '{print $1}')
+  REV = $(shell svnversion)
   ifneq ($(REV),)
     CFLAGS  += -DREVISION="$(REV)"
   endif
@@ -165,7 +164,6 @@ SOURCES += besch/reader/ground_reader.cc
 SOURCES += besch/reader/groundobj_reader.cc
 SOURCES += besch/reader/image_reader.cc
 SOURCES += besch/reader/imagelist2d_reader.cc
-SOURCES += besch/reader/imagelist3d_reader.cc
 SOURCES += besch/reader/imagelist_reader.cc
 SOURCES += besch/reader/obj_reader.cc
 SOURCES += besch/reader/pedestrian_reader.cc
@@ -208,7 +206,6 @@ SOURCES += dataobj/freelist.cc
 SOURCES += dataobj/gameinfo.cc
 SOURCES += dataobj/koord.cc
 SOURCES += dataobj/koord3d.cc
-SOURCES += dataobj/livery_scheme.cc
 SOURCES += dataobj/loadsave.cc
 SOURCES += dataobj/marker.cc
 SOURCES += dataobj/network.cc
@@ -222,7 +219,6 @@ SOURCES += dataobj/network_packet.cc
 SOURCES += dataobj/network_socket_list.cc
 SOURCES += dataobj/pakset_info.cc
 SOURCES += dataobj/powernet.cc
-SOURCES += dataobj/replace_data.cc
 SOURCES += dataobj/ribi.cc
 SOURCES += dataobj/route.cc
 SOURCES += dataobj/pwd_hash.cc
@@ -259,9 +255,6 @@ SOURCES += gui/display_settings.cc
 SOURCES += gui/components/gui_button.cc
 SOURCES += gui/components/gui_chart.cc
 SOURCES += gui/components/gui_combobox.cc
-SOURCES += gui/components/gui_component_table.cc
-SOURCES += gui/components/gui_convoy_assembler.cc
-SOURCES += gui/components/gui_convoy_label.cc
 SOURCES += gui/components/gui_ding_view_t.cc
 SOURCES += gui/components/gui_fixedwidth_textarea.cc
 SOURCES += gui/components/gui_flowtext.cc
@@ -273,7 +266,6 @@ SOURCES += gui/components/gui_scrolled_list.cc
 SOURCES += gui/components/gui_scrollpane.cc
 SOURCES += gui/components/gui_speedbar.cc
 SOURCES += gui/components/gui_tab_panel.cc
-SOURCES += gui/components/gui_table.cc
 SOURCES += gui/components/gui_textarea.cc
 SOURCES += gui/components/gui_textinput.cc
 SOURCES += gui/components/gui_world_view_t.cc
@@ -281,6 +273,7 @@ SOURCES += gui/convoi_detail_t.cc
 SOURCES += gui/convoi_filter_frame.cc
 SOURCES += gui/convoi_frame.cc
 SOURCES += gui/convoi_info_t.cc
+SOURCES += gui/convoy_item.cc
 SOURCES += gui/curiosity_edit.cc
 SOURCES += gui/curiositylist_frame_t.cc
 SOURCES += gui/curiositylist_stats_t.cc
@@ -326,7 +319,6 @@ SOURCES += gui/pakselector.cc
 SOURCES += gui/password_frame.cc
 SOURCES += gui/player_frame_t.cc
 SOURCES += gui/privatesign_info.cc
-SOURCES += gui/replace_frame.cc
 SOURCES += gui/savegame_frame.cc
 SOURCES += gui/scenario_frame.cc
 SOURCES += gui/scenario_info.cc
@@ -355,6 +347,7 @@ SOURCES += script/api/api_city.cc
 SOURCES += script/api/api_const.cc
 SOURCES += script/api/api_convoy.cc
 SOURCES += script/api/api_goods_desc.cc
+SOURCES += script/api/api_gui.cc
 SOURCES += script/api/api_factory.cc
 SOURCES += script/api/api_halt.cc
 SOURCES += script/api/api_player.cc
@@ -389,18 +382,19 @@ SOURCES += squirrel/sqstdlib/sqstdmath.cc
 SOURCES += squirrel/sqstdlib/sqstdstream.cc
 SOURCES += squirrel/sqstdlib/sqstdsystem.cc
 SOURCES += simcity.cc
-SOURCES += convoy.cc
 SOURCES += simconvoi.cc
 SOURCES += simdebug.cc
 SOURCES += simdepot.cc
 SOURCES += simdings.cc
 SOURCES += simevent.cc
 SOURCES += simfab.cc
+SOURCES += simgraph$(COLOUR_DEPTH).cc
 SOURCES += simhalt.cc
 SOURCES += simintr.cc
 SOURCES += simio.cc
 SOURCES += simline.cc
 SOURCES += simlinemgmt.cc
+SOURCES += simloadingscreen.cc
 SOURCES += simmain.cc
 SOURCES += simmem.cc
 SOURCES += simmenu.cc
@@ -416,12 +410,10 @@ SOURCES += simware.cc
 SOURCES += simwerkz.cc
 SOURCES += simwin.cc
 SOURCES += simworld.cc
-SOURCES += path_explorer.cc
 SOURCES += sucher/platzsucher.cc
 SOURCES += unicode.cc
 SOURCES += utils/cbuffer_t.cc
 SOURCES += utils/checksum.cc
-SOURCES += utils/float32e8_t.cc
 SOURCES += utils/csv.cc
 SOURCES += utils/log.cc
 SOURCES += utils/memory_rw.cc
@@ -433,12 +425,6 @@ SOURCES += vehicle/simpeople.cc
 SOURCES += vehicle/simvehikel.cc
 SOURCES += vehicle/simverkehr.cc
 
-SOURCES += simgraph$(COLOUR_DEPTH).cc
-
-ifdef DEBUG_WEIGHTMAPS
-  SOURCES += utils/dbg_weightmap.cc
-  CFLAGS += -DDEBUG_WEIGHTMAPS
-endif
 
 ifeq ($(BACKEND),allegro)
   SOURCES  += simsys_d.cc
@@ -579,9 +565,8 @@ CCFLAGS  += $(CFLAGS)
 CXXFLAGS += $(CFLAGS)
 
 BUILDDIR ?= build/$(CFG)
-
 PROGDIR  ?= $(BUILDDIR)
-PROG     ?= simutrans-experimental
+PROG     ?= sim
 
 include common.mk
 

@@ -216,11 +216,11 @@ vehikel_basis_t::vehikel_basis_t(karte_t *welt, koord3d pos):
 void vehikel_basis_t::rotate90()
 {
 	koord3d pos_cur = get_pos();
-	pos_cur.rotate90( welt->get_groesse_y()-1 );
+	pos_cur.rotate90( welt->get_size().y-1 );
 	set_pos( pos_cur );
 	// directions are counterclockwise to ribis!
 	fahrtrichtung = ribi_t::rotate90( fahrtrichtung );
-	pos_next.rotate90( welt->get_groesse_y()-1 );
+	pos_next.rotate90( welt->get_size().y-1 );
 	// new offsets: very tricky ...
 	sint8 new_dx = -dy*2;
 	dy = dx/2;
@@ -254,7 +254,7 @@ vehikel_basis_t::verlasse_feld() //"leave field" (Google)
 		DBG_MESSAGE("vehikel_basis_t::verlasse_feld()","checking all plan squares");
 
 		// check, whether it is on another height ...
-		if(welt->ist_in_kartengrenzen( get_pos().get_2d() )) {
+		if(welt->is_within_limits( get_pos().get_2d() )) {
 			gr = welt->lookup( get_pos().get_2d() )->get_boden_von_obj(this);
 			if(gr) {
 				gr->obj_remove(this);
@@ -266,8 +266,8 @@ vehikel_basis_t::verlasse_feld() //"leave field" (Google)
 		koord k;
 		bool ok = false;
 
-		for(k.y=0; k.y<welt->get_groesse_y(); k.y++) {
-			for(k.x=0; k.x<welt->get_groesse_x(); k.x++) {
+		for(k.y=0; k.y<welt->get_size().y; k.y++) {
+			for(k.x=0; k.x<welt->get_size().x; k.x++) {
 				grund_t *gr = welt->lookup( k )->get_boden_von_obj(this);
 				if(gr && gr->obj_remove(this)) {
 					dbg->warning("vehikel_basis_t::verlasse_feld()","removed vehicle typ %i (%p) from %d %d",get_name(), this, k.x, k.y);
@@ -706,8 +706,8 @@ void vehikel_t::rotate90()
 {
 	vehikel_basis_t::rotate90();
 	alte_fahrtrichtung = ribi_t::rotate90( alte_fahrtrichtung );
-	pos_prev.rotate90( welt->get_groesse_y()-1 );
-	last_stop_pos.rotate90( welt->get_groesse_y()-1 );
+	pos_prev.rotate90( welt->get_size().y-1 );
+	last_stop_pos.rotate90( welt->get_size().y-1 );
 }
 
 
@@ -1066,10 +1066,34 @@ void vehikel_t::remove_stale_freight()
 
 			bool found = false;
 
-			FOR(minivec_tpl<linieneintrag_t>, const& i, cnv->get_schedule()->eintrag) {
-				if (haltestelle_t::get_halt( welt, i.pos, cnv->get_besitzer()) == tmp.get_zwischenziel()) {
-					found = true;
-					break;
+			if(  tmp.get_zwischenziel().is_bound()  ) {
+				// the original halt exists, but does we still go there?
+				FOR(minivec_tpl<linieneintrag_t>, const& i, cnv->get_schedule()->eintrag) {
+					if(  haltestelle_t::get_halt( welt, i.pos, cnv->get_besitzer()) == tmp.get_zwischenziel()  ) {
+						found = true;
+						break;
+					}
+				}
+			}
+			if(  !found  ) {
+				// the target halt may have been joined or there is a closer one now, thus our original target is no longer valid
+				const int offset = cnv->get_schedule()->get_aktuell();
+				const int max_count = cnv->get_schedule()->eintrag.get_count();
+				for(  int i=0;  i<max_count;  i++  ) {
+					// try to unload on next stop
+					halthandle_t halt = haltestelle_t::get_halt( welt, cnv->get_schedule()->eintrag[ (i+offset)%max_count ].pos, cnv->get_besitzer() );
+					if(  halt.is_bound()  ) {
+						if(  halt->is_enabled(tmp.get_index())  ) {
+							// ok, lets change here, since goods are accepted here
+							tmp.access_zwischenziel() = halt;
+							if (!tmp.get_ziel().is_bound()) {
+								// set target, to prevent that unload_freight drops cargo
+								tmp.set_ziel( halt );
+							}
+							found = true;
+							break;
+						}
+					}
 				}
 			}
 
@@ -1088,10 +1112,12 @@ void vehikel_t::remove_stale_freight()
 		}
 
 		FOR(vector_tpl<ware_t>, const& c, kill_queue) {
+			fabrik_t::update_transit( &c, false );
 			fracht.remove(c);
 			cnv->invalidate_weight_summary();
 		}
 	}
+	sum_weight =  get_fracht_gewicht() + besch->get_gewicht();
 }
 
 
@@ -1124,7 +1150,7 @@ void vehikel_t::neue_fahrt(uint16 start_route_index, bool recalc)
 	check_for_finish = false;
 	use_calc_height = true;
 
-	if(welt->ist_in_kartengrenzen(get_pos().get_2d())) { //"Is in map border" (Babelfish)
+	if(welt->is_within_limits(get_pos().get_2d())) {
 		// mark the region after the image as dirty
 		// better not try to twist your brain to follow the retransformation ...
 		mark_image_dirty( get_bild(), hoff );
@@ -1878,7 +1904,11 @@ void vehikel_t::get_fracht_info(cbuffer_t & buf) const
 
 void vehikel_t::loesche_fracht()
 {
+	FOR(  slist_tpl<ware_t>, w, fracht ) {
+		fabrik_t::update_transit( &w, false );
+	}
 	fracht.clear();
+	sum_weight =  besch->get_gewicht();
 }
 
 
@@ -2214,8 +2244,12 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 	else {
 		for(int i=0; i<fracht_count; i++) {
 			ware_t ware(welt,file);
-			if(  (besch==NULL  ||  ware.menge>0)  &&  welt->ist_in_kartengrenzen(ware.get_zielpos()) ) {	// also add, of the besch is unknown to find matching replacement
+			if(  (besch==NULL  ||  ware.menge>0)  &&  welt->is_within_limits(ware.get_zielpos())  ) {	// also add, of the besch is unknown to find matching replacement
 				fracht.insert(ware);
+				if(  file->get_version() <= 112000  ) {
+					// restore intransit information
+					fabrik_t::update_transit( &ware, true );
+				}
 			}
 			else if(  ware.menge>0  ) {
 				dbg->error( "vehikel_t::rdwr_from_convoi()", "%i of %s to %s ignored!", ware.menge, ware.get_name(), ware.get_zielpos().get_str() );
@@ -3649,7 +3683,7 @@ bool waggon_t::is_weg_frei_choose_signal( signal_t *sig, const uint16 start_bloc
 #ifdef MAX_CHOOSE_BLOCK_TILES
 		if(  !target_rt.find_route( welt, cnv->get_route()->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, cnv->get_heaviest_vehicle(), MAX_CHOOSE_BLOCK_TILES )  ) {
 #else
-		if(  !target_rt.find_route( welt, cnv->get_route()->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, cnv->get_heaviest_vehicle(), welt->get_groesse_x()+welt->get_groesse_y() )  ) {
+		if(  !target_rt.find_route( welt, cnv->get_route()->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, cnv->get_heaviest_vehicle(), welt->get_size().x+welt->get_size().y )  ) {
 #endif
 			// nothing empty or not route with less than MAX_CHOOSE_BLOCK_TILES tiles
 			target_halt = halthandle_t();
@@ -4298,6 +4332,10 @@ bool schiff_t::ist_weg_frei(int &restart_speed,bool)
 			cnv->suche_neue_route();
 			return false;
 		}
+		if(  gr->get_top()>251  ) {
+			// too many ships already here ..
+			return false;
+		}
 		weg_t *w = gr->get_weg(water_wt);
 		if(w  &&  w->is_crossing()) {
 			// ok, here is a draw/turnbridge ...
@@ -4723,7 +4761,7 @@ bool aircraft_t::calc_route_internal(
 			int over = 3;
 			// now add all runway + 3 ...
 			do {
-				if(!welt->ist_in_kartengrenzen(search_start.get_2d()+(start_dir*endi)) ) {
+				if(!welt->is_within_limits(search_start.get_2d()+(start_dir*endi)) ) {
 					break;
 				}
 				gr = welt->lookup_kartenboden(search_start.get_2d()+(start_dir*endi));
@@ -4784,7 +4822,7 @@ bool aircraft_t::calc_route_internal(
 			int over = 3;
 			// now add all runway + 3 ...
 			do {
-				if(!welt->ist_in_kartengrenzen(search_end.get_2d()+(end_dir*endi)) ) {
+				if(!welt->is_within_limits(search_end.get_2d()+(end_dir*endi)) ) {
 					break;
 				}
 				gr = welt->lookup_kartenboden(search_end.get_2d()+(end_dir*endi));
@@ -4825,7 +4863,7 @@ bool aircraft_t::calc_route_internal(
 		// circle to the left
 		for(  int  i=0;  i < HOLDING_PATTERN_LENGTH;  i++  ) {
 			circlepos += circle_koord[(offset + i + HOLDING_PATTERN_LENGTH) % HOLDING_PATTERN_LENGTH];
-			if(welt->ist_in_kartengrenzen(circlepos)) {
+			if(welt->is_within_limits(circlepos)) {
 				route.append( welt->lookup_kartenboden(circlepos)->get_pos() );
 			}
 			else {

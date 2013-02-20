@@ -6,11 +6,8 @@
  */
 
 #include <algorithm>
-#include <string>
-#include "../simgraph.h"
 #include "../vehicle/simvehikel.h"
 #include "../player/simplay.h"
-#include "../simworld.h"  // for year/month
 #include "../simdebug.h"
 #include "../simtools.h"  // for simrand
 #include "../simtypes.h"
@@ -20,13 +17,10 @@
 #include "../dataobj/loadsave.h"
 #include "../dataobj/livery_scheme.h"
 
-#include "../besch/bildliste_besch.h"
 #include "../besch/vehikel_besch.h"
 
-#include "../bauer/warenbauer.h"
 #include "../bauer/vehikelbauer.h"
 
-#include "../tpl/inthashtable_tpl.h"
 #include "../tpl/stringhashtable_tpl.h"
 
 static stringhashtable_tpl< vehikel_besch_t*> name_fahrzeuge;

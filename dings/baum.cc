@@ -54,8 +54,8 @@ void baum_t::distribute_trees(karte_t *welt, int dichte)
 	// best forests results are produced if forest size is tied to map size -
 	// but there is some nonlinearity to ensure good forests on small maps
 	settings_t const& s             = welt->get_settings();
-	sint32     const  x             = welt->get_groesse_x();
-	sint32     const  y             = welt->get_groesse_y();
+	sint32     const  x             = welt->get_size().x;
+	sint32     const  y             = welt->get_size().y;
 	unsigned   const t_forest_size  = (unsigned)pow(((double)x * (double)y), 0.25) * s.get_forest_base_size() / 11 + (x + y) / (2 * s.get_forest_map_size_divisor());
 	uint8      const c_forest_count = (unsigned)pow(((double)x * (double)y), 0.5)  / s.get_forest_count_divisor();
 
@@ -231,8 +231,8 @@ void baum_t::fill_trees(karte_t *welt, int dichte)
 	}
 DBG_MESSAGE("verteile_baeume()","distributing single trees");
 	koord pos;
-	for(  pos.y=0;  pos.y<welt->get_groesse_y();  pos.y++  ) {
-		for(  pos.x=0;  pos.x<welt->get_groesse_x();  pos.x++  ) {
+	for(  pos.y=0;  pos.y<welt->get_size().y;  pos.y++  ) {
+		for(  pos.x=0;  pos.x<welt->get_size().x;  pos.x++  ) {
 			grund_t *gr = welt->lookup_kartenboden(pos);
 			if(gr->get_top() == 0  &&  gr->get_typ() == grund_t::boden)  {
 				// plant spare trees, (those with low preffered density) or in an entirely tree climate
@@ -257,18 +257,19 @@ static bool compare_baum_besch(const baum_besch_t* a, const baum_besch_t* b)
 
 bool baum_t::alles_geladen()
 {
-	if (besch_names.empty()) {
+	if(  besch_names.empty()  ) {
 		DBG_MESSAGE("baum_t", "No trees found - feature disabled");
 		baum_typen.append( NULL );
 	}
 	else {
 		FOR(stringhashtable_tpl<baum_besch_t const*>, const& i, besch_names) {
 			baum_typen.insert_ordered(i.value, compare_baum_besch);
-			if(  baum_typen.get_count()==254  ) {
-				dbg->error( "baum_t::alles_geladen()", "Maximum tree count exceeded! (max 254 instead of %i)", besch_names.get_count() );
+			if(  baum_typen.get_count()==255  ) {
+				dbg->error( "baum_t::alles_geladen()", "Maximum tree count exceeded! (max 255 instead of %i)", besch_names.get_count() );
 				break;
 			}
 		}
+		baum_typen.append( NULL );
 
 		if (baum_typen_per_climate) {
 			delete [] baum_typen_per_climate;
@@ -276,11 +277,11 @@ bool baum_t::alles_geladen()
 		baum_typen_per_climate = new weighted_vector_tpl<uint32>[MAX_CLIMATES];
 
 		// now register all trees for all fitting climates
-		for(  uint32 typ=0;  typ<baum_typen.get_count();  typ++  ) {
+		for(  uint32 typ=0;  typ<baum_typen.get_count()-1;  typ++  ) {
 			// add this tree to climates
 			for(  uint8 j=0;  j<MAX_CLIMATES;  j++  ) {
 				if(  baum_typen[typ]->is_allowed_climate((climate)j)  ) {
-					baum_typen_per_climate[j].append(typ, baum_typen[typ]->get_distribution_weight(), /*extend weighted vector if necess by*/ 4 );
+					baum_typen_per_climate[j].append(typ, baum_typen[typ]->get_distribution_weight());
 				}
 			}
 			// create cache images
@@ -375,7 +376,7 @@ void baum_t::rotate90()
 void baum_t::calc_bild()
 {
 	// summer autumn winter spring
-	season = welt->get_jahreszeit();
+	season = welt->get_season();
 	if(welt->get_snowline()<=get_pos().z) {
 		// snowy winter graphics
 		season = 4;

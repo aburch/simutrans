@@ -20,7 +20,7 @@ private:
 	*/
 	uint8 top;
 
-	void set_capacity(uint8 new_cap);
+	void set_capacity(uint16 new_cap);
 
 	bool grow_capacity();
 
@@ -74,7 +74,7 @@ public:
 	bool loesche_alle(spieler_t *sp,uint8 offset);
 	bool ist_da(const ding_t* obj) const;
 
-	inline int get_top() const {return top;}
+	inline uint8 get_top() const {return top;}
 
 	/**
 	 * sorts the trees according to their offsets

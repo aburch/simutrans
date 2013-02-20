@@ -41,7 +41,7 @@ void root_writer_t::write(const char* filename, int argc, char* argv[])
 		outfp = fopen(file.c_str(), "wb");
 
 		if (!outfp) {
-			printf("ERROR: cannot create destination file %s\n", filename);
+			fprintf( stderr, "ERROR: cannot create destination file %s\n", filename);
 			exit(3);
 		}
 		printf("writing file %s\n", filename);
@@ -80,7 +80,7 @@ void root_writer_t::write(const char* filename, int argc, char* argv[])
 
 						outfp = fopen(name.c_str(), "wb");
 						if (!outfp) {
-							printf("ERROR: cannot create destination file %s\n", filename);
+							fprintf( stderr, "ERROR: cannot create destination file %s\n", filename);
 							exit(3);
 						}
 						printf("   writing file %s\n", name.c_str());
@@ -281,7 +281,7 @@ void root_writer_t::copy(const char* name, int argc, char* argv[])
 	}
 
 	if (!outfp) {
-		printf("ERROR: cannot open destination file %s\n", name);
+		fprintf( stderr, "ERROR: cannot open destination file %s\n", name);
 		exit(3);
 	}
 	printf("writing file %s\n", name);
@@ -339,7 +339,7 @@ void root_writer_t::uncopy(const char* name)
 	}
 
 	if (!infp) {
-		printf("ERROR: cannot open archieve file %s\n", name);
+		fprintf( stderr, "ERROR: cannot open archieve file %s\n", name);
 		exit(3);
 	}
 
@@ -352,7 +352,7 @@ void root_writer_t::uncopy(const char* name)
 			obj_node_info_t root;
 			obj_node_t::read_node( infp, root );
 			if (root.children == 1) {
-				printf("  ERROR: %s is not an archieve (aborting)\n", name);
+				fprintf( stderr, "  ERROR: %s is not an archieve (aborting)\n", name);
 				fclose(infp);
 				exit(3);
 			}
@@ -410,7 +410,7 @@ void root_writer_t::uncopy(const char* name)
 				string outfile = writer + "." + node_name + ".pak";
 				FILE* outfp = fopen(outfile.c_str(), "wb");
 				if (!outfp) {
-					printf("  ERROR: could not open %s for writing (aborting)\n", outfile.c_str());
+					fprintf( stderr, "  ERROR: could not open %s for writing (aborting)\n", outfile.c_str());
 					fclose(infp);
 					exit(3);
 				}

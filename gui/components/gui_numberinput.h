@@ -17,6 +17,7 @@
 #include "../../dataobj/koord.h"
 #include "action_listener.h"
 
+#define NUM_PERCENT (8)
 /**
  * An input field for integer numbers (with arrow buttons for dec/inc)
  * @author Dwachs
@@ -30,7 +31,7 @@ private:
 	bool check_value(sint32 _value);
 
 	// more sophisticated increase routines
-	static sint8 percent[7];
+	static sint8 percent[NUM_PERCENT];
 	sint32 get_prev_value();
 	sint32 get_next_value();
 

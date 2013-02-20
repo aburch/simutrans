@@ -171,7 +171,7 @@ dingliste_t::~dingliste_t()
 }
 
 
-void dingliste_t::set_capacity(uint8 new_cap)
+void dingliste_t::set_capacity(uint16 new_cap)
 {
 	// DBG_MESSAGE("dingliste_t::set_capacity()", "old cap=%d, new cap=%d", capacity, new_cap);
 
@@ -238,7 +238,7 @@ bool dingliste_t::grow_capacity()
 		set_capacity( 4 );
 		return true;
 	}
-	else if(capacity>=240) {
+	else if(capacity>=254) {
 		// capacity exceeded ... (and no need for THAT many objects here ... )
 		return false;
 	}
@@ -918,11 +918,17 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				case ding_t::baum:
 				{
 					baum_t *b = new baum_t(welt, file);
-					if(!b->get_besch()) {
-						// do not remove from this position, since there will be nothing
-						b->set_flag(ding_t::not_on_map);
-						delete b;
-						b = NULL;
+					if(  !b->get_besch()  ) {
+						// is there a replacement possible
+						if(  const baum_besch_t *besch = baum_t::random_tree_for_climate( welt->get_climate(current_pos.z) )  ) {
+							b->set_besch( besch );
+						}
+						else {
+							// do not remove from map on this position, since there will be nothing
+							b->set_flag(ding_t::not_on_map);
+							delete b;
+							b = NULL;
+						}
 					}
 					else {
 						d = b;

@@ -45,7 +45,7 @@ climate_gui_t::climate_gui_t(settings_t* const sets) :
 
 	// mountian/water stuff
 	sint16 y = D_MARGIN_TOP;
-	numberinput_lbl[labelnr].init( "Water level", koord( D_MARGIN_LEFT, y ) );
+	numberinput_lbl[labelnr].init( "Water level", koord( D_MARGIN_LEFT, y+2 ) );
 	add_komponente( numberinput_lbl+labelnr );
 	labelnr++;
 
@@ -56,7 +56,7 @@ climate_gui_t::climate_gui_t(settings_t* const sets) :
 	add_komponente( &water_level );
 	y += D_BUTTON_HEIGHT;
 
-	numberinput_lbl[labelnr].init( "Mountain height", koord( D_MARGIN_LEFT, y ) );
+	numberinput_lbl[labelnr].init( "Mountain height", koord( D_MARGIN_LEFT, y+2 ) );
 	add_komponente( numberinput_lbl+labelnr );
 	labelnr++;
 
@@ -67,7 +67,7 @@ climate_gui_t::climate_gui_t(settings_t* const sets) :
 	add_komponente( &mountain_height );
 	y += D_BUTTON_HEIGHT;
 
-	numberinput_lbl[labelnr].init( "Map roughness", koord( D_MARGIN_LEFT, y ) );
+	numberinput_lbl[labelnr].init( "Map roughness", koord( D_MARGIN_LEFT, y+2 ) );
 	add_komponente( numberinput_lbl+labelnr );
 	labelnr++;
 
@@ -80,7 +80,7 @@ climate_gui_t::climate_gui_t(settings_t* const sets) :
 	mountain_roughness.set_groesse( koord(RIGHT_ARROW-LEFT_ARROW+10, D_BUTTON_HEIGHT) );
 	mountain_roughness.add_listener( this );
 	add_komponente( &mountain_roughness );
-	y += D_BUTTON_HEIGHT;
+	y += D_BUTTON_HEIGHT+D_V_SPACE;
 
 	hilly.init( button_t::square_state, "Hilly landscape", koord(10, y), koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT)); // right align
 	hilly.pressed=umgebung_t::hilly;
@@ -105,22 +105,22 @@ climate_gui_t::climate_gui_t(settings_t* const sets) :
 	y += D_BUTTON_HEIGHT;
 
 	// summer snowline always starting above highest climate
-	numberinput_lbl[labelnr].init( "Summer snowline", koord( D_MARGIN_LEFT, y ) );
+	numberinput_lbl[labelnr].init( "Summer snowline", koord( D_MARGIN_LEFT, y+2 ) );
 	add_komponente( numberinput_lbl+labelnr );
 	labelnr++;
 
 	sprintf( snowline_txt ,"%d", sets->get_climate_borders()[arctic_climate] );
-	summer_snowline.init( NULL, koord( TEXT_RIGHT, y ), COL_WHITE, gui_label_t::right );
+	summer_snowline.init( NULL, koord( TEXT_RIGHT, y+2 ), COL_WHITE, gui_label_t::right );
 	summer_snowline.set_text_pointer( snowline_txt );
 	add_komponente( &summer_snowline );
-	y += D_BUTTON_HEIGHT+D_V_SPACE;
+	y += D_BUTTON_HEIGHT;
 
 	// artic starts at maximum end of climate
-	numberinput_lbl[labelnr].init( "Winter snowline", koord( D_MARGIN_LEFT, y ) );
+	numberinput_lbl[labelnr].init( "Winter snowline", koord( D_MARGIN_LEFT, y+2 ) );
 	add_komponente( numberinput_lbl+labelnr );
 	labelnr++;
 
-	snowline_winter.init( sets->get_winter_snowline(), 0, 24, gui_numberinput_t::AUTOLINEAR, false );
+	snowline_winter.init( sets->get_winter_snowline(), -10, 24, gui_numberinput_t::AUTOLINEAR, false );
 	snowline_winter.set_pos( koord(LEFT_ARROW,y) );
 	snowline_winter.set_groesse( koord(RIGHT_ARROW-LEFT_ARROW+10, D_BUTTON_HEIGHT) );
 	snowline_winter.add_listener( this );
@@ -131,7 +131,7 @@ climate_gui_t::climate_gui_t(settings_t* const sets) :
 	sint16 arctic = 0;
 	for(  int i=desert_climate-1;  i<=rocky_climate-1;  i++  ) {
 
-		numberinput_lbl[labelnr].init( grund_besch_t::get_climate_name_from_bit((climate)(i+1)), koord( D_MARGIN_LEFT, y ) );
+		numberinput_lbl[labelnr].init( grund_besch_t::get_climate_name_from_bit((climate)(i+1)), koord( D_MARGIN_LEFT, y+2 ) );
 		add_komponente( numberinput_lbl+labelnr );
 		labelnr++;
 
@@ -145,7 +145,8 @@ climate_gui_t::climate_gui_t(settings_t* const sets) :
 		}
 		y += D_BUTTON_HEIGHT;
 	}
-	snowline_winter.set_limits( 0, arctic );
+	snowline_winter.set_limits( water_level.get_value(), arctic );
+	snowline_winter.set_value( snowline_winter.get_value() );
 	y += 5;
 
 	no_tree.init( button_t::square_state, "no tree", koord(10,y) ); // right align
@@ -160,7 +161,7 @@ climate_gui_t::climate_gui_t(settings_t* const sets) :
 	cities_like_water.set_value( (int)(umgebung_t::cities_like_water));
 
 	// and finally river stuff
-	numberinput_lbl[labelnr].init( "Number of rivers", koord( D_MARGIN_LEFT, y ) );
+	numberinput_lbl[labelnr].init( "Number of rivers", koord( D_MARGIN_LEFT, y+2 ) );
 	add_komponente( numberinput_lbl+labelnr );
 	labelnr++;
 
@@ -171,7 +172,7 @@ climate_gui_t::climate_gui_t(settings_t* const sets) :
 	add_komponente( &river_n );
 	y += D_BUTTON_HEIGHT;
 
-	numberinput_lbl[labelnr].init( "minimum length of rivers", koord( D_MARGIN_LEFT, y ) );
+	numberinput_lbl[labelnr].init( "minimum length of rivers", koord( D_MARGIN_LEFT, y+2 ) );
 	add_komponente( numberinput_lbl+labelnr );
 	labelnr++;
 
@@ -182,7 +183,7 @@ climate_gui_t::climate_gui_t(settings_t* const sets) :
 	add_komponente( &river_min );
 	y += D_BUTTON_HEIGHT;
 
-	numberinput_lbl[labelnr].init( "maximum length of rivers", koord( D_MARGIN_LEFT, y ) );
+	numberinput_lbl[labelnr].init( "maximum length of rivers", koord( D_MARGIN_LEFT, y+2 ) );
 	add_komponente( numberinput_lbl+labelnr );
 	labelnr++;
 
@@ -276,9 +277,11 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		if(arctic<sets->get_winter_snowline()) {
 			sets->winter_snowline = arctic;
 		}
-		snowline_winter.set_limits( 0, arctic );
+		snowline_winter.set_limits( water_level.get_value(), arctic );
+		snowline_winter.set_value( snowline_winter.get_value() );
+
+		sprintf( snowline_txt ,"%d", sets->get_climate_borders()[arctic_climate] );
 	}
-	sprintf( snowline_txt ,"%d", sets->get_climate_borders()[arctic_climate] );
 	return true;
 }
 

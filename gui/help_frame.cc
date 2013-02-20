@@ -109,8 +109,7 @@ void help_frame_t::set_text(const char * buf, bool resize_frame )
 
 		// calculate sizes (might not a help but info window, which do not have general text)
 		KOORD_VAL size_x = helptext.get_groesse().x + D_MARGIN_LEFT + D_MARGIN_RIGHT + scrollbar_t::BAR_SIZE;
-//		KOORD_VAL size_y = min( helptext.get_groesse().y, generaltext.get_groesse().y );
-		KOORD_VAL size_y = helptext.get_groesse().y;
+		KOORD_VAL size_y = helptext.get_groesse().y + D_TITLEBAR_HEIGHT + D_MARGIN_TOP  + D_MARGIN_BOTTOM + scrollbar_t::BAR_SIZE;
 		if(  scrolly_generaltext.is_visible()  ) {
 			size_x += generaltext.get_groesse().x + D_MARGIN_LEFT + D_MARGIN_RIGHT + scrollbar_t::BAR_SIZE;
 		}
@@ -123,7 +122,6 @@ void help_frame_t::set_text(const char * buf, bool resize_frame )
 			size_y = display_get_height()-64;
 		}
 		set_fenstergroesse( koord( size_x, size_y ) );
-//		resize( koord(0,0) );
 	}
 
 	// generate title
@@ -334,115 +332,105 @@ help_frame_t::help_frame_t(char const* const filename) :
 	scrolly_generaltext(&generaltext),
 	scrolly_helptext(&helptext)
 {
-#if 0
-	// load the content list
-	if(  const char *buf = load_text( "general.txt" )  ) {
-		generaltext.set_text( buf );
-		guarded_free( (void *)buf );
-	}
-	else
-#endif
+	// we now exclusive build out index on the fly
+	slist_tpl<plainstring> already_there;
+	cbuffer_t index_txt;
+
+	cbuffer_t introduction;
+	cbuffer_t usage;
+	cbuffer_t toolbars;
+	cbuffer_t game_start;
+	cbuffer_t how_to_play;
+	cbuffer_t others;
+
+	add_helpfile( introduction, NULL, "simutrans.txt", true, 0 );
+
+	// main usage section
 	{
-		// we now exclusive build out index on the fly
-		slist_tpl<plainstring> already_there;
-		cbuffer_t index_txt;
-
-		cbuffer_t introduction;
-		cbuffer_t usage;
-		cbuffer_t toolbars;
-		cbuffer_t game_start;
-		cbuffer_t how_to_play;
-		cbuffer_t others;
-
-		add_helpfile( introduction, NULL, "simutrans.txt", true, 0 );
-
-		// main usage section
-		{
-			// get title of keyboard help ...
-			std::string kbtitle = extract_title( translator::translate( "<title>Keyboard Help</title>\n<h1><strong>Keyboard Help</strong></h1><p>\n" ) );
-			assert( !kbtitle.empty() );
-			usage.printf( "<a href=\"keys.txt\">%s</a><br>\n", kbtitle.c_str() );
-		}
-		add_helpfile( usage, NULL, "mouse.txt", true, 0 );
-		add_helpfile( usage, NULL, "window.txt", true, 0 );
-
-		// enumerate toolbars
-		bool special = false;
-		add_helpfile( toolbars, NULL, "mainmenu.txt", false, 0 );
-		FOR( vector_tpl<toolbar_t *>, iter, werkzeug_t::toolbar_tool ) {
-			if(  strstart(iter->get_werkzeug_waehler()->get_hilfe_datei(),"list.txt" )  ) {
-				continue;
-			}
-			add_helpfile( toolbars, iter->get_werkzeug_waehler()->get_name(), iter->get_werkzeug_waehler()->get_hilfe_datei(), false, 0 );
-			if(  strstart(iter->get_werkzeug_waehler()->get_hilfe_datei(),"railtools.txt" )  ) {
-				add_helpfile( toolbars, NULL, "bridges.txt", true, 1 );
-				add_helpfile( toolbars, NULL, "signals.txt", true, 1 );
-				add_helpfile( toolbars, "set signal spacing", "signal_spacing.txt", false, 1 );
-			}
-			if(  strstart(iter->get_werkzeug_waehler()->get_hilfe_datei(),"roadtools.txt" )  ) {
-				add_helpfile( toolbars, NULL, "privatesign_info.txt", false, 1 );
-				add_helpfile( toolbars, NULL, "trafficlight_info.txt", false, 1 );
-			}
-			if(  !special  &&  (  strstart(iter->get_werkzeug_waehler()->get_hilfe_datei(),"special.txt" )
-								||  strstart(iter->get_werkzeug_waehler()->get_hilfe_datei(),"edittools.txt" )  )
-				) {
-				special = true;
-				add_helpfile( toolbars, "baum builder", "baum_build.txt", false, 1 );
-				add_helpfile( toolbars, "citybuilding builder", "citybuilding_build.txt", false, 1 );
-				add_helpfile( toolbars, "curiosity builder", "curiosity_build.txt", false, 1 );
-				add_helpfile( toolbars, "factorybuilder", "factory_build.txt", false, 1 );
-			}
-		}
-		add_helpfile( toolbars, NULL, "inspection_tool.txt", true, 0 );
-		add_helpfile( toolbars, NULL, "removal_tool.txt", true, 0 );
-		add_helpfile( toolbars, "LISTTOOLS", "list.txt", false, 0 );
-		add_helpfile( toolbars, NULL, "citylist_filter.txt", false, 1 );
-		add_helpfile( toolbars, NULL, "convoi.txt", false, 1 );
-		add_helpfile( toolbars, NULL, "convoi_filter.txt", false, 2 );
-		add_helpfile( toolbars, NULL, "curiositylist_filter.txt", false, 1 );
-		add_helpfile( toolbars, NULL, "factorylist_filter.txt", false, 1 );
-		add_helpfile( toolbars, NULL, "goods_filter.txt", false, 1 );
-		add_helpfile( toolbars, NULL, "haltlist.txt", false, 1 );
-		add_helpfile( toolbars, NULL, "haltlist_filter.txt", false, 2 );
-		add_helpfile( toolbars, NULL, "labellist_filter.txt", false, 1 );
-
-		add_helpfile( game_start, "Neue Welt", "new_world.txt", false, 0 );
-		add_helpfile( game_start, "Lade Relief", "load_relief.txt", false, 1 );
-		add_helpfile( game_start, "Climate Control", "climates.txt", false, 1 );
-		add_helpfile( game_start, "Setting", "settings.txt", false, 1 );
-		add_helpfile( game_start, "Load game", "load.txt", false, 0 );
-		add_helpfile( game_start, "Load scenario", "scenario.txt", false, 0 );
-		add_helpfile( game_start, "join game", "server.txt", false, 0 );
-		add_helpfile( game_start, "Speichern", "save.txt", false, 0 );
-
-		add_helpfile( how_to_play, "Reliefkarte", "map.txt", false, 0 );
-		add_helpfile( how_to_play, "enlarge map", "enlarge_map.txt", false, 1 );
-		add_helpfile( how_to_play, NULL, "underground.txt", true, 0 );
-		add_helpfile( how_to_play, NULL, "citywindow.txt", true, 0 );
-		add_helpfile( how_to_play, NULL, "depot.txt", false, 0 );
-		add_helpfile( how_to_play, NULL, "convoiinfo.txt", false, 0 );
-		add_helpfile( how_to_play, NULL, "convoidetail.txt", false, 1 );
-		add_helpfile( how_to_play, "Line Management", "linemanagement.txt", false, 0 );
-		add_helpfile( how_to_play, "Fahrplan", "schedule.txt", false, 1 );
-		add_helpfile( how_to_play, NULL, "station.txt", false, 0 );
-		add_helpfile( how_to_play, NULL, "station_details.txt", false, 1 );
-		add_helpfile( how_to_play, NULL, "industry_info.txt", false, 0 );
-		add_helpfile( how_to_play, "Spielerliste", "players.txt", false, 0 );
-		add_helpfile( how_to_play, "Finanzen", "finances.txt", false, 1 );
-		add_helpfile( how_to_play, "Farbe", "color.txt", false, 1 );
-//		add_helpfile( how_to_play, "Scenario", "scenario.txt", false, 1 );
-		add_helpfile( how_to_play, "Enter Password", "password.txt", false, 1 );
-
-		add_helpfile( others, "Einstellungen aendern", "options.txt", false, 0 );
-		add_helpfile( others, "Helligk. u. Farben", "display.txt", false, 0 );
-		add_helpfile( others, "Mailbox", "mailbox.txt", false, 0 );
-		add_helpfile( others, "Sound settings", "sound.txt", false, 0 );
-		add_helpfile( others, "Sprachen", "language.txt", false, 0 );
-
-		index_txt.printf( translator::translate("<h1>Index</h1><p>*: only english</p><p>General</p>%s<p>Usage</p>%s<p>Tools</p>%s<p>Start</p>%s<p>How to play</p>%s<p>Others:</p>%s"),
-			(const char *)introduction, (const char *)usage, (const char *)toolbars, (const char *)game_start, (const char *)how_to_play, (const char *)others );
-		generaltext.set_text( index_txt );
+		// get title of keyboard help ...
+		std::string kbtitle = extract_title( translator::translate( "<title>Keyboard Help</title>\n<h1><strong>Keyboard Help</strong></h1><p>\n" ) );
+		assert( !kbtitle.empty() );
+		usage.printf( "<a href=\"keys.txt\">%s</a><br>\n", kbtitle.c_str() );
 	}
+	add_helpfile( usage, NULL, "mouse.txt", true, 0 );
+	add_helpfile( usage, NULL, "window.txt", true, 0 );
+
+	// enumerate toolbars
+	bool special = false;
+	add_helpfile( toolbars, NULL, "mainmenu.txt", false, 0 );
+	FOR( vector_tpl<toolbar_t *>, iter, werkzeug_t::toolbar_tool ) {
+		if(  strstart(iter->get_werkzeug_waehler()->get_hilfe_datei(),"list.txt" )  ) {
+			continue;
+		}
+		add_helpfile( toolbars, iter->get_werkzeug_waehler()->get_name(), iter->get_werkzeug_waehler()->get_hilfe_datei(), false, 0 );
+		if(  strstart(iter->get_werkzeug_waehler()->get_hilfe_datei(),"railtools.txt" )  ) {
+			add_helpfile( toolbars, NULL, "bridges.txt", true, 1 );
+			add_helpfile( toolbars, NULL, "signals.txt", true, 1 );
+			add_helpfile( toolbars, "set signal spacing", "signal_spacing.txt", false, 1 );
+		}
+		if(  strstart(iter->get_werkzeug_waehler()->get_hilfe_datei(),"roadtools.txt" )  ) {
+			add_helpfile( toolbars, NULL, "privatesign_info.txt", false, 1 );
+			add_helpfile( toolbars, NULL, "trafficlight_info.txt", false, 1 );
+		}
+		if(  !special  &&  (  strstart(iter->get_werkzeug_waehler()->get_hilfe_datei(),"special.txt" )
+							||  strstart(iter->get_werkzeug_waehler()->get_hilfe_datei(),"edittools.txt" )  )
+			) {
+			special = true;
+			add_helpfile( toolbars, "baum builder", "baum_build.txt", false, 1 );
+			add_helpfile( toolbars, "citybuilding builder", "citybuilding_build.txt", false, 1 );
+			add_helpfile( toolbars, "curiosity builder", "curiosity_build.txt", false, 1 );
+			add_helpfile( toolbars, "factorybuilder", "factory_build.txt", false, 1 );
+		}
+	}
+	add_helpfile( toolbars, NULL, "inspection_tool.txt", true, 0 );
+	add_helpfile( toolbars, NULL, "removal_tool.txt", true, 0 );
+	add_helpfile( toolbars, "LISTTOOLS", "list.txt", false, 0 );
+	add_helpfile( toolbars, NULL, "citylist_filter.txt", false, 1 );
+	add_helpfile( toolbars, NULL, "convoi.txt", false, 1 );
+	add_helpfile( toolbars, NULL, "convoi_filter.txt", false, 2 );
+	add_helpfile( toolbars, NULL, "curiositylist_filter.txt", false, 1 );
+	add_helpfile( toolbars, NULL, "factorylist_filter.txt", false, 1 );
+	add_helpfile( toolbars, NULL, "goods_filter.txt", false, 1 );
+	add_helpfile( toolbars, NULL, "haltlist.txt", false, 1 );
+	add_helpfile( toolbars, NULL, "haltlist_filter.txt", false, 2 );
+	add_helpfile( toolbars, NULL, "labellist_filter.txt", false, 1 );
+
+	add_helpfile( game_start, "Neue Welt", "new_world.txt", false, 0 );
+	add_helpfile( game_start, "Lade Relief", "load_relief.txt", false, 1 );
+	add_helpfile( game_start, "Climate Control", "climates.txt", false, 1 );
+	add_helpfile( game_start, "Setting", "settings.txt", false, 1 );
+	add_helpfile( game_start, "Load game", "load.txt", false, 0 );
+	add_helpfile( game_start, "Load scenario", "scenario.txt", false, 0 );
+	add_helpfile( game_start, "join game", "server.txt", false, 0 );
+	add_helpfile( game_start, "Speichern", "save.txt", false, 0 );
+
+	add_helpfile( how_to_play, "Reliefkarte", "map.txt", false, 0 );
+	add_helpfile( how_to_play, "enlarge map", "enlarge_map.txt", false, 1 );
+	add_helpfile( how_to_play, NULL, "underground.txt", true, 0 );
+	add_helpfile( how_to_play, NULL, "citywindow.txt", true, 0 );
+	add_helpfile( how_to_play, NULL, "depot.txt", false, 0 );
+	add_helpfile( how_to_play, NULL, "convoiinfo.txt", false, 0 );
+	add_helpfile( how_to_play, NULL, "convoidetail.txt", false, 1 );
+	add_helpfile( how_to_play, "Line Management", "linemanagement.txt", false, 0 );
+	add_helpfile( how_to_play, "Fahrplan", "schedule.txt", false, 1 );
+	add_helpfile( how_to_play, NULL, "station.txt", false, 0 );
+	add_helpfile( how_to_play, NULL, "station_details.txt", false, 1 );
+	add_helpfile( how_to_play, NULL, "industry_info.txt", false, 0 );
+	add_helpfile( how_to_play, "Spielerliste", "players.txt", false, 0 );
+	add_helpfile( how_to_play, "Finanzen", "finances.txt", false, 1 );
+	add_helpfile( how_to_play, "Farbe", "color.txt", false, 1 );
+//		add_helpfile( how_to_play, "Scenario", "scenario.txt", false, 1 );
+	add_helpfile( how_to_play, "Enter Password", "password.txt", false, 1 );
+
+	add_helpfile( others, "Einstellungen aendern", "options.txt", false, 0 );
+	add_helpfile( others, "Helligk. u. Farben", "display.txt", false, 0 );
+	add_helpfile( others, "Mailbox", "mailbox.txt", false, 0 );
+	add_helpfile( others, "Sound settings", "sound.txt", false, 0 );
+	add_helpfile( others, "Sprachen", "language.txt", false, 0 );
+
+	index_txt.printf( translator::translate("<h1>Index</h1><p>*: only english</p><p>General</p>%s<p>Usage</p>%s<p>Tools</p>%s<p>Start</p>%s<p>How to play</p>%s<p>Others:</p>%s"),
+		(const char *)introduction, (const char *)usage, (const char *)toolbars, (const char *)game_start, (const char *)how_to_play, (const char *)others );
+	generaltext.set_text( index_txt );
 
 	set_helpfile( filename, true );
 
@@ -493,7 +481,7 @@ void help_frame_t::resize(const koord delta)
 
 	scrolly_helptext.set_pos( koord( generalwidth, 0) );
 	scrolly_helptext.set_groesse( get_client_windowsize()-koord(generalwidth,0) );
-	koord helptext_gr = scrolly_helptext.get_groesse() - helptext.get_pos() - koord(scrollbar_t::BAR_SIZE+D_MARGIN_RIGHT+D_MARGIN_LEFT, scrollbar_t::BAR_SIZE );
+	koord helptext_gr = scrolly_helptext.get_groesse() - helptext.get_pos() - koord(scrollbar_t::BAR_SIZE+D_MARGIN_RIGHT, scrollbar_t::BAR_SIZE+D_MARGIN_BOTTOM );
 	helptext.set_groesse( helptext_gr );
 	helptext.set_groesse( helptext.get_text_size());
 }

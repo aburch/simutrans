@@ -15,30 +15,37 @@
 #include "../../simcolor.h"
 #include "../../dataobj/translator.h"
 #include "../../utils/simstring.h"
+#include "../../simwin.h"
 
 
 gui_label_t::gui_label_t(const char* text, COLOR_VAL color_, align_t align_) :
 	align(align_),
-	color(color_)
+	color(color_),
+	tooltip(NULL)
 {
 	set_text( text );
 }
 
-/**
- * setzt den Text des Labels
- * @author Hansjörg Malthaner
- */
+
 void gui_label_t::set_text(const char *text)
 {
-	this->text = translator::translate(text);
+	set_text_pointer(translator::translate(text));
 }
 
 
+void gui_label_t::set_text_pointer(const char *text)
+{
+	this->text = text;
 
-/**
- * Zeichnet die Komponente
- * @author Hj. Malthaner
- */
+	if (text) {
+		koord groesse;
+		groesse.x = display_calc_proportional_string_len_width(text,strlen(text));
+		groesse.y = large_font_total_height;
+		set_groesse(groesse);
+	}
+}
+
+
 void gui_label_t::zeichnen(koord offset)
 {
 	if(align == money) {
@@ -79,4 +86,17 @@ void gui_label_t::zeichnen(koord offset)
 		}
 		display_proportional_clip(pos.x+offset.x, pos.y+offset.y, text, al, color, true);
 	}
+
+	if ( tooltip  &&  getroffen(get_maus_x()-offset.x, get_maus_y()-offset.y) ) {
+
+		const KOORD_VAL by = offset.y + pos.y;
+		const KOORD_VAL bh = groesse.y;
+
+		win_set_tooltip(get_maus_x() + 16, by + bh + 12, tooltip, this);
+	}
+}
+
+void gui_label_t::set_tooltip(const char * t)
+{
+	tooltip = t;
 }

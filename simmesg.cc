@@ -105,7 +105,7 @@ void message_t::set_message_flags( sint32 t, sint32 w, sint32 a, sint32 i)
  * @param pos    position of the event
  * @param color  message color
  * @param where type of message
- * @param bild images assosiated with message
+ * @param bild image associated with message (will be ignored if pos!=koord::invalid)
  * @author prissi
  */
 void message_t::add_message(const char *text, koord pos, uint16 what_flags, PLAYER_COLOR_VAL color, image_id bild )
@@ -149,7 +149,7 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 			str += 1;
 			int x=-1, y=-1;
 			if (sscanf(str, "%d,%d", &x, &y) == 2) {
-				if (welt->ist_in_kartengrenzen(x,y)) {
+				if (welt->is_within_limits(x,y)) {
 					pos.x = x;
 					pos.y = y;
 					break; // success
@@ -169,7 +169,7 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 	n->bild = bild;
 
 	PLAYER_COLOR_VAL colorval = n->get_player_color(welt);
-	// should we send this message to a ticker? (always done)
+	// should we send this message to a ticker?
 	if(  art&ticker_flags  ) {
 		ticker::add_msg(text, pos, colorval);
 	}
@@ -186,26 +186,17 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 	gui_frame_t *old_top = win_get_top();
 	gui_komponente_t *focus = win_get_focus();
 
-	// should we open an autoclose windows?
-	if(  art & auto_win_flags  ) {
+	// should we open a window?
+	if (  art & (auto_win_flags | win_flags)  ) {
 		news_window* news;
 		if (pos == koord::invalid) {
 			news = new news_img(p, bild, colorval);
 		} else {
 			news = new news_loc(welt, p, pos, colorval);
 		}
-		create_win(  news, w_time_delete, magic_none );
-	}
+		wintype w_t = art & win_flags ? w_info /* normal window */ : w_time_delete /* autoclose window */;
 
-	// should we open a normal windows?
-	if(  art & win_flags  ) {
-		news_window* news;
-		if (pos == koord::invalid) {
-			news = new news_img(p, bild, colorval);
-		} else {
-			news = new news_loc(welt, p, pos, colorval);
-		}
-		create_win(-1, -1, news, w_info, magic_none);
+		create_win(  news, w_t, magic_none );
 	}
 
 	// restore focus

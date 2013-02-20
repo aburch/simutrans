@@ -66,8 +66,6 @@ inline sint64 convert_money(sint64 value) { return (value + 50) / 100; }
 class spieler_t
 {
 public:
-	enum { MAX_KONTO_VERZUG = 3 };
-
 	enum { EMPTY=0, HUMAN=1, AI_GOODS=2, AI_PASSENGER=3, MAX_AI, PASSWORD_PROTECTED=128 };
 
 	// BG, 2009-06-06: differ between infrastructure and vehicle maintenance 
@@ -75,12 +73,6 @@ public:
 
 protected:
 	char spieler_name_buf[256];
-
-	/*
-	 * holds total number of all halts, ever built
-	 * @author hsiegeln
-	 */
-	sint32 haltcount;
 
 	/**
 	* Finance History - will supercede the finances by Owen Rudge
@@ -114,6 +106,9 @@ protected:
 	// remember the starting money
 	sint64 starting_money;
 
+	// when was the company founded
+	uint16 player_age;
+
 	/**
 	 * Zählt wie viele Monate das Konto schon ueberzogen ist
 	 * "Count how many months the account is already overdrawn"  (Google)
@@ -123,7 +118,7 @@ protected:
 	sint32 konto_ueberzogen; //"overdrawn account" (Google)
 
 	//slist_tpl<halthandle_t> halt_list; ///< Liste der Haltestellen
-	vector_tpl<halthandle_t> halt_list; ///< "List of the stops" (Babelfish)
+	//vector_tpl<halthandle_t> halt_list; ///< "List of the stops" (Babelfish)
 
 	class income_message_t {
 	public:
@@ -178,9 +173,9 @@ protected:
 	bool access[MAX_PLAYER_COUNT];
 
 public:
-#ifdef DEBUG_SIMRAND_CALLS
-	halthandle_t get_halt(int index) { return halt_list[index]; }
-#endif
+//#ifdef DEBUG_SIMRAND_CALLS
+//	halthandle_t get_halt(int index) { return halt_list[index]; }
+//#endif
 	virtual bool set_active( bool b ) { return automat = b; }
 
 	bool is_active() const { return automat; }
@@ -269,10 +264,18 @@ public:
 	// do the internal accounting (currently only used externally for running costs of convois)
 	void buche(sint64 betrag, player_cost type);
 
-	// this is also save to be called with sp==NULL, which may happen for unowned objects like bridges, ways, trees, ...
-	static void accounting( spieler_t *sp, const sint64 betrag, koord k, player_cost pc );
+	// this is also safe to be called with sp==NULL, which may happen for unowned objects like bridges, ways, trees, ...
+	static void accounting(spieler_t *sp, const sint64 betrag, koord k, player_cost pc);
 
-	static bool accounting_with_check( spieler_t *sp, const sint64 betrag, koord k, player_cost pc );
+	static bool accounting_with_check(spieler_t *sp, const sint64 betrag, koord k, player_cost pc);
+
+	/**
+	 * Cached value of scenario completion percentage.
+	 * To get correct values for clients call scenario_t::get_completion instead.
+	 */
+	sint32 get_scenario_completion() const;
+
+	void set_scenario_completion(sint32 percent);
 
 	/**
 	 * @return Kontostand als double (Gleitkomma) Wert
@@ -309,38 +312,15 @@ public:
 	/**
 	 * Wird von welt nach jedem monat aufgerufen
 	 * @author Hj. Malthaner
+	 * @returns false if player has to be removed (bankrupt/inactive)
 	 */
-	virtual void neuer_monat();
+	virtual bool neuer_monat();
 
 	/**
 	 * Methode fuer jaehrliche Aktionen
 	 * @author Hj. Malthaner
 	 */
 	virtual void neues_jahr() {}
-
-	/**
-	 * Erzeugt eine neue Haltestelle des Spielers an Position pos
-	 * @author Hj. Malthaner
-	 */
-	halthandle_t halt_add(koord pos);
-
-	/**
-	 * needed to transfer ownership
-	 * @author prissi
-	 */
-	void halt_add(halthandle_t h);
-
-	/**
-	 * Entfernt eine Haltestelle des Spielers aus der Liste
-	 * @author Hj. Malthaner
-	 */
-	void halt_remove(halthandle_t halt);
-
-	/**
-	 * Gets haltcount, for naming purposes
-	 * @author hsiegeln
-	 */
-	int get_haltcount() const { return haltcount; }
 
 	/**
 	 * Lädt oder speichert Zustand des Spielers

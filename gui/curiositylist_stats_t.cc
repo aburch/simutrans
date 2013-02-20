@@ -133,7 +133,7 @@ bool curiositylist_stats_t::infowin_event(const event_t * ev)
 void curiositylist_stats_t::recalc_size()
 {
 	// show_scroll_x==false ->> groesse.x not important ->> no need to calc text pixel length
-	set_groesse(koord(210, attractions.get_count()*(LINESPACE+1)-10));
+	set_groesse( koord(210, attractions.get_count() * (LINESPACE+1) ) );
 }
 
 

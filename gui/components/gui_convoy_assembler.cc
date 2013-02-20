@@ -1682,7 +1682,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 		const vector_tpl<gui_image_list_t::image_data_t>& vec = (lst == &electrics ? electrics_vec : (lst == &pas ? pas_vec : (lst == &loks ? loks_vec : waggons_vec)));
 		veh_type = vehikelbauer_t::get_info(vec[sel_index].text);
 		if (depot_frame && vec[sel_index].count > 0) {
-			value = depot_frame->get_depot()->calc_restwert(veh_type) / 100;
+			value = depot_frame->calc_restwert(veh_type) / 100;
 		}
 	}
 	else {

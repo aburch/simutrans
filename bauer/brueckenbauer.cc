@@ -193,7 +193,7 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, spieler_t *sp, koord3d pos, k
 			return koord3d::invalid;
 		}
 
-		if(!welt->ist_in_kartengrenzen(pos.get_2d())) {
+		if(!welt->is_within_limits(pos.get_2d())) {
 			error_msg = "Bridge is too long for this type!\n";
 			return koord3d::invalid;
 		}
@@ -631,7 +631,7 @@ void brueckenbauer_t::baue_auffahrt(karte_t* welt, spieler_t* sp, koord3d end, k
 
 const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, waytype_t wegtyp)
 {
-	marker_t    marker(welt->get_groesse_x(),welt->get_groesse_y());
+	marker_t    marker(welt->get_size().x, welt->get_size().y);
 	slist_tpl<koord3d> end_list;
 	slist_tpl<koord3d> part_list;
 	slist_tpl<koord3d> tmp_list;

@@ -41,7 +41,7 @@ simline_t::simline_t(karte_t* welt, spieler_t* sp, linetype type)
 	this->fpl = NULL;
 	this->sp = sp;
 	withdraw = false;
-	state_color = COL_YELLOW;
+	state_color = COL_WHITE;
 
 	for(uint8 i = 0; i < MAX_LINE_COST; i ++)
 	{	
@@ -541,6 +541,14 @@ void simline_t::set_schedule(schedule_t* fpl)
 	}
 	this->fpl = fpl;
 	calc_is_alternating_circular_route();
+}
+
+
+void simline_t::check_freight()
+{
+	FOR(vector_tpl<convoihandle_t>, const i, line_managed_convoys) {
+		i->check_freight();
+	}
 }
 
 

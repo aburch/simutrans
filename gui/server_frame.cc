@@ -156,6 +156,7 @@ server_frame_t::server_frame_t(karte_t* w) :
 		add_komponente( &find_mismatch );
 
 		join.init( button_t::box, "join game", koord( ww - D_MARGIN_RIGHT - button_width, pos_y ), koord( button_width, D_BUTTON_HEIGHT) );
+		join.disable();
 		join.add_listener( this );
 		add_komponente( &join );
 
@@ -466,13 +467,13 @@ bool server_frame_t::action_triggered (gui_action_creator_t *komp, value_t p)
 		if (  serverlist.get_selection() >= 0  ) {
 			filename += ((server_scrollitem_t*)serverlist.get_element(serverlist.get_selection()))->get_dns();
 			destroy_win( this );
-			welt->laden( filename.c_str() );
+			welt->load( filename.c_str() );
 		}
 		// If we have a valid custom server entry, connect to that
 		else if (  custom_valid  ) {
 			filename += newserver_name;
 			destroy_win( this );
-			welt->laden( filename.c_str() );
+			welt->load( filename.c_str() );
 		}
 		else {
 			dbg->error( "server_frame_t::action_triggered()", "join pressed without valid selection or custom server entry" );

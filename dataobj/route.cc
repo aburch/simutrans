@@ -85,7 +85,7 @@ void route_t::remove_koord_from(uint32 i) {
  */
 bool route_t::append_straight_route(karte_t *welt, koord3d dest )
 {
-	if(  !welt->ist_in_kartengrenzen(dest.get_2d())  ) {
+	if(  !welt->is_within_limits(dest.get_2d())  ) {
 		return false;
 	}
 
@@ -102,7 +102,7 @@ DBG_MESSAGE("route_t::append_straight_route()","start from (%i,%i) to (%i,%i)",p
 		else {
 			pos.y += (pos.y>ziel.y) ? -1 : 1;
 		}
-		if(!welt->ist_in_kartengrenzen(pos)) {
+		if(!welt->is_within_limits(pos)) {
 			break;
 		}
 		route.append(welt->lookup_kartenboden(pos)->get_pos());
@@ -130,7 +130,7 @@ uint32 route_t::max_used_steps=0;
 route_t::ANode *route_t::_nodes[MAX_NODES_ARRAY];
 bool route_t::_nodes_in_use[MAX_NODES_ARRAY]; // semaphores, since we only have few nodes arrays in memory
 
-void route_t::INIT_NODES(uint32 max_route_steps, uint32 world_width, uint32 world_height)
+void route_t::INIT_NODES(uint32 max_route_steps, const koord &world_size)
 {
 	for (int i = 0; i < MAX_NODES_ARRAY; ++i)
 	{
@@ -139,7 +139,7 @@ void route_t::INIT_NODES(uint32 max_route_steps, uint32 world_width, uint32 worl
 	}
 
 	// may need very much memory => configurable
-	MAX_STEP = min(max_route_steps, world_width * world_height); 
+	MAX_STEP = min(max_route_steps, world_size.x * world_size.y); 
 	for (int i = 0; i < MAX_NODES_ARRAY; ++i)
 	{
 		_nodes[i] = new ANode[MAX_STEP + 4 + 2];
@@ -202,7 +202,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 	// memory in static list ...
 	if(!MAX_STEP)
 	{
-		INIT_NODES(welt->get_settings().get_max_route_steps(), welt->get_groesse_x(), welt->get_groesse_y());
+		INIT_NODES(welt->get_settings().get_max_route_steps(), welt->get_size());
 	}
 
 	INT_CHECK("route 347");
@@ -401,7 +401,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 	// memory in static list ...
 	if(!MAX_STEP)
 	{
-		INIT_NODES(welt->get_settings().get_max_route_steps(), welt->get_groesse_x(), welt->get_groesse_y());
+		INIT_NODES(welt->get_settings().get_max_route_steps(), welt->get_size());
 	}
 
 	INT_CHECK("route 347");

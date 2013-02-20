@@ -1085,10 +1085,10 @@ void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb, bool ordered)
 					}
 					else {
 						if(  ordered  ) {
-							buildings.insert_ordered(add_gb, tile->get_besch()->get_level() + 1, compare_gebaeude_pos, 16);
+							buildings.insert_ordered(add_gb, tile->get_besch()->get_level() + 1, compare_gebaeude_pos);
 						}
 						else {
-							buildings.append(add_gb, tile->get_besch()->get_level() + 1, 16);
+							buildings.append(add_gb, tile->get_besch()->get_level() + 1);
 						}
 					}
 					add_gb->set_stadt(this);
@@ -1117,7 +1117,7 @@ void stadt_t::remove_gebaeude_from_stadt(gebaeude_t* gb)
 void stadt_t::update_gebaeude_from_stadt(gebaeude_t* gb)
 {
 	buildings.remove(gb);
-	buildings.append(gb, gb->get_tile()->get_besch()->get_level() + 1, 16);
+	buildings.append(gb, gb->get_tile()->get_besch()->get_level() + 1);
 }
 
 
@@ -1179,11 +1179,11 @@ void stadt_t::pruefe_grenzen(koord k)
 	if (lo.y < 0) {
 		lo.y = 0;
 	}
-	if (ur.x >= welt->get_groesse_x()) {
-		ur.x = welt->get_groesse_x()-1;
+	if ( ur.x >= welt->get_size().x ) {
+		ur.x = welt->get_size().x-1;
 	}
-	if (ur.y >= welt->get_groesse_y()) {
-		ur.y = welt->get_groesse_y()-1;
+	if ( ur.y >= welt->get_size().y ) {
+		ur.y = welt->get_size().y-1;
 	}
 }
 
@@ -1237,11 +1237,11 @@ void stadt_t::recalc_city_size()
 	if (lo.y < 0) {
 		lo.y = 0;
 	}
-	if (ur.x >= welt->get_groesse_x()) {
-		ur.x = welt->get_groesse_x()-1;
+	if (ur.x >= welt->get_size().x) {
+		ur.x = welt->get_size().x-1;
 	}
-	if (ur.y >= welt->get_groesse_y()) {
-		ur.y = welt->get_groesse_y()-1;
+	if (ur.y >= welt->get_size().y) {
+		ur.y = welt->get_size().y-1;
 	}
 }
 
@@ -1493,9 +1493,8 @@ stadt_t::~stadt_t()
 		reliefkarte_t::get_karte()->set_city(NULL);
 	}
 
-	// only if there is still a world left to delete from
-	if(welt->get_groesse_x()>1) 
-	{
+	// olny if there is still a world left to delete from
+	if( welt->get_size().x > 1 ) {
 
 		welt->lookup_kartenboden(pos)->set_text(NULL);
 
@@ -1510,9 +1509,8 @@ stadt_t::~stadt_t()
 			{
 				stadt_t *city = welt->suche_naechste_stadt(gb->get_pos().get_2d());
 				gb->set_stadt( city );
-				if(city) 
-				{
-					city->buildings.append(gb,gb->get_passagier_level(),16);
+				if(city) {
+					city->buildings.append(gb, gb->get_passagier_level());
 				}
 			}
 			else 
@@ -1559,7 +1557,7 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 	pax_destinations_new(koord(PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE))
 {
 	welt = sp->get_welt();
-	assert(welt->ist_in_kartengrenzen(pos));
+	assert(welt->is_within_limits(pos));
 
 	if(welt->get_settings().get_quick_city_growth())
 	{
@@ -3777,31 +3775,28 @@ koord stadt_t::get_zufallspunkt(uint32 min_distance, uint32 max_distance, koord 
 		{
 			origin = this->get_pos();
 		}
-		koord k = koord::invalid;
-		uint32 distance = 0;
-		bool destination_within_range = false;
 		koord nearest_miss = koord::invalid;
-		uint32 nearest_miss_difference =  2147483647; // uint32 max.
-		uint32 difference;
-		//while (counter++ < 24 && (k == koord::invalid || distance > max_distance || distance < min_distance))
+		uint32 nearest_miss_difference = 2147483647; // uint32 max.
 		for(uint32 i = 0; i < 24; i++)
 		{
 			gebaeude_t* const gb = pick_any_weighted(buildings);
-			k = gb->get_pos().get_2d();
-			if(!welt->ist_in_kartengrenzen(k)) 
+
+			koord k = gb->get_pos().get_2d();
+			if(!welt->is_within_limits(k)) 
 			{
 				// this building should not be in this list, since it has been already deleted!
 				dbg->error("stadt_t::get_zufallspunkt()", "illegal building in city list of %s: %p removing!", this->get_name(), gb);
 				const_cast<stadt_t*>(this)->buildings.remove(gb);
 				k = koord(0, 0);
 			}
-			distance = shortest_distance(k, origin);
+			const uint32 distance = shortest_distance(k, origin);
 			if(distance <= max_distance && distance >= min_distance)
 			{
-				destination_within_range = true;
-				break;
+				return k;
 			}
-			else if(distance > max_distance)
+
+			uint32 difference;
+			if(distance > max_distance)
 			{
 				difference = distance - max_distance;
 			}
@@ -3815,11 +3810,7 @@ koord stadt_t::get_zufallspunkt(uint32 min_distance, uint32 max_distance, koord 
 				nearest_miss = k;
 			}
 		}
-		if(!destination_within_range && nearest_miss != koord::invalid)
-		{
-			k = nearest_miss;
-		}
-		return k;
+		return nearest_miss;
 	}
 	// might happen on slow computers during creation of new cities or start of map
 	return koord(0,0);
@@ -3832,8 +3823,7 @@ void stadt_t::add_target_city(stadt_t *const city)
 	target_cities.insert_ordered(
 		target_city_t( city, shortest_distance( this->get_pos(), city->get_pos() ) ),
 		max( city->get_einwohner(), 1 ),
-		target_city_t::less_than,
-		64u
+		target_city_t::less_than
 	);
 }
 
@@ -3867,8 +3857,7 @@ void stadt_t::add_target_attraction(gebaeude_t *const attraction)
 	assert( attraction != NULL );
 	target_attractions.append(
 		attraction,
-		weight_by_distance( attraction->get_passagier_level() << 4, shortest_distance( this->get_pos(), attraction->get_pos().get_2d() ) ),
-		64u
+		weight_by_distance( attraction->get_passagier_level() << 4, shortest_distance( get_center(), attraction->get_pos().get_2d() ) )
 	);
 }
 
@@ -4053,8 +4042,8 @@ uint16 stadt_t::get_max_dimension()
 void stadt_t::merke_passagier_ziel(koord k, uint8 color)
 {
 	const koord p = koord(
-		((k.x * PAX_DESTINATIONS_SIZE) / welt->get_groesse_x()) & (PAX_DESTINATIONS_SIZE-1),
-		((k.y * PAX_DESTINATIONS_SIZE) / welt->get_groesse_y()) & (PAX_DESTINATIONS_SIZE-1)
+		((k.x * PAX_DESTINATIONS_SIZE) / welt->get_size().x) & (PAX_DESTINATIONS_SIZE-1),
+		((k.y * PAX_DESTINATIONS_SIZE) / welt->get_size().y) & (PAX_DESTINATIONS_SIZE-1)
 	);
 
 
@@ -4084,7 +4073,7 @@ class bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t
 		int find_dist_next_special(koord pos) const
 		{
 			const weighted_vector_tpl<gebaeude_t*>& attractions = welt->get_ausflugsziele();
-			int dist = welt->get_groesse_x() * welt->get_groesse_y();
+			int dist = welt->get_size().x * welt->get_size().y;
 			FOR(  weighted_vector_tpl<gebaeude_t*>, const i, attractions  ) {
 				int const d = koord_distance(i->get_pos(), pos);
 				if(  d < dist  ) {
@@ -4254,8 +4243,8 @@ void stadt_t::check_bau_spezial(bool new_town)
 					if (!new_town) {
 						cbuffer_t buf;
 						buf.printf( translator::translate("With a big festival\n%s built\na new monument.\n%i citicens rejoiced."), get_name(), get_einwohner() );
-						welt->get_message()->add_message(buf, best_pos, message_t::city, CITY_KI, besch->get_tile(0)->get_hintergrund(0, 0, 0));
-					}					
+						welt->get_message()->add_message(buf, best_pos + koord(1, 1), message_t::city, CITY_KI, besch->get_tile(0)->get_hintergrund(0, 0, 0));
+					}
 				}
 			}
 		}
@@ -4595,14 +4584,14 @@ void stadt_t::baue_gebaeude(const koord k, bool new_town)
 		if (sum_gewerbe > sum_industrie  &&  sum_gewerbe > sum_wohnung) {
 			h = hausbauer_t::get_gewerbe(0, current_month, cl, new_town);
 			if (h != NULL) {
-				arb += (h->get_level() + 1) * 20;
+				arb += (h->get_level()+1) * 20;
 			}
 		}
 
 		if (h == NULL  &&  sum_industrie > sum_gewerbe  &&  sum_industrie > sum_wohnung) {
 			h = hausbauer_t::get_industrie(0, current_month, cl, new_town);
 			if (h != NULL) {
-				arb += (h->get_level() + 1) * 20;
+				arb += (h->get_level()+1) * 20;
 			}
 		}
 
@@ -4610,7 +4599,7 @@ void stadt_t::baue_gebaeude(const koord k, bool new_town)
 			h = hausbauer_t::get_wohnhaus(0, current_month, cl, new_town);
 			if (h != NULL) {
 				// will be aligned next to a street
-				won += (h->get_level() + 1) * 10;
+				won += (h->get_level()+1) * 10;
 			}
 		}
 
@@ -4689,7 +4678,7 @@ void stadt_t::erzeuge_verkehrsteilnehmer(koord pos, sint32 /*level*/, koord targ
 		koord k;
 		for (k.y = pos.y - 1; k.y <= pos.y + 1; k.y++) {
 			for (k.x = pos.x - 1; k.x <= pos.x + 1; k.x++) {
-				if (welt->ist_in_kartengrenzen(k)) {
+				if (welt->is_within_limits(k)) {
 					grund_t* gr = welt->lookup_kartenboden(k);
 					const weg_t* weg = gr->get_weg(road_wt);
 
@@ -4926,7 +4915,7 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 		}
 		else if(gb->get_tile()->get_besch()->get_all_layouts()) {
 			// through way
-			allowed_dir = ribi_t::doppelt( ribi_t::layout_to_ribi[gb->get_tile()->get_layout()] );
+			allowed_dir = ribi_t::doppelt( ribi_t::layout_to_ribi[gb->get_tile()->get_layout() & 1] );
 		}
 		else {
 			dbg->error("stadt_t::baue_strasse()", "building on road with not directions at %i,%i?!?", k.x, k.y );
@@ -4981,7 +4970,7 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 						}
 						else if(layouts==2 || layouts==8 || layouts==16) {
 							// through way
-							if((ribi_t::doppelt( ribi_t::layout_to_ribi[gb->get_tile()->get_layout()] )&ribi_t::nsow[r])!=0) {
+							if((ribi_t::doppelt( ribi_t::layout_to_ribi[gb->get_tile()->get_layout() & 1] )&ribi_t::nsow[r])!=0) {
 								// allowed ...
 								connection_roads |= ribi_t::nsow[r];
 							}
@@ -5044,7 +5033,7 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 					end = brueckenbauer_t::finde_ende(welt, NULL, bd->get_pos(), zv, bridge, err, true);
 				}
 				if (err==NULL  &&   koord_distance( k, end.get_2d())<=3) {
-					brueckenbauer_t::baue_bruecke(welt, welt->get_spieler(1), bd->get_pos(), end, zv, bridge, welt->get_city_road());
+					brueckenbauer_t::baue_bruecke(welt, NULL, bd->get_pos(), end, zv, bridge, welt->get_city_road());
 					// try to build one connecting piece of road
 					baue_strasse( (end+zv).get_2d(), NULL, false);
 					// try to build a house near the bridge end
@@ -5072,7 +5061,7 @@ void stadt_t::baue(bool new_town)
 		const koord k(lo + koord::koord_random(ur.x - lo.x + 2,ur.y - lo.y + 2)-koord(1,1) );
 
 		// do not build on any border tile
-		if(  !welt->ist_in_kartengrenzen(k+koord(1,1))  ||  k.x<=0  ||  k.y<=0  ) {
+		if(  !welt->is_within_limits(k+koord(1,1))  ||  k.x<=0  ||  k.y<=0  ) {
 			return;
 		}
 
@@ -5144,7 +5133,7 @@ void stadt_t::baue(bool new_town)
 			for(  sint16 i=lo.x;  i<=ur.x;  ++i  ) {
 				const koord k(i, j);
 				// do not build on any border tile
-				if(  !welt->ist_in_kartengrenzen( k+koord(1,1) )  ||  k.x<=0  ||  k.y<=0  ) {
+				if(  !welt->is_within_limits( k+koord(1,1) )  ||  k.x<=0  ||  k.y<=0  ) {
 					continue;
 				}
 
@@ -5233,7 +5222,7 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sin
 	}
 	DBG_DEBUG("karte_t::init()", "get random places in climates %x", cl);
 	// search at least places which are 5x5 squares large
-	slist_tpl<koord>* list = wl->finde_plaetze( 5, 5, (climate_bits)cl, old_x, old_y);
+	slist_tpl<koord>* list = wl->find_squares( 5, 5, (climate_bits)cl, old_x, old_y);
 	DBG_DEBUG("karte_t::init()", "found %i places", list->get_count());
 	unsigned int weight_max;
 	// unsigned long here -- from weighted_vector_tpl.h(weight field type)
@@ -5244,10 +5233,11 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sin
 		weight_max = (std::numeric_limits<unsigned long>::max)()/list->get_count();
 	}
 
+	koord wl_size = wl->get_size();
 	// max 1 city from each square can be built
 	// each entry represents a cell of grid_step length and width
-	const int xmax = wl->get_groesse_x()/grid_step + 1;
-	const int ymax = wl->get_groesse_y()/grid_step + 1;
+	const int xmax = wl_size.x/grid_step + 1;
+	const int ymax = wl_size.y/grid_step + 1;
 	array2d_tpl< vector_tpl<koord> > places(xmax, ymax);
 	while (!list->empty()) {
 		const koord k = list->remove_first();
@@ -5266,8 +5256,8 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sin
 	}
 	koord pos;
 	//skip edges -- they treated as water, we don't want it
-	for( pos.y = 2; pos.y < wl->get_groesse_y()-2; pos.y++) {
-		for (pos.x = 2; pos.x < wl->get_groesse_x()-2; pos.x++ ) {
+	for( pos.y = 2; pos.y < wl_size.y-2; pos.y++) {
+		for (pos.x = 2; pos.x < wl_size.x-2; pos.x++ ) {
 			koord my_grid_pos(pos.x/grid_step, pos.y/grid_step);
 			grund_t *gr = wl->lookup_kartenboden(pos);
 			if ( gr->get_hoehe() <= wl->get_grundwasser()  || ( gr->hat_weg(water_wt) && gr->get_max_speed() )  ) {
@@ -5317,8 +5307,8 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sin
 		}
 	}
 
-	for ( pos.y = 1; pos.y < wl->get_groesse_y(); pos.y++) {
-		for (pos.x = 1; pos.x < wl->get_groesse_x(); pos.x++) {
+	for ( pos.y = 1; pos.y < wl_size.y; pos.y++) {
+		for (pos.x = 1; pos.x < wl_size.x; pos.x++) {
 			double f;
 			if (umgebung_t::cities_ignore_height) {
 				f = 0.0;

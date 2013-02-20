@@ -59,6 +59,7 @@ scenario_info_t::scenario_info_t(karte_t *welt_) :
 	gui_flowtext_t *texts[] = { &info, &goal, &rule, &result, &about, &error, &debug_msg};
 	for(uint32 i=0; i<lengthof(texts); i++) {
 		texts[i]->set_pos(pane_pos);
+		texts[i]->add_listener(this);
 	}
 
 	gui_scrollpane_t *scrolly[] = { &scrolly_info, &scrolly_goal, &scrolly_rule, &scrolly_result, &scrolly_error, &scrolly_about, &scrolly_debug };
@@ -115,10 +116,35 @@ void scenario_info_t::zeichnen(koord pos, koord gr)
 	gui_frame_t::zeichnen(pos, gr);
 }
 
-bool scenario_info_t::action_triggered( gui_action_creator_t *komp, value_t)
+bool scenario_info_t::action_triggered( gui_action_creator_t *komp, value_t v)
 {
 	if (komp == &tabs) {
 		set_dirty();
+	}
+	if (komp == &info  ||  komp == &goal  ||  komp ==  &rule  ||  komp ==  &result  ||  komp == &about) {
+		// parse hyperlink
+		const char *link = (const char*)v.p;
+		if (link  && *link) {
+			if (link[0]=='(') {
+				// jump to coordinate
+				int x=-1, y=-1;
+				int n = sscanf(link, "(%i,%i)", &x, &y);
+				if (n==2  &&  welt->is_within_limits(x,y)) {
+					welt->change_world_position( welt->lookup_kartenboden(koord(x,y))->get_pos()  );
+				}
+			}
+			else {
+				const char *shorts[] = { "info", "goal", "rules", "result", "about" };
+				for (uint i = 0; i<lengthof(shorts); i++) {
+					if (strcmp(link, shorts[i]) == 0) {
+						tabs.set_active_tab_index(i);
+						resize(koord(0,0));
+						set_dirty();
+						return true;
+					}
+				}
+			}
+		}
 	}
 	return true;
 }

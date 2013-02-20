@@ -2,6 +2,7 @@
 #define message_option_h
 
 #include "../simmesg.h"
+#include "../simwin.h"
 
 #include "gui_frame.h"
 #include "components/action_listener.h"
@@ -34,6 +35,8 @@ public:
 	const char * get_hilfe_datei() const {return "mailbox.txt";}
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
+
+	uint32 get_rdwr_id() { return magic_message_options; }
 };
 
 #endif

@@ -33,6 +33,24 @@ void export_halt(HSQUIRRELVM vm)
 	begin_class("halt_x", "extend_get");
 
 	/**
+	 * Station name.
+	 * @returns name
+	 */
+	register_method(vm, &haltestelle_t::get_name, "get_name");
+
+	/**
+	 * Station owner.
+	 * @returns owner
+	 */
+	register_method(vm, &haltestelle_t::get_besitzer, "get_owner");
+
+	/**
+	 * Does this station accept this type of good?
+	 * @returns the answer to this question
+	 */
+	register_method<bool (haltestelle_t::*)(const ware_besch_t*) const>(vm, &haltestelle_t::is_enabled, "accepts_good", false);
+
+	/**
 	 * Get monthly statistics of number of arrived goods.
 	 * @returns array, index [0] corresponds to current month
 	 */

@@ -109,6 +109,7 @@ int get_maus_x(void);
 int get_maus_y(void);
 
 void mark_rect_dirty_wc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2);
+void mark_screen_dirty();
 
 KOORD_VAL display_get_width(void);
 KOORD_VAL display_get_height(void);

@@ -400,10 +400,6 @@ public:
 
 	void rauche() const;
 
-	/**
-	* Effnet ein neues Beobachtungsfenster fur das Objekt.
-	* @author Hj. Malthaner
-	*/
 	void zeige_info();
 
 #if 0

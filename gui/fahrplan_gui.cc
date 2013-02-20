@@ -8,6 +8,7 @@
 
 #include "../simline.h"
 #include "../simcolor.h"
+#include "../simdepot.h"
 #include "../simhalt.h"
 #include "../simworld.h"
 #include "../simmenu.h"
@@ -32,6 +33,7 @@
 
 #include "../tpl/vector_tpl.h"
 
+#include "depot_frame.h"
 #include "fahrplan_gui.h"
 #include "line_item.h"
 
@@ -344,7 +346,7 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	lb_load.set_pos( koord( 10, ypos+2 ) );
 	add_komponente(&lb_load);
 
-	numimp_load.set_pos( koord( D_BUTTON_WIDTH*2-65, ypos+2 ) );
+	numimp_load.set_pos( koord( D_BUTTON_WIDTH*2-65, ypos ) );
 	numimp_load.set_groesse( koord( 60, D_BUTTON_HEIGHT ) );
 	numimp_load.set_value( fpl->get_current_eintrag().ladegrad );
 	numimp_load.set_limits( 0, 400 );
@@ -384,7 +386,7 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	lb_waitlevel.set_pos( koord( D_BUTTON_WIDTH*2-20, ypos+2 ) );
 	add_komponente(&lb_waitlevel);
 
-	bt_wait_next.set_pos( koord( D_BUTTON_WIDTH*2-15, ypos+2 ) );
+	bt_wait_next.set_pos( koord( D_BUTTON_WIDTH*2-17, ypos+2 ) );
 	bt_wait_next.set_typ(button_t::arrowright);
 	bt_wait_next.add_listener(this);
 	add_komponente(&bt_wait_next);
@@ -644,6 +646,19 @@ bool fahrplan_gui_t::infowin_event(const event_t *ev)
 					fpl->sprintf_schedule( buf );
 					cnv->call_convoi_tool( 'g', buf );
 				}
+
+				if(  cnv->in_depot()  ) {
+					const grund_t *const ground = welt->lookup( cnv->get_home_depot() );
+					if(  ground  ) {
+						const depot_t *const depot = ground->get_depot();
+						if(  depot  ) {
+							depot_frame_t *const frame = dynamic_cast<depot_frame_t *>( win_get_magic( (ptrdiff_t)depot ) );
+							if(  frame  ) {
+								frame->update_data();
+							}
+						}
+					}
+				}
 			}
 		}
 	}
@@ -772,7 +787,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 		fpl->sprintf_schedule( buf );
 		w->set_default_param(buf);
 		sp->get_welt()->set_werkzeug( w, sp );
-		// since init always returns false, it is save to delete immediately
+		// since init always returns false, it is safe to delete immediately
 		delete w;
 	}
 	// recheck lines
@@ -796,7 +811,7 @@ void fahrplan_gui_t::init_line_selector()
 {
 	line_selector.clear_elements();
 	line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( no_line, COL_BLACK ) );
-	int selection = -1;
+	int selection = 0;
 	sp->simlinemgmt.sort_lines();	// to take care of renaming ...
 	sp->simlinemgmt.get_lines(fpl->get_type(), &lines);
 

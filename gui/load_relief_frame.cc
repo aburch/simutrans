@@ -32,7 +32,7 @@ load_relief_frame_t::load_relief_frame_t(settings_t* const sets) : savegame_fram
 
 	this->add_path(extra_path);
 
-	set_name(translator::translate("Laden"));
+	set_name(translator::translate("Lade Relief"));
 	this->sets = sets;
 	sets->heightfield = "";
 }

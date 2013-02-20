@@ -255,6 +255,23 @@ void umgebung_t::rdwr(loadsave_t *file)
 	file->rdwr_long( message_flags[2] );
 	file->rdwr_long( message_flags[3] );
 
+	if (  file->is_loading()  ) {
+		if(  file->get_version()<110000  ) {
+			// did not know about chat message, so we enable it
+			message_flags[0] |=  (1 << message_t::chat); // ticker
+			message_flags[1] &= ~(1 << message_t::chat); // permanent window off
+			message_flags[2] &= ~(1 << message_t::chat); // timed window off
+			message_flags[3] &= ~(1 << message_t::chat); // do not ignore completely
+		}
+		if(  file->get_version()<=112002  ) {
+			// did not know about scenario message, so we enable it
+			message_flags[0] &= ~(1 << message_t::scenario); // ticker off
+			message_flags[1] |=  (1 << message_t::scenario); // permanent window on
+			message_flags[2] &= ~(1 << message_t::scenario); // timed window off
+			message_flags[3] &= ~(1 << message_t::scenario); // do not ignore completely
+		}
+	}
+
 	file->rdwr_bool( show_tooltips );
 	file->rdwr_byte( tooltip_color );
 	file->rdwr_byte( tooltip_textcolor );
@@ -282,7 +299,11 @@ void umgebung_t::rdwr(loadsave_t *file)
 	file->rdwr_bool( window_buttons_right );
 	file->rdwr_bool( window_frame_active );
 
-	file->rdwr_byte( verbose_debug );
+	if(  file->get_version()<=112000  ) {
+		// set by command-line, it does not make sense to save it.
+		uint8 v = verbose_debug;
+		file->rdwr_byte( v );
+	}
 
 	file->rdwr_long( intercity_road_length );
 	if(  file->get_version()<=102002  ) {
@@ -343,14 +364,6 @@ void umgebung_t::rdwr(loadsave_t *file)
 		bool dummy = false;
 		file->rdwr_bool(dummy); //was add_player_name_to_message
 		file->rdwr_short( window_snap_distance );
-	}
-	else if(  file->is_loading()  ) {
-		// did not know about chat message, so we enable it
-		message_flags[0] |= (1 << message_t::chat);	// ticker
-		message_flags[1] &= ~(1 << message_t::chat); // permanent window off
-		message_flags[2] &= ~(1 << message_t::chat); // tiem window off
-		message_flags[3] &= ~(1 << message_t::chat); // do not ignore completely
-
 	}
 
 	if(  file->get_version()>=111001  ) {

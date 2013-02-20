@@ -363,6 +363,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gui\convoy_item.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\dings\crossing.cc"
 				>
 			</File>
@@ -1074,6 +1078,10 @@
 			</File>
 			<File
 				RelativePath=".\simticker.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\simloadingscreen.cc"
 				>
 			</File>
 			<File
@@ -2316,6 +2324,10 @@
 			</File>
 			<File
 				RelativePath=".\simticker.h"
+				>
+			</File>
+			<File
+				RelativePath=".\simloadingscreen.h"
 				>
 			</File>
 			<File

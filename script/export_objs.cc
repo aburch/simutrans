@@ -1,7 +1,5 @@
 #include "export_objs.h"
 
-#include "../simworld.h"
-#include "../dataobj/scenario.h"
 #include <string.h>
 
 #include "api_function.h"
@@ -20,16 +18,11 @@ void register_export_function(HSQUIRRELVM vm, karte_t *welt_)
 
 	sq_pushroottable(vm);
 
-	sq_pushstring(vm, "gui", -1);
-	if (SQ_SUCCEEDED(sq_get(vm, -2))) {
-		script_api::register_method(vm, &scenario_t::open_info_win, "open_info_win");
-	}
-	sq_pop(vm, 1); // class
-
 	export_city(vm);
 	export_convoy(vm);
 	export_factory(vm);
 	export_goods_desc(vm);
+	export_gui(vm);
 	export_halt(vm);
 	export_player(vm);
 	export_scenario(vm);

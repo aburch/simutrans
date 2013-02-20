@@ -6,6 +6,7 @@
 #include "../api_class.h"
 #include "../api_function.h"
 #include "../../simcity.h"
+#include "../../simmenu.h"
 #include "../../simworld.h"
 #include "../../dataobj/scenario.h"
 
@@ -44,6 +45,20 @@ SQInteger world_get_city_by_index(HSQUIRRELVM vm)
 	// transform coordinates
 	welt->get_scenario()->koord_w2sq(pos);
 	return push_instance(vm, "city_x",  pos.x, pos.y);
+}
+
+
+static void_t set_citygrowth(stadt_t *city, bool allow)
+{
+	static char param[16];
+	sprintf(param,"g%hi,%hi,%hi", city->get_pos().x, city->get_pos().y, allow );
+	karte_t *welt = city->get_welt();
+	werkzeug_t *wkz = werkzeug_t::simple_tool[WKZ_CHANGE_CITY_TOOL];
+	wkz->set_default_param( param );
+	wkz->flags |=  werkzeug_t::WFL_SCRIPT;
+	welt->set_werkzeug( wkz, welt->get_spieler(1) );
+	wkz->flags &= ~werkzeug_t::WFL_SCRIPT;
+	return void_t();
 }
 
 
@@ -214,9 +229,8 @@ void export_city(HSQUIRRELVM vm)
 
 	/**
 	 * Enable or disable city growth.
-	 * @warning cannot be used in network games.
 	 */
-	register_method(vm, &stadt_t::set_citygrowth_yesno, "set_citygrowth_enabled");
+	register_method(vm, &set_citygrowth, "set_citygrowth_enabled", true);
 
 	/**
 	 * Change city name.

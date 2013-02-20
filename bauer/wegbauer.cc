@@ -656,21 +656,25 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		return false;
 	}
 
-	if((bautyp&tunnel_flag)==0) {
-		// not jumping to other lanes on bridges
-		if( to->get_typ()==grund_t::brueckenboden ) {
-			weg_t *weg=to->get_weg_nr(0);
-			if(weg && !ribi_t::ist_gerade(weg->get_ribi_unmasked()|ribi_typ(zv))) {
-				return false;
-			}
-		}
-		// Do not switch to tunnel through cliffs!
-		if( from->get_typ() == grund_t::tunnelboden  &&  to->get_typ() != grund_t::tunnelboden  &&  !from->ist_karten_boden() ) {
+	// universal check for bridges: enter bridges in bridge direction
+	if( to->get_typ()==grund_t::brueckenboden ) {
+		weg_t *weg=to->get_weg_nr(0);
+		if(weg && !ribi_t::ist_gerade(weg->get_ribi_unmasked()|ribi_typ(zv))) {
 			return false;
 		}
-		if( to->get_typ()==grund_t::tunnelboden  &&  from->get_typ() != grund_t::tunnelboden   &&  !to->ist_karten_boden() ) {
+	}
+	if( from->get_typ()==grund_t::brueckenboden ) {
+		weg_t *weg=from->get_weg_nr(0);
+		if(weg && !ribi_t::ist_gerade(weg->get_ribi_unmasked()|ribi_typ(zv))) {
 			return false;
 		}
+	}
+	// universal check: do not switch to tunnel through cliffs!
+	if( from->get_typ() == grund_t::tunnelboden  &&  to->get_typ() != grund_t::tunnelboden  &&  !from->ist_karten_boden() ) {
+		return false;
+	}
+	if( to->get_typ()==grund_t::tunnelboden  &&  from->get_typ() != grund_t::tunnelboden   &&  !to->ist_karten_boden() ) {
+		return false;
 	}
 
 	// universal check for crossings
@@ -822,11 +826,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		{
 			const weg_t *canal = to->get_weg(water_wt);
 			// if no way there: check for right ground type, otherwise check owner
-//<<<<<<< HEAD
 			ok = canal == NULL ? !fundament :  check_owner(canal->get_besitzer(), sp) || check_access(canal, sp);
-//=======
-			ok = canal  ||  !fundament;
-//>>>>>>> aburch/master
 			// calculate costs
 			if(ok) {
 				*costs = to->ist_wasser() ||  canal  ? s.way_count_straight : s.way_count_leaving_road; // prefer water very much
@@ -1086,7 +1086,7 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 				sint8 num_slopes = (from->get_grund_hang() == hang_t::flach) ? 1 : -1;
 				// On the end tile, we haven't to subtract way_count_slope, since is_allowed_step isn't called with this tile.
 				num_slopes += (gr_end->get_grund_hang() == hang_t::flach) ? 1 : 0;
-				next_gr.append(next_gr_t(welt->lookup(end), length * cost_difference + num_slopes*welt->get_settings().way_count_slope, build_straight));
+				next_gr.append(next_gr_t(welt->lookup(end), length * cost_difference + num_slopes*welt->get_settings().way_count_slope, build_straight | build_tunnel_bridge));
 				min_length = length+1;
 			}
 			else {
@@ -1102,7 +1102,7 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 		koord3d end = tunnelbauer_t::finde_ende( welt, sp, from->get_pos(), zv, besch->get_wtyp());
 		if(  end != koord3d::invalid  &&  !ziel.is_contained(end)  ) {
 			uint32 length = koord_distance(from->get_pos(), end);
-			next_gr.append(next_gr_t(welt->lookup(end), length * cost_difference, build_straight ));
+			next_gr.append(next_gr_t(welt->lookup(end), length * cost_difference, build_straight | build_tunnel_bridge ));
 			return;
 		}
 	}
@@ -1230,7 +1230,7 @@ long wegbauer_t::intern_calc_route(const vector_tpl<koord3d> &start, const vecto
 	// memory in static list ...
 	if(!route_t::MAX_STEP)
 	{
-		route_t::INIT_NODES(welt->get_settings().get_max_route_steps(), welt->get_groesse_x(), welt->get_groesse_y());
+		route_t::INIT_NODES(welt->get_settings().get_max_route_steps(), welt->get_size());
 	}
 
 	static binary_heap_tpl <route_t::ANode *> queue;
@@ -1368,7 +1368,7 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->get_pos().x,gr->get_pos().y,g
 				// now add it to the array ...
 				next_gr.append(next_gr_t(to, new_cost, do_terraform ? build_straight | terraform : 0));
 			}
-			else if(tmp->parent!=NULL  &&  r==straight_dir) {
+			else if(tmp->parent!=NULL  &&  r==straight_dir  &&  (tmp->count & build_tunnel_bridge)==0) {
 				// try to build a bridge or tunnel here, since we cannot go here ...
 				check_for_bridge(tmp->parent->gr,gr,ziel);
 			}
@@ -1477,7 +1477,9 @@ DBG_DEBUG("wegbauer_t::intern_calc_route()","steps=%i  (max %i) in route, open %
 	long cost = -1;
 //DBG_DEBUG("reached","%i,%i",tmp->pos.x,tmp->pos.y);
 	// target reached?
-	if( !ziel.is_contained(gr->get_pos())  ||  step>=route_t::MAX_STEP  ||  tmp->parent==NULL) {
+	if(  !ziel.is_contained(gr->get_pos())  ||  tmp->parent==NULL  ) {
+	}
+	else if(  step>=route_t::MAX_STEP  ) {
 		dbg->warning("wegbauer_t::intern_calc_route()","Too many steps (%i>=max %i) in route (too long/complex)",step,route_t::MAX_STEP);
 	}
 	else {
@@ -1488,7 +1490,6 @@ DBG_DEBUG("wegbauer_t::intern_calc_route()","steps=%i  (max %i) in route, open %
 			if (tmp->count & terraform) {
 				terraform_index.append(route.get_count()-1);
 			}
-//DBG_DEBUG("add","%i,%i",tmp->pos.x,tmp->pos.y);
 			tmp = tmp->parent;
 		}
 	}
@@ -1545,9 +1546,6 @@ void wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d z
 			diff = (pos.y>ziel.y) ? ribi_t::nord : ribi_t::sued;
 		}
 		if(bautyp&tunnel_flag) {
-			// ground must be above tunnel
-			ok &= (welt->lookup_kartenboden(pos.get_2d())->get_hoehe() > pos.z);
-
 			// create fake tunnel grounds if needed
 			bool bd_von_new = false, bd_nach_new = false;
 			grund_t *bd_von = welt->lookup(pos);
@@ -1577,15 +1575,12 @@ void wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d z
 			// all other checks are done here (crossings, stations etc)
 			ok = ok && is_allowed_step(bd_von, bd_nach, &dummy_cost);
 
-			// check for last tile
-			if(  ok  &&  bd_nach->get_pos().get_2d()==ziel.get_2d()  ) {
-				// at least tunnel not in the sea
-				const grund_t *gr = welt->lookup_kartenboden(bd_nach->get_pos().get_2d());
-				ok = ok  &&  (!gr->ist_wasser()  ||  min( welt->lookup_hgt(pos.get_2d()+diff), welt->get_grundwasser() ) > pos.z);
-			}
-
 			// advance position
 			pos = bd_nach->get_pos();
+
+			// check new tile: ground must be above tunnel and below sea
+			grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
+			ok = ok  &&  (gr->get_hoehe() > pos.z)  &&  (!gr->ist_wasser()  ||  (welt->lookup_hgt(pos.get_2d()) > pos.z) );
 
 			if (bd_von_new) {
 				delete bd_von;
@@ -1666,8 +1661,8 @@ bool wegbauer_t::intern_calc_route_runways(koord3d start3d, const koord3d ziel3d
 	const ribi_t::ribi ribi_gerade = ribi_t::doppelt(ribi);
 
 	// not too close to the border?
-	if(	 !(welt->ist_in_kartengrenzen(start-koord(5,5))  &&  welt->ist_in_kartengrenzen(start+koord(5,5)))  ||
-		 !(welt->ist_in_kartengrenzen(ziel-koord(5,5))  &&  welt->ist_in_kartengrenzen(ziel+koord(5,5)))  ) {
+	if(	 !(welt->is_within_limits(start-koord(5,5))  &&  welt->is_within_limits(start+koord(5,5)))  ||
+		 !(welt->is_within_limits(ziel-koord(5,5))  &&  welt->is_within_limits(ziel+koord(5,5)))  ) {
 		if(sp==welt->get_active_player()) {
 			create_win( new news_img("Zu nah am Kartenrand"), w_time_delete, magic_none);
 			return false;
@@ -2283,15 +2278,14 @@ void wegbauer_t::baue_schiene()
 						(besch->get_styp() == 0 && weg->get_besch()->get_styp() == 7 && gr->has_two_ways())     ||
 						keep_existing_ways                                                                      ||
 						(keep_existing_faster_ways && weg->get_besch()->get_topspeed() > besch->get_topspeed()) ||
-						(gr->get_typ() == grund_t::monorailboden && !(bautyp & elevated_flag))) {
+						(gr->get_typ() == grund_t::monorailboden && !(bautyp & elevated_flag)  &&  gr->get_weg_nr(0)->get_waytype()==besch->get_wtyp())) {
 					//nothing to be done
 					change_besch = false;
 				}
 
 				// build tram track over crossing -> remove crossing
-				if(  gr->has_two_ways()  &&  besch->get_styp()==7  ) {
-					crossing_t *cr = gr->find<crossing_t>(2);
-					if( cr ) {
+				if(  gr->has_two_ways()  &&  besch->get_styp()==7  &&  weg->get_besch()->get_styp() != 7  ) {
+					if(  crossing_t *cr = gr->find<crossing_t>(2)  ) {
 						// change to tram track
 						cr->mark_image_dirty( cr->get_bild(), 0);
 						cr->entferne(sp);

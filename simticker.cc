@@ -69,10 +69,17 @@ void ticker::add_msg(const char* txt, koord pos, int color)
 
 			// remove breaks
 			for(  int j=0;  i<250  &&  txt[j]!=0;  j++ ) {
-					if(txt[i]=='\n'  &&  (i==0  ||  n.msg[i-1]!=' ')  ) {
+				if(  txt[j]=='\n'  ) {
+					if(  i==0  ||  n.msg[i-1]==' '  ) {
+						continue;
+					}
 					n.msg[i++] = ' ';
 				}
 				else {
+					if(  txt[j]==' '  &&  (i==0  ||  n.msg[i-1]==' ')  ) {
+						// avoid double or leading spaces
+						continue;
+					}
 					n.msg[i++] = txt[j];
 				}
 			}

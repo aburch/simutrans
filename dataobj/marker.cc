@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansj�rg Malthaner
+ * Copyright (c) 1997 - 2001 Hj. Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -12,6 +12,8 @@
 #include "../simdebug.h"
 #include "../boden/grund.h"
 #include "marker.h"
+
+
 
 void marker_t::init(int welt_groesse_x,int welt_groesse_y)
 {
@@ -50,8 +52,8 @@ void marker_t::markiere(const grund_t *gr)
 			const int bit = gr->get_pos().y*cached_groesse+gr->get_pos().x;
 			bits[bit/bit_unit] |= 1 << (bit & bit_mask);
 		}
-		else if(!more.is_contained(gr)) {
-			more.insert(gr);
+		else if(!more.get(gr)) {
+			more.set(gr, true);
 		}
 	}
 }
@@ -81,6 +83,6 @@ bool marker_t::ist_markiert(const grund_t *gr) const
 		return (bits[bit/bit_unit] & (1 << (bit & bit_mask))) != 0;
 	}
 	else {
-		return more.is_contained(gr);
+		return more.get(gr);
 	}
 }

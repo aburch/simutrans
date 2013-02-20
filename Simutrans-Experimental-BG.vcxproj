@@ -124,7 +124,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4200;4800;4311;4996;4554;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4200;4800;4311;4996;4554;4373;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;Strmiids.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -297,6 +297,7 @@
     <ClCompile Include="dataobj\pwd_hash.cc" />
     <ClCompile Include="gui\ai_option_t.cc" />
     <ClCompile Include="gui\components\gui_ding_view_t.cc" />
+    <ClCompile Include="gui\convoy_item.cc" />
     <ClCompile Include="gui\display_settings.cc" />
     <ClCompile Include="gui\factory_chart.cc" />
     <ClCompile Include="gui\line_item.cc" />
@@ -322,6 +323,7 @@
     <ClCompile Include="script\api\api_convoy.cc" />
     <ClCompile Include="script\api\api_factory.cc" />
     <ClCompile Include="script\api\api_goods_desc.cc" />
+    <ClCompile Include="script\api\api_gui.cc" />
     <ClCompile Include="script\api\api_halt.cc" />
     <ClCompile Include="script\api\api_player.cc" />
     <ClCompile Include="script\api\api_scenario.cc" />
@@ -336,6 +338,7 @@
     <ClCompile Include="script\dynamic_string.cc" />
     <ClCompile Include="script\export_objs.cc" />
     <ClCompile Include="script\script.cc" />
+    <ClCompile Include="simloadingscreen.cc" />
     <ClCompile Include="simsys.cc" />
     <ClCompile Include="simsys_w.cc" />
     <ClCompile Include="simsys_w32_png.cc" />
@@ -605,6 +608,7 @@
     <ClInclude Include="gui\components\action_listener.h" />
     <ClInclude Include="gui\components\gui_ding_view_t.h" />
     <ClInclude Include="gui\components\gui_fixedwidth_textarea.h" />
+    <ClInclude Include="gui\convoy_item.h" />
     <ClInclude Include="gui\display_settings.h" />
     <ClInclude Include="gui\factory_chart.h" />
     <ClInclude Include="gui\privatesign_info.h" />
@@ -624,6 +628,7 @@
     <ClInclude Include="script\dynamic_string.h" />
     <ClInclude Include="script\export_objs.h" />
     <ClInclude Include="script\script.h" />
+    <ClInclude Include="simloadingscreen.h" />
     <ClInclude Include="squirrel\sqstdaux.h" />
     <ClInclude Include="squirrel\sqstdblob.h" />
     <ClInclude Include="squirrel\sqstdio.h" />

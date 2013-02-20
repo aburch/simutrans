@@ -4,6 +4,7 @@
 #include "../../simevent.h"
 #include "../../simgraph.h"
 #include "../../dataobj/translator.h"
+#include "../../utils/simstring.h"
 
 #include "gui_flowtext.h"
 
@@ -59,11 +60,29 @@ void gui_flowtext_t::set_text(const char *text)
 			else if (word[0] == 'a') {
 				if (!endtag) {
 					att = ATT_A_START;
-					param = word;
+					// search for href attributes
+					// .. ignore any number of spaces
+					// .. accept link string enclosed by " and '
+					// skip a and ' '
+					char* start = word;
+					while(*start == 'a'  ||  *start == ' ') start++;
+					start = const_cast<char*>( strstart(start, "href") );
+					if (start) {
+						// skip ",=, and ' '
+						while(*start == '"'  ||  *start == ' '  ||  *start == '='  ||  *start == '\'') start++;
+						char *end = start;
+						// find first ',", terminate string there
+						while(*end  &&  *end != '"'  &&  *end != '\'') end++;
+						*end = 0;
+						param = start;
+					}
+					else {
+						param = "";
+					}
 				}
 				else {
 					att = ATT_A_END;
-					links.append(hyperlink_t(param.substr(8, param.size() - 9)));
+					links.append(hyperlink_t(param));
 				}
 			}
 			else if (word[0] == 'h' && word[1] == '1') {

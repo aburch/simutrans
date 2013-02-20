@@ -125,7 +125,7 @@ public:
 	PLAYER_COLOR_VAL background; //@author hsiegeln
 	PLAYER_COLOR_VAL foreground;
 
-	bool pressed:1;
+	bool pressed;
 
 	button_t();
 

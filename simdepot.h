@@ -48,6 +48,9 @@ protected:
 	static slist_tpl<depot_t *> all_depots;
 
 public:
+	// Last selected vehicle filter
+	int selected_filter;
+
 	// finds the next/previous depot relative to the current position
 	static depot_t *find_depot( koord3d start, const ding_t::typ depot_type, const spieler_t *sp, bool next);
 
@@ -80,13 +83,18 @@ public:
 
 	convoihandle_t get_convoi(unsigned int icnv) const { return icnv < convoi_count() ? convois.at(icnv) : convoihandle_t(); }
 
-	convoihandle_t add_convoi();
+	convoihandle_t add_convoi(bool local_execution);
 
-	/*
+	slist_tpl<convoihandle_t> const& get_convoy_list() { return convois; }
+
+	// checks if cnv can be copied by using only stored vehicles and non-obsolete purchased vehicles
+	bool check_obsolete_inventory(convoihandle_t cnv);
+
+	/**
 	 * copies convoi and its schedule or line
 	 * @author hsiegeln
 	 */
-	convoihandle_t copy_convoi(convoihandle_t old_cnv);
+	convoihandle_t copy_convoi(convoihandle_t old_cnv, bool local_execution);
 
 	/**
 	 * Let convoi leave the depot.
@@ -97,6 +105,8 @@ public:
 	 */
 	bool start_convoi(convoihandle_t cnv, bool local_execution);
 
+	bool start_all_convoys();
+
 	/**
 	 * Destroy the convoi and put the vehicles in the vehicles list (sell==false),
 	 * or sell all immediately (sell==true).
@@ -106,12 +116,18 @@ public:
 	bool disassemble_convoi(convoihandle_t cnv, bool sell);
 
 	/**
+	 * Remove the convoi from the depot lists
+	 * updating depot gui frame as necessary
+	 */
+	void remove_convoi( convoihandle_t cnv );
+
+	/**
 	 * Remove vehicle from vehicle list and add it to the convoi. Two positions
 	 * are possible - in front or at the rear.
 	 * @author Volker Meyer
 	 * @date  09.06.2003
 	 */
-	void append_vehicle(convoihandle_t &cnv, vehikel_t* veh, bool infront);
+	void append_vehicle(convoihandle_t &cnv, vehikel_t* veh, bool infront, bool local_execution);
 
 	/**
 	 * Remove the vehicle at given position from the convoi and put it in the
@@ -120,6 +136,7 @@ public:
 	 * @date  09.06.2003
 	 */
 	void remove_vehicle(convoihandle_t cnv, int ipos);
+	void remove_vehicles_to_end(convoihandle_t cnv, int ipos);
 
 	/**
 	 * Access to vehicles not bound to a convoi. They are not ordered
@@ -189,19 +206,21 @@ public:
 	 */
 	vehikel_t* get_oldest_vehicle(const vehikel_besch_t* besch);
 
+//<<<<<<< HEAD
+//	/**
+//	 * Calulate the values of the vehicles of the given type owned by the
+//	 * player in this depot.
+//	 * @author Volker Meyer
+//	 * @date  09.06.2003
+//	 */
+//	sint32 calc_restwert(const vehikel_besch_t *veh_type);
+//
+//=======
 	/**
-	 * Calulate the values of the vehicles of the given type owned by the
-	 * player in this depot.
-	 * @author Volker Meyer
-	 * @date  09.06.2003
+	 * Sets/gets the line that was selected the last time in the depot dialog
 	 */
-	sint32 calc_restwert(const vehikel_besch_t *veh_type);
-
-	/*
-	 * sets/gets the line that was selected the last time in the depot dialog
-	 */
-	void set_selected_line(const linehandle_t sel_line);
-	linehandle_t get_selected_line();
+	void set_last_selected_line(const linehandle_t last_line) { last_selected_line=last_line; }
+	linehandle_t get_last_selected_line() const { return last_selected_line; }
 
 	/*
 	 * Find the oldest/newest vehicle in the depot
@@ -218,12 +237,12 @@ public:
 	*/
 	void neuer_monat();
 
-	/*
+	/**
 	 * Will update all depot_frame_t (new vehicles!)
 	 */
 	static void update_all_win();
 
-	/*
+	/**
 	 * Update the depot_frame_t.
 	 */
 	void update_win();
@@ -232,7 +251,19 @@ public:
 	inline unsigned get_max_convoi_length() const { return get_max_convoy_length(get_wegtyp()); }
 
 private:
-	linehandle_t selected_line;
+	linehandle_t last_selected_line;
+
+	/**
+	 * Used to block new actions from depot frame gui when convois are being added to the depot.
+	 * Otherwise lag in multipler results in actions being performed on the wrong convoi.
+	 * Only works for a single client making changes in a depot at once. Multiple clients can still result in wrong convois being changed.
+	 */
+	bool command_pending;
+
+public:
+	bool is_command_pending() const { return command_pending; }
+	void clear_command_pending() { command_pending = false; }
+	void set_command_pending() { command_pending = true; }
 };
 
 

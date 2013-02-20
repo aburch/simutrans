@@ -11,6 +11,7 @@
 #ifndef simevent_h
 #define simevent_h
 
+template<class T> class slist_tpl;
 
 /* Messageverarbeitung */
 
@@ -185,10 +186,25 @@ static inline void translate_event(event_t* const ev, int x, int y)
 }
 #endif
 
+/**
+ * Return one event. Does *not* wait.
+ * @author Hj. Malthaner
+ */
 void display_poll_event(event_t*);
+
+/**
+ * Wait for one event, and return it.
+ * @author Hj. Malthaner
+ */
 void display_get_event(event_t*);
 void change_drag_start(int x, int y);
 
 int event_get_last_control_shift(void);
+unsigned int last_meta_event_get_class();
+
+/**
+ * Adds (queues) new events to be processed.
+ */
+void queue_events(slist_tpl<event_t *> &events);
 
 #endif

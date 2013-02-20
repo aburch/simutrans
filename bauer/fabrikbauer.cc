@@ -34,8 +34,9 @@
 
 #include "../gui/karte.h"	// to update map after construction of new industry
 
-// radius for checking places for construction
-#define DISTANCE 40
+
+
+static int DISTANCE = 40;
 
 
 // all factories and their exclusion areas
@@ -47,13 +48,13 @@ static sint32 fab_map_w=0;
 static void add_factory_to_fab_map(karte_t const* const welt, fabrik_t const* const fab)
 {
 	koord3d      const& pos     = fab->get_pos();
-	sint16       const  spacing = welt->get_settings().get_factory_spacing();
+	sint16       const  spacing = welt->get_settings().get_min_factory_spacing();
 	haus_besch_t const& hbesch  = *fab->get_besch()->get_haus();
 	sint16       const  rotate  = fab->get_rotate();
 	sint16       const  start_y = max(0, pos.y - spacing);
 	sint16       const  start_x = max(0, pos.x - spacing);
-	sint16       const  end_y   = min(welt->get_groesse_y() - 1, pos.y + hbesch.get_h(rotate) + spacing);
-	sint16       const  end_x   = min(welt->get_groesse_x() - 1, pos.x + hbesch.get_b(rotate) + spacing);
+	sint16       const  end_y   = min(welt->get_size().y - 1, pos.y + hbesch.get_h(rotate) + spacing);
+	sint16       const  end_x   = min(welt->get_size().x - 1, pos.x + hbesch.get_b(rotate) + spacing);
 	for (sint16 y = start_y; y < end_y; ++y) {
 		for (sint16 x = start_x; x < end_x; ++x) {
 			fab_map[fab_map_w * y + x / 8] |= 1 << (x % 8);
@@ -66,13 +67,19 @@ static void add_factory_to_fab_map(karte_t const* const welt, fabrik_t const* co
 // create map with all factories and exclusion area
 void init_fab_map( karte_t *welt )
 {
-	fab_map_w = ((welt->get_groesse_x()+7)/8);
-	fab_map.resize( fab_map_w*welt->get_groesse_y() );
-	for( int i=0;  i<fab_map_w*welt->get_groesse_y();  i++ ) {
+	fab_map_w = ((welt->get_size().x+7)/8);
+	fab_map.resize( fab_map_w*welt->get_size().y );
+	for( int i=0;  i<fab_map_w*welt->get_size().y;  i++ ) {
 		fab_map[i] = 0;
 	}
 	FOR(vector_tpl<fabrik_t*>, const f, welt->get_fab_list()) {
 		add_factory_to_fab_map(welt, f);
+	}
+	if(  welt->get_settings().get_max_factory_spacing_percent()  ) {
+		DISTANCE = (welt->get_size_max() * welt->get_settings().get_max_factory_spacing_percent()) / 100l;
+	}
+	else {
+		DISTANCE = welt->get_settings().get_max_factory_spacing();
 	}
 }
 
@@ -293,7 +300,7 @@ koord3d fabrikbauer_t::finde_zufallsbauplatz(karte_t *welt, const koord3d pos, c
 		// as offset % size == 1, we are guaranteed that the iteration hits all tiles and does not repeat itself
 		k = koord( pos.x-radius + (index / diam), pos.y-radius + (index % diam));
 
-		if (!welt->ist_in_kartengrenzen(k)) {
+		if (!welt->is_within_limits(k)) {
 			continue;
 		}
 		// to close to existing factory
@@ -339,7 +346,7 @@ void fabrikbauer_t::verteile_tourist(karte_t* welt, int max_number)
 
 	int retrys = max_number*4;
 	while(current_number<max_number  &&  retrys-->0) {
-		koord3d	pos=koord3d( koord::koord_random(welt->get_groesse_x(),welt->get_groesse_y()),1);
+		koord3d	pos=koord3d( koord::koord_random(welt->get_size().x,welt->get_size().y),1);
 		const haus_besch_t *attraction=hausbauer_t::waehle_sehenswuerdigkeit(welt->get_timeline_year_month(),true,(climate)simrand((int)arctic_climate+1, "void fabrikbauer_t::verteile_tourist"));
 
 		// no attractions for that climate or too new
@@ -383,16 +390,16 @@ public:
  * Build factory according to instructions in 'info'
  * @author Hj.Malthaner
  */
-fabrik_t* fabrikbauer_t::baue_fabrik(karte_t* welt, koord3d* parent, const fabrik_besch_t* info, int rotate, koord3d pos, spieler_t* spieler)
+fabrik_t* fabrikbauer_t::baue_fabrik(karte_t* welt, koord3d* parent, const fabrik_besch_t* info, sint32 initial_prod_base, int rotate, koord3d pos, spieler_t* spieler)
 {
-	fabrik_t * fab = new fabrik_t(pos, spieler, info);
+	fabrik_t * fab = new fabrik_t(pos, spieler, info, initial_prod_base);
 
 	if(parent) {
 		fab->add_lieferziel(parent->get_2d());
 	}
 
 	// now build factory
-	fab->baue(rotate);
+	fab->baue(rotate, true /*add fields*/, initial_prod_base != -1 /* force initial prodbase ? */);
 	welt->add_fab(fab);
 	add_factory_to_fab_map(welt, fab);
 
@@ -405,12 +412,12 @@ fabrik_t* fabrikbauer_t::baue_fabrik(karte_t* welt, koord3d* parent, const fabri
 		koord dim = besch->get_groesse(rotate);
 
 		koord k;
-		halthandle_t halt = welt->get_spieler(1)->halt_add(pos.get_2d());
+		halthandle_t halt = haltestelle_t::create(welt, pos.get_2d(), welt->get_spieler(1));
 		if(halt.is_bound()) {
 
 			for(k.x=pos.x; k.x<pos.x+dim.x; k.x++) {
 				for(k.y=pos.y; k.y<pos.y+dim.y; k.y++) {
-					if(welt->ist_in_kartengrenzen(k)) {
+					if(welt->is_within_limits(k)) {
 						// add all water to station
 						grund_t *gr = welt->lookup_kartenboden(k);
 						// build only on gb, otherwise can't remove it
@@ -503,7 +510,7 @@ bool fabrikbauer_t::can_factory_tree_rotate( const fabrik_besch_t *besch )
  * Build a full chain of factories
  * Precondition before calling this function: pos is suitable for factory construction
  */
-int fabrikbauer_t::baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, int rotate, koord3d* pos, spieler_t* sp, int number_of_chains)
+int fabrikbauer_t::baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, sint32 initial_prod_base, int rotate, koord3d* pos, spieler_t* sp, int number_of_chains )
 {
 	karte_t* welt = sp->get_welt();
 	int n = 1;
@@ -523,7 +530,7 @@ int fabrikbauer_t::baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, 
 	if(welt->cannot_save()  &&  parent==NULL  &&  !can_factory_tree_rotate(info)  ) {
 		org_rotation = welt->get_settings().get_rotation();
 		for(  int i=0;  i<3  &&  welt->cannot_save();  i++  ) {
-			pos->rotate90( welt->get_groesse_y()-info->get_haus()->get_h(rotate) );
+			pos->rotate90( welt->get_size().y-info->get_haus()->get_h(rotate) );
 			welt->rotate90();
 		}
 		bool can_save = !welt->cannot_save();
@@ -599,7 +606,7 @@ int fabrikbauer_t::baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, 
 	DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Construction of %s at (%i,%i).",info->get_name(),pos->x,pos->y);
 	INT_CHECK("fabrikbauer 594");
 
-	const fabrik_t *our_fab=baue_fabrik(welt, parent, info, rotate, *pos, sp);
+	const fabrik_t *our_fab=baue_fabrik(welt, parent, info, initial_prod_base, rotate, *pos, sp);
 
 	INT_CHECK("fabrikbauer 596");
 
@@ -620,7 +627,7 @@ int fabrikbauer_t::baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, 
 		// must rotate back?
 		if(org_rotation>=0) {
 			for (int i = 0; i < 4 && welt->get_settings().get_rotation() != org_rotation; ++i) {
-				pos->rotate90( welt->get_groesse_y()-1 );
+				pos->rotate90( welt->get_size().y-1 );
 				welt->rotate90();
 			}
 			welt->update_map();
@@ -672,7 +679,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 			// for sources (oil fields, forests ... ) prefer thoses with a smaller distance
 			const unsigned distance = koord_distance(fab->get_pos(),our_fab->get_pos());
 
-			if(distance>6) {//  &&  distance < simrand(welt->get_groesse_x()+welt->get_groesse_y(), "fabrikbauer_t::baue_hierarchie")) {
+			if(distance>6 /*  &&  distance < simrand(welt->get_size().x+welt->get_size().y, "fabrikbauer_t::baue_hierarchie")*/ ) {
 				// ok, this would match
 				// but can she supply enough?
 
@@ -778,7 +785,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 
 		if(welt->lookup(k)) {
 DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Try to built lieferant %s at (%i,%i) r=%i for %s.",hersteller->get_name(),k.x,k.y,rotate,info->get_name());
-			n += baue_hierarchie(&parent_pos, hersteller, rotate, &k, sp, 10000 );
+			n += baue_hierarchie(&parent_pos, hersteller, -1 /*random prodbase */, rotate, &k, sp, 10000 );
 			lfound ++;
 
 			INT_CHECK( "fabrikbauer 702" );
@@ -1058,7 +1065,7 @@ next_ware_check:
 					// we cannot built this factory here
 					continue;
 				}
-				koord   testpos = in_city ? pick_any_weighted(welt->get_staedte())->get_pos() : koord::koord_random(welt->get_groesse_x(), welt->get_groesse_y());
+				koord   testpos = in_city ? pick_any_weighted(welt->get_staedte())->get_pos() : koord::koord_random(welt->get_size().x, welt->get_size().y);
 				koord3d pos = welt->lookup_kartenboden( testpos )->get_pos();
 				int rotation = simrand(fab->get_haus()->get_all_layouts()-1, "fabrikbauer_t::increase_industry_density()");
 				if(!in_city) {
@@ -1066,7 +1073,7 @@ next_ware_check:
 				}
 				if(welt->lookup(pos)) {
 					// Platz gefunden ...
-					nr += baue_hierarchie(NULL, fab, rotation, &pos, welt->get_spieler(1), 1 );
+					nr += baue_hierarchie(NULL, fab, -1 /*random prodbase */, rotation, &pos, welt->get_spieler(1), 1 );
 					if(nr>0) {
 						fabrik_t *our_fab = fabrik_t::get_fab( welt, pos.get_2d() );
 						reliefkarte_t::get_karte()->calc_map_groesse();

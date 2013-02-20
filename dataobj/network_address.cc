@@ -34,10 +34,12 @@ net_address_t::net_address_t(const char *text)
 }
 
 
-void net_address_t::rdwr(packet_t *packet)
+net_address_t::net_address_t(const net_address_t &other)
 {
-	packet->rdwr_long(ip);
-	packet->rdwr_long(mask);
+	ip = other.ip;
+	mask = other.mask;
+	ipstr[0] = '\0';
+	init_ipstr();
 }
 
 

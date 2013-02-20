@@ -409,7 +409,7 @@ end:
 				{
 					printf("*** FATAL ***:\nMissing freightimage[%d][%s]!\n", freight, dir_codes[i]);
 					fflush(NULL);
-					exit(0);
+					exit(1);
 				}
 				printf("Appending freightimage[%d][%s]\n", freight, dir_codes[i]);
 				freightkeys.at(i).append(str);

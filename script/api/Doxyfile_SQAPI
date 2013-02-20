@@ -7,12 +7,14 @@ EXTRACT_PRIVATE        = YES
 INPUT                  = api_factory.cc \
 			 api_base.h \
 			 api_doc.h \
+			 changelog.h \
 			 api_skeleton.h \
 			 api_skeleton.cc \
 			 api_city.cc \
 			 api_convoy.cc \
 			 api_const.cc \
 			 api_goods_desc.cc \
+			 api_gui.cc \
 			 api_halt.cc \
 			 api_player.cc \
 			 api_settings.cc \

@@ -22,6 +22,7 @@ gui_textinput_t::gui_textinput_t() :
 	scroll_offset(0),
 	align(ALIGN_LEFT),
 	textcol(COL_BLACK),
+	text_dirty(false),
 	cursor_reference_time(0),
 	focus_recieved(false)
 { }
@@ -61,6 +62,7 @@ bool gui_textinput_t::remove_selection()
 		size_t end_pos = ::max(head_cursor_pos, tail_cursor_pos);
 		tail_cursor_pos = head_cursor_pos = start_pos;
 		do {
+			text_dirty = true;
 			text[start_pos++] = text[end_pos];
 		} while(  text[end_pos++]!=0  );
 		text_dirty = true;
@@ -226,6 +228,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 							tail_cursor_pos = head_cursor_pos = get_prev_char(text, head_cursor_pos);
 							text[head_cursor_pos] = 0;
 						}
+						text_dirty = true;
 					}
 					break;
 				case SIM_KEY_DELETE:
@@ -237,6 +240,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 						for(  size_t pos=head_cursor_pos;  pos<len;  pos++  ) {
 							text[pos] = text[pos+(next_pos-head_cursor_pos)];
 						}
+						text_dirty = true;
 					}
 					break;
 				default:
@@ -306,6 +310,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 						memcpy( text+len, letter, num_letter );
 						text[len+num_letter] = 0;
 					}
+					text_dirty = true;
 					tail_cursor_pos = ( head_cursor_pos += num_letter );
 					/* end default */
 			}
@@ -356,7 +361,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 		tail_cursor_pos = 0;
 	}
 	else if(  ev->ev_class==INFOWIN  &&  ev->ev_code==WIN_UNTOP  ) {
-			if(  text_dirty  ) {
+		if(  text_dirty  ) {
 			call_listeners((long)0);
 		}
 		return true;
@@ -404,7 +409,7 @@ void gui_textinput_t::display_with_cursor(koord offset, bool cursor_active, bool
 		// Knightly : recalculate scroll offset
 		const KOORD_VAL text_width = proportional_string_width(text);
 		const KOORD_VAL view_width = groesse.x - 3;
-		const KOORD_VAL cursor_offset = proportional_string_len_width(text, head_cursor_pos);
+		const KOORD_VAL cursor_offset = cursor_active ? proportional_string_len_width(text, head_cursor_pos) : 0;
 		if(  text_width<=view_width  ) {
 			// case : text is shorter than displayable width of the text input
 			//			-> the only case where left and right alignments differ

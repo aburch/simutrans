@@ -24,14 +24,13 @@
 #include "vehicle_reader.h"
 
 
-/////////////////////////////////////////////////////////////////////////////
-//
-//  static data
-//
-//  Da die Klassen selbstregistrierend sind, kriegt der Linker nicht mit,
-//  wenn eine fehlt, solang die instance auch im Klassenfile liegt.
-//  Daher lieber alle Instanzen hier versammeln.
-/////////////////////////////////////////////////////////////////////////////
+/**
+ * static data
+ *
+ * These classes are self-registering. The linker will not notify if there is a missing class, since it
+ * may be also instantiated in the class itself. Therefore, all classes MUST be declared here to force
+ * the linking and raise an error if we lack any of them.
+ */
 
 text_reader_t text_reader_t::the_instance;
 image_reader_t image_reader_t::the_instance;

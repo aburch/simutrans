@@ -75,7 +75,7 @@ private:
 	button_t toggler;
 	button_t reverse_button;
 
-	button_t line_button;	// got to line ...
+	button_t line_button;	// goto line ...
 	bool line_bound;
 
 	convoihandle_t cnv;

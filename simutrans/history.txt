@@ -1,3 +1,8 @@
+	ADD: maximum radius of factories of a chain configurable
+	FIX: use more colors to show height levels in minimap
+	CHG: loading screen reworked graphically and in functionality. Lowers the chance the OS will identify Simutrans as "not responding" when loading large files/paks.
+
+Release of 112.1: (r6212 on 23-Dec-2012):
 	ADD: transparent chat window in networkmode
 	FIX: underground stations in networkmode
 	ADD: (Markohs) Scenario and heightmap dialogs now support multi-directory
@@ -5,6 +10,20 @@
 	FIX: waiting level in schedule dialog works with keys again
 	FIX: convoi list filtering again in working order
 	ADD: hide by default return ticket for rail based transport (enable by simuconf.tab)
+	ADD: possibliblity to limit the amount of goods in transit (see simuconf.tab)
+	ADD: city attractions and town halls can be defined to be build for more than 65535 citizens
+	FIX: you will need a dock to connect to an oil rig => no islands or tunnel can be used any more => ships only load at docks
+	ADD: display which factories supplied/recieved goods last month
+	ADD: player without operations can be deleted after x month
+	ADD: player without new buidling/replacing activities can lose password protection
+	ADD: logging of ip/nickname of company creators
+	ADD: nettool commands to lock, unlock, remove a company
+	ADD: (Timothy) support for syslog (compile flag -DSYSLOG, command-line option -syslog)
+	ADD: Restore city window on joining
+	ADD: Restore chat window on joining
+	ADD: Restore factory window on joining
+	FIX: correctly remove stale freight from convois when stops are joined or tiles are deleted
+	FIX: less desyncs when renaming, better processing server queue
 
 
 Release of 112.0: (r6000 on 22-Oct-2012):
@@ -16,9 +35,10 @@ Release of 112.0: (r6000 on 22-Oct-2012):
 	CHG: proper support for non-rectangularly shaped factories, no dummy (0,0)-tiles
 	ADD: support for non-rectangular shaped station extensions, attractions, monuments
 	CHG: Allow to connect to channels built by anyone
-	CHG: fieldd can now spawned in larger number than the initial min value
+	CHG: fields can now spawned in larger number than the initial min value
 	CHG: number of factories in new world dialog is now indeed the total number of factories (too many newbe mistakes here)
 	ADD: force a minimum distance between city attractions
+	CHG: Bankrupsy check before substracting maintenance
 	ADD: Drag stops
 	CHG: reduced memory consumption when compiled with COLOUR_DEPTH=0, no copies of object images kept in memory
 	ADD: ctrl-click with link-factory tool actually removes links between factories

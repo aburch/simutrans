@@ -561,8 +561,7 @@ const char* translator::get_month_name(uint16 month)
 		"November",
 		"December"
 	};
-	assert(month < lengthof(month_names));
-	return translate(month_names[month]);
+	return translate(month_names[month % lengthof(month_names)]);
 }
 
 

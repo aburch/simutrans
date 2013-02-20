@@ -67,7 +67,7 @@ private:
 public:
 	static uint32 MAX_STEP;
 	static uint32 max_used_steps;
-	static void INIT_NODES(uint32 max_route_steps, uint32 world_width, uint32 world_height);
+	static void INIT_NODES(uint32 max_route_steps, const koord &world_size);
 	static uint8 GET_NODES(ANode **nodes); 
 	static void RELEASE_NODES(uint8 nodes_index);
 	static void TERM_NODES();

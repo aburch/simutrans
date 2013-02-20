@@ -88,7 +88,7 @@ public:
 	/**
 	 * Resorts convois
 	 */
-	virtual void sort_list( char *name, uint16 filter, const slist_tpl<const ware_besch_t *> *wares );
+	void sort_list( char *name, uint32 filter, const slist_tpl<const ware_besch_t *> *wares );
 
 	convoi_frame_t(spieler_t *sp);
 

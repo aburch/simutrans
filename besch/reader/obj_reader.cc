@@ -6,7 +6,7 @@
 #include "../../simimg.h"
 #include "../../simsys.h"
 #include "../../simtypes.h"
-#include "../../simgraph.h"
+#include "../../simloadingscreen.h"
 
 #include "../skin_besch.h"	// just for the logo
 #include "../grund_besch.h"	// for the error message!
@@ -81,11 +81,10 @@ bool obj_reader_t::laden_abschliessen()
 }
 
 
-
-bool obj_reader_t::load(const char *liste, const char *message)
+bool obj_reader_t::load(const char *path, const char *message)
 {
 	searchfolder_t find;
-	std::string name = find.complete(liste, "dat");
+	std::string name = find.complete(path, "dat");
 	size_t i;
 	const bool drawing=is_display_init();
 
@@ -122,43 +121,26 @@ bool obj_reader_t::load(const char *liste, const char *message)
 	}
 	else {
 		// Keine dat-file? dann ist liste ein Verzeichnis?
+		// step is a bitmask to decide when it's time to update the progress bar.
+		// It takes the biggest power of 2 less than the number of elements and
+		// divides it in 256 sub-steps at most (the -7 comes from here)
 
-		// with nice progress indicator ...
-		const int max=find.search(liste, "pak");
-		int teilung=-7;
+		const int max = find.search(path, "pak");
+		int step = -7;
 		for(long bit=1;  bit<max;  bit+=bit) {
-			teilung ++;
+			step ++;
 		}
-		if(teilung<0) {
-			teilung = 0;
+		if(step<0) {
+			step = 0;
 		}
-		teilung = (2<<teilung)-1;
+		step = (2<<step)-1;
 
-		if(drawing) {
-			display_set_progress_text(message);
-		}
+		loadingscreen::set_label(message);
 
 		if(drawing  &&  skinverwaltung_t::biglogosymbol==NULL) {
 			display_fillbox_wh( 0, 0, display_get_width(), display_get_height(), COL_BLACK, true );
 			read_file((name+"symbol.BigLogo.pak").c_str());
 DBG_MESSAGE("obj_reader_t::load()","big logo %p", skinverwaltung_t::biglogosymbol);
-		}
-		if(skinverwaltung_t::biglogosymbol) {
-			const bild_t *bild0 = skinverwaltung_t::biglogosymbol->get_bild(0)->get_pic();
-			const int w = bild0->w;
-			const int h = bild0->h + bild0->y;
-			int x = display_get_width()/2-w;
-			int y = display_get_height()/4-w;
-			if(y<0) {
-				y = 1;
-			}
-			display_color_img(skinverwaltung_t::biglogosymbol->get_bild_nr(0), x, y, 0, false, true);
-			display_color_img(skinverwaltung_t::biglogosymbol->get_bild_nr(1), x+w, y, 0, false, true);
-			display_color_img(skinverwaltung_t::biglogosymbol->get_bild_nr(2), x, y+h, 0, false, true);
-			display_color_img(skinverwaltung_t::biglogosymbol->get_bild_nr(3), x+w, y+h, 0, false, true);
-#if 0
-			display_free_all_images_above( skinverwaltung_t::biglogosymbol->get_bild_nr(0) );
-#endif
 		}
 
 		if(  grund_besch_t::ausserhalb==NULL  ) {
@@ -167,20 +149,26 @@ DBG_MESSAGE("obj_reader_t::load()","big logo %p", skinverwaltung_t::biglogosymbo
 			if(grund_besch_t::ausserhalb==NULL) {
 				dbg->warning("obj_reader_t::load()","ground.Outside.pak not found, cannot guess tile size! (driving on left will not work!)");
 			}
-		}
-
-DBG_MESSAGE("obj_reader_t::load()", "reading from '%s'", name.c_str());
-		uint n = 0;
-		FORX(searchfolder_t, const& i, find, ++n) {
-			read_file(i);
-			if ((n & teilung) == 0 && drawing) {
-				display_progress(n, max);
-				// name of the pak
+			else {
 				if (char const* const copyright = grund_besch_t::ausserhalb->get_copyright()) {
-					display_proportional(display_get_width() / 2, display_get_height() / 2 - 8 - LINESPACE - 4, copyright, ALIGN_MIDDLE, COL_WHITE, true);
+					loadingscreen::set_copyright(copyright);
 				}
 			}
 		}
+
+DBG_MESSAGE("obj_reader_t::load()", "reading from '%s'", name.c_str());
+
+		loadingscreen::set_label(message);
+
+		uint n = 0;
+		FORX(searchfolder_t, const& i, find, ++n) {
+			read_file(i);
+			if ((n & step) == 0 && drawing) {
+				loadingscreen::set_progress(n,max);
+			}
+		}
+
+		loadingscreen::hide();
 
 		return find.begin()!=find.end();
 	}
@@ -226,7 +214,7 @@ void obj_reader_t::read_file(const char *name)
 			read_nodes(fp, data, 0, version );
 		}
 		else {
-			DBG_DEBUG("obj_reader_t::read_file()","version of '%s' is too old, %d instead of %d", version, COMPILER_VERSION_CODE, name);
+			DBG_DEBUG("obj_reader_t::read_file()","version of '%s' is too old, %d instead of %d", name, version, COMPILER_VERSION_CODE );
 		}
 		fclose(fp);
 	}

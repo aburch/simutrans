@@ -87,7 +87,7 @@ map_button_t button_init[MAP_MAX_BUTTONS] = {
 	{ COL_LIGHT_YELLOW, COL_BLACK,        "Fracht", "Show transported freight/freight network", reliefkarte_t::MAP_FREIGHT },
 	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE,  "Status", "Show capacity and if halt is overcrowded", reliefkarte_t::MAP_STATUS },
 	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE,  "hl_btn_sort_waiting", "Show how many people/much is waiting at halts", reliefkarte_t::MAP_WAITING },
-	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE,  "Queing", "Show the change of waiting at halts", reliefkarte_t::MAP_WAITCHANGE },
+	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE,  "Queueing", "Show the change of waiting at halts", reliefkarte_t::MAP_WAITCHANGE },
 	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE,  "Service", "Show how many convoi reach a station", reliefkarte_t::MAP_SERVICE },
 	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE,  "Transfers", "Sum of departure/arrivals at halts", reliefkarte_t::MAP_TRANSFER },
 	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE,  "Origin", "Show initial passenger departure", reliefkarte_t::MAP_ORIGIN },
@@ -598,7 +598,7 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 	// first: check if cursor within map screen size
 	karte_t *welt=reliefkarte_t::get_karte()->get_welt();
 	koord ij = welt->get_world_position();
-	if(welt->ist_in_kartengrenzen(ij)) {
+	if(welt->is_within_limits(ij)) {
 		reliefkarte_t::get_karte()->karte_to_screen(ij);
 		// only recenter if zoomed or world position has changed and its outside visible area
 		const koord groesse = scrolly.get_groesse();
@@ -618,7 +618,7 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 	char buf[16];
 	sint16 zoom_in, zoom_out;
 	reliefkarte_t::get_karte()->get_zoom_factors(zoom_out, zoom_in);
-	sprintf( buf, "%i:%i", zoom_out, zoom_in );
+	sprintf( buf, "%i:%i", zoom_in, zoom_out );
 	int zoomextwidth = display_proportional( pos.x+BUTTON1_X+D_BUTTON_HEIGHT+D_H_SPACE, pos.y+D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT+D_V_SPACE, buf, ALIGN_LEFT, COL_WHITE, true);
 	// move zoom arrow position and label accordingly
 	zoom_buttons[1].set_pos( koord( BUTTON1_X+D_BUTTON_HEIGHT+2*D_H_SPACE+zoomextwidth, zoom_buttons[1].get_pos().y ) );

@@ -323,7 +323,7 @@ bool schedule_t::matches(karte_t *welt, const schedule_t *fpl)
 	if ((this->bidirectional != fpl->bidirectional) || (this->mirrored != fpl->mirrored)) {
 		return false;
 	}
-	// unequal count => not equal
+	// unequal count => not equal, but no match for empty schedules
 	const uint8 min_count = min( fpl->eintrag.get_count(), eintrag.get_count() );
 	if(  min_count==0  &&  fpl->eintrag.get_count()!=eintrag.get_count()  ) {
 		return false;

@@ -272,12 +272,20 @@ void ware_t::laden_abschliessen(karte_t *welt, spieler_t * /*sp*/)  //"Invite fi
 	{
 		origin = welt->lookup(origin->get_init_pos())->get_halt();
 	}
+
+	update_factory_target(welt);
 }
 
 
 void ware_t::rotate90( karte_t *welt, sint16 y_size )
 {
 	zielpos.rotate90( y_size );
+	update_factory_target(welt);
+}
+
+
+void ware_t::update_factory_target(karte_t *welt)
+{
 	if (to_factory) {
 		// assert that target coordinates are unique for cargo going to the same factory
 		// as new cargo will be generated with possibly new factory coordinates

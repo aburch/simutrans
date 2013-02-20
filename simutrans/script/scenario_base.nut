@@ -28,13 +28,15 @@ all_waytypes <- [wt_road, wt_rail, wt_water, wt_monorail, wt_maglev, wt_tram, wt
 // placeholder array for all the map editing tools
 map.editing_tools <- [ tool_add_city, tool_change_city_size, tool_land_chain, tool_city_chain,
                        tool_build_factory, tool_link_factory, tool_lock_game, tool_build_cityroad,
-		       tool_increase_industry, tool_step_year, tool_fill_trees,
+		       tool_increase_industry, tool_step_year, tool_fill_trees, tool_set_traffic_level,
 		       dialog_edit_factory, dialog_edit_attraction, dialog_edit_house, dialog_edit_tree, dialog_enlarge_map]
 
 // forbidden tools
 // default: map editing tools, switch player
-scenario.forbidden_tools <- map.editing_tools
-scenario.forbidden_tools.append( tool_switch_player )
+scenario.forbidden_tools <- [tool_switch_player]
+foreach(tool_id in map.editing_tools) {
+	scenario.forbidden_tools.append(tool_id)
+}
 
 /**
  * Called when filling toolbars, activating tools
@@ -44,7 +46,8 @@ scenario.forbidden_tools.append( tool_switch_player )
  */
 function is_tool_allowed(pl, tool_id, wt)
 {
-	return scenario.forbidden_tools.find( tool_id ) ? false : true
+	if (pl == 1) return true
+	return scenario.forbidden_tools.find( tool_id )==null; // null => not found => allowed
 }
 
 /**
@@ -330,6 +333,20 @@ class factory_production_x extends extend_get {
 }
 
 
+/**
+ * class to provide access to the game's list of all factories
+ */
+class factory_list_x {
+
+	/// meta-method to be called in a foreach loop
+	function _nexti(prev_index) {
+	}
+
+	/// meta method to retrieve factory by index in the global C++ array
+	function _get(index) {
+	}
+}
+
 
 /**
  * class that contains data to get access to an in-game player company
@@ -413,7 +430,7 @@ class convoy_x extends extend_get {
 
 
 /**
- * class to provide access to the game's list of all convoys
+ * class to provide access to the game's list of all cities
  */
 class city_list_x {
 

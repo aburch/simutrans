@@ -17,6 +17,9 @@
 #	include <unistd.h>
 #endif
 
+#ifdef _WIN32
+#define SIM_SYSTEM_TRASHBINAVAILABLE
+#endif
 
 /* Variablen zur Messageverarbeitung */
 
@@ -58,6 +61,14 @@ struct sys_event
 
 extern struct sys_event sys_event;
 
+#ifdef SIM_SYSTEM_TRASHBINAVAILABLE
+/**
+ * Moves the specified file to the system's trash bin.
+ * @param path Path to the file to delete.
+ * @return False on success.
+ */
+bool dr_movetotrash(const char *path);
+#endif
 
 bool dr_os_init(int const* parameter);
 

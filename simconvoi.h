@@ -837,6 +837,11 @@ public:
 	uint32 get_fixed_cost() const;
 
 	/**
+	 * returns the total new purchase cost for all vehicles in convoy
+	 */
+	sint64 get_purchase_cost() const;
+
+	/**
 	* Constructor for loading from file,
 	* @author Hj. Malthaner
 	*/
@@ -1036,6 +1041,9 @@ public:
 	* @author Hj. Malthaner
 	*/
 	schedule_t * create_schedule();
+
+	// remove wrong freight when schedule changes etc.
+	void check_freight();
 
 	/**
 	* @return Owner of this convoi

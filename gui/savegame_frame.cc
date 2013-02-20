@@ -8,6 +8,7 @@
 #include <string>
 #include <string.h>
 #include <time.h>
+#include <stdio.h>
 
 #include "../pathes.h"
 
@@ -21,12 +22,6 @@
 #include "../utils/searchfolder.h"
 
 #include "savegame_frame.h"
-
-#ifdef _WIN32
-#define NOMINMAX 1
-#include <windows.h>
-#define TRASHBINAVAILABLE 1
-#endif
 
 #define DIALOG_WIDTH (488)
 
@@ -117,6 +112,10 @@ savegame_frame_t::~savegame_frame_t()
 			delete i.button;
 		}
 		if(i.label) {
+			char *tooltip = const_cast<char*>(i.label->get_tooltip_pointer());
+			if (tooltip) {
+				delete [] tooltip;
+			}
 			delete [] const_cast<char*>(i.label->get_text_pointer());
 			delete i.label;
 		}
@@ -124,7 +123,7 @@ savegame_frame_t::~savegame_frame_t()
 			delete i.del;
 		}
 		if(i.info) {
-			delete i.info;
+			delete [] i.info;
 		}
 	}
 
@@ -181,7 +180,7 @@ void savegame_frame_t::list_filled()
 				button1->set_groesse(koord(14, D_BUTTON_HEIGHT));
 				button1->set_text("X");
 				button1->set_pos(koord(5, y));
-#ifdef TRASHBINAVAILABLE
+#ifdef SIM_SYSTEM_TRASHBINAVAILABLE
 				button1->set_tooltip("Send this file to the system trash bin. SHIFT+CLICK to permanently delete.");
 #else
 				button1->set_tooltip("Delete this file.");
@@ -677,6 +676,11 @@ void savegame_frame_t::cleanup_path(char *path)
 			*p='\\';
 		}
 	}
+
+	if ( strlen(path)>2  && path[1]==':' ) {
+		path[0] = (char) toupper(path[0]);
+	}
+
 #else
 	(void)path;
 #endif
@@ -731,16 +735,69 @@ void savegame_frame_t::fill_list()
 	list_filled();
 }
 
+void savegame_frame_t::shorten_path(char *dest,const char *orig,const size_t max_size)
+{
+	assert (max_size > 2);
+
+	const size_t orig_size = strlen(orig);
+
+	if ( orig_size < max_size ) {
+		strcpy(dest,orig);
+		return;
+	}
+
+	const int half = max_size/2;
+	const int odd = max_size%2;
+
+	strncpy(dest,orig,half-1);
+	strncpy(&dest[half-1],"...",3);
+	strcpy(&dest[half+2],&orig[orig_size-half+2-odd]);
+
+}
+
+#define SHORTENED_SIZE 48
+
 void savegame_frame_t::add_section(std::string &name){
-	// NOTE: This char buffer will be freed on the destructor
-	char * label_text = new char [1024];
 
-	sprintf(label_text,"Files from %s", name.c_str());
+	const char *prefix_label = translator::translate("Files from:");
+	size_t prefix_len = strlen(prefix_label);
 
-	cleanup_path(label_text);
+	// NOTE: These char buffers will be freed on the destructor
+	// +2 because of the space in printf and the ending \0
+	char *label_text = new char [SHORTENED_SIZE+prefix_len+2];
+	char *path_expanded = new char[FILENAME_MAX];
+
+	size_t program_dir_len = strlen(umgebung_t::program_dir);
+
+	if (strncmp(name.c_str(),umgebung_t::program_dir,program_dir_len) == 0) {
+		// starts with program_dir
+		strncpy(path_expanded, name.c_str(), FILENAME_MAX);
+	}
+	else {
+		// user_dir path
+		size_t name_len = strlen(name.c_str());
+		size_t user_dir_len = strlen(umgebung_t::user_dir);
+
+		if ( name_len+user_dir_len > FILENAME_MAX-1 ) {
+			// shoudn't happen, but I'll control anyway
+			strcpy(path_expanded,"** ERROR ** Path too long");
+		}
+		else {
+			sprintf(path_expanded,"%s%s", umgebung_t::user_dir, name.c_str());
+		}
+	}
+
+	cleanup_path(path_expanded);
+
+	char shortened_path[SHORTENED_SIZE+1];
+
+	shorten_path(shortened_path,path_expanded,SHORTENED_SIZE);
+
+	sprintf(label_text,"%s %s", prefix_label , shortened_path);
 
 	gui_label_t* l = new gui_label_t(NULL, COL_WHITE);
 	l->set_text_pointer(label_text);
+	l->set_tooltip(path_expanded);
 
 	this->entries.append(dir_entry_t(NULL, NULL, l, LI_HEADER, NULL));
 	this->num_sections++;
@@ -759,7 +816,7 @@ void savegame_frame_t::add_path(const char * path){
  */
 bool savegame_frame_t::del_action(const char * fullpath)
 {
-#ifdef _WIN32
+#ifdef SIM_SYSTEM_TRASHBINAVAILABLE
 
 	if (event_get_last_control_shift()&1) {
 		// shift pressed, delete without trash bin
@@ -767,32 +824,8 @@ bool savegame_frame_t::del_action(const char * fullpath)
 		return false;
 	}
 
-	// no shift pressed, use the system trash bin.
-
-	SHFILEOPSTRUCTA  FileOp;
-
-	int len = strlen(fullpath);
-
-	char * wfilename = new char [len+2];
-
-	strcpy(wfilename, fullpath);
-
-	// Double \0 terminated string as required by the function.
-
-	wfilename[len]='\0';
-	wfilename[len+1]='\0';
-
-	ZeroMemory(&FileOp, sizeof(SHFILEOPSTRUCTA));
-
-	FileOp.hwnd = NULL;
-	FileOp.wFunc = FO_DELETE;
-	FileOp.fFlags = FOF_ALLOWUNDO|FOF_NOCONFIRMATION;
-	FileOp.pFrom = wfilename;
-	FileOp.pTo = NULL;
-
-	SHFileOperationA(&FileOp);
-
-	delete wfilename;
+	dr_movetotrash(fullpath);
+	return false;
 
 #else
 	remove(fullpath);

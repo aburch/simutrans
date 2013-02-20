@@ -9,7 +9,7 @@
 #ifndef __MARKER_H
 #define __MARKER_H
 
-#include "../tpl/slist_tpl.h"
+#include "../tpl/ptrhashtable_tpl.h"
 
 class grund_t;
 
@@ -24,7 +24,7 @@ class marker_t {
 
     int cached_groesse;
 
-    slist_tpl <const grund_t *> more;
+    ptrhashtable_tpl <const grund_t *, bool> more;
 public:
     marker_t(int welt_groesse_x,int welt_groesse_y) : bits(NULL) { init(welt_groesse_x, welt_groesse_y); }
     ~marker_t();

@@ -64,7 +64,7 @@ char *make_single_line_string(const char *in,int number_of_lines);
  * are made!
  * @author Hj. Malthaner
  */
-void money_to_string(char * buf, double f);
+void money_to_string(char * buf, double f, const bool show_decimal = true);
 
 
 /**

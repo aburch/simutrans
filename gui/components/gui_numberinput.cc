@@ -20,8 +20,6 @@ gui_numberinput_t::gui_numberinput_t() :
 	gui_komponente_t(true)
 {
 	bt_left.set_typ(button_t::repeatarrowleft );
-	bt_left.set_pos( koord(0,-1) );
-	bt_left.set_groesse( koord(10,10) );
 	bt_left.add_listener(this );
 
 	textinp.set_alignment( ALIGN_RIGHT );
@@ -29,7 +27,6 @@ gui_numberinput_t::gui_numberinput_t() :
 	textinp.add_listener( this );
 
 	bt_right.set_typ(button_t::repeatarrowright );
-	bt_right.set_groesse( koord(10,10) );
 	bt_right.add_listener(this );
 
 	set_limits(0, 9999);
@@ -41,19 +38,15 @@ gui_numberinput_t::gui_numberinput_t() :
 }
 
 
-
-void gui_numberinput_t::set_groesse(koord groesse)
+void gui_numberinput_t::set_groesse(koord gr)
 {
-	// each button: width 10, margin 4
-	// [<] [0124] [>]
-	// 10 4  ??  4 10
-	textinp.set_groesse(koord(groesse.x-2*10-2*4, groesse.y));
-	textinp.set_pos( koord(14,-2) );
-	bt_right.set_pos( koord(groesse.x-10,-1) );
+	bt_left.set_pos( koord(0, (gr.y - bt_left.get_groesse().y) / 2) );
+	textinp.set_pos( koord( bt_left.get_groesse().x + 2, 0) );
+	textinp.set_groesse( koord( gr.x - bt_left.get_groesse().x - bt_right.get_groesse().x - 6, gr.y) );
+	bt_right.set_pos( koord( gr.x - bt_right.get_groesse().x - 2, (gr.y - bt_right.get_groesse().y) / 2) );
 
-	this->groesse = groesse;
+	gui_komponente_t::groesse = gr;
 }
-
 
 
 void gui_numberinput_t::set_value(sint32 new_value)
@@ -124,8 +117,7 @@ bool gui_numberinput_t::action_triggered( gui_action_creator_t *komp, value_t /*
 }
 
 
-
-sint8 gui_numberinput_t::percent[7] = { 0, 1, 7, 13, 33, 66, 100 };
+sint8 gui_numberinput_t::percent[NUM_PERCENT] = { 0, 1, 2, 5, 10, 20, 50, 100 };
 
 sint32 gui_numberinput_t::get_next_value()
 {
@@ -157,7 +149,7 @@ sint32 gui_numberinput_t::get_next_value()
 		case PROGRESS:
 		{
 			sint64 diff = (sint64)max_value - (sint64)min_value;
-			for( int i=0;  i<7;  i++  ) {
+			for( int i=0;  i<NUM_PERCENT;  i++  ) {
 				if(  value-min_value < ((diff*(sint64)percent[i])/100l)  ) {
 					return min_value+(sint32)((diff*percent[i])/100l);
 				}
@@ -169,7 +161,6 @@ sint32 gui_numberinput_t::get_next_value()
 			return clamp( ((value+step_mode)/step_mode)*step_mode, min_value, max_value );
 	}
 }
-
 
 
 sint32 gui_numberinput_t::get_prev_value()
@@ -202,7 +193,7 @@ sint32 gui_numberinput_t::get_prev_value()
 		case PROGRESS:
 		{
 			sint64 diff = (sint64)max_value-(sint64)min_value;
-			for( int i=6;  i>=0;  i--  ) {
+			for( int i=NUM_PERCENT;  --i>=0;  ) {
 				if(  value-min_value > ((diff*percent[i])/100l)  ) {
 					return min_value+(sint32)((diff*percent[i])/100l);
 				}
@@ -216,8 +207,6 @@ sint32 gui_numberinput_t::get_prev_value()
 }
 
 
-
-
 // all init in one ...
 void gui_numberinput_t::init( sint32 value, sint32 min, sint32 max, sint32 mode, bool wrap )
 {
@@ -226,7 +215,6 @@ void gui_numberinput_t::init( sint32 value, sint32 min, sint32 max, sint32 mode,
 	set_increment_mode( mode );
 	wrap_mode( wrap );
 }
-
 
 
 bool gui_numberinput_t::infowin_event(const event_t *ev)

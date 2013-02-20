@@ -72,6 +72,10 @@ password_frame_t::password_frame_t( spieler_t *sp ) :
 bool password_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 {
 	if(komp == &password  &&  (ibuf[0]!=0  ||  p.i == 1)) {
+		if (sp->is_unlock_pending()) {
+			// unlock already pending, do not do everything twice
+			return true;
+		}
 		// Enter-Key pressed
 		// test for matching password to unlock
 		SHA1 sha1;
@@ -113,7 +117,7 @@ bool password_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 		werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
 		w->set_default_param( buf );
 		sp->get_welt()->set_werkzeug( w, sp );
-		// since init always returns false, it is save to delete immediately
+		// since init always returns false, it is safe to delete immediately
 		delete w;
 	}
 

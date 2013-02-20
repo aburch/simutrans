@@ -499,24 +499,29 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	credit_limit.set_color(get_money_colour(COST_CREDIT_LIMIT, 0));
 
 	// warning/success messages
-	if(sp->get_player_nr()==0  &&  sp->get_welt()->get_scenario()->active())
-	{
-		sprintf( str_buf[29], translator::translate("Scenario complete: %i%%"), sp->get_welt()->get_scenario()->completed(0) );
-	}
-	else if(sp->get_konto_ueberzogen()) 
-	{
-		warn.set_color( COL_RED );
-		if(sp->get_finance_history_year(0, COST_NETWEALTH) < 0 && sp->get_welt()->get_settings().bankruptsy_allowed()) 
-		{
-			tstrncpy(str_buf[29], translator::translate("Company bankrupt"), lengthof(str_buf[29]) );
+	if(sp->get_player_nr()!=1  &&  sp->get_welt()->get_scenario()->active()) {
+		warn.set_color( COL_BLACK );
+		sint32 percent = sp->get_welt()->get_scenario()->get_completion(sp->get_player_nr());
+		if (percent >= 0) {
+			sprintf( str_buf[29], translator::translate("Scenario complete: %i%%"), percent );
 		}
-		else 
-		{
-			sprintf(str_buf[29], translator::translate("On loan since %i month(s)"), sp->get_konto_ueberzogen() );
+		else {
+			tstrncpy(str_buf[29], translator::translate("Scenario lost!"), lengthof(str_buf[29]) );
 		}
 	}
-	else 
-	{
+	else if(sp->get_finance_history_year(0, COST_NETWEALTH)<0) {
+		warn.set_color( MONEY_MINUS );
+		tstrncpy(str_buf[29], translator::translate("Company bankrupt"), lengthof(str_buf[29]) );
+	}
+	else if(  sp->get_finance_history_year(0, COST_NETWEALTH)*10 < sp->get_welt()->get_settings().get_starting_money(sp->get_welt()->get_current_month()/12)  ){
+		warn.set_color( MONEY_MINUS );
+		tstrncpy(str_buf[29], translator::translate("Net wealth near zero"), lengthof(str_buf[29]) );
+	}
+	else if(  sp->get_konto_ueberzogen()  ) {
+		warn.set_color( COL_YELLOW );
+		sprintf( str_buf[29], translator::translate("On loan since %i month(s)"), sp->get_konto_ueberzogen() );
+	}
+	else {
 		str_buf[29][0] = '\0';
 	}
 	warn.set_text(str_buf[29]);
@@ -575,7 +580,7 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	}
 
 	karte_t *welt = sp->get_welt();
-	sint32 maintenance;
+	sint64 maintenance;
 	// Hajo: Money is counted in credit cents (100 cents = 1 Cr)
 	maintenance = sp->get_maintenance(spieler_t::MAINT_INFRASTRUCTURE);
 	money_to_string(str_buf[27], (double)(welt->calc_adjusted_monthly_figure(maintenance) / 100.0));

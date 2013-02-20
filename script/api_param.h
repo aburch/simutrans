@@ -245,6 +245,8 @@ namespace script_api {
 	declare_specialized_param(sint64, "i", "integer");
 	declare_specialized_param(waytype_t, "i", "way_types");
 
+	declare_specialized_param(double, "f", "float");
+
 	// no string typemask, as we call to_string
 	declare_specialized_param(const char*, ".", "string");
 	declare_specialized_param(plainstring, ".", "string");
@@ -256,6 +258,8 @@ namespace script_api {
 	declare_specialized_param(fabrik_t*, "t|x|y", "factory_x");
 	declare_specialized_param(grund_t*, "t|x|y", "tile_x");
 	declare_specialized_param(halthandle_t, "t|x|y", "halt_x");
+	declare_specialized_param(const haltestelle_t*, "t|x|y", "halt_x");
+	declare_param_mask(haltestelle_t*, "t|x|y", "halt_x");
 	declare_specialized_param(karte_t*, ".", "world");
 	declare_specialized_param(planquadrat_t*, "t|x|y", "square_x");
 	declare_specialized_param(settings_t*, "t|x|y", "settings");

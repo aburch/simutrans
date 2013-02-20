@@ -45,13 +45,13 @@ class settings_t;
 	width = max(width, proportional_string_width(t)+68);\
 	gui_numberinput_t *ni = new gui_numberinput_t();\
 	ni->init( (sint32)(a), (b), (c), (d), (e) );\
-	ni->set_pos( koord( 2, ypos ) );\
+	ni->set_pos( koord( D_MARGIN_LEFT, ypos ) );\
 	ni->set_groesse( koord( 37+7*max(1,(sint16)(log10((double)(c)+1.0)+0.5)), D_BUTTON_HEIGHT ) );\
 	numinp.append( ni );\
 	add_komponente( ni );\
 	gui_label_t *lb = new gui_label_t();\
 	lb->set_text_pointer(t);\
-	lb->set_pos( koord( ni->get_groesse().x+6, ypos ) );\
+	lb->set_pos( koord( D_MARGIN_LEFT + ni->get_groesse().x + 6, ypos + 2 ) );\
 	label.append( lb );\
 	add_komponente( lb );\
 	ypos += D_BUTTON_HEIGHT;\
@@ -64,13 +64,13 @@ class settings_t;
 	width = max(width, proportional_string_width(t)+68);\
 	gui_numberinput_t *ni = new gui_numberinput_t();\
 	ni->init( (sint32)( (a)/(sint64)100 ), (b), (c), (d), (e) );\
-	ni->set_pos( koord( 2, ypos ) );\
+	ni->set_pos( koord( D_MARGIN_LEFT, ypos ) );\
 	ni->set_groesse( koord( 37+7*max(1,(sint16)(log10((double)(c)+1.0)+0.5)), D_BUTTON_HEIGHT ) );\
 	numinp.append( ni );\
 	add_komponente( ni );\
 	gui_label_t *lb = new gui_label_t();\
 	lb->set_text_pointer(t);\
-	lb->set_pos( koord( ni->get_groesse().x+6, ypos ) );\
+	lb->set_pos( koord( D_MARGIN_LEFT + ni->get_groesse().x + 6, ypos + 2 ) );\
 	label.append( lb );\
 	add_komponente( lb );\
 	ypos += D_BUTTON_HEIGHT;\
@@ -83,7 +83,7 @@ class settings_t;
 	width = max(width, proportional_string_width(t)+6);\
 	gui_label_t *lb = new gui_label_t();\
 	lb->set_text_pointer(t);\
-	lb->set_pos( koord( 4, ypos ) );\
+	lb->set_pos( koord( D_MARGIN_LEFT + 2, ypos ) );\
 	label.append( lb );\
 	add_komponente( lb );\
 	ypos += D_BUTTON_HEIGHT;\
@@ -95,7 +95,7 @@ class settings_t;
 {\
 	width = max(width, proportional_string_width(t)+22);\
 	button_t *bt = new button_t();\
-	bt->init( button_t::square_automatic, (t), koord( 2, ypos ) );\
+	bt->init( button_t::square_automatic, (t), koord( D_MARGIN_LEFT, ypos ) );\
 	bt->pressed = (a);\
 	button.append( bt );\
 	add_komponente( bt );\

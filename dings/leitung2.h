@@ -163,6 +163,7 @@ public:
 
 	void calc_bild() {}	// otherwise it will change to leitung
 
+	const fabrik_t* get_factory() const { return fab; }
 };
 
 
@@ -209,6 +210,8 @@ public:
 	void set_city(stadt_t* c) { city = c; }
 
 	void check_industry_connexion();
+
+	const fabrik_t* get_factory() const { return fab; }
 };
 
 

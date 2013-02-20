@@ -22,6 +22,7 @@ register_function("resume_game");
  *
  * There is a default implementation, which returns concatenation
  * of #scenario author, version, short_description.
+ * Html-like tags can be used, see @ref get_rule_text.
  *
  * @param pl player number of active player
  * @typemask string(integer)
@@ -31,6 +32,22 @@ register_function("get_about_text");
 /**
  * Text shown in the 'Rules' tab in the scenario info window.
  *
+ * Text can contain several html-like tags:
+ * - \<p\>, \<br\>: line break
+ * - \<h1\>, \<em\>, \<it\>, \<st\>: text between start and end tag will be colored. It's a matter of taste, of course.
+ * - \<a href="..."\>: insert hyper link, text between start and end tag will be colored blue.
+ *       - link to another tab of scenario info window: href="tabname", where tabname is one of: info, goal, rules, result, about
+ *       - link to position on the map: href="(x,y)", click on link will jump to the map position
+ *
+ * @code
+ * <h1>Here is an example.</h1>
+ * <br>
+ * Do not build anything at the position <a href='(47,11)'>near Cologne</a>.
+ * The mayor of <a href='(8,15)'>Berlin</a> seems to be frustrated with your airport building capabilities.
+ * <br>
+ * Your results can be found in the <a href='result'>results</a> tab.
+ * @endcode
+ *
  * @param pl player number of active player
  * @typemask string(integer)
  */
@@ -38,6 +55,8 @@ register_function("get_rule_text");
 
 /**
  * Text shown in the 'Goal' tab in the scenario info window.
+ *
+ * Html-like tags can be used, see @ref get_rule_text.
  *
  * @param pl player number of active player
  * @typemask string(integer)
@@ -47,6 +66,8 @@ register_function("get_goal_text");
 /**
  * Text shown in the 'Info' tab in the scenario info window.
  *
+ * Html-like tags can be used, see @ref get_rule_text.
+ *
  * @param pl player number of active player
  * @typemask string(integer)
  */
@@ -54,6 +75,8 @@ register_function("get_info_text");
 
 /**
  * Text shown in the 'Result' tab in the scenario info window.
+ *
+ * Html-like tags can be used, see @ref get_rule_text.
  *
  * @param pl player number of active player
  * @typemask string(integer)

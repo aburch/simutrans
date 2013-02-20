@@ -51,9 +51,13 @@ public:
 	factory_chart_t(const fabrik_t *_factory);
 	virtual ~factory_chart_t();
 
+	void set_factory(const fabrik_t *_factory);
+
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	virtual void zeichnen(koord pos);
+
+	void rdwr( loadsave_t *file );
 };
 
 #endif

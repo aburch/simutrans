@@ -61,7 +61,7 @@ bool ai_passenger_t::set_active(bool new_state)
 {
 	// only activate, when there are buses available!
 	if(  new_state  ) {
-		new_state = NULL!=vehikelbauer_t::vehikel_search( road_wt, welt->get_timeline_year_month(), 50, 80, warenbauer_t::passagiere, false, false );
+		new_state = NULL!=vehikel_search( road_wt, 50, 80, warenbauer_t::passagiere, false);
 	}
 	return spieler_t::set_active( new_state );
 }
@@ -72,12 +72,13 @@ bool ai_passenger_t::set_active(bool new_state)
  */
 halthandle_t ai_passenger_t::get_our_hub( const stadt_t *s ) const
 {
-	FOR(vector_tpl<halthandle_t>, const halt, halt_list) {
-		if(  halt->get_pax_enabled()  &&  (halt->get_station_type()&haltestelle_t::busstop)!=0  ) {
-			koord h=halt->get_basis_pos();
-			if(h.x>=s->get_linksoben().x  &&  h.y>=s->get_linksoben().y  &&  h.x<=s->get_rechtsunten().x  &&  h.y<=s->get_rechtsunten().y  ) {
-				DBG_MESSAGE("ai_passenger_t::get_our_hub()","found %s at (%i,%i)",s->get_name(),h.x,h.y);
-				return halt;
+	FOR(slist_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {
+		if(  halt->get_besitzer()==this  ) {
+			if(  halt->get_pax_enabled()  &&  (halt->get_station_type()&haltestelle_t::busstop)!=0  ) {
+				koord h=halt->get_basis_pos();
+				if(h.x>=s->get_linksoben().x  &&  h.y>=s->get_linksoben().y  &&  h.x<=s->get_rechtsunten().x  &&  h.y<=s->get_rechtsunten().y  ) {
+					return halt;
+				}
 			}
 		}
 	}
@@ -146,8 +147,8 @@ koord ai_passenger_t::find_harbour_pos(karte_t* welt, const stadt_t *s )
 	sint32 bestdist = 999999;
 
 	// try to find an airport place as close to the city as possible
-	for(  k.y=max(6,s->get_linksoben().y-10); k.y<=min(welt->get_groesse_y()-3-6,s->get_rechtsunten().y+10); k.y++  ) {
-		for(  k.x=max(6,s->get_linksoben().x-25); k.x<=min(welt->get_groesse_x()-3-6,s->get_rechtsunten().x+10); k.x++  ) {
+	for(  k.y=max(6,s->get_linksoben().y-10); k.y<=min(welt->get_size().y-3-6,s->get_rechtsunten().y+10); k.y++  ) {
+		for(  k.x=max(6,s->get_linksoben().x-25); k.x<=min(welt->get_size().x-3-6,s->get_rechtsunten().x+10); k.x++  ) {
 			sint32 testdist = shortest_distance( k, s->get_pos() );
 			if(  testdist<bestdist  ) {
 				if(  k.x+2<s->get_linksoben().x  ||  k.y+2<s->get_linksoben().y  ||  k.x>=s->get_rechtsunten().x  ||  k.y>=s->get_rechtsunten().y  ) {
@@ -176,7 +177,7 @@ koord ai_passenger_t::find_harbour_pos(karte_t* welt, const stadt_t *s )
 
 bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, const koord target_pos)
 {
-	const vehikel_besch_t *v_besch = vehikelbauer_t::vehikel_search(water_wt, welt->get_timeline_year_month(), 10, 40, warenbauer_t::passagiere, false, true );
+	const vehikel_besch_t *v_besch = vehikel_search(water_wt, 10, 40, warenbauer_t::passagiere, false);
 	if(v_besch==NULL  ) {
 		// no ship there
 		return false;
@@ -449,7 +450,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int rotation)
 {
 	// not too close to border?
-	if(pos.x<6  ||  pos.y<6  ||  pos.x+3+6>=welt->get_groesse_x()  ||  pos.y+3+6>=welt->get_groesse_y()  ) {
+	if(pos.x<6  ||  pos.y<6  ||  pos.x+3+6>=welt->get_size().x  ||  pos.y+3+6>=welt->get_size().y  ) {
 		return halthandle_t();
 	}
 	// ok, not prematurely doomed
@@ -580,15 +581,15 @@ static koord find_airport_pos(karte_t* welt, const stadt_t *s )
 	sint32 bestdist = 999999;
 
 	// try to find an airport place as close to the city as possible
-	for(  k.y=max(6,s->get_linksoben().y-10); k.y<=min(welt->get_groesse_y()-3-6,s->get_rechtsunten().y+10); k.y++  ) {
-		for(  k.x=max(6,s->get_linksoben().x-25); k.x<=min(welt->get_groesse_x()-3-6,s->get_rechtsunten().x+10); k.x++  ) {
+	for(  k.y=max(6,s->get_linksoben().y-10); k.y<=min(welt->get_size().y-3-6,s->get_rechtsunten().y+10); k.y++  ) {
+		for(  k.x=max(6,s->get_linksoben().x-25); k.x<=min(welt->get_size().x-3-6,s->get_rechtsunten().x+10); k.x++  ) {
 			sint32 testdist = shortest_distance( k, s->get_pos() );
 			if(  testdist<bestdist  ) {
 				if(  k.x+2<s->get_linksoben().x  ||  k.y+2<s->get_linksoben().y  ||  k.x>=s->get_rechtsunten().x  ||  k.y>=s->get_rechtsunten().y  ) {
 					// malus for out of town
 					testdist += 5;
 				}
-				if(  testdist<bestdist  &&  welt->ist_platz_frei( k, 3, 3, NULL, ALL_CLIMATES )  ) {
+				if(  testdist<bestdist  &&  welt->square_is_free( k, 3, 3, NULL, ALL_CLIMATES )  ) {
 					bestpos = k;
 					bestdist = testdist;
 				}
@@ -604,7 +605,7 @@ static koord find_airport_pos(karte_t* welt, const stadt_t *s )
  */
 bool ai_passenger_t::create_air_transport_vehikel(const stadt_t *start_stadt, const stadt_t *end_stadt)
 {
-	const vehikel_besch_t *v_besch = vehikelbauer_t::vehikel_search(air_wt, welt->get_timeline_year_month(), 10, 900, warenbauer_t::passagiere, false, true );
+	const vehikel_besch_t *v_besch = vehikel_search(air_wt, 10, 900, warenbauer_t::passagiere, false);
 	if(v_besch==NULL) {
 		// no aircraft there
 		return false;
@@ -907,7 +908,7 @@ void ai_passenger_t::cover_city_with_bus_route(koord start_pos, int number_of_st
 	walk_city( line, start, number_of_stops );
 	line->get_schedule()->eingabe_abschliessen();
 
-	road_vehicle = vehikelbauer_t::vehikel_search( road_wt, welt->get_timeline_year_month(), 1, 50, warenbauer_t::passagiere, false, false );
+	road_vehicle = vehikel_search( road_wt, 1, 50, warenbauer_t::passagiere, false);
 	if( line->get_schedule()->get_count()>1  ) {
 		// success: add a bus to the line
 		vehikel_t* v = vehikelbauer_t::baue(start->get_pos(), this, NULL, road_vehicle);
@@ -1026,7 +1027,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","searching attraction");
 						uint16 const c   = welt->get_settings().get_station_coverage();
 						koord  const cov = koord(c, c);
 						koord test_platz=find_area_for_hub(pos-cov,pos+size+cov,pos);
-						if(  !haltestelle_t::get_halt(welt,test_platz,this).is_bound()  ) {
+						if(  !get_halt(test_platz).is_bound()  ) {
 							// not served
 							dist = shortest_distance(platz1,test_platz);
 							if(dist+simrand(50, "ai_passenger_t::step()")<last_dist  &&   dist>3) {
@@ -1123,7 +1124,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","no suitable hub found");
 		// wait for construction semaphore
 		{
 			// we want the fastest we can get!
-			road_vehicle = vehikelbauer_t::vehikel_search( road_wt, welt->get_timeline_year_month(), 50, 80, warenbauer_t::passagiere, false, false );
+			road_vehicle = vehikel_search( road_wt, 50, 80, warenbauer_t::passagiere, false);
 			if(road_vehicle!=NULL) {
 				// find the best => AI will never survive
 //				road_weg = wegbauer_t::weg_search( road_wt, road_vehicle->get_geschw(), welt->get_timeline_year_month(),weg_t::type_flat );
@@ -1152,14 +1153,14 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 			if(bs  &&  create_simple_road_transport(platz1, koord(1,1),platz2,koord(1,1),road_weg)  ) {
 				// since the road my have led to a crossing at the indended stop position ...
 				bool ok = true;
-				if(  !haltestelle_t::get_halt(welt,platz1,this).is_bound()  ) {
+				if(  !get_halt(platz1).is_bound()  ) {
 					if(  !call_general_tool( WKZ_STATION, platz1, bs->get_name() )  ) {
 						platz1 = find_area_for_hub( platz1-koord(2,2), platz1+koord(2,2), platz1 );
 						ok = call_general_tool( WKZ_STATION, platz1, bs->get_name() );
 					}
 				}
 				if(  ok  ) {
-					if(  !haltestelle_t::get_halt(welt,platz2,this).is_bound()  ) {
+					if(  !get_halt(platz2).is_bound()  ) {
 						if(  !call_general_tool( WKZ_STATION, platz2, bs->get_name() )  ) {
 							platz2 = find_area_for_hub( platz2-koord(2,2), platz2+koord(2,2), platz2 );
 							ok = call_general_tool( WKZ_STATION, platz2, bs->get_name() );
@@ -1306,7 +1307,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 							// now try to finde new vehicle
 							vehikel_t              const& v       = *line->get_convoy(0)->front();
 							waytype_t              const  wt      = v.get_waytype();
-							vehikel_besch_t const* const  v_besch = vehikelbauer_t::vehikel_search(wt, welt->get_current_month(), 50, welt->get_average_speed(wt), warenbauer_t::passagiere, false, false);
+							vehikel_besch_t const* const  v_besch = vehikelbauer_t::vehikel_search(wt, welt->get_current_month(), 50, welt->get_average_speed(wt), warenbauer_t::passagiere, false, true);
 							if (!v_besch->is_retired(welt->get_current_month()) && v_besch != v.get_besch()) {
 								// there is a newer one ...
 								for(  uint32 new_capacity=0;  capacity>new_capacity;  new_capacity+=v_besch->get_zuladung()) {
@@ -1465,7 +1466,7 @@ void ai_passenger_t::bescheid_vehikel_problem(convoihandle_t cnv,const koord3d z
 
 void ai_passenger_t::laden_abschliessen()
 {
-	road_vehicle = vehikelbauer_t::vehikel_search( road_wt, welt->get_timeline_year_month(), 50, 80, warenbauer_t::passagiere, false, false );
+	road_vehicle = vehikel_search( road_wt, 50, 80, warenbauer_t::passagiere, false);
 	if (road_vehicle == NULL) {
 		// reset state
 		end_stadt = NULL;

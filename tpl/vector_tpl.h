@@ -261,9 +261,11 @@ template<class T> class vector_tpl
 			return (*this)[e];
 		}
 		
-		void pop_back()
+		T& pop_back()
 		{
+			assert(count>0);
 			--count;
+			return data[count];
 		}
 
 		T& operator [](uint i)

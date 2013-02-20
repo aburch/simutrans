@@ -12,8 +12,6 @@
 #include "simmenu.h"
 #include "simdings.h"
 
-#include "besch/way_obj_besch.h"
-
 #include "boden/wege/schiene.h"
 
 #include "dataobj/umgebung.h"
@@ -32,6 +30,7 @@ class haus_besch_t;
 class roadsign_besch_t;
 class weg_besch_t;
 class route_t;
+class way_obj_besch_t;
 
 /****************************** helper functions: *****************************/
 
@@ -935,10 +934,9 @@ public:
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("6WORLD_CHOOSE"); }
 	bool is_selected(karte_t const*) const OVERRIDE { return false; }
 	bool init( karte_t *welt, spieler_t * ) {
-		if( !umgebung_t::networkmode) {
-			assert(  default_param  );
-			welt->get_settings().set_verkehr_level(atoi(default_param));
-		}
+		assert(  default_param  );
+		sint16 level = min( max( atoi(default_param), 0), 16);
+		welt->get_settings().set_verkehr_level(level);
 		return false;
 	}
 	bool is_init_network_save() const OVERRIDE { return false; }

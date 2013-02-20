@@ -140,7 +140,8 @@ public:
 	 */
 	static void denkmal_gebaut(const haus_besch_t* besch) { ungebaute_denkmaeler.remove(besch); }
 
-	/** called for an attraction or a townhall with a certain number of inhabitants (bev)
+	/**
+	 * Called for a city attraction or a townhall with a certain number of inhabitants (bev).
 	 */
 	static const haus_besch_t* get_special(uint32 bev, haus_besch_t::utyp utype, uint16 time, bool ignore_retire, climate cl);
 

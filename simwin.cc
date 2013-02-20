@@ -61,6 +61,10 @@
 #include "gui/fahrplan_gui.h"
 #include "gui/line_management_gui.h"
 #include "gui/schedule_list.h"
+#include "gui/stadt_info.h"
+#include "gui/message_frame_t.h"
+#include "gui/message_option_t.h"
+#include "gui/fabrik_info.h"
 
 
 
@@ -472,7 +476,10 @@ void rdwr_all_win(loadsave_t *file)
 					case magic_ki_kontroll_t:  w = new ki_kontroll_t(wl); break;
 					case magic_schedule_rdwr_dummy: w = new fahrplan_gui_t(wl); break;
 					case magic_line_schedule_rdwr_dummy: w = new line_management_gui_t(wl); break;
-
+					case magic_city_info_t:    w = new stadt_info_t(wl); break;
+					case magic_messageframe:   w = new message_frame_t(wl); break;
+					case magic_message_options: w = new message_option_t(wl); break;
+					case magic_factory_info:   w = new fabrik_info_t(wl); break;
 
 					default:
 						if(  id>=magic_finances_t  &&  id<magic_finances_t+MAX_PLAYER_COUNT  ) {
@@ -809,6 +816,9 @@ void display_win(int win)
 				wins[win].sticky,
 				komp->is_weltpos(),
 				wins[win].flags );
+		if(  wins[win].gui->is_dirty()  ) {
+//			mark_rect_dirty_wc( wins[win].pos.x, wins[win].pos.y, wins[win].pos.x+gr.x, wins[win].pos.y+16 );
+		}
 	}
 	// mark top window, if requested
 	if(umgebung_t::window_frame_active  &&  (unsigned)win==wins.get_count()-1) {
@@ -1195,7 +1205,7 @@ bool check_pos_win(event_t *ev)
 		if(  IS_LEFTCLICK(ev)  ) {
 			// goto infowin koordinate, if ticker is active
 			koord p = ticker::get_welt_pos();
-			if(wl->ist_in_kartengrenzen(p)) {
+			if(wl->is_within_limits(p)) {
 				wl->change_world_position(koord3d(p,wl->min_hgt(p)));
 			}
 		}
@@ -1475,7 +1485,7 @@ void win_display_flush(double konto)
 	// @author prissi - also show date if desired
 	// since seaons 0 is always summer for backward compatibility
 	static char const* const seasons[] = { "q2", "q3", "q4", "q1" };
-	char const* const season = translator::translate(seasons[wl->get_jahreszeit()]);
+	char const* const season = translator::translate(seasons[wl->get_season()]);
 	char const* const month_ = translator::get_month_name(month % 12);
 	switch (umgebung_t::show_month) {
 		case umgebung_t::DATE_FMT_GERMAN_NO_SEASON:
@@ -1533,9 +1543,9 @@ void win_display_flush(double konto)
 	}
 
 	// season color
-	display_color_img( skinverwaltung_t::seasons_icons->get_bild_nr(wl->get_jahreszeit()), 2, disp_height-15, 0, false, true );
+	display_color_img( skinverwaltung_t::seasons_icons->get_bild_nr(wl->get_season()), 2, disp_height-15, 0, false, true );
 	if(  tooltip_check  &&  tooltip_xpos<14  ) {
-		tooltip_text = translator::translate(seasons[wl->get_jahreszeit()]);
+		tooltip_text = translator::translate(seasons[wl->get_season()]);
 		tooltip_check = false;
 	}
 

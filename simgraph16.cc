@@ -977,6 +977,16 @@ void mark_rect_dirty_wc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2)
 
 
 /**
+ * Mark the whole screen as dirty.
+ *
+ */
+void mark_screen_dirty()
+{
+	mark_rect_dirty_nc(0, 0, disp_width-1, disp_height - 1);
+}
+
+
+/**
  * the area of this image need update
  * @author Hj. Malthaner
  */
@@ -1669,12 +1679,12 @@ static void rezoom_img(const image_id n)
 
 				do {
 					// check length of transparent pixels
-					for (i = 0;  line[x] == 0x73FE  &&  x < newzoomwidth;  i++, x++)
+					for (i = 0;  x < newzoomwidth  &&  line[x] == 0x73FE;  i++, x++)
 						{}
 					// first runlength: transparent pixels
 					*dest++ = i;
 					// copy for non-transparent
-					for (i = 0;  line[x] != 0x73FE  &&  x < newzoomwidth;  i++, x++) {
+					for (i = 0;  x < newzoomwidth  &&  line[x] != 0x73FE;  i++, x++) {
 						dest[i + 1] = line[x];
 					}
 
@@ -2251,11 +2261,13 @@ void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 u
 				printf("CImg %i failed!\n", n);
 				return;
 			}
-		} else {
+		}
+		else {
 			if (images[n].recode_flags&FLAG_REZOOM) {
 				rezoom_img(n);
 				recode_normal_img(n);
-			} else if (images[n].recode_flags&FLAG_NORMAL_RECODE) {
+			}
+			else if (images[n].recode_flags&FLAG_NORMAL_RECODE) {
 				recode_normal_img(n);
 			}
 			sp = images[n].data;
@@ -2325,7 +2337,8 @@ void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 u
 						mark_rect_dirty_nc(xp, yp, xp + w - 1, yp + h - 1);
 					}
 					display_img_nc(h, xp, yp, sp);
-				} else if (xp < clip_rect.xx  &&  xp + w > clip_rect.x) {
+				}
+				else if (xp < clip_rect.xx  &&  xp + w > clip_rect.x) {
 					display_img_wc(h, xp, yp, sp);
 					// since height may be reduced, start marking here
 					if (dirty) {
@@ -2525,7 +2538,13 @@ void display_base_img(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 
 				} while (*sp);
 				sp++;
 			}
-			display_color_img_wc( sp, x, y, h );
+			// clipping at poly lines?
+			if (number_of_clips>0) {
+				display_img_pc<colored>(h, x, y, sp);
+			}
+			else {
+				display_color_img_wc( sp, x, y, h );
+			}
 		}
 
 	} // number ok

@@ -119,7 +119,8 @@ public:
 	}
 
 	/**
-	* Prüft, ob eine Position innerhalb der Komponente liegt.
+	* Checks if the given position is inside the component area.
+	* @return true if the coordinates are inside this component area.
 	* @author Hj. Malthaner
 	*/
 	virtual bool getroffen(int x, int y) {

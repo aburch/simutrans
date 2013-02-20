@@ -173,7 +173,12 @@ private:
 
 	sint32 passenger_factor;
 
-	sint16 factory_spacing;
+	sint16 min_factory_spacing;
+	sint16 max_factory_spacing;
+	sint16 max_factory_spacing_percentage;
+
+	/*no goods will put in route, when stored>gemax_storage and goods_in_transit*maximum_intransit_percentage/100>max_storage  */
+	uint16 factory_maximum_intransit_percentage;
 
 	/* prissi: crossconnect all factories (like OTTD and similar games) */
 	bool crossconnect_factories;
@@ -548,6 +553,11 @@ public:
 	uint8 spacing_shift_mode;
 	sint16 spacing_shift_divisor;
 
+	// remove dummy companies and remove password from abandoned companies
+	uint16 remove_dummy_player_months;
+	uint16 unprotect_abondoned_player_months;
+
+public:
 	/**
 	 * If map is read from a heightfield, this is the name of the heightfield.
 	 * Set to empty string in order to avoid loading.
@@ -652,7 +662,9 @@ public:
 
 	sint16 get_special_building_distance() const { return special_building_distance; }
 
-	sint16 get_factory_spacing() const { return factory_spacing; }
+	sint16 get_min_factory_spacing() const { return min_factory_spacing; }
+	sint16 get_max_factory_spacing() const { return max_factory_spacing; }
+	sint16 get_max_factory_spacing_percent() const { return max_factory_spacing_percentage; }
 	sint16 get_crossconnect_factor() const { return crossconnect_factor; }
 	bool is_crossconnect_factories() const { return crossconnect_factories; }
 
@@ -891,6 +903,10 @@ public:
 	// Knightly : whether factory pax/mail demands are enforced
 	bool get_factory_enforce_demand() const { return factory_enforce_demand; }
 
+	uint16 get_factory_maximum_intransit_percentage() const { return factory_maximum_intransit_percentage; }
+
+	uint32 get_locality_factor(sint16 year) const;
+
 	// disallow using obsolete vehicles in depot
 	bool get_allow_buying_obsolete_vehicles() const { return allow_buying_obsolete_vehicles; }
 
@@ -983,6 +999,9 @@ public:
 
 	bool get_allow_underground_transformers() const { return allow_underground_transformers; }
 	void set_scale();
+
+	uint16 get_remove_dummy_player_months() const { return remove_dummy_player_months; }
+	uint16 get_unprotect_abondoned_player_months() const { return unprotect_abondoned_player_months; }
 };
 
 #endif 

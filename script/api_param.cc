@@ -13,6 +13,12 @@ template<typename T> T clamp(T v, T l, T u) { return v < l ? l : (v > u ? u :v);
 
 namespace script_api {
 	karte_t *welt;
+
+	SQInteger param<void_t>::push(HSQUIRRELVM, void_t const&)
+	{
+		return 0;
+	}
+
 // integer arguments
 	uint8 param<uint8>::get(HSQUIRRELVM vm, SQInteger index)
 	{
@@ -119,6 +125,20 @@ namespace script_api {
 	{
 		return param<sint16>::push(vm, v);
 	}
+
+// floats
+	double param<double>::get(HSQUIRRELVM vm, SQInteger index)
+	{
+		SQFloat d;
+		sq_getfloat(vm, index, &d);
+		return d;
+	}
+	SQInteger param<double>::push(HSQUIRRELVM vm, double  const& v)
+	{
+		sq_pushfloat(vm, v);
+		return 1;
+	}
+
 // strings
 	const char* param<const char*>::get(HSQUIRRELVM vm, SQInteger index)
 	{
@@ -337,6 +357,13 @@ namespace script_api {
 			sq_raise_error(vm, "Invalid halt id %d", id);
 		}
 		return halt;
+	}
+
+
+	const haltestelle_t* param<const haltestelle_t*>::get(HSQUIRRELVM vm, SQInteger index)
+	{
+		halthandle_t halt = param<halthandle_t>::get(vm, index);
+		return halt.is_bound() ? halt.get_rep() : NULL;
 	}
 
 

@@ -900,6 +900,15 @@
     <ClCompile Include="dataobj\network_cmd_scenario.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="gui\convoy_item.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="simloadingscreen.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="script\api\api_gui.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gui\components\action_listener.h">
@@ -2055,6 +2064,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="dataobj\network_cmd_scenario.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\convoy_item.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simloadingscreen.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

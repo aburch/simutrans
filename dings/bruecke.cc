@@ -135,13 +135,11 @@ void bruecke_t::laden_abschliessen()
 			weg->set_max_speed(besch->get_topspeed());
 			weg->set_max_weight(besch->get_max_weight());
 			weg->add_way_constraints(besch->get_way_constraints());
-			if(weg->get_besitzer())
-			{
-				weg->get_besitzer()->add_maintenance(-weg->get_besch()->get_wartung());
-			}
+			// take ownership of way
+			spieler_t::add_maintenance( weg->get_besitzer(), -weg->get_besch()->get_wartung());
 			weg->set_besitzer(sp);  //"besitzer" = owner (Babelfish)
 		}
-		sp->add_maintenance(besch->get_wartung() );
+		spieler_t::add_maintenance( sp,  besch->get_wartung() );
 	}
 }
 
@@ -169,6 +167,7 @@ void bruecke_t::entferne( spieler_t *sp2 )
 		}
 		sp->add_maintenance( -besch->get_wartung() );
 	}
+	spieler_t::add_maintenance( sp,  -besch->get_wartung() );
 	spieler_t::accounting( sp2, -besch->get_preis(), get_pos().get_2d(), COST_CONSTRUCTION );
 }
 

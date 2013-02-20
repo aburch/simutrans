@@ -94,7 +94,7 @@ static inthashtable_tpl<uint32, char*> ground_texts;
 
 void grund_t::set_text(const char *text)
 {
-	const uint32 n = get_ground_text_key(pos,welt->get_groesse_y());
+	const uint32 n = get_ground_text_key(pos,welt->get_size().y);
 	if(  text  ) {
 		char *new_text = strdup(text);
 		free(ground_texts.remove(n));
@@ -117,7 +117,7 @@ const char *grund_t::get_text() const
 {
 	const char *result = 0;
 	if(  get_flag(has_text)  ) {
-		result = ground_texts.get( get_ground_text_key(pos,welt->get_groesse_y()) );
+		result = ground_texts.get( get_ground_text_key(pos,welt->get_size().y) );
 		if(result==NULL) {
 			return "undef";
 		}
@@ -398,7 +398,7 @@ grund_t::~grund_t()
 	set_text(NULL);
 
 	dinge.loesche_alle(NULL,0);
-	if(flags&is_halt_flag  &&  welt->ist_in_kartengrenzen(pos.get_2d())) {
+	if(flags&is_halt_flag  &&  welt->is_within_limits(pos.get_2d())) {
 		welt->lookup(pos.get_2d())->get_halt()->rem_grund(this);
 	}
 }
@@ -424,11 +424,14 @@ void grund_t::sort_trees()
 
 void grund_t::rotate90()
 {
-	pos.rotate90( welt->get_groesse_y()-1 );
+	pos.rotate90( welt->get_size().y-1 );
 	slope = hang_t::rotate90( slope );
 	// then rotate the things on this tile
 	uint8 trees = 0, offset = 0;
-	for(  int i=0;  i<dinge.get_top();  i++  ) {
+	if(  get_top()==254  ) {
+		dbg->warning( "grund_t::rotate90()", "Too many stuff on (%s)", pos.get_str() );
+	}
+	for(  uint8 i=0;  i<dinge.get_top();  i++  ) {
 		obj_bei(i)->rotate90();
 		if (obj_bei(i)->get_typ() == ding_t::baum) {
 			trees++;
@@ -449,9 +452,9 @@ void grund_t::finish_rotate90()
 	text_map ground_texts_rotating;
 	// first get the old hashes
 	FOR(text_map, iter, ground_texts) {
-		koord3d k = get_ground_koord3d_key( iter.key, welt->get_groesse_y() );
-		k.rotate90( welt->get_groesse_y()-1 );
-		ground_texts_rotating.put( get_ground_text_key(k,welt->get_groesse_x()), iter.value );
+		koord3d k = get_ground_koord3d_key( iter.key, welt->get_size().y );
+		k.rotate90( welt->get_size().y-1 );
+		ground_texts_rotating.put( get_ground_text_key(k,welt->get_size().x), iter.value );
 	}
 	ground_texts.clear();
 	// then transfer all rotated texts
@@ -468,7 +471,7 @@ void grund_t::enlarge_map( sint16, sint16 new_size_y )
 	text_map ground_texts_enlarged;
 	// we have recalculate the keys
 	FOR(text_map, iter, ground_texts) {
-		koord3d k = get_ground_koord3d_key( iter.key, welt->get_groesse_y() );
+		koord3d k = get_ground_koord3d_key( iter.key, welt->get_size().y );
 		ground_texts_enlarged.put( get_ground_text_key(k,new_size_y), iter.value );
 	}
 	ground_texts.clear();
@@ -554,6 +557,7 @@ void grund_t::info(cbuffer_t& buf) const
 
 	buf.printf("%s\n%s", translator::translate(get_name()), translator::translate(grund_besch_t::get_climate_name_from_bit(welt->get_climate(get_hoehe()))) );
 #if DEBUG >= 3
+	buf.printf("\nflags $%0X", flags );
 	buf.printf("\n\npos: (%s)",pos.get_str());
 	buf.printf("\nslope: %i",get_grund_hang());
 	buf.printf("\nback0: %i",get_back_bild(0)-grund_besch_t::slopes->get_bild(0));
@@ -569,8 +573,17 @@ void grund_t::info(cbuffer_t& buf) const
 }
 
 
-void grund_t::set_halt(halthandle_t halt) {
-	if(halt.is_bound()) {
+void grund_t::set_halt(halthandle_t halt)
+{
+	bool add = halt.is_bound();
+	if(  add  ) {
+		// ok, we want to add a stop: first check if it can apply to water
+		if(  get_weg_ribi(water_wt)  ||  ist_wasser()  ||  (welt->get_climate(pos.z)==water_climate  &&  !ist_im_tunnel()  &&  get_typ()!=brueckenboden)  ) {
+			add = (halt->get_station_type() & haltestelle_t::dock) > 0;
+		}
+	}
+	// then add or remove halt flag
+	if(  add  ) {
 		flags |= is_halt_flag|dirty;
 	}
 	else {
@@ -659,7 +672,7 @@ void grund_t::mark_image_dirty()
 	if(bild_nr!=IMG_LEER) {
 		// better not try to twist your brain to follow the retransformation ...
 		const sint16 rasterweite=get_tile_raster_width();
-		const koord diff = pos.get_2d()-welt->get_world_position()-welt->get_ansicht_ij_offset();
+		const koord diff = pos.get_2d()-welt->get_world_position()-welt->get_view_ij_offset();
 		const sint16 x = (diff.x-diff.y)*(rasterweite/2);
 		const sint16 y = (diff.x+diff.y)*(rasterweite/4) + tile_raster_scale_y( -get_disp_height()*TILE_HEIGHT_STEP, rasterweite) + ((display_get_width()/rasterweite)&1)*(rasterweite/4);
 		// mark the region after the image as dirty
@@ -1650,6 +1663,8 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 		ribi_t::ribi add=(weg->get_ribi_unmasked()&rem);
 		sint32 costs = 0;
 
+		bool signs_deleted = false;
+
 		for(  sint16 i=get_top();  i>=0;  i--  ) {
 			// we need to delete backwards, since we might miss things otherwise
 			if(  i>=get_top()  ) {
@@ -1666,12 +1681,14 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 				if (sign->get_besch()->get_wtyp() == wt && (sign->get_dir() & ~add) != 0) {
 					costs -= sign->get_besch()->get_preis();
 					delete sign;
+					signs_deleted = true;
 				}
 			} else if (signal_t* const signal = ding_cast<signal_t>(d)) {
 				// singal: not on crossings => remove all
 				if (signal->get_besch()->get_wtyp() == wt) {
 					costs -= signal->get_besch()->get_preis();
 					delete signal;
+					signs_deleted = true;
 				}
 			} else if (wayobj_t* const wayobj = ding_cast<wayobj_t>(d)) {
 				// wayobj: check dir
@@ -1739,6 +1756,9 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 DBG_MESSAGE("wkz_wayremover()","change remaining way to ribi %d",add);
 			// something will remain, we just change ribis
 			weg->set_ribi(add);
+			if (signs_deleted) {
+				weg->count_sign();
+			}
 			calc_bild();
 		}
 		// we have to pay?

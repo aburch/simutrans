@@ -84,9 +84,14 @@ struct checklist_t
 
 
 /**
- * Die Karte ist der zentrale Bestandteil der Simulation. Sie
- * speichert alle Daten und Objekte.
- *
+ * Threaded function caller.
+ */
+typedef void (karte_t::*xy_loop_func)(sint16, sint16, sint16, sint16);
+
+
+/**
+ * The map is the central part of the simulation. It stores all data and objects.
+ * @brief Stores all data and objects of the simulated world.
  * @author Hj. Malthaner
  */
 class karte_t
@@ -98,28 +103,27 @@ public:
 	static int random_calls;
 #endif
 	/**
-	* Hoehe eines Punktes der Karte mit "perlin noise"
-	*
-	* @param frequency in 0..1.0 roughness, the higher the rougher
-	* @param amplitude in 0..160.0 top height of mountains, may not exceed 160.0!!!
-	* @author Hj. Malthaner
-	*/
-
+	 * Height of a point of the map with "perlin noise"
+	 *
+	 * @param frequency in 0..1.0 roughness, the higher the rougher
+	 * @param amplitude in 0..160.0 top height of mountains, may not exceed 160.0!!!
+	 * @author Hj. Malthaner
+	 */
 	static sint32 perlin_hoehe(settings_t const*, koord pos, koord const size, const sint32 map_size);
 
 	enum player_cost {
-		WORLD_CITICENS=0,// total people
-		WORLD_GROWTH,	// growth (just for convenience)
-		WORLD_TOWNS,	// number of all cities
-		WORLD_FACTORIES,	// number of all consuming only factories
-		WORLD_CONVOIS,	// total number of convois
-		WORLD_CITYCARS,	// Number of private car trips
-		WORLD_PAS_RATIO,	// percentage of passengers that started successful
-		WORLD_PAS_GENERATED,	// total number generated
-		WORLD_MAIL_RATIO,	// percentage of mail that started successful
-		WORLD_MAIL_GENERATED,	// all letters generated
-		WORLD_GOODS_RATIO, // ratio of chain completeness
-		WORLD_TRANSPORTED_GOODS, // all transported goods
+		WORLD_CITICENS=0,		//!< total people
+		WORLD_GROWTH,			//!< growth (just for convenience)
+		WORLD_TOWNS,			//!< number of all cities
+		WORLD_FACTORIES,		//!< number of all consuming only factories
+		WORLD_CONVOIS,			//!< total number of convois
+		WORLD_CITYCARS,			//!< number of citycars generated
+		WORLD_PAS_RATIO,		//!< percentage of passengers that started successful
+		WORLD_PAS_GENERATED,	//!< total number generated
+		WORLD_MAIL_RATIO,		//!< percentage of mail that started successful
+		WORLD_MAIL_GENERATED,	//!< all letters generated
+		WORLD_GOODS_RATIO,		//!< ratio of chain completeness
+		WORLD_TRANSPORTED_GOODS,//!< all transported goods
 		MAX_WORLD_COST
 	};
 
@@ -137,26 +141,53 @@ public:
 
 	enum { NORMAL=0, PAUSE_FLAG = 0x01, FAST_FORWARD=0x02, FIX_RATIO=0x04 };
 
-	/* Missing things during loading:
+	/**
+	 * Missing things during loading:
 	 * factories, vehicles, roadsigns or catenary may be severe
 	 */
 	enum missing_level_t { NOT_MISSING=0, MISSING_FACTORY=1, MISSING_VEHICLE=2, MISSING_SIGN=3, MISSING_WAYOBJ=4, MISSING_ERROR=4, MISSING_BRIDGE, MISSING_BUILDING, MISSING_WAY };
 
 private:
+	/**
+	 * @name Map properties
+	 * Basic map properties are stored in this variables.
+	 * @{
+	 */
+	/**
+	 * @brief Map settings are stored here.
+	 */
 	settings_t settings;
 
-	// aus performancegruenden werden einige Einstellungen local gecached
-	sint16 cached_groesse_gitter_x;
-	sint16 cached_groesse_gitter_y;
-	// diese Werte sind um eins kleiner als die Werte fuer das Gitter
-	sint16 cached_groesse_karte_x;
-	sint16 cached_groesse_karte_y;
-	// maximum size for waitng bars etc.
-	int cached_groesse_max;
+	/**
+	 * For performance reasons we have the map grid size cached locally, comes from the enviroment (Einstellungen)
+	 * @brief Cached map grid size.
+	 * @note Valid coords are (0..x-1,0..y-1)
+	 */
+	koord cached_grid_size;
 
-	// all cursor interaction goes via this function
-	// it will call save_mouse_funk first with init, then with the position and with exit, when another tool is selected without click
-	// see simwerkz.cc for practical examples of such functions
+	/**
+	 * For performance reasons we have the map size cached locally, comes from the enviroment (Einstellungen).
+	 * @brief Cached map size.
+	 * @note Valid coords are (0..x-1,0..y-1)
+	 * @note These values are one less than the size values of the grid.
+	 */
+	koord cached_size;
+
+	/**
+	 * @brief The maximum of the two dimensions.
+	 * Maximum size for waiting bars etc.
+	 */
+	int cached_size_max;
+
+	/**
+	 * @}
+	 */
+
+	/**
+	 * All cursor interaction goes via this function, it will call save_mouse_funk first with
+	 * init, then with the position and with exit, when another tool is selected without click
+	 * @see simwerkz.cc for practical examples of such functions.
+	 */
 	werkzeug_t *werkzeug[MAX_PLAYER_COUNT];
 
 	// Whether the map is currently being destroyed. 
@@ -166,122 +197,212 @@ private:
 	bool is_shutting_down; 
 
 	/**
-	 * redraw whole map
+	 * Redraw whole map.
 	 */
 	bool dirty;
 
-	// the rotation of the map when first loaded
+	/**
+	 * The rotation of the map when first loaded.
+	 */
 	uint8 loaded_rotation;
 
 	/**
-	 * fuer softes scrolling
+	 * @name Camera position
+	 *       This variables are related to the view camera position.
+	 * @{
 	 */
-	sint16 x_off, y_off;
 
-	/* current position */
-	koord ij_off;
+	sint16 x_off; //!< Fine scrolling x offset.
+	sint16 y_off; //!< Fine scrolling y offset.
 
-	/* this is the current offset for getting from tile to screen */
-	koord ansicht_ij_off;
+	koord ij_off; //!< Current view position.
+
+	koord view_ij_off; //!< This is the current offset for getting from tile to screen.
 
 	/**
-	 * Position of the mouse pointer (internal)
+	 * @}
+	 */
+
+	/**
+	 * @name Mouse pointer and cursor management
 	 * @author Hj. Malthaner
+	 * @{
 	 */
-	sint32 mi, mj;
-
-	/* time when last mouse moved to check for ambient sound events */
-	uint32 mouse_rest_time;
-	uint32 sound_wait_time;	// waiting time before next event
+	sint32 mi; //!< Mouse position, i coordinate.
+	sint32 mj; //!< Mouse position, j coordinate.
 
 	/**
-	 * If this is true, the map will not be scrolled
-	 * on right-drag
+	 * @brief Map mouse cursor tool.
+	 */
+	zeiger_t *zeiger;
+
+	/**
+	 * @}
+	 */
+
+	/**
+	 * Time when last mouse moved to check for ambient sound events.
+	 */
+	uint32 mouse_rest_time;
+
+	/**
+	 * Waiting time before next event.
+	 */
+	uint32 sound_wait_time;
+
+	/**
+	 * If this is true, the map will not be scrolled on right-drag.
 	 * @author Hj. Malthaner
 	 */
 	bool scroll_lock;
 
-	// if true, this map cannot be saved
+	/**
+	 * If true, this map cannot be saved.
+	 */
 	bool nosave;
 	bool nosave_warning;
 
 	/*
-	* the current convoi to follow
-	* @author prissi
-	*/
+	 * The current convoi to follow.
+	 * @author prissi
+	 */
 	convoihandle_t follow_convoi;
 
 	/**
-	 * water level height
+	 * Water level height.
 	 * @author Hj. Malthaner
 	 */
 	sint8 grundwasser;
 
 	/**
-	 * current snow height (might change during the game)
+	 * Current snow height.
+	 * @note Might change during the game.
 	 * @author prissi
 	 */
 	sint16 snowline;
 
-	// changes the snowline height (for the seasons)
-	// returns true if a change is needed
-	// @author prissi
+	/**
+	 * Changes the snowline height (for the seasons).
+	 * @return true if a change is needed.
+	 * @author prissi
+	 */
 	bool recalc_snowline();
 
-	// >0 means a season change is needed
+	/**
+	 * >0 means a season change is needed
+	 */
 	int pending_season_change;
 
-	// recalculates sleep time etc.
+	/**
+	 * Recalculates sleep time etc.
+	 */
 	void update_frame_sleep_time(long delta_t);
 
 	/**
-	 * table for fast conversion from height to climate
+	 * Table for fast conversion from height to climate.
 	 * @author prissi
 	 */
 	uint8 height_to_climate[32];
 
-	zeiger_t *zeiger;
+	/**
+	 * These objects will be added to the sync_list (but before next sync step, so they do not interfere!)
+	 */
+	slist_tpl<sync_steppable *> sync_add_list;
 
-	slist_tpl<sync_steppable *> sync_add_list;	// these objects are move to the sync_list (but before next sync step, so they do not interfere!)
+   /**
+	 * These objects will be removed from the sync_list (but before next sync step, so they do not interfere!)
+	 */
 	slist_tpl<sync_steppable *> sync_remove_list;
+
+
+	/**
+	 * Sync list.
+	 */
 #ifndef SYNC_VECTOR
 	slist_tpl<sync_steppable *> sync_list;
 #else
 	vector_tpl<sync_steppable *> sync_list;
 #endif
 
-	slist_tpl<sync_steppable *> sync_eyecandy_add_list;	// these objects are move to the sync_list (but before next sync step, so they do not interfere!)
+   /**
+	 * These objects will be added to the eyecandy sync_list (but before next sync step, so they do not interfere!)
+	 */
+	slist_tpl<sync_steppable *> sync_eyecandy_add_list;
+
+	/**
+	 * These objects will be removed to the eyecandy sync_list (but before next sync step, so they do not interfere!)
+	 */
 	slist_tpl<sync_steppable *> sync_eyecandy_remove_list;
+
+	/**
+	 * Sync list for eyecandy objects.
+	 */
 	ptrhashtable_tpl<sync_steppable *,sync_steppable *> sync_eyecandy_list;
 
-	slist_tpl<sync_steppable *> sync_way_eyecandy_add_list;	// these objects are move to the sync_list (but before next sync step, so they do not interfere!)
+	/**
+	 * These objects will be added to the eyecandy way objects (smoke) sync_list (but before next sync step, so they do not interfere!)
+	 */
+	slist_tpl<sync_steppable *> sync_way_eyecandy_add_list;
+
+	/**
+	 * These objects will be removed to the eyecandy way objects (smoke) sync_list (but before next sync step, so they do not interfere!)
+	 */
 	slist_tpl<sync_steppable *> sync_way_eyecandy_remove_list;
+
+	/**
+	 * Sync list for eyecandy way objects (smoke).
+	 */
 #ifndef SYNC_VECTOR
 	slist_tpl<sync_steppable *> sync_way_eyecandy_list;
 #else
 	vector_tpl<sync_steppable *> sync_way_eyecandy_list;
 #endif
 
+	/**
+	 * Array containing the convois.
+	 */
 	vector_tpl<convoihandle_t> convoi_array;
 
+	/**
+	 * Array containing the factories.
+	 */
 	vector_tpl<fabrik_t *> fab_list;
+	//slist_tpl<fabrik_t *> fab_list;
 
-	// Stores a list of goods produced by factories currently in the game;
+	/**
+	 * Stores a list of goods produced by factories currently in the game;
+	 */
 	vector_tpl<const ware_besch_t*> goods_in_game;
 
 	weighted_vector_tpl<gebaeude_t *> ausflugsziele;
 
 	slist_tpl<koord> labels;
 
+	/**
+	 * Stores the cities.
+	 */
 	weighted_vector_tpl<stadt_t*> stadt;
 
 	sint64 last_month_bev;
 
-	// the recorded history so far
+	/**
+	 * The recorded history so far.
+	 */
 	sint64 finance_history_year[MAX_WORLD_HISTORY_YEARS][MAX_WORLD_COST];
+
+	/**
+	 * The recorded history so far.
+	 */
 	sint64 finance_history_month[MAX_WORLD_HISTORY_MONTHS][MAX_WORLD_COST];
-	
-	// word record of speed ...
+
+	/**
+	 * @name World record speed management
+	 *       These variables keep track of the fastest vehicles in game.
+	 * @{
+	 */
+	/**
+	 * Class representing a word speed record.
+	 */
 	class speed_record_t {
 	public:
 		convoihandle_t cnv;
@@ -293,14 +414,28 @@ private:
 		speed_record_t() : cnv(), speed(0), pos(koord::invalid), besitzer(NULL), year_month(0) {}
 	};
 
+	/// World rail speed record
 	speed_record_t max_rail_speed;
+	/// World monorail speed record
 	speed_record_t max_monorail_speed;
+	/// World maglev speed record
 	speed_record_t max_maglev_speed;
+	/// World narrowgauge speed record
 	speed_record_t max_narrowgauge_speed;
+	/// World road speed record
 	speed_record_t max_road_speed;
+	/// World ship speed record
 	speed_record_t max_ship_speed;
+	/// World air speed record
 	speed_record_t max_air_speed;
 
+	/**
+	 * @}
+	 */
+
+	/**
+	 * Attached view to this world.
+	 */
 	karte_ansicht_t *view;
 
 	/**
@@ -361,93 +496,229 @@ private:
 	void lower_grid_to(sint16 x, sint16 y, sint8 h);
 
 	/**
-	 * Die fraktale Erzeugung der Karte ist nicht perfekt.
-	 * cleanup_karte() beseitigt etwaige Fehler.
+	 * The fractal generation of the map is not perfect.
+	 * cleanup_karte() eliminates errors.
 	 * @author Hj. Malthaner
 	 */
 	void cleanup_karte( int xoff, int yoff );
 
-	void blick_aendern(event_t *ev);
-	void bewege_zeiger(const event_t *ev);
+	/**
+	 * Processes a mouse event that's moving the camera.
+	 */
+	void move_view(event_t *ev);
+
+	/**
+	 * Processes a cursor movement event, related to the tool pointer in-map.
+	 * @see zeiger_t
+	 */
+	void move_cursor(const event_t *ev);
+
+	/**
+	 * Processes a user event on the map, like a keyclick, or a mouse event.
+	 */
 	void interactive_event(event_t &ev);
 
+	/**
+	 * @name Map data structures
+	 *       This variables represent the simulated map.
+	 * @{
+	 */
+
+	/**
+	 * Array containing all the map tiles.
+	 * @see cached_size
+	 */
 	planquadrat_t *plan;
 
+	/**
+	 * Array representing the height of each point of the grid.
+	 * @see cached_grid_size
+	 */
 	sint8 *grid_hgts;
 
+	/**
+	 * @}
+	 */
+
+	/**
+	 * ??
+	 */
 	marker_t marker;
 
 	/**
-	 * The players of the game
+	 * @name Player management
+	 *       Varables related to the player management in game.
 	 * @author Hj. Malthaner
+	 * @{
 	 */
-	spieler_t *spieler[MAX_PLAYER_COUNT];   // Human player has index 0 (zero)
+	/**
+	 * The players of the game.
+	 * @note Standard human player has index 0, public player 1.
+	 */
+	spieler_t *spieler[MAX_PLAYER_COUNT];
+
+	/**
+	 * Active player.
+	 */
 	spieler_t *active_player;
+
+	/**
+	 * Active player index.
+	 */
 	uint8 active_player_nr;
 
 	/**
-	 * locally store password hashes
-	 * will be used after reconnect to a server
+	 * Locally stored password hashes, will be used after reconnect to a server.
 	 */
 	pwd_hash_t player_password_hash[MAX_PLAYER_COUNT];
 
+	/**
+	 * @}
+	 */
+
 	/*
-	 * counter for schedules
-	 * if a new schedule is active, this counter will increment
-	 * stations check this counter and will reroute their goods if changed
+	 * Counter for schedules.
+	 * If a new schedule is active, this counter will increment
+	 * stations check this counter and will reroute their goods if changed.
 	 * @author prissi
 	 */
 	uint8 schedule_counter;
 
 	/**
-	 * The time in ms (milliseconds)
+	 * @name Display timing and scheduling
+	 *       These variables store system display timings in the past frames
+	 *       and allow for adecuate adjustments to adapt to the system performance
+	 *       and available resources (also in network mode).
+	 * @{
+	 */
+
+	/**
+	 * ms since creation.
+	 * @note The time is in ms (milliseconds)
 	 * @author Hj. Malthaner
 	 */
 	sint64 ticks;		      // ms since creation
-	sint64 last_step_ticks; // ticks counter at last steps
-	sint64 next_month_ticks;	// from now on is next month
 
-	// default time stretching factor
+	/**
+	 * Ticks counter at last steps.
+	 * @note The time is in ms (milliseconds)
+	 * @author Hj. Malthaner
+	 */
+	sint64 last_step_ticks;
+
+	/**
+	 * From now on is next month.
+	 * @note The time is in ms (milliseconds)
+	 * @author Hj. Malthaner
+	 */
+	sint64 next_month_ticks;
+
+	/**
+	 * Default time stretching factor.
+	 */
 	uint32 time_multiplier;
 
 	uint8 step_mode;
 
-	// Variables used in interactive()
+	/// @note variable used in interactive()
 	uint32 sync_steps;
 #define LAST_CHECKLISTS_COUNT 64
+	/// @note variable used in interactive()
 	checklist_t last_checklists[LAST_CHECKLISTS_COUNT];
 #define LCHKLST(x) (last_checklists[(x) % LAST_CHECKLISTS_COUNT])
+	/// @note variable used in interactive()
 	uint8  network_frame_count;
-	uint32 fix_ratio_frame_time; // set in reset_timer()
+	/**
+	 * @note Variable used in interactive().
+	 * @note Set in reset_timer().
+	 */
+	uint32 fix_ratio_frame_time;
 
 	/**
-	 * For performance comparison
+	 * For performance comparison.
 	 * @author Hj. Malthaner
 	 */
 	uint32 realFPS;
+
+	/**
+	 * For performance comparison.
+	 * @author Hj. Malthaner
+	 */
 	uint32 simloops;
 
-	// to calculate the fps and the simloops
+	/// To calculate the fps and the simloops.
 	uint32 last_frame_ms[32];
+
+	/// To calculate the fps and the simloops.
 	uint32 last_step_nr[32];
+
+	/// To calculate the fps and the simloops.
 	uint8 last_frame_idx;
-	uint32 last_interaction;	// ms, when the last time events were handled
-	uint32 last_step_time;	// ms, when the last step was done
-	uint32 next_step_time;	// ms, when the next step is to be done
-//	sint32 time_budget;	// takes care of how many ms I am lagging or are in front of
+
+	/**
+	 * ms, when the last time events were handled.
+	 * To calculate the fps and the simloops.
+	 */
+	uint32 last_interaction;
+
+	/**
+	 * ms, when the last step was done.
+	 * To calculate the fps and the simloops.
+	 */
+	uint32 last_step_time;
+
+	/**
+	 * ms, when the next step is to be done.
+	 * To calculate the fps and the simloops.
+	 */
+	uint32 next_step_time;
+
+	/// To calculate the fps and the simloops.
 	uint32 idle_time;
 
-	sint32 current_month;  // monat+12*jahr
-	sint32 letzter_monat;  // Absoluter Monat 0..12
-	sint32 letztes_jahr;   // Absolutes Jahr
+	/**
+	 * @}
+	 */
 
-	uint8 season;	// current season
+	/**
+	 * Current month 0..11
+	 */
+	sint32 current_month;
 
-	long steps;          // number of steps since creation
-	bool is_sound;       // flag, that now no sound will play
-	bool finish_loop;    // flag for ending simutrans (true -> end simutrans)
+	/**
+	 * Last month 0..11
+	 */
+	sint32 last_month;
 
-	// may change due to timeline
+	/**
+	 * Last year.
+	 */
+	sint32 last_year;
+
+	/**
+	 * Current season.
+	 * @note 0=winter, 1=spring, 2=summer, 3=autumn
+	 */
+	uint8 season;
+
+	/**
+	 * Number of steps since creation.
+	 */
+	long steps;
+
+	/**
+	 * Flag, that now no sound will play.
+	 */
+	bool is_sound;
+
+	/**
+	 * Flag for ending simutrans (true -> end simutrans).
+	 */
+	bool finish_loop;
+
+	/**
+	 * May change due to timeline.
+	 */
 	const weg_besch_t *city_road;
 
 	// Data for maintaining industry density even
@@ -456,47 +727,70 @@ private:
 	uint32 industry_density_proportion;
 	uint32 actual_industry_density;
 
-	// what game objectives
+	/**
+	 * What game objectives.
+	 */
 	scenario_t *scenario;
 
+	/**
+	 * Holds all the text messages in the messagebox (chat, new vehicle etc).
+	 */
 	message_t *msg;
 
+	/**
+	 * Array indexed per way tipe. Used to determine the speedbonus.
+	 */
 	sint32 average_speed[8];
 
+	/**
+	 * Used to distribute the workload when changing seasons to several steps.
+	 */
 	uint32 tile_counter;
 
-	// to identify different stages of the same game
+	/**
+	 * To identify different stages of the same game.
+	 */
 	uint32 map_counter;
 
-	// recalculated speed boni for different vehicles
+	/**
+	 * Recalculated speed boni for different vehicles.
+	 */
 	void recalc_average_speed();
 
-	void neuer_monat();      // monthly actions
-	void neues_jahr();       // yearly actions
+	/**
+	 * Monthly actions.
+	 */
+	void new_month();
 
 	/**
-	 * internal saving method
+	 * Yearly actions.
+	 */
+	void new_year();
+
+	/**
+	 * Internal saving method.
 	 * @author Hj. Malthaner
 	 */
-	void speichern(loadsave_t *file,bool silent);
+	void save(loadsave_t *file,bool silent);
 
 	/**
-	 * internal loading method
+	 * Internal loading method.
 	 * @author Hj. Malthaner
 	 */
-	void laden(loadsave_t *file);
+	void load(loadsave_t *file);
 
 	/**
-	 * entfernt alle objecte, loescht alle datenstrukturen
-	 * gibt allen erreichbaren speicher frei
+	 * Removes all objects, deletes all data structures and frees all accesible memory.
 	 * @author Hj. Malthaner
 	 */
 	void destroy();
 
-	// restores history for older savegames
+	/**
+	 * Restores history for older savegames.
+	 */
 	void restore_history();
 
-	/*
+	/**
 	 * Will create rivers.
 	 */
 	void create_rivers(sint16 number);
@@ -529,24 +823,30 @@ private:
 
 	uint32 max_road_check_depth;
 
-	// The last time when a server announce was performed (in ms)
+	/**
+	 * The last time when a server announce was performed (in ms).
+	 */
 	uint32 server_last_announce_time;
 
-	// threaded function caller
-	typedef void (karte_t::*y_loop_func)(sint16,sint16);
-	void world_y_loop(y_loop_func);
-	static void *world_y_loop_thread(void *);
+	void world_xy_loop(xy_loop_func func, bool sync_x_steps);
+	static void *world_xy_loop_thread(void *);
 
-	// loops over plans after load
-	void plans_laden_abschliessen(sint16, sint16);
+	/**
+	 * Loops over plans after load.
+	 */
+	void plans_laden_abschliessen(sint16, sint16, sint16, sint16);
 
-	// updates all images
-	void update_map_intern(sint16, sint16);
+	/**
+	 * Updates all images.
+	 */
+	void update_map_intern(sint16, sint16, sint16, sint16);
 
 public:
-	// Announce server and current state to listserver
-	// Single argument specifies what information should be announced
-	// or offline (the latter only in cases where it is shutting down)
+	/**
+	 * Announce server and current state to listserver.
+	 * @param status Specifies what information should be announced
+	 * or offline (the latter only in cases where it is shutting down)
+	 */
 	void announce_server(int status);
 
 	// The month in which the next city generated will update its private car 
@@ -558,38 +858,58 @@ public:
 
 	vector_tpl<fabrik_t*> closed_factories_this_month;
 
-	/* reads height data from 8 or 25 bit bmp or ppm files
-	 * @return either pointer to heightfield (use delete [] for it) or NULL
+	/**
+	 * Reads height data from 8 or 25 bit bmp or ppm files.
+	 * @return Either pointer to heightfield (use delete [] for it) or NULL.
 	 */
 	static bool get_height_data_from_file( const char *filename, sint8 grundwasser, sint8 *&hfield, sint16 &ww, sint16 &hh, bool update_only_values );
 
+	/**
+	 * Returns the messagebox message container.
+	 */
 	message_t *get_message() const { return msg; }
 
-	// set to something useful, if there is a total distance != 0 to show in the bar below
+	/**
+	 * Set to something useful, if there is a total distance != 0 to show in the bar below.
+	 */
 	koord3d show_distance;
 
-	/* for warning, when stuff had to be removed/replaced
+	/**
+	 * For warning, when stuff had to be removed/replaced
 	 * level must be >=1 (1=factory, 2=vechiles, 3=not so important)
 	 * may be refined later
 	 */
 	void add_missing_paks( const char *name, missing_level_t critical_level );
 
 	/**
-	 * Absoluter Monat
+	 * Absolute month.
 	 * @author prissi
 	 */
-	inline uint32 get_last_month() const { return letzter_monat; }
-
-	// @author hsiegeln
-	inline sint32 get_last_year() const { return letztes_jahr; }
+	inline uint32 get_last_month() const { return last_month; }
 
 	/**
-	 * dirty: redraw whole screen
+	 * Returns last year.
+	 * @author hsiegeln
+	 */
+	inline sint32 get_last_year() const { return last_year; }
+
+	/**
+	 * dirty: redraw whole screen.
 	 * @author Hj. Malthaner
 	 */
 	void set_dirty() {dirty=true;}
+
+	/**
+	 * dirty: redraw whole screen.
+	 * @author Hj. Malthaner
+	 */
 	void set_dirty_zurueck() {dirty=false;}
-	bool ist_dirty() const {return dirty;}
+
+	/**
+	 * dirty: redraw whole screen.
+	 * @author Hj. Malthaner
+	 */
+	bool is_dirty() const {return dirty;}
 
 	// do the internal accounting
 	void buche(sint64 betrag, player_cost type);
@@ -601,63 +921,102 @@ public:
 	void set_scenario(scenario_t *s);
 
 	/**
-	* Returns the finance history for player
-	* @author hsiegeln
-	*/
+	 * Returns the finance history for player.
+	 * @author hsiegeln
+	 */
 	sint64 get_finance_history_year(int year, int type) const { return finance_history_year[year][type]; }
+
+	/**
+	 * Returns the finance history for player.
+	 * @author hsiegeln
+	 */
 	sint64 get_finance_history_month(int month, int type) const { return finance_history_month[month][type]; }
 
 	/**
-	 * Returns pointer to finance history for player
+	 * Returns pointer to finance history for player.
 	 * @author hsiegeln
 	 */
 	const sint64* get_finance_history_year() const { return *finance_history_year; }
-	const sint64* get_finance_history_month() const { return *finance_history_month; }
-
-	// recalcs all map images
-	void update_map();
-
-	karte_ansicht_t *get_ansicht() const { return view; }
-	void set_ansicht(karte_ansicht_t *v) { view = v; }
 
 	/**
-	 * viewpoint in tile koordinates
+	 * Returns pointer to finance history for player.
+	 * @author hsiegeln
+	 */
+	const sint64* get_finance_history_month() const { return *finance_history_month; }
+
+	/**
+	 * Recalcs all map images.
+	 */
+	void update_map();
+
+	/**
+	 * Gets the world view.
+	 */
+	karte_ansicht_t *get_view() const { return view; }
+
+	/**
+	 * Sets the world view.
+	 */
+	void set_view(karte_ansicht_t *v) { view = v; }
+
+	/**
+	 * Viewpoint in tile coordinates.
 	 * @author Hj. Malthaner
 	 */
 	koord get_world_position() const { return ij_off; }
 
-	// fine offset within the viewport tile
+	/**
+	 * Fine offset within the viewport tile.
+	 */
 	int get_x_off() const {return x_off;}
+
+	/**
+	 * Fine offset within the viewport tile.
+	 */
 	int get_y_off() const {return y_off;}
 
 	/**
-	 * set center viewport position
+	 * Set center viewport position.
 	 * @author prissi
 	 */
 	void change_world_position( koord ij, sint16 x=0, sint16 y=0 );
 
-	// also take height into account
+	/**
+	 * Set center viewport position, taking height into account
+	 */
 	void change_world_position( koord3d ij );
 
-	// converts 3D coord to 2D actually used for main view
+	/**
+	 * Converts 3D coord to 2D actually used for main view.
+	 */
 	koord calculate_world_position( koord3d ) const;
 
-	// the koordinates between the screen and a tile may have several offset
-	// this routine caches them
-	void set_ansicht_ij_offset( koord k ) { ansicht_ij_off=k; }
-	koord get_ansicht_ij_offset() const { return ansicht_ij_off; }
+	/**
+	 * the koordinates between the screen and a tile may have several offset
+	 * this routine caches them
+	 */
+	void set_view_ij_offset( koord k ) { view_ij_off=k; }
 
 	/**
-	 * If this is true, the map will not be scrolled
-	 * on right-drag
+	 * the koordinates between the screen and a tile may have several offset
+	 * this routine caches them
+	 */
+	koord get_view_ij_offset() const { return view_ij_off; }
+
+	/**
+	 * If this is true, the map will not be scrolled on right-drag.
 	 * @author Hj. Malthaner
 	 */
 	void set_scroll_lock(bool yesno);
 
-	/* functions for following a convoi on the map
-	* give an unbound handle to unset
-	*/
+	/**
+	 * Function for following a convoi on the map give an unbound handle to unset.
+	 */
 	void set_follow_convoi(convoihandle_t cnv) { follow_convoi = cnv; }
+
+	/**
+	 * ??
+	 */
 	convoihandle_t get_follow_convoi() const { return follow_convoi; }
 
 	settings_t const& get_settings() const { return settings; }
@@ -670,24 +1029,31 @@ public:
 		return return_value > 0 ? return_value : 1;
 	}
 
-	// speed record management
+	/// speed record management
 	sint32 get_record_speed( waytype_t w ) const;
 	void notify_record( convoihandle_t cnv, sint32 max_speed, koord pos );
 
-	// time lapse mode ...
+	/// time lapse mode ...
 	bool is_paused() const { return step_mode&PAUSE_FLAG; }
-	void set_pause( bool );	// stops the game with interaction
+	/// stops the game with interaction
+	void set_pause( bool );
 
 	bool is_fast_forward() const { return step_mode == FAST_FORWARD; }
 	void set_fast_forward(bool ff);
 
-	// (un)pause for network games
+	/**
+	 * (un)pause for network games.
+	 */
 	void network_game_set_pause(bool pause_, uint32 syncsteps_);
+
+	/**
+	 * @return The active mouse cursor.
+	 */
 
 	zeiger_t * get_zeiger() const { return zeiger; }
 
 	/**
-	 * marks an area using the grund_t mark flag
+	 * Marks an area using the grund_t mark flag.
 	 * @author prissi
 	 */
 	void mark_area( const koord3d center, const koord radius, const bool mark ) const;
@@ -705,60 +1071,67 @@ public:
 	const pwd_hash_t& get_player_password_hash( uint8 player_nr ) const { return player_password_hash[player_nr]; }
 	void clear_player_password_hashes();
 	void rdwr_player_password_hashes(loadsave_t *file);
+	void remove_player(uint8 player_nr);
 
 	/**
-	 * network safe initiation of new players
+	 * Network safe initiation of new and deletion of players, change freeplay.
+	 * @param param Player type (human / ai) of new players.
 	 */
 	void call_change_player_tool(uint8 cmd, uint8 player_nr, uint16 param);
 
-	enum change_player_tool_cmds { new_player=1, toggle_freeplay=2 };
+	enum change_player_tool_cmds { new_player=1, toggle_freeplay=2, delete_player=3 };
 	/**
-	 * @param exec: if false checks whether execution is allowed
-	 *              if true executes tool
-	 * @returns whether execution is allowed
+	 * @param exec If false checks whether execution is allowed, if true executes tool.
+	 * @returns Whether execution is allowed.
 	 */
 	bool change_player_tool(uint8 cmd, uint8 player_nr, uint16 param, bool public_player_unlocked, bool exec);
 
-	// if a schedule is changed, it will increment the schedule counter
-	// every step the haltestelle will check and reroute the goods if needed
+	/**
+	 * If a schedule is changed, it will increment the schedule counter
+	 * every step the haltestelle will check and reroute the goods if needed.
+	 */
 	uint8 get_schedule_counter() const { return schedule_counter; }
+
+	/**
+	 * If a schedule is changed, it will increment the schedule counter
+	 * every step the haltestelle will check and reroute the goods if needed.
+	 */
 	void set_schedule_counter();
 
-	// often used, therefore found here
+	/**
+	 * @note Often used, therefore found here.
+	 */
 	bool use_timeline() const { return settings.get_use_timeline(); }
 
 	void reset_timer();
 	void reset_interaction();
 	void step_year();
 
-	// jump one or more months ahead
-	// (updating history!)
+	/**
+	 * Jump one or more months ahead.
+	 * @note Updating history!
+	 */
 	void step_month( sint16 months=1 );
 
-	// returns either 0 or the current year*16 + month
+	/**
+	 * @return Either 0 or the current year*16 + month
+	 */
 	uint16 get_timeline_year_month() const { return settings.get_use_timeline() ? current_month : 0; }
 
 	/**
-	* anzahl ticks pro tag in bits
-	* @see ticks_per_world_month
-	* @author Hj. Malthaner
-	*
-	* number ticks per day in bits (Babelfish)
-	*/
-
-	sint64 ticks_per_world_month_shift; 
-
+	 * Number of ticks per day in bits.
+	 * @see ticks_per_world_month
+	 * @author Hj. Malthaner
+	 */
+	uint32 ticks_per_world_month_shift;
 
 	/**
-	* anzahl ticks pro MONTH!
-	* @author Hj. Malthaner
-	*
-	* number ticks per MONTH! (Babelfish)
-	*/
-
+	 * Number of ticks per MONTH!
+	 * @author Hj. Malthaner
+	 */
 	sint64 ticks_per_world_month;
 
-	void set_ticks_per_world_month_shift(sint64 bits) {ticks_per_world_month_shift = bits; ticks_per_world_month = (1LL << ticks_per_world_month_shift); }
+	void set_ticks_per_world_month_shift(sint16 bits) {ticks_per_world_month_shift = bits; ticks_per_world_month = (1LL << ticks_per_world_month_shift); }
 
 	/**
 	 * Converts speed (yards per tick) into tiles per month
@@ -867,10 +1240,10 @@ public:
 	sint64 ticks_to_seconds(sint64 ticks) const;
 
 	/**
-	 * 0=winter, 1=spring, 2=summer, 3=autumn
+	 * @return 0=winter, 1=spring, 2=summer, 3=autumn
 	 * @author prissi
 	 */
-	uint8 get_jahreszeit() const { return season; }
+	uint8 get_season() const { return season; }
 
 	/**
 	 * Zeit seit Kartenerzeugung/dem letzen laden in ms
@@ -882,7 +1255,7 @@ public:
 	sint64 get_zeit_ms() const { return ticks; }
 
 	/**
-	 * absolute month (count start year zero)
+	 * Absolute month (count start year zero).
 	 * @author prissi
 	 */
 	uint32 get_current_month() const { return current_month; }
@@ -899,8 +1272,10 @@ public:
 	 */
 	int get_yearsteps() { return (int) ((current_month % 12) * 8 + ((ticks >> (ticks_per_world_month_shift-3)) & 7)); }
 
-	// prissi: current city road
-	// may change due to timeline
+	/**
+	 * prissi: current city road.
+	 * @note May change due to timeline.
+	 */
 	const weg_besch_t* get_city_road() const { return city_road; }
 
 	/**
@@ -936,24 +1311,22 @@ public:
 	uint32 get_simloops() const { return simloops; }
 
 	/**
-	* Holt den Grundwasserlevel der Karte
-	* @author Hj. Malthaner
-	*
-	* Gets the groundwater level of the map (Babelfish)
-	*/
+	 * Returns the current waterline height.
+	 * @author Hj. Malthaner
+	 */
 	sint8 get_grundwasser() const { return grundwasser; }
 
 	/**
-	* returns the current snowline height
-	* @author prissi
-	*/
+	 * Returns the current snowline height.
+	 * @author prissi
+	 */
 	sint16 get_snowline() const { return snowline; }
 
 	/**
-	* returns the current climate for a given height
-	* uses as private lookup table for speed
-	* @author prissi
-	*/
+	 * Returns the current climate for a given height,
+	 * @note Uses as private lookup table for speed.
+	 * @author prissi
+	 */
 	climate get_climate(sint16 height) const
 	{
 		const sint16 h=height-grundwasser;
@@ -965,64 +1338,105 @@ public:
 		return (climate)height_to_climate[h];
 	}
 
-	// set a new tool as current: calls local_set_werkzeug or sends to server
+	/**
+	 * Set a new tool as current: calls local_set_werkzeug or sends to server.
+	 */
 	void set_werkzeug( werkzeug_t *w, spieler_t * sp );
-	// set a new tool on our client, calls init
+
+	/**
+	 * Set a new tool on our client, calls init.
+	 */
 	void local_set_werkzeug( werkzeug_t *w, spieler_t * sp );
 	werkzeug_t *get_werkzeug(uint8 nr) const { return werkzeug[nr]; }
 
-	// all stuff concerning map size
-	inline int get_groesse_x() const { return cached_groesse_gitter_x; }
-	inline int get_groesse_y() const { return cached_groesse_gitter_y; }
-	inline int get_groesse_max() const { return cached_groesse_max; }
+	/**
+	 * Returns the (x,y) map size.
+	 * @brief Map size.
+	 * @note Valid coords are (0..x-1,0..y-1)
+	 * @note These values are exactly one less tham get_grid_size ones.
+	 * @see get_grid_size()
+	 */
+	inline koord const &get_size() const { return cached_grid_size; }
 
-	inline bool ist_in_kartengrenzen(koord k) const {
+	/**
+	 * Maximum size for waiting bars etc.
+	 */
+	inline int get_size_max() const { return cached_size_max; }
+
+	/**
+	 * @return True if the specified coordinate is inside the world tiles(planquadrat_t) limits, false otherwise.
+	 * @param k (x,y) coordinate.
+	 * @note Inline because called very frequently!
+	 */
+	inline bool is_within_limits(koord k) const {
 		// prissi: since negative values will make the whole result negative, we can use bitwise or
 		// faster, since pentiums and other long pipeline processors do not like jumps
-		return (k.x|k.y|(cached_groesse_karte_x-k.x)|(cached_groesse_karte_y-k.y))>=0;
+		return (k.x|k.y|(cached_size.x-k.x)|(cached_size.y-k.y))>=0;
 		// this is only 67% of the above speed
 		//return k.x>=0 &&  k.y>=0  &&  cached_groesse_karte_x>=k.x  &&  cached_groesse_karte_y>=k.y;
 	}
 
-	inline bool ist_in_kartengrenzen(sint16 x, sint16 y) const {
+	/**
+	 * @return True if the specified coordinate is inside the world tiles(planquadrat_t) limits, false otherwise.
+	 * @param x X coordinate.
+	 * @param y Y coordinate.
+	 * @note Inline because called very frequently!
+	 */
+	inline bool is_within_limits(sint16 x, sint16 y) const {
 	// prissi: since negative values will make the whole result negative, we can use bitwise or
 	// faster, since pentiums and other long pipeline processors do not like jumps
-		return (x|y|(cached_groesse_karte_x-x)|(cached_groesse_karte_y-y))>=0;
+		return (x|y|(cached_size.x-x)|(cached_size.y-y))>=0;
 //		return x>=0 &&  y>=0  &&  cached_groesse_karte_x>=x  &&  cached_groesse_karte_y>=y;
 	}
 
-	inline bool ist_in_gittergrenzen(const koord &k) const {
+	/**
+	 * @return True if the specified coordinate is inside the world height grid limits, false otherwise.
+	 * @param k (x,y) coordinate.
+	 * @note Inline because called very frequently!
+	 */
+	inline bool is_within_grid_limits(const koord &k) const {
 	// prissi: since negative values will make the whole result negative, we can use bitwise or
 	// faster, since pentiums and other long pipeline processors do not like jumps
-		return (k.x|k.y|(cached_groesse_gitter_x-k.x)|(cached_groesse_gitter_y-k.y))>=0;
+		return (k.x|k.y|(cached_grid_size.x-k.x)|(cached_grid_size.y-k.y))>=0;
 //		return k.x>=0 &&  k.y>=0  &&  cached_groesse_gitter_x>=k.x  &&  cached_groesse_gitter_y>=k.y;
 	}
 
-	inline bool ist_in_gittergrenzen(sint16 x, sint16 y) const {
+	/**
+	 * @return True if the specified coordinate is inside the world height grid limits, false otherwise.
+	 * @param x X coordinate.
+	 * @param y Y coordinate.
+	 * @note Inline because called very frequently!
+	 */
+	inline bool is_within_grid_limits(sint16 x, sint16 y) const {
 	// prissi: since negative values will make the whole result negative, we can use bitwise or
 	// faster, since pentiums and other long pipeline processors do not like jumps
-		return (x|y|(cached_groesse_gitter_x-x)|(cached_groesse_gitter_y-y))>=0;
+		return (x|y|(cached_grid_size.x-x)|(cached_grid_size.y-y))>=0;
 //		return x>=0 &&  y>=0  &&  cached_groesse_gitter_x>=x  &&  cached_groesse_gitter_y>=y;
 	}
 
-	inline bool ist_in_gittergrenzen(uint16 x, uint16 y) const {
-		return (x<=(unsigned)cached_groesse_gitter_x && y<=(unsigned)cached_groesse_gitter_y);
+	/**
+	 * @return True if the specified coordinate is inside the world height grid limits, false otherwise.
+	 * @param x X coordinate.
+	 * @param y Y coordinate.
+	 * @note Inline because called very frequently!
+	 */
+	inline bool is_within_grid_limits(uint16 x, uint16 y) const {
+		return (x<=(unsigned)cached_grid_size.x && y<=(unsigned)cached_grid_size.y);
 	}
 
 	/**
-	* Inline because called very frequently!
-	* @return Planquadrat an koordinate pos
-	* @author Hj. Malthaner
-	*/
-	inline const planquadrat_t * lookup(const koord &k) const //planquadrat = "grid square" (Babelfish)
+	 * @return Planquadrat an koordinate pos
+	 * @note Inline because called very frequently!
+	 * @author Hj. Malthaner
+	 */
+	inline const planquadrat_t *lookup(const koord &k) const
 	{
-		return ist_in_kartengrenzen(k.x, k.y) ? &plan[k.x+k.y*cached_groesse_gitter_x] : 0;
-		//ist in kartengrenzen = "is in map-border". (Babelfish)
+		return is_within_limits(k.x, k.y) ? &plan[k.x+k.y*cached_grid_size.x] : 0;
 	}
 
 	/**
-	 * Inline because called very frequently!
 	 * @return grund an pos/hoehe
+	 * @note Inline because called very frequently!
 	 * @author Hj. Malthaner
 	 */
 	inline grund_t *lookup(const koord3d &pos) const
@@ -1033,8 +1447,8 @@ public:
 	}
 
 	/**
-	 * Inline because called very frequently!
 	 * @return grund at the bottom (where house will be build)
+	 * @note Inline because called very frequently!
 	 * @author Hj. Malthaner
 	 */
 	inline grund_t *lookup_kartenboden(const koord &pos) const
@@ -1045,27 +1459,28 @@ public:
 	}
 
 	/**
-	 * returns the natural slope at a position
-	 * uses the corner height for the best slope
+	 * @return The natural slope at a position.
+	 * @note Uses the corner height for the best slope.
 	 * @author prissi
 	 */
 	uint8	recalc_natural_slope( const koord pos, sint8 &new_height ) const;
 
-	// no checking, and only using the grind for calculation
+	/**
+	 * Returns the natural slope a a position using the grid.
+	 * @note No checking, and only using the grind for calculation.
+	 */
 	uint8	calc_natural_slope( const koord pos ) const;
 
 	/**
 	 * Wird vom Strassenbauer als Orientierungshilfe benutzt.
 	 * @author Hj. Malthaner
 	 */
-	inline void markiere(koord3d k) { marker.markiere(lookup(k)); }
 	inline void markiere(const grund_t* gr) { marker.markiere(gr); }
 
 	/**
 	 * Wird vom Strassenbauer zum Entfernen der Orientierungshilfen benutzt.
 	 * @author Hj. Malthaner
 	 */
-	inline void unmarkiere(koord3d k) { marker.unmarkiere(lookup(k)); }
 	inline void unmarkiere(const grund_t* gr) { marker.unmarkiere(gr); }
 
 	/**
@@ -1079,7 +1494,6 @@ public:
 	 * @return Gibt true zurueck wenn der Untergrund markiert ist sonst false.
 	 * @author Hj. Malthaner
 	 */
-	inline bool ist_markiert(koord3d k) const { return marker.ist_markiert(lookup(k)); }
 	inline bool ist_markiert(const grund_t* gr) const { return marker.ist_markiert(gr); }
 
 	// Getter/setter methods for maintaining the industry density
@@ -1090,11 +1504,11 @@ public:
 	inline void increase_actual_industry_density(uint32 value) { actual_industry_density += value; }
 
 	 /**
-	 * Initialize map.
-	 * @param sets game settings
-	 * @param preselected_players defines which players the user has selected before he started the game
-	 * @author Hj. Malthaner
-	 */
+	  * Initialize map.
+	  * @param sets Game settings.
+	  * @param preselected_players Defines which players the user has selected before he started the game.
+	  * @author Hj. Malthaner
+	  */
 	void init(settings_t*, sint8 const* heights);
 
 	void init_felder();
@@ -1105,41 +1519,43 @@ public:
 
 	~karte_t();
 
-	// return an index to a halt (or creates a new one)
-	// only used during loading
+	/**
+	 * Returns an index to a halt (or creates a new one)
+	 * @note Only used during loading
+	 */
 	halthandle_t get_halt_koord_index(koord k);
 
 	/**
-	 * Prueft, ob das Planquadrat an Koordinate (x,y)
-	 * erniedrigt werden kann
+	 * Checks if the planquadrat at coordinate (x,y)
+	 * can be lowered at the specified height.
 	 * @author V. Meyer
 	 */
 	bool can_lower_plan_to(sint16 x, sint16 y, sint8 h) const;
 
 	/**
-	 * Prueft, ob das Planquadrat an Koordinate (x,y)
-	 * erhoeht werden kann
+	 * Checks if the planquadrat at coordinate (x,y)
+	 * can be raised at the specified height.
 	 * @author V. Meyer
 	 */
 	bool can_raise_plan_to(sint16 x, sint16 y, sint8 h) const;
 
 	/**
-	 * Prueft, ob das Planquadrat an Koordinate (x,y)
-	 * geaendert werden darf. (z.B. kann Wasser nicht geaendert werden)
+	 * Checks if the whole planquadrat at coordinates (x,y) height can
+	 * be changed ( for example, water height can't be changed ).
 	 * @author Hj. Malthaner
 	 */
 	bool is_plan_height_changeable(sint16 x, sint16 y) const;
 
 	/**
-	 * Erhoeht die Hoehe an Gitterkoordinate (x,y) um eins.
-	 * @param pos Gitterkoordinate
+	 * Increases the height of grid coordinate (x, y) by one.
+	 * @param pos Grid coordinate.
 	 * @author Hj. Malthaner
 	 */
 	int raise(koord pos);
 
 	/**
-	 * Erniedrigt die Hoehe an Gitterkoordinate (x,y) um eins.
-	 * @param pos Gitterkoordinate
+	 * Lowers the height of grid coordinate (x, y) by one.
+	 * @param pos Grid coordinate.
 	 * @author Hj. Malthaner
 	 */
 	int lower(koord pos);
@@ -1154,7 +1570,7 @@ public:
 	vector_tpl<convoihandle_t> const& convoys() const { return convoi_array; }
 
 	/**
-	 * Zugriff auf das Staedte Array.
+	 * To access the cities array.
 	 * @author Hj. Malthaner
 	 */
 	const weighted_vector_tpl<stadt_t*>& get_staedte() const { return stadt; }
@@ -1162,6 +1578,11 @@ public:
 	uint32 get_town_list_weight() const { return stadt.get_sum_weight(); }
 
 	void add_stadt(stadt_t *s);
+
+	/**
+	 * Removes town from map, houses will be left overs.
+	 * @author prissi
+	 */
 	bool rem_stadt(stadt_t *s);
 
 	/* tourist attraction list */
@@ -1177,14 +1598,17 @@ public:
 	bool rem_fab(fabrik_t *fab);
 
 	int get_fab_index(fabrik_t* fab)  const { return fab_list.index_of(fab); }
+	fabrik_t* get_fab(unsigned index) const { return index < fab_list.get_count() ? fab_list[index] : NULL; }
 	const vector_tpl<fabrik_t*>& get_fab_list() const { return fab_list; }
 	vector_tpl<fabrik_t*>& access_fab_list() { return fab_list; }
 
-	// Returns a list of goods produced by factories that exist in current game
+	/**
+	 * Returns a list of goods produced by factories that exist in current game.
+	 */
 	const vector_tpl<const ware_besch_t*> &get_goods_list();
 
 	/**
-	 * sucht naechstgelegene Stadt an Position i,j
+	 * Seaches and returns the closest city to the supplied coordinates.
 	 * @author Hj. Malthaner
 	 */
 
@@ -1198,10 +1622,10 @@ public:
 	void set_nosave() { nosave = true; nosave_warning = true; }
 	void set_nosave_warning() { nosave_warning = true; }
 
-	// rotate plans by 90 degrees
-	void rotate90_plans(sint16 y_min, sint16 y_max);
+	/// rotate plans by 90 degrees
+	void rotate90_plans(sint16 x_min, sint16 x_max, sint16 y_min, sint16 y_max);
 
-	// rotate map view by 90 degrees
+	/// rotate map view by 90 degrees
 	void rotate90();
 
 	bool sync_add(sync_steppable *obj);
@@ -1217,24 +1641,25 @@ public:
 	void sync_way_eyecandy_step(long delta_t);	// currently one smoke from vehicles on ways
 
 
-	// for all stuff, that needs long and can be done less frequently
+	/**
+	 * For all stuff, that needs long and can be done less frequently.
+	 */
 	void step();
 
 	inline planquadrat_t *access(int i, int j) const {
-		return ist_in_kartengrenzen(i, j) ? &plan[i + j*cached_groesse_gitter_x] : NULL;
+		return is_within_limits(i, j) ? &plan[i + j*cached_grid_size.x] : NULL;
 	}
 
 	inline planquadrat_t *access(koord k) const {
-		return ist_in_kartengrenzen(k) ? &plan[k.x + k.y*cached_groesse_gitter_x] : NULL;
+		return is_within_limits(k) ? &plan[k.x + k.y*cached_grid_size.x] : NULL;
 	}
 
 	/**
-	 * @return Hoehe am Gitterpunkt i,j
-	 * "Height at the grid point" (Google)
+	 * @return Height at the grid point i, j
 	 * @author Hj. Malthaner
 	 */
 	inline sint8 lookup_hgt(koord k) const {
-		return ist_in_gittergrenzen(k.x, k.y) ? grid_hgts[k.x + k.y*(cached_groesse_gitter_x+1)] : grundwasser;
+		return is_within_grid_limits(k.x, k.y) ? grid_hgts[k.x + k.y*(cached_grid_size.x+1)] : grundwasser;
 	}
 
 	/**
@@ -1242,16 +1667,16 @@ public:
 	 * Never set grid_hgts manually, always use this method!
 	 * @author Hj. Malthaner
 	 */
-	void set_grid_hgt(koord k, sint8 hgt) { grid_hgts[k.x + k.y*(uint32)(cached_groesse_gitter_x+1)] = hgt; }
+	void set_grid_hgt(koord k, sint8 hgt) { grid_hgts[k.x + k.y*(uint32)(cached_grid_size.x+1)] = hgt; }
 
 	/**
-	 * @return Minimale Hoehe des Planquadrates i,j
+	 * @return Minimum height of the planquadrats at i, j.
 	 * @author Hj. Malthaner
 	 */
 	sint8 min_hgt(koord pos) const;
 
 	/**
-	 * @return Maximale Hoehe des Planquadrates i,j
+	 * @return Maximum height of the planquadrats at i, j.
 	 * @author Hj. Malthaner
 	 */
 	sint8 max_hgt(koord pos) const;
@@ -1263,22 +1688,22 @@ public:
 	bool ist_wasser(koord pos, koord dim) const;
 
 	/**
-	 * @return true, wenn Platz an Stelle i,j mit Groesse w,h bebaubar
+	 * @return true, if square in place (i,j) with size w, h is constructible.
 	 * @author Hj. Malthaner
 	 */
-	bool ist_platz_frei(koord pos, sint16 w, sint16 h, int *last_y, climate_bits cl) const;
+	bool square_is_free(koord pos, sint16 w, sint16 h, int *last_y, climate_bits cl) const;
 
 	/**
-	 * @return eine Liste aller bebaubaren Plaetze mit Groesse w,h
-	 * only used for town creation at the moment
+	 * @return A list of all buildable squares with size w, h.
+	 * @note Only used for town creation at the moment.
 	 * @author Hj. Malthaner
 	 */
-	slist_tpl<koord> * finde_plaetze(sint16 w, sint16 h, climate_bits cl, sint16 old_x, sint16 old_y) const;
+	slist_tpl<koord> * find_squares(sint16 w, sint16 h, climate_bits cl, sint16 old_x, sint16 old_y) const;
 
 	/**
-	 * Spielt den Sound, wenn die Position im sichtbaren Bereich liegt.
-	 * Spielt weiter entfernte Sounds leiser ab.
-	 * @param pos Position an der das Ereignis stattfand
+	 * Plays the sound when the position is inside the visible region.
+	 * The sound plays lower when the position is outside the visible region.
+	 * @param pos Position at wich the event took place.
 	 * @param idx Index of the sound
 	 * @author Hj. Malthaner
 	 */
@@ -1287,31 +1712,39 @@ public:
 	void mute_sound( bool state ) { is_sound = !state; }
 
 	/**
-	 * Saves the map to a file
-	 * @param filename name of the file to write
+	 * Saves the map to a file.
+	 * @param Filename name of the file to write.
 	 * @author Hj. Malthaner
 	 */
+//<<<<<<< HEAD
 	void speichern(const char *filename, loadsave_t::mode_t savemode, const char *version, const char *ex_version, bool silent);
+//=======
+	void save(const char *filename, const loadsave_t::mode_t savemode, const char *version, const char *ex_version, bool silent);
+//>>>>>>> aburch/master
 
 	/**
-	 * Loads a map from a file
-	 * @param filename name of the file to read
+	 * Loads a map from a file.
+	 * @param Filename name of the file to read.
 	 * @author Hj. Malthaner
 	 */
-	bool laden(const char *filename);
+	bool load(const char *filename);
 
 	/**
-	 * Creates a map from a heightfield
-	 * @param sets game settings
+	 * Creates a map from a heightfield.
+	 * @param sets game settings.
 	 * @author Hj. Malthaner
 	 */
 	void load_heightfield(settings_t*);
 
-	void beenden(bool b);
+	/**
+	 * Stops simulation and optionally closes the game.
+	 * @param exit_game If true, the game will also close.
+	 */
+	void stop(bool exit_game);
 
 	/**
-	 * main loop with event handling;
-	 * returns false to exit
+	 * Main loop with event handling.
+	 * @return false to exit.
 	 * @author Hj. Malthaner
 	 */
 
@@ -1321,7 +1754,9 @@ public:
 
 	uint32 get_sync_steps() const { return sync_steps; }
 
-	// check whether checklist is available, ie given sync_step is not too far into past
+	/**
+	 * Checks whether checklist is available, ie given sync_step is not too far into past.
+	 */
 	bool is_checklist_available(const uint32 sync_step) const { return sync_step + LAST_CHECKLISTS_COUNT > sync_steps; }
 	const checklist_t& get_checklist_at(const uint32 sync_step) const { return LCHKLST(sync_step); }
 	void set_checklist_at(const uint32 sync_step, const checklist_t &chklst) { LCHKLST(sync_step) = chklst; }
@@ -1354,14 +1789,14 @@ public:
 	uint32 get_max_road_check_depth() const { return max_road_check_depth; }
 
 	/**
-	 * to identify the current map
+	 * To identify the current map.
 	 */
 	uint32 get_map_counter() const { return map_counter; }
 
 	void set_map_counter(uint32 new_map_counter);
 
 	/**
-	 * called by the server before sending the sync commands
+	 * Called by the server before sending the sync commands.
 	 */
 
 	uint32 generate_new_map_counter() const;

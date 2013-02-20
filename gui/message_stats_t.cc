@@ -75,7 +75,7 @@ bool message_stats_t::infowin_event(const event_t * ev)
 		sint32 line = ev->cy/(LINESPACE+1);
 		if(  (uint32)line<message_list->get_count()  ) {
 			message_t::node &n = *(message_list->at(line));
-			if(  ev->cx>=2  &&  ev->cx<=12  &&  welt->ist_in_kartengrenzen(n.pos)  ) {
+			if(  ev->cx>=2  &&  ev->cx<=12  &&  welt->is_within_limits(n.pos)  ) {
 				welt->change_world_position( koord3d(n.pos, welt->min_hgt(n.pos)) );
 			}
 			else {
@@ -96,7 +96,7 @@ bool message_stats_t::infowin_event(const event_t * ev)
 		sint32 line = ev->cy/(LINESPACE+1);
 		if(  (uint32)line<message_list->get_count()  ) {
 			message_t::node &n = *(message_list->at(line));
-			if(  welt->ist_in_kartengrenzen(n.pos)  ) {
+			if(  welt->is_within_limits(n.pos)  ) {
 				welt->change_world_position( koord3d(n.pos, welt->min_hgt(n.pos)) );
 			}
 		}

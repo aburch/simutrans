@@ -4,8 +4,8 @@
 #include "network_socket_list.h"
 #include "translator.h"
 #include "umgebung.h"
-#include "../simgraph.h"
 #include "../utils/cbuffer_t.h"
+#include "../simloadingscreen.h"
 
 #include <stdlib.h>
 
@@ -144,9 +144,9 @@ void network_compare_pakset_with_server(const char* cp, std::string &msg)
 		// show progress bar
 		uint32 num_paks = addons.get_count()+1;
 		uint32 progress = 0;
-		if(is_display_init()  &&  num_paks>0) {
-			display_set_progress_text(translator::translate("Comparing pak files ..."));
-			display_progress(progress, num_paks);
+		if(num_paks>0) {
+			loadingscreen::set_label(translator::translate("Comparing pak files ..."));
+			loadingscreen::set_progress(progress, num_paks);
 		}
 		// communication loop
 #define MAX_WRONG_PAKS 512
@@ -232,12 +232,14 @@ void network_compare_pakset_with_server(const char* cp, std::string &msg)
 			}
 
 			// update progress bar
-			if(is_display_init()  &&  num_paks>0) {
-				display_progress(progress, num_paks);
+			if( num_paks > 0 ) {
+				loadingscreen::set_progress(progress, num_paks);
 			}
 			delete nwi;
 
 		} while (!ready  &&  wrong_paks<=MAX_WRONG_PAKS);
+
+		loadingscreen::hide();
 
 		// now report the result
 		msg.append("<title>");

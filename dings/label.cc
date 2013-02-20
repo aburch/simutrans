@@ -74,6 +74,12 @@ void label_t::laden_abschliessen()
 #endif
 	// only now coordinates are known
 	welt->add_label(get_pos().get_2d());
+
+	// broken label? set text to ""
+	grund_t *gr = welt->lookup_kartenboden(get_pos().get_2d());
+	if (!gr->get_flag(grund_t::has_text)) {
+		gr->set_text("");
+	}
 #if MULTI_THREAD>1
 	pthread_mutex_unlock( &add_label_mutex );
 #endif
