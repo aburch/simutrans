@@ -274,8 +274,8 @@ public:
 		static bool compare(const connection_t &a, const connection_t &b) { return a.halt.get_id() < b.halt.get_id(); }
 	};
 
-//	bool is_transfer(const uint8 catg) const { return non_identical_schedules[catg] > 1u; }
-	bool is_transfer(const uint8 catg) const { return all_links[catg].is_transfer; }
+	bool is_transfer(const uint8 catg) const { return non_identical_schedules[catg] > 1u; }
+//	bool is_transfer(const uint8 catg) const { return all_links[catg].is_transfer; }
 
 private:
 	slist_tpl<tile_t> tiles;
@@ -334,7 +334,7 @@ private:
 	};
 
 	/// All links to networks of all freight categories, filled by rebuild_connected_components.
-	link_t* all_links;
+	//link_t* all_links;
 
 	/**
 	 * Fills in catg_connected_component values for all halts and all categories.
@@ -512,14 +512,14 @@ public:
 	sint64 calc_maintenance() const;
 
 	bool make_public_and_join( spieler_t *sp );
-//=======
-
-	vector_tpl<connection_t> const& get_pax_connections()  const { return all_links[warenbauer_t::INDEX_PAS].connections;  }
-	vector_tpl<connection_t> const& get_mail_connections() const { return all_links[warenbauer_t::INDEX_MAIL].connections; }
-
-	// returns the matchin warenziele
-	vector_tpl<connection_t> const& get_connections(uint8 const catg_index) const { return all_links[catg_index].connections; }
-//>>>>>>> aburch/master
+////=======
+//
+//	vector_tpl<connection_t> const& get_pax_connections()  const { return all_links[warenbauer_t::INDEX_PAS].connections;  }
+//	vector_tpl<connection_t> const& get_mail_connections() const { return all_links[warenbauer_t::INDEX_MAIL].connections; }
+//
+//	// returns the matchin warenziele
+//	vector_tpl<connection_t> const& get_connections(uint8 const catg_index) const { return all_links[catg_index].connections; }
+////>>>>>>> aburch/master
 
 	const slist_tpl<fabrik_t*>& get_fab_list() const { return fab_list; }
 

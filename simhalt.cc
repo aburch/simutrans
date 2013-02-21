@@ -575,14 +575,18 @@ haltestelle_t::~haltestelle_t()
 	// before it is needed for clearing up the planqudrat and tiles
 	self.detach();
 
-//<<<<<<< HEAD
 	destroy_win((long)this);
 
 	const uint8 max_categories = warenbauer_t::get_max_catg_index();
 
 	for(uint8 i = 0; i < max_categories; i++) {
-		delete waren[i];
-		waren[i] = NULL;
+		if (waren[i]) {
+			FOR(vector_tpl<ware_t>, const &w, *waren[i]) {
+				fabrik_t::update_transit(&w, false);
+			}
+			delete waren[i];
+			waren[i] = NULL;
+		}
 	}
 	free( waren );
 	
@@ -596,19 +600,7 @@ haltestelle_t::~haltestelle_t()
 	delete[] waiting_times;
 
 	delete[] non_identical_schedules;
-//=======
-	for(unsigned i=0; i<warenbauer_t::get_max_catg_index(); i++) {
-		if (waren[i]) {
-			FOR(vector_tpl<ware_t>, const &w, *waren[i]) {
-				fabrik_t::update_transit(&w, false);
-			}
-			delete waren[i];
-			waren[i] = NULL;
-		}
-	}
-	free( waren );
-	delete[] all_links;
-//>>>>>>> aburch/master
+//	delete[] all_links;
 
 	// routes may have changed without this station ...
 	verbinde_fabriken();
@@ -2327,9 +2319,6 @@ bool haltestelle_t::vereinige_waren(const ware_t &ware) //"unite were" (Google)
 // take care of all allocation neccessary
 void haltestelle_t::add_ware_to_halt(ware_t ware, bool from_saved)
 {
-#ifdef DEBUG_SIMRAND_CALLS
-	bool talk = !strcmp(get_name(), "Newton Abbot Railway Station");
-#endif
 	//@author: jamespetts
 	if(!from_saved)
 	{
@@ -2346,60 +2335,18 @@ void haltestelle_t::add_ware_to_halt(ware_t ware, bool from_saved)
 		warray = new vector_tpl<ware_t>(4);
 		waren[ware.get_besch()->get_catg_index()] = warray;
 	}
-	// the ware will be put into the first entry with menge==0
 	resort_freight_info = true;
-#ifdef DEBUG_SIMRAND_CALLS
-	int n = 0;
-#endif
-	FOR(vector_tpl<ware_t>, & i, *warray) {
-#ifdef DEBUG_SIMRAND_CALLS
-		if (talk)
-		{
-			if (!loading && n > 2900)
-			{
-				char buf[16];
-				sprintf(buf, "% 8u)", n);
-				dbg->message(buf, "%u to %s", i.menge, i.get_ziel()->get_name());
-			}
-			++n;
-		}
-#endif
-		if (i.menge == 0) {
-#ifdef DEBUG_SIMRAND_CALLS
-			if (talk && warray->get_count() >= 2923)
-			{
-				dbg->message("haltestelle_t::add_ware_to_halt", "*halt \"%s\", ware \"%s\": packets %u", get_name(), ware.get_besch()->get_name(), warray->get_count());
-				if (warray->get_count() == 2923)
-				{
-					int x = 0;
-				}
-			}
-#endif
-			i = ware;
-			return;
-		}
-	}
-	// here, if no free entries found
-#ifdef DEBUG_SIMRAND_CALLS
-	if (talk)
+	if (!from_saved)
 	{
-		int n = warray->get_count();
-		if (n >= 2923)
-		{
-			dbg->message("haltestelle_t::add_ware_to_halt", "halt \"%s\", ware \"%s\": packets %u", get_name(), ware.get_besch()->get_name(), warray->get_count());
-			if (n == 2923)
-			{
-				int x = 0;
+		// the ware will be put into the first entry with menge==0
+		FOR(vector_tpl<ware_t>, & i, *warray) {
+			if (i.menge == 0) {
+				i = ware;
+				return;
 			}
 		}
-		else if (n >= 2190 && n <= 2200)
-		{
-			char buf[16];
-			sprintf(buf, "% 8u)", n);
-			dbg->message(buf, "%u", ware.menge);
-		}
+		// here, if no free entries found
 	}
-#endif
 	warray->append(ware);
 }
 
@@ -3228,7 +3175,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 					// add to internal storage (use this function, since the old categories were different)
 					ware_t ware(welt,file);
 					if(  ware.menge>0  &&  welt->is_within_limits(ware.get_zielpos())  ) {
-						add_ware_to_halt(ware);
+						add_ware_to_halt(ware, true);
 						if(  file->get_version() <= 112000  ) {
 							// restore intransit information
 							fabrik_t::update_transit( &ware, true );
@@ -3514,18 +3461,21 @@ void haltestelle_t::laden_abschliessen(bool need_recheck_for_walking_distance)
 				j.laden_abschliessen(welt, besitzer_p);
 			}
 			// merge identical entries (should only happen with old games)
-			ITERATE_PTR(warray,j)
+			const uint32 count = warray->get_count();
+			for(uint32 j = 0; j < count; ++j) 
 			{
-				if((*warray)[j].menge == 0) 
+				ware_t& warj = (*warray)[j];
+				if(warj.menge == 0) 
 				{
 					continue;
 				}
-				for(uint32 k = j + 1; k < warray->get_count(); k++) 
+				for(uint32 k = j + 1; k < count; ++k) 
 				{
-					if((*warray)[k].menge > 0 && (*warray)[j].can_merge_with((*warray)[k])) 
+					ware_t& wark = (*warray)[k];
+					if(wark.menge > 0 && warj.can_merge_with(wark)) 
 					{
-						(*warray)[j].menge += (*warray)[k].menge;
-						(*warray)[k].menge = 0;
+						warj.menge += wark.menge;
+						wark.menge = 0;
 					}
 				}
 			}
