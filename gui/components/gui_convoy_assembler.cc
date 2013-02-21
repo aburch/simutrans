@@ -63,6 +63,8 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(karte_t *w, waytype_t wt, signed 
 	lb_convoi_weight(NULL, COL_BLACK, gui_label_t::left),
 	lb_veh_action("Fahrzeuge:", COL_BLACK, gui_label_t::left),
 	lb_livery_selector("Livery scheme:", COL_BLACK, gui_label_t::left),
+	lb_traction_types(NULL, COL_BLACK, gui_label_t::left),
+	lb_vehicle_count(NULL, COL_BLACK, gui_label_t::right),
 	convoi_pics(depot_t::get_max_convoy_length(wt)),
 	convoi(&convoi_pics),
 	pas(&pas_vec),
@@ -106,6 +108,9 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(karte_t *w, waytype_t wt, signed 
 	add_komponente(&lb_convoi_power);
 	add_komponente(&lb_convoi_weight);
 	add_komponente(&cont_convoi_capacity);
+
+	add_komponente(&lb_traction_types);
+	add_komponente(&lb_vehicle_count);
 
 	/*
 	* [PANEL]
@@ -251,6 +256,9 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(karte_t *w, waytype_t wt, signed 
 	lb_convoi_power.set_text_pointer(txt_convoi_power);
 	lb_convoi_weight.set_text_pointer(txt_convoi_weight);
 
+	lb_traction_types.set_text_pointer(txt_traction_types);
+	lb_vehicle_count.set_text_pointer(txt_vehicle_count);
+
 	selected_filter = VEHICLE_FILTER_RELEVANT;
 
 	replace_frame = NULL;
@@ -392,7 +400,13 @@ void gui_convoy_assembler_t::layout()
 	* [PANEL]
 	*/
 
-	y += convoy_tabs_skip + 8;
+	y += convoy_tabs_skip + 2;
+
+	lb_traction_types.set_pos(koord(column1_x, y));
+	lb_vehicle_count.set_pos(koord(groesse.x - D_MARGIN_RIGHT, y));
+	
+	y += 12;
+
 	tabs.set_pos(koord(0, y));
 	tabs.set_groesse(koord(groesse.x, get_panel_height()));
 	y += get_panel_height();
@@ -1661,7 +1675,6 @@ void gui_convoy_assembler_t::update_tabs()
 void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 {
 	char buf[1024];
-	const char *c;
 	const koord size = depot_frame ? depot_frame->get_fenstergroesse() : replace_frame->get_fenstergroesse();
 	PUSH_CLIP(pos.x, pos.y, size.x-1, size.y-1);
 
@@ -1704,28 +1717,28 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 		}
 	}
 
-	buf[0]='\0';
-	c=buf;
+	txt_vehicle_count.clear();
 	if (depot_frame) 
 	{
 		switch(depot_frame->get_depot()->vehicle_count()) 
 		{
 			case 0:
-				c = translator::translate("Keine Einzelfahrzeuge im Depot");
+				txt_vehicle_count.append(translator::translate("Keine Einzelfahrzeuge im Depot"));
 				break;
 			case 1:
-				c = translator::translate("1 Einzelfahrzeug im Depot");
+				txt_vehicle_count.append(translator::translate("1 Einzelfahrzeug im Depot"));
 				break;
 			default:
-				sprintf(buf, translator::translate("%d Einzelfahrzeuge im Depot"), depot_frame->get_depot()->vehicle_count());
-				c = buf;
+				txt_vehicle_count.printf(translator::translate("%d Einzelfahrzeuge im Depot"), depot_frame->get_depot()->vehicle_count());
 				break;
 		}
 	}
 
 	//display_proportional( pos.x + D_MARGIN_LEFT, pos.y + tabs.get_pos().y + tabs.get_groesse().y + 4, c, ALIGN_LEFT, COL_BLACK, true );
-	display_proportional( pos.x + groesse.x - D_MARGIN_RIGHT, pos.y + tabs.get_pos().y - LINESPACE + 1, c, ALIGN_RIGHT, COL_BLACK, true );
+	//display_proportional( pos.x + groesse.x - D_MARGIN_RIGHT, pos.y + tabs.get_pos().y - LINESPACE + 1, c, ALIGN_RIGHT, COL_BLACK, true );
+	//lb_vehicle_count.set_text_pointer(txt_vehicle_count);
 
+	buf[0]='\0';
 	if(veh_type) {
 		vehicle_as_potential_convoy_t convoy(*get_welt(), *veh_type);
 		uint16 brake_force = (uint16)(((uint32)convoy.get_braking_force() + 500) / 1000); // in kN

@@ -46,9 +46,6 @@
 
 #define CREDIT_MESSAGE "That would exceed\nyour credit limit."
 
-//<<<<<<< HEAD
-//char depot_frame_t::no_line_text[128];	// contains the current translation of "<no line>"
-//=======
 static const char* engine_type_names[9] =
 {
 	"unknown",
@@ -72,7 +69,6 @@ depot_frame_t::depot_frame_t(depot_t* depot) :
 	depot(depot),
 	icnv(depot->convoi_count()-1),
 	lb_convois(NULL, COL_BLACK, gui_label_t::left),
-	lb_traction_types(NULL, COL_BLACK, gui_label_t::left),
 	convoy_assembler(get_welt(), depot->get_wegtyp(), depot->get_player_nr(), check_way_electrified(true) ),
 	lb_convoi_line("Serves Line:", COL_BLACK, gui_label_t::left)
 {
@@ -110,8 +106,6 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	line_selector.set_wrapping(false);
 	add_komponente(&line_selector);
 	depot->get_besitzer()->simlinemgmt.sort_lines();
-
-	add_komponente(&lb_traction_types);
 
 	// goto line button
 	line_button.set_typ(button_t::posbutton);
@@ -163,29 +157,6 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	bt_sell.set_tooltip("Sell the selected vehicle(s)");
 	add_komponente(&bt_sell);
 
-	/*
-	* new route management buttons
-	*/
-	bt_new_line.set_typ(button_t::roundbox);
-	bt_new_line.add_listener(this);
-	bt_new_line.set_tooltip("Lines are used to manage groups of vehicles");
-	add_komponente(&bt_new_line);
-
-	bt_apply_line.set_typ(button_t::roundbox);
-	bt_apply_line.add_listener(this);
-	bt_apply_line.set_tooltip("Add the selected vehicle(s) to the selected line");
-	add_komponente(&bt_apply_line);
-
-	bt_change_line.set_typ(button_t::roundbox);
-	bt_change_line.add_listener(this);
-	bt_change_line.set_tooltip("Modify the selected line");
-	add_komponente(&bt_change_line);
-
-	bt_copy_convoi.set_typ(button_t::roundbox);
-	bt_copy_convoi.add_listener(this);
-	bt_copy_convoi.set_tooltip("Copy the selected convoi and its schedule or line");
-	add_komponente(&bt_copy_convoi);
-
 	koord gr = koord(0,0);
 	layout(&gr);
 	update_data();
@@ -193,13 +164,13 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 
 	// text will be translated by ourselves (after update data)!
 	lb_convois.set_text_pointer(txt_convois);
-	lb_traction_types.set_text_pointer(txt_traction_types);
 
 	check_way_electrified();
 	add_komponente(&img_bolt);
 
 	add_komponente(&convoy_assembler);
 
+	cbuffer_t txt_traction_types;
 	if(depot->get_tile()->get_besch()->get_enabled() == 0)
 	{
 		txt_traction_types.printf("%s", translator::translate("Unpowered vehicles only"));
@@ -230,6 +201,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 			}
 		}
 	}
+	convoy_assembler.set_traction_types(txt_traction_types.get_str());
 
 	// Hajo: Trigger layouting
 	set_resizemode(diagonal_resize);
@@ -402,7 +374,6 @@ void depot_frame_t::layout(koord *gr)
 
 //	lb_convoi_value.set_pos(koord(DEPOT_FRAME_WIDTH-10, ASSEMBLER_VSTART + convoy_assembler.get_convoy_image_height()));
 //	lb_convoi_line.set_pos(koord(4, ASSEMBLER_VSTART + convoy_assembler.get_convoy_image_height() + LINESPACE * 2));
-	lb_traction_types.set_pos(koord(4, ACTIONS_VSTART + (D_BUTTON_HEIGHT * 2)));
  
 //=======
 //	convoi.set_grid(koord(grid.x - grid_dx, grid.y));
@@ -1089,14 +1060,14 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp, value_t p)
 		//		icnv = depot->convoi_count() - 1;
 		//	}
 		//	update_convoy();
-		} else if(komp == &bt_new_line) {
-			depot->call_depot_tool( 'l', convoihandle_t(), NULL );
-			return true;
-		} else if(komp == &bt_change_line) {
-			if(selected_line.is_bound()) {
-				create_win(new line_management_gui_t(selected_line, depot->get_besitzer()), w_info, (ptrdiff_t)selected_line.get_rep() );
-			}
-			return true;
+		//} else if(komp == &bt_new_line) {
+		//	depot->call_depot_tool( 'l', convoihandle_t(), NULL );
+		//	return true;
+		//} else if(komp == &bt_change_line) {
+		//	if(selected_line.is_bound()) {
+		//		create_win(new line_management_gui_t(selected_line, depot->get_besitzer()), w_info, (ptrdiff_t)selected_line.get_rep() );
+		//	}
+		//	return true;
 		}
 		else if(  komp == &line_button  ) {
 			if(  cnv.is_bound()  ) {

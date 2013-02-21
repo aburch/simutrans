@@ -105,6 +105,11 @@ class gui_convoy_assembler_t :
 	gui_label_t lb_convoi_power;
 	gui_label_t lb_convoi_weight;
 	gui_label_t lb_convoi_line;
+	// Specifies the traction types handled by
+	// this depot.
+	// @author: jamespetts, April 2010
+	gui_label_t lb_traction_types;
+	gui_label_t lb_vehicle_count;
 
 	depot_convoi_capacity_t cont_convoi_capacity;
 
@@ -156,6 +161,8 @@ class gui_convoy_assembler_t :
 	cbuffer_t txt_convoi_cost;
 	cbuffer_t txt_convoi_power;
 	cbuffer_t txt_convoi_weight;
+	cbuffer_t txt_traction_types;
+	cbuffer_t txt_vehicle_count;
 
 	KOORD_VAL second_column_x; // x position of the second text column
 
@@ -292,6 +299,8 @@ public:
 
 	inline uint8 get_upgrade() const { return upgrade; }
 	inline uint8 get_action() const { return veh_action; }
+
+	void set_traction_types(const char *traction_types_text) { txt_traction_types.clear(); txt_traction_types.append(traction_types_text); }
 };
 
 #endif

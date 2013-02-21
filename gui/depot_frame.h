@@ -76,15 +76,10 @@ private:
 	 * buttons for new route-management
 	 * @author hsiegeln
 	 */
-	button_t bt_new_line;
-	button_t bt_change_line;
+//	button_t bt_new_line;
+//	button_t bt_change_line;
 	button_t bt_copy_convoi;
-	button_t bt_apply_line;
-
-	// Specifies the traction types handled by
-	// this depot.
-	// @author: jamespetts, April 2010
-	gui_label_t lb_traction_types;
+//	button_t bt_apply_line;
 
 	/// contains the current translation of "<no schedule set>"
 	const char* no_schedule_text;
@@ -108,8 +103,6 @@ private:
 	linehandle_t selected_line, last_selected_line;
 
 	cbuffer_t txt_convois;
-
-	cbuffer_t txt_traction_types;
 
 	/**
 	 * Calulate the values of the vehicles of the given type owned by the
