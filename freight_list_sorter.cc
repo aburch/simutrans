@@ -135,18 +135,21 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 	int pos = 0;
 	ware_t* wlist;
 	const int warray_size = warray.get_count() * sizeof(ware_t);
+#ifdef _MSC_VER
 	const int max_stack_size = 838860; 
-	if(warray_size >= max_stack_size)
+	if(warray_size < max_stack_size)
+	{
+		// Old method - use the stack, but will cause stack overflows if
+		// warray_size is too large
+		wlist = (ware_t*) alloca(warray_size);
+	}
+	else
+#endif
 	{
 		// Too large for the stack - use the heap (much slower)
 		wlist = (ware_t*) malloc(warray_size);
 	}
-	else
-	{
-		// Old method - use the stack, but will cause stack overflows if 
-		// warray_size is too large
-		wlist = (ware_t*) alloca(warray_size);
-	}
+
 
 	FOR(vector_tpl<ware_t>, const& ware, warray) {
 		if(  ware.get_besch() == warenbauer_t::nichts  ||  ware.menge == 0  ) {
@@ -333,7 +336,9 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 		add_ware_heading(buf, 0, g.menge, &g, what_doing);
 	}
 
+#ifdef _MSC_VER
 	if(warray_size >= max_stack_size)
+#endif
 	{
 		free(wlist);
 	}

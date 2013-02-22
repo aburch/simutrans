@@ -2183,7 +2183,7 @@ void wegbauer_t::baue_strasse()
 			else 
 			{
 				// we take ownership => we take care to maintain the roads completely ...
-				spieler_t *s = weg->get_besitzer();
+				//spieler_t *s = weg->get_besitzer();
 
 				sint32 maint = besch->get_wartung();
 				weg->check_diagonal();

@@ -2236,7 +2236,7 @@ vehikel_t *convoi_t::remove_vehikel_bei(uint16 i)
 			// Purpose		: To recalculate the list of supported goods category
 			recalc_catg_index();
 
-			const vehikel_besch_t *info = v->get_besch();
+			//const vehikel_besch_t *info = v->get_besch();
 			//sum_leistung -= info->get_leistung();
 			//sum_gear_und_leistung -= (info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor_percent() + 50) / 100;
 			//sum_gewicht -= info->get_gewicht();
@@ -2772,14 +2772,14 @@ void convoi_t::vorfahren()
 			uint8 stop = fpl->get_aktuell();
 			bool rev = !reverse_schedule;
 			schedule->increment_index(&stop, &rev);
-			const uint8 last_stop = stop;
+			//const uint8 last_stop = stop;
 			if(stop < schedule->get_count())
 			{
 				// It might be possible for "stop" to be > the number of 
 				// items in the schedule if the schedule has changed recently.
 				schedule->eintrag[stop].reverse = (state == REVERSING);
 			}
-			const bool check_rev = rev;
+			//const bool check_rev = rev;
 			schedule->increment_index(&stop, &rev);
 			counter --;
 			if(counter > 0)
@@ -4281,7 +4281,7 @@ write_basic_line:
 	if (halt.is_bound()) 
 	{
 		const koord k = fpl->get_current_eintrag().pos.get_2d(); //"eintrag" = "entry" (Google)
-		const spieler_t* owner = halt->get_besitzer(); //"get owner" (Google)
+		//const spieler_t* owner = halt->get_besitzer(); //"get owner" (Google)
 		const grund_t* gr = welt->lookup(fpl->get_current_eintrag().pos);
 		const weg_t *w = gr ? gr->get_weg(fpl->get_waytype()) : NULL;
 		bool tram_stop_public = false;

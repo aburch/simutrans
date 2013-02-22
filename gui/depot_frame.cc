@@ -46,18 +46,18 @@
 
 #define CREDIT_MESSAGE "That would exceed\nyour credit limit."
 
-static const char* engine_type_names[9] =
-{
-	"unknown",
-	"steam",
-	"diesel",
-	"electric",
-	"bio",
-	"sail",
-	"fuel_cell",
-	"hydrogene",
-	"battery"
-};
+//static const char* engine_type_names[9] =
+//{
+//	"unknown",
+//	"steam",
+//	"diesel",
+//	"electric",
+//	"bio",
+//	"sail",
+//	"fuel_cell",
+//	"hydrogene",
+//	"battery"
+//};
 
 //bool depot_frame_t::show_retired_vehicles = false;
 //bool depot_frame_t::show_all = true;
@@ -69,8 +69,8 @@ depot_frame_t::depot_frame_t(depot_t* depot) :
 	depot(depot),
 	icnv(depot->convoi_count()-1),
 	lb_convois(NULL, COL_BLACK, gui_label_t::left),
-	convoy_assembler(get_welt(), depot->get_wegtyp(), depot->get_player_nr(), check_way_electrified(true) ),
-	lb_convoi_line("Serves Line:", COL_BLACK, gui_label_t::left)
+	lb_convoi_line("Serves Line:", COL_BLACK, gui_label_t::left),
+	convoy_assembler(get_welt(), depot->get_wegtyp(), depot->get_player_nr(), check_way_electrified(true) )
 {
 DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->get_max_convoi_length());
 	last_selected_line = depot->get_last_selected_line();
@@ -300,7 +300,7 @@ void depot_frame_t::layout(koord *gr)
 	/*
 	*	Structure of [VINFO] is one multiline text.
 	*/
-	const int VINFO_HEIGHT = 9 * LINESPACE - 1;
+//	const int VINFO_HEIGHT = 9 * LINESPACE - 1;
 
 	/*
 	* Total width is the max from [CONVOI] and [ACTIONS] width.

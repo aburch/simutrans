@@ -2032,8 +2032,8 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 								const uint16 base_max_minutes = (welt->get_settings().get_passenger_max_wait() / speed_bonus) * 5;  
 								const uint16 preferred_travelling_minutes = next_connexion != NULL ? next_connexion->journey_time : 15;
 								// Minutes are recorded in tenths. One third max for this purpose.
-								const uint16 max_minutes = base_max_minutes > preferred_travelling_minutes ? preferred_travelling_minutes : base_max_minutes;
-								const sint16 preferred_advantage_minutes = accumulated_journey_time - preferred_travelling_minutes;
+								//const uint16 max_minutes = base_max_minutes > preferred_travelling_minutes ? preferred_travelling_minutes : base_max_minutes;
+								//const sint16 preferred_advantage_minutes = accumulated_journey_time - preferred_travelling_minutes;
 
 								// New formula: Carl Baker, Feb 2012
 								

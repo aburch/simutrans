@@ -1513,7 +1513,7 @@ sint32 vehikel_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
  		sint16 direction_difference = 0;
 		const sint16 direction = get_direction_degrees(ribi_t::get_dir(current_direction));
 		const uint16 modified_route_index = min(route_index - 1, cnv->get_route()->get_count() - 1);
-		const koord3d *previous_tile = &cnv->get_route()->position_bei(modified_route_index);
+		//const koord3d *previous_tile = &cnv->get_route()->position_bei(modified_route_index);
 	
 		uint16 limit_adjustment_percentage = 100;
 		
@@ -3557,7 +3557,7 @@ bool waggon_t::is_weg_frei_longblock_signal( signal_t *sig, uint16 next_block, i
 
 	// now we can use the route seach array
 	// (route until end is already reserved at this point!)
-	route_t& route = *cnv->get_route();
+	//route_t& route = *cnv->get_route();
 	route_t target_rt;
 
 	schedule_t *fpl = cnv->get_schedule();
@@ -5080,7 +5080,7 @@ bool aircraft_t::ist_weg_frei( int & restart_speed, bool )
 		// next tile a runway => then reserve
 		if(rw->get_besch()->get_styp()==weg_t::type_elevated) {
 			// try to reserve the runway
-			const uint16 runway_length_tiles = ((suchen+1) - touchdown) - takeoff;
+			//const uint16 runway_length_tiles = ((suchen+1) - touchdown) - takeoff;
 			const int runway_state = block_reserver(takeoff,takeoff+100,true);
 			if(runway_state != 1)
 			{

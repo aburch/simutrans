@@ -3629,7 +3629,7 @@ void karte_t::new_month()
 	 
 
 //	DBG_MESSAGE("karte_t::neuer_monat()","factories");
-	fabrik_t * fab;
+	//fabrik_t * fab;
 	uint32 total_electric_demand = 1;
 	uint32 electric_productivity = 0;
 	closed_factories_this_month.clear();
