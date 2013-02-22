@@ -717,9 +717,6 @@ void scenario_t::rdwr(loadsave_t *file)
 				script = NULL;
 			}
 			else {
-				// restore paths
-				scenario_path = (umgebung_t::program_dir + umgebung_t::objfilename + "scenario/" + scenario_name.c_str() + "/").c_str();
-
 				// load script
 				cbuffer_t script_filename;
 
@@ -730,6 +727,7 @@ void scenario_t::rdwr(loadsave_t *file)
 
 				// failed, try scenario from pakset directory
 				if (rdwr_error) {
+					scenario_path = (umgebung_t::program_dir + umgebung_t::objfilename + "scenario/" + scenario_name.c_str() + "/").c_str();
 					script_filename.clear();
 					script_filename.printf("%sscenario.nut", scenario_path.c_str());
 					rdwr_error = !load_script(script_filename);
