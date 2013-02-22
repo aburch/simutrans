@@ -403,6 +403,14 @@ public:
 	// returns the matchin warenziele
 	vector_tpl<connection_t> const& get_connections(uint8 const catg_index) const { return all_links[catg_index].connections; }
 
+	/**
+	 * Checks if there is connection for certain freight to the other halt.
+	 * @param halt the other halt
+	 * @param catg_index freight category index
+	 * @return 0 - not connected, 1 - connected, -1 - undecided (call again later...)
+	 */
+	sint8 is_connected(halthandle_t halt, uint8 catg_index) const;
+
 	const slist_tpl<fabrik_t*>& get_fab_list() const { return fab_list; }
 
 	/**

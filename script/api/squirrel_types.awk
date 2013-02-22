@@ -63,6 +63,7 @@ BEGIN {
 	export_types["::add_message"] = "void(string)"
 	export_types["halt_x::get_name"] = "string()"
 	export_types["halt_x::get_owner"] = "player_x()"
+	export_types["halt_x::is_connected"] = "integer(halt_x, good_desc_x)"
 	export_types["halt_x::accepts_good"] = "bool(good_desc_x)"
 	export_types["halt_x::get_arrived"] = "array<integer>()"
 	export_types["halt_x::get_departed"] = "array<integer>()"
