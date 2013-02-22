@@ -100,7 +100,7 @@ void convoi_detail_t::zeichnen(koord pos, koord gr)
 		cbuffer_t buf;
 
 		// current power
-		buf.printf( translator::translate("Leistung: %d kW"), cnv->get_sum_leistung() );
+		buf.printf( translator::translate("Leistung: %d kW"), cnv->get_sum_leistung() / 1000 );
 		display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, COL_BLACK, true );
 		offset_y += LINESPACE;
 
