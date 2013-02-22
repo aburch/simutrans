@@ -722,9 +722,19 @@ void scenario_t::rdwr(loadsave_t *file)
 
 				// load script
 				cbuffer_t script_filename;
-				script_filename.printf("%s/scenario.nut", scenario_path.c_str());
 
+				// try addon directory first
+				scenario_path = ( std::string("addons/") + umgebung_t::objfilename + "scenario/" + scenario_name.c_str() + "/").c_str();
+				script_filename.printf("%sscenario.nut", scenario_path.c_str());
 				rdwr_error = !load_script(script_filename);
+
+				// failed, try scenario from pakset directory
+				if (rdwr_error) {
+					script_filename.clear();
+					script_filename.printf("%sscenario.nut", scenario_path.c_str());
+					rdwr_error = !load_script(script_filename);
+				}
+
 				if (!rdwr_error) {
 					// restore persistent data
 					const char* err = script->eval_string(str);
