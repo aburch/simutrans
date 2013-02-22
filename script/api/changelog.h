@@ -15,6 +15,7 @@
  * - Added factory_x::get_name
  * - Added halt_x::get_name, halt_x::get_owner, halt_x::accepts_good
  * - Added player_x::is_active, world::remove_player
+ * - Added schedule_x, schedule_entry_x, ::is_schedule_allowed
  *
  *
  * @section api-112-1 Releases 112.0 and 112.1

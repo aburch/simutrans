@@ -26,6 +26,7 @@ void register_export_function(HSQUIRRELVM vm, karte_t *welt_)
 	export_halt(vm);
 	export_player(vm);
 	export_scenario(vm);
+	export_schedule(vm);
 	export_settings(vm);
 	export_tiles(vm);
 	export_world(vm);

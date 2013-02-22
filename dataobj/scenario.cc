@@ -13,6 +13,7 @@
 #include "../dataobj/umgebung.h"
 #include "../dataobj/network.h"
 #include "../dataobj/network_cmd_scenario.h"
+#include "../dataobj/fahrplan.h"
 
 #include "../utils/cbuffer_t.h"
 
@@ -494,6 +495,27 @@ const char* scenario_t::is_work_allowed_here(spieler_t* sp, uint16 wkz_id, sint1
 	if (what_scenario == SCRIPTED) {
 		static plainstring msg;
 		const char *err = script->call_function("is_work_allowed_here", msg, (uint8)(sp ? sp->get_player_nr() : PLAYER_UNOWNED), wkz_id, pos);
+
+		return err == NULL ? msg.c_str() : NULL;
+	}
+	return NULL;
+}
+
+
+const char* scenario_t::is_schedule_allowed(spieler_t* sp, schedule_t* schedule)
+{
+	// sanity checks
+	if (schedule == NULL) {
+		return "";
+	}
+	if (schedule->empty()  ||  umgebung_t::server) {
+		// empty schedule, networkgame: all allowed
+		return NULL;
+	}
+	// call script
+	if (what_scenario == SCRIPTED) {
+		static plainstring msg;
+		const char *err = script->call_function("is_schedule_allowed", msg, (uint8)(sp ? sp->get_player_nr() : PLAYER_UNOWNED), schedule);
 
 		return err == NULL ? msg.c_str() : NULL;
 	}

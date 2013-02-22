@@ -11,6 +11,7 @@ class loadsave_t;
 class stadt_t;
 class fabrik_t;
 class karte_t;
+class schedule_t;
 
 /**
  * @class scenario_t
@@ -377,10 +378,21 @@ public:
 	bool is_tool_allowed(spieler_t* sp, uint16 wkz_id, sint16 wt=invalid_wt);
 
 	/**
-	 * Checks if player can use the tool at this position
+	 * Checks if player can use the tool at this position.
 	 * @return NULL if allowed otherwise error message
 	 */
 	const char* is_work_allowed_here(spieler_t* sp, uint16 wkz_id, sint16 wt, koord3d pos);
+
+	/**
+	 * Checks if player can use this schedule.
+	 *
+	 * @param sp player
+	 * @param schedule the schedule
+	 *
+	 * @return null if allowed, an error message otherwise
+	 */
+	const char* is_schedule_allowed(spieler_t* sp, schedule_t* schedule);
+
 
 	/// @return debug dump of forbidden tools
 	const char* get_forbidden_text();

@@ -263,6 +263,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\script\api\api_schedule.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\script\api\api_settings.cc"
 				>
 			</File>

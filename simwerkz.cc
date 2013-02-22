@@ -5660,6 +5660,22 @@ bool wkz_zoom_out_t::init( karte_t *welt, spieler_t * )
 
 /************************* internal tools, only need for networking ***************/
 
+static bool scenario_check_schedule(karte_t *welt, spieler_t *sp, schedule_t *schedule, bool local)
+{
+	if (!is_scenario()) {
+		return true;
+	}
+	const char* err = welt->get_scenario()->is_schedule_allowed(sp, schedule);
+	if (err) {
+		if (*err  &&  local) {
+			create_win( new news_img(err), w_time_delete, magic_none);
+		}
+		return false;
+	}
+	return true;
+}
+
+
 /* Handles all action of convois in depots. Needs a default param:
  * [function],[convoi_id],addition stuff
  * following simple command exists:
@@ -5738,7 +5754,7 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 			{
 				schedule_t *fpl = cnv->create_schedule()->copy();
 				fpl->eingabe_abschliessen();
-				if (fpl->sscanf_schedule( p )) {
+				if (fpl->sscanf_schedule( p )  &&  scenario_check_schedule(welt, sp, fpl, is_local_execution())) {
 					cnv->set_schedule( fpl );
 				}
 				else {
@@ -5863,6 +5879,8 @@ bool wkz_change_line_t::init( karte_t *welt, spieler_t *sp )
 				sscanf( p, "%ld", &t );
 				while(  *p  &&  *p++!=','  ) {
 				}
+
+				// no need to check schedule for scenario conditions, as schedule is only copied
 				line->get_schedule()->sscanf_schedule( p );
 				if (is_local_execution()) {
 					fahrplan_gui_t *fg = dynamic_cast<fahrplan_gui_t *>(win_get_magic((ptrdiff_t)t));
@@ -5898,7 +5916,7 @@ bool wkz_change_line_t::init( karte_t *welt, spieler_t *sp )
 			{
 				if (line.is_bound()) {
 					schedule_t *fpl = line->get_schedule()->copy();
-					if (fpl->sscanf_schedule( p )) {
+					if (fpl->sscanf_schedule( p )  &&  scenario_check_schedule(welt, sp, fpl, is_local_execution()) ) {
 						fpl->eingabe_abschliessen();
 						line->set_schedule( fpl );
 						line->get_besitzer()->simlinemgmt.update_line(line);
@@ -6019,6 +6037,7 @@ bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 	switch(  tool  ) {
 		case 'l': { // create line schedule window
 			linehandle_t selected_line = depot->get_besitzer()->simlinemgmt.create_line(depot->get_line_type(),depot->get_besitzer());
+			// no need to check schedule for scenario conditions, as schedule is only copied
 			selected_line->get_schedule()->sscanf_schedule( p );
 
 			depot_frame_t *depot_frame = dynamic_cast<depot_frame_t *>(win_get_magic( (ptrdiff_t)depot ));
