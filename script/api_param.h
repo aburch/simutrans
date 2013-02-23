@@ -14,7 +14,7 @@ class grund_t;
 class karte_t;
 class koord;
 class koord3d;
-class linieneintrag_t;
+struct linieneintrag_t;
 class obj_besch_std_name_t;
 class planquadrat_t;
 class plainstring;

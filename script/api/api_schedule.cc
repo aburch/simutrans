@@ -16,7 +16,7 @@ using namespace script_api;
 
 halthandle_t get_halt_from_koord3d(koord3d pos, const spieler_t *sp )
 {
-	if (sp == NULL) {
+	if(  sp == NULL  ) {
 		return halthandle_t();
 	}
 	return haltestelle_t::get_halt(welt, pos, sp);
