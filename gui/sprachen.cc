@@ -165,7 +165,7 @@ sprachengui_t::sprachengui_t() :
 
 	chdir(umgebung_t::user_dir);
 
-	set_fenstergroesse( koord(DIALOG_WIDTH, D_MARGIN_BOTTOM+y_size+(translator::get_language_count()/2 + 1)*D_BUTTON_HEIGHT) );
+	set_fenstergroesse( koord(DIALOG_WIDTH, D_MARGIN_BOTTOM+y_size+( (buttons.get_count()+1)/2 + 1)*D_BUTTON_HEIGHT) );
 }
 
 
