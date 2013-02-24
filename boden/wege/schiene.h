@@ -30,6 +30,7 @@ protected:
 	*/
 	convoihandle_t reserved;
 
+	schiene_t(karte_t *welt, waytype_t waytype);
 public:
 	static const weg_besch_t *default_schiene;
 
@@ -40,10 +41,9 @@ public:
 	* @author Hj. Malthaner
 	*/
 	schiene_t(karte_t *welt, loadsave_t *file);
-
 	schiene_t(karte_t *welt);
 
-	virtual waytype_t get_waytype() const {return track_wt;}
+	//virtual waytype_t get_waytype() const {return track_wt;}
 
 	/**
 	* @return additional info is reservation!

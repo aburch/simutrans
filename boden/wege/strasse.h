@@ -16,7 +16,7 @@ public:
 	strasse_t(karte_t *welt, loadsave_t *file);
 	strasse_t(karte_t *welt);
 
-	inline waytype_t get_waytype() const {return road_wt;}
+	//inline waytype_t get_waytype() const {return road_wt;}
 
 	void set_gehweg(bool janein);
 

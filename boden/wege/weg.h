@@ -135,6 +135,8 @@ private:
 	* @author: jamespetts*/
 	way_constraints_of_way_t way_constraints;
 
+	// BG, 24.02.2012 performance enhancement avoid virtual method call, use inlined get_waytype()
+	waytype_t waytype;
 protected:
 
 	enum image_type { image_flat, image_slope, image_diagonal, image_switch };
@@ -146,8 +148,8 @@ protected:
 	void set_images(image_type typ, uint8 ribi, bool snow, bool switch_nw=false);
 
 public:
-	weg_t(karte_t* const welt, loadsave_t*) : ding_no_info_t(welt) { init(); }
-	weg_t(karte_t* const welt) : ding_no_info_t(welt) { init(); }
+	weg_t(karte_t* const welt, waytype_t waytype, loadsave_t*) : ding_no_info_t(welt), waytype(waytype) { init(); }
+	weg_t(karte_t* const welt, waytype_t waytype) : ding_no_info_t(welt), waytype(waytype) { init(); }
 
 	virtual ~weg_t();
 
@@ -226,7 +228,7 @@ public:
 	/**
 	* Wegtyp zurückliefern
 	*/
-	virtual waytype_t get_waytype() const = 0;
+	waytype_t get_waytype() const { return waytype; }
 
 	/**
 	* 'Jedes Ding braucht einen Typ.'

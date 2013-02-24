@@ -25,14 +25,20 @@ const weg_besch_t *schiene_t::default_schiene=NULL;
 bool schiene_t::show_reservations = false;
 
 
-schiene_t::schiene_t(karte_t *welt) : weg_t(welt)
+schiene_t::schiene_t(karte_t *welt, waytype_t waytype) : weg_t (welt, waytype)
+{
+	reserved = convoihandle_t();
+}
+
+
+schiene_t::schiene_t(karte_t *welt) : weg_t(welt, track_wt)
 {
 	reserved = convoihandle_t();
 	set_besch(schiene_t::default_schiene);
 }
 
 
-schiene_t::schiene_t(karte_t *welt, loadsave_t *file) : weg_t(welt)
+schiene_t::schiene_t(karte_t *welt, loadsave_t *file) : weg_t(welt, track_wt)
 {
 	reserved = convoihandle_t();
 	rdwr(file);

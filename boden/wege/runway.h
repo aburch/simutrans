@@ -32,7 +32,7 @@ public:
 
 	runway_t(karte_t *welt);
 
-	inline waytype_t get_waytype() const {return air_wt;}
+	//inline waytype_t get_waytype() const {return air_wt;}
 
 	void rdwr(loadsave_t *file);
 };
