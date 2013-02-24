@@ -30,7 +30,7 @@ class loadsave_t;
 
 class float32e8_t
 {
-private:
+protected:
 	uint32 m;	// mantissa
 	sint16 e;	// exponent
 	bool ms:1;	// sign of mantissa
