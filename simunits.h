@@ -158,16 +158,16 @@
  */
 #ifndef NETTOOL
 // scale to convert between km/h and m/s
-static const float32e8_t kmh2ms((uint32) 10, (uint32) 36);
-static const float32e8_t ms2kmh((uint32) 36, (uint32) 10);
+extern const float32e8_t kmh2ms;
+extern const float32e8_t ms2kmh;
 
 /**
  * Conversion between simutrans speed and m/s
  */
 
 // scale to convert between simutrans speed and m/s
-const float32e8_t simspeed2ms((uint32) 10 * VEHICLE_SPEED_FACTOR, (uint32) 36 * 1024);
-const float32e8_t ms2simspeed((uint32) 36 * 1024, (uint32) 10 * VEHICLE_SPEED_FACTOR);
+extern const float32e8_t simspeed2ms;
+extern const float32e8_t ms2simspeed;
 
 inline float32e8_t speed_to_v(const sint32 speed)
 {
@@ -191,7 +191,7 @@ inline sint64 seconds_to_ticks(uint32 seconds, uint16 meters_per_tile)
 // scale to convert between simutrans steps and meters
 //const float32e8_t yards2m((uint32) 10 * VEHICLE_SPEED_FACTOR, (uint32) 36 * 1024 * DT_TIME_FACTOR);
 //const float32e8_t m2yards((uint32) 36 * 1024 * DT_TIME_FACTOR, (uint32) 10 * VEHICLE_SPEED_FACTOR);
-const float32e8_t steps2yards((uint32)1 << YARDS_PER_VEHICLE_STEP_SHIFT);
+extern const float32e8_t steps2yards;
 //
 //inline float32e8_t yards_to_x(const sint32 yards)
 //{
@@ -204,8 +204,8 @@ const float32e8_t steps2yards((uint32)1 << YARDS_PER_VEHICLE_STEP_SHIFT);
 //}
 
 #define KMH_MIN 4
-static const sint32 SPEED_MIN = kmh_to_speed(KMH_MIN);
-static const float32e8_t V_MIN = kmh2ms * KMH_MIN;
+extern const sint32 SPEED_MIN; 
+extern const float32e8_t V_MIN;
 #endif //ndef NETTOOL
 /*
  * Converts speed (yards per tick) into tiles per month

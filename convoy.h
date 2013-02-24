@@ -95,13 +95,13 @@ class vehikel_t;
 //static const float32e8_t FR_WATER = float32e8_t((uint32) 1, (uint32) 1000);
 //static const float32e8_t FR_AIR = float32e8_t((uint32) 1, (uint32) 1000);
 
-static const float32e8_t BR_AIR = float32e8_t(2, 1);
-static const float32e8_t BR_WATER = float32e8_t(1, 10);
-static const float32e8_t BR_TRACK = float32e8_t(1, 2);
-static const float32e8_t BR_TRAM = float32e8_t(1, 1);
-static const float32e8_t BR_MAGLEV = float32e8_t(12, 10);
-static const float32e8_t BR_ROAD = float32e8_t(4, 1);
-static const float32e8_t BR_DEFAULT = float32e8_t(1, 1);
+extern const float32e8_t BR_AIR;
+extern const float32e8_t BR_WATER;
+extern const float32e8_t BR_TRACK;
+extern const float32e8_t BR_TRAM;
+extern const float32e8_t BR_MAGLEV;
+extern const float32e8_t BR_ROAD;
+extern const float32e8_t BR_DEFAULT;
 
 /******************************************************************************/
 
@@ -323,7 +323,7 @@ public:
 	/**
 	 * Get the minimum braking distance in m for the convoy with given weight summary at given speed v in m/s.
 	 */
-	sint32 calc_min_braking_distance(const weight_summary_t &weight, const float32e8_t &v);
+	float32e8_t calc_min_braking_distance(const weight_summary_t &weight, const float32e8_t &v);
 
 	/**
 	 * Get the minimum braking distance in steps for the convoy with given weight summary at given simutrans speed.

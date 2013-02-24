@@ -23,6 +23,14 @@ static const float32e8_t milli((uint32) 1, (uint32) 1000);
 //static const float32e8_t thousand((uint32) 1000, (uint32) 1);
 static const float32e8_t million((uint32) 1000000);
 
+const float32e8_t BR_AIR = float32e8_t(2, 1);
+const float32e8_t BR_WATER = float32e8_t(1, 10);
+const float32e8_t BR_TRACK = float32e8_t(1, 2);
+const float32e8_t BR_TRAM = float32e8_t(1, 1);
+const float32e8_t BR_MAGLEV = float32e8_t(12, 10);
+const float32e8_t BR_ROAD = float32e8_t(4, 1);
+const float32e8_t BR_DEFAULT = float32e8_t(1, 1);
+
 // helps to calculate roots. pow fails to calculate roots of negative bases.
 inline const float32e8_t signed_power(const float32e8_t &base, const float32e8_t &expo)
 {
@@ -262,7 +270,7 @@ sint32 convoy_t::calc_max_starting_weight(sint32 sin_alpha)
 static const float32e8_t fl_slice_seconds(DT_SLICE_SECONDS, 1);
 static const float32e8_t fl_max_seconds_til_vsoll(1800);
 
-sint32 convoy_t::calc_min_braking_distance(const weight_summary_t &weight, const float32e8_t &v)
+float32e8_t convoy_t::calc_min_braking_distance(const weight_summary_t &weight, const float32e8_t &v)
 {
 	// breaking distance: x = 1/2 at². 
 	// with a = v/t, v = at, and v² = a²t² --> x = 1/2 v²/a.
