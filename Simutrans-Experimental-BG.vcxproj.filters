@@ -909,6 +909,9 @@
     <ClCompile Include="script\api\api_gui.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="simunits.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gui\components\action_listener.h">
@@ -2070,6 +2073,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="simloadingscreen.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simunits.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
