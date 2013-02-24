@@ -167,7 +167,7 @@ done
 popd
 while [ "$setcount" -lt "$choicecount" ]; do
   if [ ${installpak[$setcount]} -gt 0 ]; then
-    let "correctcount=$setcount-$maxcount]"
+    let "correctcount=$setcount-$maxcount"
     echo "$correctcount"
     urlname=${nosimutranspaksets[$correctcount]}
     zipname="${urlname##http*\/}"
