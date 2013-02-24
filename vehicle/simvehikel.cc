@@ -797,10 +797,10 @@ vehikel_t::unload_freight(halthandle_t halt)
 					continue;
 				}
 
-				if(++count == 255)
-				{
-					INT_CHECK("simvehikel 793");
-				}
+				//if(++count == 255)
+				//{
+				//	INT_CHECK("simvehikel 793");
+				//}
 
 				end_halt = tmp.get_ziel();
 				via_halt = tmp.get_zwischenziel();
@@ -961,7 +961,7 @@ vehikel_t::unload_freight(halthandle_t halt)
 					}				
 					kill_queue.append(tmp);
 
-					INT_CHECK("simvehikel 955");
+					//INT_CHECK("simvehikel 955");
 				}
 			}
 			
@@ -1037,7 +1037,7 @@ bool vehikel_t::load_freight(halthandle_t halt, bool overcrowd)
 				total_freight += ware.menge;
 			}
 
-			INT_CHECK("simvehikel 876");
+			//INT_CHECK("simvehikel 876");
 		}
 		DBG_DEBUG4("vehikel_t::load_freight", "total_freight %d of %d loaded.", total_freight, total_capacity);
 	}

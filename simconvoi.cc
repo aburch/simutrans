@@ -2832,7 +2832,7 @@ void convoi_t::vorfahren()
 	}
 
 	wait_lock = reverse_delay;
-	INT_CHECK("simconvoi 711");
+	//INT_CHECK("simconvoi 711");
 }
 
 void

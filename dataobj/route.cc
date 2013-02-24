@@ -205,7 +205,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 		INIT_NODES(welt->get_settings().get_max_route_steps(), welt->get_size());
 	}
 
-	INT_CHECK("route 347");
+//	INT_CHECK("route 347");
 
 	// arrays for A*
 	//static 
@@ -241,9 +241,9 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 	const grund_t* gr;
 	do {
 		// Hajo: this is too expensive to be called each step
-		if((step & 127) == 0) {
-			INT_CHECK("route 161");
-		}
+		//if((step & 127) == 0) {
+		//	INT_CHECK("route 161");
+		//}
 
 		tmp = open[0];
 		open.remove_at( 0 );
@@ -313,7 +313,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 
 	} while(  !open.empty()  &&  step < MAX_STEP  &&  open.get_count() < max_depth  );
 
-	INT_CHECK("route 194");
+//	INT_CHECK("route 194");
 
 //DBG_DEBUG("reached","");
 	// target reached?
@@ -404,7 +404,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 		INIT_NODES(welt->get_settings().get_max_route_steps(), welt->get_size());
 	}
 
-	INT_CHECK("route 347");
+	//INT_CHECK("route 347");
 
 	// there are several variant for maintaining the open list
 	// however, only binary heap and HOT queue with binary heap are worth considering
@@ -441,7 +441,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 		// Hajo: this is too expensive to be called each step
 		if((beat++ & 255) == 0) 
 		{
-			INT_CHECK("route 161");
+			//INT_CHECK("route 161");
 		}
 
 		ANode *test_tmp = queue.pop();
@@ -569,7 +569,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 	DBG_DEBUG("route_t::intern_calc_route()","steps=%i  (max %i) in route, open %i, cost %u (max %u)",step,MAX_STEP,queue.get_count(),tmp->g,max_cost);
 #endif
 
-	INT_CHECK("route 194");
+	//INT_CHECK("route 194");
 	// target reached?
 	if(!ziel_erreicht  || step >= MAX_STEP  ||  tmp->parent==NULL) {
 		if(  step >= MAX_STEP  ) {
@@ -601,7 +601,7 @@ route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d ziel, c
 {
 	route.clear();
 
-	INT_CHECK("route 336");
+//	INT_CHECK("route 336");
 
 #ifdef DEBUG_ROUTES
 	// profiling for routes ...
@@ -612,7 +612,7 @@ route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d ziel, c
 	if(fahr->get_waytype()==water_wt) {DBG_DEBUG("route_t::calc_route()","route from %d,%d to %d,%d with %i steps in %u ms found.",start.x, start.y, ziel.x, ziel.y, route.get_count()-1, dr_time()-ms );}
 #endif
 
-	INT_CHECK("route 343");
+//	INT_CHECK("route 343");
 
 	if(!ok)
 	{
