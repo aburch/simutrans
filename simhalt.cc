@@ -2880,33 +2880,22 @@ bool haltestelle_t::add_grund(grund_t *gr)
 
 	// check if we have to register line(s) and/or lineless convoy(s) which serve this halt
 	vector_tpl<linehandle_t> check_line(0);
-	if(  get_besitzer()==welt->get_spieler(1)  ) {
-		// must iterate over all players lines ...
-		for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
-			if(  welt->get_spieler(i)  ) {
-				welt->get_spieler(i)->simlinemgmt.get_lines(simline_t::line, &check_line);
-				FOR(  vector_tpl<linehandle_t>, const j, check_line  ) {
-					// only add unknown lines
-					if(  !registered_lines.is_contained(j)  &&  j->count_convoys() > 0  ) {
-						FOR(  minivec_tpl<linieneintrag_t>, const& k, j->get_schedule()->eintrag  ) {
-							if(  get_halt(welt, k.pos, j->get_besitzer()) == self  ) {
-								registered_lines.append(j);
-								break;
-							}
-						}
-					}
-				}
-			}
-		}
-		// Knightly : iterate over all convoys
-		FOR(vector_tpl<convoihandle_t>, const cnv, welt->convoys()) {
-			// only check lineless convoys which are not yet registered
-			if(  !cnv->get_line().is_bound()  &&  !registered_convoys.is_contained(cnv)  ) {
-				const schedule_t *const fpl = cnv->get_schedule();
-				if(  fpl  ) {
-					FOR(minivec_tpl<linieneintrag_t>, const& k, fpl->eintrag) {
-						if (get_halt(welt, k.pos, get_besitzer()) == self) {
-							registered_convoys.append(cnv);
+
+	// public halt: must iterate over all players lines / convoys
+	bool public_halt = get_besitzer() == welt->get_spieler(1);
+
+	uint8 const pl_min = public_halt ? 0                : get_besitzer()->get_player_nr();
+	uint8 const pl_max = public_halt ? MAX_PLAYER_COUNT : get_besitzer()->get_player_nr()+1;
+	// iterate over all lines (public halt: all lines, other: only player's lines)
+	for(  uint8 i=pl_min;  i<pl_max;  i++  ) {
+		if(  spieler_t *sp = welt->get_spieler(i)  ) {
+			sp->simlinemgmt.get_lines(simline_t::line, &check_line);
+			FOR(  vector_tpl<linehandle_t>, const j, check_line  ) {
+				// only add unknown lines
+				if(  !registered_lines.is_contained(j)  &&  j->count_convoys() > 0  ) {
+					FOR(  minivec_tpl<linieneintrag_t>, const& k, j->get_schedule()->eintrag  ) {
+						if(  get_halt(welt, k.pos, sp) == self  ) {
+							registered_lines.append(j);
 							break;
 						}
 					}
@@ -2914,30 +2903,15 @@ bool haltestelle_t::add_grund(grund_t *gr)
 			}
 		}
 	}
-	else {
-		get_besitzer()->simlinemgmt.get_lines(simline_t::line, &check_line);
-		FOR( vector_tpl<linehandle_t>, const j, check_line ) {
-			// only add unknown lines
-			if(  !registered_lines.is_contained(j)  &&  j->count_convoys() > 0  ) {
-					FOR( minivec_tpl<linieneintrag_t>, const& k, j->get_schedule()->eintrag ) {
-					if(  get_halt(welt, k.pos, get_besitzer()) == self  ) {
-						registered_lines.append(j);
+	// Knightly : iterate over all convoys
+	FOR(vector_tpl<convoihandle_t>, const cnv, welt->convoys()) {
+		// only check lineless convoys which have matching ownership and which are not yet registered
+		if(  !cnv->get_line().is_bound()  &&  (public_halt  ||  cnv->get_besitzer()==get_besitzer())  &&  !registered_convoys.is_contained(cnv)  ) {
+			if(  const schedule_t *const fpl = cnv->get_schedule()  ) {
+				FOR(minivec_tpl<linieneintrag_t>, const& k, fpl->eintrag) {
+					if (get_halt(welt, k.pos, cnv->get_besitzer()) == self) {
+						registered_convoys.append(cnv);
 						break;
-					}
-				}
-			}
-		}
-		// Knightly : iterate over all convoys
-		FOR( vector_tpl<convoihandle_t>, const cnv, welt->convoys() ) {
-			// only check lineless convoys which have matching ownership and which are not yet registered
-			if(  !cnv->get_line().is_bound()  &&  cnv->get_besitzer()==get_besitzer()  &&  !registered_convoys.is_contained(cnv)  ) {
-				const schedule_t *const fpl = cnv->get_schedule();
-				if(  fpl  ) {
-					FOR(  minivec_tpl<linieneintrag_t>, const& k, fpl->eintrag  ) {
-						if(  get_halt(welt, k.pos, get_besitzer()) == self  ) {
-							registered_convoys.append(cnv);
-							break;
-						}
 					}
 				}
 			}
