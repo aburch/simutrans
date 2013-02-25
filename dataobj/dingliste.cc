@@ -244,7 +244,7 @@ bool dingliste_t::grow_capacity()
 	}
 	else {
 		// size exceeded, extent
-		uint16 new_cap = (uint16)capacity+4;
+		uint16 new_cap = (uint16)capacity+capacity;
 		set_capacity( new_cap );
 		return true;
 	}
@@ -437,6 +437,29 @@ void dingliste_t::sort_trees(uint8 index, uint8 count)
 }
 
 
+//- BG ----------------------------------------------------------- 25.11.2004 --
+int bsearch_dings_by_prio(int pri, ding_t** dings, int count)
+//
+// binary search.
+//
+// Result:
+//   a) index of matching item with lowest index
+// or
+//   b) index, where to insert before unmatched item == next larger item
+{
+  int low = 0;
+  while (low < count)
+  {
+    int i = (low + count) >> 1;
+    if (pri > type_to_pri[dings[i]->get_typ()]) 
+      low = i + 1;
+    else
+      count = i;
+  }
+  return count;
+}
+
+
 bool dingliste_t::add(ding_t* ding)
 {
 	if(capacity==0) {
@@ -474,33 +497,37 @@ bool dingliste_t::add(ding_t* ding)
 		return true;
 	}
 
-	uint8 i;
-	for(  i=0;  i<top  &&  pri>type_to_pri[obj.some[i]->get_typ()];  i++  )
-		;
+
+	uint8 i = bsearch_dings_by_prio(pri, obj.some, top);
 	// now i contains the position, where we either insert of just add ...
 	if(i==top) {
 		obj.some[top] = ding;
 		top++;
 	}
 	else {
-		if(pri==baum_pri) {
-			/* trees are a little tricky, since they cast a shadow
-			 * therefore the y-order must be correct!
-			 */
-			for(  ;  i<top;  i++) {
-				baum_t const* const tree = ding_cast<baum_t>(obj.some[i]);
-				if (!tree  ||  compare_trees(ding, tree)) {
-					break;
+		switch (pri) {
+		    case baum_pri: {
+				/* trees are a little tricky, since they cast a shadow
+				 * therefore the y-order must be correct!
+				 */
+				for(  ;  i<top;  i++) {
+					baum_t const* const tree = ding_cast<baum_t>(obj.some[i]);
+					if (!tree  ||  compare_trees(ding, tree)) {
+						break;
+					}
 				}
-			}
-		}
-		else if (pri == pillar_pri) {
-			// pillars have to be sorted wrt their y-offset, too.
-			for(  ;  i<top;  i++) {
-				pillar_t const* const pillar = ding_cast<pillar_t>(obj.some[i]);
-				if (!pillar  ||  ding->get_yoff()  > pillar->get_yoff() ) {
-					break;
+				break;
+		    }
+		
+			case pillar_pri: {
+				// pillars have to be sorted wrt their y-offset, too.
+				for(  ;  i<top;  i++) {
+					pillar_t const* const pillar = ding_cast<pillar_t>(obj.some[i]);
+					if (!pillar  ||  ding->get_yoff()  > pillar->get_yoff() ) {
+						break;
+					}
 				}
+				break;
 			}
 		}
 		intern_insert_at(ding, i);
@@ -687,21 +714,19 @@ bool dingliste_t::ist_da(const ding_t* ding) const
 
 ding_t *dingliste_t::suche(ding_t::typ typ,uint8 start) const
 {
-	if(capacity==0) {
-		return NULL;
+	switch (capacity) {
+	    case 0: return NULL;
+		case 1: return obj.one->get_typ()==typ ? obj.one : NULL;
 	}
-	else if(capacity==1) {
-		return obj.one->get_typ()!=typ ? NULL : obj.one;
-	}
-	else if(start<top) {
+	//if(start<top) {
 		// else we have to search the list
-		for(uint8 i=start; i<top; i++) {
-			ding_t * tmp = obj.some[i];
-			if(tmp->get_typ()==typ) {
-				return tmp;
+		for(unsigned i=start, j=top; i<j; ) {
+			ding_t& ding = *obj.some[i++];
+			if(ding.get_typ()==typ) {
+				return &ding;
 			}
 		}
-	}
+	//}
 	return NULL;
 }
 
@@ -709,20 +734,17 @@ ding_t *dingliste_t::suche(ding_t::typ typ,uint8 start) const
 
 ding_t *dingliste_t::get_leitung() const
 {
-	if(capacity==0) {
-		return NULL;
+	switch (capacity) {
+	    case 0: return NULL;
+		case 1: return obj.one->get_typ()>=ding_t::leitung  &&  obj.one->get_typ()<=ding_t::senke ? obj.one : NULL;
 	}
-	else if(capacity==1) {
-		if(obj.one->get_typ()>=ding_t::leitung  &&  obj.one->get_typ()<=ding_t::senke) {
-			return obj.one;
-		}
-	}
-	else if(top>0) {
+	if(0<top) {
 		// else we have to search the list
 		for(uint8 i=0; i<top; i++) {
-			uint8 typ = obj.some[i]->get_typ();
+			ding_t * tmp = obj.some[i];
+			uint8 typ = tmp->get_typ();
 			if(typ>=ding_t::leitung  &&  typ<=ding_t::senke) {
-				return obj.some[i];
+				return tmp;
 			}
 		}
 	}
@@ -733,22 +755,22 @@ ding_t *dingliste_t::get_leitung() const
 
 ding_t *dingliste_t::get_convoi_vehicle() const
 {
-	if(capacity==0) {
-		return NULL;
-	}
-	else if(capacity==1) {
-		// could
-		uint8 t = obj.one->get_typ();
-		if(  t==ding_t::aircraft  ||  t==ding_t::schiff  ) {
-			return obj.one;
+	switch (capacity) {
+	    case 0: return NULL;
+		case 1:
+		{
+			// could
+			const uint8 t = obj.one->get_typ();
+			return t==ding_t::aircraft  ||  t==ding_t::schiff ? obj.one : NULL;
 		}
 	}
-	else if(top>0) {
+	if(top>0) {
 		// else we have to search the list
 		for(uint8 i=0; i<top; i++) {
-			uint8 typ = obj.some[i]->get_typ();
+			ding_t * tmp = obj.some[i];
+			uint8 typ = tmp->get_typ();
 			if(  typ>=ding_t::automobil  &&  typ<=ding_t::aircraft  ) {
-				return obj.some[i];
+				return tmp;
 			}
 		}
 	}
