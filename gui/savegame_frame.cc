@@ -407,7 +407,6 @@ bool savegame_frame_t::infowin_event(const event_t *ev)
 	if(ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_OPEN  &&  entries.empty()) {
 		// before no virtual functions can be used ...
 		fill_list();
-		set_focus(&input);
 	}
 	if(  ev->ev_class == EVENT_KEYBOARD  &&  ev->ev_code == 13  ) {
 		action_triggered(&input, (long)0);
@@ -415,6 +414,7 @@ bool savegame_frame_t::infowin_event(const event_t *ev)
 	}
 	return gui_frame_t::infowin_event(ev);
 }
+
 
 void savegame_frame_t::cleanup_path(char *path)
 {

@@ -1040,17 +1040,18 @@ void loadsave_t::rdwr_str( char* result_buffer, size_t const size)
 
 void loadsave_t::rdwr_str(plainstring& s)
 {
-	if (is_loading()) {
+	if(  is_loading()  ) {
 		const char* buf = NULL;
 		rdwr_str(buf);
-		if (buf) {
+		if(  buf  ) {
 			s = buf;
-			free(const_cast<char*>(buf));
+			free( const_cast<char*>(buf) );
 		}
 		else {
 			s = "";
 		}
-	} else {
+	}
+	else {
 		char const* tmp = s.c_str();
 		rdwr_str(tmp);
 	}
