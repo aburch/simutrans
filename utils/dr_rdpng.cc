@@ -8,7 +8,7 @@
 #include <stdlib.h>
 
 #include "../simmem.h"
-#include "dr_rdpng.h"
+#include "dr_rdpng.h" 
 
 
 static void read_png(unsigned char** block, unsigned* width, unsigned* height, FILE* file, const int base_img_size)
