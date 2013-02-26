@@ -290,7 +290,6 @@ bool savegame_frame_t::action_triggered(gui_action_creator_t *komp, value_t /* *
 				strcat(buf, suffix);
 			}
 		}
-		set_focus(NULL);
 		action(buf);
 		destroy_win(this);      //29-Oct-2001         Markus Weber    Close window
 
@@ -313,17 +312,14 @@ bool savegame_frame_t::action_triggered(gui_action_creator_t *komp, value_t /* *
 				bool const action_btn = komp == i.button;
 
 				if(action_btn) {
-					set_focus(NULL);
 					action(i.info);
 					destroy_win(this);
 				}
 				else {
 					if(del_action(i.info)) {
-						set_focus(NULL);
 						destroy_win(this);
 					}
 					else {
-						set_focus(NULL);
 						// do not delete components
 						// simply hide them
 						i.button->set_visible(false);

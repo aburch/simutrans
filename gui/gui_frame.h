@@ -305,7 +305,16 @@ public:
 	// called, when the map is rotated
 	virtual void map_rotate90( sint16 /*new_ysize*/ ) { }
 
+
+	/**
+	 * Set focus to component.
+	 *
+	 * @warning Calling this method from anything called from
+	 * gui_container_t::infowin_event (e.g. in action_triggered)
+	 * will have NO effect.
+	 */
 	void set_focus( gui_komponente_t *k ) { container.set_focus(k); }
+
 	virtual gui_komponente_t *get_focus() { return container.get_focus(); }
 };
 

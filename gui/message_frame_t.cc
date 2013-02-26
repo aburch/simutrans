@@ -132,7 +132,6 @@ bool message_frame_t::action_triggered( gui_action_creator_t *komp, value_t v )
 		network_send_server( nwchat );
 
 		ibuf[0] = 0;
-		set_focus(&input);
 	}
 	else if(  komp==&tabs  ) {
 		// Knightly : filter messages by type where necessary
