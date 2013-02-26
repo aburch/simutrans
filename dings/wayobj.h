@@ -75,7 +75,11 @@ public:
 	* @return Gibt den typ des Objekts zurück.
 	* @author Hj. Malthaner
 	*/
+
+#ifdef INLINE_DING_TYPE
+#else
 	typ get_typ() const { return wayobj; }
+#endif
 
 	/**
 	 * waytype associated with this object

@@ -160,13 +160,21 @@ void groundobj_t::calc_bild()
 }
 
 
+#ifdef INLINE_DING_TYPE
+groundobj_t::groundobj_t(karte_t *welt, loadsave_t *file) : ding_t(welt, ding_t::groundobj)
+#else
 groundobj_t::groundobj_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
+#endif
 {
 	rdwr(file);
 }
 
 
+#ifdef INLINE_DING_TYPE
+groundobj_t::groundobj_t(karte_t *welt, koord3d pos, const groundobj_besch_t *b ) : ding_t(welt, ding_t::groundobj, pos)
+#else
 groundobj_t::groundobj_t(karte_t *welt, koord3d pos, const groundobj_besch_t *b ) : ding_t(welt, pos)
+#endif
 {
 	season = 0xF;	// mark dirty
 	groundobjtype = groundobj_typen.index_of(b);

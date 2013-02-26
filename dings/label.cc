@@ -32,14 +32,22 @@ static pthread_mutex_t add_label_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 
 label_t::label_t(karte_t *welt, loadsave_t *file) :
+#ifdef INLINE_DING_TYPE
+    ding_t(welt, ding_t::label)
+#else
 	ding_t(welt)
+#endif
 {
 	rdwr(file);
 }
 
 
 label_t::label_t(karte_t *welt, koord3d pos, spieler_t *sp, const char *text) :
+#ifdef INLINE_DING_TYPE
+	ding_t(welt, ding_t::label, pos)
+#else
 	ding_t(welt, pos)
+#endif
 {
 	set_besitzer( sp );
 	welt->add_label(pos.get_2d());

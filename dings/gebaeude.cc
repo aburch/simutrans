@@ -69,15 +69,21 @@ void gebaeude_t::init()
 }
 
 
-
+#ifdef INLINE_DING_TYPE
+gebaeude_t::gebaeude_t(karte_t *welt, ding_t::typ type) : ding_t(welt, type)
+#else
 gebaeude_t::gebaeude_t(karte_t *welt) : ding_t(welt)
+#endif
 {
 	init();
 }
 
 
-
+#ifdef INLINE_DING_TYPE
+gebaeude_t::gebaeude_t(karte_t *welt, loadsave_t *file) : ding_t(welt, ding_t::gebaeude)
+#else
 gebaeude_t::gebaeude_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
+#endif
 {
 	init();
 	rdwr(file);
@@ -92,8 +98,24 @@ gebaeude_t::gebaeude_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 
 
 
+#ifdef INLINE_DING_TYPE
+gebaeude_t::gebaeude_t(karte_t *welt, ding_t::typ type, koord3d pos, spieler_t *sp, const haus_tile_besch_t *t) :
+    ding_t(welt, type, pos)
+{
+	init(sp, t);
+}
+
+gebaeude_t::gebaeude_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_tile_besch_t *t) :
+    ding_t(welt, ding_t::gebaeude, pos)
+{
+	init(sp, t);
+}
+
+void gebaeude_t::init(spieler_t *sp, const haus_tile_besch_t *t)
+#else
 gebaeude_t::gebaeude_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_tile_besch_t *t) :
     ding_t(welt, pos)
+#endif
 {
 	set_besitzer( sp );
 
@@ -113,7 +135,7 @@ gebaeude_t::gebaeude_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_til
 		spieler_t::add_maintenance(get_besitzer(), maint);
 	}
 
-	grund_t *gr=welt->lookup(pos);
+	grund_t *gr=welt->lookup(get_pos());
 	if(gr  &&  gr->get_weg_hang()!=gr->get_grund_hang()) {
 		set_yoff(-TILE_HEIGHT_STEP);
 	}

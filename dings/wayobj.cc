@@ -51,13 +51,21 @@ const way_obj_besch_t *wayobj_t::default_oberleitung=NULL;
 
 stringhashtable_tpl<way_obj_besch_t *> wayobj_t::table;
 
+#ifdef INLINE_DING_TYPE
+wayobj_t::wayobj_t(karte_t* const welt, loadsave_t* const file) : ding_no_info_t(welt, ding_t::wayobj)
+#else
 wayobj_t::wayobj_t(karte_t* const welt, loadsave_t* const file) : ding_no_info_t(welt)
+#endif
 {
 	rdwr(file);
 }
 
 
+#ifdef INLINE_DING_TYPE
+wayobj_t::wayobj_t(karte_t* const welt, koord3d const pos, spieler_t* const besitzer, ribi_t::ribi const d, way_obj_besch_t const* const b) : ding_no_info_t(welt, ding_t::wayobj, pos)
+#else
 wayobj_t::wayobj_t(karte_t* const welt, koord3d const pos, spieler_t* const besitzer, ribi_t::ribi const d, way_obj_besch_t const* const b) : ding_no_info_t(welt, pos)
+#endif
 {
 	besch = b;
 	dir = d;

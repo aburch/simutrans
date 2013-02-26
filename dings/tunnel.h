@@ -19,7 +19,10 @@ public:
 	tunnel_t(karte_t *welt, koord3d pos, spieler_t *sp, const tunnel_besch_t *besch);
 
 	const char *get_name() const {return "Tunnelmuendung";}
+#ifdef INLINE_DING_TYPE
+#else
 	typ get_typ() const { return tunnel; }
+#endif
 
 	/**
 	 * waytype associated with this object

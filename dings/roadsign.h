@@ -60,7 +60,17 @@ public:
 	void set_zustand(signalzustand z) {zustand = z; calc_bild();}
 	signalzustand get_zustand() { return (signalzustand)zustand; }
 
+#ifdef INLINE_DING_TYPE
+protected:
+	roadsign_t(karte_t *welt, typ type, loadsave_t *file);
+	void init(loadsave_t *file);
+
+	roadsign_t(karte_t *welt, typ type, spieler_t *sp, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t* besch);
+	void init(spieler_t *sp, ribi_t::ribi dir, const roadsign_besch_t *besch);
+public:
+#else
 	typ get_typ() const { return roadsign; }
+#endif
 	const char* get_name() const { return "Roadsign"; }
 
 	// assuming this is a private way sign

@@ -63,7 +63,11 @@ bool fussgaenger_t::alles_geladen()
 
 
 fussgaenger_t::fussgaenger_t(karte_t *welt, loadsave_t *file)
+#ifdef INLINE_DING_TYPE
+ : verkehrsteilnehmer_t(welt, fussgaenger)
+#else
  : verkehrsteilnehmer_t(welt)
+#endif
 {
 	rdwr(file);
 	if(besch) {
@@ -73,7 +77,11 @@ fussgaenger_t::fussgaenger_t(karte_t *welt, loadsave_t *file)
 
 
 fussgaenger_t::fussgaenger_t(karte_t* const welt, koord3d const pos) :
+#ifdef INLINE_DING_TYPE
+verkehrsteilnehmer_t(welt, fussgaenger, pos, simrand(65535, "fussgaenger_t::fussgaenger_t (weg_next)")),
+#else
 	verkehrsteilnehmer_t(welt, pos, simrand(65535, "fussgaenger_t::fussgaenger_t (weg_next)")),
+#endif
 	besch(pick_any_weighted(liste))
 {
 	time_to_life = pick_any(strecke);

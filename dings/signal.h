@@ -24,7 +24,11 @@ class signal_t : public roadsign_t
 {
 public:
 	signal_t(karte_t *welt, loadsave_t *file);
+#ifdef INLINE_DING_TYPE
+	signal_t(karte_t *welt, spieler_t *sp, koord3d pos, ribi_t::ribi dir,const roadsign_besch_t *besch) : roadsign_t(welt, ding_t::signal, sp, pos, dir, besch) { zustand = rot;}
+#else
 	signal_t(karte_t *welt, spieler_t *sp, koord3d pos, ribi_t::ribi dir,const roadsign_besch_t *besch) : roadsign_t(welt,sp,pos,dir,besch) { zustand = rot;}
+#endif
 
 	/**
 	* @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
@@ -33,7 +37,10 @@ public:
 	*/
 	virtual void info(cbuffer_t & buf) const;
 
+#ifdef INLINE_DING_TYPE
+#else
 	typ get_typ() const { return ding_t::signal; }
+#endif
 	const char *get_name() const {return "Signal";}
 
 	/**

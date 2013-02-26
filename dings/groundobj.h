@@ -55,7 +55,10 @@ public:
 	void calc_bild();
 
 	const char *get_name() const {return "Groundobj";}
+#ifdef INLINE_DING_TYPE
+#else
 	typ get_typ() const { return groundobj; }
+#endif
 
 	bool check_season(const long delta_t);
 

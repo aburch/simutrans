@@ -59,7 +59,12 @@ void ding_t::init(karte_t *wl)
 }
 
 
+#ifdef INLINE_DING_TYPE
+ding_t::ding_t(karte_t *wl, typ type)
+	: type(type)
+#else
 ding_t::ding_t(karte_t *wl)
+#endif
 {
 	init(wl);
 }
@@ -72,7 +77,12 @@ ding_t::ding_t(karte_t *wl, loadsave_t *file)
 }
 
 
+#ifdef INLINE_DING_TYPE
+ding_t::ding_t(karte_t *wl, typ type, koord3d pos)
+	: type(type)
+#else
 ding_t::ding_t(karte_t *wl, koord3d pos)
+#endif
 {
 	init(wl);
 	this->pos = pos;

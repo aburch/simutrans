@@ -26,7 +26,10 @@ public:
 	bruecke_t(karte_t *welt, koord3d pos, spieler_t *sp, const bruecke_besch_t *besch, bruecke_besch_t::img_t img);
 
 	const char *get_name() const {return "Bruecke";}
+#ifdef INLINE_DING_TYPE
+#else
 	typ get_typ() const { return bruecke; }
+#endif
 
 	/**
 	 * waytype associated with this object

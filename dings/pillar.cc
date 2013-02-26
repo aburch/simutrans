@@ -22,8 +22,11 @@
 #include "../dings/bruecke.h"
 
 
-
+#ifdef INLINE_DING_TYPE
+pillar_t::pillar_t(karte_t *welt, loadsave_t *file) : ding_t(welt, ding_t::pillar)
+#else
 pillar_t::pillar_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
+#endif
 {
 	besch = NULL;
 	asymmetric = false;
@@ -31,7 +34,11 @@ pillar_t::pillar_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 }
 
 
+#ifdef INLINE_DING_TYPE
+pillar_t::pillar_t(karte_t *welt, koord3d pos, spieler_t *sp, const bruecke_besch_t *besch, bruecke_besch_t::img_t img, int hoehe) : ding_t(welt, ding_t::pillar, pos)
+#else
 pillar_t::pillar_t(karte_t *welt, koord3d pos, spieler_t *sp, const bruecke_besch_t *besch, bruecke_besch_t::img_t img, int hoehe) : ding_t(welt, pos)
+#endif
 {
 	this->besch = besch;
 	this->dir = (uint8)img;

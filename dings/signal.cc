@@ -23,7 +23,11 @@
 
 
 signal_t::signal_t( karte_t *welt, loadsave_t *file) :
+#ifdef INLINE_DING_TYPE
+	roadsign_t(welt, ding_t::signal, file)
+#else
 	roadsign_t(welt,file)
+#endif
 {
 	if(besch==NULL) {
 		besch = roadsign_t::default_signal;

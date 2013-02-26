@@ -29,7 +29,10 @@ protected:
 	const kreuzung_besch_t *besch;
 
 public:
+#ifdef INLINE_DING_TYPE
+#else
 	typ get_typ() const { return crossing; }
+#endif
 	const char* get_name() const { return "Kreuzung"; }
 
 	/**

@@ -81,7 +81,14 @@ public:
 	// for map rotation
 	void rotate90();
 
+#ifdef INLINE_DING_TYPE
+protected:
+	leitung_t(karte_t *welt, typ type, loadsave_t *file);
+	leitung_t(karte_t *welt, typ type, koord3d pos, spieler_t *sp);
+public:
+#else
 	typ get_typ() const { return leitung; }
+#endif
 
 	const char *get_name() const {return "Leitung"; }
 
@@ -153,7 +160,10 @@ public:
 	pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp);
 	virtual ~pumpe_t();
 
+#ifdef INLINE_DING_TYPE
+#else
 	typ get_typ() const { return pumpe; }
+#endif
 
 	const char *get_name() const {return "Aufspanntransformator";}
 
@@ -191,7 +201,10 @@ public:
 	senke_t(karte_t *welt, koord3d pos, spieler_t *sp, stadt_t *c);
 	virtual ~senke_t();
 
+#ifdef INLINE_DING_TYPE
+#else
 	typ get_typ() const { return senke; }
+#endif
 
 	// used to alternate between displaying power on and power off images at a frequency determined by the percentage of power supplied
 	// gives players a visual indication of a power network with insufficient generation

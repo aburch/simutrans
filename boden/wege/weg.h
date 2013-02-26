@@ -148,8 +148,8 @@ protected:
 	void set_images(image_type typ, uint8 ribi, bool snow, bool switch_nw=false);
 
 public:
-	weg_t(karte_t* const welt, waytype_t waytype, loadsave_t*) : ding_no_info_t(welt), waytype(waytype) { init(); }
-	weg_t(karte_t* const welt, waytype_t waytype) : ding_no_info_t(welt), waytype(waytype) { init(); }
+	weg_t(karte_t* const welt, waytype_t waytype, loadsave_t*) : ding_no_info_t(welt, ding_t::way), waytype(waytype) { init(); }
+	weg_t(karte_t* const welt, waytype_t waytype) : ding_no_info_t(welt, ding_t::way), waytype(waytype) { init(); }
 
 	virtual ~weg_t();
 
@@ -235,7 +235,7 @@ public:
 	* @return Gibt den typ des Objekts zurück.
 	* @author Hj. Malthaner
 	*/
-	typ get_typ() const { return ding_t::way; }
+	//typ get_typ() const { return ding_t::way; }
 
 	/**
 	* Die Bezeichnung des Wegs

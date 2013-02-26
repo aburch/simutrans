@@ -71,7 +71,10 @@ public:
 	virtual waytype_t get_waytype() const { return get_besch()->get_waytype(); }
 
 	const char *get_name() const {return "Movingobj";}
+#ifdef INLINE_DING_TYPE
+#else
 	typ get_typ() const { return movingobj; }
+#endif
 
 	bool check_season(const long delta_t);
 

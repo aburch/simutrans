@@ -30,7 +30,11 @@ static pthread_mutex_t tunnel_calc_bild_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALI
 #endif
 
 
+#ifdef INLINE_DING_TYPE
+tunnel_t::tunnel_t(karte_t* const welt, loadsave_t* const file) : ding_no_info_t(welt, ding_t::tunnel)
+#else
 tunnel_t::tunnel_t(karte_t* const welt, loadsave_t* const file) : ding_no_info_t(welt)
+#endif
 {
 	besch = 0;
 	rdwr(file);
@@ -40,7 +44,11 @@ tunnel_t::tunnel_t(karte_t* const welt, loadsave_t* const file) : ding_no_info_t
 
 
 tunnel_t::tunnel_t(karte_t *welt, koord3d pos, spieler_t *sp, const tunnel_besch_t *besch) :
+#ifdef INLINE_DING_TYPE
+    ding_no_info_t(welt, ding_t::tunnel, pos)
+#else
 	ding_no_info_t(welt, pos)
+#endif
 {
 	assert(besch);
 	this->besch = besch;

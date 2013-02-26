@@ -43,7 +43,21 @@ const roadsign_besch_t *roadsign_t::default_signal=NULL;
 stringhashtable_tpl<const roadsign_besch_t *> roadsign_t::table;
 
 
+#ifdef INLINE_DING_TYPE
+roadsign_t::roadsign_t(karte_t *welt, typ type, loadsave_t *file) : ding_t (welt, type)
+{
+	init(file);
+}
+
+roadsign_t::roadsign_t(karte_t *welt, loadsave_t *file) : ding_t (welt, ding_t::roadsign)
+{
+	init(file);
+}
+
+void roadsign_t::init(loadsave_t *file)
+#else
 roadsign_t::roadsign_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
+#endif
 {
 	bild = after_bild = IMG_LEER;
 	rdwr(file);
@@ -66,8 +80,22 @@ roadsign_t::roadsign_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
 	}
 }
 
+#ifdef INLINE_DING_TYPE
 
+roadsign_t::roadsign_t(karte_t *welt, typ type, spieler_t *sp, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t* besch) : ding_t(welt, type, pos)
+{
+	init(sp, dir, besch);
+}
+
+roadsign_t::roadsign_t(karte_t *welt, spieler_t *sp, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t *besch) : ding_t(welt, ding_t::roadsign, pos)
+{
+	init(sp, dir, besch);
+}
+
+void roadsign_t::init(spieler_t *sp, ribi_t::ribi dir, const roadsign_besch_t *besch)
+#else
 roadsign_t::roadsign_t(karte_t *welt, spieler_t *sp, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t *besch) : ding_t(welt, pos)
+#endif
 {
 	this->besch = besch;
 	this->dir = dir;
