@@ -126,7 +126,12 @@ public:
 	// s is a buf of size given
 	void rdwr_str(char* s, size_t size);
 
-	void rdwr_str(plainstring&);
+	/**
+	 * Read/Write plainstring.
+	 * @param str the string to be read/written
+	 * @post str should not be NULL after reading.
+	 */
+	void rdwr_str(plainstring& str);
 
 	// only meaningful for XML
 	void start_tag( const char *tag );

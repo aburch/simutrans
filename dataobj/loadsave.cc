@@ -1043,8 +1043,13 @@ void loadsave_t::rdwr_str(plainstring& s)
 	if (is_loading()) {
 		const char* buf = NULL;
 		rdwr_str(buf);
-		s = buf;
-		free(const_cast<char*>(buf));
+		if (buf) {
+			s = buf;
+			free(const_cast<char*>(buf));
+		}
+		else {
+			s = "";
+		}
 	} else {
 		char const* tmp = s.c_str();
 		rdwr_str(tmp);
