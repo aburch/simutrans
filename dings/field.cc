@@ -20,7 +20,11 @@
 #include "field.h"
 
 
+#ifdef INLINE_DING_TYPE
+field_t::field_t(karte_t *welt, koord3d p, spieler_t *sp, const field_class_besch_t *besch, fabrik_t *fab) : ding_t(welt, ding_t::field)
+#else
 field_t::field_t(karte_t *welt, koord3d p, spieler_t *sp, const field_class_besch_t *besch, fabrik_t *fab) : ding_t(welt)
+#endif
 {
 	this->besch = besch;
 	this->fab = fab;

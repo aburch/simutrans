@@ -155,7 +155,12 @@ void movingobj_t::calc_bild()
 
 
 
-movingobj_t::movingobj_t(karte_t *welt, loadsave_t *file) : vehikel_basis_t(welt)
+movingobj_t::movingobj_t(karte_t *welt, loadsave_t *file) : 
+#ifdef INLINE_DING_TYPE
+    vehikel_basis_t(welt, movingobj)
+#else
+    vehikel_basis_t(welt)
+#endif
 {
 	rdwr(file);
 	if(get_besch()) {
@@ -165,7 +170,12 @@ movingobj_t::movingobj_t(karte_t *welt, loadsave_t *file) : vehikel_basis_t(welt
 
 
 
-movingobj_t::movingobj_t(karte_t *welt, koord3d pos, const groundobj_besch_t *b ) : vehikel_basis_t(welt, pos)
+movingobj_t::movingobj_t(karte_t *welt, koord3d pos, const groundobj_besch_t *b ) : 
+#ifdef INLINE_DING_TYPE
+    vehikel_basis_t(welt, movingobj, pos)
+#else
+    vehikel_basis_t(welt, pos)
+#endif
 {
 	groundobjtype = movingobj_typen.index_of(b);
 	season = 0xFF;	// mark dirty

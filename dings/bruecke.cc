@@ -19,14 +19,22 @@
 
 
 
+#ifdef INLINE_DING_TYPE
+bruecke_t::bruecke_t(karte_t* const welt, loadsave_t* const file) : ding_no_info_t(welt, ding_t::bruecke)
+#else
 bruecke_t::bruecke_t(karte_t* const welt, loadsave_t* const file) : ding_no_info_t(welt)
+#endif
 {
 	rdwr(file);
 }
 
 
 bruecke_t::bruecke_t(karte_t *welt, koord3d pos, spieler_t *sp, const bruecke_besch_t *besch, bruecke_besch_t::img_t img) :
+#ifdef INLINE_DING_TYPE
+ ding_no_info_t(welt, ding_t::bruecke, pos)
+#else
  ding_no_info_t(welt, pos)
+#endif
 {
 	this->besch = besch;
 	this->img = img;

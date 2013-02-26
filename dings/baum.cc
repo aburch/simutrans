@@ -437,7 +437,11 @@ uint16 baum_t::random_tree_for_climate_intern(climate cl)
 }
 
 
+#ifdef INLINE_DING_TYPE
+baum_t::baum_t(karte_t *welt, loadsave_t *file) : ding_t(welt, ding_t::baum)
+#else
 baum_t::baum_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
+#endif
 {
 	season = 0;
 	geburt = welt->get_current_month();
@@ -446,7 +450,11 @@ baum_t::baum_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 }
 
 
+#ifdef INLINE_DING_TYPE
+baum_t::baum_t(karte_t *welt, koord3d pos) : ding_t(welt, ding_t::baum, pos)
+#else
 baum_t::baum_t(karte_t *welt, koord3d pos) : ding_t(welt, pos)
+#endif
 {
 	// generate aged trees
 	// might underflow
@@ -458,7 +466,11 @@ baum_t::baum_t(karte_t *welt, koord3d pos) : ding_t(welt, pos)
 }
 
 
+#ifdef INLINE_DING_TYPE
+baum_t::baum_t(karte_t *welt, koord3d pos, uint8 type, sint32 age, uint8 slope ) : ding_t(welt, ding_t::baum, pos)
+#else
 baum_t::baum_t(karte_t *welt, koord3d pos, uint8 type, sint32 age, uint8 slope ) : ding_t(welt, pos)
+#endif
 {
 	geburt = welt->get_current_month()-age; // might underflow
 	baumtype = type;
@@ -468,7 +480,11 @@ baum_t::baum_t(karte_t *welt, koord3d pos, uint8 type, sint32 age, uint8 slope )
 }
 
 
+#ifdef INLINE_DING_TYPE
+baum_t::baum_t(karte_t *welt, koord3d pos, const baum_besch_t *besch) : ding_t(welt, ding_t::baum, pos)
+#else
 baum_t::baum_t(karte_t *welt, koord3d pos, const baum_besch_t *besch) : ding_t(welt, pos)
+#endif
 {
 	geburt = welt->get_current_month();
 	baumtype = baum_typen.index_of(besch);

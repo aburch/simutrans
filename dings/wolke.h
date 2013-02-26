@@ -31,7 +31,10 @@ public:
 	bool sync_step(long delta_t);
 
 	const char* get_name() const { return "Wolke"; }
+#ifdef INLINE_DING_TYPE
+#else
 	typ get_typ() const { return sync_wolke; }
+#endif
 
 	image_id get_bild() const;
 
@@ -48,7 +51,10 @@ class async_wolke_t : public ding_t
 {
 public:
 	async_wolke_t(karte_t *welt, loadsave_t *file);
+#ifdef INLINE_DING_TYPE
+#else
 	typ get_typ() const { return async_wolke; }
+#endif
 	image_id get_bild() const { return IMG_LEER; }
 };
 
@@ -56,7 +62,10 @@ class raucher_t : public ding_t
 {
 public:
 	raucher_t(karte_t *welt, loadsave_t *file);
+#ifdef INLINE_DING_TYPE
+#else
 	typ get_typ() const { return raucher; }
+#endif
 	image_id get_bild() const { return IMG_LEER; }
 };
 

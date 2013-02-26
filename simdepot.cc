@@ -38,7 +38,11 @@
 
 slist_tpl<depot_t *> depot_t::all_depots;
 
+#ifdef INLINE_DING_TYPE
+depot_t::depot_t(karte_t *welt, ding_t::typ type, loadsave_t *file) : gebaeude_t(welt, type)
+#else
 depot_t::depot_t(karte_t *welt,loadsave_t *file) : gebaeude_t(welt)
+#endif
 {
 	rdwr(file);
 	if(file->get_version()<88002) {
@@ -51,8 +55,13 @@ depot_t::depot_t(karte_t *welt,loadsave_t *file) : gebaeude_t(welt)
 }
 
 
+#ifdef INLINE_DING_TYPE
+depot_t::depot_t(karte_t *welt, ding_t::typ type, koord3d pos, spieler_t *sp, const haus_tile_besch_t *t) :
+    gebaeude_t(welt, type, pos, sp, t)
+#else
 depot_t::depot_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_tile_besch_t *t) :
     gebaeude_t(welt, pos, sp, t)
+#endif
 {
 	all_depots.append(this);
 	selected_filter = VEHICLE_FILTER_RELEVANT;

@@ -16,7 +16,11 @@
 #include "../dataobj/umgebung.h"
 #include "zeiger.h"
 
+#ifdef INLINE_DING_TYPE
+zeiger_t::zeiger_t(karte_t *welt, loadsave_t *file) : ding_no_info_t(welt, ding_t::zeiger)
+#else
 zeiger_t::zeiger_t(karte_t *welt, loadsave_t *file) : ding_no_info_t(welt)
+#endif
 {
 	bild = IMG_LEER;
 	after_bild = IMG_LEER;
@@ -27,7 +31,11 @@ zeiger_t::zeiger_t(karte_t *welt, loadsave_t *file) : ding_no_info_t(welt)
 
 
 zeiger_t::zeiger_t(karte_t *welt, koord3d pos, spieler_t *sp) :
+#ifdef INLINE_DING_TYPE
+    ding_no_info_t(welt, ding_t::zeiger, pos)
+#else
     ding_no_info_t(welt, pos)
+#endif
 {
 	set_besitzer( sp );
 	bild = IMG_LEER;

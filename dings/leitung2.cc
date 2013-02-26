@@ -96,7 +96,20 @@ fabrik_t *leitung_t::suche_fab_4(const koord pos)
 }
 
 
+#ifdef INLINE_DING_TYPE
+leitung_t::leitung_t(karte_t *welt, typ type, loadsave_t *file) : ding_t(welt, type)
+{
+	city = NULL;
+	bild = IMG_LEER;
+	set_net(NULL);
+	ribi = ribi_t::keine;
+	rdwr(file);
+}
+
+leitung_t::leitung_t(karte_t *welt, loadsave_t *file) : ding_t(welt, ding_t::leitung)
+#else
 leitung_t::leitung_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
+#endif
 {
 	city = NULL;
 	bild = IMG_LEER;
@@ -106,7 +119,20 @@ leitung_t::leitung_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 }
 
 
+#ifdef INLINE_DING_TYPE
+leitung_t::leitung_t(karte_t *welt, typ type, koord3d pos, spieler_t *sp) : ding_t(welt, type, pos)
+{
+	city = NULL;
+	bild = IMG_LEER;
+	set_net(NULL);
+	set_besitzer( sp );
+	set_besch(wegbauer_t::leitung_besch);
+}
+
+leitung_t::leitung_t(karte_t *welt, koord3d pos, spieler_t *sp) : ding_t(welt, ding_t::leitung, pos)
+#else
 leitung_t::leitung_t(karte_t *welt, koord3d pos, spieler_t *sp) : ding_t(welt, pos)
+#endif
 {
 	city = NULL;
 	bild = IMG_LEER;
@@ -503,7 +529,11 @@ void pumpe_t::step_all(long delta_t)
 	}
 }
 
+#ifdef INLINE_DING_TYPE
+pumpe_t::pumpe_t(karte_t *welt, loadsave_t *file ) : leitung_t( welt, ding_t::pumpe, koord3d::invalid, NULL )
+#else
 pumpe_t::pumpe_t(karte_t *welt, loadsave_t *file ) : leitung_t( welt, koord3d::invalid, NULL )
+#endif
 {
 	fab = NULL;
 	supply = 0;
@@ -511,7 +541,11 @@ pumpe_t::pumpe_t(karte_t *welt, loadsave_t *file ) : leitung_t( welt, koord3d::i
 }
 
 
+#ifdef INLINE_DING_TYPE
+pumpe_t::pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , ding_t::pumpe, pos, sp)
+#else
 pumpe_t::pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , pos, sp)
+#endif
 {
 	fab = NULL;
 	supply = 0;
@@ -629,7 +663,11 @@ void senke_t::step_all(long delta_t)
 }
 
 
+#ifdef INLINE_DING_TYPE
+senke_t::senke_t(karte_t *welt, loadsave_t *file) : leitung_t( welt, ding_t::senke, koord3d::invalid, NULL )
+#else
 senke_t::senke_t(karte_t *welt, loadsave_t *file) : leitung_t( welt, koord3d::invalid, NULL )
+#endif
 {
 	fab = NULL;
 	einkommen = 0;
@@ -643,7 +681,11 @@ senke_t::senke_t(karte_t *welt, loadsave_t *file) : leitung_t( welt, koord3d::in
 }
 
 
+#ifdef INLINE_DING_TYPE
+senke_t::senke_t(karte_t *welt, koord3d pos, spieler_t *sp, stadt_t* c) : leitung_t(welt, ding_t::senke, pos, sp)
+#else
 senke_t::senke_t(karte_t *welt, koord3d pos, spieler_t *sp, stadt_t* c) : leitung_t(welt, pos, sp)
+#endif
 {
 	fab = NULL;
 	einkommen = 0;

@@ -51,9 +51,13 @@
 /**********************************************************************************************************************/
 /* Verkehrsteilnehmer (basis class) from here on */
 
-
+#ifdef INLINE_DING_TYPE
+verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt, typ type) :
+	vehikel_basis_t(welt, type)
+#else
 verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt) :
 	vehikel_basis_t(welt)
+#endif
 {
 	set_besitzer( welt->get_spieler(1) );
 	time_to_life = 0;
@@ -72,8 +76,13 @@ verkehrsteilnehmer_t::~verkehrsteilnehmer_t()
 }
 
 
+#ifdef INLINE_DING_TYPE
+verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt, typ type, koord3d pos, uint16 random) :
+	vehikel_basis_t(welt, type, pos)
+#else
 verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt, koord3d pos, uint16 random) :
 	vehikel_basis_t(welt, pos)
+#endif
 {
 	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
 	grund_t *from = welt->lookup(pos);
@@ -415,9 +424,12 @@ stadtauto_t::~stadtauto_t()
 //>>>>>>> v111.3
 }
 
-
 stadtauto_t::stadtauto_t(karte_t *welt, loadsave_t *file) :
+#ifdef INLINE_DING_TYPE
+	verkehrsteilnehmer_t(welt, ding_t::verkehr)
+#else
 	verkehrsteilnehmer_t(welt)
+#endif
 {
 	rdwr(file);
 		
@@ -428,7 +440,11 @@ stadtauto_t::stadtauto_t(karte_t *welt, loadsave_t *file) :
 
 
 stadtauto_t::stadtauto_t(karte_t* const welt, koord3d const pos, koord const target, slist_tpl<stadtauto_t*>* car_list) :
+#ifdef INLINE_DING_TYPE
+	verkehrsteilnehmer_t(welt, ding_t::verkehr, pos, simrand(65535, "stadtauto_t::stadtauto_t (weg_next)")),
+#else
 	verkehrsteilnehmer_t(welt, pos, simrand(65535, "stadtauto_t::stadtauto_t (weg_next)")),
+#endif
 	besch(liste_timeline.empty() ? 0 : pick_any_weighted(liste_timeline))
 {
 	pos_next_next = koord3d::invalid;

@@ -48,14 +48,18 @@ protected:
 	virtual void hop();
 	virtual void update_bookkeeping(uint32) {};
 
+#ifdef INLINE_DING_TYPE
+	verkehrsteilnehmer_t(karte_t *welt, typ type);
+	verkehrsteilnehmer_t(karte_t *welt, typ type, koord3d pos, uint16 random);
+#else
 	verkehrsteilnehmer_t(karte_t *welt);
 	verkehrsteilnehmer_t(karte_t *welt, koord3d pos, uint16 random);
-
+#endif
 public:
 	virtual ~verkehrsteilnehmer_t();
 
 	const char *get_name() const = 0;
-	typ get_typ() const  = 0;
+	//typ get_typ() const  = 0;
 
 	/**
 	 * Öffnet ein neues Beobachtungsfenster für das Objekt.
@@ -129,7 +133,7 @@ public:
 	uint16 get_current_speed() const {return current_speed;}
 
 	const char *get_name() const {return "Verkehrsteilnehmer";}
-	typ get_typ() const { return verkehr; }
+	//typ get_typ() const { return verkehr; }
 
 	/**
 	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem

@@ -92,13 +92,23 @@ private:
 	 */
 	void init();
 
+#ifdef INLINE_DING_TYPE
+protected:
+	gebaeude_t(karte_t *welt, ding_t::typ type);
+	gebaeude_t(karte_t *welt, ding_t::typ type, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t);
+	void init(spieler_t *sp, const haus_tile_besch_t *t);
 
+public:
+	gebaeude_t(karte_t *welt, loadsave_t *file);
+	gebaeude_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t);
+#else
 protected:
 	gebaeude_t(karte_t *welt);
 
 public:
 	gebaeude_t(karte_t *welt, loadsave_t *file);
 	gebaeude_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t);
+#endif
 	virtual ~gebaeude_t();
 
 	void rotate90();
@@ -124,7 +134,10 @@ public:
 	fabrik_t* get_fabrik() const { return is_factory ? ptr.fab : NULL; }
 	stadt_t* get_stadt() const { return is_factory ? NULL : ptr.stadt; }
 
+#ifdef INLINE_DING_TYPE
+#else
 	ding_t::typ get_typ() const { return ding_t::gebaeude; }
+#endif
 
 	/**
 	 * waytype associated with this object

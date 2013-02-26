@@ -179,9 +179,13 @@ bool vehikel_basis_t::is_about_to_hop( const sint8 neu_xoff, const sint8 neu_yof
 }
 
 
-
+#ifdef INLINE_DING_TYPE
+vehikel_basis_t::vehikel_basis_t(karte_t *welt, typ type):
+	ding_t(welt, type)
+#else
 vehikel_basis_t::vehikel_basis_t(karte_t *welt):
 	ding_t(welt)
+#endif
 {
 	bild = IMG_LEER;
 	set_flag( ding_t::is_vehicle );
@@ -195,9 +199,13 @@ vehikel_basis_t::vehikel_basis_t(karte_t *welt):
 }
 
 
-
+#ifdef INLINE_DING_TYPE
+vehikel_basis_t::vehikel_basis_t(karte_t *welt, typ type, koord3d pos):
+	ding_t(welt, type, pos)
+#else
 vehikel_basis_t::vehikel_basis_t(karte_t *welt, koord3d pos):
 	ding_t(welt, pos)
+#endif
 {
 	bild = IMG_LEER;
 	set_flag( ding_t::is_vehicle );
@@ -602,7 +610,7 @@ sint8 vehikel_basis_t::calc_height()
 vehikel_basis_t *vehikel_basis_t::no_cars_blocking( const grund_t *gr, const convoi_t *cnv, const uint8 current_fahrtrichtung, const uint8 next_fahrtrichtung, const uint8 next_90fahrtrichtung )
 {
 	// suche vehikel
-	for(  uint8 pos=1;  pos<(volatile uint8)gr->get_top();  pos++ ) {
+	for(  uint8 pos=1;  pos<(/*volatile*/ uint8)gr->get_top();  pos++ ) {
 		if (vehikel_basis_t* const v = ding_cast<vehikel_basis_t>(gr->obj_bei(pos))) {
 			if(  v->get_typ()==ding_t::fussgaenger  ) {
 				continue;
@@ -1194,9 +1202,13 @@ void vehikel_t::neue_fahrt(uint16 start_route_index, bool recalc)
 }
 
 
-
+#ifdef INLINE_DING_TYPE
+vehikel_t::vehikel_t(typ type, koord3d pos, const vehikel_besch_t* besch, spieler_t* sp) :
+	vehikel_basis_t(sp->get_welt(), type, pos)
+#else
 vehikel_t::vehikel_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp) :
 	vehikel_basis_t(sp->get_welt(), pos)
+#endif
 {
 	this->besch = besch;
 
@@ -1241,8 +1253,13 @@ vehikel_t::vehikel_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp) :
 
 sint64 vehikel_t::sound_ticks = 0;
 
+#ifdef INLINE_DING_TYPE
+vehikel_t::vehikel_t(karte_t *welt, typ type) :
+	vehikel_basis_t(welt, type)
+#else
 vehikel_t::vehikel_t(karte_t *welt) :
 	vehikel_basis_t(welt)
+#endif
 {
 	rauchen = true;
 
@@ -2577,21 +2594,35 @@ void vehikel_t::before_delete()
 
 
 automobil_t::automobil_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cn) :
-	vehikel_t(pos, besch, sp)
+#ifdef INLINE_DING_TYPE
+    vehikel_t(ding_t::automobil, pos, besch, sp)
+#else
+    vehikel_t(pos, besch, sp)
+#endif
 {
 	cnv = cn;
 	is_checker = false;
 	drives_on_left = welt->get_settings().is_drive_left();
 }
 
-automobil_t::automobil_t(karte_t *welt) : vehikel_t(welt)
+automobil_t::automobil_t(karte_t *welt) : 
+#ifdef INLINE_DING_TYPE
+    vehikel_t(welt, ding_t::automobil)
+#else
+    vehikel_t(welt)
+#endif
 {
 	// This is blank - just used for the automatic road finder.
 	cnv = NULL;
 	is_checker = true;
 }
 
-automobil_t::automobil_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last) : vehikel_t(welt)
+automobil_t::automobil_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last) : 
+#ifdef INLINE_DING_TYPE
+    vehikel_t(welt, ding_t::automobil)
+#else
+    vehikel_t(welt)
+#endif
 {
 	rdwr_from_convoi(file);
 
@@ -3233,7 +3264,26 @@ void automobil_t::set_convoi(convoi_t *c)
 
 /* from now on rail vehicles (and other vehicles using blocks) */
 
-waggon_t::waggon_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last) : vehikel_t(welt)
+
+
+#ifdef INLINE_DING_TYPE
+waggon_t::waggon_t(karte_t *welt, typ type, loadsave_t *file, bool is_first, bool is_last) : 
+    vehikel_t(welt, type)
+{
+	init(file, is_first, is_last);
+}
+
+waggon_t::waggon_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last) : 
+    vehikel_t(welt, ding_t::waggon)
+{
+	init(file, is_first, is_last);
+}
+
+void waggon_t::init(loadsave_t *file, bool is_first, bool is_last)
+#else
+waggon_t::waggon_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last) : 
+    vehikel_t(welt)
+#endif
 {
 	vehikel_t::rdwr_from_convoi(file);
 
@@ -3275,9 +3325,20 @@ DBG_MESSAGE("waggon_t::waggon_t()","replaced by %s",besch->get_name());
 	}
 }
 
+#ifdef INLINE_DING_TYPE
+waggon_t::waggon_t(typ type, koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cn) :
+    vehikel_t(type, pos, besch, sp)
+{
+    cnv = cn;
+}
+#endif
 
 waggon_t::waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cn) :
+#ifdef INLINE_DING_TYPE
+    vehikel_t(ding_t::waggon, pos, besch, sp)
+#else
 	vehikel_t(pos, besch, sp)
+#endif
 {
     cnv = cn;
 }
@@ -4235,12 +4296,21 @@ schedule_t * narrowgauge_waggon_t::erzeuge_neuen_fahrplan() const
 
 
 schiff_t::schiff_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cn) :
+#ifdef INLINE_DING_TYPE
+    vehikel_t(ding_t::schiff, pos, besch, sp)
+#else
 	vehikel_t(pos, besch, sp)
+#endif
 {
 	cnv = cn;
 }
 
-schiff_t::schiff_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last) : vehikel_t(welt)
+schiff_t::schiff_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last) :
+#ifdef INLINE_DING_TYPE
+    vehikel_t(welt, ding_t::schiff)
+#else
+    vehikel_t(welt)
+#endif
 {
 	vehikel_t::rdwr_from_convoi(file);
 
@@ -5230,7 +5300,12 @@ aircraft_t::betrete_feld()
 
 
 
-aircraft_t::aircraft_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last) : vehikel_t(welt)
+aircraft_t::aircraft_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last) :
+#ifdef INLINE_DING_TYPE
+	vehikel_t(welt, ding_t::aircraft)
+#else
+    vehikel_t(welt)
+#endif
 {
 	rdwr_from_convoi(file);
 	old_x = old_y = -1;
@@ -5260,7 +5335,11 @@ aircraft_t::aircraft_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_l
 
 
 aircraft_t::aircraft_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cn) :
+#ifdef INLINE_DING_TYPE
+    vehikel_t(ding_t::aircraft, pos, besch, sp)
+#else
 	vehikel_t(pos, besch, sp)
+#endif
 {
 	cnv = cn;
 	state = taxiing;

@@ -158,9 +158,15 @@ public:
 
 	virtual overtaker_t *get_overtaker() { return NULL; }
 
+#ifdef INLINE_DING_TYPE
+protected:
+	vehikel_basis_t(karte_t *welt, typ type);
+	vehikel_basis_t(karte_t *welt, typ type, koord3d pos);
+#else
 	vehikel_basis_t(karte_t *welt);
 
 	vehikel_basis_t(karte_t *welt, koord3d pos);
+#endif
 };
 
 
@@ -393,8 +399,15 @@ public:
 	*/
 	void neue_fahrt( uint16 start_route_index, bool recalc );
 
+#ifdef INLINE_DING_TYPE
+protected:
+	vehikel_t(karte_t *welt, typ type);
+	vehikel_t(typ type, koord3d pos, const vehikel_besch_t* besch, spieler_t* sp);
+public:
+#else
 	vehikel_t(karte_t *welt);
 	vehikel_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp);
+#endif
 
 	~vehikel_t();
 
@@ -636,7 +649,10 @@ public:
 	// since we must consider overtaking, we use this for offset calculation
 	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const;
 
+#ifdef INLINE_DING_TYPE
+#else
 	ding_t::typ get_typ() const { return automobil; }
+#endif
 
 	schedule_t * erzeuge_neuen_fahrplan() const;
 
@@ -688,7 +704,15 @@ public:
 
 	void verlasse_feld();
 
+#ifdef INLINE_DING_TYPE
+protected:
+	waggon_t(karte_t *welt, typ type, loadsave_t *file, bool is_first, bool is_last);
+	waggon_t(typ type, koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t *cnv); // start und fahrplan
+	void init(loadsave_t *file, bool is_first, bool is_last);
+public:
+#else
 	typ get_typ() const { return waggon; }
+#endif
 
 	waggon_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last);
 	waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t *cnv); // start und fahrplan
@@ -711,11 +735,17 @@ class monorail_waggon_t : public waggon_t
 public:
 	virtual waytype_t get_waytype() const { return monorail_wt; }
 
+#ifdef INLINE_DING_TYPE
+	// all handled by waggon_t
+	monorail_waggon_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last) : waggon_t(welt, monorailwaggon, file,is_first, is_last) {}
+	monorail_waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv) : waggon_t(monorailwaggon, pos, besch, sp, cnv) {}
+#else
 	// all handled by waggon_t
 	monorail_waggon_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last) : waggon_t(welt, file,is_first, is_last) {}
 	monorail_waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv) : waggon_t(pos, besch, sp, cnv) {}
 
 	typ get_typ() const { return monorailwaggon; }
+#endif
 
 	schedule_t * erzeuge_neuen_fahrplan() const;
 };
@@ -732,11 +762,17 @@ class maglev_waggon_t : public waggon_t
 public:
 	virtual waytype_t get_waytype() const { return maglev_wt; }
 
+#ifdef INLINE_DING_TYPE
+	// all handled by waggon_t
+	maglev_waggon_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last) : waggon_t(welt, maglevwaggon, file, is_first, is_last) {}
+	maglev_waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv) : waggon_t(maglevwaggon, pos, besch, sp, cnv) {}
+#else
 	// all handled by waggon_t
 	maglev_waggon_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last) : waggon_t(welt, file, is_first, is_last) {}
 	maglev_waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv) : waggon_t(pos, besch, sp, cnv) {}
 
 	typ get_typ() const { return maglevwaggon; }
+#endif
 
 	schedule_t * erzeuge_neuen_fahrplan() const;
 };
@@ -753,11 +789,17 @@ class narrowgauge_waggon_t : public waggon_t
 public:
 	virtual waytype_t get_waytype() const { return narrowgauge_wt; }
 
+#ifdef INLINE_DING_TYPE
+	// all handled by waggon_t
+	narrowgauge_waggon_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last) : waggon_t(welt, narrowgaugewaggon, file, is_first, is_last) {}
+	narrowgauge_waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv) : waggon_t(narrowgaugewaggon, pos, besch, sp, cnv) {}
+#else
 	// all handled by waggon_t
 	narrowgauge_waggon_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last) : waggon_t(welt, file, is_first, is_last) {}
 	narrowgauge_waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv) : waggon_t(pos, besch, sp, cnv) {}
 
 	typ get_typ() const { return narrowgaugewaggon; }
+#endif
 
 	schedule_t * erzeuge_neuen_fahrplan() const;
 };
@@ -792,7 +834,10 @@ public:
 	schiff_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last);
 	schiff_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv); // start und fahrplan
 
+#ifdef INLINE_DING_TYPE
+#else
 	ding_t::typ get_typ() const { return schiff; }
+#endif
 
 	schedule_t * erzeuge_neuen_fahrplan() const;
 
@@ -888,7 +933,10 @@ public:
 	// BG, 08.08.2012: extracted from ist_weg_frei()
     bool reroute(const uint16 reroute_index, const koord3d &ziel);
 
+#ifdef INLINE_DING_TYPE
+#else
 	typ get_typ() const { return aircraft; }
+#endif
 
 	schedule_t * erzeuge_neuen_fahrplan() const;
 

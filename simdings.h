@@ -8,6 +8,12 @@
 #ifndef simdings_h
 #define simdings_h
 
+#define INLINE_DING_TYPE
+
+#ifdef INLINE_DING_TYPE
+#else
+#endif
+
 #include "simtypes.h"
 #include "simimg.h"
 #include "simcolor.h"
@@ -80,7 +86,10 @@ private:
 	void init(karte_t *welt);
 
 protected:
+#ifdef INLINE_DING_TYPE
+#else
 	ding_t(karte_t *welt);
+#endif
 
 	// since we often need access during loading
 	void set_player_nr(uint8 s) { besitzer_n = s; }
@@ -194,7 +203,12 @@ public:
 	 * This does *not* add the object to the tile
 	 * @author Hj. Malthaner
 	 */
+#ifdef INLINE_DING_TYPE
+	ding_t(karte_t *welt, typ type);
+	ding_t(karte_t *welt, typ type, koord3d pos);
+#else
 	ding_t(karte_t *welt, koord3d pos);
+#endif
 
 	karte_t* get_welt() const { return welt; }
 
@@ -221,7 +235,14 @@ public:
 	 * @author Hj. Malthaner
 	 * @see typ
 	 */
+#ifdef INLINE_DING_TYPE
+private:
+	typ type;
+public:
+	inline typ get_typ() const { return type; }
+#else
 	virtual typ get_typ() const = 0;
+#endif
 
 	/**
 	 * waytype associated with this object
@@ -362,14 +383,21 @@ template<typename T> static inline T const* ding_cast(ding_t const* const d)
 class ding_no_info_t : public ding_t
 {
 public:
+#ifdef INLINE_DING_TYPE
+#else
 	ding_no_info_t(karte_t* welt, loadsave_t* file) : ding_t(welt, file) {}
-
 	ding_no_info_t(karte_t* welt, koord3d pos) : ding_t(welt, pos) {}
+#endif
 
 	void zeige_info() {}
 
 protected:
+#ifdef INLINE_DING_TYPE
+	ding_no_info_t(karte_t* welt, typ type) : ding_t(welt, type) {}
+	ding_no_info_t(karte_t* welt, typ type, koord3d pos) : ding_t(welt, type, pos) {}
+#else
 	ding_no_info_t(karte_t* welt) : ding_t(welt) {}
+#endif
 };
 
 #endif

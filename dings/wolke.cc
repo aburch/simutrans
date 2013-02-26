@@ -35,7 +35,11 @@ bool wolke_t::register_besch(const skin_besch_t* besch)
 
 
 wolke_t::wolke_t(karte_t *welt, koord3d pos, sint8 x_off, sint8 y_off, const skin_besch_t* besch ) :
-	ding_no_info_t(welt, pos)
+#ifdef INLINE_DING_TYPE
+    ding_no_info_t(welt, ding_t::sync_wolke, pos)
+#else
+    ding_no_info_t(welt, pos)
+#endif
 {
 	cloud_nr = all_clouds.index_of(besch);
 	base_y_off = clamp( (((sint16)y_off-8)*OBJECT_OFFSET_STEPS)/16, -128, 127 );
@@ -57,8 +61,11 @@ wolke_t::~wolke_t()
 }
 
 
-
+#ifdef INLINE_DING_TYPE
+wolke_t::wolke_t(karte_t* const welt, loadsave_t* const file) : ding_no_info_t(welt, ding_t::sync_wolke)
+#else
 wolke_t::wolke_t(karte_t* const welt, loadsave_t* const file) : ding_no_info_t(welt)
+#endif
 {
 	rdwr(file);
 }
@@ -127,7 +134,11 @@ void wolke_t::rotate90()
 
 /***************************** just for compatibility, the old raucher and smoke clouds *********************************/
 
+#ifdef INLINE_DING_TYPE
+raucher_t::raucher_t(karte_t *welt, loadsave_t *file) : ding_t(welt, ding_t::raucher)
+#else
 raucher_t::raucher_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
+#endif
 {
 	assert(file->is_loading());
 	ding_t::rdwr( file );
@@ -140,7 +151,11 @@ raucher_t::raucher_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 }
 
 
+#ifdef INLINE_DING_TYPE
+async_wolke_t::async_wolke_t(karte_t *welt, loadsave_t *file) : ding_t(welt, ding_t::async_wolke)
+#else
 async_wolke_t::async_wolke_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
+#endif
 {
 	// not saving clouds!
 	assert(file->is_loading());

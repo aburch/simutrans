@@ -30,7 +30,11 @@ static pthread_mutex_t crossing_logic_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZE
 #endif
 
 
+#ifdef INLINE_DING_TYPE
+crossing_t::crossing_t(karte_t* const welt, loadsave_t* const file) : ding_no_info_t(welt, ding_t::crossing)
+#else
 crossing_t::crossing_t(karte_t* const welt, loadsave_t* const file) : ding_no_info_t(welt)
+#endif
 {
 	bild = after_bild = IMG_LEER;
 	logic = NULL;
@@ -38,7 +42,11 @@ crossing_t::crossing_t(karte_t* const welt, loadsave_t* const file) : ding_no_in
 }
 
 
+#ifdef INLINE_DING_TYPE
+crossing_t::crossing_t(karte_t* const welt, spieler_t* const sp, koord3d const pos, kreuzung_besch_t const* const besch, uint8 const ns) : ding_no_info_t(welt, ding_t::crossing, pos)
+#else
 crossing_t::crossing_t(karte_t* const welt, spieler_t* const sp, koord3d const pos, kreuzung_besch_t const* const besch, uint8 const ns) : ding_no_info_t(welt, pos)
+#endif
 {
 	this->ns = ns;
 	this->besch = besch;

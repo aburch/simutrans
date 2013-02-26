@@ -26,7 +26,10 @@ public:
 	void change_pos(koord3d k);
 
 	const char *get_name() const {return "Zeiger";}
+#ifdef INLINE_DING_TYPE
+#else
 	typ get_typ() const { return zeiger; }
+#endif
 
 	void set_area( koord area, bool center );
 
