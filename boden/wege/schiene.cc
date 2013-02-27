@@ -54,8 +54,14 @@ void schiene_t::info(cbuffer_t & buf) const
 	weg_t::info(buf);
 
 	if(reserved.is_bound()) {
-		buf.append(translator::translate("\nis reserved by:"));
+		const char* reserve_text = translator::translate("\nis reserved by:");
+		// ignore linebreak
+		if (reserve_text[0] == '\n') {
+			reserve_text++;
+		}
+		buf.append(reserve_text);
 		buf.append(reserved->get_name());
+		buf.append("\n");
 #ifdef DEBUG_PBS
 		reserved->zeige_info();
 #endif

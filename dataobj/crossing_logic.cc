@@ -43,7 +43,7 @@ void crossing_logic_t::info(cbuffer_t & buf) const
 {
 	static char const* const state_str[4] = { "invalid", "open", "request closing", "closed" };
 	assert(zustand<4);
-	buf.printf("%s%u%s%u%s%s",
+	buf.printf("%s%u%s%u%s%s\n",
 		translator::translate("\nway1 reserved by"), on_way1.get_count(),
 		translator::translate("\nway2 reserved by"), on_way2.get_count(),
 		translator::translate("cars.\nstate"), translator::translate(state_str[zustand])
