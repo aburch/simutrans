@@ -386,6 +386,10 @@ bool schedule_t::sscanf_schedule( const char *ptr )
 	while (!eintrag.empty()) {
 		remove();
 	}
+	if ( p == NULL  ||  *p == 0) {
+		// empty string
+		return false;
+	}
 	//  first get aktuell pointer
 	aktuell = atoi( p );
 	while(  *p  &&  *p!='|'  ) {
