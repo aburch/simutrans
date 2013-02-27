@@ -2966,40 +2966,45 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 		set_name( station_name_to_transfer );
 	}
 
+	bool remove_halt = true;
 	planquadrat_t *pl = welt->access( gr->get_pos().get_2d() );
 	if(pl) {
-		// no longer connected (upper level)
+		// no longer present on tile
 		gr->set_halt(halthandle_t());
 		// still connected elsewhere?
 		for(unsigned i=0;  i<pl->get_boden_count();  i++  ) {
 			if(pl->get_boden_bei(i)->get_halt()==self) {
 				// still connected with other ground => do not remove from plan ...
-				DBG_DEBUG("haltestelle_t::rem_grund()", "keep floor, count=%i", tiles.get_count());
-				return true;
+				remove_halt = false;
+				break;
 			}
 		}
-		DBG_DEBUG("haltestelle_t::rem_grund()", "remove also floor, count=%i", tiles.get_count());
-		// otherwise remove from plan ...
-		pl->set_halt(halthandle_t());
-		pl->get_kartenboden()->set_flag(grund_t::dirty);
 	}
 
-	int const cov = welt->get_settings().get_station_coverage();
-	for (int y = -cov; y <= cov; y++) {
-		for (int x = -cov; x <= cov; x++) {
-			planquadrat_t *pl = welt->access( gr->get_pos().get_2d()+koord(x,y) );
-			if(pl) {
-				pl->remove_from_haltlist(welt,self);
-				pl->get_kartenboden()->set_flag(grund_t::dirty);
+	if (remove_halt) {
+		// otherwise remove from plan ...
+		if (pl) {
+			pl->set_halt(halthandle_t());
+			pl->get_kartenboden()->set_flag(grund_t::dirty);
+		}
+
+		int const cov = welt->get_settings().get_station_coverage();
+		for (int y = -cov; y <= cov; y++) {
+			for (int x = -cov; x <= cov; x++) {
+				planquadrat_t *pl = welt->access( gr->get_pos().get_2d()+koord(x,y) );
+				if(pl) {
+					pl->remove_from_haltlist(welt,self);
+					pl->get_kartenboden()->set_flag(grund_t::dirty);
+				}
 			}
 		}
+
+		// factory reach may have been changed ...
+		verbinde_fabriken();
 	}
 
 	// needs to be done, if this was a dock
 	recalc_station_type();
-
-	// factory reach may have been changed ...
-	verbinde_fabriken();
 
 	// remove lines eventually
 	for(  size_t j = registered_lines.get_count();  j-- != 0;  ) {
