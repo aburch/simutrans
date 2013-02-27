@@ -505,6 +505,7 @@
     <ClCompile Include="dataobj\pwd_hash.cc" />
     <ClCompile Include="gui\ai_option_t.cc" />
     <ClCompile Include="gui\components\gui_ding_view_t.cc" />
+    <ClCompile Include="gui\convoy_item.cc" />
     <ClCompile Include="gui\display_settings.cc" />
     <ClCompile Include="gui\factory_chart.cc" />
     <ClCompile Include="gui\line_item.cc" />
@@ -530,6 +531,7 @@
     <ClCompile Include="script\api\api_convoy.cc" />
     <ClCompile Include="script\api\api_factory.cc" />
     <ClCompile Include="script\api\api_goods_desc.cc" />
+    <ClCompile Include="script\api\api_gui.cc" />
     <ClCompile Include="script\api\api_halt.cc" />
     <ClCompile Include="script\api\api_player.cc" />
     <ClCompile Include="script\api\api_scenario.cc" />
@@ -545,9 +547,11 @@
     <ClCompile Include="script\export_objs.cc" />
     <ClCompile Include="script\script.cc" />
     <ClCompile Include="simgraph0.cc" />
+    <ClCompile Include="simloadingscreen.cc" />
     <ClCompile Include="simsys.cc" />
     <ClCompile Include="simsys_w.cc" />
     <ClCompile Include="simsys_w32_png.cc" />
+    <ClCompile Include="simunits.cc" />
     <ClCompile Include="squirrel\sqstdlib\sqstdaux.cc" />
     <ClCompile Include="squirrel\sqstdlib\sqstdblob.cc" />
     <ClCompile Include="squirrel\sqstdlib\sqstdio.cc" />
