@@ -72,11 +72,7 @@ void zeiger_t::change_pos(koord3d k )
 				if(gr->get_halt().is_bound()  &&  umgebung_t::station_coverage_show) {
 					gr->get_halt()->mark_unmark_coverage( true );
 				}
-				// only mark this, if it is not in underground mode
-				// or in underground mode, if it is deep enough
-//				if(!grund_t::underground_mode  ||  get_pos().z<gr->get_hoehe()) {
-					welt->mark_area( k-(area*center)/2, area, true );
-				//}
+				welt->mark_area( k-(area*center)/2, area, true );
 			}
 		}
 	}
@@ -89,11 +85,6 @@ void zeiger_t::set_bild( image_id b )
 	mark_image_dirty( bild, get_yoff() );
 	mark_image_dirty( b, get_yoff() );
 	bild = b;
-	if(  (area.x|area.y)>1  ) {
-		welt->mark_area( get_pos()-(area*center)/2, area, false );
-	}
-	area = koord(0,0);
-	center = 0;
 }
 
 
@@ -103,11 +94,6 @@ void zeiger_t::set_after_bild( image_id b )
 	mark_image_dirty( after_bild, get_yoff() );
 	mark_image_dirty( b, get_yoff() );
 	after_bild = b;
-	if(  (area.x|area.y)>1  ) {
-		welt->mark_area( get_pos()-(area*center)/2, area, false );
-	}
-	area = koord(0,0);
-	center = 0;
 }
 
 
