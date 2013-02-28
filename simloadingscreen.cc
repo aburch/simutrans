@@ -155,7 +155,7 @@ void loadingscreen::set_progress(const unsigned int level_in,const unsigned int 
 	display_fillbox_wh(quarter_width, half_height - 7, half_width, 16, COL_GREY5, true);
 
 	// progress
-	display_fillbox_wh(quarter_width, half_height - 5, part,  12, COL_BLUE,  true);
+	display_fillbox_wh(quarter_width, half_height - 5, part,  12, COL_NO_ROUTE,  true);
 
 	if(label) {
 		display_proportional(half_width, half_height-4,label,ALIGN_MIDDLE,COL_WHITE,0);
