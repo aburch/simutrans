@@ -5759,15 +5759,13 @@ void karte_t::remove_player(uint8 player_nr)
 /* goes to next active player */
 void karte_t::switch_active_player(uint8 new_player, bool silent)
 {
-	// cheat: play as AI
-	bool renew_menu=false;
-
 	for(  uint8 i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
 		if(  spieler[(i+new_player)%MAX_PLAYER_COUNT] != NULL  ) {
 			new_player = (i+new_player)%MAX_PLAYER_COUNT;
 			break;
 		}
 	}
+	koord3d old_zeiger_pos = zeiger->get_pos();
 
 	// no cheating allowed?
 	if (!settings.get_allow_player_change() && spieler[1]->is_locked()) {
@@ -5778,14 +5776,11 @@ void karte_t::switch_active_player(uint8 new_player, bool silent)
 		}
 	}
 	else {
-		koord3d old_zeiger_pos = zeiger->get_pos();
-		zeiger->set_bild( IMG_LEER );	// unmarks also area
-		zeiger->set_pos( koord3d::invalid );
+		zeiger->change_pos( koord3d::invalid ); // unmark area
 		// exit active tool to remove pointers (for two_click_tool_t's, stop mover, factory linker)
 		if(werkzeug[active_player_nr]) {
 			werkzeug[active_player_nr]->exit(this, active_player);
 		}
-		renew_menu = (active_player_nr==1  ||  new_player==1);
 		active_player_nr = new_player;
 		active_player = spieler[new_player];
 		if(  !silent  ) {
@@ -5794,17 +5789,16 @@ void karte_t::switch_active_player(uint8 new_player, bool silent)
 			buf.printf( translator::translate("Now active as %s.\n"), get_active_player()->get_name() );
 			msg->add_message(buf, koord::invalid, message_t::ai | message_t::local_flag, PLAYER_FLAG|get_active_player()->get_player_nr(), IMG_LEER);
 		}
-		zeiger->set_area( koord(1,1), false );
-		zeiger->set_pos( old_zeiger_pos );
-	}
 
-	// update menue entries (we do not want player1 to run anything)
-	if(renew_menu) {
+		// update menue entries
 		werkzeug_t::update_toolbars(this);
 		set_dirty();
 	}
 
-	zeiger->set_bild( werkzeug[active_player_nr]->cursor );
+	// update pointer image / area
+	werkzeug[active_player_nr]->init_cursor(zeiger);
+	// set position / mark area
+	zeiger->change_pos( old_zeiger_pos );
 }
 
 
