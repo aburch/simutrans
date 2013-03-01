@@ -803,7 +803,7 @@ bool convoi_t::sync_step(long delta_t)
 					uint32 sp_hat = fahr[0]->fahre_basis(1<<YARDS_PER_VEHICLE_STEP_SHIFT);
 					int v_nr = get_vehicle_at_length((++steps_driven)>>4);
 					// stop when depot reached
-					if(state==INITIAL) {
+					if(state==INITIAL  ||  state==ROUTING_1) {
 						break;
 					}
 					// until all are moving or something went wrong (sp_hat==0)
