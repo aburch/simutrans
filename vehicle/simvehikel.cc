@@ -4054,6 +4054,8 @@ grund_t* aircraft_t::hop()
 			break;
 		}
 		case landing: {
+			new_speed_limit = kmh_to_speed(besch->get_geschw())/3; // ==approach speed
+			new_friction = 8;
 			flughoehe += h_cur;
 			if(  flughoehe < target_height  ) {
 				flughoehe = (flughoehe+TILE_HEIGHT_STEP) & ~(TILE_HEIGHT_STEP-1);
