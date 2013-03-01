@@ -4055,36 +4055,46 @@ grund_t* aircraft_t::hop()
 		}
 		case landing: {
 			flughoehe += h_cur;
-			new_speed_limit = kmh_to_speed(besch->get_geschw())/3; // ==approach speed
-			new_friction = 8;
-			if(  flughoehe > target_height  ) {
-				// still decenting
-				flughoehe = (flughoehe-TILE_HEIGHT_STEP) & ~(TILE_HEIGHT_STEP-1);
-				flughoehe -= h_next;
+			if(  flughoehe < target_height  ) {
+				flughoehe = (flughoehe+TILE_HEIGHT_STEP) & ~(TILE_HEIGHT_STEP-1);
 			}
-			else if(  flughoehe == h_cur  ) {
-				// touchdown!
-				flughoehe = 0;
+			else if(  flughoehe > target_height  ) {
+				flughoehe = (flughoehe-TILE_HEIGHT_STEP);
+			}
+
+			if (route_index >= touchdown)  {
+				// come down, now!
 				target_height = h_next;
-				const sint32 taxi_speed = kmh_to_speed( min( 60, besch->get_geschw()/4 ) );
-				if(  cnv->get_akt_speed() <= taxi_speed  ) {
-					new_speed_limit = taxi_speed;
-					new_friction = 16;
-				}
-				else {
-					const sint32 runway_left = suchen - route_index;
-					new_speed_limit = min( new_speed_limit, runway_left*runway_left*taxi_speed ); // ...approach 540 240 60 60
-					const sint32 runway_left_fr = max( 0, 6-runway_left );
-					new_friction = max( new_friction, min( besch->get_geschw()/12, 4 + 4*(runway_left_fr*runway_left_fr+1) )); // ...8 8 12 24 44 72 108 152
+
+				// touchdown!
+				if (flughoehe==h_next) {
+					const sint32 taxi_speed = kmh_to_speed( min( 60, besch->get_geschw()/4 ) );
+					if(  cnv->get_akt_speed() <= taxi_speed  ) {
+						new_speed_limit = taxi_speed;
+						new_friction = 16;
+					}
+					else {
+						const sint32 runway_left = suchen - route_index;
+						new_speed_limit = min( new_speed_limit, runway_left*runway_left*taxi_speed ); // ...approach 540 240 60 60
+						const sint32 runway_left_fr = max( 0, 6-runway_left );
+						new_friction = max( new_friction, min( besch->get_geschw()/12, 4 + 4*(runway_left_fr*runway_left_fr+1) )); // ...8 8 12 24 44 72 108 152
+					}
 				}
 			}
 			else {
-				const sint16 landehoehe = height_scaling(cnv->get_route()->position_bei(touchdown).z) + (touchdown-route_index)*TILE_HEIGHT_STEP;
-				if(landehoehe<=flughoehe) {
-					target_height = height_scaling((sint16)cnv->get_route()->position_bei(touchdown).z)*TILE_HEIGHT_STEP;
+				// runway is on this height
+				const sint16 runway_height = height_scaling(cnv->get_route()->position_bei(touchdown).z)*TILE_HEIGHT_STEP;
+
+				// we are too low, ascent asap
+				if (flughoehe < runway_height + TILE_HEIGHT_STEP) {
+					target_height = runway_height + TILE_HEIGHT_STEP;
 				}
-				flughoehe -= h_next;
+				// too high, descent
+				else if (flughoehe + h_next - h_cur > runway_height + (sint16)(touchdown-route_index-1)*TILE_HEIGHT_STEP) {
+					target_height = runway_height +  (touchdown-route_index-1)*TILE_HEIGHT_STEP;
+				}
 			}
+			flughoehe -= h_next;
 			break;
 		}
 		default: {
