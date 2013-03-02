@@ -1795,7 +1795,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 					veh_type->get_geschw(),
 					weight,
 					brake_force,
-					veh_type->get_rolling_resistance().to_double() * 1000
+					veh_type->get_rolling_resistance().to_double() * (double)weight * 1000.0
 					);
 			}
 			else
@@ -1812,7 +1812,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 					veh_type->get_geschw(),
 					weight,
 					brake_force,
-					veh_type->get_rolling_resistance().to_double() * 1000
+					veh_type->get_rolling_resistance().to_double() * (double)weight * 1000.0
 					);
 			}
 
@@ -1863,7 +1863,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 						weight,
 						veh_type->get_geschw(),
 						brake_force,
-						veh_type->get_rolling_resistance().to_double() * 1000
+						veh_type->get_rolling_resistance().to_double() * (double)weight * 1000.0
 						);
 				}
 				else
@@ -1885,7 +1885,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 						weight,
 						veh_type->get_geschw(),
 						brake_force,
-						veh_type->get_rolling_resistance().to_double() * 1000
+						veh_type->get_rolling_resistance().to_double() * (double)weight * 1000.0
 						);
 				}
 			}
@@ -1909,7 +1909,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 						weight,
 						veh_type->get_geschw(),
 						brake_force,
-						veh_type->get_rolling_resistance().to_double() * 1000
+						veh_type->get_rolling_resistance().to_double() * (double)weight * 1000.0
 						);
 				}
 				else
@@ -1931,7 +1931,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 						weight,
 						veh_type->get_geschw(),
 						brake_force,
-						veh_type->get_rolling_resistance().to_double() * 1000
+						veh_type->get_rolling_resistance().to_double() * (double)weight * 1000.0
 						);
 				}
 			}
