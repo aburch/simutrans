@@ -508,9 +508,10 @@ void rdwr_all_win(loadsave_t *file)
 				bool sticky, rollup;
 				file->rdwr_bool( sticky );
 				file->rdwr_bool( rollup );
-				w->rdwr( file );
 				wins.back().sticky = sticky;
 				wins.back().rollup = rollup;
+				// now load the window
+				w->rdwr( file );
 			}
 		}
 	}
