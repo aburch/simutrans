@@ -83,7 +83,6 @@ class gui_convoy_assembler_t :
 	// Last changed vehicle (added/deleted)
 	const vehikel_besch_t *last_changed_vehicle;
 
-
 	// If this is used for a depot, which depot_frame manages, else NULL
 	class depot_frame_t *depot_frame;
 	class replace_frame_t *replace_frame;

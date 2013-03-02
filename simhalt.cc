@@ -2266,7 +2266,6 @@ bool haltestelle_t::vereinige_waren(const ware_t &ware) //"unite were" (Google)
 {
 	// pruefen ob die ware mit bereits wartender ware vereinigt werden kann
 	// "examine whether the ware with software already waiting to be united" (Google)
-
 	vector_tpl<ware_t> * warray = waren[ware.get_besch()->get_catg_index()];
 	if(warray != NULL) 
 	{
