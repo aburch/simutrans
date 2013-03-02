@@ -34,7 +34,7 @@ static const double log_of_2 = log(2.0);
 #define MAX_EXPONENT 1023
 #define MAX_MANTISSA 0xffffffff
 
-static uint8 _ild[256] =
+const uint8 float32e8_t::_ild[256] =
 {
 	 0,  1,  2,  2,  3,  3,  3,  3,    4,  4,  4,  4,  4,  4,  4,  4,   //   0.. 15
 	 5,  5,  5,  5,  5,  5,  5,  5,    5,  5,  5,  5,  5,  5,  5,  5,   //  16.. 31
@@ -57,39 +57,39 @@ static uint8 _ild[256] =
 	 8,  8,  8,  8,  8,  8,  8,  8,    8,  8,  8,  8,  8,  8,  8,  8    //    ..255
 };
 
-uint8 ild(const uint32 x)
-// "integer logarithmus digitalis"
-// Returns the number of the highest used bit of abs(x):
-// 0: no bits in use x == 0
-// 1: x == 1
-// 2: 2 <= x < 4
-// 3: 4 <= x < 8
-// ...
-// 32: 2^31 <= x < 2^32
-{
-	if (x & 0xffff0000L)
-	{
-		if (x & 0xff000000L)
-		{
-			return 24 + _ild[x>>24];
-		}
-		else
-		{
-			return 16 + _ild[x>>16];
-		}
-	}
-	else
-	{
-		if (x & 0xffffff00L)
-		{
-			return 8 + _ild[x>>8];
-		}
-		else
-		{
-			return _ild[x];
-		}
-	}
-}
+//uint8 float32e8_t::ild(const uint32 x)
+//// "integer logarithmus digitalis"
+//// Returns the number of the highest used bit of abs(x):
+//// 0: no bits in use x == 0
+//// 1: x == 1
+//// 2: 2 <= x < 4
+//// 3: 4 <= x < 8
+//// ...
+//// 32: 2^31 <= x < 2^32
+//{
+//	if (x & 0xffff0000L)
+//	{
+//		if (x & 0xff000000L)
+//		{
+//			return 24 + _ild[x>>24];
+//		}
+//		else
+//		{
+//			return 16 + _ild[x>>16];
+//		}
+//	}
+//	else
+//	{
+//		if (x & 0xffffff00L)
+//		{
+//			return 8 + _ild[x>>8];
+//		}
+//		else
+//		{
+//			return _ild[x];
+//		}
+//	}
+//}
 
 struct float32e8_pair_t {
 	float32e8_t v;
@@ -227,7 +227,7 @@ public:
 	} 
 };
 
-const float32e8_t integers[257] = 
+const float32e8_t float32e8_t::integers[257] = 
 {
 	float32e8ini_t(  0), float32e8ini_t(  1), float32e8ini_t(  2), float32e8ini_t(  3),	float32e8ini_t(  4),	
 	float32e8ini_t(  5), float32e8ini_t(  6), float32e8ini_t(  7), float32e8ini_t(  8),	float32e8ini_t(  9),	
@@ -319,31 +319,6 @@ void float32e8_t::set_value(const double value)
 }
 #endif
 
-void float32e8_t::set_value(const uint32 value)
-{
-	// As some constants may be initialized before integers[], we must check if initialization has been done.
-	// Do not check integers[0].m. This mantissa will still be 0 after initialization.
-	if (value < 257 && integers[256].m) 
-	{
-		set_value(integers[value]);
-		return;
-	}
-	ms = false;
-	e = ild(value);
-	m = (value) << (32 - e);
-}
-
-void float32e8_t::set_value(const sint32 value)
-{
-	if (value < 0)
-	{
-		set_value((uint32)-value);
-		ms = true;
-	}
-	else
-		set_value((uint32)value);
-}
-
 void float32e8_t::set_value(const sint64 value)
 {
 	if (value < 0)
@@ -423,6 +398,8 @@ const float32e8_t float32e8_t::operator + (const float32e8_t & x) const
 		if (r.e > MAX_EXPONENT)
 		{
 			dbg->error("float32e8_t::operator + (const float32e8_t & x) const", "Overflow in: %.9G + %.9G", this->to_double(), x.to_double());
+			r.e = MAX_EXPONENT;
+			r.m = 0xffffffffL;
 		}
 	}
 	else
@@ -501,6 +478,8 @@ const float32e8_t float32e8_t::operator - (const float32e8_t & x) const
 		if (r.e > MAX_EXPONENT)
 		{
 			dbg->error("float32e8_t::operator - (const float32e8_t & x) const", "Overflow in: %.9G - %.9G", this->to_double(), x.to_double());
+			r.e = MAX_EXPONENT;
+			r.m = 0xffffffffL;
 		}
 	}
 	else
@@ -532,18 +511,6 @@ const float32e8_t float32e8_t::operator * (const float32e8_t & x) const
 	{
 		return zero;
 	}
-	if (m == 0x80000000L && e == 0x01)
-	{
-		if (ms)
-			return -x;
-		return x;
-	}
-	if (x.m == 0x80000000L && x.e == 0x01)
-	{
-		if (x.ms)
-			return -*this;
-		return *this;
-	}
 
 	uint64 rm = (uint64) m * (uint64) x.m;
 	float32e8_t r;
@@ -561,6 +528,8 @@ const float32e8_t float32e8_t::operator * (const float32e8_t & x) const
 	if (r.e > MAX_EXPONENT)
 	{
 		dbg->error("float32e8_t::operator * (const float32e8_t & x) const", "Overflow in: %.9G * %.9G", this->to_double(), x.to_double());
+		r.e = MAX_EXPONENT;
+		r.m = 0xffffffffL;
 	}
 	r.ms = ms ^ x.ms;
 	return r;
@@ -586,13 +555,15 @@ const float32e8_t float32e8_t::operator / (const float32e8_t & x) const
 	{
 		r.m = (uint32) rm;
 	}
-	if (r.e > MAX_EXPONENT)
-	{
-		dbg->error("float32e8_t::operator / (const float32e8_t & x) const", "Overflow in: %.9G / %.9G", this->to_double(), x.to_double());
-	}
 	if (r.e < MIN_EXPONENT)
 	{
 		return zero;
+	}
+	if (r.e > MAX_EXPONENT)
+	{
+		dbg->error("float32e8_t::operator / (const float32e8_t & x) const", "Overflow in: %.9G / %.9G", this->to_double(), x.to_double());
+		r.e = MAX_EXPONENT;
+		r.m = 0xffffffffL;
 	}
 	r.ms = ms ^ x.ms;
 	return r;
