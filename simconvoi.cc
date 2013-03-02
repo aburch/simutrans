@@ -170,7 +170,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 
 convoi_t::convoi_t(karte_t* wl, loadsave_t* file) : fahr(max_vehicle, NULL)
 {
-	self = convoihandle_t(this);
+	self = convoihandle_t();
 	init(wl, 0);
 	rdwr(file);
 }
@@ -1932,6 +1932,22 @@ void convoi_t::rdwr(loadsave_t *file)
 	}
 
 	simline_t::rdwr_linehandle_t(file, line);
+
+	// we want persistent convoihandles so we can keep dialoges open in network games
+	if(  file->is_loading()  ) {
+		if(  file->get_version()<=112002  ) {
+			self = convoihandle_t( this );
+		}
+		else {
+			uint16 id;
+			file->rdwr_short( id );
+			self = convoihandle_t( this, id );
+		}
+	}
+	else if(  file->get_version()>112002  ) {
+		uint16 id = self.get_id();
+		file->rdwr_short( id );
+	}
 
 	dummy = anz_vehikel;
 	file->rdwr_long(dummy);
