@@ -87,17 +87,15 @@ public:
 	* @author Hj. Malthaner
 	*/
 	inline grund_t *get_boden_in_hoehe(const sint16 z) const {
-		if(ground_size==1) {
+		if(  ground_size == 1  ) 
+		{
 			// must be valid ground at this point!
-			if(  data.one->get_hoehe() == z  ) {
-				return data.one;
-			}
+		    return data.one->get_hoehe() == z ? data.one : NULL;
 		}
-		else {
-			for(  uint8 i = 0;  i < ground_size;  i++  ) {
-				if(  data.some[i]->get_hoehe() == z  ) {
-					return data.some[i];
-				}
+		for(  int i = ground_size;  --i >= 0; ) {
+			grund_t *gr = data.some[i];
+			if(  gr->get_hoehe() == z  ) {
+				return gr;
 			}
 		}
 		return NULL;
