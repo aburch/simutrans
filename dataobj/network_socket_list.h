@@ -32,9 +32,9 @@ public:
 		packet->rdwr_str(nickname);
 	}
 
-	static bool compare(connection_info_t const* a, connection_info_t const* b);
-
 	bool operator==(const connection_info_t& other) const;
+
+	bool operator!=(const connection_info_t& other) const { return !(*this == other); }
 };
 
 

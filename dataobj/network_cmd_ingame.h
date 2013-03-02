@@ -291,7 +291,7 @@ public:
 	static connection_info_t* company_creator[PLAYER_UNOWNED];
 
 	/// store information about clients that played with a company
-	static vector_tpl<connection_info_t*> company_active_clients[PLAYER_UNOWNED];
+	static slist_tpl<connection_info_t> company_active_clients[PLAYER_UNOWNED];
 
 	/// callback when company was removed
 	static void company_removed(uint8 player_nr);
