@@ -2390,6 +2390,7 @@ uint32 haltestelle_t::starte_mit_route(ware_t ware)
 		}
 	}
 
+#ifdef CHECK_WARE_MERGE
 	// passt das zu bereits wartender ware ?
 	if(vereinige_waren(ware)) {
 		// dann sind wir schon fertig;
@@ -2399,6 +2400,7 @@ uint32 haltestelle_t::starte_mit_route(ware_t ware)
 #endif
 		return ware.menge;
 	}
+#endif
 
 	if(ware.is_passenger() && unload_repeat_counter < 3 && is_within_walking_distance_of(ware.get_zwischenziel()) && !connexions[0]->get(ware.get_zwischenziel())->best_convoy.is_bound() && !connexions[0]->get(ware.get_zwischenziel())->best_line.is_bound())
 	{
@@ -2475,7 +2477,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 #endif
 		return ware.menge;
 	}
-
+#ifdef CHECK_WARE_MERGE
 	// do we have already something going in this direction here?
 	if(  vereinige_waren(ware)  ) 
 	{
@@ -2485,6 +2487,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 #endif
 		return ware.menge;
 	}
+#endif
 
 	if(find_route(ware) == 65535)
 	{
@@ -2497,6 +2500,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 		fabrik_t::update_transit( &ware, false );
 		return ware.menge;
 	}
+#ifdef CHECK_WARE_MERGE
 	// passt das zu bereits wartender ware ?
 	if(vereinige_waren(ware)) 
 	{
@@ -2507,6 +2511,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 #endif
 		return ware.menge;
 	}
+#endif
 	
 	if(ware.is_passenger() && unload_repeat_counter < 3 && is_within_walking_distance_of(ware.get_zwischenziel()) && !connexions[0]->get(ware.get_zwischenziel())->best_convoy.is_bound() && !connexions[0]->get(ware.get_zwischenziel())->best_line.is_bound() && ware.get_last_transfer().is_bound() && ware.get_last_transfer()->get_basis_pos() != ware.get_zwischenziel()->get_basis_pos())
 	{
