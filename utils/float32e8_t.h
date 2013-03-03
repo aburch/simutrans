@@ -31,6 +31,36 @@ class loadsave_t;
 class float32e8_t
 {
 protected:
+	static const float32e8_t integers[257];
+	static const uint8 _ild[256];
+
+	static inline uint8 ild(const uint32 x)
+	{
+		if (x & 0xffff0000L)
+		{
+			if (x & 0xff000000L)
+			{
+				return 24 + _ild[x>>24];
+			}
+			else
+			{
+				return 16 + _ild[x>>16];
+			}
+		}
+		else
+		{
+			if (x & 0xffffff00L)
+			{
+				return 8 + _ild[x>>8];
+			}
+			else
+			{
+				return _ild[x];
+			}
+		}
+	}
+	
+protected:
 	uint32 m;	// mantissa
 	sint16 e;	// exponent
 	bool ms:1;	// sign of mantissa
@@ -77,10 +107,33 @@ public:
 	inline float32e8_t(const sint64 nominator, const sint64 denominator) { set_value(float32e8_t(nominator) / float32e8_t(denominator)); }
 	inline float32e8_t(const uint64 nominator, const uint64 denominator) { set_value(float32e8_t(nominator) / float32e8_t(denominator)); }
 
-	void set_value(const sint32 value);
-	void set_value(const uint32 value);
-	void set_value(const sint64 value);
+	inline void set_value(const uint32 value)
+	{
+		// As some constants may be initialized before integers[], we must check if initialization has been done.
+		// Do not check integers[0].m. This mantissa will still be 0 after initialization.
+		if (value < 257 && integers[256].m) 
+			set_value(integers[value]);
+		else
+		{
+			ms = false;
+			e = ild(value);
+			m = (value) << (32 - e);
+		}
+	}
+
+	inline void set_value(const sint32 value)
+	{
+		if (value < 0)
+		{
+			set_value((uint32)-value);
+			ms = true;
+		}
+		else
+			set_value((uint32)value);
+	}
+
 	void set_value(const uint64 value);
+	void set_value(const sint64 value);
 
 	inline const float32e8_t & operator = (const sint32 value)	{ set_value(value);	return *this; }
 	inline const float32e8_t & operator = (const uint32 value)	{ set_value(value);	return *this; }
