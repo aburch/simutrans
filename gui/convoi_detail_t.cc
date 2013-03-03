@@ -162,55 +162,42 @@ convoi_detail_t::convoi_detail_t(karte_t *w)
   veh_info(convoihandle_t())
 {
 	welt = w;
+	cnv = convoihandle_t();
 }
 
 
 void convoi_detail_t::rdwr(loadsave_t *file)
 {
-	koord3d cnv_pos;
-	char name[128];
+	// convoy data
+	if (file->get_version() <=112002) {
+		// dummy data
+		koord3d cnv_pos( koord3d::invalid);
+		char name[128];
+		name[0] = 0;
+		cnv_pos.rdwr( file );
+		file->rdwr_str( name, lengthof(name) );
+	}
+	else {
+		// handle
+		convoi_t::rdwr_convoihandle_t(file, cnv);
+	}
+	// window size, scroll position
 	koord gr = get_fenstergroesse();
 	sint32 xoff = scrolly.get_scroll_x();
 	sint32 yoff = scrolly.get_scroll_y();
-	if(  file->is_saving()  ) {
-		cnv_pos = cnv->front()->get_pos();
-		tstrncpy(name, cnv->get_name(), lengthof(name));
-	}
-	cnv_pos.rdwr( file );
-	file->rdwr_str( name, lengthof(name) );
+
 	gr.rdwr( file );
 	file->rdwr_long( xoff );
 	file->rdwr_long( yoff );
+
 	if(  file->is_loading()  ) {
-		// find convoi by name and position
-		if(  grund_t *gr = welt->lookup(cnv_pos)  ) {
-			for(  uint8 i=0;  i<gr->get_top();  i++  ) {
-				if(  gr->obj_bei(i)->is_moving()  ) {
-					vehikel_t const* const v = dynamic_cast<vehikel_t *>(gr->obj_bei(i));
-					if(  v  &&  v->get_convoi()  ) {
-						if(  strcmp(v->get_convoi()->get_name(),name)==0  ) {
-							cnv = v->get_convoi()->self;
-							break;
-						}
-					}
-				}
-			}
-		}
-		// we might be unlucky, then search all convois for a convoi with this name
+		// convoy vanished
 		if(  !cnv.is_bound()  ) {
-			FOR(vector_tpl<convoihandle_t>, const i, welt->convoys()) {
-				if (strcmp(i->get_name(), name) == 0) {
-					cnv = i;
-					break;
-				}
-			}
-		}
-		// still not found?
-		if(  !cnv.is_bound()  ) {
-			dbg->error( "convoi_detail_t::rdwr()", "Could not restore convoi detail window of %s", name );
+			dbg->error( "convoi_detail_t::rdwr()", "Could not restore convoi detail window of (%d)", cnv.get_id() );
 			destroy_win( this );
 			return;
 		}
+
 		// now we can open the window ...
 		koord const& pos = win_get_pos(this);
 		convoi_detail_t *w = new convoi_detail_t(cnv);

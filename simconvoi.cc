@@ -1912,6 +1912,18 @@ void convoi_t::vorfahren()
 }
 
 
+void convoi_t::rdwr_convoihandle_t(loadsave_t *file, convoihandle_t &cnv)
+{
+	if(  file->get_version()>112002  ) {
+		uint16 id = (file->is_saving()  &&  cnv.is_bound()) ? cnv.get_id() : 0;
+		file->rdwr_short( id );
+		if (file->is_loading()) {
+			cnv.set_id( id );
+		}
+	}
+}
+
+
 void convoi_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t t( file, "convoi_t" );
