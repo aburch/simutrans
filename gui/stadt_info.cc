@@ -60,8 +60,7 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 {
 	reset_city_name();
 
-	//minimaps_size = koord(PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE); // default minimaps size
-	minimaps_size = koord(256, 256); 
+	minimaps_size = koord(PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE); // default minimaps size 
 	minimap2_offset = koord(minimaps_size.x + PAX_DEST_MARGIN, 0);
 
 	name_input.set_pos(koord(8, 4));

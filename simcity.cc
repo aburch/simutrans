@@ -1553,8 +1553,8 @@ static bool name_used(weighted_vector_tpl<stadt_t*> const& cities, char const* c
 
 stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 	buildings(16),
-	pax_destinations_old(koord(PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE)),
-	pax_destinations_new(koord(PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE))
+	pax_destinations_old(koord(welt->get_size().x, welt->get_size().y)),
+	pax_destinations_new(koord(welt->get_size().x, welt->get_size().y))
 {
 	welt = sp->get_welt();
 	assert(welt->is_within_limits(pos));
@@ -1682,8 +1682,8 @@ void stadt_t::calc_internal_passengers()
 
 stadt_t::stadt_t(karte_t* wl, loadsave_t* file) :
 	buildings(16),
-	pax_destinations_old(koord(PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE)),
-	pax_destinations_new(koord(PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE))
+	pax_destinations_old(koord(wl->get_size().x, wl->get_size().y)),
+	pax_destinations_new(koord(wl->get_size().x, wl->get_size().y))
 {
 	welt = wl;
 	
@@ -2142,14 +2142,14 @@ void stadt_t::rotate90( const sint16 y_size )
 	best_strasse.reset(pos);
 	best_haus.reset(pos);
 	// rathaus position may be changed a little!
-	sparse_tpl<uint8> pax_destinations_temp(koord( PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE ));
+	sparse_tpl<uint8> pax_destinations_temp(koord(welt->get_size().x, welt->get_size().y));
 
 	uint8 color;
 	koord pos;
 	for( uint16 i = 0; i < pax_destinations_new.get_data_count(); i++ ) {
 		pax_destinations_new.get_nonzero(i, pos, color);
 		assert( color != 0 );
-		pax_destinations_temp.set( PAX_DESTINATIONS_SIZE-1-pos.y, pos.x, color );
+		pax_destinations_temp.set(pos.y, pos.x, color);
 	}
 	swap<uint8>( pax_destinations_temp, pax_destinations_new );
 
@@ -2157,7 +2157,7 @@ void stadt_t::rotate90( const sint16 y_size )
 	for( uint16 i = 0; i < pax_destinations_old.get_data_count(); i++ ) {
 		pax_destinations_old.get_nonzero(i, pos, color);
 		assert( color != 0 );
-		pax_destinations_temp.set( PAX_DESTINATIONS_SIZE-1-pos.y, pos.x, color );
+		pax_destinations_temp.set(pos.y, pos.x, color);
 	}
 	pax_destinations_new_change ++;
 	swap<uint8>( pax_destinations_temp, pax_destinations_old );
@@ -4041,19 +4041,13 @@ uint16 stadt_t::get_max_dimension()
 
 void stadt_t::merke_passagier_ziel(koord k, uint8 color)
 {
-	const koord p = koord(
-		((k.x * PAX_DESTINATIONS_SIZE) / welt->get_size().x) & (PAX_DESTINATIONS_SIZE-1),
-		((k.y * PAX_DESTINATIONS_SIZE) / welt->get_size().y) & (PAX_DESTINATIONS_SIZE-1)
-	);
-
-
-	const uint8 existing_colour = pax_destinations_new.get(p);
+	const uint8 existing_colour = pax_destinations_new.get(k);
 	if(color != COL_DARK_ORANGE || existing_colour == 0)
 	{
 		// "No route" is less useful than more specific indications to that same destination.
 		// Therefore, do not over-write anything else with "no route" within the same month.
 		pax_destinations_new_change ++;
-		pax_destinations_new.set(p, color);
+		pax_destinations_new.set(k, color);
 	}
 }
 

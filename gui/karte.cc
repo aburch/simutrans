@@ -1193,10 +1193,8 @@ void reliefkarte_t::zeichnen(koord pos)
 			uint8 color;
 			for(  uint16 i = 0;  i < pax_dests->get_data_count();  i++  ) {
 				pax_dests->get_nonzero( i, pos, color );
-				min = koord((pos.x*welt->get_size().x)/PAX_DESTINATIONS_SIZE,
-				            (pos.y*welt->get_size().y)/PAX_DESTINATIONS_SIZE);
-				max = koord(((pos.x+1)*welt->get_size().x)/PAX_DESTINATIONS_SIZE,
-				            ((pos.y+1)*welt->get_size().y)/PAX_DESTINATIONS_SIZE);
+				min = koord(pos.x, pos.y);
+				max = koord(pos.x + 1, pos.y + 1);
 				pos.x = min.x;
 				do {
 					pos.y = min.y;
