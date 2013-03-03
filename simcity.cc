@@ -1553,8 +1553,8 @@ static bool name_used(weighted_vector_tpl<stadt_t*> const& cities, char const* c
 
 stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 	buildings(16),
-	pax_destinations_old(koord(welt->get_size().x, welt->get_size().y)),
-	pax_destinations_new(koord(welt->get_size().x, welt->get_size().y))
+	pax_destinations_old(sp->get_welt()->get_size()),
+	pax_destinations_new(sp->get_welt()->get_size())
 {
 	welt = sp->get_welt();
 	assert(welt->is_within_limits(pos));
