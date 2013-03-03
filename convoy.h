@@ -539,6 +539,7 @@ public:
 	}
 	virtual sint16 get_current_friction();
 	virtual ~potential_convoy_t(){}
+	virtual float32e8_t get_resistance_summary();
 };
 
 /******************************************************************************/

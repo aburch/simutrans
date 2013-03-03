@@ -615,6 +615,7 @@ void gui_convoy_assembler_t::zeichnen(koord parent_pos)
 		potential_convoy_t convoy(*welt, vehicles);
 		const vehicle_summary_t &vsum = convoy.get_vehicle_summary();
 		sint32 friction = convoy.get_current_friction();
+		double rolling_resistance = convoy.get_resistance_summary().to_double();
 		sint32 allowed_speed = vsum.max_speed;
 		sint32 min_weight = vsum.weight;
 		sint32 max_weight = vsum.weight + convoy.get_freight_summary().max_freight_weight;
@@ -727,15 +728,19 @@ void gui_convoy_assembler_t::zeichnen(koord parent_pos)
 		txt_convoi_weight.clear();
 		if(  total_empty_weight != total_max_weight  ) {
 			if(  total_min_weight != total_max_weight  ) {
-				txt_convoi_weight.printf("%s %.1ft, %.1f-%.1ft", translator::translate("Weight:"), total_empty_weight / 1000.0, total_min_weight / 1000.0, total_max_weight / 1000.0 );
+				txt_convoi_weight.printf("%s %.1ft, %.1f-%.1ft", translator::translate("Weight:"), total_empty_weight / 1000.0, total_min_weight / 1000.0, total_max_weight / 1000.0 ); 
+				txt_convoi_weight.printf("; %s %.1fkN, %.1fkN, %.1fkN", translator::translate("Rolling resistance:"), rolling_resistance * (double)total_empty_weight, rolling_resistance * (double)total_min_weight, rolling_resistance * (double)total_max_weight);
 			}
 			else {
 				txt_convoi_weight.printf("%s %.1ft, %.1ft", translator::translate("Weight:"), total_empty_weight / 1000.0, total_max_weight / 1000.0 );
+				txt_convoi_weight.printf("; %s %.1fkN, %.1fkN", translator::translate("Rolling resistance:"), rolling_resistance * (double)total_empty_weight, rolling_resistance * (double)total_max_weight);
 			}
 		}
 		else {
 				txt_convoi_weight.printf("%s %.1ft", translator::translate("Weight:"), total_empty_weight / 1000.0 );
+				txt_convoi_weight.printf("; %s %.1fkN", translator::translate("Rolling resistance:"), rolling_resistance * (double)total_empty_weight);
 		}
+		
 	}
 
 	bt_obsolete.pressed = show_retired_vehicles;	// otherwise the button would not show depressed

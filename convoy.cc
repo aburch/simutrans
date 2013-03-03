@@ -517,6 +517,16 @@ float32e8_t potential_convoy_t::get_brake_summary(/*const float32e8_t &speed*/ /
 }
 
 
+float32e8_t potential_convoy_t::get_resistance_summary()
+{
+	float32e8_t rolling_resistance = 0;
+	for (uint32 i = vehicles.get_count(); i-- > 0; )
+	{
+		rolling_resistance += vehicles[i]->get_rolling_resistance();
+	}
+	return rolling_resistance;
+}
+
 float32e8_t potential_convoy_t::get_force_summary(const float32e8_t &speed /* in m/s */)
 {
 	sint64 force = 0;

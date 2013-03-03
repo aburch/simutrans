@@ -36,7 +36,7 @@ class rule_t;
 #define MAX_CITY_HISTORY_YEARS  (12) // number of years to keep history
 #define MAX_CITY_HISTORY_MONTHS (12) // number of months to keep history
 
-#define PAX_DESTINATIONS_SIZE (256) // size of the minimap in the city window (sparse array)
+#define PAX_DESTINATIONS_SIZE (1024) // size of the minimap in the city window (sparse array)
 
 enum city_cost {
 	HIST_CITICENS=0,		// total people
