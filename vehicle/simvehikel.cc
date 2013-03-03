@@ -1294,7 +1294,7 @@ vehikel_t::vehikel_t(karte_t *welt) :
 }
 
 
-bool vehikel_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route)
+route_t::route_result_t vehikel_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route)
 {
 	return route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight(), 0);
 }
@@ -2658,7 +2658,7 @@ automobil_t::automobil_t(karte_t *welt, loadsave_t *file, bool is_first, bool is
 
 
 // need to reset halt reservation (if there was one)
-bool automobil_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route)
+route_t::route_result_t automobil_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route)
 {
 	assert(cnv);
 	// free target reservation
@@ -3407,7 +3407,7 @@ void waggon_t::set_convoi(convoi_t *c)
 }
 
 // need to reset halt reservation (if there was one)
-bool waggon_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route)
+route_t::route_result_t waggon_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route)
 {
 	if (ist_erstes && route_index < cnv->get_route()->get_count())
 	{
@@ -3420,7 +3420,14 @@ bool waggon_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t
 	target_halt = halthandle_t();	// no block reserved
 	// use length 8888 tiles to advance to the end of all stations
 	const uint16 tile_length = cnv->get_schedule()->get_current_eintrag().reverse ? 8888 : cnv->get_tile_length();
-	return route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight(), tile_length);
+	route_t::route_result_t r = route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight(), tile_length);
+	if(  r == route_t::valid_route_halt_too_short  )
+	{
+		cbuffer_t buf;
+		buf.printf( translator::translate("Vehicle %s cannot choose because stop too short!"), cnv->get_name());
+		welt->get_message()->add_message( (const char *)buf, ziel.get_2d(), message_t::traffic_jams, PLAYER_FLAG | cnv->get_besitzer()->get_player_nr(), cnv->front()->get_basis_bild() );
+	}
+	return r;
 }
 
 
@@ -4680,7 +4687,7 @@ DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","found no route to free 
 
 // main routine: searches the new route in up to three steps
 // must also take care of stops under traveling and the like
-bool aircraft_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route)
+route_t::route_result_t aircraft_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route)
 {
 	if(ist_erstes  &&  cnv) {
 		// free target reservation
@@ -4700,7 +4707,8 @@ bool aircraft_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route
 	target_halt = halthandle_t();	// no block reserved
 
 	takeoff = touchdown = suchen = INVALID_INDEX;
-	bool result = calc_route_internal(welt, start, ziel, max_speed, cnv->get_heaviest_vehicle(), state, flughoehe, target_height, runway_too_short, takeoff, touchdown, suchen, *route);
+	const bool pre_result = calc_route_internal(welt, start, ziel, max_speed, cnv->get_heaviest_vehicle(), state, flughoehe, target_height, runway_too_short, takeoff, touchdown, suchen, *route);
+	const route_t::route_result_t result = pre_result ? route_t::valid_route : route_t::no_route;
 	cnv->set_next_stop_index(INVALID_INDEX);	
 	return result;
 }

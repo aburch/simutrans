@@ -638,10 +638,6 @@ DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x
 				platform_size++;
  			}
 
-			// first: find out how many tiles I am already in the station
-			for(  size_t i = route.get_count();  i-- != 0  &&  max_len != 0  &&  halt == haltestelle_t::get_halt(welt, route[i], NULL);  --max_len) {
-			}
-
 			// Find the end of the station, and append these tiles to the route.
 			const uint32 max_n = route.get_count() - 1;
 			const koord zv = route[max_n].get_2d() - route[max_n - 1].get_2d();
@@ -679,13 +675,16 @@ DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x
 				{
 					route.pop_back();
 				}
-				// station too short => warning!
-				if(  max_len>0  ) {
-					return valid_route_halt_too_short;
-				}
+			}
+
+			// station too short => warning!
+			if(max_len > platform_size) 
+			{
+				return valid_route_halt_too_short;
 			}
 		}
 	}
+
 	return valid_route;
 }
 
