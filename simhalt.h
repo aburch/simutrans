@@ -245,6 +245,9 @@ private:
 		 * Two halts are connected if and only if they belong to the same connected component.
 		 * Exception: if value == UNDECIDED_CONNECTED_COMPONENT, then we are in the middle of
 		 * recalculating the link graph.
+		 *
+		 * The id of the component has to be equal to the halt-id of one of its halts.
+		 * This ensures that we always have unique component ids.
 		 */
 		uint16 catg_connected_component;
 

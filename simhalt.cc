@@ -1189,12 +1189,10 @@ void haltestelle_t::fill_connected_component(uint8 catg_idx, uint16 comp)
 void haltestelle_t::rebuild_connected_components()
 {
 	for(uint8 catg_idx = 0; catg_idx<warenbauer_t::get_max_catg_index(); catg_idx++) {
-		uint16 comp = 0;
 		FOR(slist_tpl<halthandle_t>, halt, alle_haltestellen) {
 			if (halt->all_links[catg_idx].catg_connected_component == UNDECIDED_CONNECTED_COMPONENT) {
 				// start recursion
-				halt->fill_connected_component(catg_idx, comp);
-				comp++;
+				halt->fill_connected_component(catg_idx, halt.get_id());
 			}
 		}
 	}
