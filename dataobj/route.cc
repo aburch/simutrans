@@ -591,7 +591,6 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 }
 
 
-
 /* searches route, uses intern_calc_route() for distance between stations
  * handles only driving in stations by itself
  * corrected 12/2005 for station search
@@ -622,12 +621,17 @@ DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x
 		route.append(start); // just to be safe
 		return no_route;
 	}
+
 	// advance so all convoy fits into a halt (only set for trains and cars)
-	else if(max_len > 1)
+	bool move_to_end_of_station = max_len >= 8888;
+	if (move_to_end_of_station)
+		max_len -= 8888;
+	if(max_len > 1 )
 	{
 
 		// we need a halt of course ...
-		halthandle_t halt = welt->lookup(start)->get_halt();
+		grund_t *gr = welt->lookup(start);
+		halthandle_t halt = gr->get_halt();
 		// NOTE: halt is actually the *destination* halt.
 		if(halt.is_bound()) 
 		{
@@ -643,9 +647,9 @@ DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x
 			const koord zv = route[max_n].get_2d() - route[max_n - 1].get_2d();
 			const int ribi = ribi_typ(zv);//fahr->get_ribi(welt->lookup(start));
 
-			grund_t *gr = welt->lookup(start);
 			const waytype_t wegtyp = fahr->get_waytype();
 
+			bool is_signal_at_end_of_station = false;
 			while(gr->get_neighbour(gr, wegtyp, ribi) && gr->get_halt() == halt && fahr->ist_befahrbar(gr) && (fahr->get_ribi(gr) && ribi) != 0)
 			{
 				// Do not go on a tile where a one way sign forbids going.
@@ -659,19 +663,11 @@ DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x
 				platform_size++;
 			}
 
-			sint32 truncate_from_route = 0;
-
-			if(platform_size > max_len)
+			if(!move_to_end_of_station && platform_size > max_len )
 			{
 				// Do not go to the end, but stop part way along the platform.
-				const sint32 difference = platform_size - max_len;
-				truncate_from_route = (difference + 1) / 2;
-				if(truncate_from_route > get_count() - 1)
-				{
-					truncate_from_route = get_count() - 1;
-				}
-				
-				for(sint32 n = 0; n < truncate_from_route && n < get_count(); n++)
+				sint32 truncate_from_route = min((platform_size - max_len) >> 1, get_count() - 1);
+				while (truncate_from_route-- > 0)
 				{
 					route.pop_back();
 				}
@@ -682,6 +678,7 @@ DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x
 			{
 				return valid_route_halt_too_short;
 			}
+
 		}
 	}
 
