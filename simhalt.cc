@@ -2468,7 +2468,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 					}
 					menge = erzeuge_fussgaenger(welt, i.grund->get_pos(), menge);
 				}
-				INT_CHECK("simhalt 938");
+				//INT_CHECK("simhalt 938");
 			}
 		}
 #ifdef DEBUG_SIMRAND_CALLS
@@ -2493,7 +2493,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 	{
 		// target no longer there => delete
 
-		INT_CHECK("simhalt 1364");
+		//INT_CHECK("simhalt 1364");
 
 		DBG_MESSAGE("haltestelle_t::liefere_an()","%s: delivered goods (%d %s) to ??? via ??? could not be routed to their destination!",get_name(), ware.menge, translator::translate(ware.get_name()) );
 		// target halt no longer there => delete and remove from fab in transit
