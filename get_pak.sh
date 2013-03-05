@@ -65,13 +65,13 @@ paksets=( \
 "http://hd.simutrans.com/release/PakHD_v04B_100-0.zip" \
 "http://downloads.sourceforge.net/project/simutrans/pak128.britain/pak128.Britain%20for%20112-0/pak128.Britain.1.13-112-0.zip" \
 "http://downloads.sourceforge.net/project/simutrans/pak128.japan/for%20Simutrans%20110.0.1/pak128.japan-110.0.1-version16-08-2011.zip" \
+"http://downloads.sourceforge.net/project/simutrans/pak64.scifi/pak64.scifi_112.1_v0.12.zip" \
 "http://downloads.sourceforge.net/project/ironsimu/pak48.Excentrique/v018/pak48-excentrique_v018.zip" \
 )
 
 tgzpaksets=( \
  "http://simutrans.bilkinfo.de/pak64.ho-scale-latest.tar.gz" \
 )
-
 
 choices=()
 installpak=()

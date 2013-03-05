@@ -214,6 +214,15 @@ Section /o "pak192 Comic (Freeware) for 102.2.1" pak192comic
 SectionEnd
 
 
+Section /o "pak64.SciFi V0.12 (alpha)" pak64scifi
+  AddSize 2596
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64.scifi/pak64.scifi_112.1_v0.12.zip"
+  StrCpy $archievename "pak64.scifi_112.1_v0.12.zip"
+  StrCpy $downloadname "pak64.SciFi"
+  StrCpy $VersionString "pak64.SciFi V0.12"
+  Call DownloadInstallZip
+SectionEnd
+
 
 Section /o "pak48.excentrique V0.18" pak48excentrique
   AddSize 1385
@@ -223,7 +232,6 @@ Section /o "pak48.excentrique V0.18" pak48excentrique
   StrCpy $VersionString "pak48.Excentrique v0.18"
   Call DownloadInstallZipWithoutSimutrans
 SectionEnd
-
 
 
 ; name does not match folder name (pak32) but otherwise always selected for update
