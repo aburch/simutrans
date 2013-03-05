@@ -663,11 +663,11 @@ DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x
 				platform_size++;
 			}
 
-			if(!move_to_end_of_station && platform_size > max_len )
+			if(!move_to_end_of_station && platform_size > max_len)
 			{
 				// Do not go to the end, but stop part way along the platform.
-				sint32 truncate_from_route = min((platform_size - max_len) >> 1, get_count() - 1);
-				while (truncate_from_route-- > 0)
+				sint32 truncate_from_route = min(((platform_size - max_len) + 1) >> 1, get_count() - 1);
+				while(truncate_from_route-- > 0)
 				{
 					route.pop_back();
 				}
