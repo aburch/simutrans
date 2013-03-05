@@ -352,7 +352,7 @@ public:
 
 	void darf_rauchen(bool yesno ) { rauchen = yesno;}
 
-	virtual bool calc_route(koord3d start, koord3d ziel, sint32 max_speed_kmh, route_t* route);
+	virtual route_t::route_result_t calc_route(koord3d start, koord3d ziel, sint32 max_speed_kmh, route_t* route);
 	uint16 get_route_index() const {return route_index;}
 	void set_route_index(uint16 value) { route_index = value; }
 	const koord3d get_pos_prev() const {return pos_prev;}
@@ -639,7 +639,7 @@ public:
 	// how expensive to go here (for way search)
 	virtual int get_kosten(const grund_t *, const sint32, koord) const;
 
-	virtual bool calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route);
+	virtual route_t::route_result_t calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route);
 
 	virtual bool ist_weg_frei(int &restart_speed, bool second_check );
 
@@ -687,7 +687,7 @@ public:
 	virtual waytype_t get_waytype() const { return track_wt; }
 
 	// since we might need to unreserve previously used blocks, we must do this before calculation a new route
-	bool calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route);
+	route_t::route_result_t calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route);
 
 	// how expensive to go here (for way search)
 	virtual int get_kosten(const grund_t *, const sint32, koord) const;
@@ -928,7 +928,7 @@ public:
 
 	virtual void set_convoi(convoi_t *c);
 
-	bool calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route);
+	route_t::route_result_t calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route);
 
 	// BG, 08.08.2012: extracted from ist_weg_frei()
     bool reroute(const uint16 reroute_index, const koord3d &ziel);
