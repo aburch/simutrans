@@ -425,6 +425,19 @@ SOURCES += vehicle/simpeople.cc
 SOURCES += vehicle/simvehikel.cc
 SOURCES += vehicle/simverkehr.cc
 
+#SOURCES += script/api/api_gui.cc
+SOURCES += simunits.cc
+
+SOURCES += convoy.cc
+SOURCES += utils/float32e8_t.cc
+SOURCES += path_explorer.cc
+SOURCES += gui/components/gui_component_table.cc
+SOURCES += gui/components/gui_table.cc
+SOURCES += gui/components/gui_convoy_assembler.cc
+SOURCES += gui/components/gui_convoy_label.cc
+SOURCES += gui/replace_frame.cc
+SOURCES += dataobj/livery_scheme.cc
+SOURCES += dataobj/replace_data.cc
 
 ifeq ($(BACKEND),allegro)
   SOURCES  += simsys_d.cc
