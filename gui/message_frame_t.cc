@@ -157,8 +157,10 @@ void message_frame_t::rdwr(loadsave_t *file)
 	file->rdwr_long( scroll_y );
 
 	if(  file->is_loading()  ) {
-		tabs.set_active_tab_index( tabstate );
-		stats.filter_messages( categories[tabstate] );
+		if ( tabstate > 0  &&  (uint32)tabstate < tabs.get_count() ) {
+			tabs.set_active_tab_index( tabstate );
+			stats.filter_messages( tab_categories[tabstate] );
+		}
 		set_fenstergroesse( gr );
 		resize( koord(0,0) );
 		scrolly.set_scroll_position( scroll_x, scroll_y );
