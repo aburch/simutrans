@@ -2641,7 +2641,17 @@ void fabrik_t::get_tile_list( vector_tpl<koord> &tile_list ) const
 	tile_list.clear();
 
 	koord pos_2d = pos.get_2d();
-	koord size = this->get_besch()->get_haus()->get_groesse(this->get_rotate());
+	const fabrik_besch_t* besch = get_besch();
+	if(!besch)
+	{
+		return;
+	}
+	const haus_besch_t* haus_besch = besch->get_haus();
+	if(!haus_besch)
+	{
+		return;
+	}
+	koord size = haus_besch->get_groesse(this->get_rotate());
 	koord test;
 	// Which tiles belong to the fab?
 	for( test.x = 0; test.x < size.x; test.x++ ) {
