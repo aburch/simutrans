@@ -50,6 +50,7 @@ settings_t::settings_t() :
 	mittlere_einwohnerzahl = 1600;
 
 	station_coverage_size = 2;
+	station_coverage_size_factories = 1;
 
 	verkehr_level = 5;
 
@@ -375,7 +376,6 @@ settings_t::settings_t() :
 	max_alternative_destinations = 3;
 
 	always_prefer_car_percent = 10;
-	base_car_preference_percent = 90;
 	congestion_density_factor = 12;
 
 	//@author: jamespetts
@@ -438,8 +438,6 @@ settings_t::settings_t() :
 	max_longdistance_tolerance = 330 * 10; // Five and a half hours
 	//max_longdistance_tolerance = 150;
 
-	max_walking_distance = 4;
-
 	used_vehicle_reduction = 0;
 
 	// some network thing to keep client in sync
@@ -456,7 +454,7 @@ settings_t::settings_t() :
 
 	toll_free_public_roads = false;
 
-	private_car_toll_per_tile = 1;
+	private_car_toll_per_km = 1;
 
 	towns_adopt_player_roads = true;
 
@@ -470,6 +468,8 @@ settings_t::settings_t() :
 	allow_making_public = true;
 
 	reroute_check_interval_steps = 8192;
+
+	walking_speed = 5;
 	
 	for(uint8 i = 0; i < 17; i ++)
 	{
@@ -535,6 +535,7 @@ void settings_t::rdwr(loadsave_t *file)
 		file->rdwr_double(map_roughness );
 
 		station_coverage_size = 3;
+		station_coverage_size_factories = 1;
 		beginner_mode = false;
 		rotation = 0;
 	}
@@ -561,7 +562,7 @@ void settings_t::rdwr(loadsave_t *file)
 		// rest
 		if(file->get_version() < 101000) {
 			uint32 dummy;	// was scroll dir
-			file->rdwr_long(dummy );
+			file->rdwr_long(dummy);
 		}
 		file->rdwr_long(verkehr_level );
 		file->rdwr_long(show_pax );
@@ -578,8 +579,13 @@ void settings_t::rdwr(loadsave_t *file)
 
 		if(file->get_version() >= 86003) {
 			dummy = station_coverage_size;
-			file->rdwr_long(dummy );
+			file->rdwr_long(dummy);
 			station_coverage_size = (uint16)dummy;
+		}
+
+		if(file->get_experimental_version() >= 11)
+		{
+			file->rdwr_short(station_coverage_size_factories);
 		}
 
 		if(file->get_version() >= 86006) {
@@ -1046,7 +1052,12 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_byte(max_alternative_destinations);
 			file->rdwr_byte(passenger_routing_local_chance);
 			file->rdwr_byte(passenger_routing_midrange_chance);
-			file->rdwr_byte(base_car_preference_percent);
+			if(file->get_experimental_version() < 11)
+			{
+				// Was base_car_preference_percent
+				uint8 dummy = 0;
+				file->rdwr_byte(dummy);
+			}
 			file->rdwr_byte(always_prefer_car_percent);
 			file->rdwr_byte(congestion_density_factor);
 
@@ -1231,7 +1242,12 @@ void settings_t::rdwr(loadsave_t *file)
 		
 		if(file->get_experimental_version() >= 8)
 		{
-			file->rdwr_short(max_walking_distance);
+			if(file->get_experimental_version() < 11)
+			{
+				uint16 dummy = 0;
+				file->rdwr_short(dummy);
+				// Was max_walking_distance
+			}
 			file->rdwr_bool(quick_city_growth);
 			file->rdwr_bool(assume_everywhere_connected_by_road);
 			for(uint8 i = 0; i < 17; i ++)
@@ -1349,16 +1365,18 @@ void settings_t::rdwr(loadsave_t *file)
 
 		if(file->get_experimental_version() >= 11)
 		{
-			file->rdwr_longlong(private_car_toll_per_tile);
+			file->rdwr_longlong(private_car_toll_per_km);
 			file->rdwr_bool(towns_adopt_player_roads);
 			file->rdwr_long(reroute_check_interval_steps);
+			file->rdwr_byte(walking_speed);
 		}
 		else if(umgebung_t::networkmode)
 		{
 			// This is necessary to prevent desyncs.
-			private_car_toll_per_tile = 1;
+			private_car_toll_per_km = 1;
 			towns_adopt_player_roads = true;
 			reroute_check_interval_steps = 8192;
+			walking_speed = 5;
 		}
 
 		if(file->get_version()>=111002 && file->get_experimental_version() == 0) 
@@ -1816,6 +1834,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	numbered_stations = contents.get_int("numbered_stations", numbered_stations );
 	station_coverage_size = contents.get_int("station_coverage", station_coverage_size );
+	station_coverage_size_factories = contents.get_int("station_coverage_factories", station_coverage_size_factories );
 
 	// time stuff
 	bits_per_month = contents.get_int("bits_per_month", bits_per_month );
@@ -1962,7 +1981,6 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	{
 		passenger_routing_midrange_chance = 33;
 	}
-	base_car_preference_percent = contents.get_int("base_car_preference_percent", base_car_preference_percent);
 	always_prefer_car_percent = contents.get_int("always_prefer_car_percent", always_prefer_car_percent);
 	congestion_density_factor = contents.get_int("congestion_density_factor", congestion_density_factor);
 
@@ -2061,9 +2079,6 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	const uint16 max_longdistance_tolerance_minutes = contents.get_int("max_longdistance_tolerance", (max_longdistance_tolerance / 10));
 	max_longdistance_tolerance = max_longdistance_tolerance_minutes * 10;
 
-	const uint16 max_walking_distance_m = contents.get_int("max_walking_distance_km_tenth", (max_walking_distance * meters_per_tile) / 100) * 100;
-	max_walking_distance = ((uint32)max_walking_distance_m * distance_per_tile) / 100;
-
 	quick_city_growth = (bool)(contents.get_int("quick_city_growth", quick_city_growth));
 
 	allow_routing_on_foot = (bool)(contents.get_int("allow_routing_on_foot", allow_routing_on_foot));
@@ -2072,7 +2087,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	toll_free_public_roads = (bool)contents.get_int("toll_free_public_roads", toll_free_public_roads);
 
-	private_car_toll_per_tile = contents.get_int("private_car_toll_per_tile", private_car_toll_per_tile);
+	private_car_toll_per_km = contents.get_int("private_car_toll_per_km", private_car_toll_per_km);
 
 	towns_adopt_player_roads = (bool)contents.get_int("towns_adopt_player_roads", towns_adopt_player_roads);
 
@@ -2084,6 +2099,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	
 	reroute_check_interval_steps = contents.get_int("reroute_check_interval_steps", reroute_check_interval_steps);
 
+	walking_speed = contents.get_int("walking_speed", walking_speed);
+	
 	for(uint8 i = road_wt; i <= air_wt; i ++)
 	{
 		std::string buf;

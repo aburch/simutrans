@@ -126,6 +126,15 @@ private:
 	 */
 	halthandle_t self;
 
+	/* 
+	 * The time (in 10ths of seconds)
+	 * that it takes passengers to walk
+	 * through this stop from one
+	 * connexion to another. This is
+	 * based on the size of the stop.
+	 */
+	uint16 transfer_time;
+
 public:
 	// add convoi to loading queue
 	void request_loading( convoihandle_t cnv );
@@ -223,6 +232,7 @@ public:
 		// Times in tenths of minutes
 		uint16 journey_time;
 		uint16 waiting_time;
+		uint16 transfer_time;
 		
 		// Convoy only used if line not used 
 		// (i.e., if the best route involves using a convoy without a line)
@@ -542,7 +552,7 @@ public:
 	// Returns the journey time of the best possible route from this halt. Time == 65535 when there is no route.
 	uint16 find_route(ware_t &ware, const uint16 journey_time = 65535);
 	minivec_tpl<halthandle_t>* build_destination_list(ware_t &ware);
-	uint16 find_route(minivec_tpl<halthandle_t> *ziel_list, ware_t & ware, const uint16 journey_time = 65535);
+	uint16 find_route(minivec_tpl<halthandle_t> *ziel_list, ware_t & ware, const uint16 journey_time = 65535, const koord destination_pos = koord::invalid);
 
 	bool get_pax_enabled()  const { return enables & PAX;  }
 	bool get_post_enabled() const { return enables & POST; }
@@ -798,7 +808,7 @@ public:
 	/* marks a coverage area
 	* @author prissi
 	*/
-	void mark_unmark_coverage(const bool mark) const;
+	void mark_unmark_coverage(const bool mark, const bool factories = false) const;
 
 	// @author: jamespetts
 	// Returns the proportion of unhappy people of the total of
@@ -874,6 +884,9 @@ public:
 	bool check_access(const spieler_t* sp) const;
 
 	bool has_no_control_tower() const;
+
+	inline uint16 get_transfer_time() const { return transfer_time; }
+	void calc_transfer_time();
 };
 
 ENUM_BITSET(haltestelle_t::stationtyp)

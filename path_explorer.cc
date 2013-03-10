@@ -248,7 +248,7 @@ path_explorer_t::compartment_t::compartment_t()
 	linkages = NULL;
 
 	transfer_list = NULL;
-	transfer_count = 0;;
+	transfer_count = 0;
 
 	catg = 255;
 	catg_name = NULL;
@@ -575,13 +575,13 @@ void path_explorer_t::compartment_t::step()
 						continue;
 					}
 
-					// Walking speed is taken to be 5km/h: http://en.wikipedia.org/wiki/Walking
-					const uint32 journey_time_factor = (journey_time_adjustment * 100u) / 5u;
-					const uint16 journey_time = (uint16)((shortest_distance(all_halts_list[i]->get_next_pos(walking_distance_halt->get_basis_pos()), walking_distance_halt->get_next_pos(all_halts_list[i]->get_basis_pos())) * journey_time_factor) / 100u);
+					const uint32 journey_time_factor = (journey_time_adjustment * 100u) / (uint32)world->get_settings().get_walking_speed();
+					const uint16 journey_time = (shortest_distance(all_halts_list[i]->get_next_pos(walking_distance_halt->get_basis_pos()), walking_distance_halt->get_next_pos(all_halts_list[i]->get_basis_pos())) * journey_time_factor) / 100u;
 					
 					// Check the journey times to the connexion
 					new_connexion = new haltestelle_t::connexion;
 					new_connexion->waiting_time = 0; // People do not need to wait to walk.
+					new_connexion->transfer_time = walking_distance_halt->get_transfer_time();
 					new_connexion->best_convoy = convoihandle_t();
 					new_connexion->best_line = linehandle_t();
 					new_connexion->journey_time = journey_time;
@@ -857,6 +857,7 @@ void path_explorer_t::compartment_t::step()
 						// Check the journey times to the connexion
 						new_connexion = new haltestelle_t::connexion;
 						new_connexion->waiting_time = halt_list[h]->get_average_waiting_time(halt_list[t], catg);
+						new_connexion->transfer_time =  catg != warenbauer_t::passagiere->get_catg_index() ? 0 : halt_list[h]->get_transfer_time();
 						if(current_linkage.line.is_bound())
 						{
 							average_tpl<uint16>* ave = current_linkage.line->get_average_journey_times()->access(id_pair(halt_list[h].get_id(), halt_list[t].get_id()));
@@ -1255,7 +1256,7 @@ void path_explorer_t::compartment_t::step()
 
 					// update corresponding matrix element
 					working_matrix[phase_counter][reachable_halt_index].next_transfer = reachable_halt;
-					working_matrix[phase_counter][reachable_halt_index].aggregate_time = current_connexion->waiting_time + current_connexion->journey_time;
+					working_matrix[phase_counter][reachable_halt_index].aggregate_time = current_connexion->waiting_time + current_connexion->journey_time + current_connexion->transfer_time;
 					transport_matrix[phase_counter][reachable_halt_index].first_transport 
 						= transport_matrix[phase_counter][reachable_halt_index].last_transport 
 						= transport_idx;

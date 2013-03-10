@@ -1066,6 +1066,15 @@ void karte_t::create_rivers( sint16 number )
 	}
 }
 
+void karte_t::remove_queued_city(stadt_t* city)
+{
+	cities_awaiting_private_car_route_check.remove(city);
+}
+
+void karte_t::add_queued_city(stadt_t* city)
+{
+	cities_awaiting_private_car_route_check.append(city);
+}
 
 void karte_t::distribute_groundobjs_cities( settings_t const * const sets, sint16 old_x, sint16 old_y)
 {
@@ -1649,8 +1658,8 @@ DBG_DEBUG("karte_t::init()","built timeline");
 	recalc_average_speed();
 
 	// @author: jamespetts
-	calc_generic_road_speed_city();
-	calc_generic_road_speed_intercity();
+	calc_generic_road_time_per_tile_city();
+	calc_generic_road_time_per_tile_intercity();
 	calc_max_road_check_depth();
 
 	for (int i = 0; i < MAX_PLAYER_COUNT; i++) {
@@ -2005,8 +2014,6 @@ karte_t::karte_t() :
 
 	// Added by : Knightly
 	path_explorer_t::initialise(this);
-
-	next_private_car_update_month = 1;
 }
 
 #ifdef DEBUG_SIMRAND_CALLS
@@ -3125,14 +3132,10 @@ stadt_t *karte_t::suche_naechste_stadt(const koord pos) const
 stadt_t *karte_t::get_city(const koord pos) const
 {
 	stadt_t* city = NULL;
-	if(pos == koord::invalid)
-	{
-		return NULL;
-	}
 
 	if(is_within_limits(pos)) 
 	{
-		uint16 cities = 0;
+		int cities = 0;
 		FOR(weighted_vector_tpl<stadt_t*>, const c, stadt) 
 		{
 			if(c->is_within_city_limits(pos))
@@ -3612,7 +3615,7 @@ void karte_t::new_month()
 		dep->neuer_monat();
 	}
 
-	// recalc old settings (and maybe update the staops with the current values)
+	// recalc old settings (and maybe update the stops with the current values)
 	reliefkarte_t::get_karte()->neuer_monat();
 
 	INT_CHECK("simworld 3042");
@@ -3681,10 +3684,22 @@ void karte_t::new_month()
 
 	INT_CHECK("simworld 3105");
 
+	// Check attractions' road connexions
+	FOR(weighted_vector_tpl<gebaeude_t*>, const &i, ausflugsziele)
+	{
+		i->check_road_tiles(false);
+	}
+
+
 	//	DBG_MESSAGE("karte_t::neuer_monat()","cities");
 	stadt.update_weights(get_population);
 	sint32 outstanding_cars = 0;
-	FOR(weighted_vector_tpl<stadt_t*>, const s, stadt) {
+	FOR(weighted_vector_tpl<stadt_t*>, const s, stadt) 
+	{
+		if(recheck_road_connexions) 
+		{
+			cities_awaiting_private_car_route_check.append_unique(s);
+		}
 		s->neuer_monat(recheck_road_connexions);
 		outstanding_cars += s->get_outstanding_cars();
 		//INT_CHECK("simworld 3117");
@@ -3797,14 +3812,14 @@ void karte_t::new_month()
 		save( buf, loadsave_t::autosave_mode, umgebung_t::savegame_version_str, umgebung_t::savegame_ex_version_str, true );
 	}
 
+	set_citycar_speed_average();
+	calc_generic_road_time_per_tile_city();
+	calc_generic_road_time_per_tile_intercity();
+	calc_max_road_check_depth();
+
 	// Added by : Knightly
 	// Note		: This should be done after all lines and convoys have rolled their statistics
 	path_explorer_t::refresh_all_categories(true);
-
-	set_citycar_speed_average();
-	calc_generic_road_speed_city();
-	calc_generic_road_speed_intercity();
-	calc_max_road_check_depth();
 }
 
 
@@ -3835,7 +3850,6 @@ DBG_MESSAGE("karte_t::new_year()","speedbonus for %d %i, %i, %i, %i, %i, %i, %i,
 			spieler[i]->neues_jahr();
 		}
 	}
-
 }
 
 
@@ -4138,6 +4152,14 @@ void karte_t::step()
 			INT_CHECK("karte_t::step 5");
 		}
 	}
+
+	if(cities_awaiting_private_car_route_check.get_count() > 0 && (steps % 12) == 0)
+	{
+		stadt_t* city = cities_awaiting_private_car_route_check.remove_first();
+		city->check_all_private_car_routes();
+		city->set_check_road_connexions(false);
+	}
+
 
 	// now step all towns (to generate passengers)
 	DBG_DEBUG4("karte_t::step 6", "step cities");
@@ -5040,13 +5062,18 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved messages");
 
 	if(file->get_experimental_version() >=9 && file->get_version() >= 110000)
 	{
-		file->rdwr_byte(next_private_car_update_month);
+		if(file->get_experimental_version() < 11)
+		{
+			// Was next_private_car_update_month
+			uint8 dummy;
+			file->rdwr_byte(dummy);
+		}
 		
 		// Existing values now saved in order to prevent network desyncs
 		file->rdwr_long(citycar_speed_average);
 		file->rdwr_bool(recheck_road_connexions);
-		file->rdwr_short(generic_road_speed_city);
-		file->rdwr_short(generic_road_speed_intercity);
+		file->rdwr_short(generic_road_time_per_tile_city);
+		file->rdwr_short(generic_road_time_per_tile_intercity);
 		file->rdwr_long(max_road_check_depth);
 		if(file->get_experimental_version() < 10)
 		{
@@ -5095,6 +5122,7 @@ bool karte_t::load(const char *filename)
 	mute_sound(true);
 	display_show_load_pointer(true);
 	loadsave_t file;
+	cities_awaiting_private_car_route_check.clear();
 
 	// clear hash table with missing paks (may cause some small memory loss though)
 	missing_pak_names.clear();
@@ -5300,8 +5328,8 @@ DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 	settings.set_filename(filename);
 	display_show_load_pointer(false);
 
-	calc_generic_road_speed_city();
-	calc_generic_road_speed_intercity();
+	calc_generic_road_time_per_tile_city();
+	calc_generic_road_time_per_tile_intercity();
 	calc_max_road_check_depth();
 
 	return ok;
@@ -5908,13 +5936,18 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 
 	if(file->get_experimental_version() >=9 && file->get_version() >= 110000)
 	{
-		file->rdwr_byte(next_private_car_update_month);
+		if(file->get_experimental_version() < 11)
+		{
+			// Was next_private_car_update_month
+			uint8 dummy;
+			file->rdwr_byte(dummy);
+		}
 		
 		// Existing values now saved in order to prevent network desyncs
 		file->rdwr_long(citycar_speed_average);
 		file->rdwr_bool(recheck_road_connexions);
-		file->rdwr_short(generic_road_speed_city);
-		file->rdwr_short(generic_road_speed_intercity);
+		file->rdwr_short(generic_road_time_per_tile_city);
+		file->rdwr_short(generic_road_time_per_tile_intercity);
 		file->rdwr_long(max_road_check_depth);
 		if(file->get_experimental_version() < 10)
 		{
@@ -5943,6 +5976,12 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 			 */
 			rdwr_all_win( file );
 		}
+	}
+
+	// Check attractions' road connexions
+	FOR(weighted_vector_tpl<gebaeude_t*>, const &i, ausflugsziele)
+	{
+		i->check_road_tiles(false);
 	}
 
 	// Added by : Knightly
@@ -7285,7 +7324,7 @@ void karte_t::set_citycar_speed_average()
 	citycar_speed_average = vehicle_speed_sum / count;
 }
 
-void karte_t::calc_generic_road_speed_intercity()
+void karte_t::calc_generic_road_time_per_tile_intercity()
 {
 	// This method is used only when private car connexion
 	// checking is turned off.
@@ -7295,12 +7334,12 @@ void karte_t::calc_generic_road_speed_intercity()
 	if(besch == NULL) 
 	{
 		// Hajo: try some default (might happen with timeline ... )
-		besch = wegbauer_t::weg_search(road_wt,80,get_timeline_year_month(),weg_t::type_flat);
+		besch = wegbauer_t::weg_search(road_wt, 80, get_timeline_year_month(),weg_t::type_flat);
 	}
-	generic_road_speed_intercity = (uint16)calc_generic_road_speed(besch);
+	generic_road_time_per_tile_intercity = (uint16)calc_generic_road_time_per_tile(besch);
 }
 
-sint32 karte_t::calc_generic_road_speed(const weg_besch_t* besch)
+sint32 karte_t::calc_generic_road_time_per_tile(const weg_besch_t* besch)
 {
 	sint32 speed_average = citycar_speed_average;
 	if(besch)
@@ -7320,12 +7359,19 @@ sint32 karte_t::calc_generic_road_speed(const weg_besch_t* besch)
 		}
 	}
 
+	// Reduce by 1/3 to reflect the fact that vehicles will not always
+	// be able to maintain maximum speed even in uncongested environs,
+	// and the fact that we are converting route distances to straight
+	// line distances.
+	speed_average *= 2;
+	speed_average /= 3; 
+
 	if(speed_average == 0)
 	{
 		speed_average = 1;
 	}
 	
-	return ((6 * 15) * settings.get_meters_per_tile()) /  (speed_average * 100);
+	return ((600 / speed_average) * settings.get_meters_per_tile()) / 100;
 }
 
 void karte_t::calc_max_road_check_depth()
@@ -7392,7 +7438,6 @@ sint64 karte_t::ticks_to_seconds(sint64 ticks) const
 	return get_settings().get_meters_per_tile() * ticks * 30L * 6L / (4096L * 1000L);
 }
 
-
 static bool sort_ware_by_name(const ware_besch_t* a, const ware_besch_t* b)
 {
 	int diff = strcmp(translator::translate(a->get_name()), translator::translate(b->get_name()));
@@ -7423,3 +7468,4 @@ const vector_tpl<const ware_besch_t*> &karte_t::get_goods_list()
 
 	return goods_in_game;
 }
+

@@ -43,7 +43,7 @@ private:
 public:
 	typedef enum { no_route=0, valid_route=1, valid_route_halt_too_short=3 } route_result_t;
 
-	// this class save the nodes during route search
+	// this class saves the nodes during route searches
 	class ANode {
 	public:
 		ANode * parent;
@@ -53,16 +53,19 @@ public:
 		uint16 count;
 
 		inline bool operator <= (const ANode &k) const { return f==k.f ? g<=k.g : f<=k.f; }
-		// next one only needed for sorted_heap_tpl
+#if defined(tpl_sorted_heap_tpl_h)
 		inline bool operator == (const ANode &k) const { return f==k.f  &&  g==k.g; }
-		// next two only needed for HOT-queues
-		//inline bool is_matching(const ANode &l) const { return gr==l.gr; }
-		//inline uint32 get_distance() const { return f; }
+#endif
+#if defined(tpl_HOT_queue_tpl_h)
+		inline bool is_matching(const ANode &l) const { return gr==l.gr; }
+		inline uint32 get_distance() const { return f; }
+#endif
 	};
 
+// These will need to be made non-static if this is ever to be threaded.
 private:
 	static const uint8 MAX_NODES_ARRAY = 2;
-	static ANode *_nodes[MAX_NODES_ARRAY];
+	static ANode *_nodes[MAX_NODES_ARRAY]; 
 	static bool _nodes_in_use[MAX_NODES_ARRAY]; // semaphores, since we only have few nodes arrays in memory
 public:
 	static uint32 MAX_STEP;
@@ -150,7 +153,7 @@ public:
 	* the max_depth is the maximum length of a route
 	* @author prissi
 	*/
-	bool find_route(karte_t *w, const koord3d start, fahrer_t *fahr, const uint32 max_khm, uint8 start_dir, uint32 weight, uint32 max_depth );
+	bool find_route(karte_t *w, const koord3d start, fahrer_t *fahr, const uint32 max_khm, uint8 start_dir, uint32 weight, uint32 max_depth, bool private_car_checker = false);
 
 	/**
 	 * berechnet eine route von start nach ziel.

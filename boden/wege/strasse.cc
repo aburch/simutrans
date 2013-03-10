@@ -14,7 +14,6 @@
 #include "../../bauer/wegbauer.h"
 #include "../../dataobj/translator.h"
 
-
 const weg_besch_t *strasse_t::default_strasse=NULL;
 
 

@@ -55,10 +55,17 @@
 # 10000 is ok for everything else (consumes 16*x Bytes main memory, no further harm)
 max_route_steps = 1000000
 
-# size of catchment area of a station (default 2)
-# older game size was 3
-# savegames with another catch area will give strange results
-station_coverage = 2
+# Size of the catchment area of a station/stop in tiles.
+# This is for city buildings (mail and passengers) only.
+# (In older versions, this was used for both city buildings and factories)
+#
+# Default: 2
+station_coverage = 6
+
+# Size of the catchment area of a station/stop in tiles.
+# This is for factories only.
+# Default: 1
+station_coverage_size_factories = 1
 
 # Max number of steps in goods pathfinding
 # This should be equal or greater than the biggest group
@@ -294,7 +301,7 @@ toll_free_public_roads = 1
 # major version is incremented to 11. In a network game, this value
 # will default to 1.
 
-private_car_toll_per_tile = 1
+private_car_toll_per_km = 1
 
 # If this is set to 1, any road built in a town will be adopted
 # by that town (set to unowned), meaning that the building player
@@ -393,6 +400,13 @@ min_midrange_tolerance = 5
 max_midrange_tolerance = 240
 min_longdistance_tolerance = 30
 max_longdistance_tolerance = 4320
+
+# The following setting determines the walking speed of passengers in km/h.
+# See: http://en.wikipedia.org/wiki/Walking , which suggests that this should
+# be 5km/h. This is used in routing calculations for walking to/from stops and
+# in walking between stops. 
+
+walking_speed = 5
 
 #################################### Revenue settings ##################################
 #
@@ -546,15 +560,8 @@ tpo_revenue=300
 # These settings relate to private car use. See /config/privatecar.tab for
 # the configuration of private car ownership for different years.
 #
-# "Base car preference percent" is the chance, expressed in percentage, that, all
-# other things being equal, a passenger with a private car will choose to use that
-# car in preference to using public (i.e., the player's) transport. Higher values
-# are more realistic; lower values make the game easier. 
-# 
 # "Always prefer car percent" is the percentage of drivers who prefer to use their
-# car no matter how congested the roads. The remaining percentage of drivers are 
-# deterred from using their car to go to or from (or within) towns that have a
-# high level of congestion. The default is 10. 
+# car even if walking or taking public transport is faster. The default is 10% 
 #
 # "Congestion density factor" is the factor by which the population density (in
 # citizens per tile) is divided to get a factor multiplied by the number of cars
@@ -564,12 +571,7 @@ tpo_revenue=300
 # transport instead. If "congestion density factor" is set to zero, then the congestion
 # will be calculated using a much simpler formula that does not depend on the city's
 # population density at all.  
-#
-# To revert to the behaviour of Simutrans Standard (with no competition from private cars 
-# at all), simply set "base_car_preference_percent" to 0. Passengers will then only choose
-# private cars if no public transport is available.
 
-base_car_preference_percent = 95
 always_prefer_car_percent = 10
 congestion_density_factor = 16
 
@@ -627,14 +629,6 @@ assume_everywhere_connected_by_road = 0
 # 9.0. It replaces Simutrans-Standard's setting of "minimum_city_distance".
 
 city_isolation_factor = 32
-
-# Passengers will walk to their destination if it is close enough, rather than use
-# players' transport or private cars. This parameter defines how close that close
-# enough is. It is expressed in hundreds of meters (or tenths of kilometres), so
-# the default setting of 15 means that passnegers will walk to their destination if
-# it is within 1.5km of their origin.
-
-max_walking_distance_km_tenth = 15
 
 ################################## Industry settings #################################
 #

@@ -24,6 +24,7 @@
 #include "tpl/ptrhashtable_tpl.h"
 #include "tpl/vector_tpl.h"
 #include "tpl/slist_tpl.h"
+#include "tpl/koordhashtable_tpl.h"
 
 #include "dataobj/marker.h"
 #include "dataobj/einstellungen.h"
@@ -818,8 +819,8 @@ private:
 	 * minutes.
 	 * @author: jamespetts, April 2010
 	 */
-	uint16 generic_road_speed_city;
-	uint16 generic_road_speed_intercity;
+	uint16 generic_road_time_per_tile_city;
+	uint16 generic_road_time_per_tile_intercity;
 
 	uint32 max_road_check_depth;
 
@@ -827,6 +828,8 @@ private:
 	 * The last time when a server announce was performed (in ms).
 	 */
 	uint32 server_last_announce_time;
+	
+	slist_tpl<stadt_t*> cities_awaiting_private_car_route_check;
 
 	void world_xy_loop(xy_loop_func func, bool sync_x_steps);
 	static void *world_xy_loop_thread(void *);
@@ -848,13 +851,6 @@ public:
 	 * or offline (the latter only in cases where it is shutting down)
 	 */
 	void announce_server(int status);
-
-	// The month in which the next city generated will update its private car 
-	// routes if an update is needed. This spreads the computational load over
-	// a year instead of forcing it all into a month, thus improving 
-	// performance.
-	// @author: jamespetts, February 2011
-	uint8 next_private_car_update_month;
 
 	vector_tpl<fabrik_t*> closed_factories_this_month;
 
@@ -1779,12 +1775,13 @@ public:
 	 * road speed based on the average 
 	 * speed of road traffic and the 
 	 * speed limit of the appropriate type
-	 * of road.
+	 * of road. This is measured in 100ths 
+	 * of a minute per tile.
 	 */
-	uint16 get_generic_road_speed_city() const { return generic_road_speed_city; }
-	uint16 get_generic_road_speed_intercity() const { return generic_road_speed_intercity; };
+	uint16 get_generic_road_time_per_tile_city() const { return generic_road_time_per_tile_city; }
+	uint16 get_generic_road_time_per_tile_intercity() const { return generic_road_time_per_tile_intercity; };
 
-	sint32 calc_generic_road_speed(const weg_besch_t* besch);
+	sint32 calc_generic_road_time_per_tile(const weg_besch_t* besch);
 
 	uint32 get_max_road_check_depth() const { return max_road_check_depth; }
 
@@ -1800,17 +1797,6 @@ public:
 	 */
 
 	uint32 generate_new_map_counter() const;
-
-	uint8 step_next_private_car_update_month() 
-	{ 
-		uint8 tmp = next_private_car_update_month;
-		next_private_car_update_month ++ ; 
-		if(next_private_car_update_month > 12)
-		{
-			next_private_car_update_month = 1;
-		}
-		return tmp;
-	}
 	
 	void sprintf_ticks(char *p, size_t size, sint64 ticks) const;
 	void sprintf_time(char *p, size_t size, uint32 seconds) const;
@@ -1818,6 +1804,8 @@ public:
 	// @author: jamespetts
 	void set_scale();
 
+	void remove_queued_city(stadt_t* stadt);
+	void add_queued_city(stadt_t* stadt);
 
 #ifdef DEBUG_SIMRAND_CALLS
 	static vector_tpl<const char*> random_callers;
@@ -1825,8 +1813,8 @@ public:
 
 private:
 
-	void calc_generic_road_speed_city() { generic_road_speed_city = calc_generic_road_speed(city_road); }
-	void calc_generic_road_speed_intercity();
+	void calc_generic_road_time_per_tile_city() { generic_road_time_per_tile_city = calc_generic_road_time_per_tile(city_road); }
+	void calc_generic_road_time_per_tile_intercity();
 	void calc_max_road_check_depth();
 };
 

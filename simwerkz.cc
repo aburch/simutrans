@@ -2766,8 +2766,8 @@ class electron_t : public fahrer_t {
 	bool ist_befahrbar(const grund_t* gr) const { return gr->get_leitung()!=NULL; }
 	virtual ribi_t::ribi get_ribi(const grund_t* gr) const { return gr->get_leitung()->get_ribi(); }
 	virtual waytype_t get_waytype() const { return invalid_wt; }
-	virtual int get_kosten(const grund_t *, const sint32, koord) const { return 1; }
-	virtual bool ist_ziel(const grund_t *,const grund_t *) const { return false; }
+	virtual int get_kosten(const grund_t *, const sint32, koord) { return 1; }
+	virtual bool ist_ziel(const grund_t *,const grund_t *) { return false; }
 };
 
 class scenario_checker_t : public fahrer_t {
@@ -2798,8 +2798,8 @@ private:
 	bool ist_befahrbar(const grund_t* gr) const { return other->ist_befahrbar(gr)  &&  scenario->is_work_allowed_here(sp, id, other->get_waytype(), gr->get_pos())==NULL;}
 	virtual ribi_t::ribi get_ribi(const grund_t* gr) const { return other->get_ribi(gr); }
 	virtual waytype_t get_waytype() const { return other->get_waytype(); }
-	virtual int get_kosten(const grund_t *gr, const sint32 c, koord p) const { return other->get_kosten(gr,c,p); }
-	virtual bool ist_ziel(const grund_t *gr,const grund_t *gr2) const { return other->ist_ziel(gr,gr2); }
+	virtual int get_kosten(const grund_t *gr, const sint32 c, koord p) { return other->get_kosten(gr,c,p); }
+	virtual bool ist_ziel(const grund_t *gr,const grund_t *gr2) { return other->ist_ziel(gr,gr2); }
 };
 
 void wkz_wayremover_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &start, const koord3d &end )
@@ -3700,7 +3700,6 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.
 	}
 	bool neu = !halt.is_bound();
 
-//<<<<<<< HEAD
 	if(neu) 
 	{ 
 		// new dock
@@ -3720,18 +3719,6 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.
 
 	if(sp != halt->get_besitzer() && sp != welt->get_spieler(1)) 
 	{
-//=======
-//	if(neu) {
-//		if(  welt->lookup( (koord)pos )->get_halt().is_bound()  ) {
-//			return "Das Feld gehoert\neinem anderen Spieler\n";
-//		}
-//		// ok, really new stop on this tile then
-//		halt = haltestelle_t::create(welt, pos, sp);
-//	}
-//	hausbauer_t::baue(welt, halt->get_besitzer(), bau_pos, layout, besch, &halt);
-//	sint64 costs = welt->get_settings().cst_multiply_dock * besch->get_level();
-//	if(  sp!=halt->get_besitzer()  ) {
-//>>>>>>> aburch/master
 		// public stops are expensive!
 		// (Except for the public player itself)
 		sint64 maint;
@@ -3948,10 +3935,8 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 	// seems everything ok, lets build
 	bool neu = !halt.is_bound();
 
-//<<<<<<< HEAD
 	if(neu) 
 	{
-//		halt = sp->halt_add(pos);
 		halt = haltestelle_t::create(welt, pos, sp);
 		if(halt.is_bound() && umgebung_t::networkmode)
 		{
@@ -3964,13 +3949,6 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 			message.printf("%s has built a new %s %s %s.", sp->get_name(), stop, preposition, city_name);
 			welt->get_message()->add_message(message, pos, message_t::ai, sp->get_player_color1());
 		}
-//=======
-//	if(neu) {
-//		if(  welt->lookup( pos )->get_halt().is_bound()  ) {
-//			return "Das Feld gehoert\neinem anderen Spieler\n";
-//		}
-//		halt = haltestelle_t::create(welt, pos, sp);
-//>>>>>>> aburch/master
 	}
 	hausbauer_t::neues_gebaeude( welt, halt->get_besitzer(), bd->get_pos(), layout, besch, &halt);
 	halt->recalc_station_type();
@@ -3987,12 +3965,6 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 
 	if(sp != halt->get_besitzer() && sp != welt->get_spieler(1)) 
 	{
-//=======
-//	sint64 old_cost = old_level * cost;
-//	cost *= besch->get_level()*besch->get_b()*besch->get_h();
-//	cost -= old_cost/2;
-//	if(  sp!=halt->get_besitzer()  ) {
-//>>>>>>> aburch/master
 		// public stops are expensive!
 		// (Except for the public player itself, of course)
 		sint64 maint;
@@ -4069,7 +4041,17 @@ bool wkz_station_t::init( karte_t *welt, spieler_t * )
 	}
 	else {
 set_area_cov:
-		uint16 const cov = welt->get_settings().get_station_coverage() * 2 + 1;
+		uint16 base_cov;
+		const bool freight_enabled = hb->get_enabled() & 4;
+		if(is_shift_pressed() != freight_enabled)
+		{
+			base_cov = welt->get_settings().get_station_coverage_factories();
+		}
+		else
+		{
+			base_cov = welt->get_settings().get_station_coverage();
+		}
+		uint16 const cov = base_cov * 2 + 1;
 		cursor_area = koord(cov, cov);
 		cursor_centered = true;
 	}
@@ -4215,14 +4197,6 @@ const char *wkz_station_t::check_pos( karte_t *welt, spieler_t*,  koord3d pos )
 	if(  grund_t *gr = welt->lookup( pos )  ) {
 		sint8 rotation;
 		const haus_besch_t *besch = get_besch(rotation);
-//<<<<<<< HEAD
-//		if(  grund_t::underground_mode==grund_t::ugm_all || (grund_t::underground_mode==grund_t::ugm_level && welt->lookup_kartenboden(pos.get_2d())->get_hoehe() > grund_t::underground_level) ) 
-//		{
-//			// in underground mode, buildings will be done invisible above ground => disallow such confusion
-//			if(  besch->get_allow_underground() == 0 ||  besch->get_extra()==air_wt) 
-//			{
-//				return "Cannot built this station/building\nin underground mode here.";
-//=======
 		if(  grund_t *bd = welt->lookup_kartenboden( pos.get_2d() )  ) {
 			const bool underground = bd->get_hoehe()>gr->get_hoehe();
 			if(  underground  ) {
@@ -4236,14 +4210,9 @@ const char *wkz_station_t::check_pos( karte_t *welt, spieler_t*,  koord3d pos )
 			}
 			else if(  besch->get_utyp()==haus_besch_t::generic_stop  &&  !besch->can_be_built_aboveground()) {
 				return "This station/building\ncan only be built underground.";
-///>>>>>>> aburch/master
 			}
 			return NULL;
 		}
-		//else if(besch->get_allow_underground() == 1)
-		//{
-		//	return "This can only be built underground.";
-		//}
 	}
 	// no ground here???
 	return "Missing ground (fatal!)";

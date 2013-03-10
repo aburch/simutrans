@@ -386,7 +386,6 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 
 	welt = wl;
 
-//<<<<<<< HEAD
 	const uint8 max_categories = warenbauer_t::get_max_catg_index();
 
 	waren = (vector_tpl<ware_t> **)calloc( max_categories, sizeof(vector_tpl<ware_t> *) );
@@ -397,10 +396,6 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 	}
 	waiting_times = new inthashtable_tpl<uint16, waiting_time_set >[max_categories];
 	connexions = new quickstone_hashtable_tpl<haltestelle_t, connexion*>*[max_categories];
-//=======
-//	waren = (vector_tpl<ware_t> **)calloc( warenbauer_t::get_max_catg_index(), sizeof(vector_tpl<ware_t> *) );
-//	all_links = new link_t[ warenbauer_t::get_max_catg_index() ];
-//>>>>>>> aburch/master
 
 	// Knightly : create the actual connexion hash tables
 	for(uint8 i = 0; i < max_categories; i ++)
@@ -444,7 +439,6 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 
 	enables = NOT_ENABLED;
 
-//<<<<<<< HEAD
 	last_catg_index = 255;	// force total rerouting
 
 	const uint8 max_categories = warenbauer_t::get_max_catg_index();
@@ -464,10 +458,6 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 		connexions[i] = new quickstone_hashtable_tpl<haltestelle_t, connexion*>();
 	}
 	do_alternative_seats_calculation = true;
-//=======
-//	waren = (vector_tpl<ware_t> **)calloc( warenbauer_t::get_max_catg_index(), sizeof(vector_tpl<ware_t> *) );
-//	all_links = new link_t[ warenbauer_t::get_max_catg_index() ];
-//>>>>>>> aburch/master
 
 	status_color = COL_YELLOW;
 
@@ -488,6 +478,8 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 	unload_repeat_counter = 0;
 
 	control_towers = 0;
+
+	transfer_time = 0;
 }
 
 
@@ -1324,11 +1316,12 @@ void haltestelle_t::verbinde_fabriken()
 	fab_list.clear();
 
 	// then reconnect
+	int const cov = welt->get_settings().get_station_coverage_factories();
+	koord const coverage(cov, cov);
 	FOR(slist_tpl<tile_t>, const& i, tiles) {
 		koord const p = i.grund->get_pos().get_2d();
 
-		int const cov = welt->get_settings().get_station_coverage();
-		FOR(vector_tpl<fabrik_t*>, const fab, fabrik_t::sind_da_welche(welt, p - koord(cov, cov), p + koord(cov, cov))) {
+		FOR(vector_tpl<fabrik_t*>, const fab, fabrik_t::sind_da_welche(welt, p - coverage, p + coverage)) {
 			if(!fab_list.is_contained(fab)) {
 				// water factories can only connect to docks
 				if(  fab->get_besch()->get_platzierung() != fabrik_besch_t::Wasser  ||  (station_type & dock) > 0  ) {
@@ -1755,7 +1748,7 @@ minivec_tpl<halthandle_t>* haltestelle_t::build_destination_list(ware_t &ware)
 	return ziel_list;
 }
 
-uint16 haltestelle_t::find_route(minivec_tpl<halthandle_t> *ziel_list, ware_t &ware, const uint16 previous_journey_time)
+uint16 haltestelle_t::find_route(minivec_tpl<halthandle_t> *ziel_list, ware_t &ware, const uint16 previous_journey_time, const koord destination_pos)
 {
 	uint16 journey_time = previous_journey_time;
 
@@ -1767,18 +1760,11 @@ uint16 haltestelle_t::find_route(minivec_tpl<halthandle_t> *ziel_list, ware_t &w
 		return 65535;
 	}
 
-	// check, if the shortest connection is not right to us ...
-	if(ziel_list->is_contained(self)) 
-	{
-		ware.set_ziel(self);
-		ware.set_zwischenziel( halthandle_t());
-		return 65535;
-	}
-
-
 	// Now, find the best route from here.
 	// Added by		: Knightly
 	// Adapted from : James' code
+	// Further adapted to incorporate walking
+	// times calculation: @jamespetts, January 2013
 
 	uint16 test_time;
 	halthandle_t test_transfer;
@@ -1786,13 +1772,41 @@ uint16 haltestelle_t::find_route(minivec_tpl<halthandle_t> *ziel_list, ware_t &w
 	halthandle_t best_destination;
 	halthandle_t best_transfer;
 
+	const uint32 journey_time_adjustment = (welt->get_settings().get_meters_per_tile() * 6u) / 10u;
+	const uint32 walking_journey_time_factor = (journey_time_adjustment * 100u) / (journey_time_adjustment * 100u) / (uint32)welt->get_settings().get_walking_speed();
+	koord destination_stop_pos = destination_pos;
+
 	const uint8 ware_catg = ware.get_besch()->get_catg_index();
+	uint32 long_test_time;
 
 	for (uint8 i = 0; i < ziel_list->get_count(); i++)
 	{
 		path_explorer_t::get_catg_path_between(ware_catg, self, (*ziel_list)[i], test_time, test_transfer);
 
-		if( test_time < journey_time )
+		long_test_time = (uint32)test_time;
+
+		if(destination_pos != koord::invalid)
+		{
+			// Walking time is not relevant for freight.
+			if((*ziel_list)[i].is_bound())
+			{
+				destination_stop_pos = (*ziel_list)[i]->get_next_pos(destination_pos);
+			}
+			
+			// Add the walking distance from the destination stop to the ultimate destination.
+			long_test_time += (shortest_distance(destination_stop_pos, destination_pos) * walking_journey_time_factor) / 100u;
+		}
+
+		if(long_test_time > 65535)
+		{
+			test_time = 65535;
+		}
+		else
+		{
+			test_time = long_test_time;
+		}
+
+		if(test_time < journey_time)
 		{
 			best_destination = (*ziel_list)[i];
 			journey_time = test_time;
@@ -1800,7 +1814,7 @@ uint16 haltestelle_t::find_route(minivec_tpl<halthandle_t> *ziel_list, ware_t &w
 		}
 	}
 		
-	if( journey_time < previous_journey_time )
+	if(journey_time < previous_journey_time)
 	{
 		ware.set_ziel(best_destination);
 		ware.set_zwischenziel(best_transfer);
@@ -2811,7 +2825,6 @@ void haltestelle_t::add_to_station_type( grund_t *gr )
 		station_type = invalid;
 	}
 
-//<<<<<<< HEAD
 	const gebaeude_t* gb = gr->find<gebaeude_t>();
 	const haus_besch_t *besch=gb?gb->get_tile()->get_besch():NULL;
 
@@ -3162,7 +3175,6 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		// restoring all goods in the station
 		char s[256];
 		file->rdwr_str(s, lengthof(s));
-//<<<<<<<
 		while(*s) {
 			uint32 count;
 			if(  file->get_version() <= 112002  || file->get_experimental_version() <= 10 ) {
@@ -3439,6 +3451,15 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		{
 			check_nearby_halts();
 		}
+	}
+
+	if(file->get_experimental_version() >= 11)
+	{
+		file->rdwr_short(transfer_time);
+	}
+	else
+	{
+		calc_transfer_time();
 	}
 
 	pedestrian_limit = 0;
@@ -3789,13 +3810,12 @@ bool haltestelle_t::add_grund(grund_t *gr)
 		}
 	}
 
-	if(  welt->lookup(pos)->get_halt() != self  ||  !gr->is_halt()  ) {
-		dbg->error( "haltestelle_t::add_grund()", "no ground added to (%s)", gr->get_pos().get_str() );
-	}
+	assert(welt->lookup(pos)->get_halt() == self && gr->is_halt());
 	init_pos = tiles.front().grund->get_pos().get_2d();
-	path_explorer_t::refresh_all_categories(false);
-
 	check_nearby_halts();
+	calc_transfer_time();
+
+	path_explorer_t::refresh_all_categories(false);
 
 	return true;
 }
@@ -3907,6 +3927,9 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 	}
 
 	check_nearby_halts();
+	calc_transfer_time();
+
+	path_explorer_t::refresh_all_categories(false);
 
 	return true;
 }
@@ -3947,10 +3970,10 @@ koord haltestelle_t::get_next_pos( koord start ) const
 /* marks a coverage area
  * @author prissi
  */
-void haltestelle_t::mark_unmark_coverage(const bool mark) const
+void haltestelle_t::mark_unmark_coverage(const bool mark, const bool factories) const
 {
 	// iterate over all tiles
-	uint16 const cov = welt->get_settings().get_station_coverage();
+	uint16 const cov = factories ? welt->get_settings().get_station_coverage_factories() : welt->get_settings().get_station_coverage();
 	koord  const size(cov * 2 + 1, cov * 2 + 1);
 	FOR(slist_tpl<tile_t>, const& i, tiles) {
 		welt->mark_area(i.grund->get_pos() - size / 2, size, mark);
@@ -4179,4 +4202,31 @@ bool haltestelle_t::check_access(const spieler_t* sp) const
 bool haltestelle_t::has_no_control_tower() const
 {
 	return welt->get_settings().get_allow_airports_without_control_towers() ? false : control_towers == 0;
+}
+
+void haltestelle_t::calc_transfer_time()
+{
+	koord ul(32767,32767);
+	koord lr(0,0);
+	koord pos;
+	tiles;
+	FOR(slist_tpl<tile_t>, const& tile, tiles)
+	{
+		pos = tile.grund->get_pos().get_2d();
+
+		if(ul.x > pos.x) ul.x = pos.x;
+		if(ul.y > pos.y) ul.y = pos.y;
+		if(lr.x < pos.x) lr.x = pos.x;
+		if(lr.y < pos.y) lr.y = pos.y;
+	}
+
+	const sint16 x_size = (lr.x - ul.x) + 1;
+	const sint16 y_size = (lr.y - ul.y) + 1;
+
+	const sint16 ave_dimension = ((x_size + y_size) / 2) - 1;
+
+	const uint32 journey_time_adjustment = (welt->get_settings().get_meters_per_tile() * 6u) / 10u;
+	const uint32 walking_journey_time_factor = (journey_time_adjustment * 100u) / (uint32)welt->get_settings().get_walking_speed();
+
+	transfer_time = ((ave_dimension / 2) * walking_journey_time_factor) / 100u;
 }

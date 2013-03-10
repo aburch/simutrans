@@ -41,6 +41,13 @@ protected:
 	 */
 	sint32 time_to_life;
 
+	/** Necessary to keep track of the
+	 * distance travelled sine the last
+	 * time that this vehicle paid
+	 * a toll for using a player's way
+	 */
+	uint8 tiles_since_last_increment;
+
 protected:
 	virtual waytype_t get_waytype() const { return road_wt; }
 
@@ -71,6 +78,8 @@ public:
 
 	// finalizes direction
 	void laden_abschliessen() {calc_bild();}
+
+	void set_time_to_life(uint32 value) { time_to_life = value; }
 
 	// we allow to remove all cars etc.
 	const char *ist_entfernbar(const spieler_t *) { return NULL; }

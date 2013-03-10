@@ -900,14 +900,14 @@ vehikel_t::unload_freight(halthandle_t halt)
 									// be in (or be fully in) a city.
 									tmp.get_origin()->add_pax_happy(menge);
 									koord origin_pos = tmp.get_origin()->get_basis_pos();
-									stadt_t* origin_city = welt->get_city(origin_pos);
+									stadt_t* origin_city = welt->lookup(origin_pos)->get_city();
 									if(!origin_city)
 									{
 										// The origin stop is not within a city. 
 										// If the stop is located outside the city, but the passengers
 										// come from a city, they will not record as transported.
 										origin_pos = tmp.get_origin()->get_init_pos();
-										origin_city = welt->get_city(origin_pos);
+										origin_city = welt->lookup(origin_pos)->get_city();
 									}
 									
 									if(!origin_city)
@@ -915,7 +915,7 @@ vehikel_t::unload_freight(halthandle_t halt)
 										for(uint8 i = 0; i < 16; i ++)
 										{
 											koord pos(origin_pos + origin_pos.second_neighbours[i]);
-											origin_city = welt->get_city(pos);
+											origin_city = welt->lookup(pos)->get_city();
 											if(origin_city)
 											{
 												break;
@@ -937,14 +937,14 @@ vehikel_t::unload_freight(halthandle_t halt)
 									// do not have origins. Also, the start halt might not
 									// be in (or be fully in) a city.
 									koord origin_pos = tmp.get_origin()->get_basis_pos();
-									stadt_t* origin_city = welt->get_city(origin_pos);
+									stadt_t* origin_city = welt->lookup(origin_pos)->get_city();
 									if(!origin_city)
 									{
 										// The origin stop is not within a city. 
 										// If the stop is located outside the city, but the passengers
 										// come from a city, they will not record as transported.
 										origin_pos = tmp.get_origin()->get_init_pos();
-										origin_city = welt->get_city(origin_pos);
+										origin_city = welt->lookup(origin_pos)->get_city();
 									}
 									
 									if(!origin_city)
@@ -952,7 +952,7 @@ vehikel_t::unload_freight(halthandle_t halt)
 										for(uint8 i = 0; i < 16; i ++)
 										{
 											koord pos(origin_pos + origin_pos.second_neighbours[i]);
-											origin_city = welt->get_city(pos);
+											origin_city = welt->lookup(pos)->get_city();
 											if(origin_city)
 											{
 												break;
@@ -2409,7 +2409,7 @@ bool vehikel_t::check_access(const weg_t* way) const
 {
 	if(get_besitzer() && get_besitzer()->get_player_nr() == 1)
 	{
-		// The public player can always connect to ways. It has no vehicles.
+		// The public player can always connect to ways. 
 		return true;
 	}
 	const grund_t* const gr = welt->lookup(get_pos());
@@ -2418,7 +2418,7 @@ bool vehikel_t::check_access(const weg_t* way) const
 	{
 		return true;
 	}
-	return way && (way->get_besitzer() == NULL || way->get_besitzer() == get_besitzer() || get_besitzer() == NULL || way->get_besitzer() == current_way->get_besitzer() || way->get_besitzer()->allows_access_to(get_besitzer()->get_player_nr()) || (welt->get_city(way->get_pos().get_2d()) && way->get_waytype() == road_wt));
+	return way && (way->get_besitzer() == NULL || way->get_besitzer() == get_besitzer() || get_besitzer() == NULL || way->get_besitzer() == current_way->get_besitzer() || way->get_besitzer()->allows_access_to(get_besitzer()->get_player_nr()));
 }
 
 
@@ -2725,7 +2725,7 @@ bool automobil_t::ist_befahrbar(const grund_t *bd) const
 
 // how expensive to go here (for way search)
 // author prissi
-int automobil_t::get_kosten(const grund_t *gr, const sint32 max_speed, koord from_pos) const
+int automobil_t::get_kosten(const grund_t *gr, const sint32 max_speed, koord from_pos)
 {
 	// first favor faster ways
 	const weg_t *w=gr->get_weg(road_wt);
@@ -2770,7 +2770,7 @@ int automobil_t::get_kosten(const grund_t *gr, const sint32 max_speed, koord fro
 
 
 // this routine is called by find_route, to determined if we reached a destination
-bool automobil_t::ist_ziel(const grund_t *gr, const grund_t *prev_gr) const
+bool automobil_t::ist_ziel(const grund_t *gr, const grund_t *prev_gr)
 {
 	//  just check, if we reached a free stop position of this halt
 	if(gr->is_halt()  &&  gr->get_halt()==target_halt  &&  target_halt->is_reservable(gr,cnv->self)) {
@@ -3500,7 +3500,7 @@ bool waggon_t::ist_befahrbar(const grund_t *bd) const
 
 // how expensive to go here (for way search)
 // author prissi
-int waggon_t::get_kosten(const grund_t *gr, const sint32 max_speed, koord from_pos) const
+int waggon_t::get_kosten(const grund_t *gr, const sint32 max_speed, koord from_pos)
 {
 	// first favor faster ways
 	const weg_t *w = gr->get_weg(get_waytype());
@@ -3563,7 +3563,7 @@ int waggon_t::get_kosten(const grund_t *gr, const sint32 max_speed, koord from_p
 
 
 // this routine is called by find_route, to determined if we reached a destination
-bool waggon_t::ist_ziel(const grund_t *gr,const grund_t *prev_gr) const
+bool waggon_t::ist_ziel(const grund_t *gr,const grund_t *prev_gr)
 {
 	const schiene_t * sch1 = (const schiene_t *) gr->get_weg(get_waytype());
 	// first check blocks, if we can go there
@@ -4106,8 +4106,6 @@ bool waggon_t::block_reserver(route_t *route, uint16 start_index, uint16 &next_s
 			{
 				if(early_platform_index == INVALID_INDEX)
 				{
-					/*const char* TEST_this_halt = gr->get_halt().is_bound() ? gr->get_halt()->get_name() : "NULL";
-					const char* TEST_dest_halt = dest_halt->get_name();*/
 					if(gr->get_halt().is_bound() && gr->get_halt() == dest_halt) 
 					{
 						if(ribi == ribi_last)
@@ -4437,6 +4435,78 @@ schedule_t * schiff_t::erzeuge_neuen_fahrplan() const
 
 /**** from here on planes ***/
 
+// this routine is called by find_route, to determined if we reached a destination
+bool aircraft_t::ist_ziel(const grund_t *gr,const grund_t *)
+{
+	if(state!=looking_for_parking) 
+	{
+		// search for the end of the runway
+		const weg_t *w=gr->get_weg(air_wt);
+		if(w  &&  w->get_besch()->get_styp()==1) 
+		{
+			// ok here is a runway
+			ribi_t::ribi ribi= w->get_ribi_unmasked();
+			int success = 1;
+			if(ribi_t::ist_einfach(ribi)  &&  (ribi&approach_dir)!=0)
+			{
+				// pointing in our direction
+				return true;
+				/* BELOW CODE NOT WORKING
+				// Check for length
+				const uint16 min_runway_length_meters = besch->get_minimum_runway_length();
+				const uint16 min_runway_length_tiles = min_runway_length_meters / welt->get_settings().get_meters_per_tile();
+				for(uint16 i = 0; i <= min_runway_length_tiles; i ++) 
+				{
+					if (const ribi_t::ribi dir = ribi & approach_dir & ribi_t::nsow[i]) 
+					{
+						const grund_t* gr2 = welt->lookup_kartenboden(gr->get_pos().get_2d() + koord(dir));
+						if(gr2)
+						{
+							const weg_t* w2 = gr2->get_weg(air_wt);
+							if(
+								w2 && 
+								w2->get_besch()->get_styp() == 1 && 
+								ribi_t::ist_einfach(w2->get_ribi_unmasked()) &&
+								(w2->get_ribi_unmasked() & approach_dir) != 0
+								)
+							{
+								// All is well - there is runway here.
+								continue;
+							}
+							else
+							{
+								goto bad_runway;
+							}
+						}
+						else
+						{
+							goto bad_runway;
+						}
+					}
+					
+					else
+					{
+bad_runway:
+						// Reached end of runway before iteration for total number of minimum runway tiles exhausted:
+						// runway too short.
+						success = 0;
+						break;
+					}
+				}
+							
+				//return true;
+				return success;*/
+			}
+		}
+	}
+	else {
+		// otherwise we just check, if we reached a free stop position of this halt
+		if(gr->get_halt()==target_halt  &&  target_halt->is_reservable(gr,cnv->self)) {
+			return 1;
+		}
+	}
+	return 0;
+}
 
 
 // for flying thingies, everywhere is good ...
@@ -4484,7 +4554,7 @@ aircraft_t::get_ribi(const grund_t *gr) const
 
 // how expensive to go here (for way search)
 // author prissi
-int aircraft_t::get_kosten(const grund_t *gr, const sint32, koord) const
+int aircraft_t::get_kosten(const grund_t *gr, const sint32, koord)
 {
 	// first favor faster ways
 	const weg_t *w=gr->get_weg(air_wt);
@@ -4541,78 +4611,6 @@ aircraft_t::ist_befahrbar(const grund_t *bd) const
 	return false;
 }
 
-
-
-// this routine is called by find_route, to determined if we reached a destination
-bool aircraft_t::ist_ziel(const grund_t *gr,const grund_t *) const
-{
-	if(state!=looking_for_parking  ||  !target_halt.is_bound())
-	{
-		// search for the end of the runway
-		const weg_t *w=gr->get_weg(air_wt);
-		if(w  &&  w->get_besch()->get_styp()==1) 
-		{
-			// ok here is a runway
-			ribi_t::ribi ribi= w->get_ribi_unmasked();
-			if(ribi_t::ist_einfach(ribi)  &&  (ribi&approach_dir)!=0)
-			{
-				// pointing in our direction
-				// here we should check for length, but we assume everything is ok
-				bool success = true;
-				/* BELOW CODE NOT WORKING
-				const uint16 min_runway_length_meters = besch->get_minimum_runway_length();
-				const uint16 min_runway_length_tiles = min_runway_length_meters / welt->get_settings().get_meters_per_tile();
-				for(uint16 i = 0; i <= min_runway_length_tiles; i ++) 
-				{
-					if (const ribi_t::ribi dir = ribi & approach_dir & ribi_t::nsow[i]) 
-					{
-						const grund_t* gr2 = welt->lookup_kartenboden(gr->get_pos().get_2d() + koord(dir));
-						if(gr2)
-						{
-							const weg_t* w2 = gr2->get_weg(air_wt);
-							if(
-								w2 && 
-								w2->get_besch()->get_styp() == 1 && 
-								ribi_t::ist_einfach(w2->get_ribi_unmasked()) &&
-								(w2->get_ribi_unmasked() & approach_dir) != 0
-								)
-							{
-								// All is well - there is runway here.
-								continue;
-							}
-							else
-							{
-								goto bad_runway;
-							}
-						}
-						else
-						{
-							goto bad_runway;
-						}
-					}
-					
-					else
-					{
-bad_runway:
-						// Reached end of runway before iteration for total number of minimum runway tiles exhausted:
-						// runway too short.
-						success = false;
-						break;
-					}
-				}
-				*/			
-				return success;
-			}
-		}
-	}
-	else {
-		// otherwise we just check, if we reached a free stop position of this halt
-		if(gr->get_halt()==target_halt  &&  target_halt->is_reservable(gr,cnv->self)) {
-			return 1;
-		}
-	}
-	return 0;
-}
 
 
 /* finds a free stop, calculates a route and reserve the position

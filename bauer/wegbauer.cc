@@ -2206,7 +2206,7 @@ void wegbauer_t::baue_strasse()
 					weg->set_max_speed( wo->get_besch()->get_topspeed() );
 				}
 				weg->set_gehweg(add_sidewalk);
-				if(!welt->get_city(k) || !welt->get_settings().get_towns_adopt_player_roads() || (sp && sp->get_player_nr() == 1))
+				if(!welt->lookup(k)->get_city() || !welt->get_settings().get_towns_adopt_player_roads() || (sp && sp->get_player_nr() == 1))
 				{
 					// The town adopts this road as its own, including maintenance costs.
 					weg->set_besitzer(sp);
@@ -2239,8 +2239,10 @@ void wegbauer_t::baue_strasse()
 		gr->calc_bild();	// because it may be a crossing ...
 		reliefkarte_t::get_karte()->calc_map_pixel(k);
 		spieler_t::accounting(sp, cost, k, COST_CONSTRUCTION);
+
 	} // for
 	welt->set_recheck_road_connexions();
+
 }
 
 
@@ -2426,8 +2428,8 @@ class fluss_fahrer_t : public fahrer_t
 	bool ist_befahrbar(const grund_t* gr) const { return gr->get_weg_ribi_unmasked(water_wt)!=0; }
 	virtual ribi_t::ribi get_ribi(const grund_t* gr) const { return gr->get_weg_ribi_unmasked(water_wt); }
 	virtual waytype_t get_waytype() const { return invalid_wt; }
-	virtual int get_kosten(const grund_t *, const sint32, koord) const { return 1; }
-	virtual bool ist_ziel(const grund_t *cur,const grund_t *) const { return cur->ist_wasser()  &&  cur->get_grund_hang()==hang_t::flach; }
+	virtual int get_kosten(const grund_t *, const sint32, koord) { return 1; }
+	virtual bool ist_ziel(const grund_t *cur,const grund_t *) { return cur->ist_wasser()  &&  cur->get_grund_hang()==hang_t::flach; }
 };
 
 

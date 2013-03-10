@@ -115,6 +115,8 @@ private:
 	bool factory_enforce_demand;
 
 	uint16 station_coverage_size;
+	// The coverage circle for factories - allows this to be smaller than for passengers/mail.
+	uint16 station_coverage_size_factories;
 
 	/**
 	 * ab welchem level erzeugen gebaeude verkehr ?
@@ -264,7 +266,7 @@ private:
 	 * by private cars, they will pay this
 	 * much of a toll for every tile
 	 */
-	sint64 private_car_toll_per_tile;
+	sint64 private_car_toll_per_km;
 
 	/**
 	 * If this is enabled, player roads
@@ -288,6 +290,14 @@ private:
 	 * of 8192 on every save/load until major version 11.
 	 */
 	uint32 reroute_check_interval_steps;
+
+	/** 
+	 * The speed at which pedestrians walk in km/h.
+	 * Used in journey time calculations. 
+	 * NOTE: The straight line distance is used
+	 * with this speed.
+	 */
+	uint8 walking_speed;
 
 public:
 	//Cornering settings
@@ -373,7 +383,6 @@ public:
 	// @author: jamespetts
 	// Private car settings
 	uint8 always_prefer_car_percent;
-	uint8 base_car_preference_percent;
 	uint8 congestion_density_factor;
 
 	//@author: jamespetts
@@ -442,12 +451,6 @@ public:
 	uint16 max_midrange_tolerance;
 	uint16 min_longdistance_tolerance;
 	uint16 max_longdistance_tolerance;
-
-	// The walking distance in tiles
-	// that people are prepared to 
-	// tolerate.
-	// @author: jamespetts, December 2009
-	uint16 max_walking_distance;
 	
 private:
 
@@ -609,6 +612,8 @@ public:
 	double get_map_roughness() const {return map_roughness;}
 
 	uint16 get_station_coverage() const {return station_coverage_size;}
+
+	uint16 get_station_coverage_factories() const {return station_coverage_size_factories;}
 
 	void set_allow_player_change(char n) {allow_player_change=n;}	// prissi, Oct-2005
 	uint8 get_allow_player_change() const {return allow_player_change;}
@@ -802,7 +807,6 @@ public:
 	void  set_passenger_routing_midrange_chance(uint8 value) { passenger_routing_midrange_chance = value; }
 
 	uint8 get_always_prefer_car_percent() const { return always_prefer_car_percent; }
-	uint8 get_base_car_preference_percent () const { return base_car_preference_percent; }
 	uint8 get_congestion_density_factor () const { return congestion_density_factor; }
 
 	sint32 get_max_corner_limit(waytype_t waytype) const { return kmh_to_speed(max_corner_limit[waytype]); }
@@ -934,7 +938,6 @@ public:
 	uint32 get_frames_per_second() const { return frames_per_second; }
 	uint32 get_frames_per_step() const { return frames_per_step; }
 
-	uint16 get_max_walking_distance() const { return max_walking_distance; }
 	bool get_quick_city_growth() const { return quick_city_growth; }
 	void set_quick_city_growth(bool value) { quick_city_growth = value; }
 	bool get_assume_everywhere_connected_by_road() const { return assume_everywhere_connected_by_road; }
@@ -982,11 +985,13 @@ public:
 
 	bool get_allow_making_public() const { return allow_making_public; }
 
-	sint64 get_private_car_toll_per_tile() const { return private_car_toll_per_tile; }
+	sint64 get_private_car_toll_per_km() const { return private_car_toll_per_km; }
 
 	bool get_towns_adopt_player_roads() const { return towns_adopt_player_roads; }
 
 	uint32 get_reroute_check_interval_steps() const { return reroute_check_interval_steps; }
+
+	uint8 get_walking_speed() const { return walking_speed; }
 
 #ifndef NETTOOL
 	float32e8_t get_simtime_factor() const { return simtime_factor; }

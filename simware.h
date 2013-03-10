@@ -83,6 +83,8 @@ public:
 	koord get_zielpos() const { return zielpos; }
 	void set_zielpos(const koord zielpos) { this->zielpos = zielpos; }
 
+	void reset() { menge = 0; ziel = zwischenziel = origin = last_transfer = halthandle_t(); zielpos = koord::invalid; }
+
 	ware_t();
 	ware_t(const ware_besch_t *typ);
 	ware_t(const ware_besch_t *typ, halthandle_t o);

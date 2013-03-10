@@ -57,45 +57,38 @@ enum city_cost {
 	MAX_CITY_HISTORY		// Total number of items in array
 };
 
-enum route_status 
+enum route_status_type
 {
 	no_route = 0,
 	too_slow = 1,
-	good = 2,
-	private_car_only = 3,
-	can_walk = 4
+	public_transport = 2,
+	private_car = 3,
+	on_foot = 4
 };
 
-class road_destination_finder_t : public fahrer_t
+class private_car_destination_finder_t : public fahrer_t
 {
 private:
 	automobil_t *master;
 	karte_t* welt;
-	koord3d dest;
+	stadt_t* origin_city;
+	const stadt_t* last_city;
+	uint32 last_tile_speed;
+	int last_tile_cost_diagonal;
+	int last_tile_cost_straight;
+	uint16 meters_per_tile_x100;
 
 public:
-	road_destination_finder_t(karte_t *w, automobil_t* m) 
-	{ 
-		welt = w;
-		dest = koord3d::invalid;
-		master = m;
-	};
-
-	virtual void set_destination(koord3d d) { dest = d; }
+	private_car_destination_finder_t(karte_t *w, automobil_t* m, stadt_t* o);	
 	
 	virtual waytype_t get_waytype() const { return road_wt; };
 	virtual bool ist_befahrbar( const grund_t* gr ) const;
 
-	virtual bool ist_ziel( const grund_t* gr, const grund_t* ) const;
+	virtual bool ist_ziel(const grund_t* gr, const grund_t*);
 
 	virtual ribi_t::ribi get_ribi( const grund_t* gr) const;
 
-	virtual int get_kosten( const grund_t* gr, const sint32 max_speed, koord from_pos) const;
-
-	virtual ~road_destination_finder_t()
-	{
-		delete master;
-	}
+	virtual int get_kosten(const grund_t* gr, const sint32 max_speed, koord from_pos);
 };
 
 /**
@@ -153,6 +146,7 @@ public:
 	static void cityrules_rdwr(loadsave_t *file);
 	static void privatecar_rdwr(loadsave_t *file);
 	static void electricity_consumption_rdwr(loadsave_t *file);
+	void set_check_road_connexions(bool value) { check_road_connexions = value; }
 
 private:
 	static karte_t *welt;
@@ -167,14 +161,14 @@ private:
 	// this counter will increment by one for every change => dialogs can question, if they need to update map
 	unsigned long pax_destinations_new_change;
 
-	koord pos;			// Gruendungsplanquadrat der Stadt ("founding grid square" - Google)
-	koord townhall_road; // road in front of townhall
-	koord lo, ur;		// max size of housing area
+	koord pos;				// Gruendungsplanquadrat der Stadt ("founding grid square" - Google)
+	koord townhall_road;	// road in front of townhall
+	koord lo, ur;			// max size of housing area
 	bool  has_low_density;	// in this case extend borders by two
 
-	bool allow_citygrowth;	// town can be static and will grow (true by default)
+	bool allow_citygrowth;	// Whether growth is permitted (true by default)
 
-	// this counter indicate which building will be processed next
+	// this counter indicates which building will be processed next
 	uint32 step_count;
 
 	/**
@@ -258,19 +252,16 @@ private:
 	connexion_map connected_industries;
 	connexion_map connected_attractions;
 
-	road_destination_finder_t *finder;
-	route_t *private_car_route;
-
 	vector_tpl<senke_t*> substations;
 
-	// The month in which this city will update its private car routes
-	// if an update is needed. This spreads the computational load over
-	// a year instead of forcing it all into a month, thus improving 
-	// performance.
-	// @author: jamespetts, February 2011
-	uint8 private_car_update_month;
-
 	sint32 number_of_cars;
+
+	/**
+	* Will fill the world's hashtable of tiles
+	* belonging to cities with all the tiles of
+	* this city
+	*/
+	void check_city_tiles(bool del = false);
 
 public:
 	/**
@@ -446,7 +437,7 @@ private:
 	 * baut ein Gebaeude auf Planquadrat x,y
 	 */
 	void baue_gebaeude(koord pos, bool new_town);
-	void erzeuge_verkehrsteilnehmer(koord pos, sint32 level,koord target);
+	void erzeuge_verkehrsteilnehmer(koord pos, uint16 journey_tenths_of_minutes, koord target);
 	bool renoviere_gebaeude(gebaeude_t *gb);
 
 	/**
@@ -497,12 +488,6 @@ private:
 	uint16 check_road_connexion_to(stadt_t* city);
 	uint16 check_road_connexion_to(const fabrik_t* industry);
 	uint16 check_road_connexion_to(const gebaeude_t* attraction);
-	uint16 check_road_connexion(koord3d destination);
-
-	// Adds a connexion back from a city when a route has been calculated.
-	void add_road_connexion(uint16 journey_time_per_tile, stadt_t* origin_city);
-	void set_no_connexion_to_industry(const fabrik_t* unconnected_industry);
-	void set_no_connexion_to_attraction(const gebaeude_t* unconnected_attraction);
 
 	bool check_road_connexions;
 
@@ -672,6 +657,11 @@ public:
 		destination() { factory_entry = NULL; }
 	};
 
+	void add_road_connexion(uint16 journey_time_per_tile, const stadt_t* city);
+	void add_road_connexion(uint16 journey_time_per_tile, const fabrik_t* industry);
+	void add_road_connexion(uint16 journey_time_per_tile, const gebaeude_t* attraction);
+
+	void check_all_private_car_routes();
 
 private:
 	/**
@@ -775,7 +765,7 @@ public:
 
 	void add_factory_arbeiterziel(fabrik_t *fab);
 
-	uint8 get_congestion() { return (uint8) city_history_month[0][HIST_CONGESTION]; }
+	uint8 get_congestion() const { return (uint8) city_history_month[0][HIST_CONGESTION]; }
 
 	void add_city_factory(fabrik_t *fab) { city_factories.append(fab); }
 	void remove_city_factory(fabrik_t *fab) { city_factories.remove(fab); }

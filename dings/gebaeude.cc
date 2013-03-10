@@ -32,7 +32,7 @@ static pthread_mutex_t add_to_city_mutex = PTHREAD_MUTEX_INITIALIZER;
 #include "../simskin.h"
 
 #include "../boden/grund.h"
-
+#include "../boden/wege/strasse.h"
 
 #include "../besch/haus_besch.h"
 #include "../besch/intro_dates.h"
@@ -66,6 +66,12 @@ void gebaeude_t::init()
 	zeige_baugrube = false;
 	snow = false;
 	remove_ground = true;
+	passengers_generated_local = 0;
+	passengers_succeeded_local = 0;
+	passenger_success_percent_last_year_local = 0;
+	passengers_generated_non_local = 0;
+	passengers_succeeded_non_local = 0;
+	passenger_success_percent_last_year_non_local = 0;
 }
 
 
@@ -139,6 +145,8 @@ gebaeude_t::gebaeude_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_til
 	if(gr  &&  gr->get_weg_hang()!=gr->get_grund_hang()) {
 		set_yoff(-TILE_HEIGHT_STEP);
 	}
+
+	check_road_tiles(false);
 }
 
 
@@ -160,6 +168,8 @@ gebaeude_t::~gebaeude_t()
 		sync = false;
 		welt->sync_eyecandy_remove(this);
 	}
+
+	check_road_tiles(true);
 
 	// tiles might be invalid, if no description is found during loading
 	if(tile  &&  tile->get_besch()  &&  tile->get_besch()->ist_ausflugsziel()) 
@@ -188,6 +198,57 @@ gebaeude_t::~gebaeude_t()
 		for(weighted_vector_tpl<stadt_t*>::const_iterator j = staedte.begin(), end = staedte.end(); j != end; ++j) 
 		{
 			(*j)->remove_connected_attraction(this);
+		}
+	}
+}
+
+
+void gebaeude_t::check_road_tiles(bool del)
+{
+	const haus_besch_t *hb = tile->get_besch();
+	const koord3d pos = get_pos() - koord3d(tile->get_offset(), 0);
+	koord size = tile->get_besch()->get_groesse(tile->get_layout());
+	koord k;
+	grund_t* gr_this;
+	
+	for(k.y = 0; k.y < size.y; k.y ++) 
+	{
+		for(k.x = 0; k.x < size.x; k.x ++) 
+		{
+			koord3d k_3d = koord3d(k, 0) + pos;
+			grund_t *gr = welt->lookup(k_3d);
+			if(gr) 
+			{
+				gebaeude_t *gb_part = gr->find<gebaeude_t>();
+				// there may be buildings with holes
+				if(gb_part && gb_part->get_tile()->get_besch() == hb) 
+				{
+					for(uint8 i = 0; i < 8; i ++)
+					{
+						// Check for connected roads. Only roads in immediately neighbouring tiles
+						// and only those on the same height will register a connexion.
+						koord pos_neighbour = k_3d.get_2d() + (k_3d.get_2d().neighbours[i]);
+						koord3d pos3d(pos_neighbour, k_3d.z);
+						gr_this = welt->lookup(pos3d);
+						if(!gr_this)
+						{
+							continue;
+						}
+						strasse_t* str = (strasse_t*)gr_this->get_weg(road_wt);
+						if(str)
+						{
+							if(del)
+							{
+								str->connected_attractions.remove(this);
+							}
+							else
+							{
+								str->connected_attractions.append_unique(this);
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 }
@@ -677,7 +738,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 		if(desc != NULL) {
 			const char *trans_desc = translator::translate(desc);
 			if(trans_desc==desc) {
-				// no descrition here
+				// no description here
 				switch(get_haustyp()) {
 					case wohnung:
 						trans_desc = translator::translate("residential house");
@@ -727,9 +788,9 @@ void gebaeude_t::info(cbuffer_t & buf) const
 		buf.append( "\n" );
 
 		// belongs to which city?
-		/*if (!is_factory && ptr.stadt != NULL) {
+		if (!is_factory && ptr.stadt != NULL) {
 			buf.printf(translator::translate("Town: %s\n"), ptr.stadt->get_name());
-		}*/
+		}
 
 		if(  get_tile()->get_besch()->get_utyp() < haus_besch_t::bahnhof  ) {
 			buf.printf("%s: %d\n", translator::translate("Passagierrate"), get_passagier_level());
@@ -755,7 +816,78 @@ void gebaeude_t::info(cbuffer_t & buf) const
 			buf.append("\n");
 			buf.printf(translator::translate("Constructed by %s"), maker);
 		}
+
+		// List of stops potentially within walking distance.
+		const planquadrat_t* plan = welt->lookup(get_pos().get_2d());
+		const halthandle_t *const halt_list = plan->get_haltlist();
+		bool any_suitable_stops_passengers = false;
+		bool any_suitable_stops_mail = false;
+		const uint32 journey_time_adjustment = (welt->get_settings().get_meters_per_tile() * 6u) / 10u;
+		const uint32 walking_journey_time_factor = (journey_time_adjustment * 100u) / (uint32)welt->get_settings().get_walking_speed();
+		buf.append("\n\n");
+
+		if(plan->get_haltlist_count() > 0)
+		{
+			for (int h = plan->get_haltlist_count() - 1; h >= 0; h--) 
+			{
+				const halthandle_t const halt = halt_list[h];
+				if (halt->is_enabled(warenbauer_t::passagiere))
+				{
+					if(!any_suitable_stops_passengers)
+					{
+						buf.append(translator::translate("Stops potentially within walking distance:"));
+						buf.printf("\n(%s)\n\n", translator::translate("Passagiere"));
+						any_suitable_stops_passengers = true;
+					}
+					const uint16 walking_time = (shortest_distance(get_pos().get_2d(), halt->get_next_pos(get_pos().get_2d())) * walking_journey_time_factor) / 100u;
+					char walking_time_as_clock[32];
+					halt->get_welt()->sprintf_time(walking_time_as_clock, sizeof(walking_time_as_clock), walking_time * 6);
+					buf.printf("%s\n%s: %s\n", halt->get_name(), translator::translate("Walking time"), walking_time_as_clock);
+				}
+			}
+			
+			for (int h = plan->get_haltlist_count() - 1; h >= 0; h--) 
+			{
+				const halthandle_t const halt = halt_list[h];
+				if (halt->is_enabled(warenbauer_t::post))
+				{
+					if(!any_suitable_stops_mail)
+					{
+						buf.printf("\n(%s)\n\n", translator::translate("Post"));
+						any_suitable_stops_mail = true;
+					}
+					const uint16 walking_time = (shortest_distance(get_pos().get_2d(), halt->get_next_pos(get_pos().get_2d())) * walking_journey_time_factor) / 100u;
+					char walking_time_as_clock[32];
+					halt->get_welt()->sprintf_time(walking_time_as_clock, sizeof(walking_time_as_clock), walking_time * 6);
+					buf.printf("%s\n%s: %s\n", halt->get_name(), translator::translate("Walking time"), walking_time_as_clock);
+				}
+			}
+
+		}
+
+		if(!any_suitable_stops_passengers)
+		{
+			buf.append(translator::translate("No passenger stops within walking distance\n"));
+		}
+
+		if(!any_suitable_stops_mail)
+		{
+			buf.append(translator::translate("\nNo postboxes within walking distance"));
+		}
+		
+		buf.printf("\n\n%s %i%%\n", translator::translate("Passenger success rate this year (local):"), get_passenger_success_percent_this_year_local());
+		buf.printf("%s %i%%\n", translator::translate("Passenger success rate last year (local):"), get_passenger_success_percent_last_year_local());
+		buf.printf("%s %i%%\n", translator::translate("Passenger success rate this year (non-local):"), get_passenger_success_percent_this_year_non_local());
+		buf.printf("%s %i%%\n", translator::translate("Passenger success rate last year (non-local):"), get_passenger_success_percent_last_year_non_local());
 	}
+}
+
+void gebaeude_t::new_year()
+{ 
+		passenger_success_percent_last_year_local = get_passenger_success_percent_this_year_local();
+		passenger_success_percent_last_year_non_local = get_passenger_success_percent_this_year_non_local(); 
+
+		passengers_succeeded_local = passengers_generated_local = passengers_succeeded_non_local = passengers_generated_non_local = 0; 
 }
 
 
@@ -925,6 +1057,17 @@ void gebaeude_t::rdwr(loadsave_t *file)
 		if(  file->is_loading()  &&  city_index!=-1  &&  (tile==NULL  ||  tile->get_besch()==NULL  ||  tile->get_besch()->is_connected_with_town())  ) {
 			ptr.stadt = welt->get_staedte()[city_index];
 		}
+	}
+
+	if(file->get_experimental_version() >= 11)
+	{
+		file->rdwr_short(passengers_generated_local);
+		file->rdwr_short(passengers_succeeded_local);
+		file->rdwr_byte(passenger_success_percent_last_year_local);
+
+		file->rdwr_short(passengers_generated_non_local);
+		file->rdwr_short(passengers_succeeded_non_local);
+		file->rdwr_byte(passenger_success_percent_last_year_non_local);
 	}
 
 	if(file->is_loading()) {
