@@ -1222,7 +1222,7 @@ void stadt_t::check_city_tiles(bool del)
 				// A city might be inside a city. The inner city
 				// should mark/unmark the tiles in that case.
 				const stadt_t* other_city = plan->get_city();
-				if(other_city != NULL && other_city != this && (is_within_city_limits(other_city->get_pos()) || k == other_city->get_townhall_road()) && !del)
+				if(!welt->get_is_shutting_down() && other_city != NULL && other_city != this && (is_within_city_limits(other_city->get_pos()) || k == other_city->get_townhall_road()) && !del)
 				{
 					if(other_city->is_within_city_limits(pos) && k != other_city->get_townhall_road())
 					{
