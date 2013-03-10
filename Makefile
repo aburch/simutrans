@@ -424,10 +424,7 @@ SOURCES += vehicle/movingobj.cc
 SOURCES += vehicle/simpeople.cc
 SOURCES += vehicle/simvehikel.cc
 SOURCES += vehicle/simverkehr.cc
-
-#SOURCES += script/api/api_gui.cc
 SOURCES += simunits.cc
-
 SOURCES += convoy.cc
 SOURCES += utils/float32e8_t.cc
 SOURCES += path_explorer.cc
