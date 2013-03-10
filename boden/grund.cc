@@ -1517,7 +1517,6 @@ DBG_MESSAGE("grund_t::weg_entfernen()","weg %p",weg);
 			// Not all ways (i.e. with styp==7) will imply crossins, so wie hav to check
 			crossing_t* cr = find<crossing_t>(1);
 			if(cr) {
-				dinge.remove(cr);
 				cr->entferne(0);
 				delete cr;
 				// restore speed limit
