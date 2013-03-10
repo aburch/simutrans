@@ -135,7 +135,7 @@ void halt_detail_t::halt_detail_info()
 	halt->get_welt()->sprintf_time(transfer_time_as_clock, sizeof(transfer_time_as_clock), (halt->get_transfer_time() * 6));
 	buf.append(transfer_time_as_clock);
 	buf.append("\n\n");
-	offset_y += (D_MARGIN_TOP * 6);
+	offset_y += (D_MARGIN_TOP * 2);
 
 	buf.append(translator::translate("Fabrikanschluss"));
 	buf.append("\n");
