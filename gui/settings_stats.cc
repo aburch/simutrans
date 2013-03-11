@@ -40,6 +40,7 @@ static char const* const version[] =
 	"0.111.3",
 	"0.111.4",
 	"0.112.0",
+	"0.112.1",
 	"0.112.2"
 };
 
@@ -489,7 +490,7 @@ void settings_general_stats_t::init(settings_t const* const sets)
 	INIT_NUM( "use_timeline", sets->get_use_timeline(), 0, 3, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM_NEW( "starting_year", sets->get_starting_year(), 0, 2999, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM_NEW( "starting_month", sets->get_starting_month(), 0, 11, gui_numberinput_t::AUTOLINEAR, false );
-	INIT_NUM( "show_month", umgebung_t::show_month, 0, 7, gui_numberinput_t::AUTOLINEAR, true );
+	INIT_NUM( "show_month", umgebung_t::show_month, 0, 8, gui_numberinput_t::AUTOLINEAR, true );
 	SEPERATOR
 	INIT_NUM( "random_grounds_probability", umgebung_t::ground_object_probability, 0, 0x7FFFFFFFul, gui_numberinput_t::POWER2, false );
 	INIT_NUM( "random_wildlife_probability", umgebung_t::moving_object_probability, 0, 0x7FFFFFFFul, gui_numberinput_t::POWER2, false );
