@@ -227,6 +227,14 @@ convoi_t::convoi_t(karte_t* wl, loadsave_t* file) : fahr(max_vehicle, NULL)
 	free_seats = 0;
 	recalc_catg_index();
 	has_obsolete = calc_obsolescence(welt->get_timeline_year_month());
+
+	validate_vehicle_summary();
+	validate_adverse_summary();
+	validate_freight_summary();
+	validate_weight_summary();
+	get_continuous_power();
+	get_starting_force();
+	get_brake_summary();
 }
 
 convoi_t::convoi_t(spieler_t* sp) : fahr(max_vehicle, NULL)
