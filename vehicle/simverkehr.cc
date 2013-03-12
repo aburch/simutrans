@@ -591,7 +591,8 @@ void stadtauto_t::rdwr(loadsave_t *file)
 #endif
 
 		origin.rdwr(file);
-		stadt_t* const city = welt->lookup(origin)->get_city();
+		const planquadrat_t* tile = welt->lookup(origin);
+		stadt_t* const city = tile ? tile->get_city() : NULL;
 		if(city)
 		{
 			city->add_car(this);
