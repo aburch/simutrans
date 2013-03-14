@@ -178,7 +178,7 @@ public:
 	/**
 	 * unlocks/locks player for all clients, except client number except_client
 	 */
-	static void unlock_player_all(uint8 player_nr, bool unlock, uint32 except_client);
+	static void unlock_player_all(uint8 player_nr, bool unlock, uint32 except_client = list.get_count());
 
 	static void send_all(network_command_t* nwc, bool only_playing_clients);
 

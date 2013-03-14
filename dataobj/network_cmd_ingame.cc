@@ -908,6 +908,11 @@ void nwc_chg_player_t::do_command(karte_t *welt)
 		pending_company_creator = NULL; // to prevent deletion in ~nwc_chg_player_t
 	}
 
+	// reset locked state
+	if (cmd == karte_t::new_player  ||  cmd == karte_t::delete_player) {
+		socket_list_t::unlock_player_all(player_nr, true);
+	}
+
 	// update the window
 	ki_kontroll_t* playerwin = (ki_kontroll_t*)win_get_magic(magic_ki_kontroll_t);
 	if (playerwin) {
