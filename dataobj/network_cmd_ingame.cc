@@ -1463,9 +1463,7 @@ bool nwc_service_t::execute(karte_t *welt)
 				break; // invalid number
 			}
 
-			nwc_chg_player_t *nwc = new nwc_chg_player_t();
-			nwc->player_nr = number;
-			nwc->cmd = karte_t::delete_player;
+			nwc_chg_player_t *nwc = new nwc_chg_player_t(welt->get_sync_steps(), welt->get_map_counter(), karte_t::delete_player, number);
 			if (nwc->execute(welt)) {
 				delete nwc;
 			}
