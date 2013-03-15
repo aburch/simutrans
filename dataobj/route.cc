@@ -327,7 +327,14 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 					FOR(minivec_tpl<fabrik_t*>, const fab, str->connected_factories)
 					{
 						const uint16 straight_line_distance = shortest_distance(origin_city->get_townhall_road(), k);
-						origin_city->add_road_connexion(tmp->g / straight_line_distance, fab);
+						if(straight_line_distance > 0)
+						{
+							origin_city->add_road_connexion(tmp->g / straight_line_distance, fab);
+						}
+						else
+						{
+							origin_city->add_road_connexion(1, fab);
+						}
 					}
 				}
 
