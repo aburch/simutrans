@@ -3147,31 +3147,35 @@ const char *wkz_station_t::wkz_station_dock_aux(karte_t *welt, spieler_t *sp, ko
 				// need at least a single tile to navigate ...
 				return "Zu nah am Kartenrand";
 			}
-			else {
-				halthandle_t test_halt = welt->lookup(pos-dx*i)->get_halt();
-				if(test_halt.is_bound()) {
-					if(!spieler_t::check_owner( sp, test_halt->get_besitzer())) {
-						return "Das Feld gehoert\neinem anderen Spieler\n";
-					}
-					else if(!halt.is_bound()) {
-						halt = test_halt;
-					}
-					else if(halt != test_halt) {
-						 return "Several halts found.";
-					}
+			// search for nearby stops
+			halthandle_t test_halt = welt->lookup(pos-dx*i)->get_halt();
+			if(test_halt.is_bound()) {
+				if(!spieler_t::check_owner( sp, test_halt->get_besitzer())) {
+					return "Das Feld gehoert\neinem anderen Spieler\n";
 				}
-				else {
-					const grund_t *gr=welt->lookup_kartenboden(pos-dx*i);
-					const char *msg = gr->kann_alle_obj_entfernen(sp);
-					if(msg) {
-						return msg;
-					}
-					else if((i==0  &&  (gr->ist_wasser()  ||  gr->hat_wege()  ||  gr->get_typ()!=grund_t::boden )) ||  gr->kann_alle_obj_entfernen(sp)!=NULL  ||  gr->is_halt()) {
-						return "Tile not empty.";
-					}
-					else if (i!=0  &&  (!gr->ist_wasser() || gr->find<gebaeude_t>() || gr->get_depot() || gr->is_halt())) {
-						return "Tile not empty.";
-					}
+				else if(!halt.is_bound()) {
+					halt = test_halt;
+				}
+				else if(halt != test_halt) {
+						return "Several halts found.";
+				}
+			}
+			// check whether we can build something
+			const grund_t *gr=welt->lookup_kartenboden(pos-dx*i);
+			if (const char *msg = gr->kann_alle_obj_entfernen(sp)) {
+				return msg;
+			}
+
+			if (i==0) {
+				// start tile on slope near water
+				if(gr->hat_wege()  ||  gr->get_typ()!=grund_t::boden  ||  gr->is_halt()) {
+					return "Tile not empty.";
+				}
+			}
+			else {
+				// all other tiles in water
+				if (!gr->ist_wasser()  ||  gr->find<gebaeude_t>()  ||  gr->get_depot()  ||  gr->is_halt()) {
+					return "Tile not empty.";
 				}
 			}
 		}
