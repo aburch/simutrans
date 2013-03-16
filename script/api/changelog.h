@@ -2,7 +2,9 @@
 
 /** @page changelog Changelog
  *
- * @section post-112-1 Current trunk
+ * @section post-112-2 Current trunk
+ *
+ * @section api-112-2 Release 112.2
  *
  * - Added rules::forbid_way_tool_cube, rules::allow_way_tool_cube
  * - Added settings::get_start_time
