@@ -344,11 +344,11 @@ void umgebung_t::rdwr(loadsave_t *file)
 	if(  file->get_version()>=111002  ) {
 		file->rdwr_bool( visualize_schedule );
 	}
-	if (  file->get_version()>=111003 ) {
+	if(  file->get_version()>=111003  ) {
 		plainstring str = nickname.c_str();
 		file->rdwr_str(str);
 		if (file->is_loading()) {
-			nickname = str.c_str();
+			nickname = str ? str.c_str() : "";
 		}
 	}
 	// server settings are not saved, since the are server specific and could be different on different servers on the save computers
