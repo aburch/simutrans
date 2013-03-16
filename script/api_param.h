@@ -249,8 +249,8 @@ namespace script_api {
 
 	declare_specialized_param(double, "f", "float");
 
-	// no string typemask, as we call to_string
 	declare_specialized_param(const char*, ".", "string");
+	// no string typemask, as we call to_string
 	declare_specialized_param(plainstring, ".", "string");
 
 	declare_specialized_param(koord, "t|x|y", "coord");

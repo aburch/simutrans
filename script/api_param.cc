@@ -144,7 +144,10 @@ namespace script_api {
 	const char* param<const char*>::get(HSQUIRRELVM vm, SQInteger index)
 	{
 		const char* str = NULL;
-		sq_getstring(vm, index, &str);
+		if (!SQ_SUCCEEDED(sq_getstring(vm, index, &str))) {
+			sq_raise_error(vm, "Supplied string parameter is null");
+			return NULL;
+		}
 		return str;
 	}
 	SQInteger param<const char*>::push(HSQUIRRELVM vm, const char* const& v)
