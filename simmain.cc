@@ -399,9 +399,9 @@ int simu_main(int argc, char** argv)
 			"---------------------------------------\n"
 			"  Simutrans " VERSION_NUMBER EXPERIMENTAL_VERSION "\n"
 			"  released " VERSION_DATE "\n"
-			"  modified by James E. Petts\n"
-			"  from Simutrans - developed\n"
-			"  by the Simutrans team.\n"
+			"  an extended version of Simutrans\n"
+			"  developed by the Simutrans\n"
+			"  community under the Artistic Licence.\n"
 			"\n"
 			"  For more information, please\n"
 			"  visit the Simutrans website or forum\n"
@@ -1190,7 +1190,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 		if(  !umgebung_t::networkmode  &&  new_world  ) {
 			dbg->important( "Show banner ... " );
-			ticker::add_msg("Welcome to Simutrans-Experimental, a game created by Hj. Malthaner and the Simutrans community, and modified by James E. Petts and the Simutrans community.", koord::invalid, PLAYER_FLAG + 1);
+			ticker::add_msg("Welcome to Simutrans-Experimental, a fork of the game created by Hj. Malthaner, extended and maintained by the Simutrans community.", koord::invalid, PLAYER_FLAG + 1);
 			modal_dialogue( new banner_t(welt), magic_none, welt, never_quit );
 
 			// only show new world, if no other dialoge is active ...

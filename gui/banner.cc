@@ -98,24 +98,24 @@ void banner_t::zeichnen(koord pos, koord gr )
 	display_fillbox_wh(pos.x, pos.y + 16, gr.x, 1, COL_GREY6, false);
 
 	KOORD_VAL yp = pos.y+22;
-	display_shadow_proportional( pos.x+10, yp, COL_PT, COL_BLACK, "This is an experimental version of Simutrans:", true );
+	display_shadow_proportional( pos.x+10, yp, COL_PT, COL_BLACK, "This is an extended version of Simutrans:", true );
 	yp += LINESPACE+5;
 #ifdef REVISION
-	display_shadow_proportional( pos.x+10, yp, COL_WHITE, COL_BLACK, "Version " VERSION_NUMBER " " EXPERIMENTAL_VERSION " " VERSION_DATE " r" QUOTEME(REVISION), true );
+	display_shadow_proportional( pos.x+10, yp, COL_WHITE, COL_BLACK, "Version " VERSION_NUMBER, true );
+	yp += LINESPACE+2;
+	display_shadow_proportional( pos.x+10, yp, COL_WHITE, COL_BLACK, EXPERIMENTAL_VERSION " " VERSION_DATE " r" QUOTEME(REVISION), true );
 #else
 	display_shadow_proportional( pos.x+10, yp, COL_WHITE, COL_BLACK, "Version " VERSION_NUMBER " " EXPERIMENTAL_VERSION " " VERSION_DATE, true );
 #endif
 	yp += LINESPACE+7;
 
-	display_shadow_proportional( pos.x+8, yp, COL_PT, COL_BLACK,  "This version is modified by", true );
+	display_shadow_proportional( pos.x+8, yp, COL_PT, COL_BLACK,  "Simutrans-Experimental is developed", true );
 	yp += LINESPACE+5;
-	display_shadow_proportional( pos.x+8+24, yp, COL_WHITE, COL_BLACK, "James E. Petts, from Simutrans", true );
+	display_shadow_proportional( pos.x+8+24, yp, COL_WHITE, COL_BLACK, "by the Simutrans community", true );
 	yp += LINESPACE+2;
-	display_shadow_proportional( pos.x+8+24, yp, COL_WHITE, COL_BLACK, "maintained by the Simutrans", true );
+	display_shadow_proportional( pos.x+8+24, yp, COL_WHITE, COL_BLACK, "under the Artistic Licence; forked", true );
 	yp += LINESPACE+2;
-	display_shadow_proportional( pos.x+8+24, yp, COL_WHITE, COL_BLACK, "community, created by Hajo and", true );
-	yp += LINESPACE+2;
-	display_shadow_proportional( pos.x+8+24, yp, COL_WHITE, COL_BLACK, "released under the Artistic Licence.", true );
+	display_shadow_proportional( pos.x+8+24, yp, COL_WHITE, COL_BLACK, "from Simutrans-Standard "QUOTEME(SIM_VERSION_MAJOR) "." QUOTEME(SIM_VERSION_MINOR), true );
 	yp += LINESPACE+7;
 
 	display_shadow_proportional( pos.x+8+24, yp, COL_LIGHT_ORANGE, COL_BLACK, "Selling this software is forbidden.", true );
