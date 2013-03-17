@@ -3,19 +3,19 @@
 SectionGroup "Pak64: main and addons" pak64group
 
 Section "!pak (64 size) (standard)" pak
-  AddSize 10970
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/112-1/simupak64-112-1.zip"
-  StrCpy $archievename "simupak64-112-1.zip"
+  AddSize 11299
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/112-2/simupak64-112-2.zip"
+  StrCpy $archievename "simupak64-112-2.zip"
   StrCpy $downloadname "pak"
-  StrCpy $VersionString "pak64 112.1 r1127"
+  StrCpy $VersionString "pak64 112.2 r1185"
   Call DownloadInstallZip
 SectionEnd
 
 
 Section /o "pak64 Food addon"
   AddSize 280
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/112-1/simupak64-addon-food-112-1.zip"
-  StrCpy $archievename "simupak64-addon-food-112-1.zip"
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/112-2/simupak64-addon-food-112-2.zip"
+  StrCpy $archievename "simupak64-addon-food-112-2.zip"
   StrCpy $downloadname "pak"
   StrCpy $VersionString ""
   StrCmp $multiuserinstall "1" +3
