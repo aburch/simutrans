@@ -2197,8 +2197,74 @@ void fabrik_t::neuer_monat()
 						}
 						// Re-set the expansion counter: an upgraded factory may expand further.
 						times_expanded = 0;
-						// Re-calculate electricity conspumption, mail and passenger demand, etc.
+						// Re-calculate production/consumption
+						if(besch->get_platzierung() == 2 && city && besch->get_produkte() == 0)
+						{
+							// City consumer industries set their consumption rates by the relative size of the city
+							const weighted_vector_tpl<stadt_t*>& cities = welt->get_staedte();
+
+							sint64 biggest_city_population = 0;
+							sint64 smallest_city_population = -1;
+
+							for (weighted_vector_tpl<stadt_t*>::const_iterator i = cities.begin(), end = cities.end(); i != end; ++i)
+							{
+								stadt_t* const c = *i;
+								const sint64 pop = c->get_finance_history_month(0,HIST_CITICENS);
+								if(pop > biggest_city_population)
+								{
+									biggest_city_population = pop;
+								}
+								else if(pop < smallest_city_population || smallest_city_population == -1)
+								{
+									smallest_city_population = pop;
+								}
+							}
+
+							const sint64 this_city_population = city->get_finance_history_month(0,HIST_CITICENS);
+							sint32 production;
+
+							if(this_city_population == biggest_city_population)
+							{
+								production = besch->get_bereich();
+							}
+							else if(this_city_population == smallest_city_population)
+							{
+								production = 0;
+							}
+							else
+							{
+								const int percentage = (this_city_population - smallest_city_population) * 100 / (biggest_city_population - smallest_city_population);
+								production = (besch->get_bereich() * percentage) / 100;
+							}
+							prodbase = besch->get_produktivitaet() + production;
+						}
+						else if(besch->get_platzierung() == 2 && !city && besch->get_produkte() == 0)
+						{
+							prodbase = besch->get_produktivitaet();
+						}
+						else
+						{
+							prodbase = besch->get_produktivitaet() + simrand(besch->get_bereich(), "fabrik_t::neuer_monat");
+						}
+	
+						prodbase = prodbase > 0 ? prodbase : 1;
+
+						// create input information
+						eingang.resize(besch->get_lieferanten() );
+						for(  int g=0;  g<besch->get_lieferanten();  ++g  ) {
+							const fabrik_lieferant_besch_t *const input = besch->get_lieferant(g);
+							eingang[g].set_typ( input->get_ware() );
+						}
+
+						// create output information
+						ausgang.resize( besch->get_produkte() );
+						for(  uint g=0;  g<besch->get_produkte();  ++g  ) {
+							const fabrik_produkt_besch_t *const product = besch->get_produkt(g);
+							ausgang[g].set_typ( product->get_ware() );
+						}
+
 						recalc_storage_capacities();
+						// Re-calculate electricity conspumption, mail and passenger demand, etc.
 						update_scaled_electric_amount();
 						update_scaled_pax_demand();
 						update_scaled_mail_demand();
