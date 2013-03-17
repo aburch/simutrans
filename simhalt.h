@@ -402,11 +402,13 @@ private:
 	const char * quote_bezeichnung(int quote) const;
 #endif
 
+#ifdef CHECK_WARE_MERGE
 	/**
 	 * versucht die ware mit beriets wartender ware zusammenzufassen
 	 * @author Hj. Malthaner
 	 */
 	bool vereinige_waren(const ware_t &ware);
+#endif
 
 	// add the ware to the internal storage, called only internally
 	void add_ware_to_halt(ware_t ware, bool from_saved = false);

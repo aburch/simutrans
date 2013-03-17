@@ -2275,7 +2275,7 @@ uint32 haltestelle_t::get_ware_fuer_zielpos(const ware_besch_t *wtyp, const koor
 	return 0;
 }
 
-
+#ifdef CHECK_WARE_MERGE
 bool haltestelle_t::vereinige_waren(const ware_t &ware) //"unite were" (Google)
 {
 	// pruefen ob die ware mit bereits wartender ware vereinigt werden kann
@@ -2325,7 +2325,7 @@ bool haltestelle_t::vereinige_waren(const ware_t &ware) //"unite were" (Google)
 	}
 	return false;
 }
-
+#endif 
 
 
 // put the ware into the internal storage
