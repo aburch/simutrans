@@ -1,4 +1,4 @@
-Release of 112.2: (r6389 on 17-Mar-2013):
+Release of 112.2: (r6390 on 17-Mar-2013):
 	ADD: maximum radius of factories of a chain configurable
 	CHG: use more colors to show height levels in minimap
 	CHG: loading screen reworked graphically and in functionality. Lowers the chance the OS will identify Simutrans as "not responding" when loading large files/paks.
