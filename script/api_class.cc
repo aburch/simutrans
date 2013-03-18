@@ -25,6 +25,18 @@ SQInteger script_api::create_class(HSQUIRRELVM vm, const char* classname, const 
 }
 
 
+SQInteger script_api::begin_class(HSQUIRRELVM vm, const char* classname, const char* /* baseclasses - dummy */)
+{
+	return push_class(vm, classname);
+}
+
+
+void script_api::end_class(HSQUIRRELVM vm)
+{
+	sq_pop(vm,1);
+}
+
+
 /**
  * pushes class
  */

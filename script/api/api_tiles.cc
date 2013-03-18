@@ -6,18 +6,15 @@
 #include "../api_function.h"
 #include "../../simworld.h"
 
-
-#define begin_class(c,p) push_class(vm, c);
-#define end_class() sq_pop(vm,1);
-
 using namespace script_api;
+
 
 void export_tiles(HSQUIRRELVM vm)
 {
 	/**
 	 * Class to access tiles on the map.
 	 */
-	begin_class("tile_x", "extend_get,coord3d");
+	begin_class(vm, "tile_x", "extend_get,coord3d");
 
 	/**
 	 * Constructor. Returns tile at particular 3d coordinate.
@@ -36,12 +33,12 @@ void export_tiles(HSQUIRRELVM vm)
 	 * @returns halt_x instance or null/false if no halt is present
 	 */
 	register_method(vm, &grund_t::get_halt, "get_halt");
-	end_class();
+	end_class(vm);
 
 	/**
 	 * Class to map squares, which holds all the tiles on one particular coordinate.
 	 */
-	begin_class("square_x", "extend_get,coord");
+	begin_class(vm, "square_x", "extend_get,coord");
 
 	/**
 	 * Constructor. Returns map square at particular 2d coordinate.
@@ -70,5 +67,5 @@ void export_tiles(HSQUIRRELVM vm)
 	 * @returns tile_x instance
 	 */
 	register_method(vm, &planquadrat_t::get_kartenboden, "get_ground_tile");
-	end_class();
+	end_class(vm);
 }

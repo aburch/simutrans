@@ -12,8 +12,10 @@
 
 namespace script_api {
 
+
 	/**
 	 * Creates squirrel class on the stack. Inherits from @p baseclass.
+	 * Has to be complemented by call to end_class.
 	 * @param classname name of squirrel class
 	 * @param baseclass name of base class (or NULL)
 	 * @return SQ_OK or SQ_ERROR
@@ -21,11 +23,27 @@ namespace script_api {
 	SQInteger create_class(HSQUIRRELVM vm, const char* classname, const char* baseclass = NULL);
 
 	/**
+	 * Pushes class on stack.
+	 * Has to be complemented by call to end_class.
+	 * @param classname name of squirrel class, must exist prior to calling this function
+	 * @param baseclasses dummy string containing base classes - to create nice doxygen output
+	 * @return SQ_OK or SQ_ERROR
+	 */
+	SQInteger begin_class(HSQUIRRELVM vm, const char* classname, const char* baseclasses = NULL);
+
+	/**
+	 * Pops class from stack.
+	 */
+	void end_class(HSQUIRRELVM vm);
+
+	/**
 	 * Pushes the squirrel class onto the stack.
+	 * Has to be complemented by call to end_class.
 	 * @param classname name of squirrel class
 	 * @return SQ_OK or SQ_ERROR
 	 */
 	SQInteger push_class(HSQUIRRELVM vm, const char* classname);
+
 
 	/**
 	 * Pushes the constructor of squirrel class onto the stack.

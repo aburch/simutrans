@@ -10,12 +10,10 @@
 
 using namespace script_api;
 
-#define begin_class(c,p) push_class(vm, c);
-#define end_class() sq_pop(vm,1);
 #define STATIC
 
-
 static char buf[40];
+
 
 static plainstring double_to_string(double f, sint32 decimals)
 {
@@ -34,7 +32,6 @@ static plainstring money_to_string_intern(sint64 m)
 	money_to_string(buf, m);
 	return buf;
 }
-
 
 
 void export_scenario(HSQUIRRELVM vm)
@@ -91,13 +88,14 @@ void export_scenario(HSQUIRRELVM vm)
 	 */
 	register_method(vm, &translator::get_month_name, "get_month_name");
 
+
 	/**
 	 * Table with methods to forbid and allow tools.
 	 *
 	 * Tools that are set to forbidden using the forbid_* methods can be allowed
 	 * again by calls to the respective allow_* method with exact the same parameters.
 	 */
-	begin_class("rules", 0);
+	begin_class(vm, "rules", 0);
 
 	/**
 	 * Forbid tool.
@@ -203,5 +201,5 @@ void export_scenario(HSQUIRRELVM vm)
 	 */
 	STATIC register_method(vm, &scenario_t::clear_rules,  "clear");
 
-	end_class();
+	end_class(vm);
 }

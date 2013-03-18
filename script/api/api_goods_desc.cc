@@ -32,8 +32,6 @@ SQInteger get_ware_besch_index(HSQUIRRELVM vm)
 
 void export_goods_desc(HSQUIRRELVM vm)
 {
-#define begin_class(c,p) create_class(vm, c);
-#define end_class() sq_pop(vm,1);
 	/**
 	 * Implements iterator to iterate through the list of all good types.
 	 *
@@ -45,7 +43,7 @@ void export_goods_desc(HSQUIRRELVM vm)
 	 * }
 	 * @endcode
 	 */
-	begin_class("good_desc_list_x", 0);
+	create_class(vm, "good_desc_list_x", 0);
 	/**
 	 * Meta-method to be used in foreach loops. Do not call them directly.
 	 */
@@ -55,7 +53,7 @@ void export_goods_desc(HSQUIRRELVM vm)
 	 */
 	register_function(vm, get_ware_besch_index, "_get",    2, "xi");
 
-	end_class();
+	end_class(vm);
 
 
 	/**

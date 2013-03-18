@@ -10,11 +10,9 @@
 
 using namespace script_api;
 
-#define begin_class(c,p) push_class(vm, c);
-#define end_class() sq_pop(vm,1);
-
 // see api_world.cc
 SQInteger push_time(HSQUIRRELVM vm, uint32 yearmonth);
+
 
 SQInteger get_start_time(HSQUIRRELVM vm)
 {
@@ -22,6 +20,7 @@ SQInteger get_start_time(HSQUIRRELVM vm)
 	uint32 yearmonth = 12*( max( settings->get_starting_year(),0) ) + max( settings->get_starting_month(),0);
 	return push_time(vm, yearmonth );
 }
+
 
 void_t set_traffic_level(settings_t*, sint16 rate)
 {
@@ -35,12 +34,13 @@ void_t set_traffic_level(settings_t*, sint16 rate)
 	return void_t();
 }
 
+
 void export_settings(HSQUIRRELVM vm)
 {
 	/**
 	 * Table with methods to access game settings.
 	 */
-	begin_class("settings", 0);
+	begin_class(vm, "settings", 0);
 
 	/**
 	 * New industries will be spawned if cities grow to over 2^n times this setting.
@@ -74,5 +74,5 @@ void export_settings(HSQUIRRELVM vm)
 	 */
 	register_function(vm, get_start_time, "get_start_time", 1, ".");
 
-	end_class();
+	end_class(vm);
 }

@@ -34,15 +34,12 @@ sint8 is_halt_connected(halthandle_t a, halthandle_t b, const ware_besch_t *besc
 }
 
 
-#define begin_class(c,p) push_class(vm, c);
-#define end_class() sq_pop(vm,1);
-
 void export_halt(HSQUIRRELVM vm)
 {
 	/**
 	 * Class to access halts.
 	 */
-	begin_class("halt_x", "extend_get");
+	begin_class(vm, "halt_x", "extend_get");
 
 	/**
 	 * Station name.
@@ -116,5 +113,5 @@ void export_halt(HSQUIRRELVM vm)
 	 */
 	register_method_fv(vm, &get_halt_stat, "get_walked", freevariable<sint32>(HALT_WALKED), true);
 
-	end_class();
+	end_class(vm);
 }
