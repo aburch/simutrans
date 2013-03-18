@@ -154,7 +154,7 @@ void karte_ansicht_t::display(bool force_dirty)
 	const sint8 hmax_ground = (grund_t::underground_mode==grund_t::ugm_level) ? grund_t::underground_level : 127;
 
 	// lower limit for y: display correctly water/outside graphics at upper border of screen
-	int y_min = (-const_y_off + 4*tile_raster_scale_y( min(hmax_ground,welt->get_minimumheight())*TILE_HEIGHT_STEP, IMG_SIZE )
+	int y_min = (-const_y_off + 4*tile_raster_scale_y( min(hmax_ground, welt->get_grundwasser())*TILE_HEIGHT_STEP, IMG_SIZE )
 					+ 4*(menu_height-IMG_SIZE)-IMG_SIZE/2-1) / IMG_SIZE;
 
 #if MULTI_THREAD>1
