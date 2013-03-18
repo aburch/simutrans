@@ -326,7 +326,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 		weg_besch = wegbauer_t::weg_search( wegtyp, besch->get_topspeed(), besch->get_max_weight(), 0, weg_t::type_flat );
 	}
 
-	baue_einfahrt(welt, sp, pos, zv, besch, NULL, cost, maint);
+	baue_einfahrt(welt, sp, pos, zv, besch, weg_besch, cost, maint);
 
 	ribi = ribi_typ(-zv);
 	// don't move on to next tile if only one tile long
@@ -363,7 +363,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 		tunnel->calc_bild();
 		tunnel->set_flag(grund_t::dirty);
 		assert(!tunnel->ist_karten_boden());
-		maint += besch->get_wartung()-weg->get_besch()->get_wartung(); 
+		maint += besch->get_wartung() - weg->get_besch()->get_wartung(); 
 		cost += besch->get_preis();
 		pos = pos + zv;
 	}
