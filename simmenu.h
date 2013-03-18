@@ -261,7 +261,7 @@ public:
 	/**
 	 * @return true if this tool operates over the grid, not the map tiles.
 	 */
-	virtual const bool is_grid_tool() const {return false;}
+	virtual bool is_grid_tool() const {return false;}
 
 	/**
 	 * Returning false on init will automatically invoke previous tool.

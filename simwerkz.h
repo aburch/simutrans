@@ -90,7 +90,7 @@ public:
 	/**
 	 * @return true if this tool operates over the grid, not the map tiles.
 	 */
-	const bool is_grid_tool() const {return true;}
+	bool is_grid_tool() const {return true;}
 };
 
 class wkz_raise_t : public wkz_raise_lower_base_t {
