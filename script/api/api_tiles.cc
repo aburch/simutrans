@@ -33,6 +33,55 @@ void export_tiles(HSQUIRRELVM vm)
 	 * @returns halt_x instance or null/false if no halt is present
 	 */
 	register_method(vm, &grund_t::get_halt, "get_halt");
+
+	/**
+	 * Queries tile type.
+	 * @returns true if tile is an ocean tile
+	 */
+	register_method(vm, &grund_t::ist_wasser, "is_water");
+
+	/**
+	 * Queries tile type.
+	 * @returns true if tile is an bridge tile (including bridge starts)
+	 */
+	register_method(vm, &grund_t::ist_bruecke, "is_bridge");
+
+	/**
+	 * Queries tile type.
+	 * @returns true if tile is an tunnel tile (including tunnel mouths)
+	 */
+	register_method(vm, &grund_t::ist_tunnel, "is_tunnel");
+
+	/**
+	 * Queries tile type.
+	 * @returns true if tile is empty (no ways, buildings, powerlines, halts, not water tile)
+	 */
+	register_method(vm, &grund_t::ist_natur, "is_empty");
+
+	/**
+	 * Queries tile type.
+	 * @returns true if tile on ground (not bridge/elevated, not tunnel)
+	 */
+	register_method(vm, &grund_t::ist_karten_boden, "is_ground");
+
+	/**
+	 * Queries ways on the tile.
+	 * @param wt waytype
+	 * @returns true if there is a way with the given waytype on the tile.
+	 */
+	register_method(vm, &grund_t::hat_weg, "has_way");
+
+	/**
+	 * Queries ways on the tile.
+	 * @returns true if there is at least one way on the tile
+	 */
+	register_method(vm, &grund_t::hat_wege, "has_ways");
+
+	/**
+	 * Queries ways on the tile.
+	 * @returns true if there is are two ways on the tile
+	 */
+	register_method<bool (grund_t::*)() const>(vm, &grund_t::has_two_ways, "has_two_ways");
 	end_class(vm);
 
 	/**
