@@ -1349,6 +1349,9 @@ void stadt_t::rotate90( const sint16 y_size )
 
 void stadt_t::set_name(const char *new_name)
 {
+	if (new_name == NULL) {
+		return;
+	}
 	name = new_name;
 	grund_t *gr = welt->lookup_kartenboden(pos);
 	if(gr) {
