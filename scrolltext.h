@@ -49,6 +49,7 @@
 " Inkelyad", "developer",
 " Isidoro","developer (vehicle replacement)",
 " Hanczar","profiling, fixes",
+" Vonjo","patches",
 " Ansgar","Linux builds, patches",
 " Lefthand","patches",
 " Nathan Samson","patches",
