@@ -98,7 +98,7 @@ void banner_t::zeichnen(koord pos, koord gr )
 	display_fillbox_wh(pos.x, pos.y + 16, gr.x, 1, COL_GREY6, false);
 
 	KOORD_VAL yp = pos.y+22;
-	display_shadow_proportional( pos.x+10, yp, COL_PT, COL_BLACK, "This is an extended version of Simutrans:", true );
+	display_shadow_proportional( pos.x+10, yp, COL_PT, COL_BLACK, "This is an extended version of Simutrans", true );
 	yp += LINESPACE+5;
 #ifdef REVISION
 	display_shadow_proportional( pos.x+10, yp, COL_WHITE, COL_BLACK, "Version " VERSION_NUMBER, true );

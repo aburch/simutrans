@@ -830,7 +830,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 		{
 			for (int h = plan->get_haltlist_count() - 1; h >= 0; h--) 
 			{
-				const halthandle_t const halt = halt_list[h];
+				const halthandle_t halt = halt_list[h];
 				if (halt->is_enabled(warenbauer_t::passagiere))
 				{
 					if(!any_suitable_stops_passengers)
@@ -848,7 +848,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 			
 			for (int h = plan->get_haltlist_count() - 1; h >= 0; h--) 
 			{
-				const halthandle_t const halt = halt_list[h];
+				const halthandle_t halt = halt_list[h];
 				if (halt->is_enabled(warenbauer_t::post))
 				{
 					if(!any_suitable_stops_mail)
