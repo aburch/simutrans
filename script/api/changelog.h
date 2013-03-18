@@ -4,6 +4,8 @@
  *
  * @section post-112-2 Current trunk
  *
+ * - Added good_desc_list_x
+ *
  * @section api-112-2 Release 112.2
  *
  * - Added rules::forbid_way_tool_cube, rules::allow_way_tool_cube

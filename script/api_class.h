@@ -13,6 +13,14 @@
 namespace script_api {
 
 	/**
+	 * Creates squirrel class on the stack. Inherits from @p baseclass.
+	 * @param classname name of squirrel class
+	 * @param baseclass name of base class (or NULL)
+	 * @return SQ_OK or SQ_ERROR
+	 */
+	SQInteger create_class(HSQUIRRELVM vm, const char* classname, const char* baseclass = NULL);
+
+	/**
 	 * Pushes the squirrel class onto the stack.
 	 * @param classname name of squirrel class
 	 * @return SQ_OK or SQ_ERROR

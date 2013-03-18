@@ -1,5 +1,30 @@
 #include "api_class.h"
 
+
+/**
+ * creates class, leaves it at the top of the stack
+ */
+SQInteger script_api::create_class(HSQUIRRELVM vm, const char* classname, const char* baseclass)
+{
+	sq_pushroottable(vm);
+	if (baseclass) {
+		sq_pushstring(vm, baseclass, -1);
+		if(!SQ_SUCCEEDED(sq_get(vm, -2))) {
+			sq_pop(vm, 1);
+			sq_raise_error(vm, "base class %s to derive %s from it not found", baseclass, classname);
+			return SQ_ERROR;
+		}
+	}
+	sq_newclass(vm, baseclass!=NULL);
+	sq_pushstring(vm, classname, -1);
+	sq_push(vm, -2);
+	// stack: root, class, classname, class
+	sq_newslot(vm, -4, false);
+	sq_remove(vm, -2); // remove root table
+	return SQ_OK;
+}
+
+
 /**
  * pushes class
  */
