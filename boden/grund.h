@@ -328,7 +328,7 @@ public:
 	}
 
 	/* this will be stored locally, since it is called many, many times */
-	inline uint8 ist_karten_boden() const {return (flags&is_kartenboden);}
+	inline bool ist_karten_boden() const {return (flags&is_kartenboden);}
 	void set_kartenboden(bool tf) {if(tf) {flags|=is_kartenboden;} else {flags&=~is_kartenboden;} }
 
 	/**
@@ -584,7 +584,7 @@ public:
 		return NULL;
 	}
 
-	uint8 has_two_ways() const { return flags&has_way2; }
+	bool has_two_ways() const { return flags&has_way2; }
 
 	bool hat_weg(waytype_t typ) const { return get_weg(typ)!=NULL; }
 
