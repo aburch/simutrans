@@ -543,40 +543,6 @@ void karte_t::cleanup_karte( int xoff, int yoff )
 			grid_hgts[i+j*(get_size().x+1)] --;
 		}
 	}
-	/*
-	 * ************ DISABLED, NOT NECESSARY ANY LONGER, DELETE THIS CODE ************
-	 */
-	/*
-
-	for(i=0; i<get_size().x; i++) {
-		lower_grid_to(i, 0, grundwasser);
-		lower_grid_to(i, get_size().y, grundwasser);
-		if (i <= xoff) {
-			lower_grid_to(i, yoff, grundwasser);
-		}
-	}
-	for(i=0; i<=get_size().y; i++) {
-		lower_grid_to(0, i, grundwasser);
-		lower_grid_to(get_size().x, i, grundwasser);
-		if (i < yoff) {
-			lower_grid_to(xoff, i, grundwasser);
-		}
-	}
-	for(i=0; i<=get_size().x; i++) {
-		raise_grid_to(i, 0, grundwasser);
-		raise_grid_to(i, get_size().y, grundwasser);
-		if (i <= xoff) {
-			raise_grid_to(i, yoff, grundwasser);
-		}
-	}
-	for(i=0; i<=get_size().y; i++) {
-		raise_grid_to(0, i, grundwasser);
-		raise_grid_to(get_size().x, i, grundwasser);
-		if (i < yoff) {
-			raise_grid_to(xoff, i, grundwasser);
-		}
-	}
-	*/
 	// recalculate slopes and water tiles
 	for(  j=0;  j<get_size().y;  j++  ) {
 		for(  i=(j>=yoff)?0:xoff;  i<get_size().x;  i++  ) {
@@ -2047,13 +2013,6 @@ bool karte_t::can_raise_to(sint16 x, sint16 y, bool keep_water, sint8 hsw, sint8
 	}
 	else {
 		ok = true;
-	/*
-	 * ************ DISABLED, NOT NECESSARY ANY LONGER, DELETE THIS CODE ************
-	 */
-/*		if ( x < 0 ) ok = hne <= grundwasser && hse <= grundwasser;
-		if ( y < 0 ) ok = hsw <= grundwasser && hse <= grundwasser;
-		if ( x >= cached_size.x ) ok = hsw <= grundwasser && hnw <= grundwasser;
-		if ( y >= cached_size.y ) ok = hnw <= grundwasser && hne <= grundwasser;*/
 	}
 	return ok;
 }
@@ -2182,20 +2141,6 @@ void karte_t::raise_grid_to(sint16 x, sint16 y, sint8 h)
 }
 
 
-int karte_t::raise(koord pos)
-{
-	int n = 0;
-	if(is_within_limits(pos)) {
-		grund_t *gr = lookup_kartenboden(pos);
-		const sint8 hnew = gr->get_hoehe() + corner4(gr->get_grund_hang());
-		if (can_raise_to(pos.x, pos.y, false, hnew, hnew, hnew, hnew+1)) {
-			n = raise_to(pos.x, pos.y, hnew, hnew, hnew, hnew+1);
-		}
-	}
-	return (n+3)>>2;
-}
-
-
 int karte_t::grid_raise(koord pos)
 {
 	int n = 0;
@@ -2278,21 +2223,6 @@ bool karte_t::can_lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, 
 	else {
 		// border tile of map
 		ok=true;
-	/*
-	 * ************ DISABLED, NOT NECESSARY ANY LONGER, DELETE THIS CODE ************
-	 */
-/*		if( x < 0 ) {
-			ok = hne >= grundwasser && hse >= grundwasser;
-		}
-		if( y < 0 ) {
-			ok = hsw >= grundwasser && hse >= grundwasser;
-		}
-		if( x >= cached_size.x ) {
-			ok = hsw >= grundwasser && hnw >= grundwasser;
-		}
-		if( y >= cached_size.y ) {
-			ok = hnw >= grundwasser && hne >= grundwasser;
-		}*/
 	}
 	return ok;
 }
@@ -2425,20 +2355,6 @@ void karte_t::lower_grid_to(sint16 x, sint16 y, sint8 h)
 			lower_grid_to(x+1, y+1, hh);
 		}
 	}
-}
-
-
-int karte_t::lower(koord pos)
-{
-	int n = 0;
-	if(is_within_limits(pos)) {
-		grund_t *gr = lookup_kartenboden(pos);
-		const sint8 hnew = gr->ist_wasser() ? lookup_hgt(pos) : gr->get_hoehe() + corner4(gr->get_grund_hang());
-		if (can_lower_to(pos.x, pos.y, hnew, hnew, hnew, hnew-1)) {
-			n = lower_to(pos.x, pos.y, hnew, hnew, hnew, hnew-1);
-		}
-	}
-	return (n+3)>>2;
 }
 
 

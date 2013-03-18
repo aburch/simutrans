@@ -1458,26 +1458,8 @@ public:
 	/**
 	 * Increases the height of the grid coordinate (x, y) by one.
 	 * @param pos Grid coordinate.
-	 * @author Hj. Malthaner
-	 * @see grid_raise
-	 * @note Can't operate over the upper limit grid positions.
-	 * @note Still in code for performance reasons.
-	 */
-	int raise(koord pos);
-
-	/**
-	 * Increases the height of the grid coordinate (x, y) by one.
-	 * @param pos Grid coordinate.
 	 */
 	int grid_raise(koord pos);
-
-	/**
-	 * Lowers the height of grid coordinate (x, y) by one.
-	 * @param pos Grid coordinate.
-	 * @author Hj. Malthaner
-	 * @note Can't operate over the upper limit grid positions.
-	 */
-	int lower(koord pos);
 
 	/**
 	 * Decreases the height of the grid coordinate (x, y) by one.
