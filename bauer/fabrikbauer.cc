@@ -121,6 +121,9 @@ public:
 			for (sint16 y = -1;  y < h; y++) {
 				koord k(pos + koord(x,y));
 				grund_t *gr = welt->lookup_kartenboden(k);
+				if (!gr) {
+					return false;
+				}
 				if (	0 <= x  &&  x < b-1  &&  0 <= y  &&  y < h-1) {
 					// inside: nothing on top like elevated monorails?
 					if(  gr->get_leitung()!=NULL  ||  welt->lookup(gr->get_pos()+koord3d(0,0,1)  )!=NULL) {

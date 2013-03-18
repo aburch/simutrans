@@ -426,9 +426,11 @@ private:
 
 	/**
 	 * Raises heights of the corners of the tile at (@p x, @p y).
+	 * New heights for each corner given.
 	 * @pre can_raise_to should be called before this method.
 	 * @see can_raise_to
 	 * @returns count of full raise operations (4 corners raised one level)
+	 * @note Clear tile, reset water/land type, calc reliefkarte pixel.
 	 */
 	int  raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw);
 
@@ -448,9 +450,11 @@ private:
 
 	/**
 	 * Lowers heights of the corners of the tile at (@p x, @p y).
+	 * New heights for each corner given.
 	 * @pre can_lower_to should be called before this method.
 	 * @see can_lower_to
 	 * @returns count of full lower operations (4 corners lowered one level)
+	 * @note Clear tile, reset water/land type, calc reliefkarte pixel.
 	 */
 	int  lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw);
 
@@ -1146,6 +1150,17 @@ public:
 	sint8 get_grundwasser() const { return grundwasser; }
 
 	/**
+	 * Returns the minimum allowed height on the map.
+	 */
+	sint8 get_minimumheight() const { return grundwasser-4; }
+
+	/**
+	 * Returns the maximum allowed world height.
+	 * @author Hj. Malthaner
+	 */
+	sint8 get_maximumheight() const { return 14; }
+
+	/**
 	 * Returns the current snowline height.
 	 * @author prissi
 	 */
@@ -1275,6 +1290,80 @@ public:
 	}
 
 	/**
+	 * This function takes grid coordinates as a parameter and a desired height (koord3d).
+	 * Will return the ground_t object that intersects with it in it's north corner if possible.
+	 * If that tile doesn't exist, returns the one that interesects with it in other corner.
+	 * @param pos Grid coordinates to check for, the z points to the desired height.
+	 * @see lookup_kartenboden_gridcoords
+	 * @see corner_to_operate
+	 * @note Inline because called very frequently!
+	 */
+	inline grund_t *lookup_gridcoords(const koord3d &pos) const
+	{
+		if ( ( pos.x != cached_grid_size.x )  &&  ( pos.y != cached_grid_size.y ) ){
+			return lookup(koord3d(pos.x, pos.y, pos.z));
+		}
+
+		if ( ( pos.x == cached_grid_size.x )  &&  ( pos.y == cached_grid_size.y ) ) {
+			return lookup(koord3d(pos.x-1, pos.y-1, pos.z));
+		}
+		else if ( pos.x == cached_grid_size.x ) {
+			return lookup(koord3d(pos.x-1, pos.y, pos.z));
+		}
+		return lookup(koord3d(pos.x, pos.y-1, pos.z));
+	}
+
+	/**
+	 * This function takes 2D grid coordinates as a parameter, will return the ground_t object that
+	 * intersects with it in it's north corner if possible. If that tile doesn't exist, returns
+	 * the one that intersects with it in other corner.
+	 * @param pos Grid coordinates to check for.
+	 * @see corner_to_operate
+	 * @see lookup_gridcoords
+	 * @return The requested tile, or the immediately adjacent in case of lower border.
+	 * @note Inline because called very frequently!
+	 */
+	inline grund_t *lookup_kartenboden_gridcoords(const koord &pos) const
+	{
+		if ( ( pos.x != cached_grid_size.x )  &&  ( pos.y != cached_grid_size.y ) ){
+			return lookup_kartenboden(pos);
+		}
+
+		if ( ( pos.x == cached_grid_size.x )  &&  ( pos.y == cached_grid_size.y ) ) {
+			return lookup(koord(pos.x-1, pos.y-1))->get_kartenboden();
+		}
+		else if ( pos.x == cached_grid_size.x ) {
+			return lookup(koord(pos.x-1, pos.y))->get_kartenboden();
+		}
+		return lookup(koord(pos.x, pos.y-1))->get_kartenboden();
+	}
+
+	/**
+	 * @return The corner that needs to be raised/lowered on the given coordinates.
+	 * @param pos Grid coordinate to check.
+	 * @note Inline because called very frequently!
+	 * @note Will always return north-west except on border tiles.
+	 * @pre pos has to be a valid grid coordinate, undefined otherwise.
+	 */
+	inline hang_t::typ get_corner_to_operate(const koord &pos) const
+	{
+		// Normal tile
+		if ( ( pos.x != cached_grid_size.x )  &&  ( pos.y != cached_grid_size.y ) ){
+			return hang_t::corner_north;
+		}
+		// Border on south-east
+		if ( is_within_limits(pos.x-1, pos.y) ) {
+			return(hang_t::corner_east);
+		}
+		// Border on south-west
+		if ( is_within_limits(pos.x, pos.y-1) ) {
+			return(hang_t::corner_west);
+		}
+		// Border on south
+		return (hang_t::corner_south);
+	}
+
+	/**
 	 * @return grund at the bottom (where house will be build)
 	 * @note Inline because called very frequently!
 	 * @author Hj. Malthaner
@@ -1367,18 +1456,34 @@ public:
 	bool is_plan_height_changeable(sint16 x, sint16 y) const;
 
 	/**
-	 * Increases the height of grid coordinate (x, y) by one.
+	 * Increases the height of the grid coordinate (x, y) by one.
 	 * @param pos Grid coordinate.
 	 * @author Hj. Malthaner
+	 * @see grid_raise
+	 * @note Can't operate over the upper limit grid positions.
+	 * @note Still in code for performance reasons.
 	 */
 	int raise(koord pos);
+
+	/**
+	 * Increases the height of the grid coordinate (x, y) by one.
+	 * @param pos Grid coordinate.
+	 */
+	int grid_raise(koord pos);
 
 	/**
 	 * Lowers the height of grid coordinate (x, y) by one.
 	 * @param pos Grid coordinate.
 	 * @author Hj. Malthaner
+	 * @note Can't operate over the upper limit grid positions.
 	 */
 	int lower(koord pos);
+
+	/**
+	 * Decreases the height of the grid coordinate (x, y) by one.
+	 * @param pos Grid coordinate.
+	 */
+	int grid_lower(koord pos);
 
 	// mostly used by AI: Ask to flatten a tile
 	bool can_ebne_planquadrat(koord pos, sint8 hgt, bool keep_water=false, bool make_underwater_hill=false) const;

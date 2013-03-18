@@ -259,6 +259,11 @@ public:
 	virtual const char *get_tooltip(const spieler_t *) const { return NULL; }
 
 	/**
+	 * @return true if this tool operates over the grid, not the map tiles.
+	 */
+	virtual const bool is_grid_tool() const {return false;}
+
+	/**
 	 * Returning false on init will automatically invoke previous tool.
 	 * Returning true will select tool and will make it possible to call work.
 	 */

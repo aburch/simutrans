@@ -67,7 +67,7 @@ protected:
 	sint16 drag_height;
 
 	bool drag(karte_t *welt, koord pos, sint16 h, int &n);
-	virtual sint16 get_drag_height(grund_t *gr) = 0;
+	virtual sint16 get_drag_height(karte_t *welt, koord pos) = 0;
 	bool check_dragging();
 public:
 	wkz_raise_lower_base_t(uint16 id) : werkzeug_t(id | GENERAL_TOOL) { offset = Z_GRID; }
@@ -86,6 +86,11 @@ public:
 	 * if work() is called with is_dragging==true then is_dragging is reseted
 	 */
 	bool is_work_network_save() const OVERRIDE { return is_dragging;}
+
+	/**
+	 * @return true if this tool operates over the grid, not the map tiles.
+	 */
+	const bool is_grid_tool() const {return true;}
 };
 
 class wkz_raise_t : public wkz_raise_lower_base_t {
@@ -94,7 +99,7 @@ public:
 	char const* get_tooltip(spieler_t const* const sp) const OVERRIDE { return tooltip_with_price("Anheben", sp->get_welt()->get_settings().cst_alter_land); }
 	char const* check_pos(karte_t*, spieler_t*, koord3d) OVERRIDE;
 	char const* work(karte_t*, spieler_t*, koord3d) OVERRIDE;
-	sint16 get_drag_height(grund_t *gr) OVERRIDE;
+	sint16 get_drag_height(karte_t *welt, koord pos) OVERRIDE;
 };
 
 class wkz_lower_t : public wkz_raise_lower_base_t {
@@ -103,7 +108,7 @@ public:
 	char const* get_tooltip(spieler_t const* const sp) const OVERRIDE { return tooltip_with_price("Absenken", sp->get_welt()->get_settings().cst_alter_land); }
 	char const* check_pos(karte_t*, spieler_t*, koord3d) OVERRIDE;
 	char const* work(karte_t*, spieler_t*, koord3d) OVERRIDE;
-	sint16 get_drag_height(grund_t *gr) OVERRIDE;
+	sint16 get_drag_height(karte_t *welt, koord pos) OVERRIDE;
 };
 
 /* slope tool definitions */

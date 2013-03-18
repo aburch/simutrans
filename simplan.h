@@ -139,7 +139,7 @@ public:
 	void abgesenkt(karte_t *welt);
 
 	/**
-	* konvertiert Wasser zu Land wenn über Grundwasserniveau angehoben
+	* Converts water to land when raised above the ground water level
 	* @author Hj. Malthaner
 	*/
 	void angehoben(karte_t *welt);

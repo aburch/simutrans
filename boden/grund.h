@@ -383,7 +383,19 @@ public:
 	halthandle_t get_halt() const;
 	bool is_halt() const { return flags & is_halt_flag; }
 
+	/**
+	 * @return The height of the tile.
+	 */
 	inline sint8 get_hoehe() const {return pos.z;}
+
+	/**
+	 * @param corner hang_t::_corner mask of corners to check.
+	 * @return The height of the tile at the requested corner.
+	 */
+	inline sint8 get_hoehe(hang_t::typ corner) const
+	{
+		return pos.z + (((hang_t::typ)slope & corner )?1:0);
+	}
 
 	void set_hoehe(int h) { pos.z = h;}
 

@@ -817,8 +817,7 @@ const char *wkz_raise_lower_base_t::move( karte_t *welt, spieler_t *sp, uint16 b
 	if(  buttonstate==1  ) {
 		char buf[16];
 		if(!is_dragging) {
-			grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
-			drag_height = get_drag_height(gr);
+			drag_height = get_drag_height(welt,pos.get_2d());
 		}
 		is_dragging = true;
 		sprintf( buf, "%i", drag_height );
@@ -841,12 +840,12 @@ bool wkz_raise_lower_base_t::drag(karte_t *welt, koord pos, sint16 height, int &
 {
 	// dragging may be going up or down!
 	while(welt->lookup_hgt(pos)<height) {
-		int diff = welt->raise(pos);
+		int diff = welt->grid_raise(pos);
 		if(diff==0) break;
 		n += diff;
 	}
 	while(welt->lookup_hgt(pos)>height) {
-		int diff = welt->lower(pos);
+		int diff = welt->grid_lower(pos);
 		if(diff==0) break;
 		n += diff;
 	}
@@ -865,9 +864,11 @@ bool wkz_raise_lower_base_t::check_dragging()
 }
 
 
-sint16 wkz_raise_t::get_drag_height(grund_t *gr)
+sint16 wkz_raise_t::get_drag_height(karte_t *welt, koord pos)
 {
-	return  gr->get_hoehe() + corner4(gr->get_grund_hang()) + 1;
+	const grund_t *gr = welt->lookup_kartenboden_gridcoords(pos);
+
+	return  gr->get_hoehe(welt->get_corner_to_operate(pos)) + 1;
 }
 
 
@@ -878,11 +879,10 @@ const char *wkz_raise_t::check_pos( karte_t *welt, spieler_t *, koord3d k )
 		is_dragging = false;
 		return "";
 	}
-	grund_t *gr = welt->lookup_kartenboden(k.get_2d());
-	if (gr==NULL) {
+	if (! welt->is_within_grid_limits(k.get_2d())) {
 		return "";
 	}
-	sint8 h = gr->get_hoehe() + corner4(gr->get_grund_hang());
+	sint8 h = (sint8) get_drag_height(welt,k.get_2d());
 	if (h > grund_t::underground_level) {
 			return "Terraforming not possible\nhere in underground view";
 	}
@@ -901,12 +901,11 @@ const char *wkz_raise_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 
 	CHECK_FUNDS();
 
-	if(welt->is_within_limits(pos)  &&  pos.x>0  &&  pos.y>0) {
+	if(welt->is_within_grid_limits(pos)) {
 
-		grund_t *gr = welt->lookup_kartenboden(pos);
-		const sint8 hgt = gr->get_hoehe() + corner4(gr->get_grund_hang());
+		const sint8 hgt = (sint8) get_drag_height(welt,k.get_2d());
 
-		if(hgt < 14) {
+		if(hgt <= welt->get_maximumheight()) {
 
 			int n = 0;	// tiles changed
 			if (!strempty(default_param)) {
@@ -914,7 +913,7 @@ const char *wkz_raise_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 				ok = drag(welt, pos, atoi(default_param), n);
 			}
 			else {
-				n = welt->raise(pos);
+				n = welt->grid_raise(pos);
 				ok = (n!=0);
 			}
 			if(n>0) {
@@ -923,7 +922,7 @@ const char *wkz_raise_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 			return !ok ? "Tile not empty." : (n ? NULL : "");
 		}
 		else {
-			// no mountains higher than 14 ...
+			// no mountains higher than welt->get_maximumheight() ...
 			return "Maximum tile height difference reached.";
 		}
 	}
@@ -931,9 +930,11 @@ const char *wkz_raise_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 }
 
 
-sint16 wkz_lower_t::get_drag_height(grund_t *gr)
+sint16 wkz_lower_t::get_drag_height(karte_t *welt, koord pos)
 {
-	return  gr->get_hoehe() + corner4(gr->get_grund_hang()) - 1;
+	const grund_t *gr = welt->lookup_kartenboden_gridcoords(pos);
+
+	return  gr->get_hoehe(welt->get_corner_to_operate(pos)) - 1;
 }
 
 
@@ -944,11 +945,10 @@ const char *wkz_lower_t::check_pos( karte_t *welt, spieler_t *, koord3d k )
 		is_dragging = false;
 		return "";
 	}
-	grund_t *gr = welt->lookup_kartenboden(k.get_2d());
-	if (gr==NULL) {
+	if (! welt->is_within_grid_limits(k.get_2d())) {
 		return "";
 	}
-	sint8 h = gr->get_hoehe() + corner4(gr->get_grund_hang()) - 1;
+	sint8 h = (sint8) get_drag_height(welt,k.get_2d());
 	if (h > grund_t::underground_level) {
 			return "Terraforming not possible\nhere in underground view";
 	}
@@ -967,11 +967,10 @@ const char *wkz_lower_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 
 	CHECK_FUNDS();
 
-	if(welt->is_within_limits(pos)  &&  pos.x>0  &&  pos.y>0) {
-		grund_t *gr = welt->lookup_kartenboden(pos);
-		const sint8 hgt = gr->get_hoehe() + corner4(gr->get_grund_hang());
+	if(welt->is_within_grid_limits(pos)) {
+		const sint8 hgt = (sint8) get_drag_height(welt,k.get_2d());
 
-		if(hgt > welt->get_grundwasser()) {
+		if(hgt >= welt->get_grundwasser()) {
 
 			int n = 0;	// tiles changed
 			if (!strempty(default_param)) {
@@ -979,7 +978,7 @@ const char *wkz_lower_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 				ok = drag(welt, pos, atoi(default_param), n);
 			}
 			else {
-				n = welt->lower(pos);
+				n = welt->grid_lower(pos);
 				ok = (n!=0);
 			}
 			if(n>0) {

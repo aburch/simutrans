@@ -243,7 +243,7 @@ bool karte_t::recalc_snowline()
 	static int mfactor[12] = { 99, 95, 80, 50, 25, 10, 0, 5, 20, 35, 65, 85 };
 	static uint8 month_to_season[12] = { 2, 2, 2, 3, 3, 0, 0, 0, 0, 1, 1, 2 };
 
-	// calculate snowline with day precicion
+	// calculate snowline with day precision
 	// use linear interpolation
 	const long ticks_this_month = get_zeit_ms() & (karte_t::ticks_per_world_month-1);
 	const long faktor = mfactor[last_month] + (  ( (mfactor[(last_month+1)%12]-mfactor[last_month])*(ticks_this_month>>12) ) >> (karte_t::ticks_per_world_month_shift-12) );
@@ -543,8 +543,11 @@ void karte_t::cleanup_karte( int xoff, int yoff )
 			grid_hgts[i+j*(get_size().x+1)] --;
 		}
 	}
+	/*
+	 * ************ DISABLED, NOT NECESSARY ANY LONGER, DELETE THIS CODE ************
+	 */
+	/*
 
-	// now lower the corners and edge between new/old part to ground level
 	for(i=0; i<get_size().x; i++) {
 		lower_grid_to(i, 0, grundwasser);
 		lower_grid_to(i, get_size().y, grundwasser);
@@ -573,7 +576,7 @@ void karte_t::cleanup_karte( int xoff, int yoff )
 			raise_grid_to(xoff, i, grundwasser);
 		}
 	}
-
+	*/
 	// recalculate slopes and water tiles
 	for(  j=0;  j<get_size().y;  j++  ) {
 		for(  i=(j>=yoff)?0:xoff;  i<get_size().x;  i++  ) {
@@ -1636,16 +1639,16 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	}
 	else {
 		if(  sets->get_rotation()==0  &&  sets->get_origin_x()==0  &&  sets->get_origin_y()==0) {
-			// otherwise neagtive offsets may occur, so we cache only non-rotated maps
+			// otherwise negative offsets may occur, so we cache only non-rotated maps
 			init_perlin_map(new_groesse_x,new_groesse_y);
 		}
 		int next_progress, old_progress = 0;
 		// loop only new tiles:
 		for(  sint16 x = 0;  x<=new_groesse_x;  x++  ) {
-			for(  sint16 y = (x>=old_x)?0:old_y;  y<=new_groesse_y;  y++  ) {
+			for(  sint16 y = (x>old_x)?0:old_y+1;  y<=new_groesse_y;  y++  ) {
 				koord pos(x,y);
 				sint16 const h = perlin_hoehe(&settings, pos, koord(old_x, old_y));
-				set_grid_hgt( pos, h);
+				set_grid_hgt( pos, (sint8) h);
 			}
 			next_progress = (x*16)/new_groesse_x;
 			if ( next_progress > old_progress ){
@@ -1656,6 +1659,44 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 		exit_perlin_map();
 	}
 
+	/** @note First we'll copy the border heights to the adjacent tile.
+	 * The best way I could find is raising the first new grid point to
+	 * the same height the adjacent old grid point was and lowering to the
+	 * same height again. This doesn't preserve the old area 100%, but it respects it
+	 * somehow.
+	 */
+
+	sint32 i;
+	grund_t *gr;
+	sint8 h;
+
+	if ( old_x > 0  &&  old_y > 0){
+		for(i=0; i<old_x; i++) {
+			gr = lookup_kartenboden(koord(i, old_y-1));
+			h = gr->get_hoehe(hang_t::corner_west);
+			raise_grid_to(i, old_y+1, h);
+		}
+		for(i=0; i<old_y; i++) {
+			gr = lookup_kartenboden(koord(old_x-1, i));
+			h = gr->get_hoehe(hang_t::corner_east);
+			raise_grid_to(old_x+1, i, h);
+		}
+		for(i=0; i<old_x; i++) {
+			gr = lookup_kartenboden(koord(i, old_y-1));
+			h = gr->get_hoehe(hang_t::corner_west);
+			lower_grid_to(i, old_y+1, h );
+		}
+		for(i=0; i<old_y; i++) {
+			gr = lookup_kartenboden(koord(old_x-1, i));
+			h = gr->get_hoehe(hang_t::corner_east);
+			lower_grid_to(old_x+1, i, h);
+		}
+		gr = lookup_kartenboden(koord(old_x-1, old_y -1));
+		h = gr ->get_hoehe(hang_t::corner_south);
+		raise_grid_to(old_x+1, old_y+1, h);
+		lower_grid_to(old_x+1, old_y+1, h);
+	}
+
 	// create grounds on new part
 	for (sint16 ix = 0; ix<new_groesse_x; ix++) {
 		for (sint16 iy = (ix>=old_x)?0:old_y; iy<new_groesse_y; iy++) {
@@ -1664,11 +1705,14 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 		}
 	}
 
-	// set borders to water level, smooth the new part, reassign slopes on new part
+	// smooth the new part, reassign slopes on new part
 	cleanup_karte( old_x, old_y );
 
 	// smoothing the seam (if possible)
-	for (sint16 x=1; x<old_x; x++) {
+	/*
+	 * SMOTHING THE SEAM IS NOT NECESSARY ANY LONGER, DELETE THIS CODE
+	 */
+/*	for (sint16 x=1; x<old_x; x++) {
 		koord k(x,old_y);
 		sint16 const height = perlin_hoehe(&settings, k, koord(old_x, old_y));
 		// need to raise/lower more
@@ -1702,9 +1746,9 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 			plan[x+y*cached_grid_size.x].get_kartenboden()->calc_bild();
 		}
 	}
+	*/
 
-
-	// eventuall update origin
+	// eventual update origin
 	switch (settings.get_rotation()) {
 		case 1:
 			settings.set_origin_y(settings.get_origin_y() - new_groesse_y + old_y);
@@ -2002,18 +2046,19 @@ bool karte_t::can_raise_to(sint16 x, sint16 y, bool keep_water, sint8 hsw, sint8
 		}
 	}
 	else {
-		if ( x < 0 ) ok = hne <= grundwasser && hse <= grundwasser;
+		ok = true;
+	/*
+	 * ************ DISABLED, NOT NECESSARY ANY LONGER, DELETE THIS CODE ************
+	 */
+/*		if ( x < 0 ) ok = hne <= grundwasser && hse <= grundwasser;
 		if ( y < 0 ) ok = hsw <= grundwasser && hse <= grundwasser;
 		if ( x >= cached_size.x ) ok = hsw <= grundwasser && hnw <= grundwasser;
-		if ( y >= cached_size.y ) ok = hnw <= grundwasser && hne <= grundwasser;
+		if ( y >= cached_size.y ) ok = hnw <= grundwasser && hne <= grundwasser;*/
 	}
 	return ok;
 }
 
 
-// raise plan
-// new heights for each corner given
-// clear tile, reset water/land type, calc reliefkarte pixel
 int karte_t::raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw)
 {
 	int n=0;
@@ -2046,7 +2091,19 @@ int karte_t::raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 			gr->set_grund_hang( (hang_t::typ)sneu );
 			access(x,y)->angehoben(this);
 		}
-		set_grid_hgt(koord(x,y),hn_nw);
+
+		// update north point in grid
+		set_grid_hgt(koord(x,y), hn_nw);
+		if ( x == cached_size.x ) {
+			// update eastern grid coordinates too if we are in the edge.
+			set_grid_hgt(koord(x+1, y), hn_ne);
+			set_grid_hgt(koord(x+1, y+1), hn_se);
+		}
+		if ( y == cached_size.y ) {
+			// update southern grid coordinates too if we are in the edge.
+			set_grid_hgt(koord(x, y+1), hn_sw);
+			set_grid_hgt(koord(x+1, y+1), hn_se);
+		}
 
 		n += hn_sw-h0_sw + hn_se-h0_se + hn_ne-h0_ne + hn_nw-h0_nw;
 
@@ -2139,6 +2196,32 @@ int karte_t::raise(koord pos)
 }
 
 
+int karte_t::grid_raise(koord pos)
+{
+	int n = 0;
+
+	if(is_within_grid_limits(pos)) {
+
+		const grund_t *gr = lookup_kartenboden_gridcoords(pos);
+		const hang_t::typ corner_to_raise = get_corner_to_operate(pos);
+
+		const sint16 x = gr->get_pos().x;
+		const sint16 y = gr->get_pos().y;
+		const sint8 hgt = gr->get_hoehe(corner_to_raise);
+
+		const sint8 hsw = hgt + corner1(corner_to_raise);
+		const sint8 hse = hgt + corner2(corner_to_raise);
+		const sint8 hne = hgt + corner3(corner_to_raise);
+		const sint8 hnw = hgt + corner4(corner_to_raise);
+
+		if (can_raise_to(x, y, false, hsw, hse, hne, hnw)) {
+			n = raise_to(x, y, hsw, hse, hne, hnw);
+		}
+	}
+	return (n+3)>>2;
+}
+
+
 // lower plan
 // new heights for each corner given
 // only test corners in ctest to avoid infinite loops
@@ -2194,7 +2277,11 @@ bool karte_t::can_lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, 
 	}
 	else {
 		// border tile of map
-		if( x < 0 ) {
+		ok=true;
+	/*
+	 * ************ DISABLED, NOT NECESSARY ANY LONGER, DELETE THIS CODE ************
+	 */
+/*		if( x < 0 ) {
 			ok = hne >= grundwasser && hse >= grundwasser;
 		}
 		if( y < 0 ) {
@@ -2205,15 +2292,12 @@ bool karte_t::can_lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, 
 		}
 		if( y >= cached_size.y ) {
 			ok = hnw >= grundwasser && hne >= grundwasser;
-		}
+		}*/
 	}
 	return ok;
 }
 
 
-// lower plan
-// new heights for each corner given
-// cleartile=true: clear tile, reset water/land type, calc reliefkarte pixel
 int karte_t::lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw)
 {
 	int n=0;
@@ -2254,7 +2338,18 @@ int karte_t::lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 			gr->set_grund_hang( (hang_t::typ)sneu );
 			access(x,y)->abgesenkt(this);
 		}
-		set_grid_hgt(koord(x,y),hn_nw);
+		// update north point in grid
+		set_grid_hgt(koord(x, y), hn_nw);
+		if ( x == cached_size.x ) {
+			// update eastern grid coordinates too if we are in the edge.
+			set_grid_hgt(koord(x+1, y), hn_ne);
+			set_grid_hgt(koord(x+1, y+1), hn_se);
+		}
+		if ( y == cached_size.y ) {
+			// update southern grid coordinates too if we are in the edge.
+			set_grid_hgt(koord(x, y+1), hn_sw);
+			set_grid_hgt(koord(x+1, y+1), hn_se);
+		}
 
 		n += h0_sw-hn_sw + h0_se-hn_se + h0_ne-hn_ne + h0_nw-hn_nw;
 
@@ -2341,6 +2436,32 @@ int karte_t::lower(koord pos)
 		const sint8 hnew = gr->ist_wasser() ? lookup_hgt(pos) : gr->get_hoehe() + corner4(gr->get_grund_hang());
 		if (can_lower_to(pos.x, pos.y, hnew, hnew, hnew, hnew-1)) {
 			n = lower_to(pos.x, pos.y, hnew, hnew, hnew, hnew-1);
+		}
+	}
+	return (n+3)>>2;
+}
+
+
+int karte_t::grid_lower(koord pos)
+{
+	int n = 0;
+
+	if(is_within_grid_limits(pos)) {
+
+		const grund_t *gr = lookup_kartenboden_gridcoords(pos);
+		const hang_t::typ corner_to_lower = get_corner_to_operate(pos);
+
+		const sint16 x = gr->get_pos().x;
+		const sint16 y = gr->get_pos().y;
+		const sint8 hgt = gr->get_hoehe(corner_to_lower);
+
+		const sint8 hsw = hgt - corner1(corner_to_lower);
+		const sint8 hse = hgt - corner2(corner_to_lower);
+		const sint8 hne = hgt - corner3(corner_to_lower);
+		const sint8 hnw = hgt - corner4(corner_to_lower);
+
+		if (can_lower_to(x, y, hsw, hse, hne, hnw)) {
+			n = lower_to(x, y, hsw, hse, hne, hnw);
 		}
 	}
 	return (n+3)>>2;
@@ -4248,7 +4369,7 @@ bool karte_t::square_is_free(koord pos, sint16 w, sint16 h, int *last_y, climate
 #ifdef DOUBLE_GROUNDS
 #error "Fix this function!"
 #endif
-			if(platz_h!=(gr->get_hoehe()+((gr->get_grund_hang()+127)/128))  ||  !gr->ist_natur() ||  gr->kann_alle_obj_entfernen(NULL) != NULL  ||  (cl&(1<<get_climate(gr->get_hoehe())))==0) {
+			if( !gr  ||  platz_h!=(gr->get_hoehe()+((gr->get_grund_hang()+127)/128))  ||  !gr->ist_natur() ||  gr->kann_alle_obj_entfernen(NULL) != NULL  ||  (cl&(1<<get_climate(gr->get_hoehe())))==0) {
 				if(last_y) {
 					*last_y = k.y;
 				}
@@ -5588,6 +5709,8 @@ void karte_t::move_cursor(const event_t *ev)
 	int screen_y = ev->my - y_off - rw2 - ((display_get_width()/rw1)&1)*rw4;
 	int screen_x = (ev->mx - x_off - rw2)/2;
 
+	werkzeug_t *wkz = werkzeug[get_active_player_nr()];
+
 	if(zeiger->get_yoff() == Z_PLAN) {
 		// already ok
 	}
@@ -5654,6 +5777,13 @@ void karte_t::move_cursor(const event_t *ev)
 			// fallback in sliced mode, if no ground is under cursor
 			bd = lookup_kartenboden(koord(mi,mj));
 		}
+		else if (wkz->is_grid_tool()){
+			// We try to intersect with virtual unexistant border tiles in south and east.
+			if (lookup_gridcoords(koord3d(mi,mj,hgt))){
+				found = true;
+				break;
+			}
+		}
 	}
 	// try kartenboden?
 	if (!found && bd!=NULL) {
@@ -5671,14 +5801,14 @@ void karte_t::move_cursor(const event_t *ev)
 	// the new position - extra logic for raise / lower tool
 	const koord3d pos = koord3d(mi,mj, hgt + (zeiger->get_yoff()==Z_GRID ? groff : 0));
 
-	// zeiger bewegen
+	// move cursor
 	const koord3d prev_pos = zeiger->get_pos();
 	if(  (prev_pos != pos ||  ev->button_state != mb_alt)  ) {
 
 		mb_alt = ev->button_state;
 
 		zeiger->change_pos(pos);
-		werkzeug_t *wkz = werkzeug[get_active_player_nr()];
+
 		if(  !umgebung_t::networkmode  ||  wkz->is_move_network_save(get_active_player())) {
 			wkz->flags = event_get_last_control_shift() | werkzeug_t::WFL_LOCAL;
 			if(wkz->check_pos( this, get_active_player(), zeiger->get_pos() )==NULL) {
@@ -5904,7 +6034,7 @@ void karte_t::interactive_event(event_t &ev)
 
 		DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "calling a tool");
 
-		if(is_within_limits(zeiger->get_pos().get_2d())) {
+		if(is_within_grid_limits(zeiger->get_pos().get_2d())) {
 			const char *err = NULL;
 			bool result = true;
 			werkzeug_t *wkz = werkzeug[get_active_player_nr()];

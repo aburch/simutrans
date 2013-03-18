@@ -1998,6 +1998,9 @@ class bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t
 			for (sint16 x = -1; x < b; x++) {
 				for (sint16 y = -1;  y < h; y++) {
 					grund_t *gr = welt->lookup_kartenboden(pos + koord(x,y));
+					if (!gr) {
+						return false;
+					}
 					if (	0 <= x  &&  x < b-1  &&  0 <= y  &&  y < h-1) {
 						// inside: nothing on top like elevated monorails?
 						if(  gr->get_leitung()!=NULL  ||  welt->lookup(gr->get_pos()+koord3d(0,0,1)  )!=NULL) {
@@ -2073,9 +2076,16 @@ void stadt_t::check_bau_spezial(bool new_town)
 			koord best_pos(denkmal_platz_sucher_t(welt).suche_platz(pos, total_size.x, total_size.y, besch->get_allowed_climate_bits()));
 
 			if (best_pos != koord::invalid) {
-				bool ok = false;
+				// check if borders around the monument are inside the map limits
+				const bool pre_ok = welt->is_within_limits( koord(best_pos) - koord(1, 1) )  &&  \
+					welt->is_within_limits( koord(best_pos) + total_size + koord(1, 1) );
+				if (!pre_ok){
+					return;
+				}
 
-				// Wir bauen das Denkmal nur, wenn schon mindestens eine Strasse da ist
+				bool ok=false;
+
+				// We build the monument only if there is already at least one road
 				for (int i = 0; i < total_size.x && !ok; i++) {
 					ok = ok ||
 						welt->access(best_pos + koord(i, -1))->get_kartenboden()->hat_weg(road_wt) ||
