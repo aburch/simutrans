@@ -1296,7 +1296,7 @@ vehikel_t::vehikel_t(karte_t *welt) :
 
 route_t::route_result_t vehikel_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route)
 {
-	return route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight(), 0);
+	return route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_highest_axle_load() : get_sum_weight(), 0, 4294967295U, cnv != NULL ? cnv->get_weight_summary().weight / 1000 : get_gesamtgewicht());
 }
 
 bool vehikel_t::reroute(const uint16 reroute_index, const koord3d &ziel)
@@ -1443,12 +1443,12 @@ void vehikel_t::hop()
 		speed_limit = calc_speed_limit(weg, weg_prev, &pre_corner_direction, fahrtrichtung, alte_fahrtrichtung);
 
 		// Weight limit needed for GUI flag
-		const uint32 weight_limit = (weg->get_max_weight()) > 0 ? weg->get_max_weight() : 1;
+		const uint32 weight_limit = (weg->get_max_axle_load()) > 0 ? weg->get_max_axle_load() : 1;
 		// Necessary to prevent division by zero exceptions if
 		// weight limit is set to 0 in the file.
 
 		// This is just used for the GUI display, so only set to true if the weight limit is set to enforce by speed restriction.
-		is_overweight = (cnv->get_heaviest_vehicle() > weight_limit && welt->get_settings().get_enforce_weight_limits() == 1); 
+		is_overweight = (cnv->get_highest_axle_load() > weight_limit && welt->get_settings().get_enforce_weight_limits() == 1); 
 
 		if(weg->is_crossing() && gr->find<crossing_t>(2)) 
 		{
@@ -1491,22 +1491,22 @@ sint32 vehikel_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 
 	const bool is_tilting = besch->get_tilting();
 	const sint32 base_limit = kmh_to_speed(w->get_max_speed());
-	const uint16 weight_limit = w->get_max_weight();
+	const uint16 weight_limit = w->get_max_axle_load();
 	sint32 overweight_speed_limit = base_limit;
 	sint32 corner_speed_limit = base_limit;
 	sint32 new_limit = base_limit;
-	const uint32 heaviest_vehicle = cnv->get_heaviest_vehicle();
+	const uint32 highest_axle_load = cnv->get_highest_axle_load();
 
 	//Reduce speed for overweight vehicles
 
-	if(heaviest_vehicle > weight_limit && welt->get_settings().get_enforce_weight_limits() == 1)
+	if(highest_axle_load > weight_limit && welt->get_settings().get_enforce_weight_limits() == 1)
 	{
-		if((heaviest_vehicle * 100) / weight_limit <= 110)
+		if((highest_axle_load * 100) / weight_limit <= 110)
 		{
 			//Overweight by up to 10% - reduce speed limit to a third.
 			overweight_speed_limit = base_limit / 3;
 		}
-		else if((heaviest_vehicle * 100) / weight_limit > 110)
+		else if((highest_axle_load * 100) / weight_limit > 110)
 		{
 			//Overweight by more than 10% - reduce speed limit by a factor of 10.
 			overweight_speed_limit = base_limit / 10;
@@ -2666,12 +2666,12 @@ route_t::route_result_t automobil_t::calc_route(koord3d start, koord3d ziel, sin
 	if(ist_erstes   &&  alte_fahrtrichtung!=ribi_t::keine  &&  cnv  &&  target_halt.is_bound() ) {
 		// now reserve our choice (beware: might be longer than one tile!)
 		for(  uint32 length=0;  length<cnv->get_tile_length()  &&  length+1<cnv->get_route()->get_count();  length++  ) {
-			target_halt->unreserve_position( welt->lookup( cnv->get_route()->position_bei( cnv->get_route()->get_count()-length-1) ), cnv->self );
+			target_halt->unreserve_position(welt->lookup( cnv->get_route()->position_bei( cnv->get_route()->get_count()-length-1) ), cnv->self );
 		}
 	}
 	target_halt = halthandle_t();	// no block reserved
-	const uint32 routing_weight = cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight();
-	route_t::route_result_t r = route->calc_route(welt, start, ziel, this, max_speed, routing_weight, cnv->get_tile_length() );
+	const uint32 routing_weight = cnv != NULL ? cnv->get_highest_axle_load() : get_sum_weight();
+	route_t::route_result_t r = route->calc_route(welt, start, ziel, this, max_speed, routing_weight, cnv->get_tile_length(), 4294967295U, cnv->get_weight_summary().weight / 1000 );
 	if(  r == route_t::valid_route_halt_too_short  ) {
 		cbuffer_t buf;
 		buf.printf( translator::translate("Vehicle %s cannot choose because stop too short!"), cnv->get_name());
@@ -2753,7 +2753,7 @@ int automobil_t::get_kosten(const grund_t *gr, const sint32 max_speed, koord fro
 
 	//@author: jamespetts
 	// Strongly prefer routes for which the vehicle is not overweight.
-	uint16 weight_limit = w->get_max_weight();
+	uint16 weight_limit = w->get_max_axle_load();
 	if(vehikel_t::get_sum_weight() > weight_limit &&welt->get_settings().get_enforce_weight_limits() == 1)
 	{
 		costs += 40;
@@ -2874,7 +2874,7 @@ bool automobil_t::choose_route( int &restart_speed, ribi_t::dir richtung, uint16
 			// now it make sense to search a route
 			route_t target_rt;
 			koord3d next3d = rt->position_bei(index);
-			if(  !target_rt.find_route( welt, next3d, this, speed_to_kmh(cnv->get_min_top_speed()), richtung, cnv->get_heaviest_vehicle(), 33 )  ) {
+			if(  !target_rt.find_route( welt, next3d, this, speed_to_kmh(cnv->get_min_top_speed()), richtung, cnv->get_highest_axle_load(), 33 )  ) {
 				// nothing empty or not route with less than 33 tiles
 				target_halt = halthandle_t();
 				restart_speed = 0;
@@ -2975,7 +2975,7 @@ bool automobil_t::ist_weg_frei(int &restart_speed, bool second_check)
 
 							// now it make sense to search a route
 							route_t target_rt;
-							if(  !target_rt.find_route( welt, pos_next, this, speed_to_kmh(cnv->get_min_top_speed()), richtung, cnv->get_heaviest_vehicle(), 33 )  ) {
+							if(  !target_rt.find_route( welt, pos_next, this, speed_to_kmh(cnv->get_min_top_speed()), richtung, cnv->get_highest_axle_load(), 33 )  ) {
 								// nothing empty or not route with less than 33 tiles
 								target_halt = halthandle_t();
 								restart_speed = 0;
@@ -3114,7 +3114,7 @@ bool automobil_t::ist_weg_frei(int &restart_speed, bool second_check)
 									// now it make sense to search a route
 									route_t target_rt;
 									koord3d next3d = r.position_bei(test_index);
-									if(  !target_rt.find_route( welt, next3d, this, speed_to_kmh(cnv->get_min_top_speed()), curr_90fahrtrichtung, cnv->get_heaviest_vehicle(), 33 )  ) {
+									if(  !target_rt.find_route( welt, next3d, this, speed_to_kmh(cnv->get_min_top_speed()), curr_90fahrtrichtung, cnv->get_highest_axle_load(), 33 )  ) {
 										// nothing empty or not route with less than 33 tiles
 										target_halt = halthandle_t();
 										restart_speed = 0;
@@ -3418,10 +3418,10 @@ route_t::route_result_t waggon_t::calc_route(koord3d start, koord3d ziel, sint32
 	}
 	cnv->set_next_reservation_index( 0 );	// nothing to reserve
 	target_halt = halthandle_t();	// no block reserved
-	// use length > 8888 tiles to advance to the end of all stations
+	// use length > 8888 tiles to advance to the end of terminus stations
 	const sint16 tile_length = (cnv->get_schedule()->get_current_eintrag().reverse ? 8888 : 0) + cnv->get_tile_length();
-	route_t::route_result_t r = route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight(), tile_length);
-	if(  r == route_t::valid_route_halt_too_short  )
+	route_t::route_result_t r = route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_highest_axle_load() : get_sum_weight(), tile_length, 4294967295U, cnv ? cnv->get_weight_summary().weight / 1000 : get_gesamtgewicht());
+	if(r == route_t::valid_route_halt_too_short)
 	{
 		cbuffer_t buf;
 		buf.printf( translator::translate("Vehicle %s cannot choose because stop too short!"), cnv->get_name());
@@ -3524,7 +3524,7 @@ int waggon_t::get_kosten(const grund_t *gr, const sint32 max_speed, koord from_p
 
 	//@author: jamespetts
 	// Strongly prefer routes for which the vehicle is not overweight.
-	uint16 weight_limit = w->get_max_weight();
+	uint16 weight_limit = w->get_max_axle_load();
 	if(vehikel_t::get_sum_weight() > weight_limit &&welt->get_settings().get_enforce_weight_limits() == 1)
 	{
 		costs += 40;
@@ -3638,7 +3638,7 @@ bool waggon_t::is_weg_frei_longblock_signal( signal_t *sig, uint16 next_block, i
 	while(  fahrplan_index != cnv->get_schedule()->get_aktuell()  ) {
 		// now search
 		// search for route
-		success = target_rt.calc_route( welt, cur_pos, cnv->get_schedule()->eintrag[fahrplan_index].pos, this, get_convoi()->get_heaviest_vehicle(), speed_to_kmh(cnv->get_min_top_speed()), 8888 + cnv->get_tile_length() );
+		success = target_rt.calc_route( welt, cur_pos, cnv->get_schedule()->eintrag[fahrplan_index].pos, this, get_convoi()->get_highest_axle_load(), speed_to_kmh(cnv->get_min_top_speed()), 8888 + cnv->get_tile_length() );
 		if(  success  ) {
 			success = block_reserver( &target_rt, 1, next_next_signal, dummy, 0, true, false );
 			block_reserver( &target_rt, 1, dummy, dummy, 0, false, false );
@@ -3749,9 +3749,9 @@ bool waggon_t::is_weg_frei_choose_signal( signal_t *sig, const uint16 start_bloc
 		route_t target_rt;
 		const int richtung = ribi_typ(get_pos().get_2d(),pos_next.get_2d());	// to avoid confusion at diagonals
 #ifdef MAX_CHOOSE_BLOCK_TILES
-		if(  !target_rt.find_route( welt, cnv->get_route()->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, cnv->get_heaviest_vehicle(), MAX_CHOOSE_BLOCK_TILES )  ) {
+		if(  !target_rt.find_route( welt, cnv->get_route()->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, cnv->get_highest_axle_load(), MAX_CHOOSE_BLOCK_TILES )  ) {
 #else
-		if(  !target_rt.find_route( welt, cnv->get_route()->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, cnv->get_heaviest_vehicle(), welt->get_size().x+welt->get_size().y )  ) {
+		if(  !target_rt.find_route( welt, cnv->get_route()->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, cnv->get_highest_axle_load(), welt->get_size().x+welt->get_size().y )  ) {
 #endif
 			// nothing empty or not route with less than MAX_CHOOSE_BLOCK_TILES tiles
 			target_halt = halthandle_t();
@@ -3919,7 +3919,7 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 			fpl->increment_index(&index, &reversed);
 			const koord3d next_ziel = fpl->eintrag[index].pos;
 
-			weg_frei = !target_rt.calc_route( welt, start_pos, next_ziel, this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_heaviest_vehicle(), welt->get_settings().get_max_route_steps());
+			weg_frei = !target_rt.calc_route( welt, start_pos, next_ziel, this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(), welt->get_settings().get_max_route_steps());
 			if (!weg_frei)
 			{
 				ribi_t::ribi old_dir = calc_richtung(route.position_bei(last_index - 1).get_2d(), route.position_bei(last_index).get_2d());
@@ -4664,7 +4664,7 @@ bool aircraft_t::find_route_to_stop_position()
 		route_t target_rt;
 		flight_state prev_state = state;
 		state = looking_for_parking;
-		if(!target_rt.find_route( welt, rt->position_bei(suchen), this, 500, ribi_t::alle, cnv->get_heaviest_vehicle(), 100 )) {
+		if(!target_rt.find_route( welt, rt->position_bei(suchen), this, 500, ribi_t::alle, cnv->get_highest_axle_load(), 100 )) {
 DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","found no route to free one");
 			// circle slowly another round ...
 			target_halt = halthandle_t();
@@ -4705,7 +4705,7 @@ route_t::route_result_t aircraft_t::calc_route(koord3d start, koord3d ziel, sint
 	target_halt = halthandle_t();	// no block reserved
 
 	takeoff = touchdown = suchen = INVALID_INDEX;
-	const bool pre_result = calc_route_internal(welt, start, ziel, max_speed, cnv->get_heaviest_vehicle(), state, flughoehe, target_height, runway_too_short, takeoff, touchdown, suchen, *route);
+	const bool pre_result = calc_route_internal(welt, start, ziel, max_speed, cnv->get_highest_axle_load(), state, flughoehe, target_height, runway_too_short, takeoff, touchdown, suchen, *route);
 	const route_t::route_result_t result = pre_result ? route_t::valid_route : route_t::no_route;
 	cnv->set_next_stop_index(INVALID_INDEX);	
 	return result;
@@ -4983,7 +4983,7 @@ bool aircraft_t::reroute(const uint16 reroute_index, const koord3d &ziel)
 
 	route_t &route = *cnv->get_route();
 	bool done = calc_route_internal(welt, route.position_bei(reroute_index), ziel, 
-		speed_to_kmh(cnv->get_min_top_speed()), cnv->get_heaviest_vehicle(), 	
+		speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(), 	
 		xstate, xflughoehe, xtarget_height, xrunway_too_short, xtakeoff, xtouchdown, xsuchen, xroute);
 	if (done)
 	{

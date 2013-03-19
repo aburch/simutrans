@@ -2039,7 +2039,7 @@ const char* wkz_wegebau_t::get_tooltip(const spieler_t *sp) const
 	size_t n= strlen(toolstr);
 	sprintf(toolstr+n, " / km, %dkm/h, %dt",
 		besch->get_topspeed(),
-		besch->get_max_weight());
+		besch->get_max_axle_load());
 	bool any_prohibitive = false;
 	for(sint8 i = 0; i < besch->get_way_constraints().get_count(); i ++)
 	{
@@ -2557,7 +2557,7 @@ const char* wkz_tunnelbau_t::get_tooltip(const spieler_t *sp) const
 	if(besch->get_waytype()!=powerline_wt) {
 				n += sprintf(toolstr+n, ", %dkm/h, %dt", 
 			besch->get_topspeed(),
-			besch->get_max_weight());
+			besch->get_max_axle_load());
 	}
 
 	bool any_prohibitive = false;
@@ -2609,7 +2609,7 @@ void wkz_tunnelbau_t::calc_route( wegbauer_t &bauigel, const koord3d &start, con
 	const weg_besch_t *wb = besch->get_weg_besch();
 	if(wb==NULL) {
 		// ignore timeline to get consistent results
-		wb = wegbauer_t::weg_search( besch->get_waytype(), besch->get_topspeed(), besch->get_max_weight(), 0, weg_t::type_flat );
+		wb = wegbauer_t::weg_search( besch->get_waytype(), besch->get_topspeed(), besch->get_max_axle_load(), 0, weg_t::type_flat );
 	}
 
 	bauigel.route_fuer(bt | wegbauer_t::tunnel_flag, wb, besch);
@@ -2693,7 +2693,7 @@ void wkz_tunnelbau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &s
 	const weg_besch_t *wb = besch->get_weg_besch();
 	if(wb==NULL) {
 		// ignore timeline to get consistent results
-		wb = wegbauer_t::weg_search( besch->get_waytype(), besch->get_max_weight(), besch->get_topspeed(), 0, weg_t::type_flat );
+		wb = wegbauer_t::weg_search( besch->get_waytype(), besch->get_max_axle_load(), besch->get_topspeed(), 0, weg_t::type_flat );
 	}
 
 	welt->lookup_kartenboden(end.get_2d())->clear_flag(grund_t::marked);

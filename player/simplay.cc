@@ -1403,11 +1403,11 @@ DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s can't find a route
 			if(this==welt->get_active_player()) {
 				cbuffer_t buf;
 				buf.printf( translator::translate("Vehicle %s can't find a route!"), cnv->get_name());
-				const uint32 max_weight = cnv->get_route()->get_max_weight();
-				const uint32 cnv_weight = cnv->get_heaviest_vehicle();
-				if (cnv_weight > max_weight) {
+				const uint32 max_axle_load = cnv->get_route()->get_max_axle_load();
+				const uint32 cnv_weight = cnv->get_highest_axle_load();
+				if (cnv_weight > max_axle_load) {
 					buf.printf(" ");
-					buf.printf(translator::translate("Vehicle weighs %it, but max weight is %it"), cnv_weight, max_weight); 
+					buf.printf(translator::translate("Vehicle weighs %it, but max weight is %it"), cnv_weight, max_axle_load); 
 				}
 				welt->get_message()->add_message( (const char *)buf, cnv->get_pos().get_2d(), message_t::problems, PLAYER_FLAG | player_nr, cnv->front()->get_basis_bild());
 			}

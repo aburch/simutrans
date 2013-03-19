@@ -141,7 +141,7 @@ void bruecke_t::laden_abschliessen()
 				gr->neuen_weg_bauen( weg, 0, welt->get_spieler(1) );
 			}
 			weg->set_max_speed(besch->get_topspeed());
-			weg->set_max_weight(besch->get_max_weight());
+			weg->set_max_axle_load(besch->get_max_weight());
 			weg->add_way_constraints(besch->get_way_constraints());
 			// take ownership of way
 			spieler_t::add_maintenance( weg->get_besitzer(), -weg->get_besch()->get_wartung());
@@ -163,7 +163,7 @@ void bruecke_t::entferne( spieler_t *sp2 )
 			weg_t *weg = gr->get_weg( besch->get_waytype() );
 			if(weg) {
 				weg->set_max_speed( weg->get_besch()->get_topspeed() );
-				weg->set_max_weight(weg->get_besch()->get_max_weight());
+				weg->set_max_axle_load(weg->get_besch()->get_max_axle_load());
 				weg->add_way_constraints(besch->get_way_constraints());
 				sp->add_maintenance(weg->get_besch()->get_wartung());
 				// reset offsets

@@ -606,7 +606,7 @@ void brueckenbauer_t::baue_auffahrt(karte_t* welt, spieler_t* sp, koord3d end, k
 			spieler_t::accounting(sp, -bruecke->neuen_weg_bauen( weg, ribi_neu, sp ), end.get_2d(), COST_CONSTRUCTION);
 		}
 		weg->set_max_speed( besch->get_topspeed() );
-		weg->set_max_weight( besch->get_max_weight() );
+		weg->set_max_axle_load( besch->get_max_weight() );
 		weg->add_way_constraints(besch->get_way_constraints());
 	} else {
 

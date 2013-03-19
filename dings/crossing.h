@@ -55,7 +55,7 @@ public:
 	 * @return string (only used for debugg at the moment)
 	 * @author prissi
 	 */
-	void info(cbuffer_t & buf) const { logic->info(buf); }
+	void info(cbuffer_t & buf, bool dummy = false) const { logic->info(buf); }
 
 	/**
 	 * @return NULL wenn OK, ansonsten eine Fehlermeldung

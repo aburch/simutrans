@@ -114,7 +114,7 @@ private:
 	* Likewise for weight
 	* @author: jamespetts
 	*/
-	uint32 max_weight;
+	uint32 max_axle_load;
 
 	image_id bild;
 	image_id after_bild;
@@ -170,7 +170,7 @@ public:
 	*/
 	void set_max_speed(sint32 s) { max_speed = s; }
 
-	void set_max_weight(uint32 w);
+	void set_max_axle_load(uint32 w);
 
 	//Resets constraints to their base values. Used when removing way objects.
 	void reset_way_constraints() { way_constraints = besch->get_way_constraints(); }
@@ -192,7 +192,7 @@ public:
 	*/
 	sint32 get_max_speed() const { return max_speed; }
 
-	uint32 get_max_weight() const { return max_weight; }
+	uint32 get_max_axle_load() const { return max_axle_load; }
 
 	/**
 	* Setzt neue Beschreibung. Ersetzt alte Höchstgeschwindigkeit
@@ -217,7 +217,7 @@ public:
 	* Info-text für diesen Weg
 	* @author Hj. Malthaner
 	*/
-	virtual void info(cbuffer_t & buf) const;
+	virtual void info(cbuffer_t & buf, bool is_bridge = false) const;
 
 	/**
 	 * @return NULL wenn OK, ansonsten eine Fehlermeldung

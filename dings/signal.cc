@@ -41,7 +41,7 @@ signal_t::signal_t( karte_t *welt, loadsave_t *file) :
  * Beobachtungsfenster angezeigt wird.
  * @author Hj. Malthaner
  */
-void signal_t::info(cbuffer_t & buf) const
+void signal_t::info(cbuffer_t & buf, bool dummy) const
 {
 	// well, needs to be done
 	ding_t::info(buf);

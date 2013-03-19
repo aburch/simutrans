@@ -31,3 +31,28 @@ note=Text describing the propotion of passengers whose journey succeeded in the 
 obj=program_text
 name=Transfer time: 
 note=Text for the transfer time display in the halt detail window. Note the trailing space.
+-
+obj=program_text
+name=%s\nCost:     %s\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d (%d)%s %s\nWeight: %dt\nAxle load: %dt\nTop speed: %dkm/h\n\nMax. brake force: %dkN\nRolling resistance: %.1fN\n
+note=Updated vehicle description text for the depot/replace window, containing reference to axle load.
+-
+obj=program_text
+name=%s\nCost:     %s\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d%s %s\nWeight: %dt\nAxle load: %dt\nTop speed: %dkm/h\n\nMax. brake force: %dkN\nRolling resistance: %.1fN\n
+note=Updated vehicle description text for the depot/replace window, containing reference to axle load.
+-
+obj=program_text
+name=%s\nCost:     %s\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d (%d)%s %s\nWeight: %dt\nAxle load: %dt\nTop speed: %dkm/h\nMax. brake force: %dkN\nRolling resistance: %.1fN\n
+note=Updated vehicle description text for the depot/replace window, containing reference to axle load.
+-
+obj=program_text
+name=%s\nCost:     %s\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d%s %s\nWeight: %dt\nAxle load: %dt\nTop speed: %dkm/h\nMax. brake force: %dkN\nRolling resistance: %.1fN\n
+note=Updated vehicle description text for the depot/replace window, containing reference to axle load.
+-
+obj=program_text
+name=%s\nCost: %s\nMaint.: %1.2f$/km, %1.2f$/month\nPower: %dkW, %dkN\nTop Speed: %dkm/h\nWeight: %dt\nAxle load: %dt\nMax. brake force: %dkN\nRolling resistance: %.1fN\n
+note=Updated vehicle description text for the depot/replace window, containing reference to axle load (locomotives).
+-
+obj=program_text
+name=\nMax. axle load:
+note=Text for the maximum axle load in the way information windows (formerly "Max. weight:").
+

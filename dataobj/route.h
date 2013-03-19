@@ -31,7 +31,7 @@ private:
 	 * Die eigentliche Routensuche
 	 * @author Hj. Malthaner
 	 */
-	bool intern_calc_route(karte_t *w, koord3d start, koord3d ziel, fahrer_t *fahr, const sint32 max_kmh, const uint32 max_cost, const uint32 max_weight);
+	bool intern_calc_route(karte_t *w, koord3d start, koord3d ziel, fahrer_t *fahr, const sint32 max_kmh, const uint32 max_cost, const uint32 axle_load, const uint32 convoy_weight, const sint32 tile_length);
 
 protected:
 	koord3d_vector_t route;           // Die Koordinaten fuer die Fahrtroute - "The coordinates for the route" (Google)
@@ -39,7 +39,8 @@ protected:
 private:
 
 	// Bernd Gabriel, Mar 10, 2010: weight limit info
-	uint32 max_weight;
+	uint32 max_axle_load;
+	uint32 max_convoy_weight;
 public:
 	typedef enum { no_route=0, valid_route=1, valid_route_halt_too_short=3 } route_result_t;
 
@@ -82,7 +83,7 @@ public:
 
 	const koord3d_vector_t &get_route() const { return route; }
 
-	uint32 get_max_weight() const { return max_weight; }
+	uint32 get_max_axle_load() const { return max_axle_load; }
 
 	void rotate90( sint16 y_size ) { route.rotate90( y_size ); };
 
@@ -159,7 +160,7 @@ public:
 	 * berechnet eine route von start nach ziel.
 	 * @author Hj. Malthaner
 	 */
-	route_result_t calc_route(karte_t *welt, koord3d start, koord3d ziel, fahrer_t *fahr, const sint32 max_speed_kmh, const uint32 weight, sint32 max_tile_len, const uint32 max_cost=0xFFFFFFFF);
+	route_result_t calc_route(karte_t *welt, koord3d start, koord3d ziel, fahrer_t *fahr, const sint32 max_speed_kmh, const uint32 axle_load, sint32 max_tile_len, const uint32 max_cost=0xFFFFFFFF, const uint32 convoy_weight = 0);
 
 	/**
 	 * Lädt/speichert eine Route

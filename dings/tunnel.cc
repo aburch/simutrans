@@ -186,7 +186,7 @@ void tunnel_t::entferne( spieler_t *sp2 )
 			weg_t *weg = gr->get_weg( besch->get_waytype() );
 			if(weg)	{
 				weg->set_max_speed( weg->get_besch()->get_topspeed() );
-				weg->set_max_weight( weg->get_besch()->get_max_weight() );
+				weg->set_max_axle_load( weg->get_besch()->get_max_axle_load() );
 				weg->add_way_constraints(besch->get_way_constraints());
 				spieler_t::add_maintenance( sp,  weg->get_besch()->get_wartung());
 			}

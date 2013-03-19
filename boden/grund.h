@@ -279,7 +279,7 @@ public:
 	* @return NULL
 	* @author Hj. Malthaner
 	*/
-	virtual void info(cbuffer_t & buf) const;
+	virtual void info(cbuffer_t & buf, bool dummy = false) const;
 
 	/**
 	* Auffforderung, ein Infofenster zu oeffnen.

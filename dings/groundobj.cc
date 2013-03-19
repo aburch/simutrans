@@ -235,7 +235,7 @@ void groundobj_t::zeige_info()
  * Beobachtungsfenster angezeigt wird.
  * @author Hj. Malthaner
  */
-void groundobj_t::info(cbuffer_t & buf) const
+void groundobj_t::info(cbuffer_t & buf, bool dummy) const
 {
 	ding_t::info(buf);
 

@@ -285,7 +285,7 @@ void grund_t::rdwr(loadsave_t *file)
 							w->set_besch(sch->get_besch());
 							w->set_max_speed(sch->get_max_speed());
 							w->set_ribi(sch->get_ribi_unmasked());
-							weg->set_max_weight(sch->get_max_weight()); 
+							weg->set_max_axle_load(sch->get_max_axle_load()); 
 							weg->add_way_constraints(sch->get_way_constraints());
 							delete sch;
 							weg = w;
@@ -517,7 +517,7 @@ void grund_t::zeige_info()
 }
 
 
-void grund_t::info(cbuffer_t& buf) const
+void grund_t::info(cbuffer_t& buf, bool dummy) const
 {
 	stadt_t* city = get_welt()->get_city(get_pos().get_2d());
 	if(city)
@@ -543,11 +543,11 @@ void grund_t::info(cbuffer_t& buf) const
 				buf.append(translator::translate(get_weg_nr(0)->get_name()));
 				buf.append("\n");
 			}
-			obj_bei(0)->info(buf);
+			obj_bei(0)->info(buf, ist_bruecke());
 			if(flags&has_way2) {
 				buf.append(translator::translate(get_weg_nr(1)->get_name()));
 				buf.append("\n");
-				obj_bei(1)->info(buf);
+				obj_bei(1)->info(buf, ist_bruecke());
 				if(ist_uebergang()) {
 					find<crossing_t>(2)->get_logic()->info(buf);
 				}

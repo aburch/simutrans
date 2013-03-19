@@ -70,7 +70,7 @@ private:
 	 * Max weight
 	 * @author Hj. Malthaner
 	 */
-	uint32 max_weight;
+	uint32 max_axle_load;
 
 	/**
 	 * Introduction date
@@ -160,7 +160,7 @@ public:
 	sint32 get_topspeed() const { return topspeed; }
 
 	//Returns maximum weight
-	uint32 get_max_weight() const { return (max_weight < 9999 && max_weight > 0) ? max_weight : 999; }
+	uint32 get_max_axle_load() const { return (max_axle_load < 9999 && max_axle_load > 0) ? max_axle_load : 999; }
 
 	/**
 	 * get way type
@@ -296,7 +296,7 @@ public:
 		chk->input(price);
 		chk->input(maintenance);
 		chk->input(topspeed);
-		chk->input(max_weight);
+		chk->input(max_axle_load);
 		chk->input(intro_date);
 		chk->input(obsolete_date);
 		chk->input(wtyp);

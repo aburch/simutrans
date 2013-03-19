@@ -41,7 +41,7 @@ private:
 	uint32 maintenance;	// monthly cost for bits_per_month=18
 	uint32 scaled_maintenance;
 	uint8 wegtyp;	// waytype for tunnel
-	uint32 max_weight; // maximum weight for vehicles. @author: jamespetts
+	uint32 max_axle_load; // maximum weight for vehicles. @author: jamespetts
 
 	// allowed era
 	uint16 intro_date;
@@ -114,7 +114,7 @@ public:
 
 	sint32  get_topspeed() const { return topspeed; }
 
-	uint32  get_max_weight() const { return max_weight; }
+	uint32  get_max_axle_load() const { return max_axle_load; }
 
 	uint16 get_intro_year_month() const { return intro_date; }
 

@@ -49,7 +49,7 @@ private:
 
 	uint8 max_length;	// =0 off, else maximum length
 	uint8 max_height;	// =0 off, else maximum length
-	uint32 max_weight; //@author: jamespetts. Weight limit for vehicles.
+	uint32 max_weight; //@author: jamespetts. Weight limit for convoys.
 
 	// allowed era
 	uint16 intro_date;

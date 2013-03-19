@@ -186,7 +186,7 @@ public:
 	 * Beobachtungsfenster angezeigt wird.
 	 * @author Hj. Malthaner
 	 */
-	void info(cbuffer_t & buf) const;
+	void info(cbuffer_t & buf, bool dummy = false) const;
 
 	void rdwr(loadsave_t *file);
 

@@ -40,7 +40,7 @@ void tunnel_besch_t::calc_checksum(checksum_t *chk) const
 	chk->input(obsolete_date);
 	
 	//Experimental settings
-	chk->input(max_weight);
+	chk->input(max_axle_load);
 	chk->input(way_constraints.get_permissive());
 	chk->input(way_constraints.get_prohibitive());
 }

@@ -97,7 +97,7 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			{
 				if(experimental_version == 0)
 				{
-					besch->max_weight = decode_uint32(p);
+					besch->max_axle_load = decode_uint32(p);
 					way_constraints.set_permissive(decode_uint8(p));
 					way_constraints.set_prohibitive(decode_uint8(p));
 				}
@@ -123,7 +123,7 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			{
 				if(experimental_version == 0)
 				{
-					besch->max_weight =  decode_uint32(p);
+					besch->max_axle_load =  decode_uint32(p);
 					way_constraints.set_permissive(decode_uint8(p));
 					way_constraints.set_prohibitive(decode_uint8(p));
 				}
@@ -147,7 +147,7 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			{
 				if(experimental_version == 0)
 				{
-					besch->max_weight =  decode_uint32(p);
+					besch->max_axle_load =  decode_uint32(p);
 					way_constraints.set_permissive(decode_uint8(p));
 					way_constraints.set_prohibitive(decode_uint8(p));
 				}
@@ -168,7 +168,7 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			besch->intro_date = decode_uint16(p);
 			besch->obsolete_date = decode_uint16(p);
 			besch->number_seasons = 0;
-			besch->max_weight = 999;
+			besch->max_axle_load = 999;
 			besch->has_way = 0;
 			besch->broad_portals = 0;
 		} else {
@@ -177,12 +177,12 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 		if(!experimental)
 		{
-			besch->max_weight = 999;
+			besch->max_axle_load = 999;
 		}
 		besch->set_way_constraints(way_constraints);
 		DBG_DEBUG("tunnel_reader_t::read_node()",
-		     "version=%d waytype=%d price=%d topspeed=%d, intro_year=%d, max_weight%d",
-			 version, besch->wegtyp, besch->preis, besch->topspeed, besch->intro_date/12, besch->max_weight);
+		     "version=%d waytype=%d price=%d topspeed=%d, intro_year=%d, max_axle_load%d",
+			 version, besch->wegtyp, besch->preis, besch->topspeed, besch->intro_date/12, besch->max_axle_load);
 	}
 
 	return besch;

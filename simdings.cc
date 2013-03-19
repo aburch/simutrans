@@ -155,7 +155,7 @@ spieler_t *ding_t::get_besitzer() const
  * we want to format it nicely,
  * with two linebreaks at the end => thus the little extra effort
  */
-void ding_t::info(cbuffer_t & buf) const
+void ding_t::info(cbuffer_t & buf, bool is_bridge) const
 {
 	char              translation[256];
 	char const* const owner =

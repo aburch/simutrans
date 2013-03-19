@@ -697,7 +697,7 @@ public:
 	*/
 	bool is_reservable(const grund_t *gr, convoihandle_t cnv) const;
 
-	void info(cbuffer_t & buf) const;
+	void info(cbuffer_t & buf, bool dummy = false) const;
 
 	/**
 	 * @param buf the buffer to fill

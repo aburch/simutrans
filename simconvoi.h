@@ -584,7 +584,7 @@ private:
 	bool reversable;
 	bool reversed;
 
-	uint32 heaviest_vehicle;
+	uint32 highest_axle_load;
 	uint32 longest_min_loading_time;
 	uint32 longest_max_loading_time;
 	uint32 current_loading_time;
@@ -1088,7 +1088,7 @@ private:
 	* @author Hj. Malthaner
 	* @see simwin
 	*/
-	void info(cbuffer_t & buf) const;
+	void info(cbuffer_t & buf, bool dummy = false) const;
 public:
 #endif
 	/**
@@ -1306,8 +1306,8 @@ public:
 	inline bool is_reversed() const { return reversed; }
 
 	//@author: jamespetts
-	uint32 calc_heaviest_vehicle();
-	inline uint32 get_heaviest_vehicle() const { return heaviest_vehicle; }
+	uint32 calc_highest_axle_load();
+	inline uint32 get_highest_axle_load() const { return highest_axle_load; }
 	
 	//@author: jamespetts
 	uint32 calc_longest_min_loading_time();

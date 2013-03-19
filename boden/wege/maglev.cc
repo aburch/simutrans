@@ -24,8 +24,8 @@ void maglev_t::rdwr(loadsave_t *file)
 
 	if(get_besch()->get_wtyp()!=maglev_wt) {
 		int old_max_speed = get_max_speed();
-		int old_max_weight = get_max_weight();
-		const weg_besch_t *besch = wegbauer_t::weg_search( maglev_wt, (old_max_speed>0 ? old_max_speed : 120), (old_max_weight > 0 ? old_max_weight : 10), 0, (weg_t::system_type)((get_besch()->get_styp()==weg_t::type_elevated)*weg_t::type_elevated) );
+		int old_max_axle_load = get_max_axle_load();
+		const weg_besch_t *besch = wegbauer_t::weg_search( maglev_wt, (old_max_speed>0 ? old_max_speed : 120), (old_max_axle_load > 0 ? old_max_axle_load : 10), 0, (weg_t::system_type)((get_besch()->get_styp()==weg_t::type_elevated)*weg_t::type_elevated) );
 		if (besch==NULL) {
 			dbg->fatal("maglev_t::rwdr()", "No maglev way available");
 		}
@@ -34,9 +34,9 @@ void maglev_t::rdwr(loadsave_t *file)
 		if(old_max_speed > 0) {
 			set_max_speed(old_max_speed);
 		}
-		if(old_max_weight > 0)
+		if(old_max_axle_load > 0)
 		{
-			set_max_weight(old_max_weight);
+			set_max_axle_load(old_max_axle_load);
 		}
 	}
 }

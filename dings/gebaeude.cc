@@ -722,7 +722,7 @@ gebaeude_t* gebaeude_t::get_first_tile()
 }
 
 
-void gebaeude_t::info(cbuffer_t & buf) const
+void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 {
 	ding_t::info(buf);
 

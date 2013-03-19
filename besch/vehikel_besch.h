@@ -110,7 +110,7 @@ private:
 	uint16 overcrowded_capacity; // The capacity of a vehicle if overcrowded (usually expressed as the standing capacity).
 	uint16 geschw;				// Speed in km/h
 	uint32 gewicht;				// Weight in kg
-	uint16 axle_load;			// New for Standard, not used yet.
+	uint16 axle_load;			// Axle load
 	uint32 leistung;			// Power in kW
 	uint16 running_cost;		// Per kilometre cost
 	uint32 fixed_cost;			// Monthly cost @author: jamespetts, April 2009
@@ -559,7 +559,7 @@ public:
 	uint32 get_preis() const { return preis; }
 	sint32 get_geschw() const { return geschw; }
 	uint32 get_gewicht() const { return gewicht; }
-	uint16 get_axle_load() const { return axle_load; } /* New Standard - not implemented yet */
+	uint16 get_axle_load() const { return axle_load; }
 	uint16 get_running_cost() const { return running_cost; }
 	uint16 get_running_cost(karte_t *welt) const; //Overloaded method - includes increase for obsolescence.
 	uint32 get_fixed_cost() const { return fixed_cost; }

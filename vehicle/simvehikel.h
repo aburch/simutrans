@@ -421,7 +421,7 @@ private:
 	* der normale Infotext
 	* @author Hj. Malthaner
 	*/
-	void info(cbuffer_t & buf) const;
+	void info(cbuffer_t & buf, bool dummy = false) const;
 public:
 #endif
 	/**

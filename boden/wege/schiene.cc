@@ -55,9 +55,9 @@ void schiene_t::entferne(spieler_t *)
 }
 
 
-void schiene_t::info(cbuffer_t & buf) const
+void schiene_t::info(cbuffer_t & buf, bool is_bridge) const
 {
-	weg_t::info(buf);
+	weg_t::info(buf, is_bridge);
 
 	if(reserved.is_bound()) {
 		buf.append(translator::translate("\nis reserved by:"));
@@ -165,7 +165,7 @@ void schiene_t::rdwr(loadsave_t *file)
 		file->rdwr_str(bname, lengthof(bname));
 
 		int old_max_speed=get_max_speed();
-		int old_max_weight = get_max_weight();
+		int old_max_axle_load = get_max_axle_load();
 		const weg_besch_t *besch = wegbauer_t::get_besch(bname);
 		if(besch==NULL) {
 			int old_max_speed=get_max_speed();
@@ -181,9 +181,9 @@ void schiene_t::rdwr(loadsave_t *file)
 			set_max_speed(old_max_speed);
 		}
 		//DBG_MESSAGE("schiene_t::rdwr","track %s at (%i,%i) max_speed %i",bname,get_pos().x,get_pos().y,old_max_speed);
-		if(old_max_weight > 0)
+		if(old_max_axle_load > 0)
 		{
-			set_max_weight(old_max_weight);
+			set_max_axle_load(old_max_axle_load);
 		}
 		//DBG_MESSAGE("schiene_t::rdwr","track %s at (%i,%i) max_speed %i",bname,get_pos().x,get_pos().y,old_max_speed);
 	}

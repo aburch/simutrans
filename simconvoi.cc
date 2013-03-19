@@ -135,7 +135,7 @@ void convoi_t::reset()
 	sp_soll = 0;
 	//brake_speed_soll = 2147483647; // ==SPEED_UNLIMITED
 
-	heaviest_vehicle = 0;
+	highest_axle_load = 0;
 	longest_min_loading_time = 0;
 	longest_max_loading_time = 0;
 	current_loading_time = 0;
@@ -2129,7 +2129,7 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_
 	// der convoi hat jetzt ein neues ende
 	set_erstes_letztes();
 
-	heaviest_vehicle = calc_heaviest_vehicle();
+	highest_axle_load = calc_highest_axle_load();
 	longest_min_loading_time = calc_longest_min_loading_time();
 	longest_max_loading_time = calc_longest_max_loading_time();
 
@@ -2216,7 +2216,7 @@ DBG_MESSAGE("convoi_t::upgrade_vehicle()","at pos %i of %i totals.",i,max_vehicl
 	// der convoi hat jetzt ein neues ende
 	set_erstes_letztes();
 
-	heaviest_vehicle = calc_heaviest_vehicle();
+	highest_axle_load = calc_highest_axle_load();
 	longest_min_loading_time = calc_longest_min_loading_time();
 	longest_max_loading_time = calc_longest_max_loading_time();
 	
@@ -2280,7 +2280,7 @@ vehikel_t *convoi_t::remove_vehikel_bei(uint16 i)
 		}
 	}
 
-	heaviest_vehicle = calc_heaviest_vehicle();
+	highest_axle_load = calc_highest_axle_load();
 	longest_min_loading_time = calc_longest_min_loading_time();
 	longest_max_loading_time = calc_longest_max_loading_time();
 
@@ -3509,7 +3509,7 @@ void convoi_t::rdwr(loadsave_t *file)
 	
 	if(file->is_loading())
 	{
-		heaviest_vehicle = calc_heaviest_vehicle();
+		highest_axle_load = calc_highest_axle_load();
 		longest_min_loading_time = calc_longest_min_loading_time();
 		longest_max_loading_time = calc_longest_max_loading_time();
 	}
@@ -4936,7 +4936,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	// any loading went on?
 	calc_loading();
 	loading_limit = fpl->get_current_eintrag().ladegrad; // ladegrad = max. load.
-	heaviest_vehicle = calc_heaviest_vehicle(); // Bernd Gabriel, Mar 10, 2010: was missing.
+	highest_axle_load = calc_highest_axle_load(); // Bernd Gabriel, Mar 10, 2010: was missing.
 	if(old_last_stop_pos != fahr[0]->get_pos().get_2d())
 	{
 		// Only calculate the loading time once, on arriving at the stop:
@@ -5810,7 +5810,7 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 			}
 		}
 		depot_finder_t finder(self, traction_type);
-		route.find_route(welt, get_vehikel(0)->get_pos(), &finder, speed_to_kmh(get_min_top_speed()), ribi_t::alle, get_heaviest_vehicle(), 0x7FFFFFFF);
+		route.find_route(welt, get_vehikel(0)->get_pos(), &finder, speed_to_kmh(get_min_top_speed()), ribi_t::alle, get_highest_axle_load(), 0x7FFFFFFF);
 	}
 
 	// if route to a depot has been found, update the convoy's schedule
@@ -6200,7 +6200,7 @@ void convoi_t::snprintf_remaining_reversing_time(char *p, size_t size) const
 	welt->sprintf_ticks(p, size, ticks_left);
 }
 
-uint32 convoi_t::calc_heaviest_vehicle()
+uint32 convoi_t::calc_highest_axle_load()
 {
 	uint32 heaviest = 0;
 	for(uint8 i = 0; i < anz_vehikel; i ++)

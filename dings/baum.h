@@ -102,7 +102,7 @@ public:
 
 	void zeige_info();
 
-	void info(cbuffer_t & buf) const;
+	void info(cbuffer_t & buf, bool dummy = false) const;
 
 	void entferne(spieler_t *sp);
 

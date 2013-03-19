@@ -2553,7 +2553,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 }
 
 
-void haltestelle_t::info(cbuffer_t & buf) const
+void haltestelle_t::info(cbuffer_t & buf, bool dummy) const
 {
 	if(  translator::get_lang()->utf_encoded  ) {
 		utf8 happy[4], unhappy[4];

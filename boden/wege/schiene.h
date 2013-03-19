@@ -49,7 +49,7 @@ public:
 	* @return additional info is reservation!
 	* @author prissi
 	*/
-	void info(cbuffer_t & buf) const;
+	void info(cbuffer_t & buf, bool is_bridge = false) const;
 
 	/**
 	* true, if this rail can be reserved

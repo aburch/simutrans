@@ -323,7 +323,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 	weg_besch = besch->get_weg_besch();
 	if(weg_besch==NULL) {
 		// ignore timeline to get consistent results
-		weg_besch = wegbauer_t::weg_search( wegtyp, besch->get_topspeed(), besch->get_max_weight(), 0, weg_t::type_flat );
+		weg_besch = wegbauer_t::weg_search( wegtyp, besch->get_topspeed(), besch->get_max_axle_load(), 0, weg_t::type_flat );
 	}
 
 	baue_einfahrt(welt, sp, pos, zv, besch, weg_besch, cost, maint);
@@ -349,7 +349,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 			weg = weg_t::alloc(besch->get_waytype());
 			weg->set_besch(weg_besch);
 			weg->set_max_speed(besch->get_topspeed());
-			weg->set_max_weight(besch->get_max_weight());
+			weg->set_max_axle_load(besch->get_max_axle_load());
 			weg->add_way_constraints(besch->get_way_constraints());
 			tunnel->neuen_weg_bauen(weg, ribi_t::doppelt(ribi), sp);
 		}
@@ -385,7 +385,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 			weg = weg_t::alloc(besch->get_waytype());
 			weg->set_besch(weg_besch);
 			weg->set_max_speed(besch->get_topspeed());
-			weg->set_max_weight(besch->get_max_weight());
+			weg->set_max_axle_load(besch->get_max_axle_load());
 			tunnel->neuen_weg_bauen(weg, ribi, sp);
 			weg->add_way_constraints(besch->get_way_constraints());
 		}
@@ -441,7 +441,7 @@ void tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, koord3d end, koo
 			tunnel->neuen_weg_bauen( weg, ribi, sp );
 		}
 		weg->set_max_speed( besch->get_topspeed() );
-		weg->set_max_weight( besch->get_max_weight() );
+		weg->set_max_axle_load( besch->get_max_axle_load() );
 		weg->add_way_constraints(besch->get_way_constraints());
 		maint += besch->get_wartung() - weg->get_besch()->get_wartung();
 	}

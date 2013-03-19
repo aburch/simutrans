@@ -370,7 +370,7 @@ void print_power(cbuffer_t & buf, uint64 power_in_kW, const char *fmt_MW, const 
  * Beobachtungsfenster angezeigt wird.
  * @author Hj. Malthaner
  */
-void leitung_t::info(cbuffer_t & buf) const
+void leitung_t::info(cbuffer_t & buf, bool dummy) const
 {
 	ding_t::info(buf);
 
@@ -634,7 +634,7 @@ void pumpe_t::laden_abschliessen()
 }
 
 
-void pumpe_t::info(cbuffer_t & buf) const
+void pumpe_t::info(cbuffer_t & buf, bool dummy) const
 {
 	ding_t::info( buf );
 
@@ -1037,7 +1037,7 @@ void senke_t::check_industry_connexion()
 }
 
 
-void senke_t::info(cbuffer_t & buf) const
+void senke_t::info(cbuffer_t & buf, bool dummy) const
 {
 	ding_t::info( buf );
 

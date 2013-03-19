@@ -1033,7 +1033,7 @@ void stadtauto_t::calc_current_speed()
 }
 
 
-void stadtauto_t::info(cbuffer_t & buf) const
+void stadtauto_t::info(cbuffer_t & buf, bool dummy) const
 {
 	const stadt_t* const origin_city = welt->get_city(origin);
 #ifdef DESTINATION_CITYCARS

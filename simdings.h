@@ -324,7 +324,7 @@ public:
 	 * @author Hj. Malthaner
 	 * @see simwin
 	 */
-	virtual void info(cbuffer_t & buf) const;
+	virtual void info(cbuffer_t & buf, bool is_bridge = false) const;
 
 	/**
 	 * Opens a new info window for the object

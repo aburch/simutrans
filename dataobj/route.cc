@@ -24,6 +24,7 @@
 #include "loadsave.h"
 #include "route.h"
 #include "umgebung.h"
+#include "../besch/bruecke_besch.h"
 
 #include "../boden/wege/strasse.h"
 #include "../dings/gebaeude.h"
@@ -387,10 +388,10 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 				if (enforce_weight_limits && w != NULL)
 				{
 					// Bernd Gabriel, Mar 10, 2010: way limit info
-					const uint32 way_max_weight = w->get_max_weight();
-					max_weight = min(max_weight, way_max_weight);
+					const uint32 way_max_axle_load = w->get_max_axle_load();
+					max_axle_load = min(max_axle_load, way_max_axle_load);
 
-					if(enforce_weight_limits == 2 && weight > way_max_weight)
+					if(enforce_weight_limits == 2 && weight > way_max_axle_load)
 					{
 						// Avoid routing over ways for which the convoy is overweight.
 						continue;
@@ -491,7 +492,7 @@ void route_t::concatenate_routes(route_t* tail_route)
 }
 
 
-bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d start, fahrer_t *fahr, const sint32 max_speed, const uint32 max_cost, const uint32 weight)
+bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d start, fahrer_t *fahr, const sint32 max_speed, const uint32 max_cost, const uint32 axle_load, const uint32 convoy_weight, const sint32 tile_length)
 {
 	bool ok = false;
 
@@ -503,7 +504,8 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 
 	// we clear it here probably twice: does not hurt ...
 	route.clear();
-	max_weight = MAXUINT32;
+	max_axle_load = MAXUINT32;
+	max_convoy_weight = MAXUINT32;
 
 	// first tile is not valid?!?
 	if(!fahr->ist_befahrbar(gr)) {
@@ -567,6 +569,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 //DBG_MESSAGE("route_t::itern_calc_route()","calc route from %d,%d,%d to %d,%d,%d",ziel.x, ziel.y, ziel.z, start.x, start.y, start.z);
 	const uint8 enforce_weight_limits = welt->get_settings().get_enforce_weight_limits();
 	uint32 beat=1;
+	int bridge_tile_count = 0;
 	do {
 		// Hajo: this is too expensive to be called each step
 		if((beat++ & 255) == 0) 
@@ -623,7 +626,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 				// Do not go on a tile, where a oneway sign forbids going.
 				// This saves time and fixed the bug, that a oneway sign on the final tile was ignored.
 				ribi_t::ribi last_dir=next_ribi[r];
-				weg_t *w=to->get_weg(wegtyp);
+				weg_t *w = to->get_weg(wegtyp);
 				ribi_t::ribi go_dir = (w==NULL) ? 0 : w->get_ribi_maske();
 				if((last_dir&go_dir)!=0) 
 				{
@@ -633,10 +636,32 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 				if (enforce_weight_limits && w != NULL)
 				{
 					// Bernd Gabriel, Mar 10, 2010: way limit info
-					const uint32 way_max_weight = w->get_max_weight();
-					max_weight = min(max_weight, way_max_weight);
+					bool is_overweight = false;
+					if(to->ist_bruecke())
+					{
+						// Bridges care about convoy weight, whereas other types of way
+						// care about axle weight.
+						bridge_tile_count ++;
+						const uint32 way_max_convoy_weight = w->get_max_axle_load(); // This is actually maximum convoy weight: the name is odd because of the virtual method.
+						// This ensures that only that part of the convoy that is actually on the bridge counts.
+						uint32 adjusted_convoy_weight = tile_length == 0 ? convoy_weight : (convoy_weight * bridge_tile_count) / tile_length;
+						if(min(adjusted_convoy_weight, convoy_weight) > way_max_convoy_weight)
+						{
+							is_overweight = true;
+						}
+					}
+					else
+					{
+						bridge_tile_count = 0;
+						const uint32 way_max_axle_load = w->get_max_axle_load();
+						max_axle_load = min(max_axle_load, way_max_axle_load);
+						if(axle_load > way_max_axle_load)
+						{
+							is_overweight = true;
+						}
+					}
 
-					if(enforce_weight_limits == 2 && weight > way_max_weight)
+					if(enforce_weight_limits == 2 && is_overweight)
 					{
 						// Avoid routing over ways for which the convoy is overweight.
 						continue;
@@ -726,7 +751,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
  * corrected 12/2005 for station search
  * @author Hansjörg Malthaner, prissi
  */
-route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d ziel, const koord3d start, fahrer_t *fahr, const sint32 max_khm, const uint32 weight, sint32 max_len, const uint32 max_cost)
+route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d ziel, const koord3d start, fahrer_t *fahr, const sint32 max_khm, const uint32 axle_load, sint32 max_len, const uint32 max_cost, const uint32 convoy_weight)
 {
 	route.clear();
 
@@ -736,7 +761,7 @@ route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d ziel, c
 	// profiling for routes ...
 	long ms=dr_time();
 #endif
-	bool ok = intern_calc_route(welt, start, ziel, fahr, max_khm, max_cost, weight);
+	bool ok = intern_calc_route(welt, start, ziel, fahr, max_khm, max_cost, axle_load, convoy_weight, max_len);
 #ifdef DEBUG_ROUTES
 	if(fahr->get_waytype()==water_wt) {DBG_DEBUG("route_t::calc_route()","route from %d,%d to %d,%d with %i steps in %u ms found.",start.x, start.y, ziel.x, ziel.y, route.get_count()-1, dr_time()-ms );}
 #endif

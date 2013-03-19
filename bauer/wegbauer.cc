@@ -202,11 +202,11 @@ const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const sint32 spe
 			{
 				if(  best == NULL ||
 						((best->get_topspeed() < speed_limit && test->get_topspeed() >= speed_limit) ||
-						(best->get_max_weight() < weight_limit && test->get_max_weight() >= weight_limit))	||		
+						(best->get_max_axle_load() < weight_limit && test->get_max_axle_load() >= weight_limit))	||		
 						((test->get_topspeed() <=  speed_limit && best->get_topspeed() < test->get_topspeed()) ||	
-						(((test->get_max_weight() <=  weight_limit && best->get_max_weight() < test->get_max_weight())))) ||
+						(((test->get_max_axle_load() <=  weight_limit && best->get_max_axle_load() < test->get_max_axle_load())))) ||
 						((best->get_topspeed() > speed_limit && test->get_topspeed() < best->get_topspeed()) ||		
-						(((best->get_max_weight() > weight_limit) && (test->get_max_weight()) < best->get_max_weight()))) ||
+						(((best->get_max_axle_load() > weight_limit) && (test->get_max_axle_load()) < best->get_max_axle_load()))) ||
 						(time!=0  &&  !best_allowed  &&  test_allowed)
 					) 
 				{
@@ -2061,7 +2061,7 @@ bool wegbauer_t::baue_tunnelboden()
 				tunnel->neuen_weg_bauen(weg, route.get_ribi(i), sp);
 				tunnel->obj_add(new tunnel_t(welt, route[i], sp, tunnel_besch));
 				weg->set_max_speed(tunnel_besch->get_topspeed());
-				weg->set_max_weight(tunnel_besch->get_max_weight());
+				weg->set_max_axle_load(tunnel_besch->get_max_axle_load());
 				weg->add_way_constraints(besch->get_way_constraints());
 				spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung());
 			} else {
@@ -2102,7 +2102,7 @@ bool wegbauer_t::baue_tunnelboden()
 				weg_t *weg = gr->get_weg(tunnel_besch->get_waytype());
 				weg->set_besch(wb);
 				weg->set_max_speed(tunnel_besch->get_topspeed());
-				weg->set_max_weight(tunnel_besch->get_max_weight());
+				weg->set_max_axle_load(tunnel_besch->get_max_axle_load());
 				// respect max speed of catenary
 				wayobj_t const* const wo = gr->get_wayobj(tunnel_besch->get_waytype());
 				if (wo  &&  wo->get_besch()->get_topspeed() < weg->get_max_speed()) {

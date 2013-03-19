@@ -128,9 +128,9 @@ const char *weg_t::waytype_to_string(waytype_t wt)
  * @author Hj. Malthaner
  */
 
-void weg_t::set_max_weight(uint32 w)
+void weg_t::set_max_axle_load(uint32 w)
 {
-	max_weight = w;
+	max_axle_load = w;
 }
 
 
@@ -151,7 +151,7 @@ void weg_t::set_besch(const weg_besch_t *b)
 		max_speed = besch->get_topspeed();
 	}
 
-	max_weight = besch->get_max_weight();
+	max_axle_load = besch->get_max_axle_load();
 	way_constraints = besch->get_way_constraints();
 	const grund_t* gr =  welt->lookup(get_pos());
 	if(gr)
@@ -188,7 +188,7 @@ void weg_t::init()
 {
 	ribi = ribi_maske = ribi_t::keine;
 	max_speed = 450;
-	max_weight = 999;
+	max_axle_load = 999;
 	besch = 0;
 	init_statistics();
 	alle_wege.insert(this);
@@ -257,9 +257,9 @@ void weg_t::rdwr(loadsave_t *file)
 
 	if(file->get_experimental_version() >= 1)
 	{
-		uint16 wdummy16 = max_weight;
+		uint16 wdummy16 = max_axle_load;
 		file->rdwr_short(wdummy16);
-		max_weight = wdummy16;
+		max_axle_load = wdummy16;
 	}
 }
 
@@ -268,7 +268,7 @@ void weg_t::rdwr(loadsave_t *file)
  * Info-text für diesen Weg
  * @author Hj. Malthaner
  */
-void weg_t::info(cbuffer_t & buf) const
+void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 {
 	ding_t::info(buf);
 
@@ -276,10 +276,16 @@ void weg_t::info(cbuffer_t & buf) const
 	buf.append(" ");
 	buf.append(max_speed);
 	buf.append(translator::translate("km/h\n"));
-
-	buf.append(translator::translate("\nMax. weight:"));
+	if(is_bridge)
+	{
+		buf.append(translator::translate("\nMax. weight:"));
+	}
+	else
+	{
+		buf.append(translator::translate("\nMax. axle load:"));
+	}
 	buf.append(" ");
-	buf.append(max_weight);
+	buf.append(max_axle_load);
 	buf.append(translator::translate("tonnen"));
 	buf.append("\n");
 	for(sint8 i = 0; i < way_constraints.get_count(); i ++)

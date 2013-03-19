@@ -1792,7 +1792,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 				char cost[64];
 				money_to_string( cost, veh_type->get_preis()/100.0 );
 				n = sprintf(buf,
-					translator::translate("LOCO_INFO_EXT"),
+					translator::translate("%s\nCost: %s\nMaint.: %1.2f$/km, %1.2f$/month\nPower: %dkW, %dkN\nTop Speed: %dkm/h\nWeight: %dt\nAxle load: %dt\nMax. brake force: %dkN\nRolling resistance: %.1fN\n"),
 					name, cost,
 					veh_type->get_running_cost()/100.0F,
 					veh_type->get_adjusted_monthly_fixed_cost(get_welt())/100.0F,
@@ -1800,6 +1800,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 					veh_type->get_tractive_effort(),
 					veh_type->get_geschw(),
 					weight,
+					veh_type->get_axle_load(),
 					brake_force,
 					veh_type->get_rolling_resistance().to_double() * (double)weight * 1000.0
 					);
@@ -1809,7 +1810,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 				char cost[64];
 				money_to_string( cost, veh_type->get_upgrade_price()/100.0 );
 				n = sprintf(buf,
-					translator::translate("LOCO_INFO_EXT"),
+					translator::translate("%s\nCost: %s\nMaint.: %1.2f$/km, %1.2f$/month\nPower: %dkW, %dkN\nTop Speed: %dkm/h\nWeight: %dt\nAxle load: %dt\nMax. brake force: %dkN\nRolling resistance: %.1fN\n"),
 					name, cost,
 					veh_type->get_running_cost()/100.0F,
 					veh_type->get_adjusted_monthly_fixed_cost(get_welt())/100.0F,
@@ -1817,6 +1818,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 					veh_type->get_tractive_effort(),
 					veh_type->get_geschw(),
 					weight,
+					veh_type->get_axle_load(),
 					brake_force,
 					veh_type->get_rolling_resistance().to_double() * (double)weight * 1000.0
 					);
@@ -1856,7 +1858,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 					char cost[64];
 					money_to_string( cost, veh_type->get_preis()/100.0 );
 					n = sprintf(buf,
-						translator::translate("%s\nCost:     %s\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d%s %s\nWeight: %dt\nTop speed: %dkm/h\nMax. brake force: %dkN\nRolling resistance: %fN\n"),
+						translator::translate("%s\nCost:     %s\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d%s %s\nWeight: %dt\nAxle load: %dt\nTop speed: %dkm/h\nMax. brake force: %dkN\nRolling resistance: %.1fN\n"),
 						translator::translate(veh_type->get_name()),
 						cost,
 						veh_type->get_running_cost()/100.0F,
@@ -1867,6 +1869,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 						translator::translate(veh_type->get_ware()->get_name()) :
 						translator::translate(veh_type->get_ware()->get_catg_name()),
 						weight,
+						veh_type->get_axle_load(),
 						veh_type->get_geschw(),
 						brake_force,
 						veh_type->get_rolling_resistance().to_double() * (double)weight * 1000.0
@@ -1877,7 +1880,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 					char cost[64];
 					money_to_string( cost, veh_type->get_preis()/100.0 );
 					n = sprintf(buf,
-						translator::translate("%s\nCost:     %s\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d (%d)%s %s\nWeight: %dt\nTop speed: %dkm/h\nMax. brake force: %dkN\nRolling resistance: %fN\n"),
+						translator::translate("%s\nCost:     %s\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d (%d)%s %s\nWeight: %dt\nAxle load: %dt\nTop speed: %dkm/h\nMax. brake force: %dkN\nRolling resistance: %.1fN\n"),
 						translator::translate(veh_type->get_name()),
 						cost,
 						veh_type->get_running_cost()/100.0F,
@@ -1889,6 +1892,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 						translator::translate(veh_type->get_ware()->get_name()) :
 						translator::translate(veh_type->get_ware()->get_catg_name()),
 						weight,
+						veh_type->get_axle_load(),
 						veh_type->get_geschw(),
 						brake_force,
 						veh_type->get_rolling_resistance().to_double() * (double)weight * 1000.0
@@ -1902,7 +1906,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 					char cost[64];
 					money_to_string( cost, veh_type->get_preis()/100.0 );
 					n = sprintf(buf,
-						translator::translate("%s\nCost:     %s\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d%s %s\nWeight: %dt\nTop speed: %dkm/h\n\nMax. brake force: %dkN\nRolling resistance: %fN\n"),
+						translator::translate("%s\nCost:     %s\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d%s %s\nWeight: %dt\nAxle load: %dt\nTop speed: %dkm/h\n\nMax. brake force: %dkN\nRolling resistance: %.1fN\n"),
 						translator::translate(veh_type->get_name()),
 						cost,
 						veh_type->get_running_cost()/100.0F,
@@ -1913,6 +1917,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 						translator::translate(veh_type->get_ware()->get_name()) :
 						translator::translate(veh_type->get_ware()->get_catg_name()),
 						weight,
+						veh_type->get_axle_load(),
 						veh_type->get_geschw(),
 						brake_force,
 						veh_type->get_rolling_resistance().to_double() * (double)weight * 1000.0
@@ -1923,7 +1928,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 					char cost[64];
 					money_to_string( cost, veh_type->get_preis()/100.0 );
 					n = sprintf(buf,
-						translator::translate("%s\nCost:     %s\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d (%d)%s %s\nWeight: %dt\nTop speed: %dkm/h\n\nMax. brake force: %dkN\nRolling resistance: %fN\n"),
+						translator::translate("%s\nCost:     %s\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d (%d)%s %s\nWeight: %dt\nAxle load: %dt\nTop speed: %dkm/h\n\nMax. brake force: %dkN\nRolling resistance: %.1fN\n"),
 						translator::translate(veh_type->get_name()),
 						cost,
 						veh_type->get_running_cost()/100.0F,
@@ -1935,6 +1940,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 						translator::translate(veh_type->get_ware()->get_name()) :
 						translator::translate(veh_type->get_ware()->get_catg_name()),
 						weight,
+						veh_type->get_axle_load(),
 						veh_type->get_geschw(),
 						brake_force,
 						veh_type->get_rolling_resistance().to_double() * (double)weight * 1000.0
