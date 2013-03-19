@@ -637,7 +637,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 				{
 					// Bernd Gabriel, Mar 10, 2010: way limit info
 					bool is_overweight = false;
-					if(to->ist_bruecke() || w->get_besch()->get_styp() == weg_t::type_elevated)
+					if(to->ist_bruecke() || w->get_besch()->get_styp() == weg_t::type_elevated || w->get_waytype() == air_wt || w->get_waytype() == water_wt)
 					{
 						// Bridges care about convoy weight, whereas other types of way
 						// care about axle weight.

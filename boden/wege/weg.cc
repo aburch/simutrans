@@ -276,7 +276,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 	buf.append(" ");
 	buf.append(max_speed);
 	buf.append(translator::translate("km/h\n"));
-	if(is_bridge || besch->get_styp() == weg_t::type_elevated)
+	if(is_bridge || besch->get_styp() == weg_t::type_elevated || waytype == air_wt || waytype == water_wt)
 	{
 		buf.append(translator::translate("\nMax. weight:"));
 	}
