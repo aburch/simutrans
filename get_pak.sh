@@ -39,7 +39,7 @@ DownloadInstallZip(){
   do_download "$1" "$TEMP/$2"
   echo "installing from $2"
 # first try to extract all files in simutrans/
-  unzip -o -C -q "$TEMP/$2" simutrans/ -d .  2> /dev/null
+  unzip -o -C -q "$TEMP/$2" "simutrans/*" -d .  2> /dev/null
 
   if [ $? -eq 11 ]; then
 #     no simutrans folder in the zipfile
