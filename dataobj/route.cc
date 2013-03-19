@@ -633,7 +633,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 						continue;
 				}
 				
-				if (enforce_weight_limits && w != NULL)
+				if(enforce_weight_limits && w != NULL)
 				{
 					// Bernd Gabriel, Mar 10, 2010: way limit info
 					bool is_overweight = false;
@@ -644,7 +644,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 						bridge_tile_count ++;
 						const uint32 way_max_convoy_weight = w->get_max_axle_load(); // This is actually maximum convoy weight: the name is odd because of the virtual method.
 						// This ensures that only that part of the convoy that is actually on the bridge counts.
-						uint32 adjusted_convoy_weight = tile_length == 0 ? convoy_weight : (convoy_weight * bridge_tile_count) / tile_length;
+						uint32 adjusted_convoy_weight = tile_length == 0 ? convoy_weight : (convoy_weight * max(bridge_tile_count - 2, 1)) / tile_length;
 						if(min(adjusted_convoy_weight, convoy_weight) > way_max_convoy_weight)
 						{
 							is_overweight = true;
