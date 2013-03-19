@@ -1,6 +1,7 @@
 #include "export_besch.h"
 
 #include "../script.h"
+#include "../api_class.h"
 #include "../api_function.h"
 #include "../../tpl/vector_tpl.h"
 #include "../../utils/plainstring.h"
@@ -41,24 +42,15 @@ SQInteger get_besch_pointer(HSQUIRRELVM vm)
 	return -1;
 }
 
+
 void begin_besch_class(HSQUIRRELVM vm, const char* name, const void* (*func)(const char*))
 {
-	sq_pushstring(vm, name, -1);
-	// get extend_get class
-	sq_pushstring(vm, "extend_get", -1);
-	SQInteger res = sq_get(vm, -3);
+	SQInteger res = create_class(vm, name, "extend_get");
 	assert( SQ_SUCCEEDED(res) );
-	// create class
-	sq_newclass(vm, true);
 	// store method to retrieve besch in typetag pointer
 	sq_settypetag(vm, -1, (void*)func);
 	registered_besch_functions.append_unique( (void*)func );
 	// register constructor
 	register_function(vm, get_besch_pointer, "constructor", 2, "xs");
 	// now functions can be registered
-}
-
-void end_besch_class(HSQUIRRELVM vm)
-{
-	sq_newslot(vm, -3, false);
 }
