@@ -85,24 +85,24 @@ verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt, koord3d pos, uint16 ra
 	vehikel_basis_t(welt, pos)
 #endif
 {
-	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
 	grund_t *from = welt->lookup(pos);
-	grund_t *to;
 
-	// int ribi = from->get_weg_ribi(road_wt);
-	ribi_t::ribi liste[4];
-	int count = 0;
+	ribi_t::ribi road_ribi = from->get_weg_ribi(road_wt);
 
 	weg_next = random;
-	hoff = 0;
 
-	// verfügbare ribis in liste eintragen
-	for(int r = 0; r < 4; r++) {
-		if(from->get_neighbour(to, road_wt, ribi_t::nsow[r])) {
-			liste[count++] = ribi_t::nsow[r];
+	// randomized offset
+	uint8 offset = random & 3;
+	fahrtrichtung = ribi_t::nsow[offset];
+
+	grund_t *to = NULL;
+	for(uint8 r = 0; r < 4; r++) {
+		ribi_t::ribi ribi = ribi_t::nsow[ (r + offset) &3];
+		if( (ribi & road_ribi)!=0  &&  from->get_neighbour(to, road_wt, ribi)) {
+			fahrtrichtung = ribi;
+			break;
 		}
 	}
-	fahrtrichtung = count ? liste[random%count] : ribi_t::nsow[random%4];
 
 	switch(fahrtrichtung) {
 		case ribi_t::nord:
@@ -122,8 +122,9 @@ verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt, koord3d pos, uint16 ra
 			dy = -1;
 			break;
 	}
-	if(count) {
-		from->get_neighbour(to, road_wt, fahrtrichtung);
+	hoff = 0;
+
+	if(to) {
 		pos_next = to->get_pos();
 	}
 	else {
@@ -145,15 +146,14 @@ void verkehrsteilnehmer_t::zeige_info()
 }
 
 
-void verkehrsteilnehmer_t::hop()
+grund_t* verkehrsteilnehmer_t::hop()
 {
 	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
 	grund_t *from = welt->lookup(pos_next);
-	grund_t *to;
 
 	if(!from) {
 		time_to_life = 0;
-		return;
+		return NULL;
 	}
 
 	grund_t *liste[4];
@@ -169,9 +169,10 @@ void verkehrsteilnehmer_t::hop()
 			// destroy it
 			time_to_life = 0;
 		}
-		return;
+		return NULL;
 	}
 
+	grund_t *to;
 	// add all good ribis here
 	ribi_t::ribi gegenrichtung = ribi_t::rueckwaerts( get_fahrtrichtung() );
 	int ribi = weg->get_ribi_unmasked();
@@ -210,7 +211,7 @@ void verkehrsteilnehmer_t::hop()
 	verlasse_feld();
 	set_pos(from->get_pos());
 	calc_bild();
-	betrete_feld();
+	return betrete_feld();
 }
 
 
@@ -393,33 +394,6 @@ bool stadtauto_t::list_empty()
 
 stadtauto_t::~stadtauto_t()
 {
-//<<<<<<< HEAD
-//	if(current_list != NULL && !welt->get_is_shutting_down() && current_list->get_count() > 0)
-//	{
-//		stadtauto_t *tmp = this;
-//		if(!current_list->remove(tmp))
-//		{
-//			DBG_MESSAGE("stadtauto_t", "Failure to remove city car from list!");
-//		}
-//		else
-//		{
-//			DBG_MESSAGE("stadtauto_t", "Succeeded in removing city car from list.");
-//		}
-//	}
-//	else
-//	{
-//		// Just to make sure.
-//		if(welt->unassigned_cars.remove(this))
-//		{
-//			DBG_MESSAGE("stadtauto_t", "Failure to remove city car from list!");
-//		}
-//		else
-//		{
-//			DBG_MESSAGE("stadtauto_t", "Succeeded in removing city car from list.");
-//		}
-//	}
-	//"Buche" = "Books" (Babelfish)
-//=======
 	// first: release crossing
 	grund_t *gr = welt->lookup(get_pos());
 	if(gr  &&  gr->ist_uebergang()) {
@@ -431,7 +405,6 @@ stadtauto_t::~stadtauto_t()
 		welt->sync_remove(this);
 	}
 	welt->buche( -1, karte_t::WORLD_CITYCARS );
-//>>>>>>> v111.3
 }
 
 stadtauto_t::stadtauto_t(karte_t *welt, loadsave_t *file) :
@@ -785,7 +758,7 @@ bool stadtauto_t::ist_weg_frei(grund_t *gr)
 }
 
 
-void stadtauto_t::betrete_feld()
+grund_t* stadtauto_t::betrete_feld()
 {
 #ifdef DESTINATION_CITYCARS
 	// Destination city car code revived from an older version of Simutrans.
@@ -796,15 +769,12 @@ void stadtauto_t::betrete_feld()
 
 		//"fussgaenger" = pedestrian (Babelfish)
 		int number = 2;
-//<<<<<<< HEAD
-//		fussgaenger_t::erzeuge_fussgaenger_an(welt, pos_next, number);
-//=======
 		fussgaenger_t::erzeuge_fussgaenger_an(welt, get_pos(), number);
-//>>>>>>> v111.3
 	}
 #endif /* DESTINATION_CITYCARS */
-	vehikel_basis_t::betrete_feld();
-	welt->lookup( get_pos() )->get_weg(road_wt)->book(1, WAY_STAT_CONVOIS);
+	grund_t *gr = vehikel_basis_t::betrete_feld();
+	gr->get_weg(road_wt)->book(1, WAY_STAT_CONVOIS);
+	return gr;
 }
 
 
@@ -953,7 +923,7 @@ bool stadtauto_t::hop_check()
 
 
 
-void stadtauto_t::hop()
+grund_t* stadtauto_t::hop()
 {
 	// Check whether this private car should pay a road toll.
 
@@ -975,9 +945,11 @@ void stadtauto_t::hop()
 	grund_t *to = welt->lookup(pos_next);
 	if(to==NULL) {
 		time_to_life = 0;
-		return;
+		return NULL;
 	}
+
 	verlasse_feld();
+
 	if(pos_next_next==get_pos()) {
 		fahrtrichtung = calc_set_richtung( pos_next.get_2d(), pos_next_next.get_2d() );
 		current_speed = 48;
@@ -987,16 +959,20 @@ void stadtauto_t::hop()
 		fahrtrichtung = calc_set_richtung( get_pos().get_2d(), pos_next_next.get_2d() );
 		calc_current_speed();
 	}
+	calc_bild();
+
 	// and add to next tile
 	set_pos(pos_next);
-	calc_bild();
-	betrete_feld();
+	to = betrete_feld();
+
 	update_tiles_overtaking();
 	if(to->ist_uebergang()) {
 		to->find<crossing_t>(2)->add_to_crossing(this);
 	}
 	pos_next = pos_next_next;
 	pos_next_next = koord3d::invalid;
+
+	return to;
 }
 
 

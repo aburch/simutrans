@@ -511,9 +511,16 @@ void rdwr_all_win(loadsave_t *file)
 				bool sticky, rollup;
 				file->rdwr_bool( sticky );
 				file->rdwr_bool( rollup );
+				// now load the window
+				uint32 count = wins.get_count();
 				w->rdwr( file );
-				wins.back().sticky = sticky;
-				wins.back().rollup = rollup;
+
+				// restore sticky / rollup status
+				// ensure that the new status is to currently loaded window
+				if (wins.get_count() >= count) {
+					wins.back().sticky = sticky;
+					wins.back().rollup = rollup;
+				}
 			}
 		}
 	}

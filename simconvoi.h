@@ -857,6 +857,11 @@ public:
 	*/
 	void rdwr(loadsave_t *file);
 
+	/**
+	 * method to load/save convoihandle_t
+	 */
+	static void rdwr_convoihandle_t(loadsave_t *file, convoihandle_t &cnv);
+
 	void laden_abschliessen();
 
 	void rotate90( const sint16 y_size );
@@ -919,8 +924,14 @@ public:
 	 * @return total power of this convoi
 	 * @author Hj. Malthaner
 	 */
+//<<<<<<< HEAD
 	inline const uint32 get_sum_leistung() {return get_continuous_power();}
 	inline const sint32 get_min_top_speed() {return get_vehicle_summary().max_sim_speed;}
+//=======
+//	const uint32 & get_sum_leistung() const {return sum_leistung;}
+//	const sint32 & get_min_top_speed() const {return min_top_speed;}
+//	const sint32 & get_speed_limit() const {return speed_limit;}
+//>>>>>>> ad21768f2e2255525ad3ebe48dcb5fbeb8ad21d6
 
 	/// @returns weight of the convoy's vehicles (excluding freight)
 	inline const sint64 get_sum_gewicht() {return get_vehicle_summary().weight;}

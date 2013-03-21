@@ -912,6 +912,9 @@
     <ClCompile Include="simunits.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="script\api\api_schedule.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gui\components\action_listener.h">

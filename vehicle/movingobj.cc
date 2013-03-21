@@ -31,17 +31,10 @@
 
 #include "movingobj.h"
 
-/******************************** static stuff for forest rules ****************************************************************/
+/******************************** static stuff: besch management ****************************************************************/
 
-
-/*
- * Diese Tabelle ermöglicht das Auffinden dient zur Auswahl eines Baumtypen
- */
 vector_tpl<const groundobj_besch_t *> movingobj_t::movingobj_typen(0);
 
-/*
- * Diese Tabelle ermöglicht das Auffinden einer Beschreibung durch ihren Namen
- */
 stringhashtable_tpl<groundobj_besch_t *> movingobj_t::besch_names;
 
 
@@ -127,7 +120,7 @@ void movingobj_t::calc_bild()
 	// alter/2048 is the age of the tree
 	const groundobj_besch_t *besch=get_besch();
 	const uint8 seasons = besch->get_seasons()-1;
-	season=0;
+	uint8 season=0;
 
 	// two possibilities
 	switch(seasons) {
@@ -177,8 +170,7 @@ movingobj_t::movingobj_t(karte_t *welt, koord3d pos, const groundobj_besch_t *b 
     vehikel_basis_t(welt, pos)
 #endif
 {
-	groundobjtype = movingobj_typen.index_of(b);
-	season = 0xFF;	// mark dirty
+	movingobjtype = movingobj_typen.index_of(b);
 	weg_next = 0;
 	timetochange = 0;	// will do random direct change anyway during next step
 	fahrtrichtung = calc_set_richtung( koord(0,0), koord::west );
@@ -192,14 +184,12 @@ movingobj_t::~movingobj_t()
 }
 
 
-bool movingobj_t::check_season(long /*month*/)
+bool movingobj_t::check_season(long)
 {
-	if(season>1) {
-		const uint8 old_season = season;
-		calc_bild();
-		if(season!=old_season) {
-			mark_image_dirty( get_bild(), 0 );
-		}
+	image_id old_image = get_bild();
+	calc_bild();
+	if(get_bild() != old_image) {
+		mark_image_dirty( get_bild(), 0 );
 	}
 	return true;
 }
@@ -235,15 +225,15 @@ void movingobj_t::rdwr(loadsave_t *file)
 		file->rdwr_str(bname, lengthof(bname));
 		groundobj_besch_t *besch = besch_names.get(bname);
 		if(  besch_names.empty()  ||  besch==NULL  ) {
-			groundobjtype = simrand(movingobj_typen.get_count(), "void movingobj_t::rdwr");
+			movingobjtype = simrand(movingobj_typen.get_count(), "void movingobj_t::rdwr");
 		}
 		else {
-			groundobjtype = (uint8)besch->get_index();
+			movingobjtype = (uint8)besch->get_index();
 		}
 		// if not there, besch will be zero
 		use_calc_height = true;
-		// not saved, recalculate
-		hoff = calc_height();
+		// not saved, recalculate later
+		hoff = 0;
 	}
 	weg_next = 0;
 }
@@ -406,7 +396,7 @@ bool movingobj_t::hop_check()
 
 
 
-void movingobj_t::hop()
+grund_t* movingobj_t::hop()
 {
 	verlasse_feld();
 
@@ -425,10 +415,11 @@ void movingobj_t::hop()
 	}
 
 	set_pos(pos_next);
-	betrete_feld();
+	grund_t *gr = betrete_feld();
 	// next position
 	grund_t *gr_next = welt->lookup_kartenboden(pos_next_next);
 	pos_next = gr_next ? gr_next->get_pos() : get_pos();
+	return gr;
 }
 
 

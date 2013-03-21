@@ -130,13 +130,13 @@ class gui_convoy_assembler_t :
 	gui_label_t lb_livery_selector;
 	gui_combobox_t livery_selector;
 
-	vector_tpl<gui_image_list_t::image_data_t> convoi_pics;
+	vector_tpl<gui_image_list_t::image_data_t*> convoi_pics;
 	gui_image_list_t convoi;
 
-	vector_tpl<gui_image_list_t::image_data_t> pas_vec;
-	vector_tpl<gui_image_list_t::image_data_t> electrics_vec;
-	vector_tpl<gui_image_list_t::image_data_t> loks_vec;
-	vector_tpl<gui_image_list_t::image_data_t> waggons_vec;
+	vector_tpl<gui_image_list_t::image_data_t*> pas_vec;
+	vector_tpl<gui_image_list_t::image_data_t*> electrics_vec;
+	vector_tpl<gui_image_list_t::image_data_t*> loks_vec;
+	vector_tpl<gui_image_list_t::image_data_t*> waggons_vec;
 
 	gui_image_list_t pas;
 	gui_image_list_t electrics;
@@ -195,7 +195,7 @@ class gui_convoy_assembler_t :
 	// for convoi image
 	void image_from_convoi_list(uint nr);
 
-	void image_from_storage_list(gui_image_list_t::image_data_t *bild_data);
+	void image_from_storage_list(gui_image_list_t::image_data_t* bild_data);
 
 	// add a single vehicle (helper function)
 	void add_to_vehicle_list(const vehikel_besch_t *info);
@@ -215,7 +215,7 @@ public:
 	enum { u_buy, u_upgrade };
 
 	gui_convoy_assembler_t(karte_t *w, waytype_t wt, signed char player_nr, bool electrified = true);
-
+	virtual ~gui_convoy_assembler_t();
 	/**
 	 * Create and fill loks_vec and waggons_vec.
 	 * @author Volker Meyer
@@ -268,7 +268,7 @@ public:
 	inline void set_replace_frame(replace_frame_t *rf) {replace_frame=rf;}
 
 	inline vector_tpl<const vehikel_besch_t *>* get_vehicles() {return &vehicles;}
-	inline const vector_tpl<gui_image_list_t::image_data_t >* get_convoi_pics() const { return &convoi_pics; }
+	inline const vector_tpl<gui_image_list_t::image_data_t* >* get_convoi_pics() const { return &convoi_pics; }
 	void set_vehicles(convoihandle_t cnv);
 	void set_vehicles(const vector_tpl<const vehikel_besch_t *>* vv);
 

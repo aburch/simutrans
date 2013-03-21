@@ -2,7 +2,9 @@
 
 /** @page changelog Changelog
  *
- * @section post-112-1 Current trunk
+ * @section post-112-2 Current trunk
+ *
+ * @section api-112-2 Release 112.2
  *
  * - Added rules::forbid_way_tool_cube, rules::allow_way_tool_cube
  * - Added settings::get_start_time
@@ -14,6 +16,9 @@
  * - Added factory_list_x
  * - Added factory_x::get_name
  * - Added halt_x::get_name, halt_x::get_owner, halt_x::accepts_good
+ * - Added player_x::is_active, world::remove_player
+ * - Added schedule_x, schedule_entry_x, ::is_schedule_allowed
+ * - Added halt_x::is_connected
  *
  *
  * @section api-112-1 Releases 112.0 and 112.1

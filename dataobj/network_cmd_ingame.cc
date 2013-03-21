@@ -203,10 +203,9 @@ void nwc_nick_t::server_tools(karte_t *welt, uint32 client_id, uint8 what, const
 
 			// record nickname change
 			for(uint8 i=0; i<PLAYER_UNOWNED; i++) {
-				vector_tpl<connection_info_t*> &civ = nwc_chg_player_t::company_active_clients[i];
-				for(uint32 j=0; j<civ.get_count(); j++) {
-					if ( (*civ[j])==info ) {
-						civ[j]->nickname = nick;
+				FOR(slist_tpl<connection_info_t>, &iter, nwc_chg_player_t::company_active_clients[i]) {
+					if (iter ==  info) {
+						iter.nickname = nick;
 					}
 				}
 			}
@@ -1010,6 +1009,7 @@ void nwc_chg_player_t::rdwr()
 	packet->rdwr_byte(cmd);
 	packet->rdwr_byte(player_nr);
 	packet->rdwr_short(param);
+	packet->rdwr_bool(scripted_call);
 }
 
 
@@ -1020,7 +1020,13 @@ network_broadcast_world_command_t* nwc_chg_player_t::clone(karte_t *welt)
 	}
 	socket_info_t const& info = socket_list_t::get_client(our_client_id);
 
-	if (!welt->change_player_tool(cmd, player_nr, param, info.is_player_unlocked(1), false)) {
+	// scripts only run on server
+	if (socket_list_t::get_client_id(packet->get_sender()) != 0) {
+		// not sent by server, clear flag
+		scripted_call = false;
+	}
+
+	if (!welt->change_player_tool(cmd, player_nr, param, info.is_player_unlocked(1)  ||  scripted_call, false)) {
 		return NULL;
 	}
 	// now create the new command
@@ -1040,7 +1046,7 @@ network_broadcast_world_command_t* nwc_chg_player_t::clone(karte_t *welt)
 connection_info_t* nwc_chg_player_t::company_creator[PLAYER_UNOWNED] = {
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
 
-vector_tpl<connection_info_t*> nwc_chg_player_t::company_active_clients[PLAYER_UNOWNED];
+slist_tpl<connection_info_t> nwc_chg_player_t::company_active_clients[PLAYER_UNOWNED];
 
 
 void nwc_chg_player_t::company_removed(uint8 player_nr)
@@ -1048,7 +1054,7 @@ void nwc_chg_player_t::company_removed(uint8 player_nr)
 	// delete history
 	delete company_creator[player_nr];
 	company_creator[player_nr] = NULL;
-	clear_ptr_vector(company_active_clients[player_nr]);
+	company_active_clients[player_nr].clear();
 }
 
 
@@ -1065,6 +1071,11 @@ void nwc_chg_player_t::do_command(karte_t *welt)
 					 pending_company_creator->address.get_str(), pending_company_creator->nickname.c_str());
 		}
 		pending_company_creator = NULL; // to prevent deletion in ~nwc_chg_player_t
+	}
+
+	// reset locked state
+	if (cmd == karte_t::new_player  ||  cmd == karte_t::delete_player) {
+		socket_list_t::unlock_player_all(player_nr, true);
 	}
 
 	// update the window
@@ -1221,10 +1232,7 @@ network_broadcast_world_command_t* nwc_tool_t::clone(karte_t *welt)
 		}
 		// log that this client acted as this player
 		if ( !scripted_call  &&  player_nr < PLAYER_UNOWNED) {
-			connection_info_t *cinfo = new connection_info_t(info);
-			if(nwc_chg_player_t::company_active_clients[player_nr].insert_unique_ordered(cinfo, connection_info_t::compare) != NULL) {
-				delete cinfo; // entry exists already
-			}
+			nwc_chg_player_t::company_active_clients[player_nr].append_unique( connection_info_t(info) );
 		}
 
 		// do scenario checks here, send error message back
@@ -1576,15 +1584,14 @@ bool nwc_service_t::execute(karte_t *welt)
 						}
 					}
 					// print clients who played for this company
-					for(uint32 j = 0; j < nwc_chg_player_t::company_active_clients[i].get_count(); j++) {
+					uint32 j=0;
+					FOR(slist_tpl<connection_info_t>, &iter, nwc_chg_player_t::company_active_clients[i]) {
 						if (!detailed  &&  j > 3  &&  nwc_chg_player_t::company_active_clients[i].get_count() > 5) {
 							buf.printf("    .. and %d more.\n", nwc_chg_player_t::company_active_clients[i].get_count()-j);
 							break;
 						}
-						connection_info_t const* info = nwc_chg_player_t::company_active_clients[i][j];
-						if (info) {
-							buf.printf("    played by %s at %s\n", info->nickname.c_str(), info->address.get_str());
-						}
+						buf.printf("    played by %s at %s\n", iter.nickname.c_str(), iter.address.get_str());
+						j++;
 					}
 				}
 			}
@@ -1621,9 +1628,7 @@ bool nwc_service_t::execute(karte_t *welt)
 				break; // invalid number
 			}
 
-			nwc_chg_player_t *nwc = new nwc_chg_player_t();
-			nwc->player_nr = number;
-			nwc->cmd = karte_t::delete_player;
+			nwc_chg_player_t *nwc = new nwc_chg_player_t(welt->get_sync_steps(), welt->get_map_counter(), karte_t::delete_player, number);
 			if (nwc->execute(welt)) {
 				delete nwc;
 			}

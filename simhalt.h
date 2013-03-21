@@ -328,6 +328,9 @@ private:
 		 * Two halts are connected if and only if they belong to the same connected component.
 		 * Exception: if value == UNDECIDED_CONNECTED_COMPONENT, then we are in the middle of
 		 * recalculating the link graph.
+		 *
+		 * The id of the component has to be equal to the halt-id of one of its halts.
+		 * This ensures that we always have unique component ids.
 		 */
 		uint16 catg_connected_component;
 
@@ -532,6 +535,14 @@ public:
 //	// returns the matchin warenziele
 //	vector_tpl<connection_t> const& get_connections(uint8 const catg_index) const { return all_links[catg_index].connections; }
 ////>>>>>>> aburch/master
+
+	/**
+	 * Checks if there is connection for certain freight to the other halt.
+	 * @param halt the other halt
+	 * @param catg_index freight category index
+	 * @return 0 - not connected, 1 - connected, -1 - undecided (call again later...)
+	 */
+	sint8 is_connected(halthandle_t halt, uint8 catg_index) const;
 
 	const slist_tpl<fabrik_t*>& get_fab_list() const { return fab_list; }
 

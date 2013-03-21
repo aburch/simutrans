@@ -4,6 +4,7 @@
 #include "../simcity.h"
 #include "../simfab.h"
 #include "../bauer/warenbauer.h"
+#include "../dataobj/fahrplan.h"
 #include "../dataobj/scenario.h"
 #include "../player/simplay.h"
 #include "../utils/plainstring.h"
@@ -143,7 +144,10 @@ namespace script_api {
 	const char* param<const char*>::get(HSQUIRRELVM vm, SQInteger index)
 	{
 		const char* str = NULL;
-		sq_getstring(vm, index, &str);
+		if (!SQ_SUCCEEDED(sq_getstring(vm, index, &str))) {
+			sq_raise_error(vm, "Supplied string parameter is null");
+			return NULL;
+		}
 		return str;
 	}
 	SQInteger param<const char*>::push(HSQUIRRELVM vm, const char* const& v)
@@ -430,6 +434,24 @@ namespace script_api {
 	{
 		return welt->get_scenario();
 	}
+
+
+	SQInteger param<linieneintrag_t>::push(HSQUIRRELVM vm, linieneintrag_t const& v)
+	{
+		return push_instance(vm, "schedule_entry_x", v.pos, v.ladegrad, v.waiting_time_shift);
+	}
+
+
+	SQInteger param<schedule_t*>::push(HSQUIRRELVM vm, schedule_t* const& v)
+	{
+		if (v) {
+			return push_instance(vm, "schedule_x", v->get_waytype(), v->eintrag);
+		}
+		else {
+			sq_pushnull(vm); return 1;
+		}
+	}
+
 
 	settings_t* param<settings_t*>::get(HSQUIRRELVM, SQInteger)
 	{

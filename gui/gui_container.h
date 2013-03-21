@@ -31,6 +31,8 @@ private:
 
 	bool list_dirty:1;
 
+	/// true, while infowin_event is processed
+	bool inside_infowin_event:1;
 public:
 	gui_container_t();
 
@@ -69,7 +71,13 @@ public:
 	 */
 	virtual bool is_focusable();
 
-	// activates this element
+	/**
+	 * Activates this element.
+	 *
+	 * @warning Calling this method from anything called from
+	 * gui_container_t::infowin_event (e.g. in action_triggered)
+	 * will have NO effect.
+	 */
 	void set_focus( gui_komponente_t *komp_focus );
 
 	/**

@@ -436,14 +436,6 @@ void weg_t::set_images(image_type typ, uint8 ribi, bool snow, bool switch_nw)
 // much faster recalculation of season image
 bool weg_t::check_season( const long )
 {
-	// use snow image if above snowline and above ground
-	bool snow = (get_pos().z >= welt->get_snowline());
-	bool old_snow = (flags&IS_SNOW)!=0;
-	if(  !(snow ^ old_snow)  ) {
-		// season is not changing ...
-		return true;
-	}
-
 	// no way to calculate this or no image set (not visible, in tunnel mouth, etc)
 	if(  besch==NULL  ||  bild==IMG_LEER  ) {
 		return true;
@@ -455,7 +447,15 @@ bool weg_t::check_season( const long )
 		return true;
 	}
 
-	// set new season
+	// use snow image if above snowline and above ground
+	bool snow = (from->ist_karten_boden()  ||  !from->ist_tunnel())  &&  (get_pos().z >= welt->get_snowline());
+	bool old_snow = (flags&IS_SNOW)!=0;
+	if(  !(snow ^ old_snow)  ) {
+		// season is not changing ...
+		return true;
+	}
+
+	// set snow flake
 	flags &= ~IS_SNOW;
 	if(  snow  ) {
 		flags |= IS_SNOW;
@@ -471,7 +471,7 @@ bool weg_t::check_season( const long )
 		set_images(image_diagonal, ribi, snow);
 	}
 	else if(  ribi_t::is_threeway(ribi)  &&  besch->has_switch_bild()  ) {
-		// there might be two states of the switch; remeber it when changing saesons
+		// there might be two states of the switch; remember it when changing seasons
 		if(  bild==besch->get_bild_nr_switch(ribi, old_snow, false)  ) {
 			set_images(image_switch, ribi, snow, false);
 		}
@@ -543,7 +543,7 @@ void weg_t::calc_bild()
 	}
 	else {
 		// use snow image if above snowline and above ground
-		bool snow = (!from->ist_tunnel()   ||  from->ist_karten_boden())  &&  (get_pos().z >= welt->get_snowline());
+		bool snow = (from->ist_karten_boden()  ||  !from->ist_tunnel())  &&  (get_pos().z >= welt->get_snowline());
 		flags &= ~IS_SNOW;
 		if(  snow  ) {
 			flags |= IS_SNOW;

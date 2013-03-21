@@ -63,6 +63,13 @@ function is_work_allowed_here(pl, tool_id, pos)
 	return null
 }
 
+
+function is_schedule_allowed(pl, schedule)
+{
+	return null
+}
+
+
 // declare getter functions
 function get_map_file()
 {
@@ -130,7 +137,12 @@ function recursive_save(table, indent, table_stack)
 	foreach(key, val in table) {
 		str += indent
 		if (!isarray) {
-			str += key + " = "
+			if (typeof(key)=="string") {
+				str += key + " = "
+			}
+			else {
+				str += "[" + key + "] = "
+			}
 		}
 		while( typeof(val) == "weakref" )
 			val = val.ref
@@ -158,9 +170,15 @@ function recursive_save(table, indent, table_stack)
 			default:
 				str += "\"unknown\""
 		}
-		str += "\n"
+		if (str.slice(-1) != "\n") {
+			str += ",\n"
+		}
+		else {
+			str = str.slice(0,-1) + ",\n"
+		}
+
 	}
-	str += (isarray ? "]" : "}") + "\n"
+	str += indent.slice(0,-1) + (isarray ? "]" : "}") + "\n"
 	return str
 }
 
@@ -462,6 +480,40 @@ class city_x extends extend_get {
  * class to access in-game settings
  */
 class settings {
+}
+
+
+class schedule_x {
+	/// waytype
+	waytype = 0
+	/// the entries
+	entries = null
+
+	constructor(w, e)
+	{
+		waytype = w
+		entries = e
+	}
+}
+
+class schedule_entry_x {
+	/// coordinate
+	x = -1
+	y = -1
+	z = -1
+	/// load percentage
+	load = 0
+	/// waiting
+	wait = 0
+
+	constructor(pos, l, w)
+	{
+		x = pos.x
+		y = pos.y
+		z = pos.z
+		load = l
+		wait = w
+	}
 }
 
 /**

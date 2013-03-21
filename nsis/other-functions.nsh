@@ -147,6 +147,8 @@ Function componentsPre
   Call EnableSectionIfThere
   Push ${pak192comic}
   Call EnableSectionIfThere
+  Push ${pak64scifi}
+  Call EnableSectionIfThere
   Push ${pak48excentrique}
   Call EnableSectionIfThere
   Push ${pak32comic}
@@ -349,7 +351,6 @@ DownloadInstallZipDo:
   RMdir /r "$TEMP\simutrans"
 DownloadInstallZipSkipped:
 FunctionEnd
-
 
 
 

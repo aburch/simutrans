@@ -1344,6 +1344,19 @@ void haltestelle_t::remove_fabriken(fabrik_t *fab)
 	fab_list.remove(fab);
 }
 
+sint8 haltestelle_t::is_connected(halthandle_t halt, uint8 catg_index) const
+{
+	if (!halt.is_bound()) {
+		return 0; // not connected
+	}
+	connexions_map *linka = connexions[catg_index];
+	connexions_map *linkb = halt->connexions[catg_index];
+	if (linka->empty() || linkb->empty()) {
+		return 0; // empty connections -> not connected
+	}
+	return linka->get(halt)  ||  linkb->get(self) ? 1 : 0;
+}
+
 uint16 haltestelle_t::get_average_waiting_time(halthandle_t halt, uint8 category) const
 {
 	inthashtable_tpl<uint16, haltestelle_t::waiting_time_set> * const wt = &waiting_times[category];
@@ -1379,298 +1392,6 @@ linehandle_t haltestelle_t::get_preferred_line(halthandle_t transfer, uint8 cate
 	linehandle_t best_line = connexions[category]->get(transfer)->best_line;
 	return best_line;
 }
-//=======
-//
-///**
-// * Rebuilds the list of connections to directly reachable halts
-// * Returns the number of stops considered
-// * @author Hj. Malthaner
-// */
-//#define WEIGHT_WAIT (8)
-//#define WEIGHT_HALT (1)
-//// the minimum weight of a connection from a transfer halt
-//#define WEIGHT_MIN (WEIGHT_WAIT+WEIGHT_HALT)
-//sint32 haltestelle_t::rebuild_connections()
-//{
-//	// Knightly : halts which either immediately precede or succeed self halt in serving schedules
-//	static vector_tpl<halthandle_t> consecutive_halts[256];
-//	// Dwachs : halts which either immediately precede or succeed self halt in currently processed schedule
-//	static vector_tpl<halthandle_t> consecutive_halts_fpl[256];
-//	// remember max number of consecutive halts for one schedule
-//	uint8 max_consecutive_halts_fpl[256];
-//	MEMZERON(max_consecutive_halts_fpl, warenbauer_t::get_max_catg_index());
-//	// Knightly : previous halt supporting the ware categories of the serving line
-//	static halthandle_t previous_halt[256];
-//
-//	// Hajo: first, remove all old entries
-//	for(  uint8 i=0;  i<warenbauer_t::get_max_catg_index();  i++  ){
-//		all_links[i].clear();
-//		consecutive_halts[i].clear();
-//	}
-//	resort_freight_info = true;	// might result in error in routing
-//
-//	last_catg_index = 255;	// must reroute everything
-//	sint32 connections_searched = 0;
-//
-//// DBG_MESSAGE("haltestelle_t::rebuild_destinations()", "Adding new table entries");
-//
-//	const spieler_t *owner;
-//	schedule_t *fpl;
-//	const minivec_tpl<uint8> *goods_catg_index;
-//
-//	minivec_tpl<uint8> supported_catg_index(32);
-//
-//	/*
-//	 * In the first loops:
-//	 * lines==true => search for lines
-//	 * After this:
-//	 * lines==false => search for single convoys without lines
-//	 */
-//	bool lines = true;
-//	uint32 current_index = 0;
-//	while(  lines  ||  current_index < registered_convoys.get_count()  ) {
-//
-//		// Now, collect the "fpl", "owner" and "add_catg_index" from line resp. convoy.
-//		if(  lines  ) {
-//			if(  current_index >= registered_lines.get_count()  ) {
-//				// We have looped over all lines.
-//				lines = false;
-//				current_index = 0;	// Knightly : start over for registered lineless convoys
-//				continue;
-//			}
-//
-//			const linehandle_t line = registered_lines[current_index];
-//			++current_index;
-//
-//			owner = line->get_besitzer();
-//			fpl = line->get_schedule();
-//			goods_catg_index = &line->get_goods_catg_index();
-//		}
-//		else {
-//			const convoihandle_t cnv = registered_convoys[current_index];
-//			++current_index;
-//
-//			owner = cnv->get_besitzer();
-//			fpl = cnv->get_schedule();
-//			goods_catg_index = &cnv->get_goods_catg_index();
-//		}
-//
-//		// find the index from which to start processing
-//		uint8 start_index = 0;
-//		while(  start_index < fpl->get_count()  &&  get_halt( welt, fpl->eintrag[start_index].pos, owner ) != self  ) {
-//			++start_index;
-//		}
-//		++start_index;	// the next index after self halt; it's okay to be out-of-range
-//
-//		// determine goods category indices supported by this halt
-//		supported_catg_index.clear();
-//		FOR(minivec_tpl<uint8>, const catg_index, *goods_catg_index) {
-//			if(  is_enabled(catg_index)  ) {
-//				supported_catg_index.append(catg_index);
-//				previous_halt[catg_index] = self;
-//				consecutive_halts_fpl[catg_index].clear();
-//			}
-//		}
-//
-//		if(  supported_catg_index.empty()  ) {
-//			// this halt does not support the goods categories handled by the line/lineless convoy
-//			continue;
-//		}
-//
-//		INT_CHECK("simhalt.cc 612");
-//
-//		// now we add the schedule to the connection array
-//		uint16 aggregate_weight = WEIGHT_WAIT;
-//		for(  uint8 j=0;  j<fpl->get_count();  ++j  ) {
-//
-//			halthandle_t current_halt = get_halt(welt, fpl->eintrag[(start_index+j)%fpl->get_count()].pos, owner );
-//			if(  !current_halt.is_bound()  ) {
-//				// ignore way points
-//				continue;
-//			}
-//			if(  current_halt == self  ) {
-//				// Knightly : check for consecutive halts which precede self halt
-//				FOR(minivec_tpl<uint8>, const catg_index, supported_catg_index) {
-//					if(  previous_halt[catg_index]!=self  ) {
-//						consecutive_halts[catg_index].append_unique(previous_halt[catg_index]);
-//						consecutive_halts_fpl[catg_index].append_unique(previous_halt[catg_index]);
-//						previous_halt[catg_index] = self;
-//					}
-//				}
-//				// reset aggregate weight
-//				aggregate_weight = WEIGHT_WAIT;
-//				continue;
-//			}
-//
-//			aggregate_weight += WEIGHT_HALT;
-//
-//			FOR(minivec_tpl<uint8>, const catg_index, supported_catg_index) {
-//				if(  current_halt->is_enabled(catg_index)  ) {
-//					// Knightly : check for consecutive halts which succeed self halt
-//					if(  previous_halt[catg_index] == self  ) {
-//						consecutive_halts[catg_index].append_unique(current_halt);
-//						consecutive_halts_fpl[catg_index].append_unique(current_halt);
-//					}
-//					previous_halt[catg_index] = current_halt;
-//
-//					// either add a new connection or update the weight of an existing connection where necessary
-//					connection_t *const existing_connection = all_links[catg_index].connections.insert_unique_ordered( connection_t( current_halt, aggregate_weight ), connection_t::compare );
-//					if(  existing_connection  &&  aggregate_weight<existing_connection->weight  ) {
-//						existing_connection->weight = aggregate_weight;
-//					}
-//				}
-//			}
-//		}
-//
-//		FOR(minivec_tpl<uint8>, const catg_index, supported_catg_index) {
-//			if(  consecutive_halts_fpl[catg_index].get_count() > max_consecutive_halts_fpl[catg_index]  ) {
-//				max_consecutive_halts_fpl[catg_index] = consecutive_halts_fpl[catg_index].get_count();
-//			}
-//		}
-//		connections_searched += fpl->get_count();
-//	}
-//	for(  uint8 i=0;  i<warenbauer_t::get_max_catg_index();  i++  ){
-//		if(  !consecutive_halts[i].empty()  ) {
-//			if(  consecutive_halts[i].get_count() == max_consecutive_halts_fpl[i]  ) {
-//				// one schedule reaches all consecutive halts -> this is not transfer halt
-//			}
-//			else {
-//				all_links[i].is_transfer = true;
-//			}
-//			total_times /= count;
-//			// Minimum waiting time of 2 minutes (i.e., 20 tenths of a minute)
-//			// This simulates the overhead time needed to arrive at a stop, and 
-//			// board, etc. 
-//			return total_times >= 20 ? (uint16)total_times : 20;
-//		}
-//		return 19;
-//	}
-//	return 19;
-//}
-//
-//
-//void haltestelle_t::fill_connected_component(uint8 catg_idx, uint16 comp)
-//{
-//	if (all_links[catg_idx].catg_connected_component != UNDECIDED_CONNECTED_COMPONENT) {
-//		// already connected
-//		return;
-//	}
-//	all_links[catg_idx].catg_connected_component = comp;
-//
-//	FOR(vector_tpl<connection_t>, &c, all_links[catg_idx].connections) {
-//		c.halt->fill_connected_component(catg_idx, comp);
-//	}
-//}
-//
-//
-//void haltestelle_t::rebuild_connected_components()
-//{
-//	for(uint8 catg_idx = 0; catg_idx<warenbauer_t::get_max_catg_index(); catg_idx++) {
-//		uint16 comp = 0;
-//		FOR(slist_tpl<halthandle_t>, halt, alle_haltestellen) {
-//			if (halt->all_links[catg_idx].catg_connected_component == UNDECIDED_CONNECTED_COMPONENT) {
-//				// start recursion
-//				halt->fill_connected_component(catg_idx, comp);
-//				comp++;
-//			}
-//		}
-//	}
-//}
-//
-///**
-// * Data for route searching
-// */
-//haltestelle_t::halt_data_t haltestelle_t::halt_data[65536];
-//binary_heap_tpl<haltestelle_t::route_node_t> haltestelle_t::open_list;
-//uint8 haltestelle_t::markers[65536];
-//uint8 haltestelle_t::current_marker = 0;
-///**
-// * Data for resumable route search
-// */
-//halthandle_t haltestelle_t::last_search_origin;
-//uint8 haltestelle_t::last_search_ware_catg_idx = 255;
-///**
-// * This routine tries to find a route for a good packet (ware)
-// * it will be called for
-// *  - new goods (either from simcity.cc or simfab.cc)
-// *  - goods that transfer and cannot be joined with other goods
-// *  - during rerouting
-// * Therefore this routine eats up most of the performance in
-// * later games. So all changes should be done with this in mind!
-// *
-// * If no route is found, ziel and zwischenziel are unbound handles.
-// * If next_to_ziel in not NULL, it will get the koordinate of the stop
-// * previous to target. Can be used to create passengers/mail back the
-// * same route back
-// *
-// * if USE_ROUTE_SLIST_TPL is defined, the list template will be used.
-// * However, this is about 50% slower.
-// *
-// * @author Hj. Malthaner/prissi/gerw/Knightly
-// */
-//int haltestelle_t::search_route( const halthandle_t *const start_halts, const uint16 start_halt_count, const bool no_routing_over_overcrowding, ware_t &ware, ware_t *const return_ware )
-//{
-//	const uint8 ware_catg_idx = ware.get_besch()->get_catg_index();
-//
-//	// since also the factory halt list is added to the ground, we can use just this ...
-//	const planquadrat_t *const plan = welt->lookup( ware.get_zielpos() );
-//	const halthandle_t *const halt_list = plan->get_haltlist();
-//	// but we can only use a subset of these
-//	static vector_tpl<halthandle_t> end_halts(16);
-//	end_halts.clear();
-//	// target halts are in these connected components
-//	// we start from halts only in the same components
-//	static vector_tpl<uint16> end_conn_comp(16);
-//	end_conn_comp.clear();
-//	// if one target halt is undefined, we have to start search from all halts
-//	bool end_conn_comp_undefined = false;
-//
-//	for( uint32 h=0;  h<plan->get_haltlist_count();  ++h ) {
-//		halthandle_t halt = halt_list[h];
-//		if(  halt.is_bound()  &&  halt->is_enabled(ware_catg_idx)  ) {
-//			// check if this is present in the list of start halts
-//			for(  uint16 s=0;  s<start_halt_count;  ++s  ) {
-//				if(  halt==start_halts[s]  ) {
-//					// destination halt is also a start halt -> within walking distance
-//					ware.set_ziel( start_halts[s] );
-//					ware.set_zwischenziel( halthandle_t() );
-//					if(  return_ware  ) {
-//						return_ware->set_ziel( start_halts[s] );
-//						return_ware->set_zwischenziel( halthandle_t() );
-//					}
-//					return ROUTE_WALK;
-//				}
-//			}
-//			end_halts.append(halt);
-//
-//			// check connected component of target halt
-//			uint16 endhalt_conn_comp = halt->all_links[ware_catg_idx].catg_connected_component;
-//			if (endhalt_conn_comp == UNDECIDED_CONNECTED_COMPONENT) {
-//				// undefined: all start halts are probably connected to this target
-//				end_conn_comp_undefined = true;
-//			}
-//			else {
-//				// store connected component
-//				if (!end_conn_comp_undefined) {
-//					end_conn_comp.append_unique( endhalt_conn_comp );
-//				}
-//			}
-//		}
-//	}
-//
-//	if(  end_halts.empty()  ) {
-//		// no end halt found
-//		ware.set_ziel( halthandle_t() );
-//		ware.set_zwischenziel( halthandle_t() );
-//		if(  return_ware  ) {
-//			return_ware->set_ziel( halthandle_t() );
-//			return_ware->set_zwischenziel( halthandle_t() );
-//		}
-//		return NO_ROUTE;
-//	}
-//}
-//
-//>>>>>>> aburch/master
 
 convoihandle_t haltestelle_t::get_preferred_convoy(halthandle_t transfer, uint8 category) const
 {
@@ -3434,7 +3155,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			uint32 count = 0;
 			file->rdwr_long(count);
 			halthandle_t halt;
-			for(int n = 0; n < count; n ++)
+			for(uint32 n = 0; n < count; n ++)
 			{
 				halt.rdwr(file);
 				add_halt_within_walking_distance(halt);
@@ -3746,33 +3467,22 @@ bool haltestelle_t::add_grund(grund_t *gr)
 
 	// check if we have to register line(s) and/or lineless convoy(s) which serve this halt
 	vector_tpl<linehandle_t> check_line(0);
-	if(  get_besitzer()==welt->get_spieler(1)  ) {
-		// must iterate over all players lines ...
-		for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
-			if(  welt->get_spieler(i)  ) {
-				welt->get_spieler(i)->simlinemgmt.get_lines(simline_t::line, &check_line);
-				FOR(  vector_tpl<linehandle_t>, const j, check_line  ) {
-					// only add unknown lines
-					if(  !registered_lines.is_contained(j)  &&  j->count_convoys() > 0  ) {
-						FOR(  minivec_tpl<linieneintrag_t>, const& k, j->get_schedule()->eintrag  ) {
-							if(  get_halt(welt, k.pos, j->get_besitzer()) == self  ) {
-								registered_lines.append(j);
-								break;
-							}
-						}
-					}
-				}
-			}
-		}
-		// Knightly : iterate over all convoys
-		FOR(vector_tpl<convoihandle_t>, const cnv, welt->convoys()) {
-			// only check lineless convoys which are not yet registered
-			if(  !cnv->get_line().is_bound()  &&  !registered_convoys.is_contained(cnv)  ) {
-				const schedule_t *const fpl = cnv->get_schedule();
-				if(  fpl  ) {
-					FOR(minivec_tpl<linieneintrag_t>, const& k, fpl->eintrag) {
-						if (get_halt(welt, k.pos, get_besitzer()) == self) {
-							registered_convoys.append(cnv);
+
+	// public halt: must iterate over all players lines / convoys
+	bool public_halt = get_besitzer() == welt->get_spieler(1);
+
+	uint8 const pl_min = public_halt ? 0                : get_besitzer()->get_player_nr();
+	uint8 const pl_max = public_halt ? MAX_PLAYER_COUNT : get_besitzer()->get_player_nr()+1;
+	// iterate over all lines (public halt: all lines, other: only player's lines)
+	for(  uint8 i=pl_min;  i<pl_max;  i++  ) {
+		if(  spieler_t *sp = welt->get_spieler(i)  ) {
+			sp->simlinemgmt.get_lines(simline_t::line, &check_line);
+			FOR(  vector_tpl<linehandle_t>, const j, check_line  ) {
+				// only add unknown lines
+				if(  !registered_lines.is_contained(j)  &&  j->count_convoys() > 0  ) {
+					FOR(  minivec_tpl<linieneintrag_t>, const& k, j->get_schedule()->eintrag  ) {
+						if(  get_halt(welt, k.pos, sp) == self  ) {
+							registered_lines.append(j);
 							break;
 						}
 					}
@@ -3780,30 +3490,15 @@ bool haltestelle_t::add_grund(grund_t *gr)
 			}
 		}
 	}
-	else {
-		get_besitzer()->simlinemgmt.get_lines(simline_t::line, &check_line);
-		FOR( vector_tpl<linehandle_t>, const j, check_line ) {
-			// only add unknown lines
-			if(  !registered_lines.is_contained(j)  &&  j->count_convoys() > 0  ) {
-					FOR( minivec_tpl<linieneintrag_t>, const& k, j->get_schedule()->eintrag ) {
-					if(  get_halt(welt, k.pos, get_besitzer()) == self  ) {
-						registered_lines.append(j);
+	// Knightly : iterate over all convoys
+	FOR(vector_tpl<convoihandle_t>, const cnv, welt->convoys()) {
+		// only check lineless convoys which have matching ownership and which are not yet registered
+		if(  !cnv->get_line().is_bound()  &&  (public_halt  ||  cnv->get_besitzer()==get_besitzer())  &&  !registered_convoys.is_contained(cnv)  ) {
+			if(  const schedule_t *const fpl = cnv->get_schedule()  ) {
+				FOR(minivec_tpl<linieneintrag_t>, const& k, fpl->eintrag) {
+					if (get_halt(welt, k.pos, cnv->get_besitzer()) == self) {
+						registered_convoys.append(cnv);
 						break;
-					}
-				}
-			}
-		}
-		// Knightly : iterate over all convoys
-		FOR( vector_tpl<convoihandle_t>, const cnv, welt->convoys() ) {
-			// only check lineless convoys which have matching ownership and which are not yet registered
-			if(  !cnv->get_line().is_bound()  &&  cnv->get_besitzer()==get_besitzer()  &&  !registered_convoys.is_contained(cnv)  ) {
-				const schedule_t *const fpl = cnv->get_schedule();
-				if(  fpl  ) {
-					FOR(  minivec_tpl<linieneintrag_t>, const& k, fpl->eintrag  ) {
-						if(  get_halt(welt, k.pos, get_besitzer()) == self  ) {
-							registered_convoys.append(cnv);
-							break;
-						}
 					}
 				}
 			}
@@ -3859,40 +3554,45 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 		set_name( station_name_to_transfer );
 	}
 
+	bool remove_halt = true;
 	planquadrat_t *pl = welt->access( gr->get_pos().get_2d() );
 	if(pl) {
-		// no longer connected (upper level)
+		// no longer present on tile
 		gr->set_halt(halthandle_t());
 		// still connected elsewhere?
 		for(unsigned i=0;  i<pl->get_boden_count();  i++  ) {
 			if(pl->get_boden_bei(i)->get_halt()==self) {
 				// still connected with other ground => do not remove from plan ...
-				DBG_DEBUG("haltestelle_t::rem_grund()", "keep floor, count=%i", tiles.get_count());
-				return true;
+				remove_halt = false;
+				break;
 			}
 		}
-		DBG_DEBUG("haltestelle_t::rem_grund()", "remove also floor, count=%i", tiles.get_count());
-		// otherwise remove from plan ...
-		pl->set_halt(halthandle_t());
-		pl->get_kartenboden()->set_flag(grund_t::dirty);
 	}
 
-	int const cov = welt->get_settings().get_station_coverage();
-	for (int y = -cov; y <= cov; y++) {
-		for (int x = -cov; x <= cov; x++) {
-			planquadrat_t *pl = welt->access( gr->get_pos().get_2d()+koord(x,y) );
-			if(pl) {
-				pl->remove_from_haltlist(welt,self);
-				pl->get_kartenboden()->set_flag(grund_t::dirty);
+	if (remove_halt) {
+		// otherwise remove from plan ...
+		if (pl) {
+			pl->set_halt(halthandle_t());
+			pl->get_kartenboden()->set_flag(grund_t::dirty);
+		}
+
+		int const cov = welt->get_settings().get_station_coverage();
+		for (int y = -cov; y <= cov; y++) {
+			for (int x = -cov; x <= cov; x++) {
+				planquadrat_t *pl = welt->access( gr->get_pos().get_2d()+koord(x,y) );
+				if(pl) {
+					pl->remove_from_haltlist(welt,self);
+					pl->get_kartenboden()->set_flag(grund_t::dirty);
+				}
 			}
 		}
+
+		// factory reach may have been changed ...
+		verbinde_fabriken();
 	}
 
 	// needs to be done, if this was a dock
 	recalc_station_type();
-
-	// factory reach may have been changed ...
-	verbinde_fabriken();
 
 	// remove lines eventually
 	for(  size_t j = registered_lines.get_count();  j-- != 0;  ) {

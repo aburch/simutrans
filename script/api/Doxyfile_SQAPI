@@ -17,6 +17,7 @@ INPUT                  = api_factory.cc \
 			 api_gui.cc \
 			 api_halt.cc \
 			 api_player.cc \
+			 api_schedule.cc \
 			 api_settings.cc \
 			 api_scenario.cc \
 			 api_world.cc \

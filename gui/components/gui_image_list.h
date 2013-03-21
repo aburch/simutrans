@@ -29,11 +29,14 @@ class gui_image_list_t :
 {
 public:
 	struct image_data_t {
-		const char *text;
-		image_id   image;
-		sint16     count;
-		COLOR_VAL  lcolor;	//0=none, 1=green, 2=red, 3 =yellow
-		COLOR_VAL  rcolor;
+		const char *text;  ///< can be NULL, used to store external data
+		image_id   image;  ///< the image
+		sint16     count;  ///< display this number as overlay
+		COLOR_VAL  lcolor; ///< color of left half of color bar, use EMPTY_IMAGE_BAR to display no bar
+		COLOR_VAL  rcolor; ///< color of right half of color bar, use EMPTY_IMAGE_BAR to display no bar
+
+		image_data_t(const char *text_, image_id image_, sint16 count_=0, COLOR_VAL lcolor_=EMPTY_IMAGE_BAR, COLOR_VAL rcolor_=EMPTY_IMAGE_BAR)
+		: text(text_), image(image_), count(count_), lcolor(lcolor_), rcolor(rcolor_) {}
 	};
 
 	/**
@@ -47,7 +50,7 @@ public:
 	enum { BORDER = 4 };
 
 private:
-	vector_tpl<image_data_t> *images;
+	vector_tpl<image_data_t*> *images;
 
 	koord grid;
 	koord placement;
@@ -67,19 +70,19 @@ private:
 
 public:
 	/**
-	 * Konstruktor, nimmt einen Vector von Bildnummern als Parameter.
-	 * @param bilder ein Vector mit den Nummern der Bilder
+	 * Constructor: takes pointer to vector with image_data_t
+	 * @param images pointer to vector of pointers to image_data_t
 	 * @author Hj. Malthaner
 	 */
+	gui_image_list_t(vector_tpl<image_data_t*> *images);
 
-	gui_image_list_t(vector_tpl<image_data_t> *images);
 	/**
 	 * This set horizontal and vertical spacing for the images.
 	 * @author Volker Meyer
 	 * @date  20.06.2003
 	 */
-
 	void set_grid(koord grid) { this->grid = grid; }
+
 	/**
 	 * This set the offset for the images.
 	 * @author Volker Meyer

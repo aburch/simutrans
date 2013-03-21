@@ -99,10 +99,25 @@ protected:
 	// @author: jamespetts, April 2011
 	std::string current_livery;
 
-	sint8 calc_height();		// Offset Bergauf/Bergab
+	/**
+	 * Vehicle movement: calculates z-offset of vehicles on slopes,
+	 * handles vehicles that are invisible in tunnels.
+	 * @param gr vehicle is on this ground (can be NULL)
+	 * @return new offset
+	 */
+	sint8 calc_height(grund_t *gr);
 
+	/**
+	 * Vehicle movement: check whether this vehicle can enter the next tile (pos_next).
+	 */
 	virtual bool hop_check() = 0;
-	virtual void hop() = 0;
+
+	/**
+	 * Vehicle movement: change tiles, calls verlasse_feld and betrete_feld.
+	 * @return pointer to ground of new position (never NULL)
+	 */
+	virtual grund_t* hop() = 0;
+
 	virtual void update_bookkeeping(uint32 steps) = 0;
 
 	virtual void calc_bild() = 0;
@@ -152,8 +167,16 @@ public:
 	// true, if this vehicle did not moved for some time
 	virtual bool is_stuck() { return true; }
 
-	virtual void betrete_feld();
+	/**
+	 * Vehicle movement: enter tile, add this to the ground.
+	 * @pre position (ding_t::pos) needs to be updated prior to calling this functions
+	 * @return pointer to ground (never NULL)
+	 */
+	virtual grund_t* betrete_feld();
 
+	/**
+	 * Vehicle movement: leave tile, release reserved crossing, remove vehicle from the ground.
+	 */
 	virtual void verlasse_feld();
 
 	virtual overtaker_t *get_overtaker() { return NULL; }
@@ -204,8 +227,6 @@ private:
 	/**
 	 * berechnet aktuelle Geschwindigkeit aufgrund der Steigung
 	 * (Hoehendifferenz) der Fahrbahn
-	 * @param h_alt alte Hoehe
-	 * @param h_neu neue Hoehe
 	 */
 	virtual void calc_drag_coefficient(const grund_t *gr);
 
@@ -261,14 +282,14 @@ private:
 	static sint64 sound_ticks;
 
 protected:
-	virtual void hop();
+	virtual grund_t* hop();
+
 	virtual void update_bookkeeping(uint32 steps) {
 	   // Only the first vehicle in a convoy does this,
 	   // or else there is double counting.
 	   // NOTE: As of 9.0, increment_odometer() also adds running costs for *all* vehicles in the convoy.
 		if (ist_erstes) cnv->increment_odometer(steps);
 	}
-
 
 	// current limit (due to track etc.)
 	sint32 speed_limit;
@@ -334,7 +355,7 @@ public:
 
 	virtual bool ist_weg_frei( int &/*restart_speed*/, bool /*second_check*/ ) { return true; }
 
-	virtual void betrete_feld();
+	virtual grund_t* betrete_feld();
 
 	virtual void verlasse_feld();
 
@@ -626,7 +647,7 @@ protected:
 	bool is_checker;
 
 public:
-	virtual void betrete_feld();
+	virtual grund_t* betrete_feld();
 
 	virtual waytype_t get_waytype() const { return road_wt; }
 
@@ -672,7 +693,7 @@ class waggon_t : public vehikel_t
 protected:
 	bool ist_befahrbar(const grund_t *bd) const;
 
-	void betrete_feld();
+	grund_t* betrete_feld();
 
 	bool is_weg_frei_signal( uint16 start_index, int &restart_speed );
 
@@ -893,11 +914,11 @@ private:
 
 protected:
 	// jumps to next tile and correct the height ...
-	void hop();
+	grund_t* hop();
 
 	bool ist_befahrbar(const grund_t *bd) const;
 
-	void betrete_feld();
+	grund_t* betrete_feld();
 
 	int block_reserver( uint32 start, uint32 end, bool reserve ) const;
 
