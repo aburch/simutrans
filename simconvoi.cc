@@ -213,10 +213,9 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 
 convoi_t::convoi_t(karte_t* wl, loadsave_t* file) : fahr(max_vehicle, NULL)
 {
+	self = convoihandle_t();
 	init(wl, 0);
 	replace = NULL;
-
-	self = convoihandle_t(this);
 
 	no_route_retry_count = 0;
 	rdwr(file);
@@ -1073,7 +1072,7 @@ bool convoi_t::sync_step(long delta_t)
 					uint32 sp_hat = fahr[0]->fahre_basis(1<<YARDS_PER_VEHICLE_STEP_SHIFT);
 					int v_nr = get_vehicle_at_length((++steps_driven)>>4);
 					// stop when depot reached
-					if(state==INITIAL) {
+					if(state==INITIAL  ||  state==ROUTING_1) {
 						break;
 					}
 					// until all are moving or something went wrong (sp_hat==0)
@@ -2946,6 +2945,17 @@ convoi_t::reverse_order(bool rev)
 }
 
 
+void convoi_t::rdwr_convoihandle_t(loadsave_t *file, convoihandle_t &cnv)
+{
+	if(  file->get_version()>112002  ) {
+		uint16 id = (file->is_saving()  &&  cnv.is_bound()) ? cnv.get_id() : 0;
+		file->rdwr_short( id );
+		if (file->is_loading()) {
+			cnv.set_id( id );
+		}
+	}
+}
+
 
 void convoi_t::rdwr(loadsave_t *file)
 {
@@ -2967,6 +2977,22 @@ void convoi_t::rdwr(loadsave_t *file)
 	}
 
 	simline_t::rdwr_linehandle_t(file, line);
+
+	// we want persistent convoihandles so we can keep dialoges open in network games
+	if(  file->is_loading()  ) {
+		if(  file->get_version()<=112002  ) {
+			self = convoihandle_t( this );
+		}
+		else {
+			uint16 id;
+			file->rdwr_short( id );
+			self = convoihandle_t( this, id );
+		}
+	}
+	else if(  file->get_version()>112002  ) {
+		uint16 id = self.get_id();
+		file->rdwr_short( id );
+	}
 
 	dummy = anz_vehikel;
 	file->rdwr_long(dummy);

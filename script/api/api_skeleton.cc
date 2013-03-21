@@ -129,3 +129,16 @@ register_function("is_tool_allowed");
  * @typemask string(integer,integer,coord3d)
  */
 register_function("is_work_allowed_here");
+
+/**
+ * Called when user changed a schedule (closes schedule window).
+ *
+ * @warning Function will NOT be called in network games.
+ *
+ * @param pl player number
+ * @param schedule the schedule
+ *
+ * @return null if allowed, an error message otherwise
+ * @typemask string(integer,schedule_x)
+ */
+register_function("is_schedule_allowed");

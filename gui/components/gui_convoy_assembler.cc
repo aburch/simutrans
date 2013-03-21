@@ -264,6 +264,15 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(karte_t *w, waytype_t wt, signed 
 	replace_frame = NULL;
 }
 
+// free memory: all the image_data_t
+gui_convoy_assembler_t::~gui_convoy_assembler_t()
+{
+	clear_ptr_vector(pas_vec);
+	clear_ptr_vector(electrics_vec);
+	clear_ptr_vector(loks_vec);
+	clear_ptr_vector(waggons_vec);
+}
+
 
 koord gui_convoy_assembler_t::get_placement(waytype_t wt)
 {
@@ -524,13 +533,13 @@ bool gui_convoy_assembler_t::action_triggered( gui_action_creator_t *komp,value_
 			image_from_convoi_list( p.i );
 			update_data();
 		} else if(komp == &pas) {
-			image_from_storage_list(&pas_vec[p.i]);
+			image_from_storage_list(pas_vec[p.i]);
 		} else if (komp == &electrics) {
-			image_from_storage_list(&electrics_vec[p.i]);
+			image_from_storage_list(electrics_vec[p.i]);
 		} else if(komp == &loks) {
-			image_from_storage_list(&loks_vec[p.i]);
+			image_from_storage_list(loks_vec[p.i]);
 		} else if(komp == &waggons) {
-			image_from_storage_list(&waggons_vec[p.i]);
+			image_from_storage_list(waggons_vec[p.i]);
 		} else if(komp == &bt_obsolete) {
 			show_retired_vehicles = (show_retired_vehicles == false);
 			build_vehicle_lists();
@@ -1007,7 +1016,6 @@ void gui_convoy_assembler_t::add_to_vehicle_list(const vehikel_besch_t *info)
 	// prissi: ist a non-electric track?
 	// Hajo: check for timeline
 	// prissi: and retirement date
-	gui_image_list_t::image_data_t img_data;
 
 	if(livery_scheme_index >= welt->get_settings().get_livery_schemes()->get_count())
 	{
@@ -1017,12 +1025,13 @@ void gui_convoy_assembler_t::add_to_vehicle_list(const vehikel_besch_t *info)
 
 	const livery_scheme_t* const scheme = welt->get_settings().get_livery_scheme(livery_scheme_index);
 	uint16 date = welt->get_timeline_year_month();
+	image_id image;
 	if(scheme)
 	{
 		const char* livery = scheme->get_latest_available_livery(date, info);
 		if(livery)
 		{
-			img_data.image = info->get_basis_bild(livery);
+			image = info->get_basis_bild(livery);
 		}
 		else
 		{
@@ -1033,42 +1042,40 @@ void gui_convoy_assembler_t::add_to_vehicle_list(const vehikel_besch_t *info)
 				const char* new_livery = new_scheme->get_latest_available_livery(date, info);
 				if(new_livery)
 				{
-					img_data.image = info->get_basis_bild(new_livery);
+					image = info->get_basis_bild(new_livery);
 					found = true;
 					break;
 				}
 			}
 			if(!found)
 			{
-				img_data.image =info->get_basis_bild();
+				image =info->get_basis_bild();
 			}
 		}
 	}
 	else
 	{
-		img_data.image = info->get_basis_bild();
+		image = info->get_basis_bild();
 	}
-	img_data.count = 0;
-	img_data.lcolor = img_data.rcolor = EMPTY_IMAGE_BAR;
-	img_data.text = info->get_name();
+	gui_image_list_t::image_data_t* img_data = new gui_image_list_t::image_data_t(info->get_name(), image);
 
 	if(  info->get_engine_type() == vehikel_besch_t::electric  &&  (info->get_ware()==warenbauer_t::passagiere  ||  info->get_ware()==warenbauer_t::post)  ) {
 		electrics_vec.append(img_data);
-		vehicle_map.set(info, &electrics_vec.back());
+		vehicle_map.set(info, electrics_vec.back());
 	}
 	// since they come "pre-sorted" for the vehikelbauer, we have to do nothing to keep them sorted
 	else if(info->get_ware()==warenbauer_t::passagiere  ||  info->get_ware()==warenbauer_t::post) {
 		pas_vec.append(img_data);
-		vehicle_map.set(info, &pas_vec.back());
+		vehicle_map.set(info, pas_vec.back());
 	}
 	else if(info->get_leistung() > 0  || (info->get_zuladung()==0  && (info->get_vorgaenger_count() > 0 || info->get_nachfolger_count() > 0)))
 	{
 		loks_vec.append(img_data);
-		vehicle_map.set(info, &loks_vec.back());
+		vehicle_map.set(info, loks_vec.back());
 	}
 	else {
 		waggons_vec.append(img_data);
-		vehicle_map.set(info, &waggons_vec.back());
+		vehicle_map.set(info, waggons_vec.back());
 	}
 }
 
@@ -1118,7 +1125,7 @@ void gui_convoy_assembler_t::image_from_convoi_list(uint nr)
 
 
 
-void gui_convoy_assembler_t::image_from_storage_list(gui_image_list_t::image_data_t *bild_data)
+void gui_convoy_assembler_t::image_from_storage_list(gui_image_list_t::image_data_t* bild_data)
 {
 	
 	const vehikel_besch_t *info = vehikelbauer_t::get_info(bild_data->text);
@@ -1228,9 +1235,8 @@ void gui_convoy_assembler_t::update_data()
 				add_to_vehicle_list( info );
 			}
 
-			gui_image_list_t::image_data_t img_data;
-
 			bool vehicle_available = false;
+			image_id image;
 			if(depot_frame)
 			{
 				FOR(slist_tpl<vehikel_t *>, const& iter, depot_frame->get_depot()->get_vehicle_list())
@@ -1238,7 +1244,7 @@ void gui_convoy_assembler_t::update_data()
 					if(iter->get_besch() == info)
 					{
 						vehicle_available = true;
-						img_data.image = info->get_basis_bild(iter->get_current_livery());
+						image = info->get_basis_bild(iter->get_current_livery());
 						break;
 					}
 				}
@@ -1251,7 +1257,7 @@ void gui_convoy_assembler_t::update_data()
 						if(cnv->get_vehikel(n)->get_besch() == info)
 						{
 							vehicle_available = true;
-							img_data.image = info->get_basis_bild(cnv->get_vehikel(n)->get_current_livery());
+							image = info->get_basis_bild(cnv->get_vehikel(n)->get_current_livery());
 							// Necessary to break out of double loop.
 							goto end;
 						}
@@ -1266,7 +1272,7 @@ void gui_convoy_assembler_t::update_data()
 					if(cnv->get_vehikel(n)->get_besch() == info)
 					{
 						vehicle_available = true;
-						img_data.image = info->get_basis_bild(cnv->get_vehikel(n)->get_current_livery());
+						image = info->get_basis_bild(cnv->get_vehikel(n)->get_current_livery());
 						break;
 					}
 				}
@@ -1283,7 +1289,7 @@ void gui_convoy_assembler_t::update_data()
 					const char* livery = scheme->get_latest_available_livery(date, vehicles[i]);
 					if(livery)
 					{
-						img_data.image = vehicles[i]->get_basis_bild(livery);
+						image = vehicles[i]->get_basis_bild(livery);
 					}
 					else
 					{
@@ -1294,44 +1300,42 @@ void gui_convoy_assembler_t::update_data()
 							const char* new_livery = new_scheme->get_latest_available_livery(date, vehicles[i]);
 							if(new_livery)
 							{
-								img_data.image = vehicles[i]->get_basis_bild(new_livery);
+								image = vehicles[i]->get_basis_bild(new_livery);
 								found = true;
 								break;
 							}
 						}
 						if(!found)
 						{
-							img_data.image = vehicles[i]->get_basis_bild();
+							image = vehicles[i]->get_basis_bild();
 						}
 					}
 				}
 				else
 				{
-					img_data.image = vehicles[i]->get_basis_bild();
+					image = vehicles[i]->get_basis_bild();
 				}
 			}
-			img_data.count = 0;
-			img_data.lcolor = img_data.rcolor= EMPTY_IMAGE_BAR;
-			img_data.text = vehicles[i]->get_name();
+			gui_image_list_t::image_data_t* img_data = new gui_image_list_t::image_data_t(vehicles[i]->get_name(), image);
 			convoi_pics.append(img_data);
 		}
 
 		/* color bars for current convoi: */
-		convoi_pics[0].lcolor = vehicles[0]->can_follow(NULL) ? COL_DARK_GREEN : COL_YELLOW;
+		convoi_pics[0]->lcolor = vehicles[0]->can_follow(NULL) ? COL_DARK_GREEN : COL_YELLOW;
 		for(  i=1;  i<vehicles.get_count(); i++) {
-			convoi_pics[i - 1].rcolor = vehicles[i - 1]->can_lead(vehicles[i]) ? COL_DARK_GREEN : COL_RED;
-			convoi_pics[i].lcolor     = vehicles[i]->can_follow(vehicles[i - 1]) ? COL_DARK_GREEN : COL_RED;
+			convoi_pics[i - 1]->rcolor = vehicles[i - 1]->can_lead(vehicles[i]) ? COL_DARK_GREEN : COL_RED;
+			convoi_pics[i]->lcolor     = vehicles[i]->can_follow(vehicles[i - 1]) ? COL_DARK_GREEN : COL_RED;
 		}
-		convoi_pics[i - 1].rcolor = vehicles[i - 1]->can_lead(NULL) ? COL_DARK_GREEN : COL_YELLOW;
+		convoi_pics[i - 1]->rcolor = vehicles[i - 1]->can_lead(NULL) ? COL_DARK_GREEN : COL_YELLOW;
 
 		// change green into blue for retired vehicles
 		for(i=0;  i<vehicles.get_count(); i++) {
 			if(vehicles[i]->is_future(month_now) || vehicles[i]->is_retired(month_now)) {
-				if (convoi_pics[i].lcolor == COL_DARK_GREEN) {
-					convoi_pics[i].lcolor = COL_DARK_BLUE;
+				if (convoi_pics[i]->lcolor == COL_DARK_GREEN) {
+					convoi_pics[i]->lcolor = COL_DARK_BLUE;
 				}
-				if (convoi_pics[i].rcolor == COL_DARK_GREEN) {
-					convoi_pics[i].rcolor = COL_DARK_BLUE;
+				if (convoi_pics[i]->rcolor == COL_DARK_GREEN) {
+					convoi_pics[i]->rcolor = COL_DARK_BLUE;
 				}
 			}
 		}
@@ -1698,9 +1702,9 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 	int sel_index = lst->index_at(pos + tabs.get_pos() - relpos, x, y - gui_tab_panel_t::HEADER_VSIZE);
 
 	if ((sel_index != -1) && (tabs.getroffen(x-pos.x,y-pos.y))) {
-		const vector_tpl<gui_image_list_t::image_data_t>& vec = (lst == &electrics ? electrics_vec : (lst == &pas ? pas_vec : (lst == &loks ? loks_vec : waggons_vec)));
-		veh_type = vehikelbauer_t::get_info(vec[sel_index].text);
-		if (depot_frame && vec[sel_index].count > 0) {
+		const vector_tpl<gui_image_list_t::image_data_t*>& vec = (lst == &electrics ? electrics_vec : (lst == &pas ? pas_vec : (lst == &loks ? loks_vec : waggons_vec)));
+		veh_type = vehikelbauer_t::get_info(vec[sel_index]->text);
+		if (depot_frame && vec[sel_index]->count > 0) {
 			value = depot_frame->calc_restwert(veh_type) / 100;
 		}
 	}

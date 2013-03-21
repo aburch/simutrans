@@ -14,10 +14,12 @@ class grund_t;
 class karte_t;
 class koord;
 class koord3d;
+struct linieneintrag_t;
 class obj_besch_std_name_t;
 class planquadrat_t;
 class plainstring;
 class scenario_t;
+class schedule_t;
 class settings_t;
 class spieler_t;
 class stadt_t;
@@ -247,8 +249,8 @@ namespace script_api {
 
 	declare_specialized_param(double, "f", "float");
 
-	// no string typemask, as we call to_string
 	declare_specialized_param(const char*, ".", "string");
+	// no string typemask, as we call to_string
 	declare_specialized_param(plainstring, ".", "string");
 
 	declare_specialized_param(koord, "t|x|y", "coord");
@@ -263,6 +265,8 @@ namespace script_api {
 	declare_specialized_param(karte_t*, ".", "world");
 	declare_specialized_param(planquadrat_t*, "t|x|y", "square_x");
 	declare_specialized_param(settings_t*, "t|x|y", "settings");
+	declare_specialized_param(schedule_t*, "t|x|y", "schedule_x");
+	declare_specialized_param(linieneintrag_t, "t|x|y", "schedule_entry_x");
 	declare_specialized_param(scenario_t*, "t|x|y", "");
 	declare_specialized_param(spieler_t*, "t|x|y", "player_x");
 	declare_specialized_param(stadt_t*, "t|x|y", "city_x");

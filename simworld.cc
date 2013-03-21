@@ -1471,7 +1471,8 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing groundobjs");
 	if(  umgebung_t::ground_object_probability > 0  ) {
 		// add eyecandy like rocky, moles, flowers, ...
 		koord k;
-		sint32 queried = simrand(umgebung_t::ground_object_probability*2, "karte_t::distribute_groundobjs_cities()");
+		const uint32 max_queried = umgebung_t::ground_object_probability*2-1; 
+		sint32 queried = simrand(max_queried, "karte_t::distribute_groundobjs_cities()");
 		for(  k.y=0;  k.y<get_size().y;  k.y++  ) {
 			for(  k.x=(k.y<old_y)?old_x:0;  k.x<get_size().x;  k.x++  ) {
 				grund_t *gr = lookup_kartenboden(k);
@@ -1480,7 +1481,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing groundobjs");
 					if(  queried<0  ) {
 						const groundobj_besch_t *besch = groundobj_t::random_groundobj_for_climate( get_climate(gr->get_hoehe()), gr->get_grund_hang() );
 						if(besch) {
-							queried = simrand(umgebung_t::ground_object_probability*2, "karte_t::distribute_groundobjs_cities()");
+							queried = simrand(max_queried, "karte_t::distribute_groundobjs_cities()");
 							gr->obj_add( new groundobj_t( this, gr->get_pos(), besch ) );
 						}
 					}
@@ -1495,7 +1496,8 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing movingobjs");
 		koord k;
 
 		bool has_water = movingobj_t::random_movingobj_for_climate( water_climate )!=NULL;	
-		sint32 queried = simrand(umgebung_t::moving_object_probability*2, "karte_t::distribute_groundobjs_cities()");
+		const uint32 max_queried = umgebung_t::moving_object_probability*2-1; 
+		sint32 queried = simrand(max_queried, "karte_t::distribute_groundobjs_cities()");
 		// no need to test the borders, since they are mostly slopes anyway
 		for(k.y=1; k.y<get_size().y-1; k.y++) {
 			for(k.x=(k.y<old_y)?old_x:1; k.x<get_size().x-1; k.x++) {
@@ -1507,7 +1509,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing movingobjs");
 						const groundobj_besch_t *besch = movingobj_t::random_movingobj_for_climate( get_climate(gr->get_hoehe()) );
 						if(  besch  &&  ( besch->get_waytype()!=water_wt  ||  gr->get_hoehe()<=get_grundwasser() )  ) {
 							if(besch->get_speed()!=0) {
-								queried = simrand(umgebung_t::moving_object_probability*2, "karte_t::distribute_groundobjs_cities()");
+								queried = simrand(max_queried, "karte_t::distribute_groundobjs_cities()");
 								gr->obj_add( new movingobj_t( this, gr->get_pos(), besch ) );
 							}
 						}
@@ -2670,15 +2672,15 @@ void karte_t::rdwr_player_password_hashes(loadsave_t *file)
 }
 
 
-void karte_t::call_change_player_tool(uint8 cmd, uint8 player_nr, uint16 param)
+void karte_t::call_change_player_tool(uint8 cmd, uint8 player_nr, uint16 param, bool scripted_call)
 {
-	nwc_chg_player_t *nwc = new nwc_chg_player_t(sync_steps, map_counter, cmd, player_nr, param);
-
 	if (umgebung_t::networkmode) {
+		nwc_chg_player_t *nwc = new nwc_chg_player_t(sync_steps, map_counter, cmd, player_nr, param, scripted_call);
+
 		network_send_server(nwc);
 	}
 	else {
-		change_player_tool(cmd, player_nr, param, !get_spieler(1)->is_locked(), true);
+		change_player_tool(cmd, player_nr, param, !get_spieler(1)->is_locked()  ||  scripted_call, true);
 		// update the window
 		ki_kontroll_t* playerwin = (ki_kontroll_t*)win_get_magic(magic_ki_kontroll_t);
 		if (playerwin) {
@@ -6451,15 +6453,13 @@ void karte_t::remove_player(uint8 player_nr)
 /* goes to next active player */
 void karte_t::switch_active_player(uint8 new_player, bool silent)
 {
-	// cheat: play as AI
-	bool renew_menu=false;
-
 	for(  uint8 i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
 		if(  spieler[(i+new_player)%MAX_PLAYER_COUNT] != NULL  ) {
 			new_player = (i+new_player)%MAX_PLAYER_COUNT;
 			break;
 		}
 	}
+	koord3d old_zeiger_pos = zeiger->get_pos();
 
 	// no cheating allowed?
 	if (!settings.get_allow_player_change() && spieler[1]->is_locked()) {
@@ -6470,14 +6470,11 @@ void karte_t::switch_active_player(uint8 new_player, bool silent)
 		}
 	}
 	else {
-		koord3d old_zeiger_pos = zeiger->get_pos();
-		zeiger->set_bild( IMG_LEER );	// unmarks also area
-		zeiger->set_pos( koord3d::invalid );
+		zeiger->change_pos( koord3d::invalid ); // unmark area
 		// exit active tool to remove pointers (for two_click_tool_t's, stop mover, factory linker)
 		if(werkzeug[active_player_nr]) {
 			werkzeug[active_player_nr]->exit(this, active_player);
 		}
-		renew_menu = (active_player_nr==1  ||  new_player==1);
 		active_player_nr = new_player;
 		active_player = spieler[new_player];
 		if(  !silent  ) {
@@ -6486,17 +6483,16 @@ void karte_t::switch_active_player(uint8 new_player, bool silent)
 			buf.printf( translator::translate("Now active as %s.\n"), get_active_player()->get_name() );
 			msg->add_message(buf, koord::invalid, message_t::ai | message_t::local_flag, PLAYER_FLAG|get_active_player()->get_player_nr(), IMG_LEER);
 		}
-		zeiger->set_area( koord(1,1), false );
-		zeiger->set_pos( old_zeiger_pos );
-	}
 
-	// update menue entries (we do not want player1 to run anything)
-	if(renew_menu) {
+		// update menue entries
 		werkzeug_t::update_toolbars(this);
 		set_dirty();
 	}
 
-	zeiger->set_bild( werkzeug[active_player_nr]->cursor );
+	// update pointer image / area
+	werkzeug[active_player_nr]->init_cursor(zeiger);
+	// set position / mark area
+	zeiger->change_pos( old_zeiger_pos );
 }
 
 

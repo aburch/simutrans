@@ -22,6 +22,18 @@ vector_tpl<sint64> const& get_halt_stat(halthandle_t halt, sint32 INDEX)
 }
 
 
+// 0: not connected
+// 1: connected
+// -1: undecided
+sint8 is_halt_connected(halthandle_t a, halthandle_t b, const ware_besch_t *besch)
+{
+	if (besch == 0  ||  !a.is_bound()  || !b.is_bound()) {
+		return 0;
+	}
+	return a->is_connected(b, besch->get_catg_index());
+}
+
+
 #define begin_class(c,p) push_class(vm, c);
 #define end_class() sq_pop(vm,1);
 
@@ -45,7 +57,16 @@ void export_halt(HSQUIRRELVM vm)
 	register_method(vm, &haltestelle_t::get_besitzer, "get_owner");
 
 	/**
+	 * Quick check if there is connection for certain freight to the other halt.
+	 * @param halt the other halt
+	 * @param freight_type freight type
+	 * @return 0 - not connected, 1 - connected, -1 - undecided (call this method again later)
+	 */
+	register_method(vm, &is_halt_connected, "is_connected", true);
+
+	/**
 	 * Does this station accept this type of good?
+	 * @param freight_type freight type
 	 * @returns the answer to this question
 	 */
 	register_method<bool (haltestelle_t::*)(const ware_besch_t*) const>(vm, &haltestelle_t::is_enabled, "accepts_good", false);

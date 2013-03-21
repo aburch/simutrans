@@ -104,6 +104,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	line_selector.add_listener(this);
 	line_selector.set_highlight_color( depot->get_besitzer()->get_player_color1() + 1);
 	line_selector.set_wrapping(false);
+	line_selector.set_focusable(true);
 	add_komponente(&line_selector);
 	depot->get_besitzer()->simlinemgmt.sort_lines();
 
@@ -884,7 +885,6 @@ void depot_frame_t::update_data()
 	}
 	line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( line_seperator, COL_BLACK ) );
 	line_selector.set_selection(0);
-	line_selector.set_focusable(true);
 	selected_line = linehandle_t();
 
 	// check all matching lines
@@ -1105,7 +1105,10 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp, value_t p)
 					selected_line = linehandle_t();
 					apply_line();
 				}
-				set_focus( NULL );
+				// HACK mark line_selector temporarily unfocusable.
+				// We call set_focus(NULL) later if we can.
+				// Calling set_focus(NULL) now would have no effect due to logic in gui_container_t::infowin_event.
+				line_selector.set_focusable( false );
 				return true;
 			}
 //<<<<<<< HEAD
@@ -1135,7 +1138,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp, value_t p)
 							fpl->sprintf_schedule( buf );
 						}
 					}
-					set_focus( NULL );
+					line_selector.set_focusable( false );
 					depot->call_depot_tool('l', convoihandle_t(), buf);
 				}
 				return true;
@@ -1180,6 +1183,13 @@ bool depot_frame_t::infowin_event(const event_t *ev)
 	}
 
 	const bool swallowed = gui_frame_t::infowin_event(ev);
+
+	// HACK make line_selector focusable again
+	// now we can release focus
+	if (!line_selector.is_focusable( ) ) {
+		line_selector.set_focusable( true );
+		set_focus(NULL);
+	}
 
 	if(IS_WINDOW_CHOOSE_NEXT(ev)) {
 
@@ -1256,7 +1266,7 @@ void depot_frame_t::zeichnen(koord pos, koord groesse)
 
 	convoihandle_t cnv = depot->get_convoi(icnv);
 	// check for data inconsistencies (can happen with withdraw-all and vehicle in depot)
-	const vector_tpl<gui_image_list_t::image_data_t>* convoi_pics = convoy_assembler.get_convoi_pics();
+	const vector_tpl<gui_image_list_t::image_data_t*>* convoi_pics = convoy_assembler.get_convoi_pics();
 	if(  !cnv.is_bound()  &&  !convoi_pics->empty()  ) {
 		icnv=0;
 		update_data();

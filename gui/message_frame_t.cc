@@ -132,7 +132,6 @@ bool message_frame_t::action_triggered( gui_action_creator_t *komp, value_t v )
 		network_send_server( nwchat );
 
 		ibuf[0] = 0;
-		set_focus(&input);
 	}
 	else if(  komp==&tabs  ) {
 		// Knightly : filter messages by type where necessary
@@ -158,8 +157,10 @@ void message_frame_t::rdwr(loadsave_t *file)
 	file->rdwr_long( scroll_y );
 
 	if(  file->is_loading()  ) {
-		tabs.set_active_tab_index( tabstate );
-		stats.filter_messages( categories[tabstate] );
+		if ( tabstate > 0  &&  (uint32)tabstate < tabs.get_count() ) {
+			tabs.set_active_tab_index( tabstate );
+			stats.filter_messages( tab_categories[tabstate] );
+		}
 		set_fenstergroesse( gr );
 		resize( koord(0,0) );
 		scrolly.set_scroll_position( scroll_x, scroll_y );

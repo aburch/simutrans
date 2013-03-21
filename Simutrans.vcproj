@@ -243,6 +243,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\script\api\api_gui.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\script\api\api_halt.cc"
 				>
 			</File>
@@ -256,6 +260,10 @@
 			</File>
 			<File
 				RelativePath=".\script\api\api_scenario.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\script\api\api_schedule.cc"
 				>
 			</File>
 			<File

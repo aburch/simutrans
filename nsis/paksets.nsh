@@ -3,19 +3,19 @@
 SectionGroup "Pak64: main and addons" pak64group
 
 Section "!pak (64 size) (standard)" pak
-  AddSize 10970
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/112-1/simupak64-112-1.zip"
-  StrCpy $archievename "simupak64-112-1.zip"
+  AddSize 11299
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/112-2/simupak64-112-2.zip"
+  StrCpy $archievename "simupak64-112-2.zip"
   StrCpy $downloadname "pak"
-  StrCpy $VersionString "pak64 112.1 r1127"
+  StrCpy $VersionString "pak64 112.2 r1185"
   Call DownloadInstallZip
 SectionEnd
 
 
 Section /o "pak64 Food addon"
   AddSize 280
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/112-1/simupak64-addon-food-112-1.zip"
-  StrCpy $archievename "simupak64-addon-food-112-1.zip"
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/112-2/simupak64-addon-food-112-2.zip"
+  StrCpy $archievename "simupak64-addon-food-112-2.zip"
   StrCpy $downloadname "pak"
   StrCpy $VersionString ""
   StrCmp $multiuserinstall "1" +3
@@ -182,12 +182,12 @@ SectionEnd
 
 
 
-Section /o "pak128.German V0.4 for 111.3" pak128german
-  AddSize 58309
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/PAK128.german/PAK128.german_0.4_111.3/PAK128.german_0.4_111.3.zip"
-  StrCpy $archievename "PAK128.german_0.4_111.3.zip"
+Section /o "pak128.German V0.5 for 112.1" pak128german
+  AddSize 77103
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/PAK128.german/PAK128.german_0.5_112.1/PAK128.german_0.5_112.x.zip"
+  StrCpy $archievename "PAK128.german_0.5_112.x.zip"
   StrCpy $downloadname "pak128.German"
-  StrCpy $VersionString "  PAK128.german V 0.4 (Rev. 1201)"
+  StrCpy $VersionString "  PAK128.german V 0.5 (Rev. 1320)"
   Call DownloadInstallZip
 SectionEnd
 
@@ -214,6 +214,15 @@ Section /o "pak192 Comic (Freeware) for 102.2.1" pak192comic
 SectionEnd
 
 
+Section /o "pak64.SciFi V0.12 (alpha)" pak64scifi
+  AddSize 2596
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64.scifi/pak64.scifi_112.1_v0.12.zip"
+  StrCpy $archievename "pak64.scifi_112.1_v0.12.zip"
+  StrCpy $downloadname "pak64.SciFi"
+  StrCpy $VersionString "pak64.SciFi V0.12"
+  Call DownloadInstallZip
+SectionEnd
+
 
 Section /o "pak48.excentrique V0.18" pak48excentrique
   AddSize 1385
@@ -223,7 +232,6 @@ Section /o "pak48.excentrique V0.18" pak48excentrique
   StrCpy $VersionString "pak48.Excentrique v0.18"
   Call DownloadInstallZipWithoutSimutrans
 SectionEnd
-
 
 
 ; name does not match folder name (pak32) but otherwise always selected for update

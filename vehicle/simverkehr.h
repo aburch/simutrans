@@ -52,7 +52,7 @@ protected:
 	virtual waytype_t get_waytype() const { return road_wt; }
 
 	virtual bool hop_check() {return true;}
-	virtual void hop();
+	virtual grund_t* hop();
 	virtual void update_bookkeeping(uint32) {};
 
 #ifdef INLINE_DING_TYPE
@@ -133,10 +133,10 @@ public:
 
 	bool sync_step(long delta_t);
 
-	void hop();
+	grund_t* hop();
 	bool ist_weg_frei(grund_t *gr);
 
-	void betrete_feld();
+	grund_t* betrete_feld();
 
 	void calc_current_speed();
 	uint16 get_current_speed() const {return current_speed;}

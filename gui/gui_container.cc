@@ -14,6 +14,7 @@
 gui_container_t::gui_container_t() : gui_komponente_t(), komp_focus(NULL)
 {
 	list_dirty = false;
+	inside_infowin_event = false;
 }
 
 
@@ -68,6 +69,8 @@ void gui_container_t::remove_all()
  */
 bool gui_container_t::infowin_event(const event_t *ev)
 {
+	inside_infowin_event = true;
+
 	bool swallowed = false;
 	gui_komponente_t *new_focus = komp_focus;
 
@@ -204,6 +207,8 @@ bool gui_container_t::infowin_event(const event_t *ev)
 		}
 	}
 
+	inside_infowin_event = false;
+
 	return swallowed;
 }
 
@@ -237,6 +242,9 @@ bool gui_container_t::is_focusable()
 
 void gui_container_t::set_focus( gui_komponente_t *k )
 {
+	if(  inside_infowin_event  ) {
+		dbg->error("gui_container_t::set_focus", "called from inside infowin_event, will have no effect");
+	}
 	if(  komponenten.is_contained(k)  ||  k==NULL  ) {
 		komp_focus = k;
 	}
