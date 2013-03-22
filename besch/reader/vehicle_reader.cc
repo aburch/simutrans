@@ -582,7 +582,7 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	if(version<9) {
 		besch->base_fixed_cost = 0;
-		besch->axle_load = 0;
+		besch->axle_load = besch->gewicht;
 	}
 
 	// old weights were tons
