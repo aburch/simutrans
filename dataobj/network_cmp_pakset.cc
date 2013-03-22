@@ -144,108 +144,105 @@ void network_compare_pakset_with_server(const char* cp, std::string &msg)
 		// show progress bar
 		uint32 num_paks = addons.get_count()+1;
 		uint32 progress = 0;
-		if(num_paks>0) {
-			loadingscreen::set_label(translator::translate("Comparing pak files ..."));
-			loadingscreen::set_progress(progress, num_paks);
-		}
-		// communication loop
 #define MAX_WRONG_PAKS 10
 		uint16 wrong_paks=0;
-		bool ready = false;
-		do {
-			nwc_pakset_info_t *nwi = NULL;
-			// wait for nwc_pakset_info_t, ignore other commands
-			for(uint8 i=0; i<5; i++) {
-				network_command_t* nwc = network_check_activity( NULL, 10000 );
-				if (nwc  &&  nwc->get_id() == NWC_PAKSETINFO) {
-					nwi = (nwc_pakset_info_t*)nwc;
-					break;
+		if(num_paks>0) {
+			loadingscreen_t ls(translator::translate("Comparing pak files ..."), num_paks );
+			// communication loop
+			bool ready = false;
+			do {
+				nwc_pakset_info_t *nwi = NULL;
+				// wait for nwc_pakset_info_t, ignore other commands
+				for(uint8 i=0; i<5; i++) {
+					network_command_t* nwc = network_check_activity( NULL, 10000 );
+					if (nwc  &&  nwc->get_id() == NWC_PAKSETINFO) {
+						nwi = (nwc_pakset_info_t*)nwc;
+						break;
+					}
+					delete nwc;
 				}
-				delete nwc;
-			}
 
-			if (nwi == NULL) {
-				dbg->warning("network_compare_pakset_with_server", "server did not answer");
-				nwc_pakset_info_t nwi_quit(nwc_pakset_info_t::CL_QUIT);
-				if (!nwi_quit.send(my_client_socket)) {
-					err = "send of NWC_PAKSETINFO failed";
-				}
-				break;
-			}
-			switch(nwi->flag) {
-				case nwc_pakset_info_t::SV_PAKSET:
-				{
-					if(pakset_info_t::get_pakset_checksum()==(*(nwi->chk))) {
-						// found identical paksets
-					}
-					else {
-						wrong_paks++;
-					}
-					progress++;
-					// request new data
-					nwc_pakset_info_t nwi_data(nwc_pakset_info_t::CL_WANT_NEXT);
-					if(!nwi_data.send(my_client_socket)) {
+				if (nwi == NULL) {
+					dbg->warning("network_compare_pakset_with_server", "server did not answer");
+					nwc_pakset_info_t nwi_quit(nwc_pakset_info_t::CL_QUIT);
+					if (!nwi_quit.send(my_client_socket)) {
 						err = "send of NWC_PAKSETINFO failed";
-						ready = true;
 					}
 					break;
 				}
-
-				case nwc_pakset_info_t::SV_DATA:
-				{
-					checksum_t* chk = addons.remove(nwi->name);
-					if(chk) {
-						if((*chk)==(*(nwi->chk))) {
-							// found identical besch's
+				switch(nwi->flag) {
+					case nwc_pakset_info_t::SV_PAKSET:
+					{
+						if(pakset_info_t::get_pakset_checksum()==(*(nwi->chk))) {
+							// found identical paksets
 						}
 						else {
-							different.put(nwi->name, nwi->chk);
-							nwi->clear();
 							wrong_paks++;
 						}
 						progress++;
-					}
-					else {
-						missing.put(nwi->name, nwi->chk);
-						nwi->clear();
-						wrong_paks++;
-					}
-					nwc_pakset_info_t nwi_next;
-					if (wrong_paks<=MAX_WRONG_PAKS) {
 						// request new data
-						nwi_next.flag = nwc_pakset_info_t::CL_WANT_NEXT;
+						nwc_pakset_info_t nwi_data(nwc_pakset_info_t::CL_WANT_NEXT);
+						if(!nwi_data.send(my_client_socket)) {
+							err = "send of NWC_PAKSETINFO failed";
+							ready = true;
+						}
+						break;
 					}
-					else {
-						nwi_next.flag = nwc_pakset_info_t::CL_QUIT;
+
+					case nwc_pakset_info_t::SV_DATA:
+					{
+						checksum_t* chk = addons.remove(nwi->name);
+						if(chk) {
+							if((*chk)==(*(nwi->chk))) {
+								// found identical besch's
+							}
+							else {
+								different.put(nwi->name, nwi->chk);
+								nwi->clear();
+								wrong_paks++;
+							}
+							progress++;
+						}
+						else {
+							missing.put(nwi->name, nwi->chk);
+							nwi->clear();
+							wrong_paks++;
+						}
+						nwc_pakset_info_t nwi_next;
+						if (wrong_paks<=MAX_WRONG_PAKS) {
+							// request new data
+							nwi_next.flag = nwc_pakset_info_t::CL_WANT_NEXT;
+						}
+						else {
+							nwi_next.flag = nwc_pakset_info_t::CL_QUIT;
+						}
+						if(!nwi_next.send(my_client_socket)) {
+							err = "send of NWC_PAKSETINFO failed";
+							ready = true;
+						}
+						break;
 					}
-					if(!nwi_next.send(my_client_socket)) {
-						err = "send of NWC_PAKSETINFO failed";
+
+					case nwc_pakset_info_t::SV_LAST:
+					case nwc_pakset_info_t::SV_ERROR:
+					default:
 						ready = true;
-					}
-					break;
 				}
 
-				case nwc_pakset_info_t::SV_LAST:
-				case nwc_pakset_info_t::SV_ERROR:
-				default:
-					ready = true;
-			}
+				// update progress bar
+				if( num_paks > 0 ) {
+					ls.set_progress(progress);
+				}
+				delete nwi;
 
-			// update progress bar
-			if( num_paks > 0 ) {
-				loadingscreen::set_progress(progress, num_paks);
-			}
-			delete nwi;
+			} while (!ready  &&  wrong_paks<=MAX_WRONG_PAKS);
 
-		} while (!ready  &&  wrong_paks<=MAX_WRONG_PAKS);
-
-		loadingscreen::hide();
-
+		}
 		// now report the result
 		msg.append("<title>");
 		msg.append(translator::translate("Pakset differences"));
 		msg.append("</title>\n");
-		if (wrong_paks<=MAX_WRONG_PAKS  &&  !addons.empty()) {
+		if(wrong_paks<=MAX_WRONG_PAKS  &&  !addons.empty()) {
 			msg.append("<h1>");
 			msg.append(translator::translate("Pak(s) not on server:"));
 			msg.append("</h1><br>\n");

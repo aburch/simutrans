@@ -524,7 +524,7 @@ sint32 karte_t::perlin_hoehe(settings_t const* const sets, koord k, koord const 
 void karte_t::cleanup_karte( int xoff, int yoff )
 {
 	// we need a copy to smoothen the map to a realistic level
-	const sint32 grid_size = (get_size().x+1)*(get_size().y+1);
+	const sint32 grid_size = (get_size().x+1)*(sint32)(get_size().y+1);
 	sint8 *grid_hgts_cpy = new sint8[grid_size];
 	memcpy( grid_hgts_cpy, grid_hgts, grid_size );
 
@@ -588,8 +588,7 @@ DBG_MESSAGE("karte_t::destroy()", "destroying world");
 	uint32 max_display_progress = 256+stadt.get_count()*10 + haltestelle_t::get_alle_haltestellen().get_count() + convoi_array.get_count() + (cached_size.x*cached_size.y)*2;
 	uint32 old_progress = 0;
 
-	loadingscreen::set_label(translator::translate("Destroying map ..."));
-	loadingscreen::set_progress(old_progress, max_display_progress);
+	loadingscreen_t ls( translator::translate("Destroying map ..."), max_display_progress, true );
 
 	// rotate the map until it can be saved
 	nosave_warning = false;
@@ -600,7 +599,8 @@ DBG_MESSAGE("karte_t::destroy()", "destroying world");
 			rotate90();
 		}
 		old_progress += 256;
-		loadingscreen::set_progress(old_progress, max_display_progress);
+		ls.set_max( max_display_progress );
+		ls.set_progress( old_progress );
 	}
 	if(nosave) {
 		dbg->fatal( "karte_t::destroy()","Map cannot be cleanly destroyed in any rotation!" );
@@ -616,7 +616,7 @@ DBG_MESSAGE("karte_t::destroy()", "label clear");
 	}
 
 	old_progress += 256;
-	loadingscreen::set_progress(old_progress, max_display_progress);
+	ls.set_progress( old_progress );
 
 	// alle convois aufraeumen
 	while (!convoi_array.empty()) {
@@ -624,7 +624,7 @@ DBG_MESSAGE("karte_t::destroy()", "label clear");
 		cnv->destroy();
 		old_progress ++;
 		if(  (old_progress&0x00FF) == 0  ) {
-			loadingscreen::set_progress(old_progress, max_display_progress);
+			ls.set_progress( old_progress );
 		}
 	}
 	convoi_array.clear();
@@ -634,7 +634,7 @@ DBG_MESSAGE("karte_t::destroy()", "convois destroyed");
 	old_progress += haltestelle_t::get_alle_haltestellen().get_count();
 	haltestelle_t::destroy_all(this);
 DBG_MESSAGE("karte_t::destroy()", "stops destroyed");
-	loadingscreen::set_progress(old_progress, max_display_progress);
+	ls.set_progress( old_progress );
 
 	// remove all target cities (we can skip recalculation anyway)
 	FOR(slist_tpl<fabrik_t*>, const f, fab_list) {
@@ -648,13 +648,13 @@ DBG_MESSAGE("karte_t::destroy()", "stops destroyed");
 		rem_stadt(stadt.front());
 		old_progress += 10;
 		if(  (i&0x00F) == 0  ) {
-			loadingscreen::set_progress( old_progress, max_display_progress );
+			ls.set_progress( old_progress );
 		}
 	}
 	settings.set_anzahl_staedte(no_of_cities);
 DBG_MESSAGE("karte_t::destroy()", "towns destroyed");
 
-	loadingscreen::set_progress( old_progress, max_display_progress );
+	ls.set_progress( old_progress );
 	old_progress += cached_size.x*cached_size.y;
 
 	// removes all moving stuff from the sync_step
@@ -683,7 +683,7 @@ DBG_MESSAGE("karte_t::destroy()", "towns destroyed");
 #endif
 	}
 
-	loadingscreen::set_progress( old_progress, max_display_progress );
+	ls.set_progress( old_progress );
 DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
 
 	// dinge aufraeumen
@@ -694,7 +694,9 @@ DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
 		plan = NULL;
 	}
 	DBG_MESSAGE("karte_t::destroy()", "planquadrat destroyed");
-	loadingscreen::set_progress( max_display_progress, max_display_progress );
+
+	old_progress += (cached_size.x*cached_size.y)/2;
+	ls.set_progress( old_progress );
 
 	// gitter aufraeumen
 	if(grid_hgts) {
@@ -714,6 +716,9 @@ DBG_MESSAGE("karte_t::destroy()", "marker destroyed");
 		}
 	}
 DBG_MESSAGE("karte_t::destroy()", "player destroyed");
+
+	old_progress += (cached_size.x*cached_size.y)/4;
+	ls.set_progress( old_progress );
 
 	// alle fabriken aufraeumen
 	FOR(slist_tpl<fabrik_t*>, const f, fab_list) {
@@ -973,7 +978,7 @@ void karte_t::create_rivers( sint16 number )
 }
 
 
-void karte_t::distribute_groundobjs_cities(int new_anzahl_staedte, sint32 new_mittlere_einwohnerzahl, sint16 old_x, sint16 old_y)
+void karte_t::distribute_groundobjs_cities(int new_anzahl_staedte, sint32 new_mittlere_einwohnerzahl, sint16 old_x, sint16 old_y )
 {
 DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing rivers");
 	if (umgebung_t::river_types > 0 && settings.get_river_number() > 0) {
@@ -992,11 +997,12 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 		// prissi if we could not generate enough positions ...
 		settings.set_anzahl_staedte(old_anzahl_staedte);
 		int old_progress = 16;
-		int const max_display_progress = 16 + 2 * (old_anzahl_staedte + new_anzahl_staedte) + 2 * new_anzahl_staedte + (old_x == 0 ? settings.get_factory_count() : 0);
 
 		// Ansicht auf erste Stadt zentrieren
-		if (old_x+old_y == 0)
+		if(  old_x+old_y == 0  ) {
 			change_world_position( koord3d((*pos)[0], min_hgt((*pos)[0])) );
+		}
+		loadingscreen_t ls( translator::translate( "distributing cities" ), 16 + 2 * (old_anzahl_staedte + new_anzahl_staedte) + 2 * new_anzahl_staedte + (old_x == 0 ? settings.get_factory_count() : 0), true, true );
 
 		{
 			// Loop only new cities:
@@ -1050,8 +1056,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 					current_bev += growth;
 					stadt[i]->change_size( growth );
 					if(  current_bev > citizens/2  &&  not_updated  ) {
-						old_progress ++;
-						loadingscreen::set_progress(old_progress, max_display_progress);
+						ls.set_progress( ++old_progress );
 						not_updated = true;
 					}
 					current_month += diff;
@@ -1059,8 +1064,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 				}
 
 				// the growth is slow, so update here the progress bar
-				old_progress ++;
-				loadingscreen::set_progress(old_progress, max_display_progress);
+				ls.set_progress( ++old_progress );
 			}
 
 			current_month = original_start_year;
@@ -1083,14 +1087,13 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 		bauigel.set_maximum(umgebung_t::intercity_road_length);
 
 		// **** intercity road construction
-		// progress bar data
-		int old_progress_count = 16+2*new_anzahl_staedte;
 		int count = 0;
 		sint32 const n_cities  = settings.get_anzahl_staedte();
 		int    const max_count = n_cities * (n_cities - 1) / 2 - old_anzahl_staedte * (old_anzahl_staedte - 1) / 2;
 		// something to do??
 		if(  max_count > 0  ) {
 			// print("Building intercity roads ...\n");
+			ls.set_max( 16 + 2 * (old_anzahl_staedte + new_anzahl_staedte) + 2 * new_anzahl_staedte + (old_x == 0 ? settings.get_factory_count() : 0) );
 			// find townhall of city i and road in front of it
 			vector_tpl<koord3d> k;
 			for (int i = 0;  i < settings.get_anzahl_staedte(); ++i) {
@@ -1114,9 +1117,15 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 								ok = true;
 							}
 							pos = pos + inc;
-							if (i==size.x+1) inc = koord(0,1);
-							else if (i==size.x+size.y+2) inc = koord(-1,0);
-							else if (i==2*size.x+size.y+3) inc = koord(0,-1);
+							if (i==size.x+1) {
+								inc = koord(0,1);
+							}
+							else if (i==size.x+size.y+2) {
+								inc = koord(-1,0);
+							}
+							else if (i==2*size.x+size.y+3) {
+								inc = koord(0,-1);
+							}
 						}
 					}
 					if (!ok) {
@@ -1141,13 +1150,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 				city_flag.append( i < old_anzahl_staedte ? conn_comp : 0 );
 
 				// progress bar stuff
-				if(  is_display_init()  &&  count<=max_count  ) {
-					int const progress_count = 16 + 2 * new_anzahl_staedte + count * settings.get_anzahl_staedte() * 2 / max_count;
-					if(  old_progress_count != progress_count  ) {
-						loadingscreen::set_progress(progress_count, max_display_progress );
-						old_progress_count = progress_count;
-					}
-				}
+				ls.set_progress( 16 + 2 * new_anzahl_staedte + count * settings.get_anzahl_staedte() * 2 / max_count );
 			}
 			// mark first town as connected
 			if (old_anzahl_staedte==0) {
@@ -1195,10 +1198,10 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 						conn_comp++;
 						// try the first not connected city
 						ready = true;
-						for (int i = old_anzahl_staedte; i < settings.get_anzahl_staedte(); ++i) {
-							if(  city_flag[i] ==0 ) {
+						for(  int i = old_anzahl_staedte;  i < settings.get_anzahl_staedte();  ++i  ) {
+							if(  city_flag[i] ==0  ) {
 								city_flag[i] = conn_comp;
-								ready=false;
+								ready = false;
 								break;
 							}
 						}
@@ -1272,10 +1275,10 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 						city_dist.at(conn.y, conn.x) =  umgebung_t::intercity_road_length+1;
 						count ++;
 
-						if (phase==0) {
+						if(  phase == 0  ) {
 							// do not try to connect to this connected component again
-							for (int i = 0; i < settings.get_anzahl_staedte(); ++i) {
-								if (  city_flag[i] == conn_comp  && city_dist.at(i, conn.y)<umgebung_t::intercity_road_length) {
+							for(  int i = 0;  i < settings.get_anzahl_staedte();  ++i  ) {
+								if(  city_flag[i] == conn_comp  && city_dist.at(i, conn.y)<umgebung_t::intercity_road_length) {
 									city_dist.at(i, conn.y) =  umgebung_t::intercity_road_length+1;
 									city_dist.at(conn.y, i) =  umgebung_t::intercity_road_length+1;
 									count++;
@@ -1284,16 +1287,12 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 						}
 					}
 				}
+
 				// progress bar stuff
-				if(  is_display_init()  &&  count<=max_count  ) {
-					int const progress_count = 16 + 2 * new_anzahl_staedte + count * settings.get_anzahl_staedte() * 2 / max_count;
-					if(  old_progress_count != progress_count  ) {
-						loadingscreen::set_progress(progress_count, max_display_progress );
-						old_progress_count = progress_count;
-					}
-				}
+				ls.set_progress( 16 + 2 * new_anzahl_staedte + count * settings.get_anzahl_staedte() * 2 / max_count );
+
 				// next phase?
-				if (ready) {
+				if(ready) {
 					phase++;
 					ready = false;
 				}
@@ -1306,7 +1305,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 		if(pos) {
 			delete pos;
 		}
-		settings.set_anzahl_staedte(stadt.get_count()); // new number of towns (if we did not find enough positions)
+		settings.set_anzahl_staedte( stadt.get_count() ); // new number of towns (if we did not find enough positions)
 	}
 
 DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing groundobjs");
@@ -1440,7 +1439,6 @@ DBG_DEBUG("karte_t::init()","hausbauer_t::neue_karte()");
 DBG_DEBUG("karte_t::init()","init_felder");
 	init_felder();
 
-	loadingscreen::set_label(translator::translate("Init map ..."));
 	enlarge_map(&settings, h_field);
 
 DBG_DEBUG("karte_t::init()","distributing trees");
@@ -1459,6 +1457,8 @@ DBG_DEBUG("karte_t::init()","built timeline");
 	int const max_display_progress = 16 + settings.get_anzahl_staedte() * 4 + settings.get_factory_count();
 	int consecutive_build_failures = 0;
 
+	loadingscreen_t ls( translator::translate("distributing factories"), 16 + settings.get_anzahl_staedte() * 4 + settings.get_factory_count(), true, true );
+
 	while(  fab_list.get_count() < (uint32)settings.get_factory_count()  ) {
 		if(  !fabrikbauer_t::increase_industry_density( this, false )  ) {
 			if(  ++consecutive_build_failures > 3  ) {
@@ -1469,11 +1469,8 @@ DBG_DEBUG("karte_t::init()","built timeline");
 		else {
 			consecutive_build_failures = 0;
 		}
-		int const progress_count = 16 + settings.get_anzahl_staedte() * 4 + min(fab_list.get_count(),settings.get_factory_count());
-		loadingscreen::set_progress(progress_count, max_display_progress );
+		ls.set_progress( 16 + settings.get_anzahl_staedte() * 4 + min(fab_list.get_count(),settings.get_factory_count()) );
 	}
-
-	loadingscreen::hide();
 
 	settings.set_factory_count( fab_list.get_count() );
 	finance_history_year[0][WORLD_FACTORIES] = finance_history_month[0][WORLD_FACTORIES] = fab_list.get_count();
@@ -1548,7 +1545,7 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	int max_display_progress;
 
 	// If this is not called by karte_t::init
-	if ( old_x != 0 ) {
+	if(  old_x != 0  ) {
 		mute_sound(true);
 		reliefkarte_t::is_visible = false;
 
@@ -1571,28 +1568,24 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 				new_grid_hgts[nnr] = grid_hgts[nr];
 			}
 		}
-
-		loadingscreen::set_label(translator::translate("enlarge map"));
 		max_display_progress = 16 + sets->get_anzahl_staedte()*2 + stadt.get_count()*4;
 	}
 	else {
 		max_display_progress = 16 + sets->get_anzahl_staedte() * 4 + settings.get_factory_count();
 	}
+	loadingscreen_t ls( translator::translate( old_x ? "enlarge map" : "Init map ..."), max_display_progress, true, true );
 
 	delete [] plan;
 	plan = new_plan;
 	delete [] grid_hgts;
 	grid_hgts = new_grid_hgts;
 
-	loadingscreen::set_progress(0,max_display_progress);
 	setsimrand(0xFFFFFFFF, settings.get_karte_nummer());
 	clear_random_mode( 0xFFFF );
 	set_random_mode( MAP_CREATE_RANDOM );
 
-	if (old_x == 0  &&  !settings.heightfield.empty()) {
+	if(  old_x == 0  &&  !settings.heightfield.empty()  ) {
 		// init from file
-		int const display_total = 16 + settings.get_anzahl_staedte()*4 + settings.get_factory_count();
-
 		for(int y=0; y<cached_grid_size.y; y++) {
 			for(int x=0; x<cached_grid_size.x; x++) {
 				grid_hgts[x + y*(cached_grid_size.x+1)] = h_field[x+(y*(sint32)cached_grid_size.x)]+1;
@@ -1601,7 +1594,7 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 		}
 		// lower border
 		memcpy( grid_hgts+(cached_grid_size.x+1)*(sint32)cached_grid_size.y, grid_hgts+(cached_grid_size.x+1)*(sint32)(cached_grid_size.y-1), cached_grid_size.x+1 );
-		loadingscreen::set_progress(16, display_total);
+		ls.set_progress(16);
 	}
 	else {
 		if(  sets->get_rotation()==0  &&  sets->get_origin_x()==0  &&  sets->get_origin_y()==0) {
@@ -1616,11 +1609,7 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 				sint16 const h = perlin_hoehe(&settings, pos, koord(old_x, old_y));
 				set_grid_hgt( pos, (sint8) h);
 			}
-			next_progress = (x*16)/new_groesse_x;
-			if ( next_progress > old_progress ){
-				old_progress = next_progress;
-				loadingscreen::set_progress(old_progress, max_display_progress);
-			}
+			ls.set_progress( (x*16)/new_groesse_x );
 		}
 		exit_perlin_map();
 	}
@@ -1731,7 +1720,7 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	// Resize marker_t:
 	marker.init(new_groesse_x, new_groesse_y);
 
-	distribute_groundobjs_cities(sets->get_anzahl_staedte(), sets->get_mittlere_einwohnerzahl(), old_x, old_y);
+	distribute_groundobjs_cities( sets->get_anzahl_staedte(), sets->get_mittlere_einwohnerzahl(), old_x, old_y );
 
 	// hausbauer_t::neue_karte(); <- this would reinit monuments! do not do this!
 	fabrikbauer_t::neue_karte( this );
@@ -1784,7 +1773,6 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 		set_dirty();
 		reset_timer();
 	}
-	loadingscreen::hide();
 	// update main menue
 	werkzeug_t::update_toolbars(this);
 }
@@ -1855,7 +1843,6 @@ karte_t::~karte_t()
 	is_sound = false;
 
 	destroy();
-	loadingscreen::hide();
 
 	// not deleting the werkzeuge of this map ...
 	delete msg;
@@ -4190,7 +4177,7 @@ uint8 karte_t::recalc_natural_slope( const koord pos, sint8 &new_height ) const
 		}
 #if 0
 		// Since we have now the correct slopes, we update the grid:
-		sint8 *p = &grid_hgts[pos.x + pos.y*(get_size().x+1)];
+		sint8 *p = &grid_hgts[pos.x + pos.y*(sint32)(get_size().x+1)];
 		*p = height4;
 		*(p+1) = height3;
 		*(p+get_size().x+2) = height2;
@@ -4225,7 +4212,7 @@ uint8 karte_t::calc_natural_slope( const koord pos ) const
 {
 	if(is_within_grid_limits(pos.x, pos.y)) {
 
-		const sint8 * p = &grid_hgts[pos.x + pos.y*(get_size().x+1)];
+		const sint8 * p = &grid_hgts[pos.x + pos.y*(sint32)(get_size().x+1)];
 
 		const int h1 = *p;
 		const int h2 = *(p+1);
@@ -4388,10 +4375,10 @@ void karte_t::save(loadsave_t *file,bool silent)
 {
 	bool needs_redraw = false;
 
+	loadingscreen_t *ls = NULL;
 DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 	if(!silent) {
-		loadingscreen::set_label(translator::translate("Saving map ..."));
-		loadingscreen::set_progress(0,get_size().y);
+		ls = new loadingscreen_t( translator::translate("Saving map ..."), get_size().y );
 	}
 
 	// rotate the map until it can be saved completely
@@ -4473,14 +4460,14 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved cities ok");
 			INT_CHECK("saving");
 		}
 		else {
-			loadingscreen::set_progress(j, get_size().y);
+			ls->set_progress(j);
 		}
 	}
 DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved tiles");
 
 	if(  file->get_version()<=102001  ) {
 		// not needed any more
-		for(int j=0; j<(get_size().y+1)*(get_size().x+1); j++) {
+		for(int j=0; j<(get_size().y+1)*(sint32)(get_size().x+1); j++) {
 			file->rdwr_byte(grid_hgts[j]);
 		}
 	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved hgt");
@@ -4582,7 +4569,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved messages");
 		update_map();
 	}
 	if(!silent) {
-		loadingscreen::hide();
+		delete ls;
 	}
 }
 
@@ -4614,9 +4601,6 @@ bool karte_t::load(const char *filename)
 
 	// reloading same game? Remeber pos
 	const koord oldpos = settings.get_filename()[0]>0  &&  strncmp(filename,settings.get_filename(),strlen(settings.get_filename()))==0 ? ij_off : koord::invalid;
-
-	loadingscreen::set_label(translator::translate("Loading map ..."));
-	loadingscreen::set_progress(0,100);
 
 	if(  strstart(filename, "net:")  ) {
 		// probably finish network mode?
@@ -4692,8 +4676,6 @@ bool karte_t::load(const char *filename)
 DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 
 		load(&file);
-
-		loadingscreen::hide();
 
 		if(  umgebung_t::networkmode  ) {
 			clear_command_queue();
@@ -4813,9 +4795,11 @@ DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 	return ok;
 }
 
-uint32 file_version;
 
-void karte_t::plans_laden_abschliessen(sint16 x_min, sint16 x_max, sint16 y_min, sint16 y_max)
+// ugly hack, only needed for laden_abschliessen tree restorage
+uint32 file_version = 0;
+
+void karte_t::plans_laden_abschliessen( sint16 x_min, sint16 x_max, sint16 y_min, sint16 y_max )
 {
 	for(  int y = y_min;  y < y_max;  y++  ) {
 		for(  int x = x_min; x < x_max;  x++  ) {
@@ -4829,15 +4813,12 @@ void karte_t::plans_laden_abschliessen(sint16 x_min, sint16 x_max, sint16 y_min,
 						d->laden_abschliessen();
 					}
 				}
-				if(file_version<=111000  &&  gr->ist_natur()) {
+				if(  file_version<=111000  &&  gr->ist_natur()  ) {
 					gr->sort_trees();
 				}
 				gr->calc_bild();
 			}
 		}
-#ifndef MULTI_THREAD
-		loadingscreen::set_progress(get_size().y+48+stadt.get_count()+(y*128)/get_size().y, get_size().y+256+stadt.get_count());
-#endif
 	}
 }
 
@@ -4857,8 +4838,7 @@ void karte_t::load(loadsave_t *file)
 	set_random_mode(LOAD_RANDOM);
 	destroy();
 
-	loadingscreen::set_label(translator::translate("Loading map ..."));
-	loadingscreen::set_progress(0, 100);	// does not matter, since fixed width
+	loadingscreen_t ls(translator::translate("Loading map ..."), 1, true, true );
 
 	tile_counter = 0;
 	simloops = 60;
@@ -4918,7 +4898,9 @@ DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
 	// Reliefkarte an neue welt anpassen
 	reliefkarte_t::get_karte()->set_welt(this);
 
+	ls.set_max( get_size().y*2+256 );
 	init_felder();
+
 
 	// reinit pointer with new pointer object and old values
 	zeiger = new zeiger_t(this, koord3d::invalid, NULL );
@@ -5003,7 +4985,7 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 		if(file->is_eof()) {
 			dbg->fatal("karte_t::laden()","Savegame file mangled (too short)!");
 		}
-		loadingscreen::set_progress(y, get_size().y+stadt.get_count()+256);
+		ls.set_progress( y/2 );
 	}
 
 	if(file->get_version()<99005) {
@@ -5020,7 +5002,7 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 	else if(  file->get_version()<=102001  )  {
 		// hgt now bytes
 		DBG_MESSAGE("karte_t::laden()","loading grid for older versions");
-		for( sint32 i=0;  i<(get_size().y+1)*(get_size().x+1);  i++  ) {
+		for( sint32 i=0;  i<(get_size().y+1)*(sint32)(get_size().x+1);  i++  ) {
 			file->rdwr_byte(grid_hgts[i]);
 		}
 	}
@@ -5088,7 +5070,7 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 			delete fab;
 		}
 		if(i&7) {
-			loadingscreen::set_progress(get_size().y+(24*i)/fabs, get_size().y+stadt.get_count()+256);
+			ls.set_progress( get_size().y/2+(128*i)/fabs );
 		}
 	}
 
@@ -5113,13 +5095,16 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 			if(!halt->existiert_in_welt()) {
 				dbg->warning("karte_t::laden()", "could not restore stop near %i,%i", halt->get_init_pos().x, halt->get_init_pos().y );
 			}
+			ls.set_progress( get_size().y/2+128+(get_size().y*i)/(2*halt_count) );
 		}
 	}
 
 	DBG_MESSAGE("karte_t::laden()", "load convois");
 	uint16 convoi_nr = 65535;
+	uint16 max_convoi = 65535;
 	if(  file->get_version()>=101000  ) {
 		file->rdwr_short(convoi_nr);
+		max_convoi = convoi_nr;
 	}
 	while(  convoi_nr-->0  ) {
 
@@ -5146,11 +5131,13 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 		else {
 			sync_add( cnv );
 		}
+		if(  (convoi_array.get_count()&7) == 0  ) {
+			ls.set_progress( get_size().y+(get_size().y*convoi_array.get_count())/(2*max_convoi)+128 );
+		}
 	}
 DBG_MESSAGE("karte_t::laden()", "%d convois/trains loaded", convoi_array.get_count());
 
 	// jetzt koennen die spieler geladen werden
-	loadingscreen::set_progress(get_size().y+24+stadt.get_count(), get_size().y+256+stadt.get_count());
 	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
 		if(  spieler[i]  ) {
 			spieler[i]->rdwr(file);
@@ -5159,7 +5146,7 @@ DBG_MESSAGE("karte_t::laden()", "%d convois/trains loaded", convoi_array.get_cou
 		else {
 			settings.automaten[i] = false;
 		}
-		loadingscreen::set_progress(get_size().y+24+stadt.get_count()+(i*3), get_size().y+256+stadt.get_count());
+		ls.set_progress( (get_size().y*3)/2+128+16*i );
 	}
 DBG_MESSAGE("karte_t::laden()", "players loaded");
 
@@ -5192,7 +5179,12 @@ DBG_MESSAGE("karte_t::laden()", "messages loaded");
 
 DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_count());
 
+	ls.set_progress( (get_size().y*3)/2+256 );
+
+	// ugly hack to pass file version to laden_abschliessen multithreaded
+	file_version = file->get_version();
 	world_xy_loop(&karte_t::plans_laden_abschliessen, true);
+	ls.set_progress( (get_size().y*3)/2+256+get_size().y/8 );
 
 DBG_MESSAGE("karte_t::laden()", "laden_abschliesen for tiles finished" );
 
@@ -5206,6 +5198,8 @@ DBG_MESSAGE("karte_t::laden()", "laden_abschliesen for tiles finished" );
 	}
 	swap(stadt, new_weighted_stadt);
 	DBG_MESSAGE("karte_t::laden()", "cities initialized");
+
+	ls.set_progress( (get_size().y*3)/2+256+get_size().y/4 );
 
 	DBG_MESSAGE("karte_t::laden()", "clean up factories");
 	FOR(slist_tpl<fabrik_t*>, const f, fab_list) {
@@ -5227,6 +5221,7 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 		settings.set_factory_worker_minimum_towns(temp_min);
 		settings.set_factory_worker_maximum_towns(temp_max);
 	}
+	ls.set_progress( (get_size().y*3)/2+256+get_size().y/3 );
 
 	// resolve dummy stops into real stops first ...
 	FOR(slist_tpl<halthandle_t>, const i, haltestelle_t::get_alle_haltestellen()) {
@@ -5244,6 +5239,8 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 			haltestelle_t::destroy(h);	// remove from list
 		}
 	}
+
+	ls.set_progress( (get_size().y*3)/2+256+(get_size().y*3)/8 );
 
 	// adding lines and other stuff for convois
 	for(unsigned i=0;  i<convoi_array.get_count();  i++ ) {
@@ -5279,9 +5276,6 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 	dt = dr_time();
 	FOR(slist_tpl<halthandle_t>, const i, haltestelle_t::get_alle_haltestellen()) {
 		sint16 dummy = 0x7FFF;
-		if((hnr++%64)==0) {
-			loadingscreen::set_progress(get_size().y+48+stadt.get_count()+128+(hnr*40)/hmax, get_size().y+256+stadt.get_count());
-		}
 		i->reroute_goods(dummy);
 	}
 	DBG_MESSAGE("reroute_goods()","for all haltstellen_t took %ld ms", dr_time()-dt );

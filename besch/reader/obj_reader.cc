@@ -135,13 +135,13 @@ bool obj_reader_t::load(const char *path, const char *message)
 		}
 		step = (2<<step)-1;
 
-		loadingscreen::set_label(message);
-
 		if(drawing  &&  skinverwaltung_t::biglogosymbol==NULL) {
 			display_fillbox_wh( 0, 0, display_get_width(), display_get_height(), COL_BLACK, true );
 			read_file((name+"symbol.BigLogo.pak").c_str());
 DBG_MESSAGE("obj_reader_t::load()","big logo %p", skinverwaltung_t::biglogosymbol);
 		}
+
+		loadingscreen_t ls( message, max, true );
 
 		if(  grund_besch_t::ausserhalb==NULL  ) {
 			// defining the pak tile witdh ....
@@ -151,24 +151,20 @@ DBG_MESSAGE("obj_reader_t::load()","big logo %p", skinverwaltung_t::biglogosymbo
 			}
 			else {
 				if (char const* const copyright = grund_besch_t::ausserhalb->get_copyright()) {
-					loadingscreen::set_copyright(copyright);
+					ls.set_info(copyright);
 				}
 			}
 		}
 
 DBG_MESSAGE("obj_reader_t::load()", "reading from '%s'", name.c_str());
 
-		loadingscreen::set_label(message);
-
 		uint n = 0;
 		FORX(searchfolder_t, const& i, find, ++n) {
 			read_file(i);
 			if ((n & step) == 0 && drawing) {
-				loadingscreen::set_progress(n,max);
+				ls.set_progress(n);
 			}
 		}
-
-		loadingscreen::hide();
 
 		return find.begin()!=find.end();
 	}

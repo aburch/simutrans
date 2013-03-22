@@ -11,8 +11,6 @@
 #ifndef simevent_h
 #define simevent_h
 
-template<class T> class slist_tpl;
-
 /* Messageverarbeitung */
 
 /* Event Classes */
@@ -203,8 +201,8 @@ int event_get_last_control_shift(void);
 unsigned int last_meta_event_get_class();
 
 /**
- * Adds (queues) new events to be processed.
+ * Adds new events to be processed.
  */
-void queue_events(slist_tpl<event_t *> &events);
+void queue_event(event_t *event);
 
 #endif

@@ -770,7 +770,7 @@ private:
 	 * It's now an extra function so we don't need the code twice.
 	 * @auther Gerd Wachsmuth
 	 */
-	void distribute_groundobjs_cities(int new_cities, sint32 new_mittlere_einwohnerzahl, sint16 old_x, sint16 old_y);
+	void distribute_groundobjs_cities(int new_cities, sint32 new_mittlere_einwohnerzahl, sint16 old_x, sint16 old_y );
 
 	/**
 	 * The last time when a server announce was performed (in ms).

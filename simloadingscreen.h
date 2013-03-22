@@ -8,76 +8,45 @@
 #ifndef SIMLOADINGSCREEN_H
 #define SIMLOADINGSCREEN_H
 
+#include "simtypes.h"
+#include "tpl/slist_tpl.h"
+
+struct event_t;
+
 /**
  * Implements the loading screen related routines, in the aim of  centralize
  * all its code and make it more modular, as it was scattered across all code
  * before.
- * @author Markohs
- * @note Many of this functions are for internal use only, but I decided to
- * expose them all and keep them under the namespace to not clobber the global
- * namespace.
+ * @author prissi converted the namespace copde from Markohs
  * @note The functions are safe on non-initialized displays, it won't try to write
  * on a not existant buffer.
  */
-namespace loadingscreen{
-	/**
-	 * Inits the namespace state
-	 */
-	void bootstrap();
+class loadingscreen_t
+{
+private:
+	const char *what, *info;
+	uint32 progress, max_progress;
+	bool show_logo;
+	slist_tpl<event_t *> queued_events;
 
-	/**
-	 * Shows the loading screen, if templated, won't do anything in the other case
-	 */
-	void show();
+	// show the logo if requested and there
+	void display_logo();
 
-	/**
-	 * Hides the loading screen, if templated, won't do anything in the other case
-	 */
-	void hide();
+	// show everything but the logo
+	void display();
 
-	/**
-     * Updates the progress bar
-	 * @param level Progress level to set.
-	 * @param max Maximum expected value to level, the bar will be scaled proportionally to it.
-	 * @note It will flush the screen buffer.
-     */
-	void set_progress(const unsigned int level,const unsigned int max);
+public:
+	loadingscreen_t( const char *what, uint32 max_progress, bool show_logo = false, bool continueflag = false );
 
-	// "private" section:
+	~loadingscreen_t();
 
-	/**
-	 * Will show the logo on screen.
-	 */
-	void show_logo();
+	void set_progress( uint32 progress );
 
-	/**
-	 * Takes care of system events, it's needed since the loading screen is allways called
-	 * outside of the places where the program does this. In modal_dialogue and karte_t::interactive.
-	 * @note Not doing this can cause the OS to identify our program as irresponsive.
-	 */
-	void handle_events();
+	void set_max( uint32 max ) { max_progress = max; }
 
-	/**
-	 * Shows the copyright string.
-	 */
-	void show_copyright();
+	void set_info( const char *info ) { this->info = info; }
 
-	/**
-     * Sets the loading bar message
-	 * @param message The text to set. It's not copied so you can't free this memory after.
-     */
-	void set_label(const char *message);
-
-	/**
-     * Sets the copyright line
-	 * @param message The text to set. It's not copied so you can't free this memory after.
-     */
-	void set_copyright(const char *message);
-
-	/**
-	 * Effect to use on background
-	 */
-	void shadow_screen();
+	void set_what( const char *what ) { this->what = what; }
 };
 
 #endif

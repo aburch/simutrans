@@ -727,8 +727,6 @@ int simu_main(int argc, char** argv)
 	DBG_MESSAGE("simmain", ".. results in disp_width=%d, disp_height=%d", display_get_width(), display_get_height());
 
 	// The loading screen needs to be initialized
-	loadingscreen::bootstrap();
-
 	show_pointer(1);
 
 	// if no object files given, we ask the user
