@@ -2,17 +2,44 @@
 
 /** @file api_tiles.cc exports tile related functions. */
 
+#include "get_next.h"
 #include "../api_class.h"
 #include "../api_function.h"
 #include "../../simworld.h"
 
 using namespace script_api;
 
+SQInteger get_next_object(HSQUIRRELVM vm)
+{
+	grund_t *gr = param<grund_t*>::get(vm, 1);
+	return generic_get_next(vm, gr ? gr->get_top() : 0);
+}
+
+
+SQInteger get_object_index(HSQUIRRELVM vm)
+{
+	grund_t *gr = param<grund_t*>::get(vm, 1);
+	uint8 index = param<uint8>::get(vm, 2);
+
+	ding_t *ding = NULL;
+	if (gr  &&  index < gr->get_top()) {
+		ding = gr->obj_bei(index);
+	}
+	return param<ding_t*>::push(vm, ding);
+}
 
 void export_tiles(HSQUIRRELVM vm)
 {
 	/**
 	 * Class to access tiles on the map.
+	 *
+	 * There is the possibility to iterate through all objects on the tile:
+	 * @code
+	 * local tile = tile_x( ... )
+	 * foreach(thing in tile) {
+	 *     ... // thing is an instance of the map_object_x (or a derived) class
+	 * }
+	 * @endcode
 	 */
 	begin_class(vm, "tile_x", "extend_get,coord3d");
 
@@ -27,6 +54,22 @@ void export_tiles(HSQUIRRELVM vm)
 	 */
 	// actually defined simutrans/script/scenario_base.nut
 	// register_function(..., "constructor", ...);
+
+
+	/**
+	 * Search for a given object type on the tile.
+	 * @return some instance or null if not found
+	 */
+	register_method(vm, &grund_t::suche_obj, "find_object");
+
+	/**
+	 * Meta-method to be used in foreach loops to loop over all objects on the tile. Do not call it directly.
+	 */
+	register_function(vm, get_next_object,  "_nexti",  2, "x o|i");
+	/**
+	 * Meta-method to be used in foreach loops to loop over all objects on the tile. Do not call it directly.
+	 */
+	register_function(vm, get_object_index, "_get",    2, "xi");
 
 	/**
 	 * Access halt at this tile.
