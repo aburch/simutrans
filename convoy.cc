@@ -338,9 +338,10 @@ void convoy_t::calc_move(const settings_t &settings, long delta_t, const weight_
 			{
 				// running too fast, slam on the brakes! 
 				// hill-down Frs might become negative and works against the brake.
+				// hill-up Frs helps braking, but don't brake too hard (with respect to health of passengers and freight)
 				if (bf == 0) // bf is a constant within this function. So calculate it once only.
 				{
-					bf = -get_braking_force(/*v*/);
+					bf = -get_braking_force(/*v*/) + max(float32e8_t::zero, g_accel * weight.weight_sin);
 				}
 				f = bf;
 			}
@@ -432,9 +433,9 @@ void convoy_t::calc_move(const settings_t &settings, long delta_t, const weight_
 				{
 					// don't run beyond xbrk, where we must start braking.
 					x = xbrk;
-					if (xbrk > dx && abs(a))
+					if (xbrk > dx && abs(a) > milli)
 					{
-						// turn back time to when we reach xbrk:
+						// turn back time to when we reached xbrk:
 						dt_s = (sqrt(v0 * v0 + 2 * a * (xbrk - dx)) - v0) / a;
 					}
 				}
