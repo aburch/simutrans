@@ -3889,7 +3889,7 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 	uint16 last_index = route.get_count() - 1;
 	if(next_block > last_index) 
 	{
-		const sint32 route_steps = route_infos.get_element(last_index).steps_from_start - route_index <= route_infos.get_count() - 1 ? route_infos.get_element(route_index).steps_from_start : 0;
+		const sint32 route_steps = route_infos.get_element(last_index).steps_from_start - (route_index < route_infos.get_count() ? route_infos.get_element(route_index).steps_from_start : 0);
 		bool weg_frei = route_steps >= brake_steps || brake_steps == 0 || route_steps == 0; // If brake_steps == 0 and weg_frei == false, weird excess block reservations can occur that cause blockages.
 		if (!weg_frei)
 		{ 	
