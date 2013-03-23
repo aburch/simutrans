@@ -56,16 +56,11 @@ SQInteger script_api::push_class(HSQUIRRELVM vm, const char* classname)
 /**
  * pushes constructor of class: closure (the constructor) and environment (the class)
  */
-SQInteger script_api::push_constructor(HSQUIRRELVM vm, const char* classname)
+SQInteger script_api::prepare_constructor(HSQUIRRELVM vm, const char* classname)
 {
 	if (!SQ_SUCCEEDED(push_class(vm, classname))) {
 		return SQ_ERROR;
 	}
-	sq_pushstring(vm, "constructor", -1);
-	if(!SQ_SUCCEEDED(sq_get(vm, -2))) {
-		sq_pop(vm, 1);
-		sq_raise_error(vm, "no constructor of class %s not found", classname);
-		return SQ_ERROR;
-	}
+	sq_pushnull(vm);
 	return SQ_OK;
 }
