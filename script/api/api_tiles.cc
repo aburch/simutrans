@@ -2,6 +2,7 @@
 
 /** @file api_tiles.cc exports tile related functions. */
 
+#include "api_simple.h"
 #include "get_next.h"
 #include "../api_class.h"
 #include "../api_function.h"
@@ -27,6 +28,35 @@ SQInteger get_object_index(HSQUIRRELVM vm)
 	}
 	return param<ding_t*>::push(vm, ding);
 }
+
+
+// return way ribis, have to implement a wrapper, to correctly rotate ribi
+SQInteger get_way_ribi(HSQUIRRELVM vm)
+{
+	grund_t *gr = param<grund_t*>::get(vm, 1);
+	waytype_t wt = param<waytype_t>::get(vm, 2);
+	bool masked = param<waytype_t>::get(vm, 3);
+
+	ribi_t::ribi ribi = gr ? (masked ? gr->get_weg_ribi(wt) : gr->get_weg_ribi_unmasked(wt) ) : 0;
+
+	return push_ribi(vm, ribi);
+}
+
+
+// we have to implement a wrapper, to correctly rotate ribi
+SQInteger get_neighbour(HSQUIRRELVM vm)
+{
+	grund_t *gr  = param<grund_t*>::get(vm, 1);
+	waytype_t wt = param<waytype_t>::get(vm, 2);
+	ribi_t::ribi ribi = get_ribi(vm, 3);
+
+	grund_t *to = NULL;
+	if (gr  &&  ribi_t::ist_einfach(ribi)) {
+		gr->get_neighbour(to, wt, ribi);
+	}
+	return param<grund_t*>::push(vm, to);
+}
+
 
 void export_tiles(HSQUIRRELVM vm)
 {
@@ -125,6 +155,31 @@ void export_tiles(HSQUIRRELVM vm)
 	 * @returns true if there is are two ways on the tile
 	 */
 	register_method<bool (grund_t::*)() const>(vm, &grund_t::has_two_ways, "has_two_ways");
+
+	/**
+	 * Return directions in which ways on this tile go. One-way signs are ignored here.
+	 * @param wt waytype
+	 * @returns direction
+	 * @typemask dir(waytypes)
+	 */
+	register_function_fv(vm, &get_way_ribi, "get_way_dirs", 2, "xi", freevariable<bool>(false) );
+	/**
+	 * Return directions in which ways on this tile go. Some signs restrict available directions.
+	 * @param wt waytype
+	 * @returns direction
+	 * @typemask dir(waytypes)
+	 */
+	register_function_fv(vm, &get_way_ribi, "get_way_dirs_masked", 2, "xi", freevariable<bool>(true) );
+
+	/**
+	 * Returns neighbour if one follows way in the given direction.
+	 * @param wt waytype, if equal to @ref wt_all then ways are ignored.
+	 * @param d direction
+	 * @return neighbour tile or null
+	 * @typemask tile_x(waytypes,dir)
+	 */
+	register_function(vm, &get_neighbour, "get_neighbour", 3, "xii");
+
 	end_class(vm);
 
 	/**
