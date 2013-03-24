@@ -6610,11 +6610,11 @@ void convoi_t::update_freight_summary(freight_summary_t &freight)
 void convoi_t::update_weight_summary(weight_summary_t &weight)
 {
 	weight.weight = 0;
-	uint64 sin = 0;
+	sint64 sin = 0;
 	for (uint16 i = get_vehikel_anzahl(); i-- > 0; )
 	{
 		const vehikel_t &v = *get_vehikel(i);
-		uint32 kgs = v.get_gesamtgewicht();
+		sint32 kgs = v.get_gesamtgewicht();
 		weight.weight += kgs;
 		sin += kgs * v.get_frictionfactor();
 	}
