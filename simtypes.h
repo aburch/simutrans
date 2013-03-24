@@ -19,7 +19,7 @@
 # define inline _inline
 #
 #elif defined __clang__
-#	include <alloca.h>
+#	include <stdlib.h>
 #	define ALLOCA(type, name, count) type* name = static_cast<type*>(alloca(sizeof(type) * (count)))
 #else
 #	define ALLOCA(type, name, count) type name[count]
