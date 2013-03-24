@@ -1190,7 +1190,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 		if(  !umgebung_t::networkmode  &&  new_world  ) {
 			dbg->important( "Show banner ... " );
-			ticker::add_msg("Welcome to Simutrans-Experimental, a fork of the game created by Hj. Malthaner, extended and maintained by the Simutrans community.", koord::invalid, PLAYER_FLAG + 1);
+			ticker::add_msg("Welcome to Simutrans-Experimental, a fork of Simutrans-Standard, extended and maintained by the Simutrans community.", koord::invalid, PLAYER_FLAG + 1);
 			modal_dialogue( new banner_t(welt), magic_none, welt, never_quit );
 
 			// only show new world, if no other dialoge is active ...
