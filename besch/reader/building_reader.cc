@@ -243,7 +243,33 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->intro_date    = decode_uint16(p);
 		besch->obsolete_date = decode_uint16(p);
 		besch->animation_time = decode_uint16(p);
+		
+		// Set default levels for Experimental
+		besch->station_capacity = besch->level * 32;
+		besch->is_control_tower = 0;
+
+		if(experimental)
+		{
+			if(experimental_version > 2)
+			{
+				dbg->fatal( "building_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version );
+			}
+			else
+			{
+				besch->station_capacity = decode_uint16(p);
+				besch->station_maintenance = decode_sint32(p);
+				besch->station_price = decode_sint32(p);
+			}
+		}
+
+		// From version 6, this is also in Standard.
 		besch->allow_underground = decode_uint8(p);
+
+		if(experimental && experimental_version == 2)
+		{
+			besch->is_control_tower = decode_uint8(p);
+		}
+		
 	}
 	else if(version == 5  ||  version==6) {
 		// Versioned node, version 5 or 6  (only level logic is different)
