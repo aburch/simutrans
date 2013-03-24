@@ -319,32 +319,6 @@ void float32e8_t::set_value(const double value)
 }
 #endif
 
-void float32e8_t::set_value(const sint64 value)
-{
-	if (value < 0)
-	{
-		set_value((uint64)-value);
-		ms = true;
-	}
-	else
-		set_value((uint64)value);
-}
-
-void float32e8_t::set_value(const uint64 value)
-{
-	m = value >> 32;
-	if (m)
-	{
-		ms = false;
-		e = ild(m) + 32;
-		m = (uint32)(value >> (64 - e));
-	}
-	else
-	{
-		set_value((uint32) value);
-	}
-}
-
 const float32e8_t float32e8_t::operator + (const float32e8_t & x) const
 {
 	if (!m) return x;

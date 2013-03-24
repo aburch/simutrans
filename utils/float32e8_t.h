@@ -97,6 +97,7 @@ public:
 	inline const float32e8_t & operator = (const double value)	{ set_value(value); return *this; }
 #endif
 
+	inline float32e8_t(const uint8 value) { set_value(value); }
 	inline float32e8_t(const sint32 value) { set_value(value); }
 	inline float32e8_t(const uint32 value) { set_value(value); }
 	inline float32e8_t(const sint64 value) { set_value(value); }
@@ -107,12 +108,26 @@ public:
 	inline float32e8_t(const sint64 nominator, const sint64 denominator) { set_value(float32e8_t(nominator) / float32e8_t(denominator)); }
 	inline float32e8_t(const uint64 nominator, const uint64 denominator) { set_value(float32e8_t(nominator) / float32e8_t(denominator)); }
 
+	inline void set_value(const uint8 value)
+	{
+		set_value(integers[value]);
+		if (!m && value)
+		{
+			// As some constants may be initialized before integers[], we must check if initialization has been done.
+			// Do not check integers[0].m. This mantissa will still be 0 after initialization.
+			ms = false;
+			e = ild(value);
+			m = value;
+			m = m << (32 - e);
+		}
+	}
+
 	inline void set_value(const uint32 value)
 	{
 		// As some constants may be initialized before integers[], we must check if initialization has been done.
 		// Do not check integers[0].m. This mantissa will still be 0 after initialization.
-		if (value < 257 && integers[256].m) 
-			set_value(integers[value]);
+		if (value < 256)
+			set_value((uint8)value);
 		else
 		{
 			ms = false;
@@ -132,9 +147,33 @@ public:
 			set_value((uint32)value);
 	}
 
-	void set_value(const uint64 value);
-	void set_value(const sint64 value);
+	inline void set_value(const uint64 value)
+	{
+		m = value >> 32;
+		if (m)
+		{
+			ms = false;
+			e = ild(m) + 32;
+			m = (uint32)(value >> (64 - e));
+		}
+		else
+		{
+			set_value((uint32) value);
+		}
+	}
 
+	inline void set_value(const sint64 value)
+	{
+		if (value < 0)
+		{
+			set_value((uint64)-value);
+			ms = true;
+		}
+		else
+			set_value((uint64)value);
+	}
+
+	inline const float32e8_t & operator = (const uint8 value)	{ set_value(value);	return *this; }
 	inline const float32e8_t & operator = (const sint32 value)	{ set_value(value);	return *this; }
 	inline const float32e8_t & operator = (const uint32 value)	{ set_value(value);	return *this; }
 	inline const float32e8_t & operator = (const sint64 value)	{ set_value(value);	return *this; }
@@ -212,6 +251,11 @@ public:
 	const float32e8_t operator * (const float32e8_t &value) const;
 	const float32e8_t operator / (const float32e8_t &value) const;
 
+	inline const float32e8_t operator + (const uint8 value) const { return *this + float32e8_t(value); } 
+	inline const float32e8_t operator - (const uint8 value) const { return *this - float32e8_t(value); } 
+	inline const float32e8_t operator * (const uint8 value) const { return *this * float32e8_t(value); } 
+	inline const float32e8_t operator / (const uint8 value) const { return *this / float32e8_t(value); } 
+
 	inline const float32e8_t operator + (const sint32 value) const { return *this + float32e8_t(value); } 
 	inline const float32e8_t operator - (const sint32 value) const { return *this - float32e8_t(value); } 
 	inline const float32e8_t operator * (const sint32 value) const { return *this * float32e8_t(value); } 
@@ -236,6 +280,11 @@ public:
 	inline const float32e8_t & operator -= (const float32e8_t &value) { set_value(*this - value); return *this; }
 	inline const float32e8_t & operator *= (const float32e8_t &value) { set_value(*this * value); return *this; }
 	inline const float32e8_t & operator /= (const float32e8_t &value) { set_value(*this / value); return *this; }
+
+	inline const float32e8_t & operator += (const uint8 value) { set_value(*this + value); return *this; }
+	inline const float32e8_t & operator -= (const uint8 value) { set_value(*this - value); return *this; }
+	inline const float32e8_t & operator *= (const uint8 value) { set_value(*this * value); return *this; }
+	inline const float32e8_t & operator /= (const uint8 value) { set_value(*this / value); return *this; }
 
 	inline const float32e8_t & operator += (const sint32 value) { set_value(*this + value); return *this; }
 	inline const float32e8_t & operator -= (const sint32 value) { set_value(*this - value); return *this; }
@@ -280,6 +329,11 @@ public:
 };
 
 ostream & operator << (ostream &out, const float32e8_t &x);
+
+inline const float32e8_t operator + (const uint8 x, const float32e8_t &y) {return float32e8_t(x) + y; }
+inline const float32e8_t operator - (const uint8 x, const float32e8_t &y) {return float32e8_t(x) - y; }
+inline const float32e8_t operator * (const uint8 x, const float32e8_t &y) {return float32e8_t(x) * y; }
+inline const float32e8_t operator / (const uint8 x, const float32e8_t &y) {return float32e8_t(x) / y; }
 
 inline const float32e8_t operator + (const sint32 x, const float32e8_t &y) {return float32e8_t(x) + y; }
 inline const float32e8_t operator - (const sint32 x, const float32e8_t &y) {return float32e8_t(x) - y; }
