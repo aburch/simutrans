@@ -104,11 +104,9 @@ private:
 	 * direct acces provided to avoid translations
 	 * @author Hj. Malthaner
 	 */
-	union {
-		const char * text;
-		struct { sint16 x,y; } targetpos;
-	};
-	const char *translated_text;
+	struct { sint16 x,y; } targetpos;
+	const char * text;
+ 	const char *translated_text;
 
 	// private function for displaying buttons or their replacement
 	void display_button_image(sint16 x, sint16 y, int number, bool pushed) const;

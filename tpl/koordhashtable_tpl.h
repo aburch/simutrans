@@ -28,7 +28,7 @@ public:
 
 	static void dump(const key_t key)
     {
-		printf("%d, %d", (koord)key.x, (koord)key.y);
+		printf("%d, %d", key.x, key.y);
     }
 
 	static int comp(key_t key1, key_t key2)

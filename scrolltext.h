@@ -50,6 +50,7 @@
 " Isidoro","developer (vehicle replacement)",
 " Hanczar","profiling, fixes",
 " Vonjo","patches",
+" Matthew Collett","patches",
 " Ansgar","Linux builds, patches",
 " Lefthand","patches",
 " Nathan Samson","patches",
