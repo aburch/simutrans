@@ -469,6 +469,16 @@ int simu_main(int argc, char** argv)
 		strcpy( umgebung_t::program_dir, argv[0] );
 		*(strrchr( umgebung_t::program_dir, path_sep[0] )+1) = 0;
 
+#ifdef __APPLE__
+		// change working directory from binary dir to bundle dir
+		if(  !strcmp((umgebung_t::program_dir + (strlen(umgebung_t::program_dir) - 20 )), ".app/Contents/MacOS/")  ) {
+			umgebung_t::program_dir[strlen(umgebung_t::program_dir) - 20] = 0;
+			while(  umgebung_t::program_dir[strlen(umgebung_t::program_dir) - 1] != '/'  ) {
+				umgebung_t::program_dir[strlen(umgebung_t::program_dir) - 1] = 0;
+			}
+		}
+#endif
+
 		chdir( umgebung_t::program_dir );
 	}
 	printf("Use work dir %s\n", umgebung_t::program_dir);
