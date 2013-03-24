@@ -233,7 +233,7 @@ convoi_t::convoi_t(karte_t* wl, loadsave_t* file) : fahr(max_vehicle, NULL)
 	validate_weight_summary();
 	get_continuous_power();
 	get_starting_force();
-	get_brake_summary();
+	get_braking_force();
 }
 
 convoi_t::convoi_t(spieler_t* sp) : fahr(max_vehicle, NULL)
@@ -6609,18 +6609,23 @@ void convoi_t::update_freight_summary(freight_summary_t &freight)
 
 void convoi_t::update_weight_summary(weight_summary_t &weight)
 {
-	weight.clear();
+	weight.weight = 0;
+	sint64 sin = 0;
 	for (uint16 i = get_vehikel_anzahl(); i-- > 0; )
 	{
-		vehikel_t &v = *get_vehikel(i);
-		weight.add_vehicle(v);
+		const vehikel_t &v = *get_vehikel(i);
+		sint32 kgs = v.get_gesamtgewicht();
+		weight.weight += kgs;
+		sin += kgs * v.get_frictionfactor();
 	}
+	weight.weight_cos = weight.weight;
+	weight.weight_sin = (sin + 500) / 1000;
 }
 
 
 float32e8_t convoi_t::get_brake_summary(/*const float32e8_t &speed*/ /* in m/s */)
 {
-	float32e8_t force = 0;
+	float32e8_t force = 0, br = get_adverse_summary().br;
 	for (uint16 i = get_vehikel_anzahl(); i-- > 0; )
 	{
 		vehikel_t &v = *get_vehikel(i);
@@ -6633,7 +6638,7 @@ float32e8_t convoi_t::get_brake_summary(/*const float32e8_t &speed*/ /* in m/s *
 		{
 			// Usual brake deceleration is about -0.5 .. -1.5 m/s² depending on vehicle and ground. 
 			// With F=ma, a = F/m follows that brake force in N is ~= 1/2 weight in kg
-			force += get_adverse_summary().br * v.get_gesamtgewicht();
+			force += br * v.get_gesamtgewicht();
 		}
 	}
 	return force;
@@ -6644,10 +6649,15 @@ float32e8_t convoi_t::get_force_summary(const float32e8_t &speed /* in m/s */)
 {
 	sint64 force = 0;
 	sint32 v = speed;
+
 	for (uint16 i = get_vehikel_anzahl(); i-- > 0; )
 	{
 		force += get_vehikel(i)->get_besch()->get_effective_force_index(v);
 	}
+
+	//for (array_tpl<vehikel_t*>::iterator i = fahr.begin(), n = i + get_vehikel_anzahl(); i != n; ++i)
+	//	force += (*i)->get_besch()->get_effective_force_index(v);
+
 	return power_index_to_power(force, get_welt()->get_settings().get_global_power_factor_percent());
 }
 

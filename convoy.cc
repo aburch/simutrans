@@ -193,7 +193,7 @@ void weight_summary_t::add_vehicle(const vehikel_t &v)
 
 sint32 convoy_t::calc_max_speed(const weight_summary_t &weight) 
 { 
-	const float32e8_t Frs = g_accel * (adverse.fr * weight.weight_cos + weight.weight_sin);
+	const float32e8_t Frs = g_accel * (get_adverse_summary().fr * weight.weight_cos + weight.weight_sin);
 	if (Frs > get_starting_force()) 
 	{
 		// this convoy is too heavy to start.
@@ -312,7 +312,7 @@ void convoy_t::calc_move(const settings_t &settings, long delta_t, const weight_
 	else
 	{
 		const float32e8_t fweight = weight.weight; // convoy's weight in kg
-		const float32e8_t Frs = g_accel * (adverse.fr * weight.weight_cos + weight.weight_sin); // Frs in N, weight.weight_cos and weight.weight_sin are calculated per vehicle due to vehicle specific slope angle.
+		const float32e8_t Frs = g_accel * (get_adverse_summary().fr * weight.weight_cos + weight.weight_sin); // Frs in N, weight.weight_cos and weight.weight_sin are calculated per vehicle due to vehicle specific slope angle.
 		const float32e8_t vlim = speed_to_v(next_speed_limit); // vlim in m/s, next_speed_limit in simutrans vehicle speed.
 		const float32e8_t xlim = settings.steps_to_meters(steps_til_limit); // xbrk in m, steps_til_limit in simutrans steps
 		const float32e8_t xbrk = settings.steps_to_meters(steps_til_brake); // xbrk in m, steps_til_brake in simutrans steps
@@ -449,10 +449,10 @@ void convoy_t::calc_move(const settings_t &settings, long delta_t, const weight_
 	}
 }
 
-float32e8_t convoy_t::power_index_to_power(const float32e8_t &power_index, sint32 power_factor)
-{
-	return power_index * float32e8_t(power_factor * 10, GEAR_FACTOR);
-}
+//float32e8_t convoy_t::power_index_to_power(const sint64 &power_index, sint32 power_factor)
+//{
+//	return float32e8_t(power_index * (power_factor * 10), (sint64) GEAR_FACTOR);
+//}
 
 /******************************************************************************/
 

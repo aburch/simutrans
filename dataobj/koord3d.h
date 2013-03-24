@@ -10,20 +10,20 @@
 /**
  * 3d Koordinaten
  */
-class koord3d
+class koord3d : public koord
 {
 public:
-	sint16 x;
-	sint16 y;
+	//sint16 x;
+	//sint16 y;
 	sint8 z;
 
-	koord3d() : x(0), y(0), z(0) {}
+	koord3d() : koord(0, 0), z(0) {}
 
 	const char *get_str() const;
 	const char *get_fullstr() const;	// including brackets
 
-	koord3d(sint16 xp, sint16 yp, sint8 zp) : x(xp), y(yp), z(zp) {}
-	koord3d(koord xyp, sint8 zp) : x(xyp.x), y(xyp.y), z(zp) {}
+	koord3d(sint16 xp, sint16 yp, sint8 zp) : koord(xp, yp), z(zp) {}
+	koord3d(koord xyp, sint8 zp) : koord(xyp), z(zp) {}
 	koord3d(loadsave_t* file);
 
 	void rotate90( sint16 y_diff );
@@ -32,7 +32,7 @@ public:
 
 	static const koord3d invalid;
 
-	koord get_2d() const { return koord(x, y); }
+	const koord& get_2d() const { return *this; }
 
 	const koord3d& operator += (const koord3d& a)
 	{

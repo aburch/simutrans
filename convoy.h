@@ -269,12 +269,15 @@ protected:
 	 * power_index: a value gotten from vehicles (e.g. from get_effective_force_index()/get_effective_power_index()).
 	 * power_factor: the global power factor percentage. Must not be 0!.
 	 */
-	float32e8_t power_index_to_power(const float32e8_t &power_index, sint32 power_factor);
+	inline float32e8_t power_index_to_power(const sint64 &power_index, sint32 power_factor)
+	{
+		return float32e8_t(power_index * (power_factor * 10), (sint64) GEAR_FACTOR);
+	}
 public:
 	/**
 	 * get braking force in N at given speed in m/s
 	 */
-	inline float32e8_t get_braking_force(/*const float32e8_t &speed*/) 
+	virtual float32e8_t get_braking_force(/*const float32e8_t &speed*/) 
 	{
 		return get_brake_summary(/*speed*/);
 	}
@@ -282,14 +285,14 @@ public:
 	/*
 	 * get starting force in N
 	 */
-	virtual sint32 get_starting_force() { 
+	virtual float32e8_t get_starting_force() { 
 		return get_force_summary(0); 
 	}
 
 	/*
 	 * get continuous power in W
 	 */
-	virtual sint32 get_continuous_power() { 
+	virtual float32e8_t get_continuous_power() { 
 		return get_power_summary(get_vehicle_summary().max_speed * kmh2ms); 
 	}
 
@@ -350,22 +353,24 @@ public:
 
 enum convoy_detail_e
 {
-	cd_vehicle_summary = 0x01,
-	cd_adverse_summary = 0x02,
-	cd_freight_summary = 0x04,
-	cd_weight_summary  = 0x08,
-	cd_starting_force  = 0x10,
-	cd_continuous_power = 0x20
+	cd_vehicle_summary  = 0x01,
+	cd_adverse_summary  = 0x02,
+	cd_freight_summary  = 0x04,
+	cd_weight_summary   = 0x08,
+	cd_starting_force   = 0x10,
+	cd_continuous_power = 0x20,
+	cd_braking_force    = 0x40,
 };
 
 class lazy_convoy_t /*abstract*/ : public convoy_t
 {
 private:
 	freight_summary_t freight;
-	sint32 starting_force;   // in N, calculated in get_starting_force()
-	sint32 continuous_power; // in W, calculated in get_continuous_power()
+	float32e8_t starting_force;   // in N, calculated in convoy_t::get_starting_force()
+	float32e8_t braking_force;      // in N, calculated in convoy_t::get_brake_force()
+	float32e8_t continuous_power; // in W, calculated in convoy_t::get_continuous_power()
 protected:
-	int is_valid;
+	int is_valid; // OR combined enum convoy_detail_e values.
 	// decendents implement the update methods. 
 	virtual void update_vehicle_summary(vehicle_summary_t &vehicle) { (void)vehicle; } // = 0;
 	virtual void update_adverse_summary(adverse_summary_t &adverse) { (void)adverse; } // = 0;
@@ -377,7 +382,7 @@ public:
 	// vehicle_summary becomes invalid, when the vehicle list or any vehicle's vehicle_besch_t changes.
 	inline void invalidate_vehicle_summary()
 	{
-		is_valid &= ~(cd_vehicle_summary|cd_adverse_summary|cd_weight_summary|cd_starting_force|cd_continuous_power);
+		is_valid &= ~(cd_vehicle_summary|cd_adverse_summary|cd_weight_summary|cd_starting_force|cd_continuous_power|cd_braking_force);
 	}
 
 	// vehicle_summary is valid if (is_valid & cd_vehicle_summary != 0)
@@ -401,7 +406,7 @@ public:
 	// or any vehicle's vehicle_besch_t or any vehicle's location/way changes.
 	inline void invalidate_adverse_summary()
 	{
-		is_valid &= ~(cd_adverse_summary|cd_weight_summary);
+		is_valid &= ~(cd_adverse_summary|cd_weight_summary|cd_braking_force);
 	}
 
 	// adverse_summary is valid if (is_valid & cd_adverse_summary != 0)
@@ -452,7 +457,7 @@ public:
 		is_valid &= ~(cd_starting_force);
 	}
 
-	virtual sint32 get_starting_force() 
+	virtual float32e8_t get_starting_force() 
 	{
 		if (!(is_valid & cd_starting_force)) 
 		{
@@ -464,6 +469,25 @@ public:
 
 	//-----------------------------------------------------------------------------
 	
+	// brake_force becomes invalid, when vehicle_summary becomes invalid 
+	// or any vehicle's vehicle_besch_t.
+	inline void invalidate_brake_force()
+	{
+		is_valid &= ~(cd_braking_force);
+	}
+
+	virtual float32e8_t get_braking_force() 
+	{
+		if (!(is_valid & cd_braking_force)) 
+		{
+			is_valid |= cd_braking_force;
+			braking_force = convoy_t::get_braking_force();
+		}
+		return braking_force;
+	}
+
+	//-----------------------------------------------------------------------------
+	
 	// continuous_power becomes invalid, when vehicle_summary becomes invalid 
 	// or any vehicle's vehicle_besch_t.
 	inline void invalidate_continuous_power()
@@ -471,7 +495,7 @@ public:
 		is_valid &= ~(cd_continuous_power);
 	}
 
-	virtual sint32 get_continuous_power()
+	virtual float32e8_t get_continuous_power()
 	{
 		if (!(is_valid & cd_continuous_power)) 
 		{
