@@ -275,6 +275,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\script\api\api_simple.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\script\api\api_tiles.cc"
 				>
 			</File>

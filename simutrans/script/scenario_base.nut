@@ -532,6 +532,26 @@ class schedule_entry_x {
 	}
 }
 
+class dir {
+	static none           = 0
+	static north          = 1
+	static east           = 2
+	static northeast      = 3
+	static south          = 4
+	static northsouth     = 5
+	static southeast      = 6
+	static northsoutheast = 7
+	static west           = 8
+	static northwest      = 9
+	static eastwest       = 10
+	static northeastwest  = 11
+	static southwest      = 12
+	static northsouthwest = 13
+	static southeastwest  = 14
+	static all            = 15
+
+	static nsew = [1, 4, 2, 8]
+}
 /**
  * The same metamethod magic as in the class extend_get.
  * Seems to be impossible to achieve for both tables and classes without code duplication.

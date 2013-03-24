@@ -4,12 +4,12 @@
  *
  * @section post-112-2 Current trunk
  *
- * - Added map_objects,map_object_x, building_x, tree_x, way_x
- * - Added map_objects
- * - Added iterator to tile_x to loop over all objects on the tile
  * - Added good_desc_list_x
  * - Added tile_x::is_bridge, tile_x::is_empty, tile_x::is_ground, tile_x::is_tunnel, tile_x::is_water
  * - Added tile_x::has_way, tile_x::has_ways, tile_x::has_two_ways
+ * - Added map_objects, map_object_x, building_x, tree_x, way_x
+ * - Added iterator to tile_x to loop over all objects on the tile
+ * - Added ::dir
  *
  * @section api-112-2 Release 112.2
  *

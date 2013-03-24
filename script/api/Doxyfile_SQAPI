@@ -21,6 +21,7 @@ INPUT                  = api_factory.cc \
 			 api_schedule.cc \
 			 api_settings.cc \
 			 api_scenario.cc \
+			 api_simple.cc \
 			 api_world.cc \
 			 api_tiles.cc
 

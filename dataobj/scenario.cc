@@ -179,6 +179,22 @@ void scenario_t::koord_sq2w(koord &k)
 }
 
 
+void scenario_t::ribi_w2sq(ribi_t::ribi &r) const
+{
+	if (rotation) {
+		r = ( ( (r << 4) | r) >> rotation) & 15;
+	}
+}
+
+
+void scenario_t::ribi_sq2w(ribi_t::ribi &r) const
+{
+	if (rotation) {
+		r = ( ( (r << 4) | r) << rotation) >> 4 & 15;
+	}
+}
+
+
 const char* scenario_t::get_forbidden_text()
 {
 	static cbuffer_t buf;
