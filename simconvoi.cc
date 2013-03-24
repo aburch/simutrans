@@ -6231,7 +6231,7 @@ uint32 convoi_t::calc_highest_axle_load()
 	uint32 heaviest = 0;
 	for(uint8 i = 0; i < anz_vehikel; i ++)
 	{
-		uint32 tmp = fahr[i]->get_sum_weight();
+		uint32 tmp = fahr[i]->get_besch()->get_axle_load();
 		if(tmp > heaviest)
 		{
 			heaviest = tmp;
