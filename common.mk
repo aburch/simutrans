@@ -26,6 +26,7 @@ clean:
 	$(Q)rm -f $(OBJS)
 	$(Q)rm -f $(DEPS)
 	$(Q)rm -f $(PROGDIR)/$(PROG)
+	$(Q)rm -fr $(PROGDIR)/$(PROG).app
 
 -include $(DEPS)
 

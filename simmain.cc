@@ -479,6 +479,18 @@ int simu_main(int argc, char** argv)
 		}
 #endif
 
+#ifdef __APPLE__
+		// Detect if the binary is started inside an application bundle
+		// Change working dir to bundle dir if that is the case or the game will search for the files inside the bundle
+		if (!strcmp((umgebung_t::program_dir + (strlen(umgebung_t::program_dir) - 20 )), ".app/Contents/MacOS/"))
+		{
+			umgebung_t::program_dir[strlen(umgebung_t::program_dir) - 20] = 0;
+			while (umgebung_t::program_dir[strlen(umgebung_t::program_dir) - 1] != '/') {
+				umgebung_t::program_dir[strlen(umgebung_t::program_dir) - 1] = 0;
+			}
+		}
+#endif
+
 		chdir( umgebung_t::program_dir );
 	}
 	printf("Use work dir %s\n", umgebung_t::program_dir);

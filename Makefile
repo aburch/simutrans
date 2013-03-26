@@ -579,6 +579,7 @@ endif
 
 
 include common.mk
+include OSX/osx.mk
 
 
 .PHONY: makeobj
