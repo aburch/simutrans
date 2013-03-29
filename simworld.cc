@@ -1119,14 +1119,24 @@ void karte_t::distribute_cities( settings_t const * const sets, sint16 old_x, si
 	for (unsigned i =0; i< city_population_target_count; i++) 
 	{
 		DBG_DEBUG("karte_t::distribute_groundobjs_cities()", "City rank %d -- %d", i, city_population[i]);
-	}	
+	}
 
-DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
-#endif 
+	DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
+#endif
+
 	display_set_progress_text(translator::translate("Placing cities ..."));
 	vector_tpl<koord> *pos = stadt_t::random_place(this, &city_population, old_x, old_y);
 
-	if(  !pos->empty()  ) {
+	if ( pos->empty() ) {
+		// could not generate any town
+		if(pos) {
+			delete pos;
+		}
+		settings.set_anzahl_staedte(stadt.get_count()); // new number of towns (if we did not find enough positions)
+		return;
+	}
+		// Extra indentation here is to allow for better diff files; it used to be in a block
+
 		const sint32 old_anzahl_staedte = stadt.get_count();
 		if (pos->get_count() < new_anzahl_staedte) {
 			new_anzahl_staedte = pos->get_count();
@@ -1456,14 +1466,6 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 			}
 			delete test_driver;
 		}
-	}
-	else {
-		// could not generate any town
-		if(pos) {
-			delete pos;
-		}
-		settings.set_anzahl_staedte(stadt.get_count()); // new number of towns (if we did not find enough positions)
-	}
 }
 
 void karte_t::distribute_groundobjs_cities( settings_t const * const sets, sint16 old_x, sint16 old_y)
