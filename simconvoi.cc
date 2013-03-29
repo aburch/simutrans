@@ -6497,7 +6497,7 @@ void convoi_t::clear_replace()
 
 void convoi_t::emergency_go_to_depot()
 {
-	if(!go_to_depot(true))
+	if(!go_to_depot(false))
 	{
 		// Teleport to depot if cannot get there by normal means.
 		depot_t* dep = welt->lookup(home_depot) ? welt->lookup(home_depot)->get_depot() : NULL;
