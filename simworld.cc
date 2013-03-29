@@ -1076,30 +1076,21 @@ void karte_t::add_queued_city(stadt_t* city)
 	cities_awaiting_private_car_route_check.append(city);
 }
 
-void karte_t::distribute_groundobjs_cities( settings_t const * const sets, sint16 old_x, sint16 old_y)
+void karte_t::distribute_cities( settings_t const * const sets, sint16 old_x, sint16 old_y)
 {
-	DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing groundobjs");
-
 	sint32 new_anzahl_staedte = abs(sets->get_anzahl_staedte());
-
-	// Avoid some subtle bugs by bailing out if there are NO cities to be created.
-	if (new_anzahl_staedte == 0) return;
 
 	const uint32 number_of_big_cities = umgebung_t::number_of_big_cities;
 
 	const uint32 max_city_size = sets->get_max_city_size();
 	const uint32 max_small_city_size = sets->get_max_small_city_size();
 
-	if (umgebung_t::river_types > 0 && settings.get_river_number() > 0) {
-		create_rivers(settings.get_river_number());
-	}
+	dbg->important("Creating cities ...");
+	DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities sizes");
 
-dbg->important("Creating cities ...");
-DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities sizes");
+	const sint32 city_population_target_count = stadt.empty() ? new_anzahl_staedte : new_anzahl_staedte + stadt.get_count() + 1;
 
-const sint32 city_population_target_count = stadt.empty() ? new_anzahl_staedte : new_anzahl_staedte + stadt.get_count() + 1;
-
-vector_tpl<sint32> city_population(city_population_target_count);
+	vector_tpl<sint32> city_population(city_population_target_count);
 	sint32 median_population = abs(sets->get_mittlere_einwohnerzahl());
 
 	// Generate random sizes to fit a Pareto distribution: P(x) = x_m / x^2 dx.
@@ -1470,8 +1461,23 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 		}
 		settings.set_anzahl_staedte(stadt.get_count()); // new number of towns (if we did not find enough positions)
 	}
+}
 
-DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing groundobjs");
+void karte_t::distribute_groundobjs_cities( settings_t const * const sets, sint16 old_x, sint16 old_y)
+{
+	DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing groundobjs");
+
+	if (umgebung_t::river_types > 0 && settings.get_river_number() > 0) {
+		create_rivers(settings.get_river_number());
+	}
+
+	sint32 new_anzahl_staedte = abs(sets->get_anzahl_staedte());
+	// Do city and road creation if (and only if) cities were requested.
+	if (new_anzahl_staedte > 0) {
+		this->distribute_cities(sets, old_x, old_y);
+	}
+
+	DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing groundobjs");
 	if(  umgebung_t::ground_object_probability > 0  ) {
 		// add eyecandy like rocky, moles, flowers, ...
 		koord k;
