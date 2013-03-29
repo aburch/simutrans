@@ -1128,7 +1128,10 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 
 	if(  !pos->empty()  ) {
 		const sint32 old_anzahl_staedte = stadt.get_count();
-		new_anzahl_staedte = pos->get_count();
+		if (pos->get_count() < new_anzahl_staedte) {
+			new_anzahl_staedte = pos->get_count();
+			// Under no circumstances increase the number of new cities!
+		}
 		dbg->important("Creating cities: %d", new_anzahl_staedte);
 
 		// prissi if we could not generate enough positions ...
