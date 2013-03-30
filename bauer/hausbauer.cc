@@ -223,11 +223,6 @@ bool hausbauer_t::register_besch(haus_besch_t *besch)
 }
 
 
-
-// the tools must survice closing ...
-static stringhashtable_tpl<wkz_station_t *> station_tool;
-static stringhashtable_tpl<wkz_depot_t *> depot_tool;
-
 // all these menus will need a waytype ...
 void hausbauer_t::fill_menu(werkzeug_waehler_t* wzw, haus_besch_t::utyp utyp, waytype_t wt, sint16 /*sound_ok*/, const karte_t* welt)
 {
