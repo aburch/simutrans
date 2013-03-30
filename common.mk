@@ -54,16 +54,3 @@ $(BUILDDIR)/%.o: %.rc
 	@echo "===> RES $<"
 	$(Q)$(WINDRES) --preprocessor="$(CXX) -E -xc -DRC_INVOKED -MMD -MT $@" -O COFF $< $@
 #	$(Q)$(WINDRES) --preprocessor "$(CXX) -E -xc -DRC_INVOKED -MMD -MF $(@:%.o=%.d) -MT $@" -O COFF $< $@
-
-"OSX/getversion":  OSX/getversion.cc simversion.h
-	@echo "===> Building $@"
-	$(Q)$(CXX) "OSX/getversion.cc" -o $@
-
-bundle: all "OSX/getversion"
-	@echo "===> Building bundle"
-	$(Q)mkdir -p "$(PROGDIR)/$(PROGNAME).app/Contents/MacOS"
-	$(Q)mkdir -p "$(PROGDIR)/$(PROGNAME).app/Contents/Resources"
-	$(Q)cp "$(PROGDIR)/$(PROG)"   "$(PROGDIR)/$(PROGNAME).app/Contents/MacOS/$(PROGNAME)"
-	$(Q)cp "OSX/simutrans.icns"   "$(PROGDIR)/$(PROGNAME).app/Contents/Resources/$(PROGNAME).icns"
-	$(Q)echo "APPL????" >         "$(PROGDIR)/$(PROGNAME).app/Contents/PkgInfo"
-	$(Q)OSX/plistgen.sh           "$(PROGDIR)/$(PROGNAME).app" "$(PROG)"

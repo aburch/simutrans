@@ -571,15 +571,12 @@ BUILDDIR ?= build/$(CFG)
 PROGDIR  ?= $(BUILDDIR)
 PROG     ?= sim
 
-; The name of the project is simutrans => thus we want to build the default bundle under simutrans
-PROGNAME = $(PROG)
-ifeq ($(PROGNAME),sim)
-  PROGNAME := "simutrans"
-endif
-
 
 include common.mk
-include OSX/osx.mk
+
+ifeq ($(OSTYPE),mac)
+  include OSX/osx.mk
+endif
 
 
 .PHONY: makeobj

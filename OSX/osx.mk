@@ -9,6 +9,14 @@
 # SDL_PPC       path to SDL.framwork for PPC
 # SDL_i386      path to SDL.framwork for i386 (default ../Frameworks/SDL.framework)
 
+
+# The name of the project is simutrans => thus we want to build the default bundle under simutrans
+PROGNAME = $(PROG)
+ifeq ($(PROGNAME),sim)
+  PROGNAME := "simutrans"
+endif
+
+
 CXXHOST     ?= $(CXX)
 BINARY_i386 ?= "$(PROGDIR)/$(PROG).app/Contents/MacOS/$(PROG)"
 SDL_i386    ?= "../Frameworks/SDL.framework"
