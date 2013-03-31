@@ -70,7 +70,7 @@ protected:
 	virtual sint16 get_drag_height(karte_t *welt, koord pos) = 0;
 	bool check_dragging();
 public:
-	wkz_raise_lower_base_t(uint16 id) : werkzeug_t(id | GENERAL_TOOL) { offset = Z_GRID; }
+	wkz_raise_lower_base_t(uint16 id) : werkzeug_t(id | GENERAL_TOOL), is_dragging(false), drag_height(0) { offset = Z_GRID; }
 	image_id get_icon(spieler_t*) const OVERRIDE { return grund_t::underground_mode==grund_t::ugm_all ? IMG_LEER : icon; }
 	bool init(karte_t*, spieler_t*) OVERRIDE { is_dragging = false; return true; }
 	bool exit(karte_t*, spieler_t*) OVERRIDE { is_dragging = false; return true; }
