@@ -4111,10 +4111,15 @@ void simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 		// init, load, and check fonts
 		large_font.screen_width = NULL;
 		large_font.char_data = NULL;
-		display_load_font(FONT_PATH_X "prop.fnt");
+		if(  !display_load_font(FONT_PATH_X "prop.fnt")  ) {
+			puts( "Error: No fonts found!\n" );
+			fprintf(stderr, "Error: No fonts found!");
+			exit(-1);
+		}
 	}
 	else {
-		puts("Error  : can't open window!");
+		puts("Error: can't open window!\n");
+		fprintf(stderr, "Error: can't open window!");
 		exit(-1);
 	}
 
