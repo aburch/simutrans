@@ -31,6 +31,7 @@
 #include "../vehicle/simvehikel.h"
 
 #include "ai_passenger.h"
+#include "finance.h"
 
 
 ai_passenger_t::ai_passenger_t(karte_t *wl, uint8 nr) : ai_t( wl, nr )
@@ -940,7 +941,7 @@ void ai_passenger_t::step()
 			 * The second condition may happen due to extensive replacement operations;
 			 * in such a case it is save enough to expand anyway.
 			 */
-			if(!(konto>0  ||  finance_history_month[0][COST_ASSETS]+konto>starting_money)  ) {
+			if(!(finance->get_account_balance()>0  ||  finance->has_money_or_assets())  ) {
 				return;
 			}
 
@@ -1217,7 +1218,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 		// despite its name: try airplane
 		case NR_BAUE_AIRPORT_ROUTE:
 			// try airline (if we are wealthy enough) ...
-			if(  !air_transport  ||  finance_history_month[1][COST_CASH] < starting_money  ||
+			if(  !air_transport  ||  finance->get_history_com_month(1, ATC_CASH) < finance->get_starting_money()  ||
 			     !end_stadt  ||  !create_air_transport_vehikel( start_stadt, end_stadt )  ) {
 				state = NR_BAUE_CLEAN_UP;
 			}

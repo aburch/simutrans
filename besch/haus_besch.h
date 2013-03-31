@@ -223,6 +223,9 @@ public:
 
 	uint32 get_extra() const { return extra_data; }
 
+	/** Returns waytype used for finance stats (distinguishes between tram track and train track) */
+	waytype_t get_finance_waytype() const;
+
 	// ground is transparent
 	bool ist_mit_boden() const { return (flags & FLAG_NEED_GROUND) != 0; }
 

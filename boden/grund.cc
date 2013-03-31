@@ -1472,7 +1472,7 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 
 		// just add the maintenance
 		if(sp && !ist_wasser()) {
-			spieler_t::add_maintenance( sp, weg->get_besch()->get_wartung());
+			spieler_t::add_maintenance( sp, weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype() );
 			weg->set_besitzer( sp );
 		}
 
@@ -1602,6 +1602,7 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 	// check, if the way must be totally removed?
 	weg_t *weg = get_weg(wt);
 	if(weg) {
+		waytype_t wt = weg->get_waytype();
 		const koord here = pos.get_2d();
 
 		// stopps
@@ -1739,7 +1740,7 @@ DBG_MESSAGE("wkz_wayremover()","change remaining way to ribi %d",add);
 		}
 		// we have to pay?
 		if(costs) {
-			spieler_t::accounting(sp, costs, here, COST_CONSTRUCTION);
+			spieler_t::book_construction_costs(sp, costs, here, weg->get_besch()->get_finance_waytype());
 		}
 	}
 	return true;

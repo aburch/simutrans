@@ -103,6 +103,12 @@ public:
 
 	waytype_t get_waytype() const { return static_cast<waytype_t>(wegtyp); }
 
+	/**
+	 * There is no way to distinguish between train bridge and tram bridge.
+	 * However there are no real tram bridges possible in the game.
+	 */
+	waytype_t get_finance_waytype() const { return get_waytype(); }
+
 	sint32 get_preis() const { return preis; }
 
 	sint32 get_wartung() const { return maintenance; }

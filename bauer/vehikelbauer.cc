@@ -179,8 +179,7 @@ vehikel_t* vehikelbauer_t::baue(koord3d k, spieler_t* sp, convoi_t* cnv, const v
 			dbg->fatal("vehikelbauer_t::baue()", "cannot built a vehicle with waytype %i", vb->get_waytype());
 	}
 
-	sp->buche(-(sint64)vb->get_preis(), k.get_2d(), COST_NEW_VEHICLE );
-	sp->buche( (sint64)vb->get_preis(), COST_ASSETS );
+	sp->book_new_vehicle(-(sint64)vb->get_preis(), k.get_2d(), vb->get_waytype() );
 
 	return v;
 }

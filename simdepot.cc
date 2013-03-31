@@ -221,8 +221,7 @@ void depot_t::remove_vehicles_to_end(convoihandle_t cnv, int ipos)
 void depot_t::sell_vehicle(vehikel_t* veh)
 {
 	vehicles.remove(veh);
-	get_besitzer()->buche(veh->calc_restwert(), get_pos().get_2d(), COST_NEW_VEHICLE );
-	get_besitzer()->buche(-(sint64)veh->calc_restwert(), COST_ASSETS );
+	get_besitzer()->book_new_vehicle((sint64)veh->calc_restwert(), get_pos().get_2d(), get_waytype() );
 	DBG_MESSAGE("depot_t::sell_vehicle()", "this=%p sells %p", this, veh);
 	delete veh;
 }

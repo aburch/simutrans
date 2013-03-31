@@ -49,7 +49,7 @@ const char *field_t::ist_entfernbar(const spieler_t *)
 // remove costs
 void field_t::entferne(spieler_t *sp)
 {
-	spieler_t::accounting(sp, welt->get_settings().cst_multiply_remove_field, get_pos().get_2d(), COST_CONSTRUCTION);
+	spieler_t::book_construction_costs(sp, welt->get_settings().cst_multiply_remove_field, get_pos().get_2d(), ignore_wt);
 	mark_image_dirty( get_bild(), 0 );
 }
 

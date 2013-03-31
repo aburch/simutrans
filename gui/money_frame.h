@@ -15,10 +15,12 @@
 #include "components/gui_tab_panel.h"
 #include "components/gui_chart.h"
 #include "components/gui_location_view_t.h"
+#include "components/gui_combobox.h"
 
+#include "../player/finance.h"
 #include "../player/simplay.h"
 
-#define MAX_PLAYER_COST_BUTTON (14)
+#define MAX_PLAYER_COST_BUTTON (13)
 
 /**
  * Finances dialog
@@ -61,7 +63,6 @@ private:
 	gui_label_t margin;
 	gui_label_t transport, old_transport;
 	gui_label_t toll, old_toll;
-	gui_label_t powerline, old_powerline;
 
 	gui_label_t maintenance_label;
 	gui_label_t maintenance_money;
@@ -71,22 +72,12 @@ private:
 
 	gui_container_t month_dummy, year_dummy;
 
-	/**
-	 * fills buffer (char array) with finance info
-	 * @author Owen Rudge, Hj. Malthaner
-	 */
-	const char *display_money(int, char * buf, int);
+	int transport_types[TT_MAX];
+	int transport_type_option;
+	gui_combobox_t transport_type_c;
 
-	/**
-	 * fills buffer (char array) with number info (e.g. amount of transported items)
-	 */
-	const char *display_number(int, char * buf, int);
-
-	/**
-	 * Returns the appropriate colour for a certain finance type
-	 * @author Owen Rudge
-	 */
-	int get_money_colour(int type, int old);
+	/// Helper method to update number label text and color
+	void update_label(gui_label_t &label, char *buf, int transport_type, uint8 type, int yearmonth, int label_type = MONEY);
 
 	spieler_t *sp;
 
@@ -98,7 +89,8 @@ private:
 	void calc_chart_values();
 	static const char *cost_type_name[MAX_PLAYER_COST_BUTTON];
 	static const COLOR_VAL cost_type_color[MAX_PLAYER_COST_BUTTON];
-	static const uint8 cost_type[MAX_PLAYER_COST_BUTTON];
+	static const uint8 cost_type[3*MAX_PLAYER_COST_BUTTON];
+	static const char * transport_type_values[TT_MAX];
 	gui_tab_panel_t year_month_tabs;
 
 	button_t headquarter, goto_headquarter;
@@ -108,6 +100,17 @@ private:
 	// last remembered HQ pos
 	sint16 old_level;
 	koord old_pos;
+
+	/// Helper method to query data from players statistics
+	sint64 get_statistics_value(int transport_type, uint8 type, int yearmonth, bool monthly);
+
+	sint64 chart_table_month[MAX_PLAYER_HISTORY_MONTHS][MAX_PLAYER_COST_BUTTON];
+	sint64 chart_table_year[ MAX_PLAYER_HISTORY_YEARS ][MAX_PLAYER_COST_BUTTON];
+
+	void fill_chart_tables();
+
+	bool is_chart_table_zero(int ttoption);
+
 
 public:
 	/**

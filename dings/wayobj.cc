@@ -71,7 +71,7 @@ wayobj_t::~wayobj_t()
 		return;
 	}
 	if(get_besitzer()) {
-		spieler_t::add_maintenance(get_besitzer(), -besch->get_wartung());
+		spieler_t::add_maintenance(get_besitzer(), -besch->get_wartung(), get_waytype());
 	}
 	if(besch->get_own_wtyp()==overheadlines_wt) {
 		grund_t *gr=welt->lookup(get_pos());
@@ -171,7 +171,7 @@ void wayobj_t::rdwr(loadsave_t *file)
 void wayobj_t::entferne(spieler_t *sp)
 {
 	if(besch) {
-		spieler_t::accounting(sp, -besch->get_preis(), get_pos().get_2d(), COST_CONSTRUCTION);
+		spieler_t::book_construction_costs(sp, -besch->get_preis(), get_pos().get_2d(), besch->get_wtyp());
 	}
 }
 
@@ -218,7 +218,7 @@ void wayobj_t::laden_abschliessen()
 	}
 
 	if(get_besitzer()) {
-		spieler_t::add_maintenance(get_besitzer(), besch->get_wartung());
+		spieler_t::add_maintenance(get_besitzer(), besch->get_wartung(), besch->get_wtyp());
 	}
 }
 
@@ -391,7 +391,7 @@ void wayobj_t::extend_wayobj_t(karte_t *welt, koord3d pos, spieler_t *besitzer, 
 		wo->calc_bild();
 		wo->mark_image_dirty( wo->get_after_bild(), 0 );
 		wo->set_flag(ding_t::dirty);
-		spieler_t::accounting( besitzer,  -besch->get_preis(), pos.get_2d(), COST_CONSTRUCTION);
+		spieler_t::book_construction_costs( besitzer,  -besch->get_preis(), pos.get_2d(), besch->get_wtyp());
 
 		for( uint8 i = 0; i < 4; i++ ) {
 		// Extend wayobjects around the new one, that aren't already connected.

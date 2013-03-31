@@ -97,6 +97,7 @@
 #include "besch/grund_besch.h"
 
 #include "player/simplay.h"
+#include "player/finance.h"
 #include "player/ai_passenger.h"
 #include "player/ai_goods.h"
 
@@ -2406,7 +2407,7 @@ bool karte_t::ebne_planquadrat(spieler_t *sp, koord pos, sint8 hgt, bool keep_wa
 	// was changed => pay for it
 	if(n>0) {
 		n = (n+3) >> 2;
-		spieler_t::accounting(sp, n * settings.cst_alter_land, pos, COST_CONSTRUCTION);
+		spieler_t::book_construction_costs(sp, n * settings.cst_alter_land, pos, ignore_wt);
 	}
 	return ok;
 }
@@ -3361,16 +3362,11 @@ void karte_t::new_month()
 
 	INT_CHECK("simworld 1282");
 
-
 	// spieler
 	for(uint i=0; i<MAX_PLAYER_COUNT; i++) {
 		if( i>=2  &&  last_month == 0  &&  !settings.is_freeplay() ) {
 			// remove all player (but first and second) who went bankrupt during last year
-			if(  spieler[i] != NULL  &&
-				spieler[i]->get_finance_history_year(0,COST_NETWEALTH)<=0  &&
-				spieler[i]->get_finance_history_year(0,COST_MAINTENANCE)==0  &&
-				spieler[i]->get_maintenance()==0  &&
-				spieler[i]->get_finance_history_year(0,COST_ALL_CONVOIS)==0  )
+			if(  spieler[i] != NULL  &&  spieler[i]->get_finance()->is_bancrupted()  )
 			{
 				remove_player(i);
 			}
@@ -3855,7 +3851,7 @@ void karte_t::restore_history()
 		sint64 transported = 0;
 		for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++ ) {
 			if(  spieler[i]!=NULL  ) {
-				transported += spieler[i]->get_finance_history_month( m, COST_ALL_TRANSPORTED );
+				transported += spieler[i]->get_finance()->get_history_veh_month( TT_ALL, m, ATV_TRANSPORTED );
 			}
 		}
 		finance_history_month[m][WORLD_TRANSPORTED_GOODS] = transported;
@@ -3898,7 +3894,7 @@ void karte_t::restore_history()
 		sint64 transported_year = 0;
 		for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++ ) {
 			if(  spieler[i]  ) {
-				transported_year += spieler[i]->get_finance_history_year( y, COST_ALL_TRANSPORTED );
+				transported_year += spieler[i]->get_finance()->get_history_veh_year( TT_ALL, y, ATV_TRANSPORTED );
 			}
 		}
 		finance_history_year[y][WORLD_TRANSPORTED_GOODS] = transported_year;
@@ -3964,8 +3960,8 @@ void karte_t::update_history()
 	sint64 transported_year = 0;
 	for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++ ) {
 		if(  spieler[i]!=NULL  ) {
-			transported += spieler[i]->get_finance_history_month( 0, COST_TRANSPORTED_GOOD );
-			transported_year += spieler[i]->get_finance_history_year( 0, COST_TRANSPORTED_GOOD );
+			transported += spieler[i]->get_finance()->get_history_veh_month( TT_ALL, 0, ATV_TRANSPORTED_GOOD );
+			transported_year += spieler[i]->get_finance()->get_history_veh_year( TT_ALL, 0, ATV_TRANSPORTED_GOOD );
 		}
 	}
 	finance_history_month[0][WORLD_TRANSPORTED_GOODS] = transported;

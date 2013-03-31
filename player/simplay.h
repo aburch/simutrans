@@ -20,45 +20,14 @@
 #include "../tpl/vector_tpl.h"
 
 
-enum player_cost {
-	COST_CONSTRUCTION=0,// Construction
-	COST_VEHICLE_RUN,   // Vehicle running costs
-	COST_NEW_VEHICLE,   // New vehicles
-	COST_INCOME,        // Income
-	COST_MAINTENANCE,   // Upkeep
-	COST_ASSETS,        // value of all vehicles and buildings
-	COST_CASH,          // Cash
-	COST_NETWEALTH,     // Total Cash + Assets
-	COST_PROFIT,        // COST_POWERLINES+COST_INCOME-(COST_CONSTRUCTION+COST_VEHICLE_RUN+COST_NEW_VEHICLE+COST_MAINTENANCE)
-	COST_OPERATING_PROFIT, // COST_POWERLINES+COST_INCOME-(COST_VEHICLE_RUN+COST_MAINTENANCE)
-	COST_MARGIN,        // COST_OPERATING_PROFIT/COST_INCOME
-	COST_ALL_TRANSPORTED, // all transported goods
-	COST_POWERLINES,	  // revenue from the power grid
-	COST_TRANSPORTED_PAS,	// number of passengers that actually reached destination
-	COST_TRANSPORTED_MAIL,
-	COST_TRANSPORTED_GOOD,
-	COST_ALL_CONVOIS,		// number of convois
-	COST_SCENARIO_COMPLETED,// scenario success (only useful if there is one ... )
-	COST_WAY_TOLLS,
-	MAX_PLAYER_COST
-};
-
-#define MAX_PLAYER_HISTORY_YEARS  (12) // number of years to keep history
-#define MAX_PLAYER_HISTORY_MONTHS  (12) // number of months to keep history
-
-
 class karte_t;
 class fabrik_t;
 class koord3d;
 class werkzeug_t;
+class finance_t;
 
 /**
- * convert to displayed value
- */
-inline sint64 convert_money(sint64 value) { return (value + 50) / 100; }
-
-/**
- * play info for simutrans human and AI are derived from this class
+ * Class to hold informations about one player/company. AI players are derived from this class.
  */
 class spieler_t
 {
@@ -68,19 +37,8 @@ public:
 protected:
 	char spieler_name_buf[256];
 
-	/**
-	* Finance History - will supercede the finances by Owen Rudge
-	* Will hold finances for the most recent 12 years
-	* @author hsiegeln
-	*/
-	sint64 finance_history_year[MAX_PLAYER_HISTORY_YEARS][MAX_PLAYER_COST];
-	sint64 finance_history_month[MAX_PLAYER_HISTORY_MONTHS][MAX_PLAYER_COST];
-
-	/**
-	 * Monthly maintenance cost
-	 * @author Hj. Malthaner
-	 */
-	sint64 maintenance;
+	/* "new" finance history */
+	finance_t *finance;
 
 	/**
 	 * Die Welt in der gespielt wird.
@@ -89,25 +47,8 @@ protected:
 	 */
 	static karte_t *welt;
 
-	/**
-	 * Der Kontostand.
-	 *
-	 * @author Hj. Malthaner
-	 */
-	sint64 konto;
-
-	// remember the starting money
-	sint64 starting_money;
-
 	// when was the company founded
 	uint16 player_age;
-
-	/**
-	 * Zählt wie viele Monate das Konto schon ueberzogen ist
-	 *
-	 * @author Hj. Malthaner
-	 */
-	sint32 konto_ueberzogen;
 
 	class income_message_t {
 	public:
@@ -138,6 +79,14 @@ protected:
 	uint8 player_nr;
 
 	/**
+	 * Adds some amount to the maintenance costs.
+	 * @param change the change
+	 * @return the new maintenance costs
+	 * @author Hj. Malthaner
+	 */
+	sint32 add_maintenance(sint32 change, waytype_t const wt=ignore_wt);
+
+	/**
 	 * Ist dieser Spieler ein automatischer Spieler?
 	 * @author Hj. Malthaner
 	 */
@@ -155,6 +104,94 @@ protected:
 	pwd_hash_t pwd_hash;
 
 public:
+	/**
+	 * Sums up "count" with number of convois in statistics,
+	 * supersedes buche( count, COST_ALL_CONVOIS).
+	 * @author jk271
+	 */
+	void book_convoi_number(int count);
+
+	/**
+	 * Adds construction costs to accounting statistics.
+	 * @param amount How much does it cost
+	 * @param tt type of transport
+	 * @author jk271
+	 */
+	static void book_construction_costs(spieler_t * const sp, const sint64 amount, const koord k, const waytype_t wt=ignore_wt);
+
+	/*
+	 * displayes amount of money when koordinates and on screen
+	 * reworked function buche()
+	 */
+	void add_money_message(const sint64 amount, const koord k);
+
+	/**
+	 * Accounts bought/sold vehicles.
+	 * @param price money used for purchase of vehicle,
+	 *              negative value = vehicle bought,
+	 *              negative value = vehicle sold
+	 * @param tt type of transport for accounting purpose
+	 * @author jk271
+	 */
+	void book_new_vehicle(const sint64 price, const koord k, const waytype_t wt=ignore_wt);
+
+	/**
+	 * Adds income to accounting statistics.
+	 * @param amount earned money
+	 * @param tt transport type used in accounting statistics
+	 * @param cathegory parameter
+	 * 	0 ... passenger
+	 *	1 ... mail
+	 *	2 ... good (and powerlines revenue)
+	 * @author jk271
+	 */
+	void book_revenue(const sint64 amount, const koord k, const waytype_t wt=ignore_wt, sint32 cathegory=2);
+
+	/**
+	 * Adds running costs to accounting statistics.
+	 * @param amount How much does it cost
+	 * @param wt
+	 * @author jk271
+	 */
+	void book_running_costs(const sint64 amount, const waytype_t wt=ignore_wt);
+
+	/**
+	 * Books toll paid by our company to someone else.
+	 * @param amount money paid to our company
+	 * @param tt type of transport used for assounting statistisc
+	 * @author jk271
+	 */
+	void book_toll_paid(const sint64 amount, const waytype_t wt=ignore_wt);
+
+	/**
+	 * Books toll paid to our company by someone else.
+	 * @param amount money paid for usage of our roads,railway,channels, ... ; positive sign
+	 * @param tt type of transport used for assounting statistisc
+	 * @author jk271
+	 */
+	void book_toll_received(const sint64 amount, waytype_t wt=ignore_wt);
+
+	/**
+	 * Add amount of transported passenger, mail, goods to accounting statistics.
+	 * @param amount sum of money
+	 * @param wt way type
+	 * @param index 0 = passenger, 1 = mail, 2 = goods
+	 * @author jk271
+	 */
+	void book_transported(const sint64 amount, const waytype_t wt=ignore_wt, int index=2);
+
+	/**
+	 * Add amount of delivered passenger, mail, goods to accounting statistics.
+	 * @param amount sum of money
+	 * @param wt way type
+	 * @param index 0 = passenger, 1 = mail, 2 = goods
+	 */
+	void book_delivered(const sint64 amount, const waytype_t wt=ignore_wt, int index=2);
+
+	bool has_money_or_assets() const;
+
+	finance_t * get_finance() { return finance; }
+
 	virtual bool set_active( bool b ) { return automat = b; }
 
 	bool is_active() const { return automat; }
@@ -213,24 +250,13 @@ public:
 
 	virtual ~spieler_t();
 
-	sint64 get_maintenance() const { return maintenance; }
-
-	/**
-	 * Adds somme amount to the maintenance costs
-	 * @param player (could be zero too!)
-	 * @param change the change
-	 * @author Hj. Malthaner
-	 */
-	static void add_maintenance(spieler_t *sp, sint32 change);
-
-	// Owen Rudge, finances
-	void buche(sint64 betrag, koord k, player_cost type);
-
-	// do the internal accounting (currently only used externally for running costs of convois)
-	void buche(sint64 betrag, player_cost type);
-
-	// this is also safe to be called with sp==NULL, which may happen for unowned objects like bridges, ways, trees, ...
-	static void accounting(spieler_t* sp, sint64 betrag, koord k, player_cost pc);
+	static sint32 add_maintenance(spieler_t *sp, sint32 const change, waytype_t const wt=ignore_wt)
+	{
+		if(sp) {
+			return sp->add_maintenance(change, wt);
+		}
+		return 0;
+	}
 
 	/**
 	 * Cached value of scenario completion percentage.
@@ -244,13 +270,13 @@ public:
 	 * @return Kontostand als double (Gleitkomma) Wert
 	 * @author Hj. Malthaner
 	 */
-	double get_konto_als_double() const { return konto / 100.0; }
+	double get_konto_als_double() const;
 
 	/**
 	 * @return true wenn Konto Überzogen ist
 	 * @author Hj. Malthaner
 	 */
-	int get_konto_ueberzogen() const { return konto_ueberzogen; }
+	int get_account_overdrawn() const;
 
 	/**
 	 * Zeigt Meldungen aus der Queue des Spielers auf dem Bildschirm an
@@ -292,31 +318,10 @@ public:
 	virtual void rotate90( const sint16 y_size );
 
 	/**
-	* Returns the finance history for player
-	* @author hsiegeln
-	*/
-	sint64 get_finance_history_year(int year, int type) { return finance_history_year[year][type]; }
-	sint64 get_finance_history_month(int month, int type) { return finance_history_month[month][type]; }
-	sint64 get_finance_history_month_converted(int month, int type);
-
-	/**
-	 * Returns pointer to finance history for player
-	 * @author hsiegeln
-	 */
-	sint64* get_finance_history_year() { return *finance_history_year; }
-	sint64* get_finance_history_month() { return *finance_history_month; }
-
-	/**
 	* Returns the world the player is in
 	* @author hsiegeln
 	*/
 	static karte_t *get_welt() { return welt; }
-
-	/**
-	* Calculates the finance history for player
-	* @author hsiegeln
-	*/
-	void calc_finance_history();
 
 	/**
 	* Calculates the assets of the player
@@ -326,14 +331,7 @@ public:
 	/**
 	* Updates the assets value of the player
 	*/
-	void update_assets(sint64 const delta);
-
-	/**
-	* rolls the finance history for player (needed when neues_jahr() or neuer_monat()) triggered
-	* @author hsiegeln
-	*/
-	void roll_finance_history_year();
-	void roll_finance_history_month();
+	void update_assets(sint64 const delta, const waytype_t wt = ignore_wt);
 
 	/**
 	 * Rückruf, um uns zu informieren, dass ein Vehikel ein Problem hat

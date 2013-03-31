@@ -234,7 +234,7 @@ void groundobj_t::info(cbuffer_t & buf) const
 
 void groundobj_t::entferne(spieler_t *sp)
 {
-	spieler_t::accounting(sp, -get_besch()->get_preis(), get_pos().get_2d(), COST_CONSTRUCTION);
+	spieler_t::book_construction_costs(sp, -get_besch()->get_preis(), get_pos().get_2d(), ignore_wt);
 	mark_image_dirty( get_bild(), 0 );
 }
 

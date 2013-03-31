@@ -329,6 +329,22 @@ namespace script_api {
 		}
 	};
 
+	template<class A1,class A2,class A3> struct freevariable3 : public freevariable2<A1,A2> {
+		A3 arg3;
+		freevariable3(A1 const& a1, A2 const& a2, A3 const& a3) : freevariable2<A1,A2>(a1,a2), arg3(a3) {}
+
+		/**
+		 * Pushes the free variables
+		 * @returns number of pushed parameters
+		 */
+		SQInteger push(HSQUIRRELVM vm) const {
+			SQInteger count = 0;
+			if (SQ_SUCCEEDED( param<A3>::push(vm, arg3) ) ) count++;
+			count += freevariable2<A1,A2>::push(vm);
+			return count;
+		}
+	};
+
 
 
 }; // end of namespace

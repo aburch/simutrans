@@ -2522,7 +2522,7 @@ void stadt_t::baue_gebaeude(const koord k)
 						if (weg->get_besch() != welt->get_city_road()) {
 							spieler_t *sp = weg->get_besitzer();
 							if (sp == NULL  ||  !gr->get_depot()) {
-								spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung());
+								spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung(), road_wt);
 
 								weg->set_besitzer(NULL); // make public
 								weg->set_besch(welt->get_city_road());
@@ -2673,7 +2673,7 @@ void stadt_t::renoviere_gebaeude(gebaeude_t* gb)
 					if (weg->get_besch() != welt->get_city_road()) {
 						spieler_t *sp = weg->get_besitzer();
 						if (sp == NULL  ||  !gr->get_depot()) {
-							spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung());
+							spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung(), road_wt);
 
 							weg->set_besitzer(NULL); // make public
 							weg->set_besch(welt->get_city_road());
