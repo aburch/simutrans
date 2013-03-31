@@ -483,8 +483,6 @@ DBG_MESSAGE("wkz_remover_intern()","at (%s)", pos.get_str());
 	// prissi: check powerline (can cross ground of another player)
 	leitung_t* lt = gr->get_leitung();
 	if(lt!=NULL  &&  lt->ist_entfernbar(sp)==NULL) {
-		bool is_leitungsbruecke = false;
-		bool is_leitungstunnel = false;
 		if(gr->ist_bruecke()  &&  gr->ist_karten_boden()) {
 			bruecke_t* br = gr->find<bruecke_t>();
 			if(  br == NULL  ) {
@@ -495,20 +493,17 @@ DBG_MESSAGE("wkz_remover_intern()","at (%s)", pos.get_str());
 				gr = gr_new;
 			}
 			else {
-				is_leitungsbruecke = br->get_besch()->get_waytype()==powerline_wt;
+				if (br->get_besch()->get_waytype()==powerline_wt) {
+					msg = brueckenbauer_t::remove(welt, sp, gr->get_pos(), powerline_wt );
+					return msg == NULL;
+				}
 			}
 		}
-		if(is_leitungsbruecke) {
-			msg = brueckenbauer_t::remove(welt, sp, gr->get_pos(), powerline_wt );
-			return msg == NULL;
-		}
 		if(gr->ist_tunnel()  &&  gr->ist_karten_boden()) {
-			tunnel_t* tunnel = gr->find<tunnel_t>();
-			is_leitungstunnel = tunnel->get_besch()->get_waytype()==powerline_wt;
-		}
-		if(is_leitungstunnel) {
-			msg = tunnelbauer_t::remove(welt, sp, gr->get_pos(), powerline_wt );
-			return msg == NULL;
+			if (gr->find<tunnel_t>()->get_besch()->get_waytype()==powerline_wt) {
+				msg = tunnelbauer_t::remove(welt, sp, gr->get_pos(), powerline_wt );
+				return msg == NULL;
+			}
 		}
 		if(  gr->ist_im_tunnel()  ) {
 			sint64 cost_sum = -lt->get_besch()->get_preis()/2;
