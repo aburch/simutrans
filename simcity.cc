@@ -2502,7 +2502,9 @@ void stadt_t::check_all_private_car_routes()
 	const koord3d origin(townhall_road.x, townhall_road.y, welt->lookup_hgt(townhall_road));
 	// This will find the fastest route from the townhall road to *all* other townhall roads.
 	route_t private_car_route;
-	private_car_route.find_route(welt, origin, &private_car_destination_finder_t(welt, &automobil_t(welt), this), welt->get_citycar_speed_average(), ribi_t::alle, 0, depth, true);
+	automobil_t checker(welt);
+	private_car_destination_finder_t finder(welt, &checker, this);
+	private_car_route.find_route(welt, origin, &finder, welt->get_citycar_speed_average(), ribi_t::alle, 0, depth, true);
 
 	check_road_connexions = false;
 }
