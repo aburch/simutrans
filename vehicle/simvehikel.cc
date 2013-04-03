@@ -4009,8 +4009,8 @@ grund_t* aircraft_t::hop()
 	sint32 new_friction = 0;
 
 	// take care of inflight height ...
-	const sint16 h_cur = height_scaling((sint16)get_pos().z)*TILE_HEIGHT_STEP;
-	const sint16 h_next = height_scaling((sint16)pos_next.z)*TILE_HEIGHT_STEP;
+	const sint16 h_cur = (sint16)get_pos().z*TILE_HEIGHT_STEP;
+	const sint16 h_next = (sint16)pos_next.z*TILE_HEIGHT_STEP;
 
 	switch(state) {
 		case departing: {
@@ -4094,7 +4094,7 @@ grund_t* aircraft_t::hop()
 			}
 			else {
 				// runway is on this height
-				const sint16 runway_height = height_scaling(cnv->get_route()->position_bei(touchdown).z)*TILE_HEIGHT_STEP;
+				const sint16 runway_height = cnv->get_route()->position_bei(touchdown).z*TILE_HEIGHT_STEP;
 
 				// we are too low, ascent asap
 				if (flughoehe < runway_height + TILE_HEIGHT_STEP) {

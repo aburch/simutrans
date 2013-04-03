@@ -83,20 +83,6 @@
 #endif
 
 
-// height calculation stuff
-#if defined(HALF_HEIGHT)  ||  defined(OTTD_LIKE)
-// 8 px per height
-#define TILE_HEIGHT_STEP (8)
-#define SPEED_STEP_WIDTH (1l<<16)
-#define height_scaling(i) ((i)>>1)
-#define height_unscaling(i) ((i)<<1)
-#else
-// 16 internal pixels per tile, for purposes of object offsets.
-//#define TILE_HEIGHT_STEP (16)
-#define height_scaling(i) (i)
-#define height_unscaling(i) (i)
-#endif
-
 // 16 internal pixels per tile, for purposes of object visual offsets.
 #define OBJECT_OFFSET_STEPS (16)
 // These must be changed (along with lots of other code) if OBJECT_OFFSET_STEPS is changed.
