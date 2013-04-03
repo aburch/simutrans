@@ -402,6 +402,30 @@ grund_t::~grund_t()
 }
 
 
+uint8 grund_t::get_border_direction() const
+{
+	uint8 border=0;
+
+	if( pos.x == 0 ) {
+		border |= ribi_t::west;
+	}
+
+	if( pos.y == 0 ) {
+		border |= ribi_t::nord;
+	}
+
+	if( pos.x == welt->get_size().x-1 ) {
+		border |= ribi_t::ost;
+	}
+
+	if( pos.y == welt->get_size().y-1 ) {
+		border |= ribi_t::sued;
+	}
+
+	return border;
+}
+
+
 void grund_t::sort_trees()
 {
 	if (get_typ() != boden) {
@@ -952,9 +976,78 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 }
 
 
-void grund_t::display_if_visible(sint16 const xpos, sint16 const ypos, sint16 const raster_tile_width) const
+void grund_t::display_border(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, const uint8 border_direction)
 {
-	if (!get_flag(grund_t::draw_as_ding) && is_karten_boden_visible()) {
+	if(!ist_karten_boden()){
+		return;
+	}
+
+	// We'll paint black 8*height from the center of the tile upwards, size width/2 on top borders (west and north)
+
+	if( border_direction & ribi_t::west ) {
+		const int height_to_paint = tile_raster_scale_y( TILE_HEIGHT_STEP*8, raster_tile_width);
+		const int corner_height = tile_raster_scale_y( corner1(slope)*TILE_HEIGHT_STEP,raster_tile_width);
+
+		//const int y_origin = ypos - corner_height  + tile_raster_scale_y( TILE_HEIGHT_STEP, raster_tile_width) - height_to_paint;
+		const int y_origin = ypos - corner_height - tile_raster_scale_y( TILE_HEIGHT_STEP*5, raster_tile_width);
+
+		display_fillbox_wh_clip(xpos, y_origin, raster_tile_width>>1, height_to_paint, COL_BLACK, false);
+
+		set_flag(dirty);
+	}
+
+	if( border_direction & ribi_t::nord ) {
+
+		const int height_to_paint = tile_raster_scale_y( TILE_HEIGHT_STEP*8, raster_tile_width);
+		const int corner_height = tile_raster_scale_y( corner3(slope)*TILE_HEIGHT_STEP,raster_tile_width);
+
+		const int y_origin = ypos - corner_height  - tile_raster_scale_y( TILE_HEIGHT_STEP*5, raster_tile_width);
+
+		display_fillbox_wh_clip(xpos + (raster_tile_width>>1), y_origin, raster_tile_width>>1, height_to_paint, COL_BLACK, false);
+
+		set_flag(dirty);
+	}
+
+	// We'll paint black 2*height from the center of the tile downwards, size width/2 on bottom borders (south and east)
+	if( border_direction & ribi_t::ost ) {
+		const int height_to_paint = tile_raster_scale_y( TILE_HEIGHT_STEP*2, raster_tile_width);
+		const int corner_height = tile_raster_scale_y( corner3(slope)*TILE_HEIGHT_STEP,raster_tile_width);
+
+		const int y_origin = ypos - corner_height  + tile_raster_scale_y( TILE_HEIGHT_STEP*3, raster_tile_width);
+
+		display_fillbox_wh_clip(xpos + (raster_tile_width>>1), y_origin, raster_tile_width>>1, height_to_paint, COL_BLACK, false);
+
+		set_flag(dirty);
+
+	}
+
+	if( border_direction & ribi_t::sued ) {
+		const int height_to_paint = tile_raster_scale_y( TILE_HEIGHT_STEP*2, raster_tile_width);
+		const int corner_height = tile_raster_scale_y( corner1(slope)*TILE_HEIGHT_STEP,raster_tile_width);
+
+		const int y_origin = ypos - corner_height  + tile_raster_scale_y( TILE_HEIGHT_STEP*3, raster_tile_width);
+
+		display_fillbox_wh_clip(xpos, y_origin, raster_tile_width>>1, height_to_paint, COL_BLACK, false);
+
+		set_flag(dirty);
+	}
+}
+
+
+void grund_t::display_if_visible(sint16 xpos, sint16 ypos, sint16 raster_tile_width)
+{
+
+	if(!is_karten_boden_visible()) {
+		return;
+	}
+
+	const uint8 border = get_border_direction();
+
+	if(border) {
+		display_border(xpos, ypos, raster_tile_width, border);
+	}
+
+	if(!get_flag(grund_t::draw_as_ding)) {
 		display_boden(xpos, ypos, raster_tile_width);
 	}
 }

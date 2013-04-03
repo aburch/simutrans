@@ -1040,7 +1040,6 @@ void move_win(int win, event_t *ev)
 	const koord delta = to_pos - from_pos;
 
 	wins[win].pos += delta;
-
 	// need to mark all of old and new positions dirty
 	mark_rect_dirty_wc( from_pos.x, from_pos.y, from_pos.x+from_gr.x, from_pos.y+from_gr.y );
 	mark_rect_dirty_wc( to_pos.x, to_pos.y, to_pos.x+to_gr.x, to_pos.y+to_gr.y );
@@ -1395,6 +1394,9 @@ void win_display_flush(double konto)
 	// redraw all?
 	if(windows_dirty) {
 		mark_rect_dirty_wc( 0, 0, disp_width, disp_height );
+		if(wl) {
+			wl->set_background_dirty();
+		}
 		windows_dirty = false;
 	}
 	display_set_clip_wh( 0, menu_height, disp_width, disp_height-menu_height+1 );

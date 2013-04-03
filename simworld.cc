@@ -1602,7 +1602,7 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 			// otherwise negative offsets may occur, so we cache only non-rotated maps
 			init_perlin_map(new_groesse_x,new_groesse_y);
 		}
-		int next_progress, old_progress = 0;
+		int old_progress = 0;
 		// loop only new tiles:
 		for(  sint16 x = 0;  x<=new_groesse_x;  x++  ) {
 			for(  sint16 y = (x>old_x)?0:old_y+1;  y<=new_groesse_y;  y++  ) {
@@ -1629,26 +1629,26 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	if ( old_x > 0  &&  old_y > 0){
 		for(i=0; i<old_x; i++) {
 			gr = lookup_kartenboden(koord(i, old_y-1));
-			h = gr->get_hoehe(hang_t::corner_west);
+			h = gr->get_hoehe(hang_t::corner_SW);
 			raise_grid_to(i, old_y+1, h);
 		}
 		for(i=0; i<old_y; i++) {
 			gr = lookup_kartenboden(koord(old_x-1, i));
-			h = gr->get_hoehe(hang_t::corner_east);
+			h = gr->get_hoehe(hang_t::corner_NE);
 			raise_grid_to(old_x+1, i, h);
 		}
 		for(i=0; i<old_x; i++) {
 			gr = lookup_kartenboden(koord(i, old_y-1));
-			h = gr->get_hoehe(hang_t::corner_west);
+			h = gr->get_hoehe(hang_t::corner_SW);
 			lower_grid_to(i, old_y+1, h );
 		}
 		for(i=0; i<old_y; i++) {
 			gr = lookup_kartenboden(koord(old_x-1, i));
-			h = gr->get_hoehe(hang_t::corner_east);
+			h = gr->get_hoehe(hang_t::corner_NE);
 			lower_grid_to(old_x+1, i, h);
 		}
 		gr = lookup_kartenboden(koord(old_x-1, old_y -1));
-		h = gr ->get_hoehe(hang_t::corner_south);
+		h = gr ->get_hoehe(hang_t::corner_SE);
 		raise_grid_to(old_x+1, old_y+1, h);
 		lower_grid_to(old_x+1, old_y+1, h);
 	}
@@ -5599,6 +5599,91 @@ void karte_t::set_fast_forward(bool ff)
 }
 
 
+grund_t* karte_t::get_ground_on_screen_coordinate(const koord screen_pos, sint32 &found_i, sint32 &found_j, const bool intersect_grid) const
+{
+	const int rw1 = get_tile_raster_width();
+	const int rw2 = rw1/2;
+	const int rw4 = rw1/4;
+
+	/*
+	* berechnung der basis feldkoordinaten in i und j
+	* this would calculate raster i,j koordinates if there was no height
+	*  die formeln stehen hier zur erinnerung wie sie in der urform aussehen
+
+	int base_i = (screen_x+screen_y)/2;
+	int base_j = (screen_y-screen_x)/2;
+
+	int raster_base_i = (int)floor(base_i / 16.0);
+	int raster_base_j = (int)floor(base_j / 16.0);
+
+	*/
+
+	const int i_off = ij_off.x+get_view_ij_offset().x;
+	const int j_off = ij_off.y+get_view_ij_offset().y;
+
+	bool found = false;
+	// uncomment to: ctrl-key selects ground
+	//bool select_karten_boden = event_get_last_control_shift()==2;
+
+	// fallback: take kartenboden if nothing else found
+	grund_t *bd = NULL;
+	grund_t *gr = NULL;
+	// for the calculation of hmin/hmax see simview.cc
+	// for the definition of underground_level see grund_t::set_underground_mode
+	const sint8 hmin = grund_t::underground_mode!=grund_t::ugm_all ? min(grundwasser, grund_t::underground_level) : get_minimumheight();
+	const sint8 hmax = grund_t::underground_mode==grund_t::ugm_all ? get_maximumheight() : min(grund_t::underground_level, get_maximumheight());
+
+	// find matching and visible grund
+	for(sint8 hgt = hmax; hgt>=hmin; hgt--) {
+
+		const int base_i = (screen_pos.x+screen_pos.y + tile_raster_scale_y((hgt*TILE_HEIGHT_STEP),rw1))/2;
+		const int base_j = (screen_pos.y-screen_pos.x + tile_raster_scale_y((hgt*TILE_HEIGHT_STEP),rw1))/2;
+
+		found_i = ((int)floor(base_i/(double)rw4)) + i_off;
+		found_j = ((int)floor(base_j/(double)rw4)) + j_off;
+
+		gr = lookup(koord3d(found_i,found_j,hgt));
+		if(gr != NULL) {
+			found = /*select_karten_boden ? gr->ist_karten_boden() :*/ gr->is_visible();
+			if( ( gr->get_typ() == grund_t::tunnelboden || gr->get_typ() == grund_t::monorailboden ) && gr->get_weg_nr(0) == NULL && !gr->get_leitung()  &&  gr->find<zeiger_t>()) {
+				// This is only a dummy ground placed by wkz_tunnelbau_t or wkz_wegebau_t as a preview.
+				found = false;
+			}
+			if (found) {
+				break;
+			}
+
+			if (bd==NULL && gr->ist_karten_boden()) {
+				bd = gr;
+			}
+		}
+		else if (grund_t::underground_mode==grund_t::ugm_level && hgt==hmax) {
+			// fallback in sliced mode, if no ground is under cursor
+			bd = lookup_kartenboden(koord(found_i,found_j));
+		}
+		else if (intersect_grid){
+			// We try to intersect with virtual nonexistent border tiles in south and east.
+			if ( gr = lookup_gridcoords(koord3d(found_i,found_j,hgt)) ){
+				found = true;
+				break;
+			}
+		}
+	}
+
+	if(found) {
+		return gr;
+	}
+	else {
+		if(bd!=NULL){
+			found_i = bd->get_pos().x;
+			found_j = bd->get_pos().y;
+			return bd;
+		}
+		return NULL;
+	}
+}
+
+
 void karte_t::move_cursor(const event_t *ev)
 {
 	if(!zeiger) {
@@ -5625,87 +5710,26 @@ void karte_t::move_cursor(const event_t *ev)
 		screen_y += rw4;
 	}
 
-	// berechnung der basis feldkoordinaten in i und j
 
-	/*  this would calculate raster i,j koordinates if there was no height
-	*  die formeln stehen hier zur erinnerung wie sie in der urform aussehen
+	const grund_t *bd = get_ground_on_screen_coordinate(koord(screen_x,screen_y),mi,mj,wkz->is_grid_tool());
 
-	int base_i = (screen_x+screen_y)/2;
-	int base_j = (screen_y-screen_x)/2;
-
-	int raster_base_i = (int)floor(base_i / 16.0);
-	int raster_base_j = (int)floor(base_j / 16.0);
-
-	*/
-
-	const int i_off = ij_off.x+get_view_ij_offset().x;
-	const int j_off = ij_off.y+get_view_ij_offset().y;
-
-	bool found = false;
-	// uncomment to: ctrl-key selects ground
-	//bool select_karten_boden = event_get_last_control_shift()==2;
-
-	sint8 hgt; // trial height
-	sint8 groff=0; // offset for lower raise tool
-	// fallback: take kartenboden if nothing else found
-	const grund_t *bd = NULL;
-	// for the calculation of hmin/hmax see simview.cc
-	// for the definition of underground_level see grund_t::set_underground_mode
-	const sint8 hmin = grund_t::underground_mode!=grund_t::ugm_all ? min(grundwasser, grund_t::underground_level) : grundwasser-10;
-	const sint8 hmax = grund_t::underground_mode==grund_t::ugm_all ? 32 : min(grund_t::underground_level, 32);
-
-	// find matching and visible grund
-	for(hgt = hmax; hgt>=hmin; hgt--) {
-
-		const int base_i = (screen_x+screen_y + tile_raster_scale_y((hgt*TILE_HEIGHT_STEP),rw1))/2;
-		const int base_j = (screen_y-screen_x + tile_raster_scale_y((hgt*TILE_HEIGHT_STEP),rw1))/2;
-
-		mi = ((int)floor(base_i/(double)rw4)) + i_off;
-		mj = ((int)floor(base_j/(double)rw4)) + j_off;
-
-		const grund_t *gr = lookup(koord3d(mi,mj,hgt));
-		if(gr != NULL) {
-			found = /*select_karten_boden ? gr->ist_karten_boden() :*/ gr->is_visible();
-			if( ( gr->get_typ() == grund_t::tunnelboden || gr->get_typ() == grund_t::monorailboden ) && gr->get_weg_nr(0) == NULL && !gr->get_leitung()  &&  gr->find<zeiger_t>()) {
-				// This is only a dummy ground placed by wkz_tunnelbau_t or wkz_wegebau_t as a preview.
-				found = false;
-			}
-			if (found) {
-				groff = corner4(gr->get_grund_hang());
-				break;
-			}
-
-			if (bd==NULL && gr->ist_karten_boden()) {
-				bd = gr;
-			}
-		}
-		else if (grund_t::underground_mode==grund_t::ugm_level && hgt==hmax) {
-			// fallback in sliced mode, if no ground is under cursor
-			bd = lookup_kartenboden(koord(mi,mj));
-		}
-		else if (wkz->is_grid_tool()){
-			// We try to intersect with virtual unexistant border tiles in south and east.
-			if (lookup_gridcoords(koord3d(mi,mj,hgt))){
-				found = true;
-				break;
-			}
-		}
-	}
-	// try kartenboden?
-	if (!found && bd!=NULL) {
-		mi = bd->get_pos().x;
-		mj = bd->get_pos().y;
-		hgt= bd->get_disp_height();
-		groff = bd->is_visible() ? corner4(bd->get_grund_hang()) : 0;
-		found = true;
-	}
 	// no suitable location found (outside map, ...)
-	if (!found) {
+	if (!bd) {
 		return;
 	}
 
+	// offset needed for the raise / lower tool.
+	sint8 groff;
+
+	if( bd->is_visible()  &&  ( get_corner_to_operate(koord(mi,mj)) & bd->get_grund_hang() ) ) {
+		groff = 1;
+	}
+	else {
+		groff = 0;
+	}
+
 	// the new position - extra logic for raise / lower tool
-	const koord3d pos = koord3d(mi,mj, hgt + (zeiger->get_yoff()==Z_GRID ? groff : 0));
+	const koord3d pos = koord3d(mi,mj, bd->get_disp_height() + (zeiger->get_yoff()==Z_GRID ? groff : 0));
 
 	// move cursor
 	const koord3d prev_pos = zeiger->get_pos();
@@ -5748,6 +5772,22 @@ void karte_t::move_cursor(const event_t *ev)
 			sound_wait_time = AMBIENT_SOUND_INTERVALL;	// 13s no movement: play sound
 		}
 	}
+}
+
+
+bool karte_t::is_background_visible() const
+{
+
+	sint32 i,j;
+
+	if ( get_ground_on_screen_coordinate(koord(0,0),i,j)  &&  \
+		 get_ground_on_screen_coordinate(koord(display_get_width()-1,0),i,j)  &&  \
+		 get_ground_on_screen_coordinate(koord(0,display_get_height()-1),i,j)  &&  \
+		 get_ground_on_screen_coordinate(koord(display_get_width()-1,display_get_height()-1),i,j)  ) {
+		return false;
+	}
+
+	return true;
 }
 
 

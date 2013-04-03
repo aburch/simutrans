@@ -173,6 +173,11 @@ private:
 	 */
 	bool dirty;
 
+	/*
+	 * Redraw background.
+	 */
+	bool background_dirty;
+
 	/**
 	 * The rotation of the map when first loaded.
 	 */
@@ -487,6 +492,16 @@ private:
 	 * @see zeiger_t
 	 */
 	void move_cursor(const event_t *ev);
+
+	/**
+	 * Searches for the ground_t that intersects with the requested screen position.
+	 * @param screen_pos Screen coordinates to check for.
+	 * @param intersect_grid Special case for the lower/raise tool, will return a limit border tile if we are on the south/east border of screen.
+	 * @param found_i If we have a match, it will be set to the i coordinate of the found tile. Undefined otherwise.
+	 * @param found_j If we have a match, it will be set to the j coordinate of the found tile. Undefined otherwise.
+	 * @return the grund_t that's under the desired screen coordinate. NULL if we are outside map or we can't find it.
+	 */
+	grund_t* get_ground_on_screen_coordinate(const koord screen_pos, sint32 &found_i, sint32 &found_j, const bool intersect_grid=false) const;
 
 	/**
 	 * Processes a user event on the map, like a keyclick, or a mouse event.
@@ -843,13 +858,33 @@ public:
 	 * dirty: redraw whole screen.
 	 * @author Hj. Malthaner
 	 */
-	void set_dirty_zurueck() {dirty=false;}
+	void unset_dirty() {dirty=false;}
 
 	/**
 	 * dirty: redraw whole screen.
 	 * @author Hj. Malthaner
 	 */
 	bool is_dirty() const {return dirty;}
+
+	/**
+	 * background_dirty: redraw background.
+	 */
+	void set_background_dirty() {background_dirty=true;}
+
+	/**
+	 * background_dirty: redraw whole screen.
+	 */
+	bool is_background_dirty() const {return background_dirty;}
+
+	/**
+	 * background_dirty: redraw background.
+	 */
+	void unset_background_dirty() {background_dirty=false;}
+
+	/**
+	 * @return true if the current viewport contains regions outside the world.
+	 */
+	bool is_background_visible() const;
 
 	// do the internal accounting
 	void buche(sint64 betrag, player_cost type);
@@ -1152,7 +1187,7 @@ public:
 	/**
 	 * Returns the minimum allowed height on the map.
 	 */
-	sint8 get_minimumheight() const { return grundwasser-4; }
+	sint8 get_minimumheight() const { return grundwasser-10; }
 
 	/**
 	 * Returns the maximum allowed world height.
@@ -1349,18 +1384,18 @@ public:
 	{
 		// Normal tile
 		if ( ( pos.x != cached_grid_size.x )  &&  ( pos.y != cached_grid_size.y ) ){
-			return hang_t::corner_north;
+			return hang_t::corner_NW;
 		}
 		// Border on south-east
 		if ( is_within_limits(pos.x-1, pos.y) ) {
-			return(hang_t::corner_east);
+			return(hang_t::corner_NE);
 		}
 		// Border on south-west
 		if ( is_within_limits(pos.x, pos.y-1) ) {
-			return(hang_t::corner_west);
+			return(hang_t::corner_SW);
 		}
 		// Border on south
-		return (hang_t::corner_south);
+		return (hang_t::corner_SE);
 	}
 
 	/**
