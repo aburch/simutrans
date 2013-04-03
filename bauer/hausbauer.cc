@@ -675,8 +675,12 @@ const haus_besch_t* hausbauer_t::get_random_station(const haus_besch_t::utyp uty
 {
 	weighted_vector_tpl<const haus_besch_t*> stops;
 
+	if (wt < 0) {
+		return NULL;
+	}
+
 	FOR(vector_tpl<haus_besch_t const*>, const besch, station_building) {
-		if(besch->get_utyp()==utype  &&  besch->get_extra()==wt  &&  (enables==0  ||  (besch->get_enabled()&enables)!=0)) {
+		if(besch->get_utyp()==utype  &&  besch->get_extra()==(uint32)wt  &&  (enables==0  ||  (besch->get_enabled()&enables)!=0)) {
 			if( !besch->can_be_built_aboveground()) {
 				continue;
 			}
@@ -800,8 +804,11 @@ const haus_besch_t* hausbauer_t::get_wohnhaus(int level, uint16 time, climate cl
 
 const haus_besch_t* hausbauer_t::get_headquarter(int level, uint16 time)
 {
+	if (level < 0) {
+		return NULL;
+	}
 	FOR(vector_tpl<haus_besch_t const*>, const besch, hausbauer_t::headquarter) {
-		if (besch->get_extra() == level  &&  !besch->is_future(time)  &&  !besch->is_retired(time)) {
+		if (besch->get_extra() == (uint32)level  &&  !besch->is_future(time)  &&  !besch->is_retired(time)) {
 			return besch;
 		}
 	}
