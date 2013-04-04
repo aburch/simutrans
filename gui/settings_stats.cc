@@ -11,6 +11,7 @@
 #include "../dataobj/einstellungen.h"
 #include "../dataobj/umgebung.h"
 #include "../dataobj/translator.h"
+#include "../player/finance.h" // MAX_PLAYER_HISTORY_YEARS
 #include "../vehicle/simvehikel.h"
 #include "settings_stats.h"
 
@@ -256,8 +257,8 @@ void settings_routing_stats_t::read(settings_t* const sets)
 void settings_economy_stats_t::init(settings_t const* const sets)
 {
 	INIT_INIT
-	INIT_NUM( "remove_dummy_player_months", sets->get_remove_dummy_player_months(), 0, 144, 12, false );
-	INIT_NUM( "unprotect_abondoned_player_months", sets->get_unprotect_abondoned_player_months(), 0, 144, 12, false );
+	INIT_NUM( "remove_dummy_player_months", sets->get_remove_dummy_player_months(), 0, MAX_PLAYER_HISTORY_YEARS*12, 12, false );
+	INIT_NUM( "unprotect_abondoned_player_months", sets->get_unprotect_abondoned_player_months(), 0, MAX_PLAYER_HISTORY_YEARS*12, 12, false );
 	SEPERATOR
 	INIT_COST( "starting_money", sets->get_starting_money(sets->get_starting_year()), 1, 0x7FFFFFFFul, 10000, false );
 	INIT_NUM( "pay_for_total_distance", sets->get_pay_for_total_distance_mode(), 0, 2, gui_numberinput_t::AUTOLINEAR, true );
