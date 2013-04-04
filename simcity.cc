@@ -2494,12 +2494,19 @@ void stadt_t::roll_history()
 
 void stadt_t::check_all_private_car_routes()
 {
+	const uint32 depth = welt->get_max_road_check_depth();
+	const koord3d origin(townhall_road.x, townhall_road.y, welt->lookup_hgt(townhall_road));
+	if(welt->lookup(origin.get_2d())->get_city() != this)
+	{
+		// This sometimes happens shortly after the map rotating. Return here to avoid crashing.
+		dbg->error("void stadt_t::check_all_private_car_routes()", "Townhall road does not register as being in its origin city - cannot check private car routes");
+		return;
+	}
+	
 	connected_cities.clear();
 	connected_industries.clear();
 	connected_attractions.clear();
-		
-	const uint32 depth = welt->get_max_road_check_depth();
-	const koord3d origin(townhall_road.x, townhall_road.y, welt->lookup_hgt(townhall_road));
+	
 	// This will find the fastest route from the townhall road to *all* other townhall roads.
 	route_t private_car_route;
 	automobil_t checker(welt);
