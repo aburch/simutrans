@@ -64,9 +64,7 @@
 # MAX_CHOOSE_BLOCK_TILES=xxx: maximum distance between choose signal and a
 #    target (undefined means no limit)
 # USE_DIFFERENT_WIND: different airplane approach directions over the map
-# DESTINATION_CITYCARS: Citycars can have a destination (not recommended)
-# COMMAND_LINE_SERVER: Necessary for compiling with simgraph0.cc for the 
-# command line only server.
+# DESTINATION_CITYCARS: Citycars can have a destination (enabled automatically - cannot be disabled)
 #
 # In order to use the flags, add a line like this: (-Dxxx)
 # FLAGS = -DUSE_C
