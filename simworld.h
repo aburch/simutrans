@@ -800,9 +800,16 @@ private:
 	 * Distribute groundobjs and cities on the map but not
 	 * in the rectangle from (0,0) till (old_x, old_y).
 	 * It's now an extra function so we don't need the code twice.
-	 * @auther Gerd Wachsmuth
+	 * @author Gerd Wachsmuth, neroden
 	 */
 	void distribute_groundobjs_cities(settings_t const * const set, sint16 old_x, sint16 old_y);
+
+	/**
+	 * Distribute just the cities.  Subroutine of distribute_groundobjs_cities.
+	 * Skipped if no cities are being built.
+	 * @author Gerd Wachsmuth, neroden
+	 */
+	void distribute_cities(settings_t const * const set, sint16 old_x, sint16 old_y);
 
 	// Used for detecting whether paths/connexions are stale.
 	// @author: jamespetts

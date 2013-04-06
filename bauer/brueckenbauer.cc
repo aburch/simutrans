@@ -499,6 +499,9 @@ void brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, ko
 			weg = weg_t::alloc(besch->get_waytype());
 			weg->set_besch(weg_besch);
 			bruecke->neuen_weg_bauen(weg, ribi_t::doppelt(ribi), sp);
+			weg->set_max_speed( besch->get_topspeed() );
+			weg->set_max_axle_load( besch->get_max_weight() );
+			weg->add_way_constraints(besch->get_way_constraints());
 		}
 		else {
 			leitung_t *lt = new leitung_t(welt, bruecke->get_pos(), sp);
