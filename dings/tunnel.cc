@@ -165,13 +165,9 @@ void tunnel_t::laden_abschliessen()
 // correct speed and maintenance
 void tunnel_t::entferne( spieler_t *sp2 )
 {
-	if(sp2==NULL) {
-		// only set during destroying of the map
-		return;
-	}
 	spieler_t *sp = get_besitzer();
 	if(sp) {
-		// inside tunnel => do nothing but change maitainance
+		// inside tunnel => do nothing but change maintenance
 		const grund_t *gr = welt->lookup(get_pos());
 		if(gr) {
 			weg_t *weg = gr->get_weg( besch->get_waytype() );

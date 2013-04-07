@@ -506,17 +506,15 @@ DBG_MESSAGE("wkz_remover_intern()","at (%s)", pos.get_str());
 			}
 		}
 		if(  gr->ist_im_tunnel()  ) {
-			sint64 cost_sum = -lt->get_besch()->get_preis()/2;
-			//lt->entferne(NULL); // not needed, will book twice
+			lt->entferne(sp);
 			delete lt;
 			// now everything gone?
 			if(  gr->get_top() == 1  ) {
 				// delete tunnel too
 				tunnel_t *t = gr->find<tunnel_t>();
-				cost_sum = -t->get_besch()->get_preis();
-				t->entferne( NULL );
+				t->entferne(sp);
+				delete t;
 			}
-			spieler_t::book_construction_costs( sp, cost_sum, pos.get_2d(), powerline_wt );
 			// unmark kartenboden (is marked during underground mode deletion)
 			welt->lookup_kartenboden(pos.get_2d())->clear_flag(grund_t::marked);
 			// remove upper or lower ground
@@ -711,13 +709,6 @@ DBG_MESSAGE("wkz_remover()",  "took out powerline");
 	// the following objects will be removed together
 DBG_MESSAGE("wkz_remover()", "removing way");
 
-	/*
-	* @TODO Eigentlich muessen wir hier noch verhindern, dass ein Bahnhofsgebaeude oder eine
-	* Bushaltestelle vereinzelt wird!
-	* Sonst laesst sich danach die Richtung der Haltestelle verdrehen und die Bilder
-	* gehen kaputt.
-	*/
-	long cost_sum = 0;
 	waytype_t wt = ignore_wt;
 	if(gr->get_typ()!=grund_t::tunnelboden  ||  gr->has_two_ways()) {
 		weg_t *w = gr->get_weg_nr(1);
@@ -741,33 +732,24 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 			}
 		}
 		wt = w->get_besch()->get_finance_waytype();
-		cost_sum = gr->weg_entfernen(w->get_waytype(), true);
+		long cost_sum = gr->weg_entfernen(w->get_waytype(), true);
+		spieler_t::book_construction_costs(sp, -cost_sum, pos.get_2d(), wt);
 	}
 	else {
-		// remove ways
-		if(  gr->get_weg_nr(0)  ) {
-			wt = gr->get_weg_nr(0)->get_besch()->get_finance_waytype();
-			cost_sum = gr->weg_entfernen( gr->get_weg_nr(0)->get_waytype(), true );
+		// remove ways and tunnel
+		if(  weg_t *weg = gr->get_weg_nr(0)  ) {
+			gr->remove_everything_from_way(sp, weg->get_waytype(), ribi_t::keine);
 		}
-		// delete tunnel here ...
+		// delete tunnel here - if there is lonely tunnel without way
 		if(  gr->get_top()==1  ) {
 			tunnel_t *t = gr->find<tunnel_t>();
-			cost_sum = t->get_besch()->get_preis();
-			t->entferne( NULL );
+			t->entferne(sp);
 			delete t;
 		}
 	}
 
-	if(  cost_sum > 0  ) {
-		spieler_t::book_construction_costs(sp, -cost_sum, pos.get_2d(), wt);
-		if(  gr->get_top()>0  ) {
-			return true;
-		}
-	}
-DBG_MESSAGE("wkz_remover()", "check ground");
-
+	// remove empty tile
 	if(  !gr->ist_karten_boden()  &&  gr->get_top()==0  ) {
-DBG_MESSAGE("wkz_remover()", "removing ground");
 		// unmark kartenboden (is marked during underground mode deletion)
 		welt->lookup_kartenboden(pos.get_2d())->clear_flag(grund_t::marked);
 		// remove upper or lower ground
