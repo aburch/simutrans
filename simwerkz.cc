@@ -746,8 +746,8 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 	else {
 		// remove ways
 		if(  gr->get_weg_nr(0)  ) {
-			cost_sum = gr->weg_entfernen( gr->get_weg_nr(0)->get_waytype(), true );
 			wt = gr->get_weg_nr(0)->get_besch()->get_finance_waytype();
+			cost_sum = gr->weg_entfernen( gr->get_weg_nr(0)->get_waytype(), true );
 		}
 		// delete tunnel here ...
 		if(  gr->get_top()==1  ) {
