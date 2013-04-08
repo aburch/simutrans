@@ -103,6 +103,7 @@ uint8 umgebung_t::tooltip_textcolor;
 uint8 umgebung_t::toolbar_max_width;
 uint8 umgebung_t::toolbar_max_height;
 uint8 umgebung_t::cursor_overlay_color;
+uint8 umgebung_t::background_color;
 uint8 umgebung_t::show_vehicle_states;
 bool umgebung_t::visualize_schedule;
 sint8 umgebung_t::daynight_level;
@@ -186,6 +187,8 @@ void umgebung_t::init()
 	toolbar_max_height = 0;
 
 	cursor_overlay_color = COL_ORANGE;
+
+	background_color = COL_GREY2;
 
 	show_vehicle_states = 1;
 

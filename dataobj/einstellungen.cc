@@ -802,6 +802,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	umgebung_t::toolbar_max_height = contents.get_int("toolbar_max_height", umgebung_t::toolbar_max_height );
 	umgebung_t::cursor_overlay_color = contents.get_int("cursor_overlay_color", umgebung_t::cursor_overlay_color );
 
+	umgebung_t::background_color = contents.get_int("background_color", umgebung_t::background_color );
+
 	// display stuff
 	umgebung_t::show_names = contents.get_int("show_names", umgebung_t::show_names );
 	umgebung_t::show_month = contents.get_int("show_month", umgebung_t::show_month );

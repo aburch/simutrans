@@ -246,6 +246,9 @@ public:
 	/// color used for cursor overlay blending
 	static uint8 cursor_overlay_color;
 
+	/// color used for solid background draw
+	static uint8 background_color;
+
 	/**
 	 * Show labels (city and station names, ...)
 	 * and waiting indicator bar for stations

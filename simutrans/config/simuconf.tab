@@ -327,6 +327,9 @@ show_names = 3
 # -- pak128.japan
 #cursor_overlay_color = 149
 
+# Color of background default: COL_GREY2 (210)
+#background_color = 210
+
 ##################################window stuff##################################
 # show the windows close etc. buttons on the right (like windows 98)
 #window_buttons_right = 0

@@ -991,7 +991,7 @@ void grund_t::display_border(const sint16 xpos, const sint16 ypos, const sint16 
 		//const int y_origin = ypos - corner_height  + tile_raster_scale_y( TILE_HEIGHT_STEP, raster_tile_width) - height_to_paint;
 		const int y_origin = ypos - corner_height - tile_raster_scale_y( TILE_HEIGHT_STEP*5, raster_tile_width);
 
-		display_fillbox_wh_clip(xpos, y_origin, raster_tile_width>>1, height_to_paint, COL_BLACK, false);
+		display_fillbox_wh_clip(xpos, y_origin, raster_tile_width>>1, height_to_paint, umgebung_t::background_color, false);
 
 		set_flag(dirty);
 	}
@@ -1003,7 +1003,7 @@ void grund_t::display_border(const sint16 xpos, const sint16 ypos, const sint16 
 
 		const int y_origin = ypos - corner_height  - tile_raster_scale_y( TILE_HEIGHT_STEP*5, raster_tile_width);
 
-		display_fillbox_wh_clip(xpos + (raster_tile_width>>1), y_origin, raster_tile_width>>1, height_to_paint, COL_BLACK, false);
+		display_fillbox_wh_clip(xpos + (raster_tile_width>>1), y_origin, raster_tile_width>>1, height_to_paint, umgebung_t::background_color, false);
 
 		set_flag(dirty);
 	}
@@ -1015,7 +1015,7 @@ void grund_t::display_border(const sint16 xpos, const sint16 ypos, const sint16 
 
 		const int y_origin = ypos - corner_height  + tile_raster_scale_y( TILE_HEIGHT_STEP*3, raster_tile_width);
 
-		display_fillbox_wh_clip(xpos + (raster_tile_width>>1), y_origin, raster_tile_width>>1, height_to_paint, COL_BLACK, false);
+		display_fillbox_wh_clip(xpos + (raster_tile_width>>1), y_origin, raster_tile_width>>1, height_to_paint, umgebung_t::background_color, false);
 
 		set_flag(dirty);
 
@@ -1027,7 +1027,7 @@ void grund_t::display_border(const sint16 xpos, const sint16 ypos, const sint16 
 
 		const int y_origin = ypos - corner_height  + tile_raster_scale_y( TILE_HEIGHT_STEP*3, raster_tile_width);
 
-		display_fillbox_wh_clip(xpos, y_origin, raster_tile_width>>1, height_to_paint, COL_BLACK, false);
+		display_fillbox_wh_clip(xpos, y_origin, raster_tile_width>>1, height_to_paint, umgebung_t::background_color, false);
 
 		set_flag(dirty);
 	}
