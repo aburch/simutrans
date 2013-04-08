@@ -140,6 +140,7 @@ uint32 simrand(const uint32 max, const char*)
 }
 
 /* Generates a random number on [0,max-1] interval with a normal distribution*/
+/* See: http://forum.simutrans.com/index.php?topic=10953.0;all for details*/
 #ifdef DEBUG_SIMRAND_CALLS
 uint32 simrand_normal(const uint32 max, const char* caller)
 #else
