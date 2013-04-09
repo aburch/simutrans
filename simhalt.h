@@ -832,27 +832,7 @@ public:
 	// @author: jamespetts
 	uint16 get_average_waiting_time(halthandle_t halt, uint8 category) const;
 
-	void add_waiting_time(uint16 time, halthandle_t halt, uint8 category, bool do_not_reset_month = false)
-	{
-		if(halt.is_bound())
-		{
-			const waiting_time_map *wt = &waiting_times[category];
-			fixed_list_tpl<uint16, 32> *tmp;
-			if(!wt->is_contained(halt.get_id()))
-			{
-				tmp = new fixed_list_tpl<uint16, 32>;
-				waiting_time_set *set = new waiting_time_set;
-				set->times = *tmp;
-				set->month = 0;
-				waiting_times[category].put(halt.get_id(), *set);
-			}
-			waiting_times[category].access(halt.get_id())->times.add_to_tail(time);
-			if(!do_not_reset_month)
-			{
-				waiting_times[category].access(halt.get_id())->month = 0;
-			}
-		}
-	}
+	void add_waiting_time(uint16 time, halthandle_t halt, uint8 category, bool do_not_reset_month = false);	
 
 	typedef quickstone_hashtable_tpl<haltestelle_t, connexion*>* connexions_map_single;
 	connexions_map_single get_connexions(uint8 c) { return connexions[c]; }

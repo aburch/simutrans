@@ -3930,3 +3930,25 @@ void haltestelle_t::calc_transfer_time()
 
 	transfer_time = ((ave_dimension / 2) * walking_journey_time_factor) / 100u;
 }
+
+void haltestelle_t::add_waiting_time(uint16 time, halthandle_t halt, uint8 category, bool do_not_reset_month)
+{
+	if(halt.is_bound())
+	{
+		const waiting_time_map *wt = &waiting_times[category];
+		
+		if(!wt->is_contained(halt.get_id()))
+		{
+			fixed_list_tpl<uint16, 32> tmp;
+			waiting_time_set set;
+			set.times = tmp;
+			set.month = 0;
+			waiting_times[category].put(halt.get_id(), set);
+		}
+		waiting_times[category].access(halt.get_id())->times.add_to_tail(time);
+		if(!do_not_reset_month)
+		{
+			waiting_times[category].access(halt.get_id())->month = 0;
+		}
+	}
+}
