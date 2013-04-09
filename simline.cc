@@ -742,6 +742,7 @@ void simline_t::calc_is_alternating_circular_route()
 	
 	if(old_is_alternating_circle_route == false && is_alternating_circle_route == true)
 	{
+		delete average_journey_times_reverse_circular;
 		average_journey_times_reverse_circular = new journey_times_map;
 	}
 	else if(is_alternating_circle_route == true && is_alternating_circle_route == false)
