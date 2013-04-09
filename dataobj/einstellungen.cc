@@ -663,7 +663,7 @@ void settings_t::rdwr(loadsave_t *file)
 
 			file->rdwr_long(passenger_factor );
 
-			// town grow stuff
+			// town growth stuff
 			if(file->get_version()>102001) {
 				file->rdwr_long(passenger_multiplier );
 				file->rdwr_long(mail_multiplier );
@@ -677,19 +677,19 @@ void settings_t::rdwr(loadsave_t *file)
 				file->rdwr_short(factory_worker_radius );
 			}
 
-			file->rdwr_long(electric_promille );
+			file->rdwr_long(electric_promille);
 
-			file->rdwr_short(min_factory_spacing );
-			file->rdwr_bool(crossconnect_factories );
-			file->rdwr_short(crossconnect_factor );
+			file->rdwr_short(min_factory_spacing);
+			file->rdwr_bool(crossconnect_factories);
+			file->rdwr_short(crossconnect_factor);
 
-			file->rdwr_bool(fussgaenger );
-			file->rdwr_long(stadtauto_duration );
+			file->rdwr_bool(fussgaenger);
+			file->rdwr_long(stadtauto_duration);
 
-			file->rdwr_bool( numbered_stations);
-			if(  file->get_version()<=102002 || (file->get_experimental_version() < 8 && file->get_experimental_version() != 0))
+			file->rdwr_bool(numbered_stations);
+			if(file->get_version() <= 102002 || (file->get_experimental_version() < 8 && file->get_experimental_version() != 0))
 			{
-				if(  file->is_loading()  ) 
+				if(file->is_loading()) 
 				{
 					num_city_roads = 1;
 					city_roads[0].intro = 0;
@@ -697,12 +697,12 @@ void settings_t::rdwr(loadsave_t *file)
 					// intercity roads were not saved in old savegames
 					num_intercity_roads = 0;
 				}
-				file->rdwr_str(city_roads[0].name, lengthof(city_roads[0].name) );
+				file->rdwr_str(city_roads[0].name, lengthof(city_roads[0].name));
 			}
 			else 
 			{
 				// several roads ...
-				file->rdwr_short(num_city_roads );
+				file->rdwr_short(num_city_roads);
 				if(  num_city_roads>=10  ) {
 					dbg->fatal("settings_t::rdwr()", "Too many (%i) city roads!", num_city_roads);
 				}
@@ -712,7 +712,7 @@ void settings_t::rdwr(loadsave_t *file)
 					file->rdwr_short(city_roads[i].retire );
 				}
 				// several intercity roads ...
-				file->rdwr_short(num_intercity_roads );
+				file->rdwr_short(num_intercity_roads);
 				if(  num_intercity_roads>=10  ) {
 					dbg->fatal("settings_t::rdwr()", "Too many (%i) intercity roads!", num_intercity_roads);
 				}
