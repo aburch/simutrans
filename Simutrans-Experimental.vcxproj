@@ -33,6 +33,10 @@
       <Configuration>Release (SDL)</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Release (single threaded)|Win32">
+      <Configuration>Release (single threaded)</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
@@ -55,6 +59,11 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release (single threaded)|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -101,6 +110,9 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release (single threaded)|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Dr. Memory|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
@@ -132,14 +144,17 @@
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug (network)|Win32'">true</LinkIncremental>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug (command-line server)|Win32'">true</LinkIncremental>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\simutrans\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release (single threaded)|Win32'">.\simutrans\</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Dr. Memory|Win32'">.\simutrans\</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release (IP v. 4 only)|Win32'">.\simutrans</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|Win32'">.\simutrans</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\intermediates\release\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release (single threaded)|Win32'">.\intermediates\release\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Dr. Memory|Win32'">.\intermediates\release\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release (IP v. 4 only)|Win32'">.\intermediates\release</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|Win32'">.\intermediates\release-command-line-server</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release (single threaded)|Win32'">false</LinkIncremental>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Dr. Memory|Win32'">false</LinkIncremental>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release (IP v. 4 only)|Win32'">false</LinkIncremental>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|Win32'">false</LinkIncremental>
@@ -156,14 +171,17 @@
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug (network)|Win32'">..\OpenTTD\win32\library;..\bzip\lib;$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug (command-line server)|Win32'">..\OpenTTD\win32\library;..\bzip\lib;$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\OpenTTD\win32\library;..\bzip\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release (single threaded)|Win32'">..\OpenTTD\win32\library;..\bzip\lib;$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Dr. Memory|Win32'">..\OpenTTD\win32\library;..\bzip\lib;$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release (IP v. 4 only)|Win32'">..\OpenTTD\win32\library;..\bzip\lib;$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|Win32'">..\OpenTTD\win32\library;..\bzip\lib;$(LibraryPath)</LibraryPath>
     <SourcePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">(SourcePath)</SourcePath>
+    <SourcePath Condition="'$(Configuration)|$(Platform)'=='Release (single threaded)|Win32'">(SourcePath)</SourcePath>
     <SourcePath Condition="'$(Configuration)|$(Platform)'=='Dr. Memory|Win32'">(SourcePath)</SourcePath>
     <SourcePath Condition="'$(Configuration)|$(Platform)'=='Release (IP v. 4 only)|Win32'">(SourcePath)</SourcePath>
     <SourcePath Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|Win32'">(SourcePath)</SourcePath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\OpenTTD\shared\include;..\bzip\include;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release (single threaded)|Win32'">..\OpenTTD\shared\include;..\bzip\include;$(IncludePath)</IncludePath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Dr. Memory|Win32'">..\OpenTTD\shared\include;..\bzip\include;$(IncludePath)</IncludePath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release (IP v. 4 only)|Win32'">..\OpenTTD\shared\include;..\bzip\include;$(IncludePath)</IncludePath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|Win32'">..\OpenTTD\shared\include;..\bzip\include;$(IncludePath)</IncludePath>
@@ -183,6 +201,7 @@
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|Win32'">$(ProjectName)-command-line-server</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release (IP v. 4 only)|Win32'">$(ProjectName)-ipv4</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Dr. Memory|Win32'">$(ProjectName)-DrMemory</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release (single threaded)|Win32'">$(ProjectName)-single-threaded</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -292,6 +311,41 @@
       <OmitFramePointers>true</OmitFramePointers>
       <AdditionalIncludeDirectories>F:\My Documents\Development\Zlib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;WIN32;NDEBUG;%(PreprocessorDefinitions);COLOUR_DEPTH=16;MULTI_THREAD=6</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4200;4800;4311;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <Optimization>Full</Optimization>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;Strmiids.lib;Ws2_32.lib;shell32.lib;pthreadVCE2.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\OpenTTD\win32\library;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release (single threaded)|Win32'">
+    <ClCompile>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <OmitFramePointers>true</OmitFramePointers>
+      <AdditionalIncludeDirectories>F:\My Documents\Development\Zlib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;WIN32;NDEBUG;%(PreprocessorDefinitions);COLOUR_DEPTH=16;MULTI_THREAD=0</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FloatingPointModel>Fast</FloatingPointModel>
       <PrecompiledHeader>
@@ -738,10 +792,12 @@
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
       <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release (single threaded)|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Dr. Memory|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release (IP v. 4 only)|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
       <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release (single threaded)|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
       <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Dr. Memory|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
       <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release (IP v. 4 only)|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
       <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
