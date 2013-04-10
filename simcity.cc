@@ -3016,9 +3016,11 @@ void stadt_t::step_passagiere()
 	//	DBG_MESSAGE("stadt_t::step_passagiere()", "%s step_passagiere called (%d,%d - %d,%d)\n", name, li, ob, re, un);
 	//	long t0 = get_current_time_millis();
 
-	// post oder pax erzeugen ?
-	// "post or generate pax"
-	const ware_besch_t *const wtyp = (simrand(400, "void stadt_t::step_passagiere() (mail or passengers?"))<300 ? warenbauer_t::passagiere : warenbauer_t::post;
+	// Determine whether to generate a mail or passenger packet.
+	// See here for a discussion of ratios: http://forum.simutrans.com/index.php?topic=10920.0
+	// It is probably necessary to refine this further to take account of historical variation,
+	// and allow this to be customised by pakset.
+	const ware_besch_t *const wtyp = (simrand(400, "void stadt_t::step_passagiere() (mail or passengers?")) < 398 ? warenbauer_t::passagiere : warenbauer_t::post;
 	const city_cost history_type = (wtyp == warenbauer_t::passagiere) ? HIST_PAS_TRANSPORTED : HIST_MAIL_TRANSPORTED;
 	factory_set_t &target_factories = (wtyp==warenbauer_t::passagiere ? target_factories_pax : target_factories_mail);
 

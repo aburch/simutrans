@@ -1046,17 +1046,18 @@ void haltestelle_t::step()
 
 				// Checks to see whether the freight has been waiting too long.
 				// If so, discard it.
+				
 				if(tmp.get_besch()->get_speed_bonus() > 0)
 				{
 					// Only consider for discarding if the goods care about their timings.
-					// Goods/passengers' maximum waiting times are proportionate to the length of the journey.
+					// Passengers' maximum waiting times are proportionate to the length of the journey.
 					const uint16 base_max_minutes = (welt->get_settings().get_passenger_max_wait() / tmp.get_besch()->get_speed_bonus()) * 10;  // Minutes are recorded in tenths
 					halthandle_t h = haltestelle_t::get_halt(welt, tmp.get_zielpos(), besitzer_p);
 					uint16 journey_time = 65535;
 					path_explorer_t::get_catg_path_between(tmp.get_besch()->get_catg_index(), tmp.get_origin(), tmp.get_ziel(), journey_time, h);
 					const uint16 thrice_journey = journey_time * 3;
 					const uint16 min_minutes = base_max_minutes / 12;
-					const uint16 max_minutes = base_max_minutes < thrice_journey ? base_max_minutes : max(thrice_journey, min_minutes);
+					const uint16 max_minutes = tmp.is_passenger() ? base_max_minutes < thrice_journey ? base_max_minutes : max(thrice_journey, min_minutes) : base_max_minutes;
 #ifdef DEBUG_SIMRAND_CALLS
 					if (talk && i == 2198)
 						dbg->message("haltestelle_t::step", "%u) check %u of %u minutes: %u %s to \"%s\"", 
