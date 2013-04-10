@@ -53,7 +53,6 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	tunnel_besch_t *besch = new tunnel_besch_t();
 	besch->topspeed = 0;	// indicate, that we have to convert this to reasonable date, when read completely
-	delete[] besch->node_info;
 	besch->node_info = new obj_besch_t*[node.children];
 
 	if(node.size>0) {
