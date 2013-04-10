@@ -1368,6 +1368,7 @@ void win_poll_event(event_t* const ev)
 		// main window resized
 		simgraph_resize( ev->mx, ev->my );
 		ticker::redraw_ticker();
+		wl->set_dirty();
 		ev->ev_class = EVENT_NONE;
 	}
 }
