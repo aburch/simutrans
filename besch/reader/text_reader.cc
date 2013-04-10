@@ -10,6 +10,7 @@
 obj_besch_t * text_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	text_besch_t* besch = new(node.size) text_besch_t();
+	delete[] besch->node_info;
 	besch->node_info = new obj_besch_t*[node.children];
 
 	// Hajo: Read data

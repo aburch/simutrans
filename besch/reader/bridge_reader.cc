@@ -28,6 +28,7 @@ obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	ALLOCA(char, besch_buf, node.size);
 
 	bruecke_besch_t *besch = new bruecke_besch_t();
+	delete[] besch->node_info;
 	besch->node_info = new obj_besch_t*[node.children];
 
 	// Hajo: Read data
