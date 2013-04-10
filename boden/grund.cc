@@ -988,7 +988,6 @@ void grund_t::display_border(const sint16 xpos, const sint16 ypos, const sint16 
    const sint16 y_imp_offset = tile_raster_scale_y( TILE_HEIGHT_STEP*3, raster_tile_width);
 #endif
 
-
    // We'll paint 8*height from the center of the tile upwards, size width/2 on top borders (west and north)
 
    if( border_direction & ribi_t::west ) {
@@ -1038,6 +1037,7 @@ void grund_t::display_border(const sint16 xpos, const sint16 ypos, const sint16 
       set_flag(dirty);
    }
 }
+
 
 void grund_t::display_if_visible(sint16 xpos, sint16 ypos, sint16 raster_tile_width)
 {
