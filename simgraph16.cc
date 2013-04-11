@@ -3352,7 +3352,7 @@ int display_calc_proportional_string_len_width(const char* text, size_t len)
 			if (iUnicode == 0) {
 				return width;
 			}
-			else if(iUnicode>=fnt->num_chars  ||  (w = fnt->screen_width[iUnicode])==0  ) {
+			else if(iUnicode>=fnt->num_chars  ||  (w = fnt->screen_width[iUnicode])>=128  ) {
 				// default width for missing characters
 				w = fnt->screen_width[0];
 			}
@@ -3364,7 +3364,7 @@ int display_calc_proportional_string_len_width(const char* text, size_t len)
 		unsigned int c;
 		while(  *text != 0  &&  len > 0  ) {
 			c = (unsigned char)*text;
-			if(  c>=fnt->num_chars  ||  (char_width=fnt->screen_width[c])==0  ) {
+			if(  c>=fnt->num_chars  ||  (char_width=fnt->screen_width[c])>=128  ) {
 				// default width for missing characters
 				char_width = fnt->screen_width[0];
 			}
@@ -3441,7 +3441,8 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
 		cR = clip_rect.xx;
 		cT = clip_rect.y;
 		cB = clip_rect.yy;
-	} else {
+	}
+	else {
 		cL = 0;
 		cR = disp_width;
 		cT = 0;
@@ -3492,14 +3493,15 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
 		// decode char
 		if (has_unicode) {
 			c = utf8_to_utf16((utf8 const*)txt + iTextPos, &iTextPos);
-		} else {
+		}
+		else {
 #endif
 			c = (unsigned char)txt[iTextPos++];
 #ifdef UNICODE_SUPPORT
 		}
 #endif
 		// print unknown character?
-		if (c >= fnt->num_chars || fnt->screen_width[c] == 0) {
+		if (c >= fnt->num_chars || fnt->screen_width[c] >= 128) {
 			c = 0;
 		}
 
