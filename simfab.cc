@@ -942,7 +942,7 @@ fabrik_t::~fabrik_t()
 		for(sint32 i = number_of_customers - 1; i >= 0; i --)
 		{
 			fabrik_t* tmp = get_fab(welt, lieferziele[i]);
-			if(tmp->disconnect_supplier(pos.get_2d()))
+			if(tmp && tmp->disconnect_supplier(pos.get_2d()))
 			{
 				//Orphaned, must be deleted.
 				grund_t *gr = 0;
