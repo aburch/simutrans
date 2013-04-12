@@ -444,71 +444,49 @@ bool spieler_t::neuer_monat()
 			// normal level.
 			base_credit_limit = get_base_credit_limit();
 		}
-//=======
-//	}
-//
-//	if(  umgebung_t::networkmode  &&  player_nr>1  &&  !automat  ) {
-//		// find out dummy companies (i.e. no vehicle running within x months)
-//		if(  welt->get_settings().get_remove_dummy_player_months()  &&  player_age >= welt->get_settings().get_remove_dummy_player_months()  )  {
-//			bool no_cnv = true;
-//			const uint16 months = min( 12,  welt->get_settings().get_remove_dummy_player_months() );
-//			for(  uint16 m = 0;  m < months  &&  no_cnv;  m++  ) {
-//				no_cnv &= finance_history_month[m][COST_ALL_CONVOIS]==0;
-//			}
-//			const uint16 years = min( MAX_PLAYER_HISTORY_YEARS,  (welt->get_settings().get_remove_dummy_player_months() - 1) / 12 );
-//			for(  uint16 y = 0;  y < years  &&  no_cnv;  y++  ) {
-//				no_cnv &= finance_history_year[y][COST_ALL_CONVOIS]==0;
-//			}
-//			// never run a convoi => dummy
-//			if(  no_cnv  ) {
-//				return false; // remove immediately
-//			}
-//		}
-//
-//		// find out abandoned companies (no activity within x months)
-//		if(  welt->get_settings().get_unprotect_abondoned_player_months()  &&  player_age >= welt->get_settings().get_unprotect_abondoned_player_months()  )  {
-//			bool abandoned = true;
-//			const uint16 months = min( 12,  welt->get_settings().get_unprotect_abondoned_player_months() );
-//			for(  uint16 m = 0;  m < months  &&  abandoned;  m++  ) {
-//				abandoned &= finance_history_month[m][COST_NEW_VEHICLE]==0  &&  finance_history_month[m][COST_CONSTRUCTION]==0;
-//			}
-//			const uint16 years = min( MAX_PLAYER_HISTORY_YEARS, (welt->get_settings().get_unprotect_abondoned_player_months() - 1) / 12);
-//			for(  uint16 y = 0;  y < years  &&  abandoned;  y++  ) {
-//				abandoned &= finance_history_year[y][COST_NEW_VEHICLE]==0  &&  finance_history_year[y][COST_CONSTRUCTION]==0;
-//			}
-//			// never changed convoi, never built => abandoned
-//			if(  abandoned  ) {
-//				pwd_hash.clear();
-//				locked = false;
-//				unlock_pending = false;
-//			}
-//		}
-//	}
-//
-//	calc_finance_history();
-//	roll_finance_history_month();
-//
-//	if(welt->get_last_month()==0) {
-//		roll_finance_history_year();
-//	}
-//	// company gets older ...
-//	player_age ++;
-//
-//	// new month has started => recalculate vehicle value
-//	calc_assets();
-//
-//	calc_finance_history();
-//
-//	simlinemgmt.new_month();
-//
-//	// subtract maintenance
-//	if(  welt->ticks_per_world_month_shift>=18  ) {
-//		buche( -((sint64)maintenance) << (welt->ticks_per_world_month_shift-18), COST_MAINTENANCE);
-//	}
-//	else {
-//		buche( -((sint64)maintenance) >> (18-welt->ticks_per_world_month_shift), COST_MAINTENANCE);
-//>>>>>>> aburch/master
 	}
+
+	if(  umgebung_t::networkmode  &&  player_nr>1  &&  !automat  ) {
+		// find out dummy companies (i.e. no vehicle running within x months)
+		if(  welt->get_settings().get_remove_dummy_player_months()  &&  player_age >= welt->get_settings().get_remove_dummy_player_months()  )  {
+			bool no_cnv = true;
+			const uint16 months = min( 12,  welt->get_settings().get_remove_dummy_player_months() );
+			for(  uint16 m = 0;  m < months  &&  no_cnv;  m++  ) {
+				no_cnv &= finance_history_month[m][COST_ALL_CONVOIS]==0;
+			}
+			const uint16 years = min( MAX_PLAYER_HISTORY_YEARS,  (welt->get_settings().get_remove_dummy_player_months() - 1) / 12 );
+			for(  uint16 y = 0;  y < years  &&  no_cnv;  y++  ) {
+				no_cnv &= finance_history_year[y][COST_ALL_CONVOIS]==0;
+			}
+			// never run a convoi => dummy
+			if(  no_cnv  ) {
+				return false; // remove immediately
+			}
+		}
+
+		// find out abandoned companies (no activity within x months)
+		if(  welt->get_settings().get_unprotect_abondoned_player_months()  &&  player_age >= welt->get_settings().get_unprotect_abondoned_player_months()  )  {
+			bool abandoned = true;
+			const uint16 months = min( 12,  welt->get_settings().get_unprotect_abondoned_player_months() );
+			for(  uint16 m = 0;  m < months  &&  abandoned;  m++  ) {
+				abandoned &= finance_history_month[m][COST_NEW_VEHICLE]==0  &&  finance_history_month[m][COST_CONSTRUCTION]==0;
+			}
+			const uint16 years = min( MAX_PLAYER_HISTORY_YEARS, (welt->get_settings().get_unprotect_abondoned_player_months() - 1) / 12);
+			for(  uint16 y = 0;  y < years  &&  abandoned;  y++  ) {
+				abandoned &= finance_history_year[y][COST_NEW_VEHICLE]==0  &&  finance_history_year[y][COST_CONSTRUCTION]==0;
+			}
+			// never changed convoi, never built => abandoned
+			if(  abandoned  ) {
+				pwd_hash.clear();
+				locked = false;
+				unlock_pending = false;
+			}
+		}
+	}
+
+	// company gets older ...
+	player_age ++;
+
 	return true; // still active
 }
 
