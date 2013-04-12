@@ -347,7 +347,7 @@ bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extensi
 	version = combined_version.version;
 
 	if(  !is_xml()  ) {
-		char str[4096];
+		char str[8192];
 		size_t len;
 		if(  version<102002  ) {
 			len = sprintf( str, SAVEGAME_PREFIX "%s%s%s\n", savegame_ver.c_str(), "zip", this->pak_extension );
