@@ -696,7 +696,9 @@ static void destroy_framed_win(simwin_t *wins)
 		delete wins->gui;
 	}
 	// set dirty flag to refill background
-	wl->set_background_dirty();
+	if(wl) {
+		wl->set_background_dirty();
+	}
 }
 
 
@@ -1043,7 +1045,9 @@ void move_win(int win, event_t *ev)
 	mark_rect_dirty_wc( from_pos.x, from_pos.y, from_pos.x+from_gr.x, from_pos.y+from_gr.y );
 	mark_rect_dirty_wc( to_pos.x, to_pos.y, to_pos.x+to_gr.x, to_pos.y+to_gr.y );
 	// set dirty flag to refill background
-	wl->set_background_dirty();
+	if(wl) {
+		wl->set_background_dirty();
+	}
 
 	change_drag_start( delta.x, delta.y );
 }
@@ -1071,7 +1075,9 @@ void resize_win(int win, event_t *ev)
 	// since we may be smaller afterwards
 	mark_rect_dirty_wc( from_pos.x, from_pos.y, from_pos.x+from_gr.x, from_pos.y+from_gr.y );
 	// set dirty flag to refill background
-	wl->set_background_dirty();
+	if(wl) {
+		wl->set_background_dirty();
+	}
 
 	// adjust event mouse koord per snap
 	wev.mx = wev.cx + to_gr.x - from_gr.x;
@@ -1371,7 +1377,7 @@ void win_poll_event(event_t* const ev)
 		// main window resized
 		simgraph_resize( ev->mx, ev->my );
 		ticker::redraw_ticker();
-		wl->set_background_dirty();
+		wl->set_dirty();
 		ev->ev_class = EVENT_NONE;
 	}
 }
@@ -1402,7 +1408,9 @@ void win_display_flush(double konto)
 		ticker::zeichnen();
 		if (ticker::empty()) {
 			// set dirty background for removing ticker
-			wl->set_background_dirty();
+			if(wl) {
+				wl->set_background_dirty();
+			}
 		}
 		else {
 			show_ticker = true;
