@@ -14,6 +14,8 @@
 #include "../utils/plainstring.h"
 #include "loadsave.h"
 
+#include "../besch/grund_besch.h"
+
 #include "../utils/simstring.h"
 
 #include <zlib.h> 
@@ -346,20 +348,23 @@ bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extensi
 	loadsave_t::combined_version combined_version = int_version(savegame_version, NULL, NULL );
 	version = combined_version.version;
 
+	//const char* pakset_string = grund_besch_t::ausserhalb->get_copyright() ? grund_besch_t::ausserhalb->get_copyright() : this->pak_extension;
+	const char* pakset_string = this->pak_extension[1] == ':' &&  grund_besch_t::ausserhalb->get_copyright() ? grund_besch_t::ausserhalb->get_copyright() : this->pak_extension;
+
 	if(  !is_xml()  ) {
 		char str[8192];
 		size_t len;
 		if(  version<102002  ) {
-			len = sprintf( str, SAVEGAME_PREFIX "%s%s%s\n", savegame_ver.c_str(), "zip", this->pak_extension );
+			len = sprintf( str, SAVEGAME_PREFIX "%s%s%s\n", savegame_ver.c_str(), "zip", pakset_string );
 		}
 		else {
-			len = sprintf( str, SAVEGAME_PREFIX "%s-%s\n", savegame_ver.c_str(), this->pak_extension );
+			len = sprintf( str, SAVEGAME_PREFIX "%s-%s\n", savegame_ver.c_str(), pakset_string );
 		}
 		write( str, len );
 	}
 	else {
 		char str[4096];
-		int n = sprintf( str, "<?xml version=\"1.0\"?>\n<Simutrans version=\"%s\" pak=\"%s\">\n", savegame_ver.c_str(), this->pak_extension );
+		int n = sprintf( str, "<?xml version=\"1.0\"?>\n<Simutrans version=\"%s\" pak=\"%s\">\n", savegame_ver.c_str(), pakset_string );
 		write( str, n );
 		ident = 1;
 	}
