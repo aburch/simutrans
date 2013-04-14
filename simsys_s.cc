@@ -22,9 +22,6 @@
 #include "simgraph.h"
 #include "simdebug.h"
 
-// try to use hardware double buffering ...
-// this is equivalent on 16 bpp and much slower on 32 bpp
-//#define USE_HW
 
 static Uint8 hourglass_cursor[] = {
 	0x3F, 0xFE, //   *************
@@ -85,12 +82,53 @@ static SDL_Surface *screen;
 static int width = 16;
 static int height = 16;
 
-// switch off is a little faster (<3%)
-static int sync_blit = 0;
+// switch on is a little faster (<3%)
+static int async_blit = 0;
+
+// try to use hardware double buffering ...
+static int use_hw = 0;
 
 static SDL_Cursor* arrow;
 static SDL_Cursor* hourglass;
 static SDL_Cursor* blank;
+
+#if MULTI_THREAD>1
+// enable barriers by this
+#define _XOPEN_SOURCE 600
+#include <pthread.h>
+
+static pthread_barrier_t redraw_barrier;
+static pthread_mutex_t redraw_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+// parameters passed starting a thread
+typedef struct{
+	pthread_t thread;
+	uint8 number;
+} redraw_param_t;
+static redraw_param_t redraw_param;
+
+
+void* redraw_thread( void* ptr )
+{
+	while(true) {
+		pthread_barrier_wait( &redraw_barrier );	// wait to start
+		pthread_mutex_lock( &redraw_mutex );
+		display_flush_buffer();
+		if(  use_hw  ) {
+			SDL_UnlockSurface( screen );
+			SDL_Flip( screen );
+			SDL_LockSurface( screen );
+		}
+		pthread_mutex_unlock( &redraw_mutex );
+	}
+	return ptr;
+}
+#else
+// SDL_Rects so SDL_UpdateRects can be used instead of SDL_UpdateRect when single threaded. (Update Rects is slower when multithreaded)
+#define MAX_SDL_RECTS 2048
+static int num_SDL_Rects = 0;
+static SDL_Rect SDL_Rects[MAX_SDL_RECTS];
+#endif
 
 
 /*
@@ -105,8 +143,13 @@ bool dr_os_init(const int* parameter)
 		return false;
 	}
 
-	sync_blit = parameter[1];
-
+	async_blit = parameter[0];
+#ifdef USE_HW
+	// force if old compile directive set
+	use_hw = 1;
+#else
+	use_hw = parameter[1];
+#endif
 	// prepare for next event
 	sys_event.type = SIM_NOEVENT;
 	sys_event.code = 0;
@@ -144,7 +187,25 @@ resolution dr_query_screen_resolution()
 // open the window
 int dr_os_open(int w, int const h, int const fullscreen)
 {
-	Uint32 flags = sync_blit ? 0 : SDL_ASYNCBLIT;
+#if MULTI_THREAD>1
+	// init barrier
+	pthread_barrier_init( &redraw_barrier, NULL, 2);
+
+	// Initialize and set thread detached attribute
+	pthread_attr_t attr;
+	pthread_attr_init( &attr );
+	pthread_attr_setdetachstate( &attr, PTHREAD_CREATE_DETACHED);
+
+	redraw_param.number = 0;
+	if(  pthread_create( &(redraw_param.thread), &attr, redraw_thread, (void*)&redraw_param )  ) {
+		fprintf(stderr, "dr_os_open(): cannot multithread\n");
+		return 0;
+	}
+
+	pthread_attr_destroy( &attr );
+#endif
+
+	Uint32 flags = async_blit ? SDL_ASYNCBLIT : 0;
 
 	// some cards need those alignments
 	// especially 64bit want a border of 8bytes
@@ -157,25 +218,26 @@ int dr_os_open(int w, int const h, int const fullscreen)
 	height = h;
 
 	flags |= (fullscreen ? SDL_FULLSCREEN : SDL_RESIZABLE);
-#ifdef USE_HW
-	{
-		const SDL_VideoInfo *vi=SDL_GetVideoInfo();
-		printf( "hw_available=%i, video_mem=%i, blit_sw=%i\n", vi->hw_available, vi->video_mem, vi->blit_sw );
-		printf( "bpp=%i, bytes=%i\n", vi->vfmt->BitsPerPixel, vi->vfmt->BytesPerPixel );
+	if(  use_hw  ) {
+		flags |= SDL_HWSURFACE | SDL_DOUBLEBUF; // bltcopy in graphic memory should be faster ...
 	}
-	flags |= SDL_HWSURFACE | SDL_DOUBLEBUF; // bltcopy in graphic memory should be faster ...
-#endif
 
 	// open the window now
-	screen = SDL_SetVideoMode(w, h, COLOUR_DEPTH, flags);
-	if (screen == NULL) {
+	SDL_putenv("SDL_VIDEO_CENTERED=center"); // request game window centered to stop it opening off screen since SDL1.2 has no way to open at a fixed position
+	screen = SDL_SetVideoMode( w, h, COLOUR_DEPTH, flags );
+	SDL_putenv("SDL_VIDEO_CENTERED="); // clear flag so it doesn't continually recenter upon resizing the window
+	if(  screen == NULL  ) {
 		fprintf(stderr, "Couldn't open the window: %s\n", SDL_GetError());
 		return 0;
 	}
 	else {
-		fprintf(stderr, "Screen Flags: requested=%x, actual=%x\n", flags, screen->flags);
+		const SDL_VideoInfo* vi = SDL_GetVideoInfo();
+		char driver_name[128];
+		SDL_VideoDriverName( driver_name, 128);
+		fprintf(stderr, "SDL_driver=%s, hw_available=%i, video_mem=%i, blit_sw=%i, bpp=%i, bytes=%i\n", driver_name, vi->hw_available, vi->video_mem, vi->blit_sw, vi->vfmt->BitsPerPixel, vi->vfmt->BytesPerPixel );
+		fprintf(stderr, "Screen Flags: requested=%x, actual=%x\n", flags, screen->flags );
 	}
-	DBG_MESSAGE("dr_os_open(SDL)", "SDL realized screen size width=%d, height=%d (requested w=%d, h=%d)", screen->w, screen->h, w, h);
+	printf("dr_os_open(SDL): SDL realized screen size width=%d, height=%d (requested w=%d, h=%d)", screen->w, screen->h, w, h );
 
 	SDL_EnableUNICODE(true);
 	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
@@ -197,6 +259,10 @@ int dr_os_open(int w, int const h, int const fullscreen)
 // shut down SDL
 void dr_os_close()
 {
+#if MULTI_THREAD>1
+	// make sure redraw thread is waiting before closing
+	pthread_mutex_lock( &redraw_mutex );
+#endif
 	SDL_FreeCursor(hourglass);
 	SDL_FreeCursor(blank);
 	// Hajo: SDL doc says, screen is free'd by SDL_Quit and should not be
@@ -208,11 +274,13 @@ void dr_os_close()
 // resizes screen
 int dr_textur_resize(unsigned short** const textur, int w, int const h)
 {
-#ifdef USE_HW
-	SDL_UnlockSurface(screen);
+#if MULTI_THREAD>1
+	pthread_mutex_lock( &redraw_mutex );
 #endif
-	int flags = screen->flags;
-
+	if(  use_hw  ) {
+		SDL_UnlockSurface( screen );
+	}
+	Uint32 flags = screen->flags;
 
 	display_set_actual_width( w );
 	// some cards need those alignments
@@ -223,7 +291,6 @@ int dr_textur_resize(unsigned short** const textur, int w, int const h)
 	}
 
 	if(  w!=screen->w  ||  h!=screen->h  ) {
-
 		width = w;
 		height = h;
 
@@ -240,15 +307,18 @@ int dr_textur_resize(unsigned short** const textur, int w, int const h)
 		fflush(NULL);
 	}
 	*textur = (unsigned short*)screen->pixels;
+#if MULTI_THREAD>1
+	pthread_mutex_unlock( &redraw_mutex );
+#endif
 	return w;
 }
 
 
 unsigned short *dr_textur_init()
 {
-#ifdef USE_HW
-	SDL_LockSurface(screen);
-#endif
+	if(  use_hw  ) {
+		SDL_LockSurface( screen );
+	}
 	return (unsigned short*)screen->pixels;
 }
 
@@ -266,40 +336,69 @@ unsigned int get_system_color(unsigned int r, unsigned int g, unsigned int b)
 
 void dr_prepare_flush()
 {
+#if MULTI_THREAD>1
+	pthread_mutex_lock( &redraw_mutex );
+#endif
 	return;
 }
 
 
-
 void dr_flush(void)
 {
+#if MULTI_THREAD>1
+	pthread_mutex_unlock( &redraw_mutex );
+	pthread_barrier_wait( &redraw_barrier );	// start thread
+#else
 	display_flush_buffer();
-#ifdef USE_HW
-	SDL_UnlockSurface(screen);
-	SDL_Flip(screen);
-	SDL_LockSurface(screen);
+	if(  use_hw  ) {
+		SDL_UnlockSurface( screen );
+		SDL_Flip( screen );
+		SDL_LockSurface( screen );
+	}
+	else {
+		if(  num_SDL_Rects > 0 ) {
+			if(  num_SDL_Rects < MAX_SDL_RECTS  ) {
+				SDL_UpdateRects( screen, num_SDL_Rects, SDL_Rects );
+			}
+			else {
+				// too many Rects, just update the whole screen
+				SDL_UpdateRect( screen, 0, 0, 0, 0);
+			}
+			num_SDL_Rects = 0;
+		}
+	}
 #endif
 }
 
 
 void dr_textur(int xp, int yp, int w, int h)
 {
-#ifndef USE_HW
-	// make sure the given rectangle is completely on screen
-	if (xp + w > screen->w) {
-		w = screen->w - xp;
-	}
-	if (yp + h > screen->h) {
-		h = screen->h - yp;
-	}
+	if(  !use_hw  )  {
+		// make sure the given rectangle is completely on screen
+		if(  xp + w > screen->w  ) {
+			w = screen->w - xp;
+		}
+		if(  yp + h > screen->h  ) {
+			h = screen->h - yp;
+		}
 #ifdef DEBUG
-	// make sure both are positive numbers
-	if(  w*h>0  )
+		// make sure both are positive numbers
+		if(  w*h > 0  )
 #endif
-	{
-		SDL_UpdateRect(screen, xp, yp, w, h);
+		{
+#if MULTI_THREAD>1
+			SDL_UpdateRect( screen, xp, yp, w, h );
+#else
+			if(  num_SDL_Rects < MAX_SDL_RECTS  ) {
+				SDL_Rects[num_SDL_Rects].x = xp;
+				SDL_Rects[num_SDL_Rects].y = yp;
+				SDL_Rects[num_SDL_Rects].w = w;
+				SDL_Rects[num_SDL_Rects].h = h;
+				num_SDL_Rects++;
+			}
+#endif
+		}
 	}
-#endif
 }
 
 
@@ -337,7 +436,6 @@ int dr_screenshot(const char *filename, int x, int y, int w, int h)
 /*
  * Hier sind die Funktionen zur Messageverarbeitung
  */
-
 
 static inline unsigned int ModifierKeys(void)
 {
@@ -573,7 +671,6 @@ void GetEventsNoWait(void)
 void show_pointer(int yesno)
 {
 	SDL_SetCursor((yesno != 0) ? arrow : blank);
-//	SDL_ShowCursor(yesno != 0);
 }
 
 

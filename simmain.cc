@@ -404,6 +404,7 @@ int simu_main(int argc, char** argv)
 			"command line parameters available: \n"
 			" -addons             loads also addons (with -objects)\n"
 			" -async              asynchronic images, only for SDL\n"
+			" -use_hw             hardware double buffering, only for SDL\n"
 			" -debug NUM          enables debuging (1..5)\n"
 			" -freeplay           play with endless money\n"
 			" -fullscreen         starts simutrans in fullscreen mode\n"
@@ -724,8 +725,8 @@ int simu_main(int argc, char** argv)
 	}
 
 	int parameter[2];
-	parameter[0] = gimme_arg(argc, argv, "-net",   0)==NULL;
-	parameter[1] = gimme_arg(argc, argv, "-async", 0)==NULL;
+	parameter[0] = gimme_arg( argc, argv, "-async", 0) != NULL;
+	parameter[1] = gimme_arg( argc, argv, "-use_hw", 0) != NULL;
 	if (!dr_os_init(parameter)) {
 		dr_fatal_notify("Failed to initialize backend.\n");
 		return EXIT_FAILURE;
