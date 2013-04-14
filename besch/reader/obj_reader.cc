@@ -149,8 +149,11 @@ DBG_MESSAGE("obj_reader_t::load()","big logo %p", skinverwaltung_t::biglogosymbo
 			if(grund_besch_t::ausserhalb==NULL) {
 				dbg->warning("obj_reader_t::load()","ground.Outside.pak not found, cannot guess tile size! (driving on left will not work!)");
 			}
-			else {
-				if (char const* const copyright = grund_besch_t::ausserhalb->get_copyright()) {
+			else 
+			{
+				char const* const copyright = grund_besch_t::ausserhalb->get_copyright();
+				if(copyright) 
+				{
 					loadingscreen::set_copyright(copyright);
 				}
 			}
