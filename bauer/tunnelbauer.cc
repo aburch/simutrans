@@ -363,7 +363,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 		tunnel->calc_bild();
 		tunnel->set_flag(grund_t::dirty);
 		assert(!tunnel->ist_karten_boden());
-		maint += besch->get_wartung() - weg->get_besch()->get_wartung(); 
+		maint += besch->get_wartung() - (weg ? weg->get_besch()->get_wartung() : 0); 
 		cost += besch->get_preis();
 		pos = pos + zv;
 	}
@@ -451,12 +451,12 @@ void tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, koord3d end, koo
 			lt = new leitung_t(welt, tunnel->get_pos(), sp);
 			lt->set_besch(weg_besch);
 			tunnel->obj_add( lt );
-			maint += besch->get_wartung() - weg->get_besch()->get_wartung();
+			maint += besch->get_wartung();
 		}
 		else {
 			// subtract twice maintenance: once for the already existing powerline
 			// once since leitung_t::laden_abschliessen will add it again
-			maint += besch->get_wartung() - 2*lt->get_besch()->get_wartung();
+			maint += besch->get_wartung() - 2 * lt->get_besch()->get_wartung();
 		}
 		lt->laden_abschliessen();
 	}
