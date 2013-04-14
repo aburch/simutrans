@@ -32,6 +32,7 @@ endif
 ifeq ($(OSTYPE),mingw)
   CC ?= gcc
   OS_OPT   ?= -DPNG_STATIC -DZLIB_STATIC -march=pentium
+  LDFLAGS += -static-libgcc -static-libstdc++
   # we need the libraries EXACTLY in this order to link
   STD_LIBS = -lmingw32 -lpng -lz
 endif
