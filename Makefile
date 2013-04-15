@@ -38,7 +38,6 @@ ifeq ($(OSTYPE),freebsd)
 endif
 
 ifeq ($(OSTYPE),mac)
-  CFLAGS  += -DUSE_HW
   CCFLAGS += -Os -fast
   LIBS    += -lz -lbz2
 endif
