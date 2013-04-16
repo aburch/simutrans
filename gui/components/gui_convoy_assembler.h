@@ -286,7 +286,7 @@ public:
 
 	void set_panel_rows(sint32 dy); 
 
-	inline sint16 get_panel_height() const {return panel_rows * grid.y + gui_tab_panel_t::HEADER_VSIZE + 2 * gui_image_list_t::BORDER;}
+	inline sint16 get_panel_height() const {return (panel_rows * grid.y + gui_tab_panel_t::HEADER_VSIZE + 2 * gui_image_list_t::BORDER) - 4;}
 
 	inline sint16 get_min_panel_height() const {return grid.y + gui_tab_panel_t::HEADER_VSIZE + 2 * gui_image_list_t::BORDER;}
 

@@ -414,7 +414,7 @@ void gui_convoy_assembler_t::layout()
 	lb_traction_types.set_pos(koord(column1_x, y));
 	lb_vehicle_count.set_pos(koord(groesse.x - D_MARGIN_RIGHT, y));
 	
-	y += 12;
+	y += 7;
 
 	tabs.set_pos(koord(0, y));
 	tabs.set_groesse(koord(groesse.x, get_panel_height()));
@@ -1967,9 +1967,6 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 				k += sprintf(buf + k, translator::translate("Catering level: %i"), veh_type->get_catering_level());
 			}
 		}
-		else {
-			k += sprintf(buf+k, "\n");
-		}
 		
 		const way_constraints_t &way_constraints = veh_type->get_way_constraints();
 
@@ -2070,14 +2067,10 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 			}
 			sprintf(buf + strlen(buf), "%s %lld Cr", translator::translate("Restwert: "), 	value); //"Restwert" = residual (Google)
 		}
-		else {
-			j += sprintf(buf+j, "\n");
-		}
 		
 		// Prohibitibve way constraints
 		// (If way has, vehicle must have)
 		// @author: jamespetts
-		j += sprintf(buf + j, "\n");
 		for(uint8 i = 0; i < way_constraints.get_count(); i++)
 		{
 			if(way_constraints.get_prohibitive(i))
@@ -2089,7 +2082,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 			}
 		}
 
-		display_multiline_text( pos.x + 220, pos.y + tabs.get_pos().y + tabs.get_groesse().y + 31 + LINESPACE*3 + 4 + 16, buf, COL_BLACK);
+		display_multiline_text(pos.x + 220, pos.y + tabs.get_pos().y + tabs.get_groesse().y + 31 + LINESPACE * 3 + 4 + 16, buf, COL_BLACK);
 	}
 	POP_CLIP();
 }

@@ -158,8 +158,12 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	node.write_uint32(fp, weight, pos);
 	pos += sizeof(uint32);
 
+	char const* const waytype_name = obj.get("waytype");
+	waytype_t   const waytype      = get_waytype(waytype_name);
+
 	// For automatic calculation of axle load
 	// (optional). This value is not written to file.
+	const uint8 axles_default = waytype == water_wt || waytype == maglev_wt ? 1 : 2;
 	const uint8 axles = obj.get_int("axles", 2);
 
 	// axle_load (determine ways usage)
@@ -204,8 +208,9 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	pos += sizeof(uint16);
 
 	// Hajodoc: Type of way this vehicle drives on
-	char const* const waytype_name = obj.get("waytype");
-	waytype_t   const waytype      = get_waytype(waytype_name);
+	// These need to be earlier for the purposes of axle loads.
+	// char const* const waytype_name = obj.get("waytype");
+	// waytype_t   const waytype      = get_waytype(waytype_name);
 	uv8 = waytype != overheadlines_wt ? waytype : track_wt;
 	node.write_uint8(fp, uv8, pos);
 	pos += sizeof(uint8);

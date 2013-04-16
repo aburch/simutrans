@@ -132,7 +132,7 @@ public:
 				}
 				else {
 					// border but not corner: near a road if possible
-					if (!next_to_road  &&  (0 <= x  ||  x < b-1)  &&  (0 <= y  ||  y < h-1)) {
+					if (!next_to_road  && gr &&  (0 <= x  ||  x < b-1)  &&  (0 <= y  ||  y < h-1)) {
 						next_to_road = gr->hat_weg(road_wt);
 					}
 					// try to built a little away from previous factory
