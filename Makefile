@@ -544,7 +544,7 @@ ifeq ($(BACKEND),opengl)
     endif
   endif
   CFLAGS += $(SDL_CFLAGS)
-  LIBS   += $(SDL_LDFLAGS)
+  LIBS   += $(SDL_LDFLAGS) -lglew32
   ifeq ($(OSTYPE),mingw)
     LIBS += -lopengl32
   else
