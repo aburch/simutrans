@@ -722,8 +722,8 @@ void gui_convoy_assembler_t::zeichnen(koord parent_pos)
 				convoihandle_t cnv = depot_frame->get_convoy();
 				if(cnv.is_bound())
 				{
-					money_to_string(  buf, cnv->calc_restwert() / 100.0 );
-					txt_convoi_value.printf("%s %8s", translator::translate("Restwert:"), buf );
+					money_to_string(buf, cnv->calc_restwert() / 100.0 );
+					txt_convoi_value.printf("%s %s", translator::translate("Restwert:"), buf);
 
 				}
 			}
@@ -2065,7 +2065,9 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 			{
 				j += sprintf(buf + j, "\n");
 			}
-			sprintf(buf + strlen(buf), "%s %lld Cr", translator::translate("Restwert: "), 	value); //"Restwert" = residual (Google)
+			char value_s[16];
+			money_to_string(value_s, value);
+			sprintf(buf + strlen(buf), "%s %s", translator::translate("Restwert:"), value_s); // Resale value
 		}
 		
 		// Prohibitibve way constraints
