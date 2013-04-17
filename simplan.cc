@@ -515,20 +515,28 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos, const 
 				const PLAYER_COLOR_VAL transparent = PLAYER_FLAG | OUTLINE_FLAG | (halt_list[halt_count]->get_besitzer()->get_player_color1() + 4);
 				display_img_blend( img, xpos, ypos, transparent | TRANSPARENT25_FLAG, 0, 0);
 			}
-/*
-// unfourtunately, too expensive for display
+#ifdef PLOT_PLAYER_OUTLINE_COLOURS
+			// Earlier code comments considered this was too slow for display, but this does not seem the case as of April 2013.
+			// However, this does not work properly: colours are often displayed incorrectly.
+			// The intention of this seems to be to overlay and blend different players' colours in the display of station coverage.
 			// plot player outline colours - we always plot in order of players so that the order of the stations in halt_list
 			// doesn't affect the colour displayed [since blend(col1,blend(col2,screen)) != blend(col2,blend(col1,screen))]
-			for(int spieler_count = 0; spieler_count<MAX_PLAYER_COUNT; spieler_count++) {
+			for(int spieler_count = 0; spieler_count<MAX_PLAYER_COUNT; spieler_count++)
+			{
 				spieler_t *display_player = gr->get_welt()->get_spieler(spieler_count);
-				const PLAYER_COLOR_VAL transparent = PLAYER_FLAG | OUTLINE_FLAG | (display_player->get_player_color1() * 4 + 4);
-				for(int halt_count = 0; halt_count < halt_list_count; halt_count++) {
-					if(halt_list[halt_count]->get_besitzer() == display_player) {
-						display_img_blend( img, xpos, ypos, transparent | TRANSPARENT25_FLAG, 0, 0);
+				if(display_player)
+				{
+					const PLAYER_COLOR_VAL transparent = PLAYER_FLAG | OUTLINE_FLAG | (display_player->get_player_color1() * 4 + 4);
+					for(int halt_count = 0; halt_count < halt_list_count; halt_count++) 
+					{
+						if(halt_list[halt_count]->get_besitzer() == display_player)
+						{
+							display_img_blend( img, xpos, ypos, transparent | TRANSPARENT25_FLAG, 0, 0);
+						}
 					}
 				}
 			}
-	*/
+#endif
 		}
 		else {
 			const sint16 raster_tile_width = get_tile_raster_width();

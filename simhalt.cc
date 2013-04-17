@@ -117,7 +117,11 @@ halthandle_t haltestelle_t::get_halt(const karte_t *welt, const koord pos, const
 			{
 				if(plan->get_haltlist()[i]->get_besitzer() == sp) 
 				{
-					return plan->get_haltlist()[i];
+					const uint16 distance_to_dock = shortest_distance(pos, plan->get_haltlist()[i]->get_next_pos(pos));
+					if(distance_to_dock <= welt->get_settings().get_station_coverage_factories())
+					{
+							return plan->get_haltlist()[i];
+					}
 				}
 			}
 			// then for other stops to which access is allowed
@@ -127,7 +131,11 @@ halthandle_t haltestelle_t::get_halt(const karte_t *welt, const koord pos, const
 			{
 				if(plan->get_haltlist()[i]->check_access(sp)) 
 				{
-					return plan->get_haltlist()[i];
+					const uint16 distance_to_dock = shortest_distance(pos, plan->get_haltlist()[i]->get_next_pos(pos));
+					if(distance_to_dock <= welt->get_settings().get_station_coverage_factories())
+					{
+							return plan->get_haltlist()[i];
+					}
 				}
 			}
 			// so: nothing found
@@ -226,18 +234,25 @@ halthandle_t haltestelle_t::get_halt(const karte_t *welt, const koord3d pos, con
 			const planquadrat_t *plan = welt->lookup(pos.get_2d());
 			const uint8 cnt = plan->get_haltlist_count();
 			// first check for own stop
-			for(  uint8 i=0;  i<cnt;  i++  ) {
+			for(uint8 i = 0; i < cnt; i++) 
+			{
+
 				halthandle_t halt = plan->get_haltlist()[i];
-				if(  halt->get_besitzer()==sp  &&  halt->get_station_type()&dock  ) {
+				const uint16 distance_to_dock = shortest_distance(pos, plan->get_haltlist()[i]->get_next_pos(pos));
+				if(halt->get_besitzer() == sp  && distance_to_dock <= welt->get_settings().get_station_coverage_factories() && halt->get_station_type() & dock)
+				{
 					return halt;
 				}
 			}
 			// then for other stops to which access is allowed
 			// (This is second because it is preferable to dock at one's own
 			// port to avoid charges)
-			for(  uint8 i=0;  i<cnt;  i++  ) {
+			for(uint8 i = 0; i < cnt; i++) 
+			{
 				halthandle_t halt = plan->get_haltlist()[i];
-				if(  halt->check_access(sp)  &&  halt->get_station_type()&dock  ) {
+				const uint16 distance_to_dock = shortest_distance(pos, plan->get_haltlist()[i]->get_next_pos(pos));
+				if(halt->check_access(sp) && distance_to_dock <= welt->get_settings().get_station_coverage_factories() && halt->get_station_type() & dock) 
+				{
 					return halt;
 				}
 			}
