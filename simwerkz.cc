@@ -6818,11 +6818,11 @@ bool wkz_change_line_t::init( karte_t *welt, spieler_t *sp )
  * [function],[depot_pos_3d],[convoi_id],addition stuff
  * following simple command exists:
  * 'l' : creates a new line (convoi_id might be invalid) (+printf'd initial schedule)
- * 'b' : starts the convoi
+ * 'b' : starts the convoy
  * 'B' : starts all convoys
- * 'c' : copies this convoi
- * 'd' : dissassembles convoi
- * 's' : sells convoi
+ * 'c' : copies this convoy
+ * 'd' : dissassembles convoy
+ * 's' : sells convoy
  * 'a' : appends a vehicle (+vehikel_name) uses the oldest
  * 'i' : inserts a vehicle in front (+vehikel_name) uses the oldest
  * 's' : sells a vehikel (+vehikel_name) uses the newest
@@ -6876,6 +6876,11 @@ bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 			selected_line->get_schedule()->sscanf_schedule( p );
 
 			depot_frame_t *depot_frame = dynamic_cast<depot_frame_t *>(win_get_magic( (ptrdiff_t)depot ));
+			convoihandle_t cnv = depot_frame->get_convoy();
+			if(cnv.is_bound())
+			{
+				selected_line->set_livery_scheme_index(cnv->get_livery_scheme_index());
+			}
 			if(  is_local_execution()  ) {
 				if(  welt->get_active_player()==sp  &&  depot_frame  ) {
 					create_win( new line_management_gui_t( selected_line, depot->get_besitzer() ), w_info, (ptrdiff_t)selected_line.get_rep() );
@@ -7008,6 +7013,7 @@ bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 							// create a new convoi
 							cnv = depot->add_convoi( is_local_execution() );
 							cnv->set_name(new_vehicle_info.front()->get_name());
+							cnv->set_livery_scheme_index(livery_scheme_index);
 						}
 
 						// now we have a valid cnv
@@ -7042,6 +7048,10 @@ bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 						}
 					}
 				}
+			}
+			if(cnv.is_bound())
+			{
+				cnv->set_livery_scheme_index(livery_scheme_index);
 			}
 			depot->update_win();
 			break;

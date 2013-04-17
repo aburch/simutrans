@@ -1081,7 +1081,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp, value_t p)
 		else if(  komp == &bt_copy_convoi  ) {
 			if(  cnv.is_bound()  ) {
 				if(  !get_welt()->use_timeline()  ||  get_welt()->get_settings().get_allow_buying_obsolete_vehicles()  ||  depot->check_obsolete_inventory( cnv )  ) {
-					depot->call_depot_tool('c', cnv, NULL);
+					depot->call_depot_tool('c', cnv, NULL, gui_convoy_assembler_t::get_livery_scheme_index());
 				}
 				else {
 					create_win( new news_img("Can't buy obsolete vehicles!"), w_time_delete, magic_none );

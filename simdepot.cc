@@ -378,6 +378,7 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv, bool local_execution
 
 		convoihandle_t new_cnv = add_convoi( false );
 		new_cnv->set_name(old_cnv->get_internal_name());
+		new_cnv->set_livery_scheme_index(old_cnv->get_livery_scheme_index());
 		int vehicle_count = old_cnv->get_vehikel_anzahl();
 		for (int i = 0; i < vehicle_count; i++) 
 		{
@@ -402,7 +403,7 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv, bool local_execution
 						
 					}
 					// buy new vehicle
-					new_vehicle = vehikelbauer_t::baue(get_pos(), get_besitzer(), NULL, info );
+					new_vehicle = vehikelbauer_t::baue(get_pos(), get_besitzer(), NULL, info, false, old_cnv->get_livery_scheme_index());
 				}
 				// append new vehicle
 				append_vehicle(new_cnv, new_vehicle, false, local_execution);
@@ -448,6 +449,7 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv, bool local_execution
 		{
 			new_cnv->get_line()->calc_is_alternating_circular_route();
 		}
+		
 		return new_cnv;
 	}
 	return convoihandle_t();

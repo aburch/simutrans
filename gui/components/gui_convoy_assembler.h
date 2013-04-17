@@ -299,6 +299,8 @@ public:
 	inline uint8 get_upgrade() const { return upgrade; }
 	inline uint8 get_action() const { return veh_action; }
 
+	static uint16 get_livery_scheme_index() { return livery_scheme_index; }
+
 	void set_traction_types(const char *traction_types_text) { txt_traction_types.clear(); txt_traction_types.append(traction_types_text); }
 };
 
