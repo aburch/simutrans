@@ -1,0 +1,52 @@
+obj=program_text
+name=Spacing cnv/month, shift
+note=Line programming window
+--
+obj=program_text
+name=Use same shift for all stops.
+note=Line programming window
+--
+obj=program_text
+name=Use one spacing shift value for all stops in schedule.
+note=Line programming window
+--
+obj=program_text
+name=Transfer time: 
+note=Halt details window, time to change convoy
+--
+obj=program_text
+name=Walking time
+note=Building window, when inside station coverage area
+--
+obj=program_text
+name=Stops potentially within walking distance:
+note=Building window, when inside station coverage area
+--
+obj=program_text
+name=\nNo postboxes within walking distance
+note=Building window, when outside station coverage area
+--
+obj=program_text
+name=No passenger stops within walking distance\n
+note=Building window, when outside station coverage area
+--
+obj=program_text
+name=Passenger success rate this year (local):
+note=Building window
+--
+obj=program_text
+name=Passenger success rate this year (non-local):
+note=Building window
+--
+obj=program_text
+name=Passenger success rate last year (local):
+note=Building window
+--
+obj=program_text
+name=Passenger success rate last year (non-local):
+note=Building window
+--
+obj=program_text
+name=\nMax. axle load:
+note=Some way windows
+--
