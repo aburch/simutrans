@@ -535,7 +535,7 @@ void settings_t::rdwr(loadsave_t *file)
 		file->rdwr_double(map_roughness );
 
 		station_coverage_size = 3;
-		station_coverage_size_factories = 1;
+		station_coverage_size_factories = 3;
 		beginner_mode = false;
 		rotation = 0;
 	}
