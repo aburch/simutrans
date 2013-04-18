@@ -2102,6 +2102,9 @@
     <None Include="base_texts_experimental_an_dz.dat">
       <Filter>Header Files</Filter>
     </None>
+    <None Include="base_texts_experimental_an-dz_2.dat">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="simres.rc">
