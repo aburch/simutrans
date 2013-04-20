@@ -3,6 +3,8 @@
 
 #include "linieneintrag.h"
 
+#include "../halthandle_t.h"
+
 #include "../tpl/minivec_tpl.h"
 
 
@@ -100,6 +102,16 @@ public:
 	virtual ~schedule_t() {}
 
 	schedule_t(loadsave_t*);
+
+	/**
+	 * returns a halthandle for the next halt in the schedule (or unbound)
+	 */
+	halthandle_t get_next_halt( spieler_t *sp, halthandle_t halt ) const;
+
+	/**
+	 * returns a halthandle for the previous halt in the schedule (or unbound)
+	 */
+	halthandle_t get_prev_halt( spieler_t *sp ) const;
 
 	/**
 	 * fügt eine koordinate an stelle aktuell in den Fahrplan ein

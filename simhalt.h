@@ -114,6 +114,8 @@ private:
 	halthandle_t self;
 
 public:
+	const slist_tpl<convoihandle_t> &get_loading_convois() const { return loading_here; }
+
 	// add convoi to loading queue
 	void request_loading( convoihandle_t cnv );
 

@@ -14,6 +14,7 @@
 #include "../besch/haus_besch.h"
 #include "../boden/grund.h"
 #include "../dings/gebaeude.h"
+#include "../player/simplay.h"
 #include "../simdepot.h"
 #include "loadsave.h"
 
@@ -82,6 +83,42 @@ bool schedule_t::ist_halt_erlaubt(const grund_t *gr) const
 	return ok;
 }
 
+
+
+/* returns a valid halthandle if there is a next halt in the schedule;
+ * it may however not be allowed to load there, if the owner mismatches!
+ */
+halthandle_t schedule_t::get_next_halt( spieler_t *sp, halthandle_t halt ) const
+{
+	if(  eintrag.get_count()>1  ) {
+		const karte_t *welt = sp->get_welt();
+		for(  uint i=1;  i < eintrag.get_count();  i++  ) {
+			halthandle_t h = haltestelle_t::get_halt( welt, eintrag[ (aktuell+i) % eintrag.get_count() ].pos, sp );
+			if(  h.is_bound()  &&  h != halt  ) {
+				return h;
+			}
+		}
+	}
+	return halthandle_t();
+}
+
+
+/* returns a valid halthandle if there is a previous halt in the schedule;
+ * it may however not be allowed to load there, if the owner mismatches!
+ */
+halthandle_t schedule_t::get_prev_halt( spieler_t *sp ) const
+{
+	if(  eintrag.get_count()>1  ) {
+		const karte_t *welt = sp->get_welt();
+		for(  uint i=1;  i < eintrag.get_count()-1;  i++  ) {
+			halthandle_t h = haltestelle_t::get_halt( welt, eintrag[ (aktuell+eintrag.get_count()-i) % eintrag.get_count() ].pos, sp );
+			if(  h.is_bound()  ) {
+				return h;
+			}
+		}
+	}
+	return halthandle_t();
+}
 
 
 bool schedule_t::insert(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_shift )

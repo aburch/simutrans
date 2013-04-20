@@ -29,6 +29,7 @@
 #include "simsys.h"
 #include "simticker.h"
 #include "simwin.h"
+#include "simintr.h"
 #include "simhalt.h"
 #include "simworld.h"
 
@@ -1470,74 +1471,7 @@ void win_display_flush(double konto)
 
 	const ding_t *dt = wl->get_zeiger();
 	pos = dt->get_pos();
-	month = wl->get_last_month();
-	year = wl->get_last_year();
-	ticks = wl->get_zeit_ms();
-
-	// calculate also days if desired
-	const uint32 ticks_this_month = ticks % wl->ticks_per_world_month;
-	uint32 tage, stunden, minuten;
-	if (umgebung_t::show_month > umgebung_t::DATE_FMT_MONTH) {
-		static sint32 tage_per_month[12]={31,28,31,30,31,30,31,31,30,31,30,31};
-		tage = (((sint64)ticks_this_month*tage_per_month[month]) >> wl->ticks_per_world_month_shift) + 1;
-		stunden = (((sint64)ticks_this_month*tage_per_month[month]) >> (wl->ticks_per_world_month_shift-16));
-		minuten = (((stunden*3) % 8192)*60)/8192;
-		stunden = ((stunden*3) / 8192)%24;
-	}
-	else {
-		tage = 0;
-		stunden = (ticks_this_month * 24) >> wl->ticks_per_world_month_shift;
-		minuten = ((ticks_this_month * 24 * 60) >> wl->ticks_per_world_month_shift)%60;
-	}
-
-	char time [128];
-
-//DBG_MESSAGE("umgebung_t::show_month","%d",umgebung_t::show_month);
-	// @author hsiegeln - updated to show month
-	// @author prissi - also show date if desired
-	// since seaons 0 is always summer for backward compatibility
-	static char const* const seasons[] = { "q2", "q3", "q4", "q1" };
-	char const* const season = translator::translate(seasons[wl->get_season()]);
-	char const* const month_ = translator::get_month_name(month % 12);
-	switch (umgebung_t::show_month) {
-		case umgebung_t::DATE_FMT_GERMAN_NO_SEASON:
-			sprintf(time, "%d. %s %d %d:%02dh", tage, month_, year, stunden, minuten);
-			break;
-
-		case umgebung_t::DATE_FMT_US_NO_SEASON: {
-			uint32 hours_ = stunden % 12;
-			if (hours_ == 0) hours_ = 12;
-			sprintf(time, "%s %d %d %2d:%02d%s", month_, tage, year, hours_, minuten, stunden < 12 ? "am" : "pm");
-			break;
-		}
-
-		case umgebung_t::DATE_FMT_JAPANESE_NO_SEASON:
-			sprintf(time, "%d/%s/%d %2d:%02dh", year, month_, tage, stunden, minuten);
-			break;
-
-		case umgebung_t::DATE_FMT_GERMAN:
-			sprintf(time, "%s, %d. %s %d %d:%02dh", season, tage, month_, year, stunden, minuten);
-			break;
-
-		case umgebung_t::DATE_FMT_US: {
-			uint32 hours_ = stunden % 12;
-			if (hours_ == 0) hours_ = 12;
-			sprintf(time, "%s, %s %d %d %2d:%02d%s", season, month_, tage, year, hours_, minuten, stunden < 12 ? "am" : "pm");
-			break;
-		}
-
-		case umgebung_t::DATE_FMT_JAPANESE:
-			sprintf(time, "%s, %d/%s/%d %2d:%02dh", season, year, month_, tage, stunden, minuten);
-			break;
-
-		case umgebung_t::DATE_FMT_MONTH:
-			sprintf(time, "%s, %s %d %2d:%02dh", month_, season, year, stunden, minuten);
-			break;
-
-		case umgebung_t::DATE_FMT_SEASON:
-			sprintf(time, "%s %d", season, year);
-			break;
-	}
+	char const *time = tick_to_string( wl->get_zeit_ms(), true );
 
 	// bottom text background
 	display_set_clip_wh( 0, 0, disp_width, disp_height );
@@ -1553,6 +1487,7 @@ void win_display_flush(double konto)
 	// season color
 	display_color_img( skinverwaltung_t::seasons_icons->get_bild_nr(wl->get_season()), 2, disp_height-15, 0, false, true );
 	if(  tooltip_check  &&  tooltip_xpos<14  ) {
+		static char const* const seasons[] = { "q2", "q3", "q4", "q1" };
 		tooltip_text = translator::translate(seasons[wl->get_season()]);
 		tooltip_check = false;
 	}

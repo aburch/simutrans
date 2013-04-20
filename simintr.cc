@@ -13,6 +13,8 @@
 #include "simintr.h"
 #include "simwin.h"
 #include "player/simplay.h"
+#include "dataobj/umgebung.h"
+#include "dataobj/translator.h"
 
 #include "simworld.h"
 #include "simview.h"
@@ -140,4 +142,153 @@ void intr_disable()
 void intr_enable()
 {
 	enabled = true;
+}
+
+
+// returns a time string in the desired format
+char const *tick_to_string( sint32 ticks, bool show_full )
+{
+	static sint32 tage_per_month[12]={31,28,31,30,31,30,31,31,30,31,30,31};
+	static char const* const seasons[] = { "q2", "q3", "q4", "q1" };
+	static char time [128];
+
+	sint32 month = welt_modell->get_last_month();
+	sint32 year = welt_modell->get_last_year();
+
+	time[0] = 0;
+
+	// calculate right month first
+	const uint32 ticks_this_month = ticks % welt_modell->ticks_per_world_month;
+	month += ticks_this_month / welt_modell->ticks_per_world_month;
+	while(  month>11  ) {
+		month -= 12;
+		year ++;
+	}
+	while(  month<0  ) {
+		month += 12;
+		year --;
+	}
+
+	uint32 tage, stunden, minuten;
+	if (umgebung_t::show_month > umgebung_t::DATE_FMT_MONTH) {
+		tage = (((sint64)ticks_this_month*tage_per_month[month]) >> welt_modell->ticks_per_world_month_shift) + 1;
+		stunden = (((sint64)ticks_this_month*tage_per_month[month]) >> (welt_modell->ticks_per_world_month_shift-16));
+		minuten = (((stunden*3) % 8192)*60)/8192;
+		stunden = ((stunden*3) / 8192)%24;
+	}
+	else {
+		tage = 0;
+		stunden = (ticks_this_month * 24) >> welt_modell->ticks_per_world_month_shift;
+		minuten = ((ticks_this_month * 24 * 60) >> welt_modell->ticks_per_world_month_shift)%60;
+	}
+
+	if(  show_full  ||  umgebung_t::show_month == umgebung_t::DATE_FMT_SEASON  ) {
+
+		//DBG_MESSAGE("umgebung_t::show_month","%d",umgebung_t::show_month);
+		// @author hsiegeln - updated to show month
+		// @author prissi - also show date if desired
+		// since seaons 0 is always summer for backward compatibility
+		char const* const season = translator::translate(seasons[welt_modell->get_season()]);
+		char const* const month_ = translator::get_month_name(month % 12);
+		switch(umgebung_t::show_month) {
+			case umgebung_t::DATE_FMT_GERMAN_NO_SEASON:
+				sprintf(time, "%d. %s %d %2d:%02dh", tage, month_, year, stunden, minuten);
+				break;
+
+			case umgebung_t::DATE_FMT_US_NO_SEASON: {
+				uint32 hours_ = stunden % 12;
+				if (hours_ == 0) hours_ = 12;
+				sprintf(time, "%s %d %d %2d:%02d%s", month_, tage, year, hours_, minuten, stunden < 12 ? "am" : "pm");
+				break;
+			}
+
+			case umgebung_t::DATE_FMT_JAPANESE_NO_SEASON:
+				sprintf(time, "%d/%s/%d %2d:%02dh", year, month_, tage, stunden, minuten);
+				break;
+
+			case umgebung_t::DATE_FMT_GERMAN:
+				sprintf(time, "%s, %d. %s %d %2d:%02dh", season, tage, month_, year, stunden, minuten);
+				break;
+
+			case umgebung_t::DATE_FMT_US: {
+				uint32 hours_ = stunden % 12;
+				if (hours_ == 0) hours_ = 12;
+				sprintf(time, "%s, %s %d %d %2d:%02d%s", season, month_, tage, year, hours_, minuten, stunden < 12 ? "am" : "pm");
+				break;
+			}
+
+			case umgebung_t::DATE_FMT_JAPANESE:
+				sprintf(time, "%s, %d/%s/%d %2d:%02dh", season, year, month_, tage, stunden, minuten);
+				break;
+
+			case umgebung_t::DATE_FMT_MONTH:
+				sprintf(time, "%s, %s %d %2d:%02dh", month_, season, year, stunden, minuten);
+				break;
+
+			case umgebung_t::DATE_FMT_SEASON:
+				sprintf(time, "%s %d", season, year);
+				break;
+		}
+	}
+	else {
+		if(  ticks == 0  ) {
+			return "now";
+		}
+
+		// suppress as much as possible, assuming this is an relative offset to the current month
+		sint32 num_days = ( ticks * (umgebung_t::show_month==umgebung_t::DATE_FMT_MONTH? 3 : tage_per_month[month]) ) >> welt_modell->ticks_per_world_month_shift;
+		num_days -= ( (welt_modell->get_zeit_ms() % welt_modell->ticks_per_world_month) * (umgebung_t::show_month==umgebung_t::DATE_FMT_MONTH? 3 : tage_per_month[month]) ) >> welt_modell->ticks_per_world_month_shift;
+		char days[64];
+		days[0] = 0;
+		if(  num_days!=0  ) {
+			sprintf( days, "%+i ", num_days );
+		}
+
+		// maybe round minutes
+		if(  welt_modell->ticks_per_world_month_shift <= 19  ) {
+			minuten = ( (minuten + 30 ) / 60 ) * 60;
+		}
+		else if(  welt_modell->ticks_per_world_month_shift == 20  ) {
+			minuten = ( (minuten + 15) / 30 ) * 30;
+		}
+		else if(  welt_modell->ticks_per_world_month_shift == 21  ) {
+			minuten = ( (minuten + 7) / 15 ) * 15;
+		}
+		else if(  welt_modell->ticks_per_world_month_shift == 22  ) {
+			minuten = ( (minuten + 2) / 5 ) * 5;
+		}
+		if(  minuten ==  60  ) {
+			minuten = 0;
+			stunden ++;
+			if(  stunden == 24  ) {
+				stunden = 0;
+				tage ++;
+			}
+		}
+
+		switch(umgebung_t::show_month) {
+			case umgebung_t::DATE_FMT_GERMAN:
+			case umgebung_t::DATE_FMT_GERMAN_NO_SEASON:
+				sprintf(time, "%s%2d:%02dh", days, stunden, minuten);
+				break;
+
+			case umgebung_t::DATE_FMT_US:
+			case umgebung_t::DATE_FMT_US_NO_SEASON: {
+				uint32 hours_ = stunden % 12;
+				if (hours_ == 0) hours_ = 12;
+				sprintf(time, "%s%2d:%02d%s", days, hours_, minuten, stunden < 12 ? "am" : "pm");
+				break;
+			}
+
+			case umgebung_t::DATE_FMT_JAPANESE:
+			case umgebung_t::DATE_FMT_JAPANESE_NO_SEASON:
+				sprintf(time, "%s%2d:%02dh", days, stunden, minuten);
+				break;
+
+			case umgebung_t::DATE_FMT_MONTH:
+				sprintf(time, "%s%2d:%02dh", days, stunden, minuten);
+				break;
+		}
+	}
+	return time;
 }

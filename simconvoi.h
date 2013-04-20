@@ -864,6 +864,9 @@ public:
 	void calc_speedbonus_kmh();
 	sint32 get_speedbonus_kmh() const;
 
+	// jus a guess of the speed
+	uint32 get_average_kmh() const;
+
 	// Overtaking for convois
 	virtual bool can_overtake(overtaker_t *other_overtaker, sint32 other_speed, sint16 steps_other);
 };

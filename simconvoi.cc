@@ -2788,6 +2788,16 @@ sint32 convoi_t::get_speedbonus_kmh() const
 }
 
 
+// return the current bonus speed
+uint32 convoi_t::get_average_kmh() const
+{
+	if(  distance_since_last_stop > 0  ) {
+		return sum_speed_limit / distance_since_last_stop;
+	}
+	return speedbonus_kmh;
+}
+
+
 /**
  * Schedule convoid for self destruction. Will be executed
  * upon next sync step

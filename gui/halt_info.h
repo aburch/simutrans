@@ -40,8 +40,9 @@ private:
 	* @author Hj. Malthaner
 	*/
 	cbuffer_t freight_info;
-	cbuffer_t info_buf;
+	cbuffer_t info_buf, joined_buf;
 
+	// other UI definitions
 	gui_scrollpane_t scrolly;
 	gui_textarea_t text;
 	gui_textinput_t input;
@@ -51,12 +52,37 @@ private:
 	button_t button;
 	button_t sort_button;     // @author hsiegeln
 	button_t filterButtons[MAX_HALT_COST];
-	button_t toggler;
+	button_t toggler, toggler_departures;
 
 	halthandle_t halt;
 	char edit_name[256];
 
 	void show_hide_statistics( bool show );
+
+	// departure stuff
+	class dest_info_t {
+	public:
+		bool compare( const dest_info_t &other ) const;
+		halthandle_t halt;
+		sint32 delta_ticks;
+		convoihandle_t cnv;
+		dest_info_t() : delta_ticks(0) {}
+		dest_info_t( halthandle_t h, sint32 d_t, convoihandle_t c ) : halt(h), delta_ticks(d_t), cnv(c) {}
+		bool operator == (const dest_info_t &other) const { return ( this->halt==other.halt ); }
+	};
+
+	static bool compare_hi(const dest_info_t &a, const dest_info_t &b) { return a.delta_ticks <= b.delta_ticks; }
+
+	vector_tpl<dest_info_t> destinations;
+	vector_tpl<dest_info_t> origins;
+	cbuffer_t departure_buf;
+
+	// if nothing changed, this is the next refresh to recalculate the content of the departure board
+	sint8 next_refresh;
+
+	void update_departures();
+
+	void show_hide_departures( bool show );
 
 public:
 	halt_info_t(karte_t *welt, halthandle_t halt);

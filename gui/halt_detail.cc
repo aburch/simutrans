@@ -24,8 +24,6 @@
 #include "halt_detail.h"
 
 
-
-
 halt_detail_t::halt_detail_t(halthandle_t halt_) :
 	gui_frame_t(halt_->get_name(), halt_->get_besitzer()),
 	halt(halt_),
@@ -325,7 +323,7 @@ void halt_detail_t::halt_detail_info()
 
 bool halt_detail_t::action_triggered( gui_action_creator_t *, value_t extra)
 {
-	if(extra.i&~1) {
+	if(  extra.i & ~1  ) {
 		koord k = *(const koord *)extra.p;
 		if(  k.x>=0  ) {
 			// goto button pressed

@@ -813,8 +813,8 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 // add convoi to loading
 void haltestelle_t::request_loading( convoihandle_t cnv )
 {
-	if(  !loading_here.is_contained(cnv)  ) {
-		loading_here.append (cnv );
+	if(  !loading_here.is_contained( cnv )  ) {
+		loading_here.append( cnv );
 	}
 	if(  last_loading_step != welt->get_steps()  ) {
 		last_loading_step = welt->get_steps();

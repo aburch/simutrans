@@ -32,6 +32,8 @@ private:
 public:
 	gui_textarea_t(cbuffer_t* buf_);
 
+	void set_buf( cbuffer_t* buf_ ) { buf = buf_; recalc_size(); }
+
 	/**
 	 * recalc the current size, needed for speculative size calculations
 	 */
