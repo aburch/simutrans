@@ -1829,7 +1829,14 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 		}
 
 		n += sprintf( buf + n, "%s %4.1ft\n", translator::translate("Weight:"), veh_type->get_gewicht() / 1000.0 ); // Convert kg to tonnes
-		n += sprintf( buf + n, "%s %it\n", translator::translate("Axle load:"), veh_type->get_axle_load()); // Experimental only
+		if(veh_type->get_waytype() != water_wt)
+		{
+			n += sprintf( buf + n, "%s %it\n", translator::translate("Axle load:"), veh_type->get_axle_load()); // Experimental only
+		}
+		else
+		{
+			n += sprintf( buf + n, "\n");
+		}
 		n += sprintf( buf + n, "%s %4.1fkN\n", translator::translate("Max. brake force:"), convoy.get_braking_force().to_double() / 1000.0); // Experimental only
 		n += sprintf( buf + n, "%s %4.1fkN\n", translator::translate("Rolling resistance:"), veh_type->get_rolling_resistance().to_double() * (double)veh_type->get_gewicht()); // Experimental only
 		
