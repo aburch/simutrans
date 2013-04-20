@@ -373,33 +373,7 @@ void halt_info_t::update_departures()
 		for(  uint j = 0;  j < line->count_convoys();  j++  ) {
 			convoihandle_t cnv = line->get_convoy(j);
 			if(  cnv.is_bound()  &&  ( cnv->get_state() == convoi_t::DRIVING  ||  cnv->is_waiting() )  &&  haltestelle_t::get_halt( welt, cnv->get_schedule()->get_current_eintrag().pos, cnv->get_besitzer() ) == halt  ) {
-				// we only two stops
-				if(  grund_t *gr = welt->lookup_kartenboden( cnv->front()->last_stop_pos )  ) {
-					/* calculate the time needed:
-					 *   tiles << (8+12) / (kmh_to_speed(max_kmh) = ticks
-					 */
-					sint64 delta_tiles = cnv->get_route()->get_count() - cnv->front()->get_route_index();
-					uint32 kmh_average = cnv->get_average_kmh();
-					delta_tiles += (kmh_average / 40);	// to account for breaking in stattions
-					uint32 delta_t = cur_ticks + ( (delta_tiles << (8+12) ) / kmh_to_speed( kmh_average ) );
-
-					halt_info_t::dest_info_t prev( gr->get_halt(), delta_t, cnv );
-					if(  gr->get_halt().is_bound()  &&  gr->get_halt() != halt  ) {
-						origins.insert_ordered( prev, compare_hi );
-					}
-					halthandle_t next_halt = cnv->get_schedule()->get_next_halt(cnv->get_besitzer(),halt);
-					if(  next_halt.is_bound()  ) {
-						halt_info_t::dest_info_t next( next_halt, delta_t+2000, cnv );
-						destinations.insert_ordered( next, compare_hi );
-					}
-				}
-			}
-		}
-	}
-
-	FOR( vector_tpl<convoihandle_t>, cnv, halt->registered_convoys ) {
-		if(  cnv.is_bound()  &&  ( cnv->get_state() == convoi_t::DRIVING  ||  cnv->is_waiting() )  &&  haltestelle_t::get_halt( welt, cnv->get_schedule()->get_current_eintrag().pos, cnv->get_besitzer() ) == halt  ) {
-			if(  grund_t *gr = welt->lookup_kartenboden( cnv->front()->last_stop_pos )  ) {
+				halthandle_t prev_halt = haltestelle_t::get_halt_2d( welt, cnv->front()->last_stop_pos, cnv->get_besitzer() );
 				/* calculate the time needed:
 				 *   tiles << (8+12) / (kmh_to_speed(max_kmh) = ticks
 				 */
@@ -407,8 +381,9 @@ void halt_info_t::update_departures()
 				uint32 kmh_average = cnv->get_average_kmh();
 				delta_tiles += (kmh_average / 40);	// to account for breaking in stattions
 				uint32 delta_t = cur_ticks + ( (delta_tiles << (8+12) ) / kmh_to_speed( kmh_average ) );
-				if(  gr->get_halt().is_bound()  &&  gr->get_halt() != halt  ) {
-					halt_info_t::dest_info_t prev( gr->get_halt(), delta_t, cnv );
+
+				if(  prev_halt.is_bound()  ) {
+					halt_info_t::dest_info_t prev( prev_halt, delta_t, cnv );
 					origins.insert_ordered( prev, compare_hi );
 				}
 				halthandle_t next_halt = cnv->get_schedule()->get_next_halt(cnv->get_besitzer(),halt);
@@ -420,22 +395,52 @@ void halt_info_t::update_departures()
 		}
 	}
 
+	FOR( vector_tpl<convoihandle_t>, cnv, halt->registered_convoys ) {
+		if(  cnv.is_bound()  &&  ( cnv->get_state() == convoi_t::DRIVING  ||  cnv->is_waiting() )  &&  haltestelle_t::get_halt( welt, cnv->get_schedule()->get_current_eintrag().pos, cnv->get_besitzer() ) == halt  ) {
+			halthandle_t prev_halt = haltestelle_t::get_halt_2d( welt, cnv->front()->last_stop_pos, cnv->get_besitzer() );
+			/* calculate the time needed:
+			 *   tiles << (8+12) / (kmh_to_speed(max_kmh) = ticks
+			 */
+			sint64 delta_tiles = cnv->get_route()->get_count() - cnv->front()->get_route_index();
+			uint32 kmh_average = cnv->get_average_kmh();
+			delta_tiles += (kmh_average / 40);	// to account for breaking in stattions
+			uint32 delta_t = cur_ticks + ( (delta_tiles << (8+12) ) / kmh_to_speed( kmh_average ) );
+
+			if(  prev_halt.is_bound()  ) {
+				halt_info_t::dest_info_t prev( prev_halt, delta_t, cnv );
+				origins.insert_ordered( prev, compare_hi );
+			}
+			halthandle_t next_halt = cnv->get_schedule()->get_next_halt(cnv->get_besitzer(),halt);
+			if(  next_halt.is_bound()  ) {
+				halt_info_t::dest_info_t next( next_halt, delta_t+2000, cnv );
+				destinations.insert_ordered( next, compare_hi );
+			}
+		}
+	}
+
 	// now we build the string ...
 	joined_buf.clear();
+	slist_tpl<halthandle_t> exclude;
 	if(  destinations.get_count()>0  ) {
 		joined_buf.append( " " );
 		joined_buf.append( translator::translate( "Departures to\n" ) );
 		FOR( vector_tpl<halt_info_t::dest_info_t>, hi, destinations ) {
-			assert(  hi.halt.is_bound()  );
-			joined_buf.printf( "  %s %s\n", tick_to_string( hi.delta_ticks, false ), hi.halt->get_name() );
+			if(  freight_list_sorter_t::by_via_sum != umgebung_t::default_sortmode  ||  !exclude.is_contained( hi.halt )  ) {
+				joined_buf.printf( "  %s %s\n", tick_to_string( hi.delta_ticks, false ), hi.halt->get_name() );
+				exclude.append( hi.halt );
+			}
 		}
 		joined_buf.append( "\n " );
 	}
+
+	exclude.clear();
 	if(  origins.get_count()>0  ) {
 		joined_buf.append( translator::translate( "Arrivals from\n" ) );
 		FOR( vector_tpl<halt_info_t::dest_info_t>, hi, origins ) {
-			assert(  hi.halt.is_bound()  );
-			joined_buf.printf( "  %s %s\n", tick_to_string( hi.delta_ticks, false ), hi.halt->get_name() );
+			if(  freight_list_sorter_t::by_via_sum != umgebung_t::default_sortmode  ||  !exclude.is_contained( hi.halt )  ) {
+				joined_buf.printf( "  %s %s\n", tick_to_string( hi.delta_ticks, false ), hi.halt->get_name() );
+				exclude.append( hi.halt );
+			}
 		}
 		joined_buf.append( "\n" );
 	}
@@ -452,13 +457,16 @@ bool halt_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {
 	if (comp == &button) { 			// details button pressed
 		create_win( new halt_detail_t(halt), w_info, magic_halt_detail + halt.get_id() );
-	} else if (comp == &sort_button) { 	// @author hsiegeln sort button pressed
+	}
+	else if (comp == &sort_button) { 	// @author hsiegeln sort button pressed
 		umgebung_t::default_sortmode = ((int)(halt->get_sortby())+1)%4;
 		halt->set_sortby((freight_list_sorter_t::sort_mode_t) umgebung_t::default_sortmode);
 		sort_button.set_text(sort_text[umgebung_t::default_sortmode]);
-	} else  if (comp == &toggler) {
+	}
+	else  if (comp == &toggler) {
 		show_hide_statistics( toggler.pressed^1 );
-	} else  if (comp == &toggler_departures) {
+	}
+	else  if (comp == &toggler_departures) {
 		show_hide_departures( toggler_departures.pressed^1 );
 	}
 	else if(  comp == &input  ) {
@@ -540,6 +548,7 @@ void halt_info_t::rdwr(loadsave_t *file)
 	koord gr = get_fenstergroesse();
 	uint32 flags = 0;
 	bool stats = toggler.pressed;
+	bool departures = toggler_departures.pressed;
 	sint32 xoff = scrolly.get_scroll_x();
 	sint32 yoff = scrolly.get_scroll_y();
 	if(  file->is_saving()  ) {
@@ -555,6 +564,7 @@ void halt_info_t::rdwr(loadsave_t *file)
 	file->rdwr_long( flags );
 	file->rdwr_byte( umgebung_t::default_sortmode );
 	file->rdwr_bool( stats );
+	file->rdwr_bool( departures );
 	file->rdwr_long( xoff );
 	file->rdwr_long( yoff );
 	if(  file->is_loading()  ) {
@@ -575,6 +585,9 @@ void halt_info_t::rdwr(loadsave_t *file)
 		}
 		if(  stats  ) {
 			w->show_hide_statistics( true );
+		}
+		if(  departures  ) {
+			w->show_hide_departures( true );
 		}
 		halt->get_freight_info(w->freight_info);
 		w->text.recalc_size();

@@ -151,6 +151,7 @@ public:
 	 * this will only return something if this stop belongs to same player or is public, or is a dock (when on water)
 	 */
 	static halthandle_t get_halt(const karte_t *welt, const koord3d pos, const spieler_t *sp );
+	static halthandle_t get_halt_2d(const karte_t *welt, const koord pos, const spieler_t *sp );
 
 	static const slist_tpl<halthandle_t>& get_alle_haltestellen() { return alle_haltestellen; }
 
