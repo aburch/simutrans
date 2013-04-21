@@ -1466,11 +1466,6 @@ void win_display_flush(double konto)
 		}
 	}
 
-	koord3d pos;
-	uint32 ticks=1, month=0, year=0;
-
-	const ding_t *dt = wl->get_zeiger();
-	pos = dt->get_pos();
 	char const *time = tick_to_string( wl->get_zeit_ms(), true );
 
 	// bottom text background
@@ -1534,6 +1529,7 @@ void win_display_flush(double konto)
 		}
 	}
 
+	koord3d pos = wl->get_zeiger()->get_pos();
 
 	static cbuffer_t info;
 	info.clear();
