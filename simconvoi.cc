@@ -1747,28 +1747,35 @@ uint8 convoi_t::get_comfort() const
 	base_comfort /= passenger_seating;
 	
 	const uint8 catering_level = get_catering_level(0);
+	int modified_comfort = (int)base_comfort;
 	switch(catering_level)
 	{
 	case 0:
-		return base_comfort > 0 ? base_comfort : 1;
+		modified_comfort = base_comfort > 0 ? base_comfort : 1;
+		break;
 
 	case 1:
-		return base_comfort + 5;
+		modified_comfort = base_comfort + 5;
+		break;
 
 	case 2:
-		return base_comfort + 10;
+		modified_comfort = base_comfort + 10;
+		break;
 
 	case 3:
-		return base_comfort + 16;
+		modified_comfort = base_comfort + 16;
+		break;
 
 	case 4:
-		return base_comfort + 20;
+		modified_comfort = base_comfort + 20;
+		break;
 
-	//case 5:
+	case 5:
 	default:
+		modified_comfort = base_comfort + 25;
 		break;
 	};
-	return base_comfort + 25;
+	return min(255, modified_comfort);
 }
 
 void convoi_t::new_month()
