@@ -135,7 +135,7 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt) :
 	sort_button.add_listener(this);
 	add_komponente(&sort_button);
 
-	toggler_departures.init( button_t::roundbox_state, "Depature board", koord( BUTTON2_X, yoff ), koord( D_BUTTON_WIDTH, D_BUTTON_HEIGHT ) );
+	toggler_departures.init( button_t::roundbox_state, "Departure board", koord( BUTTON2_X, yoff ), koord( D_BUTTON_WIDTH, D_BUTTON_HEIGHT ) );
 	toggler_departures.set_tooltip("Show/hide estimated arrival times");
 	toggler_departures.add_listener( this );
 	add_komponente( &toggler_departures );
