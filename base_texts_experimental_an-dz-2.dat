@@ -1,0 +1,8 @@
+obj=program_text
+name=Pulls
+note=Depot window
+--
+obj=program_text
+name=This is a travelling post office
+note=Depot window, when the convoy is a post office
+--

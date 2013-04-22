@@ -4757,8 +4757,8 @@ uint16 convoi_t::calc_max_tolerable_journey_time(uint16 comfort, karte_t* w)
 	const uint8 comfort_median_short = w->get_settings().get_tolerable_comfort_median_short();
 	if(comfort < comfort_median_short)
 	{
-		const uint16 percentage = (comfort_median_short * 100) / comfort;
-		return (comfort_median_short_minutes * 100) / percentage;
+		const uint16 percentage = ((comfort_median_short - comfort_short) * 100) / (comfort - comfort_short);
+		return (((comfort_median_short_minutes - comfort_short_minutes) * 100) / percentage) + comfort_short_minutes;
 	}
 	if(comfort == comfort_median_short)
 	{
@@ -4769,8 +4769,8 @@ uint16 convoi_t::calc_max_tolerable_journey_time(uint16 comfort, karte_t* w)
 	const uint8 comfort_median_median = w->get_settings().get_tolerable_comfort_median_median();
 	if(comfort < comfort_median_median)
 	{
-		const uint16 percentage = (comfort_median_median * 100) / comfort;
-		return (comfort_median_median_minutes * 100) / percentage;
+		const uint16 percentage = ((comfort_median_median - comfort_median_short) * 100) / (comfort - comfort_median_short);
+		return (((comfort_median_median_minutes - comfort_median_short_minutes) * 100) / percentage) + comfort_median_short_minutes;
 	}
 	if(comfort == comfort_median_median)
 	{
@@ -4781,8 +4781,8 @@ uint16 convoi_t::calc_max_tolerable_journey_time(uint16 comfort, karte_t* w)
 	const uint8 comfort_median_long = w->get_settings().get_tolerable_comfort_median_long();
 	if(comfort < comfort_median_long)
 	{
-		const uint16 percentage = (comfort_median_long * 100) / comfort;
-		return (comfort_median_long_minutes * 100) / percentage;
+		const uint16 percentage = ((comfort_median_long - comfort_median_median) * 100) / (comfort - comfort_median_median);
+		return (((comfort_median_long_minutes - comfort_median_median_minutes) * 100) / percentage) + comfort_median_median_minutes;
 	}
 	if(comfort == comfort_median_long)
 	{
@@ -4793,8 +4793,8 @@ uint16 convoi_t::calc_max_tolerable_journey_time(uint16 comfort, karte_t* w)
 	const uint8 comfort_long = w->get_settings().get_tolerable_comfort_long();
 	if(comfort < comfort_long)
 	{
-		const uint16 percentage = (comfort_long * 100) / comfort;
-		return (comfort_long_minutes * 100) / percentage;
+		const uint16 percentage = ((comfort_long - comfort_median_long) * 100) / (comfort - comfort_median_long);
+		return (((comfort_long_minutes - comfort_median_long_minutes) * 100) / percentage) + comfort_median_long_minutes;
 	}
 	if(comfort == comfort_long)
 	{

@@ -2108,6 +2108,9 @@
     <None Include="base-texts-depot-window-refurbish.dat">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="base_texts_experimental_an-dz-2.dat">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="simres.rc">
