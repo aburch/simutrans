@@ -1721,11 +1721,12 @@ uint16 convoi_t::get_overcrowded() const
 
 uint8 convoi_t::get_comfort() const
 {
-	uint32 base_comfort = 0;
+	uint32 comfort = 0;
 	uint8 passenger_vehicles = 0;
 	uint16 passenger_seating = 0;
 
 	uint16 capacity;
+	const uint8 catering_level = get_catering_level(0);
 	
 	for(uint8 i = 0; i < anz_vehikel; i ++)
 	{
@@ -1733,7 +1734,7 @@ uint8 convoi_t::get_comfort() const
 		{
 			passenger_vehicles ++;
 			capacity = fahr[i]->get_besch()->get_zuladung();
-			base_comfort += fahr[i]->get_comfort() * capacity;
+			comfort += fahr[i]->get_comfort(catering_level) * capacity;
 			passenger_seating += capacity;
 		}
 	}
@@ -1743,39 +1744,10 @@ uint8 convoi_t::get_comfort() const
 		return 0;
 	}
 	
-	// There must be some passenger vehicles of we are here.
-	base_comfort /= passenger_seating;
+	// There must be some passenger vehicles if we are here.
+	comfort /= passenger_seating;
 	
-	const uint8 catering_level = get_catering_level(0);
-	int modified_comfort = (int)base_comfort;
-	switch(catering_level)
-	{
-	case 0:
-		modified_comfort = base_comfort > 0 ? base_comfort : 1;
-		break;
-
-	case 1:
-		modified_comfort = base_comfort + 5;
-		break;
-
-	case 2:
-		modified_comfort = base_comfort + 10;
-		break;
-
-	case 3:
-		modified_comfort = base_comfort + 16;
-		break;
-
-	case 4:
-		modified_comfort = base_comfort + 20;
-		break;
-
-	case 5:
-	default:
-		modified_comfort = base_comfort + 25;
-		break;
-	};
-	return min(255, modified_comfort);
+	return comfort;
 }
 
 void convoi_t::new_month()

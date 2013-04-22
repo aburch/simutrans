@@ -604,7 +604,7 @@ public:
 	uint16 get_overcrowding() const;
 
 	// @author: jamespetts
-	uint8 get_comfort() const;
+	uint8 get_comfort(uint8 catering_level = 0) const;
 
 	sint64 current_revenue;
 

@@ -579,6 +579,39 @@ public:
 	uint32 get_upgrade_price() const { return upgrade_price; }
 	bool is_available_only_as_upgrade() const { return available_only_as_upgrade; }
 
+	uint8 get_adjusted_comfort(uint8 catering_level) const
+	{
+		int modified_comfort = (int)comfort;
+		switch(catering_level)
+		{
+		case 0:
+			modified_comfort = comfort > 0 ? comfort : 1;
+			break;
+
+		case 1:
+			modified_comfort = comfort + 5;
+			break;
+
+		case 2:
+			modified_comfort = comfort + 10;
+			break;
+
+		case 3:
+			modified_comfort = comfort + 16;
+			break;
+
+		case 4:
+			modified_comfort = comfort + 20;
+			break;
+
+		case 5:
+		default:
+			modified_comfort = comfort + 25;
+			break;
+		};
+		return min(255, modified_comfort);
+	}
+
 	// BG, 15.06.2009: the formula for obsolescence formerly implemented twice in get_running_cost() and get_fixed_cost()
 	uint32 calc_running_cost(const karte_t *welt, uint32 base_cost) const;	
 

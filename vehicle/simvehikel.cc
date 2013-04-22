@@ -2049,9 +2049,9 @@ uint16 vehikel_t::get_overcrowding() const
 	return total_freight - besch->get_zuladung() > 0 ? total_freight - besch->get_zuladung() : 0;
 }
 
-uint8 vehikel_t::get_comfort() const
+uint8 vehikel_t::get_comfort(uint8 catering_level) const
 {
-	const uint8 base_comfort = besch->get_comfort();
+	const uint8 base_comfort = besch->get_adjusted_comfort(catering_level);
 	if(base_comfort == 0)
 	{
 		return 0;
