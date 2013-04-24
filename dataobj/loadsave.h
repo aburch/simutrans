@@ -50,7 +50,7 @@ private:
 	uint32 version;
 	uint32 experimental_version;
 	int ident;		// only for XML formatting
-	char pak_extension[64];	// name of the pak folder during savetime
+	char pak_extension[256];	// name of the pak folder during savetime
 
 	std::string filename;	// the current name ...
 
