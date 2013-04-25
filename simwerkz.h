@@ -398,7 +398,7 @@ public:
 	void set_values(spieler_t *sp, uint8 spacing, bool remove, bool replace );
 	void get_values(spieler_t *sp, uint8 &spacing, bool &remove, bool &replace );
 	bool is_init_network_save() const OVERRIDE { return true; }
-	void draw_after(karte_t*, koord) const OVERRIDE;
+	void draw_after(karte_t*, koord, bool dirty) const OVERRIDE;
 	char const* get_default_param(spieler_t*) const OVERRIDE;
 	waytype_t get_waytype() const OVERRIDE;
 };
@@ -796,7 +796,7 @@ public:
 	static sint8 save_underground_level;
 	char const* get_tooltip(spieler_t const*) const OVERRIDE;
 	bool is_selected(karte_t const*) const OVERRIDE;
-	void draw_after(karte_t*, koord) const OVERRIDE;
+	void draw_after(karte_t*, koord, bool dirty) const OVERRIDE;
 	bool init( karte_t *welt, spieler_t * );
 	char const* work(karte_t*, spieler_t*, koord3d) OVERRIDE;
 	bool exit( karte_t *, spieler_t * ) { return false; }

@@ -188,7 +188,7 @@ void werkzeug_waehler_t::zeichnen(koord pos, koord)
 		}
 		else {
 			display_color_img(icon_img, draw_pos.x, draw_pos.y, 0, false, dirty);
-			tools[i]->draw_after( welt, draw_pos );
+			tools[i]->draw_after( welt, draw_pos, dirty );
 		}
 	}
 
