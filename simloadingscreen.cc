@@ -24,6 +24,7 @@ loadingscreen_t::loadingscreen_t( const char *w, uint32 max_p, bool logo, bool c
 	info = NULL;
 	progress = 0;
 	max_progress = max_p;
+	last_bar_len = -1;
 	show_logo = logo;
 
 	if(  !is_display_init()  ||  continueflag  ) {
@@ -69,27 +70,31 @@ void loadingscreen_t::display()
 
 	const int bar_len = (progress*(uint32)half_width)/max_progress;
 
-	dr_prepare_flush();
+	if(  bar_len != last_bar_len  ) {
+		last_bar_len = bar_len;
 
-	if(  info  ) {
-		display_proportional( half_width, half_height - 8 - LINESPACE - 4, info, ALIGN_MIDDLE, COL_WHITE, true );
+		dr_prepare_flush();
+
+		if(  info  ) {
+			display_proportional( half_width, half_height - 8 - LINESPACE - 4, info, ALIGN_MIDDLE, COL_WHITE, true );
+		}
+
+		// outline
+		display_ddd_box( quarter_width-2, half_height-9, half_width+4, 20, COL_GREY6, COL_GREY4 );
+		display_ddd_box( quarter_width-1, half_height-8, half_width+2, 18, COL_GREY4, COL_GREY6 );
+
+		// inner
+		display_fillbox_wh( quarter_width, half_height - 7, half_width, 16, COL_GREY5, true);
+
+		// progress
+		display_fillbox_wh( quarter_width, half_height - 5, bar_len,  12, COL_BLUE, true );
+
+		if(  what  ) {
+			display_proportional( half_width, half_height-4, what, ALIGN_MIDDLE, COL_WHITE, false );
+		}
+
+		dr_flush();
 	}
-
-	// outline
-	display_ddd_box( quarter_width-2, half_height-9, half_width+4, 20, COL_GREY6, COL_GREY4 );
-	display_ddd_box( quarter_width-1, half_height-8, half_width+2, 18, COL_GREY4, COL_GREY6 );
-
-	// inner
-	display_fillbox_wh( quarter_width, half_height - 7, half_width, 16, COL_GREY5, true);
-
-	// progress
-	display_fillbox_wh( quarter_width, half_height - 5, bar_len,  12, COL_BLUE, true );
-
-	if(what) {
-		display_proportional( half_width, half_height-4, what, ALIGN_MIDDLE, COL_WHITE, 0 );
-	}
-
-	dr_flush();
 }
 
 
