@@ -336,6 +336,12 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 	all_links = new link_t[ warenbauer_t::get_max_catg_index() ];
 
 	status_color = COL_YELLOW;
+	last_status_color = COL_PURPLE;
+
+	last_bar_height.resize( warenbauer_t::get_waren_anzahl() );
+	for(  int i = 0;  i < warenbauer_t::get_waren_anzahl();  i++  ) {
+		last_bar_height.append(0);
+	}
 
 	reconnect_counter = welt->get_schedule_counter()-1;
 
@@ -376,6 +382,12 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 	all_links = new link_t[ warenbauer_t::get_max_catg_index() ];
 
 	status_color = COL_YELLOW;
+	last_status_color = COL_PURPLE;
+
+	last_bar_height.resize( warenbauer_t::get_waren_anzahl() );
+	for(  int i = 0;  i < warenbauer_t::get_waren_anzahl();  i++  ) {
+		last_bar_height.append(0);
+	}
 
 	sortierung = freight_list_sorter_t::by_name;
 	init_financial_history();
@@ -2824,7 +2836,7 @@ void haltestelle_t::recalc_status()
  * Draws some nice colored bars giving some status information
  * @author Hj. Malthaner
  */
-void haltestelle_t::display_status(sint16 xpos, sint16 ypos) const
+void haltestelle_t::display_status(sint16 xpos, sint16 ypos)
 {
 	// ignore freight that cannot reach to this station
 	sint16 count = 0;
@@ -2859,14 +2871,26 @@ void haltestelle_t::display_status(sint16 xpos, sint16 ypos) const
 				v = (v/4)+2;
 			}
 
-			display_fillbox_wh_clip(xpos, ypos-v-1, 1, v, COL_GREY4, true);
-			display_fillbox_wh_clip(xpos+1, ypos-v-1, 2, v, wtyp->get_color(), true);
-			display_fillbox_wh_clip(xpos+3, ypos-v-1, 1, v, COL_GREY1, true);
+			display_fillbox_wh_clip(xpos, ypos-v-1, 1, v, COL_GREY4, false);
+			display_fillbox_wh_clip(xpos+1, ypos-v-1, 2, v, wtyp->get_color(), false);
+			display_fillbox_wh_clip(xpos+3, ypos-v-1, 1, v, COL_GREY1, false);
 
 			// Hajo: show up arrow for capped values
 			if(sum > max_capacity) {
-				display_fillbox_wh_clip(xpos+1, ypos-v-6, 2, 4, COL_WHITE, true);
-				display_fillbox_wh_clip(xpos, ypos-v-5, 4, 1, COL_WHITE, true);
+				display_fillbox_wh_clip(xpos+1, ypos-v-6, 2, 4, COL_WHITE, false);
+				display_fillbox_wh_clip(xpos, ypos-v-5, 4, 1, COL_WHITE, false);
+			}
+
+			if(  last_bar_height[i] != v  ) {
+				if(  v > last_bar_height[i]  ) {
+					// bar will be longer, mark new height dirty
+					mark_rect_dirty_wc(xpos, ypos-v-6, xpos + 4 - 1, ypos + v + 4 - 1);
+				}
+				else {
+					// bar will be shorter, mark old height dirty
+					mark_rect_dirty_wc(xpos, ypos-last_bar_height[i]-6, xpos + 4 - 1, ypos + last_bar_height[i] + 4 - 1);
+				}
+				last_bar_height[i] = v;
 			}
 
 			xpos += 4;
@@ -2874,7 +2898,12 @@ void haltestelle_t::display_status(sint16 xpos, sint16 ypos) const
 	}
 
 	// status color box below
-	display_fillbox_wh_clip(x-1-4, ypos, count*4+12-2, 4, get_status_farbe(), true);
+	bool dirty = false;
+	if(  get_status_farbe() != last_status_color  ) {
+		last_status_color = get_status_farbe();
+		dirty = true;
+	}
+	display_fillbox_wh_clip(x-1-4, ypos, count*4+12-2, 4, get_status_farbe(), dirty);
 }
 
 

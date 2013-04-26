@@ -8,6 +8,7 @@
 
 #include "simtypes.h"
 #include "simunits.h"
+#include "simcolor.h"
 #include "linehandle_t.h"
 
 #include "ifc/sync_steppable.h"
@@ -842,7 +843,7 @@ public:
 	void set_next_reservation_index(uint16 n);
 
 	/* the current state of the convoi */
-	uint8 get_status_color() const;
+	COLOR_VAL get_status_color() const;
 
 	// returns tiles needed for this convoi
 	uint16 get_tile_length() const;

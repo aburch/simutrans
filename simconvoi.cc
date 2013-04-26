@@ -3200,7 +3200,7 @@ void convoi_t::set_next_reservation_index(uint16 n)
  * the current state saved as color
  * Meanings are BLACK (ok), WHITE (no convois), YELLOW (no vehicle moved), RED (last month income minus), BLUE (at least one convoi vehicle is obsolete)
  */
-uint8 convoi_t::get_status_color() const
+COLOR_VAL convoi_t::get_status_color() const
 {
 	if(state==INITIAL) {
 		// in depot/under assembly
