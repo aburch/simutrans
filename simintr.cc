@@ -245,26 +245,37 @@ char const *tick_to_string( sint32 ticks, bool show_full )
 		}
 
 		// maybe round minutes
-		if(  welt_modell->ticks_per_world_month_shift <= 19  ) {
+		int switchtick = welt_modell->ticks_per_world_month_shift;
+		if(  umgebung_t::show_month == umgebung_t::DATE_FMT_MONTH  ) {
+			// since a month is then just three days instead of about 30 ...
+			switchtick += 3;
+		}
+		if(  switchtick <= 19  ) {
 			minuten = ( (minuten + 30 ) / 60 ) * 60;
-		}
-		else if(  welt_modell->ticks_per_world_month_shift == 20  ) {
-			minuten = ( (minuten + 15) / 30 ) * 30;
-		}
-		else if(  welt_modell->ticks_per_world_month_shift == 21  ) {
-			minuten = ( (minuten + 7) / 15 ) * 15;
-		}
-		else if(  welt_modell->ticks_per_world_month_shift == 22  ) {
-			minuten = ( (minuten + 2) / 5 ) * 5;
-		}
-		if(  minuten ==  60  ) {
-			minuten = 0;
-			stunden ++;
-			if(  stunden == 24  ) {
-				stunden = 0;
-				tage ++;
+			stunden += minuten /60;
+			if(  switchtick < 18 ) {
+				// four hour inveralls
+				stunden = (stunden + 3 ) & 0xFFFFC;
+			}
+			else if(  switchtick == 18 ) {
+				// two hour inveralls
+				stunden = (stunden + 1 ) & 0xFFFFE;
 			}
 		}
+		else if(  switchtick == 20  ) {
+			minuten = ( (minuten + 15) / 30 ) * 30;
+		}
+		else if(  switchtick == 21  ) {
+			minuten = ( (minuten + 7) / 15 ) * 15;
+		}
+		else if(  switchtick == 22  ) {
+			minuten = ( (minuten + 2) / 5 ) * 5;
+		}
+		// take care of overflow
+		stunden += (minuten / 60);
+		minuten %= 60;
+		tage += (stunden / 24 );
+		stunden %= 24;
 
 		switch(umgebung_t::show_month) {
 			case umgebung_t::DATE_FMT_GERMAN:

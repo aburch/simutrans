@@ -2,7 +2,7 @@
 	CHG: Raise and Lower tools interact with the grid now, not with tiles.
 	ADD: (jk271/Dwachs) finance history distinguishes transport type
 	CHG: Added a new setting to simuconf.tab, background_color. Allows to change the color of the background.
-	ADD: Depature and arrival times can be show in the halt dialoge
+	ADD: Depature and arrival times can be shown in the halt dialoge
 
 
 Release of 112.2: (r6390 on 17-Mar-2013):

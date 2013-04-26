@@ -59,7 +59,7 @@ private:
 
 	void show_hide_statistics( bool show );
 
-	// departure stuff
+	// departure stuff (departure and arrival times display)
 	class dest_info_t {
 	public:
 		bool compare( const dest_info_t &other ) const;
@@ -68,7 +68,7 @@ private:
 		convoihandle_t cnv;
 		dest_info_t() : delta_ticks(0) {}
 		dest_info_t( halthandle_t h, sint32 d_t, convoihandle_t c ) : halt(h), delta_ticks(d_t), cnv(c) {}
-		bool operator == (const dest_info_t &other) const { return ( this->halt==other.halt ); }
+		bool operator == (const dest_info_t &other) const { return ( this->cnv==other.cnv ); }
 	};
 
 	static bool compare_hi(const dest_info_t &a, const dest_info_t &b) { return a.delta_ticks <= b.delta_ticks; }
@@ -79,6 +79,8 @@ private:
 
 	// if nothing changed, this is the next refresh to recalculate the content of the departure board
 	sint8 next_refresh;
+
+	uint32 calc_ticks_until_arrival( convoihandle_t cnv );
 
 	void update_departures();
 
