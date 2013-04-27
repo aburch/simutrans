@@ -79,7 +79,6 @@ DBG_DEBUG4("werkzeug_waehler_t::add_tool()", "at position %i (width %i)", tools.
 // reset the tools to empty state
 void werkzeug_waehler_t::reset_tools()
 {
-	welt->set_dirty();
 	tools.clear();
 	gui_frame_t::set_fenstergroesse( koord(max(icon.x,MIN_WIDTH), D_TITLEBAR_HEIGHT) );
 	tool_icon_width = 0;
@@ -111,7 +110,6 @@ bool werkzeug_waehler_t::infowin_event(const event_t *ev)
 			const int wz_idx = x+(tool_icon_width*y)+tool_icon_disp_start;
 
 			if (wz_idx < (int)tools.get_count()) {
-				dirty = true;
 				// change tool
 				werkzeug_t *tool = tools[wz_idx].tool;
 				if(IS_LEFTRELEASE(ev)) {
@@ -154,10 +152,7 @@ bool werkzeug_waehler_t::infowin_event(const event_t *ev)
 
 		int xy = tool_icon_width*tool_icon_height;
 		tool_icon_disp_end = min(tool_icon_disp_start+xy, tools.get_count());
-		if(tool_icon_disp_end-tool_icon_disp_start<xy) {
-			// Needs this to redraw empty space ?
-			welt->set_dirty();
-		}
+
 		set_fenstergroesse( koord( tool_icon_width*icon.x, min(tool_icon_height, ((tools.get_count()-1)/tool_icon_width)+1)*icon.y+D_TITLEBAR_HEIGHT ) );
 		dirty = true;
 	}
@@ -195,6 +190,10 @@ void werkzeug_waehler_t::zeichnen(koord pos, koord)
 			tools[i].selected = tools[i].tool->is_selected(welt);
 		}
 	}
+	if (dirty  &&  (tool_icon_disp_end-tool_icon_disp_start < tool_icon_width*tool_icon_height) ) {
+		// mark empty space empty
+		mark_rect_dirty_wc(pos.x, pos.y, pos.x + tool_icon_width*icon.x, pos.y + tool_icon_height*icon.y);
+	}
 
 	// tooltips?
 	const sint16 mx = get_maus_x();
@@ -209,6 +208,8 @@ void werkzeug_waehler_t::zeichnen(koord pos, koord)
 	}
 
 	dirty = false;
+	//as we do not call gui_frame_t::zeichnen, we reset dirty flag explicitly
+	unset_dirty();
 }
 
 

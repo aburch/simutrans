@@ -127,7 +127,9 @@ private:
 	COLOR_VAL color_transparent;
 
 protected:
-	void set_dirty() { dirty=1; }
+	void set_dirty() { dirty=true; }
+
+	void unset_dirty() { dirty=false; }
 
 	/**
 	 * resize window in response to a resize event

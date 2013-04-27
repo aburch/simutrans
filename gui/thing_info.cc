@@ -48,8 +48,6 @@ ding_infowin_t::ding_infowin_t(const ding_t* ding) :
  */
 void ding_infowin_t::zeichnen(koord pos, koord gr)
 {
-	set_dirty();
-
 	buf.clear();
 	info(buf);
 	textarea.recalc_size();
