@@ -5772,22 +5772,6 @@ void karte_t::move_cursor(const event_t *ev)
 }
 
 
-bool karte_t::is_background_visible() const
-{
-
-	sint32 i,j;
-
-	if ( get_ground_on_screen_coordinate(koord(0,0),i,j)  &&  \
-		 get_ground_on_screen_coordinate(koord(display_get_width()-1,0),i,j)  &&  \
-		 get_ground_on_screen_coordinate(koord(0,display_get_height()-1),i,j)  &&  \
-		 get_ground_on_screen_coordinate(koord(display_get_width()-1,display_get_height()-1),i,j)  ) {
-		return false;
-	}
-
-	return true;
-}
-
-
 /* creates a new player with this type */
 const char *karte_t::new_spieler(uint8 new_player, uint8 type)
 {

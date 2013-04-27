@@ -173,11 +173,6 @@ private:
 	 */
 	bool dirty;
 
-	/*
-	 * Redraw background.
-	 */
-	bool background_dirty;
-
 	/**
 	 * The rotation of the map when first loaded.
 	 */
@@ -865,26 +860,6 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	bool is_dirty() const {return dirty;}
-
-	/**
-	 * background_dirty: redraw background.
-	 */
-	void set_background_dirty() {background_dirty=true;}
-
-	/**
-	 * background_dirty: redraw whole screen.
-	 */
-	bool is_background_dirty() const {return background_dirty;}
-
-	/**
-	 * background_dirty: redraw background.
-	 */
-	void unset_background_dirty() {background_dirty=false;}
-
-	/**
-	 * @return true if the current viewport contains regions outside the world.
-	 */
-	bool is_background_visible() const;
 
 	// do the internal accounting
 	void buche(sint64 betrag, player_cost type);

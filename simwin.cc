@@ -696,10 +696,6 @@ static void destroy_framed_win(simwin_t *wins)
 		}
 		delete wins->gui;
 	}
-	// set dirty flag to refill background
-	if(wl) {
-		wl->set_background_dirty();
-	}
 }
 
 
@@ -1045,10 +1041,6 @@ void move_win(int win, event_t *ev)
 	// need to mark all of old and new positions dirty
 	mark_rect_dirty_wc( from_pos.x, from_pos.y, from_pos.x+from_gr.x, from_pos.y+from_gr.y );
 	mark_rect_dirty_wc( to_pos.x, to_pos.y, to_pos.x+to_gr.x, to_pos.y+to_gr.y );
-	// set dirty flag to refill background
-	if(wl) {
-		wl->set_background_dirty();
-	}
 
 	change_drag_start( delta.x, delta.y );
 }
@@ -1075,10 +1067,6 @@ void resize_win(int win, event_t *ev)
 
 	// since we may be smaller afterwards
 	mark_rect_dirty_wc( from_pos.x, from_pos.y, from_pos.x+from_gr.x, from_pos.y+from_gr.y );
-	// set dirty flag to refill background
-	if(wl) {
-		wl->set_background_dirty();
-	}
 
 	// adjust event mouse koord per snap
 	wev.mx = wev.cx + to_gr.x - from_gr.x;
@@ -1407,13 +1395,7 @@ void win_display_flush(double konto)
 	show_ticker = false;
 	if (!ticker::empty()) {
 		ticker::zeichnen();
-		if (ticker::empty()) {
-			// set dirty background for removing ticker
-			if(wl) {
-				wl->set_background_dirty();
-			}
-		}
-		else {
+		if(!ticker::empty()) {
 			show_ticker = true;
 			// need to adapt tooltip_y coordinates
 			tooltip_ypos = min(tooltip_ypos, disp_height-15-10-16);
@@ -1437,17 +1419,11 @@ void win_display_flush(double konto)
 				if(  !tooltip_owner  ||  ((elapsed_time=dr_time()-tooltip_register_time)>umgebung_t::tooltip_delay  &&  elapsed_time<=umgebung_t::tooltip_delay+umgebung_t::tooltip_duration)  ) {
 					const sint16 width = proportional_string_width(tooltip_text)+7;
 					display_ddd_proportional_clip(min(tooltip_xpos,disp_width-width), max(menu_height+7,tooltip_ypos), width, 0, umgebung_t::tooltip_color, umgebung_t::tooltip_textcolor, tooltip_text, true);
-					if(wl) {
-						wl->set_background_dirty();
-					}
 				}
 			}
 			else if(static_tooltip_text!=NULL  &&  *static_tooltip_text) {
 				const sint16 width = proportional_string_width(static_tooltip_text)+7;
 				display_ddd_proportional_clip(min(get_maus_x()+16,disp_width-width), max(menu_height+7,get_maus_y()-16), width, 0, umgebung_t::tooltip_color, umgebung_t::tooltip_textcolor, static_tooltip_text, true);
-				if(wl) {
-					wl->set_background_dirty();
-				}
 			}
 			// Knightly : reset owner and group if no tooltip has been registered
 			if(  !tooltip_text  ) {
