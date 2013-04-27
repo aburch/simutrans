@@ -3597,15 +3597,15 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
  * Zeichnet schattiertes Rechteck
  * @author Hj. Malthaner
  */
-void display_ddd_box(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL tl_color, PLAYER_COLOR_VAL rd_color)
+void display_ddd_box(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL tl_color, PLAYER_COLOR_VAL rd_color, bool dirty)
 {
-	display_fillbox_wh(x1, y1,         w, 1, tl_color, true);
-	display_fillbox_wh(x1, y1 + h - 1, w, 1, rd_color, true);
+	display_fillbox_wh(x1, y1,         w, 1, tl_color, dirty);
+	display_fillbox_wh(x1, y1 + h - 1, w, 1, rd_color, dirty);
 
 	h -= 2;
 
-	display_vline_wh(x1,         y1 + 1, h, tl_color, true);
-	display_vline_wh(x1 + w - 1, y1 + 1, h, rd_color, true);
+	display_vline_wh(x1,         y1 + 1, h, tl_color, dirty);
+	display_vline_wh(x1 + w - 1, y1 + 1, h, rd_color, dirty);
 }
 
 

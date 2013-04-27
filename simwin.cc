@@ -830,10 +830,10 @@ void display_win(int win)
 	if(umgebung_t::window_frame_active  &&  (unsigned)win==wins.get_count()-1) {
 		const int y_off = wins[win].flags.title ? 0 : 16;
 		if(!wins[win].rollup) {
-			display_ddd_box( wins[win].pos.x-1, wins[win].pos.y-1 + y_off, gr.x+2, gr.y+2 - y_off, title_color, title_color+1 );
+			display_ddd_box( wins[win].pos.x-1, wins[win].pos.y-1 + y_off, gr.x+2, gr.y+2 - y_off, title_color, title_color+1, wins[win].gui->is_dirty() );
 		}
 		else {
-			display_ddd_box( wins[win].pos.x-1, wins[win].pos.y-1 + y_off, gr.x+2, 18 - y_off, title_color, title_color+1 );
+			display_ddd_box( wins[win].pos.x-1, wins[win].pos.y-1 + y_off, gr.x+2, 18 - y_off, title_color, title_color+1, wins[win].gui->is_dirty() );
 		}
 	}
 	if(!wins[win].rollup) {

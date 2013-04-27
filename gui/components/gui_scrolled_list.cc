@@ -212,7 +212,7 @@ void gui_scrolled_list_t::zeichnen(koord pos)
 	}
 
 	display_fillbox_wh(x,y,w,h, MN_GREY3, true);
-	display_ddd_box(x,y-1,w,h+2, COL_BLACK, COL_WHITE);
+	display_ddd_box(x,y-1,w,h+2, COL_BLACK, COL_WHITE, true);
 
 	PUSH_CLIP(x+1,y+1,w-2,h-2);
 	int ycum = y+2-offset; // y cumulative
