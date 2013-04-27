@@ -24,11 +24,13 @@ private:
 
 	karte_t *welt;
 
-	/**
-	* The tool definitions
-	* @author Hj. Malthaner
-	*/
-	vector_tpl<werkzeug_t *> tools;
+	struct tool_data_t {
+		tool_data_t(werkzeug_t* t=NULL) : tool(t), selected(false) {}
+		werkzeug_t* tool; ///< pointer to associated tool
+		bool selected;    ///< store whether tool was active during last call to werkzeug_waehler_t::zeichnen
+	};
+	/// tool definitions
+	vector_tpl<tool_data_t> tools;
 
 	// get current toolbar nummer for saving
 	uint32 toolbar_id;

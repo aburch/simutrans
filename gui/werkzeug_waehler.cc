@@ -113,15 +113,16 @@ bool werkzeug_waehler_t::infowin_event(const event_t *ev)
 			if (wz_idx < (int)tools.get_count()) {
 				dirty = true;
 				// change tool
+				werkzeug_t *tool = tools[wz_idx].tool;
 				if(IS_LEFTRELEASE(ev)) {
-					welt->set_werkzeug( tools[wz_idx], welt->get_active_player() );
+					welt->set_werkzeug( tool, welt->get_active_player() );
 				}
 				else {
 					// right-click on toolbar icon closes toolbars and dialogues. Resets selectable simple and general tools to the query-tool
-					if (tools[wz_idx]  &&  tools[wz_idx]->is_selected(welt)  ) {
+					if (tool  &&  tool->is_selected(welt)  ) {
 						// ->exit triggers werkzeug_waehler_t::infowin_event in the closing toolbar,
 						// which resets active tool to query tool
-						if(  tools[wz_idx]->exit(welt, welt->get_active_player())  ) {
+						if(  tool->exit(welt, welt->get_active_player())  ) {
 							welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], welt->get_active_player() );
 						}
 					}
@@ -132,8 +133,8 @@ bool werkzeug_waehler_t::infowin_event(const event_t *ev)
 	}
 	// this resets to query-tool, when closing toolsbar - but only for selected general tools in the closing toolbar
 	else if(ev->ev_class==INFOWIN &&  ev->ev_code==WIN_CLOSE) {
-		FOR(vector_tpl<werkzeug_t*>, const i, tools) {
-			if (i->is_selected(welt) && i->get_id() & GENERAL_TOOL) {
+		FOR(vector_tpl<tool_data_t>, const i, tools) {
+			if (i.tool->is_selected(welt) && i.tool->get_id() & GENERAL_TOOL) {
 				welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], welt->get_active_player() );
 				break;
 			}
@@ -168,7 +169,7 @@ void werkzeug_waehler_t::zeichnen(koord pos, koord)
 {
 	spieler_t *sp = welt->get_active_player();
 	for(  uint i = tool_icon_disp_start;  i < tool_icon_disp_end;  i++  ) {
-		const image_id icon_img = tools[i]->get_icon(sp);
+		const image_id icon_img = tools[i].tool->get_icon(sp);
 
 		const koord draw_pos=pos+koord(((i-tool_icon_disp_start)%tool_icon_width)*icon.x,16+((i-tool_icon_disp_start)/tool_icon_width)*icon.y);
 		if(icon_img == IMG_LEER) {
@@ -187,8 +188,11 @@ void werkzeug_waehler_t::zeichnen(koord pos, koord)
 			display_fillbox_wh(draw_pos.x+icon.x-1, draw_pos.y, 1, icon.y, MN_GREY0, dirty);
 		}
 		else {
-			display_color_img(icon_img, draw_pos.x, draw_pos.y, 0, false, dirty);
-			tools[i]->draw_after( welt, draw_pos, dirty );
+			bool tool_dirty = dirty  ||  tools[i].tool->is_selected(welt) ^ tools[i].selected;
+			display_color_img(icon_img, draw_pos.x, draw_pos.y, 0, false, tool_dirty);
+			tools[i].tool->draw_after( welt, draw_pos, tool_dirty);
+			// store whether tool was selected
+			tools[i].selected = tools[i].tool->is_selected(welt);
 		}
 	}
 
@@ -200,7 +204,7 @@ void werkzeug_waehler_t::zeichnen(koord pos, koord)
 	if(xdiff>=0  &&  xdiff<tool_icon_width  &&  ydiff>=0  &&  mx>=pos.x  &&  my>=pos.y+16) {
 		const int tipnr = xdiff+(tool_icon_width*ydiff)+tool_icon_disp_start;
 		if (tipnr < (int)tool_icon_disp_end) {
-			win_set_tooltip(get_maus_x() + 16, pos.y + 16 + ((ydiff+1)*icon.y) + 12, tools[tipnr]->get_tooltip(welt->get_active_player()), tools[tipnr], this);
+			win_set_tooltip(get_maus_x() + 16, pos.y + 16 + ((ydiff+1)*icon.y) + 12, tools[tipnr].tool->get_tooltip(welt->get_active_player()), tools[tipnr].tool, this);
 		}
 	}
 
@@ -211,8 +215,8 @@ void werkzeug_waehler_t::zeichnen(koord pos, koord)
 
 bool werkzeug_waehler_t::empty(spieler_t *sp) const
 {
-	FOR(vector_tpl<werkzeug_t *>, w, tools) {
-		if (w->get_icon(sp) != IMG_LEER) {
+	FOR(vector_tpl<tool_data_t>, w, tools) {
+		if (w.tool->get_icon(sp) != IMG_LEER) {
 			return false;
 		}
 	}
