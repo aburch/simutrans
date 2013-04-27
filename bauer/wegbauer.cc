@@ -94,7 +94,9 @@ static void set_default(weg_besch_t const*& def, waytype_t const wtyp, sint32 co
 static void set_default(weg_besch_t const*& def, waytype_t const wtyp, weg_t::system_type const system_type, sint32 const speed_limit = 1)
 {
 	set_default(def, wtyp, speed_limit);
-	if (def) return;
+	if (def) {
+		return;
+	}
 	def = wegbauer_t::weg_search(wtyp, 1, 0, system_type);
 }
 
@@ -103,6 +105,11 @@ bool wegbauer_t::alle_wege_geladen()
 {
 	// some defaults to avoid hardcoded values
 	set_default(strasse_t::default_strasse,         road_wt,        weg_t::type_flat, 50);
+	if(  strasse_t::default_strasse == NULL ) {
+		dbg->fatal( "wegbauer_t::alle_wege_geladen()", "No road found at all!" );
+		return false;
+	}
+
 	set_default(schiene_t::default_schiene,         track_wt,       weg_t::type_flat, 80);
 	set_default(monorail_t::default_monorail,       monorail_wt,    weg_t::type_elevated); // Only elevated?
 	set_default(maglev_t::default_maglev,           maglev_wt,      weg_t::type_elevated); // Only elevated?
@@ -110,6 +117,7 @@ bool wegbauer_t::alle_wege_geladen()
 	set_default(kanal_t::default_kanal,             water_wt,       weg_t::type_all); // Also find hidden rivers.
 	set_default(runway_t::default_runway,           air_wt);
 	set_default(wegbauer_t::leitung_besch,          powerline_wt);
+
 	return true;
 }
 
