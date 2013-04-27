@@ -80,8 +80,8 @@ void loadingscreen_t::display()
 		}
 
 		// outline
-		display_ddd_box( quarter_width-2, half_height-9, half_width+4, 20, COL_GREY6, COL_GREY4 );
-		display_ddd_box( quarter_width-1, half_height-8, half_width+2, 18, COL_GREY4, COL_GREY6 );
+		display_ddd_box( quarter_width-2, half_height-9, half_width+4, 20, COL_GREY6, COL_GREY4, true );
+		display_ddd_box( quarter_width-1, half_height-8, half_width+2, 18, COL_GREY4, COL_GREY6, true );
 
 		// inner
 		display_fillbox_wh( quarter_width, half_height - 7, half_width, 16, COL_GREY5, true);
