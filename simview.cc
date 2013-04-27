@@ -262,6 +262,7 @@ void karte_ansicht_t::display(bool force_dirty)
 	ding_t *zeiger = welt->get_zeiger();
 	DBG_DEBUG4("karte_ansicht_t::display", "display pointer");
 	if(zeiger) {
+		bool dirty = zeiger->get_flag(ding_t::dirty);
 		// better not try to twist your brain to follow the retransformation ...
 		const koord diff = zeiger->get_pos().get_2d()-welt->get_world_position()-welt->get_view_ij_offset();
 		const sint16 x = (diff.x-diff.y)*(IMG_SIZE/2) + const_x_off;
@@ -273,17 +274,17 @@ void karte_ansicht_t::display(bool force_dirty)
 				const PLAYER_COLOR_VAL transparent = TRANSPARENT25_FLAG|OUTLINE_FLAG| umgebung_t::cursor_overlay_color;
 				if(  gr->get_bild()==IMG_LEER  ) {
 					if(  gr->hat_wege()  ) {
-						display_img_blend( gr->obj_bei(0)->get_bild(), x, y, transparent, 0, true );
+						display_img_blend( gr->obj_bei(0)->get_bild(), x, y, transparent, 0, dirty );
 					}
 					else {
-						display_img_blend( grund_besch_t::get_ground_tile(0,gr->get_hoehe()), x, y, transparent, 0, true );
+						display_img_blend( grund_besch_t::get_ground_tile(0,gr->get_hoehe()), x, y, transparent, 0, dirty );
 					}
 				}
 				else if(  gr->get_typ()==grund_t::wasser  ) {
-					display_img_blend( grund_besch_t::sea->get_bild(gr->get_bild(),wasser_t::stage), x, y, transparent, 0, true );
+					display_img_blend( grund_besch_t::sea->get_bild(gr->get_bild(),wasser_t::stage), x, y, transparent, 0, dirty );
 				}
 				else {
-					display_img_blend( gr->get_bild(), x, y, transparent, 0, true );
+					display_img_blend( gr->get_bild(), x, y, transparent, 0, dirty );
 				}
 			}
 		}
