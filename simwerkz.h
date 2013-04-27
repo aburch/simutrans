@@ -600,6 +600,9 @@ public:
 	bool is_selected(karte_t const* const welt) const OVERRIDE { return welt->is_fast_forward(); }
 	bool init( karte_t *welt, spieler_t * ) {
 		if(  !umgebung_t::networkmode  ) {
+			if(  welt->is_fast_forward()  &&  umgebung_t::simple_drawing_fast_forward  ) {
+				welt->set_dirty();
+			}
 			welt->set_pause(0);
 			welt->set_fast_forward( welt->is_fast_forward()^1 );
 		}
