@@ -243,6 +243,10 @@ void spieler_t::display_messages()
 		const sint16 x = (ij.x-ij.y)*(raster/2) + welt->get_x_off();
 		const sint16 y = (ij.x+ij.y)*(raster/4) + (m->alter >> 4) - tile_raster_scale_y( welt->lookup_hgt(m->pos)*TILE_HEIGHT_STEP, raster) + yoffset;
 		display_shadow_proportional( x, y, PLAYER_FLAG|(kennfarbe1+3), COL_BLACK, m->str, true);
+		if(  m->pos.x < 3  ||  m->pos.y < 3  ) {
+			// very close to border => renew vackground
+			welt->set_background_dirty();
+		}
 	}
 }
 

@@ -402,31 +402,6 @@ grund_t::~grund_t()
 }
 
 
-uint8 grund_t::get_border_direction() const
-{
-	uint8 border = 0;
-
-	// since we rotate the coordinate allways with us, detecting a border is straight forward
-	if( pos.x == 0 ) {
-		border |= ribi_t::west;
-	}
-
-	if( pos.y == 0 ) {
-		border |= ribi_t::nord;
-	}
-
-	if( pos.x == welt->get_size().x-1 ) {
-		border |= ribi_t::ost;
-	}
-
-	if( pos.y == welt->get_size().y-1 ) {
-		border |= ribi_t::sued;
-	}
-
-	return border;
-}
-
-
 void grund_t::sort_trees()
 {
 	if (get_typ() != boden) {
@@ -977,69 +952,15 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 }
 
 
-void grund_t::display_border(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, const uint8 border_direction)
+void grund_t::display_if_visible(sint16 xpos, sint16 ypos, sint16 raster_tile_width)
 {
-	if(  !ist_karten_boden()  ){
-		return;
-	}
 
-	const sint16 halfwidth = raster_tile_width>>1;
-#ifndef DOUBLE_GROUNDS
-	// since the image of a ground is in the lower right edge (hopefully)
-	const sint16 y_offset = ypos + (raster_tile_width*3) / 4;
-#else
-	// warning, most likely wrong!
-	const sint16 y_imp_offset = ypos + tile_raster_scale_y( TILE_HEIGHT_STEP*3, raster_tile_width);
-#endif
-
-	// the north and sout tiles need extra correction, since the 2D images will start differently
-	const sint16 west_corner_height = y_offset - tile_raster_scale_y( corner1(slope)*TILE_HEIGHT_STEP,raster_tile_width);
-	const sint16 east_corner_height = y_offset - tile_raster_scale_y( corner3(slope)*TILE_HEIGHT_STEP,raster_tile_width);
-	const sint16 north_corner_height = y_offset - tile_raster_scale_y( corner4(slope)*TILE_HEIGHT_STEP,raster_tile_width) - (raster_tile_width / 8);
-	const sint16 south_corner_height = y_offset - tile_raster_scale_y( corner2(slope)*TILE_HEIGHT_STEP,raster_tile_width) + (raster_tile_width / 8);
-
-	// We'll paint 8*height from the center of the tile upwards, size width/2 on top borders (west and north)
-	if(  border_direction & ribi_t::west  ) {
-		const sint16 y_corner = max(west_corner_height,north_corner_height);
-		display_fillbox_wh_clip( xpos, y_corner-halfwidth, halfwidth, halfwidth, umgebung_t::background_color, get_flag(dirty) );
-		if(  get_flag(dirty)  ) {
-			// to catch high flying planes, mark more dirty
-			mark_rect_dirty_wc( xpos, y_corner-raster_tile_width*3, xpos+raster_tile_width, y_corner );
-		}
-	}
-
-	if(  border_direction & ribi_t::nord  ) {
-		const sint16 y_corner = max(north_corner_height,east_corner_height);
-		display_fillbox_wh_clip( xpos + halfwidth, y_corner-halfwidth, halfwidth, halfwidth, umgebung_t::background_color, false );
-		if(  get_flag(dirty)  ) {
-			// to catch high flying planes, mark more dirty
-			mark_rect_dirty_wc( xpos, y_corner-raster_tile_width*3, xpos+raster_tile_width, y_corner );
-		}
-	}
-
-	// We'll paint 8*height from the center of the tile downwards, size width/2 on bottom borders (south and east)
-	if(  border_direction & ribi_t::ost  ) {
-		display_fillbox_wh_clip( xpos + halfwidth, min(south_corner_height,east_corner_height), halfwidth, raster_tile_width, umgebung_t::background_color, get_flag(dirty) );
-	}
-
-	if(  border_direction & ribi_t::sued  ) {
-		display_fillbox_wh_clip( xpos, min(west_corner_height,south_corner_height), halfwidth, raster_tile_width, umgebung_t::background_color, get_flag(dirty) );
-	}
-}
-
-
-void grund_t::display_if_visible( sint16 xpos, sint16 ypos, sint16 raster_tile_width )
-{
 	if(  !is_karten_boden_visible()  ) {
 		return;
 	}
 
-	if(  const uint8 border = get_border_direction()  ) {
-		display_border( xpos, ypos, raster_tile_width, border );
-	}
-
 	if(!get_flag(grund_t::draw_as_ding)) {
-		display_boden( xpos, ypos, raster_tile_width );
+		display_boden(xpos, ypos, raster_tile_width);
 	}
 }
 

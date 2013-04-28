@@ -302,8 +302,8 @@ uint32 vehikel_basis_t::fahre_basis(uint32 distance)
 	}
 	// ok, so moving ...
 	if(  !get_flag(ding_t::dirty)  ) {
-		mark_image_dirty(get_bild(),hoff);
-		set_flag(ding_t::dirty);
+		mark_image_dirty( bild, hoff );
+		set_flag( ding_t::dirty );
 	}
 
 	grund_t *gr = NULL; // if hopped, then this is new position

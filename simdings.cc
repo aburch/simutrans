@@ -316,14 +316,21 @@ void ding_t::display_after(int xpos, int ypos, bool) const
 void ding_t::mark_image_dirty(image_id bild,sint16 yoff) const
 {
 	if(bild!=IMG_LEER) {
+		const sint16 rasterweite = get_tile_raster_width();
 		int xpos=0, ypos=0;
 		if(  is_moving()  ) {
 			vehikel_basis_t const* const v = ding_cast<vehikel_basis_t>(this);
 			// vehicles need finer steps to appear smoother
 			v->get_screen_offset( xpos, ypos, get_tile_raster_width() );
 		}
+		// too close to border => set dirty to be sure (smoke, skyscrapes, birds, or the like)
+		KOORD_VAL dummy, ybild;
+		display_get_image_offset( bild, &dummy, &ybild, &dummy, &dummy );
+		const sint16 distance_to_border = 3 - (yoff+get_yoff()+ybild)/(rasterweite/4);
+		if(  pos.x <= distance_to_border  ||  pos.y <= distance_to_border  ) {
+			welt->set_background_dirty();
+		}
 		// better not try to twist your brain to follow the retransformation ...
-		const sint16 rasterweite=get_tile_raster_width();
 		const koord diff = get_pos().get_2d()-welt->get_world_position()-welt->get_view_ij_offset();
 		const sint16 x = (diff.x-diff.y)*(rasterweite/2) + tile_raster_scale_x(get_xoff(), rasterweite) + xpos;
 		const sint16 y = (diff.x+diff.y)*(rasterweite/4) + tile_raster_scale_y( yoff+get_yoff()-get_pos().z*TILE_HEIGHT_STEP, rasterweite) + ((display_get_width()/rasterweite)&1)*(rasterweite/4) + ypos;
