@@ -100,9 +100,9 @@ void karte_ansicht_t::display(bool force_dirty)
 	// redraw everything?
 	force_dirty = force_dirty || welt->is_dirty();
 	welt->unset_dirty();
-
 	if(force_dirty) {
 		mark_rect_dirty_wc( 0, 0, display_get_width(), display_get_height() );
+		welt->set_background_dirty();
 		force_dirty = false;
 	}
 
@@ -148,6 +148,11 @@ void karte_ansicht_t::display(bool force_dirty)
 	// fill everything with black for Underground mode ...
 	if( grund_t::underground_mode ) {
 		display_fillbox_wh(0, menu_height, disp_width, disp_height-menu_height, COL_BLACK, force_dirty);
+	}
+	else if( welt->is_background_dirty()  &&  outside_visible  ) {
+		// we check if background will be visible, no need to clear screen if it's not.
+		display_fillbox_wh(0, menu_height, disp_width, disp_height-menu_height, umgebung_t::background_color, force_dirty );
+		welt->unset_background_dirty();
 	}
 	// to save calls to grund_t::get_disp_height
 	// gr->get_disp_height() == min(gr->get_hoehe(), hmax_ground)
@@ -302,7 +307,7 @@ void karte_ansicht_t::display(bool force_dirty)
 }
 
 
-// This one does the actual display
+
 void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const sint16 y_max, bool force_dirty, bool threaded )
 {
 	const sint16 IMG_SIZE = get_tile_raster_width();
@@ -337,9 +342,6 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 	bool lock_restore_grid = false;	// true while showing grid
 	bool lock_restore_hiding = false; // true while hiding buildings/trees around cursor
 	const bool needs_hiding = !umgebung_t::hide_trees  |  (umgebung_t::hide_buildings != umgebung_t::ALL_HIDDEN_BUIDLING);
-
-	sint16 outside_min_x = 32676, outside_max_x = 0;
-	sint16 outside_min_y = 32676, outside_max_y = 0;
 
 	for( int y=y_min;  y<y_max;  y++  ) {
 
@@ -397,9 +399,8 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 					}
 				}
 				else {
-					// outside
-					const sint16 yypos = ypos - tile_raster_scale_y( welt->get_grundwasser()*TILE_HEIGHT_STEP, IMG_SIZE) + (IMG_SIZE*3)/4;
-					display_fillbox_wh_clip( xpos, yypos, IMG_SIZE, IMG_SIZE/4, umgebung_t::background_color, force_dirty );
+					// check if ouside visible
+					outside_visible = true;
 				}
 			}
 		}
