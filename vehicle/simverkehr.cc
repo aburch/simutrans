@@ -608,6 +608,14 @@ bool stadtauto_t::ist_weg_frei(grund_t *gr)
 		return false;
 	}
 
+	// Is this road a bridleway? 
+	// An axle limit of zero prevents all private car traffic.
+	if(str->get_max_axle_load() < 1)
+	{
+		time_to_life = 0;
+		return false;
+	}
+
 	const spieler_t *sp = str->get_besitzer();
 
 	if(sp != NULL && sp->get_player_nr() != 1 && !sp->allows_access_to(1))
