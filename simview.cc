@@ -398,7 +398,6 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 				}
 				else {
 					// outside
-					static uint8 color = 0;
 					const sint16 yypos = ypos - tile_raster_scale_y( welt->get_grundwasser()*TILE_HEIGHT_STEP, IMG_SIZE) + (IMG_SIZE*3)/4;
 					display_fillbox_wh_clip( xpos, yypos, IMG_SIZE, IMG_SIZE/4, umgebung_t::background_color, force_dirty );
 				}
