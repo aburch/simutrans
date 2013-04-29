@@ -514,6 +514,8 @@ public:
 	/**
 	 * sucht umliegende, erreichbare fabriken und baut daraus die
 	 * Fabrikliste auf.
+	 * "Surrounding searches, achievable factories and builds the
+	 * factory list." (Google)
 	 * @author Hj. Malthaner
 	 */
 	void verbinde_fabriken();
@@ -654,7 +656,9 @@ public:
 	 */
 	uint32 get_ware_fuer_zielpos(const ware_besch_t *warentyp, const koord zielpos) const;
 
-	// true, if we accept/deliver this kind of good
+	/** 
+	* True if we accept/deliver this kind of good
+	*/
 	bool gibt_ab(const ware_besch_t *warentyp) const { return waren[warentyp->get_catg_index()] != NULL; }
 
 	/* retrieves a ware packet for any destination in the list

@@ -1000,9 +1000,9 @@ vehikel_t::unload_freight(halthandle_t halt)
 bool vehikel_t::load_freight(halthandle_t halt, bool overcrowd)
 {
 	const bool ok = halt->gibt_ab(besch->get_ware());
-	schedule_t *fpl = cnv->get_schedule();
-	if( ok ) 
+	if(ok) 
 	{
+		schedule_t *fpl = cnv->get_schedule();
 		uint16 total_capacity = besch->get_zuladung() + (overcrowd ? besch->get_overcrowded_capacity() : 0);
 		DBG_DEBUG4("vehikel_t::load_freight", "total_freight %d < total_capacity %d", total_freight, total_capacity);
 		while(total_freight < total_capacity) //"Payload" (Google)

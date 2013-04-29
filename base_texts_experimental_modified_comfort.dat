@@ -1,0 +1,10 @@
+# Simutranslator settings for Simutrans-Experimental texts
+# Addendum for the modified comfort display in the depot/replace windows
+#
+# Author: jamespetts
+# Created: April 2013
+#
+obj=program_text
+name=Modified comfort
+note=Text in the depot/replace window for the comfort rating (followed in brackets by the maximum comfortable journey time) as modified to take into account this vehicle's catering level.
+-

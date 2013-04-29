@@ -118,9 +118,9 @@ halthandle_t haltestelle_t::get_halt(const karte_t *welt, const koord pos, const
 				if(plan->get_haltlist()[i]->get_besitzer() == sp) 
 				{
 					const uint16 distance_to_dock = shortest_distance(pos, plan->get_haltlist()[i]->get_next_pos(pos));
-					if(distance_to_dock <= welt->get_settings().get_station_coverage_factories())
+					if(distance_to_dock <= 1)
 					{
-							return plan->get_haltlist()[i];
+						return plan->get_haltlist()[i];
 					}
 				}
 			}
@@ -132,7 +132,7 @@ halthandle_t haltestelle_t::get_halt(const karte_t *welt, const koord pos, const
 				if(plan->get_haltlist()[i]->check_access(sp)) 
 				{
 					const uint16 distance_to_dock = shortest_distance(pos, plan->get_haltlist()[i]->get_next_pos(pos));
-					if(distance_to_dock <= welt->get_settings().get_station_coverage_factories())
+					if(distance_to_dock <= 1)
 					{
 							return plan->get_haltlist()[i];
 					}
@@ -239,7 +239,7 @@ halthandle_t haltestelle_t::get_halt(const karte_t *welt, const koord3d pos, con
 
 				halthandle_t halt = plan->get_haltlist()[i];
 				const uint16 distance_to_dock = shortest_distance(pos, plan->get_haltlist()[i]->get_next_pos(pos));
-				if(halt->get_besitzer() == sp  && distance_to_dock <= welt->get_settings().get_station_coverage_factories() && halt->get_station_type() & dock)
+				if(halt->get_besitzer() == sp  && distance_to_dock <= 1 && halt->get_station_type() & dock)
 				{
 					return halt;
 				}
@@ -251,7 +251,7 @@ halthandle_t haltestelle_t::get_halt(const karte_t *welt, const koord3d pos, con
 			{
 				halthandle_t halt = plan->get_haltlist()[i];
 				const uint16 distance_to_dock = shortest_distance(pos, plan->get_haltlist()[i]->get_next_pos(pos));
-				if(halt->check_access(sp) && distance_to_dock <= welt->get_settings().get_station_coverage_factories() && halt->get_station_type() & dock) 
+				if(halt->check_access(sp) && distance_to_dock <= 1 && halt->get_station_type() & dock) 
 				{
 					return halt;
 				}
@@ -1244,7 +1244,7 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 			if(plan && plan->is_connected(self)) 
 			{
 				// we are already there!
-				if(  ware.to_factory  )
+				if(ware.to_factory)
 				{
 					liefere_an_fabrik(ware);
 				}
@@ -1612,8 +1612,17 @@ void haltestelle_t::add_pax_no_route(int n)
 
 void haltestelle_t::liefere_an_fabrik(const ware_t& ware) const //"deliver to the factory" (Google)
 {
-	fabrik_t *const factory = fabrik_t::get_fab( welt, ware.get_zielpos() );
-	if(  factory  ) {
+	fabrik_t *const factory = fabrik_t::get_fab(welt, ware.get_zielpos());
+	if(factory) 
+	{
+		if(ware.is_freight())
+		{
+			// Check to see whether this is within range.
+			if(!fab_list.is_contained(factory))
+			{
+				return;
+			}
+		}
 		factory->liefere_an(ware.get_besch(), ware.menge);
 	}
 }
