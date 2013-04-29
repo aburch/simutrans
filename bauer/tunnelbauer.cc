@@ -399,7 +399,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 		tunnel->calc_bild();
 		tunnel->set_flag(grund_t::dirty);
 		assert(!tunnel->ist_karten_boden());
-		maint += besch->get_wartung()-weg->get_besch()->get_wartung(); 
+		maint += besch->get_wartung() - (weg ? weg->get_besch()->get_wartung() : 0);
 		cost += besch->get_preis();
 	}
 
