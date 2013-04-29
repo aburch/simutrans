@@ -1960,10 +1960,16 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 	// "Evaluation of the results" (Babelfish)
 	if(  !dist_list.empty()  ) {
 		distribute_ware_t *best = NULL;
-		FOR(vector_tpl<distribute_ware_t>, & i, dist_list) {
+		// Assume a fixed 1km/h transshipment time of goods to industries. This gives a minimum transfer time
+		// of 15 minutes for each stop at 125m/tile.
+		const uint32 transfer_journey_time_factor = (welt->get_settings().get_meters_per_tile() * 6u) * 10u;
+		FOR(vector_tpl<distribute_ware_t>, & i, dist_list) 
+		{
 			// now search route
-			const uint16 current_journey_time = i.halt->find_route(i.ware);
-			if (current_journey_time < 65535) 
+			const uint32 straight_line_distance = shortest_distance(pos, i.halt->get_next_pos(pos));
+			const uint16 transfer_time = (straight_line_distance * transfer_journey_time_factor) / 100u;
+			const uint16 current_journey_time = i.halt->find_route(i.ware) + transfer_time;
+			if(current_journey_time < 65535)
 			{
 				best = &i;
 				break;

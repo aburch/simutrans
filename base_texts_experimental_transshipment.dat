@@ -1,0 +1,10 @@
+# Simutranslator settings for Simutrans-Experimental texts
+# Addendum for a new transshipment option
+#
+# Author: jamespetts
+# Created: December 2012
+#
+obj=program_text
+name=Transshipment time: 
+note=The text in the halt detail window showing the goods transshipment time inside that stop.
+-
