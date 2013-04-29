@@ -1406,6 +1406,12 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 	// here the normal routing with overcrowded stops is done
 	while (!open_list.empty())
 	{
+		if(  overcrowded_nodes == open_list.get_count()  ) {
+			// all unexplored routes go over overcrowded stations
+			return ROUTE_OVERCROWDED;
+		}
+
+		// take node out of open list
 		route_node_t current_node = open_list.pop();
 		// do not use aggregate_weight as it is _not_ the weight of the current_node
 		// there might be a heuristic weight added
@@ -1414,10 +1420,6 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 		halt_data_t & current_halt_data = halt_data[ current_halt_id ];
 		overcrowded_nodes -= current_halt_data.overcrowded;
 
-		if(  overcrowded_nodes  &&  overcrowded_nodes == open_list.get_count()  ) {
-			// all route go over overcrowded stations
-			return ROUTE_OVERCROWDED;
-		}
 		if(  current_halt_data.destination  ) {
 			// destination found
 			ware.set_ziel( current_node.halt );
