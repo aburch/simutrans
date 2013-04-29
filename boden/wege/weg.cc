@@ -258,7 +258,7 @@ void weg_t::rdwr(loadsave_t *file)
 	if(file->get_experimental_version() >= 1)
 	{
 		if (max_axle_load > 32768) {
-			dbg->error("Max axle load out of range");
+			dbg->error("weg_t::rdwr()", "Max axle load out of range");
 		}
 		uint16 wdummy16 = max_axle_load;
 		file->rdwr_short(wdummy16);
