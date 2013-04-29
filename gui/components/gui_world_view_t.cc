@@ -9,6 +9,7 @@
 
 #include "gui_world_view_t.h"
 #include "../../simworld.h"
+#include "../../simview.h"
 #include "../../simdings.h"
 #include "../../simgraph.h"
 #include "../../simcolor.h"
@@ -111,6 +112,9 @@ void world_view_t::internal_draw(const koord offset, ding_t const* const ding)
 	 * mode. */
 	if(  grund_t::underground_mode  ) {
 		display_fillbox_wh(pos.x, pos.y, gr.x, gr.y, COL_BLACK, true);
+	}
+	else {
+		welt->get_view()->display_background(pos.x, pos.y, gr.x, gr.y, true);
 	}
 
 	const sint16 yoff = ding && ding->is_moving() ?
