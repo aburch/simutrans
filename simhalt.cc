@@ -3202,6 +3202,8 @@ void haltestelle_t::rdwr(loadsave_t *file)
 	if(file->get_experimental_version() >= 11)
 	{
 		file->rdwr_short(transfer_time);
+		// Set the transshipment speed to 1km/h.
+		transshipment_time = transfer_time * (uint16)welt->get_settings().get_walking_speed();
 	}
 	else
 	{
@@ -3954,6 +3956,11 @@ void haltestelle_t::calc_transfer_time()
 	const uint32 walking_journey_time_factor = (journey_time_adjustment * 100u) / (uint32)welt->get_settings().get_walking_speed();
 
 	transfer_time = ((ave_dimension / 2) * walking_journey_time_factor) / 100u;
+	
+	// This is a neat hack that allows us to set the transshipment time to exactly 1km/h. 
+	// TODO: Consider more sophisticated things here, such as allowing certain extensions to 
+	// reduce this transshipment time (convyer belts, etc.). 
+	transshipment_time = transfer_time * (uint16)welt->get_settings().get_walking_speed();
 }
 
 void haltestelle_t::add_waiting_time(uint16 time, halthandle_t halt, uint8 category, bool do_not_reset_month)

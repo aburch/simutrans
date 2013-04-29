@@ -135,6 +135,15 @@ private:
 	 */
 	uint16 transfer_time;
 
+	/* 
+	 * The time (in 10ths of seconds)
+	 * that it takes goods to be trans-shipped
+	 * inside this stop. This assumes a fixed
+	 * rate of 1km/h and is based on the size
+	 * of the stop.
+	 */
+	uint16 transshipment_time;
+
 public:
 	// add convoi to loading queue
 	void request_loading( convoihandle_t cnv );
@@ -882,7 +891,21 @@ public:
 
 	bool has_no_control_tower() const;
 
+	/**
+	* Get the time that it takes for passengers to transfer within this stop
+	* in 1/10ths of minutes.
+	*/
 	inline uint16 get_transfer_time() const { return transfer_time; }
+	
+	/**
+	* Get the time that it takes for goods to be transferred within this stop
+	* in 1/10ths of minutes.
+	*/
+	inline uint16 get_transshipment_time() const { return transshipment_time; }
+
+	/**
+	* Calculate the transfer and transshipment time values.
+	*/
 	void calc_transfer_time();
 };
 
