@@ -553,6 +553,9 @@ void brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, ko
 				// builds new way
 				weg = weg_t::alloc( besch->get_waytype() );
 				weg->set_besch( weg_besch );
+				weg->set_max_speed( besch->get_topspeed() );
+				weg->set_max_axle_load( besch->get_max_weight() );
+				weg->add_way_constraints(besch->get_way_constraints());
 				spieler_t::accounting( sp, -gr->neuen_weg_bauen( weg, ribi, sp ) -weg->get_besch()->get_preis(), end.get_2d(), COST_CONSTRUCTION);
 			}
 			gr->calc_bild();
