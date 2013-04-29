@@ -2511,7 +2511,7 @@ void stadt_t::check_all_private_car_routes()
 	route_t private_car_route;
 	automobil_t checker(welt);
 	private_car_destination_finder_t finder(welt, &checker, this);
-	private_car_route.find_route(welt, origin, &finder, welt->get_citycar_speed_average(), ribi_t::alle, 0, depth, true);
+	private_car_route.find_route(welt, origin, &finder, welt->get_citycar_speed_average(), ribi_t::alle, 1, depth, true);
 
 	check_road_connexions = false;
 }
@@ -5513,7 +5513,7 @@ private_car_destination_finder_t::private_car_destination_finder_t(karte_t *w, a
 	meters_per_tile_x100 = origin_city->get_welt()->get_settings().get_meters_per_tile() * 100; // For 100ths of a minute
 }
 
-bool private_car_destination_finder_t::ist_befahrbar( const grund_t* gr ) const
+bool private_car_destination_finder_t::ist_befahrbar(const grund_t* gr) const
 { 
 	// Check to see whether the road prohibits private cars
 	if(gr)

@@ -730,10 +730,13 @@ senke_t::~senke_t()
 
 void senke_t::step(long delta_t)
 {
-	if(fab==NULL && city==NULL) {
+	if(fab == NULL && city == NULL)
+	{
 		return;
 	}
-	if(delta_t==0) {
+
+	if(delta_t == 0) 
+	{
 		return;
 	}
 
@@ -752,7 +755,7 @@ void senke_t::step(long delta_t)
 		fab_power_demand = fab->step_power_demand();
 	}
 
-	if(city != NULL)
+	if(city)
 	{
 		const vector_tpl<fabrik_t*>& city_factories = city->get_city_factories();
 		ITERATE(city_factories, i)
@@ -782,7 +785,8 @@ void senke_t::step(long delta_t)
 			// Must use two passes here: first, check all those that don't have enough to supply 
 			// an equal share, then check those that do.
 
-			supply = city_substations->get_element(i)->get_power_load();
+			const powernet_t* net = city_substations->get_element(i)->get_net();
+			supply = net->get_supply() - net->get_demand();
 
 			if(supply < (shared_power_demand / (city_substations_number - checked_substations.get_count())))
 			{
@@ -827,9 +831,11 @@ void senke_t::step(long delta_t)
 		}
 	}
 
+	power_load = get_power_load();
+
 	if(supply_max)
 	{
-		shared_power_demand = get_power_load() ? get_power_load() : get_net()->get_supply();
+		shared_power_demand = get_net()->get_supply() - get_net()->get_demand();
 	}
 
 	// Add only this substation's share of the power. 
@@ -844,32 +850,35 @@ void senke_t::step(long delta_t)
 		load_proportion = (shared_power_demand * 100) / power_demand;
 	}
 
-	power_load = get_power_load();
-
 	/* Now actually feed the power through to the factories and city
 	 * Note that a substation cannot supply both a city and factory at once.
 	 */
-	if (fab != NULL && fab->get_city() == NULL)
+	if(fab && !fab->get_city())
 	{
 		// the connected fab gets priority access to the power supply if there's a shortage
 		// This should use 'min', but the current version of that in simtypes.h 
 		// would cast to signed int (12.05.10)  FIXME.
-		if (fab_power_demand < power_load) {
+		if(fab_power_demand < power_load) 
+		{
 			fab_power_load = fab_power_demand;
-		} else {
+		} 
+		else
+		{
 			fab_power_load = power_load;
 		}
-		fab->add_power( fab_power_load );
-		if (fab_power_demand > fab_power_load) {
+		fab->add_power(fab_power_load);
+		if (fab_power_demand > fab_power_load) 
+		{
 			// this allows subsequently stepped senke to supply demand
 			// which this senke couldn't
 			fab->add_power_demand( power_demand-fab_power_load );
 		}
 	}
-	if (power_load > fab_power_load) {
+	if (power_load > fab_power_load)
+	{
 		municipal_power_load = power_load - fab_power_load;
 	}
-	if(city != NULL)
+	if(city)
 	{
 		// everyone else splits power on a proportional basis -- brownouts!
 		const vector_tpl<fabrik_t*>& city_factories = city->get_city_factories();
@@ -914,7 +923,8 @@ void senke_t::step(long delta_t)
 	}
 
 	// Income rollover
-	if(max_einkommen>(2000<<11)) {
+	if(max_einkommen>(2000<<11)) 
+	{
 		get_besitzer()->buche(einkommen >> 11, get_pos().get_2d(), COST_POWERLINES);
 		einkommen = 0;
 		max_einkommen = 1;
