@@ -6039,7 +6039,7 @@ const char *wkz_make_stop_public_t::work( karte_t *welt, spieler_t *sp, koord3d 
 				// change maintenance and ownership
 				sint64 costs = w->get_besch()->get_wartung();
 
-				if(  gr->ist_im_tunnel()  ) 
+				if(gr->ist_im_tunnel()) 
 				{
 					tunnel_t *t = gr->find<tunnel_t>();
 					costs = t->get_besch()->get_wartung();
@@ -6050,6 +6050,20 @@ const char *wkz_make_stop_public_t::work( karte_t *welt, spieler_t *sp, koord3d 
 					else
 					{
 						t->set_besitzer(public_player);
+					}
+				}
+
+				if(gr->ist_bruecke())
+				{
+					bruecke_t* b = gr->find<bruecke_t>();
+					costs = b->get_besch()->get_wartung();
+					if(b->get_besitzer() == public_player)
+					{
+						b->set_besitzer(NULL);
+					}
+					else
+					{
+						b->set_besitzer(public_player);
 					}
 				}
 				

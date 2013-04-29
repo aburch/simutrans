@@ -131,23 +131,31 @@ void bruecke_t::laden_abschliessen()
 	}
 
 	spieler_t *sp=get_besitzer();
-	if(sp) {
-		// change maintenance
-		if(besch->get_waytype()!=powerline_wt) {
-			weg_t *weg = gr->get_weg(besch->get_waytype());
-			if(weg==NULL) {
-				dbg->error("bruecke_t::laden_abschliessen()","Bridge without way at(%s)!", gr->get_pos().get_str() );
-				weg = weg_t::alloc( besch->get_waytype() );
-				gr->neuen_weg_bauen( weg, 0, welt->get_spieler(1) );
-			}
-			weg->set_max_speed(besch->get_topspeed());
-			weg->set_max_axle_load(besch->get_max_weight());
-			weg->add_way_constraints(besch->get_way_constraints());
-			// take ownership of way
-			spieler_t::add_maintenance( weg->get_besitzer(), -weg->get_besch()->get_wartung());
-			weg->set_besitzer(sp);  //"besitzer" = owner (Babelfish)
+		
+	// change maintenance
+	if(besch->get_waytype() != powerline_wt)
+	{
+		weg_t *weg = gr->get_weg(besch->get_waytype());
+		if(weg == NULL)
+		{
+			dbg->error("bruecke_t::laden_abschliessen()","Bridge without way at(%s)!", gr->get_pos().get_str());
+			weg = weg_t::alloc(besch->get_waytype());
+			gr->neuen_weg_bauen(weg, 0, sp);
 		}
-		spieler_t::add_maintenance( sp,  besch->get_wartung() );
+		weg->set_max_speed(besch->get_topspeed());
+		weg->set_max_axle_load(besch->get_max_weight());
+		weg->add_way_constraints(besch->get_way_constraints());
+		// take ownership of way
+		if(sp)
+		{
+			spieler_t::add_maintenance(weg->get_besitzer(), -weg->get_besch()->get_wartung());
+		}
+		weg->set_besitzer(sp);  //"besitzer" = owner (Babelfish)
+	}
+	
+	if(sp)
+	{
+		spieler_t::add_maintenance(sp, besch->get_wartung());
 	}
 }
 
