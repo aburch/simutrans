@@ -151,7 +151,7 @@ void karte_ansicht_t::display(bool force_dirty)
 	}
 	else if( welt->is_background_dirty()  &&  outside_visible  ) {
 		// we check if background will be visible, no need to clear screen if it's not.
-		display_fillbox_wh(0, menu_height, disp_width, disp_height-menu_height, umgebung_t::background_color, force_dirty );
+		display_background(0, menu_height, disp_width, disp_height-menu_height, force_dirty);
 		welt->unset_background_dirty();
 	}
 	// to save calls to grund_t::get_disp_height
@@ -516,4 +516,10 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 #endif
 	}
 	(void) threaded;
+}
+
+
+void karte_ansicht_t::display_background(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, bool dirty)
+{
+	display_fillbox_wh(xp, yp, w, h, umgebung_t::background_color, dirty );
 }

@@ -24,6 +24,7 @@ public:
 	karte_ansicht_t(karte_t *welt);
 	void display(bool dirty);
 	void display_region( koord lt, koord wh, sint16 y_min, const sint16 y_max, bool force_dirty, bool threaded );
+	void display_background( KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, bool dirty );
 };
 
 #endif
