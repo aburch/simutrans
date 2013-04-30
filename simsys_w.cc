@@ -683,6 +683,16 @@ void dr_sleep(uint32 millisec)
 }
 
 
+#ifdef _MSC_VER
+// Needed for MS Visual C++ with /SUBSYSTEM:CONSOLE to work , if /SUBSYSTEM:WINDOWS this function is compiled but unreachable
+int main()
+{
+	HINSTANCE const hInstance = (HINSTANCE)GetModuleHandle(NULL);
+	return WinMain(hInstance,NULL,NULL,NULL);
+}
+#endif
+
+
 int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR, int)
 {
 	WNDCLASSW wc;

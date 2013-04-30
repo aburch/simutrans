@@ -692,6 +692,16 @@ void dr_sleep(uint32 usec)
 }
 
 
+#ifdef _MSC_VER
+// Needed for MS Visual C++ with /SUBSYSTEM:CONSOLE to work , if /SUBSYSTEM:WINDOWS this function is compiled but unreachable
+#undef main
+int main()
+{
+   return WinMain(NULL,NULL,NULL,NULL);
+}
+#endif
+
+
 #ifdef _WIN32
 int CALLBACK WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #else
