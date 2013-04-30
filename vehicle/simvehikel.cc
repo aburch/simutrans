@@ -1507,12 +1507,12 @@ sint32 vehikel_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 
 	if(highest_axle_load > weight_limit && welt->get_settings().get_enforce_weight_limits() == 1)
 	{
-		if((highest_axle_load * 100) / weight_limit <= 110)
+		if(weight_limit != 0 && (highest_axle_load * 100) / weight_limit <= 110)
 		{
 			//Overweight by up to 10% - reduce speed limit to a third.
 			overweight_speed_limit = base_limit / 3;
 		}
-		else if((highest_axle_load * 100) / weight_limit > 110)
+		else if(weight_limit == 0 || (highest_axle_load * 100) / weight_limit > 110)
 		{
 			//Overweight by more than 10% - reduce speed limit by a factor of 10.
 			overweight_speed_limit = base_limit / 10;
