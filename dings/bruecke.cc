@@ -184,7 +184,6 @@ void bruecke_t::entferne( spieler_t *sp2 ) // "Remove" (Google)
 				}
 			}
 		}
-		//sp->add_maintenance(-besch->get_wartung() );
 	}
 	spieler_t::add_maintenance(sp, -besch->get_wartung());
 	spieler_t::accounting(sp2, -besch->get_preis(), get_pos().get_2d(), COST_CONSTRUCTION);

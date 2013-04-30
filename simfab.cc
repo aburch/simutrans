@@ -1920,7 +1920,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 
 		// Über alle Ziele iterieren ("Iterate over all targets" - Google)
 		for(  uint32 n=0;  n<lieferziele.get_count();  n++  ) {
-			// prissi: this way, the halt, that is tried first, will change. As a result, if all destinations are empty, it will be spread evenly
+			// prissi: this way, the halt that is tried first will change. As a result, if all destinations are empty, it will be spread evenly
 			const koord lieferziel = lieferziele[(n + ausgang[produkt].index_offset) % lieferziele.get_count()];
 			fabrik_t * ziel_fab = get_fab(welt, lieferziel);
 
@@ -1962,7 +1962,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 		distribute_ware_t *best = NULL;
 		// Assume a fixed 1km/h transshipment time of goods to industries. This gives a minimum transfer time
 		// of 15 minutes for each stop at 125m/tile.
-		const uint32 transfer_journey_time_factor = (welt->get_settings().get_meters_per_tile() * 6u) * 10u;
+		const uint32 transfer_journey_time_factor = ((uint32)welt->get_settings().get_meters_per_tile() * 6) * 10;
 		FOR(vector_tpl<distribute_ware_t>, & i, dist_list) 
 		{
 			// now search route

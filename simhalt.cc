@@ -1509,8 +1509,8 @@ uint16 haltestelle_t::find_route(minivec_tpl<halthandle_t> *ziel_list, ware_t &w
 	halthandle_t best_destination;
 	halthandle_t best_transfer;
 
-	const uint32 journey_time_adjustment = (welt->get_settings().get_meters_per_tile() * 6u) / 10u;
-	const uint32 walking_journey_time_factor = (journey_time_adjustment * 100u) / (journey_time_adjustment * 100u) / (uint32)welt->get_settings().get_walking_speed();
+	const uint32 transfer_journey_time_factor = ((uint32)welt->get_settings().get_meters_per_tile() * 6) * 10;
+	const uint32 walking_time_divider = 100 * (uint32)welt->get_settings().get_walking_speed();
 	koord destination_stop_pos = destination_pos;
 
 	const uint8 ware_catg = ware.get_besch()->get_catg_index();
@@ -1531,7 +1531,19 @@ uint16 haltestelle_t::find_route(minivec_tpl<halthandle_t> *ziel_list, ware_t &w
 			}
 			
 			// Add the walking distance from the destination stop to the ultimate destination.
-			long_test_time += (shortest_distance(destination_stop_pos, destination_pos) * walking_journey_time_factor) / 100u;
+			long_test_time += (shortest_distance(destination_stop_pos, destination_pos) * transfer_journey_time_factor) / walking_time_divider;
+		}
+
+		else if(ware.is_freight())
+		{
+			// For freight, we instead calculate a transshipment time based on a notional 1km/h dispersal speed.
+			if((*ziel_list)[i].is_bound())
+			{
+				destination_stop_pos = (*ziel_list)[i]->get_next_pos(ware.get_zielpos());
+			}
+			
+			// Add the walking distance from the destination stop to the ultimate destination.
+			long_test_time += (shortest_distance(destination_stop_pos, ware.get_zielpos()) * transfer_journey_time_factor) / 100;
 		}
 
 		if(long_test_time > 65535)
