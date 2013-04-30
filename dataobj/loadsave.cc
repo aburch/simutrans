@@ -170,8 +170,8 @@ bool loadsave_t::rd_open(const char *filename)
 		return false;
 	}
 	// now check for BZ2 format
-	char buf[80];
-	if(  fread( buf, 1, 80, fd->fp )==80  ) {
+	char buf[256];
+	if(  fread( buf, 1, 256, fd->fp )==256  ) {
 		if(  buf[0]=='B'  &&  buf[1]=='Z'  ) {
 			mode = bzip2;
 		}
@@ -208,7 +208,7 @@ bool loadsave_t::rd_open(const char *filename)
 		if(fd->gzfp==NULL) {
 			return false;
 		}
-		gzgets(fd->gzfp, buf, 80);
+		gzgets(fd->gzfp, buf, 256);
 	}
 	saving = false;
 
@@ -348,8 +348,7 @@ bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extensi
 	loadsave_t::combined_version combined_version = int_version(savegame_version, NULL, NULL );
 	version = combined_version.version;
 
-	//const char* pakset_string = grund_besch_t::ausserhalb->get_copyright() ? grund_besch_t::ausserhalb->get_copyright() : this->pak_extension;
-	const char* pakset_string = this->pak_extension[1] == ':' &&  grund_besch_t::ausserhalb->get_copyright() ? grund_besch_t::ausserhalb->get_copyright() : this->pak_extension;
+	const char* pakset_string = this->pak_extension;
 
 	if(  !is_xml()  ) {
 		char str[8192];
