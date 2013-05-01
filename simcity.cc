@@ -4563,8 +4563,9 @@ void stadt_t::bewerte_res_com_ind(const koord pos, int &ind_score, int &com_scor
 }
 
 
-// return the eight neighbours
-static koord neighbours[] = {
+// return the eight neighbors:
+// orthogonal before diagonal
+static koord neighbors[] = {
 	koord( 0,  1),
 	koord( 1,  0),
 	koord( 0, -1),
@@ -4578,7 +4579,7 @@ static koord neighbours[] = {
 
 
 // return layout
-static int gebaeude_layout[] = {0,0,1,4,2,0,5,1,3,7,1,0,6,3,2,0};
+static int building_layout[] = {0,0,1,4,2,0,5,1,3,7,1,0,6,3,2,0};
 
 
 void stadt_t::build_city_building(const koord k, bool new_town)
@@ -4586,13 +4587,25 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 	grund_t* gr = welt->lookup_kartenboden(k);
 	const koord3d pos(gr->get_pos());
 
-	// no covered by a downgoing monorail?
-	if (gr->ist_natur() &&
-		  gr->kann_alle_obj_entfernen(NULL) == NULL  &&
-		  (  gr->get_grund_hang() == hang_t::flach  ||  welt->lookup(koord3d(k, welt->max_hgt(k))) == NULL  )
-	) {
+	// Refuse to build under some circumstances
+	// (This rule should be relaxed)
+	if ( ! gr->ist_natur() ) {
+		return;
+	}
+	if ( gr->kann_alle_obj_entfernen(NULL) != NULL ) {
+		return;
+	}
+	// Refuse to build underneath various things
+	// (This rule should be relaxed!)
+	if ( gr->get_grund_hang() != hang_t::flach
+	     &&  welt->lookup(koord3d(k, welt->max_hgt(k))) != NULL ) {
+		return;
+	}
 
-		// Employ 4 people per employment "level" of a building, so reduce that by four
+		// Indented for conformity with 'standard'
+
+		// Divide unemployed by 4, because it counts towards commercial and industrial,
+		// and both of those count 'double' for population relative to residential.
 		int employment_wanted  = get_unemployed() / 4;
 		int housing_wanted = get_homeless();
 
@@ -4666,7 +4679,8 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 			// check for pavement
 			int streetdir = 0;
 			for (int i = 0; i < 8; i++) {
-				gr = welt->lookup_kartenboden(k + neighbours[i]);
+				// Neighbors goes through these in 'preferred' order, orthogonal first
+				gr = welt->lookup_kartenboden(k + neighbors[i]);
 				if (gr && gr->get_weg_hang() == gr->get_grund_hang()) {
 					strasse_t* weg = (strasse_t*)gr->get_weg(road_wt);
 					if (weg != NULL) {
@@ -4691,10 +4705,9 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 				}
 			}
 
-			const gebaeude_t* gb = hausbauer_t::baue(welt, NULL, pos, gebaeude_layout[streetdir], h);
+			const gebaeude_t* gb = hausbauer_t::baue(welt, NULL, pos, building_layout[streetdir], h);
 			add_gebaeude_to_stadt(gb);
 		}
-	}
 }
 
 
@@ -4754,7 +4767,8 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 	const int level = gb->get_tile()->get_besch()->get_level();
 	const koord k = gb->get_pos().get_2d();
 
-	// Employ 4 people per employment "level" of a building, so reduce that by four
+	// Divide unemployed by 4, because it counts towards commercial and industrial,
+	// and both of those count 'double' for population relative to residential.
 	const int employment_wanted  = get_unemployed() / 4;
 	const int housing_wanted = get_homeless() / 4;
 
@@ -4835,7 +4849,9 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 		// and make sure our house is not on a neighbouring tile, to avoid boring towns
 		int streetdir = 0;
 		for (int i = 0; i < 8; i++) {
-			grund_t* gr = welt->lookup_kartenboden(k + neighbours[i]);
+			// Neighbors goes through this in a specific order:
+			// orthogonal first, then diagonal
+			grund_t* gr = welt->lookup_kartenboden(k + neighbors[i]);
 			if (gr != NULL && gr->get_weg_hang() == gr->get_grund_hang()) {
 				if (weg_t* const weg = gr->get_weg(road_wt)) {
 					if (i < 4) {
@@ -4856,6 +4872,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 					gr->calc_bild();
 					reliefkarte_t::get_karte()->calc_map_pixel(gr->get_pos().get_2d());
 				} else if (gr->get_typ() == grund_t::fundament) {
+					// NCN FIX ME.  THIS IS VERY BAD, IT BREAKS PAK128.BRITAIN.
 					// do not renovate, if the building is already in a neighbour tile
 					gebaeude_t const* const gb = ding_cast<gebaeude_t>(gr->first_obj());
 					if (gb != NULL && gb->get_tile()->get_besch() == h) {
@@ -4874,7 +4891,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 
 		// exchange building; try to face it to street in front
 		gb->mark_images_dirty();
-		gb->set_tile( h->get_tile(gebaeude_layout[streetdir], 0, 0), true );
+		gb->set_tile( h->get_tile(building_layout[streetdir], 0, 0), true );
 		welt->lookup_kartenboden(k)->calc_bild();
 		update_gebaeude_from_stadt(gb);
 		return_value = true;
