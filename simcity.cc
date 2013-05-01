@@ -4624,6 +4624,7 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 		// This is a bitmap -- up to 32 clustering types are allowed.
 		uint32 neighbor_building_clusters = 0;
 		for (int i = 0; i < 4; i++) {
+			grund_t* gr = welt->lookup_kartenboden(k + neighbors[i]);
 			if (gr->get_typ() == grund_t::fundament && gr->obj_bei(0)->get_typ() == ding_t::gebaeude) {
 				// We have a building as a neighbor...
 				gebaeude_t const* const gb = ding_cast<gebaeude_t>(gr->first_obj());
@@ -4802,6 +4803,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 	// This is a bitmap -- up to 32 clustering types are allowed.
 	uint32 neighbor_building_clusters = 0;
 	for (int i = 0; i < 4; i++) {
+		grund_t* gr = welt->lookup_kartenboden(k + neighbors[i]);
 		if (gr->get_typ() == grund_t::fundament && gr->obj_bei(0)->get_typ() == ding_t::gebaeude) {
 			// We have a building as a neighbor...
 			gebaeude_t const* const gb = ding_cast<gebaeude_t>(gr->first_obj());
