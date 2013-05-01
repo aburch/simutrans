@@ -138,10 +138,13 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 
 	const char* type_name = obj.get("type");
 	if (!STRICMP(type_name, "res")) {
+		extra_data = obj.get_int("cluster", 0);
 		gtyp = gebaeude_t::wohnung;
 	} else if (!STRICMP(type_name, "com")) {
+		extra_data = obj.get_int("cluster", 0);
 		gtyp = gebaeude_t::gewerbe;
 	} else if (!STRICMP(type_name, "ind")) {
+		extra_data = obj.get_int("cluster", 0);
 		gtyp = gebaeude_t::industrie;
 	} else if (!STRICMP(type_name, "cur")) {
 		extra_data = obj.get_int("build_time", 0);
