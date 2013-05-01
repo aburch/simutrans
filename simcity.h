@@ -193,13 +193,13 @@ private:
 	/**
 	 * in this fixed interval, construction will happen
 	 */
-	static const uint32 step_bau_interval;
+	static const uint32 city_growth_interval;
 
 	/**
-	 * next construction
+	 * When to do growth next
 	 * @author Hj. Malthaner
 	 */
-	uint32 next_bau_step;
+	uint32 next_growth_interval;
 
 	// population statistics
 	sint32 bev; // total population
@@ -385,14 +385,14 @@ private:
 	// recalcs city borders (after loading and deletion)
 	void recalc_city_size();
 
-	// calculates the growth rate for next step_bau using all the different indicators
+	// calculates the growth rate for next growth_interval using all the different indicators
 	void calc_growth();
 
 	/**
-	 * plant das bauen von Gebaeuden
+	 * Build new buildings when growing city
 	 * @author Hj. Malthaner
 	 */
-	void step_bau();
+	void grow_city();
 
 	enum pax_return_type { no_return, factory_return, tourist_return, city_return };
 

@@ -344,7 +344,7 @@ uint16 stadt_t::get_electricity_consumption(sint32 monthyear) const
  * in this fixed interval, construction will happen
  * 21s = 21000 per house
  */
-const uint32 stadt_t::step_bau_interval = 21000;
+const uint32 stadt_t::city_growth_interval = 21000;
 
 
 /*
@@ -1628,7 +1628,7 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 	pax_destinations_new_change = 0;
 	next_step = 0;
 	step_interval = 1;
-	next_bau_step = 0;
+	next_growth_interval = 0;
 	has_low_density = false;
 
 	stadtinfo_options = 3;	// citicens and growth
@@ -1750,7 +1750,7 @@ stadt_t::stadt_t(karte_t* wl, loadsave_t* file) :
 	step_count = 0;
 	next_step = 0;
 	step_interval = 1;
-	next_bau_step = 0;
+	next_growth_interval = 0;
 	has_low_density = false;
 
 	wachstum = 0;
@@ -2129,7 +2129,7 @@ void stadt_t::laden_abschliessen()
 {
 	step_count = 0;
 	next_step = 0;
-	next_bau_step = 0;
+	next_growth_interval = 0;
 
 	// there might be broken savegames
 	if (!name) {
@@ -2138,7 +2138,7 @@ void stadt_t::laden_abschliessen()
 
 	// new city => need to grow
 	if (buildings.empty()) {
-		step_bau();
+		grow_city();
 	}
 
 	// clear the minimaps
@@ -2175,7 +2175,7 @@ void stadt_t::laden_abschliessen()
 	recalc_city_size();
 
 	next_step = 0;
-	next_bau_step = 0;
+	next_growth_interval = 0;
 
 	// resolve target factories
 	target_factories_pax.resolve_factories();
@@ -2364,7 +2364,7 @@ void stadt_t::change_size(sint32 delta_citicens)
 	DBG_MESSAGE("stadt_t::change_size()", "%i + %i", bev, delta_citicens);
 	if (delta_citicens > 0) {
 		wachstum = delta_citicens<<4;
-		step_bau();
+		grow_city();
 	}
 	if (delta_citicens < 0) {
 		wachstum = 0;
@@ -2375,7 +2375,7 @@ void stadt_t::change_size(sint32 delta_citicens)
 //				remove_city();
 			bev = 1;
 		}
-		step_bau();
+		grow_city();
 	}
 	if(bev == 0)
 	{ 
@@ -2404,18 +2404,18 @@ void stadt_t::step(long delta_t)
 
 	// is it time for the next step?
 	next_step += delta_t;
-	next_bau_step += delta_t;
+	next_growth_interval += delta_t;
 
 	step_interval = (1 << 21U) / (buildings.get_count() * s.get_passenger_factor() + 1);
 	if (step_interval < 1) {
 		step_interval = 1;
 	}
 
-	while(stadt_t::step_bau_interval < next_bau_step) {
+	while(stadt_t::city_growth_interval < next_growth_interval) {
 		calc_growth();
 		//outgoing_private_cars = 0;
-		step_bau();
-		next_bau_step -= stadt_t::step_bau_interval;
+		grow_city();
+		next_growth_interval -= stadt_t::city_growth_interval;
 	}
 
 	// create passenger rate proportional to town size
@@ -2814,7 +2814,7 @@ void stadt_t::calc_growth()
 
 
 // does constructions ...
-void stadt_t::step_bau()
+void stadt_t::grow_city()
 {
 	bool new_town = (bev == 0);
 	if (new_town) {
