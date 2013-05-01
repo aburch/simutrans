@@ -183,6 +183,7 @@ void settings_experimental_general_stats_t::init( settings_t *sets )
 	INIT_BOOL( "allow_routing_on_foot", sets->get_allow_routing_on_foot());
 	INIT_BOOL("allow_airports_without_control_towers", sets->get_allow_airports_without_control_towers());
 	INIT_NUM("global_power_factor_percent", sets->get_global_power_factor_percent(), 0, 1000, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM("enforce_weight_limits", sets->get_enforce_weight_limits(), 0, 3, gui_numberinput_t::AUTOLINEAR, false );
 
 	SEPERATOR;
 	{
@@ -244,6 +245,7 @@ void settings_experimental_general_stats_t::read(settings_t *sets)
 	READ_BOOL( sets->set_allow_routing_on_foot);
 	READ_BOOL( sets->set_allow_airports_without_control_towers );
 	READ_NUM( sets->set_global_power_factor_percent );
+	READ_NUM( sets->set_enforce_weight_limits );
 
 	uint16 default_increase_maintenance_after_years_other;
 	READ_NUM_VALUE( default_increase_maintenance_after_years_other );

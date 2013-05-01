@@ -1000,9 +1000,9 @@ vehikel_t::unload_freight(halthandle_t halt)
 bool vehikel_t::load_freight(halthandle_t halt, bool overcrowd)
 {
 	const bool ok = halt->gibt_ab(besch->get_ware());
-	schedule_t *fpl = cnv->get_schedule();
-	if( ok ) 
+	if(ok) 
 	{
+		schedule_t *fpl = cnv->get_schedule();
 		uint16 total_capacity = besch->get_zuladung() + (overcrowd ? besch->get_overcrowded_capacity() : 0);
 		DBG_DEBUG4("vehikel_t::load_freight", "total_freight %d < total_capacity %d", total_freight, total_capacity);
 		while(total_freight < total_capacity) //"Payload" (Google)
@@ -1451,7 +1451,7 @@ grund_t* vehikel_t::hop()
 		// weight limit is set to 0 in the file.
 
 		// This is just used for the GUI display, so only set to true if the weight limit is set to enforce by speed restriction.
-		is_overweight = (cnv->get_highest_axle_load() > weight_limit && welt->get_settings().get_enforce_weight_limits() == 1); 
+		is_overweight = (cnv->get_highest_axle_load() > weight_limit && welt->get_settings().get_enforce_weight_limits() == 1 || welt->get_settings().get_enforce_weight_limits() == 3); 
 
 		if(weg->is_crossing()) 
 		{
@@ -1503,16 +1503,16 @@ sint32 vehikel_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 	sint32 new_limit = base_limit;
 	const uint32 highest_axle_load = cnv->get_highest_axle_load();
 
-	//Reduce speed for overweight vehicles
+	// Reduce speed for overweight vehicles
 
-	if(highest_axle_load > weight_limit && welt->get_settings().get_enforce_weight_limits() == 1)
+	if(highest_axle_load > weight_limit && welt->get_settings().get_enforce_weight_limits() == 1 || welt->get_settings().get_enforce_weight_limits() == 3)
 	{
-		if((highest_axle_load * 100) / weight_limit <= 110)
+		if(weight_limit != 0 && (highest_axle_load * 100) / weight_limit <= 110)
 		{
 			//Overweight by up to 10% - reduce speed limit to a third.
 			overweight_speed_limit = base_limit / 3;
 		}
-		else if((highest_axle_load * 100) / weight_limit > 110)
+		else if(weight_limit == 0 || (highest_axle_load * 100) / weight_limit > 110)
 		{
 			//Overweight by more than 10% - reduce speed limit by a factor of 10.
 			overweight_speed_limit = base_limit / 10;
@@ -2747,7 +2747,7 @@ int automobil_t::get_kosten(const grund_t *gr, const sint32 max_speed, koord fro
 	//@author: jamespetts
 	// Strongly prefer routes for which the vehicle is not overweight.
 	uint16 weight_limit = w->get_max_axle_load();
-	if(vehikel_t::get_sum_weight() > weight_limit &&welt->get_settings().get_enforce_weight_limits() == 1)
+	if(vehikel_t::get_sum_weight() > weight_limit && welt->get_settings().get_enforce_weight_limits() == 1 || welt->get_settings().get_enforce_weight_limits() == 3)
 	{
 		costs += 40;
 	}
@@ -3508,7 +3508,7 @@ int waggon_t::get_kosten(const grund_t *gr, const sint32 max_speed, koord from_p
 	//@author: jamespetts
 	// Strongly prefer routes for which the vehicle is not overweight.
 	uint16 weight_limit = w->get_max_axle_load();
-	if(vehikel_t::get_sum_weight() > weight_limit &&welt->get_settings().get_enforce_weight_limits() == 1)
+	if(vehikel_t::get_sum_weight() > weight_limit && welt->get_settings().get_enforce_weight_limits() == 1 || welt->get_settings().get_enforce_weight_limits() == 3)
 	{
 		costs += 40;
 	}

@@ -857,7 +857,7 @@ void path_explorer_t::compartment_t::step()
 						// Check the journey times to the connexion
 						new_connexion = new haltestelle_t::connexion;
 						new_connexion->waiting_time = halt_list[h]->get_average_waiting_time(halt_list[t], catg);
-						new_connexion->transfer_time =  catg != warenbauer_t::passagiere->get_catg_index() ? 0 : halt_list[h]->get_transfer_time();
+						new_connexion->transfer_time = catg != warenbauer_t::passagiere->get_catg_index() ? halt_list[h]->get_transshipment_time() : halt_list[h]->get_transfer_time();
 						if(current_linkage.line.is_bound())
 						{
 							average_tpl<uint16>* ave = current_linkage.line->get_average_journey_times()->access(id_pair(halt_list[h].get_id(), halt_list[t].get_id()));

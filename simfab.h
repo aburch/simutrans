@@ -452,7 +452,9 @@ public:
 
 	void laden_abschliessen();
 
-	/// gets position of a building belonging to factory
+	/**
+	* gets position of a building belonging to factory
+	*/
 	koord3d get_pos() const { return pos; }
 
 	void rotate90( const sint16 y_size );
@@ -502,24 +504,36 @@ public:
 	sint32 input_vorrat_an(const ware_besch_t *ware);        // Vorrat von Warentyp ("Inventories of product")
 	sint32 vorrat_an(const ware_besch_t *ware);        // Vorrat von Warentyp
 
-	// returns all power and consume it to prevent multiple pumpes
+	/**
+	* returns all power and consume it to prevent multiple pumpes
+	*/
 	uint32 get_power() { uint32 p=power; power=0; return p; }
 
-	// returns power wanted by the factory for next step and sets to 0 to prevent multiple senkes on same powernet
+	/**
+	* returns power wanted by the factory for next step and sets to 0 to prevent multiple senkes on same powernet
+	*/
 	uint32 step_power_demand() { uint32 p=power_demand; power_demand=0; return p; }
 	uint32 get_power_demand() const { return power_demand; }
 
-	// give power to the factory to consume ...
+	/**
+	*give power to the factory to consume ...
+	*/
 	void add_power(uint32 p) { power += p; }
 
-	// senkes give back wanted power they can't supply such that a senke on a different powernet can try suppling
-	// WARNING: senke stepping order can vary between ingame construction and savegame loading => different results after saveing/loading the game
+	/**
+	* senkes give back wanted power they can't supply such that a senke on a different powernet can try suppling
+	* WARNING: senke stepping order can vary between ingame construction and savegame loading => different results after saveing/loading the game
+	*/
 	void add_power_demand(uint32 p) { power_demand +=p; }
 
-	// true, if there was production requiring power in the last step
+	/**
+	* True if there was production requiring power in the last step
+	*/
 	bool is_currently_producing() const { return currently_producing; }
 
-	// used to limit transformers to 1 per factory
+	/**
+	* Used to limit transformers to one per factory
+	*/
 	bool is_transformer_connected() const { return (bool)transformer_connected; }
 	leitung_t* get_transformer_connected() { return transformer_connected; }
 	void set_transformer_connected(leitung_t* connected) { transformer_connected = connected; }
@@ -553,10 +567,14 @@ public:
 
 	void zeige_info();
 
-	// infostring on production
+	/**
+	 * infostring on production
+	 */
 	void info_prod(cbuffer_t& buf) const;
 
-	// infostring on targets/sources
+	/**
+	 * infostring on targets/sources
+	 */
 	void info_conn(cbuffer_t& buf) const;
 
 	void rdwr(loadsave_t *file);
@@ -667,7 +685,9 @@ public:
 
 	bool is_end_consumer() const { return (ausgang.empty() && !besch->is_electricity_producer()); }
 
-	// Returns a list of goods produced by this factory.
+	/**
+	 * Returns a list of goods produced by this factory.
+	 */
 	slist_tpl<const ware_besch_t*> *get_produced_goods() const;
 };
 

@@ -160,31 +160,33 @@ void bruecke_t::laden_abschliessen()
 }
 
 
-// correct speed and maintenance
-void bruecke_t::entferne( spieler_t *sp2 )
+// correct speed,  maintenance and weight
+void bruecke_t::entferne( spieler_t *sp2 ) // "Remove" (Google)
 {
 	spieler_t *sp = get_besitzer();
-	if(sp) {
-		// on bridge => do nothing but change maintenance
+	if(sp)
+	{
 		const grund_t *gr = welt->lookup(get_pos());
-		if(gr) {
-			weg_t *weg = gr->get_weg( besch->get_waytype() );
-			if(weg) {
-				weg->set_max_speed( weg->get_besch()->get_topspeed() );
+		if(gr)
+		{
+			weg_t *weg = gr->get_weg(besch->get_waytype());
+			if(weg)
+			{
+				weg->set_max_speed(weg->get_besch()->get_topspeed());
 				weg->set_max_axle_load(weg->get_besch()->get_max_axle_load());
 				weg->add_way_constraints(besch->get_way_constraints());
 				sp->add_maintenance(weg->get_besch()->get_wartung());
 				// reset offsets
 				weg->set_yoff(0);
-				if (gr->get_weg_nr(1)) {
+				if (gr->get_weg_nr(1)) 
+				{
 					gr->get_weg_nr(1)->set_yoff(0);
 				}
 			}
 		}
-		sp->add_maintenance( -besch->get_wartung() );
 	}
-	spieler_t::add_maintenance( sp,  -besch->get_wartung() );
-	spieler_t::accounting( sp2, -besch->get_preis(), get_pos().get_2d(), COST_CONSTRUCTION );
+	spieler_t::add_maintenance(sp, -besch->get_wartung());
+	spieler_t::accounting(sp2, -besch->get_preis(), get_pos().get_2d(), COST_CONSTRUCTION);
 }
 
 

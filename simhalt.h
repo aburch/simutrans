@@ -135,6 +135,15 @@ private:
 	 */
 	uint16 transfer_time;
 
+	/* 
+	 * The time (in 10ths of seconds)
+	 * that it takes goods to be trans-shipped
+	 * inside this stop. This assumes a fixed
+	 * rate of 1km/h and is based on the size
+	 * of the stop.
+	 */
+	uint16 transshipment_time;
+
 public:
 	// add convoi to loading queue
 	void request_loading( convoihandle_t cnv );
@@ -514,6 +523,8 @@ public:
 	/**
 	 * sucht umliegende, erreichbare fabriken und baut daraus die
 	 * Fabrikliste auf.
+	 * "Surrounding searches, achievable factories and builds the
+	 * factory list." (Google)
 	 * @author Hj. Malthaner
 	 */
 	void verbinde_fabriken();
@@ -654,7 +665,9 @@ public:
 	 */
 	uint32 get_ware_fuer_zielpos(const ware_besch_t *warentyp, const koord zielpos) const;
 
-	// true, if we accept/deliver this kind of good
+	/** 
+	* True if we accept/deliver this kind of good
+	*/
 	bool gibt_ab(const ware_besch_t *warentyp) const { return waren[warentyp->get_catg_index()] != NULL; }
 
 	/* retrieves a ware packet for any destination in the list
@@ -878,7 +891,21 @@ public:
 
 	bool has_no_control_tower() const;
 
+	/**
+	* Get the time that it takes for passengers to transfer within this stop
+	* in 1/10ths of minutes.
+	*/
 	inline uint16 get_transfer_time() const { return transfer_time; }
+	
+	/**
+	* Get the time that it takes for goods to be transferred within this stop
+	* in 1/10ths of minutes.
+	*/
+	inline uint16 get_transshipment_time() const { return transshipment_time; }
+
+	/**
+	* Calculate the transfer and transshipment time values.
+	*/
 	void calc_transfer_time();
 };
 

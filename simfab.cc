@@ -1913,13 +1913,14 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 	for(  unsigned i=0;  i<plan->get_haltlist_count();  i++  ) {
 		halthandle_t halt = haltlist[(i + ausgang[produkt].index_offset) % plan->get_haltlist_count()];
 
-		if(  !halt->get_ware_enabled()  ) {
+		if(!halt->get_ware_enabled() || !halt->get_fab_list().is_contained(this)) 
+		{
 			continue;
 		}
 
-		// Über alle Ziele iterieren
+		// Über alle Ziele iterieren ("Iterate over all targets" - Google)
 		for(  uint32 n=0;  n<lieferziele.get_count();  n++  ) {
-			// prissi: this way, the halt, that is tried first, will change. As a result, if all destinations are empty, it will be spread evenly
+			// prissi: this way, the halt that is tried first will change. As a result, if all destinations are empty, it will be spread evenly
 			const koord lieferziel = lieferziele[(n + ausgang[produkt].index_offset) % lieferziele.get_count()];
 			fabrik_t * ziel_fab = get_fab(welt, lieferziel);
 
@@ -1959,10 +1960,16 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 	// "Evaluation of the results" (Babelfish)
 	if(  !dist_list.empty()  ) {
 		distribute_ware_t *best = NULL;
-		FOR(vector_tpl<distribute_ware_t>, & i, dist_list) {
+		// Assume a fixed 1km/h transshipment time of goods to industries. This gives a minimum transfer time
+		// of 15 minutes for each stop at 125m/tile.
+		const uint32 transfer_journey_time_factor = ((uint32)welt->get_settings().get_meters_per_tile() * 6) * 10;
+		FOR(vector_tpl<distribute_ware_t>, & i, dist_list) 
+		{
 			// now search route
-			const uint16 current_journey_time = i.halt->find_route(i.ware);
-			if (current_journey_time < 65535) 
+			const uint32 straight_line_distance = shortest_distance(pos, i.halt->get_next_pos(pos));
+			const uint16 transfer_time = (straight_line_distance * transfer_journey_time_factor) / 100u;
+			const uint16 current_journey_time = i.halt->find_route(i.ware) + transfer_time;
+			if(current_journey_time < 65535)
 			{
 				best = &i;
 				break;
@@ -2560,15 +2567,27 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 	}
 
 	const planquadrat_t *plan = welt->lookup(get_pos().get_2d());
-	if(plan  &&  plan->get_haltlist_count()>0) {
-		if(  has_previous  ) {
-			buf.append("\n\n");
-		}
-		has_previous = true;
-		buf.append(translator::translate("Connected stops"));
-
-		for(  uint i=0;  i<plan->get_haltlist_count();  i++  ) {
-			buf.printf("\n - %s", plan->get_haltlist()[i]->get_name() );
+	
+	if(plan && plan->get_haltlist_count() > 0) 
+	{
+		bool any = false;
+		for(uint i = 0; i < plan->get_haltlist_count(); i++) 
+		{
+			fabrik_t* fab = (fabrik_t*)this;
+			halthandle_t halt = plan->get_haltlist()[i];
+			if(halt->get_fab_list().is_contained(fab))
+			{
+				if(has_previous && !any) 
+				{
+					buf.append("\n\n");
+				}
+				if(!any)
+				{
+					buf.append(translator::translate("Connected stops"));
+				}
+				buf.printf("\n - %s", plan->get_haltlist()[i]->get_name() );
+				has_previous = any = true;
+			}
 		}
 	}
 }

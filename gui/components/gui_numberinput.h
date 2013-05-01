@@ -81,7 +81,7 @@ public:
 
 	enum { AUTOLINEAR=0, POWER2=-1, PROGRESS=-2 };
 	/**
-	 * AUTOLINEAR: linear increment, scroll whell 1% range
+	 * AUTOLINEAR: linear increment, scroll wheel 1% range
 	 * POWER2: 16, 32, 64, ...
 	 * PROGRESS: 0, 1, 5, 10, 25, 50, 75, 90, 95, 99, 100% of range
 	 * any other mode value: actual step size
