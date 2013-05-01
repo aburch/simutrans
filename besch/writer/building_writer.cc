@@ -93,6 +93,21 @@ void tile_writer_t::write_obj(FILE* fp, obj_node_t& parent, int index, int seaso
 	node.write(fp);
 }
 
+// Subroutine for write_obj, to avoid duplicated code
+uint32 building_writer_t::get_cluster_data(tabfileobj_t& obj)
+{
+	uint32 clusters = 0;
+	int* ints = obj.get_ints("clusters");
+
+	for (int i = 1; i <= ints[0]; i++) {
+		if (ints[i] > 1 && ints[i] <= 32) { // Sanity check
+			clusters += 1<<(ints[i]-1);
+		}
+	}
+	delete [] ints;
+
+	return clusters;
+}
 
 void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
@@ -138,13 +153,13 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 
 	const char* type_name = obj.get("type");
 	if (!STRICMP(type_name, "res")) {
-		extra_data = obj.get_int("cluster", 0);
+		extra_data = get_cluster_data(obj);
 		gtyp = gebaeude_t::wohnung;
 	} else if (!STRICMP(type_name, "com")) {
-		extra_data = obj.get_int("cluster", 0);
+		extra_data = get_cluster_data(obj);
 		gtyp = gebaeude_t::gewerbe;
 	} else if (!STRICMP(type_name, "ind")) {
-		extra_data = obj.get_int("cluster", 0);
+		extra_data = get_cluster_data(obj);
 		gtyp = gebaeude_t::industrie;
 	} else if (!STRICMP(type_name, "cur")) {
 		extra_data = obj.get_int("build_time", 0);

@@ -4602,7 +4602,7 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 		return;
 	}
 
-		// Indented for conformity with 'standard'
+		// Indented to reduce spurious differences in patch files
 
 		// Divide unemployed by 4, because it counts towards commercial and industrial,
 		// and both of those count 'double' for population relative to residential.
@@ -4620,25 +4620,40 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 		const uint16 current_month = welt->get_timeline_year_month();
 		const climate cl = welt->get_climate(welt->max_hgt(k));
 
+		// Run through orthogonal neighbors (only) looking for which cluster to build
+		// This is a bitmap -- up to 32 clustering types are allowed.
+		uint32 neighbor_building_clusters = 0;
+		for (int i = 0; i < 4; i++) {
+			if (gr->get_typ() == grund_t::fundament && gr->obj_bei(0)->get_typ() == ding_t::gebaeude) {
+				// We have a building as a neighbor...
+				gebaeude_t const* const gb = ding_cast<gebaeude_t>(gr->first_obj());
+				if (gb != NULL) {
+					// We really have a building as a neighbor...
+					haus_besch_t* neighbor_building = gb->get_tile()->get_besch();
+					neighbor_building_clusters |= neighbor_building->extra_data;
+				}
+			}
+		}
+
 		// Find a house to build
 		const haus_besch_t* h = NULL;
 
 		if (sum_commercial > sum_industrial  &&  sum_commercial > sum_residential) {
-			h = hausbauer_t::get_gewerbe(0, current_month, cl, new_town);
+			h = hausbauer_t::get_commercial(0, current_month, cl, new_town, neighbor_building_clusters);
 			if (h != NULL) {
 				arb += (h->get_level()+1) * 20;
 			}
 		}
 
 		if (h == NULL  &&  sum_industrial > sum_residential  &&  sum_industrial > sum_residential) {
-			h = hausbauer_t::get_industrie(0, current_month, cl, new_town);
+			h = hausbauer_t::get_industrial(0, current_month, cl, new_town, neighbor_building_clusters);
 			if (h != NULL) {
 				arb += (h->get_level()+1) * 20;
 			}
 		}
 
 		if (h == NULL  &&  sum_residential > sum_industrial  &&  sum_residential > sum_commercial) {
-			h = hausbauer_t::get_wohnhaus(0, current_month, cl, new_town);
+			h = hausbauer_t::get_residential(0, current_month, cl, new_town, neighbor_building_clusters);
 			if (h != NULL) {
 				// will be aligned next to a street
 				won += (h->get_level()+1) * 10;
@@ -4783,6 +4798,21 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 	const uint16 current_month = welt->get_timeline_year_month();
 	const climate cl = welt->get_climate(gb->get_pos().z);
 
+	// Run through orthogonal neighbors (only) looking for which cluster to build
+	// This is a bitmap -- up to 32 clustering types are allowed.
+	uint32 neighbor_building_clusters = 0;
+	for (int i = 0; i < 4; i++) {
+		if (gr->get_typ() == grund_t::fundament && gr->obj_bei(0)->get_typ() == ding_t::gebaeude) {
+			// We have a building as a neighbor...
+			gebaeude_t const* const gb = ding_cast<gebaeude_t>(gr->first_obj());
+			if (gb != NULL) {
+				// We really have a building as a neighbor...
+				haus_besch_t* neighbor_building = gb->get_tile()->get_besch();
+				neighbor_building_clusters |= neighbor_building->extra_data;
+			}
+		}
+	}
+
 	gebaeude_t::typ want_to_have = gebaeude_t::unbekannt;
 	int sum = 0;
 
@@ -4799,14 +4829,13 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 			break;
 		}
 	}
-
 	// try to build
 	const haus_besch_t* h = NULL;
 	bool return_value = false;
 	if (sum_commercial > sum_industrial && sum_commercial > sum_residential) {
 		// we must check, if we can really update to higher level ...
 		const int try_level = (alt_typ == gebaeude_t::gewerbe ? level + 1 : level);
-		h = hausbauer_t::get_gewerbe(try_level, current_month, cl);
+		h = hausbauer_t::get_commercial(try_level, current_month, cl, false, neighbor_building_clusters);
 		if (h != NULL && h->get_level() >= try_level && (max_level == 0 || h->get_level() <= max_level)) {
 			want_to_have = gebaeude_t::gewerbe;
 			sum = sum_commercial;
@@ -4817,7 +4846,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
         || (sum_commercial > sum_residential  &&  want_to_have == gebaeude_t::unbekannt)  ) {
 		// we must check, if we can really update to higher level ...
 		const int try_level = (alt_typ == gebaeude_t::industrie ? level + 1 : level);
-		h = hausbauer_t::get_industrie(try_level , current_month, cl);
+		h = hausbauer_t::get_industrial(try_level , current_month, cl, false, neighbor_building_clusters);
 		if (h != NULL && h->get_level() >= try_level && (max_level == 0 || h->get_level() <= max_level)) {
 			want_to_have = gebaeude_t::industrie;
 			sum = sum_industrial;
@@ -4828,7 +4857,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 	if (want_to_have == gebaeude_t::unbekannt) {
 		// we must check, if we can really update to higher level ...
 		const int try_level = (alt_typ == gebaeude_t::wohnung ? level + 1 : level);
-		h = hausbauer_t::get_wohnhaus(try_level, current_month, cl);
+		h = hausbauer_t::get_residential(try_level, current_month, cl, false, neighbor_building_clusters);
 		if (h != NULL && h->get_level() >= try_level && (max_level == 0 || h->get_level() <= max_level)) {
 			want_to_have = gebaeude_t::wohnung;
 			sum = sum_residential;
@@ -4872,11 +4901,14 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 					gr->calc_bild();
 					reliefkarte_t::get_karte()->calc_map_pixel(gr->get_pos().get_2d());
 				} else if (gr->get_typ() == grund_t::fundament) {
-					// NCN FIX ME.  THIS IS VERY BAD, IT BREAKS PAK128.BRITAIN.
-					// do not renovate, if the building is already in a neighbour tile
-					gebaeude_t const* const gb = ding_cast<gebaeude_t>(gr->first_obj());
-					if (gb != NULL && gb->get_tile()->get_besch() == h) {
-						return return_value; //it will return false
+					uint32 my_cluster_number = h->extra_data;
+					if (my_cluster_number == 0) {
+						// This is a non-clustering building.
+						// If an identical building is in a neighbor tile, do not renovate.
+						gebaeude_t const* const gb = ding_cast<gebaeude_t>(gr->first_obj());
+						if (gb != NULL && gb->get_tile()->get_besch() == h) {
+							return return_value; //it will return false
+						}
 					}
 				}
 			}
