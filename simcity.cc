@@ -485,7 +485,7 @@ void stadt_t::cityrules_rdwr(loadsave_t *file)
  */
 class denkmal_platz_sucher_t : public platzsucher_t {
 	public:
-		denkmal_platz_sucher_t(karte_t* welt) : platzsucher_t(welt) {}
+		denkmal_platz_sucher_t(karte_t* welt, sint16 radius) : platzsucher_t(welt, radius) {}
 
 		virtual bool ist_feld_ok(koord pos, koord d, climate_bits cl) const
 		{
@@ -1969,7 +1969,7 @@ class bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t
 		/// if false, this will the check 'do not build next other to special buildings'
 		bool big_city;
 
-		bauplatz_mit_strasse_sucher_t(karte_t* welt, bool big) : bauplatz_sucher_t (welt), big_city(big) {}
+		bauplatz_mit_strasse_sucher_t(karte_t* welt, sint16 radius, bool big) : bauplatz_sucher_t(welt, radius), big_city(big) {}
 
 		// get distance to next special building
 		int find_dist_next_special(koord pos) const
@@ -2051,8 +2051,9 @@ void stadt_t::check_bau_spezial(bool new_town)
 
 			bool big_city = buildings.get_count() >= 10;
 			bool is_rotate = besch->get_all_layouts() > 1;
+			sint16 radius = koord_distance( get_rechtsunten(), get_linksoben() )/2 + 10;
 			// find place
-			koord best_pos = bauplatz_mit_strasse_sucher_t(welt, big_city).suche_platz(pos, besch->get_b(), besch->get_h(), besch->get_allowed_climate_bits(), &is_rotate);
+			koord best_pos = bauplatz_mit_strasse_sucher_t(welt, radius, big_city).suche_platz(pos, besch->get_b(), besch->get_h(), besch->get_allowed_climate_bits(), &is_rotate);
 
 			if (best_pos != koord::invalid) {
 				// then built it
@@ -2076,7 +2077,8 @@ void stadt_t::check_bau_spezial(bool new_town)
 		besch = hausbauer_t::waehle_denkmal(welt->get_timeline_year_month());
 		if (besch) {
 			koord total_size = koord(2 + besch->get_b(), 2 + besch->get_h());
-			koord best_pos(denkmal_platz_sucher_t(welt).suche_platz(pos, total_size.x, total_size.y, besch->get_allowed_climate_bits()));
+			sint16 radius = koord_distance( get_rechtsunten(), get_linksoben() )/2 + 10;
+			koord best_pos(denkmal_platz_sucher_t(welt, radius).suche_platz(pos, total_size.x, total_size.y, besch->get_allowed_climate_bits()));
 
 			if (best_pos != koord::invalid) {
 				// check if borders around the monument are inside the map limits

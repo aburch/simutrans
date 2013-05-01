@@ -208,7 +208,8 @@ bool platzsucher_t::ist_feld_ok(koord /*pos*/, koord /*d*/, climate_bits /*cl*/)
 
 koord platzsucher_t::suche_platz(koord start, sint16 b, sint16 h, climate_bits cl, bool *r)
 {
-	pos_liste_wh_t psuch1(welt->get_size_max(), b, h);
+	sint16 radius = max_radius > 0 ? max_radius : welt->get_size_max();
+	pos_liste_wh_t psuch1(radius, b, h);
 
 	this->b = b;
 	this->h = h;
@@ -219,7 +220,7 @@ koord platzsucher_t::suche_platz(koord start, sint16 b, sint16 h, climate_bits c
 		//
 		// Hier suchen wir auch gedrehte Positionen.
 		//
-		pos_liste_wh_t psuch2(welt->get_size_max(), h, b);
+		pos_liste_wh_t psuch2(radius, h, b);
 
 		if(ist_platz_ok(start, b, h, cl)) {
 			*r = false;

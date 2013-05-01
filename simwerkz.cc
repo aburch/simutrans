@@ -85,8 +85,6 @@
 #include "besch/weg_besch.h"
 #include "besch/roadsign_besch.h"
 
-#include "sucher/bauplatz_sucher.h"
-
 #include "tpl/vector_tpl.h"
 
 #include "utils/memory_rw.h"
