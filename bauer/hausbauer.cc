@@ -806,7 +806,7 @@ static const haus_besch_t* get_city_building_from_list(const vector_tpl<const ha
 					// FIXME: the factor should not be the arbitrary 3 which I assigned.
 					int chance = besch->get_chance();
 					if (clusters) {
-						uint32 my_clusters = besch->extra_data;
+						uint32 my_clusters = besch->get_clusters();
 						if (my_clusters & clusters) {
 							chance *= 3;
 						} else {

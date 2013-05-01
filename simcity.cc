@@ -4630,7 +4630,7 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 				if (gb != NULL) {
 					// We really have a building as a neighbor...
 					haus_besch_t* neighbor_building = gb->get_tile()->get_besch();
-					neighbor_building_clusters |= neighbor_building->extra_data;
+					neighbor_building_clusters |= neighbor_building->get_clusters();
 				}
 			}
 		}
@@ -4808,7 +4808,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 			if (gb != NULL) {
 				// We really have a building as a neighbor...
 				haus_besch_t* neighbor_building = gb->get_tile()->get_besch();
-				neighbor_building_clusters |= neighbor_building->extra_data;
+				neighbor_building_clusters |= neighbor_building->get_clusters();
 			}
 		}
 	}
@@ -4901,8 +4901,8 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 					gr->calc_bild();
 					reliefkarte_t::get_karte()->calc_map_pixel(gr->get_pos().get_2d());
 				} else if (gr->get_typ() == grund_t::fundament) {
-					uint32 my_cluster_number = h->extra_data;
-					if (my_cluster_number == 0) {
+					uint32 my_clusters = h->get_clusters();
+					if (my_clusters == 0) {
 						// This is a non-clustering building.
 						// If an identical building is in a neighbor tile, do not renovate.
 						gebaeude_t const* const gb = ding_cast<gebaeude_t>(gr->first_obj());

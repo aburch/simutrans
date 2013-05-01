@@ -398,6 +398,15 @@ public:
 
 	bool can_be_built_underground() const { return allow_underground > 0; }
 	bool can_be_built_aboveground() const { return allow_underground != 1; }
+
+	uint32 get_clusters() const { 
+		// Only meaningful for res, com, ind
+		if (gtyp != gebaeude_t::wohnung && gtyp != gebaeude_t::gewerbe && gtyp != gebaeude_t::industrie) {
+			return 0;
+		} else {
+			return extra_data;
+		}
+	}
 };
 	
 
