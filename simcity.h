@@ -434,11 +434,11 @@ private:
 	void bewerte_res_com_ind(const koord pos, int &ind, int &com, int &res);
 
 	/**
-	 * baut ein Gebaeude auf Planquadrat x,y
+	 * Build a city building at Planquadrat x,y
 	 */
-	void baue_gebaeude(koord pos, bool new_town);
+	void build_city_building(koord pos, bool new_town);
 	void erzeuge_verkehrsteilnehmer(koord pos, uint16 journey_tenths_of_minutes, koord target);
-	bool renoviere_gebaeude(gebaeude_t *gb);
+	bool renovate_city_building(gebaeude_t *gb);
 
 	/**
 	 * baut ein Stueck Strasse
@@ -630,7 +630,7 @@ public:
 
 	/* change size of city
 	* @author prissi */
-	void change_size( sint32 delta_citicens );
+	void change_size( sint32 delta_citizens );
 
 	// when ng is false, no town growth any more
 	void set_citygrowth_yesno( bool ng ) { allow_citygrowth = ng; }
