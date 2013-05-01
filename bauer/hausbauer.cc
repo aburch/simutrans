@@ -767,7 +767,7 @@ const haus_besch_t* hausbauer_t::get_special(uint32 bev, haus_besch_t::utyp utyp
  * it will skip and jump, and will never return zero, if there is at least a single valid entry in the list
  * @author Hj. Malthaner
  * @author Nathanael Nerode (neroden)
- * TO DO: respect building clustering
+ * TO DO: improve building clustering
  */
 static const haus_besch_t* get_city_building_from_list(const vector_tpl<const haus_besch_t*>& building_list, int level, uint16 time, climate cl, bool allow_earlier, uint32 clusters)
 {
@@ -803,14 +803,14 @@ static const haus_besch_t* get_city_building_from_list(const vector_tpl<const ha
 					// Level, time period, and climate are all OK.
 					// Now modify the chance rating by a factor based on the clusters.
 					// Nathanael Nerode (neroden) May 1, 2013
-					// FIXME: the factor should not be the arbitrary 3 which I assigned.
+					// FIXME: the factor should be configurable by the pakset, rather than simply 4.
 					int chance = besch->get_chance();
 					if (clusters) {
 						uint32 my_clusters = besch->get_clusters();
 						if (my_clusters & clusters) {
-							chance *= 3;
+							chance *= 4;
 						} else {
-							chance /=3;
+							chance /=4;
 						}
 					}
 					selections.append(besch, chance);

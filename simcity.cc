@@ -4720,6 +4720,7 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 					}
 				}
 			}
+			// TO DO: fix building orientation here, to improve terraced building appearance.
 
 			const gebaeude_t* gb = hausbauer_t::baue(welt, NULL, pos, building_layout[streetdir], h);
 			add_gebaeude_to_stadt(gb);
