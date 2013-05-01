@@ -835,6 +835,7 @@ public:
 	void set_global_power_factor_percent(uint16 value) { global_power_factor_percent = value; }
 
 	uint8 get_enforce_weight_limits() const { return enforce_weight_limits; }
+	void set_enforce_weight_limits(uint16 value) { enforce_weight_limits = value; }
 
 	uint16 get_speed_bonus_multiplier_percent() const { return speed_bonus_multiplier_percent; }
 

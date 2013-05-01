@@ -1451,7 +1451,7 @@ grund_t* vehikel_t::hop()
 		// weight limit is set to 0 in the file.
 
 		// This is just used for the GUI display, so only set to true if the weight limit is set to enforce by speed restriction.
-		is_overweight = (cnv->get_highest_axle_load() > weight_limit && welt->get_settings().get_enforce_weight_limits() == 1); 
+		is_overweight = (cnv->get_highest_axle_load() > weight_limit && welt->get_settings().get_enforce_weight_limits() == 1 || welt->get_settings().get_enforce_weight_limits() == 3); 
 
 		if(weg->is_crossing()) 
 		{
@@ -1503,9 +1503,9 @@ sint32 vehikel_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 	sint32 new_limit = base_limit;
 	const uint32 highest_axle_load = cnv->get_highest_axle_load();
 
-	//Reduce speed for overweight vehicles
+	// Reduce speed for overweight vehicles
 
-	if(highest_axle_load > weight_limit && welt->get_settings().get_enforce_weight_limits() == 1)
+	if(highest_axle_load > weight_limit && welt->get_settings().get_enforce_weight_limits() == 1 || welt->get_settings().get_enforce_weight_limits() == 3)
 	{
 		if(weight_limit != 0 && (highest_axle_load * 100) / weight_limit <= 110)
 		{
@@ -2747,7 +2747,7 @@ int automobil_t::get_kosten(const grund_t *gr, const sint32 max_speed, koord fro
 	//@author: jamespetts
 	// Strongly prefer routes for which the vehicle is not overweight.
 	uint16 weight_limit = w->get_max_axle_load();
-	if(vehikel_t::get_sum_weight() > weight_limit &&welt->get_settings().get_enforce_weight_limits() == 1)
+	if(vehikel_t::get_sum_weight() > weight_limit && welt->get_settings().get_enforce_weight_limits() == 1 || welt->get_settings().get_enforce_weight_limits() == 3)
 	{
 		costs += 40;
 	}
@@ -3508,7 +3508,7 @@ int waggon_t::get_kosten(const grund_t *gr, const sint32 max_speed, koord from_p
 	//@author: jamespetts
 	// Strongly prefer routes for which the vehicle is not overweight.
 	uint16 weight_limit = w->get_max_axle_load();
-	if(vehikel_t::get_sum_weight() > weight_limit &&welt->get_settings().get_enforce_weight_limits() == 1)
+	if(vehikel_t::get_sum_weight() > weight_limit && welt->get_settings().get_enforce_weight_limits() == 1 || welt->get_settings().get_enforce_weight_limits() == 3)
 	{
 		costs += 40;
 	}
