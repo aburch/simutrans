@@ -94,7 +94,7 @@ void tile_writer_t::write_obj(FILE* fp, obj_node_t& parent, int index, int seaso
 }
 
 // Subroutine for write_obj, to avoid duplicated code
-uint32 building_writer_t::get_cluster_data(tabfileobj_t& obj)
+static uint32 get_cluster_data(tabfileobj_t& obj)
 {
 	uint32 clusters = 0;
 	int* ints = obj.get_ints("clusters");
