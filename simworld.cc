@@ -4244,7 +4244,7 @@ bool karte_t::ist_wasser(koord pos, koord dim) const
 
 	for(k.x = pos.x; k.x < pos.x + dim.x; k.x++) {
 		for(k.y = pos.y; k.y < pos.y + dim.y; k.y++) {
-			if(max_hgt(k) > get_grundwasser()) {
+			if(!is_within_grid_limits(k + koord(1,1))  ||  max_hgt(k) > get_grundwasser()) {
 				return false;
 			}
 		}
