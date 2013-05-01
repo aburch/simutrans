@@ -4255,7 +4255,7 @@ bool karte_t::ist_wasser(koord pos, koord dim) const
 
 bool karte_t::square_is_free(koord pos, sint16 w, sint16 h, int *last_y, climate_bits cl) const
 {
-	if(pos.x<0 || pos.y<0 || pos.x+w>=get_size().x || pos.y+h>=get_size().y) {
+	if(pos.x < 0  ||  pos.y < 0  ||  pos.x+w > get_size().x || pos.y+h > get_size().y) {
 		return false;
 	}
 
