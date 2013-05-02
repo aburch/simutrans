@@ -2419,10 +2419,8 @@ int karte_t::grid_raise(koord pos)
 
 		if (can_raise_to(x, y, false, hsw, hse, hne, hnw)) {
 			n = raise_to(x, y, hsw, hse, hne, hnw);
-			if( pos.x == get_size().x  ||  pos.y == get_size().y  ) {
-				// force world full redraw, or background will not show properly
-				set_dirty();
-			}
+			// force world full redraw, or background could be dirty.
+			set_dirty();
 		}
 	}
 	return (n+3)>>2;
