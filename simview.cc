@@ -259,7 +259,7 @@ void karte_ansicht_t::display(bool force_dirty)
 
 	ding_t *zeiger = welt->get_zeiger();
 	DBG_DEBUG4("karte_ansicht_t::display", "display pointer");
-	if(zeiger) {
+	if( zeiger  &&  zeiger->get_pos() != koord3d::invalid ) {
 		bool dirty = zeiger->get_flag(ding_t::dirty);
 		// better not try to twist your brain to follow the retransformation ...
 		const koord diff = zeiger->get_pos().get_2d()-welt->get_world_position()-welt->get_view_ij_offset();
@@ -519,7 +519,7 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 }
 
 
-void karte_ansicht_t::display_background(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, bool dirty)
+void karte_ansicht_t::display_background( KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, bool dirty )
 {
 	display_fillbox_wh(xp, yp, w, h, umgebung_t::background_color, dirty );
 }

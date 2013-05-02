@@ -286,6 +286,21 @@ public:
 	virtual const char *work( karte_t *, spieler_t *, koord3d ) { return NULL; }
 	virtual const char *move( karte_t *, spieler_t *, uint16 /* buttonstate */, koord3d ) { return ""; }
 
+	/**
+	 * Returns whether the 2d koordinate passed it's a valid position for this tool to highlight a tile,
+	 * just takes into account is_grid_tool. It does not check if work is allowed there, that's check_pos() work.
+	 * @see check_pos
+	 * @return true is the coordinate it's found valid, false otherwise.
+	 */
+	bool check_valid_pos( karte_t *w, koord k ) const;
+
+	/**
+	 * Specifies if the cursor will need a position update after this tool takes effect (ie: changed the height of the tile)
+	 * @note only used on lower_raise tools atm.
+	 * @return true if the cursor has to be moved.
+	 */
+	virtual bool update_pos_after_use() const { return false; }
+
 	virtual waytype_t get_waytype() const { return invalid_wt; }
 };
 

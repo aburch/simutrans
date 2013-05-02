@@ -488,13 +488,21 @@ private:
 	void move_view(event_t *ev);
 
 	/**
+	 * Gets a new world position to put the cursor, under the mouse position.
+	 * @param ev system event, we take the mouse position from here. Input parameter.
+	 * @param grid_coordinates indicates if this function is to check against the map tiles, or the grid of heights. Input parameter.
+	 * @return koord3d::invalid if no position exists under the mouse pointer, a 3d koord directly under the mouse otherwise.
+	 */
+	koord3d get_new_cursor_position(const event_t *ev, bool grid_coordinates);
+
+	/**
 	 * Processes a cursor movement event, related to the tool pointer in-map.
 	 * @see zeiger_t
 	 */
 	void move_cursor(const event_t *ev);
 
 	/**
-	 * Searches for the ground_t that intersects with the requested screen position.
+	 * Searches for the ground_t that's under the requested screen position.
 	 * @param screen_pos Screen coordinates to check for.
 	 * @param intersect_grid Special case for the lower/raise tool, will return a limit border tile if we are on the south/east border of screen.
 	 * @param found_i If we have a match, it will be set to the i coordinate of the found tile. Undefined otherwise.

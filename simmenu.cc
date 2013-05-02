@@ -657,6 +657,14 @@ const char *werkzeug_t::check_pos( karte_t *welt, spieler_t *, koord3d pos )
 	return (gr  &&  !gr->is_visible()) ? "" : NULL;
 }
 
+bool werkzeug_t::check_valid_pos( karte_t *w, koord k ) const
+{
+	if(is_grid_tool()) {
+		return w->is_within_grid_limits(k);
+	}
+	return w->is_within_limits(k);
+};
+
 /**
  * Initializes cursor object: image, y-offset, size of marked area,
  * has to be called after init().

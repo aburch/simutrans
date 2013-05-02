@@ -91,6 +91,8 @@ public:
 	 * @return true if this tool operates over the grid, not the map tiles.
 	 */
 	bool is_grid_tool() const {return true;}
+
+	bool update_pos_after_use() const OVERRIDE { return true; }
 };
 
 class wkz_raise_t : public wkz_raise_lower_base_t {

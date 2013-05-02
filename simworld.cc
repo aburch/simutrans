@@ -2008,6 +2008,10 @@ int karte_t::raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 {
 	int n=0;
 	if(is_within_limits(x,y)) {
+		if( x == (get_size().x-1)  ||  y == (get_size().y-1)  ) {
+			// force world full redraw, or background will not show properly
+			set_dirty();
+		}
 		grund_t *gr = lookup_kartenboden(koord(x,y));
 		const sint8 h0 = gr->get_hoehe();
 		// old height
@@ -2147,10 +2151,6 @@ int karte_t::grid_raise(koord pos)
 
 		if (can_raise_to(x, y, false, hsw, hse, hne, hnw)) {
 			n = raise_to(x, y, hsw, hse, hne, hnw);
-			if( pos.x == get_size().x  ||  pos.y == get_size().y  ) {
-				// force world full redraw, or background will not show properly
-				set_dirty();
-			}
 		}
 	}
 	return (n+3)>>2;
@@ -2368,10 +2368,6 @@ int karte_t::grid_lower(koord pos)
 
 		if (can_lower_to(x, y, hsw, hse, hne, hnw)) {
 			n = lower_to(x, y, hsw, hse, hne, hnw);
-			if( pos.x == get_size().x  ||  pos.y == get_size().y  ) {
-				// force world full redraw, or background will not show properly
-				set_dirty();
-			}
 		}
 	}
 	return (n+3)>>2;
@@ -2583,8 +2579,13 @@ void karte_t::local_set_werkzeug( werkzeug_t *w, spieler_t * sp )
 			zeiger->change_pos( koord3d::invalid );
 			// set new cursor properties
 			w->init_cursor(zeiger);
-			// .. and mark again
-			zeiger->change_pos( zpos );
+			// .. and mark again (if the position is acceptable for the tool)
+			if( w->check_valid_pos(this,zpos.get_2d())) {
+				zeiger->change_pos( zpos );
+			}
+			else {
+				zeiger->change_pos( koord3d::invalid );
+			}
 		}
 		werkzeug[sp->get_player_nr()] = w;
 	}
@@ -5673,6 +5674,22 @@ grund_t* karte_t::get_ground_on_screen_coordinate(const koord screen_pos, sint32
 				break;
 			}
 		}
+
+		// last resort, try to intersect with the same tile +1 height, seems to be necessary on steep slopes
+		gr = lookup(koord3d(found_i,found_j,hgt+1));
+		if(gr != NULL) {
+			found = /*select_karten_boden ? gr->ist_karten_boden() :*/ gr->is_visible();
+			if( ( gr->get_typ() == grund_t::tunnelboden || gr->get_typ() == grund_t::monorailboden ) && gr->get_weg_nr(0) == NULL && !gr->get_leitung()  &&  gr->find<zeiger_t>()) {
+				// This is only a dummy ground placed by wkz_tunnelbau_t or wkz_wegebau_t as a preview.
+				found = false;
+			}
+			if (found) {
+				break;
+			}
+			if (bd==NULL && gr->ist_karten_boden()) {
+				bd = gr;
+			}
+		}
 	}
 
 	if(found) {
@@ -5689,23 +5706,13 @@ grund_t* karte_t::get_ground_on_screen_coordinate(const koord screen_pos, sint32
 }
 
 
-void karte_t::move_cursor(const event_t *ev)
-{
-	if(!zeiger) {
-		// No cursor to move, exit
-		return;
-	}
-
-	static int mb_alt=0;
-
+koord3d karte_t::get_new_cursor_position(const event_t *ev ,bool grid_coordinates){
 	const int rw1 = get_tile_raster_width();
 	const int rw2 = rw1/2;
 	const int rw4 = rw1/4;
 
 	int screen_y = ev->my - y_off - rw2 - ((display_get_width()/rw1)&1)*rw4;
 	int screen_x = (ev->mx - x_off - rw2)/2;
-
-	werkzeug_t *wkz = werkzeug[get_active_player_nr()];
 
 	if(zeiger->get_yoff() == Z_PLAN) {
 		// already ok
@@ -5715,12 +5722,11 @@ void karte_t::move_cursor(const event_t *ev)
 		screen_y += rw4;
 	}
 
-
-	const grund_t *bd = get_ground_on_screen_coordinate(koord(screen_x,screen_y),mi,mj,wkz->is_grid_tool());
+	const grund_t *bd = get_ground_on_screen_coordinate(koord(screen_x, screen_y), mi, mj, grid_coordinates);
 
 	// no suitable location found (outside map, ...)
 	if (!bd) {
-		return;
+		return koord3d::invalid;
 	}
 
 	// offset needed for the raise / lower tool.
@@ -5734,7 +5740,30 @@ void karte_t::move_cursor(const event_t *ev)
 	}
 
 	// the new position - extra logic for raise / lower tool
-	const koord3d pos = koord3d(mi,mj, bd->get_disp_height() + (zeiger->get_yoff()==Z_GRID ? groff : 0));
+	return koord3d(mi,mj, bd->get_disp_height() + (zeiger->get_yoff()==Z_GRID ? groff : 0));
+
+
+}
+
+
+void karte_t::move_cursor(const event_t *ev)
+{
+	if(!zeiger) {
+		// No cursor to move, exit
+		return;
+	}
+
+	static int mb_alt=0;
+
+	werkzeug_t *wkz = werkzeug[get_active_player_nr()];
+
+	const koord3d pos = get_new_cursor_position(ev, wkz->is_grid_tool());
+
+	if( pos == koord3d::invalid ) {
+		zeiger->change_pos(pos);
+		return;
+	}
+
 
 	// move cursor
 	const koord3d prev_pos = zeiger->get_pos();
@@ -6007,7 +6036,15 @@ void karte_t::interactive_event(event_t &ev)
 						}
 					}
 					if (err == NULL) {
-						err = wkz->work( this, get_active_player(), zeiger->get_pos() );
+						err = wkz->work(this, get_active_player(), zeiger->get_pos());
+						if( err == NULL ) {
+							// Check if we need to update pointer(zeiger) position.
+							if ( wkz->update_pos_after_use() ) {
+								// Cursor might need movement (screen has changed, we get a new one under the mouse pointer)
+								const koord3d k = get_new_cursor_position(&ev ,wkz->is_grid_tool());
+								zeiger->set_pos(k);
+							}
+						}
 					}
 				}
 				else {
