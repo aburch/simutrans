@@ -803,14 +803,14 @@ static const haus_besch_t* get_city_building_from_list(const vector_tpl<const ha
 					// Level, time period, and climate are all OK.
 					// Now modify the chance rating by a factor based on the clusters.
 					// Nathanael Nerode (neroden) May 1, 2013
-					// FIXME: the factor should be configurable by the pakset, rather than simply 4.
+					// FIXME: the factor should be configurable by the pakset/
 					int chance = besch->get_chance();
 					if (clusters) {
 						uint32 my_clusters = besch->get_clusters();
 						if (my_clusters & clusters) {
-							chance *= 4;
+							chance *= 10;
 						} else {
-							chance /=4;
+							chance /= 10;
 						}
 					}
 					selections.append(besch, chance);
