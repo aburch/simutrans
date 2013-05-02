@@ -2008,10 +2008,6 @@ int karte_t::raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 {
 	int n=0;
 	if(is_within_limits(x,y)) {
-		if( x == (get_size().x-1)  ||  y == (get_size().y-1)  ) {
-			// force world full redraw, or background will not show properly
-			set_dirty();
-		}
 		grund_t *gr = lookup_kartenboden(koord(x,y));
 		const sint8 h0 = gr->get_hoehe();
 		// old height
@@ -2151,6 +2147,8 @@ int karte_t::grid_raise(koord pos)
 
 		if (can_raise_to(x, y, false, hsw, hse, hne, hnw)) {
 			n = raise_to(x, y, hsw, hse, hne, hnw);
+			// force world full redraw, or background could be dirty.
+			set_dirty();
 		}
 	}
 	return (n+3)>>2;
