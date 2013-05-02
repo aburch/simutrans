@@ -1627,14 +1627,6 @@ void haltestelle_t::liefere_an_fabrik(const ware_t& ware) const //"deliver to th
 	fabrik_t *const factory = fabrik_t::get_fab(welt, ware.get_zielpos());
 	if(factory) 
 	{
-		if(ware.is_freight())
-		{
-			// Check to see whether this is within range.
-			if(!fab_list.is_contained(factory))
-			{
-				return;
-			}
-		}
 		factory->liefere_an(ware.get_besch(), ware.menge);
 	}
 }
@@ -2021,7 +2013,7 @@ uint32 haltestelle_t::get_ware_summe(const ware_besch_t *wtyp) const
 
 
 uint32 haltestelle_t::get_ware_fuer_zielpos(const ware_besch_t *wtyp, const koord zielpos) const
-{
+{ 
 	const vector_tpl<ware_t> * warray = waren[wtyp->get_catg_index()];
 	if(warray!=NULL) {
 		FOR(vector_tpl<ware_t>, const& ware, *warray) {
