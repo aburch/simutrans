@@ -193,13 +193,13 @@ private:
 	/**
 	 * in this fixed interval, construction will happen
 	 */
-	static const uint32 step_bau_interval;
+	static const uint32 city_growth_interval;
 
 	/**
-	 * next construction
+	 * When to do growth next
 	 * @author Hj. Malthaner
 	 */
-	uint32 next_bau_step;
+	uint32 next_growth_interval;
 
 	// population statistics
 	sint32 bev; // total population
@@ -385,14 +385,14 @@ private:
 	// recalcs city borders (after loading and deletion)
 	void recalc_city_size();
 
-	// calculates the growth rate for next step_bau using all the different indicators
+	// calculates the growth rate for next growth_interval using all the different indicators
 	void calc_growth();
 
 	/**
-	 * plant das bauen von Gebaeuden
+	 * Build new buildings when growing city
 	 * @author Hj. Malthaner
 	 */
-	void step_bau();
+	void grow_city();
 
 	enum pax_return_type { no_return, factory_return, tourist_return, city_return };
 
@@ -434,11 +434,11 @@ private:
 	void bewerte_res_com_ind(const koord pos, int &ind, int &com, int &res);
 
 	/**
-	 * baut ein Gebaeude auf Planquadrat x,y
+	 * Build a city building at Planquadrat x,y
 	 */
-	void baue_gebaeude(koord pos, bool new_town);
+	void build_city_building(koord pos, bool new_town);
 	void erzeuge_verkehrsteilnehmer(koord pos, uint16 journey_tenths_of_minutes, koord target);
-	bool renoviere_gebaeude(gebaeude_t *gb);
+	bool renovate_city_building(gebaeude_t *gb);
 
 	/**
 	 * baut ein Stueck Strasse
@@ -630,7 +630,7 @@ public:
 
 	/* change size of city
 	* @author prissi */
-	void change_size( sint32 delta_citicens );
+	void change_size( sint32 delta_citizens );
 
 	// when ng is false, no town growth any more
 	void set_citygrowth_yesno( bool ng ) { allow_citygrowth = ng; }
