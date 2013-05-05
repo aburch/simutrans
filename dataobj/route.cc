@@ -883,6 +883,11 @@ void route_t::rdwr(loadsave_t *file)
 	xml_tag_t r( file, "route_t" );
 	sint32 max_n = route.get_count()-1;
 
+	/*if(file->get_experimental_version() >= 11)
+	{
+		file->rdwr_long(max_axle_load);
+		file->rdwr_long(max_convoy_weight);
+	}*/
 	file->rdwr_long(max_n);
 	if(file->is_loading()) {
 		koord3d k;

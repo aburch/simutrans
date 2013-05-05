@@ -489,7 +489,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", sta
 		}
 DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_index );
 
-		linehandle_t new_line  = line;
+		linehandle_t new_line = line;
 		if(  !new_line.is_bound()  ) {
 			// if there is a line with id=0 in the savegame try to assign cnv to this line
 			new_line = get_besitzer()->simlinemgmt.get_line_with_id_zero();
@@ -1219,9 +1219,11 @@ bool convoi_t::drive_to()
 			linieneintrag_t const * schedule_entry = &fpl->get_current_eintrag();
 			while(success && counter--)
 			{
-				if (schedule_entry->reverse || haltestelle_t::get_halt(welt, schedule_entry->pos, get_besitzer()).is_bound())
+				if(schedule_entry->reverse || haltestelle_t::get_halt(welt, schedule_entry->pos, get_besitzer()).is_bound())
+				{
 					// convoy must stop at current route end.
 					break;
+				}
 				advance_schedule();
 				schedule_entry = &fpl->get_current_eintrag();
 				success = fahr[0]->reroute(route.get_count() - 1, schedule_entry->pos);

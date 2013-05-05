@@ -3833,14 +3833,36 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 {
 	assert(ist_erstes);
 	uint16 next_signal, next_crossing;
-	if(  cnv->get_state()==convoi_t::CAN_START  ||  cnv->get_state()==convoi_t::CAN_START_ONE_MONTH  ||  cnv->get_state()==convoi_t::CAN_START_TWO_MONTHS || cnv->get_state()==convoi_t::REVERSING )
+	const linieneintrag_t destination = cnv->get_schedule()->get_current_eintrag();
+	const bool destination_is_nonreversing_waypoint = !destination.reverse && !haltestelle_t::get_halt(welt, destination.pos, get_besitzer()).is_bound() && (!welt->lookup(destination.pos) || !welt->lookup(destination.pos)->get_depot());
+	if(destination_is_nonreversing_waypoint)
+	{
+		schedule_t *fpl = cnv->get_schedule();
+		uint8 index = fpl->get_aktuell();
+		bool reversed = cnv->get_reverse_schedule();
+		fpl->increment_index(&index, &reversed);
+		if (reroute(cnv->get_route()->get_count() - 1, fpl->eintrag[index].pos))
+		{
+			if (reversed)
+			{
+				fpl->advance_reverse();
+			}
+			else
+			{
+				fpl->advance();
+			}
+			cnv->set_next_stop_index(INVALID_INDEX);
+		}
+	}
+
+	if(destination_is_nonreversing_waypoint || cnv->get_state()==convoi_t::CAN_START  ||  cnv->get_state()==convoi_t::CAN_START_ONE_MONTH  ||  cnv->get_state()==convoi_t::CAN_START_TWO_MONTHS || cnv->get_state()==convoi_t::REVERSING)
 	{
 		// reserve first block at the start until the next signal
 		grund_t *gr = welt->lookup( get_pos() );
 		weg_t *w = gr ? gr->get_weg(get_waytype()) : NULL;
 		if(  w==NULL  ||  !(w->has_signal()  ||  w->is_crossing())  ) {
 			// free track => reserve up to next signal
-			if(  !block_reserver(cnv->get_route(), max(route_index,1)-1, next_signal, next_crossing, 0, true, false )  ) {
+			if( !block_reserver(cnv->get_route(), max(route_index,1)-1, next_signal, next_crossing, 0, true, false )  ) {
 				restart_speed = 0;
 				return false;
 			}
