@@ -4637,7 +4637,7 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 				gebaeude_t const* const gb = ding_cast<gebaeude_t>(gr->first_obj());
 				if (gb != NULL) {
 					// We really have a building as a neighbor...
-					haus_besch_t* neighbor_building = gb->get_tile()->get_besch();
+					const haus_besch_t* neighbor_building = gb->get_tile()->get_besch();
 					neighbor_building_clusters |= neighbor_building->get_clusters();
 				}
 			}
@@ -4817,7 +4817,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 			gebaeude_t const* const gb = ding_cast<gebaeude_t>(gr->first_obj());
 			if (gb != NULL) {
 				// We really have a building as a neighbor...
-				haus_besch_t* neighbor_building = gb->get_tile()->get_besch();
+				const haus_besch_t* neighbor_building = gb->get_tile()->get_besch();
 				neighbor_building_clusters |= neighbor_building->get_clusters();
 			}
 		}
