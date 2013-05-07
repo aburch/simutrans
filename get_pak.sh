@@ -59,13 +59,13 @@ paksets=( \
 "http://downloads.sourceforge.net/project/simutrans/pak96.comic/pak96.comic%20for%20111-3/pak96.comic-0.4.10-plus.zip" \
 "http://downloads.sourceforge.net/project/simutrans/pak128/pak128%20for%20112-2/pak128-2.3.0--112.2.zip" \
 "http://downloads.sourceforge.net/project/simutrans/PAK128.german/PAK128.german_0.5_112.1/PAK128.german_0.5_112.x.zip" \
-"http://downloads.sourceforge.net/project/simutrans/pak192.comic/pak192.comic_102-2-1/pak192.comic_0-1-9-1_102-2-1.zip" \
+"http://simutrans-germany.com/files/upload/pak192.comic_0-2-2_112-2.zip" \
 "http://downloads.sourceforge.net/project/simutrans/pak32.comic/pak32.comic%20for%20102-0/pak32.comic_102-0.zip" \
 "http://downloads.sourceforge.net/project/simutrans/pak64.contrast/pak64.Contrast_910.zip" \
 "http://hd.simutrans.com/release/PakHD_v04B_100-0.zip" \
 "http://downloads.sourceforge.net/project/simutrans/pak128.britain/pak128.Britain%20for%20112-0/pak128.Britain.1.14-112-0.zip" \
 "http://downloads.sourceforge.net/project/simutrans/pak128.japan/for%20Simutrans%20110.0.1/pak128.japan-110.0.1-version16-08-2011.zip" \
-"http://downloads.sourceforge.net/project/simutrans/pak64.scifi/pak64.scifi_112.1_v0.12.zip" \
+"http://downloads.sourceforge.net/project/simutrans/pak64.scifi/pak64.scifi_112.x_v0.2.zip" \
 "http://downloads.sourceforge.net/project/ironsimu/pak48.Excentrique/v018/pak48-excentrique_v018.zip" \
 )
 

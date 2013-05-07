@@ -202,23 +202,23 @@ Section /o "pak128.Japan for Simutrans 112.0 (alpha)" pak128japan
 SectionEnd
 
 
-; name does not match folder name (pak192 japan) but otherwise always selected for update
-Section /o "pak192 Comic (Freeware) for 102.2.1" pak192comic
-  AddSize 23893
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak192.comic/pak192.comic_102-2-1/pak192.comic_0-1-9-1_102-2-1.zip"
-  StrCpy $archievename "pak192.comic_0-1-9-1_102-2-1.zip"
-  StrCpy $downloadname "pak192.Comic"
-  StrCpy $VersionString ""
+Section /o "pak192 Comic (Freeware)" pak192comic
+  AddSize 40882
+  StrCpy $downloadlink "http://simutrans-germany.com/files/upload/pak192.comic_0-2-2_112-2.zip"
+;  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak192.comic/pak192.comic_102-2-1/pak192.comic_0-1-9-1_102-2-1.zip"
+  StrCpy $archievename "pak192.comic_0-2-2_112-2.zip"
+  StrCpy $downloadname "pak192.comic"
+  StrCpy $VersionString "pak192.comic [Version 0.2.2]"
   Call DownloadInstallZip
 SectionEnd
 
 
-Section /o "pak64.SciFi V0.12 (alpha)" pak64scifi
-  AddSize 2596
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64.scifi/pak64.scifi_112.1_v0.12.zip"
-  StrCpy $archievename "pak64.scifi_112.1_v0.12.zip"
+Section /o "pak64.SciFi V0.2 (alpha)" pak64scifi
+  AddSize 3028
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64.scifi/pak64.scifi_112.x_v0.2.zip"
+  StrCpy $archievename "pak64.scifi_112.x_v0.2.zip"
+  StrCpy $VersionString "pak64.SciFi V0.2"
   StrCpy $downloadname "pak64.SciFi"
-  StrCpy $VersionString "pak64.SciFi V0.12"
   Call DownloadInstallZip
 SectionEnd
 

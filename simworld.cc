@@ -3110,7 +3110,7 @@ void karte_t::sync_step(long delta_t, bool sync, bool display )
 
 		// now remove everything from last time
 		sync_step_running = false;
-		while(!sync_remove_list.empty()) {
+		while(  !sync_remove_list.empty()  ) {
 			sync_list.remove( sync_remove_list.remove_first() );
 		}
 
