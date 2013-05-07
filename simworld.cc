@@ -5673,7 +5673,12 @@ grund_t* karte_t::get_ground_on_screen_coordinate(const koord screen_pos, sint32
 			}
 		}
 
-		// last resort, try to intersect with the same tile +1 height, seems to be necessary on steep slopes
+		// Last resort, try to intersect with the same tile +1 height, seems to be necessary on steep slopes
+		// *NOTE* Don't do it on border tiles, since it will extend the range in wich the cursor will be considered to be
+		// inside world limits.
+		if( found_i==(get_size().x-1)  ||  found_j == (get_size().y-1) ) {
+			continue;
+		}
 		gr = lookup(koord3d(found_i,found_j,hgt+1));
 		if(gr != NULL) {
 			found = /*select_karten_boden ? gr->ist_karten_boden() :*/ gr->is_visible();
