@@ -894,6 +894,10 @@ bool haltestelle_t::step(uint8 what, sint16 &units_remaining)
 				return false;
 			}
 			recalc_status();
+			if(  umgebung_t::show_names & 2  ) { // display station waiting information/status
+				// station bars might have moved horizontally, just redraw whole screen since don't know where they were to mark dirty selectively, and this is infrequent
+				mark_screen_dirty();
+			}
 			break;
 		default:
 			break;
