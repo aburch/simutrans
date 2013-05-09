@@ -99,15 +99,16 @@ static uint32 get_cluster_data(tabfileobj_t& obj)
 	uint32 clusters = 0;
 	int* ints = obj.get_ints("clusters");
 
-	for (int i = 1; i <= ints[0]; i++) {
-		if (ints[i] > 1 && ints[i] <= 32) { // Sanity check
-			clusters += 1<<(ints[i]-1);
+	for(  int i = 1;  i <= ints[0];  i++  ) {
+		if(  ints[i] > 1  &&  ints[i] <= 32  ) { // Sanity check
+			clusters |= 1<<(ints[i]-1);
 		}
 	}
 	delete [] ints;
 
 	return clusters;
 }
+
 
 void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
