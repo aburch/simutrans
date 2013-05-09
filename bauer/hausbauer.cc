@@ -23,6 +23,7 @@
 #include "../gui/karte.h"
 #include "../gui/werkzeug_waehler.h"
 
+#include "../simcity.h"
 #include "../simdebug.h"
 #include "../simdepot.h"
 #include "../simhalt.h"
@@ -732,15 +733,15 @@ const haus_besch_t* hausbauer_t::get_special(uint32 bev, haus_besch_t::utyp utyp
 }
 
 
-
 /**
  * tries to find something that matches this entry
  * it will skip and jump, and will never return zero, if there is at least a single valid entry in the list
+ * @author Nathanael Nerode (neroden) for clustering
  * @author Hj. Malthaner
  */
-static const haus_besch_t* get_aus_liste(const vector_tpl<const haus_besch_t*>& liste, int level, uint16 time, climate cl)
+static const haus_besch_t* get_city_building_from_list(const vector_tpl<const haus_besch_t*>& liste, int level, uint16 time, climate cl, uint32 clusters )
 {
-	weighted_vector_tpl<const haus_besch_t *> auswahl(16);
+	weighted_vector_tpl<const haus_besch_t *> selections(16);
 
 //	DBG_MESSAGE("hausbauer_t::get_aus_liste()","target level %i", level );
 	const haus_besch_t *besch_at_least=NULL;
@@ -753,53 +754,67 @@ static const haus_besch_t* get_aus_liste(const vector_tpl<const haus_besch_t*>& 
 
 		const int thislevel = besch->get_level();
 		if(thislevel>level) {
-			if (auswahl.empty()) {
-				// continue with search ...
+			if (selections.empty()) {
+				// Nothing of the correct level.  Continue with search of next level.
 				level = thislevel;
 			}
 			else {
-				// ok, we found something
+				// We already found something of the correct level; stop.
 				break;
 			}
 		}
 
-		if(thislevel==level  &&  besch->get_chance()>0) {
-			if(cl==MAX_CLIMATES  ||  besch->is_allowed_climate(cl)) {
-				if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
-//				DBG_MESSAGE("hausbauer_t::get_aus_liste()","appended %s at %i", besch->get_name(), thislevel );
-					auswahl.append(besch, besch->get_chance());
+		if(  thislevel == level  &&  besch->get_chance() > 0  ) {
+			if(  cl==MAX_CLIMATES  ||  besch->is_allowed_climate(cl)  ) {
+				if(  time == 0  ||  (besch->get_intro_year_month() <= time  &&  besch->get_retire_year_month() > time)  ) {
+//					DBG_MESSAGE("hausbauer_t::get_city_building_from_list()","appended %s at %i", besch->get_name(), thislevel );
+					/* Level, time period, and climate are all OK.
+					 * Now modify the chance rating by a factor based on the clusters.
+					 */
+					// FIXME: the factor should be configurable by the pakset/
+					int chance = besch->get_chance();
+					if(  clusters  ) {
+						uint32 my_clusters = besch->get_clusters();
+						if(  my_clusters & clusters  ) {
+							chance *= stadt_t::get_cluster_factor();
+						}
+						else {
+							chance /= stadt_t::get_cluster_factor();
+						}
+					}
+					selections.append(besch, chance);
 				}
 			}
 		}
 	}
 
-	if(auswahl.get_sum_weight()==0) {
+	if(selections.get_sum_weight()==0) {
 		// this is some level below, but at least it is something
 		return besch_at_least;
 	}
-	if(auswahl.get_count()==1) {
-		return auswahl.front();
+	if(selections.get_count()==1) {
+		return selections.front();
 	}
 	// now there is something to choose
-	return pick_any_weighted(auswahl);
+	return pick_any_weighted(selections);
 }
 
 
-const haus_besch_t* hausbauer_t::get_gewerbe(int level, uint16 time, climate cl)
+const haus_besch_t* hausbauer_t::get_commercial(int level, uint16 time, climate cl, uint32 clusters)
 {
-	return get_aus_liste(gewerbehaeuser, level, time, cl);
+	return get_city_building_from_list(gewerbehaeuser, level, time, cl, clusters);
 }
 
 
-const haus_besch_t* hausbauer_t::get_industrie(int level, uint16 time, climate cl)
+const haus_besch_t* hausbauer_t::get_industrial(int level, uint16 time, climate cl, uint32 clusters)
 {
-	return get_aus_liste(industriehaeuser, level, time, cl);
+	return get_city_building_from_list(industriehaeuser, level, time, cl, clusters);
 }
 
 
-const haus_besch_t* hausbauer_t::get_wohnhaus(int level, uint16 time, climate cl)
+const haus_besch_t* hausbauer_t::get_residential(int level, uint16 time, climate cl, uint32 clusters)
 {
-	return get_aus_liste(wohnhaeuser, level, time, cl);
+	return get_city_building_from_list(wohnhaeuser, level, time, cl, clusters);
 }
 
 const haus_besch_t* hausbauer_t::get_headquarter(int level, uint16 time)
@@ -824,7 +839,7 @@ const haus_besch_t *hausbauer_t::waehle_aus_liste(vector_tpl<const haus_besch_t 
 		weighted_vector_tpl<const haus_besch_t *> auswahl(16);
 		FOR(vector_tpl<haus_besch_t const*>, const besch, liste) {
 			if((cl==MAX_CLIMATES  ||  besch->is_allowed_climate(cl))  &&  besch->get_chance()>0  &&  (time==0  ||  (besch->get_intro_year_month()<=time  &&  (ignore_retire  ||  besch->get_retire_year_month()>time)  )  )  ) {
-//				DBG_MESSAGE("hausbauer_t::get_aus_liste()","appended %s at %i", besch->get_name(), thislevel );
+//				DBG_MESSAGE("hausbauer_t::waehle_aus_liste()","appended %s at %i", besch->get_name(), thislevel );
 				auswahl.append(besch, besch->get_chance());
 			}
 		}

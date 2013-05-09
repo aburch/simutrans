@@ -94,6 +94,8 @@ public:
 	static void set_industry_increase(uint32 ind_increase);
 	static uint32 get_minimum_city_distance();
 	static void set_minimum_city_distance(uint32 s);
+	static void set_cluster_factor( uint32 factor ) { stadt_t::cluster_factor = factor; }
+	static uint32 get_cluster_factor() { return stadt_t::cluster_factor; }
 
 private:
 	static karte_t *welt;
@@ -135,13 +137,15 @@ private:
 	/**
 	 * in this fixed interval, construction will happen
 	 */
-	static const uint32 step_bau_interval;
+	static const uint32 city_growth_step;
 
 	/**
-	 * next construction
+	 * When to do growth next
 	 * @author Hj. Malthaner
 	 */
-	uint32 next_bau_step;
+	uint32 next_growth_step;
+
+	static uint32 cluster_factor;
 
 	// attribute fuer die Bevoelkerung
 	sint32 bev;	// Bevoelkerung gesamt
@@ -257,14 +261,14 @@ private:
 	// recalcs city borders (after loading and deletion)
 	void recalc_city_size();
 
-	// calculates the growth rate for next step_bau using all the different indicators
+	// calculates the growth rate for next growth_interval using all the different indicators
 	void calc_growth();
 
 	/**
-	 * plant das bauen von Gebaeuden
+	 * Build new buildings when growing city
 	 * @author Hj. Malthaner
 	 */
-	void step_bau();
+	void step_grow_city();
 
 	enum pax_return_type { no_return, factory_return, tourist_return, city_return };
 
@@ -306,11 +310,12 @@ private:
 	void bewerte_res_com_ind(const koord pos, int &ind, int &com, int &res);
 
 	/**
-	 * baut ein Gebaeude auf Planquadrat x,y
+	 * Build/renovates a city building at Planquadrat x,y
 	 */
-	void baue_gebaeude(koord pos);
+	void build_city_building(koord pos);
+	void renovate_city_building(gebaeude_t *gb);
+
 	void erzeuge_verkehrsteilnehmer(koord pos, sint32 level,koord target);
-	void renoviere_gebaeude(gebaeude_t *gb);
 
 	/**
 	 * baut ein Stueck Strasse
@@ -470,7 +475,7 @@ public:
 
 	/* change size of city
 	* @author prissi */
-	void change_size( sint32 delta_citicens );
+	void change_size( sint32 delta_citizens );
 
 	// when ng is false, no town growth any more
 	void set_citygrowth_yesno( bool ng ) { allow_citygrowth = ng; }

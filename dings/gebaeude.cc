@@ -778,9 +778,9 @@ void gebaeude_t::rdwr(loadsave_t *file)
 				switch(type) {
 					case gebaeude_t::wohnung:
 						{
-							const haus_besch_t *hb = hausbauer_t::get_wohnhaus(level,welt->get_timeline_year_month(),welt->get_climate(get_pos().z));
+							const haus_besch_t *hb = hausbauer_t::get_residential(level,welt->get_timeline_year_month(),welt->get_climate(get_pos().z));
 							if(hb==NULL) {
-								hb = hausbauer_t::get_wohnhaus(level,0, MAX_CLIMATES );
+								hb = hausbauer_t::get_residential(level,0, MAX_CLIMATES );
 							}
 							if( hb) {
 								dbg->message("gebaeude_t::rwdr", "replace unknown building %s with residence level %i by %s",buf,level,hb->get_name());
@@ -791,9 +791,9 @@ void gebaeude_t::rdwr(loadsave_t *file)
 
 					case gebaeude_t::gewerbe:
 						{
-							const haus_besch_t *hb = hausbauer_t::get_gewerbe(level,welt->get_timeline_year_month(),welt->get_climate(get_pos().z));
+							const haus_besch_t *hb = hausbauer_t::get_commercial(level,welt->get_timeline_year_month(),welt->get_climate(get_pos().z));
 							if(hb==NULL) {
-								hb = hausbauer_t::get_gewerbe(level,0, MAX_CLIMATES );
+								hb = hausbauer_t::get_commercial(level,0, MAX_CLIMATES );
 							}
 							if(hb) {
 								dbg->message("gebaeude_t::rwdr", "replace unknown building %s with commercial level %i by %s",buf,level,hb->get_name());
@@ -804,11 +804,11 @@ void gebaeude_t::rdwr(loadsave_t *file)
 
 					case gebaeude_t::industrie:
 						{
-							const haus_besch_t *hb = hausbauer_t::get_industrie(level,welt->get_timeline_year_month(),welt->get_climate(get_pos().z));
+							const haus_besch_t *hb = hausbauer_t::get_industrial(level,welt->get_timeline_year_month(),welt->get_climate(get_pos().z));
 							if(hb==NULL) {
-								hb = hausbauer_t::get_industrie(level,0, MAX_CLIMATES );
+								hb = hausbauer_t::get_industrial(level,0, MAX_CLIMATES );
 								if(hb==NULL) {
-									hb = hausbauer_t::get_gewerbe(level,0, MAX_CLIMATES );
+									hb = hausbauer_t::get_residential(level,0, MAX_CLIMATES );
 								}
 							}
 							if (hb) {
