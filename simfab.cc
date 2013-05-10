@@ -633,15 +633,16 @@ fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
 	power_demand = 0;
 	prodfactor_electric = 0;
 	lieferziele_active_last_month = 0;
+	pos = koord3d::invalid;
 
 	rdwr(file);
 
 	if(  besch == NULL  ) {
-		dbg->warning( "fabrik_t::fabrik_t()", "No pak-file for factory at (%s) - will not be built!", pos.get_str() );
+		dbg->warning( "fabrik_t::fabrik_t()", "No pak-file for factory at (%s) - will not be built!", pos_origin.get_str() );
 		return;
 	}
-	else if(  !welt->is_within_limits(pos.get_2d())  ) {
-		dbg->warning( "fabrik_t::fabrik_t()", "%s is not a valid position! (Will not be built!)", pos.get_str() );
+	else if(  !welt->is_within_limits(pos_origin.get_2d())  ) {
+		dbg->warning( "fabrik_t::fabrik_t()", "%s is not a valid position! (Will not be built!)", pos_origin.get_str() );
 		besch = NULL; // to get rid of this broken factory later...
 	}
 	else {
