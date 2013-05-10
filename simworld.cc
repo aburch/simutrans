@@ -5661,7 +5661,7 @@ grund_t* karte_t::get_ground_on_screen_coordinate(const koord screen_pos, sint32
 				bd = gr;
 			}
 		}
-		else if (grund_t::underground_mode==grund_t::ugm_level && hgt==hmax) {
+		if (grund_t::underground_mode==grund_t::ugm_level && hgt==hmax) {
 			// fallback in sliced mode, if no ground is under cursor
 			bd = lookup_kartenboden(koord(found_i,found_j));
 		}
@@ -5674,7 +5674,7 @@ grund_t* karte_t::get_ground_on_screen_coordinate(const koord screen_pos, sint32
 		}
 
 		// Last resort, try to intersect with the same tile +1 height, seems to be necessary on steep slopes
-		// *NOTE* Don't do it on border tiles, since it will extend the range in wich the cursor will be considered to be
+		// *NOTE* Don't do it on border tiles, since it will extend the range in which the cursor will be considered to be
 		// inside world limits.
 		if( found_i==(get_size().x-1)  ||  found_j == (get_size().y-1) ) {
 			continue;
