@@ -104,6 +104,8 @@ uint8 umgebung_t::toolbar_max_width;
 uint8 umgebung_t::toolbar_max_height;
 uint8 umgebung_t::cursor_overlay_color;
 uint8 umgebung_t::background_color;
+bool umgebung_t::draw_earth_border;
+bool umgebung_t::draw_outside_tile;
 uint8 umgebung_t::show_vehicle_states;
 bool umgebung_t::visualize_schedule;
 sint8 umgebung_t::daynight_level;
@@ -189,6 +191,8 @@ void umgebung_t::init()
 	cursor_overlay_color = COL_ORANGE;
 
 	background_color = COL_GREY2;
+	draw_earth_border = true;
+	draw_outside_tile = false;
 
 	show_vehicle_states = 1;
 
@@ -353,6 +357,11 @@ void umgebung_t::rdwr(loadsave_t *file)
 		if (file->is_loading()) {
 			nickname = str ? str.c_str() : "";
 		}
+	}
+	if(  file->get_version()>=112006  ) {
+		file->rdwr_byte( background_color );
+		file->rdwr_bool( draw_earth_border );
+		file->rdwr_bool( draw_outside_tile );
 	}
 	// server settings are not saved, since the are server specific and could be different on different servers on the save computers
 }

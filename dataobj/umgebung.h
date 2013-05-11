@@ -249,6 +249,12 @@ public:
 	/// color used for solid background draw
 	static uint8 background_color;
 
+	/// true if the border shut be shown as cut through the earth
+	static bool draw_earth_border;
+
+	/// true if the outside tiles should be shown
+	static bool draw_outside_tile;
+
 	/**
 	 * Show labels (city and station names, ...)
 	 * and waiting indicator bar for stations

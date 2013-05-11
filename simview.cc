@@ -401,6 +401,10 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 				else {
 					// check if ouside visible
 					outside_visible = true;
+					if(  umgebung_t::draw_outside_tile  ) {
+						const sint16 yypos = ypos - tile_raster_scale_y(welt->get_grundwasser()*TILE_HEIGHT_STEP, IMG_SIZE);
+						display_normal( grund_besch_t::ausserhalb->get_bild(0), xpos, yypos, 0, true, false );
+					}
 				}
 			}
 		}
@@ -521,5 +525,7 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 
 void karte_ansicht_t::display_background( KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, bool dirty )
 {
-	display_fillbox_wh(xp, yp, w, h, umgebung_t::background_color, dirty );
+	if(  !(umgebung_t::draw_earth_border  &&  umgebung_t::draw_outside_tile)  ) {
+		display_fillbox_wh(xp, yp, w, h, umgebung_t::background_color, dirty );
+	}
 }

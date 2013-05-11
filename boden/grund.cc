@@ -943,11 +943,76 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 }
 
 
-void grund_t::display_if_visible(sint16 xpos, sint16 ypos, sint16 raster_tile_width)
+void grund_t::display_border( sint16 xpos, sint16 ypos, const sint16 raster_tile_width )
+{
+	if(  pos.z < welt->get_grundwasser()  ) {
+		// we do not display below water (yet)
+		return;
+	}
+
+	const sint16 hgt_step = tile_raster_scale_y( TILE_HEIGHT_STEP, raster_tile_width);
+
+	// fixme for double slopes!
+	static sint8 lookup_hgt[5] = { 6, 3, 0, 1, 2 };
+
+	if(  pos.y-welt->get_size().y+1 == 0  ) {
+		// move slopes to front of tile
+		sint16 x = xpos - raster_tile_width/2;
+		sint16 y = ypos + raster_tile_width/4 + (pos.z-welt->get_grundwasser())*hgt_step;
+		// left side border
+		sint16 diff = corner1(slope)-corner2(slope);
+		image_id slope_img = grund_besch_t::slopes->get_bild( lookup_hgt[ 2+diff ]+11 );
+		if(  diff  ) {
+			diff = abs(diff)-1;
+		}
+		else if(  corner2(slope)  ) {
+			// no difference but a slope at the front => need an extra flat height step
+			diff = -corner2(slope);
+		}
+		diff ++;
+		// ok, now we have the height; since the slopes may end with a fence they are drawn in reverse order
+		for(  sint16 zz = pos.z-welt->get_grundwasser();  diff <= zz;  diff ++  ) {
+			display_normal( grund_besch_t::slopes->get_bild(15), x, y, 0, true, false );
+			y -= hgt_step;
+		}
+		display_normal( slope_img, x, y, 0, true, false );
+	}
+
+	if(  pos.x-welt->get_size().x+1 == 0  ) {
+		// move slopes to front of tile
+		sint16 x = xpos + raster_tile_width/2;
+		sint16 y = ypos + raster_tile_width/4 + (pos.z-welt->get_grundwasser())*hgt_step;
+		// right side border
+		sint16 diff = corner2(slope)-corner3(slope);
+		image_id slope_img = grund_besch_t::slopes->get_bild( lookup_hgt[ 2+diff ] );
+		if(  diff  ) {
+			diff = abs(diff)-1;
+		}
+		else if(  corner2(slope)  ) {
+			// no difference but a slope at the front => need an extra flat height step
+			diff = -corner2(slope);
+		}
+		diff ++;
+		// ok, now we have the height; since the slopes may end with a fence they are drawn in reverse order
+		for(  sint16 zz = pos.z-welt->get_grundwasser();  diff <= zz;  diff ++  ) {
+			display_normal( grund_besch_t::slopes->get_bild(4), x, y, 0, true, false );
+			y -= hgt_step;
+		}
+		display_normal( slope_img, x, y, 0, true, false );
+	}
+}
+
+
+void grund_t::display_if_visible(sint16 xpos, sint16 ypos, const sint16 raster_tile_width)
 {
 
 	if(  !is_karten_boden_visible()  ) {
 		return;
+	}
+
+	if(  umgebung_t::draw_earth_border  &&  (pos.x-welt->get_size().x+1 == 0  ||  pos.y-welt->get_size().y+1 == 0)  ) {
+		// the last tile. might need a border
+		display_border( xpos, ypos, raster_tile_width );
 	}
 
 	if(!get_flag(grund_t::draw_as_ding)) {

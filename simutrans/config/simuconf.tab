@@ -330,6 +330,12 @@ show_names = 3
 # Color of background default: COL_GREY2 (210)
 #background_color = 210
 
+# Draw the earth slope to mark the border (default 1 on)
+draw_earth_border = 1
+
+# Tile the outside with the ground.ouside.pak (default 0 off)
+draw_outside_tile = 0
+
 ##################################window stuff##################################
 # show the windows close etc. buttons on the right (like windows 98)
 #window_buttons_right = 0
