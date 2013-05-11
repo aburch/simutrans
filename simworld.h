@@ -1409,12 +1409,10 @@ public:
 	/**
 	 * @return grund at the bottom (where house will be build)
 	 * @note Inline because called very frequently!
-	 * @author Hj. Malthaner
 	 */
 	inline grund_t *lookup_kartenboden(const koord &pos) const
 	{
-		const planquadrat_t *plan = lookup(pos);
-		return plan ? plan->get_kartenboden() : NULL;
+		return is_within_limits(pos.x, pos.y) ? plan[pos.x+pos.y*cached_grid_size.x].get_kartenboden() : NULL;
 	}
 
 	/**
