@@ -640,8 +640,16 @@ city_isolation_factor = 32
 #industry_increase_every = 2000
 # The preceding is disabled in experimental
 
-# Minimum distance between factories (in tiles) 
-factory_spacing = 6
+# Minimum distance between factories (in tiles)
+# Note that this applies as between *any* pair of factories, not just factories
+# that are connected to each other.
+min_factory_spacing = 2
+
+# Maximum distance for connected factories
+# If percentage>0, it will be in percent of the largest map dimension
+# percentage also over-rides the absolute value (which is in tiles)
+max_factory_spacing_percentage = 25
+#max_factory_spacing = 40
 
 # allow all possible supplier to connect to your factories?
 # This will also affect savegames!
@@ -651,6 +659,9 @@ crossconnect_factories = 0
 # how big is the chance for crossconnections in percent
 # (100% will give nearly the same results as crossconnect_factories=1)
 crossconnect_factories_percentage = 33
+
+# True if substations ("transformers") are allowed to be built underground (default)
+allow_underground_transformers = 1
 
 # How much is the total electric power available (in relation to total production) 
 # in parts per thousand. 1000 = 100% and default for Simutrans-Experimental.
@@ -672,6 +683,13 @@ factory_enforce_demand = 1
 # of years stipulated below, factories have a 100% chance of closing down. The
 # chance increases the closer to this value that factories get.
 max_years_obsolete = 30
+
+# How much amount in transport is sent before further distribution stops
+# This is only enabled when "just_in_time" is enabled
+# The limit is given in percent of factory storage (0=off)
+# It should be not too low to allow big convoys fully loaded at more than one
+# factory (for medium sized maps 500 seems a reasonable number)
+maximum_intransit_percentage = 0
 
 ################################# Display settings ################################
 

@@ -70,7 +70,7 @@
  * @author Hj- Malthaner
  */
 #define WTT_LOADING 500
-#define WAIT_INFINITE 0xFFFFFFFFu
+#define WAIT_INFINITE 9223372036854775807
 
 
 karte_t *convoi_t::welt = NULL;
@@ -3440,16 +3440,16 @@ void convoi_t::rdwr(loadsave_t *file)
 	{
 		if(file->is_saving()) 
 		{
-			if(go_on_ticks==WAIT_INFINITE) 
+			if(go_on_ticks == WAIT_INFINITE) 
 			{
 				if(file->get_experimental_version() <= 1)
 				{
 					uint32 old_go_on_ticks = (uint32)go_on_ticks;
-					file->rdwr_long( old_go_on_ticks );
+					file->rdwr_long(old_go_on_ticks);
 				}
 				else
 				{
-					file->rdwr_longlong(go_on_ticks );
+					file->rdwr_longlong(go_on_ticks);
 				}
 			}
 			else 
@@ -5073,7 +5073,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 
 	// loading is finished => maybe drive on
 	bool can_go = false;
-	can_go = loading_level>=loading_limit;
+	can_go = loading_level >= loading_limit;
 	can_go = can_go || welt->get_zeit_ms()>go_on_ticks;
 	can_go = can_go && welt->get_zeit_ms() > arrival_time + ((sint64)current_loading_time - (sint64)reversing_time);
 	can_go = can_go || no_load;
