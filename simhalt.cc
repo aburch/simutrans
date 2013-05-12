@@ -20,7 +20,6 @@
 #include "simconvoi.h"
 #include "simdebug.h"
 #include "simfab.h"
-#include "simgraph.h"
 #include "simhalt.h"
 #include "simintr.h"
 #include "simline.h"
@@ -337,11 +336,7 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 
 	status_color = COL_YELLOW;
 	last_status_color = COL_PURPLE;
-
-	last_bar_height.resize( warenbauer_t::get_waren_anzahl() );
-	for(  int i = 0;  i < warenbauer_t::get_waren_anzahl();  i++  ) {
-		last_bar_height.append(0);
-	}
+	last_bar_count = 0;
 
 	reconnect_counter = welt->get_schedule_counter()-1;
 
@@ -383,11 +378,7 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 
 	status_color = COL_YELLOW;
 	last_status_color = COL_PURPLE;
-
-	last_bar_height.resize( warenbauer_t::get_waren_anzahl() );
-	for(  int i = 0;  i < warenbauer_t::get_waren_anzahl();  i++  ) {
-		last_bar_height.append(0);
-	}
+	last_bar_count = 0;
 
 	sortierung = freight_list_sorter_t::by_name;
 	init_financial_history();
@@ -894,10 +885,6 @@ bool haltestelle_t::step(uint8 what, sint16 &units_remaining)
 				return false;
 			}
 			recalc_status();
-			if(  umgebung_t::show_names & 2  ) { // display station waiting information/status
-				// station bars might have moved horizontally, just redraw whole screen since don't know where they were to mark dirty selectively, and this is infrequent
-				mark_screen_dirty();
-			}
 			break;
 		default:
 			break;
@@ -2842,63 +2829,88 @@ void haltestelle_t::recalc_status()
  * Draws some nice colored bars giving some status information
  * @author Hj. Malthaner
  */
-void haltestelle_t::display_status(sint16 xpos, sint16 ypos)
+void haltestelle_t::display_status(KOORD_VAL xpos, KOORD_VAL ypos)
 {
 	// ignore freight that cannot reach to this station
 	sint16 count = 0;
-	for( unsigned i=0;  i<warenbauer_t::get_waren_anzahl(); i++) {
-		if(i==2) continue;	// ignore freight none
-		if(gibt_ab(warenbauer_t::get_info(i))) {
-			count ++;
+	for(  uint16 i = 0;  i < warenbauer_t::get_waren_anzahl();  i++  ) {
+		if(  i == 2  ) {
+			continue; // ignore freight none
 		}
+		if(  gibt_ab( warenbauer_t::get_info(i) )  ) {
+			count++;
+		}
+	}
+	if(  count != last_bar_count  ) {
+		// bars will shift x positions, mark entire station bar region dirty
+		KOORD_VAL max_bar_height = 0;
+		for(  sint16 i = 0;  i < last_bar_count;  i++  ) {
+			if(  last_bar_height[i] > max_bar_height  ) {
+				max_bar_height = last_bar_height[i];
+			}
+		}
+		const KOORD_VAL x = xpos - (last_bar_count * 4 - get_tile_raster_width()) / 2;
+		mark_rect_dirty_wc( x - 1 - 4, ypos - 11 - max_bar_height - 6, x + last_bar_count * 4 + 12 - 2, ypos - 11 );
+
+		// reset bar heights for new count
+		last_bar_height.clear();
+		last_bar_height.resize( count );
+		for(  sint16 i = 0;  i < count;  i++  ) {
+			last_bar_height.append(0);
+		}
+		last_bar_count = count;
 	}
 
 	ypos -= 11;
-	xpos -= (count*4 - get_tile_raster_width())/2;
-	sint16 x = xpos;
-	uint32 max_capacity;
+	xpos -= (count * 4 - get_tile_raster_width()) / 2;
+	const KOORD_VAL x = xpos;
 
-	for( unsigned i=0;  i<warenbauer_t::get_waren_anzahl(); i++) {
-		if(i==2) continue;	// ignore freight none
+	sint16 bar_height_index = 0;
+	uint32 max_capacity;
+	for(  uint16 i = 0;  i < warenbauer_t::get_waren_anzahl();  i++  ) {
+		if(  i == 2  ) {
+			continue; // ignore freight none
+		}
 		const ware_besch_t *wtyp = warenbauer_t::get_info(i);
-		if(gibt_ab(wtyp)) {
-			if(i<2) {
+		if(  gibt_ab( wtyp )  ) {
+			if(  i < 2  ) {
 				max_capacity = get_capacity(i);
 			}
 			else {
 				max_capacity = get_capacity(2);
 			}
-			const uint32 sum = get_ware_summe(wtyp);
-			uint32 v = min(sum, max_capacity);
-			if(max_capacity>512) {
-				v = 2+(v*128)/max_capacity;
+			const uint32 sum = get_ware_summe( wtyp );
+			uint32 v = min( sum, max_capacity );
+			if(  max_capacity > 512  ) {
+				v = 2 + (v * 128) / max_capacity;
 			}
 			else {
-				v = (v/4)+2;
+				v = (v / 4) + 2;
 			}
 
-			display_fillbox_wh_clip(xpos, ypos-v-1, 1, v, COL_GREY4, false);
-			display_fillbox_wh_clip(xpos+1, ypos-v-1, 2, v, wtyp->get_color(), false);
-			display_fillbox_wh_clip(xpos+3, ypos-v-1, 1, v, COL_GREY1, false);
+			display_fillbox_wh_clip( xpos, ypos - v - 1, 1, v, COL_GREY4, false);
+			display_fillbox_wh_clip( xpos + 1, ypos - v - 1, 2, v, wtyp->get_color(), false);
+			display_fillbox_wh_clip( xpos + 3, ypos - v - 1, 1, v, COL_GREY1, false);
 
 			// Hajo: show up arrow for capped values
-			if(sum > max_capacity) {
-				display_fillbox_wh_clip(xpos+1, ypos-v-6, 2, 4, COL_WHITE, false);
-				display_fillbox_wh_clip(xpos, ypos-v-5, 4, 1, COL_WHITE, false);
+			if(  sum > max_capacity  ) {
+				display_fillbox_wh_clip( xpos + 1, ypos - v - 6, 2, 4, COL_WHITE, false);
+				display_fillbox_wh_clip( xpos, ypos - v - 5, 4, 1, COL_WHITE, false);
 			}
 
-			if(  last_bar_height[i] != v  ) {
-				if(  v > last_bar_height[i]  ) {
+			if(  last_bar_height[bar_height_index] != (KOORD_VAL)v  ) {
+				if(  (KOORD_VAL)v > last_bar_height[bar_height_index]  ) {
 					// bar will be longer, mark new height dirty
-					mark_rect_dirty_wc(xpos, ypos-v-6, xpos + 4 - 1, ypos + v + 4 - 1);
+					mark_rect_dirty_wc( xpos, ypos - v - 6, xpos + 4 - 1, ypos + 4 - 1);
 				}
 				else {
 					// bar will be shorter, mark old height dirty
-					mark_rect_dirty_wc(xpos, ypos-last_bar_height[i]-6, xpos + 4 - 1, ypos + last_bar_height[i] + 4 - 1);
+					mark_rect_dirty_wc( xpos, ypos - last_bar_height[bar_height_index] - 6, xpos + 4 - 1, ypos + 4 - 1);
 				}
-				last_bar_height[i] = v;
+				last_bar_height[bar_height_index] = v;
 			}
 
+			bar_height_index++;
 			xpos += 4;
 		}
 	}
@@ -2909,7 +2921,7 @@ void haltestelle_t::display_status(sint16 xpos, sint16 ypos)
 		last_status_color = get_status_farbe();
 		dirty = true;
 	}
-	display_fillbox_wh_clip(x-1-4, ypos, count*4+12-2, 4, get_status_farbe(), dirty);
+	display_fillbox_wh_clip( x - 1 - 4, ypos, count * 4 + 12 - 2, 4, get_status_farbe(), dirty );
 }
 
 
