@@ -5667,7 +5667,7 @@ grund_t* karte_t::get_ground_on_screen_coordinate(const koord screen_pos, sint32
 		}
 		else if (intersect_grid){
 			// We try to intersect with virtual nonexistent border tiles in south and east.
-			if ( gr = lookup_gridcoords(koord3d(found_i,found_j,hgt)) ){
+			if(  (gr = lookup_gridcoords( koord3d( found_i, found_j, hgt ) ))  ){
 				found = true;
 				break;
 			}

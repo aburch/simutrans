@@ -77,7 +77,7 @@ bool schedule_t::ist_halt_erlaubt(const grund_t *gr) const
 	if(  ok  ) {
 		// ok, we can go here; but we must also check, that we are not entring a foreign depot
 		depot_t *dp = gr->get_depot();
-		ok &=  (dp==NULL  ||  dp->get_tile()->get_besch()->get_extra()==my_waytype);
+		ok &= (dp==NULL  ||  (int)dp->get_tile()->get_besch()->get_extra()==my_waytype);
 	}
 
 	return ok;
@@ -110,7 +110,7 @@ halthandle_t schedule_t::get_prev_halt( spieler_t *sp ) const
 {
 	if(  eintrag.get_count()>1  ) {
 		const karte_t *welt = sp->get_welt();
-		for(  uint i=1;  i < eintrag.get_count()-1;  i++  ) {
+		for(  uint i=1;  i < eintrag.get_count()-1u;  i++  ) {
 			halthandle_t h = haltestelle_t::get_halt( welt, eintrag[ (aktuell+eintrag.get_count()-i) % eintrag.get_count() ].pos, sp );
 			if(  h.is_bound()  ) {
 				return h;

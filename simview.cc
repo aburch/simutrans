@@ -308,7 +308,7 @@ void karte_ansicht_t::display(bool force_dirty)
 
 
 
-void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const sint16 y_max, bool force_dirty, bool threaded )
+void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const sint16 y_max, bool /*force_dirty*/, bool threaded )
 {
 	const sint16 IMG_SIZE = get_tile_raster_width();
 

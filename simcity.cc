@@ -2627,7 +2627,6 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 
 	// try to build
 	const haus_besch_t* h = NULL;
-	bool return_value = false;
 	if (sum_commercial > sum_industrial && sum_commercial > sum_residential) {
 		// we must check, if we can really update to higher level ...
 		const int try_level = (alt_typ == gebaeude_t::gewerbe ? level + 1 : level);
