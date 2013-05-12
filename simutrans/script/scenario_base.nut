@@ -403,6 +403,24 @@ class tile_x extends extend_get {
 		y = y_
 		z = z_
 	}
+
+	function get_objects()
+	{
+		return tile_object_list_x(x,y,z)
+	}
+}
+
+class tile_object_list_x {
+	/// coordinates
+	x = -1
+	y = -1
+	z = -1
+
+	constructor(x_, y_, z_) {
+		x = x_
+		y = y_
+		z = z_
+	}
 }
 
 /**

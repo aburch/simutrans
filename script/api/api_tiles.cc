@@ -92,14 +92,6 @@ void export_tiles(HSQUIRRELVM vm)
 	 */
 	register_method(vm, &grund_t::suche_obj, "find_object");
 
-	/**
-	 * Meta-method to be used in foreach loops to loop over all objects on the tile. Do not call it directly.
-	 */
-	register_function(vm, get_next_object,  "_nexti",  2, "x o|i");
-	/**
-	 * Meta-method to be used in foreach loops to loop over all objects on the tile. Do not call it directly.
-	 */
-	register_function(vm, get_object_index, "_get",    2, "xi");
 
 	/**
 	 * Access halt at this tile.
@@ -179,6 +171,36 @@ void export_tiles(HSQUIRRELVM vm)
 	 * @typemask tile_x(waytypes,dir)
 	 */
 	register_function(vm, &get_neighbour, "get_neighbour", 3, "xii");
+
+#ifdef SQAPI_DOC // document members
+	/**
+	 * List to iterate through all objects on this tile.
+	 * @code
+	 * t= tile_x(47,11)
+	 * foreach(obj in t.objects) {
+	 *    ...
+	 * }
+	 * @endcode
+	 */
+	tile_object_list_x objects;
+#endif
+
+	end_class(vm);
+
+	/**
+	 * Class that holds an iterator through the list of objects on a particular tile.
+	 *
+	 * For an example see tile_x::objects.
+	 */
+	begin_class(vm, "tile_object_list_x", "coord3d");
+	/**
+	 * Meta-method to be used in foreach loops to loop over all objects on the tile. Do not call it directly.
+	 */
+	register_function(vm, get_next_object,  "_nexti",  2, "x o|i");
+	/**
+	 * Meta-method to be used in foreach loops to loop over all objects on the tile. Do not call it directly.
+	 */
+	register_function(vm, get_object_index, "_get",    2, "x i|s");
 
 	end_class(vm);
 
