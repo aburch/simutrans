@@ -100,8 +100,8 @@ void karte_ansicht_t::display(bool force_dirty)
 	// redraw everything?
 	force_dirty = force_dirty || welt->is_dirty();
 	welt->unset_dirty();
-	if(force_dirty) {
-		mark_rect_dirty_wc( 0, 0, display_get_width(), display_get_height() );
+	if(  force_dirty  ) {
+		mark_screen_dirty();
 		welt->set_background_dirty();
 		force_dirty = false;
 	}

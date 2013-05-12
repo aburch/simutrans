@@ -236,10 +236,11 @@ static PIXVAL* textur = NULL;
 #define DIRTY_TILE_SIZE 16
 #define DIRTY_TILE_SHIFT 4
 
-static unsigned char *tile_dirty = NULL;
-static unsigned char *tile_dirty_old = NULL;
+static uint32 *tile_dirty = NULL;
+static uint32 *tile_dirty_old = NULL;
 
 static int tiles_per_line = 0;
+static int tile_buffer_per_line = 0; // number of tiles that fit the allocated buffer per line - maintain alignment - x=0 is always first bit in a word for each row
 static int tile_lines = 0;
 static int tile_buffer_length = 0;
 
@@ -888,36 +889,11 @@ inline void get_xrange_and_step_y(int &xmin, int &xmax)
  */
 static inline void mark_tile_dirty(const int x, const int y)
 {
-	const int bit = x + y * tiles_per_line;
+	const int bit = x + y * tile_buffer_per_line;
 #if 0
 	assert(bit / 8 < tile_buffer_length);
 #endif
-	tile_dirty[bit >> 3] |= 1 << (bit & 7);
-}
-
-
-static inline void mark_tiles_dirty(const int x1, const int x2, const int y)
-{
-	int bit = y * tiles_per_line + x1;
-	const int end = bit + x2 - x1;
-
-	do {
-#if 0
-		assert(bit / 8 < tile_buffer_length);
-#endif
-
-		tile_dirty[bit >> 3] |= 1 << (bit & 7);
-	} while (++bit <= end);
-}
-
-
-static inline int is_tile_dirty(const int x, const int y)
-{
-	const int bit = x + y * tiles_per_line;
-	const int bita = bit >> 3;
-	const int bitb = 1 << (bit & 7);
-
-	return (tile_dirty[bita] | tile_dirty_old[bita]) & bitb;
+	((uint8*)tile_dirty)[bit >> 3] |= 1 << (bit & 7);
 }
 
 
@@ -944,8 +920,12 @@ static void mark_rect_dirty_nc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_V
 	assert(y2 < tile_lines);
 #endif
 
-	for (; y1 <= y2; y1++) {
-		mark_tiles_dirty(x1, x2, y1);
+	for(  ;  y1 <= y2;  y1++  ) {
+		int bit = y1 * tile_buffer_per_line + x1;
+		const int end = bit + x2 - x1;
+		do {
+			((uint8*)tile_dirty)[bit >> 3] |= 1 << (bit & 7);
+		} while(  ++bit <= end  );
 	}
 }
 
@@ -981,7 +961,7 @@ void mark_rect_dirty_wc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2)
  */
 void mark_screen_dirty()
 {
-	mark_rect_dirty_nc(0, 0, disp_width-1, disp_height - 1);
+	memset( tile_dirty, 0xFFFFFFFF, sizeof(tile_dirty) * tile_buffer_length );
 }
 
 
@@ -1716,10 +1696,10 @@ static void rezoom_img(const image_id n)
 			}
 		}
 		else {
-			if (images[n].w <= 0) {
-				// h=0 will be ignored, with w=0 there was an error!
-				printf("WARNING: image%d w=0!\n", n);
-			}
+//			if (images[n].w <= 0) {
+//				// h=0 will be ignored, with w=0 there was an error!
+//				printf("WARNING: image%d w=0!\n", n);
+//			}
 			images[n].h = 0;
 		}
 #if MULTI_THREAD>1
@@ -3048,13 +3028,23 @@ void display_scroll_band(const KOORD_VAL start_y, const KOORD_VAL x_offset, cons
  * Zeichnet ein Pixel
  * @author Hj. Malthaner
  */
+#ifdef DEBUG_FLUSH_BUFFER
+static void display_pixel(KOORD_VAL x, KOORD_VAL y, PIXVAL color, bool mark_dirty=true)
+#else
 static void display_pixel(KOORD_VAL x, KOORD_VAL y, PIXVAL color)
+#endif
 {
 	if (x >= clip_rect.x && x < clip_rect.xx && y >= clip_rect.y && y < clip_rect.yy) {
 		PIXVAL* const p = textur + x + y * disp_width;
 
 		*p = color;
-		mark_tile_dirty(x >> DIRTY_TILE_SHIFT, y >> DIRTY_TILE_SHIFT);
+#ifdef DEBUG_FLUSH_BUFFER
+		if(  mark_dirty  ) {
+#endif
+			mark_tile_dirty(x >> DIRTY_TILE_SHIFT, y >> DIRTY_TILE_SHIFT);
+#ifdef DEBUG_FLUSH_BUFFER
+		}
+#endif
 	}
 }
 
@@ -3735,7 +3725,11 @@ void display_direct_line(const KOORD_VAL x, const KOORD_VAL y, const KOORD_VAL x
 	yp = y << 16;
 
 	for (i = 0; i <= steps; i++) {
+#ifdef DEBUG_FLUSH_BUFFER
+		display_pixel(xp >> 16, yp >> 16, colval, false);
+#else
 		display_pixel(xp >> 16, yp >> 16, colval);
+#endif
 		xp += xs;
 		yp += ys;
 	}
@@ -3940,9 +3934,10 @@ void draw_bezier(KOORD_VAL Ax, KOORD_VAL Ay, KOORD_VAL Bx, KOORD_VAL By, KOORD_V
  */
 void display_flush_buffer(void)
 {
-	int x, y;
-	unsigned char* tmp;
-
+	static const uint8 MultiplyDeBruijnBitPosition[32] =
+	{
+		0, 1, 28, 2, 29, 14, 24, 3, 30, 22, 20, 15, 25, 17, 4, 8, 31, 27, 13, 23, 21, 19, 16, 7, 26, 12, 18, 6, 11, 5, 10, 9
+	};
 #ifdef USE_SOFTPOINTER
 	ex_ord_update_mx_my();
 
@@ -3972,49 +3967,100 @@ void display_flush_buffer(void)
 	old_my = sys_event.my;
 #endif
 
+	// combine current with last dirty tiles
+	for(  int i = 0;  i < tile_buffer_length;  i++  ) {
+		tile_dirty_old[i] |= tile_dirty[i];
+	}
+
+	const int tile_words_per_line = tile_buffer_per_line >> 5;
+	ALLOCA( uint32, masks, tile_words_per_line );
+
+	for(  int x1 = 0;  x1 < tiles_per_line;  x1++  ) {
+		const uint32 x_search_mask = 1 << (x1 & 31); // bit mask for finding bit x set
+		int y1 = 0;
+		do {
+			const int word_max = (0 + (y1 + 1) * tile_buffer_per_line) >> 5; // first word on next line. limit search to < max
+			const int word_x1 = (x1 + y1 * tile_buffer_per_line) >> 5;
+			if(  (tile_dirty_old[word_x1] & x_search_mask) == x_search_mask  ) {
+				// found dirty tile at x1, now find contiguous block of dirties - x2
+				const uint32 testval = ~((~(0xFFFFFFFF << x1)) | tile_dirty_old[word_x1]);
+				int word_x2 = word_x1;
+				int x2;
+				if(  testval == 0  ) { // dirty block spans words
+					masks[0] = tile_dirty_old[word_x1];
+					word_x2++;
+					while(  word_x2 < word_max  &&  tile_dirty_old[word_x2] == 0xFFFFFFFF  ) {
+						masks[word_x2 - word_x1] = 0xFFFFFFFF; // dirty block spans this entire word
+						word_x2++;
+					}
+					if(  word_x2 >= word_max                   // dirty tiles extend all the way to screen edge
+						 ||  !(tile_dirty_old[word_x2] & 1)  ) { // dirty block actually ended on the word edge
+						x2 = 32; // set to whole word
+						word_x2--; // masks already set in while loop above
+					}
+					else { // dirty block ends in word_x2
+						const uint32 tv = ~tile_dirty_old[word_x2];
+						x2 = MultiplyDeBruijnBitPosition[(((tv & -tv) * 0x077CB531U)) >> 27];
+						masks[word_x2-word_x1] = 0xFFFFFFFF >> (32 - x2);
+					}
+				}
+				else { // dirty block is all within one word - word_x1
+					x2 = MultiplyDeBruijnBitPosition[(((testval & -testval) * 0x077CB531U)) >> 27];
+					masks[0] = (0xFFFFFFFF << (32 - x2 + (x1 & 31))) >> (32 - x2);
+				}
+
+				for(  int i = word_x1;  i <= word_x2;  i++  ) { // clear dirty
+					tile_dirty_old[i] &= ~masks[i - word_x1];
+				}
+
+				// x2 from bit index to tile coords
+				x2 += (x1 & ~31) + ((word_x2 - word_x1) << 5);
+
+				// find how many rows can be combined into one rectangle
+				int y2 = y1 + 1;
+				bool xmatch = true;
+				while(  y2 < tile_lines  &&  xmatch  ) {
+					const int li = (x1 + y2 * tile_buffer_per_line) >> 5;
+					const int ri = li + word_x2 - word_x1;
+					for(  int i = li;  i <= ri;  i++ ) {
+						if(  (tile_dirty_old[i] & masks[i - li])  !=  masks[i - li]  ) {
+							xmatch = false;
+							break;
+						}
+					}
+					if(  xmatch  ) {
+						for(  int i = li;  i <= ri;  i++  ) { // clear dirty
+							tile_dirty_old[i] &= ~masks[i - li];
+						}
+						y2++;
+					}
+				}
+
 #ifdef DEBUG_FLUSH_BUFFER
-	for (y = 0; y < tile_lines - 1; y++) {
-		x = 0;
-
-		do {
-			if (is_tile_dirty(x, y)) {
-				const int xl = x;
-				do {
-					x++;
-				} while(x < tiles_per_line && is_tile_dirty(x, y));
-
-				display_vline_wh((xl << DIRTY_TILE_SHIFT) - 1, y << DIRTY_TILE_SHIFT, DIRTY_TILE_SIZE, 80, false);
-				display_vline_wh( x  << DIRTY_TILE_SHIFT,      y << DIRTY_TILE_SHIFT, DIRTY_TILE_SIZE, 80, false);
-				display_fillbox_wh(xl << DIRTY_TILE_SHIFT,  y << DIRTY_TILE_SHIFT,                        (x - xl) << DIRTY_TILE_SHIFT, 1, 80, false);
-				display_fillbox_wh(xl << DIRTY_TILE_SHIFT, (y << DIRTY_TILE_SHIFT) + DIRTY_TILE_SIZE - 1, (x - xl) << DIRTY_TILE_SHIFT, 1, 80, false);
-			}
-			x++;
-		} while (x < tiles_per_line);
-	}
-	dr_textur(0, 0, disp_actual_width, disp_height);
+				display_vline_wh( (x1 << DIRTY_TILE_SHIFT) - 1, y1 << DIRTY_TILE_SHIFT, (y2 - y1) << DIRTY_TILE_SHIFT, COL_YELLOW, false);
+				display_vline_wh( x2 << DIRTY_TILE_SHIFT,  y1 << DIRTY_TILE_SHIFT, (y2 - y1) << DIRTY_TILE_SHIFT, COL_YELLOW, false);
+				display_fillbox_wh( x1 << DIRTY_TILE_SHIFT, y1 << DIRTY_TILE_SHIFT, (x2 - x1) << DIRTY_TILE_SHIFT, 1, COL_YELLOW, false);
+				display_fillbox_wh( x1 << DIRTY_TILE_SHIFT, (y2 << DIRTY_TILE_SHIFT) - 1, (x2 - x1) << DIRTY_TILE_SHIFT, 1, COL_YELLOW, false);
+				display_direct_line( x1 << DIRTY_TILE_SHIFT, y1 << DIRTY_TILE_SHIFT, x2 << DIRTY_TILE_SHIFT, (y2 << DIRTY_TILE_SHIFT) - 1, COL_YELLOW );
+				display_direct_line( x1 << DIRTY_TILE_SHIFT, (y2 << DIRTY_TILE_SHIFT) - 1, x2 << DIRTY_TILE_SHIFT, y1 << DIRTY_TILE_SHIFT, COL_YELLOW );
 #else
-	for (y = 0; y < tile_lines; y++) {
-		x = 0;
-
-		do {
-			if (is_tile_dirty(x, y)) {
-				const int xl = x;
-				do {
-					x++;
-				} while (x < tiles_per_line && is_tile_dirty(x, y));
-
-				dr_textur(xl << DIRTY_TILE_SHIFT, y << DIRTY_TILE_SHIFT, (x - xl) << DIRTY_TILE_SHIFT, DIRTY_TILE_SIZE);
+				dr_textur( x1 << DIRTY_TILE_SHIFT, y1 << DIRTY_TILE_SHIFT, (x2 - x1) << DIRTY_TILE_SHIFT, (y2 - y1) << DIRTY_TILE_SHIFT );
+#endif
+				y1 = y2; // continue search from bottom of found rectangle
 			}
-			x++;
-		} while (x < tiles_per_line);
+			else {
+				y1++;
+			}
+		} while(  y1 < tile_lines  );
 	}
+#ifdef DEBUG_FLUSH_BUFFER
+	dr_textur(0, 0, disp_actual_width, disp_height );
 #endif
 
 	// swap tile buffers
-	tmp = tile_dirty_old;
+	uint32 *tmp = tile_dirty_old;
 	tile_dirty_old = tile_dirty;
-	tile_dirty = tmp;
-	MEMZERON(tile_dirty, tile_buffer_length);
+	tile_dirty = tmp; // _old was cleared to 0 in above loops
 }
 
 
@@ -4122,15 +4168,16 @@ void simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 	}
 
 	// allocate dirty tile flags
-	tiles_per_line     = (disp_width  + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;
-	tile_lines         = (disp_height + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;
-	tile_buffer_length = (tile_lines * tiles_per_line + 7) / 8;
+	tiles_per_line = (disp_width + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;
+	tile_buffer_per_line = (tiles_per_line + 31) & ~31;
+	tile_lines = (disp_height + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;
+	tile_buffer_length = (tile_lines * tile_buffer_per_line / 32);
 
-	tile_dirty     = MALLOCN(unsigned char, tile_buffer_length);
-	tile_dirty_old = MALLOCN(unsigned char, tile_buffer_length);
+	tile_dirty = MALLOCN( uint32, tile_buffer_length );
+	tile_dirty_old = MALLOCN( uint32, tile_buffer_length );
 
-	memset(tile_dirty,     255, tile_buffer_length);
-	memset(tile_dirty_old, 255, tile_buffer_length);
+	mark_screen_dirty();
+	MEMZERON( tile_dirty_old, tile_buffer_length );
 
 	// init player colors
 	for(i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
@@ -4199,8 +4246,8 @@ void simgraph_exit()
 {
 	dr_os_close();
 
-	guarded_free(tile_dirty);
-	guarded_free(tile_dirty_old);
+	guarded_free( tile_dirty_old );
+	guarded_free( tile_dirty );
 	display_free_all_images_above(0);
 	guarded_free(images);
 
@@ -4225,27 +4272,26 @@ void simgraph_resize(KOORD_VAL w, KOORD_VAL h)
 	if (disp_width != w || disp_height != h) {
 		KOORD_VAL new_width = dr_textur_resize(&textur, w, h);
 		if(  new_width!=disp_width  ||  disp_height != h) {
-
 			disp_width = new_width;
 			disp_height = h;
 
-			guarded_free(tile_dirty);
-			guarded_free(tile_dirty_old);
+			guarded_free( tile_dirty_old );
+			guarded_free( tile_dirty);
 
-			tiles_per_line     = (disp_width  + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;
-			tile_lines         = (disp_height + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;
-			tile_buffer_length = (tile_lines * tiles_per_line + 7) / 8;
+			// allocate dirty tile flags
+			tiles_per_line = (disp_width + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;
+			tile_buffer_per_line = (tiles_per_line + 31) & ~31;
+			tile_lines = (disp_height + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;
+			tile_buffer_length = (tile_lines * tile_buffer_per_line / 32);
 
-			tile_dirty     = MALLOCN(unsigned char, tile_buffer_length);
-			tile_dirty_old = MALLOCN(unsigned char, tile_buffer_length);
-
-			memset(tile_dirty,     255, tile_buffer_length);
-			memset(tile_dirty_old, 255, tile_buffer_length);
+			tile_dirty = MALLOCN( uint32, tile_buffer_length );
+			tile_dirty_old = MALLOCN( uint32, tile_buffer_length );
 
 			display_set_clip_wh(0, 0, disp_actual_width, disp_height);
 		}
-		memset(tile_dirty,     255, tile_buffer_length);
-		memset(tile_dirty_old, 255, tile_buffer_length);
+
+		mark_screen_dirty();
+		MEMZERON( tile_dirty_old, tile_buffer_length );
 	}
 }
 

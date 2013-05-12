@@ -38,19 +38,6 @@ int zoom_factor_down()
 	return false;
 }
 
-static inline void mark_tile_dirty(const int, const int)
-{
-}
-
-static inline void mark_tiles_dirty(const int, const int, const int)
-{
-}
-
-static inline int is_tile_dirty(const int, const int)
-{
-	return false;
-}
-
 void mark_rect_dirty_wc(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL)
 {
 }
