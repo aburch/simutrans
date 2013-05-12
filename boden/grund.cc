@@ -951,8 +951,6 @@ void grund_t::display_border( sint16 xpos, sint16 ypos, const sint16 raster_tile
 	}
 
 	const sint16 hgt_step = tile_raster_scale_y( TILE_HEIGHT_STEP, raster_tile_width);
-
-	// fixme for double slopes!
 	static sint8 lookup_hgt[5] = { 6, 3, 0, 1, 2 };
 
 	if(  pos.y-welt->get_size().y+1 == 0  ) {
@@ -962,6 +960,7 @@ void grund_t::display_border( sint16 xpos, sint16 ypos, const sint16 raster_tile
 		// left side border
 		sint16 diff = corner1(slope)-corner2(slope);
 		image_id slope_img = grund_besch_t::slopes->get_bild( lookup_hgt[ 2+diff ]+11 );
+#ifndef DOUBLE_GROUNDS
 		if(  diff  ) {
 			diff = abs(diff)-1;
 		}
@@ -975,6 +974,21 @@ void grund_t::display_border( sint16 xpos, sint16 ypos, const sint16 raster_tile
 			display_normal( grund_besch_t::slopes->get_bild(15), x, y, 0, true, false );
 			y -= hgt_step;
 		}
+#else
+		diff = -min(corner1(slope),corner2(slope));
+		sint16 zz = pos.z-welt->get_grundwasser();
+		if(  diff < zz && ((zz-diff)&1)==1  ) {
+			display_normal( grund_besch_t::slopes->get_bild(15), x, y, 0, true, false );
+			y -= hgt_step;
+			diff++;
+		}
+		// ok, now we have the height; since the slopes may end with a fence they are drawn in reverse order
+		while(  diff < zz  ) {
+			display_normal( grund_besch_t::slopes->get_bild(19), x, y, 0, true, false );
+			y -= hgt_step*2;
+			diff+=2;
+		}
+#endif
 		display_normal( slope_img, x, y, 0, true, false );
 	}
 
@@ -985,6 +999,7 @@ void grund_t::display_border( sint16 xpos, sint16 ypos, const sint16 raster_tile
 		// right side border
 		sint16 diff = corner2(slope)-corner3(slope);
 		image_id slope_img = grund_besch_t::slopes->get_bild( lookup_hgt[ 2+diff ] );
+#ifndef DOUBLE_GROUNDS
 		if(  diff  ) {
 			diff = abs(diff)-1;
 		}
@@ -998,6 +1013,21 @@ void grund_t::display_border( sint16 xpos, sint16 ypos, const sint16 raster_tile
 			display_normal( grund_besch_t::slopes->get_bild(4), x, y, 0, true, false );
 			y -= hgt_step;
 		}
+#else
+		diff = -min(corner2(slope),corner3(slope));
+		sint16 zz = pos.z-welt->get_grundwasser();
+		if(  diff < zz && ((zz-diff)&1)==1  ) {
+			display_normal( grund_besch_t::slopes->get_bild(4), x, y, 0, true, false );
+			y -= hgt_step;
+			diff++;
+		}
+		// ok, now we have the height; since the slopes may end with a fence they are drawn in reverse order
+		while(  diff < zz  ) {
+			display_normal( grund_besch_t::slopes->get_bild(8), x, y, 0, true, false );
+			y -= hgt_step*2;
+			diff+=2;
+		}
+#endif
 		display_normal( slope_img, x, y, 0, true, false );
 	}
 }
