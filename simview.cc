@@ -397,6 +397,10 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 						kb->display_if_visible(xpos, yypos, IMG_SIZE);
 						plotted = true;
 					}
+					// not on screen? We still might need to plot the border ...
+					else if(  umgebung_t::draw_earth_border  &&  (pos.x-welt->get_size().x+1 == 0  ||  pos.y-welt->get_size().y+1 == 0)  ) {
+						kb->display_border( xpos, yypos, IMG_SIZE );
+					}
 				}
 				else {
 					// check if ouside visible
