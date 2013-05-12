@@ -537,7 +537,6 @@ display_blend_proc display_blend = NULL;
 signed short current_tile_raster_width = 0;
 
 
-
 /*
  * Hajo: Zoom factor
  */
@@ -545,7 +544,6 @@ signed short current_tile_raster_width = 0;
 static uint32 zoom_factor = 3;
 static sint32 zoom_num[MAX_ZOOM_FACTOR+1] = { 2, 3, 4, 1, 3, 5, 1, 3, 1, 1 };
 static sint32 zoom_den[MAX_ZOOM_FACTOR+1] = { 1, 2, 3, 1, 4, 8, 2, 8, 4, 8 };
-
 
 
 /* changes the raster width after loading */
@@ -672,7 +670,6 @@ void display_set_clip_wh(KOORD_VAL x, KOORD_VAL y, KOORD_VAL w, KOORD_VAL h)
 	clip_rect.xx = x + w; // watch out, clips to KOORD_VAL max
 	clip_rect.yy = y + h; // watch out, clips to KOORD_VAL max
 }
-
 
 
 class clip_line_t {
@@ -1016,7 +1013,6 @@ void set_zoom_factor(int z)
 }
 
 
-
 int zoom_factor_up()
 {
 	// zoom out, if size permits
@@ -1110,7 +1106,6 @@ static void recode_img_src_target(KOORD_VAL h, PIXVAL *src, PIXVAL *target)
 }
 
 
-
 /**
  * Handles the conversion of an image to the output color
  * @author prissi
@@ -1188,7 +1183,6 @@ static void recode_color_img(const unsigned int n, const unsigned char player_nr
 }
 
 #endif
-
 
 
 // for zoom out
@@ -1811,13 +1805,12 @@ void display_set_light(int new_light_level)
 
 void display_day_night_shift(int night)
 {
-	if (night != night_shift) {
+	if(  night != night_shift  ) {
 		night_shift = night;
 		calc_base_pal_from_night_shift(night);
-		mark_rect_dirty_nc(0, 32, disp_width - 1, disp_height - 1);
+		mark_screen_dirty();
 	}
 }
-
 
 
 // set first and second company color for player
@@ -1838,7 +1831,7 @@ void display_set_player_color_scheme(const int player, const COLOR_VAL col1, con
 			player_day = player_night;
 		}
 		recode();
-		mark_rect_dirty_nc(0, 32, disp_width - 1, disp_height - 1);
+		mark_screen_dirty();
 	}
 }
 
@@ -2016,6 +2009,7 @@ static inline void colorpixcopy(PIXVAL *dest, const PIXVAL *src, const PIXVAL * 
 	}
 }
 
+
 /**
  * templated pixel copy routines
  * to be used in display_img_pc
@@ -2025,15 +2019,19 @@ enum pixcopy_routines {
 	colored = 1	/// replaces player colors
 };
 
+
 template<pixcopy_routines copyroutine> void templated_pixcopy(PIXVAL *dest, const PIXVAL *src, const PIXVAL * const end);
 template<> void templated_pixcopy<plain>(PIXVAL *dest, const PIXVAL *src, const PIXVAL * const end)
 {
 	pixcopy(dest, src, end);
 }
+
+
 template<> void templated_pixcopy<colored>(PIXVAL *dest, const PIXVAL *src, const PIXVAL * const end)
 {
 	colorpixcopy(dest, src, end);
 }
+
 
 /**
  * draws image with clipping along arbitrary lines
@@ -2462,7 +2460,6 @@ void display_color_img(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8
 }
 
 
-
 /**
  * draw unscaled images, replaces base color
  * @author prissi
@@ -2530,7 +2527,6 @@ void display_base_img(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 
 }
 
 
-
 /* from here code for transparent images */
 typedef void (*blend_proc)(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour, const PIXVAL len);
 
@@ -2539,6 +2535,7 @@ typedef void (*blend_proc)(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour,
 #define TWO_OUT_16 (0x39E7)
 #define ONE_OUT_15 (0x3DEF)
 #define TWO_OUT_15 (0x1CE7)
+
 
 static void pix_blend75_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
 {
@@ -2550,6 +2547,7 @@ static void pix_blend75_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const
 	}
 }
 
+
 static void pix_blend75_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
@@ -2559,6 +2557,7 @@ static void pix_blend75_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const
 		src++;
 	}
 }
+
 
 static void pix_blend50_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
 {
@@ -2570,6 +2569,7 @@ static void pix_blend50_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const
 	}
 }
 
+
 static void pix_blend50_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
@@ -2579,6 +2579,7 @@ static void pix_blend50_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const
 		src++;
 	}
 }
+
 
 static void pix_blend25_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
 {
@@ -2590,6 +2591,7 @@ static void pix_blend25_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const
 	}
 }
 
+
 static void pix_blend25_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
@@ -2599,6 +2601,7 @@ static void pix_blend25_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const
 		src++;
 	}
 }
+
 
 // Knightly : the following 6 functions are for display_base_img_blend()
 static void pix_blend_recode75_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
@@ -2611,6 +2614,7 @@ static void pix_blend_recode75_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL 
 	}
 }
 
+
 static void pix_blend_recode75_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
@@ -2620,6 +2624,7 @@ static void pix_blend_recode75_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL 
 		src++;
 	}
 }
+
 
 static void pix_blend_recode50_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
 {
@@ -2631,6 +2636,7 @@ static void pix_blend_recode50_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL 
 	}
 }
 
+
 static void pix_blend_recode50_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
@@ -2640,6 +2646,7 @@ static void pix_blend_recode50_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL 
 		src++;
 	}
 }
+
 
 static void pix_blend_recode25_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
 {
@@ -2651,6 +2658,7 @@ static void pix_blend_recode25_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL 
 	}
 }
 
+
 static void pix_blend_recode25_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
@@ -2661,6 +2669,7 @@ static void pix_blend_recode25_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL 
 	}
 }
 
+
 static void pix_outline75_15(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
@@ -2669,6 +2678,7 @@ static void pix_outline75_15(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, 
 		dest++;
 	}
 }
+
 
 static void pix_outline75_16(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, const PIXVAL len)
 {
@@ -2679,6 +2689,7 @@ static void pix_outline75_16(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, 
 	}
 }
 
+
 static void pix_outline50_15(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
@@ -2687,6 +2698,7 @@ static void pix_outline50_15(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, 
 		dest++;
 	}
 }
+
 
 static void pix_outline50_16(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, const PIXVAL len)
 {
@@ -2697,6 +2709,7 @@ static void pix_outline50_16(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, 
 	}
 }
 
+
 static void pix_outline25_15(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
@@ -2705,6 +2718,7 @@ static void pix_outline25_15(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, 
 		dest++;
 	}
 }
+
 
 static void pix_outline25_16(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, const PIXVAL len)
 {
@@ -2834,6 +2848,7 @@ static void display_img_blend_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VA
 	}
 }
 
+
 /**
  * draws the transparent outline of an image
  * @author kierongreen
@@ -2917,7 +2932,6 @@ void display_rezoomed_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, co
 		}
 	}
 }
-
 
 
 // Knightly : For blending or outlining unzoomed image. Adapted from display_base_img() and display_unzoomed_img_blend()
@@ -3188,7 +3202,7 @@ void display_array_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, cons
 // --------------------------------- text rendering stuff ------------------------------
 
 
-int	display_set_unicode(int use_unicode)
+int display_set_unicode(int use_unicode)
 {
 	return has_unicode = (use_unicode != 0);
 }
