@@ -26,7 +26,8 @@
 
 karte_ansicht_t::karte_ansicht_t(karte_t *welt)
 {
-    this->welt = welt;
+	this->welt = welt;
+	outside_visible = true;
 }
 
 static const sint8 hours2night[] =
@@ -153,6 +154,8 @@ void karte_ansicht_t::display(bool force_dirty)
 		// we check if background will be visible, no need to clear screen if it's not.
 		display_background(0, menu_height, disp_width, disp_height-menu_height, force_dirty);
 		welt->unset_background_dirty();
+		// reset
+		outside_visible = false;
 	}
 	// to save calls to grund_t::get_disp_height
 	// gr->get_disp_height() == min(gr->get_hoehe(), hmax_ground)
