@@ -958,7 +958,7 @@ void mark_rect_dirty_wc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2)
  */
 void mark_screen_dirty()
 {
-	memset( tile_dirty, 0xFFFFFFFF, sizeof(tile_dirty) * tile_buffer_length );
+	memset( tile_dirty, 0xFFFFFFFF, sizeof(uint32) * tile_buffer_length );
 }
 
 
