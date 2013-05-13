@@ -428,6 +428,8 @@ log_t::log_t( const char *logfilename, bool force_flush, bool log_debug, bool lo
 		if (  syslog  ) {
 			::syslog( LOG_NOTICE, greeting );
 		}
+#else
+		(void)syslog;
 #endif //SYSLOG
 	}
 }

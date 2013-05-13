@@ -19,7 +19,7 @@ bool dr_init_sound(void)
  * @return a handle for that sample or -1 on failure
  * @author Hj. Malthaner
  */
-int dr_load_sample(const char *filename)
+int dr_load_sample(const char *)
 {
 	return -1;
 }
@@ -30,6 +30,6 @@ int dr_load_sample(const char *filename)
  * @param key the key for the sample to be played
  * @author Hj. Malthaner
  */
-void dr_play_sample(int key, int volume)
+void dr_play_sample(int, int)
 {
 }
