@@ -556,8 +556,9 @@ int create_win(int x, int y, gui_frame_t* const gui, wintype const wt, ptrdiff_t
 	if(  wins.get_count() < MAX_WIN  ) {
 
 		if (!wins.empty()) {
-			// mark old title dirty
-			mark_rect_dirty_wc( wins.back().pos.x, wins.back().pos.y, wins.back().pos.x+wins.back().gui->get_fenstergroesse().x, wins.back().pos.y+16 );
+			// mark old dirty
+			const koord gr = wins.back().gui->get_fenstergroesse();
+			mark_rect_dirty_wc( wins.back().pos.x - 1, wins.back().pos.y - 1, wins.back().pos.x + gr.x + 2, wins.back().pos.y + gr.y + 2 ); // -1, +2 for umgebung_t::window_frame_active
 		}
 
 		wins.append( simwin_t() );
@@ -665,8 +666,8 @@ static void process_kill_list()
 static void destroy_framed_win(simwin_t *wins)
 {
 	// mark dirty
-	koord gr = wins->gui->get_fenstergroesse();
-	mark_rect_dirty_wc( wins->pos.x, wins->pos.y, wins->pos.x+gr.x, wins->pos.y+gr.y );
+	const koord gr = wins->gui->get_fenstergroesse();
+	mark_rect_dirty_wc( wins->pos.x - 1, wins->pos.y - 1, wins->pos.x + gr.x + 2, wins->pos.y + gr.y + 2 ); // -1, +2 for umgebung_t::window_frame_active
 
 	if(wins->gui) {
 		event_t ev;
@@ -761,8 +762,9 @@ int top_win(int win, bool keep_state )
 		return win;
 	} // already topped
 
-	// mark old title dirty
-	mark_rect_dirty_wc( wins.back().pos.x, wins.back().pos.y, wins.back().pos.x+wins.back().gui->get_fenstergroesse().x, wins.back().pos.y+16 );
+	// mark old dirty
+	koord gr = wins.back().gui->get_fenstergroesse();
+	mark_rect_dirty_wc( wins.back().pos.x - 1, wins.back().pos.y - 1, wins.back().pos.x + gr.x + 2, wins.back().pos.y + gr.y + 2 ); // -1, +2 for umgebung_t::window_frame_active
 
 	simwin_t tmp = wins[win];
 	wins.remove_at(win);
@@ -772,8 +774,8 @@ int top_win(int win, bool keep_state )
 	wins.append(tmp);
 
 	 // mark new dirty
-	koord gr = wins.back().gui->get_fenstergroesse();
-	mark_rect_dirty_wc( wins.back().pos.x, wins.back().pos.y, wins.back().pos.x+gr.x, wins.back().pos.y+gr.y );
+	gr = wins.back().gui->get_fenstergroesse();
+	mark_rect_dirty_wc( wins.back().pos.x - 1, wins.back().pos.y - 1, wins.back().pos.x + gr.x + 2, wins.back().pos.y + gr.y + 2 ); // -1, +2 for umgebung_t::window_frame_active
 
 	event_t ev;
 
@@ -1042,9 +1044,9 @@ void move_win(int win, event_t *ev)
 	const koord delta = to_pos - from_pos;
 
 	wins[win].pos += delta;
-	// need to mark all of old and new positions dirty
-	mark_rect_dirty_wc( from_pos.x, from_pos.y, from_pos.x+from_gr.x, from_pos.y+from_gr.y );
-	mark_rect_dirty_wc( to_pos.x, to_pos.y, to_pos.x+to_gr.x, to_pos.y+to_gr.y );
+	// need to mark all of old and new positions dirty. -1, +2 for umgebung_t::window_frame_active
+	mark_rect_dirty_wc( from_pos.x - 1, from_pos.y - 1, from_pos.x + from_gr.x + 2, from_pos.y + from_gr.y + 2 );
+	mark_rect_dirty_wc( to_pos.x - 1, to_pos.y - 1, to_pos.x + to_gr.x + 2, to_pos.y + to_gr.y + 2 );
 	// set dirty flag to refill background
 	if(wl) {
 		wl->set_background_dirty();
@@ -1074,7 +1076,7 @@ void resize_win(int win, event_t *ev)
 	}
 
 	// since we may be smaller afterwards
-	mark_rect_dirty_wc( from_pos.x, from_pos.y, from_pos.x+from_gr.x, from_pos.y+from_gr.y );
+	mark_rect_dirty_wc( from_pos.x - 1, from_pos.y - 1, from_pos.x + from_gr.x + 2, from_pos.y + from_gr.y + 2 ); // -1, +2 for umgebung_t::window_frame_active
 	// set dirty flag to refill background
 	if(wl) {
 		wl->set_background_dirty();
@@ -1126,7 +1128,7 @@ void win_set_pos(gui_frame_t *gui, int x, int y)
 			wins[i].pos.x = x;
 			wins[i].pos.y = y;
 			const koord gr = wins[i].gui->get_fenstergroesse();
-			mark_rect_dirty_wc( x, y, x+gr.x, y+gr.y );
+			mark_rect_dirty_wc( x - 1, y - 1, x + gr.x + 2, y + gr.y + 2 ); // -1, +2 for umgebung_t::window_frame_active
 			return;
 		}
 	}
@@ -1304,7 +1306,7 @@ bool check_pos_win(event_t *ev)
 						if (IS_LEFTCLICK(ev)) {
 							wins[i].sticky = !wins[i].sticky;
 							// mark title bar dirty
-							mark_rect_dirty_wc( wins[i].pos.x, wins[i].pos.y, wins[i].pos.x+wins[i].gui->get_fenstergroesse().x, wins[i].pos.y+16 );
+							mark_rect_dirty_wc( wins[i].pos.x, wins[i].pos.y, wins[i].pos.x + wins[i].gui->get_fenstergroesse().x, wins[i].pos.y + D_TITLEBAR_HEIGHT );
 						}
 						break;
 					default : // Title
