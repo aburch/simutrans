@@ -282,6 +282,9 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb )
 	if(tile->get_besch()->get_utyp()==haus_besch_t::firmensitz) {
 		gb->get_besitzer()->add_headquarter( tile->get_besch()->get_extra(), koord::invalid );
 	}
+	if(tile->get_besch()->get_utyp()==haus_besch_t::denkmal) {
+		ungebaute_denkmaeler.append_unique(tile->get_besch());
+	}
 
 	// then remove factory
 	fabrik_t *fab = gb->get_fabrik();
