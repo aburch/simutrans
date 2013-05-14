@@ -109,7 +109,9 @@ void display_mark_img_dirty( unsigned bild, KOORD_VAL x, KOORD_VAL y );
 int get_maus_x(void);
 int get_maus_y(void);
 
-void mark_rect_dirty_wc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2);
+
+void mark_rect_dirty_wc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2); // clips to screen only
+void mark_rect_dirty_clip(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2); // clips to clip_rect
 void mark_screen_dirty();
 
 KOORD_VAL display_get_width(void);

@@ -118,7 +118,7 @@ void ticker::zeichnen(void)
 			display_scroll_band( start_y+4, X_DIST, TICKER_HEIGHT-3 );
 			display_fillbox_wh(width-X_DIST, start_y+1, X_DIST, TICKER_HEIGHT, MN_GREY2, true);
 			// ok, ready for the text
-			PUSH_CLIP(width-X_DIST-1,start_y+1,X_DIST+1,TICKER_HEIGHT);
+			PUSH_CLIP( 0, start_y + 1, width - 1, TICKER_HEIGHT );
 			FOR(slist_tpl<node>, & n, list) {
 				n.xpos -= X_DIST;
 				if (n.xpos < width) {

@@ -934,20 +934,41 @@ static void mark_rect_dirty_nc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_V
 void mark_rect_dirty_wc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2)
 {
 	// inside display?
-	if (x2 >= 0 && y2 >= 0 && x1 < disp_width && y1 < disp_height) {
-		if (x1 < 0) {
+	if(  x2 >= 0  &&  y2 >= 0  &&  x1 < disp_width  &&  y1 < disp_height  ) {
+		if(  x1 < 0  ) {
 			x1 = 0;
 		}
-		if (y1 < 0) {
+		if(  y1 < 0  ) {
 			y1 = 0;
 		}
-		if (x2 >= disp_width) {
-			x2 = disp_width  - 1;
+		if(  x2 >= disp_width  ) {
+			x2 = disp_width - 1;
 		}
-		if (y2 >= disp_height) {
+		if(  y2 >= disp_height  ) {
 			y2 = disp_height - 1;
 		}
-		mark_rect_dirty_nc(x1, y1, x2, y2);
+		mark_rect_dirty_nc( x1, y1, x2, y2 );
+	}
+}
+
+
+void mark_rect_dirty_clip(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2)
+{
+	// inside clip_rect?
+	if(  x2 >= clip_rect.x  &&  y2 >= clip_rect.y  &&  x1 < clip_rect.xx  &&  y1 < clip_rect.yy  ) {
+		if(  x1 < clip_rect.x  ) {
+			x1 = clip_rect.x;
+		}
+		if(  y1 < clip_rect.y  ) {
+			y1 = clip_rect.y;
+		}
+		if(  x2 > clip_rect.xx  ) {
+			x2 = clip_rect.xx ;
+		}
+		if(  y2 > clip_rect.yy  ) {
+			y2 = clip_rect.yy;
+		}
+		mark_rect_dirty_nc( x1, y1, x2, y2 );
 	}
 }
 
@@ -2303,7 +2324,7 @@ void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 u
 					display_img_pc<plain>(h, xp, yp, sp);
 					// since height may be reduced, start marking here
 					if (dirty) {
-						mark_rect_dirty_wc(xp, yp, xp + w - 1, yp + h - 1);
+						mark_rect_dirty_clip(xp, yp, xp + w - 1, yp + h - 1);
 					}
 			}
 			else {
@@ -2319,7 +2340,7 @@ void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 u
 					display_img_wc(h, xp, yp, sp);
 					// since height may be reduced, start marking here
 					if (dirty) {
-						mark_rect_dirty_wc(xp, yp, xp + w - 1, yp + h - 1);
+						mark_rect_dirty_clip(xp, yp, xp + w - 1, yp + h - 1);
 					}
 				}
 			}
@@ -3590,7 +3611,7 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
 
 	if (flags & DT_DIRTY) {
 		// here, because only now we know the lenght also for ALIGN_LEFT text
-		mark_rect_dirty_wc(x0, y, x - 1, y + 10 - 1);
+		mark_rect_dirty_clip(x0, y, x - 1, y + 10 - 1);
 	}
 	// warning: aktual len might be longer, due to clipping!
 	return x - x0;
@@ -3875,7 +3896,7 @@ void display_filled_circle( KOORD_VAL x0, KOORD_VAL  y0, int radius, const PLAYE
 		display_fb_internal( x0-y, y0+x, y+y, 1, color, false, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy);
 		display_fb_internal( x0-y, y0-x, y+y, 1, color, false, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy);
 	}
-	mark_rect_dirty_wc( x0-radius, y0-radius, x0+radius+1, y0+radius+1 );
+//	mark_rect_dirty_wc( x0-radius, y0-radius, x0+radius+1, y0+radius+1 );
 }
 
 
