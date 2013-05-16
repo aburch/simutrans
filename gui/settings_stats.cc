@@ -176,6 +176,7 @@ void settings_experimental_general_stats_t::init( settings_t *sets )
 	INIT_NUM( "capital_threshold_size", sets->get_capital_threshold_size(), 10000, 1000000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "max_small_city_size", sets->get_max_small_city_size(), 1000, 100000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "max_city_size", sets->get_max_city_size(), 10000, 1000000, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "congestion_density_factor", sets->get_congestion_density_factor(), 0, 1024, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_BOOL( "quick_city_growth", sets->get_quick_city_growth());
 	INIT_BOOL( "assume_everywhere_connected_by_road", sets->get_assume_everywhere_connected_by_road());
 	INIT_NUM( "spacing_shift_mode", sets->get_spacing_shift_mode(), 0, 2 , gui_numberinput_t::AUTOLINEAR, false );
@@ -238,6 +239,7 @@ void settings_experimental_general_stats_t::read(settings_t *sets)
 	READ_NUM( sets->set_capital_threshold_size );
 	READ_NUM( sets->set_max_small_city_size );
 	READ_NUM( sets->set_max_city_size );
+	READ_NUM( sets->set_congestion_density_factor );
 	READ_BOOL( sets->set_quick_city_growth );
 	READ_BOOL( sets->set_assume_everywhere_connected_by_road );
 	READ_NUM( sets->set_spacing_shift_mode );

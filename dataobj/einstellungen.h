@@ -808,6 +808,7 @@ public:
 
 	uint8 get_always_prefer_car_percent() const { return always_prefer_car_percent; }
 	uint8 get_congestion_density_factor () const { return congestion_density_factor; }
+	void set_congestion_density_factor (uint8 value)  { congestion_density_factor = value; }
 
 	sint32 get_max_corner_limit(waytype_t waytype) const { return kmh_to_speed(max_corner_limit[waytype]); }
 	sint32 get_min_corner_limit (waytype_t waytype) const { return kmh_to_speed(min_corner_limit[waytype]); }

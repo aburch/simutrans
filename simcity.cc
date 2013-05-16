@@ -2536,44 +2536,164 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 	target_factories_mail.recalc_generation_ratio(s.get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_MAIL_GENERATED);
 	update_target_cities();
 
+	// We need to calculate the traffic level here, as this determines the vehicle occupancy, which is necessary for the calculation of congestion.
+	// Manual assignment of traffic level modifiers, since I could not find a suitable mathematical formula.
+	sint32 traffic_level;
+	switch(welt->get_settings().get_verkehr_level())
+	{
+	case 0:
+		traffic_level = 0;
+		break;
+
+	case 1:
+		traffic_level = 5;
+		break;
+			
+	case 2:
+		traffic_level = 10;
+		break;
+
+	case 3:
+		traffic_level = 20;
+		break;
+
+	case 4:
+		traffic_level = 25;
+		break;
+
+	case 5:
+		traffic_level = 50;
+		break;
+
+	case 6:
+		traffic_level = 100;
+		break;
+
+	case 7:
+		traffic_level = 200;
+		break;
+
+	case 8:
+		traffic_level = 250;
+		break;
+
+	case 9:
+		traffic_level = 333;
+		break;
+
+	case 10:
+		traffic_level = 500;
+		break;
+
+	case 11:
+		traffic_level = 613; // Average car occupancy of 1.6 = 0.6125.
+		break;
+
+	case 12:
+		traffic_level = 667; 
+		break;
+
+	case 13:
+		traffic_level = 750;
+		break;
+
+	case 14:
+		traffic_level = 833;
+		break;
+
+	case 15:
+		traffic_level = 909;
+		break;
+
+	case 16:
+	default:
+		traffic_level = 1000;
+	};
+
 	// Calculate the level of congestion.
 	// Used in determining growth and passenger preferences.
+	// Old system:
 	// From observations in game: anything < 2, not very congested.
 	// Anything > 4, very congested.
-	// TODO: Recalibrate this system based on real world data.
+	// For new system, see http://www.tomtom.com/lib/doc/congestionindex/2013-0322-TomTom-CongestionIndex-2012-Annual-EUR-mi.pdf
 	// @author: jamespetts
 	
-	const uint16 city_size = (ur.x - lo.x) * (ur.y - lo.y);
-	uint16 cars_per_tile_thousandths = (city_history_month[1][HIST_CITYCARS] * 1000) / city_size;
-	const uint16 population_density = (city_history_month[1][HIST_CITICENS] * 10) / city_size;
-	uint16 congestion_density_factor = welt->get_settings().get_congestion_density_factor() * 100;
-	uint16 cars_per_tile_base = 800;
+	uint16 congestion_density_factor = welt->get_settings().get_congestion_density_factor();
 
-	if(welt->ticks_per_world_month_shift >= 18ll)
+	if(congestion_density_factor < 32)
 	{
-		cars_per_tile_thousandths >>= (welt->ticks_per_world_month_shift-18);
-		cars_per_tile_base >>= (welt->ticks_per_world_month_shift-18);
-		congestion_density_factor >>= (welt->ticks_per_world_month_shift-18);
-	}
-	else 
-	{
-		cars_per_tile_thousandths <<= (18-welt->ticks_per_world_month_shift);
-		cars_per_tile_base >>= (welt->ticks_per_world_month_shift-18);
-		congestion_density_factor <<= (18-welt->ticks_per_world_month_shift);
-	}
+		// Old method - congestion density factor
+		const uint16 city_size = (ur.x - lo.x) * (ur.y - lo.y);
+		uint16 cars_per_tile_thousandths = (city_history_month[1][HIST_CITYCARS] * 1000) / city_size;
+		const uint16 population_density = (city_history_month[1][HIST_CITICENS] * 10) / city_size;
+		congestion_density_factor *= 100;
+			
+		uint16 cars_per_tile_base = 800;
 
-	// Round up when over x.5.
-	congestion_density_factor += 50;
-	congestion_density_factor /= 100;
+		if(welt->ticks_per_world_month_shift >= 18ll)
+		{
+			cars_per_tile_thousandths >>= (welt->ticks_per_world_month_shift-18);
+			cars_per_tile_base >>= (welt->ticks_per_world_month_shift-18);
+			congestion_density_factor >>= (welt->ticks_per_world_month_shift-18);
+		}
+		else 
+		{
+			cars_per_tile_thousandths <<= (18-welt->ticks_per_world_month_shift);
+			cars_per_tile_base >>= (welt->ticks_per_world_month_shift-18);
+			congestion_density_factor <<= (18-welt->ticks_per_world_month_shift);
+		}
+
+		if(congestion_density_factor == 0)
+		{
+			city_history_month[0][HIST_CONGESTION] = (cars_per_tile_thousandths - cars_per_tile_base) / 30;
+		}
+
+		else
+		{	
+			if(cars_per_tile_thousandths <= cars_per_tile_base)
+			{
+				city_history_month[0][HIST_CONGESTION] = 0;
+			}
+
+			city_history_month[0][HIST_CONGESTION] = (((cars_per_tile_thousandths - cars_per_tile_base) / 45) * population_density) / congestion_density_factor;
+		}
+	}
 	
-	if(cars_per_tile_thousandths <= cars_per_tile_base)
+	else // Congestion density factor > 32:  new system
 	{
-		city_history_month[0][HIST_CONGESTION] = 0;
+		// Based on TomTom congestion index system
+		// See http://www.tomtom.com/lib/doc/congestionindex/2013-0322-TomTom-CongestionIndex-2012-Annual-EUR-mi.pdf
+		
+		// First - check the length of the road network in the city.
+		uint32 road_tiles = 0;
+		for(sint16 j = lo.y; j <= ur.y; ++j) 
+		{
+			for(sint16 i = lo.x; i <= ur.x; ++i)
+			{
+				const koord k(i, j);
+				const grund_t *const gr = welt->lookup_kartenboden(k);
+				if(gr && gr->get_weg(road_wt))
+				{
+					road_tiles ++;
+				}
+			}
+		}
+		const uint32 road_km = (road_tiles * (uint32)welt->get_settings().get_meters_per_tile()) / 1000;
+
+		// Second - get the number of car trips per hour
+		const sint64 seconds_per_month = welt->ticks_to_seconds(welt->ticks_per_world_month);
+		const sint64 trips_per_hour = (city_history_month[1][HIST_CITYCARS] * 3600l) / seconds_per_month;
+		//const sint64 trips_per_hour = ((city_history_month[1][HIST_CITYCARS] - incoming_private_cars) * 3600l) / seconds_per_month;
+		
+
+		// Third - combine the information, multiplying by a ratio based on 
+		// congestion_density_factor == 141 is the ideal factor based on the 2012 TomTom congestion index for British cities
+		// (Average: range is 70 (London) to 227 (Newcastle/Sunderland).
+		// Further reduce this by the traffic_level factor to adjust for occupancy rates (permille). 
+		const sint64 adjusted_ratio = ((sint64)traffic_level * congestion_density_factor) / 1000l;
+		city_history_month[0][HIST_CONGESTION] = (trips_per_hour * adjusted_ratio) / ((sint64)road_km * 100);
 	}
-	else
-	{
-		city_history_month[0][HIST_CONGESTION] = congestion_density_factor > 0 ? ((((cars_per_tile_thousandths - cars_per_tile_base) / 45) * population_density) / congestion_density_factor) / 10 : (cars_per_tile_thousandths - cars_per_tile_base) / 30;
-	}
+	
 
 	city_history_month[0][HIST_CAR_OWNERSHIP] = get_private_car_ownership(welt->get_timeline_year_month());
 	sint64 car_ownership_sum = 0;
@@ -2605,87 +2725,12 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 		// that the player can have a better idea visually of the amount of traffic.
 
 		sint32 old_number_of_cars = number_of_cars;
+	
 
-#ifdef DESTINATION_CITYCARS 	
-		//Manual assignment of traffic level modifiers, since I could not find a suitable mathematical formula.
-		sint32 traffic_level;
-		switch(welt->get_settings().get_verkehr_level())
-		{
-		case 0:
-			traffic_level = 0;
-			break;
-
-		case 1:
-			traffic_level = 5;
-			break;
-			
-			case 2:
-			traffic_level = 10;
-			break;
-
-			case 3:
-			traffic_level = 20;
-			break;
-
-		case 4:
-			traffic_level = 25;
-			break;
-
-		case 5:
-			traffic_level = 50;
-			break;
-
-		case 6:
-			traffic_level = 100;
-			break;
-
-		case 7:
-			traffic_level = 200;
-			break;
-
-		case 8:
-			traffic_level = 250;
-			break;
-
-		case 9:
-			traffic_level = 333;
-			break;
-
-		case 10:
-			traffic_level = 500;
-			break;
-
-		case 11:
-			traffic_level = 613; // Average car occupancy of 1.6 = 0.6125.
-			break;
-
-		case 12:
-			traffic_level = 670; 
-			break;
-
-		case 13:
-			traffic_level = 750;
-			break;
-
-		case 14:
-			traffic_level = 850;
-			break;
-
-		case 15:
-			traffic_level = 900;
-			break;
-
-		case 16:
-		default:
-			traffic_level = 1000;
-		};
 		
 		// Subtract incoming trips and cars already generated to prevent double counting.
 		number_of_cars = ((city_history_month[1][HIST_CITYCARS] * traffic_level) / 1000) - (sint32)incoming_private_cars - (sint32)current_cars.get_count();
 		incoming_private_cars = 0;
-#else
-		uint16 number_of_cars = ((city_history_month[1][HIST_CITYCARS] *welt->get_settings().get_verkehr_level()) / 16) / 64;
-#endif
 
 		while(!current_cars.empty() && number_of_cars < 0)
 		{
@@ -3020,7 +3065,7 @@ void stadt_t::step_passagiere()
 	// See here for a discussion of ratios: http://forum.simutrans.com/index.php?topic=10920.0
 	// It is probably necessary to refine this further to take account of historical variation,
 	// and allow this to be customised by pakset.
-	const ware_besch_t *const wtyp = (simrand(400, "void stadt_t::step_passagiere() (mail or passengers?")) < 398 ? warenbauer_t::passagiere : warenbauer_t::post;
+	const ware_besch_t *const wtyp = (simrand(400, "void stadt_t::step_passagiere() (mail or passengers?")) < 396 ? warenbauer_t::passagiere : warenbauer_t::post;
 	const city_cost history_type = (wtyp == warenbauer_t::passagiere) ? HIST_PAS_TRANSPORTED : HIST_MAIL_TRANSPORTED;
 	factory_set_t &target_factories = (wtyp==warenbauer_t::passagiere ? target_factories_pax : target_factories_mail);
 
@@ -4083,7 +4128,9 @@ stadt_t::destination stadt_t::find_destination(factory_set_t &target_factories, 
 		// zielstadt = "Destination city"
 		do
 		{
-			*will_return = (this != zielstadt) ? city_return : no_return;
+			//*will_return = (this != zielstadt) ? city_return : no_return;
+			// Sometimes having people not returning creates anomalies such as larger cities generating fewer passenger trips overall.
+			*will_return = city_return;
 			current_destination.location = zielstadt->get_zufallspunkt(min_distance, max_distance, origin); //"random dot"
 			current_destination.object.town = zielstadt;
 		} while(current_destination.location == origin); // The destination must not be the same as the origin, so keep retrying until it is not.
