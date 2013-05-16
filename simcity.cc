@@ -2406,8 +2406,8 @@ void stadt_t::step(long delta_t)
 	next_step += delta_t;
 	next_growth_interval += delta_t;
 
-	// Was (1 << 21U) - replaced with below to multiply by 8 to recalibrate passenger factor.
-	step_interval = 16777216 / (buildings.get_count() * s.get_passenger_factor() + 1);
+	// Was (1 << 21U) - replaced with below to multiply by (slightly more than) 8 to recalibrate passenger factor.
+	step_interval = 18057457 / (buildings.get_count() * s.get_passenger_factor() + 1);
 	if (step_interval < 1) {
 		step_interval = 1;
 	}
@@ -2726,8 +2726,6 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 		// that the player can have a better idea visually of the amount of traffic.
 
 		sint32 old_number_of_cars = number_of_cars;
-	
-
 		
 		// Subtract incoming trips and cars already generated to prevent double counting.
 		number_of_cars = ((city_history_month[1][HIST_CITYCARS] * traffic_level) / 1000) - (sint32)incoming_private_cars - (sint32)current_cars.get_count();
@@ -2907,7 +2905,7 @@ uint16 stadt_t::check_road_connexion_to(stadt_t* city)
 	{
 		const uint16 journey_time_per_tile = city == this ? welt->get_generic_road_time_per_tile_city() : welt->get_generic_road_time_per_tile_intercity();
 		// With this setting, we add congestion factoring at a later stage.
-		return journey_time_per_tile * 6;
+		return journey_time_per_tile;
 	}
 
 	if(connected_cities.is_contained(city->get_pos()))
@@ -3506,7 +3504,7 @@ void stadt_t::step_passagiere()
 				destinations[current_destination].factory_entry->factory->liefere_an(wtyp, pax_left_to_do);
 			}
 			destination_town = destinations[current_destination].type == 1 ? destinations[current_destination].object.town : NULL;
-			set_private_car_trip(num_pax, destination_town);
+			set_private_car_trip(pax_left_to_do, destination_town);
 			merke_passagier_ziel(destinations[current_destination].location, COL_TURQUOISE);
 #ifdef DESTINATION_CITYCARS
 			erzeuge_verkehrsteilnehmer(origin_pos, car_minutes, destinations[current_destination].location);
@@ -3762,12 +3760,12 @@ void stadt_t::step_passagiere()
 					// Do not check tolerance, as they must come back!
 					if(destination_town)
 					{
-						destination_town->set_private_car_trip(num_pax, this);
+						destination_town->set_private_car_trip(pax_left_to_do, this);
 					}
 					else
 					{
 						// Industry, attraction or local
-						set_private_car_trip(num_pax, NULL);
+						set_private_car_trip(pax_left_to_do, NULL);
 					}
 
 #ifdef DESTINATION_CITYCARS
@@ -3837,7 +3835,7 @@ void stadt_t::set_private_car_trip(int passengers, stadt_t* destination_town)
 	{
 		// Destination town is not set - so going to a factory or tourist attraction,
 		// or origin and destination towns are the same.
-		// Count as a local trip
+		// Count as a local or incoming trip
 		city_history_year[0][HIST_CITYCARS] += passengers;
 		city_history_month[0][HIST_CITYCARS] += passengers;
 	}

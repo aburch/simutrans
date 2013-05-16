@@ -446,7 +446,7 @@ settings_t::settings_t() :
 	frames_per_step = 4;
 
 	quick_city_growth = false;
-	assume_everywhere_connected_by_road=false;
+	assume_everywhere_connected_by_road = false;
 
 	allow_routing_on_foot = false;
 
