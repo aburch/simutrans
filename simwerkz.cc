@@ -703,7 +703,7 @@ DBG_MESSAGE("wkz_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x, 
 					// Only check affordability if bulldozing somebody else's buildings.
 					// Experimental 8.0 and later - the bulldoze cost is *added* to the
 					// building cost, as we have to pay to buy it *then* pay to demolish it.
-					const sint64 cost = (welt->get_settings().cst_multiply_remove_haus * (haus_besch->get_level()+1)) + (welt->get_settings().cst_buy_land * haus_besch->get_level() * 5);
+					const sint64 cost = (welt->get_settings().cst_multiply_remove_haus * (haus_besch->get_level())) + (welt->get_settings().cst_buy_land * haus_besch->get_level() * 5);
 					if(!sp->can_afford(cost))
 					{
 						msg = CREDIT_MESSAGE;

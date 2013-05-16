@@ -227,7 +227,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		// underground mode added
 		besch->gtyp      = (gebaeude_t::typ)decode_uint8(p);
 		besch->utype     = (haus_besch_t::utyp)decode_uint8(p);
-		besch->level     = decode_uint16(p);
+		besch->level     = decode_uint16(p) + 1;
 		besch->extra_data= decode_uint32(p);
 		besch->groesse.x = decode_uint16(p);
 		besch->groesse.y = decode_uint16(p);
@@ -274,21 +274,21 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	else if(version == 5  ||  version==6) {
 		// Versioned node, version 5 or 6  (only level logic is different)
 		// animation intervall in ms added
-		besch->gtyp      = (gebaeude_t::typ)decode_uint8(p);
-		besch->utype     = (haus_besch_t::utyp)decode_uint8(p);
-		besch->level     = decode_uint16(p);
-		besch->extra_data= decode_uint32(p);
-		besch->groesse.x = decode_uint16(p);
-		besch->groesse.y = decode_uint16(p);
-		besch->layouts   = decode_uint8(p);
+		besch->gtyp				= (gebaeude_t::typ)decode_uint8(p);
+		besch->utype			= (haus_besch_t::utyp)decode_uint8(p);
+		besch->level			= decode_uint16(p) + 1;
+		besch->extra_data		= decode_uint32(p);
+		besch->groesse.x		= decode_uint16(p);
+		besch->groesse.y		= decode_uint16(p);
+		besch->layouts			= decode_uint8(p);
 		besch->allowed_climates = (climate_bits)decode_uint16(p);
-		besch->enables   = decode_uint8(p);
+		besch->enables			= decode_uint8(p);
 		if(experimental_version < 1 && besch->utype == haus_besch_t::depot)
 		{
 			besch->enables = 255;
 		}
-		besch->flags     = (haus_besch_t::flag_t)decode_uint8(p);
-		besch->chance    = decode_uint8(p);
+		besch->flags		 = (haus_besch_t::flag_t)decode_uint8(p);
+		besch->chance		 = decode_uint8(p);
 		besch->intro_date    = decode_uint16(p);
 		besch->obsolete_date = decode_uint16(p);
 		besch->animation_time = decode_uint16(p);
@@ -326,7 +326,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		// climates and seasons added
 		besch->gtyp      = (gebaeude_t::typ)decode_uint8(p);
 		besch->utype     = (haus_besch_t::utyp)decode_uint8(p);
-		besch->level     = decode_uint16(p);
+		besch->level     = decode_uint16(p) + 1;
 		besch->extra_data= decode_uint32(p);
 		besch->groesse.x = decode_uint16(p);
 		besch->groesse.y = decode_uint16(p);
@@ -348,7 +348,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		// Versioned node, version 3
 		besch->gtyp      = (gebaeude_t::typ)decode_uint8(p);
 		besch->utype     = (haus_besch_t::utyp)decode_uint8(p);
-		besch->level     = decode_uint16(p);
+		besch->level     = decode_uint16(p) + 1;
 		besch->extra_data= decode_uint32(p);
 		besch->groesse.x = decode_uint16(p);
 		besch->groesse.y = decode_uint16(p);
@@ -369,7 +369,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		// Versioned node, version 2
 		besch->gtyp      = (gebaeude_t::typ)decode_uint8(p);
 		besch->utype     = (haus_besch_t::utyp)decode_uint8(p);
-		besch->level     = decode_uint16(p);
+		besch->level     = decode_uint16(p) + 1;
 		besch->extra_data= decode_uint32(p);
 		besch->groesse.x = decode_uint16(p);
 		besch->groesse.y = decode_uint16(p);
@@ -394,7 +394,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		// Versioned node, version 1
 		besch->gtyp      = (gebaeude_t::typ)decode_uint8(p);
 		besch->utype     = (haus_besch_t::utyp)decode_uint8(p);
-		besch->level     = decode_uint16(p);
+		besch->level     = decode_uint16(p) + 1;
 		besch->extra_data= decode_uint32(p);
 		besch->groesse.x = decode_uint16(p);
 		besch->groesse.y = decode_uint16(p);
@@ -420,7 +420,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->gtyp      = (gebaeude_t::typ)v;
 		decode_uint16(p);
 		besch->utype     = (haus_besch_t::utyp)decode_uint32(p);
-		besch->level     = decode_uint32(p);
+		besch->level     = decode_uint32(p) + 1;
 		besch->extra_data= decode_uint32(p);
 		besch->groesse.x = decode_uint16(p);
 		besch->groesse.y = decode_uint16(p);
@@ -480,7 +480,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 
 	if (besch->level == 65535) {
-		besch->level = 0;	// apparently wrong level
+		besch->level = 1;	// apparently wrong level
 		dbg->warning("building_reader_t::read_node()","level was 65535, intended was probably 0 => changed." );
 	}
 

@@ -1088,7 +1088,7 @@ void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb, bool ordered)
 							buildings.insert_ordered(add_gb, tile->get_besch()->get_level() + 1, compare_gebaeude_pos);
 						}
 						else {
-							buildings.append(add_gb, tile->get_besch()->get_level() + 1);
+							buildings.append(add_gb, tile->get_besch()->get_level());
 						}
 					}
 					add_gb->set_stadt(this);
@@ -1117,7 +1117,7 @@ void stadt_t::remove_gebaeude_from_stadt(gebaeude_t* gb)
 void stadt_t::update_gebaeude_from_stadt(gebaeude_t* gb)
 {
 	buildings.remove(gb);
-	buildings.append(gb, gb->get_tile()->get_besch()->get_level() + 1);
+	buildings.append(gb, gb->get_tile()->get_besch()->get_level());
 }
 
 
@@ -2406,7 +2406,8 @@ void stadt_t::step(long delta_t)
 	next_step += delta_t;
 	next_growth_interval += delta_t;
 
-	step_interval = (1 << 21U) / (buildings.get_count() * s.get_passenger_factor() + 1);
+	// Was (1 << 21U) - replaced with below to multiply by 8 to recalibrate passenger factor.
+	step_interval = 16777216 / (buildings.get_count() * s.get_passenger_factor() + 1);
 	if (step_interval < 1) {
 		step_interval = 1;
 	}
@@ -3081,13 +3082,11 @@ void stadt_t::step_passagiere()
 	}
 	gebaeude_t* gb = buildings[step_count];
 
-	// prissi: since now backtravels occur, we damp the numbers a little
 	const int num_pax =
 		(wtyp == warenbauer_t::passagiere) ?
-			(gb->get_tile()->get_besch()->get_level()      + 6) >> 2 :
-			(gb->get_tile()->get_besch()->get_post_level() + 8) >> 3 ;
+			(gb->get_tile()->get_besch()->get_level()) :
+			(gb->get_tile()->get_besch()->get_post_level());
 
-	
 	// Hajo: track number of generated passengers.
 	city_history_year[0][history_type+1] += num_pax;
 	city_history_month[0][history_type+1] += num_pax;
@@ -4696,14 +4695,14 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 		if (sum_commercial > sum_industrial  &&  sum_commercial > sum_residential) {
 			h = hausbauer_t::get_commercial(0, current_month, cl, new_town, neighbor_building_clusters);
 			if (h != NULL) {
-				arb += (h->get_level()+1) * 20;
+				arb += (h->get_level()) * 20;
 			}
 		}
 
 		if (h == NULL  &&  sum_industrial > sum_residential  &&  sum_industrial > sum_residential) {
 			h = hausbauer_t::get_industrial(0, current_month, cl, new_town, neighbor_building_clusters);
 			if (h != NULL) {
-				arb += (h->get_level()+1) * 20;
+				arb += (h->get_level()) * 20;
 			}
 		}
 
@@ -4711,7 +4710,7 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 			h = hausbauer_t::get_residential(0, current_month, cl, new_town, neighbor_building_clusters);
 			if (h != NULL) {
 				// will be aligned next to a street
-				won += (h->get_level()+1) * 10;
+				won += (h->get_level()) * 10;
 			}
 		}
 

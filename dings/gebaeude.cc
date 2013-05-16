@@ -585,7 +585,7 @@ int gebaeude_t::get_passagier_level() const
 	long pax = tile->get_besch()->get_level();
 	if(  !is_factory  &&  ptr.stadt != NULL  ) {
 		// belongs to a city ...
-		return ((pax + 6) >> 2) * welt->get_settings().get_passenger_factor() / 16;
+		return pax;
 	}
 	return pax*dim.x*dim.y;
 }
@@ -596,7 +596,7 @@ int gebaeude_t::get_post_level() const
 	koord dim = tile->get_besch()->get_groesse();
 	long post = tile->get_besch()->get_post_level();
 	if(  !is_factory  &&  ptr.stadt != NULL  ) {
-		return ((post + 5) >> 2) * welt->get_settings().get_passenger_factor() / 16;
+		return post;
 	}
 	return post*dim.x*dim.y;
 }
@@ -808,7 +808,7 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 			buf.append("\n");
 			buf.append(translator::translate("Wert"));
 			buf.append(": ");
-			buf.append(-(welt->get_settings().cst_buy_land*(tile->get_besch()->get_level()+1)/100) * 5);
+			buf.append(-(welt->get_settings().cst_buy_land*(tile->get_besch()->get_level())/100) * 5);
 			buf.append("$\n");
 		}
 
@@ -1133,7 +1133,7 @@ void gebaeude_t::entferne(spieler_t *sp)
 
 	if(besch->get_utyp()<haus_besch_t::bahnhof) 
 	{
-		const sint64 bulldoze_cost =welt->get_settings().cst_multiply_remove_haus * (besch->get_level()+1);
+		const sint64 bulldoze_cost =welt->get_settings().cst_multiply_remove_haus * (besch->get_level());
 		const sint64 purchase_cost =welt->get_settings().cst_buy_land * besch->get_level() * 5;
 		cost = sp != get_besitzer() ? bulldoze_cost + purchase_cost : bulldoze_cost;
 		spieler_t::accounting(sp, cost, get_pos().get_2d(), COST_CONSTRUCTION);

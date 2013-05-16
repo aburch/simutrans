@@ -204,8 +204,12 @@ growthfactor_capitals = 100
 max_city_size = 16000
 max_small_city_size = 3000
 
-# The higher this value, the more passengers generated. (Default: 16)
-passenger_factor=16
+# Passenger generation (the default is 16): smaller values means fewer passengers.
+# NOTE: This will need to be adjusted depending on the meters_per_tile setting.
+# 16 is calibrated to be correct for 125m/tile. This should be doubled for every
+# halving of the meters per tile setting, and halved for every doubling thereof.
+
+passenger_factor = 16
 
 # amount of passengers that travel from/to factories or attractions
 # the remaining percentage is intercity and intracity travel

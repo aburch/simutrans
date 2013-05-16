@@ -138,7 +138,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	uint32                     extra_data       = 0;
 	climate_bits               allowed_climates = all_but_water_climate; // all but water
 	uint8                      enables          = 0;
-	uint16                     level            = obj.get_int("level", 1) - 1;
+	uint16                     level            = obj.get_int("level", 1) - 1; // TODO: Remove this -1, which is now reset in the reader, when the version is incremented.
 	haus_besch_t::flag_t const flags            =
 		(obj.get_int("noinfo",         0) > 0 ? haus_besch_t::FLAG_KEINE_INFO  : haus_besch_t::FLAG_NULL) |
 		(obj.get_int("noconstruction", 0) > 0 ? haus_besch_t::FLAG_KEINE_GRUBE : haus_besch_t::FLAG_NULL) |

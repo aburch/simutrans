@@ -96,8 +96,8 @@ settings_t::settings_t() :
 
 	origin_x = origin_y = 0;
 
-	// passenger manipulation factor (=16 about old value)
-	passenger_factor = 10;
+	// The amount of passenger generation. This is recalibrated.
+	passenger_factor = 16;
 
 	electric_promille = 1000;
 
@@ -661,7 +661,7 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_short(origin_x );
 			file->rdwr_short(origin_y );
 
-			file->rdwr_long(passenger_factor );
+			file->rdwr_long(passenger_factor);
 
 			// town growth stuff
 			if(file->get_version()>102001) {
