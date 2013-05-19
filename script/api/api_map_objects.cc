@@ -139,7 +139,10 @@ template<class D>
 void begin_ding_class(HSQUIRRELVM vm, const char* name, const char* base = NULL)
 {
 	SQInteger res = create_class(vm, name, base);
-	assert( SQ_SUCCEEDED(res) );
+	if(  !SQ_SUCCEEDED(res)  ) {
+		// todo Better error Message!
+		dbg->error( "begin_ding_class()", "create_class failed for %s (Check for outdated scenario.nut)!", name );
+	}
 	// store typetag to identify pointers
 	sq_settypetag(vm, -1, ding_t_tag + bind_code<D>::dingtype);
 	// now functions can be registered

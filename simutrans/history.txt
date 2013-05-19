@@ -1,3 +1,4 @@
+Release of 112.3: (r6520 on 17-May-2013):
 	CHG: Removed the restriction of having border heights at water level. Forces a savegame version step, new maps can't be properly shown in previous versions.
 	CHG: Raise and Lower tools interact with the grid now, not with tiles.
 	ADD: (jk271/Dwachs) finance history distinguishes transport type
@@ -5,7 +6,7 @@
 	ADD: Depature and arrival times can be shown in the halt dialoge
 	CHG: Updates to the in-game pointer mechanics, updates its position after using a tool, and hides when the pointer is outside the world.
 	ADD: (neroden) clustering of houses, set "cluster_factor" in cityrules.tab to about 10 times the typical distribution weight
-	ADD: Displaying the natural slope at teh maps border if requested (default on)
+	ADD: Displaying the natural slope at the map border if requested (default on)
 
 
 Release of 112.2: (r6390 on 17-Mar-2013):
