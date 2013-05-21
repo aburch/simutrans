@@ -133,7 +133,7 @@ void spieler_t::add_money_message(const sint64 amount, const koord pos)
 	if(amount != 0  &&  player_nr != 1) {
 		if(  koord_distance(welt->get_world_position(),pos)<2*(uint32)(display_get_width()/get_tile_raster_width())+3  ) {
 			// only display, if near the screen ...
-			add_message(pos, amount);
+			add_message(amount, pos);
 
 			// and same for sound too ...
 			if(  amount>=10000  &&  !welt->is_fast_forward()  ) {
@@ -208,7 +208,7 @@ void spieler_t::set_name(const char *new_name)
 /**
  * floating massages for all players here
  */
-spieler_t::income_message_t::income_message_t( sint32 betrag, koord p )
+spieler_t::income_message_t::income_message_t( sint64 betrag, koord p )
 {
 	money_to_string(str, betrag/100.0);
 	alter = 127;
@@ -272,7 +272,7 @@ void spieler_t::age_messages(long /*delta_t*/)
 }
 
 
-void spieler_t::add_message(koord k, sint32 betrag)
+void spieler_t::add_message(sint64 betrag, koord k)
 {
 	if(  !messages.empty()  &&  messages.back()->pos==k  &&  messages.back()->alter==127  ) {
 		// last message exactly at same place, not aged
