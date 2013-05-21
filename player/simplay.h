@@ -56,17 +56,26 @@ protected:
 	public:
 		char str[33];
 		koord pos;
-		sint32 amount;
+		sint64 amount;
 		sint8 alter;
 		income_message_t() { str[0]=0; alter=127; pos=koord::invalid; amount=0; }
-		income_message_t( sint32 betrag, koord pos );
+		income_message_t( sint64 betrag, koord pos );
 		void * operator new(size_t s);
 		void operator delete(void *p);
 	};
 
 	slist_tpl<income_message_t *>messages;
 
-	void add_message(koord k, sint32 summe);
+	/**
+	 * creates new income message entry or merges with existing one if the
+	 * most recent one is at the same coordinate
+	 */
+	void add_message(sint64 amount, koord k);
+
+	/**
+	 * displays amount of money when koordinates are on screen
+	 */
+	void add_money_message(sint64 amount, koord k);
 
 	/**
 	 * Kennfarbe (Fahrzeuge, Gebäude) des Speielers
@@ -127,12 +136,6 @@ public:
 	 * @author jk271
 	 */
 	static void book_construction_costs(spieler_t * const sp, const sint64 amount, const koord k, const waytype_t wt=ignore_wt);
-
-	/*
-	 * displayes amount of money when koordinates and on screen
-	 * reworked function buche()
-	 */
-	void add_money_message(const sint64 amount, const koord k);
 
 	/**
 	 * Accounts bought/sold vehicles.
