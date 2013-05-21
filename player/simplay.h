@@ -64,7 +64,16 @@ protected:
 
 	slist_tpl<income_message_t *>messages;
 
+	/**
+	 * creates new income message entry or merges with existing one if the
+	 * most recent one is at the same coordinate
+	 */
 	void add_message(koord k, sint32 summe);
+
+	/**
+	 * displays amount of money when koordinates are on screen
+	 */
+	void add_money_message(const sint64 amount, const koord k);
 
 	/**
 	 * Kennfarbe (Fahrzeuge, Gebäude) des Speielers
@@ -118,12 +127,6 @@ public:
 	 * @author jk271
 	 */
 	static void book_construction_costs(spieler_t * const sp, const sint64 amount, const koord k, const waytype_t wt=ignore_wt);
-
-	/*
-	 * displayes amount of money when koordinates and on screen
-	 * reworked function buche()
-	 */
-	void add_money_message(const sint64 amount, const koord k);
 
 	/**
 	 * Accounts bought/sold vehicles.

@@ -2669,7 +2669,6 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	sum_speed_limit = 0;
 
 	if(gewinn) {
-		besitzer_p->add_money_message(gewinn, fahr[0]->get_pos().get_2d());
 		jahresgewinn += gewinn;
 
 		book(gewinn, CONVOI_PROFIT);
