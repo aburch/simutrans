@@ -23,8 +23,6 @@ public:
 	simlinemgmt_t(karte_t* welt);
 	~simlinemgmt_t();
 
-	void line_management_window(spieler_t *);
-
 	/*
 	 * add a line
 	 * @author hsiegeln
@@ -105,8 +103,6 @@ private:
 	vector_tpl<linehandle_t> all_managed_lines;
 
 	static karte_t * welt;
-
-	schedule_list_gui_t *schedule_list_gui;  // Use with caution.  Valid only afer zeige_info
 
 	linehandle_t line_with_id_zero;
 };

@@ -86,6 +86,8 @@ bool umgebung_t::ground_info;
 bool umgebung_t::townhall_info;
 bool umgebung_t::single_info;
 bool umgebung_t::window_buttons_right;
+bool umgebung_t::second_open_closes_win;
+bool umgebung_t::remember_window_positions;
 bool umgebung_t::window_frame_active;
 uint8 umgebung_t::verbose_debug;
 uint8 umgebung_t::default_sortmode;
@@ -156,6 +158,8 @@ void umgebung_t::init()
 
 	window_buttons_right = false;
 	window_frame_active = false;
+	second_open_closes_win = false;
+	remember_window_positions = true;
 
 	// debug level (0: only fatal, 1: error, 2: warning, 3: alles
 	verbose_debug = 0;
@@ -362,6 +366,10 @@ void umgebung_t::rdwr(loadsave_t *file)
 		file->rdwr_byte( background_color );
 		file->rdwr_bool( draw_earth_border );
 		file->rdwr_bool( draw_outside_tile );
+	}
+	if(  file->get_version()>=112007  ) {
+		file->rdwr_bool( second_open_closes_win );
+		file->rdwr_bool( remember_window_positions );
 	}
 	// server settings are not saved, since the are server specific and could be different on different servers on the save computers
 }

@@ -168,6 +168,10 @@ public:
 	 */
 	static bool window_buttons_right;
 
+	static bool second_open_closes_win;
+
+	static bool remember_window_positions;
+
 	static sint16 window_snap_distance;
 
 	static koord iconsize;

@@ -1,3 +1,7 @@
+	ADD: second_open_closes_win =1 in simuconf.tab will close open window instead top them on secod call/click
+	ADD: remember_window_positions=1 (default) will remeber last window positions
+
+
 Release of 112.3: (r6520 on 17-May-2013):
 	CHG: Removed the restriction of having border heights at water level. Forces a savegame version step, new maps can't be properly shown in previous versions.
 	CHG: Raise and Lower tools interact with the grid now, not with tiles.

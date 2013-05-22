@@ -104,7 +104,7 @@ public:
 	bool is_selected(karte_t const* welt) const OVERRIDE { return win_get_magic(magic_line_management_t + welt->get_active_player_nr()); }
 	bool init(karte_t*, spieler_t* sp) OVERRIDE {
 		if(sp->get_player_nr()!=1) {
-			sp->simlinemgmt.line_management_window( sp );
+			create_win( new schedule_list_gui_t(sp), w_info, magic_line_management_t+sp->get_player_nr() );
 		}
 		return false;
 	}

@@ -47,6 +47,7 @@
 #include "gui/gui_frame.h"
 
 #include "player/simplay.h"
+#include "tpl/inthashtable_tpl.h"
 #include "tpl/vector_tpl.h"
 #include "utils/simstring.h"
 #include "utils/cbuffer_t.h"
@@ -67,6 +68,9 @@
 #include "gui/message_option_t.h"
 #include "gui/fabrik_info.h"
 
+
+
+class inthashtable_tpl<ptrdiff_t,koord> old_win_pos;
 
 
 #define dragger_size 12
@@ -366,10 +370,10 @@ static void win_draw_window_dragger(koord pos, koord gr)
 // returns the window (if open) otherwise zero
 gui_frame_t *win_get_magic(ptrdiff_t magic)
 {
-	if(magic!=-1  &&  magic!=0) {
+	if(  magic!=-1  &&  magic!=0  ) {
 		// es kann nur ein fenster fuer jede pos. magic number geben
-		FOR(vector_tpl<simwin_t>, const& i, wins) {
-			if (i.magic_number == magic) {
+		FOR( vector_tpl<simwin_t>, const& i, wins ) {
+			if(  i.magic_number == magic  ) {
 				// if 'special' magic number, return it
 				return i.gui;
 			}
@@ -534,9 +538,25 @@ int create_win(int x, int y, gui_frame_t* const gui, wintype const wt, ptrdiff_t
 {
 	assert(gui!=NULL  &&  magic!=0);
 
-	if(  magic!=magic_none  &&  win_get_magic(magic)  ) {
-		top_win( win_get_magic(magic) );
+	if(  gui_frame_t *win = win_get_magic(magic)  ) {
+		if(  umgebung_t::second_open_closes_win  ) {
+			destroy_win( win );
+			if(  !( wt & w_do_not_delete )  ) {
+				delete gui;
+			}
+		}
+		else {
+			top_win( win );
+		}
 		return -1;
+	}
+
+	if(  x==-1  &&  y==-1  &&  umgebung_t::remember_window_positions  ) {
+		// look for window in hash table
+		if(  koord *k = old_win_pos.access(magic)  ) {
+			x = k->x;
+			y = k->y;
+		}
 	}
 
 	/* if there are too many handles (likely in large games)
@@ -726,6 +746,15 @@ bool destroy_win(const gui_frame_t *gui)
 			else {
 				simwin_t win = wins[i];
 				wins.remove_at(i);
+				if(  win.magic_number < magic_max  ) {
+					// save last pos
+					if(  koord *k = old_win_pos.access(win.magic_number)  ) {
+						*k = win.pos;
+					}
+					else {
+						old_win_pos.put( win.magic_number, win.pos );
+					}
+				}
 				destroy_framed_win(&win);
 			}
 			return true;
@@ -878,14 +907,12 @@ void display_all_win()
 }
 
 
-
 void win_rotate90( sint16 new_ysize )
 {
 	FOR(vector_tpl<simwin_t>, const& i, wins) {
 		i.gui->map_rotate90(new_ysize);
 	}
 }
-
 
 
 static void remove_old_win()
@@ -1090,7 +1117,6 @@ void resize_win(int win, event_t *ev)
 }
 
 
-
 // returns true, if gui is a open window handle
 bool win_is_open(gui_frame_t *gui)
 {
@@ -1106,7 +1132,6 @@ bool win_is_open(gui_frame_t *gui)
 	}
 	return false;
 }
-
 
 
 koord const& win_get_pos(gui_frame_t const* const gui)
@@ -1587,6 +1612,8 @@ void win_display_flush(double konto)
 void win_set_welt(karte_t *welt)
 {
 	wl = welt;
+	// remove all save window positions
+	old_win_pos.clear();
 }
 
 

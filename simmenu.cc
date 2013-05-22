@@ -807,17 +807,13 @@ bool toolbar_t::init(karte_t *welt, spieler_t *sp)
 	bool close = (strcmp(this->default_param,"EDITTOOLS")==0  &&  sp!=welt->get_spieler(1));
 
 	// show/create window
-	if(  win_get_magic(magic_toolbar+toolbar_tool.index_of(this))  ) {
-		if(close) {
-			destroy_win(wzw);
-		}
-		else {
-			top_win(wzw);
-		}
-
+	if(  close  ) {
+		destroy_win(wzw);
+		return false;
 	}
-	else if(!close  &&  this!=werkzeug_t::toolbar_tool[0]) {
-		// not open and not main menu
+
+	if(  this != werkzeug_t::toolbar_tool[0]  ) {
+		// not main menu
 		create_win( wzw, w_info|w_do_not_delete|w_no_overlap, magic_toolbar+toolbar_tool.index_of(this) );
 		DBG_MESSAGE("toolbar_t::init()", "ID=%id", get_id());
 	}
