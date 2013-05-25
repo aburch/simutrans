@@ -587,10 +587,12 @@
     <ClCompile Include="script\api\api_goods_desc.cc" />
     <ClCompile Include="script\api\api_gui.cc" />
     <ClCompile Include="script\api\api_halt.cc" />
+    <ClCompile Include="script\api\api_map_objects.cc" />
     <ClCompile Include="script\api\api_player.cc" />
     <ClCompile Include="script\api\api_scenario.cc" />
     <ClCompile Include="script\api\api_schedule.cc" />
     <ClCompile Include="script\api\api_settings.cc" />
+    <ClCompile Include="script\api\api_simple.cc" />
     <ClCompile Include="script\api\api_tiles.cc" />
     <ClCompile Include="script\api\api_world.cc" />
     <ClCompile Include="script\api\export_besch.cc" />
