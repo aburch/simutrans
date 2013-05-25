@@ -63,7 +63,7 @@ paksets=( \
 "http://downloads.sourceforge.net/project/simutrans/pak32.comic/pak32.comic%20for%20102-0/pak32.comic_102-0.zip" \
 "http://downloads.sourceforge.net/project/simutrans/pak64.contrast/pak64.Contrast_910.zip" \
 "http://hd.simutrans.com/release/PakHD_v04B_100-0.zip" \
-"http://downloads.sourceforge.net/project/simutrans/pak128.britain/pak128.Britain%20for%20112-0/pak128.Britain.1.13-112-0.zip" \
+"http://downloads.sourceforge.net/project/simutrans/pak128.britain/pak128.Britain%20for%20112-0/pak128.Britain.1.14-112-0.zip" \
 "http://downloads.sourceforge.net/project/simutrans/pak128.japan/for%20Simutrans%20110.0.1/pak128.japan-110.0.1-version16-08-2011.zip" \
 "http://downloads.sourceforge.net/project/simutrans/pak64.scifi/pak64.scifi_112.1_v0.12.zip" \
 "http://downloads.sourceforge.net/project/ironsimu/pak48.Excentrique/v018/pak48-excentrique_v018.zip" \
