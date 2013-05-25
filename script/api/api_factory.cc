@@ -103,9 +103,6 @@ SQInteger world_get_factory_by_index(HSQUIRRELVM vm)
 }
 
 
-#define begin_class(c,p) push_class(vm, c);
-#define end_class() sq_pop(vm,1);
-
 void export_factory(HSQUIRRELVM vm)
 {
 	/**
@@ -119,7 +116,7 @@ void export_factory(HSQUIRRELVM vm)
 	 * }
 	 * @endcode
 	 */
-	begin_class("factory_list_x", 0);
+	begin_class(vm, "factory_list_x", 0);
 	/**
 	 * Meta-method to be used in foreach loops. Do not call them directly.
 	 */
@@ -129,14 +126,14 @@ void export_factory(HSQUIRRELVM vm)
 	 */
 	register_function(vm, world_get_factory_by_index, "_get",    2, "xi");
 
-	end_class();
+	end_class(vm);
 
 
 	/**
 	 * Class to access information about factories.
 	 * Identified by coordinate.
 	 */
-	begin_class("factory_x", "extend_get,coord");
+	begin_class(vm, "factory_x", "extend_get,coord");
 
 	/**
 	 * Constructor.
@@ -261,13 +258,13 @@ void export_factory(HSQUIRRELVM vm)
 	register_method_fv(vm, &get_factory_stat, "get_mail_arrived",   freevariable<sint32>(FAB_MAIL_ARRIVED), true);
 
 	// pop class
-	end_class();
+	end_class(vm);
 
 	/**
 	 * Class to access storage slots of factories.
 	 * Are automatically instantiated by factory_x constructor.
 	 */
-	begin_class("factory_production_x", "extend_get");
+	begin_class(vm, "factory_production_x", "extend_get");
 
 #ifdef SQAPI_DOC // document members
 	/**
@@ -306,5 +303,5 @@ void export_factory(HSQUIRRELVM vm)
 	register_method_fv(vm, &get_factory_production_stat, "get_produced",  freevariable<sint32>(FAB_GOODS_PRODUCED), true);
 
 	// pop class
-	end_class();
+	end_class(vm);
 }

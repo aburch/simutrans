@@ -11,9 +11,6 @@
 
 using namespace script_api;
 
-#define begin_class(c,p) push_class(vm, c);
-#define end_class() sq_pop(vm,1);
-
 
 waytype_t get_convoy_wt(convoi_t* cnv)
 {
@@ -64,7 +61,7 @@ void export_convoy(HSQUIRRELVM vm)
 	 * }
 	 * @endcode
 	 */
-	begin_class("convoy_list_x", 0);
+	begin_class(vm, "convoy_list_x", 0);
 	/**
 	 * Meta-method to be used in foreach loops. Do not call them directly.
 	 */
@@ -74,13 +71,13 @@ void export_convoy(HSQUIRRELVM vm)
 	 * @typemask convoy_x()
 	 */
 	register_function(vm, world_get_convoy_by_index, "_get",    2, "xi");
-	end_class();
+	end_class(vm);
 
 	/**
 	 * Class to access a convoy.
 	 * Player vehicles are convoys, which themselves consist of individual vehicles (trucks, trailers, ...).
 	 */
-	begin_class("convoy_x", "extend_get");
+	begin_class(vm, "convoy_x", "extend_get");
 	/**
 	 * Does convoy needs electrified ways?
 	 * @returns true if this is the case
@@ -143,5 +140,5 @@ void export_convoy(HSQUIRRELVM vm)
 	 */
 	register_method_fv(vm, &get_convoy_stat, "get_traveled_distance",freevariable<sint32>(convoi_t::CONVOI_DISTANCE), true );
 
-	end_class();
+	end_class(vm);
 }

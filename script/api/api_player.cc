@@ -36,16 +36,13 @@ bool player_active(spieler_t *sp)
 }
 
 
-#define begin_class(c,p) push_class(vm, c);
-#define end_class() sq_pop(vm,1);
-
 void export_player(HSQUIRRELVM vm)
 {
 	/**
 	 * Class to access player statistics.
 	 * Here, a player refers to one transport company, not to an individual playing simutrans.
 	 */
-	begin_class("player_x", "extend_get");
+	begin_class(vm, "player_x", "extend_get");
 
 	/**
 	 * Constructor.
@@ -173,5 +170,5 @@ void export_player(HSQUIRRELVM vm)
 	 */
 	register_method(vm, &player_active, "is_active", true);
 
-	end_class();
+	end_class(vm);
 }

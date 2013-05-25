@@ -62,9 +62,6 @@ static void_t set_citygrowth(stadt_t *city, bool allow)
 }
 
 
-#define begin_class(c,p) push_class(vm, c);
-#define end_class() sq_pop(vm,1);
-
 void export_city(HSQUIRRELVM vm)
 {
 	/**
@@ -78,7 +75,7 @@ void export_city(HSQUIRRELVM vm)
 	 * }
 	 * @endcode
 	 */
-	begin_class("city_list_x", 0);
+	begin_class(vm, "city_list_x", 0);
 	/**
 	 * Meta-method to be used in foreach loops. Do not call them directly.
 	 */
@@ -87,12 +84,12 @@ void export_city(HSQUIRRELVM vm)
 	 * Meta-method to be used in foreach loops. Do not call them directly.
 	 */
 	register_function(vm, world_get_city_by_index, "_get",    2, "xi");
-	end_class();
+	end_class(vm);
 
 	/**
 	 * Class to access cities.
 	 */
-	begin_class("city_x", "extend_get,coord");
+	begin_class(vm, "city_x", "extend_get,coord");
 
 	/**
 	 * Constructor.
@@ -238,5 +235,5 @@ void export_city(HSQUIRRELVM vm)
 	 */
 	register_method(vm, &stadt_t::set_name, "set_name");
 
-	end_class();
+	end_class(vm);
 }

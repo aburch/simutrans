@@ -9,8 +9,6 @@
 
 using namespace script_api;
 
-#define begin_class(c,p) push_class(vm, c);
-#define end_class() sq_pop(vm,1);
 #define STATIC
 
 // pushes table = { year = , month = }
@@ -70,7 +68,7 @@ void export_world(HSQUIRRELVM vm)
 	/**
 	 * Table with methods to access the world, the universe, and everything.
 	 */
-	begin_class("world", "extend_get");
+	begin_class(vm, "world", "extend_get");
 
 	/**
 	 * Checks whether given coordinate is valid.
@@ -241,5 +239,5 @@ void export_world(HSQUIRRELVM vm)
 	 */
 	STATIC register_method_fv(vm, &get_world_stat, "get_year_transported_goods", freevariable2<bool,sint32>(false, karte_t::WORLD_TRANSPORTED_GOODS), true );
 
-	end_class();
+	end_class(vm);
 }

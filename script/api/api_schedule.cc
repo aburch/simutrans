@@ -9,10 +9,6 @@
 
 using namespace script_api;
 
-#define begin_class(c,p) push_class(vm, c);
-#define end_class() sq_pop(vm,1);
-
-//static halthandle_t get_halt(const karte_t *welt, const koord3d pos, const spieler_t *sp );
 
 halthandle_t get_halt_from_koord3d(koord3d pos, const spieler_t *sp )
 {
@@ -28,7 +24,7 @@ void export_schedule(HSQUIRRELVM vm)
 	/**
 	 * Schedule entries
 	 */
-	begin_class("schedule_entry_x", "coord3d");
+	begin_class(vm, "schedule_entry_x", "coord3d");
 
 #ifdef SQAPI_DOC // document members
 	/**
@@ -49,12 +45,12 @@ void export_schedule(HSQUIRRELVM vm)
 	 */
 	register_method(vm, &get_halt_from_koord3d, "get_halt", true);
 
-	end_class();
+	end_class(vm);
 
 	/**
 	 * Class holding the schedule
 	 */
-	begin_class("schedule_x", "");
+	begin_class(vm, "schedule_x", "");
 
 #ifdef SQAPI_DOC // document members
 	/**
@@ -68,5 +64,5 @@ void export_schedule(HSQUIRRELVM vm)
 	way_types waytype;
 #endif
 
-	end_class();
+	end_class(vm);
 }
