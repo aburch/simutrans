@@ -171,7 +171,7 @@ bool loadsave_t::rd_open(const char *filename)
 	}
 	// now check for BZ2 format
 	char buf[256];
-	if(  fread( buf, 1, 256, fd->fp )==256  ) {
+	if(  fread( buf, 1, 256, fd->fp )==512  ) {
 		if(  buf[0]=='B'  &&  buf[1]=='Z'  ) {
 			mode = bzip2;
 		}
@@ -208,7 +208,7 @@ bool loadsave_t::rd_open(const char *filename)
 		if(fd->gzfp==NULL) {
 			return false;
 		}
-		gzgets(fd->gzfp, buf, 256);
+		gzgets(fd->gzfp, buf, 512);
 	}
 	saving = false;
 
