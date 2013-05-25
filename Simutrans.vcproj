@@ -251,6 +251,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\script\api\api_map_objects.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\script\api_param.cc"
 				>
 			</File>

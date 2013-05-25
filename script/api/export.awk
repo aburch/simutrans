@@ -72,7 +72,7 @@ function split_params(string)
 
 # beginning of class definition
 # begin_class("factory_x", "extend_get");
-/(begin|create)_.*class\([^,]*,[^,]/ {
+/(begin|create)_.*class/ {
 	# class with parent class
 	if ( /_class[^"]*"([^"]*)"[^"]*"([^"]*)".*/ ) {
 		match($0, /_class[^"]*"([^"]*)"[^"]*"([^"]*)".*/, data)
