@@ -5044,7 +5044,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	if(go_on_ticks == WAIT_INFINITE) 
 	{
 		const sint64 departure_time = (arrival_time + current_loading_time) - reversing_time;
-		if (!loading_limit) 
+		if(!loading_limit || loading_level >= loading_limit) 
 		{
 			go_on_ticks = max(departure_time, arrival_time);
 		} 
@@ -5074,7 +5074,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	// loading is finished => maybe drive on
 	bool can_go = false;
 	can_go = loading_level >= loading_limit;
-	can_go = can_go || welt->get_zeit_ms()>go_on_ticks;
+	can_go = can_go || welt->get_zeit_ms() > go_on_ticks;
 	can_go = can_go && welt->get_zeit_ms() > arrival_time + ((sint64)current_loading_time - (sint64)reversing_time);
 	can_go = can_go || no_load;
 	if(can_go) {
@@ -5096,16 +5096,6 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	}
 
 	// at least wait the minimum time for loading
-	if ( state == ROUTING_1 ) {
-		wait_lock = WTT_LOADING;
-	} else {
-		wait_lock = WTT_LOADING + (go_on_ticks - welt->get_zeit_ms())/2 + (self.get_id())%1024;
-		if ( wait_lock > WTT_LOADING * 4 ) {
-			wait_lock = WTT_LOADING * 4;
-		} else if (wait_lock < 0 ) {
-				wait_lock = WTT_LOADING;
-		}
-	}
 }
 
 

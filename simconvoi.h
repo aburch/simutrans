@@ -32,7 +32,7 @@
  * Waiting time for infinite loading (ms)
  * @author Hj- Malthaner
  */
-#define WAIT_INFINITE 0xFFFFFFFFu
+#define WAIT_INFINITE 9223372036854775807
 #define MAX_MONTHS               12 // Max history
 
 class weg_t;
