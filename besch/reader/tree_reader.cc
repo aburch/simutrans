@@ -53,7 +53,7 @@ obj_besch_t * tree_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		// Versioned node, version 1
 		besch->allowed_climates = all_but_arctic_climate;
 		besch->number_of_seasons = 0;
-		(uint8)decode_uint8(p);	// ignore hoehenlage
+		decode_uint8(p);	// ignore hoehenlage
 		besch->distribution_weight = (uint8)decode_uint8(p);
 	} else {
 		// old node, version 0

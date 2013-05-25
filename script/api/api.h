@@ -16,6 +16,7 @@ void export_player(HSQUIRRELVM vm);
 void export_scenario(HSQUIRRELVM vm);
 void export_settings(HSQUIRRELVM vm);
 void export_schedule(HSQUIRRELVM vm);
+void export_simple(HSQUIRRELVM vm);
 void export_tiles(HSQUIRRELVM vm);
 void export_world(HSQUIRRELVM vm);
 
