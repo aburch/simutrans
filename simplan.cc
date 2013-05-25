@@ -687,14 +687,14 @@ void planquadrat_t::remove_from_haltlist(karte_t *welt, halthandle_t halt)
  * true, if this halt is reachable from here
  * @author prissi
  */
-bool planquadrat_t::is_connected(halthandle_t halt) const
+uint8 planquadrat_t::get_connected(halthandle_t halt) const
 {
-	for( uint8 i=0;  i<halt_list_count;  i++  )
+	for(uint8 i = 0; i < halt_list_count; i++)
 	{
 		if(halt_list[i].halt == halt) 
 		{
-			return true;
+			return halt_list[i].distance;
 		}
 	}
-	return false;
+	return 255;
 }

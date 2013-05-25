@@ -1241,7 +1241,7 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 
 			// since also the factory halt list is added to the ground, we can use just this ...
 			const planquadrat_t* plan = welt->lookup(ware.get_zielpos());
-			if(plan && plan->is_connected(self)) 
+			if(plan && plan->get_connected(self) <= welt->get_settings().get_station_coverage_factories()) 
 			{
 				// we are already there!
 				if(ware.to_factory)
@@ -2209,7 +2209,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 
 	// have we arrived?
 	const planquadrat_t* plan = welt->lookup(ware.get_zielpos());
-	if(plan && plan->is_connected(self)) 
+	if(plan && plan->get_connected(self) <= welt->get_settings().get_station_coverage_factories()) 
 	{
 		if(ware.to_factory) 
 		{
