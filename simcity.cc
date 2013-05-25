@@ -2471,12 +2471,12 @@ void stadt_t::build_city_building(const koord k)
 	// Run through orthogonal neighbors (only) looking for which cluster to build
 	// This is a bitmap -- up to 32 clustering types are allowed.
 	uint32 neighbor_building_clusters = 0;
-	for (int i = 0; i < 4; i++) {
+	for(  int i = 0;  i < 4;  i++  ) {
 		grund_t* gr = welt->lookup_kartenboden(k + neighbors[i]);
-		if (gr->get_typ() == grund_t::fundament && gr->obj_bei(0)->get_typ() == ding_t::gebaeude) {
+		if(  gr->get_typ() == grund_t::fundament  &&  gr->obj_bei(0)->get_typ() == ding_t::gebaeude  ) {
 			// We have a building as a neighbor...
 			gebaeude_t const* const gb = ding_cast<gebaeude_t>(gr->first_obj());
-			if (gb != NULL) {
+			if(  gb != NULL  ) {
 				// We really have a building as a neighbor...
 				const haus_besch_t* neighbor_building = gb->get_tile()->get_besch();
 				neighbor_building_clusters |= neighbor_building->get_clusters();
@@ -2667,27 +2667,27 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 	}
 
 	// good enough to renovate, and we found a building?
-	if (sum > 0 && h != NULL) {
+	if(  sum > 0  &&  h != NULL  ) {
 //		DBG_MESSAGE("stadt_t::renovate_city_building()", "renovation at %i,%i (%i level) of typ %i to typ %i with desire %i", k.x, k.y, alt_typ, want_to_have, sum);
 
 		// check for pavement
 		// and make sure our house is not on a neighbouring tile, to avoid boring towns
 		int streetdir = 0;
-		for (int i = 0; i < 8; i++) {
+		for(  int i = 0;  i < 8;  i++  ) {
 			// Neighbors goes through this in a specific order:
 			// orthogonal first, then diagonal
 			grund_t* gr = welt->lookup_kartenboden(k + neighbors[i]);
-			if (gr != NULL && gr->get_weg_hang() == gr->get_grund_hang()) {
-				if (weg_t* const weg = gr->get_weg(road_wt)) {
-					if (i < 4) {
+			if(  gr != NULL  &&  gr->get_weg_hang() == gr->get_grund_hang()  ) {
+				if(  weg_t* const weg = gr->get_weg(road_wt)  ) {
+					if(  i < 4  ) {
 						// update directions (SENW)
 						streetdir += (1 << i);
 					}
 					weg->set_gehweg(true);
 					// if not current city road standard, then replace it
-					if (weg->get_besch() != welt->get_city_road()) {
+					if(  weg->get_besch() != welt->get_city_road()  ) {
 						spieler_t *sp = weg->get_besitzer();
-						if (sp == NULL  ||  !gr->get_depot()) {
+						if(  sp == NULL  ||  !gr->get_depot()  ) {
 							spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung(), road_wt);
 
 							weg->set_besitzer(NULL); // make public
@@ -2696,10 +2696,12 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 					}
 					gr->calc_bild();
 					reliefkarte_t::get_karte()->calc_map_pixel(gr->get_pos().get_2d());
-				} else if (gr->get_typ() == grund_t::fundament) {
-					// do not renovate, if the building is already in a neighbour tile
+				}
+				else if(  gr->get_typ() == grund_t::fundament  ) {
+					// do not renovate, if the identical building is already in a neighbour tile
+					// identical mean same besch and same rotation (neroden suggested to relax this for clusters)
 					gebaeude_t const* const gb = ding_cast<gebaeude_t>(gr->first_obj());
-					if (gb != NULL && gb->get_tile()->get_besch() == h) {
+					if(  gb  &&  gb->get_tile()->get_besch() == h  &&  gb->get_tile() == h->get_tile(building_layout[streetdir], 0, 0)  ) {
 						return;
 					}
 				}
