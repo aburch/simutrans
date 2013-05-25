@@ -79,5 +79,5 @@ void export_goods_desc(HSQUIRRELVM vm)
 	 */
 	register_method(vm, &ware_besch_t::get_name, "get_name");
 
-	end_besch_class(vm);
+	end_class(vm);
 }
