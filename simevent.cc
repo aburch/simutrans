@@ -250,7 +250,7 @@ void display_poll_event(event_t* const ev)
 
 void display_get_event(event_t* const ev)
 {
-	if( !queued_events.empty() ) {
+	if(  !queued_events.empty()  ) {
 		// We have a queued (injected programatically) event, return it.
 		event_t *elem = queued_events.remove_first();
 		*ev = *elem;
@@ -272,7 +272,7 @@ void display_get_event(event_t* const ev)
 }
 
 
-void queue_events(slist_tpl<event_t *> &events)
+void queue_event(event_t *events)
 {
-	queued_events.append_list(events);
+	queued_events.append(events);
 }
