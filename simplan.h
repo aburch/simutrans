@@ -20,6 +20,12 @@ class stadt_t;
 class planquadrat_t;
 void swap(planquadrat_t& a, planquadrat_t& b);
 
+struct nearby_halt_t
+{
+	halthandle_t halt;
+	uint8 distance;
+};
+
 
 /**
  * Die Karte ist aus Planquadraten zusammengesetzt.
@@ -30,7 +36,7 @@ class planquadrat_t
 {
 private:
 	/* list of stations that are reaching to this tile (saves lots of time for lookup) */
-	halthandle_t *halt_list;
+	nearby_halt_t *halt_list;
 
 	uint8 ground_size, halt_list_count;
 
@@ -167,8 +173,8 @@ public:
 
 private:
 	// these functions are private helper functions for halt_list corrections
-	void halt_list_remove( halthandle_t halt );
-	void halt_list_insert_at( halthandle_t halt, uint8 pos );
+	void halt_list_remove(halthandle_t halt);
+	void halt_list_insert_at(halthandle_t halt, uint8 pos, uint8 distance);
 
 public:
 	/*
@@ -190,7 +196,7 @@ public:
 	* returns the internal array of halts
 	* @author prissi
 	*/
-	const halthandle_t *get_haltlist() const { return halt_list; }
+	const nearby_halt_t *get_haltlist() const { return halt_list; }
 	uint8 get_haltlist_count() const { return halt_list_count; }
 
 	void rdwr(karte_t *welt, loadsave_t *file, koord pos );

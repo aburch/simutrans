@@ -388,7 +388,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 			if(plan) {
 				grund_t *gr = plan->get_kartenboden();
 				if(  gr->ist_wasser()  &&  !gr->get_halt().is_bound()  ) {
-					if(plan->get_haltlist_count()>=1  &&  plan->get_haltlist()[0]==start_hub  &&  shortest_distance(start_pos,end_harbour)>shortest_distance(p,end_harbour)) {
+					if(plan->get_haltlist_count()>=1  &&  plan->get_haltlist()[0].halt == start_hub  &&  shortest_distance(start_pos,end_harbour)>shortest_distance(p,end_harbour)) {
 						start_pos = p;
 					}
 				}
@@ -405,7 +405,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 			if(plan) {
 				grund_t *gr = plan->get_kartenboden();
 				if(  gr->ist_wasser()  &&  !gr->get_halt().is_bound()  ) {
-					if(plan->get_haltlist_count()>=1  &&  plan->get_haltlist()[0]==end_hub  &&  shortest_distance(end_pos,start_harbour)>shortest_distance(p,start_harbour)) {
+					if(plan->get_haltlist_count()>=1  &&  plan->get_haltlist()[0].halt == end_hub  &&  shortest_distance(end_pos,start_harbour)>shortest_distance(p,start_harbour)) {
 						end_pos = p;
 					}
 				}
@@ -841,15 +841,15 @@ void ai_passenger_t::walk_city(linehandle_t const line, grund_t* const start, in
 						const planquadrat_t *pl = welt->lookup(koord(x,y));
 						// check, if we have a passenger stop already here
 						if(pl  &&  pl->get_haltlist_count()>0) {
-							const halthandle_t *hl=pl->get_haltlist();
+							const nearby_halt_t *hl = pl->get_haltlist();
 							for( uint8 own=0;  own<pl->get_haltlist_count();  own++  ) {
-								if(  hl[own]->is_enabled(warenbauer_t::INDEX_PAS)  ) {
+								if(  hl[own].halt->is_enabled(warenbauer_t::INDEX_PAS)  ) {
 									// our stop => nothing to do
 #if AUTOJOIN_PUBLIC
 									// we leave also public stops alone
-									if(  hl[own]->get_besitzer()==this  ||  hl[own]->get_besitzer()==welt->get_spieler(1)  ) {
+									if(  hl[own].halt->get_besitzer()==this  ||  hl[own]->get_besitzer()==welt->get_spieler(1)  ) {
 #else
-									if(  hl[own]->get_besitzer()==this  ) {
+									if(  hl[own].halt->get_besitzer()==this  ) {
 #endif
 										covered_tiles ++;
 										break;

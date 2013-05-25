@@ -459,9 +459,6 @@ public:
 
 	void rotate90( const sint16 y_size );
 
-	void link_halt(halthandle_t halt);
-	void unlink_halt(halthandle_t halt);
-
 	const vector_tpl<koord>& get_lieferziele() const { return lieferziele; }
 	bool is_active_lieferziel( koord k ) const;
 

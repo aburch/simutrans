@@ -3076,7 +3076,7 @@ bool karte_t::rem_fab(fabrik_t *fab)
 		halthandle_t list[48];
 		const uint8 count = plan->get_haltlist_count();
 		assert(count<48);
-		memcpy( list, plan->get_haltlist(), count*sizeof(halthandle_t) );
+		memcpy( list, plan->get_haltlist(), count*sizeof(nearby_halt_t) );
 		for( uint8 i=0;  i<count;  i++  ) {
 			// first remove all the tiles that do not connect
 			plan->remove_from_haltlist( this, list[i] );

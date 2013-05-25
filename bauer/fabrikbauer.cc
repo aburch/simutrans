@@ -442,15 +442,19 @@ fabrik_t* fabrikbauer_t::baue_fabrik(karte_t* welt, koord3d* parent, const fabri
 		for(  k.x=pos.x;  k.x<=pos.x+dim.x;  k.x++  ) {
 			for(  k.y=pos.y;  k.y<=pos.y+dim.y;  k.y++  ) {
 				const planquadrat_t *plan = welt->lookup(k);
-				const halthandle_t *halt_list = plan->get_haltlist();
-				for(  unsigned h=0;  h<plan->get_haltlist_count();  h++  ) {
-					halt_list[h]->verbinde_fabriken();
+				const nearby_halt_t *halt_list = plan->get_haltlist();
+				for(  unsigned h=0;  h<plan->get_haltlist_count();  h++  ) 
+				{
+					if(halt_list[h].distance <= welt->get_settings().get_station_coverage_factories())
+					{
+						halt_list[h].halt->verbinde_fabriken();
+					}
 				}
 			}
 		}
 	}
 
-	// add passenger to pax>0, (so no sucide diver at the fish swarm)
+	// add passenger to pax>0, (so no sucide diver at the fishery)
 	if(info->get_pax_level()>0) {
 		const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
 		vector_tpl<stadt_t *>distance_stadt( staedte.get_count() );

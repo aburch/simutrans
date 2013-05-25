@@ -88,19 +88,19 @@ bool ai_t::is_connected( const koord start_pos, const koord dest_pos, const ware
 {
 	// Dario: Check if there's a stop near the start
 	const planquadrat_t* start_plan = welt->lookup(start_pos);
-	const halthandle_t* start_list = start_plan->get_haltlist();
+	const nearby_halt_t* start_list = start_plan->get_haltlist();
 
 	// Dario: Check if there's a stop near destination
 	const planquadrat_t* dest_plan = welt->lookup(dest_pos);
-	const halthandle_t* dest_list = dest_plan->get_haltlist();
+	const nearby_halt_t* dest_list = dest_plan->get_haltlist();
 
 	// suitable end search
 	unsigned dest_count = 0;
 	for (uint16 h = 0; h<dest_plan->get_haltlist_count(); h++) {
-		halthandle_t halt = dest_list[h];
+		halthandle_t halt = dest_list[h].halt;
 		if (halt->is_enabled(wtyp)) {
 			for (uint16 hh = 0; hh<start_plan->get_haltlist_count(); hh++) {
-				if (halt == start_list[hh]) {
+				if (halt == start_list[hh].halt) {
 					// connected with the start (i.e. too close)
 					return true;
 				}
@@ -120,7 +120,7 @@ bool ai_t::is_connected( const koord start_pos, const koord dest_pos, const ware
 	ware.menge = 1;
 	for (uint16 hh = 0; hh<start_plan->get_haltlist_count(); hh++) 
 	{
-		if(start_list[hh]->find_route(ware) < 65535)
+		if(start_list[hh].halt->find_route(ware) < 65535)
 		{
 			// ok, already connected
 			return true;

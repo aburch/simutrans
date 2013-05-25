@@ -3093,13 +3093,13 @@ void stadt_t::step_passagiere()
 	const koord3d origin_pos_3d = gb->get_pos();
 	const koord origin_pos = origin_pos_3d.get_2d();
 	const planquadrat_t *const plan = welt->lookup(origin_pos);
-	const halthandle_t *const halt_list = plan->get_haltlist();
+	const nearby_halt_t *const halt_list = plan->get_haltlist();
 
-	vector_tpl<halthandle_t> start_halts(plan->get_haltlist_count());
+	vector_tpl<nearby_halt_t> start_halts(plan->get_haltlist_count());
 	for (int h = plan->get_haltlist_count() - 1; h >= 0; h--) 
 	{
-		halthandle_t halt = halt_list[h];
-		if (halt->is_enabled(wtyp)  &&  !halt->is_overcrowded(wtyp->get_catg_index())) 
+		nearby_halt_t halt = halt_list[h];
+		if (halt.halt->is_enabled(wtyp) && !halt.halt->is_overcrowded(wtyp->get_catg_index())) 
 		{
 			start_halts.append(halt);
 		}
@@ -3252,7 +3252,7 @@ void stadt_t::step_passagiere()
 			
 			// Dario: Check if there's a stop near destination
 			const planquadrat_t* dest_plan = welt->lookup(destinations[current_destination].location);
-			const halthandle_t* dest_list = dest_plan->get_haltlist();
+			const nearby_halt_t* dest_list = dest_plan->get_haltlist();
 			
 			// Knightly : we can avoid duplicated efforts by building destination halt list here at the same time
 
@@ -3263,7 +3263,7 @@ void stadt_t::step_passagiere()
 							
 			for (int h = dest_plan->get_haltlist_count() - 1; h >= 0; h--) 
 			{
-				halthandle_t halt = dest_list[h];
+				halthandle_t halt = dest_list[h].halt;
 				if (halt->is_enabled(wtyp)) 
 				{
 					destination_list[current_destination].append(halt);
@@ -3272,12 +3272,12 @@ void stadt_t::step_passagiere()
 
 			uint16 best_journey_time = 65535;
 
-			if(start_halts.get_count() == 1 && destination_list[current_destination].get_count() == 1 && start_halts[0] == destination_list[current_destination].get_element(0))
+			if(start_halts.get_count() == 1 && destination_list[current_destination].get_count() == 1 && start_halts[0].halt == destination_list[current_destination].get_element(0))
 			{
 				/** There is no public transport route, as the only stop
 				 * for the origin is also the only stop for the desintation.
 				 */
-				start_halt = start_halts[0];
+				start_halt = start_halts[0].halt;
 			}
 			else
 			{
@@ -3286,7 +3286,7 @@ void stadt_t::step_passagiere()
 				pax.reset();
 				pax.set_zielpos(destinations[current_destination].location);
 				pax.menge = pax_left_to_do;
-				pax.to_factory = ( destinations[current_destination].factory_entry ? 1 : 0 );
+				pax.to_factory = (destinations[current_destination].factory_entry ? 1 : 0);
 				//"Menge" = volume (Google)
 
 				// Search for a route using public transport. 
@@ -3297,13 +3297,13 @@ void stadt_t::step_passagiere()
 
 				ITERATE(start_halts, i)
 				{
-					halthandle_t current_halt = start_halts[i];
+					halthandle_t current_halt = start_halts[i].halt;
 				
 					current_journey_time = current_halt->find_route(&destination_list[current_destination], pax, best_journey_time, destinations[current_destination].location);
 					
 					// Add walking time from the origin to the origin stop. 
 					// Note that the walking time to the destination stop is already added by find_route.
-					current_journey_time += (shortest_distance(start_halts[i]->get_next_pos(origin_pos), origin_pos) * walking_journey_time_factor) / 100u;
+					current_journey_time += (start_halts[i].distance * walking_journey_time_factor) / 100u;
 					if(current_journey_time > 65535)
 					{
 						current_journey_time = 65535;
@@ -3352,7 +3352,7 @@ void stadt_t::step_passagiere()
 					// All passengers will use the quickest route.
 					if(start_halts.get_count() > 0)
 					{
-						start_halt = start_halts[best_start_halt];
+						start_halt = start_halts[best_start_halt].halt;
 					}
 				}
 			}
@@ -3568,7 +3568,7 @@ void stadt_t::step_passagiere()
 		
 			merke_passagier_ziel(best_bad_destination, COL_LIGHT_PURPLE);
 
-			start_halt = start_halts[best_bad_start_halt]; 					
+			start_halt = start_halts[best_bad_start_halt].halt; 					
 			if(start_halt.is_bound())
 			{
 				start_halt->add_pax_too_slow(pax_left_to_do);
@@ -3587,7 +3587,7 @@ void stadt_t::step_passagiere()
 				 * Record their inability to get where they are going at those local stops accordingly. 
 				 */
 
-				start_halt = start_halts[best_bad_start_halt]; 					
+				start_halt = start_halts[best_bad_start_halt].halt; 					
 				if(start_halt.is_bound())
 				{
 					start_halt->add_pax_no_route(pax_left_to_do);
@@ -3606,7 +3606,7 @@ void stadt_t::step_passagiere()
 				for(int h = plan->get_haltlist_count() - 1; h >= 0; h--)
 				{
 					destinations_checked = 0;
-					halthandle_t halt = halt_list[h];
+					halthandle_t halt = halt_list[h].halt;
 					for(; destinations_checked <= destination_count; destinations_checked ++)
 					{
 						// Only mark passengers as being unable to get to their destination due to crowded stops if the stops
@@ -3674,7 +3674,7 @@ void stadt_t::step_passagiere()
 				bool found = false;
 				for (uint i = 0; i < plan->get_haltlist_count(); i++) 
 				{
-					halthandle_t test_halt = halt_list[i];
+					halthandle_t test_halt = halt_list[i].halt;
 				
 					if(test_halt->is_enabled(wtyp) && (start_halt == test_halt || test_halt->get_connexions(wtyp->get_catg_index())->access(start_halt) != NULL))
 					{
@@ -3686,7 +3686,7 @@ void stadt_t::step_passagiere()
 
 				// now try to add them to the target halt
 				ware_t test_passengers;
-				test_passengers.set_ziel(start_halts[best_bad_start_halt]);
+				test_passengers.set_ziel(start_halts[best_bad_start_halt].halt);
 				const bool overcrowded_route = ret_halt->find_route(test_passengers) < 65535;
 				if(!ret_halt->is_overcrowded(wtyp->get_catg_index()) || !overcrowded_route)
 				{

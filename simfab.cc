@@ -592,22 +592,6 @@ fabrik_t *fabrik_t::get_fab(const karte_t *welt, const koord &pos)
 	return NULL;
 }
 
-
-void fabrik_t::link_halt(halthandle_t halt)
-{
-	welt->access(pos.get_2d())->add_to_haltlist(halt);
-}
-
-
-void fabrik_t::unlink_halt(halthandle_t halt)
-{
-	planquadrat_t *plan=welt->access(pos.get_2d());
-	if(plan) {
-		plan->remove_from_haltlist(welt,halt);
-	}
-}
-
-
 void fabrik_t::add_lieferziel(koord ziel)
 {
 	if(  !lieferziele.is_contained(ziel)  ) {
@@ -731,7 +715,7 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 	pos(pos_)
 {
 	welt = spieler->get_welt();
-	this->pos.z = welt->max_hgt(pos.get_2d());
+	pos.z = welt->max_hgt(pos.get_2d());
 	pos_origin = pos;
 
 	besitzer_p = spieler;
@@ -1846,21 +1830,21 @@ void fabrik_t::step(long delta_t)
 class distribute_ware_t
 {
 public:
-	ware_t ware;             /// goods to be routed to consumer
-	halthandle_t halt;       /// potential start halt
-	sint32 space_left;       /// free space at halt
-	sint32 amount_waiting;   /// waiting goods at halt for same destination as ware
+	ware_t ware;				/// goods to be routed to consumer
+	nearby_halt_t nearby_halt;  /// potential start halt
+	sint32 space_left;			/// free space at halt
+	sint32 amount_waiting;		/// waiting goods at halt for same destination as ware
 private:
-	sint32 ratio_free_space; /// ratio of free space at halt (=0 for overflowing station)
+	sint32 ratio_free_space;	/// ratio of free space at halt (=0 for overflowing station)
 
 public:
-	distribute_ware_t( halthandle_t h, sint32 l, sint32 t, sint32 a, ware_t w )
+	distribute_ware_t( nearby_halt_t n, sint32 l, sint32 t, sint32 a, ware_t w )
 	{
-		halt = h;
+		nearby_halt = n;
 		space_left = l;
 		amount_waiting = a;
 		ware = w;
-		// ensure overfull stations compare equal allowing tie breaker clause (amount waiting)
+		// Ensure that over-full stations compare equally allowing tie breaker clause (amount waiting)
 		sint32 space_total = t > 0 ? t : 1;
 		ratio_free_space = space_left > 0 ? ((sint64)space_left << fabrik_t::precision_bits) / space_total : 0;
 	}
@@ -1886,11 +1870,44 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 	}
 
 	// not connected?
-	const planquadrat_t *plan = welt->lookup(pos.get_2d());
+	/*const planquadrat_t *plan = welt->lookup(pos.get_2d());
 	if(  plan == NULL  ) {
 		dbg->fatal("fabrik_t::verteile_waren", "%s has not distibution target", get_name() );
 	}
 	if(  plan->get_haltlist_count() == 0  ) {
+		return;
+	}*/
+
+	// Check *all* tiles for nearby stops.
+	vector_tpl<koord> tile_list;
+	get_tile_list(tile_list);
+	vector_tpl<nearby_halt_t> halt_list;
+	bool any_distribution_target = false;
+	FOR(vector_tpl<koord>, const k, tile_list)
+	{
+		const planquadrat_t* plan = welt->lookup(k);
+		if(plan)
+		{
+			any_distribution_target = true;
+			const uint8 haltlist_count = plan->get_haltlist_count();
+			if(haltlist_count)
+			{
+				const nearby_halt_t *haltlist = plan->get_haltlist();
+				for(int i = 0; i < haltlist_count; i++)
+				{
+					halt_list.append(haltlist[i]); 
+				}
+			}
+		}
+	}
+
+	if(!any_distribution_target)
+	{
+		dbg->fatal("fabrik_t::verteile_waren", "%s has not distibution target", get_name() );
+	}
+
+	if(halt_list.empty())
+	{
 		return;
 	}
 
@@ -1908,12 +1925,18 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 	sint32 menge = min( (prodbase > 640 ? (prodbase>>6) : 10), ausgang[produkt].menge >> precision_bits );
 
 	// ok, first generate list of possible destinations
-	const halthandle_t *haltlist = plan->get_haltlist();
+	//const nearby_halt_t *haltlist = plan->get_haltlist();
 
-	for(  unsigned i=0;  i<plan->get_haltlist_count();  i++  ) {
-		halthandle_t halt = haltlist[(i + ausgang[produkt].index_offset) % plan->get_haltlist_count()];
+	//for(  unsigned i=0;  i<plan->get_haltlist_count();  i++  ) {
+	const uint32 count = halt_list.get_count();
+	//FOR(vector_tpl<nearby_halt_t>, const i, halt_list)
+	for(unsigned i = 0; i < count; i++)
+	{
+		nearby_halt_t nearby_halt = halt_list[(i + ausgang[produkt].index_offset) % count];
 
-		if(!halt->get_ware_enabled() || !halt->get_fab_list().is_contained(this)) 
+		if(!nearby_halt.halt->get_ware_enabled() ||
+			nearby_halt.distance > welt->get_settings().get_station_coverage_factories() ||
+			(get_besch()->get_platzierung() == fabrik_besch_t::Wasser && (nearby_halt.halt->get_station_type() & haltestelle_t::dock) == 0))
 		{
 			continue;
 		}
@@ -1927,7 +1950,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 			if(  ziel_fab  ) {
 				const sint8 needed = ziel_fab->is_needed(ausgang[produkt].get_typ());
 				if(  needed>=0  ) {
-					ware_t ware(ausgang[produkt].get_typ(), halt);
+					ware_t ware(ausgang[produkt].get_typ(), nearby_halt.halt);
 					ware.menge = menge;
 					ware.to_factory = 1;
 					ware.set_zielpos( lieferziel );
@@ -1944,12 +1967,12 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 					if(  !welt->get_settings().get_just_in_time()  ) {
 						// without production stop when target overflowing, distribute to least overflow target
 						const sint32 fab_left = ziel_fab->get_eingang()[w].max - ziel_fab->get_eingang()[w].menge;
-						dist_list.insert_ordered( distribute_ware_t( halt, fab_left, ziel_fab->get_eingang()[w].max, (sint32)halt->get_ware_fuer_zielpos(ausgang[produkt].get_typ(),ware.get_zielpos()), ware ), distribute_ware_t::compare );
+						dist_list.insert_ordered( distribute_ware_t(nearby_halt, fab_left, ziel_fab->get_eingang()[w].max, (sint32)nearby_halt.halt->get_ware_fuer_zielpos(ausgang[produkt].get_typ(),ware.get_zielpos()), ware ), distribute_ware_t::compare);
 					}
 					else if(  needed > 0  ) {
 						// we are not overflowing: Station can only store up to a maximum amount of goods per square
-						const sint32 halt_left = (sint32)halt->get_capacity(2) - (sint32)halt->get_ware_summe(ware.get_besch());
-						dist_list.insert_ordered( distribute_ware_t( halt, halt_left, halt->get_capacity(2), (sint32)halt->get_ware_fuer_zielpos(ausgang[produkt].get_typ(),ware.get_zielpos()), ware ), distribute_ware_t::compare );
+						const sint32 halt_left = (sint32)nearby_halt.halt->get_capacity(2) - (sint32)nearby_halt.halt->get_ware_summe(ware.get_besch());
+						dist_list.insert_ordered( distribute_ware_t(nearby_halt, halt_left, nearby_halt.halt->get_capacity(2), (sint32)nearby_halt.halt->get_ware_fuer_zielpos(ausgang[produkt].get_typ(),ware.get_zielpos()), ware ), distribute_ware_t::compare);
 					}
 				}
 			}
@@ -1958,7 +1981,8 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 
 	// Auswertung der Ergebnisse
 	// "Evaluation of the results" (Babelfish)
-	if(  !dist_list.empty()  ) {
+	if(!dist_list.empty())
+	{
 		distribute_ware_t *best = NULL;
 		// Assume a fixed 1km/h transshipment time of goods to industries. This gives a minimum transfer time
 		// of 15 minutes for each stop at 125m/tile.
@@ -1966,9 +1990,8 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 		FOR(vector_tpl<distribute_ware_t>, & i, dist_list) 
 		{
 			// now search route
-			const uint32 straight_line_distance = shortest_distance(pos, i.halt->get_next_pos(pos));
-			const uint16 transfer_time = (straight_line_distance * transfer_journey_time_factor) / 100u;
-			const uint16 current_journey_time = i.halt->find_route(i.ware) + transfer_time;
+			const uint16 transfer_time = (i.nearby_halt.distance * transfer_journey_time_factor) / 100u;
+			const uint16 current_journey_time = i.nearby_halt.halt->find_route(i.ware) + transfer_time;
 			if(current_journey_time < 65535)
 			{
 				best = &i;
@@ -1980,7 +2003,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 			return; // no route for any destination
 		}
 
-		halthandle_t &best_halt = best->halt;
+		halthandle_t &best_halt = best->nearby_halt.halt;
 		ware_t       &best_ware = best->ware;
 
 		// now process found route
@@ -2566,27 +2589,51 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 		}
 	}
 
-	const planquadrat_t *plan = welt->lookup(get_pos().get_2d());
-	
-	if(plan && plan->get_haltlist_count() > 0) 
+	// Check *all* tiles for nearby stops.
+	vector_tpl<koord> tile_list;
+	get_tile_list(tile_list);
+	vector_tpl<nearby_halt_t> halt_list;
+	FOR(vector_tpl<koord>, const k, tile_list)
+	{
+		const planquadrat_t* plan = welt->lookup(k);
+		if(plan)
+		{
+			const uint8 haltlist_count = plan->get_haltlist_count();
+			if(haltlist_count)
+			{
+				const nearby_halt_t *haltlist = plan->get_haltlist();
+				for(int i = 0; i < haltlist_count; i++)
+				{
+					halt_list.append(haltlist[i]); 
+				}
+			}
+		}
+	}
+
+	if(!halt_list.empty()) 
 	{
 		bool any = false;
-		for(uint i = 0; i < plan->get_haltlist_count(); i++) 
+		fabrik_t* fab = (fabrik_t*)this;
+		vector_tpl<uint16> already_counted(halt_list.get_count());
+		FOR(vector_tpl<nearby_halt_t>, const i, halt_list)
 		{
-			fabrik_t* fab = (fabrik_t*)this;
-			halthandle_t halt = plan->get_haltlist()[i];
-			if(halt->get_fab_list().is_contained(fab))
+			if(i.distance <= welt->get_settings().get_station_coverage_factories())
 			{
-				if(has_previous && !any) 
+				// Prevent double listing of halts
+				if(!already_counted.is_contained(i.halt.get_id()))
 				{
-					buf.append("\n\n");
+					if(has_previous && !any) 
+					{
+						buf.append("\n\n");
+					}
+					if(!any)
+					{
+						buf.append(translator::translate("Connected stops"));
+					}
+					buf.printf("\n - %s", i.halt->get_name());
+					has_previous = any = true;
+					already_counted.append(i.halt.get_id());
 				}
-				if(!any)
-				{
-					buf.append(translator::translate("Connected stops"));
-				}
-				buf.printf("\n - %s", plan->get_haltlist()[i]->get_name() );
-				has_previous = any = true;
 			}
 		}
 	}

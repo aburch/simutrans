@@ -49,8 +49,8 @@ settings_t::settings_t() :
 	anzahl_staedte = 16;
 	mittlere_einwohnerzahl = 1600;
 
-	station_coverage_size = 2;
-	station_coverage_size_factories = 1;
+	station_coverage_size = 3;
+	station_coverage_size_factories = 3;
 
 	verkehr_level = 5;
 

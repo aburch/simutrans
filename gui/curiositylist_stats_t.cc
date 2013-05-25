@@ -178,9 +178,9 @@ void curiositylist_stats_t::zeichnen(koord offset)
 		bool all_crowded=true;
 		bool some_crowded=false;
 		const planquadrat_t *plan = welt->lookup(geb->get_pos().get_2d());
-		const halthandle_t *halt_list = plan->get_haltlist();
+		const nearby_halt_t *halt_list = plan->get_haltlist();
 		for(  unsigned h=0;  (post&pax)==0  &&  h<plan->get_haltlist_count();  h++ ) {
-			halthandle_t halt = halt_list[h];
+			halthandle_t halt = halt_list[h].halt;
 			if (halt->get_pax_enabled()) {
 				pax = true;
 				if (halt->get_pax_unhappy() > 40) {

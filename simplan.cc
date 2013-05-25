@@ -512,7 +512,7 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos, const 
 			image_id img = overlay_img(gr);
 
 			for(int halt_count = 0; halt_count < halt_list_count; halt_count++) {
-				const PLAYER_COLOR_VAL transparent = PLAYER_FLAG | OUTLINE_FLAG | (halt_list[halt_count]->get_besitzer()->get_player_color1() + 4);
+				const PLAYER_COLOR_VAL transparent = PLAYER_FLAG | OUTLINE_FLAG | (halt_list[halt_count].halt->get_besitzer()->get_player_color1() + 4);
 				display_img_blend( img, xpos, ypos, transparent | TRANSPARENT25_FLAG, 0, 0);
 			}
 #ifdef PLOT_PLAYER_OUTLINE_COLOURS
@@ -529,7 +529,7 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos, const 
 					const PLAYER_COLOR_VAL transparent = PLAYER_FLAG | OUTLINE_FLAG | (display_player->get_player_color1() * 4 + 4);
 					for(int halt_count = 0; halt_count < halt_list_count; halt_count++) 
 					{
-						if(halt_list[halt_count]->get_besitzer() == display_player)
+						if(halt_list[halt_count].halt->get_besitzer() == display_player)
 						{
 							display_img_blend( img, xpos, ypos, transparent | TRANSPARENT25_FLAG, 0, 0);
 						}
@@ -548,7 +548,7 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos, const 
 			const sint16 off = (raster_tile_width>>5);
 			// suitable start search
 			for (size_t h = halt_list_count; h-- != 0;) {
-				display_fillbox_wh_clip(x - h * off, y + h * off, r, r, PLAYER_FLAG | (halt_list[h]->get_besitzer()->get_player_color1() + 4), kartenboden_dirty);
+				display_fillbox_wh_clip(x - h * off, y + h * off, r, r, PLAYER_FLAG | (halt_list[h].halt->get_besitzer()->get_player_color1() + 4), kartenboden_dirty);
 			}
 		}
 	}
@@ -586,7 +586,7 @@ void planquadrat_t::set_halt(halthandle_t halt)
 void planquadrat_t::halt_list_remove( halthandle_t halt )
 {
 	for( uint8 i=0;  i<halt_list_count;  i++ ) {
-		if(halt_list[i]==halt) {
+		if(halt_list[i].halt == halt) {
 			for( uint8 j=i+1;  j<halt_list_count;  j++  ) {
 				halt_list[j-1] = halt_list[j];
 			}
@@ -597,11 +597,11 @@ void planquadrat_t::halt_list_remove( halthandle_t halt )
 }
 
 
-void planquadrat_t::halt_list_insert_at( halthandle_t halt, uint8 pos )
+void planquadrat_t::halt_list_insert_at(halthandle_t halt, uint8 pos, uint8 distance)
 {
 	// extend list?
 	if((halt_list_count%4)==0) {
-		halthandle_t *tmp = new halthandle_t[halt_list_count+4];
+		nearby_halt_t *tmp = new nearby_halt_t[halt_list_count+4];
 		if(halt_list!=NULL) {
 			// now insert
 			for( uint8 i=0;  i<halt_list_count;  i++ ) {
@@ -615,37 +615,43 @@ void planquadrat_t::halt_list_insert_at( halthandle_t halt, uint8 pos )
 	for( uint8 i=halt_list_count;  i>pos;  i-- ) {
 		halt_list[i] = halt_list[i-1];
 	}
-	halt_list[pos] = halt;
+	halt_list[pos].halt = halt;
+	halt_list[pos].distance = distance;
 	halt_list_count ++;
 }
 
 
-/* The following functions takes at least 8 bytes of memory per tile but speed up passenger generation *
+/* The following functions takes at least 9 bytes of memory per tile but speed up passenger generation *
  * @author prissi
+ * Modified: jamespetts, May 2013
  */
 void planquadrat_t::add_to_haltlist(halthandle_t halt)
 {
-	if(halt.is_bound()) {
+	if(halt.is_bound()) 
+	{
 		unsigned insert_pos = 0;
-		// quick and dirty way to our 2d koodinates ...
+		// Quick and dirty way to our 2d co-ordinates 
 		const koord pos = get_kartenboden()->get_pos().get_2d();
-		if(  halt_list_count > 0  ) {
-
-			// since only the first one gets all, we want the closest halt one to be first
+		uint8 distance;
+		if(halt_list_count > 0)
+		{
+			// Since only the first one gets all, we want the closest halt one to be first
 			halt_list_remove(halt);
 			const koord halt_next_pos = halt->get_next_pos(pos);
-			for(insert_pos=0;  insert_pos<halt_list_count;  insert_pos++) {
-
-
-				if(  shortest_distance(halt_list[insert_pos]->get_next_pos(pos), pos) > shortest_distance(halt_next_pos, pos)  ) {
-					halt_list_insert_at( halt, insert_pos );
+			
+			for(insert_pos = 0; insert_pos < halt_list_count; insert_pos++)
+			{
+				distance = (uint8)shortest_distance(halt_next_pos, pos);
+				if(shortest_distance(halt_list[insert_pos].halt->get_next_pos(pos), pos) > distance) 
+				{
+					halt_list_insert_at(halt, insert_pos, distance);
 					return;
 				}
 			}
 			// not found
 		}
 		// first just or just append to the end ...
-		halt_list_insert_at( halt, halt_list_count );
+		halt_list_insert_at(halt, halt_list_count, (uint8)shortest_distance(halt->get_next_pos(pos), pos));
 	}
 }
 
@@ -683,8 +689,10 @@ void planquadrat_t::remove_from_haltlist(karte_t *welt, halthandle_t halt)
  */
 bool planquadrat_t::is_connected(halthandle_t halt) const
 {
-	for( uint8 i=0;  i<halt_list_count;  i++  ) {
-		if(halt_list[i]==halt) {
+	for( uint8 i=0;  i<halt_list_count;  i++  )
+	{
+		if(halt_list[i].halt == halt) 
+		{
 			return true;
 		}
 	}

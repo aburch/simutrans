@@ -741,7 +741,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 		// display coverage
 		case MAP_PASSENGER:
 			if(  plan->get_haltlist_count()>0  ) {
-				halthandle_t halt = plan->get_haltlist()[0];
+				halthandle_t halt = plan->get_haltlist()[0].halt;
 				if(  halt->get_pax_enabled()  &&  !halt->get_connexions(0)->empty() ){
 					set_relief_farbe( k, halt->get_besitzer()->get_player_color1() + 3 );
 				}
@@ -752,7 +752,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 		// display coverage
 		case MAP_MAIL:
 			if(  plan->get_haltlist_count()>0  ) {
-				halthandle_t halt = plan->get_haltlist()[0];
+				halthandle_t halt = plan->get_haltlist()[0].halt;
 				if(  halt->get_post_enabled()  &&  !halt->get_connexions(1)->empty()  ) {
 					set_relief_farbe( k, halt->get_besitzer()->get_player_color1() + 3 );
 				}

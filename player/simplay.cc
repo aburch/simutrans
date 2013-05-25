@@ -270,14 +270,14 @@ void spieler_t::step()
 	NOTE: This would need updating to the new FOR iterators to work now.
 	// die haltestellen müssen die Fahrpläne rgelmaessig pruefen
 	uint8 i = (uint8)(welt->get_steps()+player_nr);
-	//slist_iterator_tpl <halthandle_t> iter( halt_list );
+	//slist_iterator_tpl <nearby_halt_t> iter( halt_list );
 	//while(iter.next()) {
 	for(sint16 j = halt_list.get_count() - 1; j >= 0; j --)
 	{
 		if( (i & 31) == 0 ) {
-			//iter.get_current()->step();
-			halt_list[j]->step();
-			INT_CHECK("simplay 156");
+			//iter.get_current().halt->step();
+			halt_list[j].halt->step();
+			INT_CHECK("simplay 280");
 		}
 	}
 	*/
@@ -768,13 +768,6 @@ void spieler_t::ai_bankrupt()
 	// remove headquarter pos
 	headquarter_pos = koord::invalid;
 
-//<<<<<<< HEAD
-//	// remove all stops 
-//	for(sint16 i = halt_list.get_count() - 1; i >= 0; i --)
-//	{
-//		halthandle_t h = halt_list[0];
-//		halt_list.remove(h);
-//=======
 	// remove all stops
 	// first generate list of our stops
 	slist_tpl<halthandle_t> halt_list;
@@ -786,7 +779,6 @@ void spieler_t::ai_bankrupt()
 	// ... and destroy them
 	while (!halt_list.empty()) {
 		halthandle_t h = halt_list.remove_first();
-//>>>>>>> aburch/master
 		haltestelle_t::destroy( h );
 	}
 

@@ -115,12 +115,12 @@ halthandle_t haltestelle_t::get_halt(const karte_t *welt, const koord pos, const
 			// first check for own stop
 			for(uint8 i = 0; i < cnt; i++)  
 			{
-				if(plan->get_haltlist()[i]->get_besitzer() == sp) 
+				if(plan->get_haltlist()[i].halt->get_besitzer() == sp) 
 				{
-					const uint16 distance_to_dock = shortest_distance(pos, plan->get_haltlist()[i]->get_next_pos(pos));
+					const uint8 distance_to_dock = plan->get_haltlist()[i].distance;
 					if(distance_to_dock <= 1)
 					{
-						return plan->get_haltlist()[i];
+						return plan->get_haltlist()[i].halt;
 					}
 				}
 			}
@@ -129,12 +129,12 @@ halthandle_t haltestelle_t::get_halt(const karte_t *welt, const koord pos, const
 			// port to avoid charges)
 			for(uint8 i = 0; i < cnt; i++) 
 			{
-				if(plan->get_haltlist()[i]->check_access(sp)) 
+				if(plan->get_haltlist()[i].halt->check_access(sp)) 
 				{
-					const uint16 distance_to_dock = shortest_distance(pos, plan->get_haltlist()[i]->get_next_pos(pos));
+					const uint8 distance_to_dock = plan->get_haltlist()[i].distance;
 					if(distance_to_dock <= 1)
 					{
-							return plan->get_haltlist()[i];
+						return plan->get_haltlist()[i].halt;
 					}
 				}
 			}
@@ -237,8 +237,8 @@ halthandle_t haltestelle_t::get_halt(const karte_t *welt, const koord3d pos, con
 			for(uint8 i = 0; i < cnt; i++) 
 			{
 
-				halthandle_t halt = plan->get_haltlist()[i];
-				const uint16 distance_to_dock = shortest_distance(pos, plan->get_haltlist()[i]->get_next_pos(pos));
+				halthandle_t halt = plan->get_haltlist()[i].halt;
+				const uint8 distance_to_dock = plan->get_haltlist()[i].distance;
 				if(halt->get_besitzer() == sp  && distance_to_dock <= 1 && halt->get_station_type() & dock)
 				{
 					return halt;
@@ -249,8 +249,8 @@ halthandle_t haltestelle_t::get_halt(const karte_t *welt, const koord3d pos, con
 			// port to avoid charges)
 			for(uint8 i = 0; i < cnt; i++) 
 			{
-				halthandle_t halt = plan->get_haltlist()[i];
-				const uint16 distance_to_dock = shortest_distance(pos, plan->get_haltlist()[i]->get_next_pos(pos));
+				halthandle_t halt = plan->get_haltlist()[i].halt;
+				const uint8 distance_to_dock = plan->get_haltlist()[i].distance;
 				if(halt->check_access(sp) && distance_to_dock <= 1 && halt->get_station_type() & dock) 
 				{
 					return halt;
@@ -1325,10 +1325,6 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
  */
 void haltestelle_t::verbinde_fabriken()
 {
-	// unlink all
-	FOR(slist_tpl<fabrik_t*>, const f, fab_list) {
-		f->unlink_halt(self);
-	}
 	fab_list.clear();
 
 	// then reconnect
@@ -1343,7 +1339,6 @@ void haltestelle_t::verbinde_fabriken()
 				if(  fab->get_besch()->get_platzierung() != fabrik_besch_t::Wasser  ||  (station_type & dock) > 0  ) {
 					// do no link to oil rigs via stations ...
 					fab_list.insert(fab);
-					fab->link_halt(self);
 				}
 			}
 		}
@@ -1470,13 +1465,13 @@ minivec_tpl<halthandle_t>* haltestelle_t::build_destination_list(ware_t &ware)
 
 	// since also the factory halt list is added to the ground, we can use just this ...
 	const planquadrat_t *const plan = welt->lookup( ware.get_zielpos() );
-	const halthandle_t *const halt_list = plan->get_haltlist();
+	const nearby_halt_t *const halt_list = plan->get_haltlist();
 	// but we can only use a subset of these
 	minivec_tpl<halthandle_t> *ziel_list = new minivec_tpl<halthandle_t>(plan->get_haltlist_count());
 
 	for(uint16 h = 0; h < plan->get_haltlist_count(); h++) 
 	{
-		halthandle_t halt = halt_list[h];
+		halthandle_t halt = halt_list[h].halt;
 		if(halt->is_enabled(warentyp)) 
 		{
 			ziel_list->append(halt);
@@ -3842,9 +3837,6 @@ void haltestelle_t::connexion::operator delete(void *p)
 */
 void haltestelle_t::release_factory_links()
 {
-	FOR(slist_tpl<fabrik_t*>, const f, fab_list) {
-		f->unlink_halt(self);
-	}
 	fab_list.clear();
 }
 
@@ -3891,11 +3883,11 @@ void haltestelle_t::check_nearby_halts()
 		planquadrat_t *plan = welt->access(iter.grund->get_pos().get_2d());
 		if(plan) 
 		{
-			const halthandle_t *const halt_list = plan->get_haltlist();
+			const nearby_halt_t *const halt_list = plan->get_haltlist();
 
 			for (int h = plan->get_haltlist_count() - 1; h >= 0; h--) 
 			{
-				halthandle_t halt = halt_list[h];
+				halthandle_t halt = halt_list[h].halt;
 				if (halt->is_enabled(warenbauer_t::passagiere)) 
 				{
 					add_halt_within_walking_distance(halt);
