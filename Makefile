@@ -353,10 +353,12 @@ SOURCES += script/api/api_goods_desc.cc
 SOURCES += script/api/api_gui.cc
 SOURCES += script/api/api_factory.cc
 SOURCES += script/api/api_halt.cc
+SOURCES += script/api/api_map_objects.cc
 SOURCES += script/api/api_player.cc
 SOURCES += script/api/api_scenario.cc
 SOURCES += script/api/api_schedule.cc
 SOURCES += script/api/api_settings.cc
+SOURCES += script/api/api_simple.cc
 SOURCES += script/api/api_tiles.cc
 SOURCES += script/api/api_world.cc
 SOURCES += script/api/export_besch.cc
@@ -582,7 +584,12 @@ BUILDDIR ?= build/$(CFG)
 PROGDIR  ?= $(BUILDDIR)
 PROG     ?= sim
 
+
 include common.mk
+
+ifeq ($(OSTYPE),mac)
+  include OSX/osx.mk
+endif
 
 
 .PHONY: makeobj

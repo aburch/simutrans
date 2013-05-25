@@ -12,20 +12,46 @@
 
 namespace script_api {
 
+
+	/**
+	 * Creates squirrel class on the stack. Inherits from @p baseclass.
+	 * Has to be complemented by call to end_class.
+	 * @param classname name of squirrel class
+	 * @param baseclass name of base class (or NULL)
+	 * @return SQ_OK or SQ_ERROR
+	 */
+	SQInteger create_class(HSQUIRRELVM vm, const char* classname, const char* baseclass = NULL);
+
+	/**
+	 * Pushes class on stack.
+	 * Has to be complemented by call to end_class.
+	 * @param classname name of squirrel class, must exist prior to calling this function
+	 * @param baseclasses dummy string containing base classes - to create nice doxygen output
+	 * @return SQ_OK or SQ_ERROR
+	 */
+	SQInteger begin_class(HSQUIRRELVM vm, const char* classname, const char* baseclasses = NULL);
+
+	/**
+	 * Pops class from stack.
+	 */
+	void end_class(HSQUIRRELVM vm);
+
 	/**
 	 * Pushes the squirrel class onto the stack.
+	 * Has to be complemented by call to end_class.
 	 * @param classname name of squirrel class
 	 * @return SQ_OK or SQ_ERROR
 	 */
 	SQInteger push_class(HSQUIRRELVM vm, const char* classname);
 
+
 	/**
-	 * Pushes the constructor of squirrel class onto the stack.
-	 * That is: closure (the constructor) and environment (the class)
+	 * Prepares call to class to instantiate.
+	 * Pushes class and dummy object.
 	 * @param classname name of squirrel class
 	 * @return SQ_OK or SQ_ERROR
 	 */
-	SQInteger push_constructor(HSQUIRRELVM vm, const char* classname);
+	SQInteger prepare_constructor(HSQUIRRELVM vm, const char* classname);
 
 	/**
 	 * Function to create & push instances of squirrel classes.
@@ -33,7 +59,7 @@ namespace script_api {
 	 */
 	inline SQInteger push_instance(HSQUIRRELVM vm, const char* classname)
 	{
-		if (!SQ_SUCCEEDED(push_constructor(vm, classname)) ) {
+		if (!SQ_SUCCEEDED(prepare_constructor(vm, classname)) ) {
 			return -1;
 		}
 		bool ok = SQ_SUCCEEDED(sq_call_restricted(vm, 1, true, false));
@@ -44,7 +70,7 @@ namespace script_api {
 	template<class A1>
 	SQInteger push_instance(HSQUIRRELVM vm, const char* classname, const A1 & a1)
 	{
-		if (!SQ_SUCCEEDED(push_constructor(vm, classname)) ) {
+		if (!SQ_SUCCEEDED(prepare_constructor(vm, classname)) ) {
 			return -1;
 		}
 		param<A1>::push(vm, a1);
@@ -56,7 +82,7 @@ namespace script_api {
 	template<class A1, class A2>
 	SQInteger push_instance(HSQUIRRELVM vm, const char* classname, const A1 & a1, const A2 & a2)
 	{
-		if (!SQ_SUCCEEDED(push_constructor(vm, classname)) ) {
+		if (!SQ_SUCCEEDED(prepare_constructor(vm, classname)) ) {
 			return -1;
 		}
 		param<A1>::push(vm, a1);
@@ -69,7 +95,7 @@ namespace script_api {
 	template<class A1, class A2, class A3>
 	SQInteger push_instance(HSQUIRRELVM vm, const char* classname, const A1 & a1, const A2 & a2, const A3 & a3)
 	{
-		if (!SQ_SUCCEEDED(push_constructor(vm, classname)) ) {
+		if (!SQ_SUCCEEDED(prepare_constructor(vm, classname)) ) {
 			return -1;
 		}
 		param<A1>::push(vm, a1);
@@ -83,7 +109,7 @@ namespace script_api {
 	template<class A1, class A2, class A3, class A4>
 	SQInteger push_instance(HSQUIRRELVM vm, const char* classname, const A1 & a1, const A2 & a2, const A3 & a3, const A4 & a4)
 	{
-		if (!SQ_SUCCEEDED(push_constructor(vm, classname)) ) {
+		if (!SQ_SUCCEEDED(prepare_constructor(vm, classname)) ) {
 			return -1;
 		}
 		param<A1>::push(vm, a1);

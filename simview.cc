@@ -145,15 +145,16 @@ void karte_ansicht_t::display(bool force_dirty)
 
 	// not very elegant, but works:
 	// fill everything with black for Underground mode ...
-	if(grund_t::underground_mode) {
+	///@note needed in not underground mode now too, need to fiund a better solution.
+//	if(grund_t::underground_mode) {
 		display_fillbox_wh(0, menu_height, disp_width, disp_height-menu_height, COL_BLACK, force_dirty);
-	}
+//	}
 	// to save calls to grund_t::get_disp_height
 	// gr->get_disp_height() == min(gr->get_hoehe(), hmax_ground)
 	const sint8 hmax_ground = (grund_t::underground_mode==grund_t::ugm_level) ? grund_t::underground_level : 127;
 
 	// lower limit for y: display correctly water/outside graphics at upper border of screen
-	int y_min = (-const_y_off + 4*tile_raster_scale_y( min(hmax_ground,welt->get_grundwasser())*TILE_HEIGHT_STEP, IMG_SIZE )
+	int y_min = (-const_y_off + 4*tile_raster_scale_y( min(hmax_ground, welt->get_grundwasser())*TILE_HEIGHT_STEP, IMG_SIZE )
 					+ 4*(menu_height-IMG_SIZE)-IMG_SIZE/2-1) / IMG_SIZE;
 
 #if MULTI_THREAD>1
@@ -393,10 +394,15 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 				}
 				else {
 					// outside ...
-					const sint16 yypos = ypos - tile_raster_scale_y( welt->get_grundwasser()*TILE_HEIGHT_STEP, IMG_SIZE );
+					///@note not necessary an longer, delete this section?
+/*
+					const sint16 mh = welt->get_minimumheight();
+					const sint8 ths = TILE_HEIGHT_STEP;
+
+					const sint16 yypos = ypos - tile_raster_scale_y( mh * ths , IMG_SIZE );
 					if(yypos-IMG_SIZE<lt.y+wh.y  &&  yypos+IMG_SIZE>lt.y) {
 						display_img(grund_besch_t::ausserhalb->get_bild(hang_t::flach), xpos, yypos, force_dirty);
-					}
+					}*/
 				}
 			}
 		}

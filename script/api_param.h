@@ -4,12 +4,15 @@
 /** @file api_param.h templates for transfer of function call parameters */
 
 #include "../squirrel/squirrel.h"
+#include "../simdings.h"
 #include "../simtypes.h"
 #include "../halthandle_t.h"
 #include "../utils/cbuffer_t.h"
 
+class baum_t;
 class convoi_t;
 class fabrik_t;
+class gebaeude_t;
 class grund_t;
 class karte_t;
 class koord;
@@ -25,6 +28,7 @@ class spieler_t;
 class stadt_t;
 class ware_production_t;
 class ware_besch_t;
+class weg_t;
 
 /**
  * @namespace script_api The namespace contains all functions necessary to communicate
@@ -200,37 +204,39 @@ namespace script_api {
 		}
 	};
 
+#define declare_types(mask, sqtype) \
+	static const char* typemask() { return mask; } \
+	static const char* squirrel_type() \
+	{ \
+		return sqtype; \
+	}
+
+#define declare_create_slot(T)\
+	static SQInteger create_slot(HSQUIRRELVM vm, const char* name, T const& value){ \
+		sq_pushstring(vm, name, -1); \
+		if (SQ_SUCCEEDED(param<T>::push(vm, value))) { \
+			sq_newslot(vm, -3, false); \
+			return SQ_OK; \
+		} \
+		else { \
+			sq_pop(vm, 1); /* pop name */ \
+			return SQ_ERROR; \
+		} \
+	}
+
 	/// macro to declare specialized param template
 #define declare_specialized_param(T, mask, sqtype) \
 	template<> struct param<T> { \
 		static T get(HSQUIRRELVM vm, SQInteger index); \
-		static SQInteger push(HSQUIRRELVM vm, T const& v); \
-		static const char* typemask() { return mask; } \
-		static SQInteger create_slot(HSQUIRRELVM vm, const char* name, T const& value){ \
-			sq_pushstring(vm, name, -1); \
-			if (SQ_SUCCEEDED(param<T>::push(vm, value))) { \
-				sq_newslot(vm, -3, false); \
-				return SQ_OK; \
-			} \
-			else { \
-				sq_pop(vm, 1); /* pop name */ \
-				return SQ_ERROR; \
-			} \
-		} \
-		static const char* squirrel_type() \
-		{ \
-			return sqtype; \
-		} \
+		static SQInteger push(HSQUIRRELVM vm, T const& v);\
+		declare_create_slot(T); \
+		declare_types(mask, sqtype); \
 	};
 	/// macro to only define typemask for specialized param template
 	/// if only 'const class*' is defined then parameter mask must be defined for 'class *' too.
 #define declare_param_mask(T, mask, sqtype) \
 	template<> struct param<T> { \
-		static const char* typemask() { return mask; } \
-		static const char* squirrel_type() \
-		{ \
-			return sqtype; \
-		} \
+		declare_types(mask, sqtype) \
 	};
 
 	declare_specialized_param(void_t, ".", "void");
@@ -246,6 +252,7 @@ namespace script_api {
 	declare_specialized_param(uint64, "i", "integer");
 	declare_specialized_param(sint64, "i", "integer");
 	declare_specialized_param(waytype_t, "i", "way_types");
+	declare_specialized_param(ding_t::typ, "i", "map_objects");
 
 	declare_specialized_param(double, "f", "float");
 
@@ -277,7 +284,11 @@ namespace script_api {
 	declare_specialized_param(const ware_production_t*, "t|x|y", "factory_production_x");
 	declare_param_mask(ware_production_t*, "t|x|y", "factory_production_x");
 
-
+	// export of ding_t derived classes in api/map_objects.cc
+	declare_specialized_param(ding_t*, "t|x|y", "map_object_x");
+	declare_specialized_param(baum_t*, "t|x|y", "tree_x");
+	declare_specialized_param(gebaeude_t*, "t|x|y", "building_x");
+	declare_specialized_param(weg_t*, "t|x|y", "way_x");
 
 	/**
 	 * Templated interface to declare free variables for

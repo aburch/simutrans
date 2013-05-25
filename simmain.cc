@@ -479,6 +479,28 @@ int simu_main(int argc, char** argv)
 		strcpy( umgebung_t::program_dir, argv[0] );
 		*(strrchr( umgebung_t::program_dir, path_sep[0] )+1) = 0;
 
+#ifdef __APPLE__
+		// change working directory from binary dir to bundle dir
+		if(  !strcmp((umgebung_t::program_dir + (strlen(umgebung_t::program_dir) - 20 )), ".app/Contents/MacOS/")  ) {
+			umgebung_t::program_dir[strlen(umgebung_t::program_dir) - 20] = 0;
+			while(  umgebung_t::program_dir[strlen(umgebung_t::program_dir) - 1] != '/'  ) {
+				umgebung_t::program_dir[strlen(umgebung_t::program_dir) - 1] = 0;
+			}
+		}
+#endif
+
+#ifdef __APPLE__
+		// Detect if the binary is started inside an application bundle
+		// Change working dir to bundle dir if that is the case or the game will search for the files inside the bundle
+		if (!strcmp((umgebung_t::program_dir + (strlen(umgebung_t::program_dir) - 20 )), ".app/Contents/MacOS/"))
+		{
+			umgebung_t::program_dir[strlen(umgebung_t::program_dir) - 20] = 0;
+			while (umgebung_t::program_dir[strlen(umgebung_t::program_dir) - 1] != '/') {
+				umgebung_t::program_dir[strlen(umgebung_t::program_dir) - 1] = 0;
+			}
+		}
+#endif
+
 		chdir( umgebung_t::program_dir );
 	}
 	printf("Use work dir %s\n", umgebung_t::program_dir);
@@ -783,8 +805,6 @@ int simu_main(int argc, char** argv)
 	DBG_MESSAGE("simmain", ".. results in disp_width=%d, disp_height=%d", display_get_width(), display_get_height());
 
 	// The loading screen needs to be initialized
-	loadingscreen::bootstrap();
-
 	show_pointer(1);
 
 	// if no object files given, we ask the user

@@ -54,6 +54,13 @@ public:
 #endif
 
 #ifndef DOUBLE_GROUNDS
+	enum _corners {
+		corner_west = 1,
+		corner_south = 2,
+		corner_east = 4,
+		corner_north = 8
+	};
+
 	enum _typ {
 		flach=0,
 		nord = 3, 	    // Nordhang

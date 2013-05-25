@@ -127,6 +127,15 @@ namespace script_api {
 		return param<sint16>::push(vm, v);
 	}
 
+
+	ding_t::typ param<ding_t::typ>::get(HSQUIRRELVM vm, SQInteger index)
+	{
+		return (ding_t::typ)(param<uint8>::get(vm, index));
+	}
+	SQInteger param<ding_t::typ>::push(HSQUIRRELVM vm, ding_t::typ const& v)
+	{
+		return param<uint8>::push(vm, v);
+	}
 // floats
 	double param<double>::get(HSQUIRRELVM vm, SQInteger index)
 	{
@@ -289,6 +298,16 @@ namespace script_api {
 			sq_raise_error(vm, "no factory at position (%s)", pos.get_str());
 		}
 		return fab;
+	}
+
+	SQInteger param<fabrik_t*>::push(HSQUIRRELVM vm, fabrik_t* const& fab)
+	{
+		if (fab == NULL) {
+			sq_pushnull(vm); return 1;
+		}
+		koord pos(fab->get_pos().get_2d());
+		welt->get_scenario()->koord_w2sq(pos);
+		return push_instance(vm, "factory_x", pos.x, pos.y);
 	}
 
 

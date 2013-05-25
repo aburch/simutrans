@@ -71,11 +71,11 @@ function split_params(string)
 }
 
 # beginning of class definition
-# get_class("factory_x", "extend_get");
-/begin_class\([^,]*,[^,]/ {
+# begin_class("factory_x", "extend_get");
+/(begin|create)_.*class/ {
 	# class with parent class
-	if ( /begin_class[^"]*"([^"]*)"[^"]*"([^"]*)".*/ ) {
-		match($0, /begin_class[^"]*"([^"]*)"[^"]*"([^"]*)".*/, data)
+	if ( /_class[^"]*"([^"]*)"[^"]*"([^"]*)".*/ ) {
+		match($0, /_class[^"]*"([^"]*)"[^"]*"([^"]*)".*/, data)
 		if (mode == "sq")
 			print "class " data[1] " extends " data[2] " {"
 		else {
@@ -84,8 +84,8 @@ function split_params(string)
 		}
 	}
 	# class without parent class
-	else if ( /begin_class[^"]*"([^"]*)"/ ) {
-		match($0, /begin_class[^"]*"([^"]*)"/, data)
+	else if ( /_class[^"]*"([^"]*)"/ ) {
+		match($0, /_class[^"]*"([^"]*)"/, data)
 		if (mode == "sq")
 			print "class " data[1] " {"
 		else {
@@ -97,7 +97,7 @@ function split_params(string)
 	indent = "\t"
 }
 
-/end_class/ {
+/end_.*class/ {
 	if (mode == "sq")
 		print "}"
 	else

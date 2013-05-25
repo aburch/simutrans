@@ -12,8 +12,6 @@
 
 using namespace script_api;
 
-#define begin_class(c,p) push_class(vm, c);
-#define end_class() sq_pop(vm,1);
 #define STATIC
 
 void_t add_scenario_message_at(const char* text, koord pos)
@@ -29,7 +27,7 @@ void export_gui(HSQUIRRELVM vm)
 	/**
 	 * Table with methods to access gui functions.
 	 */
-	begin_class("gui", 0);
+	begin_class(vm, "gui", 0);
 
 	/**
 	 * Opens scenario info window.
@@ -56,5 +54,5 @@ void export_gui(HSQUIRRELVM vm)
 	 */
 	STATIC register_method_fv(vm, &add_scenario_message_at, "add_message", freevariable<koord>(koord::invalid) );
 
-	end_class();
+	end_class(vm);
 }
