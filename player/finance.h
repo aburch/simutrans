@@ -10,6 +10,7 @@
 
 #include "../simtypes.h"
 #include "../utils/float32e8_t.h"
+#include "../simworld.h"
 
 /// for compatibility with old versions
 #define OLD_MAX_PLAYER_COST (19)
