@@ -546,6 +546,7 @@
   <ItemGroup>
     <ClCompile Include="besch\fabrik_besch.cc" />
     <ClCompile Include="besch\reader\imagelist3d_reader.cc" />
+    <ClCompile Include="besch\weg_besch.cc" />
     <ClCompile Include="clipboard_w32.cc" />
     <ClCompile Include="dataobj\gameinfo.cc" />
     <ClCompile Include="dataobj\livery_scheme.cc" />
@@ -580,6 +581,7 @@
     <ClCompile Include="bauer\brueckenbauer.cc" />
     <ClCompile Include="boden\brueckenboden.cc" />
     <ClCompile Include="besch\reader\building_reader.cc" />
+    <ClCompile Include="player\finance.cc" />
     <ClCompile Include="script\api\api_city.cc" />
     <ClCompile Include="script\api\api_const.cc" />
     <ClCompile Include="script\api\api_convoy.cc" />
@@ -904,6 +906,7 @@
     <ClInclude Include="player\ai.h" />
     <ClInclude Include="player\ai_goods.h" />
     <ClInclude Include="player\ai_passenger.h" />
+    <ClInclude Include="player\finance.h" />
     <ClInclude Include="simsys_w32_png.h" />
     <ClInclude Include="simunits.h" />
     <ClInclude Include="simwerkz-dialogs.h" />
