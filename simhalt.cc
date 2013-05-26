@@ -30,6 +30,7 @@
 #include "simplan.h"
 #include "simtools.h"
 #include "player/simplay.h"
+#include "player/finance.h"
 #include "simwin.h"
 #include "simworld.h"
 #include "simware.h"
@@ -2404,6 +2405,7 @@ sint64 haltestelle_t::calc_maintenance() const
 bool haltestelle_t::make_public_and_join( spieler_t *sp )
 {
 	spieler_t *public_owner=welt->get_spieler(1);
+	sint64 total_costs = 0;
 	slist_tpl<halthandle_t> joining;
 
 	// only something to do if not yet owner ...

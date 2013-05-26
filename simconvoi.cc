@@ -4988,10 +4988,10 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 				sp->interim_apportioned_revenue /= 100;
 				if(welt->get_active_player() == sp)
 				{
-					sp->add_money_message(sp->interim_apportioned_revenue, fahr[0]->get_pos.get_2d());
+					sp->add_money_message(sp->interim_apportioned_revenue, fahr[0]->get_pos().get_2d());
 				}
-				sp->book_toll_received(sp->interim_apportioned_revenue, get_schedule->get_waytype() );
-				besitzer_p->book_toll_paid(-sp->interim_apportioned_revenue, get_schedule->get_waytype() );
+				sp->book_toll_received(sp->interim_apportioned_revenue, get_schedule()->get_waytype() );
+				besitzer_p->book_toll_paid(-sp->interim_apportioned_revenue, get_schedule()->get_waytype() );
 				book(-sp->interim_apportioned_revenue, CONVOI_PROFIT);
 				sp->interim_apportioned_revenue = 0;
 			}
@@ -5014,10 +5014,10 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 			if (port_charge != 0) {
 				if(welt->get_active_player() == halt->get_besitzer())
 				{
-					sp->add_money_message(sp->port_charge, fahr[0]->get_pos().get_2d());
+					halt->get_besitzer()->add_money_message(port_charge, fahr[0]->get_pos().get_2d());
 				}
-				halt->get_besitzer()->book_toll_received(port_charge, get_schedule->get_waytype() );
-				besitzer_p->book_toll_paid(-port_charge, get_schedule->get_waytype() );
+				halt->get_besitzer()->book_toll_received(port_charge, get_schedule()->get_waytype() );
+				besitzer_p->book_toll_paid(-port_charge, get_schedule()->get_waytype() );
 				book(-port_charge, CONVOI_PROFIT);
 			}
 		}
@@ -5200,7 +5200,7 @@ void convoi_t::destroy()
 
 	// pay the current value, remove monthly maint
 	waytype_t wt = fahr[0] ? fahr[0]->get_besch()->get_waytype() : ignore_wt;
-	besitzer_p->book_new_vehicle( calc_restwert(), get_pos().get_2d()), wt);
+	besitzer_p->book_new_vehicle( calc_restwert(), get_pos().get_2d(), wt);
 
 	for(  uint8 i = anz_vehikel;  i-- != 0;  ) {
 		if(  !fahr[i]->get_flag( ding_t::not_on_map )  ) {

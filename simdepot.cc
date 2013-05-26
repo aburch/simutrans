@@ -646,8 +646,6 @@ void depot_t::rdwr_vehikel(slist_tpl<vehikel_t *> &list, loadsave_t *file)
 			if(besch) {
 				DBG_MESSAGE("depot_t::vehikel_laden()","loaded %s", besch->get_name());
 				list.insert( v );
-				// BG, 06.06.2009: fixed maintenance for vehicles in the depot, which are not part of a convoi
-				spieler_t::add_maintenance(get_besitzer(), besch->get_fixed_cost(get_welt()) / 20, spieler_t::MAINT_VEHICLE);
 			}
 			else {
 				dbg->error("depot_t::vehikel_laden()","vehicle has no besch => ignored");
@@ -768,10 +766,10 @@ void depot_t::update_win()
 void depot_t::neuer_monat()
 {
 	sint64 fixed_cost_costs = 0;
-	if (vehicle_count() > 0) 
+	if (vehicle_count() > 0)
 	{
 		karte_t *world = get_welt();
-		FOR(slist_tpl<vehikel_t*>, const v, get_vehicle_list()) 
+		FOR(slist_tpl<vehikel_t*>, const v, get_vehicle_list())
 		{
 			fixed_cost_costs += v->get_besch()->get_fixed_cost(world);
 		}
