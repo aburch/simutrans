@@ -52,7 +52,7 @@ DownloadInstallZip(){
 
 # generated list of pak sets
 paksets=( \
-"http://downloads.sourceforge.net/project/simutrans/pak64/112-1/simupak64-112-1.zip" \
+"http://downloads.sourceforge.net/project/simutrans/pak64/112-3/simupak64-112-3.zip" \
 "http://downloads.sourceforge.net/project/simutrans/pak.german/pak64.german-110-0c/simupak-german64-110-0c.zip" \
 "http://downloads.sourceforge.net/project/simutrans/pak64.japan/112-0/simupak64.japan-112-0.zip" \
 "http://downloads.sourceforge.net/project/simutrans/pakHAJO/pakHAJO_102-2-2/pakHAJO_0-102-2-2.zip" \
