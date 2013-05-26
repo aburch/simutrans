@@ -209,7 +209,7 @@ weg_t::~weg_t()
 		{
 			maint /= 1.4;
 		}
-		spieler_t::add_maintenance( sp,  -maint );
+		spieler_t::add_maintenance( sp,  -maint, besch->get_finance_waytype() );
 	}
 }
 
@@ -707,7 +707,7 @@ void weg_t::laden_abschliessen()
 			maint *= 10;
 			maint /= 14;
 		}
-		spieler_t::add_maintenance( sp,  maint );
+		spieler_t::add_maintenance( sp,  maint, besch->get_finance_waytype() );
 	}
 }
 

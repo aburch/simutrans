@@ -39,7 +39,7 @@ bruecke_t::bruecke_t(karte_t *welt, koord3d pos, spieler_t *sp, const bruecke_be
 	this->besch = besch;
 	this->img = img;
 	set_besitzer( sp );
-	spieler_t::accounting( get_besitzer(), -besch->get_preis(), get_pos().get_2d(), COST_CONSTRUCTION);
+	spieler_t::book_construction_costs( get_besitzer(), -besch->get_preis(), get_pos().get_2d(), besch->get_waytype());
 }
 
 
@@ -148,14 +148,14 @@ void bruecke_t::laden_abschliessen()
 		// take ownership of way
 		if(sp)
 		{
-			spieler_t::add_maintenance(weg->get_besitzer(), -weg->get_besch()->get_wartung());
+			spieler_t::add_maintenance(weg->get_besitzer(), -weg->get_besch()->get_wartung(), besch->get_finance_waytype());
 		}
 		weg->set_besitzer(sp);  //"besitzer" = owner (Babelfish)
 	}
 	
 	if(sp)
 	{
-		spieler_t::add_maintenance(sp, besch->get_wartung());
+		spieler_t::add_maintenance(sp, besch->get_wartung(), besch->get_finance_waytype());
 	}
 }
 
@@ -164,29 +164,26 @@ void bruecke_t::laden_abschliessen()
 void bruecke_t::entferne( spieler_t *sp2 ) // "Remove" (Google)
 {
 	spieler_t *sp = get_besitzer();
-	if(sp)
+	const grund_t *gr = welt->lookup(get_pos());
+	if(gr)
 	{
-		const grund_t *gr = welt->lookup(get_pos());
-		if(gr)
+		weg_t *weg = gr->get_weg(besch->get_waytype());
+		if(weg)
 		{
-			weg_t *weg = gr->get_weg(besch->get_waytype());
-			if(weg)
+			weg->set_max_speed(weg->get_besch()->get_topspeed());
+			weg->set_max_axle_load(weg->get_besch()->get_max_axle_load());
+			weg->add_way_constraints(besch->get_way_constraints());
+			spieler_t::add_maintenance(sp, weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype() );
+			// reset offsets
+			weg->set_yoff(0);
+			if (gr->get_weg_nr(1))
 			{
-				weg->set_max_speed(weg->get_besch()->get_topspeed());
-				weg->set_max_axle_load(weg->get_besch()->get_max_axle_load());
-				weg->add_way_constraints(besch->get_way_constraints());
-				sp->add_maintenance(weg->get_besch()->get_wartung());
-				// reset offsets
-				weg->set_yoff(0);
-				if (gr->get_weg_nr(1)) 
-				{
-					gr->get_weg_nr(1)->set_yoff(0);
-				}
+				gr->get_weg_nr(1)->set_yoff(0);
 			}
 		}
 	}
-	spieler_t::add_maintenance(sp, -besch->get_wartung());
-	spieler_t::accounting(sp2, -besch->get_preis(), get_pos().get_2d(), COST_CONSTRUCTION);
+	spieler_t::add_maintenance(sp, -besch->get_wartung(), besch->get_finance_waytype() );
+	spieler_t::book_construction_costs(sp2, -besch->get_preis(), get_pos().get_2d(), besch->get_waytype() );
 }
 
 

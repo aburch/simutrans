@@ -237,7 +237,7 @@ private:
 	 * @return sum of unloaded goods
 	 * @author Hj. Malthaner
 	 */
-	uint16 unload_freight(halthandle_t halt);
+	uint16 unload_freight(halthandle_t halt, sint64 & revenue_from_unloading);
 
 	/**
 	 * Load freight from halt
@@ -544,7 +544,7 @@ public:
 	* fahrzeug an haltestelle entladen
 	* @author Hj. Malthaner
 	*/
-	uint16 entladen(halthandle_t halt);
+	uint16 entladen(halthandle_t halt, sint64 & revenue_from_unloading);
 
 	/**
 	* fahrzeug an haltestelle beladen
@@ -605,8 +605,6 @@ public:
 
 	// @author: jamespetts
 	uint8 get_comfort(uint8 catering_level = 0) const;
-
-	sint64 current_revenue;
 
 	// BG, 06.06.2009: update player's fixed maintenance
 	void laden_abschliessen();

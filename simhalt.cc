@@ -1108,13 +1108,12 @@ void haltestelle_t::step()
 								// Refund is approximation: 2x distance at standard rate with no adjustments. 
 								const sint64 refund_amount = ((tmp.menge * tmp.get_fare(distance) * 2000ll) + 1500ll) / 3000ll;
 								
-								besitzer_p->buche(-refund_amount, get_basis_pos(), COST_INCOME);
+								besitzer_p->book_revenue(-refund_amount, get_basis_pos(), ignore_wt, ATV_REVENUE_PASSENGER);
 								linehandle_t account_line = get_preferred_line(tmp.get_zwischenziel(), tmp.get_catg());
 								if(account_line.is_bound())
 								{
 									account_line->book(-refund_amount, LINE_PROFIT);
 									account_line->book(-refund_amount, LINE_REFUNDS);
-									get_besitzer()->buche(-refund_amount, COST_VEHICLE_RUN);
 								}
 								else
 								{
@@ -1123,7 +1122,6 @@ void haltestelle_t::step()
 									{
 										account_convoy->book(-refund_amount, convoi_t::CONVOI_PROFIT);
 										account_convoy->book(-refund_amount, convoi_t::CONVOI_REFUNDS);
-										get_besitzer()->buche(-refund_amount, COST_VEHICLE_RUN);
 									}
 								}
 							}
@@ -2406,7 +2404,6 @@ sint64 haltestelle_t::calc_maintenance() const
 bool haltestelle_t::make_public_and_join( spieler_t *sp )
 {
 	spieler_t *public_owner=welt->get_spieler(1);
-	sint64 total_costs = 0;
 	slist_tpl<halthandle_t> joining;
 
 	// only something to do if not yet owner ...
@@ -2436,10 +2433,13 @@ bool haltestelle_t::make_public_and_join( spieler_t *sp )
 					// Bernd Gabriel: does anybody reassign the already disappropriated buildings?
 					return false;
 				}
-				spieler_t::add_maintenance( gb_sp, (sint32)-costs );
+				spieler_t::add_maintenance( gb_sp, -costs, gb->get_waytype() );
 				gb->set_besitzer(public_owner);
 				gb->set_flag(ding_t::dirty);
-				spieler_t::add_maintenance(public_owner, (sint32)costs );
+				spieler_t::add_maintenance(public_owner, costs, gb->get_waytype() );
+				// it is not real construction cost, it is fee payed for public authority for future maintenance. So money are transferred to public authority
+				spieler_t::book_construction_costs( sp,          -costs*60, get_basis_pos(), gb->get_waytype());
+				spieler_t::book_construction_costs( public_owner, costs*60, koord::invalid, gb->get_waytype());
 			}
 			// ok, valid start, now we can join them
 			for( uint8 i=0;  i<8;  i++  ) {
@@ -2453,7 +2453,6 @@ bool haltestelle_t::make_public_and_join( spieler_t *sp )
 			}
 		}
 		// transfer ownership
-		spieler_t::accounting( sp, -total_costs*60, get_basis_pos(), COST_CONSTRUCTION);
 		besitzer_p = public_owner;
 	}
 
@@ -2498,12 +2497,14 @@ bool haltestelle_t::make_public_and_join( spieler_t *sp )
 						costs = gb->get_tile()->get_besch()->get_station_maintenance();
 					}
 					
-					spieler_t::add_maintenance( gb_sp, -costs );
+					spieler_t::add_maintenance( gb_sp, -costs, gb->get_waytype() );
 
-					spieler_t::accounting(gb_sp, costs*60, gr->get_pos().get_2d(), COST_CONSTRUCTION);
+					spieler_t::book_construction_costs(gb_sp,         costs*60, gr->get_pos().get_2d(), gb->get_waytype());
+					spieler_t::book_construction_costs(public_owner, -costs*60, koord::invalid, gb->get_waytype());
+
 					gb->set_besitzer(public_owner);
 					gb->set_flag(ding_t::dirty);
-					spieler_t::add_maintenance( public_owner, (sint32)costs );
+					spieler_t::add_maintenance(public_owner, costs, gb->get_waytype() );
 				}
 			}
 			// transfer tiles to us

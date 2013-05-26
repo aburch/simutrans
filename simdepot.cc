@@ -292,8 +292,8 @@ void depot_t::remove_vehicles_to_end(convoihandle_t cnv, int ipos)
 void depot_t::sell_vehicle(vehikel_t* veh)
 {
 	vehicles.remove(veh);
-	get_besitzer()->buche(veh->calc_restwert(), get_pos().get_2d(), COST_NEW_VEHICLE );
-	get_besitzer()->buche(-(sint64)veh->calc_restwert(), COST_ASSETS );
+	sint64 cost = veh->calc_restwert();
+	get_besitzer()->book_new_vehicle(cost, get_pos().get_2d(), get_waytype() );
 	DBG_MESSAGE("depot_t::sell_vehicle()", "this=%p sells %p", this, veh);
 	veh->before_delete();
 	delete veh;
@@ -767,7 +767,7 @@ void depot_t::update_win()
  */
 void depot_t::neuer_monat()
 {
-	uint32 fixed_cost_costs = 0;
+	sint64 fixed_cost_costs = 0;
 	if (vehicle_count() > 0) 
 	{
 		karte_t *world = get_welt();
@@ -778,8 +778,7 @@ void depot_t::neuer_monat()
 	}
 	if (fixed_cost_costs)
 	{
-		//spieler->add_maintenance(fixed_cost_costs, spieler_t::MAINT_VEHICLE);
-		get_besitzer()->buche(-(sint32)welt->calc_adjusted_monthly_figure(fixed_cost_costs), COST_VEHICLE_RUN);
+		get_besitzer()->book_vehicle_maintenance( -fixed_cost_costs, get_waytype() );
 	}
 	// since vehicles may have become obsolete
 	update_all_win();

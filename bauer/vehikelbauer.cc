@@ -236,10 +236,7 @@ vehikel_t* vehikelbauer_t::baue(koord3d k, spieler_t* sp, convoi_t* cnv, const v
 	{
 		price = vb->get_preis();
 	}
-	// BG, 06.06.2009: fixed maintenance for created vehicles
-	sp->add_maintenance(vb->get_fixed_cost(sp->get_welt()), spieler_t::MAINT_VEHICLE);
-	sp->buche(-price, k.get_2d(), COST_NEW_VEHICLE );
-	sp->buche( price, COST_ASSETS );
+	sp->book_new_vehicle(-price, k.get_2d(), vb->get_waytype() );
 
 	return v;
 }

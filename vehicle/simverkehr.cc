@@ -945,7 +945,7 @@ grund_t* stadtauto_t::hop()
 		if(sp && sp->get_player_nr() != 1)
 		{
 			const sint64 toll = welt->get_settings().get_private_car_toll_per_km();
-			sp->buche(toll, COST_WAY_TOLLS);
+			sp->book_toll_received(toll, road_wt);
 		}
 	}
 	

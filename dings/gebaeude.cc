@@ -138,7 +138,7 @@ gebaeude_t::gebaeude_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_til
 		{
 			maint = tile->get_besch()->get_station_maintenance();
 		}
-		spieler_t::add_maintenance(get_besitzer(), maint);
+		spieler_t::add_maintenance(get_besitzer(), maint, tile->get_besch()->get_finance_waytype() );
 	}
 
 	grund_t *gr=welt->lookup(get_pos());
@@ -250,6 +250,10 @@ void gebaeude_t::check_road_tiles(bool del)
 				}
 			}
 		}
+=======
+	if(tile) {
+		spieler_t::add_maintenance(get_besitzer(), -welt->get_settings().maint_building*tile->get_besch()->get_level(), tile->get_besch()->get_finance_waytype());
+>>>>>>> 178e29
 	}
 }
 
@@ -1100,7 +1104,7 @@ void gebaeude_t::laden_abschliessen()
 	{
 		maint = welt->get_settings().maint_building*tile->get_besch()->get_level();
 	}
-	spieler_t::add_maintenance(get_besitzer(), maint);
+	spieler_t::add_maintenance(get_besitzer(), maint, tile->get_besch()->get_finance_waytype());
 
 	// citybuilding, but no town?
 	if(  tile->get_offset()==koord(0,0)  ) {
@@ -1136,7 +1140,7 @@ void gebaeude_t::entferne(spieler_t *sp)
 		const sint64 bulldoze_cost =welt->get_settings().cst_multiply_remove_haus * (besch->get_level());
 		const sint64 purchase_cost =welt->get_settings().cst_buy_land * besch->get_level() * 5;
 		cost = sp != get_besitzer() ? bulldoze_cost + purchase_cost : bulldoze_cost;
-		spieler_t::accounting(sp, cost, get_pos().get_2d(), COST_CONSTRUCTION);
+		spieler_t::book_construction_costs(sp, cost, get_pos().get_2d(), tile->get_besch()->get_finance_waytype());
 	}
 	else 
 	{
@@ -1148,8 +1152,10 @@ void gebaeude_t::entferne(spieler_t *sp)
 			// TODO: find a way of checking what *kind* of stop that this is. This assumes railway.
 			cost = welt->get_settings().cst_multiply_station * besch->get_level();
 		}
-		// Should be cheaper to bulldoze than build. 
-		spieler_t::accounting(sp, -(cost / 1.5F), get_pos().get_2d(), COST_CONSTRUCTION);
+		// Should be cheaper to bulldoze than build.
+		// Currently you recover "scrap money"
+		cost = - cost / 1.5F;
+		spieler_t::book_construction_costs(sp, cost, get_pos().get_2d(), tile->get_besch()->get_finance_waytype());
 	}
 
 	// may need to update next buildings, in the case of start, middle, end buildings

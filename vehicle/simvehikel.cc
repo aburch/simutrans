@@ -792,9 +792,10 @@ void vehikel_t::set_convoi(convoi_t *c)
  * @author Hj. Malthaner
  */
 uint16
-vehikel_t::unload_freight(halthandle_t halt)
+vehikel_t::unload_freight(halthandle_t halt, sint64 & revenue_from_unloading)
 {
-	uint16 sum_menge = 0;
+	uint16 sum_menge = 0, sum_delivered = 0, index = 0;
+	revenue_from_unloading=0;
 
 	if(halt->is_enabled(get_fracht_typ())) 
 	{
@@ -824,7 +825,7 @@ vehikel_t::unload_freight(halthandle_t halt)
 				// Zielhaltestelle entfernt ?
 				if(!end_halt.is_bound() || !via_halt.is_bound()) 
 				{
-					DBG_MESSAGE("vehikel_t::entladen()", "destination of %d %s is no longer reachable",tmp.menge,translator::translate(tmp.get_name()));
+					DBG_MESSAGE("vehikel_t::unload_freight()", "destination of %d %s is no longer reachable",tmp.menge,translator::translate(tmp.get_name()));
 					kill_queue.append(tmp);
 				} 
 
@@ -858,16 +859,15 @@ vehikel_t::unload_freight(halthandle_t halt)
 							// Refund is approximation: 2x distance at standard rate with no adjustments. 
 							const sint64 refund_amount = ((tmp.menge * tmp.get_fare(distance) * 2000ll) + 1500ll) / 3000ll;
 
-							current_revenue -= refund_amount;
+							revenue_from_unloading -= refund_amount;
 							cnv->book(-refund_amount, convoi_t::CONVOI_PROFIT);
 							cnv->book(-refund_amount, convoi_t::CONVOI_REFUNDS);
-							get_besitzer()->buche(-refund_amount, COST_VEHICLE_RUN);
 							if(cnv->get_line().is_bound())
 							{
 								cnv->get_line()->book(-refund_amount, LINE_REFUNDS);
 								cnv->get_line()->book(-refund_amount, LINE_PROFIT);
-								get_besitzer()->buche(-refund_amount, COST_VEHICLE_RUN);
 							}
+							revenue_from_unloading=-refund_amount;
 						}
 
 						// Add passengers to unhappy passengers.
@@ -881,18 +881,17 @@ vehikel_t::unload_freight(halthandle_t halt)
 					{
 						const uint32 menge = halt->liefere_an(tmp); //"supply" (Babelfish)
 						sum_menge += menge;
+						index = tmp.get_index(); // Note that there is only one freight type per vehicle
 						halt->unload_repeat_counter = 0;
 
 						// Calculates the revenue for each packet. 
 						// @author: jamespetts
-						current_revenue += cnv->calc_revenue(tmp);
+						revenue_from_unloading += cnv->calc_revenue(tmp);
 
 						// book delivered goods to destination
 						if(end_halt == halt) 
 						{
-							// pax is always index 1
-							const int categorie = tmp.get_index()>1 ? 2 : tmp.get_index();
-							get_besitzer()->buche( menge, (player_cost)(COST_TRANSPORTED_PAS+categorie) );
+							sum_delivered += menge;
 							if(tmp.is_passenger())
 							{
 								// New for Experimental 7.2 - add happy passengers
@@ -988,6 +987,17 @@ vehikel_t::unload_freight(halthandle_t halt)
 			}
 		}
 	}
+
+	if (sum_menge) {
+		// book transported goods
+		get_besitzer()->book_transported( sum_menge, get_besch()->get_waytype(), index );
+
+		if (sum_delivered) {
+			// book delivered goods to destination
+			get_besitzer()->book_delivered( sum_delivered, get_besch()->get_waytype(), index );
+		}
+	}
+
 	return sum_menge;
 }
 
@@ -1248,7 +1258,6 @@ vehikel_t::vehikel_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp) :
 	direction_steps = 4;
 	is_overweight = false;
 	reversed = false;
-	current_revenue = 0;
 	hop_count = 0;
 	base_costs = 0;
 	diagonal_costs = 0;
@@ -1290,7 +1299,6 @@ vehikel_t::vehikel_t(karte_t *welt) :
 	direction_steps = 4;
 	is_overweight = false;
 	reversed = false;
-	current_revenue = 0;
 	hop_count = 0;
 	base_costs = 0;
 	diagonal_costs = 0;
@@ -1948,9 +1956,9 @@ uint16 vehikel_t::beladen(halthandle_t halt, bool overcrowd)
  * "Vehicle to stop discharged" (translated by Google)
  * @author Hj. Malthaner
  */
-uint16 vehikel_t::entladen(halthandle_t halt)
+uint16 vehikel_t::entladen(halthandle_t halt, sint64 & revenue_from_unloading )
 {
-	uint16 menge = unload_freight(halt);
+	uint16 menge = unload_freight(halt, revenue_from_unloading);
 	if(menge > 0) 
 	{
 		// add delivered goods to statistics
@@ -2317,8 +2325,10 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 	{
 		// Existing values now saved in order to prevent network desyncs
 		file->rdwr_short(direction_steps);
+		// "Current revenue" is obsolete, but was used in this file version
+		sint64 current_revenue = 0;
 		file->rdwr_longlong(current_revenue);
-		
+
 		if(file->is_saving())
 		{
 			uint8 count = pre_corner_direction.get_count();

@@ -491,6 +491,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\player\finance.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\font.cc"
 				>
 			</File>

@@ -4773,7 +4773,7 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 						if (weg->get_besch() != welt->get_city_road()) {
 							spieler_t *sp = weg->get_besitzer();
 							if (sp == NULL  ||  !gr->get_depot()) {
-								spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung());
+								spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung(), road_wt);
 
 								weg->set_besitzer(NULL); // make public
 								weg->set_gehweg(true);
@@ -4959,7 +4959,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 					if (weg->get_besch() != welt->get_city_road()) {
 						spieler_t *sp = weg->get_besitzer();
 						if (sp == NULL  ||  !gr->get_depot()) {
-							spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung());
+							spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung(), road_wt);
 
 							weg->set_besitzer(NULL); // make public
 							weg->set_besch(welt->get_city_road());
