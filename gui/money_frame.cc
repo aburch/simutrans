@@ -253,7 +253,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		maintenance_label("Next Month:",COL_WHITE, gui_label_t::right),
 		maintenance_label2("Fixed Costs",COL_WHITE, gui_label_t::right),
 		maintenance_money(NULL, COL_RED, gui_label_t::money),
-		operational_money(NULL, COL_RED, gui_label_t::money),
+		vehicle_maintenance_money(NULL, COL_RED, gui_label_t::money),
 		warn("", COL_YELLOW, gui_label_t::left),
 		scenario("", COL_BLACK, gui_label_t::left),
 		transport_type_option(0),
@@ -301,7 +301,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	// right column
 	maintenance_label.set_pos(koord(left+340+80, top-1*BUTTONSPACE-2));
 	maintenance_label2.set_pos(koord(left+340+80, top+0*BUTTONSPACE-2));
-	operational_money.set_pos(koord(left+340+55, top+1*BUTTONSPACE));
+	vehicle_maintenance_money.set_pos(koord(left+340+55, top+1*BUTTONSPACE));
 	maintenance_money.set_pos(koord(left+340+55, top+2*BUTTONSPACE));
 
 	tylabel2.set_pos(koord(left+140+80+335,top+5*BUTTONSPACE-14));
@@ -390,7 +390,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	add_komponente(&maintenance_label);
 	add_komponente(&maintenance_label2);
 	add_komponente(&maintenance_money);
-	add_komponente(&operational_money);
+	add_komponente(&vehicle_maintenance_money);
 
 	add_komponente(&warn);
 
@@ -483,7 +483,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 void money_frame_t::zeichnen(koord pos, koord gr)
 {
 	// Hajo: each label needs its own buffer
-	static char str_buf[30][256];
+	static char str_buf[32][256];
 
 	sp->get_finance()->calc_finance_history();
 	fill_chart_tables();
@@ -528,6 +528,7 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	update_label(interest, str_buf[26], TT_MAX, ATC_INTEREST, 0);
 	update_label(soft_credit_limit, str_buf[27], TT_MAX, ATC_SOFT_CREDIT_LIMIT, 0);
 	update_label(hard_credit_limit, str_buf[28], TT_MAX, ATC_HARD_CREDIT_LIMIT, 0);
+	update_label(vehicle_maintenance_money, str_buf[30], transport_type_option, ATV_VEHICLE_MAINTENANCE, 0);
 
 	// warning/success messages
 	if(sp->get_player_nr()!=1  &&  sp->get_welt()->get_scenario()->active()) {
@@ -611,18 +612,12 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	}
 
 	karte_t *welt = sp->get_welt();
-	sint64 maintenance;
 	// Hajo: Money is counted in credit cents (100 cents = 1 Cr)
-	maintenance = sp->get_maintenance(spieler_t::MAINT_INFRASTRUCTURE);
-	money_to_string(str_buf[16], (double)(welt->calc_adjusted_monthly_figure(maintenance) / 100.0));
+	money_to_string(str_buf[16], 
+		(double)((sint64)sp->get_finance()->get_maintenance_with_bits((transport_type)transport_type_option))/100.0
+	);
 	maintenance_money.set_text(str_buf[16]);
 	maintenance_money.set_color(maintenance>=0?MONEY_PLUS:MONEY_MINUS);
-
-	// BG, 06.09.2009: fixed operational costs:
-	maintenance = sp->get_maintenance(spieler_t::MAINT_VEHICLE);
-	money_to_string(str_buf[28], welt->calc_adjusted_monthly_figure(maintenance) / 100.0);
-	operational_money.set_text(str_buf[28]);
-	operational_money.set_color(maintenance>=0?MONEY_PLUS:MONEY_MINUS);
 
 	for (int i = 0;  i<MAX_PLAYER_COST_BUTTON;  i++) {
 		filterButtons[i].pressed = ( (bFilterStates[sp->get_player_nr()]&(1<<i)) != 0 );

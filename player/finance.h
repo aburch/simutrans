@@ -529,13 +529,13 @@ private:
 	 * Subroutine for credit limits
 	 * @author neroden
 	 */
-	sint64 finance_t::credit_limit_by_assets() const;
+	sint64 credit_limit_by_assets() const;
 
 	/**
 	 * Subroutine for credit limits
 	 * @author neroden
 	 */
-	sint64 finance_t::credit_limit_by_profits() const;
+	sint64 credit_limit_by_profits() const;
 
 	/// helper method to translate old COST_ constants
 	static int translate_index_cost_to_at(int cost_);
