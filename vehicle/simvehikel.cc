@@ -32,6 +32,7 @@
 #include "../simunits.h"
 
 #include "../player/simplay.h"
+#include "../player/finance.h"
 #include "../simfab.h"
 #include "../simware.h"
 #include "../simhalt.h"
@@ -2575,21 +2576,11 @@ void vehikel_t::display_after(int xpos, int ypos, bool is_gobal) const
 // BG, 06.06.2009: added
 void vehikel_t::laden_abschliessen()
 {
-	spieler_t *sp = get_besitzer();
-	if (sp) {
-		// BG, 06.06.2009: fixed maintenance for loaded vehicles, which are located on the map
-		sp->add_maintenance((sint32)get_besch()->get_fixed_cost(welt), spieler_t::MAINT_VEHICLE);
-	}
 }
 
 // BG, 06.06.2009: added
 void vehikel_t::before_delete()
 {
-	spieler_t *sp = get_besitzer();
-	if (sp) {
-		// BG, 06.06.2009: withdraw fixed maintenance for deleted vehicles
-		sp->add_maintenance(-(sint32)get_besch()->get_fixed_cost(welt), spieler_t::MAINT_VEHICLE);
-	}
 }
 
 /*--------------------------- Fahrdings ------------------------------*/
