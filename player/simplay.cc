@@ -203,7 +203,7 @@ void spieler_t::book_delivered(const sint64 amount, const waytype_t wt, int inde
 	finance->book_delivered(amount, wt, index);
 }
 
-void spieler_t::can_afford(const sint64 price) const
+bool spieler_t::can_afford(const sint64 price) const
 {
 	return (
 		   player_nr == 1 // Public service can always afford anything
@@ -506,6 +506,7 @@ void spieler_t::calc_assets()
 
 
 void spieler_t::update_assets(sint64 const delta, const waytype_t wt)
+{
 	finance->update_assets(delta, wt);
 }
 
@@ -828,22 +829,6 @@ DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this 
 	if(file->get_version()>102003 && (file->get_experimental_version() >= 9 || file->get_experimental_version() == 0)) 
 	{
 		file->rdwr_str( spieler_name_buf, lengthof(spieler_name_buf) );
-	}
-
-	if(file->is_loading())
-	{
-		if(konto_ueberzogen > 3 && konto < 0)
-		{
-			// Calculate credit limit accurately on re-loading in the event
-			// that the player's balance is below zero.
-			const sint64 input_credit_limit = get_base_credit_limit();
-			const sint64 adjusted_credit_limit = input_credit_limit - (input_credit_limit / 5) * (konto_ueberzogen - 3);
-			base_credit_limit = adjusted_credit_limit > 0 ? adjusted_credit_limit : 0;
-		}
-		if(file->get_experimental_version() <= 1)
-		{
-			finance_history_month[0][COST_CREDIT_LIMIT] = calc_credit_limit();
-		}
 	}
 
 	if(file->get_version() >= 110007 && file->get_experimental_version() >= 10)

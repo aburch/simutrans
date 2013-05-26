@@ -274,7 +274,7 @@ sint64 finance_t::credit_limit_by_profits() const {
 	// Look back 12 months (full year's profit), but not more than the max
 	int month_count;
 	sint64 profit_total=0;
-	for(month_count = 0; month_count < (min(MAX_PLAYER_HISTORY_MONTHS, 12); month_count++)
+	for(month_count = 0; month_count < min(MAX_PLAYER_HISTORY_MONTHS, 12); month_count++)
 	{
 		// It's possible that this should be changed to operating profit.
 		// However, this provides for a more conservative credit limit.
