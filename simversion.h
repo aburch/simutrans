@@ -13,7 +13,7 @@
 #define SIM_VERSION_MAJOR 112
 #define SIM_VERSION_MINOR   2 // Just for the 11.x branch for stable RCs and release builds until the accounting changes are fully merged by Neroden.
 #define SIM_VERSION_PATCH   0
-#define SIM_VERSION_BUILD SIM_BUILD_NIGHTLY
+#define SIM_VERSION_BUILD SIM_BUILD_RELEASE_CANDIDATE
 
 // Beware: SAVEGAME minor is often ahead of version minor when there were patches.
 // ==> These have no direct connection at all!
