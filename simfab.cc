@@ -1895,7 +1895,10 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 				const nearby_halt_t *haltlist = plan->get_haltlist();
 				for(int i = 0; i < haltlist_count; i++)
 				{
-					halt_list.append(haltlist[i]); 
+					if(haltlist[i].distance > welt->get_settings().get_station_coverage_factories())
+					{
+						halt_list.append(haltlist[i]); 
+					}
 				}
 			}
 		}
@@ -1934,8 +1937,9 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 	{
 		nearby_halt_t nearby_halt = halt_list[(i + ausgang[produkt].index_offset) % count];
 
+		//const char* TEST_name = nearby_halt.halt->get_name();
+
 		if(!nearby_halt.halt->get_ware_enabled() ||
-			nearby_halt.distance > welt->get_settings().get_station_coverage_factories() ||
 			(get_besch()->get_platzierung() == fabrik_besch_t::Wasser && (nearby_halt.halt->get_station_type() & haltestelle_t::dock) == 0))
 		{
 			continue;
