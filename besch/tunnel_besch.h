@@ -96,6 +96,8 @@ public:
 	// get costs etc.
 	waytype_t get_waytype() const { return static_cast<waytype_t>(wegtyp); }
 
+	waytype_t get_finance_waytype() const;
+
 	sint32 get_preis() const { return scaled_price; }
 
 	sint32 get_base_price() const { return preis; }

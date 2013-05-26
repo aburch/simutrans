@@ -9,6 +9,7 @@
 #include "simunits.h"
 #include "simworld.h"
 #include "simware.h"
+#include "player/finance.h" // convert_money
 #include "player/simplay.h"
 #include "simconvoi.h"
 #include "simhalt.h"
@@ -239,7 +240,7 @@ convoi_t::convoi_t(karte_t* wl, loadsave_t* file) : fahr(max_vehicle, NULL)
 convoi_t::convoi_t(spieler_t* sp) : fahr(max_vehicle, NULL)
 {
 	self = convoihandle_t(this);
-	sp->buche( 1, COST_ALL_CONVOIS );
+	sp->book_convoi_number(1);
 	init(sp->get_welt(), sp);
 	set_name( "Unnamed" );
 	welt->add_convoi( self );
@@ -258,7 +259,7 @@ convoi_t::convoi_t(spieler_t* sp) : fahr(max_vehicle, NULL)
 
 convoi_t::~convoi_t()
 {
-	besitzer_p->buche( -1, COST_ALL_CONVOIS );
+	besitzer_p->book_convoi_number( -1);
 
 	assert(self.is_bound());
 	assert(anz_vehikel==0);
@@ -733,11 +734,10 @@ void convoi_t::add_running_cost(sint64 cost, const weg_t *weg)
 			// now add normal way toll be maintenance
 			toll += (weg->get_besch()->get_wartung() * welt->get_settings().get_way_toll_waycost_percentage()) / 100l;
 		}
-		weg->get_besitzer()->buche( toll, COST_WAY_TOLLS );
-		get_besitzer()->buche( -toll, COST_WAY_TOLLS );
+		weg->get_besitzer()->book_toll_received( toll, get_schedule()->get_waytype() );
+		get_besitzer()->book_toll_paid(         -toll, get_schedule()->get_waytype() );
 	}
-
-	get_besitzer()->buche( cost, COST_VEHICLE_RUN);
+	get_besitzer()->book_running_costs( cost, get_schedule()->get_waytype());
 
 	book( cost, CONVOI_OPERATIONS );
 	book( cost, CONVOI_PROFIT );
@@ -1375,8 +1375,8 @@ end_loop:
 						{
 							//Sell any vehicles not upgraded or kept.
 							sint64 value = fahr[a]->calc_restwert();
-							besitzer_p->buche( value, dep->get_pos().get_2d(), COST_NEW_VEHICLE );
-							besitzer_p->buche( -value, COST_ASSETS );	
+							waytype_t wt = fahr[a]->get_besch()->get_waytype();
+							besitzer_p->book_new_vehicle( value, dep->get_pos().get_2d(),wt );
 							delete fahr[a];
 							anz_vehikel--;
 						}
@@ -1763,13 +1763,16 @@ void convoi_t::new_month()
 
 	// Deduct monthly fixed maintenance costs.
 	// @author: jamespetts
-	uint32 monthly_cost = 0;
+	sint64 monthly_cost = 0;
 	for(unsigned j=0;  j<get_vehikel_anzahl();  j++ ) 
 	{
-		monthly_cost += fahr[j]->get_besch()->get_fixed_cost(welt);
+		// Monthly cost is positive, but add it up to a negative number for booking.
+		monthly_cost -= fahr[j]->get_besch()->get_fixed_cost(welt);
 	}
-	
-	add_running_cost(welt->calc_adjusted_monthly_figure(monthly_cost), NULL);
+	jahresgewinn += monthly_cost;
+	book( monthly_cost, CONVOI_OPERATIONS );
+	book( monthly_cost, CONVOI_PROFIT );
+	get_besitzer()->book_vehicle_maintenance(monthly_cost, get_schedule()->get_waytype());
 
 	// everything normal: update history
 	for (int j = 0; j<MAX_CONVOI_COST; j++) 
@@ -1928,7 +1931,7 @@ void convoi_t::start()
 		fahr[0]->set_bild(IMG_LEER);
 
 		// update finances for used vehicle reduction when first driven
-		besitzer_p->update_assets( restwert_delta );
+		besitzer_p->update_assets( restwert_delta, get_schedule()->get_waytype());
 
 		// calc state for convoi
 		calc_loading();
@@ -4908,9 +4911,10 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 				v->last_stop_pos = halt->get_basis_pos();
 			}
 			//Unload
-			v->current_revenue = 0;
-			changed_loading_level += v->entladen(halt);
-			gewinn += v->current_revenue;
+			sint64 revenue_from_unloading = 0;
+			changed_loading_level += v->entladen(halt, revenue_from_unloading);
+			besitzer_p->book_revenue( revenue_from_unloading, fahr[0]->get_pos().get_2d(), get_schedule()->get_waytype(), v->get_fracht_typ()->get_index() );
+			gewinn += revenue_from_unloading;
 		}
 
 		if(!no_load) 
@@ -4961,7 +4965,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 			gewinn = 1;
 		}
 		jahresgewinn += gewinn; //"annual profit" (Babelfish)
-		besitzer_p->buche(gewinn, fahr[0]->get_pos().get_2d(), COST_INCOME);
+		besitzer_p->add_money_message(gewinn, fahr[0]->get_pos().get_2d());
 		book(gewinn, CONVOI_PROFIT);
 		book(gewinn, CONVOI_REVENUE);
 
@@ -4984,52 +4988,36 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 				sp->interim_apportioned_revenue /= 100;
 				if(welt->get_active_player() == sp)
 				{
-					sp->buche(sp->interim_apportioned_revenue, fahr[0]->get_pos().get_2d(), COST_WAY_TOLLS);
+					sp->add_money_message(sp->interim_apportioned_revenue, fahr[0]->get_pos().get_2d());
 				}
-				else
-				{
-					sp->buche(sp->interim_apportioned_revenue, COST_WAY_TOLLS);
-				}
-				besitzer_p->buche(-sp->interim_apportioned_revenue, COST_WAY_TOLLS);
+				sp->book_toll_received(sp->interim_apportioned_revenue, get_schedule()->get_waytype() );
+				besitzer_p->book_toll_paid(-sp->interim_apportioned_revenue, get_schedule()->get_waytype() );
 				book(-sp->interim_apportioned_revenue, CONVOI_PROFIT);
 				sp->interim_apportioned_revenue = 0;
 			}
 		}
 
 		//  Apportion revenue for air/sea ports
-		if(gr->ist_wasser())
+		if(halt.is_bound() && halt->get_besitzer() != besitzer_p)
 		{
-			// This must be a sea port.
-			if(halt.is_bound() && halt->get_besitzer() != besitzer_p)
+			sint64 port_charge = 0;
+			if(gr->ist_wasser())
 			{
-				const sint64 port_charge = (gewinn * welt->get_settings().get_seaport_toll_revenue_percentage()) / 100;
-				if(welt->get_active_player() == halt->get_besitzer())
-				{
-					halt->get_besitzer()->buche(port_charge, fahr[0]->get_pos().get_2d(), COST_WAY_TOLLS);
-				}
-				else
-				{
-					halt->get_besitzer()->buche(port_charge, COST_WAY_TOLLS);
-				}
-				besitzer_p->buche(-port_charge, COST_WAY_TOLLS);
-				book(-port_charge, CONVOI_PROFIT);
+				// This must be a sea port.
+				port_charge = (gewinn * welt->get_settings().get_seaport_toll_revenue_percentage()) / 100;
 			}
-		}
-		else if(fahr[0]->get_besch()->get_waytype() == air_wt)
-		{
-			// This is an aircraft - this must be an airport.
-			if(halt.is_bound() && halt->get_besitzer() != besitzer_p)
+			else if(fahr[0]->get_besch()->get_waytype() == air_wt)
 			{
-				const sint64 port_charge = (gewinn * welt->get_settings().get_airport_toll_revenue_percentage()) / 100;
+				// This is an aircraft - this must be an airport.
+				port_charge = (gewinn * welt->get_settings().get_airport_toll_revenue_percentage()) / 100;
+			}
+			if (port_charge != 0) {
 				if(welt->get_active_player() == halt->get_besitzer())
 				{
-					halt->get_besitzer()->buche(port_charge, fahr[0]->get_pos().get_2d(), COST_WAY_TOLLS);
+					halt->get_besitzer()->add_money_message(port_charge, fahr[0]->get_pos().get_2d());
 				}
-				else
-				{
-					halt->get_besitzer()->buche(port_charge, COST_WAY_TOLLS);
-				}
-				besitzer_p->buche(-port_charge, COST_WAY_TOLLS);
+				halt->get_besitzer()->book_toll_received(port_charge, get_schedule()->get_waytype() );
+				besitzer_p->book_toll_paid(-port_charge, get_schedule()->get_waytype() );
 				book(-port_charge, CONVOI_PROFIT);
 			}
 		}
@@ -5200,9 +5188,9 @@ void convoi_t::destroy()
 		fpl = NULL;
 	}
 
-	// pay the current value
-	besitzer_p->buche( calc_restwert(), get_pos().get_2d(), COST_NEW_VEHICLE );
-	besitzer_p->buche( -calc_restwert(), COST_ASSETS );
+	// pay the current value, remove monthly maint
+	waytype_t wt = fahr[0] ? fahr[0]->get_besch()->get_waytype() : ignore_wt;
+	besitzer_p->book_new_vehicle( calc_restwert(), get_pos().get_2d(), wt);
 
 	for(  uint8 i = anz_vehikel;  i-- != 0;  ) {
 		if(  !fahr[i]->get_flag( ding_t::not_on_map )  ) {
@@ -5282,13 +5270,7 @@ void convoi_t::book(sint64 amount, int cost_type)
 	{
 		line->book(amount, simline_t::convoi_to_line_catgory(cost_type) );
 	}
-
-	if(cost_type == CONVOI_TRANSPORTED_GOODS) 
-	{
-		besitzer_p->buche(amount, COST_ALL_TRANSPORTED);
-	}
 }
-
 
 void convoi_t::init_financial_history()
 {

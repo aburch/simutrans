@@ -425,7 +425,7 @@ enable_home:
 			money_to_string(tmp, cnv->get_jahresgewinn()/100.0 );
 			len += display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, cnv->get_jahresgewinn() > 0 ? MONEY_PLUS : MONEY_MINUS, true ) + 5;
 			// Bernd Gabriel, 17.06.2009: add fixed maintenance info
-			uint32 fixed_monthly = cnv->get_fixed_cost();
+			uint32 fixed_monthly = welt->calc_adjusted_monthly_figure(cnv->get_fixed_cost());
 			if (fixed_monthly)
 			{
 				char tmp_2[64];

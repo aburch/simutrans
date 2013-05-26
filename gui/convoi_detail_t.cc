@@ -158,8 +158,8 @@ void convoi_detail_t::zeichnen(koord pos, koord gr)
 				const vehikel_besch_t *besch = cnv->get_vehikel(i)->get_besch();
 				run_nominal += besch->get_running_cost();
 				run_actual  += besch->get_running_cost(welt);
-				mon_nominal += besch->get_fixed_cost();
-				mon_actual  += besch->get_fixed_cost(welt);
+				mon_nominal += welt->calc_adjusted_monthly_figure(besch->get_fixed_cost());
+				mon_actual  += welt->calc_adjusted_monthly_figure(besch->get_fixed_cost(welt));
 			}
 			buf.clear();
 			if (run_nominal) run_percent = ((run_actual - run_nominal) * 100) / run_nominal;

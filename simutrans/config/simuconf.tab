@@ -944,7 +944,7 @@ toll_waycost_percentage = 0
 # overdraft debt (i.e., on all negative account balances). It can be between 0
 # and 255. 
 # 
-# "allow_bankruptsy" determines whether, when the player is deemed to have been
+# "allow_bankruptcy" determines whether, when the player is deemed to have been
 # insolvent for more than a certain period, the player should be declared
 # bankrupt and the game over. 0 = no, 1 = yes.
 # 
@@ -955,11 +955,11 @@ toll_waycost_percentage = 0
 # 0 = no, 1 = yes.
 #
 # To revert to the behaviour of Simutrans standard, set interest_rate_percent to
-# 0, set allow_bankruptsy to 1, and set allow_purchases_when_insolvent to 1.
+# 0, set allow_bankruptcy to 1, and set allow_purchases_when_insolvent to 1.
 
 interest_rate_percent = 10
-allow_bankruptsy = 1
-allow_purhcases_when_insolvent = 0	
+allow_bankruptcy = 1
+allow_purchases_when_insolvent = 0	
 
 # This is a compatibility setting for Simutrans-Standard. Because, in
 # Simutrans-Standard, the speed bonus data (in speedbonus.tab) is based on the

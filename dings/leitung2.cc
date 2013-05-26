@@ -178,7 +178,7 @@ leitung_t::~leitung_t()
 			delete net;
 		}
 		if(!gr->ist_tunnel()) {
-			spieler_t::add_maintenance(get_besitzer(), -besch->get_wartung());
+			spieler_t::add_maintenance(get_besitzer(), -besch->get_wartung(), powerline_wt);
 		}
 	}
 }
@@ -186,7 +186,7 @@ leitung_t::~leitung_t()
 
 void leitung_t::entferne(spieler_t *sp) //"remove".
 {
-	spieler_t::accounting(sp, -besch->get_preis()/2, get_pos().get_2d(), COST_CONSTRUCTION);
+	spieler_t::book_construction_costs(sp, -besch->get_preis()/2, get_pos().get_2d(), powerline_wt);
 	mark_image_dirty( bild, 0 );
 }
 
@@ -412,7 +412,7 @@ void leitung_t::laden_abschliessen()
 	const grund_t *gr = welt->lookup(get_pos());
 	assert(gr);
 
-	spieler_t::add_maintenance(get_besitzer(), besch->get_wartung());
+	spieler_t::add_maintenance(get_besitzer(), besch->get_wartung(), powerline_wt);
 }
 
 
@@ -549,7 +549,7 @@ pumpe_t::pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , p
 {
 	fab = NULL;
 	supply = 0;
-	sp->buche(welt->get_settings().cst_transformer, get_pos().get_2d(), COST_CONSTRUCTION);
+	spieler_t::book_construction_costs(sp, welt->get_settings().cst_transformer, get_pos().get_2d(), powerline_wt);
 }
 
 
@@ -560,7 +560,7 @@ pumpe_t::~pumpe_t()
 		fab = NULL;
 	}
 	pumpe_list.remove( this );
-	spieler_t::add_maintenance(get_besitzer(), (sint32)welt->get_settings().cst_maintain_transformer);
+	spieler_t::add_maintenance(get_besitzer(), (sint32)welt->get_settings().cst_maintain_transformer, powerline_wt);
 }
 
 
@@ -598,7 +598,7 @@ void pumpe_t::step(long delta_t)
 void pumpe_t::laden_abschliessen()
 {
 	leitung_t::laden_abschliessen();
-	spieler_t::add_maintenance(get_besitzer(), (sint32)-welt->get_settings().cst_maintain_transformer);
+	spieler_t::add_maintenance(get_besitzer(), -welt->get_settings().cst_maintain_transformer, powerline_wt);
 
 	assert(get_net());
 
@@ -699,7 +699,7 @@ senke_t::senke_t(karte_t *welt, koord3d pos, spieler_t *sp, stadt_t* c) : leitun
 	delta_sum = 0;
 	last_power_demand = 0;
 	power_load = 0;
-	sp->buche(welt->get_settings().cst_transformer, get_pos().get_2d(), COST_CONSTRUCTION);
+	spieler_t::book_construction_costs(sp, welt->get_settings().cst_transformer, get_pos().get_2d(), powerline_wt);
 	welt->sync_add(this);
 }
 
@@ -724,7 +724,7 @@ senke_t::~senke_t()
 			}
 		}
 	}
-	spieler_t::add_maintenance(get_besitzer(), (sint32)welt->get_settings().cst_maintain_transformer);
+	spieler_t::add_maintenance(get_besitzer(), welt->get_settings().cst_maintain_transformer, powerline_wt);
 }
 
 
@@ -923,9 +923,8 @@ void senke_t::step(long delta_t)
 	}
 
 	// Income rollover
-	if(max_einkommen>(2000<<11)) 
-	{
-		get_besitzer()->buche(einkommen >> 11, get_pos().get_2d(), COST_POWERLINES);
+	if(max_einkommen>(2000<<11)) {
+		get_besitzer()->book_revenue(einkommen >> 11, get_pos().get_2d(), powerline_wt);
 		einkommen = 0;
 		max_einkommen = 1;
 	}
@@ -1010,7 +1009,7 @@ bool senke_t::sync_step(long delta_t)
 void senke_t::laden_abschliessen()
 {
 	leitung_t::laden_abschliessen();
-	spieler_t::add_maintenance(get_besitzer(), (sint32)-welt->get_settings().cst_maintain_transformer);
+	spieler_t::add_maintenance(get_besitzer(), -welt->get_settings().cst_maintain_transformer, powerline_wt);
 
 	check_industry_connexion();
 #if MULTI_THREAD>1

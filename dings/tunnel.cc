@@ -154,20 +154,17 @@ void tunnel_t::laden_abschliessen()
 		}
 	}
 
-	if(sp) {
-		// change maintenance
-		weg_t *weg = gr->get_weg(besch->get_waytype());
-		if(weg) {
-			weg->set_max_speed(besch->get_topspeed());
-			weg->set_max_speed(besch->get_topspeed());
-			sp->add_maintenance(-weg->get_besch()->get_wartung());
-		}
-		leitung_t *lt = gr->get_leitung();
-		if(lt) {
-			spieler_t::add_maintenance( sp, -lt->get_besch()->get_wartung());
-		}
-		spieler_t::add_maintenance( sp,  besch->get_wartung() );
+	// change maintenance
+	weg_t *weg = gr->get_weg(besch->get_waytype());
+	if(weg) {
+		weg->set_max_speed(besch->get_topspeed());
+		spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype());
 	}
+	leitung_t *lt = gr->get_leitung();
+	if(lt) {
+		spieler_t::add_maintenance( sp, -lt->get_besch()->get_wartung(), powerline_wt );
+	}
+	spieler_t::add_maintenance( sp,  besch->get_wartung(), powerline_wt );
 }
 
 
@@ -179,21 +176,19 @@ void tunnel_t::entferne( spieler_t *sp2 )
 		return;
 	}
 	spieler_t *sp = get_besitzer();
-	if(sp) {
-		// inside tunnel => do nothing but change maitainance
-		const grund_t *gr = welt->lookup(get_pos());
-		if(gr) {
-			weg_t *weg = gr->get_weg( besch->get_waytype() );
-			if(weg)	{
-				weg->set_max_speed( weg->get_besch()->get_topspeed() );
-				weg->set_max_axle_load( weg->get_besch()->get_max_axle_load() );
-				weg->add_way_constraints(besch->get_way_constraints());
-				spieler_t::add_maintenance( sp,  weg->get_besch()->get_wartung());
-			}
-			spieler_t::add_maintenance( sp,  -besch->get_wartung() );
+	// inside tunnel => do nothing but change maitainance
+	const grund_t *gr = welt->lookup(get_pos());
+	if(gr) {
+		weg_t *weg = gr->get_weg( besch->get_waytype() );
+		if(weg)	{
+			weg->set_max_speed( weg->get_besch()->get_topspeed() );
+			weg->set_max_axle_load( weg->get_besch()->get_max_axle_load() );
+			weg->add_way_constraints(besch->get_way_constraints());
+			spieler_t::add_maintenance( sp,  weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype());
 		}
+		spieler_t::add_maintenance( sp,  -besch->get_wartung(), besch->get_finance_waytype() );
 	}
-	spieler_t::accounting(sp2, -besch->get_preis(), get_pos().get_2d(), COST_CONSTRUCTION );
+	spieler_t::book_construction_costs(sp2, -besch->get_preis(), get_pos().get_2d(), besch->get_finance_waytype() );
 }
 
 
