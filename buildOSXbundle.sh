@@ -54,6 +54,52 @@ getNightlies()
 }
 
 
+getSDL()
+{
+	# Use curl if available, else use wget
+	curl -h > /dev/null
+	if [ $? -eq 0 ]; then
+	    curl http://www.libsdl.org/release/SDL-1.2.15.dmg > SDL-1.2.15.dmg || {
+	      echo "Error: download of file SDL-1.2.15.dmg failed (curl returned $?)" >&2
+	      rm -f "SDL-1.2.15.dmg"
+	      exit 4
+	    }
+	    curl http://www.libsdl.org/release/SDL-1.2.15-OSX10.4.dmg > SDL-1.2.15-OSX10.4.dmg || {
+	      echo "Error: download of file SDL-1.2.15-OSX10.4.dmg failed (curl returned $?)" >&2
+	      rm -f "SDL-1.2.15-OSX10.4.dmg"
+	      exit 4
+	    }
+	else
+	    wget --help > /dev/null
+	    if [ $? -eq 0 ]; then
+	        wget -N  http://www.libsdl.org/release/SDL-1.2.15.dmg || {
+	          echo "Error: download of file SDL-1.2.15.dmg failed (wget returned $?)" >&2
+	          rm -f "SDL-1.2.15.dmg"
+	          exit 4
+	        }
+	        wget -N http://www.libsdl.org/release/SDL-1.2.15-OSX10.4.dmg || {
+	          echo "Error: download of file SDL-1.2.15-OSX10.4.dmg failed (wget returned $?)" >&2
+	          rm -f "SDL-1.2.15-OSX10.4.dmg"
+	          exit 4
+	        }
+	    else
+	        echo "Error: Neither curl or wget are available on your system, please install either and try again!" >&2
+	        exit 6
+	    fi
+	fi
+	7z t "SDL-1.2.15-OSX10.4.dmg" || {
+	   echo "Error: file SDL-1.2.15-OSX10.4.dmg seems to be defective" >&2
+	   rm -f "sim-macintel.zip"
+	   exit 5
+	}
+	7z t "SDL-1.2.15.dmg" || {
+	   echo "Error: file SDL-1.2.15.dmg seems to be defective" >&2
+	   rm -f "SDL-1.2.15.dmg"
+	   exit 5
+	}
+}
+
+
 # (otherwise there will be many .svn included under windows)
 distribute()
 {
@@ -76,6 +122,13 @@ unzip "sim-macpowerpc.zip"
 unzip "sim-macintel.zip"
 rm "sim-macpowerpc.zip"
 rm "sim-macintel.zip"
+
+# Now get the SDL frameworks
+getSDL
+7z x "SDL-1.2.15-OSX10.4.dmg"
+7z x 2.hfs
+rm -f 0.ddm 1.Apple_partition_map 2. hfs 3.free
+
 
 # save the version number
 simversion=`grep -a "Version " sim-macintel | awk 'BEGIN { RS = "\000" } {print $0 "\n"}' | grep "Version " `
