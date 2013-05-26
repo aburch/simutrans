@@ -335,10 +335,20 @@ public:
 	}
 
 	/**
-	 * Book vehicle maintenance (and subtract from cash).
-	 * Called by each vehicle, monthly.
+	 * Accounts monthly vehicle maintenance costs
+	 * Called monthly by *each vehicle* (therefore inline)
+	 * "Monthly" amounts are adjusted for bits_per_month
+	 * (so they're actually amounts per "x minutes")
+	 * @param wt way type
+	 * @author neroden
 	 */
-	void book_vehicle_maintenance_with_bits(const sint64 amount, const waytype_t wt);
+	inline void book_vehicle_maintenance_with_bits(const sint64 amount, const waytype_t wt) {
+		const transport_type tt = translate_waytype_to_tt(wt);
+		sint64 real_amount = world->calc_adjusted_monthly_figure(amount);
+		veh_year[tt][0][ATV_VEHICLE_MAINTENANCE] += real_amount;
+		veh_month[tt][0][ATV_VEHICLE_MAINTENANCE] += real_amount;
+		account_balance += real_amount;
+	}
 
 	/**
 	 * Calculates the finance history for player
@@ -361,8 +371,8 @@ public:
 	inline bool can_afford(sint64 price) const
 	{
 		if (price <= account_balance + get_soft_credit_limit() ) return true;
-		else if ( welt->get_settings().insolvent_purchases_allowed() ) return true;
-		else if ( welt->get_settings().is_freeplay() ) return true;
+		else if ( world->get_settings().insolvent_purchases_allowed() ) return true;
+		else if ( world->get_settings().is_freeplay() ) return true;
 		else return false;
 	}
 
