@@ -250,10 +250,6 @@ void gebaeude_t::check_road_tiles(bool del)
 				}
 			}
 		}
-=======
-	if(tile) {
-		spieler_t::add_maintenance(get_besitzer(), -welt->get_settings().maint_building*tile->get_besch()->get_level(), tile->get_besch()->get_finance_waytype());
->>>>>>> 178e29
 	}
 }
 
