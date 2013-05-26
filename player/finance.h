@@ -350,32 +350,6 @@ public:
 	}
 
 	/**
- 	 * Books interest expense or profit.
-	 */
-	inline void book_interest_monthly() {
-		// This handles both interest on cash balance and interest on loans.
-		// Rate is yearly rate for debt; rate for credit is 1/4 of that.  (Fix this.)
-		uint8 interest_rate = welt->get_settings().get_interest_rate_percent();
-		sint64 account_balance = get_account_balance();
-		if (interest_rate > 0) {
-			float32e8_t interest (interest_rate);
-			interest /= 12; // monthly
-			if (account_balance >= 0) {
-				// Credit interest rate is 1/4 of debt interest rate.
-				interest /= 4;
-			}
-			interest *= get_account_balance();
-			// Due to the limitations of float32e8, interest can only go up to +-2^31 per month.
-			// Hopefully this won't be an issue.  It will report errors if it is.
-			// This would require an account balance of over +-257 billion.
-			sint32 booked_interest = interest;
-			com_year[0][ATC_INTEREST] += booked_interest;
-			com_month[0][ATC_INTEREST] += booked_interest;
-			account_balance += booked_interest;
-        }
-	}
-
-	/**
 	 * Calculates the finance history for player
 	 * @author hsiegeln
 	 */
@@ -410,6 +384,17 @@ public:
 	 * Upon exceeding this credit limit, the player goes bankrupt and is shut down.
 	 */
 	inline sint64 get_hard_credit_limit() const { return com_month[0][ATC_HARD_CREDIT_LIMIT]; }
+
+	/**
+	 * Recalculate credit limits.
+	 * Should not be called more than once a month.
+	 */
+	void calc_credit_limits();
+
+	/**
+	 * Book interest (once a month, please!)
+	 */
+	void book_interest_monthly();
 
 	/**
 	 * Books amount of money to account (also known as konto)
@@ -538,12 +523,6 @@ public:
 	void update_assets(sint64 delta, waytype_t wt);
 
 private:
-	/**
-	 * Recalculate credit limits.
-	 * Should not be called more than once a month, so make private.
-	 */
-	private void calc_credit_limits();
-
 	/**
 	 * Subroutine for credit limits
 	 * @author neroden

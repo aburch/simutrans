@@ -209,17 +209,41 @@ void finance_t::new_month()
 		roll_history_year();
 	}
 
-	// Reset credit limits (roll_history just set them to zero)
-	// Note that credit limits are set at the start of the month
-	// and *do not change* thereafter until the next month
-	calc_credit_limits();
+	// subtract interest (before subtracting infrastructure maintenance)
+	book_interest_monthly();
 
-	// subtract maintenance
+	// subtract infrastructure maintenance
 	for(int i=0; i<TT_MAX; ++i){
 		veh_month[i][0][ATV_INFRASTRUCTURE_MAINTENANCE] -= get_maintenance_with_bits((transport_type)i);
 		veh_year [i][0][ATV_INFRASTRUCTURE_MAINTENANCE] -= get_maintenance_with_bits((transport_type)i);
 	}
 
+}
+
+/**
+ * Books interest expense or profit.
+ */
+void book_interest_monthly() {
+	// This handles both interest on cash balance and interest on loans.
+	// Rate is yearly rate for debt; rate for credit is 1/4 of that.  (Fix this.)
+	uint8 interest_rate = welt->get_settings().get_interest_rate_percent();
+	sint64 account_balance = get_account_balance();
+	if (interest_rate > 0) {
+		float32e8_t interest (interest_rate);
+		interest /= (float32e8_t)12; // monthly
+		if (account_balance >= 0) {
+			// Credit interest rate is 1/4 of debt interest rate.
+			interest /= (float32e8_t)4;
+		}
+		interest /= (float32e8_t)get_account_balance();
+		// Due to the limitations of float32e8, interest can only go up to +-2^31 per month.
+		// Hopefully this won't be an issue.  It will report errors if it is.
+		// This would require an account balance of over +-257 billion.
+		sint32 booked_interest = interest;
+		com_year[0][ATC_INTEREST] += booked_interest;
+		com_month[0][ATC_INTEREST] += booked_interest;
+		account_balance += booked_interest;
+	}
 }
 
 private void calc_credit_limits() {

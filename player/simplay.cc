@@ -203,6 +203,13 @@ void spieler_t::book_delivered(const sint64 amount, const waytype_t wt, int inde
 	finance->book_delivered(amount, wt, index);
 }
 
+void spieler_t::can_afford(const sint64 price) const
+{
+	return (
+		   player_nr == 1 // Public service can always afford anything
+		|| finance->can_afford(price)
+	);
+}
 
 /* returns the name of the player; "player -1" sits in front of the screen
  * @author prissi
@@ -350,20 +357,20 @@ bool spieler_t::neuer_monat()
 	static cbuffer_t buf;
 
 	// This handles rolling the finance records,
-	// updating the credit limit,
-	//  and infrastructure maintenance
-	finance->new_month(); 
+	// interest charges,
+	// and infrastructure maintenance
+	finance->new_month();
 
 	// new month has started => recalculate vehicle value
 	calc_assets();
+
+	// After recalculating the assets, recalculate the credit limits
+	finance->calc_credit_limits();
 
 	finance->calc_finance_history(); // Recalc after calc_assets
 
 	simlinemgmt.new_month();
 
-	// Add debit or credit interest, monthly
-	// Nathanael Nerode, May 2013
-	finance->book_interest_monthly();
 
 	// Insolvency settings.
 	// Modified by jamespetts, February 2009

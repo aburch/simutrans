@@ -208,6 +208,15 @@ public:
 	 */
 	void book_delivered(const sint64 amount, const waytype_t wt=ignore_wt, int index=2);
 
+   /**
+     * Is player allowed to purchase something of this price, or is player
+     * too deep in debt?  (This routine allows the public service player to
+	 * always buy anything.)
+     * @returns whether player is allowed to purchase something of cost "price"
+     * @params price
+     */
+	bool can_afford(sint64 price) const ;
+
 	bool has_money_or_assets() const;
 
 	finance_t * get_finance() { return finance; }
@@ -294,14 +303,6 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	double get_konto_als_double() const;
-
-	/**
-	 * Return the amount of cash that the player has
-	 * in SimuCents. Integer method needed where this
-	 * method is used in non-GUI code in multi-player games.
-	 * @author: jamespetts, December 2012
-	 */
-	sint64 get_player_cash_int() const { return konto; }
 
 	/**
 	 * @return true wenn Konto Überzogen ist
@@ -401,19 +402,6 @@ public:
 	void init_undo(waytype_t t, unsigned short max );
 	void add_undo(koord3d k);
 	sint64 undo();
-
-   /**
-     * Is player allowed to purchase something of this price, or is player
-     * too deep in debt?  (This routine allows the public service player to
-	 * always buy anything.)
-     * @returns whether player is allowed to purchase something of cost "price"
-     * @params price
-     */
-	inline bool can_afford(sint64 price) const
-	{
-		if (player_nr == 1) return true; // Public service can always afford anything
-		return finance->can_afford(price);
-	}
 
 	// headquarter stuff
 private:
