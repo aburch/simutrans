@@ -217,15 +217,14 @@ void finance_t::new_month()
 /**
  * Books interest expense or profit.
  */
-void book_interest_monthly() {
+void finance_t::book_interest_monthly() {
 	// This handles both interest on cash balance and interest on loans.
 	// Rate is yearly rate for debt; rate for credit is 1/4 of that.  (Fix this.)
-	uint8 interest_rate = welt->get_settings().get_interest_rate_percent();
-	sint64 account_balance = get_account_balance();
+	uint8 interest_rate = world->get_settings().get_interest_rate_percent();
 	if (interest_rate > 0) {
 		float32e8_t interest (interest_rate);
 		interest /= (float32e8_t)12; // monthly
-		if (account_balance >= 0) {
+		if (get_account_balance() >= 0) {
 			// Credit interest rate is 1/4 of debt interest rate.
 			interest /= (float32e8_t)4;
 		}
@@ -240,7 +239,7 @@ void book_interest_monthly() {
 	}
 }
 
-private void calc_credit_limits() {
+void finance_t::calc_credit_limits() {
 	sint64 hard_limit_by_profits = credit_limit_by_profits();
 	sint64 hard_limit_by_assets = credit_limit_by_assets();
 
