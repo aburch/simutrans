@@ -244,7 +244,7 @@ void finance_t::calc_credit_limits() {
 	sint64 hard_limit_by_assets = credit_limit_by_assets();
 
 	// The player gets the better of the two credit limits.
-	hard_credit_limit = max(hard_limit_by_profits, hard_limit_by_assets);
+	sint64 hard_credit_limit = max(hard_limit_by_profits, hard_limit_by_assets);
 	assert(hard_credit_limit >= 0);
 
 	// Soft credit limit is a percentage of the hard credit limit
@@ -252,7 +252,7 @@ void finance_t::calc_credit_limits() {
 	uint8 soft_credit_limit_percent = 50;
 
 	// Don't worry about exact computations here.
-	soft_credit_limit = (hard_credit_limit() / 100) * soft_credit_limit_percent;
+	sint64 soft_credit_limit = (hard_credit_limit / 100) * soft_credit_limit_percent;
 
 	com_month[0][ATC_HARD_CREDIT_LIMIT] = hard_credit_limit;
 	com_month[0][ATC_SOFT_CREDIT_LIMIT] = soft_credit_limit;
@@ -269,12 +269,12 @@ void finance_t::calc_credit_limits() {
  * Calculates a credit limit based on past year's profitability
  * (ability to cover interest costs).
  */
-private sint64 finance_t::credit_limit_by_profits() const {
+sint64 finance_t::credit_limit_by_profits() const {
 	// The idea is that yearly profits should cover yearly interest
 	// Look back 12 months (full year's profit), but not more than the max
 	int month_count;
 	sint64 profit_total=0;
-	for(month_count = 0; month_count < MAX_PLAYER_HISTORY_MONTHS, month_count < 12; month_count++)
+	for(month_count = 0; month_count < (min(MAX_PLAYER_HISTORY_MONTHS, 12); month_count++)
 	{
 		// It's possible that this should be changed to operating profit.
 		// However, this provides for a more conservative credit limit.
@@ -284,10 +284,10 @@ private sint64 finance_t::credit_limit_by_profits() const {
 	if (month_count != 12) {
 		profit_total = profit_total * 12 / month_count;
 	}
-	sint64 interest_rate = welt->get_settings().get_interest_rate_percent();
+	sint64 interest_rate = world->get_settings().get_interest_rate_percent();
 	// *Divide* by the interest rate: if all the profits went to interest,
 	// this tells us how much debt (principal) we could pay interest on
-	sint64 hard_limit_by_profits = (month_profit_total * 100ll) / interest_rate;
+	sint64 hard_limit_by_profits = (profit_total * 100ll) / interest_rate;
 	// The following deals with recurring losses;
 	// It also deals (badly) with overflow errors.
 	if (hard_limit_by_profits > 0) {
@@ -301,7 +301,7 @@ private sint64 finance_t::credit_limit_by_profits() const {
  * Calculates an asset-based credit limit.
  * Secured borrowing against assets.
  */
-private sint64 finance_t::credit_limit_by_assets() const {
+sint64 finance_t::credit_limit_by_assets() const {
 	// Can borrow against potentially all assets.
 	sint64 hard_limit_by_assets = get_history_veh_month(TT_ALL, 0, ATV_NON_FINANCIAL_ASSETS);
 	// The following deals with potential bugs.
@@ -599,8 +599,6 @@ void finance_t::export_to_cost_month(sint64 finance_history_month[][OLD_MAX_PLAY
 		finance_history_month[i][COST_ALL_CONVOIS]      = com_month[i][ATC_ALL_CONVOIS];
 		finance_history_month[i][COST_SCENARIO_COMPLETED] = com_month[i][ATC_SCENARIO_COMPLETED];
 		finance_history_month[i][COST_WAY_TOLLS]        = veh_month[TT_ALL][i][ATV_WAY_TOLL];
-		finance_history_month[i][COST_INTEREST]		= com_month[i][ATC_INTEREST];
-		finance_history_month[i][COST_CREDIT_LIMIT]	= com_month[i][ATC_SOFT_CREDIT_LIMIT];
 	}
 }
 
