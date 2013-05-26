@@ -49,8 +49,9 @@ const char *money_frame_t::cost_type_name[MAX_PLAYER_COST_BUTTON] =
 	"Assets",
 	"Margin (%)",
 	"Net Wealth",
-	"Interest"
-	"Credit Limit"
+	"Interest",
+	"Credit Limit",
+	"Solvency Limit"
 };
 
 const char money_frame_t::cost_tooltip[MAX_PLAYER_COST_BUTTON][256] =
@@ -69,8 +70,9 @@ const char money_frame_t::cost_tooltip[MAX_PLAYER_COST_BUTTON][256] =
   "Percentage of revenue retained as profit", 
   "Total assets less total liabilities", 
   "Cost of overdraft interest payments", 
-  "The maximum amount that can be borrowed without prohibiting further capital outlays"
-}
+  "The maximum amount that can be borrowed without prohibiting further capital outlays",
+  "The maximum amount that can be borrowed without going bankrupt"
+};
 
 
 const COLOR_VAL money_frame_t::cost_type_color[MAX_PLAYER_COST_BUTTON] =
@@ -83,12 +85,14 @@ const COLOR_VAL money_frame_t::cost_type_color[MAX_PLAYER_COST_BUTTON] =
 	COL_OPS_PROFIT,
 	COL_NEW_VEHICLES,
 	COL_CONSTRUCTION,
-	COL_INTEREST,
 	COL_PROFIT,
 	COL_CASH,
 	COL_VEHICLE_ASSETS,
 	COL_MARGIN,
 	COL_WEALTH,
+	COL_INTEREST,
+	COL_SOFT_CREDIT_LIMIT,
+	COL_HARD_CREDIT_LIMIT,
 	COL_PURPLE
 };
 
@@ -611,10 +615,10 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 		}
 	}
 
-	karte_t *welt = sp->get_welt();
 	// Hajo: Money is counted in credit cents (100 cents = 1 Cr)
-	money_to_string(str_buf[16], 
-		(double)((sint64)sp->get_finance()->get_maintenance_with_bits((transport_type)transport_type_option))/100.0
+	sint64 maintenance = sp->get_finance()->get_maintenance_with_bits((transport_type)transport_type_option);
+	money_to_string(str_buf[16],
+		(double)(maintenance)/100.0
 	);
 	maintenance_money.set_text(str_buf[16]);
 	maintenance_money.set_color(maintenance>=0?MONEY_PLUS:MONEY_MINUS);
