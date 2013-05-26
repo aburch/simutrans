@@ -848,7 +848,7 @@ vehikel_t::unload_freight(halthandle_t halt, sint64 & revenue_from_unloading)
 						// Halt overcrowded - discard goods/passengers, and collect no revenue.
 						// Experimetal 7.2 - also calculate a refund.
 
-						if(tmp.get_origin().is_bound() && get_besitzer()->get_finance()->account_balance() > 0)
+						if(tmp.get_origin().is_bound() && get_besitzer()->get_finance()->get_account_balance() > 0)
 						{
 							// Cannot refund unless we know the origin.
 							// Also, ought not refund unless the player is solvent. 
