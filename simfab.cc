@@ -1872,7 +1872,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 	// Check *all* tiles for nearby stops.
 	vector_tpl<koord> tile_list;
 	get_tile_list(tile_list);
-	vector_tpl<nearby_halt_t> halt_list;
+	vector_tpl<nearby_halt_t> nearby_freight_halts;
 	bool any_distribution_target = false;
 	FOR(vector_tpl<koord>, const k, tile_list)
 	{
@@ -1886,9 +1886,18 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 				const nearby_halt_t *haltlist = plan->get_haltlist();
 				for(int i = 0; i < haltlist_count; i++)
 				{
-					if(haltlist[i].distance > welt->get_settings().get_station_coverage_factories())
+					if(  haltlist[i].distance <= welt->get_settings().get_station_coverage_factories()
+					     && haltlist[i].halt->get_ware_enabled() )
 					{
-						halt_list.append(haltlist[i]); 
+						// Halt is within distance and handles freight...
+						if (get_besch()->get_platzierung() == fabrik_besch_t::Wasser
+							&& (nearby_halt.halt->get_station_type() & haltestelle_t::dock) == 0)
+							{
+								// But this is a water factory and it's not a dock.
+								continue;
+							}
+						// OK, add to list of freight halts.
+						nearby_freight_halts.append(haltlist[i]); 
 					}
 				}
 			}
@@ -1900,7 +1909,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 		dbg->fatal("fabrik_t::verteile_waren", "%s has not distibution target", get_name() );
 	}
 
-	if(halt_list.empty())
+	if(nearby_freight_halts.empty())
 	{
 		return;
 	}
@@ -1918,16 +1927,10 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 	 */
 	sint32 menge = min( (prodbase > 640 ? (prodbase>>6) : 10), ausgang[produkt].menge >> precision_bits );
 
-	const uint32 count = halt_list.get_count();
+	const uint32 count = nearby_freight_halts.get_count();
 	for(unsigned i = 0; i < count; i++)
 	{
-		nearby_halt_t nearby_halt = halt_list[(i + ausgang[produkt].index_offset) % count];
-
-		if(!nearby_halt.halt->get_ware_enabled() ||
-			(get_besch()->get_platzierung() == fabrik_besch_t::Wasser && (nearby_halt.halt->get_station_type() & haltestelle_t::dock) == 0))
-		{
-			continue;
-		}
+		nearby_halt_t nearby_halt = nearby_freight_halts[(i + ausgang[produkt].index_offset) % count];
 
 		// Über alle Ziele iterieren ("Iterate over all targets" - Google)
 		for(  uint32 n=0;  n<lieferziele.get_count();  n++  ) {
@@ -2523,7 +2526,6 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 		}
 	}
 }
-
 
 void fabrik_t::info_conn(cbuffer_t& buf) const
 {
