@@ -224,6 +224,25 @@ private:
 	const fabrik_besch_t *besch;
 
 	/**
+	 * Freight halts within range
+	 */
+	vector_tpl<nearby_halt_t> nearby_freight_halts;
+	/**
+	 * Passenger halts within range
+	 */
+	vector_tpl<nearby_halt_t> nearby_passenger_halts;
+	/**
+	 * Mail halts within range
+	 */
+	vector_tpl<nearby_halt_t> nearby_mail_halts;
+
+	/**
+	 * Recalculate nearby halts
+	 * @author neroden
+	 */
+	void recalc_nearby_halts();
+
+	/**
 	 * Bauposition gedreht?
 	 * Building position turned?
 	 * @author V.Meyer
