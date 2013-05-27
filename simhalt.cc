@@ -1460,19 +1460,46 @@ minivec_tpl<halthandle_t>* haltestelle_t::build_destination_list(ware_t &ware)
 	{
 		ware.set_zielpos(ware.get_ziel()->get_basis_pos());
 	}
-		
-	const koord ziel = ware.get_zielpos();
 
 	// since also the factory halt list is added to the ground, we can use just this ...
+	// We need to check all tiles of a factory, as not all tiles will be within range of a halt.
 	const planquadrat_t *const plan = welt->lookup( ware.get_zielpos() );
-	const nearby_halt_t *const halt_list = plan->get_haltlist();
+	const fabrik_t* fab = fabrik_t::get_fab(welt, ware.get_zielpos());
+	
+	vector_tpl<koord> tile_list;
+	if(fab)
+	{
+		fab->get_tile_list(tile_list);
+	}
+	else
+	{
+		tile_list.append(ware.get_zielpos());
+	}
+	vector_tpl<nearby_halt_t> halt_list;
+	FOR(vector_tpl<koord>, const k, tile_list)
+	{
+		const planquadrat_t* plan = welt->lookup(k);
+		if(plan)
+		{
+			const uint8 haltlist_count = plan->get_haltlist_count();
+			if(haltlist_count)
+			{
+				const nearby_halt_t *haltlist = plan->get_haltlist();
+				for(int i = 0; i < haltlist_count; i++)
+				{
+					halt_list.append(haltlist[i]); 
+				}
+			}
+		}
+	}
+
 	// but we can only use a subset of these
 	minivec_tpl<halthandle_t> *ziel_list = new minivec_tpl<halthandle_t>(plan->get_haltlist_count());
 
 	for(uint16 h = 0; h < plan->get_haltlist_count(); h++) 
 	{
 		halthandle_t halt = halt_list[h].halt;
-		if(halt->is_enabled(warentyp)) 
+		if(halt->is_enabled(warentyp) && (ware.is_mail() || ware.is_passenger() || halt_list[h].distance <= welt->get_settings().get_station_coverage_factories()))
 		{
 			ziel_list->append(halt);
 		}
