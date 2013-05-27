@@ -1499,7 +1499,7 @@ minivec_tpl<halthandle_t>* haltestelle_t::build_destination_list(ware_t &ware)
 	for(uint16 h = 0; h < plan->get_haltlist_count(); h++) 
 	{
 		halthandle_t halt = halt_list[h].halt;
-		if(halt->is_enabled(warentyp) && (ware.is_mail() || ware.is_passenger() || halt_list[h].distance <= welt->get_settings().get_station_coverage_factories()))
+		if(halt->is_enabled(warentyp) && (!ware.is_freight() || halt_list[h].distance <= welt->get_settings().get_station_coverage_factories()))
 		{
 			ziel_list->append(halt);
 		}
