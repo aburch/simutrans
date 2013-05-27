@@ -117,11 +117,19 @@ void freight_list_sorter_t::add_ware_heading( cbuffer_t &buf, uint32 sum, uint32
 		buf.printf("/%u", max);
 	}
 	ware_besch_t const& desc = *ware->get_besch();
-	char const*  const  unit = translator::translate(desc.get_mass());
-	// special freight (catg == 0) needs own name
 	char const*  const  name = translator::translate(ware->get_catg() != 0 ? desc.get_catg_name() : desc.get_name());
 	char const*  const  what = translator::translate(what_doing);
-	buf.printf("%s %s %s\n", unit, name, what);
+	// Ensure consistent spacing
+	if(ware->get_catg() == 0)
+	{
+		buf.printf(" %s %s\n", name, what);
+	}
+	else
+	{
+		char const*  unit = translator::translate(desc.get_mass());
+		// special freight (catg == 0) needs own name
+		buf.printf(" %s %s %s\n", unit, name, what);
+	}
 }
 
 
@@ -262,6 +270,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			// detail amount
 			buf.append("   ");
 			buf.append(ware.menge);
+			buf.append(" ");
 			buf.append(translator::translate(ware.get_besch()->get_mass()));
 			buf.append(" ");
 			buf.append(translator::translate(ware.get_besch()->get_name()));
