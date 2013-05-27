@@ -1923,8 +1923,6 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 	{
 		nearby_halt_t nearby_halt = halt_list[(i + ausgang[produkt].index_offset) % count];
 
-		const char* TEST_name = nearby_halt.halt->get_name();
-
 		if(!nearby_halt.halt->get_ware_enabled() ||
 			(get_besch()->get_platzierung() == fabrik_besch_t::Wasser && (nearby_halt.halt->get_station_type() & haltestelle_t::dock) == 0))
 		{
