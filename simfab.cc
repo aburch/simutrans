@@ -1869,8 +1869,6 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 		return;
 	}
 
-	// Check *all* tiles for nearby stops.
-	recalc_nearby_halts();
 	if(nearby_freight_halts.empty())
 	{
 		return;
