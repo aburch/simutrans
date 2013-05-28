@@ -2297,7 +2297,7 @@ void fabrik_t::recalc_factory_status()
 	char status_ein;
 	char status_aus;
 
-	recalc_nearby_halts();
+	//recalc_nearby_halts();
 	int haltcount = nearby_freight_halts.get_count();
 
 	// set bits for input
