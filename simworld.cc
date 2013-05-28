@@ -1925,6 +1925,13 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 			}
 		}
 	}
+	// After refreshing the haltlists for the map,
+	// refresh the haltlist for all factories.
+	// Don't try to be clever; we don't do map enlargements often.
+	FOR(vector_tpl<fabrik_t*>, const fab, fab_list)
+	{
+		fab->recalc_nearby_halts();
+	}
 	clear_random_mode( MAP_CREATE_RANDOM );
 
 	if ( old_x != 0 ) {

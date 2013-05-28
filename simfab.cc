@@ -342,7 +342,6 @@ void fabrik_t::update_scaled_pax_demand()
 	// first, scaling based on current production base
 	const sint64 prod = besch->get_produktivitaet() > 0 ? besch->get_produktivitaet() : 1;
 	const sint64 besch_pax_demand = ( besch->get_pax_demand()==65535 ? besch->get_pax_level() : besch->get_pax_demand() );
-
 	// formula : besch_pax_demand * (current_production_base / besch_production_base); (prod >> 1) is for rounding
 	const uint32 pax_demand = (uint32)( ( besch_pax_demand * (sint64)prodbase + (prod >> 1) ) / prod );
 	// then, scaling based on month length
@@ -359,10 +358,6 @@ void fabrik_t::update_scaled_pax_demand()
 	else {
 		scaled_pax_demand = pax_demand;
 	}
-
-	// Adjust for meters per tile
-	scaled_pax_demand = (scaled_pax_demand * (uint32)welt->get_settings().get_meters_per_tile()) / 2000;
-
 	// pax demand for fixed period length
 	arrival_stats_pax.set_scaled_demand( pax_demand );
 }
@@ -389,10 +384,6 @@ void fabrik_t::update_scaled_mail_demand()
 	else {
 		scaled_mail_demand = mail_demand;
 	}
-
-	// Adjust for meters per tile
-	scaled_mail_demand = (scaled_mail_demand * (uint32)welt->get_settings().get_meters_per_tile()) / 2000;
-
 	// mail demand for fixed period length
 	arrival_stats_mail.set_scaled_demand( mail_demand );
 }
@@ -715,6 +706,8 @@ fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
 				}
 			}
 		}
+		// Must rebuild the nearby halt database
+		recalc_nearby_halts();
 	}
 }
 
@@ -844,6 +837,7 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 	update_scaled_pax_demand();
 	update_scaled_mail_demand();
 	mark_connected_roads(false);
+	recalc_nearby_halts();
 }
 
 void fabrik_t::mark_connected_roads(bool del)
@@ -1878,8 +1872,6 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 		return;
 	}
 
-	// Check *all* tiles for nearby stops.
-	recalc_nearby_halts();
 	if(nearby_freight_halts.empty())
 	{
 		return;
@@ -2297,7 +2289,6 @@ void fabrik_t::recalc_factory_status()
 	char status_ein;
 	char status_aus;
 
-	//recalc_nearby_halts();
 	int haltcount = nearby_freight_halts.get_count();
 
 	// set bits for input

@@ -237,12 +237,6 @@ private:
 	vector_tpl<nearby_halt_t> nearby_mail_halts;
 
 	/**
-	 * Recalculate nearby halts
-	 * @author neroden
-	 */
-	void recalc_nearby_halts();
-
-	/**
 	 * Bauposition gedreht?
 	 * Building position turned?
 	 * @author V.Meyer
@@ -482,6 +476,14 @@ public:
 	bool is_active_lieferziel( koord k ) const;
 
 	const vector_tpl<koord>& get_suppliers() const { return suppliers; }
+
+	/**
+	 * Recalculate nearby halts
+	 * These are stashed, so must be recalced when
+	 * halts are built or destroyed
+	 * @author neroden
+	 */
+	void recalc_nearby_halts();
 
 	/**
 	 * Functions for manipulating the list of connected cities
