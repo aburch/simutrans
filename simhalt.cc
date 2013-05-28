@@ -573,11 +573,11 @@ haltestelle_t::~haltestelle_t()
 			if(plan->get_haltlist_count()>0) {
 				plan->remove_from_haltlist( welt, self );
 			}
-			const grunt_t* gr = plan->get_kartenboden();
+			const grund_t* gr = plan->get_kartenboden();
 			// If there's a factory here, add it to the working list
 			const gebaeude_t* gb = gr->find<gebaeude_t>();
 			if (gb) {
-				const fabrik_t* fab = gb->get_fabrik();
+				fabrik_t* fab = gb->get_fabrik();
 				if (fab && !affected_fab_list.is_contained(fab) ) {
 					affected_fab_list.append(fab);
 				}
@@ -3524,12 +3524,12 @@ bool haltestelle_t::add_grund(grund_t *gr)
 			planquadrat_t *plan = welt->access(p);
 			if(plan) {
 				plan->add_to_haltlist( self );
-				const grunt_t* gr = plan->get_kartenboden();
+				const grund_t* gr = plan->get_kartenboden();
 				gr->set_flag(grund_t::dirty);
 				// If there's a factory here, add it to the working list
 				const gebaeude_t* gb = gr->find<gebaeude_t>();
 				if (gb) {
-					const fabrik_t* fab = gb->get_fabrik();
+					fabrik_t* fab = gb->get_fabrik();
 					if (fab && !affected_fab_list.is_contained(fab) ) {
 						affected_fab_list.append(fab);
 					}
@@ -3671,7 +3671,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 					// If there's a factory here, add it to the working list
 					const gebaeude_t* gb = gr->find<gebaeude_t>();
 					if (gb) {
-						const fabrik_t* fab = gb->get_fabrik();
+						fabrik_t* fab = gb->get_fabrik();
 						if (fab && !affected_fab_list.is_contained(fab) ) {
 							affected_fab_list.append(fab);
 						}
