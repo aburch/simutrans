@@ -307,14 +307,10 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb ) //gebae
 						if(gb_part->get_tile()  ==  hb->get_tile(layout, k.x, k.y)) {
 							gb_part->set_fab( NULL );
 							planquadrat_t *plan = welt->access( k+pos.get_2d() );
-							for (size_t i = plan->get_haltlist_count(); i-- != 0;) 
-							{
+							// Remove factory from the halt's list of factories
+							for (size_t i = plan->get_haltlist_count(); i-- != 0;) {
 								nearby_halt_t nearby_halt = plan->get_haltlist()[i];
-								if(nearby_halt.distance <= welt->get_settings().get_station_coverage_factories())
-								{
-									nearby_halt.halt->remove_fabriken(fab);
-									plan->remove_from_haltlist(welt, nearby_halt.halt);
-								}
+								nearby_halt.halt->remove_fabriken(fab);
 							}
 						}
 					}

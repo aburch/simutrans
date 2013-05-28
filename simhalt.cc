@@ -562,6 +562,7 @@ haltestelle_t::~haltestelle_t()
 
 	// remove from all haltlists
 	uint16 const cov = welt->get_settings().get_station_coverage();
+	vector_tpl<fabrik_t*> affected_fab_list;
 	ul.x = max(0, ul.x - cov);
 	ul.y = max(0, ul.y - cov);
 	lr.x = min(welt->get_size().x, lr.x + 1 + cov);
@@ -572,7 +573,20 @@ haltestelle_t::~haltestelle_t()
 			if(plan->get_haltlist_count()>0) {
 				plan->remove_from_haltlist( welt, self );
 			}
+			const grunt_t* gr = plan->get_kartenboden();
+			// If there's a factory here, add it to the working list
+			const gebaeude_t* gb = gr->find<gebaeude_t>();
+			if (gb) {
+				const fabrik_t* fab = gb->get_fabrik();
+				if (fab && !affected_fab_list.is_contained(fab) ) {
+					affected_fab_list.append(fab);
+				}
+			}
 		}
+	}
+	// Recalculate nearby halt lists for affected fabs.
+	FOR(vector_tpl<fabrik_t*>, fab, affected_fab_list) {
+		fab->recalc_nearby_halts();
 	}
 
 	destroy_win( magic_halt_info + self.get_id() );
@@ -3502,6 +3516,7 @@ bool haltestelle_t::add_grund(grund_t *gr)
 
 	// appends this to the ground
 	// after that, the surrounding ground will know of this station
+	vector_tpl<fabrik_t*> affected_fab_list;
 	int const cov = welt->get_settings().get_station_coverage();
 	for (int y = -cov; y <= cov; y++) {
 		for (int x = -cov; x <= cov; x++) {
@@ -3509,13 +3524,28 @@ bool haltestelle_t::add_grund(grund_t *gr)
 			planquadrat_t *plan = welt->access(p);
 			if(plan) {
 				plan->add_to_haltlist( self );
-				plan->get_kartenboden()->set_flag(grund_t::dirty);
+				const grunt_t* gr = plan->get_kartenboden();
+				gr->set_flag(grund_t::dirty);
+				// If there's a factory here, add it to the working list
+				const gebaeude_t* gb = gr->find<gebaeude_t>();
+				if (gb) {
+					const fabrik_t* fab = gb->get_fabrik();
+					if (fab && !affected_fab_list.is_contained(fab) ) {
+						affected_fab_list.append(fab);
+					}
+				}
 			}
 		}
 	}
 	welt->access(pos)->set_halt(self);
 
-	// since suddenly other factories may be connect to us too
+	// Update nearby factories' lists of connected halts.
+	// Must be done AFTER updating the planquadrats
+	FOR (vector_tpl<fabrik_t*>, fab, affected_fab_list)
+	{
+		fab->recalc_nearby_halts();
+	}
+	// Update our list of factories...
 	verbinde_fabriken();
 
 	// check if we have to register line(s) and/or lineless convoy(s) which serve this halt
@@ -3630,14 +3660,28 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 		}
 
 		int const cov = welt->get_settings().get_station_coverage();
+		vector_tpl<fabrik_t*> affected_fab_list;
 		for (int y = -cov; y <= cov; y++) {
 			for (int x = -cov; x <= cov; x++) {
 				planquadrat_t *pl = welt->access( gr->get_pos().get_2d()+koord(x,y) );
 				if(pl) {
 					pl->remove_from_haltlist(welt,self);
 					pl->get_kartenboden()->set_flag(grund_t::dirty);
+					const grunt_t* gr = plan->get_kartenboden();
+					// If there's a factory here, add it to the working list
+					const gebaeude_t* gb = gr->find<gebaeude_t>();
+					if (gb) {
+						const fabrik_t* fab = gb->get_fabrik();
+						if (fab && !affected_fab_list.is_contained(fab) ) {
+							affected_fab_list.append(fab);
+						}
+					}
 				}
 			}
+		}
+		// Recalculate nearby halt lists for affected fabs.
+		FOR(vector_tpl<fabrik_t*>, fab, affected_fab_list) {
+			fab->recalc_nearby_halts();
 		}
 
 		// factory reach may have been changed ...

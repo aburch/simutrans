@@ -706,6 +706,8 @@ fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
 				}
 			}
 		}
+		// Must rebuild the nearby halt database
+		recalc_nearby_halts();
 	}
 }
 
@@ -835,6 +837,7 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 	update_scaled_pax_demand();
 	update_scaled_mail_demand();
 	mark_connected_roads(false);
+	recalc_nearby_halts();
 }
 
 void fabrik_t::mark_connected_roads(bool del)
@@ -2286,7 +2289,6 @@ void fabrik_t::recalc_factory_status()
 	char status_ein;
 	char status_aus;
 
-	recalc_nearby_halts();
 	int haltcount = nearby_freight_halts.get_count();
 
 	// set bits for input
