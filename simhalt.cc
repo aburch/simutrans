@@ -2253,7 +2253,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 
 	// have we arrived?
 	const planquadrat_t* plan = welt->lookup(ware.get_zielpos());
-	if(plan && plan->get_connected(self) <= welt->get_settings().get_station_coverage_factories()) 
+	if(plan && (!ware.is_freight() || plan->get_connected(self) <= welt->get_settings().get_station_coverage_factories() )) 
 	{
 		if(ware.to_factory) 
 		{
@@ -3668,9 +3668,9 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 			for (int x = -cov; x <= cov; x++) {
 				planquadrat_t *plan = welt->access( gr->get_pos().get_2d()+koord(x,y) );
 				if(pl) {
-					plan->remove_from_haltlist(welt,self);
-					plan->get_kartenboden()->set_flag(grund_t::dirty);
-					const grund_t* gr = plan->get_kartenboden();
+					pl->remove_from_haltlist(welt,self);
+					pl->get_kartenboden()->set_flag(grund_t::dirty);
+					const grund_t* gr = pl->get_kartenboden();
 					// If there's a factory here, add it to the working list
 					const gebaeude_t* gb = gr->find<gebaeude_t>();
 					if (gb) {
