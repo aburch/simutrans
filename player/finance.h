@@ -13,7 +13,8 @@
 #include "../simworld.h"
 
 /// for compatibility with old versions
-#define OLD_MAX_PLAYER_COST (19)
+/// Must be different in experimental!
+#define OLD_MAX_PLAYER_COST (21)
 
 /// number of years to keep history
 #define MAX_PLAYER_HISTORY_YEARS  (25)

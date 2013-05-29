@@ -317,6 +317,10 @@ void finance_t::rdwr(loadsave_t *file)
 	// detailed statistic were introduced in this version
 	if( file->get_version() < 112005 ) {
 		rdwr_compatibility(file);
+		if ( file->is_loading() ) {
+			// Loaded hard credit limit will be wrong, fix it quick to avoid bankruptcies
+			recalc_credit_limits();
+		}
 		return;
 	}
 
@@ -513,7 +517,9 @@ enum player_cost {
 	COST_ALL_CONVOIS,		// number of convois
 	COST_SCENARIO_COMPLETED,// scenario success (only useful if there is one ... )
 	COST_WAY_TOLLS,
-	// OLD_MAX_PLAYER_COST = 19
+	COST_INTEREST,		// From experimental
+	COST_CREDIT_LIMIT	// From experimental
+	// OLD_MAX_PLAYER_COST = 21
 };
 
 
@@ -539,6 +545,8 @@ int finance_t::translate_index_cost_to_atc(const int cost_index)
 		ATC_ALL_CONVOIS,        // COST_ALL_CONVOIS
 		ATC_SCENARIO_COMPLETED, // COST_SCENARIO_COMPLETED,// scenario success (only useful if there is one ... )
 		-1,		// COST_WAY_TOLLS,
+		ATC_INTEREST,		// COST_INTEREST
+		ATC_SOFT_CREDIT_LIMIT,		// COST_CREDIT_LIMIT
 		ATC_MAX		// OLD_MAX_PLAYER_COST
 	};
 
@@ -569,6 +577,8 @@ int finance_t::translate_index_cost_to_at(int cost_index) {
 		-2,                     // COST_ALL_CONVOIS
 		-2,                     // COST_SCENARIO_COMPLETED,// scenario success (only useful if there is one ... )
 		ATV_WAY_TOLL,           // COST_WAY_TOLLS,
+		-2,						// COST_INTEREST,
+		-2,						// COST_CREDIT_LIMIT
 		ATV_MAX                 // OLD_MAX_PLAYER_COST
 	};
 
@@ -599,6 +609,8 @@ void finance_t::export_to_cost_month(sint64 finance_history_month[][OLD_MAX_PLAY
 		finance_history_month[i][COST_ALL_CONVOIS]      = com_month[i][ATC_ALL_CONVOIS];
 		finance_history_month[i][COST_SCENARIO_COMPLETED] = com_month[i][ATC_SCENARIO_COMPLETED];
 		finance_history_month[i][COST_WAY_TOLLS]        = veh_month[TT_ALL][i][ATV_WAY_TOLL];
+		finance_history_month[i][COST_INTEREST]			= com_month[i][ATC_INTEREST];
+		finance_history_month[i][COST_CREDIT_LIMIT]		= com_month[i][ATC_SOFT_CREDIT_LIMIT];
 	}
 }
 
@@ -626,6 +638,8 @@ void finance_t::export_to_cost_year( sint64 finance_history_year[][OLD_MAX_PLAYE
 		finance_history_year[i][COST_ALL_CONVOIS]      = com_year[i][ATC_ALL_CONVOIS];
 		finance_history_year[i][COST_SCENARIO_COMPLETED] = com_year[i][ATC_SCENARIO_COMPLETED];
 		finance_history_year[i][COST_WAY_TOLLS]        = veh_year[TT_ALL][i][ATV_WAY_TOLL];
+		finance_history_year[i][COST_INTEREST]			= com_year[i][ATC_INTEREST];
+		finance_history_year[i][COST_CREDIT_LIMIT]		= com_year[i][ATC_SOFT_CREDIT_LIMIT];
 	}
 }
 
@@ -677,6 +691,8 @@ void finance_t::import_from_cost_month(const sint64 finance_history_month[][OLD_
 		}
 		veh_month[TT_OTHER][i][ATV_WAY_TOLL] = finance_history_month[i][COST_WAY_TOLLS];
 		veh_month[TT_ALL  ][i][ATV_WAY_TOLL] = finance_history_month[i][COST_WAY_TOLLS];
+		com_month[i][ATC_INTEREST] = finance_history_month[i][COST_INTEREST];
+		com_month[i][ATC_CREDIT_LIMIT] = finance_history_month[i][COST_CREDIT_LIMIT];
 	}
 }
 
@@ -728,6 +744,8 @@ void finance_t::import_from_cost_year( const sint64 finance_history_year[][OLD_M
 		}
 		veh_year[TT_OTHER][i][ATV_WAY_TOLL] = finance_history_year[i][COST_WAY_TOLLS];
 		veh_year[TT_ALL  ][i][ATV_WAY_TOLL] = finance_history_year[i][COST_WAY_TOLLS];
+		com_year[i][ATC_INTEREST] = finance_history_year[i][COST_INTEREST];
+		com_year[i][ATC_CREDIT_LIMIT] = finance_history_year[i][COST_CREDIT_LIMIT];
 	}
 }
 
@@ -816,7 +834,7 @@ void finance_t::rdwr_compatibility(loadsave_t *file)
 			}
 		}
 	}
-	else if(  file->get_version()<=102002  ) {
+	else if(  file->get_version()<=102002 && file->get_experimental_version <= 1 ) {
 		// saved everything
 		for (int year = 0;year<OLD_MAX_PLAYER_HISTORY_YEARS;year++) {
 			for (int cost_type = 0; cost_type<18; cost_type++) {
@@ -829,7 +847,25 @@ void finance_t::rdwr_compatibility(loadsave_t *file)
 			}
 		}
 	}
-	else if(  file->get_version()<=110006  ) {
+	else if(  file->get_version()<=102002  ) {
+		// saved everything
+		// Experimental had INTEREST, CREDIT_LIMIT
+		for (int year = 0;year<OLD_MAX_PLAYER_HISTORY_YEARS;year++) {
+			for (int cost_type = 0; cost_type<21; cost_type++) {
+				if (cost_type != COST_WAY_TOLLS) {
+					file->rdwr_longlong(finance_history_year[year][cost_type]);
+				}
+			}
+		}
+		for (int month = 0;month<OLD_MAX_PLAYER_HISTORY_MONTHS;month++) {
+			for (int cost_type = 0; cost_type<21; cost_type++) {
+				if (cost_type != COST_WAY_TOLLS) {
+					file->rdwr_longlong(finance_history_month[month][cost_type]);
+				}
+			}
+		}
+	}
+	else if(  file->get_version()<=110006  && file->get_experimental_version()<=1  ) {
 		// only save what is needed
 		for(int year = 0;  year<OLD_MAX_PLAYER_HISTORY_YEARS;  year++  ) {
 			for(  int cost_type = 0;   cost_type<18;   cost_type++  ) {
@@ -846,25 +882,87 @@ void finance_t::rdwr_compatibility(loadsave_t *file)
 			}
 		}
 	}
-	else if (  file->get_version() < 112005  ) {
-		// savegame version: now with toll
+	else if(  file->get_version()<=110006 && file->get_experimental_version()<=10 ) {
+		// only save what is needed
+		// Experimental had INTEREST, CREDIT_LIMIT
 		for(int year = 0;  year<OLD_MAX_PLAYER_HISTORY_YEARS;  year++  ) {
-			for(  int cost_type = 0;   cost_type<OLD_MAX_PLAYER_COST;   cost_type++  ) {
+			for(  int cost_type = 0;   cost_type<21;   cost_type++  ) {
+				if(  cost_type<COST_NETWEALTH  ||  cost_type>COST_MARGIN  ) {
+					if (cost_type != COST_WAY_TOLLS) {
+						file->rdwr_longlong(finance_history_year[year][cost_type]);
+					}
+				}
+			}
+		}
+		for (int month = 0;month<OLD_MAX_PLAYER_HISTORY_MONTHS;month++) {
+			for (int cost_type = 0; cost_type<21; cost_type++) {
+				if(  cost_type<COST_NETWEALTH  ||  cost_type>COST_MARGIN  ) {
+					if (cost_type != COST_WAY_TOLLS) {
+						file->rdwr_longlong(finance_history_month[month][cost_type]);
+					}
+				}
+			}
+		}
+	}
+	else if(  file->get_version()<=110006 ) {
+		// only save what is needed
+		// Experimental had WAY_TOLLS, INTEREST, CREDIT_LIMIT
+		for(int year = 0;  year<OLD_MAX_PLAYER_HISTORY_YEARS;  year++  ) {
+			for(  int cost_type = 0;   cost_type<21;   cost_type++  ) {
 				if(  cost_type<COST_NETWEALTH  ||  cost_type>COST_MARGIN  ) {
 					file->rdwr_longlong(finance_history_year[year][cost_type]);
 				}
 			}
 		}
 		for (int month = 0;month<OLD_MAX_PLAYER_HISTORY_MONTHS;month++) {
-			for (int cost_type = 0; cost_type<OLD_MAX_PLAYER_COST; cost_type++) {
+			for (int cost_type = 0; cost_type<21; cost_type++) {
 				if(  cost_type<COST_NETWEALTH  ||  cost_type>COST_MARGIN  ) {
 					file->rdwr_longlong(finance_history_month[month][cost_type]);
 				}
 			}
 		}
 	}
+	else if (  file->get_version() < 112005  && file->get_experimental_version() <= 1  ) {
+		// savegame version: now with toll
+		for(int year = 0;  year<OLD_MAX_PLAYER_HISTORY_YEARS;  year++  ) {
+			for(  int cost_type = 0;   cost_type<19;   cost_type++  ) {
+				if(  cost_type<COST_NETWEALTH  ||  cost_type>COST_MARGIN  ) {
+					file->rdwr_longlong(finance_history_year[year][cost_type]);
+				}
+			}
+		}
+		for (int month = 0;month<OLD_MAX_PLAYER_HISTORY_MONTHS;month++) {
+			for (int cost_type = 0; cost_type<19; cost_type++) {
+				if(  cost_type<COST_NETWEALTH  ||  cost_type>COST_MARGIN  ) {
+					file->rdwr_longlong(finance_history_month[month][cost_type]);
+				}
+			}
+		}
+	}
+	else if (  file->get_version() < 112005 ) {
+		// savegame version: now with toll
+		// Experimental also had INTEREST, CREDIT_LIMIT
+		for(int year = 0;  year<OLD_MAX_PLAYER_HISTORY_YEARS;  year++  ) {
+			for(  int cost_type = 0;   cost_type<21;   cost_type++  ) {
+				if(  cost_type<COST_NETWEALTH  ||  cost_type>COST_MARGIN  ) {
+					file->rdwr_longlong(finance_history_year[year][cost_type]);
+				}
+			}
+		}
+		for (int month = 0;month<OLD_MAX_PLAYER_HISTORY_MONTHS;month++) {
+			for (int cost_type = 0; cost_type<21; cost_type++) {
+				if(  cost_type<COST_NETWEALTH  ||  cost_type>COST_MARGIN  ) {
+					file->rdwr_longlong(finance_history_month[month][cost_type]);
+				}
+			}
+		}
+	}
+	else if (  file->get_version() >= 112005  ) {
+		// We should not get here in compatibility loading mode
+		assert(false);
+	}
 
-	if(  file->get_version()>102002  ) {
+	if(  file->get_version()>102002  && file->get_experimental_version() != 7  ) {
 		file->rdwr_longlong(starting_money);
 	}
 
