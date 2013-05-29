@@ -319,7 +319,7 @@ void finance_t::rdwr(loadsave_t *file)
 		rdwr_compatibility(file);
 		if ( file->is_loading() ) {
 			// Loaded hard credit limit will be wrong, fix it quick to avoid bankruptcies
-			recalc_credit_limits();
+			calc_credit_limits();
 		}
 		return;
 	}
@@ -692,7 +692,7 @@ void finance_t::import_from_cost_month(const sint64 finance_history_month[][OLD_
 		veh_month[TT_OTHER][i][ATV_WAY_TOLL] = finance_history_month[i][COST_WAY_TOLLS];
 		veh_month[TT_ALL  ][i][ATV_WAY_TOLL] = finance_history_month[i][COST_WAY_TOLLS];
 		com_month[i][ATC_INTEREST] = finance_history_month[i][COST_INTEREST];
-		com_month[i][ATC_CREDIT_LIMIT] = finance_history_month[i][COST_CREDIT_LIMIT];
+		com_month[i][ATC_SOFT_CREDIT_LIMIT] = finance_history_month[i][COST_CREDIT_LIMIT];
 	}
 }
 
@@ -745,7 +745,7 @@ void finance_t::import_from_cost_year( const sint64 finance_history_year[][OLD_M
 		veh_year[TT_OTHER][i][ATV_WAY_TOLL] = finance_history_year[i][COST_WAY_TOLLS];
 		veh_year[TT_ALL  ][i][ATV_WAY_TOLL] = finance_history_year[i][COST_WAY_TOLLS];
 		com_year[i][ATC_INTEREST] = finance_history_year[i][COST_INTEREST];
-		com_year[i][ATC_CREDIT_LIMIT] = finance_history_year[i][COST_CREDIT_LIMIT];
+		com_year[i][ATC_SOFT_CREDIT_LIMIT] = finance_history_year[i][COST_CREDIT_LIMIT];
 	}
 }
 
@@ -834,7 +834,7 @@ void finance_t::rdwr_compatibility(loadsave_t *file)
 			}
 		}
 	}
-	else if(  file->get_version()<=102002 && file->get_experimental_version <= 1 ) {
+	else if(  file->get_version()<=102002 && file->get_experimental_version() <= 1 ) {
 		// saved everything
 		for (int year = 0;year<OLD_MAX_PLAYER_HISTORY_YEARS;year++) {
 			for (int cost_type = 0; cost_type<18; cost_type++) {
