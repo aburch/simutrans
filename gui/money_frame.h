@@ -20,7 +20,7 @@
 #include "../player/finance.h"
 #include "../player/simplay.h"
 
-#define MAX_PLAYER_COST_BUTTON (17)
+#define MAX_PLAYER_COST_BUTTON (16)
 
 /**
  * Finances dialog

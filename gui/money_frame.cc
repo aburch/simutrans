@@ -92,8 +92,7 @@ const COLOR_VAL money_frame_t::cost_type_color[MAX_PLAYER_COST_BUTTON] =
 	COL_WEALTH,
 	COL_INTEREST,
 	COL_SOFT_CREDIT_LIMIT,
-	COL_HARD_CREDIT_LIMIT,
-	COL_PURPLE
+	COL_HARD_CREDIT_LIMIT
 };
 
 
@@ -234,6 +233,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		tmoney(NULL, COL_WHITE, gui_label_t::money),
 		mmoney(NULL, COL_WHITE, gui_label_t::money),
 		omoney(NULL, COL_WHITE, gui_label_t::money),
+		interest(NULL, COL_WHITE, gui_label_t::money),
 		old_conmoney(NULL, COL_WHITE, gui_label_t::money),
 		old_nvmoney(NULL, COL_WHITE, gui_label_t::money),
 		old_vrmoney(NULL, COL_WHITE, gui_label_t::money),
@@ -241,15 +241,14 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		old_tmoney(NULL, COL_WHITE, gui_label_t::money),
 		old_mmoney(NULL, COL_WHITE, gui_label_t::money),
 		old_omoney(NULL, COL_WHITE, gui_label_t::money),
-		soft_credit_limit(NULL, COL_WHITE, gui_label_t::money),
-		hard_credit_limit(NULL, COL_WHITE, gui_label_t::money),
-		interest(NULL, COL_WHITE, gui_label_t::money),
 		old_interest(NULL, COL_WHITE, gui_label_t::money),
 		tylabel2("This Year", COL_WHITE, gui_label_t::right),
 		gtmoney(NULL, COL_WHITE, gui_label_t::money),
 		vtmoney(NULL, COL_WHITE, gui_label_t::money),
 		money(NULL, COL_WHITE, gui_label_t::money),
 		margin(NULL, COL_WHITE, gui_label_t::money),
+		soft_credit_limit(NULL, COL_WHITE, gui_label_t::money),
+		hard_credit_limit(NULL, COL_WHITE, gui_label_t::money),
 		transport(NULL, COL_WHITE, gui_label_t::right),
 		old_transport(NULL, COL_WHITE, gui_label_t::right),
 		toll(NULL, COL_WHITE, gui_label_t::money),
@@ -313,8 +312,6 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	vtmoney.set_pos(koord(left+140+335+55, top+7*BUTTONSPACE-12));
 	margin.set_pos(koord(left+140+335+55, top+8*BUTTONSPACE-12));
 	money.set_pos(koord(left+140+335+55, top+9*BUTTONSPACE-12));
-	soft_credit_limit.set_pos(koord(left+140+335+55, top+10*BUTTONSPACE-12));
-	hard_credit_limit.set_pos(koord(left+140+335+55, top+11*BUTTONSPACE-12));
 
 	// return money or else stuff ...
 	warn.set_pos(koord(left+335, top+10*BUTTONSPACE));
