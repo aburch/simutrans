@@ -372,19 +372,21 @@ public:
 	 */
 	inline bool can_afford(sint64 price) const
 	{
-		if (price <= account_balance + get_soft_credit_limit() ) return true;
+		if (account_balance - price >= get_soft_credit_limit() ) return true;
 		else if ( world->get_settings().insolvent_purchases_allowed() ) return true;
 		else if ( world->get_settings().is_freeplay() ) return true;
 		else return false;
 	}
 
 	/**
-	 * Upon exceeding this credit limit, the player cannot purchase new things.
+	 * This is a negative number.  Upon having an account balance more negative than this,
+	 * the player cannot purchase new things.
 	 */
 	inline sint64 get_soft_credit_limit() const { return com_month[0][ATC_SOFT_CREDIT_LIMIT]; }
 
 	/**
-	 * Upon exceeding this credit limit, the player goes bankrupt and is shut down.
+	 * This is a negative number.  Upon having an account balance more negative than this,
+	 * the player goes bankrupt and is shut down.
 	 */
 	inline sint64 get_hard_credit_limit() const { return com_month[0][ATC_HARD_CREDIT_LIMIT]; }
 

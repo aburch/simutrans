@@ -365,6 +365,7 @@ bool spieler_t::neuer_monat()
 	calc_assets();
 
 	// After recalculating the assets, recalculate the credit limits
+	// Credit limits are NEGATIVE numbers
 	finance->calc_credit_limits();
 
 	finance->calc_finance_history(); // Recalc after calc_assets
@@ -380,7 +381,7 @@ bool spieler_t::neuer_monat()
 		finance->increase_account_overdrawn();
 		if(!welt->get_settings().is_freeplay() && player_nr != 1 /* public player*/ ) {
 			if( welt->get_active_player_nr() == player_nr ) {
-				if(  account_balance < -finance->get_hard_credit_limit() && welt->get_settings().bankruptcy_allowed() && !umgebung_t::networkmode )
+				if(  account_balance < finance->get_hard_credit_limit() && welt->get_settings().bankruptcy_allowed() && !umgebung_t::networkmode )
 				{
 					destroy_all_win(true);
 					create_win( display_get_width()/2-128, 40, new news_img("Bankrott:\n\nDu bist bankrott.\n"), w_info, magic_none);
@@ -406,7 +407,7 @@ bool spieler_t::neuer_monat()
 					{
 						buf.printf(translator::translate("\n\nInterest on your debt is\naccumulating at %i %%"),welt->get_settings().get_interest_rate_percent() );
 					}
-					if(  account_balance < -finance->get_soft_credit_limit()  ) {
+					if(  account_balance < finance->get_soft_credit_limit()  ) {
 						buf.printf( translator::translate("\n\nYou have exceeded your credit limit!") );
 					}
 					welt->get_message()->add_message( buf, koord::invalid, message_t::problems, player_nr, IMG_LEER );
@@ -418,7 +419,7 @@ bool spieler_t::neuer_monat()
 			else  // Not the active player
 			{
 				// AI players play by the same rules as human players regarding bankruptcy.
-				if(  account_balance < -finance->get_hard_credit_limit() && welt->get_settings().bankruptcy_allowed() ) {
+				if(  account_balance < finance->get_hard_credit_limit() && welt->get_settings().bankruptcy_allowed() ) {
 					ai_bankrupt();
 				}
 			}

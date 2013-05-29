@@ -185,7 +185,7 @@ bool finance_t::is_bankrupted() const
 {
 	// Must have no convois and no infrastructure as well as being "bust"
 	return (
-		account_balance < -( com_month[0][ATC_HARD_CREDIT_LIMIT] )  &&
+		account_balance < ( com_month[0][ATC_HARD_CREDIT_LIMIT] )  &&
 		veh_year[TT_ALL][0][ATV_INFRASTRUCTURE_MAINTENANCE] == 0  &&
 		maintenance[TT_ALL] == 0  &&
 		com_year[0][ATC_ALL_CONVOIS] == 0
@@ -243,9 +243,9 @@ void finance_t::calc_credit_limits() {
 	sint64 hard_limit_by_profits = credit_limit_by_profits();
 	sint64 hard_limit_by_assets = credit_limit_by_assets();
 
-	// The player gets the better of the two credit limits.
-	sint64 hard_credit_limit = max(hard_limit_by_profits, hard_limit_by_assets);
-	assert(hard_credit_limit >= 0);
+	// The player gets the better of the two credit limits.  Remember that they are negative.
+	sint64 hard_credit_limit = min(hard_limit_by_profits, hard_limit_by_assets);
+	assert(hard_credit_limit <= 0);
 
 	// Soft credit limit is a percentage of the hard credit limit
 	// This percentage will be set by settings -- FIXME LATER
@@ -253,6 +253,7 @@ void finance_t::calc_credit_limits() {
 
 	// Don't worry about exact computations here.
 	sint64 soft_credit_limit = (hard_credit_limit / 100) * soft_credit_limit_percent;
+	assert(soft_credit_limit <= 0);
 
 	com_month[0][ATC_HARD_CREDIT_LIMIT] = hard_credit_limit;
 	com_month[0][ATC_SOFT_CREDIT_LIMIT] = soft_credit_limit;
@@ -287,7 +288,7 @@ sint64 finance_t::credit_limit_by_profits() const {
 	sint64 interest_rate = world->get_settings().get_interest_rate_percent();
 	// *Divide* by the interest rate: if all the profits went to interest,
 	// this tells us how much debt (principal) we could pay interest on
-	sint64 hard_limit_by_profits = (profit_total * 100ll) / interest_rate;
+	sint64 hard_limit_by_profits = - (profit_total * 100ll) / interest_rate;
 	// The following deals with recurring losses;
 	// It also deals (badly) with overflow errors.
 	if (hard_limit_by_profits > 0) {
@@ -303,7 +304,7 @@ sint64 finance_t::credit_limit_by_profits() const {
  */
 sint64 finance_t::credit_limit_by_assets() const {
 	// Can borrow against potentially all assets.
-	sint64 hard_limit_by_assets = get_history_veh_month(TT_ALL, 0, ATV_NON_FINANCIAL_ASSETS);
+	sint64 hard_limit_by_assets = - get_history_veh_month(TT_ALL, 0, ATV_NON_FINANCIAL_ASSETS);
 	// The following deals with potential bugs.
     if (hard_limit_by_assets > 0) {
         hard_limit_by_assets = 0;
@@ -610,7 +611,7 @@ void finance_t::export_to_cost_month(sint64 finance_history_month[][OLD_MAX_PLAY
 		finance_history_month[i][COST_SCENARIO_COMPLETED] = com_month[i][ATC_SCENARIO_COMPLETED];
 		finance_history_month[i][COST_WAY_TOLLS]        = veh_month[TT_ALL][i][ATV_WAY_TOLL];
 		finance_history_month[i][COST_INTEREST]			= com_month[i][ATC_INTEREST];
-		finance_history_month[i][COST_CREDIT_LIMIT]		= com_month[i][ATC_SOFT_CREDIT_LIMIT];
+		finance_history_month[i][COST_CREDIT_LIMIT]		= - com_month[i][ATC_SOFT_CREDIT_LIMIT]; // reversed sign
 	}
 }
 
@@ -639,7 +640,7 @@ void finance_t::export_to_cost_year( sint64 finance_history_year[][OLD_MAX_PLAYE
 		finance_history_year[i][COST_SCENARIO_COMPLETED] = com_year[i][ATC_SCENARIO_COMPLETED];
 		finance_history_year[i][COST_WAY_TOLLS]        = veh_year[TT_ALL][i][ATV_WAY_TOLL];
 		finance_history_year[i][COST_INTEREST]			= com_year[i][ATC_INTEREST];
-		finance_history_year[i][COST_CREDIT_LIMIT]		= com_year[i][ATC_SOFT_CREDIT_LIMIT];
+		finance_history_year[i][COST_CREDIT_LIMIT]		= - com_year[i][ATC_SOFT_CREDIT_LIMIT]; // reversed sign
 	}
 }
 
@@ -692,7 +693,8 @@ void finance_t::import_from_cost_month(const sint64 finance_history_month[][OLD_
 		veh_month[TT_OTHER][i][ATV_WAY_TOLL] = finance_history_month[i][COST_WAY_TOLLS];
 		veh_month[TT_ALL  ][i][ATV_WAY_TOLL] = finance_history_month[i][COST_WAY_TOLLS];
 		com_month[i][ATC_INTEREST] = finance_history_month[i][COST_INTEREST];
-		com_month[i][ATC_SOFT_CREDIT_LIMIT] = finance_history_month[i][COST_CREDIT_LIMIT];
+		com_month[i][ATC_SOFT_CREDIT_LIMIT] = - finance_history_month[i][COST_CREDIT_LIMIT]; // reversed sign
+		com_month[i][ATC_HARD_CREDIT_LIMIT] = - finance_history_month[i][COST_CREDIT_LIMIT]; // doubled
 	}
 }
 
@@ -745,7 +747,8 @@ void finance_t::import_from_cost_year( const sint64 finance_history_year[][OLD_M
 		veh_year[TT_OTHER][i][ATV_WAY_TOLL] = finance_history_year[i][COST_WAY_TOLLS];
 		veh_year[TT_ALL  ][i][ATV_WAY_TOLL] = finance_history_year[i][COST_WAY_TOLLS];
 		com_year[i][ATC_INTEREST] = finance_history_year[i][COST_INTEREST];
-		com_year[i][ATC_SOFT_CREDIT_LIMIT] = finance_history_year[i][COST_CREDIT_LIMIT];
+		com_year[i][ATC_SOFT_CREDIT_LIMIT] = - finance_history_year[i][COST_CREDIT_LIMIT]; // reversed sign
+		com_year[i][ATC_HARD_CREDIT_LIMIT] = - finance_history_year[i][COST_CREDIT_LIMIT]; // reversed sign, doubled
 	}
 }
 
