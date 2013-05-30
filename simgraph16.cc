@@ -1360,7 +1360,16 @@ static void rezoom_img(const image_id n)
 			// we will upack, resample, pack it
 
 			// thus the unpack buffer must at least fit the window => find out maximum size
-			size_t new_size = newzoomwidth*(newzoomheight+6)*sizeof(PIXVAL);
+			// Note: This value is certainly way bigger than the average size we'll get,
+			// but it's the worst scenario possible, a sucession of solid - transparent - solid - transparent
+			// pattern.
+			// This whould encode EACH LINE as:
+			// 0x0000 (0 transparent) 0x0001 PIXWORD 0x0001 (every 2 pixels, 3 words) 0x0000 (EOL)
+			// The extra +1 is to make sure we cover divisions with module != 0
+			// We end with a oversized buffer for the normal usage, but since it's re-used for all rezooms,
+			// it's not performance critical and we are safe from all possible inputs.
+
+			size_t new_size = ( ( (newzoomwidth*3) / 2 ) + 1 + 2)*newzoomheight*sizeof(PIXVAL);
 			size_t unpack_size = (xl_margin+orgzoomwidth+xr_margin)*(yl_margin+orgzoomheight+yr_margin)*4;
 			if( unpack_size > new_size ) {
 				new_size = unpack_size;
