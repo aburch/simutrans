@@ -170,8 +170,8 @@ bool loadsave_t::rd_open(const char *filename)
 		return false;
 	}
 	// now check for BZ2 format
-	char buf[256];
-	if(  fread( buf, 1, 256, fd->fp )==256  ) {
+	char buf[512];
+	if(  fread( buf, 1, 512, fd->fp )==512  ) {
 		if(  buf[0]=='B'  &&  buf[1]=='Z'  ) {
 			mode = bzip2;
 		}
@@ -188,7 +188,7 @@ bool loadsave_t::rd_open(const char *filename)
 			MEMZERO(buf);
 			if(  BZ2_bzRead( &fd->bse, fd->bzfp, buf, sizeof(SAVEGAME_PREFIX) )==sizeof(SAVEGAME_PREFIX)  &&  fd->bse==BZ_OK  ) {
 				// get the rest of the string
-				for(  int i=sizeof(SAVEGAME_PREFIX);  buf[i-1]>=32  &&  i<79;  i++  ) {
+				for(  int i=sizeof(SAVEGAME_PREFIX);  buf[i-1]>=32  &&  i<511;  i++  ) {
 					buf[i] = lsgetc();
 				}
 				ok = fd->bse==BZ_OK;
@@ -208,7 +208,7 @@ bool loadsave_t::rd_open(const char *filename)
 		if(fd->gzfp==NULL) {
 			return false;
 		}
-		gzgets(fd->gzfp, buf, 256);
+		gzgets(fd->gzfp, buf, 512);
 	}
 	saving = false;
 

@@ -190,7 +190,8 @@ public:
 	*/
 	void remove_from_haltlist(karte_t *welt, halthandle_t halt);
 
-	bool is_connected(halthandle_t halt) const;
+	uint8 get_connected(halthandle_t halt) const;
+	bool is_connected(halthandle_t halt) const { return get_connected(halt) < 255; }
 
 	/**
 	* returns the internal array of halts

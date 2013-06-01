@@ -64,8 +64,8 @@ station_coverage = 6
 
 # Size of the catchment area of a station/stop in tiles.
 # This is for factories only.
-# Default: 1
-station_coverage_size_factories = 1
+# Default: 3
+station_coverage_size_factories = 3
 
 # Max number of steps in goods pathfinding
 # This should be equal or greater than the biggest group

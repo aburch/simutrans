@@ -1869,15 +1869,6 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 		return;
 	}
 
-	// not connected?
-	/*const planquadrat_t *plan = welt->lookup(pos.get_2d());
-	if(  plan == NULL  ) {
-		dbg->fatal("fabrik_t::verteile_waren", "%s has not distibution target", get_name() );
-	}
-	if(  plan->get_haltlist_count() == 0  ) {
-		return;
-	}*/
-
 	// Check *all* tiles for nearby stops.
 	vector_tpl<koord> tile_list;
 	get_tile_list(tile_list);
@@ -1895,7 +1886,10 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 				const nearby_halt_t *haltlist = plan->get_haltlist();
 				for(int i = 0; i < haltlist_count; i++)
 				{
-					halt_list.append(haltlist[i]); 
+					if(haltlist[i].distance > welt->get_settings().get_station_coverage_factories())
+					{
+						halt_list.append(haltlist[i]); 
+					}
 				}
 			}
 		}
@@ -1924,18 +1918,12 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 	 */
 	sint32 menge = min( (prodbase > 640 ? (prodbase>>6) : 10), ausgang[produkt].menge >> precision_bits );
 
-	// ok, first generate list of possible destinations
-	//const nearby_halt_t *haltlist = plan->get_haltlist();
-
-	//for(  unsigned i=0;  i<plan->get_haltlist_count();  i++  ) {
 	const uint32 count = halt_list.get_count();
-	//FOR(vector_tpl<nearby_halt_t>, const i, halt_list)
 	for(unsigned i = 0; i < count; i++)
 	{
 		nearby_halt_t nearby_halt = halt_list[(i + ausgang[produkt].index_offset) % count];
 
 		if(!nearby_halt.halt->get_ware_enabled() ||
-			nearby_halt.distance > welt->get_settings().get_station_coverage_factories() ||
 			(get_besch()->get_platzierung() == fabrik_besch_t::Wasser && (nearby_halt.halt->get_station_type() & haltestelle_t::dock) == 0))
 		{
 			continue;
@@ -1990,8 +1978,8 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 		FOR(vector_tpl<distribute_ware_t>, & i, dist_list) 
 		{
 			// now search route
-			const uint16 transfer_time = (i.nearby_halt.distance * transfer_journey_time_factor) / 100u;
-			const uint16 current_journey_time = i.nearby_halt.halt->find_route(i.ware) + transfer_time;
+			const uint32 transfer_time = ((uint32)i.nearby_halt.distance * transfer_journey_time_factor) / 100;
+			const uint32 current_journey_time = (uint32)i.nearby_halt.halt->find_route(i.ware) + transfer_time;
 			if(current_journey_time < 65535)
 			{
 				best = &i;
