@@ -272,13 +272,12 @@ void finance_t::calc_credit_limits() {
  */
 sint64 finance_t::credit_limit_by_profits() const {
 	// The idea is that yearly profits should cover yearly interest
-	// Look back 12 months (full year's profit), but not more than the max
-	int month_count;
+	// Look back 12 months (full year's profit)
 	sint64 profit_total=0;
 	// We need 12 months of history at least, not including this month
 	assert(MAX_HISTORY_PLAYER_MONTHS >= 13);
-	// Start by looking at *last* month and go back 12.
-	for(month = 1; month < min(MAX_PLAYER_HISTORY_MONTHS, 13); month++)
+	// Start by looking at *last* month and go back 12 (one year)
+	for(int month = 1; month < 13; month++)
 	{
 		// Use "profits before interest" to provide a conservative credit limit.
 		// We want operating profits, minus construction costs etc.
@@ -286,7 +285,7 @@ sint64 finance_t::credit_limit_by_profits() const {
 		// Start with profits...
 		profit_total += get_history_veh_month(TT_ALL, month, ATV_PROFIT);
 		// Then back out interest, since it's based on cash level.
-		profit_total -= get_history_veh_month(TT_ALL, month, ATV_INTEREST);
+		profit_total -= get_history_com_month(month, ATC_INTEREST);
     }
 	sint64 interest_rate = world->get_settings().get_interest_rate_percent();
 	// *Divide* by the interest rate: if all the profits went to interest,
