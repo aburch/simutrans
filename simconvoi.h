@@ -1338,14 +1338,16 @@ public:
 	// taking into account any catering.
 	uint8 get_comfort() const;
 
-	// The new revenue calculation method for per-leg
-	// based revenue calculation, rather than per-hop
-	// based revenue calculation. This method calculates
-	// the revenue of a ware packet unloaded, rather
-	// than iterating through each ware packet in each
-	// vehicle in the convoy.
-	// @author: jamespetts
-	sint64 calc_revenue(ware_t &ware);
+	/** The new revenue calculation method for per-leg
+	 * based revenue calculation, rather than per-hop
+	 * based revenue calculation. This method calculates
+	 * the revenue of a ware packet as it is unloaded.
+	 *
+	 * It also calculates allocations of revenue to different
+	 * players based on track usage.
+	 * @author: jamespetts, neroden, Knightly
+	 */
+	sint64 calc_revenue(const ware_t &ware, array_tpl<sint64> & apportioned_revenues);
 
 	// @author: jamespetts
 	static uint16 calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance, karte_t* w);

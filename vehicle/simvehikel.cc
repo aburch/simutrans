@@ -793,7 +793,7 @@ void vehikel_t::set_convoi(convoi_t *c)
  * @author Hj. Malthaner
  */
 uint16
-vehikel_t::unload_freight(halthandle_t halt, sint64 & revenue_from_unloading)
+vehikel_t::unload_freight(halthandle_t halt, sint64 & revenue_from_unloading, array_tpl<sint64> & apportioned_revenues)
 {
 	uint16 sum_menge = 0, sum_delivered = 0, index = 0;
 	revenue_from_unloading=0;
@@ -885,9 +885,9 @@ vehikel_t::unload_freight(halthandle_t halt, sint64 & revenue_from_unloading)
 						index = tmp.get_index(); // Note that there is only one freight type per vehicle
 						halt->unload_repeat_counter = 0;
 
-						// Calculates the revenue for each packet. 
-						// @author: jamespetts
-						revenue_from_unloading += cnv->calc_revenue(tmp);
+						// Calculate the revenue for each packet.
+						// Also, add to the "apportioned revenues" for way tolls.
+						revenue_from_unloading += cnv->calc_revenue(tmp, apportioned_revenues);
 
 						// book delivered goods to destination
 						if(end_halt == halt) 
@@ -1957,9 +1957,9 @@ uint16 vehikel_t::beladen(halthandle_t halt, bool overcrowd)
  * "Vehicle to stop discharged" (translated by Google)
  * @author Hj. Malthaner
  */
-uint16 vehikel_t::entladen(halthandle_t halt, sint64 & revenue_from_unloading )
+uint16 vehikel_t::entladen(halthandle_t halt, sint64 & revenue_from_unloading, array_tpl<sint64> & apportioned_revenues )
 {
-	uint16 menge = unload_freight(halt, revenue_from_unloading);
+	uint16 menge = unload_freight(halt, revenue_from_unloading, apportioned_revenues);
 	if(menge > 0) 
 	{
 		// add delivered goods to statistics

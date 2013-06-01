@@ -4351,7 +4351,7 @@ write_basic_line:
 	}
 }
 
-sint64 convoi_t::calc_revenue(ware_t& ware)
+sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportioned_revenues)
 {
 	sint64 overall_average_speed;
 	
@@ -4638,27 +4638,29 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	{
 		total_way_distance += dep.get_way_distance(i);
 	}
-	
-	uint32 player_way_distance;
+	// The apportioned revenue array is passed in.  It should be the right size already.
+	// Make sure our returned array is the right size (should do nothing)
+	apportioned_revenues.resize(MAX_PLAYER_COUNT);
+	// It will have some accumulated revenues in it from unloading previous vehicles in the same convoi.
 	for(uint8 i = 0; i < MAX_PLAYER_COUNT; i ++)
 	{
 		if(besitzer_p->get_player_nr() == i)
 		{
+			// Never apportion revenue to the convoy-owning player
 			continue;
 		}
-		player_way_distance = dep.get_way_distance(i);
+		// Now, if the player's tracks were actually used, apportion revenue
+		uint32 player_way_distance = player_way_distance = dep.get_way_distance(i);
 		if(player_way_distance > 0)
 		{
-			spieler_t* sp = welt->get_spieler(i);
-			if(sp)
-			{
-				sp->interim_apportioned_revenue += (final_revenue * player_way_distance) / total_way_distance;
-			}
+			// We allocate even for players who may not exist; we'll check before paying them.
+			apportioned_revenues[i] += (final_revenue * player_way_distance) / total_way_distance;
 		}
 	}
 	
 	return final_revenue;
 }
+
 
 uint8 convoi_t::calc_tolerable_comfort(uint16 journey_minutes, karte_t* w) 
 {
@@ -4844,6 +4846,12 @@ uint16 convoi_t::calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance, k
 void convoi_t::hat_gehalten(halthandle_t halt)
 {
 	sint64 accumulated_revenue = 0;
+
+	// This holds the revenues as apportioned to different players by track
+	// Initialize it to the correct size and blank out all entries
+	// It will be added to by ::entladen for each vehicle
+	array_tpl<sint64> apportioned_revenues (MAX_PLAYER_COUNT, 0);
+
 	grund_t *gr = welt->lookup(fahr[0]->get_pos());
 
 	// now find out station length
@@ -4912,7 +4920,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 			}
 			//Unload
 			sint64 revenue_from_unloading = 0;
-			changed_loading_level += v->entladen(halt, revenue_from_unloading);
+			changed_loading_level += v->entladen(halt, revenue_from_unloading, apportioned_revenues);
 
 			// James has done something extremely screwy with revenue.  We have to divide it by 3000. FIXME.
 			sint64 modified_revenue_from_unloading = (revenue_from_unloading + 1500ll) / 3000ll;
@@ -4984,19 +4992,20 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 				continue;
 			}
 			spieler_t* sp = welt->get_spieler(i);
-			if(sp && sp->interim_apportioned_revenue)
+			// Only pay tolls to players who actually exist
+			if(sp && apportioned_revenues[i])
 			{
-				sp->interim_apportioned_revenue = (sp->interim_apportioned_revenue + 1500ll) / 3000ll;
-				sp->interim_apportioned_revenue *= welt->get_settings().get_way_toll_revenue_percentage();
-				sp->interim_apportioned_revenue /= 100;
+				// This is the screwy factor of 3000 -- fix this sometime
+				sint64 modified_apportioned_revenue = (apportioned_revenues[i] + 1500ll) / 3000ll;
+				modified_apportioned_revenue *= welt->get_settings().get_way_toll_revenue_percentage();
+				modified_apportioned_revenue /= 100;
 				if(welt->get_active_player() == sp)
 				{
-					sp->add_money_message(sp->interim_apportioned_revenue, fahr[0]->get_pos().get_2d());
+					sp->add_money_message(modified_apportioned_revenue, fahr[0]->get_pos().get_2d());
 				}
-				sp->book_toll_received(sp->interim_apportioned_revenue, get_schedule()->get_waytype() );
-				besitzer_p->book_toll_paid(-sp->interim_apportioned_revenue, get_schedule()->get_waytype() );
-				book(-sp->interim_apportioned_revenue, CONVOI_PROFIT);
-				sp->interim_apportioned_revenue = 0;
+				sp->book_toll_received(modified_apportioned_revenue, get_schedule()->get_waytype() );
+				besitzer_p->book_toll_paid(-modified_apportioned_revenue, get_schedule()->get_waytype() );
+				book(-modified_apportioned_revenue, CONVOI_PROFIT);
 			}
 		}
 

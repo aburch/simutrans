@@ -81,8 +81,6 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 	// we have different AI, try to find out our type:
 	sprintf(spieler_name_buf,"player %i",player_nr-1);
 
-	interim_apportioned_revenue = 0;
-
 	const bool allow_access_by_default = player_nr == 1;
 
 	for(int i = 0; i < MAX_PLAYER_COUNT; i ++)

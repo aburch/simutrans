@@ -237,7 +237,7 @@ private:
 	 * @return sum of unloaded goods
 	 * @author Hj. Malthaner
 	 */
-	uint16 unload_freight(halthandle_t halt, sint64 & revenue_from_unloading);
+	uint16 unload_freight(halthandle_t halt, sint64 & revenue_from_unloading, array_tpl<sint64> & apportioned_revenues );
 
 	/**
 	 * Load freight from halt
@@ -544,7 +544,7 @@ public:
 	* fahrzeug an haltestelle entladen
 	* @author Hj. Malthaner
 	*/
-	uint16 entladen(halthandle_t halt, sint64 & revenue_from_unloading);
+	uint16 entladen(halthandle_t halt, sint64 & revenue_from_unloading, array_tpl<sint64> & apportioned_revenues );
 
 	/**
 	* fahrzeug an haltestelle beladen
