@@ -275,19 +275,23 @@ sint64 finance_t::credit_limit_by_profits() const {
 	// Look back 12 months (full year's profit), but not more than the max
 	int month_count;
 	sint64 profit_total=0;
-	for(month_count = 0; month_count < min(MAX_PLAYER_HISTORY_MONTHS, 12); month_count++)
+	// We need 12 months of history at least, not including this month
+	assert(MAX_HISTORY_PLAYER_MONTHS >= 13);
+	// Start by looking at *last* month and go back 12.
+	for(month = 1; month < min(MAX_PLAYER_HISTORY_MONTHS, 13); month++)
 	{
-		// It's possible that this should be changed to operating profit.
-		// However, this provides for a more conservative credit limit.
-		profit_total += get_history_veh_month(TT_ALL, month_count, ATV_PROFIT);
+		// Use "profits before interest" to provide a conservative credit limit.
+		// We want operating profits, minus construction costs etc.
+		// Since interest is based on cash level, we DON'T want to include it.
+		// Start with profits...
+		profit_total += get_history_veh_month(TT_ALL, month, ATV_PROFIT);
+		// Then back out interest, since it's based on cash level.
+		profit_total -= get_history_veh_month(TT_ALL, month, ATV_INTEREST);
     }
-	// Annualize if the recordkeeping is very short
-	if (month_count != 12) {
-		profit_total = profit_total * 12 / month_count;
-	}
 	sint64 interest_rate = world->get_settings().get_interest_rate_percent();
 	// *Divide* by the interest rate: if all the profits went to interest,
 	// this tells us how much debt (principal) we could pay interest on
+	// Does not account for compound interest, so generous to the player
 	sint64 hard_limit_by_profits = - (profit_total * 100ll) / interest_rate;
 	// The following deals with recurring losses;
 	// It also deals (badly) with overflow errors.
