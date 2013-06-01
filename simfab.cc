@@ -706,6 +706,8 @@ fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
 				}
 			}
 		}
+		// Must rebuild the nearby halt database
+		recalc_nearby_halts();
 	}
 }
 
@@ -834,7 +836,13 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 	update_scaled_electric_amount();
 	update_scaled_pax_demand();
 	update_scaled_mail_demand();
-	mark_connected_roads(false);
+
+	// We can't do these here, because get_tile_list will fail
+	// We have to wait until after ::baue is called
+	// It would be better to call ::baue here, but that fails too
+	// --neroden
+	// mark_connected_roads(false);
+	// recalc_nearby_halts();
 }
 
 void fabrik_t::mark_connected_roads(bool del)
@@ -1869,38 +1877,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 		return;
 	}
 
-	// Check *all* tiles for nearby stops.
-	vector_tpl<koord> tile_list;
-	get_tile_list(tile_list);
-	vector_tpl<nearby_halt_t> halt_list;
-	bool any_distribution_target = false;
-	FOR(vector_tpl<koord>, const k, tile_list)
-	{
-		const planquadrat_t* plan = welt->lookup(k);
-		if(plan)
-		{
-			any_distribution_target = true;
-			const uint8 haltlist_count = plan->get_haltlist_count();
-			if(haltlist_count)
-			{
-				const nearby_halt_t *haltlist = plan->get_haltlist();
-				for(int i = 0; i < haltlist_count; i++)
-				{
-					if(haltlist[i].distance > welt->get_settings().get_station_coverage_factories())
-					{
-						halt_list.append(haltlist[i]); 
-					}
-				}
-			}
-		}
-	}
-
-	if(!any_distribution_target)
-	{
-		dbg->fatal("fabrik_t::verteile_waren", "%s has not distibution target", get_name() );
-	}
-
-	if(halt_list.empty())
+	if(nearby_freight_halts.empty())
 	{
 		return;
 	}
@@ -1918,16 +1895,10 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 	 */
 	sint32 menge = min( (prodbase > 640 ? (prodbase>>6) : 10), ausgang[produkt].menge >> precision_bits );
 
-	const uint32 count = halt_list.get_count();
+	const uint32 count = nearby_freight_halts.get_count();
 	for(unsigned i = 0; i < count; i++)
 	{
-		nearby_halt_t nearby_halt = halt_list[(i + ausgang[produkt].index_offset) % count];
-
-		if(!nearby_halt.halt->get_ware_enabled() ||
-			(get_besch()->get_platzierung() == fabrik_besch_t::Wasser && (nearby_halt.halt->get_station_type() & haltestelle_t::dock) == 0))
-		{
-			continue;
-		}
+		nearby_halt_t nearby_halt = nearby_freight_halts[(i + ausgang[produkt].index_offset) % count];
 
 		// Über alle Ziele iterieren ("Iterate over all targets" - Google)
 		for(  uint32 n=0;  n<lieferziele.get_count();  n++  ) {
@@ -2323,7 +2294,7 @@ void fabrik_t::recalc_factory_status()
 	char status_ein;
 	char status_aus;
 
-	int haltcount=welt->lookup(pos.get_2d())->get_haltlist_count();
+	int haltcount = nearby_freight_halts.get_count();
 
 	// set bits for input
 	warenlager = 0;
@@ -2524,6 +2495,97 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 	}
 }
 
+/**
+ * Recalculate the nearby_freight_halts and nearby_passenger_halts lists.
+ * This is a subroutine in order to avoid code duplication.
+ * @author neroden
+ */
+void fabrik_t::recalc_nearby_halts() {
+	// Temporary list for accumulation of halts;
+	// avoid duplicating work on freight and passenger
+	vector_tpl<nearby_halt_t> nearby_halts;
+
+	// Go through all the base tiles of the factory.
+	vector_tpl<koord> tile_list;
+	get_tile_list(tile_list);
+	bool any_distribution_target = false; // just for debugging
+	FOR(vector_tpl<koord>, const k, tile_list)
+	{
+		const planquadrat_t* plan = welt->lookup(k);
+		if(plan)
+		{
+			any_distribution_target=true;
+			const uint8 haltlist_count = plan->get_haltlist_count();
+			if(haltlist_count)
+			{
+				const nearby_halt_t *haltlist = plan->get_haltlist();
+				for(int i = 0; i < haltlist_count; i++)
+				{
+					// We've found a halt.
+					const nearby_halt_t new_nearby_halt = haltlist[i];
+					// However, it might be a duplicate.
+					bool duplicate = false;
+					for(int j=0; j < nearby_halts.get_count(); j++)
+					{
+						if (new_nearby_halt.halt == nearby_halts[j].halt) {
+							duplicate=true;
+							// Same halt handle.
+							// We always want the shorter of the two distances...
+							// Since goods/passengers can ship from any part of a factory
+							uint8 new_distance = min(nearby_halts[j].distance, new_nearby_halt.distance);
+							nearby_halts[j].distance = new_distance;
+						}
+					}
+					if (!duplicate) {
+						nearby_halts.append(new_nearby_halt);
+					}
+				}
+			}
+		}
+	}
+#ifdef DEBUG
+	if(!any_distribution_target)
+	{
+		dbg->fatal("fabrik_t::recalc_nearby_halts", "%s has no location on the map!", get_name() );
+	}
+#endif // DEBUG
+	// We now have a list of nearby halts, without duplicates,
+	// and each with the shortest distance to it.
+
+	// Clear out the old lists.
+	nearby_freight_halts.clear();
+	nearby_passenger_halts.clear();
+	nearby_mail_halts.clear();
+
+	// Now filter the new list by freight vs. passengers.
+	FOR(vector_tpl<nearby_halt_t>, const k, nearby_halts)
+	{
+		if (k.halt->get_pax_enabled())
+		{
+			nearby_passenger_halts.append(k);
+		}
+		if (k.halt->get_post_enabled())
+		{
+			nearby_mail_halts.append(k);
+		}
+		if(  k.distance <= welt->get_settings().get_station_coverage_factories()
+		     && k.halt->get_ware_enabled() )
+		{
+			// Halt is within freight coverage distance (shorter than regular) and handles freight...
+			if (get_besch()->get_platzierung() == fabrik_besch_t::Wasser
+				&& (k.halt->get_station_type() & haltestelle_t::dock) == 0)
+			{
+				// But this is a water factory and it's not a dock.
+				// So do nothing.
+			}
+			else
+			{
+				// OK, add to list of freight halts.
+				nearby_freight_halts.append(k);
+			}
+		}
+	}
+}
 
 void fabrik_t::info_conn(cbuffer_t& buf) const
 {
@@ -2577,52 +2639,17 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 		}
 	}
 
-	// Check *all* tiles for nearby stops.
-	vector_tpl<koord> tile_list;
-	get_tile_list(tile_list);
-	vector_tpl<nearby_halt_t> halt_list;
-	FOR(vector_tpl<koord>, const k, tile_list)
+	// Check *all* tiles for nearby stops... but don't update!
+	if ( !nearby_freight_halts.empty() )
 	{
-		const planquadrat_t* plan = welt->lookup(k);
-		if(plan)
-		{
-			const uint8 haltlist_count = plan->get_haltlist_count();
-			if(haltlist_count)
-			{
-				const nearby_halt_t *haltlist = plan->get_haltlist();
-				for(int i = 0; i < haltlist_count; i++)
-				{
-					halt_list.append(haltlist[i]); 
-				}
-			}
+		if(  has_previous  ) {
+			buf.append("\n\n");
 		}
-	}
-
-	if(!halt_list.empty()) 
-	{
-		bool any = false;
-		fabrik_t* fab = (fabrik_t*)this;
-		vector_tpl<uint16> already_counted(halt_list.get_count());
-		FOR(vector_tpl<nearby_halt_t>, const i, halt_list)
+		has_previous = true;
+		buf.append(translator::translate("Connected stops (freight)"));
+		FOR(vector_tpl<nearby_halt_t>, const i, nearby_freight_halts)
 		{
-			if(i.distance <= welt->get_settings().get_station_coverage_factories())
-			{
-				// Prevent double listing of halts
-				if(!already_counted.is_contained(i.halt.get_id()))
-				{
-					if(has_previous && !any) 
-					{
-						buf.append("\n\n");
-					}
-					if(!any)
-					{
-						buf.append(translator::translate("Connected stops"));
-					}
-					buf.printf("\n - %s", i.halt->get_name());
-					has_previous = any = true;
-					already_counted.append(i.halt.get_id());
-				}
-			}
+			buf.printf("\n - %s", i.halt->get_name());
 		}
 	}
 }

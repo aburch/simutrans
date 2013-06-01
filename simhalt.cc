@@ -563,6 +563,7 @@ haltestelle_t::~haltestelle_t()
 
 	// remove from all haltlists
 	uint16 const cov = welt->get_settings().get_station_coverage();
+	vector_tpl<fabrik_t*> affected_fab_list;
 	ul.x = max(0, ul.x - cov);
 	ul.y = max(0, ul.y - cov);
 	lr.x = min(welt->get_size().x, lr.x + 1 + cov);
@@ -573,7 +574,20 @@ haltestelle_t::~haltestelle_t()
 			if(plan->get_haltlist_count()>0) {
 				plan->remove_from_haltlist( welt, self );
 			}
+			const grund_t* gr = plan->get_kartenboden();
+			// If there's a factory here, add it to the working list
+			const gebaeude_t* gb = gr->find<gebaeude_t>();
+			if (gb) {
+				fabrik_t* fab = gb->get_fabrik();
+				if (fab && !affected_fab_list.is_contained(fab) ) {
+					affected_fab_list.append(fab);
+				}
+			}
 		}
+	}
+	// Recalculate nearby halt lists for affected fabs.
+	FOR(vector_tpl<fabrik_t*>, fab, affected_fab_list) {
+		fab->recalc_nearby_halts();
 	}
 
 	destroy_win( magic_halt_info + self.get_id() );
@@ -1459,19 +1473,46 @@ minivec_tpl<halthandle_t>* haltestelle_t::build_destination_list(ware_t &ware)
 	{
 		ware.set_zielpos(ware.get_ziel()->get_basis_pos());
 	}
-		
-	const koord ziel = ware.get_zielpos();
 
 	// since also the factory halt list is added to the ground, we can use just this ...
+	// We need to check all tiles of a factory, as not all tiles will be within range of a halt.
 	const planquadrat_t *const plan = welt->lookup( ware.get_zielpos() );
-	const nearby_halt_t *const halt_list = plan->get_haltlist();
+	const fabrik_t* fab = fabrik_t::get_fab(welt, ware.get_zielpos());
+	
+	vector_tpl<koord> tile_list;
+	if(fab)
+	{
+		fab->get_tile_list(tile_list);
+	}
+	else
+	{
+		tile_list.append(ware.get_zielpos());
+	}
+	vector_tpl<nearby_halt_t> halt_list;
+	FOR(vector_tpl<koord>, const k, tile_list)
+	{
+		const planquadrat_t* plan = welt->lookup(k);
+		if(plan)
+		{
+			const uint8 haltlist_count = plan->get_haltlist_count();
+			if(haltlist_count)
+			{
+				const nearby_halt_t *haltlist = plan->get_haltlist();
+				for(int i = 0; i < haltlist_count; i++)
+				{
+					halt_list.append(haltlist[i]); 
+				}
+			}
+		}
+	}
+
 	// but we can only use a subset of these
 	minivec_tpl<halthandle_t> *ziel_list = new minivec_tpl<halthandle_t>(plan->get_haltlist_count());
 
 	for(uint16 h = 0; h < plan->get_haltlist_count(); h++) 
 	{
 		halthandle_t halt = halt_list[h].halt;
-		if(halt->is_enabled(warentyp)) 
+		if(halt->is_enabled(warentyp) && (!ware.is_freight() || halt_list[h].distance <= welt->get_settings().get_station_coverage_factories()))
 		{
 			ziel_list->append(halt);
 		}
@@ -2208,7 +2249,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 
 	// have we arrived?
 	const planquadrat_t* plan = welt->lookup(ware.get_zielpos());
-	if(plan && plan->get_connected(self) <= welt->get_settings().get_station_coverage_factories()) 
+	if(plan && (!ware.is_freight() || plan->get_connected(self) <= welt->get_settings().get_station_coverage_factories() )) 
 	{
 		if(ware.to_factory) 
 		{
@@ -3478,6 +3519,7 @@ bool haltestelle_t::add_grund(grund_t *gr)
 
 	// appends this to the ground
 	// after that, the surrounding ground will know of this station
+	vector_tpl<fabrik_t*> affected_fab_list;
 	int const cov = welt->get_settings().get_station_coverage();
 	for (int y = -cov; y <= cov; y++) {
 		for (int x = -cov; x <= cov; x++) {
@@ -3485,13 +3527,28 @@ bool haltestelle_t::add_grund(grund_t *gr)
 			planquadrat_t *plan = welt->access(p);
 			if(plan) {
 				plan->add_to_haltlist( self );
-				plan->get_kartenboden()->set_flag(grund_t::dirty);
+				const grund_t* gr = plan->get_kartenboden();
+				gr->set_flag(grund_t::dirty);
+				// If there's a factory here, add it to the working list
+				const gebaeude_t* gb = gr->find<gebaeude_t>();
+				if (gb) {
+					fabrik_t* fab = gb->get_fabrik();
+					if (fab && !affected_fab_list.is_contained(fab) ) {
+						affected_fab_list.append(fab);
+					}
+				}
 			}
 		}
 	}
 	welt->access(pos)->set_halt(self);
 
-	// since suddenly other factories may be connect to us too
+	// Update nearby factories' lists of connected halts.
+	// Must be done AFTER updating the planquadrats
+	FOR (vector_tpl<fabrik_t*>, fab, affected_fab_list)
+	{
+		fab->recalc_nearby_halts();
+	}
+	// Update our list of factories...
 	verbinde_fabriken();
 
 	// check if we have to register line(s) and/or lineless convoy(s) which serve this halt
@@ -3606,14 +3663,28 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 		}
 
 		int const cov = welt->get_settings().get_station_coverage();
+		vector_tpl<fabrik_t*> affected_fab_list;
 		for (int y = -cov; y <= cov; y++) {
 			for (int x = -cov; x <= cov; x++) {
 				planquadrat_t *pl = welt->access( gr->get_pos().get_2d()+koord(x,y) );
 				if(pl) {
 					pl->remove_from_haltlist(welt,self);
 					pl->get_kartenboden()->set_flag(grund_t::dirty);
+					const grund_t* gr = pl->get_kartenboden();
+					// If there's a factory here, add it to the working list
+					const gebaeude_t* gb = gr->find<gebaeude_t>();
+					if (gb) {
+						fabrik_t* fab = gb->get_fabrik();
+						if (fab && !affected_fab_list.is_contained(fab) ) {
+							affected_fab_list.append(fab);
+						}
+					}
 				}
 			}
+		}
+		// Recalculate nearby halt lists for affected fabs.
+		FOR(vector_tpl<fabrik_t*>, fab, affected_fab_list) {
+			fab->recalc_nearby_halts();
 		}
 
 		// factory reach may have been changed ...
