@@ -1475,19 +1475,18 @@ minivec_tpl<halthandle_t>* haltestelle_t::build_destination_list(ware_t &ware)
 		ware.set_zielpos(ware.get_ziel()->get_basis_pos());
 	}
 
-	// since also the factory halt list is added to the ground, we can use just this ...
-	// We need to check all tiles of a factory, as not all tiles will be within range of a halt.
 	const planquadrat_t *const plan = welt->lookup(ware.get_zielpos());
 	const fabrik_t* fab = fabrik_t::get_fab(welt, ware.get_zielpos());
 
 	minivec_tpl<halthandle_t> *ziel_list = new minivec_tpl<halthandle_t>(plan->get_haltlist_count());
 	
-	vector_tpl<koord> tile_list;
 	if(fab)
 	{
-		// More checks are required when the destination is a factory
+		// Check all tiles of the factory.
+		// We need to do this for attractions and city halls too, but we don't (BUG)
+		vector_tpl<koord> tile_list;
 		fab->get_tile_list(tile_list);
-		const uint8 distance = (uint8)welt->get_settings().get_station_coverage_factories();
+		const uint8 freight_coverage_distance = (uint8)welt->get_settings().get_station_coverage_factories();
 		FOR(vector_tpl<koord>, const k, tile_list)
 		{
 			const planquadrat_t* plan = welt->lookup(k);
@@ -1499,7 +1498,7 @@ minivec_tpl<halthandle_t>* haltestelle_t::build_destination_list(ware_t &ware)
 					const nearby_halt_t *haltlist = plan->get_haltlist();
 					for(int i = 0; i < haltlist_count; i++)
 					{
-						if(haltlist[i].halt->is_enabled(warentyp) && (!ware.is_freight() || haltlist[i].distance <= distance))
+						if(haltlist[i].halt->is_enabled(warentyp) && (!ware.is_freight() || haltlist[i].distance <= freight_coverage_distance))
 						{
 							ziel_list->append(haltlist[i].halt); 
 						}
@@ -1510,7 +1509,10 @@ minivec_tpl<halthandle_t>* haltestelle_t::build_destination_list(ware_t &ware)
 	}
 	else
 	{
-		// This simpler routine is available where the destination is not a factory.
+		// This simpler routine is available ONLY when the destination is
+		// a single-tile building.
+		// However, the correct behavior is currently not implemented for
+		// attractions and city halls.  (This is a BUG.)
 		const nearby_halt_t *haltlist = plan->get_haltlist();
 		for(uint16 h = 0; h < plan->get_haltlist_count(); h++) 
 		{
@@ -3666,10 +3668,12 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 		vector_tpl<fabrik_t*> affected_fab_list;
 		for (int y = -cov; y <= cov; y++) {
 			for (int x = -cov; x <= cov; x++) {
-				planquadrat_t *plan = welt->access( gr->get_pos().get_2d()+koord(x,y) );
-				if(pl) {
-					pl->remove_from_haltlist(welt,self);
-					pl->get_kartenboden()->set_flag(grund_t::dirty);
+				planquadrat_t *pl_cur = welt->access( gr->get_pos().get_2d()+koord(x,y) );
+				if(pl_cur) {
+					// This will remove the tile from the haltlist only if appropriate
+					// (::remove_from_haltlist double-checks this)
+					pl_cur->remove_from_haltlist(welt,self);
+					pl_cur->get_kartenboden()->set_flag(grund_t::dirty);
 					const grund_t* gr = pl->get_kartenboden();
 					// If there's a factory here, add it to the working list
 					const gebaeude_t* gb = gr->find<gebaeude_t>();
