@@ -64,9 +64,9 @@ private:
 
 	gui_label_t tylabel2; // this year, right column
 
-	gui_label_t gtmoney; // balance (current)
-	gui_label_t vtmoney;
-	gui_label_t money;
+	gui_label_t cash_money; // balance (current)
+	gui_label_t assets;
+	gui_label_t net_wealth;
 	gui_label_t margin;
 	gui_label_t transport, old_transport;
 	gui_label_t toll, old_toll;
@@ -74,7 +74,7 @@ private:
 	gui_label_t maintenance_label;
 	gui_label_t maintenance_label2;
 	gui_label_t maintenance_money;
-	gui_label_t vehicle_maintenance_money;
+	// gui_label_t vehicle_maintenance_money;
 
 	gui_label_t warn;
 	gui_label_t scenario;

@@ -33,12 +33,11 @@ static uint32 bFilterStates[MAX_PLAYER_COUNT];
 
 #define BUTTONSPACE 14
 
-#define COLUMN_TWO_START 11
+#define COLUMN_TWO_START 10
 
 // @author hsiegeln
 const char *money_frame_t::cost_type_name[MAX_PLAYER_COST_BUTTON] =
 {
-	"Transported",
 	"Revenue",
 	"Operation",
 	"Maintenance",
@@ -46,19 +45,19 @@ const char *money_frame_t::cost_type_name[MAX_PLAYER_COST_BUTTON] =
 	"Ops Profit",
 	"New Vehicles",
 	"Construction_Btn",
-	"Gross Profit",
-	"Cash",
 	"Interest",
+	"Gross Profit",
+	"Transported",
+	"Cash",
 	"Assets",
-	"Margin (%)",
 	"Net Wealth",
 	"Credit Limit",
-	"Solvency Limit"
+	"Solvency Limit",
+	"Margin (%)"
 };
 
 const char money_frame_t::cost_tooltip[MAX_PLAYER_COST_BUTTON][256] =
 {
-  "Number of units of passengers and goods transported", 
   "Gross revenue",
   "Vehicle running costs (both fixed and distance related)",
   "Recurring expenses of infrastructure maintenance", 
@@ -66,20 +65,20 @@ const char money_frame_t::cost_tooltip[MAX_PLAYER_COST_BUTTON][256] =
   "Operating revenue less operating expenditure", 
   "Capital expenditure on vehicle purchases and upgrades", 	
   "Capital expenditure on infrastructure", 
-  "Total income less total expenditure", 
-  "Total liquid assets", 
   "Cost of overdraft interest payments", 
+  "Total income less total expenditure", 
+  "Number of units of passengers and goods transported", 
+  "Total liquid assets", 
   "Total capital assets, excluding liabilities", 
-  "Percentage of revenue retained as profit", 
   "Total assets less total liabilities", 
   "The maximum amount that can be borrowed without prohibiting further capital outlays",
-  "The maximum amount that can be borrowed without going bankrupt"
+  "The maximum amount that can be borrowed without going bankrupt",
+  "Percentage of revenue retained as profit"
 };
 
 
 const COLOR_VAL money_frame_t::cost_type_color[MAX_PLAYER_COST_BUTTON] =
 {
-	COL_TRANSPORTED,
 	COL_REVENUE,
 	COL_OPERATION,
 	COL_MAINTENANCE,
@@ -87,19 +86,19 @@ const COLOR_VAL money_frame_t::cost_type_color[MAX_PLAYER_COST_BUTTON] =
 	COL_OPS_PROFIT,
 	COL_NEW_VEHICLES,
 	COL_CONSTRUCTION,
-	COL_PROFIT,
-	COL_CASH,
 	COL_INTEREST,
+	COL_PROFIT,
+	COL_TRANSPORTED,
+	COL_CASH,
 	COL_VEHICLE_ASSETS,
-	COL_MARGIN,
 	COL_WEALTH,
 	COL_SOFT_CREDIT_LIMIT,
-	COL_HARD_CREDIT_LIMIT
+	COL_HARD_CREDIT_LIMIT,
+	COL_MARGIN
 };
 
 const uint8 money_frame_t::cost_type[3*MAX_PLAYER_COST_BUTTON] =
 {
-	ATV_TRANSPORTED,                TT_ALL, STANDARD, // all transported goods
 	ATV_REVENUE_TRANSPORT,          TT_ALL, MONEY,    // Income
 	ATV_RUNNING_COST,               TT_ALL, MONEY,    // Vehicle running costs
 	ATV_INFRASTRUCTURE_MAINTENANCE, TT_ALL, MONEY,    // Upkeep
@@ -107,14 +106,15 @@ const uint8 money_frame_t::cost_type[3*MAX_PLAYER_COST_BUTTON] =
 	ATV_OPERATING_PROFIT,           TT_ALL, MONEY,
 	ATV_NEW_VEHICLE,                TT_ALL, MONEY,   // New vehicles
 	ATV_CONSTRUCTION_COST,	        TT_ALL, MONEY,   // Construction
-	ATV_PROFIT,                     TT_ALL, MONEY,
-	ATC_CASH,                       TT_MAX, MONEY,   // Cash
 	ATC_INTEREST,					TT_MAX, MONEY,	// Interest paid servicing debt
+	ATV_PROFIT,                     TT_ALL, MONEY,
+	ATV_TRANSPORTED,                TT_ALL, STANDARD, // all transported goods
+	ATC_CASH,                       TT_MAX, MONEY,   // Cash
 	ATV_NON_FINANCIAL_ASSETS,       TT_ALL, MONEY,   // value of all vehicles and buildings
-	ATV_PROFIT_MARGIN,              TT_ALL, STANDARD,
 	ATC_NETWEALTH,                  TT_MAX, MONEY,   // Total Cash + Assets
 	ATC_SOFT_CREDIT_LIMIT,			TT_MAX, MONEY,	// Maximum amount that can be borrowed
-	ATC_HARD_CREDIT_LIMIT,			TT_MAX, MONEY	// Borrowing which will lead to bankruptcy
+	ATC_HARD_CREDIT_LIMIT,			TT_MAX, MONEY,	// Borrowing which will lead to bankruptcy
+	ATV_PROFIT_MARGIN,              TT_ALL, STANDARD
 };
 
 
@@ -244,9 +244,9 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		old_omoney(NULL, COL_WHITE, gui_label_t::money),
 		old_interest(NULL, COL_WHITE, gui_label_t::money),
 		tylabel2("This Year", COL_WHITE, gui_label_t::right),
-		gtmoney(NULL, COL_WHITE, gui_label_t::money),
-		vtmoney(NULL, COL_WHITE, gui_label_t::money),
-		money(NULL, COL_WHITE, gui_label_t::money),
+		cash_money(NULL, COL_WHITE, gui_label_t::money),
+		assets(NULL, COL_WHITE, gui_label_t::money),
+		net_wealth(NULL, COL_WHITE, gui_label_t::money),
 		margin(NULL, COL_WHITE, gui_label_t::money),
 		soft_credit_limit(NULL, COL_WHITE, gui_label_t::money),
 		hard_credit_limit(NULL, COL_WHITE, gui_label_t::money),
@@ -257,14 +257,13 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		maintenance_label("Next Month:",COL_WHITE, gui_label_t::right),
 		maintenance_label2("Fixed Costs",COL_WHITE, gui_label_t::right),
 		maintenance_money(NULL, COL_RED, gui_label_t::money),
-		vehicle_maintenance_money(NULL, COL_RED, gui_label_t::money),
+		// vehicle_maintenance_money(NULL, COL_RED, gui_label_t::money),
 		warn("", COL_YELLOW, gui_label_t::left),
 		scenario("", COL_BLACK, gui_label_t::left),
 		transport_type_option(0),
 		headquarter_view(sp->get_welt(), koord3d::invalid, koord(120, 64))
 {
-	if(sp->get_welt()->get_spieler(0)!=sp) 
-	{
+	if(sp->get_welt()->get_spieler(0)!=sp) {
 		sprintf(money_frame_title,translator::translate("Finances of %s"),translator::translate(sp->get_name()) );
 		set_name(money_frame_title);
 	}
@@ -281,40 +280,46 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	tylabel.set_pos(koord(tyl_x+25,top-1*BUTTONSPACE));
 	lylabel.set_pos(koord(lyl_x+25,top-1*BUTTONSPACE));
 
-	transport.set_pos(koord(tyl_x+19, top+0*BUTTONSPACE));
-	old_transport.set_pos(koord(lyl_x+19, top+0*BUTTONSPACE));
-	imoney.set_pos(koord(tyl_x,top+1*BUTTONSPACE));
-	old_imoney.set_pos(koord(lyl_x,top+1*BUTTONSPACE));
-	vrmoney.set_pos(koord(tyl_x,top+2*BUTTONSPACE));
-	old_vrmoney.set_pos(koord(lyl_x,top+2*BUTTONSPACE));
-	mmoney.set_pos(koord(tyl_x,top+3*BUTTONSPACE));
-	old_mmoney.set_pos(koord(lyl_x,top+3*BUTTONSPACE));
-	toll.set_pos(koord(tyl_x,top+4*BUTTONSPACE));
-	old_toll.set_pos(koord(lyl_x,top+4*BUTTONSPACE));
-	omoney.set_pos(koord(tyl_x,top+5*BUTTONSPACE));
-	old_omoney.set_pos(koord(lyl_x,top+5*BUTTONSPACE));
-	nvmoney.set_pos(koord(tyl_x,top+6*BUTTONSPACE));
-	old_nvmoney.set_pos(koord(lyl_x,top+6*BUTTONSPACE));
-	conmoney.set_pos(koord(tyl_x,top+7*BUTTONSPACE));
-	old_conmoney.set_pos(koord(lyl_x,top+7*BUTTONSPACE));
-	tmoney.set_pos(koord(tyl_x,top+8*BUTTONSPACE));
+	imoney.set_pos(koord(tyl_x,top+0*BUTTONSPACE));  // revenue
+	old_imoney.set_pos(koord(lyl_x,top+0*BUTTONSPACE));
+	vrmoney.set_pos(koord(tyl_x,top+1*BUTTONSPACE)); // running costs
+	old_vrmoney.set_pos(koord(lyl_x,top+1*BUTTONSPACE));
+	mmoney.set_pos(koord(tyl_x,top+2*BUTTONSPACE)); // inf. maintenance
+	old_mmoney.set_pos(koord(lyl_x,top+2*BUTTONSPACE));
+	toll.set_pos(koord(tyl_x,top+3*BUTTONSPACE));
+	old_toll.set_pos(koord(lyl_x,top+3*BUTTONSPACE));
+	omoney.set_pos(koord(tyl_x,top+4*BUTTONSPACE)); // op. profit
+	old_omoney.set_pos(koord(lyl_x,top+4*BUTTONSPACE));
+	nvmoney.set_pos(koord(tyl_x,top+5*BUTTONSPACE)); // new vehicles
+	old_nvmoney.set_pos(koord(lyl_x,top+5*BUTTONSPACE));
+	conmoney.set_pos(koord(tyl_x,top+6*BUTTONSPACE)); // construction costs
+	old_conmoney.set_pos(koord(lyl_x,top+6*BUTTONSPACE));
+	interest.set_pos(koord(tyl_x,top+7*BUTTONSPACE)); // interest
+	old_interest.set_pos(koord(lyl_x,top+7*BUTTONSPACE));
+	tmoney.set_pos(koord(tyl_x,top+8*BUTTONSPACE));  // cash flow
 	old_tmoney.set_pos(koord(lyl_x,top+8*BUTTONSPACE));
-	interest.set_pos(koord(tyl_x,top+9*BUTTONSPACE));
-	old_interest.set_pos(koord(lyl_x,top+9*BUTTONSPACE));
+	transport.set_pos(koord(tyl_x+19, top+9*BUTTONSPACE)); // units transported
+	old_transport.set_pos(koord(lyl_x+19, top+9*BUTTONSPACE));
 
-	// right column
-	maintenance_label.set_pos(koord(left+340+80, top-1*BUTTONSPACE-2));
-	maintenance_label2.set_pos(koord(left+340+80, top+0*BUTTONSPACE-2));
-	vehicle_maintenance_money.set_pos(koord(left+340+55, top+1*BUTTONSPACE));
-	maintenance_money.set_pos(koord(left+340+55, top+2*BUTTONSPACE));
+	// right column (upper)
+	maintenance_label.set_pos(koord(left+140+335+55, top-1*BUTTONSPACE-2));
+	maintenance_label2.set_pos(koord(left+140+335+55, top+0*BUTTONSPACE-2));
+	// vehicle maintenance money should be the same height as running costs
+	// vehicle_maintenance_money.set_pos(koord(left+140+335+55, top+1*BUTTONSPACE));
+	// maintenance money should be the same height as inf. maintenance (mmoney)
+	maintenance_money.set_pos(koord(left+140+335+55, top+2*BUTTONSPACE));
 
-	tylabel2.set_pos(koord(left+140+80+335,top+5*BUTTONSPACE-14));
-	gtmoney.set_pos(koord(left+140+335+55, top+6*BUTTONSPACE-12));
-	vtmoney.set_pos(koord(left+140+335+55, top+7*BUTTONSPACE-12));
-	margin.set_pos(koord(left+140+335+55, top+8*BUTTONSPACE-12));
-	money.set_pos(koord(left+140+335+55, top+9*BUTTONSPACE-12));
+	// right column (lower)
+	tylabel2.set_pos(koord(left+140+80+335,top+3*BUTTONSPACE-2));
+	cash_money.set_pos(koord(left+140+335+55, top+4*BUTTONSPACE));
+	assets.set_pos(koord(left+140+335+55, top+5*BUTTONSPACE));
+	net_wealth.set_pos(koord(left+140+335+55, top+6*BUTTONSPACE));
+	soft_credit_limit.set_pos(koord(left+140+335+55, top+7*BUTTONSPACE));
+	hard_credit_limit.set_pos(koord(left+140+335+55, top+8*BUTTONSPACE));
+	margin.set_pos(koord(left+140+335+55, top+9*BUTTONSPACE));
 
-	// return money or else stuff ...
+
+	// Scenario and warning location
 	warn.set_pos(koord(left+335, top+10*BUTTONSPACE));
 	if(sp->get_player_nr()!=1  &&  sp->get_welt()->get_scenario()->active()) {
 		scenario.set_pos( koord( 10,1 ) );
@@ -323,9 +328,12 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		add_komponente(&scenario);
 	}
 
+	const int TOP_OF_CHART = top + 11 * BUTTONSPACE + 10; // extra space is for chart labels
+	const int HEIGHT_OF_CHART = 120;
+
 	//CHART YEAR
-	chart.set_pos(koord(105,top+10*BUTTONSPACE+21));
-	chart.set_groesse(koord(455,120));
+	chart.set_pos(koord(105,TOP_OF_CHART));
+	chart.set_groesse(koord(455,HEIGHT_OF_CHART));
 	chart.set_dimension(MAX_PLAYER_HISTORY_YEARS, 10000);
 	chart.set_seed(sp->get_welt()->get_last_year());
 	chart.set_background(MN_GREY1);
@@ -333,8 +341,8 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	//CHART YEAR END
 
 	//CHART MONTH
-	mchart.set_pos(koord(105,top+10*BUTTONSPACE+21));
-	mchart.set_groesse(koord(455,120));
+	mchart.set_pos(koord(105,TOP_OF_CHART));
+	mchart.set_groesse(koord(455,HEIGHT_OF_CHART));
 	mchart.set_dimension(MAX_PLAYER_HISTORY_MONTHS, 10000);
 	mchart.set_seed(0);
 	mchart.set_background(MN_GREY1);
@@ -382,9 +390,9 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	add_komponente(&tylabel);
 
 	add_komponente(&tylabel2);
-	add_komponente(&gtmoney);
-	add_komponente(&vtmoney);
-	add_komponente(&money);
+	add_komponente(&cash_money);
+	add_komponente(&assets);
+	add_komponente(&net_wealth);
 	add_komponente(&margin);
 	add_komponente(&soft_credit_limit);
 	add_komponente(&hard_credit_limit);
@@ -392,7 +400,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	add_komponente(&maintenance_label);
 	add_komponente(&maintenance_label2);
 	add_komponente(&maintenance_money);
-	add_komponente(&vehicle_maintenance_money);
+	// add_komponente(&vehicle_maintenance_money);
 
 	add_komponente(&warn);
 
@@ -477,15 +485,16 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	add_komponente(&transport_type_c);
 	transport_type_c.add_listener( this );
 
-
-	set_fenstergroesse(koord(582, 340));
+	const int WINDOW_HEIGHT = TOP_OF_CHART + HEIGHT_OF_CHART + 10 + BUTTONSPACE * 2 ; // formerly 340
+	// The extra room below the chart is for (a) labels, (b) year label (BUTTONSPACE), (c) empty space
+	set_fenstergroesse(koord(582, WINDOW_HEIGHT));
 }
 
 
 void money_frame_t::zeichnen(koord pos, koord gr)
 {
 	// Hajo: each label needs its own buffer
-	static char str_buf[32][256];
+	static char str_buf[35][256];
 
 	sp->get_finance()->calc_finance_history();
 	fill_chart_tables();
@@ -520,45 +529,44 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	update_label(toll,     str_buf[24], transport_type_option, ATV_WAY_TOLL, 0);
 	update_label(old_toll, str_buf[25], transport_type_option, ATV_WAY_TOLL, 1);
 
-	update_label(gtmoney, str_buf[14], TT_MAX, ATC_CASH, 0);
-	update_label(vtmoney, str_buf[17], transport_type_option, ATV_NON_FINANCIAL_ASSETS, 0);
+	update_label(interest, str_buf[31], TT_MAX, ATC_INTEREST, 0);
+	update_label(old_interest, str_buf[32], TT_MAX, ATC_INTEREST, 1);
 
-	update_label(money, str_buf[18], TT_MAX, ATC_NETWEALTH, 0);
+	update_label(cash_money, str_buf[14], TT_MAX, ATC_CASH, 0);
+	update_label(assets, str_buf[17], transport_type_option, ATV_NON_FINANCIAL_ASSETS, 0);
+	update_label(net_wealth, str_buf[18], TT_MAX, ATC_NETWEALTH, 0);
+	update_label(soft_credit_limit, str_buf[33], TT_MAX, ATC_SOFT_CREDIT_LIMIT, 0);
+	update_label(hard_credit_limit, str_buf[34], TT_MAX, ATC_HARD_CREDIT_LIMIT, 0);
 	update_label(margin, str_buf[19], transport_type_option, ATV_PROFIT_MARGIN, 0);
 	str_buf[19][strlen(str_buf[19])-1] = '%';	// remove cent sign
-
-	update_label(interest, str_buf[26], TT_MAX, ATC_INTEREST, 0);
-	update_label(soft_credit_limit, str_buf[27], TT_MAX, ATC_SOFT_CREDIT_LIMIT, 0);
-	update_label(hard_credit_limit, str_buf[28], TT_MAX, ATC_HARD_CREDIT_LIMIT, 0);
-	update_label(vehicle_maintenance_money, str_buf[30], transport_type_option, ATV_VEHICLE_MAINTENANCE, 0);
 
 	// warning/success messages
 	if(sp->get_player_nr()!=1  &&  sp->get_welt()->get_scenario()->active()) {
 		warn.set_color( COL_BLACK );
 		sint32 percent = sp->get_welt()->get_scenario()->get_completion(sp->get_player_nr());
 		if (percent >= 0) {
-			sprintf( str_buf[29], translator::translate("Scenario complete: %i%%"), percent );
+			sprintf( str_buf[15], translator::translate("Scenario complete: %i%%"), percent );
 		}
 		else {
-			tstrncpy(str_buf[29], translator::translate("Scenario lost!"), lengthof(str_buf[29]) );
+			tstrncpy(str_buf[15], translator::translate("Scenario lost!"), lengthof(str_buf[15]) );
 		}
 	}
 	else if(sp->get_finance()->get_history_com_year(0, ATC_NETWEALTH)<0) {
 		warn.set_color( MONEY_MINUS );
-		tstrncpy(str_buf[29], translator::translate("Company bankrupt"), lengthof(str_buf[29]) );
+		tstrncpy(str_buf[15], translator::translate("Company bankrupt"), lengthof(str_buf[15]) );
 	}
 	else if(  sp->get_finance()->get_history_com_year(0, ATC_NETWEALTH)*10 < sp->get_welt()->get_settings().get_starting_money(sp->get_welt()->get_current_month()/12)  ){
 		warn.set_color( MONEY_MINUS );
-		tstrncpy(str_buf[29], translator::translate("Net wealth near zero"), lengthof(str_buf[29]) );
+		tstrncpy(str_buf[15], translator::translate("Net wealth near zero"), lengthof(str_buf[15]) );
 	}
 	else if(  sp->get_account_overdrawn()  ) {
 		warn.set_color( COL_YELLOW );
-		sprintf( str_buf[29], translator::translate("On loan since %i month(s)"), sp->get_account_overdrawn() );
+		sprintf( str_buf[15], translator::translate("On loan since %i month(s)"), sp->get_account_overdrawn() );
 	}
 	else {
-		str_buf[29][0] = '\0';
+		str_buf[15][0] = '\0';
 	}
-	warn.set_text(str_buf[29]);
+	warn.set_text(str_buf[15]);
 
 	// scenario description
 	if(sp->get_player_nr()!=1  &&  sp->get_welt()->get_scenario()->active()) {
