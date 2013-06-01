@@ -140,7 +140,7 @@ obj_besch_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		uint16 *dest = besch->pic.data;
 		for( uint8 y=0;  y<besch->pic.h;  y++  ) {
 			if(*dest<left) {
-				left = *dest;
+				left = *dest; 
 			}
 			// skip rest of the line
 			do {
