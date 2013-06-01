@@ -4906,7 +4906,6 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 			break;
 		}
 
-		// we need not to call this on the same position		if(  v->last_stop_pos != v->get_pos().get_2d()  ) {		// calc_revenue
 		if(!second_run)
 		{
 			koord3d pos = v->get_pos();
@@ -4918,20 +4917,24 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 			{
 				v->last_stop_pos = halt->get_basis_pos();
 			}
-			//Unload
-			sint64 revenue_from_unloading = 0;
-			changed_loading_level += v->entladen(halt, revenue_from_unloading, apportioned_revenues);
+			// hat_behalten can be called when the convoy hasn't moved... at all.
+			// We need to make sure we don't "unload again" when that happens.
+			if(old_last_stop_pos != fahr[0]->get_pos().get_2d()) {
+				//Unload
+				sint64 revenue_from_unloading = 0;
+				changed_loading_level += v->entladen(halt, revenue_from_unloading, apportioned_revenues);
 
-			// James has done something extremely screwy with revenue.  We have to divide it by 3000. FIXME.
-			sint64 modified_revenue_from_unloading = (revenue_from_unloading + 1500ll) / 3000ll;
-			if (modified_revenue_from_unloading == 0) {
-				modified_revenue_from_unloading = 1;
+				// James has done something extremely screwy with revenue.  We have to divide it by 3000. FIXME.
+				sint64 modified_revenue_from_unloading = (revenue_from_unloading + 1500ll) / 3000ll;
+				if (modified_revenue_from_unloading == 0) {
+					modified_revenue_from_unloading = 1;
+				}
+				// This call needs to be here in order to record different freight types properly.
+				besitzer_p->get_finance()->book_revenue( modified_revenue_from_unloading, get_schedule()->get_waytype(), v->get_fracht_typ()->get_index() );
+				// But add up the total for the convoi accounting,
+				// and for the on-screen message
+				accumulated_revenue += modified_revenue_from_unloading;
 			}
-			// This call needs to be here in order to record different freight types properly.
-			besitzer_p->get_finance()->book_revenue( modified_revenue_from_unloading, get_schedule()->get_waytype(), v->get_fracht_typ()->get_index() );
-			// But add up the total for the convoi accounting,
-			// and for the on-screen message
-			accumulated_revenue += modified_revenue_from_unloading;
 		}
 
 		if(!no_load) 
