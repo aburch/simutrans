@@ -33,6 +33,8 @@ static uint32 bFilterStates[MAX_PLAYER_COUNT];
 
 #define BUTTONSPACE 14
 
+#define COLUMN_TWO_START 11
+
 // @author hsiegeln
 const char *money_frame_t::cost_type_name[MAX_PLAYER_COST_BUTTON] =
 {
@@ -46,10 +48,10 @@ const char *money_frame_t::cost_type_name[MAX_PLAYER_COST_BUTTON] =
 	"Construction_Btn",
 	"Gross Profit",
 	"Cash",
+	"Interest",
 	"Assets",
 	"Margin (%)",
 	"Net Wealth",
-	"Interest",
 	"Credit Limit",
 	"Solvency Limit"
 };
@@ -66,10 +68,10 @@ const char money_frame_t::cost_tooltip[MAX_PLAYER_COST_BUTTON][256] =
   "Capital expenditure on infrastructure", 
   "Total income less total expenditure", 
   "Total liquid assets", 
+  "Cost of overdraft interest payments", 
   "Total capital assets, excluding liabilities", 
   "Percentage of revenue retained as profit", 
   "Total assets less total liabilities", 
-  "Cost of overdraft interest payments", 
   "The maximum amount that can be borrowed without prohibiting further capital outlays",
   "The maximum amount that can be borrowed without going bankrupt"
 };
@@ -87,14 +89,13 @@ const COLOR_VAL money_frame_t::cost_type_color[MAX_PLAYER_COST_BUTTON] =
 	COL_CONSTRUCTION,
 	COL_PROFIT,
 	COL_CASH,
+	COL_INTEREST,
 	COL_VEHICLE_ASSETS,
 	COL_MARGIN,
 	COL_WEALTH,
-	COL_INTEREST,
 	COL_SOFT_CREDIT_LIMIT,
 	COL_HARD_CREDIT_LIMIT
 };
-
 
 const uint8 money_frame_t::cost_type[3*MAX_PLAYER_COST_BUTTON] =
 {
@@ -108,10 +109,10 @@ const uint8 money_frame_t::cost_type[3*MAX_PLAYER_COST_BUTTON] =
 	ATV_CONSTRUCTION_COST,	        TT_ALL, MONEY,   // Construction
 	ATV_PROFIT,                     TT_ALL, MONEY,
 	ATC_CASH,                       TT_MAX, MONEY,   // Cash
+	ATC_INTEREST,					TT_MAX, MONEY,	// Interest paid servicing debt
 	ATV_NON_FINANCIAL_ASSETS,       TT_ALL, MONEY,   // value of all vehicles and buildings
 	ATV_PROFIT_MARGIN,              TT_ALL, STANDARD,
 	ATC_NETWEALTH,                  TT_MAX, MONEY,   // Total Cash + Assets
-	ATC_INTEREST,					TT_MAX, MONEY,	// Interest paid servicing debt
 	ATC_SOFT_CREDIT_LIMIT,			TT_MAX, MONEY,	// Maximum amount that can be borrowed
 	ATC_HARD_CREDIT_LIMIT,			TT_MAX, MONEY	// Borrowing which will lead to bankruptcy
 };
@@ -435,14 +436,14 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	add_komponente(&headquarter_view);
 
 	// add filter buttons
-	for(int ibutton=0;  ibutton<11;  ibutton++) {
+	for(int ibutton=0;  ibutton<COLUMN_TWO_START;  ibutton++) {
 		filterButtons[ibutton].init(button_t::box, cost_type_name[ibutton], koord(left, top+ibutton*BUTTONSPACE-2), koord(120, BUTTONSPACE));
 		filterButtons[ibutton].add_listener(this);
 		filterButtons[ibutton].background = cost_type_color[ibutton];
 		filterButtons[ibutton].set_tooltip(cost_tooltip[ibutton]);
 		add_komponente(filterButtons + ibutton);
 	}
-	for(int ibutton=11;  ibutton<MAX_PLAYER_COST_BUTTON;  ibutton++) {
+	for(int ibutton=COLUMN_TWO_START;  ibutton<MAX_PLAYER_COST_BUTTON;  ibutton++) {
 		filterButtons[ibutton].init(button_t::box, cost_type_name[ibutton], koord(left+335, top+(ibutton-6)*BUTTONSPACE-2), koord(120, BUTTONSPACE));
 		filterButtons[ibutton].add_listener(this);
 		filterButtons[ibutton].background = cost_type_color[ibutton];

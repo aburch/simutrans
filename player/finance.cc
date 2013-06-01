@@ -694,7 +694,7 @@ void finance_t::import_from_cost_month(const sint64 finance_history_month[][OLD_
 		veh_month[TT_ALL  ][i][ATV_WAY_TOLL] = finance_history_month[i][COST_WAY_TOLLS];
 		com_month[i][ATC_INTEREST] = finance_history_month[i][COST_INTEREST];
 		com_month[i][ATC_SOFT_CREDIT_LIMIT] = - finance_history_month[i][COST_CREDIT_LIMIT]; // reversed sign
-		com_month[i][ATC_HARD_CREDIT_LIMIT] = - finance_history_month[i][COST_CREDIT_LIMIT]; // doubled
+		com_month[i][ATC_HARD_CREDIT_LIMIT] = - 2 * finance_history_month[i][COST_CREDIT_LIMIT]; // reversed sign, doubled
 	}
 }
 
@@ -748,7 +748,7 @@ void finance_t::import_from_cost_year( const sint64 finance_history_year[][OLD_M
 		veh_year[TT_ALL  ][i][ATV_WAY_TOLL] = finance_history_year[i][COST_WAY_TOLLS];
 		com_year[i][ATC_INTEREST] = finance_history_year[i][COST_INTEREST];
 		com_year[i][ATC_SOFT_CREDIT_LIMIT] = - finance_history_year[i][COST_CREDIT_LIMIT]; // reversed sign
-		com_year[i][ATC_HARD_CREDIT_LIMIT] = - finance_history_year[i][COST_CREDIT_LIMIT]; // reversed sign, doubled
+		com_year[i][ATC_HARD_CREDIT_LIMIT] = - 2 * finance_history_year[i][COST_CREDIT_LIMIT]; // reversed sign, doubled
 	}
 }
 
