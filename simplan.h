@@ -22,8 +22,8 @@ void swap(planquadrat_t& a, planquadrat_t& b);
 
 struct nearby_halt_t
 {
-	halthandle_t halt;
 	uint8 distance;
+	halthandle_t halt;
 };
 
 
