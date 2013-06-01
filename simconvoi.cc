@@ -737,8 +737,8 @@ void convoi_t::add_running_cost(sint64 cost, const weg_t *weg)
 		weg->get_besitzer()->book_toll_received( toll, get_schedule()->get_waytype() );
 		get_besitzer()->book_toll_paid(         -toll, get_schedule()->get_waytype() );
 	}
-	get_besitzer()->book_running_costs( cost, get_schedule()->get_waytype());
 
+	get_besitzer()->book_running_costs( cost, get_schedule()->get_waytype());
 	book( cost, CONVOI_OPERATIONS );
 	book( cost, CONVOI_PROFIT );
 }
@@ -4913,7 +4913,13 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 			//Unload
 			sint64 revenue_from_unloading = 0;
 			changed_loading_level += v->entladen(halt, revenue_from_unloading);
-			besitzer_p->book_revenue( revenue_from_unloading, fahr[0]->get_pos().get_2d(), get_schedule()->get_waytype(), v->get_fracht_typ()->get_index() );
+
+			// James has done something extremely screwy with revenue.  We have to divide it by 3000. FIXME.
+			sint64 modified_revenue_from_unloading = (revenue_from_unloading + 1500ll) / 3000ll;
+			if (modified_revenue_from_unloading == 0) {
+				modified_revenue_from_unloading = 1;
+			}
+			besitzer_p->book_revenue( modified_revenue_from_unloading, fahr[0]->get_pos().get_2d(), get_schedule()->get_waytype(), v->get_fracht_typ()->get_index() );
 			gewinn += revenue_from_unloading;
 		}
 
@@ -4959,6 +4965,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	if(gewinn) 
 	{
 		gewinn = (gewinn + 1500ll) / 3000ll;
+		// James has done something extremely screwy with revenue.  We have to divide it by 3000. FIXME.
 		if(gewinn == 0)
 		{
 			// Revenue should never be rounded down to zero.
