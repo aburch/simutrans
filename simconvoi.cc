@@ -4843,7 +4843,7 @@ uint16 convoi_t::calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance, k
  */
 void convoi_t::hat_gehalten(halthandle_t halt)
 {
-	sint64 gewinn = 0;
+	sint64 accumulated_revenue = 0;
 	grund_t *gr = welt->lookup(fahr[0]->get_pos());
 
 	// now find out station length
@@ -4919,8 +4919,10 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 			if (modified_revenue_from_unloading == 0) {
 				modified_revenue_from_unloading = 1;
 			}
-			besitzer_p->book_revenue( modified_revenue_from_unloading, fahr[0]->get_pos().get_2d(), get_schedule()->get_waytype(), v->get_fracht_typ()->get_index() );
-			gewinn += revenue_from_unloading;
+			// This call needs to be here to record different freight types properly.
+			besitzer_p->book_revenue( modified_revenue_from_unloading, get_schedule()->get_waytype(), v->get_fracht_typ()->get_index() );
+			// But add up the total for the convoi accounting and the message
+			accumulated_revenue += modified_revenue_from_unloading;
 		}
 
 		if(!no_load) 
@@ -4962,19 +4964,12 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 		calc_current_loading_time(changed_loading_level);
 	}
 
-	if(gewinn) 
+	if(accumulated_revenue) 
 	{
-		gewinn = (gewinn + 1500ll) / 3000ll;
-		// James has done something extremely screwy with revenue.  We have to divide it by 3000. FIXME.
-		if(gewinn == 0)
-		{
-			// Revenue should never be rounded down to zero.
-			gewinn = 1;
-		}
-		jahresgewinn += gewinn; //"annual profit" (Babelfish)
-		besitzer_p->add_money_message(gewinn, fahr[0]->get_pos().get_2d());
-		book(gewinn, CONVOI_PROFIT);
-		book(gewinn, CONVOI_REVENUE);
+		jahresgewinn += accumulated_revenue; //"annual profit" (Babelfish)
+		besitzer_p->add_money_message(accumulated_revenue, fahr[0]->get_pos().get_2d());
+		book(accumulated_revenue, CONVOI_PROFIT);
+		book(accumulated_revenue, CONVOI_REVENUE);
 
 		// Check the apportionment of revenue.
 		// The proportion paid to other players is
@@ -5011,12 +5006,12 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 			if(gr->ist_wasser())
 			{
 				// This must be a sea port.
-				port_charge = (gewinn * welt->get_settings().get_seaport_toll_revenue_percentage()) / 100;
+				port_charge = (accumulated_revenue * welt->get_settings().get_seaport_toll_revenue_percentage()) / 100;
 			}
 			else if(fahr[0]->get_besch()->get_waytype() == air_wt)
 			{
 				// This is an aircraft - this must be an airport.
-				port_charge = (gewinn * welt->get_settings().get_airport_toll_revenue_percentage()) / 100;
+				port_charge = (accumulated_revenue * welt->get_settings().get_airport_toll_revenue_percentage()) / 100;
 			}
 			if (port_charge != 0) {
 				if(welt->get_active_player() == halt->get_besitzer())
