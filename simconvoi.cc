@@ -4919,9 +4919,10 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 			if (modified_revenue_from_unloading == 0) {
 				modified_revenue_from_unloading = 1;
 			}
-			// This call needs to be here to record different freight types properly.
-			besitzer_p->book_revenue( modified_revenue_from_unloading, get_schedule()->get_waytype(), v->get_fracht_typ()->get_index() );
-			// But add up the total for the convoi accounting and the message
+			// This call needs to be here in order to record different freight types properly.
+			besitzer_p->get_finance()->book_revenue( modified_revenue_from_unloading, get_schedule()->get_waytype(), v->get_fracht_typ()->get_index() );
+			// But add up the total for the convoi accounting,
+			// and for the on-screen message
 			accumulated_revenue += modified_revenue_from_unloading;
 		}
 
