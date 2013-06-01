@@ -836,8 +836,13 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 	update_scaled_electric_amount();
 	update_scaled_pax_demand();
 	update_scaled_mail_demand();
-	mark_connected_roads(false);
-	recalc_nearby_halts();
+
+	// We can't do these here, because get_tile_list will fail
+	// We have to wait until after ::baue is called
+	// It would be better to call ::baue here, but that fails too
+	// --neroden
+	// mark_connected_roads(false);
+	// recalc_nearby_halts();
 }
 
 void fabrik_t::mark_connected_roads(bool del)

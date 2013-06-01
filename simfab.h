@@ -401,7 +401,6 @@ private:
 
 	// scales the amount of production based on the amount already in storage
 	uint32 scale_output_production(const uint32 product, uint32 menge) const;
-	void mark_connected_roads(bool del);
 
 //	/**
 //	 * increase the amount for a time delta_t scaled to a fixed time PRODUCTION_DELTA_T
@@ -484,6 +483,12 @@ public:
 	 * @author neroden
 	 */
 	void recalc_nearby_halts();
+
+	/**
+	 * Re-mark nearby roads.
+	 * Needs to be called by fabrikbauer_t (otherwise private).
+	 */
+	void mark_connected_roads(bool del);
 
 	/**
 	 * Functions for manipulating the list of connected cities
