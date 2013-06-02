@@ -279,13 +279,9 @@ sint64 finance_t::credit_limit_by_profits() const {
 	// Start by looking at *last* month and go back 12 (one year)
 	for(int month = 1; month < 13; month++)
 	{
-		// Use "profits before interest" to provide a conservative credit limit.
-		// We want operating profits, minus construction costs etc.
-		// Since interest is based on cash level, we DON'T want to include it.
-		// Start with profits...
-		profit_total += get_history_veh_month(TT_ALL, month, ATV_PROFIT);
-		// Then back out interest, since it's based on cash level.
-		profit_total -= get_history_com_month(month, ATC_INTEREST);
+		// Use operating profits as the basis for interest coverage.
+		// This is before interst and before construction costs.
+		profit_total += get_history_veh_month(TT_ALL, month, ATV_OPERATING_PROFIT);
     }
 	sint64 interest_rate = world->get_settings().get_interest_rate_percent();
 	// *Divide* by the interest rate: if all the profits went to interest,
