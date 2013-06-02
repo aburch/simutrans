@@ -223,7 +223,7 @@ void finance_t::book_interest_monthly() {
 	uint8 interest_rate = world->get_settings().get_interest_rate_percent();
 	if (interest_rate > 0) {
 		float32e8_t interest (interest_rate);
-		interest /= (float32e8_t)100 // percent
+		interest /= (float32e8_t)100; // percent
 		interest /= (float32e8_t)12; // monthly
 		if (get_account_balance() >= 0) {
 			// Credit interest rate is 1/4 of debt interest rate.
