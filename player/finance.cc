@@ -223,12 +223,14 @@ void finance_t::book_interest_monthly() {
 	uint8 interest_rate = world->get_settings().get_interest_rate_percent();
 	if (interest_rate > 0) {
 		float32e8_t interest (interest_rate);
+		interest /= (float32e8_t)100 // percent
 		interest /= (float32e8_t)12; // monthly
 		if (get_account_balance() >= 0) {
 			// Credit interest rate is 1/4 of debt interest rate.
 			interest /= (float32e8_t)4;
 		}
-		interest /= (float32e8_t)get_account_balance();
+		// Apply to the current account balance, positive or negative
+		interest *= (float32e8_t)get_account_balance();
 		// Due to the limitations of float32e8, interest can only go up to +-2^31 per month.
 		// Hopefully this won't be an issue.  It will report errors if it is.
 		// This would require an account balance of over +-257 billion.
