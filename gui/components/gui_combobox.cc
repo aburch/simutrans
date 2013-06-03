@@ -183,12 +183,11 @@ void gui_combobox_t::zeichnen(koord offset)
 {
 	// text changed? Then update it
 	gui_scrolled_list_t::scrollitem_t *item = droplist.get_element( droplist.get_selection() );
-	if(  item  &&  item->is_valid()  &&  strncmp(item->get_text(),old_editstr,127)!=0  ) {
+	if(  item  &&  item->is_valid()  &&  item->is_editable()  &&  strncmp( item->get_text(), old_editstr, 127 )  ) {
 		reset_selected_item_name();
 	}
 
 	bool with_focus = (win_get_focus()==this)  &&  (item==NULL  ||  item->is_editable());
-
 	textinp.display_with_focus( offset, with_focus);
 
 	if(  droplist.is_visible()  ) {
@@ -231,8 +230,11 @@ void gui_combobox_t::rename_selected_item()
 {
 	gui_scrolled_list_t::scrollitem_t *item = droplist.get_element(droplist.get_selection());
 	// if name was not changed in the meantime, we can rename it
-	if(  item  &&  item->is_valid() &&  item->is_editable() &&  strncmp(item->get_text(),old_editstr,127)==0  &&  strncmp(item->get_text(),editstr,127)) {
-		item->set_text(editstr);
+	if(  item  &&  item->is_valid()  &&  item->is_editable()  ) {
+		const char *current_str = ((gui_scrolled_list_t::const_text_scrollitem_t *)item)->get_text();
+		if(  strncmp( current_str, old_editstr, 127 )==0  &&  strncmp( current_str, editstr, 127 )!=0  ) {
+			((gui_scrolled_list_t::const_text_scrollitem_t *)item)->set_text(editstr);
+		}
 	}
 }
 
@@ -245,11 +247,14 @@ void gui_combobox_t::reset_selected_item_name()
 		textinp.set_text( editstr, 0  );
 		droplist.set_selection(-1);
 	}
-	else if(  item->is_valid()  &&  strncmp(editstr,item->get_text(),127)!=0  ) {
-		tstrncpy(editstr, item->get_text(), lengthof(editstr));
-		textinp.set_text( editstr, sizeof(editstr));
+	else if(  item->is_valid()  &&  item->is_editable()  ) {
+		const char *current_str = ((gui_scrolled_list_t::const_text_scrollitem_t *)item)->get_text();
+		if(  strncmp( current_str, old_editstr, 127 )!=0  ) {
+			tstrncpy( editstr, current_str, lengthof(editstr) );
+			textinp.set_text( editstr, lengthof(editstr) );
+		}
 	}
-	tstrncpy(old_editstr, editstr, sizeof(old_editstr));
+	tstrncpy( old_editstr, editstr, lengthof(old_editstr) );
 }
 
 

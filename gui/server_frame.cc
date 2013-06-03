@@ -394,19 +394,20 @@ bool server_frame_t::action_triggered (gui_action_creator_t *komp, value_t p)
 		}
 		else {
 			join.disable();
-			if (  ((server_scrollitem_t*)serverlist.get_element( p.i ))->online()  ) {
+			server_scrollitem_t *item = (server_scrollitem_t*)serverlist.get_element( p.i );
+			if(  item->online()  ) {
 				const char *err = network_gameinfo( ((server_scrollitem_t*)serverlist.get_element( p.i ))->get_dns(), &gi );
-				if (  err == NULL  ) {
-					serverlist.get_element( p.i )->set_color( COL_BLACK );
+				if(  err == NULL  ) {
+					item->set_color( COL_BLACK );
 					update_info();
 				}
 				else {
-					serverlist.get_element( p.i )->set_color( COL_RED );
+					item->set_color( COL_RED );
 					update_error( "Server did not respond!" );
 				}
 			}
 			else {
-				serverlist.get_element( p.i )->set_color( COL_RED );
+				item->set_color( COL_RED );
 				update_error( "Cannot connect to offline server!" );
 			}
 		}

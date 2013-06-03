@@ -14,6 +14,22 @@
 #include "../../simwin.h"
 
 
+
+// draws a single line of text
+KOORD_VAL gui_scrolled_list_t::const_text_scrollitem_t::zeichnen( koord pos, KOORD_VAL w, bool selected, bool focus )
+{
+	if(selected) {
+		// the selection is grey on color
+		display_fillbox_wh_clip( pos.x+3, pos.y-1, w-5, LINESPACE, COL_BLUE, true);
+		return display_proportional_clip( pos.x+7, pos.y, get_text(), ALIGN_LEFT, (focus ? COL_WHITE : MN_GREY3), true);
+	}
+	else {
+		// normal text
+		return display_proportional_clip( pos.x+7, pos.y, get_text(), ALIGN_LEFT, get_color(), true);
+	}
+}
+
+
 int gui_scrolled_list_t::total_vertical_size() const
 {
 	return item_list.get_count() * LINESPACE + 2;
@@ -72,9 +88,15 @@ DBG_MESSAGE("gui_scrolled_list_t::show_selection()","sel=%d, offset=%d, groesse.
 
 void gui_scrolled_list_t::clear_elements()
 {
+	for(  sint32 i=0;  i<item_list.get_count();  i++  ) {
+		delete item_list[i];
+	}
+	item_list.clear();
+	/*
 	while(  !item_list.empty()  ) {
 		delete item_list.remove_first();
 	}
+	*/
 	adjust_scrollbar();
 }
 
@@ -217,7 +239,9 @@ void gui_scrolled_list_t::zeichnen(koord pos)
 	PUSH_CLIP(x+1,y+1,w-2,h-2);
 	int ycum = y+2-offset; // y cumulative
 	int i=0;
-	for (slist_tpl<scrollitem_t*>::iterator iter = item_list.begin(), end = item_list.end(); iter != end;) {
+	const bool focus = win_get_focus()==this;
+	KOORD_VAL max_w = 0;
+	for(  vector_tpl<scrollitem_t*>::iterator iter = item_list.begin(), end = item_list.end();  iter != end;  ) {
 		scrollitem_t* const item = *iter;
 		if(  !item->is_valid()  ) {
 			iter = item_list.erase(iter);
@@ -230,16 +254,11 @@ void gui_scrolled_list_t::zeichnen(koord pos)
 			}
 		}
 		else {
-			if(i == selection) {
-				// the selection is grey on color
-				display_fillbox_wh_clip(x+3, ycum-1, w-5, LINESPACE, highlight_color, true);
-				display_proportional_clip(x+7, ycum, item->get_text(), ALIGN_LEFT, (win_get_focus()==this ? COL_WHITE : MN_GREY3), true);
+			KOORD_VAL this_w = item->zeichnen( koord( x, ycum), w, i == selection, focus );
+			if(  this_w > max_w  ) {
+				max_w = this_w;
 			}
-			else {
-				// normal text
-				display_proportional_clip(x+7, ycum, item->get_text(), ALIGN_LEFT, item->get_color(), true);
-			}
-			ycum += LINESPACE;
+			ycum += item->get_h();
 			++iter;
 			i++;
 		}

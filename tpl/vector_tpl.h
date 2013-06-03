@@ -245,10 +245,11 @@ template<class T> class vector_tpl
 		T& back() const { return data[count - 1]; }
 
 		iterator begin() { return data; }
-		iterator end()   { return data + count; }
+		iterator end() { return data + count; }
+		iterator erase(iterator i) { remove_at( i-data ); return i; }
 
 		const_iterator begin() const { return data; }
-		const_iterator end()   const { return data + count; }
+		const_iterator end() const { return data + count; }
 
 		/** Get the number of elements in the vector */
 		uint32 get_count() const { return count; }

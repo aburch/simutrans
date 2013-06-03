@@ -5,7 +5,9 @@
 #include "action_listener.h"
 #include "gui_action_creator.h"
 #include "../../simcolor.h"
+#include "../../simgraph.h"
 #include "../../utils/plainstring.h"
+#include "../../tpl/vector_tpl.h"
 
 /**
  * Scrollable list.
@@ -29,42 +31,46 @@ public:
 	 * Container for list entries - consisting of text and color
 	 */
 	class scrollitem_t {
-	private:
-		COLOR_VAL color;
 	public:
-		scrollitem_t( COLOR_VAL col ) { color = col; }
 		virtual ~scrollitem_t() {}
-		virtual uint8 get_color() { return color; }
-		virtual void set_color(uint8 col) { color = col; }
+		virtual KOORD_VAL get_h() const = 0;	// largest object in this list
+		virtual KOORD_VAL zeichnen( koord pos, KOORD_VAL width, bool is_selected, bool has_focus ) = 0;
 		virtual char const* get_text() const = 0;
-		virtual void set_text(char const*) = 0;
 		virtual bool is_valid() { return true; }	//  can be used to indicate invalid entries
 		virtual bool is_editable() { return false; }
 	};
 
+	// only uses pointer, non-editable
+	class const_text_scrollitem_t : public scrollitem_t {
+	protected:
+		const char *consttext;
+		COLOR_VAL color;
+	public:
+		const_text_scrollitem_t(char const* const t, uint8 const col) : consttext(t), color(col) {}
+
+		virtual KOORD_VAL zeichnen( koord pos, KOORD_VAL width, bool is_selected, bool has_focus );
+		virtual KOORD_VAL get_h() const { return LINESPACE; }
+
+		virtual uint8 get_color() { return color; }
+		virtual void set_color(uint8 col) { color = col; }
+
+		virtual char const* get_text() const { return consttext; }
+		virtual void set_text(char const *t) {}
+	};
+
 	// editable text
-	class var_text_scrollitem_t : public scrollitem_t {
+	class var_text_scrollitem_t : public const_text_scrollitem_t {
+	protected:
+		COLOR_VAL color;
 	private:
 		plainstring text;
 
 	public:
-		var_text_scrollitem_t(char const* const t, uint8 const col) : scrollitem_t(col), text(t) {}
+		var_text_scrollitem_t(char const* const t, uint8 const col) : const_text_scrollitem_t(t,col), text(t) {}
 
-		char const* get_text() const OVERRIDE { return text; }
+		virtual void set_text(char const *t) OVERRIDE { text = t; }
 
-		void set_text(char const *t) OVERRIDE { text = t; }
-
-		bool is_editable() { return true; }
-	};
-
-	// only uses pointer, non-editable
-	class const_text_scrollitem_t : public scrollitem_t {
-	private:
-		const char *text;
-	public:
-		const_text_scrollitem_t( const char *t, uint8 col ) : scrollitem_t(col) { text = t; }
-		char const* get_text() const OVERRIDE { return text; }
-		void set_text(char const *) OVERRIDE {}
+		virtual bool is_editable() { return true; }
 	};
 
 private:
@@ -81,7 +87,7 @@ private:
 
 	scrollbar_t sb;
 
-	slist_tpl<gui_scrolled_list_t::scrollitem_t *> item_list;
+	vector_tpl<gui_scrolled_list_t::scrollitem_t *> item_list;
 	int total_vertical_size() const;
 
 public:
@@ -105,7 +111,7 @@ public:
 	 *  with recalculate_slider() to update the scrollbar properly. */
 	void clear_elements();
 	void append_element( scrollitem_t *item );
-	scrollitem_t *get_element(sint32 i) const { return ((uint32)i<item_list.get_count()) ? item_list.at(i) : NULL; }
+	scrollitem_t *get_element(sint32 i) const { return ((uint32)i<item_list.get_count()) ? item_list[i] : NULL; }
 
 	// set the first element to be shown in the list
 	sint32 get_sb_offset() { return sb.get_knob_offset(); }
