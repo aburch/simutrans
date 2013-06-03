@@ -3668,19 +3668,20 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 		vector_tpl<fabrik_t*> affected_fab_list;
 		for (int y = -cov; y <= cov; y++) {
 			for (int x = -cov; x <= cov; x++) {
-				planquadrat_t *pl_cur = welt->access( gr->get_pos().get_2d()+koord(x,y) );
-				if(pl_cur) {
+				const koord nearby_pos = gr->get_pos().get_2d()+koord(x,y);
+				planquadrat_t *nearby_plan = welt->access( nearby_pos );
+				if(nearby_plan) {
 					// This will remove the tile from the haltlist only if appropriate
 					// (::remove_from_haltlist double-checks this)
-					pl_cur->remove_from_haltlist(welt,self);
-					pl_cur->get_kartenboden()->set_flag(grund_t::dirty);
-					const grund_t* gr = pl->get_kartenboden();
+					nearby_plan->remove_from_haltlist(welt,self);
+					nearby_plan->get_kartenboden()->set_flag(grund_t::dirty);
+					const grund_t* nearby_ground = nearby_plan->get_kartenboden();
 					// If there's a factory here, add it to the working list
-					const gebaeude_t* gb = gr->find<gebaeude_t>();
-					if (gb) {
-						fabrik_t* fab = gb->get_fabrik();
-						if (fab && !affected_fab_list.is_contained(fab) ) {
-							affected_fab_list.append(fab);
+					const gebaeude_t* nearby_building = nearby_ground->find<gebaeude_t>();
+					if (nearby_building) {
+						fabrik_t* nearby_fab = nearby_building->get_fabrik();
+						if (nearby_fab && !affected_fab_list.is_contained(nearby_fab) ) {
+							affected_fab_list.append(nearby_fab);
 						}
 					}
 				}
