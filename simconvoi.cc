@@ -5098,7 +5098,16 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 		state = ROUTING_1;
 	}
 
-	// at least wait the minimum time for loading
+	// reset the wait_lock
+	if ( state == ROUTING_1 ) {
+		wait_lock = 0;
+	} else {
+		// The random extra wait here is designed to avoid processing every convoi at once
+		wait_lock = (go_on_ticks - welt->get_zeit_ms())/2 + (self.get_id())%1024;
+		if (wait_lock < 0 ) {
+			wait_lock = 0;
+		}
+	}
 }
 
 
