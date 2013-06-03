@@ -233,6 +233,8 @@ public:
 		veh_year[ tt][0][ATV_NON_FINANCIAL_ASSETS] -= (sint64) amount;
 		veh_month[tt][0][ATV_NON_FINANCIAL_ASSETS] -= (sint64) amount;
 
+		/* has_money_or_assets requires that this be up to date */
+		com_year[0][ATC_NETWEALTH] += amount;
 		account_balance += amount;
 	}
 
@@ -398,9 +400,9 @@ public:
 	bool has_convoi() const { return (com_year[0][ATC_ALL_CONVOIS] > 0); }
 
 	/**
-	 * returns TRUE if (account(=konto) + assets )>0
+	 * returns TRUE if net wealth > 0 (but this of course requires that we keep netwealth up to date!)
 	 */
-	bool has_money_or_assets() const { return (( account_balance + get_history_veh_year(TT_ALL, 0, ATV_NON_FINANCIAL_ASSETS) ) > 0 ); }
+	bool has_money_or_assets() const { return ((get_history_com_year(0, ATC_NETWEALTH) ) > 0 ); }
 
 	/**
 	 * increases number of month for which the company is in red numbers
