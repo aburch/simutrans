@@ -366,10 +366,13 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 			display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, MONEY_PLUS, true );
 			extra_y += LINESPACE;
 
-			// power
+			// power, tractive force, gear
 			if(v->get_besch()->get_leistung()>0) {
 				buf.clear();
-				buf.printf( "%s %i kW, %s %.2f", translator::translate("Power:"), v->get_besch()->get_leistung(), translator::translate("Gear:"), v->get_besch()->get_gear()/64.0 );
+				buf.printf( "%s %i kW, %s %i kN, %s %.2f",
+					translator::translate("Power:"), v->get_besch()->get_leistung(),
+					translator::translate("Tractive Force:"), v->get_besch()->get_tractive_effort(),
+					translator::translate("Gear:"), v->get_besch()->get_gear()/64.0 );
 				display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, MONEY_PLUS, true );
 				extra_y += LINESPACE;
 			}
