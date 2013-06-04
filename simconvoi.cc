@@ -5538,7 +5538,8 @@ void convoi_t::check_pending_updates()
 		if(is_depot) {
 			// next was depot. restore it
 			fpl->insert(welt->lookup(depot), 0, 0, besitzer_p == welt->get_active_player());
-			fpl->set_aktuell( (fpl->get_aktuell()+fpl->get_count()-1)%fpl->get_count() );
+			// Insert will move the pointer past the inserted item; move back to it
+			fpl->advance_reverse();
 		}
 
 		if (state != INITIAL) {
@@ -5862,7 +5863,8 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 			depot_pos = route.position_bei(route.get_count() - 1);
 		}		
 		fpl->insert(welt->lookup(depot_pos), 0, 0, besitzer_p == welt->get_active_player());
-		fpl->set_aktuell((fpl->get_aktuell()+fpl->get_count()-1)%fpl->get_count());
+		// Insert will move the pointer past the inserted item; move back to it
+		fpl->advance_reverse();
 		b_depot_found = set_schedule(fpl);
 	}
 
