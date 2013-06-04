@@ -4892,73 +4892,92 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	halt->update_alternative_seats(self);
 	// only load vehicles in station
 
-	bool second_run = false;
-	uint8 convoy_length = 0;
-	uint16 changed_loading_level = 0;
+	// Save the old stop position; don't unload again if we don't move.
 	const koord old_last_stop_pos = fahr[0]->last_stop_pos;
-	for(int i = 0; i < anz_vehikel ; i++) 
+
+	uint16 changed_loading_level = 0;
+	int number_loadable_vehicles = anz_vehikel; // Will be shortened for short platform
+
+	// We only unload & load vehicles which are within the station.
+	// To fix: this creates undesired behavior for long trains, because the
+	// cars in the back will not load/unload in "short" platforms.
+	//
+	// Proposed fix: load passengers from back of the train to the front,
+	// selectively delaying loading passengers destined for "short" platforms
+	// in order to get them into the cars in the front of the station.  Just like
+	// real conductors do.
+	//
+	// This will require tracking platform length in the schedule object.
+	// --neroden
+
+	// First, unload vehicles.
+
+	uint8 convoy_length = 0;
+	for(int i = 0; i < anz_vehikel ; i++)
 	{
 		vehikel_t* v = fahr[i];
 
 		convoy_length += v->get_besch()->get_length();
-		if(convoy_length > station_length) 
+		if(convoy_length > station_length)
 		{
+			number_loadable_vehicles = i;
 			break;
 		}
 
-		if(!second_run)
+		// Reset last_stop_pos for all vehicles.
+		koord3d pos = v->get_pos();
+		if(haltestelle_t::get_halt(welt, pos, v->get_besitzer()).is_bound())
 		{
-			koord3d pos = v->get_pos();
-			if(haltestelle_t::get_halt(welt, pos, v->get_besitzer()).is_bound())
-			{
-				v->last_stop_pos = pos.get_2d();
-			}
-			else
-			{
-				v->last_stop_pos = halt->get_basis_pos();
-			}
-			// hat_behalten can be called when the convoy hasn't moved... at all.
-			// We need to make sure we don't "unload again" when that happens.
-			if(old_last_stop_pos != fahr[0]->get_pos().get_2d()) {
-				//Unload
-				sint64 revenue_from_unloading = 0;
-				changed_loading_level += v->entladen(halt, revenue_from_unloading, apportioned_revenues);
-
-				// James has done something extremely screwy with revenue.  We have to divide it by 3000. FIXME.
-				sint64 modified_revenue_from_unloading = (revenue_from_unloading + 1500ll) / 3000ll;
-				if (modified_revenue_from_unloading == 0) {
-					modified_revenue_from_unloading = 1;
-				}
-				// This call needs to be here in order to record different freight types properly.
-				besitzer_p->get_finance()->book_revenue( modified_revenue_from_unloading, get_schedule()->get_waytype(), v->get_fracht_typ()->get_index() );
-				// But add up the total for the convoi accounting,
-				// and for the on-screen message
-				accumulated_revenue += modified_revenue_from_unloading;
-			}
+			v->last_stop_pos = pos.get_2d();
 		}
-
-		if(!no_load) 
+		else
 		{
-			// load
-			changed_loading_level += v->beladen(halt, second_run);
+			v->last_stop_pos = halt->get_basis_pos();
 		}
-		else 
-		{
-			// do not load anymore - but call beladen() to recalculate vehikel weight
-			v->beladen(halthandle_t());
-		}
-
-		// Run this routine twice: first, load all vehicles to their non-overcrowded capacity.
-		// Then, allow them to run to their overcrowded capacity.
-		if(!second_run && i >= anz_vehikel - 1)
-		{
-			//Reset counter for one more go
-			second_run = true;
-			i = -1; // Bernd Gabriel, 05.07.2009: was 0, but 0 will skip first vehicle due to i++ at end of loop;
-			// Bernd Gabriel, 05.07.2009: must reinitialize convoy_length
-			convoy_length = 0;
+		// hat_behalten can be called when the convoy hasn't moved... at all.
+		// We should avoid the unloading code when this happens (for speed).
+		if(old_last_stop_pos != fahr[0]->get_pos().get_2d()) {
+			//Unload
+			sint64 revenue_from_unloading = 0;
+			uint16 amount_unloaded = v->entladen(halt, revenue_from_unloading, apportioned_revenues);
+			changed_loading_level += amount_unloaded;
+			// James has done something extremely screwy with revenue.  We have to divide it by 3000. FIXME.
+			sint64 modified_revenue_from_unloading = (revenue_from_unloading + 1500ll) / 3000ll;
+			if (amount_unloaded && modified_revenue_from_unloading == 0) {
+				// if we unloaded something, provide some minimum revenue.  But not if we unloaded nothing.
+				modified_revenue_from_unloading = 1;
+			}
+			// This call needs to be here, per-vehicle, in order to record different freight types properly.
+			besitzer_p->get_finance()->book_revenue( modified_revenue_from_unloading, get_schedule()->get_waytype(), v->get_fracht_typ()->get_index() );
+			// But add up the total for the convoi accounting,
+			// and for the on-screen message
+			accumulated_revenue += modified_revenue_from_unloading;
 		}
 	}
+	if (no_load) {
+		for(int i = 0; i < number_loadable_vehicles ; i++)
+		{
+			vehikel_t* v = fahr[i];
+			// do not load -- but call beladen() to recalculate vehikel weight
+			v->beladen(halthandle_t());
+		}
+	}
+	else // not "no_load"
+	{
+		// Load vehicles to their regular level.
+		for(int i = 0; i < number_loadable_vehicles ; i++)
+		{
+			vehikel_t* v = fahr[i];
+			changed_loading_level += v->beladen(halt, second_run);
+		}
+		// Finally, load vehicles to their overcrowded level.
+		for(int i = 0; i < number_loadable_vehicles ; i++)
+		{
+			vehikel_t* v = fahr[i];
+			changed_loading_level += v->beladen(halt, second_run);
+		}
+	}
+
 	freight_info_resort |= changed_loading_level;
 	if(  changed_loading_level  ) {
 		halt->recalc_status();
