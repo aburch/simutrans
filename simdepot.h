@@ -71,7 +71,7 @@ public:
 		// but the vehicle besch waytype is tram.
 		// Change this if we want to allow trams into train depots and vice versa.
 		const waytype_t vehicle_waytype = test_vehicle->besch->get_waytype();
-		(vehicle_waytpe == my_waytype) || return false;
+		(vehicle_waytype == my_waytype) || return false;
 
 		if (traction_types != 0 ) {
 			// If traction types were specified, then *one* of them must match
