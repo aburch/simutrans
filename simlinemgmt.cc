@@ -84,8 +84,9 @@ void simlinemgmt_t::update_line(linehandle_t line)
 			// If a new schedule is incomplete, convoys will
 			// be blocking places unless sent to the depot.
 			cnv->emergency_go_to_depot();
+			// Note that this may destroy a convoi in extreme cases (no depot).
 		}
-		if(  cnv->in_depot()  ) {
+		if(  cnv.is_bound() && cnv->in_depot()  ) {
 			cnv->check_pending_updates(); // apply new schedule immediately for convoys in depot
 		}
 	}

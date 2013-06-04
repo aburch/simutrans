@@ -7512,6 +7512,7 @@ bool wkz_access_t::init(karte_t* const welt, spieler_t *sp)
 				// We need to make sure that convoys with fewer than two
 				// stops are not left stranded and blocking things.
 				cnv->emergency_go_to_depot();
+				// Note that this may destroy the convoi in extreme cases.
 			}
 		}
 		

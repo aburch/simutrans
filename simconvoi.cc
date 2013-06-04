@@ -1487,6 +1487,8 @@ end_loop:
 					state = NO_ROUTE;
 					// A convoy without a schedule should not be left lingering on the map.
 					emergency_go_to_depot();
+					// Get out of this routine; object might be destroyed.
+					return;
 				}
 				else {
 					// Schedule changed at station
@@ -1496,8 +1498,14 @@ end_loop:
 						if (route.get_count() > 0) {
 							koord3d const& pos = route.back();
 							if (h == haltestelle_t::get_halt(welt, pos, get_besitzer())) {
-								state = get_pos() == pos ? LOADING : DRIVING;
-								break;
+								if (get_pos() == pos) {
+									state = LOADING;
+									break;
+								}
+								else {
+									state = DRIVING;
+									break;
+								}
 							}
 						}
 						else {
@@ -1560,6 +1568,8 @@ end_loop:
 			{
 				// If the convoy is stuck for too long, send it to a depot.
 				emergency_go_to_depot();
+				// get out of this routine; vehicle might be destroyed
+				return;
 			}
 			else if (fpl->empty()) 
 			{
