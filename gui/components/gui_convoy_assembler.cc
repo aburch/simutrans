@@ -1083,19 +1083,12 @@ void gui_convoy_assembler_t::add_to_vehicle_list(const vehikel_besch_t *info)
 
 void gui_convoy_assembler_t::image_from_convoi_list(uint nr)
 {
-	depot_t* depot;
 	if(depot_frame)
 	{
+		// We're in an actual depot.
+		depot_t* depot;
 		depot = depot_frame->get_depot();
-	}
-	else
-	{
-		const grund_t* gr = welt->lookup(replace_frame->get_convoy()->get_home_depot());
-		depot = gr->get_depot();
-	}
 
-	if(depot_frame)
-	{
 		const convoihandle_t cnv = depot->get_convoi(depot_frame->get_icnv());
 		if(cnv.is_bound() &&  nr<cnv->get_vehikel_anzahl() ) {
 
@@ -1119,6 +1112,7 @@ void gui_convoy_assembler_t::image_from_convoi_list(uint nr)
 	}
 	else
 	{
+		// We're in a replacer.  Less work.
 		vehicles.remove_at(nr);
 	}
 }
