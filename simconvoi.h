@@ -575,7 +575,7 @@ private:
 	// Helper function: used in init and replacing
 	void reset();
 
-	// Helper function: used in betrete_depot and destructor.
+	// Helper function: used in enter_depot and destructor.
 	void close_windows();
 
 	// Reverses the order of the convoy.
@@ -867,10 +867,10 @@ public:
 	void rotate90( const sint16 y_size );
 
 	/**
-	* Called if a vehicle enters a depot
-	* @author Hanjsörg Malthaner
+	* Called to make a convoi enter a depot
+	* @author Hj. Malthaner, neroden
 	*/
-	void betrete_depot(depot_t *dep);
+	void enter_depot(depot_t *dep);
 
 	/**
 	* @return Current map.

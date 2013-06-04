@@ -151,22 +151,12 @@ void depot_t::call_depot_tool( char tool, convoihandle_t cnv, const char *extra,
 
 
 /* this is called on two occasions:
- * first a convoy reaches the depot during its journey
+ * first a convoy reaches the depot during its journey (or on emergency stop)
  * second during loading a convoi is stored in a depot => only store it again
  */
 void depot_t::convoi_arrived(convoihandle_t acnv, bool fpl_adjust)
 {
 	if(fpl_adjust) {
-		// here a regular convoi arrived
-
-		for(unsigned i=0; i<acnv->get_vehikel_anzahl(); i++) {
-			vehikel_t *v = acnv->get_vehikel(i);
-			// Hajo: reset vehikel data
-			v->loesche_fracht();
-			v->set_pos( koord3d::invalid );
-			v->set_erstes( i==0 );
-			v->set_letztes( i+1==acnv->get_vehikel_anzahl() );
-		}
 		// Volker: remove depot from schedule
 		schedule_t *fpl = acnv->get_schedule();
 		for(  int i=0;  i<fpl->get_count();  i++  ) {
@@ -178,6 +168,17 @@ void depot_t::convoi_arrived(convoihandle_t acnv, bool fpl_adjust)
 			}
 		}
 	}
+
+	// Clean up the vehicles -- get rid of freight, etc.  Do even when loading, just in case.
+	for(unsigned i=0; i<acnv->get_vehikel_anzahl(); i++) {
+		vehikel_t *v = acnv->get_vehikel(i);
+		// Hajo: reset vehikel data
+		v->loesche_fracht();
+		v->set_pos( koord3d::invalid );
+		v->set_erstes( i==0 );
+		v->set_letztes( i+1==acnv->get_vehikel_anzahl() );
+	}
+
 	// this part stores the convoi in the depot
 	convois.append(acnv);
 	depot_frame_t *depot_frame = dynamic_cast<depot_frame_t *>(win_get_magic( (ptrdiff_t)this ));

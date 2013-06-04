@@ -1509,10 +1509,11 @@ end_loop:
 					}
 
 					if(  fpl->get_current_eintrag().pos==get_pos()  ) {
+						// We are at the scheduled location
 						// position in depot: waiting
 						grund_t *gr = welt->lookup(fpl->get_current_eintrag().pos);
 						if(  gr  &&  gr->get_depot()  ) {
-							betrete_depot( gr->get_depot() );
+							enter_depot( gr->get_depot() );
 						}
 						else {
 							state = ROUTING_1;
@@ -1849,11 +1850,36 @@ void convoi_t::new_month()
 	}
 }
 
-
-void convoi_t::betrete_depot(depot_t *dep)
+/**
+ * Make a convoi enter a depot.
+ */
+void convoi_t::enter_depot(depot_t *dep)
 {
 	// first remove reservation, if train is still on track
 	unreserve_route();
+
+	if(reversed)
+	{
+		// Put the train back into "forward" position
+		if(reversed)
+		{
+			reversable = fahr[0]->get_besch()->get_can_lead_from_rear() || (anz_vehikel == 1 && fahr[0]->get_besch()->is_bidirectional());
+		}
+		else
+		{
+			reversable = fahr[anz_vehikel - 1]->get_besch()->get_can_lead_from_rear() || (anz_vehikel == 1 && fahr[0]->get_besch()->is_bidirectional());
+		}
+		reverse_order(reversable);
+	}
+
+	// Clear the departure table...
+	departures->clear();
+
+	// Set the speed to zero...
+	set_akt_speed(0);
+
+	// Make this the new home depot...
+	home_depot=dep->get_pos();
 
 	// Hajo: remove vehicles from world data structure
 	for(unsigned i=0; i<anz_vehikel; i++) {
@@ -1971,33 +1997,16 @@ void convoi_t::ziel_erreicht()
 
 	if(dp) {
 		// ok, we are entering a depot
+
+		// Provide the message since we got here "on schedule".
 		cbuffer_t buf;
-		if(reversed)
-		{
-			// Always enter a depot facing forward
-			
-			if(reversed)
-			{
-				reversable = fahr[0]->get_besch()->get_can_lead_from_rear() || (anz_vehikel == 1 && fahr[0]->get_besch()->is_bidirectional());
-			}
-			else
-			{
-				reversable = fahr[anz_vehikel - 1]->get_besch()->get_can_lead_from_rear() || (anz_vehikel == 1 && fahr[0]->get_besch()->is_bidirectional());
-			}
-			reverse_order(reversable);
-		}
 
-		// we still book the money for the trip; however, the freight will be deleted (by the vehicle in the depot itself)
-		departures->clear();
-
-		set_akt_speed(0);
 		if (!replace || !replace->get_autostart()) {
 			buf.printf( translator::translate("!1_DEPOT_REACHED"), get_name() );
 			welt->get_message()->add_message(buf, v->get_pos().get_2d(),message_t::warnings, PLAYER_FLAG|get_besitzer()->get_player_nr(), IMG_LEER);
 		}
 
-		home_depot=v->get_pos();
-		betrete_depot(dp);
+		enter_depot(dp);
 	}
 	else {
 		// no depot reached, check for stop!
@@ -6506,14 +6515,32 @@ void convoi_t::emergency_go_to_depot()
 		if(dep)
 		{
 			// Only do this if a depot can be found, or else a crash will result.
-			betrete_depot(dep);
-			dep->convoi_arrived(self, false);
-			state = INITIAL;	
+
+			// Give a different message than the usual depot arrival message.
+			cbuffer_t buf;
+			buf.printf( translator::translate("No route to depot for convoy %s: teleported to depot!"), get_name() );
+			const vehikel_t* v = fahr[0];
+			welt->get_message()->add_message(buf, v->get_pos().get_2d(),message_t::warnings, PLAYER_FLAG|get_besitzer()->get_player_nr(), IMG_LEER);
+
+			enter_depot(dep);
+			// Do NOT do the convoi_arrived here: it's done in enter_depot!
+			state = INITIAL;
 			fpl->set_aktuell(0);
 		}
 		else
 		{
-			dbg->error("void convoi_t::emergency_go_to_depot()", "Could not find a depot to which to send the convoy");
+			// We can't send it to a depot, because there are no appropriate depots.  Destroy it!
+
+			cbuffer_t buf;
+			buf.printf( translator::translate("No route and no depot for convoy %s: convoy has been sold!"), get_name() );
+			const vehikel_t* v = fahr[0];
+			welt->get_message()->add_message(buf, v->get_pos().get_2d(),message_t::warnings, PLAYER_FLAG|get_besitzer()->get_player_nr(), IMG_LEER);
+
+			// The player can engineer this deliberately by blowing up depots and tracks, so it isn't always a game error.
+			// But it usually is an error, so report it as one.
+			dbg->error("void convoi_t::emergency_go_to_depot()", "Could not find a depot to which to send convoy %i", self.get_id() );
+
+			destroy();
 		}
 	}
 }
