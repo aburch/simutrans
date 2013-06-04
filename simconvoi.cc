@@ -388,32 +388,17 @@ void convoi_t::laden_abschliessen()
 {
 	if(fpl==NULL) {
 		if(  state!=INITIAL  ) {
-			grund_t *gr = welt->lookup(home_depot);
-			if(gr  &&  gr->get_depot()) {
-				dbg->warning( "convoi_t::laden_abschliessen()","No schedule during loading convoi %i: State will be initial!", self.get_id() );
-				for( uint8 i=0;  i<anz_vehikel;  i++ ) {
-					fahr[i]->get_pos() = home_depot;
-				}
-				state = INITIAL;
-			}
-			else {
-				dbg->error( "convoi_t::laden_abschliessen()","No schedule during loading convoi %i: Convoi will be destroyed!", self.get_id() );
-				for( uint8 i=0;  i<anz_vehikel;  i++ ) {
-					fahr[i]->get_pos() = koord3d::invalid;
-				}
-				destroy();
-				return;
-			}
+			emergency_go_to_depot();
+			return;
 		}
 		// anyway reassign convoi pointer ...
 		for( uint8 i=0;  i<anz_vehikel;  i++ ) {
 			fahr[i]->set_convoi(this);
-			// BG, 06.06.2009: loader does not call laden_abschliessen() for vehicles in depots
-			fahr[i]->laden_abschliessen();
-			if(  state!=INITIAL  &&  welt->lookup(fahr[i]->get_pos())  ) {
-				// mark vehicle as used
-				fahr[i]->set_driven();
-			}
+			// This call used to update the fixed monthly maintenance costs; this was deleted due to
+			// the fact that these change each month due to depreciation, so this doesn't work.
+			// It would be good to restore it.
+			// --neroden
+			// fahr[i]->laden_abschliessen();
 		}
 		return;
 	}
