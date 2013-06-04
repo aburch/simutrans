@@ -789,3 +789,41 @@ void depot_t::update_all_win()
 		d->update_win();
 	}
 }
+
+/**
+ * Is this depot suitable for this vehicle?
+ * Must be same waytype, same owner, suitable traction, etc.
+ * @param test_vehicle -- must not be NULL
+ * @param traction_types
+ *   - 0 if we don't want to filter by traction type
+ *   - a bitmask of possible traction types; we need only match one
+ */
+bool is_suitable_for( const vehikel_t * test_vehicle, const uint8 traction_types = 0) const {
+	assert(test_vehicle != NULL);
+
+	// Owner must be the same
+	if (  this->get_besitzer() != test_vehicle->get_besitzer()  ) {
+		return false;
+	}
+
+	// Right type of vehicle?  No trams in train depots, etc...
+	const waytype_t my_waytype = this->get_wegtyp();
+	// Subtle point here: the vehicle waytype is 'train' for trams,
+	// but the vehicle besch waytype is tram.
+	// Change this if we want to allow trams into train depots and vice versa.
+	const waytype_t vehicle_waytype = test_vehicle->get_besch()->get_waytype();
+	if (  vehicle_waytype != my_waytype  ) {
+		 return false;
+	}
+
+	if (traction_types != 0 ) {
+		// If traction types were specified, then *one* of them must match
+		// *one* of the types supported by this depot
+		if ( ! (traction_types & this->get_tile()->get_besch()->get_enabled()) ) {
+			return false;
+		}
+	}
+	// Passed all the tests
+	return true;
+}
+
