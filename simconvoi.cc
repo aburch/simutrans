@@ -5862,7 +5862,6 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 	
 	if(!route.empty() || use_home_depot)
 	{
-		schedule_t *fpl = get_schedule();
 		koord3d depot_pos;
 		if(use_home_depot)
 		{
@@ -5871,7 +5870,8 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 		else
 		{
 			depot_pos = route.position_bei(route.get_count() - 1);
-		}		
+		}
+		// Work directly on the schedule; anything else may cause variable shadowing
 		fpl->insert(welt->lookup(depot_pos), 0, 0, 0, besitzer_p == welt->get_active_player());
 		// Insert will move the pointer past the inserted item; move back to it
 		fpl->advance_reverse();
