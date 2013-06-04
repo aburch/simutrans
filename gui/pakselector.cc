@@ -1,3 +1,7 @@
+/*
+ * selection of paks at the start time
+ */
+
 #include <string>
 
 #include "pakselector.h"
@@ -72,7 +76,7 @@ bool pakselector_t::check_file(const char *filename, const char *)
 
 pakselector_t::pakselector_t() : savegame_frame_t( NULL, true, umgebung_t::program_dir)
 {
-	// remove unneccessary buttons
+	// remove unnecessary buttons
 	remove_komponente( &input );
 	remove_komponente( &savebutton );
 	remove_komponente( &cancelbutton );

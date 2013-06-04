@@ -5,6 +5,11 @@
  * (see licence.txt)
  */
 
+/**
+ * Where curiosity (attractions) stats are calculated for list dialog
+ * @author Hj. Malthaner
+ */
+
 #include "curiositylist_stats_t.h"
 
 #include "../simgraph.h"
@@ -110,7 +115,7 @@ bool curiositylist_stats_t::infowin_event(const event_t * ev)
 		return false;
 	}
 
-	// deperess goto button
+	// un-press goto button
 	if(  ev->button_state>0  &&  ev->cx>0  &&  ev->cx<15  ) {
 		line_selected = line;
 	}
@@ -138,7 +143,7 @@ void curiositylist_stats_t::recalc_size()
 
 
 /**
- * Zeichnet die Komponente
+ * Draw the component
  * @author Hj. Malthaner
  */
 void curiositylist_stats_t::zeichnen(koord offset)
@@ -171,7 +176,7 @@ void curiositylist_stats_t::zeichnen(koord offset)
 
 		buf.clear();
 
-		// is connected? => decide on indicatorcolor
+		// is connected? => decide on indicatorfarbe (indicator color)
 		int indicatorfarbe;
 		bool post=false;
 		bool pax=false;

@@ -5,6 +5,11 @@
  * (see licence.txt)
  */
 
+/*
+ * A class for distribution of tabs through the gui_komponente_t component.
+ * @author Hj. Malthaner
+ */
+
 #include "gui_tab_panel.h"
 #include "../../simevent.h"
 #include "../../simgraph.h"
@@ -159,7 +164,7 @@ void gui_tab_panel_t::zeichnen(koord parent_pos)
 		if(i>=offset_tab) {
 			// set clipping
 			PUSH_CLIP(xpos, ypos, xx, HEADER_VSIZE);
-			// only start drwing here ...
+			// only start drawing here ...
 			char const* const text = iter.title;
 			const int width = text ? proportional_string_width( text ) : IMG_WIDTH;
 

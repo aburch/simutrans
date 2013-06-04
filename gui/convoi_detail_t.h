@@ -5,6 +5,10 @@
  * (see licence.txt)
  */
 
+/*
+ * Convoi details window
+ */
+
 #include "gui_frame.h"
 #include "gui_container.h"
 #include "components/gui_scrollpane.h"
@@ -21,34 +25,32 @@ class koord;
 
 /**
  * One element of the vehicle list display
- * @autor prissi
+ * @author prissi
  */
 class gui_vehicleinfo_t : public gui_container_t
 {
 private:
 	/**
-     * Handle des anzuzeigenden Convois.
-     * @author Hj. Malthaner
-     */
-    convoihandle_t cnv;
+	 * Handle the convoi to be displayed.
+	 * @author Hj. Malthaner
+	 */
+	convoihandle_t cnv;
 
 public:
-    /**
-     * @param cnv das Handle für den anzuzeigenden Convoi.
-     * @author Hj. Malthaner
-     */
-    gui_vehicleinfo_t(convoihandle_t cnv);
+	/**
+	 * @param cnv, the handler for displaying the convoi.
+	 * @author Hj. Malthaner
+	 */
+	gui_vehicleinfo_t(convoihandle_t cnv);
 
 	void set_cnv( convoihandle_t c ) { cnv = c; }
 
-    /**
-     * Zeichnet die Komponente
-     * @author Hj. Malthaner
-     */
-    void zeichnen(koord offset);
+	/**
+	 * Draw the component
+	 * @author Hj. Malthaner
+	 */
+	void zeichnen(koord offset);
 };
-
-
 
 
 /**
@@ -73,28 +75,28 @@ private:
 	button_t withdraw_button;
 
 public:
-    convoi_detail_t(convoihandle_t cnv);
+	convoi_detail_t(convoihandle_t cnv);
 
-    /**
-     * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
-     * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
-     * in dem die Komponente dargestellt wird.
-     * @author Hj. Malthaner
-     */
-    void zeichnen(koord pos, koord gr);
+	/**
+	 * Draw new component. The values to be passed refer to the window
+	 * i.e. It's the screen coordinates of the window where the
+	 * component is displayed.
+	 * @author Hj. Malthaner
+	 */
+	void zeichnen(koord pos, koord gr);
 
-    /**
-     * Manche Fenster haben einen Hilfetext assoziiert.
-     * @return den Dateinamen für die Hilfe, oder NULL
-     * @author V. Meyer
-     */
-    const char * get_hilfe_datei() const {return "convoidetail.txt"; }
+	/**
+	 * Set the window associated helptext
+	 * @return the filename for the helptext, or NULL
+	 * @author V. Meyer
+	 */
+	const char * get_hilfe_datei() const {return "convoidetail.txt"; }
 
-    /**
-     * Set window size and adjust component sizes and/or positions accordingly
-     * @author Hj. Malthaner
-     */
-    virtual void set_fenstergroesse(koord groesse);
+	/**
+	 * Set window size and adjust component sizes and/or positions accordingly
+	 * @author Hj. Malthaner
+	 */
+	virtual void set_fenstergroesse(koord groesse);
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
@@ -103,7 +105,7 @@ public:
 	 */
 	void update_data() { set_dirty(); }
 
-	// this contructor is only used during loading
+	// this constructor is only used during loading
 	convoi_detail_t(karte_t *welt);
 
 	void rdwr( loadsave_t *file );

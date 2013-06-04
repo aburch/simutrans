@@ -5,6 +5,10 @@
  * (see licence.txt)
  */
 
+/*
+ * Goods list dialog
+ */
+
 #ifndef goods_frame_t_h
 #define goods_frame_t_h
 
@@ -50,7 +54,7 @@ private:
 	goods_stats_t goods_stats;
 	gui_scrollpane_t scrolly;
 
-	// creates the list and pass it to the child finction good_stats, which does the display stuff ...
+	// creates the list and pass it to the child function good_stats, which does the display stuff ...
 	static bool compare_goods(uint16, uint16);
 	void sort_list();
 
@@ -66,20 +70,20 @@ public:
 
 	bool has_min_sizer() const {return true;}
 
-    /**
-     * Manche Fenster haben einen Hilfetext assoziiert.
-     * @return den Dateinamen für die Hilfe, oder NULL
-     * @author V. Meyer
-     */
-    const char * get_hilfe_datei() const {return "goods_filter.txt"; }
+	/**
+	 * Set the window associated helptext
+	 * @return the filename for the helptext, or NULL
+	 * @author V. Meyer
+	 */
+	const char * get_hilfe_datei() const {return "goods_filter.txt"; }
 
-    /**
-     * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
-     * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
-     * in dem die Komponente dargestellt wird.
-     * @author Hj. Malthaner
-     */
-    void zeichnen(koord pos, koord gr);
+	/**
+	 * Draw new component. The values to be passed refer to the window
+	 * i.e. It's the screen coordinates of the window where the
+	 * component is displayed.
+	 * @author Hj. Malthaner
+	 */
+	void zeichnen(koord pos, koord gr);
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };

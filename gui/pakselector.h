@@ -1,4 +1,6 @@
-// selection of paks at the start time
+/*
+ * selection of paks at the start time
+ */
 
 #ifndef pakselector_h
 #define pakselector_h

@@ -5,6 +5,14 @@
  * (see licence.txt)
  */
 
+/*
+ * A simple text input field. It has no Text Buffer,
+ * only a pointer to a buffer created by someone else.
+ *
+ * @date 19-Apr-01
+ * @author Hj. Malthaner
+ */
+
 #include <string.h>
 
 #include "gui_textinput.h"
@@ -365,7 +373,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 
 
 /**
- * Zeichnet die Komponente
+ * Draw the component
  * @author Hj. Malthaner
  */
 void gui_textinput_t::zeichnen(koord offset)
@@ -516,7 +524,7 @@ void gui_hidden_textinput_t::display_with_cursor(koord const offset, bool, bool 
 	display_ddd_box_clip(pos.x+offset.x, pos.y+offset.y,groesse.x, groesse.y,MN_GREY0, MN_GREY4);
 
 	if(  text  ) {
-		// the text will be all asterics, thus we draw them letter by letter
+		// the text will be all asterisk, thus we draw them letter by letter
 
 		// set clipping to be within textinput button
 		const clip_dimension old_clip = display_get_clip_wh();

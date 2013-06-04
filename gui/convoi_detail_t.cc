@@ -5,6 +5,10 @@
  * (see licence.txt)
  */
 
+/*
+ * Convoi details window
+ */
+
 #include <stdio.h>
 
 #include "convoi_detail_t.h"
@@ -219,8 +223,8 @@ gui_vehicleinfo_t::gui_vehicleinfo_t(convoihandle_t cnv)
 
 
 
-/**
- * Zeichnet die Komponente
+/*
+ * Draw the component
  * @author Hj. Malthaner
  */
 void gui_vehicleinfo_t::zeichnen(koord offset)

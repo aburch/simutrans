@@ -19,7 +19,7 @@ PRODUCTVERSION RES_VERSION_NUMBER
    VALUE "FileDescription",  "Simutrans"
    VALUE "FileVersion",      VERSION_NUMBER
    VALUE "InternalName",     "SIMUTRANS"
-   VALUE "LegalCopyright",   "\251 Hj. Malthaner '97-'04 Simutrans Team '05-09"
+   VALUE "LegalCopyright",   "\251 Hj. Malthaner '97-'04 Simutrans Team '05-'13"
    VALUE "OriginalFilename", "SIMUTRANS.EXE"
    VALUE "ProductName",      "Simutrans"
    VALUE "ProductVersion",   VERSION_NUMBER

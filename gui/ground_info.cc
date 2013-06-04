@@ -5,6 +5,13 @@
  * (see licence.txt)
  */
 
+/**
+ * An adapter class to display info windows for ground (floor) objects
+ *
+ * @author Hj. Malthaner
+ * @date 20-Nov-2001
+ */
+
 #include "../simcolor.h"
 #include "../simgraph.h"
 #include "../simworld.h"
@@ -45,9 +52,9 @@ grund_info_t::grund_info_t(const grund_t* gr_) :
 
 
 /**
- * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
- * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
- * in dem die Komponente dargestellt wird.
+ * Draw new component. The values to be passed refer to the window
+ * i.e. It's the screen coordinates of the window where the
+ * component is displayed.
  */
 void grund_info_t::zeichnen(koord pos, koord groesse)
 {

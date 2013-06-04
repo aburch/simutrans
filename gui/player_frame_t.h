@@ -1,3 +1,8 @@
+/*
+ * Player list
+ * Hj. Malthaner, 2000
+ */
+
 #ifndef gui_spieler_h
 #define gui_spieler_h
 
@@ -13,7 +18,7 @@
 class karte_t;
 
 /**
- * Ein Menü zur Wahl der automatischen Spieler.
+ * Menu for the player list
  * @author Hj. Malthaner
  */
 class ki_kontroll_t : public gui_frame_t, private action_listener_t
@@ -37,16 +42,16 @@ public:
 	~ki_kontroll_t();
 
 	/**
-	 * Manche Fenster haben einen Hilfetext assoziiert.
-	 * @return den Dateinamen für die Hilfe, oder NULL
+	 * Set the window associated helptext
+	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
 	const char * get_hilfe_datei() const {return "players.txt";}
 
 	/**
-	 * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
-	 * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
-	 * in dem die Komponente dargestellt wird.
+	 * Draw new component. The values to be passed refer to the window
+	 * i.e. It's the screen coordinates of the window where the
+	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
 	void zeichnen(koord pos, koord gr);
@@ -56,7 +61,7 @@ public:
 	/**
 	 * Updates the dialogue window after changes to players states
 	 * called from wkz_change_player_t::init
-	 * necessary for networkgames to keep dialogues synchrone
+	 * necessary for network games to keep dialogues synchronous
 	 * @author dwachs
 	 */
 	void update_data();

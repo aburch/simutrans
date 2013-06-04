@@ -5,6 +5,10 @@
  * (see licence.txt)
  */
 
+/*
+ * Defines all button types: Normal (roundbox), Checkboxes (square), Arrows, Scrollbars
+ */
+
 #ifndef gui_button_h
 #define gui_button_h
 
@@ -15,7 +19,7 @@
 
 
 /**
- * Klasse für Buttons in Fenstern
+ * Class for buttons in Windows
  *
  * @author Hj. Malthaner, Niels Roest
  * @date December 2000
@@ -68,7 +72,7 @@ public:
 
 	/* the button with the postfix state do not automatically change their state like the normal button do
 	 * the _state buttons must be changed by the caller!
-	 * _automatic buttons do eveything themselves, i.e. depress/release alternately
+	 * _automatic buttons do everything themselves, i.e. depress/release alternately
 	 *
 	 * square: button with text on the right side next to it
 	 * box:  button with is used for many selection purposes; can have colored background
@@ -85,7 +89,7 @@ public:
 
 private:
 	/**
-	 * Tooltip ofthis button
+	 * Tooltip for this button
 	 * @author Hj. Malthaner
 	 */
 	const char * tooltip, *translated_tooltip;
@@ -100,8 +104,8 @@ private:
 	uint8 b_no_translate:1;
 
 	/**
-	 * Der im Button angezeigte Text
-	 * direct acces provided to avoid translations
+	 * The displayed text of the button
+	 * direct access provided to avoid translations
 	 * @author Hj. Malthaner
 	 */
 	union {
@@ -136,7 +140,7 @@ public:
 	const char * get_text() const {return text;}
 
 	/**
-	 * Setzt den im Button angezeigten Text
+	 * Set the displayed text of the button
 	 * @author Hj. Malthaner
 	 */
 	void set_text(const char * text);
@@ -148,7 +152,7 @@ public:
 	void set_targetpos(const koord k ) { this->targetpos.x = k.x; this->targetpos.y = k.y; }
 
 	/**
-	 * Setzt den im Button angezeigten Text
+	 * Set the displayed text of the button when not to translate
 	 * @author Hj. Malthaner
 	 */
 	void set_no_translate(bool b) { b_no_translate = b; }
@@ -160,8 +164,8 @@ public:
 	void set_tooltip(const char * tooltip);
 
 	/**
-	 * @return true wenn x,y innerhalb der Buttonflaeche liegt, d.h. der
-	 * Button getroffen wurde, false wenn x, y ausserhalb liegt
+	 * @return true when x, y is within button area, i.e. the button was clicked
+	 * @return false when x, y is outside button area
 	 * @author Hj. Malthaner
 	 */
 	bool getroffen(int x, int y) OVERRIDE;
@@ -169,7 +173,7 @@ public:
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**
-	 * Zeichnet die Komponente
+	 * Draw the component
 	 * @author Hj. Malthaner
 	 */
 	void zeichnen(koord offset);

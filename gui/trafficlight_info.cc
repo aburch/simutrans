@@ -5,8 +5,12 @@
  * (see licence.txt)
  */
 
+/*
+ * Traffic light phase buttons
+ */
+
 #include "trafficlight_info.h"
-#include "../dings/roadsign.h"
+#include "../dings/roadsign.h" // The rest of the dialog
 
 #include "../simmenu.h"
 

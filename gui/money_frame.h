@@ -114,22 +114,22 @@ private:
 
 public:
 	/**
-	 * Manche Fenster haben einen Hilfetext assoziiert.
-	 * @return den Dateinamen für die Hilfe, oder NULL
+	 * Set the window associated helptext
+	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
 	const char * get_hilfe_datei() const {return "finances.txt";}
 
 	/**
-	 * Konstruktor. Erzeugt alle notwendigen Subkomponenten.
+	 * Constructor. Adds all necessary Subcomponents.
 	 * @author Hj. Malthaner, Owen Rudge
 	 */
 	money_frame_t(spieler_t *sp);
 
 	/**
-	 * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
-	 * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
-	 * in dem die Komponente dargestellt wird.
+	 * Draw new component. The values to be passed refer to the window
+	 * i.e. It's the screen coordinates of the window where the
+	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
 	void zeichnen(koord pos, koord gr);

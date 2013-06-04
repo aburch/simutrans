@@ -1,3 +1,8 @@
+/*
+ * A class for distribution of tabs through the gui_komponente_t component.
+ * @author Hj. Malthaner
+ */
+
 #ifndef gui_tab_panel_h
 #define gui_tab_panel_h
 
@@ -11,12 +16,6 @@
 
 class bild_besch_t;
 
-/**
- * Eine Klasse für Registerkartenartige Aufteilung von gui_komponente_t
- * Objekten.
- *
- * @author Hj. Malthaner
- */
 class gui_tab_panel_t :
 	public gui_action_creator_t,
 	public action_listener_t,
@@ -47,15 +46,15 @@ public:
 	gui_tab_panel_t();
 
 	/**
-	 * Fügt eine neue Registerkarte hinzu.
-	 * @param c die Komponente für die Rgisterkarte
-	 * @param name der Name der Registerkarte für die Komponente
+	 * Add new tab to tab bar
+	 * @param c is tab component
+	 * @param name is name for tab component
 	 * @author Hj. Malthaner
 	 */
 	void add_tab(gui_komponente_t *c, const char *name, const skin_besch_t *b=NULL, const char *tooltip=NULL );
 
 	/**
-	 * Gibt die aktuell angezeigte Komponente zurück.
+	 * Get the active component/active tab
 	 * @author Hj. Malthaner
 	 */
 	gui_komponente_t* get_aktives_tab() const { return get_tab(active_tab); }
@@ -68,7 +67,7 @@ public:
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**
-	 * Zeichnet die Registerkarten
+	 * Draw tabs
 	 * @author Hj. Malthaner
 	 */
 	void zeichnen(koord offset);

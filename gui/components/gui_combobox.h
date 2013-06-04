@@ -7,6 +7,10 @@
  * (see licence.txt)
  */
 
+/*
+ * Defines a drop-down list with left/right arrows
+ */
+
 #ifndef gui_components_gui_combobox_h
 #define gui_components_gui_combobox_h
 
@@ -69,7 +73,7 @@ public:
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	/**
-	 * Zeichnet die Komponente
+	 * Draw the component
 	 * @author Hj. Malthaner
 	 */
 	void zeichnen(koord offset);

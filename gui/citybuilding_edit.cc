@@ -1,10 +1,12 @@
 /*
  * Copyright (c) 1997 - 2004 Hansjörg Malthaner
  *
- * Tool to place city buildings
- *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
+ */
+
+/*
+ * The citybuilding editor (urban buildings builder)
  */
 
 #include <algorithm>
@@ -98,7 +100,7 @@ citybuilding_edit_frame_t::citybuilding_edit_frame_t(spieler_t* sp_, karte_t* we
 
 
 
-// fill the current fablist
+// fill the current hauslist
 void citybuilding_edit_frame_t::fill_list( bool translate )
 {
 	const bool allow_obsolete = bt_obsolete.pressed;
@@ -134,7 +136,7 @@ void citybuilding_edit_frame_t::fill_list( bool translate )
 		}
 	}
 
-	// now buil scrolled list
+	// now build scrolled list
 	scl.clear_elements();
 	scl.set_selection(-1);
 	FOR(vector_tpl<haus_besch_t const*>, const i, hauslist) {
@@ -240,7 +242,7 @@ void citybuilding_edit_frame_t::change_item_info(sint32 entry)
 			}
 		}
 
-		// change lable numbers
+		// change label numbers
 		if(rotation == 255) {
 			tstrncpy(rot_str, translator::translate("random"), lengthof(rot_str));
 		}

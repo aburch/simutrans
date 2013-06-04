@@ -5,6 +5,10 @@
  * (see license.txt)
  */
 
+/*
+ * The function implements a WindowManager 'Object'
+ */
+
 #ifndef simwin_h
 #define simwin_h
 
@@ -20,12 +24,12 @@ class gui_frame_t;
 class gui_komponente_t;
 struct event_t;
 
-/* Typen fuer die Fenster */
+/* Types for the window */
 enum wintype {
-	w_info         = 1,	// Ein Info-Fenster
-	w_do_not_delete= 2, // Ein Info-Fenster dessen GUI-Objekt beim schliessen nicht gelöscht werden soll
+	w_info         = 1, // A info window
+	w_do_not_delete= 2, // A window whose GUI object should not be deleted on close
 	w_no_overlap   = 4, // try to place it below a previous window with the same flag
-	w_time_delete  = 8	// deletion after MESG_WAIT has elapsed
+	w_time_delete  = 8  // deletion after MESG_WAIT has elapsed
 };
 ENUM_BITSET(wintype)
 
@@ -102,7 +106,7 @@ enum magic_numbers {
 	magic_max = magic_info_pointer+843
 };
 
-// Haltezeit für Nachrichtenfenster
+// Holding time for auto-closing windows
 #define MESG_WAIT 80
 
 
@@ -131,7 +135,7 @@ int win_get_open_count();
 gui_frame_t *win_get_magic(ptrdiff_t magic);
 
 /**
- * Checks ifa window is a top level window
+ * Checks if a window is a top level window
  *
  * @author Hj. Malthaner
  */
@@ -167,7 +171,7 @@ void win_set_tooltip(int xpos, int ypos, const char *text, const void *const own
 
 /**
  * Sets a static tooltip that follows the mouse
- * *MUST* be explicitely unset!
+ * *MUST* be explicitly unset!
  * @author Hj. Malthaner
  */
 void win_set_static_tooltip(const char *text);

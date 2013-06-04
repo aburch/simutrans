@@ -6,7 +6,7 @@
  */
 
 /*
- * Basisklasse fuer Infofenster
+ * Basic class for info window
  * Hj. Malthaner, 2000
  */
 
@@ -42,9 +42,9 @@ ding_infowin_t::ding_infowin_t(const ding_t* ding) :
 
 
 /**
- * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
- * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
- * in dem die Komponente dargestellt wird.
+ * Draw new component. The values to be passed refer to the window
+ * i.e. It's the screen coordinates of the window where the
+ * component is displayed.
  */
 void ding_infowin_t::zeichnen(koord pos, koord gr)
 {

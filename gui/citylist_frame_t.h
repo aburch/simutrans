@@ -1,3 +1,7 @@
+/*
+ * The citylist dialog
+ */
+
 #ifndef citylist_frame_t_h
 #define citylist_frame_t_h
 
@@ -54,9 +58,9 @@ class citylist_frame_t : public gui_frame_t, private action_listener_t
     citylist_frame_t(karte_t * welt);
 
    /**
-     * Komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
-     * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
-     * in dem die Komponente dargestellt wird.
+     * Draw new component. The values to be passed refer to the window
+     * i.e. It's the screen coordinates of the window where the
+     * component is displayed.
      * @author Hj. Malthaner
      */
     void zeichnen(koord pos, koord gr);
@@ -68,8 +72,8 @@ class citylist_frame_t : public gui_frame_t, private action_listener_t
     void resize(const koord delta);
 
     /**
-     * Manche Fenster haben einen Hilfetext assoziiert.
-     * @return den Dateinamen für die Hilfe, oder NULL
+     * Set the window associated helptext
+     * @return the filename for the helptext, or NULL
      * @author V. Meyer
      */
     const char * get_hilfe_datei() const {return "citylist_filter.txt"; }

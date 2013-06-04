@@ -54,14 +54,14 @@ public:
 
 	void highlight_schedule( schedule_t *markfpl, bool marking );
 
-	/** Zeichnet die Komponente */
+	// Draw the component
 	void zeichnen(koord offset);
 };
 
 
 
 /**
- * GUI fuer Fahrplaene
+ * GUI for Schedule dialog
  *
  * @author Hj. Malthaner
  */
@@ -136,7 +136,7 @@ public:
 	const char *get_hilfe_datei() const {return "schedule.txt";}
 
 	/**
-	 * Zeichnet das Frame
+	 * Draw the Frame
 	 * @author Hansjörg Malthaner
 	 */
 	void zeichnen(koord pos, koord gr);
@@ -163,7 +163,7 @@ public:
 	 */
 	void map_rotate90( sint16 );
 
-	// this contructor is only used during loading
+	// this constructor is only used during loading
 	fahrplan_gui_t(karte_t *welt);
 
 	virtual void rdwr( loadsave_t *file );

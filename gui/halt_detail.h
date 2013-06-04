@@ -22,9 +22,7 @@ class spieler_t;
 
 
 /**
- * Dies stellt ein Fenster mit den Zielinformationen
- * fuer eine Haltestelle dar.
- *
+ * Window with destination information for a stop
  * @author Hj. Malthaner
  */
 
@@ -58,8 +56,8 @@ public:
 	void halt_detail_info();
 
 	/**
-	 * Manche Fenster haben einen Hilfetext assoziiert.
-	 * @return den Dateinamen für die Hilfe, oder NULL
+	 * Set the window associated helptext
+	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
 	const char * get_hilfe_datei() const { return "station_details.txt"; }
@@ -72,7 +70,7 @@ public:
 	// only defined to update schedule, if changed
 	void zeichnen( koord pos, koord gr );
 
-	// this contructor is only used during loading
+	// this constructor is only used during loading
 	halt_detail_t(karte_t *welt);
 
 	void rdwr( loadsave_t *file );

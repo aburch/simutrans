@@ -1,5 +1,5 @@
 /*
- * Dialogue to increase the map size.
+ * Dialogue to increase map size.
  */
 
 #ifndef bigger_map_gui_h
@@ -22,7 +22,7 @@ private:
 	enum { preview_size = 64 };
 
 	/**
-	* Mini Karten-Preview
+	* Mini Map-Preview
 	* @author Hj. Malthaner
 	*/
 	unsigned char karte[preview_size*preview_size];
@@ -46,7 +46,7 @@ public:
 	~enlarge_map_frame_t();
 
 	/**
-	* Berechnet Preview-Karte neu. Inititialisiert RNG neu!
+	* Calculate the new Map-Preview. Initialize the new RNG!
 	* public, because also the climate dialog need it
 	* @author Hj. Malthaner
 	*/
@@ -55,17 +55,16 @@ public:
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	/**
-	 * Manche Fenster haben einen Hilfetext assoziiert.
-	 * @return den Dateinamen für die Hilfe, oder NULL
+	 * Set the window associated helptext
+	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
 	const char * get_hilfe_datei() const { return "enlarge_map.txt";}
 
 	/**
-	 * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
-	 * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
-	 * in dem die Komponente dargestellt wird.
-	 *
+	 * Draw new component. The values to be passed refer to the window
+	 * i.e. It's the screen coordinates of the window where the
+	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
 	void zeichnen(koord pos, koord gr);

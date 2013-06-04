@@ -42,7 +42,7 @@ char fahrplan_gui_t::no_line[128];	// contains the current translation of "<no l
 karte_t *fahrplan_gui_t::welt = NULL;
 
 
-// shows/deletes highliting of tiles
+// shows/deletes highlighting of tiles
 void fahrplan_gui_stats_t::highlight_schedule( schedule_t *markfpl, bool marking )
 {
 	marking &= umgebung_t::visualize_schedule;
@@ -441,8 +441,7 @@ void fahrplan_gui_t::update_selection()
 
 
 /**
- * Mausklicks werden hiermit an die GUI-Komponenten
- * gemeldet
+ * Mouse click are hereby reported to its GUI-Components
  */
 bool fahrplan_gui_t::infowin_event(const event_t *ev)
 {
@@ -626,7 +625,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 			new_line = linehandle_t();
 			line_selector.set_selection(0);
 		}
-		// only assing old line, when new_line is not equal
+		// only assign old line, when new_line is not equal
 		if(  !new_line.is_bound()  &&  old_line.is_bound()  &&   fpl->matches(sp->get_welt(),old_line->get_schedule())  ) {
 			new_line = old_line;
 			init_line_selector();

@@ -5,6 +5,10 @@
  * (see licence.txt)
  */
 
+/*
+ * Menu with display settings
+ * @author Hj. Malthaner
+ */
 
 
 #include "display_settings.h"
@@ -376,7 +380,7 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 
 	gui_frame_t::zeichnen(pos, gr);
 
-	// draw the lable stype
+	// draw the label type
 	if(  umgebung_t::show_names&1  ) {
 		PLAYER_COLOR_VAL pc = welt->get_active_player() ? welt->get_active_player()->get_player_color1()+4 : COL_ORANGE;
 		const char *text = translator::translate("show station names");
@@ -395,7 +399,7 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 		}
 	}
 
-	// seperator
+	// separator
 	const sint16 w = this->get_fenstergroesse().x;
 	display_ddd_box_clip(x+10, y+SEPERATE1+1, w-20, 0, MN_GREY0, MN_GREY4);
 	display_ddd_box_clip(x+10, y+SEPERATE2+1, w-20, 0, MN_GREY0, MN_GREY4);

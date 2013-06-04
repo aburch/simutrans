@@ -54,7 +54,7 @@ void sve_info_t::rdwr(loadsave_t *file)
 
 
 /**
- * Aktion, die nach Knopfdruck gestartet wird.
+ * Action that's started with a button click
  * @author Hansjörg Malthaner
  */
 void loadsave_frame_t::action(const char *filename)
@@ -117,8 +117,8 @@ loadsave_frame_t::loadsave_frame_t(karte_t *welt, bool do_load) : savegame_frame
 
 
 /**
- * Manche Fenster haben einen Hilfetext assoziiert.
- * @return den Dateinamen für die Hilfe, oder NULL
+ * Set the window associated helptext
+ * @return the filename for the helptext, or NULL
  * @author Hj. Malthaner
  */
 const char *loadsave_frame_t::get_hilfe_datei() const

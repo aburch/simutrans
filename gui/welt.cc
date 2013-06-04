@@ -1,9 +1,11 @@
 /*
- * dialog zur Eingabe der Werte fuer die Kartenerzeugung
- *
  * Hj. Malthaner
  *
  * April 2000
+ */
+
+/*
+ * Dialog to configure the generation of a new map
  */
 
 #include "welt.h"
@@ -218,6 +220,8 @@ welt_gui_t::welt_gui_t(karte_t* const welt, settings_t* const sets) :
 	intTopOfButton += 12;
 
 	intTopOfButton += 10;
+
+	// Buttons
 	open_setting_gui.set_pos( koord(10,intTopOfButton) );
 	open_setting_gui.set_groesse( koord(80, 14) );
 	open_setting_gui.set_typ( button_t::roundbox );
@@ -305,7 +309,7 @@ bool welt_gui_t::update_from_heightfield(const char *filename)
 }
 
 
-// sets the new values for the numbinpu filed for the densities
+// sets the new values for the number input filed for the densities
 void welt_gui_t::update_densities()
 {
 	if(  city_density!=0.0  ) {
@@ -330,7 +334,7 @@ void welt_gui_t::update_densities()
 
 
 /**
- * Berechnet Preview-Karte neu. Inititialisiert RNG neu!
+ * Calculate the new Map-Preview. Initialize the new RNG!
  * @author Hj. Malthaner
  */
 void welt_gui_t::update_preview()
@@ -595,7 +599,7 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 	display_array_wh(x+174, y-19, karte_size.x, karte_size.y, karte.to_array());
 
 	display_proportional_clip(x, y, translator::translate("2WORLD_CHOOSE"), ALIGN_LEFT, COL_BLACK, true);
-	// since the display is done via a textfiled, we have nothing to do
+	// since the display is done via a textfield, we have nothing to do
 	y += 12;
 
 	const uint sx = sets->get_groesse_x();

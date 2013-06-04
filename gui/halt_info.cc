@@ -5,6 +5,11 @@
  * (see licence.txt)
  */
 
+/*
+ * Window with destination information for a stop
+ * @author Hj. Malthaner
+ */
+
 #include "halt_detail.h"
 #include "halt_info.h"
 #include "../simworld.h"
@@ -146,6 +151,7 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt) :
 	add_komponente(&toggler);
 
 	button.init(button_t::roundbox, "Details", koord(BUTTON4_X, yoff), koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	button.set_tooltip("Open station/stop details");
 	button.add_listener(this);
 	add_komponente(&button);
 
@@ -190,9 +196,9 @@ bool halt_info_t::is_weltpos()
 
 
 /**
- * Komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
- * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
- * in dem die Komponente dargestellt wird.
+ * Draw new component. The values to be passed refer to the window
+ * i.e. It's the screen coordinates of the window where the
+ * component is displayed.
  * @author Hj. Malthaner
  */
 void halt_info_t::zeichnen(koord pos, koord gr)
@@ -280,10 +286,10 @@ void halt_info_t::zeichnen(koord pos, koord gr)
 		info_buf.clear();
 		info_buf.printf("%s: %u", translator::translate("Storage capacity"), halt->get_capacity(0));
 		left = pos.x+10;
-		// passagiere
+		// passengers
 		left += display_proportional(left, top, info_buf, ALIGN_LEFT, COL_BLACK, true);
 		if (welt->get_settings().is_seperate_halt_capacities()) {
-			// here only for seperate capacities
+			// here only for separate capacities
 			display_color_img(skinverwaltung_t::passagiere->get_bild_nr(0), left, top, 0, false, false);
 			left += 10;
 			// post
@@ -300,8 +306,8 @@ void halt_info_t::zeichnen(koord pos, koord gr)
 			left = 53+LINESPACE;
 		}
 
-		// Hajo: Reuse of freight_info buffer to get and display
-		// information about the convoi itself
+		// Hajo: Reuse of info_buf buffer to get and display
+		// information about the passengers happiness
 		info_buf.clear();
 		halt->info(info_buf);
 		display_multiline_text(pos.x+10, pos.y+53+LINESPACE, info_buf, COL_BLACK);
@@ -340,7 +346,7 @@ void halt_info_t::show_hide_departures( bool show )
 }
 
 
-// a sophisticated guess of a convois arrival time, tacking into accout the braking too and the current convoi state
+// a sophisticated guess of a convois arrival time, taking into account the braking too and the current convoi state
 uint32 halt_info_t::calc_ticks_until_arrival( convoihandle_t cnv )
 {
 	/* calculate the time needed:
@@ -350,17 +356,17 @@ uint32 halt_info_t::calc_ticks_until_arrival( convoihandle_t cnv )
 	sint32 delta_tiles = cnv->get_route()->get_count() - cnv->front()->get_route_index();
 	uint32 kmh_average = (cnv->get_average_kmh()*900 ) / 1024u;
 
-	// last bracking tile
+	// last braking tile
 	if(  delta_tiles > 1  &&  kmh_average > 25  ) {
 		delta_tiles --;
 		delta_t += 3276; // ( (1 << (8+12)) / kmh_to_speed(25) );
 	}
-	// second last bracking tile
+	// second last braking tile
 	if(  delta_tiles > 1  &&  kmh_average > 50  ) {
 		delta_tiles --;
 		delta_t += 1638; // ( (1 << (8+12)) / kmh_to_speed(50) );
 	}
-	// thrid last bracking tile
+	// third last braking tile
 	if(  delta_tiles > 1  &&  kmh_average > 100  ) {
 		delta_tiles --;
 		delta_t += 819; // ( (1 << (8+12)) / kmh_to_speed(100) );
@@ -397,7 +403,7 @@ void halt_info_t::update_departures()
 	}
 	last_ticks = cur_ticks;
 
-	// interate over all convois stopping here
+	// iterate over all convoys stopping here
 	FOR(  slist_tpl<convoihandle_t>, cnv, halt->get_loading_convois() ) {
 		halthandle_t next_halt = cnv->get_schedule()->get_next_halt(cnv->get_besitzer(),halt);
 		if(  next_halt.is_bound()  ) {
@@ -412,7 +418,7 @@ void halt_info_t::update_departures()
 		}
 	}
 
-	// now exactly the same for convois en route; the only change is that we esitmate their arrival time too
+	// now exactly the same for convoys en route; the only change is that we estimate their arrival time too
 	FOR(  vector_tpl<linehandle_t>, line, halt->registered_lines ) {
 		for(  uint j = 0;  j < line->count_convoys();  j++  ) {
 			convoihandle_t cnv = line->get_convoy(j);

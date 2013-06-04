@@ -37,7 +37,7 @@ private:
 	static stringhashtable_tpl<sve_info_t *> cached_info;
 protected:
 	/**
-	 * Aktion, die nach Knopfdruck gestartet wird.
+	 * Action that's started with a button click
 	 * @author Hansjörg Malthaner
 	 */
 	virtual void action(const char *filename);
@@ -47,8 +47,8 @@ protected:
 
 public:
 	/**
-	* Manche Fenster haben einen Hilfetext assoziiert.
-	* @return den Dateinamen für die Hilfe, oder NULL
+	* Set the window associated helptext
+	* @return the filename for the helptext, or NULL
 	* @author Hj. Malthaner
 	*/
 	virtual const char *get_hilfe_datei() const;

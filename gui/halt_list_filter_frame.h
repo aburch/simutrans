@@ -4,6 +4,13 @@
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
  */
+
+/*
+ * Stations/stops list filter dialog
+ * Displays filter settings for the halt list
+ * @author V. Meyer
+ */
+
 #include "gui_frame.h"
 #include "components/gui_label.h"
 #include "components/gui_scrollpane.h"
@@ -14,12 +21,6 @@
 
 class spieler_t;
 
-
-/**
- * Displays filter settings for the halt list
- *
- * @author V. Meyer
- */
 class halt_list_filter_frame_t : public gui_frame_t , private action_listener_t
 {
 private:
@@ -119,9 +120,9 @@ public:
 	bool has_min_sizer() const {return true;}
 
 	/**
-	 * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
-	 * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
-	 * in dem die Komponente dargestellt wird.
+	 * Draw new component. The values to be passed refer to the window
+	 * i.e. It's the screen coordinates of the window where the
+	 * component is displayed.
 	 * @author V. Meyer
 	 */
 	void zeichnen(koord pos, koord gr);
@@ -132,8 +133,8 @@ public:
 	void resize(const koord delta);
 
 	/**
-	 * Manche Fenster haben einen Hilfetext assoziiert.
-	 * @return den Dateinamen für die Hilfe, oder NULL
+	 * Set the window associated helptext
+	 * @return the filename for the helptext, or NULL
 	 * @author V. Meyer
 	 */
 	const char * get_hilfe_datei() const {return "haltlist_filter.txt"; }

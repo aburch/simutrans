@@ -5,6 +5,11 @@
  * (see licence.txt)
  */
 
+/*
+ * Window with destination information for a stop
+ * @author Hj. Malthaner
+ */
+
 #ifndef gui_halt_info_h
 #define gui_halt_info_h
 
@@ -22,13 +27,6 @@
 #include "../simhalt.h"
 #include "../simwin.h"
 
-
-/**
- * Dies stellt ein Fenster mit den Zielinformationen
- * fuer eine Haltestelle dar.
- *
- * @author Hj. Malthaner
- */
 
 class halt_info_t : public gui_frame_t, private action_listener_t
 {
@@ -92,16 +90,16 @@ public:
 	virtual ~halt_info_t();
 
 	/**
-	 * Manche Fenster haben einen Hilfetext assoziiert.
-	 * @return den Dateinamen für die Hilfe, oder NULL
+	 * Set the window associated helptext
+	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
 	const char * get_hilfe_datei() const {return "station.txt";}
 
 	/**
-	 * Komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
-	 * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
-	 * in dem die Komponente dargestellt wird.
+	 * Draw new component. The values to be passed refer to the window
+	 * i.e. It's the screen coordinates of the window where the
+	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
 	void zeichnen(koord pos, koord gr);
@@ -120,7 +118,7 @@ public:
 
 	void map_rotate90( sint16 );
 
-	// this contructor is only used during loading
+	// this constructor is only used during loading
 	halt_info_t(karte_t *welt);
 
 	void rdwr( loadsave_t *file );

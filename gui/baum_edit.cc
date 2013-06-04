@@ -1,10 +1,12 @@
 /*
  * Copyright (c) 1997 - 2004 Hansjörg Malthaner
  *
- * Tool to place trees on the map
- *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
+ */
+
+/*
+ * The trees builder
  */
 
 #include <stdio.h>
@@ -61,7 +63,7 @@ baum_edit_frame_t::baum_edit_frame_t(spieler_t* sp_, karte_t* welt) :
 
 
 
-// fill the current fablist
+// fill the current baumlist
 void baum_edit_frame_t::fill_list( bool translate )
 {
 	baumlist.clear();
@@ -71,7 +73,7 @@ void baum_edit_frame_t::fill_list( bool translate )
 		}
 	}
 
-	// now buil scrolled list
+	// now build scrolled list
 	scl.clear_elements();
 	scl.set_selection(-1);
 	FOR(vector_tpl<baum_besch_t const*>, const i, baumlist) {

@@ -1,3 +1,12 @@
+/*
+ * Dialog with list of schedules.
+ * Contains buttons: edit new remove
+ * Resizable.
+ *
+ * @author Niels Roest
+ * @author hsiegeln: major redesign
+ */
+
 #ifndef gui_schedule_list_h
 #define gui_schedule_list_h
 
@@ -13,16 +22,6 @@
 #include "../simline.h"
 
 class spieler_t;
-
-/**
- * Window.
- * Will display list of schedules.
- * Contains buttons: edit new remove
- * Resizable.
- *
- * @author Niels Roest
- * @author hsiegeln: major redesign
- */
 class schedule_list_gui_t : public gui_frame_t, public action_listener_t
 {
 private:
@@ -73,15 +72,15 @@ public:
 	schedule_list_gui_t(spieler_t* sp);
 	~schedule_list_gui_t();
 	/**
-	* in top-level fenstern wird der Name in der Titelzeile dargestellt
-	* @return den nicht uebersetzten Namen der Komponente
+	* in top-level windows the name is displayed in titlebar
+	* @return the non-translated component name
 	* @author Hj. Malthaner
 	*/
 	const char* get_name() const { return "Line Management"; }
 
 	/**
-	* Manche Fenster haben einen Hilfetext assoziiert.
-	* @return den Dateinamen für die Hilfe, oder NULL
+	* Set the window associated helptext
+	* @return the filename for the helptext, or NULL
 	* @author Hj. Malthaner
 	*/
 	const char* get_hilfe_datei() const { return "linemanagement.txt"; }
@@ -94,10 +93,9 @@ public:
 	bool has_min_sizer() const {return true;}
 
 	/**
-	* komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
-	* das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
-	* in dem die Komponente dargestellt wird.
-	*
+	* Draw new component. The values to be passed refer to the window
+	* i.e. It's the screen coordinates of the window where the
+	* component is displayed.
 	* @author Hj. Malthaner
 	*/
 	void zeichnen(koord pos, koord gr);
@@ -123,7 +121,7 @@ public:
 	 */
 	void update_data(linehandle_t changed_line);
 
-	// follwoing: rdwr stuff
+	// following: rdwr stuff
 	void rdwr( loadsave_t *file );
 	uint32 get_rdwr_id();
 };

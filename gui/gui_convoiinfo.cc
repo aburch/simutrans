@@ -5,6 +5,10 @@
  * (see licence.txt)
  */
 
+/*
+ * Convoi info stats, like loading status bar
+ */
+
 #include "gui_convoiinfo.h"
 #include "../simworld.h"
 #include "../vehicle/simvehikel.h"
@@ -51,7 +55,7 @@ bool gui_convoiinfo_t::infowin_event(const event_t *ev)
 
 
 /**
- * Zeichnet die Komponente
+ * Draw the component
  * @author Hj. Malthaner
  */
 void gui_convoiinfo_t::zeichnen(koord offset)

@@ -1,3 +1,8 @@
+/*
+ * Dialog for game options/Main menu
+ * Niels Roest, Hj. Malthaner, 2000
+ */
+
 #ifndef gui_optionen_h
 #define gui_optionen_h
 
@@ -33,8 +38,8 @@ public:
     optionen_gui_t(karte_t *welt);
 
 	/**
-	 * Manche Fenster haben einen Hilfetext assoziiert.
-	 * @return den Dateinamen für die Hilfe, oder NULL
+	 * Set the window associated helptext
+	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
 	const char * get_hilfe_datei() const {return "options.txt";}

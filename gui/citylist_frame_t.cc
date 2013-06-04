@@ -5,6 +5,10 @@
  * (see licence.txt)
  */
 
+ /*
+ * The citylist dialog
+ */
+
 #include "citylist_frame_t.h"
 #include "citylist_stats_t.h"
 
@@ -215,7 +219,7 @@ void citylist_frame_t::resize(const koord delta)
 
 	koord groesse = get_fenstergroesse()-koord(0,D_TITLEBAR_HEIGHT+42+1);	// fensterhoehe - 16(title) -42 (header)
 	if(show_stats.pressed) {
-		// addition space for statistics
+		// additional space for statistics
 		groesse += koord(0,-CHART_HEIGHT);
 	}
 	scrolly.set_pos( koord(0, 42+(show_stats.pressed*CHART_HEIGHT) ) );

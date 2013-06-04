@@ -5,6 +5,10 @@
  * (see licence.txt)
  */
 
+/*
+ * The depot window, where to buy convois
+ */
+
 #include <stdio.h>
 
 #include "../simunits.h"
@@ -350,7 +354,7 @@ void depot_frame_t::layout(koord *gr)
 	const int DEPOT_FRAME_WIDTH = max(fgr.x, max(CONVOI_WIDTH, ACTIONS_WIDTH));
 
 	/*
-	*	Now we can do the first vertical adjustement:
+	*  Now we can do the first vertical adjustment:
 	*/
 	const int SELECT_VSTART = D_MARGIN_TOP;
 	const int CONVOI_VSTART = SELECT_VSTART + SELECT_HEIGHT + LINESPACE;
@@ -362,7 +366,7 @@ void depot_frame_t::layout(koord *gr)
 	* Now we determine the row/col layout for the panel and the total panel
 	* size.
 	* build_vehicle_lists() fills loks_vec and waggon_vec.
-	* Total width will be expanded to match completo columns in panel.
+	* Total width will be expanded to match complete columns in panel.
 	*/
 	const int total_h = PANEL_VSTART + VINFO_HEIGHT + 17 + gui_tab_panel_t::HEADER_VSIZE + 2 * gui_image_list_t::BORDER + D_MARGIN_BOTTOM;
 	int PANEL_ROWS = max(1, ((fgr.y-total_h)/grid.y) );
@@ -373,8 +377,8 @@ void depot_frame_t::layout(koord *gr)
 	const int MIN_PANEL_HEIGHT = grid.y + gui_tab_panel_t::HEADER_VSIZE + 2 * gui_image_list_t::BORDER;
 
 	/*
-	 *	Now we can do the complete vertical adjustement:
-	 */
+	*  Now we can do the complete vertical adjustment:
+	*/
 	const int TOTAL_HEIGHT = PANEL_VSTART + PANEL_HEIGHT + VINFO_HEIGHT + 17 + D_MARGIN_BOTTOM;
 	const int MIN_TOTAL_HEIGHT = PANEL_VSTART + MIN_PANEL_HEIGHT + VINFO_HEIGHT + 17 + D_MARGIN_BOTTOM;
 
@@ -505,6 +509,9 @@ void depot_frame_t::layout(koord *gr)
 	div_tabbottom.set_pos(koord(0,PANEL_VSTART + PANEL_HEIGHT));
 	div_tabbottom.set_groesse(koord(DEPOT_FRAME_WIDTH,0));
 
+	/*
+	* [BOTTOM]
+	*/
 	lb_veh_action.set_pos(koord(D_MARGIN_LEFT + (DEPOT_FRAME_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT) * 3 / 4 + 3 - 4, PANEL_VSTART + PANEL_HEIGHT + 2 + 2));
 
 	bt_veh_action.set_pos(koord(D_MARGIN_LEFT + (DEPOT_FRAME_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT) * 3 / 4 + 3, PANEL_VSTART + PANEL_HEIGHT + 2));
@@ -530,8 +537,7 @@ void depot_frame_t::layout(koord *gr)
 
 void depot_frame_t::set_fenstergroesse( koord gr )
 {
-	koord g=gr;
-	layout(&g);
+	layout(&gr);
 	update_data();
 	gui_frame_t::set_fenstergroesse(gr);
 }
@@ -565,7 +571,7 @@ bool depot_frame_t::is_contained(const vehikel_besch_t *info)
 // add a single vehicle (helper function)
 void depot_frame_t::add_to_vehicle_list(const vehikel_besch_t *info)
 {
-	// prissi: ist a non-electric track?
+	// prissi: is it a non-electric track?
 	// Hajo: check for timeline
 	// prissi: and retirement date
 
@@ -1011,7 +1017,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp, value_t p)
 		else if(  komp == &waggons  &&  last_meta_event_get_class() != EVENT_DOUBLE_CLICK  ) {
 			image_from_storage_list(waggons_vec[p.i]);
 		}
-		//
+		// convoi filters
 		else if(  komp == &bt_obsolete  ) {
 			show_retired_vehicles = (show_retired_vehicles == 0);
 			depot_t::update_all_win();
@@ -1055,7 +1061,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp, value_t p)
 					selected_line = linehandle_t();
 					apply_line();
 				}
-				// HACK mark line_selector temporarily unfocusable.
+				// HACK mark line_selector temporarily un-focusable.
 				// We call set_focus(NULL) later if we can.
 				// Calling set_focus(NULL) now would have no effect due to logic in gui_container_t::infowin_event.
 				line_selector.set_focusable( false );
@@ -1084,7 +1090,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp, value_t p)
 				}
 				selection -= 4;
 			}
-			else { // skip seperator
+			else { // skip separator
 				selection -= 3;
 			}
 			if(  selection >= 0  &&  (uint32)selection < (uint32)line_selector.count_elements()  ) {
@@ -1141,7 +1147,7 @@ bool depot_frame_t::infowin_event(const event_t *ev)
 				next_dep = depot_t::find_depot( koord3d(-1,-1,0), depot->get_typ(), depot->get_besitzer(), true );
 			}
 			else {
-				// respecive end of map
+				// respective end of map
 				next_dep = depot_t::find_depot( koord3d(8192,8192,127), depot->get_typ(), depot->get_besitzer(), false );
 			}
 		}
@@ -1589,13 +1595,13 @@ void depot_frame_t::update_tabs()
 		one = true;
 	}
 
-	// add, if waggons are there ...
+	// add, if wagons are there ...
 	if(  !loks_vec.empty()  ||  !waggons_vec.empty()  ) {
 		tabs.add_tab(&scrolly_loks, translator::translate( depot->get_zieher_name() ) );
 		one = true;
 	}
 
-	// only add, if there are waggons
+	// only add, if there are wagons
 	if(  !waggons_vec.empty()  ) {
 		tabs.add_tab(&scrolly_waggons, translator::translate( depot->get_haenger_name() ) );
 		one = true;

@@ -5,6 +5,10 @@
  * (see licence.txt)
  */
 
+/*
+ * The depot window, where to buy convois
+ */
+
 #ifndef gui_depot_frame2_t_h
 #define gui_depot_frame2_t_h
 
@@ -203,7 +207,7 @@ private:
 	void draw_vehicle_info_text(koord pos);
 
 	/**
-	 * Calulate the values of the vehicles of the given type owned by the
+	 * Calculate the values of the vehicles of the given type owned by the
 	 * player.
 	 * @author Volker Meyer
 	 * @date  09.06.2003
@@ -256,7 +260,7 @@ public:
 	~depot_frame_t();
 
 	/**
-	 * Setzt die Fenstergroesse
+	 * Set the window size
 	 * @author (Mathew Hounsell)
 	 * @date   11-Mar-2003
 	 */
@@ -277,8 +281,8 @@ public:
 	void update_tabs();
 
 	/**
-	 * Manche Fenster haben einen Hilfetext assoziiert.
-	 * @return den Dateinamen für die Hilfe, oder NULL
+	 * Set the window associated helptext
+	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
 	const char * get_hilfe_datei() const {return "depot.txt";}
@@ -301,7 +305,7 @@ public:
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**
-	 * Zeichnet das Frame
+	 * Draw the Frame
 	 * @author Hansjörg Malthaner
 	 */
 	void zeichnen(koord pos, koord gr);

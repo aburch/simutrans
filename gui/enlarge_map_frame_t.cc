@@ -194,7 +194,7 @@ void enlarge_map_frame_t::zeichnen(koord pos, koord gr)
 
 
 /**
- * Berechnet Preview-Karte neu. Inititialisiert RNG neu!
+ * Calculate the new Map-Preview. Initialize the new RNG!
  * @author Hj. Malthaner
  */
 void enlarge_map_frame_t::update_preview()

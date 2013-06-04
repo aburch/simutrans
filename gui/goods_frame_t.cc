@@ -5,6 +5,10 @@
  * (see licence.txt)
  */
 
+/*
+ * Goods list dialog
+ */
+
 #include <algorithm>
 
 #include "goods_frame_t.h"
@@ -236,7 +240,7 @@ bool goods_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 
 
 /**
- * Zeichnet die Komponente
+ * Draw the component
  * @author Hj. Malthaner
  */
 void goods_frame_t::zeichnen(koord pos, koord gr)

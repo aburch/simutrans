@@ -5,6 +5,10 @@
  * (see licence.txt)
  */
 
+/*
+ * Company colors window
+ */
+
 #include "../simdebug.h"
 #include "../simevent.h"
 #include "../simimg.h"

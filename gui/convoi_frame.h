@@ -5,6 +5,13 @@
  * (see licence.txt)
  */
 
+/*
+ * Displays a scrollable list of all convois of a player
+ *
+ * @author Hj. Malthaner, Sort/Filtering by V. Meyer
+ * @date 15-Jun-01
+ */
+
 #ifndef __convoi_frame_h
 #define __convoi_frame_h
 
@@ -14,22 +21,16 @@
 #include "components/gui_scrollbar.h"
 #include "components/gui_speedbar.h"
 #include "components/gui_label.h"
-#include "components/action_listener.h"                                // 28-Dec-2001  Markus Weber    Added
+#include "components/action_listener.h"  // 28-Dec-2001  Markus Weber    Added
 #include "components/gui_button.h"
 #include "../convoihandle_t.h"
 
 class spieler_t;
 class ware_besch_t;
 
-/**
- * Displays a scrollable list of all convois of a player
- *
- * @author Hj. Malthaner, Sort/Filtering by V. Meyer
- * @date 15-Jun-01
- */
 class convoi_frame_t :
 	public gui_frame_t,
-	private action_listener_t           //28-Dec-01     Markus Weber    Added , private action_listener_t
+	private action_listener_t  //28-Dec-01     Markus Weber    Added , private action_listener_t
 {
 public:
 	enum sort_mode_t { nach_name=0, nach_gewinn=1, nach_typ=2, nach_id=3, SORT_MODES=4 };
@@ -40,7 +41,7 @@ private:
 	static const char *sort_text[SORT_MODES];
 
 	/**
-	* Handle des anzuzeigenden Convois.
+	* Handle the convoi to be displayed.
 	* @author Hj. Malthaner
 	*/
 	vector_tpl<convoihandle_t> convois;
@@ -108,16 +109,16 @@ public:
 	void resize(const koord size_change);                       // 28-Dec-01        Markus Weber Added
 
 	/**
-	 * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
-	 * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
-	 * in dem die Komponente dargestellt wird.
+	 * Draw new component. The values to be passed refer to the window
+	 * i.e. It's the screen coordinates of the window where the
+	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
 	void zeichnen(koord pos, koord gr);
 
 	/**
-	 * Manche Fenster haben einen Hilfetext assoziiert.
-	 * @return den Dateinamen für die Hilfe, oder NULL
+	 * Set the window associated helptext
+	 * @return the filename for the helptext, or NULL
 	 * @author V. Meyer
 	 */
 	const char * get_hilfe_datei() const {return "convoi.txt"; }

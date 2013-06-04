@@ -6,7 +6,7 @@
  */
 
 /*
- * Dialog zur Sprachauswahl
+ * Dialog for language change
  * Hj. Malthaner, 2000
  */
 

@@ -43,7 +43,7 @@ climate_gui_t::climate_gui_t(settings_t* const sets) :
 
 	sint16 labelnr=0;
 
-	// mountian/water stuff
+	// mountain/water stuff
 	sint16 y = D_MARGIN_TOP;
 	numberinput_lbl[labelnr].init( "Water level", koord( D_MARGIN_LEFT, y+2 ) );
 	add_komponente( numberinput_lbl+labelnr );
@@ -78,7 +78,7 @@ climate_gui_t::climate_gui_t(settings_t* const sets) :
 	add_komponente( &mountain_roughness );
 	y += D_BUTTON_HEIGHT+D_V_SPACE;
 
-	// summer snowline alsway startig above highest climate
+	// summer snowline always starting above highest climate
 	numberinput_lbl[labelnr].init( "Summer snowline", koord( D_MARGIN_LEFT, y+2 ) );
 	add_komponente( numberinput_lbl+labelnr );
 	labelnr++;
@@ -89,7 +89,7 @@ climate_gui_t::climate_gui_t(settings_t* const sets) :
 	add_komponente( &summer_snowline );
 	y += D_BUTTON_HEIGHT;
 
-	// artic starts at maximum end of climate
+	// arctic starts at maximum end of climate
 	numberinput_lbl[labelnr].init( "Winter snowline", koord( D_MARGIN_LEFT, y+2 ) );
 	add_komponente( numberinput_lbl+labelnr );
 	labelnr++;
@@ -213,7 +213,7 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 
 	// all climate borders from here on
 
-	// artic starts at maximum end of climate
+	// Arctic starts at maximum end of climate
 	sint16 arctic = 0;
 	for(  int i=desert_climate;  i<=rocky_climate;  i++  ) {
 		if(  komp==climate_borders_ui+i-1  ) {

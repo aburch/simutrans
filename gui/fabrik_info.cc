@@ -5,6 +5,10 @@
  * (see licence.txt)
  */
 
+/*
+ * Factory info dialog
+ */
+
 #include "fabrik_info.h"
 
 #include "components/gui_button.h"
@@ -139,10 +143,9 @@ void fabrik_info_t::set_fenstergroesse(koord groesse)
 
 
 /**
- * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
- * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
- * in dem die Komponente dargestellt wird.
- *
+ * Draw new component. The values to be passed refer to the window
+ * i.e. It's the screen coordinates of the window where the
+ * component is displayed.
  * @author Hj. Malthaner
  */
 void fabrik_info_t::zeichnen(koord pos, koord gr)
@@ -170,7 +173,7 @@ void fabrik_info_t::zeichnen(koord pos, koord gr)
 	KOORD_VAL x_view_pos = D_MARGIN_LEFT;
 	KOORD_VAL x_prod_pos = D_MARGIN_LEFT+proportional_string_width(prod_buf)+10;
 	if(  skinverwaltung_t::electricity->get_bild_nr(0)!=IMG_LEER  ) {
-		// indicator for recieving
+		// indicator for receiving
 		if(  fab->get_prodfactor_electric()>0  ) {
 			display_color_img(skinverwaltung_t::electricity->get_bild_nr(0), pos.x + view.get_pos().x + x_view_pos, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT+4, 0, false, false);
 			x_view_pos += skinverwaltung_t::electricity->get_bild(0)->get_pic()->w+4;

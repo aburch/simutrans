@@ -1,3 +1,7 @@
+/*
+ * Convoi information, name and status color
+ */
+
 #ifndef convoy_scrollitem_h
 #define convoy_scrollitem_h
 

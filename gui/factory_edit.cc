@@ -1,10 +1,12 @@
 /*
  * Copyright (c) 1997 - 2004 Hansjörg Malthaner
  *
- * Tool to place factories
- *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
+ */
+
+/*
+ * Factories builder dialog
  */
 
 #include <stdio.h>
@@ -117,7 +119,7 @@ void factory_edit_frame_t::fill_list( bool translate )
 	FOR(stringhashtable_tpl<fabrik_besch_t const*>, const& i, fabrikbauer_t::get_fabesch()) {
 		fabrik_besch_t const* const besch = i.value;
 		if(besch->get_gewichtung()>0) {
-			// DistributionWeight=0 is obsoluted item, only for backward compatibility
+			// DistributionWeight=0 is obsoleted item, only for backward compatibility
 
 			if(!use_timeline  ||  (!besch->get_haus()->is_future(month_now)  &&  (!besch->get_haus()->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
@@ -139,7 +141,7 @@ void factory_edit_frame_t::fill_list( bool translate )
 		}
 	}
 
-	// now buil scrolled list
+	// now build scrolled list
 	scl.clear_elements();
 	scl.set_selection(-1);
 	FOR(vector_tpl<fabrik_besch_t const*>, const i, fablist) {
@@ -303,7 +305,7 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 			fab_besch = fablist[entry];
 		}
 
-		// change lable numbers
+		// change label numbers
 		if(rotation == 255) {
 			tstrncpy(rot_str, translator::translate("random"), lengthof(rot_str));
 		}

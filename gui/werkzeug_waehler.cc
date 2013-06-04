@@ -5,6 +5,10 @@
  * (see licence.txt)
  */
 
+/*
+ * This class defines all toolbar dialogues, i.e. the part the user will see
+ */
+
 #include "../simimg.h"
 #include "../simworld.h"
 #include "../simwin.h"
@@ -138,7 +142,7 @@ bool werkzeug_waehler_t::infowin_event(const event_t *ev)
 			}
 		}
 	}
-	// reset title, languange may have changed
+	// reset title, language may have changed
 	else if(ev->ev_class==INFOWIN  &&  (ev->ev_code==WIN_TOP  ||  ev->ev_code==WIN_OPEN) ) {
 		set_name( translator::translate(titel) );
 	}

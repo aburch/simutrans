@@ -403,9 +403,9 @@ int simu_main(int argc, char** argv)
 			"---------------------------------------\n"
 			"command line parameters available: \n"
 			" -addons             loads also addons (with -objects)\n"
-			" -async              asynchronic images, only for SDL\n"
+			" -async              asynchronous images, only for SDL\n"
 			" -use_hw             hardware double buffering, only for SDL\n"
-			" -debug NUM          enables debuging (1..5)\n"
+			" -debug NUM          enables debugging (1..5)\n"
 			" -freeplay           play with endless money\n"
 			" -fullscreen         starts simutrans in fullscreen mode\n"
 			" -fps COUNT          framerate (from 5 to 100)\n"
@@ -496,7 +496,7 @@ int simu_main(int argc, char** argv)
 	}
 	printf("Use work dir %s\n", umgebung_t::program_dir);
 
-	// only the pak specifiy conf should overide this!
+	// only the specified pak conf should override this!
 	uint16 pak_diagonal_multiplier = umgebung_t::default_einstellungen.get_pak_diagonal_multiplier();
 	sint8 pak_tile_height = TILE_HEIGHT_STEP;
 
@@ -625,12 +625,12 @@ int simu_main(int argc, char** argv)
 		umgebung_t::default_einstellungen.parse_simuconf( simuconf, disp_width, disp_height, fullscreen, umgebung_t::objfilename );
 	}
 
-	// umgebung: overide previous settings
+	// umgebung: override previous settings
 	if(  (gimme_arg(argc, argv, "-freeplay", 0) != NULL)  ) {
 		umgebung_t::default_einstellungen.set_freeplay( true );
 	}
 
-	// now set the desired objectfilename (overide all previous settings)
+	// now set the desired objectfilename (override all previous settings)
 	if (gimme_arg(argc, argv, "-objects", 1)) {
 		umgebung_t::objfilename = gimme_arg(argc, argv, "-objects", 1);
 		// append slash / replace trailing backslash if necessary
@@ -679,7 +679,7 @@ int simu_main(int argc, char** argv)
 	obj_reader_t::init();
 	chdir( umgebung_t::program_dir );
 
-	// likely only the programm without graphics was downloaded
+	// likely only the program without graphics was downloaded
 	if (gimme_arg(argc, argv, "-res", 0) != NULL) {
 		const char* res_str = gimme_arg(argc, argv, "-res", 1);
 		const int res = *res_str - '1';
@@ -846,7 +846,7 @@ int simu_main(int argc, char** argv)
 		sound_set_mute(true);
 	}
 
-	// Adam - Moved away loading from simmain and placed into translator for better modularisation
+	// Adam - Moved away loading from simmain and placed into translator for better modularization
 	if(  !translator::load(umgebung_t::objfilename)  ) {
 		// installation error: likely only program started
 		dbg->fatal("simmain::main()", "Unable to load any language files\n"

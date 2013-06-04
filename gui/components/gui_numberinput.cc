@@ -5,6 +5,11 @@
  * (see licence.txt)
  */
 
+/*
+ * An input field for integer numbers (with arrow buttons for dec/inc)
+ * @author Dwachs 2008
+ */
+
 #include "../gui_frame.h"
 #include "gui_numberinput.h"
 #include "../../simwin.h"
@@ -54,7 +59,7 @@ void gui_numberinput_t::set_value(sint32 new_value)
 	value = clamp( new_value, min_value, max_value );
 	gui_frame_t *win = win_get_top();
 	if(  win  &&  win->get_focus()!=this  ) {
-		// final value should be correct, but during editing wrng values are allowed
+		// final value should be correct, but during editing wrong values are allowed
 		new_value = value;
 	}
 	// To preserve cursor position if text was edited, only set new text if changed (or empty before)
@@ -145,7 +150,7 @@ sint32 gui_numberinput_t::get_next_value()
 			}
 			return max_value;
 		}
-		// pregressive (used for loading bars
+		// progressive (used for loading bars)
 		case PROGRESS:
 		{
 			sint64 diff = (sint64)max_value - (sint64)min_value;
@@ -304,7 +309,7 @@ bool gui_numberinput_t::infowin_event(const event_t *ev)
 	if(  ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_UNTOP  ) {
 		// loosing focus ...
 		set_value( get_text_value() );
-		// just to be sure: call listenern (value may be same)
+		// just to be sure: call listener (value may be same)
 		call_listeners(value_t(value));
 	}
 
@@ -313,7 +318,7 @@ bool gui_numberinput_t::infowin_event(const event_t *ev)
 
 
 /**
- * Zeichnet die Komponente
+ * Draw the component
  * @author Dwachs
  */
 void gui_numberinput_t::zeichnen(koord offset)

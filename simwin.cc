@@ -5,15 +5,16 @@
  * (see license.txt)
  */
 
-/* Subfenster fuer Sim
+/*
+ * Sub-window for Sim
  * keine Klasse, da die funktionen von C-Code aus aufgerufen werden koennen
  *
- * Die Funktionen implementieren ein 'Object' Windowmanager
- * Es gibt nur diesen einen Windowmanager
+ * The function implements a WindowManager 'Object'
+ * There's only one WindowManager
  *
  * 17.11.97, Hj. Malthaner
  *
- * Fenster jetzt typisiert
+ * Window now typified
  * 21.06.98, Hj. Malthaner
  */
 
@@ -96,13 +97,13 @@ public:
 class simwin_t
 {
 public:
-	koord pos;         // Fensterposition
-	uint32 dauer;        // Wie lange soll das Fenster angezeigt werden ?
-	uint8 wt;	// the flags for the window type
-	ptrdiff_t magic_number;	// either magic number or this pointer (which is unique too)
+	koord pos;      // window position
+	uint32 dauer;   // How long should the window stay open?
+	uint8 wt;       // the flags for the window type
+	ptrdiff_t magic_number;  // either magic number or this pointer (which is unique too)
 	gui_frame_t *gui;
 	bool closing;
-	bool sticky;	// true if window is sticky
+	bool sticky;    // true if window is sticky
 	bool rollup;
 
 	simwin_gadget_flags_t flags; // (Mathew Hounsell) See Above.
@@ -119,7 +120,7 @@ bool simwin_t::operator== (const simwin_t &other) const { return gui == other.gu
 static vector_tpl<simwin_t> wins(MAX_WIN);
 static vector_tpl<simwin_t> kill_list(MAX_WIN);
 
-static karte_t* wl = NULL; // Zeiger auf aktuelle Welt, wird in win_set_welt gesetzt
+static karte_t* wl = NULL; // Pointer to current world is set in win_set_welt
 
 static int top_win(int win, bool keep_state );
 static void display_win(int win);
@@ -144,8 +145,7 @@ static bool show_ticker=0;
  */
 static void *inside_event_handling = NULL;
 
-/* only this gui element can set a tooltip
- */
+// only this gui element can set a tooltip
 static void *tooltip_element = NULL;
 
 static void destroy_framed_win(simwin_t *win);
@@ -496,7 +496,7 @@ void rdwr_all_win(loadsave_t *file)
 							dbg->fatal( "rdwr_all_win()", "No idea how to restore magic $%Xlu", id );
 						}
 				}
-				/* sequece is now the same for all dialogues
+				/* sequence is now the same for all dialogues
 				 * restore coordinates
 				 * create window
 				 * read state
@@ -870,7 +870,7 @@ void display_win(int win)
 	if(!wins[win].rollup) {
 		komp->zeichnen(wins[win].pos, gr);
 
-		// dragger zeichnen
+		// draw dragger
 		if(need_dragger) {
 			win_draw_window_dragger( pos, gr);
 		}
@@ -917,7 +917,7 @@ void win_rotate90( sint16 new_ysize )
 
 static void remove_old_win()
 {
-	// alte fenster entfernen, falls dauer abgelaufen
+	// Destroy (close) old window when life time expire
 	for(  int i=wins.get_count()-1;  i>=0;  i=min(i,(int)wins.get_count())-1  ) {
 		if(wins[i].dauer > 0) {
 			wins[i].dauer --;
@@ -1162,7 +1162,7 @@ void win_set_pos(gui_frame_t *gui, int x, int y)
 
 /* main window event handler
  * renovated may 2005 by prissi to take care of irregularly shaped windows
- * also remove some unneccessary calls
+ * also remove some unnecessary calls
  */
 bool check_pos_win(event_t *ev)
 {
@@ -1452,7 +1452,7 @@ void win_display_flush(double konto)
 	}
 
 	// ok, we want to clip the height for everything!
-	// unfourtunately, the easiest way is by manipulating the global high
+	// unfortunately, the easiest way is by manipulating the global high
 	{
 		sint16 oldh = display_get_height();
 		display_set_height( oldh-(wl?16:0)-16*show_ticker );

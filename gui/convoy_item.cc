@@ -1,3 +1,7 @@
+/*
+ * Convoi information, name and status color
+ */
+
 #include "convoy_item.h"
 #include "../simconvoi.h"
 #include "../simmenu.h"

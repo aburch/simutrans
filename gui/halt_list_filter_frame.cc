@@ -6,6 +6,11 @@
  * (see licence.txt)
  */
 
+/*
+ * Stations/stops list filter dialog
+ * Displays filter settings for the halt list
+ * @author V. Meyer
+ */
 
 #include "halt_list_filter_frame.h"
 #include "../simcolor.h"

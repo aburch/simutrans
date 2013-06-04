@@ -1,5 +1,5 @@
 /*
- * dialog zur Eingabe der Werte fuer die Kartenerzeugung
+ * Dialog to configure the generation of a new map
  *
  * Hj. Malthaner
  *
@@ -22,7 +22,7 @@ class settings_t;
 class karte_t;
 
 /**
- * Ein Dialog mit Einstellungen fuer eine neue Karte
+ * The dialog for a new world
  *
  * @author Hj. Malthaner, Niels Roest
  */
@@ -32,7 +32,7 @@ private:
 	settings_t* sets;
 
 	/**
-	* Mini Karten-Preview
+	* Mini Map-Preview
 	* @author Hj. Malthaner
 	*/
 	array2d_tpl<uint8> karte;
@@ -99,24 +99,23 @@ public:
 	bool get_loaded_heightfield() const { return loaded_heightfield; }
 
 	/**
-	 * Manche Fenster haben einen Hilfetext assoziiert.
-	 * @return den Dateinamen für die Hilfe, oder NULL
+	 * Set the window associated helptext
+	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
 	const char * get_hilfe_datei() const {return "new_world.txt";}
 
 	settings_t* get_sets() const { return sets; }
 
-	// does not work during new world dialoge
+	// does not work during new world dialog
 	virtual bool has_sticky() const { return false; }
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**
-	 * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
-	 * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
-	 * in dem die Komponente dargestellt wird.
-	 *
+	 * Draw new component. The values to be passed refer to the window
+	 * i.e. It's the screen coordinates of the window where the
+	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
 	void zeichnen(koord pos, koord gr);

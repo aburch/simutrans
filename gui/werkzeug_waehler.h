@@ -2,8 +2,10 @@
  * Copyright (c) 2008 prissi
  *
  * This file is part of the Simutrans project under the artistic licence.
- *
- * This class defines all toolbar dialoges, i.e. the part the user will see
+ */
+
+/*
+ * This class defines all toolbar dialogues, i.e. the part the user will see
  */
 
 #ifndef gui_werkzeug_waehler_h
@@ -32,7 +34,7 @@ private:
 	/// tool definitions
 	vector_tpl<tool_data_t> tools;
 
-	// get current toolbar nummer for saving
+	// get current toolbar number for saving
 	uint32 toolbar_id;
 
 	/**
@@ -77,8 +79,8 @@ public:
 	void reset_tools();
 
 	/**
-	 * Manche Fenster haben einen Hilfetext assoziiert.
-	 * @return den Dateinamen für die Hilfe, oder NULL
+	 * Set the window associated helptext
+	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
 	const char *get_hilfe_datei() const {return hilfe_datei;}
@@ -97,9 +99,9 @@ public:
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**
-	 * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
-	 * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
-	 * in dem die Komponente dargestellt wird.
+	 * Draw new component. The values to be passed refer to the window
+	 * i.e. It's the screen coordinates of the window where the
+	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
 	void zeichnen(koord pos, koord gr);

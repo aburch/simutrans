@@ -50,9 +50,9 @@ public:
 	virtual void info(cbuffer_t& buf) const { get_ding()->info(buf); }
 
 	/**
-	* komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
-	* das Fenster, d.h. es sind die Bildschirmkoordinaten des Fensters
-	* in dem die Komponente dargestellt wird.
+	* Draw new component. The values to be passed refer to the window
+	* i.e. It's the screen coordinates of the window where the
+	* component is displayed.
 	*/
 	virtual void zeichnen(koord pos, koord gr);
 };
