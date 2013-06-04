@@ -1651,7 +1651,7 @@ public:
 	 * Sets water height.
 	 * @author Kieron Green
 	 */
-	void set_water_hgt(koord k, sint16 hgt) { water_hgts[k.x + k.y * (uint32)(cached_grid_size.x)] = (hgt); }
+	void set_water_hgt(koord k, sint8 hgt) { water_hgts[k.x + k.y * (uint32)(cached_grid_size.x)] = (hgt); }
 
 	/**
 	 * Fills array with corner heights of neighbours
