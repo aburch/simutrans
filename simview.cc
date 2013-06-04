@@ -278,7 +278,7 @@ void karte_ansicht_t::display(bool force_dirty)
 						display_img_blend( gr->obj_bei(0)->get_bild(), x, y, transparent, 0, dirty );
 					}
 					else {
-						display_img_blend( grund_besch_t::get_ground_tile(0,gr->get_hoehe()), x, y, transparent, 0, dirty );
+						display_img_blend( grund_besch_t::get_ground_tile(gr), x, y, transparent, 0, dirty );
 					}
 				}
 				else if(  gr->get_typ()==grund_t::wasser  ) {

@@ -534,6 +534,7 @@ KOORD_VAL base_tile_raster_width = 16;	// original
 display_image_proc display_normal = NULL;
 display_image_proc display_color = NULL;
 display_blend_proc display_blend = NULL;
+display_alpha_proc display_alpha = NULL;
 signed short current_tile_raster_width = 0;
 
 
@@ -2879,6 +2880,213 @@ static void display_img_blend_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VA
 }
 
 
+/* from here code for transparent images */
+
+
+typedef void (*alpha_proc)(PIXVAL *dest, const PIXVAL *src, const PIXVAL *alphamap, const unsigned alpha_flags, const PIXVAL colour, const PIXVAL len);
+static alpha_proc alpha;
+static alpha_proc alpha_recode;
+
+
+static void pix_alpha_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL *alphamap, const unsigned alpha_flags, const PIXVAL , const PIXVAL len)
+{
+	const PIXVAL *const end = dest + len;
+
+	const uint16 rmask = alpha_flags & ALPHA_RED ? 0x001f : 0;
+	const uint16 gmask = alpha_flags & ALPHA_GREEN ? 0x03e0 : 0;
+	const uint16 bmask = alpha_flags & ALPHA_BLUE ? 0x7b00 : 0;
+
+	while(  dest < end  ) {
+		// read mask components - always 15bpp
+		uint16 alpha_value = ((*alphamap) & rmask) + (((*alphamap) & gmask) >> 5) + (((*alphamap) & bmask) >> 10);
+
+		if(  alpha_value > 30  ) {
+			// opaque, just copy source
+			*dest = *src;
+		}
+		else if(  alpha_value > 0  ) {
+			alpha_value = alpha_value > 15 ? alpha_value + 1 : alpha_value;
+
+			//read screen components - 15bpp
+			const uint16 rbs = (*dest) & 0x7b1f;
+			const uint16 gs =  (*dest) & 0x03e0;
+
+			// read image components - 15bpp
+			const uint16 rbi = (*src) & 0x7b1f;
+			const uint16 gi =  (*src) & 0x03e0;
+
+			// calculate and write destination components - 16bpp
+			const uint16 rbd = ((rbi * alpha_value) + (rbs * (32 - alpha_value))) >> 5;
+			const uint16 gd  = ((gi  * alpha_value) + (gs  * (32 - alpha_value))) >> 5;
+			*dest = (rbd & 0x7b1f) | (gd & 0x03e0);
+		}
+
+		dest++;
+		src++;
+		alphamap++;
+	}
+}
+
+
+static void pix_alpha_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL *alphamap, const unsigned alpha_flags, const PIXVAL , const PIXVAL len)
+{
+	const PIXVAL *const end = dest + len;
+
+	const uint16 rmask = alpha_flags & ALPHA_RED ? 0x001f : 0;
+	const uint16 gmask = alpha_flags & ALPHA_GREEN ? 0x03e0 : 0;
+	const uint16 bmask = alpha_flags & ALPHA_BLUE ? 0x7b00 : 0;
+
+	while(  dest < end  ) {
+		// read mask components - always 15bpp
+		uint16 alpha_value = ((*alphamap) & rmask) + (((*alphamap) & gmask) >> 5) + (((*alphamap) & bmask) >> 10);
+
+		if(  alpha_value > 30  ) {
+			// opaque, just copy source
+			*dest = *src;
+		}
+		else if(  alpha_value > 0  ) {
+			alpha_value = alpha_value > 15 ? alpha_value + 1 : alpha_value;
+
+			//read screen components - 16bpp
+			const uint16 rbs = (*dest) & 0xf81f;
+			const uint16 gs =  (*dest) & 0x07e0;
+
+			// read image components 16bpp
+			const uint16 rbi = (*src) & 0xf81f;
+			const uint16 gi =  (*src) & 0x07e0;
+
+			// calculate and write destination components - 16bpp
+			const uint16 rbd = ((rbi * alpha_value) + (rbs * (32 - alpha_value))) >> 5;
+			const uint16 gd  = ((gi  * alpha_value) + (gs  * (32 - alpha_value))) >> 5;
+			*dest = (rbd & 0xf81f) | (gd & 0x07e0);
+		}
+
+		dest++;
+		src++;
+		alphamap++;
+	}
+}
+
+
+static void pix_alpha_recode_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL *alphamap, const unsigned alpha_flags, const PIXVAL , const PIXVAL len)
+{
+	const PIXVAL *const end = dest + len;
+
+	const uint16 rmask = alpha_flags & ALPHA_RED ? 0x001f : 0;
+	const uint16 gmask = alpha_flags & ALPHA_GREEN ? 0x03e0 : 0;
+	const uint16 bmask = alpha_flags & ALPHA_BLUE ? 0x7b00 : 0;
+
+	while(  dest < end  ) {
+		// read mask components - always 15bpp
+		uint16 alpha_value = ((*alphamap) & rmask) + (((*alphamap) & gmask) >> 5) + (((*alphamap) & bmask) >> 10);
+
+		if(  alpha_value > 30  ) {
+			// opaque, just copy source
+			*dest = rgbmap_current[*src];
+		}
+		else if(  alpha_value > 0  ) {
+			alpha_value = alpha_value > 15 ? alpha_value + 1 : alpha_value;
+
+			//read screen components - 15bpp
+			const uint16 rbs = (*dest) & 0x7b1f;
+			const uint16 gs =  (*dest) & 0x03e0;
+
+			// read image components - 15bpp
+			const uint16 rbi = (rgbmap_current[*src]) & 0x7b1f;
+			const uint16 gi =  (rgbmap_current[*src]) & 0x03e0;
+
+			// calculate and write destination components - 16bpp
+			const uint16 rbd = ((rbi * alpha_value) + (rbs * (32 - alpha_value))) >> 5;
+			const uint16 gd  = ((gi  * alpha_value) + (gs  * (32 - alpha_value))) >> 5;
+			*dest = (rbd & 0x7b1f) | (gd & 0x03e0);
+		}
+
+		dest++;
+		src++;
+		alphamap++;
+	}
+}
+
+
+static void pix_alpha_recode_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL *alphamap, const unsigned alpha_flags, const PIXVAL , const PIXVAL len)
+{
+	const PIXVAL *const end = dest + len;
+
+	const uint16 rmask = alpha_flags & ALPHA_RED ? 0x001f : 0;
+	const uint16 gmask = alpha_flags & ALPHA_GREEN ? 0x03e0 : 0;
+	const uint16 bmask = alpha_flags & ALPHA_BLUE ? 0x7b00 : 0;
+
+	while(  dest < end  ) {
+		// read mask components - always 15bpp
+		uint16 alpha_value = ((*alphamap) & rmask) + (((*alphamap) & gmask) >> 5) + (((*alphamap) & bmask) >> 10);
+
+		if(  alpha_value > 30  ) {
+			// opaque, just copy source
+			*dest = rgbmap_current[*src];
+		}
+		else if(  alpha_value > 0  ) {
+			alpha_value = alpha_value> 15 ? alpha_value + 1 : alpha_value;
+
+			//read screen components - 16bpp
+			const uint16 rbs = (*dest) & 0xf81f;
+			const uint16 gs =  (*dest) & 0x07e0;
+
+			// read image components 16bpp
+			const uint16 rbi = (rgbmap_current[*src]) & 0xf81f;
+			const uint16 gi =  (rgbmap_current[*src]) & 0x07e0;
+
+			// calculate and write destination components - 16bpp
+			const uint16 rbd = ((rbi * alpha_value) + (rbs * (32 - alpha_value))) >> 5;
+			const uint16 gd  = ((gi  * alpha_value) + (gs  * (32 - alpha_value))) >> 5;
+			*dest = (rbd & 0xf81f) | (gd & 0x07e0);
+		}
+
+		dest++;
+		src++;
+		alphamap++;
+	}
+}
+
+
+static void display_img_alpha_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp, const PIXVAL *alphamap, const uint8 alpha_flags, int colour, alpha_proc p )
+{
+	if(  h > 0  ) {
+		PIXVAL *tp = textur + yp * disp_width;
+
+		do { // zeilen dekodieren
+			int xpos = xp;
+
+			// bild darstellen
+			uint16 runlen = *sp++;
+			alphamap++;
+
+			do {
+				// wir starten mit einem clear run
+				xpos += runlen;
+
+				// jetzt kommen farbige pixel
+				runlen = *sp++;
+				alphamap++;
+
+				// Hajo: something to display?
+				if(  xpos + runlen > clip_rect.x  &&  xpos < clip_rect.xx  ) {
+					const int left = (xpos >= clip_rect.x ? 0 : clip_rect.x - xpos);
+					const int len  = (clip_rect.xx - xpos >= runlen ? runlen : clip_rect.xx - xpos);
+					p( tp + xpos + left, sp + left, alphamap + left, alpha_flags, colour, len - left );
+				}
+
+				sp += runlen;
+				alphamap += runlen;
+				xpos += runlen;
+				alphamap++;
+			} while(  (runlen = *sp++)  );
+
+			tp += disp_width;
+		} while(  --h  );
+	}
+}
+
+
 /**
  * draws the transparent outline of an image
  * @author kierongreen
@@ -2964,6 +3172,97 @@ void display_rezoomed_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, co
 }
 
 
+void display_rezoomed_img_alpha(const unsigned n, const unsigned alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char /*player_nr*/, const PLAYER_COLOR_VAL color_index, const int /*daynight*/, const int dirty)
+{
+	if(  n < anz_images  &&  alpha_n < anz_images  ) {
+		// need to go to nightmode and or rezoomed?
+		PIXVAL *sp;
+		PIXVAL *alphamap;
+		KOORD_VAL h, reduce_h, skip_lines;
+
+		if(  images[n].recode_flags & FLAG_REZOOM  ) {
+			rezoom_img(n);
+			recode_normal_img(n);
+		}
+		else if(  images[n].recode_flags & FLAG_NORMAL_RECODE  ) {
+			recode_normal_img(n);
+		}
+		if(  images[alpha_n].recode_flags & FLAG_REZOOM  ) {
+			rezoom_img(alpha_n);
+		}
+		sp = images[n].data;
+		// alphamap image uses base data as we don't want to recode
+		alphamap = images[alpha_n].zoom_data != NULL ? images[alpha_n].zoom_data : images[alpha_n].base_data;
+		// now, since zooming may have change this image
+		xp += images[n].x;
+		yp += images[n].y;
+		h = images[n].h; // may change due to vertical clipping
+
+		// in the next line the vertical clipping will be handled
+		// by that way the drawing routines must only take into account the horizontal clipping
+		// this should be much faster in most cases
+
+		// must the height be reduced?
+		reduce_h = yp + h - clip_rect.yy;
+		if(  reduce_h > 0  ) {
+			h -= reduce_h;
+		}
+		// still something to draw
+		if(  h <= 0  ) {
+			return;
+		}
+
+		// vertically lines to skip (only bottom is visible
+		skip_lines = clip_rect.y - (int)yp;
+		if(  skip_lines > 0  ) {
+			if(  skip_lines >= h  ) {
+				// not visible at all
+				return;
+			}
+			h -= skip_lines;
+			yp += skip_lines;
+			// now skip them
+			while(  skip_lines--  ) {
+				do {
+					// clear run + colored run + next clear run
+					sp++;
+					sp += *sp + 1;
+					alphamap++;
+					alphamap += *alphamap + 1;
+				} while(  *sp  );
+				sp++;
+				alphamap++;
+			}
+			// now sp is the new start of an image with height h (same for alphamap)
+		}
+
+		// new block for new variables
+		{
+			// needed now ...
+			const KOORD_VAL w = images[n].w;
+			// get the real color
+			const PIXVAL color = specialcolormap_all_day[color_index & 0xFF];
+
+			// use horizontal clipping or skip it?
+			if(  xp >= clip_rect.x  &&  xp + w  <= clip_rect.xx  ) {
+				// marking change?
+				if(  dirty  ) {
+					mark_rect_dirty_nc( xp, yp, xp + w - 1, yp + h - 1 );
+				}
+				display_img_alpha_wc( h, xp, yp, sp, alphamap, alpha_flags, color, alpha );
+			}
+			else if(  xp < clip_rect.xx  &&  xp + w > clip_rect.x  ) {
+				display_img_alpha_wc( h, xp, yp, sp, alphamap, alpha_flags, color, alpha );
+				// since height may be reduced, start marking here
+				if(  dirty  ) {
+					mark_rect_dirty_wc( xp, yp, xp + w - 1, yp + h - 1 );
+				}
+			}
+		}
+	}
+}
+
+
 // Knightly : For blending or outlining unzoomed image. Adapted from display_base_img() and display_unzoomed_img_blend()
 void display_base_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty)
 {
@@ -3039,6 +3338,91 @@ void display_base_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const 
 					mark_rect_dirty_wc(x, y, x + w - 1, y + h - 1);
 				}
 				display_img_blend_wc( h, x, y, sp, color, pix_blend );
+			}
+		}
+	} // number ok
+}
+
+
+void display_base_img_alpha(const unsigned n, const unsigned alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty)
+{
+	if(  base_tile_raster_width == tile_raster_width  ) {
+		// same size => use standard routine
+		display_rezoomed_img_alpha( n, alpha_n, alpha_flags, xp, yp, player_nr, color_index, daynight, dirty );
+	}
+	else if(  n < anz_images  ) {
+		// prissi: now test if visible and clipping needed
+		KOORD_VAL x = images[n].base_x + xp;
+		KOORD_VAL y = images[n].base_y + yp;
+		KOORD_VAL w = images[n].base_w;
+		KOORD_VAL h = images[n].base_h;
+
+		if(  h == 0  ||  x >= clip_rect.xx  ||  y >= clip_rect.yy  ||  x + w <= clip_rect.x  ||  y + h <= clip_rect.y  ) {
+			// not visible => we are done
+			// happens quite often ...
+			return;
+		}
+
+		PIXVAL *sp = images[n].base_data;
+		PIXVAL *alphamap = images[alpha_n].base_data;
+
+		// must the height be reduced?
+		KOORD_VAL reduce_h = y + h - clip_rect.yy;
+		if(  reduce_h > 0  ) {
+			h -= reduce_h;
+		}
+
+		// vertical lines to skip (only bottom is visible)
+		KOORD_VAL skip_lines = clip_rect.y - (int)y;
+		if(  skip_lines > 0  ) {
+			h -= skip_lines;
+			y += skip_lines;
+			// now skip them
+			while(  skip_lines--  ) {
+				do {
+					// clear run + colored run + next clear run
+					sp++;
+					sp += *sp + 1;
+				} while(  *sp  );
+				do {
+					// clear run + colored run + next clear run
+					alphamap++;
+					alphamap += *alphamap + 1;
+				} while(  *alphamap  );
+				sp++;
+				alphamap++;
+			}
+			// now sp is the new start of an image with height h
+		}
+
+		// new block for new variables
+		{
+			const PIXVAL color = specialcolormap_all_day[color_index & 0xFF];
+
+			// recode is needed only for blending
+			if(  !(color_index & OUTLINE_FLAG)  ) {
+				// colors for 2nd company color
+				if(  player_nr >= 0  ) {
+					activate_player_color( player_nr, daynight );
+				}
+				else {
+					// no player
+					activate_player_color( 0, daynight );
+				}
+			}
+
+			// use horizontal clipping or skip it?
+			if(  x >= clip_rect.x  &&  x + w <= clip_rect.xx  ) {
+				if( dirty ) {
+					mark_rect_dirty_nc( x, y, x + w - 1, y + h - 1 );
+				}
+				display_img_alpha_wc( h, x, y, sp, alphamap, alpha_flags, color, alpha_recode );
+			}
+			else {
+				if(  dirty  ) {
+					mark_rect_dirty_wc( x, y, x + w - 1, y + h - 1 );
+				}
+				display_img_alpha_wc( h, x, y, sp, alphamap, alpha_flags, color, alpha_recode );
 			}
 		}
 	} // number ok
@@ -4253,6 +4637,8 @@ void simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 			outline[0] = pix_outline25_15;
 			outline[1] = pix_outline50_15;
 			outline[2] = pix_outline75_15;
+			alpha = pix_alpha_15;
+			alpha_recode = pix_alpha_recode_15;
 		}
 		else {
 			blend[0] = pix_blend25_16;
@@ -4264,6 +4650,8 @@ void simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 			outline[0] = pix_outline25_16;
 			outline[1] = pix_outline50_16;
 			outline[2] = pix_outline75_16;
+			alpha = pix_alpha_16;
+			alpha_recode = pix_alpha_recode_16;
 		}
 	}
 

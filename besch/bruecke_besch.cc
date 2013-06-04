@@ -31,14 +31,18 @@ bruecke_besch_t::img_t bruecke_besch_t::get_pillar(ribi_t::ribi ribi)
  *  Beschreibung:
  *      Richtigen Index für klassischen Hangstart ück bestimmen
  */
-bruecke_besch_t::img_t bruecke_besch_t::get_start(ribi_t::ribi ribi)
+bruecke_besch_t::img_t bruecke_besch_t::get_start(hang_t::typ slope)
 {
-	switch(ribi) {
-		case ribi_t::nord:	return N_Start;
-		case ribi_t::sued:	return S_Start;
-		case ribi_t::ost:	return O_Start;
-		case ribi_t::west:	return W_Start;
-		default:		return (img_t)-1;
+	switch(  slope  ) {
+		case hang_t::nord: return N_Start;
+		case hang_t::sued: return S_Start;
+		case hang_t::ost:  return O_Start;
+		case hang_t::west: return W_Start;
+		case hang_t::nord * 2: return N_Start;
+		case hang_t::sued * 2: return S_Start;
+		case hang_t::ost  * 2: return O_Start;
+		case hang_t::west * 2: return W_Start;
+ 		default: return (img_t) - 1;
 	}
 }
 
@@ -50,16 +54,21 @@ bruecke_besch_t::img_t bruecke_besch_t::get_start(ribi_t::ribi ribi)
  *  Beschreibung:
  *      Richtigen Index für Rampenstart ück bestimmen
  */
-bruecke_besch_t::img_t bruecke_besch_t::get_rampe(ribi_t::ribi ribi)
+bruecke_besch_t::img_t bruecke_besch_t::get_rampe(hang_t::typ slope)
 {
-    switch(ribi) {
-    case ribi_t::nord:	return N_Rampe;
-    case ribi_t::sued:	return S_Rampe;
-    case ribi_t::ost:	return O_Rampe;
-    case ribi_t::west:	return W_Rampe;
-    default:		return (img_t)-1;
-    }
-}
+	switch(  slope  ) {
+		case hang_t::nord: return N_Rampe;
+		case hang_t::sued: return S_Rampe;
+		case hang_t::ost:  return O_Rampe;
+		case hang_t::west: return W_Rampe;
+		case hang_t::nord * 2: return N_Start;
+		case hang_t::sued * 2: return S_Start;
+		case hang_t::ost  * 2: return O_Start;
+		case hang_t::west * 2: return W_Start;
+ 		default: return (img_t) - 1;
+	}
+ }
+
 
 void bruecke_besch_t::calc_checksum(checksum_t *chk) const
 {

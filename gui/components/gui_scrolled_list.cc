@@ -88,7 +88,7 @@ DBG_MESSAGE("gui_scrolled_list_t::show_selection()","sel=%d, offset=%d, groesse.
 
 void gui_scrolled_list_t::clear_elements()
 {
-	for(  sint32 i=0;  i<item_list.get_count();  i++  ) {
+	for(  uint32 i=0;  i<item_list.get_count();  i++  ) {
 		delete item_list[i];
 	}
 	item_list.clear();

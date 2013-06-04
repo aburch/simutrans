@@ -101,11 +101,8 @@ int baum_t::get_anzahl_besch(climate cl)
 uint8 baum_t::plant_tree_on_coordinate(karte_t * welt, koord pos, const uint8 maximum_count, const uint8 count)
 {
 	grund_t * gr = welt->lookup_kartenboden(pos);
-	if(gr) {
-		if(get_anzahl_besch(welt->get_climate(gr->get_pos().z))>0  &&
-			gr->ist_natur()  &&
-			gr->get_top()<maximum_count)
-		{
+	if(  gr  ) {
+		if(  get_anzahl_besch( welt->get_climate(pos) ) > 0  &&  gr->ist_natur()  &&  gr->get_top() < maximum_count  ) {
 			ding_t *ding = gr->obj_bei(0);
 			if(ding) {
 				switch(ding->get_typ()) {
@@ -147,13 +144,9 @@ bool baum_t::plant_tree_on_coordinate(karte_t * welt, koord pos, const baum_besc
 		return false;
 	}
 	grund_t *gr = welt->lookup_kartenboden(pos);
-	if(gr) {
-		if( gr->ist_natur()  &&
-			gr->get_top() < welt->get_settings().get_max_no_of_trees_on_square() &&
-			(!check_climate  ||  besch->is_allowed_climate(welt->get_climate(gr->get_hoehe())))
-			)
-		{
-			if(gr->get_top()>0) {
+	if(  gr  ) {
+		if(  gr->ist_natur()  &&  gr->get_top() < welt->get_settings().get_max_no_of_trees_on_square()  &&  (!check_climate  ||  besch->is_allowed_climate( welt->get_climate(pos) ))  ) {
+			if(  gr->get_top() > 0  ) {
 				switch(gr->obj_bei(0)->get_typ()) {
 					case ding_t::wolke:
 					case ding_t::aircraft:
@@ -236,7 +229,7 @@ DBG_MESSAGE("verteile_baeume()","distributing single trees");
 			grund_t *gr = welt->lookup_kartenboden(pos);
 			if(gr->get_top() == 0  &&  gr->get_typ() == grund_t::boden)  {
 				// plant spare trees, (those with low preffered density) or in an entirely tree climate
-				uint16 cl = 1<<welt->get_climate(gr->get_hoehe());
+				uint16 cl = 1 << welt->get_climate(pos);
 				settings_t const& s = welt->get_settings();
 				if ((cl & s.get_no_tree_climates()) == 0 && ((cl & s.get_tree_climates()) != 0 || simrand(s.get_forest_inverse_spare_tree_density() * dichte) < 100)) {
 					plant_tree_on_coordinate(welt, pos, 1, 1);
@@ -377,7 +370,7 @@ void baum_t::calc_bild()
 {
 	// summer autumn winter spring
 	season = welt->get_season();
-	if(welt->get_snowline()<=get_pos().z) {
+	if(  welt->get_snowline() <= get_pos().z  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate  ) {
 		// snowy winter graphics
 		season = 4;
 	}
@@ -451,7 +444,7 @@ baum_t::baum_t(karte_t *welt, koord3d pos) : ding_t(welt, pos)
 	// generate aged trees
 	// might underflow
 	geburt = welt->get_current_month() - simrand(703);
-	baumtype = (uint8)random_tree_for_climate_intern(welt->get_climate(pos.z));
+	baumtype = (uint8)random_tree_for_climate_intern( welt->get_climate( pos.get_2d() ) );
 	season = 0;
 	calc_off( welt->lookup( get_pos())->get_grund_hang() );
 	calc_bild();

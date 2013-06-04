@@ -25,7 +25,7 @@ fundament_t::fundament_t(karte_t *welt, koord3d pos, hang_t::typ hang ) : grund_
 	set_bild( IMG_LEER );
 	if(hang) {
 		pos = get_pos();
-		pos.z ++;
+		pos.z += hang_t::height(hang);
 		set_pos( pos );
 	}
 	slope = (uint8)hang_t::flach;
@@ -36,7 +36,7 @@ void fundament_t::calc_bild_internal()
 {
 	slope = 0;
 	if (is_visible()) {
-		set_bild( grund_besch_t::get_ground_tile(0,get_pos().z) );
+		set_bild( grund_besch_t::get_ground_tile(this) );
 	}
 	else {
 		set_bild(IMG_LEER);

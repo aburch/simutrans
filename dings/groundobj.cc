@@ -123,12 +123,12 @@ void groundobj_t::calc_bild()
 		case 0: season = 0;
 				break;
 				// summer, snow
-		case 1: season = welt->get_snowline()<=get_pos().z;
+		case 1: season = welt->get_snowline() <= get_pos().z  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate;
 				break;
 				// summer, winter, snow
-		case 2: season = welt->get_snowline()<=get_pos().z ? 2 : welt->get_season()==1;
+		case 2: season = (welt->get_snowline() <= get_pos().z  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate) ? 2 : welt->get_season() == 1;
 				break;
-		default: if(welt->get_snowline()<=get_pos().z) {
+		default: if(  welt->get_snowline() <= get_pos().z  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate  ) {
 					season = seasons;
 				}
 				else {

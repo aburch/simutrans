@@ -237,6 +237,9 @@ unprotect_abondoned_player_months = 0
 # THIS WILL BE ONLY USED, WHEN THIS FILE IS IN THE pakxyz/config!
 #tile_height = 16
 
+# new height for old slopes when old single height savegame loaded with double height pak (default 1=single height, 2=double height)
+#height_conversion_factor = 1
+
 # (=1) drive on the left side of the road
 drive_left = 0
 

@@ -98,12 +98,21 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 			imagelist_writer_t::instance()->write_obj(outfp, node, keys);
 
 			keys.clear();
-			for (hang = 3; hang <= 12; hang += 3) {
+			for(  hang = 3;  hang <= 12;  hang += 3  ) {
 				char buf[40];
 
-				sprintf(buf, "%simageup[%d]", image_type[backtofront], hang);
+				sprintf( buf, "%simageup[%d]", image_type[backtofront], hang );
 				string str = obj.get(buf);
 				keys.append(str);
+			}
+			for(  hang = 3;  hang <= 12;  hang += 3  ) {
+				char buf[40];
+
+				sprintf( buf, "%simageup2[%d]", image_type[backtofront], hang );
+				string str = obj.get(buf);
+				if(  !str.empty()  ) {
+					keys.append(str);
+				}
 			}
 			imagelist_writer_t::instance()->write_obj(outfp, node, keys);
 
@@ -152,12 +161,21 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 				imagelist_writer_t::instance()->write_obj(outfp, node, keys);
 
 				keys.clear();
-				for (hang = 3; hang <= 12; hang += 3) {
+				for(  hang = 3;  hang <= 12;  hang += 3  ) {
 					char buf[40];
 
-					sprintf(buf, "%simageup[%d][%d]", image_type[backtofront], hang, season);
+					sprintf( buf, "%simageup[%d][%d]", image_type[backtofront], hang, season );
 					string str = obj.get(buf);
 					keys.append(str);
+				}
+				for(  hang = 3;  hang <= 12;  hang += 3  ) {
+					char buf[40];
+
+					sprintf( buf, "%simageup2[%d][%d]", image_type[backtofront], hang, season );
+					string str = obj.get(buf);
+					if(  !str.empty()  ) {
+						keys.append(str);
+					}
 				}
 				imagelist_writer_t::instance()->write_obj(outfp, node, keys);
 

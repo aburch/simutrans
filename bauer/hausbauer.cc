@@ -390,17 +390,20 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb )
 						if(gr2  &&  gr2!=gr) {
 							// there is another ground below or above
 							// => do not change height, keep foundation
-							welt->access(newk)->kartenboden_setzen( new boden_t(welt, gr->get_pos(), hang_t::flach ) );
+							welt->access(newk)->kartenboden_setzen( new boden_t( welt, gr->get_pos(), hang_t::flach ) );
 							ground_recalc = false;
 						}
-						else if(  new_hgt<=welt->get_grundwasser()  &&  new_slope==hang_t::flach  ) {
-							welt->access(newk)->kartenboden_setzen(new wasser_t(welt, koord3d(newk,new_hgt) ) );
+						else if(  new_hgt <= welt->get_water_hgt(newk)  &&  new_slope == hang_t::flach  ) {
+							welt->access(newk)->kartenboden_setzen( new wasser_t( welt, koord3d( newk, new_hgt ) ) );
+							welt->calc_climate( gr->get_pos().get_2d(), true );
 						}
 						else {
-							if(  gr->get_grund_hang()==new_slope  ) {
+							if(  gr->get_grund_hang() == new_slope  ) {
 								ground_recalc = false;
 							}
-							welt->access(newk)->kartenboden_setzen(new boden_t(welt, koord3d(newk,new_hgt), new_slope) );
+							welt->access(newk)->kartenboden_setzen( new boden_t( welt, koord3d( newk, new_hgt ), new_slope ) );
+							welt->calc_climate( gr->get_pos().get_2d(), true );
+
 						}
 						// there might be walls from foundations left => thus some tiles may needs to be redraw
 						if(ground_recalc) {
@@ -479,6 +482,7 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int org
 				welt->access(gr->get_pos().get_2d())->boden_ersetzen(gr, gr2);
 				gr = gr2;
 //DBG_DEBUG("hausbauer_t::baue()","ground count now %i",gr->obj_count());
+				welt->calc_climate( gr->get_pos().get_2d(), true );
 				gr->obj_add( gb );
 				if(lt) {
 					gr->obj_add( lt );

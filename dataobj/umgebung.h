@@ -276,6 +276,9 @@ public:
 	/// how many internal pixel per height step (default 16)
 	static sint8 pak_tile_height_step;
 
+	/// new height for old slopes after conversion - 1=single height, 2=double height
+	static sint8 pak_height_conversion_factor;
+
 	/// use the faster drawing routine (and allow for clipping errors)
 	static bool simple_drawing;
 

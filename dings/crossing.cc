@@ -96,7 +96,7 @@ void crossing_t::calc_bild()
 #if MULTI_THREAD>1
 	pthread_mutex_unlock( &crossing_logic_mutex );
 #endif
-	const bool snow_image = get_pos().z >= welt->get_snowline();
+	const bool snow_image = get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate;
 	// recalc bild each step ...
 	const bild_besch_t *a = besch->get_bild_after( ns, zustand!=crossing_logic_t::CROSSING_CLOSED, snow_image );
 	if(  a==NULL  &&  snow_image  ) {

@@ -651,7 +651,7 @@ bool ai_goods_t::create_simple_rail_transport()
 	bauigel2.set_keep_existing_ways(false);
 
 	// first: make plain stations tiles as intended
-	sint8 z1 = max( welt->get_grundwasser()+1, welt->lookup_kartenboden(platz1)->get_hoehe() );
+	sint8 z1 = max( welt->get_water_hgt(platz1) + 1, welt->lookup_kartenboden(platz1)->get_hoehe() );
 	koord k = platz1;
 	koord diff1( sgn(size1.x), sgn(size1.y) );
 	koord perpend( sgn(size1.y), sgn(size1.x) );
@@ -663,7 +663,7 @@ bool ai_goods_t::create_simple_rail_transport()
 	}
 
 	// make the second ones flat ...
-	sint8 z2 = max( welt->get_grundwasser()+1, welt->lookup_kartenboden(platz2)->get_hoehe() );
+	sint8 z2 = max( welt->get_water_hgt(platz2) + 1, welt->lookup_kartenboden(platz2)->get_hoehe() );
 	k = platz2;
 	perpend = koord( sgn(size2.y), sgn(size2.x) );
 	koord diff2( sgn(size2.x), sgn(size2.y) );

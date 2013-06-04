@@ -46,10 +46,11 @@ void bruecke_t::calc_bild()
 #endif
 			if(img>=bruecke_besch_t::N_Start  &&  img<=bruecke_besch_t::W_Start) {
 				// must take the upper value for the start of the bridge
-				weg0->set_bild(besch->get_hintergrund(img, get_pos().z+1 >= welt->get_snowline()));
+				const hang_t::typ slope = gr->get_grund_hang();
+				weg0->set_bild( besch->get_hintergrund( img, welt->get_climate( get_pos().get_2d() ) == arctic_climate  ||  get_pos().z + hang_t::height(slope) >= welt->get_snowline() ) );
 			}
 			else {
-				weg0->set_bild(besch->get_hintergrund(img, get_pos().z >= welt->get_snowline()));
+				weg0->set_bild( besch->get_hintergrund( img, welt->get_climate( get_pos().get_2d() ) == arctic_climate  ||  get_pos().z >= welt->get_snowline() ) );
 			}
 			weg0->set_yoff(-gr->get_weg_yoff() );
 
@@ -76,7 +77,7 @@ void bruecke_t::calc_bild()
 
 image_id bruecke_t::get_after_bild() const
 {
-	return besch->get_vordergrund(img, get_pos().z+(img>=bruecke_besch_t::N_Start  &&  img<=bruecke_besch_t::W_Start) >= welt->get_snowline());
+	return besch->get_vordergrund( img, welt->get_climate( get_pos().get_2d() ) == arctic_climate  ||  get_pos().z + (img >= bruecke_besch_t::N_Start  &&  img <= bruecke_besch_t::W_Start) >= welt->get_snowline() );
 }
 
 
@@ -137,6 +138,22 @@ void bruecke_t::laden_abschliessen()
 		weg->set_besitzer(sp);
 	}
 	spieler_t::add_maintenance( sp,  besch->get_wartung(), besch->get_finance_waytype());
+
+	// with double heights may need to correct image on load (not all besch have double images)
+	// at present only start images have 2 height variants, others to follow...
+	if(  !gr->is_kartenboden  ) {
+		if(  besch->get_waytype() != powerline_wt  ) {
+			//img = besch->get_simple( gr->get_weg_ribi_unmasked( besch->get_waytype() ) );
+		}
+	}
+	else {
+		if(  gr->get_grund_hang() == hang_t::flach  ) {
+			//img = besch->get_rampe( gr->get_weg_hang() );
+		}
+		else {
+			img = besch->get_start( gr->get_grund_hang() );
+		}
+	}
 }
 
 
@@ -164,11 +181,14 @@ void bruecke_t::entferne( spieler_t *sp2 )
 
 
 // rotated segment names
-static bruecke_besch_t::img_t rotate90_img[12]= {
+static bruecke_besch_t::img_t rotate90_img[22]= {
 	bruecke_besch_t::OW_Segment, bruecke_besch_t::NS_Segment,
 	bruecke_besch_t::O_Start, bruecke_besch_t::W_Start, bruecke_besch_t::S_Start, bruecke_besch_t::N_Start,
 	bruecke_besch_t::O_Rampe, bruecke_besch_t::W_Rampe, bruecke_besch_t::S_Rampe, bruecke_besch_t::N_Rampe,
-	bruecke_besch_t::OW_Pillar, bruecke_besch_t::NS_Pillar
+	bruecke_besch_t::OW_Pillar, bruecke_besch_t::NS_Pillar,
+	bruecke_besch_t::OW_Segment2, bruecke_besch_t::NS_Segment2,
+	bruecke_besch_t::O_Start2, bruecke_besch_t::W_Start2, bruecke_besch_t::S_Start2, bruecke_besch_t::N_Start2,
+	bruecke_besch_t::O_Rampe2, bruecke_besch_t::W_Rampe2, bruecke_besch_t::S_Rampe2, bruecke_besch_t::N_Rampe2
 };
 
 

@@ -110,12 +110,6 @@ public:
 
 	image_id get_front_slope_image_id(hang_t::typ hang) const
 	{
-#ifndef DOUBLE_GROUNDS
-		if(!hang_t::ist_einfach(hang)) {
-			return IMG_LEER;
-		}
-		return get_child<bildliste_besch_t>(4)->get_bild_nr(hang / 3 - 1);
-#else
 		int nr;
 		switch(hang) {
 			case 4:
@@ -130,21 +124,32 @@ public:
 			case 36:
 				nr = 3;
 				break;
+			case 8:
+				nr = 4;
+				break;
+			case 24:
+				nr = 5;
+				break;
+			case 56:
+				nr = 6;
+				break;
+			case 72:
+				nr = 7;
+				break;
 			default:
 				return IMG_LEER;
 		}
-		return get_child<bildliste_besch_t>(4)->get_bild_nr(nr);
-#endif
+		image_id hang_img = get_child<bildliste_besch_t>(4)->get_bild_nr(nr);
+		if(  nr > 3  &&  hang_img == IMG_LEER  ) {
+			// hack for old ways without double height images to use single slope images for both
+			nr -= 4;
+			hang_img = get_child<bildliste_besch_t>(4)->get_bild_nr(nr);
+		}
+		return hang_img;
 	  }
 
 	image_id get_back_slope_image_id(hang_t::typ hang) const
 	{
-#ifndef DOUBLE_GROUNDS
-		if(!hang_t::ist_einfach(hang)) {
-			return IMG_LEER;
-		}
-		return get_child<bildliste_besch_t>(5)->get_bild_nr(hang / 3 - 1);
-#else
 		int nr;
 		switch(hang) {
 			case 4:
@@ -159,11 +164,28 @@ public:
 			case 36:
 				nr = 3;
 				break;
+			case 8:
+				nr = 4;
+				break;
+			case 24:
+				nr = 5;
+				break;
+			case 56:
+				nr = 6;
+				break;
+			case 72:
+				nr = 7;
+				break;
 			default:
 				return IMG_LEER;
 		}
-		return get_child<bildliste_besch_t>(5)->get_bild_nr(nr);
-#endif
+		image_id hang_img = get_child<bildliste_besch_t>(5)->get_bild_nr(nr);
+		if(  nr > 3  &&  hang_img == IMG_LEER  ) {
+			// hack for old ways without double height images to use single slope images for both
+			nr -= 4;
+			hang_img = get_child<bildliste_besch_t>(5)->get_bild_nr(nr);
+		}
+		return hang_img;
 	  }
 
 	image_id get_front_diagonal_image_id(ribi_t::ribi ribi) const

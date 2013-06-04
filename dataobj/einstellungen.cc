@@ -432,6 +432,14 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_short(winter_snowline );
 		}
 
+		if(  file->is_loading()  &&  file->get_version() < 112007  ) {
+			grundwasser *= umgebung_t::pak_height_conversion_factor;
+			for(  int i = 0;  i < 8;  i++  ) {
+				climate_borders[i] *= umgebung_t::pak_height_conversion_factor;
+			}
+			winter_snowline *= umgebung_t::pak_height_conversion_factor;
+		}
+
 		// since vehicle will need realignment afterwards!
 		if(file->get_version()<=99018) {
 			vehikel_basis_t::set_diagonal_multiplier( pak_diagonal_multiplier, 1024 );
@@ -1192,10 +1200,12 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	no_tree_climates = contents.get_int("no_tree_climates", no_tree_climates );
 	no_trees	= contents.get_int("no_trees", no_trees );
 
-	// those two are pak specific; but while the diagonal length affect traveling time (in is game critical) ...
+	// these are pak specific; the diagonal length affect traveling time (is game critical)
 	pak_diagonal_multiplier = contents.get_int("diagonal_multiplier", pak_diagonal_multiplier );
 	// the height in z-direction will only cause pixel errors but not a different behaviour
 	umgebung_t::pak_tile_height_step = contents.get_int("tile_height", umgebung_t::pak_tile_height_step );
+	// new height for old slopes after conversion - 1=single height, 2=double height
+	umgebung_t::pak_height_conversion_factor = contents.get_int("height_conversion_factor", umgebung_t::pak_height_conversion_factor );
 
 	min_factory_spacing = contents.get_int("factory_spacing", min_factory_spacing );
 	min_factory_spacing = contents.get_int("min_factory_spacing", min_factory_spacing );

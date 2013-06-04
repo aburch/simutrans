@@ -535,6 +535,12 @@ private:
 	sint8 *grid_hgts;
 
 	/**
+	 * Array representing the height of water on each point of the grid.
+	 * @see cached_grid_size
+	 */
+	sint8 *water_hgts;
+
+	/**
 	 * @}
 	 */
 
@@ -1201,7 +1207,7 @@ public:
 	 * Returns the maximum allowed world height.
 	 * @author Hj. Malthaner
 	 */
-	sint8 get_maximumheight() const { return 14; }
+	sint8 get_maximumheight() const { return 32; }
 
 	/**
 	 * Returns the current snowline height.
@@ -1223,6 +1229,32 @@ public:
 			return arctic_climate;
 		}
 		return (climate)height_to_climate[h];
+	}
+
+	/**
+	 * returns the current climate for a given koordinate
+	 * @author Kieron Green
+	 */
+	inline climate get_climate(koord k) const {
+		const planquadrat_t *plan = lookup(k);
+		return plan ? plan->get_climate() : water_climate;
+	}
+
+	/**
+	 * sets the current climate for a given koordinate
+	 * @author Kieron Green
+	 */
+	inline void set_climate(koord k, climate cl, bool recalc) {
+		planquadrat_t *plan = access(k);
+		if(  plan  ) {
+			plan->set_climate(cl);
+			if(  recalc  ) {
+				recalc_transitions(k);
+				for(  int i = 0;  i < 8;  i++  ) {
+					recalc_transitions( k + koord::neighbours[i] );
+				}
+			}
+		}
 	}
 
 	/**
@@ -1606,6 +1638,44 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	void set_grid_hgt(koord k, sint8 hgt) { grid_hgts[k.x + k.y*(uint32)(cached_grid_size.x+1)] = hgt; }
+
+	/**
+	 * @return water height
+	 * @author Kieron Green
+	 */
+	inline sint8 get_water_hgt(koord k) const {
+		return is_within_grid_limits( k.x, k.y ) ? water_hgts[k.x + k.y * (cached_grid_size.x)] : grundwasser;
+	}
+
+	/**
+	 * Sets water height.
+	 * @author Kieron Green
+	 */
+	void set_water_hgt(koord k, sint16 hgt) { water_hgts[k.x + k.y * (uint32)(cached_grid_size.x)] = (hgt); }
+
+	/**
+	 * Fills array with corner heights of neighbours
+	 * @author Kieron Green
+	 */
+	void get_neighbour_heights(const koord k, sint8 neighbour_height[8][4]) const;
+
+	/**
+	 * Calculates appropriate climate for a tile
+	 * @author Kieron Green
+	 */
+	void calc_climate(koord k, bool recalc);
+
+	/**
+	 * Rotates climate and water transitions for a tile
+	 * @author Kieron Green
+	 */
+	void rotate_transitions(koord k);
+
+	/**
+	 * Recalculate climate and water transitions for a tile
+	 * @author Kieron Green
+	 */
+	void recalc_transitions(koord k);
 
 	/**
 	 * @return Minimum height of the planquadrats at i, j.

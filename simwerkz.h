@@ -193,6 +193,28 @@ public:
 	bool is_init_network_save() const OVERRIDE { return true; }
 };
 
+// height change by default_param
+class wkz_change_water_height_t : public werkzeug_t {
+public:
+	wkz_change_water_height_t() : werkzeug_t(WKZ_CHANGE_WATER_HEIGHT | GENERAL_TOOL) {}
+	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate( atoi(default_param)>=0 ? "Increase water height" : "Decrease water height" ); }
+	bool init(karte_t*, spieler_t*) OVERRIDE;
+	char const* work(karte_t*, spieler_t*, koord3d) OVERRIDE;
+	bool is_init_network_save() const OVERRIDE { return true; }
+};
+
+// height change by default_param
+class wkz_set_climate_t : public two_click_werkzeug_t {
+public:
+	wkz_set_climate_t() : two_click_werkzeug_t(WKZ_SET_CLIMATE | GENERAL_TOOL) {}
+	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate( "Set tile climate" ); }
+private:
+	char const* do_work(karte_t*, spieler_t*, koord3d const&, koord3d const&) OVERRIDE;
+	void mark_tiles(karte_t*, spieler_t*, koord3d const&, koord3d const&) OVERRIDE;
+	uint8 is_valid_pos(karte_t*, spieler_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE;
+	bool is_init_network_save() const OVERRIDE { return true; }
+};
+
 class wkz_plant_tree_t : public kartenboden_werkzeug_t {
 public:
 	wkz_plant_tree_t() : kartenboden_werkzeug_t(WKZ_PLANT_TREE | GENERAL_TOOL) {}

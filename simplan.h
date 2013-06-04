@@ -33,6 +33,9 @@ private:
 
 	uint8 ground_size, halt_list_count;
 
+	// stores climate related settings
+	uint8 climate_data;
+
 	/* only one station per ground xy tile */
 	halthandle_t this_halt;
 
@@ -46,7 +49,7 @@ public:
 	 * Constructs a planquadrat with initial capacity of one ground
 	 * @author Hansjörg Malthaner
 	 */
-	planquadrat_t() { ground_size=0; data.one = NULL; halt_list_count=0;  halt_list=NULL; }
+	planquadrat_t() { ground_size = 0; climate_data = 0; data.one = NULL; halt_list_count = 0;  halt_list = NULL; }
 
 	~planquadrat_t();
 
@@ -133,6 +136,58 @@ public:
 	unsigned int get_boden_count() const { return ground_size; }
 
 	/**
+	* returns climate of plan (lowest 3 bits of climate byte)
+	* @author Kieron Green
+	*/
+	inline climate get_climate() const { return (climate)(climate_data & 7); }
+
+	/**
+	* sets plan climate
+	* @author Kieron Green
+	*/
+	void set_climate(climate cl) {
+		climate_data = (climate_data & 0xf8) + (cl & 7);
+	}
+
+	/**
+	* returns whether this is a transition to next climate (which will then use calculated image rather than overlay)
+	* @author Kieron Green
+	*/
+	inline bool get_climate_transition_flag() const { return (climate_data >> 3) & 1; }
+
+	/**
+	* set whether this is a transition to next climate (which will then use calculated image rather than overlay)
+	* @author Kieron Green
+	*/
+	void set_climate_transition_flag(bool flag) {
+		climate_data = flag ? (climate_data | 0x08) : (climate_data & 0xf7);
+	}
+
+	/**
+	* returns corners which transition to another climate
+	* this has no meaning if tile is a slope with transition to next climate as these corners are fixed
+	* therefore for this case to allow double heights 0 = first level transition, 1 = second level transition
+	* @author Kieron Green
+	*/
+	inline uint8 get_climate_corners() const { return (climate_data >> 4) & 15; }
+
+	/**
+	* sets climate transition corners
+	* this has no meaning if tile is a slope with transition to next climate as these corners are fixed
+	* therefore for this case to allow double heights 0 = first level transition, 1 = second level transition
+	* @author Kieron Green
+	*/
+	void set_climate_corners(uint8 corners) {
+		climate_data = (climate_data & 0x0f) + (corners << 4);
+	}
+
+	/**
+	* converts boden to correct type, land or water
+	* @author Kieron Green
+	*/
+	void correct_water(karte_t *welt);
+
+	/**
 	* konvertiert Land zu Wasser wenn unter Grundwasserniveau abgesenkt
 	* @author Hj. Malthaner
 	*/
@@ -191,6 +246,8 @@ public:
 	void check_season(const long month);
 
 	void display_dinge(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, const bool is_global, const sint8 hmin, const sint8 hmax) const;
+
+	void display_tileoverlay(sint16 xpos, sint16 ypos, const sint8 hmin, const sint8 hmax) const;
 
 	void display_overlay(sint16 xpos, sint16 ypos, const sint8 hmin, const sint8 hmax) const;
 };

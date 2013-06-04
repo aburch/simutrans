@@ -143,6 +143,13 @@ void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed 
 void display_rezoomed_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty);
 #define display_img_blend( n, x, y, c, dn, d ) display_rezoomed_img_blend( (n), (x), (y), 0, (c), (dn), (d) )
 
+#define ALPHA_RED 0x1
+#define ALPHA_GREEN 0x2
+#define ALPHA_BLUE 0x4
+
+void display_rezoomed_img_alpha(const unsigned n, const unsigned alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty);
+#define display_img_alpha( n, a, f, x, y, c, dn, d ) display_rezoomed_img_alpha( (n), (a), (f), (x), (y), 0, (c), (dn), (d) )
+
 // display image with color (if there) and optinal day and nightchange
 void display_color_img(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty);
 
@@ -151,15 +158,18 @@ void display_base_img(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed
 
 // Knightly : display unzoomed image with alpha, either blended or as outline
 void display_base_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty);
+void display_base_img_alpha(const unsigned n, const unsigned alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty);
 
 // Knightly : pointer to image display procedures
 typedef void (*display_image_proc)(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty);
 typedef void (*display_blend_proc)(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty);
+typedef void (*display_alpha_proc)(const unsigned n, const unsigned alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty);
 
 // Knightly : variables for storing currently used image procedure set and tile raster width
 extern display_image_proc display_normal;
 extern display_image_proc display_color;
 extern display_blend_proc display_blend;
+extern display_alpha_proc display_alpha;
 extern signed short current_tile_raster_width;
 
 // Knightly : call this instead of referring to current_tile_raster_width directly
@@ -172,12 +182,14 @@ extern signed short current_tile_raster_width;
 		display_normal = display_img_aux; \
 		display_color = display_color_img; \
 		display_blend = display_rezoomed_img_blend; \
+		display_alpha = display_rezoomed_img_alpha; \
 		current_tile_raster_width = get_tile_raster_width(); \
 	} \
 	else { \
 		display_normal = display_base_img; \
 		display_color = display_base_img; \
 		display_blend = display_base_img_blend; \
+		display_alpha = display_base_img_alpha; \
 		current_tile_raster_width = get_base_tile_raster_width(); \
 	} \
 }

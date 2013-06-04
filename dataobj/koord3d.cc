@@ -9,6 +9,7 @@
 
 #include "koord3d.h"
 #include "../dataobj/loadsave.h"
+#include "../dataobj/umgebung.h"
 
 
 const koord3d koord3d::invalid(-1, -1, -1);
@@ -49,6 +50,11 @@ void koord3d::rdwr(loadsave_t *file)
 		sint8 v8=z;
 		file->rdwr_byte(v8);
 		z = v8;
+	}
+
+	if(  file->is_loading()  &&  file->get_version() < 112007  &&  x != -1  &&  y != -1  ) {
+		// convert heights from old single height saved game
+		z *= umgebung_t::pak_height_conversion_factor;
 	}
 }
 

@@ -35,16 +35,17 @@ void wasser_t::prepare_for_refresh()
 
 void wasser_t::calc_bild_internal()
 {
-	set_hoehe( welt->get_grundwasser() );
+	sint16 height = welt->get_water_hgt( get_pos().get_2d() );
+	set_hoehe( height );
 	slope = hang_t::flach;
 
-	sint16 zpos = min( welt->lookup_hgt(get_pos().get_2d()), welt->get_grundwasser() ); // otherwise slope will fail ...
+	sint16 zpos = min( welt->lookup_hgt( get_pos().get_2d() ), height ); // otherwise slope will fail ...
 
 	if (grund_t::underground_mode==grund_t::ugm_level && grund_t::underground_level < zpos) {
 		set_bild(IMG_LEER);
 	}
 	else {
-		set_bild( min( welt->get_grundwasser()-zpos, grund_besch_t::water_depth_levels ) /*grund_besch_t::get_ground_tile(0,zpos)*/ );
+		set_bild( min( height - zpos, grund_besch_t::water_depth_levels ) /*grund_besch_t::get_ground_tile(0,zpos)*/ );
 	}
 	// test for ribis
 	ribi = ribi_t::keine;
@@ -66,7 +67,7 @@ void wasser_t::calc_bild_internal()
 	}
 
 	// artifical walls from here on ...
-	grund_t::calc_back_bild(welt->get_grundwasser(), 0);
+	grund_t::calc_back_bild( height, 0 );
 }
 
 

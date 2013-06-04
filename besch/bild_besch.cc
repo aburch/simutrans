@@ -49,6 +49,24 @@ const uint32 bild_besch_t::rgbtab[SPECIAL] = {
 };
 
 
+// creates a single pixel dummy picture
+bild_besch_t* bild_besch_t::create_single_pixel()
+{
+	bild_besch_t* besch = new(4 * sizeof(PIXVAL)) bild_besch_t();
+	besch->pic.len = 1;
+	besch->pic.x = 0;
+	besch->pic.y = 0;
+	besch->pic.w = 1;
+	besch->pic.h = 1;
+	besch->pic.zoomable = 0;
+	besch->pic.data[0] = 0;
+	besch->pic.data[1] = 0;
+	besch->pic.data[2] = 0;
+	besch->pic.data[3] = 0;
+	return besch;
+}
+
+
 /* rotate_image_data - produces a (rotated) bild_besch
  * only rotates by 90 degrees or multiples thereof, and assumes a square image
  * Otherwise it will only succeed for angle=0;
@@ -106,6 +124,132 @@ bild_besch_t *bild_besch_t::copy_rotate(const sint16 angle) const
 	return target_besch;
 }
 
+
+bild_besch_t *bild_besch_t::copy_flipvertical(void) const
+{
+	bild_besch_t* target_besch = new(pic.len * sizeof(PIXVAL)) bild_besch_t();
+	target_besch->pic = pic;
+	target_besch->pic.bild_nr = IMG_LEER;
+	memcpy( target_besch->pic.data, pic.data, pic.len * sizeof(PIXVAL) );
+
+	// the format is
+	// transparent PIXELVAL number
+	// PIXEL number of pixels, data*PIXVAL
+	// repeated until zero transparent pixels
+	// in pak64 case it is 0 64 64*PIXVAL 0 for a single line, e.g. 70 bytes per line for pak64
+	// first data will have an offset of two PIXVAL
+	// now you should understand below arithmetics ...
+
+	sint16        const x_y    = pic.w;
+	PIXVAL const* const src    = get_daten();
+	PIXVAL*       const target = target_besch->get_daten();
+
+	for(  int j = 0;  j < x_y;  j++  ) {
+		for(  int i = 0;  i < x_y;  i++  ) {
+			target[i * (x_y + 3) + j + 2] = src[(x_y - i - 1) * (x_y + 3) + j + 2];
+		}
+	}
+	return target_besch;
+}
+
+
+bild_besch_t *bild_besch_t::copy_fliphorizontal(void) const
+{
+	bild_besch_t* target_besch = new(pic.len * sizeof(PIXVAL)) bild_besch_t();
+	target_besch->pic = pic;
+	target_besch->pic.bild_nr = IMG_LEER;
+	memcpy( target_besch->pic.data, pic.data, pic.len * sizeof(PIXVAL) );
+
+	// the format is
+	// transparent PIXELVAL number
+	// PIXEL number of pixels, data*PIXVAL
+	// repeated until zero transparent pixels
+	// in pak64 case it is 0 64 64*PIXVAL 0 for a single line, e.g. 70 bytes per line for pak64
+	// first data will have an offset of two PIXVAL
+	// now you should understand below arithmetics ...
+
+	sint16        const x_y    = pic.w;
+	PIXVAL const* const src    = get_daten();
+	PIXVAL*       const target = target_besch->get_daten();
+
+	for(  int i = 0;  i < x_y;  i++  ) {
+		for(  int j = 0;  j < x_y;  j++  ) {
+			target[i * (x_y + 3) + j + 2] = src[i * (x_y + 3) + (x_y - j - 1) + 2];
+		}
+	}
+	return target_besch;
+}
+
+
+/**
+ * make any pixel in image which does not have colour components specified in opaquemask transparent
+ * benefits:
+ *  probable increase in plotting speed as can ignore transparent pixels
+ *  if quality is not important then can increase speed further by just plotting as standard transparency not alpha
+ *  decrease in memory consumption for individual images
+ *
+ * drawbacks:
+ *  increase in number of images required as need separate images for each overlay combination
+ *  this will probably also increase overall memory consumption
+ *
+ * NOT IMPLEMENTED CURRENTLY
+ */
+/*bild_besch_t *bild_besch_t::copy_maketransparent(uint8 opaquemask) const
+{
+	// step 1 is finding out how much memory picture will need
+	// any pixel with no components specified in opaquemask will be made transparent (so needs no space)
+	PIXVAL const* sp = get_daten();
+	uint16 h = pic.h;
+	uint16 len = 0;
+	if(  h > 0  ) {
+		do {
+			uint16 transparent_runlen = *sp++; // transparent
+			len++;
+			do {
+				runlen = *sp++; // opaque
+				len++;
+				bool run_transparent = true;
+				bool first_pixel = true;
+				while(  runlen--  ) {
+					PIXVAL p = *sp++;
+
+					bool pixel_transparent = false; // here we will add code to test components...
+					if(  pixel_transparent  ) {
+						if(  !run_transparent  ) {
+							len += 1; // need to store length of this transparent run
+							run_transparent = true;
+						}
+						else {
+							// don't need to increase length as will just increment runlen
+						}
+					}
+					else {
+						if(  run_transparent  ) {
+							len += 2; // need to store length of this opaque run, as well as pixel
+							run_transparent = false;
+							first_pixel = false;
+						}
+						else {
+							len++; // just another pixel
+						}
+					}
+				}
+				runlen = *sp++; // transparent
+				if(  !is_transparent  ) {
+					len++; // only if last pixel was opaque
+				}
+				if(  first_pixel  ) {
+					len += 2; // line is only transparent pixels, need to an additional opaque and transparent run
+				}
+			} while(  runlen != 0  );
+		} while(  --h > 0  );
+	}
+
+	// now allocate memory
+	bild_besch_t* target_besch = new(len * sizeof(PIXVAL));
+
+	// step 2 actually construct image
+}*/
 
 
 /**

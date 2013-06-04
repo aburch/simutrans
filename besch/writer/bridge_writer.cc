@@ -11,6 +11,84 @@
 
 using std::string;
 
+void write_bridge_images(FILE* outfp, obj_node_t& node, tabfileobj_t& obj, int season)
+{
+	slist_tpl<string> backkeys;
+	slist_tpl<string> frontkeys;
+
+	static const char* const names[] = {
+		"image",
+		"ns", "ew", NULL,
+		"start",
+		"n", "s", "e", "w", NULL,
+		"ramp",
+		"n", "s", "e", "w", NULL,
+		"pillar",
+		"s", "w", NULL,
+		"image2",
+		"ns", "ew", NULL,
+		"start2",
+		"n", "s", "e", "w", NULL,
+		"ramp2",
+		"n", "s", "e", "w", NULL,
+		"pillar2",
+		"s", "w", NULL,
+		NULL
+	};
+
+	const char* const * ptr = names;
+	const char* keyname = *ptr++;
+	char keybuf[40];
+
+	do {
+		const char* keyindex = *ptr++;
+		do {
+			string value;
+
+			if(  season < 0  ) {
+				sprintf( keybuf, "back%s[%s]", keyname, keyindex );
+				value = obj.get( keybuf );
+				backkeys.append( value );
+				//intf("BACK: %s -> %s\n", keybuf, value.chars());
+				sprintf( keybuf, "front%s[%s]", keyname, keyindex );
+			}
+			else {
+				sprintf( keybuf, "back%s[%s][%d]", keyname, keyindex, season );
+				value = obj.get( keybuf );
+				backkeys.append( value );
+				//intf("BACK: %s -> %s\n", keybuf, value.chars());
+				sprintf( keybuf, "front%s[%s][%d]", keyname, keyindex, season );
+			}
+			value = obj.get( keybuf );
+
+			if(  value.size() > 2  ) {
+				frontkeys.append( value );
+				//intf("FRNT: %s -> %s\n", keybuf, value.chars());
+			}
+			else {
+				printf("WARNING: not %s specified (but might be still working)\n", keybuf );
+			}
+
+			keyindex = *ptr++;
+		} while(  keyindex  );
+		keyname = *ptr++;
+	} while(  keyname  );
+
+	imagelist_writer_t::instance()->write_obj( outfp, node, backkeys );
+	imagelist_writer_t::instance()->write_obj( outfp, node, frontkeys );
+	if(  season <= 0  ) {
+		slist_tpl<string> cursorkeys;
+		cursorkeys.append( string( obj.get("cursor") ) );
+		cursorkeys.append( string( obj.get("icon") ) );
+
+		cursorskin_writer_t::instance()->write_obj( outfp, node, obj, cursorkeys );
+
+		cursorkeys.clear();
+	}
+	backkeys.clear();
+	frontkeys.clear();
+}
+
 void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 {
 	obj_node_t node(this, 22, &parent);
@@ -49,62 +127,14 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 	node.write_uint8 (outfp, pillar_asymmetric, 19);
 	node.write_uint8 (outfp, max_height,        20);
 
-	static const char* const names[] = {
-		"image",
-		"ns", "ew", NULL,
-		"start",
-		"n", "s", "e", "w", NULL,
-		"ramp",
-		"n", "s", "e", "w", NULL,
-		NULL
-	};
-	slist_tpl<string> backkeys;
-	slist_tpl<string> frontkeys;
-
-	slist_tpl<string> cursorkeys;
-	cursorkeys.append(string(obj.get("cursor")));
-	cursorkeys.append(string(obj.get("icon")));
-
 	char keybuf[40];
 
 	string str = obj.get("backimage[ns][0]");
 	if (str.empty()) {
 		node.write_data_at(outfp, &number_seasons, 21, sizeof(uint8));
 		write_head(outfp, node, obj);
-		const char* const * ptr = names;
-		const char* keyname = *ptr++;
+		write_bridge_images( outfp, node, obj, -1 );
 
-		do {
-			const char* keyindex = *ptr++;
-			do {
-				string value;
-
-				sprintf(keybuf, "back%s[%s]", keyname, keyindex);
-				value = obj.get(keybuf);
-				backkeys.append(value);
-				//intf("BACK: %s -> %s\n", keybuf, value.chars());
-				sprintf(keybuf, "front%s[%s]", keyname, keyindex);
-				value = obj.get(keybuf);
-				if (value.size() > 2) {
-					frontkeys.append(value);
-					//intf("FRNT: %s -> %s\n", keybuf, value.chars());
-				} else {
-					printf("WARNING: not %s specified (but might be still working)\n",keybuf);
-				}
-				keyindex = *ptr++;
-			} while (keyindex);
-			keyname = *ptr++;
-		} while (keyname);
-
-		if (pillars_every > 0) {
-			backkeys.append(string(obj.get("backpillar[s]")));
-			backkeys.append(string(obj.get("backpillar[w]")));
-		}
-		imagelist_writer_t::instance()->write_obj(outfp, node, backkeys);
-		imagelist_writer_t::instance()->write_obj(outfp, node, frontkeys);
-		cursorskin_writer_t::instance()->write_obj(outfp, node, obj, cursorkeys);
-		backkeys.clear();
-		frontkeys.clear();
 	} else {
 		while(number_seasons < 2) {
 			sprintf(keybuf, "backimage[ns][%d]", number_seasons+1);
@@ -120,48 +150,9 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 		write_head(outfp, node, obj);
 
 		for(uint8 season = 0 ; season <= number_seasons ; season++) {
-			const char* const * ptr = names;
-			const char* keyname = *ptr++;
-
-			do {
-				const char* keyindex = *ptr++;
-				do {
-					string value;
-
-					sprintf(keybuf, "back%s[%s][%d]", keyname, keyindex, season);
-					value = obj.get(keybuf);
-					backkeys.append(value);
-					//intf("BACK: %s -> %s\n", keybuf, value.chars());
-					sprintf(keybuf, "front%s[%s][%d]", keyname, keyindex, season);
-					value = obj.get(keybuf);
-					if (value.size() > 2) {
-						frontkeys.append(value);
-						//intf("FRNT: %s -> %s\n", keybuf, value.chars());
-					} else {
-						printf("WARNING: not %s specified (but might be still working)\n",keybuf);
-					}
-					keyindex = *ptr++;
-				} while (keyindex);
-				keyname = *ptr++;
-			} while (keyname);
-
-			if (pillars_every > 0) {
-				sprintf(keybuf, "backpillar[s][%d]",season);
-				backkeys.append(string(obj.get(keybuf)));
-				sprintf(keybuf, "backpillar[w][%d]",season);
-				backkeys.append(string(obj.get(keybuf)));
-			}
-			imagelist_writer_t::instance()->write_obj(outfp, node, backkeys);
-			imagelist_writer_t::instance()->write_obj(outfp, node, frontkeys);
-			if(season == 0 ) {
-				cursorskin_writer_t::instance()->write_obj(outfp, node, obj, cursorkeys);
-			}
-			backkeys.clear();
-			frontkeys.clear();
+			write_bridge_images( outfp, node, obj, season );
 		}
 	}
-
-	cursorkeys.clear();
 
 	// node.write_data(outfp, &besch);
 	node.write(outfp);

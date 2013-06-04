@@ -71,11 +71,7 @@ climate_gui_t::climate_gui_t(settings_t* const sets) :
 	add_komponente( numberinput_lbl+labelnr );
 	labelnr++;
 
-#ifndef DOUBLE_GROUNDS
-	mountain_roughness.init( (int)(sets->get_map_roughness()*20.0 + 0.5)-8, 0, 7, gui_numberinput_t::AUTOLINEAR, false );
-#else
 	mountain_roughness.init( (int)(sets->get_map_roughness()*20.0 + 0.5)-8, 0, 10, gui_numberinput_t::AUTOLINEAR, false );
-#endif
 	mountain_roughness.set_pos( koord(LEFT_ARROW,y) );
 	mountain_roughness.set_groesse( koord(RIGHT_ARROW-LEFT_ARROW+10, D_BUTTON_HEIGHT) );
 	mountain_roughness.add_listener( this );

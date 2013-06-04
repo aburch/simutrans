@@ -60,7 +60,7 @@ image_id field_t::get_bild() const
 {
 	const skin_besch_t *s=besch->get_bilder();
 	uint16 anzahl=s->get_bild_anzahl() - besch->has_snow_image();
-	if(besch->has_snow_image()  &&  get_pos().z>=welt->get_snowline()) {
+	if(  besch->has_snow_image()  &&  (get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate)  ) {
 		// last images will be shown above snowline
 		return s->get_bild_nr(anzahl);
 	}

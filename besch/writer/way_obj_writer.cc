@@ -70,14 +70,27 @@ void way_obj_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& 
 	front_list.clear();
 	back_list.clear();
 
-	for (hang = 3; hang <= 12; hang += 3) {
+	for(  hang = 3;  hang <= 12;  hang += 3  ) {
 		char buf[40];
-		sprintf(buf, "frontimageup[%d]", hang);
+		sprintf( buf, "frontimageup[%d]", hang );
 		string str = obj.get(buf);
 		front_list.append(str);
-		sprintf(buf, "backimageup[%d]", hang);
+		sprintf( buf, "backimageup[%d]", hang );
 		string str2 = obj.get(buf);
 		back_list.append(str2);
+	}
+	for(  hang = 3;  hang <= 12;  hang += 3  ) {
+		char buf[40];
+		sprintf( buf, "frontimageup2[%d]", hang );
+		string str = obj.get(buf);
+		if(  !str.empty()  ) {
+			front_list.append(str);
+		}
+		sprintf( buf, "backimageup2[%d]", hang );
+		string str2 = obj.get(buf);
+		if(  !str2.empty()  ) {
+			back_list.append(str2);
+		}
 	}
 	imagelist_writer_t::instance()->write_obj(outfp, node, front_list);
 	imagelist_writer_t::instance()->write_obj(outfp, node, back_list);

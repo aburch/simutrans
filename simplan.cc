@@ -41,6 +41,7 @@ void swap(planquadrat_t& a, planquadrat_t& b)
 	sim::swap(a.ground_size, b.ground_size);
 	sim::swap(a.halt_list_count, b.halt_list_count);
 	sim::swap(a.data, b.data);
+	sim::swap(a.climate_data, b.climate_data);
 }
 
 // deletes also all grounds in this array!
@@ -318,6 +319,39 @@ void planquadrat_t::check_season(const long month)
 }
 
 
+void planquadrat_t::correct_water(karte_t *welt)
+{
+	grund_t *gr = get_kartenboden();
+	hang_t::typ slope = gr->get_grund_hang();
+	sint8 max_height = gr->get_hoehe() + hang_t::height( slope );
+	koord k = gr->get_pos().get_2d();
+	if(  gr  &&  gr->get_typ() != grund_t::wasser  &&  max_height <= welt->get_water_hgt(k)  ) {
+		// below water but ground => convert
+		kartenboden_setzen( new wasser_t( welt, koord3d( k, welt->get_water_hgt(k) ) ) );
+	}
+	else if(  gr  &&  gr->get_typ() == grund_t::wasser  &&  max_height > welt->get_water_hgt(k)  ) {
+		// water above ground => to ground
+		kartenboden_setzen( new boden_t( welt, gr->get_pos(), gr->get_disp_slope() ) );
+	}
+	else if(  gr  &&  gr->get_typ() == grund_t::wasser  &&  gr->get_hoehe() != welt->get_water_hgt(k)  ) {
+		// water at wrong height
+		gr->set_hoehe( welt->get_water_hgt(k) );
+	}
+
+	gr = get_kartenboden();
+	if(  gr  &&  gr->get_typ() != grund_t::wasser  &&  gr->get_disp_height() < welt->get_water_hgt(k)  &&  welt->max_hgt(k) > welt->get_water_hgt(k)  ) {
+		sint8 disp_hneu = welt->get_water_hgt(k);
+		sint8 disp_hn_sw = max( gr->get_hoehe() + corner1(slope), welt->get_water_hgt(k) );
+		sint8 disp_hn_se = max( gr->get_hoehe() + corner2(slope), welt->get_water_hgt(k) );
+		sint8 disp_hn_ne = max( gr->get_hoehe() + corner3(slope), welt->get_water_hgt(k) );
+		sint8 disp_hn_nw = max( gr->get_hoehe() + corner4(slope), welt->get_water_hgt(k) );
+		const uint8 sneu = (disp_hn_sw - disp_hneu) + ((disp_hn_se - disp_hneu) * 3) + ((disp_hn_ne - disp_hneu) * 9) + ((disp_hn_nw - disp_hneu) * 27);
+		gr->set_hoehe( disp_hneu );
+		gr->set_grund_hang( (hang_t::typ)sneu );
+	}
+}
+
+
 void planquadrat_t::abgesenkt(karte_t *welt)
 {
 	grund_t *gr = get_kartenboden();
@@ -325,9 +359,9 @@ void planquadrat_t::abgesenkt(karte_t *welt)
 		const uint8 slope = gr->get_grund_hang();
 
 		gr->obj_loesche_alle(NULL);
-		sint8 max_hgt = gr->get_hoehe() + (slope != 0 ? 1 : 0);
+		sint8 max_hgt = gr->get_hoehe() + (slope != 0 ? (slope & 7 ? 1 : 2) : 0);
 
-		if(max_hgt <= welt->get_grundwasser()  &&  gr->get_typ()!=grund_t::wasser) {
+		if(  max_hgt <= welt->get_water_hgt( gr->get_pos().get_2d() )  &&  gr->get_typ() != grund_t::wasser  ) {
 			kartenboden_setzen(new wasser_t(welt, gr->get_pos()) );
 			// recalc water ribis of neighbors
 			for(int r=0; r<4; r++) {
@@ -352,8 +386,9 @@ void planquadrat_t::angehoben(karte_t *welt)
 		const uint8 slope = gr->get_grund_hang();
 
 		gr->obj_loesche_alle(NULL);
-		sint8 max_hgt = gr->get_hoehe() + (slope != 0 ? 1 : 0);
-		if (max_hgt > welt->get_grundwasser()  &&  gr->get_typ()==grund_t::wasser) {
+		sint8 max_hgt = gr->get_hoehe() + (slope != 0 ? (slope & 7 ? 1 : 2) : 0);
+
+		if(  max_hgt > welt->get_water_hgt( gr->get_pos().get_2d() )  &&  gr->get_typ() == grund_t::wasser  ) {
 			kartenboden_setzen(new boden_t(welt, gr->get_pos(), slope ) );
 			// recalc water ribis
 			for(int r=0; r<4; r++) {
@@ -457,7 +492,7 @@ image_id overlay_img(grund_t *gr)
 		img = gr->get_bild();
 		if(  img==IMG_LEER  ) {
 			// foundations or underground mode
-			img = grund_besch_t::get_ground_tile( gr->get_disp_slope(), gr->get_disp_height() );
+			img = grund_besch_t::get_ground_tile( gr );
 		}
 	}
 	return img;

@@ -398,7 +398,24 @@ public:
 	 */
 	inline sint8 get_hoehe(hang_t::typ corner) const
 	{
-		return pos.z + (((hang_t::typ)slope & corner )?1:0);
+		switch(  corner  ) {
+			case hang_t::corner_SW: {
+				return pos.z + corner1(slope);
+				break;
+			}
+			case hang_t::corner_SE: {
+				return pos.z + corner2(slope);
+				break;
+			}
+			case hang_t::corner_NE: {
+				return pos.z + corner3(slope);
+				break;
+			}
+			default: {
+				return pos.z + corner4(slope);
+				break;
+			}
+		}
 	}
 
 	void set_hoehe(int h) { pos.z = h;}
@@ -781,7 +798,9 @@ public:
 		 */
 		if(  way_slope != slope  ) {
 			if(  ist_bruecke()  &&  slope  ) {
-				h ++;	// end or start of a bridge
+				// calculate height quicker because we know that slope exists and is north, south, east or west
+				// single heights are not integer multiples of 8, double heights are
+				h += (slope & 7) ? 1 : 2;
 			}
 		}
 

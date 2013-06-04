@@ -37,7 +37,7 @@ void brueckenboden_t::calc_bild_internal()
 	}
 	else {
 		if(ist_karten_boden()) {
-			set_bild( grund_besch_t::get_ground_tile(slope,get_pos().z) );
+			set_bild( grund_besch_t::get_ground_tile(this) );
 			grund_t::calc_back_bild(get_pos().z,slope);
 			set_flag(draw_as_ding);
 			if(  (get_grund_hang()==hang_t::west  &&  abs(back_bild_nr)>11)  ||  (get_grund_hang()==hang_t::nord  &&  get_back_bild(0)!=IMG_LEER)  ) {
@@ -68,6 +68,11 @@ void brueckenboden_t::rdwr(loadsave_t *file)
 	}
 	file->rdwr_byte(weg_hang);
 
+	if(  file->is_loading()  &&  file->get_version() < 112007  ) {
+		// convert slopes from old single height saved game
+		weg_hang = (scorner1(weg_hang) + scorner2(weg_hang) * 3 + scorner3(weg_hang) * 9 + scorner4(weg_hang) * 27) * umgebung_t::pak_height_conversion_factor;
+	}
+
 	if(!find<bruecke_t>()) {
 		dbg->error( "brueckenboden_t::rdwr()","no bridge on bridge ground at (%s); try replacement", pos.get_str() );
 		weg_t *w = get_weg_nr(0);
@@ -80,8 +85,8 @@ void brueckenboden_t::rdwr(loadsave_t *file)
 				br_besch,
 				ist_karten_boden() ?
 					(slope==hang_t::flach ?
-						br_besch->get_rampe(ribi_typ(get_weg_hang())) :
-						br_besch->get_start(ribi_typ(get_grund_hang()))) :
+						br_besch->get_rampe( get_weg_hang() ) :
+						br_besch->get_start( get_grund_hang() ) ) :
 					br_besch->get_simple(w->get_ribi_unmasked())
 			);
 			obj_add( br );
@@ -99,8 +104,9 @@ void brueckenboden_t::rotate90()
 
 sint8 brueckenboden_t::get_weg_yoff() const
 {
-	if(ist_karten_boden() && weg_hang == 0) {
-		return TILE_HEIGHT_STEP;
+	if(  ist_karten_boden()  &&  weg_hang == 0  ) {
+		// we want to find maximum height of slope corner shortcut as we know this is n, s, e or w and single heights are not integer multiples of 8
+		return TILE_HEIGHT_STEP * ((slope & 7) ? 1 : 2);
 	}
 	else {
 		return 0;

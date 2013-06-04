@@ -32,7 +32,7 @@ class tunnel_besch_t : public obj_besch_std_name_t {
 	friend class tunnelbauer_t;	// to convert the old tunnels to new ones
 
 private:
-	static int hang_indices[16];
+	static int hang_indices[81];
 
 	sint32 topspeed;	// speed in km/h
 	uint32 preis;	// 1/100 credits

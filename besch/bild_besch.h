@@ -58,6 +58,11 @@ public:
 	 */
 	bild_besch_t* copy_rotate(const sint16 angle) const;
 
+	bild_besch_t* copy_flipvertical() const;
+	bild_besch_t* copy_fliphorizontal() const;
+
+	static bild_besch_t* create_single_pixel();
+
 	void register_image() { ::register_image(&pic); }
 
 	using obj_besch_t::operator new;

@@ -155,7 +155,7 @@ bool ai_t::suche_platz(koord pos, koord &size, koord *dirs) const
 	for(  int dir=0;  dir<max_dir;  dir++  ) {
 		for( sint16 i=0;  i<=length;  i++  ) {
 			grund_t *gr = welt->lookup_kartenboden(  pos + (dirs[dir]*i)  );
-			if(gr==NULL  ||  gr->get_halt().is_bound()  ||  !welt->can_ebne_planquadrat(pos,start_z)  ||  !gr->ist_natur()  ||  gr->kann_alle_obj_entfernen(this)!=NULL  ||  gr->get_hoehe()<welt->get_grundwasser()) {
+			if(  gr == NULL  ||  gr->get_halt().is_bound()  ||  !welt->can_ebne_planquadrat( pos, start_z )  ||  !gr->ist_natur()  ||  gr->kann_alle_obj_entfernen(this) != NULL  ||  gr->get_hoehe() < welt->get_water_hgt( pos + (dirs[dir] * i) )  ) {
 				return false;
 			}
 		}
@@ -198,7 +198,7 @@ bool ai_t::suche_platz(koord &start, koord &size, koord target, koord off)
 		for (int x = max(0,xpos-cov);  x < maxx;  x++) {
 			platz = koord(x,y);
 			// no water tiles
-			if(  welt->lookup_kartenboden(platz)->get_hoehe() <= welt->get_grundwasser()  ) {
+			if(  welt->lookup_kartenboden(platz)->get_hoehe() <= welt->get_water_hgt(platz)  ) {
 				continue;
 			}
 			// thus now check them
@@ -424,7 +424,7 @@ bool ai_t::find_harbour(koord &start, koord &size, koord target)
 	for(  k.y=max(1,shore.y-5);  k.y<shore.y+6  &&  k.y<welt->get_size().y-2; k.y++  ) {
 		for(  k.x=max(1,shore.x-5);  k.x<shore.x+6  &&  k.y<welt->get_size().x-2; k.x++  ) {
 			grund_t *gr = welt->lookup_kartenboden(k);
-			if(gr  &&  gr->get_grund_hang()!=0  &&  hang_t::ist_wegbar(gr->get_grund_hang())  &&  gr->ist_natur()  &&  gr->get_hoehe()==welt->get_grundwasser()  &&  !gr->is_halt()) {
+			if(  gr  &&  gr->get_grund_hang() != 0  &&  hang_t::ist_wegbar( gr->get_grund_hang() )  &&  gr->ist_natur()  &&  gr->get_hoehe() == welt->get_water_hgt(k)  &&  !gr->is_halt()  ) {
 				koord zv = koord(gr->get_grund_hang());
 				if(welt->lookup_kartenboden(k-zv)->get_weg_ribi(water_wt)) {
 					// next place is also water

@@ -9,6 +9,7 @@
 #include "../simmesg.h"
 
 sint8 umgebung_t::pak_tile_height_step = 16;
+sint8 umgebung_t::pak_height_conversion_factor = 1;
 
 bool umgebung_t::simple_drawing = false;
 bool umgebung_t::simple_drawing_fast_forward = true;

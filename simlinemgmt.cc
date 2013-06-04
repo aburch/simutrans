@@ -209,7 +209,6 @@ linehandle_t simlinemgmt_t::create_line(int ltype, spieler_t * sp)
 }
 
 
-
 linehandle_t simlinemgmt_t::create_line(int ltype, spieler_t * sp, schedule_t * fpl)
 {
 	linehandle_t line = create_line( ltype, sp );
@@ -230,10 +229,11 @@ void simlinemgmt_t::get_lines(int type, vector_tpl<linehandle_t>* lines) const
 	}
 }
 
+
 void simlinemgmt_t::show_lineinfo(spieler_t *sp, linehandle_t line)
 {
-	gui_frame_t *schedule_list_gui;
-	if(  schedule_list_gui = win_get_magic(magic_line_management_t+sp->get_player_nr())  ) {
+	gui_frame_t *schedule_list_gui = win_get_magic( magic_line_management_t + sp->get_player_nr() );
+	if(  schedule_list_gui  ) {
 		top_win( schedule_list_gui );
 	}
 	else {

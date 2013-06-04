@@ -55,7 +55,7 @@ public:
 		virtual void set_color(uint8 col) { color = col; }
 
 		virtual char const* get_text() const { return consttext; }
-		virtual void set_text(char const *t) {}
+		virtual void set_text(char const *) {}
 	};
 
 	// editable text

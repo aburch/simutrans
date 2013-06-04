@@ -248,7 +248,7 @@ void leitung_t::calc_bild()
 {
 	is_crossing = false;
 	const koord pos = get_pos().get_2d();
-	bool snow = get_pos().z >= welt->get_snowline();
+	bool snow = get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate;
 
 	grund_t *gr = welt->lookup(get_pos());
 	if(gr==NULL) {
@@ -491,7 +491,7 @@ void pumpe_t::step(long delta_t)
 
 	image_id new_bild;
 	int winter_offset = 0;
-	if (skinverwaltung_t::senke->get_bild_anzahl() > 3  &&  get_pos().z >= welt->get_snowline()) {
+	if(  skinverwaltung_t::senke->get_bild_anzahl() > 3  &&  (get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate)  ) {
 		winter_offset = 2;
 	}
 	if(  supply > 0  ) {
@@ -684,7 +684,7 @@ bool senke_t::sync_step(long delta_t)
 
 		image_id new_bild;
 		int winter_offset = 0;
-		if (skinverwaltung_t::senke->get_bild_anzahl() > 3  &&  get_pos().z >= welt->get_snowline()) {
+		if(  skinverwaltung_t::senke->get_bild_anzahl() > 3  &&  (get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate)  ) {
 			winter_offset = 2;
 		}
 		if(  last_power_demand > 0 ) {

@@ -1,6 +1,7 @@
 	ADD: second_open_closes_win =1 in simuconf.tab will close open window instead top them on secod call/click
 	ADD: remember_window_positions=1 (default) will remeber last window positions
 	FIX: (S_N_C) net wealth was not consistent after buying vehicles
+	ADD: (kierongreen) double heights (slopes), different water levels per tile, and per tile climates
 
 
 Release of 112.3: (r6520 on 17-May-2013):

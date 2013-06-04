@@ -222,7 +222,7 @@ public:
 	// checks whether buildings on the tile allow to leave in direction dir
 	bool check_building( const grund_t *to, const koord dir ) const;
 	// allowed slope?
-	static bool check_slope( const grund_t *from, const grund_t *to );
+	bool check_slope( const grund_t *from, const grund_t *to );
 
 	bool check_terraforming( const grund_t *from, const grund_t *to, uint8* new_from_slope=NULL, uint8* new_to_slope=NULL);
 	void do_terraforming();

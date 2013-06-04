@@ -421,6 +421,12 @@ bool wegbauer_t::check_slope( const grund_t *from, const grund_t *to )
 	const koord to_pos=to->get_pos().get_2d();
 	const koord zv=to_pos-from_pos;
 
+	if(  !besch->has_double_slopes()
+	  &&  ((from->get_typ() == grund_t::boden  &&  from->get_weg_hang()  &&  !(from->get_weg_hang() & 7))
+	  ||  (to->get_typ() == grund_t::boden  &&  to->get_weg_hang()  &&  !(to->get_weg_hang() & 7)) )  ) {
+		return false;
+	}
+
 	if(from==to) {
 		if(!hang_t::ist_wegbar(from->get_weg_hang())) {
 			return false;
@@ -541,7 +547,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 
 	// universal check for elevated things ...
 	if(bautyp&elevated_flag) {
-		if(to->hat_weg(air_wt)  ||  welt->lookup_hgt(to->get_pos().get_2d())<welt->get_grundwasser()  ||  !check_for_leitung(zv,to)  || (!to->ist_karten_boden() && to->get_typ()!=grund_t::monorailboden) ||  to->get_typ()==grund_t::brueckenboden  ||  to->get_typ()==grund_t::tunnelboden) {
+		if(  to->hat_weg(air_wt)  ||  welt->lookup_hgt( to->get_pos().get_2d() ) < welt->get_water_hgt( to->get_pos().get_2d() )  ||  !check_for_leitung( zv, to )  ||  (!to->ist_karten_boden()  &&  to->get_typ() != grund_t::monorailboden)  ||  to->get_typ() == grund_t::brueckenboden  ||  to->get_typ() == grund_t::tunnelboden  ) {
 			// no suitable ground below!
 			return false;
 		}
@@ -561,7 +567,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		}
 		// up to now 'to' and 'from' refered to the ground one height step below the elevated way
 		// now get the grounds at the right height
-		koord3d pos = to->get_pos()+koord3d(0,0,1);
+		koord3d pos = to->get_pos() + koord3d( 0, 0, umgebung_t::pak_height_conversion_factor );
 		grund_t *to2 = welt->lookup(pos);
 		if(to2) {
 			if(to2->get_weg_nr(0)) {
@@ -584,7 +590,8 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 			to_dummy.set_grund_hang(to->get_grund_hang());
 			to = &to_dummy;
 		}
-		pos = from->get_pos()+koord3d(0,0,1);
+
+		pos = from->get_pos() + koord3d( 0, 0, umgebung_t::pak_height_conversion_factor );
 		grund_t *from2 = welt->lookup(pos);
 		if(from2) {
 			from = from2;
@@ -597,6 +604,19 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 			from = &from_dummy;
 		}
 		// now 'from' and 'to' point to grounds at the right height
+	}
+
+	if(  umgebung_t::pak_height_conversion_factor == 2  ) {
+		// cannot build if conversion factor 2 and way or powerline 1 tile below
+		grund_t *to2 = welt->lookup( to->get_pos() + koord3d(0, 0, -1) );
+		if(  to2  &&  (to2->get_weg_nr(0)  ||  to2->get_leitung())  ) {
+			return false;
+		}
+		// tile above cannot have way, or be surface if we are underground
+		to2 = welt->lookup( to->get_pos() + koord3d(0, 0, 1) );
+		if(  to2  &&  (to2->get_weg_nr(0)  ||  (bautyp & tunnel_flag) != 0)  ) {
+			return false;
+		}
 	}
 
 	// universal check for depots/stops/...
@@ -617,6 +637,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 			return false;
 		}
 	}
+
 	// universal check: do not switch to tunnel through cliffs!
 	if( from->get_typ() == grund_t::tunnelboden  &&  to->get_typ() != grund_t::tunnelboden  &&  !from->ist_karten_boden() ) {
 		return false;
@@ -830,11 +851,16 @@ bool wegbauer_t::check_terraforming( const grund_t *from, const grund_t *to, uin
 	const sint8 from_hgt = from->get_hoehe();
 	const sint8 to_hgt = to->get_hoehe();
 	// we may change slope of a tile if it is sloped already
-	if ((from_slope == hang_t::flach  ||  from->get_hoehe() == welt->get_grundwasser())
-		&&  (to_slope == hang_t::flach  ||  to->get_hoehe() == welt->get_grundwasser())) {
+	if(  (from_slope == hang_t::flach  ||  from->get_hoehe() == welt->get_water_hgt( from->get_pos().get_2d() ))
+	  &&  (to_slope == hang_t::flach  ||  to->get_hoehe() == welt->get_water_hgt( to->get_pos().get_2d() ))  ) {
 		return false;
 	}
-	else if (abs(from_hgt-to_hgt) <= 1) {
+	else if(  abs( from_hgt - to_hgt ) <= (besch->has_double_slopes() ? 2 : 1)  ) {
+		// extra check for double heights
+		if(  abs( from_hgt - to_hgt) == 2  &&  (welt->lookup( from->get_pos() - koord3d(0,0,2) ) != NULL  ||  welt->lookup( from->get_pos() + koord3d(0, 0, 2) ) != NULL
+		  ||  welt->lookup( to->get_pos() - koord3d(0, 0, 2) ) != NULL  ||  welt->lookup( to->get_pos() + koord3d(0, 0, 2) ) != NULL)  ) {
+			return false;
+		}
 		// monorail above / tunnel below
 		if (welt->lookup(from->get_pos() - koord3d(0,0,1))!=NULL  ||  welt->lookup(from->get_pos() + koord3d(0,0,1))!=NULL
 			||  welt->lookup(to->get_pos() - koord3d(0,0,1))!=NULL  ||  welt->lookup(to->get_pos() + koord3d(0,0,1))!=NULL) {
@@ -847,48 +873,75 @@ bool wegbauer_t::check_terraforming( const grund_t *from, const grund_t *to, uin
 		// now calculate new slopes
 		assert(new_from_slope);
 		assert(new_to_slope);
-		// change these corner on from, and the opposite on to
-		const hang_t::typ from_mask = hang_typ((to->get_pos()-from->get_pos()).get_2d());
-		const hang_t::typ to_mask = hang_t::gegenueber(from_mask);
+		// direction of way
+		const koord dir = (to->get_pos() - from->get_pos()).get_2d();
+		sint8 start  = from_hgt * 2;
+		sint8 middle = from_hgt * 2;
+		sint8 end    = to_hgt * 2;
+		// get 3 heights - start (min start from, but should be same), middle (average end from/average start to), end (min end to)
+		if(  dir == koord::nord  ) {
+			start  += corner1(from_slope) + corner2(from_slope);
+			middle += corner3(from_slope) + corner4(from_slope);
+			end    += corner3(to_slope) + corner4(to_slope);
+		}
+		else if(  dir == koord::ost  ) {
+			start  += corner1(from_slope) + corner4(from_slope);
+			middle += corner2(from_slope) + corner3(from_slope);
+			end    += corner2(to_slope) + corner3(to_slope);
+		}
+		else if(  dir == koord::sued  ) {
+			start  += corner3(from_slope) + corner4(from_slope);
+			middle += corner1(from_slope) + corner2(from_slope);
+			end    += corner1(to_slope) + corner2(to_slope);
+		}
+		else if(  dir == koord::west  ) {
+			start  += corner2(from_slope) + corner3(from_slope);
+			middle += corner1(from_slope) + corner4(from_slope);
+			end    += corner1(to_slope) + corner4(to_slope);
+		}
+		// work out intermediate height:
+		if(  end == start  ) {
+			middle = start;
+		}
+		else {
+			//  end < start   to ist wegbar?assert from ist_wegbar:middle = end + 1
+			//  end > start   to ist wegbar?assert from ist_wegbar:middle = end - 1
+			if(  !hang_t::ist_wegbar( to_slope )  ) {
+				middle = (start + end) / 2;
+			}
+		}
+		// prevent middle being invalid
+		if(  middle >> 1 > from_hgt + 2  ) {
+			middle = (from_hgt + 2) * 2;
+		}
+		if(  middle >> 1 > to_hgt + 2  ) {
+			middle = (to_hgt + 2) * 2;
+		}
+		if(  middle >> 1 < from_hgt  ) {
+			middle = from_hgt * 2;
+		}
+		if(  middle >> 1 < to_hgt  ) {
+			middle = to_hgt * 2;
+		}
+		const uint8 m_from = (middle >> 1) - from_hgt;
+		const uint8 m_to = (middle >> 1) - to_hgt;
 
-		// have to change to's slope
-		if (to_hgt == from_hgt-1) {
-			// raise edge
-			*new_to_slope = to_slope | to_mask;
-			*new_from_slope = from_slope & to_mask;
+		// write middle heights
+		if(  dir == koord::nord  ) {
+			*new_from_slope = corner1(from_slope) + corner2(from_slope) * 3 + m_from * 9              + m_from * 27;
+			*new_to_slope =   m_to                + m_to * 3                + corner3(to_slope) * 9   + corner4(to_slope) * 27;
 		}
-		else if (to_hgt == from_hgt) {
-			if ( (from_slope & to_mask)  &&  (to_slope & from_mask) ){
-				// raise edge
-				*new_to_slope = to_slope | to_mask;
-				*new_from_slope = from_slope | from_mask;
-			}
-			else {
-				// lower edge
-				*new_to_slope = to_slope & from_mask;
-				*new_from_slope = from_slope & to_mask;
-			}
+		else if(  dir == koord::ost  ) {
+			*new_from_slope = corner1(from_slope) + m_from * 3              + m_from * 9              + corner4(from_slope) * 27;
+			*new_to_slope =   m_to                + corner2(to_slope) * 3   + corner3(to_slope) * 9   + m_to * 27;
 		}
-		else if (to_hgt == from_hgt+1) {
-			// raise edge
-			*new_to_slope = to_slope & from_mask;
-			*new_from_slope = from_slope | from_mask;
+		else if(  dir == koord::sued  ) {
+			*new_from_slope = m_from              + m_from * 3              + corner3(from_slope) * 9 + corner4(from_slope) * 27;
+			*new_to_slope =   corner1(to_slope)   + corner2(to_slope) * 3   + m_to * 9                + m_to * 27;
 		}
-		if (!hang_t::ist_wegbar(*new_from_slope)) {
-			if (*new_from_slope & from_mask) {
-				*new_from_slope = hang_t::erhoben;
-			}
-			else {
-				*new_from_slope = hang_t::flach;
-			}
-		}
-		if (!hang_t::ist_wegbar(*new_to_slope)) {
-			if (*new_to_slope & to_mask) {
-				*new_to_slope = hang_t::erhoben;
-			}
-			else {
-				*new_to_slope = hang_t::flach;
-			}
+		else if(  dir == koord::west  ) {
+			*new_from_slope = m_from              + corner2(from_slope) * 3 + corner3(from_slope) * 9 + m_from * 27;
+			*new_to_slope =   corner1(to_slope)   + m_to * 3                + m_to * 9                + corner4(to_slope) * 27;
 		}
 		return true;
 	}
@@ -909,13 +962,24 @@ void wegbauer_t::do_terraforming()
 		check_terraforming(from, to, &from_slope, &to_slope);
 		bool changed = false;
 		// change slope of from
-		if (from_slope != from->get_grund_hang()) {
-			if (from_slope != hang_t::erhoben) {
-				from->set_grund_hang(from_slope);
+		if(  from_slope != from->get_grund_hang()  ) {
+			if(  from_slope == hang_t::erhoben  ) {
+				from->set_hoehe( from->get_hoehe() + 2 );
+				from->set_grund_hang( hang_t::flach );
+				route[i].z = from->get_hoehe();
+			}
+			else if(  from_slope != hang_t::erhoben / 2  ) {
+				// bit of a hack to recognise single height slopes shifted up 1
+				if(  from_slope > hang_t::erhoben / 2  &&  hang_t::ist_einfach( from_slope-hang_t::erhoben / 2 )  ) {
+					from->set_hoehe( from->get_hoehe() + 1 );
+					from_slope -= hang_t::erhoben / 2;
+					route[i].z = from->get_hoehe();
+				}
+				from->set_grund_hang( from_slope );
 			}
 			else {
-				from->set_hoehe( from->get_hoehe() + 1);
-				from->set_grund_hang(hang_t::flach);
+				from->set_hoehe( from->get_hoehe() + 1 );
+				from->set_grund_hang( hang_t::flach );
 				route[i].z = from->get_hoehe();
 			}
 			changed = true;
@@ -925,8 +989,19 @@ void wegbauer_t::do_terraforming()
 			}
 		}
 		// change slope of to
-		if (to_slope != to->get_grund_hang()) {
-			if (to_slope != hang_t::erhoben) {
+		if(  to_slope != to->get_grund_hang()  ) {
+			if(  to_slope == hang_t::erhoben  ) {
+				to->set_hoehe( to->get_hoehe() + 2 );
+				to->set_grund_hang( hang_t::flach );
+				route[i + 1].z = to->get_hoehe();
+			}
+			else if(  to_slope != hang_t::erhoben / 2  ) {
+				// bit of a hack to recognise single height slopes shifted up 1
+				if(  to_slope > hang_t::erhoben / 2  &&  hang_t::ist_einfach( to_slope-hang_t::erhoben / 2 )  ) {
+					to->set_hoehe( to->get_hoehe() + 1 );
+					to_slope -= hang_t::erhoben / 2;
+					route[i + 1].z = to->get_hoehe();
+				}
 				to->set_grund_hang(to_slope);
 			}
 			else {
@@ -1837,7 +1912,7 @@ wegbauer_t::baue_tunnel_und_bruecken()
 sint64 wegbauer_t::calc_costs()
 {
 	sint64 costs=0;
-	koord3d offset = koord3d(0,0, bautyp&elevated_flag ? 1 : 0 );
+	koord3d offset = koord3d( 0, 0, bautyp & elevated_flag ? umgebung_t::pak_height_conversion_factor : 0 );
 
 	sint32 single_cost;
 	sint32 new_speedlimit;
@@ -2052,7 +2127,7 @@ void wegbauer_t::baue_elevated()
 		planquadrat_t* const plan = welt->access(i.get_2d());
 
 		grund_t* const gr0 = plan->get_boden_in_hoehe(i.z);
-		i.z ++;
+		i.z += umgebung_t::pak_height_conversion_factor;
 		grund_t* const gr  = plan->get_boden_in_hoehe(i.z);
 
 		if(gr==NULL) {
@@ -2221,11 +2296,13 @@ void wegbauer_t::baue_schiene()
 				cost = -gr->neuen_weg_bauen(sch, ribi, sp)-besch->get_preis();
 
 				// connect canals to sea
-				if(besch->get_wtyp()==water_wt  &&  gr->get_hoehe()==welt->get_grundwasser()) {
-					grund_t *sea = welt->lookup_kartenboden(gr->get_pos().get_2d() - koord( ribi_typ(gr->get_grund_hang() ) ));
-					if (sea  &&  sea->ist_wasser()) {
-						gr->weg_erweitern(water_wt, ribi_t::doppelt(ribi_typ(gr->get_grund_hang() )));
-						sea->calc_bild();
+				if(  besch->get_wtyp() == water_wt  ) {
+					for(  int j = 0;  j < 4;  j++  ) {
+						grund_t *sea = welt->lookup_kartenboden( route[i].get_2d() + koord::nsow[j] );
+						if(  sea  &&  sea->ist_wasser()  ) {
+							gr->weg_erweitern( water_wt, ribi_t::nsow[j] );
+							sea->calc_bild();
+						}
 					}
 				}
 
@@ -2320,7 +2397,7 @@ void wegbauer_t::baue_fluss()
 	// Do we join an other river?
 	uint32 start_n = 0;
 	for(  uint32 idx=start_n;  idx<get_count();  idx++  ) {
-		if(  welt->lookup(route[idx])->hat_weg(water_wt)  ||  welt->lookup(route[idx])->get_hoehe()==welt->get_grundwasser() ) {
+		if(  welt->lookup(route[idx])->hat_weg(water_wt)  ||  welt->lookup(route[idx])->get_hoehe() == welt->get_water_hgt(route[idx].get_2d())  ) {
 			start_n = idx;
 		}
 	}

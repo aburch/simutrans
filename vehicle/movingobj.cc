@@ -120,33 +120,35 @@ void movingobj_t::calc_bild()
 	// alter/2048 is the age of the tree
 	const groundobj_besch_t *besch=get_besch();
 	const uint8 seasons = besch->get_seasons()-1;
-	uint8 season=0;
+	uint8 season = 0;
 
-	// two possibilities
-	switch(seasons) {
-				// summer only
-		case 0: season = 0;
-				break;
-				// summer, snow
-		case 1: season = welt->get_snowline()<=get_pos().z;
-				break;
-				// summer, winter, snow
-		case 2: season = welt->get_snowline()<=get_pos().z ? 2 : welt->get_season()==1;
-				break;
-		default: if(welt->get_snowline()<=get_pos().z) {
-					season = seasons;
-				}
-				else {
-					// resolution 1/8th month (0..95)
-					const uint32 yearsteps = (welt->get_current_month()%12)*8 + ((welt->get_zeit_ms()>>(welt->ticks_per_world_month_shift-3))&7) + 1;
-					season = (seasons*yearsteps-1)/96;
-				}
-				break;
+	switch(  seasons  ) {
+		case 0: { // summer only
+			season = 0;
+			break;
+		}
+		case 1: { // summer, snow
+			season = welt->get_snowline() <= get_pos().z  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate;
+			break;
+		}
+		case 2: { // summer, winter, snow
+			season = welt->get_snowline() <= get_pos().z  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate ? 2 : welt->get_season() == 1;
+			break;
+		}
+		default: {
+			if(  welt->get_snowline() <= get_pos().z  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate  ) {
+				season = seasons;
+			}
+			else {
+				// resolution 1/8th month (0..95)
+				const uint32 yearsteps = (welt->get_current_month()%12)*8 + ((welt->get_zeit_ms()>>(welt->ticks_per_world_month_shift-3))&7) + 1;
+				season = (seasons * yearsteps - 1) / 96;
+			}
+			break;
+		}
 	}
 	set_bild( get_besch()->get_bild( season, ribi_t::get_dir(get_fahrtrichtung()) )->get_nummer() );
 }
-
-
 
 
 movingobj_t::movingobj_t(karte_t *welt, loadsave_t *file) : vehikel_basis_t(welt)
@@ -158,7 +160,6 @@ movingobj_t::movingobj_t(karte_t *welt, loadsave_t *file) : vehikel_basis_t(welt
 }
 
 
-
 movingobj_t::movingobj_t(karte_t *welt, koord3d pos, const groundobj_besch_t *b ) : vehikel_basis_t(welt, pos)
 {
 	movingobjtype = movingobj_typen.index_of(b);
@@ -168,6 +169,7 @@ movingobj_t::movingobj_t(karte_t *welt, koord3d pos, const groundobj_besch_t *b 
 	calc_bild();
 	welt->sync_add( this );
 }
+
 
 movingobj_t::~movingobj_t()
 {
@@ -184,7 +186,6 @@ bool movingobj_t::check_season(long)
 	}
 	return true;
 }
-
 
 
 void movingobj_t::rdwr(loadsave_t *file)
@@ -298,7 +299,7 @@ bool movingobj_t::ist_befahrbar( const grund_t *gr ) const
 	}
 
 	const groundobj_besch_t *besch = get_besch();
-	if( !besch->is_allowed_climate( welt->get_climate(gr->get_hoehe()) ) ) {
+	if( !besch->is_allowed_climate( welt->get_climate(gr->get_pos().get_2d()) ) ) {
 		// not an allowed climate zone!
 		return false;
 	}

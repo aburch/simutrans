@@ -86,8 +86,8 @@ void tunnel_t::calc_bild()
 			}
 		}
 
-		set_bild( besch->get_hintergrund_nr(hang, get_pos().z >= welt->get_snowline(),broad_type));
-		set_after_bild( besch->get_vordergrund_nr(hang, get_pos().z >= welt->get_snowline(),broad_type) );
+		set_bild( besch->get_hintergrund_nr( hang, get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate, broad_type ) );
+		set_after_bild( besch->get_vordergrund_nr( hang, get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate, broad_type ) );
 	}
 	else {
 		set_bild( IMG_LEER );

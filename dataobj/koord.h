@@ -73,7 +73,7 @@ public:
 
 private:
 	static const koord from_ribi[16];
-	static const koord from_hang[16];
+	static const koord from_hang[81];
 };
 
 

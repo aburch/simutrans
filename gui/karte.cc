@@ -665,12 +665,8 @@ uint8 reliefkarte_t::calc_relief_farbe(const grund_t *gr)
 					gebaeude_t *gb = gr->find<gebaeude_t>();
 					fabrik_t *fab = gb ? gb->get_fabrik() : NULL;
 					if(fab==NULL) {
-#ifndef DOUBLE_GROUNDS
-						sint16 height = (gr->get_grund_hang()&1);
-#else
 						sint16 height = (gr->get_grund_hang()%3);
-#endif
-						color = calc_hoehe_farbe(welt->lookup_hgt(gr->get_pos().get_2d())+height, welt->get_grundwasser());
+						color = calc_hoehe_farbe( welt->lookup_hgt( gr->get_pos().get_2d() ) + height, welt->get_water_hgt( gr->get_pos().get_2d() ) );
 						//color = COL_BLUE;	// water with boat?
 					}
 					else {
@@ -699,12 +695,13 @@ uint8 reliefkarte_t::calc_relief_farbe(const grund_t *gr)
 						color = POWERLINE_KENN;
 					}
 					else {
-#ifndef DOUBLE_GROUNDS
-						sint16 height = (gr->get_grund_hang()&1);
-#else
 						sint16 height = (gr->get_grund_hang()%3);
-#endif
-						color = calc_hoehe_farbe(gr->get_hoehe()+height, welt->get_grundwasser());
+						if(  gr->get_hoehe() > welt->get_grundwasser()  ) {
+							color = calc_hoehe_farbe( gr->get_hoehe() + height, welt->get_grundwasser() );
+						}
+						else {
+							color = calc_hoehe_farbe( gr->get_hoehe() + height, gr->get_hoehe() + height - 1);
+						}
 					}
 				}
 				break;

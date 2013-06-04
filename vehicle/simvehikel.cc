@@ -539,17 +539,18 @@ sint8 vehikel_basis_t::calc_height(grund_t *gr)
 	else {
 		// will not work great with ways, but is very short!
 		hang_t::typ hang = gr->get_weg_hang();
-		if(hang) {
+		if(  hang  ) {
+			const uint slope_height = (hang & 7) ? 1 : 2;
 			ribi_t::ribi hang_ribi = ribi_typ(hang);
 			if(  ribi_t::doppelt(hang_ribi)  ==  ribi_t::doppelt(fahrtrichtung)) {
-				sint16 h_end = hang_ribi & ribi_t::rueckwaerts(fahrtrichtung) ? -TILE_HEIGHT_STEP : 0;
-				sint16 h_start = (hang_ribi & fahrtrichtung) ? -TILE_HEIGHT_STEP : 0;
+				sint16 h_end = hang_ribi & ribi_t::rueckwaerts(fahrtrichtung) ? -TILE_HEIGHT_STEP * slope_height : 0;
+				sint16 h_start = (hang_ribi & fahrtrichtung) ? -TILE_HEIGHT_STEP * slope_height : 0;
 				hoff = (h_start*(sint16)(uint16)steps + h_end*(256-steps)) >> 8;
 			}
 			else {
 				// only for shadows and movingobjs ...
-				sint16 h_end = hang_ribi & ribi_t::rueckwaerts(fahrtrichtung) ? -TILE_HEIGHT_STEP : 0;
-				sint16 h_start = (hang_ribi & fahrtrichtung) ? -TILE_HEIGHT_STEP : 0;
+				sint16 h_end = hang_ribi & ribi_t::rueckwaerts(fahrtrichtung) ? -TILE_HEIGHT_STEP * slope_height : 0;
+				sint16 h_start = (hang_ribi & fahrtrichtung) ? -TILE_HEIGHT_STEP * slope_height : 0;
 				hoff = ((h_start*(sint16)(uint16)steps + h_end*(256-steps)) >> 9) - TILE_HEIGHT_STEP/2;
 			}
 			use_calc_height = true;	// we need to recalc again next time
@@ -1178,14 +1179,15 @@ void vehikel_t::calc_akt_speed(const grund_t *gr)
 
 	// or a hill?
 	const hang_t::typ hang = gr->get_weg_hang();
-	if(hang!=hang_t::flach) {
-		if(ribi_typ(hang)==fahrtrichtung) {
+	if(  hang != hang_t::flach  ) {
+		const uint slope_height = (hang & 7) ? 1 : 2;
+		if(  ribi_typ(hang) == fahrtrichtung  ) {
 			// hill up, since height offsets are negative: heavy deccelerate
-			current_friction += 23;
+			current_friction += 15 * slope_height * slope_height;
 		}
 		else {
 			// hill down: accelerate
-			current_friction += -13;
+			current_friction += -7 * slope_height * slope_height;
 		}
 	}
 }

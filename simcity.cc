@@ -501,7 +501,7 @@ class denkmal_platz_sucher_t : public platzsucher_t {
 			if (plan == NULL) return false;
 
 			const grund_t* gr = plan->get_kartenboden();
-			if (((1 << welt->get_climate(gr->get_hoehe())) & cl) == 0) {
+			if(  ((1 << welt->get_climate( gr->get_pos().get_2d() )) & cl) == 0  ) {
 				return false;
 			}
 
@@ -538,7 +538,7 @@ class rathausplatz_sucher_t : public platzsucher_t {
 			const grund_t* gr = welt->lookup_kartenboden(pos + d);
 			if (gr == NULL  ||  gr->get_grund_hang() != hang_t::flach) return false;
 
-			if (((1 << welt->get_climate(gr->get_hoehe())) & cl) == 0) {
+			if(  ((1 << welt->get_climate( gr->get_pos().get_2d() )) & cl) == 0  ) {
 				return false;
 			}
 
@@ -2051,7 +2051,7 @@ class bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t
 void stadt_t::check_bau_spezial(bool new_town)
 {
 	// touristenattraktion bauen
-	const haus_besch_t* besch = hausbauer_t::get_special(bev, haus_besch_t::attraction_city, welt->get_timeline_year_month(), new_town, welt->get_climate(welt->max_hgt(pos)));
+	const haus_besch_t* besch = hausbauer_t::get_special( bev, haus_besch_t::attraction_city, welt->get_timeline_year_month(), new_town, welt->get_climate(pos) );
 	if (besch != NULL) {
 		if (simrand(100) < (uint)besch->get_chance()) {
 
@@ -2151,7 +2151,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 
 void stadt_t::check_bau_rathaus(bool new_town)
 {
-	const haus_besch_t* besch = hausbauer_t::get_special(bev, haus_besch_t::rathaus, welt->get_timeline_year_month(), bev==0, welt->get_climate(welt->max_hgt(pos)));
+	const haus_besch_t* besch = hausbauer_t::get_special( bev, haus_besch_t::rathaus, welt->get_timeline_year_month(), bev == 0, welt->get_climate(pos) );
 	if(besch != NULL) {
 		grund_t* gr = welt->lookup_kartenboden(pos);
 		gebaeude_t* gb = ding_cast<gebaeude_t>(gr->first_obj());
@@ -2466,7 +2466,7 @@ void stadt_t::build_city_building(const koord k)
 
 	// does the timeline allow this building?
 	const uint16 current_month = welt->get_timeline_year_month();
-	const climate cl = welt->get_climate(welt->max_hgt(k));
+	const climate cl = welt->get_climate(k);
 
 	// Run through orthogonal neighbors (only) looking for which cluster to build
 	// This is a bitmap -- up to 32 clustering types are allowed.
@@ -2604,7 +2604,7 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 
 	// does the timeline allow this building?
 	const uint16 current_month = welt->get_timeline_year_month();
-	const climate cl = welt->get_climate(gb->get_pos().z);
+	const climate cl = welt->get_climate( gb->get_pos().get_2d() );
 
 	// Run through orthogonal neighbors (only) looking for which cluster to build
 	// This is a bitmap -- up to 32 clustering types are allowed.
@@ -2798,7 +2798,7 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 		if (welt->can_ebne_planquadrat(k, bd->get_hoehe()+1, true)) {
 			welt->ebne_planquadrat(NULL, k, bd->get_hoehe()+1, true);
 		}
-		else if (bd->get_hoehe() > welt->get_grundwasser()  &&  welt->can_ebne_planquadrat(k, bd->get_hoehe())) {
+		else if(  bd->get_hoehe() > welt->get_water_hgt(k)  &&  welt->can_ebne_planquadrat( k, bd->get_hoehe() )  ) {
 			welt->ebne_planquadrat(NULL, k, bd->get_hoehe());
 		}
 		else {
@@ -2888,7 +2888,9 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 					}
 					else {
 						// check slopes
-						if (wegbauer_t::check_slope(bd, bd2 )) {
+						wegbauer_t bauer( welt, NULL );
+						bauer.route_fuer( wegbauer_t::strasse | wegbauer_t::terraform_flag, welt->get_city_road() );
+						if(  bauer.check_slope( bd, bd2 )  ) {
 							// allowed ...
 							connection_roads |= ribi_t::nsow[r];
 						}

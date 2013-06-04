@@ -168,7 +168,15 @@ void display_rezoomed_img_blend(const unsigned, KOORD_VAL, KOORD_VAL, const sign
 {
 }
 
+void display_rezoomed_img_alpha(const unsigned, const unsigned, const uint8, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int)
+{
+}
+
 void display_base_img_blend(const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int)
+{
+}
+
+void display_base_img_alpha(const unsigned, const unsigned, const uint8, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int)
 {
 }
 
@@ -176,6 +184,7 @@ void display_base_img_blend(const unsigned, KOORD_VAL, KOORD_VAL, const signed c
 display_image_proc display_normal = display_base_img;
 display_image_proc display_color = display_base_img;
 display_blend_proc display_blend = display_base_img_blend;
+display_alpha_proc display_alpha = display_base_img_alpha;
 signed short current_tile_raster_width = 0;
 
 void display_blend_wh(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, int, int )

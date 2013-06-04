@@ -9,6 +9,7 @@
 #define dataobj_ribi_t_h
 
 #include "../simtypes.h"
+#include "../simconst.h"
 
 class koord;
 class koord3d;
@@ -17,11 +18,7 @@ class koord3d;
  * slopes
  */
 class hang_t {
-#ifndef DOUBLE_GROUNDS
-	static const int flags[16];
-#else
 	static const int flags[81];
-#endif
 
 	enum { wegbar_ns = 1, wegbar_ow = 2, einfach = 4 };
 
@@ -39,21 +36,16 @@ public:
 	/*
 	 * Macros to access the height of the 4 corners
 	 */
-#ifndef DOUBLE_GROUNDS
-#define corner1(i) (i%2)    	// sw corner
-#define corner2(i) ((i/2)%2)	// se corner
-#define corner3(i) ((i/4)%2)	// ne corner
-#define corner4(i) (i/8)    	// nw corner
-
-#else
+#define scorner1(i) (i%2)    	// sw corner
+#define scorner2(i) ((i/2)%2)	// se corner
+#define scorner3(i) ((i/4)%2)	// ne corner
+#define scorner4(i) (i/8)    	// nw corner
 
 #define corner1(i) (i%3)    	// sw corner
 #define corner2(i) ((i/3)%3)	// se corner
-#define corner3(i) ((i/9)%9)	// ne corner
+#define corner3(i) ((i/9)%3)	// ne corner
 #define corner4(i) (i/27)   	// nw corner
-#endif
 
-#ifndef DOUBLE_GROUNDS
 	enum _corners {
 		corner_SW = 1,
 		corner_SE = 2,
@@ -63,35 +55,26 @@ public:
 
 	enum _typ {
 		flach=0,
-		nord = 3, 	    // Nordhang
-		west = 6, 	    // Westhang
-		ost = 9,	    // Osthang
-		sued = 12,	    // Suedhang
-		erhoben = 15	// all corners raised (not allowed as value in grund_t::slope)
-	};
-
-	static const hang_t::typ hang_from_ribi[16];
-
-	// Ein bischen tricky implementiert:
-	static bool ist_gegenueber(typ x, typ y) { return ist_einfach(x) && ist_einfach(y) && x + y == erhoben; }
-	static typ gegenueber(typ x) { return ist_einfach(x) ? erhoben - x : flach; }
-	static typ rotate90(typ x) { return ( (x&1) ? 8|(x>>1) : x>>1); }
-
-#else
-	enum _typ {
-		flach=0,
 		nord = 3+1, 	    // Nordhang
 		west = 9+3, 	    // Westhang
 		ost = 27+1,	    // Osthang
 		sued = 27+9,	    // Suedhang
+		nordwest = 27,
+		nordost = 9,
+		suedost = 3,
+		suedwest = 1,
 		erhoben = 80	    // Speziell für Brückenanfänge  (prissi: unsued, I think)
 	};
 
 	// Ein bischen tricky implementiert:
-	static bool ist_gegenueber(typ x, typ y) { return ist_einfach(x) && ist_einfach(y) && x + y == 40; }
-	static typ gegenueber(typ x) { return ist_einfach(x) ? 40 - x : flach; }
+	//static bool ist_gegenueber(typ x, typ y) { return ist_einfach(x) && ist_einfach(y) && x + y == 40; }	// unused at present need to extend to cope with double heights
+	static typ gegenueber(typ x) { return ist_einfach(x) ? (x & 7 ? (40 - x) : (80 - x * 2)) : flach; }
+	static typ rotate90(typ x) { return ( ( (x % 3) * 27 ) + ( ( x - (x % 3) ) / 3 ) ); }
+	static uint8 height(typ x) { return max( max( corner1(x), corner2(x) ), max( corner3(x), corner4(x) ) ); }
 	static bool ist_doppelt(typ x) { return (flags[x] == einfach); }
-#endif
+
+	static sint8 diff(typ high, typ low) { return min( min( corner1(high) - corner1(low), corner2(high)-corner2(low) ), min( corner3(high) - corner3(low), corner4(high) - corner4(low) ) ); }
+	static const hang_t::typ hang_from_ribi[16];
 
 	//
 	// Ranges werden nicht geprüft!
@@ -104,10 +87,10 @@ public:
 	static bool is_sloping_upwards(const typ slope, const sint16 relative_pos_x, const sint16 relative_pos_y)
 	{
 		// Knightly : check if the slope is upwards, relative to the previous tile
-		return (	( slope==nord  &&  relative_pos_y<0 )  ||
-					( slope==west  &&  relative_pos_x<0 )  ||
-					( slope==ost   &&  relative_pos_x>0 )  ||
-					( slope==sued  &&  relative_pos_y>0 )		);
+		return (( relative_pos_y < 0  &&  (slope == nord  &&   slope == 2 * nord) )  ||
+				( relative_pos_y > 0  &&  (slope == sued  &&   slope == 2 * sued) )  ||
+				( relative_pos_x < 0  &&  (slope == west  &&   slope == 2 * west) )  ||
+				( relative_pos_x > 0  &&  (slope == ost   &&   slope == 2 * ost ) )  );
 	}
 };
 
