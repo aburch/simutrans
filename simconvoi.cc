@@ -4967,14 +4967,16 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 		// Load vehicles to their regular level.
 		for(int i = 0; i < number_loadable_vehicles ; i++)
 		{
+			const bool overcrowd = false;
 			vehikel_t* v = fahr[i];
-			changed_loading_level += v->beladen(halt, second_run);
+			changed_loading_level += v->beladen(halt, overcrowd);
 		}
 		// Finally, load vehicles to their overcrowded level.
 		for(int i = 0; i < number_loadable_vehicles ; i++)
 		{
+			const bool overcrowd = true;
 			vehikel_t* v = fahr[i];
-			changed_loading_level += v->beladen(halt, second_run);
+			changed_loading_level += v->beladen(halt, overcrowd);
 		}
 	}
 
