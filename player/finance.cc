@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include "../utils/float32e8.h"
+#include "../utils/float32e8_t.h"
 #include "../simworld.h"
 #include "../besch/haus_besch.h"
 #include "../dataobj/loadsave.h"
