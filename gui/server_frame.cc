@@ -5,6 +5,10 @@
  * (see licence.txt)
  */
 
+/*
+ * Server game listing and current game information window
+ */
+
 #include "../simworld.h"
 #include "../simcolor.h"
 #include "../simgraph.h"
@@ -98,7 +102,7 @@ server_frame_t::server_frame_t(karte_t* w) :
 		addinput.add_listener( this );
 		add_komponente( &addinput );
 
-		add.init( button_t::box, "Query server", koord( ww - D_BUTTON_WIDTH - D_MARGIN_RIGHT, pos_y ), koord( D_BUTTON_WIDTH, D_BUTTON_HEIGHT) );
+		add.init( button_t::roundbox, "Query server", koord( ww - D_BUTTON_WIDTH - D_MARGIN_RIGHT, pos_y ), koord( D_BUTTON_WIDTH, D_BUTTON_HEIGHT) );
 		add.add_listener( this );
 
 		pos_y += D_BUTTON_HEIGHT;
@@ -151,11 +155,11 @@ server_frame_t::server_frame_t(karte_t* w) :
 
 		const int button_width = 112;
 
-		find_mismatch.init( button_t::box, "find mismatch", koord( ww - D_MARGIN_RIGHT - D_H_SPACE - button_width * 2, pos_y ), koord( button_width, D_BUTTON_HEIGHT) );
+		find_mismatch.init( button_t::roundbox, "find mismatch", koord( ww - D_MARGIN_RIGHT - D_H_SPACE - button_width * 2, pos_y ), koord( button_width, D_BUTTON_HEIGHT) );
 		find_mismatch.add_listener( this );
 		add_komponente( &find_mismatch );
 
-		join.init( button_t::box, "join game", koord( ww - D_MARGIN_RIGHT - button_width, pos_y ), koord( button_width, D_BUTTON_HEIGHT) );
+		join.init( button_t::roundbox, "join game", koord( ww - D_MARGIN_RIGHT - button_width, pos_y ), koord( button_width, D_BUTTON_HEIGHT) );
 		join.disable();
 		join.add_listener( this );
 		add_komponente( &join );

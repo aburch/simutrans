@@ -1,3 +1,8 @@
+/*
+ * Factory list window
+ * @author Hj. Malthaner
+ */
+
 #ifndef factorylist_frame_t_h
 #define factorylist_frame_t_h
 
@@ -9,11 +14,6 @@
 
 class karte_t;
 
-
-/**
- * Factory list window
- * @author Hj. Malthaner
- */
 class factorylist_frame_t : public gui_frame_t, private action_listener_t
 {
 private:
@@ -42,8 +42,8 @@ public:
 	void resize(const koord delta);
 
 	/**
-	 * Manche Fenster haben einen Hilfetext assoziiert.
-	 * @return den Dateinamen für die Hilfe, oder NULL
+	 * Set the window associated helptext
+	 * @return the filename for the helptext, or NULL
 	 * @author V. Meyer
 	 */
 	const char * get_hilfe_datei() const {return "factorylist_filter.txt"; }

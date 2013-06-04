@@ -3,8 +3,10 @@
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
- *
- * jumps to a position
+ */
+
+/*
+ * Building facing selector, when CTRL+Clicking over a building icon in menu
  */
 
 #include <string.h>

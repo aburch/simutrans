@@ -5,6 +5,10 @@
  * (see licence.txt)
  */
 
+/*
+ * Where factory stats are calculated for list dialog
+ */
+
 #include "factorylist_stats_t.h"
 
 #include "../simgraph.h"
@@ -122,7 +126,7 @@ bool factorylist_stats_t::infowin_event(const event_t * ev)
 		return false;
 	}
 
-	// deperess goto button
+	// un-press goto button
 	if(  ev->button_state>0  &&  ev->cx>0  &&  ev->cx<15  ) {
 		line_selected = line;
 	}
@@ -152,7 +156,7 @@ void factorylist_stats_t::recalc_size()
 
 
 /**
- * Zeichnet die Komponente
+ * Draw the component
  * @author Hj. Malthaner
  */
 void factorylist_stats_t::zeichnen(koord offset)

@@ -5,6 +5,12 @@
  * (see licence.txt)
  */
 
+/*
+ * A text display component
+ *
+ * @autor Hj. Malthaner
+ */
+
 #include <string.h>
 
 #include "gui_textarea.h"
@@ -46,7 +52,7 @@ void gui_textarea_t::set_text(const char *const text)
 
 
 // recalcs the current size;
-// usually not needed to be called explicitely
+// usually not needed to be called explicitly
 void gui_textarea_t::recalc_size()
 {
 	const char *text(*buf);
@@ -76,7 +82,7 @@ DBG_MESSAGE("gui_textarea_t::recalc_size()","reset size to %i,%i",x_size+10,new_
 
 
 /**
- * Zeichnet die Komponente
+ * Draw the component
  * @author Hj. Malthaner
  */
 void gui_textarea_t::zeichnen(koord offset)

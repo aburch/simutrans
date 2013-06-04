@@ -1,3 +1,7 @@
+/*
+ * selection of paks at the start time
+ */
+
 #include <string>
 
 #include "pakselector.h"
@@ -18,7 +22,7 @@ void pakselector_t::init(const char * /*suffix*/, const char * /*path*/)
 	set_min_windowsize(get_fenstergroesse());
 	set_resizemode(diagonal_resize);
 
-	// remove unneccessary buttons
+	// remove unnecessary buttons
 	remove_komponente( &input );
 	remove_komponente( &savebutton );
 	remove_komponente( &cancelbutton );
@@ -95,7 +99,6 @@ bool pakselector_t::check_file(const char *filename, const char *)
 
 pakselector_t::pakselector_t() : savegame_frame_t( NULL, false, umgebung_t::program_dir, true, true )
 {
-	//at_least_one_add = false;
 	init(NULL, umgebung_t::program_dir);
 }
 

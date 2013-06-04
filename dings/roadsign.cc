@@ -5,6 +5,10 @@
  * (see licence.txt)
  */
 
+/*
+ * Roadsigns functions and dialogs
+ */
+
 #include <stdio.h>
 
 #include "../simunits.h"

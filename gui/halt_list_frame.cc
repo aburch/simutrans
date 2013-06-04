@@ -7,6 +7,13 @@
  * (see licence.txt)
  */
 
+/*
+ * Displays a scrollable list of all stations of a player
+ *
+ * @author Markus Weber
+ * @date 02-Jan-02
+ */
+
 #include <algorithm>
 #include <string.h>
 
@@ -46,7 +53,7 @@ halt_list_frame_t::sort_mode_t halt_list_frame_t::sortby = nach_name;
 bool halt_list_frame_t::sortreverse = false;
 
 /**
- * Default filter: keine Ölbohrinseln!
+ * Default filter: no Oil rigs!
  */
 int halt_list_frame_t::filter_flags = 0;
 
@@ -93,8 +100,7 @@ bool halt_list_frame_t::compare_halts(halthandle_t const halt1, halthandle_t con
 		order = strcmp(halt1->get_name(), halt2->get_name());
 	}
 	/***********************************
-	 * Beruecksichtige die
-	 * Sortierreihenfolge
+	 * Consider sorting order
 	 ***********************************/
 	return sortreverse ? order > 0 : order < 0;
 }
@@ -286,7 +292,7 @@ halt_list_frame_t::~halt_list_frame_t()
 
 
 /**
-* This function refreshs the station-list
+* This function refreshes the station-list
 * @author Markus Weber/Volker Meyer
 */
 void halt_list_frame_t::display_list(void)

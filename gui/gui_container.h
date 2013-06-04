@@ -5,6 +5,14 @@
  * (see licence.txt)
  */
 
+/**
+ * A container for other gui_komponenten. Is itself
+ * a gui_komponente, and can therefor be nested.
+ *
+ * @author Hj. Malthaner
+ * @date 03-Mar-01
+ */
+
 #ifndef gui_container_h
 #define gui_container_h
 
@@ -14,13 +22,6 @@
 #include "../tpl/slist_tpl.h"
 #include "components/gui_komponente.h"
 
-/**
- * Ein Behälter für andere gui_komponenten. Ist selbst eine
- * gui_komponente, kann also geschachtelt werden.
- *
- * @author Hj. Malthaner
- * @date 03-Mar-01
- */
 class gui_container_t : public gui_komponente_t
 {
 private:
@@ -40,13 +41,13 @@ public:
 	void clear_dirty() {list_dirty=false;}
 
 	/**
-	* Fügt eine Komponente zum Container hinzu.
+	* Adds a Component to the Container.
 	* @author Hj. Malthaner
 	*/
 	void add_komponente(gui_komponente_t *komp);
 
 	/**
-	* Entfernt eine Komponente aus dem Container.
+	* Removes a Component in the Container.
 	* @author Hj. Malthaner
 	*/
 	void remove_komponente(gui_komponente_t *komp);
@@ -54,13 +55,13 @@ public:
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**
-	* Zeichnet die Komponente
+	* Draw the component
 	* @author Hj. Malthaner
 	*/
 	virtual void zeichnen(koord offset);
 
 	/**
-	* Entfernt alle Komponenten aus dem Container.
+	* Removes all Components in the Container.
 	* @author Markus Weber
 	*/
 	void remove_all();

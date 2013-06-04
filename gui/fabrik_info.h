@@ -5,6 +5,10 @@
  * (see licence.txt)
  */
 
+/*
+ * Factory info dialog
+ */
+
 #ifndef fabrikinfo_t_h
 #define fabrikinfo_t_h
 
@@ -81,8 +85,8 @@ public:
 	virtual ~fabrik_info_t();
 
 	/**
-	 * Manche Fenster haben einen Hilfetext assoziiert.
-	 * @return den Dateinamen für die Hilfe, oder NULL
+	 * Set the window associated helptext
+	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
 	const char *get_hilfe_datei() const {return "industry_info.txt";}
@@ -96,10 +100,9 @@ public:
 	virtual void set_fenstergroesse(koord groesse);
 
 	/**
-	* komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
-	* das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
-	* in dem die Komponente dargestellt wird.
-	*
+	* Draw new component. The values to be passed refer to the window
+	* i.e. It's the screen coordinates of the window where the
+	* component is displayed.
 	* @author Hj. Malthaner
 	*/
 	virtual void zeichnen(koord pos, koord gr);
@@ -109,7 +112,7 @@ public:
 	// rotated map need new info ...
 	void map_rotate90( sint16 ) { update_info(); }
 
-	// this contructor is only used during loading
+	// this constructor is only used during loading
 	fabrik_info_t(karte_t *welt);
 
 	void rdwr( loadsave_t *file );

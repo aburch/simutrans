@@ -6,6 +6,11 @@
  * (see licence.txt)
  */
 
+/*
+ * Displays a filter settings dialog for the convoi list
+ *
+ * @author V. Meyer
+ */
 
 #include "convoi_filter_frame.h"
 #include "convoi_frame.h"

@@ -5,6 +5,9 @@
  * (see licence.txt)
  */
 
+/*
+ * Where the current factory chart statistics are calculated
+ */
 
 #include "../dings/leitung2.h"
 #include "../dataobj/translator.h"
