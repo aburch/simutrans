@@ -1491,24 +1491,41 @@ end_loop:
 					return;
 				}
 				else {
-					// Schedule changed at station
-					// this station? then complete loading task else drive on
+					if(  fpl->get_current_eintrag().pos==get_pos()  ) {
+						// We are at the scheduled location
+						grund_t *gr = welt->lookup(fpl->get_current_eintrag().pos);
+						if(  gr  &&  gr->get_depot()  ) {
+							// If it's a depot, move into the depot
+							// This check must come before the station check, because for
+							// ships we may be in a depot and at a sea stop!
+							enter_depot( gr->get_depot() );
+							break;
+						}
+					}
 					halthandle_t h = haltestelle_t::get_halt( welt, get_pos(), get_besitzer() );
 					if(  h.is_bound()  &&  h==haltestelle_t::get_halt( welt, fpl->get_current_eintrag().pos, get_besitzer() )  ) {
+						// We are at the station we are scheduled to be at
+						// (possibly a different platform)
 						if (route.get_count() > 0) {
 							koord3d const& pos = route.back();
 							if (h == haltestelle_t::get_halt(welt, pos, get_besitzer())) {
+								// If this is also the station at the end of the current route
+								// (the correct platform)
 								if (get_pos() == pos) {
+									// And this is also the correct platform... then load.
 									state = LOADING;
 									break;
 								}
 								else {
+									// Right station, wrong platform
 									state = DRIVING;
 									break;
 								}
 							}
 						}
 						else {
+							// We're at the scheduled station,
+							// but there is no programmed route.
 							if(  drive_to()  ) {
 								state = DRIVING;
 								break;
@@ -1516,21 +1533,8 @@ end_loop:
 						}
 					}
 
-					if(  fpl->get_current_eintrag().pos==get_pos()  ) {
-						// We are at the scheduled location
-						// position in depot: waiting
-						grund_t *gr = welt->lookup(fpl->get_current_eintrag().pos);
-						if(  gr  &&  gr->get_depot()  ) {
-							enter_depot( gr->get_depot() );
-						}
-						else {
-							state = ROUTING_1;
-						}
-					}
-					else {
-						// go to next
-						state = ROUTING_1;
-					}
+					// We aren't at our destination; start routing.
+					state = ROUTING_1;
 				}
 			}
 			break;
