@@ -9,7 +9,6 @@
 #include <assert.h>
 
 #include "../simtypes.h"
-#include "../utils/float32e8_t.h"
 #include "../simworld.h"
 
 /// for compatibility with old versions
