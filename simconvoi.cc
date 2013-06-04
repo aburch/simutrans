@@ -1494,12 +1494,16 @@ end_loop:
 					if(  fpl->get_current_eintrag().pos==get_pos()  ) {
 						// We are at the scheduled location
 						grund_t *gr = welt->lookup(fpl->get_current_eintrag().pos);
-						if(  gr  &&  gr->get_depot()  ) {
-							// If it's a depot, move into the depot
-							// This check must come before the station check, because for
-							// ships we may be in a depot and at a sea stop!
-							enter_depot( gr->get_depot() );
-							break;
+						if(  gr  ) {
+							depot_t * this_depot = gr->get_depot();
+							// double-check for right depot type based on first vehicle
+							if (  this_depot &&  this_depot->is_suitable_for(fahr[0])  ) {
+								// If it's a suitable depot, move into the depot
+								// This check must come before the station check, because for
+								// ships we may be in a depot and at a sea stop!
+								enter_depot( gr->get_depot() );
+								break;
+							}
 						}
 					}
 					halthandle_t h = haltestelle_t::get_halt( welt, get_pos(), get_besitzer() );
@@ -1893,6 +1897,7 @@ void convoi_t::enter_depot(depot_t *dep)
 	set_akt_speed(0);
 
 	// Make this the new home depot...
+	// (Will be done again in convoi_arrived, but make sure to do it early in case of crashes)
 	home_depot=dep->get_pos();
 
 	// Hajo: remove vehicles from world data structure
@@ -2009,7 +2014,8 @@ void convoi_t::ziel_erreicht()
 	const grund_t *gr = welt->lookup(v->get_pos());
 	depot_t *dp = gr->get_depot();
 
-	if(dp) {
+	// double-check for right depot type based on first vehicle
+	if(dp && dp->is_suitable_for(v) ) {
 		// ok, we are entering a depot
 
 		// Provide the message since we got here "on schedule".
@@ -2023,7 +2029,7 @@ void convoi_t::ziel_erreicht()
 		enter_depot(dp);
 	}
 	else {
-		// no depot reached, check for stop!
+		// no suitable depot reached, check for stop!
 		halthandle_t halt = haltestelle_t::get_halt(welt, v->get_pos(),besitzer_p);
 		if(  halt.is_bound() &&  gr->get_weg_ribi(v->get_waytype())!=0  ) {
 			// seems to be a stop, so book the money for the trip
@@ -6520,6 +6526,7 @@ void convoi_t::clear_replace()
 
 void convoi_t::emergency_go_to_depot()
 {
+	// First try going to a depot the normal way.
 	if(!go_to_depot(false))
 	{
 		// Teleport to depot if cannot get there by normal means.
