@@ -251,7 +251,7 @@ void gui_combobox_t::reset_selected_item_name()
 		textinp.set_text( editstr, 0  );
 		droplist.set_selection(-1);
 	}
-	else if(  item->is_valid()  &&  item->is_editable()  ) {
+	else if(  item->is_valid()  ) {
 		const char *current_str = ((gui_scrolled_list_t::const_text_scrollitem_t *)item)->get_text();
 		if(  strncmp( current_str, old_editstr, 127 )!=0  ) {
 			tstrncpy( editstr, current_str, lengthof(editstr) );
