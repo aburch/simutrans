@@ -233,8 +233,6 @@ public:
 		veh_year[ tt][0][ATV_NON_FINANCIAL_ASSETS] -= (sint64) amount;
 		veh_month[tt][0][ATV_NON_FINANCIAL_ASSETS] -= (sint64) amount;
 
-		/* has_money_or_assets requires that this be up to date */
-		com_year[0][ATC_NETWEALTH] += amount;
 		account_balance += amount;
 	}
 
