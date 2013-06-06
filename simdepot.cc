@@ -798,7 +798,7 @@ void depot_t::update_all_win()
  *   - 0 if we don't want to filter by traction type
  *   - a bitmask of possible traction types; we need only match one
  */
-bool depot_t::is_suitable_for( const vehikel_t * test_vehicle, const uint8 traction_types = 0) const {
+bool depot_t::is_suitable_for( const vehikel_t * test_vehicle, const uint8 traction_types /* = 0 */ ) const {
 	assert(test_vehicle != NULL);
 
 	// Owner must be the same

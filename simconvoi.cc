@@ -5816,83 +5816,149 @@ bool convoi_t::go_to_depot(bool show_success, bool use_home_depot)
 DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule ... ", state );
 		return false;
 	}
-	//convoi_info_t::route_search_in_progress = true;
 
-	route_t route;
-	uint8 traction_type = 0;
-
-	if(!use_home_depot)
+	// Identify this convoi's traction types.  We want to match at least one.
+	uint8 traction_types = 0;
+	uint8 shifter;
+	if(replace)
 	{
-		uint8 shifter;
-		if(replace)
+		ITERATE_PTR(replace->get_replacing_vehicles(), i)
 		{
-			ITERATE_PTR(replace->get_replacing_vehicles(), i)
+			if(replace->get_replacing_vehicle(i)->get_leistung() == 0)
 			{
-				if(replace->get_replacing_vehicle(i)->get_leistung() == 0)
-				{
-					continue;
-				}
-				shifter = 1 << replace->get_replacing_vehicle(i)->get_engine_type();
-				traction_type |= shifter;
+				continue;
 			}
+			shifter = 1 << replace->get_replacing_vehicle(i)->get_engine_type();
+			traction_types |= shifter;
 		}
-		else
+	}
+	else
+	{
+		for(uint8 i = 0; i < anz_vehikel; i ++)
 		{
-			for(uint8 i = 0; i < anz_vehikel; i ++)
+			if(fahr[i]->get_besch()->get_leistung() == 0)
 			{
-				if(fahr[i]->get_besch()->get_leistung() == 0)
-				{
-					continue;
-				}
-				shifter = 1 << fahr[i]->get_besch()->get_engine_type();
-				traction_type |= shifter;
+				continue;
 			}
+			shifter = 1 << fahr[i]->get_besch()->get_engine_type();
+			traction_types |= shifter;
 		}
-		depot_finder_t finder(self, traction_type);
-		route.find_route(welt, get_vehikel(0)->get_pos(), &finder, speed_to_kmh(get_min_top_speed()), ribi_t::alle, get_highest_axle_load(), 0x7FFFFFFF);
 	}
 
-	// if route to a depot has been found, update the convoy's schedule
-	bool b_depot_found = false;
-	
-	if(!route.empty() || use_home_depot)
-	{
-		koord3d depot_pos;
-		if(use_home_depot)
-		{
-			depot_pos = home_depot;
+	bool home_depot_valid = false;
+	if (use_home_depot) {
+		// Check for a valid home depot.  It is quite easy to get savegames with
+		// invalid home depot coordinates.
+		const grund_t* test_gr = welt->lookup(get_home_depot());
+		if (test_gr) {
+			depot_t* test_depot = test_gr->get_depot();
+			if (test_depot) {
+				// It's a depot -- is it suitable?
+				home_depot_valid = test_depot->is_suitable_for(get_vehikel(0), traction_types);
+			}
 		}
-		else
-		{
-			depot_pos = route.position_bei(route.get_count() - 1);
+		// The home depot seems OK, but what if we can't get there?
+		// Don't consider it a valid home depot if we already failed to get there.
+		if (home_depot_valid && state == NO_ROUTE) {
+			if (fpl) {
+				const linieneintrag_t & current_entry = fpl->get_current_eintrag();
+				if ( current_entry.pos == get_home_depot() ) {
+					// We were already trying to get there... and failed.
+					home_depot_valid = false;
+				}
+			}
 		}
-		// Work directly on the schedule; anything else may cause variable shadowing
-		fpl->insert(welt->lookup(depot_pos), 0, 0, 0, besitzer_p == welt->get_active_player());
-		// Insert will move the pointer past the inserted item; move back to it
-		fpl->advance_reverse();
-		b_depot_found = set_schedule(fpl);
+	}
+
+
+	koord3d depot_pos;
+	route_t route;
+	bool home_depot_found = false;
+	bool other_depot_found = false;
+	if (use_home_depot && home_depot_valid) {
+		// The home depot is OK, use it.
+		depot_pos = get_home_depot();
+		home_depot_found = true;
+	}
+	else {
+		// See if we're already sitting on top of a depot.
+		// (The route finder won't find a depot if we're standing on top of it, believe it or not.)
+		bool current_location_valid = false;
+		const grund_t* test_gr = welt->lookup( get_vehikel(0)->get_pos() );
+		if (test_gr) {
+			depot_t* test_depot = test_gr->get_depot();
+			if (test_depot) {
+				// It's a depot -- is it suitable?
+				current_location_valid = test_depot->is_suitable_for(get_vehikel(0), traction_types);
+			}
+		}
+		if (current_location_valid) {
+			depot_pos = get_vehikel(0)->get_pos();
+			other_depot_found = true;
+		}
+		else {
+			// OK, we're not standing on a depot.  Find a route to a depot.
+			depot_finder_t finder(self, traction_types);
+			route.find_route(welt, get_vehikel(0)->get_pos(), &finder, speed_to_kmh(get_min_top_speed()), ribi_t::alle, get_highest_axle_load(), 0x7FFFFFFF);
+			if (!route.empty()) {
+				depot_pos = route.position_bei(route.get_count() - 1);
+				other_depot_found = true;
+			}
+		}
+	}
+
+	bool transport_success = false;
+	if (home_depot_found || other_depot_found) {
+		if ( get_vehikel(0)->get_pos() == depot_pos ) {
+			// We're already there.  Just enter the depot (speed things up!)
+			const grund_t* my_gr = welt->lookup(depot_pos);
+			if (my_gr) {
+				depot_t* my_depot = my_gr->get_depot();
+				if (my_depot) {
+					enter_depot(my_depot);
+					transport_success = true;
+				}
+			}
+		}
+		else {
+			// Work directly on the schedule (consider changing this to make a new copy)
+			bool schedule_insertion_succeeded = fpl->insert( welt->lookup(depot_pos) );
+			// Insert will move the pointer past the inserted item; move back to it
+			fpl->advance_reverse();
+			// We still have to call set_schedule
+			bool schedule_setting_succeeded = set_schedule(fpl);
+			transport_success = schedule_insertion_succeeded && schedule_setting_succeeded;
+		}
 	}
 
 	// show result
 	const char* txt;
-	if (b_depot_found && !use_home_depot) 
-	{
-		txt = "Convoi has been sent\nto the nearest depot\nof appropriate type.\n";
-	} 
-	else if(b_depot_found && use_home_depot)
+	bool success = false;
+	if (home_depot_found && transport_success)
 	{
 		txt = "The convoy has been sent\nto its home depot.\n";
+		success = true;
 	}
-	else if(!b_depot_found && !use_home_depot)
+	else if (other_depot_found && transport_success)
 	{
-		txt = "Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.";
-		//sprintf(txt, "Sending to depot failed for %i convoy", self.get_id());
+		txt = "Convoi has been sent\nto the nearest depot\nof appropriate type.\n";
+		success = true;
 	}
-	if ((!b_depot_found || show_success) && get_besitzer() == welt->get_active_player())
+	else if (!home_depot_found && !other_depot_found)
+	{
+		txt = "No suitable depot found!\nYou need to send the\nconvoi to the depot\nmanually.";
+		success = false;
+	}
+	else if (!transport_success)
+	{
+		txt = "Depot found but could not be inserted in schedule.  This is a bug!";
+		success = false;
+	}
+	if ( (!success || show_success) && get_besitzer() == welt->get_active_player())
 	{
 		create_win(new news_img(txt), w_time_delete, magic_none);
 	}
-	return b_depot_found;
+	return success;
 }
 
 bool convoi_t::has_no_cargo() const

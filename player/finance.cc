@@ -278,7 +278,7 @@ sint64 finance_t::credit_limit_by_profits() const {
 	// Look back 12 months (full year's profit)
 	sint64 profit_total=0;
 	// We need 12 months of history at least, not including this month
-	//assert(MAX_HISTORY_PLAYER_MONTHS >= 13);
+	assert(MAX_PLAYER_HISTORY_MONTHS >= 13);
 	// Start by looking at *last* month and go back 12 (one year)
 	for(int month = 1; month < 13; month++)
 	{
