@@ -1216,11 +1216,15 @@ public:
 	sint16 get_snowline() const { return snowline; }
 
 	/**
-	 * Returns the current climate for a given height,
-	 * @note Uses as private lookup table for speed.
-	 * @author prissi
+	 * Initializes the height_to_climate field from settings.
 	 */
-	climate get_climate(sint16 height) const
+	void init_height_to_climate();
+
+	/**
+	 * Returns the climate for a given height, ruled by world creation settings.
+	 * Used to determine climate when terraforming, loading old games, etc.
+	 */
+	climate get_climate_at_height(sint16 height) const
 	{
 		const sint16 h=height-grundwasser;
 		if(h<0) {
@@ -1257,6 +1261,14 @@ public:
 		}
 	}
 
+private:
+	/**
+	 * Dummy method, to generate compiler error if someone tries to call get_climate( int ),
+	 * as the int parameter will silently be cast to koord...
+	 */
+	climate get_climate(sint16) const;
+
+public:
 	/**
 	 * Set a new tool as current: calls local_set_werkzeug or sends to server.
 	 */

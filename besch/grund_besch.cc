@@ -460,8 +460,7 @@ static const char* const climate_names[MAX_CLIMATES] =
 // from this number on there will be all ground images
 // i.e. 15 times slopes + 7
 image_id grund_besch_t::image_offset = IMG_LEER;
-static uint8 height_to_texture_climate[32];
-static uint8 number_of_climates = 1;
+static const uint8 number_of_climates = 7;
 static slist_tpl<bild_besch_t *> ground_bild_list;
 static uint16 climate_bild[32];
 image_id alpha_bild[totalslopes];
@@ -519,14 +518,9 @@ char const* grund_besch_t::get_climate_name_from_bit(climate n)
 }
 
 
-/* this routine is called during the creation of a new map
- * it will recalculate all transitions according the given water level
- */
-void grund_besch_t::calc_water_level(karte_t *w, uint8 *height_to_climate)
+void grund_besch_t::init_ground_textures(karte_t *w)
 {
 	grund_besch_t::welt = w;
-
-	DBG_MESSAGE("grund_besch_t::calc_water_level()","grundwasser %i",welt->get_grundwasser());
 
 	printf("Calculating textures ...");
 
@@ -539,46 +533,6 @@ void grund_besch_t::calc_water_level(karte_t *w, uint8 *height_to_climate)
 		delete ground_bild_list.remove_first();
 	}
 #endif
-
-	// create height table
-	sint16 climate_border[MAX_CLIMATES];
-	memcpy(climate_border, welt->get_settings().get_climate_borders(), sizeof(climate_border));
-	for( int cl=0;  cl<MAX_CLIMATES-1;  cl++ ) {
-		if(climate_border[cl]>climate_border[arctic_climate]) {
-			// unused climate
-			climate_border[cl] = 0;
-		}
-	}
-	// now arrange the remaioning ones
-	for( int h=0;  h<32;  h++  ) {
-		sint16 current_height = 999;	// current maximum
-		sint16 current_cl = arctic_climate;			// and the climate
-		for( int cl=0;  cl<MAX_CLIMATES;  cl++ ) {
-			if(climate_border[cl]>=h  &&  climate_border[cl]<current_height) {
-				current_height = climate_border[cl];
-				current_cl = cl;
-			}
-		}
-//		if(  current_cl == desert_climate  ) {
-//			force_desert=false; // if there is no desert present we will still need to generate it for beaches
-//		}
-		height_to_climate[h] = (uint8)current_cl;
-	}
-	// now built a list of the climates with their respective order
-	uint8 climate_list[32];
-	number_of_climates = 7;
-	for(  int i = 0;  i < 7;  i++  ) {
-		climate_list[i] = i + 1;
-	}
-	height_to_texture_climate[0] = 0;
-	height_to_texture_climate[1] = 0;
-	for(  int h = 2;  h < 32;  h++  ) {
-		height_to_texture_climate[h] = height_to_climate[h];
-	}
-
-	for(  int h = 0;  h < 32;  h++  ) {
-		DBG_MESSAGE("grund_besch_t::calc_water_level()","climate in height %i: %s (order no %i)", h, climate_names[height_to_climate[h]], height_to_texture_climate[h] );
-	}
 
 	// not the wrong tile size?
 	assert(boden_texture->get_bild_ptr(0)->get_pic()->w == grund_besch_t::ausserhalb->get_bild_ptr(0)->get_pic()->w);
@@ -941,7 +895,7 @@ void grund_besch_t::calc_water_level(karte_t *w, uint8 *height_to_climate)
 		climate_bild[i] = final_tile->get_nummer() + 1;
 		for(  int dslope = 0;  dslope < totalslopes - 1;  dslope++  ) {
 			int slope = double_grounds ? dslope : slopetable[dslope];
-			final_tile = create_textured_tile( light_map->get_bild_ptr( slope ), boden_texture->get_bild_ptr( climate_list[i] ) );
+			final_tile = create_textured_tile( light_map->get_bild_ptr( slope ), boden_texture->get_bild_ptr( i+1 ) );
 			ground_bild_list.append( final_tile );
 		}
 	}

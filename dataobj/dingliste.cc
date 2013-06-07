@@ -920,7 +920,7 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 					baum_t *b = new baum_t(welt, file);
 					if(  !b->get_besch()  ) {
 						// is there a replacement possible
-						if(  const baum_besch_t *besch = baum_t::random_tree_for_climate( welt->get_climate(current_pos.z) )  ) {
+						if(  const baum_besch_t *besch = baum_t::random_tree_for_climate( welt->get_climate_at_height(current_pos.z) )  ) {
 							b->set_besch( besch );
 						}
 						else {

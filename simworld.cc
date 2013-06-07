@@ -1434,7 +1434,8 @@ void karte_t::init(settings_t* const sets, sint8 const* const h_field)
 	koord::locality_factor = settings.get_locality_factor( last_year );
 
 	grundwasser = (sint8)sets->get_grundwasser();      //29-Nov-01     Markus Weber    Changed
-	grund_besch_t::calc_water_level( this, height_to_climate );
+
+	init_height_to_climate();
 	snowline = sets->get_winter_snowline() + grundwasser;
 
 	if(sets->get_beginner_mode()) {
@@ -1578,6 +1579,32 @@ void drain_tile(karte_t *welt, koord k, sint8 water_height)
 
 	delete [] from_dir;
 	delete [] stage;
+}
+
+
+void karte_t::init_height_to_climate()
+{
+	// create height table
+	sint16 climate_border[MAX_CLIMATES];
+	memcpy(climate_border, get_settings().get_climate_borders(), sizeof(climate_border));
+	for( int cl=0;  cl<MAX_CLIMATES-1;  cl++ ) {
+		if(climate_border[cl]>climate_border[arctic_climate]) {
+			// unused climate
+			climate_border[cl] = 0;
+		}
+	}
+	// now arrange the remaining ones
+	for( int h=0;  h<32;  h++  ) {
+		sint16 current_height = 999;	// current maximum
+		sint16 current_cl = arctic_climate;			// and the climate
+		for( int cl=0;  cl<MAX_CLIMATES;  cl++ ) {
+			if(climate_border[cl]>=h  &&  climate_border[cl]<current_height) {
+				current_height = climate_border[cl];
+				current_cl = cl;
+			}
+		}
+		height_to_climate[h] = (uint8)current_cl;
+	}
 }
 
 
@@ -1852,7 +1879,7 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 				}
 				// if a lot of water nearby we are a headland
 				if(  neighbour_water > 3  ) {
-					access(k)->set_climate( get_climate( grundwasser + 1 ) );
+					access(k)->set_climate( get_climate_at_height( grundwasser + 1 ) );
 				}
 			}
 		}
@@ -1879,7 +1906,7 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 					}
 				}
 				if(  neighbour_beach == 0  ) {
-					access(k)->set_climate( get_climate( grundwasser + 1 ) );
+					access(k)->set_climate( get_climate_at_height( grundwasser + 1 ) );
 				}
 			}
 		}
@@ -2040,6 +2067,9 @@ karte_t::karte_t() :
 	msg = new message_t(this);
 	cached_size.x = 0;
 	cached_size.y = 0;
+
+	// generate ground textures once
+	grund_besch_t::init_ground_textures(this);
 }
 
 
@@ -5221,8 +5251,9 @@ void karte_t::load(loadsave_t *file)
 	}
 
 	grundwasser = (sint8)(settings.get_grundwasser());
-DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
-	grund_besch_t::calc_water_level( this, height_to_climate );
+	DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
+
+	init_height_to_climate();
 
 	// just an initialisation for the loading
 	season = (2+last_month/3)&3; // summer always zero
@@ -5749,7 +5780,7 @@ void karte_t::calc_climate(koord k, bool recalc)
 	if(  gr  ) {
 		if(  !gr->ist_wasser()  ) {
 			bool beach = gr->get_pos().z <= get_water_hgt(k)  &&  get_water_hgt(k) == grundwasser;
-			pl->set_climate( beach ? desert_climate : get_climate( max( gr->get_pos().z, grundwasser + 1 ) ) );
+			pl->set_climate( beach ? desert_climate : get_climate_at_height( max( gr->get_pos().z, grundwasser + 1 ) ) );
 		}
 		else {
 			pl->set_climate( water_climate );

@@ -90,11 +90,10 @@ public:
 
 	static bool alles_geladen();
 
-	/* this routine is called during the creation of a new map
-	 * it will recalculate all transitions according the given water level
-	 * and put the result in height_to_climate
+	/**
+	 * Generates ground texture images, transition maps, etc.
 	 */
-	static void calc_water_level(karte_t *welt, uint8 *height_to_climate);
+	static void init_ground_textures(karte_t *welt);
 
 	static image_id get_marker_image(hang_t::typ slope_in, bool background)
 	{
