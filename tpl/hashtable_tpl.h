@@ -259,7 +259,7 @@ public:
 				return true;
 			}
 			if(  diff == 0  ) {
-				dbg->msg( "hashtable_tpl::put", "Duplicate hash!" );
+				dbg->message( "hashtable_tpl::put", "Duplicate hash!" );
 				return false;
 			}
 		}
