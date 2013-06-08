@@ -89,7 +89,7 @@ spieler_t::~spieler_t()
 	while(  !messages.empty()  ) {
 		delete messages.remove_first();
 	}
-	destroy_win((ptrdiff_t)this);
+	destroy_win(magic_finances_t + get_player_nr());
 	if( finance !=NULL) {
 		delete finance;
 		finance = NULL;
