@@ -1844,6 +1844,11 @@ vehikel_t::direction_degrees vehikel_t::get_direction_degrees(ribi_t::dir direct
 
 void vehikel_t::rauche() const
 {
+#if COLOUR_DEPTH == 0
+	// We do not need smoke if there are no graphics.
+	// Smoking here can cause crashes on a no graphics server for some reason.
+	return;
+#else
 	// raucht ueberhaupt ?
 	if(  rauchen  &&  besch->get_rauch()  ) {
 		// Hajo: only produce smoke when heavily accelerating or steam engine
@@ -1861,6 +1866,7 @@ void vehikel_t::rauche() const
 			}
 		}
 	}
+#endif
 }
 
 
