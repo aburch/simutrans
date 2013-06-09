@@ -1018,7 +1018,7 @@ int simu_main(int argc, char** argv)
 	if(  new_world  ) {
 		chdir( umgebung_t::program_dir );
 		char buffer[256];
-		sprintf(buffer, "%s%sdemo.sve", (const char*)umgebung_t::program_dir, umgebung_t::objfilename.c_str());
+		sprintf(buffer, "%sdemo.sve", umgebung_t::objfilename.c_str());
 		// access did not work!
 		if (FILE* const f = fopen(buffer, "rb")) {
 			// there is a demo game to load
