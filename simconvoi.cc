@@ -6171,12 +6171,12 @@ void convoi_t::snprintf_remaining_loading_time(char *p, size_t size) const
 
 	if (go_on_ticks != WAIT_INFINITE && go_on_ticks >= current_ticks)
 	{
-		remaining_ticks = (int)(go_on_ticks - current_ticks);
+		remaining_ticks = (sint32)(go_on_ticks - current_ticks);
 	} 
 	
 	else if (((arrival_time + current_loading_time) - reverse_delay) >= current_ticks) 
 	{
-		remaining_ticks = (int)(((arrival_time + current_loading_time) - reverse_delay) - current_ticks);
+		remaining_ticks = (sint32)(((arrival_time + current_loading_time) - reverse_delay) - current_ticks);
 	} 
 	else
 	{
@@ -6197,7 +6197,7 @@ void convoi_t::snprintf_remaining_loading_time(char *p, size_t size) const
  */
 void convoi_t::snprintf_remaining_reversing_time(char *p, size_t size) const
 {
-	const sint32 remaining_ticks = (int)(departures->get(last_stop_id).departure_time - welt->get_zeit_ms());
+	const sint32 remaining_ticks = (sint32)(departures->get(last_stop_id).departure_time - welt->get_zeit_ms());
 	uint32 ticks_left = 0;
 	if(remaining_ticks >= 0)
 	{
