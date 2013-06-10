@@ -99,9 +99,10 @@ void karte_ansicht_t::display(bool force_dirty)
 
 	// redraw everything?
 	force_dirty = force_dirty || welt->is_dirty();
-	welt->set_dirty_zurueck();
+	welt->unset_dirty();
 	if(force_dirty) {
 		mark_rect_dirty_wc( 0, 0, display_get_width(), display_get_height() );
+		welt->set_background_dirty();
 		force_dirty = false;
 	}
 
@@ -145,10 +146,16 @@ void karte_ansicht_t::display(bool force_dirty)
 
 	// not very elegant, but works:
 	// fill everything with black for Underground mode ...
-	///@note needed in not underground mode now too, need to fiund a better solution.
-//	if(grund_t::underground_mode) {
+	if( grund_t::underground_mode ) {
 		display_fillbox_wh(0, menu_height, disp_width, disp_height-menu_height, COL_BLACK, force_dirty);
-//	}
+	}
+	else if( welt->is_background_dirty() ) {
+		// we check if background will be visible, no need to clear screen if it's not.
+		if( welt->is_background_visible() ) {
+			display_fillbox_wh(0, menu_height, disp_width, disp_height-menu_height, COL_BLACK, force_dirty);
+		}
+		welt->unset_background_dirty();
+	}
 	// to save calls to grund_t::get_disp_height
 	// gr->get_disp_height() == min(gr->get_hoehe(), hmax_ground)
 	const sint8 hmax_ground = (grund_t::underground_mode==grund_t::ugm_level) ? grund_t::underground_level : 127;

@@ -127,7 +127,7 @@ void world_view_t::internal_draw(const koord offset, ding_t const* const ding)
 			continue;
 		}
 
-		const grund_t * const kb = welt->lookup_kartenboden(k);
+		grund_t *kb = welt->lookup_kartenboden(k);
 		if(  !kb  ) {
 			continue;
 		}

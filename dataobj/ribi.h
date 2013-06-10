@@ -55,10 +55,10 @@ public:
 
 #ifndef DOUBLE_GROUNDS
 	enum _corners {
-		corner_west = 1,
-		corner_south = 2,
-		corner_east = 4,
-		corner_north = 8
+		corner_SW = 1,
+		corner_SE = 2,
+		corner_NE = 4,
+		corner_NW = 8
 	};
 
 	enum _typ {
