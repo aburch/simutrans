@@ -4883,10 +4883,9 @@ bool aircraft_t::calc_route_internal(
 		}
 		state = taxiing;
 		flughoehe = 0;
-		target_height = ((sint16)start.z*TILE_HEIGHT_STEP)/Z_TILE_STEP;
+		target_height = (sint16)start.z*TILE_HEIGHT_STEP;
 	}
-	else 
-	{
+	else {
 		// init with current pos (in air ... )
 		route.clear();
 		route.append( start );
@@ -4895,7 +4894,7 @@ bool aircraft_t::calc_route_internal(
 			flughoehe = 3*TILE_HEIGHT_STEP;
 		}
 		takeoff = 0;
-		target_height = (((sint16)start.z+3)*TILE_HEIGHT_STEP)/Z_TILE_STEP;
+		target_height = ((sint16)start.z+3)*TILE_HEIGHT_STEP;
 	}
 
 //DBG_MESSAGE("aircraft_t::calc_route()","take off ok");
@@ -5498,8 +5497,8 @@ grund_t* aircraft_t::hop()
 	sint32 new_friction = 0;
 
 	// take care of inflight height ...
-	const sint16 h_cur = height_scaling((sint16)get_pos().z)*TILE_HEIGHT_STEP;
-	const sint16 h_next = height_scaling((sint16)pos_next.z)*TILE_HEIGHT_STEP;
+	const sint16 h_cur = (sint16)get_pos().z*TILE_HEIGHT_STEP;
+	const sint16 h_next = (sint16)pos_next.z*TILE_HEIGHT_STEP;
 
 	switch(state) {
 		case departing: {
@@ -5587,7 +5586,7 @@ grund_t* aircraft_t::hop()
 			}
 			else {
 				// runway is on this height
-				const sint16 runway_height = height_scaling(cnv->get_route()->position_bei(touchdown).z)*TILE_HEIGHT_STEP;
+				const sint16 runway_height = cnv->get_route()->position_bei(touchdown).z*TILE_HEIGHT_STEP;
 
 				// we are too low, ascent asap
 				if (flughoehe < runway_height + TILE_HEIGHT_STEP) {

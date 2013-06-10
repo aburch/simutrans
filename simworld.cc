@@ -1836,22 +1836,22 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	 */
 /*	for (sint16 x=1; x<old_x; x++) {
 		koord k(x,old_y);
-		const sint16 height = perlin_hoehe( &settings, k, koord(old_x,old_y), map_size )*Z_TILE_STEP;
+		sint16 const height = perlin_hoehe(&settings, k, koord(old_x, old_y));
 		// need to raise/lower more
 		for(  sint16 dy=-abs(grundwasser-height);  dy<abs(grundwasser-height);  dy++  ) {
 			koord pos(x,old_y+dy);
-			const sint16 height = perlin_hoehe( &settings, pos, koord(old_x,old_y), map_size  )*Z_TILE_STEP;
+			sint16 const height = perlin_hoehe(&settings, pos, koord(old_x,old_y));
 			while(lookup_hgt(pos)<height  &&  raise(pos)) ;
 			while(lookup_hgt(pos)>height  &&  lower(pos)) ;
 		}
 	}
 	for (sint16 y=1; y<old_y; y++) {
 		koord k(old_x,y);
-		sint16 const height = perlin_hoehe(&settings, k, koord(old_x, old_y), map_size) * Z_TILE_STEP;
+		sint16 const height = perlin_hoehe(&settings, k, koord(old_x, old_y));
 		// need to raise/lower more
 		for(  sint16 dx=-abs(grundwasser-height);  dx<abs(grundwasser-height);  dx++  ) {
 			koord pos(old_x+dx,y);
-			sint16 const height = perlin_hoehe(&settings, pos, koord(old_x, old_y), map_size) * Z_TILE_STEP;
+			sint16 const height = perlin_hoehe(&settings, pos, koord(old_x, old_y));
 			while(lookup_hgt(pos)<height  &&  raise(pos)) ;
 			while(lookup_hgt(pos)>height  &&  lower(pos)) ;
 		}

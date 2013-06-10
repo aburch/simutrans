@@ -285,7 +285,7 @@ void enlarge_map_frame_t::update_preview()
 			else {
 				// new part
 				const sint16 height = karte_t::perlin_hoehe(sets, pos, koord(old_x,old_y), map_size );
-				color = reliefkarte_t::calc_hoehe_farbe(height*Z_TILE_STEP, sets->get_grundwasser()/Z_TILE_STEP);
+				color = reliefkarte_t::calc_hoehe_farbe(height, sets->get_grundwasser());
 			}
 			karte[j*preview_size+i] = color;
 		}
