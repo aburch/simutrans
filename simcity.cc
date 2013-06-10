@@ -2682,7 +2682,11 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 				}
 			}
 		}
-		const uint32 road_km = (road_tiles * (uint32)welt->get_settings().get_meters_per_tile()) / 10;
+		const uint32 road_hectometers = (road_tiles * (uint32)welt->get_settings().get_meters_per_tile()) / 10;
+		if (road_hectometers == 0) {
+			// Avoid divide by zero errors
+			road_hectometers = 1;
+		}
 
 		// Second - get the number of car trips per hour
 		const sint64 seconds_per_month = welt->ticks_to_seconds(welt->ticks_per_world_month);
@@ -2695,7 +2699,7 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 		// (Average: range is 70 (London) to 227 (Newcastle/Sunderland).
 		// Further reduce this by the traffic_level factor to adjust for occupancy rates (permille). 
 		const sint64 adjusted_ratio = ((sint64)traffic_level * congestion_density_factor) / 1000l;
-		city_history_month[0][HIST_CONGESTION] = (trips_per_hour * adjusted_ratio) / (sint64)road_km;
+		city_history_month[0][HIST_CONGESTION] = (trips_per_hour * adjusted_ratio) / (sint64)road_hectometers;
 	}
 	
 
