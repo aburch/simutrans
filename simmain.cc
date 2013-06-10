@@ -315,6 +315,7 @@ static void ask_objfilename()
 	sel->fill_list();
 	if(sel->has_pak()) {
 		destroy_all_win(true);	// since eventually the successful load message is still there ....
+		dbg->important("modal_dialogue( sel, magic_none, NULL, empty_objfilename );" );
 		modal_dialogue( sel, magic_none, NULL, empty_objfilename );
 	}
 	else {
@@ -337,6 +338,7 @@ static void ask_language()
 	else {
 		sprachengui_t* sel = new sprachengui_t();
 		destroy_all_win(true);	// since eventually the successful load message is still there ....
+		dbg->important("modal_dialogue( sel, magic_none, NULL, no_language );" );
 		modal_dialogue( sel, magic_none, NULL, no_language );
 		destroy_win( sel );
 	}
@@ -1229,6 +1231,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		}
 
 		if(  new_world  ) {
+			dbg->important("modal_dialogue( new welt_gui_t(welt, &umgebung_t::default_einstellungen), magic_welt_gui_t, welt, never_quit );" );
 			modal_dialogue( new welt_gui_t(welt, &umgebung_t::default_einstellungen), magic_welt_gui_t, welt, never_quit );
 			if(  umgebung_t::quit_simutrans  ) {
 				break;

@@ -579,7 +579,7 @@ void settings_t::rdwr(loadsave_t *file)
 			station_coverage_size = (uint16)dummy;
 		}
 
-		if(file->get_experimental_version() >= 11)
+		if(file->get_experimental_version() >= 11 && file->get_version() <= 112002)
 		{
 			// Fix broken save files on save.
 			if (station_coverage_size_factories < 3) {
