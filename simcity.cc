@@ -2682,7 +2682,7 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 				}
 			}
 		}
-		const uint32 road_hectometers = (road_tiles * (uint32)welt->get_settings().get_meters_per_tile()) / 10;
+		uint32 road_hectometers = (road_tiles * (uint32)welt->get_settings().get_meters_per_tile()) / 10;
 		if (road_hectometers == 0) {
 			// Avoid divide by zero errors
 			road_hectometers = 1;
