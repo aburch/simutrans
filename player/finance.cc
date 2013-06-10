@@ -332,6 +332,8 @@ void finance_t::rdwr(loadsave_t *file)
 	* 	longer history
 	*	more transport_types
 	*	and new items in ATC_ or ATV_
+	* Warning: experimental adds three lines to ATC_ immediately, with version 112005.
+	* If Standard adds lines to ATC_, we must make adjustments by pushing the experimental lines "down".
 	*/
 	sint8 max_years  = MAX_PLAYER_HISTORY_YEARS;
 	sint8 max_months = MAX_PLAYER_HISTORY_MONTHS;
