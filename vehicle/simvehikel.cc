@@ -2380,7 +2380,7 @@ uint32 vehikel_t::calc_restwert() const
 	// after 20 years, it has only half value
 	// Multiply by .997**number of months
 	// Make sure to use OUR version of pow().
-	sint32 age_in_months = welt->get_current_month() - get_insta_zeit();
+	float32e8_t age_in_months = welt->get_current_month() - get_insta_zeit();
 	float32e8_t base_of_exponent (997, 1000);
 	value *= pow(base_of_exponent, age_in_months);
 
