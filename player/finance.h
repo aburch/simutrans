@@ -273,7 +273,6 @@ public:
 		account_balance += amount;
 	}
 
-
 	/**
 	 * Account toll we have paid to any other company.
 	 * @param amount sum of money

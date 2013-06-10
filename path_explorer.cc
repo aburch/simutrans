@@ -539,7 +539,6 @@ void path_explorer_t::compartment_t::step()
 			}
 
 			const bool no_walking_connexions = !world->get_settings().get_allow_routing_on_foot() || catg!=warenbauer_t::passagiere->get_catg_index();
-			const uint32 journey_time_adjustment = (world->get_settings().get_meters_per_tile() * 6u) / 10u;
 
 			// Save the halt list in an array first to prevent the list from being modified across steps, causing bugs
 			for (uint16 i = 0; i < all_halts_count; ++i)
@@ -575,8 +574,12 @@ void path_explorer_t::compartment_t::step()
 						continue;
 					}
 
-					const uint32 journey_time_factor = (journey_time_adjustment * 100u) / (uint32)world->get_settings().get_walking_speed();
-					const uint16 journey_time = (shortest_distance(all_halts_list[i]->get_next_pos(walking_distance_halt->get_basis_pos()), walking_distance_halt->get_next_pos(all_halts_list[i]->get_basis_pos())) * journey_time_factor) / 100u;
+					const uint32 walking_journey_distance = shortest_distance(
+						all_halts_list[i]->get_next_pos(walking_distance_halt->get_basis_pos()),
+						walking_distance_halt->get_next_pos(all_halts_list[i]->get_basis_pos())
+						);
+
+					const uint16 journey_time = world->walking_time_tenths_from_distance(walking_journey_distance);
 					
 					// Check the journey times to the connexion
 					new_connexion = new haltestelle_t::connexion;
@@ -684,7 +687,6 @@ void path_explorer_t::compartment_t::step()
 #endif
 
 			const ware_besch_t *const ware_type = warenbauer_t::get_info_catg_index(catg);
-			const uint32 journey_time_adjustment = (world->get_settings().get_meters_per_tile() * 6) / 10;
 
 			linkage_t current_linkage;
 			schedule_t *current_schedule;
@@ -804,9 +806,8 @@ void path_explorer_t::compartment_t::step()
 					{
 						// Zero here means that there are no journey time data even if the hashtable entry exists.
 						// Fallback to convoy's general average speed if a point-to-point average is not available.
-						const uint32 journey_time_factor = (journey_time_adjustment * 100) / current_average_speed;
 						const uint32 distance = shortest_distance(halt_list[i]->get_basis_pos(), halt_list[(i+1)%entry_count]->get_basis_pos());
-						journey_time = (uint16)((distance * journey_time_factor) / 100);
+						journey_time = world->travel_time_tenths_from_distance(distance, current_average_speed);
 					}
 
 					// journey time from halt 0 to halt 1 is stored in journey_time_list[1]

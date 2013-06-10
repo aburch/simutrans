@@ -422,21 +422,17 @@ settings_t::settings_t() :
 	with_private_paks = true;
 
 	// The defaults for journey time tolerance.
-	// Applies to passengers only.
-	// NOTE: The *maximum* numbers need to be 
-	// added to the minimum numbers to produce
-	// the true maximum.
+	// Applies to passengers (and hand delivery of mail) only.
 	// @author: jamespetts
 
 	min_local_tolerance = 45 * 10; // 3/4 of an hour.
 	max_local_tolerance = 60 * 10; // One hour
-	//max_local_tolerance = 15; // One hour
+
 	min_midrange_tolerance = 60 * 10;
 	max_midrange_tolerance = 180 * 10; //: Three hours
-	//max_midrange_tolerance = 120;
+
 	min_longdistance_tolerance = 180 * 10;
 	max_longdistance_tolerance = 330 * 10; // Five and a half hours
-	//max_longdistance_tolerance = 150;
 
 	used_vehicle_reduction = 0;
 

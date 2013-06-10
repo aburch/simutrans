@@ -4720,7 +4720,7 @@ uint8 convoi_t::calc_tolerable_comfort(uint16 journey_minutes, karte_t* w)
 		const uint32 percentage = ((journey_minutes - comfort_median_median_minutes) * 1000) / (comfort_median_long_minutes - comfort_median_median_minutes);
 		return ((percentage * (comfort_median_long - comfort_median_median)) / 1000) + comfort_median_median;
 	}
-	
+
 	const uint16 comfort_long_minutes = w->get_settings().get_tolerable_comfort_long_minutes();
 	const uint8 comfort_long = w->get_settings().get_tolerable_comfort_long();
 	if(journey_minutes >= comfort_long_minutes)
@@ -4732,7 +4732,7 @@ uint8 convoi_t::calc_tolerable_comfort(uint16 journey_minutes, karte_t* w)
 	return ((percentage * (comfort_long - comfort_median_long)) / 1000) + comfort_median_long;
 }
 
-// Must return SECONDS, not minutes
+// Returns SECONDS not minutes
 uint32 convoi_t::calc_max_tolerable_journey_time(uint16 comfort, karte_t* w)
 {
 	const uint16 comfort_short_minutes = w->get_settings().get_tolerable_comfort_short_minutes();
