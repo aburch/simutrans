@@ -1288,7 +1288,7 @@ private:
 	 * They are conceptually constant
 	 * @author neroden
 	 */
-	void set_speed_factors() {
+	void set_speed_factors() const {
 		// effectively sets movement_denominator to 2^8 = 128
 		movement_denominator_shift = 8;
 		// Save confusion within this method: this will be optimized out
