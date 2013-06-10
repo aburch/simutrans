@@ -1891,7 +1891,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 			//Comfort only applies to passengers.
 			n += sprintf(buf + n, "%s %i ", translator::translate("Comfort:"), veh_type->get_comfort());
 			char timebuf[32];
-			welt->sprintf_time(timebuf, sizeof(timebuf), (uint32)convoi_t::calc_max_tolerable_journey_time(veh_type->get_comfort(), welt));
+			welt->sprintf_time_secs(timebuf, sizeof(timebuf), (uint32)convoi_t::calc_max_tolerable_journey_time(veh_type->get_comfort(), welt));
 			n += sprintf(buf + n, "%s %s%s", translator::translate("(Max. comfortable journey time: "), timebuf, ")\n");
 		}
 		else 
@@ -1911,7 +1911,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 				n += sprintf(buf + n, translator::translate("Catering level: %i"), veh_type->get_catering_level());
 				char timebuf[32];
 				uint8 modified_comfort = veh_type->get_adjusted_comfort(veh_type->get_catering_level());
-				welt->sprintf_time(timebuf, sizeof(timebuf), (uint32)convoi_t::calc_max_tolerable_journey_time(modified_comfort, welt));
+				welt->sprintf_time_secs(timebuf, sizeof(timebuf), (uint32)convoi_t::calc_max_tolerable_journey_time(modified_comfort, welt));
 				n += sprintf(buf + n, " (%s: %i, %s)", translator::translate("Modified comfort"), modified_comfort, timebuf);
 			}
 			n += sprintf( buf + n, "\n");

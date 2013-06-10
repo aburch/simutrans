@@ -1477,7 +1477,7 @@ minivec_tpl<halthandle_t>* haltestelle_t::build_destination_list(ware_t &ware)
 	const planquadrat_t *const plan = welt->lookup(ware.get_zielpos());
 	const fabrik_t* fab = fabrik_t::get_fab(welt, ware.get_zielpos());
 
-	minivec_tpl<halthandle_t> *ziel_list = new minivec_tpl<halthandle_t>(plan->get_haltlist_count());
+	minivec_tpl<halthandle_t> *destination_halts_list = new minivec_tpl<halthandle_t>(plan->get_haltlist_count());
 	
 	if(fab)
 	{
@@ -1499,7 +1499,7 @@ minivec_tpl<halthandle_t>* haltestelle_t::build_destination_list(ware_t &ware)
 					{
 						if(haltlist[i].halt->is_enabled(warentyp) && (!ware.is_freight() || haltlist[i].distance <= freight_coverage_distance))
 						{
-							ziel_list->append(haltlist[i].halt); 
+							destination_halts_list->append(haltlist[i].halt); 
 						}
 					}
 				}
@@ -1518,72 +1518,75 @@ minivec_tpl<halthandle_t>* haltestelle_t::build_destination_list(ware_t &ware)
 			halthandle_t halt = haltlist[h].halt;
 			if(halt->is_enabled(warentyp))
 			{
-				ziel_list->append(halt);
+				destination_halts_list->append(halt);
 			}
 		}
 	}
-	return ziel_list;
+	return destination_halts_list;
 }
 
-uint16 haltestelle_t::find_route(minivec_tpl<halthandle_t> *ziel_list, ware_t &ware, const uint16 previous_journey_time, const koord destination_pos)
+uint16 haltestelle_t::find_route(minivec_tpl<halthandle_t> *destination_halts_list, ware_t &ware, const uint16 previous_journey_time, const koord destination_pos)
 {
-	uint16 journey_time = previous_journey_time;
+	// Find the best route (sequence of halts) for a given packet
+	// from here to its final destination -- *and* reroute the packet.
+	//
+	// If a previous journey time is specified, we must beat that time
+	// in order to reroute the packet.
+	//
+	// If there are no potential destination halts, make this the final destination halt.
+	//
+	// Authors: Knightly, James Petts, Nathanael Nerode (neroden)
 
-	if(ziel_list->empty()) 
-	{
-		//no target station found
-		ware.set_ziel(halthandle_t());
-		ware.set_zwischenziel(halthandle_t());
-		return 65535;
-	}
-
-	// Now, find the best route from here.
-	// Added by		: Knightly
-	// Adapted from : James' code
-	// Further adapted to incorporate walking
-	// times calculation: @jamespetts, January 2013
-
-	uint16 test_time;
-	halthandle_t test_transfer;
-
-	halthandle_t best_destination;
+	uint16 best_journey_time = previous_journey_time;
+	halthandle_t best_destination_halt;
 	halthandle_t best_transfer;
 
-	const uint32 transfer_journey_time_factor = ((uint32)welt->get_settings().get_meters_per_tile() * 6) * 10;
-	const uint32 walking_time_divider = 100 * (uint32)welt->get_settings().get_walking_speed();
-	koord destination_stop_pos = destination_pos;
+ 	koord destination_stop_pos = destination_pos;
 
 	const uint8 ware_catg = ware.get_besch()->get_catg_index();
-	uint32 long_test_time;
 
-	for (uint8 i = 0; i < ziel_list->get_count(); i++)
+	bool found_a_halt = false;
+	for (uint8 i = 0; i < destination_halts_list->get_count(); i++)
 	{
-		path_explorer_t::get_catg_path_between(ware_catg, self, (*ziel_list)[i], test_time, test_transfer);
+		uint16 test_time;
+		halthandle_t test_transfer;
+		path_explorer_t::get_catg_path_between(ware_catg, self, (*destination_halts_list)[i], test_time, test_transfer);
 
-		long_test_time = (uint32)test_time;
-
-		if(destination_pos != koord::invalid)
-		{
-			// Walking time is not relevant for freight.
-			if((*ziel_list)[i].is_bound())
-			{
-				destination_stop_pos = (*ziel_list)[i]->get_next_pos(destination_pos);
-			}
-			
-			// Add the walking distance from the destination stop to the ultimate destination.
-			long_test_time += (shortest_distance(destination_stop_pos, destination_pos) * transfer_journey_time_factor) / walking_time_divider;
+		if(! (*destination_halts_list)[i].is_bound() ) {
+			// This halt has been deleted recently.  Don't go there.
+			continue;
+		} else {
+			found_a_halt = true;
 		}
 
-		else if(ware.is_freight())
+		uint32 long_test_time;
+		long_test_time = (uint32)test_time; // get the test time from the path explorer...
+
+		koord real_destination_pos = koord::invalid;
+		if(destination_pos != koord::invalid) {
+			// Called with a specific destination position, not set by ware
+			// Done for passenger alternate-destination searches, I think?
+			real_destination_pos = destination_pos;
+		}
+		else {
+			// Packet has a specific destination postition
+			// Done for real packets
+			real_destination_pos = ware.get_zielpos();
+		}
+		// Find the halt square closest to the real destination (closest exit)
+		destination_stop_pos = (*destination_halts_list)[i]->get_next_pos(real_destination_pos);
+		// And find the shortest walking distance to there.
+		uint32 walk_distance = shortest_distance(destination_stop_pos, real_destination_pos);
+		if (!ware.is_freight()) {
+			// Passengers or mail.
+			// Calculate walking time from destination stop to final destination; add it.
+			long_test_time += welt->walking_time_tenths_from_distance(walk_distance);
+		}
+		else
 		{
-			// For freight, we instead calculate a transshipment time based on a notional 1km/h dispersal speed.
-			if((*ziel_list)[i].is_bound())
-			{
-				destination_stop_pos = (*ziel_list)[i]->get_next_pos(ware.get_zielpos());
-			}
-			
-			// Add the walking distance from the destination stop to the ultimate destination.
-			long_test_time += (shortest_distance(destination_stop_pos, ware.get_zielpos()) * transfer_journey_time_factor) / 100;
+			// Freight.
+			// Calculate a transshipment time based on a notional 1km/h dispersal speed; add it.
+			long_test_time += welt->walk_haulage_time_tenths_from_distance(walk_distance);
 		}
 
 		if(long_test_time > 65535)
@@ -1595,29 +1598,38 @@ uint16 haltestelle_t::find_route(minivec_tpl<halthandle_t> *ziel_list, ware_t &w
 			test_time = long_test_time;
 		}
 
-		if(test_time < journey_time)
+		if(test_time < best_journey_time)
 		{
-			best_destination = (*ziel_list)[i];
-			journey_time = test_time;
+			// This is quicker than the last halt we tried.
+			best_destination_halt = (*destination_halts_list)[i];
+			best_journey_time = test_time;
 			best_transfer = test_transfer;
 		}
 	}
-		
-	if(journey_time < previous_journey_time)
-	{
-		ware.set_ziel(best_destination);
-		ware.set_zwischenziel(best_transfer);
-		return journey_time;
+
+	if (  !found_a_halt  ) {
+		//no target station found
+		ware.set_ziel(halthandle_t());
+		ware.set_zwischenziel(halthandle_t());
+		return 65535;
 	}
-	
-	return journey_time;
+
+	if(best_journey_time < previous_journey_time)
+	{
+		ware.set_ziel(best_destination_halt);
+		ware.set_zwischenziel(best_transfer);
+		return best_journey_time;
+	}
+	else {
+		return best_journey_time;
+	}
 }
 
 uint16 haltestelle_t::find_route (ware_t &ware, const uint16 previous_journey_time)
 {
-	minivec_tpl<halthandle_t> *ziel_list = build_destination_list(ware);
-	const uint16 journey_time = find_route(ziel_list, ware, previous_journey_time);
-	delete ziel_list;
+	minivec_tpl<halthandle_t> *destination_halts_list = build_destination_list(ware);
+	const uint16 journey_time = find_route(destination_halts_list, ware, previous_journey_time);
+	delete destination_halts_list;
 	return journey_time;
 }
 
@@ -3249,6 +3261,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 
 	if(file->get_experimental_version() >= 11)
 	{
+		// We are caching the transfer times at the halt... for some unknown reason...
 		file->rdwr_short(transfer_time);
 		// Set the transshipment speed to 1km/h.
 		transshipment_time = transfer_time * (uint16)welt->get_settings().get_walking_speed();
@@ -4028,17 +4041,13 @@ void haltestelle_t::calc_transfer_time()
 	const sint16 x_size = (lr.x - ul.x) + 1;
 	const sint16 y_size = (lr.y - ul.y) + 1;
 
+	// Approximate the transfer time.
 	const sint16 ave_dimension = ((x_size + y_size) / 2) - 1;
+	transfer_time = welt->walking_time_tenths_from_distance(ave_dimension / 2);
 
-	const uint32 journey_time_adjustment = (welt->get_settings().get_meters_per_tile() * 6u) / 10u;
-	const uint32 walking_journey_time_factor = (journey_time_adjustment * 100u) / (uint32)welt->get_settings().get_walking_speed();
-
-	transfer_time = ((ave_dimension / 2) * walking_journey_time_factor) / 100u;
-	
-	// This is a neat hack that allows us to set the transshipment time to exactly 1km/h. 
-	// TODO: Consider more sophisticated things here, such as allowing certain extensions to 
-	// reduce this transshipment time (convyer belts, etc.). 
-	transshipment_time = transfer_time * (uint16)welt->get_settings().get_walking_speed();
+	// TODO: Consider more sophisticated things here, such as allowing certain extensions to
+	// reduce this transshipment time (convyer belts, etc.).
+	transshipment_time = welt->walk_haulage_time_tenths_from_distance(ave_dimension / 2);
 }
 
 void haltestelle_t::add_waiting_time(uint16 time, halthandle_t halt, uint8 category, bool do_not_reset_month)

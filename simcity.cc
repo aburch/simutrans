@@ -3049,11 +3049,11 @@ void stadt_t::step_passagiere()
 	const uint32 longdistance_passengers_max_distance = s.get_longdistance_passengers_max_distance();
 
 	const uint16 min_local_tolerance = s.get_min_local_tolerance();
-	const uint16 max_local_tolerance = max(0, s.get_max_local_tolerance() - min_local_tolerance);
+	const uint16 range_local_tolerance = max(0, s.get_max_local_tolerance() - min_local_tolerance);
 	const uint16 min_midrange_tolerance = s.get_min_midrange_tolerance();
-	const uint16 max_midrange_tolerance = max( 0, s.get_max_midrange_tolerance() - min_midrange_tolerance);
+	const uint16 range_midrange_tolerance = max( 0, s.get_max_midrange_tolerance() - min_midrange_tolerance);
 	const uint16 min_longdistance_tolerance = s.get_min_longdistance_tolerance();
-	const uint16 max_longdistance_tolerance = max(0, s.get_max_longdistance_tolerance() - min_longdistance_tolerance);
+	const uint16 range_longdistance_tolerance = max(0, s.get_max_longdistance_tolerance() - min_longdistance_tolerance);
 
 	const uint8 passenger_packet_size = s.get_passenger_routing_packet_size();
 	const uint8 passenger_routing_local_chance = s.get_passenger_routing_local_chance();
@@ -3122,9 +3122,6 @@ void stadt_t::step_passagiere()
 	uint8 best_bad_start_halt;
 	bool too_slow_already_set;
 
-	const uint32 journey_time_adjustment = (welt->get_settings().get_meters_per_tile() * 6u) / 10u;
-	const uint32 walking_journey_time_factor = (journey_time_adjustment * 100u) / (uint32)welt->get_settings().get_walking_speed();
-	
 	// Add 1 because the simuconf.tab setting is for maximum *alternative* destinations, whereas we need maximum *actual* desintations 
 	const uint8 max_destinations = (s.get_max_alternative_destinations() < 16 ? s.get_max_alternative_destinations() : 15) + 1;
 
@@ -3160,11 +3157,11 @@ void stadt_t::step_passagiere()
 			wtyp == warenbauer_t::post ? 
 			65535 : 
 			range == local ? 
-				simrand_normal(max_local_tolerance, "void stadt_t::step_passagiere() (local tolerance?)") + min_local_tolerance : 
+				simrand_normal(range_local_tolerance, "void stadt_t::step_passagiere() (local tolerance?)") + min_local_tolerance : 
 			range == midrange ? 
-				simrand_normal(max_midrange_tolerance, "void stadt_t::step_passagiere() (midrange tolerance?)") + min_midrange_tolerance : 
+				simrand_normal(range_midrange_tolerance, "void stadt_t::step_passagiere() (midrange tolerance?)") + min_midrange_tolerance : 
 			/*longdistance*/
-			simrand_normal(max_longdistance_tolerance, "void stadt_t::step_passagiere() (longdistance tolerance?)") + min_longdistance_tolerance;
+			simrand_normal(range_longdistance_tolerance, "void stadt_t::step_passagiere() (longdistance tolerance?)") + min_longdistance_tolerance;
 		destination destinations[16];
 		for(int destinations_assigned = 0; destinations_assigned <= destination_count; destinations_assigned ++)
 		{				
@@ -3208,41 +3205,46 @@ void stadt_t::step_passagiere()
 			}
 		}
 
-		/** 
-		 * Tolerance is divided by two for non-local journeys because 
-		 * passengers prefer not to walk for long distances, as it is tiring. 
-		 */
-		const uint16 walking_tolerance_divider = range == local ? 1 : 2;
-			
 		INT_CHECK( "simcity 3118" );
 
 		uint8 current_destination = 0;
 
-		route_status_type route_status = no_route;		
-		
-		/** 
+		route_status_type route_status = no_route;
+
+		/**
 		 * Quasi tolerance is necessary because mail can be delivered by hand. If it is delivered
 		 * by hand, the deliverer has a tolerance, but if it is sent through the postal system,
-		 * the mail packet itself does not have a tolerance. 
+		 * the mail packet itself does not have a tolerance.
+		 *
+		 * In addition, walking tolerance is divided by two for non-local journeys because
+		 * passengers prefer not to walk for long distances, as it is tiring especially with luggage.
+		 * (This isn't quite right and the game logic for it should be fixed.)
 		 */
-		const uint16 quasi_tolerance = tolerance == 65535 ? simrand_normal(max_local_tolerance, "void stadt_t::step_passagiere() (local tolerance?)") + min_local_tolerance : tolerance;
-				
+		uint16 quasi_tolerance = tolerance;
+		if(wtyp == warenbauer_t::post) {
+			quasi_tolerance = simrand_normal(range_local_tolerance, "void stadt_t::step_passagiere() (local tolerance?)") + min_local_tolerance;
+		}
+		else if (range != local) {
+			// Passengers.  People will walk long distances with mail, it's not heavy.
+			quasi_tolerance /= 2;
+		}
+
 		uint16 car_minutes = 65535;
 
 		best_bad_destination = destinations[0].location;
 		best_bad_start_halt = 0;
 		too_slow_already_set = false;
-		ware_t pax(wtyp); 
+		ware_t pax(wtyp);
 		halthandle_t start_halt;
 
 		while(route_status != public_transport && route_status != private_car && route_status != on_foot && current_destination < destination_count)
-		{			
+		{
 			const uint32 straight_line_distance = shortest_distance(origin_pos, destinations[current_destination].location);
-			const uint16 walking_time = (straight_line_distance * walking_journey_time_factor) / 100u;
+			const uint16 walking_time = welt->walking_time_tenths_from_distance(straight_line_distance);
 			car_minutes = 65535;
 
-			const bool can_walk = walking_time <= (quasi_tolerance / walking_tolerance_divider);
-			
+			const bool can_walk = walking_time <= quasi_tolerance;
+
 			if(!has_private_car && !can_walk && start_halts.empty())
 			{
 				/**
@@ -3306,7 +3308,7 @@ void stadt_t::step_passagiere()
 					
 					// Add walking time from the origin to the origin stop. 
 					// Note that the walking time to the destination stop is already added by find_route.
-					current_journey_time += (start_halts[i].distance * walking_journey_time_factor) / 100u;
+					current_journey_time += welt->walking_time_tenths_from_distance(start_halts[i].distance);
 					if(current_journey_time > 65535)
 					{
 						current_journey_time = 65535;

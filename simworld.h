@@ -58,13 +58,13 @@ class network_world_command_t;
 class ware_besch_t;
 class memory_rw_t;
 
+
 struct checklist_t
 {
 	uint32 random_seed;
 	uint16 halt_entry;
 	uint16 line_entry;
 	uint16 convoy_entry;
-
 	uint32 industry_density_proportion;
 	uint32 actual_industry_density;
 	uint32 traffic;
@@ -835,12 +835,12 @@ private:
 
 	uint32 max_road_check_depth;
 
+	slist_tpl<stadt_t*> cities_awaiting_private_car_route_check;
+
 	/**
 	 * The last time when a server announce was performed (in ms).
 	 */
 	uint32 server_last_announce_time;
-	
-	slist_tpl<stadt_t*> cities_awaiting_private_car_route_check;
 
 	void world_xy_loop(xy_loop_func func, bool sync_x_steps);
 	static void *world_xy_loop_thread(void *);
@@ -1238,13 +1238,125 @@ public:
 	 * Standard timing conversion
 	 * @author: jamespetts
 	 */
-	sint64 ticks_to_tenths_of_minutes(sint64 ticks) const;
+	inline sint64 ticks_to_tenths_of_minutes(sint64 ticks) const
+	{
+		return get_settings().get_meters_per_tile() * ticks * 30L / (4096L * 1000L);
+	}
 
 	/**
 	 * Finer timing conversion for UI only
 	 * @author: jamespetts
 	 */
-	sint64 ticks_to_seconds(sint64 ticks) const;
+	inline sint64 ticks_to_seconds(sint64 ticks) const
+	{
+		// Remember, this is all inlined, so this is efficient
+		return ticks_to_tenths_of_minutes(ticks) * 6L;
+	}
+
+private:
+	/*
+	 * This is a cache to speed up several unit conversions and avoid
+	 * excessive pointer indirection
+	 * @author: neroden
+	 */
+
+	/**
+	 * If this is true, the cached factors for travel speed are set.
+	 * If not, call set_speed_factors.
+	 */
+	bool speed_factors_are_set;
+	/**
+	 * Multiply this by distance, then divide by movement_denominator, to get walking freight haulage time
+	 * at 1 km/h in tenths of minutes
+	 * Divide that by speed to get the haulage time at a given speed in tenths of minutes
+	 */
+	mutable uint32 unit_movement_numerator;
+	/**
+	 * Multiply this by distance, then divide by movement_denominator, to get walking passenger/mail time
+	 * in tenths of minutes
+	 */
+	mutable uint32 walking_numerator;
+	/**
+	 * This is just to make the integer math work with enough precision.
+	 * It will be slightly faster to make it a power of two shift.
+	 */
+	mutable uint32 movement_denominator_shift;
+
+	/*
+	 * Cache constant factors involved in walking time
+	 * These can only be set once, not changed after world creation
+	 * They are conceptually constant
+	 * @author neroden
+	 */
+	void set_speed_factors() {
+		// effectively sets movement_denominator to 2^8 = 128
+		movement_denominator_shift = 8;
+		// Save confusion within this method: this will be optimized out
+		const uint32 movement_denominator = 1 << movement_denominator_shift;
+
+		/*
+		 * Follow the logic:
+		 * distance (in tiles) * meters_per_tile = distance (in meters)
+		 * distance (in meters) * 1000 = distance (in kilometers)
+		 * distance (in kilometers) / speed in km/h = time (in hours) -- this step is not cached here
+		 * time (in hours) * 60 = time (in minutes)
+		 * time (in minutes) * 10 = time (in tenths of minutes)
+		 *
+		 * Accordingly, we multiply distance in tiles by 600, and by meters_per_tile, and divide by 1000.
+		 * Then, to allow for dividing by the speed without severe roundoff errors,
+		 * (recalling that this will be used with high speeds)
+		 * we multiply by an arbitrary denominator, which we will divide by later.
+		 */
+
+		// This represents 1 km/h:
+		unit_movement_numerator = get_settings().get_meters_per_tile() * 6u * movement_denominator / 10u;
+		// This represents walking speed:
+		walking_numerator = unit_movement_numerator / get_settings().get_walking_speed();
+	}
+
+public:
+
+	/**
+	 * Conversion from walking distance in tiles to walking time
+	 * Returns tenths of minutes
+	 */
+	uint32 walking_time_tenths_from_distance(uint32 distance) const {
+		if (!speed_factors_are_set) {
+			set_speed_factors();
+		}
+		return (distance * walking_numerator) >> movement_denominator_shift;
+	}
+
+	/**
+	 * Conversion from walking distance in tiles to walking time
+	 * Returns seconds; used for display purposes
+	 */
+	uint32 walking_time_secs_from_distance(uint32 distance) const {
+		return walking_time_tenths_from_distance(distance) * 6u;
+	}
+
+	/**
+	 * Conversion from distance to time, at speed given in km/h
+	 * Returns tenths of minutes
+	 */
+	uint32 travel_time_tenths_from_distance(uint32 distance, uint32 speed) const {
+		if (!speed_factors_are_set) {
+			set_speed_factors();
+		}
+		return (distance * unit_movement_numerator / speed ) >> movement_denominator_shift;
+	}
+
+	/**
+	 * Conversion from walking distance in tiles to walk haulage time for freight
+	 * Walking haulage for freight is always at 1 km/h.
+	 * Returns tenths of minutes (god only knows why)
+	 */
+	uint32 walk_haulage_time_tenths_from_distance(uint32 distance) const {
+		if (!speed_factors_are_set) {
+			set_speed_factors();
+		}
+		return (distance * unit_movement_numerator) >> movement_denominator_shift;
+	}
 
 	/**
 	 * @return 0=winter, 1=spring, 2=summer, 3=autumn
@@ -1806,11 +1918,7 @@ public:
 	 * @param Filename name of the file to write.
 	 * @author Hj. Malthaner
 	 */
-//<<<<<<< HEAD
-	void speichern(const char *filename, loadsave_t::mode_t savemode, const char *version, const char *ex_version, bool silent);
-//=======
 	void save(const char *filename, const loadsave_t::mode_t savemode, const char *version, const char *ex_version, bool silent);
-//>>>>>>> aburch/master
 
 	/**
 	 * Loads a map from a file.
@@ -1883,18 +1991,43 @@ public:
 	 * To identify the current map.
 	 */
 	uint32 get_map_counter() const { return map_counter; }
-
 	void set_map_counter(uint32 new_map_counter);
-
 	/**
 	 * Called by the server before sending the sync commands.
 	 */
-
 	uint32 generate_new_map_counter() const;
-	
-	void sprintf_ticks(char *p, size_t size, sint64 ticks) const;
-	void sprintf_time(char *p, size_t size, uint32 seconds) const;
-	
+
+	/**
+	 * Time printing routines.
+	 * Should be inlined.
+	 */
+	inline void sprintf_time_secs(char *p, size_t size, uint32 seconds) const
+	{
+		unsigned int minutes = seconds / 60;
+		unsigned int hours = minutes / 60;
+		seconds %= 60;
+		if(hours)
+		{
+			minutes %= 60;
+			sprintf(p, "%u:%02u:%02u", hours, minutes, seconds);
+		}
+		else
+		{
+			sprintf(p, "%u:%02u", minutes, seconds);
+		}
+	}
+
+	inline void sprintf_ticks(char *p, size_t size, sint64 ticks) const
+	{
+		uint32 seconds = (uint32)ticks_to_seconds(ticks);
+		sprintf_time_secs(p, size, seconds);
+	}
+
+	inline void sprintf_time_tenths(char* p, size_t size, uint32 tenths) const
+	{
+		sprintf_time_secs(p, size, 6 * tenths);
+	}
+
 	// @author: jamespetts
 	void set_scale();
 

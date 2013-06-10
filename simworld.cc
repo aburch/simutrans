@@ -1959,7 +1959,8 @@ karte_t::karte_t() :
 	convoi_array(0),
 	ausflugsziele(16),
 	stadt(0),
-	marker(0,0)
+	marker(0,0),
+	speed_factors_are_set(false)
 {
 	is_shutting_down = false;
 
@@ -2115,6 +2116,9 @@ void karte_t::set_scale()
 
 	// Settings
 	settings.set_scale();
+
+	// Cached speed factors need recalc
+	speed_factors_are_set = false;
 }
 
 
@@ -7420,38 +7424,6 @@ void karte_t::calc_max_road_check_depth()
 
 	// unit of max_road_check_depth: (min/10 * 100) / (m/tile * 6) * km/h  --> tile * 1000 / 36
 	max_road_check_depth = ((uint32)settings.get_max_longdistance_tolerance() * 100) / (settings.get_meters_per_tile() * 6) * min(citycar_speed_average, max_road_speed);
-}
-
-void karte_t::sprintf_ticks(char *p, size_t size, sint64 ticks) const
-{
-	uint32 seconds = (uint32)ticks_to_seconds(ticks);
-	sprintf_time(p, size, seconds);
-}
-
-void karte_t::sprintf_time(char *p, size_t size, uint32 seconds) const
-{
-	unsigned int minutes = seconds / 60;
-	unsigned int hours = minutes / 60;
-	seconds %= 60;
-	if(hours)
-	{
-		minutes %= 60;
-		sprintf(p, "%u:%02u:%02u", hours, minutes, seconds);
-	}
-	else
-	{
-		sprintf(p, "%u:%02u", minutes, seconds);
-	}
-}
-
-sint64 karte_t::ticks_to_tenths_of_minutes(sint64 ticks) const
-{
-	return get_settings().get_meters_per_tile() * ticks * 30L / (4096L * 1000L);
-}
-
-sint64 karte_t::ticks_to_seconds(sint64 ticks) const
-{
-	return get_settings().get_meters_per_tile() * ticks * 30L * 6L / (4096L * 1000L);
 }
 
 static bool sort_ware_by_name(const ware_besch_t* a, const ware_besch_t* b)

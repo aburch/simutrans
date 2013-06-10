@@ -134,7 +134,7 @@ void halt_detail_t::halt_detail_info()
 	{
 		buf.append(translator::translate("Transfer time: "));
 		char transfer_time_as_clock[32];
-		halt->get_welt()->sprintf_time(transfer_time_as_clock, sizeof(transfer_time_as_clock), (halt->get_transfer_time() * 6));
+		halt->get_welt()->sprintf_time_tenths(transfer_time_as_clock, sizeof(transfer_time_as_clock), (halt->get_transfer_time() ));
 		buf.append(transfer_time_as_clock);
 		if(!halt->get_ware_enabled())
 		{
@@ -151,7 +151,7 @@ void halt_detail_t::halt_detail_info()
 	{
 		buf.append(translator::translate("Transshipment time: "));
 		char transshipment_time_as_clock[32];
-		halt->get_welt()->sprintf_time(transshipment_time_as_clock, sizeof(transshipment_time_as_clock), (halt->get_transshipment_time() * 6));
+		halt->get_welt()->sprintf_time_tenths(transshipment_time_as_clock, sizeof(transshipment_time_as_clock), (halt->get_transshipment_time() ));
 		buf.append(transshipment_time_as_clock);
 		buf.append("\n\n");
 		offset_y += (D_MARGIN_TOP * 2);
@@ -352,7 +352,7 @@ void halt_detail_t::halt_detail_info()
 					buf.append("\n");
 					buf.append("(");
 					char travelling_time_as_clock[32];
-					halt->get_welt()->sprintf_time(travelling_time_as_clock, sizeof(travelling_time_as_clock), (cnx->journey_time * 6));
+					halt->get_welt()->sprintf_time_tenths(travelling_time_as_clock, sizeof(travelling_time_as_clock), cnx->journey_time );
 					buf.append(travelling_time_as_clock);
 					buf.append(translator::translate(" mins. travelling"));
 					buf.append(", ");
@@ -363,7 +363,7 @@ void halt_detail_t::halt_detail_info()
 					else if(cnx->waiting_time > 19)
 					{
 						char waiting_time_as_clock[32];
-						halt->get_welt()->sprintf_time(waiting_time_as_clock, sizeof(waiting_time_as_clock), (cnx->waiting_time * 6));
+						halt->get_welt()->sprintf_time_tenths(waiting_time_as_clock, sizeof(waiting_time_as_clock),  cnx->waiting_time );
 						buf.append(waiting_time_as_clock);
 						buf.append(translator::translate(" mins. waiting)"));
 					}

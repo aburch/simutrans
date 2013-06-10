@@ -822,8 +822,6 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 		const nearby_halt_t *const halt_list = plan->get_haltlist();
 		bool any_suitable_stops_passengers = false;
 		bool any_suitable_stops_mail = false;
-		const uint32 journey_time_adjustment = (welt->get_settings().get_meters_per_tile() * 6u) / 10u;
-		const uint32 walking_journey_time_factor = (journey_time_adjustment * 100u) / (uint32)welt->get_settings().get_walking_speed();
 		buf.append("\n\n");
 
 		if(plan->get_haltlist_count() > 0)
@@ -839,9 +837,10 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 						buf.printf("\n(%s)\n\n", translator::translate("Passagiere"));
 						any_suitable_stops_passengers = true;
 					}
-					const uint16 walking_time = (halt_list[h].distance * walking_journey_time_factor) / 100u;
+					const karte_t* const world = halt->get_welt();
+					const uint16 walking_time = world->walking_time_tenths_from_distance(halt_list[h].distance);
 					char walking_time_as_clock[32];
-					halt->get_welt()->sprintf_time(walking_time_as_clock, sizeof(walking_time_as_clock), walking_time * 6);
+					world->sprintf_time_tenths(walking_time_as_clock, sizeof(walking_time_as_clock), walking_time);
 					buf.printf("%s\n%s: %s\n", halt->get_name(), translator::translate("Walking time"), walking_time_as_clock);
 				}
 			}
@@ -856,9 +855,10 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 						buf.printf("\n(%s)\n\n", translator::translate("Post"));
 						any_suitable_stops_mail = true;
 					}
-					const uint16 walking_time = (halt_list[h].distance * walking_journey_time_factor) / 100u;
+					const karte_t* const world = halt->get_welt();
+					const uint16 walking_time = world->walking_time_tenths_from_distance(halt_list[h].distance);
 					char walking_time_as_clock[32];
-					halt->get_welt()->sprintf_time(walking_time_as_clock, sizeof(walking_time_as_clock), walking_time * 6);
+					world->sprintf_time_tenths(walking_time_as_clock, sizeof(walking_time_as_clock), walking_time);
 					buf.printf("%s\n%s: %s\n", halt->get_name(), translator::translate("Walking time"), walking_time_as_clock);
 				}
 			}
