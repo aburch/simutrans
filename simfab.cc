@@ -2568,8 +2568,14 @@ void fabrik_t::recalc_nearby_halts() {
 		{
 			nearby_mail_halts.append(k);
 		}
-		if(  k.distance <= welt->get_settings().get_station_coverage_factories()
-		     && k.halt->get_ware_enabled() )
+		// Horribly, we must only recognize freight halts which are within a certain "square" distance
+		// of the target halt, thanks to James's computation-intensive "freight coverage" rule.
+		// We rely on the meat of halt:verbinde_fabriken having been run already, so that this list of
+		// factories is already present in the target halt.
+		// It's a list of factory pointers, so we're looking for "this" in it.
+		// Horrible horrible pointer comparison dependency...
+		if(  k.halt->get_ware_enabled()
+			 && k.halt->get_fab_list().is_contained(this) )
 		{
 			// Halt is within freight coverage distance (shorter than regular) and handles freight...
 			if (get_besch()->get_platzierung() == fabrik_besch_t::Wasser
