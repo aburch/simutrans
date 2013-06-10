@@ -3018,6 +3018,10 @@ DBG_MESSAGE( "karte_t::rotate90()", "called" );
 	FOR(slist_tpl<halthandle_t>, const s, haltestelle_t::get_alle_haltestellen()) {
 		s->rotate90(cached_size.x);
 	}
+	// Factories need their halt lists recalculated after the halts are rotated.  Yuck!
+	FOR(vector_tpl<fabrik_t*>, const f, fab_list) {
+		f->recalc_nearby_halts();
+	}
 
 	FOR(vector_tpl<convoihandle_t>, const i, convoi_array) {
 		i->rotate90(cached_size.x);

@@ -585,10 +585,6 @@ haltestelle_t::~haltestelle_t()
 			}
 		}
 	}
-	// Recalculate nearby halt lists for affected fabs.
-	FOR(vector_tpl<fabrik_t*>, fab, affected_fab_list) {
-		fab->recalc_nearby_halts();
-	}
 
 	destroy_win( magic_halt_info + self.get_id() );
 	destroy_win( magic_halt_detail + self.get_id() );
@@ -624,8 +620,16 @@ haltestelle_t::~haltestelle_t()
 	delete[] non_identical_schedules;
 //	delete[] all_links;
 
-	// routes may have changed without this station ...
+	// Update our list of factories.
 	verbinde_fabriken();
+
+	// Update nearby factories' lists of connected halts.
+	// Must be done AFTER updating the planquadrats,
+	// AND after updating our own list.  Yuck!
+	FOR (vector_tpl<fabrik_t*>, fab, affected_fab_list)
+	{
+		fab->recalc_nearby_halts();
+	}
 }
 
 
@@ -652,8 +656,10 @@ void haltestelle_t::rotate90( const sint16 y_size )
 		}
 	}
 
-	// relinking factories
+	// Update our list of factories.
 	verbinde_fabriken();
+
+	// Simworld will update nearby factories' lists of connected halts.
 }
 
 
@@ -3560,14 +3566,17 @@ bool haltestelle_t::add_grund(grund_t *gr)
 	}
 	welt->access(pos)->set_halt(self);
 
+	// Update our list of factories.
+	verbinde_fabriken();
+
 	// Update nearby factories' lists of connected halts.
-	// Must be done AFTER updating the planquadrats
+	// Must be done AFTER updating the planquadrats,
+	// AND after updating our own list.  Yuck!
 	FOR (vector_tpl<fabrik_t*>, fab, affected_fab_list)
 	{
 		fab->recalc_nearby_halts();
 	}
-	// Update our list of factories...
-	verbinde_fabriken();
+
 
 	// check if we have to register line(s) and/or lineless convoy(s) which serve this halt
 	vector_tpl<linehandle_t> check_line(0);
@@ -3703,13 +3712,17 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 				}
 			}
 		}
-		// Recalculate nearby halt lists for affected fabs.
-		FOR(vector_tpl<fabrik_t*>, fab, affected_fab_list) {
+
+		// Update our list of factories.
+		verbinde_fabriken();
+
+		// Update nearby factories' lists of connected halts.
+		// Must be done AFTER updating the planquadrats,
+		// AND after updating our own list.  Yuck!
+		FOR (vector_tpl<fabrik_t*>, fab, affected_fab_list)
+		{
 			fab->recalc_nearby_halts();
 		}
-
-		// factory reach may have been changed ...
-		verbinde_fabriken();
 	}
 
 	// needs to be done, if this was a dock
