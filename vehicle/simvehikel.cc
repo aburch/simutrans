@@ -2368,14 +2368,24 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 
 uint32 vehikel_t::calc_restwert() const
 {
-	// if already used, there is a general price reduction
-	uint32 value = besch->get_preis();
+	// Use float32e8 for reliable and accurate computation
+	float32e8_t value ( besch->get_preis() );
 	if(has_driven)
 	{
+		// "Drive it off the lot" loss: expressed in mills
 		value *= (1000 - welt->get_settings().get_used_vehicle_reduction());
+		value /= 1000;
 	}
-	// after 20 year, it has only half value
-	return (value * pow(0.997, (int)(welt->get_current_month() - get_insta_zeit())) / 1000);
+	// General depreciation
+	// after 20 years, it has only half value
+	// Multiply by .997**number of months
+	// Make sure to use OUR version of pow().
+	sint32 age_in_months = welt->get_current_month() - get_insta_zeit();
+	float32e8_t base_of_exponent (997, 1000);
+	value *= pow(base_of_exponent, age_in_months);
+
+	// Convert back to integer
+	return (uint32) value;
 }
 
 
