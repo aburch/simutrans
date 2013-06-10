@@ -2369,15 +2369,14 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 uint32 vehikel_t::calc_restwert() const
 {
 	// if already used, there is a general price reduction
-	double value = (double)besch->get_preis();
-	if(  has_driven  ) {
-		value *= (1000 - welt->get_settings().get_used_vehicle_reduction()) / 1000.0;
+	uint32 value = besch->get_preis();
+	if(has_driven)
+	{
+		value *= (1000 - welt->get_settings().get_used_vehicle_reduction());
 	}
 	// after 20 year, it has only half value
-	return (uint32)( value * pow(0.997, (int)(welt->get_current_month() - get_insta_zeit())));
+	return (value * pow(0.997, (int)(welt->get_current_month() - get_insta_zeit())) / 1000);
 }
-
-
 
 
 void

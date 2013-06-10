@@ -290,7 +290,7 @@ bool dingliste_t::intern_add_moving(ding_t* ding)
 		start ++;
 	}
 	uint8 end = top;
-	while(  end>start  &&  !obj.some[end-1]->is_moving()  ) {
+	while(  end>start  && (!obj.some[end-1] || !obj.some[end-1]->is_moving() ) ) {
 		end--;
 	}
 	if(start==end) {
@@ -451,7 +451,7 @@ int bsearch_dings_by_prio(int pri, ding_t** dings, int count)
   while (low < count)
   {
     int i = (low + count) >> 1;
-    if (pri > type_to_pri[dings[i]->get_typ()]) 
+    if (dings[i] && pri > type_to_pri[dings[i]->get_typ()]) 
       low = i + 1;
     else
       count = i;
