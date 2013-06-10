@@ -874,7 +874,7 @@ void finance_t::rdwr_compatibility(loadsave_t *file)
 	}
 	else if(  file->get_version()<=110006  && file->get_experimental_version()==0  ) {
 		// only save what is needed
-		// No way tolls
+		// no way tolls
 		for(int year = 0;  year<OLD_MAX_PLAYER_HISTORY_YEARS;  year++  ) {
 			for(  int cost_type = 0;   cost_type<18;   cost_type++  ) {
 				if(  cost_type<COST_NETWEALTH  ||  cost_type>COST_MARGIN  ) {
@@ -890,49 +890,11 @@ void finance_t::rdwr_compatibility(loadsave_t *file)
 			}
 		}
 	}
-	else if(  file->get_version()<=110006 && file->get_experimental_version()<=10 ) {
-		// only save what is needed
-		// Experimental had INTEREST, CREDIT_LIMIT
-		for(int year = 0;  year<OLD_MAX_PLAYER_HISTORY_YEARS;  year++  ) {
-			for(  int cost_type = 0;   cost_type<21;   cost_type++  ) {
-				if(  cost_type<COST_NETWEALTH  ||  cost_type>COST_MARGIN  ) {
-					if (cost_type != COST_WAY_TOLLS) {
-						file->rdwr_longlong(finance_history_year[year][cost_type]);
-					}
-				}
-			}
-		}
-		for (int month = 0;month<OLD_MAX_PLAYER_HISTORY_MONTHS;month++) {
-			for (int cost_type = 0; cost_type<21; cost_type++) {
-				if(  cost_type<COST_NETWEALTH  ||  cost_type>COST_MARGIN  ) {
-					if (cost_type != COST_WAY_TOLLS) {
-						file->rdwr_longlong(finance_history_month[month][cost_type]);
-					}
-				}
-			}
-		}
-	}
-	else if(  file->get_version()<=110006 ) {
-		// Experimental version 11 with old save file format
-		// May happen in files saved with some development versions, but shouldn't
-		// only save what is needed
-		// Experimental had WAY_TOLLS, INTEREST, CREDIT_LIMIT
-		for(int year = 0;  year<OLD_MAX_PLAYER_HISTORY_YEARS;  year++  ) {
-			for(  int cost_type = 0;   cost_type<21;   cost_type++  ) {
-				if(  cost_type<COST_NETWEALTH  ||  cost_type>COST_MARGIN  ) {
-					file->rdwr_longlong(finance_history_year[year][cost_type]);
-				}
-			}
-		}
-		for (int month = 0;month<OLD_MAX_PLAYER_HISTORY_MONTHS;month++) {
-			for (int cost_type = 0; cost_type<21; cost_type++) {
-				if(  cost_type<COST_NETWEALTH  ||  cost_type>COST_MARGIN  ) {
-					file->rdwr_longlong(finance_history_month[month][cost_type]);
-				}
-			}
-		}
-	}
-	else if (  file->get_version() < 112005  && file->get_experimental_version() == 0  ) {
+	/* Note that experimental did not adopt way tolls until version 11
+	 * As a result the logic for version <=110006 for experimental can fall through to the
+	 * logic for version <= 112004
+	 */
+	else if (  file->get_version() <= 112004  && file->get_experimental_version() == 0  ) {
 		// savegame version: now with toll
 		for(int year = 0;  year<OLD_MAX_PLAYER_HISTORY_YEARS;  year++  ) {
 			for(  int cost_type = 0;   cost_type<19;   cost_type++  ) {
@@ -949,7 +911,7 @@ void finance_t::rdwr_compatibility(loadsave_t *file)
 			}
 		}
 	}
-	else if (  file->get_version() < 112005  && file->get_experimental_version() == 1  ) {
+	else if (  file->get_version() <= 112004  && file->get_experimental_version() == 1  ) {
 		// is this combination even possible?  I doubt it
 		// no way tolls in experimental despite being in standard
 		// no interest or credit limit in experimental
@@ -968,7 +930,7 @@ void finance_t::rdwr_compatibility(loadsave_t *file)
 			}
 		}
 	}
-	else if (  file->get_version() < 112005 && file->get_experimental_version() <= 10  ) {
+	else if (  file->get_version() <= 112004 && file->get_experimental_version() <= 10  ) {
 		// Standard had way tolls, experimental still didn't
 		// Experimental also had INTEREST, CREDIT_LIMIT
 		for(int year = 0;  year<OLD_MAX_PLAYER_HISTORY_YEARS;  year++  ) {
@@ -990,25 +952,21 @@ void finance_t::rdwr_compatibility(loadsave_t *file)
 			}
 		}
 	}
-	else if (  file->get_version() < 112005  ) {
+	else if (  file->get_version() <= 112004  ) {
 		// Experimental version 11 with old save file format
 		// May happen in files saved with some development versions
 		// Experimental has WAY_TOLLS, INTEREST, CREDIT_LIMIT
 		for(int year = 0;  year<OLD_MAX_PLAYER_HISTORY_YEARS;  year++  ) {
 			for(  int cost_type = 0;   cost_type<21;   cost_type++  ) {
 				if(  cost_type<COST_NETWEALTH  ||  cost_type>COST_MARGIN  ) {
-					if (cost_type != COST_WAY_TOLLS) {
-						file->rdwr_longlong(finance_history_year[year][cost_type]);
-					}
+					file->rdwr_longlong(finance_history_year[year][cost_type]);
 				}
 			}
 		}
 		for (int month = 0;month<OLD_MAX_PLAYER_HISTORY_MONTHS;month++) {
 			for (int cost_type = 0; cost_type<21; cost_type++) {
 				if(  cost_type<COST_NETWEALTH  ||  cost_type>COST_MARGIN  ) {
-					if (cost_type != COST_WAY_TOLLS) {
-						file->rdwr_longlong(finance_history_month[month][cost_type]);
-					}
+					file->rdwr_longlong(finance_history_month[month][cost_type]);
 				}
 			}
 		}
