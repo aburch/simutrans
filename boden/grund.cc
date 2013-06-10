@@ -1625,6 +1625,7 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 	weg_t *weg = get_weg(wt);
 	if(weg) {
 		waytype_t wt = weg->get_waytype();
+		waytype_t finance_wt = weg->get_besch()->get_finance_waytype();
 		const koord here = pos.get_2d();
 
 		// stops
@@ -1767,7 +1768,7 @@ DBG_MESSAGE("wkz_wayremover()","change remaining way to ribi %d",add);
 		}
 		// we have to pay?
 		if(costs) {
-			spieler_t::book_construction_costs(sp, costs, here, weg->get_besch()->get_finance_waytype());
+			spieler_t::book_construction_costs(sp, costs, here, finance_wt);
 		}
 	}
 	return true;
