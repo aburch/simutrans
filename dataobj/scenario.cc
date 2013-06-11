@@ -642,6 +642,9 @@ void scenario_t::update_scenario_texts()
 
 plainstring scenario_t::load_language_file(const char* filename)
 {
+	if (filename == NULL) {
+		return "(null)";
+	}
 	std::string path = scenario_path.c_str();
 	// try user language
 	std::string wanted_file = path + translator::get_lang()->iso + "/" + filename;
