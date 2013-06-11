@@ -116,14 +116,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="besch\weg_besch.cc" />
     <ClCompile Include="player\ai.cc" />
     <ClCompile Include="player\ai_goods.cc" />
     <ClCompile Include="gui\ai_option_t.cc" />
     <ClCompile Include="player\ai_passenger.cc" />
+    <ClCompile Include="player\finance.cc" />
     <ClCompile Include="script\api\api_city.cc" />
     <ClCompile Include="script\api\api_gui.cc" />
     <ClCompile Include="script\api\api_map_objects.cc" />
     <ClCompile Include="script\api\api_schedule.cc" />
+    <ClCompile Include="script\api\api_simple.cc" />
     <ClCompile Include="script\api_class.cc" />
     <ClCompile Include="script\api\api_const.cc" />
     <ClCompile Include="script\api\api_convoy.cc" />
