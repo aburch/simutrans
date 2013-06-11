@@ -475,7 +475,7 @@ void savegame_frame_t::fill_list()
 			else{
 				// NOTE: we just free "fullname" memory when add_file is not called. That memory will be
 				// free'd in the class destructor. This way we save the cost of re-allocate/copy it inside there
-				delete fullname;
+				delete [] fullname;
 			}
 		}
 
