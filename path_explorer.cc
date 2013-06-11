@@ -17,6 +17,7 @@
 #include "dataobj/umgebung.h"
 #include "dataobj/fahrplan.h"
 #include "simconvoi.h"
+#include "simloadingscreen.h"
 
 typedef quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> connexions_map_single_remote;
 
@@ -113,8 +114,8 @@ void path_explorer_t::full_instant_refresh()
 	processing = true;
 
 	// initialize progress bar
-	display_set_progress_text(translator::translate("Calculating paths ..."));
-	display_progress(curr_step, total_steps);
+	loadingscreen_t ls( translator::translate("Calculating paths ..."), total_steps, true, true);
+	ls.set_progress(curr_step);
 
 	// disable the iteration limits
 	compartment_t::enable_limits(false);
@@ -141,11 +142,13 @@ void path_explorer_t::full_instant_refresh()
 				// perform step
 				goods_compartment[c].step();
 				++curr_step;
-				display_progress(curr_step, total_steps);
+				ls.set_progress(curr_step);
 			}
 #else
 			// one step should perform the compartment phases from the first phase till the path exploration phase
 			goods_compartment[c].step();
+			curr_step += 6;
+			ls.set_progress(curr_step);
 #endif
 		}
 	}

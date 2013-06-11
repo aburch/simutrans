@@ -353,14 +353,6 @@ void draw_bezier(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VA
 {
 }
 
-void display_set_progress_text(const char *)
-{
-}
-
-void display_progress(int, int)
-{
-}
-
 void add_poly_clip(int, int, int, int, int)
 {
 }

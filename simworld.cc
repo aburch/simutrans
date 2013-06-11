@@ -1099,7 +1099,6 @@ void karte_t::distribute_cities( settings_t const * const sets, sint16 old_x, si
 	DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 #endif
 
-	display_set_progress_text(translator::translate("Placing cities ..."));
 	vector_tpl<koord> *pos = stadt_t::random_place(this, &city_population, old_x, old_y);
 
 	if ( pos->empty() ) {
@@ -1127,7 +1126,8 @@ void karte_t::distribute_cities( settings_t const * const sets, sint16 old_x, si
 		if(  old_x+old_y == 0  ) {
 			change_world_position( koord3d((*pos)[0], min_hgt((*pos)[0])) );
 		}
-		loadingscreen_t ls( translator::translate( "distributing cities" ), 16 + 2 * (old_anzahl_staedte + new_anzahl_staedte) + 2 * new_anzahl_staedte + (old_x == 0 ? settings.get_factory_count() : 0), true, true );
+		uint32 max_progress = 16 + 2 * (old_anzahl_staedte + new_anzahl_staedte) + 2 * new_anzahl_staedte + (old_x == 0 ? settings.get_factory_count() : 0);
+		loadingscreen_t ls( translator::translate( "distributing cities" ), max_progress, true, true );
 
 		{
 			// Loop only new cities:
@@ -1200,7 +1200,7 @@ void karte_t::distribute_cities( settings_t const * const sets, sint16 old_x, si
 		finance_history_year[0][WORLD_CITICENS] = finance_history_month[0][WORLD_CITICENS] = last_month_bev;
 
 		// Hajo: connect some cities with roads
-		display_set_progress_text(translator::translate("Connecting cities ..."));
+		ls.set_what(translator::translate("Connecting cities ..."));
 		weg_besch_t const* besch = settings.get_intercity_road_type(get_timeline_year_month());
 		if(besch == NULL) 
 		{
@@ -1580,7 +1580,6 @@ DBG_DEBUG("karte_t::init()","init_felder");
 	enlarge_map(&settings, h_field);
 
 DBG_DEBUG("karte_t::init()","distributing trees");
-	display_set_progress_text(translator::translate("Placing trees ..."));
 	if (!settings.get_no_trees()) {
 		baum_t::distribute_trees(this,3);
 	}
@@ -1592,9 +1591,7 @@ DBG_DEBUG("karte_t::init()","built timeline");
 
 	dbg->important("Creating factories ...");
 	fabrikbauer_t::neue_karte(this);
-	display_set_progress_text(translator::translate("Placing industries ..."));
-	// new system ...
-	int const max_display_progress = 16 + settings.get_anzahl_staedte() * 4 + settings.get_factory_count();
+
 	int consecutive_build_failures = 0;
 
 	loadingscreen_t ls( translator::translate("distributing factories"), 16 + settings.get_anzahl_staedte() * 4 + settings.get_factory_count(), true, true );
@@ -1616,10 +1613,12 @@ DBG_DEBUG("karte_t::init()","built timeline");
 	finance_history_year[0][WORLD_FACTORIES] = finance_history_month[0][WORLD_FACTORIES] = fab_list.get_count();
 
 	// tourist attractions
-	display_set_progress_text(translator::translate("Placing attractions ..."));
+	ls.set_what(translator::translate("Placing attractions ..."));
+	// Not worth actually constructing a progress bar, very fast
 	fabrikbauer_t::verteile_tourist(this, settings.get_tourist_attractions());
 
-	display_set_progress_text(translator::translate("Finalising ..."));
+	ls.set_what(translator::translate("Finalising ..."));
+	// Not worth actually constructing a progress bar, very fast
 	dbg->important("Preparing startup ...");
 	if(zeiger == 0) {
 		zeiger = new zeiger_t(this, koord3d::invalid, NULL );
@@ -1709,7 +1708,7 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 
 	bool reliefkarte = reliefkarte_t::is_visible;
 
-	int max_display_progress;
+	uint32 max_display_progress;
 
 	// If this is not called by karte_t::init
 	if(  old_x != 0  ) {
