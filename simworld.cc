@@ -1767,7 +1767,6 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 			// otherwise negative offsets may occur, so we cache only non-rotated maps
 			init_perlin_map(new_groesse_x,new_groesse_y);
 		}
-		int old_progress = 0;
 		// loop only new tiles:
 		for(  sint16 x = 0;  x<=new_groesse_x;  x++  ) {
 			for(  sint16 y = (x>old_x)?0:old_y+1;  y<=new_groesse_y;  y++  ) {
@@ -6287,7 +6286,6 @@ void karte_t::set_fast_forward(bool ff)
 grund_t* karte_t::get_ground_on_screen_coordinate(const koord screen_pos, sint32 &found_i, sint32 &found_j, const bool intersect_grid) const
 {
 	const int rw1 = get_tile_raster_width();
-	const int rw2 = rw1/2;
 	const int rw4 = rw1/4;
 
 	/*
