@@ -90,8 +90,8 @@ static SDL_Surface *texture;
 static int width = 16;
 static int height = 16;
 
-// switch off is a little faster (<3%)
-static int sync_blit = 0;
+// switch on is a little faster (<3%)
+static int async_blit = 0;
 
 static SDL_Cursor* arrow;
 static SDL_Cursor* hourglass;
@@ -350,7 +350,7 @@ bool dr_os_init(const int* parameter)
 		return false;
 	}
 
-	sync_blit = parameter[1];
+	async_blit = parameter[0];
 
 	// prepare for next event
 	sys_event.type = SIM_NOEVENT;
@@ -395,7 +395,7 @@ resolution dr_query_screen_resolution()
  */
 int dr_os_open(int w, int const h, int const fullscreen)
 {
-	Uint32 flags = sync_blit ? 0 : SDL_ASYNCBLIT;
+	Uint32 flags = async_blit ? SDL_ASYNCBLIT : 0;
 
 	// some cards need those alignments
 	// especially 64bit want a border of 8bytes
