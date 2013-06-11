@@ -810,6 +810,9 @@ show_names = 7
 # -- pak128.japan
 #cursor_overlay_color = 149
 
+# Color of background default: COL_GREY2 (210)
+#background_color = 210
+
 # display (screen/window) width
 # also see readme.txt, -screensize option
 #display_width  = 704
@@ -832,6 +835,8 @@ add_player_name_to_message = 1
 
 ##################################w Window settings ##################################
 #
+
+##################################window stuff##################################
 # show the windows close etc. buttons on the right (like windows 98)
 #window_buttons_right = 0
 
