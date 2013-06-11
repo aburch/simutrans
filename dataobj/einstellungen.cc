@@ -582,7 +582,7 @@ void settings_t::rdwr(loadsave_t *file)
 		if(file->get_experimental_version() >= 11)
 		{
 			file->rdwr_short(station_coverage_size_factories);
-			if ( file->get_version <= 112002) {
+			if ( file->get_version() <= 112002) {
 				// Correct broken save files on load.
 				if (station_coverage_size_factories < 3) {
 					station_coverage_size_factories = 3;
