@@ -6404,8 +6404,8 @@ void karte_t::move_cursor(const event_t *ev)
 	// offset needed for the raise / lower tool.
 	sint8 groff;
 
-	if( bd->is_visible()  &&  ( get_corner_to_operate(koord(mi,mj)) & bd->get_grund_hang() ) ) {
-		groff = 1;
+	if( bd->is_visible() ) {
+		groff = bd->get_hoehe(get_corner_to_operate(koord(mi, mj))) - bd->get_hoehe();
 	}
 	else {
 		groff = 0;
