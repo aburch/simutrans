@@ -225,7 +225,8 @@ public:
 	 * @param amount money paid for vehicle
 	 * @param wt - waytype of vehicle
 	 */
-	inline void book_new_vehicle(const sint64 amount, const waytype_t wt){
+	inline void book_new_vehicle(const sint64 amount, const waytype_t wt)
+	{
 		const transport_type tt = translate_waytype_to_tt(wt);
 
 		veh_year[ tt][0][ATV_NEW_VEHICLE] += (sint64) amount;
@@ -242,7 +243,8 @@ public:
 	 * @param wt waytype of vehicle
 	 * @param index 0 = passenger, 1 = mail, 2 = goods
 	 */
-	inline void book_revenue(const sint64 amount, const waytype_t wt, sint32 index){
+	inline void book_revenue(const sint64 amount, const waytype_t wt, sint32 index)
+	{
 		const transport_type tt = translate_waytype_to_tt(wt);
 
 		index = ((0 <= index) && (index <= 2)? index : 2);
@@ -258,7 +260,8 @@ public:
 	 * @param amount sum of money
 	 * @param wt way type
 	 */
-	inline void book_running_costs(const sint64 amount, const waytype_t wt){
+	inline void book_running_costs(const sint64 amount, const waytype_t wt)
+	{
 		const transport_type tt = translate_waytype_to_tt(wt);
 		veh_year[tt][0][ATV_RUNNING_COST] += amount;
 		veh_month[tt][0][ATV_RUNNING_COST] += amount;
@@ -270,7 +273,8 @@ public:
 	 * @param amount sum of money
 	 * @param wt way type
 	 */
-	inline void book_toll_paid(const sint64 amount, const waytype_t wt){
+	inline void book_toll_paid(const sint64 amount, const waytype_t wt)
+	{
 		const transport_type tt =  translate_waytype_to_tt(wt);
 		veh_year[tt][0][ATV_TOLL_PAID] += (sint64) amount;
 		veh_month[tt][0][ATV_TOLL_PAID] += (sint64) amount;
@@ -282,7 +286,8 @@ public:
 	 * @param amount sum of money
 	 * @param wt way type
 	 */
-	inline void book_toll_received(const sint64 amount, const waytype_t wt){
+	inline void book_toll_received(const sint64 amount, const waytype_t wt)
+	{
 		const transport_type tt = translate_waytype_to_tt(wt);
 		veh_year[tt][0][ATV_TOLL_RECEIVED] += (sint64) amount;
 		veh_month[tt][0][ATV_TOLL_RECEIVED] += (sint64) amount;
@@ -295,7 +300,8 @@ public:
 	 * @param wt way type
 	 * @param index 0 = passenger, 1 = mail, 2 = goods
 	 */
-	inline void book_transported(const sint64 amount, const waytype_t wt, int index){
+	inline void book_transported(const sint64 amount, const waytype_t wt, int index)
+	{
 		const transport_type tt = translate_waytype_to_tt(wt);
 
 		// there are: passenger, mail, goods
@@ -314,7 +320,8 @@ public:
 	 * @param wt way type
 	 * @param index 0 = passenger, 1 = mail, 2 = goods
 	 */
-	inline void book_delivered(const sint64 amount, const waytype_t wt, int index){
+	inline void book_delivered(const sint64 amount, const waytype_t wt, int index)
+	{
 		const transport_type tt = translate_waytype_to_tt(wt);
 
 		// there are: passenger, mail, goods
