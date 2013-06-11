@@ -579,20 +579,15 @@ void settings_t::rdwr(loadsave_t *file)
 			station_coverage_size = (uint16)dummy;
 		}
 
-		if(file->get_experimental_version() >= 11 && file->get_version() <= 112002)
+		if(file->get_experimental_version() >= 11)
 		{
-			// Fix broken save files on save.
-			if (station_coverage_size_factories < 3) {
-				station_coverage_size_factories = 3;
-			}
 			file->rdwr_short(station_coverage_size_factories);
-			// Correct broken save files on load.
-			if (station_coverage_size_factories < 3) {
-				station_coverage_size_factories = 3;
+			if ( file->get_version() <= 112002) {
+				// Correct broken save files on load.
+				if (station_coverage_size_factories < 3) {
+					station_coverage_size_factories = 3;
+				}
 			}
-			// Prohibit broken (too small) coverage radius.
-			// This will fix a lot of broken save files.
-			// --neroden
 		}
 
 		if(file->get_version() >= 86006) {
