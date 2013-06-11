@@ -213,7 +213,8 @@ public:
 	 * @param wt - waytype for accounting purposes
 	 * @param utyp - used for distinguishing of transport type of buildings. Used with buildings only.
 	 */
-	inline sint32 book_maintenance(sint32 change, waytype_t const wt) {
+	inline sint32 book_maintenance(sint32 change, waytype_t const wt)
+	{
 		transport_type tt = translate_waytype_to_tt(wt);
 		maintenance[tt] += change;
 		maintenance[TT_ALL] += change;
@@ -347,7 +348,15 @@ public:
 	/**
 	 * Books amount of money to account (also known as konto)
 	 */
-	void book_account(sint64 amount) { account_balance += amount; }
+	void book_account(sint64 amount)
+	{
+		account_balance += amount;
+		com_month[0][ATC_CASH] = account_balance;
+		com_year [0][ATC_CASH] = account_balance;
+		com_month[0][ATC_NETWEALTH] += amount;
+		com_year [0][ATC_NETWEALTH] += amount;
+		// BUG profit is not adjusted when calling this method
+	}
 
 	/**
 	 * Returns the finance history (indistinguishable part) for player.
