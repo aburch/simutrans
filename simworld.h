@@ -1275,7 +1275,7 @@ public:
 	 */
 	inline sint64 ticks_to_tenths_of_minutes(sint64 ticks) const
 	{
-		return get_settings().get_meters_per_tile() * ticks * 30L / (4096L * 1000L);
+		return ticks_to_seconds(ticks) / 6L;
 	}
 
 	/**
@@ -1284,8 +1284,17 @@ public:
 	 */
 	inline sint64 ticks_to_seconds(sint64 ticks) const
 	{
-		// Remember, this is all inlined, so this is efficient
-		return ticks_to_tenths_of_minutes(ticks) * 6L;
+		/*
+		 * Currently this is altered according to meters_per_tile / 1000.
+		 * This is a "convention" to speed up time when changing distance;
+		 * it needs to be changed (separated into a new world setting).
+		 *
+		 * The rest of this is much weirder: there are by default
+		 * (4096 / 180) = 22.7555555... ticks per second.
+		 * This also needs to be changed because it's stupid; it's based on
+		 * old settings which are now in simunits.h
+		 */
+		return get_settings().get_meters_per_tile() * ticks * 30L * 6L/ (4096L * 1000L);
 	}
 
 private:

@@ -1020,14 +1020,16 @@ int simu_main(int argc, char** argv)
 	// still nothing to be loaded => search for demo games
 	if(  new_world  ) {
 		chdir( umgebung_t::program_dir );
-		char buffer[256];
-		sprintf(buffer, "%sdemo.sve", umgebung_t::objfilename.c_str());
-		// access did not work!
-		if (FILE* const f = fopen(buffer, "rb")) {
+		cbuffer_t buf;
+		buf.append(umgebung_t::objfilename.c_str()); //has trailing slash
+		buf.append("demo.sve");
+		if (FILE* const f = fopen(buf.get_str(), "rb")) {
 			// there is a demo game to load
-			loadgame = buffer;
+			loadgame = buf;
 			fclose(f);
-DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
+DBG_MESSAGE("simmain","loadgame file found at %s",buf.get_str() );
+		} else {
+DBG_MESSAGE("simmain","demo file not found at %s",buf.get_str() );
 		}
 	}
 
