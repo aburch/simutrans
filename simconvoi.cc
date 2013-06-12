@@ -1771,12 +1771,23 @@ void convoi_t::new_month()
 	for(unsigned j=0;  j<get_vehikel_anzahl();  j++ ) 
 	{
 		// Monthly cost is positive, but add it up to a negative number for booking.
-		monthly_cost -= fahr[j]->get_besch()->get_fixed_cost(welt);
+		monthly_cost -= get_vehikel(j)->get_besch()->get_fixed_cost(welt);
 	}
 	jahresgewinn += monthly_cost;
 	book( monthly_cost, CONVOI_OPERATIONS );
 	book( monthly_cost, CONVOI_PROFIT );
-	get_besitzer()->book_vehicle_maintenance(monthly_cost, get_schedule()->get_waytype());
+	// This is way too tedious a way to get my waytype...
+	waytype_t my_waytype;
+	if (get_schedule()) {
+		my_waytype = get_schedule()->get_waytype();
+	}
+	else if (get_vehikel_anzahl()) {
+		my_waytype = get_vehikel(0)->get_besch()->get_waytype();
+	}
+	else {
+		my_waytype = ignore_wt;
+	}
+	get_besitzer()->book_vehicle_maintenance(monthly_cost, my_waytype);
 
 	// everything normal: update history
 	for (int j = 0; j<MAX_CONVOI_COST; j++) 
