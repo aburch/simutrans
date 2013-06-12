@@ -2288,7 +2288,6 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 					// If this factory is on our list of connected factories... we're there!
 					// FIXME: This should be delayed by the transshipment time
 					liefere_an_fabrik(ware);
-					continue;
 				}
 			}
 		}
