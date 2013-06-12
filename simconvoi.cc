@@ -1777,9 +1777,9 @@ void convoi_t::new_month()
 	book( monthly_cost, CONVOI_OPERATIONS );
 	book( monthly_cost, CONVOI_PROFIT );
 	// This is way too tedious a way to get my waytype...
-	const waytype_t my_waytype;
+	waytype_t my_waytype;
 	if (get_schedule()) {
-		my_waytype = get_schedule()->get_waytype()
+		my_waytype = get_schedule()->get_waytype();
 	}
 	else if (get_vehikel_anzahl()) {
 		my_waytype = get_vehikel(0)->get_besch()->get_waytype();
