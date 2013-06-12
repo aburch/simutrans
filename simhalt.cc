@@ -523,13 +523,16 @@ haltestelle_t::~haltestelle_t()
 		}
 	}
 
-	// clean waiting_times for each stop 
-	// Inkelyad, November 2010
-	FOR(slist_tpl<halthandle_t>, & current_halt, alle_haltestellen) 
+	// clean waiting_times for each stop
+	FOR(slist_tpl<halthandle_t>, & current_halt, alle_haltestellen)
 	{
 		for ( int category = 0; category < warenbauer_t::get_max_catg_index(); category++ )
 		{
-			waiting_times[category].remove(self.get_id());	
+			waiting_time_map * their_waiting_times = current_halt.waiting_times;
+			if (waiting_time_map) {
+				// Defensive programming for uninitialized maps
+				their_waiting_times[category].remove(self.get_id());
+			}
 		}
 	}
 
