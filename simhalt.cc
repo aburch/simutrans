@@ -528,7 +528,7 @@ haltestelle_t::~haltestelle_t()
 	FOR(slist_tpl<halthandle_t>, & current_halt, alle_haltestellen)
 	{
 		// If it's not bound, or waiting_times isn't initialized, this could crash
-		if (current_halt.is_bound() && current_halt->waiting_times) {
+		if (current_halt.is_bound() && current_halt->waiting_times)
 		{
 			for ( int category = 0; category < warenbauer_t::get_max_catg_index(); category++ )
 			{
