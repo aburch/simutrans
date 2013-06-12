@@ -3,30 +3,27 @@
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
- */ 
-
-#include "depot_frame.h"
+ */
 
 #include <stdio.h>
 
 #include "../simunits.h"
+#include "../simworld.h"
+#include "../vehicle/simvehikel.h"
 #include "../simconvoi.h"
 #include "../simdepot.h"
-
+#include "../simwin.h"
 #include "../simcolor.h"
 #include "../simdebug.h"
 #include "../simgraph.h"
 #include "../simline.h"
 #include "../simlinemgmt.h"
-#include "../vehicle/simvehikel.h"
 #include "../simmenu.h"
 #include "../simskin.h"
 #include "../simtools.h"
 
 #include "../besch/haus_besch.h"
 
-#include "../simworld.h"
-#include "../simwin.h"
 
 #include "fahrplan_gui.h"
 #include "line_management_gui.h"
@@ -44,7 +41,7 @@
 
 #include "../boden/wege/weg.h"
 
-#define CREDIT_MESSAGE "That would exceed\nyour credit limit."
+#include "depot_frame.h"
 
 //static const char* engine_type_names[9] =
 //{
