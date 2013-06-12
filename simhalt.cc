@@ -1258,16 +1258,20 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 				continue;
 			}
 
-			// since also the factory halt list is added to the ground, we can use just this ...
-			const planquadrat_t* plan = welt->lookup(ware.get_zielpos());
-			if(plan && plan->get_connected(self) <= welt->get_settings().get_station_coverage_factories()) 
+			// If we are within delivery distance of our target factory, go there.
+			if (ware.to_factory)
 			{
-				// we are already there!
-				if(ware.to_factory)
-				{
-					liefere_an_fabrik(ware);
+				// What factory are we trying to deliver to? (FIXME: use fab handles)
+				const fabrik_t* fab = fabrik_t::get_fab( ware.get_zielpos() );
+				if (fab) {
+					// If there's no factory there, wait.
+					if fab_list.is_contained(fab) {
+						// If this factory is on our list of connected factories... we're there!
+						// FIXME: This should be delayed by the transshipment time
+						liefere_an_fabrik(ware);
+						continue;
+					}
 				}
-				continue;
 			}
 
 			// check if this good can still reach its destination
@@ -1282,6 +1286,7 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 			// walk to the next transfer, go there immediately.
 			if(ware.is_passenger() && is_within_walking_distance_of(ware.get_zwischenziel()) && !connexions[0]->get(ware.get_zwischenziel())->best_convoy.is_bound() && !connexions[0]->get(ware.get_zwischenziel())->best_line.is_bound())
 			{
+				// FIXME: The passengers need to actually be delayed by the walking time
 				erzeuge_fussgaenger(welt, get_basis_pos3d(), ware.menge);
 				ware.get_zwischenziel()->liefere_an(ware);
 				continue;
@@ -1304,22 +1309,6 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 				// no connections from here => delete
 				delete new_warray;
 				new_warray = NULL;
-//=======
-//				vector_tpl<ware_t> &warray = *waren[last_catg_index];
-//				uint32 last_ware_index = 0;
-//				units_remaining -= warray.get_count();
-//				while(  last_ware_index<warray.get_count()  ) {
-//					search_route_resumable(warray[last_ware_index]);
-//					if(  warray[last_ware_index].get_ziel()==halthandle_t()  ) {
-//						// remove invalid destinations
-//						fabrik_t::update_transit( &warray[last_ware_index], false);
-//						warray.remove_at(last_ware_index);
-//					}
-//					else {
-//						++last_ware_index;
-//					}
-//				}
-//>>>>>>> aburch/master
 			}
 		}
 
