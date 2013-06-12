@@ -99,15 +99,8 @@
 #include "simwerkz.h"
 #include "player/finance.h"
 
-#define CREDIT_MESSAGE "That would exceed\nyour credit limit."
-
 #define is_scenario()  welt->get_scenario()->is_scripted()
 
-#define CHECK_FUNDS() \
-	/* do not allow, if out of money */ \
-	if(  !welt->get_settings().is_freeplay()  &&  sp->get_player_nr()!=1  &&  !sp->has_money_or_assets() ) {\
-		return "Out of funds";\
-	}\
 
 
 /****************************************** static helper functions **************************************/
@@ -697,10 +690,11 @@ DBG_MESSAGE("wkz_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x, 
 				if(sp != gb->get_besitzer())
 				{
 					// Only check affordability if bulldozing somebody else's buildings.
+					// FIXME: This isn't quite right.
 					// Experimental 8.0 and later - the bulldoze cost is *added* to the
 					// building cost, as we have to pay to buy it *then* pay to demolish it.
 					const sint64 cost = (welt->get_settings().cst_multiply_remove_haus * (haus_besch->get_level())) + (welt->get_settings().cst_buy_land * haus_besch->get_level() * 5);
-					if(!sp->can_afford(cost))
+					if(! spieler_t::can_afford(sp, -cost) )
 					{
 						msg = CREDIT_MESSAGE;
 						return false;
@@ -923,7 +917,11 @@ const char *wkz_remover_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 
 const char *wkz_raise_lower_base_t::move( karte_t *welt, spieler_t *sp, uint16 buttonstate, koord3d pos )
 {
-	CHECK_FUNDS();
+	// This is rough and ready: if you can afford something costing 1, we decide you can afford this
+	// --neroden
+	if (! spieler_t::can_afford( sp, 1 ) ) {
+		return CREDIT_MESSAGE;
+	}
 
 	const char *result = NULL;
 	if(  buttonstate==1  ) {
@@ -1012,7 +1010,7 @@ const char *wkz_raise_t::check_pos( karte_t *welt, spieler_t *sp, koord3d k )
 		}
 	}
 	const sint64 cost = welt->get_settings().cst_alter_land;
-	if(!sp->can_afford(-cost))
+	if(! spieler_t::can_afford(sp, -cost) )
 	{
 		return CREDIT_MESSAGE;
 	}
@@ -1029,7 +1027,11 @@ const char *wkz_raise_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 	bool ok = false;
 	koord pos = k.get_2d();
 
-	CHECK_FUNDS();
+	// This is rough and ready: if you can afford something costing 1, we decide you can afford this
+	// --neroden
+	if (! spieler_t::can_afford( sp, 1 ) ) {
+		return CREDIT_MESSAGE;
+	}
 
 	if(welt->is_within_grid_limits(pos)) {
 
@@ -1103,7 +1105,7 @@ const char *wkz_lower_t::check_pos( karte_t *welt, spieler_t *sp, koord3d k )
 		return "Cannot terraform in deep water";
 	}
 	const sint64 cost = welt->get_settings().cst_alter_land;
-	if(!sp->can_afford(-cost))
+	if(!spieler_t::can_afford(sp, -cost))
 	{
 		return CREDIT_MESSAGE;
 	}
@@ -1120,7 +1122,11 @@ const char *wkz_lower_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 	bool ok = false;
 	koord pos = k.get_2d();
 
-	CHECK_FUNDS();
+	// This is rough and ready: if you can afford something costing 1, we decide you can afford this
+	// --neroden
+	if (! spieler_t::can_afford( sp, 1 ) ) {
+		return CREDIT_MESSAGE;
+	}
 
 	if(welt->is_within_grid_limits(pos)) {
 		const sint8 hgt = (sint8) get_drag_height(welt,k.get_2d());
@@ -1491,8 +1497,9 @@ const char *wkz_marker_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 
 				if(thing == NULL  ||  thing->get_besitzer() == sp  ||  (spieler_t::check_owner(thing->get_besitzer(), sp)  &&  (thing->get_typ() != ding_t::gebaeude))) 
 				{
-					if(!sp->can_afford(welt->get_settings().cst_buy_land))
-					{	
+					const sint64 cost = welt->get_settings().cst_buy_land;
+					if(! spieler_t::can_afford(sp, -cost) )
+					{
 						return CREDIT_MESSAGE;
 					}
 					gr->obj_add(new label_t(welt, gr->get_pos(), sp, "\0"));
@@ -1625,8 +1632,8 @@ const char *wkz_transformer_t::check_pos( karte_t *welt, spieler_t *, koord3d po
 const char *wkz_transformer_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 {
 	DBG_MESSAGE("wkz_transformer_t()","called on %d,%d", k.x, k.y);
-
-	if(!sp->can_afford(welt->get_settings().cst_transformer))
+	const sint64 cost = welt->get_settings().cst_transformer;
+	if(spieler_t::can_afford(sp, -cost) )
 	{
 		return CREDIT_MESSAGE;
 	}
@@ -1738,11 +1745,11 @@ const char *wkz_transformer_t::work( karte_t *welt, spieler_t *sp, koord3d k )
  */
 const char *wkz_add_city_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 {
-	if(!sp->can_afford(0 -welt->get_settings().cst_found_city))
+	const sint64 cost = welt->get_settings().cst_found_city;
+	if (! spieler_t::can_afford(sp, -cost) )
 	{
 		return CREDIT_MESSAGE;
 	}
-	CHECK_FUNDS();
 
 	grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
 	if(gr) {
@@ -1820,7 +1827,7 @@ const char *wkz_buy_house_t::work( karte_t *welt, spieler_t *sp, koord3d pos)
 				// there may be buildings with holes
 				if(  gb_part  &&  gb_part->get_tile()->get_besch()==hb  &&  spieler_t::check_owner(gb_part->get_besitzer(),sp)  ) {
 					const sint64 cost = welt->get_settings().cst_buy_land * hb->get_level() * 5; // Developed land is more valuable than undeveloped land.
-					if(!sp->can_afford(-cost))
+					if(!spieler_t::can_afford(sp, -cost))
 					{
 						return CREDIT_MESSAGE;
 					}
@@ -1879,7 +1886,8 @@ char const* wkz_plant_tree_t::move(karte_t* const welt, spieler_t* const sp, uin
 
 const char *wkz_plant_tree_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 {
-	if(!sp->can_afford(welt->get_settings().cst_remove_tree))
+	const sint64 cost = welt->get_settings().cst_remove_tree;
+	if(  !spieler_t::can_afford(sp, -cost)  )
 	{
 		return CREDIT_MESSAGE;
 	}
@@ -2213,7 +2221,7 @@ const char *wkz_wegebau_t::do_work( karte_t *welt, spieler_t *sp, const koord3d 
 	if(  bauigel.get_route().get_count()>1  ) {
 		sint64 cost = bauigel.calc_costs();
 		
-		if(!sp->can_afford(cost))
+		if(!spieler_t::can_afford(sp, cost))
 		{
 			return CREDIT_MESSAGE;
 		}
@@ -3516,7 +3524,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 		cost -= (s.maint_building * factor * 60);
 	}
 
-	if(!sp->can_afford(cost))
+	if(!spieler_t::can_afford(sp, -cost))
 	{
 		return CREDIT_MESSAGE;
 	}
@@ -3557,7 +3565,7 @@ const char *wkz_station_t::wkz_station_dock_aux(karte_t *welt, spieler_t *sp, ko
 		costs = -besch->get_station_price();
 	}
 
-	if(!sp->can_afford(costs))
+	if(!spieler_t::can_afford(sp, -costs))
 	{
 		return CREDIT_MESSAGE;
 	}
@@ -3744,6 +3752,7 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.
 // build all types of stops but sea harbours
 const char *wkz_station_t::wkz_station_aux(karte_t *welt, spieler_t *sp, koord3d k, const haus_besch_t *besch, waytype_t wegtype, sint64 cost, const char *type_name )
 {
+	// Please note that the cost passed in is negative
 	koord pos = k.get_2d();
 DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besch->get_name(), pos.x, pos.y, wegtype);
 	const char *p_error=(besch->get_all_layouts()==4) ? "No terminal station here!" : "No through station here!";
@@ -3764,7 +3773,7 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 
 	sint64 adjusted_cost = cost * besch->get_b() * besch->get_h();
 
-	if(!sp->can_afford(adjusted_cost))
+	if(!sp->can_afford(-adjusted_cost))
 	{
 		return CREDIT_MESSAGE;
 	}
@@ -4208,7 +4217,13 @@ const char *wkz_station_t::check_pos( karte_t *welt, spieler_t*,  koord3d pos )
 
 const char *wkz_station_t::move( karte_t *welt, spieler_t *sp, uint16 buttonstate, koord3d pos )
 {
-	CHECK_FUNDS();
+	// This is rough and ready: if you can afford something costing 1, we decide you can afford this
+	// This is a backup check; it gets checked against in ::work.
+	// In network mode the check in ::work may go off too late, however.
+	// --neroden
+	if (! spieler_t::can_afford( sp, 1 ) ) {
+		return CREDIT_MESSAGE;
+	}
 
 	const char *result = NULL;
 	if(  buttonstate==1  ) {
@@ -4258,18 +4273,19 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 	const haus_besch_t *besch=get_besch(rotation);
 	const char *msg = NULL;
 	sint64 cost;
+	settings_t const& s = welt->get_settings();
 	switch (besch->get_utyp()) 
 	{
 		case haus_besch_t::hafen:
 			if(besch->get_base_station_price() == 2147483647)
 			{
-				cost = welt->get_settings().cst_multiply_dock * besch->get_level();
+				cost = s.cst_multiply_dock * besch->get_level();
 			}
 			else
 			{
 				cost = -besch->get_station_price();
 			}
-			if(!sp->can_afford(cost))
+			if(!spieler_t::can_afford(sp, -cost))
 			{
 				return CREDIT_MESSAGE;
 			}
@@ -4295,7 +4311,7 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 					{
 						cost = -besch->get_station_price();
 					}
-					if(!sp->can_afford(-cost))
+					if(!spieler_t::can_afford(sp, -cost))
 					{
 						return CREDIT_MESSAGE;
 					}
@@ -4314,7 +4330,7 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 					{
 						cost = -besch->get_station_price();
 					}
-					if(!sp->can_afford(-cost))
+					if(!spieler_t::can_afford(sp, -cost))
 					{
 						return CREDIT_MESSAGE;
 					}
@@ -4329,7 +4345,7 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 					{
 						cost = -besch->get_station_price();
 					}
-					if(!sp->can_afford(-cost))
+					if(!spieler_t::can_afford(sp, -cost))
 					{
 						return CREDIT_MESSAGE;
 					}
@@ -4344,7 +4360,7 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 					{
 						cost = -besch->get_station_price();
 					}
-					if(!sp->can_afford(-cost))
+					if(!spieler_t::can_afford(sp, -cost))
 					{
 						return CREDIT_MESSAGE;
 					}
@@ -4828,38 +4844,9 @@ built_sign:
 // built all types of depots
 const char *wkz_depot_t::wkz_depot_aux(karte_t *welt, spieler_t *sp, koord3d pos, const haus_besch_t *besch, waytype_t wegtype, sint64 cost)
 {
-	switch(wegtype)
-	{
-	case monorail_wt: 
-	case maglev_wt: 
-	case narrowgauge_wt:
-	case tram_wt:	
-	case track_wt: 
-		if(!sp->can_afford(welt->get_settings().cst_depot_rail * besch->get_level()))
-		{
-			return CREDIT_MESSAGE;
-		}
-		break;
-	case water_wt:
-		if(!sp->can_afford(welt->get_settings().cst_depot_ship * besch->get_level()))
-		{
-			return CREDIT_MESSAGE;
-		}
-		break;
-	case air_wt:
-		if(!sp->can_afford(welt->get_settings().cst_depot_air * besch->get_level()))
-		{
-			return CREDIT_MESSAGE;
-		}
-		break;
-	default:
-	case road_wt:
-		if(!sp->can_afford(welt->get_settings().cst_depot_road * besch->get_level()))
-		{
-			return CREDIT_MESSAGE;
-		}
-		break;
-	};
+	if ( !spieler_t::can_afford(sp, -cost) ) {
+		return CREDIT_MESSAGE;
+	}
 
 	if(welt->is_within_limits(pos.get_2d())) {
 		grund_t *bd=NULL;
@@ -5471,8 +5458,7 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 
 	koord size = besch->get_groesse();
 	sint64 const cost = welt->get_settings().cst_multiply_headquarter * besch->get_level() * size.x * size.y;
-	if(!sp->can_afford(-cost))
-	if(  -cost > sp->get_finance()->get_account_balance()  ) {
+	if(! spieler_t::can_afford(sp, -cost) ) {
 		return CREDIT_MESSAGE;
 	}
 

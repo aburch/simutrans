@@ -11,6 +11,9 @@
 #include "../simtypes.h"
 #include "../simworld.h"
 
+// This should be used when players attempt to buy things they can't afford.
+#define CREDIT_MESSAGE "That would exceed\nyour credit limit."
+
 /// for compatibility with old versions
 /// Must be different in experimental!
 #define OLD_MAX_PLAYER_COST (21)
@@ -370,7 +373,8 @@ public:
 	 */
 	inline bool can_afford(sint64 price) const
 	{
-		if (account_balance - price >= get_soft_credit_limit() ) return true;
+		if (price <= 0) return true;  // Always allow things which generate money
+		else if (account_balance - price >= get_soft_credit_limit() ) return true;
 		else if ( world->get_settings().insolvent_purchases_allowed() ) return true;
 		else if ( world->get_settings().is_freeplay() ) return true;
 		else return false;
