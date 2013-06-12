@@ -152,7 +152,7 @@ void karte_ansicht_t::display(bool force_dirty)
 	else if( welt->is_background_dirty() ) {
 		// we check if background will be visible, no need to clear screen if it's not.
 		if( welt->is_background_visible() ) {
-			display_fillbox_wh(0, menu_height, disp_width, disp_height-menu_height, COL_BLACK, force_dirty);
+			display_fillbox_wh(0, menu_height, disp_width, disp_height-menu_height, umgebung_t::background_color, force_dirty);
 		}
 		welt->unset_background_dirty();
 	}

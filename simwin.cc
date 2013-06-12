@@ -109,8 +109,6 @@ public:
 
 bool simwin_t::operator== (const simwin_t &other) const { return gui == other.gui; }
 
-// true , if windows need to be redraw "dirty" (including title)
-static bool windows_dirty = false;
 
 #define MAX_WIN (64)
 static vector_tpl<simwin_t> wins(MAX_WIN);
@@ -700,7 +698,10 @@ static void destroy_framed_win(simwin_t *wins)
 		}
 		delete wins->gui;
 	}
-	windows_dirty = true;
+	// set dirty flag to refill background
+	if(wl) {
+		wl->set_background_dirty();
+	}
 }
 
 
@@ -1046,6 +1047,10 @@ void move_win(int win, event_t *ev)
 	// need to mark all of old and new positions dirty
 	mark_rect_dirty_wc( from_pos.x, from_pos.y, from_pos.x+from_gr.x, from_pos.y+from_gr.y );
 	mark_rect_dirty_wc( to_pos.x, to_pos.y, to_pos.x+to_gr.x, to_pos.y+to_gr.y );
+	// set dirty flag to refill background
+	if(wl) {
+		wl->set_background_dirty();
+	}
 
 	change_drag_start( delta.x, delta.y );
 }
@@ -1072,6 +1077,10 @@ void resize_win(int win, event_t *ev)
 
 	// since we may be smaller afterwards
 	mark_rect_dirty_wc( from_pos.x, from_pos.y, from_pos.x+from_gr.x, from_pos.y+from_gr.y );
+	// set dirty flag to refill background
+	if(wl) {
+		wl->set_background_dirty();
+	}
 
 	// adjust event mouse koord per snap
 	wev.mx = wev.cx + to_gr.x - from_gr.x;
@@ -1371,6 +1380,7 @@ void win_poll_event(event_t* const ev)
 		// main window resized
 		simgraph_resize( ev->mx, ev->my );
 		ticker::redraw_ticker();
+		wl->set_dirty();
 		ev->ev_class = EVENT_NONE;
 	}
 }
@@ -1394,14 +1404,6 @@ void win_display_flush(double konto)
 	main_menu->zeichnen( koord(0,-16), koord(disp_width,menu_height) );
 	inside_event_handling = old_inside_event_handling;
 
-	// redraw all?
-	if(windows_dirty) {
-		mark_rect_dirty_wc( 0, 0, disp_width, disp_height );
-		if(wl) {
-			wl->set_background_dirty();
-		}
-		windows_dirty = false;
-	}
 	display_set_clip_wh( 0, menu_height, disp_width, disp_height-menu_height+1 );
 
 	show_ticker = false;
@@ -1409,7 +1411,9 @@ void win_display_flush(double konto)
 		ticker::zeichnen();
 		if (ticker::empty()) {
 			// set dirty background for removing ticker
-			wl->set_dirty();
+			if(wl) {
+				wl->set_background_dirty();
+			}
 		}
 		else {
 			show_ticker = true;
@@ -1435,11 +1439,17 @@ void win_display_flush(double konto)
 				if(  !tooltip_owner  ||  ((elapsed_time=dr_time()-tooltip_register_time)>umgebung_t::tooltip_delay  &&  elapsed_time<=umgebung_t::tooltip_delay+umgebung_t::tooltip_duration)  ) {
 					const sint16 width = proportional_string_width(tooltip_text)+7;
 					display_ddd_proportional_clip(min(tooltip_xpos,disp_width-width), max(menu_height+7,tooltip_ypos), width, 0, umgebung_t::tooltip_color, umgebung_t::tooltip_textcolor, tooltip_text, true);
+					if(wl) {
+						wl->set_background_dirty();
+					}
 				}
 			}
 			else if(static_tooltip_text!=NULL  &&  *static_tooltip_text) {
 				const sint16 width = proportional_string_width(static_tooltip_text)+7;
 				display_ddd_proportional_clip(min(get_maus_x()+16,disp_width-width), max(menu_height+7,get_maus_y()-16), width, 0, umgebung_t::tooltip_color, umgebung_t::tooltip_textcolor, static_tooltip_text, true);
+				if(wl) {
+					wl->set_background_dirty();
+				}
 			}
 			// Knightly : reset owner and group if no tooltip has been registered
 			if(  !tooltip_text  ) {

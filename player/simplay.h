@@ -213,6 +213,10 @@ public:
      * @params price
      */
 	bool can_afford(sint64 price) const ;
+	/**
+	 * Static version.  If player is NULL, player can afford anything.
+	 */
+	static bool can_afford(spieler_t* sp, sint64 price);
 
 	bool has_money_or_assets() const;
 

@@ -1939,7 +1939,6 @@ sint64 wegbauer_t::calc_costs()
 		sint32 old_speedlimit = -1;
 		sint32 replace_cost = 0;
 
-
 		const grund_t* gr = welt->lookup(route[i] + offset);
 		if( gr ) {
 			if( bautyp&tunnel_flag ) {

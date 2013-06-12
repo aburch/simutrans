@@ -416,6 +416,7 @@ int simu_main(int argc, char** argv)
 			"command line parameters available: \n"
 			" -addons             loads also addons (with -objects)\n"
 			" -async              asynchronic images, only for SDL\n"
+			" -use_hw             hardware double buffering, only for SDL\n"
 			" -debug NUM          enables debuging (1..5)\n"
 			" -freeplay           play with endless money\n"
 			" -fullscreen         starts simutrans in fullscreen mode\n"
@@ -782,8 +783,8 @@ int simu_main(int argc, char** argv)
 	}
 
 	int parameter[2];
-	parameter[0] = gimme_arg(argc, argv, "-net",   0)==NULL;
-	parameter[1] = gimme_arg(argc, argv, "-async", 0)==NULL;
+	parameter[0] = gimme_arg( argc, argv, "-async", 0) != NULL;
+	parameter[1] = gimme_arg( argc, argv, "-use_hw", 0) != NULL;
 	if (!dr_os_init(parameter)) {
 		dr_fatal_notify("Failed to initialize backend.\n");
 		return EXIT_FAILURE;
@@ -1018,15 +1019,30 @@ int simu_main(int argc, char** argv)
 
 	// still nothing to be loaded => search for demo games
 	if(  new_world  ) {
-		chdir( umgebung_t::program_dir );
-		char buffer[256];
-		sprintf(buffer, "%sdemo.sve", umgebung_t::objfilename.c_str());
-		// access did not work!
-		if (FILE* const f = fopen(buffer, "rb")) {
+		cbuffer_t buf;
+		// Have to handle two cases: absolute filename and relative filename (gaaah!)
+		if (umgebung_t::objfilename.length() >= 1 ) {
+			if (umgebung_t::objfilename[0] == '/') {
+				// Absolute filename.  We may not have detected every such case;
+				// different OSes have different conventions; but at least this works
+				// on UNIX-like systems.
+				// Do nothing....
+			} else {
+				// Relative filename.  Stuff the program directory on the front.
+				// The program directory has a trailing slash.
+				buf.append( (const char *)umgebung_t::program_dir );
+			}
+		}
+		// Now append the pakfile directory
+		buf.append(umgebung_t::objfilename.c_str()); //has trailing slash
+		buf.append("demo.sve");
+		if (FILE* const f = fopen(buf.get_str(), "rb")) {
 			// there is a demo game to load
-			loadgame = buffer;
+			loadgame = buf;
 			fclose(f);
-DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
+DBG_MESSAGE("simmain","loadgame file found at %s",buf.get_str() );
+		} else {
+DBG_MESSAGE("simmain","demo file not found at %s",buf.get_str() );
 		}
 	}
 
