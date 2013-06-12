@@ -1262,10 +1262,10 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 			if (ware.to_factory)
 			{
 				// What factory are we trying to deliver to? (FIXME: use fab handles)
-				const fabrik_t* fab = fabrik_t::get_fab( ware.get_zielpos() );
+				const fabrik_t* fab = fabrik_t::get_fab( welt, ware.get_zielpos() );
 				if (fab) {
 					// If there's no factory there, wait.
-					if fab_list.is_contained(fab) {
+					if ( fab_list.is_contained(fab) ) {
 						// If this factory is on our list of connected factories... we're there!
 						// FIXME: This should be delayed by the transshipment time
 						liefere_an_fabrik(ware);
