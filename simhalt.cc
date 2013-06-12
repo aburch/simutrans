@@ -1484,7 +1484,6 @@ minivec_tpl<halthandle_t>* haltestelle_t::build_destination_list(ware_t &ware)
 		// We need to do this for attractions and city halls too, but we don't (BUG)
 		vector_tpl<koord> tile_list;
 		fab->get_tile_list(tile_list);
-		const uint8 freight_coverage_distance = (uint8)welt->get_settings().get_station_coverage_factories();
 		FOR(vector_tpl<koord>, const k, tile_list)
 		{
 			const planquadrat_t* plan = welt->lookup(k);
@@ -1496,9 +1495,20 @@ minivec_tpl<halthandle_t>* haltestelle_t::build_destination_list(ware_t &ware)
 					const nearby_halt_t *haltlist = plan->get_haltlist();
 					for(int i = 0; i < haltlist_count; i++)
 					{
-						if(haltlist[i].halt->is_enabled(warentyp) && (!ware.is_freight() || haltlist[i].distance <= freight_coverage_distance))
+						if(  haltlist[i].halt->is_enabled(warentyp) )
 						{
-							destination_halts_list->append(haltlist[i].halt); 
+							// OK, the halt accepts the ware type.
+							// If this is passengers or mail, accept it.
+							//
+							// However, the smaller freight coverage rules mean
+							// that we may have halts too far away.  The halt will
+							// know whether it is linked to the factory.
+							if (	!ware.is_freight()
+									|| ( fab && haltlist[i].halt->get_fab_list().is_contained(fab) )
+									)
+							{
+								destination_halts_list->append(haltlist[i].halt);
+							}
 						}
 					}
 				}
@@ -2265,12 +2275,22 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 
 	// have we arrived?
 	const planquadrat_t* plan = welt->lookup(ware.get_zielpos());
-	if(plan && (!ware.is_freight() || plan->get_connected(self) <= welt->get_settings().get_station_coverage_factories() )) 
+	if(plan)
 	{
-		if(ware.to_factory) 
+		// If we are within delivery distance of our target factory, go there.
+		if (ware.to_factory)
 		{
-			// muss an fabrik geliefert werden
-			liefere_an_fabrik(ware);
+			// What factory are we trying to deliver to? (FIXME: use fab handles)
+			fabrik_t* fab = fabrik_t::get_fab( welt, ware.get_zielpos() );
+			if (fab) {
+				// If there's no factory there, wait.
+				if ( fab_list.is_contained(fab) ) {
+					// If this factory is on our list of connected factories... we're there!
+					// FIXME: This should be delayed by the transshipment time
+					liefere_an_fabrik(ware);
+					continue;
+				}
+			}
 		}
 		else if(ware.get_besch()==warenbauer_t::passagiere) 
 		{
