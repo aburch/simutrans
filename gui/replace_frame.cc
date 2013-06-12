@@ -11,6 +11,7 @@
 #include "../simwin.h"
 #include "../simworld.h"
 #include "../player/simplay.h"
+#include "../player/finance.h"
 #include "../simline.h"
 
 #include "../dataobj/translator.h"
@@ -412,7 +413,7 @@ bool replace_frame_t::replace_convoy(convoihandle_t cnv_rpl, bool mark)
 
 		if(!cnv_rpl->get_welt()->get_active_player()->can_afford(0 - money))
 		{
-			const char *err = "That would exceed\nyour credit limit.";
+			const char *err = CREDIT_MESSAGE;
 			news_img *box = new news_img(err);
 			create_win(box, w_time_delete, magic_none);
 			break;

@@ -209,6 +209,16 @@ bool spieler_t::can_afford(const sint64 price) const
 	);
 }
 
+static bool spieler_t::can_afford(spieler_t* sp, const sint64 price)
+{
+	if (!sp) {
+		// If there is no player involved, it can be afforded
+		return true;
+	} else {
+		return sp->can_afford(price);
+	}
+}
+
 /* returns the name of the player; "player -1" sits in front of the screen
  * @author prissi
  */

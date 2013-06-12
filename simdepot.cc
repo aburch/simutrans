@@ -13,6 +13,7 @@
 #include "vehicle/simvehikel.h"
 #include "simwin.h"
 #include "player/simplay.h"
+#include "player/finance.h"
 #include "simworld.h"
 #include "simdepot.h"
 #include "simline.h"
@@ -33,7 +34,6 @@
 
 #include "besch/haus_besch.h"
 
-#define CREDIT_MESSAGE "That would exceed\nyour credit limit."
 #include "utils/cbuffer_t.h"
 
 slist_tpl<depot_t *> depot_t::all_depots;

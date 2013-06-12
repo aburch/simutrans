@@ -2462,16 +2462,45 @@ sint64 haltestelle_t::calc_maintenance() const
 bool haltestelle_t::make_public_and_join( spieler_t *sp )
 {
 	spieler_t *public_owner=welt->get_spieler(1);
-	sint64 total_costs = 0;
 	slist_tpl<halthandle_t> joining;
 
 	// only something to do if not yet owner ...
 	if(besitzer_p!=public_owner) {
-		// now recalculate maintenance
+		// First run through to see if we can afford this.
+		sint64 total_charge = 0;
 		FOR(slist_tpl<tile_t>, const& i, tiles) {
 			grund_t* const gr = i.grund;
 			gebaeude_t* gb = gr->find<gebaeude_t>();
-			if(gb) 
+			if(gb)
+			{
+				const haus_besch_t* besch = gb->get_tile()->get_besch();
+				sint32 costs;
+				if(besch->get_base_station_maintenance() == 2147483647)
+				{
+					// Default value - no specific maintenance set. Use the old method
+					costs =welt->get_settings().maint_building * besch->get_level();
+				}
+				else
+				{
+					// New method - get the specified factor.
+					costs = besch->get_station_maintenance();
+				}
+				// Sixty months of maintenance is the payment to the public player for this
+				total_charge += welt->calc_adjusted_monthly_figure(costs * 60);
+				if(!sp->can_afford(total_charge))
+				{
+					// We can't afford this.  Bail out.
+					return false;
+				}
+			}
+		}
+		// Now run through to actually transfer ownership
+		// and recalculate maintenance; must do maintenance here, not above,
+		// in order to properly assign it by waytype
+		FOR(slist_tpl<tile_t>, const& i, tiles) {
+			grund_t* const gr = i.grund;
+			gebaeude_t* gb = gr->find<gebaeude_t>();
+			if(gb)
 			{
 				spieler_t *gb_sp=gb->get_besitzer();
 				const haus_besch_t* besch = gb->get_tile()->get_besch();
@@ -2486,19 +2515,14 @@ bool haltestelle_t::make_public_and_join( spieler_t *sp )
 					// New method - get the specified factor.
 					costs = besch->get_station_maintenance();
 				}
-				total_costs += costs;
-				if(!sp->can_afford(welt->calc_adjusted_monthly_figure(total_costs*60)))
-				{
-					// Bernd Gabriel: does anybody reassign the already disappropriated buildings?
-					return false;
-				}
 				spieler_t::add_maintenance( gb_sp, -costs, gb->get_waytype() );
 				gb->set_besitzer(public_owner);
 				gb->set_flag(ding_t::dirty);
 				spieler_t::add_maintenance(public_owner, costs, gb->get_waytype() );
 				// it is not real construction cost, it is fee payed for public authority for future maintenance. So money are transferred to public authority
-				spieler_t::book_construction_costs( sp,          -costs*60, get_basis_pos(), gb->get_waytype());
-				spieler_t::book_construction_costs( public_owner, costs*60, koord::invalid, gb->get_waytype());
+				sint64 charge = welt->calc_adjusted_monthly_figure(costs * 60);
+				spieler_t::book_construction_costs( sp,          -charge, get_basis_pos(), gb->get_waytype());
+				spieler_t::book_construction_costs( public_owner, charge, koord::invalid, gb->get_waytype());
 			}
 			// ok, valid start, now we can join them
 			for( uint8 i=0;  i<8;  i++  ) {
