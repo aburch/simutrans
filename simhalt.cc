@@ -523,15 +523,16 @@ haltestelle_t::~haltestelle_t()
 		}
 	}
 
-	// clean waiting_times for each stop
+	// At every other stop which may have waiting times for going here, clean this stop out
+	// of that stop's waiting times list
 	FOR(slist_tpl<halthandle_t>, & current_halt, alle_haltestellen)
 	{
-		for ( int category = 0; category < warenbauer_t::get_max_catg_index(); category++ )
+		// If it's not bound, or waiting_times isn't initialized, this could crash
+		if (current_halt.is_bound() && current_halt->waiting_times) {
 		{
-			waiting_time_map * their_waiting_times = current_halt.waiting_times;
-			if (waiting_time_map) {
-				// Defensive programming for uninitialized maps
-				their_waiting_times[category].remove(self.get_id());
+			for ( int category = 0; category < warenbauer_t::get_max_catg_index(); category++ )
+			{
+				current_halt->waiting_times[category].remove(self.get_id());
 			}
 		}
 	}
@@ -1265,7 +1266,7 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 			if (ware.to_factory)
 			{
 				// What factory are we trying to deliver to? (FIXME: use fab handles)
-				const fabrik_t* fab = fabrik_t::get_fab( welt, ware.get_zielpos() );
+				fabrik_t* fab = fabrik_t::get_fab( welt, ware.get_zielpos() );
 				if (fab) {
 					// If there's no factory there, wait.
 					if ( fab_list.is_contained(fab) ) {
