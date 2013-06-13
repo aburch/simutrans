@@ -778,6 +778,22 @@ int simu_main(int argc, char** argv)
 		}
 	}
 
+	// check for valid pak path
+	{
+		cbuffer_t buf;
+		buf.append( umgebung_t::program_dir );
+		buf.append( umgebung_t::objfilename.c_str() );
+		buf.append("ground.Outside.pak");
+
+		FILE* const f = fopen(buf, "r");
+		if(  !f  ) {
+			dr_fatal_notify("*** No pak set found ***\n\nMost likely, you have no pak set installed.\nPlease download and install a pak set (graphics).\n");
+			simgraph_exit();
+			return 0;
+		}
+		fclose(f);
+	}
+
 	// now find the pak specific tab file ...
 	obj_conf = umgebung_t::objfilename + path_to_simuconf;
 	if(  simuconf.open(obj_conf.c_str())  ) {
