@@ -4109,22 +4109,45 @@ void haltestelle_t::calc_transfer_time()
 	{
 		pos = tile.grund->get_pos().get_2d();
 
-		if(ul.x > pos.x) ul.x = pos.x;
-		if(ul.y > pos.y) ul.y = pos.y;
-		if(lr.x < pos.x) lr.x = pos.x;
-		if(lr.y < pos.y) lr.y = pos.y;
+		// First time through, this sets ul / lr to pos.
+		// Subsequent times, it pushes ul to lower numbers
+		// and lr to higher numbers.
+		if(pos.x < ul.x) ul.x = pos.x;
+		if(pos.y < ul.y) ul.y = pos.y;
+		if(pos.x > lr.x) lr.x = pos.x;
+		if(pos.y > lr.y) lr.y = pos.y;
 	}
 
-	const sint16 x_size = (lr.x - ul.x) + 1;
-	const sint16 y_size = (lr.y - ul.y) + 1;
+	// Guaranteed to be non-negative
+	// Don't add 1 -- a one-tile station should have zero transfer time
+	const sint16 x_size = (lr.x - ul.x);
+	const sint16 y_size = (lr.y - ul.y);
 
-	// Approximate the transfer time.
-	const sint16 ave_dimension = ((x_size + y_size) / 2) - 1;
-	transfer_time = welt->walking_time_tenths_from_distance(ave_dimension / 2);
+	// Revised calculation by neroden to have greater granularity.
+
+	// this is the length (in tiles) to walk from the center tile to each of the four sides,
+	// added together.  (One tile is "free"; this approximates the previous algorithm for very
+	// small stations.)
+	const uint32 length_around = x_size + y_size;
+
+	// Approximate the transfer time.  (This is all inlined.)
+	const uint32 walking_around = welt->walking_time_tenths_from_distance(length_around);
+	// Guess that someone has to walk roughly from the middle to one end, so divide by *4*.
+	// Finally, round down to a uint16 (just in case).
+	transfer_time = min( walking_around / 4, 65535 );
+
+	// Repeat the process for the transshipment time.  (This is all inlined.)
+	const uint32 hauling_around = welt->walk_haulage_time_tenths_from_distance(length_around);
+	transshipment_time = min( hauling_around / 4, 65535 );
+
+	// For reference, with a transshipment speed of 1 km/h and a walking speed of 5 km/h,
+	// and 125 meters per tile, a 1x2 station has a 1:48 transfer penalty for freight
+	// and an 18 second transfer penalty for passengers.  A 1x6 station has
+	// a 1:48 transfer penalty for passengers and a 9:18 transfer penalty for freight.
+	// A large 8 x 4 station has an 18:42 penalty for freight and a 3:42 penalty for passengers.
 
 	// TODO: Consider more sophisticated things here, such as allowing certain extensions to
 	// reduce this transshipment time (convyer belts, etc.).
-	transshipment_time = welt->walk_haulage_time_tenths_from_distance(ave_dimension / 2);
 }
 
 void haltestelle_t::add_waiting_time(uint16 time, halthandle_t halt, uint8 category, bool do_not_reset_month)
