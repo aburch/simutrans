@@ -185,7 +185,7 @@ void grund_t::rdwr(loadsave_t *file)
 	// water saves its correct height => no need to save grid heights anymore
 	sint8 z = welt->lookup_hgt( pos.get_2d() ); // save grid height for water tiles - including partial water tiles
 	sint8 z_w = welt->get_water_hgt( pos.get_2d() );
-	if(  (!ist_wasser()  &&  z > z_w)  ||  ist_bruecke()  ||  ist_tunnel()  ) {
+	if(  (!ist_wasser()  &&  z > z_w)  ||  ist_bruecke()  ||  ist_tunnel()  ||  get_typ() == grund_t::monorailboden  ) {
 		z = pos.z; // all other tiles save ground height
 	}
 
