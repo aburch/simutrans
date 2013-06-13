@@ -1960,7 +1960,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 			}
 		}
 
-		display_multiline_text(pos.x + 380, pos.y + tabs.get_pos().y + tabs.get_groesse().y + 31 + LINESPACE * 2 + 4 + 16, buf, COL_BLACK);
+		display_multiline_text(pos.x + 370, pos.y + tabs.get_pos().y + tabs.get_groesse().y + 31 + LINESPACE * 2 + 4 + 16, buf, COL_BLACK);
 
 		// update speedbar
 		new_vehicle_length_sb = new_vehicle_length_sb_force_zero ? 0 : convoi_length_ok_sb + convoi_length_slower_sb + convoi_length_too_slow_sb + veh_type->get_length();
