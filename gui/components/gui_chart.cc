@@ -155,53 +155,20 @@ void gui_chart_t::zeichnen(koord offset)
 	display_ddd_box_clip(offset.x, offset.y, groesse.x, groesse.y, COL_GREY1, COL_WHITE);
 
 	// draw chart lines
-	// Skip labels which would overwrite other labels
-	//
-	// The x-axis display is polymorphic depending on the setting of "seed"
-	// If seed is "0" it counts up
-	// If seed is a positive number it counts down...
-	// If seed is negative, part of this loop will break, so....
-	if (seed < 0) {
-		show_x_axis = false;
-	}
-	KOORD_VAL x_next_allowed = tmpx;
-	for (int i = 0; i<x_elements; i++) {
-		if (show_x_axis) {
-			int x_index;
+	KOORD_VAL x_last = 0;  // remember last digit position to avoid overwriting by next label
+	for(  int i = 0;  i < x_elements;  i++  ) {
+		const int j = umgebung_t::left_to_right_graphs ? x_elements - 1 - i : i;
+		const KOORD_VAL x0 = tmpx + factor * (groesse.x / (x_elements - 1) ) * j;
+		if(  show_x_axis  ) {
 			// display x-axis
-			if (seed == 0) {
-				x_index = seed + i;  // polymorphic behavior
-			} else {
-				x_index = seed - i;  // polymorphic behavior
-			}
-			sprintf(digit, "%i", x_index);
-			// I have no idea what this computation is for.  --neroden
-			int mystery_meat;
-			if (x_index == 0) {
-				mystery_meat = 0;
-			}
-			else {
-				mystery_meat = 2 * log((double)x_index);
-			}
-			KOORD_VAL x = tmpx+factor*(groesse.x / (x_elements - 1))*i - mystery_meat;
-			if (ltr) {
-				if (x < x_next_allowed) {
-					int displayed_width = display_proportional_clip(x, offset.y+groesse.y+6, digit, ALIGN_LEFT, MN_GREY4, true );
-					x_next_allowed = x - displayed_width;
-					// This isn't quite right, but we can't check the displayed width for the thing we
-					// have not displayed yet.  Usually all the x-axis labels will have the same width,
-					// so this will usually work.
-				}
-			}
-			else {
-				if (x > x_next_allowed) {
-					int displayed_width = display_proportional_clip(x, offset.y+groesse.y+6, digit, ALIGN_LEFT, MN_GREY4, true );
-					x_next_allowed = x + displayed_width;
-				}
+			sprintf( digit, "%i", abs(seed - j) );
+			KOORD_VAL x =  x0 - (seed != j ? (int)(2 * log( (double)abs(seed - j) )) : 0);
+			if(  x > x_last  ) {
+				x_last = x + display_proportional_clip( x, offset.y + groesse.y + 6, digit, ALIGN_LEFT, MN_GREY4, true );
 			}
 		}
 		// year's vertical lines
-		display_vline_wh_clip(tmpx+factor*(groesse.x / (x_elements - 1))*i, offset.y+1, groesse.y-2, MN_GREY4, false);
+		display_vline_wh_clip( x0, offset.y + 1, groesse.y - 2, MN_GREY4, false );
 	}
 
 	// display current value?
