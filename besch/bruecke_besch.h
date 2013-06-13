@@ -98,9 +98,11 @@ public:
 	}
 
 	static img_t get_simple(ribi_t::ribi ribi);
-	static img_t get_start(hang_t::typ slope);
+	img_t get_start(hang_t::typ slope) const;
 	static img_t get_rampe(hang_t::typ slope);
 	static img_t get_pillar(ribi_t::ribi ribi);
+
+	img_t get_end(hang_t::typ test_slope, hang_t::typ ground_slope, hang_t::typ way_slope) const;
 
 	waytype_t get_waytype() const { return static_cast<waytype_t>(wegtyp); }
 

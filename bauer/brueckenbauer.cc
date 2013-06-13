@@ -607,12 +607,7 @@ void brueckenbauer_t::baue_auffahrt(karte_t* welt, spieler_t* sp, koord3d end, k
 
 	bruecke = new brueckenboden_t(welt, end, grund_hang, weg_hang);
 	// add the ramp
-	if(bruecke->get_grund_hang() == hang_t::flach) {
-		img = besch->get_rampe( weg_hang );
-	}
-	else {
-		img = besch->get_start( grund_hang );
-	}
+	img = besch->get_end( bruecke->get_grund_hang(), grund_hang, weg_hang );
 
 	weg_t *weg = NULL;
 	if(besch->get_waytype() != powerline_wt) {

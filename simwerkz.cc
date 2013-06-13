@@ -2380,11 +2380,6 @@ void wkz_brueckenbau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d 
 	sint64 costs = 0;
 	// start
 	grund_t *gr = welt->lookup(start);
-	zeiger_t *way = new zeiger_t( welt, start, sp );
-	const bruecke_besch_t::img_t img0 = gr->get_grund_hang()==0 ? besch->get_rampe(ribi_mark) : besch->get_start(ribi_mark);
-	gr->obj_add( way );
-	way->set_bild(besch->get_hintergrund(img0, 0));
-	way->set_after_bild(besch->get_vordergrund(img0, 0));
 
 	// get initial height of bridge from start tile
 	// flat -> height is 1 if conversion factor 1, 2 if conversion factor 2
@@ -2392,6 +2387,13 @@ void wkz_brueckenbau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d 
 	// double height -> height is 2
 	const hang_t::typ slope = gr->get_grund_hang();
 	const uint8 max_height = slope ? ((slope & 7) ? 1 : 2) : umgebung_t::pak_height_conversion_factor;
+
+	zeiger_t *way = new zeiger_t( welt, start, sp );
+	const bruecke_besch_t::img_t img0 = besch->get_end( slope, slope, hang_typ(zv) );
+
+	gr->obj_add( way );
+	way->set_bild( besch->get_hintergrund( img0, 0 ) );
+	way->set_after_bild( besch->get_vordergrund( img0, 0 ) );
 
 	if(  gr->get_grund_hang() != 0  ) {
 		way->set_yoff( -TILE_HEIGHT_STEP * max_height );
@@ -2443,7 +2445,7 @@ void wkz_brueckenbau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d 
 
 	if(  gr->ist_karten_boden()  &&  end.z + end_max_height == start.z + max_height  ) {
 		zeiger_t *way = new zeiger_t( welt, end, sp );
-		const bruecke_besch_t::img_t img1 = gr->get_grund_hang()==0 ? besch->get_rampe(ribi_t::rueckwaerts(ribi_mark)) : besch->get_start(ribi_t::rueckwaerts(ribi_mark));
+		const bruecke_besch_t::img_t img1 = besch->get_end( end_slope, end_slope, hang_typ(-zv) );
 		gr->obj_add( way );
 		way->set_bild(besch->get_hintergrund(img1, 0));
 		way->set_after_bild(besch->get_vordergrund(img1, 0));
