@@ -1499,14 +1499,14 @@ minivec_tpl<halthandle_t>* haltestelle_t::build_destination_list(ware_t &ware)
 	}
 
 	const planquadrat_t *const plan = welt->lookup(ware.get_zielpos());
-	const fabrik_t* fab = fabrik_t::get_fab(welt, ware.get_zielpos());
+	fabrik_t* const fab = fabrik_t::get_fab(welt, ware.get_zielpos());
 
 	minivec_tpl<halthandle_t> *destination_halts_list = new minivec_tpl<halthandle_t>(plan->get_haltlist_count());
 	
 	if(fab)
 	{
 		// Check all tiles of the factory.
-		// We need to do this for attractions and city halls too, but we don't (BUG)
+		// We need to do this for attractions and city halls too, but we don't (legacy from Standard)
 		vector_tpl<koord> tile_list;
 		fab->get_tile_list(tile_list);
 		FOR(vector_tpl<koord>, const k, tile_list)
@@ -1528,7 +1528,7 @@ minivec_tpl<halthandle_t>* haltestelle_t::build_destination_list(ware_t &ware)
 							// However, the smaller freight coverage rules mean
 							// that we may have halts too far away.  The halt will
 							// know whether it is linked to the factory.
-							if (	!ware.is_freight()
+							if (!ware.is_freight()
 									|| ( fab && haltlist[i].halt->get_fab_list().is_contained(fab) )
 									)
 							{
@@ -2300,7 +2300,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 	// have we arrived?
 	// FIXME: This code needs to be fixed for multi-tile buildings
 	// such as attractions and city halls, to allow access from any side
-	const fabrik_t* fab = fabrik_t::get_fab( welt, ware.get_zielpos() );
+	fabrik_t* const fab = fabrik_t::get_fab( welt, ware.get_zielpos() );
 	if ( ware.to_factory && fab && fab_list.is_contained(fab) ) {
 		// Packet is headed to a factory;
 		// the factory exists;
