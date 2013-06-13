@@ -3331,15 +3331,13 @@ void haltestelle_t::rdwr(loadsave_t *file)
 
 	if(file->get_experimental_version() >= 11)
 	{
-		// We are caching the transfer times at the halt... for some unknown reason...
+		// We considered caching the transfer time at the halt,
+		// but this was a bad idea since the algorithm has not settled down
+		// and it's pretty fast to compute during loading
 		file->rdwr_short(transfer_time);
-		// Set the transshipment speed to 1km/h.
-		transshipment_time = transfer_time * (uint16)welt->get_settings().get_walking_speed();
 	}
-	else
-	{
-		calc_transfer_time();
-	}
+	// So compute it fresh every time
+	calc_transfer_time();
 
 	pedestrian_limit = 0;
 #ifdef DEBUG_SIMRAND_CALLS
