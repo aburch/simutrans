@@ -16,6 +16,7 @@
 #include "../player/simplay.h"
 #include "../simtools.h"
 #include "../simtypes.h"
+#include "../simloadingscreen.h"
 
 #include "../boden/grund.h"
 
@@ -60,11 +61,13 @@ void baum_t::distribute_trees(karte_t *welt, int dichte)
 	uint8      const c_forest_count = (unsigned)pow(((double)x * (double)y), 0.5)  / s.get_forest_count_divisor();
 
 DBG_MESSAGE("verteile_baeume()","creating %i forest",c_forest_count);
+	loadingscreen_t ls(translator::translate("Placing trees"),c_forest_count, true, true); 
 	for (uint8 c1 = 0 ; c1 < c_forest_count ; c1++) {
 		// to have same execution order for simrand
 		koord const start = koord::koord_random(x, y);
 		koord const size  = koord(t_forest_size,t_forest_size) + koord::koord_random(t_forest_size, t_forest_size);
 		create_forest( welt, start, size );
+		ls.set_progress( c1+1 );
 	}
 
 	fill_trees(welt, dichte);

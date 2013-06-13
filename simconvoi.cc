@@ -4903,7 +4903,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 			grund = welt->lookup(pos);
 			if(  grund==NULL  ) 
 			{
-				grund = welt->lookup(pos-koord3d(0,0,Z_TILE_STEP));
+				grund = welt->lookup(pos-koord3d(0,0,1));
 				if(  grund &&  grund->get_weg_yoff()!=TILE_HEIGHT_STEP  )
 				{
 					// not end/start of bridge

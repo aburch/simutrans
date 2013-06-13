@@ -209,7 +209,7 @@ bool spieler_t::can_afford(const sint64 price) const
 	);
 }
 
-static bool spieler_t::can_afford(spieler_t* sp, const sint64 price)
+bool spieler_t::can_afford(spieler_t* sp, sint64 price)
 {
 	if (!sp) {
 		// If there is no player involved, it can be afforded
@@ -441,7 +441,7 @@ bool spieler_t::neuer_monat()
 		// find out dummy companies (i.e. no vehicle running within x months)
 		if(  welt->get_settings().get_remove_dummy_player_months()  &&  player_age >= welt->get_settings().get_remove_dummy_player_months()  )  {
 			bool no_cnv = true;
-			const uint16 months = min( 12,  welt->get_settings().get_remove_dummy_player_months() );
+			const uint16 months = min( MAX_PLAYER_HISTORY_MONTHS,  welt->get_settings().get_remove_dummy_player_months() );
 			for(  uint16 m=0;  m<months  &&  no_cnv;  m++  ) {
 				no_cnv &= finance->get_history_com_month(m, ATC_ALL_CONVOIS) ==0;
 			}
@@ -458,7 +458,7 @@ bool spieler_t::neuer_monat()
 		// find out abandoned companies (no activity within x months)
 		if(  welt->get_settings().get_unprotect_abondoned_player_months()  &&  player_age >= welt->get_settings().get_unprotect_abondoned_player_months()  )  {
 			bool abandoned = true;
-			const uint16 months = min( 12,  welt->get_settings().get_unprotect_abondoned_player_months() );
+			const uint16 months = min( MAX_PLAYER_HISTORY_MONTHS,  welt->get_settings().get_unprotect_abondoned_player_months() );
 			for(  uint16 m = 0;  m < months  &&  abandoned;  m++  ) {
 				abandoned &= finance->get_history_veh_month(TT_ALL, m, ATV_NEW_VEHICLE)==0  &&  finance->get_history_veh_month(TT_ALL, m, ATV_CONSTRUCTION_COST)==0;
 			}

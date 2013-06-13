@@ -58,7 +58,7 @@ static void dsp_read_bdf_glyph(FILE *fin, uint8 *data, uint8 *screen_w, int char
 {
 	uint32	char_nr = 0;
 	int g_width, h, g_desc;
-	int d_width = 0;
+	int d_width = -1;
 	int xoff = 0;
 
 	while (!feof(fin)) {
@@ -134,7 +134,7 @@ static void dsp_read_bdf_glyph(FILE *fin, uint8 *data, uint8 *screen_w, int char
 			}
 			data[CHARACTER_LEN * char_nr + CHARACTER_LEN-2] = start_h;
 			data[CHARACTER_LEN*char_nr + CHARACTER_LEN-1] = g_width;
-			if (d_width == 0) {
+			if (d_width == -1) {
 #ifdef DEBUG
 				// no screen width: should not happen, but we can recover
 				fprintf(stderr, "BDF warning: %i has no screen width assigned!\n", char_nr);
@@ -150,7 +150,7 @@ static void dsp_read_bdf_glyph(FILE *fin, uint8 *data, uint8 *screen_w, int char
 
 
 /**
- * Reads a single character
+ * Reads a bdf font character
  */
 static bool dsp_read_bdf_font(FILE* fin, font_type* font)
 {
@@ -180,7 +180,8 @@ static bool dsp_read_bdf_font(FILE* fin, font_type* font)
 				return false;
 			}
 
-			screen_widths = (uint8*)calloc(f_chars, 1);
+			screen_widths = (uint8*)malloc(f_chars);
+			memset( screen_widths, f_chars, 0xFF );
 			if (screen_widths == NULL) {
 				free(data);
 				fprintf(stderr, "No enough memory for font allocation!\n");
@@ -276,6 +277,10 @@ bool load_font(font_type* fnt, const char* fname)
 			uint8 start_h;
 
 			fnt->screen_width[i] = npr_fonttab[256 + i];
+			if(  fnt->screen_width[i] == 0  ) {
+				// undefined char
+				fnt->screen_width[i] = -1;
+			}
 			for (j = 0; j < 10; j++) {
 				fnt->char_data[i * CHARACTER_LEN + j] = npr_fonttab[512 + i * 10 + j];
 			}

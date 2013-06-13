@@ -537,7 +537,6 @@ display_blend_proc display_blend = NULL;
 signed short current_tile_raster_width = 0;
 
 
-
 /*
  * Hajo: Zoom factor
  */
@@ -545,7 +544,6 @@ signed short current_tile_raster_width = 0;
 static uint32 zoom_factor = 3;
 static sint32 zoom_num[MAX_ZOOM_FACTOR+1] = { 2, 3, 4, 1, 3, 5, 1, 3, 1, 1 };
 static sint32 zoom_den[MAX_ZOOM_FACTOR+1] = { 1, 2, 3, 1, 4, 8, 2, 8, 4, 8 };
-
 
 
 /* changes the raster width after loading */
@@ -672,7 +670,6 @@ void display_set_clip_wh(KOORD_VAL x, KOORD_VAL y, KOORD_VAL w, KOORD_VAL h)
 	clip_rect.xx = x + w; // watch out, clips to KOORD_VAL max
 	clip_rect.yy = y + h; // watch out, clips to KOORD_VAL max
 }
-
 
 
 class clip_line_t {
@@ -3353,7 +3350,7 @@ int display_calc_proportional_string_len_width(const char* text, size_t len)
 			if (iUnicode == 0) {
 				return width;
 			}
-			else if(iUnicode>=fnt->num_chars  ||  (w = fnt->screen_width[iUnicode])==0  ) {
+			else if(iUnicode>=fnt->num_chars  ||  (w = fnt->screen_width[iUnicode])>=128  ) {
 				// default width for missing characters
 				w = fnt->screen_width[0];
 			}
@@ -3365,7 +3362,7 @@ int display_calc_proportional_string_len_width(const char* text, size_t len)
 		unsigned int c;
 		while(  *text != 0  &&  len > 0  ) {
 			c = (unsigned char)*text;
-			if(  c>=fnt->num_chars  ||  (char_width=fnt->screen_width[c])==0  ) {
+			if(  c>=fnt->num_chars  ||  (char_width=fnt->screen_width[c])>=128  ) {
 				// default width for missing characters
 				char_width = fnt->screen_width[0];
 			}
@@ -3442,7 +3439,8 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
 		cR = clip_rect.xx;
 		cT = clip_rect.y;
 		cB = clip_rect.yy;
-	} else {
+	}
+	else {
 		cL = 0;
 		cR = disp_width;
 		cT = 0;
@@ -3493,14 +3491,15 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
 		// decode char
 		if (has_unicode) {
 			c = utf8_to_utf16((utf8 const*)txt + iTextPos, &iTextPos);
-		} else {
+		}
+		else {
 #endif
 			c = (unsigned char)txt[iTextPos++];
 #ifdef UNICODE_SUPPORT
 		}
 #endif
 		// print unknown character?
-		if (c >= fnt->num_chars || fnt->screen_width[c] == 0) {
+		if (c >= fnt->num_chars || fnt->screen_width[c] >= 128) {
 			c = 0;
 		}
 
@@ -3931,44 +3930,6 @@ void draw_bezier(KOORD_VAL Ax, KOORD_VAL Ay, KOORD_VAL Bx, KOORD_VAL By, KOORD_V
 			}
 		}
 	}
-}
-
-
-/**
- * Zeichnet eine Fortschrittsanzeige
- * @author Hj. Malthaner
- */
-static const char *progress_text=NULL;
-
-
-void display_set_progress_text(const char *t)
-{
-	progress_text = t;
-}
-
-
-// draws a progress bar and flushes the display
-void display_progress(int part, int total)
-{
-	const int width=disp_actual_width/2;
-	part = (part*width)/total;
-
-	dr_prepare_flush();
-
-	// outline
-	display_ddd_box(width/2-2, disp_height/2-9, width+4, 20, COL_GREY6, COL_GREY4);
-	display_ddd_box(width/2-1, disp_height/2-8, width+2, 18, COL_GREY4, COL_GREY6);
-
-	// inner
-	display_fillbox_wh(width / 2, disp_height / 2 - 7, width, 16, COL_GREY5, true);
-
-	// progress
-	display_fillbox_wh(width / 2, disp_height / 2 - 5, part, 12, COL_NO_ROUTE, true);
-
-	if(progress_text) {
-		display_proportional(width,disp_height/2-4,progress_text,ALIGN_MIDDLE,COL_WHITE,0);
-	}
-	dr_flush();
 }
 
 

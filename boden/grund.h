@@ -157,11 +157,21 @@ protected:
 	 */
 	image_id bild_nr;
 
-	/* image of the walls */
+	/**
+	 * Image of the walls
+	 */
 	sint8 back_bild_nr;
 
-	// slope (now saved locally), because different grounds need differen slopes
+	/**
+	 * Slope (now saved locally), because different grounds need different slopes
+	 */
 	uint8 slope;
+
+	/**
+	 * Indicates if this tile is in a border position, and in which direction.
+	 * @return A ribi_t style mask indicating in which direction spans the lack of neighbour tiles.
+	 */
+	uint8 get_border_direction() const;
 
 public:
 	/**
@@ -453,17 +463,30 @@ public:
 		}
 		return(false);
 	}
+
 	/**
 	 * returns slope of ways as displayed (special cases: bridge ramps, tunnel mouths, undergroundmode etc)
 	 */
 	hang_t::typ get_disp_way_slope() const;
+
 	/**
-	* displays the ground images (including foundations, fences and ways)
-	* @author Hj. Malthaner
-	*/
+	 * Displays the ground images (including foundations, fences and ways)
+	 * @author Hj. Malthaner
+	 */
 	void display_boden(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width) const;
 
-	void display_if_visible(sint16 xpos, sint16 ypos, sint16 raster_tile_width) const;
+	/**
+	 * Display black background on border tiles.
+	 * @note at the moment, it just displays background on north and west tiles.
+	 * @note Can't be a const function because it will mark the tile as dirty if it draws something.
+	 */
+	void display_border(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, const uint8 border_direction);
+
+	/**
+	 * Displays the tile if it's visible.
+	 * @see is_karten_boden_visible()
+	 */
+	void display_if_visible(sint16 xpos, sint16 ypos, sint16 raster_tile_width);
 
 	/**
 	 * displays everything that is on a tile - the main display routine for objects on tiles

@@ -32,6 +32,7 @@
 #include "../gui/werkzeug_waehler.h"
 
 #include "wegbauer.h"
+#include "../tpl/stringhashtable_tpl.h"
 #include "../tpl/vector_tpl.h"
 
 
@@ -327,7 +328,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 		weg_besch = wegbauer_t::weg_search( wegtyp, besch->get_topspeed(), besch->get_max_axle_load(), 0, weg_t::type_flat );
 	}
 
-	baue_einfahrt(welt, sp, pos, zv, besch, weg_besch, cost, maint);
+	baue_einfahrt(welt, sp, pos, zv, besch, weg_besch, cost);
 
 	ribi = ribi_typ(-zv);
 	// don't move on to next tile if only one tile long
@@ -366,14 +367,14 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 		tunnel->calc_bild();
 		tunnel->set_flag(grund_t::dirty);
 		assert(!tunnel->ist_karten_boden());
-		maint += besch->get_wartung();
+		spieler_t::add_maintenance( sp, besch->get_wartung(), besch->get_finance_waytype() );
 		cost += besch->get_preis();
 		pos = pos + zv;
 	}
 
 	// if end is above ground construct an exit
 	if(welt->lookup_kartenboden(end.get_2d())->get_pos().z==end.z) {
-		baue_einfahrt(welt, sp, pos, -zv, besch, weg_besch, cost, maint);
+		baue_einfahrt(welt, sp, pos, -zv, besch, weg_besch, cost);
 		// calc new back image for the ground
 		if (end!=start && grund_t::underground_mode) {
 			grund_t *gr = welt->lookup_kartenboden(pos.get_2d()-zv);
@@ -404,17 +405,16 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 		tunnel->calc_bild();
 		tunnel->set_flag(grund_t::dirty);
 		assert(!tunnel->ist_karten_boden());
-		maint += besch->get_wartung();
+		spieler_t::add_maintenance( sp,  besch->get_wartung(), besch->get_finance_waytype() );
 		cost += besch->get_preis();
 	}
 
-	spieler_t::add_maintenance( sp,  maint, weg_besch->get_finance_waytype() );
 	spieler_t::book_construction_costs(sp, -cost, start.get_2d(), besch->get_waytype());
 	return true;
 }
 
 
-void tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, koord3d end, koord zv, const tunnel_besch_t *besch, const weg_besch_t *weg_besch, int &cost, int &maint)
+void tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, koord3d end, koord zv, const tunnel_besch_t *besch, const weg_besch_t *weg_besch, int &cost)
 {
 	grund_t *alter_boden = welt->lookup(end);
 	ribi_t::ribi ribi = 0;
@@ -503,8 +503,7 @@ void tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, koord3d end, koo
 		}
 	}
 
-
-	maint += besch->get_wartung();
+	spieler_t::add_maintenance( sp,  besch->get_wartung(), besch->get_finance_waytype() );
 	cost += besch->get_preis();
 }
 
