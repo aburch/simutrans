@@ -3244,9 +3244,12 @@ void stadt_t::step_passagiere()
 		while(route_status != public_transport && route_status != private_car && route_status != on_foot && current_destination < destination_count)
 		{
 			const uint32 straight_line_distance = shortest_distance(origin_pos, destinations[current_destination].location);
-			const uint16 walking_time = welt->walking_time_tenths_from_distance(straight_line_distance);
+			// Careful -- use uint32 here to avoid overflow cutoff errors.
+			// This number may be very long.
+			const uint32 walking_time = welt->walking_time_tenths_from_distance(straight_line_distance);
 			car_minutes = 65535;
 
+			// If can_walk is true, it also guarantees that walking_time will fit in a uint16.
 			const bool can_walk = walking_time <= quasi_tolerance;
 
 			if(!has_private_car && !can_walk && start_halts.empty())
@@ -3336,7 +3339,7 @@ void stadt_t::step_passagiere()
 					best_journey_time = 1;
 				}
 
-				if(best_journey_time > walking_time && can_walk)
+				if(can_walk && walking_time < best_journey_time)
 				{
 					// If walking is faster than public transport, passengers will walk.
 					route_status = on_foot;
