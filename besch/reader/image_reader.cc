@@ -74,7 +74,6 @@ obj_besch_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		}
 	}
 	else if(version<=2) {
-		delete[] besch->node_info;
 		besch->node_info = new obj_besch_t*[node.children];
 
 		besch->pic.x = decode_sint16(p);
@@ -95,7 +94,6 @@ obj_besch_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		}
 	}
 	else if(version==3) {
-		delete[] besch->node_info;
 		besch->node_info = new obj_besch_t*[node.children];
 
 		besch->pic.x = decode_sint16(p);
@@ -140,7 +138,7 @@ obj_besch_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		uint16 *dest = besch->pic.data;
 		for( uint8 y=0;  y<besch->pic.h;  y++  ) {
 			if(*dest<left) {
-				left = *dest; 
+				left = *dest;
 			}
 			// skip rest of the line
 			do {

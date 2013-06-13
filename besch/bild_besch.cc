@@ -161,5 +161,9 @@ void bild_besch_t::decode_img(sint16 xoff, sint16 yoff, uint32 *target, uint32 t
 
 bild_besch_t::~bild_besch_t()
 {
-	delete[] node_info;
+	if (node_info) {
+		// Allocated in some versions but not others.
+		// Always allocated with new[] when allocated
+		delete[] node_info;
+	}
 }
