@@ -283,16 +283,16 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	}
 
 	//CHART YEAR
-	chart.set_pos(koord(105,top+10*BUTTONSPACE+11));
-	chart.set_groesse(koord(455,120));
+	chart.set_pos(koord(104,top+10*BUTTONSPACE+11));
+	chart.set_groesse(koord(457,120));
 	chart.set_dimension(MAX_PLAYER_HISTORY_YEARS, 10000);
 	chart.set_seed(sp->get_welt()->get_last_year());
 	chart.set_background(MN_GREY1);
 	//CHART YEAR END
 
 	//CHART MONTH
-	mchart.set_pos(koord(105,top+10*BUTTONSPACE+11));
-	mchart.set_groesse(koord(455,120));
+	mchart.set_pos(koord(104,top+10*BUTTONSPACE+11));
+	mchart.set_groesse(koord(457,120));
 	mchart.set_dimension(MAX_PLAYER_HISTORY_MONTHS, 10000);
 	mchart.set_seed(0);
 	mchart.set_background(MN_GREY1);

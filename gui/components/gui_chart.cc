@@ -154,19 +154,20 @@ void gui_chart_t::zeichnen(koord offset)
 	display_ddd_box_clip(offset.x, offset.y, groesse.x, groesse.y, COL_GREY1, COL_WHITE);
 
 	// draw chart lines
-	// .. remember last digit position to avoid overwriting by next label
-	KOORD_VAL x_last = 0;
-	for (int i = 0; i<x_elements; i++) {
-		if (show_x_axis) {
+	KOORD_VAL x_last = 0;  // remember last digit position to avoid overwriting by next label
+	for(  int i = 0;  i < x_elements;  i++  ) {
+		const int j = umgebung_t::left_to_right_graphs ? x_elements - 1 - i : i;
+		const KOORD_VAL x0 = tmpx + factor * (groesse.x / (x_elements - 1) ) * j;
+		if(  show_x_axis  ) {
 			// display x-axis
-			sprintf(digit, "%i", abs(seed-i));
-			KOORD_VAL x = tmpx+factor*(groesse.x / (x_elements - 1))*i - (seed != i ? (int)(2*log((double)abs((seed-i)))) : 0);
-			if (x > x_last) {
-				x_last = x + display_proportional_clip(x, offset.y+groesse.y+6, digit, ALIGN_LEFT, MN_GREY4, true );
+			sprintf( digit, "%i", abs(seed - j) );
+			KOORD_VAL x =  x0 - (seed != j ? (int)(2 * log( (double)abs(seed - j) )) : 0);
+			if(  x > x_last  ) {
+				x_last = x + display_proportional_clip( x, offset.y + groesse.y + 6, digit, ALIGN_LEFT, MN_GREY4, true );
 			}
 		}
 		// year's vertical lines
-		display_vline_wh_clip(tmpx+factor*(groesse.x / (x_elements - 1))*i, offset.y+1, groesse.y-2, MN_GREY4, false);
+		display_vline_wh_clip( x0, offset.y + 1, groesse.y - 2, MN_GREY4, false );
 	}
 
 	// display current value?
