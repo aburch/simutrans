@@ -1082,7 +1082,7 @@ void haltestelle_t::step()
 					continue;
 				}
 						
-				uint16 waiting_minutes = convoi_t::get_waiting_minutes(welt->get_zeit_ms() - tmp.arrival_time);
+				uint32 waiting_tenths = convoi_t::get_waiting_minutes(welt->get_zeit_ms() - tmp.arrival_time);
 
 				// Checks to see whether the freight has been waiting too long.
 				// If so, discard it.
@@ -1090,25 +1090,36 @@ void haltestelle_t::step()
 				if(tmp.get_besch()->get_speed_bonus() > 0u)
 				{
 					// Only consider for discarding if the goods care about their timings.
-					// Passengers' maximum waiting times are proportionate to the length of the journey.
-					const uint16 base_max_minutes = (welt->get_settings().get_passenger_max_wait() / tmp.get_besch()->get_speed_bonus()) * 10;  // Minutes are recorded in tenths
+					// Use 32-bit math; it's very easy to overflow 16 bits.
+					const uint32 max_wait = welt->get_settings().get_passenger_max_wait();
+					const uint32 max_wait_minutes = max_wait / tmp.get_besch()->get_speed_bonus();
+					uint32 max_wait_tenths = max_wait_minutes * 10u;
 					halthandle_t h = haltestelle_t::get_halt(welt, tmp.get_zielpos(), besitzer_p);
+
+					// Passengers' maximum waiting times are proportionate to the length of the journey.
 					uint16 journey_time = 65535;
 					path_explorer_t::get_catg_path_between(tmp.get_besch()->get_catg_index(), tmp.get_origin(), tmp.get_ziel(), journey_time, h);
-					const uint16 thrice_journey = journey_time * 3u;
-					const uint16 min_minutes = base_max_minutes / 12u;
-					const uint16 max_minutes = tmp.is_passenger() ? base_max_minutes < thrice_journey ? base_max_minutes : max(thrice_journey, min_minutes) : base_max_minutes;
+					const uint32 thrice_journey = 3u * journey_time;
+					const uint32 min_tenths = max_wait_tenths / 12u;
+					if (tmp.is_passenger() && thrice_journey < max_wait_tenths) {
+						if (thrice_journey < min_tenths) {
+							max_wait_tenths = min_tenths;
+						}
+						else {
+							max_wait_tenths = thrice_journey;
+						}
+					}
 #ifdef DEBUG_SIMRAND_CALLS
 					if (talk && i == 2198)
 						dbg->message("haltestelle_t::step", "%u) check %u of %u minutes: %u %s to \"%s\"", 
-						i, waiting_minutes, max_minutes, tmp.menge, tmp.get_besch()->get_name(), tmp.get_ziel()->get_name());
+						i, waiting_tenths, max_wait_tenths, tmp.menge, tmp.get_besch()->get_name(), tmp.get_ziel()->get_name());
 #endif
-					if(waiting_minutes > max_minutes)
+					if(waiting_tenths > max_wait_tenths)
 					{
 #ifdef DEBUG_SIMRAND_CALLS
 						if (talk)
 							dbg->message("haltestelle_t::step", "%u) discard after %u of %u minutes: %u %s to \"%s\"", 
-							i, waiting_minutes, max_minutes, tmp.menge, tmp.get_besch()->get_name(), tmp.get_ziel()->get_name());
+							i, waiting_tenths, max_wait_tenths, tmp.menge, tmp.get_besch()->get_name(), tmp.get_ziel()->get_name());
 #endif
 
 						// Waiting too long: discard
@@ -1151,27 +1162,41 @@ void haltestelle_t::step()
 								}
 							}
 						}
-						
+
 						// If goods/passengers leave, then they must register a waiting time, or else
 						// overcrowded stops would have excessively low waiting times. Because they leave
 						// before they have got transport, the waiting time registered must be increased
 						// by 4x to reflect an estimate of how long that they would likely have had to
 						// have waited to get transport.
+						waiting_tenths *= 4;
 
-						waiting_minutes *= 4;
-						add_waiting_time(waiting_minutes, tmp.get_zwischenziel(), tmp.get_besch()->get_catg_index());
-						
+						// Avoid integer overflow
+						if (waiting_tenths > 65535) {
+							waiting_tenths = 65535;
+						}
+						const uint16 waiting_tenths_short = waiting_tenths;
+						add_waiting_time(waiting_tenths_short, tmp.get_zwischenziel(), tmp.get_besch()->get_catg_index());
+
 						// The goods/passengers leave.
 						tmp.menge = 0;
-					}		
+
+						// Normally we record long waits below, but we just did, so don't do it twice.
+						continue;
+					}
 				}
-				
-				if(waiting_minutes > 2 * get_average_waiting_time(tmp.get_zwischenziel(), tmp.get_besch()->get_catg_index()))
+
+				// Check to see whether these passengers/this freight has been waiting more than 2x as long
+				// as the existing registered waiting times. If so, register the waiting time to prevent an
+				// artificially low time from being recorded if there is a long service interval.
+				if(waiting_tenths > 2 * get_average_waiting_time(tmp.get_zwischenziel(), tmp.get_besch()->get_catg_index()))
 				{
-					// Check to see whether these passengers/this freight has been waiting more than 2x as long
-					// as the existing registered waiting times. If so, register the waiting time to prevent an
-					// artificially low time from being recorded if there is a long service interval. 
-					add_waiting_time(waiting_minutes, tmp.get_zwischenziel(), tmp.get_besch()->get_catg_index());
+					// Avoid integer overflow
+					if (waiting_tenths > 65535) {
+						waiting_tenths = 65535;
+					}
+					const uint16 waiting_tenths_short = waiting_tenths;
+
+					add_waiting_time(waiting_tenths, tmp.get_zwischenziel(), tmp.get_besch()->get_catg_index());
 				}
 			}
 		}
@@ -1854,7 +1879,6 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 							{
 								const connexion* next_connexion = connexions[catg_index]->get(next_transfer);
 								const uint16 average_waiting_minutes = next_connexion != NULL ? next_connexion->waiting_time : 15;
-								const uint16 base_max_minutes = (welt->get_settings().get_passenger_max_wait() / speed_bonus) * 5;  
 								const uint16 preferred_travelling_minutes = next_connexion != NULL ? next_connexion->journey_time : 15;
 								// Minutes are recorded in tenths. One third max for this purpose.
 								//const uint16 max_minutes = base_max_minutes > preferred_travelling_minutes ? preferred_travelling_minutes : base_max_minutes;
