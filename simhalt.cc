@@ -2274,24 +2274,28 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 	}
 
 	// have we arrived?
+	// FIXME: This code needs to be fixed for multi-tile buildings
+	// such as attractions and city halls, to allow access from any side
+	const fabrik_t* fab = fabrik_t::get_fab( welt, ware.get_zielpos() );
+	if ( ware.to_factory && fab && fab_list.is_contained(fab) ) {
+		// Packet is headed to a factory;
+		// the factory exists;
+		// and the factory is considered linked to this halt.
+		// FIXME: this should be delayed by transshipment time / walking time.
+		liefere_an_fabrik(ware);
+#ifdef DEBUG_SIMRAND_CALLS
+		if (talk)
+			dbg->message("haltestelle_t::liefere_an", "%d arrived at station \"%s\" waren[0].count %d", ware.menge, get_name(), get_warray(0)->get_count());
+#endif
+		return ware.menge;
+	}
+	// OK, not arrived at a factory, have we arrived somewhere else?
 	const planquadrat_t* plan = welt->lookup(ware.get_zielpos());
-	if(plan)
+	if(plan && plan->is_connected(self) )
 	{
-		// If we are within delivery distance of our target factory, go there.
-		if (ware.to_factory)
-		{
-			// What factory are we trying to deliver to? (FIXME: use fab handles)
-			fabrik_t* fab = fabrik_t::get_fab( welt, ware.get_zielpos() );
-			if (fab) {
-				// If there's no factory there, wait.
-				if ( fab_list.is_contained(fab) ) {
-					// If this factory is on our list of connected factories... we're there!
-					// FIXME: This should be delayed by the transshipment time
-					liefere_an_fabrik(ware);
-				}
-			}
-		}
-		else if(ware.get_besch()==warenbauer_t::passagiere) 
+		// Yes, we have.  Passengers & mail vanish mysteriously upon arrival.
+		// FIXME: walking time delay should be implemented right here!
+		if(ware.get_besch()==warenbauer_t::passagiere)
 		{
 			// arriving passenger may create pedestrians
 			if(welt->get_settings().get_show_pax()) {
