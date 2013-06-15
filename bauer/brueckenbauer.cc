@@ -529,7 +529,7 @@ void brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, ko
 			if(besch->get_pillar()==1  ||  (pos.x*zv.x+pos.y*zv.y)%besch->get_pillar()==0) {
 				grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
 //DBG_MESSAGE("bool brueckenbauer_t::baue_bruecke()","h1=%i, h2=%i",pos.z,gr->get_pos().z);
-				sint16 height = pos.z - gr->get_pos().z - 1;
+				sint16 height = pos.z - gr->get_pos().z;
 				while(height-->0) {
 					if( TILE_HEIGHT_STEP*height <= 127) {
 						// eventual more than one part needed, if it is too high ...
