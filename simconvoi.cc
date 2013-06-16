@@ -4675,7 +4675,7 @@ sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportione
 			continue;
 		}
 		// Now, if the player's tracks were actually used, apportion revenue
-		uint32 player_way_distance = player_way_distance = dep.get_way_distance(i);
+		uint32 player_way_distance = dep.get_way_distance(i);
 		if(player_way_distance > 0)
 		{
 			// We allocate even for players who may not exist; we'll check before paying them.
