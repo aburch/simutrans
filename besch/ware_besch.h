@@ -125,6 +125,34 @@ public:
 		return total_fare;
 	}
 
+	/**
+	 * Speed bonus handling
+	 *
+	 * The world has a reference speed.
+	 * The packet of goods will be paid for based on a certain "revenue speed".
+	 * (As of June 2013 this is the line's average speed for the trip.  It would
+	 * be much simpler if it were the actual speed of the trip.)
+	 * The revenue speed divided by the reference speed gives a ratio.
+	 * Subtract 1 from that ratio;
+	 * then multiply by 100 to get the "magic number" (speed_base) for speed.
+	 * So if the speed is 10% faster than reference speed,
+	 * the "magic number" is 10; if it is 10% slower, the magic number is -10.
+	 *
+	 * OK.  Now consider the base fare.
+	 * The maximum fare is 4 times the base fare... divided by 3....
+	 * The minimum fare is 1/4 the base fare... divided by 3....
+	 * The standard fare is super freaking complicated for no good reason...
+	 * base_bonus = base_fare * (1 + speed_base * speed_bonus_rating)
+	 * where speed_bonus_rating is the official speed bonus "percentage", usually a one or
+	 * two digit number.
+	 *
+	 * The "speed bonus rating" is actually a factor, and a very funny one.
+	 * If it is 1, then for every 1% improvement in speed, the revenue goes up by 0.1%.
+	 * If it is 2, then for every 1% improvement in speed, the revenue goes up by 0.2%.
+	 * If it is 10, then for every 1% improvement in speed, the revenue goes up by 1.0%.
+	 * Notice that this is barely a noticeable effect.  This is a bug in experimental.
+	*/
+
 	void set_scale(uint16 scale_factor) 
 	{ 
 		scaled_values.clear();
