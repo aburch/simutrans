@@ -466,7 +466,7 @@ bool dingliste_t::add(ding_t* ding)
 	// If we don't die here, we'll die later when trying to access it.
 	assert (ding != NULL);
 
-	if(capacity==0 || (capacity==1 && top==0) ) {
+	if(capacity==0) {
 		// the first one save direct
 		obj.one = ding;
 		top = 1;
