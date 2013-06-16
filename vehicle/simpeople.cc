@@ -151,6 +151,8 @@ void fussgaenger_t::erzeuge_fussgaenger_an(karte_t *welt, const koord3d k, int &
 				else {
 					// delete it, if we could not put it on the map
 					fg->set_flag(ding_t::not_on_map);
+					// do not try to delete it from sync-list
+					fg->time_to_life = 0;
 					delete fg;
 					return; // it is pointless to try again
 				}
