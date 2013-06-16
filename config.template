@@ -83,4 +83,4 @@
 # NETTOOL_PROGDIR = $(shell pwd)
 # PROGDIR  = $(shell pwd)
 
-FLAGS = -DNDEBUG -fpermissive
+FLAGS = -fpermissive
