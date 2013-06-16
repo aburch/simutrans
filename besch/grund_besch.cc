@@ -59,8 +59,8 @@ typedef uint16 PIXVAL;
 } */
 
 
-/* combines a textute and a lightmap
- * just weight all pixel by the lightmap
+/* combines a texture and a lightmap
+ * just weights all pixels by the lightmap
  */
 static bild_besch_t* create_textured_tile(const bild_besch_t* bild_lightmap, const bild_besch_t* bild_texture)
 {
@@ -275,10 +275,12 @@ static bild_besch_t* create_alpha_tile(const bild_besch_t* bild_lightmap, hang_t
 		bild_dest->register_image();
 		return bild_dest;
 	}
+	assert( bild_alphamap->get_pic()->w == bild_alphamap->get_pic()->h);
+
 	bild_besch_t *bild_dest = bild_lightmap->copy_rotate(0);
 
 	PIXVAL const* const alphamap  = bild_alphamap->get_daten();
-	const sint32 x_y     = bild_alphamap->get_pic()->w;
+	const sint32 x_y     = bild_dest->get_pic()->w;
 	const sint32 mix_x_y = bild_alphamap->get_pic()->w;
 	sint16 tile_x, tile_y;
 
