@@ -462,6 +462,10 @@ int bsearch_dings_by_prio(int pri, ding_t** dings, int count)
 
 bool dingliste_t::add(ding_t* ding)
 {
+	// Sanity check: if we're trying to add a null pointer, bail out & crash.
+	// If we don't die here, we'll die later when trying to access it.
+	assert (ding != NULL);
+
 	if(capacity==0) {
 		// the first one save direct
 		obj.one = ding;
@@ -474,6 +478,8 @@ bool dingliste_t::add(ding_t* ding)
 		// memory exceeded
 		return false;
 	}
+
+	// We grew a capacity of 1 or more, so it's 2 or more now
 	if(top==0) {
 		intern_insert_at( ding, 0);
 		return true;
