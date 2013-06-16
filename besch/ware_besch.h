@@ -11,6 +11,8 @@
 #include "../simcolor.h"
 #include "../utils/checksum.h"
 #include "../tpl/vector_tpl.h"
+// Simworld is for adjusted speed bonus
+#include "../simworld.h"
 
 class checksum_t;
 
@@ -125,7 +127,20 @@ public:
 		return total_fare;
 	}
 
-	/**
+	void set_scale(uint16 scale_factor) 
+	{ 
+		scaled_values.clear();
+		uint16 new_price;
+		uint32 new_distance;
+		ITERATE(values, i)
+		{
+			new_price = (values[i].price * scale_factor) / 1000;		
+			new_distance = (values[i].to_distance * 1000) / scale_factor;
+			scaled_values.append(fare_stage_t(new_distance, new_price));
+		}
+	}
+
+	/*
 	 * Speed bonus handling
 	 *
 	 * The world has a reference speed.
@@ -150,27 +165,31 @@ public:
 	 * If it is 1, then for every 1% improvement in speed, the revenue goes up by 0.1%.
 	 * If it is 2, then for every 1% improvement in speed, the revenue goes up by 0.2%.
 	 * If it is 10, then for every 1% improvement in speed, the revenue goes up by 1.0%.
-	 * Notice that this is barely a noticeable effect.  This is a bug in experimental.
 	*/
-
-	void set_scale(uint16 scale_factor) 
-	{ 
-		scaled_values.clear();
-		uint16 new_price;
-		uint32 new_distance;
-		ITERATE(values, i)
-		{
-			new_price = (values[i].price * scale_factor) / 1000;		
-			new_distance = (values[i].to_distance * 1000) / scale_factor;
-			scaled_values.append(fare_stage_t(new_distance, new_price));
-		}
-	}
 
 	/**
 	* @return speed bonus value of the good
 	* @author Hj. Malthaner
 	*/
 	uint16 get_speed_bonus() const { return speed_bonus; }
+
+	/**
+	 * Experimental has two special effects:
+	 * (1) Below a certain distance the speed bonus is zero;
+	 * (2) The speed bonus "fades in" above that distance and enlarges as distance continues,
+	 *     until a "maximum distance".
+	 * This returns the actual speed bonus.
+	 * Distance is given in TILES (FIXME)
+	 */
+	uint16 get_adjusted_speed_bonus(uint32 distance, const karte_t* w) const
+	{
+		return ware_besch_t::get_adjusted_speed_bonus(get_speed_bonus(), distance, w);
+	}
+
+	/**
+	 * Static version takes speed bonus as argument
+	 */
+	static uint16 get_adjusted_speed_bonus(uint16 base_bonus, uint32 distance, const karte_t* w);
 
 	/**
 	* @return Category of the good

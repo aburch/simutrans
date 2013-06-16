@@ -773,7 +773,7 @@ private:
 	uint32 map_counter;
 
 	/**
-	 * Recalculated speed boni for different vehicles.
+	 * Recalculated speed bonuses for different vehicles.
 	 */
 	void recalc_average_speed();
 

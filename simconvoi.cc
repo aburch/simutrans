@@ -4459,7 +4459,7 @@ sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportione
 	const sint64 base_fare = goods->get_fare(revenue_distance, (starting_distance > 0 ? (uint32)starting_distance : 0));
 	const sint64 min_fare = (base_fare * 1000ll) / 4ll;
 	const sint64 max_fare = base_fare * 4000ll;
-	const uint16 speed_bonus_rating = calc_adjusted_speed_bonus(goods->get_speed_bonus(), distance);
+	const uint16 speed_bonus_rating = goods->get_adjusted_speed_bonus(distance, get_welt());
 	const sint64 ref_speed = welt->get_average_speed(fahr[0]->get_besch()->get_waytype());
 	const sint64 speed_base = (100ll * average_speed) / ref_speed - 100ll;
 	const sint64 base_bonus = (base_fare * (1000ll + speed_base * speed_bonus_rating));
@@ -4810,56 +4810,6 @@ uint32 convoi_t::calc_max_tolerable_journey_time(uint16 comfort, karte_t* w)
 		const uint16 percentage =  (comfort * 100) / comfort_long;
 		return 60 * (comfort_long_minutes * percentage) / 100;
 	}
-}
-
-uint16 convoi_t::calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance, karte_t* w)
-{
-	const uint32 min_distance = w != NULL ? w->get_settings().get_min_bonus_max_distance() : 10;
-	if(distance <= min_distance)
-	{
-		return 0;
-	}
-
-	const uint16 global_multiplier = welt->get_settings().get_speed_bonus_multiplier_percent();
-	const uint16 max_distance = w != NULL ? w->get_settings().get_max_bonus_min_distance() : 16;
-	const uint16 multiplier = w != NULL ? w->get_settings().get_max_bonus_multiplier_percent() : 30;
-	
-	if(distance >= max_distance)
-	{
-		return base_bonus * multiplier * global_multiplier / 10000;
-	}
-
-	const uint16 median_distance = w != NULL ? w->get_settings().get_median_bonus_distance() : 128;
-	if(median_distance == 0)
-	{
-		// There is no median, so scale evenly.
-		const uint32 percentage = ((distance - min_distance) * 100) / (max_distance - min_distance);
-		const uint32 return_figure = ((base_bonus * multiplier) * percentage) / 10000;
-		return (uint16)return_figure;
-	}
-
-	// There is a median, so scale differently each side of the median.
-
-	if(distance == median_distance)
-	{
-		return (base_bonus * global_multiplier) / 100;
-	}
-
-	if(distance < median_distance)
-	{
-		const uint32 percentage = ((distance - min_distance) * 100) / (median_distance - min_distance);
-		const uint32 return_figure =  (base_bonus * percentage * global_multiplier) / 10000;
-		return (uint16)return_figure;
-	}
-
-	// If the program gets here, it must be true that:
-	// distance > median_distance
-
-	const uint32 percentage = ((distance - median_distance) * 100) / (max_distance - min_distance);
-	uint32 intermediate_bonus = ((base_bonus * multiplier) / 100) - base_bonus;
-	intermediate_bonus *= percentage;
-	intermediate_bonus /= 100;
-	return ((intermediate_bonus + base_bonus) * global_multiplier) / 100;
 }
 
 /**

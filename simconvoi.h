@@ -1350,10 +1350,6 @@ public:
 	sint64 calc_revenue(const ware_t &ware, array_tpl<sint64> & apportioned_revenues);
 
 	// @author: jamespetts
-	static uint16 calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance, karte_t* w);
-	inline uint16 calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance) { return calc_adjusted_speed_bonus(base_bonus, distance, welt); }
-
-	// @author: jamespetts
 	static uint8 calc_tolerable_comfort(uint16 journey_minutes, karte_t* w);
 	inline uint8 calc_tolerable_comfort(uint16 journey_minutes) { return calc_tolerable_comfort(journey_minutes, welt); }
 

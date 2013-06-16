@@ -73,7 +73,7 @@ void goods_stats_t::zeichnen(koord offset)
 		const sint64 base_fare = wtyp->get_fare(distance);
 		const sint64 min_fare = (base_fare * 1000ll) / 4ll;
 		const sint64 max_fare = base_fare * 4000ll;
-		const sint64 speed_bonus_rating = (sint64)convoi_t::calc_adjusted_speed_bonus(wtyp->get_speed_bonus(), distance, welt);
+		const sint64 speed_bonus_rating = (sint64)wtyp->get_adjusted_speed_bonus(distance, welt);
 		const sint64 base_bonus = base_fare * (1000ll + (((sint64)bonus - 100ll) * speed_bonus_rating));
 		const sint64 revenue = min(max_fare, max(min_fare, base_bonus));
 		sint64 price = revenue;
