@@ -108,7 +108,14 @@ void vehikel_basis_t::set_diagonal_multiplier( uint32 multiplier, uint32 old_dia
 {
 	diagonal_multiplier = (uint16)multiplier;
 	diagonal_vehicle_steps_per_tile = (uint8)(130560u/diagonal_multiplier) + 1;
-	old_diagonal_vehicle_steps_per_tile = (uint8)(130560u/old_diagonal_multiplier) + 1;
+	if(old_diagonal_multiplier == 0)
+	{
+		old_diagonal_vehicle_steps_per_tile = diagonal_vehicle_steps_per_tile;
+	}
+	else
+	{
+		old_diagonal_vehicle_steps_per_tile = (uint8)(130560u/old_diagonal_multiplier) + 1;
+	}
 }
 
 
