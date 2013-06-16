@@ -4024,6 +4024,9 @@ void karte_t::step()
 	DBG_DEBUG4("karte_t::step", "start step");
 	unsigned long time = dr_time();
 
+	// calculate delta_t before handling overflow in ticks
+	const long delta_t = (long)ticks-(long)last_step_ticks;
+
 	// first: check for new month
 	if(ticks > next_month_ticks) {
 
@@ -4032,7 +4035,6 @@ void karte_t::step()
 			dbg->warning( "karte_t::step()", "Ticks were overflowing => resetted" );
 			ticks %= karte_t::ticks_per_world_month;
 			next_month_ticks %= karte_t::ticks_per_world_month;
-			last_step_ticks %= karte_t::ticks_per_world_month;
 		}
 		next_month_ticks += karte_t::ticks_per_world_month;
 
@@ -4041,7 +4043,6 @@ void karte_t::step()
 	}
 
 	DBG_DEBUG4("karte_t::step", "time calculations");
-	const long delta_t = (long)ticks-(long)last_step_ticks;
 	if(  step_mode==NORMAL  ) {
 		/* Try to maintain a decent pause, with a step every 170-250 ms (~5,5 simloops/s)
 		 * Also avoid too large or negative steps
