@@ -107,6 +107,7 @@ ifdef DEBUG
     endif
   endif
 else
+# Disable assertions
   CFLAGS += -DNDEBUG
 endif
 
