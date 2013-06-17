@@ -157,7 +157,7 @@ void tunnel_t::laden_abschliessen()
 		if(lt) {
 			spieler_t::add_maintenance( sp, -lt->get_besch()->get_wartung(), powerline_wt );
 		}
-		spieler_t::add_maintenance( sp,  besch->get_wartung(), powerline_wt );
+		spieler_t::add_maintenance( sp,  besch->get_wartung(), besch->get_finance_waytype() );
 	}
 }
 
