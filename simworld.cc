@@ -5943,7 +5943,7 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 		{
 			uint32 idp = 0;
 			file->rdwr_long(idp);
-			idp = (idp & 0x8000) != 0 ? idp & 0x7FFF : idp *= 150;
+			idp = (idp & 0x8000) != 0 ? idp & 0x7FFF : idp * 150;
 			industry_density_proportion = idp;
 		}
 	}
