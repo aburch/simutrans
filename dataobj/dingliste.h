@@ -9,25 +9,41 @@ class dingliste_t {
 private:
 	union {
 		ding_t **some;    // valid if capacity > 1
-		ding_t *one;      // valid if capacity == 1
+		ding_t *one;      // valid if capacity == 0
 	} obj;
 
 	/**
 	 * Number of items which can be stored without expanding
+	 * For micro-efficiency reasons (tests against 0 are cheap),
+	 * the value of zero actually means "one".
+	 * This value should never ever be 1.
+	 *
+	 * Related code reworked by neroden
 	 */
 	uint8 capacity;
 
 	/**
-	 * 0-based index of the next free entry after the last element
-	 * therefore also the count of number of items which are stored
+	 * 0-based index of the next free entry after the last element;
+	 * therefore also the count of number of items which are stored.
+	 * "top" CAN be zero if there are no items.
+	 *
+	 * Related code reworked by neroden
 	 */
 	uint8 top;
 
-	void set_capacity(uint16 new_cap);
-
+	/**
+	 * Grow the capacity (must start in "some" mode)
+	 */
 	bool grow_capacity();
+	/**
+	 * Change from "one" mode to "some" mode
+	 */
+	bool grow_capacity_above_one();
 
-	void shrink_capacity(uint8 last_index);
+	/**
+	 * Shrink, if appropriate in terms of memory management
+	 */
+	void shrink_capacity();
 
 	inline void intern_insert_at(ding_t* ding, uint8 pri);
 

@@ -1,5 +1,6 @@
 /*
  * author V. Meyer
+ * Memory handling rewritten by neroden
  */
 
 #include <stdio.h>
@@ -47,11 +48,26 @@
 
 #include "dingliste.h"
 
+/*
+ * This will clear memory containing stale pointers.
+ * Turn it off (#define CLEAR_MEMORY 0) for maximum speed.
+ * It is automatically off if assertions are off, because it's
+ * pointless to try to debug this file if assertions are off.
+ */
+
+#ifndef CLEAR_MEMORY
+	#ifdef NDEBUG
+		#define CLEAR_MEMORY 0
+	#else
+		#define CLEAR_MEMORY 1
+	#endif
+#endif
+
 /* All things including ways are stored in this structure.
  * The entries are packed, i.e. the first free entry is at the top.
  * To save memory, a single element (like in the case for houses or a single tree)
- * is stored directly (obj.one) and capacity==1. Otherwise obj.some points to an
- * array.
+ * is stored directly (obj.one) and capacity==0. (Yes, zero.  Capacity never equals 1.)
+ * Otherwise obj.some points to an array.
  * The objects are sorted according to their drawing order.
  * ways are always first.
  */
@@ -127,7 +143,7 @@ static uint8 type_to_pri[256]=
 };
 
 
-static void dl_free(ding_t** p, uint8 size)
+inline static void dl_free(ding_t** p, uint8 size)
 {
 	assert(size > 1);
 	if (size <= 16) {
@@ -139,7 +155,7 @@ static void dl_free(ding_t** p, uint8 size)
 }
 
 
-static ding_t** dl_alloc(uint8 size)
+inline static ding_t** dl_alloc(uint8 size)
 {
 	assert(size > 1);
 	ding_t** p;
@@ -155,109 +171,131 @@ static ding_t** dl_alloc(uint8 size)
 
 dingliste_t::dingliste_t()
 {
-	obj.one = NULL;
 	capacity = 0;
 	top = 0;
+#if CLEAR_MEMORY
+	obj.one = NULL;
+#endif
 }
 
 
 dingliste_t::~dingliste_t()
 {
-	if(capacity>1) {
+	assert(capacity != 1);
+	if(capacity > 0) {
 		dl_free(obj.some, capacity);
 	}
+#if CLEAR_MEMORY
 	obj.some = NULL;
-	capacity = top = 0;
+	capacity = 0;
+	top = 0;
+#endif
 }
 
 
-void dingliste_t::set_capacity(uint16 new_cap)
+inline void dingliste_t::grow_capacity_above_one()
 {
-	// DBG_MESSAGE("dingliste_t::set_capacity()", "old cap=%d, new cap=%d", capacity, new_cap);
+	// Should only be called in the "one" case:
+	assert (capacity == 0);
+	assert (top == 1);
+	// When growing above 1, go directly to 4
+	// Why 4?  1 is fairly common (a building or tree)
+	// But for more than 1 we have ways,
+	// which usually have vehicles; or we have forests.
+	uint8 new_cap = 4;
 
+	// Must convert from "one mode" to "some mode"
+	ding_t* tmp=obj.one;
+
+	obj.some = dl_alloc(new_cap);
+	assert(obj.some); // otherwise, memory allocation failed, which is bad news
+#if CLEAR_MEMORY
+	MEMZERON(obj.some, new_cap); // clear memory purely for tidiness
+#endif
+	obj.some[0] = tmp;
+	capacity = new_cap;
+}
+
+inline bool dingliste_t::grow_capacity()
+{
+	// Should only be called in the "some" case:
+	assert (capacity > 1);
+	if(capacity>=254) {
+		// capacity exceeded ... (and no need for THAT many objects here ... )
+		return false;
+	}
+	unsigned new_cap = (unsigned) capacity * 2;
 	if(new_cap>=255) {
 		new_cap = 254;
 	}
 
-	// a single object is stored differentially
-	if(new_cap==0) {
-		if(capacity>1) {
-			dl_free( obj.some, capacity );
-		}
-		capacity = 0;
-		top = 0;
-	}
-	else if(new_cap==1) {
-		if(capacity>1) {
-			ding_t *tmp=NULL;
-			// we have an obj to save into the list
-			tmp = obj.some[0];
-			dl_free( obj.some, capacity );
-			obj.one = tmp;
-			assert(top<2);
-			capacity = 1;
-		}
-		else if(capacity==0) {
-			assert(obj.one  &&  top==0);
-		}
-	}
-	// a single object is stored differentially
-	else if(capacity<=1  &&  new_cap>1) {
-		ding_t *tmp=obj.one;
-		obj.some = dl_alloc(new_cap);
-		MEMZERON(obj.some, new_cap);
-		obj.some[0] = tmp;
-		capacity = new_cap;
-		assert(top<=1);
-	}
-	else {
-		// if we reach here, new_cap>1 and (capacity==0 or capacity>1)
-		// ensure, we do not lose anything
+	// get memory
+	ding_t **tmp = dl_alloc(new_cap);
+	assert(tmp); // Otherwise, memory allocation failed
+	// move data to new memory
+	memcpy( tmp, obj.some, sizeof(ding_t*) * top );
+	// free old memory
+	dl_free(obj.some, capacity);
+	// Link up new memory
+	obj.some = tmp;
 
-		// get memory
-		ding_t **tmp = dl_alloc(new_cap);
-
-		// free old memory
-		if(obj.some) {
-			memcpy( tmp, obj.some, sizeof(ding_t *)*top );
-			dl_free(obj.some, capacity);
-		}
-		obj.some = tmp;
-	}
 	capacity = new_cap;
+	return true;
 }
 
-
-
-bool dingliste_t::grow_capacity()
+/**
+ * Reduce capacity based on new value of "top" (which should already be set).
+ * Must be called only in the "some" case.
+ */
+void dingliste_t::shrink_capacity()
 {
-	if(capacity==0) {
-		return true;
-	}
-	else if(capacity==1) {
-		set_capacity( 4 );
-		return true;
-	}
-	else if(capacity>=254) {
-		// capacity exceeded ... (and no need for THAT many objects here ... )
-		return false;
-	}
-	else {
-		// size exceeded, extent
-		uint16 new_cap = (uint16)capacity+capacity;
-		set_capacity( new_cap );
-		return true;
-	}
-}
+	assert(top <= capacity);
+	assert(capacity > 1);
+	assert(obj.some);
 
-
-
-void dingliste_t::shrink_capacity(uint8 o_top)
-{
-	// strategy: avoid free'ing mem if not neccesary. Only if we hold lots
-	// of memory then free it.
-	if(capacity > 16 && o_top <= 4) {
-		set_capacity(o_top);
+	// Strategy:
+	// (A) Always shrink if there are 0 objects left.  This is probably a completely
+	//     cleared tile and will likely stay cleared or get a house or a tree.  We can
+	//     free up the entire memory allocation, perhaps permanently.
+	// (B) If there is 1 object left, this might be a road or track and it will probably
+	//     have vehicles show up later.  Since we'll probably have to expand again, only
+	//     shrink if capacity > 16 (so we're getting memory from somewhere other than the freelist).
+	// (C) If there are 2-4 objects left, shrink to 4, but only if capacity > 16.  We are fairly
+	//     likely to stay below 5 objects, but it's only worth reallocating if we had memory from
+	//     somewhere other than the freelist.
+	// (D) If there are 5 or more objects left, this is a busy tile. Don't shrink at all, we'll
+	//     probably need the room later.
+	// The cases where we don't shrink simply fall through to the bottom of the function.
+	if ( top==0 ) {
+		// Convert from "some" to "one"
+		// We have nothing to save
+		dl_free( obj.some, capacity );
+		capacity = 0; // by convention, this means "one".
+	}
+	else if ( top==1 && capacity > 16 ) {
+		// Convert from "some" to "one"
+		// We have an object to save
+		ding_t* tmp=obj.some[0];
+		dl_free( obj.some, capacity );
+		obj.one = tmp;
+		capacity = 0;  // By convention, this means "one"
+	}
+	else if ( top <= 4 && capacity > 16 ) {
+		// Shrink to 4.  No point in going smaller, we'll probably have to expand again.
+		const uint8 new_capacity = 4;
+		// get memory
+		ding_t **tmp = dl_alloc(new_capacity);
+#if CLEAR_MEMORY
+		MEMZERON(tmp, new_capacity); // clear memory purely for tidiness
+#endif
+		// copy old data to new memory
+		memcpy( tmp, obj.some, sizeof(ding_t *)*top );
+		// free old memory
+		dl_free(obj.some, capacity);
+		// Hook up new pointer
+		obj.some = tmp;
+		// Reset capacity
+		capacity = new_capacity;
 	}
 }
 
@@ -266,6 +304,9 @@ void dingliste_t::shrink_capacity(uint8 o_top)
 inline void dingliste_t::intern_insert_at(ding_t* ding, uint8 pri)
 {
 	// we have more than one object here, thus we can use obj.some exclusively!
+	// Note that this works with top == pri (the for loop resolves to nothing)
+	assert(top >= pri);
+	assert(capacity >= top);
 	for(  uint8 i=top;  i>pri;  i--  ) {
 		obj.some[i] = obj.some[i-1];
 	}
@@ -276,7 +317,7 @@ inline void dingliste_t::intern_insert_at(ding_t* ding, uint8 pri)
 
 
 // this will automatically give the right order for citycars and the like ...
-bool dingliste_t::intern_add_moving(ding_t* ding)
+inline bool dingliste_t::intern_add_moving(ding_t* ding)
 {
 	// we are more than one object, thus we exclusively use obj.some here!
 	// it would be nice, if also the objects are inserted according to their priorities as
@@ -431,6 +472,7 @@ bool compare_trees(const ding_t *tree1, const ding_t *tree2)
 
 void dingliste_t::sort_trees(uint8 index, uint8 count)
 {
+	assert (capacity > 1);
 	if(top>=index+count) {
 		std::sort(&obj.some[index], &obj.some[index+count], compare_trees);
 	}
@@ -446,7 +488,7 @@ void dingliste_t::sort_trees(uint8 index, uint8 count)
  *   b) index, where to insert before unmatched item == next larger item
  * @author: BerndGabriel, neroden
  */
-unsigned bsearch_dings_by_prio(unsigned pri, ding_t** dings, unsigned count)
+unsigned bsearch_dings_by_prio(unsigned pri, ding_t const * const * const dings, unsigned count)
 {
   unsigned low = 0;
   while (low < count)
@@ -467,20 +509,27 @@ bool dingliste_t::add(ding_t* ding)
 	// If we don't die here, we'll die later when trying to access it.
 	assert (ding != NULL);
 
-	if(capacity==0) {
-		// the first one save direct
+	if (  capacity==0 && top==0  ) {
+		// We have zero items;
+		// save the first one directly.
 		obj.one = ding;
 		top = 1;
-		capacity = 1;
 		return true;
 	}
-
-	if(top>=capacity  &&  !grow_capacity()) {
-		// memory exceeded
-		return false;
+	else if (  capacity==0 && top==1  ) {
+		grow_capacity_above_one();
+	}
+	else if ( top >= capacity ) {
+		bool success = grow_capacity();
+		if (!success) {
+			// Too many objects
+			return false;
+		}
 	}
 
-	// We grew a capacity of 1 or more, so it's 2 or more now
+	// Remembering the convention for capacity
+	assert (capacity > 1);
+
 	if(top==0) {
 		intern_insert_at( ding, 0);
 		return true;
@@ -507,39 +556,32 @@ bool dingliste_t::add(ding_t* ding)
 
 	uint8 i = bsearch_dings_by_prio(pri, obj.some, top);
 	// now i contains the position, where we either insert of just add ...
-	if(i==top) {
-		obj.some[top] = ding;
-		top++;
-	}
-	else {
-		switch (pri) {
-		    case baum_pri: {
-				/* trees are a little tricky, since they cast a shadow
-				 * therefore the y-order must be correct!
-				 */
-				for(  ;  i<top;  i++) {
-					baum_t const* const tree = ding_cast<baum_t>(obj.some[i]);
-					if (!tree  ||  compare_trees(ding, tree)) {
-						break;
-					}
+	switch (pri) {
+		case baum_pri: {
+			/* trees are a little tricky, since they cast a shadow
+			 * therefore the y-order must be correct!
+			 */
+			for(  ;  i<top;  i++) {
+				baum_t const* const tree = ding_cast<baum_t>(obj.some[i]);
+				if (!tree  ||  compare_trees(ding, tree)) {
+					break;
 				}
-				break;
-		    }
-		
-			case pillar_pri: {
-				// pillars have to be sorted wrt their y-offset, too.
-				for(  ;  i<top;  i++) {
-					pillar_t const* const pillar = ding_cast<pillar_t>(obj.some[i]);
-					if (!pillar  ||  ding->get_yoff()  > pillar->get_yoff() ) {
-						break;
-					}
-				}
-				break;
 			}
+			break;
+	    }
+		case pillar_pri: {
+			// pillars have to be sorted wrt their y-offset, too.
+			for(  ;  i<top;  i++) {
+				pillar_t const* const pillar = ding_cast<pillar_t>(obj.some[i]);
+				if (!pillar  ||  ding->get_yoff()  > pillar->get_yoff() ) {
+					break;
+				}
+			}
+			break;
 		}
-		intern_insert_at(ding, i);
 	}
-	// then correct the upper border
+
+	intern_insert_at(ding, i);
 	return true;
 }
 
@@ -551,38 +593,74 @@ bool dingliste_t::add(ding_t* ding)
 ding_t *dingliste_t::remove_last()
 {
 	ding_t *d=NULL;
-	if(capacity==0) {
+	if (top == 0) {
 		// nothing
 	}
-	else if(capacity==1) {
+	else if (capacity == 0 && top == 1) {
 		d = obj.one;
+		top = 0;
+#if CLEAR_MEMORY
 		obj.one = NULL;
-		capacity = top = 0;
+#endif
 	}
 	else {
-		if(top>0) {
-			top --;
-			d = obj.some[top];
-			obj.some[top] = NULL;
-		}
+		top --;
+		d = obj.some[top];
+#if CLEAR_MEMORY
+		obj.some[top] = NULL;
+#endif
 	}
 	return d;
 }
 
+inline bool dingliste_t::_remove_by_index(unsigned i)
+{
+	if (i >= top) {
+		// out of range
+		return false;
+	}
+	// now we know that top > 0
+	if ( capacity == 0 ) {
+		// The 'one' case
+		assert ( top == 1 );
+		top = 0;
+#if CLEAR_MEMORY
+		obj.one = NULL;
+#endif
+		return true;
+	}
+	else {
+		// The 'some' case
+		// we keep the array dense!
+		top--;
+		while(  i < top  ) {
+			obj.some[i] = obj.some[i+1];
+			i++;
+		}
+#if CLEAR_MEMORY
+		obj.some[top] = NULL;
+#endif
+		return true;
+	}
+}
 
 bool dingliste_t::remove(const ding_t* ding)
 {
-	if(  capacity == 0  ) {
+	if (top == 0) {
 		return false;
 	}
-	else if(  capacity == 1  ) {
-		if(  obj.one == ding  ) {
-			obj.one = NULL;
-			capacity = 0;
+	else if ( capacity == 0 ) {
+		assert ( top == 1 );
+		if (obj.one == ding) {
 			top = 0;
+#if CLEAR_MEMORY
+			obj.one = NULL;
+#endif
 			return true;
 		}
-		return false;
+		else {
+			return false;
+		}
 	}
 
 	// we keep the array dense!
@@ -594,7 +672,9 @@ bool dingliste_t::remove(const ding_t* ding)
 				obj.some[i] = obj.some[i+1];
 				i++;
 			}
+#if CLEAR_MEMORY
 			obj.some[top] = NULL;
+#endif
 			return true;
 		}
 	}
@@ -607,7 +687,7 @@ bool dingliste_t::remove(const ding_t* ding)
  * removes object from map
  * deletes object if it is not a zeiger_t
  */
-void local_delete_object(ding_t *ding, spieler_t *sp)
+inline void local_delete_object(ding_t *ding, spieler_t *sp)
 {
 	vehikel_basis_t* const v = ding_cast<vehikel_basis_t>(ding);
 	if (v  &&  ding->get_typ() != ding_t::fussgaenger  &&  ding->get_typ() != ding_t::verkehr  &&  ding->get_typ() != ding_t::movingobj) {
@@ -624,35 +704,40 @@ void local_delete_object(ding_t *ding, spieler_t *sp)
 	}
 }
 
-
+/**
+ * Delete everything after offset
+ * @returns true if we deleted anything
+ */
 bool dingliste_t::loesche_alle(spieler_t *sp, uint8 offset)
 {
 	if(top<=offset) {
 		return false;
+		// Note that this guarantees that top >= 1
 	}
+	else if (capacity == 0 ) {
+		// The "one" case.
+		assert (top == 1);
 
-	// something to delete?
-	bool ok=false;
-
-	if(capacity>1) {
-		while(  top>offset  ) {
-			top --;
-			local_delete_object(obj.some[top], sp);
-			obj.some[top] = NULL;
-			ok = true;
-		}
+		top = 0;
+		local_delete_object(obj.one, sp);
+#if CLEAR_MEMORY
+		obj.one = NULL;
+#endif
+		return true;
 	}
 	else {
-		if(capacity==1) {
-			local_delete_object(obj.one, sp);
-			ok = true;
-			obj.one = NULL;
-			capacity = top = 0;
+		// The "some" case.
+		assert( capacity > 1 );
+		while ( top > offset ) {
+			top--;
+			local_delete_object(obj.some[top], sp);
+#if CLEAR_MEMORY
+			obj.some[top] = NULL;
+#endif
 		}
-	}
-	shrink_capacity(top);
-
-	return ok;
+		shrink_capacity();
+		return true;
+	 }
 }
 
 
@@ -663,8 +748,9 @@ const char *dingliste_t::kann_alle_entfernen(const spieler_t *sp, uint8 offset) 
 	if(top<=offset) {
 		return NULL;
 	}
+	// Note that top is guaranteed to be 1 or more here
 
-	if(capacity==1) {
+	if(capacity==0) {
 		return obj.one->ist_entfernbar(sp);
 	}
 	else {
@@ -686,10 +772,11 @@ const char *dingliste_t::kann_alle_entfernen(const spieler_t *sp, uint8 offset) 
  */
 void dingliste_t::calc_bild()
 {
-	if(capacity==0) {
+	if (top == 0) {
 		// nothing
 	}
-	else if(capacity==1) {
+	else if(capacity==0) {
+		// top == 1 because of above
 		obj.one->calc_bild();
 	}
 	else {
@@ -704,10 +791,15 @@ void dingliste_t::calc_bild()
 /* check for obj */
 bool dingliste_t::ist_da(const ding_t* ding) const
 {
-	if(capacity<=1) {
+	if (top == 0) {
+		return false;
+	}
+	else if (capacity==0) {
+		// top == 1 because of above
 		return obj.one==ding;
 	}
 	else {
+		// capacity > 1
 		for(uint8 i=0; i<top; i++) {
 			if(obj.some[i]==ding) {
 				return true;
@@ -741,11 +833,13 @@ ding_t *dingliste_t::suche(ding_t::typ typ,uint8 start) const
 
 ding_t *dingliste_t::get_leitung() const
 {
-	switch (capacity) {
-	    case 0: return NULL;
-		case 1: return obj.one->get_typ()>=ding_t::leitung  &&  obj.one->get_typ()<=ding_t::senke ? obj.one : NULL;
+	if (top == 0) {
+		return NULL;
 	}
-	if(0<top) {
+	else if (capacity == 0) {
+		return obj.one->get_typ()>=ding_t::leitung  &&  obj.one->get_typ()<=ding_t::senke ? obj.one : NULL;
+	}
+	else {
 		// else we have to search the list
 		for(uint8 i=0; i<top; i++) {
 			ding_t * tmp = obj.some[i];
@@ -762,16 +856,15 @@ ding_t *dingliste_t::get_leitung() const
 
 ding_t *dingliste_t::get_convoi_vehicle() const
 {
-	switch (capacity) {
-	    case 0: return NULL;
-		case 1:
-		{
+	if (top == 0) {
+		return NULL;
+	}
+	else if (capacity == 0) {
 			// could
 			const uint8 t = obj.one->get_typ();
 			return t==ding_t::aircraft  ||  t==ding_t::schiff ? obj.one : NULL;
-		}
 	}
-	if(top>0) {
+	else {
 		// else we have to search the list
 		for(uint8 i=0; i<top; i++) {
 			ding_t * tmp = obj.some[i];
@@ -1122,11 +1215,11 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
  */
 void dingliste_t::dump() const
 {
-	if(capacity==0) {
+	if (top == 0) {
 //		DBG_MESSAGE("dingliste_t::dump()","empty");
 		return;
 	}
-	else if(capacity==1) {
+	else if(capacity==0) {
 		DBG_MESSAGE("dingliste_t::dump()","one object \'%s\' owned by sp %p", obj.one->get_name(), obj.one->get_besitzer() );
 		return;
 	}
@@ -1143,10 +1236,10 @@ void dingliste_t::dump() const
  */
 void dingliste_t::display_dinge_quick_and_dirty( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const bool is_global ) const
 {
-	if(capacity==0) {
+	if(top==0) {
 		return;
 	}
-	else if(capacity==1) {
+	else if(capacity==0) {
 		if(start_offset==0) {
 			obj.one->display(xpos, ypos);
 			obj.one->display_after(xpos, ypos, is_global);
@@ -1196,7 +1289,8 @@ uint8 dingliste_t::display_dinge_bg( const sint16 xpos, const sint16 ypos, const
 		return start_offset;
 	}
 
-	if(capacity==1) {
+	// Here we know that top>=1
+	if(capacity==0) {
 		if(local_display_dinge_bg(obj.one, xpos, ypos)) {
 			return 1;
 		}
@@ -1250,7 +1344,8 @@ uint8 dingliste_t::display_dinge_vh( const sint16 xpos, const sint16 ypos, const
 		return start_offset;
 	}
 
-	if(capacity==1) {
+	// Here we know that top >=0
+	if(capacity==0) {
 		if(local_display_dinge_vh(obj.one, xpos, ypos, ribi, ontile)) {
 			return 1;
 		}
@@ -1280,10 +1375,10 @@ uint8 dingliste_t::display_dinge_vh( const sint16 xpos, const sint16 ypos, const
  */
 void dingliste_t::display_dinge_fg( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const bool is_global ) const
 {
-	if(capacity==0) {
+	if(top==0) {
 		return;
 	}
-	else if(capacity==1) {
+	else if(capacity==0) {
 		if(start_offset==0) {
 			obj.one->display(xpos, ypos);
 		}
@@ -1310,30 +1405,36 @@ void dingliste_t::display_dinge_fg( const sint16 xpos, const sint16 ypos, const 
 
 
 // start next month (good for toogling a seasons)
+// Also deletes any objects which want to die based on the timeline
+// -- mostly trees do this.
 void dingliste_t::check_season(const long month)
 {
-	slist_tpl<ding_t *>loeschen;
-
-	if(capacity==0) {
+	if(top==0) {
 		return;
 	}
-	else if(capacity==1) {
+	else if(capacity==0) {
 		ding_t *d = obj.one;
 		if (!d->check_season(month)) {
-			loeschen.insert( d );
+			// Delete the object...
+			local_delete_object( d, NULL );
+			// And remove it from the list.
+			remove_by_index( d, 0 );
 		}
+		return;
 	}
 	else {
 		for(uint8 i=0; i<top; i++) {
 			ding_t *d = obj.some[i];
 			if (!d->check_season(month)) {
-				loeschen.insert( d );
+				// Delete the object...
+				local_delete_object( d, NULL );
+				// And remove it from the list.
+				remove_by_index( d, i );
+				// It's unusual for more than one object to die at a time,
+				// So don't worry about the efficiency of doing this one at a time.
+				// This might have deleted the last tree; good time to shrink the list.
+				shrink_capacity();
 			}
 		}
-	}
-
-	// delete all objects, which do not want to step anymore
-	while (!loeschen.empty()) {
-		delete loeschen.remove_first();
 	}
 }
