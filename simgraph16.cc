@@ -3,7 +3,6 @@
  * Available under the Artistic License (see license.txt)
  */
 
-#ifndef COMMAND_LINE_SERVER
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -237,10 +236,11 @@ static PIXVAL* textur = NULL;
 #define DIRTY_TILE_SIZE 16
 #define DIRTY_TILE_SHIFT 4
 
-static unsigned char *tile_dirty = NULL;
-static unsigned char *tile_dirty_old = NULL;
+static uint32 *tile_dirty = NULL;
+static uint32 *tile_dirty_old = NULL;
 
 static int tiles_per_line = 0;
+static int tile_buffer_per_line = 0; // number of tiles that fit the allocated buffer per line - maintain alignment - x=0 is always first bit in a word for each row
 static int tile_lines = 0;
 static int tile_buffer_length = 0;
 
@@ -534,6 +534,7 @@ KOORD_VAL base_tile_raster_width = 16;	// original
 display_image_proc display_normal = NULL;
 display_image_proc display_color = NULL;
 display_blend_proc display_blend = NULL;
+display_alpha_proc display_alpha = NULL;
 signed short current_tile_raster_width = 0;
 
 
@@ -886,36 +887,11 @@ inline void get_xrange_and_step_y(int &xmin, int &xmax)
  */
 static inline void mark_tile_dirty(const int x, const int y)
 {
-	const int bit = x + y * tiles_per_line;
+	const int bit = x + y * tile_buffer_per_line;
 #if 0
 	assert(bit / 8 < tile_buffer_length);
 #endif
-	tile_dirty[bit >> 3] |= 1 << (bit & 7);
-}
-
-
-static inline void mark_tiles_dirty(const int x1, const int x2, const int y)
-{
-	int bit = y * tiles_per_line + x1;
-	const int end = bit + x2 - x1;
-
-	do {
-#if 0
-		assert(bit / 8 < tile_buffer_length);
-#endif
-
-		tile_dirty[bit >> 3] |= 1 << (bit & 7);
-	} while (++bit <= end);
-}
-
-
-static inline int is_tile_dirty(const int x, const int y)
-{
-	const int bit = x + y * tiles_per_line;
-	const int bita = bit >> 3;
-	const int bitb = 1 << (bit & 7);
-
-	return (tile_dirty[bita] | tile_dirty_old[bita]) & bitb;
+	((uint8*)tile_dirty)[bit >> 3] |= 1 << (bit & 7);
 }
 
 
@@ -942,8 +918,12 @@ static void mark_rect_dirty_nc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_V
 	assert(y2 < tile_lines);
 #endif
 
-	for (; y1 <= y2; y1++) {
-		mark_tiles_dirty(x1, x2, y1);
+	for(  ;  y1 <= y2;  y1++  ) {
+		int bit = y1 * tile_buffer_per_line + x1;
+		const int end = bit + x2 - x1;
+		do {
+			((uint8*)tile_dirty)[bit >> 3] |= 1 << (bit & 7);
+		} while(  ++bit <= end  );
 	}
 }
 
@@ -955,20 +935,41 @@ static void mark_rect_dirty_nc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_V
 void mark_rect_dirty_wc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2)
 {
 	// inside display?
-	if (x2 >= 0 && y2 >= 0 && x1 < disp_width && y1 < disp_height) {
-		if (x1 < 0) {
+	if(  x2 >= 0  &&  y2 >= 0  &&  x1 < disp_width  &&  y1 < disp_height  ) {
+		if(  x1 < 0  ) {
 			x1 = 0;
 		}
-		if (y1 < 0) {
+		if(  y1 < 0  ) {
 			y1 = 0;
 		}
-		if (x2 >= disp_width) {
-			x2 = disp_width  - 1;
+		if(  x2 >= disp_width  ) {
+			x2 = disp_width - 1;
 		}
-		if (y2 >= disp_height) {
+		if(  y2 >= disp_height  ) {
 			y2 = disp_height - 1;
 		}
-		mark_rect_dirty_nc(x1, y1, x2, y2);
+		mark_rect_dirty_nc( x1, y1, x2, y2 );
+	}
+}
+
+
+void mark_rect_dirty_clip(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2)
+{
+	// inside clip_rect?
+	if(  x2 >= clip_rect.x  &&  y2 >= clip_rect.y  &&  x1 < clip_rect.xx  &&  y1 < clip_rect.yy  ) {
+		if(  x1 < clip_rect.x  ) {
+			x1 = clip_rect.x;
+		}
+		if(  y1 < clip_rect.y  ) {
+			y1 = clip_rect.y;
+		}
+		if(  x2 > clip_rect.xx  ) {
+			x2 = clip_rect.xx ;
+		}
+		if(  y2 > clip_rect.yy  ) {
+			y2 = clip_rect.yy;
+		}
+		mark_rect_dirty_nc( x1, y1, x2, y2 );
 	}
 }
 
@@ -979,7 +980,7 @@ void mark_rect_dirty_wc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2)
  */
 void mark_screen_dirty()
 {
-	mark_rect_dirty_nc(0, 0, disp_width-1, disp_height - 1);
+	memset( tile_dirty, 0xFFFFFFFF, sizeof(uint32) * tile_buffer_length );
 }
 
 
@@ -1032,7 +1033,6 @@ void set_zoom_factor(int z)
 	fprintf(stderr, "set_zoom_factor() : set %d (%i/%i)\n", zoom_factor, zoom_num[zoom_factor], zoom_den[zoom_factor] );
 	rezoom();
 }
-
 
 
 int zoom_factor_up()
@@ -1128,7 +1128,6 @@ static void recode_img_src_target(KOORD_VAL h, PIXVAL *src, PIXVAL *target)
 }
 
 
-
 /**
  * Handles the conversion of an image to the output color
  * @author prissi
@@ -1206,7 +1205,6 @@ static void recode_color_img(const unsigned int n, const unsigned char player_nr
 }
 
 #endif
-
 
 
 // for zoom out
@@ -1723,10 +1721,10 @@ static void rezoom_img(const image_id n)
 			}
 		}
 		else {
-			if (images[n].w <= 0) {
-				// h=0 will be ignored, with w=0 there was an error!
-				printf("WARNING: image%d w=0!\n", n);
-			}
+//			if (images[n].w <= 0) {
+//				// h=0 will be ignored, with w=0 there was an error!
+//				printf("WARNING: image%d w=0!\n", n);
+//			}
 			images[n].h = 0;
 		}
 #if MULTI_THREAD>1
@@ -1838,13 +1836,12 @@ void display_set_light(int new_light_level)
 
 void display_day_night_shift(int night)
 {
-	if (night != night_shift) {
+	if(  night != night_shift  ) {
 		night_shift = night;
 		calc_base_pal_from_night_shift(night);
-		mark_rect_dirty_nc(0, 32, disp_width - 1, disp_height - 1);
+		mark_screen_dirty();
 	}
 }
-
 
 
 // set first and second company color for player
@@ -1865,7 +1862,7 @@ void display_set_player_color_scheme(const int player, const COLOR_VAL col1, con
 			player_day = player_night;
 		}
 		recode();
-		mark_rect_dirty_nc(0, 32, disp_width - 1, disp_height - 1);
+		mark_screen_dirty();
 	}
 }
 
@@ -2043,6 +2040,7 @@ static inline void colorpixcopy(PIXVAL *dest, const PIXVAL *src, const PIXVAL * 
 	}
 }
 
+
 /**
  * templated pixel copy routines
  * to be used in display_img_pc
@@ -2052,15 +2050,19 @@ enum pixcopy_routines {
 	colored = 1	/// replaces player colors
 };
 
+
 template<pixcopy_routines copyroutine> void templated_pixcopy(PIXVAL *dest, const PIXVAL *src, const PIXVAL * const end);
 template<> void templated_pixcopy<plain>(PIXVAL *dest, const PIXVAL *src, const PIXVAL * const end)
 {
 	pixcopy(dest, src, end);
 }
+
+
 template<> void templated_pixcopy<colored>(PIXVAL *dest, const PIXVAL *src, const PIXVAL * const end)
 {
 	colorpixcopy(dest, src, end);
 }
+
 
 /**
  * draws image with clipping along arbitrary lines
@@ -2332,7 +2334,7 @@ void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 u
 					display_img_pc<plain>(h, xp, yp, sp);
 					// since height may be reduced, start marking here
 					if (dirty) {
-						mark_rect_dirty_wc(xp, yp, xp + w - 1, yp + h - 1);
+						mark_rect_dirty_clip(xp, yp, xp + w - 1, yp + h - 1);
 					}
 			}
 			else {
@@ -2348,7 +2350,7 @@ void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 u
 					display_img_wc(h, xp, yp, sp);
 					// since height may be reduced, start marking here
 					if (dirty) {
-						mark_rect_dirty_wc(xp, yp, xp + w - 1, yp + h - 1);
+						mark_rect_dirty_clip(xp, yp, xp + w - 1, yp + h - 1);
 					}
 				}
 			}
@@ -2489,7 +2491,6 @@ void display_color_img(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8
 }
 
 
-
 /**
  * draw unscaled images, replaces base color
  * @author prissi
@@ -2557,7 +2558,6 @@ void display_base_img(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 
 }
 
 
-
 /* from here code for transparent images */
 typedef void (*blend_proc)(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour, const PIXVAL len);
 
@@ -2566,6 +2566,7 @@ typedef void (*blend_proc)(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour,
 #define TWO_OUT_16 (0x39E7)
 #define ONE_OUT_15 (0x3DEF)
 #define TWO_OUT_15 (0x1CE7)
+
 
 static void pix_blend75_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
 {
@@ -2577,6 +2578,7 @@ static void pix_blend75_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const
 	}
 }
 
+
 static void pix_blend75_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
@@ -2586,6 +2588,7 @@ static void pix_blend75_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const
 		src++;
 	}
 }
+
 
 static void pix_blend50_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
 {
@@ -2597,6 +2600,7 @@ static void pix_blend50_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const
 	}
 }
 
+
 static void pix_blend50_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
@@ -2606,6 +2610,7 @@ static void pix_blend50_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const
 		src++;
 	}
 }
+
 
 static void pix_blend25_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
 {
@@ -2617,6 +2622,7 @@ static void pix_blend25_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const
 	}
 }
 
+
 static void pix_blend25_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
@@ -2626,6 +2632,7 @@ static void pix_blend25_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const
 		src++;
 	}
 }
+
 
 // Knightly : the following 6 functions are for display_base_img_blend()
 static void pix_blend_recode75_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
@@ -2638,6 +2645,7 @@ static void pix_blend_recode75_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL 
 	}
 }
 
+
 static void pix_blend_recode75_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
@@ -2647,6 +2655,7 @@ static void pix_blend_recode75_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL 
 		src++;
 	}
 }
+
 
 static void pix_blend_recode50_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
 {
@@ -2658,6 +2667,7 @@ static void pix_blend_recode50_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL 
 	}
 }
 
+
 static void pix_blend_recode50_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
@@ -2667,6 +2677,7 @@ static void pix_blend_recode50_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL 
 		src++;
 	}
 }
+
 
 static void pix_blend_recode25_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
 {
@@ -2678,6 +2689,7 @@ static void pix_blend_recode25_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL 
 	}
 }
 
+
 static void pix_blend_recode25_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
@@ -2688,6 +2700,7 @@ static void pix_blend_recode25_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL 
 	}
 }
 
+
 static void pix_outline75_15(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
@@ -2696,6 +2709,7 @@ static void pix_outline75_15(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, 
 		dest++;
 	}
 }
+
 
 static void pix_outline75_16(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, const PIXVAL len)
 {
@@ -2706,6 +2720,7 @@ static void pix_outline75_16(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, 
 	}
 }
 
+
 static void pix_outline50_15(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
@@ -2714,6 +2729,7 @@ static void pix_outline50_15(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, 
 		dest++;
 	}
 }
+
 
 static void pix_outline50_16(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, const PIXVAL len)
 {
@@ -2724,6 +2740,7 @@ static void pix_outline50_16(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, 
 	}
 }
 
+
 static void pix_outline25_15(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
@@ -2732,6 +2749,7 @@ static void pix_outline25_15(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, 
 		dest++;
 	}
 }
+
 
 static void pix_outline25_16(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, const PIXVAL len)
 {
@@ -2861,6 +2879,214 @@ static void display_img_blend_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VA
 	}
 }
 
+
+/* from here code for transparent images */
+
+
+typedef void (*alpha_proc)(PIXVAL *dest, const PIXVAL *src, const PIXVAL *alphamap, const unsigned alpha_flags, const PIXVAL colour, const PIXVAL len);
+static alpha_proc alpha;
+static alpha_proc alpha_recode;
+
+
+static void pix_alpha_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL *alphamap, const unsigned alpha_flags, const PIXVAL , const PIXVAL len)
+{
+	const PIXVAL *const end = dest + len;
+
+	const uint16 rmask = alpha_flags & ALPHA_RED ? 0x001f : 0;
+	const uint16 gmask = alpha_flags & ALPHA_GREEN ? 0x03e0 : 0;
+	const uint16 bmask = alpha_flags & ALPHA_BLUE ? 0x7b00 : 0;
+
+	while(  dest < end  ) {
+		// read mask components - always 15bpp
+		uint16 alpha_value = ((*alphamap) & rmask) + (((*alphamap) & gmask) >> 5) + (((*alphamap) & bmask) >> 10);
+
+		if(  alpha_value > 30  ) {
+			// opaque, just copy source
+			*dest = *src;
+		}
+		else if(  alpha_value > 0  ) {
+			alpha_value = alpha_value > 15 ? alpha_value + 1 : alpha_value;
+
+			//read screen components - 15bpp
+			const uint16 rbs = (*dest) & 0x7b1f;
+			const uint16 gs =  (*dest) & 0x03e0;
+
+			// read image components - 15bpp
+			const uint16 rbi = (*src) & 0x7b1f;
+			const uint16 gi =  (*src) & 0x03e0;
+
+			// calculate and write destination components - 16bpp
+			const uint16 rbd = ((rbi * alpha_value) + (rbs * (32 - alpha_value))) >> 5;
+			const uint16 gd  = ((gi  * alpha_value) + (gs  * (32 - alpha_value))) >> 5;
+			*dest = (rbd & 0x7b1f) | (gd & 0x03e0);
+		}
+
+		dest++;
+		src++;
+		alphamap++;
+	}
+}
+
+
+static void pix_alpha_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL *alphamap, const unsigned alpha_flags, const PIXVAL , const PIXVAL len)
+{
+	const PIXVAL *const end = dest + len;
+
+	const uint16 rmask = alpha_flags & ALPHA_RED ? 0x001f : 0;
+	const uint16 gmask = alpha_flags & ALPHA_GREEN ? 0x03e0 : 0;
+	const uint16 bmask = alpha_flags & ALPHA_BLUE ? 0x7b00 : 0;
+
+	while(  dest < end  ) {
+		// read mask components - always 15bpp
+		uint16 alpha_value = ((*alphamap) & rmask) + (((*alphamap) & gmask) >> 5) + (((*alphamap) & bmask) >> 10);
+
+		if(  alpha_value > 30  ) {
+			// opaque, just copy source
+			*dest = *src;
+		}
+		else if(  alpha_value > 0  ) {
+			alpha_value = alpha_value > 15 ? alpha_value + 1 : alpha_value;
+
+			//read screen components - 16bpp
+			const uint16 rbs = (*dest) & 0xf81f;
+			const uint16 gs =  (*dest) & 0x07e0;
+
+			// read image components 16bpp
+			const uint16 rbi = (*src) & 0xf81f;
+			const uint16 gi =  (*src) & 0x07e0;
+
+			// calculate and write destination components - 16bpp
+			const uint16 rbd = ((rbi * alpha_value) + (rbs * (32 - alpha_value))) >> 5;
+			const uint16 gd  = ((gi  * alpha_value) + (gs  * (32 - alpha_value))) >> 5;
+			*dest = (rbd & 0xf81f) | (gd & 0x07e0);
+		}
+
+		dest++;
+		src++;
+		alphamap++;
+	}
+}
+
+
+static void pix_alpha_recode_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL *alphamap, const unsigned alpha_flags, const PIXVAL , const PIXVAL len)
+{
+	const PIXVAL *const end = dest + len;
+
+	const uint16 rmask = alpha_flags & ALPHA_RED ? 0x001f : 0;
+	const uint16 gmask = alpha_flags & ALPHA_GREEN ? 0x03e0 : 0;
+	const uint16 bmask = alpha_flags & ALPHA_BLUE ? 0x7b00 : 0;
+
+	while(  dest < end  ) {
+		// read mask components - always 15bpp
+		uint16 alpha_value = ((*alphamap) & rmask) + (((*alphamap) & gmask) >> 5) + (((*alphamap) & bmask) >> 10);
+
+		if(  alpha_value > 30  ) {
+			// opaque, just copy source
+			*dest = rgbmap_current[*src];
+		}
+		else if(  alpha_value > 0  ) {
+			alpha_value = alpha_value > 15 ? alpha_value + 1 : alpha_value;
+
+			//read screen components - 15bpp
+			const uint16 rbs = (*dest) & 0x7b1f;
+			const uint16 gs =  (*dest) & 0x03e0;
+
+			// read image components - 15bpp
+			const uint16 rbi = (rgbmap_current[*src]) & 0x7b1f;
+			const uint16 gi =  (rgbmap_current[*src]) & 0x03e0;
+
+			// calculate and write destination components - 16bpp
+			const uint16 rbd = ((rbi * alpha_value) + (rbs * (32 - alpha_value))) >> 5;
+			const uint16 gd  = ((gi  * alpha_value) + (gs  * (32 - alpha_value))) >> 5;
+			*dest = (rbd & 0x7b1f) | (gd & 0x03e0);
+		}
+
+		dest++;
+		src++;
+		alphamap++;
+	}
+}
+
+
+static void pix_alpha_recode_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL *alphamap, const unsigned alpha_flags, const PIXVAL , const PIXVAL len)
+{
+	const PIXVAL *const end = dest + len;
+
+	const uint16 rmask = alpha_flags & ALPHA_RED ? 0x001f : 0;
+	const uint16 gmask = alpha_flags & ALPHA_GREEN ? 0x03e0 : 0;
+	const uint16 bmask = alpha_flags & ALPHA_BLUE ? 0x7b00 : 0;
+
+	while(  dest < end  ) {
+		// read mask components - always 15bpp
+		uint16 alpha_value = ((*alphamap) & rmask) + (((*alphamap) & gmask) >> 5) + (((*alphamap) & bmask) >> 10);
+
+		if(  alpha_value > 30  ) {
+			// opaque, just copy source
+			*dest = rgbmap_current[*src];
+		}
+		else if(  alpha_value > 0  ) {
+			alpha_value = alpha_value> 15 ? alpha_value + 1 : alpha_value;
+
+			//read screen components - 16bpp
+			const uint16 rbs = (*dest) & 0xf81f;
+			const uint16 gs =  (*dest) & 0x07e0;
+
+			// read image components 16bpp
+			const uint16 rbi = (rgbmap_current[*src]) & 0xf81f;
+			const uint16 gi =  (rgbmap_current[*src]) & 0x07e0;
+
+			// calculate and write destination components - 16bpp
+			const uint16 rbd = ((rbi * alpha_value) + (rbs * (32 - alpha_value))) >> 5;
+			const uint16 gd  = ((gi  * alpha_value) + (gs  * (32 - alpha_value))) >> 5;
+			*dest = (rbd & 0xf81f) | (gd & 0x07e0);
+		}
+
+		dest++;
+		src++;
+		alphamap++;
+	}
+}
+
+
+static void display_img_alpha_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp, const PIXVAL *alphamap, const uint8 alpha_flags, int colour, alpha_proc p )
+{
+	if(  h > 0  ) {
+		PIXVAL *tp = textur + yp * disp_width;
+
+		do { // zeilen dekodieren
+			int xpos = xp;
+
+			// bild darstellen
+			uint16 runlen = *sp++;
+			alphamap++;
+
+			do {
+				// wir starten mit einem clear run
+				xpos += runlen;
+
+				// jetzt kommen farbige pixel
+				runlen = *sp++;
+				alphamap++;
+
+				// Hajo: something to display?
+				if(  xpos + runlen > clip_rect.x  &&  xpos < clip_rect.xx  ) {
+					const int left = (xpos >= clip_rect.x ? 0 : clip_rect.x - xpos);
+					const int len  = (clip_rect.xx - xpos >= runlen ? runlen : clip_rect.xx - xpos);
+					p( tp + xpos + left, sp + left, alphamap + left, alpha_flags, colour, len - left );
+				}
+
+				sp += runlen;
+				alphamap += runlen;
+				xpos += runlen;
+				alphamap++;
+			} while(  (runlen = *sp++)  );
+
+			tp += disp_width;
+		} while(  --h  );
+	}
+}
+
+
 /**
  * draws the transparent outline of an image
  * @author kierongreen
@@ -2946,6 +3172,96 @@ void display_rezoomed_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, co
 }
 
 
+void display_rezoomed_img_alpha(const unsigned n, const unsigned alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char /*player_nr*/, const PLAYER_COLOR_VAL color_index, const int /*daynight*/, const int dirty)
+{
+	if(  n < anz_images  &&  alpha_n < anz_images  ) {
+		// need to go to nightmode and or rezoomed?
+		PIXVAL *sp;
+		PIXVAL *alphamap;
+		KOORD_VAL h, reduce_h, skip_lines;
+
+		if(  images[n].recode_flags & FLAG_REZOOM  ) {
+			rezoom_img(n);
+			recode_normal_img(n);
+		}
+		else if(  images[n].recode_flags & FLAG_NORMAL_RECODE  ) {
+			recode_normal_img(n);
+		}
+		if(  images[alpha_n].recode_flags & FLAG_REZOOM  ) {
+			rezoom_img(alpha_n);
+		}
+		sp = images[n].data;
+		// alphamap image uses base data as we don't want to recode
+		alphamap = images[alpha_n].zoom_data != NULL ? images[alpha_n].zoom_data : images[alpha_n].base_data;
+		// now, since zooming may have change this image
+		xp += images[n].x;
+		yp += images[n].y;
+		h = images[n].h; // may change due to vertical clipping
+
+		// in the next line the vertical clipping will be handled
+		// by that way the drawing routines must only take into account the horizontal clipping
+		// this should be much faster in most cases
+
+		// must the height be reduced?
+		reduce_h = yp + h - clip_rect.yy;
+		if(  reduce_h > 0  ) {
+			h -= reduce_h;
+		}
+		// still something to draw
+		if(  h <= 0  ) {
+			return;
+		}
+
+		// vertically lines to skip (only bottom is visible
+		skip_lines = clip_rect.y - (int)yp;
+		if(  skip_lines > 0  ) {
+			if(  skip_lines >= h  ) {
+				// not visible at all
+				return;
+			}
+			h -= skip_lines;
+			yp += skip_lines;
+			// now skip them
+			while(  skip_lines--  ) {
+				do {
+					// clear run + colored run + next clear run
+					sp++;
+					sp += *sp + 1;
+					alphamap++;
+					alphamap += *alphamap + 1;
+				} while(  *sp  );
+				sp++;
+				alphamap++;
+			}
+			// now sp is the new start of an image with height h (same for alphamap)
+		}
+
+		// new block for new variables
+		{
+			// needed now ...
+			const KOORD_VAL w = images[n].w;
+			// get the real color
+			const PIXVAL color = specialcolormap_all_day[color_index & 0xFF];
+
+			// use horizontal clipping or skip it?
+			if(  xp >= clip_rect.x  &&  xp + w  <= clip_rect.xx  ) {
+				// marking change?
+				if(  dirty  ) {
+					mark_rect_dirty_nc( xp, yp, xp + w - 1, yp + h - 1 );
+				}
+				display_img_alpha_wc( h, xp, yp, sp, alphamap, alpha_flags, color, alpha );
+			}
+			else if(  xp < clip_rect.xx  &&  xp + w > clip_rect.x  ) {
+				display_img_alpha_wc( h, xp, yp, sp, alphamap, alpha_flags, color, alpha );
+				// since height may be reduced, start marking here
+				if(  dirty  ) {
+					mark_rect_dirty_wc( xp, yp, xp + w - 1, yp + h - 1 );
+				}
+			}
+		}
+	}
+}
+
 
 // Knightly : For blending or outlining unzoomed image. Adapted from display_base_img() and display_unzoomed_img_blend()
 void display_base_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty)
@@ -3028,6 +3344,91 @@ void display_base_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const 
 }
 
 
+void display_base_img_alpha(const unsigned n, const unsigned alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty)
+{
+	if(  base_tile_raster_width == tile_raster_width  ) {
+		// same size => use standard routine
+		display_rezoomed_img_alpha( n, alpha_n, alpha_flags, xp, yp, player_nr, color_index, daynight, dirty );
+	}
+	else if(  n < anz_images  ) {
+		// prissi: now test if visible and clipping needed
+		KOORD_VAL x = images[n].base_x + xp;
+		KOORD_VAL y = images[n].base_y + yp;
+		KOORD_VAL w = images[n].base_w;
+		KOORD_VAL h = images[n].base_h;
+
+		if(  h == 0  ||  x >= clip_rect.xx  ||  y >= clip_rect.yy  ||  x + w <= clip_rect.x  ||  y + h <= clip_rect.y  ) {
+			// not visible => we are done
+			// happens quite often ...
+			return;
+		}
+
+		PIXVAL *sp = images[n].base_data;
+		PIXVAL *alphamap = images[alpha_n].base_data;
+
+		// must the height be reduced?
+		KOORD_VAL reduce_h = y + h - clip_rect.yy;
+		if(  reduce_h > 0  ) {
+			h -= reduce_h;
+		}
+
+		// vertical lines to skip (only bottom is visible)
+		KOORD_VAL skip_lines = clip_rect.y - (int)y;
+		if(  skip_lines > 0  ) {
+			h -= skip_lines;
+			y += skip_lines;
+			// now skip them
+			while(  skip_lines--  ) {
+				do {
+					// clear run + colored run + next clear run
+					sp++;
+					sp += *sp + 1;
+				} while(  *sp  );
+				do {
+					// clear run + colored run + next clear run
+					alphamap++;
+					alphamap += *alphamap + 1;
+				} while(  *alphamap  );
+				sp++;
+				alphamap++;
+			}
+			// now sp is the new start of an image with height h
+		}
+
+		// new block for new variables
+		{
+			const PIXVAL color = specialcolormap_all_day[color_index & 0xFF];
+
+			// recode is needed only for blending
+			if(  !(color_index & OUTLINE_FLAG)  ) {
+				// colors for 2nd company color
+				if(  player_nr >= 0  ) {
+					activate_player_color( player_nr, daynight );
+				}
+				else {
+					// no player
+					activate_player_color( 0, daynight );
+				}
+			}
+
+			// use horizontal clipping or skip it?
+			if(  x >= clip_rect.x  &&  x + w <= clip_rect.xx  ) {
+				if( dirty ) {
+					mark_rect_dirty_nc( x, y, x + w - 1, y + h - 1 );
+				}
+				display_img_alpha_wc( h, x, y, sp, alphamap, alpha_flags, color, alpha_recode );
+			}
+			else {
+				if(  dirty  ) {
+					mark_rect_dirty_wc( x, y, x + w - 1, y + h - 1 );
+				}
+				display_img_alpha_wc( h, x, y, sp, alphamap, alpha_flags, color, alpha_recode );
+			}
+		}
+	} // number ok
+}
+
+
 // ----------------- basic painting procedures ----------------
 
 
@@ -3055,13 +3456,23 @@ void display_scroll_band(const KOORD_VAL start_y, const KOORD_VAL x_offset, cons
  * Zeichnet ein Pixel
  * @author Hj. Malthaner
  */
+#ifdef DEBUG_FLUSH_BUFFER
+static void display_pixel(KOORD_VAL x, KOORD_VAL y, PIXVAL color, bool mark_dirty=true)
+#else
 static void display_pixel(KOORD_VAL x, KOORD_VAL y, PIXVAL color)
+#endif
 {
 	if (x >= clip_rect.x && x < clip_rect.xx && y >= clip_rect.y && y < clip_rect.yy) {
 		PIXVAL* const p = textur + x + y * disp_width;
 
 		*p = color;
-		mark_tile_dirty(x >> DIRTY_TILE_SHIFT, y >> DIRTY_TILE_SHIFT);
+#ifdef DEBUG_FLUSH_BUFFER
+		if(  mark_dirty  ) {
+#endif
+			mark_tile_dirty(x >> DIRTY_TILE_SHIFT, y >> DIRTY_TILE_SHIFT);
+#ifdef DEBUG_FLUSH_BUFFER
+		}
+#endif
 	}
 }
 
@@ -3205,7 +3616,7 @@ void display_array_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, cons
 // --------------------------------- text rendering stuff ------------------------------
 
 
-int	display_set_unicode(int use_unicode)
+int display_set_unicode(int use_unicode)
 {
 	return has_unicode = (use_unicode != 0);
 }
@@ -3592,8 +4003,8 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
 	}
 
 	if (flags & DT_DIRTY) {
-		// here, because only now we know the length also for ALIGN_LEFT text
-		mark_rect_dirty_wc(x0, y, x - 1, y + 10 - 1);
+		// here, because only now we know the lenght also for ALIGN_LEFT text
+		mark_rect_dirty_clip(x0, y, x - 1, y + 10 - 1);
 	}
 	// warning: aktual len might be longer, due to clipping!
 	return x - x0;
@@ -3742,7 +4153,11 @@ void display_direct_line(const KOORD_VAL x, const KOORD_VAL y, const KOORD_VAL x
 	yp = y << 16;
 
 	for (i = 0; i <= steps; i++) {
+#ifdef DEBUG_FLUSH_BUFFER
+		display_pixel(xp >> 16, yp >> 16, colval, false);
+#else
 		display_pixel(xp >> 16, yp >> 16, colval);
+#endif
 		xp += xs;
 		yp += ys;
 	}
@@ -3874,7 +4289,7 @@ void display_filled_circle( KOORD_VAL x0, KOORD_VAL  y0, int radius, const PLAYE
 		display_fb_internal( x0-y, y0+x, y+y, 1, color, false, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy);
 		display_fb_internal( x0-y, y0-x, y+y, 1, color, false, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy);
 	}
-	mark_rect_dirty_wc( x0-radius, y0-radius, x0+radius+1, y0+radius+1 );
+//	mark_rect_dirty_wc( x0-radius, y0-radius, x0+radius+1, y0+radius+1 );
 }
 
 
@@ -3947,9 +4362,10 @@ void draw_bezier(KOORD_VAL Ax, KOORD_VAL Ay, KOORD_VAL Bx, KOORD_VAL By, KOORD_V
  */
 void display_flush_buffer(void)
 {
-	int x, y;
-	unsigned char* tmp;
-
+	static const uint8 MultiplyDeBruijnBitPosition[32] =
+	{
+		0, 1, 28, 2, 29, 14, 24, 3, 30, 22, 20, 15, 25, 17, 4, 8, 31, 27, 13, 23, 21, 19, 16, 7, 26, 12, 18, 6, 11, 5, 10, 9
+	};
 #ifdef USE_SOFTPOINTER
 	ex_ord_update_mx_my();
 
@@ -3979,49 +4395,100 @@ void display_flush_buffer(void)
 	old_my = sys_event.my;
 #endif
 
+	// combine current with last dirty tiles
+	for(  int i = 0;  i < tile_buffer_length;  i++  ) {
+		tile_dirty_old[i] |= tile_dirty[i];
+	}
+
+	const int tile_words_per_line = tile_buffer_per_line >> 5;
+	ALLOCA( uint32, masks, tile_words_per_line );
+
+	for(  int x1 = 0;  x1 < tiles_per_line;  x1++  ) {
+		const uint32 x_search_mask = 1 << (x1 & 31); // bit mask for finding bit x set
+		int y1 = 0;
+		do {
+			const int word_max = (0 + (y1 + 1) * tile_buffer_per_line) >> 5; // first word on next line. limit search to < max
+			const int word_x1 = (x1 + y1 * tile_buffer_per_line) >> 5;
+			if(  (tile_dirty_old[word_x1] & x_search_mask) == x_search_mask  ) {
+				// found dirty tile at x1, now find contiguous block of dirties - x2
+				const uint32 testval = ~((~(0xFFFFFFFF << x1)) | tile_dirty_old[word_x1]);
+				int word_x2 = word_x1;
+				int x2;
+				if(  testval == 0  ) { // dirty block spans words
+					masks[0] = tile_dirty_old[word_x1];
+					word_x2++;
+					while(  word_x2 < word_max  &&  tile_dirty_old[word_x2] == 0xFFFFFFFF  ) {
+						masks[word_x2 - word_x1] = 0xFFFFFFFF; // dirty block spans this entire word
+						word_x2++;
+					}
+					if(  word_x2 >= word_max                   // dirty tiles extend all the way to screen edge
+						 ||  !(tile_dirty_old[word_x2] & 1)  ) { // dirty block actually ended on the word edge
+						x2 = 32; // set to whole word
+						word_x2--; // masks already set in while loop above
+					}
+					else { // dirty block ends in word_x2
+						const uint32 tv = ~tile_dirty_old[word_x2];
+						x2 = MultiplyDeBruijnBitPosition[(((tv & -tv) * 0x077CB531U)) >> 27];
+						masks[word_x2-word_x1] = 0xFFFFFFFF >> (32 - x2);
+					}
+				}
+				else { // dirty block is all within one word - word_x1
+					x2 = MultiplyDeBruijnBitPosition[(((testval & -testval) * 0x077CB531U)) >> 27];
+					masks[0] = (0xFFFFFFFF << (32 - x2 + (x1 & 31))) >> (32 - x2);
+				}
+
+				for(  int i = word_x1;  i <= word_x2;  i++  ) { // clear dirty
+					tile_dirty_old[i] &= ~masks[i - word_x1];
+				}
+
+				// x2 from bit index to tile coords
+				x2 += (x1 & ~31) + ((word_x2 - word_x1) << 5);
+
+				// find how many rows can be combined into one rectangle
+				int y2 = y1 + 1;
+				bool xmatch = true;
+				while(  y2 < tile_lines  &&  xmatch  ) {
+					const int li = (x1 + y2 * tile_buffer_per_line) >> 5;
+					const int ri = li + word_x2 - word_x1;
+					for(  int i = li;  i <= ri;  i++ ) {
+						if(  (tile_dirty_old[i] & masks[i - li])  !=  masks[i - li]  ) {
+							xmatch = false;
+							break;
+						}
+					}
+					if(  xmatch  ) {
+						for(  int i = li;  i <= ri;  i++  ) { // clear dirty
+							tile_dirty_old[i] &= ~masks[i - li];
+						}
+						y2++;
+					}
+				}
+
 #ifdef DEBUG_FLUSH_BUFFER
-	for (y = 0; y < tile_lines - 1; y++) {
-		x = 0;
-
-		do {
-			if (is_tile_dirty(x, y)) {
-				const int xl = x;
-				do {
-					x++;
-				} while(x < tiles_per_line && is_tile_dirty(x, y));
-
-				display_vline_wh((xl << DIRTY_TILE_SHIFT) - 1, y << DIRTY_TILE_SHIFT, DIRTY_TILE_SIZE, 80, false);
-				display_vline_wh( x  << DIRTY_TILE_SHIFT,      y << DIRTY_TILE_SHIFT, DIRTY_TILE_SIZE, 80, false);
-				display_fillbox_wh(xl << DIRTY_TILE_SHIFT,  y << DIRTY_TILE_SHIFT,                        (x - xl) << DIRTY_TILE_SHIFT, 1, 80, false);
-				display_fillbox_wh(xl << DIRTY_TILE_SHIFT, (y << DIRTY_TILE_SHIFT) + DIRTY_TILE_SIZE - 1, (x - xl) << DIRTY_TILE_SHIFT, 1, 80, false);
-			}
-			x++;
-		} while (x < tiles_per_line);
-	}
-	dr_textur(0, 0, disp_actual_width, disp_height);
+				display_vline_wh( (x1 << DIRTY_TILE_SHIFT) - 1, y1 << DIRTY_TILE_SHIFT, (y2 - y1) << DIRTY_TILE_SHIFT, COL_YELLOW, false);
+				display_vline_wh( x2 << DIRTY_TILE_SHIFT,  y1 << DIRTY_TILE_SHIFT, (y2 - y1) << DIRTY_TILE_SHIFT, COL_YELLOW, false);
+				display_fillbox_wh( x1 << DIRTY_TILE_SHIFT, y1 << DIRTY_TILE_SHIFT, (x2 - x1) << DIRTY_TILE_SHIFT, 1, COL_YELLOW, false);
+				display_fillbox_wh( x1 << DIRTY_TILE_SHIFT, (y2 << DIRTY_TILE_SHIFT) - 1, (x2 - x1) << DIRTY_TILE_SHIFT, 1, COL_YELLOW, false);
+				display_direct_line( x1 << DIRTY_TILE_SHIFT, y1 << DIRTY_TILE_SHIFT, x2 << DIRTY_TILE_SHIFT, (y2 << DIRTY_TILE_SHIFT) - 1, COL_YELLOW );
+				display_direct_line( x1 << DIRTY_TILE_SHIFT, (y2 << DIRTY_TILE_SHIFT) - 1, x2 << DIRTY_TILE_SHIFT, y1 << DIRTY_TILE_SHIFT, COL_YELLOW );
 #else
-	for (y = 0; y < tile_lines; y++) {
-		x = 0;
-
-		do {
-			if (is_tile_dirty(x, y)) {
-				const int xl = x;
-				do {
-					x++;
-				} while (x < tiles_per_line && is_tile_dirty(x, y));
-
-				dr_textur(xl << DIRTY_TILE_SHIFT, y << DIRTY_TILE_SHIFT, (x - xl) << DIRTY_TILE_SHIFT, DIRTY_TILE_SIZE);
+				dr_textur( x1 << DIRTY_TILE_SHIFT, y1 << DIRTY_TILE_SHIFT, (x2 - x1) << DIRTY_TILE_SHIFT, (y2 - y1) << DIRTY_TILE_SHIFT );
+#endif
+				y1 = y2; // continue search from bottom of found rectangle
 			}
-			x++;
-		} while (x < tiles_per_line);
+			else {
+				y1++;
+			}
+		} while(  y1 < tile_lines  );
 	}
+#ifdef DEBUG_FLUSH_BUFFER
+	dr_textur(0, 0, disp_actual_width, disp_height );
 #endif
 
 	// swap tile buffers
-	tmp = tile_dirty_old;
+	uint32 *tmp = tile_dirty_old;
 	tile_dirty_old = tile_dirty;
-	tile_dirty = tmp;
-	MEMZERON(tile_dirty, tile_buffer_length);
+	tile_dirty = tmp; // _old was cleared to 0 in above loops
 }
 
 
@@ -4129,15 +4596,16 @@ void simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 	}
 
 	// allocate dirty tile flags
-	tiles_per_line     = (disp_width  + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;
-	tile_lines         = (disp_height + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;
-	tile_buffer_length = (tile_lines * tiles_per_line + 7) / 8;
+	tiles_per_line = (disp_width + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;
+	tile_buffer_per_line = (tiles_per_line + 31) & ~31;
+	tile_lines = (disp_height + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;
+	tile_buffer_length = (tile_lines * tile_buffer_per_line / 32);
 
-	tile_dirty     = MALLOCN(unsigned char, tile_buffer_length);
-	tile_dirty_old = MALLOCN(unsigned char, tile_buffer_length);
+	tile_dirty = MALLOCN( uint32, tile_buffer_length );
+	tile_dirty_old = MALLOCN( uint32, tile_buffer_length );
 
-	memset(tile_dirty,     255, tile_buffer_length);
-	memset(tile_dirty_old, 255, tile_buffer_length);
+	mark_screen_dirty();
+	MEMZERON( tile_dirty_old, tile_buffer_length );
 
 	// init player colors
 	for(i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
@@ -4169,6 +4637,8 @@ void simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 			outline[0] = pix_outline25_15;
 			outline[1] = pix_outline50_15;
 			outline[2] = pix_outline75_15;
+			alpha = pix_alpha_15;
+			alpha_recode = pix_alpha_recode_15;
 		}
 		else {
 			blend[0] = pix_blend25_16;
@@ -4180,6 +4650,8 @@ void simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 			outline[0] = pix_outline25_16;
 			outline[1] = pix_outline50_16;
 			outline[2] = pix_outline75_16;
+			alpha = pix_alpha_16;
+			alpha_recode = pix_alpha_recode_16;
 		}
 	}
 
@@ -4206,8 +4678,8 @@ void simgraph_exit()
 {
 	dr_os_close();
 
-	guarded_free(tile_dirty);
-	guarded_free(tile_dirty_old);
+	guarded_free( tile_dirty_old );
+	guarded_free( tile_dirty );
 	display_free_all_images_above(0);
 	guarded_free(images);
 
@@ -4232,27 +4704,26 @@ void simgraph_resize(KOORD_VAL w, KOORD_VAL h)
 	if (disp_width != w || disp_height != h) {
 		KOORD_VAL new_width = dr_textur_resize(&textur, w, h);
 		if(  new_width!=disp_width  ||  disp_height != h) {
-
 			disp_width = new_width;
 			disp_height = h;
 
-			guarded_free(tile_dirty);
-			guarded_free(tile_dirty_old);
+			guarded_free( tile_dirty_old );
+			guarded_free( tile_dirty);
 
-			tiles_per_line     = (disp_width  + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;
-			tile_lines         = (disp_height + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;
-			tile_buffer_length = (tile_lines * tiles_per_line + 7) / 8;
+			// allocate dirty tile flags
+			tiles_per_line = (disp_width + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;
+			tile_buffer_per_line = (tiles_per_line + 31) & ~31;
+			tile_lines = (disp_height + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;
+			tile_buffer_length = (tile_lines * tile_buffer_per_line / 32);
 
-			tile_dirty     = MALLOCN(unsigned char, tile_buffer_length);
-			tile_dirty_old = MALLOCN(unsigned char, tile_buffer_length);
-
-			memset(tile_dirty,     255, tile_buffer_length);
-			memset(tile_dirty_old, 255, tile_buffer_length);
+			tile_dirty = MALLOCN( uint32, tile_buffer_length );
+			tile_dirty_old = MALLOCN( uint32, tile_buffer_length );
 
 			display_set_clip_wh(0, 0, disp_actual_width, disp_height);
 		}
-		memset(tile_dirty,     255, tile_buffer_length);
-		memset(tile_dirty_old, 255, tile_buffer_length);
+
+		mark_screen_dirty();
+		MEMZERON( tile_dirty_old, tile_buffer_length );
 	}
 }
 
@@ -4290,4 +4761,3 @@ void display_snapshot( int x, int y, int w, int h )
 
 	dr_screenshot(buf, x, y, w, h);
 }
-#endif
