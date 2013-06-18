@@ -5,6 +5,9 @@
  * (see licence.txt)
  */
 
+/*
+ * Where the current factory chart statistics are calculated
+ */
 
 #ifndef factory_chart_h
 #define factory_chart_h

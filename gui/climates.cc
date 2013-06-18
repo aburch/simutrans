@@ -43,7 +43,7 @@ climate_gui_t::climate_gui_t(settings_t* const sets) :
 
 	sint16 labelnr=0;
 
-	// mountian/water stuff
+	// mountain/water stuff
 	sint16 y = D_MARGIN_TOP;
 	numberinput_lbl[labelnr].init( "Water level", koord( D_MARGIN_LEFT, y+2 ) );
 	add_komponente( numberinput_lbl+labelnr );
@@ -115,7 +115,7 @@ climate_gui_t::climate_gui_t(settings_t* const sets) :
 	add_komponente( &summer_snowline );
 	y += D_BUTTON_HEIGHT;
 
-	// artic starts at maximum end of climate
+	// arctic starts at maximum end of climate
 	numberinput_lbl[labelnr].init( "Winter snowline", koord( D_MARGIN_LEFT, y+2 ) );
 	add_komponente( numberinput_lbl+labelnr );
 	labelnr++;
@@ -229,7 +229,7 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	}
 	else if(komp==&cities_like_water) {
 		umgebung_t::cities_like_water =  v.i;
-	}	
+	}
 	else if(komp==&river_n) {
 		sets->river_number = (sint16)v.i;
 	}
@@ -248,7 +248,7 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	{
 		umgebung_t::hilly ^= 1;
 		hilly.pressed ^= 1;
-		if(  welt_gui  ) 
+		if(  welt_gui  )
 		{
 			welt_gui->update_preview();
 		}
@@ -259,28 +259,28 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		cities_ignore_height.pressed ^= 1;
 	}
 	else {
-		// all climate borders from here on
+	// all climate borders from here on
 
-		// artic starts at maximum end of climate
-		sint16 arctic = 0;
-		for(  int i=desert_climate;  i<=rocky_climate;  i++  ) {
-			if(  komp==climate_borders_ui+i-1  ) {
-				sets->climate_borders[i] = (sint16)v.i;
-			}
-			if(sets->climate_borders[i]>arctic) {
-				arctic = sets->climate_borders[i];
-			}
+	// Arctic starts at maximum end of climate
+	sint16 arctic = 0;
+	for(  int i=desert_climate;  i<=rocky_climate;  i++  ) {
+		if(  komp==climate_borders_ui+i-1  ) {
+			sets->climate_borders[i] = (sint16)v.i;
 		}
-		sets->climate_borders[arctic_climate] = arctic;
-
-		// correct summer snowline too
-		if(arctic<sets->get_winter_snowline()) {
-			sets->winter_snowline = arctic;
+		if(sets->climate_borders[i]>arctic) {
+			arctic = sets->climate_borders[i];
 		}
-		snowline_winter.set_limits( water_level.get_value(), arctic );
-		snowline_winter.set_value( snowline_winter.get_value() );
+	}
+	sets->climate_borders[arctic_climate] = arctic;
 
-		sprintf( snowline_txt ,"%d", sets->get_climate_borders()[arctic_climate] );
+	// correct summer snowline too
+	if(arctic<sets->get_winter_snowline()) {
+		sets->winter_snowline = arctic;
+	}
+	snowline_winter.set_limits( water_level.get_value(), arctic );
+	snowline_winter.set_value( snowline_winter.get_value() );
+
+	sprintf( snowline_txt ,"%d", sets->get_climate_borders()[arctic_climate] );
 	}
 	return true;
 }

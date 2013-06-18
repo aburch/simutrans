@@ -5,6 +5,10 @@
  * (see licence.txt)
  */
 
+/*
+ * Defines a drop-down list with left/right arrows
+ */
+
 #include <string.h>
 
 #include "../../macros.h"
@@ -176,7 +180,7 @@ DBG_MESSAGE("gui_combobox_t::infowin_event()","scroll selected %i",p.i);
 
 
 /**
- * Zeichnet die Komponente
+ * Draw the component
  * @author Hj. Malthaner
  */
 void gui_combobox_t::zeichnen(koord offset)

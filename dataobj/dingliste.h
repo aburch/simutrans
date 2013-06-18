@@ -12,12 +12,15 @@ private:
 		ding_t *one;      // valid if capacity == 1
 	} obj;
 
+	/**
+	 * Number of items which can be stored without expanding
+	 */
 	uint8 capacity;
 
 	/**
-	* index of the next free entry after the last element
-	* @author Hj. Malthaner
-	*/
+	 * 0-based index of the next free entry after the last element
+	 * therefore also the count of number of items which are stored
+	 */
 	uint8 top;
 
 	void set_capacity(uint16 new_cap);
@@ -55,7 +58,7 @@ public:
 	*/
 	inline ding_t * bei(uint8 n) const
 	{
-		if(n>top) {
+		if(n >= top) {
 			return NULL;
 		}
 		return (capacity<=1) ? obj.one : obj.some[n];

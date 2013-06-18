@@ -936,17 +936,17 @@ public:
 	/**
 	 * background_dirty: redraw background.
 	 */
-	void set_background_dirty() {background_dirty=true;}
+	void set_background_dirty() { background_dirty = true; }
 
 	/**
 	 * background_dirty: redraw whole screen.
 	 */
-	bool is_background_dirty() const {return background_dirty;}
+	bool is_background_dirty() const { return background_dirty; }
 
 	/**
 	 * background_dirty: redraw background.
 	 */
-	void unset_background_dirty() {background_dirty=false;}
+	void unset_background_dirty() { background_dirty = false; }
 
 	/**
 	 * @return true if the current viewport contains regions outside the world.

@@ -6,6 +6,7 @@
  */
 
 /*
+ * The window frame all dialogs are based
  * [Mathew Hounsell] Min Size Button On Map Window 20030313
  */
 
@@ -24,13 +25,13 @@ class spieler_t;
 
 
 /*
- * The following gives positioning aids for elements in dialoges
+ * The following gives positioning aids for elements in dialogues
  * Only those, LINESPACE, and dimensions of elements itself must be
  * exclusively used to calculate positions in dialogues to have a
- * scaleable interface
+ * scalable interface
  */
 
-// default button width (may change with langugae and font)
+// default button width (may change with language and font)
 #define D_BUTTON_WIDTH (gui_frame_t::gui_button_width)
 #define D_BUTTON_HEIGHT (gui_frame_t::gui_button_height)
 
@@ -55,7 +56,7 @@ class spieler_t;
 #define BUTTON_X(col) (D_MARGIN_LEFT+(col)*(D_BUTTON_WIDTH+D_H_SPACE))
 #define BUTTON_Y(row) ((row)*(D_BUTTON_HEIGHT+D_V_SPACE))
 
-// The width of a typical dialoge (either list/covoi/factory) and intial width when it makes sense
+// The width of a typical dialogue (either list/covoi/factory) and initial width when it makes sense
 #define D_DEFAULT_WIDTH (D_MARGIN_LEFT+4*D_BUTTON_WIDTH+3*D_H_SPACE+D_MARGIN_RIGHT)
 
 // dimensions of indicator bars (not yet a gui element ...)
@@ -66,10 +67,10 @@ class spieler_t;
 
 
 /**
- * Eine Klasse für Fenster mit Komponenten.
- * Anders als die anderen Fensterklasen in Simutrans ist dies
- * ein richtig Komponentenorientiertes Fenster, das alle
- * aktionen an die Komponenten delegiert.
+ * A Class for window with Component.
+ * Unlike other Window Classes in Simutrans, this is
+ * a true component-oriented window that all actions
+ * delegates to its component.
  *
  * @author Hj. Malthaner
  */
@@ -130,7 +131,9 @@ private:
 	COLOR_VAL color_transparent;
 
 protected:
-	void set_dirty() { dirty=1; }
+	void set_dirty() { dirty=true; }
+
+	void unset_dirty() { dirty=false; }
 
 	/**
 	 * resize window in response to a resize event
@@ -145,8 +148,8 @@ protected:
 
 public:
 	/**
-	 * @param name Fenstertitel
-	 * @param sp owner for color
+	 * @param name, Window title
+	 * @param sp, owner for color
 	 * @author Hj. Malthaner
 	 */
 	gui_frame_t(const char *name, const spieler_t *sp=NULL);
@@ -154,31 +157,31 @@ public:
 	virtual ~gui_frame_t() {}
 
 	/**
-	 * Fügt eine Komponente zum Fenster hinzu.
+	 * Adds the component to the window
 	 * @author Hj. Malthaner
 	 */
 	void add_komponente(gui_komponente_t *komp) { container.add_komponente(komp); }
 
 	/**
-	 * Entfernt eine Komponente aus dem Container.
+	 * Removes the component from the container.
 	 * @author Hj. Malthaner
 	 */
 	void remove_komponente(gui_komponente_t *komp) { container.remove_komponente(komp); }
 
 	/**
-	 * Der Name wird in der Titelzeile dargestellt
-	 * @return den nicht uebersetzten Namen der Komponente
+	 * The name is displayed in the titlebar
+	 * @return the non-translated name of the Component
 	 * @author Hj. Malthaner
 	 */
 	const char *get_name() const { return name; }
 
 	/**
-	 * setzt den Namen (Fenstertitel)
+	 * sets the Name (Window title)
 	 * @author Hj. Malthaner
 	 */
 	void set_name(const char *name);
 
-	/* this returns an unique id, if the dialoge can be saved
+	/* this returns an unique id, if the dialogue can be saved
 	 * if this is defined, you better define a matching constructor with karte_t * and loadsave_t *
 	 */
 	virtual uint32 get_rdwr_id() { return 0; }
@@ -186,20 +189,20 @@ public:
 	virtual void rdwr( loadsave_t * ) {}
 
 	/**
-	 * gibt farbinformationen fuer Fenstertitel, -ränder und -körper
-	 * zurück
+	 * get color information for the window title
+	 * -borders and -body background
 	 * @author Hj. Malthaner
 	 */
 	virtual PLAYER_COLOR_VAL get_titelcolor() const;
 
 	/**
-	 * @return gibt wunschgroesse für das Darstellungsfenster zurueck
+	 * @return gets the window sizes
 	 * @author Hj. Malthaner
 	 */
 	koord get_fenstergroesse() const { return groesse; }
 
 	/**
-	 * Setzt die Fenstergroesse
+	 * Sets the window sizes
 	 * @author Hj. Malthaner
 	 */
 	virtual void set_fenstergroesse(koord groesse);
@@ -219,15 +222,15 @@ public:
 	koord get_min_windowsize() { return min_windowsize; }
 
 	/**
-	 * @return returns the usable width and heigth of the window
+	 * @return returns the usable width and height of the window
 	 * @author Markus Weber
 	 * @date   11-May-2002
 	*/
 	koord get_client_windowsize() const {return groesse-koord(0,D_TITLEBAR_HEIGHT); }
 
 	/**
-	 * Manche Fenster haben einen Hilfetext assoziiert.
-	 * @return den Dateinamen für die Hilfe, oder NULL
+	 * Set the window associated helptext
+	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
 	virtual const char * get_hilfe_datei() const {return NULL;}
@@ -298,9 +301,9 @@ public:
 	virtual bool infowin_event(const event_t *ev);
 
 	/**
-	 * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
-	 * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
-	 * in dem die Komponente dargestellt wird.
+	 * Draw new component. The values to be passed refer to the window
+	 * i.e. It's the screen coordinates of the window where the
+	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
 	virtual void zeichnen(koord pos, koord gr);

@@ -256,7 +256,7 @@ public:
 	virtual bool is_work_here_network_save(karte_t *, spieler_t *, koord3d) { return false; }
 
 	// will draw a dark frame, if selected
-	virtual void draw_after( karte_t *w, koord pos ) const;
+	virtual void draw_after(karte_t *w, koord pos, bool dirty) const;
 
 	virtual const char *get_tooltip(spieler_t const* ) const { return NULL; }
 

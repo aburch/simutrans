@@ -1,3 +1,8 @@
+/*
+ * AI bahavior options from AI finance window
+ * 2006 prissi
+ */
+
 #ifndef ai_option_h
 #define ai_option_h
 
@@ -25,8 +30,8 @@ public:
 	ai_option_t(spieler_t *sp);
 
 	/**
-	 * Manche Fenster haben einen Hilfetext assoziiert.
-	 * @return den Dateinamen für die Hilfe, oder NULL
+	 * Set the window associated helptext
+	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
 	const char * get_hilfe_datei() const {return "players.txt";}

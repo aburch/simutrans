@@ -5,6 +5,11 @@
  * (see licence.txt)
  */
 
+/**
+ * Where curiosity (attractions) stats are calculated for list dialog
+ * @author Hj. Malthaner
+ */
+
 #ifndef curiositylist_stats_t_h
 #define curiositylist_stats_t_h
 
@@ -19,10 +24,6 @@ namespace curiositylist {
     enum sort_mode_t { by_name=0, by_paxlevel/*, by_maillevel*/, SORT_MODES };
 };
 
-/**
- * Curiosity list stats display
- * @author Hj. Malthaner
- */
 class curiositylist_stats_t : public gui_komponente_t
 {
 private:
@@ -47,7 +48,7 @@ public:
 	void recalc_size();
 
 	/**
-	* Zeichnet die Komponente
+	* Draw the component
 	* @author Hj. Malthaner
 	*/
 	void zeichnen(koord offset);

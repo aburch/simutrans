@@ -6,6 +6,13 @@
  * (see licence.txt)
  */
 
+/*
+ * Displays a scrollable list of all convois of a player
+ *
+ * @author Hj. Malthaner, Sort/Filtering by V. Meyer
+ * @date 15-Jun-01
+ */
+
 #include <string.h>
 #include <algorithm>
 

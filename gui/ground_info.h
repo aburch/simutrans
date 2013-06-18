@@ -5,6 +5,13 @@
  * (see licence.txt)
  */
 
+/**
+ * An adapter class to display info windows for ground (floor) objects
+ *
+ * @author Hj. Malthaner
+ * @date 20-Nov-2001
+ */
+
 #ifndef gui_ground_info_h
 #define gui_ground_info_h
 
@@ -15,12 +22,6 @@
 
 class grund_t;
 
-/**
- * An adapter class to display info windows for ground (floor) objects
- *
- * @author Hj. Malthaner
- * @date 20-Nov-2001
- */
 class grund_info_t : public gui_frame_t
 {
 protected:

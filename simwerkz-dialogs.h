@@ -1,10 +1,11 @@
 /*
- * New OO tool system
+ * This file is part of the Simutrans project under the artistic license.
+ */
+
+/* New OO tool system
  *
  * contains tools that will open windows
  * (split from simwerkz.h)
- *
- * This file is part of the Simutrans project under the artistic license.
  */
 
 #ifndef simwerkz_dialogs_h
@@ -48,7 +49,7 @@
 
 class spieler_t;
 
-/********************** dialoge tools *****************************/
+/********************** dialog tools *****************************/
 
 // general help
 class wkz_help_t : public werkzeug_t {
@@ -65,7 +66,7 @@ public:
 	bool is_work_network_save() const OVERRIDE { return true; }
 };
 
-// open info/quit dialoge
+// open info/quit dialog
 class wkz_optionen_t : public werkzeug_t {
 public:
 	wkz_optionen_t() : werkzeug_t(WKZ_OPTIONEN | DIALOGE_TOOL) {}
@@ -143,7 +144,7 @@ public:
 	bool is_work_network_save() const OVERRIDE { return true; }
 };
 
-// open player dialoge
+// open player dialog
 class wkz_players_t : public werkzeug_t {
 public:
 	wkz_players_t() : werkzeug_t(WKZ_PLAYERS | DIALOGE_TOOL) {}
@@ -173,7 +174,7 @@ public:
 	bool is_work_network_save() const OVERRIDE { return true; }
 };
 
-// open sound dialoge
+// open sound dialog
 class wkz_sound_t : public werkzeug_t {
 public:
 	wkz_sound_t() : werkzeug_t(WKZ_SOUND | DIALOGE_TOOL) {}
@@ -188,7 +189,7 @@ public:
 	bool is_work_network_save() const OVERRIDE { return true; }
 };
 
-// open language dialoge
+// open language dialog
 class wkz_language_t : public werkzeug_t {
 public:
 	wkz_language_t() : werkzeug_t(WKZ_LANGUAGE | DIALOGE_TOOL) {}
@@ -203,7 +204,7 @@ public:
 	bool is_work_network_save() const OVERRIDE { return true; }
 };
 
-// open player color dialoge
+// open player color dialog
 class wkz_playercolor_t : public werkzeug_t {
 public:
 	wkz_playercolor_t() : werkzeug_t(WKZ_PLAYERCOLOR | DIALOGE_TOOL) {}
@@ -218,7 +219,7 @@ public:
 	bool is_work_network_save() const OVERRIDE { return true; }
 };
 
-// jump to position dialoge
+// jump to position dialog
 class wkz_jump_t : public werkzeug_t {
 public:
 	wkz_jump_t() : werkzeug_t(WKZ_JUMP | DIALOGE_TOOL) {}
@@ -233,7 +234,7 @@ public:
 	bool is_work_network_save() const OVERRIDE { return true; }
 };
 
-// load game dialoge
+// load game dialog
 class wkz_load_t : public werkzeug_t {
 public:
 	wkz_load_t() : werkzeug_t(WKZ_LOAD | DIALOGE_TOOL) {}
@@ -248,7 +249,7 @@ public:
 	bool is_init_network_save() const OVERRIDE { return true; }
 };
 
-// save game dialoge
+// save game dialog
 class wkz_save_t : public werkzeug_t {
 public:
 	wkz_save_t() : werkzeug_t(WKZ_SAVE | DIALOGE_TOOL) {}
@@ -485,7 +486,7 @@ public:
 	bool exit(karte_t*, spieler_t*) OVERRIDE { destroy_win(magic_settings_frame_t); return false; }
 };
 
-/* server info and join dialoge */
+/* server info and join dialog */
 class wkz_server_t : public werkzeug_t {
 public:
 	wkz_server_t() : werkzeug_t(WKZ_GAMEINFO | DIALOGE_TOOL) {}

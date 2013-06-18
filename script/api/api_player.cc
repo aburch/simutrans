@@ -22,9 +22,9 @@ vector_tpl<sint64> const& get_player_stat(spieler_t *sp, sint32 INDEX, sint32 TT
 	}
 	else {
 		if (INDEX<0  ||  INDEX>ATV_MAX) {
-			atv = true;
 			return v;
 		}
+		atv = true;
 	}
 	if (sp) {
 		finance_t *finance = sp->get_finance();

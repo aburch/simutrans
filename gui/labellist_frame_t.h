@@ -42,14 +42,14 @@ class labellist_frame_t : public gui_frame_t, private action_listener_t
     void resize(const koord delta);
 
     /**
-     * Manche Fenster haben einen Hilfetext assoziiert.
-     * @return den Dateinamen für die Hilfe, oder NULL
+     * Set the window associated helptext
+     * @return the filename for the helptext, or NULL
      * @author V. Meyer
      */
     const char * get_hilfe_datei() const {return "labellist_filter.txt"; }
 
      /**
-     * This function refreshs the station-list
+     * This function refreshes the station-list
      * @author Markus Weber
      */
     void display_list();

@@ -222,7 +222,8 @@ public:
 	 * @param wt - waytype for accounting purposes
 	 * @param utyp - used for distinguishing of transport type of buildings. Used with buildings only.
 	 */
-	inline sint32 book_maintenance(sint32 change, waytype_t const wt) {
+	inline sint32 book_maintenance(sint32 change, waytype_t const wt)
+	{
 		transport_type tt = translate_waytype_to_tt(wt);
 		maintenance[tt] += change;
 		maintenance[TT_ALL] += change;
@@ -234,7 +235,8 @@ public:
 	 * @param amount money paid for vehicle
 	 * @param wt - waytype of vehicle
 	 */
-	inline void book_new_vehicle(const sint64 amount, const waytype_t wt){
+	inline void book_new_vehicle(const sint64 amount, const waytype_t wt)
+	{
 		// Note that for a new vehicle, amount is NEGATIVE
 		// It is positive for a SALE of a vehicle
 		const transport_type tt = translate_waytype_to_tt(wt);
@@ -253,7 +255,8 @@ public:
 	 * @param wt waytype of vehicle
 	 * @param index 0 = passenger, 1 = mail, 2 = goods
 	 */
-	inline void book_revenue(const sint64 amount, const waytype_t wt, sint32 index){
+	inline void book_revenue(const sint64 amount, const waytype_t wt, sint32 index)
+	{
 		const transport_type tt = translate_waytype_to_tt(wt);
 
 		index = ((0 <= index) && (index <= 2)? index : 2);
@@ -269,7 +272,8 @@ public:
 	 * @param amount sum of money
 	 * @param wt way type
 	 */
-	inline void book_running_costs(const sint64 amount, const waytype_t wt){
+	inline void book_running_costs(const sint64 amount, const waytype_t wt)
+	{
 		const transport_type tt = translate_waytype_to_tt(wt);
 		veh_year[tt][0][ATV_RUNNING_COST] += amount;
 		veh_month[tt][0][ATV_RUNNING_COST] += amount;
@@ -281,7 +285,8 @@ public:
 	 * @param amount sum of money
 	 * @param wt way type
 	 */
-	inline void book_toll_paid(const sint64 amount, const waytype_t wt){
+	inline void book_toll_paid(const sint64 amount, const waytype_t wt)
+	{
 		const transport_type tt =  translate_waytype_to_tt(wt);
 		veh_year[tt][0][ATV_TOLL_PAID] += (sint64) amount;
 		veh_month[tt][0][ATV_TOLL_PAID] += (sint64) amount;
@@ -293,7 +298,8 @@ public:
 	 * @param amount sum of money
 	 * @param wt way type
 	 */
-	inline void book_toll_received(const sint64 amount, const waytype_t wt){
+	inline void book_toll_received(const sint64 amount, const waytype_t wt)
+	{
 		const transport_type tt = translate_waytype_to_tt(wt);
 		veh_year[tt][0][ATV_TOLL_RECEIVED] += (sint64) amount;
 		veh_month[tt][0][ATV_TOLL_RECEIVED] += (sint64) amount;
@@ -306,7 +312,8 @@ public:
 	 * @param wt way type
 	 * @param index 0 = passenger, 1 = mail, 2 = goods
 	 */
-	inline void book_transported(const sint64 amount, const waytype_t wt, int index){
+	inline void book_transported(const sint64 amount, const waytype_t wt, int index)
+	{
 		const transport_type tt = translate_waytype_to_tt(wt);
 
 		// there are: passenger, mail, goods
@@ -325,7 +332,8 @@ public:
 	 * @param wt way type
 	 * @param index 0 = passenger, 1 = mail, 2 = goods
 	 */
-	inline void book_delivered(const sint64 amount, const waytype_t wt, int index){
+	inline void book_delivered(const sint64 amount, const waytype_t wt, int index)
+	{
 		const transport_type tt = translate_waytype_to_tt(wt);
 
 		// there are: passenger, mail, goods
@@ -406,7 +414,15 @@ public:
 	/**
 	 * Books amount of money to account (also known as konto)
 	 */
-	void book_account(sint64 amount) { account_balance += amount; }
+	void book_account(sint64 amount)
+	{
+		account_balance += amount;
+		com_month[0][ATC_CASH] = account_balance;
+		com_year [0][ATC_CASH] = account_balance;
+		com_month[0][ATC_NETWEALTH] += amount;
+		com_year [0][ATC_NETWEALTH] += amount;
+		// BUG profit is not adjusted when calling this method
+	}
 
 	/**
 	 * Returns the finance history (indistinguishable part) for player.
@@ -464,9 +480,9 @@ public:
 	bool has_convoi() const { return (com_year[0][ATC_ALL_CONVOIS] > 0); }
 
 	/**
-	 * returns TRUE if (account(=konto) + assets )>0
+	 * returns TRUE if net wealth > 0 (but this of course requires that we keep netwealth up to date!)
 	 */
-	bool has_money_or_assets() const { return (( account_balance + get_history_veh_year(TT_ALL, 0, ATV_NON_FINANCIAL_ASSETS) ) > 0 ); }
+	bool has_money_or_assets() const { return ((get_history_com_year(0, ATC_NETWEALTH) ) > 0 ); }
 
 	/**
 	 * increases number of month for which the company is in red numbers

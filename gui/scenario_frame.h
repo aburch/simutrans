@@ -24,7 +24,7 @@ private:
 
 protected:
 	/**
-	 * Aktion, die nach Knopfdruck gestartet wird.
+	 * Action that's started by the press of a button.
 	 * @author Hansjörg Malthaner
 	 */
 	virtual void action(const char *fullpath);
@@ -42,8 +42,8 @@ protected:
 	virtual bool check_file( const char *filename, const char *suffix );
 public:
 	/**
-	* Manche Fenster haben einen Hilfetext assoziiert.
-	* @return den Dateinamen für die Hilfe, oder NULL
+	* Set the window associated helptext
+	* @return the filename for the helptext, or NULL
 	* @author Hj. Malthaner
 	*/
 	virtual const char * get_hilfe_datei() const { return "scenario.txt"; }

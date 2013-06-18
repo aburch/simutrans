@@ -1,7 +1,12 @@
 /*
- * Scrolled List.
+ * Scrollable list.
  * Displays list, scrollbuttons up/down, dragbar.
  * Has a min and a max size, and can be displayed with any size in between
+ * Does ONLY cater for vertical offset (yet).
+ * two possible types:
+ * -list.      simply lists some items.
+ * -selection. is a list, but additionally, one item can be selected.
+ * @author Niels Roest, additions by Hj. Malthaner
  */
 
 #include <stdio.h>
@@ -51,7 +56,7 @@ bool gui_scrolled_list_t::action_triggered( gui_action_creator_t * /* comp */, v
 }
 
 
-// set the scrollbar offset, so that the selected itm is visible
+// set the scrollbar offset, so that the selected item is visible
 void gui_scrolled_list_t::show_selection(int s)
 {
 	if((unsigned)s<item_list.get_count()) {
@@ -212,7 +217,7 @@ void gui_scrolled_list_t::zeichnen(koord pos)
 	}
 
 	display_fillbox_wh(x,y,w,h, MN_GREY3, true);
-	display_ddd_box(x,y-1,w,h+2, COL_BLACK, COL_WHITE);
+	display_ddd_box(x,y-1,w,h+2, COL_BLACK, COL_WHITE, true);
 
 	PUSH_CLIP(x+1,y+1,w-2,h-2);
 	int ycum = y+2-offset; // y cumulative

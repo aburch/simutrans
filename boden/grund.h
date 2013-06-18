@@ -132,28 +132,22 @@ public:
 
 protected:
 	/**
-	 * Zusammenfassung des Ding-Container als Objekt
-	 * @author V. Meyer
+	 * List of objects on this tile
 	 */
 	dingliste_t dinge;
 
 	/**
-	 * Koordinate in der Karte.
-	 * @author Hj. Malthaner
+	 * Coordinate
 	 */
 	koord3d pos;
 
 	/**
-	 * Flags für das neuzeichnen geänderter Untergründe
-	 * @author Hj. Malthaner
+	 * Flags to indicate existence of halts, ways, to mark dirty
 	 */
 	uint8 flags;
 
 	/**
-	 * 0..100: slopenr, (bild_nr%100), normal ground
-	 * (bild_nr/100)%17 left slope
-	 * (bild_nr/1700) right slope
-	 * @author Hj. Malthaner
+	 * Image number
 	 */
 	image_id bild_nr;
 
@@ -166,12 +160,6 @@ protected:
 	 * Slope (now saved locally), because different grounds need different slopes
 	 */
 	uint8 slope;
-
-	/**
-	 * Indicates if this tile is in a border position, and in which direction.
-	 * @return A ribi_t style mask indicating in which direction spans the lack of neighbour tiles.
-	 */
-	uint8 get_border_direction() const;
 
 public:
 	/**
@@ -476,13 +464,6 @@ public:
 	void display_boden(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width) const;
 
 	/**
-	 * Display black background on border tiles.
-	 * @note at the moment, it just displays background on north and west tiles.
-	 * @note Can't be a const function because it will mark the tile as dirty if it draws something.
-	 */
-	void display_border(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, const uint8 border_direction);
-
-	/**
 	 * Displays the tile if it's visible.
 	 * @see is_karten_boden_visible()
 	 */
@@ -523,16 +504,17 @@ public:
 	uint8 display_dinge_vh(const sint16 xpos, const sint16 ypos, const uint8 start_offset, const ribi_t::ribi ribi, const bool ontile) const;
 
 	/**
-	 *  displays all foreground images
+	 * displays all foreground images
 	 * @param is_global set to true, if this is called during the whole screen update
 	 * @author dwachs
 	 */
 	void display_dinge_fg(const sint16 xpos, const sint16 ypos, const bool is_global, const uint8 start_offset) const;
-	/* overlayer with signs, good levels and station coverage
+
+	/**
+	 * overlayer with signs, good levels and station coverage
 	 * resets the dirty flag
 	 * @author kierongreen
 	 */
-
 	void display_overlay(sint16 xpos, sint16 ypos);
 
 	inline ding_t *first_obj() const { return dinge.bei(offsets[flags/has_way1]); }

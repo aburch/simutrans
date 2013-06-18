@@ -5,6 +5,10 @@
  * (see licence.txt)
  */
 
+/*
+ * The depot window, where to buy convois
+ */
+
 #ifndef gui_depot_frame2_t_h
 #define gui_depot_frame2_t_h
 
@@ -105,7 +109,7 @@ private:
 	cbuffer_t txt_convois;
 
 	/**
-	 * Calulate the values of the vehicles of the given type owned by the
+	 * Calculate the values of the vehicles of the given type owned by the
 	 * player.
 	 * @author Volker Meyer
 	 * @date  09.06.2003
@@ -159,15 +163,29 @@ public:
 	depot_frame_t(depot_t* depot);
 
 	/**
-	 * Setzt die Fenstergroesse
+	 * Set the window size
 	 * @author (Mathew Hounsell)
 	 * @date   11-Mar-2003
 	 */
 	void set_fenstergroesse(koord groesse);
 
 	/**
-	 * Manche Fenster haben einen Hilfetext assoziiert.
-	 * @return den Dateinamen für die Hilfe, oder NULL
+	 * Create and fill loks_vec and waggons_vec.
+	 * @author Volker Meyer
+	 * @date  09.06.2003
+	 */
+	inline void build_vehicle_lists() { convoy_assembler.build_vehicle_lists(); }
+
+	/*
+	 * Will update the tabs (don't show empty ones).
+	 * @author Gerd Wachsmuth
+	 * @date 08.05.2009
+	 */
+	void update_tabs();
+
+	/**
+	 * Set the window associated helptext
+	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
 	const char * get_hilfe_datei() const {return "depot.txt";}
@@ -190,7 +208,7 @@ public:
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**
-	 * Zeichnet das Frame
+	 * Draw the Frame
 	 * @author Hansjörg Malthaner
 	 */
 	void zeichnen(koord pos, koord gr);
@@ -212,7 +230,6 @@ public:
 	inline depot_t *get_depot() const {return depot;}
 	inline convoihandle_t get_convoy() const {return depot->get_convoi(icnv);}
 	inline void update_convoy() {icnv<0?convoy_assembler.clear_convoy():convoy_assembler.set_vehicles(get_convoy());}
-	inline void build_vehicle_lists() { convoy_assembler.build_vehicle_lists(); }
 	// Check the electrification
 	bool check_way_electrified(bool init = false);
 };

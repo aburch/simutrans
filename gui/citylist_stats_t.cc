@@ -5,6 +5,10 @@
  * (see licence.txt)
  */
 
+/*
+ * Where the citylist status are calculated (for graphs and statistics)
+ */
+
 #include "citylist_stats_t.h"
 #include "stadt_info.h"
 

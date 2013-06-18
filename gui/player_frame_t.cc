@@ -6,7 +6,7 @@
  */
 
 /*
- * Dialog fuer Automatische Spieler
+ * Player list
  * Hj. Malthaner, 2000
  */
 
@@ -86,7 +86,7 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 			add_komponente(player_change_to+i);
 		}
 
-		// finances button
+		// finances button/player name
 		player_get_finances[i].init(button_t::box, "", koord(34,4+(i+1)*2*LINESPACE), koord(120,D_BUTTON_HEIGHT));
 		player_get_finances[i].background = PLAYER_FLAG|((sp ? sp->get_player_color1():(i+1)*8)+4);
 		player_get_finances[i].add_listener(this);
@@ -111,7 +111,7 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 			player_select[i].set_visible(false);
 		}
 		else {
-			// init player selection dialoge
+			// init player selection dialogue
 			if (player_tools_allowed) {
 				add_komponente( player_select+i );
 			}
@@ -405,7 +405,7 @@ void ki_kontroll_t::update_data()
 
 
 /**
- * Zeichnet die Komponente
+ * Draw the component
  * @author Hj. Malthaner
  */
 void ki_kontroll_t::zeichnen(koord pos, koord gr)

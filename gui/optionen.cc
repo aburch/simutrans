@@ -6,7 +6,7 @@
  */
 
 /*
- * Dialog fuer Spieloptionen
+ * Dialog for game options
  * Niels Roest, Hj. Malthaner, 2000
  */
 
@@ -71,7 +71,7 @@ optionen_gui_t::optionen_gui_t(karte_t *welt) :
 
 	const KOORD_VAL y_max = y-D_V_SPACE+D_MARGIN_BOTTOM;
 
-	// secon row of buttons
+	// second row of buttons
 	y = D_MARGIN_TOP;
 	row_x += D_BUTTON_WIDTH+D_H_SPACE;
 
