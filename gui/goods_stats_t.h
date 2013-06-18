@@ -5,6 +5,12 @@
  * (see licence.txt)
  */
 
+/*
+ * Display information about each configured good
+ * as a list like display
+ * @author Hj. Malthaner
+ */
+
 #ifndef good_stats_t_h
 #define good_stats_t_h
 
@@ -13,12 +19,6 @@
 
 class karte_t;
 
-
-/**
- * Display information about each configured good
- * as a list like display
- * @author Hj. Malthaner
- */
 class goods_stats_t : public gui_komponente_t
 {
 private:
@@ -42,7 +42,7 @@ public:
 	void update_goodslist(uint16 *g, int bonus, int listed_goods, uint16 distance, uint8 comfort, uint8 catering, waytype_t waytype);
 
 	/**
-	* Zeichnet die Komponente
+	* Draw the component
 	* @author Hj. Malthaner
 	*/
 	void zeichnen(koord offset);

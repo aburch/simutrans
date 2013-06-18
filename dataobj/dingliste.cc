@@ -1409,16 +1409,15 @@ void dingliste_t::display_dinge_fg( const sint16 xpos, const sint16 ypos, const 
 // -- mostly trees do this.
 void dingliste_t::check_season(const long month)
 {
-	if(top==0) {
+	slist_tpl<ding_t *>to_remove;
+	bool do_shrink=false;
+	if (top == 0) {
 		return;
 	}
 	else if(capacity==0) {
 		ding_t *d = obj.one;
 		if (!d->check_season(month)) {
-			// Delete the object...
-			local_delete_object( d, NULL );
-			// And remove it from the list.
-			remove_by_index( 0 );
+			to_remove.insert( d );
 		}
 		return;
 	}
@@ -1426,15 +1425,23 @@ void dingliste_t::check_season(const long month)
 		for(uint8 i=0; i<top; i++) {
 			ding_t *d = obj.some[i];
 			if (!d->check_season(month)) {
-				// Delete the object...
-				local_delete_object( d, NULL );
-				// And remove it from the list.
-				remove_by_index( i );
-				// It's unusual for more than one object to die at a time,
-				// So don't worry about the efficiency of doing this one at a time.
-				// This might have deleted the last tree; good time to shrink the list.
-				shrink_capacity();
+				to_remove.insert( d );
+				do_shrink = true;
 			}
 		}
+	}
+
+	// delete all objects, which do not want to step anymore
+	// These are mostly dying trees
+	// There should not be many of them, so don't worry about efficiency
+	FOR( slist_tpl<ding_t*>, & d, to_remove)
+	{
+		remove(d);
+		// in case something other than trees is deleted,
+		// perform the checks and clean up properly
+		local_delete_object(d, NULL);
+	}
+	if (do_shrink) {
+		shrink_capacity();
 	}
 }

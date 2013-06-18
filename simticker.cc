@@ -133,6 +133,9 @@ void ticker::zeichnen(void)
 		while (!list.empty()  &&  list.front().xpos + list.front().w < 0) {
 			list.remove_first();
 		}
+		if (list.empty()) {
+			mark_rect_dirty_wc(0, start_y, width, start_y + TICKER_HEIGHT);
+		}
 		if(next_pos>width) {
 			next_pos -= X_DIST;
 		}

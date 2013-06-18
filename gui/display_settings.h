@@ -1,3 +1,8 @@
+/*
+ * Menu with display settings
+ * @author Hj. Malthaner
+ */
+
 #ifndef _display_settings_h_
 #define _display_settings_h_
 
@@ -9,10 +14,6 @@
 
 class karte_t;
 
-/**
- * Menü zur Änderung der Anzeigeeinstellungen.
- * @author Hj. Malthaner
- */
 class color_gui_t : public gui_frame_t, private action_listener_t
 {
 private:
@@ -24,8 +25,8 @@ public:
 	color_gui_t(karte_t *welt);
 
 	/**
-	 * Manche Fenster haben einen Hilfetext assoziiert.
-	 * @return den Dateinamen für die Hilfe, oder NULL
+	 * Set the window associated helptext
+	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
 	const char * get_hilfe_datei() const { return "display.txt"; }

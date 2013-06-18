@@ -332,8 +332,8 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	const int HEIGHT_OF_CHART = 120;
 
 	//CHART YEAR
-	chart.set_pos(koord(105,TOP_OF_CHART));
-	chart.set_groesse(koord(455,HEIGHT_OF_CHART));
+	chart.set_pos(koord(104,TOP_OF_CHART));
+	chart.set_groesse(koord(457,HEIGHT_OF_CHART));
 	chart.set_dimension(MAX_PLAYER_HISTORY_YEARS, 10000);
 	chart.set_seed(sp->get_welt()->get_last_year());
 	chart.set_background(MN_GREY1);
@@ -341,8 +341,8 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	//CHART YEAR END
 
 	//CHART MONTH
-	mchart.set_pos(koord(105,TOP_OF_CHART));
-	mchart.set_groesse(koord(455,HEIGHT_OF_CHART));
+	mchart.set_pos(koord(104,TOP_OF_CHART));
+	mchart.set_groesse(koord(457,HEIGHT_OF_CHART));
 	mchart.set_dimension(MAX_PLAYER_HISTORY_MONTHS, 10000);
 	mchart.set_seed(0);
 	mchart.set_background(MN_GREY1);

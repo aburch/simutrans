@@ -1,3 +1,8 @@
+/*
+ * Dialog for language change
+ * @author Hj. Maltahner, Niels Roest, prissi
+ */
+
 #ifndef gui_sprachen_h
 #define gui_sprachen_h
 
@@ -11,12 +16,6 @@
 
 #include "../tpl/vector_tpl.h"
 
-
-/**
- * Sprachauswahldialog
- *
- * @author Hj. Maltahner, Niels Roest, prissi
- */
 class sprachengui_t : public gui_frame_t, private action_listener_t
 {
 private:
@@ -44,8 +43,8 @@ public:
 	sprachengui_t();
 
 	/**
-	 * Manche Fenster haben einen Hilfetext assoziiert.
-	 * @return den Dateinamen für die Hilfe, oder NULL
+	 * Set the window associated helptext
+	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
 	const char *get_hilfe_datei() const {return "language.txt";}

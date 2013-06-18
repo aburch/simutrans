@@ -5,6 +5,10 @@
  * (see licence.txt)
  */
 
+/*
+ * The depot window, where to buy convois
+ */
+
 #include <stdio.h>
 
 #include "../simunits.h"
@@ -257,8 +261,6 @@ void depot_frame_t::layout(koord *gr)
 	*  PREV and NEXT are small buttons - Label is adjusted to total width.
 	*/
 	const int SELECT_HEIGHT = 14;
-//<<<<<<< HEAD
-//=======
 	const int selector_x = max(max(max(max(max(102, proportional_string_width(translator::translate("no convois")) + 4),
 		proportional_string_width(translator::translate("1 convoi")) + 4),
 		proportional_string_width(translator::translate("%d convois")) + 4),
@@ -274,6 +276,8 @@ void depot_frame_t::layout(koord *gr)
 	*
 	* The image list is horizontally "condensed".
 	*/
+//<<<<<<< HEAD
+//=======
 //	const int CLIST_WIDTH = depot->get_max_convoi_length() * (grid.x - grid_dx) + 2 * gui_image_list_t::BORDER;
 //	const int CLIST_HEIGHT = grid.y + 2 * gui_image_list_t::BORDER + 5;
 //	const int CINFO_HEIGHT = LINESPACE * 4 + 1;
@@ -307,7 +311,7 @@ void depot_frame_t::layout(koord *gr)
 	const int     DEPOT_FRAME_WIDTH = min(display_get_width(), max(fgr.x,max(convoy_assembler.get_convoy_image_width(), ACTIONS_WIDTH)));
 
 	/*
-	*	Now we can do the first vertical adjustement:
+	*  Now we can do the first vertical adjustment:
 	*/
 	const int SELECT_VSTART = D_MARGIN_TOP;
 	const int ASSEMBLER_VSTART = SELECT_VSTART + SELECT_HEIGHT + LINESPACE;
@@ -317,12 +321,12 @@ void depot_frame_t::layout(koord *gr)
 	* Now we determine the row/col layout for the panel and the total panel
 	* size.
 	* build_vehicle_lists() fills loks_vec and waggon_vec.
-	* Total width will be expanded to match completo columns in panel.
+	* Total width will be expanded to match complete columns in panel.
 	*/
 	convoy_assembler.set_panel_rows(gr  &&  gr->y==0?-1:fgr.y-ASSEMBLER_VSTART);
 
 	/*
-	 *	Now we can do the complete vertical adjustement:
+	 *	Now we can do the complete vertical adjustment:
 	 */
 	const int TOTAL_HEIGHT     = min(display_get_height(), ASSEMBLER_VSTART + convoy_assembler.get_height());
 	const int MIN_TOTAL_HEIGHT = min(display_get_height(), ASSEMBLER_VSTART + convoy_assembler.get_min_height());
@@ -509,8 +513,7 @@ void depot_frame_t::layout(koord *gr)
 
 void depot_frame_t::set_fenstergroesse( koord gr )
 {
-	koord g=gr;
-	layout(&g);
+	layout(&gr);
 	update_data();
 	gui_frame_t::set_fenstergroesse(gr);
 }
@@ -1102,7 +1105,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp, value_t p)
 					selected_line = linehandle_t();
 					apply_line();
 				}
-				// HACK mark line_selector temporarily unfocusable.
+				// HACK mark line_selector temporarily un-focusable.
 				// We call set_focus(NULL) later if we can.
 				// Calling set_focus(NULL) now would have no effect due to logic in gui_container_t::infowin_event.
 				line_selector.set_focusable( false );
@@ -1148,7 +1151,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp, value_t p)
 				}
 				selection -= 4;
 			}
-			else { // skip seperator
+			else { // skip separator
 				selection -= 3;
 			}
 			if(  selection >= 0  &&  (uint32)selection < (uint32)line_selector.count_elements()  ) {
@@ -1198,7 +1201,7 @@ bool depot_frame_t::infowin_event(const event_t *ev)
 				next_dep = depot_t::find_depot( koord3d(-1,-1,0), depot->get_typ(), depot->get_besitzer(), true );
 			}
 			else {
-				// respecive end of map
+				// respective end of map
 				next_dep = depot_t::find_depot( koord3d(8192,8192,127), depot->get_typ(), depot->get_besitzer(), false );
 			}
 		}

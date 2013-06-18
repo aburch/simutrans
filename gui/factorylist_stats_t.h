@@ -5,6 +5,10 @@
  * (see licence.txt)
  */
 
+/*
+ * Where factory stats are calculated for list dialog
+ */
+
 #ifndef factorylist_stats_t_h
 #define factorylist_stats_t_h
 
@@ -46,7 +50,7 @@ public:
 	void recalc_size();
 
 	/**
-	* Zeichnet die Komponente
+	* Draw the component
 	* @author Hj. Malthaner
 	*/
 	void zeichnen(koord offset);

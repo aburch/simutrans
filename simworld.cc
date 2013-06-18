@@ -2419,6 +2419,8 @@ int karte_t::grid_raise(koord pos)
 
 		if (can_raise_to(x, y, false, hsw, hse, hne, hnw)) {
 			n = raise_to(x, y, hsw, hse, hne, hnw);
+			// force world full redraw, or background could be dirty.
+			set_dirty();
 		}
 	}
 	return (n+3)>>2;
@@ -2636,6 +2638,10 @@ int karte_t::grid_lower(koord pos)
 
 		if (can_lower_to(x, y, hsw, hse, hne, hnw)) {
 			n = lower_to(x, y, hsw, hse, hne, hnw);
+			if( pos.x == get_size().x  ||  pos.y == get_size().y  ) {
+				// force world full redraw, or background will not show properly
+				set_dirty();
+			}
 		}
 	}
 	return (n+3)>>2;
@@ -4081,6 +4087,9 @@ void karte_t::step()
 	DBG_DEBUG4("karte_t::step", "start step");
 	unsigned long time = dr_time();
 
+	// calculate delta_t before handling overflow in ticks
+	const long delta_t = (long)ticks-(long)last_step_ticks;
+
 	// first: check for new month
 	if(ticks > next_month_ticks) {
 
@@ -4093,7 +4102,6 @@ void karte_t::step()
 			dbg->warning( "karte_t::step()", "Ticks were overflowing => resetted" );
 			ticks %= karte_t::ticks_per_world_month;
 			next_month_ticks %= karte_t::ticks_per_world_month;
-			last_step_ticks %= karte_t::ticks_per_world_month;
 		}
 */
 		next_month_ticks += karte_t::ticks_per_world_month;
@@ -4102,7 +4110,6 @@ void karte_t::step()
 		new_month();
 	}
 
-	const long delta_t = ticks - last_step_ticks;
 	DBG_DEBUG4("karte_t::step", "time calculations");
 	if(  step_mode==NORMAL  ) {
 		/* Try to maintain a decent pause, with a step every 170-250 ms (~5,5 simloops/s)
@@ -4737,7 +4744,7 @@ bool karte_t::ist_wasser(koord pos, koord dim) const
 
 	for(k.x = pos.x; k.x < pos.x + dim.x; k.x++) {
 		for(k.y = pos.y; k.y < pos.y + dim.y; k.y++) {
-			if(max_hgt(k) > get_grundwasser()) {
+			if(!is_within_grid_limits(k + koord(1,1))  ||  max_hgt(k) > get_grundwasser()) {
 				return false;
 			}
 		}
@@ -4748,7 +4755,7 @@ bool karte_t::ist_wasser(koord pos, koord dim) const
 
 bool karte_t::square_is_free(koord pos, sint16 w, sint16 h, int *last_y, climate_bits cl) const
 {
-	if(pos.x<0 || pos.y<0 || pos.x+w>=get_size().x || pos.y+h>=get_size().y) {
+	if(pos.x < 0  ||  pos.y < 0  ||  pos.x+w > get_size().x || pos.y+h > get_size().y) {
 		return false;
 	}
 
@@ -5936,7 +5943,7 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 		{
 			uint32 idp = 0;
 			file->rdwr_long(idp);
-			idp = (idp & 0x8000) != 0 ? idp & 0x7FFF : idp *= 150;
+			idp = (idp & 0x8000) != 0 ? idp & 0x7FFF : idp * 150;
 			industry_density_proportion = idp;
 		}
 	}

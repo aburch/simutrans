@@ -5,6 +5,11 @@
  * (see licence.txt)
  */
 
+/*
+ * Factory list window
+ * @author Hj. Malthaner
+ */
+
 #include "factorylist_frame_t.h"
 
 #include "../dataobj/translator.h"
@@ -99,7 +104,7 @@ bool factorylist_frame_t::action_triggered( gui_action_creator_t *komp,value_t /
 void factorylist_frame_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta);
-	// fensterhoehe - 16(title) -offset (header)
+	// window size - titlebar - offset (header)
 	koord groesse = get_fenstergroesse()-koord(0,D_TITLEBAR_HEIGHT+14+D_BUTTON_HEIGHT+2+1);
 	scrolly.set_groesse(groesse);
 }

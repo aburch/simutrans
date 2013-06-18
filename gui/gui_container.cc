@@ -5,6 +5,14 @@
  * (see licence.txt)
  */
 
+/**
+ * A container for other gui_komponenten. Is itself
+ * a gui_komponente, and can therefor be nested.
+ *
+ * @author Hj. Malthaner
+ * @date 03-Mar-01
+ */
+
 /*
  * [Mathew Hounsell] Min Size Button On Map Window 20030313
  */
@@ -19,13 +27,13 @@ gui_container_t::gui_container_t() : gui_komponente_t(), komp_focus(NULL)
 
 
 /**
- * Fügt eine Komponente zum Container hinzu.
+ * Add component to the container
  * @author Hj. Malthaner
  */
 void gui_container_t::add_komponente(gui_komponente_t *komp)
 {
-	/* insert builds the diologe from bottom to top:
-	 * Essential for comobo-boxes, so they overlap lower elements
+	/* Inserts/builds the dialog from bottom to top:
+	 * Essential for combo-boxes, so they overlap lower elements
 	 */
 	komponenten.insert(komp);
 	list_dirty = true;
@@ -33,7 +41,7 @@ void gui_container_t::add_komponente(gui_komponente_t *komp)
 
 
 /**
- * Entfernt eine Komponente aus dem Container.
+ * Remove/destroy component from container
  * @author Hj. Malthaner
  */
 void gui_container_t::remove_komponente(gui_komponente_t *komp)
@@ -50,7 +58,7 @@ void gui_container_t::remove_komponente(gui_komponente_t *komp)
 
 
 /**
- * Entfernt alle Komponente aus dem Container.
+ * Remove all components from container
  * @author Markus Weber
  */
 void gui_container_t::remove_all()
@@ -167,7 +175,7 @@ bool gui_container_t::infowin_event(const event_t *ev)
 				break;
 			}
 
-			// Hajo: if componet hit, translate coordinates and deliver event
+			// Hajo: if component hit, translate coordinates and deliver event
 			event_t ev2 = *ev;
 			translate_event(&ev2, -komp->get_pos().x, -komp->get_pos().y);
 
@@ -213,8 +221,7 @@ bool gui_container_t::infowin_event(const event_t *ev)
 }
 
 
-/**
- * Zeichnet die Komponente
+/* Draw the component
  * @author Hj. Malthaner
  */
 void gui_container_t::zeichnen(koord offset)

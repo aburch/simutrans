@@ -5,6 +5,14 @@
  * (see licence.txt)
  */
 
+/*
+ * A simple text input field. It has no Text Buffer,
+ * only a pointer to a buffer created by someone else.
+ *
+ * @date 19-Apr-01
+ * @author Hj. Malthaner
+ */
+
 #ifndef gui_components_gui_textinput_h
 #define gui_components_gui_textinput_h
 
@@ -14,14 +22,6 @@
 #include "../../simgraph.h"
 
 
-/**
- * Ein einfaches Texteingabefeld. Es hat keinen eigenen Textpuffer,
- * nur einen Zeiger auf den Textpuffer, der von jemand anderem Bereitgestellt
- * werden muss.
- *
- * @date 19-Apr-01
- * @author Hj. Malthaner
- */
 class gui_textinput_t :
 	public gui_action_creator_t,
 	public gui_komponente_t
@@ -29,13 +29,13 @@ class gui_textinput_t :
 protected:
 
 	/**
-	 * Der Stringbuffer.
+	 * The string buffer
 	 * @author Hj. Malthaner
 	 */
 	char *text;
 
 	/**
-	 * Maximallänge des Stringbuffers
+	 * Maximum length of the string buffer
 	 * @author Hj. Malthaner
 	 */
 	size_t max;
@@ -100,14 +100,14 @@ public:
 	gui_textinput_t();
 
 	/**
-	 * Setzt den Textpuffer
+	 * Sets the Text buffer
 	 *
 	 * @author Hj. Malthaner
 	 */
 	void set_text(char *text, size_t max);
 
 	/**
-	 * Holt den Textpuffer
+	 * Return the Text buffer
 	 *
 	 * @author Hj. Malthaner
 	 */
@@ -116,7 +116,7 @@ public:
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**
-	 * Zeichnet die Komponente
+	 * Draw the component
 	 * @author Hj. Malthaner
 	 */
 	virtual void zeichnen(koord offset);

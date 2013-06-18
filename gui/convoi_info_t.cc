@@ -5,6 +5,10 @@
  * (see licence.txt)
  */
 
+/*
+ * Displays an information window for a convoi
+ */
+
 #include <stdio.h>
 
 #include "convoi_info_t.h"
@@ -140,6 +144,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	add_komponente(&replace_button);
 	replace_button.add_listener(this);
 
+	//Position is set in convoi_info_t::set_fenstergroesse()
 	follow_button.init(button_t::roundbox_state, "follow me", dummy, koord(view.get_groesse().x, D_BUTTON_HEIGHT));
 	follow_button.set_tooltip("Follow the convoi on the map.");
 	follow_button.add_listener(this);
@@ -262,14 +267,9 @@ convoi_info_t::~convoi_info_t()
 
 
 /**
- * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
- * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
- * in dem die Komponente dargestellt wird.
- *
- * Component draw again. The handed over values refer to the window,
- * i.e. there is the Bildschirkoordinaten of the window in that the
- * component is represented. (Babelfish)
- *
+ * Draw new component. The values to be passed refer to the window
+ * i.e. It's the screen coordinates of the window where the
+ * component is displayed.
  * @author Hj. Malthaner
  */
 void convoi_info_t::zeichnen(koord pos, koord gr)

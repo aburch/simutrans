@@ -7,6 +7,11 @@
  * @author Dwachs
  */
 
+/*
+ * An input field for integer numbers (with arrow buttons for dec/inc)
+ * @author Dwachs
+ */
+
 #ifndef gui_components_gui_numberinput_h
 #define gui_components_gui_numberinput_h
 
@@ -18,10 +23,7 @@
 #include "action_listener.h"
 
 #define NUM_PERCENT (8)
-/**
- * An input field for integer numbers (with arrow buttons for dec/inc)
- * @author Dwachs
- */
+
 class gui_numberinput_t :
 	public gui_action_creator_t,
 	public gui_komponente_t,
@@ -89,7 +91,7 @@ public:
 
 	void set_increment_mode( sint32 m ) { step_mode = m; }
 
-	// true, if the compnent wraps around
+	// true, if the component wraps around
 	bool wrap_mode( bool new_mode ) {
 		bool m=wrapping;
 		wrapping=new_mode;
@@ -99,7 +101,7 @@ public:
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**
-	 * Zeichnet die Komponente
+	 * Draw the component
 	 * @author Dwachs
 	 */
 	void zeichnen(koord offset);

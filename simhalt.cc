@@ -21,7 +21,6 @@
 #include "simconvoi.h"
 #include "simdebug.h"
 #include "simfab.h"
-#include "simgraph.h"
 #include "simhalt.h"
 #include "simintr.h"
 #include "simline.h"
@@ -421,6 +420,8 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 	do_alternative_seats_calculation = true;
 
 	status_color = COL_YELLOW;
+	last_status_color = COL_PURPLE;
+	last_bar_count = 0;
 
 	enables = NOT_ENABLED;
 
@@ -476,6 +477,8 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 	do_alternative_seats_calculation = true;
 
 	status_color = COL_YELLOW;
+	last_status_color = COL_PURPLE;
+	last_bar_count = 0;
 
 	sortierung = freight_list_sorter_t::by_name;
 	init_financial_history();
@@ -1057,7 +1060,7 @@ void haltestelle_t::step()
 	//   karte_t::set_schedule_counter()
 
 	recalc_status();
-	
+
 	// Every 256 steps - check whether
 	// passengers/goods have been waiting
 	// too long.
@@ -1072,21 +1075,21 @@ void haltestelle_t::step()
 			{
 				continue;
 			}
-			for(uint32 i = 0; i < warray->get_count(); i++) 
+			for(uint32 i = 0; i < warray->get_count(); i++)
 			{
 				ware_t &tmp = (*warray)[i];
 
 				// skip empty entries
-				if(tmp.menge == 0) 
+				if(tmp.menge == 0)
 				{
 					continue;
 				}
-						
+
 				uint32 waiting_tenths = convoi_t::get_waiting_minutes(welt->get_zeit_ms() - tmp.arrival_time);
 
 				// Checks to see whether the freight has been waiting too long.
 				// If so, discard it.
-				
+
 				if(tmp.get_besch()->get_speed_bonus() > 0u)
 				{
 					// Only consider for discarding if the goods care about their timings.
@@ -1143,7 +1146,7 @@ void haltestelle_t::step()
 							{
 								// Refund is approximation: 2x distance at standard rate with no adjustments. 
 								const sint64 refund_amount = ((tmp.menge * tmp.get_fare(distance) * 2000ll) + 1500ll) / 3000ll;
-								
+
 								besitzer_p->book_revenue(-refund_amount, get_basis_pos(), ignore_wt, ATV_REVENUE_PASSENGER);
 								linehandle_t account_line = get_preferred_line(tmp.get_zwischenziel(), tmp.get_catg());
 								if(account_line.is_bound())
@@ -1499,14 +1502,14 @@ minivec_tpl<halthandle_t>* haltestelle_t::build_destination_list(ware_t &ware)
 	}
 
 	const planquadrat_t *const plan = welt->lookup(ware.get_zielpos());
-	const fabrik_t* fab = fabrik_t::get_fab(welt, ware.get_zielpos());
+	fabrik_t* const fab = fabrik_t::get_fab(welt, ware.get_zielpos());
 
 	minivec_tpl<halthandle_t> *destination_halts_list = new minivec_tpl<halthandle_t>(plan->get_haltlist_count());
 	
 	if(fab)
 	{
 		// Check all tiles of the factory.
-		// We need to do this for attractions and city halls too, but we don't (BUG)
+		// We need to do this for attractions and city halls too, but we don't (legacy from Standard)
 		vector_tpl<koord> tile_list;
 		fab->get_tile_list(tile_list);
 		FOR(vector_tpl<koord>, const k, tile_list)
@@ -1528,7 +1531,7 @@ minivec_tpl<halthandle_t>* haltestelle_t::build_destination_list(ware_t &ware)
 							// However, the smaller freight coverage rules mean
 							// that we may have halts too far away.  The halt will
 							// know whether it is linked to the factory.
-							if (	!ware.is_freight()
+							if (!ware.is_freight()
 									|| ( fab && haltlist[i].halt->get_fab_list().is_contained(fab) )
 									)
 							{
@@ -2300,7 +2303,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 	// have we arrived?
 	// FIXME: This code needs to be fixed for multi-tile buildings
 	// such as attractions and city halls, to allow access from any side
-	const fabrik_t* fab = fabrik_t::get_fab( welt, ware.get_zielpos() );
+	fabrik_t* const fab = fabrik_t::get_fab( welt, ware.get_zielpos() );
 	if ( ware.to_factory && fab && fab_list.is_contained(fab) ) {
 		// Packet is headed to a factory;
 		// the factory exists;
@@ -3534,57 +3537,99 @@ void haltestelle_t::recalc_status()
  * Draws some nice colored bars giving some status information
  * @author Hj. Malthaner
  */
-void haltestelle_t::display_status(sint16 xpos, sint16 ypos) const
+void haltestelle_t::display_status(KOORD_VAL xpos, KOORD_VAL ypos)
 {
 	// ignore freight that cannot reach to this station
 	sint16 count = 0;
-	for( unsigned i=0;  i<warenbauer_t::get_waren_anzahl(); i++) {
-		if(i==2) continue;	// ignore freight none
-		if(gibt_ab(warenbauer_t::get_info(i))) {
-			count ++;
+	for(  uint16 i = 0;  i < warenbauer_t::get_waren_anzahl();  i++  ) {
+		if(  i == 2  ) {
+			continue; // ignore freight none
 		}
+		if(  gibt_ab( warenbauer_t::get_info(i) )  ) {
+			count++;
+		}
+	}
+	if(  count != last_bar_count  ) {
+		// bars will shift x positions, mark entire station bar region dirty
+		KOORD_VAL max_bar_height = 0;
+		for(  sint16 i = 0;  i < last_bar_count;  i++  ) {
+			if(  last_bar_height[i] > max_bar_height  ) {
+				max_bar_height = last_bar_height[i];
+			}
+		}
+		const KOORD_VAL x = xpos - (last_bar_count * 4 - get_tile_raster_width()) / 2;
+		mark_rect_dirty_wc( x - 1 - 4, ypos - 11 - max_bar_height - 6, x + last_bar_count * 4 + 12 - 2, ypos - 11 );
+
+		// reset bar heights for new count
+		last_bar_height.clear();
+		last_bar_height.resize( count );
+		for(  sint16 i = 0;  i < count;  i++  ) {
+			last_bar_height.append(0);
+		}
+		last_bar_count = count;
 	}
 
 	ypos -= 11;
-	xpos -= (count*4 - get_tile_raster_width())/2;
-	sint16 x = xpos;
-	uint32 max_capacity;
+	xpos -= (count * 4 - get_tile_raster_width()) / 2;
+	const KOORD_VAL x = xpos;
 
-	for( unsigned i=0;  i<warenbauer_t::get_waren_anzahl(); i++) {
-		if(i==2) continue;	// ignore freight none
+	sint16 bar_height_index = 0;
+	uint32 max_capacity;
+	for(  uint16 i = 0;  i < warenbauer_t::get_waren_anzahl();  i++  ) {
+		if(  i == 2  ) {
+			continue; // ignore freight none
+		}
 		const ware_besch_t *wtyp = warenbauer_t::get_info(i);
-		if(gibt_ab(wtyp)) {
-			if(i<2) {
+		if(  gibt_ab( wtyp )  ) {
+			if(  i < 2  ) {
 				max_capacity = get_capacity(i);
 			}
 			else {
 				max_capacity = get_capacity(2);
 			}
-			const uint32 sum = get_ware_summe(wtyp);
-			uint32 v = min(sum, max_capacity);
-			if(max_capacity>512) {
-				v = 2+(v*128)/max_capacity;
+			const uint32 sum = get_ware_summe( wtyp );
+			uint32 v = min( sum, max_capacity );
+			if(  max_capacity > 512  ) {
+				v = 2 + (v * 128) / max_capacity;
 			}
 			else {
-				v = (v/4)+2;
+				v = (v / 4) + 2;
 			}
 
-			display_fillbox_wh_clip(xpos, ypos-v-1, 1, v, COL_GREY4, true);
-			display_fillbox_wh_clip(xpos+1, ypos-v-1, 2, v, wtyp->get_color(), true);
-			display_fillbox_wh_clip(xpos+3, ypos-v-1, 1, v, COL_GREY1, true);
+			display_fillbox_wh_clip( xpos, ypos - v - 1, 1, v, COL_GREY4, false);
+			display_fillbox_wh_clip( xpos + 1, ypos - v - 1, 2, v, wtyp->get_color(), false);
+			display_fillbox_wh_clip( xpos + 3, ypos - v - 1, 1, v, COL_GREY1, false);
 
 			// Hajo: show up arrow for capped values
-			if(sum > max_capacity) {
-				display_fillbox_wh_clip(xpos+1, ypos-v-6, 2, 4, COL_WHITE, true);
-				display_fillbox_wh_clip(xpos, ypos-v-5, 4, 1, COL_WHITE, true);
+			if(  sum > max_capacity  ) {
+				display_fillbox_wh_clip( xpos + 1, ypos - v - 6, 2, 4, COL_WHITE, false);
+				display_fillbox_wh_clip( xpos, ypos - v - 5, 4, 1, COL_WHITE, false);
 			}
 
+			if(  last_bar_height[bar_height_index] != (KOORD_VAL)v  ) {
+				if(  (KOORD_VAL)v > last_bar_height[bar_height_index]  ) {
+					// bar will be longer, mark new height dirty
+					mark_rect_dirty_wc( xpos, ypos - v - 6, xpos + 4 - 1, ypos + 4 - 1);
+				}
+				else {
+					// bar will be shorter, mark old height dirty
+					mark_rect_dirty_wc( xpos, ypos - last_bar_height[bar_height_index] - 6, xpos + 4 - 1, ypos + 4 - 1);
+				}
+				last_bar_height[bar_height_index] = v;
+			}
+
+			bar_height_index++;
 			xpos += 4;
 		}
 	}
 
 	// status color box below
-	display_fillbox_wh_clip(x-1-4, ypos, count*4+12-2, 4, get_status_farbe(), true);
+	bool dirty = false;
+	if(  get_status_farbe() != last_status_color  ) {
+		last_status_color = get_status_farbe();
+		dirty = true;
+	}
+	display_fillbox_wh_clip( x - 1 - 4, ypos, count * 4 + 12 - 2, 4, get_status_farbe(), dirty );
 }
 
 

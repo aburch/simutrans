@@ -5,6 +5,12 @@
  * (see licence.txt)
  */
 
+/*
+ * Displays a filter settings dialog for the convoi list
+ *
+ * @author V. Meyer
+ */
+
 #ifndef CONVOI_FILTER_FRAME_H
 #define  CONVOI_FILTER_FRAME_H
 
@@ -19,11 +25,6 @@ class convoi_frame_t;
 class spieler_t;
 class ware_besch_t;
 
-/**
- * Displays a filter settings for the convoi list
- *
- * @author V. Meyer
- */
 class convoi_filter_frame_t : public gui_frame_t , private action_listener_t
 {
 public:
@@ -62,7 +63,7 @@ private:
 	void set_filter(convoi_filter_frame_t::filter_flag_t filter, bool on) { filter_flags = (on ? (filter_flags | filter) : (filter_flags & ~filter) ); }
 
 	/*
-	* Helper class for the entries of the srollable list of goods.
+	* Helper class for the entries of the scrollable list of goods.
 	* Needed since a button_t does not know its parent.
 	*/
 	class ware_item_t : public button_t
@@ -121,7 +122,7 @@ public:
 	void sort_list();
 
 	/**
-	 * Konstruktor. Erzeugt alle notwendigen Subkomponenten.
+	 * Constructor. Generates all necessary Subcomponents.
 	 * @author V. Meyer
 	 */
 	convoi_filter_frame_t(spieler_t *sp, convoi_frame_t *parent, uint32 initial_filters );
@@ -138,8 +139,8 @@ public:
 	void resize(const koord delta);
 
 	/**
-	 * Manche Fenster haben einen Hilfetext assoziiert.
-	 * @return den Dateinamen für die Hilfe, oder NULL
+	 * Set the window associated helptext
+	 * @return the filename for the helptext, or NULL
 	 * @author V. Meyer
 	 */
 	const char *get_hilfe_datei() const {return "convoi_filter.txt"; }

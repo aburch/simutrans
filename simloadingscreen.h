@@ -26,6 +26,7 @@ class loadingscreen_t
 private:
 	const char *what, *info;
 	uint32 progress, max_progress;
+	int last_bar_len;
 	bool show_logo;
 	slist_tpl<event_t *> queued_events;
 

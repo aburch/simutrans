@@ -5,6 +5,10 @@
  * (see licence.txt)
  */
 
+/*
+ * Defines all button types: Normal (roundbox), Checkboxes (square), Arrows, Scrollbars
+ */
+
 #include "gui_button.h"
 
 #include "../../simcolor.h"
@@ -337,7 +341,7 @@ void button_t::set_typ(enum type t)
 
 
 /**
- * Setzt den im Button angezeigten Text
+ * Sets the text displayed in the button
  * @author Hj. Malthaner
  */
 void button_t::set_text(const char * text)
@@ -407,7 +411,7 @@ bool button_t::infowin_event(const event_t *ev)
 	}
 
 	// Hajo: we ignore resize events, they shouldn't make us
-	// pressed or upressed
+	// pressed or unpressed
 	if(!b_enabled  ||  IS_WINDOW_RESIZE(ev)) {
 		return false;
 	}

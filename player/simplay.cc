@@ -95,7 +95,7 @@ spieler_t::~spieler_t()
 	while(  !messages.empty()  ) {
 		delete messages.remove_first();
 	}
-	destroy_win((ptrdiff_t)this);
+	destroy_win(magic_finances_t + get_player_nr());
 	if( finance !=NULL) {
 		delete finance;
 		finance = NULL;
@@ -139,7 +139,7 @@ void spieler_t::add_money_message(const sint64 amount, const koord pos)
 	if(amount != 0  &&  player_nr != 1) {
 		if(  koord_distance(welt->get_world_position(),pos)<2*(uint32)(display_get_width()/get_tile_raster_width())+3  ) {
 			// only display, if near the screen ...
-			add_message(pos, amount);
+			add_message(amount, pos);
 
 			// and same for sound too ...
 			if(  amount>=10000  &&  !welt->is_fast_forward()  ) {
@@ -237,7 +237,7 @@ void spieler_t::set_name(const char *new_name)
 /**
  * floating massages for all players here
  */
-spieler_t::income_message_t::income_message_t( sint32 betrag, koord p )
+spieler_t::income_message_t::income_message_t( sint64 betrag, koord p )
 {
 	money_to_string(str, betrag/100.0);
 	alter = 127;
@@ -272,6 +272,10 @@ void spieler_t::display_messages()
 		const sint16 x = (ij.x-ij.y)*(raster/2) + welt->get_x_off();
 		const sint16 y = (ij.x+ij.y)*(raster/4) + (m->alter >> 4) - tile_raster_scale_y( welt->lookup_hgt(m->pos)*TILE_HEIGHT_STEP, raster) + yoffset;
 		display_shadow_proportional( x, y, PLAYER_FLAG|(kennfarbe1+3), COL_BLACK, m->str, true);
+		if(  m->pos.x < 3  ||  m->pos.y < 3  ) {
+			// very close to border => renew vackground
+			welt->set_background_dirty();
+		}
 	}
 }
 
@@ -297,7 +301,7 @@ void spieler_t::age_messages(long /*delta_t*/)
 }
 
 
-void spieler_t::add_message(koord k, sint32 betrag)
+void spieler_t::add_message(sint64 betrag, koord k)
 {
 	if(  !messages.empty()  &&  messages.back()->pos==k  &&  messages.back()->alter==127  ) {
 		// last message exactly at same place, not aged

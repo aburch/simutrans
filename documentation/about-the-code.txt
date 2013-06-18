@@ -2,13 +2,13 @@
 Short Description of the Simutrans code
 =======================================
 
-Simutrans is actually quite hierachiacal, as it was a learning project for OOP once.
+Simutrans is actually quite hierarchical, as it was a learning project for OOP once.
 
 It starts all with karte_t, which holds an array of planquadrat_t (a 2D coordinate), which holds arrays of grund_t (the actual ground, or foundations, tunnel, bridges, highways, water). Each ground holds a dinglist, which contains stuff (as dinge = stuff), like moving stuff (car, trains, airplanes, .. ) and other stuff like buildings, trees, ... The stuff is derived from ding_t and sits all in dinge/ folder.
 
-Each stuff can have three periodic calls: for very regulary and fast actions which require exclusive access on the map (moving cars, collision avoidance) there is sync_step, called before every frame. Slower actions like route_finding, way building etc. is done in step(), where the map can change in between slightly. Some objects (most notable trees) require seasonal changes, which are covered by the relatively new action method of check_season();
+Each stuff can have three periodic calls: for very regularly and fast actions which require exclusive access on the map (moving cars, collision avoidance) there is sync_step, called before every frame. Slower actions like route_finding, way building etc. is done in step(), where the map can change in between slightly. Some objects (most notable trees) require seasonal changes, which are covered by the relatively new action method of check_season();
 
-The program was developed by a single person most of the time, so sometime documentation was not as good as it could be. So document it whenever you fin something on certain stuff. But other than that, most of simutrans is quite local and quite separate from other modules. Therefore it is imho best to just work locally on one issue, and submit a patch. You will get some critical reception then.
+The program was developed by a single person most of the time, so sometime documentation was not as good as it could be. So document it whenever you fin something on certain stuff. But other than that, most of Simutrans is quite local and quite separate from other modules. Therefore it is, in my humble opinion, best to just work locally on one issue, and submit a patch. You will get some critical reception then.
 
 
 How the UI works
@@ -16,15 +16,15 @@ How the UI works
 
 The UI is completely separated from this. All dialogues are nowadays derived from gui_frame_t and fully object oriented.
 
-If you want to add a new dialoge, derive it from the gui_frame class. Then add components out of the gui/components folder. You will find almost all components there you could need. Scroll bars are best used as scroll panes: the containing component will be clipped and can be drawn as normal.
+If you want to add a new dialogue, derive it from the gui_frame class. Then add components out of the gui/components folder. You will find almost all components there you could need. Scroll bars are best used as scroll panes: the containing component will be clipped and can be drawn as normal.
 
-After initializing a component you have to add it to your dialog using add_komponente(). Failing to do so will just not show it. Certain active things like buttons and many more can give a feedback. Use action_listener(this) for them, you do not need to handle events for them yourself. Comboboxes are more tricky, but you can ignore this for now.
+After initializing a component you have to add it to your dialogue using add_komponente(). Failing to do so will just not show it. Certain active things like buttons and many more can give a feedback. Use action_listener(this) for them, you do not need to handle events for them yourself. Comboboxes are more tricky, but you can ignore this for now.
 
 When there is an action (like a mouse click, test input finished by return etc.) and you have called action_listener(this) before, then action_triggered() will be called by the element. It has two parameters, one is a pointer to the element (to find also out which called) and the second the returned value.
 
 For buttons there are two variants of types. The one with _state are the recommended one, as they will keep their latest state.
 
-If you use only components from gui/components, it may be enough to init your dialog and question them when the dialogue is closed. You do not need to define drawing or action routines. It can be as easy as that.
+If you use only components from gui/components, it may be enough to init your dialogue and question them when the dialogue is closed. You do not need to define drawing or action routines. It can be as easy as that.
 
 
 Written Nov. 2011 by prissi

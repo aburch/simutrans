@@ -136,7 +136,7 @@ bool skinverwaltung_t::alles_geladen(skintyp_t type)
 		case cursor:  sb = cursor_objekte;     break;
 		case symbol:  sb = symbol_objekte;     break;
 		case misc:
-			sb = misc_objekte;
+			sb = misc_objekte+2;
 			// for compatibility: use sidewalk as tunneltexture
 			if (tunnel_texture==NULL) {
 				tunnel_texture = fussweg;
