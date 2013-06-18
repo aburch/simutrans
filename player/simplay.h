@@ -72,11 +72,13 @@ protected:
 	 */
 	void add_message(sint64 amount, koord k);
 
+public:
 	/**
 	 * displays amount of money when koordinates are on screen
 	 */
 	void add_money_message(sint64 amount, koord k);
 
+protected:
 	/**
 	 * Kennfarbe (Fahrzeuge, Gebäude) des Speielers
 	 * @author Hj. Malthaner

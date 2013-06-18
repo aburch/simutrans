@@ -4974,10 +4974,12 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 				modified_revenue_from_unloading = 1;
 			}
 			// This call needs to be here, per-vehicle, in order to record different freight types properly.
-			besitzer_p->get_finance()->book_revenue( modified_revenue_from_unloading, get_schedule()->get_waytype(), v->get_fracht_typ()->get_index() );
-			// But add up the total for the convoi accounting,
-			// and for the on-screen message
+			besitzer_p->book_revenue( modified_revenue_from_unloading, fahr[0]->get_pos().get_2d(), get_schedule()->get_waytype(), v->get_fracht_typ()->get_index() );
+			// The finance code will add up the on-screen messages
+			// But add up the total for the port and station use charges
 			accumulated_revenue += modified_revenue_from_unloading;
+			book(modified_revenue_from_unloading, CONVOI_PROFIT);
+			book(modified_revenue_from_unloading, CONVOI_REVENUE);
 		}
 	}
 	if (no_load) {
@@ -5026,9 +5028,6 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	if(accumulated_revenue) 
 	{
 		jahresgewinn += accumulated_revenue; //"annual profit" (Babelfish)
-		besitzer_p->add_money_message(accumulated_revenue, fahr[0]->get_pos().get_2d());
-		book(accumulated_revenue, CONVOI_PROFIT);
-		book(accumulated_revenue, CONVOI_REVENUE);
 
 		// Check the apportionment of revenue.
 		// The proportion paid to other players is
