@@ -38,7 +38,7 @@ private:
 	/**
 	 * Change from "one" mode to "some" mode
 	 */
-	bool grow_capacity_above_one();
+	void grow_capacity_above_one();
 
 	/**
 	 * Shrink, if appropriate in terms of memory management

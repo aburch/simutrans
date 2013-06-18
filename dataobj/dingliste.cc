@@ -1418,7 +1418,7 @@ void dingliste_t::check_season(const long month)
 			// Delete the object...
 			local_delete_object( d, NULL );
 			// And remove it from the list.
-			remove_by_index( d, 0 );
+			remove_by_index( 0 );
 		}
 		return;
 	}
@@ -1429,7 +1429,7 @@ void dingliste_t::check_season(const long month)
 				// Delete the object...
 				local_delete_object( d, NULL );
 				// And remove it from the list.
-				remove_by_index( d, i );
+				remove_by_index( i );
 				// It's unusual for more than one object to die at a time,
 				// So don't worry about the efficiency of doing this one at a time.
 				// This might have deleted the last tree; good time to shrink the list.
