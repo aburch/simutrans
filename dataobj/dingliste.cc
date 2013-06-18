@@ -437,21 +437,22 @@ void dingliste_t::sort_trees(uint8 index, uint8 count)
 }
 
 
-//- BG ----------------------------------------------------------- 25.11.2004 --
-int bsearch_dings_by_prio(int pri, ding_t** dings, int count)
-//
-// binary search.
-//
-// Result:
-//   a) index of matching item with lowest index
-// or
-//   b) index, where to insert before unmatched item == next larger item
+/*
+ * Binary search.
+ *
+ * Result:
+ *   a) index of matching item with lowest index
+ * or
+ *   b) index, where to insert before unmatched item == next larger item
+ * @author: BerndGabriel, neroden
+ */
+unsigned bsearch_dings_by_prio(unsigned pri, ding_t** dings, unsigned count)
 {
-  int low = 0;
+  unsigned low = 0;
   while (low < count)
   {
-    int i = (low + count) >> 1;
-    if (dings[i] && pri > type_to_pri[dings[i]->get_typ()]) 
+    unsigned i = (low + count) >> 1;
+    if (dings[i] && pri > type_to_pri[dings[i]->get_typ()])
       low = i + 1;
     else
       count = i;
