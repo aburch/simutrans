@@ -4088,7 +4088,8 @@ void karte_t::step()
 	unsigned long time = dr_time();
 
 	// calculate delta_t before handling overflow in ticks
-	const long delta_t = (long)ticks-(long)last_step_ticks;
+	const sint64 delta_64 = ticks - last_step_ticks;
+	const long delta_t = (long)delta_64;
 
 	// first: check for new month
 	if(ticks > next_month_ticks) {

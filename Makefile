@@ -141,10 +141,6 @@ endif
 CFLAGS   += -Wall -W -Wcast-qual -Wpointer-arith -Wcast-align $(FLAGS)
 CCFLAGS  += -Wstrict-prototypes
 
-ifeq ($(COLOUR_DEPTH),0)
-  CFLAGS += -DCOMMAND_LINE_SERVER
-endif
-
 SOURCES += bauer/brueckenbauer.cc
 SOURCES += bauer/fabrikbauer.cc
 SOURCES += bauer/hausbauer.cc
