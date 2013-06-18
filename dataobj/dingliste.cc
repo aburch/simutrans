@@ -1311,7 +1311,7 @@ void dingliste_t::display_dinge_fg( const sint16 xpos, const sint16 ypos, const 
 // start next month (good for toogling a seasons)
 void dingliste_t::check_season(const long month)
 {
-	slist_tpl<ding_t *>loeschen;
+	slist_tpl<ding_t *>to_remove;
 
 	if(capacity==0) {
 		return;
@@ -1319,20 +1319,26 @@ void dingliste_t::check_season(const long month)
 	else if(capacity==1) {
 		ding_t *d = obj.one;
 		if (!d->check_season(month)) {
-			loeschen.insert( d );
+			to_remove.insert( d );
 		}
 	}
 	else {
 		for(uint8 i=0; i<top; i++) {
 			ding_t *d = obj.some[i];
 			if (!d->check_season(month)) {
-				loeschen.insert( d );
+				to_remove.insert( d );
 			}
 		}
 	}
 
 	// delete all objects, which do not want to step anymore
-	while (!loeschen.empty()) {
-		delete loeschen.remove_first();
+	// These are mostly dying trees
+	// There should not be many of them, so don't worry about efficiency
+	FOR(ding_t*, d, to_remove)
+	{
+		remove(d);
+		// in case something other than trees is deleted,
+		// perform the checks and clean up properly
+		local_delete_object(d);
 	}
 }
