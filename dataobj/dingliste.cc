@@ -613,7 +613,7 @@ ding_t *dingliste_t::remove_last()
 	return d;
 }
 
-inline bool dingliste_t::_remove_by_index(uint8 i)
+inline bool dingliste_t::remove_by_index(uint8 i)
 {
 	if (i >= top) {
 		// out of range
