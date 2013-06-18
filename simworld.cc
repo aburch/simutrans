@@ -4110,7 +4110,6 @@ void karte_t::step()
 		new_month();
 	}
 
-	const long delta_t = ticks - last_step_ticks;
 	DBG_DEBUG4("karte_t::step", "time calculations");
 	if(  step_mode==NORMAL  ) {
 		/* Try to maintain a decent pause, with a step every 170-250 ms (~5,5 simloops/s)
