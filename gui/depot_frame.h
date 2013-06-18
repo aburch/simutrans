@@ -174,7 +174,7 @@ public:
 	 * @author Volker Meyer
 	 * @date  09.06.2003
 	 */
-	void build_vehicle_lists();
+	inline void build_vehicle_lists() { convoy_assembler.build_vehicle_lists(); }
 
 	/*
 	 * Will update the tabs (don't show empty ones).
@@ -230,7 +230,6 @@ public:
 	inline depot_t *get_depot() const {return depot;}
 	inline convoihandle_t get_convoy() const {return depot->get_convoi(icnv);}
 	inline void update_convoy() {icnv<0?convoy_assembler.clear_convoy():convoy_assembler.set_vehicles(get_convoy());}
-	inline void build_vehicle_lists() { convoy_assembler.build_vehicle_lists(); }
 	// Check the electrification
 	bool check_way_electrified(bool init = false);
 };
