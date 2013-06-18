@@ -45,6 +45,7 @@ private:
 	 */
 	void shrink_capacity();
 
+	bool remove_by_index(uint8 i);
 	inline void intern_insert_at(ding_t* ding, uint8 pri);
 
 	// this will automatically give the right order for citycars and the like ...
