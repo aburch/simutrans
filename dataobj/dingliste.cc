@@ -1334,11 +1334,11 @@ void dingliste_t::check_season(const long month)
 	// delete all objects, which do not want to step anymore
 	// These are mostly dying trees
 	// There should not be many of them, so don't worry about efficiency
-	FOR(ding_t*, d, to_remove)
+	FOR( slist_tpl<ding_t*>, & d, to_remove)
 	{
 		remove(d);
 		// in case something other than trees is deleted,
 		// perform the checks and clean up properly
-		local_delete_object(d);
+		local_delete_object(d, NULL);
 	}
 }
