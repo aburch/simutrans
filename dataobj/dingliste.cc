@@ -813,20 +813,24 @@ bool dingliste_t::ist_da(const ding_t* ding) const
 
 ding_t *dingliste_t::suche(ding_t::typ typ,uint8 start) const
 {
-	switch (capacity) {
-	    case 0: return NULL;
-		case 1: return obj.one->get_typ()==typ ? obj.one : NULL;
+	if (start >= top) {
+		return NULL;
 	}
-	//if(start<top) {
-		// else we have to search the list
-		for(unsigned i=start, j=top; i<j; ) {
-			ding_t& ding = *obj.some[i++];
-			if(ding.get_typ()==typ) {
-				return &ding;
+	else if (capacity == 0) {
+		// top == 1 because of above
+		return obj.one->get_typ()==typ ? obj.one : NULL;
+	}
+	else {
+		// We are in the "some" case
+		// Note that the loop will not execute if start >= top
+		for(unsigned i=start; i<top; i++) {
+			ding_t* tmp = obj.some[i];
+			if(tmp->get_typ()==typ) {
+				return tmp;
 			}
 		}
-	//}
-	return NULL;
+		return NULL;
+	}
 }
 
 
@@ -860,9 +864,10 @@ ding_t *dingliste_t::get_convoi_vehicle() const
 		return NULL;
 	}
 	else if (capacity == 0) {
-			// could
-			const uint8 t = obj.one->get_typ();
-			return t==ding_t::aircraft  ||  t==ding_t::schiff ? obj.one : NULL;
+		// top == 1 because of above
+		const uint8 t = obj.one->get_typ();
+		// Game logic: only aircraft and ships can exist without ways
+		return t==ding_t::aircraft  ||  t==ding_t::schiff ? obj.one : NULL;
 	}
 	else {
 		// else we have to search the list
