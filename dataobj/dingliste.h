@@ -50,14 +50,20 @@ private:
 	 */
 	void shrink_capacity();
 
-	bool remove_by_index(uint8 i);
 	inline void intern_insert_at(ding_t* ding, uint8 pri);
 
 	// this will automatically give the right order for citycars and the like ...
 	bool intern_add_moving(ding_t* ding);
 
+	// Copy constructor and assignment operator break memory management.
+	// Prohibit them by declaring them private and unimplemented.
 	dingliste_t(dingliste_t const&);
 	dingliste_t& operator=(dingliste_t const&);
+
+	// consistency check, used only during debugging
+	// aborts program if errors are found
+	inline void consistency_check() const;
+
 public:
 	dingliste_t();
 	~dingliste_t();
@@ -83,7 +89,8 @@ public:
 		if(n >= top) {
 			return NULL;
 		}
-		return (capacity<=1) ? obj.one : obj.some[n];
+		// assert (capacity != 1);
+		return (capacity==0) ? obj.one : obj.some[n];
 	}
 
 	// usually used only for copying by grund_t
@@ -131,6 +138,7 @@ public:
 
 	// start next month (good for toogling a seasons)
 	void check_season(const long month);
+
 } GCC_PACKED;
 
 #endif

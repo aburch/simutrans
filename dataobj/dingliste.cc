@@ -218,6 +218,7 @@ inline void dingliste_t::grow_capacity_above_one()
 
 inline bool dingliste_t::grow_capacity()
 {
+	// Call this *before* increasing "top"
 	// Should only be called in the "some" case:
 	assert (capacity > 1);
 	if(capacity>=254) {
@@ -304,14 +305,20 @@ void dingliste_t::shrink_capacity()
 inline void dingliste_t::intern_insert_at(ding_t* ding, uint8 pri)
 {
 	// we have more than one object here, thus we can use obj.some exclusively!
+
+	// Pri "inserts before" an entry so must be <= top, whic is after the last entry
 	// Note that this works with top == pri (the for loop resolves to nothing)
-	assert(top >= pri);
-	assert(capacity >= top);
+	assert(pri <= top);
+	// We are going to increase top when we're done; it is critical that we have
+	// enough capacity for one plus the number currently used.
+	assert(capacity > top);
 	for(  uint8 i=top;  i>pri;  i--  ) {
 		obj.some[i] = obj.some[i-1];
 	}
 	obj.some[pri] = ding;
 	top++;
+	assert(capacity >= top);
+	consistency_check();
 }
 
 
@@ -488,7 +495,7 @@ void dingliste_t::sort_trees(uint8 index, uint8 count)
  *   b) index, where to insert before unmatched item == next larger item
  * @author: BerndGabriel, neroden
  */
-unsigned bsearch_dings_by_prio(unsigned pri, ding_t const * const * const dings, unsigned count)
+unsigned bsearch_dings_by_prio(unsigned pri, ding_t const * const * dings, unsigned count)
 {
   unsigned low = 0;
   while (low < count)
@@ -519,12 +526,17 @@ bool dingliste_t::add(ding_t* ding)
 	else if (  capacity==0 && top==1  ) {
 		grow_capacity_above_one();
 	}
-	else if ( top >= capacity ) {
+	// Below here we are guaranteed to be in the "some" case
+	else if ( top == capacity ) {
 		bool success = grow_capacity();
 		if (!success) {
 			// Too many objects
 			return false;
 		}
+	} else {
+		// Try to catch errors where top exceeds capacity,
+		// which is only legal in the "one" case
+		assert (top <= capacity);
 	}
 
 	// Remembering the convention for capacity
@@ -590,13 +602,14 @@ bool dingliste_t::add(ding_t* ding)
 // take the thing out from the list
 // use this only for temperary removing
 // since it does not shrink list or checks for ownership
-ding_t *dingliste_t::remove_last()
+ding_t* dingliste_t::remove_last()
 {
-	ding_t *d=NULL;
+	ding_t* d=NULL;
 	if (top == 0) {
 		// nothing
 	}
-	else if (capacity == 0 && top == 1) {
+	else if (capacity == 0) {
+		assert (top == 1);
 		d = obj.one;
 		top = 0;
 #if CLEAR_MEMORY
@@ -610,44 +623,16 @@ ding_t *dingliste_t::remove_last()
 		obj.some[top] = NULL;
 #endif
 	}
+	consistency_check();
 	return d;
 }
 
-inline bool dingliste_t::remove_by_index(uint8 i)
-{
-	if (i >= top) {
-		// out of range
-		return false;
-	}
-	// now we know that top > 0
-	if ( capacity == 0 ) {
-		// The 'one' case
-		assert ( top == 1 );
-		top = 0;
-#if CLEAR_MEMORY
-		obj.one = NULL;
-#endif
-		return true;
-	}
-	else {
-		// The 'some' case
-		// we keep the array dense!
-		top--;
-		while(  i < top  ) {
-			obj.some[i] = obj.some[i+1];
-			i++;
-		}
-#if CLEAR_MEMORY
-		obj.some[top] = NULL;
-#endif
-		return true;
-	}
-}
 
 bool dingliste_t::remove(const ding_t* ding)
 {
+	bool result = false;
 	if (top == 0) {
-		return false;
+		// nothing
 	}
 	else if ( capacity == 0 ) {
 		assert ( top == 1 );
@@ -656,30 +641,29 @@ bool dingliste_t::remove(const ding_t* ding)
 #if CLEAR_MEMORY
 			obj.one = NULL;
 #endif
-			return true;
-		}
-		else {
-			return false;
+			result = true;
 		}
 	}
-
-	// we keep the array dense!
-	for(  uint8 i=0;  i<top;  i++  ) {
-		if(  obj.some[i] == ding  ) {
-			// found it!
-			top--;
-			while(  i < top  ) {
-				obj.some[i] = obj.some[i+1];
-				i++;
-			}
+	else {
+		// "some" case
+		// we keep the array dense!
+		for(  uint8 i=0;  i<top;  i++  ) {
+			if(  obj.some[i] == ding  ) {
+				// found it!
+				top--;
+				while(  i < top  ) {
+					obj.some[i] = obj.some[i+1];
+					i++;
+				}
 #if CLEAR_MEMORY
-			obj.some[top] = NULL;
+				obj.some[top] = NULL;
 #endif
-			return true;
+				result = true;
+			}
 		}
 	}
-
-	return false;
+	consistency_check();
+	return result;
 }
 
 
@@ -710,8 +694,8 @@ inline void local_delete_object(ding_t *ding, spieler_t *sp)
  */
 bool dingliste_t::loesche_alle(spieler_t *sp, uint8 offset)
 {
+	bool result = false;
 	if(top<=offset) {
-		return false;
 		// Note that this guarantees that top >= 1
 	}
 	else if (capacity == 0 ) {
@@ -723,7 +707,7 @@ bool dingliste_t::loesche_alle(spieler_t *sp, uint8 offset)
 #if CLEAR_MEMORY
 		obj.one = NULL;
 #endif
-		return true;
+		result = true;
 	}
 	else {
 		// The "some" case.
@@ -736,8 +720,10 @@ bool dingliste_t::loesche_alle(spieler_t *sp, uint8 offset)
 #endif
 		}
 		shrink_capacity();
-		return true;
-	 }
+		result = true;
+	}
+	consistency_check();
+	return result;
 }
 
 
@@ -1414,12 +1400,14 @@ void dingliste_t::display_dinge_fg( const sint16 xpos, const sint16 ypos, const 
 // -- mostly trees do this.
 void dingliste_t::check_season(const long month)
 {
+	consistency_check();
 	slist_tpl<ding_t *>to_remove;
 	bool do_shrink=false;
 	if (top == 0) {
 		return;
 	}
 	else if(capacity==0) {
+		assert (top == 1);
 		ding_t *d = obj.one;
 		if (!d->check_season(month)) {
 			to_remove.insert( d );
@@ -1448,5 +1436,30 @@ void dingliste_t::check_season(const long month)
 	}
 	if (do_shrink) {
 		shrink_capacity();
+	}
+}
+
+/**
+ * Checks that the data is consistent and abort otherwise.
+ * If there are null pointers in the "good data", it isn't.
+ * This shouldn't be used normally; it's slow.
+ * It's needed to debug memory errors.
+ *
+ */
+inline void dingliste_t::consistency_check() const {
+	assert (capacity != 1);
+	if (capacity == 0) {
+		assert (top <= 1);
+		if (top == 1) {
+			assert (obj.one);
+		}
+	}
+	else {
+		// "some" case
+		assert (obj.some);
+		assert (top <= capacity);
+		for (int i = 0; i < top; i++) {
+			assert (obj.some[i]);
+		}
 	}
 }
