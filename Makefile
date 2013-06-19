@@ -51,7 +51,8 @@ ifeq ($(OSTYPE),cygwin)
   SOURCES += simsys_w32_png.cc
   CFLAGS += -I/usr/include/mingw -mwin32 -DNOMINMAX=1
   CCFLAGS += -I/usr/include/mingw -mwin32 -DNOMINMAX=1
-  LDFLAGS += -mno-cygwin
+# Deprecated in GCC 4.7x: see http://forum.simutrans.com/index.php?topic=6556.msg118697#msg118697
+# LDFLAGS += -mno-cygwin
   LIBS   += -lgdi32 -lwinmm -lwsock32 -lz -lbz2
 endif
 
