@@ -27,6 +27,11 @@ private:
 	 * therefore also the count of number of items which are stored.
 	 * "top" CAN be zero if there are no items.
 	 *
+	 * It IS legal for top to be 0 or 1 when capacity is 2 or more.
+	 * This may happen when the list expands and then contracts again;
+	 * good memory management means we do not always go back to the "one"
+	 * implementation.
+	 *
 	 * Related code reworked by neroden
 	 */
 	uint8 top;
