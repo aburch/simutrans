@@ -404,6 +404,7 @@ bool spieler_t::neuer_monat()
 				{
 					// Warnings about financial problems
 					buf.clear();
+					enum message_t::msg_typ warning_message_type = message_t::warnings;
 					// Plural detection for the months. 
 					// Different languages pluralise in different ways, so whole string must
 					// be re-translated.
@@ -419,13 +420,18 @@ bool spieler_t::neuer_monat()
 					{
 						buf.printf(translator::translate("\n\nInterest on your debt is\naccumulating at %i %%"),welt->get_settings().get_interest_rate_percent() );
 					}
-					if(  account_balance < finance->get_soft_credit_limit()  ) {
+					if(  account_balance < finance->get_hard_credit_limit()  ) {
+						buf.printf( translator::translate("\n\nYou are insolvent!") );
+						// Only in network mode, freeplay, or no-bankruptcy
+						// This is a more serious problem than the interest
+						warning_message_type = message_t::problems;
+					}
+					else if(  account_balance < finance->get_soft_credit_limit()  ) {
 						buf.printf( translator::translate("\n\nYou have exceeded your credit limit!") );
+						// This is a more serious problem than the interest
+						warning_message_type = message_t::problems;
 					}
-					welt->get_message()->add_message( buf, koord::invalid, message_t::problems, player_nr, IMG_LEER );
-					if(  finance->get_netwealth()*10 < welt->get_settings().get_starting_money(welt->get_current_month()/12)  ){
-						welt->get_message()->add_message( translator::translate("Net wealth less than 10% of starting capital!"), koord::invalid, message_t::problems, player_nr, IMG_LEER );
-					}
+					welt->get_message()->add_message( buf, koord::invalid, warning_message_type, player_nr, IMG_LEER );
 				}
 			}
 			else  // Not the active player
