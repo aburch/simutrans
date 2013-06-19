@@ -144,7 +144,7 @@ static ding_t** dl_alloc(uint8 size)
 	assert(size > 1);
 	ding_t** p;
 	if (size <= 16) {
-		p = static_cast<ding_t**>(freelist_t::gimme_node(size * sizeof(*p)));
+		p = static_cast<ding_t**>(freelist_t::gimme_node(sizeof(*p) * size ));
 	}
 	else {
 		p = MALLOCN(ding_t*, size);
@@ -184,6 +184,7 @@ void dingliste_t::set_capacity(uint16 new_cap)
 		if(capacity>1) {
 			dl_free( obj.some, capacity );
 		}
+		obj.one = NULL;
 		capacity = 0;
 		top = 0;
 	}
@@ -195,14 +196,15 @@ void dingliste_t::set_capacity(uint16 new_cap)
 			dl_free( obj.some, capacity );
 			obj.one = tmp;
 			assert(top<2);
-			capacity = 1;
 		}
-		else if(capacity==0) {
-			assert(obj.one  &&  top==0);
+		else if(top==0) {
+			obj.one = NULL;
 		}
+		capacity = top;
 	}
 	// a single object is stored differentially
 	else if(capacity<=1  &&  new_cap>1) {
+		// if we reach here, new_cap>1 and (capacity==0 or capacity>1)
 		ding_t *tmp=obj.one;
 		obj.some = dl_alloc(new_cap);
 		MEMZERON(obj.some, new_cap);
@@ -211,8 +213,8 @@ void dingliste_t::set_capacity(uint16 new_cap)
 		assert(top<=1);
 	}
 	else {
-		// if we reach here, new_cap>1 and (capacity==0 or capacity>1)
-		// ensure, we do not lose anything
+		// we need to copy old list to large list
+		assert(  top<=new_cap  );
 
 		// get memory
 		ding_t **tmp = dl_alloc(new_cap);
@@ -223,8 +225,8 @@ void dingliste_t::set_capacity(uint16 new_cap)
 			dl_free(obj.some, capacity);
 		}
 		obj.some = tmp;
+		capacity = new_cap;
 	}
-	capacity = new_cap;
 }
 
 
@@ -254,9 +256,9 @@ bool dingliste_t::grow_capacity()
 
 void dingliste_t::shrink_capacity(uint8 o_top)
 {
-	// strategy: avoid free'ing mem if not neccesary. Only if we hold lots
-	// of memory then free it.
-	if(capacity > 16 && o_top <= 4) {
+	// strategy: avoid free'ing mem if not neccesary. Only if we hold lots of memory then free it.
+	// this is almost only called when deleting ways in practice
+	if(  capacity > 16  &&  o_top <= 4  ) {
 		set_capacity(o_top);
 	}
 }
@@ -452,7 +454,7 @@ bool dingliste_t::add(ding_t* ding)
 		return false;
 	}
 	if(top==0) {
-		intern_insert_at( ding, 0);
+		intern_insert_at( ding, 0 );
 		return true;
 	}
 	// now top>0
@@ -687,13 +689,17 @@ bool dingliste_t::ist_da(const ding_t* ding) const
 
 ding_t *dingliste_t::suche(ding_t::typ typ,uint8 start) const
 {
-	if(capacity==0) {
+	if(  start >= top  ) {
+		// start==0 and top==0 is already covered by this too
 		return NULL;
 	}
-	else if(capacity==1) {
+
+	if(  capacity <= 1  ) {
+		// it will crash on capacity==1 and top==0, but this should never happen!
+		// this is only reached for top==1 and start==0
 		return obj.one->get_typ()!=typ ? NULL : obj.one;
 	}
-	else if(start<top) {
+	else {
 		// else we have to search the list
 		for(uint8 i=start; i<top; i++) {
 			ding_t * tmp = obj.some[i];
@@ -706,22 +712,23 @@ ding_t *dingliste_t::suche(ding_t::typ typ,uint8 start) const
 }
 
 
-
 ding_t *dingliste_t::get_leitung() const
 {
-	if(capacity==0) {
+	if(  top == 0  ) {
 		return NULL;
 	}
-	else if(capacity==1) {
-		if(obj.one->get_typ()>=ding_t::leitung  &&  obj.one->get_typ()<=ding_t::senke) {
+
+	if(  capacity <= 1  ) {
+		// it will crash on capacity==1 and top==0, but this should never happen!
+		if(  obj.one->get_typ() >= ding_t::leitung  &&  obj.one->get_typ() <= ding_t::senke  ) {
 			return obj.one;
 		}
 	}
-	else if(top>0) {
+	else {
 		// else we have to search the list
-		for(uint8 i=0; i<top; i++) {
+		for(  uint8 i=0;  i<top;  i++  ) {
 			uint8 typ = obj.some[i]->get_typ();
-			if(typ>=ding_t::leitung  &&  typ<=ding_t::senke) {
+			if(  typ >= ding_t::leitung  &&  typ <= ding_t::senke  ) {
 				return obj.some[i];
 			}
 		}
@@ -730,24 +737,24 @@ ding_t *dingliste_t::get_leitung() const
 }
 
 
-
 ding_t *dingliste_t::get_convoi_vehicle() const
 {
-	if(capacity==0) {
+	if(  top == 0  ) {
 		return NULL;
 	}
-	else if(capacity==1) {
-		// could
+
+	if(  capacity <= 1  ) {
+		// it will crash on capacity==1 and top==0, but this should never happen!
+		// only ships and aircraft can go on tiles without ways => only test for those
 		uint8 t = obj.one->get_typ();
-		if(  t==ding_t::aircraft  ||  t==ding_t::schiff  ) {
+		if(  t == ding_t::aircraft  ||  t == ding_t::schiff  ) {
 			return obj.one;
 		}
 	}
-	else if(top>0) {
-		// else we have to search the list
-		for(uint8 i=0; i<top; i++) {
+	else {
+		for(  uint8 i=0;  i < top;  i++  ) {
 			uint8 typ = obj.some[i]->get_typ();
-			if(  typ>=ding_t::automobil  &&  typ<=ding_t::aircraft  ) {
+			if(  typ >= ding_t::automobil  &&  typ <= ding_t::aircraft  ) {
 				return obj.some[i];
 			}
 		}
@@ -1163,19 +1170,16 @@ inline bool local_display_dinge_bg(const ding_t *ding, const sint16 xpos, const 
 
 uint8 dingliste_t::display_dinge_bg( const sint16 xpos, const sint16 ypos, const uint8 start_offset) const
 {
-	if(start_offset>=top) {
+	if(  start_offset >= top  ) {
 		return start_offset;
 	}
 
-	if(capacity==1) {
-		if(local_display_dinge_bg(obj.one, xpos, ypos)) {
-			return 1;
-		}
-		return 0;
+	if(  capacity==1  ) {
+		return local_display_dinge_bg(obj.one, xpos, ypos);
 	}
 
-	for(uint8 n=start_offset; n<top; n++) {
-		if (!local_display_dinge_bg(obj.some[n], xpos, ypos)) {
+	for(  uint8 n=start_offset; n<top; n++) {
+		if(  !local_display_dinge_bg(obj.some[n], xpos, ypos)  ) {
 			return n;
 		}
 	}
@@ -1198,9 +1202,9 @@ inline bool local_display_dinge_vh(const ding_t *ding, const sint16 xpos, const 
 {
 	vehikel_basis_t const* const v = ding_cast<vehikel_basis_t>(ding);
 	aircraft_t      const*       a;
-	if (v && (ontile || !(a = ding_cast<aircraft_t>(v)) || a->is_on_ground())) {
+	if(v && (ontile || !(a = ding_cast<aircraft_t>(v)) || a->is_on_ground())) {
 		const ribi_t::ribi veh_ribi = v->get_fahrtrichtung();
-		if (ontile || (veh_ribi & ribi)==ribi  ||  (ribi_t::rueckwaerts(veh_ribi) & ribi)==ribi  ||  ding->get_typ()==ding_t::aircraft) {
+		if(ontile || (veh_ribi & ribi)==ribi  ||  (ribi_t::rueckwaerts(veh_ribi) & ribi)==ribi  ||  ding->get_typ()==ding_t::aircraft) {
 			// activate clipping only for our direction masked by the ribi argument
 			// use non-convex clipping (16) only if we are on the currently drawn tile or its n/w neighbours
 			activate_ribi_clip( ((veh_ribi|ribi_t::rueckwaerts(veh_ribi))&ribi)  |  (ontile  ||  ribi==ribi_t::nord || ribi==ribi_t::west ? 16 : 0));
@@ -1217,22 +1221,19 @@ inline bool local_display_dinge_vh(const ding_t *ding, const sint16 xpos, const 
 
 uint8 dingliste_t::display_dinge_vh( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const ribi_t::ribi ribi, const bool ontile ) const
 {
-	if(start_offset>=top) {
+	if(  start_offset >= top  ) {
 		return start_offset;
 	}
 
-	if(capacity==1) {
-		if(local_display_dinge_vh(obj.one, xpos, ypos, ribi, ontile)) {
-			return 1;
-		}
-		else {
-			return 0;
-		}
+	if(  capacity <= 1  ) {
+		uint8 i = local_display_dinge_vh(obj.one, xpos, ypos, ribi, ontile);
+		activate_ribi_clip();
+		return i;
 	}
 
 	uint8 nr_v = start_offset;
-	for(uint8 n=start_offset; n<top; n++) {
-		if (local_display_dinge_vh(obj.some[n], xpos, ypos, ribi, ontile)) {
+	for(  uint8 n=start_offset;  n<top;  n++  ) {
+		if(  local_display_dinge_vh(obj.some[n], xpos, ypos, ribi, ontile)  ) {
 			nr_v = n;
 		}
 		else {
@@ -1251,28 +1252,31 @@ uint8 dingliste_t::display_dinge_vh( const sint16 xpos, const sint16 ypos, const
  */
 void dingliste_t::display_dinge_fg( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const bool is_global ) const
 {
-	if(capacity==0) {
+	if(  top == 0  ) {
+		// nothing => finish
 		return;
 	}
-	else if(capacity==1) {
-		if(start_offset==0) {
+
+	// now draw start_offset background and all froeground!
+
+	if(  capacity == 1  ) {
+		if(  start_offset == 0  ) {
 			obj.one->display(xpos, ypos);
 		}
 		obj.one->display_after(xpos, ypos, is_global);
-		if(is_global) {
+		if(  is_global  ) {
 			obj.one->clear_flag(ding_t::dirty);
 		}
 		return;
 	}
 
 	for(uint8 n=start_offset; n<top; n++) {
-		// ist dort ein objekt ?
 		obj.some[n]->display(xpos, ypos);
 	}
-	// foreground (needs to be done backwards!
-	for (size_t n = top; n-- != 0;) {
+	// foreground (needs to be done backwards!)
+	for(size_t n = top; n-- != 0;) {
 		obj.some[n]->display_after(xpos, ypos, is_global);
-		if(is_global) {
+		if(  is_global  ) {
 			obj.some[n]->clear_flag(ding_t::dirty);
 		}
 	}
@@ -1283,28 +1287,34 @@ void dingliste_t::display_dinge_fg( const sint16 xpos, const sint16 ypos, const 
 // start next month (good for toogling a seasons)
 void dingliste_t::check_season(const long month)
 {
-	slist_tpl<ding_t *>loeschen;
-
-	if(capacity==0) {
+	if(  0 == top  ) {
 		return;
 	}
-	else if(capacity==1) {
+
+	if(  capacity<=1  ) {
+		// lets check here for consistency
+		if(  top!=capacity  ) {
+			dbg->fatal( "dingliste_t::check_season()", "top not matching!" );
+		}
 		ding_t *d = obj.one;
-		if (!d->check_season(month)) {
-			loeschen.insert( d );
+		if(  !d->check_season(month)  ) {
+			delete d;
 		}
 	}
 	else {
-		for(uint8 i=0; i<top; i++) {
+		// only here loeschen list is needed!
+		slist_tpl<ding_t *>to_remove;
+
+		for(  uint8 i=0;  i<top;  i++  ) {
 			ding_t *d = obj.some[i];
-			if (!d->check_season(month)) {
-				loeschen.insert( d );
+			if(  !d->check_season(month)  ) {
+				to_remove.insert( d );
 			}
 		}
-	}
 
-	// delete all objects, which do not want to step anymore
-	while (!loeschen.empty()) {
-		delete loeschen.remove_first();
+		// delete all objects, which do not want to step anymore
+		while(  !to_remove.empty()  ) {
+			delete to_remove.remove_first();
+		}
 	}
 }
