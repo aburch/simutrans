@@ -212,4 +212,53 @@ extern const float32e8_t V_MIN;
  */
 // Done in simworld.h: speed_to_tiles_per_month
 
+/**
+ * INTERCONVERSION BETWEEN SPEED, TIME AND DISTANCE
+ * There are too many different units used in simutrans-experimental
+ * But this handles... some of them.
+ */
+inline sint64 seconds_from_meters_and_kmh(sint64 meters, sint64 kmh) {
+	// The logic is:
+	// ( (x meters / (1000 m/km) / (y km/hr) ) * 60 min/hr * 60 sec/min
+	// so, multiply by 3600 and divide by 1000
+	// To save space we reduce fractions: 36/10
+	// But to round correctly, we need to add 1/2 of 10 = 5 before dividing
+	return (meters * 36ll + 5ll) / (kmh * 10ll);
+}
+inline sint64 kmh_from_meters_and_seconds(sint64 meters, sint64 seconds) {
+	// The logic is:
+	// ( (x meters / (1000 m/km) / (y sec) ) * 60 sec/min * 60 min/hr
+	// The numbers are the same as seconds_from_meters_and_kmh
+	return (meters * 36ll + 5ll) / (seconds * 10ll);
+}
+inline sint64 tenths_from_meters_and_kmh(sint64 meters, sint64 kmh) {
+	// The logic is:
+	// ( (x meters / (1000 m/km) / (y km/hr) ) * 60 min/hr * 10 tenths/min
+	// so, multiply by 600 and divide by 1000
+	// To save space we reduce fractions: 6/10
+	// But to round correctly, we need to add 1/2 of 10 = 5 before dividing
+	return (meters * 6ll + 5ll) / (kmh * 10ll);
+}
+inline sint64 kmh_from_meters_and_tenths(sint64 meters, sint64 tenths) {
+	// The logic is:
+	// ( (x meters / (1000 m/km) / (y tenths) ) * 10 tenths/min * 60 min/hr
+	// The numbers are the same as tenths_from_meters_and_kmh
+	return (meters * 6ll + 5ll) / (tenths * 10ll);
+}
+inline sint64 minutes_from_meters_and_kmh(sint64 meters, sint64 kmh) {
+	// The logic is:
+	// ( (x meters / (1000 m/km) / (y km/hr) ) * 60 min/hr
+	// so, multiply by 60 and divide by 1000
+	// To save space we reduce fractions: 6/100
+	// But to round correctly, we need to add 1/2 of 100 = 50 before dividing
+	return (meters * 6ll + 50ll) / 100ll;
+}
+inline sint64 kmh_from_meters_and_minutes(sint64 meters, sint64 minutes) {
+	// The logic is:
+	// ( (x meters / (1000 m/km) / (y minutes) ) * 60 min/hr
+	// The numbers are the same as minutes_from_meters_and_kmh
+	return (meters * 6ll + 50ll) / 100ll;
+}
+
+
 #endif /* simunits.h */
