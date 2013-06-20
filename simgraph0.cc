@@ -168,7 +168,7 @@ void display_rezoomed_img_blend(const unsigned, KOORD_VAL, KOORD_VAL, const sign
 {
 }
 
-void display_rezoomed_img_alpha(const unsigned, const unsigned, const uint8, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int)
+void display_rezoomed_img_alpha(const unsigned, const unsigned, const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int)
 {
 }
 
@@ -176,7 +176,7 @@ void display_base_img_blend(const unsigned, KOORD_VAL, KOORD_VAL, const signed c
 {
 }
 
-void display_base_img_alpha(const unsigned, const unsigned, const uint8, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int)
+void display_base_img_alpha(const unsigned, const unsigned, const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int)
 {
 }
 
