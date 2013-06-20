@@ -840,10 +840,20 @@ public:
 	void mark_unmark_coverage(const bool mark, const bool factories = false) const;
 
 	// @author: jamespetts
-	// Returns the proportion of unhappy people of the total of
-	// happy and unhappy people.
-	uint16 get_unhappy_percentage(uint8 month) const { return (uint16)(financial_history[month][HALT_HAPPY] > 0 ? financial_history[month][HALT_UNHAPPY] * 100 / (financial_history[month][HALT_HAPPY] + financial_history[month][HALT_UNHAPPY]) : 0); }
- 
+	// Returns the percentage of unhappy people
+	// out of the total of happy and unhappy people.
+	uint16 get_unhappy_percentage(uint8 month) const
+	{
+		sint64 happy_count = financial_history[month][HALT_HAPPY];
+		sint64 unhappy_count = financial_history[month][HALT_UNHAPPY];
+		if (happy_count > 0) {
+ 			return (uint16) (unhappy_count * 100 / (happy_count + unhappy_count) );
+		}
+		else {
+			return 0;
+		}
+	}
+
 	// Getting and setting average waiting times in minutes
 	// @author: jamespetts
 	uint16 get_average_waiting_time(halthandle_t halt, uint8 category) const;
