@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1997 - 2003 Hansjörg Malthaner
+ * Copyright 2013 Nathanael Nerode, James Petts
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -29,6 +30,8 @@
 #include "gui_frame.h"
 
 
+karte_t *goods_stats_t::welt = NULL;
+
 goods_stats_t::goods_stats_t( karte_t *wl )
 {
 	welt = wl;
@@ -39,7 +42,7 @@ goods_stats_t::goods_stats_t( karte_t *wl )
 void goods_stats_t::update_goodslist( uint16 *g, int b, int l, uint16 d, uint8 c, uint8 ct, waytype_t wt)
 {
 	goodslist = g;
-	bonus = b;
+	relative_speed_percentage = b;
 	distance = d;
 	comfort = c;
 	catering_level = ct;
@@ -73,21 +76,18 @@ void goods_stats_t::zeichnen(koord offset)
 		buf.printf("%s", translator::translate(wtyp->get_name()));
 		display_proportional_clip(offset.x + 14, yoff,	buf, ALIGN_LEFT, COL_BLACK, true);
 
-		// prissi
-		// Modified by jamespetts 18 Apr. 2009
-
-		const sint64 base_fare = wtyp->get_fare(distance);
-		const sint64 min_fare = (base_fare * 1000ll) / 4ll;
-		const sint64 max_fare = base_fare * 4000ll;
-		const sint64 speed_bonus_rating = (sint64)wtyp->get_adjusted_speed_bonus(distance, welt);
-		const sint64 base_bonus = base_fare * (1000ll + (((sint64)bonus - 100ll) * speed_bonus_rating));
-		const sint64 revenue = min(max_fare, max(min_fare, base_bonus));
+		// Massively cleaned up by neroden, June 2013
+		sint64 revenue = wtyp->get_fare_with_speedbonus(welt, relative_speed_percentage, distance);
 		sint64 price = revenue;
 
-
-		//const uint16 journey_minutes = ((float)distance / (((float)welt->get_average_speed(way_type) * bonus) / 100)) *welt->get_settings().get_meters_per_tile() * 6;
-		const uint16 divider = (welt->get_average_speed(way_type) * bonus) / 100;
-		const uint16 journey_minutes = (((distance * 100) / (divider > 0 ? divider : 1)) * welt->get_settings().get_meters_per_tile()) / 1667;
+		sint64 relevant_speed = ( welt->get_average_speed(way_type) * (relative_speed_percentage + 100) ) / 100;
+		// Roundoff is deliberate here (get two-digit speed)... question this
+		if (relevant_speed <= 0) {
+			// Negative and zero speeds will be due to roundoff errors
+			relevant_speed = 1;
+		}
+		sint64 distance_meters = (sint64)distance * welt->get_settings().get_meters_per_tile();
+		const uint16 journey_minutes = (uint16) ( (distance_meters * 60ll) / (relevant_speed * 1000ll));
 
 		if(wtyp->get_catg_index() < 1)
 		{

@@ -4378,100 +4378,120 @@ write_basic_line:
 
 sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportioned_revenues)
 {
-	sint64 overall_average_speed;
-	
-	if(!line.is_bound())
-	{
-		// No line - must use convoy
-		if(financial_history[1][CONVOI_AVERAGE_SPEED] == 0)
-		{
-			overall_average_speed = financial_history[0][CONVOI_AVERAGE_SPEED];
-		}
-		else
-		{	
-			overall_average_speed = financial_history[1][CONVOI_AVERAGE_SPEED];
-		}
-	}
-
-	else
-	{
-		if(line->get_finance_history(1, LINE_AVERAGE_SPEED) == 0)
-		{
-			overall_average_speed = line->get_finance_history(0, LINE_AVERAGE_SPEED);
-		}
-		else
-		{	
-			overall_average_speed = line->get_finance_history(1, LINE_AVERAGE_SPEED);
-		}
-	}
-
-	if(overall_average_speed == 0)
-	{
-		overall_average_speed = 1;
-	}
-
 	// Cannot not charge for journey if the journey distance is more than a certain proportion of the straight line distance.
 	// This eliminates the possibility of cheating by building circuitous routes, or the need to prevent that by always using
 	// the straight line distance, which makes the game difficult and unrealistic. 
 	// If the origin has been deleted since the packet departed, then the best that we can do is guess by
 	// trebling the distance to the last stop.
-	const uint32 max_distance = ware.get_last_transfer().is_bound() ? 
-		shortest_distance(ware.get_last_transfer()->get_basis_pos(), fahr[0]->get_pos().get_2d()) * 2 :
-		3 * shortest_distance(last_stop_pos.get_2d(), fahr[0]->get_pos().get_2d());
+	uint32 max_distance;
+	if (ware.get_last_transfer().is_bound()) {
+		max_distance = shortest_distance(ware.get_last_transfer()->get_basis_pos(), fahr[0]->get_pos().get_2d()) * 2;
+	}
+	else {
+		max_distance = shortest_distance(last_stop_pos.get_2d(), fahr[0]->get_pos().get_2d()) * 3;
+	}
 	const departure_data_t dep = departures->get(ware.get_last_transfer().get_id());
-	const uint32 distance = dep.get_overall_distance() > 0 ? dep.get_overall_distance() : max_distance / 2;
-	const uint32 revenue_distance = distance < max_distance ? distance : max_distance;
-	
-	uint16 journey_minutes = 0;
+	uint32 travel_distance = dep.get_overall_distance();
+	if (travel_distance == 0) {
+		// Something went wrong, make a wild guess
+		travel_distance = max_distance / 2;
+	}
+	const uint32 revenue_distance = min(travel_distance, max_distance);
+	const sint64 travel_distance_meters = travel_distance * welt->get_settings().get_meters_per_tile();
+
+	// First try to get the journey minutes and average speed
+	// for the point to point trip.  If that fails use line average.
+	// (neroden really believes we should use the minutes and speed for THIS trip.)
+	// (It saves vast amounts of computational effort,
+	//  and gives the player a quicker response to improved service.)
+	sint64 journey_minutes = 0;
+	sint64 average_speed;
+	bool valid_journey_time = false;
 	if(ware.get_last_transfer().is_bound())
 	{
 		const planquadrat_t* plan = welt->lookup(fahr[0]->get_pos().get_2d());
-		journey_minutes = plan ? (get_average_journey_times()->get(id_pair(ware.get_last_transfer().get_id(), plan->get_halt().get_id())).get_average()) / 10 : 0;
+		if (plan) {
+			id_pair my_ordered_pair = id_pair(ware.get_last_transfer().get_id(), plan->get_halt().get_id());
+			sint64 journey_tenths = get_average_journey_times()->get(my_ordered_pair).get_average();
+			if (journey_tenths != 0) {
+				// No unreasonably short journeys...
+				average_speed = kmh_from_meters_and_tenths(travel_distance_meters, journey_tenths);
+				if(average_speed > speed_to_kmh(get_min_top_speed()))
+				{
+					dbg->warning("sint64 convoi_t::calc_revenue", "Average speed (%i) for %s exceeded maximum speed (%i); falling back to overall average", average_speed, get_name(), speed_to_kmh(get_min_top_speed()));
+				}
+				else {
+					// We seem to have a believable speed...
+					if(average_speed == 0)
+					{
+						average_speed = 1;
+					}
+					journey_minutes = journey_tenths / 10; // FIXME.  Bad rounding choice.
+					valid_journey_time = true;
+				}
+			}
+		}
 	}
 
-	sint64 average_speed;
-	if(journey_minutes == 0)
+	if(!valid_journey_time)
 	{
-		// Fallback to the overall average speed if there are no data for point-to-point timings.
-		// 100/1667 = 60min/hr / 1000 m/km
-		journey_minutes = (((distance * 100) / overall_average_speed) * welt->get_settings().get_meters_per_tile()) / 1667;
-		average_speed = overall_average_speed;
-	}
-	else
-	{
-		const sint32 journey_distance_meters = distance * welt->get_settings().get_meters_per_tile();
-		average_speed = (journey_distance_meters * 3) / (journey_minutes * 50);
+		// Fallback to the overall average speed for the line under several situations:
+		// - if there are no data for point-to-point timings;
+		// - if the point-to-point timings are less than 1/10 of a minute (unreasonably short)
+		// - if the average speed is faster than the top speed of the convoi (absurdity)
+		if(!line.is_bound()) {
+			// No line - must use convoy
+			if(financial_history[1][CONVOI_AVERAGE_SPEED] == 0) {
+				average_speed = financial_history[0][CONVOI_AVERAGE_SPEED];
+			}
+			else {
+				average_speed = financial_history[1][CONVOI_AVERAGE_SPEED];
+			}
+		}
+		else {
+			if(line->get_finance_history(1, LINE_AVERAGE_SPEED) == 0)
+			{
+				average_speed = line->get_finance_history(0, LINE_AVERAGE_SPEED);
+			}
+			else {
+				average_speed = line->get_finance_history(1, LINE_AVERAGE_SPEED);
+			}
+		}
 		if(average_speed == 0)
 		{
 			average_speed = 1;
 		}
+		journey_minutes = minutes_from_meters_and_kmh(travel_distance_meters, average_speed);
 	}
 
-	if(average_speed > speed_to_kmh(get_min_top_speed()))
-	{
-		dbg->warning("sint64 convoi_t::calc_revenue", "Average speed (%i) for %s exceeded maximum speed (%i); falling back to overall average", average_speed, get_name(), speed_to_kmh(get_min_top_speed()));
-		journey_minutes = (((distance * 100) / overall_average_speed) * welt->get_settings().get_meters_per_tile()) / 1667;
-		average_speed = overall_average_speed;
+	sint64 starting_distance;
+	if (ware.get_origin().is_bound()) {
+		sint64 distance_from_ultimate_origin
+			= (sint64)shortest_distance(ware.get_origin()->get_basis_pos(), fahr[0]->get_pos().get_2d());
+		sint64 starting_distance = distance_from_ultimate_origin - (sint64)revenue_distance;
+		if (starting_distance < 0) {
+			// Artifact of convoluted routing
+			starting_distance = 0;
+		}
 	}
-	
-	const ware_besch_t* goods = ware.get_besch();
-	const sint64 starting_distance = ware.get_origin().is_bound() ? (sint64)shortest_distance(ware.get_origin()->get_basis_pos(), fahr[0]->get_pos().get_2d()) - (sint64)revenue_distance : 0ll;
-	const sint64 base_fare = goods->get_fare(revenue_distance, (starting_distance > 0 ? (uint32)starting_distance : 0));
-	const sint64 min_fare = (base_fare * 1000ll) / 4ll;
-	const sint64 max_fare = base_fare * 4000ll;
-	const uint16 speed_bonus_rating = goods->get_adjusted_speed_bonus(distance, get_welt());
+	else {
+		starting_distance = 0;
+	}
 	const sint64 ref_speed = welt->get_average_speed(fahr[0]->get_besch()->get_waytype());
-	const sint64 speed_base = (100ll * average_speed) / ref_speed - 100ll;
-	const sint64 base_bonus = (base_fare * (1000ll + speed_base * speed_bonus_rating));
-	const sint64 min_revenue = max(min_fare, base_bonus);
-	const sint64 max_revenue = min(max_fare, min_revenue);
-	const sint64 revenue = max_revenue * (sint64)ware.menge;
+	const sint64 relative_speed_percentage = (100ll * average_speed) / ref_speed - 100ll;
+
+	const ware_besch_t* goods = ware.get_besch();
+	const sint64 fare = goods->get_fare_with_speedbonus(get_welt(), (sint16)relative_speed_percentage, revenue_distance, (uint32)starting_distance);
+	// Note that fare comes out in units of 1/1000 of a simcent, for computational reasons.
+	const sint64 revenue = fare * (sint64)ware.menge;
 	sint64 final_revenue = revenue;
 
+	const uint16 speed_bonus_rating = goods->get_adjusted_speed_bonus(get_welt(), revenue_distance);
 	const uint16 happy_percentage = ware.get_last_transfer().is_bound() ? ware.get_last_transfer()->get_unhappy_percentage(1) : 100;
 	if(speed_bonus_rating > 0 && happy_percentage > 0)
 	{
 		// Reduce revenue if the origin stop is crowded, if speed is important for the cargo.
+		// neroden: this is too complicated and *far* too abusive to the player.  FIXME
 		sint64 tmp = ((sint64)speed_bonus_rating * revenue) / 100ll;
 		tmp *= ((sint64)happy_percentage * 2) / 100ll;
 		final_revenue -= tmp;
@@ -4479,6 +4499,10 @@ sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportione
 	
 	if(final_revenue && ware.is_passenger())
 	{
+		// Again using the average for the line for revenue computation.
+		// (neroden believes we should use the ACTUAL comfort on THIS trip;
+		// although it is "less realistic" it provides faster revenue responsiveness
+		// for the player to improvements in comfort)
 		//Passengers care about their comfort
 		const uint8 tolerable_comfort = calc_tolerable_comfort(journey_minutes);
 
@@ -6580,7 +6604,7 @@ void convoi_t::emergency_go_to_depot()
 	}
 }
 
-koordhashtable_tpl<id_pair, average_tpl<uint16> > * const convoi_t::get_average_journey_times()
+koordhashtable_tpl<id_pair, average_tpl<uint16> > * convoi_t::get_average_journey_times() const
 {
 	if(line.is_bound())
 	{

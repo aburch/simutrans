@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1997 - 2003 Hansjörg Malthaner
+ * Copyright 2013 Nathanael Nerode, James Petts
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -22,6 +23,9 @@
 #include "goods_stats_t.h"
 #include "../utils/cbuffer_t.h"
 
+// for waytype_t
+#include "../simtypes.h"
+
 class karte_t;
 
 /**
@@ -35,7 +39,7 @@ private:
 	static const char *sort_text[SORT_MODES];
 
 	// static, so we remember the last settings
-	static int relative_speed_change;
+	static int relative_speed_percentage;
 	// Distance in km
 	static uint16 distance;
 	// Distance in tiles
@@ -45,10 +49,9 @@ private:
 	static bool sortreverse;
 	static sort_mode_t sortby;
 	static bool filter_goods;
-	//static waytype_t wtype;
-	waytype_t wtype;
+	static waytype_t wtype;
 
-	karte_t* welt;
+	static karte_t* welt;
 	char	speed_bonus[6];
 	char	distance_txt[6];
 	char	comfort_txt[6];

@@ -56,10 +56,12 @@ const char * ware_besch_t::get_catg_name() const
  * There are several special effects at work here:
  * Speed bonus "phases in" above a certain distance before reaching its maximum
  * at a certain distance
+ *
+ * Written by Nathanael Nerode (neroden) based on code by James Petts
  */
 
-// Note that this is the static version
-uint16 ware_besch_t::get_adjusted_speed_bonus(uint16 base_bonus, uint32 distance_in, const karte_t* world)
+// Note that this is the static version -- pure computation
+static uint16 ware_besch_t::get_adjusted_speed_bonus(const karte_t* world, uint32 distance_in, uint16 base_bonus_rating)
 {
 	// Avoid overflow.  This is 2^31 / 1000
 	assert (distance_in < 2147483);
@@ -100,7 +102,7 @@ uint16 ware_besch_t::get_adjusted_speed_bonus(uint16 base_bonus, uint32 distance
 
 	if(distance >= max_distance)
 	{
-		return base_bonus * multiplier / 100;
+		return base_bonus_rating * multiplier / 100;
 	}
 
 	if(median_distance == 0)
@@ -108,7 +110,7 @@ uint16 ware_besch_t::get_adjusted_speed_bonus(uint16 base_bonus, uint32 distance
 		// There is no median, so scale evenly.
 		const sint32 percentage = ((distance - min_distance) * 100) / (max_distance - min_distance);
 		assert(percentage >= 0);
-		const sint32 return_figure = ((base_bonus * multiplier) * percentage) / 10000;
+		const sint32 return_figure = ((base_bonus_rating * multiplier) * percentage) / 10000;
 		return (uint16)return_figure;
 	}
 
@@ -117,14 +119,14 @@ uint16 ware_besch_t::get_adjusted_speed_bonus(uint16 base_bonus, uint32 distance
 	{
 		const sint32 percentage = ((distance - min_distance) * 100) / (median_distance - min_distance);
 		assert(percentage >= 0);
-		const sint32 return_figure =  base_bonus * percentage / 100;
+		const sint32 return_figure =  base_bonus_rating * percentage / 100;
 		return (uint16)return_figure;
 	}
 	else // (distance >= median_distance)
 	{
 		const sint32 percentage = ((distance - median_distance) * 100) / (max_distance - median_distance);
 		assert(percentage >= 0);
-		const sint32 return_figure = base_bonus + (base_bonus * (multiplier - 100) * percentage) / 10000;
+		const sint32 return_figure = base_bonus_rating + (base_bonus_rating * (multiplier - 100) * percentage) / 10000;
 		return (uint16)return_figure;
 	}
 	// Can't get here

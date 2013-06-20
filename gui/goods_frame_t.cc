@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1997 - 2003 Hansjörg Malthaner
+ * Copyright 2013 Nathanael Nerode, James Petts
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -19,17 +20,29 @@
 #include "../besch/ware_besch.h"
 #include "../dataobj/translator.h"
 
+// For waytype_t
+#include "../simtypes.h"
+
 #include "../simcolor.h"
 #include "../simworld.h"
 #include "../simconvoi.h"
 
+// For revenue stuff
 #include "../besch/ware_besch.h"
 
 /**
  * This variable defines the current speed for bonus calculation
- * @author prissi
+ * This is in the "percentage" form in which it runs from -100 to +infinity,
+ * where 0 means "standard speed" and +100 means "100% more than standard speed"
+ * @author neroden
  */
-int goods_frame_t::relative_speed_change = 100;
+int goods_frame_t::relative_speed_percentage = 0;
+
+/**
+ * This variable contains the selected waytype
+ * Relevant for paks with different speedbonuses by waytype
+ */
+waytype_t goods_frame_t::wtype = road_wt;
 
 /**
  * This variable defines by which column the table is sorted
@@ -67,6 +80,7 @@ const char *goods_frame_t::sort_text[SORT_MODES] = {
  * @author falconne
  */
 bool goods_frame_t::filter_goods = false;
+karte_t *goods_frame_t::welt = NULL;
 
 goods_frame_t::goods_frame_t(karte_t *wl) :
 	gui_frame_t( translator::translate("gl_title") ),
@@ -77,11 +91,10 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	change_comfort_label(comfort_txt,COL_WHITE,gui_label_t::right),
 	change_catering_label(catering_txt,COL_WHITE,gui_label_t::right),
 	*/
-	welt(wl),
 	goods_stats( wl ),
 	scrolly(&goods_stats)
 {
-	wtype = road_wt;	
+	this->welt = wl;
 	int y=D_BUTTON_HEIGHT+4-D_TITLEBAR_HEIGHT;
 
 	speed_bonus[0] = 0;
@@ -163,7 +176,7 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	speed_input.set_pos(koord(BUTTON4_X-22, y + 36) );
 	speed_input.set_groesse(koord(60, D_BUTTON_HEIGHT));
 	speed_input.set_limits( -99, 9999 );
-	speed_input.set_value( relative_speed_change - 100 );
+	speed_input.set_value( relative_speed_percentage );
 	speed_input.wrap_mode( false );
 	speed_input.add_listener( this );
 	add_komponente(&speed_input);
@@ -254,18 +267,21 @@ bool goods_frame_t::compare_goods(uint16 const a, uint16 const b)
 			order = a - b;
 			break;
 		case 2: // sort by revenue
-			{			
+			{
 				sint32 price[2];
 				for(uint8 i = 0; i < 2; i ++)
 				{
-					const sint64 base_fare = w[i]->get_fare(tile_distance);
-					const sint64 min_fare = base_fare / 10ll;
-					const uint16 speed_bonus_rating = w[i]->get_adjusted_speed_bonus(tile_distance, NULL);
-					const sint64 base_bonus = base_fare * (1000l + (relative_speed_change - 100l) * speed_bonus_rating);
-					const sint64 revenue = max(min_fare, base_bonus);
+					const sint64 revenue = w[i]->get_fare_with_speedbonus(welt, relative_speed_percentage, tile_distance);
 					price[i] = revenue;
 
-					const uint16 journey_minutes = ((float)tile_distance / (float)((50 * relative_speed_change)/100)) * 0.3 * 60;
+					sint64 relevant_speed = ( welt->get_average_speed(wtype) * (relative_speed_percentage + 100) ) / 100;
+					// Roundoff is deliberate here (get two-digit speed)... question this
+					if (relevant_speed <= 0) {
+						// Negative and zero speeds will be due to roundoff errors
+						relevant_speed = 1;
+					}
+					sint64 distance_meters = (sint64)tile_distance * welt->get_settings().get_meters_per_tile();
+					const uint16 journey_minutes = (uint16) ((distance_meters * 60ll) / (relevant_speed * 1000ll));
 
 					// Comfort matters more the longer the journey.
 					// @author: jamespetts, March 2010
@@ -379,7 +395,7 @@ void goods_frame_t::sort_list()
 
 	std::sort(good_list, good_list + n, compare_goods);
 
-	goods_stats.update_goodslist(good_list, relative_speed_change, n, goods_frame_t::tile_distance, goods_frame_t::comfort, goods_frame_t::catering_level, wtype);
+	goods_stats.update_goodslist(good_list, relative_speed_percentage, n, goods_frame_t::tile_distance, goods_frame_t::comfort, goods_frame_t::catering_level, wtype);
 }
 
 
@@ -471,7 +487,7 @@ bool goods_frame_t::action_triggered( gui_action_creator_t *komp,value_t v)
 	//	}
 	//}
 	else if (komp == &speed_input) {
-		relative_speed_change = v.i + 100;
+		relative_speed_percentage = v.i;
 		sort_list();
 	}
 	else if (komp == &distance_input) {
@@ -548,21 +564,22 @@ void goods_frame_t::zeichnen(koord pos, koord gr)
 	//sprintf(comfort_txt,"%i",comfort);
 	//sprintf(catering_txt,"%i",catering_level);
 
+	sint16 speed_ratio = relative_speed_percentage + 100;
 	speed_message.clear();
 	speed_message.printf(translator::translate("Distance\nComfort\nCatering level\nSpeedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h."),
-		(welt->get_average_speed(road_wt)*relative_speed_change)/100,
-		(welt->get_average_speed(track_wt)*relative_speed_change)/100,
-		(welt->get_average_speed(water_wt)*relative_speed_change)/100,
-		(welt->get_average_speed(air_wt)*relative_speed_change)/100
+		(welt->get_average_speed(road_wt)*speed_ratio)/100,
+		(welt->get_average_speed(track_wt)*speed_ratio)/100,
+		(welt->get_average_speed(water_wt)*speed_ratio)/100,
+		(welt->get_average_speed(air_wt)*speed_ratio)/100
 	);
 	display_multiline_text(pos.x+11, pos.y+D_BUTTON_HEIGHT+4, speed_message, COL_WHITE);
 
 	speed_message.clear();
 	speed_message.printf(translator::translate("tram %i km/h, monorail %i km/h\nmaglev %i km/h, narrowgauge %i km/h."),
-		(welt->get_average_speed(tram_wt)*relative_speed_change)/100,
-		(welt->get_average_speed(monorail_wt)*relative_speed_change)/100,
-		(welt->get_average_speed(maglev_wt)*relative_speed_change)/100,
-		(welt->get_average_speed(narrowgauge_wt)*relative_speed_change)/100
+		(welt->get_average_speed(tram_wt)*speed_ratio)/100,
+		(welt->get_average_speed(monorail_wt)*speed_ratio)/100,
+		(welt->get_average_speed(maglev_wt)*speed_ratio)/100,
+		(welt->get_average_speed(narrowgauge_wt)*speed_ratio)/100
 	);
 
 	display_multiline_text(pos.x+11, pos.y+D_BUTTON_HEIGHT+4+12+5*LINESPACE, speed_message, COL_WHITE);

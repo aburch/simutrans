@@ -926,8 +926,8 @@ public:
 	 * @author Hj. Malthaner
 	 */
 //<<<<<<< HEAD
-	inline const uint32 get_sum_leistung() {return get_continuous_power();}
-	inline const sint32 get_min_top_speed() {return get_vehicle_summary().max_sim_speed;}
+	inline uint32 get_sum_leistung() {return get_continuous_power();}
+	inline sint32 get_min_top_speed() {return get_vehicle_summary().max_sim_speed;}
 //=======
 //	const uint32 & get_sum_leistung() const {return sum_leistung;}
 //	const sint32 & get_min_top_speed() const {return min_top_speed;}
@@ -935,7 +935,7 @@ public:
 //>>>>>>> ad21768f2e2255525ad3ebe48dcb5fbeb8ad21d6
 
 	/// @returns weight of the convoy's vehicles (excluding freight)
-	inline const sint64 get_sum_gewicht() {return get_vehicle_summary().weight;}
+	inline sint64 get_sum_gewicht() {return get_vehicle_summary().weight;}
 
 	/// @returns weight of convoy including freight
 	//inline const sint64 & get_sum_gesamtgewicht() const {return sum_gesamtgewicht;}
@@ -1393,8 +1393,8 @@ public:
 	 */
 	void emergency_go_to_depot();
 
-	koordhashtable_tpl<id_pair, average_tpl<uint16> > * const get_average_journey_times();
-	inline koordhashtable_tpl<id_pair, average_tpl<uint16> > * const get_average_journey_times_this_convoy_only() { return average_journey_times; }
+	koordhashtable_tpl<id_pair, average_tpl<uint16> > * get_average_journey_times() const;
+	inline koordhashtable_tpl<id_pair, average_tpl<uint16> > * get_average_journey_times_this_convoy_only() const { return average_journey_times; }
 
 	/**
 	 * Clears the departure data.
