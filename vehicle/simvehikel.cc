@@ -878,7 +878,7 @@ vehikel_t::unload_freight(halthandle_t halt, sint64 & revenue_from_unloading, ar
 							revenue_from_unloading=-refund_amount;
 						}
 
-						// Add passengers to unhappy passengers.
+						// Add passengers to unhappy (due to overcrowding) passengers.
 						if(tmp.is_passenger())
 						{
 							halt->add_pax_unhappy(tmp.menge);
