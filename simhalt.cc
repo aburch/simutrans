@@ -1128,8 +1128,8 @@ void haltestelle_t::step()
 						// Waiting too long: discard
 						if(tmp.is_passenger())
 						{
-							// Passengers -- add to "too slow" graph.
-							add_pax_too_slow(tmp.menge);
+							// Passengers - use unhappy graph.
+							add_pax_unhappy(tmp.menge);
 						}
 
 						// Experimental 7.2 - if they are discarded, a refund is due.
