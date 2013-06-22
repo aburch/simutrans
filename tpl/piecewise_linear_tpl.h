@@ -84,7 +84,9 @@ public:
 	 * as we expect vector_tpl to take care of the
 	 * data handling.  So the defaults will work for us.
 	 *
-	 * This is incidentally why we can't use minivec_tpl.
+	 * This is incidentally why we can't use minivec_tpl, which doesn't implement them.
+	 * If it turns out we don't need copy construction or copy assignment,
+	 * we can switch over to minivec_tpl and refuse to implement them.
 	 */
 
 private:
@@ -165,7 +167,7 @@ public:
 		}
 	}
 	/**
-	 * This class is a functor or functional.
+	 * This class is a "functor" or "functional".
 	 * Implement function call syntax.
 	 */
 	value_t operator () (key_t key) const {
