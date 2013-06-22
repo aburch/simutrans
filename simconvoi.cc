@@ -4486,24 +4486,14 @@ sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportione
 	const sint64 revenue = fare * (sint64)ware.menge;
 	sint64 final_revenue = revenue;
 
-	const uint16 speed_bonus_rating = goods->get_adjusted_speed_bonus(get_welt(), revenue_distance);
-	const uint16 happy_percentage = ware.get_last_transfer().is_bound() ? ware.get_last_transfer()->get_unhappy_percentage(1) : 100;
-	if(speed_bonus_rating > 0 && happy_percentage > 0)
-	{
-		// Reduce revenue if the origin stop is crowded, if speed is important for the cargo.
-		// neroden: this is too complicated and *far* too abusive to the player.  FIXME
-		sint64 tmp = ((sint64)speed_bonus_rating * revenue) / 100ll;
-		tmp *= ((sint64)happy_percentage * 2) / 100ll;
-		final_revenue -= tmp;
-	}
-	
 	if(final_revenue && ware.is_passenger())
 	{
-		// Again using the average for the line for revenue computation.
+		// Comfort
+		//
+		// Again, use the average for the line for revenue computation.
 		// (neroden believes we should use the ACTUAL comfort on THIS trip;
 		// although it is "less realistic" it provides faster revenue responsiveness
 		// for the player to improvements in comfort)
-		//Passengers care about their comfort
 		const uint8 tolerable_comfort = calc_tolerable_comfort(journey_minutes);
 
 		uint8 comfort = 100ll;
