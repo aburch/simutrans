@@ -281,7 +281,8 @@ bool goods_frame_t::compare_goods(uint16 const a, uint16 const b)
 						relevant_speed = 1;
 					}
 					sint64 distance_meters = (sint64)tile_distance * welt->get_settings().get_meters_per_tile();
-					const uint16 journey_minutes = (uint16) ((distance_meters * 60ll) / (relevant_speed * 1000ll));
+					const uint16 journey_tenths = (uint16) tenths_from_meters_and_kmh(distance_meters, relevant_speed);
+					const uint16 journey_minutes = (uint16) minutes_from_meters_and_kmh(distance_meters, relevant_speed);
 
 					// Comfort matters more the longer the journey.
 					// @author: jamespetts, March 2010
