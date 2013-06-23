@@ -1561,6 +1561,9 @@ void karte_t::init(settings_t* const sets, sint8 const* const h_field)
 	else {
 		warenbauer_t::set_multiplier(1000, settings.get_meters_per_tile());
 	}
+	// Must do this just after set_multiplier, since it depends on warenbauer_t having registered all wares:
+	settings.cache_speedbonuses();
+
 	max_rail_speed.speed = max_monorail_speed.speed = max_maglev_speed.speed = max_narrowgauge_speed.speed = max_road_speed.speed = max_ship_speed.speed = max_air_speed.speed = 0;
 
 	recalc_snowline();
@@ -1985,6 +1988,8 @@ karte_t::karte_t() :
 
 	// standard prices
 	warenbauer_t::set_multiplier( 1000, settings.get_meters_per_tile() );
+	// Must do this just after set_multiplier, since it depends on warenbauer_t having registered all wares:
+	settings.cache_speedbonuses();
 
 	zeiger = 0;
 	plan = 0;
@@ -5470,6 +5475,8 @@ void karte_t::load(loadsave_t *file)
 	else {
 		warenbauer_t::set_multiplier( 1000, settings.get_meters_per_tile() );
 	}
+	// Must do this just after set_multiplier, since it depends on warenbauer_t having registered all wares:
+	settings.cache_speedbonuses();
 
 	if(old_scale_factor != get_settings().get_meters_per_tile())
 	{

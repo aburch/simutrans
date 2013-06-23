@@ -340,6 +340,7 @@ protected:
 	uint16 max_bonus_multiplier_percent;
 
 public:
+
 	uint16 meters_per_tile;
 	// We need it often(every vehikel_basis_t::fahre_basis call), so we cache it.
 	uint32 steps_per_km;
@@ -719,8 +720,10 @@ public:
 	uint16 get_min_bonus_max_distance() const { return min_bonus_max_distance; }
 	uint16 get_median_bonus_distance() const { return median_bonus_distance; }
 	uint16 get_max_bonus_min_distance() const { return max_bonus_min_distance; }
-
 	uint16 get_max_bonus_multiplier_percent() const { return max_bonus_multiplier_percent; }
+	// Cache the above settings directly in ware_besch_t objects.
+	// During loading you must call this *after* warenbauer_t is done registering wares.
+	void cache_speedbonuses();
 
 	uint16 get_meters_per_tile() const { return meters_per_tile; }
 	void   set_meters_per_tile(uint16 value);

@@ -14,7 +14,6 @@
 #include "../player/finance.h" // MAX_PLAYER_HISTORY_YEARS
 #include "../vehicle/simvehikel.h"
 #include "settings_stats.h"
-#include "../bauer/warenbauer.h" // cache_speed_bonuses
 
 
 /* stuff not set here ....
@@ -272,7 +271,7 @@ void settings_experimental_general_stats_t::read(settings_t *sets)
 		}
 	}
 	// And convert to the form used in-game...
-	warenbauer_t::cache_speed_bonuses();
+	sets->cache_speedbonuses();
 }
 
 

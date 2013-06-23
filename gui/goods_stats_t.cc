@@ -39,7 +39,7 @@ goods_stats_t::goods_stats_t( karte_t *wl )
 }
 
 
-void goods_stats_t::update_goodslist( uint16 *g, int b, int l, sint32 d, uint8 c, uint8 ct, waytype_t wt)
+void goods_stats_t::update_goodslist( uint16 *g, int b, int l, uint32 d, uint8 c, uint8 ct, waytype_t wt)
 {
 	goodslist = g;
 	relative_speed_percentage = b;
@@ -65,7 +65,7 @@ void goods_stats_t::zeichnen(koord offset)
 	// Pre-111.1 in case current does not work.
 	/*for(  uint16 i=0;  i<warenbauer_t::get_waren_anzahl()-1u;  i++  )*/
 
-	for(  uint16 i=0;  i<listed_goods;  i++  ) 
+	for(  uint16 i=0;  i<listed_goods;  i++  )
 	{
 		const ware_besch_t * wtyp = warenbauer_t::get_info(goodslist[i]);
 
@@ -77,7 +77,7 @@ void goods_stats_t::zeichnen(koord offset)
 		display_proportional_clip(offset.x + 14, yoff,	buf, ALIGN_LEFT, COL_BLACK, true);
 
 		// Massively cleaned up by neroden, June 2013
-		sint64 revenue = wtyp->get_fare_with_speedbonus(welt, relative_speed_percentage, distance_meters);
+		sint64 revenue = wtyp->get_fare_with_speedbonus(relative_speed_percentage, distance_meters);
 		sint64 price = revenue;
 
 		sint64 relevant_speed = ( welt->get_average_speed(way_type) * (relative_speed_percentage + 100) ) / 100;
@@ -179,7 +179,7 @@ void goods_stats_t::zeichnen(koord offset)
 		display_proportional_clip(offset.x + 170, yoff, buf, 	ALIGN_RIGHT, 	COL_BLACK, true);
 
 		buf.clear();
-		buf.printf("%d%%", wtyp->get_speed_bonus());
+		buf.printf("%d%%", wtyp->get_adjusted_speed_bonus(distance_meters));
 		display_proportional_clip(offset.x + 205, yoff, buf, ALIGN_RIGHT, COL_BLACK, true);
 
 		buf.clear();

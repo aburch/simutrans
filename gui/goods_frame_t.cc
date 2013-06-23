@@ -60,7 +60,7 @@ goods_frame_t::sort_mode_t goods_frame_t::sortby = unsortiert;
  */
 bool goods_frame_t::sortreverse = false;
 
-sint32 goods_frame_t::distance_meters = 1000;
+uint32 goods_frame_t::distance_meters = 1000;
 uint16 goods_frame_t::distance = 1;
 uint8 goods_frame_t::comfort = 50;
 uint8 goods_frame_t::catering_level = 0;
@@ -241,7 +241,7 @@ bool goods_frame_t::compare_goods(uint16 const a, uint16 const b)
 				sint32 price[2];
 				for(uint8 i = 0; i < 2; i ++)
 				{
-					const sint64 revenue = w[i]->get_fare_with_speedbonus(welt, relative_speed_percentage, distance_meters);
+					const sint64 revenue = w[i]->get_fare_with_speedbonus(relative_speed_percentage, distance_meters);
 					price[i] = revenue;
 
 					sint64 relevant_speed = ( welt->get_average_speed(wtype) * (relative_speed_percentage + 100) ) / 100;
@@ -327,7 +327,7 @@ bool goods_frame_t::compare_goods(uint16 const a, uint16 const b)
 			}
 			break;
 		case 3: // sort by speed bonus
-			order = w[1]->get_speed_bonus()-w[0]->get_speed_bonus();
+			order = w[1]->get_adjusted_speed_bonus(distance_meters) - w[0]->get_adjusted_speed_bonus(distance_meters);
 			break;
 		case 4: // sort by catg_index
 			order = w[1]->get_catg()-w[0]->get_catg();

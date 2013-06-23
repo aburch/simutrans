@@ -2512,6 +2512,8 @@ void settings_t::set_scale()
 		turntable_reverse_time = (uint32)seconds_to_ticks(turntable_reverse_time_seconds, meters_per_tile);
 	}
 }
+
+
 /**
  * Reload the linear interpolation tables for catering from the settings.
  * @author neroden
@@ -2553,4 +2555,43 @@ void settings_t::cache_catering_revenues() {
 			catering_revenues[i].insert(catering_level5_minutes * 10, (sint64)catering_level5_max_revenue * 1000);
 		}
 	}
+}
+
+/**
+ * Reload the linear interpolation tables for speedbonus from the settings.
+ * These tables are stored directly in ware_besch_t objects.
+ * Therefore, during loading you must call this *after* warenbauer_t is done registering wares.
+ * @author neroden
+ */
+void settings_t::cache_speedbonuses() {
+	// There is one speedbonus table for each good, so defer most of the work
+	// to warenbauer_t.
+
+	// Sanity-check the settings, and fix them if they're broken.
+	if (median_bonus_distance) {
+		if (min_bonus_max_distance > median_bonus_distance) {
+			min_bonus_max_distance = median_bonus_distance;
+		}
+		if (max_bonus_min_distance < median_bonus_distance) {
+			max_bonus_min_distance = median_bonus_distance;
+		}
+	}
+	else {
+		// median_bonus_distance == 0
+		if (max_bonus_min_distance < min_bonus_max_distance) {
+			min_bonus_max_distance = max_bonus_min_distance;
+		}
+	}
+	if (max_bonus_multiplier_percent < 100) {
+		max_bonus_multiplier_percent = 100;
+	}
+
+	// Convert distances to meters.
+	uint32 min_d = (uint32) 1000 * min_bonus_max_distance;
+	uint32 med_d = (uint32) 1000 * median_bonus_distance;
+	uint32 max_d = (uint32) 1000 * max_bonus_min_distance;
+	uint16 multiplier = (uint16) max_bonus_multiplier_percent;
+
+	// Do the work.
+	warenbauer_t::cache_speedbonuses(min_d, med_d, max_d, multiplier);
 }

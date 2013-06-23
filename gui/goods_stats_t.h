@@ -29,7 +29,7 @@ private:
 	int relative_speed_percentage;
 	uint8 comfort;
 	uint8 catering_level;
-	uint16 distance_meters;
+	uint32 distance_meters;
 	waytype_t way_type;
 
 	// The number of goods to be displayed. May be less than maximum number of goods possible,
@@ -40,7 +40,7 @@ public:
 	goods_stats_t( karte_t *welt );
 
 	// update list and resize
-	void update_goodslist(uint16 *g, int relative_speed_percentage, int listed_goods, sint32 distance, uint8 comfort, uint8 catering, waytype_t waytype);
+	void update_goodslist(uint16 *g, int relative_speed_percentage, int listed_goods, uint32 distance, uint8 comfort, uint8 catering, waytype_t waytype);
 
 	/**
 	* Draw the component

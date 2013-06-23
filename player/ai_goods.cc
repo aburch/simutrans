@@ -857,11 +857,12 @@ void ai_goods_t::step()
 			 * a suitable car (and engine)
 			 * a suitable weg
 			 */
-			uint32 dist = koord_distance( start->get_pos(), ziel->get_pos() );
+			const uint32 dist = koord_distance( start->get_pos(), ziel->get_pos() );
+			const uint32 distance_meters = dist * welt->get_settings().get_meters_per_tile();
 
 			// guess the "optimum" speed (usually a little too low)
 			sint32 best_rail_speed = 80;// is ok enough for goods, was: min(60+freight->get_speed_bonus()*5, 140 );
-			sint32 best_road_speed = min(60+freight->get_speed_bonus()*5, 130 );
+			sint32 best_road_speed = min(60+freight->get_adjusted_speed_bonus(distance_meters)*5, 130 );
 
 			INT_CHECK("simplay 1265");
 
@@ -980,8 +981,7 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 				// Guess that average speed is half of "best" speed
 				const uint32 average_speed = best_rail_speed / 2;
 				const sint64 relative_speed_percentage = (100ll * average_speed) / ref_speed - 100ll;
-				const uint32 distance_meters = dist * welt->get_settings().get_meters_per_tile();
-				const sint64 freight_revenue_per_trip = freight->get_fare_with_speedbonus(welt, relative_speed_percentage, distance_meters) * rail_vehicle->get_zuladung() * count_rail / 3000;
+				const sint64 freight_revenue_per_trip = freight->get_fare_with_speedbonus(relative_speed_percentage, distance_meters) * rail_vehicle->get_zuladung() * count_rail / 3000;
 				const sint64 freight_cost_per_trip
 				  = ( (sint64) rail_vehicle->get_running_cost(welt) * count_rail
 					  + rail_engine->get_running_cost(welt)
@@ -1003,8 +1003,7 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 				// Guess that average speed is half of "best" speed
 				const uint32 average_speed = best_road_speed / 2;
 				const sint64 relative_speed_percentage = (100ll * average_speed) / ref_speed - 100ll;
-				const uint32 distance_meters = dist * welt->get_settings().get_meters_per_tile();
-				const sint64 freight_revenue_per_trip = freight->get_fare_with_speedbonus(welt, relative_speed_percentage, distance_meters) * road_vehicle->get_zuladung() * count_road / 3000;
+				const sint64 freight_revenue_per_trip = freight->get_fare_with_speedbonus(relative_speed_percentage, distance_meters) * road_vehicle->get_zuladung() * count_road / 3000;
 				const sint64 freight_cost_per_trip
 				  = ( (sint64) road_vehicle->get_running_cost(welt) * count_road
 				    )

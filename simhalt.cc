@@ -1092,7 +1092,7 @@ void haltestelle_t::step()
 
 				if(tmp.get_besch()->get_speed_bonus() > 0u)
 				{
-					// Only consider for discarding if the goods care about their timings.
+					// Only consider for discarding if the goods (ever) care about their timings.
 					// Use 32-bit math; it's very easy to overflow 16 bits.
 					const uint32 max_wait = welt->get_settings().get_passenger_max_wait();
 					const uint32 max_wait_minutes = max_wait / tmp.get_besch()->get_speed_bonus();
@@ -1144,7 +1144,7 @@ void haltestelle_t::step()
 							const uint16 distance = shortest_distance(get_basis_pos(), tmp.get_origin()->get_basis_pos());
 							if(distance > 0) // No point in calculating refund if passengers/goods are discarded from their origin stop.
 							{
-								const sint64 distance_meters = (sint64) distance * welt->get_settings().get_meters_per_tile();
+								const uint32 distance_meters = (uint32) distance * welt->get_settings().get_meters_per_tile();
 								// Refund is approximation: 2x distance at standard rate with no adjustments. 
 								const sint64 refund_amount = (tmp.menge * tmp.get_besch()->get_refund(distance_meters) + 1500) / 3000ll;
 

@@ -77,7 +77,7 @@ public:
 	/*
 	 * Update the cache of speedbonuses by distance
 	 */
-	static void cache_speed_bonuses();
+	static void cache_speedbonuses(uint32 min_d, uint32 med_d, uint32 max_d, uint16 multiplier);
 };
 
 #endif

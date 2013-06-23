@@ -41,7 +41,7 @@ private:
 	// static, so we remember the last settings
 	static int relative_speed_percentage;
 	// Distance in meters
-	static sint32 distance_meters;
+	static uint32 distance_meters;
 	// Distance in km
 	static uint16 distance;
 	static uint8 comfort;

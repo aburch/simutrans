@@ -13,8 +13,6 @@
 #include "warenbauer.h"
 #include "../dataobj/translator.h"
 
-#include "../besch/ware_besch.h"
-
 
 stringhashtable_tpl<const ware_besch_t *> warenbauer_t::besch_names;
 
@@ -207,6 +205,40 @@ void warenbauer_t::set_multiplier(sint32 multiplier, uint16 scale_factor)
 	}
 }
 
-void warenbauer_t::cache_speed_bonuses()
+/*
+ * Set up the linear interpolation tables for speed bonuses.
+ * Takes arguments:
+ * min_bonus_max_distance -- in METERS -- below this, speedbonus is 0
+ * median_bonus_distance -- in METERS -- here the speedbonus is nominal.
+ *  -- if this is zero it is simply omitted.
+ * max_bonus_min_distance -- in METERS -- here the speedbonus reaches its max
+ * multiplier -- multiply by the nominal speedbonus to get the maximum speedbonus
+ */
+void warenbauer_t::cache_speedbonuses(uint32 min_d, uint32 med_d, uint32 max_d, uint16 multiplier)
 {
+	for( unsigned i=0;  i<get_waren_anzahl();  i++ )
+	{
+		uint16 base_speedbonus = waren[i]->get_speed_bonus();
+		if (base_speedbonus == 0) {
+			// Special case.  Keep it simple!
+			waren[i]->adjusted_speed_bonus.clear(1);
+			waren[i]->adjusted_speed_bonus.insert(0,0);
+		}
+		else if (med_d == 0) {
+			// This means there isn't really a median_bonus_distance
+			waren[i]->adjusted_speed_bonus.clear(2);
+			waren[i]->adjusted_speed_bonus.insert( min_d, 0 );
+			waren[i]->adjusted_speed_bonus.insert( max_d, multiplier * base_speedbonus );
+			// note that min=max will get you a constant speedbonus of multiplier * base
+		}
+		else {
+			waren[i]->adjusted_speed_bonus.clear(3);
+			waren[i]->adjusted_speed_bonus.insert( min_d, 0 );
+			waren[i]->adjusted_speed_bonus.insert( med_d, base_speedbonus );
+			waren[i]->adjusted_speed_bonus.insert( max_d, multiplier * base_speedbonus );
+			// note that median = min will fade from base to multiplier * base, never zero
+			// note that median = max will fade from 0 to multiplier * max
+			// note that min = median = max will get you a constant speedbonus of multiplier * base
+		}
+	}
 }

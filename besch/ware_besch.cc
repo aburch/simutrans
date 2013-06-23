@@ -50,84 +50,6 @@ const char * ware_besch_t::get_catg_name() const
 	return catg_names[catg & 31];
 }
 
-/**
- * Given the "normal" speed bonus and a distance (in METERS)
- * calculate the adjusted speed bonus.
- * There are several special effects at work here:
- * Speed bonus "phases in" above a certain distance before reaching its maximum
- * at a certain distance
- *
- * Written by Nathanael Nerode (neroden) based on code by James Petts
- */
-
-// Note that this is the static version -- pure computation
-static uint16 ware_besch_t::get_adjusted_speed_bonus(const karte_t* world, sint32 distance, uint16 base_bonus_rating)
-{
-	sint32 base_bonus_wide = base_bonus_rating;
-
-	sint32 min_distance;
-	sint32 median_distance;
-	sint32 max_distance;
-	sint32 multiplier;
-	if (world) {
-		min_distance = (sint32) 1000 * world->get_settings().get_min_bonus_max_distance();
-		median_distance = (sint32) 1000 * world->get_settings().get_median_bonus_distance();
-		max_distance = (sint32) 1000 * world->get_settings().get_max_bonus_min_distance();
-
-		multiplier = (sint32) world->get_settings().get_max_bonus_multiplier_percent();
-
-		// Sanity checks on values
-		assert (max_distance >= min_distance);
-		if (median_distance) {
-			assert(max_distance >= median_distance);
-			assert(median_distance >= min_distance);
-		}
-		assert(multiplier >= 100);
-	}
-	else { // no world... should rarely happen
-		// default values as used in pak128.britain as of June 2013
-		min_distance = 4000;
-		median_distance = 75000;
-		max_distance = 250000;
-		multiplier = 300;
-	}
-
-	if(distance <= min_distance)
-	{
-		return 0;
-	}
-
-	if(distance >= max_distance)
-	{
-		return (uint16) ( base_bonus_wide * multiplier / 100 );
-	}
-
-	if(median_distance == 0)
-	{
-		// There is no median, so scale evenly.
-		const sint32 percentage = ((distance - min_distance) * 100) / (max_distance - min_distance);
-		assert(percentage >= 0);
-		const sint32 return_figure = ((base_bonus_wide * multiplier) * percentage) / 10000;
-		return (uint16)return_figure;
-	}
-
-	// There is a median, so scale differently each side of the median.
-	if(distance < median_distance)
-	{
-		const sint32 percentage = ((distance - min_distance) * 100) / (median_distance - min_distance);
-		assert(percentage >= 0);
-		const sint32 return_figure =  base_bonus_wide * percentage / 100;
-		return (uint16)return_figure;
-	}
-	else // (distance >= median_distance)
-	{
-		const sint32 percentage = ((distance - median_distance) * 100) / (max_distance - median_distance);
-		assert(percentage >= 0);
-		const sint32 return_figure = base_bonus_wide + (base_bonus_wide * (multiplier - 100) * percentage) / 10000;
-		return (uint16)return_figure;
-	}
-	// Can't get here
-}
 
 /**
  * This is used solely when refunds must be calculated -- hopefully rarely.
@@ -140,8 +62,8 @@ static uint16 ware_besch_t::get_adjusted_speed_bonus(const karte_t* world, sint3
  * The approximation is chosen to be 2x the base fare ("no speedbonus") for the minimum distance.
  * This is in the same units as get_fare_with_speedbonus.
  */
-sint64 ware_besch_t::get_refund(sint32 distance_meters) const
+sint64 ware_besch_t::get_refund(uint32 distance_meters) const
 {
- 	sint64 fare = get_fare(distance_meters, 0);
+ 	sint64 fare = get_fare(distance_meters);
 	return fare * 2;
 }

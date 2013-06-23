@@ -864,7 +864,7 @@ vehikel_t::unload_freight(halthandle_t halt, sint64 & revenue_from_unloading, ar
 							// especially in online games, where joining one player's network to another might lead to a large
 							// influx of passengers which one of the networks cannot cope with.
 							const uint16 distance = shortest_distance(halt->get_basis_pos(), tmp.get_origin()->get_basis_pos());
-							const sint64 distance_meters = (sint64) distance * welt->get_settings().get_meters_per_tile();
+							const uint32 distance_meters = (uint32) distance * welt->get_settings().get_meters_per_tile();
 							// Refund is approximation.
 							const sint64 refund_amount = (tmp.menge * tmp.get_besch()->get_refund(distance_meters) + 1500ll) / 3000ll;
 

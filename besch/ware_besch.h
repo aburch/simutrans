@@ -12,10 +12,16 @@
 #include "../simcolor.h"
 #include "../utils/checksum.h"
 #include "../tpl/vector_tpl.h"
+#include "../tpl/piecewise_linear_tpl.h"
 // Simworld is for adjusted speed bonus
 #include "../simworld.h"
 
 class checksum_t;
+
+// This has to have internal computations in uint64 to avoid internal computational overflow
+// in worst-case scenario.
+// distance: uint32, speedbonus: uint16, computation: uint64
+typedef piecewise_linear_tpl<uint32, uint16, uint64> adjusted_speed_bonus_t;
 
 struct fare_stage_t
 {
@@ -51,6 +57,8 @@ class ware_besch_t : public obj_besch_std_name_t {
 	vector_tpl<fare_stage_t> values;
 	vector_tpl<fare_stage_t> base_values;
 	vector_tpl<fare_stage_t> scaled_values;
+
+	adjusted_speed_bonus_t adjusted_speed_bonus;
 
 	/**
 	* Category of the good
@@ -164,11 +172,11 @@ public:
 	 * This is very different from the similarly-named routine in standard
 	 * @author: jamespetts, neroden
 	 */
-	sint64 get_fare(sint32 distance_meters, sint32 starting_distance = 0) const
+	sint64 get_fare(uint32 distance_meters, uint32 starting_distance = 0) const
 	{
 		sint64 total_fare = 0;
 		uint16 per_tile_fare;
-		sint32 remaining_distance = distance_meters;
+		uint32 remaining_distance = distance_meters;
 		ITERATE(scaled_values, i)
 		{
 			per_tile_fare = scaled_values[i].price;
@@ -198,7 +206,7 @@ public:
 	{
 		scaled_values.clear();
 		uint16 new_price;
-		sint32 new_distance;
+		uint32 new_distance;
 		ITERATE(values, i)
 		{
 			// There are two things going on here:
@@ -257,17 +265,11 @@ public:
 	 * This returns the actual speed bonus rating.
 	 * Distance is given in METERS
 	 *
-	 * Static version takes speed bonus rating as argument
-	 * ... and is defined in the C file
 	 */
-	static uint16 get_adjusted_speed_bonus(const karte_t* w, sint32 distance, uint16 base_bonus_rating);
-
-	/**
-	 * Non-static version uses our speed bonus
-	 */
-	uint16 get_adjusted_speed_bonus(const karte_t* w, sint32 distance) const
+	uint16 get_adjusted_speed_bonus(uint32 distance) const
 	{
-		return ware_besch_t::get_adjusted_speed_bonus(w, distance, get_speed_bonus() );
+		// Use the functional... it should be loaded by warenbauer_t::cache_speedbonuses
+		return adjusted_speed_bonus(distance);
 	}
 
 	/**
@@ -280,10 +282,8 @@ public:
 	 * See above for how this is defined; it is always a percent, with no greater
 	 * precision than that.  (Consider changing this.)
 	 * It will stay in the range of a sint16 unless the pak is completely broken.
-	 *
-	 * For technical reasons, several of these take the world as an argument.
 	 */
-	sint64 get_fare_with_speedbonus(const karte_t* w, sint16 relative_speed_percentage, sint32 distance_meters, sint32 starting_distance = 0) const
+	sint64 get_fare_with_speedbonus(sint16 relative_speed_percentage, uint32 distance_meters, uint32 starting_distance = 0) const
 	{
 		sint64 base_fare = get_fare(distance_meters, starting_distance);
 			// We must be able to multiply by, say, 2^16;
@@ -294,7 +294,7 @@ public:
 			// If the assertion fails, we can't safely multiply by 4 * 1024.
 		sint64 min_fare = base_fare / 4ll; // minimum fare is 1/4 base
 		sint64 max_fare = base_fare * 4ll; // maximum fare is 4 * base
-		sint64 speed_bonus_rating = get_adjusted_speed_bonus(w, distance_meters);
+		sint64 speed_bonus_rating = get_adjusted_speed_bonus(distance_meters);
 		// Recall the screwy definition of the speed_bonus_rating from above.
 		// Given a percentage of 1 and a speed bonus rating of 1, we increase revenue by 1/1000.
 		// Percentage may be as high as 1000, bonus rating as high as 50...
@@ -313,7 +313,7 @@ public:
 	 *
 	 * Hopefully called rarely!
 	 */
-	sint64 get_refund(sint32 distance_meters) const;
+	sint64 get_refund(uint32 distance_meters) const;
 };
 
 #endif
