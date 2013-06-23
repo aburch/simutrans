@@ -81,13 +81,14 @@ public:
 	/*
 	 * Clear the table, don't resize it.
 	 */
-	clear() {
+	void clear() {
 		vec.clear();
 	}
 	/*
 	 * Clear the table, resize to new size.
 	 */
-	clear(uint32 my_size) {
+	void clear(uint32 my_size) {
+		clear();
 		vec.resize(my_size);
 	}
 	/*
