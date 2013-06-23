@@ -355,6 +355,13 @@ settings_t::settings_t() :
 	catering_level5_minutes = 300;
 	catering_level5_max_revenue = 475;
 
+	// Fill the blank catering revenue tables.
+	// There are exactly six of these tables (hence the use of a fixed array).
+	// The actual tables have only a little inline data (one pointer, two numbers).
+	// The tables are constructed automatically with no data by the C++ compiler.
+	// This will load them...
+	cache_catering_revenues();
+
 	tpo_min_minutes = 120;
 	tpo_revenue = 300;
 
@@ -981,6 +988,10 @@ void settings_t::rdwr(loadsave_t *file)
 				file->rdwr_short(catering_level4_max_revenue);
 				file->rdwr_short(catering_level5_minutes);
 				file->rdwr_short(catering_level5_max_revenue);
+				// Nathanael: question whether this belongs in the save file.  Probably not.
+				if ( file->is_loading() ) {
+					cache_catering_revenues();
+				}
 
 				file->rdwr_short(tpo_min_minutes);
 				file->rdwr_short(tpo_revenue);
@@ -1950,6 +1961,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	catering_level4_max_revenue = contents.get_int("catering_level4_max_revenue", catering_level4_max_revenue);
 	catering_level5_minutes = contents.get_int("catering_level5_minutes", catering_level5_minutes);
 	catering_level5_max_revenue = contents.get_int("catering_level5_max_revenue", catering_level5_max_revenue);
+	cache_catering_revenues();
 
 	tpo_min_minutes = contents.get_int("tpo_min_minutes", tpo_min_minutes);
 	tpo_revenue = contents.get_int("tpo_revenue", tpo_revenue);
@@ -2472,5 +2484,43 @@ void settings_t::set_scale()
 	if(turntable_reverse_time_seconds < 65535)
 	{
 		turntable_reverse_time = (uint32)seconds_to_ticks(turntable_reverse_time_seconds, meters_per_tile);
+	}
+}
+/**
+ * Reload the linear interpolation tables for catering from the settings.
+ * @author neroden
+ */
+void settings_t::cache_catering_revenues() {
+	// There is one catering revenue table for each catering level.
+	// Catering levels go up to 5.
+	//
+	// We *do* keep a table for catering level 0; this avoids some funny math.
+	// (The catering level 0 table has only the one entry.)
+	// The memory overhead is small enough that it's worth doing this "cleanly".
+	//
+	// This is an expensive operation but is normally done once per game -- unless
+	// someone is tweaking the settings at runtime using the dialog boxes.
+	for (int i = 0; i<= 5; i++) {
+		// Clear table, and reset table size to "correct" value (we know how large it needs to be)
+		catering_revenues[i].clear(i + 1);
+		// Why don't we use a fall-through case statement (you ask)?
+		// Because the way the interpolation tables are written, that would involve
+		// lots of copying memory to relocate entries.  This enters data from left to right.
+		catering_revenues[i].insert(catering_min_minutes, 0);
+		if (i >= 1) {
+			catering_revenues[i].insert(catering_level1_minutes, catering_level1_max_revenue);
+		}
+		if (i >= 2) {
+			catering_revenues[i].insert(catering_level2_minutes, catering_level2_max_revenue);
+		}
+		if (i >= 3) {
+			catering_revenues[i].insert(catering_level3_minutes, catering_level3_max_revenue);
+		}
+		if (i >= 4) {
+			catering_revenues[i].insert(catering_level4_minutes, catering_level4_max_revenue);
+		}
+		if (i >= 5) {
+			catering_revenues[i].insert(catering_level5_minutes, catering_level5_max_revenue);
+		}
 	}
 }

@@ -6,6 +6,7 @@
 #include "../simconst.h"
 #include "../simunits.h"
 #include "livery_scheme.h"
+#include "../tpl/piecewise_linear_tpl.h" // for various revenue tables
 
 /**
  * Spieleinstellungen
@@ -27,6 +28,9 @@ struct road_timeline_t
 	uint16 intro;
 	uint16 retire;
 };
+
+// For the catering revenue tables.
+typedef piecewise_linear_tpl<uint16, sint64> catering_table_t;
 
 template <class T>
 class vector_with_ptr_ownership_tpl : public vector_tpl<T*> 
@@ -360,6 +364,12 @@ public:
 	uint16 catering_level4_max_revenue;
 	uint16 catering_level5_minutes;
 	uint16 catering_level5_max_revenue;
+
+	// @author: neroden
+	// Tables 0 through 5 for catering revenue.
+	// One for each level -- so there are 6 of them total.
+	// Dontcha hate C array declaration style?
+	catering_table_t catering_revenues[6];
 
 	uint16 tpo_min_minutes;
 	uint16 tpo_revenue;
@@ -749,33 +759,35 @@ public:
 	void   set_max_discomfort_penalty_differential(uint8 value) { max_discomfort_penalty_differential = value; }
 
 	uint16 get_catering_min_minutes() const { return catering_min_minutes; }
-	void   set_catering_min_minutes(uint16 value) { catering_min_minutes = value; }
+	void   set_catering_min_minutes(uint16 value) { catering_min_minutes = value; cache_catering_revenues(); }
 
 	uint16 get_catering_level1_minutes() const { return catering_level1_minutes; }
-	void   set_catering_level1_minutes(uint16 value) { catering_level1_minutes = value; }
+	void   set_catering_level1_minutes(uint16 value) { catering_level1_minutes = value; cache_catering_revenues(); }
 	uint16 get_catering_level1_max_revenue() const { return catering_level1_max_revenue; }
-	void   set_catering_level1_max_revenue(uint16 value) { catering_level1_max_revenue = value; }
+	void   set_catering_level1_max_revenue(uint16 value) { catering_level1_max_revenue = value; cache_catering_revenues(); }
 
 	uint16 get_catering_level2_minutes() const { return catering_level2_minutes; }
-	void   set_catering_level2_minutes(uint16 value) { catering_level2_minutes = value; }
+	void   set_catering_level2_minutes(uint16 value) { catering_level2_minutes = value; cache_catering_revenues(); }
 	uint16 get_catering_level2_max_revenue() const { return catering_level2_max_revenue; }
-	void   set_catering_level2_max_revenue(uint16 value) { catering_level2_max_revenue = value; }
+	void   set_catering_level2_max_revenue(uint16 value) { catering_level2_max_revenue = value; cache_catering_revenues(); }
 
 	uint16 get_catering_level3_minutes() const { return catering_level3_minutes; }
-	void   set_catering_level3_minutes(uint16 value) { catering_level3_minutes = value; }
+	void   set_catering_level3_minutes(uint16 value) { catering_level3_minutes = value; cache_catering_revenues(); }
 	uint16 get_catering_level3_max_revenue() const { return catering_level3_max_revenue; }
-	void   set_catering_level3_max_revenue(uint16 value) { catering_level3_max_revenue = value; }
+	void   set_catering_level3_max_revenue(uint16 value) { catering_level3_max_revenue = value; cache_catering_revenues(); }
 
 	uint16 get_catering_level4_minutes() const { return catering_level4_minutes; }
-	void   set_catering_level4_minutes(uint16 value) { catering_level4_minutes = value; }
+	void   set_catering_level4_minutes(uint16 value) { catering_level4_minutes = value; cache_catering_revenues(); }
 	uint16 get_catering_level4_max_revenue() const { return catering_level4_max_revenue; }
-	void   set_catering_level4_max_revenue(uint16 value) { catering_level4_max_revenue = value; }
+	void   set_catering_level4_max_revenue(uint16 value) { catering_level4_max_revenue = value; cache_catering_revenues(); }
 
 	uint16 get_catering_level5_minutes() const { return catering_level5_minutes; }
-	void   set_catering_level5_minutes(uint16 value) { catering_level5_minutes = value; }
+	void   set_catering_level5_minutes(uint16 value) { catering_level5_minutes = value; cache_catering_revenues(); }
 	uint16 get_catering_level5_max_revenue() const { return catering_level5_max_revenue; }
-	void   set_catering_level5_max_revenue(uint16 value) { catering_level5_max_revenue = value; }
-	
+	void   set_catering_level5_max_revenue(uint16 value) { catering_level5_max_revenue = value; cache_catering_revenues(); }
+
+	void   cache_catering_revenues(); // Cache the list of values above in piecewise-linear functions.
+
 	uint16 get_tpo_min_minutes() const { return tpo_min_minutes; }
 	void   set_tpo_min_minutes(uint16 value) { tpo_min_minutes = value; }
 	uint16 get_tpo_revenue() const { return tpo_revenue; }
