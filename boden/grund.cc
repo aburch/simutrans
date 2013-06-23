@@ -910,7 +910,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 	if(bild==IMG_LEER) {
 		// only check for forced redraw (of marked ... )
 		if(dirty) {
-			mark_rect_dirty_wc( xpos, ypos+raster_tile_width/2, xpos+raster_tile_width-1, ypos+raster_tile_width-1 );
+			mark_rect_dirty_clip( xpos, ypos + raster_tile_width / 2, xpos + raster_tile_width - 1, ypos + raster_tile_width - 1 );
 		}
 	}
 	else {
