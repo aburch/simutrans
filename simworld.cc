@@ -3105,18 +3105,24 @@ bool karte_t::rem_fab(fabrik_t *fab)
 	// now all the interwoven connections must be cleared
 	koord pos = fab->get_pos().get_2d();
 	planquadrat_t* plan = access(pos);
-	if(plan) {
-
+	if(plan)
+	{
 		// we need a copy, since the verbinde fabriken is modifying the list
 		halthandle_t list[48];
 		const uint8 count = plan->get_haltlist_count();
 		assert(count<48);
 		memcpy( list, plan->get_haltlist(), count*sizeof(nearby_halt_t) );
-		for( uint8 i=0;  i<count;  i++  ) {
+		halthandle_t halt;
+		for( uint8 i=0;  i<count;  i++  )
+		{
+			halt = list[i];
 			// first remove all the tiles that do not connect
-			plan->remove_from_haltlist( this, list[i] );
+			plan->remove_from_haltlist( this, halt );
 			// then reconnect
-			list[i]->verbinde_fabriken();
+			if(halt.is_bound())
+			{
+				halt->verbinde_fabriken();
+			}
 		}
 
 		// remove all links to cities
