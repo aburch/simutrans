@@ -2582,9 +2582,7 @@ void settings_t::cache_speedbonuses() {
 			min_bonus_max_distance = max_bonus_min_distance;
 		}
 	}
-	if (max_bonus_multiplier_percent < 100) {
-		max_bonus_multiplier_percent = 100;
-	}
+	// Allow bonus multipliers to reduce value for a "peak" effect
 
 	// Convert distances to meters.
 	uint32 min_d = (uint32) 1000 * min_bonus_max_distance;
