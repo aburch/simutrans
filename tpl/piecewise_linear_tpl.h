@@ -79,6 +79,18 @@ public:
 	{
 	}
 	/*
+	 * Clear the table, don't resize it.
+	 */
+	clear() {
+		vec.clear();
+	}
+	/*
+	 * Clear the table, resize to new size.
+	 */
+	clear(uint32 my_size) {
+		vec.resize(my_size);
+	}
+	/*
 	 * We do not define the "big three"
 	 * (copy constructor, assignment operator, destructor)
 	 * as we expect vector_tpl to take care of the
@@ -141,6 +153,14 @@ public:
 	value_t compute_linear_interpolation(key_t target) const {
 		// This is nonsense if there are no entries
 		assert(vec.get_count() > 0);
+		if (vec.get_count() == 1) {
+			// If there's only one entry, avoid the comparison code;
+			// the regular algorithm will work but it's a bit slow.
+			// And we have to get the count for the binary search anyway.
+			// This degenerate case is likely to happen for paksets which
+			// choose not to implement some of the fancy options, so make it fast.
+			return vec[0].value;
+		}
 		// Find the entry equal to or next larger than the target.
 		const uint32 right = binary_search(target);
 		if ( right == 0 ) {
