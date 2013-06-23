@@ -924,16 +924,24 @@ void settings_t::rdwr(loadsave_t *file)
 
 		if(file->get_experimental_version() >= 1)
 		{
-			uint16 min_b_max_tiles;
-			uint16 max_b_min_tiles;
-			uint16 median_b_tiles = 0;
-
-			// For some reason (network mode?) these are recorded in the save file,
-			// in *tiles*.  There is a possibility of roundoff errors.
-			uint16 min_b_max_tiles = (sint32) min_bonus_max_distance * 1000 / meters_per_tile;
-			file->rdwr_short(min_b_max_tiles);
-			uint16 max_b_min_tiles = (sint32) max_bonus_min_distance * 1000 / meters_per_tile;
-			file->rdwr_short(max_b_min_tiles);
+			uint16 min_b_max;
+			uint16 max_b_min;
+			uint16 median_b = 0;
+			// Consider not saving this for version 12 and beyond. -- neroden
+			if (file->get_experimental_version() >= 6 && file->get_experimental_version() <= 11) {
+				// These were in tiles.
+				min_b_max = (sint32) min_bonus_max_distance * 1000 / meters_per_tile;
+				min_b_max = (sint32) median_bonus_distance * 1000 / meters_per_tile;
+				max_b_min = (sint32) max_bonus_min_distance * 1000 / meters_per_tile;
+			}
+			else {
+				// These were in kilometers.
+				min_b_max = min_bonus_max_distance;
+				median_b = median_bonus_distance;
+				max_b_min = max_bonus_min_distance;
+			}
+			file->rdwr_short(min_b_max);
+			file->rdwr_short(max_b_min);
 
 			if(file->get_experimental_version() == 1)
 			{
@@ -942,10 +950,7 @@ void settings_t::rdwr(loadsave_t *file)
 			}
 			else
 			{
-				// For some reason (network mode?) these are recorded in the save file,
-				// in *tiles*.  There is a possibility of roundoff errors.
-				uint16 median_b_tiles = (sint32) median_bonus_distance * 1000 / meters_per_tile;
-				file->rdwr_short(median_b_tiles);
+				file->rdwr_short(median_b);
 
 				file->rdwr_short(max_bonus_multiplier_percent);
 				if(file->get_experimental_version() <= 9)
@@ -974,7 +979,7 @@ void settings_t::rdwr(loadsave_t *file)
 					file->rdwr_short(mpt);
 					set_meters_per_tile(mpt);
 				}
-				
+
 				file->rdwr_byte(tolerable_comfort_short);
 				file->rdwr_byte(tolerable_comfort_median_short);
 				file->rdwr_byte(tolerable_comfort_median_median);
@@ -1010,18 +1015,18 @@ void settings_t::rdwr(loadsave_t *file)
 				file->rdwr_short(tpo_revenue);
 			}
 
-			if (file->get_experimental_version() < 6) {
-				// Consider not loading this at all --neroden
-				// Entry was actually saved as number of tiles...
-				min_bonus_max_distance = (sint32) min_b_max_tiles * meters_per_tile / 1000;
-				max_bonus_min_distance = (sint32) max_b_min_tiles * meters_per_tile / 1000;
-				median_bonus_distance = (sint32) median_b_tiles * meters_per_tile / 1000;
+			// Consider not loading these at all --neroden
+			if (file->get_experimental_version() >= 6 && file->get_experimental_version() <= 11) {
+				// These were in tiles.
+				min_bonus_max_distance = (sint32) min_b_max * meters_per_tile / 1000;
+				max_bonus_min_distance = (sint32) max_b_min * meters_per_tile / 1000;
+				median_bonus_distance = (sint32) median_b * meters_per_tile / 1000;
 			}
 			else {
-				// Consider not loading this at all --neroden
-				min_bonus_max_distance = (sint32) min_b_max_tiles * meters_per_tile / 1000;
-				max_bonus_min_distance = (sint32) max_b_min_tiles * meters_per_tile / 1000;
-				median_bonus_distance = (sint32) median_b_tiles * meters_per_tile / 1000;
+				// Old version and new version.  Interpret these as being in kilometers to start with.
+				min_bonus_max_distance = min_b_max;
+				max_bonus_min_distance = max_b_min;
+				median_bonus_distance = median_b;
 			}
 
 			if(file->get_experimental_version() < 6)
