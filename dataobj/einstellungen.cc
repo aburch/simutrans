@@ -328,6 +328,7 @@ settings_t::settings_t() :
 	median_bonus_distance = 0;
 	max_bonus_multiplier_percent = 300;
 	set_meters_per_tile(250);
+
 	tolerable_comfort_short = 15;
 	tolerable_comfort_median_short = 60;
 	tolerable_comfort_median_median = 100;
@@ -342,6 +343,7 @@ settings_t::settings_t() :
 	max_luxury_bonus_percent = 50;
 	max_discomfort_penalty_differential = 200;
 	max_discomfort_penalty_percent = 95;
+	cache_comfort_tables();
 
 	catering_min_minutes = 60;
 	catering_level1_minutes = 90;
@@ -1008,6 +1010,7 @@ void settings_t::rdwr(loadsave_t *file)
 				file->rdwr_short(catering_level5_max_revenue);
 				// Nathanael: question whether this belongs in the save file.  Probably not.
 				if ( file->is_loading() ) {
+					cache_comfort_tables();
 					cache_catering_revenues();
 				}
 
@@ -1975,6 +1978,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	max_discomfort_penalty_differential = contents.get_int("max_discomfort_penalty_differential", max_discomfort_penalty_differential);
 	max_luxury_bonus_percent = contents.get_int("max_luxury_bonus_percent", max_luxury_bonus_percent);
 	max_discomfort_penalty_percent = contents.get_int("max_discomfort_penalty_percent", max_discomfort_penalty_percent);
+	cache_comfort_tables();
 
 	catering_min_minutes = contents.get_int("catering_min_minutes", catering_min_minutes);
 	catering_level1_minutes = contents.get_int("catering_level1_minutes", catering_level1_minutes);
@@ -2555,6 +2559,21 @@ void settings_t::cache_catering_revenues() {
 			catering_revenues[i].insert(catering_level5_minutes * 10, (sint64)catering_level5_max_revenue * 1000);
 		}
 	}
+}
+
+
+/**
+ * Reload the linear interpolation tables for comfort from the settings.
+ * @author neroden
+ */
+void settings_t::cache_comfort_tables() {
+	// Tolerable comfort table is indexed in TENTHS of minutes
+	tolerable_comfort.clear(5);
+	tolerable_comfort.insert(tolerable_comfort_short_minutes * 10, tolerable_comfort_short);
+	tolerable_comfort.insert(tolerable_comfort_median_short_minutes * 10, tolerable_comfort_median_short);
+	tolerable_comfort.insert(tolerable_comfort_median_median_minutes * 10, tolerable_comfort_median_median);
+	tolerable_comfort.insert(tolerable_comfort_median_long_minutes * 10, tolerable_comfort_median_long);
+	tolerable_comfort.insert(tolerable_comfort_long_minutes * 10, tolerable_comfort_long);
 }
 
 /**

@@ -89,10 +89,11 @@ void goods_stats_t::zeichnen(koord offset)
 		const uint16 journey_tenths = (uint16) tenths_from_meters_and_kmh(distance_meters, relevant_speed);
 		const uint16 journey_minutes = (uint16) minutes_from_meters_and_kmh(distance_meters, relevant_speed);
 
-		if(wtyp->get_catg_index() < 1)
+		if(wtyp == warenbauer_t::passagiere)
 		{
 			//Passengers care about their comfort
-			const uint8 tolerable_comfort = convoi_t::calc_tolerable_comfort(journey_minutes, welt);
+			tolerable_comfort_table_t& tolerable = welt->get_settings().tolerable_comfort;
+		    const uint8 tolerable_comfort = tolerable(journey_tenths);
 
 			// Comfort matters more the longer the journey.
 			// @author: jamespetts, March 2010
@@ -146,14 +147,13 @@ void goods_stats_t::zeichnen(koord offset)
 					price -= (revenue * (multiplier * proportion)) / 10000ll;
 				}
 			}
-		
-			// Do nothing if comfort == tolerable_comfort			
+			// Do nothing if comfort == tolerable_comfort
 		}
 
 		// Add catering or TPO revenue
 		if(catering_level > 0)
 		{
-			if(wtyp->get_catg_index() == 1)
+			if(wtyp == warenbauer_t::post)
 			{
 				// Mail
 				if(journey_minutes >=welt->get_settings().get_tpo_min_minutes())
@@ -161,7 +161,7 @@ void goods_stats_t::zeichnen(koord offset)
 					price += (sint64)(welt->get_settings().get_tpo_revenue() * 1000);
 				}
 			}
-			else if(wtyp->get_catg_index() == 0)
+			else if(wtyp == warenbauer_t::passagiere)
 			{
 				// Passengers
 				if (catering_level > 5) {

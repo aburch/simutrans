@@ -1350,10 +1350,6 @@ public:
 	 */
 	sint64 calc_revenue(const ware_t &ware, array_tpl<sint64> & apportioned_revenues);
 
-	// @author: jamespetts
-	static uint8 calc_tolerable_comfort(uint16 journey_minutes, karte_t* w);
-	inline uint8 calc_tolerable_comfort(uint16 journey_minutes) { return calc_tolerable_comfort(journey_minutes, welt); }
-
 	// Return maximum tolerable journey time in SECONDS -- not minutes
 	static uint32 calc_max_tolerable_journey_time(uint16 comfort, karte_t* w);
 

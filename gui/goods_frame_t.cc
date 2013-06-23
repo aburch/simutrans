@@ -273,11 +273,11 @@ bool goods_frame_t::compare_goods(uint16 const a, uint16 const b)
 						comfort_modifier = (0.8F * proportion) + 0.2F;
 					}
 
-					if(w[i]->get_catg_index() < 1)
+					if(w[i] == warenbauer_t::passagiere)
 					{
 						//Passengers care about their comfort
-						const uint8 tolerable_comfort = 65;
-
+						tolerable_comfort_table_t& tolerable = welt->get_settings().tolerable_comfort;
+						const uint8 tolerable_comfort = tolerable(journey_tenths);
 						if(comfort > tolerable_comfort)
 						{
 							// Apply luxury bonus
@@ -309,8 +309,8 @@ bool goods_frame_t::compare_goods(uint16 const a, uint16 const b)
 								const float proportion = (float)differential / (float)max_differential;
 						 		price[i] -= revenue * (multiplier * proportion);
 							}
-						}	
-						// Do nothing if comfort == tolerable_comfort			
+						}
+						// Do nothing if comfort == tolerable_comfort
 					}
 				}
 

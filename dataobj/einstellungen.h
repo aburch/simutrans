@@ -30,8 +30,11 @@ struct road_timeline_t
 	uint16 retire;
 };
 
-// For the catering revenue tables.
+// For the catering revenue tables. (minutes to revenue)
 typedef piecewise_linear_tpl<uint16, sint64> catering_table_t;
+// For the tolerable comfort table. (minutes to comfort)
+// third argument is intermediate computation type
+typedef piecewise_linear_tpl<uint16, uint8, uint32> tolerable_comfort_table_t;
 
 template <class T>
 class vector_with_ptr_ownership_tpl : public vector_tpl<T*> 
@@ -355,6 +358,11 @@ public:
 	uint16 tolerable_comfort_median_median_minutes;
 	uint16 tolerable_comfort_median_long_minutes;
 	uint16 tolerable_comfort_long_minutes;
+
+	// @author: neroden
+	// Table for tolerable comfort.
+	tolerable_comfort_table_t tolerable_comfort;
+
 	uint8 max_luxury_bonus_differential;
 	uint8 max_discomfort_penalty_differential;
 	uint16 max_luxury_bonus_percent;
@@ -731,29 +739,17 @@ public:
 //	void   set_distance_per_tile_percent(uint16 value) { meters_per_tile = value * 10; }
 
 	uint8  get_tolerable_comfort_short() const { return tolerable_comfort_short; }
-	void   set_tolerable_comfort_short(uint8 value) { tolerable_comfort_short = value; }
 	uint16 get_tolerable_comfort_short_minutes() const { return tolerable_comfort_short_minutes; }
-	void   set_tolerable_comfort_short_minutes(uint16 value) { tolerable_comfort_short_minutes = value; }
-
 	uint8  get_tolerable_comfort_median_short() const { return tolerable_comfort_median_short; }
-	void   set_tolerable_comfort_median_short(uint8 value) { tolerable_comfort_median_short = value; }
 	uint16 get_tolerable_comfort_median_short_minutes() const { return tolerable_comfort_median_short_minutes; }
-	void   set_tolerable_comfort_median_short_minutes(uint16 value) { tolerable_comfort_median_short_minutes = value; }
-
 	uint8  get_tolerable_comfort_median_median() const { return tolerable_comfort_median_median; }
-	void   set_tolerable_comfort_median_median(uint8 value) { tolerable_comfort_median_median = value; }
 	uint16 get_tolerable_comfort_median_median_minutes() const { return tolerable_comfort_median_median_minutes; }
-	void   set_tolerable_comfort_median_median_minutes(uint16 value) { tolerable_comfort_median_median_minutes = value; }
-
 	uint8  get_tolerable_comfort_median_long() const { return tolerable_comfort_median_long; }
-	void   set_tolerable_comfort_median_long(uint8 value) { tolerable_comfort_median_long = value; }
 	uint16 get_tolerable_comfort_median_long_minutes() const { return tolerable_comfort_median_long_minutes; }
-	void   set_tolerable_comfort_median_long_minutes(uint16 value) { tolerable_comfort_median_long_minutes = value; }
-
 	uint8  get_tolerable_comfort_long() const { return tolerable_comfort_long; }
-	void   set_tolerable_comfort_long(uint8 value) { tolerable_comfort_long = value; }
 	uint16 get_tolerable_comfort_long_minutes() const { return tolerable_comfort_long_minutes; }
-	void   set_tolerable_comfort_long_minutes(uint16 value) { tolerable_comfort_long_minutes = value; }
+	void   cache_comfort_tables(); // Cache the list of values above in piecewise-linear functions.
+
 
 	uint16 get_max_luxury_bonus_percent() const { return max_luxury_bonus_percent; }
 	void   set_max_luxury_bonus_percent(uint16 value) { max_luxury_bonus_percent = value; }

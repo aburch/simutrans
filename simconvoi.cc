@@ -4495,14 +4495,16 @@ sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportione
 	if(final_revenue && ware.is_passenger())
 	{
 		// Comfort
-		//
+		// Grab the tolerable comfort from the settings table
+		tolerable_comfort_table_t& tolerable = welt->get_settings().tolerable_comfort;
+		const uint8 tolerable_comfort = tolerable(journey_tenths);
+
 		// Again, use the average for the line for revenue computation.
 		// (neroden believes we should use the ACTUAL comfort on THIS trip;
 		// although it is "less realistic" it provides faster revenue responsiveness
 		// for the player to improvements in comfort)
-		const uint8 tolerable_comfort = calc_tolerable_comfort(journey_minutes);
 
-		uint8 comfort = 100ll;
+		uint8 comfort = 100;
 		if(line.is_bound())
 		{
 			if(line->get_finance_history(1, LINE_COMFORT) < 1)
@@ -4510,7 +4512,7 @@ sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportione
 				comfort = line->get_finance_history(0, LINE_COMFORT);
 			}
 			else
-			{	
+			{
 				comfort = line->get_finance_history(1, LINE_COMFORT);
 			}
 		}
@@ -4522,11 +4524,11 @@ sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportione
 				comfort = financial_history[0][CONVOI_COMFORT];
 			}
 			else
-			{	
+			{
 				comfort = financial_history[1][CONVOI_COMFORT];
 			}
 		}
-		
+
 		// Comfort matters more the longer the journey.
 		// @author: jamespetts, March 2010
 		sint64 comfort_modifier;
@@ -4637,62 +4639,6 @@ sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportione
 	return final_revenue;
 }
 
-
-uint8 convoi_t::calc_tolerable_comfort(uint16 journey_minutes, karte_t* w) 
-{
-	const uint16 comfort_short_minutes = w->get_settings().get_tolerable_comfort_short_minutes();
-	const uint8 comfort_short = w->get_settings().get_tolerable_comfort_short();
-	if(journey_minutes <= comfort_short_minutes)
-	{
-		return comfort_short;
-	}
-
-	const uint16 comfort_median_short_minutes = w->get_settings().get_tolerable_comfort_median_short_minutes();
-	const uint8 comfort_median_short = w->get_settings().get_tolerable_comfort_median_short();
-	if(journey_minutes == comfort_median_short_minutes)
-	{
-		return comfort_median_short;
-	}
-	if(journey_minutes < comfort_median_short_minutes)
-	{
-		const uint32 percentage = ((journey_minutes - comfort_short_minutes) * 1000) / (comfort_median_short_minutes - comfort_short_minutes);
-		return ((percentage * (comfort_median_short - comfort_short)) / 1000) + comfort_short;
-	}
-
-	const uint16 comfort_median_median_minutes = w->get_settings().get_tolerable_comfort_median_median_minutes();
-	const uint8 comfort_median_median = w->get_settings().get_tolerable_comfort_median_median();
-	if(journey_minutes == comfort_median_median_minutes)
-	{
-		return comfort_median_median;
-	}
-	if(journey_minutes < comfort_median_median_minutes)
-	{
-		const uint32 percentage = ((journey_minutes - comfort_median_short_minutes) * 1000) / (comfort_median_median_minutes - comfort_median_short_minutes);
-		return ((percentage * (comfort_median_median - comfort_median_short)) / 1000) + comfort_median_short;
-	}
-
-	const uint16 comfort_median_long_minutes = w->get_settings().get_tolerable_comfort_median_long_minutes();
-	const uint8 comfort_median_long = w->get_settings().get_tolerable_comfort_median_long();
-	if(journey_minutes == comfort_median_long_minutes)
-	{
-		return comfort_median_long;
-	}
-	if(journey_minutes < comfort_median_long_minutes)
-	{
-		const uint32 percentage = ((journey_minutes - comfort_median_median_minutes) * 1000) / (comfort_median_long_minutes - comfort_median_median_minutes);
-		return ((percentage * (comfort_median_long - comfort_median_median)) / 1000) + comfort_median_median;
-	}
-
-	const uint16 comfort_long_minutes = w->get_settings().get_tolerable_comfort_long_minutes();
-	const uint8 comfort_long = w->get_settings().get_tolerable_comfort_long();
-	if(journey_minutes >= comfort_long_minutes)
-	{
-		return comfort_long;
-	}
-
-	const uint32 percentage = ((journey_minutes - comfort_median_long_minutes) * 1000) / (comfort_long_minutes - comfort_median_long_minutes);
-	return ((percentage * (comfort_long - comfort_median_long)) / 1000) + comfort_median_long;
-}
 
 // Returns SECONDS not minutes
 uint32 convoi_t::calc_max_tolerable_journey_time(uint16 comfort, karte_t* w)

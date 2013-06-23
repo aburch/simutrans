@@ -441,6 +441,7 @@ void settings_experimental_revenue_stats_t::read(settings_t *sets)
 
 	// And convert to the form used in-game...
 	sets->cache_catering_revenues();
+	sets->cache_comfort_tables();
 }
 
 bool settings_general_stats_t::action_triggered(gui_action_creator_t *komp, value_t v)
