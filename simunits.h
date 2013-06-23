@@ -251,13 +251,13 @@ inline sint64 minutes_from_meters_and_kmh(sint64 meters, sint64 kmh) {
 	// so, multiply by 60 and divide by 1000
 	// To save space we reduce fractions: 6/100
 	// But to round correctly, we need to add 1/2 of 100 = 50 before dividing
-	return (meters * 6ll + 50ll) / 100ll;
+	return (meters * 6ll + 50ll) / (kmh * 100ll);
 }
 inline sint64 kmh_from_meters_and_minutes(sint64 meters, sint64 minutes) {
 	// The logic is:
 	// ( (x meters / (1000 m/km) / (y minutes) ) * 60 min/hr
 	// The numbers are the same as minutes_from_meters_and_kmh
-	return (meters * 6ll + 50ll) / 100ll;
+	return (meters * 6ll + 50ll) / (minutes * 100ll);
 }
 
 
