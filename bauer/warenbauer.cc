@@ -228,14 +228,14 @@ void warenbauer_t::cache_speedbonuses(uint32 min_d, uint32 med_d, uint32 max_d, 
 			// This means there isn't really a median_bonus_distance
 			waren[i]->adjusted_speed_bonus.clear(2);
 			waren[i]->adjusted_speed_bonus.insert( min_d, 0 );
-			waren[i]->adjusted_speed_bonus.insert( max_d, multiplier * base_speedbonus );
+			waren[i]->adjusted_speed_bonus.insert( max_d, multiplier * base_speedbonus / 100);
 			// note that min=max will get you a constant speedbonus of multiplier * base
 		}
 		else {
 			waren[i]->adjusted_speed_bonus.clear(3);
 			waren[i]->adjusted_speed_bonus.insert( min_d, 0 );
 			waren[i]->adjusted_speed_bonus.insert( med_d, base_speedbonus );
-			waren[i]->adjusted_speed_bonus.insert( max_d, multiplier * base_speedbonus );
+			waren[i]->adjusted_speed_bonus.insert( max_d, multiplier * base_speedbonus / 100);
 			// note that median = min will fade from base to multiplier * base, never zero
 			// note that median = max will fade from 0 to multiplier * max
 			// note that min = median = max will get you a constant speedbonus of multiplier * base
