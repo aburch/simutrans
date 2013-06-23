@@ -4635,79 +4635,10 @@ sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportione
 			apportioned_revenues[i] += (final_revenue * player_way_distance) / total_way_distance;
 		}
 	}
-	
+
 	return final_revenue;
 }
 
-
-// Returns SECONDS not minutes
-uint32 convoi_t::calc_max_tolerable_journey_time(uint16 comfort, karte_t* w)
-{
-	const uint16 comfort_short_minutes = w->get_settings().get_tolerable_comfort_short_minutes();
-	const uint8 comfort_short = w->get_settings().get_tolerable_comfort_short();
-	if(comfort < comfort_short)
-	{
-		const uint16 percentage = (comfort_short * 100) / comfort;
-		return 60 * (comfort_short_minutes * 100) / percentage;
-	}
-	if(comfort == comfort_short)
-	{
-		return 60 * comfort_short_minutes;
-	}
-
-	const uint16 comfort_median_short_minutes = w->get_settings().get_tolerable_comfort_median_short_minutes();
-	const uint8 comfort_median_short = w->get_settings().get_tolerable_comfort_median_short();
-	if(comfort < comfort_median_short)
-	{
-		const uint16 percentage = ((comfort_median_short - comfort_short) * 100) / (comfort - comfort_short);
-		return 60 * (((comfort_median_short_minutes - comfort_short_minutes) * 100) / percentage) + comfort_short_minutes;
-	}
-	if(comfort == comfort_median_short)
-	{
-		return 60 * comfort_median_short_minutes;
-	}
-
-	const uint16 comfort_median_median_minutes = w->get_settings().get_tolerable_comfort_median_median_minutes();
-	const uint8 comfort_median_median = w->get_settings().get_tolerable_comfort_median_median();
-	if(comfort < comfort_median_median)
-	{
-		const uint16 percentage = ((comfort_median_median - comfort_median_short) * 100) / (comfort - comfort_median_short);
-		return 60 * ( (((comfort_median_median_minutes - comfort_median_short_minutes) * 100) / percentage) + comfort_median_short_minutes );
-	}
-	if(comfort == comfort_median_median)
-	{
-		return 60 * comfort_median_median_minutes;
-	}
-
-	const uint16 comfort_median_long_minutes = w->get_settings().get_tolerable_comfort_median_long_minutes();
-	const uint8 comfort_median_long = w->get_settings().get_tolerable_comfort_median_long();
-	if(comfort < comfort_median_long)
-	{
-		const uint16 percentage = ((comfort_median_long - comfort_median_median) * 100) / (comfort - comfort_median_median);
-		return 60 * ( (((comfort_median_long_minutes - comfort_median_median_minutes) * 100) / percentage) + comfort_median_median_minutes );
-	}
-	if(comfort == comfort_median_long)
-	{
-		return 60 * comfort_median_long_minutes;
-	}
-
-	const uint16 comfort_long_minutes = w->get_settings().get_tolerable_comfort_long_minutes();
-	const uint8 comfort_long = w->get_settings().get_tolerable_comfort_long();
-	if(comfort < comfort_long)
-	{
-		const uint16 percentage = ((comfort_long - comfort_median_long) * 100) / (comfort - comfort_median_long);
-		return 60 * ( (((comfort_long_minutes - comfort_median_long_minutes) * 100) / percentage) + comfort_median_long_minutes );
-	}
-	if(comfort == comfort_long)
-	{
-		return 60 * comfort_long_minutes;
-	}
-	else
-	{
-		const uint16 percentage =  (comfort * 100) / comfort_long;
-		return 60 * (comfort_long_minutes * percentage) / 100;
-	}
-}
 
 /**
  * convoi an haltestelle anhalten

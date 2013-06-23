@@ -2574,6 +2574,24 @@ void settings_t::cache_comfort_tables() {
 	tolerable_comfort.insert(tolerable_comfort_median_median_minutes * 10, tolerable_comfort_median_median);
 	tolerable_comfort.insert(tolerable_comfort_median_long_minutes * 10, tolerable_comfort_median_long);
 	tolerable_comfort.insert(tolerable_comfort_long_minutes * 10, tolerable_comfort_long);
+
+	// Inverse table -- which is used for display purposes only -- gives results in SECONDS
+	max_tolerable_journey.clear(7);
+	// We have to do some finicky tricks at the beginning and end since it isn't constant...
+	// There is no tolerable journey below tolerable_comfort_short...
+	max_tolerable_journey.insert(tolerable_comfort_short - 1, 0);
+	max_tolerable_journey.insert(tolerable_comfort_short, tolerable_comfort_short_minutes * 60);
+	max_tolerable_journey.insert(tolerable_comfort_median_short, tolerable_comfort_median_short_minutes * 60);
+	max_tolerable_journey.insert(tolerable_comfort_median_median, tolerable_comfort_median_median_minutes * 60);
+	max_tolerable_journey.insert(tolerable_comfort_median_long, tolerable_comfort_median_long_minutes * 60);
+	max_tolerable_journey.insert(tolerable_comfort_long - 1, tolerable_comfort_long_minutes * 60);
+	// Tricky bits at the end.  We fudge the second-to-last section in order to get the final section right.
+	// Max tolerable journey is basically infinity above tolerable_comfort_long.
+	// Nickname for the largest legal number of journey tenths:
+	uint32 infinite_tenths = 65534;
+	uint32 infinite_seconds = infinite_tenths * 6;
+	max_tolerable_journey.insert(tolerable_comfort_long, infinite_seconds);
+
 }
 
 /**

@@ -30,11 +30,13 @@ struct road_timeline_t
 	uint16 retire;
 };
 
-// For the catering revenue tables. (minutes to revenue)
+// For the catering revenue tables. (tenths of minutes to revenue)
 typedef piecewise_linear_tpl<uint16, sint64> catering_table_t;
-// For the tolerable comfort table. (minutes to comfort)
+// For the tolerable comfort table. (tenths of minutes to comfort)
 // third argument is intermediate computation type
 typedef piecewise_linear_tpl<uint16, uint8, uint32> tolerable_comfort_table_t;
+// For the max tolerable journey table (comfort to seconds)
+typedef piecewise_linear_tpl<uint8, uint32, uint64> max_tolerable_journey_table_t;
 
 template <class T>
 class vector_with_ptr_ownership_tpl : public vector_tpl<T*> 
@@ -362,6 +364,8 @@ public:
 	// @author: neroden
 	// Table for tolerable comfort.
 	tolerable_comfort_table_t tolerable_comfort;
+	// And for longest tolerable journey.
+	max_tolerable_journey_table_t max_tolerable_journey;
 
 	uint8 max_luxury_bonus_differential;
 	uint8 max_discomfort_penalty_differential;

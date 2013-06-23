@@ -1350,9 +1350,6 @@ public:
 	 */
 	sint64 calc_revenue(const ware_t &ware, array_tpl<sint64> & apportioned_revenues);
 
-	// Return maximum tolerable journey time in SECONDS -- not minutes
-	static uint32 calc_max_tolerable_journey_time(uint16 comfort, karte_t* w);
-
 	uint16 get_livery_scheme_index() const;
 	void set_livery_scheme_index(uint16 value) { livery_scheme_index = value; }
 
