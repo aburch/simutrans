@@ -61,27 +61,26 @@ const char * ware_besch_t::get_catg_name() const
  */
 
 // Note that this is the static version -- pure computation
-static uint16 ware_besch_t::get_adjusted_speed_bonus(const karte_t* world, sint32 distance_in, uint16 base_bonus_rating)
+static uint16 ware_besch_t::get_adjusted_speed_bonus(const karte_t* world, sint32 distance, uint16 base_bonus_rating)
 {
+	sint32 base_bonus_wide = base_bonus_rating;
+
 	sint32 min_distance;
 	sint32 median_distance;
 	sint32 max_distance;
 	sint32 multiplier;
 	if (world) {
-		uint16 min_distance_short = world->get_settings().get_min_bonus_max_distance();
-		min_distance = (sint32)min_distance_short * 1000;
-		uint16 median_distance_short = world->get_settings().get_median_bonus_distance();
-		median_distance = (sint32)median_distance_short * 1000;
-		uint16 max_distance_short = world->get_settings().get_max_bonus_min_distance();
-		max_distance = (sint32)max_distance_short * 1000;
-		uint16 multiplier_short = world->get_settings().get_max_bonus_multiplier_percent();
-		multiplier = (sint32)multiplier_short * 1000;
+		min_distance = (sint32) 1000 * world->get_settings().get_min_bonus_max_distance();
+		median_distance = (sint32) 1000 * world->get_settings().get_median_bonus_distance();
+		max_distance = (sint32) 1000 * world->get_settings().get_max_bonus_min_distance();
+
+		multiplier = (sint32) world->get_settings().get_max_bonus_multiplier_percent();
 
 		// Sanity checks on values
 		assert(max_distance > median_distance);
 		assert(median_distance > min_distance);
 		assert(median_distance == 0 || median_distance > min_distance);
-		assert(multiplier > 100);
+		assert(multiplier >= 100);
 	}
 	else { // no world... should rarely happen
 		// default values as used in pak128.britain as of June 2013
@@ -91,9 +90,6 @@ static uint16 ware_besch_t::get_adjusted_speed_bonus(const karte_t* world, sint3
 		multiplier = 300;
 	}
 
-	// Recover distance in tiles... for now
-	sint32 distance = distance_in / world->get_settings().get_meters_per_tile();
-
 	if(distance <= min_distance)
 	{
 		return 0;
@@ -101,7 +97,7 @@ static uint16 ware_besch_t::get_adjusted_speed_bonus(const karte_t* world, sint3
 
 	if(distance >= max_distance)
 	{
-		return base_bonus_rating * multiplier / 100;
+		return (uint16) ( base_bonus_wide * multiplier / 100 );
 	}
 
 	if(median_distance == 0)
@@ -109,7 +105,7 @@ static uint16 ware_besch_t::get_adjusted_speed_bonus(const karte_t* world, sint3
 		// There is no median, so scale evenly.
 		const sint32 percentage = ((distance - min_distance) * 100) / (max_distance - min_distance);
 		assert(percentage >= 0);
-		const sint32 return_figure = ((base_bonus_rating * multiplier) * percentage) / 10000;
+		const sint32 return_figure = ((base_bonus_wide * multiplier) * percentage) / 10000;
 		return (uint16)return_figure;
 	}
 
@@ -118,14 +114,14 @@ static uint16 ware_besch_t::get_adjusted_speed_bonus(const karte_t* world, sint3
 	{
 		const sint32 percentage = ((distance - min_distance) * 100) / (median_distance - min_distance);
 		assert(percentage >= 0);
-		const sint32 return_figure =  base_bonus_rating * percentage / 100;
+		const sint32 return_figure =  base_bonus_wide * percentage / 100;
 		return (uint16)return_figure;
 	}
 	else // (distance >= median_distance)
 	{
 		const sint32 percentage = ((distance - median_distance) * 100) / (max_distance - median_distance);
 		assert(percentage >= 0);
-		const sint32 return_figure = base_bonus_rating + (base_bonus_rating * (multiplier - 100) * percentage) / 10000;
+		const sint32 return_figure = base_bonus_wide + (base_bonus_wide * (multiplier - 100) * percentage) / 10000;
 		return (uint16)return_figure;
 	}
 	// Can't get here

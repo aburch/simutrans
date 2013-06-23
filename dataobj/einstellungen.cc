@@ -324,7 +324,7 @@ settings_t::settings_t() :
 	// Revenue calibration settings
 	// @author: jamespetts
 	min_bonus_max_distance = 4;
-	max_bonus_min_distance = 256;
+	max_bonus_min_distance = 100;
 	median_bonus_distance = 0;
 	max_bonus_multiplier_percent = 300;
 	set_meters_per_tile(250);
@@ -924,8 +924,17 @@ void settings_t::rdwr(loadsave_t *file)
 
 		if(file->get_experimental_version() >= 1)
 		{
-			file->rdwr_short(min_bonus_max_distance);
-			file->rdwr_short(max_bonus_min_distance);
+			uint16 min_b_max_tiles;
+			uint16 max_b_min_tiles;
+			uint16 median_b_tiles = 0;
+
+			// For some reason (network mode?) these are recorded in the save file,
+			// in *tiles*.  There is a possibility of roundoff errors.
+			uint16 min_b_max_tiles = (sint32) min_bonus_max_distance * 1000 / meters_per_tile;
+			file->rdwr_short(min_b_max_tiles);
+			uint16 max_b_min_tiles = (sint32) max_bonus_min_distance * 1000 / meters_per_tile;
+			file->rdwr_short(max_b_min_tiles);
+
 			if(file->get_experimental_version() == 1)
 			{
 				uint16 dummy;
@@ -933,7 +942,11 @@ void settings_t::rdwr(loadsave_t *file)
 			}
 			else
 			{
-				file->rdwr_short(median_bonus_distance);
+				// For some reason (network mode?) these are recorded in the save file,
+				// in *tiles*.  There is a possibility of roundoff errors.
+				uint16 median_b_tiles = (sint32) median_bonus_distance * 1000 / meters_per_tile;
+				file->rdwr_short(median_b_tiles);
+
 				file->rdwr_short(max_bonus_multiplier_percent);
 				if(file->get_experimental_version() <= 9)
 				{
@@ -951,7 +964,7 @@ void settings_t::rdwr(loadsave_t *file)
 						{
 							distance_per_tile_integer = (distance_per_tile_integer * 10) / 8;
 						}
-					}		
+					}
 					set_meters_per_tile(distance_per_tile_integer * 10);
 				}
 				else
@@ -997,14 +1010,22 @@ void settings_t::rdwr(loadsave_t *file)
 				file->rdwr_short(tpo_revenue);
 			}
 
+			if (file->get_experimental_version() < 6) {
+				// Consider not loading this at all --neroden
+				// Entry was actually saved as number of tiles...
+				min_bonus_max_distance = (sint32) min_b_max_tiles * meters_per_tile / 1000;
+				max_bonus_min_distance = (sint32) max_b_min_tiles * meters_per_tile / 1000;
+				median_bonus_distance = (sint32) median_b_tiles * meters_per_tile / 1000;
+			}
+			else {
+				// Consider not loading this at all --neroden
+				min_bonus_max_distance = (sint32) min_b_max_tiles * meters_per_tile / 1000;
+				max_bonus_min_distance = (sint32) max_b_min_tiles * meters_per_tile / 1000;
+				median_bonus_distance = (sint32) median_b_tiles * meters_per_tile / 1000;
+			}
+
 			if(file->get_experimental_version() < 6)
 			{
-				const uint32 min_bonus_max_distance_scaled = min_bonus_max_distance * meters_per_tile;
-				const uint32 max_bonus_min_distance_scaled = max_bonus_min_distance * meters_per_tile;
-
-				min_bonus_max_distance = min_bonus_max_distance_scaled / 1000;
-				max_bonus_min_distance = max_bonus_min_distance_scaled / 1000;
-
 				// Scale the costs to match the scale factor.
 				float32e8_t km_per_tile(meters_per_tile, 1000);
 				cst_multiply_dock *= km_per_tile;
@@ -1931,9 +1952,9 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	// Revenue calibration settings
 	// @author: jamespetts
-	min_bonus_max_distance = contents.get_int("min_bonus_max_distance", min_bonus_max_distance) / distance_per_tile;
-	max_bonus_min_distance = contents.get_int("max_bonus_min_distance", max_bonus_min_distance) / distance_per_tile;
-	median_bonus_distance = contents.get_int("median_bonus_distance", median_bonus_distance) / distance_per_tile;
+	min_bonus_max_distance = contents.get_int("min_bonus_max_distance", min_bonus_max_distance);
+	max_bonus_min_distance = contents.get_int("max_bonus_min_distance", max_bonus_min_distance);
+	median_bonus_distance = contents.get_int("median_bonus_distance", median_bonus_distance);
 	max_bonus_multiplier_percent = contents.get_int("max_bonus_multiplier_percent", max_bonus_multiplier_percent);
 	tolerable_comfort_short = contents.get_int("tolerable_comfort_short", tolerable_comfort_short);
 	tolerable_comfort_long = contents.get_int("tolerable_comfort_long", tolerable_comfort_long);
