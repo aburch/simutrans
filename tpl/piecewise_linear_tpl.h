@@ -49,7 +49,8 @@
 #include "vector_tpl.h"
 
 // This is a pretty complicated construction.
-template < class key_t, class value_t > class piecewise_linear_tpl
+// The third argument is the type to use for internal computations.
+template < class key_t, class value_t, class internal_t = value_t > class piecewise_linear_tpl
 {
 public:
 	// Access to keys and values
@@ -179,11 +180,12 @@ public:
 		else {
 			// Main case: linear interpolation
 			const uint32 left = right - 1; // makes following code clearer; will be optimized out
-			return
-				vec[left].value +
-				(vec[right].value - vec[left].value)
-				* (target - vec[left].key)
-				/ (vec[right].key - vec[left].key);
+			// We may want to use a wider type for this computation...
+			internal_t right_val = vec[right].value;
+			internal_t left_val  = vec[left].value;
+			internal_t numerator = (right_val - left_val) * (target - vec[left].key);
+			internal_t result = left_val + numerator / (vec[right].key - vec[left].key);
+			return (value_t) result;
 			// The above return statement relies on operator precedence!
 			// Note that the math will be done in the type of *value*,
 			// with the exception of the differences in keys
