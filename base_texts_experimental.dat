@@ -26,6 +26,10 @@ name=gl_btn_sort_catg
 note=Sorting by category in the goods list
 -
 obj=program_text
+name=gl_btn_sort_weight
+note=Sorting by weight in the goods list
+-
+obj=program_text
 name=signale bauen
 note=Text for the automatic signal builder
 -

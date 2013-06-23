@@ -70,7 +70,8 @@ const char *goods_frame_t::sort_text[SORT_MODES] = {
 	"gl_btn_sort_name",
 	"gl_btn_sort_revenue",
 	"gl_btn_sort_bonus",
-	"gl_btn_sort_catg"
+	"gl_btn_sort_catg",
+	"gl_btn_sort_weight"
 };
 
 /**
@@ -327,11 +328,13 @@ bool goods_frame_t::compare_goods(uint16 const a, uint16 const b)
 			}
 			break;
 		case 3: // sort by speed bonus
-			order = w[1]->get_adjusted_speed_bonus(distance_meters) - w[0]->get_adjusted_speed_bonus(distance_meters);
+			order = w[0]->get_adjusted_speed_bonus(distance_meters) - w[1]->get_adjusted_speed_bonus(distance_meters);
 			break;
 		case 4: // sort by catg_index
 			order = w[1]->get_catg()-w[0]->get_catg();
 			break;
+		case 5: // sort by weight
+			order = w[0]->get_weight_per_unit() - w[1]->get_weight_per_unit();
 		default: ; // make compiler happy, order will be determined below anyway
 	}
 	if(  order==0  ) {
