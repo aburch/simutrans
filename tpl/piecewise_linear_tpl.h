@@ -156,7 +156,7 @@ public:
 		assert(vec.get_count() > 0);
 		if (vec.get_count() == 1) {
 			// If there's only one entry, avoid the comparison code;
-			// the regular algorithm will work but it's a bit slow.
+			// the regular algorithm will work but it's a complicated computation.
 			// And we have to get the count for the binary search anyway.
 			// This degenerate case is likely to happen for paksets which
 			// choose not to implement some of the fancy options, so make it fast.
@@ -185,6 +185,9 @@ public:
 				* (target - vec[left].key)
 				/ (vec[right].key - vec[left].key);
 			// The above return statement relies on operator precedence!
+			// Note that the math will be done in the type of *value*,
+			// with the exception of the differences in keys
+			// This means that the value type should be wide enough for computation..
 		}
 	}
 	/**
