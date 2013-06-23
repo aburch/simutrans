@@ -7,6 +7,7 @@
 #include "../simunits.h"
 #include "livery_scheme.h"
 #include "../tpl/piecewise_linear_tpl.h" // for various revenue tables
+#include "../bauer/warenbauer.h" // for speed bonus tables
 
 /**
  * Spieleinstellungen
@@ -70,6 +71,8 @@ class settings_t
 	friend class settings_economy_stats_t;
 	friend class settings_costs_stats_t;
 	friend class settings_climates_stats_t;
+	friend class settings_experimental_general_stats_t;
+	friend class settings_experimental_revenue_stats_t;
 	friend class climate_gui_t;
 	friend class welt_gui_t;
 
@@ -328,12 +331,15 @@ public:
 
 	uint8 max_rerouting_interval_months;
 
+protected:
 	//@author: jamespetts
 	// Revenue calibration settings
 	uint16 min_bonus_max_distance;
 	uint16 max_bonus_min_distance;
 	uint16 median_bonus_distance;
 	uint16 max_bonus_multiplier_percent;
+
+public:
 	uint16 meters_per_tile;
 	// We need it often(every vehikel_basis_t::fahre_basis call), so we cache it.
 	uint32 steps_per_km;
@@ -353,6 +359,7 @@ public:
 	uint16 max_luxury_bonus_percent;
 	uint16 max_discomfort_penalty_percent;
 
+protected:
 	uint16 catering_min_minutes;
 	uint16 catering_level1_minutes;
 	uint16 catering_level1_max_revenue;
@@ -365,6 +372,7 @@ public:
 	uint16 catering_level5_minutes;
 	uint16 catering_level5_max_revenue;
 
+public:
 	// @author: neroden
 	// Tables 0 through 5 for catering revenue.
 	// One for each level -- so there are 6 of them total.
@@ -709,14 +717,14 @@ public:
 	bool is_seperate_halt_capacities() const { return seperate_halt_capacities ; }
 
 	uint16 get_min_bonus_max_distance() const { return min_bonus_max_distance; }
-	void   set_min_bonus_max_distance(uint16 value) { min_bonus_max_distance = value; }
+	void   set_min_bonus_max_distance(uint16 value) { min_bonus_max_distance = value; warenbauer_t::cache_speed_bonuses(); }
 	uint16 get_median_bonus_distance() const { return median_bonus_distance; }
-	void   set_median_bonus_distance(uint16 value) { median_bonus_distance = value; }
+	void   set_median_bonus_distance(uint16 value) { median_bonus_distance = value; warenbauer_t::cache_speed_bonuses(); }
 	uint16 get_max_bonus_min_distance() const { return max_bonus_min_distance; }
-	void   set_max_bonus_min_distance(uint16 value) { max_bonus_min_distance = value; }
+	void   set_max_bonus_min_distance(uint16 value) { max_bonus_min_distance = value; warenbauer_t::cache_speed_bonuses(); }
 
 	uint16 get_max_bonus_multiplier_percent() const { return max_bonus_multiplier_percent; }
-	void   set_max_bonus_multiplier_percent(uint16 value) { max_bonus_multiplier_percent = value; }
+	void   set_max_bonus_multiplier_percent(uint16 value) { max_bonus_multiplier_percent = value; warenbauer_t::cache_speed_bonuses(); }
 
 	uint16 get_meters_per_tile() const { return meters_per_tile; }
 	void   set_meters_per_tile(uint16 value);

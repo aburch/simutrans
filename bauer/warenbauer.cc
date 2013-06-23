@@ -206,3 +206,7 @@ void warenbauer_t::set_multiplier(sint32 multiplier, uint16 scale_factor)
 		waren[i]->set_scale(scale_factor);
 	}
 }
+
+void warenbauer_t::cache_speed_bonuses()
+{
+}
