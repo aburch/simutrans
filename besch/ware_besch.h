@@ -159,7 +159,9 @@ public:
 	 * goods over the given distance, in tiles. This is
 	 * not the per-tile fare
 	 * This is the base fare, not adjusted for speedbonus...
-	 * @author: jamespetts, November 2011
+	 * This returns values in units of 1/1000 of a simcent
+	 *
+	 * @author: jamespetts, neroden
 	 */
 	sint64 get_fare(uint32 tile_distance, uint32 starting_distance = 0) const
 	{
@@ -188,7 +190,7 @@ public:
 				starting_distance = 0;
 			}
 		}
-		return total_fare;
+		return total_fare * 1000;
 	}
 
 	void set_scale(uint16 scale_factor)
@@ -280,18 +282,23 @@ public:
 	sint64 get_fare_with_speedbonus(const karte_t* w, sint16 relative_speed_percentage, uint32 tile_distance, uint32 starting_distance = 0) const
 	{
 		sint64 base_fare = get_fare(tile_distance, starting_distance);
-		assert (base_fare <= 4611686018427388 ); // so we can multiply by 4000
-		assert (base_fare <= 0x3FFFFFFFFFFFll );
-			// If the assertion fails, we can't safely multiply by 4.
-			// This would require a completely unbalanced pakset; fares are much smaller than this.
-		sint64 min_fare = base_fare * 1000ll / 4ll; // minimum fare is 1/4 base
-		sint64 max_fare = base_fare * 1000ll * 4ll; // maximum fare is 4 * base
+			// We must be able to multiply by, say, 2^16;
+			// otherwise we may overflow computation computing the standard fare.
+			// This would require a completely unbalanced pakset;
+			// fares are orders of magnitude smaller than this.
+		assert (base_fare <= 0x0000FFFFFFFFll );
+			// If the assertion fails, we can't safely multiply by 4 * 1024.
+		sint64 min_fare = base_fare / 4ll; // minimum fare is 1/4 base
+		sint64 max_fare = base_fare * 4ll; // maximum fare is 4 * base
 		sint64 speed_bonus_rating = get_adjusted_speed_bonus(w, tile_distance);
 		// Recall the screwy definition of the speed_bonus_rating from above.
 		// Given a percentage of 1 and a speed bonus rating of 1, we increase revenue by 1/1000.
-		// Divide by 1000 to get "real" values.
-		sint64 bonus_multiplier = 1000ll + (sint64)relative_speed_percentage * speed_bonus_rating;
-		sint64 standard_fare = base_fare * bonus_multiplier;
+		// Percentage may be as high as 1000, bonus rating as high as 50...
+		//
+		// Consider altering the definition to divide by 1024.  It reduces revenue *slightly*
+		// but not very much -- neroden
+		sint64 bonus_per_mill = (sint64)relative_speed_percentage * speed_bonus_rating;
+		sint64 standard_fare = base_fare + base_fare * bonus_per_mill / 1000ll;
 		sint64 actual_fare = min( max_fare, max(min_fare, standard_fare) );
 		return actual_fare;
 	}

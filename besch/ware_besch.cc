@@ -146,5 +146,5 @@ static uint16 ware_besch_t::get_adjusted_speed_bonus(const karte_t* world, uint3
 sint64 ware_besch_t::get_refund(uint32 tile_distance) const
 {
  	sint64 fare = get_fare(tile_distance, 0);
-	return fare * 2000;
+	return fare * 2;
 }
