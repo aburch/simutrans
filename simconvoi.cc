@@ -4404,6 +4404,7 @@ sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportione
 	// (neroden really believes we should use the minutes and speed for THIS trip.)
 	// (It saves vast amounts of computational effort,
 	//  and gives the player a quicker response to improved service.)
+	sint64 journey_tenths = 0;
 	sint64 journey_minutes = 0;
 	sint64 average_speed;
 	bool valid_journey_time = false;
@@ -4412,7 +4413,7 @@ sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportione
 		const planquadrat_t* plan = welt->lookup(fahr[0]->get_pos().get_2d());
 		if (plan) {
 			id_pair my_ordered_pair = id_pair(ware.get_last_transfer().get_id(), plan->get_halt().get_id());
-			sint64 journey_tenths = get_average_journey_times()->get(my_ordered_pair).get_average();
+			journey_tenths = get_average_journey_times()->get(my_ordered_pair).get_average();
 			if (journey_tenths != 0) {
 				// No unreasonably short journeys...
 				average_speed = kmh_from_meters_and_tenths(travel_distance_meters, journey_tenths);
@@ -4461,6 +4462,7 @@ sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportione
 		{
 			average_speed = 1;
 		}
+		journey_tenths = tenths_from_meters_and_kmh(travel_distance_meters, average_speed);
 		journey_minutes = minutes_from_meters_and_kmh(travel_distance_meters, average_speed);
 	}
 
@@ -4578,7 +4580,7 @@ sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportione
 	}
 
 	// Add catering or TPO revenue
-	const uint8 catering_level = get_catering_level(ware.get_besch()->get_catg_index());
+	uint8 catering_level = get_catering_level(ware.get_besch()->get_catg_index());
 	if(catering_level > 0)
 	{
 		if(ware.is_mail())
@@ -4590,84 +4592,15 @@ sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportione
 			}
 		}
 		else if(ware.is_passenger())
-		{				
+		{
+			if (catering_level > 5) {
+				// This isn't supposed to happen
+				catering_level = 5;
+			}
 			// Passengers
-			sint64 proportion = 0;
-			// Knightly : Reorganised the switch cases to get rid of goto statements
-			switch(catering_level)
-			{
-			default:
-			case 5:
-				if(journey_minutes >= welt->get_settings().get_catering_level4_minutes())
-				{
-					if(journey_minutes > welt->get_settings().get_catering_level5_minutes())
-					{
-						final_revenue += (welt->get_settings().get_catering_level5_max_revenue() * 1000 * ware.menge);
-						break;
-					}
-					
-					proportion = (sint64)((journey_minutes - welt->get_settings().get_catering_level4_minutes()) * 1000) / (welt->get_settings().get_catering_level5_minutes() -welt->get_settings().get_catering_level4_minutes());
-					final_revenue += (max(proportion * (sint64)(welt->get_settings().get_catering_level5_max_revenue()), ((sint64)(welt->get_settings().get_catering_level4_max_revenue() * 1000) + 4000)) * ware.menge);
-					break;
-				}
-
-			case 4:
-				if(journey_minutes >= welt->get_settings().get_catering_level3_minutes())
-				{
-					if(journey_minutes > welt->get_settings().get_catering_level4_minutes())
-					{
-						final_revenue += (sint64)(welt->get_settings().get_catering_level4_max_revenue() * 1000 * ware.menge);
-						break;
-					}
-					
-					proportion = ((journey_minutes -welt->get_settings().get_catering_level3_minutes()) * 1000) / (welt->get_settings().get_catering_level4_minutes() - welt->get_settings().get_catering_level3_minutes());
-					final_revenue += (max(proportion * (sint64)(welt->get_settings().get_catering_level4_max_revenue()), ((sint64)(welt->get_settings().get_catering_level3_max_revenue() * 1000) + 4000)) * ware.menge);
-					break;
-				}
-
-			case 3:
-				if(journey_minutes >= welt->get_settings().get_catering_level2_minutes())
-				{
-					if(journey_minutes > welt->get_settings().get_catering_level3_minutes())
-					{
-						final_revenue += (sint64)(welt->get_settings().get_catering_level3_max_revenue() * 1000 * ware.menge);
-						break;
-					}
-					
-					proportion = ((journey_minutes - welt->get_settings().get_catering_level2_minutes()) * 1000) / (welt->get_settings().get_catering_level3_minutes() - welt->get_settings().get_catering_level2_minutes());
-					final_revenue += (max(proportion * (sint64)(welt->get_settings().get_catering_level3_max_revenue()), ((sint64)(welt->get_settings().get_catering_level2_max_revenue() * 1000) + 4000)) * ware.menge);
-					break;
-				}
-
-			case 2:
-				if(journey_minutes >= welt->get_settings().get_catering_level1_minutes())
-				{
-					if(journey_minutes > welt->get_settings().get_catering_level2_minutes())
-					{
-						final_revenue += (sint64)(welt->get_settings().get_catering_level2_max_revenue() * 1000 * ware.menge);
-						break;
-					}
-					
-					proportion = ((journey_minutes - welt->get_settings().get_catering_level1_minutes()) * 1000) / (welt->get_settings().get_catering_level2_minutes() - welt->get_settings().get_catering_level1_minutes());
-					final_revenue += (max(proportion * (sint64)(welt->get_settings().get_catering_level2_max_revenue()), ((sint64)(welt->get_settings().get_catering_level1_max_revenue() * 1000) + 4000)) * ware.menge);
-					break;
-				}
-
-			case 1:
-				if(journey_minutes < welt->get_settings().get_catering_min_minutes())
-				{
-					break;
-				}
-				if(journey_minutes > welt->get_settings().get_catering_level1_minutes())
-				{
-					final_revenue += (sint64)(welt->get_settings().get_catering_level1_max_revenue() * 1000 * ware.menge);
-					break;
-				}
-
-				proportion = ((journey_minutes - welt->get_settings().get_catering_min_minutes()) * 1000) / (welt->get_settings().get_catering_level1_minutes() - welt->get_settings().get_catering_min_minutes());
-				final_revenue += (sint64)(proportion * (welt->get_settings().get_catering_level1_max_revenue()) * ware.menge);
-				break;
-			};
+			// Get the catering revenues table for this catering level. It is a functional.
+			catering_table_t& catering_revenue = welt->get_settings().catering_revenues[catering_level];
+			final_revenue += catering_revenue(journey_tenths) * ware.menge;
 		}
 	}
 

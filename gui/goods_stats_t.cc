@@ -87,7 +87,8 @@ void goods_stats_t::zeichnen(koord offset)
 			relevant_speed = 1;
 		}
 		sint64 distance_meters = (sint64)distance * welt->get_settings().get_meters_per_tile();
-		const uint16 journey_minutes = (uint16) ( (distance_meters * 60ll) / (relevant_speed * 1000ll));
+		const uint16 journey_tenths = (uint16) tenths_from_meters_and_kmh(distance_meters, relevant_speed);
+		const uint16 journey_minutes = (uint16) minutes_from_meters_and_kmh(distance_meters, relevant_speed);
 
 		if(wtyp->get_catg_index() < 1)
 		{
@@ -162,86 +163,15 @@ void goods_stats_t::zeichnen(koord offset)
 				}
 			}
 			else if(wtyp->get_catg_index() == 0)
-			{				
+			{
 				// Passengers
+				if (catering_level > 5) {
+					// This isn't supposed to happen
+					catering_level = 5;
+				}
+				catering_table_t& catering_revenue = welt->get_settings().catering_revenues[catering_level];
+				price += catering_revenue(journey_tenths);
 				sint64 proportion = 0;
-				// Knightly : Reorganised the switch cases to get rid of goto statements
-				switch(catering_level)
-				{
-
-				default:
-				case 5:
-					if(journey_minutes >= welt->get_settings().get_catering_level4_minutes())
-					{
-						if(journey_minutes > welt->get_settings().get_catering_level5_minutes())
-						{
-							price += (welt->get_settings().get_catering_level5_max_revenue() * 1000);
-							break;
-						}
-					
-						proportion = (sint64)((journey_minutes - welt->get_settings().get_catering_level4_minutes()) * 1000) / (welt->get_settings().get_catering_level5_minutes() -welt->get_settings().get_catering_level4_minutes());
-						price += max((sint64)(proportion * (welt->get_settings().get_catering_level5_max_revenue())), ((sint64)(welt->get_settings().get_catering_level4_max_revenue() * 1000) + 4000));
-						break;
-					}
-
-				case 4:
-					if(journey_minutes >= welt->get_settings().get_catering_level3_minutes())
-					{
-						if(journey_minutes > welt->get_settings().get_catering_level4_minutes())
-						{
-							price += (sint64)(welt->get_settings().get_catering_level4_max_revenue() * 1000);
-							break;
-						}
-					
-						proportion = ((journey_minutes -welt->get_settings().get_catering_level3_minutes()) * 1000) / (welt->get_settings().get_catering_level4_minutes() - welt->get_settings().get_catering_level3_minutes());
-						price += max((sint64)(proportion * (welt->get_settings().get_catering_level4_max_revenue())), ((sint64)(welt->get_settings().get_catering_level3_max_revenue() * 1000) + 4000));
-						break;
-					}
-
-				case 3:
-					if(journey_minutes >= welt->get_settings().get_catering_level2_minutes())
-					{
-						if(journey_minutes > welt->get_settings().get_catering_level3_minutes())
-						{
-							price += (sint64)(welt->get_settings().get_catering_level3_max_revenue() * 1000);
-							break;
-						}
-					
-						proportion = ((journey_minutes - welt->get_settings().get_catering_level2_minutes()) * 1000) / (welt->get_settings().get_catering_level3_minutes() - welt->get_settings().get_catering_level2_minutes());
-						price += max((sint64)((proportion * welt->get_settings().get_catering_level3_max_revenue())), ((sint64)(welt->get_settings().get_catering_level2_max_revenue() * 1000) + 4000));
-						break;
-					}
-
-				case 2:
-					if(journey_minutes >= welt->get_settings().get_catering_level1_minutes())
-					{
-						if(journey_minutes > welt->get_settings().get_catering_level2_minutes())
-						{
-							price += (sint64)(welt->get_settings().get_catering_level2_max_revenue() * 1000);
-							break;
-						}
-					
-						proportion = ((journey_minutes - welt->get_settings().get_catering_level1_minutes()) * 1000) / (welt->get_settings().get_catering_level2_minutes() - welt->get_settings().get_catering_level1_minutes());
-						price +=  max((sint64)(proportion * (welt->get_settings().get_catering_level2_max_revenue())), ((sint64)(welt->get_settings().get_catering_level1_max_revenue() * 1000) + 4000));
-						break;
-					}
-
-				case 1:
-					if(journey_minutes < welt->get_settings().get_catering_min_minutes())
-					{
-						break;
-					}
-					if(journey_minutes > welt->get_settings().get_catering_level1_minutes())
-					{
-						price += (sint64)(welt->get_settings().get_catering_level1_max_revenue() * 1000);
-						break;
-					}
-
-					proportion = ((journey_minutes - welt->get_settings().get_catering_min_minutes()) * 1000) / (welt->get_settings().get_catering_level1_minutes() - welt->get_settings().get_catering_min_minutes());
-					price += (sint64)(proportion * (welt->get_settings().get_catering_level1_max_revenue()));
-					break;
-
-				};
 			}
 		}
 	
