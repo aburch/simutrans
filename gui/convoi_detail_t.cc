@@ -82,7 +82,7 @@ void convoi_detail_t::zeichnen(koord pos, koord gr)
 		destroy_win(this);
 	}
 	else {
-		if(cnv->get_besitzer()==cnv->get_welt()->get_active_player()) {
+		if(cnv->get_besitzer()==welt->get_active_player()) {
 			withdraw_button.enable();
 			sale_button.enable();
 			retire_button.enable();
@@ -140,7 +140,6 @@ void convoi_detail_t::zeichnen(koord pos, koord gr)
 		early years of the loco.
 
 			uint32 percentage = 0;
-			karte_t *welt = cnv->get_welt();
 			for (uint16 i = 0; i < count; i++) {
 				percentage += cnv->get_vehikel(i)->get_besch()->calc_running_cost(welt, 10000);
 			}
@@ -157,7 +156,6 @@ void convoi_detail_t::zeichnen(koord pos, koord gr)
 		*/
 			uint32 run_actual = 0, run_nominal = 0, run_percent = 0;
 			uint32 mon_actual = 0, mon_nominal = 0, mon_percent = 0;
-			karte_t *welt = cnv->get_welt();
 			for (uint16 i = 0; i < count; i++) {
 				const vehikel_besch_t *besch = cnv->get_vehikel(i)->get_besch();
 				run_nominal += besch->get_running_cost();
@@ -320,7 +318,7 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 		cbuffer_t buf;
 
 		// for bonus stuff
-		const sint32 ref_kmh = cnv->get_welt()->get_average_speed( cnv->front()->get_waytype() );
+		const sint32 ref_kmh = welt->get_average_speed( cnv->front()->get_waytype() );
 		const sint32 cnv_kmh = cnv->get_line().is_bound() ? cnv->get_line()->get_finance_history(1, LINE_AVERAGE_SPEED): cnv->get_finance_history(1, convoi_t::CONVOI_AVERAGE_SPEED);
 		const sint32 kmh_base = (100 * cnv_kmh) / ref_kmh - 100;
 
@@ -354,7 +352,7 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 			extra_y += LINESPACE;
 			
 			// Bernd Gabriel, 16.06.2009: current average obsolescence increase percentage
-			uint32 percentage = v->get_besch()->calc_running_cost(v->get_welt(), 100) - 100;
+			uint32 percentage = v->get_besch()->calc_running_cost(welt, 100) - 100;
 			if (percentage > 0)
 			{
 				buf.clear();
@@ -428,8 +426,8 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 			{
 				char min_loading_time_as_clock[32];
 				char max_loading_time_as_clock[32];
-				v->get_welt()->sprintf_ticks(min_loading_time_as_clock, sizeof(min_loading_time_as_clock), v->get_besch()->get_min_loading_time());
-				v->get_welt()->sprintf_ticks(max_loading_time_as_clock, sizeof(max_loading_time_as_clock), v->get_besch()->get_max_loading_time());
+				welt->sprintf_ticks(min_loading_time_as_clock, sizeof(min_loading_time_as_clock), v->get_besch()->get_min_loading_time());
+				welt->sprintf_ticks(max_loading_time_as_clock, sizeof(max_loading_time_as_clock), v->get_besch()->get_max_loading_time());
 				buf.clear();
 				buf.printf("%s %s - %s", translator::translate("Loading time:"), min_loading_time_as_clock, max_loading_time_as_clock );
 				display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, COL_BLACK, true );
@@ -450,7 +448,7 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 				int len = 5+display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, translator::translate("Max income:"), ALIGN_LEFT, COL_BLACK, true );
 				const sint32 grundwert128 = v->get_fracht_typ()->get_fare(1)<<7;
 				const sint32 grundwert_bonus = v->get_fracht_typ()->get_fare(1)*(1000l+kmh_base*v->get_fracht_typ()->get_speed_bonus());
-				const sint32 price = (v->get_fracht_max()*(grundwert128>grundwert_bonus ? grundwert128 : grundwert_bonus))/30 - v->get_running_cost(cnv->get_welt());
+				const sint32 price = (v->get_fracht_max()*(grundwert128>grundwert_bonus ? grundwert128 : grundwert_bonus))/30 - v->get_running_cost(welt);
 				money_to_string( number, price/100.0 );
 				display_proportional_clip( pos.x+w+offset.x+len, pos.y+offset.y+total_height+extra_y, number, ALIGN_LEFT, price>0?MONEY_PLUS:MONEY_MINUS, true );
 				extra_y += LINESPACE;
