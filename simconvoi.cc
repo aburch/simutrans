@@ -4396,9 +4396,9 @@ sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportione
 		// Something went wrong, make a wild guess
 		travel_distance = max_distance / 2;
 	}
-	const uint32 revenue_distance = min(travel_distance, max_distance);
-	const sint64 travel_distance_meters = travel_distance * welt->get_settings().get_meters_per_tile();
+	const uint32 travel_distance_meters = travel_distance * welt->get_settings().get_meters_per_tile();
 
+	const uint32 revenue_distance = min(travel_distance, max_distance);
 	// First try to get the journey minutes and average speed
 	// for the point to point trip.  If that fails use line average.
 	// (neroden really believes we should use the minutes and speed for THIS trip.)
@@ -4480,8 +4480,8 @@ sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportione
 		starting_distance = 0;
 	}
 
-	const uint32 revenue_distance_meters = 1000ul * revenue_distance;
-	const uint32 starting_distance_meters = 1000ul * starting_distance;
+	const uint32 revenue_distance_meters = revenue_distance * welt->get_settings().get_meters_per_tile();
+	const uint32 starting_distance_meters = starting_distance * welt->get_settings().get_meters_per_tile();
 
 	const sint64 ref_speed = welt->get_average_speed(fahr[0]->get_besch()->get_waytype());
 	const sint64 relative_speed_percentage = (100ll * average_speed) / ref_speed - 100ll;

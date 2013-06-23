@@ -307,6 +307,7 @@ public:
 		return actual_fare;
 	}
 
+
 	/**
 	 * Estimate an appropriate refund for a trip of tile_distance length.
 	 * Returns in the same units as get_fare_with_speedbonus.
