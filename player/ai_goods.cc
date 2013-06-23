@@ -962,21 +962,35 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 				}
 			}
 
+			// The logic above here is hopelessly broken for Experimental for multiple reasons
+			// (meters_per_tile, bits_per_month, and pay by average speed)
+			// and appears to have been wrong even in standard.
+			// Maybe try to clean it up sometime. --neroden
+
 			// find the cheapest transport ...
 			// assume maximum cost
 			int	cost_rail=0x7FFFFFFF, cost_road=0x7FFFFFFF;
-			int	income_rail=0, income_road=0;
 
 			// calculate cost for rail
 			if(  count_rail<255  ) {
-				int freight_price = (freight->get_fare(1)*rail_vehicle->get_zuladung()*count_rail)/24*((8000+(best_rail_speed-80)*freight->get_speed_bonus())/1000);
 				// calculated here, since the above number was based on production
 				// only uneven number of cars bigger than 3 makes sense ...
 				count_rail = max( 3, count_rail );
-				income_rail = (freight_price*best_rail_speed)/(2*dist+count_rail);
-				cost_rail = rail_weg->get_wartung() + (((count_rail+1)/2)*300)/dist + ((count_rail*rail_vehicle->get_running_cost(welt)+rail_engine->get_running_cost(welt))*best_rail_speed)/(2*dist+count_rail);
-				DBG_MESSAGE("ai_goods_t::do_ki()","Netto credits per day for rail transport %.2f (income %.2f)",cost_rail/100.0, income_rail/100.0 );
-				cost_rail -= income_rail;
+				const uint32 ref_speed = welt->get_average_speed(track_wt);
+				// Guess that average speed is half of "best" speed
+				const uint32 average_speed = best_rail_speed / 2;
+				const sint64 relative_speed_percentage = (100ll * average_speed) / ref_speed - 100ll;
+				const sint64 freight_revenue_per_trip = freight->get_fare_with_speedbonus(welt, relative_speed_percentage, dist) * rail_vehicle->get_zuladung() * count_rail / 3000;
+				const sint64 freight_cost_per_trip
+				  = ( (sint64) rail_vehicle->get_running_cost(welt) * count_rail
+					  + rail_engine->get_running_cost(welt)
+				    )
+					* dist * 2 * welt->get_settings().get_meters_per_tile() / 1000;
+				const uint32 tpm = welt->speed_to_tiles_per_month(average_speed);
+				const sint32 profit_per_month = ( (freight_revenue_per_trip - freight_cost_per_trip) * tpm / dist * 2) ;
+
+				cost_rail = rail_weg->get_wartung() - profit_per_month;
+				DBG_MESSAGE("ai_goods_t::do_ki()","Net credits per month for rail transport %.2f (income %.2f)",cost_rail/100.0, profit_per_month/100.0 );
 			}
 
 			// and calculate cost for road
@@ -984,11 +998,20 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 				// for short distance: reduce number of cars
 				// calculated here, since the above number was based on production
 				count_road = CLIP( (sint32)(dist*15)/best_road_speed, 2, count_road );
-				int freight_price = (freight->get_fare(1)*road_vehicle->get_zuladung()*count_road)/24*((8000+(best_road_speed-80)*freight->get_speed_bonus())/1000);
-				cost_road = road_weg->get_wartung() + 300/dist + (count_road*road_vehicle->get_running_cost(welt)*best_road_speed)/(2*dist+5);
-				income_road = (freight_price*best_road_speed)/(2*dist+5);
-				DBG_MESSAGE("ai_goods_t::do_ki()","Netto credits per day and km for road transport %.2f (income %.2f)",cost_road/100.0, income_road/100.0 );
-				cost_road -= income_road;
+				const uint32 ref_speed = welt->get_average_speed(road_wt);
+				// Guess that average speed is half of "best" speed
+				const uint32 average_speed = best_road_speed / 2;
+				const sint64 relative_speed_percentage = (100ll * average_speed) / ref_speed - 100ll;
+				const sint64 freight_revenue_per_trip = freight->get_fare_with_speedbonus(welt, relative_speed_percentage, dist) * road_vehicle->get_zuladung() * count_road / 3000;
+				const sint64 freight_cost_per_trip
+				  = ( (sint64) road_vehicle->get_running_cost(welt) * count_road
+				    )
+					* dist * 2 * welt->get_settings().get_meters_per_tile() / 1000;
+				const uint32 tpm = welt->speed_to_tiles_per_month(average_speed);
+				const sint32 profit_per_month = ( (freight_revenue_per_trip - freight_cost_per_trip) * tpm / dist * 2) ;
+
+				cost_road = road_weg->get_wartung() - profit_per_month;
+				DBG_MESSAGE("ai_goods_t::do_ki()","Net credits per month for road transport %.2f (income %.2f)",cost_road/100.0, profit_per_month/100.0 );
 			}
 
 			// check location, if vehicles found
