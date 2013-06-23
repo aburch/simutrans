@@ -2500,27 +2500,31 @@ void settings_t::cache_catering_revenues() {
 	//
 	// This is an expensive operation but is normally done once per game -- unless
 	// someone is tweaking the settings at runtime using the dialog boxes.
+
+	// PLEASE NOTE.  Each table is indexed in *tenths of minutes*,
+	// and returns revenues in 1/1000ths of simcents.
+	// FIXME: The infamous division by 3 needs to be incorporated here too.
 	for (int i = 0; i<= 5; i++) {
 		// Clear table, and reset table size to "correct" value (we know how large it needs to be)
 		catering_revenues[i].clear(i + 1);
 		// Why don't we use a fall-through case statement (you ask)?
 		// Because the way the interpolation tables are written, that would involve
 		// lots of copying memory to relocate entries.  This enters data from left to right.
-		catering_revenues[i].insert(catering_min_minutes, 0);
+		catering_revenues[i].insert(catering_min_minutes * 10, 0);
 		if (i >= 1) {
-			catering_revenues[i].insert(catering_level1_minutes, catering_level1_max_revenue);
+			catering_revenues[i].insert(catering_level1_minutes * 10, (sint64)catering_level1_max_revenue * 1000);
 		}
 		if (i >= 2) {
-			catering_revenues[i].insert(catering_level2_minutes, catering_level2_max_revenue);
+			catering_revenues[i].insert(catering_level2_minutes * 10, (sint64)catering_level2_max_revenue * 1000);
 		}
 		if (i >= 3) {
-			catering_revenues[i].insert(catering_level3_minutes, catering_level3_max_revenue);
+			catering_revenues[i].insert(catering_level3_minutes * 10, (sint64)catering_level3_max_revenue * 1000);
 		}
 		if (i >= 4) {
-			catering_revenues[i].insert(catering_level4_minutes, catering_level4_max_revenue);
+			catering_revenues[i].insert(catering_level4_minutes * 10, (sint64)catering_level4_max_revenue * 1000);
 		}
 		if (i >= 5) {
-			catering_revenues[i].insert(catering_level5_minutes, catering_level5_max_revenue);
+			catering_revenues[i].insert(catering_level5_minutes * 10, (sint64)catering_level5_max_revenue * 1000);
 		}
 	}
 }
