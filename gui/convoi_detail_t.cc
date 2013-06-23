@@ -317,10 +317,12 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 		char number[64];
 		cbuffer_t buf;
 
+		const karte_t* const welt = cnv->get_welt();
+
 		// for bonus stuff
 		const sint32 ref_kmh = welt->get_average_speed( cnv->front()->get_waytype() );
 		const sint32 cnv_kmh = cnv->get_line().is_bound() ? cnv->get_line()->get_finance_history(1, LINE_AVERAGE_SPEED): cnv->get_finance_history(1, convoi_t::CONVOI_AVERAGE_SPEED);
-		const sint32 kmh_base = (100 * cnv_kmh) / ref_kmh - 100;
+		const sint32 relative_speed_percentage = (100 * cnv_kmh) / ref_kmh - 100;
 
 		static cbuffer_t freight_info;
 		for(unsigned veh=0;  veh<cnv->get_vehikel_anzahl(); veh++ ) {
@@ -445,12 +447,15 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 			if(v->get_fracht_max() > 0) {
 
 				// bonus stuff
-				int len = 5+display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, translator::translate("Max income:"), ALIGN_LEFT, COL_BLACK, true );
-				const sint32 grundwert128 = v->get_fracht_typ()->get_fare(1)<<7;
-				const sint32 grundwert_bonus = v->get_fracht_typ()->get_fare(1)*(1000l+kmh_base*v->get_fracht_typ()->get_speed_bonus());
-				const sint32 price = (v->get_fracht_max()*(grundwert128>grundwert_bonus ? grundwert128 : grundwert_bonus))/30 - v->get_running_cost(welt);
-				money_to_string( number, price/100.0 );
-				display_proportional_clip( pos.x+w+offset.x+len, pos.y+offset.y+total_height+extra_y, number, ALIGN_LEFT, price>0?MONEY_PLUS:MONEY_MINUS, true );
+				int len = 5+display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, translator::translate("Max profit per km:"), ALIGN_LEFT, COL_BLACK, true );
+				// Revenue for moving 1 unit 1 tile -- in 1/1000 of simcent (and the stupid division by 3)
+				sint64 fare = v->get_fracht_typ()->get_fare_with_speedbonus(welt, relative_speed_percentage, 1);
+				// Yeeargh.  Must convert to per-km fare (fix the interface later)
+				fare = fare * 1000 / welt->get_settings().get_meters_per_tile();
+				// And the stupid division by 3 (FIXME)
+				sint64 profit = v->get_fracht_max()*fare/3000 - v->get_running_cost(welt);
+				money_to_string( number, profit/100.0 );
+				display_proportional_clip( pos.x+w+offset.x+len, pos.y+offset.y+total_height+extra_y, number, ALIGN_LEFT, profit>0?MONEY_PLUS:MONEY_MINUS, true );
 				extra_y += LINESPACE;
 
 				ware_besch_t const& g    = *v->get_fracht_typ();
