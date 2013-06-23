@@ -3678,7 +3678,7 @@ void convoi_t::rdwr(loadsave_t *file)
 				uint32 count = 0;
 				file->rdwr_long(count);
 				departures->clear();
-				for(int i = 0; i < count; i ++)
+				for(uint i = 0; i < count; i ++)
 				{
 					file->rdwr_short(id);
 					file->rdwr_longlong(departure_time);
@@ -3688,9 +3688,9 @@ void convoi_t::rdwr(loadsave_t *file)
 					{
 						uint8 player_count = 0;
 						file->rdwr_byte(player_count);
-						for(int i = 0; i < player_count; i ++)
+						for(uint i = 0; i < player_count; i ++)
 						{
-              uint32 accumulated_distance;
+							uint32 accumulated_distance;
 							file->rdwr_long(accumulated_distance);
 							dep.set_distance(i, accumulated_distance);
 						}
@@ -4323,7 +4323,6 @@ write_basic_line:
 
 	if (halt.is_bound()) 
 	{
-		const koord k = fpl->get_current_eintrag().pos.get_2d(); //"eintrag" = "entry" (Google)
 		//const spieler_t* owner = halt->get_besitzer(); //"get owner" (Google)
 		const grund_t* gr = welt->lookup(fpl->get_current_eintrag().pos);
 		const weg_t *w = gr ? gr->get_weg(fpl->get_waytype()) : NULL;
@@ -4405,7 +4404,6 @@ sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportione
 	// (It saves vast amounts of computational effort,
 	//  and gives the player a quicker response to improved service.)
 	sint64 journey_tenths = 0;
-	sint64 journey_minutes = 0;
 	sint64 average_speed;
 	bool valid_journey_time = false;
 	if(ware.get_last_transfer().is_bound())
@@ -4427,7 +4425,6 @@ sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportione
 					{
 						average_speed = 1;
 					}
-					journey_minutes = journey_tenths / 10; // FIXME.  Bad rounding choice.
 					valid_journey_time = true;
 				}
 			}
@@ -4463,7 +4460,6 @@ sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportione
 			average_speed = 1;
 		}
 		journey_tenths = tenths_from_meters_and_kmh(travel_distance_meters, average_speed);
-		journey_minutes = minutes_from_meters_and_kmh(travel_distance_meters, average_speed);
 	}
 
 	sint64 starting_distance;
@@ -4489,22 +4485,19 @@ sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportione
 	const ware_besch_t* goods = ware.get_besch();
 	const sint64 fare = goods->get_fare_with_speedbonus( (sint16)relative_speed_percentage, revenue_distance_meters, starting_distance_meters);
 	// Note that fare comes out in units of 1/1000 of a simcent, for computational reasons.
-	const sint64 revenue = fare * (sint64)ware.menge;
-	sint64 final_revenue = revenue;
+	sint64 revenue = fare * (sint64)ware.menge;
 
-	if(final_revenue && ware.is_passenger())
+	if(revenue && ware.is_passenger())
 	{
 		// Comfort
-		// Grab the tolerable comfort from the settings table
-		tolerable_comfort_table_t& tolerable = welt->get_settings().tolerable_comfort;
-		const uint8 tolerable_comfort = tolerable(journey_tenths);
+		// First get our comfort.
 
 		// Again, use the average for the line for revenue computation.
 		// (neroden believes we should use the ACTUAL comfort on THIS trip;
 		// although it is "less realistic" it provides faster revenue responsiveness
 		// for the player to improvements in comfort)
 
-		uint8 comfort = 100;
+		sint16 comfort = 100;
 		if(line.is_bound())
 		{
 			if(line->get_finance_history(1, LINE_COMFORT) < 1)
@@ -4529,60 +4522,24 @@ sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportione
 			}
 		}
 
-		// Comfort matters more the longer the journey.
-		// @author: jamespetts, March 2010
-		sint64 comfort_modifier;
-		if(journey_minutes <=welt->get_settings().get_tolerable_comfort_short_minutes())
-		{
-			comfort_modifier = 20ll;
-		}
-		else if(journey_minutes >=welt->get_settings().get_tolerable_comfort_median_long_minutes())
-		{
-			comfort_modifier = 100ll;
-		}
-		else
-		{
-			const uint16 differential = journey_minutes - welt->get_settings().get_tolerable_comfort_short_minutes();
-			const uint16 max_differential =welt->get_settings().get_tolerable_comfort_median_long_minutes() -welt->get_settings().get_tolerable_comfort_short_minutes();
-			const sint64 proportion = differential * 100 / max_differential;
-			comfort_modifier = (80ll * proportion / 100ll) + 20ll;
-		}
+		// Apply luxury bonus or discomfort penalty
 
-		if(comfort > tolerable_comfort)
-		{
-			// Apply luxury bonus
-			const uint8 max_differential = welt->get_settings().get_max_luxury_bonus_differential();
-			const uint8 differential = comfort - tolerable_comfort;
-			const sint64 multiplier = (welt->get_settings().get_max_luxury_bonus_percent() * comfort_modifier) / 100ll;
-			if(differential >= max_differential)
-			{
-				final_revenue += (revenue * multiplier) / 100ll;
-			}
-			else
-			{
-				const sint64 proportion = (differential * 100ll) / max_differential;
-				final_revenue += (revenue * (sint64)(multiplier * proportion)) / 10000ll;
-			}
-		}
-		else if(comfort < tolerable_comfort)
-		{
-			// Apply discomfort penalty
-			const uint8 max_differential = welt->get_settings().get_max_discomfort_penalty_differential();
-			const uint8 differential = tolerable_comfort - comfort;
-			sint64 multiplier = (welt->get_settings().get_max_discomfort_penalty_percent() * comfort_modifier) / 100ll;
-			multiplier = multiplier < 95ll ? multiplier : 95ll;
-			if(differential >= max_differential)
-			{
-				final_revenue -= (revenue * multiplier) / 100ll;
-			}
-			else
-			{
-				const sint64 proportion = (differential * 100ll) / max_differential;
-				final_revenue -= (revenue * (multiplier * proportion)) / 10000ll;
-			}
-		}
-		
-		// Do nothing if comfort == tolerable_comfort			
+		// Grab the tolerable comfort from the settings table
+		const sint16 tolerable_comfort = welt->get_settings().tolerable_comfort(journey_tenths);
+		// See how far off we are
+		const sint16 comfort_diff = comfort - tolerable_comfort;
+		// This gets the "full" percentage bonus or penalty -- it may be negative!
+		const sint64 multiplier = welt->get_settings().base_comfort_revenue(comfort_diff);
+
+		// Comfort has less of an effect for shorter trips.  This gets the derating factor
+		// as a percentage (2 digits)
+		const sint64 comfort_modifier = welt->get_settings().comfort_derating(journey_tenths);
+
+		// Combine the derating factor with the full percentage to get...
+		const sint64 comfort_revenue = (revenue * multiplier * comfort_modifier) / 10000ll;
+
+		// Always receive minimum of 95% of revenue even with discomfort penalty
+		revenue = max(revenue + comfort_revenue, revenue * 19 / 20 );
 	}
 
 	// Add catering or TPO revenue
@@ -4591,10 +4548,10 @@ sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportione
 	{
 		if(ware.is_mail())
 		{
-			// Mail
-			if(journey_minutes >=welt->get_settings().get_tpo_min_minutes())
+			// TPO
+			if(journey_tenths >= welt->get_settings().get_tpo_min_minutes() * 10)
 			{
-				final_revenue += (sint64)(welt->get_settings().get_tpo_revenue() * 1000 * ware.menge);
+				revenue += (sint64)(welt->get_settings().get_tpo_revenue() * 1000 * ware.menge);
 			}
 		}
 		else if(ware.is_passenger())
@@ -4606,7 +4563,7 @@ sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportione
 			// Passengers
 			// Get the catering revenues table for this catering level. It is a functional.
 			catering_table_t& catering_revenue = welt->get_settings().catering_revenues[catering_level];
-			final_revenue += catering_revenue(journey_tenths) * ware.menge;
+			revenue += catering_revenue(journey_tenths) * ware.menge;
 		}
 	}
 
@@ -4632,11 +4589,11 @@ sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportione
 		if(player_way_distance > 0)
 		{
 			// We allocate even for players who may not exist; we'll check before paying them.
-			apportioned_revenues[i] += (final_revenue * player_way_distance) / total_way_distance;
+			apportioned_revenues[i] += (revenue * player_way_distance) / total_way_distance;
 		}
 	}
 
-	return final_revenue;
+	return revenue;
 }
 
 

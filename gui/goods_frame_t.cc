@@ -276,8 +276,7 @@ bool goods_frame_t::compare_goods(uint16 const a, uint16 const b)
 					if(w[i] == warenbauer_t::passagiere)
 					{
 						//Passengers care about their comfort
-						tolerable_comfort_table_t& tolerable = welt->get_settings().tolerable_comfort;
-						const uint8 tolerable_comfort = tolerable(journey_tenths);
+						const uint8 tolerable_comfort = welt->get_settings().tolerable_comfort(journey_tenths);
 						if(comfort > tolerable_comfort)
 						{
 							// Apply luxury bonus

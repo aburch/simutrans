@@ -92,8 +92,7 @@ void goods_stats_t::zeichnen(koord offset)
 		if(wtyp == warenbauer_t::passagiere)
 		{
 			//Passengers care about their comfort
-			tolerable_comfort_table_t& tolerable = welt->get_settings().tolerable_comfort;
-		    const uint8 tolerable_comfort = tolerable(journey_tenths);
+		    const uint8 tolerable_comfort = welt->get_settings().tolerable_comfort(journey_tenths);
 
 			// Comfort matters more the longer the journey.
 			// @author: jamespetts, March 2010

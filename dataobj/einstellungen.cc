@@ -2231,7 +2231,6 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 			intro += contents.get_int("intro_month", 1) - 1;
 
 			scheme->add_livery(liv_name, intro);
-			livery_t liv = {liv_name, intro};
 		}
 		if(has_liveries)
 		{
@@ -2575,7 +2574,24 @@ void settings_t::cache_comfort_tables() {
 	tolerable_comfort.insert(tolerable_comfort_median_long_minutes * 10, tolerable_comfort_median_long);
 	tolerable_comfort.insert(tolerable_comfort_long_minutes * 10, tolerable_comfort_long);
 
-	// Inverse table -- which is used for display purposes only -- gives results in SECONDS
+	// These tables define the bonus or penalty for differing from the tolerable comfort.
+	// It is a percentage (yeah, two digits, again)
+	// As such this table is indexed by (comfort - tolerable_comfort).  It is signed.
+	base_comfort_revenue.clear(3);
+	base_comfort_revenue.insert( - (sint16) max_discomfort_penalty_differential, - (sint16) max_discomfort_penalty_percent );
+	base_comfort_revenue.insert( 0, 0 );
+	base_comfort_revenue.insert( (sint16) max_luxury_bonus_differential, (sint16) max_luxury_bonus_percent );
+
+	// Luxury & discomfort have less of an effect for shorter time periods.
+	// This gives the "derating" percentage.  (Yes, it's rounded to two digits.  No, I don't know why.)
+	// Again, it's indexed by TENTHS of minutes.
+	comfort_derating.clear(2);
+	comfort_derating.insert(tolerable_comfort_short_minutes * 10, 20 );
+	comfort_derating.insert(tolerable_comfort_median_long_minutes * 10, 100 );
+
+	// The inverse table: given a comfort rating, what's the tolerable journey length?
+	// This gives results in SECONDS
+	// It is used for display purposes only
 	max_tolerable_journey.clear(7);
 	// We have to do some finicky tricks at the beginning and end since it isn't constant...
 	// There is no tolerable journey below tolerable_comfort_short...
@@ -2591,7 +2607,6 @@ void settings_t::cache_comfort_tables() {
 	uint32 infinite_tenths = 65534;
 	uint32 infinite_seconds = infinite_tenths * 6;
 	max_tolerable_journey.insert(tolerable_comfort_long, infinite_seconds);
-
 }
 
 /**
