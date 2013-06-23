@@ -179,7 +179,7 @@ void goods_stats_t::zeichnen(koord offset)
 		display_proportional_clip(offset.x + 170, yoff, buf, 	ALIGN_RIGHT, 	COL_BLACK, true);
 
 		buf.clear();
-		buf.printf("%d%%", wtyp->get_adjusted_speed_bonus(distance_meters));
+		buf.printf("%d%%%%", wtyp->get_adjusted_speed_bonus(distance_meters));
 		display_proportional_clip(offset.x + 205, yoff, buf, ALIGN_RIGHT, COL_BLACK, true);
 
 		buf.clear();
