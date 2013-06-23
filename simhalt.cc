@@ -1145,9 +1145,10 @@ void haltestelle_t::step()
 							if(distance > 0) // No point in calculating refund if passengers/goods are discarded from their origin stop.
 							{
 								// Refund is approximation: 2x distance at standard rate with no adjustments. 
-								const sint64 refund_amount = ((tmp.menge * tmp.get_fare(distance) * 2000ll) + 1500ll) / 3000ll;
+								const sint64 refund_amount = (tmp.menge * tmp.get_besch()->get_refund(distance) + 1500) / 3000ll;
 
 								besitzer_p->book_revenue(-refund_amount, get_basis_pos(), ignore_wt, ATV_REVENUE_PASSENGER);
+								// Find the line the pasenger was *trying to go on* -- make it pay the refund
 								linehandle_t account_line = get_preferred_line(tmp.get_zwischenziel(), tmp.get_catg());
 								if(account_line.is_bound())
 								{

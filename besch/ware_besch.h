@@ -296,6 +296,13 @@ public:
 		return actual_fare;
 	}
 
+	/**
+	 * Estimate an appropriate refund for a trip of tile_distance length.
+	 * Returns in the same units as get_fare_with_speedbonus.
+	 *
+	 * Hopefully called rarely!
+	 */
+	sint64 get_refund(uint32 tile_distance) const;
 };
 
 #endif

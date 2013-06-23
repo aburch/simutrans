@@ -131,3 +131,20 @@ static uint16 ware_besch_t::get_adjusted_speed_bonus(const karte_t* world, uint3
 	}
 	// Can't get here
 }
+
+/**
+ * This is used solely when refunds must be calculated -- hopefully rarely.
+ * Unfortunately, we don't keep track of the revenue booked earlier for passengers
+ * when we need to make refunds, so we have to refund an approximation.
+ *
+ * We also don't know the actual speed of travel for the previous trip, or
+ * even the waytype used (so, no average speed either).
+ *
+ * The approximation is chosen to be 2x the base fare ("no speedbonus") for the minimum distance.
+ * This is in the same units as get_fare_with_speedbonus.
+ */
+sint64 ware_besch_t::get_refund(uint32 tile_distance) const
+{
+ 	sint64 fare = get_fare(tile_distance, 0);
+	return fare * 2000;
+}

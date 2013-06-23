@@ -852,30 +852,27 @@ vehikel_t::unload_freight(halthandle_t halt, sint64 & revenue_from_unloading, ar
 					
 					if(halt != end_halt && welt->get_settings().is_avoid_overcrowding() && tmp.is_passenger() && !halt->is_within_walking_distance_of(via_halt) && halt->is_overcrowded(tmp.get_besch()->get_catg_index()))
 					{
+						// The avoid_overcrowding setting is activated
 						// Halt overcrowded - discard goods/passengers, and collect no revenue.
 						// Experimetal 7.2 - also calculate a refund.
 
 						if(tmp.get_origin().is_bound() && get_besitzer()->get_finance()->get_account_balance() > 0)
 						{
 							// Cannot refund unless we know the origin.
-							// Also, ought not refund unless the player is solvent. 
+							// Also, ought not refund unless the player is solvent.
 							// Players ought not be put out of business by refunds, as this makes gameplay too unpredictable, 
 							// especially in online games, where joining one player's network to another might lead to a large
 							// influx of passengers which one of the networks cannot cope with.
 							const uint16 distance = shortest_distance(halt->get_basis_pos(), tmp.get_origin()->get_basis_pos());
 
-							// Refund is approximation: 2x distance at standard rate with no adjustments. 
-							const sint64 refund_amount = ((tmp.menge * tmp.get_fare(distance) * 2000ll) + 1500ll) / 3000ll;
+							// Refund is approximation.
+							const sint64 refund_amount = (tmp.menge * tmp.get_besch()->get_refund(distance) + 1500ll) / 3000ll;
 
 							revenue_from_unloading -= refund_amount;
-							cnv->book(-refund_amount, convoi_t::CONVOI_PROFIT);
+
+							// Book refund to the convoi & line
+							// (the revenue accounting in simconvoi.cc will take care of the profit booking)
 							cnv->book(-refund_amount, convoi_t::CONVOI_REFUNDS);
-							if(cnv->get_line().is_bound())
-							{
-								cnv->get_line()->book(-refund_amount, LINE_REFUNDS);
-								cnv->get_line()->book(-refund_amount, LINE_PROFIT);
-							}
-							revenue_from_unloading=-refund_amount;
 						}
 
 						// Add passengers to unhappy (due to overcrowding) passengers.
