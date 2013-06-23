@@ -2053,11 +2053,11 @@ public:
 		if(hours)
 		{
 			minutes %= 60;
-			sprintf(p, "%u:%02u:%02u", hours, minutes, seconds);
+			snprintf(p, size, "%u:%02u:%02u", hours, minutes, seconds);
 		}
 		else
 		{
-			sprintf(p, "%u:%02u", minutes, seconds);
+			snprintf(p, size, "%u:%02u", minutes, seconds);
 		}
 	}
 
