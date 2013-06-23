@@ -20,8 +20,9 @@ class checksum_t;
 
 // This has to have internal computations in uint64 to avoid internal computational overflow
 // in worst-case scenario.
-// distance: uint32, speedbonus: uint16, computation: uint64
-typedef piecewise_linear_tpl<uint32, uint16, uint64> adjusted_speed_bonus_t;
+// distance: uint32, speedbonus: uint16, computation: sint64
+// Signed computation is needed because the speedbonus values may *drop* as distance increases
+typedef piecewise_linear_tpl<uint32, uint16, sint64> adjusted_speed_bonus_t;
 
 struct fare_stage_t
 {
