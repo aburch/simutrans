@@ -980,13 +980,14 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 				// Guess that average speed is half of "best" speed
 				const uint32 average_speed = best_rail_speed / 2;
 				const sint64 relative_speed_percentage = (100ll * average_speed) / ref_speed - 100ll;
-				const sint64 freight_revenue_per_trip = freight->get_fare_with_speedbonus(welt, relative_speed_percentage, dist) * rail_vehicle->get_zuladung() * count_rail / 3000;
+				const uint32 distance_meters = dist * welt->get_settings().get_meters_per_tile();
+				const sint64 freight_revenue_per_trip = freight->get_fare_with_speedbonus(welt, relative_speed_percentage, distance_meters) * rail_vehicle->get_zuladung() * count_rail / 3000;
 				const sint64 freight_cost_per_trip
 				  = ( (sint64) rail_vehicle->get_running_cost(welt) * count_rail
 					  + rail_engine->get_running_cost(welt)
 				    )
-					* dist * 2 * welt->get_settings().get_meters_per_tile() / 1000;
-				const uint32 tpm = welt->speed_to_tiles_per_month(average_speed);
+					* distance_meters * 2 / 1000;
+				const uint32 tpm = welt->speed_to_tiles_per_month(kmh_to_speed(average_speed));
 				const sint32 profit_per_month = ( (freight_revenue_per_trip - freight_cost_per_trip) * tpm / dist * 2) ;
 
 				cost_rail = rail_weg->get_wartung() - profit_per_month;
@@ -1002,12 +1003,13 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 				// Guess that average speed is half of "best" speed
 				const uint32 average_speed = best_road_speed / 2;
 				const sint64 relative_speed_percentage = (100ll * average_speed) / ref_speed - 100ll;
-				const sint64 freight_revenue_per_trip = freight->get_fare_with_speedbonus(welt, relative_speed_percentage, dist) * road_vehicle->get_zuladung() * count_road / 3000;
+				const uint32 distance_meters = dist * welt->get_settings().get_meters_per_tile();
+				const sint64 freight_revenue_per_trip = freight->get_fare_with_speedbonus(welt, relative_speed_percentage, distance_meters) * road_vehicle->get_zuladung() * count_road / 3000;
 				const sint64 freight_cost_per_trip
 				  = ( (sint64) road_vehicle->get_running_cost(welt) * count_road
 				    )
-					* dist * 2 * welt->get_settings().get_meters_per_tile() / 1000;
-				const uint32 tpm = welt->speed_to_tiles_per_month(average_speed);
+					* distance_meters * 2 / 1000;
+				const uint32 tpm = welt->speed_to_tiles_per_month(kmh_to_speed(average_speed));
 				const sint32 profit_per_month = ( (freight_revenue_per_trip - freight_cost_per_trip) * tpm / dist * 2) ;
 
 				cost_road = road_weg->get_wartung() - profit_per_month;
