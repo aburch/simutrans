@@ -51,7 +51,7 @@ const char * ware_besch_t::get_catg_name() const
 }
 
 /**
- * Given the "normal" speed bonus and a distance (currently in tiles -- FIXME)
+ * Given the "normal" speed bonus and a distance (in METERS)
  * calculate the adjusted speed bonus.
  * There are several special effects at work here:
  * Speed bonus "phases in" above a certain distance before reaching its maximum
@@ -61,12 +61,8 @@ const char * ware_besch_t::get_catg_name() const
  */
 
 // Note that this is the static version -- pure computation
-static uint16 ware_besch_t::get_adjusted_speed_bonus(const karte_t* world, uint32 distance_in, uint16 base_bonus_rating)
+static uint16 ware_besch_t::get_adjusted_speed_bonus(const karte_t* world, sint32 distance_in, uint16 base_bonus_rating)
 {
-	// Avoid overflow.  This is 2^31 / 1000
-	assert (distance_in < 2147483);
-	// Multiply everything by 1000 for happier computations... later we will switch to meters...
-	sint32 distance = distance_in * 1000;
 	sint32 min_distance;
 	sint32 median_distance;
 	sint32 max_distance;
@@ -94,6 +90,9 @@ static uint16 ware_besch_t::get_adjusted_speed_bonus(const karte_t* world, uint3
 		max_distance = 250000;
 		multiplier = 300;
 	}
+
+	// Recover distance in tiles... for now
+	sint32 distance = distance_in / world->get_settings().get_meters_per_tile();
 
 	if(distance <= min_distance)
 	{
@@ -143,8 +142,8 @@ static uint16 ware_besch_t::get_adjusted_speed_bonus(const karte_t* world, uint3
  * The approximation is chosen to be 2x the base fare ("no speedbonus") for the minimum distance.
  * This is in the same units as get_fare_with_speedbonus.
  */
-sint64 ware_besch_t::get_refund(uint32 tile_distance) const
+sint64 ware_besch_t::get_refund(sint32 distance_meters) const
 {
- 	sint64 fare = get_fare(tile_distance, 0);
+ 	sint64 fare = get_fare(distance_meters, 0);
 	return fare * 2;
 }

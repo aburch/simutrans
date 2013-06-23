@@ -39,11 +39,11 @@ goods_stats_t::goods_stats_t( karte_t *wl )
 }
 
 
-void goods_stats_t::update_goodslist( uint16 *g, int b, int l, uint16 d, uint8 c, uint8 ct, waytype_t wt)
+void goods_stats_t::update_goodslist( uint16 *g, int b, int l, sint32 d, uint8 c, uint8 ct, waytype_t wt)
 {
 	goodslist = g;
 	relative_speed_percentage = b;
-	distance = d;
+	distance_meters = d;
 	comfort = c;
 	catering_level = ct;
 	way_type = wt;
@@ -77,7 +77,7 @@ void goods_stats_t::zeichnen(koord offset)
 		display_proportional_clip(offset.x + 14, yoff,	buf, ALIGN_LEFT, COL_BLACK, true);
 
 		// Massively cleaned up by neroden, June 2013
-		sint64 revenue = wtyp->get_fare_with_speedbonus(welt, relative_speed_percentage, distance);
+		sint64 revenue = wtyp->get_fare_with_speedbonus(welt, relative_speed_percentage, distance_meters);
 		sint64 price = revenue;
 
 		sint64 relevant_speed = ( welt->get_average_speed(way_type) * (relative_speed_percentage + 100) ) / 100;
@@ -86,7 +86,6 @@ void goods_stats_t::zeichnen(koord offset)
 			// Negative and zero speeds will be due to roundoff errors
 			relevant_speed = 1;
 		}
-		sint64 distance_meters = (sint64)distance * welt->get_settings().get_meters_per_tile();
 		const uint16 journey_tenths = (uint16) tenths_from_meters_and_kmh(distance_meters, relevant_speed);
 		const uint16 journey_minutes = (uint16) minutes_from_meters_and_kmh(distance_meters, relevant_speed);
 
@@ -171,10 +170,9 @@ void goods_stats_t::zeichnen(koord offset)
 				}
 				catering_table_t& catering_revenue = welt->get_settings().catering_revenues[catering_level];
 				price += catering_revenue(journey_tenths);
-				sint64 proportion = 0;
 			}
 		}
-	
+
 		money_to_string( money_buf, (double)price/300000.0 );
 		buf.clear();
 		buf.printf(money_buf);

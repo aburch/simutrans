@@ -4479,11 +4479,15 @@ sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportione
 	else {
 		starting_distance = 0;
 	}
+
+	const sint64 revenue_distance_meters = 1000ll * revenue_distance;
+	const sint64 starting_distance_meters = 1000ll * starting_distance;
+
 	const sint64 ref_speed = welt->get_average_speed(fahr[0]->get_besch()->get_waytype());
 	const sint64 relative_speed_percentage = (100ll * average_speed) / ref_speed - 100ll;
 
 	const ware_besch_t* goods = ware.get_besch();
-	const sint64 fare = goods->get_fare_with_speedbonus(get_welt(), (sint16)relative_speed_percentage, revenue_distance, (uint32)starting_distance);
+	const sint64 fare = goods->get_fare_with_speedbonus(get_welt(), (sint16)relative_speed_percentage, revenue_distance_meters, starting_distance_meters);
 	// Note that fare comes out in units of 1/1000 of a simcent, for computational reasons.
 	const sint64 revenue = fare * (sint64)ware.menge;
 	sint64 final_revenue = revenue;

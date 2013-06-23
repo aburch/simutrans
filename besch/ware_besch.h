@@ -156,18 +156,19 @@ public:
 
 	/**
 	 * This method returns the *total* fare for these
-	 * goods over the given distance, in tiles. This is
-	 * not the per-tile fare
+	 * goods over the given distance, in *meters*.
+	 *
 	 * This is the base fare, not adjusted for speedbonus...
 	 * This returns values in units of 1/1000 of a simcent
 	 *
+	 * This is very different from the similarly-named routine in standard
 	 * @author: jamespetts, neroden
 	 */
-	sint64 get_fare(uint32 tile_distance, uint32 starting_distance = 0) const
+	sint64 get_fare(sint32 distance_meters, sint32 starting_distance = 0) const
 	{
 		sint64 total_fare = 0;
 		uint16 per_tile_fare;
-		uint32 remaining_distance = tile_distance;
+		sint32 remaining_distance = distance_meters;
 		ITERATE(scaled_values, i)
 		{
 			per_tile_fare = scaled_values[i].price;
@@ -190,18 +191,21 @@ public:
 				starting_distance = 0;
 			}
 		}
-		return total_fare * 1000;
+		return total_fare;
 	}
 
 	void set_scale(uint16 scale_factor)
 	{
 		scaled_values.clear();
 		uint16 new_price;
-		uint32 new_distance;
+		sint32 new_distance;
 		ITERATE(values, i)
 		{
-			new_price = (values[i].price * scale_factor) / 1000;		
-			new_distance = (values[i].to_distance * 1000) / scale_factor;
+			// There are two things going on here:
+			// (1) price is per km, divide by 1000 to get per meter
+			// (2) price is in simcents, multiply by 1000 to get "internal units"
+			new_price = values[i].price * (1000 / 1000);
+			new_distance = values[i].to_distance * 1000;
 			scaled_values.append(fare_stage_t(new_distance, new_price));
 		}
 	}
@@ -251,17 +255,17 @@ public:
 	 * (2) The speed bonus "fades in" above that distance and enlarges as distance continues,
 	 *     until a "maximum distance".
 	 * This returns the actual speed bonus rating.
-	 * Distance is given in TILES (FIXME)
+	 * Distance is given in METERS
 	 *
 	 * Static version takes speed bonus rating as argument
 	 * ... and is defined in the C file
 	 */
-	static uint16 get_adjusted_speed_bonus(const karte_t* w, uint32 distance, uint16 base_bonus_rating);
+	static uint16 get_adjusted_speed_bonus(const karte_t* w, sint32 distance, uint16 base_bonus_rating);
 
 	/**
 	 * Non-static version uses our speed bonus
 	 */
-	uint16 get_adjusted_speed_bonus(const karte_t* w, uint32 distance) const
+	uint16 get_adjusted_speed_bonus(const karte_t* w, sint32 distance) const
 	{
 		return ware_besch_t::get_adjusted_speed_bonus(w, distance, get_speed_bonus() );
 	}
@@ -279,9 +283,9 @@ public:
 	 *
 	 * For technical reasons, several of these take the world as an argument.
 	 */
-	sint64 get_fare_with_speedbonus(const karte_t* w, sint16 relative_speed_percentage, uint32 tile_distance, uint32 starting_distance = 0) const
+	sint64 get_fare_with_speedbonus(const karte_t* w, sint16 relative_speed_percentage, sint32 distance_meters, sint32 starting_distance = 0) const
 	{
-		sint64 base_fare = get_fare(tile_distance, starting_distance);
+		sint64 base_fare = get_fare(distance_meters, starting_distance);
 			// We must be able to multiply by, say, 2^16;
 			// otherwise we may overflow computation computing the standard fare.
 			// This would require a completely unbalanced pakset;
@@ -290,7 +294,7 @@ public:
 			// If the assertion fails, we can't safely multiply by 4 * 1024.
 		sint64 min_fare = base_fare / 4ll; // minimum fare is 1/4 base
 		sint64 max_fare = base_fare * 4ll; // maximum fare is 4 * base
-		sint64 speed_bonus_rating = get_adjusted_speed_bonus(w, tile_distance);
+		sint64 speed_bonus_rating = get_adjusted_speed_bonus(w, distance_meters);
 		// Recall the screwy definition of the speed_bonus_rating from above.
 		// Given a percentage of 1 and a speed bonus rating of 1, we increase revenue by 1/1000.
 		// Percentage may be as high as 1000, bonus rating as high as 50...
@@ -309,7 +313,7 @@ public:
 	 *
 	 * Hopefully called rarely!
 	 */
-	sint64 get_refund(uint32 tile_distance) const;
+	sint64 get_refund(sint32 distance_meters) const;
 };
 
 #endif

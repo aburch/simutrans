@@ -448,10 +448,8 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 
 				// bonus stuff
 				int len = 5+display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, translator::translate("Max profit per km:"), ALIGN_LEFT, COL_BLACK, true );
-				// Revenue for moving 1 unit 1 tile -- in 1/1000 of simcent (and the stupid division by 3)
-				sint64 fare = v->get_fracht_typ()->get_fare_with_speedbonus(welt, relative_speed_percentage, 1);
-				// Yeeargh.  Must convert to per-km fare (fix the interface later)
-				fare = fare * 1000 / welt->get_settings().get_meters_per_tile();
+				// Revenue for moving 1 unit 1000 meters -- in 1/1000 of simcent (and the stupid division by 3)
+				sint64 fare = v->get_fracht_typ()->get_fare_with_speedbonus(welt, relative_speed_percentage, 1000);
 				// And the stupid division by 3 (FIXME)
 				sint64 profit = v->get_fracht_max()*fare/3000 - v->get_running_cost(welt);
 				money_to_string( number, profit/100.0 );

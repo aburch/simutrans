@@ -60,8 +60,8 @@ goods_frame_t::sort_mode_t goods_frame_t::sortby = unsortiert;
  */
 bool goods_frame_t::sortreverse = false;
 
+sint32 goods_frame_t::distance_meters = 1000;
 uint16 goods_frame_t::distance = 1;
-uint16 goods_frame_t::tile_distance = 0;
 uint8 goods_frame_t::comfort = 50;
 uint8 goods_frame_t::catering_level = 0;
 
@@ -98,56 +98,26 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	int y=D_BUTTON_HEIGHT+4-D_TITLEBAR_HEIGHT;
 
 	speed_bonus[0] = 0;
+
+// change_speed_label.set_text(speed_bonus);
+// change_speed_label.set_pos(koord(BUTTON4_X+5, y));
+// add_komponente(&change_speed_label);
+//
+// speed_down.init(button_t::repeatarrowleft, "", koord(BUTTON4_X-20, y), koord(10,D_BUTTON_HEIGHT));
+// speed_down.add_listener(this);
+// add_komponente(&speed_down);
+//
+// speed_up.init(button_t::repeatarrowright, "", koord(BUTTON4_X+10, y), koord(10,D_BUTTON_HEIGHT));
+// speed_up.add_listener(this);
+// add_komponente(&speed_up);
+//
+// y=D_BUTTON_HEIGHT+4+5*LINESPACE;
+
 	distance_txt[0] = 0;
 	comfort_txt[0] = 0;
 	catering_txt[0] = 0;
-	tile_distance = (1000 * distance) / goods_frame_t::welt->get_settings().get_meters_per_tile();
+	distance_meters = (sint32) 1000 * distance;
 
-	/*
-	change_speed_label.set_pos(koord(BUTTON4_X+5, y + 36));
-	add_komponente(&change_speed_label);
-
-	change_distance_label.set_pos(koord(BUTTON4_X+5, y));
-	add_komponente(&change_distance_label);
-
-	change_comfort_label.set_pos(koord(BUTTON4_X+5, y + 12));
-	add_komponente(&change_comfort_label);
-
-	change_catering_label.set_pos(koord(BUTTON4_X+5, y + 24));
-	add_komponente(&change_catering_label);
-	*/
-
-	//speed_down.init(button_t::repeatarrowleft, "", koord(BUTTON4_X-22, y + 36), koord(10,D_BUTTON_HEIGHT));
-	//speed_down.add_listener(this);
-	//add_komponente(&distance_input);
-
-	//speed_up.init(button_t::repeatarrowright, "", koord(BUTTON4_X+8, y + 36), koord(10,D_BUTTON_HEIGHT));
-	//speed_up.add_listener(this);
-	//add_komponente(&speed_up);
-
-	//distance_down.init(button_t::repeatarrowleft, "", koord(BUTTON4_X-22, y), koord(10,D_BUTTON_HEIGHT));
-	//distance_down.add_listener(this);
-	//add_komponente(&distance_down);
-
-	//distance_up.init(button_t::repeatarrowright, "", koord(BUTTON4_X+8, y), koord(10,D_BUTTON_HEIGHT));
-	//distance_up.add_listener(this);
-	//add_komponente(&distance_up);
-
-	//comfort_down.init(button_t::repeatarrowleft, "", koord(BUTTON4_X-22, y + 12), koord(10,D_BUTTON_HEIGHT));
-	//comfort_down.add_listener(this);
-	//add_komponente(&comfort_down);
-
-	//comfort_up.init(button_t::repeatarrowright, "", koord(BUTTON4_X+8, y + 12), koord(10,D_BUTTON_HEIGHT));
-	//comfort_up.add_listener(this);
-	//add_komponente(&comfort_up);
-
-	//catering_down.init(button_t::repeatarrowleft, "", koord(BUTTON4_X-22, y + 24), koord(10,D_BUTTON_HEIGHT));
-	//catering_down.add_listener(this);
-	//add_komponente(&catering_down);
-
-	//catering_up.init(button_t::repeatarrowright, "", koord(BUTTON4_X+8, y + 24), koord(10,D_BUTTON_HEIGHT));
-	//catering_up.add_listener(this);
-	//add_komponente(&catering_up);
 
 	distance_input.set_pos(koord(BUTTON4_X-22, y) );
 	distance_input.set_groesse(koord(60, D_BUTTON_HEIGHT));
@@ -271,7 +241,7 @@ bool goods_frame_t::compare_goods(uint16 const a, uint16 const b)
 				sint32 price[2];
 				for(uint8 i = 0; i < 2; i ++)
 				{
-					const sint64 revenue = w[i]->get_fare_with_speedbonus(welt, relative_speed_percentage, tile_distance);
+					const sint64 revenue = w[i]->get_fare_with_speedbonus(welt, relative_speed_percentage, distance_meters);
 					price[i] = revenue;
 
 					sint64 relevant_speed = ( welt->get_average_speed(wtype) * (relative_speed_percentage + 100) ) / 100;
@@ -280,7 +250,6 @@ bool goods_frame_t::compare_goods(uint16 const a, uint16 const b)
 						// Negative and zero speeds will be due to roundoff errors
 						relevant_speed = 1;
 					}
-					sint64 distance_meters = (sint64)tile_distance * welt->get_settings().get_meters_per_tile();
 					const uint16 journey_tenths = (uint16) tenths_from_meters_and_kmh(distance_meters, relevant_speed);
 					const uint16 journey_minutes = (uint16) minutes_from_meters_and_kmh(distance_meters, relevant_speed);
 
@@ -372,6 +341,7 @@ bool goods_frame_t::compare_goods(uint16 const a, uint16 const b)
 	return sortreverse ? order > 0 : order < 0;
 }
 
+
 // creates the list and pass it to the child function good_stats, which does the display stuff ...
 void goods_frame_t::sort_list()
 {
@@ -396,7 +366,7 @@ void goods_frame_t::sort_list()
 
 	std::sort(good_list, good_list + n, compare_goods);
 
-	goods_stats.update_goodslist(good_list, relative_speed_percentage, n, goods_frame_t::tile_distance, goods_frame_t::comfort, goods_frame_t::catering_level, wtype);
+	goods_stats.update_goodslist(good_list, relative_speed_percentage, n, goods_frame_t::distance_meters, goods_frame_t::comfort, goods_frame_t::catering_level, wtype);
 }
 
 
@@ -440,60 +410,13 @@ bool goods_frame_t::action_triggered( gui_action_creator_t *komp,value_t v)
 	//	sort_list();
 	//}
 
-	//else if(komp == &distance_down) 
-	//{
-	//	if(distance > 1) 
-	//	{
-	//		distance --;
-	//		tile_distance = (1000 * distance) / goods_frame_t::welt->get_settings().get_meters_per_tile();
-	//		sort_list();
-	//	}
-	//}
-	//else if(komp == &distance_up) 
-	//{
-	//	distance ++;
-	//	tile_distance = (1000 * distance) / goods_frame_t::welt->get_settings().get_meters_per_tile();
-	//	sort_list();
-	//}
-	//else if(komp == &comfort_down) 
-	//{
-	//	if(comfort > 1) 
-	//	{
-	//		comfort --;
-	//		sort_list();
-	//	}
-	//}
-	//else if(komp == &comfort_up) 
-	//{
-	//	if(comfort < 255) 
-	//	{
-	//		comfort ++;
-	//		sort_list();
-	//	}
-	//}
-	//else if(komp == &catering_down) 
-	//{
-	//	if(catering_level > 0) 
-	//	{
-	//		catering_level --;
-	//		sort_list();
-	//	}
-	//}
-	//else if(komp == &catering_up) 
-	//{
-	//	if(catering_level < 5) 
-	//	{
-	//		catering_level ++;
-	//		sort_list();
-	//	}
-	//}
 	else if (komp == &speed_input) {
 		relative_speed_percentage = v.i;
 		sort_list();
 	}
 	else if (komp == &distance_input) {
 		distance = v.i;
-		tile_distance = (1000 * distance) / goods_frame_t::welt->get_settings().get_meters_per_tile();
+		distance_meters = (sint32) 1000 * distance;
 		sort_list();
 	}
 	else if (komp == &comfort_input) {
@@ -560,10 +483,8 @@ void goods_frame_t::zeichnen(koord pos, koord gr)
 {
 	gui_frame_t::zeichnen(pos, gr);
 
+	// Standard has:
 	//sprintf(speed_bonus,"%i",relative_speed_change-100);
-	//sprintf(distance_txt,"%i",distance);
-	//sprintf(comfort_txt,"%i",comfort);
-	//sprintf(catering_txt,"%i",catering_level);
 
 	sint16 speed_ratio = relative_speed_percentage + 100;
 	speed_message.clear();

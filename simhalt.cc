@@ -1144,8 +1144,9 @@ void haltestelle_t::step()
 							const uint16 distance = shortest_distance(get_basis_pos(), tmp.get_origin()->get_basis_pos());
 							if(distance > 0) // No point in calculating refund if passengers/goods are discarded from their origin stop.
 							{
+								const sint64 distance_meters = (sint64) distance * welt->get_settings().get_meters_per_tile();
 								// Refund is approximation: 2x distance at standard rate with no adjustments. 
-								const sint64 refund_amount = (tmp.menge * tmp.get_besch()->get_refund(distance) + 1500) / 3000ll;
+								const sint64 refund_amount = (tmp.menge * tmp.get_besch()->get_refund(distance_meters) + 1500) / 3000ll;
 
 								besitzer_p->book_revenue(-refund_amount, get_basis_pos(), ignore_wt, ATV_REVENUE_PASSENGER);
 								// Find the line the pasenger was *trying to go on* -- make it pay the refund
