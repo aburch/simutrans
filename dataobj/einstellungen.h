@@ -717,14 +717,10 @@ public:
 	bool is_seperate_halt_capacities() const { return seperate_halt_capacities ; }
 
 	uint16 get_min_bonus_max_distance() const { return min_bonus_max_distance; }
-	void   set_min_bonus_max_distance(uint16 value) { min_bonus_max_distance = value; warenbauer_t::cache_speed_bonuses(); }
 	uint16 get_median_bonus_distance() const { return median_bonus_distance; }
-	void   set_median_bonus_distance(uint16 value) { median_bonus_distance = value; warenbauer_t::cache_speed_bonuses(); }
 	uint16 get_max_bonus_min_distance() const { return max_bonus_min_distance; }
-	void   set_max_bonus_min_distance(uint16 value) { max_bonus_min_distance = value; warenbauer_t::cache_speed_bonuses(); }
 
 	uint16 get_max_bonus_multiplier_percent() const { return max_bonus_multiplier_percent; }
-	void   set_max_bonus_multiplier_percent(uint16 value) { max_bonus_multiplier_percent = value; warenbauer_t::cache_speed_bonuses(); }
 
 	uint16 get_meters_per_tile() const { return meters_per_tile; }
 	void   set_meters_per_tile(uint16 value);
@@ -767,32 +763,21 @@ public:
 	void   set_max_discomfort_penalty_differential(uint8 value) { max_discomfort_penalty_differential = value; }
 
 	uint16 get_catering_min_minutes() const { return catering_min_minutes; }
-	void   set_catering_min_minutes(uint16 value) { catering_min_minutes = value; cache_catering_revenues(); }
 
 	uint16 get_catering_level1_minutes() const { return catering_level1_minutes; }
-	void   set_catering_level1_minutes(uint16 value) { catering_level1_minutes = value; cache_catering_revenues(); }
 	uint16 get_catering_level1_max_revenue() const { return catering_level1_max_revenue; }
-	void   set_catering_level1_max_revenue(uint16 value) { catering_level1_max_revenue = value; cache_catering_revenues(); }
 
 	uint16 get_catering_level2_minutes() const { return catering_level2_minutes; }
-	void   set_catering_level2_minutes(uint16 value) { catering_level2_minutes = value; cache_catering_revenues(); }
 	uint16 get_catering_level2_max_revenue() const { return catering_level2_max_revenue; }
-	void   set_catering_level2_max_revenue(uint16 value) { catering_level2_max_revenue = value; cache_catering_revenues(); }
 
 	uint16 get_catering_level3_minutes() const { return catering_level3_minutes; }
-	void   set_catering_level3_minutes(uint16 value) { catering_level3_minutes = value; cache_catering_revenues(); }
 	uint16 get_catering_level3_max_revenue() const { return catering_level3_max_revenue; }
-	void   set_catering_level3_max_revenue(uint16 value) { catering_level3_max_revenue = value; cache_catering_revenues(); }
 
 	uint16 get_catering_level4_minutes() const { return catering_level4_minutes; }
-	void   set_catering_level4_minutes(uint16 value) { catering_level4_minutes = value; cache_catering_revenues(); }
 	uint16 get_catering_level4_max_revenue() const { return catering_level4_max_revenue; }
-	void   set_catering_level4_max_revenue(uint16 value) { catering_level4_max_revenue = value; cache_catering_revenues(); }
 
 	uint16 get_catering_level5_minutes() const { return catering_level5_minutes; }
-	void   set_catering_level5_minutes(uint16 value) { catering_level5_minutes = value; cache_catering_revenues(); }
 	uint16 get_catering_level5_max_revenue() const { return catering_level5_max_revenue; }
-	void   set_catering_level5_max_revenue(uint16 value) { catering_level5_max_revenue = value; cache_catering_revenues(); }
 
 	void   cache_catering_revenues(); // Cache the list of values above in piecewise-linear functions.
 

@@ -14,6 +14,7 @@
 #include "../player/finance.h" // MAX_PLAYER_HISTORY_YEARS
 #include "../vehicle/simvehikel.h"
 #include "settings_stats.h"
+#include "../bauer/warenbauer.h" // cache_speed_bonuses
 
 
 /* stuff not set here ....
@@ -228,10 +229,10 @@ void settings_experimental_general_stats_t::read(settings_t *sets)
 {
 	READ_INIT;
 
-	READ_NUM( sets->set_min_bonus_max_distance );
-	READ_NUM( sets->set_median_bonus_distance );
-	READ_NUM( sets->set_max_bonus_min_distance );
-	READ_NUM( sets->set_max_bonus_multiplier_percent );
+	READ_NUM_VALUE( sets->min_bonus_max_distance );
+	READ_NUM_VALUE( sets->median_bonus_distance );
+	READ_NUM_VALUE( sets->max_bonus_min_distance );
+	READ_NUM_VALUE( sets->max_bonus_multiplier_percent );
 
 	READ_NUM( sets->set_tpo_min_minutes );
 	READ_NUM( sets->set_tpo_revenue );
@@ -270,9 +271,8 @@ void settings_experimental_general_stats_t::read(settings_t *sets)
 			sets->set_default_increase_maintenance_after_years((waytype_t)i, default_increase_maintenance_after_years_other);
 		}
 	}
-
-
-
+	// And convert to the form used in-game...
+	warenbauer_t::cache_speed_bonuses();
 }
 
 
@@ -440,6 +440,8 @@ void settings_experimental_revenue_stats_t::read(settings_t *sets)
 	READ_NUM_VALUE( sets->catering_level5_minutes );
 	READ_NUM_VALUE( sets->catering_level5_max_revenue );
 
+	// And convert to the form used in-game...
+	sets->cache_catering_revenues();
 }
 
 bool settings_general_stats_t::action_triggered(gui_action_creator_t *komp, value_t v)
