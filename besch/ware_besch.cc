@@ -77,9 +77,11 @@ static uint16 ware_besch_t::get_adjusted_speed_bonus(const karte_t* world, sint3
 		multiplier = (sint32) world->get_settings().get_max_bonus_multiplier_percent();
 
 		// Sanity checks on values
-		assert(max_distance > median_distance);
-		assert(median_distance > min_distance);
-		assert(median_distance == 0 || median_distance > min_distance);
+		assert (max_distance >= min_distance);
+		if (median_distance) {
+			assert(max_distance >= median_distance);
+			assert(median_distance >= min_distance);
+		}
 		assert(multiplier >= 100);
 	}
 	else { // no world... should rarely happen
