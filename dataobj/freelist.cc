@@ -12,9 +12,15 @@
 #include <valgrind/memcheck.h>
 #endif
 
+#define DEBUG_FREELIST
 
 struct nodelist_node_t
 {
+#ifdef DEBUG_FREELIST
+	unsigned magic : 16;
+	unsigned free : 1;
+	unsigned size : 15;
+#endif
 	nodelist_node_t* next;
 };
 
@@ -66,7 +72,11 @@ void *freelist_t::gimme_node(size_t size)
 	}
 
 	// all sizes should be dividable by 4 and at least as large as a pointer
+#ifdef DEBUG_FREELIST
+	size = max( min_size, size+4 );
+#else
 	size = max( min_size, size );
+#endif
 	size = (size+3)>>2;
 	size <<= 2;
 
@@ -78,11 +88,16 @@ void *freelist_t::gimme_node(size_t size)
 	nodelist_node_t *tmp;
 	if(  size > MAX_LIST_INDEX  ) {
 		// too large: just use malloc anyway
-		void* tmp2 = xmalloc(size);
+		tmp = (nodelist_node_t *)xmalloc(size);
 #if MULTI_THREAD>1
 		pthread_mutex_unlock( &freelist_mutex );
 #endif
-		return tmp2;
+#ifdef DEBUG_FREELIST
+		tmp->magic = 0xAA;
+		tmp->free = 0;
+		tmp->size = size/4;
+#endif
+		return tmp;
 	}
 
 
@@ -113,7 +128,6 @@ void *freelist_t::gimme_node(size_t size)
 		// then enter nodes into nodelist
 		for(  int i=0;  i<num_elements;  i++  ) {
 			nodelist_node_t *tmp = (nodelist_node_t *)(p+i*size);
-
 #ifdef USE_VALGRIND_MEMCHECK
 			// tell valgrind that we reserved space for one nodelist_node_t
 			VALGRIND_CREATE_MEMPOOL(tmp, 0, false);
@@ -124,7 +138,8 @@ void *freelist_t::gimme_node(size_t size)
 			*list = tmp;
 		}
 	}
-	// return first node
+
+	// return first node of list
 	tmp = *list;
 	*list = tmp->next;
 
@@ -138,7 +153,12 @@ void *freelist_t::gimme_node(size_t size)
 	pthread_mutex_unlock( &freelist_mutex );
 #endif
 
-	return (void *)tmp;
+#ifdef DEBUG_FREELIST
+	tmp->magic = 0x5555;
+	tmp->free = 0;
+	tmp->size = size/4;
+#endif
+	return (void *)&(tmp->next);
 }
 
 
@@ -150,7 +170,11 @@ void freelist_t::putback_node( size_t size, void *p )
 	}
 
 	// all sizes should be dividable by 4
+#ifdef DEBUG_FREELIST
+	size = max( min_size, size+4 );
+#else
 	size = max( min_size, size );
+#endif
 	size = ((size+3)>>2);
 	size <<= 2;
 
@@ -177,6 +201,11 @@ void freelist_t::putback_node( size_t size, void *p )
 
 	// putback to first node
 	nodelist_node_t *tmp = (nodelist_node_t *)p;
+#ifdef DEBUG_FREELIST
+	tmp = (nodelist_node_t *)((char *)p-4);
+	assert(  tmp->magic == 0x5555  &&  tmp->free == 0  &&  tmp->size == size/4  );
+	tmp->free = 1;
+#endif
 	tmp->next = *list;
 	*list = tmp;
 
