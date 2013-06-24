@@ -68,20 +68,25 @@ void tunnel_t::calc_bild()
 		broad_type = 0;
 		if(  besch->has_broad_portals()  ) {
 			ribi_t::ribi dir = ribi_t::rotate90( ribi_typ( hang ) );
-			const grund_t *gr_l = welt->lookup(get_pos() + dir);
-			tunnel_t* tunnel_l = gr_l ? gr_l->find<tunnel_t>() : NULL;
-			if(  tunnel_l  &&  tunnel_l->get_besch() == besch  &&  gr_l->get_grund_hang() == hang  ) {
-				broad_type += 1;
-				if(  !(tunnel_l->get_broad_type() & 2)  ) {
-					tunnel_l->calc_bild();
-				}
+			if(  dir==0  ) {
+				dbg->error( "tunnel_t::calc_bild()", "pos=%s, dir=%i, hang=%i", get_pos().get_str(), dir, hang );
 			}
-			const grund_t *gr_r = welt->lookup(get_pos() - dir);
-			tunnel_t* tunnel_r = gr_r ? gr_r->find<tunnel_t>() : NULL;
-			if(  tunnel_r  &&  tunnel_r->get_besch() == besch  &&  gr_r->get_grund_hang() == hang  ) {
-				broad_type += 2;
-				if(  !(tunnel_r->get_broad_type() & 1)  ) {
-					tunnel_r->calc_bild();
+			else {
+				const grund_t *gr_l = welt->lookup(get_pos() + dir);
+				tunnel_t* tunnel_l = gr_l ? gr_l->find<tunnel_t>() : NULL;
+				if(  tunnel_l  &&  tunnel_l->get_besch() == besch  &&  gr_l->get_grund_hang() == hang  ) {
+					broad_type += 1;
+					if(  !(tunnel_l->get_broad_type() & 2)  ) {
+						tunnel_l->calc_bild();
+					}
+				}
+				const grund_t *gr_r = welt->lookup(get_pos() - dir);
+				tunnel_t* tunnel_r = gr_r ? gr_r->find<tunnel_t>() : NULL;
+				if(  tunnel_r  &&  tunnel_r->get_besch() == besch  &&  gr_r->get_grund_hang() == hang  ) {
+					broad_type += 2;
+					if(  !(tunnel_r->get_broad_type() & 1)  ) {
+						tunnel_r->calc_bild();
+					}
 				}
 			}
 		}
