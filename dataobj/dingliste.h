@@ -9,33 +9,61 @@ class dingliste_t {
 private:
 	union {
 		ding_t **some;    // valid if capacity > 1
-		ding_t *one;      // valid if capacity == 1
+		ding_t *one;      // valid if capacity == 0
 	} obj;
 
 	/**
 	 * Number of items which can be stored without expanding
+	 * For micro-efficiency reasons (tests against 0 are cheap),
+	 * the value of zero actually means "one".
+	 * This value should never ever be 1.
+	 *
+	 * Related code reworked by neroden
 	 */
 	uint8 capacity;
 
 	/**
-	 * 0-based index of the next free entry after the last element
-	 * therefore also the count of number of items which are stored
+	 * 0-based index of the next free entry after the last element;
+	 * therefore also the count of number of items which are stored.
+	 * "top" CAN be zero if there are no items.
+	 *
+	 * It IS legal for top to be 0 or 1 when capacity is 2 or more.
+	 * This may happen when the list expands and then contracts again;
+	 * good memory management means we do not always go back to the "one"
+	 * implementation.
+	 *
+	 * Related code reworked by neroden
 	 */
 	uint8 top;
 
-	void set_capacity(uint16 new_cap);
-
+	/**
+	 * Grow the capacity (must start in "some" mode)
+	 */
 	bool grow_capacity();
+	/**
+	 * Change from "one" mode to "some" mode
+	 */
+	void grow_capacity_above_one();
 
-	void shrink_capacity(uint8 last_index);
+	/**
+	 * Shrink, if appropriate in terms of memory management
+	 */
+	void shrink_capacity();
 
 	inline void intern_insert_at(ding_t* ding, uint8 pri);
 
 	// this will automatically give the right order for citycars and the like ...
 	bool intern_add_moving(ding_t* ding);
 
+	// Copy constructor and assignment operator break memory management.
+	// Prohibit them by declaring them private and unimplemented.
 	dingliste_t(dingliste_t const&);
 	dingliste_t& operator=(dingliste_t const&);
+
+	// consistency check, used only during debugging
+	// aborts program if errors are found
+	inline void consistency_check() const;
+
 public:
 	dingliste_t();
 	~dingliste_t();
@@ -61,7 +89,8 @@ public:
 		if(n >= top) {
 			return NULL;
 		}
-		return (capacity<=1) ? obj.one : obj.some[n];
+		// assert (capacity != 1);
+		return (capacity==0) ? obj.one : obj.some[n];
 	}
 
 	// usually used only for copying by grund_t
@@ -109,6 +138,7 @@ public:
 
 	// start next month (good for toogling a seasons)
 	void check_season(const long month);
+
 } GCC_PACKED;
 
 #endif
