@@ -73,7 +73,7 @@ void *freelist_t::gimme_node(size_t size)
 
 	// all sizes should be dividable by 4 and at least as large as a pointer
 #ifdef DEBUG_FREELIST
-	size = max( min_size, size+4 );
+	size = max( min_size, size + min_size);
 #else
 	size = max( min_size, size );
 #endif
@@ -171,7 +171,7 @@ void freelist_t::putback_node( size_t size, void *p )
 
 	// all sizes should be dividable by 4
 #ifdef DEBUG_FREELIST
-	size = max( min_size, size+4 );
+	size = max( min_size, size + min_size );
 #else
 	size = max( min_size, size );
 #endif
@@ -202,7 +202,7 @@ void freelist_t::putback_node( size_t size, void *p )
 	// putback to first node
 	nodelist_node_t *tmp = (nodelist_node_t *)p;
 #ifdef DEBUG_FREELIST
-	tmp = (nodelist_node_t *)((char *)p-4);
+	tmp = (nodelist_node_t *)((char *)p - min_size);
 	assert(  tmp->magic == 0x5555  &&  tmp->free == 0  &&  tmp->size == size/4  );
 	tmp->free = 1;
 #endif
