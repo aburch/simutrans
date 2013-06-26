@@ -4462,16 +4462,19 @@ sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportione
 	}
 
 	sint64 starting_distance;
-	if (ware.get_origin().is_bound()) {
+	if (ware.get_origin().is_bound())
+	{
 		sint64 distance_from_ultimate_origin
 			= (sint64)shortest_distance(ware.get_origin()->get_basis_pos(), fahr[0]->get_pos().get_2d());
-		sint64 starting_distance = distance_from_ultimate_origin - (sint64)revenue_distance;
-		if (starting_distance < 0) {
+		starting_distance = distance_from_ultimate_origin - (sint64)revenue_distance;
+		if (starting_distance < 0) 
+		{
 			// Artifact of convoluted routing
 			starting_distance = 0;
 		}
 	}
-	else {
+	else 
+	{
 		starting_distance = 0;
 	}
 
