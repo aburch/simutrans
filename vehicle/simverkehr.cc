@@ -399,10 +399,14 @@ stadtauto_t::~stadtauto_t()
 	if(gr  &&  gr->ist_uebergang()) {
 		gr->find<crossing_t>(2)->release_crossing(this);
 	}
-
+	
 	// just to be sure we are removed from this list!
 	if(time_to_life>0) {
 		welt->sync_remove(this);
+	}
+	if(current_list)
+	{
+		current_list->remove(this);
 	}
 	welt->buche( -1, karte_t::WORLD_CITYCARS );
 }
@@ -448,7 +452,7 @@ stadtauto_t::stadtauto_t(karte_t* const welt, koord3d const pos, koord const tar
 bool stadtauto_t::sync_step(long delta_t)
 {
 	time_to_life -= delta_t;
-	if(  time_to_life<=0 || current_list == NULL ) {
+	if(  time_to_life<=0 ) {
 		return false;
 	}
 
