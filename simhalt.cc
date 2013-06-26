@@ -1146,7 +1146,7 @@ void haltestelle_t::step()
 							{
 								const uint32 distance_meters = (uint32) distance * welt->get_settings().get_meters_per_tile();
 								// Refund is approximation: 2x distance at standard rate with no adjustments. 
-								const sint64 refund_amount = (tmp.menge * tmp.get_besch()->get_refund(distance_meters) + 1500) / 3000ll;
+								const sint64 refund_amount = (tmp.menge * tmp.get_besch()->get_refund(distance_meters) + 2048ll) / 4096ll;
 
 								besitzer_p->book_revenue(-refund_amount, get_basis_pos(), ignore_wt, ATV_REVENUE_PASSENGER);
 								// Find the line the pasenger was *trying to go on* -- make it pay the refund

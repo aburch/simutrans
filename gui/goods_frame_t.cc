@@ -239,12 +239,9 @@ bool goods_frame_t::compare_goods(uint16 const a, uint16 const b)
 			break;
 		case 2: // sort by revenue
 			{
-				sint32 price[2];
+				sint64 price[2];
 				for(uint8 i = 0; i < 2; i ++)
 				{
-					const sint64 revenue = w[i]->get_fare_with_speedbonus(relative_speed_percentage, distance_meters);
-					price[i] = revenue;
-
 					sint64 relevant_speed = ( welt->get_average_speed(wtype) * (relative_speed_percentage + 100) ) / 100;
 					// Roundoff is deliberate here (get two-digit speed)... question this
 					if (relevant_speed <= 0) {
@@ -254,63 +251,8 @@ bool goods_frame_t::compare_goods(uint16 const a, uint16 const b)
 					const uint16 journey_tenths = (uint16) tenths_from_meters_and_kmh(distance_meters, relevant_speed);
 					const uint16 journey_minutes = (uint16) minutes_from_meters_and_kmh(distance_meters, relevant_speed);
 
-					// Comfort matters more the longer the journey.
-					// @author: jamespetts, March 2010
-					float comfort_modifier;
-					if(journey_minutes <= 2)
-					{
-						comfort_modifier = 0.12F;
-					}
-					else if(journey_minutes >= 300)
-					{
-						comfort_modifier = 1.0F;
-					}
-					else
-					{
-						const uint16 differential = journey_minutes - 2;
-						const uint16 max_differential = 300 - 2;
-						const float proportion = (float)differential / (float)max_differential;
-						comfort_modifier = (0.8F * proportion) + 0.2F;
-					}
-
-					if(w[i] == warenbauer_t::passagiere)
-					{
-						//Passengers care about their comfort
-						const uint8 tolerable_comfort = welt->get_settings().tolerable_comfort(journey_tenths);
-						if(comfort > tolerable_comfort)
-						{
-							// Apply luxury bonus
-							const uint8 max_differential = 55;
-							const uint8 differential = comfort - tolerable_comfort;
-							const float multiplier = 4 * comfort_modifier;
-							if(differential >= max_differential)
-							{
-								price[i] += (revenue * multiplier);
-							}
-							else
-							{
-								const float proportion = (float)differential / (float)max_differential;
-								price[i] += revenue * (multiplier * proportion);
-							}
-						}
-						else if(comfort < tolerable_comfort)
-						{
-							// Apply discomfort penalty
-							const uint8 max_differential = 200;
-							const uint8 differential = tolerable_comfort - comfort;
-							const float multiplier = 0.95F * comfort_modifier;
-							if(differential >= max_differential)
-							{
-								price[i] -= (revenue * multiplier);
-							}
-							else
-							{
-								const float proportion = (float)differential / (float)max_differential;
-						 		price[i] -= revenue * (multiplier * proportion);
-							}
-						}
-						// Do nothing if comfort == tolerable_comfort
-					}
+					price[i] = w[i]->get_fare_with_comfort_catering_speedbonus(welt,
+							comfort, catering_level, journey_tenths, relative_speed_percentage, distance_meters);
 				}
 
 				order = price[0] - price[1];
@@ -357,11 +299,10 @@ void goods_frame_t::sort_list()
 	for(unsigned int i=0; i<warenbauer_t::get_waren_anzahl(); i++) {
 		const ware_besch_t * wtyp = warenbauer_t::get_info(i);
 
-		// Hajo: we skip goods that don't generate income
-		//       this should only be true for the special good 'None'
-		// Also skip goods not in the game (Standard 111.1 and later).
-		if(wtyp->get_fare(1) != 0 && (!filter_goods || goods_in_game.is_contained(wtyp))) 
-		{
+		// Skip goods not in the game
+		// Do not skip goods which don't generate income -- it makes it hard to debug paks
+		// Do skip the special good "None"
+		if(  (wtyp != warenbauer_t::nichts) && (!filter_goods || goods_in_game.is_contained(wtyp))  ) {
 			good_list[n++] = i;
 		}
 	}

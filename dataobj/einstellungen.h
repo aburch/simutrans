@@ -30,8 +30,6 @@ struct road_timeline_t
 	uint16 retire;
 };
 
-// For catering revenue
-typedef piecewise_linear_tpl<uint16, sint64> catering_table_t;
 
 template <class T>
 class vector_with_ptr_ownership_tpl : public vector_tpl<T*> 
@@ -345,6 +343,8 @@ public:
 	// We need it often(every vehikel_basis_t::fahre_basis call), so we cache it.
 	uint32 steps_per_km;
 
+private:
+	// The public version of these is exposed via tables below --neroden
 	uint8 tolerable_comfort_short;
 	uint8 tolerable_comfort_median_short;
 	uint8 tolerable_comfort_median_median;
@@ -356,23 +356,11 @@ public:
 	uint16 tolerable_comfort_median_long_minutes;
 	uint16 tolerable_comfort_long_minutes;
 
-	// @author: neroden
-	// third argument is intermediate computation type
-	// The tolerable comfort table. (tenths of minutes to comfort)
-	piecewise_linear_tpl<uint16, sint16, uint32> tolerable_comfort;
-	// The max tolerable journey table (comfort to seconds)
-	piecewise_linear_tpl<uint8, uint32, uint64> max_tolerable_journey;
-	// The base comfort revenue table (comfort - tolerable comfort to percentage)
-	piecewise_linear_tpl<sint16, sint16, sint32> base_comfort_revenue;
-	// The comfort derating table (tenths of minutes to percentage)
-	piecewise_linear_tpl<uint16, uint8> comfort_derating;
-
 	uint8 max_luxury_bonus_differential;
 	uint8 max_discomfort_penalty_differential;
 	uint16 max_luxury_bonus_percent;
 	uint16 max_discomfort_penalty_percent;
 
-protected:
 	uint16 catering_min_minutes;
 	uint16 catering_level1_minutes;
 	uint16 catering_level1_max_revenue;
@@ -385,15 +373,33 @@ protected:
 	uint16 catering_level5_minutes;
 	uint16 catering_level5_max_revenue;
 
+	uint16 tpo_min_minutes;
+	uint16 tpo_revenue;
+
 public:
+	// @author: neroden
+	// Linear interpolation tables for various things
+	// First argument is "in" type, second is "out" type
+	// Third argument is intermediate computation type
+
+	// The tolerable comfort table. (tenths of minutes to comfort)
+	piecewise_linear_tpl<uint16, sint16, uint32> tolerable_comfort;
+	// The max tolerable journey table (comfort to seconds)
+	piecewise_linear_tpl<uint8, uint32, uint64> max_tolerable_journey;
+	// The base comfort revenue table (comfort - tolerable comfort to percentage)
+	piecewise_linear_tpl<sint16, sint16, sint32> base_comfort_revenue;
+	// The comfort derating table (tenths of minutes to percentage)
+	piecewise_linear_tpl<uint16, uint8> comfort_derating;
+
 	// @author: neroden
 	// Tables 0 through 5 for catering revenue.
 	// One for each level -- so there are 6 of them total.
 	// Dontcha hate C array declaration style?
-	catering_table_t catering_revenues[6];
+	piecewise_linear_tpl<uint16, sint64> catering_revenues[6];
 
-	uint16 tpo_min_minutes;
-	uint16 tpo_revenue;
+	// Single table for TPO revenues.
+	piecewise_linear_tpl<uint16, sint64> tpo_revenues;
+
 
 	//@author: jamespetts
 	// Obsolete vehicle maintenance cost increases
@@ -410,7 +416,7 @@ public:
 	uint32 midrange_passengers_max_distance;
 	uint32 longdistance_passengers_min_distance;
 	uint32 longdistance_passengers_max_distance;
-	
+
 	// @author: jamespetts
 	// Private car settings
 	uint8 always_prefer_car_percent;

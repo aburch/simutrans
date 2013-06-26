@@ -77,102 +77,20 @@ void goods_stats_t::zeichnen(koord offset)
 		display_proportional_clip(offset.x + 14, yoff,	buf, ALIGN_LEFT, COL_BLACK, true);
 
 		// Massively cleaned up by neroden, June 2013
-		sint64 revenue = wtyp->get_fare_with_speedbonus(relative_speed_percentage, distance_meters);
-		sint64 price = revenue;
-
 		sint64 relevant_speed = ( welt->get_average_speed(way_type) * (relative_speed_percentage + 100) ) / 100;
 		// Roundoff is deliberate here (get two-digit speed)... question this
 		if (relevant_speed <= 0) {
 			// Negative and zero speeds will be due to roundoff errors
 			relevant_speed = 1;
 		}
-		const uint16 journey_tenths = (uint16) tenths_from_meters_and_kmh(distance_meters, relevant_speed);
-		const uint16 journey_minutes = (uint16) minutes_from_meters_and_kmh(distance_meters, relevant_speed);
+		const sint64 journey_tenths = tenths_from_meters_and_kmh(distance_meters, relevant_speed);
 
-		if(wtyp == warenbauer_t::passagiere)
-		{
-			//Passengers care about their comfort
-		    const uint8 tolerable_comfort = welt->get_settings().tolerable_comfort(journey_tenths);
+		sint64 revenue = wtyp->get_fare_with_comfort_catering_speedbonus(welt,
+				comfort, catering_level, journey_tenths, relative_speed_percentage, distance_meters);
+		// Convert to simcents.  Should be very fast.
+		sint64 price = (revenue + 2048) / 4096;
 
-			// Comfort matters more the longer the journey.
-			// @author: jamespetts, March 2010
-			sint64 comfort_modifier;
-			if(journey_minutes <= welt->get_settings().get_tolerable_comfort_short_minutes())
-			{
-				comfort_modifier = 20ll;
-			}
-			else if(journey_minutes >= welt->get_settings().get_tolerable_comfort_median_long_minutes())
-			{
-				comfort_modifier = 100ll;
-			}
-			else
-			{
-				const uint16 differential = journey_minutes - welt->get_settings().get_tolerable_comfort_short_minutes();
-				const uint16 max_differential = welt->get_settings().get_tolerable_comfort_median_long_minutes() -welt->get_settings().get_tolerable_comfort_short_minutes();
-				const uint32 proportion = differential * 100 / max_differential;
-				comfort_modifier = (80ll * (sint64)proportion / 100ll) + 20ll;
-			}
-
-			if(comfort > tolerable_comfort)
-			{
-				// Apply luxury bonus
-				const uint8 max_differential = welt->get_settings().get_max_luxury_bonus_differential();
-				const uint8 differential = comfort - tolerable_comfort;
-				const sint64 multiplier = ((sint64)welt->get_settings().get_max_luxury_bonus_percent() * comfort_modifier) / 100ll;
-				if(differential >= max_differential)
-				{
-					price += (revenue * (sint64)multiplier) / 100ll;
-				}
-				else
-				{
-					const sint64 proportion = ((sint64)differential * 100ll) / (sint64)max_differential;
-					price += (revenue * (sint64)(multiplier * proportion)) / 10000ll;
-				}
-			}
-			else if(comfort < tolerable_comfort)
-			{
-				// Apply discomfort penalty
-				const uint8 max_differential = welt->get_settings().get_max_discomfort_penalty_differential();
-				const uint8 differential = tolerable_comfort - comfort;
-				sint64 multiplier = ((sint64)welt->get_settings().get_max_discomfort_penalty_percent() * comfort_modifier) / 100ll;
-				multiplier = multiplier < 95ll ? multiplier : 95ll;
-				if(differential >= max_differential)
-				{
-					price -= (revenue * (sint64)multiplier) / 100ll;
-				}
-				else
-				{
-					const sint64 proportion = ((sint64)differential * 100ll) / (sint64)max_differential;
-					price -= (revenue * (multiplier * proportion)) / 10000ll;
-				}
-			}
-			// Do nothing if comfort == tolerable_comfort
-		}
-
-		// Add catering or TPO revenue
-		if(catering_level > 0)
-		{
-			if(wtyp == warenbauer_t::post)
-			{
-				// Mail
-				if(journey_minutes >=welt->get_settings().get_tpo_min_minutes())
-				{
-					price += (sint64)(welt->get_settings().get_tpo_revenue() * 1000);
-				}
-			}
-			else if(wtyp == warenbauer_t::passagiere)
-			{
-				// Passengers
-				if (catering_level > 5) {
-					// This isn't supposed to happen
-					catering_level = 5;
-				}
-				catering_table_t& catering_revenue = welt->get_settings().catering_revenues[catering_level];
-				price += catering_revenue(journey_tenths);
-			}
-		}
-
-		money_to_string( money_buf, (double)price/300000.0 );
+		money_to_string( money_buf, (double)price/100.0 );
 		buf.clear();
 		buf.printf(money_buf);
 		display_proportional_clip(offset.x + 170, yoff, buf, 	ALIGN_RIGHT, 	COL_BLACK, true);

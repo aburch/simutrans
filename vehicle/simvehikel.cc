@@ -866,7 +866,7 @@ vehikel_t::unload_freight(halthandle_t halt, sint64 & revenue_from_unloading, ar
 							const uint16 distance = shortest_distance(halt->get_basis_pos(), tmp.get_origin()->get_basis_pos());
 							const uint32 distance_meters = (uint32) distance * welt->get_settings().get_meters_per_tile();
 							// Refund is approximation.
-							const sint64 refund_amount = (tmp.menge * tmp.get_besch()->get_refund(distance_meters) + 1500ll) / 3000ll;
+							const sint64 refund_amount = (tmp.menge * tmp.get_besch()->get_refund(distance_meters) + 2048ll) / 4096ll;
 
 							revenue_from_unloading -= refund_amount;
 

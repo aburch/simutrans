@@ -2531,10 +2531,11 @@ void settings_t::cache_catering_revenues() {
 	//
 	// This is an expensive operation but is normally done once per game -- unless
 	// someone is tweaking the settings at runtime using the dialog boxes.
-
+	//
 	// PLEASE NOTE.  Each table is indexed in *tenths of minutes*,
-	// and returns revenues in 1/1000ths of simcents.
-	// FIXME: The infamous division by 3 needs to be incorporated here too.
+	// and returns revenues in 1/4096ths of simcents.
+	//
+	// FIXME: The infamous division by 3 is incorporated here too.
 	for (int i = 0; i<= 5; i++) {
 		// Clear table, and reset table size to "correct" value (we know how large it needs to be)
 		catering_revenues[i].clear(i + 1);
@@ -2543,21 +2544,27 @@ void settings_t::cache_catering_revenues() {
 		// lots of copying memory to relocate entries.  This enters data from left to right.
 		catering_revenues[i].insert(catering_min_minutes * 10, 0);
 		if (i >= 1) {
-			catering_revenues[i].insert(catering_level1_minutes * 10, (sint64)catering_level1_max_revenue * 1000);
+			catering_revenues[i].insert(catering_level1_minutes * 10, (sint64)catering_level1_max_revenue * 4096ll / 3ll);
 		}
 		if (i >= 2) {
-			catering_revenues[i].insert(catering_level2_minutes * 10, (sint64)catering_level2_max_revenue * 1000);
+			catering_revenues[i].insert(catering_level2_minutes * 10, (sint64)catering_level2_max_revenue * 4096ll / 3ll);
 		}
 		if (i >= 3) {
-			catering_revenues[i].insert(catering_level3_minutes * 10, (sint64)catering_level3_max_revenue * 1000);
+			catering_revenues[i].insert(catering_level3_minutes * 10, (sint64)catering_level3_max_revenue * 4096ll / 3ll);
 		}
 		if (i >= 4) {
-			catering_revenues[i].insert(catering_level4_minutes * 10, (sint64)catering_level4_max_revenue * 1000);
+			catering_revenues[i].insert(catering_level4_minutes * 10, (sint64)catering_level4_max_revenue * 4096ll / 3ll);
 		}
 		if (i >= 5) {
-			catering_revenues[i].insert(catering_level5_minutes * 10, (sint64)catering_level5_max_revenue * 1000);
+			catering_revenues[i].insert(catering_level5_minutes * 10, (sint64)catering_level5_max_revenue * 4096ll / 3ll);
 		}
 	}
+	// And the TPO revenues.  This is actually a *piecewise constant* table but we can implement it
+	// using the linear tables pretty easily...
+	// FIXME: The infamous division by 3 is incorporated here too.
+	tpo_revenues.clear(2);
+	tpo_revenues.insert(tpo_min_minutes * 10 - 1, 0);
+	tpo_revenues.insert(tpo_min_minutes * 10, (sint64)tpo_revenue * 4096ll / 3ll);
 }
 
 

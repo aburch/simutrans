@@ -4447,8 +4447,7 @@ sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportione
 			}
 		}
 		else {
-			if(line->get_finance_history(1, LINE_AVERAGE_SPEED) == 0)
-			{
+			if(line->get_finance_history(1, LINE_AVERAGE_SPEED) == 0) {
 				average_speed = line->get_finance_history(0, LINE_AVERAGE_SPEED);
 			}
 			else {
@@ -4483,12 +4482,9 @@ sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportione
 	const sint64 relative_speed_percentage = (100ll * average_speed) / ref_speed - 100ll;
 
 	const ware_besch_t* goods = ware.get_besch();
-	const sint64 fare = goods->get_fare_with_speedbonus( (sint16)relative_speed_percentage, revenue_distance_meters, starting_distance_meters);
-	// Note that fare comes out in units of 1/1000 of a simcent, for computational reasons.
-	sint64 revenue = fare * (sint64)ware.menge;
 
-	if(revenue && ware.is_passenger())
-	{
+	sint64 fare;
+	if ( ware.is_passenger() ) {
 		// Comfort
 		// First get our comfort.
 
@@ -4497,75 +4493,45 @@ sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportione
 		// although it is "less realistic" it provides faster revenue responsiveness
 		// for the player to improvements in comfort)
 
-		sint16 comfort = 100;
-		if(line.is_bound())
-		{
-			if(line->get_finance_history(1, LINE_COMFORT) < 1)
-			{
+		uint8 comfort = 100;
+		if(line.is_bound()) {
+			if(line->get_finance_history(1, LINE_COMFORT) < 1) {
 				comfort = line->get_finance_history(0, LINE_COMFORT);
-			}
-			else
-			{
+			} else {
 				comfort = line->get_finance_history(1, LINE_COMFORT);
 			}
-		}
-		else
-		{
+		} else {
 			// No line - must use convoy
-			if(financial_history[1][CONVOI_COMFORT] < 1)
-			{
+			if(financial_history[1][CONVOI_COMFORT] < 1) {
 				comfort = financial_history[0][CONVOI_COMFORT];
-			}
-			else
-			{
+			} else {
 				comfort = financial_history[1][CONVOI_COMFORT];
 			}
 		}
 
-		// Apply luxury bonus or discomfort penalty
+		// Now, get our catering level.
+		uint8 catering_level = get_catering_level(goods->get_catg_index());
 
-		// Grab the tolerable comfort from the settings table
-		const sint16 tolerable_comfort = welt->get_settings().tolerable_comfort(journey_tenths);
-		// See how far off we are
-		const sint16 comfort_diff = comfort - tolerable_comfort;
-		// This gets the "full" percentage bonus or penalty -- it may be negative!
-		const sint64 multiplier = welt->get_settings().base_comfort_revenue(comfort_diff);
-
-		// Comfort has less of an effect for shorter trips.  This gets the derating factor
-		// as a percentage (2 digits)
-		const sint64 comfort_modifier = welt->get_settings().comfort_derating(journey_tenths);
-
-		// Combine the derating factor with the full percentage to get...
-		const sint64 comfort_revenue = (revenue * multiplier * comfort_modifier) / 10000ll;
-
-		// Always receive minimum of 95% of revenue even with discomfort penalty
-		revenue = max(revenue + comfort_revenue, revenue * 19 / 20 );
+		// Finally, get the fare.
+		fare = goods->get_fare_with_comfort_catering_speedbonus( welt, comfort, catering_level, journey_tenths,
+					(sint16)relative_speed_percentage, revenue_distance_meters, starting_distance_meters);
+	} else if ( ware.is_mail() ) {
+		// Make an arbitrary comfort, mail doesn't care about comfort
+		const uint8 comfort = 0;
+		// Get our "TPO" level.
+		uint8 catering_level = get_catering_level(goods->get_catg_index());
+		// Finally, get the fare.
+		fare = goods->get_fare_with_comfort_catering_speedbonus( welt, comfort, catering_level, journey_tenths,
+					(sint16)relative_speed_percentage, revenue_distance_meters, starting_distance_meters);
+	} else {
+		// Freight ignores comfort and catering and TPO.
+		// So here we can skip the complicated version for speed.
+		fare = goods->get_fare_with_speedbonus( (sint16)relative_speed_percentage, revenue_distance_meters, starting_distance_meters);
 	}
+	// Note that fare comes out in units of 1/4096 of a simcent, for computational precision
 
-	// Add catering or TPO revenue
-	uint8 catering_level = get_catering_level(ware.get_besch()->get_catg_index());
-	if(catering_level > 0)
-	{
-		if(ware.is_mail())
-		{
-			// TPO
-			if(journey_tenths >= welt->get_settings().get_tpo_min_minutes() * 10)
-			{
-				revenue += (sint64)(welt->get_settings().get_tpo_revenue() * 1000 * ware.menge);
-			}
-		}
-		else if(ware.is_passenger())
-		{
-			if (catering_level > 5) {
-				// This isn't supposed to happen
-				catering_level = 5;
-			}
-			// Passengers
-			// Get the catering revenues table for this catering level. It is a functional.
-			catering_table_t& catering_revenue = welt->get_settings().catering_revenues[catering_level];
-			revenue += catering_revenue(journey_tenths) * ware.menge;
-		}
-	}
+	// Finally (!!) multiply by the number of items.
+	const sint64 revenue = fare * (sint64)ware.menge;
 
 	// Now apportion the revenue.
 	uint32 total_way_distance = 0;
@@ -4702,19 +4668,20 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 			sint64 revenue_from_unloading = 0;
 			uint16 amount_unloaded = v->entladen(halt, revenue_from_unloading, apportioned_revenues);
 			changed_loading_level += amount_unloaded;
-			// James has done something extremely screwy with revenue.  We have to divide it by 3000. FIXME.
-			sint64 modified_revenue_from_unloading = (revenue_from_unloading + 1500ll) / 3000ll;
-			if (amount_unloaded && modified_revenue_from_unloading == 0) {
+
+			// Convert from units of 1/4096 of a simcent to units of ONE simcent.  Should be FAST (powers of two).
+			sint64 revenue_cents_from_unloading = (revenue_from_unloading + 2048ll) / 4096ll;
+			if (amount_unloaded && revenue_cents_from_unloading == 0) {
 				// if we unloaded something, provide some minimum revenue.  But not if we unloaded nothing.
-				modified_revenue_from_unloading = 1;
+				revenue_cents_from_unloading = 1;
 			}
 			// This call needs to be here, per-vehicle, in order to record different freight types properly.
-			besitzer_p->book_revenue( modified_revenue_from_unloading, fahr[0]->get_pos().get_2d(), get_schedule()->get_waytype(), v->get_fracht_typ()->get_index() );
+			besitzer_p->book_revenue( revenue_cents_from_unloading, fahr[0]->get_pos().get_2d(), get_schedule()->get_waytype(), v->get_fracht_typ()->get_index() );
 			// The finance code will add up the on-screen messages
 			// But add up the total for the port and station use charges
-			accumulated_revenue += modified_revenue_from_unloading;
-			book(modified_revenue_from_unloading, CONVOI_PROFIT);
-			book(modified_revenue_from_unloading, CONVOI_REVENUE);
+			accumulated_revenue += revenue_cents_from_unloading;
+			book(revenue_cents_from_unloading, CONVOI_PROFIT);
+			book(revenue_cents_from_unloading, CONVOI_REVENUE);
 		}
 	}
 	if (no_load) {
