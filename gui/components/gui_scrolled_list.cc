@@ -246,7 +246,7 @@ void gui_scrolled_list_t::zeichnen(koord pos)
 	int i=0;
 	const bool focus = win_get_focus()==this;
 	KOORD_VAL max_w = 0;
-	for(  vector_tpl<scrollitem_t*>::iterator iter = item_list.begin(), end = item_list.end();  iter != end;  ) {
+	for(  vector_tpl<scrollitem_t*>::iterator iter = item_list.begin();  iter != item_list.end();  ) {
 		scrollitem_t* const item = *iter;
 		if(  !item->is_valid()  ) {
 			iter = item_list.erase(iter);
