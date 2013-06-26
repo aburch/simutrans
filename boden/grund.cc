@@ -1493,9 +1493,15 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 			}
 		}
 
+		const bool city_adopts_this = (weg->get_waytype() == road_wt
+										&& ! (weg->get_besch()->get_styp()==weg_t::type_elevated)
+										&& welt->get_city(weg->get_pos().get_2d())
+										&& welt->get_settings().get_towns_adopt_player_roads()
+										&& !( sp && sp->is_public_service() )
+										);
 		// just add the maintenance
-		if(sp && !ist_wasser() && (weg->get_waytype() != road_wt || (!welt->get_city(weg->get_pos().get_2d()) || !welt->get_settings().get_towns_adopt_player_roads() || sp->get_player_nr() == 1)))
-		{			
+		if( sp && !ist_wasser() && !city_adopts_this )
+		{
 			weg->set_besitzer(sp);
 			// Must call this here to ensure that the diagonal cost is
 			// set as appropriate.

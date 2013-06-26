@@ -2214,10 +2214,15 @@ void wegbauer_t::baue_strasse()
 					weg->set_max_speed( wo->get_besch()->get_topspeed() );
 				}
 				weg->set_gehweg(add_sidewalk);
-				if(!welt->lookup(k)->get_city() || !welt->get_settings().get_towns_adopt_player_roads() || (sp && sp->get_player_nr() == 1))
+				// Does the town adopt this road as its own, including maintenance costs?
+				const bool city_adopts_this = (welt->lookup(k)->get_city()
+												&& welt->get_settings().get_towns_adopt_player_roads()
+												&& ! ( sp && sp->is_public_service() )
+												);
+				if(!city_adopts_this)
 				{
-					// The town adopts this road as its own, including maintenance costs.
 					weg->set_besitzer(sp);
+					//...& set diagonal costs
 					weg->laden_abschliessen();
 				}
 			}

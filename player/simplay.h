@@ -227,6 +227,12 @@ public:
 
 	finance_t * get_finance() { return finance; }
 
+	/**
+	 * Is this the public service player?
+	 * This is a subroutine to allow the public service player to be redefined in the future
+	 */
+	bool is_public_service() const { return player_nr == 1; }
+
 	virtual bool set_active( bool b ) { return automat = b; }
 
 	bool is_active() const { return automat; }
