@@ -13,6 +13,7 @@ void sound_reader_t::register_obj(obj_besch_t *&data)
 	sound_besch_t *besch = static_cast<sound_besch_t *>(data);
 	sound_besch_t::register_besch(besch);
 	DBG_DEBUG("sound_reader_t::read_node()","sound %s registered at %i",besch->get_name(),besch->sound_id);
+	delete_node(besch);
 }
 
 

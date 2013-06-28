@@ -120,12 +120,11 @@ DBG_MESSAGE("sound_besch_t::get_sound_id()","successfully retrieved sound %s int
 
 /*
  * if there is already such a sound => fail, else success and get an internal sound id
+ * do not store besch as it will be deleted anyway
  */
-bool
-sound_besch_t::register_besch(sound_besch_t *besch)
+bool sound_besch_t::register_besch(sound_besch_t *besch)
 {
 	if(!sound_on) {
-		delete besch;
 		return false;
 	}
 	// register, if not there (all done by this one here)
@@ -134,11 +133,9 @@ sound_besch_t::register_besch(sound_besch_t *besch)
 		if(besch->nr>=0  &&  besch->nr<=8) {
 			compatible_sound_id[besch->nr] = besch->sound_id;
 DBG_MESSAGE("sound_besch_t::get_sound_id()","successfully registered sound %s internal id %i as compatible sound %i", besch->get_name(), besch->sound_id, besch->nr );
-			delete besch;
 			return true;
 		}
 	}
 	dbg->warning("sound_besch_t::get_sound_id()","failed to register sound %s internal id %i", besch->get_name() );
-	delete besch;
 	return false;
 }
