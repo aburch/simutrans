@@ -198,7 +198,7 @@ adjust_image:
 		}
 		else {
 			// no need to load doubles ...
-			delete besch;
+			delete_node(besch);
 			besch = same;
 		}
 	}
