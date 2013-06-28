@@ -108,12 +108,26 @@ void display_snapshot(int, int, int, int)
 {
 }
 
-void display_get_image_offset(unsigned, KOORD_VAL *, KOORD_VAL *, KOORD_VAL *, KOORD_VAL *)
+void display_get_image_offset(unsigned bild, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw)
 {
+	if (bild < 2) {
+		// initialize offsets with dummy values
+		*xoff = 0;
+		*yoff = 0;
+		*xw   = 0;
+		*yw   = 0;
+	}
 }
 
-void display_get_base_image_offset(unsigned, KOORD_VAL *, KOORD_VAL *, KOORD_VAL *, KOORD_VAL *)
+void display_get_base_image_offset(unsigned bild, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw)
 {
+	if (bild < 2) {
+		// initialize offsets with dummy values
+		*xoff = 0;
+		*yoff = 0;
+		*xw   = 0;
+		*yw   = 0;
+	}
 }
 
 void display_set_base_image_offset(unsigned, KOORD_VAL, KOORD_VAL)
