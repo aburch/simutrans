@@ -4639,10 +4639,10 @@ void stadt_t::bewerte_res_com_ind(const koord pos, int &ind_score, int &com_scor
 // return the eight neighbors:
 // orthogonal before diagonal
 static koord neighbors[] = {
-	koord( 0,  1),
-	koord( 1,  0),
-	koord( 0, -1),
-	koord(-1,  0),
+	koord( 0,  1), // "south" -- lower left
+	koord( 1,  0), // "east" -- lower right
+	koord( 0, -1), // "north" -- upper left
+	koord(-1,  0), // "west" -- upper right
 	// now the diagonals
 	koord(-1, -1),
 	koord( 1, -1),
@@ -4651,8 +4651,31 @@ static koord neighbors[] = {
 };
 
 
+// This is indexed by a bitfield of "street directions":
+// S == 0001 (1)
+// E == 0010 (2)
+// N == 0100 (4)
+// W == 1000 (16)
+
 // return layout
 static int building_layout[] = {0,0,1,4,2,0,5,1,3,7,1,0,6,3,2,0};
+// How to read this:
+// 0000 no streets: layout 0 -- faces S
+// 0001    S: layout 0 -- faces S
+// 0010   E : layout 1 -- faces E
+// 0011   ES: layout 4 (based on 0) faces S
+// 0100  N  : layout 2 -- faces N
+// 0101  N S: layout 0 -- faces S (prefer to face player)
+// 0110  NE : layout 5 (based on 1) faces E
+// 0111  NES: layout 1 -- faces E (always breaks row)
+// 1000 W   : layout 3 -- faces W
+// 1001 W  S: layout 7 (based on 3) faces W
+// 1010 W E : layout 1 -- faces E (prefer to face player)
+// 1011 W ES: layout 0 -- faces S (always breaks row)
+// 1100 WN  : layout 6 (based on 2) faces N
+// 1101 WN S: layout 3 -- faces W (always breaks row)
+// 1110 WNE : layout 2 -- faces N (always breaks row)
+// 1111 WNES: layout 0 -- faces S (prefer to face player)
 
 
 void stadt_t::build_city_building(const koord k, bool new_town)
