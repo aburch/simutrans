@@ -738,6 +738,12 @@ bool destroy_win(const ptrdiff_t magic)
 
 bool destroy_win(const gui_frame_t *gui)
 {
+	if(wins.get_count() > 1  &&  wins.back().gui == gui) {
+		// destroy topped window, top the next window before removing
+		// do it here as top_win manipulates the win vector
+		top_win(wins.get_count() - 2, true);
+	}
+
 	for(  uint i=0;  i<wins.get_count();  i++  ) {
 		if(wins[i].gui == gui) {
 			if(inside_event_handling==wins[i].gui) {
