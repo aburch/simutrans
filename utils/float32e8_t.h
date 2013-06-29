@@ -333,7 +333,10 @@ ostream & operator << (ostream &out, const float32e8_t &x);
 inline const float32e8_t operator + (const uint8 x, const float32e8_t &y) {return float32e8_t(x) + y; }
 inline const float32e8_t operator - (const uint8 x, const float32e8_t &y) {return float32e8_t(x) - y; }
 inline const float32e8_t operator * (const uint8 x, const float32e8_t &y) {return float32e8_t(x) * y; }
+#if 0
+// This MUST be commented out.  Otherwise GCC gives us endless warnings which we cannot shut off.
 inline const float32e8_t operator / (const uint8 x, const float32e8_t &y) {return float32e8_t(x) / y; }
+#endif
 
 inline const float32e8_t operator + (const sint32 x, const float32e8_t &y) {return float32e8_t(x) + y; }
 inline const float32e8_t operator - (const sint32 x, const float32e8_t &y) {return float32e8_t(x) - y; }
