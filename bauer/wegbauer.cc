@@ -2150,10 +2150,8 @@ void wegbauer_t::baue_elevated()
 
 void wegbauer_t::baue_strasse()
 {
-	// only public player or cities (sp==NULL) can build cityroads with sidewalk
-	bool add_sidewalk = build_sidewalk  &&  (sp==NULL  ||  sp->get_player_nr() == 1);
-
-	if(add_sidewalk) {
+	// This is somewhat strange logic --neroden
+	if ( build_sidewalk && sp->is_public_service() ) {
 		sp = NULL;
 	}
 
@@ -2213,12 +2211,15 @@ void wegbauer_t::baue_strasse()
 				if (wo  &&  wo->get_besch()->get_topspeed() < weg->get_max_speed()) {
 					weg->set_max_speed( wo->get_besch()->get_topspeed() );
 				}
-				weg->set_gehweg(add_sidewalk);
 				// Does the town adopt this road as its own, including maintenance costs?
 				const bool city_adopts_this = (welt->lookup(k)->get_city()
-												&& welt->get_settings().get_towns_adopt_player_roads()
-												&& ! ( sp && sp->is_public_service() )
-												);
+									&& welt->get_settings().get_towns_adopt_player_roads()
+									&& ! ( sp && sp->is_public_service() )
+									);
+				bool add_sidewalk = build_sidewalk  || city_adopts_this;
+
+				weg->set_gehweg(add_sidewalk);
+
 				if(!city_adopts_this)
 				{
 					weg->set_besitzer(sp);
@@ -2233,7 +2234,7 @@ void wegbauer_t::baue_strasse()
 			strasse_t * str = new strasse_t(welt);
 
 			str->set_besch(besch);
-			str->set_gehweg(add_sidewalk);
+			str->set_gehweg(build_sidewalk);
 			cost = -gr->neuen_weg_bauen(str, route.get_short_ribi(i), sp) - besch->get_preis();
 
 			if(thing != NULL && thing->get_besitzer() == sp) 

@@ -1499,9 +1499,15 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 										&& welt->get_settings().get_towns_adopt_player_roads()
 										&& !( sp && sp->is_public_service() )
 										);
-		// just add the maintenance
+
+		if (city_adopts_this) {
+			// Add the sidewalk
+			weg->set_gehweg(true);
+		}
+
 		if( sp && !ist_wasser() && !city_adopts_this )
 		{
+			// Set the owner
 			weg->set_besitzer(sp);
 			// Must call this here to ensure that the diagonal cost is
 			// set as appropriate.
