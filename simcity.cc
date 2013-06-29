@@ -5050,7 +5050,7 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 		for (int i = 0; i < 8; i++) {
 			// Go through the neighbors *again*...
 			const gebaeude_t* neighbor_gb = get_citybuilding_at(k + neighbors[i]);
-			if (gb != NULL && gb->get_tile()->get_besch() == h) {
+			if (neighbor_gb != NULL && neighbor_gb->get_tile()->get_besch() == h) {
 				// Fail.  Return.
 				return;
 			}
@@ -5216,7 +5216,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 		for (int i = 0; i < 8; i++) {
 			// Go through the neighbors *again*...
 			const gebaeude_t* neighbor_gb = get_citybuilding_at(k + neighbors[i]);
-			if (gb != NULL && gb->get_tile()->get_besch() == h) {
+			if (neighbor_gb != NULL && neighbor_gb->get_tile()->get_besch() == h) {
 				// Fail.  Return.
 				return false;
 			}
