@@ -48,8 +48,8 @@ dynamic_string::~dynamic_string()
 
 void dynamic_string::init()
 {
-	while(cached_string_t *entry = cached_results.remove_first()) {
-		delete entry;
+	while(!cached_results.empty()) {
+		delete cached_results.remove_first();
 	}
 }
 

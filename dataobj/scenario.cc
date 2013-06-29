@@ -147,6 +147,9 @@ bool scenario_t::load_script(const char* filename)
 	}
 	register_export_function(script->get_vm(), welt);
 
+	// init strings
+	dynamic_string::init();
+
 	// load scenario definition
 	err = script->call_script(filename);
 	if (err) {
