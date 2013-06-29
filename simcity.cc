@@ -5016,12 +5016,13 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 	}
 
 	// Find a house to build
+	gebaeude_t::typ want_to_have = gebaeude_t::unbekannt;
 	const haus_besch_t* h = NULL;
 
 	if (sum_commercial > sum_industrial  &&  sum_commercial > sum_residential) {
 		h = hausbauer_t::get_commercial(0, current_month, cl, new_town, neighbor_building_clusters);
 		if (h != NULL) {
-			arb += (h->get_level()) * 20;
+			want_to_have = gebaeude_t::gewerbe;
 		}
 	}
 
@@ -5035,8 +5036,24 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 	if (h == NULL  &&  sum_residential > sum_industrial  &&  sum_residential > sum_commercial) {
 		h = hausbauer_t::get_residential(0, current_month, cl, new_town, neighbor_building_clusters);
 		if (h != NULL) {
-			// will be aligned next to a street
-			won += (h->get_level()) * 10;
+			want_to_have = gebaeude_t::wohnung;
+		}
+	}
+
+	if (h == NULL) {
+		// Found no suitable building.  Return!
+		return;
+	}
+	if (h->get_clusters() == 0) {
+		// This is a non-clustering building.  Do not allow it next to an identical building.
+		// (This avoids "boring cities", supposedly.)
+		for (int i = 0; i < 8; i++) {
+			// Go through the neighbors *again*...
+			const gebaeude_t* neighbor_gb = get_citybuilding_at(k + neighbors[i]);
+			if (gb != NULL && gb->get_tile()->get_besch() == h) {
+				// Fail.  Return.
+				return;
+			}
 		}
 	}
 
@@ -5081,6 +5098,14 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 
 		const gebaeude_t* gb = hausbauer_t::baue(welt, NULL, pos, layout, h);
 		add_gebaeude_to_stadt(gb);
+
+		switch(want_to_have) {
+			case gebaeude_t::wohnung:   won += h->get_level() * 10; break;
+			case gebaeude_t::gewerbe:   arb += h->get_level() * 20; break;
+			case gebaeude_t::industrie: arb += h->get_level() * 20; break;
+			default: break;
+		}
+
 	}
 }
 
@@ -5181,6 +5206,23 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 		}
 	}
 
+	if (h == NULL) {
+		// Found no suitable building.  Return!
+		return false;
+	}
+	if (h->get_clusters() == 0) {
+		// This is a non-clustering building.  Do not allow it next to an identical building.
+		// (This avoids "boring cities", supposedly.)
+		for (int i = 0; i < 8; i++) {
+			// Go through the neighbors *again*...
+			const gebaeude_t* neighbor_gb = get_citybuilding_at(k + neighbors[i]);
+			if (gb != NULL && gb->get_tile()->get_besch() == h) {
+				// Fail.  Return.
+				return false;
+			}
+		}
+	}
+
 	if (alt_typ != want_to_have) {
 		sum -= level * 10;
 	}
@@ -5220,16 +5262,6 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 				}
 				gr->calc_bild();
 				reliefkarte_t::get_karte()->calc_map_pixel(gr->get_pos().get_2d());
-			} else if (gr->get_typ() == grund_t::fundament) {
-				uint32 my_clusters = h->get_clusters();
-				if (my_clusters == 0) {
-					// This is a non-clustering building.
-					// If an identical building is in a neighbor tile, do not renovate.
-					gebaeude_t const* const gb = ding_cast<gebaeude_t>(gr->first_obj());
-					if (gb != NULL && gb->get_tile()->get_besch() == h) {
-						return return_value; //it will return false
-					}
-				}
 			}
 		}
 
@@ -5241,6 +5273,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 		}
 
 		const int layout = get_best_layout(h, k, streetdir);
+
 		// exchange building; try to face it to street in front
 		gb->mark_images_dirty();
 		gb->set_tile( h->get_tile(layout, 0, 0), true );
