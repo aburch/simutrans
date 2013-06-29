@@ -2151,7 +2151,7 @@ void wegbauer_t::baue_elevated()
 void wegbauer_t::baue_strasse()
 {
 	// This is somewhat strange logic --neroden
-	if ( build_sidewalk && sp->is_public_service() ) {
+	if ( sp != NULL && build_sidewalk && sp->is_public_service() ) {
 		sp = NULL;
 	}
 
