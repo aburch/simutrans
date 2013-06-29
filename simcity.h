@@ -26,8 +26,10 @@
 class karte_t;
 class spieler_t;
 class fabrik_t;
-
 class rule_t;
+
+// For private subroutines
+class haus_besch_t;
 
 // part of passengers going to factories or toursit attractions (100% mx)
 #define FACTORY_PAX (33)	// workers
@@ -439,6 +441,10 @@ private:
 	void build_city_building(koord pos, bool new_town);
 	void erzeuge_verkehrsteilnehmer(koord pos, uint16 journey_tenths_of_minutes, koord target);
 	bool renovate_city_building(gebaeude_t *gb);
+	// Subroutines for build_city_building and renovate_city_buiding
+	// @author neroden
+	const gebaeude_t* get_citybuilding_at(const koord k) const;
+	int get_best_layout(const haus_besch_t* h, const koord k, const int streetdirs) const;
 
 	/**
 	 * baut ein Stueck Strasse

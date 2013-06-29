@@ -4715,20 +4715,16 @@ static int layout_to_orientations[] = {
 };
 
 /**
- * Get haus_besch_t* for citybuilding at location k
+ * Get gebaeude_t* for citybuilding at location k
  * Returns NULL if there is no citybuilding at that location
- * File-scope linkage
  */
-const haus_besch_t* get_citybuilding_haus_besch_at(koord k) {
+const gebaeude_t* stadt_t::get_citybuilding_at(const koord k) const {
 	grund_t* gr = welt->lookup_kartenboden(k);
 	if (gr && gr->get_typ() == grund_t::fundament && gr->obj_bei(0)->get_typ() == ding_t::gebaeude) {
 		// We have a building as a neighbor...
 		gebaeude_t const* const gb = ding_cast<gebaeude_t>(gr->first_obj());
 		if (gb != NULL) {
-			// We really have a building as a neighbor...
-			const haus_besch_t* neighbor_building = gb->get_tile()->get_besch();
-			return neighbor_building;
-			}
+			return gb;
 		}
 	}
 	return NULL;
@@ -4738,9 +4734,8 @@ const haus_besch_t* get_citybuilding_haus_besch_at(koord k) {
 /**
  * Returns best layout (orientation) for a new city building h at location k.
  * This needs to know the nearby street directions.
- * File-scope linkage
  */
-int get_best_layout(const haus_besch_t* h, koord k, int streetdirs) {
+int stadt_t::get_best_layout(const haus_besch_t* h, const koord k, const int streetdirs) const {
 	// Return value is a layout, which is a direction to face:
 	//  0, 1, 2, 3, 4, 5, 6, 7
 	//  S, E, N, W,SE,NE,NW,SW
@@ -4752,6 +4747,7 @@ int get_best_layout(const haus_besch_t* h, koord k, int streetdirs) {
 	// W == 1000 (8)
 
 	assert(h != NULL);
+	assert(streetdirs >= 0);
 	assert(streetdirs <= 15);
 
 	bool has_corner_layouts = (h->get_all_layouts() == 8);
@@ -4765,33 +4761,35 @@ int get_best_layout(const haus_besch_t* h, koord k, int streetdirs) {
 	// Check the neighbors to collect desirable orientations.
 	// Please note that this short-circuits quickly (doing nothing) for
 	// cases where it is not worth checking neighbors.
-	uint8 neighbors_orientations = 0;
-	uint8 cluster_neighbors_orientations = 0;
+	uint8 dirs_nbr_all = 0;
+	uint8 dirs_nbr = 0;
 	for (int i = 0; i < 4; i++) {
 		if ( interesting_neighbors[streetdirs] & (1 << i) ) {
-			const haus_besch_t* neighbor_building = get_citybuilding_haus_besch_at(k + neighbors[i]);
-			if (neighbor_building != NULL) {
-				// We really have a building as a neighbor...
-				const int neighbor_layout = neighbor_building->get_layout();
+			const gebaeude_t* neighbor_gb = get_citybuilding_at(k + neighbors[i]);
+			if (neighbor_gb != NULL) {
+				// We have a building as a neighbor...
+				const uint8 neighbor_layout = neighbor_gb->get_tile()->get_layout();
 				assert (neighbor_layout <= 7);
-				// Convert corner (and other) layouts to bitmaps of cardinal direction layouts
-				const uint8 neighbor_orientations |= layout_to_orientations[neighbor_layout];
-				// Filter by nearby street directions (unless there are no nearby streets)
+				// Convert corner (and other) layouts to bitmaps of cardinal direction orientations
+				uint8 neighbor_orientations = layout_to_orientations[neighbor_layout];
 				if (streetdirs) {
+					// Filter by nearby street directions (unless there are no nearby streets)
 					 neighbor_orientations &= streetdirs;
 				}
-				neighbors_orientations |= neighbor_orientations;
+				// Collect it in dirs_nbr_all:
+				dirs_nbr_all |= neighbor_orientations;
 				// Is it a member of the same cluster as this building?
-				if (h->get_clusters() & neighbor_building->get_clusters() ) {
-					cluster_neighbors_orientations |= neighbor_orientations;
+				if (h->get_clusters() & neighbor_gb->get_tile()->get_besch()->get_clusters() ) {
+					// If so collect it in dirs_nbr:
+					dirs_nbr |= neighbor_orientations;
 				}
 			}
 		}
 	}
-	// If we have a matching cluster_neighbors_orientations, use that.
-	// If it's 0, use neighbor_orientations instead.
-	if (cluster_neighbor_orientations == 0) {
-		cluster_neighbor_orientations = neighbor_orientations;
+	// If we have a matching dirs_nbr, use that.
+	// If it's 0, use dirs_nbr_all instead.
+	if (dirs_nbr == 0) {
+		dirs_nbr = dirs_nbr_all;
 	}
 	// If neighbor_orientations is also zero, we'll use a default choice.
 
@@ -4813,9 +4811,9 @@ int get_best_layout(const haus_besch_t* h, koord k, int streetdirs) {
 		case 3: // SE
 			if (has_corner_layouts) {
 				return 4;
-			} else if (cluster_neighbor_orientations & 1) {
+			} else if (dirs_nbr & 1) {
 				return 0; // S-facing neighbor (preferred)
-			} else if (cluster_neighbor_orientations & 2) {
+			} else if (dirs_nbr & 2) {
 				return 1; // E-facing neighbor
 			} else {
 				return 0; // no match, default S-facing
@@ -4824,9 +4822,9 @@ int get_best_layout(const haus_besch_t* h, koord k, int streetdirs) {
 		case 6: // NE
 			if (has_corner_layouts) {
 				return 5;
-			} else if (cluster_neighbor_orientations & 2) {
+			} else if (dirs_nbr & 2) {
 				return 1; // E-facing neighbor (preferred)
-			} else if (cluster_neighbor_orientations & 4) {
+			} else if (dirs_nbr & 4) {
 				return 2; // N-facing neighbor
 			} else {
 				return 1; // no match, default E-facing
@@ -4835,9 +4833,9 @@ int get_best_layout(const haus_besch_t* h, koord k, int streetdirs) {
 		case 12: // NW
 			if (has_corner_layouts) {
 				return 6;
-			} else if (cluster_neighbor_orientations & 4) {
+			} else if (dirs_nbr & 4) {
 				return 2; // N-facing neighbor (preferred)
-			} else if (cluster_neighbor_orientations & 8) {
+			} else if (dirs_nbr & 8) {
 				return 3; // W-facing neighbor
 			} else {
 				return 2; // no match, default N-facing
@@ -4846,9 +4844,9 @@ int get_best_layout(const haus_besch_t* h, koord k, int streetdirs) {
 		case 9: // SW
 			if (has_corner_layouts) {
 				return 7;
-			} else if (cluster_neighbor_orientations & 8) {
+			} else if (dirs_nbr & 8) {
 				return 3; // W-facing neighbor (preferred)
-			} else if (cluster_neighbor_orientations & 1) {
+			} else if (dirs_nbr & 1) {
 				return 0; // S-facing neighbor
 			} else {
 				return 3; // no match, default W-facing
@@ -4856,18 +4854,18 @@ int get_best_layout(const haus_besch_t* h, koord k, int streetdirs) {
 			break;
 		// Now the "sandwiched": best neighbor or default
 		case 5: // NS
-			if (cluster_neighbor_orientations & 1) {
+			if (dirs_nbr & 1) {
 				return 0; // S-facing neighbor
-			} else if (cluster_neighbor_orientations & 4) {
+			} else if (dirs_nbr & 4) {
 				return 2; // N-facing neighbor
 			} else {
 				return 0; // no match, default S-facing
 			}
 			break;
 		case 10: // EW
-			if (cluster_neighbor_orientations & 2) {
+			if (dirs_nbr & 2) {
 				return 1; // E-facing neighbor
-			} else if (cluster_neighbor_orientations & 8) {
+			} else if (dirs_nbr & 8) {
 				return 3; // W-facing neighbor
 			} else {
 				return 1; // no match, default E-facing
@@ -4876,16 +4874,16 @@ int get_best_layout(const haus_besch_t* h, koord k, int streetdirs) {
 		// Now the "three-sided".  Get the best corner, or the best match, or face the third side.
 		case 7: // NES
 			if (has_corner_layouts) {
-				if (cluster_neighbor_orientations & 1) {
+				if (dirs_nbr & 1) {
 					return 4; // S-facing neighbor, face SE
-				} else if (cluster_neighbor_orientations & 4) {
+				} else if (dirs_nbr & 4) {
 					return 5; // N-facing neighbor, face NE
 				} else {
 					return 4; // no match, face SE by default
 				}
-			} else if (cluster_neighbor_orientations & 1) {
+			} else if (dirs_nbr & 1) {
 				return 0; // S-facing neighbor
-			} else if (cluster_neighbor_orientations & 4) {
+			} else if (dirs_nbr & 4) {
 				return 2; // N-facing neighbor
 			} else {
 				return 1; // face E
@@ -4893,16 +4891,16 @@ int get_best_layout(const haus_besch_t* h, koord k, int streetdirs) {
 			break;
 		case 11: // WES
 			if (has_corner_layouts) {
-				if (cluster_neighbor_orientations & 2) {
+				if (dirs_nbr & 2) {
 					return 4; // E-facing neighbor, face SE
-				} else if (cluster_neighbor_orientations & 8) {
+				} else if (dirs_nbr & 8) {
 					return 7; // W-facing neighbor, face SW
 				} else {
 					return 4; // no match, face SE by default
 				}
-			} else if (cluster_neighbor_orientations & 2) {
+			} else if (dirs_nbr & 2) {
 				return 1; // E-facing neighbor
-			} else if (cluster_neighbor_orientations & 8) {
+			} else if (dirs_nbr & 8) {
 				return 3; // W-facing neighbor
 			} else {
 				return 0; // face S
@@ -4910,16 +4908,16 @@ int get_best_layout(const haus_besch_t* h, koord k, int streetdirs) {
 			break;
 		case 13: // WNS
 			if (has_corner_layouts) {
-				if (cluster_neighbor_orientations & 1) {
+				if (dirs_nbr & 1) {
 					return 7; // S-facing neighbor, face SW
-				} else if (cluster_neighbor_orientations & 4) {
+				} else if (dirs_nbr & 4) {
 					return 6; // N-facing neighbor, face NW
 				} else {
 					return 7; // no match, face SW by default
 				}
-			} else if (cluster_neighbor_orientations & 1) {
+			} else if (dirs_nbr & 1) {
 				return 0; // S-facing neighbor
-			} else if (cluster_neighbor_orientations & 4) {
+			} else if (dirs_nbr & 4) {
 				return 2; // N-facing neighbor
 			} else {
 				return 3; // face W
@@ -4927,16 +4925,16 @@ int get_best_layout(const haus_besch_t* h, koord k, int streetdirs) {
 			break;
 		case 14: // WNE
 			if (has_corner_layouts) {
-				if (cluster_neighbor_orientations & 2) {
+				if (dirs_nbr & 2) {
 					return 5; // E-facing neighbor, face NE
-				} else if (cluster_neighbor_orientations & 8) {
+				} else if (dirs_nbr & 8) {
 					return 6; // W-facing neighbor, face NW
 				} else {
 					return 5; // no match, face NE by default
 				}
-			} else if (cluster_neighbor_orientations & 2) {
+			} else if (dirs_nbr & 2) {
 				return 1; // E-facing neighbor
-			} else if (cluster_neighbor_orientations & 8) {
+			} else if (dirs_nbr & 8) {
 				return 3; // W-facing neighbor
 			} else {
 				return 2; // face N
@@ -4949,13 +4947,13 @@ int get_best_layout(const haus_besch_t* h, koord k, int streetdirs) {
 		// As it is this can give strange results when the neighbor is picked up
 		// from the "back side of the fence".
 		case 0:
-			if (cluster_neighbor_orientations & 1) {
+			if (dirs_nbr & 1) {
 				return 0; // S-facing neighbor
-			else if (cluster_neighbor_orientations & 2) {
+			} else if (dirs_nbr & 2) {
 				return 1; // E-facing neighbor
-			else if (cluster_neighbor_orientations & 4) {
+			} else if (dirs_nbr & 4) {
 				return 2; // N-facing neighbor
-			else if (cluster_neighbor_orientations & 8) {
+			} else if (dirs_nbr & 8) {
 				return 3; // W-facing neighbor
 			} else {
 				return 0; //default to S
@@ -5010,9 +5008,10 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 		// This is a bitmap -- up to 32 clustering types are allowed.
 		uint32 neighbor_building_clusters = 0;
 		for (int i = 0; i < 4; i++) {
-			const haus_besch_t* neighbor_building =get_citybuilding_haus_besch_at(k + neighbors[i]);
-			if (neighbor_building) {
-				neighbor_building_clusters |= neighbor_building->get_clusters();
+			const gebaeude_t* neighbor_gb = get_citybuilding_at(k + neighbors[i]);
+			if (neighbor_gb) {
+				// We have a building as a neighbor...
+				neighbor_building_clusters |= neighbor_gb->get_tile()->get_besch()->get_clusters();
 			}
 		}
 
@@ -5162,10 +5161,10 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 	// This is a bitmap -- up to 32 clustering types are allowed.
 	uint32 neighbor_building_clusters = 0;
 	for (int i = 0; i < 4; i++) {
-		// We really have a building as a neighbor...
-		const haus_besch_t* neighbor_building = get_citybuilding_haus_besch_at(k + neighbors[i]);
-		if (neighbor_building) {
-			neighbor_building_clusters |= neighbor_building->get_clusters();
+		const gebaeude_t* neighbor_gb = get_citybuilding_at(k + neighbors[i]);
+		if (neighbor_gb) {
+			// We have a building as a neighbor...
+			neighbor_building_clusters |= neighbor_gb->get_tile()->get_besch()->get_clusters();
 		}
 	}
 
