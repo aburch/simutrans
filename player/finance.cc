@@ -287,6 +287,12 @@ sint64 finance_t::credit_limit_by_profits() const {
 		profit_total += get_history_veh_month(TT_ALL, month, ATV_OPERATING_PROFIT);
     }
 	sint64 interest_rate = world->get_settings().get_interest_rate_percent();
+
+	if(interest_rate == 0)
+	{
+		return 0;
+	}
+
 	// *Divide* by the interest rate: if all the profits went to interest,
 	// this tells us how much debt (principal) we could pay interest on
 	// Does not account for compound interest, so generous to the player
