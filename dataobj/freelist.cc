@@ -12,8 +12,6 @@
 #include <valgrind/memcheck.h>
 #endif
 
-#define DEBUG_FREELIST
-
 struct nodelist_node_t
 {
 #ifdef DEBUG_FREELIST
