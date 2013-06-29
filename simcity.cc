@@ -4986,102 +4986,100 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 		return;
 	}
 
-		// Indented to reduce spurious differences in patch files
+	// Divide unemployed by 4, because it counts towards commercial and industrial,
+	// and both of those count 'double' for population relative to residential.
+	int employment_wanted  = get_unemployed() / 4;
+	int housing_wanted = get_homeless();
 
-		// Divide unemployed by 4, because it counts towards commercial and industrial,
-		// and both of those count 'double' for population relative to residential.
-		int employment_wanted  = get_unemployed() / 4;
-		int housing_wanted = get_homeless();
+	int industrial_suitability, commercial_suitability, residential_suitability;
+	bewerte_res_com_ind(k, industrial_suitability, commercial_suitability, residential_suitability );
 
-		int industrial_suitability, commercial_suitability, residential_suitability;
-		bewerte_res_com_ind(k, industrial_suitability, commercial_suitability, residential_suitability );
+	const int sum_industrial   = industrial_suitability  + employment_wanted;
+	const int sum_commercial = commercial_suitability  + employment_wanted;
+	const int sum_residential   = residential_suitability + housing_wanted;
 
-		const int sum_industrial   = industrial_suitability  + employment_wanted;
-		const int sum_commercial = commercial_suitability  + employment_wanted;
-		const int sum_residential   = residential_suitability + housing_wanted;
+	// does the timeline allow this building?
+	const uint16 current_month = welt->get_timeline_year_month();
+	const climate cl = welt->get_climate(welt->max_hgt(k));
 
-		// does the timeline allow this building?
-		const uint16 current_month = welt->get_timeline_year_month();
-		const climate cl = welt->get_climate(welt->max_hgt(k));
-
-		// Run through orthogonal neighbors (only) looking for which cluster to build
-		// This is a bitmap -- up to 32 clustering types are allowed.
-		uint32 neighbor_building_clusters = 0;
-		for (int i = 0; i < 4; i++) {
-			const gebaeude_t* neighbor_gb = get_citybuilding_at(k + neighbors[i]);
-			if (neighbor_gb) {
-				// We have a building as a neighbor...
-				neighbor_building_clusters |= neighbor_gb->get_tile()->get_besch()->get_clusters();
-			}
+	// Run through orthogonal neighbors (only) looking for which cluster to build
+	// This is a bitmap -- up to 32 clustering types are allowed.
+	uint32 neighbor_building_clusters = 0;
+	for (int i = 0; i < 4; i++) {
+		const gebaeude_t* neighbor_gb = get_citybuilding_at(k + neighbors[i]);
+		if (neighbor_gb) {
+			// We have a building as a neighbor...
+			neighbor_building_clusters |= neighbor_gb->get_tile()->get_besch()->get_clusters();
 		}
+	}
 
-		// Find a house to build
-		const haus_besch_t* h = NULL;
+	// Find a house to build
+	const haus_besch_t* h = NULL;
 
-		if (sum_commercial > sum_industrial  &&  sum_commercial > sum_residential) {
-			h = hausbauer_t::get_commercial(0, current_month, cl, new_town, neighbor_building_clusters);
-			if (h != NULL) {
-				arb += (h->get_level()) * 20;
-			}
-		}
-
-		if (h == NULL  &&  sum_industrial > sum_residential  &&  sum_industrial > sum_residential) {
-			h = hausbauer_t::get_industrial(0, current_month, cl, new_town, neighbor_building_clusters);
-			if (h != NULL) {
-				arb += (h->get_level()) * 20;
-			}
-		}
-
-		if (h == NULL  &&  sum_residential > sum_industrial  &&  sum_residential > sum_commercial) {
-			h = hausbauer_t::get_residential(0, current_month, cl, new_town, neighbor_building_clusters);
-			if (h != NULL) {
-				// will be aligned next to a street
-				won += (h->get_level()) * 10;
-			}
-		}
-
-		// we have something to built here ...
+	if (sum_commercial > sum_industrial  &&  sum_commercial > sum_residential) {
+		h = hausbauer_t::get_commercial(0, current_month, cl, new_town, neighbor_building_clusters);
 		if (h != NULL) {
-			// check for pavement
-			int streetdirs = 0;
-			for (int i = 0; i < 8; i++) {
-				// Neighbors goes through these in 'preferred' order, orthogonal first
-				gr = welt->lookup_kartenboden(k + neighbors[i]);
-				if (gr == NULL) {
-					// No ground, skip this neighbor
-					continue;
+			arb += (h->get_level()) * 20;
+		}
+	}
+
+	if (h == NULL  &&  sum_industrial > sum_residential  &&  sum_industrial > sum_residential) {
+		h = hausbauer_t::get_industrial(0, current_month, cl, new_town, neighbor_building_clusters);
+		if (h != NULL) {
+			arb += (h->get_level()) * 20;
+		}
+	}
+
+	if (h == NULL  &&  sum_residential > sum_industrial  &&  sum_residential > sum_commercial) {
+		h = hausbauer_t::get_residential(0, current_month, cl, new_town, neighbor_building_clusters);
+		if (h != NULL) {
+			// will be aligned next to a street
+			won += (h->get_level()) * 10;
+		}
+	}
+
+	// we have something to built here ...
+	if (h != NULL) {
+		// check for pavement
+		int streetdirs = 0;
+		for (int i = 0; i < 8; i++) {
+			// Neighbors goes through these in 'preferred' order, orthogonal first
+			gr = welt->lookup_kartenboden(k + neighbors[i]);
+			if (gr == NULL) {
+				// No ground, skip this neighbor
+				continue;
+			}
+			strasse_t* road = (strasse_t*)gr->get_weg(road_wt);
+			if (road != NULL) {
+				// We found a road...
+				// Extend the sidewalk
+				road->set_gehweg(true);
+				if (i < 4) {
+					// update directions (SENW)
+					streetdirs += (1 << i);
 				}
-				strasse_t* road = (strasse_t*)gr->get_weg(road_wt);
-				if (road != NULL) {
-					// We found a road...
-					// Extend the sidewalk
-					road->set_gehweg(true);
-					if (i < 4) {
-						// update directions (SENW)
-						streetdirs += (1 << i);
-					}
-					if (gr->get_weg_hang() == gr->get_grund_hang()) {
-						// This is not a bridge, tunnel, etc.
-						// if not current city road standard, then replace it
-						if (road->get_besch() != welt->get_city_road()) {
-							spieler_t *sp = road->get_besitzer();
-							if (sp == NULL  ||  !gr->get_depot()) {
-								spieler_t::add_maintenance( sp, -road->get_besch()->get_wartung(), road_wt);
-								road->set_besitzer(NULL); // make public
-								road->set_gehweg(true);
-							}
+				if (gr->get_weg_hang() == gr->get_grund_hang()) {
+					// This is not a bridge, tunnel, etc.
+					// if not current city road standard, then replace it
+					if (road->get_besch() != welt->get_city_road()) {
+						spieler_t *sp = road->get_besitzer();
+						if (sp == NULL  ||  !gr->get_depot()) {
+							spieler_t::add_maintenance( sp, -road->get_besch()->get_wartung(), road_wt);
+							road->set_besitzer(NULL); // make public
+							road->set_gehweg(true);
 						}
 					}
-					gr->calc_bild();
-					reliefkarte_t::get_karte()->calc_map_pixel(gr->get_pos().get_2d());
 				}
+				gr->calc_bild();
+				reliefkarte_t::get_karte()->calc_map_pixel(gr->get_pos().get_2d());
 			}
-
-			int layout = get_best_layout(h, k, streetdirs);
-
-			const gebaeude_t* gb = hausbauer_t::baue(welt, NULL, pos, layout, h);
-			add_gebaeude_to_stadt(gb);
 		}
+
+		int layout = get_best_layout(h, k, streetdirs);
+
+		const gebaeude_t* gb = hausbauer_t::baue(welt, NULL, pos, layout, h);
+		add_gebaeude_to_stadt(gb);
+	}
 }
 
 
