@@ -4650,32 +4650,322 @@ static koord neighbors[] = {
 	koord( 1,  1)
 };
 
-
-// This is indexed by a bitfield of "street directions":
+// The following tables are indexed by a bitfield of "street directions":
 // S == 0001 (1)
 // E == 0010 (2)
 // N == 0100 (4)
-// W == 1000 (16)
+// W == 1000 (8)
 
-// return layout
-static int building_layout[] = {0,0,1,4,2,0,5,1,3,7,1,0,6,3,2,0};
-// How to read this:
-// 0000 no streets: layout 0 -- faces S
-// 0001    S: layout 0 -- faces S
-// 0010   E : layout 1 -- faces E
-// 0011   ES: layout 4 (based on 0) faces S
-// 0100  N  : layout 2 -- faces N
-// 0101  N S: layout 0 -- faces S (prefer to face player)
-// 0110  NE : layout 5 (based on 1) faces E
-// 0111  NES: layout 1 -- faces E (always breaks row)
-// 1000 W   : layout 3 -- faces W
-// 1001 W  S: layout 7 (based on 3) faces W
-// 1010 W E : layout 1 -- faces E (prefer to face player)
-// 1011 W ES: layout 0 -- faces S (always breaks row)
-// 1100 WN  : layout 6 (based on 2) faces N
-// 1101 WN S: layout 3 -- faces W (always breaks row)
-// 1110 WNE : layout 2 -- faces N (always breaks row)
-// 1111 WNES: layout 0 -- faces S (prefer to face player)
+// This gives a bitfield saying which neighbors are *interesting* for purposes of layout --
+// whose layout we should attempt to copy
+// We don't bother if there's only one nearby street
+// This is the variant when we have no corner layouts
+static int interesting_neighbors_no_corners[] = {
+		// How to read this:
+	15, // 0000 no streets: all interesting
+	0,  // 0001    S:
+	5,	// 0010   E :
+	12,	// 0011   ES: N and W are interesting
+	0,	// 0100  N  :
+	10,	// 0101  N S: E and W are interesting
+	9,	// 0110  NE : S and W are interesting
+	8,	// 0111  NES: W is interesting
+	0,	// 1000 W   :
+	6,	// 1001 W  S: N and E are interesting
+	5,	// 1010 W E : N and S are interesting
+	4,	// 1011 W ES: N is interesting
+	3,	// 1100 WN  : S and E are interesting
+	2,	// 1101 WN S: E is interesting
+	1,	// 1110 WNE : S is interesting
+	0	// 1111 WNES: nothing interesting
+};
+
+// This is the variant when we have corner layouts available
+static int interesting_neighbors_corners[] = {
+		// How to read this:
+	15, // 0000 no streets: all interesting
+	0,  // 0001    S:
+	0,	// 0010   E :
+	0,	// 0011   ES:
+	0,	// 0100  N  :
+	10,	// 0101  N S: E and W are interesting
+	0,	// 0110  NE :
+	8,	// 0111  NES: W is interesting
+	0,	// 1000 W   :
+	0,	// 1001 W  S:
+	5,	// 1010 W E : N and S are interesting
+	4,	// 1011 W ES: N is interesting
+	0,	// 1100 WN  :
+	2,	// 1101 WN S: E is interesting
+	1,	// 1110 WNE : S is interesting
+	0	// 1111 WNES: nothing interesting
+};
+
+// This takes a layout (0,1,2,3,4,5,6,7)
+// and returns a "streetsdir" style bitfield indicating which ways that layout is facing
+static int layout_to_orientations[] = {
+	1,  // S
+	2,  // E
+	4,  // N
+	8,  // W
+	3,  //SE
+	6,  //NE
+	12, //NW
+	9   //SW
+};
+
+/**
+ * Get haus_besch_t* for citybuilding at location k
+ * Returns NULL if there is no citybuilding at that location
+ * File-scope linkage
+ */
+const haus_besch_t* get_citybuilding_haus_besch_at(koord k) {
+	grund_t* gr = welt->lookup_kartenboden(k);
+	if (gr && gr->get_typ() == grund_t::fundament && gr->obj_bei(0)->get_typ() == ding_t::gebaeude) {
+		// We have a building as a neighbor...
+		gebaeude_t const* const gb = ding_cast<gebaeude_t>(gr->first_obj());
+		if (gb != NULL) {
+			// We really have a building as a neighbor...
+			const haus_besch_t* neighbor_building = gb->get_tile()->get_besch();
+			return neighbor_building;
+			}
+		}
+	}
+	return NULL;
+}
+
+
+/**
+ * Returns best layout (orientation) for a new city building h at location k.
+ * This needs to know the nearby street directions.
+ * File-scope linkage
+ */
+int get_best_layout(const haus_besch_t* h, koord k, int streetdirs) {
+	// Return value is a layout, which is a direction to face:
+	//  0, 1, 2, 3, 4, 5, 6, 7
+	//  S, E, N, W,SE,NE,NW,SW
+
+	// Streetdirs is a bitfield of "street directions":
+	// S == 0001 (1)
+	// E == 0010 (2)
+	// N == 0100 (4)
+	// W == 1000 (8)
+
+	assert(h != NULL);
+	assert(streetdirs <= 15);
+
+	bool has_corner_layouts = (h->get_all_layouts() == 8);
+	int* interesting_neighbors;
+	if (has_corner_layouts) {
+		interesting_neighbors = interesting_neighbors_corners;
+	} else {
+		interesting_neighbors = interesting_neighbors_no_corners;
+	}
+
+	// Check the neighbors to collect desirable orientations.
+	// Please note that this short-circuits quickly (doing nothing) for
+	// cases where it is not worth checking neighbors.
+	uint8 neighbors_orientations = 0;
+	uint8 cluster_neighbors_orientations = 0;
+	for (int i = 0; i < 4; i++) {
+		if ( interesting_neighbors[streetdirs] & (1 << i) ) {
+			const haus_besch_t* neighbor_building = get_citybuilding_haus_besch_at(k + neighbors[i]);
+			if (neighbor_building != NULL) {
+				// We really have a building as a neighbor...
+				const int neighbor_layout = neighbor_building->get_layout();
+				assert (neighbor_layout <= 7);
+				// Convert corner (and other) layouts to bitmaps of cardinal direction layouts
+				const uint8 neighbor_orientations |= layout_to_orientations[neighbor_layout];
+				// Filter by nearby street directions (unless there are no nearby streets)
+				if (streetdirs) {
+					 neighbor_orientations &= streetdirs;
+				}
+				neighbors_orientations |= neighbor_orientations;
+				// Is it a member of the same cluster as this building?
+				if (h->get_clusters() & neighbor_building->get_clusters() ) {
+					cluster_neighbors_orientations |= neighbor_orientations;
+				}
+			}
+		}
+	}
+	// If we have a matching cluster_neighbors_orientations, use that.
+	// If it's 0, use neighbor_orientations instead.
+	if (cluster_neighbor_orientations == 0) {
+		cluster_neighbor_orientations = neighbor_orientations;
+	}
+	// If neighbor_orientations is also zero, we'll use a default choice.
+
+	// The compiler will reorder the cases in the switch, presumably.
+	// These are sorted according to internal logic
+	switch (streetdirs) {
+		// First the easy cases: only one reasonable direction
+		case 15: // NSEW (surrounded by roads): default to south.
+			return 0;
+		case 1: // S
+			return 0;
+		case 2: // E
+			return 1;
+		case 4: // N
+			return 2;
+		case 8: // W
+			return 3;
+		// Now the corners: corner layout, or best neighbor, or default
+		case 3: // SE
+			if (has_corner_layouts) {
+				return 4;
+			} else if (cluster_neighbor_orientations & 1) {
+				return 0; // S-facing neighbor (preferred)
+			} else if (cluster_neighbor_orientations & 2) {
+				return 1; // E-facing neighbor
+			} else {
+				return 0; // no match, default S-facing
+			}
+			break;
+		case 6: // NE
+			if (has_corner_layouts) {
+				return 5;
+			} else if (cluster_neighbor_orientations & 2) {
+				return 1; // E-facing neighbor (preferred)
+			} else if (cluster_neighbor_orientations & 4) {
+				return 2; // N-facing neighbor
+			} else {
+				return 1; // no match, default E-facing
+			}
+			break;
+		case 12: // NW
+			if (has_corner_layouts) {
+				return 6;
+			} else if (cluster_neighbor_orientations & 4) {
+				return 2; // N-facing neighbor (preferred)
+			} else if (cluster_neighbor_orientations & 8) {
+				return 3; // W-facing neighbor
+			} else {
+				return 2; // no match, default N-facing
+			}
+			break;
+		case 9: // SW
+			if (has_corner_layouts) {
+				return 7;
+			} else if (cluster_neighbor_orientations & 8) {
+				return 3; // W-facing neighbor (preferred)
+			} else if (cluster_neighbor_orientations & 1) {
+				return 0; // S-facing neighbor
+			} else {
+				return 3; // no match, default W-facing
+			}
+			break;
+		// Now the "sandwiched": best neighbor or default
+		case 5: // NS
+			if (cluster_neighbor_orientations & 1) {
+				return 0; // S-facing neighbor
+			} else if (cluster_neighbor_orientations & 4) {
+				return 2; // N-facing neighbor
+			} else {
+				return 0; // no match, default S-facing
+			}
+			break;
+		case 10: // EW
+			if (cluster_neighbor_orientations & 2) {
+				return 1; // E-facing neighbor
+			} else if (cluster_neighbor_orientations & 8) {
+				return 3; // W-facing neighbor
+			} else {
+				return 1; // no match, default E-facing
+			}
+			break;
+		// Now the "three-sided".  Get the best corner, or the best match, or face the third side.
+		case 7: // NES
+			if (has_corner_layouts) {
+				if (cluster_neighbor_orientations & 1) {
+					return 4; // S-facing neighbor, face SE
+				} else if (cluster_neighbor_orientations & 4) {
+					return 5; // N-facing neighbor, face NE
+				} else {
+					return 4; // no match, face SE by default
+				}
+			} else if (cluster_neighbor_orientations & 1) {
+				return 0; // S-facing neighbor
+			} else if (cluster_neighbor_orientations & 4) {
+				return 2; // N-facing neighbor
+			} else {
+				return 1; // face E
+			}
+			break;
+		case 11: // WES
+			if (has_corner_layouts) {
+				if (cluster_neighbor_orientations & 2) {
+					return 4; // E-facing neighbor, face SE
+				} else if (cluster_neighbor_orientations & 8) {
+					return 7; // W-facing neighbor, face SW
+				} else {
+					return 4; // no match, face SE by default
+				}
+			} else if (cluster_neighbor_orientations & 2) {
+				return 1; // E-facing neighbor
+			} else if (cluster_neighbor_orientations & 8) {
+				return 3; // W-facing neighbor
+			} else {
+				return 0; // face S
+			}
+			break;
+		case 13: // WNS
+			if (has_corner_layouts) {
+				if (cluster_neighbor_orientations & 1) {
+					return 7; // S-facing neighbor, face SW
+				} else if (cluster_neighbor_orientations & 4) {
+					return 6; // N-facing neighbor, face NW
+				} else {
+					return 7; // no match, face SW by default
+				}
+			} else if (cluster_neighbor_orientations & 1) {
+				return 0; // S-facing neighbor
+			} else if (cluster_neighbor_orientations & 4) {
+				return 2; // N-facing neighbor
+			} else {
+				return 3; // face W
+			}
+			break;
+		case 14: // WNE
+			if (has_corner_layouts) {
+				if (cluster_neighbor_orientations & 2) {
+					return 5; // E-facing neighbor, face NE
+				} else if (cluster_neighbor_orientations & 8) {
+					return 6; // W-facing neighbor, face NW
+				} else {
+					return 5; // no match, face NE by default
+				}
+			} else if (cluster_neighbor_orientations & 2) {
+				return 1; // E-facing neighbor
+			} else if (cluster_neighbor_orientations & 8) {
+				return 3; // W-facing neighbor
+			} else {
+				return 2; // face N
+			}
+			break;
+		// Now the most annoying case: no streets
+		// This is probably a dead-end corner.
+		// This should be done with more care by looking at the corner-edge streets
+		// but that would be even more work to implement!
+		// As it is this can give strange results when the neighbor is picked up
+		// from the "back side of the fence".
+		case 0:
+			if (cluster_neighbor_orientations & 1) {
+				return 0; // S-facing neighbor
+			else if (cluster_neighbor_orientations & 2) {
+				return 1; // E-facing neighbor
+			else if (cluster_neighbor_orientations & 4) {
+				return 2; // N-facing neighbor
+			else if (cluster_neighbor_orientations & 8) {
+				return 3; // W-facing neighbor
+			} else {
+				return 0; //default to S
+			}
+			break;
+		default:
+			assert(false); // we should never get here
+			return 0; // default to south
+	}
+}
 
 
 void stadt_t::build_city_building(const koord k, bool new_town)
@@ -4720,15 +5010,9 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 		// This is a bitmap -- up to 32 clustering types are allowed.
 		uint32 neighbor_building_clusters = 0;
 		for (int i = 0; i < 4; i++) {
-			grund_t* gr = welt->lookup_kartenboden(k + neighbors[i]);
-			if (gr->get_typ() == grund_t::fundament && gr->obj_bei(0)->get_typ() == ding_t::gebaeude) {
-				// We have a building as a neighbor...
-				gebaeude_t const* const gb = ding_cast<gebaeude_t>(gr->first_obj());
-				if (gb != NULL) {
-					// We really have a building as a neighbor...
-					const haus_besch_t* neighbor_building = gb->get_tile()->get_besch();
-					neighbor_building_clusters |= neighbor_building->get_clusters();
-				}
+			const haus_besch_t* neighbor_building =get_citybuilding_haus_besch_at(k + neighbors[i]);
+			if (neighbor_building) {
+				neighbor_building_clusters |= neighbor_building->get_clusters();
 			}
 		}
 
@@ -4757,68 +5041,46 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 			}
 		}
 
-		/*******************************************************
-		 * this are the layout possible for city buildings
-		********************************************************
-		dims=1,1,1
-		+---+
-		|000|
-		|0 0|
-		|000|
-		+---+
-		dims=1,1,2
-		+---+
-		|001|
-		|1 1|
-		|100|
-		+---+
-		dims=1,1,4
-		+---+
-		|221|
-		|3 1|
-		|300|
-		+---+
-		dims=1,1,8
-		+---+
-		|625|
-		|3 1|
-		|704|
-		+---+
-		********************************************************/
-
 		// we have something to built here ...
 		if (h != NULL) {
 			// check for pavement
-			int streetdir = 0;
+			int streetdirs = 0;
 			for (int i = 0; i < 8; i++) {
 				// Neighbors goes through these in 'preferred' order, orthogonal first
 				gr = welt->lookup_kartenboden(k + neighbors[i]);
-				if (gr && gr->get_weg_hang() == gr->get_grund_hang()) {
-					strasse_t* weg = (strasse_t*)gr->get_weg(road_wt);
-					if (weg != NULL) {
-						if (i < 4) {
-							// update directions (SENW)
-							streetdir += (1 << i);
-						}
-						weg->set_gehweg(true);
+				if (gr == NULL) {
+					// No ground, skip this neighbor
+					continue;
+				}
+				strasse_t* road = (strasse_t*)gr->get_weg(road_wt);
+				if (road != NULL) {
+					// We found a road...
+					// Extend the sidewalk
+					road->set_gehweg(true);
+					if (i < 4) {
+						// update directions (SENW)
+						streetdirs += (1 << i);
+					}
+					if (gr->get_weg_hang() == gr->get_grund_hang()) {
+						// This is not a bridge, tunnel, etc.
 						// if not current city road standard, then replace it
-						if (weg->get_besch() != welt->get_city_road()) {
-							spieler_t *sp = weg->get_besitzer();
+						if (road->get_besch() != welt->get_city_road()) {
+							spieler_t *sp = road->get_besitzer();
 							if (sp == NULL  ||  !gr->get_depot()) {
-								spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung(), road_wt);
-
-								weg->set_besitzer(NULL); // make public
-								weg->set_gehweg(true);
+								spieler_t::add_maintenance( sp, -road->get_besch()->get_wartung(), road_wt);
+								road->set_besitzer(NULL); // make public
+								road->set_gehweg(true);
 							}
 						}
-						gr->calc_bild();
-						reliefkarte_t::get_karte()->calc_map_pixel(gr->get_pos().get_2d());
 					}
+					gr->calc_bild();
+					reliefkarte_t::get_karte()->calc_map_pixel(gr->get_pos().get_2d());
 				}
 			}
-			// TO DO: fix building orientation here, to improve terraced building appearance.
 
-			const gebaeude_t* gb = hausbauer_t::baue(welt, NULL, pos, building_layout[streetdir], h);
+			int layout = get_best_layout(h, k, streetdirs);
+
+			const gebaeude_t* gb = hausbauer_t::baue(welt, NULL, pos, layout, h);
 			add_gebaeude_to_stadt(gb);
 		}
 }
@@ -4900,15 +5162,10 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 	// This is a bitmap -- up to 32 clustering types are allowed.
 	uint32 neighbor_building_clusters = 0;
 	for (int i = 0; i < 4; i++) {
-		grund_t* gr = welt->lookup_kartenboden(k + neighbors[i]);
-		if (gr  &&  gr->get_typ() == grund_t::fundament  &&  gr->obj_bei(0)->get_typ() == ding_t::gebaeude) {
-			// We have a building as a neighbor...
-			gebaeude_t const* const gb = ding_cast<gebaeude_t>(gr->first_obj());
-			if (gb != NULL) {
-				// We really have a building as a neighbor...
-				const haus_besch_t* neighbor_building = gb->get_tile()->get_besch();
-				neighbor_building_clusters |= neighbor_building->get_clusters();
-			}
+		// We really have a building as a neighbor...
+		const haus_besch_t* neighbor_building = get_citybuilding_haus_besch_at(k + neighbors[i]);
+		if (neighbor_building) {
+			neighbor_building_clusters |= neighbor_building->get_clusters();
 		}
 	}
 
@@ -4973,41 +5230,47 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 	if (sum > 0 && h != NULL) {
 //		DBG_MESSAGE("stadt_t::renovate_city_building()", "renovation at %i,%i (%i level) of typ %i to typ %i with desire %i", k.x, k.y, alt_typ, want_to_have, sum);
 
-		// check for pavement
-		// and make sure our house is not on a neighbouring tile, to avoid boring towns
-		int streetdir = 0;
+		int streetdirs = 0;
 		for (int i = 0; i < 8; i++) {
 			// Neighbors goes through this in a specific order:
 			// orthogonal first, then diagonal
 			grund_t* gr = welt->lookup_kartenboden(k + neighbors[i]);
-			if (gr != NULL && gr->get_weg_hang() == gr->get_grund_hang()) {
-				if (weg_t* const weg = gr->get_weg(road_wt)) {
-					if (i < 4) {
-						// update directions (SENW)
-						streetdir += (1 << i);
-					}
-					weg->set_gehweg(true);
+			if (gr == NULL) {
+				// No ground, skip this neighbor
+				continue;
+			}
+			weg_t * const road = gr->get_weg(road_wt);
+			if (road) {
+				// Extend the sidewalk
+				road->set_gehweg(true);
+				if (i < 4) {
+					// update directions (SENW)
+					streetdirs += (1 << i);
+				}
+				if (gr->get_weg_hang() == gr->get_grund_hang()) {
+					// This is not a bridge, tunnel, etc.
+					// Not a bridge/tunnel/etc.
 					// if not current city road standard, then replace it
-					if (weg->get_besch() != welt->get_city_road()) {
-						spieler_t *sp = weg->get_besitzer();
+					if (road->get_besch() != welt->get_city_road()) {
+						spieler_t *sp = road->get_besitzer();
 						if (sp == NULL  ||  !gr->get_depot()) {
-							spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung(), road_wt);
+							spieler_t::add_maintenance( sp, -road->get_besch()->get_wartung(), road_wt);
 
-							weg->set_besitzer(NULL); // make public
-							weg->set_besch(welt->get_city_road());
+							road->set_besitzer(NULL); // make public
+							road->set_besch(welt->get_city_road());
 						}
 					}
-					gr->calc_bild();
-					reliefkarte_t::get_karte()->calc_map_pixel(gr->get_pos().get_2d());
-				} else if (gr->get_typ() == grund_t::fundament) {
-					uint32 my_clusters = h->get_clusters();
-					if (my_clusters == 0) {
-						// This is a non-clustering building.
-						// If an identical building is in a neighbor tile, do not renovate.
-						gebaeude_t const* const gb = ding_cast<gebaeude_t>(gr->first_obj());
-						if (gb != NULL && gb->get_tile()->get_besch() == h) {
-							return return_value; //it will return false
-						}
+				}
+				gr->calc_bild();
+				reliefkarte_t::get_karte()->calc_map_pixel(gr->get_pos().get_2d());
+			} else if (gr->get_typ() == grund_t::fundament) {
+				uint32 my_clusters = h->get_clusters();
+				if (my_clusters == 0) {
+					// This is a non-clustering building.
+					// If an identical building is in a neighbor tile, do not renovate.
+					gebaeude_t const* const gb = ding_cast<gebaeude_t>(gr->first_obj());
+					if (gb != NULL && gb->get_tile()->get_besch() == h) {
+						return return_value; //it will return false
 					}
 				}
 			}
@@ -5020,9 +5283,10 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 			default: break;
 		}
 
+		const int layout = get_best_layout(h, k, streetdirs);
 		// exchange building; try to face it to street in front
 		gb->mark_images_dirty();
-		gb->set_tile( h->get_tile(building_layout[streetdir], 0, 0), true );
+		gb->set_tile( h->get_tile(layout, 0, 0), true );
 		welt->lookup_kartenboden(k)->calc_bild();
 		update_gebaeude_from_stadt(gb);
 		return_value = true;
@@ -5287,8 +5551,8 @@ void stadt_t::baue(bool new_town)
 	koord c( (ur.x + lo.x)/2 , (ur.y + lo.y)/2);
 	uint32 maxdist(koord_distance(ur,c));
 	if (maxdist < 10) {maxdist = 10;}
-	int was_renovated=0;
-	int try_nr = 0;
+	uint32 was_renovated=0;
+	uint32 try_nr = 0;
 	if (!buildings.empty() && simrand(100, "void stadt_t::baue") <= renovation_percentage  ) {
 		while (was_renovated < renovations_count && try_nr++ < renovations_try) { // trial an errors parameters
 			// try to find a non-player owned building
