@@ -289,26 +289,29 @@ class ttextfile extends ttext {
 
 /////////////////////////////////////
 
+function _extend_get(index) {
+	if (index == "rawin"  ||  index == "rawget") {
+		throw null // invoke default delegate
+		return
+	}
+	local fname = "get_" + index
+	if (rawin(fname)) {
+		local func = rawget(fname)
+		if (typeof(func)=="function") {
+			return func.call(this)
+		}
+	}
+	throw null // invoke default delegate
+}
+
 /**
  * this class implements an extended get method:
  * everytime an index is not found it tries to call the method 'get_'+index
  */
 class extend_get {
 
-	function _get(index) {
-		if (index == "rawin"  ||  index == "rawget") {
-			throw null // invoke default delegate
-			return
-		}
-		local fname = "get_" + index
-		if (rawin(fname)) {
-			local func = rawget(fname)
-			if (typeof(func)=="function") {
-				return func.call(this)
-			}
-		}
-		throw null // invoke default delegate
-	}
+	_get = _extend_get
+
 }
 
 /**
@@ -575,20 +578,9 @@ class dir {
  * Seems to be impossible to achieve for both tables and classes without code duplication.
  */
 table_with_extend_get <- {
-	function _get(index) {
-		if (index == "rawin"  ||  index == "rawget") {
-			throw null // invoke default delegate
-			return
-		}
-		local fname = "get_" + index
-		if (rawin(fname)) {
-			local func = rawget(fname)
-			if (typeof(func)=="function") {
-				return func.call(this)
-			}
-		}
-		throw null // invoke default delegate
-	}
+
+	_get = _extend_get
+
 }
 
 /**
