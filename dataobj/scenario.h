@@ -146,6 +146,10 @@ private:
 	/// list of forbidden tools
 	vector_tpl<forbidden_t*>forbidden_tools;
 
+	/// set to true if rules changed to update toolbars,
+	/// toolbars will be updated in next call to step()
+	bool need_toolbar_update;
+
 	/**
 	 * helper function:
 	 * @param other given record
