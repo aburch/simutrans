@@ -19,16 +19,48 @@ extern int large_font_total_height;
 
 #include "simcolor.h"
 #include "unicode.h"
+#include "simtypes.h"
 
 #define LINEASCENT (large_font_ascent)
 #define LINESPACE (large_font_total_height)
+
+/**
+* Alignment enum to align controls against each other
+* Vertical and horizontal alignment can be masked together
+* Unused bits are reserved for future use, set to 0.
+*
+* @author Max Kielland
+*/
+enum control_alignments_t {
+
+	ALIGN_NONE       = 0x00,
+
+	ALIGN_TOP        = 0x01,
+	ALIGN_CENTER_V   = 0x02,
+	ALIGN_BOTTOM     = 0x03,
+	ALIGN_INTERIOR_V = 0x00,
+	ALIGN_EXTERIOR_V = 0x10,
+
+	ALIGN_LEFT       = 0x04,
+	ALIGN_CENTER_H   = 0x08,
+	ALIGN_RIGHT      = 0x0C,
+	ALIGN_INTERIOR_H = 0x00,
+	ALIGN_EXTERIOR_H = 0x20,
+
+	// These flags does not belong in here but
+	// are defined here until we sorted this out.
+	// They are inly used in display_text_proportional_len_clip()
+	DT_DIRTY         = 0x8000,
+	DT_CLIP          = 0x4000
+};
+typedef uint16 control_alignment_t;
 
 // size of koordinates
 typedef short KOORD_VAL;
 
 
 struct clip_dimension {
-    KOORD_VAL x, xx, w, y, yy, h;
+	KOORD_VAL x, xx, w, y, yy, h;
 };
 
 
@@ -254,17 +286,8 @@ int display_calc_proportional_string_len_width(const char* text, size_t len);
  * @author Volker Meyer, prissi
  * @date  15.06.2003, 2.1.2005
  */
-enum
-{
-	ALIGN_LEFT   = 0 << 0,
-	ALIGN_MIDDLE = 1 << 0,
-	ALIGN_RIGHT  = 2 << 0,
-	ALIGN_MASK   = 3 << 0,
-	DT_DIRTY     = 1 << 2,
-	DT_CLIP      = 1 << 3
-};
 
-int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt, int flags, PLAYER_COLOR_VAL color_index, long len);
+int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt, control_alignment_t flags, const PLAYER_COLOR_VAL color_index, long len);
 /* macro are for compatibility */
 #define display_proportional(     x,  y, txt, align, color, dirty) display_text_proportional_len_clip(x, y, txt, align | (dirty ? DT_DIRTY : 0),           color,  -1)
 #define display_proportional_clip(x,  y, txt, align, color, dirty) display_text_proportional_len_clip(x, y, txt, align | (dirty ? DT_DIRTY : 0) | DT_CLIP, color,  -1)

@@ -12,12 +12,12 @@
 
 
 gui_image_list_t::gui_image_list_t(vector_tpl<image_data_t*> *images) :
-    grid(16, 16),
-    placement(16, 16)
+	grid(16, 16),
+	placement(16, 16)
 {
-    this->images = images;
-    use_rows = true;
-    player_nr = 0;
+	this->images = images;
+	use_rows = true;
+	player_nr = 0;
 }
 
 

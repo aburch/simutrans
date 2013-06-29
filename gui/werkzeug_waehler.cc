@@ -17,6 +17,7 @@
 #include "../dataobj/umgebung.h"
 #include "../utils/for.h"
 #include "werkzeug_waehler.h"
+#include "../gui/gui_frame.h"
 
 #define MIN_WIDTH (80)
 
@@ -94,7 +95,8 @@ void werkzeug_waehler_t::reset_tools()
 bool werkzeug_waehler_t::getroffen(int x, int y)
 {
 	int dx = x/icon.x;
-	int dy = (y-16)/icon.y;
+	int dy = (y-D_TITLEBAR_HEIGHT)/icon.y;
+
 	// either click in titlebar or on an icon
 	if(  x>=0   &&  y>=0  &&  ( (y<D_TITLEBAR_HEIGHT  &&  x<get_fenstergroesse().x)  ||  (dx<tool_icon_width  &&  dy<tool_icon_height) )  ) {
 		return y < D_TITLEBAR_HEIGHT || dx + tool_icon_width * dy + tool_icon_disp_start < (int)tools.get_count();
@@ -108,7 +110,7 @@ bool werkzeug_waehler_t::infowin_event(const event_t *ev)
 	if(IS_LEFTRELEASE(ev)  ||  IS_RIGHTRELEASE(ev)) {
 		// tooltips?
 		const int x = (ev->mx) / icon.x;
-		const int y = (ev->my-16) / icon.y;
+		const int y = (ev->my-D_TITLEBAR_HEIGHT) / icon.y;
 
 		if(x>=0 && x<tool_icon_width  &&  y>=0) {
 			const int wz_idx = x+(tool_icon_width*y)+tool_icon_disp_start;
@@ -170,7 +172,7 @@ void werkzeug_waehler_t::zeichnen(koord pos, koord)
 	for(  uint i = tool_icon_disp_start;  i < tool_icon_disp_end;  i++  ) {
 		const image_id icon_img = tools[i].tool->get_icon(sp);
 
-		const koord draw_pos=pos+koord(((i-tool_icon_disp_start)%tool_icon_width)*icon.x,16+((i-tool_icon_disp_start)/tool_icon_width)*icon.y);
+		const koord draw_pos=pos+koord(((i-tool_icon_disp_start)%tool_icon_width)*icon.x,D_TITLEBAR_HEIGHT+((i-tool_icon_disp_start)/tool_icon_width)*icon.y);
 		if(icon_img == IMG_LEER) {
 			// Hajo: no icon image available, draw a blank
 			// DDD box as replacement
@@ -203,11 +205,11 @@ void werkzeug_waehler_t::zeichnen(koord pos, koord)
 	const sint16 mx = get_maus_x();
 	const sint16 my = get_maus_y();
 	const sint16 xdiff = (mx - pos.x) / icon.x;
-	const sint16 ydiff = (my - pos.y - 16) / icon.y;
-	if(xdiff>=0  &&  xdiff<tool_icon_width  &&  ydiff>=0  &&  mx>=pos.x  &&  my>=pos.y+16) {
+	const sint16 ydiff = (my - pos.y - D_TITLEBAR_HEIGHT) / icon.y;
+	if(xdiff>=0  &&  xdiff<tool_icon_width  &&  ydiff>=0  &&  mx>=pos.x  &&  my>=pos.y+D_TITLEBAR_HEIGHT) {
 		const int tipnr = xdiff+(tool_icon_width*ydiff)+tool_icon_disp_start;
 		if (tipnr < (int)tool_icon_disp_end) {
-			win_set_tooltip(get_maus_x() + 16, pos.y + 16 + ((ydiff+1)*icon.y) + 12, tools[tipnr].tool->get_tooltip(welt->get_active_player()), tools[tipnr].tool, this);
+			win_set_tooltip(get_maus_x() + TOOLTIP_MOUSE_OFFSET_X, pos.y + TOOLTIP_MOUSE_OFFSET_Y + ((ydiff+1)*icon.y) + 12, tools[tipnr].tool->get_tooltip(welt->get_active_player()), tools[tipnr].tool, this);
 		}
 	}
 

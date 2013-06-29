@@ -91,13 +91,13 @@ public:
 	void clear_elements() { droplist.clear_elements(); }
 
 	/**
-	 * remove all elements from droplist
+	 * return number of elements in droplist
 	 * @author hsiegeln
 	 */
 	int count_elements() const { return droplist.get_count(); }
 
 	/**
-	 * remove all elements from droplist
+	 * return element at index from droplist
 	 * @author hsiegeln
 	 */
 	gui_scrolled_list_t::scrollitem_t *get_element(sint32 idx) const { return droplist.get_element(idx); }

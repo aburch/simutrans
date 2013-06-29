@@ -10,6 +10,7 @@
 
 #include "../../dataobj/koord.h"
 #include "../../simevent.h"
+#include "../../simgraph.h"
 
 struct event_t;
 
@@ -43,6 +44,12 @@ protected:
 	 */
 	koord pos;
 
+	/**
+	* Größe der Komponente.
+	* @author Hj. Malthaner
+	*/
+	koord groesse;
+
 public:
 	/**
 	* Basic contructor, initialises member variables
@@ -56,7 +63,9 @@ public:
 	*/
 	virtual ~gui_komponente_t() {}
 
-	void set_focusable(bool yesno) { focusable = yesno; }
+	virtual void init(koord pos_par, koord size_par) { pos = pos_par; groesse = size_par; }
+
+	virtual void set_focusable(bool yesno) { focusable = yesno; }
 
 	// Knightly : a component can only be focusable when it is visible
 	virtual bool is_focusable() { return visible && focusable; }
@@ -93,12 +102,6 @@ public:
 	koord get_pos() const {
 		return pos;
 	}
-
-	/**
-	* Größe der Komponente.
-	* @author Hj. Malthaner
-	*/
-	koord groesse;
 
 	/**
 	* Vorzugsweise sollte diese Methode zum Setzen der Größe benutzt werden,
@@ -157,6 +160,16 @@ public:
 	 * @author Knightly
 	 */
 	virtual koord get_focus_pos() { return pos; }
+
+	/**
+	 * Align this component relative to the target component
+	 * @param fComponent the component to align against
+	 * @param fAlignment the requested alignmnent
+	 * @param fOffset Offset added to alignment
+	 * @return the offset relative to the component
+	 * @author Max Kielland
+	 */
+	void align_to(gui_komponente_t* component_par, control_alignment_t alignment_par, koord offset_par = koord(0,0) );
 };
 
 #endif

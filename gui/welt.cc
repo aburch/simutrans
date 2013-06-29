@@ -137,15 +137,15 @@ welt_gui_t::welt_gui_t(karte_t* const welt, settings_t* const sets) :
 
 	// maps etc.
 	intTopOfButton += 5;
+	random_map.set_typ(button_t::roundbox);
 	random_map.set_pos( koord(10, intTopOfButton) );
 	random_map.set_groesse( koord(104, D_BUTTON_HEIGHT) );
-	random_map.set_typ(button_t::roundbox);
 	random_map.add_listener( this );
 	add_komponente( &random_map );
 
+	load_map.set_typ(button_t::roundbox);
 	load_map.set_pos( koord(104+11+30, intTopOfButton) );
 	load_map.set_groesse( koord(104, D_BUTTON_HEIGHT) );
-	load_map.set_typ(button_t::roundbox);
 	load_map.add_listener( this );
 	add_komponente( &load_map );
 	intTopOfButton += D_BUTTON_HEIGHT;
@@ -222,17 +222,17 @@ welt_gui_t::welt_gui_t(karte_t* const welt, settings_t* const sets) :
 	intTopOfButton += 10;
 
 	// Buttons
+	open_setting_gui.set_typ( button_t::roundbox );
 	open_setting_gui.set_pos( koord(10,intTopOfButton) );
 	open_setting_gui.set_groesse( koord(80, 14) );
-	open_setting_gui.set_typ( button_t::roundbox );
 	open_setting_gui.set_text("Setting");
 	open_setting_gui.add_listener( this );
 	open_setting_gui.pressed = win_get_magic( magic_settings_frame_t );
 	add_komponente( &open_setting_gui );
 
+	open_climate_gui.set_typ( button_t::roundbox );
 	open_climate_gui.set_pos( koord(80+20,intTopOfButton) );
 	open_climate_gui.set_groesse( koord(150, 14) );
-	open_climate_gui.set_typ( button_t::roundbox );
 	open_climate_gui.add_listener( this );
 	open_climate_gui.set_text("Climate Control");
 	open_climate_gui.pressed = win_get_magic( magic_climate );
@@ -241,31 +241,31 @@ welt_gui_t::welt_gui_t(karte_t* const welt, settings_t* const sets) :
 
 	// load game
 	intTopOfButton += 10;
+	load_game.set_typ(button_t::roundbox);
 	load_game.set_pos( koord(10, intTopOfButton) );
 	load_game.set_groesse( koord(104, 14) );
-	load_game.set_typ(button_t::roundbox);
 	load_game.add_listener( this );
 	add_komponente( &load_game );
 
 	// load scenario
+	load_scenario.set_typ(button_t::roundbox);
 	load_scenario.set_pos( koord(104+11+30, intTopOfButton) );
 	load_scenario.set_groesse( koord(104, 14) );
-	load_scenario.set_typ(button_t::roundbox);
 	load_scenario.add_listener( this );
 	add_komponente( &load_scenario );
 
 	// start game
 	intTopOfButton += 5+D_BUTTON_HEIGHT;
+	start_game.set_typ(button_t::roundbox);
 	start_game.set_pos( koord(10, intTopOfButton) );
 	start_game.set_groesse( koord(104, 14) );
-	start_game.set_typ(button_t::roundbox);
 	start_game.add_listener( this );
 	add_komponente( &start_game );
 
 	// quit game
+	quit_game.set_typ(button_t::roundbox);
 	quit_game.set_pos( koord(104+11+30, intTopOfButton) );
 	quit_game.set_groesse( koord(104, 14) );
-	quit_game.set_typ(button_t::roundbox);
 	quit_game.add_listener( this );
 	add_komponente( &quit_game );
 

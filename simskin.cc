@@ -12,6 +12,7 @@ const skin_besch_t* skinverwaltung_t::werkzeuge_general  = NULL;
 const skin_besch_t* skinverwaltung_t::werkzeuge_simple   = NULL;
 const skin_besch_t* skinverwaltung_t::werkzeuge_dialoge  = NULL;
 const skin_besch_t* skinverwaltung_t::werkzeuge_toolbars = NULL;
+
 /* Window skin images are menus too! */
 const skin_besch_t* skinverwaltung_t::window_skin = NULL;
 

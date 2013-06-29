@@ -259,6 +259,7 @@ SOURCES += gui/components/gui_ding_view_t.cc
 SOURCES += gui/components/gui_fixedwidth_textarea.cc
 SOURCES += gui/components/gui_flowtext.cc
 SOURCES += gui/components/gui_image_list.cc
+SOURCES += gui/components/gui_komponente.cc
 SOURCES += gui/components/gui_label.cc
 SOURCES += gui/components/gui_numberinput.cc
 SOURCES += gui/components/gui_scrollbar.cc

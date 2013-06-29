@@ -17,9 +17,9 @@
 #include "../../macros.h"
 #include "../../dataobj/translator.h"
 
+#define ARROW_GAP (1)
 
 char gui_numberinput_t::tooltip[256];
-
 
 gui_numberinput_t::gui_numberinput_t() :
 	gui_komponente_t(true)
@@ -46,9 +46,9 @@ gui_numberinput_t::gui_numberinput_t() :
 void gui_numberinput_t::set_groesse(koord gr)
 {
 	bt_left.set_pos( koord(0, (gr.y - bt_left.get_groesse().y) / 2) );
-	textinp.set_pos( koord( bt_left.get_groesse().x + 2, 0) );
-	textinp.set_groesse( koord( gr.x - bt_left.get_groesse().x - bt_right.get_groesse().x - 6, gr.y) );
-	bt_right.set_pos( koord( gr.x - bt_right.get_groesse().x - 2, (gr.y - bt_right.get_groesse().y) / 2) );
+	textinp.set_pos( koord( bt_left.get_groesse().x + ARROW_GAP, 0) );
+	textinp.set_groesse( koord( gr.x - bt_left.get_groesse().x - bt_right.get_groesse().x - 2*ARROW_GAP, gr.y) );
+	bt_right.set_pos( koord( gr.x - bt_right.get_groesse().x, (gr.y - bt_right.get_groesse().y) / 2) );
 
 	gui_komponente_t::groesse = gr;
 }
@@ -331,6 +331,6 @@ void gui_numberinput_t::zeichnen(koord offset)
 
 	if(getroffen( get_maus_x()-offset.x, get_maus_y()-offset.y )) {
 		sprintf( tooltip, translator::translate("enter a value between %i and %i"), min_value, max_value );
-		win_set_tooltip(get_maus_x() + 16, new_offset.y + groesse.y + 12, tooltip, this);
+		win_set_tooltip(get_maus_x() + TOOLTIP_MOUSE_OFFSET_X, new_offset.y + groesse.y + TOOLTIP_MOUSE_OFFSET_Y, tooltip, this);
 	}
 }

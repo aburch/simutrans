@@ -106,9 +106,9 @@ void pakselector_t::fill_list()
 
 		cbuffer_t path;
 		path.printf("%saddons/%s", umgebung_t::user_dir, i.button->get_text());
-		i.del->groesse.x += 150;
+		i.del->set_groesse( i.del->get_groesse() + koord(150,0) );
 		i.del->set_text("Load with addons");
-		i.button->set_pos(koord(150,0) + i.button->get_pos());
+		i.button->set_pos( koord(150,0) + i.button->get_pos() );
 		if(  chdir( path )!=0  ) {
 			// no addons for this
 			i.del->set_visible(false);
@@ -129,12 +129,13 @@ void pakselector_t::fill_list()
 	}
 
 	button_frame.set_groesse(koord(get_fenstergroesse().x-1, y ));
-	set_fenstergroesse(koord(get_fenstergroesse().x, D_TITLEBAR_HEIGHT+30+y+3*LINESPACE+4+1));
+	set_fenstergroesse(koord(get_fenstergroesse().x, D_TITLEBAR_HEIGHT+D_MARGIN_TOP+D_MARGIN_BOTTOM+y+3*LINESPACE+4+1));
 }
 
 
 void pakselector_t::set_fenstergroesse(koord groesse)
 {
+
 	if(groesse.y>display_get_height()-70) {
 		// too large ...
 		groesse.y = ((display_get_height()-D_TITLEBAR_HEIGHT-30-3*LINESPACE-4-1)/D_BUTTON_HEIGHT)*D_BUTTON_HEIGHT+D_TITLEBAR_HEIGHT+30+3*LINESPACE+4+1-70;
@@ -167,5 +168,6 @@ void pakselector_t::set_fenstergroesse(koord groesse)
 	}
 
 	button_frame.set_groesse(koord(groesse.x,y));
-	scrolly.set_groesse(koord(groesse.x,groesse.y-D_TITLEBAR_HEIGHT-30-3*LINESPACE-4-1));
+	scrolly.set_groesse(koord(groesse.x - scrolly.get_pos().x - D_MARGIN_RIGHT,groesse.y-D_TITLEBAR_HEIGHT-30-3*LINESPACE-4-1));
+
 }

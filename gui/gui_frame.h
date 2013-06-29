@@ -29,14 +29,78 @@ class spieler_t;
  * Only those, LINESPACE, and dimensions of elements itself must be
  * exclusively used to calculate positions in dialogues to have a
  * scalable interface
+ *
+ * Max Kielland:
+ * Added more defines for theme testing.
+ * These is going to be moved into the theme handling later.
  */
 
-// default button width (may change with language and font)
+// Set to 1 for theme test case, 0 "original" look.
+#define THEME_TEST 0
+
+// theme system colours
+#define SYS_COL_HIGHLIGHT MN_GREY4
+#define SYS_COL_SHADOW    MN_GREY0
+#define SYS_COL_FACE      MN_GREY2
+
+#if THEME_TEST == 1
+
+	// default edit field height
+	#define D_EDIT_HEIGHT (LINESPACE+4)
+
+	// default square button xy size (replace with real values from the skin images)
+	#define D_BUTTON_SQUARE (LINESPACE)
+
+	// statusbar bottom of screen
+	#define D_STATUSBAR_HEIGHT (16)
+
+	// gadget size
+	#define D_GADGET_SIZE D_TITLEBAR_HEIGHT
+
+	// Arrow size (replace with real values from the skin images)
+	#define D_ARROW_WIDTH  (10)
+	#define D_ARROW_HEIGHT (10)
+
+	// Scrollbar params (replace with real values from the skin images)
+	#define KNOB_SIZE        (32)
+	#define D_SCROLLBAR_SIZE (scrollbar_t::BAR_SIZE)
+
+	// Vertical divider element height
+	#define D_DIVIDER_HEIGHT (D_V_SPACE*2)
+#else
+	// default edit field height
+	#define D_EDIT_HEIGHT (D_BUTTON_HEIGHT)
+
+	// default square button xy size (replace with real values from the skin images)
+	#define D_BUTTON_SQUARE (LINESPACE)
+
+	// statusbar bottom of screen
+	#define D_STATUSBAR_HEIGHT (16)
+
+	// gadget size
+	#define D_GADGET_SIZE (gui_frame_t::gui_gadget_size)
+
+	// Arrow size (replace with real values from the skin images)
+	#define D_ARROW_WIDTH  (10)
+	#define D_ARROW_HEIGHT (10)
+
+	// Scrollbar params (replace with real values from the skin images)
+	#define KNOB_SIZE        (32)
+	#define D_SCROLLBAR_SIZE (scrollbar_t::BAR_SIZE)
+
+	// Vertical divider element height
+	#define D_DIVIDER_HEIGHT (D_V_SPACE*2)
+#endif
+
+// default button width (may change with langugae and font)
 #define D_BUTTON_WIDTH (gui_frame_t::gui_button_width)
 #define D_BUTTON_HEIGHT (gui_frame_t::gui_button_height)
 
 // titlebar height
 #define D_TITLEBAR_HEIGHT (gui_frame_t::gui_titlebar_height)
+
+// Tab page params (replace with real values from the skin images)
+#define TAB_HEADER_V_SIZE (gui_tab_panel_t::HEADER_VSIZE)
 
 // dialog borders
 #define D_MARGIN_LEFT (gui_frame_t::gui_frame_left)
@@ -53,15 +117,22 @@ class spieler_t;
 #define BUTTON3_X (D_MARGIN_LEFT+2*(D_BUTTON_WIDTH+D_H_SPACE))
 #define BUTTON4_X (D_MARGIN_LEFT+3*(D_BUTTON_WIDTH+D_H_SPACE))
 
-// The width of a typical dialogue (either list/covoi/factory) and initial width when it makes sense
-#define D_DEFAULT_WIDTH (D_MARGIN_LEFT+4*D_BUTTON_WIDTH+3*D_H_SPACE+D_MARGIN_RIGHT)
+#define BUTTON_X(col) ( (col) * (D_BUTTON_WIDTH  + D_H_SPACE) )
+#define BUTTON_Y(row) ( (row) * (D_BUTTON_HEIGHT + D_V_SPACE) )
+
+// Max Kielland: align helper, returns the offset to apply to N1 for a center alignment around N2
+#define D_GET_CENTER_ALIGN_OFFSET(N1,N2) ((N2-N1)>>1)
+#define D_GET_FAR_ALIGN_OFFSET(N1,N2) (N2-N1)
+
+// The width of a typical dialoge (either list/covoi/factory) and intial width when it makes sense
+#define D_DEFAULT_WIDTH (D_MARGIN_LEFT + 4*D_BUTTON_WIDTH + 3*D_H_SPACE + D_MARGIN_RIGHT)
 
 // dimensions of indicator bars (not yet a gui element ...)
 #define D_INDICATOR_WIDTH (gui_frame_t::gui_indicator_width)
 #define D_INDICATOR_HEIGHT (gui_frame_t::gui_indicator_height)
 
-
-
+#define TOOLTIP_MOUSE_OFFSET_X (16)
+#define TOOLTIP_MOUSE_OFFSET_Y (12)
 
 /**
  * A Class for window with Component.
@@ -89,6 +160,9 @@ public:
 
 	// titlebar height
 	static KOORD_VAL gui_titlebar_height;
+
+	// gadget size
+	static KOORD_VAL gui_gadget_size;
 
 	// dialog borders
 	static KOORD_VAL gui_frame_left;
@@ -219,11 +293,17 @@ public:
 	koord get_min_windowsize() { return min_windowsize; }
 
 	/**
-	 * @return returns the usable width and height of the window
+	 * Max Kielland 2013: Client size auto calculation with title bar and margins.
+	 * @return returns the usable width and heigth of the window
 	 * @author Markus Weber
 	 * @date   11-May-2002
 	*/
-	koord get_client_windowsize() const {return groesse-koord(0,D_TITLEBAR_HEIGHT); }
+	koord get_client_windowsize() const {
+		return groesse - koord(
+		  D_MARGIN_LEFT + D_MARGIN_RIGHT,
+		  ( has_title()*D_TITLEBAR_HEIGHT ) + D_MARGIN_TOP + D_MARGIN_BOTTOM
+		);
+	}
 
 	/**
 	 * Set the window associated helptext

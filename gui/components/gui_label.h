@@ -33,6 +33,7 @@ public:
 		right,
 		money
 	};
+
 private:
 	align_t align;
 

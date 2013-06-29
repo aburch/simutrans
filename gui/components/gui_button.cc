@@ -40,7 +40,6 @@
 #define RB_BODY_BUTTON (202)
 #define RB_RIGHT_BUTTON (203)
 
-
 /*
  * Hajo: image numbers of button skins
  */
@@ -177,9 +176,10 @@ void button_t::display_button_image(sint16 x, sint16 y, int number, bool pushed)
 // draw a rectangular button
 void button_t::draw_roundbutton(sint16 x, sint16 y, sint16 w, sint16 h, bool pressed)
 {
-	if(b_cap_left!=IMG_LEER  &&  h==14) {
+	if(b_cap_left!=IMG_LEER  &&  h==14) { // Max: Replace 14 with the actual button image height
 		const sint16 lw = skinverwaltung_t::window_skin->get_bild(12)->get_pic()->w;
 		const sint16 rw = skinverwaltung_t::window_skin->get_bild(13)->get_pic()->w;
+		const sint64 cw = skinverwaltung_t::window_skin->get_bild(14)->get_pic()->w;
 		// first the center (may need extra clipping)
 		if(w-lw-rw<64) {
 			clip_dimension const cl = display_get_clip_wh();
@@ -188,16 +188,18 @@ void button_t::draw_roundbutton(sint16 x, sint16 y, sint16 w, sint16 h, bool pre
 			display_set_clip_wh(cl.x, cl.y, cl.w, cl.h );
 		}
 		else {
-			// wider buttons
-			for( sint16 j=0;  j+64<w-rw-lw;  j+=64) {
+			// Buttons in a differents width than original skin image
+			for(  sint16 j=0;  j+cw < w-rw-lw;  j += cw  ) {
 				display_button_image(x+j+lw, y, RB_BODY_BUTTON, pressed);
 			}
-			display_button_image(x+w-rw-64, y, RB_BODY_BUTTON, pressed);
+			display_button_image(x+w-rw-cw, y, RB_BODY_BUTTON, pressed);
 		}
+
 		// now the begin and end ...
 		display_button_image(x, y, RB_LEFT_BUTTON, pressed);
 		display_button_image(x+w-rw, y, RB_RIGHT_BUTTON, pressed);
 	}
+
 	else {
 		// draw the button conventionally from boxes
 		// fallback, if nothing defined
@@ -313,12 +315,11 @@ void button_t::set_typ(enum type t)
 	switch (type&STATE_MASK) {
 		case square:
 			if (!strempty(translated_text)) {
-				groesse.x = 16 + proportional_string_width( translated_text );
+			  set_text(translated_text);
+				groesse = koord( D_BUTTON_SQUARE + D_H_SPACE + proportional_string_width( translated_text ), max(D_BUTTON_SQUARE,LINESPACE) );
+			} else {
+				groesse = koord( D_BUTTON_SQUARE, D_BUTTON_SQUARE );
 			}
-			else {
-				groesse.x = 10;
-			}
-			groesse.y = 10;
 			break;
 		case arrowleft:
 		case repeatarrowleft:
@@ -327,11 +328,12 @@ void button_t::set_typ(enum type t)
 		case arrowup:
 		case arrowdown:
 		case posbutton:
-			groesse.x = 10;
-			groesse.y = 10;
+			groesse.x = D_ARROW_WIDTH;
+			groesse.y = D_ARROW_HEIGHT;
 			break;
 		case roundbox:
-			groesse.y = 14;
+			groesse.x = D_BUTTON_WIDTH;
+			groesse.y = max(D_BUTTON_HEIGHT,LINESPACE);
 		break;
 			default:
 			break;
@@ -350,7 +352,7 @@ void button_t::set_text(const char * text)
 	translated_text = b_no_translate ? text : translator::translate(text);
 
 	if ((type & STATE_MASK) == square && !strempty(translated_text)) {
-		groesse.x = 16 + proportional_string_width( translated_text );
+		groesse = koord( D_BUTTON_SQUARE + D_H_SPACE + proportional_string_width( translated_text ), max(D_BUTTON_SQUARE,LINESPACE) );
 	}
 }
 
@@ -463,13 +465,14 @@ void button_t::zeichnen(koord offset)
 		return;
 	}
 
+	// Helpers
 	const KOORD_VAL bx = offset.x + pos.x;
 	const KOORD_VAL by = offset.y + pos.y;
-
 	const KOORD_VAL bw = groesse.x;
 	const KOORD_VAL bh = groesse.y;
-	// mean offset to center zero line relative to the button
-	const KOORD_VAL y_text_offset = (D_BUTTON_HEIGHT-LINESPACE)/2;
+
+	// Offset to center text relative to the button's height
+	const KOORD_VAL y_text_offset = D_GET_CENTER_ALIGN_OFFSET(LINESPACE,max(groesse.y,LINESPACE));
 
 	switch (type&STATE_MASK) {
 
@@ -483,7 +486,9 @@ void button_t::zeichnen(koord offset)
 				}
 				display_fillbox_wh_clip(bx+1, by+1, bw-2, bh-2, background, false);
 				int len = proportional_string_width(translated_text);
+
 				display_proportional_clip(bx+max((bw-len)/2,0),by+y_text_offset, translated_text, ALIGN_LEFT, b_enabled ? foreground : COL_GREY4, true);
+
 				if(  win_get_focus()==this  ) {
 					// white box around
 					display_fillbox_wh_clip(bx, by, bw, 1, COL_WHITE, false);
@@ -497,7 +502,7 @@ void button_t::zeichnen(koord offset)
 		case roundbox: // new box with round corners
 			{
 				draw_roundbutton( bx, by, bw, bh, pressed );
-				display_proportional_clip(bx+(bw>>1),by+y_text_offset, translated_text, ALIGN_MIDDLE, b_enabled ? foreground : COL_GREY4, true);
+				display_proportional_clip(bx+(bw>>1),by+y_text_offset, translated_text, ALIGN_CENTER_H, b_enabled ? foreground : COL_GREY4, true);
 				if(  win_get_focus()==this  ) {
 					// white box around
 					const int rh = ( b_cap_left!=IMG_LEER && bh==14 ) ? skinverwaltung_t::window_skin->get_bild(13)->get_pic()->h : bh;
@@ -512,19 +517,19 @@ void button_t::zeichnen(koord offset)
 		case square: // little square in front of text
 			{
 				if(  square_button_pushed!=IMG_LEER  ) {
-					display_button_image(bx, by, SQUARE_BUTTON, pressed);
+					display_button_image(bx, by+D_GET_CENTER_ALIGN_OFFSET(D_BUTTON_SQUARE,LINESPACE), SQUARE_BUTTON, pressed);
 				}
 				else {
-					display_fillbox_wh_clip( bx, by, 11, 11, COL_BLACK, true );
-					display_fillbox_wh_clip( bx+1, by+1, 9, 9, pressed ? MN_GREY3 : MN_GREY1, true );
+					display_fillbox_wh_clip( bx, by, D_BUTTON_SQUARE, D_BUTTON_SQUARE, COL_BLACK, true );
+					display_fillbox_wh_clip( bx+1, by+1, D_BUTTON_SQUARE-2, D_BUTTON_SQUARE-2, pressed ? MN_GREY3 : MN_GREY1, true );
 				}
 				if(  text  ) {
-					display_proportional_clip(bx+16,by+y_text_offset, translated_text, ALIGN_LEFT, b_enabled ? foreground : COL_GREY4, true);
+					display_proportional_clip(bx+D_BUTTON_SQUARE+D_H_SPACE,by+D_GET_CENTER_ALIGN_OFFSET(D_BUTTON_SQUARE,LINESPACE), translated_text, ALIGN_LEFT, b_enabled ? foreground : COL_GREY4, true);
 				}
 				if(  win_get_focus()==this  ) {
 					// white box around
-					int rw = 13;
-					int rh = 13;
+					int rw = D_BUTTON_SQUARE+2;
+					int rh = D_BUTTON_SQUARE+2;
 					if(  square_button_pushed!=IMG_LEER  ) {
 						const bild_t *const img = skinverwaltung_t::window_skin->get_bild(7)->get_pic();
 						rw = img->w + 2;
@@ -619,7 +624,7 @@ void button_t::zeichnen(koord offset)
 	}
 
 	if(translated_tooltip &&  getroffen( get_maus_x()-offset.x, get_maus_y()-offset.y )) {
-		win_set_tooltip(get_maus_x() + 16, by + bh + 12, translated_tooltip, this);
+		win_set_tooltip(get_maus_x() + TOOLTIP_MOUSE_OFFSET_X, by + bh + TOOLTIP_MOUSE_OFFSET_Y, translated_tooltip, this);
 	}
 }
 
@@ -628,9 +633,9 @@ void button_t::update_focusability()
 {
 	switch (type&STATE_MASK) {
 
-		case box: // old, 4-line box
-		case roundbox: // new box with round corners
-		case square: // little square in front of text
+		case box:      // Old, 4-line box
+		case roundbox: // New box with round corners
+		case square:   // Little square in front of text (checkbox)
 			set_focusable(true);
 			break;
 

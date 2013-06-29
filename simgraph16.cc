@@ -19,6 +19,7 @@
 #include "besch/bild_besch.h"
 #include "unicode.h"
 #include "simticker.h"
+#include "simgraph.h"
 
 
 #ifdef _MSC_VER
@@ -3833,7 +3834,7 @@ static unsigned char get_h_mask(const int xL, const int xR, const int cL, const 
  * @author Volker Meyer, prissi
  * @date  15.06.2003, 2.1.2005
  */
-int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt, int flags, const PLAYER_COLOR_VAL color_index, long len)
+int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt, control_alignment_t flags, const PLAYER_COLOR_VAL color_index, long len)
 {
 	const font_type* const fnt = &large_font;
 	KOORD_VAL cL, cR, cT, cB;
@@ -3870,12 +3871,12 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
 	if (len < 0) len = 0x7FFF;
 
 	// adapt x-coordinate for alignment
-	switch (flags & ALIGN_MASK) {
+	switch (flags & ( ALIGN_LEFT | ALIGN_CENTER_H | ALIGN_RIGHT) ) {
 		case ALIGN_LEFT:
 			// nothing to do
 			break;
 
-		case ALIGN_MIDDLE:
+		case ALIGN_CENTER_H:
 			x -= display_calc_proportional_string_len_width(txt, len) / 2;
 			break;
 
