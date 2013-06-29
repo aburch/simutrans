@@ -5044,18 +5044,18 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 		// Found no suitable building.  Return!
 		return;
 	}
-	if (h->get_clusters() == 0) {
-		// This is a non-clustering building.  Do not allow it next to an identical building.
-		// (This avoids "boring cities", supposedly.)
-		for (int i = 0; i < 8; i++) {
-			// Go through the neighbors *again*...
-			const gebaeude_t* neighbor_gb = get_citybuilding_at(k + neighbors[i]);
-			if (neighbor_gb != NULL && neighbor_gb->get_tile()->get_besch() == h) {
-				// Fail.  Return.
-				return;
-			}
-		}
-	}
+//	if (h->get_clusters() == 0) {
+//		// This is a non-clustering building.  Do not allow it next to an identical building.
+//		// (This avoids "boring cities", supposedly.)
+//		for (int i = 0; i < 8; i++) {
+//			// Go through the neighbors *again*...
+//			const gebaeude_t* neighbor_gb = get_citybuilding_at(k + neighbors[i]);
+//			if (neighbor_gb != NULL && neighbor_gb->get_tile()->get_besch() == h) {
+//				// Fail.  Get a different building.
+//				return;
+//			}
+//		}
+//	}
 
 	// we have something to built here ...
 	if (h != NULL) {
