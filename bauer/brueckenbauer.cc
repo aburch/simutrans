@@ -501,6 +501,8 @@ void brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, ko
 			bruecke->neuen_weg_bauen(weg, ribi_t::doppelt(ribi), sp);
 			weg->set_max_speed( besch->get_topspeed() );
 			weg->set_max_axle_load( besch->get_max_weight() );
+			// Necessary to avoid the "default" way (which might have constraints) setting the constraints here.
+			weg->clear_way_constraints();
 			weg->add_way_constraints(besch->get_way_constraints());
 		}
 		else {
@@ -556,6 +558,8 @@ void brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, ko
 				weg->set_besch( weg_besch );
 				weg->set_max_speed( besch->get_topspeed() );
 				weg->set_max_axle_load( besch->get_max_weight() );
+				// Necessary to avoid the "default" way (which might have constraints) setting the constraints here.
+				weg->clear_way_constraints();
 				weg->add_way_constraints(besch->get_way_constraints());
 				spieler_t::book_construction_costs( sp, -gr->neuen_weg_bauen( weg, ribi, sp ) -weg->get_besch()->get_preis(), end.get_2d(), weg->get_waytype());
 			}
@@ -614,6 +618,8 @@ void brueckenbauer_t::baue_auffahrt(karte_t* welt, spieler_t* sp, koord3d end, k
 		}
 		weg->set_max_speed( besch->get_topspeed() );
 		weg->set_max_axle_load( besch->get_max_weight() );
+		// Necessary to avoid the "default" way (which might have constraints) setting the constraints here.
+		weg->clear_way_constraints();
 		weg->add_way_constraints(besch->get_way_constraints());
 	} else {
 
