@@ -23,6 +23,7 @@
 #include "../gui/karte.h"
 #include "../gui/werkzeug_waehler.h"
 
+#include "../simcity.h"
 #include "../simdebug.h"
 #include "../simdepot.h"
 #include "../simhalt.h"
@@ -764,9 +765,8 @@ const haus_besch_t* hausbauer_t::get_special(uint32 bev, haus_besch_t::utyp utyp
 /**
  * Try to find a suitable city building from the given list
  * it will skip and jump, and will never return zero, if there is at least a single valid entry in the list
+ * @author Nathanael Nerode (neroden) for clustering
  * @author Hj. Malthaner
- * @author Nathanael Nerode (neroden)
- * TO DO: improve building clustering
  */
 static const haus_besch_t* get_city_building_from_list(const vector_tpl<const haus_besch_t*>& building_list, int level, uint16 time, climate cl, bool allow_earlier, uint32 clusters)
 {
@@ -795,21 +795,18 @@ static const haus_besch_t* get_city_building_from_list(const vector_tpl<const ha
 			}
 		}
 
-		if(thislevel==level  &&  besch->get_chance()>0) {
-			if(cl==MAX_CLIMATES  ||  besch->is_allowed_climate(cl)) {
-				if(time==0  ||  (besch->get_intro_year_month()<=time  &&  ((allow_earlier && random > 65) || besch->get_retire_year_month()>time))) {
-//				DBG_MESSAGE("hausbauer_t::get_city_building_from_list()","appended %s at %i", besch->get_name(), thislevel );
-					// Level, time period, and climate are all OK.
-					// Now modify the chance rating by a factor based on the clusters.
-					// Nathanael Nerode (neroden) May 1, 2013
-					// FIXME: the factor should be configurable by the pakset/
+		if(  thislevel == level  &&  besch->get_chance() > 0  ) {
+			if(  cl==MAX_CLIMATES  ||  besch->is_allowed_climate(cl)  ) {
+				if(  time == 0  ||  (besch->get_intro_year_month() <= time  &&  ((allow_earlier && random > 65) || besch->get_retire_year_month() > time ))  ) {
+//					DBG_MESSAGE("hausbauer_t::get_city_building_from_list()","appended %s at %i", besch->get_name(), thislevel );
+					/* Level, time period, and climate are all OK.
+					 * Now modify the chance rating by a factor based on the clusters.
+					 */
 					int chance = besch->get_chance();
-					if (clusters) {
+					if(  clusters  ) {
 						uint32 my_clusters = besch->get_clusters();
-						if (my_clusters & clusters) {
-							chance *= 10;
-						} else {
-							chance /= 10;
+						if(  my_clusters & clusters  ) {
+							chance *= stadt_t::get_cluster_factor();
 						}
 					}
 					selections.append(besch, chance);
