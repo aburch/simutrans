@@ -5083,47 +5083,6 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 }
 
 
-void stadt_t::erzeuge_verkehrsteilnehmer(koord pos, uint16 journey_tenths_of_minutes, koord target)
-{
-	//const int verkehr_level = welt->get_settings().get_verkehr_level();
-	//if (verkehr_level > 0 && level % (17 - verkehr_level) == 0) {
-	if((sint32)current_cars.get_count() < number_of_cars)
-	{
-		koord k;
-		for (k.y = pos.y - 1; k.y <= pos.y + 1; k.y++) {
-			for (k.x = pos.x - 1; k.x <= pos.x + 1; k.x++) {
-				if (welt->is_within_limits(k)) {
-					grund_t* gr = welt->lookup_kartenboden(k);
-					const weg_t* weg = gr->get_weg(road_wt);
-
-					if (weg != NULL && (
-								gr->get_weg_ribi_unmasked(road_wt) == ribi_t::nordsued ||
-								gr->get_weg_ribi_unmasked(road_wt) == ribi_t::ostwest
-							)) {
-#ifdef DESTINATION_CITYCARS
-						// already a car here => avoid congestion
-						if(gr->obj_bei(gr->get_top()-1)->is_moving()) {
-							continue;
-						}
-#endif
-						if (!stadtauto_t::list_empty()) 
-						{
-							stadtauto_t* vt = new stadtauto_t(welt, gr->get_pos(), target, &current_cars);
-							const sint32 time_to_live = ((sint32)journey_tenths_of_minutes * 136584) / (sint32)welt->get_settings().get_meters_per_tile();
-							vt->set_time_to_life(time_to_live);
-							gr->obj_add(vt);
-							welt->sync_add(vt);
-							current_cars.append(vt);
-						}
-						return;
-					}
-				}
-			}
-		}
-	}
-}
-
-
 bool stadt_t::renovate_city_building(gebaeude_t* gb)
 {
 	const gebaeude_t::typ alt_typ = gb->get_haustyp();
@@ -5296,6 +5255,47 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 		}
 	}
 	return return_value;
+}
+
+
+void stadt_t::erzeuge_verkehrsteilnehmer(koord pos, uint16 journey_tenths_of_minutes, koord target)
+{
+	//const int verkehr_level = welt->get_settings().get_verkehr_level();
+	//if (verkehr_level > 0 && level % (17 - verkehr_level) == 0) {
+	if((sint32)current_cars.get_count() < number_of_cars)
+	{
+		koord k;
+		for (k.y = pos.y - 1; k.y <= pos.y + 1; k.y++) {
+			for (k.x = pos.x - 1; k.x <= pos.x + 1; k.x++) {
+				if (welt->is_within_limits(k)) {
+					grund_t* gr = welt->lookup_kartenboden(k);
+					const weg_t* weg = gr->get_weg(road_wt);
+
+					if (weg != NULL && (
+								gr->get_weg_ribi_unmasked(road_wt) == ribi_t::nordsued ||
+								gr->get_weg_ribi_unmasked(road_wt) == ribi_t::ostwest
+							)) {
+#ifdef DESTINATION_CITYCARS
+						// already a car here => avoid congestion
+						if(gr->obj_bei(gr->get_top()-1)->is_moving()) {
+							continue;
+						}
+#endif
+						if (!stadtauto_t::list_empty()) 
+						{
+							stadtauto_t* vt = new stadtauto_t(welt, gr->get_pos(), target, &current_cars);
+							const sint32 time_to_live = ((sint32)journey_tenths_of_minutes * 136584) / (sint32)welt->get_settings().get_meters_per_tile();
+							vt->set_time_to_life(time_to_live);
+							gr->obj_add(vt);
+							welt->sync_add(vt);
+							current_cars.append(vt);
+						}
+						return;
+					}
+				}
+			}
+		}
+	}
 }
 
 
