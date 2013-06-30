@@ -3110,26 +3110,25 @@ bool karte_t::rem_fab(fabrik_t *fab)
 	vector_tpl<koord> tile_list;
 	fab->get_tile_list(tile_list);
 	FOR (vector_tpl<koord>, const k, tile_list) {
-		const planquadrat_t* plan = lookup(k);
+		planquadrat_t* plan = lookup(k);
 		if(plan)
 		{
 			// we need a copy, since the verbinde fabriken will modify the list
 			const uint8 count = plan->get_haltlist_count();
-			// This happens infrequently enough; do it RIGHT
-			vector_tpl<nearby_halt_t> tmp_list;
-			for (uint8 i = 0; i < count; i++) {
-				tmp_list.append( (plan->get_haltlist())[i]) );
-			}
-			for( uint8 i=0;  i<count;  i++  )
-			{
-				halthandle_t my_halt = tmp_list[i].halt;
+			// Allocate the vector with the appropriate size.
+			vector_tpl<halthandle_t> tmp_list(count);
+			for(  uint8 i = 0;  i < count;  i++  ) {
+				// Copy in only the halts (we don't care about distances)
+				tmp_list.append( plan->get_haltlist()[i].halt ) );
+			};
+			for(  uint8 i = 0;  i < count;  i++  ) {
 				// first remove all the tiles that do not connect
-				// This will only remove if it doesn't connect
-				plan->remove_from_haltlist( this, my_halt );
+				// This will only remove if it is no longer connected
+				plan->remove_from_haltlist( this, tmp_list[i] );
 				// then reconnect
-				if(my_halt.is_bound())
+				if(tmp_list[i].is_bound())
 				{
-					my_halt->verbinde_fabriken();
+					tmp_list[i]->verbinde_fabriken();
 				}
 			}
 		}
@@ -3138,7 +3137,7 @@ bool karte_t::rem_fab(fabrik_t *fab)
 	// OK, now stuff where we need not check every tile
 	// Still double-check in case we were not on the map (which should not happen)
 	koord pos = fab->get_pos().get_2d();
- 	planquadrat_t* plan = lookup(pos);
+ 	const planquadrat_t* plan = lookup(pos);
 	if (plan) {
 		// remove all links to cities
 		fab->clear_target_cities();
