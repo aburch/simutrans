@@ -3110,7 +3110,7 @@ bool karte_t::rem_fab(fabrik_t *fab)
 	vector_tpl<koord> tile_list;
 	fab->get_tile_list(tile_list);
 	FOR (vector_tpl<koord>, const k, tile_list) {
-		planquadrat_t* plan = lookup(k);
+		planquadrat_t* plan = access(k);
 		if(plan)
 		{
 			// we need a copy, since the verbinde fabriken will modify the list
