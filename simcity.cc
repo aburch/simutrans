@@ -347,9 +347,20 @@ uint16 stadt_t::get_electricity_consumption(sint32 monthyear) const
 const uint32 stadt_t::city_growth_step = 21000;
 
 /**
- * this is the default faktor to prefer clustering
+ * this is the default factor applied to increase the likelihood
+ * of getting a building with a matched cluster
+ * The appropriate size for this really depends on what percentage of buildings at any given level
+ * are part of a cluster -- in pak128.britain it needs to be as high as 100 to generate terraces
  */
 uint32 stadt_t::cluster_factor = 100;
+
+/*
+ * chance of success when a city tries to extend a road along a bridge
+ * The rest of the time it will fail and build somewhere else instead
+ * (This avoids overbuilding of free bridges)
+ * @author neroden
+ */
+static uint32 bridge_success_percentage = 25;
 
 /*
  * chance to do renovation instead new building (in percent)
@@ -770,6 +781,7 @@ bool stadt_t::cityrules_init(const std::string &objfilename)
 	char buf[128];
 
 	cluster_factor = (uint32)contents.get_int("cluster_factor", 100);
+	bridge_success_percentage = (uint32)contents.get_int("bridge_success_percentage", 25);
 	renovation_percentage = (uint32)contents.get_int("renovation_percentage", renovation_percentage);
 	renovations_count = (uint32)contents.get_int("renovations_count", renovations_count);
 	renovations_try   = (uint32)contents.get_int("renovations_try", renovations_try);
@@ -930,6 +942,12 @@ void stadt_t::cityrules_rdwr(loadsave_t *file)
 	file->rdwr_long(renovation_percentage);
 	file->rdwr_long(min_building_density);
 
+	// cluster_factor and bridge_success_percentage added by neroden.
+	// It's not clear how to version this, but it *is* only
+	// for networked games... both is *needed* for network games though
+	file->rdwr_long(cluster_factor);
+	file->rdwr_long(bridge_success_percentage);
+
 	file->rdwr_short(ind_start_score);
 	file->rdwr_short(ind_neighbour_score[0]);
 	file->rdwr_short(ind_neighbour_score[1]);
@@ -969,6 +987,7 @@ void stadt_t::cityrules_rdwr(loadsave_t *file)
 		}
 		road_rules[i]->rdwr(file);
 	}
+
 }
 
 /**
@@ -5493,6 +5512,15 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 				const bruecke_besch_t *bridge = brueckenbauer_t::find_bridge(road_wt, 50, welt->get_timeline_year_month() );
 				if(  bridge==NULL  ) {
 					// does not have a bridge available ...
+					return false;
+				}
+				/*
+				 * We want to discourage city construction of bridges.
+				 * Make a simrand call and refuse to construct a bridge some of the time.
+				 * "bridge_success_percentage" is the percent of the time when bridges should *succeed*.
+				 * --neroden
+				 */
+				if(  simrand(100, "stadt_t::baue_strasse() (bridge check)") >= bridge_success_percentage  ) {
 					return false;
 				}
 				const char *err = NULL;
