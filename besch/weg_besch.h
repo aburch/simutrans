@@ -160,7 +160,7 @@ public:
 	sint32 get_topspeed() const { return topspeed; }
 
 	//Returns maximum weight
-	uint32 get_max_axle_load() const { return max_axle_load < 9999 ? max_axle_load : 999; }
+	uint32 get_max_axle_load() const { return max_axle_load < 999999 ? max_axle_load : 999; }
 
 	/**
 	 * get way type

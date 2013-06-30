@@ -561,7 +561,7 @@ public:
 	uint32 get_gewicht() const { return gewicht; }
 	uint16 get_axle_load() const { return axle_load; }
 	uint16 get_running_cost() const { return running_cost; }
-	uint16 get_running_cost(karte_t *welt) const; //Overloaded method - includes increase for obsolescence.
+	uint16 get_running_cost(const karte_t *welt) const; //Overloaded method - includes increase for obsolescence.
 	uint32 get_fixed_cost() const { return fixed_cost; }
 	uint32 get_fixed_cost(karte_t *welt) const;  //Overloaded method - includes increase for obsolescence.
 	uint32 get_adjusted_monthly_fixed_cost(karte_t *welt) const; // includes increase for obsolescence and adjustment for monthly figures

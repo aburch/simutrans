@@ -398,7 +398,7 @@ public:
 	* @author Hj. Malthaner
 	*/
 	int get_running_cost() const { return besch->get_running_cost(); }
-	int get_running_cost(karte_t* welt) const { return besch->get_running_cost(welt); }
+	int get_running_cost(const karte_t* welt) const { return besch->get_running_cost(welt); }
 
 	/**
 	* @return fixed maintenance costs in Cr/100months

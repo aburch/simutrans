@@ -1633,7 +1633,7 @@ const char *wkz_transformer_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 {
 	DBG_MESSAGE("wkz_transformer_t()","called on %d,%d", k.x, k.y);
 	const sint64 cost = welt->get_settings().cst_transformer;
-	if(spieler_t::can_afford(sp, -cost) )
+	if(!spieler_t::can_afford(sp, -cost) )
 	{
 		return CREDIT_MESSAGE;
 	}
@@ -6859,7 +6859,6 @@ bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 			selected_line->get_schedule()->sscanf_schedule( p );
 
 			depot_frame_t *depot_frame = dynamic_cast<depot_frame_t *>(win_get_magic( (ptrdiff_t)depot ));
-			convoihandle_t cnv = depot_frame->get_convoy();
 			if(cnv.is_bound())
 			{
 				selected_line->set_livery_scheme_index(cnv->get_livery_scheme_index());
