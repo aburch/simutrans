@@ -5099,13 +5099,15 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 				}
 				if (gr->get_weg_hang() == gr->get_grund_hang()) {
 					// This is not a bridge, tunnel, etc.
-					// if not current city road standard, then replace it
-					if (weg->get_besch() != welt->get_city_road()) {
-						spieler_t *sp = weg->get_besitzer();
-						if (sp == NULL  ||  !gr->get_depot()) {
-							spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung(), road_wt);
-							weg->set_besitzer(NULL); // make public
-							weg->set_besch(welt->get_city_road());
+					// if not current city road standard OR BETTER, then replace it
+					if (  weg->get_besch() != welt->get_city_road()  ) {
+						if (  welt->get_city_road()->is_at_least_as_good_as(weg->get_besch()) ) {
+							spieler_t *sp = weg->get_besitzer();
+							if (sp == NULL  ||  !gr->get_depot()) {
+								spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung(), road_wt);
+								weg->set_besitzer(NULL); // make public
+								weg->set_besch(welt->get_city_road());
+							}
 						}
 					}
 				}
@@ -5270,13 +5272,15 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 				}
 				if (gr->get_weg_hang() == gr->get_grund_hang()) {
 					// This is not a bridge, tunnel, etc.
-					// if not current city road standard, then replace it
+					// if not current city road standard OR BETTER, then replace it
 					if (weg->get_besch() != welt->get_city_road()) {
-						spieler_t *sp = weg->get_besitzer();
-						if (sp == NULL  ||  !gr->get_depot()) {
-							spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung(), road_wt);
-							weg->set_besitzer(NULL); // make public
-							weg->set_besch(welt->get_city_road());
+						if (  welt->get_city_road()->is_at_least_as_good_as(weg->get_besch()) ) {
+							spieler_t *sp = weg->get_besitzer();
+							if (sp == NULL  ||  !gr->get_depot()) {
+								spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung(), road_wt);
+								weg->set_besitzer(NULL); // make public
+								weg->set_besch(welt->get_city_road());
+							}
 						}
 					}
 				}

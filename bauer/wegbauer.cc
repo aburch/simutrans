@@ -2181,11 +2181,16 @@ void wegbauer_t::baue_strasse()
 			weg_t * weg = gr->get_weg(road_wt);
 
 			// keep faster ways or if it is the same way ... (@author prissi)
-			if(weg->get_besch()==besch  ||  keep_existing_ways  ||  (keep_existing_city_roads  &&  weg->hat_gehweg())  ||  (keep_existing_faster_ways  &&  weg->get_besch()->get_topspeed()>besch->get_topspeed())  ||  (sp!=NULL  &&  weg->ist_entfernbar(sp)!=NULL) || (gr->get_typ()==grund_t::monorailboden && (bautyp&elevated_flag)==0)) {
+			if(  weg->get_besch()==besch  ||  keep_existing_ways
+				||  (  keep_existing_city_roads  &&  weg->hat_gehweg()  )
+				||  (  keep_existing_faster_ways  &&  ! ( besch->is_at_least_as_good_as(weg->get_besch()) )  )
+				||  (  sp!=NULL  &&  weg->ist_entfernbar(sp)!=NULL  )
+				||  (  gr->get_typ()==grund_t::monorailboden && (bautyp&elevated_flag)==0  )
+				) {
 				//nothing to be done
 //DBG_MESSAGE("wegbauer_t::baue_strasse()","nothing to do at (%i,%i)",k.x,k.y);
 			}
-			else 
+			else
 			{
 				// we take ownership => we take care to maintain the roads completely ...
 				//spieler_t *s = weg->get_besitzer();
@@ -2292,7 +2297,7 @@ void wegbauer_t::baue_schiene()
 				if (weg->get_besch() == besch                                                               ||
 						(besch->get_styp() == 0 && weg->get_besch()->get_styp() == 7 && gr->has_two_ways())     ||
 						keep_existing_ways                                                                      ||
-						(keep_existing_faster_ways && weg->get_besch()->get_topspeed() > besch->get_topspeed()) ||
+						(keep_existing_faster_ways && !(besch->is_at_least_as_good_as(weg->get_besch())) ) ||
 						(gr->get_typ() == grund_t::monorailboden && !(bautyp & elevated_flag)  &&  gr->get_weg_nr(0)->get_waytype()==besch->get_wtyp())) {
 					//nothing to be done
 					change_besch = false;

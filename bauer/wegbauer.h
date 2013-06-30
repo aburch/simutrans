@@ -131,6 +131,11 @@ private:
 	 * @author Hj. Malthaner
 	 */
 	bool keep_existing_ways;
+
+	/**
+	 * This is overloaded in meaning.  It will keep not only faster ways but also ways
+	 * with higher axle loads or better way constraints. --neroden
+	 */
 	bool keep_existing_faster_ways;
 	bool keep_existing_city_roads;
 
