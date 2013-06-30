@@ -1633,7 +1633,7 @@ const char *wkz_transformer_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 {
 	DBG_MESSAGE("wkz_transformer_t()","called on %d,%d", k.x, k.y);
 	const sint64 cost = welt->get_settings().cst_transformer;
-	if(spieler_t::can_afford(sp, -cost) )
+	if(!spieler_t::can_afford(sp, -cost) )
 	{
 		return CREDIT_MESSAGE;
 	}
