@@ -3106,28 +3106,40 @@ bool karte_t::rem_fab(fabrik_t *fab)
 	goods_in_game.clear();
 
 	// now all the interwoven connections must be cleared
-	koord pos = fab->get_pos().get_2d();
-	planquadrat_t* plan = access(pos);
-	if(plan)
-	{
-		// we need a copy, since the verbinde fabriken is modifying the list
-		halthandle_t list[48];
-		const uint8 count = plan->get_haltlist_count();
-		assert(count<48);
-		memcpy( list, plan->get_haltlist(), count*sizeof(nearby_halt_t) );
-		halthandle_t halt;
-		for( uint8 i=0;  i<count;  i++  )
+	// This is hairy; a cleaner method would be desirable --neroden
+	vector_tpl<koord> tile_list;
+	fab->get_tile_list(tile_list);
+	FOR (vector_tpl<koord>, const k, tile_list) {
+		const planquadrat_t* plan = lookup(k);
+		if(plan)
 		{
-			halt = list[i];
-			// first remove all the tiles that do not connect
-			plan->remove_from_haltlist( this, halt );
-			// then reconnect
-			if(halt.is_bound())
+			// we need a copy, since the verbinde fabriken will modify the list
+			const uint8 count = plan->get_haltlist_count();
+			// This happens infrequently enough; do it RIGHT
+			vector_tpl<nearby_halt_t> tmp_list;
+			for (uint8 i = 0; i < count; i++) {
+				tmp_list.append( (plan->get_haltlist())[i]) );
+			}
+			for( uint8 i=0;  i<count;  i++  )
 			{
-				halt->verbinde_fabriken();
+				halthandle_t my_halt = tmp_list[i].halt;
+				// first remove all the tiles that do not connect
+				// This will only remove if it doesn't connect
+				plan->remove_from_haltlist( this, my_halt );
+				// then reconnect
+				if(my_halt.is_bound())
+				{
+					my_halt->verbinde_fabriken();
+				}
 			}
 		}
+	}
 
+	// OK, now stuff where we need not check every tile
+	// Still double-check in case we were not on the map (which should not happen)
+	koord pos = fab->get_pos().get_2d();
+ 	planquadrat_t* plan = lookup(pos);
+	if (plan) {
 		// remove all links to cities
 		fab->clear_target_cities();
 
