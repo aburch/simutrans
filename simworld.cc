@@ -3115,20 +3115,20 @@ bool karte_t::rem_fab(fabrik_t *fab)
 		{
 			// we need a copy, since the verbinde fabriken will modify the list
 			const uint8 count = plan->get_haltlist_count();
-			// Allocate the vector with the appropriate size.
-			vector_tpl<halthandle_t> tmp_list(count);
+			vector_tpl<nearby_halt_t> tmp_list;
+			// Make it an appropriate size.
+			tmp_list.resize(count);
 			for(  uint8 i = 0;  i < count;  i++  ) {
-				// Copy in only the halts (we don't care about distances)
-				tmp_list.append( plan->get_haltlist()[i].halt ) );
+				tmp_list.append( plan->get_haltlist()[i] );
 			};
 			for(  uint8 i = 0;  i < count;  i++  ) {
 				// first remove all the tiles that do not connect
 				// This will only remove if it is no longer connected
-				plan->remove_from_haltlist( this, tmp_list[i] );
+				plan->remove_from_haltlist( this, tmp_list[i].halt );
 				// then reconnect
-				if(tmp_list[i].is_bound())
+				if(tmp_list[i].halt.is_bound())
 				{
-					tmp_list[i]->verbinde_fabriken();
+					tmp_list[i].halt->verbinde_fabriken();
 				}
 			}
 		}
