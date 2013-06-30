@@ -2900,6 +2900,7 @@ void stadt_t::step_grow_city()
 			baue(false); // it update won
 			if ( buildings_count != buildings.get_count() ) {
 				if(buildings[buildings_count]->get_haustyp() == gebaeude_t::wohnung) {
+					// Stop with the first commercial building.  (Why???)
 					need_building = false;
 				}
 			}
@@ -5548,7 +5549,9 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 }
 
 
-// will check a single random pos in the city, then baue will be called
+/**
+ * Enlarge a city by building another building or extending a road.
+ */
 void stadt_t::baue(bool new_town)
 {
 	if(welt->get_settings().get_quick_city_growth())
@@ -5684,6 +5687,10 @@ void stadt_t::baue(bool new_town)
 
 			candidates.remove_at(idx, false);
 		}
+		// Oooh.  We tried every candidate location and we couldn't build.
+		// (Admittedly, this may be because percentage-chance rules told us not to.)
+		// Here, we should call a subroutine to enlarge the city limits.
+		// FIXME --neroden
 	}
 }
 
