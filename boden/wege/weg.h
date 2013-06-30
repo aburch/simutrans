@@ -172,8 +172,10 @@ public:
 
 	void set_max_axle_load(uint32 w);
 
-	//Resets constraints to their base values. Used when removing way objects.
+	// Resets constraints to their base values. Used when removing way objects.
 	void reset_way_constraints() { way_constraints = besch->get_way_constraints(); }
+
+	void clear_way_constraints() { way_constraints.set_permissive(0); way_constraints.set_prohibitive(0); }
 
 	/* Way constraints: determines whether vehicles
 	 * can travel on this way. This method decodes
