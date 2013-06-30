@@ -79,21 +79,21 @@ public:
 	 * eindeutig aufsteigend.
 	 * @author V. Meyer
 	 */
-	static const haus_besch_t* get_commercial(int level, uint16 time, climate cl, bool allow_earlier = false, uint32 clusters = 0);
+	static const haus_besch_t* get_commercial(int level, uint16 time, climate cl, bool allow_earlier = false, uint32 clusters = 0l);
 
 	/**
 	 * Industriegebäude passend zum Level liefern. Zur Zeit sind die Einträge
 	 * eindeutig aufsteigend.
 	 * @author V. Meyer
 	 */
-	static const haus_besch_t* get_industrial(int level, uint16 time, climate cl, bool allow_earlier = false, uint32 clusters = 0);
+	static const haus_besch_t* get_industrial(int level, uint16 time, climate cl, bool allow_earlier = false, uint32 clusters = 0l);
 
 	/**
 	 * Wohnhaus passend zum Level liefern. Zur Zeit sind die Einträge
 	 * eindeutig aufsteigend.
 	 * @author V. Meyer
 	 */
-	static const haus_besch_t* get_residential(int level, uint16 time, climate cl, bool allow_earlier = false, uint32 clusters = 0);
+	static const haus_besch_t* get_residential(int level, uint16 time, climate cl, bool allow_earlier = false, uint32 clusters = 0l);
 
 	/**
 	 * Returns Headquarter with Level level

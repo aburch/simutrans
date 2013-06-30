@@ -26,8 +26,10 @@
 class karte_t;
 class spieler_t;
 class fabrik_t;
-
 class rule_t;
+
+// For private subroutines
+class haus_besch_t;
 
 // part of passengers going to factories or toursit attractions (100% mx)
 #define FACTORY_PAX (33)	// workers
@@ -148,6 +150,9 @@ public:
 	static void electricity_consumption_rdwr(loadsave_t *file);
 	void set_check_road_connexions(bool value) { check_road_connexions = value; }
 
+	static void set_cluster_factor( uint32 factor ) { stadt_t::cluster_factor = factor; }
+	static uint32 get_cluster_factor() { return stadt_t::cluster_factor; }
+
 private:
 	static karte_t *welt;
 	spieler_t *besitzer_p;
@@ -193,13 +198,15 @@ private:
 	/**
 	 * in this fixed interval, construction will happen
 	 */
-	static const uint32 city_growth_interval;
+	static const uint32 city_growth_step;
 
 	/**
 	 * When to do growth next
 	 * @author Hj. Malthaner
 	 */
-	uint32 next_growth_interval;
+	uint32 next_growth_step;
+
+	static uint32 cluster_factor;
 
 	// population statistics
 	sint32 bev; // total population
@@ -392,7 +399,7 @@ private:
 	 * Build new buildings when growing city
 	 * @author Hj. Malthaner
 	 */
-	void grow_city();
+	void step_grow_city();
 
 	enum pax_return_type { no_return, factory_return, tourist_return, city_return };
 
@@ -437,8 +444,13 @@ private:
 	 * Build a city building at Planquadrat x,y
 	 */
 	void build_city_building(koord pos, bool new_town);
-	void erzeuge_verkehrsteilnehmer(koord pos, uint16 journey_tenths_of_minutes, koord target);
 	bool renovate_city_building(gebaeude_t *gb);
+	// Subroutines for build_city_building and renovate_city_buiding
+	// @author neroden
+	const gebaeude_t* get_citybuilding_at(const koord k) const;
+	int get_best_layout(const haus_besch_t* h, const koord k, const int streetdirs) const;
+
+	void erzeuge_verkehrsteilnehmer(koord pos, uint16 journey_tenths_of_minutes, koord target);
 
 	/**
 	 * baut ein Stueck Strasse
