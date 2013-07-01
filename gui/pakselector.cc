@@ -172,7 +172,7 @@ void pakselector_t::add_file(const char *fullpath, const char *filename, const b
 		has_addon_dir = chdir( path ) == 0;
 		chdir( umgebung_t::program_dir );
 	}
-	file_table.add_row( new gui_file_table_row_t( fullpath, buttontext, has_addon_dir ));
+	file_table.add_row( new gui_file_table_row_t( filename, buttontext, has_addon_dir ));
 }
 
 
