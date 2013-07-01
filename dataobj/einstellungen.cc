@@ -2221,7 +2221,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	spacing_shift_mode = contents.get_int("spacing_shift_mode", spacing_shift_mode);
 	spacing_shift_divisor = contents.get_int("spacing_shift_divisor", spacing_shift_divisor);
 
-
+	livery_schemes.clear();
 	for(int i = 0; i < 65336; i ++)
 	{
 		char name[128] ;
