@@ -299,10 +299,7 @@ public:
 	 * @date   11-May-2002
 	*/
 	koord get_client_windowsize() const {
-		return groesse - koord(
-		  D_MARGIN_LEFT + D_MARGIN_RIGHT,
-		  ( has_title()*D_TITLEBAR_HEIGHT ) + D_MARGIN_TOP + D_MARGIN_BOTTOM
-		);
+		return groesse - koord(0, ( has_title()*D_TITLEBAR_HEIGHT ) );
 	}
 
 	/**
