@@ -551,6 +551,7 @@ int simu_main(int argc, char** argv)
 		simuconf.read(contents);
 		// use different save directories
 		multiuser = !(contents.get_int("singleuser_install", !multiuser)==1  ||  !multiuser);
+		printf("Parsed simuconf.tab for directory layout; multiuser = %i\n", multiuser);
 		simuconf.close();
 	}
 
@@ -670,7 +671,7 @@ int simu_main(int argc, char** argv)
 	chdir( umgebung_t::program_dir );
 	if(  found_simuconf  ) {
 		if(simuconf.open(path_to_simuconf)) {
-			printf("parse_simuconf() at config/simuconf.tab: ");
+			printf("parse_simuconf() in program dir (%s): ", path_to_simuconf);
 			umgebung_t::default_einstellungen.parse_simuconf( simuconf, disp_width, disp_height, fullscreen, umgebung_t::objfilename );
 		}
 	}
@@ -679,7 +680,7 @@ int simu_main(int argc, char** argv)
 	// otherwise it is in ~/simutrans/simuconf.tab
 	string obj_conf = string(umgebung_t::user_dir) + "simuconf.tab";
 	if (simuconf.open(obj_conf.c_str())) {
-		printf("parse_simuconf() at %s: ", obj_conf.c_str() );
+		printf("parse_simuconf() in user dir (%s): ", path_to_simuconf);
 		umgebung_t::default_einstellungen.parse_simuconf( simuconf, disp_width, disp_height, fullscreen, umgebung_t::objfilename );
 	}
 
@@ -810,6 +811,8 @@ int simu_main(int argc, char** argv)
 	// The loading screen needs to be initialized
 	show_pointer(1);
 
+	printf("Pak found so far: %s\n", umgebung_t::objfilename.c_str());
+
 	// if no object files given, we ask the user
 	if(  umgebung_t::objfilename.empty()  ) {
 		ask_objfilename();
@@ -835,13 +838,14 @@ int simu_main(int argc, char** argv)
 			}
 		}
 	}
+	printf("Pak found after asking: %s\n", umgebung_t::objfilename.c_str());
 
 	// now find the pak specific tab file ...
 	obj_conf = umgebung_t::objfilename + path_to_simuconf;
 	if(  simuconf.open(obj_conf.c_str())  ) {
 		sint16 idummy;
 		string dummy;
-		dbg->important("parse_simuconf() at %s: ", obj_conf.c_str());
+		printf("parse_simuconf() in pak (%s): ", obj_conf.c_str());
 		umgebung_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 		pak_diagonal_multiplier = umgebung_t::default_einstellungen.get_pak_diagonal_multiplier();
 		pak_tile_height = TILE_HEIGHT_STEP;
@@ -852,7 +856,7 @@ int simu_main(int argc, char** argv)
 	if (simuconf.open(obj_conf.c_str())) {
 		sint16 idummy;
 		string dummy;
-		dbg->important("parse_simuconf() at %s: ", obj_conf.c_str());
+		printf("parse_simuconf() in userdir, second time (%s): ", obj_conf.c_str());
 		umgebung_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 		simuconf.close();
 	}
@@ -873,14 +877,14 @@ int simu_main(int argc, char** argv)
 		sint16 idummy;
 		string dummy;
 		if (simuconf.open(obj_conf.c_str())) {
-			dbg->important("parse_simuconf() at %s: ", obj_conf.c_str());
+			printf("parse_simuconf() in addons: ", obj_conf.c_str());
 			umgebung_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 			simuconf.close();
 		}
 		// and parse user settings again ...
 		obj_conf = string(umgebung_t::user_dir) + "simuconf.tab";
 		if (simuconf.open(obj_conf.c_str())) {
-			dbg->important("parse_simuconf() at %s: ", obj_conf.c_str());
+			printf("parse_simuconf() in userdir, third time (%s): ", obj_conf.c_str());
 			umgebung_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 			simuconf.close();
 		}
