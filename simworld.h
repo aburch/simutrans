@@ -1656,7 +1656,7 @@ public:
 	 * @author Kieron Green
 	 */
 	inline sint8 get_water_hgt(koord k) const {
-		return is_within_grid_limits( k.x, k.y ) ? water_hgts[k.x + k.y * (cached_grid_size.x)] : grundwasser;
+		return is_within_limits( k.x, k.y ) ? water_hgts[k.x + k.y * (cached_grid_size.x)] : grundwasser;
 	}
 
 	/**
