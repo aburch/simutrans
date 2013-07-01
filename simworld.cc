@@ -5484,7 +5484,7 @@ void karte_t::load(loadsave_t *file)
 		if (read_progdir_simuconf) {
 			chdir( umgebung_t::program_dir );
 			if(simuconf.open("config/simuconf.tab")) {
-				printf("parse_simuconf() in program dir (%s) for override of save file\n", "config/simuconf.tab");
+				printf("parse_simuconf() in program dir (%s) for override of save file: ", "config/simuconf.tab");
 				settings.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 				simuconf.close();
 			}
@@ -5494,7 +5494,7 @@ void karte_t::load(loadsave_t *file)
 			chdir( umgebung_t::program_dir );
 			std::string pak_simuconf = umgebung_t::objfilename + "config/simuconf.tab";
 			if(simuconf.open(pak_simuconf.c_str())) {
-				printf("parse_simuconf() in pak dir (%s) for override of save file\n", pak_simuconf.c_str() );
+				printf("parse_simuconf() in pak dir (%s) for override of save file: ", pak_simuconf.c_str() );
 				settings.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 				simuconf.close();
 			}
@@ -5503,7 +5503,7 @@ void karte_t::load(loadsave_t *file)
 		if (read_userdir_simuconf) {
 			std::string userdir_simuconf = std::string(umgebung_t::user_dir) + "simuconf.tab";
 			if(simuconf.open(userdir_simuconf.c_str())) {
-				printf("parse_simuconf() in user dir (%s) for override of save file\n", userdir_simuconf.c_str() );
+				printf("parse_simuconf() in user dir (%s) for override of save file: ", userdir_simuconf.c_str() );
 				settings.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 				simuconf.close();
 			}
