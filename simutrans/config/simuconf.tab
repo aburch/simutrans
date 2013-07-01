@@ -20,6 +20,28 @@
 # for individual paksets. Any values set here that are not set in the simuconf.tab files for 
 # individual paksets will be used. 
 
+################################ Settings meta-options #############################
+#
+# Normally, a huge number of settings are saved in the save game.  This is intended
+# to allow a player to continue playing the "same style of game" as before.
+#
+# However, this is often highly undesirable.  
+#
+# Sometimes we want to load an old saved game with new settings in the program directory.
+# (For instance, if the defaults have changed in a new version.)
+# To do this, set progdir_overrides_savegame_settings to 1 (or any number but 0).
+#
+# Frequently we want to load an old saved game with an updated pakset and get the new pakset rules.
+# To do this, set pak_overides_savegame_settings to 1 (or any number but 0).
+#
+# Very frequently we want to load an old saved game with custom local rules.
+# To do this, wet userdir_overrides_pak_settings ot 1 (or any number but 0).
+#
+# (Neither of these have any effect if you are a client, rather than a server, in a network game.)
+# (Also, there is no way to override certain settings which are not loaded from simuconf.tab.)
+progdir_overrides_savegame_settings = 0
+pak_overrides_savegame_settings = 0
+userdir_overrides_savegame_settings = 0
 
 ################################# Pakset settings ##################################
 #

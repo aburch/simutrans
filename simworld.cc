@@ -113,6 +113,8 @@
 #include "player/ai_passenger.h"
 #include "player/ai_goods.h"
 
+#include "dataobj/tabfile.h" // For reload of simuconf.tab to override savegames
+
 #ifdef DEBUG_SIMRAND_CALLS
 bool karte_t::print_randoms = true;
 int karte_t::random_calls = 0;
@@ -3110,7 +3112,7 @@ bool karte_t::rem_fab(fabrik_t *fab)
 	vector_tpl<koord> tile_list;
 	fab->get_tile_list(tile_list);
 	FOR (vector_tpl<koord>, const k, tile_list) {
-		planquadrat_t* plan = lookup(k);
+		planquadrat_t* plan = access(k);
 		if(plan)
 		{
 			// we need a copy, since the verbinde fabriken will modify the list
@@ -5466,8 +5468,50 @@ void karte_t::load(loadsave_t *file)
 
 	// jetzt geht das laden los
 	dbg->warning("karte_t::laden", "Fileversion: %d", file->get_version());
-	settings = umgebung_t::default_einstellungen;
+	settings = umgebung_t::default_einstellungen; // makes a copy
 	settings.rdwr(file);
+
+	// We may wish to override the settings saved in the file.
+	// But not if we are a network client.
+	if (  !umgebung_t::networkmode || umgebung_t::server  ) {
+		bool read_progdir_simuconf = umgebung_t::default_einstellungen.get_progdir_overrides_savegame_settings();
+		bool read_pak_simuconf = umgebung_t::default_einstellungen.get_pak_overrides_savegame_settings();
+		bool read_userdir_simuconf = umgebung_t::default_einstellungen.get_userdir_overrides_savegame_settings();
+		tabfile_t simuconf;
+		sint16 idummy;
+		string dummy;
+		// Please note: we assume that our working directory is umgebung_t::program_dir
+#if DEBUG
+		// Check that it actually is.
+		char cwd[1024];
+		printf("Currrent working directory %s\n", getcwd(cwd, 1024) );
+#endif
+		if (read_progdir_simuconf) {
+			if(simuconf.open("config/simuconf.tab")) {
+				printf("parse_simuconf() in program dir (%s) for override of save file\n", "config/simuconf.tab");
+				settings.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
+				simuconf.close();
+			}
+		}
+		if (read_pak_simuconf) {
+			std::string pak_simuconf = umgebung_t::objfilename + "config/simuconf.tab";
+			if(simuconf.open(pak_simuconf.c_str())) {
+				printf("parse_simuconf() in pak dir (%s) for override of save file\n", pak_simuconf.c_str() );
+				settings.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
+				simuconf.close();
+			}
+		}
+		if (read_userdir_simuconf) {
+			std::string userdir_simuconf = std::string(umgebung_t::user_dir) + "simuconf.tab";
+			if(simuconf.open(userdir_simuconf.c_str())) {
+				printf("parse_simuconf() in user dir (%s) for override of save file\n", userdir_simuconf.c_str() );
+				settings.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
+				simuconf.close();
+			}
+		}
+
+	}
+
 	loaded_rotation = settings.get_rotation();
 
 #ifndef DEBUG_SIMRAND_CALLS
