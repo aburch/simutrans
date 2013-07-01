@@ -872,9 +872,10 @@ bool stadt_t::cityrules_init(const std::string &objfilename)
 				}
 			}
 		}
-		dbg->message("House-Rule %d: chance %d\n",i,house_rules[i]->chance);
-		for(uint32 j=0; j< house_rules[i]->rule.get_count(); j++)
-			dbg->message("House-Rule %d: Pos (%d,%d) Flag %d\n",i,house_rules[i]->rule[j].x,house_rules[i]->rule[j].y,house_rules[i]->rule[j].flag);
+		dbg->message("stadt_t::cityrules_init()", "House-Rule %d: chance %d\n",i,house_rules[i]->chance);
+		for(uint32 j=0; j< house_rules[i]->rule.get_count(); j++) {
+			dbg->message("stadt_t::cityrules_init()", "House-Rule %d: Pos (%d,%d) Flag %d\n",i,house_rules[i]->rule[j].x,house_rules[i]->rule[j].y,house_rules[i]->rule[j].flag);
+			}
 	}
 
 	clear_ptr_vector( road_rules );
@@ -919,9 +920,9 @@ bool stadt_t::cityrules_init(const std::string &objfilename)
 				}
 			}
 		}
-		dbg->message("Road-Rule %d: chance %d\n",i,road_rules[i]->chance);
+		dbg->message("stadt_t::cityrules_init()", "Road-Rule %d: chance %d\n",i,road_rules[i]->chance);
 		for(uint32 j=0; j< road_rules[i]->rule.get_count(); j++)
-			dbg->message("Road-Rule %d: Pos (%d,%d) Flag %d\n",i,road_rules[i]->rule[j].x,road_rules[i]->rule[j].y,road_rules[i]->rule[j].flag);
+			dbg->message("stadt_t::cityrules_init()", "Road-Rule %d: Pos (%d,%d) Flag %d\n",i,road_rules[i]->rule[j].x,road_rules[i]->rule[j].y,road_rules[i]->rule[j].flag);
 		
 	}
 	return true;
