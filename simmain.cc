@@ -854,7 +854,7 @@ int simu_main(int argc, char** argv)
 	if (simuconf.open(obj_conf.c_str())) {
 		sint16 idummy;
 		string dummy;
-		printf("parse_simuconf() in userdir, second time (%s): ", obj_conf.c_str());
+		printf("parse_simuconf() in user dir, second time (%s): ", obj_conf.c_str());
 		umgebung_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 		simuconf.close();
 	}
@@ -882,7 +882,7 @@ int simu_main(int argc, char** argv)
 		// and parse user settings again ...
 		obj_conf = string(umgebung_t::user_dir) + "simuconf.tab";
 		if (simuconf.open(obj_conf.c_str())) {
-			printf("parse_simuconf() in userdir, third time (%s): ", obj_conf.c_str());
+			printf("parse_simuconf() in user dir, third time (%s): ", obj_conf.c_str());
 			umgebung_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 			simuconf.close();
 		}
@@ -1022,22 +1022,11 @@ int simu_main(int argc, char** argv)
 	// still nothing to be loaded => search for demo games
 	if(  new_world  ) {
 		cbuffer_t buf;
-		// Have to handle two cases: absolute filename and relative filename (gaaah!)
-		if (umgebung_t::objfilename.length() >= 1 ) {
-			if (umgebung_t::objfilename[0] == '/') {
-				// Absolute filename.  We may not have detected every such case;
-				// different OSes have different conventions; but at least this works
-				// on UNIX-like systems.
-				// Do nothing....
-			} else {
-				// Relative filename.  Stuff the program directory on the front.
-				// The program directory has a trailing slash.
-				buf.append( (const char *)umgebung_t::program_dir );
-			}
-		}
 		// Now append the pakfile directory
 		buf.append(umgebung_t::objfilename.c_str()); //has trailing slash
 		buf.append("demo.sve");
+
+		chdir( umgebung_t::program_dir );
 		if (FILE* const f = fopen(buf.get_str(), "rb")) {
 			// there is a demo game to load
 			loadgame = buf;
@@ -1046,6 +1035,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buf.get_str() );
 		} else {
 DBG_MESSAGE("simmain","demo file not found at %s",buf.get_str() );
 		}
+		chdir( umgebung_t::user_dir );
 	}
 
 	if(  gimme_arg(argc, argv, "-timeline", 0) != NULL  ) {
