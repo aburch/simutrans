@@ -1552,9 +1552,9 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	// Only the version in default_einstellungen is meaningful.  These determine whether savegames
 	// are updated to the newest local settings.  They are ignored for clients in network games.
 	// @author: neroden.
+	progdir_overrides_savegame_settings = (contents.get_int("progdir_overrides_savegame_settings", 0) != 0);
 	pak_overrides_savegame_settings = (contents.get_int("pak_overrides_savegame_settings", 0) != 0);
-	progdir_overrides_savegame_settings = (contents.get_int("pak_overrides_savegame_settings", 0) != 0);
-	progdir_overrides_savegame_settings = (contents.get_int("pak_overrides_savegame_settings", 0) != 0);
+	userdir_overrides_savegame_settings = (contents.get_int("userdir_overrides_savegame_settings", 0) != 0);
 
 	// This needs to be first as other settings are based on this.
 	// @author: jamespetts
