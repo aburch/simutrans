@@ -1150,7 +1150,12 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 		sint32 max_object_index = 0;
 		for(  uint16 i=0;  i<top;  i++  ) {
 			ding_t *d = bei((uint8)i);
-			if(d->get_typ()==ding_t::way
+			if ( d == NULL ) {
+				dbg->important("dingliste_t::rdwr()", "Null pointer; ignoring during save");
+				// We have had recurring null pointer memory corruption bugs in dingliste_t.
+				// Avoid crashing and skip over this pointer if it occurs.
+			} else if (
+				    d->get_typ()==ding_t::way
 				// do not save smoke
 				||  d->get_typ()==ding_t::raucher
 				||  d->get_typ()==ding_t::sync_wolke
