@@ -185,7 +185,7 @@ static char* recode(const char* src, bool translate_from_utf, bool translate_to_
 
 
 /* needed for loading city names */
-static char pakset_path[256];
+std::string translator::pak_name;
 
 // List of custom city and streetnames
 vector_tpl<char*> translator::city_name_list;
@@ -206,7 +206,7 @@ void translator::load_custom_list( int lang, vector_tpl<char*> &name_list, const
 	// @author prissi: first try in pakset
 	{
 		string local_file_name(umgebung_t::user_dir);
-		local_file_name = local_file_name + "addons/" + pakset_path + "text/" + fileprefix + langs[lang].iso_base + ".txt";
+		local_file_name = local_file_name + "addons/" + pak_name + "text/" + fileprefix + langs[lang].iso_base + ".txt";
 		DBG_DEBUG("translator::load_custom_list()", "try to read city name list from '%s'", local_file_name.c_str());
 		file = fopen(local_file_name.c_str(), "rb");
 	}
@@ -220,7 +220,7 @@ void translator::load_custom_list( int lang, vector_tpl<char*> &name_list, const
 	// not found => try pak location
 	if(  file==NULL  ) {
 		string local_file_name(umgebung_t::program_dir);
-		local_file_name = local_file_name + pakset_path + "text/" + fileprefix + langs[lang].iso_base + ".txt";
+		local_file_name = local_file_name + pak_name + "text/" + fileprefix + langs[lang].iso_base + ".txt";
 		DBG_DEBUG("translator::load_custom_list()", "try to read city name list from '%s'", local_file_name.c_str());
 		file = fopen(local_file_name.c_str(), "rb");
 	}
@@ -392,7 +392,7 @@ void translator::load_files_from_folder(const char* folder_name, const char* wha
 bool translator::load(const string &path_to_pakset)
 {
 	chdir( umgebung_t::program_dir );
-	tstrncpy(pakset_path, path_to_pakset.c_str(), lengthof(pakset_path));
+	pak_name = path_to_pakset;
 
 	//initialize these values to 0(ie. nothing loaded)
 	single_instance.current_lang = -1;

@@ -40,6 +40,7 @@ private:
 	static void load_language_file(FILE* file);
 	static void load_language_iso(const std::string &iso);
 
+	static std::string pak_name;
 	static vector_tpl<char*> city_name_list;
 	static vector_tpl<char*> street_name_list;
 
@@ -67,7 +68,7 @@ public:
 	 * behaviour may follow if calls to translate message or similar are
 	 * called before load has been called
 	 */
-	static bool load(const std::string &pakset_path);
+	static bool load(const std::string &path_to_pakset);
 
 	/**
 	 * Loads all language file in folder folder_name
