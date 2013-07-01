@@ -811,8 +811,6 @@ int simu_main(int argc, char** argv)
 	// The loading screen needs to be initialized
 	show_pointer(1);
 
-	printf("Pak found so far: %s\n", umgebung_t::objfilename.c_str());
-
 	// if no object files given, we ask the user
 	if(  umgebung_t::objfilename.empty()  ) {
 		ask_objfilename();
@@ -838,7 +836,7 @@ int simu_main(int argc, char** argv)
 			}
 		}
 	}
-	printf("Pak found after asking: %s\n", umgebung_t::objfilename.c_str());
+	printf("Pak found: %s\n", umgebung_t::objfilename.c_str());
 
 	// now find the pak specific tab file ...
 	obj_conf = umgebung_t::objfilename + path_to_simuconf;
