@@ -989,77 +989,43 @@ void settings_t::rdwr(loadsave_t *file)
 					set_meters_per_tile(mpt);
 				}
 
-				// The following settings should ONLY be read in network mode.
-				// Otherwise, get them from the pak file!!!
-				if (  file->is_saving() || umgebung_t::networkmode  ) {
-					file->rdwr_byte(tolerable_comfort_short);
-					file->rdwr_byte(tolerable_comfort_median_short);
-					file->rdwr_byte(tolerable_comfort_median_median);
-					file->rdwr_byte(tolerable_comfort_median_long);
-					file->rdwr_byte(tolerable_comfort_long);
+				
+				file->rdwr_byte(tolerable_comfort_short);
+				file->rdwr_byte(tolerable_comfort_median_short);
+				file->rdwr_byte(tolerable_comfort_median_median);
+				file->rdwr_byte(tolerable_comfort_median_long);
+				file->rdwr_byte(tolerable_comfort_long);
 
-					file->rdwr_short(tolerable_comfort_short_minutes);
-					file->rdwr_short(tolerable_comfort_median_short_minutes);
-					file->rdwr_short(tolerable_comfort_median_median_minutes);
-					file->rdwr_short(tolerable_comfort_median_long_minutes);
-					file->rdwr_short(tolerable_comfort_long_minutes);
+				file->rdwr_short(tolerable_comfort_short_minutes);
+				file->rdwr_short(tolerable_comfort_median_short_minutes);
+				file->rdwr_short(tolerable_comfort_median_median_minutes);
+				file->rdwr_short(tolerable_comfort_median_long_minutes);
+				file->rdwr_short(tolerable_comfort_long_minutes);
 
-					file->rdwr_byte(max_luxury_bonus_differential);
-					file->rdwr_byte(max_discomfort_penalty_differential);
-					file->rdwr_short(max_discomfort_penalty_percent);
-					file->rdwr_short(max_luxury_bonus_percent);
+				file->rdwr_byte(max_luxury_bonus_differential);
+				file->rdwr_byte(max_discomfort_penalty_differential);
+				file->rdwr_short(max_discomfort_penalty_percent);
+				file->rdwr_short(max_luxury_bonus_percent);
 
-					file->rdwr_short(catering_min_minutes);
-					file->rdwr_short(catering_level1_minutes);
-					file->rdwr_short(catering_level1_max_revenue);
-					file->rdwr_short(catering_level2_minutes);
-					file->rdwr_short(catering_level2_max_revenue);
-					file->rdwr_short(catering_level3_minutes);
-					file->rdwr_short(catering_level3_max_revenue);
-					file->rdwr_short(catering_level4_minutes);
-					file->rdwr_short(catering_level4_max_revenue);
-					file->rdwr_short(catering_level5_minutes);
-					file->rdwr_short(catering_level5_max_revenue);
+				file->rdwr_short(catering_min_minutes);
+				file->rdwr_short(catering_level1_minutes);
+				file->rdwr_short(catering_level1_max_revenue);
+				file->rdwr_short(catering_level2_minutes);
+				file->rdwr_short(catering_level2_max_revenue);
+				file->rdwr_short(catering_level3_minutes);
+				file->rdwr_short(catering_level3_max_revenue);
+				file->rdwr_short(catering_level4_minutes);
+				file->rdwr_short(catering_level4_max_revenue);
+				file->rdwr_short(catering_level5_minutes);
+				file->rdwr_short(catering_level5_max_revenue);
 
-					file->rdwr_short(tpo_min_minutes);
-					file->rdwr_short(tpo_revenue);
-				} else {
-					// Reading, not network mode
-					uint8 byte_dummy;
-					uint16 short_dummy;
-					file->rdwr_byte(byte_dummy);
-					file->rdwr_byte(byte_dummy);
-					file->rdwr_byte(byte_dummy);
-					file->rdwr_byte(byte_dummy);
-					file->rdwr_byte(byte_dummy);
+				file->rdwr_short(tpo_min_minutes);
+				file->rdwr_short(tpo_revenue);
 
-					file->rdwr_short(short_dummy);
-					file->rdwr_short(short_dummy);
-					file->rdwr_short(short_dummy);
-					file->rdwr_short(short_dummy);
-					file->rdwr_short(short_dummy);
-
-					file->rdwr_byte(byte_dummy);
-					file->rdwr_byte(byte_dummy);
-					file->rdwr_short(short_dummy);
-					file->rdwr_short(short_dummy);
-
-					file->rdwr_short(short_dummy); //min
-					file->rdwr_short(short_dummy); //1
-					file->rdwr_short(short_dummy); //1
-					file->rdwr_short(short_dummy); //2
-					file->rdwr_short(short_dummy); //2
-					file->rdwr_short(short_dummy); //3
-					file->rdwr_short(short_dummy); //3
-					file->rdwr_short(short_dummy); //4
-					file->rdwr_short(short_dummy); //4
-					file->rdwr_short(short_dummy); //5
-					file->rdwr_short(short_dummy); //5
-
-					file->rdwr_short(short_dummy); //tpo
-					file->rdwr_short(short_dummy); //tpo
-				}
 				// Nathanael: question whether this belongs in the save file.  Probably not.
+				// jamespetts: It needs to remain in the saved file so that network games can be 
+				// saved/loaded as offline games without losing any information.
+				// 
 				if ( file->is_loading() ) {
 					cache_comfort_tables();
 					cache_catering_revenues();
@@ -1067,22 +1033,24 @@ void settings_t::rdwr(loadsave_t *file)
 			}
 
 			// Consider not loading these at all --neroden
-			if (file->is_loading() && umgebung_t::networkmode ) {
-				// Load these ONLY in networkmode
-				if (file->get_experimental_version() >= 6 && file->get_experimental_version() <= 11) {
-					// These were in tiles.
-					min_bonus_max_distance = (sint32) min_b_max * meters_per_tile / 1000;
-					max_bonus_min_distance = (sint32) max_b_min * meters_per_tile / 1000;
-					median_bonus_distance = (sint32) median_b * meters_per_tile / 1000;
-				}
-				else {
-					// Old version and new version.  Interpret these as being in kilometers to start with.
-					min_bonus_max_distance = min_b_max;
-					max_bonus_min_distance = max_b_min;
-					median_bonus_distance = median_b;
-				}
-				max_bonus_multiplier_percent = max_b_percent;
+			// See above -- jamespetts
+			if (file->get_experimental_version() >= 6 && file->get_experimental_version() <= 11)
+			{
+				// These were in tiles.
+				min_bonus_max_distance = (sint32) min_b_max * meters_per_tile / 1000;
+				max_bonus_min_distance = (sint32) max_b_min * meters_per_tile / 1000;
+				median_bonus_distance = (sint32) median_b * meters_per_tile / 1000;
 			}
+
+			else
+			{
+				// Old version and new version.  Interpret these as being in kilometers to start with.
+				min_bonus_max_distance = min_b_max;
+				max_bonus_min_distance = max_b_min;
+				median_bonus_distance = median_b;
+			}
+
+			max_bonus_multiplier_percent = max_b_percent;
 
 			if(file->get_experimental_version() < 6)
 			{
