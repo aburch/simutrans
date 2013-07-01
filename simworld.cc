@@ -5501,8 +5501,9 @@ void karte_t::load(loadsave_t *file)
 			chdir( umgebung_t::user_dir );
 		}
 		if (read_userdir_simuconf) {
-			std::string userdir_simuconf = std::string(umgebung_t::user_dir) + "simuconf.tab";
-			if(simuconf.open(userdir_simuconf.c_str())) {
+			chdir( umgebung_t::user_dir );
+			std::string userdir_simuconf = "simuconf.tab";
+			if(simuconf.open("simuconf.tab")) {
 				printf("parse_simuconf() in user dir (%s) for override of save file: ", userdir_simuconf.c_str() );
 				settings.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 				simuconf.close();
