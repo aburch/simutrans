@@ -2221,52 +2221,62 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	spacing_shift_mode = contents.get_int("spacing_shift_mode", spacing_shift_mode);
 	spacing_shift_divisor = contents.get_int("spacing_shift_divisor", spacing_shift_divisor);
 
-	livery_schemes.clear();
-	for(int i = 0; i < 65336; i ++)
-	{
-		char name[128] ;
-		sprintf( name, "livery_scheme[%i]", i );
-		const char* scheme_name = ltrim(contents.get(name));
-		if(scheme_name[0] == '\0')
+	// OK, this is a bit complex.  We are at risk of loading the same livery schemes repeatedly, which
+	// gives duplicate livery schemes and utter confusion.
+	// On the other hand, we are also at risk of wiping out our livery schemes with blank space.
+	// So, *if* this file has livery schemes in it, we *replace* all previous livery schemes.
+	// This does not allow for "addon livery schemes" but at least it works for the usual cases.
+	// We could do better if we actually matched schemes up by index number.
+	const char* first_scheme_name = contents.get("livery_scheme[0]");
+	if (first_scheme_name[0] != '\0') {
+		// This file has livery schemes.  Replace all previous.
+		livery_schemes.clear();
+		for(int i = 0; i < 65336; i ++)
 		{
-			break;
-		}
-		
-		sprintf( name, "retire_year[%i]", i );
-		uint16 retire = contents.get_int(name, DEFAULT_RETIRE_DATE) * 12;
-
-		sprintf( name, "retire_month[%i]", i );
-		retire += contents.get_int(name, 1) - 1;
-
-		livery_scheme_t* scheme = new livery_scheme_t(scheme_name, retire);
-
-		bool has_liveries = false;
-		for(int j = 0; j < 65536; j ++)
-		{
-			char livery[128];
-			sprintf(livery, "livery[%i][%i]", i, j);
-			const char* liv_name = ltrim(contents.get(livery));
-			if(liv_name[0] == '\0')
+			char name[128] ;
+			sprintf( name, "livery_scheme[%i]", i );
+			const char* scheme_name = ltrim(contents.get(name));
+			if(scheme_name[0] == '\0')
 			{
 				break;
 			}
 
-			has_liveries = true;
-			sprintf(livery, "intro_year[%i][%i]", i, j);
-			uint16 intro = contents.get_int(livery, DEFAULT_INTRO_DATE) * 12;
+			sprintf( name, "retire_year[%i]", i );
+			uint16 retire = contents.get_int(name, DEFAULT_RETIRE_DATE) * 12;
 
-			sprintf(livery, "intro_month[%i][%i]", i, j);
-			intro += contents.get_int("intro_month", 1) - 1;
+			sprintf( name, "retire_month[%i]", i );
+			retire += contents.get_int(name, 1) - 1;
 
-			scheme->add_livery(liv_name, intro);
-		}
-		if(has_liveries)
-		{
-			livery_schemes.append(scheme);
-		}
-		else
-		{
-			delete scheme;
+			livery_scheme_t* scheme = new livery_scheme_t(scheme_name, retire);
+
+			bool has_liveries = false;
+			for(int j = 0; j < 65536; j ++)
+			{
+				char livery[128];
+				sprintf(livery, "livery[%i][%i]", i, j);
+				const char* liv_name = ltrim(contents.get(livery));
+				if(liv_name[0] == '\0')
+				{
+					break;
+				}
+
+				has_liveries = true;
+				sprintf(livery, "intro_year[%i][%i]", i, j);
+				uint16 intro = contents.get_int(livery, DEFAULT_INTRO_DATE) * 12;
+
+				sprintf(livery, "intro_month[%i][%i]", i, j);
+				intro += contents.get_int("intro_month", 1) - 1;
+
+				scheme->add_livery(liv_name, intro);
+			}
+			if(has_liveries)
+			{
+				livery_schemes.append(scheme);
+			}
+			else
+			{
+				delete scheme;
+			}
 		}
 	}
 
