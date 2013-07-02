@@ -32,6 +32,10 @@ public:
 	void fill_list();	// do the search ...
 	virtual bool has_title() const { return false; }
 	bool has_pak() const { return use_table ? file_table.get_size().get_y() > 0 : !entries.empty(); }
+
+	// If there is only one option, this will set the pak name and return true.
+	// Otherwise it will return false.  (Note, it's const but it modifies global data.)
+	bool check_only_one_option() const;
 	const char * get_hilfe_datei() const { return ""; }
 	// since we only want to see the frames ...
 	void zeichnen(koord pos, koord gr);
