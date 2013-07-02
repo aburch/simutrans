@@ -155,7 +155,7 @@ void pakselector_t::fill_list()
 
 // Check if there's only one option, and if there is,
 // (a) load the pak, (b) return true.
-bool pakselector_t::check_only_one_option() const;
+bool pakselector_t::check_only_one_option() const
 {
 	if (use_table) {
 		if (file_table.get_size().get_y() == 1) {
