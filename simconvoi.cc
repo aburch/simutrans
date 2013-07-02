@@ -1433,8 +1433,9 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_
 		}
 		// check for obsolete
 		if(!has_obsolete  &&  welt->use_timeline()) {
-			has_obsolete = v->get_besch()->is_retired( welt->get_timeline_year_month() );
+			has_obsolete = info->is_retired( welt->get_timeline_year_month() );
 		}
+		spieler_t::add_maintenance( get_besitzer(), info->get_maintenance(), info->get_waytype() );
 	}
 	else {
 		return false;
@@ -1468,6 +1469,7 @@ vehikel_t *convoi_t::remove_vehikel_bei(uint16 i)
 			sum_gear_und_leistung -= info->get_leistung()*info->get_gear();
 			sum_gewicht -= info->get_gewicht();
 			sum_running_costs += info->get_betriebskosten();
+			spieler_t::add_maintenance( get_besitzer(), -info->get_maintenance(), info->get_waytype() );
 		}
 		sum_gesamtgewicht = sum_gewicht;
 		calc_loading();
@@ -2077,6 +2079,7 @@ void convoi_t::rdwr(loadsave_t *file)
 			}
 
 			const vehikel_besch_t *info = v->get_besch();
+			assert(info);
 
 			// Hajo: if we load a game from a file which was saved from a
 			// game with a different vehicle.tab, there might be no vehicle
@@ -2087,9 +2090,7 @@ void convoi_t::rdwr(loadsave_t *file)
 				sum_gewicht += info->get_gewicht();
 				sum_running_costs -= info->get_betriebskosten();
 				is_electric |= info->get_engine_type()==vehikel_besch_t::electric;
-			}
-			else {
-				DBG_MESSAGE("convoi_t::rdwr()","no vehikel info!");
+				spieler_t::add_maintenance( get_besitzer(), info->get_maintenance(), info->get_waytype() );
 			}
 
 			// some versions save vehicles after leaving depot with koord3d::invalid
