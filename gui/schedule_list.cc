@@ -59,7 +59,8 @@ static const char *cost_type[MAX_LINE_COST] =
 	"Profit",
 	"Convoys",
 	"Distance",
-	"Maxspeed"
+	"Maxspeed",
+	"Road toll"
 };
 
 const int cost_type_color[MAX_LINE_COST] =
@@ -71,18 +72,19 @@ const int cost_type_color[MAX_LINE_COST] =
 	COL_PROFIT,
 	COL_COUNVOI_COUNT,
 	COL_DISTANCE,
-	COL_MAXSPEED
+	COL_MAXSPEED,
+	COL_TOLL
 };
 
 static uint8 tabs_to_lineindex[9];
 static uint8 max_idx=0;
 
 static uint8 statistic[MAX_LINE_COST]={
-	LINE_CAPACITY, LINE_TRANSPORTED_GOODS, LINE_REVENUE, LINE_OPERATIONS, LINE_PROFIT, LINE_CONVOIS, LINE_DISTANCE, LINE_MAXSPEED
+	LINE_CAPACITY, LINE_TRANSPORTED_GOODS, LINE_REVENUE, LINE_OPERATIONS, LINE_PROFIT, LINE_CONVOIS, LINE_DISTANCE, LINE_MAXSPEED, LINE_WAYTOLL
 };
 
 static uint8 statistic_type[MAX_LINE_COST]={
-	STANDARD, STANDARD, MONEY, MONEY, MONEY, STANDARD, STANDARD, STANDARD
+	STANDARD, STANDARD, MONEY, MONEY, MONEY, STANDARD, STANDARD, STANDARD, MONEY
 };
 
 enum sort_modes_t { SORT_BY_NAME=0, SORT_BY_ID, SORT_BY_PROFIT, SORT_BY_TRANSPORTED, SORT_BY_CONVOIS, SORT_BY_DISTANCE, MAX_SORT_MODES };
@@ -798,10 +800,19 @@ void schedule_list_gui_t::rdwr( loadsave_t *file )
 	}
 	gr.rdwr( file );
 	simline_t::rdwr_linehandle_t(file, line);
-	for (int i=0; i<MAX_LINE_COST; i++) {
-		bool b = filterButtons[i].pressed;
-		file->rdwr_bool( b );
-		filterButtons[i].pressed = b;
+	if(  file->get_version()<112008  ) {
+		for (int i=0; i<8; i++) {
+			bool b = filterButtons[i].pressed;
+			file->rdwr_bool( b );
+			filterButtons[i].pressed = b;
+		}
+	}
+	else {
+		for (int i=0; i<MAX_LINE_COST; i++) {
+			bool b = filterButtons[i].pressed;
+			file->rdwr_bool( b );
+			filterButtons[i].pressed = b;
+		}
 	}
 	file->rdwr_long( cont_xoff );
 	file->rdwr_long( cont_yoff );

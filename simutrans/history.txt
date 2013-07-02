@@ -4,6 +4,7 @@
 	ADD: (kierongreen) double heights (slopes), different water levels per tile, and per tile climates
 	FIX: long block signals direct in front of stations gave deadlocks
 	ADD: fixed maintenance for vehciles is now booked
+	ADD: (jk271) way toll statistics now
 
 
 Release of 112.3: (r6520 on 17-May-2013):

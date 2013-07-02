@@ -48,6 +48,7 @@ public:
 		CONVOI_PROFIT,             // total profit of this convoi
 		CONVOI_DISTANCE,           // total distance traveled this month
 		CONVOI_MAXSPEED,           // average max. possible speed
+		CONVOI_WAYTOLL,
 		MAX_CONVOI_COST            // Total number of cost items
 	};
 
