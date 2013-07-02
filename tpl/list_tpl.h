@@ -90,10 +90,10 @@ public:
 
 // construction / destruction
 
-	explicit list_tpl() : data(NULL), capacity(0), count(0), owns_items(false) {} 
-	explicit list_tpl(bool owns_its_items) : data(NULL), capacity(0), count(0), owns_items(owns_its_items) {} 
-	explicit list_tpl(bool owns_its_items, uint32 initial_capacity) : data(NULL), capacity(0), count(0), owns_items(owns_its_items) { set_capacity(initial_capacity); }
-	explicit list_tpl(uint32 initial_capacity) : data(NULL), capacity(0), count(0), owns_items(false) { set_capacity(initial_capacity); }
+	explicit list_tpl() : data(NULL), capacity(0), count(0), owns_items(false), is_sorted(false) {}
+	explicit list_tpl(bool owns_its_items) : data(NULL), capacity(0), count(0), owns_items(owns_its_items), is_sorted(false) {} 
+	explicit list_tpl(bool owns_its_items, uint32 initial_capacity) : data(NULL), capacity(0), count(0), owns_items(owns_its_items), is_sorted(false) { set_capacity(initial_capacity); }
+	explicit list_tpl(uint32 initial_capacity) : data(NULL), capacity(0), count(0), owns_items(false), is_sorted(false) { set_capacity(initial_capacity); }
 	virtual ~list_tpl() { set_capacity(0); }
 
 // administration
