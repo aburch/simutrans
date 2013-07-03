@@ -1957,14 +1957,14 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 
 karte_t::karte_t() :
 	settings(umgebung_t::default_einstellungen),
+	is_shutting_down(false),
 	convoi_array(0),
 	ausflugsziele(16),
 	stadt(0),
 	marker(0,0),
+	idle_time(0),
 	speed_factors_are_set(false)
 {
-	is_shutting_down = false;
-
 	// length of day and other time stuff
 	ticks_per_world_month_shift = 20;
 	ticks_per_world_month = (1LL << ticks_per_world_month_shift);
