@@ -945,8 +945,13 @@ void stadt_t::cityrules_rdwr(loadsave_t *file)
 	// cluster_factor and bridge_success_percentage added by neroden.
 	// It's not clear how to version this, but it *is* only
 	// for networked games... both is *needed* for network games though
-	file->rdwr_long(cluster_factor);
-	file->rdwr_long(bridge_success_percentage);
+	
+	// NOTE: This code is not *only* called for network games.
+	if(file->get_experimental_version() >= 12 || umgebung_t::networkmode)
+	{
+		file->rdwr_long(cluster_factor);
+		file->rdwr_long(bridge_success_percentage);
+	}
 
 	file->rdwr_short(ind_start_score);
 	file->rdwr_short(ind_neighbour_score[0]);
