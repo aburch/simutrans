@@ -4998,6 +4998,10 @@ int stadt_t::get_best_layout(const haus_besch_t* h, const koord k, const int str
 void stadt_t::build_city_building(const koord k, bool new_town)
 {
 	grund_t* gr = welt->lookup_kartenboden(k);
+	if (!gr)
+	{
+		return;
+	}
 	const koord3d pos(gr->get_pos());
 
 	// Not building on ways (this was actually tested before be the cityrules), btu you can construct manually
