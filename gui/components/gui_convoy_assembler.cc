@@ -1679,6 +1679,7 @@ void gui_convoy_assembler_t::update_tabs()
 
 void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 {
+	cbuffer_t buf;
 	char buf[1024];
 	const koord size = depot_frame ? depot_frame->get_fenstergroesse() : replace_frame->get_fenstergroesse();
 	PUSH_CLIP(pos.x, pos.y, size.x-1, size.y-1);
@@ -1801,7 +1802,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 		}
 		else
 		{
-			sprintf(cap, "");
+			cap[0] = '\0';
 		}
 		if(  veh_type->get_zuladung() > 0  ) { // Standard translation is "Capacity: %3d%s %s\n", as Standard has no overcrowding
 			n += sprintf(buf + n, translator::translate("Capacity: %3d %s%s %s\n"),
