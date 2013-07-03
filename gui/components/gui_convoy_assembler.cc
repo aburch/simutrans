@@ -1801,7 +1801,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 		}
 		else
 		{
-			sprintf(cap, "");
+			cap[0] = '\0';
 		}
 		if(  veh_type->get_zuladung() > 0  ) { // Standard translation is "Capacity: %3d%s %s\n", as Standard has no overcrowding
 			n += sprintf(buf + n, translator::translate("Capacity: %3d %s%s %s\n"),
