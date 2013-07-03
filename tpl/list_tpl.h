@@ -377,7 +377,6 @@ template<class item_t> void list_tpl<item_t>::move(uint32 from, uint32 to)
 // BG, 04.04.2010
 template<class item_t> void list_tpl<item_t>::qsort(sint32 l, sint32 r)
 {
-	sint32 ll = l, rr = r;
 	sint32 i = l;
 	while (i < r) {
 		sint32 j = r;
