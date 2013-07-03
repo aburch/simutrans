@@ -44,6 +44,10 @@ private:
 public:
 	typedef enum { no_route=0, valid_route=1, valid_route_halt_too_short=3 } route_result_t;
 
+	// Constructor
+	route_t() : max_axle_load(999), max_convoy_weight(999) {};
+
+
 	// this class saves the nodes during route searches
 	class ANode {
 	public:
@@ -53,9 +57,6 @@ public:
 		uint8 dir;
 		uint8 ribi_from; /// we came from this direction
 		uint16 count;
-
-		// Constructor
-		route_t() : max_axle_load(999), max_convoy_weight(999) {};
 
 		inline bool operator <= (const ANode &k) const { return f==k.f ? g<=k.g : f<=k.f; }
 #if defined(tpl_sorted_heap_tpl_h)
