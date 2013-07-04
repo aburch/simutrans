@@ -2219,6 +2219,8 @@ void wegbauer_t::baue_strasse()
 				// Does the town adopt this road as its own, including maintenance costs?
 				const bool city_adopts_this = (welt->lookup(k)->get_city()
 									&& welt->get_settings().get_towns_adopt_player_roads()
+									&& ( besch->get_styp() != weg_t::type_elevated )
+									&& ( besch->get_styp() != weg_t::type_underground )
 									&& ! ( sp && sp->is_public_service() )
 									);
 				bool add_sidewalk = build_sidewalk  || city_adopts_this;

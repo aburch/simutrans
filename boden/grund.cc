@@ -1494,7 +1494,8 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 		}
 
 		const bool city_adopts_this = (weg->get_waytype() == road_wt
-										&& ! (weg->get_besch()->get_styp()==weg_t::type_elevated)
+										&& ( weg->get_besch()->get_styp() != weg_t::type_elevated )
+										&& ( weg->get_besch()->get_styp() != weg_t::type_underground )
 										&& welt->get_city(weg->get_pos().get_2d())
 										&& welt->get_settings().get_towns_adopt_player_roads()
 										&& !( sp && sp->is_public_service() )
