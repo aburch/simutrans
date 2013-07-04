@@ -1120,11 +1120,7 @@ void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb, bool ordered)
 				}
 			}
 		}
-		// check borders
-		pruefe_grenzen(pos);
-		if(size!=koord(1,1)) {
-			pruefe_grenzen(pos+size-koord(1,1));
-		}
+		recalc_city_size();
 	}
 }
 
@@ -1135,6 +1131,38 @@ void stadt_t::remove_gebaeude_from_stadt(gebaeude_t* gb)
 	buildings.remove(gb);
 	gb->set_stadt(NULL);
 	recalc_city_size();
+}
+
+
+/**
+ * This function transfers a house from another city to this one
+ * It currently only works on 1-tile buildings
+ * @author neroden
+ */
+bool stadt_t::take_citybuilding_from(stadt_t* old_city, gebaeude_t* gb)
+{
+ 	if (gb == NULL) {
+		return false;
+	}
+	if (old_city == NULL) {
+		return false;
+	}
+
+	const gebaeude_t::typ alt_typ = gb->get_haustyp();
+	if (  alt_typ == gebaeude_t::unbekannt  ) {
+		return false; // only transfer res, com, ind
+	}
+	if (  gb->get_tile()->get_besch()->get_b()*gb->get_tile()->get_besch()->get_h() !=1  ) {
+		return false; // too big
+	}
+
+	// Now we know we can transfer the building
+	old_city->buildings.remove(gb);
+	gb->set_stadt(NULL);
+	old_city->recalc_city_size();
+
+	buildings.append(gb, gb->get_tile()->get_besch()->get_level());
+	gb->set_stadt(this);
 }
 
 
@@ -5641,8 +5669,16 @@ void stadt_t::baue(bool new_town)
 		}
 		INT_CHECK("simcity 5134");
 	}
-	if(!was_renovated && !welt->get_settings().get_quick_city_growth())
-	{
+	if (was_renovated) {
+		return;
+	}
+	if (welt->get_settings().get_quick_city_growth()) {
+		return;
+	}
+
+	int num_enlarge_tries = 4;
+	do {
+
 		// firstly, determine all potential candidate coordinates
 		vector_tpl<koord> candidates( (ur.x - lo.x + 1) * (ur.y - lo.y + 1) );
 		for(  sint16 j=lo.y;  j<=ur.y;  ++j  ) {
@@ -5705,9 +5741,17 @@ void stadt_t::baue(bool new_town)
 		}
 		// Oooh.  We tried every candidate location and we couldn't build.
 		// (Admittedly, this may be because percentage-chance rules told us not to.)
-		// Here, we should call a subroutine to enlarge the city limits.
-		// FIXME --neroden
-	}
+		// Anyway, if this happened, enlarge the city limits and try again.
+		// bool could_enlarge = enlarge_city_limits();
+		num_enlarge_tries--;
+		bool could_enlarge = false;
+		if (!could_enlarge) {
+			// Oh boy.  It's not possible to enlarge.  Seriously?
+			// I guess we'd better try disposing of the city....
+			num_enlarge_tries = 0;
+		}
+	} while (num_enlarge_tries > 0);
+	return;
 }
 
 vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sint32> *sizes_list, sint16 old_x, sint16 old_y)
