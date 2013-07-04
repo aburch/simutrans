@@ -448,7 +448,7 @@ private:
 	// Subroutines for build_city_building and renovate_city_buiding
 	// @author neroden
 	const gebaeude_t* get_citybuilding_at(const koord k) const;
-	int get_best_layout(const haus_besch_t* h, const koord k, const int streetdirs) const;
+	int get_best_layout(const haus_besch_t* h, const koord & k) const;
 
 	void erzeuge_verkehrsteilnehmer(koord pos, uint16 journey_tenths_of_minutes, koord target);
 

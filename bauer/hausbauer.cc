@@ -500,42 +500,71 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int org
 				if (dim.x == 1 && dim.y == 1) {
 					// Consider building DOWNWARD.
 					koord front_side_neighbor= koord(0,0);
+					koord other_front_side_neighbor= koord(0,0);
 					switch (org_layout) {
 						case 12:
+						case 4: // SE
+							other_front_side_neighbor = koord(1,0);
+							// fall through
 						case 8:
-						case 4:
 						case 0: // south
 							front_side_neighbor = koord(0,1);
 							break;
 						case 13:
+						case 5: // NE
+							other_front_side_neighbor = koord(0,-1);
+							// fall through
 						case 9:
-						case 5:
 						case 1: // east
 							front_side_neighbor = koord(1,0);
 							break;
 						case 14:
+						case 6: // NW
+							other_front_side_neighbor = koord(-1,0);
+							// fall through
 						case 10:
-						case 6:
 						case 2: // north
 							front_side_neighbor = koord(0,-1);
 							break;
 						case 15:
+						case 7: // SW
+							other_front_side_neighbor = koord(0,1);
+							// fall through
 						case 11:
-						case 7:
 						case 3: // west
 							front_side_neighbor = koord(-1,0);
 							break;
 						default: // should not happen
 							break;
 					}
-					if ( front_side_neighbor != koord(0,0) ) {
+					if(  front_side_neighbor != koord(0,0)  ) {
 						const grund_t* front_gr = welt->lookup_kartenboden(pos.get_2d() + front_side_neighbor);
+						if(  !front_gr || (front_gr->get_grund_hang() != hang_t::flach)  ) {
+							// Nothing in front, or sloped.  For a corner building, try the other front side, perhaps?
+							if(  other_front_side_neighbor != koord(0,0)  ) {
+								const grund_t* other_front_gr = welt->lookup_kartenboden(pos.get_2d() + other_front_side_neighbor);
+								if (other_front_gr && (other_front_gr->get_grund_hang() == hang_t::flach)  ) {
+									// Prefer the other front side.
+									front_side_neighbor = other_front_side_neighbor;
+									front_gr = other_front_gr;
+								}
+							}
+						}
 						if (front_gr) {
 							// There really is land in front of this building
-							sint8 front_z = front_gr->get_pos().z;
-							if (front_z <= gr->get_pos().z) {
+							koord3d front_pos3d = front_gr->get_pos();
+							if (front_pos3d.z == gr->get_pos().z) {
 								// Build down to meet the front side.
 								build_up = false;
+							}
+							// Except... check for sloped ground with flat bridge.
+							if (front_gr->get_grund_hang() != hang_t::flach) {
+								koord3d possible_bridge_location = front_pos3d + koord3d(0,0,1);
+								grund_t* possible_bridge = welt->lookup(possible_bridge_location);
+								if (possible_bridge && possible_bridge->get_typ() == grund_t::brueckenboden) {
+									// Build up to meet the bridge.
+									build_up = true;
+								}
 							}
 						}
 					}

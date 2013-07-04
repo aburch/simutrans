@@ -4760,23 +4760,53 @@ const gebaeude_t* stadt_t::get_citybuilding_at(const koord k) const {
  * Returns best layout (orientation) for a new city building h at location k.
  * This needs to know the nearby street directions.
  */
-int stadt_t::get_best_layout(const haus_besch_t* h, const koord k, const int streetdirs) const {
+int stadt_t::get_best_layout(const haus_besch_t* h, const koord & k) const {
 	// Return value is a layout, which is a direction to face:
 	//  0, 1, 2, 3, 4, 5, 6, 7
 	//  S, E, N, W,SE,NE,NW,SW
+
+	assert(h != NULL);
 
 	// Streetdirs is a bitfield of "street directions":
 	// S == 0001 (1)
 	// E == 0010 (2)
 	// N == 0100 (4)
 	// W == 1000 (8)
-
-	assert(h != NULL);
-	assert(streetdirs >= 0);
-	assert(streetdirs <= 15);
+	int streetdirs = 0;
+	int flat_streetdirs = 0;
+	for (int i = 0; i < 4; i++) {
+		const grund_t* gr = welt->lookup_kartenboden(k + neighbors[i]);
+		if (gr == NULL) {
+			// No ground, skip this neighbor
+			continue;
+		}
+		const strasse_t* weg = (const strasse_t*)gr->get_weg(road_wt);
+		if (weg != NULL) {
+			// We found a road... (yes, it is OK to face a road with a different hang)
+			// update directions (SENW)
+			streetdirs += (1 << i);
+			if (gr->get_weg_hang() == hang_t::flach) {
+				flat_streetdirs += (1 << i);
+			} else {
+				// Check for flat bridge end
+				koord3d possible_bridge_location = gr->get_pos() + koord3d(0,0,1);
+				const grund_t* possible_bridge = welt->lookup(possible_bridge_location);
+				if(	 possible_bridge
+				     && possible_bridge->get_typ() == grund_t::brueckenboden
+				     && possible_bridge->get_weg_hang() == hang_t::flach  ) {
+					flat_streetdirs += (1 << i);
+				}
+			}
+		}
+	}
+	// Prefer flat streetdirs.  (Yes, this includes facing flat bridge ends.)
+	// If there are any, forget the other directions.
+	if (flat_streetdirs != 0) {
+		streetdirs = flat_streetdirs;
+	}
 
 	bool has_corner_layouts = (h->get_all_layouts() == 8);
-	int* interesting_neighbors;
+	const int* interesting_neighbors;
 	if (has_corner_layouts) {
 		interesting_neighbors = interesting_neighbors_corners;
 	} else {
@@ -4966,7 +4996,7 @@ int stadt_t::get_best_layout(const haus_besch_t* h, const koord k, const int str
 			}
 			break;
 		// Now the most annoying case: no streets
-		// This is probably a dead-end corner.
+		// This is probably a dead-end corner.  (I suggest not allowing this in construction rules.)
 		// This should be done with more care by looking at the corner-edge streets
 		// but that would be even more work to implement!
 		// As it is this can give strange results when the neighbor is picked up
@@ -5081,7 +5111,6 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 	// we have something to built here ...
 	if (h != NULL) {
 		// check for pavement
-		int streetdir = 0;
 		for (int i = 0; i < 8; i++) {
 			// Neighbors goes through these in 'preferred' order, orthogonal first
 			gr = welt->lookup_kartenboden(k + neighbors[i]);
@@ -5094,10 +5123,6 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 				// We found a road... (yes, it is OK to face a road with a different hang)
 				// Extend the sidewalk
 				weg->set_gehweg(true);
-				if (i < 4) {
-					// update directions (SENW)
-					streetdir += (1 << i);
-				}
 				if (gr->get_weg_hang() == gr->get_grund_hang()) {
 					// This is not a bridge, tunnel, etc.
 					// if not current city road standard OR BETTER, then replace it
@@ -5117,7 +5142,7 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 			}
 		}
 
-		int layout = get_best_layout(h, k, streetdir);
+		int layout = get_best_layout(h, k);
 
 		const gebaeude_t* gb = hausbauer_t::baue(welt, NULL, pos, layout, h);
 		add_gebaeude_to_stadt(gb);
@@ -5254,7 +5279,6 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 	if (sum > 0 && h != NULL) {
 //		DBG_MESSAGE("stadt_t::renovate_city_building()", "renovation at %i,%i (%i level) of typ %i to typ %i with desire %i", k.x, k.y, alt_typ, want_to_have, sum);
 
-		int streetdir = 0;
 		for (int i = 0; i < 8; i++) {
 			// Neighbors goes through this in a specific order:
 			// orthogonal first, then diagonal
@@ -5267,10 +5291,6 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 			if (weg) {
 				// Extend the sidewalk
 				weg->set_gehweg(true);
-				if (i < 4) {
-					// update directions (SENW)
-					streetdir += (1 << i);
-				}
 				if (gr->get_weg_hang() == gr->get_grund_hang()) {
 					// This is not a bridge, tunnel, etc.
 					// if not current city road standard OR BETTER, then replace it
@@ -5297,7 +5317,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 			default: break;
 		}
 
-		const int layout = get_best_layout(h, k, streetdir);
+		const int layout = get_best_layout(h, k);
 
 		// exchange building; try to face it to street in front
 		gb->mark_images_dirty();
