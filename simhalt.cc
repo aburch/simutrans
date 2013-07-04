@@ -1201,7 +1201,7 @@ void haltestelle_t::step()
 					}
 					const uint16 waiting_tenths_short = waiting_tenths;
 
-					add_waiting_time(waiting_tenths, tmp.get_zwischenziel(), tmp.get_besch()->get_catg_index());
+					add_waiting_time(waiting_tenths_short, tmp.get_zwischenziel(), tmp.get_besch()->get_catg_index());
 				}
 			}
 		}
