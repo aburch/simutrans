@@ -1138,14 +1138,6 @@ void stadt_t::remove_gebaeude_from_stadt(gebaeude_t* gb)
 }
 
 
-// just updates the weight count of this building (after a renovation)
-void stadt_t::update_gebaeude_from_stadt(gebaeude_t* gb)
-{
-	buildings.remove(gb);
-	buildings.append(gb, gb->get_tile()->get_besch()->get_level());
-}
-
-
 // "Check limits" (Google)
 void stadt_t::pruefe_grenzen(koord k)
 {
@@ -4793,6 +4785,7 @@ int stadt_t::get_best_layout(const haus_besch_t* h, const koord & k) const {
 	}
 	// Prefer flat streetdirs.  (Yes, this includes facing flat bridge ends.)
 	// If there are any, forget the other directions.
+	// But if there aren't,... use the other directions.
 	if (flat_streetdirs != 0) {
 		streetdirs = flat_streetdirs;
 	}
@@ -5208,9 +5201,9 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 			break;
 		}
 	}
+
 	// try to build
 	const haus_besch_t* h = NULL;
-	bool return_value = false;
 	if (sum_commercial > sum_industrial && sum_commercial > sum_residential) {
 		// we must check, if we can really update to higher level ...
 		const int try_level = (alt_typ == gebaeude_t::gewerbe ? level + 1 : level);
@@ -5311,21 +5304,28 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 
 		const int layout = get_best_layout(h, k);
 
-		// exchange building; try to face it to street in front
-		gb->mark_images_dirty();
-		gb->set_tile( h->get_tile(layout, 0, 0), true );
-		welt->lookup_kartenboden(k)->calc_bild();
-		update_gebaeude_from_stadt(gb);
-		return_value = true;
+		// The building is being replaced.  The surrounding landscape may have changed since it was
+		// last built, and the new building should change height along with it, rather than maintain the old
+		// height.  So delete and rebuild, even though it's slower.
+		hausbauer_t::remove( welt, NULL, gb )
+
+		koord3d pos = welt->lookup_kartenboden(k)->get_pos();
+		const gebaeude_t* new_gb = hausbauer_t::baue(welt, NULL, pos, layout, h);
+		// We *can* skip most of the work in add_gebaeude_to_stadt, because we *just* cleared the location,
+		// so it must be valid!
+		new_gb->set_stadt(this);
+		buildings.append(new_gb, new_gb->get_tile()->get_besch()->get_level());
 
 		switch(want_to_have) {
 			case gebaeude_t::wohnung:   won += h->get_level() * 10; break;
 			case gebaeude_t::gewerbe:   arb += h->get_level() * 20; break;
 			case gebaeude_t::industrie: arb += h->get_level() * 20; break;
 			default: break;
+
+		return true;
 		}
 	}
-	return return_value;
+	return false;
 }
 
 
