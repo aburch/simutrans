@@ -20,7 +20,7 @@ protected:
 
 public:
 	fundament_t(karte_t *welt, loadsave_t *file, koord pos );
-	fundament_t(karte_t *welt, koord3d pos,hang_t::typ hang);
+	fundament_t(karte_t *welt, koord3d pos,hang_t::typ hang, bool build_up = true);
 
 	/**
 	* Das Fundament heisst 'Fundament'.

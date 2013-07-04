@@ -495,7 +495,53 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int org
 					gr->obj_loesche_alle(sp);	// alles weg außer vehikel ...
 				}
 				needs_ground_recalc |= gr->get_grund_hang()!=hang_t::flach;
-				grund_t *gr2 = new fundament_t(welt, gr->get_pos(), gr->get_grund_hang());
+				// Build fundament up or down?  Up is the default.
+				bool build_up = true;
+				if (dim.x == 1 && dim.y == 1) {
+					// Consider building DOWNWARD.
+					koord front_side_neighbor= koord(0,0);
+					switch (org_layout) {
+						case 12:
+						case 8:
+						case 4:
+						case 0: // south
+							front_side_neighbor = koord(0,1);
+							break;
+						case 13:
+						case 9:
+						case 5:
+						case 1: // east
+							front_side_neighbor = koord(1,0);
+							break;
+						case 14:
+						case 10:
+						case 6:
+						case 2: // north
+							front_side_neighbor = koord(0,-1);
+							break;
+						case 15:
+						case 11:
+						case 7:
+						case 3: // west
+							front_side_neighbor = koord(-1,0);
+							break;
+						default: // should not happen
+							break;
+					}
+					if ( front_side_neighbor != koord(0,0) ) {
+						const grund_t* front_gr = welt->lookup_kartenboden(pos.get_2d() + front_side_neighbor);
+						if (front_gr) {
+							// There really is land in front of this building
+							sint8 front_z = front_gr->get_pos().z;
+							if (front_z <= gr->get_pos().z) {
+								// Build down to meet the front side.
+								build_up = false;
+							}
+						}
+					}
+				}
+				// Build a "fundament" to put the building on.
+				grund_t *gr2 = new fundament_t(welt, gr->get_pos(), gr->get_grund_hang(), build_up);
 				welt->access(gr->get_pos().get_2d())->boden_ersetzen(gr, gr2);
 				gr = gr2;
 //DBG_DEBUG("hausbauer_t::baue()","ground count now %i",gr->obj_count());
