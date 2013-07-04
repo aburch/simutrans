@@ -233,7 +233,7 @@ public:
 	virtual void remove_column(coordinate_t x);
 	virtual void remove_row(coordinate_t y);
 	gui_table_column_t *get_column(coordinate_t x) { return columns[x]; }
-	gui_table_row_t *get_row(coordinate_t y) { return rows[y]; }
+	gui_table_row_t *get_row(coordinate_t y) const { return rows[y]; }
 
 	/**
 	 * Get/set grid width / space around cells.
