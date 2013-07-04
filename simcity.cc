@@ -4786,16 +4786,8 @@ int stadt_t::get_best_layout(const haus_besch_t* h, const koord & k) const {
 			// update directions (SENW)
 			streetdirs += (1 << i);
 			if (gr->get_weg_hang() == hang_t::flach) {
+				// Will get flat bridge ends as well as flat ground
 				flat_streetdirs += (1 << i);
-			} else {
-				// Check for flat bridge end
-				koord3d possible_bridge_location = gr->get_pos() + koord3d(0,0,1);
-				const grund_t* possible_bridge = welt->lookup(possible_bridge_location);
-				if(	 possible_bridge
-				     && possible_bridge->get_typ() == grund_t::brueckenboden
-				     && possible_bridge->get_weg_hang() == hang_t::flach  ) {
-					flat_streetdirs += (1 << i);
-				}
 			}
 		}
 	}
