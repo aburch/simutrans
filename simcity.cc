@@ -3322,7 +3322,6 @@ void stadt_t::step_passagiere()
 
 				uint8 best_start_halt = 0;
 				uint32 current_journey_time;
-				koord destination_stop_pos = destinations[current_destination].location;
 
 				ITERATE(start_halts, i)
 				{
@@ -5307,10 +5306,10 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 		// The building is being replaced.  The surrounding landscape may have changed since it was
 		// last built, and the new building should change height along with it, rather than maintain the old
 		// height.  So delete and rebuild, even though it's slower.
-		hausbauer_t::remove( welt, NULL, gb )
+		hausbauer_t::remove( welt, NULL, gb );
 
 		koord3d pos = welt->lookup_kartenboden(k)->get_pos();
-		const gebaeude_t* new_gb = hausbauer_t::baue(welt, NULL, pos, layout, h);
+		gebaeude_t* new_gb = hausbauer_t::baue(welt, NULL, pos, layout, h);
 		// We *can* skip most of the work in add_gebaeude_to_stadt, because we *just* cleared the location,
 		// so it must be valid!
 		new_gb->set_stadt(this);
