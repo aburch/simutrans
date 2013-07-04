@@ -75,6 +75,21 @@ class settings_t
 	friend class welt_gui_t;
 
 private:
+	/**
+	* Many settings can be set by a pak, a local config file, and also by a saved game.
+	* The saved game will override the pak settings normally,
+	* ...which is very undesirable when debugging a pak.
+	*
+	* If progdir_overrides_savegame_settings is true, this will prefer the "progdir" settings.
+	* If pak_overrides_savegame_settings is true, this will prefer the pak settings.
+	* If userder_overrides_savegame_settings is true, this will prefer the pak settings.
+	*
+	* If several are set, they are read in the order progdir, pak, userdir.
+	*/
+	bool progdir_overrides_savegame_settings;
+	bool pak_overrides_savegame_settings;
+	bool userdir_overrides_savegame_settings;
+
 	sint32 groesse_x, groesse_y;
 	sint32 nummer;
 
@@ -605,7 +620,12 @@ public:
 	 */
 	std::string heightfield;
 
+public:
 	settings_t();
+
+	bool get_progdir_overrides_savegame_settings() {return progdir_overrides_savegame_settings;}
+	bool get_pak_overrides_savegame_settings() {return pak_overrides_savegame_settings;}
+	bool get_userdir_overrides_savegame_settings() {return userdir_overrides_savegame_settings;}
 
 	void rdwr(loadsave_t *file);
 

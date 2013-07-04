@@ -291,6 +291,7 @@ void modal_dialogue( gui_frame_t *gui, ptrdiff_t magic, karte_t *welt, bool (*qu
 	}
 
 	// just trigger not another following window => wait for button release
+	display_get_event(&ev);
 	if (IS_LEFTCLICK(&ev)) {
 		do {
 			display_get_event(&ev);
@@ -313,7 +314,11 @@ static void ask_objfilename()
 {
 	pakselector_t* sel = new pakselector_t();
 	sel->fill_list();
-	if(sel->has_pak()) {
+	if(  sel->check_only_one_option()  ) {
+		// If there's only one option, we selected it; don't even show the window
+		delete sel;
+	}
+	else if(  sel->has_pak()  ) {
 		destroy_all_win(true);	// since eventually the successful load message is still there ....
 		dbg->important("modal_dialogue( sel, magic_none, NULL, empty_objfilename );" );
 		modal_dialogue( sel, magic_none, NULL, empty_objfilename );
@@ -551,6 +556,7 @@ int simu_main(int argc, char** argv)
 		simuconf.read(contents);
 		// use different save directories
 		multiuser = !(contents.get_int("singleuser_install", !multiuser)==1  ||  !multiuser);
+		printf("Parsed simuconf.tab for directory layout; multiuser = %i\n", multiuser);
 		simuconf.close();
 	}
 
@@ -670,7 +676,7 @@ int simu_main(int argc, char** argv)
 	chdir( umgebung_t::program_dir );
 	if(  found_simuconf  ) {
 		if(simuconf.open(path_to_simuconf)) {
-			printf("parse_simuconf() at config/simuconf.tab: ");
+			printf("parse_simuconf() in program dir (%s): ", path_to_simuconf);
 			umgebung_t::default_einstellungen.parse_simuconf( simuconf, disp_width, disp_height, fullscreen, umgebung_t::objfilename );
 		}
 	}
@@ -679,7 +685,7 @@ int simu_main(int argc, char** argv)
 	// otherwise it is in ~/simutrans/simuconf.tab
 	string obj_conf = string(umgebung_t::user_dir) + "simuconf.tab";
 	if (simuconf.open(obj_conf.c_str())) {
-		printf("parse_simuconf() at %s: ", obj_conf.c_str() );
+		printf("parse_simuconf() in user dir (%s): ", path_to_simuconf);
 		umgebung_t::default_einstellungen.parse_simuconf( simuconf, disp_width, disp_height, fullscreen, umgebung_t::objfilename );
 	}
 
@@ -835,13 +841,14 @@ int simu_main(int argc, char** argv)
 			}
 		}
 	}
+	printf("Pak found: %s\n", umgebung_t::objfilename.c_str());
 
 	// now find the pak specific tab file ...
 	obj_conf = umgebung_t::objfilename + path_to_simuconf;
 	if(  simuconf.open(obj_conf.c_str())  ) {
 		sint16 idummy;
 		string dummy;
-		dbg->important("parse_simuconf() at %s: ", obj_conf.c_str());
+		printf("parse_simuconf() in pak (%s): ", obj_conf.c_str());
 		umgebung_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 		pak_diagonal_multiplier = umgebung_t::default_einstellungen.get_pak_diagonal_multiplier();
 		pak_tile_height = TILE_HEIGHT_STEP;
@@ -852,7 +859,7 @@ int simu_main(int argc, char** argv)
 	if (simuconf.open(obj_conf.c_str())) {
 		sint16 idummy;
 		string dummy;
-		dbg->important("parse_simuconf() at %s: ", obj_conf.c_str());
+		printf("parse_simuconf() in user dir, second time (%s): ", obj_conf.c_str());
 		umgebung_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 		simuconf.close();
 	}
@@ -873,14 +880,14 @@ int simu_main(int argc, char** argv)
 		sint16 idummy;
 		string dummy;
 		if (simuconf.open(obj_conf.c_str())) {
-			dbg->important("parse_simuconf() at %s: ", obj_conf.c_str());
+			printf("parse_simuconf() in addons: ", obj_conf.c_str());
 			umgebung_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 			simuconf.close();
 		}
 		// and parse user settings again ...
 		obj_conf = string(umgebung_t::user_dir) + "simuconf.tab";
 		if (simuconf.open(obj_conf.c_str())) {
-			dbg->important("parse_simuconf() at %s: ", obj_conf.c_str());
+			printf("parse_simuconf() in user dir, third time (%s): ", obj_conf.c_str());
 			umgebung_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 			simuconf.close();
 		}
@@ -1020,22 +1027,12 @@ int simu_main(int argc, char** argv)
 	// still nothing to be loaded => search for demo games
 	if(  new_world  ) {
 		cbuffer_t buf;
-		// Have to handle two cases: absolute filename and relative filename (gaaah!)
-		if (umgebung_t::objfilename.length() >= 1 ) {
-			if (umgebung_t::objfilename[0] == '/') {
-				// Absolute filename.  We may not have detected every such case;
-				// different OSes have different conventions; but at least this works
-				// on UNIX-like systems.
-				// Do nothing....
-			} else {
-				// Relative filename.  Stuff the program directory on the front.
-				// The program directory has a trailing slash.
-				buf.append( (const char *)umgebung_t::program_dir );
-			}
-		}
-		// Now append the pakfile directory
-		buf.append(umgebung_t::objfilename.c_str()); //has trailing slash
+		// It's in the pakfile, in the program directory
+		// (unlike every other saved game)
+		buf.append( umgebung_t::program_dir ); // has trailing slash
+		buf.append( umgebung_t::objfilename.c_str() ); //has trailing slash
 		buf.append("demo.sve");
+
 		if (FILE* const f = fopen(buf.get_str(), "rb")) {
 			// there is a demo game to load
 			loadgame = buf;

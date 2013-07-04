@@ -230,9 +230,12 @@ int dr_os_open(int w, int const h, int const fullscreen)
 	}
 
 	// open the window now
-	SDL_putenv("SDL_VIDEO_CENTERED=center"); // request game window centered to stop it opening off screen since SDL1.2 has no way to open at a fixed position
+	// The interface for SDL_putenv requires char*, not const char*, so give it a modifiable string just in case.
+	char centered_window_env_string[32] = "SDL_VIDEO_CENTERED=center";
+	SDL_putenv(centered_window_env_string); // request game window centered to stop it opening off screen since SDL1.2 has no way to open at a fixed position
 	screen = SDL_SetVideoMode( w, h, COLOUR_DEPTH, flags );
-	SDL_putenv("SDL_VIDEO_CENTERED="); // clear flag so it doesn't continually recenter upon resizing the window
+	char not_centered_window_env_string[32] = "SDL_VIDEO_CENTERED=";
+	SDL_putenv(not_centered_window_env_string); // clear flag so it doesn't continually recenter upon resizing the window
 	if(  screen == NULL  ) {
 		fprintf(stderr, "Couldn't open the window: %s\n", SDL_GetError());
 		return 0;

@@ -495,7 +495,81 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int org
 					gr->obj_loesche_alle(sp);	// alles weg außer vehikel ...
 				}
 				needs_ground_recalc |= gr->get_grund_hang()!=hang_t::flach;
-				grund_t *gr2 = new fundament_t(welt, gr->get_pos(), gr->get_grund_hang());
+				// Build fundament up or down?  Up is the default.
+				bool build_up = true;
+				if (dim.x == 1 && dim.y == 1) {
+					// Consider building DOWNWARD.
+					koord front_side_neighbor= koord(0,0);
+					koord other_front_side_neighbor= koord(0,0);
+					switch (org_layout) {
+						case 12:
+						case 4: // SE
+							other_front_side_neighbor = koord(1,0);
+							// fall through
+						case 8:
+						case 0: // south
+							front_side_neighbor = koord(0,1);
+							break;
+						case 13:
+						case 5: // NE
+							other_front_side_neighbor = koord(0,-1);
+							// fall through
+						case 9:
+						case 1: // east
+							front_side_neighbor = koord(1,0);
+							break;
+						case 14:
+						case 6: // NW
+							other_front_side_neighbor = koord(-1,0);
+							// fall through
+						case 10:
+						case 2: // north
+							front_side_neighbor = koord(0,-1);
+							break;
+						case 15:
+						case 7: // SW
+							other_front_side_neighbor = koord(0,1);
+							// fall through
+						case 11:
+						case 3: // west
+							front_side_neighbor = koord(-1,0);
+							break;
+						default: // should not happen
+							break;
+					}
+					if(  front_side_neighbor != koord(0,0)  ) {
+						const grund_t* front_gr = welt->lookup_kartenboden(pos.get_2d() + front_side_neighbor);
+						if(  !front_gr || (front_gr->get_weg_hang() != hang_t::flach)  ) {
+							// Nothing in front, or sloped.  For a corner building, try the other front side.
+							if(  other_front_side_neighbor != koord(0,0)  ) {
+								const grund_t* other_front_gr = welt->lookup_kartenboden(pos.get_2d() + other_front_side_neighbor);
+								if (other_front_gr && (other_front_gr->get_weg_hang() == hang_t::flach)  ) {
+									// Prefer the other front side.
+									front_side_neighbor = other_front_side_neighbor;
+									front_gr = other_front_gr;
+								}
+							}
+						}
+						if(  front_gr  ) {
+							// There really is land in front of this building
+							sint8 front_z = front_gr->get_pos().z + front_gr->get_weg_yoff();
+							// get_weg_yoff will change from the "ground" level to the level of
+							// a flat bridge end on a slope.  (Otherwise it's zero.)
+							// So this is the desired level...
+							if (front_z == gr->get_pos().z) {
+								// Build down to meet the front side.
+								build_up = false;
+							}
+							// Otherwise, prefer to build up.
+							// We are doing the correct thing whenever the building is facing a flat road.
+							// When it isn't, we are doing the right thing (digging down to the base of the
+							// road) in the typical circumstance.  It looks bad on "inside corners" with
+							// hills on two sides; it looks good everywhere else.
+						}
+					}
+				}
+				// Build a "fundament" to put the building on.
+				grund_t *gr2 = new fundament_t(welt, gr->get_pos(), gr->get_grund_hang(), build_up);
 				welt->access(gr->get_pos().get_2d())->boden_ersetzen(gr, gr2);
 				gr = gr2;
 //DBG_DEBUG("hausbauer_t::baue()","ground count now %i",gr->obj_count());

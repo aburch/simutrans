@@ -44,6 +44,10 @@ private:
 public:
 	typedef enum { no_route=0, valid_route=1, valid_route_halt_too_short=3 } route_result_t;
 
+	// Constructor
+	route_t() : max_axle_load(999), max_convoy_weight(999) {};
+
+
 	// this class saves the nodes during route searches
 	class ANode {
 	public:

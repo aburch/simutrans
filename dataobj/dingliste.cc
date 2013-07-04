@@ -1150,7 +1150,12 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 		sint32 max_object_index = 0;
 		for(  uint16 i=0;  i<top;  i++  ) {
 			ding_t *d = bei((uint8)i);
-			if(d->get_typ()==ding_t::way
+			if ( d == NULL ) {
+				dbg->important("dingliste_t::rdwr()", "Null pointer; ignoring during save");
+				// We have had recurring null pointer memory corruption bugs in dingliste_t.
+				// Avoid crashing and skip over this pointer if it occurs.
+			} else if (
+				    d->get_typ()==ding_t::way
 				// do not save smoke
 				||  d->get_typ()==ding_t::raucher
 				||  d->get_typ()==ding_t::sync_wolke
@@ -1412,7 +1417,6 @@ void dingliste_t::check_season(const long month)
 		if (!d->check_season(month)) {
 			to_remove.insert( d );
 		}
-		return;
 	}
 	else {
 		for(uint8 i=0; i<top; i++) {
@@ -1429,14 +1433,15 @@ void dingliste_t::check_season(const long month)
 	// There should not be many of them, so don't worry about efficiency
 	FOR( slist_tpl<ding_t*>, & d, to_remove)
 	{
-		remove(d);
-		// in case something other than trees is deleted,
-		// perform the checks and clean up properly
-		local_delete_object(d, NULL);
+		// The local destructor is *supposed to* do the right thing...
+		// very bad coding structure
+		delete d;
 	}
+	consistency_check();
 	if (do_shrink) {
 		shrink_capacity();
 	}
+	consistency_check();
 }
 
 /**

@@ -249,7 +249,6 @@ bool goods_frame_t::compare_goods(uint16 const a, uint16 const b)
 						relevant_speed = 1;
 					}
 					const uint16 journey_tenths = (uint16) tenths_from_meters_and_kmh(distance_meters, relevant_speed);
-					const uint16 journey_minutes = (uint16) minutes_from_meters_and_kmh(distance_meters, relevant_speed);
 
 					price[i] = w[i]->get_fare_with_comfort_catering_speedbonus(welt,
 							comfort, catering_level, journey_tenths, relative_speed_percentage, distance_meters);

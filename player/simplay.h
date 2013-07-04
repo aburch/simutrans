@@ -265,7 +265,11 @@ public:
 	*/
 	uint8 get_player_color1() const { return kennfarbe1; }
 	uint8 get_player_color2() const { return kennfarbe2; }
+	// Change and report message
 	void set_player_color(uint8 col1, uint8 col2);
+	// Change, do not report message
+	// Used for setting default colors
+	void set_player_color_no_message(uint8 col1, uint8 col2);
 
 	/**
 	 * Name of the player

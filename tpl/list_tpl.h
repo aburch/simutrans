@@ -90,10 +90,10 @@ public:
 
 // construction / destruction
 
-	explicit list_tpl() : data(NULL), capacity(0), count(0), owns_items(false) {} 
-	explicit list_tpl(bool owns_its_items) : data(NULL), capacity(0), count(0), owns_items(owns_its_items) {} 
-	explicit list_tpl(bool owns_its_items, uint32 initial_capacity) : data(NULL), capacity(0), count(0), owns_items(owns_its_items) { set_capacity(initial_capacity); }
-	explicit list_tpl(uint32 initial_capacity) : data(NULL), capacity(0), count(0), owns_items(false) { set_capacity(initial_capacity); }
+	explicit list_tpl() : data(NULL), capacity(0), count(0), owns_items(false), is_sorted(false) {}
+	explicit list_tpl(bool owns_its_items) : data(NULL), capacity(0), count(0), owns_items(owns_its_items), is_sorted(false) {} 
+	explicit list_tpl(bool owns_its_items, uint32 initial_capacity) : data(NULL), capacity(0), count(0), owns_items(owns_its_items), is_sorted(false) { set_capacity(initial_capacity); }
+	explicit list_tpl(uint32 initial_capacity) : data(NULL), capacity(0), count(0), owns_items(false), is_sorted(false) { set_capacity(initial_capacity); }
 	virtual ~list_tpl() { set_capacity(0); }
 
 // administration
@@ -377,7 +377,6 @@ template<class item_t> void list_tpl<item_t>::move(uint32 from, uint32 to)
 // BG, 04.04.2010
 template<class item_t> void list_tpl<item_t>::qsort(sint32 l, sint32 r)
 {
-	sint32 ll = l, rr = r;
 	sint32 i = l;
 	while (i < r) {
 		sint32 j = r;

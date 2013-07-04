@@ -329,6 +329,11 @@ void spieler_t::set_player_color(uint8 col1, uint8 col2)
 		message.printf("has changed its colour scheme.");
 		welt->get_message()->add_message(message, koord::invalid, message_t::ai, col1);
 	}
+	set_player_color_no_message(col1, col2);
+}
+
+void spieler_t::set_player_color_no_message(uint8 col1, uint8 col2)
+{
 	kennfarbe1 = col1;
 	kennfarbe2 = col2;
 	display_set_player_color_scheme( player_nr, col1, col2 );

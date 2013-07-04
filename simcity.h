@@ -448,7 +448,7 @@ private:
 	// Subroutines for build_city_building and renovate_city_buiding
 	// @author neroden
 	const gebaeude_t* get_citybuilding_at(const koord k) const;
-	int get_best_layout(const haus_besch_t* h, const koord k, const int streetdirs) const;
+	int get_best_layout(const haus_besch_t* h, const koord & k) const;
 
 	void erzeuge_verkehrsteilnehmer(koord pos, uint16 journey_tenths_of_minutes, koord target);
 
@@ -528,9 +528,6 @@ public:
 
 	// this function adds houses to the city house list. ordered for multithreaded loading
 	void add_gebaeude_to_stadt(const gebaeude_t *gb, bool ordered=false);
-
-	// changes the weight; must be called if there is a new definition (tile) for that house
-	void update_gebaeude_from_stadt(gebaeude_t *gb);
 
 	/**
 	* Returns the finance history for cities

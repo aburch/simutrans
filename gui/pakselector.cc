@@ -108,15 +108,10 @@ void pakselector_t::fill_list()
 	// do the search ...
 	savegame_frame_t::fill_list();
 	if (use_table) {
-		if (file_table.get_size().get_y() == 1) {
-			gui_file_table_row_t *file_row = (gui_file_table_row_t *) file_table.get_row(0);
-			if (!file_row->get_delete_enabled()) {
-				// only single entry and no addons => no need to question further ...
-				umgebung_t::objfilename = (std::string)file_row->get_name() + "/";
-			}
-		}
+		// Nothing to do
 	}
 	else {
+		// Shouldn't happen; pakselector is always built with use_table
 		int y = 0;
 		FOR(slist_tpl<dir_entry_t>, const& i, entries) {
 
@@ -158,6 +153,32 @@ void pakselector_t::fill_list()
 }
 
 
+// Check if there's only one option, and if there is,
+// (a) load the pak, (b) return true.
+bool pakselector_t::check_only_one_option() const
+{
+	if (use_table) {
+		if (file_table.get_size().get_y() == 1) {
+			gui_file_table_row_t* file_row = (gui_file_table_row_t*) file_table.get_row(0);
+			if ( !file_row->get_delete_enabled() ) {
+				// This means "no private pak addon options" (overloading of meaning)
+				// Invoke the automatic load feature
+				umgebung_t::objfilename = this->get_filename(file_row->get_name()) + "/";
+				umgebung_t::default_einstellungen.set_with_private_paks( false );
+				return true;
+			}
+		}
+		// More than one option or private pak addon option.
+		return false;
+	} else {
+		// I don't know how to implement this for the non-use_table case,
+		// but pakselector is always created with use_table == true
+		return false;
+	}
+}
+
+
+
 void pakselector_t::add_file(const char *fullpath, const char *filename, const bool not_cutting_suffix)
 {
 	char buttontext[1024];
@@ -172,7 +193,7 @@ void pakselector_t::add_file(const char *fullpath, const char *filename, const b
 		has_addon_dir = chdir( path ) == 0;
 		chdir( umgebung_t::program_dir );
 	}
-	file_table.add_row( new gui_file_table_row_t( fullpath, buttontext, has_addon_dir ));
+	file_table.add_row( new gui_file_table_row_t( filename, buttontext, has_addon_dir ));
 }
 
 

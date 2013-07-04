@@ -62,10 +62,10 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(karte_t *w, waytype_t wt, signed 
 	lb_convoi_value(NULL, COL_BLACK, gui_label_t::left),
 	lb_convoi_power(NULL, COL_BLACK, gui_label_t::left),
 	lb_convoi_weight(NULL, COL_BLACK, gui_label_t::left),
-	lb_veh_action("Fahrzeuge:", COL_BLACK, gui_label_t::left),
 	lb_traction_types(NULL, COL_BLACK, gui_label_t::left),
-	lb_livery_selector("Livery scheme:", COL_BLACK, gui_label_t::left),
 	lb_vehicle_count(NULL, COL_BLACK, gui_label_t::right),
+	lb_veh_action("Fahrzeuge:", COL_BLACK, gui_label_t::left),
+	lb_livery_selector("Livery scheme:", COL_BLACK, gui_label_t::left),
 	convoi_pics(depot_t::get_max_convoy_length(wt)),
 	convoi(&convoi_pics),
 	pas(&pas_vec),
@@ -1801,7 +1801,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 		}
 		else
 		{
-			sprintf(cap, "");
+			cap[0] = '\0';
 		}
 		if(  veh_type->get_zuladung() > 0  ) { // Standard translation is "Capacity: %3d%s %s\n", as Standard has no overcrowding
 			n += sprintf(buf + n, translator::translate("Capacity: %3d %s%s %s\n"),

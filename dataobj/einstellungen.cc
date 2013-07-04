@@ -35,6 +35,13 @@ settings_t::settings_t() :
 	filename(""),
 	heightfield("")
 {
+	// These control when settings from a savegame
+	// are overridden by simuconf.tab files
+	// The version in default_einstellungen is *always* used
+	progdir_overrides_savegame_settings = false;
+	pak_overrides_savegame_settings = false;
+	userdir_overrides_savegame_settings = false;
+
 	groesse_x = 256;
 	groesse_y = 256;
 
@@ -1509,6 +1516,14 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	simuconf.read(contents );
 
+	// Meta-options.
+	// Only the version in default_einstellungen is meaningful.  These determine whether savegames
+	// are updated to the newest local settings.  They are ignored for clients in network games.
+	// @author: neroden.
+	progdir_overrides_savegame_settings = (contents.get_int("progdir_overrides_savegame_settings", 0) != 0);
+	pak_overrides_savegame_settings = (contents.get_int("pak_overrides_savegame_settings", 0) != 0);
+	userdir_overrides_savegame_settings = (contents.get_int("userdir_overrides_savegame_settings", 0) != 0);
+
 	// This needs to be first as other settings are based on this.
 	// @author: jamespetts
 	uint16 distance_per_tile_integer = meters_per_tile / 10;
@@ -2206,52 +2221,62 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	spacing_shift_mode = contents.get_int("spacing_shift_mode", spacing_shift_mode);
 	spacing_shift_divisor = contents.get_int("spacing_shift_divisor", spacing_shift_divisor);
 
-
-	for(int i = 0; i < 65336; i ++)
-	{
-		char name[128] ;
-		sprintf( name, "livery_scheme[%i]", i );
-		const char* scheme_name = ltrim(contents.get(name));
-		if(scheme_name[0] == '\0')
+	// OK, this is a bit complex.  We are at risk of loading the same livery schemes repeatedly, which
+	// gives duplicate livery schemes and utter confusion.
+	// On the other hand, we are also at risk of wiping out our livery schemes with blank space.
+	// So, *if* this file has livery schemes in it, we *replace* all previous livery schemes.
+	// This does not allow for "addon livery schemes" but at least it works for the usual cases.
+	// We could do better if we actually matched schemes up by index number.
+	const char* first_scheme_name = contents.get("livery_scheme[0]");
+	if (first_scheme_name[0] != '\0') {
+		// This file has livery schemes.  Replace all previous.
+		livery_schemes.clear();
+		for(int i = 0; i < 65336; i ++)
 		{
-			break;
-		}
-		
-		sprintf( name, "retire_year[%i]", i );
-		uint16 retire = contents.get_int(name, DEFAULT_RETIRE_DATE) * 12;
-
-		sprintf( name, "retire_month[%i]", i );
-		retire += contents.get_int(name, 1) - 1;
-
-		livery_scheme_t* scheme = new livery_scheme_t(scheme_name, retire);
-
-		bool has_liveries = false;
-		for(int j = 0; j < 65536; j ++)
-		{
-			char livery[128];
-			sprintf(livery, "livery[%i][%i]", i, j);
-			const char* liv_name = ltrim(contents.get(livery));
-			if(liv_name[0] == '\0')
+			char name[128] ;
+			sprintf( name, "livery_scheme[%i]", i );
+			const char* scheme_name = ltrim(contents.get(name));
+			if(scheme_name[0] == '\0')
 			{
 				break;
 			}
 
-			has_liveries = true;
-			sprintf(livery, "intro_year[%i][%i]", i, j);
-			uint16 intro = contents.get_int(livery, DEFAULT_INTRO_DATE) * 12;
+			sprintf( name, "retire_year[%i]", i );
+			uint16 retire = contents.get_int(name, DEFAULT_RETIRE_DATE) * 12;
 
-			sprintf(livery, "intro_month[%i][%i]", i, j);
-			intro += contents.get_int("intro_month", 1) - 1;
+			sprintf( name, "retire_month[%i]", i );
+			retire += contents.get_int(name, 1) - 1;
 
-			scheme->add_livery(liv_name, intro);
-		}
-		if(has_liveries)
-		{
-			livery_schemes.append(scheme);
-		}
-		else
-		{
-			delete scheme;
+			livery_scheme_t* scheme = new livery_scheme_t(scheme_name, retire);
+
+			bool has_liveries = false;
+			for(int j = 0; j < 65536; j ++)
+			{
+				char livery[128];
+				sprintf(livery, "livery[%i][%i]", i, j);
+				const char* liv_name = ltrim(contents.get(livery));
+				if(liv_name[0] == '\0')
+				{
+					break;
+				}
+
+				has_liveries = true;
+				sprintf(livery, "intro_year[%i][%i]", i, j);
+				uint16 intro = contents.get_int(livery, DEFAULT_INTRO_DATE) * 12;
+
+				sprintf(livery, "intro_month[%i][%i]", i, j);
+				intro += contents.get_int("intro_month", 1) - 1;
+
+				scheme->add_livery(liv_name, intro);
+			}
+			if(has_liveries)
+			{
+				livery_schemes.append(scheme);
+			}
+			else
+			{
+				delete scheme;
+			}
 		}
 	}
 
@@ -2489,7 +2514,7 @@ void settings_t::set_default_player_color(spieler_t* const sp) const
 		}
 	}
 
-	sp->set_player_color( color1*8, color2*8 );
+	sp->set_player_color_no_message( color1*8, color2*8 );
 }
  
 void settings_t::set_allow_routing_on_foot(bool value)

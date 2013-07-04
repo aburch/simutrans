@@ -1201,7 +1201,7 @@ void haltestelle_t::step()
 					}
 					const uint16 waiting_tenths_short = waiting_tenths;
 
-					add_waiting_time(waiting_tenths, tmp.get_zwischenziel(), tmp.get_besch()->get_catg_index());
+					add_waiting_time(waiting_tenths_short, tmp.get_zwischenziel(), tmp.get_besch()->get_catg_index());
 				}
 			}
 		}
@@ -4149,7 +4149,6 @@ void haltestelle_t::calc_transfer_time()
 	koord ul(32767,32767);
 	koord lr(0,0);
 	koord pos;
-	tiles;
 	FOR(slist_tpl<tile_t>, const& tile, tiles)
 	{
 		pos = tile.grund->get_pos().get_2d();

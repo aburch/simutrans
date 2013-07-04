@@ -872,9 +872,10 @@ bool stadt_t::cityrules_init(const std::string &objfilename)
 				}
 			}
 		}
-		printf("House-Rule %d: chance %d\n",i,house_rules[i]->chance);
-		for(uint32 j=0; j< house_rules[i]->rule.get_count(); j++)
-			printf("House-Rule %d: Pos (%d,%d) Flag %d\n",i,house_rules[i]->rule[j].x,house_rules[i]->rule[j].y,house_rules[i]->rule[j].flag);
+		dbg->message("stadt_t::cityrules_init()", "House-Rule %d: chance %d\n",i,house_rules[i]->chance);
+		for(uint32 j=0; j< house_rules[i]->rule.get_count(); j++) {
+			dbg->message("stadt_t::cityrules_init()", "House-Rule %d: Pos (%d,%d) Flag %d\n",i,house_rules[i]->rule[j].x,house_rules[i]->rule[j].y,house_rules[i]->rule[j].flag);
+			}
 	}
 
 	clear_ptr_vector( road_rules );
@@ -919,9 +920,9 @@ bool stadt_t::cityrules_init(const std::string &objfilename)
 				}
 			}
 		}
-		printf("Road-Rule %d: chance %d\n",i,road_rules[i]->chance);
+		dbg->message("stadt_t::cityrules_init()", "Road-Rule %d: chance %d\n",i,road_rules[i]->chance);
 		for(uint32 j=0; j< road_rules[i]->rule.get_count(); j++)
-			printf("Road-Rule %d: Pos (%d,%d) Flag %d\n",i,road_rules[i]->rule[j].x,road_rules[i]->rule[j].y,road_rules[i]->rule[j].flag);
+			dbg->message("stadt_t::cityrules_init()", "Road-Rule %d: Pos (%d,%d) Flag %d\n",i,road_rules[i]->rule[j].x,road_rules[i]->rule[j].y,road_rules[i]->rule[j].flag);
 		
 	}
 	return true;
@@ -1139,14 +1140,6 @@ void stadt_t::remove_gebaeude_from_stadt(gebaeude_t* gb)
 	buildings.remove(gb);
 	gb->set_stadt(NULL);
 	recalc_city_size();
-}
-
-
-// just updates the weight count of this building (after a renovation)
-void stadt_t::update_gebaeude_from_stadt(gebaeude_t* gb)
-{
-	buildings.remove(gb);
-	buildings.append(gb, gb->get_tile()->get_besch()->get_level());
 }
 
 
@@ -3334,7 +3327,6 @@ void stadt_t::step_passagiere()
 
 				uint8 best_start_halt = 0;
 				uint32 current_journey_time;
-				koord destination_stop_pos = destinations[current_destination].location;
 
 				ITERATE(start_halts, i)
 				{
@@ -4764,23 +4756,46 @@ const gebaeude_t* stadt_t::get_citybuilding_at(const koord k) const {
  * Returns best layout (orientation) for a new city building h at location k.
  * This needs to know the nearby street directions.
  */
-int stadt_t::get_best_layout(const haus_besch_t* h, const koord k, const int streetdirs) const {
+int stadt_t::get_best_layout(const haus_besch_t* h, const koord & k) const {
 	// Return value is a layout, which is a direction to face:
 	//  0, 1, 2, 3, 4, 5, 6, 7
 	//  S, E, N, W,SE,NE,NW,SW
+
+	assert(h != NULL);
 
 	// Streetdirs is a bitfield of "street directions":
 	// S == 0001 (1)
 	// E == 0010 (2)
 	// N == 0100 (4)
 	// W == 1000 (8)
-
-	assert(h != NULL);
-	assert(streetdirs >= 0);
-	assert(streetdirs <= 15);
+	int streetdirs = 0;
+	int flat_streetdirs = 0;
+	for (int i = 0; i < 4; i++) {
+		const grund_t* gr = welt->lookup_kartenboden(k + neighbors[i]);
+		if (gr == NULL) {
+			// No ground, skip this neighbor
+			continue;
+		}
+		const strasse_t* weg = (const strasse_t*)gr->get_weg(road_wt);
+		if (weg != NULL) {
+			// We found a road... (yes, it is OK to face a road with a different hang)
+			// update directions (SENW)
+			streetdirs += (1 << i);
+			if (gr->get_weg_hang() == hang_t::flach) {
+				// Will get flat bridge ends as well as flat ground
+				flat_streetdirs += (1 << i);
+			}
+		}
+	}
+	// Prefer flat streetdirs.  (Yes, this includes facing flat bridge ends.)
+	// If there are any, forget the other directions.
+	// But if there aren't,... use the other directions.
+	if (flat_streetdirs != 0) {
+		streetdirs = flat_streetdirs;
+	}
 
 	bool has_corner_layouts = (h->get_all_layouts() == 8);
-	int* interesting_neighbors;
+	const int* interesting_neighbors;
 	if (has_corner_layouts) {
 		interesting_neighbors = interesting_neighbors_corners;
 	} else {
@@ -4970,7 +4985,7 @@ int stadt_t::get_best_layout(const haus_besch_t* h, const koord k, const int str
 			}
 			break;
 		// Now the most annoying case: no streets
-		// This is probably a dead-end corner.
+		// This is probably a dead-end corner.  (I suggest not allowing this in construction rules.)
 		// This should be done with more care by looking at the corner-edge streets
 		// but that would be even more work to implement!
 		// As it is this can give strange results when the neighbor is picked up
@@ -5089,7 +5104,6 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 	// we have something to built here ...
 	if (h != NULL) {
 		// check for pavement
-		int streetdir = 0;
 		for (int i = 0; i < 8; i++) {
 			// Neighbors goes through these in 'preferred' order, orthogonal first
 			gr = welt->lookup_kartenboden(k + neighbors[i]);
@@ -5102,19 +5116,17 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 				// We found a road... (yes, it is OK to face a road with a different hang)
 				// Extend the sidewalk
 				weg->set_gehweg(true);
-				if (i < 4) {
-					// update directions (SENW)
-					streetdir += (1 << i);
-				}
 				if (gr->get_weg_hang() == gr->get_grund_hang()) {
 					// This is not a bridge, tunnel, etc.
-					// if not current city road standard, then replace it
-					if (weg->get_besch() != welt->get_city_road()) {
-						spieler_t *sp = weg->get_besitzer();
-						if (sp == NULL  ||  !gr->get_depot()) {
-							spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung(), road_wt);
-							weg->set_besitzer(NULL); // make public
-							weg->set_besch(welt->get_city_road());
+					// if not current city road standard OR BETTER, then replace it
+					if (  weg->get_besch() != welt->get_city_road()  ) {
+						if (  welt->get_city_road()->is_at_least_as_good_as(weg->get_besch()) ) {
+							spieler_t *sp = weg->get_besitzer();
+							if (sp == NULL  ||  !gr->get_depot()) {
+								spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung(), road_wt);
+								weg->set_besitzer(NULL); // make public
+								weg->set_besch(welt->get_city_road());
+							}
 						}
 					}
 				}
@@ -5123,7 +5135,7 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 			}
 		}
 
-		int layout = get_best_layout(h, k, streetdir);
+		int layout = get_best_layout(h, k);
 
 		const gebaeude_t* gb = hausbauer_t::baue(welt, NULL, pos, layout, h);
 		add_gebaeude_to_stadt(gb);
@@ -5197,9 +5209,9 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 			break;
 		}
 	}
+
 	// try to build
 	const haus_besch_t* h = NULL;
-	bool return_value = false;
 	if (sum_commercial > sum_industrial && sum_commercial > sum_residential) {
 		// we must check, if we can really update to higher level ...
 		const int try_level = (alt_typ == gebaeude_t::gewerbe ? level + 1 : level);
@@ -5260,7 +5272,6 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 	if (sum > 0 && h != NULL) {
 //		DBG_MESSAGE("stadt_t::renovate_city_building()", "renovation at %i,%i (%i level) of typ %i to typ %i with desire %i", k.x, k.y, alt_typ, want_to_have, sum);
 
-		int streetdir = 0;
 		for (int i = 0; i < 8; i++) {
 			// Neighbors goes through this in a specific order:
 			// orthogonal first, then diagonal
@@ -5273,19 +5284,17 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 			if (weg) {
 				// Extend the sidewalk
 				weg->set_gehweg(true);
-				if (i < 4) {
-					// update directions (SENW)
-					streetdir += (1 << i);
-				}
 				if (gr->get_weg_hang() == gr->get_grund_hang()) {
 					// This is not a bridge, tunnel, etc.
-					// if not current city road standard, then replace it
+					// if not current city road standard OR BETTER, then replace it
 					if (weg->get_besch() != welt->get_city_road()) {
-						spieler_t *sp = weg->get_besitzer();
-						if (sp == NULL  ||  !gr->get_depot()) {
-							spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung(), road_wt);
-							weg->set_besitzer(NULL); // make public
-							weg->set_besch(welt->get_city_road());
+						if (  welt->get_city_road()->is_at_least_as_good_as(weg->get_besch()) ) {
+							spieler_t *sp = weg->get_besitzer();
+							if (sp == NULL  ||  !gr->get_depot()) {
+								spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung(), road_wt);
+								weg->set_besitzer(NULL); // make public
+								weg->set_besch(welt->get_city_road());
+							}
 						}
 					}
 				}
@@ -5301,23 +5310,30 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 			default: break;
 		}
 
-		const int layout = get_best_layout(h, k, streetdir);
+		const int layout = get_best_layout(h, k);
 
-		// exchange building; try to face it to street in front
-		gb->mark_images_dirty();
-		gb->set_tile( h->get_tile(layout, 0, 0), true );
-		welt->lookup_kartenboden(k)->calc_bild();
-		update_gebaeude_from_stadt(gb);
-		return_value = true;
+		// The building is being replaced.  The surrounding landscape may have changed since it was
+		// last built, and the new building should change height along with it, rather than maintain the old
+		// height.  So delete and rebuild, even though it's slower.
+		hausbauer_t::remove( welt, NULL, gb );
+
+		koord3d pos = welt->lookup_kartenboden(k)->get_pos();
+		gebaeude_t* new_gb = hausbauer_t::baue(welt, NULL, pos, layout, h);
+		// We *can* skip most of the work in add_gebaeude_to_stadt, because we *just* cleared the location,
+		// so it must be valid!
+		new_gb->set_stadt(this);
+		buildings.append(new_gb, new_gb->get_tile()->get_besch()->get_level());
 
 		switch(want_to_have) {
 			case gebaeude_t::wohnung:   won += h->get_level() * 10; break;
 			case gebaeude_t::gewerbe:   arb += h->get_level() * 20; break;
 			case gebaeude_t::industrie: arb += h->get_level() * 20; break;
 			default: break;
+
+		return true;
 		}
 	}
-	return return_value;
+	return false;
 }
 
 

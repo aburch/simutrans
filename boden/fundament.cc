@@ -20,10 +20,10 @@ fundament_t::fundament_t(karte_t *welt, loadsave_t *file, koord pos ) : grund_t(
 }
 
 
-fundament_t::fundament_t(karte_t *welt, koord3d pos, hang_t::typ hang ) : grund_t(welt, pos)
+fundament_t::fundament_t(karte_t *welt, koord3d pos, hang_t::typ hang, bool build_up ) : grund_t(welt, pos)
 {
 	set_bild( IMG_LEER );
-	if(hang) {
+	if(hang && build_up) {
 		pos = get_pos();
 		pos.z ++;
 		set_pos( pos );
