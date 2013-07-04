@@ -4149,7 +4149,6 @@ void haltestelle_t::calc_transfer_time()
 	koord ul(32767,32767);
 	koord lr(0,0);
 	koord pos;
-	tiles;
 	FOR(slist_tpl<tile_t>, const& tile, tiles)
 	{
 		pos = tile.grund->get_pos().get_2d();
