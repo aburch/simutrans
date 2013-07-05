@@ -1182,7 +1182,8 @@ void haltestelle_t::step()
 						const uint16 waiting_tenths_short = waiting_tenths;
 						add_waiting_time(waiting_tenths_short, tmp.get_zwischenziel(), tmp.get_besch()->get_catg_index());
 
-						// The goods/passengers leave.
+						// The goods/passengers leave.  We must record the lower "in transit" count on factories.
+						fabrik_t::update_transit(tmp, false);
 						tmp.menge = 0;
 
 						// Normally we record long waits below, but we just did, so don't do it twice.
@@ -3073,10 +3074,15 @@ void haltestelle_t::rdwr(loadsave_t *file)
 					ware_t ware(welt,file);
 					if(  ware.menge>0  &&  welt->is_within_limits(ware.get_zielpos())  ) {
 						add_ware_to_halt(ware, true);
-						if(  file->get_version() <= 112000  ) {
+						/*
+						 * It's very easy for in-transit information to get corrupted,
+						 * if an intermediate program version fails to compute it right.
+						 * So *always* compute it fresh.
+						 */ 
+						// if(  file->get_version() <= 112000  ) {
 							// restore intransit information
 							fabrik_t::update_transit( ware, true );
-						}
+						// }
 					}
 					else if(  ware.menge>0  ) 
 					{

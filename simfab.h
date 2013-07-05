@@ -93,7 +93,7 @@ private:
 	/// clears statistics, transit, and weighted_sum_storage
 	void init_stats();
 public:
-	ware_production_t() : type(NULL), menge(0), max(0), index_offset(0)
+	ware_production_t() : type(NULL), menge(0), max(0), transit(0), index_offset(0)
 	{
 		init_stats();
 	}

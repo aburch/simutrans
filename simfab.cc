@@ -1247,7 +1247,16 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 			if(  ware.menge>(FAB_MAX_INPUT<<precision_bits)  ) {
 				ware.menge = (FAB_MAX_INPUT << precision_bits);
 			}
-			ware.transit = ware.get_stat( 0, FAB_GOODS_TRANSIT );
+			/*
+			* It's very easy for in-transit information to get corrupted,
+			* if an intermediate program version fails to compute it right.
+			* So *always* compute it fresh.  Do NOT load it.
+			* It will be recomputed by halts and vehicles.
+			*
+			* Note, for this to work factories must be loaded before halts and vehicles
+			* (this is how it is currently done in simworld.cc)
+			*/
+			// ware.transit = ware.get_stat( 0, FAB_GOODS_TRANSIT );
 		}
 	}
 
@@ -1563,6 +1572,8 @@ sint32 fabrik_t::liefere_an(const ware_besch_t *typ, sint32 menge)
 		// case : freight
 		FOR(  array_tpl<ware_production_t>, & ware, eingang) {
 			if(  ware.get_typ() == typ  ) {
+				// Can't use update_transit for interface reasons; we don't take a ware argument.
+				// We should, however.
 				ware.transit -= menge;
 				ware.set_stat( ware.transit, FAB_GOODS_TRANSIT );
 				// Hajo: avoid overflow

@@ -2269,10 +2269,15 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 			ware_t ware(welt,file);
 			if(  (besch==NULL  ||  ware.menge>0)  &&  welt->is_within_limits(ware.get_zielpos())  ) {	// also add, of the besch is unknown to find matching replacement
 				fracht.insert(ware);
-				if(  file->get_version() <= 112000  ) {
+				/*
+				* It's very easy for in-transit information to get corrupted,
+				* if an intermediate program version fails to compute it right.
+				* So *always* compute it fresh.
+				*/
+				// if(  file->get_version() <= 112000  ) {
 					// restore intransit information
 					fabrik_t::update_transit( ware, true );
-				}
+				// }
 			}
 			else if(  ware.menge>0  ) {
 				dbg->error( "vehikel_t::rdwr_from_convoi()", "%i of %s to %s ignored!", ware.menge, ware.get_name(), ware.get_zielpos().get_str() );
