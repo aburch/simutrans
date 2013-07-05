@@ -244,7 +244,7 @@ void fabrik_t::arrival_statistics_t::book_arrival(const uint16 amount)
 
 void fabrik_t::update_transit( const ware_t& ware, bool add )
 {
-	if(  ware->index > warenbauer_t::INDEX_NONE  ) {
+	if(  ware.index > warenbauer_t::INDEX_NONE  ) {
 		// only for freights
 		fabrik_t *fab = get_fab( welt, ware.get_zielpos() );
 		if(  fab  ) {
