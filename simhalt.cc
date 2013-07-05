@@ -1061,9 +1061,7 @@ void haltestelle_t::step()
 
 	recalc_status();
 
-	// Every 256 steps - check whether
-	// passengers/goods have been waiting
-	// too long.
+	// Every 256 steps - check whether passengers/goods have been waiting too long.
 	// Will overflow at 255.
 	if(++check_waiting == 0)
 	{
