@@ -2012,7 +2012,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 		best_halt->starte_mit_route(best_ware);
 		best_halt->unload_repeat_counter = 0;
 		best_halt->recalc_status();
-		fabrik_t::update_transit( &best_ware, true );
+		fabrik_t::update_transit( best_ware, true );
 		// add as active destination
 		lieferziele_active_last_month |= (1 << lieferziele.index_of(best_ware.get_zielpos()));
 		ausgang[produkt].book_stat(best_ware.menge, FAB_GOODS_DELIVERED);
