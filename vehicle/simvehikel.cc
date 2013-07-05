@@ -1141,7 +1141,7 @@ void vehikel_t::remove_stale_freight()
 		}
 
 		FOR(vector_tpl<ware_t>, const& c, kill_queue) {
-			fabrik_t::update_transit( &c, false );
+			fabrik_t::update_transit( c, false );
 			fracht.remove(c);
 			cnv->invalidate_weight_summary();
 		}
@@ -1928,7 +1928,7 @@ void vehikel_t::get_fracht_info(cbuffer_t & buf) const
 void vehikel_t::loesche_fracht()
 {
 	FOR(  slist_tpl<ware_t>, w, fracht ) {
-		fabrik_t::update_transit( &w, false );
+		fabrik_t::update_transit( w, false );
 	}
 	fracht.clear();
 	sum_weight =  besch->get_gewicht();
@@ -2271,7 +2271,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 				fracht.insert(ware);
 				if(  file->get_version() <= 112000  ) {
 					// restore intransit information
-					fabrik_t::update_transit( &ware, true );
+					fabrik_t::update_transit( ware, true );
 				}
 			}
 			else if(  ware.menge>0  ) {

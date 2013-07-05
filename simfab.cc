@@ -242,11 +242,11 @@ void fabrik_t::arrival_statistics_t::book_arrival(const uint16 amount)
 }
 
 
-void fabrik_t::update_transit( const ware_t *ware, bool add )
+void fabrik_t::update_transit( const ware_t& ware, bool add )
 {
 	if(  ware->index > warenbauer_t::INDEX_NONE  ) {
 		// only for freights
-		fabrik_t *fab = get_fab( welt, ware->get_zielpos() );
+		fabrik_t *fab = get_fab( welt, ware.get_zielpos() );
 		if(  fab  ) {
 			fab->update_transit_intern( ware, add );
 		}
@@ -255,15 +255,15 @@ void fabrik_t::update_transit( const ware_t *ware, bool add )
 
 
 // just for simplicity ...
-void fabrik_t::update_transit_intern( const ware_t *ware, bool add )
+void fabrik_t::update_transit_intern( const ware_t& ware, bool add )
 {
 	FOR(  array_tpl<ware_production_t>,  &w,  eingang ) {
-		if(  w.get_typ()->get_index() == ware->index  ) {
+		if(  w.get_typ()->get_index() == ware.index  ) {
 			if(  add  ) {
-				w.transit += ware->menge;
+				w.transit += ware.menge;
 			}
 			else {
-				w.transit -= ware->menge;
+				w.transit -= ware.menge;
 			}
 			w.set_stat( w.transit, FAB_GOODS_TRANSIT );
 			return;

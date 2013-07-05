@@ -607,7 +607,7 @@ haltestelle_t::~haltestelle_t()
 	for(uint8 i = 0; i < max_categories; i++) {
 		if (waren[i]) {
 			FOR(vector_tpl<ware_t>, const &w, *waren[i]) {
-				fabrik_t::update_transit(&w, false);
+				fabrik_t::update_transit(w, false);
 			}
 			delete waren[i];
 			waren[i] = NULL;
@@ -1749,7 +1749,7 @@ bool haltestelle_t::recall_ware( ware_t& w, uint32 menge )
 				tmp.menge = 0;
 			}
 			book(w.menge, HALT_ARRIVED);
-			fabrik_t::update_transit( &w, false );
+			fabrik_t::update_transit( w, false );
 			resort_freight_info = true;
 			return true;
 		}
@@ -2364,7 +2364,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 
 		DBG_MESSAGE("haltestelle_t::liefere_an()","%s: delivered goods (%d %s) to ??? via ??? could not be routed to their destination!",get_name(), ware.menge, translator::translate(ware.get_name()) );
 		// target halt no longer there => delete and remove from fab in transit
-		fabrik_t::update_transit( &ware, false );
+		fabrik_t::update_transit( ware, false );
 		return ware.menge;
 	}
 #ifdef CHECK_WARE_MERGE
@@ -3075,7 +3075,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 						add_ware_to_halt(ware, true);
 						if(  file->get_version() <= 112000  ) {
 							// restore intransit information
-							fabrik_t::update_transit( &ware, true );
+							fabrik_t::update_transit( ware, true );
 						}
 					}
 					else if(  ware.menge>0  ) 

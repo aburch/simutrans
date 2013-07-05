@@ -377,7 +377,7 @@ private:
 		uint32 get_scaled_demand() const { return scaled_demand; }
 	};
 
-	void update_transit_intern( const ware_t *ware, bool add );
+	void update_transit_intern( const ware_t& ware, bool add );
 
 	/**
 	 * Arrival data for calculating pax/mail boost
@@ -432,7 +432,7 @@ public:
 	void book_stat(sint64 value, int stat_type) { assert(stat_type<MAX_FAB_STAT); statistics[0][stat_type] += value; }
 
 
-	static void update_transit( const ware_t *ware, bool add );
+	static void update_transit( const ware_t& ware, bool add );
 
 	/**
 	 * convert internal units to displayed values
