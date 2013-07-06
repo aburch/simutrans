@@ -2192,17 +2192,16 @@ void wegbauer_t::baue_strasse()
 			}
 			else
 			{
-				// we take ownership => we take care to maintain the roads completely ...
-				//spieler_t *s = weg->get_besitzer();
-
-				sint32 maint = besch->get_wartung();
+				// Remove *old* maintenance - must get besch from weg not the built in "besch",
+				// which is the way being built.
+				sint32 old_maint = weg->get_besch()->get_wartung();
 				weg->check_diagonal();
 				if(weg->is_diagonal())
 				{
-					maint *= 10;
-					maint /= 14;
+					old_maint *= 10;
+					old_maint /= 14;
 				}
-				spieler_t::add_maintenance(sp, -maint, besch->get_finance_waytype());
+				spieler_t::add_maintenance(sp, -old_maint, besch->get_finance_waytype());
 
 				// The below does not correctly account for the cost of diagonal ways.
 				// spieler_t::add_maintenance(s, -weg->get_besch()->get_wartung());
