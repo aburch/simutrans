@@ -1519,16 +1519,27 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	// Meta-options.
 	// Only the version in default_einstellungen is meaningful.  These determine whether savegames
 	// are updated to the newest local settings.  They are ignored for clients in network games.
+	// This is read many many times so always use the older version...
 	// @author: neroden.
-	progdir_overrides_savegame_settings = (contents.get_int("progdir_overrides_savegame_settings", 0) != 0);
-	pak_overrides_savegame_settings = (contents.get_int("pak_overrides_savegame_settings", 0) != 0);
-	userdir_overrides_savegame_settings = (contents.get_int("userdir_overrides_savegame_settings", 0) != 0);
+	progdir_overrides_savegame_settings = (contents.get_int("progdir_overrides_savegame_settings", progdir_overrides_savegame_settings) != 0);
+	pak_overrides_savegame_settings = (contents.get_int("pak_overrides_savegame_settings", pak_overrides_savegame_settings) != 0);
+	userdir_overrides_savegame_settings = (contents.get_int("userdir_overrides_savegame_settings", userdir_overrides_savegame_settings) != 0);
 
 	// This needs to be first as other settings are based on this.
-	// @author: jamespetts
-	uint16 distance_per_tile_integer = meters_per_tile / 10;
-	meters_per_tile = contents.get_int("distance_per_tile", distance_per_tile_integer) * 10;
-	set_meters_per_tile(contents.get_int("meters_per_tile", meters_per_tile));
+	// @author: jamespetts, neroden
+
+	// This compatibility code is more complicated than it appears due to (a) roundoff error,
+	// and (b) the fact that simuconf tabfiles are read *multiple times*.
+	// First of all, 0 is clearly an invalid value, so use it as a flag.
+	uint16 new_dpt = contents.get_int("distance_per_tile", 0);
+	uint16 new_mpt = contents.get_int("meters_per_tile", 0);
+	if (new_mpt) {
+		set_meters_per_tile(new_mpt);
+	} else if (new_dpt) {
+		set_meters_per_tile(new_dpt * 10);
+	} else {
+		// Don't set it, leave it at the previous setting from a previous simuconf.tab, save file, etc
+	}
 	float32e8_t distance_per_tile(meters_per_tile, 1000);
 
 		// special day/night colors
