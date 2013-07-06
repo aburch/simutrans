@@ -5560,9 +5560,26 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 					end = brueckenbauer_t::finde_ende(welt, NULL, bd->get_pos(), zv, bridge, err, true);
 				}
 				if(err==NULL  &&   koord_distance( k, end.get_2d())<=3) {
+					// Bridge looks OK, but check the end
+					const grund_t* past_end = welt->lookup_kartenboden( (end+zv).get_2d() );
+					if (past_end == NULL) {
+						// No bridges to nowhere
+						return false;
+					}
+					bool successfully_built_past_end = false;
+					if (past_end->hat_weg(road_wt) ) {
+						// Connecting to a road, all good...
+						successfully_built_past_end = true;
+					} else {
+						// Build a road past the end of the future bridge (even if it has no connections yet)
+						// This may fail, in which case we shouldn't build the bridge
+						successfully_built_past_end = baue_strasse( (end+zv).get_2d(), NULL, true);
+					}
+					if (!successfully_built_past_end) {
+						return false;
+					}
+					// OK, build the bridge
 					brueckenbauer_t::baue_bruecke(welt, NULL, bd->get_pos(), end, zv, bridge, welt->get_city_road());
-					// try to build one connecting piece of road
-					baue_strasse( (end+zv).get_2d(), NULL, false);
 					// try to build a house near the bridge end
 					uint32 old_count = buildings.get_count();
 					for(uint8 i=0; i<lengthof(koord::neighbours)  &&  buildings.get_count() == old_count; i++) {
