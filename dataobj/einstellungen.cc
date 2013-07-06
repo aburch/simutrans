@@ -1022,18 +1022,12 @@ void settings_t::rdwr(loadsave_t *file)
 				file->rdwr_short(tpo_min_minutes);
 				file->rdwr_short(tpo_revenue);
 
-				// Nathanael: question whether this belongs in the save file.  Probably not.
-				// jamespetts: It needs to remain in the saved file so that network games can be 
-				// saved/loaded as offline games without losing any information.
-				// 
 				if ( file->is_loading() ) {
 					cache_comfort_tables();
 					cache_catering_revenues();
 				}
 			}
 
-			// Consider not loading these at all --neroden
-			// See above -- jamespetts
 			if (file->get_experimental_version() >= 6 && file->get_experimental_version() <= 11)
 			{
 				// These were in tiles.
@@ -1052,18 +1046,20 @@ void settings_t::rdwr(loadsave_t *file)
 
 			max_bonus_multiplier_percent = max_b_percent;
 
+			float32e8_t distance_per_tile(meters_per_tile, 1000);
+
 			if(file->get_experimental_version() < 6)
 			{
 				// Scale the costs to match the scale factor.
-				float32e8_t km_per_tile(meters_per_tile, 1000);
-				cst_multiply_dock *= km_per_tile;
-				cst_multiply_station *= km_per_tile;
-				cst_multiply_roadstop *= km_per_tile;
-				cst_multiply_airterminal *= km_per_tile;
-				cst_multiply_post *= km_per_tile;
-				maint_building *= km_per_tile;
-				cst_buy_land *= km_per_tile;
-				cst_remove_tree *= km_per_tile;
+				// Note that this will fail for attempts to save in the old format.
+				cst_multiply_dock *= distance_per_tile;
+				cst_multiply_station *= distance_per_tile;
+				cst_multiply_roadstop *= distance_per_tile;
+				cst_multiply_airterminal *= distance_per_tile;
+				cst_multiply_post *= distance_per_tile;
+				maint_building *= distance_per_tile;
+				cst_buy_land *= distance_per_tile;
+				cst_remove_tree *= distance_per_tile;
 			}
 
 			file->rdwr_short(obsolete_running_cost_increase_percent);
@@ -1963,27 +1959,84 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	airport_toll_revenue_percentage = contents.get_int("airport_toll_revenue_percentage", airport_toll_revenue_percentage );
 	
 	/* now the cost section */
-	cst_multiply_dock = (contents.get_int64("cost_multiply_dock", cst_multiply_dock/(-100) ) * -100) * distance_per_tile;
-	cst_multiply_station = (contents.get_int64("cost_multiply_station", cst_multiply_station/(-100) ) * -100) * distance_per_tile;
-	cst_multiply_roadstop = (contents.get_int64("cost_multiply_roadstop", cst_multiply_roadstop/(-100) ) * -100) * distance_per_tile;
-	cst_multiply_airterminal = (contents.get_int64("cost_multiply_airterminal", cst_multiply_airterminal/(-100) ) * -100) * distance_per_tile;
-	cst_multiply_post = (contents.get_int64("cost_multiply_post", cst_multiply_post/(-100) ) * -100) * distance_per_tile;
+	// Account for multiple loading of conflicting simuconf.tab files correctly.
+	// Assume that negative numbers in the simuconf.tab file are invalid cost options (zero might be valid).
+	// Annoyingly, the cst_ numbers are stored negative; assume positive numbers are invalid there...
+
+	// Stations.  (Overridden by specific prices in pak files.)
+	sint64 new_cost_multiply_dock = contents.get_int64("cost_multiply_dock", -1);
+	if (new_cost_multiply_dock > 0) {
+		cst_multiply_dock = new_cost_multiply_dock * -100 * distance_per_tile;
+	}
+	sint64 new_cost_multiply_station = contents.get_int64("cost_multiply_station", -1);
+	if (new_cost_multiply_station > 0) {
+		cst_multiply_station = new_cost_multiply_station * -100 * distance_per_tile;
+	}
+	sint64 new_cost_multiply_roadstop = contents.get_int64("cost_multiply_roadstop", -1);
+	if (new_cost_multiply_roadstop > 0) {
+		cst_multiply_roadstop = new_cost_multiply_roadstop * -100 * distance_per_tile;
+	}
+	sint64 new_cost_multiply_airterminal = contents.get_int64("cost_multiply_airterminal", -1);
+	if (new_cost_multiply_airterminal > 0) {
+		cst_multiply_airterminal = new_cost_multiply_airterminal * -100 * distance_per_tile;
+	}
+	// "post" is auxiliary station buildings
+	sint64 new_cost_multiply_post = contents.get_int64("cost_multiply_post", -1);
+	if (new_cost_multiply_post > 0) {
+		cst_multiply_post = new_cost_multiply_post * -100 * distance_per_tile;
+	}
+
+	// Depots & HQ are a bit simpler because not adjusted for distance per tile (not distance based).
+	//   It should be possible to override this in .dat files, but it isn't
 	cst_multiply_headquarter = contents.get_int64("cost_multiply_headquarter", cst_multiply_headquarter/(-100) ) * -100;
 	cst_depot_air = contents.get_int64("cost_depot_air", cst_depot_air/(-100) ) * -100;
 	cst_depot_rail = contents.get_int64("cost_depot_rail", cst_depot_rail/(-100) ) * -100;
 	cst_depot_road = contents.get_int64("cost_depot_road", cst_depot_road/(-100) ) * -100;
 	cst_depot_ship = contents.get_int64("cost_depot_ship", cst_depot_ship/(-100) ) * -100;
 
-	// alter landscape
-	cst_buy_land = (contents.get_int64("cost_buy_land", cst_buy_land/(-100) ) * -100) * distance_per_tile;
-	cst_alter_land = contents.get_int64("cost_alter_land", cst_alter_land/(-100) ) * -100;
-	cst_set_slope = contents.get_int64("cost_set_slope", cst_set_slope/(-100) ) * -100;
+	// Set slope or alter it the "cheaper" way.
+	// This *should* be adjusted for distance per tile, because it's actually distance-based.
+	// But we weren't adjusting it before experimental version 12.
+	// We do not attempt to correct saved games as this was part of the "game balance" involved
+	// with that game.  A save game can be changed using the override options.
+	sint64 new_cost_alter_land = contents.get_int64("cost_alter_land", -1);
+	if (new_cost_alter_land > 0) {
+		cst_alter_land = new_cost_alter_land * -100 * distance_per_tile;
+	}
+	sint64 new_cost_set_slope = contents.get_int64("cost_set_slope", -1);
+	if (new_cost_set_slope > 0) {
+		cst_set_slope = new_cost_set_slope * -100 * distance_per_tile;
+	}
+	// Remove trees.  Probably distance based (if we're clearing a long area).
+	sint64 new_cost_remove_tree = contents.get_int64("cost_remove_tree", -1);
+	if (new_cost_remove_tree > 0) {
+		cst_remove_tree = new_cost_remove_tree * -100 * distance_per_tile;
+	}
+	// Purchase land (often a house).  Distance-based, adjust for distance_per_tile.
+	sint64 new_cost_buy_land = contents.get_int64("cost_buy_land", -1);
+	if (new_cost_buy_land > 0) {
+		cst_buy_land = new_cost_buy_land * -100 * distance_per_tile;
+	}
+	// Delete house or field.  Both are definitely distance based.
+	// (You're usually trying to drive a railway line through a field.)
+	// Fields were not adjusted for distance before version 12.
+	// We do not attempt to correct saved games as this was part of the "game balance" involved
+	// with that game.  A save game can be changed using the override options.
+	sint64 new_cost_multiply_remove_haus = contents.get_int64("cost_multiply_remove_haus", -1);
+	if (new_cost_multiply_remove_haus > 0) {
+		cst_multiply_remove_haus = new_cost_multiply_remove_haus * -100 * distance_per_tile;
+	}
+	sint64 new_cost_multiply_remove_field = contents.get_int64("cost_multiply_remove_field", -1);
+	if (new_cost_multiply_remove_field > 0) {
+		cst_multiply_remove_field = new_cost_multiply_remove_field * -100 * distance_per_tile;
+	}
+
+	// Found city or industry chain.  Not distance based.
 	cst_found_city = contents.get_int64("cost_found_city", cst_found_city/(-100) ) * -100;
 	cst_multiply_found_industry = contents.get_int64("cost_multiply_found_industry", cst_multiply_found_industry/(-100) ) * -100;
-	cst_remove_tree = (contents.get_int64("cost_remove_tree", cst_remove_tree/(-100) ) * -100) * distance_per_tile;
-	cst_multiply_remove_haus = (contents.get_int64("cost_multiply_remove_haus", cst_multiply_remove_haus/(-100) ) * -100) * distance_per_tile;
-	cst_multiply_remove_field = contents.get_int64("cost_multiply_remove_field", cst_multiply_remove_field/(-100) ) * -100;
-	// powerlines
+
+	// Transformers.  Not distance based.
+	//   It should be possible to override this in .dat files, but it isn't
 	cst_transformer = contents.get_int64("cost_transformer", cst_transformer/(-100) ) * -100;
 	cst_maintain_transformer = contents.get_int64("cost_maintain_transformer", cst_maintain_transformer/(-100) ) * -100;
 
