@@ -2739,8 +2739,6 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 		check_road_connexions = true;
 	}
 
-	const uint8 current_month = (uint8)(welt->get_current_month() % 12);
-	
 	if (!stadtauto_t::list_empty()) 
 	{
 		// Spawn citycars
@@ -2864,10 +2862,10 @@ void stadt_t::calc_growth()
 
 	// smaller towns should growth slower to have villages for a longer time
 	sint32 weight_factor = s.get_growthfactor_large();
-	if(bev < s.get_city_threshold_size()) {
+	if(  bev < (sint64)s.get_city_threshold_size()  ) {
 		weight_factor = s.get_growthfactor_small();
 	}
-	else if(bev < s.get_capital_threshold_size()) {
+	else if(  bev < (sint64)s.get_capital_threshold_size()  ) {
 		weight_factor = s.get_growthfactor_medium();
 	}
 
@@ -3093,7 +3091,13 @@ void stadt_t::step_passagiere()
 	// See here for a discussion of ratios: http://forum.simutrans.com/index.php?topic=10920.0
 	// It is probably necessary to refine this further to take account of historical variation,
 	// and allow this to be customised by pakset.
-	const ware_besch_t *const wtyp = (simrand(400, "void stadt_t::step_passagiere() (mail or passengers?")) < 396 ? warenbauer_t::passagiere : warenbauer_t::post;
+	const ware_besch_t * wtyp;
+	if(  simrand(400, "void stadt_t::step_passagiere() (mail or passengers?)") < 396  ) {
+		wtyp = warenbauer_t::passagiere;
+	} else {
+		wtyp = warenbauer_t::post;
+	}
+
 	const city_cost history_type = (wtyp == warenbauer_t::passagiere) ? HIST_PAS_TRANSPORTED : HIST_MAIL_TRANSPORTED;
 	factory_set_t &target_factories = (wtyp==warenbauer_t::passagiere ? target_factories_pax : target_factories_mail);
 
