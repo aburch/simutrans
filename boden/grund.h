@@ -133,6 +133,7 @@ public:
 protected:
 	/**
 	 * List of objects on this tile
+	 * Pointer (changes occasionally) + 8 bits + 8 bits (changes often)
 	 */
 	dingliste_t dinge;
 
@@ -160,6 +161,11 @@ protected:
 	 * Slope (now saved locally), because different grounds need different slopes
 	 */
 	uint8 slope;
+
+	/**
+ 	 * Handle to halt built on this ground
+	 */
+	halthandle_t this_halt;
 
 public:
 	/**

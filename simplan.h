@@ -155,19 +155,6 @@ public:
 	*/
 	void angehoben(karte_t *welt);
 
-	/**
-	* since stops may be multilevel, but waren uses pos, we mirror here any halt that is on this square
-	* @author Hj. Malthaner
-	*/
-	void set_halt(halthandle_t halt);
-
-	/**
-	* returns a halthandle, if some ground here has a stop
-	* @return NULL wenn keine Haltestelle, sonst Zeiger auf Haltestelle
-	* @author Hj. Malthaner
-	*/
-	halthandle_t get_halt() const {return this_halt;}
-
 	stadt_t* get_city() const { return city; }
 	void set_city(stadt_t* value) { city = value; }
 
