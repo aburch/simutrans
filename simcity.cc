@@ -5575,15 +5575,27 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 						// This may fail, in which case we shouldn't build the bridge
 						successfully_built_past_end = baue_strasse( (end+zv).get_2d(), NULL, true);
 					}
-					if (!successfully_built_past_end) {
-						return false;
-					}
-					// OK, build the bridge
-					brueckenbauer_t::baue_bruecke(welt, NULL, bd->get_pos(), end, zv, bridge, welt->get_city_road());
-					// try to build a house near the bridge end
-					uint32 old_count = buildings.get_count();
-					for(uint8 i=0; i<lengthof(koord::neighbours)  &&  buildings.get_count() == old_count; i++) {
-						build_city_building(end.get_2d()+zv+koord::neighbours[i], true);
+					if (successfully_built_past_end) {
+						// OK, build the bridge
+						brueckenbauer_t::baue_bruecke(welt, NULL, bd->get_pos(), end, zv, bridge, welt->get_city_road());
+						// Now connect the bridge to the road we built
+						// (Is there an easier way?)
+						baue_strasse( end.get_2d(), NULL, false );
+
+						// try to build a house near the bridge end
+						// Orthogonal only.  Prefer facing onto bridge.
+						koord right_side = koord(ribi_t::rotate90(ribi_t::rueckwaerts(connection_roads)));
+						koord left_side = koord(ribi_t::rotate90l(ribi_t::rueckwaerts(connection_roads)));
+						vector_tpl<koord> appropriate_locs;
+						appropriate_locs.append(end.get_2d()+right_side);
+						appropriate_locs.append(end.get_2d()+left_side);
+						appropriate_locs.append(end.get_2d()+zv+zv);
+						appropriate_locs.append(end.get_2d()+zv+right_side);
+						appropriate_locs.append(end.get_2d()+zv+left_side);
+						uint32 old_count = buildings.get_count();
+						for(uint8 i=0; i<appropriate_locs.get_count()  &&  buildings.get_count() == old_count; i++) {
+							build_city_building(appropriate_locs[i], true);
+						}
 					}
 				}
 			}
