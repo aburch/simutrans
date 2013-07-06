@@ -673,35 +673,24 @@ DBG_MESSAGE("wkz_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x, 
 				msg = "Das Feld gehoert\neinem anderen Spieler\n";
 				return false;
 			}
+			// townhall is also removed during town removal
 		}
 		else {
-			// remove town? (when removing townhall)
-			if(gb->ist_rathaus()) {
-				stadt_t *stadt = welt->suche_naechste_stadt(pos.get_2d());
-				if(!welt->rem_stadt( stadt )) {
-					msg = "Das Feld gehoert\neinem anderen Spieler\n";
-					return false;
-				}
-			}
-			else 
+			// Not town hall -- normal building
+			// Check affordability for everyone
+			sint64 cost = welt->get_settings().cst_multiply_remove_haus * haus_besch->get_level();
+			if(  sp != gb->get_besitzer()  )
 			{
-				// townhall is also removed during town removal
-				
-				if(sp != gb->get_besitzer())
-				{
-					// Only check affordability if bulldozing somebody else's buildings.
-					// FIXME: This isn't quite right.
-					// Experimental 8.0 and later - the bulldoze cost is *added* to the
-					// building cost, as we have to pay to buy it *then* pay to demolish it.
-					const sint64 cost = (welt->get_settings().cst_multiply_remove_haus * (haus_besch->get_level())) + (welt->get_settings().cst_buy_land * haus_besch->get_level() * 5);
-					if(! spieler_t::can_afford(sp, -cost) )
-					{
-						msg = CREDIT_MESSAGE;
-						return false;
-					}
-				}
-				hausbauer_t::remove( welt, sp, gb );
+				// Experimental 8.0 and later - the bulldoze cost is *added* to the
+				// building cost, as we have to pay to buy it *then* pay to demolish it.
+				cost += welt->get_settings().cst_buy_land * haus_besch->get_level() * 5;
 			}
+			if(  !spieler_t::can_afford(sp, -cost)  )
+			{
+				msg = CREDIT_MESSAGE;
+				return false;
+			}
+			hausbauer_t::remove( welt, sp, gb );
 		}
 		return true;
 	}
@@ -1835,7 +1824,7 @@ const char *wkz_buy_house_t::work( karte_t *welt, spieler_t *sp, koord3d pos)
 					spieler_t::add_maintenance(old_owner, -maint, gb->get_waytype());
 					spieler_t::add_maintenance(sp,        +maint, gb->get_waytype());
 					gb->set_besitzer(sp);
-					spieler_t::book_construction_costs(sp, -maint, k + pos.get_2d(), gb->get_waytype());
+					spieler_t::book_construction_costs(sp, cost, k + pos.get_2d(), gb->get_waytype());
 				}
 			}
 		}

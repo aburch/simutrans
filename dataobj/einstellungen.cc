@@ -1022,18 +1022,12 @@ void settings_t::rdwr(loadsave_t *file)
 				file->rdwr_short(tpo_min_minutes);
 				file->rdwr_short(tpo_revenue);
 
-				// Nathanael: question whether this belongs in the save file.  Probably not.
-				// jamespetts: It needs to remain in the saved file so that network games can be 
-				// saved/loaded as offline games without losing any information.
-				// 
 				if ( file->is_loading() ) {
 					cache_comfort_tables();
 					cache_catering_revenues();
 				}
 			}
 
-			// Consider not loading these at all --neroden
-			// See above -- jamespetts
 			if (file->get_experimental_version() >= 6 && file->get_experimental_version() <= 11)
 			{
 				// These were in tiles.
@@ -1052,18 +1046,20 @@ void settings_t::rdwr(loadsave_t *file)
 
 			max_bonus_multiplier_percent = max_b_percent;
 
+			float32e8_t distance_per_tile(meters_per_tile, 1000);
+
 			if(file->get_experimental_version() < 6)
 			{
 				// Scale the costs to match the scale factor.
-				float32e8_t km_per_tile(meters_per_tile, 1000);
-				cst_multiply_dock *= km_per_tile;
-				cst_multiply_station *= km_per_tile;
-				cst_multiply_roadstop *= km_per_tile;
-				cst_multiply_airterminal *= km_per_tile;
-				cst_multiply_post *= km_per_tile;
-				maint_building *= km_per_tile;
-				cst_buy_land *= km_per_tile;
-				cst_remove_tree *= km_per_tile;
+				// Note that this will fail for attempts to save in the old format.
+				cst_multiply_dock *= distance_per_tile;
+				cst_multiply_station *= distance_per_tile;
+				cst_multiply_roadstop *= distance_per_tile;
+				cst_multiply_airterminal *= distance_per_tile;
+				cst_multiply_post *= distance_per_tile;
+				maint_building *= distance_per_tile;
+				cst_buy_land *= distance_per_tile;
+				cst_remove_tree *= distance_per_tile;
 			}
 
 			file->rdwr_short(obsolete_running_cost_increase_percent);
@@ -1519,16 +1515,27 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	// Meta-options.
 	// Only the version in default_einstellungen is meaningful.  These determine whether savegames
 	// are updated to the newest local settings.  They are ignored for clients in network games.
+	// This is read many many times so always use the older version...
 	// @author: neroden.
-	progdir_overrides_savegame_settings = (contents.get_int("progdir_overrides_savegame_settings", 0) != 0);
-	pak_overrides_savegame_settings = (contents.get_int("pak_overrides_savegame_settings", 0) != 0);
-	userdir_overrides_savegame_settings = (contents.get_int("userdir_overrides_savegame_settings", 0) != 0);
+	progdir_overrides_savegame_settings = (contents.get_int("progdir_overrides_savegame_settings", progdir_overrides_savegame_settings) != 0);
+	pak_overrides_savegame_settings = (contents.get_int("pak_overrides_savegame_settings", pak_overrides_savegame_settings) != 0);
+	userdir_overrides_savegame_settings = (contents.get_int("userdir_overrides_savegame_settings", userdir_overrides_savegame_settings) != 0);
 
 	// This needs to be first as other settings are based on this.
-	// @author: jamespetts
-	uint16 distance_per_tile_integer = meters_per_tile / 10;
-	meters_per_tile = contents.get_int("distance_per_tile", distance_per_tile_integer) * 10;
-	set_meters_per_tile(contents.get_int("meters_per_tile", meters_per_tile));
+	// @author: jamespetts, neroden
+
+	// This compatibility code is more complicated than it appears due to (a) roundoff error,
+	// and (b) the fact that simuconf tabfiles are read *multiple times*.
+	// First of all, 0 is clearly an invalid value, so use it as a flag.
+	uint16 new_dpt = contents.get_int("distance_per_tile", 0);
+	uint16 new_mpt = contents.get_int("meters_per_tile", 0);
+	if (new_mpt) {
+		set_meters_per_tile(new_mpt);
+	} else if (new_dpt) {
+		set_meters_per_tile(new_dpt * 10);
+	} else {
+		// Don't set it, leave it at the previous setting from a previous simuconf.tab, save file, etc
+	}
 	float32e8_t distance_per_tile(meters_per_tile, 1000);
 
 		// special day/night colors
@@ -1900,9 +1907,10 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 		}
 	}
 
-	maint_building = contents.get_int("maintenance_building", maint_building);
-	const sint32 inverse_distance_per_tile = 1 / distance_per_tile;
-	maint_building /= inverse_distance_per_tile;
+	sint64 new_maintenance_building = contents.get_int64("maintenance_building", -1);
+	if (new_maintenance_building > 0) {
+		maint_building = new_maintenance_building * distance_per_tile;
+	}
 
 	numbered_stations = contents.get_int("numbered_stations", numbered_stations );
 	station_coverage_size = contents.get_int("station_coverage", station_coverage_size );
@@ -1952,27 +1960,84 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	airport_toll_revenue_percentage = contents.get_int("airport_toll_revenue_percentage", airport_toll_revenue_percentage );
 	
 	/* now the cost section */
-	cst_multiply_dock = (contents.get_int64("cost_multiply_dock", cst_multiply_dock/(-100) ) * -100) * distance_per_tile;
-	cst_multiply_station = (contents.get_int64("cost_multiply_station", cst_multiply_station/(-100) ) * -100) * distance_per_tile;
-	cst_multiply_roadstop = (contents.get_int64("cost_multiply_roadstop", cst_multiply_roadstop/(-100) ) * -100) * distance_per_tile;
-	cst_multiply_airterminal = (contents.get_int64("cost_multiply_airterminal", cst_multiply_airterminal/(-100) ) * -100) * distance_per_tile;
-	cst_multiply_post = (contents.get_int64("cost_multiply_post", cst_multiply_post/(-100) ) * -100) * distance_per_tile;
+	// Account for multiple loading of conflicting simuconf.tab files correctly.
+	// Assume that negative numbers in the simuconf.tab file are invalid cost options (zero might be valid).
+	// Annoyingly, the cst_ numbers are stored negative; assume positive numbers are invalid there...
+
+	// Stations.  (Overridden by specific prices in pak files.)
+	sint64 new_cost_multiply_dock = contents.get_int64("cost_multiply_dock", -1);
+	if (new_cost_multiply_dock > 0) {
+		cst_multiply_dock = new_cost_multiply_dock * -100 * distance_per_tile;
+	}
+	sint64 new_cost_multiply_station = contents.get_int64("cost_multiply_station", -1);
+	if (new_cost_multiply_station > 0) {
+		cst_multiply_station = new_cost_multiply_station * -100 * distance_per_tile;
+	}
+	sint64 new_cost_multiply_roadstop = contents.get_int64("cost_multiply_roadstop", -1);
+	if (new_cost_multiply_roadstop > 0) {
+		cst_multiply_roadstop = new_cost_multiply_roadstop * -100 * distance_per_tile;
+	}
+	sint64 new_cost_multiply_airterminal = contents.get_int64("cost_multiply_airterminal", -1);
+	if (new_cost_multiply_airterminal > 0) {
+		cst_multiply_airterminal = new_cost_multiply_airterminal * -100 * distance_per_tile;
+	}
+	// "post" is auxiliary station buildings
+	sint64 new_cost_multiply_post = contents.get_int64("cost_multiply_post", -1);
+	if (new_cost_multiply_post > 0) {
+		cst_multiply_post = new_cost_multiply_post * -100 * distance_per_tile;
+	}
+
+	// Depots & HQ are a bit simpler because not adjusted for distance per tile (not distance based).
+	//   It should be possible to override this in .dat files, but it isn't
 	cst_multiply_headquarter = contents.get_int64("cost_multiply_headquarter", cst_multiply_headquarter/(-100) ) * -100;
 	cst_depot_air = contents.get_int64("cost_depot_air", cst_depot_air/(-100) ) * -100;
 	cst_depot_rail = contents.get_int64("cost_depot_rail", cst_depot_rail/(-100) ) * -100;
 	cst_depot_road = contents.get_int64("cost_depot_road", cst_depot_road/(-100) ) * -100;
 	cst_depot_ship = contents.get_int64("cost_depot_ship", cst_depot_ship/(-100) ) * -100;
 
-	// alter landscape
-	cst_buy_land = (contents.get_int64("cost_buy_land", cst_buy_land/(-100) ) * -100) * distance_per_tile;
-	cst_alter_land = contents.get_int64("cost_alter_land", cst_alter_land/(-100) ) * -100;
-	cst_set_slope = contents.get_int64("cost_set_slope", cst_set_slope/(-100) ) * -100;
+	// Set slope or alter it the "cheaper" way.
+	// This *should* be adjusted for distance per tile, because it's actually distance-based.
+	// But we weren't adjusting it before experimental version 12.
+	// We do not attempt to correct saved games as this was part of the "game balance" involved
+	// with that game.  A save game can be changed using the override options.
+	sint64 new_cost_alter_land = contents.get_int64("cost_alter_land", -1);
+	if (new_cost_alter_land > 0) {
+		cst_alter_land = new_cost_alter_land * -100 * distance_per_tile;
+	}
+	sint64 new_cost_set_slope = contents.get_int64("cost_set_slope", -1);
+	if (new_cost_set_slope > 0) {
+		cst_set_slope = new_cost_set_slope * -100 * distance_per_tile;
+	}
+	// Remove trees.  Probably distance based (if we're clearing a long area).
+	sint64 new_cost_remove_tree = contents.get_int64("cost_remove_tree", -1);
+	if (new_cost_remove_tree > 0) {
+		cst_remove_tree = new_cost_remove_tree * -100 * distance_per_tile;
+	}
+	// Purchase land (often a house).  Distance-based, adjust for distance_per_tile.
+	sint64 new_cost_buy_land = contents.get_int64("cost_buy_land", -1);
+	if (new_cost_buy_land > 0) {
+		cst_buy_land = new_cost_buy_land * -100 * distance_per_tile;
+	}
+	// Delete house or field.  Both are definitely distance based.
+	// (You're usually trying to drive a railway line through a field.)
+	// Fields were not adjusted for distance before version 12.
+	// We do not attempt to correct saved games as this was part of the "game balance" involved
+	// with that game.  A save game can be changed using the override options.
+	sint64 new_cost_multiply_remove_haus = contents.get_int64("cost_multiply_remove_haus", -1);
+	if (new_cost_multiply_remove_haus > 0) {
+		cst_multiply_remove_haus = new_cost_multiply_remove_haus * -100 * distance_per_tile;
+	}
+	sint64 new_cost_multiply_remove_field = contents.get_int64("cost_multiply_remove_field", -1);
+	if (new_cost_multiply_remove_field > 0) {
+		cst_multiply_remove_field = new_cost_multiply_remove_field * -100 * distance_per_tile;
+	}
+
+	// Found city or industry chain.  Not distance based.
 	cst_found_city = contents.get_int64("cost_found_city", cst_found_city/(-100) ) * -100;
 	cst_multiply_found_industry = contents.get_int64("cost_multiply_found_industry", cst_multiply_found_industry/(-100) ) * -100;
-	cst_remove_tree = (contents.get_int64("cost_remove_tree", cst_remove_tree/(-100) ) * -100) * distance_per_tile;
-	cst_multiply_remove_haus = (contents.get_int64("cost_multiply_remove_haus", cst_multiply_remove_haus/(-100) ) * -100) * distance_per_tile;
-	cst_multiply_remove_field = contents.get_int64("cost_multiply_remove_field", cst_multiply_remove_field/(-100) ) * -100;
-	// powerlines
+
+	// Transformers.  Not distance based.
+	//   It should be possible to override this in .dat files, but it isn't
 	cst_transformer = contents.get_int64("cost_transformer", cst_transformer/(-100) ) * -100;
 	cst_maintain_transformer = contents.get_int64("cost_maintain_transformer", cst_maintain_transformer/(-100) ) * -100;
 
@@ -2029,15 +2094,36 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	obsolete_running_cost_increase_phase_years = contents.get_int("obsolete_running_cost_increase_phase_years", obsolete_running_cost_increase_phase_years);
 
 	// Passenger destination ranges
-	uint32 city_short_range_radius_km = city_short_range_radius * distance_per_tile;
-	uint32 city_medium_range_radius_km = city_medium_range_radius * distance_per_tile;
-	local_passengers_min_distance = contents.get_int("local_passengers_min_distance", local_passengers_min_distance) / distance_per_tile;
-	local_passengers_max_distance = contents.get_int("local_passengers_max_distance", city_short_range_radius_km) / distance_per_tile;
-	midrange_passengers_min_distance = contents.get_int("midrange_passengers_min_distance", midrange_passengers_min_distance) / distance_per_tile;
-	midrange_passengers_max_distance = contents.get_int("midrange_passengers_max_distance", city_medium_range_radius_km) / distance_per_tile;
-	longdistance_passengers_min_distance = contents.get_int("longdistance_passengers_min_distance", longdistance_passengers_min_distance) / distance_per_tile;
-	longdistance_passengers_max_distance = contents.get_int("longdistance_passengers_max_distance", longdistance_passengers_max_distance) / distance_per_tile;
-	
+
+	sint64 new_local_passengers_min_distance = contents.get_int64("local_passengers_min_distance", -1);
+	if (new_local_passengers_min_distance > 0) {
+		local_passengers_min_distance = new_local_passengers_min_distance / distance_per_tile;
+	}
+	sint64 new_local_passengers_max_distance = contents.get_int64("local_passengers_max_distance", -1);
+	if (new_local_passengers_max_distance > 0) {
+		local_passengers_max_distance = new_local_passengers_max_distance / distance_per_tile;
+	} else if (city_short_range_radius) {
+		local_passengers_max_distance = city_short_range_radius;
+	}
+	sint64 new_midrange_passengers_min_distance = contents.get_int64("midrange_passengers_min_distance", -1);
+	if (new_midrange_passengers_min_distance > 0) {
+		midrange_passengers_min_distance = new_midrange_passengers_min_distance / distance_per_tile;
+	}
+	sint64 new_midrange_passengers_max_distance = contents.get_int64("midrange_passengers_max_distance", -1);
+	if (new_midrange_passengers_max_distance > 0) {
+		midrange_passengers_max_distance = new_midrange_passengers_max_distance / distance_per_tile;
+	} else if (city_medium_range_radius) {
+		midrange_passengers_max_distance = city_medium_range_radius;
+	}
+	sint64 new_longdistance_passengers_min_distance = contents.get_int64("longdistance_passengers_min_distance", -1);
+	if (new_longdistance_passengers_min_distance > 0) {
+		longdistance_passengers_min_distance = new_longdistance_passengers_min_distance / distance_per_tile;
+	}
+	sint64 new_longdistance_passengers_max_distance = contents.get_int64("longdistance_passengers_max_distance", -1);
+	if (new_longdistance_passengers_max_distance > 0) {
+		longdistance_passengers_max_distance = new_longdistance_passengers_max_distance / distance_per_tile;
+	}
+
 	// Passenger routing settings
 	passenger_routing_packet_size = contents.get_int("passenger_routing_packet_size", passenger_routing_packet_size);
 	if(passenger_routing_packet_size < 1)
