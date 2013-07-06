@@ -1902,11 +1902,14 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	if(  old_y < new_groesse_y  ) {
 		for(  sint16 x=0;  x<old_x;  x++  ) {
 			for(  sint16 y=old_y-cov;  y<old_y;  y++  ) {
-				halthandle_t h = plan[x+y*new_groesse_x].get_halt();
-				if(  h.is_bound()  ) {
-					for(  sint16 xp=max(0,x-cov);  xp<x+cov+1;  xp++  ) {
-						for(  sint16 yp=y;  yp<y+cov+1;  yp++  ) {
-							plan[xp+yp*new_groesse_x].add_to_haltlist(h);
+				const planquadrat_t* pl = &plan[x+y*new_groesse_x];
+				for(  uint8 i=0;  i < pl->get_boden_count();  i++  ) {
+					halthandle_t h = pl->get_boden_bei(i)->get_halt();
+					if(  h.is_bound()  ) {
+						for(  sint16 xp=max(0,x-cov);  xp<x+cov+1;  xp++  ) {
+							for(  sint16 yp=y;  yp<y+cov+1;  yp++  ) {
+								plan[xp+yp*new_groesse_x].add_to_haltlist(h);
+							}
 						}
 					}
 				}
@@ -1916,11 +1919,14 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	if(  old_x < new_groesse_x  ) {
 		for(  sint16 x=old_x-cov;  x<old_x;  x++  ) {
 			for(  sint16 y=0;  y<old_y;  y++  ) {
-				halthandle_t h = plan[x+y*new_groesse_x].get_halt();
-				if(  h.is_bound()  ) {
-					for(  sint16 xp=x;  xp<x+cov+1;  xp++  ) {
-						for(  sint16 yp=max(0,y-cov);  yp<y+cov+1;  yp++  ) {
-							plan[xp+yp*new_groesse_x].add_to_haltlist(h);
+				const planquadrat_t* pl = &plan[x+y*new_groesse_x];
+				for(  uint8 i=0;  i < pl->get_boden_count();  i++  ) {
+					halthandle_t h = pl->get_boden_bei(i)->get_halt();
+					if(  h.is_bound()  ) {
+						for(  sint16 xp=x;  xp<x+cov+1;  xp++  ) {
+							for(  sint16 yp=max(0,y-cov);  yp<y+cov+1;  yp++  ) {
+								plan[xp+yp*new_groesse_x].add_to_haltlist(h);
+							}
 						}
 					}
 				}
@@ -6172,19 +6178,24 @@ void karte_t::update_map()
 
 
 // return an index to a halt (or creates a new one)
-// only used during loading
+// only used during loading of *old* saved games
 halthandle_t karte_t::get_halt_koord_index(koord k)
 {
 	if(!is_within_limits(k)) {
 		return halthandle_t();
 	}
 	// already there?
-	const halthandle_t h=lookup(k)->get_halt();
-	if(!h.is_bound()) {
-		// no => create
-		return haltestelle_t::create( this, k, NULL );
+	// check through all the grounds
+	const planquadrat_t* plan = lookup(k);
+	for(  uint8 i=0;  i < plan->get_boden_count();  i++  ) {
+		halthandle_t my_halt = plan->get_boden_bei(i)->get_halt();
+		if(  my_halt.is_bound()  ) {
+			// Stop at first halt found (always prefer ground level)
+			return my_halt;
+		}
 	}
-	return h;
+	// No halts found => create one
+	return haltestelle_t::create( this, k, NULL );
 }
 
 

@@ -201,7 +201,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	line_update_pending = linehandle_t();
 
 	home_depot = koord3d::invalid;
-	last_stop_pos = koord3d::invalid;
+	// last_stop_pos = koord3d::invalid;
 	last_stop_id = 0;
 
 	reversable = false;
@@ -596,7 +596,7 @@ void convoi_t::call_convoi_tool( const char function, const char *extra)
 
 void convoi_t::rotate90( const sint16 y_size )
 {
-	last_stop_pos.rotate90( y_size );
+	// last_stop_pos.rotate90( y_size );
 	record_pos.rotate90( y_size );
 	home_depot.rotate90( y_size );
 	route.rotate90( y_size );
@@ -1048,7 +1048,7 @@ bool convoi_t::sync_step(long delta_t)
 				// to skew average speed readings from vehicles emerging 
 				// from depots.
 				// @author: jamespetts
-				fahr[0]->last_stop_pos = fahr[0]->get_pos().get_2d();
+				fahr[0]->last_stop_pos = fahr[0]->get_pos();
 				last_stop_id = 0;
 
 				// now actually move the units
@@ -1085,7 +1085,7 @@ bool convoi_t::sync_step(long delta_t)
 					next_wolke = 0;
 					for(int i=0;  i<anz_vehikel;  i++  ) {
 						fahr[i]->rauche();
-						fahr[i]->last_stop_pos = fahr[i]->get_pos().get_2d();
+						fahr[i]->last_stop_pos = fahr[i]->get_pos();
 					}
 				}
 			}
@@ -1452,7 +1452,7 @@ end_loop:
 			if(wait_lock == 0)
 			{
 				state = CAN_START;
-				if(fahr[0]->last_stop_pos == fahr[0]->get_pos().get_2d())
+				if(fahr[0]->last_stop_pos == fahr[0]->get_pos())
 				{
 					book_waiting_times();
 				}
@@ -2695,7 +2695,7 @@ void convoi_t::vorfahren()
 						}
 
 						state = REVERSING;
-						if(fahr[0]->last_stop_pos == fahr[0]->get_pos().get_2d())
+						if(fahr[0]->last_stop_pos == fahr[0]->get_pos())
 						{
 							// The convoy does not depart until it has reversed.
 							book_departure_time(welt->get_zeit_ms() + reverse_delay);
@@ -2771,7 +2771,7 @@ void convoi_t::vorfahren()
 			fahr[0]->set_erstes(true);
 		}
 
-		else if(fahr[0]->last_stop_pos == fahr[0]->get_pos().get_2d())
+		else if(fahr[0]->last_stop_pos == fahr[0]->get_pos())
 		{
 			book_departure_time(welt->get_zeit_ms());
 			book_waiting_times();
@@ -3445,14 +3445,18 @@ void convoi_t::rdwr(loadsave_t *file)
 		home_depot.rdwr(file);
 	}
 
-	if(file->get_version()>=87001) {
-		last_stop_pos.rdwr(file);
+	// Old versions recorded last_stop_pos in convoi, not in vehicle
+	koord3d last_stop_pos_convoi = koord3d(0,0,0);
+	if (anz_vehikel !=0) {
+		last_stop_pos_convoi = fahr[0]->last_stop_pos;
 	}
-	else {
-		last_stop_pos =
-			!route.empty()   ? route.front()      :
-			anz_vehikel != 0 ? fahr[0]->get_pos() :
-			koord3d(0, 0, 0);
+	if(file->get_version()>=87001) {
+		last_stop_pos_convoi.rdwr(file);
+	} else {
+		last_stop_pos_convoi =
+		!route.empty()   ? route.front()      :
+		anz_vehikel != 0 ? fahr[0]->get_pos() :
+		koord3d(0, 0, 0);
 	}
 
 	// for leaving the depot routine
@@ -3509,7 +3513,7 @@ void convoi_t::rdwr(loadsave_t *file)
 	// since 99015, the last stop will be maintained by the vehikels themselves
 	if(file->get_version()<99015) {
 		for(unsigned i=0; i<anz_vehikel; i++) {
-			fahr[i]->last_stop_pos = last_stop_pos.get_2d();
+			fahr[i]->last_stop_pos = last_stop_pos_convoi;
 		}
 	}
 
@@ -3630,10 +3634,10 @@ void convoi_t::rdwr(loadsave_t *file)
 	{
 		if(file->get_experimental_version() <= 9)
 		{
-			const planquadrat_t* plan = welt->lookup(fahr[0]->last_stop_pos);
-			if(plan)
+			const grund_t* gr = welt->lookup(fahr[0]->last_stop_pos);
+			if(gr)
 			{
-				uint16 last_halt_id =plan->get_halt().get_id();
+				uint16 last_halt_id = gr->get_halt().get_id();
 				sint64 departure_time = departures->get(last_halt_id).departure_time;
 				file->rdwr_longlong(departure_time);
 				if(file->is_loading())
@@ -4043,9 +4047,9 @@ void convoi_t::laden() //"load" (Babelfish)
 	// The calculation of the journey distance does not need to use normalised halt locations for comparison, so
 	// a more accurate distance can be used. Query whether the formula from halt_detail.cc should be used here instead
 	// (That formula has the effect of finding the distance between the nearest points of two halts).
-	const uint32 journey_distance = shortest_distance(fahr[0]->get_pos().get_2d(), fahr[0]->last_stop_pos);
+	const uint32 journey_distance = shortest_distance(fahr[0]->get_pos().get_2d(), fahr[0]->last_stop_pos.get_2d() );
 
-	//last_stop_pos will be set to get_pos().get_2d() in hat_gehalten (called from inside halt->request_loading later
+	//last_stop_pos will be set to get_pos() in hat_gehalten (called from inside halt->request_loading later
 	//so code inside if will be executed once. At arrival time.
 	if(journey_distance > 0)
 	{
@@ -4387,7 +4391,7 @@ sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportione
 		max_distance = shortest_distance(ware.get_last_transfer()->get_basis_pos(), fahr[0]->get_pos().get_2d()) * 2;
 	}
 	else {
-		max_distance = shortest_distance(last_stop_pos.get_2d(), fahr[0]->get_pos().get_2d()) * 3;
+		max_distance = shortest_distance(fahr[0]->last_stop_pos.get_2d(), fahr[0]->get_pos().get_2d()) * 3;
 	}
 	const departure_data_t dep = departures->get(ware.get_last_transfer().get_id());
 	uint32 travel_distance = dep.get_overall_distance();
@@ -4408,9 +4412,9 @@ sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportione
 	bool valid_journey_time = false;
 	if(ware.get_last_transfer().is_bound())
 	{
-		const planquadrat_t* plan = welt->lookup(fahr[0]->get_pos().get_2d());
-		if (plan) {
-			id_pair my_ordered_pair = id_pair(ware.get_last_transfer().get_id(), plan->get_halt().get_id());
+		const grund_t* gr = welt->lookup(fahr[0]->get_pos());
+		if (gr) {
+			id_pair my_ordered_pair = id_pair(ware.get_last_transfer().get_id(), gr->get_halt().get_id());
 			journey_tenths = get_average_journey_times()->get(my_ordered_pair).get_average();
 			if (journey_tenths != 0) {
 				// No unreasonably short journeys...
@@ -4622,8 +4626,8 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	halt->update_alternative_seats(self);
 	// only load vehicles in station
 
-	// Save the old stop position; don't unload again if we don't move.
-	const koord old_last_stop_pos = fahr[0]->last_stop_pos;
+	// Save the old stop position; don't load/unload again if we don't move.
+	const koord3d old_last_stop_pos = fahr[0]->last_stop_pos;
 
 	uint16 changed_loading_level = 0;
 	int number_loadable_vehicles = anz_vehikel; // Will be shortened for short platform
@@ -4658,15 +4662,15 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 		koord3d pos = v->get_pos();
 		if(haltestelle_t::get_halt(welt, pos, v->get_besitzer()).is_bound())
 		{
-			v->last_stop_pos = pos.get_2d();
+			v->last_stop_pos = pos;
 		}
 		else
 		{
-			v->last_stop_pos = halt->get_basis_pos();
+			v->last_stop_pos = halt->get_basis_pos3d();
 		}
-		// hat_behalten can be called when the convoy hasn't moved... at all.
+		// hat_gehalten can be called when the convoy hasn't moved... at all.
 		// We should avoid the unloading code when this happens (for speed).
-		if(old_last_stop_pos != fahr[0]->get_pos().get_2d()) {
+		if(  old_last_stop_pos != fahr[0]->get_pos()  ) {
 			//Unload
 			sint64 revenue_from_unloading = 0;
 			uint16 amount_unloaded = v->entladen(halt, revenue_from_unloading, apportioned_revenues);
@@ -4722,7 +4726,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	calc_loading();
 	loading_limit = fpl->get_current_eintrag().ladegrad; // ladegrad = max. load.
 	highest_axle_load = calc_highest_axle_load(); // Bernd Gabriel, Mar 10, 2010: was missing.
-	if(old_last_stop_pos != fahr[0]->get_pos().get_2d())
+	if(  old_last_stop_pos != fahr[0]->get_pos()  )
 	{
 		// Only calculate the loading time once, on arriving at the stop:
 		// otherwise, the change in the vehicle's load will not be calculated
