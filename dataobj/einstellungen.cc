@@ -1907,9 +1907,10 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 		}
 	}
 
-	maint_building = contents.get_int("maintenance_building", maint_building);
-	const sint32 inverse_distance_per_tile = 1 / distance_per_tile;
-	maint_building /= inverse_distance_per_tile;
+	sint64 new_maintenance_building = contents.get_int64("maintenance_building", -1);
+	if (new_maintenance_building > 0) {
+		maint_building = new_maintenance_building * distance_per_tile;
+	}
 
 	numbered_stations = contents.get_int("numbered_stations", numbered_stations );
 	station_coverage_size = contents.get_int("station_coverage", station_coverage_size );
@@ -2093,15 +2094,36 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	obsolete_running_cost_increase_phase_years = contents.get_int("obsolete_running_cost_increase_phase_years", obsolete_running_cost_increase_phase_years);
 
 	// Passenger destination ranges
-	uint32 city_short_range_radius_km = city_short_range_radius * distance_per_tile;
-	uint32 city_medium_range_radius_km = city_medium_range_radius * distance_per_tile;
-	local_passengers_min_distance = contents.get_int("local_passengers_min_distance", local_passengers_min_distance) / distance_per_tile;
-	local_passengers_max_distance = contents.get_int("local_passengers_max_distance", city_short_range_radius_km) / distance_per_tile;
-	midrange_passengers_min_distance = contents.get_int("midrange_passengers_min_distance", midrange_passengers_min_distance) / distance_per_tile;
-	midrange_passengers_max_distance = contents.get_int("midrange_passengers_max_distance", city_medium_range_radius_km) / distance_per_tile;
-	longdistance_passengers_min_distance = contents.get_int("longdistance_passengers_min_distance", longdistance_passengers_min_distance) / distance_per_tile;
-	longdistance_passengers_max_distance = contents.get_int("longdistance_passengers_max_distance", longdistance_passengers_max_distance) / distance_per_tile;
-	
+
+	sint64 new_local_passengers_min_distance = contents.get_int64("local_passengers_min_distance", -1);
+	if (new_local_passengers_min_distance > 0) {
+		local_passengers_min_distance = new_local_passengers_min_distance / distance_per_tile;
+	}
+	sint64 new_local_passengers_max_distance = contents.get_int64("local_passengers_max_distance", -1);
+	if (new_local_passengers_max_distance > 0) {
+		local_passengers_max_distance = new_local_passengers_max_distance / distance_per_tile;
+	} else if (city_short_range_radius) {
+		local_passengers_max_distance = city_short_range_radius;
+	}
+	sint64 new_midrange_passengers_min_distance = contents.get_int64("midrange_passengers_min_distance", -1);
+	if (new_midrange_passengers_min_distance > 0) {
+		midrange_passengers_min_distance = new_midrange_passengers_min_distance / distance_per_tile;
+	}
+	sint64 new_midrange_passengers_max_distance = contents.get_int64("midrange_passengers_max_distance", -1);
+	if (new_midrange_passengers_max_distance > 0) {
+		midrange_passengers_max_distance = new_midrange_passengers_max_distance / distance_per_tile;
+	} else if (city_medium_range_radius) {
+		midrange_passengers_max_distance = city_medium_range_radius;
+	}
+	sint64 new_longdistance_passengers_min_distance = contents.get_int64("longdistance_passengers_min_distance", -1);
+	if (new_longdistance_passengers_min_distance > 0) {
+		longdistance_passengers_min_distance = new_longdistance_passengers_min_distance / distance_per_tile;
+	}
+	sint64 new_longdistance_passengers_max_distance = contents.get_int64("longdistance_passengers_max_distance", -1);
+	if (new_longdistance_passengers_max_distance > 0) {
+		longdistance_passengers_max_distance = new_longdistance_passengers_max_distance / distance_per_tile;
+	}
+
 	// Passenger routing settings
 	passenger_routing_packet_size = contents.get_int("passenger_routing_packet_size", passenger_routing_packet_size);
 	if(passenger_routing_packet_size < 1)
