@@ -34,7 +34,7 @@
 #endif
 
 enum BUTTONS {
-	BUTTON_LANGUAGE,
+	BUTTON_LANGUAGE = 0,
 	BUTTON_PLAYERS,
 	BUTTON_PLAYER_COLORS,
 	BUTTON_DISPLAY,
@@ -44,12 +44,10 @@ enum BUTTONS {
 	BUTTON_SAVE_GAME,
 	BUTTON_LOAD_SCENARIO,
 	BUTTON_SCENARIO_INFO,
-	BUTTON_QUIT,
-
-	BUTTON_END_OF_BUTTON_LIST
+	BUTTON_QUIT
 };
 
-const char *option_buttons_text[BUTTON_END_OF_BUTTON_LIST] =
+const char *option_buttons_text[] =
 {
 	"Sprache", "Spieler(mz)", "Farbe", "Helligk.", "Sound",
 	"Neue Karte", "Load game", "Speichern", "Load scenario", "Scenario", "Beenden"
@@ -65,12 +63,14 @@ const char *option_buttons_tooltip[6] =
 optionen_gui_t::optionen_gui_t(karte_t *welt) :
 	gui_frame_t( translator::translate("Einstellungen aendern"))
 {
+	assert(  lengthof(option_buttons)==lengthof(option_buttons_text)  );
+	assert(  lengthof(option_buttons)==BUTTON_QUIT+1  );
 
 	koord cursor = koord( D_MARGIN_LEFT, D_MARGIN_TOP );
 
 	this->welt = welt;
 
-	for(  int i=0;  i<BUTTON_END_OF_BUTTON_LIST;  i++  ) {
+	for(  int i=0;  i<lengthof(option_buttons);  i++  ) {
 
 		switch(i) {
 
@@ -88,10 +88,9 @@ optionen_gui_t::optionen_gui_t(karte_t *welt) :
 
 			// Squeeze in divider
 			case BUTTON_QUIT:
-				cursor.y -= D_V_SPACE;
 				divider.init( koord(D_MARGIN_LEFT, cursor.y), cursor.x - D_MARGIN_LEFT + D_BUTTON_WIDTH );
 				add_komponente( &divider );
-				cursor.y += D_DIVIDER_HEIGHT;
+				cursor.y += divider.get_groesse().y+D_V_SPACE;
 				break;
 
 		}
