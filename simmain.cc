@@ -679,7 +679,7 @@ int simu_main(int argc, char** argv)
 
 	// prepare skins first
 	obj_reader_t::init();
-	if(  !themes_init(NULL)  ) {
+	if(  !themes_init("")  ) {
 		// if no themes (or failed) use old default skin for now
 		chdir( umgebung_t::program_dir );
 	}

@@ -171,14 +171,12 @@ bool themes_init(const char *objfilename)
 	// first take user data, then user global data
 	const std::string user_dir = umgebung_t::user_dir;
 	if(  !themesconf.open((user_dir+"themes/themes.tab").c_str())  ) {
-		if(  objfilename  ) {
-			const std::string obj_dir = objfilename;
-			if(  !themesconf.open((obj_dir+"themes/themes.tab").c_str())  ) {
-				const std::string prog_dir = umgebung_t::program_dir;
-				if(  !themesconf.open((prog_dir+"themes/themes.tab").c_str())  ) {
-					dbg->error("simwin.cc themes_init()", "Can't read themes.tab" );
-					return false;
-				}
+		const std::string obj_dir = objfilename;
+		if(  !themesconf.open((obj_dir+"themes/themes.tab").c_str())  ) {
+			const std::string prog_dir = umgebung_t::program_dir;
+			if(  !themesconf.open((prog_dir+"themes/themes.tab").c_str())  ) {
+				dbg->error("simwin.cc themes_init()", "Can't read themes.tab" );
+				return false;
 			}
 		}
 	}
