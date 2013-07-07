@@ -43,54 +43,25 @@ class spieler_t;
 #define SYS_COL_SHADOW    MN_GREY0
 #define SYS_COL_FACE      MN_GREY2
 
-#if THEME_TEST == 1
+// default edit field height
+#define D_EDIT_HEIGHT (D_BUTTON_HEIGHT)
 
-	// default edit field height
-	#define D_EDIT_HEIGHT (LINESPACE+4)
+// default square button xy size (replace with real values from the skin images)
+#define D_BUTTON_SQUARE (LINESPACE)
 
-	// default square button xy size (replace with real values from the skin images)
-	#define D_BUTTON_SQUARE (LINESPACE)
+// statusbar bottom of screen
+#define D_STATUSBAR_HEIGHT (16)
 
-	// statusbar bottom of screen
-	#define D_STATUSBAR_HEIGHT (16)
+// gadget size
+#define D_GADGET_SIZE (gui_frame_t::gui_gadget_size)
 
-	// gadget size
-	#define D_GADGET_SIZE D_TITLEBAR_HEIGHT
+// Arrow size (replace with real values from the skin images)
+#define D_ARROW_WIDTH  (10)
+#define D_ARROW_HEIGHT (10)
 
-	// Arrow size (replace with real values from the skin images)
-	#define D_ARROW_WIDTH  (10)
-	#define D_ARROW_HEIGHT (10)
-
-	// Scrollbar params (replace with real values from the skin images)
-	#define KNOB_SIZE        (32)
-	#define D_SCROLLBAR_SIZE (scrollbar_t::BAR_SIZE)
-
-	// Vertical divider element height
-	#define D_DIVIDER_HEIGHT (D_V_SPACE*2)
-#else
-	// default edit field height
-	#define D_EDIT_HEIGHT (D_BUTTON_HEIGHT)
-
-	// default square button xy size (replace with real values from the skin images)
-	#define D_BUTTON_SQUARE (LINESPACE)
-
-	// statusbar bottom of screen
-	#define D_STATUSBAR_HEIGHT (16)
-
-	// gadget size
-	#define D_GADGET_SIZE (gui_frame_t::gui_gadget_size)
-
-	// Arrow size (replace with real values from the skin images)
-	#define D_ARROW_WIDTH  (10)
-	#define D_ARROW_HEIGHT (10)
-
-	// Scrollbar params (replace with real values from the skin images)
-	#define KNOB_SIZE        (32)
-	#define D_SCROLLBAR_SIZE (scrollbar_t::BAR_SIZE)
-
-	// Vertical divider element height
-	#define D_DIVIDER_HEIGHT (D_V_SPACE*2)
-#endif
+// Scrollbar params (replace with real values from the skin images)
+#define KNOB_SIZE        (32)
+#define D_SCROLLBAR_SIZE (scrollbar_t::BAR_SIZE)
 
 // default button width (may change with langugae and font)
 #define D_BUTTON_WIDTH (gui_frame_t::gui_button_width)
@@ -99,8 +70,10 @@ class spieler_t;
 // titlebar height
 #define D_TITLEBAR_HEIGHT (gui_frame_t::gui_titlebar_height)
 
+#define D_DIVIDER_HEIGHT (gui_frame_t::gui_divider_height)
+
 // Tab page params (replace with real values from the skin images)
-#define TAB_HEADER_V_SIZE (gui_tab_panel_t::HEADER_VSIZE)
+#define TAB_HEADER_V_SIZE (gui_tab_panel_t::header_vsize)
 
 // dialog borders
 #define D_MARGIN_LEFT (gui_frame_t::gui_frame_left)
@@ -178,10 +151,13 @@ public:
 	static KOORD_VAL gui_indicator_width;
 	static KOORD_VAL gui_indicator_height;
 
+	// default divider height
+	static KOORD_VAL gui_divider_height;
+
 private:
 	gui_container_t container;
 
-	const char * name;
+	const char *name;
 	koord groesse;
 
 	/**

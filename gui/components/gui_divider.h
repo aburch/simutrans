@@ -23,7 +23,6 @@
 class gui_divider_t : public gui_komponente_t
 {
 public:
-
 	/**
 	 * Pre-defined divider line styles
 	 * Values > 2 creates an inset bevel
@@ -47,15 +46,9 @@ public:
 	* obwohl groesse public ist.
 	* @author Hj. Malthaner
 	*/
-	void set_width(KOORD_VAL width) {
+	void set_width(KOORD_VAL width) { set_groesse(koord(width,groesse.y)); }
 
-		set_groesse(koord(width,groesse.y));
-	}
-
-	virtual koord get_groesse() const {
-
-		return koord(groesse.x,max(groesse.y,D_DIVIDER_HEIGHT));
-	}
+	virtual koord get_groesse() const { return koord(groesse.x,max(groesse.y,D_DIVIDER_HEIGHT)); }
 
 	/**
 	 * Zeichnet die Komponente

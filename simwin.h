@@ -109,6 +109,12 @@ enum magic_numbers {
 // Holding time for auto-closing windows
 #define MESG_WAIT 80
 
+/**
+ * Reads theme configuration data, still not final
+ * searches first in user dir, pak dir, program dir
+ * @author prissi
+ */
+bool themes_init(const char *objfilename);
 
 void init_map_win();
 

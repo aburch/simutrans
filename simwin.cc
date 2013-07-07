@@ -37,6 +37,7 @@
 #include "dataobj/translator.h"
 #include "dataobj/umgebung.h"
 #include "dataobj/loadsave.h"
+#include "dataobj/tabfile.h"
 
 #include "besch/skin_besch.h"
 
@@ -156,6 +157,80 @@ static void destroy_framed_win(simwin_t *win);
 #define REVERSE_GADGETS (!umgebung_t::window_buttons_right)
 // (Mathew Hounsell) A "Gadget Box" is a windows control button.
 enum simwin_gadget_et { GADGET_CLOSE, GADGET_HELP, GADGET_SIZE, GADGET_PREV, GADGET_NEXT, GADGET_GOTOPOS=36, GADGET_STICKY=21, GADGET_STICKY_PUSHED, COUNT_GADGET=255 };
+
+
+/**
+ * Reads theme configuration data, still not final
+ * searches first in user dir, pak dir, program dir
+ * @author prissi
+ */
+bool themes_init(const char *objfilename)
+{
+	tabfile_t themesconf;
+
+	// first take user data, then user global data
+	const std::string user_dir = umgebung_t::user_dir;
+	if(  !themesconf.open((user_dir+"themes/themes.tab").c_str())  ) {
+		if(  objfilename  ) {
+			const std::string obj_dir = objfilename;
+			if(  !themesconf.open((obj_dir+"themes/themes.tab").c_str())  ) {
+				const std::string prog_dir = umgebung_t::program_dir;
+				if(  !themesconf.open((prog_dir+"themes/themes.tab").c_str())  ) {
+					dbg->error("simwin.cc themes_init()", "Can't read themes.tab" );
+					return false;
+				}
+			}
+		}
+	}
+
+	tabfileobj_t contents;
+	themesconf.read(contents);
+
+	// first the stuff for the dialogues
+	gui_frame_t::gui_titlebar_height = (uint32)contents.get_int("gui_titlebar_height", gui_frame_t::gui_titlebar_height );
+	gui_frame_t::gui_frame_left = (uint32)contents.get_int("gui_frame_left", gui_frame_t::gui_frame_left );
+	gui_frame_t::gui_frame_top = (uint32)contents.get_int("gui_frame_top", gui_frame_t::gui_frame_top );
+	gui_frame_t::gui_frame_right = (uint32)contents.get_int("gui_frame_right", gui_frame_t::gui_frame_right );
+	gui_frame_t::gui_frame_bottom = (uint32)contents.get_int("gui_frame_bottom", gui_frame_t::gui_frame_bottom );
+	gui_frame_t::gui_hspace = (uint32)contents.get_int("gui_hspace", gui_frame_t::gui_hspace );
+	gui_frame_t::gui_vspace = (uint32)contents.get_int("gui_vspace", gui_frame_t::gui_vspace );
+
+	// those two will be anyway set whenever the buttons are reinitialized
+	gui_frame_t::gui_button_width = (uint32)contents.get_int("gui_button_width", gui_frame_t::gui_button_width );
+	gui_frame_t::gui_button_width = (uint32)contents.get_int("gui_button_width", gui_frame_t::gui_button_width );
+
+	// those two may be rather an own control later on?
+	gui_frame_t::gui_indicator_width = (uint32)contents.get_int("gui_indicator_width", gui_frame_t::gui_indicator_width );
+	gui_frame_t::gui_indicator_height = (uint32)contents.get_int("gui_indicator_height", gui_frame_t::gui_indicator_height );
+
+	// other gui parameter
+	scrollbar_t::BAR_SIZE = (uint32)contents.get_int("gui_scrollbar_width", scrollbar_t::BAR_SIZE );
+	gui_tab_panel_t::header_vsize = (uint32)contents.get_int("gui_tab_header_vsize", gui_tab_panel_t::header_vsize );
+
+	// stuff in umgebung_t but ratehr GUI	umgebung_t::window_snap_distance = contents.get_int("window_snap_distance", umgebung_t::window_snap_distance );
+	umgebung_t::window_buttons_right = contents.get_int("window_buttons_right", umgebung_t::window_buttons_right );
+	umgebung_t::left_to_right_graphs = contents.get_int("left_to_right_graphs", umgebung_t::left_to_right_graphs );
+	umgebung_t::window_frame_active = contents.get_int("window_frame_active", umgebung_t::window_frame_active );
+	umgebung_t::second_open_closes_win = contents.get_int("second_open_closes_win", umgebung_t::second_open_closes_win );
+	umgebung_t::remember_window_positions = contents.get_int("remember_window_positions", umgebung_t::remember_window_positions );
+
+	umgebung_t::front_window_bar_color = contents.get_int("front_window_bar_color", umgebung_t::front_window_bar_color );
+	umgebung_t::front_window_text_color = contents.get_int("front_window_text_color", umgebung_t::front_window_text_color );
+	umgebung_t::bottom_window_bar_color = contents.get_int("bottom_window_bar_color", umgebung_t::bottom_window_bar_color );
+	umgebung_t::bottom_window_text_color = contents.get_int("bottom_window_text_color", umgebung_t::bottom_window_text_color );
+
+	umgebung_t::show_tooltips = contents.get_int("show_tooltips", umgebung_t::show_tooltips );
+	umgebung_t::tooltip_color = contents.get_int("tooltip_background_color", umgebung_t::tooltip_color );
+	umgebung_t::tooltip_textcolor = contents.get_int("tooltip_text_color", umgebung_t::tooltip_textcolor );
+	umgebung_t::tooltip_delay = contents.get_int("tooltip_delay", umgebung_t::tooltip_delay );
+	umgebung_t::tooltip_duration = contents.get_int("tooltip_duration", umgebung_t::tooltip_duration );
+	umgebung_t::toolbar_max_width = contents.get_int("toolbar_max_width", umgebung_t::toolbar_max_width );
+	umgebung_t::toolbar_max_height = contents.get_int("toolbar_max_height", umgebung_t::toolbar_max_height );
+	umgebung_t::cursor_overlay_color = contents.get_int("cursor_overlay_color", umgebung_t::cursor_overlay_color );
+
+	// parsing buttons still needs to be done after agreement what to load
+	return false; //hence we return false for now ...
+}
 
 
 /**

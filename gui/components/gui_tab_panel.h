@@ -41,7 +41,7 @@ private:
 	button_t left, right;
 
 public:
-	enum { HEADER_VSIZE = 18};
+	static KOORD_VAL header_vsize;
 
 	gui_tab_panel_t();
 

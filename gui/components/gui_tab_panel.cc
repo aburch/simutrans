@@ -11,6 +11,7 @@
  */
 
 #include "gui_tab_panel.h"
+#include "../gui_frame.h"
 #include "../../simevent.h"
 #include "../../simgraph.h"
 #include "../../simcolor.h"
@@ -20,8 +21,11 @@
 
 #define IMG_WIDTH 20
 
+KOORD_VAL gui_tab_panel_t::header_vsize = 18;
+
+
 gui_tab_panel_t::gui_tab_panel_t() :
-	required_groesse( 8, HEADER_VSIZE )
+	required_groesse( 8, TAB_HEADER_V_SIZE )
 {
 	active_tab = 0;
 	offset_tab = 0;
@@ -46,13 +50,13 @@ void gui_tab_panel_t::set_groesse(koord gr)
 {
 	gui_komponente_t::set_groesse(gr);
 
-	required_groesse = koord( 8, HEADER_VSIZE );
+	required_groesse = koord( 8, TAB_HEADER_V_SIZE );
 	FOR(slist_tpl<tab>, & i, tabs) {
 		i.x_offset          = required_groesse.x - 4;
 		i.width             = 8 + (i.title ? proportional_string_width(i.title) : IMG_WIDTH);
 		required_groesse.x += i.width;
-		i.component->set_pos(koord(0, HEADER_VSIZE));
-		i.component->set_groesse(get_groesse() - koord(0, HEADER_VSIZE));
+		i.component->set_pos(koord(0, TAB_HEADER_V_SIZE));
+		i.component->set_groesse(get_groesse() - koord(0, TAB_HEADER_V_SIZE));
 	}
 
 	if(  required_groesse.x>gr.x  ||  offset_tab > 0) {
@@ -90,7 +94,7 @@ bool gui_tab_panel_t::infowin_event(const event_t *ev)
 		}
 	}
 
-	if(  IS_LEFTRELEASE(ev)  &&  (ev->my > 0  &&  ev->my < HEADER_VSIZE-1)  )  {
+	if(  IS_LEFTRELEASE(ev)  &&  (ev->my > 0  &&  ev->my < TAB_HEADER_V_SIZE-1)  )  {
 		// Reiter getroffen
 		int text_x = required_groesse.x>groesse.x ? 14 : 4;
 		int k=0;
@@ -144,13 +148,13 @@ void gui_tab_panel_t::zeichnen(koord parent_pos)
 	if(  required_groesse.x>groesse.x  ||  offset_tab > 0) {
 		left.zeichnen( parent_pos+pos );
 		right.zeichnen( parent_pos+pos );
-		display_fillbox_wh_clip(xpos, ypos+HEADER_VSIZE-1, 10, 1, COL_WHITE, true);
+		display_fillbox_wh_clip(xpos, ypos+TAB_HEADER_V_SIZE-1, 10, 1, COL_WHITE, true);
 		xpos += 10;
 	}
 
 	int text_x = xpos+8;
 
-	display_fillbox_wh_clip(xpos, ypos+HEADER_VSIZE-1, 4, 1, COL_WHITE, true);
+	display_fillbox_wh_clip(xpos, ypos+TAB_HEADER_V_SIZE-1, 4, 1, COL_WHITE, true);
 
 	// do not draw under right button
 	int xx = required_groesse.x>get_groesse().x ? get_groesse().x-22 : get_groesse().x;
@@ -163,17 +167,17 @@ void gui_tab_panel_t::zeichnen(koord parent_pos)
 		}
 		if(i>=offset_tab) {
 			// set clipping
-			PUSH_CLIP(xpos, ypos, xx, HEADER_VSIZE);
+			PUSH_CLIP(xpos, ypos, xx, TAB_HEADER_V_SIZE);
 			// only start drawing here ...
 			char const* const text = iter.title;
 			const int width = text ? proportional_string_width( text ) : IMG_WIDTH;
 
 			if (i != active_tab) {
-				display_fillbox_wh_clip(text_x-4, ypos+HEADER_VSIZE-1, width+8, 1, MN_GREY4, true);
+				display_fillbox_wh_clip(text_x-4, ypos+TAB_HEADER_V_SIZE-1, width+8, 1, MN_GREY4, true);
 				display_fillbox_wh_clip(text_x-3, ypos+4, width+5, 1, MN_GREY4, true);
 
-				display_vline_wh_clip(text_x-4, ypos+5, HEADER_VSIZE-6, MN_GREY4, true);
-				display_vline_wh_clip(text_x+width+3, ypos+5, HEADER_VSIZE-6, MN_GREY0, true);
+				display_vline_wh_clip(text_x-4, ypos+5, TAB_HEADER_V_SIZE-6, MN_GREY4, true);
+				display_vline_wh_clip(text_x+width+3, ypos+5, TAB_HEADER_V_SIZE-6, MN_GREY0, true);
 
 				if(text) {
 					display_proportional_clip(text_x, ypos+7, text, ALIGN_LEFT, COL_WHITE, true);
@@ -204,11 +208,11 @@ void gui_tab_panel_t::zeichnen(koord parent_pos)
 			POP_CLIP();
 		}
 	}
-	display_fillbox_wh_clip(text_x-4, ypos+HEADER_VSIZE-1, xpos+groesse.x-(text_x-4), 1, MN_GREY4, true);
+	display_fillbox_wh_clip(text_x-4, ypos+TAB_HEADER_V_SIZE-1, xpos+groesse.x-(text_x-4), 1, MN_GREY4, true);
 
 	// now for tooltips ...
 	int my = get_maus_y()-parent_pos.y-pos.y-6;
-	if(my>=0  &&  my < HEADER_VSIZE-1) {
+	if(my>=0  &&  my < TAB_HEADER_V_SIZE-1) {
 		// Reiter getroffen?
 		int mx = get_maus_x()-parent_pos.x-pos.x-11;
 		int text_x = 4;
@@ -220,7 +224,7 @@ void gui_tab_panel_t::zeichnen(koord parent_pos)
 
 				if(text_x < mx && text_x+width+8 > mx  && (required_groesse.x<=get_groesse().x || mx < right.get_pos().x-12)) {
 					// tooltip or change
-					win_set_tooltip(get_maus_x() + 16, ypos + HEADER_VSIZE + 12, iter.tooltip, &iter, this);
+					win_set_tooltip(get_maus_x() + 16, ypos + TAB_HEADER_V_SIZE + 12, iter.tooltip, &iter, this);
 					break;
 				}
 

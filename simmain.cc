@@ -564,11 +564,13 @@ int simu_main(int argc, char** argv)
 		if (  cli_syslog_tag  ) {
 			printf("Init logging with syslog tag: %s\n", cli_syslog_tag);
 			init_logging( "syslog", true, true, version, cli_syslog_tag );
-		} else {
+		}
+		else {
 			printf("Init logging with default syslog tag\n");
 			init_logging( "syslog", true, true, version, "simutrans" );
 		}
-	} else if (gimme_arg(argc, argv, "-log", 0)) {
+	}
+	else if (gimme_arg(argc, argv, "-log", 0)) {
 		chdir( umgebung_t::user_dir );
 		char temp_log_name[256];
 		const char *logname = "simu.log";
@@ -579,14 +581,14 @@ int simu_main(int argc, char** argv)
 			logname = temp_log_name;
 		}
 		init_logging( logname, true, gimme_arg(argc, argv, "-log", 0 ) != NULL, version, NULL );
-	} else if (gimme_arg(argc, argv, "-debug", 0) != NULL) {
+	}
+	else if (gimme_arg(argc, argv, "-debug", 0) != NULL) {
 		init_logging( "stderr", true, gimme_arg(argc, argv, "-debug", 0 ) != NULL, version, NULL );
-	} else {
+	}
+	else {
 		init_logging(NULL, false, false, version, NULL);
 	}
-
 	/*** End logging set up ***/
-
 
 	// now read last setting (might be overwritten by the tab-files)
 	loadsave_t file;
@@ -677,7 +679,10 @@ int simu_main(int argc, char** argv)
 
 	// prepare skins first
 	obj_reader_t::init();
-	chdir( umgebung_t::program_dir );
+	if(  !themes_init(NULL)  ) {
+		// if no themes (or failed) use old default skin for now
+		chdir( umgebung_t::program_dir );
+	}
 
 	// likely only the program without graphics was downloaded
 	if (gimme_arg(argc, argv, "-res", 0) != NULL) {

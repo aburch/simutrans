@@ -310,7 +310,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	year_month_tabs.add_tab( &year_dummy, translator::translate("Years"));
 	year_month_tabs.add_tab( &month_dummy, translator::translate("Months"));
 	year_month_tabs.set_pos(koord(0, LINESPACE-2));
-	year_month_tabs.set_groesse(koord(lyl_x+25, gui_tab_panel_t::HEADER_VSIZE));
+	year_month_tabs.set_groesse(koord(lyl_x+25, TAB_HEADER_V_SIZE));
 	add_komponente(&year_month_tabs);
 
 	add_komponente(&conmoney);

@@ -23,32 +23,6 @@
 #include "../simskin.h"
 #include "../besch/skin_besch.h"
 
-#if THEME_TEST == 1
-
-// default button sizes
-KOORD_VAL gui_frame_t::gui_button_width = 100;
-KOORD_VAL gui_frame_t::gui_button_height = 24;
-
-// default titlebar height
-KOORD_VAL gui_frame_t::gui_titlebar_height = 24;
-
-// Max Kielland: default gadget size
-KOORD_VAL gui_frame_t::gui_gadget_size = 16;
-
-// dialog borders
-KOORD_VAL gui_frame_t::gui_frame_left = 5;
-KOORD_VAL gui_frame_t::gui_frame_top = 5;
-KOORD_VAL gui_frame_t::gui_frame_right = 5;
-KOORD_VAL gui_frame_t::gui_frame_bottom = 5;
-
-// space between two elements
-KOORD_VAL gui_frame_t::gui_hspace = 4;
-KOORD_VAL gui_frame_t::gui_vspace = 4;
-
-// size of status indicator elements (colored boxes in factories, station and others)
-KOORD_VAL gui_frame_t::gui_indicator_width = 20;
-KOORD_VAL gui_frame_t::gui_indicator_height = 4;
-#else
 // default button sizes
 KOORD_VAL gui_frame_t::gui_button_width = 92;
 KOORD_VAL gui_frame_t::gui_button_height = 14;
@@ -72,7 +46,8 @@ KOORD_VAL gui_frame_t::gui_vspace = 4;
 // size of status indicator elements (colored boxes in factories, station and others)
 KOORD_VAL gui_frame_t::gui_indicator_width = 20;
 KOORD_VAL gui_frame_t::gui_indicator_height = 4;
-#endif
+
+KOORD_VAL gui_frame_t::gui_divider_height = 2;
 
 // Insert the container
 gui_frame_t::gui_frame_t(char const* const name, spieler_t const* const sp)
