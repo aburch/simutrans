@@ -20,8 +20,9 @@ const weg_besch_t *strasse_t::default_strasse=NULL;
 void strasse_t::set_gehweg(bool janein)
 {
 	weg_t::set_gehweg(janein);
-	if(janein  &&  get_besch()  &&  get_besch()->get_topspeed()>50) {
-		set_max_speed(50);
+	if(janein && get_besch() && get_besch()->get_topspeed() > welt->get_city_road()->get_topspeed()) 
+	{
+		set_max_speed(welt->get_city_road()->get_topspeed());
 	}
 }
 
@@ -76,8 +77,9 @@ void strasse_t::rdwr(loadsave_t *file)
 		if(old_max_speed>0) {
 			set_max_speed(old_max_speed);
 		}
-		if(besch->get_topspeed()>50  &&  hat_gehweg()) {
-			set_max_speed(50);
+		if(besch->get_topspeed()> welt->get_city_road()->get_topspeed() && hat_gehweg())
+		{
+			set_max_speed(welt->get_city_road()->get_topspeed());
 		}
 	}
 }

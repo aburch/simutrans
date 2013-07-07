@@ -144,10 +144,12 @@ void weg_t::set_max_axle_load(uint32 w)
 void weg_t::set_besch(const weg_besch_t *b)
 {
 	besch = b;
-	if(  hat_gehweg() &&  besch->get_wtyp() == road_wt  &&  besch->get_topspeed() > 50  ) {
-		max_speed = 50;
+	if(hat_gehweg() &&  besch->get_wtyp() == road_wt  &&  besch->get_topspeed() > welt->get_city_road()->get_topspeed())
+	{
+		max_speed = welt->get_city_road()->get_topspeed();
 	}
-	else {
+	else 
+	{
 		max_speed = besch->get_topspeed();
 	}
 
