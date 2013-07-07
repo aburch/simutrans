@@ -46,9 +46,9 @@ pillar_t::pillar_t(karte_t *welt, koord3d pos, spieler_t *sp, const bruecke_besc
 void pillar_t::calc_bild()
 {
 	bool hide = false;
+	int height = get_yoff();
 	if(  besch->has_pillar_asymmetric()  ) {
 		if(  grund_t *gr = welt->lookup(get_pos())  ) {
-			int height = get_yoff();
 			hang_t::typ slope = gr->get_grund_hang();
 			if(  dir == bruecke_besch_t::NS_Pillar  ) {
 				height += min( corner1(slope), corner2(slope) ) * TILE_HEIGHT_STEP;
@@ -62,7 +62,7 @@ void pillar_t::calc_bild()
 		}
 
 	}
-	bild = hide ? IMG_LEER : besch->get_hintergrund( (bruecke_besch_t::img_t)dir, get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate );
+	bild = hide ? IMG_LEER : besch->get_hintergrund( (bruecke_besch_t::img_t)dir, get_pos().z-height/TILE_HEIGHT_STEP >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate );
 }
 
 
