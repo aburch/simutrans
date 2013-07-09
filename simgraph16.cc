@@ -1029,17 +1029,20 @@ static void rezoom(void)
 
 void set_zoom_factor(int z)
 {
-	zoom_factor = z;
-	tile_raster_width = (base_tile_raster_width * zoom_num[zoom_factor]) / zoom_den[zoom_factor];
-	fprintf(stderr, "set_zoom_factor() : set %d (%i/%i)\n", zoom_factor, zoom_num[zoom_factor], zoom_den[zoom_factor] );
-	rezoom();
+	// do not zoom beyond 4 pixels
+	if(  (base_tile_raster_width * zoom_num[z]) / zoom_den[z] > 4  ) {
+		zoom_factor = z;
+		tile_raster_width = (base_tile_raster_width * zoom_num[zoom_factor]) / zoom_den[zoom_factor];
+		fprintf(stderr, "set_zoom_factor() : set %d (%i/%i)\n", zoom_factor, zoom_num[zoom_factor], zoom_den[zoom_factor] );
+		rezoom();
+	}
 }
 
 
 int zoom_factor_up()
 {
 	// zoom out, if size permits
-	if(  zoom_factor>0  ) {
+	if(  zoom_factor > 0  ) {
 		set_zoom_factor( zoom_factor-1 );
 		return true;
 	}
@@ -1049,7 +1052,7 @@ int zoom_factor_up()
 
 int zoom_factor_down()
 {
-	if (zoom_factor<MAX_ZOOM_FACTOR) {
+	if(  zoom_factor < MAX_ZOOM_FACTOR  ) {
 		set_zoom_factor( zoom_factor+1 );
 		return true;
 	}
