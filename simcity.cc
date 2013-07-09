@@ -948,7 +948,7 @@ void stadt_t::cityrules_rdwr(loadsave_t *file)
 	// for networked games... both is *needed* for network games though
 	
 	// NOTE: This code is not *only* called for network games.
-	if(file->get_experimental_version() >= 12 || file->get_version() >= 112005 || umgebung_t::networkmode)
+	if(file->get_experimental_version() >= 12 || file->get_version() >= 112005)
 	{
 		file->rdwr_long(cluster_factor);
 		file->rdwr_long(bridge_success_percentage);
