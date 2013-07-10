@@ -1,9 +1,11 @@
 /*
- * dialog zur Eingabe der Werte fuer die Kartenerzeugung
- *
  * Hj. Malthaner
  *
  * April 2000
+ */
+
+/*
+ * Dialog to configure the generation of a new map
  */
 
 #include "welt.h"
@@ -14,6 +16,7 @@
 #include "../simwin.h"
 #include "../simimg.h"
 #include "../simmesg.h"
+#include "../simskin.h"
 #include "../simtools.h"
 #include "../simversion.h"
 
@@ -42,7 +45,7 @@
 
 #include "../simsys.h"
 #include "../utils/simstring.h"
-#include "components/list_button.h"
+
 
 #include "sprachen.h"
 #include "climates.h"
@@ -62,7 +65,7 @@
 #define RIGHT_WIDE_ARROW (235)
 #define TEXT_WIDE_RIGHT (220)
 
-#define RIGHT_COLUMN (185)
+#define RIGHT_COLUMN (190)
 #define RIGHT_COLUMN_WIDTH (60)
 
 #define PREVIEW_SIZE (64) // size of the minimap
@@ -79,8 +82,9 @@ welt_gui_t::welt_gui_t(karte_t* const welt, settings_t* const sets) :
 	this->sets->beginner_mode = umgebung_t::default_einstellungen.get_beginner_mode();
 
 	city_density = sets->get_anzahl_staedte() ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_anzahl_staedte() : 0.0;
-	industry_density = sets->get_land_industry_chains() ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_land_industry_chains() : 0.0;
+	industry_density = sets->get_factory_count() ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_factory_count() : 0.0;
 	attraction_density = sets->get_tourist_attractions() ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_tourist_attractions() : 0.0;
+	river_density = sets->get_river_number() ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_river_number() : 0.0;
 
 	karte_size = koord(PREVIEW_SIZE, PREVIEW_SIZE); // default preview minimap size
 
@@ -118,30 +122,30 @@ welt_gui_t::welt_gui_t(karte_t* const welt, settings_t* const sets) :
 	// maps etc.
 	intTopOfButton += 2;
 	random_map.set_pos( koord(10, intTopOfButton) );
-	random_map.set_groesse( koord(RIGHT_ARROW, BUTTON_HEIGHT) );
+	random_map.set_groesse( koord(RIGHT_ARROW, D_BUTTON_HEIGHT) );
 	random_map.set_typ(button_t::roundbox);
 	random_map.add_listener( this );
 	add_komponente( &random_map );
-	intTopOfButton += BUTTON_HEIGHT;
+	intTopOfButton += D_BUTTON_HEIGHT;
 
 	intTopOfButton += 5;
 	load_map.set_pos( koord(10, intTopOfButton) );
-	load_map.set_groesse( koord(RIGHT_ARROW, BUTTON_HEIGHT) );
+	load_map.set_groesse( koord(RIGHT_ARROW, D_BUTTON_HEIGHT) );
 	load_map.set_typ(button_t::roundbox);
 	load_map.add_listener( this );
 	add_komponente( &load_map );
-	intTopOfButton += BUTTON_HEIGHT;
+	intTopOfButton += D_BUTTON_HEIGHT;
 
 	intTopOfButton += 12 + 8;
 
-	inp_x_size.init( sets->get_groesse_x(), 8, min(32000,4194304/sets->get_groesse_y()), sets->get_groesse_x()>=512 ? 128 : 64, false );
+	inp_x_size.init( sets->get_groesse_x(), 8, min(32000,min(32000,16777216/sets->get_groesse_y())), sets->get_groesse_x()>=512 ? 128 : 64, false );
 	inp_x_size.set_pos(koord(RIGHT_COLUMN,intTopOfButton) );
 	inp_x_size.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
 	inp_x_size.add_listener(this);
 	add_komponente( &inp_x_size );
 	intTopOfButton += 12;
 
-	inp_y_size.init( sets->get_groesse_y(), 8, min(32000,4194304/sets->get_groesse_x()), sets->get_groesse_y()>=512 ? 128 : 64, false );
+	inp_y_size.init( sets->get_groesse_y(), 8, min(32000,16777216/sets->get_groesse_x()), sets->get_groesse_y()>=512 ? 128 : 64, false );
 	inp_y_size.set_pos(koord(RIGHT_COLUMN,intTopOfButton) );
 	inp_y_size.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
 	inp_y_size.add_listener(this);
@@ -205,7 +209,7 @@ welt_gui_t::welt_gui_t(karte_t* const welt, settings_t* const sets) :
 	inp_other_industries.set_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
 	inp_other_industries.add_listener(this);
 	inp_other_industries.set_limits(0,999);
-	inp_other_industries.set_value(abs(sets->get_land_industry_chains()) );
+	inp_other_industries.set_value(abs(sets->get_factory_count()) );
 	add_komponente( &inp_other_industries );
 	intTopOfButton += 12;
 
@@ -242,6 +246,8 @@ welt_gui_t::welt_gui_t(karte_t* const welt, settings_t* const sets) :
 	intTopOfButton += 12;
 
 	intTopOfButton += 10;
+
+	// Buttons
 	open_setting_gui.set_pos( koord(10,intTopOfButton) );
 	open_setting_gui.set_groesse( koord(80, 14) );
 	open_setting_gui.set_typ( button_t::roundbox );
@@ -275,7 +281,7 @@ welt_gui_t::welt_gui_t(karte_t* const welt, settings_t* const sets) :
 	add_komponente( &load_scenario );
 
 	// start game
-	intTopOfButton += 5+BUTTON_HEIGHT;
+	intTopOfButton += 5+D_BUTTON_HEIGHT;
 	start_game.set_pos( koord(10, intTopOfButton) );
 	start_game.set_groesse( koord(104, 14) );
 	start_game.set_typ(button_t::roundbox);
@@ -302,7 +308,7 @@ welt_gui_t::welt_gui_t(karte_t* const welt, settings_t* const sets) :
  */
 bool welt_gui_t::update_from_heightfield(const char *filename)
 {
-	DBG_MESSAGE("welt_gui_t::update_from_heightfield()",filename);
+	DBG_MESSAGE("welt_gui_t::update_from_heightfield()", "%s", filename);
 
 	sint16 w, h;
 	sint8 *h_field=NULL;
@@ -329,23 +335,32 @@ bool welt_gui_t::update_from_heightfield(const char *filename)
 }
 
 
-// sets the new values for the numbinpu filed for the densities
+// sets the new values for the number input filed for the densities
 void welt_gui_t::update_densities()
 {
 	if(  city_density!=0.0  ) {
 		inp_number_of_towns.set_value( max( 1, (sint32)(0.5+sqrt((double)sets->get_groesse_x()*sets->get_groesse_y())/city_density) ) );
+		sets->set_anzahl_staedte( inp_number_of_towns.get_value() );
 	}
 	if(  industry_density!=0.0  ) {
 		inp_other_industries.set_value( max( 1, (sint32)(0.5+sqrt((double)sets->get_groesse_x()*sets->get_groesse_y())/industry_density) ) );
+		sets->set_factory_count( inp_other_industries.get_value() );
 	}
 	if(  attraction_density!=0.0  ) {
 		inp_tourist_attractions.set_value( max( 1, (sint32)(0.5+sqrt((double)sets->get_groesse_x()*sets->get_groesse_y())/attraction_density) ) );
+		sets->set_tourist_attractions( inp_tourist_attractions.get_value() );
+	}
+	if(  river_density!=0.0  ) {
+		sets->river_number = max( 1, (sint32)(0.5+sqrt((double)sets->get_groesse_x()*sets->get_groesse_y())/river_density) );
+		if(  climate_gui_t *climate_gui = (climate_gui_t *)win_get_magic( magic_climate )  ) {
+			climate_gui->update_river_number( sets->get_river_number() );
+		}
 	}
 }
 
 
 /**
- * Berechnet Preview-Karte neu. Inititialisiert RNG neu!
+ * Calculate the new Map-Preview. Initialize the new RNG!
  * @author Hj. Malthaner
  */
 void welt_gui_t::update_preview()
@@ -364,7 +379,7 @@ void welt_gui_t::update_preview()
 		const int my = sets->get_groesse_y()/karte_size.y;
 		for(  int y=0;  y<karte_size.y;  y++  ) {
 			for(  int x=0;  x<karte_size.x;  x++  ) {
-				karte.at(x,y) = reliefkarte_t::calc_hoehe_farbe(karte_t::perlin_hoehe( sets, koord(x*mx,y*my), koord::invalid, map_size ), sets->get_grundwasser()/Z_TILE_STEP);
+				karte.at(x,y) = reliefkarte_t::calc_hoehe_farbe(karte_t::perlin_hoehe( sets, koord(x*mx,y*my), koord::invalid, map_size ), sets->get_grundwasser());
 			}
 		}
 		sets->heightfield = "";
@@ -463,8 +478,8 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		inp_intercity_road_len.set_increment_mode( v.i>=1000 ? 100 : 20 );
 	}
 	else if(komp==&inp_other_industries) {
-		sets->set_land_industry_chains( v.i );
-		industry_density = sets->get_land_industry_chains() ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_land_industry_chains() : 0.0;
+		sets->set_factory_count( v.i );
+		industry_density = sets->get_factory_count() ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_factory_count() : 0.0;
 	}
 	else if(komp==&inp_tourist_attractions) {
 		sets->set_tourist_attractions( v.i );
@@ -528,13 +543,9 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		create_win( new loadsave_frame_t(welt, true), w_info, magic_load_t);
 	}
 	else if(komp==&load_scenario) {
-		char path[1024];
-		sprintf( path, "%s%sscenario/", umgebung_t::program_dir, umgebung_t::objfilename.c_str() );
-		chdir( path );
 		destroy_all_win(true);
 		welt->get_message()->clear();
 		create_win( new scenario_frame_t(welt), w_info, magic_load_t );
-		chdir( umgebung_t::user_dir );
 	}
 	else if(komp==&start_game) {
 		destroy_all_win(true);
@@ -618,8 +629,16 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 		welt->set_dirty();
 	}
 
-	open_climate_gui.pressed = win_get_magic( magic_climate );
 	open_setting_gui.pressed = win_get_magic( magic_settings_frame_t );
+	open_climate_gui.pressed = false;
+	if(  win_get_magic( magic_climate )  ) {
+		open_climate_gui.pressed = true;
+		// check if number was directly changed
+		sint16 new_river_number = max( 1, (sint32)(0.5+sqrt((double)sets->get_groesse_x()*sets->get_groesse_y())/river_density) );
+		if(  sets->get_river_number() != new_river_number  ) {
+			river_density = sets->get_river_number() ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_river_number() : 0.0;
+		}
+	}
 
 	use_intro_dates.pressed = sets->get_use_timeline()&1;
 	use_beginner_mode.pressed = sets->get_beginner_mode();
@@ -637,10 +656,10 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 	display_array_wh(x+174, y-19, karte_size.x, karte_size.y, karte.to_array());
 
 	display_proportional_clip(x, y, translator::translate("2WORLD_CHOOSE"), ALIGN_LEFT, COL_BLACK, true);
-	// since the display is done via a textfiled, we have nothing to do
+	// since the display is done via a textfield, we have nothing to do
 	y += 12+5;
-	y += BUTTON_HEIGHT+5;	// button
-	y += BUTTON_HEIGHT+5;	// button
+	y += D_BUTTON_HEIGHT+5;	// button
+	y += D_BUTTON_HEIGHT+5;	// button
 
 	const uint sx = sets->get_groesse_x();
 	const uint sy = sets->get_groesse_y();
@@ -663,9 +682,6 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 	
 	buf.printf("%s (%ld MByte, %.2f km/%s):", translator::translate("Size"), memory, tile_km, translator::translate("tile"));
 	display_proportional_clip(x, y, buf, ALIGN_LEFT, COL_BLACK, true);
-//	display_proportional_clip(x + LEFT_ARROW - 10, y, translator::translate("Tiles"), ALIGN_LEFT, COL_BLACK, true);
-//	sprintf(buf, "%.2f km/%s", tile_km, translator::translate("tile"));
-//	display_text_proportional_len_clip(x + RIGHT_COLUMN_WIDTH + RIGHT_COLUMN - 10, y, buf, ALIGN_RIGHT | DT_DIRTY | DT_CLIP, COL_BLACK, -1);
 	y += 12;
 
 	display_proportional_clip(x, y, translator::translate("West To East"), ALIGN_LEFT, COL_BLACK, true);
@@ -692,8 +708,7 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 	y += 12;
 	display_proportional_clip(x, y, translator::translate("Intercity road len:"), ALIGN_LEFT, COL_BLACK, true);
 	y += 12;
-
-	display_proportional_clip(x, y, translator::translate("Land industries"), ALIGN_LEFT, COL_BLACK, true);
+	display_proportional_clip(x, y, translator::translate("No. of Factories"), ALIGN_LEFT, COL_BLACK, true);
 	y += 12;
 	display_proportional_clip(x, y, translator::translate("Tourist attractions"), ALIGN_LEFT, COL_BLACK, true);
 

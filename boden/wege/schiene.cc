@@ -25,14 +25,20 @@ const weg_besch_t *schiene_t::default_schiene=NULL;
 bool schiene_t::show_reservations = false;
 
 
-schiene_t::schiene_t(karte_t *welt) : weg_t(welt)
+schiene_t::schiene_t(karte_t *welt, waytype_t waytype) : weg_t (welt, waytype)
+{
+	reserved = convoihandle_t();
+}
+
+
+schiene_t::schiene_t(karte_t *welt) : weg_t(welt, track_wt)
 {
 	reserved = convoihandle_t();
 	set_besch(schiene_t::default_schiene);
 }
 
 
-schiene_t::schiene_t(karte_t *welt, loadsave_t *file) : weg_t(welt)
+schiene_t::schiene_t(karte_t *welt, loadsave_t *file) : weg_t(welt, track_wt)
 {
 	reserved = convoihandle_t();
 	rdwr(file);
@@ -49,13 +55,19 @@ void schiene_t::entferne(spieler_t *)
 }
 
 
-void schiene_t::info(cbuffer_t & buf) const
+void schiene_t::info(cbuffer_t & buf, bool is_bridge) const
 {
-	weg_t::info(buf);
+	weg_t::info(buf, is_bridge);
 
 	if(reserved.is_bound()) {
-		buf.append(translator::translate("\nis reserved by:"));
+		const char* reserve_text = translator::translate("\nis reserved by:");
+		// ignore linebreak
+		if (reserve_text[0] == '\n') {
+			reserve_text++;
+		}
+		buf.append(reserve_text);
 		buf.append(reserved->get_name());
+		buf.append("\n");
 #ifdef DEBUG_PBS
 		reserved->zeige_info();
 #endif
@@ -76,9 +88,10 @@ bool schiene_t::reserve(convoihandle_t c, ribi_t::ribi dir  )
 		 * and there are switching graphics
 		 */
 		if(  ribi_t::is_threeway(get_ribi_unmasked())  &&  ribi_t::ist_kurve(dir)  &&  get_besch()->has_switch_bild()  ) {
-			image_id bild = get_besch()->get_bild_nr_switch( get_ribi_unmasked(), is_snow(), (dir==ribi_t::nordost  ||  dir==ribi_t::suedwest) );
-			set_bild( bild );
-			mark_image_dirty( bild, 0 );
+			mark_image_dirty( get_bild(), 0 );
+			mark_image_dirty( get_after_bild(), 0 );
+			set_images(image_switch, get_ribi_unmasked(), is_snow(), (dir==ribi_t::nordost  ||  dir==ribi_t::suedwest) );
+			set_flag( ding_t::dirty );
 		}
 		if(schiene_t::show_reservations) {
 			set_flag( ding_t::dirty );
@@ -158,7 +171,7 @@ void schiene_t::rdwr(loadsave_t *file)
 		file->rdwr_str(bname, lengthof(bname));
 
 		int old_max_speed=get_max_speed();
-		int old_max_weight = get_max_weight();
+		int old_max_axle_load = get_max_axle_load();
 		const weg_besch_t *besch = wegbauer_t::get_besch(bname);
 		if(besch==NULL) {
 			int old_max_speed=get_max_speed();
@@ -174,9 +187,9 @@ void schiene_t::rdwr(loadsave_t *file)
 			set_max_speed(old_max_speed);
 		}
 		//DBG_MESSAGE("schiene_t::rdwr","track %s at (%i,%i) max_speed %i",bname,get_pos().x,get_pos().y,old_max_speed);
-		if(old_max_weight > 0)
+		if(old_max_axle_load > 0)
 		{
-			set_max_weight(old_max_weight);
+			set_max_axle_load(old_max_axle_load);
 		}
 		//DBG_MESSAGE("schiene_t::rdwr","track %s at (%i,%i) max_speed %i",bname,get_pos().x,get_pos().y,old_max_speed);
 	}

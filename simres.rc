@@ -18,7 +18,7 @@ PRODUCTVERSION RES_VERSION_NUMBER
    VALUE "FileDescription",  "Simutrans-Experimental"
    VALUE "FileVersion",      VERSION_NUMBER EXPERIMENTAL_VERSION
    VALUE "InternalName",     "SIMUTRANS"
-   VALUE "LegalCopyright",   "\251 Hj. Malthaner '97-'04 Simutrans Team '05-'12 (Artistic Licence)"
+   VALUE "LegalCopyright",   "\251 Hj. Malthaner '97-'04 Simutrans Team '05-'13"
    VALUE "OriginalFilename", "simutrans-experimental.exe"
    VALUE "ProductName",      "Simutrans-Experimental"
    VALUE "ProductVersion",   VERSION_NUMBER EXPERIMENTAL_VERSION

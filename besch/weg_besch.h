@@ -70,7 +70,7 @@ private:
 	 * Max weight
 	 * @author Hj. Malthaner
 	 */
-	uint32 max_weight;
+	uint32 max_axle_load;
 
 	/**
 	 * Introduction date
@@ -160,7 +160,7 @@ public:
 	sint32 get_topspeed() const { return topspeed; }
 
 	//Returns maximum weight
-	uint32 get_max_weight() const { return (max_weight < 9999 && max_weight > 0) ? max_weight : 999; }
+	uint32 get_max_axle_load() const { return max_axle_load < 999999 ? max_axle_load : 999; }
 
 	/**
 	 * get way type
@@ -168,6 +168,12 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	waytype_t get_wtyp() const { return (waytype_t)wtyp; }
+
+	/**
+	* @return waytype used in finance stats (needed to distinguish \
+	* between train track and tram track
+	*/
+	waytype_t get_finance_waytype() const;
 
 	/**
 	* returns the system type of this way (mostly used with rails)
@@ -283,6 +289,50 @@ public:
 	const way_constraints_of_way_t& get_way_constraints() const { return way_constraints; }
 	void set_way_constraints(const way_constraints_of_way_t& value) { way_constraints = value; }
 
+	/**
+	 * Compare two ways and decide whether this is a "better" way than the other.
+	 *
+	 * This is used by wegbauer, etc. when deciding whether to "upgrade".
+	 * This must be compatible in all ways, and better in all ways (except maintenance).
+	 * So, max speed, max axle load, restrictions etc.
+	 *
+	 * The logic is trivial and should be inlined.
+	 */
+	bool is_at_least_as_good_as(weg_besch_t const * other) const {
+		if(  other == NULL  ) {
+			// This should not happen
+			return false;
+		} else if(  get_wtyp() != other->get_wtyp()  ) {
+			// incompatible waytypes
+			return false;
+		} else if(  get_topspeed() < other->get_topspeed()  ) {
+			// This is slower
+			return false;
+		} else if(  get_max_axle_load() < other->get_max_axle_load()  ) {
+			// This has a lower axle limit
+			return false;
+		}
+		// check way constraints
+		way_constraints_mask my_permissive_constraints = get_way_constraints().get_permissive();
+		way_constraints_mask other_permissive_constraints = other->get_way_constraints().get_permissive();
+		way_constraints_mask both_permissive_constraints = my_permissive_constraints & other_permissive_constraints;
+		if (other_permissive_constraints - both_permissive_constraints) {
+			// The other way has a permissive constraint which we do not have
+			return false;
+		}
+
+		way_constraints_mask my_prohibitive_constraints = get_way_constraints().get_prohibitive();
+		way_constraints_mask other_prohibitive_constraints = other->get_way_constraints().get_prohibitive();
+		way_constraints_mask both_prohibitive_constraints = my_prohibitive_constraints & other_prohibitive_constraints;
+		if (my_prohibitive_constraints - both_prohibitive_constraints) {
+			// This has a prohibitive constraint which the other does not have
+			return false;
+		}
+		// 
+		// Passed all the checks
+		return true;
+	}
+
 	// default tool for building
 	werkzeug_t *get_builder() const {
 		return builder;
@@ -296,7 +346,7 @@ public:
 		chk->input(price);
 		chk->input(maintenance);
 		chk->input(topspeed);
-		chk->input(max_weight);
+		chk->input(max_axle_load);
 		chk->input(intro_date);
 		chk->input(obsolete_date);
 		chk->input(wtyp);

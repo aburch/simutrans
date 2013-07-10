@@ -50,7 +50,7 @@ class gui_file_table_exp_column_t : public gui_file_table_int_column_t
 protected:
 	virtual sint32 get_int(const gui_table_row_t &row) const;
 public:
-	gui_file_table_exp_column_t() : gui_file_table_int_column_t(25) {}
+	gui_file_table_exp_column_t() : gui_file_table_int_column_t(35) {}
 	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row);
 };
 
@@ -84,28 +84,22 @@ protected:
 	virtual void set_file_table_default_sort_order();
 
 	/**
-	 * Aktion, die nach Knopfdruck gestartet wird.
+	 * Action that's started with a button click
 	 * @author Hansjörg Malthaner
 	 */
 	virtual void action(const char *filename);
 
-	/**
-	 * Aktion, die nach X-Knopfdruck gestartet wird.
-	 * @author V. Meyer
-	 */
-	virtual bool del_action(const char *filename);
-
 	// returns extra file info
 	virtual const char *get_info(const char *fname);
-	virtual void add_file(const char *filename, const bool not_cutting_suffix);
+	virtual void add_file(const char *fullpath, const char *filename, const bool not_cutting_suffix);
 
 public:
 	/**
-	* Manche Fenster haben einen Hilfetext assoziiert.
-	* @return den Dateinamen für die Hilfe, oder NULL
+	* Set the window associated helptext
+	* @return the filename for the helptext, or NULL
 	* @author Hj. Malthaner
 	*/
-	virtual const char * get_hilfe_datei() const;
+	virtual const char *get_hilfe_datei() const;
 
 	loadsave_frame_t(karte_t *welt, bool do_load);
 

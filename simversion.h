@@ -1,24 +1,29 @@
 #ifndef simversion_h
 #define simversion_h
 
+#if defined(REVISION_FROM_FILE)  &&  !defined(REVISION)
+// include external generated revision file
+#include "revision.h"
+#endif
+
 #define SIM_BUILD_NIGHTLY           0
 #define SIM_BUILD_RELEASE_CANDIDATE 1
 #define SIM_BUILD_RELEASE           2
 
-#define SIM_VERSION_MAJOR 111
-#define SIM_VERSION_MINOR   2
-#define SIM_VERSION_PATCH   1
+#define SIM_VERSION_MAJOR 112
+#define SIM_VERSION_MINOR   3
+#define SIM_VERSION_PATCH   0
 #define SIM_VERSION_BUILD SIM_BUILD_RELEASE
 
 // Beware: SAVEGAME minor is often ahead of version minor when there were patches.
 // ==> These have no direct connection at all!
-#define SIM_SAVE_MINOR      2
-#define SIM_SERVER_MINOR    2
+#define SIM_SAVE_MINOR      3
+#define SIM_SERVER_MINOR    5
 
-#define EX_VERSION_MAJOR	10
-#define EX_VERSION_MINOR	27
+#define EX_VERSION_MAJOR	11
+#define EX_VERSION_MINOR	0
 
-#define MAKEOBJ_VERSION "53"
+#define MAKEOBJ_VERSION "55.1"
 
 #ifndef QUOTEME
 #	define QUOTEME_(x) #x
@@ -32,7 +37,7 @@
 #endif
 
 #if   SIM_VERSION_BUILD == SIM_BUILD_NIGHTLY
-#	define SIM_VERSION_BUILD_STRING " Nightly"
+#	define SIM_VERSION_BUILD_STRING " Development build"
 #elif SIM_VERSION_BUILD == SIM_BUILD_RELEASE_CANDIDATE
 #	define SIM_VERSION_BUILD_STRING " Release Candidate"
 #elif SIM_VERSION_BUILD == SIM_BUILD_RELEASE
@@ -41,10 +46,10 @@
 #	error invalid SIM_VERSION_BUILD
 #endif
 
-#define VERSION_NUMBER QUOTEME(SIM_VERSION_MAJOR) "." QUOTEME(SIM_VERSION_MINOR) SIM_VERSION_PATCH_STRING SIM_VERSION_BUILD_STRING " Experimental "
+#define VERSION_NUMBER QUOTEME(SIM_VERSION_MAJOR) "." QUOTEME(SIM_VERSION_MINOR) SIM_VERSION_PATCH_STRING " Experimental" SIM_VERSION_BUILD_STRING " "
 #define EXPERIMENTAL_VERSION QUOTEME(EX_VERSION_MAJOR) "." QUOTEME(EX_VERSION_MINOR)
 
-#define REVISION 1027
+#define REVISION 1100
 
 #define VERSION_DATE __DATE__
 
@@ -79,8 +84,5 @@
 
 /* Relative URL of the list function on server */
 #define ANNOUNCE_LIST_URL "/list?format=csv"
-
-/* Name of file to save server listing to temporarily while downloading list */
-#define SERVER_LIST_FILE "serverlist.csv"
 
 #endif

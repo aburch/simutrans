@@ -72,5 +72,11 @@ public:
 	void set_id(uint16 id_) { id = id_; }
 
 	SOCKET get_sender() { return sock; }
+
+	/**
+	 * mark this packet as sent by the server
+	 * @see network_send_server
+	 */
+	void sent_by_server();
 };
 #endif

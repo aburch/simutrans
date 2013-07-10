@@ -14,12 +14,14 @@
 #ifndef simgraph_h
 #define simgraph_h
 
-extern int large_font_height;
+extern int large_font_ascent;
+extern int large_font_total_height;
 
 #include "simcolor.h"
 #include "unicode.h"
 
-#define LINESPACE 11
+#define LINEASCENT (large_font_ascent)
+#define LINESPACE (large_font_total_height)
 
 // size of koordinates
 typedef short KOORD_VAL;
@@ -77,6 +79,7 @@ void simgraph_init(KOORD_VAL width, KOORD_VAL height, int fullscreen);
 int is_display_init(void);
 void simgraph_exit();
 void simgraph_resize(KOORD_VAL w, KOORD_VAL h);
+void reset_textur(void *new_textur);
 
 /*
  * uncomment to enable unicode
@@ -100,12 +103,16 @@ void display_set_base_image_offset( unsigned bild, KOORD_VAL xoff, KOORD_VAL yof
 void display_get_base_image_offset( unsigned bild, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw );
 // zoomed offsets
 void display_get_image_offset( unsigned bild, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw );
+void display_get_base_image_offset( unsigned bild, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw );
 void display_mark_img_dirty( unsigned bild, KOORD_VAL x, KOORD_VAL y );
 
 int get_maus_x(void);
 int get_maus_y(void);
 
-void mark_rect_dirty_wc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2);
+
+void mark_rect_dirty_wc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2); // clips to screen only
+void mark_rect_dirty_clip(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2); // clips to clip_rect
+void mark_screen_dirty();
 
 KOORD_VAL display_get_width(void);
 KOORD_VAL display_get_height(void);
@@ -136,6 +143,13 @@ void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed 
 void display_rezoomed_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty);
 #define display_img_blend( n, x, y, c, dn, d ) display_rezoomed_img_blend( (n), (x), (y), 0, (c), (dn), (d) )
 
+#define ALPHA_RED 0x1
+#define ALPHA_GREEN 0x2
+#define ALPHA_BLUE 0x4
+
+void display_rezoomed_img_alpha(const unsigned n, const unsigned alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty);
+#define display_img_alpha( n, a, f, x, y, c, dn, d ) display_rezoomed_img_alpha( (n), (a), (f), (x), (y), 0, (c), (dn), (d) )
+
 // display image with color (if there) and optinal day and nightchange
 void display_color_img(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty);
 
@@ -144,15 +158,18 @@ void display_base_img(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed
 
 // Knightly : display unzoomed image with alpha, either blended or as outline
 void display_base_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty);
+void display_base_img_alpha(const unsigned n, const unsigned alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty);
 
 // Knightly : pointer to image display procedures
 typedef void (*display_image_proc)(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty);
 typedef void (*display_blend_proc)(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty);
+typedef void (*display_alpha_proc)(const unsigned n, const unsigned alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty);
 
 // Knightly : variables for storing currently used image procedure set and tile raster width
 extern display_image_proc display_normal;
 extern display_image_proc display_color;
 extern display_blend_proc display_blend;
+extern display_alpha_proc display_alpha;
 extern signed short current_tile_raster_width;
 
 // Knightly : call this instead of referring to current_tile_raster_width directly
@@ -165,16 +182,20 @@ extern signed short current_tile_raster_width;
 		display_normal = display_img_aux; \
 		display_color = display_color_img; \
 		display_blend = display_rezoomed_img_blend; \
+		display_alpha = display_rezoomed_img_alpha; \
 		current_tile_raster_width = get_tile_raster_width(); \
 	} \
 	else { \
 		display_normal = display_base_img; \
 		display_color = display_base_img; \
 		display_blend = display_base_img_blend; \
+		display_alpha = display_base_img_alpha; \
 		current_tile_raster_width = get_base_tile_raster_width(); \
 	} \
 }
 
+// blends a rectangular region
+void display_blend_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, int color, int percent_blend );
 
 void display_fillbox_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, bool dirty);
 void display_fillbox_wh_clip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, bool dirty);
@@ -195,7 +216,7 @@ void display_array_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, cons
 // compound painting routines
 void display_outline_proportional(KOORD_VAL xpos, KOORD_VAL ypos, PLAYER_COLOR_VAL text_color, PLAYER_COLOR_VAL shadow_color, const char *text, int dirty);
 void display_shadow_proportional(KOORD_VAL xpos, KOORD_VAL ypos, PLAYER_COLOR_VAL text_color, PLAYER_COLOR_VAL shadow_color, const char *text, int dirty);
-void display_ddd_box(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL tl_color, PLAYER_COLOR_VAL rd_color);
+void display_ddd_box(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL tl_color, PLAYER_COLOR_VAL rd_color, bool dirty);
 void display_ddd_box_clip(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL tl_color, PLAYER_COLOR_VAL rd_color);
 
 
@@ -254,14 +275,15 @@ void display_ddd_proportional_clip(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL wid
 int display_multiline_text(KOORD_VAL x, KOORD_VAL y, const char *inbuf, PLAYER_COLOR_VAL color);
 
 void display_direct_line(const KOORD_VAL x, const KOORD_VAL y, const KOORD_VAL xx, const KOORD_VAL yy, const PLAYER_COLOR_VAL color);
+void display_direct_line_dotted(const KOORD_VAL x, const KOORD_VAL y, const KOORD_VAL xx, const KOORD_VAL yy, const KOORD_VAL draw, const KOORD_VAL dontDraw, const PLAYER_COLOR_VAL color);
+void display_circle( KOORD_VAL x0, KOORD_VAL  y0, int radius, const PLAYER_COLOR_VAL color );
+void display_filled_circle( KOORD_VAL x0, KOORD_VAL  y0, int radius, const PLAYER_COLOR_VAL color );
+void draw_bezier(KOORD_VAL Ax, KOORD_VAL Ay, KOORD_VAL Bx, KOORD_VAL By, KOORD_VAL ADx, KOORD_VAL ADy, KOORD_VAL BDx, KOORD_VAL BDy, const PLAYER_COLOR_VAL colore, KOORD_VAL draw, KOORD_VAL dontDraw);
 
 void display_set_clip_wh(KOORD_VAL x, KOORD_VAL y, KOORD_VAL w, KOORD_VAL h);
 clip_dimension display_get_clip_wh();
 
-void display_snapshot(void);
-
-void display_set_progress_text(const char *text);
-void display_progress(int part, int total);
+void display_snapshot( int x, int y, int w, int h );
 
 #if COLOUR_DEPTH != 0
 extern COLOR_VAL display_day_lights[  LIGHT_COUNT * 3];

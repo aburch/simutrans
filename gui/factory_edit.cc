@@ -1,22 +1,19 @@
 /*
  * Copyright (c) 1997 - 2004 Hansjörg Malthaner
  *
- * Line management
- *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
  */
 
+/*
+ * Factories builder dialog
+ */
+
 #include <stdio.h>
 
-#include "../simcolor.h"
 #include "../simtools.h"
 #include "../simworld.h"
-#include "../simgraph.h"
-#include "../simskin.h"
 #include "../simwerkz.h"
-
-#include "components/list_button.h"
 
 #include "../bauer/fabrikbauer.h"
 
@@ -66,12 +63,12 @@ factory_edit_frame_t::factory_edit_frame_t(spieler_t* sp_, karte_t* welt) :
 	bt_city_chain.init( button_t::square_state, "Only city chains", koord(get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
 	bt_city_chain.add_listener(this);
 	add_komponente(&bt_city_chain);
-	offset_of_comp += BUTTON_HEIGHT;
+	offset_of_comp += D_BUTTON_HEIGHT;
 
 	bt_land_chain.init( button_t::square_state, "Only land chains", koord(get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
 	bt_land_chain.add_listener(this);
 	add_komponente(&bt_land_chain);
-	offset_of_comp += BUTTON_HEIGHT;
+	offset_of_comp += D_BUTTON_HEIGHT;
 
 	lb_rotation_info.set_pos( koord( get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
 	add_komponente(&lb_rotation_info);
@@ -80,24 +77,24 @@ factory_edit_frame_t::factory_edit_frame_t(spieler_t* sp_, karte_t* welt) :
 	bt_left_rotate.add_listener(this);
 	add_komponente(&bt_left_rotate);
 
-	bt_right_rotate.init( button_t::repeatarrowright, NULL, koord(get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2+50, offset_of_comp-4 ) );
+	bt_right_rotate.init( button_t::repeatarrowright, NULL, koord(get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2+50-2, offset_of_comp-4 ) );
 	bt_right_rotate.add_listener(this);
 	add_komponente(&bt_right_rotate);
 
 	lb_rotation.set_pos( koord( get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2+44, offset_of_comp-4 ) );
 	add_komponente(&lb_rotation);
-	offset_of_comp += BUTTON_HEIGHT;
+	offset_of_comp += D_BUTTON_HEIGHT;
 
 	lb_production_info.set_pos( koord( get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
 	add_komponente(&lb_production_info);
 
-	inp_production.set_pos(koord(get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2-16,	offset_of_comp-4 ));
+	inp_production.set_pos(koord(get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2-16,	offset_of_comp-4-2 ));
 	inp_production.set_groesse(koord( 76, 12 ));
 	inp_production.set_limits(0,9999);
 	inp_production.add_listener( this );
 	add_komponente(&inp_production);
 
-	offset_of_comp += BUTTON_HEIGHT;
+	offset_of_comp += D_BUTTON_HEIGHT;
 
 	fill_list( is_show_trans_name );
 
@@ -121,7 +118,7 @@ void factory_edit_frame_t::fill_list( bool translate )
 	FOR(stringhashtable_tpl<fabrik_besch_t const*>, const& i, fabrikbauer_t::get_fabesch()) {
 		fabrik_besch_t const* const besch = i.value;
 		if(besch->get_gewichtung()>0) {
-			// DistributionWeight=0 is obsoluted item, only for backward compatibility
+			// DistributionWeight=0 is obsoleted item, only for backward compatibility
 
 			if(!use_timeline  ||  (!besch->get_haus()->is_future(month_now)  &&  (!besch->get_haus()->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
@@ -143,7 +140,7 @@ void factory_edit_frame_t::fill_list( bool translate )
 		}
 	}
 
-	// now buil scrolled list
+	// now build scrolled list
 	scl.clear_elements();
 	scl.set_selection(-1);
 	FOR(vector_tpl<fabrik_besch_t const*>, const i, fablist) {
@@ -307,7 +304,7 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 			fab_besch = fablist[entry];
 		}
 
-		// change lable numbers
+		// change label numbers
 		if(rotation == 255) {
 			tstrncpy(rot_str, translator::translate("random"), lengthof(rot_str));
 		}

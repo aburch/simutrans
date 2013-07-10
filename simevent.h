@@ -11,7 +11,6 @@
 #ifndef simevent_h
 #define simevent_h
 
-
 /* Messageverarbeitung */
 
 /* Event Classes */
@@ -30,7 +29,6 @@
 #define WINDOW_RESIZE                10  // 19-may-02	markus weber   added
 #define WINDOW_MAKE_MIN_SIZE         11  // 11-mar-03	(Mathew Hounsell) Added
 #define WINDOW_CHOOSE_NEXT           12	 // @author Volker Meyer @date  11.06.2003
-#define WINDOW_REZOOM	             13	 // @author Volker Meyer @date  20.06.2003
 
 #define EVENT_SYSTEM                254
 #define IGNORE_EVENT                255
@@ -114,7 +112,6 @@
 #define IS_WINDOW_RESIZE(ev) ((ev)->ev_class == WINDOW_RESIZE) //19-may-02	markus weber	added
 #define IS_WINDOW_MAKE_MIN_SIZE(ev) ((ev)->ev_class == WINDOW_MAKE_MIN_SIZE) // 11-Mar-03 (Mathew Hounsell) Added
 #define IS_WINDOW_CHOOSE_NEXT(ev) ((ev)->ev_class == WINDOW_CHOOSE_NEXT) // 11-Mar-03 (Mathew Hounsell) Added
-#define IS_WINDOW_REZOOM(ev) ((ev)->ev_class == WINDOW_REZOOM)
 
 #define IS_WHEELUP(ev) ((ev)->ev_class == EVENT_CLICK && (ev)->ev_code == MOUSE_WHEELUP)
 #define IS_WHEELDOWN(ev) ((ev)->ev_class == EVENT_CLICK && (ev)->ev_code == MOUSE_WHEELDOWN)
@@ -187,10 +184,25 @@ static inline void translate_event(event_t* const ev, int x, int y)
 }
 #endif
 
+/**
+ * Return one event. Does *not* wait.
+ * @author Hj. Malthaner
+ */
 void display_poll_event(event_t*);
+
+/**
+ * Wait for one event, and return it.
+ * @author Hj. Malthaner
+ */
 void display_get_event(event_t*);
 void change_drag_start(int x, int y);
 
 int event_get_last_control_shift(void);
+unsigned int last_meta_event_get_class();
+
+/**
+ * Adds new events to be processed.
+ */
+void queue_event(event_t *event);
 
 #endif

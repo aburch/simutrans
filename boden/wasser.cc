@@ -66,7 +66,7 @@ void wasser_t::calc_bild_internal()
 	}
 
 	// artifical walls from here on ...
-	grund_t::calc_back_bild(welt->get_grundwasser()/Z_TILE_STEP,0);
+	grund_t::calc_back_bild(welt->get_grundwasser(), 0);
 }
 
 

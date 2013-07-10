@@ -1,0 +1,48 @@
+obj=program_text
+name=Open countryside
+note=Ground outside city limits
+--
+obj=program_text
+name=Buy/sell
+note=Options in depot window
+--
+obj=program_text
+name=Upgrade
+note=Options in depot window
+--
+obj=program_text
+name=Electrical demand: 
+note=Factory window
+--
+obj=program_text
+name=Electrical output: 
+note=Powerplant window
+--
+obj=program_text
+name=Passengers
+note=Tab name in Experimental tab in Settings window
+--
+obj=program_text
+name=Walked
+note=Graphic button in city window
+--
+obj=program_text
+name=Convoi is sent to depot when all wagons are empty.
+note=tooltip for Retire button in vehicle details window
+--
+obj=program_text
+name=Access
+note=Player list menu
+--
+obj=program_text
+name=Inverse graphs
+note=Option in Display menu
+--
+obj=program_text
+name=Graphs right to left instead of left to right
+note=Tooltip for the display menu
+--
+obj=program_text
+name=hide objects under cursor
+note=Tooltip for the display menu
+--

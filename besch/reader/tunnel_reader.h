@@ -3,15 +3,18 @@
 
 #include "obj_reader.h"
 
+class tunnel_besch_t;
 
 class tunnel_reader_t : public obj_reader_t {
 	static tunnel_reader_t the_instance;
 
 	tunnel_reader_t() { register_reader(); }
+
+	static void convert_old_tunnel(tunnel_besch_t *besch);
+
 protected:
 	void register_obj(obj_besch_t*&) OVERRIDE;
 
-	bool successfully_loaded() const OVERRIDE;
 public:
 	static tunnel_reader_t*instance() { return &the_instance; }
 

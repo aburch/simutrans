@@ -5,8 +5,6 @@
 #include "components/gui_location_view_t.h"
 #include "components/gui_image.h"
 #include "components/gui_fixedwidth_textarea.h"
-#include "../simskin.h"
-#include "../besch/skin_besch.h"
 #include "../simcolor.h"
 #include "../utils/cbuffer_t.h"
 
@@ -36,9 +34,11 @@ private:
 class news_img : public news_window
 {
 public:
-	news_img(const char* text, image_id bild = skinverwaltung_t::meldungsymbol->get_bild_nr(0), PLAYER_COLOR_VAL color = WIN_TITEL);
+	news_img(const char* text);
+	news_img(const char* text, image_id bild, PLAYER_COLOR_VAL color=WIN_TITEL);
 
 private:
+	void init(image_id bild);
 	gui_image_t bild;
 };
 
@@ -51,7 +51,7 @@ public:
 
 	void map_rotate90( sint16 new_ysize );
 
-	virtual koord3d get_weltpos();
+	virtual koord3d get_weltpos(bool);
 
 private:
 	location_view_t view;

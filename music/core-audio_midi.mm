@@ -66,7 +66,10 @@ long dr_midi_pos()
 
 void dr_destroy_midi()
 {
-}
+	if (nowPlaying != -1) {
+		dr_stop_midi();
+	}
+ }
 
 
 bool dr_init_midi()

@@ -42,4 +42,3 @@ a very small chance that it can be fixed.)
 8.) Severity of the problem/urgency to fix it?
 (One of high, medium, low or a more detailed description)
 ->
-

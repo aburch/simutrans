@@ -78,7 +78,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	int i;
 	uint8  uv8;
 
-	int total_len = 75;
+	int total_len = 77;
 
 	// prissi: must be done here, since it may affect the len of the header!
 	string sound_str = ltrim( obj.get("sound") );
@@ -111,7 +111,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// Hajo: version number
 	// Hajo: Version needs high bit set as trigger -> this is required
 	//       as marker because formerly nodes were unversionend
-	uint16 version = 0x8009;
+	uint16 version = 0x800A;
 	
 	// This is the overlay flag for Simutrans-Experimental
 	// This sets the *second* highest bit to 1. 
@@ -120,7 +120,8 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// Finally, this is the experimental version number. This is *added*
 	// to the standard version number, to be subtracted again when read.
 	// Start at 0x100 and increment in hundreds (hex).
-	version += 0x800;
+	// Counting can restart at 0x100 if the Standard version increases.
+	version += 0x100;
 
 	node.write_uint16(fp, version, pos);
 
@@ -151,13 +152,22 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	node.write_uint16(fp, top_speed, pos);
 	pos += sizeof(payload);
 
-	// Hajodoc: Total weight of this vehicle in tonnes
-	uint16 weight = obj.get_int("weight", 0);
-	node.write_uint16(fp, weight, pos);
-	pos += sizeof(uint16);
+	// Hajodoc: Total weight of this vehicle in tons
+	const char *weight_str = obj.get("weight");
+	uint32 weight = (uint32)(atof( weight_str )*1000.0 + 0.5);
+	node.write_uint32(fp, weight, pos);
+	pos += sizeof(uint32);
+
+	char const* const waytype_name = obj.get("waytype");
+	waytype_t   const waytype      = get_waytype(waytype_name);
+
+	// For automatic calculation of axle load
+	// (optional). This value is not written to file.
+	const uint8 axles_default = waytype == water_wt || waytype == maglev_wt ? 1 : 2;
+	const uint8 axles = obj.get_int("axles", 2);
 
 	// axle_load (determine ways usage)
-	uint16 axle_load = obj.get_int("axle_load", 0);
+	uint16 axle_load = obj.get_int("axle_load", (weight / axles) / 1000);
 	node.write_uint16(fp, axle_load, pos);
 	pos += sizeof(uint16);
 
@@ -198,8 +208,9 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	pos += sizeof(uint16);
 
 	// Hajodoc: Type of way this vehicle drives on
-	char const* const waytype_name = obj.get("waytype");
-	waytype_t   const waytype      = get_waytype(waytype_name);
+	// These need to be earlier for the purposes of axle loads.
+	// char const* const waytype_name = obj.get("waytype");
+	// waytype_t   const waytype      = get_waytype(waytype_name);
 	uv8 = waytype != overheadlines_wt ? waytype : track_wt;
 	node.write_uint8(fp, uv8, pos);
 	pos += sizeof(uint8);
@@ -407,7 +418,7 @@ end:
 				{
 					printf("*** FATAL ***:\nMissing freightimage[%d][%s]!\n", freight, dir_codes[i]);
 					fflush(NULL);
-					exit(0);
+					exit(1);
 				}
 				printf("Appending freightimage[%d][%s]\n", freight, dir_codes[i]);
 				freightkeys.at(i).append(str);

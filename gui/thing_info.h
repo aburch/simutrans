@@ -37,7 +37,9 @@ public:
 
 	ding_t const* get_ding() const { return view.get_ding(); }
 
-	virtual koord3d get_weltpos() { return get_ding()->get_pos(); }
+	virtual koord3d get_weltpos(bool) { return get_ding()->get_pos(); }
+
+	virtual bool is_weltpos();
 
 	/**
 	 * @return the text to display in the info window
@@ -48,9 +50,9 @@ public:
 	virtual void info(cbuffer_t& buf) const { get_ding()->info(buf); }
 
 	/**
-	* komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
-	* das Fenster, d.h. es sind die Bildschirmkoordinaten des Fensters
-	* in dem die Komponente dargestellt wird.
+	* Draw new component. The values to be passed refer to the window
+	* i.e. It's the screen coordinates of the window where the
+	* component is displayed.
 	*/
 	virtual void zeichnen(koord pos, koord gr);
 };

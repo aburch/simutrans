@@ -22,6 +22,7 @@
 
 class spieler_t;
 class stadt_t;
+class ware_t;
 
 
 /**
@@ -52,12 +53,13 @@ class stadt_t;
 #define MAX_FAB_REF_LINE            (6)
 
 // statistics for goods
-#define MAX_FAB_GOODS_STAT          (3)
+#define MAX_FAB_GOODS_STAT          (4)
 // common to both input and output goods
 #define FAB_GOODS_STORAGE           (0)
 // input goods
 #define FAB_GOODS_RECEIVED          (1)
-#define FAB_GOODS_CONSUMED          (2)
+#define FAB_GOODS_CONSUMED        (2)
+#define FAB_GOODS_TRANSIT                 (3)
 // output goods
 #define FAB_GOODS_DELIVERED         (1)
 #define FAB_GOODS_PRODUCED          (2)
@@ -72,6 +74,13 @@ class stadt_t;
 #define DEMAND_BITS (4)
 
 
+/**
+ * Convert internal values to displayed values
+ */
+sint64 convert_goods(sint64 value);
+sint64 convert_power(sint64 value);
+sint64 convert_boost(sint64 value);
+
 // to prepare for 64 precision ...
 class ware_production_t
 {
@@ -80,22 +89,44 @@ private:
 	// Knightly : statistics for each goods
 	sint64 statistics[MAX_MONTH][MAX_FAB_GOODS_STAT];
 	sint64 weighted_sum_storage;
+
+	/// clears statistics, transit, and weighted_sum_storage
+	void init_stats();
 public:
+	ware_production_t() : type(NULL), menge(0), max(0), transit(0), index_offset(0)
+	{
+		init_stats();
+	}
+
 	const ware_besch_t* get_typ() const { return type; }
 	void set_typ(const ware_besch_t *t) { type=t; }
 
 	// Knightly : functions for manipulating goods statistics
-	void init_stats();
 	void roll_stats(sint64 aggregate_weight);
-	void rdwr_stats(loadsave_t *file);
+	void rdwr(loadsave_t *file);
 	const sint64* get_stats() const { return *statistics; }
 	void book_stat(sint64 value, int stat_type) { assert(stat_type<MAX_FAB_GOODS_STAT); statistics[0][stat_type] += value; }
 	void set_stat(sint64 value, int stat_type) { assert(stat_type<MAX_FAB_GOODS_STAT); statistics[0][stat_type] = value; }
 	sint64 get_stat(int month, int stat_type) const { assert(stat_type<MAX_FAB_GOODS_STAT); return statistics[month][stat_type]; }
+
+	/**
+	 * convert internal units to displayed values
+	 */
+	sint64 get_stat_converted(int month, int stat_type) const {
+		assert(stat_type<MAX_FAB_GOODS_STAT);
+		sint64 value = statistics[month][stat_type];
+		if (stat_type==FAB_GOODS_STORAGE  ||  stat_type==FAB_GOODS_CONSUMED) {
+			value = convert_goods(value);
+		}
+		return value;
+	}
 	void book_weighted_sum_storage(sint64 delta_time);
 
-	sint32 menge;	// in internal untis shifted by precision_bits (see produktion)
+	sint32 menge;	// in internal units shifted by precision_bits (see step)
 	sint32 max;
+	sint32 transit;
+
+	uint32 index_offset; // used for haltlist and lieferziele searches in verteile_waren to produce round robin results
 };
 
 
@@ -145,9 +176,6 @@ private:
 	// Knightly : For accumulating weighted sums for average statistics
 	void book_weighted_sums(sint64 delta_time);
 
-	// used for haltlist and lieferziele searches in verteile_waren to produce round robin results
-	uint32 index_offset;
-
 	/**
 	 * Die möglichen Lieferziele
 	 * 
@@ -155,6 +183,7 @@ private:
 	 * @author Hj. Malthaner
 	 */
 	vector_tpl <koord> lieferziele;
+	uint32 lieferziele_active_last_month;
 
 	/**
 	 * suppliers to this factry
@@ -190,9 +219,22 @@ private:
 	vector_tpl<stadt_t *> target_cities;
 
 	spieler_t *besitzer_p; //"possessive" (Google)
-	karte_t *welt;
+	static karte_t *welt;
 
 	const fabrik_besch_t *besch;
+
+	/**
+	 * Freight halts within range
+	 */
+	vector_tpl<nearby_halt_t> nearby_freight_halts;
+	/**
+	 * Passenger halts within range
+	 */
+	vector_tpl<nearby_halt_t> nearby_passenger_halts;
+	/**
+	 * Mail halts within range
+	 */
+	vector_tpl<nearby_halt_t> nearby_mail_halts;
 
 	/**
 	 * Bauposition gedreht?
@@ -217,8 +259,8 @@ private:
 	sint32 prodfactor_pax;
 	sint32 prodfactor_mail;
 
-	array_tpl<ware_production_t> eingang; //< das einganslagerfeld  ("in goose camp field" (!!) (Babelfish)
-	array_tpl<ware_production_t> ausgang; //< das ausgangslagerfeld ("the output camp field") (Babelfish)
+	array_tpl<ware_production_t> eingang; ///< array for input/consumed goods
+	array_tpl<ware_production_t> ausgang; ///< array for output/produced goods
 
 	/**
 	 * Zeitakkumulator für Produktion
@@ -227,6 +269,9 @@ private:
 	 */
 	sint32 delta_sum;
 	uint32 delta_menge;
+
+	// production remainder when scaled to PRODUCTION_DELTA_T. added back next step to eliminate cumulative error
+	uint32 menge_remainder;
 
 	// Knightly : number of rounds where there is active production or consumption
 	uint8 activity_count;
@@ -243,14 +288,14 @@ private:
 	// power requested for next step
 	uint32 power_demand;
 
-	uint32 total_input, total_output;
+	uint32 total_input, total_transit, total_output;
 	uint8 status;
 
-	/**
-	 * Die Koordinate (Position) der fabrik
-	 * @author Hj. Malthaner
-	 */
+	/// Position of a building of the factory.
 	koord3d pos;
+
+	/// Position of the nw-corner tile of the factory.
+	koord3d pos_origin;
 
 	/**
 	 * Number of times the factory has expanded so far
@@ -332,6 +377,8 @@ private:
 		uint32 get_scaled_demand() const { return scaled_demand; }
 	};
 
+	void update_transit_intern( const ware_t& ware, bool add );
+
 	/**
 	 * Arrival data for calculating pax/mail boost
 	 * @author Knightly
@@ -352,11 +399,15 @@ private:
 	// create some smoke on the map
 	void smoke() const;
 
-	/**
-	 * increase the amount for a time delta_t scaled to a fixed time PRODUCTION_DELTA_T
-	 * @author Hj. Malthaner - original
-	 */
-	uint32 produktion(uint32 produkt, long delta_t) const;
+	// scales the amount of production based on the amount already in storage
+	uint32 scale_output_production(const uint32 product, uint32 menge) const;
+
+//	/**
+//	 * increase the amount for a time delta_t scaled to a fixed time PRODUCTION_DELTA_T
+//	 * @author Hj. Malthaner - original
+//	 */
+//	uint32 produktion(uint32 produkt, long delta_t) const;
+//>>>>>>> jamespetts/private-cars
 
 	// This is the city within whose city limits the factory is located.
 	// NULL if it is outside a city. This is re-checked monthly.
@@ -369,7 +420,7 @@ protected:
 
 public:
 	fabrik_t(karte_t *welt, loadsave_t *file);
-	fabrik_t(koord3d pos, spieler_t* sp, const fabrik_besch_t* fabesch);
+	fabrik_t(koord3d pos, spieler_t* sp, const fabrik_besch_t* fabesch, sint32 initial_prod_base);
 	~fabrik_t();
 
 	/**
@@ -380,7 +431,30 @@ public:
 	sint64 get_stat(int month, int stat_type) const { assert(stat_type<MAX_FAB_STAT); return statistics[month][stat_type]; }
 	void book_stat(sint64 value, int stat_type) { assert(stat_type<MAX_FAB_STAT); statistics[0][stat_type] += value; }
 
-	static fabrik_t * get_fab(const karte_t *welt, const koord pos);
+
+	static void update_transit( const ware_t& ware, bool add );
+
+	/**
+	 * convert internal units to displayed values
+	 */
+	sint64 get_stat_converted(int month, int stat_type) const {
+		assert(stat_type<MAX_FAB_STAT);
+		sint64 value = statistics[month][stat_type];
+		switch(stat_type) {
+			case FAB_POWER:
+				value = convert_power(value);
+				break;
+			case FAB_BOOST_ELECTRIC:
+			case FAB_BOOST_PAX:
+			case FAB_BOOST_MAIL:
+				value = convert_boost(value);
+				break;
+			default: ;
+		}
+		return value;
+	}
+
+	static fabrik_t * get_fab(const karte_t *welt, const koord &pos);
 
 	/**
 	 * @return vehicle description object
@@ -390,15 +464,31 @@ public:
 
 	void laden_abschliessen();
 
-	void set_pos( koord3d p ) { pos = p; }
+	/**
+	* gets position of a building belonging to factory
+	*/
+	koord3d get_pos() const { return pos; }
 
 	void rotate90( const sint16 y_size );
 
-	void link_halt(halthandle_t halt);
-	void unlink_halt(halthandle_t halt);
-
 	const vector_tpl<koord>& get_lieferziele() const { return lieferziele; }
+	bool is_active_lieferziel( koord k ) const;
+
 	const vector_tpl<koord>& get_suppliers() const { return suppliers; }
+
+	/**
+	 * Recalculate nearby halts
+	 * These are stashed, so must be recalced when
+	 * halts are built or destroyed
+	 * @author neroden
+	 */
+	void recalc_nearby_halts();
+
+	/**
+	 * Re-mark nearby roads.
+	 * Needs to be called by fabrikbauer_t (otherwise private).
+	 */
+	void mark_connected_roads(bool del);
 
 	/**
 	 * Functions for manipulating the list of connected cities
@@ -437,24 +527,36 @@ public:
 	sint32 input_vorrat_an(const ware_besch_t *ware);        // Vorrat von Warentyp ("Inventories of product")
 	sint32 vorrat_an(const ware_besch_t *ware);        // Vorrat von Warentyp
 
-	// returns all power and consume it to prevent multiple pumpes
+	/**
+	* returns all power and consume it to prevent multiple pumpes
+	*/
 	uint32 get_power() { uint32 p=power; power=0; return p; }
 
-	// returns power wanted by the factory for next step and sets to 0 to prevent multiple senkes on same powernet
+	/**
+	* returns power wanted by the factory for next step and sets to 0 to prevent multiple senkes on same powernet
+	*/
 	uint32 step_power_demand() { uint32 p=power_demand; power_demand=0; return p; }
 	uint32 get_power_demand() const { return power_demand; }
 
-	// give power to the factory to consume ...
+	/**
+	*give power to the factory to consume ...
+	*/
 	void add_power(uint32 p) { power += p; }
 
-	// senkes give back wanted power they can't supply such that a senke on a different powernet can try suppling
-	// WARNING: senke stepping order can vary between ingame construction and savegame loading => different results after saveing/loading the game
+	/**
+	* senkes give back wanted power they can't supply such that a senke on a different powernet can try suppling
+	* WARNING: senke stepping order can vary between ingame construction and savegame loading => different results after saveing/loading the game
+	*/
 	void add_power_demand(uint32 p) { power_demand +=p; }
 
-	// true, if there was production requiring power in the last step
+	/**
+	* True if there was production requiring power in the last step
+	*/
 	bool is_currently_producing() const { return currently_producing; }
 
-	// used to limit transformers to 1 per factory
+	/**
+	* Used to limit transformers to one per factory
+	*/
 	bool is_transformer_connected() const { return (bool)transformer_connected; }
 	leitung_t* get_transformer_connected() { return transformer_connected; }
 	void set_transformer_connected(leitung_t* connected) { transformer_connected = connected; }
@@ -464,7 +566,11 @@ public:
 	 * 0 wenn Produktionsstopp,
 	 * -1 wenn Ware nicht verarbeitet wird
 	 */
-	sint32 verbraucht(const ware_besch_t *);             // Nimmt fab das an ?? ("Notes to the fab?")
+//<<<<<<< HEAD
+//	sint32 verbraucht(const ware_besch_t *);             // Nimmt fab das an ?? ("Notes to the fab?")
+//=======
+	sint8 is_needed(const ware_besch_t *) const;
+
 	sint32 liefere_an(const ware_besch_t *, sint32 menge);
 
 	void step(long delta_t);                  // fabrik muss auch arbeiten ("factory must also work")
@@ -484,15 +590,17 @@ public:
 
 	void zeige_info();
 
-	// infostring on production
+	/**
+	 * infostring on production
+	 */
 	void info_prod(cbuffer_t& buf) const;
 
-	// infostring on targets/sources
+	/**
+	 * infostring on targets/sources
+	 */
 	void info_conn(cbuffer_t& buf) const;
 
 	void rdwr(loadsave_t *file);
-
-	inline koord3d get_pos() const { return pos; }
 
 	/*
 	 * Fills the vector with the koords of the tiles.
@@ -527,7 +635,7 @@ public:
 	 *
 	 * @author Hj. Malthaner, V. Meyer
 	 */
-	void baue(sint32 rotate, bool build_fields = true);
+	void baue(sint32 rotate, bool build_fields, bool force_initial_prodbase);
 
 	sint16 get_rotate() const { return rotate; }
 
@@ -567,8 +675,9 @@ public:
 	enum { bad, medium, good, inactive, nothing };
 	static unsigned status_to_color[5];
 
-	uint8  get_status()    const { return status;       }
-	uint32 get_total_in()  const { return total_input;  }
+	uint8  get_status() const { return status; }
+	uint32 get_total_in() const { return total_input; }
+	uint32 get_total_transit() const { return total_transit; }
 	uint32 get_total_out() const { return total_output; }
 
 	/**
@@ -599,7 +708,9 @@ public:
 
 	bool is_end_consumer() const { return (ausgang.empty() && !besch->is_electricity_producer()); }
 
-	// Returns a list of goods produced by this factory.
+	/**
+	 * Returns a list of goods produced by this factory.
+	 */
 	slist_tpl<const ware_besch_t*> *get_produced_goods() const;
 };
 

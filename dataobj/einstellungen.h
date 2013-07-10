@@ -6,6 +6,8 @@
 #include "../simconst.h"
 #include "../simunits.h"
 #include "livery_scheme.h"
+#include "../tpl/piecewise_linear_tpl.h" // for various revenue tables
+#include "../bauer/warenbauer.h" // for speed bonus tables
 
 /**
  * Spieleinstellungen
@@ -21,23 +23,13 @@ class loadsave_t;
 class tabfile_t;
 class weg_besch_t;
 
-// these are the only classes, that are allowed to modfy elements from settings_t
-// for all remaing special cases there are the set_...() routines
-class settings_general_stats_t;
-class settings_routing_stats_t;
-class settings_economy_stats_t;
-class settings_costs_stats_t;
-class settings_climates_stats_t;
-class climate_gui_t;
-class welt_gui_t;
-
-
 struct road_timeline_t
 {
 	char name[64];
 	uint16 intro;
 	uint16 retire;
 };
+
 
 template <class T>
 class vector_with_ptr_ownership_tpl : public vector_tpl<T*> 
@@ -49,7 +41,7 @@ public:
 	vector_with_ptr_ownership_tpl( vector_with_ptr_ownership_tpl const& src ) :
 		vector_tpl<T*>( src.get_count() ) {
 		ITERATE( src, i ) {
-			append( new T( *src[i] ) );
+			this->append( new T( *src[i] ) );
 		}
 	}
 
@@ -70,15 +62,34 @@ public:
 
 class settings_t
 {
-friend class settings_general_stats_t;
-friend class settings_routing_stats_t;
-friend class settings_economy_stats_t;
-friend class settings_costs_stats_t;
-friend class settings_climates_stats_t;
-friend class climate_gui_t;
-friend class welt_gui_t;
+	// these are the only classes, that are allowed to modfy elements from settings_t
+	// for all remaing special cases there are the set_...() routines
+	friend class settings_general_stats_t;
+	friend class settings_routing_stats_t;
+	friend class settings_economy_stats_t;
+	friend class settings_costs_stats_t;
+	friend class settings_climates_stats_t;
+	friend class settings_experimental_general_stats_t;
+	friend class settings_experimental_revenue_stats_t;
+	friend class climate_gui_t;
+	friend class welt_gui_t;
 
 private:
+	/**
+	* Many settings can be set by a pak, a local config file, and also by a saved game.
+	* The saved game will override the pak settings normally,
+	* ...which is very undesirable when debugging a pak.
+	*
+	* If progdir_overrides_savegame_settings is true, this will prefer the "progdir" settings.
+	* If pak_overrides_savegame_settings is true, this will prefer the pak settings.
+	* If userder_overrides_savegame_settings is true, this will prefer the pak settings.
+	*
+	* If several are set, they are read in the order progdir, pak, userdir.
+	*/
+	bool progdir_overrides_savegame_settings;
+	bool pak_overrides_savegame_settings;
+	bool userdir_overrides_savegame_settings;
+
 	sint32 groesse_x, groesse_y;
 	sint32 nummer;
 
@@ -86,7 +97,7 @@ private:
 	 * @author prissi
 	 * not used any more:    sint32 industrie_dichte;
 	 */
-	sint32 land_industry_chains;
+	sint32 factory_count;
 	sint32 electric_promille;
 	sint32 tourist_attractions;
 
@@ -104,6 +115,7 @@ private:
 	sint32 growthfactor_medium;
 	sint32 growthfactor_large;
 
+	sint16 special_building_distance;	// distance between attraction to factory or other special buildings
 	uint32 industry_increase;
 	uint32 city_isolation_factor;
 
@@ -123,6 +135,8 @@ private:
 	bool factory_enforce_demand;
 
 	uint16 station_coverage_size;
+	// The coverage circle for factories - allows this to be smaller than for passengers/mail.
+	uint16 station_coverage_size_factories;
 
 	/**
 	 * ab welchem level erzeugen gebaeude verkehr ?
@@ -181,7 +195,12 @@ private:
 
 	sint32 passenger_factor;
 
-	sint16 factory_spacing;
+	sint16 min_factory_spacing;
+	sint16 max_factory_spacing;
+	sint16 max_factory_spacing_percentage;
+
+	/*no goods will put in route, when stored>gemax_storage and goods_in_transit*maximum_intransit_percentage/100>max_storage  */
+	uint16 factory_maximum_intransit_percentage;
 
 	/* prissi: crossconnect all factories (like OTTD and similar games) */
 	bool crossconnect_factories;
@@ -267,7 +286,7 @@ private:
 	 * by private cars, they will pay this
 	 * much of a toll for every tile
 	 */
-	sint64 private_car_toll_per_tile;
+	sint64 private_car_toll_per_km;
 
 	/**
 	 * If this is enabled, player roads
@@ -291,6 +310,14 @@ private:
 	 * of 8192 on every save/load until major version 11.
 	 */
 	uint32 reroute_check_interval_steps;
+
+	/** 
+	 * The speed at which pedestrians walk in km/h.
+	 * Used in journey time calculations. 
+	 * NOTE: The straight line distance is used
+	 * with this speed.
+	 */
+	uint8 walking_speed;
 
 public:
 	//Cornering settings
@@ -317,16 +344,22 @@ public:
 
 	uint8 max_rerouting_interval_months;
 
+protected:
 	//@author: jamespetts
 	// Revenue calibration settings
 	uint16 min_bonus_max_distance;
 	uint16 max_bonus_min_distance;
 	uint16 median_bonus_distance;
 	uint16 max_bonus_multiplier_percent;
+
+public:
+
 	uint16 meters_per_tile;
 	// We need it often(every vehikel_basis_t::fahre_basis call), so we cache it.
 	uint32 steps_per_km;
 
+private:
+	// The public version of these is exposed via tables below --neroden
 	uint8 tolerable_comfort_short;
 	uint8 tolerable_comfort_median_short;
 	uint8 tolerable_comfort_median_median;
@@ -337,6 +370,7 @@ public:
 	uint16 tolerable_comfort_median_median_minutes;
 	uint16 tolerable_comfort_median_long_minutes;
 	uint16 tolerable_comfort_long_minutes;
+
 	uint8 max_luxury_bonus_differential;
 	uint8 max_discomfort_penalty_differential;
 	uint16 max_luxury_bonus_percent;
@@ -357,6 +391,31 @@ public:
 	uint16 tpo_min_minutes;
 	uint16 tpo_revenue;
 
+public:
+	// @author: neroden
+	// Linear interpolation tables for various things
+	// First argument is "in" type, second is "out" type
+	// Third argument is intermediate computation type
+
+	// The tolerable comfort table. (tenths of minutes to comfort)
+	piecewise_linear_tpl<uint16, sint16, uint32> tolerable_comfort;
+	// The max tolerable journey table (comfort to seconds)
+	piecewise_linear_tpl<uint8, uint32, uint64> max_tolerable_journey;
+	// The base comfort revenue table (comfort - tolerable comfort to percentage)
+	piecewise_linear_tpl<sint16, sint16, sint32> base_comfort_revenue;
+	// The comfort derating table (tenths of minutes to percentage)
+	piecewise_linear_tpl<uint16, uint8> comfort_derating;
+
+	// @author: neroden
+	// Tables 0 through 5 for catering revenue.
+	// One for each level -- so there are 6 of them total.
+	// Dontcha hate C array declaration style?
+	piecewise_linear_tpl<uint16, sint64> catering_revenues[6];
+
+	// Single table for TPO revenues.
+	piecewise_linear_tpl<uint16, sint64> tpo_revenues;
+
+
 	//@author: jamespetts
 	// Obsolete vehicle maintenance cost increases
 	uint16 obsolete_running_cost_increase_percent;
@@ -372,11 +431,10 @@ public:
 	uint32 midrange_passengers_max_distance;
 	uint32 longdistance_passengers_min_distance;
 	uint32 longdistance_passengers_max_distance;
-	
+
 	// @author: jamespetts
 	// Private car settings
 	uint8 always_prefer_car_percent;
-	uint8 base_car_preference_percent;
 	uint8 congestion_density_factor;
 
 	//@author: jamespetts
@@ -393,8 +451,8 @@ public:
 	//@author: jamespetts
 	// Insolvency and debt settings
 	uint8 interest_rate_percent;
-	bool allow_bankruptsy;
-	bool allow_purhcases_when_insolvent;
+	bool allow_bankruptcy;
+	bool allow_purchases_when_insolvent;
 
 	// Reversing settings
 	//@author: jamespetts
@@ -445,12 +503,6 @@ public:
 	uint16 max_midrange_tolerance;
 	uint16 min_longdistance_tolerance;
 	uint16 max_longdistance_tolerance;
-
-	// The walking distance in tiles
-	// that people are prepared to 
-	// tolerate.
-	// @author: jamespetts, December 2009
-	uint16 max_walking_distance;
 	
 private:
 
@@ -483,6 +535,10 @@ private:
 	float32e8_t steps_per_meter;
 	float32e8_t seconds_per_tick;
 #endif
+
+	// true if transformers are allowed to built underground
+	bool allow_underground_transformers;
+
 public:
 	/* the big cost section */
 	sint32 maint_building;	// normal building
@@ -552,6 +608,11 @@ public:
 	uint8 spacing_shift_mode;
 	sint16 spacing_shift_divisor;
 
+	// remove dummy companies and remove password from abandoned companies
+	uint16 remove_dummy_player_months;
+	uint16 unprotect_abondoned_player_months;
+
+public:
 	/**
 	 * If map is read from a heightfield, this is the name of the heightfield.
 	 * Set to empty string in order to avoid loading.
@@ -559,7 +620,12 @@ public:
 	 */
 	std::string heightfield;
 
+public:
 	settings_t();
+
+	bool get_progdir_overrides_savegame_settings() {return progdir_overrides_savegame_settings;}
+	bool get_pak_overrides_savegame_settings() {return pak_overrides_savegame_settings;}
+	bool get_userdir_overrides_savegame_settings() {return userdir_overrides_savegame_settings;}
 
 	void rdwr(loadsave_t *file);
 
@@ -576,8 +642,8 @@ public:
 
 	sint32 get_karte_nummer() const {return nummer;}
 
-	void set_land_industry_chains(sint32 d) {land_industry_chains=d;}
-	sint32 get_land_industry_chains() const {return land_industry_chains;}
+	void set_factory_count(sint32 d) { factory_count=d; }
+	sint32 get_factory_count() const {return factory_count;}
 
 	sint32 get_electric_promille() const {return electric_promille;}
 
@@ -604,6 +670,8 @@ public:
 
 	uint16 get_station_coverage() const {return station_coverage_size;}
 
+	uint16 get_station_coverage_factories() const {return station_coverage_size_factories;}
+
 	void set_allow_player_change(char n) {allow_player_change=n;}	// prissi, Oct-2005
 	uint8 get_allow_player_change() const {return allow_player_change;}
 
@@ -613,6 +681,7 @@ public:
 	void set_starting_year( sint16 n ) { starting_year = n; }
 	sint16 get_starting_year() const {return starting_year;}
 
+	void set_starting_month( sint16 n ) { starting_month = n; }
 	sint16 get_starting_month() const {return starting_month;}
 
 	sint16 get_bits_per_month() const {return bits_per_month;}
@@ -653,7 +722,11 @@ public:
 	bool get_random_pedestrians() const { return fussgaenger; }
 	void set_random_pedestrians( bool f ) { fussgaenger = f; }
 
-	sint16 get_factory_spacing() const { return factory_spacing; }
+	sint16 get_special_building_distance() const { return special_building_distance; }
+
+	sint16 get_min_factory_spacing() const { return min_factory_spacing; }
+	sint16 get_max_factory_spacing() const { return max_factory_spacing; }
+	sint16 get_max_factory_spacing_percent() const { return max_factory_spacing_percentage; }
 	sint16 get_crossconnect_factor() const { return crossconnect_factor; }
 	bool is_crossconnect_factories() const { return crossconnect_factories; }
 
@@ -683,14 +756,12 @@ public:
 	bool is_seperate_halt_capacities() const { return seperate_halt_capacities ; }
 
 	uint16 get_min_bonus_max_distance() const { return min_bonus_max_distance; }
-	void   set_min_bonus_max_distance(uint16 value) { min_bonus_max_distance = value; }
 	uint16 get_median_bonus_distance() const { return median_bonus_distance; }
-	void   set_median_bonus_distance(uint16 value) { median_bonus_distance = value; }
 	uint16 get_max_bonus_min_distance() const { return max_bonus_min_distance; }
-	void   set_max_bonus_min_distance(uint16 value) { max_bonus_min_distance = value; }
-
 	uint16 get_max_bonus_multiplier_percent() const { return max_bonus_multiplier_percent; }
-	void   set_max_bonus_multiplier_percent(uint16 value) { max_bonus_multiplier_percent = value; }
+	// Cache the above settings directly in ware_besch_t objects.
+	// During loading you must call this *after* warenbauer_t is done registering wares.
+	void cache_speedbonuses();
 
 	uint16 get_meters_per_tile() const { return meters_per_tile; }
 	void   set_meters_per_tile(uint16 value);
@@ -698,29 +769,17 @@ public:
 //	void   set_distance_per_tile_percent(uint16 value) { meters_per_tile = value * 10; }
 
 	uint8  get_tolerable_comfort_short() const { return tolerable_comfort_short; }
-	void   set_tolerable_comfort_short(uint8 value) { tolerable_comfort_short = value; }
 	uint16 get_tolerable_comfort_short_minutes() const { return tolerable_comfort_short_minutes; }
-	void   set_tolerable_comfort_short_minutes(uint16 value) { tolerable_comfort_short_minutes = value; }
-
 	uint8  get_tolerable_comfort_median_short() const { return tolerable_comfort_median_short; }
-	void   set_tolerable_comfort_median_short(uint8 value) { tolerable_comfort_median_short = value; }
 	uint16 get_tolerable_comfort_median_short_minutes() const { return tolerable_comfort_median_short_minutes; }
-	void   set_tolerable_comfort_median_short_minutes(uint16 value) { tolerable_comfort_median_short_minutes = value; }
-
 	uint8  get_tolerable_comfort_median_median() const { return tolerable_comfort_median_median; }
-	void   set_tolerable_comfort_median_median(uint8 value) { tolerable_comfort_median_median = value; }
 	uint16 get_tolerable_comfort_median_median_minutes() const { return tolerable_comfort_median_median_minutes; }
-	void   set_tolerable_comfort_median_median_minutes(uint16 value) { tolerable_comfort_median_median_minutes = value; }
-
 	uint8  get_tolerable_comfort_median_long() const { return tolerable_comfort_median_long; }
-	void   set_tolerable_comfort_median_long(uint8 value) { tolerable_comfort_median_long = value; }
 	uint16 get_tolerable_comfort_median_long_minutes() const { return tolerable_comfort_median_long_minutes; }
-	void   set_tolerable_comfort_median_long_minutes(uint16 value) { tolerable_comfort_median_long_minutes = value; }
-
 	uint8  get_tolerable_comfort_long() const { return tolerable_comfort_long; }
-	void   set_tolerable_comfort_long(uint8 value) { tolerable_comfort_long = value; }
 	uint16 get_tolerable_comfort_long_minutes() const { return tolerable_comfort_long_minutes; }
-	void   set_tolerable_comfort_long_minutes(uint16 value) { tolerable_comfort_long_minutes = value; }
+	void   cache_comfort_tables(); // Cache the list of values above in piecewise-linear functions.
+
 
 	uint16 get_max_luxury_bonus_percent() const { return max_luxury_bonus_percent; }
 	void   set_max_luxury_bonus_percent(uint16 value) { max_luxury_bonus_percent = value; }
@@ -733,33 +792,24 @@ public:
 	void   set_max_discomfort_penalty_differential(uint8 value) { max_discomfort_penalty_differential = value; }
 
 	uint16 get_catering_min_minutes() const { return catering_min_minutes; }
-	void   set_catering_min_minutes(uint16 value) { catering_min_minutes = value; }
 
 	uint16 get_catering_level1_minutes() const { return catering_level1_minutes; }
-	void   set_catering_level1_minutes(uint16 value) { catering_level1_minutes = value; }
 	uint16 get_catering_level1_max_revenue() const { return catering_level1_max_revenue; }
-	void   set_catering_level1_max_revenue(uint16 value) { catering_level1_max_revenue = value; }
 
 	uint16 get_catering_level2_minutes() const { return catering_level2_minutes; }
-	void   set_catering_level2_minutes(uint16 value) { catering_level2_minutes = value; }
 	uint16 get_catering_level2_max_revenue() const { return catering_level2_max_revenue; }
-	void   set_catering_level2_max_revenue(uint16 value) { catering_level2_max_revenue = value; }
 
 	uint16 get_catering_level3_minutes() const { return catering_level3_minutes; }
-	void   set_catering_level3_minutes(uint16 value) { catering_level3_minutes = value; }
 	uint16 get_catering_level3_max_revenue() const { return catering_level3_max_revenue; }
-	void   set_catering_level3_max_revenue(uint16 value) { catering_level3_max_revenue = value; }
 
 	uint16 get_catering_level4_minutes() const { return catering_level4_minutes; }
-	void   set_catering_level4_minutes(uint16 value) { catering_level4_minutes = value; }
 	uint16 get_catering_level4_max_revenue() const { return catering_level4_max_revenue; }
-	void   set_catering_level4_max_revenue(uint16 value) { catering_level4_max_revenue = value; }
 
 	uint16 get_catering_level5_minutes() const { return catering_level5_minutes; }
-	void   set_catering_level5_minutes(uint16 value) { catering_level5_minutes = value; }
 	uint16 get_catering_level5_max_revenue() const { return catering_level5_max_revenue; }
-	void   set_catering_level5_max_revenue(uint16 value) { catering_level5_max_revenue = value; }
-	
+
+	void   cache_catering_revenues(); // Cache the list of values above in piecewise-linear functions.
+
 	uint16 get_tpo_min_minutes() const { return tpo_min_minutes; }
 	void   set_tpo_min_minutes(uint16 value) { tpo_min_minutes = value; }
 	uint16 get_tpo_revenue() const { return tpo_revenue; }
@@ -791,8 +841,8 @@ public:
 	void  set_passenger_routing_midrange_chance(uint8 value) { passenger_routing_midrange_chance = value; }
 
 	uint8 get_always_prefer_car_percent() const { return always_prefer_car_percent; }
-	uint8 get_base_car_preference_percent () const { return base_car_preference_percent; }
 	uint8 get_congestion_density_factor () const { return congestion_density_factor; }
+	void set_congestion_density_factor (uint8 value)  { congestion_density_factor = value; }
 
 	sint32 get_max_corner_limit(waytype_t waytype) const { return kmh_to_speed(max_corner_limit[waytype]); }
 	sint32 get_min_corner_limit (waytype_t waytype) const { return kmh_to_speed(min_corner_limit[waytype]); }
@@ -805,8 +855,8 @@ public:
 	uint16 get_factory_max_years_obsolete() const { return factory_max_years_obsolete; }
 
 	uint8 get_interest_rate_percent() const { return interest_rate_percent; }
-	bool bankruptsy_allowed() const { return allow_bankruptsy; }
-	bool insolvent_purchases_allowed() const { return allow_purhcases_when_insolvent; }
+	bool bankruptcy_allowed() const { return allow_bankruptcy; }
+	bool insolvent_purchases_allowed() const { return allow_purchases_when_insolvent; }
 
 	uint32 get_unit_reverse_time() const { return unit_reverse_time; }
 	uint32 get_hauled_reverse_time() const { return hauled_reverse_time; }
@@ -820,6 +870,7 @@ public:
 	void set_global_power_factor_percent(uint16 value) { global_power_factor_percent = value; }
 
 	uint8 get_enforce_weight_limits() const { return enforce_weight_limits; }
+	void set_enforce_weight_limits(uint16 value) { enforce_weight_limits = value; }
 
 	uint16 get_speed_bonus_multiplier_percent() const { return speed_bonus_multiplier_percent; }
 
@@ -892,6 +943,10 @@ public:
 	// Knightly : whether factory pax/mail demands are enforced
 	bool get_factory_enforce_demand() const { return factory_enforce_demand; }
 
+	uint16 get_factory_maximum_intransit_percentage() const { return factory_maximum_intransit_percentage; }
+
+	uint32 get_locality_factor(sint16 year) const;
+
 	// disallow using obsolete vehicles in depot
 	bool get_allow_buying_obsolete_vehicles() const { return allow_buying_obsolete_vehicles; }
 
@@ -919,7 +974,6 @@ public:
 	uint32 get_frames_per_second() const { return frames_per_second; }
 	uint32 get_frames_per_step() const { return frames_per_step; }
 
-	uint16 get_max_walking_distance() const { return max_walking_distance; }
 	bool get_quick_city_growth() const { return quick_city_growth; }
 	void set_quick_city_growth(bool value) { quick_city_growth = value; }
 	bool get_assume_everywhere_connected_by_road() const { return assume_everywhere_connected_by_road; }
@@ -967,11 +1021,13 @@ public:
 
 	bool get_allow_making_public() const { return allow_making_public; }
 
-	sint64 get_private_car_toll_per_tile() const { return private_car_toll_per_tile; }
+	sint64 get_private_car_toll_per_km() const { return private_car_toll_per_km; }
 
 	bool get_towns_adopt_player_roads() const { return towns_adopt_player_roads; }
 
 	uint32 get_reroute_check_interval_steps() const { return reroute_check_interval_steps; }
+
+	uint8 get_walking_speed() const { return walking_speed; }
 
 #ifndef NETTOOL
 	float32e8_t get_simtime_factor() const { return simtime_factor; }
@@ -982,7 +1038,11 @@ public:
 	uint8 get_max_elevated_way_building_level() const { return max_elevated_way_building_level; }
 	void set_max_elevated_way_building_level(uint8 value) { max_elevated_way_building_level = value; }
 
+	bool get_allow_underground_transformers() const { return allow_underground_transformers; }
 	void set_scale();
+
+	uint16 get_remove_dummy_player_months() const { return remove_dummy_player_months; }
+	uint16 get_unprotect_abondoned_player_months() const { return unprotect_abondoned_player_months; }
 };
 
 #endif 

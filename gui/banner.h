@@ -5,6 +5,10 @@
  * (see licence.txt)
  */
 
+/*
+ * Intro banner and everything else
+ */
+
 #ifndef banner_h
 #define banner_h
 
@@ -27,7 +31,7 @@ private:
 	int line;
 	sint16 xoff, yoff;
 
-	button_t new_map, load_map, join_map, quit;
+	button_t new_map, load_map, load_scenario, join_map, quit;
 	gui_image_t logo;
 
 	karte_t *welt;
@@ -40,14 +44,14 @@ public:
 	virtual bool has_title() const { return false; }
 
 	/**
-	* Fenstertitel
+	* Window Title
 	* @author Hj. Malthaner
 	*/
 	const char *get_name() const {return ""; }
 
 	/**
-	* gibt farbinformationen fuer Fenstertitel, -ränder und -körper
-	* zurück
+	* get color information for the window title
+	* -borders and -body background
 	* @author Hj. Malthaner
 	*/
 	PLAYER_COLOR_VAL get_titelcolor() const {return WIN_TITEL; }
@@ -57,9 +61,9 @@ public:
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**
-	* komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
-	* das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
-	* in dem die Komponente dargestellt wird.
+	* Draw new component. The values to be passed refer to the window
+	* i.e. It's the screen coordinates of the window where the
+	* component is displayed.
 	* @author Hj. Malthaner
 	*/
 	void zeichnen(koord pos, koord gr);

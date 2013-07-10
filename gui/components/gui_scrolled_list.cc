@@ -1,7 +1,12 @@
 /*
- * Scrolled List.
+ * Scrollable list.
  * Displays list, scrollbuttons up/down, dragbar.
  * Has a min and a max size, and can be displayed with any size in between
+ * Does ONLY cater for vertical offset (yet).
+ * two possible types:
+ * -list.      simply lists some items.
+ * -selection. is a list, but additionally, one item can be selected.
+ * @author Niels Roest, additions by Hj. Malthaner
  */
 
 #include <stdio.h>
@@ -14,12 +19,10 @@
 #include "../../simwin.h"
 
 
-
 int gui_scrolled_list_t::total_vertical_size() const
 {
 	return item_list.get_count() * LINESPACE + 2;
 }
-
 
 
 gui_scrolled_list_t::gui_scrolled_list_t(enum type type) :
@@ -45,7 +48,6 @@ gui_scrolled_list_t::gui_scrolled_list_t(enum type type) :
 }
 
 
-
 bool gui_scrolled_list_t::action_triggered( gui_action_creator_t * /* comp */, value_t extra)
 {
 	// search/replace all offsets with sb.get_offset() is also an option
@@ -54,8 +56,7 @@ bool gui_scrolled_list_t::action_triggered( gui_action_creator_t * /* comp */, v
 }
 
 
-
-// set the scrollbar offset, so that the selected itm is visible
+// set the scrollbar offset, so that the selected item is visible
 void gui_scrolled_list_t::show_selection(int s)
 {
 	if((unsigned)s<item_list.get_count()) {
@@ -72,7 +73,6 @@ DBG_MESSAGE("gui_scrolled_list_t::show_selection()","sel=%d, offset=%d, groesse.
 		selection = -1;
 	}
 }
-
 
 
 void gui_scrolled_list_t::clear_elements()
@@ -119,7 +119,9 @@ koord gui_scrolled_list_t::request_groesse(koord request)
 	return groesse;
 }
 
-void gui_scrolled_list_t::set_groesse(koord groesse) {
+
+void gui_scrolled_list_t::set_groesse(koord groesse)
+{
 	gui_komponente_t::set_groesse(groesse);
 	adjust_scrollbar();
 }
@@ -172,7 +174,7 @@ bool gui_scrolled_list_t::infowin_event(const event_t *ev)
 		}
 	}
 
-	// got to next/previous choice
+	// goto next/previous choice
 	if(  ev->ev_class == EVENT_KEYBOARD  &&  (ev->ev_code==SIM_KEY_UP  ||  ev->ev_code==SIM_KEY_DOWN)  ) {
 		int new_selection = (ev->ev_code==SIM_KEY_DOWN) ? min(item_list.get_count()-1, selection+1) : max(0, selection-1);
 		selection = new_selection;
@@ -181,7 +183,7 @@ bool gui_scrolled_list_t::infowin_event(const event_t *ev)
 		return true;
 	}
 
-	if(sb.getroffen(x, y)  ||  IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev)) {
+	if(  sb.is_visible()  &&  (sb.getroffen(x, y)  ||  IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev))  ) {
 		event_t ev2 = *ev;
 		translate_event(&ev2, -sb.get_pos().x, -sb.get_pos().y);
 		return sb.infowin_event(&ev2);
@@ -189,7 +191,6 @@ bool gui_scrolled_list_t::infowin_event(const event_t *ev)
 
 	return false;
 }
-
 
 
 void gui_scrolled_list_t::zeichnen(koord pos)
@@ -216,7 +217,7 @@ void gui_scrolled_list_t::zeichnen(koord pos)
 	}
 
 	display_fillbox_wh(x,y,w,h, MN_GREY3, true);
-	display_ddd_box(x,y-1,w,h+2, COL_BLACK, COL_WHITE);
+	display_ddd_box(x,y-1,w,h+2, COL_BLACK, COL_WHITE, true);
 
 	PUSH_CLIP(x+1,y+1,w-2,h-2);
 	int ycum = y+2-offset; // y cumulative

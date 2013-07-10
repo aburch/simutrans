@@ -99,10 +99,25 @@ protected:
 	// @author: jamespetts, April 2011
 	std::string current_livery;
 
-	sint8 calc_height();		// Offset Bergauf/Bergab
+	/**
+	 * Vehicle movement: calculates z-offset of vehicles on slopes,
+	 * handles vehicles that are invisible in tunnels.
+	 * @param gr vehicle is on this ground (can be NULL)
+	 * @return new offset
+	 */
+	sint8 calc_height(grund_t *gr);
 
+	/**
+	 * Vehicle movement: check whether this vehicle can enter the next tile (pos_next).
+	 */
 	virtual bool hop_check() = 0;
-	virtual void hop() = 0;
+
+	/**
+	 * Vehicle movement: change tiles, calls verlasse_feld and betrete_feld.
+	 * @return pointer to ground of new position (never NULL)
+	 */
+	virtual grund_t* hop() = 0;
+
 	virtual void update_bookkeeping(uint32 steps) = 0;
 
 	virtual void calc_bild() = 0;
@@ -152,15 +167,29 @@ public:
 	// true, if this vehicle did not moved for some time
 	virtual bool is_stuck() { return true; }
 
-	virtual void betrete_feld();
+	/**
+	 * Vehicle movement: enter tile, add this to the ground.
+	 * @pre position (ding_t::pos) needs to be updated prior to calling this functions
+	 * @return pointer to ground (never NULL)
+	 */
+	virtual grund_t* betrete_feld();
 
+	/**
+	 * Vehicle movement: leave tile, release reserved crossing, remove vehicle from the ground.
+	 */
 	virtual void verlasse_feld();
 
 	virtual overtaker_t *get_overtaker() { return NULL; }
 
+#ifdef INLINE_DING_TYPE
+protected:
+	vehikel_basis_t(karte_t *welt, typ type);
+	vehikel_basis_t(karte_t *welt, typ type, koord3d pos);
+#else
 	vehikel_basis_t(karte_t *welt);
 
 	vehikel_basis_t(karte_t *welt, koord3d pos);
+#endif
 };
 
 
@@ -198,8 +227,6 @@ private:
 	/**
 	 * berechnet aktuelle Geschwindigkeit aufgrund der Steigung
 	 * (Hoehendifferenz) der Fahrbahn
-	 * @param h_alt alte Hoehe
-	 * @param h_neu neue Hoehe
 	 */
 	virtual void calc_drag_coefficient(const grund_t *gr);
 
@@ -210,7 +237,7 @@ private:
 	 * @return sum of unloaded goods
 	 * @author Hj. Malthaner
 	 */
-	uint16 unload_freight(halthandle_t halt);
+	uint16 unload_freight(halthandle_t halt, sint64 & revenue_from_unloading, array_tpl<sint64> & apportioned_revenues );
 
 	/**
 	 * Load freight from halt
@@ -255,14 +282,14 @@ private:
 	static sint64 sound_ticks;
 
 protected:
-	virtual void hop();
+	virtual grund_t* hop();
+
 	virtual void update_bookkeeping(uint32 steps) {
 	   // Only the first vehicle in a convoy does this,
 	   // or else there is double counting.
 	   // NOTE: As of 9.0, increment_odometer() also adds running costs for *all* vehicles in the convoy.
 		if (ist_erstes) cnv->increment_odometer(steps);
 	}
-
 
 	// current limit (due to track etc.)
 	sint32 speed_limit;
@@ -328,7 +355,7 @@ public:
 
 	virtual bool ist_weg_frei( int &/*restart_speed*/, bool /*second_check*/ ) { return true; }
 
-	virtual void betrete_feld();
+	virtual grund_t* betrete_feld();
 
 	virtual void verlasse_feld();
 
@@ -346,10 +373,12 @@ public:
 
 	void darf_rauchen(bool yesno ) { rauchen = yesno;}
 
-	virtual bool calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route);
+	virtual route_t::route_result_t calc_route(koord3d start, koord3d ziel, sint32 max_speed_kmh, route_t* route);
 	uint16 get_route_index() const {return route_index;}
 	void set_route_index(uint16 value) { route_index = value; }
 	const koord3d get_pos_prev() const {return pos_prev;}
+
+    virtual bool reroute(const uint16 reroute_index, const koord3d &ziel);
 
 	/**
 	* gibt das Basisbild zurueck
@@ -369,7 +398,7 @@ public:
 	* @author Hj. Malthaner
 	*/
 	int get_running_cost() const { return besch->get_running_cost(); }
-	int get_running_cost(karte_t* welt) const { return besch->get_running_cost(welt); }
+	int get_running_cost(const karte_t* welt) const { return besch->get_running_cost(welt); }
 
 	/**
 	* @return fixed maintenance costs in Cr/100months
@@ -391,17 +420,20 @@ public:
 	*/
 	void neue_fahrt( uint16 start_route_index, bool recalc );
 
+#ifdef INLINE_DING_TYPE
+protected:
+	vehikel_t(karte_t *welt, typ type);
+	vehikel_t(typ type, koord3d pos, const vehikel_besch_t* besch, spieler_t* sp);
+public:
+#else
 	vehikel_t(karte_t *welt);
 	vehikel_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp);
+#endif
 
 	~vehikel_t();
 
 	void rauche() const;
 
-	/**
-	* Effnet ein neues Beobachtungsfenster fur das Objekt.
-	* @author Hj. Malthaner
-	*/
 	void zeige_info();
 
 #if 0
@@ -410,7 +442,7 @@ private:
 	* der normale Infotext
 	* @author Hj. Malthaner
 	*/
-	void info(cbuffer_t & buf) const;
+	void info(cbuffer_t & buf, bool dummy = false) const;
 public:
 #endif
 	/**
@@ -422,12 +454,12 @@ public:
 	/* return friction constant: changes in hill and curves; may even negative downhill *
 	* @author prissi
 	*/
-	inline int get_frictionfactor() const { return current_friction; }
+	inline sint16 get_frictionfactor() const { return current_friction; }
 
-	/* Return total weight including freight*
+	/* Return total weight including freight (in kg!)
 	* @author prissi
 	*/
-	inline int get_gesamtgewicht() const { return sum_weight; }
+	inline uint32 get_gesamtgewicht() const { return sum_weight; }
 
 	// returns speedlimit of ways (and if convoi enters station etc)
 	// the convoi takes care of the max_speed of the vehicle
@@ -437,6 +469,11 @@ public:
 	static sint32 speed_unlimited() {return (std::numeric_limits<sint32>::max)(); }
 
 	const slist_tpl<ware_t> & get_fracht() const { return fracht;}   // liste der gerade transportierten güter
+
+	/**
+	 * Rotate freight target coordinates, has to be called after rotating factories.
+	 */
+	void rotate90_freight_destinations(const sint16 y_size);
 
 	/**
 	* berechnet die gesamtmenge der beförderten waren
@@ -507,7 +544,7 @@ public:
 	* fahrzeug an haltestelle entladen
 	* @author Hj. Malthaner
 	*/
-	uint16 entladen(halthandle_t halt);
+	uint16 entladen(halthandle_t halt, sint64 & revenue_from_unloading, array_tpl<sint64> & apportioned_revenues );
 
 	/**
 	* fahrzeug an haltestelle beladen
@@ -567,9 +604,7 @@ public:
 	uint16 get_overcrowding() const;
 
 	// @author: jamespetts
-	uint8 get_comfort() const;
-
-	sint64 current_revenue;
+	uint8 get_comfort(uint8 catering_level = 0) const;
 
 	// BG, 06.06.2009: update player's fixed maintenance
 	void laden_abschliessen();
@@ -598,12 +633,19 @@ template<> inline vehikel_t* ding_cast<vehikel_t>(ding_t* const d)
  */
 class automobil_t : public vehikel_t
 {
+private:
+	// called internally only from ist_weg_frei()
+	// returns true on success
+	bool choose_route( int &restart_speed, ribi_t::dir richtung, uint16 index );
+
 public:
 	bool ist_befahrbar(const grund_t *bd) const;
 
+protected:
 	bool is_checker;
 
-	virtual void betrete_feld();
+public:
+	virtual grund_t* betrete_feld();
 
 	virtual waytype_t get_waytype() const { return road_wt; }
 
@@ -614,19 +656,22 @@ public:
 	virtual void set_convoi(convoi_t *c);
 
 	// how expensive to go here (for way search)
-	virtual int get_kosten(const grund_t *, const sint32, koord) const;
+	virtual int get_kosten(const grund_t *, const sint32, koord);
 
-	virtual bool calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route);
+	virtual route_t::route_result_t calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route);
 
 	virtual bool ist_weg_frei(int &restart_speed, bool second_check );
 
 	// returns true for the way search to an unknown target.
-	virtual bool ist_ziel(const grund_t *,const grund_t *) const;
+	virtual bool ist_ziel(const grund_t *,const grund_t *);
 
 	// since we must consider overtaking, we use this for offset calculation
 	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const;
 
+#ifdef INLINE_DING_TYPE
+#else
 	ding_t::typ get_typ() const { return automobil; }
+#endif
 
 	schedule_t * erzeuge_neuen_fahrplan() const;
 
@@ -646,7 +691,7 @@ class waggon_t : public vehikel_t
 protected:
 	bool ist_befahrbar(const grund_t *bd) const;
 
-	void betrete_feld();
+	grund_t* betrete_feld();
 
 	bool is_weg_frei_signal( uint16 start_index, int &restart_speed );
 
@@ -661,13 +706,13 @@ public:
 	virtual waytype_t get_waytype() const { return track_wt; }
 
 	// since we might need to unreserve previously used blocks, we must do this before calculation a new route
-	bool calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route);
+	route_t::route_result_t calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route);
 
 	// how expensive to go here (for way search)
-	virtual int get_kosten(const grund_t *, const sint32, koord) const;
+	virtual int get_kosten(const grund_t *, const sint32, koord);
 
 	// returns true for the way search to an unknown target.
-	virtual bool ist_ziel(const grund_t *,const grund_t *) const;
+	virtual bool ist_ziel(const grund_t *,const grund_t *);
 
 	// handles all block stuff and route choosing ...
 	virtual bool ist_weg_frei(int &restart_speed, bool );
@@ -678,7 +723,15 @@ public:
 
 	void verlasse_feld();
 
+#ifdef INLINE_DING_TYPE
+protected:
+	waggon_t(karte_t *welt, typ type, loadsave_t *file, bool is_first, bool is_last);
+	waggon_t(typ type, koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t *cnv); // start und fahrplan
+	void init(loadsave_t *file, bool is_first, bool is_last);
+public:
+#else
 	typ get_typ() const { return waggon; }
+#endif
 
 	waggon_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last);
 	waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t *cnv); // start und fahrplan
@@ -701,11 +754,17 @@ class monorail_waggon_t : public waggon_t
 public:
 	virtual waytype_t get_waytype() const { return monorail_wt; }
 
+#ifdef INLINE_DING_TYPE
+	// all handled by waggon_t
+	monorail_waggon_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last) : waggon_t(welt, monorailwaggon, file,is_first, is_last) {}
+	monorail_waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv) : waggon_t(monorailwaggon, pos, besch, sp, cnv) {}
+#else
 	// all handled by waggon_t
 	monorail_waggon_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last) : waggon_t(welt, file,is_first, is_last) {}
 	monorail_waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv) : waggon_t(pos, besch, sp, cnv) {}
 
 	typ get_typ() const { return monorailwaggon; }
+#endif
 
 	schedule_t * erzeuge_neuen_fahrplan() const;
 };
@@ -722,11 +781,17 @@ class maglev_waggon_t : public waggon_t
 public:
 	virtual waytype_t get_waytype() const { return maglev_wt; }
 
+#ifdef INLINE_DING_TYPE
+	// all handled by waggon_t
+	maglev_waggon_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last) : waggon_t(welt, maglevwaggon, file, is_first, is_last) {}
+	maglev_waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv) : waggon_t(maglevwaggon, pos, besch, sp, cnv) {}
+#else
 	// all handled by waggon_t
 	maglev_waggon_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last) : waggon_t(welt, file, is_first, is_last) {}
 	maglev_waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv) : waggon_t(pos, besch, sp, cnv) {}
 
 	typ get_typ() const { return maglevwaggon; }
+#endif
 
 	schedule_t * erzeuge_neuen_fahrplan() const;
 };
@@ -743,11 +808,17 @@ class narrowgauge_waggon_t : public waggon_t
 public:
 	virtual waytype_t get_waytype() const { return narrowgauge_wt; }
 
+#ifdef INLINE_DING_TYPE
+	// all handled by waggon_t
+	narrowgauge_waggon_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last) : waggon_t(welt, narrowgaugewaggon, file, is_first, is_last) {}
+	narrowgauge_waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv) : waggon_t(narrowgaugewaggon, pos, besch, sp, cnv) {}
+#else
 	// all handled by waggon_t
 	narrowgauge_waggon_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last) : waggon_t(welt, file, is_first, is_last) {}
 	narrowgauge_waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv) : waggon_t(pos, besch, sp, cnv) {}
 
 	typ get_typ() const { return narrowgaugewaggon; }
+#endif
 
 	schedule_t * erzeuge_neuen_fahrplan() const;
 };
@@ -765,7 +836,7 @@ class schiff_t : public vehikel_t
 {
 protected:
 	// how expensive to go here (for way search)
-	virtual int get_kosten(const grund_t *, const sint32, koord) const { return 1; }
+	virtual int get_kosten(const grund_t *, const sint32, koord) { return 1; }
 
 	void calc_drag_coefficient(const grund_t *gr);
 
@@ -777,12 +848,15 @@ public:
 	virtual bool ist_weg_frei(int &restart_speed, bool);
 
 	// returns true for the way search to an unknown target.
-	virtual bool ist_ziel(const grund_t *,const grund_t *) const {return 0;}
+	virtual bool ist_ziel(const grund_t *,const grund_t *) {return 0;}
 
 	schiff_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last);
 	schiff_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv); // start und fahrplan
 
+#ifdef INLINE_DING_TYPE
+#else
 	ding_t::typ get_typ() const { return schiff; }
+#endif
 
 	schedule_t * erzeuge_neuen_fahrplan() const;
 
@@ -836,16 +910,13 @@ private:
 		uint32 &suchen, 
 		route_t &route);
 
-	// BG, 08.08.2012: extracted from ist_weg_frei()
-    bool reroute(const uint16 route_index, const koord3d &ziel);
-
 protected:
 	// jumps to next tile and correct the height ...
-	void hop();
+	grund_t* hop();
 
 	bool ist_befahrbar(const grund_t *bd) const;
 
-	void betrete_feld();
+	grund_t* betrete_feld();
 
 	int block_reserver( uint32 start, uint32 end, bool reserve ) const;
 
@@ -862,7 +933,7 @@ public:
 	virtual waytype_t get_waytype() const { return air_wt; }
 
 	// returns true for the way search to an unknown target.
-	virtual bool ist_ziel(const grund_t *,const grund_t *) const;
+	virtual bool ist_ziel(const grund_t *,const grund_t *);
 
 	//bool can_takeoff_here(const grund_t *gr, ribi_t::ribi test_dir, uint8 len) const;
 
@@ -870,15 +941,21 @@ public:
 	virtual ribi_t::ribi get_ribi(const grund_t* ) const;
 
 	// how expensive to go here (for way search)
-	virtual int get_kosten(const grund_t *, const sint32, koord) const;
+	virtual int get_kosten(const grund_t *, const sint32, koord);
 
 	virtual bool ist_weg_frei(int &restart_speed, bool);
 
 	virtual void set_convoi(convoi_t *c);
 
-	bool calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route);
+	route_t::route_result_t calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route);
 
+	// BG, 08.08.2012: extracted from ist_weg_frei()
+    bool reroute(const uint16 reroute_index, const koord3d &ziel);
+
+#ifdef INLINE_DING_TYPE
+#else
 	typ get_typ() const { return aircraft; }
+#endif
 
 	schedule_t * erzeuge_neuen_fahrplan() const;
 
@@ -890,7 +967,7 @@ public:
 	virtual image_id get_bild() const {return !is_on_ground() ? IMG_LEER : bild;}
 
 	// image: when flying the shadow, on ground empty
-	virtual PLAYER_COLOR_VAL get_outline_bild() const {return !is_on_ground() ? bild : IMG_LEER;}
+	virtual image_id get_outline_bild() const {return !is_on_ground() ? bild : IMG_LEER;}
 
 	// shadow has black color (when flying)
 	virtual PLAYER_COLOR_VAL get_outline_colour() const {return !is_on_ground() ? TRANSPARENT75_FLAG | OUTLINE_FLAG | COL_BLACK : 0;}

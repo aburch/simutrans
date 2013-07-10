@@ -18,6 +18,7 @@
 #include "loadsave.h"
 #include "umgebung.h"
 #include "../simmem.h"
+#include "../utils/cbuffer_t.h"
 #include "../utils/searchfolder.h"
 #include "../utils/simstring.h"
 #include "../unicode.h"
@@ -184,7 +185,7 @@ static char* recode(const char* src, bool translate_from_utf, bool translate_to_
 
 
 /* needed for loading city names */
-static char pakset_path[256];
+std::string translator::pak_name;
 
 // List of custom city and streetnames
 vector_tpl<char*> translator::city_name_list;
@@ -205,7 +206,7 @@ void translator::load_custom_list( int lang, vector_tpl<char*> &name_list, const
 	// @author prissi: first try in pakset
 	{
 		string local_file_name(umgebung_t::user_dir);
-		local_file_name = local_file_name + "addons/" + pakset_path + "text/" + fileprefix + langs[lang].iso_base + ".txt";
+		local_file_name = local_file_name + "addons/" + pak_name + "text/" + fileprefix + langs[lang].iso_base + ".txt";
 		DBG_DEBUG("translator::load_custom_list()", "try to read city name list from '%s'", local_file_name.c_str());
 		file = fopen(local_file_name.c_str(), "rb");
 	}
@@ -219,7 +220,7 @@ void translator::load_custom_list( int lang, vector_tpl<char*> &name_list, const
 	// not found => try pak location
 	if(  file==NULL  ) {
 		string local_file_name(umgebung_t::program_dir);
-		local_file_name = local_file_name + pakset_path + "text/" + fileprefix + langs[lang].iso_base + ".txt";
+		local_file_name = local_file_name + pak_name + "text/" + fileprefix + langs[lang].iso_base + ".txt";
 		DBG_DEBUG("translator::load_custom_list()", "try to read city name list from '%s'", local_file_name.c_str());
 		file = fopen(local_file_name.c_str(), "rb");
 	}
@@ -322,7 +323,9 @@ static void load_language_file_body(FILE* file, stringhashtable_tpl<const char*>
 				// only add line which are actually different
 				const char *raw = recode(buffer1, file_is_utf, false);
 				const char *translated = recode(buffer2, false, convert_to_unicode);
-				table->set( raw, translated );
+				if (cbuffer_t::check_format_strings(raw, translated) ) {
+					table->set( raw, translated );
+				}
 			}
 		}
 	} while (!feof(file));
@@ -372,8 +375,7 @@ void translator::load_files_from_folder(const char* folder_name, const char* wha
 		lang_info* lang = get_lang_by_iso(iso.c_str());
 		if (lang != NULL) {
 			DBG_MESSAGE("translator::load_files_from_folder()", "loading %s translations from %s for language %s", what, fileName.c_str(), lang->iso_base);
-			FILE* file = fopen(fileName.c_str(), "rb");
-			if (file != NULL) {
+			if (FILE* const file = fopen(fileName.c_str(), "rb")) {
 				bool file_is_utf = is_unicode_file(file);
 				load_language_file_body(file, &lang->texts, lang->utf_encoded, file_is_utf);
 				fclose(file);
@@ -390,7 +392,7 @@ void translator::load_files_from_folder(const char* folder_name, const char* wha
 bool translator::load(const string &path_to_pakset)
 {
 	chdir( umgebung_t::program_dir );
-	tstrncpy(pakset_path, path_to_pakset.c_str(), lengthof(pakset_path));
+	pak_name = path_to_pakset;
 
 	//initialize these values to 0(ie. nothing loaded)
 	single_instance.current_lang = -1;
@@ -406,9 +408,7 @@ bool translator::load(const string &path_to_pakset)
 		size_t pstart = fileName.rfind('/') + 1;
 		const string iso = fileName.substr(pstart, fileName.size() - pstart - 4);
 
-		FILE* file = NULL;
-		file = fopen(fileName.c_str(), "rb");
-		if (file != NULL) {
+		if (FILE* const file = fopen(fileName.c_str(), "rb")) {
 			DBG_MESSAGE("translator::load()", "base file \"%s\" - iso: \"%s\"", fileName.c_str(), iso.c_str());
 			load_language_iso(iso);
 			load_language_file(file);
@@ -447,8 +447,7 @@ bool translator::load(const string &path_to_pakset)
 	}
 
 	// now we try to read the compatibility stuff
-	FILE* file = fopen((path_to_pakset + "compat.tab").c_str(), "rb");
-	if (file != NULL) {
+	if (FILE* const file = fopen((path_to_pakset + "compat.tab").c_str(), "rb")) {
 		load_language_file_body(file, &compatibility, false, false);
 		DBG_MESSAGE("translator::load()", "pakset compatibilty texts loaded.");
 		fclose(file);
@@ -460,8 +459,7 @@ bool translator::load(const string &path_to_pakset)
 	// also addon compatibility ...
 	if(  umgebung_t::default_einstellungen.get_with_private_paks()  ) {
 		chdir( umgebung_t::user_dir );
-		FILE* file = fopen(string("addons/"+path_to_pakset + "compat.tab").c_str(), "rb");
-		if (file != NULL) {
+		if (FILE* const file = fopen(string("addons/"+path_to_pakset + "compat.tab").c_str(), "rb")) {
 			load_language_file_body(file, &compatibility, false, false);
 			DBG_MESSAGE("translator::load()", "pakset addon compatibility texts loaded.");
 			fclose(file);
@@ -563,8 +561,7 @@ const char* translator::get_month_name(uint16 month)
 		"November",
 		"December"
 	};
-	assert(month < lengthof(month_names));
-	return translate(month_names[month]);
+	return translate(month_names[month % lengthof(month_names)]);
 }
 
 

@@ -93,6 +93,22 @@ void tile_writer_t::write_obj(FILE* fp, obj_node_t& parent, int index, int seaso
 	node.write(fp);
 }
 
+// Subroutine for write_obj, to avoid duplicated code
+static uint32 get_cluster_data(tabfileobj_t& obj)
+{
+	uint32 clusters = 0;
+	int* ints = obj.get_ints("clusters");
+
+	for(  int i = 1;  i <= ints[0];  i++  ) {
+		if(  ints[i] > 1  &&  ints[i] <= 32  ) { // Sanity check
+			clusters |= 1<<(ints[i]-1);
+		}
+	}
+	delete [] ints;
+
+	return clusters;
+}
+
 
 void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
@@ -123,7 +139,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	uint32                     extra_data       = 0;
 	climate_bits               allowed_climates = all_but_water_climate; // all but water
 	uint8                      enables          = 0;
-	uint16                     level            = obj.get_int("level", 1) - 1;
+	uint16                     level            = obj.get_int("level", 1) - 1; // TODO: Remove this -1, which is now reset in the reader, when the version is incremented.
 	haus_besch_t::flag_t const flags            =
 		(obj.get_int("noinfo",         0) > 0 ? haus_besch_t::FLAG_KEINE_INFO  : haus_besch_t::FLAG_NULL) |
 		(obj.get_int("noconstruction", 0) > 0 ? haus_besch_t::FLAG_KEINE_GRUBE : haus_besch_t::FLAG_NULL) |
@@ -138,10 +154,13 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 
 	const char* type_name = obj.get("type");
 	if (!STRICMP(type_name, "res")) {
+		extra_data = get_cluster_data(obj);
 		gtyp = gebaeude_t::wohnung;
 	} else if (!STRICMP(type_name, "com")) {
+		extra_data = get_cluster_data(obj);
 		gtyp = gebaeude_t::gewerbe;
 	} else if (!STRICMP(type_name, "ind")) {
+		extra_data = get_cluster_data(obj);
 		gtyp = gebaeude_t::industrie;
 	} else if (!STRICMP(type_name, "cur")) {
 		extra_data = obj.get_int("build_time", 0);
@@ -236,7 +255,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	sint32 station_maintenance = obj.get_int("station_maintenance", 2147483647); //NOTE: Default cannot be set because it depends on a world factor. Must detect this number and put in default if it is found.
 	sint32 station_price = obj.get_int("station_price", 2147483647);
 
-	uint8 allow_underground = obj.get_int("allow_underground", 0);
+	uint8 allow_underground = obj.get_int("allow_underground", 2);
 
 	if(allow_underground > 2)
 	{
@@ -360,7 +379,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		}
 	}
 
-	uint16 version = 0x8006;
+	uint16 version = 0x8007;
 	
 	// This is the overlay flag for Simutrans-Experimental
 	// This sets the *second* highest bit to 1. 

@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 1997 - 2002 by Volker Meyer & Hansjörg Malthaner
+ *  Copyright 2013 James Petts, Nathanael Nerode (neroden)
  *
  * This file is part of the Simutrans project under the artistic licence.
  */
@@ -11,8 +12,17 @@
 #include "../simcolor.h"
 #include "../utils/checksum.h"
 #include "../tpl/vector_tpl.h"
+#include "../tpl/piecewise_linear_tpl.h"
+// Simworld is for adjusted speed bonus
+#include "../simworld.h"
 
 class checksum_t;
+
+// This has to have internal computations in uint64 to avoid internal computational overflow
+// in worst-case scenario.
+// distance: uint32, speedbonus: uint16, computation: sint64
+// Signed computation is needed because the speedbonus values may *drop* as distance increases
+typedef piecewise_linear_tpl<uint32, uint16, sint64> adjusted_speed_bonus_t;
 
 struct fare_stage_t
 {
@@ -30,9 +40,8 @@ struct fare_stage_t
 	uint32 to_distance;
 };
 
-/*
- *  Autor:
- *      Volker Meyer
+/**
+ *  @author Volker Meyer, James Petts, neroden
  *
  *  Kindknoten:
  *	0   Name
@@ -49,6 +58,8 @@ class ware_besch_t : public obj_besch_std_name_t {
 	vector_tpl<fare_stage_t> values;
 	vector_tpl<fare_stage_t> base_values;
 	vector_tpl<fare_stage_t> scaled_values;
+
+	adjusted_speed_bonus_t adjusted_speed_bonus;
 
 	/**
 	* Category of the good
@@ -88,61 +99,6 @@ public:
 	{
 		return get_child<text_besch_t>(2)->get_text();
 	}
-
-	/**
-	 * This method returns the *total* fare for these
-	 * goods over the given distance, in tiles. This is
-	 * not the per-tile fare
-	 * @author: jamespetts, November 2011
-	 */
-	sint64 get_fare(uint32 tile_distance, uint32 starting_distance = 0) const
-	{
-		sint64 total_fare = 0;
-		uint16 per_tile_fare;
-		uint32 remaining_distance = tile_distance;
-		ITERATE(scaled_values, i)
-		{
-			per_tile_fare = scaled_values[i].price;
-			if(i < scaled_values.get_count() - 1 && starting_distance >= scaled_values[i].to_distance)
-			{
-				starting_distance -= scaled_values[i].to_distance;
-				continue;
-			}
-
-			if(scaled_values[i].to_distance >= remaining_distance || i == scaled_values.get_count() - 1)
-			{
-				// The last item in the list must trigger the use of the full remaining distance.
-				total_fare += (sint64)per_tile_fare * remaining_distance;
-				break;
-			}
-			else
-			{
-				total_fare += (sint64)per_tile_fare * (scaled_values[i].to_distance - starting_distance);
-				remaining_distance -= (scaled_values[i].to_distance - starting_distance);
-				starting_distance = 0;
-			}
-		}
-		return total_fare;
-	}
-
-	void set_scale(uint16 scale_factor) 
-	{ 
-		scaled_values.clear();
-		uint16 new_price;
-		uint32 new_distance;
-		ITERATE(values, i)
-		{
-			new_price = (values[i].price * scale_factor) / 1000;		
-			new_distance = (values[i].to_distance * 1000) / scale_factor;
-			scaled_values.append(fare_stage_t(new_distance, new_price));
-		}
-	}
-
-	/**
-	* @return speed bonus value of the good
-	* @author Hj. Malthaner
-	*/
-	uint16 get_speed_bonus() const { return speed_bonus; }
 
 	/**
 	* @return Category of the good
@@ -206,6 +162,63 @@ public:
 		chk->input(speed_bonus);
 		chk->input(weight_per_unit);
 	}
+
+	/**
+	 * Base fare without speedbonus adjustment (implements fare stages)
+	 * In units of 1/4096 of a simcent, for computational precision
+	 */
+	sint64 get_base_fare(uint32 distance_meters, uint32 starting_distance = 0) const;
+
+	/**
+	* @return speed bonus value of the good
+	* @author Hj. Malthaner
+	*/
+	uint16 get_speed_bonus() const { return speed_bonus; }
+
+	/**
+	 * Experimental has two special effects:
+	 * (1) Below a certain distance the speed bonus rating is zero;
+	 * (2) The speed bonus "fades in" above that distance and enlarges as distance continues,
+	 *     until a "maximum distance".
+	 * This returns the actual speed bonus rating.
+	 * Distance is given in METERS
+	 *
+	 */
+	uint16 get_adjusted_speed_bonus(uint32 distance) const
+	{
+		// Use the functional... it should be loaded by warenbauer_t::cache_speedbonuses
+		return adjusted_speed_bonus(distance);
+	}
+
+	/**
+	 * Base fare with speedbonus adjustment but without comfort or catering/TPO
+	 * In units of 1/4096 of a simcent, for computational precision
+	 * (see .cc file for details on the formulas)
+	 */
+	sint64 get_fare_with_speedbonus(sint16 relative_speed_percentage, uint32 distance_meters, uint32 starting_distance = 0) const;
+
+	/**
+	 * This gets the fare with speedbonus, comfort, and catering adjustments -- the final fare.
+	 * In units of 1/4096 of a simcent, for computational precision
+	 *
+	 * Requires the world for stupid technical reasons.
+	 */
+	sint64 get_fare_with_comfort_catering_speedbonus(karte_t* world,
+					uint8 comfort, uint8 catering_level, sint64 journey_tenths,
+					sint16 relative_speed_percentage, uint32 distance_meters, uint32 starting_distance = 0) const;
+
+	/**
+	 * Estimate an appropriate refund for a trip of tile_distance length.
+	 * Returns in the same units as get_fare_with_speedbonus.
+	 *
+	 * Hopefully called rarely!
+	 */
+	sint64 get_refund(uint32 distance_meters) const;
+
+	/**
+	 * Fill the "scaled_values" array from the "values" array.
+	 */
+	void set_scale(uint16 scale_factor);
 };
 
 #endif

@@ -5,6 +5,11 @@
  * (see licence.txt)
  */
 
+/**
+ * Where curiosity (attractions) stats are calculated for list dialog
+ * @author Hj. Malthaner
+ */
+
 #include "curiositylist_stats_t.h"
 
 #include "../simgraph.h"
@@ -24,7 +29,7 @@
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
 
-#include "components/list_button.h"
+#include "gui_frame.h"
 
 
 curiositylist_stats_t::curiositylist_stats_t(karte_t* w, curiositylist::sort_mode_t sortby, bool sortreverse) :
@@ -83,7 +88,7 @@ void curiositylist_stats_t::get_unique_attractions(curiositylist::sort_mode_t sb
 
 	FOR(weighted_vector_tpl<gebaeude_t*>, const geb, ausflugsziele) {
 		if (geb != NULL &&
-				geb->get_tile()->get_offset() == koord(0, 0) &&
+				geb->get_first_tile() == geb &&
 				geb->get_passagier_level() != 0) {
 			attractions.insert_ordered( geb, compare_curiosities(sortby, sortreverse) );
 		}
@@ -110,7 +115,7 @@ bool curiositylist_stats_t::infowin_event(const event_t * ev)
 		return false;
 	}
 
-	// deperess goto button
+	// un-press goto button
 	if(  ev->button_state>0  &&  ev->cx>0  &&  ev->cx<15  ) {
 		line_selected = line;
 	}
@@ -133,12 +138,12 @@ bool curiositylist_stats_t::infowin_event(const event_t * ev)
 void curiositylist_stats_t::recalc_size()
 {
 	// show_scroll_x==false ->> groesse.x not important ->> no need to calc text pixel length
-	set_groesse(koord(210, attractions.get_count()*(LINESPACE+1)-10));
+	set_groesse( koord(210, attractions.get_count() * (LINESPACE+1) ) );
 }
 
 
 /**
- * Zeichnet die Komponente
+ * Draw the component
  * @author Hj. Malthaner
  */
 void curiositylist_stats_t::zeichnen(koord offset)
@@ -156,32 +161,31 @@ void curiositylist_stats_t::zeichnen(koord offset)
 		recalc_size();
 	}
 
-	for (uint32 i=0; i<attractions.get_count()  &&  yoff<end; i++) {
-		const gebaeude_t* geb = attractions[i];
+	uint32 sel = line_selected;
+	FORX(vector_tpl<gebaeude_t*>, const geb, attractions, yoff += LINESPACE + 1) {
+		if (yoff >= end) break;
 
 		int xoff = offset.x+10;
 
 		// skip invisible lines
-		if(yoff<start) {
-			yoff += LINESPACE+1;
-			continue;
-		}
+		if (yoff < start) continue;
 
 		// goto button
-		display_color_img( i!=line_selected ? button_t::arrow_right_normal : button_t::arrow_right_pushed, xoff-8, yoff, 0, false, true);
+		image_id const img = sel-- != 0 ? button_t::arrow_right_normal : button_t::arrow_right_pushed;
+		display_color_img(img, xoff - 8, yoff, 0, false, true);
 
 		buf.clear();
 
-		// is connected? => decide on indicatorcolor
+		// is connected? => decide on indicatorfarbe (indicator color)
 		int indicatorfarbe;
 		bool post=false;
 		bool pax=false;
 		bool all_crowded=true;
 		bool some_crowded=false;
 		const planquadrat_t *plan = welt->lookup(geb->get_pos().get_2d());
-		const halthandle_t *halt_list = plan->get_haltlist();
+		const nearby_halt_t *halt_list = plan->get_haltlist();
 		for(  unsigned h=0;  (post&pax)==0  &&  h<plan->get_haltlist_count();  h++ ) {
-			halthandle_t halt = halt_list[h];
+			halthandle_t halt = halt_list[h].halt;
 			if (halt->get_pax_enabled()) {
 				pax = true;
 				if (halt->get_pax_unhappy() > 40) {
@@ -212,7 +216,7 @@ void curiositylist_stats_t::zeichnen(koord offset)
 			indicatorfarbe = post ? COL_BLUE : COL_YELLOW;
 		}
 
-		display_fillbox_wh_clip(xoff+7, yoff+2, INDICATOR_WIDTH, INDICATOR_HEIGHT, indicatorfarbe, true);
+		display_fillbox_wh_clip(xoff+7, yoff+2, D_INDICATOR_WIDTH, D_INDICATOR_HEIGHT, indicatorfarbe, true);
 
 		// the other infos
 		const unsigned char *name = (const unsigned char *)ltrim( translator::translate(geb->get_tile()->get_besch()->get_name()) );
@@ -237,12 +241,10 @@ void curiositylist_stats_t::zeichnen(koord offset)
 		// now we have a short name ...
 		buf.printf("%s (%d)", short_name, geb->get_passagier_level());
 
-		display_proportional_clip(xoff+INDICATOR_WIDTH+10+9,yoff,buf,ALIGN_LEFT,COL_BLACK,true);
+		display_proportional_clip(xoff+D_INDICATOR_WIDTH+10+9,yoff,buf,ALIGN_LEFT,COL_BLACK,true);
 
 		if (geb->get_tile()->get_besch()->get_extra() != 0) {
-		    display_color_img(skinverwaltung_t::intown->get_bild_nr(0), xoff+INDICATOR_WIDTH+9, yoff, 0, false, false);
+		    display_color_img(skinverwaltung_t::intown->get_bild_nr(0), xoff+D_INDICATOR_WIDTH+9, yoff, 0, false, false);
 		}
-
-		yoff +=LINESPACE+1;
 	}
 }

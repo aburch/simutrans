@@ -14,6 +14,7 @@
 #include "simware.h"
 
 #include "simdings.h"
+#include "simgraph.h"
 #include "simtypes.h"
 #include "simconst.h"
 
@@ -101,7 +102,9 @@ private:
 	 */
 	void init_financial_history();
 
-	uint8 status_color;
+	COLOR_VAL status_color, last_status_color;
+	sint16 last_bar_count;
+	vector_tpl<KOORD_VAL> last_bar_height; // caches the last height of the station bar for each good type drawn in display_status(). used for dirty tile management
 	uint32 capacity[3]; // passenger, post, goods
 	uint8 overcrowded[8];	// bit set, when overcrowded
 
@@ -118,6 +121,31 @@ private:
 	void check_nearby_halts();
 
 	uint8 control_towers;
+	koord init_pos;	// for halt without grounds, created during game initialisation
+
+	/**
+	 * Handle for ourselves. Can be used like the 'this' pointer
+	 * @author Hj. Malthaner
+	 */
+	halthandle_t self;
+
+	/* 
+	 * The time (in 10ths of seconds)
+	 * that it takes passengers to walk
+	 * through this stop from one
+	 * connexion to another. This is
+	 * based on the size of the stop.
+	 */
+	uint16 transfer_time;
+
+	/* 
+	 * The time (in 10ths of seconds)
+	 * that it takes goods to be trans-shipped
+	 * inside this stop. This assumes a fixed
+	 * rate of 1km/h and is based on the size
+	 * of the stop.
+	 */
+	uint16 transshipment_time;
 
 public:
 	// add convoi to loading queue
@@ -127,9 +155,15 @@ public:
 	void recalc_status();
 
 	/**
-	 * Handles changes of schedules and the resulting rerouting
+	 * Handles changes of schedules and the resulting rerouting.
 	 */
 	static void step_all();
+
+	/**
+	 * Resets reconnect_counter.
+	 * The next call to step_all() will start complete reconnecting.
+	 */
+	static void reset_routing();
 
 	/**
 	 * Tries to generate some pedestrians on the sqaure and the
@@ -140,16 +174,11 @@ public:
 	 */
 	static int erzeuge_fussgaenger(karte_t *welt, const koord3d pos, int anzahl);
 
-	/* searches for a stop at the given koordinate
-	 * @return halthandle_t(), if nothing found
-	 * @author prissi
-	 */
-	static halthandle_t get_halt(const karte_t *welt, const koord pos, const spieler_t *sp );
-
-	/* since we allow only for a single stop per planquadrat
-	 * this will always return something even if there is not stop some of the ground level
+	/* we allow only for a single stop per planquadrat
+	 * this will only return something if this stop belongs to same player or is public, or is a dock (when on water)
 	 */
 	static halthandle_t get_halt(const karte_t *welt, const koord3d pos, const spieler_t *sp );
+	static halthandle_t get_halt(const karte_t *welt, const koord pos, const spieler_t *sp );
 
 	static slist_tpl<halthandle_t>& get_alle_haltestellen() { return alle_haltestellen; }
 
@@ -169,13 +198,13 @@ public:
 	* removes a ground tile from a station, deletes the building and, if last tile, also the halthandle
 	* @author prissi
 	*/
-	static bool remove(karte_t *welt, spieler_t *sp, koord3d pos, const char *&msg);
+	static bool remove(karte_t *welt, spieler_t *sp, koord3d pos);
 
 	/**
 	 * Station destruction method.
 	 * @author Hj. Malthaner
 	 */
-	static void destroy(halthandle_t &halt);
+	static void destroy(halthandle_t);
 
 	/**
 	 * destroys all stations
@@ -192,14 +221,6 @@ public:
 	// To prevent infinite loops in obscure situations
 	uint8 unload_repeat_counter;
 
-private:
-	/**
-	 * Handle for ourselves. Can be used like the 'this' pointer
-	 * @author Hj. Malthaner
-	 */
-	halthandle_t self;
-
-public:
 	/**
 	 * Liste aller felder (Grund-Objekte) die zu dieser Haltestelle gehören
 	 * @author Hj. Malthaner
@@ -223,6 +244,7 @@ public:
 		// Times in tenths of minutes
 		uint16 journey_time;
 		uint16 waiting_time;
+		uint16 transfer_time;
 		
 		// Convoy only used if line not used 
 		// (i.e., if the best route involves using a convoy without a line)
@@ -256,10 +278,29 @@ public:
 	void add_control_tower() { control_towers ++; }
 	void remove_control_tower() { if(control_towers > 0) control_towers --; }
 
+	/**
+	 * directly reachable halt with its connection weight
+	 * @author Knightly
+	 */
+	struct connection_t
+	{
+		/// directly reachable halt
+		halthandle_t halt;
+		/// best connection weight to reach this destination
+		uint16 weight;
+		connection_t() : weight(0) { }
+		connection_t(halthandle_t _halt, uint16 _weight=0) : halt(_halt), weight(_weight) { }
+
+		bool operator == (const connection_t &other) const { return halt == other.halt; }
+		bool operator != (const connection_t &other) const { return halt != other.halt; }
+		static bool compare(const connection_t &a, const connection_t &b) { return a.halt.get_id() < b.halt.get_id(); }
+	};
+
+	bool is_transfer(const uint8 catg) const { return non_identical_schedules[catg] > 1u; }
+//	bool is_transfer(const uint8 catg) const { return all_links[catg].is_transfer; }
+
 private:
 	slist_tpl<tile_t> tiles;
-
-	koord init_pos;	// for halt without grounds, created during game initialisation
 
 	// Table of all direct connexions to this halt, with routing information.
 	// Array: one entry per goods type.
@@ -277,6 +318,64 @@ private:
 	 * @author Knightly
 	 */
 	uint8 *non_identical_schedules;
+//=======
+	/**
+	 * Stores information about link to cargo network of a certain category
+	 */
+	struct link_t {
+		/// List of all directly reachable halts with their respective connection weights
+		vector_tpl<connection_t> connections;
+
+		/**
+		 * A transfer/interchange is a halt whereby ware can change line or lineless convoy.
+		 * Thus, if a halt is served by 2 or more schedules (of lines or lineless convoys)
+		 * for a particular ware type, it is a transfer/interchange for that ware type.
+		 * Route searching is accelerated by differentiating transfer and non-transfer halts.
+		 * @author Knightly
+		 */
+		bool is_transfer;
+
+		/**
+		 * Id of connected component in link graph.
+		 * Two halts are connected if and only if they belong to the same connected component.
+		 * Exception: if value == UNDECIDED_CONNECTED_COMPONENT, then we are in the middle of
+		 * recalculating the link graph.
+		 *
+		 * The id of the component has to be equal to the halt-id of one of its halts.
+		 * This ensures that we always have unique component ids.
+		 */
+		uint16 catg_connected_component;
+
+#		define UNDECIDED_CONNECTED_COMPONENT (0xffff)
+
+		link_t() { clear(); }
+
+		void clear()
+		{
+			connections.clear();
+			is_transfer = false;
+			catg_connected_component = UNDECIDED_CONNECTED_COMPONENT;
+		}
+	};
+
+	/// All links to networks of all freight categories, filled by rebuild_connected_components.
+	//link_t* all_links;
+
+	/**
+	 * Fills in catg_connected_component values for all halts and all categories.
+	 * Uses depth-first search.
+	 */
+	static void rebuild_connected_components();
+
+	/**
+	 * Helper method: This halt (and all its connected neighbors) belong
+	 * to the same component.
+	 * @param catg category of cargo network
+	 * @param comp number of component
+	 */
+	void fill_connected_component(uint8 catg, uint16 comp);
+
+//>>>>>>> aburch/master
 
 	// Array with different categries that contains all waiting goods at this stop
 	vector_tpl<ware_t> **waren;
@@ -295,6 +394,9 @@ private:
 	 * @author prissi
 	 */
 	stationtyp station_type;
+
+	// private helper function for recalc_station_type()
+	void add_to_station_type( grund_t *gr );
 
 	/**
 	 * Reconnect and reroute if counter different from welt->get_schedule_counter()
@@ -315,11 +417,13 @@ private:
 	const char * quote_bezeichnung(int quote) const;
 #endif
 
+#ifdef CHECK_WARE_MERGE
 	/**
 	 * versucht die ware mit beriets wartender ware zusammenzufassen
 	 * @author Hj. Malthaner
 	 */
 	bool vereinige_waren(const ware_t &ware);
+#endif
 
 	// add the ware to the internal storage, called only internally
 	void add_ware_to_halt(ware_t ware, bool from_saved = false);
@@ -417,11 +521,13 @@ public:
 	 * Draws some nice colored bars giving some status information
 	 * @author Hj. Malthaner
 	 */
-	void display_status(sint16 xpos, sint16 ypos) const;
+	void display_status(KOORD_VAL xpos, KOORD_VAL ypos);
 
 	/**
 	 * sucht umliegende, erreichbare fabriken und baut daraus die
 	 * Fabrikliste auf.
+	 * "Surrounding searches, achievable factories and builds the
+	 * factory list." (Google)
 	 * @author Hj. Malthaner
 	 */
 	void verbinde_fabriken();
@@ -435,6 +541,22 @@ public:
 	sint64 calc_maintenance() const;
 
 	bool make_public_and_join( spieler_t *sp );
+////=======
+//
+//	vector_tpl<connection_t> const& get_pax_connections()  const { return all_links[warenbauer_t::INDEX_PAS].connections;  }
+//	vector_tpl<connection_t> const& get_mail_connections() const { return all_links[warenbauer_t::INDEX_MAIL].connections; }
+//
+//	// returns the matchin warenziele
+//	vector_tpl<connection_t> const& get_connections(uint8 const catg_index) const { return all_links[catg_index].connections; }
+////>>>>>>> aburch/master
+
+	/**
+	 * Checks if there is connection for certain freight to the other halt.
+	 * @param halt the other halt
+	 * @param catg_index freight category index
+	 * @return 0 - not connected, 1 - connected, -1 - undecided (call again later...)
+	 */
+	sint8 is_connected(halthandle_t halt, uint8 catg_index) const;
 
 	const slist_tpl<fabrik_t*>& get_fab_list() const { return fab_list; }
 
@@ -457,7 +579,7 @@ public:
 	// Returns the journey time of the best possible route from this halt. Time == 65535 when there is no route.
 	uint16 find_route(ware_t &ware, const uint16 journey_time = 65535);
 	minivec_tpl<halthandle_t>* build_destination_list(ware_t &ware);
-	uint16 find_route(minivec_tpl<halthandle_t> *ziel_list, ware_t & ware, const uint16 journey_time = 65535);
+	uint16 find_route(minivec_tpl<halthandle_t> *ziel_list, ware_t & ware, const uint16 journey_time = 65535, const koord destination_pos = koord::invalid);
 
 	bool get_pax_enabled()  const { return enables & PAX;  }
 	bool get_post_enabled() const { return enables & POST; }
@@ -465,12 +587,12 @@ public:
 
 	// check, if we accepts this good
 	// often called, thus inline ...
-	bool is_enabled( const ware_besch_t *wtyp ) {
+	bool is_enabled( const ware_besch_t *wtyp ) const {
 		return is_enabled(wtyp->get_catg_index());
 	}
 
 	// a separate version for checking with goods category index
-	bool is_enabled( const uint8 catg_index )
+	bool is_enabled( const uint8 catg_index ) const
 	{
 		if (catg_index == warenbauer_t::INDEX_PAS) {
 			return enables&PAX;
@@ -546,7 +668,9 @@ public:
 	 */
 	uint32 get_ware_fuer_zielpos(const ware_besch_t *warentyp, const koord zielpos) const;
 
-	// true, if we accept/deliver this kind of good
+	/** 
+	* True if we accept/deliver this kind of good
+	*/
 	bool gibt_ab(const ware_besch_t *warentyp) const { return waren[warentyp->get_catg_index()] != NULL; }
 
 	/* retrieves a ware packet for any destination in the list
@@ -600,7 +724,7 @@ public:
 	*/
 	bool is_reservable(const grund_t *gr, convoihandle_t cnv) const;
 
-	void info(cbuffer_t & buf) const;
+	void info(cbuffer_t & buf, bool dummy = false) const;
 
 	/**
 	 * @param buf the buffer to fill
@@ -713,38 +837,28 @@ public:
 	/* marks a coverage area
 	* @author prissi
 	*/
-	void mark_unmark_coverage(const bool mark) const;
+	void mark_unmark_coverage(const bool mark, const bool factories = false) const;
 
 	// @author: jamespetts
-	// Returns the proportion of unhappy people of the total of
-	// happy and unhappy people.
-	uint16 get_unhappy_percentage(uint8 month) const { return (uint16)(financial_history[month][HALT_HAPPY] > 0 ? financial_history[month][HALT_UNHAPPY] * 100 / (financial_history[month][HALT_HAPPY] + financial_history[month][HALT_UNHAPPY]) : 0); }
- 
+	// Returns the percentage of unhappy people
+	// out of the total of happy and unhappy people.
+	uint16 get_unhappy_percentage(uint8 month) const
+	{
+		sint64 happy_count = financial_history[month][HALT_HAPPY];
+		sint64 unhappy_count = financial_history[month][HALT_UNHAPPY];
+		if (happy_count > 0) {
+ 			return (uint16) (unhappy_count * 100 / (happy_count + unhappy_count) );
+		}
+		else {
+			return 0;
+		}
+	}
+
 	// Getting and setting average waiting times in minutes
 	// @author: jamespetts
 	uint16 get_average_waiting_time(halthandle_t halt, uint8 category) const;
 
-	void add_waiting_time(uint16 time, halthandle_t halt, uint8 category, bool do_not_reset_month = false)
-	{
-		if(halt.is_bound())
-		{
-			const waiting_time_map *wt = &waiting_times[category];
-			fixed_list_tpl<uint16, 32> *tmp;
-			if(!wt->is_contained(halt.get_id()))
-			{
-				tmp = new fixed_list_tpl<uint16, 32>;
-				waiting_time_set *set = new waiting_time_set;
-				set->times = *tmp;
-				set->month = 0;
-				waiting_times[category].put(halt.get_id(), *set);
-			}
-			waiting_times[category].access(halt.get_id())->times.add_to_tail(time);
-			if(!do_not_reset_month)
-			{
-				waiting_times[category].access(halt.get_id())->month = 0;
-			}
-		}
-	}
+	void add_waiting_time(uint16 time, halthandle_t halt, uint8 category, bool do_not_reset_month = false);	
 
 	typedef quickstone_hashtable_tpl<haltestelle_t, connexion*>* connexions_map_single;
 	connexions_map_single get_connexions(uint8 c) { return connexions[c]; }
@@ -789,6 +903,23 @@ public:
 	bool check_access(const spieler_t* sp) const;
 
 	bool has_no_control_tower() const;
+
+	/**
+	* Get the time that it takes for passengers to transfer within this stop
+	* in 1/10ths of minutes.
+	*/
+	inline uint16 get_transfer_time() const { return transfer_time; }
+	
+	/**
+	* Get the time that it takes for goods to be transferred within this stop
+	* in 1/10ths of minutes.
+	*/
+	inline uint16 get_transshipment_time() const { return transshipment_time; }
+
+	/**
+	* Calculate the transfer and transshipment time values.
+	*/
+	void calc_transfer_time();
 };
 
 ENUM_BITSET(haltestelle_t::stationtyp)

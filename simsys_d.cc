@@ -321,10 +321,10 @@ void dr_flush(void)
  *         in case of error.
  * @author Hj. Malthaner
  */
-int dr_screenshot(const char *filename)
+int dr_screenshot(const char *filename, int x, int y, int w, int h)
 {
 #ifdef WIN32
-	if(dr_screenshot_png(filename, width-1, height, width, (short unsigned int *)texture_map, 16)) {
+	if(  dr_screenshot_png(filename, max(w,width-1), h, width, ((short unsigned int *)texture_map)+x+y*width, 16)  ) {
 		return 1;
 	}
 #endif

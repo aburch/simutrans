@@ -6,7 +6,6 @@
 #include "../../simdebug.h"
 
 #include "gui_scrollbar.h"
-#include "list_button.h"
 #include "action_listener.h"
 
 #include "../../simcolor.h"

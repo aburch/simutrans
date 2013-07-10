@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansj�rg Malthaner
+ * Copyright (c) 1997 - 2001 Hj. Malthaner
  *
  * This file is part of the Simutrans project under the artistic license.
  */
@@ -8,6 +8,10 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdarg.h>
+
+#ifdef SYSLOG
+#include <syslog.h>
+#endif //SYSLOG
 
 #include "log.h"
 #include "../simdebug.h"
@@ -31,6 +35,44 @@
 #include "../dataobj/umgebung.h"
 #endif
 #endif
+
+/**
+ * writes important messages to stdout/logfile
+ * use instead of printf()
+ */
+void log_t::important(const char* format, ...)
+{
+	va_list argptr;
+
+	va_start( argptr, format );
+	if (  log  ) {
+		// If logfile, output there
+		vfprintf( log, format, argptr );
+		fprintf( log, "\n" );
+		if (  force_flush  ) { fflush( log ); }
+	}
+	va_end(argptr);
+
+#ifdef SYSLOG
+	va_start( argptr, format );
+	if (  syslog  ) {
+		// Send to syslog if available
+		vsyslog( LOG_NOTICE, format, argptr );
+	}
+	va_end(argptr);
+#endif //SYSLOG
+
+	va_start( argptr, format );
+
+	// Print to stdout for important messages
+	if (  log != stderr  ) {
+		vfprintf( stdout, format, argptr );
+		fprintf( stdout, "\n" );
+		if (  force_flush  ) { fflush( stdout ); }
+	}
+
+	va_end( argptr );
+}
 
 /**
  * writes a debug message into the log.
@@ -59,8 +101,18 @@ void log_t::debug(const char *who, const char *format, ...)
 			vfprintf(tee, format, argptr);
 			fprintf(tee,"\n");
 		}
-
 		va_end(argptr);
+
+#ifdef SYSLOG
+		va_start( argptr, format );
+		if (  syslog  ) {
+			// Replace with dynamic memory allocation
+			char buffer[256];
+			sprintf( buffer, "Debug: %s\t%s", who, format );
+			vsyslog( LOG_DEBUG, buffer, argptr );
+		}
+		va_end( argptr );
+#endif //SYSLOG
 	}
 }
 
@@ -93,6 +145,17 @@ void log_t::message(const char *who, const char *format, ...)
 			fprintf(tee,"\n");
 		}
 		va_end(argptr);
+
+#ifdef SYSLOG
+		va_start( argptr, format );
+		if (  syslog  ) {
+			// Replace with dynamic memory allocation
+			char buffer[256];
+			sprintf( buffer, "Message: %s\t%s", who, format );
+			vsyslog( LOG_INFO, buffer, argptr );
+		}
+		va_end( argptr );
+#endif //SYSLOG
 	}
 }
 
@@ -125,6 +188,17 @@ void log_t::warning(const char *who, const char *format, ...)
 			fprintf(tee,"\n");
 		}
 		va_end(argptr);
+
+#ifdef SYSLOG
+		va_start( argptr, format );
+		if (  syslog  ) {
+			// Replace with dynamic memory allocation
+			char buffer[256];
+			sprintf( buffer, "Warning: %s\t%s", who, format );
+			vsyslog( LOG_WARNING, buffer, argptr );
+		}
+		va_end( argptr );
+#endif //SYSLOG
 	}
 }
 
@@ -163,6 +237,18 @@ void log_t::error(const char *who, const char *format, ...)
 			fprintf(tee ,"http://forum.simutrans.com\n");
 		}
 		va_end(argptr);
+
+#ifdef SYSLOG
+		va_start( argptr, format );
+		if (  syslog  ) {
+
+			// Replace with dynamic memory allocation
+			char buffer[256];
+			sprintf( buffer, "ERROR: %s\t%s", who, format );
+			vsyslog( LOG_ERR, buffer, argptr );
+		}
+		va_end( argptr );
+#endif //SYSLOG
 	}
 }
 
@@ -176,31 +262,31 @@ void log_t::fatal(const char *who, const char *format, ...)
 	va_list argptr;
 	va_start(argptr, format);
 
+	static char formatbuffer[512];
+	sprintf( formatbuffer, "FATAL ERROR: %s - %s\nAborting program execution ...\n\nFor help with this error or to file a bug report please see the Simutrans forum:\nhttp://forum.simutrans.com\n", who, format );
+
 	static char buffer[8192];
+	int n = vsprintf( buffer, formatbuffer, argptr );
 
-	int n = sprintf( buffer, "FATAL ERROR: %s\n", who);
-	n += vsprintf( buffer+n, format, argptr);
-	strcpy( buffer+n, "\n" );
-
-	if( log ) {
+	if (  log  ) {
 		fputs( buffer, log );
-		fputs( "Aborting program execution ...\n\n", log );
-		fputs( "For help with this error or to file a bug report please see the Simutrans forum:\n", log );
-		fputs( "http://forum.simutrans.com\n", log );
-		if( force_flush ) {
-			fflush(log);
+		if (  force_flush  ) {
+			fflush( log );
 		}
 	}
 
-	if( tee ) {
+	if (  tee  ) {
 		fputs( buffer, tee );
-		fputs( "Aborting program execution ...\n\n", tee );
-		fputs( "For help with this error or to file a bug report please see the Simutrans forum:\n", tee );
-		fputs( "http://forum.simutrans.com\n", tee );
 	}
 
-	if(tee==NULL  &&  log==NULL) {
-		puts( buffer );
+#ifdef SYSLOG
+	if (  syslog  ) {
+		::syslog( LOG_ERR, buffer );
+	}
+#endif //SYSLOG
+
+	if (  tee == NULL  &&  log == NULL  &&  tag == NULL  ) {
+		fputs( buffer, stderr );
 	}
 
 	va_end(argptr);
@@ -254,17 +340,48 @@ void log_t::fatal(const char *who, const char *format, ...)
 	}
 #endif
 #endif
+
 	abort();
 }
 
 
 
+void log_t::vmessage(const char *what, const char *who, const char *format, va_list args )
+{
+	if(debuglevel>0) {
+		va_list args2;
+#ifdef __va_copy
+		__va_copy(args2, args);
+#else
+		// HACK: this is undefined behavior but should work ... hopefully ...
+		args2 = args;
+#endif
+		if( log ) {                         /* nur loggen wenn schon ein log */
+			fprintf(log ,"%s: %s:\t", what, who);      /* geoeffnet worden ist */
+			vfprintf(log, format, args);
+			fprintf(log,"\n");
+
+			if( force_flush ) {
+				fflush(log);
+			}
+		}
+		if( tee ) {                         /* nur loggen wenn schon ein log */
+			fprintf(tee,"%s: %s:\t", what, who);      /* geoeffnet worden ist */;
+			vfprintf(tee, format, args2);
+			fprintf(tee,"\n");
+		}
+		va_end(args2);
+	}
+}
+
+
 // create a logfile for log_debug=true
-log_t::log_t(const char *logfilename, bool force_flush, bool log_debug, bool log_console, const char *greeting )
+log_t::log_t( const char *logfilename, bool force_flush, bool log_debug, bool log_console, const char *greeting, const char* syslogtag )
 {
 	log = NULL;
-	this->force_flush = force_flush;    /* wenn true wird jedesmal geflusht */
-										/* wenn ein Eintrag ins log geschrieben wurde */
+	syslog = false;
+	this->force_flush = force_flush; /* wenn true wird jedesmal geflusht */
+					 /* wenn ein Eintrag ins log geschrieben wurde */
 	this->log_debug = log_debug;
 
 	if(logfilename == NULL) {
@@ -276,6 +393,17 @@ log_t::log_t(const char *logfilename, bool force_flush, bool log_debug, bool log
 	} else if(strcmp(logfilename,"stderr") == 0) {
 		log = stderr;
 		tee = NULL;
+#ifdef SYSLOG
+	} else if(  strcmp( logfilename, "syslog" ) == 0  ) {
+		syslog = true;
+		if (  syslogtag  ) {
+			tag = syslogtag;
+			// Set up syslog
+			openlog( tag, LOG_PID, LOG_DAEMON );
+		}
+		log = NULL;
+		tee = NULL;
+#endif //SYSLOG
 	} else {
 		log = fopen(logfilename,"wb");
 
@@ -296,9 +424,13 @@ log_t::log_t(const char *logfilename, bool force_flush, bool log_debug, bool log
 		if( tee ) {
 			fputs( greeting, tee );
 		}
+#ifdef SYSLOG
+		if (  syslog  ) {
+			::syslog( LOG_NOTICE, greeting );
+		}
+#endif //SYSLOG
 	}
 }
-
 
 
 void log_t::close()

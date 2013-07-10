@@ -1,3 +1,5 @@
+# This is for MAKEOBJ
+
 CFG ?= default
 -include ../config.$(CFG)
 
@@ -21,7 +23,7 @@ LDFLAGS += $(PNG_LDFLAGS)
 CFLAGS += -DMAKEOBJ
 CXXFLAGS += -DMAKEOBJ
 
-STD_LIBS += -lz -lbz2 -lpng -lm
+STD_LIBS += -lz -lbz2 -lpng
 
 ifeq ($(OSTYPE),cygwin)
   OS_INC   ?= -I/usr/include/mingw
@@ -32,6 +34,7 @@ endif
 ifeq ($(OSTYPE),mingw)
   CC ?= gcc
   OS_OPT   ?= -DPNG_STATIC -DZLIB_STATIC -march=pentium
+  LDFLAGS += -static-libgcc -static-libstdc++
   # we need the libraries EXACTLY in this order to link
   STD_LIBS = -lmingw32 -lpng -lz
 endif

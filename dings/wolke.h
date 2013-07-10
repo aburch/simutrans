@@ -15,11 +15,9 @@ class karte_t;
 class wolke_t : public ding_no_info_t, public sync_steppable
 {
 private:
-	// maximum 16 types of clouds for now ...
 	static vector_tpl<const skin_besch_t *>all_clouds;
 
 	uint16 insta_zeit;	// clouds vanish when insta_zeit>2500 => maximum 5 images ...
-	uint16 divisor;
 	sint8 base_y_off;
 	sint8 cloud_nr;
 
@@ -33,9 +31,12 @@ public:
 	bool sync_step(long delta_t);
 
 	const char* get_name() const { return "Wolke"; }
+#ifdef INLINE_DING_TYPE
+#else
 	typ get_typ() const { return sync_wolke; }
+#endif
 
-	image_id get_bild() const { return all_clouds[cloud_nr]->get_bild_nr(insta_zeit/divisor); }
+	image_id get_bild() const;
 
 	void rdwr(loadsave_t *file);
 
@@ -50,7 +51,10 @@ class async_wolke_t : public ding_t
 {
 public:
 	async_wolke_t(karte_t *welt, loadsave_t *file);
+#ifdef INLINE_DING_TYPE
+#else
 	typ get_typ() const { return async_wolke; }
+#endif
 	image_id get_bild() const { return IMG_LEER; }
 };
 
@@ -58,7 +62,10 @@ class raucher_t : public ding_t
 {
 public:
 	raucher_t(karte_t *welt, loadsave_t *file);
+#ifdef INLINE_DING_TYPE
+#else
 	typ get_typ() const { return raucher; }
+#endif
 	image_id get_bild() const { return IMG_LEER; }
 };
 

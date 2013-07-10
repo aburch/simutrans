@@ -58,16 +58,15 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 		uint8 tmp_permissive = (obj.get_int(buf_permissive, 255));
 		uint8 tmp_prohibitive = (obj.get_int(buf_prohibitive, 255));
 		
-		// Values must fit into one byte
-		// Must therefore be 0-7
-		if(tmp_permissive > 7 || tmp_prohibitive > 7)
-		{
-			continue;
-		}
-		
 		//Compress values into a single byte using bitwise OR.
-		permissive_way_constraints = (tmp_permissive > 0) ? permissive_way_constraints | (uint8)pow(2, (double)tmp_permissive) : permissive_way_constraints | 1;
-		prohibitive_way_constraints = (tmp_prohibitive > 0) ? prohibitive_way_constraints | (uint8)pow(2, (double)tmp_prohibitive) : prohibitive_way_constraints | 1;
+		if(tmp_permissive < 8)
+		{
+			permissive_way_constraints = (tmp_permissive > 0) ? permissive_way_constraints | (uint8)pow(2, (double)tmp_permissive) : permissive_way_constraints | 1;
+		}
+		if(tmp_prohibitive < 8)
+		{
+			prohibitive_way_constraints = (tmp_prohibitive > 0) ? prohibitive_way_constraints | (uint8)pow(2, (double)tmp_prohibitive) : prohibitive_way_constraints | 1;
+		}
 	}
 
 	// Hajo: Version needs high bit set as trigger -> this is required

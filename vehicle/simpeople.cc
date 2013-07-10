@@ -63,7 +63,11 @@ bool fussgaenger_t::alles_geladen()
 
 
 fussgaenger_t::fussgaenger_t(karte_t *welt, loadsave_t *file)
+#ifdef INLINE_DING_TYPE
+ : verkehrsteilnehmer_t(welt, fussgaenger)
+#else
  : verkehrsteilnehmer_t(welt)
+#endif
 {
 	rdwr(file);
 	if(besch) {
@@ -73,13 +77,24 @@ fussgaenger_t::fussgaenger_t(karte_t *welt, loadsave_t *file)
 
 
 fussgaenger_t::fussgaenger_t(karte_t* const welt, koord3d const pos) :
-	verkehrsteilnehmer_t(welt, pos),
+#ifdef INLINE_DING_TYPE
+verkehrsteilnehmer_t(welt, fussgaenger, pos, simrand(65535, "fussgaenger_t::fussgaenger_t (weg_next)")),
+#else
+	verkehrsteilnehmer_t(welt, pos, simrand(65535, "fussgaenger_t::fussgaenger_t (weg_next)")),
+#endif
 	besch(pick_any_weighted(liste))
 {
 	time_to_life = pick_any(strecke);
 	calc_bild();
 }
 
+
+fussgaenger_t::~fussgaenger_t()
+{
+	if(  time_to_life>0  ) {
+		welt->sync_remove( this );
+	}
+}
 
 
 void fussgaenger_t::calc_bild()
@@ -140,7 +155,8 @@ void fussgaenger_t::erzeuge_fussgaenger_an(karte_t *welt, const koord3d k, int &
 					}
 					welt->sync_add(fg);
 					anzahl--;
-				} else {
+				}
+				else {
 					// delete it, if we could not put it on the map
 					fg->set_flag(ding_t::not_on_map);
 					delete fg;
@@ -159,4 +175,60 @@ bool fussgaenger_t::sync_step(long delta_t)
 	weg_next += 128*delta_t;
 	weg_next -= fahre_basis( weg_next );
 	return time_to_life>0;
+}
+
+
+grund_t* fussgaenger_t::hop()
+{
+	grund_t *from = welt->lookup(pos_next);
+	if(!from) {
+		time_to_life = 0;
+		return NULL;
+	}
+
+	// find the allowed directions
+	const weg_t *weg = from->get_weg(road_wt);
+	if(weg==NULL) {
+		// no road anymore: destroy it
+		time_to_life = 0;
+		return NULL;
+	}
+	// new target
+	grund_t *to = NULL;
+	// ribi opposite to current direction
+	ribi_t::ribi gegenrichtung = ribi_t::rueckwaerts( get_fahrtrichtung() );
+	// all possible directions
+	ribi_t::ribi ribi = weg->get_ribi_unmasked() & (~gegenrichtung);
+	// randomized offset
+	const uint8 offset = (ribi > 0  &&  ribi_t::ist_einfach(ribi)) ? 0 : simrand(4,  "fussgaenger_t::hop (pos_next)");
+
+	for(uint r = 0; r < 4; r++) {
+		ribi_t::ribi const test_ribi = ribi_t::nsow[ (r+offset) & 3];
+
+		if(  (ribi & test_ribi)!=0  &&  from->get_neighbour(to, road_wt, test_ribi) )	{
+			// this is our next target
+			break;
+		}
+	}
+
+	if (to) {
+		pos_next = to->get_pos();
+		fahrtrichtung = calc_set_richtung(get_pos().get_2d(), pos_next.get_2d());
+	}
+	else {
+		// turn around
+		fahrtrichtung = gegenrichtung;
+		dx = -dx;
+		dy = -dy;
+		pos_next = get_pos();
+		// .. but this looks ugly, so disappear
+		time_to_life = 0;
+	}
+
+	verlasse_feld();
+	set_pos(from->get_pos());
+	calc_bild();
+	// no need to call betrete_feld();
+	from->obj_add(this);
+	return from;
 }

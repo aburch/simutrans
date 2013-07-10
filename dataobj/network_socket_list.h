@@ -5,12 +5,40 @@
 #include "network_address.h"
 #include "../tpl/slist_tpl.h"
 #include "../tpl/vector_tpl.h"
-#include <string>
+#include "../utils/plainstring.h"
 
 class network_command_t;
 class packet_t;
 
-class socket_info_t {
+
+/**
+ * Class to store pairs of (address, nickname) for logging and admin purposes.
+ */
+class connection_info_t {
+public:
+	/// address of connection
+	net_address_t address;
+
+	/// client nickname
+	plainstring nickname;
+
+	connection_info_t() : address(), nickname() {}
+
+	connection_info_t(const connection_info_t& other) : address(other.address), nickname(other.nickname) {}
+
+	template<class F> void rdwr(F *packet)
+	{
+		address.rdwr(packet);
+		packet->rdwr_str(nickname);
+	}
+
+	bool operator==(const connection_info_t& other) const;
+
+	bool operator!=(const connection_info_t& other) const { return !(*this == other); }
+};
+
+
+class socket_info_t : public connection_info_t {
 private:
 	packet_t *packet;
 	slist_tpl<packet_t *> send_queue;
@@ -18,19 +46,18 @@ private:
 
 public:
 	enum {
-		inactive	= 0, // client disconnected
-		server		= 1, // server socket
-		connected	= 2, // connection established but client does not participate in the game yet
-		playing		= 3, // client actively plays
-		admin       = 4  // admin connection
+		inactive  = 0, // client disconnected
+		server    = 1, // server socket
+		connected = 2, // connection established but client does not participate in the game yet
+		playing   = 3, // client actively plays
+		has_left  = 4, // was playing but left
+		admin     = 5  // admin connection
 	};
 	uint8 state;
 
 	SOCKET socket;
 
-	net_address_t address;
-
-	socket_info_t() : packet(0), send_queue(), state(inactive), socket(INVALID_SOCKET), address(), player_unlocked(0) {}
+	socket_info_t() : connection_info_t(), packet(0), send_queue(), state(inactive), socket(INVALID_SOCKET), player_unlocked(0) {}
 
 	~socket_info_t();
 
@@ -129,6 +156,8 @@ public:
 		return client_id < list.get_count();
 	}
 
+	uint32 static get_count() { return list.get_count(); }
+
 	static SOCKET get_socket( uint32 client_id ) {
 		return client_id < list.get_count()  &&  list[client_id]->state != socket_info_t::inactive
 			? list[client_id]->socket : INVALID_SOCKET;
@@ -149,7 +178,7 @@ public:
 	/**
 	 * unlocks/locks player for all clients, except client number except_client
 	 */
-	static void unlock_player_all(uint8 player_nr, bool unlock, uint32 except_client);
+	static void unlock_player_all(uint8 player_nr, bool unlock, uint32 except_client = list.get_count());
 
 	static void send_all(network_command_t* nwc, bool only_playing_clients);
 

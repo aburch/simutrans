@@ -64,7 +64,7 @@ char *make_single_line_string(const char *in,int number_of_lines);
  * are made!
  * @author Hj. Malthaner
  */
-void money_to_string(char * buf, double f);
+void money_to_string(char * buf, double f, const bool show_decimal = true);
 
 
 /**
@@ -102,5 +102,10 @@ const char * ltrim(const char *);
  * Returns a pointer to the rest of str if str starts with start.
  */
 char const* strstart(char const* str, char const* start);
+
+/**
+ * Returns whether s is a null pointer or the empty string.
+ */
+static inline bool strempty(char const* const s) { return !s || s[0] == '\0'; }
 
 #endif

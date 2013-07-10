@@ -12,44 +12,39 @@
 #include "load_relief_frame.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/einstellungen.h"
-
+#include "../dataobj/umgebung.h"
 
 /**
  * Aktion, die nach Knopfdruck gestartet wird.
  * @author Hansjörg Malthaner
  */
-void load_relief_frame_t::action(const char *filename)
+void load_relief_frame_t::action(const char *fullpath)
 {
-	std::string p("maps/");
-	sets->heightfield = p+filename;
+	sets->heightfield = fullpath;
 }
 
 
-bool load_relief_frame_t::del_action(const char *filename)
+load_relief_frame_t::load_relief_frame_t(settings_t* const sets) : savegame_frame_t(NULL, false, "maps/")
 {
-	std::string p("maps/");
-	remove((p+filename).c_str());
-	return false;
-}
+	static char extra_path[1024];
 
+	sprintf(extra_path,"%s%smaps/", umgebung_t::program_dir, umgebung_t::objfilename.c_str());
 
-load_relief_frame_t::load_relief_frame_t(settings_t* const sets) : savegame_frame_t(NULL, "maps/")
-{
-	set_name( translator::translate("Laden") );
+	this->add_path(extra_path);
+
+	set_name(translator::translate("Lade Relief"));
 	this->sets = sets;
 	sets->heightfield = "";
 }
 
 
-const char *load_relief_frame_t::get_info(const char *filename)
+const char *load_relief_frame_t::get_info(const char *fullpath)
 {
 	static char size[64];
-	char path[1024];
-	sprintf( path, "maps/%s", filename );
 
 	sint16 w, h;
 	sint8 *h_field ;
-	if(karte_t::get_height_data_from_file(path, (sint8)sets->get_grundwasser(), h_field, w, h, true )) {
+	if(karte_t::get_height_data_from_file(fullpath, (sint8)sets->get_grundwasser(), h_field, w, h, true )) {
 		sprintf( size, "%i x %i", w, h );
 		return size;
 	}
@@ -57,15 +52,12 @@ const char *load_relief_frame_t::get_info(const char *filename)
 }
 
 
-
-bool load_relief_frame_t::check_file( const char *filename, const char * )
+bool load_relief_frame_t::check_file( const char *fullpath, const char * )
 {
-	char path[1024];
-	sprintf( path, "maps/%s", filename );
 	sint16 w, h;
-	sint8 *h_field ;
+	sint8 *h_field;
 
-	if(karte_t::get_height_data_from_file(path, (sint8)sets->get_grundwasser(), h_field, w, h, true )) {
+	if(karte_t::get_height_data_from_file(fullpath, (sint8)sets->get_grundwasser(), h_field, w, h, true )) {
 		return w>0  &&  h>0;
 	}
 	return false;

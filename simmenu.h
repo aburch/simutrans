@@ -65,6 +65,7 @@ enum {
 	WKZ_SLICED_AND_UNDERGROUND_VIEW,
 	WKZ_BUY_HOUSE,
 	WKZ_CITYROAD,
+	WKZ_ERR_MESSAGE_TOOL,
 	GENERAL_TOOL_COUNT,
 	GENERAL_TOOL = 0x1000
 };
@@ -157,35 +158,46 @@ enum {
 class werkzeug_t {
 public:
 	image_id icon;
-	/*
-	 * value to trigger this command (see documentation)
-	 * must be initialized in constructor
-	 */
+//private:
+	/* value to trigger this command (see documentation) */
 	uint16 id;
 
+protected:
 	const char *default_param;
-
-	uint16 get_id() { return id; }
+public:
+	uint16 get_id() const { return id; }
 
 	static werkzeug_t *dummy;
 
 	// for key loockup
 	static vector_tpl<werkzeug_t *>char_to_tool;
 
+	/// cursor image
 	image_id cursor;
-	sint16 ok_sound;
+
+	/// cursor marks this area
+	koord cursor_area;
+
+	/// cursor centered at marked area? default: false
+	bool cursor_centered;
+
+	/// z-offset of cursor, possible values: Z_PLAN and Z_GRID
 	sint8 offset;
 
+	sint16 ok_sound;
+
 	enum {
-		WFL_SHIFT = 1,
-		WFL_CTRL  = 2,
-		WFL_LOCAL = 4
+		WFL_SHIFT  = 1, ///< shift-key was pressed when mouse-click happened
+		WFL_CTRL   = 2, ///< ctrl-key was pressed when mouse-click happened
+		WFL_LOCAL  = 4, ///< tool call was issued by local client
+		WFL_SCRIPT = 8  ///< tool call was issued by script (no password checks)
 	};
 	uint8 flags; // flags are set before init/work/move is called
 
-	bool is_ctrl_pressed() { return flags & WFL_CTRL; }
-	bool is_shift_pressed() { return flags & WFL_SHIFT; }
-	bool is_local_execution() { return flags & WFL_LOCAL; }
+	bool is_ctrl_pressed()    const { return flags & WFL_CTRL; }
+	bool is_shift_pressed()   const { return flags & WFL_SHIFT; }
+	bool is_local_execution() const { return flags & WFL_LOCAL; }
+	bool is_scripted()        const { return flags & WFL_SCRIPT; }
 
 	uint16 command_key;// key to toggle action for this function
 
@@ -204,7 +216,19 @@ public:
 
 	static void read_menu(const std::string &objfilename);
 
-	werkzeug_t() : id(0xFFFFu) { cursor = icon = IMG_LEER; ok_sound = NO_SOUND; offset = Z_PLAN; default_param = NULL; command_key = 0; }
+	static uint16 const dummy_id = 0xFFFFU;
+
+	werkzeug_t(uint16 const id) : id(id), cursor_area(1,1)
+	{
+		cursor = icon = IMG_LEER;
+		ok_sound = NO_SOUND;
+		offset = Z_PLAN;
+		default_param = NULL;
+		command_key = 0;
+		cursor_centered = false;
+		flags = 0;
+	}
+
 	virtual ~werkzeug_t() {}
 
 	virtual image_id get_icon(spieler_t *) const { return icon; }
@@ -223,7 +247,8 @@ public:
 
 	// when true, local execution would do no harm
 	virtual bool is_init_network_save() const { return false; }
-	virtual bool is_move_network_save(spieler_t *) const { return false; }
+	virtual bool is_move_network_save(spieler_t *) const { return true; }
+
 	// if is_work_network_save()==false
 	// and is_work_here_network_save(...)==false
 	// then work-command is sent over network
@@ -231,15 +256,26 @@ public:
 	virtual bool is_work_here_network_save(karte_t *, spieler_t *, koord3d) { return false; }
 
 	// will draw a dark frame, if selected
-	virtual void draw_after( karte_t *w, koord pos ) const;
+	virtual void draw_after(karte_t *w, koord pos, bool dirty) const;
 
-	virtual const char *get_tooltip(const spieler_t *) const { return NULL; }
+	virtual const char *get_tooltip(spieler_t const* ) const { return NULL; }
 
-	// returning false on init will automatically invoke previous tool
+	/**
+	 * @return true if this tool operates over the grid, not the map tiles.
+	 */
+	virtual bool is_grid_tool() const {return false;}
+
+	/**
+	 * Returning false on init will automatically invoke previous tool.
+	 * Returning true will select tool and will make it possible to call work.
+	 */
 	virtual bool init( karte_t *, spieler_t * ) { return true; }
 
+	/// initializes cursor (icon, marked area)
+	void init_cursor( zeiger_t * ) const;
+
 	// returning true on exit will have werkzeug_waehler resets to query-tool on right-click
-	virtual bool exit( karte_t *, spieler_t * ) { return true; }
+	virtual bool exit( karte_t *, spieler_t *  ) { return true; }
 
 	/* the return string can have different meanings:
 	 * NULL: ok
@@ -251,6 +287,8 @@ public:
 	virtual const char *check_pos( karte_t *, spieler_t *, koord3d );
 	virtual const char *work( karte_t *, spieler_t *, koord3d ) { return NULL; }
 	virtual const char *move( karte_t *, spieler_t *, uint16 /* buttonstate */, koord3d ) { return ""; }
+
+	virtual waytype_t get_waytype() const { return invalid_wt; }
 };
 
 /*
@@ -258,6 +296,8 @@ public:
  */
 class kartenboden_werkzeug_t : public werkzeug_t {
 public:
+	kartenboden_werkzeug_t(uint16 const id) : werkzeug_t(id) {}
+
 	char const* check_pos(karte_t*, spieler_t*, koord3d) OVERRIDE;
 };
 
@@ -268,22 +308,27 @@ public:
  */
 class two_click_werkzeug_t : public werkzeug_t {
 public:
-	two_click_werkzeug_t() : werkzeug_t() {
+	two_click_werkzeug_t(uint16 const id) : werkzeug_t(id) {
 		MEMZERO(start_marker);
 	}
 
 	void rdwr_custom_data(uint8 player_nr, memory_rw_t*) OVERRIDE;
 	bool init(karte_t*, spieler_t*) OVERRIDE;
-	bool exit(karte_t* const welt, spieler_t* const sp) OVERRIDE { return init(welt, sp); }
+	bool exit(karte_t* welt, spieler_t* sp) OVERRIDE { return init(welt, sp); }
 
 	char const* work(karte_t*, spieler_t*, koord3d) OVERRIDE;
 	char const* move(karte_t*, spieler_t*, uint16 /* buttonstate */, koord3d) OVERRIDE;
 
-	bool is_move_network_save(spieler_t*) const OVERRIDE { return true; }
 	bool is_work_here_network_save(karte_t*, spieler_t *, koord3d) OVERRIDE;
 
-	bool is_first_click(spieler_t *sp) const;
-	void cleanup( spieler_t *, bool delete_start_marker );
+	/**
+	 * @returns true if cleanup() needs to be called before another tool can be executed
+	 * necessary for all tools that create dummy tiles for preview
+	 */
+	virtual bool remove_preview_necessary() const { return false; }
+
+	bool is_first_click() const;
+	void cleanup(bool delete_start_marker );
 
 private:
 
@@ -311,14 +356,14 @@ private:
 
 	virtual image_id get_marker_image();
 
-	bool first_click_var[MAX_PLAYER_COUNT];
-	koord3d start[MAX_PLAYER_COUNT];
-	void start_at( karte_t *, spieler_t *, koord3d &new_start );
+	bool first_click_var;
+	koord3d start;
+	void start_at( karte_t *, koord3d &new_start );
 
-	zeiger_t *start_marker[MAX_PLAYER_COUNT];
+	zeiger_t *start_marker;
 
 protected:
-	slist_tpl< zeiger_t* > marked[MAX_PLAYER_COUNT];
+	slist_tpl< zeiger_t* > marked;
 };
 
 /* toolbar are a new overclass */
@@ -331,7 +376,7 @@ private:
 	werkzeug_waehler_t *wzw;
 	slist_tpl<werkzeug_t *>tools;
 public:
-	toolbar_t( const char *t, const char *h, koord size ) : werkzeug_t()
+	toolbar_t(uint16 const id, char const* const t, char const* const h, koord const size) : werkzeug_t(id)
 	{
 		default_param = t;
 		helpfile = h;
@@ -344,7 +389,6 @@ public:
 	bool is_selected(karte_t const*) const OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
 	bool is_work_network_save() const OVERRIDE { return true; }
-	bool is_move_network_save(spieler_t*) const OVERRIDE { return true; }
 	// show this toolbar
 	bool init(karte_t*, spieler_t*) OVERRIDE;
 	// close this toolbar

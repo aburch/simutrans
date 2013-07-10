@@ -23,7 +23,11 @@
 
 
 signal_t::signal_t( karte_t *welt, loadsave_t *file) :
+#ifdef INLINE_DING_TYPE
+	roadsign_t(welt, ding_t::signal, file)
+#else
 	roadsign_t(welt,file)
+#endif
 {
 	if(besch==NULL) {
 		besch = roadsign_t::default_signal;
@@ -37,7 +41,7 @@ signal_t::signal_t( karte_t *welt, loadsave_t *file) :
  * Beobachtungsfenster angezeigt wird.
  * @author Hj. Malthaner
  */
-void signal_t::info(cbuffer_t & buf) const
+void signal_t::info(cbuffer_t & buf, bool dummy) const
 {
 	// well, needs to be done
 	ding_t::info(buf);

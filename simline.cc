@@ -41,7 +41,7 @@ simline_t::simline_t(karte_t* welt, spieler_t* sp, linetype type)
 	this->fpl = NULL;
 	this->sp = sp;
 	withdraw = false;
-	state_color = COL_YELLOW;
+	state_color = COL_WHITE;
 
 	for(uint8 i = 0; i < MAX_LINE_COST; i ++)
 	{	
@@ -68,6 +68,7 @@ simline_t::simline_t(karte_t* welt, spieler_t* sp, linetype type, loadsave_t *fi
 	this->welt = welt;
 	this->fpl = NULL;
 	this->sp = sp;
+	withdraw = false;
 	create_schedule();
 	average_journey_times = new koordhashtable_tpl<id_pair, average_tpl<uint16> >;
 	average_journey_times_reverse_circular = NULL;
@@ -253,8 +254,7 @@ void simline_t::rdwr(loadsave_t *file)
 	fpl->rdwr(file);
 
 	//financial history
-
-	if(file->get_version() < 102002 || (file->get_version() < 103000 && file->get_experimental_version() < 7))
+	if(file->get_version() <= 102002 || (file->get_version() < 103000 && file->get_experimental_version() < 7))
 	{
 		for (int j = 0; j<LINE_DISTANCE; j++) 
 		{
@@ -274,7 +274,6 @@ void simline_t::rdwr(loadsave_t *file)
 					continue;
 				}
 				file->rdwr_longlong(financial_history[k][j]);
-
 			}
 		}
 		for (int k = MAX_MONTHS-1; k>=0; k--) 
@@ -545,6 +544,14 @@ void simline_t::set_schedule(schedule_t* fpl)
 }
 
 
+void simline_t::check_freight()
+{
+	FOR(vector_tpl<convoihandle_t>, const i, line_managed_convoys) {
+		i->check_freight();
+	}
+}
+
+
 void simline_t::new_month()
 {
 	recalc_status();
@@ -658,7 +665,7 @@ void simline_t::recalc_catg_index()
 		withdraw &= cnv.get_withdraw();
 
 		FOR(minivec_tpl<uint8>, const catg_index, cnv.get_goods_catg_index()) {
-			goods_catg_index.append_unique( catg_index, 1 );
+			goods_catg_index.append_unique( catg_index );
 		}
 	}
 	
@@ -695,7 +702,7 @@ void simline_t::set_withdraw( bool yes_no )
 {
 	withdraw = yes_no && !line_managed_convoys.empty();
 	// convois in depots will be immeadiately destroyed, thus we go backwards
-	for( sint32 i=line_managed_convoys.get_count()-1;  i>=0;  i--  ) {
+	for (size_t i = line_managed_convoys.get_count(); i-- != 0;) {
 		line_managed_convoys[i]->set_no_load(yes_no);	// must be first, since set withdraw might destroy convoi if in depot!
 		line_managed_convoys[i]->set_withdraw(yes_no);
 	}
@@ -735,6 +742,7 @@ void simline_t::calc_is_alternating_circular_route()
 	
 	if(old_is_alternating_circle_route == false && is_alternating_circle_route == true)
 	{
+		delete average_journey_times_reverse_circular;
 		average_journey_times_reverse_circular = new journey_times_map;
 	}
 	else if(is_alternating_circle_route == true && is_alternating_circle_route == false)

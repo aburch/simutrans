@@ -114,7 +114,7 @@ private:
 	* Likewise for weight
 	* @author: jamespetts
 	*/
-	uint32 max_weight;
+	uint32 max_axle_load;
 
 	image_id bild;
 	image_id after_bild;
@@ -135,25 +135,31 @@ private:
 	* @author: jamespetts*/
 	way_constraints_of_way_t way_constraints;
 
-	inline void set_after_bild( image_id b ) { after_bild = b; }
-	image_id get_after_bild() const {return after_bild;}
-
+	// BG, 24.02.2012 performance enhancement avoid virtual method call, use inlined get_waytype()
+	waytype_t waytype;
+protected:
 
 	enum image_type { image_flat, image_slope, image_diagonal, image_switch };
 
 	/**
 	 * initializes both front and back images
+	 * switch images are set in schiene_t::reserve
 	 */
 	void set_images(image_type typ, uint8 ribi, bool snow, bool switch_nw=false);
 
 public:
-	weg_t(karte_t* const welt, loadsave_t*) : ding_no_info_t(welt) { init(); }
-	weg_t(karte_t* const welt) : ding_no_info_t(welt) { init(); }
+	weg_t(karte_t* const welt, waytype_t waytype, loadsave_t*) : ding_no_info_t(welt, ding_t::way), waytype(waytype) { init(); }
+	weg_t(karte_t* const welt, waytype_t waytype) : ding_no_info_t(welt, ding_t::way), waytype(waytype) { init(); }
 
 	virtual ~weg_t();
 
 	/* seasonal image recalculation */
 	bool check_season(const long /*month*/);
+
+#if MULTI_THREAD>1
+	void lock_mutex();
+	void unlock_mutex();
+#endif
 
 	/* actual image recalculation */
 	void calc_bild();
@@ -164,10 +170,12 @@ public:
 	*/
 	void set_max_speed(sint32 s) { max_speed = s; }
 
-	void set_max_weight(uint32 w);
+	void set_max_axle_load(uint32 w);
 
-	//Resets constraints to their base values. Used when removing way objects.
+	// Resets constraints to their base values. Used when removing way objects.
 	void reset_way_constraints() { way_constraints = besch->get_way_constraints(); }
+
+	void clear_way_constraints() { way_constraints.set_permissive(0); way_constraints.set_prohibitive(0); }
 
 	/* Way constraints: determines whether vehicles
 	 * can travel on this way. This method decodes
@@ -186,7 +194,7 @@ public:
 	*/
 	sint32 get_max_speed() const { return max_speed; }
 
-	uint32 get_max_weight() const { return max_weight; }
+	uint32 get_max_axle_load() const { return max_axle_load; }
 
 	/**
 	* Setzt neue Beschreibung. Ersetzt alte Höchstgeschwindigkeit
@@ -211,7 +219,7 @@ public:
 	* Info-text für diesen Weg
 	* @author Hj. Malthaner
 	*/
-	virtual void info(cbuffer_t & buf) const;
+	virtual void info(cbuffer_t & buf, bool is_bridge = false) const;
 
 	/**
 	 * @return NULL wenn OK, ansonsten eine Fehlermeldung
@@ -222,14 +230,14 @@ public:
 	/**
 	* Wegtyp zurückliefern
 	*/
-	virtual waytype_t get_waytype() const = 0;
+	waytype_t get_waytype() const { return waytype; }
 
 	/**
 	* 'Jedes Ding braucht einen Typ.'
 	* @return Gibt den typ des Objekts zurück.
 	* @author Hj. Malthaner
 	*/
-	typ get_typ() const { return ding_t::way; }
+	//typ get_typ() const { return ding_t::way; }
 
 	/**
 	* Die Bezeichnung des Wegs
@@ -333,6 +341,9 @@ public:
 
 	inline void set_bild( image_id b ) { bild = b; }
 	image_id get_bild() const {return bild;}
+
+	inline void set_after_bild( image_id b ) { after_bild = b; }
+	image_id get_after_bild() const {return after_bild;}
 
 	// correct maintainace
 	void laden_abschliessen();

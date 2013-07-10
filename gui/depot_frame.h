@@ -5,6 +5,10 @@
  * (see licence.txt)
  */
 
+/*
+ * The depot window, where to buy convois
+ */
+
 #ifndef gui_depot_frame2_t_h
 #define gui_depot_frame2_t_h
 
@@ -18,8 +22,12 @@
 #include "components/gui_convoy_assembler.h"
 #include "../simtypes.h"
 #include "../simdepot.h"
+#include "components/gui_speedbar.h"
+#include "../simtypes.h"
+#include "../utils/cbuffer_t.h"
 
 class vehikel_besch_t;
+
 /**
  * Depot frame, handles all interaction with a vehicle depot.
  *
@@ -29,6 +37,8 @@ class vehikel_besch_t;
 class depot_frame_t : public gui_frame_t,
                       public action_listener_t
 {
+    friend class gui_convoy_assembler_t;
+
 private:
 	/**
 	 * The depot to display
@@ -41,26 +51,25 @@ private:
 	 * @author Volker Meyer
 	 * @date  09.06.2003
 	 */
-	int	icnv;
-
-	/**
-	 * The previous convoy being displayed
-	 * @author Knightly
-	 */
-	convoihandle_t prev_cnv;
+	int icnv;
 
 	/**
 	 * Gui elements
 	 * @author Volker Meyer
 	 * @date  09.06.2003
 	 */
-	button_t bt_prev;
-	gui_textinput_t inp_name;
 	gui_label_t lb_convois;
-	button_t bt_next;
 
-	gui_label_t lb_convoi_value;
+	/// contains the current translation of "new convoi"
+	const char* new_convoy_text;
+	gui_combobox_t convoy_selector;
+
+	button_t line_button;	// goto line ...
+
 	gui_label_t lb_convoi_line;
+
+//	gui_speedbar_t sb_convoi_length;
+//	sint32 convoi_length_ok_sb, convoi_length_slower_sb, convoi_length_too_slow_sb, convoi_tile_length_sb, new_vehicle_length_sb;
 
 	button_t bt_start;
 	button_t bt_schedule;
@@ -71,34 +80,41 @@ private:
 	 * buttons for new route-management
 	 * @author hsiegeln
 	 */
-	button_t bt_new_line;
-	button_t bt_change_line;
+//	button_t bt_new_line;
+//	button_t bt_change_line;
 	button_t bt_copy_convoi;
-	button_t bt_apply_line;
+//	button_t bt_apply_line;
 
-	// Specifies the traction types handled by
-	// this depot.
-	// @author: jamespetts, April 2010
-	gui_label_t lb_traction_types;
+	/// contains the current translation of "<no schedule set>"
+	const char* no_schedule_text;
+	/// contains the current translation of "<clear schedule>"
+	const char* clear_schedule_text;
+	/// contains the current translation of "<individual schedule>"
+	const char* unique_schedule_text;
+	/// contains the current translation of "<create new line>"
+	const char* new_line_text;
+	/// contains the current translation of "<promote to line>"
+	const char* promote_to_line_text;
+	/// "-----------" between header items and lines
+	const char* line_seperator;
 
-	static char no_line_text[128];
 	gui_combobox_t line_selector;
 
 	gui_convoy_assembler_t convoy_assembler;
 
 	gui_image_t img_bolt;
 
-	linehandle_t selected_line;
+	linehandle_t selected_line, last_selected_line;
 
-	char txt_convois[40];
+	cbuffer_t txt_convois;
 
-	char txt_cnv_name[118];
-	char txt_old_cnv_name[118];
-
-	char txt_convoi_value[80];
-	char txt_convoi_line[128];
-
-	char txt_traction_types[256];
+	/**
+	 * Calculate the values of the vehicles of the given type owned by the
+	 * player.
+	 * @author Volker Meyer
+	 * @date  09.06.2003
+	 */
+	sint64 calc_restwert(const vehikel_besch_t *veh_type);
 
 	/**
 	 * Does this window need a min size button in the title bar?
@@ -107,11 +123,27 @@ private:
 	 */
 	bool has_min_sizer() const {return true;}
 
+//<<<<<<< HEAD
+//=======
+//	// true if already stored here
+//	bool is_contained(const vehikel_besch_t *info);
+//
+//	// add a single vehicle (helper function)
+//	void add_to_vehicle_list(const vehikel_besch_t *info);
+//
+//	// for convoi image
+//	void image_from_convoi_list(uint nr, bool to_end);
+//
+//	void image_from_storage_list(gui_image_list_t::image_data_t *bild_data);
+//
+//>>>>>>> aburch/master
 	karte_t* get_welt() { return depot->get_welt(); }
 
 public:
 	// the next two are only needed for depot_t update notifications
 	void activate_convoi( convoihandle_t cnv );
+
+	int get_icnv() const { return icnv; }
 
 	/**
 	 * Do the dynamic dialog layout
@@ -127,32 +159,33 @@ public:
 	 */
 	void update_data();
 
-	/**
-	 * Reset convoy name
-	 * @author Knightly
-	 */
-	void reset_convoy_name(convoihandle_t cnv);
-
-	/**
-	 * Rename the convoy
-	 * @author Knightly
-	 */
-	void rename_convoy(convoihandle_t cnv);
-
 	// more general functions ...
 	depot_frame_t(depot_t* depot);
-	~depot_frame_t();
 
 	/**
-	 * Setzt die Fenstergroesse
+	 * Set the window size
 	 * @author (Mathew Hounsell)
 	 * @date   11-Mar-2003
 	 */
 	void set_fenstergroesse(koord groesse);
 
 	/**
-	 * Manche Fenster haben einen Hilfetext assoziiert.
-	 * @return den Dateinamen für die Hilfe, oder NULL
+	 * Create and fill loks_vec and waggons_vec.
+	 * @author Volker Meyer
+	 * @date  09.06.2003
+	 */
+	inline void build_vehicle_lists() { convoy_assembler.build_vehicle_lists(); }
+
+	/*
+	 * Will update the tabs (don't show empty ones).
+	 * @author Gerd Wachsmuth
+	 * @date 08.05.2009
+	 */
+	void update_tabs();
+
+	/**
+	 * Set the window associated helptext
+	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
 	const char * get_hilfe_datei() const {return "depot.txt";}
@@ -164,7 +197,7 @@ public:
 	 */
 	bool has_next() const {return true;}
 
-	virtual koord3d get_weltpos();
+	virtual koord3d get_weltpos(bool);
 
 	/**
 	 * Open dialog for schedule entry.
@@ -175,13 +208,15 @@ public:
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**
-	 * Zeichnet das Frame
+	 * Draw the Frame
 	 * @author Hansjörg Malthaner
 	 */
 	void zeichnen(koord pos, koord gr);
 
 	// @author hsiegeln
 	void apply_line();
+
+	void set_selected_line(linehandle_t line) { selected_line = line; }
 
 	/**
 	 * This method is called if an action is triggered
@@ -195,10 +230,8 @@ public:
 	inline depot_t *get_depot() const {return depot;}
 	inline convoihandle_t get_convoy() const {return depot->get_convoi(icnv);}
 	inline void update_convoy() {icnv<0?convoy_assembler.clear_convoy():convoy_assembler.set_vehicles(get_convoy());}
-	inline void build_vehicle_lists() { convoy_assembler.build_vehicle_lists(); }
 	// Check the electrification
 	bool check_way_electrified(bool init = false);
-	int get_icnv() const { return icnv; }
 };
 
 #endif

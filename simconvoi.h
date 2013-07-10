@@ -1,6 +1,6 @@
 /**
- * Header Datei für dir convoi_t Klasse für Fahrzeugverbände
- * von Hansjörg Malthaner
+ * @file
+ * Contains definition of convoi_t class
  */
 
 #ifndef simconvoi_h
@@ -8,6 +8,7 @@
 
 #include "simtypes.h"
 #include "simunits.h"
+#include "simcolor.h"
 #include "linehandle_t.h"
 
 #include "ifc/sync_steppable.h"
@@ -26,12 +27,13 @@
 #include "simconst.h"
 
 #include "simdings.h"
+#include "convoy.h"
 
 /*
  * Waiting time for infinite loading (ms)
  * @author Hj- Malthaner
  */
-#define WAIT_INFINITE 0xFFFFFFFFu
+#define WAIT_INFINITE 9223372036854775807
 #define MAX_MONTHS               12 // Max history
 
 class weg_t;
@@ -46,13 +48,11 @@ class ware_t;
 class replace_data_t;
 
 /**
- * Basisklasse für alle Fahrzeugverbände. Convois könnnen über Zeiger
- * oder Handles angesprochen werden. Zeiger sind viel schneller, dafür
- * können Handles geprüft werden, ob das Ziel noch vorhanden ist.
+ * Base class for all vehicle consists. Convoys can be referenced by handles, see halthandle_t.
  *
  * @author Hj. Malthaner
  */
-class convoi_t : public sync_steppable, public overtaker_t
+class convoi_t : public sync_steppable, public overtaker_t, public lazy_convoy_t
 {
 public:
 	enum {
@@ -190,6 +190,49 @@ public:
 			}
 		}
 	};
+
+// BG, 31.12.2012: virtual methods of lazy_convoy_t:
+private:
+	weight_summary_t weight;
+protected:
+	virtual void update_vehicle_summary(vehicle_summary_t &vehicle);
+	virtual void update_adverse_summary(adverse_summary_t &adverse);
+	virtual void update_freight_summary(freight_summary_t &freight);
+	virtual void update_weight_summary(weight_summary_t &weight);
+	virtual float32e8_t get_brake_summary(/*const float32e8_t &speed*/ /* in m/s */);
+	virtual float32e8_t get_force_summary(const float32e8_t &speed /* in m/s */);
+	virtual float32e8_t get_power_summary(const float32e8_t &speed /* in m/s */);
+public:
+	virtual sint16 get_current_friction();
+	
+	// weight_summary becomes invalid, when vehicle_summary or envirion_summary 
+	// becomes invalid.
+	inline void invalidate_weight_summary()
+	{
+		is_valid &= ~cd_weight_summary;
+	}
+
+	// weight_summary is valid if (is_valid & cd_weight_summary != 0)
+	inline void validate_weight_summary() {
+		if (!(is_valid & cd_weight_summary)) 
+		{
+			is_valid |= cd_weight_summary;
+			update_weight_summary(weight);
+		}
+	}
+
+	// weight_summary needs recaching only, if it is going to be used. 
+	inline const weight_summary_t &get_weight_summary() {
+		validate_weight_summary();
+		return weight;
+	}
+
+	inline void calc_move(const settings_t &settings, long delta_t, sint32 akt_speed_soll, sint32 next_speed_limit, sint32 steps_til_limit, sint32 steps_til_brake, sint32 &akt_speed, sint32 &sp_soll, float32e8_t &akt_v)
+	{
+		validate_weight_summary();
+		convoy_t::calc_move(settings, delta_t, weight, akt_speed_soll, next_speed_limit, steps_til_limit, steps_til_brake, akt_speed, sp_soll, akt_v);
+	}
+// BG, 31.12.2012: end of virtual methods of lazy_convoy_t.
 
 private:
 	/**
@@ -343,14 +386,14 @@ private:
 	* errechnet.
 	* @author Hj. Malthaner
 	*/
-	uint32 sum_leistung;
+	//uint32 sum_leistung;
 
 	/**
 	* Gesamtleistung mit Gear. Wird nicht gespeichert, sondern aus den Einzelleistungen
 	* errechnet.
 	* @author prissi
 	*/
-	sint32 sum_gear_und_leistung;
+	//sint32 sum_gear_und_leistung;
 
 	/* sum_gewicht: leergewichte aller vehicles *
 	* sum_gesamtgewicht: gesamtgewichte aller vehicles *
@@ -358,36 +401,46 @@ private:
 	* errechnet beim beladen/fahren.
 	* @author Hj. Malthaner, prissi
 	*/
-	sint32 sum_gewicht;
-	sint32 sum_gesamtgewicht;
+	//sint64 sum_gewicht;
+	//sint64 sum_gesamtgewicht;
 
 	// cached values
 	// will be recalculated if
 	// recalc_data is true
-	bool recalc_data;
-	sint32 sum_friction_weight;
-	sint32 speed_limit;
+	bool recalc_data_front; // true when front vehicle in convoi hops
+	//bool recalc_data; // true when any vehicle in convoi hops
+
+	//sint64 sum_friction_weight;
+	//sint32 speed_limit;
 
 	/**
 	* Lowest top speed of all vehicles. Doesn't get saved, but calculated
 	* from the vehicles data
 	* @author Hj. Malthaner
 	*/
-	sint32 min_top_speed;
+	//sint32 min_top_speed;
 
 	/**
-	* this give the index of the next signal or the end of the route
-	* convois will slow down before it, if this is not a waypoint or the cannot pass
-	* The slowdown ist done by the vehicle routines
-	* @author prissi
-	*/
+	 * this give the index of the next signal or the end of the route
+	 * convois will slow down before it, if this is not a waypoint or the cannot pass
+	 * The slowdown ist done by the vehicle routines
+	 * @author prissi
+	 */
 	uint16 next_stop_index;
 
 	/**
-	* manchmal muss eine bestimmte Zeit gewartet werden.
-	* wait_lock bestimmt wie lange gewartet wird (in ms).
-	* @author Hanjsörg Malthaner
-	*/
+	 * this give the index until which the route has been reserved. It is used for
+	 * restoring reservations after loading a game.
+	 * @author prissi
+	 */
+	uint16 next_reservation_index;
+
+	/**
+	 * The coinvoi is not processed every sync step for various actions
+	 * (like waiting before signals, loading etc.) Such action will only
+	 * continue after a waiting time larger than wait_lock
+	 * @author Hanjsörg Malthaner
+	 */
 	sint32 wait_lock;
 
 	/**
@@ -469,6 +522,9 @@ private:
 	 */
 	void unreserve_route();
 
+	// reseverse route until next_reservation_index
+	void reserve_route();
+
 	/**
 	* Mark first and last vehicle.
 	* @author Hanjsörg Malthaner
@@ -520,7 +576,7 @@ private:
 	// Helper function: used in init and replacing
 	void reset();
 
-	// Helper function: used in betrete_depot and destructor.
+	// Helper function: used in enter_depot and destructor.
 	void close_windows();
 
 	// Reverses the order of the convoy.
@@ -529,7 +585,7 @@ private:
 	bool reversable;
 	bool reversed;
 
-	uint32 heaviest_vehicle;
+	uint32 highest_axle_load;
 	uint32 longest_min_loading_time;
 	uint32 longest_max_loading_time;
 	uint32 current_loading_time;
@@ -690,9 +746,6 @@ private:
 
 public:
 	ding_t::typ get_depot_type() const;
-	
-// updates a line schedule and tries to find the best next station to go
-	void check_pending_updates();	
 
 	/**
 	* Convoi haelt an Haltestelle und setzt quote fuer Fracht
@@ -719,6 +772,9 @@ public:
 	* @author hsiegeln
 	*/
 	void set_line(linehandle_t );
+
+	// updates a line schedule and tries to find the best next station to go
+	void check_pending_updates();
 
 	/* changes the state of a convoi via werkzeug_t; mandatory for networkmode! *
 	 * for list of commands and parameter see werkzeug_t::wkz_change_convoi_t
@@ -782,6 +838,11 @@ public:
 	uint32 get_fixed_cost() const;
 
 	/**
+	 * returns the total new purchase cost for all vehicles in convoy
+	 */
+	sint64 get_purchase_cost() const;
+
+	/**
 	* Constructor for loading from file,
 	* @author Hj. Malthaner
 	*/
@@ -797,15 +858,20 @@ public:
 	*/
 	void rdwr(loadsave_t *file);
 
+	/**
+	 * method to load/save convoihandle_t
+	 */
+	static void rdwr_convoihandle_t(loadsave_t *file, convoihandle_t &cnv);
+
 	void laden_abschliessen();
 
 	void rotate90( const sint16 y_size );
 
 	/**
-	* Called if a vehicle enters a depot
-	* @author Hanjsörg Malthaner
+	* Called to make a convoi enter a depot
+	* @author Hj. Malthaner, neroden
 	*/
-	void betrete_depot(depot_t *dep);
+	void enter_depot(depot_t *dep);
 
 	/**
 	* @return Current map.
@@ -859,17 +925,26 @@ public:
 	 * @return total power of this convoi
 	 * @author Hj. Malthaner
 	 */
-	inline uint32 get_sum_leistung() const {return sum_leistung;}
-	//inline uint32 get_power_from_steam() const {return power_from_steam;}
-	//inline uint32 get_power_from_steam_with_gear() const {return power_from_steam_with_gear;}
-	inline sint32 get_min_top_speed() const {return min_top_speed;}
-	inline sint32 get_sum_gewicht() const {return sum_gewicht;}
-	//inline sint32 get_sum_gesamtgewicht() const {return sum_gesamtgewicht;}
+//<<<<<<< HEAD
+	inline uint32 get_sum_leistung() {return get_continuous_power();}
+	inline sint32 get_min_top_speed() {return get_vehicle_summary().max_sim_speed;}
+//=======
+//	const uint32 & get_sum_leistung() const {return sum_leistung;}
+//	const sint32 & get_min_top_speed() const {return min_top_speed;}
+//	const sint32 & get_speed_limit() const {return speed_limit;}
+//>>>>>>> ad21768f2e2255525ad3ebe48dcb5fbeb8ad21d6
+
+	/// @returns weight of the convoy's vehicles (excluding freight)
+	inline sint64 get_sum_gewicht() {return get_vehicle_summary().weight;}
+
+	/// @returns weight of convoy including freight
+	//inline const sint64 & get_sum_gesamtgewicht() const {return sum_gesamtgewicht;}
+
 	/** Get power index in kW multiplied by gear.
 	 * Get effective power in kW by dividing by GEAR_FACTOR, which is 64.
 	 * @author Bernd Gabriel, Nov, 14 2009
 	 */
-	inline sint32 get_power_index() { return sum_gear_und_leistung; }
+	//inline const sint32 & get_power_index() { return sum_gear_und_leistung; }
 
 	uint32 get_length() const;
 
@@ -901,12 +976,6 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	void step();
-
-	/**
-	 * Calculates total weight of freight in KG
-	 * @author Hj. Malthaner
-	 */
-	int calc_freight_weight() const;
 
 	/**
 	* setzt einen neuen convoi in fahrt
@@ -985,6 +1054,9 @@ public:
 	*/
 	schedule_t * create_schedule();
 
+	// remove wrong freight when schedule changes etc.
+	void check_freight();
+
 	/**
 	* @return Owner of this convoi
 	* @author Hj. Malthaner
@@ -1028,7 +1100,7 @@ private:
 	* @author Hj. Malthaner
 	* @see simwin
 	*/
-	void info(cbuffer_t & buf) const;
+	void info(cbuffer_t & buf, bool dummy = false) const;
 public:
 #endif
 	/**
@@ -1154,6 +1226,7 @@ public:
 	* @author hsiegeln
 	*/
 	sint64 get_finance_history(int month, int cost_type) const { return financial_history[month][cost_type]; }
+	sint64 get_stat_converted(int month, int cost_type) const;
 
 	/**
 	* only purpose currently is to roll financial history
@@ -1174,16 +1247,22 @@ public:
 	inline koord3d get_home_depot() { return home_depot; }
 
 	/**
-	* this give the index of the next signal or the end of the route
-	* convois will slow down before it, if this is not a waypoint or the cannot pass
-	* The slowdown ist done by the vehicle routines
-	* @author prissi
-	*/
+	 * this give the index of the next signal or the end of the route
+	 * convois will slow down before it, if this is not a waypoint or the cannot pass
+	 * The slowdown ist done by the vehicle routines
+	 * @author prissi
+	 */
 	uint16 get_next_stop_index() const {return next_stop_index;}
 	void set_next_stop_index(uint16 n);
 
+	/* including this route_index, the route was reserved the laste time
+	 * currently only used for tracks
+	 */
+	uint16 get_next_reservation_index() const {return next_reservation_index;}
+	void set_next_reservation_index(uint16 n);
+
 	/* the current state of the convoi */
-	uint8 get_status_color() const;
+	COLOR_VAL get_status_color() const;
 
 	// returns tiles needed for this convoi
 	uint16 get_tile_length() const;
@@ -1225,7 +1304,7 @@ public:
 	//@author: isidoro
 	bool has_no_cargo() const;
 
-	void must_recalc_data() { recalc_data = true; }
+	void must_recalc_data() { invalidate_adverse_summary(); }
 
 	// Overtaking for convois
 	virtual bool can_overtake(overtaker_t *other_overtaker, sint32 other_speed, sint16 steps_other);
@@ -1239,8 +1318,8 @@ public:
 	inline bool is_reversed() const { return reversed; }
 
 	//@author: jamespetts
-	uint32 calc_heaviest_vehicle();
-	inline uint32 get_heaviest_vehicle() const { return heaviest_vehicle; }
+	uint32 calc_highest_axle_load();
+	inline uint32 get_highest_axle_load() const { return highest_axle_load; }
 	
 	//@author: jamespetts
 	uint32 calc_longest_min_loading_time();
@@ -1260,24 +1339,16 @@ public:
 	// taking into account any catering.
 	uint8 get_comfort() const;
 
-	// The new revenue calculation method for per-leg
-	// based revenue calculation, rather than per-hop
-	// based revenue calculation. This method calculates
-	// the revenue of a ware packet unloaded, rather
-	// than iterating through each ware packet in each
-	// vehicle in the convoy.
-	// @author: jamespetts
-	sint64 calc_revenue(ware_t &ware);
-
-	// @author: jamespetts
-	static uint16 calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance, karte_t* w);
-	inline uint16 calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance) { return calc_adjusted_speed_bonus(base_bonus, distance, welt); }
-
-	// @author: jamespetts
-	static uint8 calc_tolerable_comfort(uint16 journey_minutes, karte_t* w);
-	inline uint8 calc_tolerable_comfort(uint16 journey_minutes) { return calc_tolerable_comfort(journey_minutes, welt); }
-
-	static uint16 calc_max_tolerable_journey_time(uint16 comfort, karte_t* w);
+	/** The new revenue calculation method for per-leg
+	 * based revenue calculation, rather than per-hop
+	 * based revenue calculation. This method calculates
+	 * the revenue of a ware packet as it is unloaded.
+	 *
+	 * It also calculates allocations of revenue to different
+	 * players based on track usage.
+	 * @author: jamespetts, neroden, Knightly
+	 */
+	sint64 calc_revenue(const ware_t &ware, array_tpl<sint64> & apportioned_revenues);
 
 	uint16 get_livery_scheme_index() const;
 	void set_livery_scheme_index(uint16 value) { livery_scheme_index = value; }
@@ -1315,8 +1386,8 @@ public:
 	 */
 	void emergency_go_to_depot();
 
-	koordhashtable_tpl<id_pair, average_tpl<uint16> > * const get_average_journey_times();
-	inline koordhashtable_tpl<id_pair, average_tpl<uint16> > * const get_average_journey_times_this_convoy_only() { return average_journey_times; }
+	koordhashtable_tpl<id_pair, average_tpl<uint16> > * get_average_journey_times() const;
+	inline koordhashtable_tpl<id_pair, average_tpl<uint16> > * get_average_journey_times_this_convoy_only() const { return average_journey_times; }
 
 	/**
 	 * Clears the departure data.

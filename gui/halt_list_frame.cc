@@ -7,18 +7,23 @@
  * (see licence.txt)
  */
 
+/*
+ * Displays a scrollable list of all stations of a player
+ *
+ * @author Markus Weber
+ * @date 02-Jan-02
+ */
+
 #include <algorithm>
 #include <string.h>
 
 #include "halt_list_frame.h"
 #include "halt_list_filter_frame.h"
 
-#include "../simskin.h"
 #include "../simhalt.h"
 #include "../simware.h"
 #include "../simfab.h"
 #include "../simwin.h"
-#include "../simcolor.h"
 #include "../besch/skin_besch.h"
 
 #include "../bauer/warenbauer.h"
@@ -27,7 +32,7 @@
 
 #include "../utils/cbuffer_t.h"
 
-#include "components/list_button.h"
+
 
 /**
  * All filter and sort settings are static, so the old settings are
@@ -48,7 +53,7 @@ halt_list_frame_t::sort_mode_t halt_list_frame_t::sortby = nach_name;
 bool halt_list_frame_t::sortreverse = false;
 
 /**
- * Default filter: keine Ölbohrinseln!
+ * Default filter: no Oil rigs!
  */
 int halt_list_frame_t::filter_flags = 0;
 
@@ -95,8 +100,7 @@ bool halt_list_frame_t::compare_halts(halthandle_t const halt1, halthandle_t con
 		order = strcmp(halt1->get_name(), halt2->get_name());
 	}
 	/***********************************
-	 * Beruecksichtige die
-	 * Sortierreihenfolge
+	 * Consider sorting order
 	 ***********************************/
 	return sortreverse ? order > 0 : order < 0;
 }
@@ -134,8 +138,8 @@ static bool passes_filter_special(haltestelle_t & s)
 
 	if (halt_list_frame_t::get_filter(halt_list_frame_t::ueberfuellt_filter)) {
 		COLOR_VAL const farbe = s.get_status_farbe();
-		if (farbe != COL_RED  &&  farbe != COL_ORANGE) {
-			return false; // not overcrowded
+		if (farbe == COL_RED || farbe == COL_ORANGE) {
+			return true; // overcrowded
 		}
 	}
 
@@ -143,9 +147,10 @@ static bool passes_filter_special(haltestelle_t & s)
 		for (uint8 i = 0; i < warenbauer_t::get_max_catg_index(); ++i){
 			if (!s.get_connexions(i)->empty()) return false; //only display stations with NO connexion
 		}
+		return true;
 	}
 
-	return true;
+	return false;
 }
 
 
@@ -249,29 +254,29 @@ halt_list_frame_t::halt_list_frame_t(spieler_t *sp) :
 
 	sort_label.set_pos(koord(BUTTON1_X, 2));
 	add_komponente(&sort_label);
-	sortedby.init(button_t::roundbox, "", koord(BUTTON1_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	sortedby.init(button_t::roundbox, "", koord(BUTTON1_X, 14), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	sortedby.add_listener(this);
 	add_komponente(&sortedby);
 
-	sorteddir.init(button_t::roundbox, "", koord(BUTTON2_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	sorteddir.init(button_t::roundbox, "", koord(BUTTON2_X, 14), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	sorteddir.add_listener(this);
 	add_komponente(&sorteddir);
 
 	filter_label.set_pos(koord(BUTTON3_X, 2));
 	add_komponente(&filter_label);
 
-	filter_on.init(button_t::roundbox, translator::translate(get_filter(any_filter) ? "hl_btn_filter_enable" : "hl_btn_filter_disable"), koord(BUTTON3_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	filter_on.init(button_t::roundbox, translator::translate(get_filter(any_filter) ? "hl_btn_filter_enable" : "hl_btn_filter_disable"), koord(BUTTON3_X, 14), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	filter_on.add_listener(this);
 	add_komponente(&filter_on);
 
-	filter_details.init(button_t::roundbox, translator::translate("hl_btn_filter_settings"), koord(BUTTON4_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	filter_details.init(button_t::roundbox, translator::translate("hl_btn_filter_settings"), koord(BUTTON4_X, 14), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	filter_details.add_listener(this);
 	add_komponente(&filter_details);
 
 	display_list();
 
-	set_fenstergroesse(koord(TOTAL_WIDTH, TITLEBAR_HEIGHT+7*(28)+31+1));
-	set_min_windowsize(koord(TOTAL_WIDTH, TITLEBAR_HEIGHT+3*(28)+31+1));
+	set_fenstergroesse(koord(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+7*(28)+31+1));
+	set_min_windowsize(koord(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+3*(28)+31+1));
 
 	set_resizemode(diagonal_resize);
 	resize (koord(0,0));
@@ -287,7 +292,7 @@ halt_list_frame_t::~halt_list_frame_t()
 
 
 /**
-* This function refreshs the station-list
+* This function refreshes the station-list
 * @author Markus Weber/Volker Meyer
 */
 void halt_list_frame_t::display_list(void)
@@ -392,7 +397,7 @@ bool halt_list_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* 
 		}
 		else {
 			filter_frame = new halt_list_filter_frame_t(m_sp, this);
-			create_win(filter_frame, w_info, (long)this);
+			create_win(filter_frame, w_info, (ptrdiff_t)this);
 		}
 	}
 	return true;
@@ -416,7 +421,7 @@ void halt_list_frame_t::resize(const koord size_change)
 	else {
 		add_komponente(&vscroll);
 		vscroll.set_visible(true);
-		vscroll.set_pos(koord(groesse.x-scrollbar_t::BAR_SIZE, 47-TITLEBAR_HEIGHT-1));
+		vscroll.set_pos(koord(groesse.x-scrollbar_t::BAR_SIZE, 47-D_TITLEBAR_HEIGHT-1));
 		vscroll.set_groesse(groesse-koord(scrollbar_t::BAR_SIZE,scrollbar_t::BAR_SIZE));
 		vscroll.set_scroll_amount( 1 );
 	}

@@ -14,6 +14,12 @@
 #include <zlib.h>
 #include "../../tpl/inthashtable_tpl.h"
 
+// if without graphics backend, only copy one pixel
+#if COLOUR_DEPTH != 0
+#define break_after_first_pixel
+#else
+#define break_after_first_pixel break
+#endif
 
 obj_besch_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
@@ -28,13 +34,19 @@ obj_besch_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	// because a node could not hold more data
 	uint8 version = decode_uint8(p);
 	p = besch_buf;
-	//DBG_MESSAGE("bild_besch_t::read_node()","version %i",version);
+
+#if COLOUR_DEPTH != 0
+	if(version>0) {
+		besch = new(node.size-10) bild_besch_t();
+	}
+	else {
+		besch = new(node.size-12) bild_besch_t();
+	}
+#else
+	besch = new(sizeof(uint16)) bild_besch_t();
+#endif
 
 	if(version==0) {
-		besch = new(node.size-12) bild_besch_t();
-		besch->node_info = new obj_besch_t*[node.children];
-//DBG_MESSAGE("sizeof(struct bild_t)","%li", );
-
 		besch->pic.x = decode_uint8(p);
 		besch->pic.w = decode_uint8(p);
 		besch->pic.y = decode_uint8(p);
@@ -57,11 +69,11 @@ obj_besch_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 					data ++;
 				}
 				*dest++ = data;
+				break_after_first_pixel;
 			}
 		}
 	}
 	else if(version<=2) {
-		besch = new(node.size-10) bild_besch_t();
 		besch->node_info = new obj_besch_t*[node.children];
 
 		besch->pic.x = decode_sint16(p);
@@ -77,11 +89,11 @@ obj_besch_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		if (besch->pic.h > 0) {
 			for (uint i = 0; i < besch->pic.len; i++) {
 				*dest++ = decode_uint16(p);
+				break_after_first_pixel;
 			}
 		}
 	}
 	else if(version==3) {
-		besch = new(node.size-10) bild_besch_t();
 		besch->node_info = new obj_besch_t*[node.children];
 
 		besch->pic.x = decode_sint16(p);
@@ -97,12 +109,27 @@ obj_besch_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		if (besch->pic.h > 0) {
 			for (uint i = 0; i < besch->pic.len; i++) {
 				*dest++ = decode_uint16(p);
+				break_after_first_pixel;
 			}
 		}
 	}
 	else {
 		dbg->fatal("image_reader_t::read_node()","illegal versions %d", version );
 	}
+
+#if COLOUR_DEPTH == 0
+	if(  besch->pic.h > 0  ) {
+		besch->pic.h = 1;
+	}
+	if(  besch->pic.w > 0  ) {
+		besch->pic.w = 1;
+	}
+	if(  besch->pic.len > 0  ) {
+		besch->pic.len = 1;
+	}
+	besch->pic.x = 0;
+	besch->pic.y = 0;
+#endif
 
 	// check for left corner
 	if(version<2  &&  besch->pic.h>0) {

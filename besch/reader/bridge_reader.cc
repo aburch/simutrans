@@ -22,12 +22,6 @@ void bridge_reader_t::register_obj(obj_besch_t *&data)
 }
 
 
-bool bridge_reader_t::successfully_loaded() const
-{
-	return brueckenbauer_t::laden_erfolgreich();
-}
-
-
 obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	// DBG_DEBUG("bridge_reader_t::read_node()", "called");

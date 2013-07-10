@@ -45,8 +45,8 @@ void tree_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 			string str = obj.get(buf);
 			if (str.empty()) {
 				// else missing image
-				printf("*** FATAL ***:\nMissing %s!\n", buf); fflush(NULL);
-				exit(0);
+				fprintf( stderr, "*** FATAL ***:\nMissing %s!\n", buf); fflush(NULL);
+				exit(1);
 			}
 			keys.at(age).append(str);
 		}

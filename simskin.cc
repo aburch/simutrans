@@ -41,6 +41,7 @@ const skin_besch_t* skinverwaltung_t::intown             = NULL;
 const skin_besch_t* skinverwaltung_t::passagiere         = NULL;
 const skin_besch_t* skinverwaltung_t::post               = NULL;
 const skin_besch_t* skinverwaltung_t::waren              = NULL;
+const skin_besch_t* skinverwaltung_t::station_type       = NULL;
 const skin_besch_t* skinverwaltung_t::seasons_icons      = NULL;
 const skin_besch_t* skinverwaltung_t::message_options    = NULL;
 const skin_besch_t* skinverwaltung_t::color_options      = NULL;
@@ -114,6 +115,7 @@ static spezial_obj_tpl<skin_besch_t> fakultative_objekte[] = {
 	{ &skinverwaltung_t::timelinesymbol,     "timelinesym"    },
 	{ &skinverwaltung_t::fastforwardsymbol,  "fastforwardsym" },
 	{ &skinverwaltung_t::pausesymbol,        "pausesym"       },
+	{ &skinverwaltung_t::station_type,       "station_type"   },
 	{ NULL, NULL }
 };
 
@@ -134,7 +136,7 @@ bool skinverwaltung_t::alles_geladen(skintyp_t type)
 		case cursor:  sb = cursor_objekte;     break;
 		case symbol:  sb = symbol_objekte;     break;
 		case misc:
-			sb = misc_objekte;
+			sb = misc_objekte+2;
 			// for compatibility: use sidewalk as tunneltexture
 			if (tunnel_texture==NULL) {
 				tunnel_texture = fussweg;

@@ -1,0 +1,34 @@
+# Simutranslator settings for Simutrans-Experimental texts
+# Addendum for the reorganisation of the depot window
+#
+# Author: jamespetts
+# Created: April 2013
+#
+obj=program_text
+name=Cost: %8s\n
+note=Text for the purchase price of vehicles in the depot/replace window
+-
+obj=program_text
+name=Maintenance: %1.2f$/km, %1.2f$/month\n
+note=Text for the maintenance cost (per km and per month) of vehicles in the depot/replace window
+-
+obj=program_text
+name=Capacity: %3d %s%s %s\n
+note=Text for the capacity (including overcrowded capacity in brackets) of vehicles in the depot/replace window
+-
+obj=program_text
+name=Power/tractive force: %4d kW / %d kN\n
+note=Text for the power/tractive effort of vehicles in the depot/replace window
+-
+obj=program_text
+name=Axle load:
+note=Text for the axle load of vehicles in the depot/replace window
+-
+obj=program_text
+name=Max. brake force:
+note=Text for the brake force of vehicles in the depot/replace window
+-
+obj=program_text
+name=Rolling resistance:
+note=Text for the rolling resistance of vehicles in the depot/replace window
+-

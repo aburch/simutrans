@@ -1,14 +1,8 @@
 /*
- * Copyright (c) 2001 Hansjörg Malthaner
- * hansjoerg.malthaner@gmx.de
- *
- * This file is part of the Simugraph engine and may not be used
- * in other projects without written permission of the author.
- *
- * Usage for Iso-Angband is granted.
+ * Copyright 2010 Simutrans contributors
+ * Available under the Artistic License (see license.txt)
  */
-
-#ifdef COMMAND_LINE_SERVER
+#if COLOUR_DEPTH == 0
 #include "simconst.h"
 #include "simsys.h"
 #include "besch/bild_besch.h"
@@ -18,6 +12,8 @@
 typedef uint16 PIXVAL;
 
 int large_font_height = 10;
+int large_font_total_height = 11;
+int large_font_ascent = 9;
 
 KOORD_VAL tile_raster_width = 16; // zoomed
 KOORD_VAL base_tile_raster_width = 16; // original
@@ -42,20 +38,19 @@ int zoom_factor_down()
 	return false;
 }
 
-static inline void mark_tile_dirty(const int, const int)
-{
-}
-
-static inline void mark_tiles_dirty(const int, const int, const int)
-{
-}
-
-static inline int is_tile_dirty(const int, const int)
-{
-	return false;
-}
-
 void mark_rect_dirty_wc(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL)
+{
+}
+
+void mark_rect_dirty_clip(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL)
+{
+}
+
+void mark_screen_dirty()
+{
+}
+
+void display_mark_img_dirty(unsigned, KOORD_VAL, KOORD_VAL)
 {
 }
 
@@ -107,6 +102,10 @@ void display_set_player_color_scheme(const int, const COLOR_VAL, const COLOR_VAL
 void register_image(struct bild_t* bild)
 {
 	bild->bild_nr = 1;
+}
+
+void display_snapshot(int, int, int, int)
+{
 }
 
 void display_get_image_offset(unsigned, KOORD_VAL *, KOORD_VAL *, KOORD_VAL *, KOORD_VAL *)
@@ -169,7 +168,15 @@ void display_rezoomed_img_blend(const unsigned, KOORD_VAL, KOORD_VAL, const sign
 {
 }
 
+void display_rezoomed_img_alpha(const unsigned, const unsigned, const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int)
+{
+}
+
 void display_base_img_blend(const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int)
+{
+}
+
+void display_base_img_alpha(const unsigned, const unsigned, const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int)
 {
 }
 
@@ -177,9 +184,10 @@ void display_base_img_blend(const unsigned, KOORD_VAL, KOORD_VAL, const signed c
 display_image_proc display_normal = display_base_img;
 display_image_proc display_color = display_base_img;
 display_blend_proc display_blend = display_base_img_blend;
+display_alpha_proc display_alpha = display_base_img_alpha;
 signed short current_tile_raster_width = 0;
 
-void display_mark_img_dirty(unsigned, KOORD_VAL, KOORD_VAL)
+void display_blend_wh(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, int, int )
 {
 }
 
@@ -249,7 +257,7 @@ void display_shadow_proportional(KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, PLAYER_
 {
 }
 
-void display_ddd_box(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, PLAYER_COLOR_VAL)
+void display_ddd_box(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, PLAYER_COLOR_VAL, bool)
 {
 }
 
@@ -312,11 +320,35 @@ void simgraph_resize(KOORD_VAL, KOORD_VAL)
 {
 }
 
+void reset_textur(void *)
+{
+}
+
 void display_snapshot()
 {
 }
 
 void display_direct_line(const KOORD_VAL, const KOORD_VAL, const KOORD_VAL, const KOORD_VAL, const PLAYER_COLOR_VAL)
+{
+}
+
+void display_direct_line(const KOORD_VAL, const KOORD_VAL, const KOORD_VAL, const KOORD_VAL, const KOORD_VAL, const KOORD_VAL, const PLAYER_COLOR_VAL)
+{
+}
+
+void display_direct_line_dotted(const KOORD_VAL, const KOORD_VAL, const KOORD_VAL, const KOORD_VAL, const KOORD_VAL, const KOORD_VAL, const PLAYER_COLOR_VAL)
+{
+}
+
+void display_circle( KOORD_VAL, KOORD_VAL, int, const PLAYER_COLOR_VAL )
+{
+}
+
+void display_filled_circle( KOORD_VAL, KOORD_VAL, int, const PLAYER_COLOR_VAL )
+{
+}
+
+void draw_bezier(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, const PLAYER_COLOR_VAL, KOORD_VAL, KOORD_VAL )
 {
 }
 

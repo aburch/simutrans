@@ -7,6 +7,11 @@
  * @author Dwachs
  */
 
+/*
+ * An input field for integer numbers (with arrow buttons for dec/inc)
+ * @author Dwachs
+ */
+
 #ifndef gui_components_gui_numberinput_h
 #define gui_components_gui_numberinput_h
 
@@ -17,10 +22,8 @@
 #include "../../dataobj/koord.h"
 #include "action_listener.h"
 
-/**
- * An input field for integer numbers (with arrow buttons for dec/inc)
- * @author Dwachs
- */
+#define NUM_PERCENT (8)
+
 class gui_numberinput_t :
 	public gui_action_creator_t,
 	public gui_komponente_t,
@@ -30,7 +33,7 @@ private:
 	bool check_value(sint32 _value);
 
 	// more sophisticated increase routines
-	static sint8 percent[7];
+	static sint8 percent[NUM_PERCENT];
 	sint32 get_prev_value();
 	sint32 get_next_value();
 
@@ -51,7 +54,8 @@ private:
 
 	sint32 step_mode;
 
-	bool wrapping;
+	bool wrapping:1;
+	bool b_enabled:1;
 
 	// since only the last will prevail
 	static char tooltip[256];
@@ -79,7 +83,7 @@ public:
 
 	enum { AUTOLINEAR=0, POWER2=-1, PROGRESS=-2 };
 	/**
-	 * AUTOLINEAR: linear increment, scroll whell 1% range
+	 * AUTOLINEAR: linear increment, scroll wheel 1% range
 	 * POWER2: 16, 32, 64, ...
 	 * PROGRESS: 0, 1, 5, 10, 25, 50, 75, 90, 95, 99, 100% of range
 	 * any other mode value: actual step size
@@ -87,7 +91,7 @@ public:
 
 	void set_increment_mode( sint32 m ) { step_mode = m; }
 
-	// true, if the compnent wraps around
+	// true, if the component wraps around
 	bool wrap_mode( bool new_mode ) {
 		bool m=wrapping;
 		wrapping=new_mode;
@@ -97,12 +101,17 @@ public:
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**
-	 * Zeichnet die Komponente
+	 * Draw the component
 	 * @author Dwachs
 	 */
 	void zeichnen(koord offset);
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
+
+	void enable() { b_enabled = true; set_focusable(true); bt_left.enable(); bt_right.enable(); }
+	void disable() { b_enabled = false; set_focusable(false); bt_left.disable(); bt_right.disable(); }
+	bool enabled() const { return b_enabled; }
+	virtual bool is_focusable() { return b_enabled && gui_komponente_t::is_focusable(); }
 };
 
 #endif

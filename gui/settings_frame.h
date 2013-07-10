@@ -32,6 +32,8 @@ private:
 
 	settings_general_stats_t general;
 	gui_scrollpane_t scrolly_general;
+	settings_display_stats_t display;
+	gui_scrollpane_t scrolly_display;
 	settings_economy_stats_t economy;
 	gui_scrollpane_t scrolly_economy;
 	settings_routing_stats_t routing;
@@ -53,8 +55,8 @@ public:
 	settings_frame_t(settings_t*);
 
 	/**
-	 * Manche Fenster haben einen Hilfetext assoziiert.
-	 * @return den Dateinamen für die Hilfe, oder NULL
+	 * Set the window associated helptext
+	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
 	const char *get_hilfe_datei() const {return "settings.txt";}
@@ -67,7 +69,7 @@ public:
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
-	// does not work during new world dialoge
+	// does not work during new world dialogue
 	virtual bool has_sticky() const { return false; }
 
 	bool infowin_event(event_t const*) OVERRIDE;

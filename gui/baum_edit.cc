@@ -1,24 +1,23 @@
 /*
  * Copyright (c) 1997 - 2004 Hansjörg Malthaner
  *
- * Line management
- *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
  */
 
+/*
+ * The trees builder
+ */
+
 #include <stdio.h>
 
-#include "../simcolor.h"
 #include "../simtools.h"
 #include "../simworld.h"
-#include "../simgraph.h"
-#include "../simskin.h"
 #include "../simwerkz.h"
 #include "../simmenu.h"
 
 #include "../dataobj/translator.h"
-#include "components/list_button.h"
+
 
 #include "../besch/bild_besch.h"
 #include "../besch/grund_besch.h"
@@ -54,7 +53,7 @@ baum_edit_frame_t::baum_edit_frame_t(spieler_t* sp_, karte_t* welt) :
 	baum_tool.id = werkzeug_t::general_tool[WKZ_PLANT_TREE]->id;
 
 	remove_komponente( &bt_obsolete );
-	offset_of_comp -= BUTTON_HEIGHT;
+	offset_of_comp -= D_BUTTON_HEIGHT;
 
 	besch = NULL;
 	baum_tool.set_default_param(NULL);
@@ -66,15 +65,17 @@ baum_edit_frame_t::baum_edit_frame_t(spieler_t* sp_, karte_t* welt) :
 
 
 
-// fill the current fablist
+// fill the current baumlist
 void baum_edit_frame_t::fill_list( bool translate )
 {
 	baumlist.clear();
 	FOR(vector_tpl<baum_besch_t const*>, const i, baum_t::get_all_besch()) {
-		baumlist.insert_ordered(i, compare_baum_besch);
+		if (i) {
+			baumlist.insert_ordered(i, compare_baum_besch);
+		}
 	}
 
-	// now buil scrolled list
+	// now build scrolled list
 	scl.clear_elements();
 	scl.set_selection(-1);
 	FOR(vector_tpl<baum_besch_t const*>, const i, baumlist) {

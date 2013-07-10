@@ -188,7 +188,7 @@ template<class T> class vector_tpl
 		}
 
 		/**
-		 * set length of vector.
+		 * Set length of vector.
 		 * BEWARE: using this function will create default objects, depending on
 		 * the type of the vector
 		 */
@@ -223,13 +223,15 @@ template<class T> class vector_tpl
 
 
 		/** removes element, if contained */
-		void remove(const T& elem)
+		bool remove(const T& elem)
 		{
 			for (uint32 i = 0; i < count; i++) {
 				if (data[i] == elem) {
-					return remove_at(i);
+					remove_at(i);
+					return true;
 				}
 			}
+			return false;
 		}
 
 		/** removes element at position */
@@ -259,9 +261,11 @@ template<class T> class vector_tpl
 			return (*this)[e];
 		}
 		
-		void pop_back()
+		T& pop_back()
 		{
+			assert(count>0);
 			--count;
+			return data[count];
 		}
 
 		T& operator [](uint i)

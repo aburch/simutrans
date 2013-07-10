@@ -1,3 +1,7 @@
+/*
+ * The trees builder
+ */
+
 #ifndef gui_baum_edit_h
 #define gui_baum_edit_h
 
@@ -27,15 +31,15 @@ public:
 	baum_edit_frame_t(spieler_t* sp,karte_t* welt);
 
 	/**
-	* in top-level fenstern wird der Name in der Titelzeile dargestellt
-	* @return den nicht uebersetzten Namen der Komponente
+	* in top-level windows the name is displayed in titlebar
+	* @return the non-translated component name
 	* @author Hj. Malthaner
 	*/
 	const char* get_name() const { return "baum builder"; }
 
 	/**
-	* Manche Fenster haben einen Hilfetext assoziiert.
-	* @return den Dateinamen für die Hilfe, oder NULL
+	* Set the window associated helptext
+	* @return the filename for the helptext, or NULL
 	* @author Hj. Malthaner
 	*/
 	const char* get_hilfe_datei() const { return "baum_build.txt"; }

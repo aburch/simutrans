@@ -10,20 +10,25 @@
 #include "../besch/writer/root_writer.h"
 #include "../besch/writer/image_writer.h"
 
+// Needed to avoid linking problems
+unsigned long dr_time(void)
+{
+	return 0;
+}
 
 int main(int argc, char* argv[])
 {
 	argv++, argc--;
 
-	init_logging("stderr", true, true, "Makeobj version " MAKEOBJ_VERSION " for simutrans " VERSION_NUMBER EXPERIMENTAL_VERSION " and higher\n");
+	init_logging("stderr", true, true, "Makeobj version " MAKEOBJ_VERSION " for simutrans " VERSION_NUMBER EXPERIMENTAL_VERSION " and higher\n", "makeobj");
 
 	if (argc && !STRICMP(argv[0], "quiet")) {
 		argv++, argc--;
 	} else {
 		puts(
 			"\nMakeobj-Experimental, based on Makeobj version " MAKEOBJ_VERSION " for Simutrans " VERSION_NUMBER EXPERIMENTAL_VERSION " and higher\n"
-			"Experimental version by James E. Petts, derived from Makeobj, (c) 2002-2006 V. Meyer , Hj. Malthaner and \n"
-			"M. Pristovsek (markus@pristovsek.de). This is open source software, released under the Artistic Licence.\n"
+			"Experimental version by James E. Petts, derived from Makeobj, (c) 2002-2012 V. Meyer , Hj. Malthaner and \n"
+			"M. Pristovsek and the Simutrans development team. This is open source software, released under the Artistic Licence.\n"
 		);
 	}
 
@@ -122,9 +127,9 @@ int main(int argc, char* argv[])
 		"         Creates a ready to use pak file for Simutrans from the dat files\n"
 		"      MakeObj pak128 <pak file> <dat file(s)>\n"
 		"         Creates a special pak file for with 128x128 images\n"
-		"         Works with PAK16 up to PAK255 but only 32 to 192 are tested\n"
+		"         Works with PAK16 up to PAK255 but only 32 to 224 are tested\n"
 		"      MakeObj LIST <pak file(s)>\n"
-		"         Lists the contents ot the given pak files\n"
+		"         Lists the contents of the given pak files\n"
 		"      MakeObj DUMP <pak file> <pak file(s)>\n"
 		"         List the internal nodes of a file\n"
 		"      MakeObj MERGE <pak file library> <pak file(s)>\n"

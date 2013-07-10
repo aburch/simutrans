@@ -8,6 +8,7 @@
 #ifndef message_frame_h
 #define message_frame_h
 
+#include "../simwin.h"
 
 #include "gui_frame.h"
 #include "components/gui_button.h"
@@ -35,13 +36,14 @@ private:
 	gui_textinput_t input;
 	button_t option_bt, send_bt;
 	static karte_t *welt;
+	vector_tpl<sint32> tab_categories;
 
 public:
 	message_frame_t(karte_t * welt);
 
 	/**
-	 * Manche Fenster haben einen Hilfetext assoziiert.
-	 * @return den Dateinamen für die Hilfe, oder NULL
+	 * Set the window associated helptext
+	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
 	const char * get_hilfe_datei() const {return "mailbox.txt";}
@@ -53,6 +55,10 @@ public:
 	void resize(const koord delta);
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
+
+	void rdwr(loadsave_t *);
+
+	uint32 get_rdwr_id() { return magic_messageframe; }
 };
 
 #endif

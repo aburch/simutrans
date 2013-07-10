@@ -5,6 +5,10 @@
  * (see licence.txt)
  */
 
+/*
+ * Convoi info stats, like loading status bar
+ */
+
 #ifndef gui_convoiinfo_h
 #define gui_convoiinfo_h
 
@@ -23,7 +27,7 @@ class gui_convoiinfo_t : public gui_komponente_t
 {
 private:
 	/**
-	* Handle des anzuzeigenden Convois.
+	* Handle Convois to be displayed.
 	* @author Hj. Malthaner
 	*/
 	convoihandle_t cnv;
@@ -32,7 +36,7 @@ private:
 
 public:
 	/**
-	* @param cnv das Handle für den anzuzeigenden Convoi.
+	* @param cnv, the handler for the Convoi to be displayed.
 	* @author Hj. Malthaner
 	*/
 	gui_convoiinfo_t(convoihandle_t cnv);
@@ -40,7 +44,7 @@ public:
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**
-	* Zeichnet die Komponente
+	* Draw the component
 	* @author Hj. Malthaner
 	*/
 	void zeichnen(koord offset);

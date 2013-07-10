@@ -30,6 +30,7 @@ protected:
 	*/
 	convoihandle_t reserved;
 
+	schiene_t(karte_t *welt, waytype_t waytype);
 public:
 	static const weg_besch_t *default_schiene;
 
@@ -40,16 +41,15 @@ public:
 	* @author Hj. Malthaner
 	*/
 	schiene_t(karte_t *welt, loadsave_t *file);
-
 	schiene_t(karte_t *welt);
 
-	virtual waytype_t get_waytype() const {return track_wt;}
+	//virtual waytype_t get_waytype() const {return track_wt;}
 
 	/**
 	* @return additional info is reservation!
 	* @author prissi
 	*/
-	void info(cbuffer_t & buf) const;
+	void info(cbuffer_t & buf, bool is_bridge = false) const;
 
 	/**
 	* true, if this rail can be reserved
@@ -104,7 +104,7 @@ public:
 	/*
 	 * to show reservations if needed
 	 */
-	virtual PLAYER_COLOR_VAL get_outline_bild() const {return weg_t::get_bild();}
+	virtual image_id get_outline_bild() const { return weg_t::get_bild(); }
 };
 
 

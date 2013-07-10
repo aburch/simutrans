@@ -24,20 +24,27 @@ protected:
 
 	void calc_bild();
 
+	fussgaenger_t(karte_t *welt, koord3d pos);
+
 public:
 	fussgaenger_t(karte_t *welt, loadsave_t *file);
-	fussgaenger_t(karte_t *welt, koord3d pos);
+
+	virtual ~fussgaenger_t();
 
 	const fussgaenger_besch_t *get_besch() const { return besch; }
 
 	const char *get_name() const {return "Fussgaenger";}
+#ifdef INLINE_DING_TYPE
+#else
 	typ get_typ() const { return fussgaenger; }
+#endif
 
 	bool sync_step(long delta_t);
 
 	// prissi: always free
-	virtual bool ist_weg_frei() { return 1; }
-	virtual bool hop_check() { return 1; }
+	virtual bool ist_weg_frei() { return true; }
+	virtual bool hop_check() { return true; }
+	virtual grund_t* hop();
 
 	// class register functions
 	static bool register_besch(const fussgaenger_besch_t *besch);

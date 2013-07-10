@@ -23,7 +23,12 @@
 class gui_divider_t : public gui_komponente_t
 {
 public:
-    /**
+	void init( koord xy, sint16 width ) {
+		set_pos( xy );
+		set_groesse( koord( width, 2 ) );
+	};
+
+	/**
      * Zeichnet die Komponente
      * @author Markus Weber
      */

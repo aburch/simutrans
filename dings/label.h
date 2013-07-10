@@ -15,7 +15,10 @@ public:
 
 	void zeige_info();
 
+#ifdef INLINE_DING_TYPE
+#else
 	typ get_typ() const { return ding_t::label; }
+#endif
 
 	image_id get_bild() const;
 };

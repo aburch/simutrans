@@ -20,6 +20,34 @@
 # for individual paksets. Any values set here that are not set in the simuconf.tab files for 
 # individual paksets will be used. 
 
+################################ Settings meta-options #############################
+#
+# Normally, a huge number of settings are saved in the save game.  This is intended
+# to allow a player to continue playing the "same style of game" as before.
+#
+# However, this is often highly undesirable.  
+#
+# Sometimes we want to load an old saved game with new settings in the program directory.
+# (For instance, if the defaults have changed in a new version.)
+# To do this, set progdir_overrides_savegame_settings to 1 (or any number but 0).
+#
+# Frequently we want to load an old saved game with an updated pakset and get the new pakset rules.
+# To do this, set pak_overides_savegame_settings to 1 (or any number but 0).
+#
+# Very frequently we want to load an old saved game with custom local rules.
+# To do this, wet userdir_overrides_pak_settings ot 1 (or any number but 0).
+#
+# (Neither of these have any effect if you are a client, rather than a server, in a network game.)
+# (Also, there is no way to override certain settings which are not loaded from simuconf.tab.)
+#
+# Please note that pak_overrides_savegame_settings (but not the other options) 
+# will also cause electricity.tab, privatecar.tab, speedbonus.tab, and cityrules.tab to be
+# reread, and to override any versions in the saved game.  Due to historical anomalies in the
+# codebase, if these are present in the "user" directory that version will be read instead of the
+# pak version.  (These should not be in the user directory.)
+progdir_overrides_savegame_settings = 0
+pak_overrides_savegame_settings = 0
+userdir_overrides_savegame_settings = 0
 
 ################################# Pakset settings ##################################
 #
@@ -46,6 +74,7 @@
 #pak_file_path = pak.64.ho-scale/
 #pak_file_path = pak.192.comic/
 #pak_file_path = pakHajo/
+#pak_file_path = pak.japan/
 #
 ################################## Program settings ####################################
 
@@ -54,10 +83,17 @@
 # 10000 is ok for everything else (consumes 16*x Bytes main memory, no further harm)
 max_route_steps = 1000000
 
-# size of catchment area of a station (default 2)
-# older game size was 3
-# savegames with another catch area will give strange results
-station_coverage = 2
+# Size of the catchment area of a station/stop in tiles.
+# This is for city buildings (mail and passengers) only.
+# (In older versions, this was used for both city buildings and factories)
+#
+# Default: 2
+station_coverage = 6
+
+# Size of the catchment area of a station/stop in tiles.
+# This is for factories only.
+# Default: 3
+station_coverage_factories = 3
 
 # Max number of steps in goods pathfinding
 # This should be equal or greater than the biggest group
@@ -196,8 +232,12 @@ growthfactor_capitals = 100
 max_city_size = 16000
 max_small_city_size = 3000
 
-# The higher this value, the more passengers generated. (Default: 16)
-passenger_factor=16
+# Passenger generation (the default is 16): smaller values means fewer passengers.
+# NOTE: This will need to be adjusted depending on the meters_per_tile setting.
+# 16 is calibrated to be correct for 125m/tile. This should be doubled for every
+# halving of the meters per tile setting, and halved for every doubling thereof.
+
+passenger_factor = 16
 
 # amount of passengers that travel from/to factories or attractions
 # the remaining percentage is intercity and intracity travel
@@ -231,11 +271,35 @@ avoid_overcrowding = 0
 # make the game run more slowly. Default = 7.
 passenger_routing_packet_size = 7
 
-# This setting determines the amount of private traffic generated on the roads in the game.
-# It does not affect the actual usage of private cars: just how many vehicles appear on the roads.
-# Range: 0 - 16. Recommended: 11
-
-citycar_level = 11
+# This setting determines the relationship between the number of private car trips
+# generated and (1) the congestion recorded in the cities; and (2) the number of
+# private car graphics that appear in the game. This is intended to simulate
+# vehicle occupancy rates. The higher the occupancy rate, the fewer cars that
+# there will be (and therefore the less congestion that there will be) for
+# any given number of people making trips by car. 
+#
+# The correct setting for the UK is 11: different countries might have higher or
+# lower occupancy rates.
+#
+# Range: 0 - 16.
+# Setting	-	Occupants per car
+#	0		-	[No cars]
+#	1		-	200
+#	2		-	100
+#	3		-	50
+#	4		-	40
+#	5		-	20
+#	6		-	10
+#	7		-	5
+#	8		-	4
+#	9		-	3
+#	10		-	2
+#	11		-	1.6 * UK average
+#	12		-	1.5
+#	13		-	1.3
+#	14		-	1.2
+#	15		-	1.1
+#	16		-	1.0
 
 # After how many month a citycar breaks (and will be forever gone) ...
 # default is ten years
@@ -293,7 +357,7 @@ toll_free_public_roads = 1
 # major version is incremented to 11. In a network game, this value
 # will default to 1.
 
-private_car_toll_per_tile = 1
+private_car_toll_per_km = 1
 
 # If this is set to 1, any road built in a town will be adopted
 # by that town (set to unowned), meaning that the building player
@@ -392,6 +456,13 @@ min_midrange_tolerance = 5
 max_midrange_tolerance = 240
 min_longdistance_tolerance = 30
 max_longdistance_tolerance = 4320
+
+# The following setting determines the walking speed of passengers in km/h.
+# See: http://en.wikipedia.org/wiki/Walking , which suggests that this should
+# be 5km/h. This is used in routing calculations for walking to/from stops and
+# in walking between stops. 
+
+walking_speed = 5
 
 #################################### Revenue settings ##################################
 #
@@ -545,32 +616,25 @@ tpo_revenue=300
 # These settings relate to private car use. See /config/privatecar.tab for
 # the configuration of private car ownership for different years.
 #
-# "Base car preference percent" is the chance, expressed in percentage, that, all
-# other things being equal, a passenger with a private car will choose to use that
-# car in preference to using public (i.e., the player's) transport. Higher values
-# are more realistic; lower values make the game easier. 
-# 
 # "Always prefer car percent" is the percentage of drivers who prefer to use their
-# car no matter how congested the roads. The remaining percentage of drivers are 
-# deterred from using their car to go to or from (or within) towns that have a
-# high level of congestion. The default is 10. 
+# car even if walking or taking public transport is faster. The default is 10% 
 #
-# "Congestion density factor" is the factor by which the population density (in
-# citizens per tile) is divided to get a factor multiplied by the number of cars
-# per tile per month to get the congestion figure. In simple terms, the lower this
-# number, the easier that it will be for cities to register as congested, and 
-# the more likely that it is that passengers will opt for public (i.e., the player's)
-# transport instead. If "congestion density factor" is set to zero, then the congestion
-# will be calculated using a much simpler formula that does not depend on the city's
-# population density at all.  
+# "Congestion density factor" determines the way in which congestion is calculated.
+# If this number is 0, a very simple system is used for calculating congestion.
 #
-# To revert to the behaviour of Simutrans Standard (with no competition from private cars 
-# at all), simply set "base_car_preference_percent" to 0. Passengers will then only choose
-# private cars if no public transport is available.
+# If this number is > 0, but < 32, this figure represents the factor by which the 
+# population density (in citizens per tile) is divided to get a factor multiplied 
+# by the number of cars per tile per month to get the congestion figure. 
+#
+# If this number is > 32, a system based on data from the TomTom Congestion Index
+# (http://www.tomtom.com/lib/doc/congestionindex/2013-0322-TomTom-CongestionIndex-2012-Annual-EUR-mi.pdf)
+# is used: the number of private car trips per hour is divided by the length of all
+# roads in the city in kilometres then multiplied by the congestion density factor
+# to get a percentage figure. When this figure is calculated for all British cities
+# in the TomTom Congestion Index in 2012, the average is 141 (1.41). 
 
-base_car_preference_percent = 95
 always_prefer_car_percent = 10
-congestion_density_factor = 16
+congestion_density_factor = 141
 
 # This setting gives the maximum time that passengers are prepared to wait for their
 # transport. The setting is divided by speed bonus value to get the number of minutes.
@@ -579,7 +643,7 @@ congestion_density_factor = 16
 # wait is 2,700 / 18 = 150 minutes, or two and a half hours. 
 #
 # The same applies for other sorts of goods: for example, the speed bonus value for
-# mail is 15. So, with a passenger_max_weight of 2700, mail would wait for 180 
+# mail is 15. So, with a passenger_max_wait of 2700, mail would wait for 180 
 # minutes before being discarded.
 # 
 # This is also subject to a maximum of thrice the estimated journey time for the
@@ -627,14 +691,6 @@ assume_everywhere_connected_by_road = 0
 
 city_isolation_factor = 32
 
-# Passengers will walk to their destination if it is close enough, rather than use
-# players' transport or private cars. This parameter defines how close that close
-# enough is. It is expressed in hundreds of meters (or tenths of kilometres), so
-# the default setting of 15 means that passnegers will walk to their destination if
-# it is within 1.5km of their origin.
-
-max_walking_distance_km_tenth = 15
-
 ################################## Industry settings #################################
 #
 # These are also pakset dependent
@@ -645,8 +701,16 @@ max_walking_distance_km_tenth = 15
 #industry_increase_every = 2000
 # The preceding is disabled in experimental
 
-# Minimum distance between factories (in tiles) 
-factory_spacing = 6
+# Minimum distance between factories (in tiles)
+# Note that this applies as between *any* pair of factories, not just factories
+# that are connected to each other.
+min_factory_spacing = 2
+
+# Maximum distance for connected factories
+# If percentage>0, it will be in percent of the largest map dimension
+# percentage also over-rides the absolute value (which is in tiles)
+max_factory_spacing_percentage = 25
+#max_factory_spacing = 40
 
 # allow all possible supplier to connect to your factories?
 # This will also affect savegames!
@@ -656,6 +720,9 @@ crossconnect_factories = 0
 # how big is the chance for crossconnections in percent
 # (100% will give nearly the same results as crossconnect_factories=1)
 crossconnect_factories_percentage = 33
+
+# True if substations ("transformers") are allowed to be built underground (default)
+allow_underground_transformers = 1
 
 # How much is the total electric power available (in relation to total production) 
 # in parts per thousand. 1000 = 100% and default for Simutrans-Experimental.
@@ -677,6 +744,13 @@ factory_enforce_demand = 1
 # of years stipulated below, factories have a 100% chance of closing down. The
 # chance increases the closer to this value that factories get.
 max_years_obsolete = 30
+
+# How much amount in transport is sent before further distribution stops
+# This is only enabled when "just_in_time" is enabled
+# The limit is given in percent of factory storage (0=off)
+# It should be not too low to allow big convoys fully loaded at more than one
+# factory (for medium sized maps 500 seems a reasonable number)
+maximum_intransit_percentage = 0
 
 ################################# Display settings ################################
 
@@ -764,6 +838,9 @@ show_names = 7
 # -- pak128.japan
 #cursor_overlay_color = 149
 
+# Color of background default: COL_GREY2 (210)
+#background_color = 210
+
 # display (screen/window) width
 # also see readme.txt, -screensize option
 #display_width  = 704
@@ -786,6 +863,8 @@ add_player_name_to_message = 1
 
 ##################################w Window settings ##################################
 #
+
+##################################window stuff##################################
 # show the windows close etc. buttons on the right (like windows 98)
 #window_buttons_right = 0
 
@@ -898,7 +977,7 @@ toll_waycost_percentage = 0
 # overdraft debt (i.e., on all negative account balances). It can be between 0
 # and 255. 
 # 
-# "allow_bankruptsy" determines whether, when the player is deemed to have been
+# "allow_bankruptcy" determines whether, when the player is deemed to have been
 # insolvent for more than a certain period, the player should be declared
 # bankrupt and the game over. 0 = no, 1 = yes.
 # 
@@ -909,11 +988,11 @@ toll_waycost_percentage = 0
 # 0 = no, 1 = yes.
 #
 # To revert to the behaviour of Simutrans standard, set interest_rate_percent to
-# 0, set allow_bankruptsy to 1, and set allow_purchases_when_insolvent to 1.
+# 0, set allow_bankruptcy to 1, and set allow_purchases_when_insolvent to 1.
 
 interest_rate_percent = 10
-allow_bankruptsy = 1
-allow_purhcases_when_insolvent = 0	
+allow_bankruptcy = 1
+allow_purchases_when_insolvent = 0	
 
 # This is a compatibility setting for Simutrans-Standard. Because, in
 # Simutrans-Standard, the speed bonus data (in speedbonus.tab) is based on the
@@ -1193,7 +1272,7 @@ bits_per_month = 20
 # other options are "xml", "xml_zipped" and "xml_bzip2"
 # xml detects more errors of broken savegames but files are much larger
 # bzip2 savegames are smaller than zipped but saving/loading takes longer
-saveformat = bzip2
+saveformat = zipped
 
 # autosave every x months (0=off)
 autosave = 12
@@ -1207,6 +1286,9 @@ frames_per_second = 30
 # below, a simpler clipping algorithm will be used, which will give some
 # clipping errors, but is faster.
 simple_drawing_tile_size = 24
+
+# you can force fast redraw for fast froward by this (default off)
+simple_drawing_fast_forward = 1
 
 # How much faster should the game proceed with fast forward 
 # (limited by your computer and size of the map)
@@ -1222,6 +1304,7 @@ fast_forward = 100
 # Sets the local addresses Simutrans should listen on and use for making outgoing connections
 # A DNS name may be specified, this will be resolved and Simutrans will attempt to listen
 # on all of the addresses returned.
+# By default it will use all local IPv4 and IPv6 addresses
 # This setting has no effect if Simutrans has been compiled with the USE_IP4_ONLY flag set!
 # The addresses listed will be tried in the order specified
 #listen = 127.0.0.1
@@ -1243,8 +1326,7 @@ server_frames_per_step = 4
 # The server sends after a fixed number of steps some information to the clients.
 # Large values here means: reduced server communication (if that is of importance...)
 # Small values should improve the timing of the clients.
-server_frames_between_checks = 16
-
+server_frames_between_checks = 256
 
 # Automatically announce server on the central server directory (http://servers.experimental.simutrans.org/)
 # 0 (default) = off, 1 = on
@@ -1282,3 +1364,18 @@ server_infurl = http://your.domain/server-info.html
 
 # Pause server when no clients are connected
 pause_server_no_clients = 1
+
+# Nickname when joining network games
+#nickname = John Doe
+
+# Chat window transparency (0=off, 25, 50 75 are possible)
+chat_transparency = 75
+
+# The number of game months before a player making no changes
+# to its company is unlocked automatically to allow other players
+# to take over.
+unprotect_abondoned_player_months = 36
+
+# The number of game months before a player that has never built
+# anything substantive is deleted automatically.
+remove_dummy_player_months = 9

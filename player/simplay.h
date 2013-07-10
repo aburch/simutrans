@@ -22,74 +22,25 @@
 #include "../simworld.h"
 
 
-enum player_cost {
-	COST_CONSTRUCTION = 0,	// Construction
-	COST_VEHICLE_RUN,		// Vehicle running costs
-	COST_NEW_VEHICLE,		// New vehicles
-	COST_INCOME,			// Income
-	COST_MAINTENANCE,		// Upkeep
-	COST_ASSETS,			// value of all vehicles and buildings
-	COST_CASH,				// Cash
-	COST_NETWEALTH,			// Total Cash + Assets
-	COST_PROFIT,			// COST_POWERLINES+COST_INCOME-(COST_CONSTRUCTION+COST_VEHICLE_RUN+COST_NEW_VEHICLE+COST_MAINTENANCE+COST_INTEREST)
-	COST_OPERATING_PROFIT,	// COST_POWERLINES+COST_INCOME-(COST_VEHICLE_RUN+COST_MAINTENANCE)
-	COST_MARGIN,			// COST_OPERATING_PROFIT/COST_INCOME
-	COST_ALL_TRANSPORTED,	// all transported goods
-	COST_POWERLINES,		// revenue from the power grid
-	COST_TRANSPORTED_PAS,	// number of passengers that actually reached destination
-	COST_TRANSPORTED_MAIL,
-	COST_TRANSPORTED_GOOD,
-	COST_ALL_CONVOIS,		// number of convois
-	COST_SCENARIO_COMPLETED,// scenario success (only useful if there is one ... )
-	COST_WAY_TOLLS,			// The cost of running on other players' ways
-	COST_INTEREST,			// Interest paid servicing debt
-	COST_CREDIT_LIMIT,		// Player's credit limit.
-	MAX_PLAYER_COST
-};
-
-#define MAX_PLAYER_HISTORY_YEARS  (12) // number of years to keep history
-#define MAX_PLAYER_HISTORY_MONTHS  (12) // number of months to keep history
-
-
+class karte_t;
 class fabrik_t;
 class koord3d;
 class werkzeug_t;
+class finance_t;
 
 /**
- * play info for simutrans human and AI are derived from this class
+ * Class to hold informations about one player/company. AI players are derived from this class.
  */
 class spieler_t
 {
 public:
-	enum { MAX_KONTO_VERZUG = 3 };
-
 	enum { EMPTY=0, HUMAN=1, AI_GOODS=2, AI_PASSENGER=3, MAX_AI, PASSWORD_PROTECTED=128 };
-
-	// BG, 2009-06-06: differ between infrastructure and vehicle maintenance 
-	enum { MAINT_INFRASTRUCTURE=0, MAINT_VEHICLE=1, MAINT_COUNT };
 
 protected:
 	char spieler_name_buf[256];
 
-	/*
-	 * holds total number of all halts, ever built
-	 * @author hsiegeln
-	 */
-	sint32 haltcount;
-
-	/**
-	* Finance History - will supercede the finances by Owen Rudge
-	* Will hold finances for the most recent 12 years
-	* @author hsiegeln
-	*/
-	sint64 finance_history_year[MAX_PLAYER_HISTORY_YEARS][MAX_PLAYER_COST];
-	sint64 finance_history_month[MAX_PLAYER_HISTORY_MONTHS][MAX_PLAYER_COST];
-
-	/**
-	 * Monthly maintenance cost
-	 * @author Hj. Malthaner
-	 */
-	sint32 maintenance[MAINT_COUNT];
+	/* "new" finance history */
+	finance_t *finance;
 
 	/**
 	 * Die Welt in der gespielt wird.
@@ -98,44 +49,36 @@ protected:
 	 */
 	static karte_t *welt;
 
-	/**
-	 * Der Kontostand.
-	 * "The account balance." (Google)
-	 *
-	 * @author Hj. Malthaner
-	 */
-	sint64 konto; //"account" (Google)
-
-	// remember the starting money
-	sint64 starting_money;
-
-	/**
-	 * Zählt wie viele Monate das Konto schon ueberzogen ist
-	 * "Count how many months the account is already overdrawn"  (Google)
-	 *
-	 * @author Hj. Malthaner
-	 */
-	sint32 konto_ueberzogen; //"overdrawn account" (Google)
-
-	//slist_tpl<halthandle_t> halt_list; ///< Liste der Haltestellen
-	vector_tpl<halthandle_t> halt_list; ///< "List of the stops" (Babelfish)
+	// when was the company founded
+	uint16 player_age;
 
 	class income_message_t {
 	public:
 		char str[33];
 		koord pos;
-		sint32 amount;
+		sint64 amount;
 		sint8 alter;
 		income_message_t() { str[0]=0; alter=127; pos=koord::invalid; amount=0; }
-		income_message_t( sint32 betrag, koord pos );
+		income_message_t( sint64 betrag, koord pos );
 		void * operator new(size_t s);
 		void operator delete(void *p);
 	};
 
 	slist_tpl<income_message_t *>messages;
 
-	void add_message(koord k, sint32 summe);
+	/**
+	 * creates new income message entry or merges with existing one if the
+	 * most recent one is at the same coordinate
+	 */
+	void add_message(sint64 amount, koord k);
 
+public:
+	/**
+	 * displays amount of money when koordinates are on screen
+	 */
+	void add_money_message(sint64 amount, koord k);
+
+protected:
 	/**
 	 * Kennfarbe (Fahrzeuge, Gebäude) des Speielers
 	 * @author Hj. Malthaner
@@ -147,6 +90,14 @@ protected:
 	 * @author Hj. Malthaner
 	 */
 	uint8 player_nr;
+
+	/**
+	 * Adds some amount to the maintenance costs.
+	 * @param change the change
+	 * @return the new maintenance costs
+	 * @author Hj. Malthaner
+	 */
+	sint32 add_maintenance(sint32 change, waytype_t const wt=ignore_wt);
 
 	/**
 	 * Ist dieser Spieler ein automatischer Spieler?
@@ -173,9 +124,115 @@ protected:
 	bool access[MAX_PLAYER_COUNT];
 
 public:
-#ifdef DEBUG_SIMRAND_CALLS
-	halthandle_t get_halt(int index) { return halt_list[index]; }
-#endif
+	/**
+	 * Sums up "count" with number of convois in statistics,
+	 * supersedes buche( count, COST_ALL_CONVOIS).
+	 * @author jk271
+	 */
+	void book_convoi_number(int count);
+
+	/**
+	 * Adds construction costs to accounting statistics.
+	 * @param amount How much does it cost
+	 * @param tt type of transport
+	 * @author jk271
+	 */
+	static void book_construction_costs(spieler_t * const sp, const sint64 amount, const koord k, const waytype_t wt=ignore_wt);
+
+	/**
+	 * Accounts bought/sold vehicles.
+	 * @param price money used for purchase of vehicle,
+	 *              negative value = vehicle bought,
+	 *              positive value = vehicle sold
+	 * @param tt type of transport for accounting purpose
+	 * @author jk271
+	 */
+	void book_new_vehicle(const sint64 price, const koord k, const waytype_t wt=ignore_wt);
+
+	/**
+	 * Adds income to accounting statistics.
+	 * @param amount earned money
+	 * @param tt transport type used in accounting statistics
+	 * @param cathegory parameter
+	 * 	0 ... passenger
+	 *	1 ... mail
+	 *	2 ... good (and powerlines revenue)
+	 * @author jk271
+	 */
+	void book_revenue(const sint64 amount, const koord k, const waytype_t wt=ignore_wt, sint32 cathegory=2);
+
+	/**
+	 * Adds running costs to accounting statistics.
+	 * @param amount How much does it cost
+	 * @param wt
+	 * @author jk271
+	 */
+	void book_running_costs(const sint64 amount, const waytype_t wt=ignore_wt);
+
+	/**
+	 * Adds monthly vehicle maintenance to accounting statistics.
+	 * @param amount (should be negative, will be adjusted for bits_per_month)
+	 * @param wt type of transport for accounting
+	 * @author neroden
+	 */
+	void book_vehicle_maintenance(const sint64 amount, const waytype_t wt=ignore_wt);
+
+	/**
+	 * Books toll paid by our company to someone else.
+	 * @param amount money paid to our company
+	 * @param tt type of transport used for assounting statistisc
+	 * @author jk271
+	 */
+	void book_toll_paid(const sint64 amount, const waytype_t wt=ignore_wt);
+
+	/**
+	 * Books toll paid to our company by someone else.
+	 * @param amount money paid for usage of our roads,railway,channels, ... ; positive sign
+	 * @param tt type of transport used for assounting statistisc
+	 * @author jk271
+	 */
+	void book_toll_received(const sint64 amount, waytype_t wt=ignore_wt);
+
+	/**
+	 * Add amount of transported passenger, mail, goods to accounting statistics.
+	 * @param amount sum of money
+	 * @param wt way type
+	 * @param index 0 = passenger, 1 = mail, 2 = goods
+	 * @author jk271
+	 */
+	void book_transported(const sint64 amount, const waytype_t wt=ignore_wt, int index=2);
+
+	/**
+	 * Add amount of delivered passenger, mail, goods to accounting statistics.
+	 * @param amount sum of money
+	 * @param wt way type
+	 * @param index 0 = passenger, 1 = mail, 2 = goods
+	 */
+	void book_delivered(const sint64 amount, const waytype_t wt=ignore_wt, int index=2);
+
+   /**
+     * Is player allowed to purchase something of this price, or is player
+     * too deep in debt?  (This routine allows the public service player to
+	 * always buy anything.)
+     * @returns whether player is allowed to purchase something of cost "price"
+     * @params price
+     */
+	bool can_afford(sint64 price) const ;
+	/**
+	 * Static version.  If player is NULL, player can afford anything.
+	 */
+	static bool can_afford(spieler_t* sp, sint64 price);
+
+	bool has_money_or_assets() const;
+
+	finance_t * get_finance() { return finance; }
+
+	/**
+	 * Is this the public service player?
+	 * This is a subroutine to allow the public service player to be redefined in the future
+	 */
+	bool is_public_service() const { return player_nr == 1; }
+
 	virtual bool set_active( bool b ) { return automat = b; }
 
 	bool is_active() const { return automat; }
@@ -208,7 +265,11 @@ public:
 	*/
 	uint8 get_player_color1() const { return kennfarbe1; }
 	uint8 get_player_color2() const { return kennfarbe2; }
+	// Change and report message
 	void set_player_color(uint8 col1, uint8 col2);
+	// Change, do not report message
+	// Used for setting default colors
+	void set_player_color_no_message(uint8 col1, uint8 col2);
 
 	/**
 	 * Name of the player
@@ -220,7 +281,7 @@ public:
 	sint8 get_player_nr() const {return player_nr; }
 
 	/**
-	 * return true, if the owner is none, myself or player(1), i.e. the ownership can be taken by player test
+	 * return true, if the owner is none, myself or player(1), i.e. the ownership _can be taken by player test
 	 * @author prissi
 	 */
 	static bool check_owner( const spieler_t *owner, const spieler_t *test );
@@ -234,71 +295,36 @@ public:
 
 	virtual ~spieler_t();
 
-	sint32 get_maintenance(int which) const { return maintenance[which]; }
+	/**
+	 * This is safe to be called with sp==NULL
+	 */
+	static sint32 add_maintenance(spieler_t *sp, sint32 const change, waytype_t const wt=ignore_wt)
+	{
+		if(sp) {
+			return sp->add_maintenance(change, wt);
+		}
+		return 0;
+	}
 
 	/**
-	 * Adds some amount to the maintenance costs
-	 * @param change the change
-	 * @return the new maintenance costs
-	 * @author Hj. Malthaner
+	 * Cached value of scenario completion percentage.
+	 * To get correct values for clients call scenario_t::get_completion instead.
 	 */
+	sint32 get_scenario_completion() const;
 
-	sint32 add_maintenance(sint32 change)
-	{
-		maintenance[MAINT_INFRASTRUCTURE] += change;
-		return maintenance[MAINT_INFRASTRUCTURE];
-	}
-
-	sint32 add_maintenance(sint32 change, int which)
-	{
-		maintenance[which] += change;
-		return maintenance[which];
-	}
-
-	static sint32 add_maintenance(spieler_t *sp, sint32 change) {
-		if(sp) {
-			return sp->add_maintenance(change, MAINT_INFRASTRUCTURE);
-		}
-		return 0;
-	}
-
-	static sint32 add_maintenance(spieler_t *sp, sint32 change, int which) {
-		if(sp) {
-			return sp->add_maintenance(change, which);
-		}
-		return 0;
-	}
-
-	// Owen Rudge, finances
-	void buche(sint64 betrag, koord k, player_cost type);
-
-	// do the internal accounting (currently only used externally for running costs of convois)
-	void buche(sint64 betrag, player_cost type);
-
-	// this is also save to be called with sp==NULL, which may happen for unowned objects like bridges, ways, trees, ...
-	static void accounting( spieler_t *sp, const sint64 betrag, koord k, player_cost pc );
-
-	static bool accounting_with_check( spieler_t *sp, const sint64 betrag, koord k, player_cost pc );
+	void set_scenario_completion(sint32 percent);
 
 	/**
 	 * @return Kontostand als double (Gleitkomma) Wert
 	 * @author Hj. Malthaner
 	 */
-	double get_konto_als_double() const { return konto / 100.0; }
-
-	/**
-	 * Return the amount of cash that the player has
-	 * in SimuCents. Integer method needed where this
-	 * method is used in non-GUI code in multi-player games.
-	 * @author: jamespetts, December 2012
-	 */
-	sint64 get_player_cash_int() const { return konto; }
+	double get_konto_als_double() const;
 
 	/**
 	 * @return true wenn Konto Überzogen ist
 	 * @author Hj. Malthaner
 	 */
-	int get_konto_ueberzogen() const { return konto_ueberzogen; }
+	int get_account_overdrawn() const;
 
 	/**
 	 * Zeigt Meldungen aus der Queue des Spielers auf dem Bildschirm an
@@ -315,38 +341,15 @@ public:
 	/**
 	 * Wird von welt nach jedem monat aufgerufen
 	 * @author Hj. Malthaner
+	 * @returns false if player has to be removed (bankrupt/inactive)
 	 */
-	virtual void neuer_monat();
+	virtual bool neuer_monat();
 
 	/**
 	 * Methode fuer jaehrliche Aktionen
 	 * @author Hj. Malthaner
 	 */
 	virtual void neues_jahr() {}
-
-	/**
-	 * Erzeugt eine neue Haltestelle des Spielers an Position pos
-	 * @author Hj. Malthaner
-	 */
-	halthandle_t halt_add(koord pos);
-
-	/**
-	 * needed to transfer ownership
-	 * @author prissi
-	 */
-	void halt_add(halthandle_t h);
-
-	/**
-	 * Entfernt eine Haltestelle des Spielers aus der Liste
-	 * @author Hj. Malthaner
-	 */
-	void halt_remove(halthandle_t halt);
-
-	/**
-	 * Gets haltcount, for naming purposes
-	 * @author hsiegeln
-	 */
-	int get_haltcount() const { return haltcount; }
 
 	/**
 	 * Lädt oder speichert Zustand des Spielers
@@ -363,30 +366,10 @@ public:
 	virtual void rotate90( const sint16 y_size );
 
 	/**
-	* Returns the finance history for player
-	* @author hsiegeln
-	*/
-	sint64 get_finance_history_year(int year, int type) { return finance_history_year[year][type]; }
-	sint64 get_finance_history_month(int month, int type) { return finance_history_month[month][type]; }
-
-	/**
-	 * Returns pointer to finance history for player
-	 * @author hsiegeln
-	 */
-	sint64* get_finance_history_year() { return *finance_history_year; }
-	sint64* get_finance_history_month() { return *finance_history_month; }
-
-	/**
 	* Returns the world the player is in
 	* @author hsiegeln
 	*/
 	static karte_t *get_welt() { return welt; }
-
-	/**
-	* Calculates the finance history for player
-	* @author hsiegeln
-	*/
-	void calc_finance_history();
 
 	/**
 	* Calculates the assets of the player
@@ -396,14 +379,7 @@ public:
 	/**
 	* Updates the assets value of the player
 	*/
-	void update_assets(sint64 const delta);
-
-	/**
-	* rolls the finance history for player (needed when neues_jahr() or neuer_monat()) triggered
-	* @author hsiegeln
-	*/
-	void roll_finance_history_year();
-	void roll_finance_history_month();
+	void update_assets(sint64 const delta, const waytype_t wt = ignore_wt);
 
 	/**
 	 * Rückruf, um uns zu informieren, dass ein Vehikel ein Problem hat
@@ -438,28 +414,10 @@ private:
 	vector_tpl<koord3d> last_built;
 	waytype_t undo_type;
 
-	// The maximum amount overdrawn that a player can be
-	// before no more purchases can be made.
-	sint64 base_credit_limit;
-
-protected:
-	sint64 calc_credit_limit();
-
-	sint64 get_base_credit_limit();
-
 public:
 	void init_undo(waytype_t t, unsigned short max );
 	void add_undo(koord3d k);
 	sint64 undo();
-
-	// Checks the affordability of any possible purchase.
-	// Check is disapplied to the public service player.
-	inline bool can_afford(sint64 price) const
-	{
-		return player_nr == 1 || (price < (konto + finance_history_month[0][COST_CREDIT_LIMIT]) || welt->get_settings().insolvent_purchases_allowed() || welt->get_settings().is_freeplay());
-	}
-
-	sint64 get_credit_limit() const { return finance_history_month[0][COST_CREDIT_LIMIT]; }
 
 	// headquarter stuff
 private:
@@ -476,16 +434,6 @@ public:
 	short get_headquarter_level(void) const { return headquarter_level; }
 
 	void ai_bankrupt();
-
-	/**
-	 * Used for summing the revenue 
-	 * generatedfor this player by other  
-	 * players' convoys whilst unloading.
-	 * This value is not saved, as it is not
-	 * carried over between sync steps.
-	 * @author: jamespetts, October 2011
-	 */
-	sint64 interim_apportioned_revenue;
 
 	bool allows_access_to(uint8 other_player_nr) const { return this == NULL || player_nr == other_player_nr || access[other_player_nr]; }
 	void set_allow_access_to(uint8 other_player_nr, bool allow) { access[other_player_nr] = allow; }

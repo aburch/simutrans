@@ -1,3 +1,7 @@
+/*
+ * Curiosity (attractions) builder dialog
+ */
+
 #ifndef gui_curiosity_edit_h
 #define gui_curiosity_edit_h
 
@@ -37,24 +41,23 @@ public:
 	curiosity_edit_frame_t(spieler_t* sp,karte_t* welt);
 
 	/**
-	* in top-level fenstern wird der Name in der Titelzeile dargestellt
-	* @return den nicht uebersetzten Namen der Komponente
+	* in top-level windows the name is displayed in titlebar
+	* @return the non-translated component name
 	* @author Hj. Malthaner
 	*/
 	const char* get_name() const { return "curiosity builder"; }
 
 	/**
-	* Manche Fenster haben einen Hilfetext assoziiert.
-	* @return den Dateinamen für die Hilfe, oder NULL
+	* Set the window associated helptext
+	* @return the filename for the helptext, or NULL
 	* @author Hj. Malthaner
 	*/
 	const char* get_hilfe_datei() const { return "curiosity_build.txt"; }
 
 	/**
-	* komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
-	* das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
-	* in dem die Komponente dargestellt wird.
-	*
+	* Draw new component. The values to be passed refer to the window
+	* i.e. It's the screen coordinates of the window where the
+	* component is displayed.
 	* @author Hj. Malthaner
 	*/
 	void zeichnen(koord pos, koord gr);

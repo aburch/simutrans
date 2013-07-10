@@ -9,19 +9,20 @@ class warenbauer_t;
 class karte_t;
 class spieler_t;
 
-/** Eine Klasse zur Verwaltung von Informationen ueber Fracht und Waren */
-// "A class for the management of information on cargo and goods" (Google translations)
+/** Class to handle goods packets (and their destinations) */
 class ware_t
 {
 	friend class warenbauer_t;
 
 private:
-	// private lookup table to sppedup
+	/// private lookup table to speedup
 	static const ware_besch_t *index_to_besch[256];
 
 public:
+	/// type of good, used as index into index_to_besch
 	uint32 index: 8;
 
+	/// amount of goods
 	uint32 menge : 23;
 
 	/**
@@ -32,13 +33,13 @@ public:
 
 private:
 	/**
-	 * Koordinate der Zielhaltestelle ("Coordinate of the goal stop" - Babelfish). 
+	 * Handle of target station.
 	 * @author Hj. Malthaner
 	 */
 	halthandle_t ziel;
 
 	/**
-	 * Koordinte des nächsten Zwischenstops ("Co-ordinate of the next stop")
+	 * Handle of station, where the packet has to leave convoy.
 	 * @author Hj. Malthaner
 	 */
 	halthandle_t zwischenziel;
@@ -57,14 +58,19 @@ private:
 	halthandle_t last_transfer;
 
 	/**
-	 * die engültige Zielposition,
-	 * das ist i.a. nicht die Zielhaltestellenposition
+	 * Target position (factory, etc)
 	 * 
 	 * "the final target position, which is on behalf 
 	 * not the goal stop position"
+	 *
 	 * @author Hj. Malthaner
 	 */
 	koord zielpos;
+
+	/**
+	 * Update target (zielpos) for factory-going goods (after loading or rotating)
+	 */
+	void update_factory_target(karte_t *welt);
 
 public:
 	const halthandle_t &get_ziel() const { return ziel; }
@@ -76,6 +82,8 @@ public:
 
 	koord get_zielpos() const { return zielpos; }
 	void set_zielpos(const koord zielpos) { this->zielpos = zielpos; }
+
+	void reset() { menge = 0; ziel = zwischenziel = origin = last_transfer = halthandle_t(); zielpos = koord::invalid; }
 
 	ware_t();
 	ware_t(const ware_besch_t *typ);
@@ -89,7 +97,6 @@ public:
 	 */
 	const char *get_name() const { return get_besch()->get_name(); }
 	const char *get_mass() const { return get_besch()->get_mass(); }
-	uint16 get_fare(uint32 distance, uint32 starting_distance = 0) const { return (uint16) get_besch()->get_fare(distance, starting_distance); }
 	uint8 get_catg() const { return get_besch()->get_catg(); }
 	uint8 get_index() const { return index; }
 
@@ -128,18 +135,26 @@ public:
 
 	// Lighter version of operator == that only checks equality
 	// of metrics needed for merging.
+	// BG: 21.02.2012: check most varying data first. 
 	inline bool can_merge_with (const ware_t &w) const
 	{
-		return index  == w.index  &&
-			to_factory == w.to_factory &&
+		return 
 			ziel  == w.ziel  &&
-			// Only merge the destination *position* if the load is freight (since more than one factory might by connected!)
-			(!to_factory  ||  zielpos==w.get_zielpos()) &&
 			origin == w.origin &&
+			index  == w.index  &&
+			to_factory == w.to_factory &&
+			// Only merge the destination *position* if the load is freight (since more than one factory might by connected!)
+			(!to_factory  ||  zielpos==w.zielpos) &&
 			last_transfer == w.last_transfer;
 	}
 
 	int operator!=(const ware_t &w) { return !(*this == w); 	}
+
+	/**
+	 * Adjust target coordinates.
+	 * Must be called after factories have been rotated!
+	 */
+	void rotate90( karte_t *welt, sint16 y_size );
 };
 
 #endif

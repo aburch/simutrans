@@ -1,3 +1,8 @@
+/*
+ * Dialog for game options/Main menu
+ * Niels Roest, Hj. Malthaner, 2000
+ */
+
 #ifndef gui_optionen_h
 #define gui_optionen_h
 
@@ -16,18 +21,16 @@
 class optionen_gui_t : public gui_frame_t, action_listener_t
 {
 private:
-	button_t bt_lang;
-	button_t bt_color;
-	button_t bt_display;
-	button_t bt_sound;
-	button_t bt_player;
+	button_t option_buttons[6];
+
 	button_t bt_load;
+	button_t bt_load_scenario;
 	button_t bt_save;
+
 	button_t bt_new;
 	button_t bt_quit;
 
 	gui_divider_t seperator;
-	gui_label_t txt;
 
 	karte_t *welt;
 
@@ -35,8 +38,8 @@ public:
     optionen_gui_t(karte_t *welt);
 
 	/**
-	 * Manche Fenster haben einen Hilfetext assoziiert.
-	 * @return den Dateinamen für die Hilfe, oder NULL
+	 * Set the window associated helptext
+	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
 	const char * get_hilfe_datei() const {return "options.txt";}

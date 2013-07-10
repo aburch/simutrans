@@ -6,7 +6,7 @@
 #include "../../simimg.h"
 #include "../../simsys.h"
 #include "../../simtypes.h"
-#include "../../simgraph.h"
+#include "../../simloadingscreen.h"
 
 #include "../skin_besch.h"	// just for the logo
 #include "../grund_besch.h"	// for the error message!
@@ -20,6 +20,7 @@
 #include "../../dataobj/umgebung.h"
 
 #include "../../utils/searchfolder.h"
+#include "../../utils/simstring.h"
 
 #include "../../tpl/inthashtable_tpl.h"
 #include "../../tpl/ptrhashtable_tpl.h"
@@ -80,19 +81,17 @@ bool obj_reader_t::laden_abschliessen()
 }
 
 
-
-bool obj_reader_t::load(const char *liste, const char *message)
+bool obj_reader_t::load(const char *path, const char *message)
 {
 	searchfolder_t find;
-	std::string name = find.complete(liste, "dat");
+	std::string name = find.complete(path, "dat");
 	size_t i;
 	const bool drawing=is_display_init();
 
 	if(name.at(name.size() - 1) != '/') {
 		// very old style ... (I think unused by now)
 
-		FILE *listfp = fopen(name.c_str(), "rt");
-		if(listfp) {
+		if (FILE* const listfp = fopen(name.c_str(), "r")) {
 			while(!feof(listfp)) {
 				char buf[256];
 
@@ -122,63 +121,48 @@ bool obj_reader_t::load(const char *liste, const char *message)
 	}
 	else {
 		// Keine dat-file? dann ist liste ein Verzeichnis?
+		// step is a bitmask to decide when it's time to update the progress bar.
+		// It takes the biggest power of 2 less than the number of elements and
+		// divides it in 256 sub-steps at most (the -7 comes from here)
 
-		// with nice progress indicator ...
-		const int max=find.search(liste, "pak");
-		int teilung=-7;
+		const int max = find.search(path, "pak");
+		int step = -7;
 		for(long bit=1;  bit<max;  bit+=bit) {
-			teilung ++;
+			step ++;
 		}
-		if(teilung<0) {
-			teilung = 0;
+		if(step<0) {
+			step = 0;
 		}
-		teilung = (2<<teilung)-1;
-
-		if(drawing) {
-			display_set_progress_text(message);
-		}
+		step = (2<<step)-1;
 
 		if(drawing  &&  skinverwaltung_t::biglogosymbol==NULL) {
 			display_fillbox_wh( 0, 0, display_get_width(), display_get_height(), COL_BLACK, true );
 			read_file((name+"symbol.BigLogo.pak").c_str());
 DBG_MESSAGE("obj_reader_t::load()","big logo %p", skinverwaltung_t::biglogosymbol);
 		}
-		if(skinverwaltung_t::biglogosymbol) {
-			const bild_t *bild0 = skinverwaltung_t::biglogosymbol->get_bild(0)->get_pic();
-			const int w = bild0->w;
-			const int h = bild0->h + bild0->y;
-			int x = display_get_width()/2-w;
-			int y = display_get_height()/4-w;
-			if(y<0) {
-				y = 1;
-			}
-			display_color_img(skinverwaltung_t::biglogosymbol->get_bild_nr(0), x, y, 0, false, true);
-			display_color_img(skinverwaltung_t::biglogosymbol->get_bild_nr(1), x+w, y, 0, false, true);
-			display_color_img(skinverwaltung_t::biglogosymbol->get_bild_nr(2), x, y+h, 0, false, true);
-			display_color_img(skinverwaltung_t::biglogosymbol->get_bild_nr(3), x+w, y+h, 0, false, true);
-#if 0
-			display_free_all_images_above( skinverwaltung_t::biglogosymbol->get_bild_nr(0) );
-#endif
-		}
+
+		loadingscreen_t ls( message, max, true );
 
 		if(  grund_besch_t::ausserhalb==NULL  ) {
 			// defining the pak tile witdh ....
 			read_file((name+"ground.Outside.pak").c_str());
 			if(grund_besch_t::ausserhalb==NULL) {
-				dbg->error("obj_reader_t::load()","ground.Outside.pak not found, cannot guess tile size! (driving on left will not work!)");
+				dbg->warning("obj_reader_t::load()","ground.Outside.pak not found, cannot guess tile size! (driving on left will not work!)");
+			}
+			else {
+				if (char const* const copyright = grund_besch_t::ausserhalb->get_copyright()) {
+					ls.set_info(copyright);
+				}
 			}
 		}
 
 DBG_MESSAGE("obj_reader_t::load()", "reading from '%s'", name.c_str());
+
 		uint n = 0;
 		FORX(searchfolder_t, const& i, find, ++n) {
 			read_file(i);
-			if ((n & teilung) == 0 && drawing) {
-				display_progress(n, max);
-				// name of the pak
-				if (char const* const copyright = grund_besch_t::ausserhalb->get_copyright()) {
-					display_proportional(display_get_width() / 2, display_get_height() / 2 - 8 - LINESPACE - 4, copyright, ALIGN_MIDDLE, COL_WHITE, true);
-				}
+			if ((n & step) == 0 && drawing) {
+				ls.set_progress(n);
 			}
 		}
 
@@ -193,9 +177,7 @@ void obj_reader_t::read_file(const char *name)
 	// Hajo: added trace
 	DBG_DEBUG("obj_reader_t::read_file()", "filename='%s'", name);
 
-	FILE *fp = fopen(name, "rb");
-
-	if(fp) {
+	if (FILE* const fp = fopen(name, "rb")) {
 		sint32 n = 0;
 
 		// This is the normal header reading code
@@ -228,7 +210,7 @@ void obj_reader_t::read_file(const char *name)
 			read_nodes(fp, data, 0, version );
 		}
 		else {
-			DBG_DEBUG("obj_reader_t::read_file()","version of '%s' is too old, %d instead of %d", version, COMPILER_VERSION_CODE, name);
+			DBG_DEBUG("obj_reader_t::read_file()","version of '%s' is too old, %d instead of %d", name, version, COMPILER_VERSION_CODE );
 		}
 		fclose(fp);
 	}
@@ -351,7 +333,7 @@ void obj_reader_t::resolve_xrefs()
 		FOR(stringhashtable_tpl<slist_tpl<obj_besch_t**> >, const& i, u.value) {
 			obj_besch_t *obj_loaded = NULL;
 
-			if (strlen(i.key) > 0) {
+			if (!strempty(i.key)) {
 				if (stringhashtable_tpl<obj_besch_t*>* const objtype_loaded = loaded.access(u.key)) {
 					obj_loaded = objtype_loaded->get(i.key);
 				}

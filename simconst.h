@@ -45,9 +45,6 @@
 // The wind (i.e. approach direction) is random all over the map (not recommended, since it confuses players)
 //#define USE_DIFFERENT_WIND
 
-// define this to disallow the harbour tunnel feature
-//#define ONLY_TUNNELS_BELOW_GROUND
-
 // define this for automaticcally joining stations next to a public stop with it
 //#define AUTOJOIN_PUBLIC
 
@@ -88,23 +85,6 @@
 #define RESTORE_SLOPE (84)
 #endif
 
-
-// height calculation stuff
-#if defined(HALF_HEIGHT)  ||  defined(OTTD_LIKE)
-// 8 px per height
-#define Z_TILE_STEP (1)
-#define TILE_HEIGHT_STEP (8)
-#define SPEED_STEP_WIDTH (1l<<16)
-#define height_scaling(i) ((i)>>1)
-#define height_unscaling(i) ((i)<<1)
-#else
-// 16 internal pixels per tile, for purposes of object offsets.
-// koord3d.z granularity is 1,
-#define Z_TILE_STEP (1)
-//#define TILE_HEIGHT_STEP (16)
-#define height_scaling(i) (i)
-#define height_unscaling(i) (i)
-#endif
 
 // 16 internal pixels per tile, for purposes of object visual offsets.
 #define OBJECT_OFFSET_STEPS (16)

@@ -19,7 +19,7 @@ public:
 	kanal_t(karte_t *welt, loadsave_t *file);
 	kanal_t(karte_t *welt);
 
-	waytype_t get_waytype() const {return water_wt;}
+	//waytype_t get_waytype() const {return water_wt;}
 	virtual void rdwr(loadsave_t *file);
 };
 

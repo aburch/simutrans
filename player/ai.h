@@ -16,6 +16,8 @@
 #include "../besch/ware_besch.h"
 
 class karte_t;
+class vehikel_besch_t;
+class ware_besch_t;
 
 
 /**
@@ -94,6 +96,8 @@ public:
 	void clean_marker( koord place, koord size );
 	void set_marker( koord place, koord size );
 
+	halthandle_t get_halt( const koord haltpos ) const;
+
 	/**
 	 * Find the first water tile using line algorithm von Hajo
 	 * start MUST be on land!
@@ -105,6 +109,9 @@ public:
 
 	// builds a round between those two places or returns false
 	bool create_simple_road_transport(koord platz1, koord size1, koord platz2, koord size2, const weg_besch_t *road );
+
+	/// helper method to call vehikelbauer_t::vehikel_search and fill in time-line related parameters
+	static const vehikel_besch_t *vehikel_search(waytype_t typ, const uint32 target_power, const sint32 target_speed, const ware_besch_t * target_freight, bool include_electric);
 };
 
 #endif

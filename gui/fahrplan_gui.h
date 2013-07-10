@@ -54,14 +54,14 @@ public:
 
 	void highlight_schedule( schedule_t *markfpl, bool marking );
 
-	/** Zeichnet die Komponente */
+	// Draw the component
 	void zeichnen(koord offset);
 };
 
 
 
 /**
- * GUI fuer Fahrplaene
+ * GUI for Schedule dialog
  *
  * @author Hj. Malthaner
  */
@@ -70,18 +70,17 @@ class fahrplan_gui_t :	public gui_frame_t,
 {
  public:
 	/**
-         * Fills buf with description of schedule's i'th entry.
+     * Fills buf with description of schedule's i'th entry.
 	 *
 	 * @author Hj. Malthaner
 	 */
 	static void gimme_stop_name(cbuffer_t & buf, karte_t *welt, const spieler_t *sp, const linieneintrag_t &entry, bool no_control_tower = false );
 
 	/**
-         * Fills buf with description of schedule's i'th entry.
-	 * short version, without loading level and position ...
-	 * @author Hj. Malthaner
+	 * Append description of entry to buf.
+	 * short version, without loading level and position
 	 */
-	static void gimme_short_stop_name(cbuffer_t & buf, karte_t *welt, const spieler_t *sp, const schedule_t *fpl, int i, int max_chars);
+	static void gimme_short_stop_name(cbuffer_t& buf, karte_t* welt, spieler_t const* sp, const schedule_t *fpl, int i, int max_chars);
 
 private:
 	static char no_line[128];
@@ -156,7 +155,7 @@ public:
 	const char *get_hilfe_datei() const {return "schedule.txt";}
 
 	/**
-	 * Zeichnet das Frame
+	 * Draw the Frame
 	 * @author Hansjörg Malthaner
 	 */
 	void zeichnen(koord pos, koord gr);
@@ -183,7 +182,7 @@ public:
 	 */
 	void map_rotate90( sint16 );
 
-	// this contructor is only used during loading
+	// this constructor is only used during loading
 	fahrplan_gui_t(karte_t *welt);
 
 	virtual void rdwr( loadsave_t *file );

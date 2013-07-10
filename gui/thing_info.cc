@@ -6,7 +6,7 @@
  */
 
 /*
- * Basisklasse fuer Infofenster
+ * Basic class for info window
  * Hj. Malthaner, 2000
  */
 
@@ -42,16 +42,13 @@ ding_infowin_t::ding_infowin_t(const ding_t* ding) :
 }
 
 
-
 /**
- * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
- * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
- * in dem die Komponente dargestellt wird.
+ * Draw new component. The values to be passed refer to the window
+ * i.e. It's the screen coordinates of the window where the
+ * component is displayed.
  */
 void ding_infowin_t::zeichnen(koord pos, koord gr)
 {
-	set_dirty();
-
 	buf.clear();
 	info(buf);
 	textarea.recalc_size();
@@ -63,4 +60,12 @@ void ding_infowin_t::zeichnen(koord pos, koord gr)
 	if(  current_height != get_fenstergroesse().y  ) {
 		set_fenstergroesse( koord(get_fenstergroesse().x, current_height) );
 	}
+}
+
+
+bool ding_infowin_t::is_weltpos()
+{
+	karte_t *welt = get_ding()->get_welt();
+	return ( welt->get_x_off() | welt->get_y_off()) == 0  &&
+		welt->get_world_position() == welt->calculate_world_position( get_ding()->get_pos() );
 }

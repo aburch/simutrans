@@ -1,3 +1,105 @@
+	CHG: Removed the restriction of having border heights at water level. Forces a savegame version step, new maps can't be properly shown in previous versions.
+	CHG: Raise and Lower tools interact with the grid now, not with tiles.
+	ADD: (jk271/Dwachs) finance history distinguishes transport type
+	CHG: Added a new setting to simuconf.tab, background_color. Allows to change the color of the background.
+	ADD: (neroden) clustering of houses, set "cluster_factor" in cityrules.tab to about 10 times the typical distribution weight
+
+
+Release of 112.2: (r6390 on 17-Mar-2013):
+	ADD: maximum radius of factories of a chain configurable
+	CHG: use more colors to show height levels in minimap
+	CHG: loading screen reworked graphically and in functionality. Lowers the chance the OS will identify Simutrans as "not responding" when loading large files/paks.
+	CHG: lots of extensions of scenarios
+
+
+Release of 112.1: (r6212 on 23-Dec-2012):
+	ADD: transparent chat window in networkmode
+	FIX: underground stations in networkmode
+	ADD: (Markohs) Scenario and heightmap dialogs now support multi-directory
+	ADD: (Markohs) File dialogs deletes now use the trash bin (by default) instead of a permanent delete in Windows platform. SHIFT overrides.
+	FIX: waiting level in schedule dialog works with keys again
+	FIX: convoi list filtering again in working order
+	ADD: hide by default return ticket for rail based transport (enable by simuconf.tab)
+	ADD: possibliblity to limit the amount of goods in transit (see simuconf.tab)
+	ADD: city attractions and town halls can be defined to be build for more than 65535 citizens
+	FIX: you will need a dock to connect to an oil rig => no islands or tunnel can be used any more => ships only load at docks
+	ADD: display which factories supplied/recieved goods last month
+	ADD: player without operations can be deleted after x month
+	ADD: player without new buidling/replacing activities can lose password protection
+	ADD: logging of ip/nickname of company creators
+	ADD: nettool commands to lock, unlock, remove a company
+	ADD: (Timothy) support for syslog (compile flag -DSYSLOG, command-line option -syslog)
+	ADD: Restore city window on joining
+	ADD: Restore chat window on joining
+	ADD: Restore factory window on joining
+	FIX: correctly remove stale freight from convois when stops are joined or tiles are deleted
+	FIX: less desyncs when renaming, better processing server queue
+
+
+Release of 112.0: (r6000 on 22-Oct-2012):
+	ADD: (wackdone) screenshots of topmost dialoge window only by CNTRL+screenshot tool click
+	ADD: (wackdone) -pause on command line pauses the loaded game
+	FIX: downgrading of stops using CONTRL works again
+	ADD: scripted scenarios
+	ADD: river algorithm faster and river number automatically scaled with map size
+	CHG: proper support for non-rectangularly shaped factories, no dummy (0,0)-tiles
+	ADD: support for non-rectangular shaped station extensions, attractions, monuments
+	CHG: Allow to connect to channels built by anyone
+	CHG: fields can now spawned in larger number than the initial min value
+	CHG: number of factories in new world dialog is now indeed the total number of factories (too many newbe mistakes here)
+	ADD: force a minimum distance between city attractions
+	CHG: Bankrupsy check before substracting maintenance
+	ADD: Drag stops
+	CHG: reduced memory consumption when compiled with COLOUR_DEPTH=0, no copies of object images kept in memory
+	ADD: ctrl-click with link-factory tool actually removes links between factories
+	ADD: station buildings can be restricted to above/under ground (parameter allow_underground, =0 only above, =1 only under, =2 both/default)
+	CHG: rework scenario directory structure: scenario my_scen is in my_scen/, script file is my_scen/scenario.nut
+
+
+Release of 111.3.1 (r5843 on 31-Jul-2012):
+	ADD: weight in dat fields are in tons but kg can bei give like 1.350
+	CHG: goto / follow convoi functionality via window gadget
+	CHG: no bridges over runways / taxiways
+	ADD: check whether format specifiers of translated strings match those of the master string, start with -debug 2 to get error messages
+	ADD: customize icon of toolbar separator (taken from menu.BarTools or extra menu object)
+	FIX: crash when changing to other programs while in fullscreen with GDI version
+
+
+Release of 111.3 (r5772 on 10-Jun-2012):
+	FIX: race condition with multithreads on GDI
+	CHG: savegames will be saved as "_temp.sve" and only renamed after after success to the final name
+	ADD: screen redraw will be now up to 50% faster when needed thanks to multi-threading
+	ADD: hashtables for animations and smoke => much faster adding/removing
+	ADD: (from yorkeiser/prissi) line display in minimap (toggle with show schedule together with pax, mail, freight button) CONTRL will use player colors
+	CNG: Order and function of many minimap buttons rearranged
+	ADD: enable dragging of lower & raise tools in network mode
+	ADD: enable dragging of bridge, tunnel, elevated way tools in network mode
+	ADD: zoomlevel in minimap from -16 to 16
+	ADD: Start paksetdownloaded, when started without paksets
+	FIX: (z9999+) Corrected speedbonus base faktor calculations
+	FIX: (z9999+) Nickname in chat also send to server for reloads
+	FIX: (installer/pakset updater) better finding out if portable installation is needed
+	ADD: change of waiting at stops option in minimap
+	CHG: Withdraw all will not disassemble convois in depots for easier upgrading
+	FIX: route search for runways with oneway signs was broken
+	FIX: main menu was not updated when new modes of transport became available
+	ADD: (kierongreen) powerline tunnels: allow_undergroud_transformers=1 (default) will allow transformers below ground
+	FIX: deleting tunnel ground was booked twice
+	FIX: deleting tunnel ground charged for way on tunnel, which is not charged when building
+	CHG: Only founding a city when account is positive
+	CHG: powerlines will connect in directions a powerline can be build on a tile
+	ADD: threaded (but with graphic errors) tile redraw will by used automatically when fps too low
+	FIX: AI used wrong factories for bulding chains and build too long routes
+
+
+Release of 111.2.2 (r5583 on 20-Mar-2012):
+	CHG: Simutrans help will now always display left the help index and right the actual help => easier navigation and only one window always
+	ADD: nickname for players, enable chat for observers, add messages when players join / change nick / leave
+	FIX: deletion of stops on bridgehead with trams
+	FIX: extended setting of bool was broken
+	FIX: track reservation now saved with game (less deadlocks on load)
+
+
 Release of 111.2.1 (r5434 on 28-Feb-2012): (111.2 had a severe bug with zipped games)
 	ADD: more info on bare ground
 	ADD: show ownership in minimap
@@ -6347,8 +6449,7 @@ You can use this version with the 0.81.35exp base package.
 06/01/01 - CHANGE: Changed a lot of printf calls to calls to the new
                    debug/logging class, rated as "Message", "Warning",
                    "Error" and "Fatal error". Fatal error quit the program
-                   immediately. Please report all "Error" and "Fatal error"
-                   messages to me <hansjoerg.malthaner@gmx.de>
+                   immediately.
 
 05/27/01 - NEW: Added more error detections to the id_handle template
                 (tombstone id checks). This checks should catch about 50% of

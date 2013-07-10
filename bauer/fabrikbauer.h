@@ -78,7 +78,7 @@ public:
 	*/
 	static const fabrik_besch_t *get_random_consumer(bool electric,climate_bits cl, uint16 timeline );
 
-	static fabrik_t* baue_fabrik(karte_t* welt, koord3d* parent, const fabrik_besch_t* info, int rotate, koord3d pos, spieler_t* spieler);
+	static fabrik_t* baue_fabrik(karte_t* welt, koord3d* parent, const fabrik_besch_t* info, sint32 initial_prod_base, int rotate, koord3d pos, spieler_t* spieler);
 
 	/**
 	 * vorbedingung: pos ist für fabrikbau geeignet
@@ -86,7 +86,7 @@ public:
 	 * @return: Anzahl gebauter Fabriken
 	 * @author Hj.Malthaner
 	 */
-	static int baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, int rotate, koord3d* pos, spieler_t* sp, int number_of_chains );
+	static int baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, sint32 initial_prod_base, int rotate, koord3d* pos, spieler_t* sp, int number_of_chains );
 
 	/**
 	 * Helper function for baue_hierachie(): builts the connections (chain) for one single product)

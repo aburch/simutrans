@@ -41,20 +41,32 @@ protected:
 	 */
 	sint32 time_to_life;
 
+	/** Necessary to keep track of the
+	 * distance travelled sine the last
+	 * time that this vehicle paid
+	 * a toll for using a player's way
+	 */
+	uint8 tiles_since_last_increment;
+
 protected:
 	virtual waytype_t get_waytype() const { return road_wt; }
 
 	virtual bool hop_check() {return true;}
-	virtual void hop();
+	virtual grund_t* hop();
 	virtual void update_bookkeeping(uint32) {};
-	verkehrsteilnehmer_t(karte_t *welt);
-	verkehrsteilnehmer_t(karte_t *welt, koord3d pos);
 
+#ifdef INLINE_DING_TYPE
+	verkehrsteilnehmer_t(karte_t *welt, typ type);
+	verkehrsteilnehmer_t(karte_t *welt, typ type, koord3d pos, uint16 random);
+#else
+	verkehrsteilnehmer_t(karte_t *welt);
+	verkehrsteilnehmer_t(karte_t *welt, koord3d pos, uint16 random);
+#endif
 public:
 	virtual ~verkehrsteilnehmer_t();
 
 	const char *get_name() const = 0;
-	typ get_typ() const  = 0;
+	//typ get_typ() const  = 0;
 
 	/**
 	 * Öffnet ein neues Beobachtungsfenster für das Objekt.
@@ -66,6 +78,8 @@ public:
 
 	// finalizes direction
 	void laden_abschliessen() {calc_bild();}
+
+	void set_time_to_life(uint32 value) { time_to_life = value; }
 
 	// we allow to remove all cars etc.
 	const char *ist_entfernbar(const spieler_t *) { return NULL; }
@@ -119,16 +133,16 @@ public:
 
 	bool sync_step(long delta_t);
 
-	void hop();
+	grund_t* hop();
 	bool ist_weg_frei(grund_t *gr);
 
-	void betrete_feld();
+	grund_t* betrete_feld();
 
 	void calc_current_speed();
 	uint16 get_current_speed() const {return current_speed;}
 
 	const char *get_name() const {return "Verkehrsteilnehmer";}
-	typ get_typ() const { return verkehr; }
+	//typ get_typ() const { return verkehr; }
 
 	/**
 	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
@@ -136,7 +150,7 @@ public:
 	 * @author Hj. Malthaner
 	 * @see simwin
 	 */
-	virtual void info(cbuffer_t & buf) const;
+	virtual void info(cbuffer_t & buf, bool dummy = false) const;
 
 	// true, if this vehicle did not moved for some time
 	virtual bool is_stuck() { return current_speed==0;}

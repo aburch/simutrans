@@ -55,6 +55,9 @@ const uint32 bild_besch_t::rgbtab[SPECIAL] = {
 */
 bild_besch_t *bild_besch_t::copy_rotate(const sint16 angle) const
 {
+#if COLOUR_DEPTH == 0
+	return const_cast<bild_besch_t *>(this);
+#endif
 	assert(angle == 0 || (pic.w == pic.h && pic.x == 0 && pic.y == 0));
 
 	bild_besch_t* target_besch = new(pic.len * sizeof(PIXVAL)) bild_besch_t();
@@ -108,7 +111,7 @@ bild_besch_t *bild_besch_t::copy_rotate(const sint16 angle) const
 /**
  * decodes an image into a 32 bit bitmap
  */
-void bild_besch_t::decode_img(sint16 xoff, sint16 yoff, uint32 *target, uint32 target_width, uint32 target_height )
+void bild_besch_t::decode_img(sint16 xoff, sint16 yoff, uint32 *target, uint32 target_width, uint32 target_height ) const
 {
 	// Hajo: may this image be zoomed
 	if(  pic.h > 0  && pic.w > 0  ) {
@@ -117,7 +120,7 @@ void bild_besch_t::decode_img(sint16 xoff, sint16 yoff, uint32 *target, uint32 t
 		yoff += pic.y;
 
 		// now: unpack the image
-		uint16 *src = pic.data;
+		uint16 const *src = pic.data;
 		for(  sint32 y = yoff; y < pic.h+yoff; y++  ) {
 			uint16 runlen;
 			uint8 *p = (uint8 *)(target + max(0,xoff) + y*target_width);
@@ -156,3 +159,11 @@ void bild_besch_t::decode_img(sint16 xoff, sint16 yoff, uint32 *target, uint32 t
 	}
 }
 
+bild_besch_t::~bild_besch_t()
+{
+	if (node_info) {
+		// Allocated in some versions but not others.
+		// Always allocated with new[] when allocated
+		delete[] node_info;
+	}
+}

@@ -5,9 +5,6 @@
  * (see licence.txt)
  */
 
-#include <stdio.h>
-#include <math.h>
-
 #include "../simdebug.h"
 #include "../simworld.h"
 #include "../simdings.h"
@@ -17,7 +14,6 @@
 #include "../simtypes.h"
 
 #include "../boden/grund.h"
-
 #include "../besch/groundobj_besch.h"
 
 #include "../utils/cbuffer_t.h"
@@ -31,17 +27,10 @@
 
 #include "groundobj.h"
 
-/******************************** static stuff for forest rules ****************************************************************/
+/******************************** static routines for besch management ****************************************************************/
 
-
-/*
- * Diese Tabelle ermöglicht das Auffinden dient zur Auswahl eines Baumtypen
- */
 vector_tpl<const groundobj_besch_t *> groundobj_t::groundobj_typen(0);
 
-/*
- * Diese Tabelle ermöglicht das Auffinden einer Beschreibung durch ihren Namen
- */
 stringhashtable_tpl<groundobj_besch_t *> groundobj_t::besch_names;
 
 
@@ -49,6 +38,7 @@ bool compare_groundobj_besch(const groundobj_besch_t* a, const groundobj_besch_t
 {
 	return strcmp(a->get_name(), b->get_name())<0;
 }
+
 
 bool groundobj_t::alles_geladen()
 {
@@ -69,7 +59,6 @@ bool groundobj_t::alles_geladen()
 }
 
 
-
 bool groundobj_t::register_besch(groundobj_besch_t *besch)
 {
 	assert(besch->get_speed()==0);
@@ -80,8 +69,6 @@ bool groundobj_t::register_besch(groundobj_besch_t *besch)
 	besch_names.put(besch->get_name(), besch );
 	return true;
 }
-
-
 
 
 /* also checks for distribution values
@@ -95,8 +82,8 @@ const groundobj_besch_t *groundobj_t::random_groundobj_for_climate(climate cl, h
 	}
 
 	int weight = 0;
-	FOR(vector_tpl<groundobj_besch_t const*>, const i, groundobj_typen) {
-		if (i && i->is_allowed_climate(cl) && (slope == hang_t::flach || i->get_phases() == 16)) {
+	FOR(  vector_tpl<groundobj_besch_t const*>,  const i,  groundobj_typen  ) {
+		if(  i->is_allowed_climate(cl)  &&  (slope == hang_t::flach  ||  i->get_phases() == 16)  ) {
 			weight += i->get_distribution_weight();
 		}
 	}
@@ -126,10 +113,9 @@ const groundobj_besch_t *groundobj_t::random_groundobj_for_climate(climate cl, h
 // recalculates only the seasonal image
 void groundobj_t::calc_bild()
 {
-	// alter/2048 is the age of the tree
 	const groundobj_besch_t *besch=get_besch();
 	const sint16 seasons = besch->get_seasons()-1;
-	season=0;
+	uint8 season=0;
 
 	// two possibilities
 	switch(seasons) {
@@ -140,7 +126,7 @@ void groundobj_t::calc_bild()
 		case 1: season = welt->get_snowline()<=get_pos().z;
 				break;
 				// summer, winter, snow
-		case 2: season = welt->get_snowline()<=get_pos().z ? 2 : welt->get_jahreszeit()==1;
+		case 2: season = welt->get_snowline()<=get_pos().z ? 2 : welt->get_season()==1;
 				break;
 		default: if(welt->get_snowline()<=get_pos().z) {
 					season = seasons;
@@ -162,33 +148,37 @@ void groundobj_t::calc_bild()
 }
 
 
-
+#ifdef INLINE_DING_TYPE
+groundobj_t::groundobj_t(karte_t *welt, loadsave_t *file) : ding_t(welt, ding_t::groundobj)
+#else
 groundobj_t::groundobj_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
+#endif
 {
 	rdwr(file);
 }
 
 
-
+#ifdef INLINE_DING_TYPE
+groundobj_t::groundobj_t(karte_t *welt, koord3d pos, const groundobj_besch_t *b ) : ding_t(welt, ding_t::groundobj, pos)
+#else
 groundobj_t::groundobj_t(karte_t *welt, koord3d pos, const groundobj_besch_t *b ) : ding_t(welt, pos)
+#endif
 {
-	season = 0xF;	// mark dirty
 	groundobjtype = groundobj_typen.index_of(b);
 	calc_bild();
 }
 
 
-
 bool groundobj_t::check_season(long )
 {
-	const uint8 old_season = season;
+	const image_id old_image = get_bild();
 	calc_bild();
-	if(season!=old_season) {
+
+	if(get_bild() != old_image) {
 		mark_image_dirty( get_bild(), 0 );
 	}
 	return true;
 }
-
 
 
 void groundobj_t::rdwr(loadsave_t *file)
@@ -216,7 +206,6 @@ void groundobj_t::rdwr(loadsave_t *file)
 }
 
 
-
 /**
  * Öffnet ein neues Beobachtungsfenster für das Objekt.
  * @author Hj. Malthaner
@@ -229,13 +218,12 @@ void groundobj_t::zeige_info()
 }
 
 
-
 /**
  * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
  * Beobachtungsfenster angezeigt wird.
  * @author Hj. Malthaner
  */
-void groundobj_t::info(cbuffer_t & buf) const
+void groundobj_t::info(cbuffer_t & buf, bool dummy) const
 {
 	ding_t::info(buf);
 
@@ -252,20 +240,17 @@ void groundobj_t::info(cbuffer_t & buf) const
 }
 
 
-
 void groundobj_t::entferne(spieler_t *sp)
 {
-	spieler_t::accounting(sp, -get_besch()->get_preis(), get_pos().get_2d(), COST_CONSTRUCTION);
+	spieler_t::book_construction_costs(sp, -get_besch()->get_preis(), get_pos().get_2d(), ignore_wt);
 	mark_image_dirty( get_bild(), 0 );
 }
-
 
 
 void *groundobj_t::operator new(size_t /*s*/)
 {
 	return freelist_t::gimme_node(sizeof(groundobj_t));
 }
-
 
 
 void groundobj_t::operator delete(void *p)

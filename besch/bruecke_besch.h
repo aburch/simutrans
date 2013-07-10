@@ -49,7 +49,7 @@ private:
 
 	uint8 max_length;	// =0 off, else maximum length
 	uint8 max_height;	// =0 off, else maximum length
-	uint32 max_weight; //@author: jamespetts. Weight limit for vehicles.
+	uint32 max_weight; //@author: jamespetts. Weight limit for convoys.
 
 	// allowed era
 	uint16 intro_date;
@@ -110,6 +110,12 @@ public:
 	static img_t get_pillar(ribi_t::ribi ribi);
 
 	waytype_t get_waytype() const { return static_cast<waytype_t>(wegtyp); }
+
+	/**
+	 * There is no way to distinguish between train bridge and tram bridge.
+	 * However there are no real tram bridges possible in the game.
+	 */
+	waytype_t get_finance_waytype() const { return get_waytype(); }
 
 	sint32 get_preis() const { return scaled_price; }
 

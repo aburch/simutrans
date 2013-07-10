@@ -31,7 +31,7 @@ private:
 	 * Die eigentliche Routensuche
 	 * @author Hj. Malthaner
 	 */
-	bool intern_calc_route(karte_t *w, koord3d start, koord3d ziel, fahrer_t *fahr, const sint32 max_kmh, const uint32 max_cost, const uint32 max_weight);
+	bool intern_calc_route(karte_t *w, koord3d start, koord3d ziel, fahrer_t *fahr, const sint32 max_kmh, const uint32 max_cost, const uint32 axle_load, const uint32 convoy_weight, const sint32 tile_length);
 
 protected:
 	koord3d_vector_t route;           // Die Koordinaten fuer die Fahrtroute - "The coordinates for the route" (Google)
@@ -39,54 +39,64 @@ protected:
 private:
 
 	// Bernd Gabriel, Mar 10, 2010: weight limit info
-	uint32 max_weight;
+	uint32 max_axle_load;
+	uint32 max_convoy_weight;
 public:
-	// this class save the nodes during route search
+	typedef enum { no_route=0, valid_route=1, valid_route_halt_too_short=3 } route_result_t;
+
+	// Constructor: set axle load and convoy weight to maximum possible value
+	route_t() : max_axle_load(0xFFFFFFFFl), max_convoy_weight(0xFFFFFFFFl) {};
+
+
+	// this class saves the nodes during route searches
 	class ANode {
 	public:
 		ANode * parent;
 		const grund_t* gr;
 		uint32  f, g;
 		uint8 dir;
+		uint8 ribi_from; /// we came from this direction
 		uint16 count;
 
 		inline bool operator <= (const ANode &k) const { return f==k.f ? g<=k.g : f<=k.f; }
-		// next one only needed for sorted_heap_tpl
+#if defined(tpl_sorted_heap_tpl_h)
 		inline bool operator == (const ANode &k) const { return f==k.f  &&  g==k.g; }
-		// next two only needed for HOT-queues
-		//inline bool is_matching(const ANode &l) const { return gr==l.gr; }
-		//inline uint32 get_distance() const { return f; }
+#endif
+#if defined(tpl_HOT_queue_tpl_h)
+		inline bool is_matching(const ANode &l) const { return gr==l.gr; }
+		inline uint32 get_distance() const { return f; }
+#endif
 	};
 
+// These will need to be made non-static if this is ever to be threaded.
 private:
 	static const uint8 MAX_NODES_ARRAY = 2;
-	static ANode *_nodes[MAX_NODES_ARRAY];
+	static ANode *_nodes[MAX_NODES_ARRAY]; 
 	static bool _nodes_in_use[MAX_NODES_ARRAY]; // semaphores, since we only have few nodes arrays in memory
 public:
 	static uint32 MAX_STEP;
 	static uint32 max_used_steps;
-	static void INIT_NODES(uint32 max_route_steps, uint32 world_width, uint32 world_height);
+	static void INIT_NODES(uint32 max_route_steps, const koord &world_size);
 	static uint8 GET_NODES(ANode **nodes); 
 	static void RELEASE_NODES(uint8 nodes_index);
 	static void TERM_NODES();
 
-	static inline uint32 calc_distance( const koord3d p1, const koord3d p2 )
+	static inline uint32 calc_distance( const koord3d &p1, const koord3d &p2 )
 	{
 		return (abs(p1.x-p2.x)+abs(p1.y-p2.y)+abs(p1.z-p2.z)/16);
 	}
 
 	const koord3d_vector_t &get_route() const { return route; }
 
-	uint32 get_max_weight() const { return max_weight; }
+	uint32 get_max_axle_load() const { return max_axle_load; }
 
 	void rotate90( sint16 y_size ) { route.rotate90( y_size ); };
 
 	void concatenate_routes(route_t* tail_route);
 
-	bool is_contained(const koord3d k) const { return route.is_contained(k); }
+	bool is_contained(const koord3d &k) const { return route.is_contained(k); }
 
-	uint32 index_of(const koord3d k) const { return (uint32)(route.index_of(k)); }
-
+	uint32 index_of(const koord3d &k) const { return (uint32)(route.index_of(k)); }
 
 	/**
 	 * @return Koordinate an index n
@@ -124,17 +134,7 @@ public:
 	 * fügt k hinten in die route ein
 	 * @author prissi
 	 */
-	inline void append(koord3d k)
-	{
-		route.append(k);
-	}
-
-	/**
-	 * truncate the route, discarding all tiles beyond the given index
-	 * @author yobbobandana
-	 */
-	void truncate_from(uint16 index);
-
+	inline void append(koord3d k) { route.append(k); }
 
 	/**
 	 * removes all tiles from the route
@@ -149,8 +149,8 @@ public:
 	void remove_koord_from(uint32);
 
 	/**
-	 * Appends a straig line from the last koord3d in route to the desired target.
-	 * Will return fals if fails
+	 * Appends a straight line from the last koord3d in route to the desired target.
+	 * Will return false if fails
 	 * @author prissi
 	 */
 	bool append_straight_route( karte_t *w, koord3d );
@@ -159,13 +159,14 @@ public:
 	* the max_depth is the maximum length of a route
 	* @author prissi
 	*/
-	bool find_route(karte_t *w, const koord3d start, fahrer_t *fahr, const uint32 max_khm, uint8 start_dir, uint32 weight, uint32 max_depth );
+	bool find_route(karte_t *w, const koord3d start, fahrer_t *fahr, const uint32 max_khm, uint8 start_dir, uint32 weight, uint32 max_depth, bool private_car_checker = false);
 
 	/**
 	 * berechnet eine route von start nach ziel.
 	 * @author Hj. Malthaner
 	 */
-	bool calc_route(karte_t *welt, koord3d start, koord3d ziel, fahrer_t *fahr, const sint32 max_speed_kmh, const uint32 weight, sint32 max_tile_len, const uint32 max_cost=0xFFFFFFFF);
+	route_result_t calc_route(karte_t *welt, koord3d start, koord3d ziel, fahrer_t *fahr, const sint32 max_speed_kmh, const uint32 axle_load, sint32 max_tile_len, const uint32 max_cost=0xFFFFFFFF, const uint32 convoy_weight = 0);
+
 	/**
 	 * Lädt/speichert eine Route
 	 * @author V. Meyer

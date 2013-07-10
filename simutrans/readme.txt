@@ -81,6 +81,7 @@ Alphabetical list of options:
 -nomidi
 -nosound
 -objects path/
+-pause
 -res n=1..5
 -screensize 600x350
 -server
@@ -182,15 +183,15 @@ error to allow for a backtrace.
 simutrans -freeplay
 
 
-4.) Getting help (well it just says read this readme file)
+4.) Getting help
 
 simutrans -h
 simutrans -?
 simutrans -help
 simutrans --help
 
-All print a quick help message, which basically says
-"Read the readme file"
+All print a quick help message, which contains all supported command
+line options.
 
 
 5.) starting a server (without port number, it will be on port 13353
@@ -284,6 +285,9 @@ Default value : setting starting_year in simuconf.tab
 10) load a game and do not show the initial window
 
 simutrans -load mygame.sve
+
+If you use -pause, then the loaded game will be paused. Same would
+happen as a server when using the pause without connections feature.
 
 
 11) define a language on startup using the iso codes

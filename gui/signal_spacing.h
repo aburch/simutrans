@@ -1,5 +1,5 @@
 /*
- * Dialogue to set the signal spacing.
+ * Dialogue to set the signal spacing, when CTRL+clicking a signal on toolbar
  * Used by wkz_roadsign_t
  */
 

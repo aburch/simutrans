@@ -81,7 +81,7 @@ void gui_convoy_label_t::zeichnen(koord offset)
 	offset.y+=get_image_size().y;
 	if (show_number || show_max_speed)
 	{
-		existing_convoy_t convoy(*cnv.get_rep());			
+		convoi_t &convoy = *cnv.get_rep();			
 		char tmp[128];
 		if (show_number) {
 			sprintf(tmp, "%s %d (%s %i)",

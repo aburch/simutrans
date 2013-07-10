@@ -32,7 +32,7 @@ simlinemgmt_t::simlinemgmt_t(karte_t* welt)
 
 simlinemgmt_t::~simlinemgmt_t()
 {
-	destroy_win( (long)this );
+	destroy_win((ptrdiff_t)this);
 	// and delete all lines ...
 	while (!all_managed_lines.empty()) {
 		linehandle_t line = all_managed_lines.back();
@@ -74,21 +74,25 @@ void simlinemgmt_t::delete_line(linehandle_t line)
 void simlinemgmt_t::update_line(linehandle_t line)
 {
 	// when a line is updated, all managed convoys must get the new fahrplan!
-	int count = line->count_convoys();
+	const int count = line->count_convoys();
 	for(int i = 0; i<count; i++) 
 	{
-		line->get_convoy(i)->set_update_line(line);
+		const convoihandle_t cnv = line->get_convoy(i);
+		cnv->set_update_line(line);
 		if(line->get_schedule()->get_count() < 2)
 		{
 			// If a new schedule is incomplete, convoys will
 			// be blocking places unless sent to the depot.
-			line->get_convoy(i)->emergency_go_to_depot();
+			cnv->emergency_go_to_depot();
+			// Note that this may destroy a convoi in extreme cases (no depot).
+		}
+		if(  cnv.is_bound() && cnv->in_depot()  ) {
+			cnv->check_pending_updates(); // apply new schedule immediately for convoys in depot
 		}
 	}
 	// finally de/register all stops
 	line->renew_stops();
 }
-
 
 
 void simlinemgmt_t::rdwr(karte_t * welt, loadsave_t *file, spieler_t *sp)
@@ -159,14 +163,16 @@ DBG_MESSAGE("simlinemgmt_t::rdwr()","number of lines=%i",totalLines);
 }
 
 
-static bool compare_lines(const linehandle_t& a, const linehandle_t& b)
+static bool compare_lines(linehandle_t const a, linehandle_t const b)
 {
 	int diff = 0;
-	if(  a->get_name()[0]=='('  &&  b->get_name()[0]=='('  ) {
-		diff = atoi(a->get_name()+1)-atoi(b->get_name()+1);
+	char const* const na = a->get_name();
+	char const* const nb = b->get_name();
+	if (na[0] == '(' && nb[0] == '(') {
+		diff = atoi(na + 1) - atoi(nb + 1);
 	}
 	if(  diff==0  ) {
-		diff = strcmp(a->get_name(), b->get_name());
+		diff = strcmp(na, nb);
 	}
 	if(diff==0) {
 		diff = a.get_id() - b.get_id();

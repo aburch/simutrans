@@ -17,6 +17,7 @@
 #include "dataobj/umgebung.h"
 #include "dataobj/fahrplan.h"
 #include "simconvoi.h"
+#include "simloadingscreen.h"
 
 typedef quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> connexions_map_single_remote;
 
@@ -113,8 +114,8 @@ void path_explorer_t::full_instant_refresh()
 	processing = true;
 
 	// initialize progress bar
-	display_set_progress_text(translator::translate("Calculating paths ..."));
-	display_progress(curr_step, total_steps);
+	loadingscreen_t ls( translator::translate("Calculating paths ..."), total_steps, true, true);
+	ls.set_progress(curr_step);
 
 	// disable the iteration limits
 	compartment_t::enable_limits(false);
@@ -141,11 +142,13 @@ void path_explorer_t::full_instant_refresh()
 				// perform step
 				goods_compartment[c].step();
 				++curr_step;
-				display_progress(curr_step, total_steps);
+				ls.set_progress(curr_step);
 			}
 #else
 			// one step should perform the compartment phases from the first phase till the path exploration phase
 			goods_compartment[c].step();
+			curr_step += 6;
+			ls.set_progress(curr_step);
 #endif
 		}
 	}
@@ -248,7 +251,7 @@ path_explorer_t::compartment_t::compartment_t()
 	linkages = NULL;
 
 	transfer_list = NULL;
-	transfer_count = 0;;
+	transfer_count = 0;
 
 	catg = 255;
 	catg_name = NULL;
@@ -539,7 +542,6 @@ void path_explorer_t::compartment_t::step()
 			}
 
 			const bool no_walking_connexions = !world->get_settings().get_allow_routing_on_foot() || catg!=warenbauer_t::passagiere->get_catg_index();
-			const uint32 journey_time_adjustment = (world->get_settings().get_meters_per_tile() * 6u) / 10u;
 
 			// Save the halt list in an array first to prevent the list from being modified across steps, causing bugs
 			for (uint16 i = 0; i < all_halts_count; ++i)
@@ -575,13 +577,17 @@ void path_explorer_t::compartment_t::step()
 						continue;
 					}
 
-					// Walking speed is taken to be 5km/h: http://en.wikipedia.org/wiki/Walking
-					const uint32 journey_time_factor = (journey_time_adjustment * 100u) / 5u;
-					const uint16 journey_time = (uint16)((shortest_distance(all_halts_list[i]->get_next_pos(walking_distance_halt->get_basis_pos()), walking_distance_halt->get_next_pos(all_halts_list[i]->get_basis_pos())) * journey_time_factor) / 100u);
+					const uint32 walking_journey_distance = shortest_distance(
+						all_halts_list[i]->get_next_pos(walking_distance_halt->get_basis_pos()),
+						walking_distance_halt->get_next_pos(all_halts_list[i]->get_basis_pos())
+						);
+
+					const uint16 journey_time = world->walking_time_tenths_from_distance(walking_journey_distance);
 					
 					// Check the journey times to the connexion
 					new_connexion = new haltestelle_t::connexion;
 					new_connexion->waiting_time = 0; // People do not need to wait to walk.
+					new_connexion->transfer_time = walking_distance_halt->get_transfer_time();
 					new_connexion->best_convoy = convoihandle_t();
 					new_connexion->best_line = linehandle_t();
 					new_connexion->journey_time = journey_time;
@@ -684,7 +690,6 @@ void path_explorer_t::compartment_t::step()
 #endif
 
 			const ware_besch_t *const ware_type = warenbauer_t::get_info_catg_index(catg);
-			const uint32 journey_time_adjustment = (world->get_settings().get_meters_per_tile() * 6) / 10;
 
 			linkage_t current_linkage;
 			schedule_t *current_schedule;
@@ -804,9 +809,8 @@ void path_explorer_t::compartment_t::step()
 					{
 						// Zero here means that there are no journey time data even if the hashtable entry exists.
 						// Fallback to convoy's general average speed if a point-to-point average is not available.
-						const uint32 journey_time_factor = (journey_time_adjustment * 100) / current_average_speed;
 						const uint32 distance = shortest_distance(halt_list[i]->get_basis_pos(), halt_list[(i+1)%entry_count]->get_basis_pos());
-						journey_time = (uint16)((distance * journey_time_factor) / 100);
+						journey_time = world->travel_time_tenths_from_distance(distance, current_average_speed);
 					}
 
 					// journey time from halt 0 to halt 1 is stored in journey_time_list[1]
@@ -857,6 +861,7 @@ void path_explorer_t::compartment_t::step()
 						// Check the journey times to the connexion
 						new_connexion = new haltestelle_t::connexion;
 						new_connexion->waiting_time = halt_list[h]->get_average_waiting_time(halt_list[t], catg);
+						new_connexion->transfer_time = catg != warenbauer_t::passagiere->get_catg_index() ? halt_list[h]->get_transshipment_time() : halt_list[h]->get_transfer_time();
 						if(current_linkage.line.is_bound())
 						{
 							average_tpl<uint16>* ave = current_linkage.line->get_average_journey_times()->access(id_pair(halt_list[h].get_id(), halt_list[t].get_id()));
@@ -1255,7 +1260,7 @@ void path_explorer_t::compartment_t::step()
 
 					// update corresponding matrix element
 					working_matrix[phase_counter][reachable_halt_index].next_transfer = reachable_halt;
-					working_matrix[phase_counter][reachable_halt_index].aggregate_time = current_connexion->waiting_time + current_connexion->journey_time;
+					working_matrix[phase_counter][reachable_halt_index].aggregate_time = current_connexion->waiting_time + current_connexion->journey_time + current_connexion->transfer_time;
 					transport_matrix[phase_counter][reachable_halt_index].first_transport 
 						= transport_matrix[phase_counter][reachable_halt_index].last_transport 
 						= transport_idx;

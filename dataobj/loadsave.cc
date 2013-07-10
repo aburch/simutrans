@@ -14,12 +14,66 @@
 #include "../utils/plainstring.h"
 #include "loadsave.h"
 
+#include "../besch/grund_besch.h"
+
 #include "../utils/simstring.h"
 
-#include <zlib.h>
+#include <zlib.h> 
 #include <bzlib.h>
 
 #define INVALID_RDWR_ID (-1)
+
+// buffer size for read/write - bzip2 gains upto 8M for non-threaded, 1M for threaded. binary, zipped ok with 256K or smaller.
+#define LS_BUF_SIZE (1024*1024)
+
+#if MULTI_THREAD>1
+// enable barriers by this
+#define _XOPEN_SOURCE 600
+#include <pthread.h>
+
+static pthread_t ls_thread;
+static pthread_barrier_t loadsave_barrier;
+static pthread_mutex_t loadsave_mutex;
+
+// parameters passed starting a thread
+typedef struct{
+	loadsave_t *loadsave_routine;
+} loadsave_param_t;
+static loadsave_param_t ls;
+
+
+void *loadsave_thread( void *ptr )
+{
+	loadsave_param_t *lsp = reinterpret_cast<loadsave_param_t *>(ptr);
+	int buf = 1;
+
+	while(true) {
+		if(  lsp->loadsave_routine->is_saving()  ) {
+			// wait to sync with main thread before flushing the buffer
+			pthread_barrier_wait(&loadsave_barrier);
+
+			buf = (buf+1)&1;
+			if(  lsp->loadsave_routine->get_buf_pos(buf)==0  ) {
+				// empty buffer after sync - signal to exit
+				break;
+			}
+			lsp->loadsave_routine->flush_buffer(buf);
+		}
+		else {
+			if(  lsp->loadsave_routine->fill_buffer(buf) <= 0  ) {
+				// nothing read into buffer - exit
+				break;
+			}
+			// wait to sync with main thread before filling the next buffer
+			pthread_barrier_wait(&loadsave_barrier);
+
+			buf = (buf+1)&1;
+		}
+	}
+	return ptr;
+}
+#endif
+
 
 struct file_descriptors_t {
 	FILE *fp;
@@ -31,19 +85,77 @@ struct file_descriptors_t {
 
 
 loadsave_t::mode_t loadsave_t::save_mode = bzip2;	// default to use for saving
+loadsave_t::mode_t loadsave_t::autosave_mode = zipped;	// default to use for autosaving
 
 loadsave_t::loadsave_t() : filename()
 {
 	mode = 0;
 	saving = false;
+	buffered = false;
 	fd = new file_descriptors_t();
 }
 
 loadsave_t::~loadsave_t()
 {
+	set_buffered(false);
 	close();
 	delete fd;
 }
+
+
+void loadsave_t::set_buffered(bool enable)
+{
+	if(  enable  ) {
+		if(  !buffered  ) {
+			buffered = true;
+			curr_buff = 0;
+			buf_pos[0] = buf_pos[1] = 0;
+			buf_len[0] = buf_len[1] = 0;
+			ls_buf[0] = new char[LS_BUF_SIZE];
+#if MULTI_THREAD>1
+			ls_buf[1] = new char[LS_BUF_SIZE]; // second buffer only when multithreaded
+
+			pthread_barrier_init(&loadsave_barrier, NULL, 2);
+			pthread_mutex_init(&loadsave_mutex, NULL);
+
+			pthread_attr_t attr;
+			pthread_attr_init(&attr);
+			pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+
+			ls.loadsave_routine = this;
+
+			pthread_create(&ls_thread, &attr, loadsave_thread, (void *)&ls);
+
+			pthread_attr_destroy(&attr);
+#endif
+		}
+	}
+	else {
+		if(  buffered  ) {
+			if(  saving  &&  buf_pos[curr_buff]>0  ) {
+#if MULTI_THREAD>1
+				// first sync with thread causes buffer to be flushed
+				pthread_barrier_wait(&loadsave_barrier);
+				// second sync with empty buffer signals thread to exit
+				pthread_barrier_wait(&loadsave_barrier);
+#else
+				flush_buffer(curr_buff);
+#endif
+			}
+#if MULTI_THREAD>1
+			pthread_join(ls_thread,NULL);
+
+			pthread_mutex_destroy(&loadsave_mutex);
+			pthread_barrier_destroy(&loadsave_barrier);
+
+			delete [] ls_buf[1]; // second buffer only when multithreaded
+#endif
+			delete [] ls_buf[0];
+			buffered = false;
+		}
+	}
+}
+
 
 bool loadsave_t::rd_open(const char *filename)
 {
@@ -58,8 +170,8 @@ bool loadsave_t::rd_open(const char *filename)
 		return false;
 	}
 	// now check for BZ2 format
-	char buf[80];
-	if(  fread( buf, 1, 80, fd->fp )==80  ) {
+	char buf[512];
+	if(  fread( buf, 1, 512, fd->fp )==512  ) {
 		if(  buf[0]=='B'  &&  buf[1]=='Z'  ) {
 			mode = bzip2;
 		}
@@ -76,7 +188,7 @@ bool loadsave_t::rd_open(const char *filename)
 			MEMZERO(buf);
 			if(  BZ2_bzRead( &fd->bse, fd->bzfp, buf, sizeof(SAVEGAME_PREFIX) )==sizeof(SAVEGAME_PREFIX)  &&  fd->bse==BZ_OK  ) {
 				// get the rest of the string
-				for(  int i=sizeof(SAVEGAME_PREFIX);  buf[i-1]>=32  &&  i<79;  i++  ) {
+				for(  int i=sizeof(SAVEGAME_PREFIX);  buf[i-1]>=32  &&  i<511;  i++  ) {
 					buf[i] = lsgetc();
 				}
 				ok = fd->bse==BZ_OK;
@@ -96,59 +208,55 @@ bool loadsave_t::rd_open(const char *filename)
 		if(fd->gzfp==NULL) {
 			return false;
 		}
-		gzgets(fd->gzfp, buf, 80);
+		gzgets(fd->gzfp, buf, 512);
 	}
 	saving = false;
 
-	if(strncmp(buf, SAVEGAME_PREFIX, sizeof(SAVEGAME_PREFIX) - 1)) {
-		if(strncmp(buf, XML_SAVEGAME_PREFIX, sizeof(XML_SAVEGAME_PREFIX)-1)!=0) {
-			close();
-			return false;
-		}
-		else {
-			mode |= xml;
-			while(  lsgetc()!='<'  ) { /* nothing */ }
-			read( buf, sizeof(SAVEGAME_PREFIX) - 1 );
-			if(  strncmp(buf, SAVEGAME_PREFIX, sizeof(SAVEGAME_PREFIX) - 1)  ) {
-				close();
-				// not a simutrans XML file ...
-				return false;
-			}
-
-			read( buf, sizeof("version=\"")-1 );
-			char str[256];
-			char *s = str;
-			for(  int i=0;  i<255;  i++ ) {
-				char c = lsgetc();
-				if(c=='\"') {
-					break;
-				}
-				*s++ = c;
-			}
-			*s = 0;
-			int dummy;
-			
-			combined_version versions = int_version(str, &dummy, pak_extension);
-			version = versions.version;
-			experimental_version = versions.experimental_version;
-
-			read( buf, sizeof(" pak=\"")-1 );
-			s = pak_extension;
-			for(  int i=0;  i<63;  i++ ) {
-				char c = lsgetc();
-				if(c=='\"') {
-					break;
-				}
-				*s++ = c;
-			}
-			*s = 0;
-			while(  lsgetc()!='>'  )  ;
-		}
-	}
-	else {
+	if (strstart(buf, SAVEGAME_PREFIX)) {
 		combined_version versions = int_version(buf + sizeof(SAVEGAME_PREFIX) - 1, &mode, pak_extension);
 		version = versions.version;
 		experimental_version = versions.experimental_version;
+	} else if (strstart(buf, XML_SAVEGAME_PREFIX)) {
+		mode |= xml;
+		while (lsgetc() != '<') { /* nothing */ }
+		read(buf, sizeof(SAVEGAME_PREFIX) - 1);
+		if (!strstart(buf, SAVEGAME_PREFIX)) {
+			close();
+			// not a simutrans XML file ...
+			return false;
+		}
+
+		read(buf, sizeof("version=\"") - 1);
+		char str[256];
+		char *s = str;
+		for (int i = 0; i < 255; i++) {
+			char c = lsgetc();
+			if (c=='\"') {
+				break;
+			}
+			*s++ = c;
+		}
+		*s = 0;
+		combined_version versions = int_version(str, &mode, pak_extension);
+		version = versions.version;
+		experimental_version = versions.experimental_version;
+
+		read(buf, sizeof(" pak=\"") - 1);
+		if (version > 0) {
+			s = pak_extension;
+			for (int i = 0; i < 63; i++) {
+				char c = lsgetc();
+				if (c=='\"') {
+					break;
+				}
+				*s++ = c;
+			}
+			*s = 0;
+			while (lsgetc() != '>');
+		}
+	} else {
+		close();
+		return false;
 	}
 	if(mode==text) {
 		close();
@@ -174,7 +282,6 @@ void loadsave_t::rdwr_string(std::string &s) {
                 free(const_cast<char *>(name));
         } 
 }
-
 
 bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extension, const char *savegame_version, const char *savegame_version_ex)
 {
@@ -241,20 +348,22 @@ bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extensi
 	loadsave_t::combined_version combined_version = int_version(savegame_version, NULL, NULL );
 	version = combined_version.version;
 
+	const char* pakset_string = this->pak_extension;
+
 	if(  !is_xml()  ) {
-		char str[4096];
+		char str[8192];
 		size_t len;
 		if(  version<102002  ) {
-			len = sprintf( str, SAVEGAME_PREFIX "%s%s%s\n", savegame_ver.c_str(), "zip", this->pak_extension );
+			len = sprintf( str, SAVEGAME_PREFIX "%s%s%s\n", savegame_ver.c_str(), "zip", pakset_string );
 		}
 		else {
-			len = sprintf( str, SAVEGAME_PREFIX "%s-%s\n", savegame_ver.c_str(), this->pak_extension );
+			len = sprintf( str, SAVEGAME_PREFIX "%s-%s\n", savegame_ver.c_str(), pakset_string );
 		}
 		write( str, len );
 	}
 	else {
 		char str[4096];
-		int n = sprintf( str, "<?xml version=\"1.0\"?>\n<Simutrans version=\"%s\" pak=\"%s\">\n", savegame_ver.c_str(), this->pak_extension );
+		int n = sprintf( str, "<?xml version=\"1.0\"?>\n<Simutrans version=\"%s\" pak=\"%s\">\n", savegame_ver.c_str(), pakset_string );
 		write( str, n );
 		ident = 1;
 	}
@@ -325,77 +434,229 @@ const char *loadsave_t::close()
  */
 bool loadsave_t::is_eof()
 {
-	if(is_bzip2()) {
-		// any error is EOF ...
-		return fd->bse!=BZ_OK;
+	if(  is_bzip2()  ) {
+		if(  buffered  ) {
+			bool r;
+#if MULTI_THREAD>1
+			pthread_mutex_lock(&loadsave_mutex);
+#endif
+			r = buf_pos[0]>=buf_len[0]  &&  buf_pos[1]>=buf_len[1]  &&  fd->bse!=BZ_OK;
+#if MULTI_THREAD>1
+			pthread_mutex_unlock(&loadsave_mutex);
+#endif
+			return r;
+		}
+		else {
+			// any error is EOF ...
+			return fd->bse!=BZ_OK;
+		}
 	}
 	else {
-		return gzeof(fd->gzfp) != 0;
+		if(  buffered  ) {
+			bool r;
+#if MULTI_THREAD>1
+			pthread_mutex_lock(&loadsave_mutex);
+#endif
+			r = buf_pos[0]>=buf_len[0]  &&  buf_pos[1]>=buf_len[1]  &&  gzeof(fd->gzfp)!=0;
+#if MULTI_THREAD>1
+			pthread_mutex_unlock(&loadsave_mutex);
+#endif
+			return r;
+		}
+		else {
+			return gzeof(fd->gzfp)!=0;
+		}
 	}
 }
 
 
 void loadsave_t::lsputc(int c)
 {
-	if(is_zipped()) {
-		gzputc(fd->gzfp, c);
-	}
-	else if(is_bzip2()) {
-		uint8 ch = c;
-		write( &ch, 1 );
-	}
-	else {
-		fputc(c, fd->fp);
-	}
+	uint8 ch = c;
+	write( &ch, 1 );
 }
+
 
 int loadsave_t::lsgetc()
 {
-	if(is_bzip2()) {
-		uint8 c[2];
-		if(  fd->bse==BZ_OK  ) {
-			BZ2_bzRead( &fd->bse, fd->bzfp, c, 1);
-		}
-		return fd->bse==BZ_OK ? c[0] : -1;
+	uint8 c[2];
+	if(  read(c,1)  ) {
+		return c[0];
 	}
-	else {
-		return gzgetc(fd->gzfp);
-	}
+	return -1;
 }
+
 
 size_t loadsave_t::write(const void *buf, size_t len)
 {
-	if(is_zipped()) {
-		return gzwrite(fd->gzfp, const_cast<void *>(buf), len);
-	}
-	else if(is_bzip2()) {
-		BZ2_bzWrite( &fd->bse, fd->bzfp, const_cast<void *>(buf), len);
-		assert(fd->bse==BZ_OK);
-		return len;
+	if(  buffered  ) {
+		if(  buf_pos[curr_buff]+len<=LS_BUF_SIZE  ) {
+			// room in the buffer, copy it all
+			for(  unsigned i=0;  i<len;  i++  ) {
+				ls_buf[curr_buff][buf_pos[curr_buff]++] = ((const char*)buf)[i];
+			}
+			return len;
+		}
+		else {
+			// copy up to full buffer
+			unsigned i = 0;
+			const unsigned left = LS_BUF_SIZE-buf_pos[curr_buff];
+			while(  i<left  ) {
+				ls_buf[curr_buff][buf_pos[curr_buff]++] = ((const char*)buf)[i++];
+			}
+
+#if MULTI_THREAD>1
+			// sync with thread to flush the buffer
+			pthread_barrier_wait(&loadsave_barrier);
+
+			// switch buffers
+			curr_buff = (curr_buff+1)&1;
+#else
+			// not threaded, flush single buffer ourselves
+			flush_buffer(curr_buff);
+#endif
+			// copy the rest
+			while(  i<len  ) {
+				ls_buf[curr_buff][buf_pos[curr_buff]++] = ((const char*)buf)[i++];
+			}
+			return len;
+		}
 	}
 	else {
-		return fwrite(buf, 1, len, fd->fp);
+		if(  is_zipped()  ) {
+			return gzwrite(fd->gzfp, const_cast<void *>(buf), len);
+		}
+		else if(  is_bzip2()  ) {
+			BZ2_bzWrite( &fd->bse, fd->bzfp, const_cast<void *>(buf), len);
+			assert(fd->bse==BZ_OK);
+			return len;
+		}
+		else {
+			return fwrite(buf, 1, len, fd->fp);
+		}
 	}
 }
 
-size_t loadsave_t::read(void *buf, size_t len)
+
+void loadsave_t::flush_buffer(int buf_num)
 {
-	if(is_bzip2()) {
-		if(  fd->bse==BZ_OK  ) {
-			BZ2_bzRead( &fd->bse, fd->bzfp, buf, len);
-		}
-		return fd->bse==BZ_OK ? len : 0;
+	int bse = fd->bse;
+	if(  is_zipped()  ) {
+		gzwrite(fd->gzfp, ls_buf[buf_num], buf_pos[buf_num]);
+	}
+	else if(  is_bzip2()  ) {
+		BZ2_bzWrite( &bse, fd->bzfp, ls_buf[buf_num], buf_pos[buf_num]);
+		assert(bse==BZ_OK);
 	}
 	else {
-		return gzread(fd->gzfp, buf, len);
+		fwrite(ls_buf[buf_num], 1, buf_pos[buf_num], fd->fp);
 	}
+#if MULTI_THREAD>1
+	pthread_mutex_lock(&loadsave_mutex);
+#endif
+	if(  is_bzip2()  ) {
+		fd->bse = bse;
+	}
+	buf_pos[buf_num] = 0;
+#if MULTI_THREAD>1
+	pthread_mutex_unlock(&loadsave_mutex);
+#endif
+}
+
+
+size_t loadsave_t::read(void *buf, size_t len)
+{
+	if(  buffered  ) {
+		if(  len>=LS_BUF_SIZE*2  ) {
+			dbg->fatal("loadsave_t::read()","Request for %d too long", len);
+			return 0;
+		}
+		if(  buf_pos[curr_buff]+len<=buf_len[curr_buff]  ) {
+			// room in the buffer, copy it all
+			for(  unsigned i=0;  i<len;  i++  ) {
+				((char*)buf)[i] = ls_buf[curr_buff][buf_pos[curr_buff]++];
+			}
+ 			return len;
+		}
+		else {
+			// copy up to full buffer
+			unsigned i = 0;
+			if(  buf_len[curr_buff]>0  ) {
+				const unsigned left = buf_len[curr_buff]-buf_pos[curr_buff];
+				while(  i<left  ) {
+					((char*)buf)[i++] = ls_buf[curr_buff][buf_pos[curr_buff]++];
+				}
+			}
+#if MULTI_THREAD>1
+			// sync with other thread to read more
+			pthread_barrier_wait(&loadsave_barrier);
+
+			// switch buffers
+			curr_buff = (curr_buff+1)&1;
+#else
+			// not threaded, read more into single buffer ourselves
+			fill_buffer(curr_buff);
+#endif
+			// check if enough read
+			if(  len-i>buf_len[curr_buff]  ) {
+				return 0;
+			}
+
+			// copy the rest
+			while(  i<len  ) {
+				((char*)buf)[i++] = ls_buf[curr_buff][buf_pos[curr_buff]++];
+			}
+			return len;
+		}
+	}
+	else {
+		if(  is_bzip2()  ) {
+			if(  fd->bse==BZ_OK  ) {
+				BZ2_bzRead( &fd->bse, fd->bzfp, buf, len);
+			}
+			return fd->bse==BZ_OK ? len : 0;
+		}
+		else {
+			return gzread(fd->gzfp, buf, len);
+		}
+	}
+}
+
+
+int loadsave_t::fill_buffer(int buf_num)
+{
+	int r;
+	int bse = fd->bse;
+
+	if(  is_bzip2()  ) {
+		if(  bse==BZ_OK  ) {
+			r = BZ2_bzRead( &bse, fd->bzfp, ls_buf[buf_num], LS_BUF_SIZE);
+		}
+		else {
+			r = 0;
+		}
+	}
+	else {
+		r = gzread(fd->gzfp, ls_buf[buf_num], LS_BUF_SIZE);
+	}
+#if MULTI_THREAD>1
+	pthread_mutex_lock(&loadsave_mutex);
+#endif
+	if(  is_bzip2()  ) {
+		fd->bse = bse;
+	}
+	buf_pos[buf_num] = 0;
+	buf_len[buf_num] = r;
+#if MULTI_THREAD>1
+	pthread_mutex_unlock(&loadsave_mutex);
+#endif
+	return r;
 }
 
 
 /*************** High level routines to read/write data types *************
  * (check also for Intel/Motorola) etc
  */
-
 
 
 void loadsave_t::rdwr_byte(sint8 &c)
@@ -414,6 +675,7 @@ void loadsave_t::rdwr_byte(sint8 &c)
 		c = (sint8)ll;
 	}
 }
+
 
 void loadsave_t::rdwr_byte(uint8 &c)
 {
@@ -450,6 +712,7 @@ void loadsave_t::rdwr_short(sint16 &i)
 	}
 }
 
+
 void loadsave_t::rdwr_short(uint16 &i)
 {
 	sint16 ii=i;
@@ -485,6 +748,7 @@ void loadsave_t::rdwr_long(sint32 &l)
 	}
 }
 
+
 void loadsave_t::rdwr_long(uint32 &l)
 {
 	sint32 ll=l;
@@ -517,6 +781,7 @@ void loadsave_t::rdwr_longlong(sint64 &ll)
 		rdwr_xml_number( ll, "i64" );
 	}
 }
+
 
 void loadsave_t::rdwr_double(double &dbl)
 {
@@ -713,12 +978,12 @@ void loadsave_t::rdwr_str(const char *&s)
 
 
 // read a string into a preallocated buffer
-void loadsave_t::rdwr_str(char* s, size_t const size)
+void loadsave_t::rdwr_str( char* result_buffer, size_t const size)
 {
 	if(!is_xml()) {
 		uint16 len;
 		if(saving) {
-			len = (uint16)min(32767,strlen(s));
+			len = (uint16)min(32767,strlen(result_buffer));
 #ifdef SIM_BIG_ENDIAN
 			{
 				sint16 ii = endian(len);
@@ -727,7 +992,7 @@ void loadsave_t::rdwr_str(char* s, size_t const size)
 #else
 			write(&len, sizeof(uint16));
 #endif
-			write(s, len);
+			write(result_buffer, len);
 		}
 		else {
 			read(&len, sizeof(uint16));
@@ -735,12 +1000,13 @@ void loadsave_t::rdwr_str(char* s, size_t const size)
 			if(  len >= size) {
 				dbg->fatal( "loadsave_t::rdwr_str()","string longer (%i) than allowed size (%i)", len, size );
 			}
-			read(s, len);
-			s[len] = '\0';
+			read(result_buffer, len);
+			result_buffer[len] = '\0';
 		}
 	}
 	else {
 		// use CDATA tag: <![CDATA[%s]]>
+		char *s = result_buffer;
 		if(saving) {
 			write( "                                                                ", min(64,ident) );
 			write( "<![CDATA[", 9 );
@@ -756,8 +1022,8 @@ void loadsave_t::rdwr_str(char* s, size_t const size)
 			char buffer[10];
 			read( buffer, 7 );
 			bool string = true;
-			if(  strncmp("string>",buffer,7)!=0  ) {
-				if(  strncmp("![CDATA",buffer,7)!=0  ||  lsgetc()!='['  ) {
+			if (!strstart(buffer, "string>")) {
+				if (!strstart(buffer, "![CDATA") || lsgetc() != '[') {
 					buffer[7] = 0;
 					dbg->fatal( "loadsave_t::rdwr_str()","expected str \"<![CDATA[\", got \"%s\"", buffer );
 				}
@@ -772,7 +1038,7 @@ void loadsave_t::rdwr_str(char* s, size_t const size)
 						ptr = s;
 					}
 					if(  c=='>'  ) {
-						if(  i>=8  &&  strncmp( s-8, "</string>", 8 )==0  ) {
+						if (i >= 8 && strstart(s - 8, "</string")) {
 							s[-8] = 0;
 							ptr = s-8;
 							break;
@@ -787,32 +1053,18 @@ void loadsave_t::rdwr_str(char* s, size_t const size)
 				}
 			}
 			else {
-				char last_three_chars[4];
-				sint8 len = 0;	// maximum is three
-				for(  size_t i=0;  i<size;  ) {
-					char c = lsgetc();
-					if(  c==']'  &&  (  len==0  ||  (len==1  &&  last_three_chars[0] == ']') )  ) {
-						last_three_chars[len++] = c;
-					}
-					else if(  c=='>'  &&  len==2  ) {
-						len ++;
-						break;
-					}
-					else {
-						// evt. add closing brackets
-						while(  len-->0  ) {
-							*s++ = ']';
-							i ++;
-						}
-						len = 0;
-						*s++ = c;
-						i++;
+				char temp[32767];
+				char *s = temp;
+				for(  size_t i=0;  i<size+3;  i++  ) {
+					*s++ = lsgetc();
+					if(  i>=2  &&  strstart(s-3,"]]>")  ) {
+						s[-3] = 0;
+						strcpy( result_buffer, temp );
+						return;
 					}
 				}
 				*s = 0;
-				if(  len!=3  ) {
-					dbg->fatal( "loadsave_t::rdwr_str()","string too long (exceeded %i characters)", size );
-				}
+				dbg->fatal( "loadsave_t::rdwr_str()","string too long (exceeded %i characters)", size );
 			}
 		}
 	}
@@ -821,11 +1073,18 @@ void loadsave_t::rdwr_str(char* s, size_t const size)
 
 void loadsave_t::rdwr_str(plainstring& s)
 {
-	if (is_loading()) {
-		char buf[1024];
-		rdwr_str(buf, lengthof(buf));
-		s = buf;
-	} else {
+	if(  is_loading()  ) {
+		const char* buf = NULL;
+		rdwr_str(buf);
+		if(  buf  ) {
+			s = buf;
+			free( const_cast<char*>(buf) );
+		}
+		else {
+			s = "";
+		}
+	}
+	else {
 		char const* tmp = s.c_str();
 		rdwr_str(tmp);
 	}
@@ -844,11 +1103,10 @@ void loadsave_t::start_tag(const char *tag)
 		}
 		else {
 			char buf[256];
-			const size_t len = strlen(tag);
 			// find start of tag
 			while(  lsgetc()!='<'  ) { /* nothing */ }
-			read( buf, len );
-			if(  strncmp(buf,tag,len)!=0  ) {
+			read(buf, strlen(tag));
+			if (!strstart(buf, tag)) {
 				dbg->fatal( "loadsave_t::start_tag()","expected \"%s\", got \"%s\"", tag, buf );
 			}
 			while(  lsgetc()!='>'  )  ;
@@ -945,7 +1203,7 @@ void loadsave_t::rd_obj_id(char *id_buf, int size)
 			while(  lsgetc()!='<'  ) { /* nothing */ }
 			read( buf, 6 );
 			buf[5] = 0;
-			if(  strncmp(buf,"<id=\"",5)!=0  ) {
+			if (!strstart(buf, "<id=\"")) {
 				dbg->fatal( "loadsave_t::rd_obj_id()","expected id str \"<id=\"\", got \"%s\"", buf );
 			}
 			// now parse input
@@ -960,7 +1218,7 @@ void loadsave_t::rd_obj_id(char *id_buf, int size)
 			}
 			*id_buf = 0;
 			read( buf, 2 );
-			if(  strncmp(buf,"/>",2)!=0  ) {
+			if (!strstart(buf, "/>")) {
 				dbg->fatal( "loadsave_t::rd_obj_id()","id tag not properly closed!" );
 			}
 		}
@@ -1032,11 +1290,10 @@ loadsave_t::combined_version loadsave_t::int_version(const char *version_text, i
 		/* the compression and the mode we determined already ourselves (otherwise we cannot read this
 		 * => leave the mode alone but for unknown modes!
 		 */
-		if(!strncmp(version_text, "bin", 3)) {
+		if (strstart(version_text, "bin")) {
 			//*mode = binary;
 			version_text += 3;
-		}
-		else if(!strncmp(version_text, "zip", 3)) {
+		} else if (strstart(version_text, "zip")) {
 			//*mode = zipped;
 			version_text += 3;
 		}

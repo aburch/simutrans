@@ -17,7 +17,7 @@
 bool tabfile_t::open(const char *filename)
 {
 	close();
-	file = fopen(filename, "rt");
+	file = fopen(filename, "r");
 	return file != NULL;
 }
 

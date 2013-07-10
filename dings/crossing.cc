@@ -11,7 +11,6 @@
 #include "../simworld.h"
 #include "../simdings.h"
 #include "../simimg.h"
-#include "../simsound.h"
 
 #include "../besch/kreuzung_besch.h"
 
@@ -25,9 +24,17 @@
 
 #include "crossing.h"
 
+#if MULTI_THREAD>1
+#include <pthread.h>
+static pthread_mutex_t crossing_logic_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+#endif
 
 
+#ifdef INLINE_DING_TYPE
+crossing_t::crossing_t(karte_t* const welt, loadsave_t* const file) : ding_no_info_t(welt, ding_t::crossing)
+#else
 crossing_t::crossing_t(karte_t* const welt, loadsave_t* const file) : ding_no_info_t(welt)
+#endif
 {
 	bild = after_bild = IMG_LEER;
 	logic = NULL;
@@ -35,8 +42,11 @@ crossing_t::crossing_t(karte_t* const welt, loadsave_t* const file) : ding_no_in
 }
 
 
-
+#ifdef INLINE_DING_TYPE
+crossing_t::crossing_t(karte_t* const welt, spieler_t* const sp, koord3d const pos, kreuzung_besch_t const* const besch, uint8 const ns) : ding_no_info_t(welt, ding_t::crossing, pos)
+#else
 crossing_t::crossing_t(karte_t* const welt, spieler_t* const sp, koord3d const pos, kreuzung_besch_t const* const besch, uint8 const ns) : ding_no_info_t(welt, pos)
+#endif
 {
 	this->ns = ns;
 	this->besch = besch;
@@ -70,8 +80,7 @@ void crossing_t::rotate90()
 }
 
 
-
-// change state; mark dirty and plays sound
+// changed state: mark dirty
 void crossing_t::state_changed()
 {
 	mark_image_dirty( bild, 0 );
@@ -80,16 +89,21 @@ void crossing_t::state_changed()
 }
 
 
-
 /**
  * Dient zur Neuberechnung des Bildes
  * @author Hj. Malthaner
  */
 void crossing_t::calc_bild()
 {
-	if(logic) {
+#if MULTI_THREAD>1
+	pthread_mutex_lock( &crossing_logic_mutex );
+#endif
+	if(  logic  ) {
 		zustand = logic->get_state();
 	}
+#if MULTI_THREAD>1
+	pthread_mutex_unlock( &crossing_logic_mutex );
+#endif
 	const bool snow_image = get_pos().z >= welt->get_snowline();
 	// recalc bild each step ...
 	const bild_besch_t *a = besch->get_bild_after( ns, zustand!=crossing_logic_t::CROSSING_CLOSED, snow_image );
@@ -105,7 +119,6 @@ void crossing_t::calc_bild()
 	}
 	bild = b ? b->get_nummer() : IMG_LEER;
 }
-
 
 
 void crossing_t::rdwr(loadsave_t *file)
@@ -159,8 +172,6 @@ void crossing_t::rdwr(loadsave_t *file)
 }
 
 
-
-
 /**
  * Wird nach dem Laden der Welt aufgerufen - üblicherweise benutzt
  * um das Aussehen des Dings an Boden und Umgebung anzupassen
@@ -185,8 +196,14 @@ void crossing_t::laden_abschliessen()
 		w1->count_sign();
 		w2->count_sign();
 		ns = ribi_t::ist_gerade_ns(w2->get_ribi_unmasked());
+#if MULTI_THREAD>1
+		pthread_mutex_lock( &crossing_logic_mutex );
+#endif
 		crossing_logic_t::add( welt, this, static_cast<crossing_logic_t::crossing_state_t>(zustand) );
 		logic->recalc_state();
+#if MULTI_THREAD>1
+		pthread_mutex_unlock( &crossing_logic_mutex );
+#endif
 	}
 }
 

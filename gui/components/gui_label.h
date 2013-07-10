@@ -34,30 +34,39 @@ public:
 		money
 	};
 private:
-	align_t align:4;
+	align_t align;
 
 	/**
 	 * Farbe des Labels
 	 * @author Hansjörg Malthaner
 	 */
-	uint8 color;
+	COLOR_VAL color;
 
 	const char * text;	// only for direct acess of non-translateable things. Do not use!
+	const char * tooltip;
 
 public:
-	gui_label_t(const char* text=NULL, int color=COL_BLACK, align_t align=left);
+	gui_label_t(const char* text=NULL, COLOR_VAL color=COL_BLACK, align_t align=left);
+
+	// one stop init
+	void init( const char* t, koord p, COLOR_VAL c=COL_BLACK, align_t a=left) {
+		set_pos( p );
+		set_text( t );
+		color = c;
+		align = a;
+	}
 
 	/**
-	 * setzt den Text des Labels
+	 * Sets the text to display, after translating it.
 	 * @author Hansjörg Malthaner
 	 */
 	void set_text(const char *text);
 
 	/**
-	 * set the text without translation
+	 * Sets the text without translation.
 	 * @author Hansjörg Malthaner
 	 */
-	void set_text_pointer(const char *text) { this->text = text; }
+	void set_text_pointer(const char *text);
 
 	/**
 	 * returns the pointer (i.e. for freeing untranslater contents)
@@ -66,7 +75,12 @@ public:
 	const char * get_text_pointer() const { return text; }
 
 	/**
-	 * Zeichnet die Komponente
+	 * returns the tooltip pointer (i.e. for freeing untranslater contents)
+	 */
+	const char * get_tooltip_pointer() { return tooltip; }
+
+	/**
+	 * Draws the component.
 	 * @author Hj. Malthaner
 	 */
 	void zeichnen(koord offset);
@@ -75,16 +89,21 @@ public:
 	 * Sets the colour of the label
 	 * @author Owen Rudge
 	 */
-	void set_color(int colour) { this->color = colour; }
-	uint8 get_color() const { return color; }
+	void set_color(COLOR_VAL colour) { this->color = colour; }
+	COLOR_VAL get_color() const { return color; }
 
 	/**
 	 * Sets the alignment of the label
 	 * @author Volker Meyer
 	 */
-
-	align_t get_align() const {return align;}
 	void set_align(align_t align) { this->align = align; }
+	align_t get_align() const {return align;}
+
+	/**
+	 * Sets the tooltip of this component.
+	 * @author Hj. Malthaner
+	 */
+	void set_tooltip(const char * t);
 };
 
 #endif

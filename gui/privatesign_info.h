@@ -30,8 +30,8 @@ class privatesign_info_t : public ding_infowin_t, public action_listener_t
 	privatesign_info_t(roadsign_t* s);
 
 	/**
-	 * Manche Fenster haben einen Hilfetext assoziiert.
-	 * @return den Dateinamen für die Hilfe, oder NULL
+	 * Set the window associated helptext
+	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
 	const char *get_hilfe_datei() const {return "privatesign_info.txt";}

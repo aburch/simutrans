@@ -18,9 +18,7 @@ class koordhash_tpl
 public:
     static uint32 hash(const key_t key)
     {
-		uint32 hash = key.y << 16;
-		hash |= key.x;
-		return hash;
+		return (uint32)key.y << 16 | key.x;
     }
 
 	static key_t null()
@@ -30,12 +28,14 @@ public:
 
 	static void dump(const key_t key)
     {
-		printf("%d, %d", (koord)key.x, (koord)key.y);
+		printf("%d, %d", key.x, key.y);
     }
 
-	static bool comp(key_t key1, key_t key2)
+	static int comp(key_t key1, key_t key2)
     {
-		return key1 != key2;
+		int d = (int) key1.y - (int) key2.y;
+		if (!d)	d = (int) key1.x - (int) key2.x;
+		return d;
     }
 };
 

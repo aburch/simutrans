@@ -5,6 +5,10 @@
  * (see licence.txt)
  */
 
+/*
+ * Company colors window
+ */
+
 #ifndef gui_kennfarbe_h
 #define gui_kennfarbe_h
 
@@ -17,8 +21,7 @@
 #include "../utils/cbuffer_t.h"
 
 /**
- * Hierueber kann der Spieler seine Kennfarbe einstellen
- *
+ * With this, the player adjusts its colors
  * @author Hj. Malthaner
  */
 class farbengui_t : public gui_frame_t, action_listener_t
@@ -37,8 +40,8 @@ public:
 	farbengui_t(spieler_t *sp);
 
 	/**
-	 * Manche Fenster haben einen Hilfetext assoziiert.
-	 * @return den Dateinamen für die Hilfe, oder NULL
+	 * Set the window associated helptext
+	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
 	const char * get_hilfe_datei() const { return "color.txt"; }

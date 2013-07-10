@@ -10,7 +10,6 @@
 
 
 #include "../dataobj/koord3d.h"
-#include "../simimg.h"
 #include "../simtypes.h"
 #include <string>
 

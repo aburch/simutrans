@@ -33,7 +33,6 @@ protected:
 	const vehikel_basis_t *request_close;
 
 	crossing_state_t zustand;
-	uint32 last_ticks_sound;
 	const kreuzung_besch_t *besch;
 	minivec_tpl<crossing_t *>crossings;
 
@@ -51,7 +50,7 @@ public:
 	 * @return string (only used for debugg at the moment)
 	 * @author prissi
 	 */
-	void info(cbuffer_t & buf) const;
+	void info(cbuffer_t & buf, bool dummy = false) const;
 
 	// recalcs the current state
 	void recalc_state();
@@ -70,7 +69,7 @@ public:
 	 */
 	crossing_state_t get_state() { return zustand; }
 
-	void append_crossing( crossing_t *cr ) { crossings.append_unique(cr,14); }
+	void append_crossing( crossing_t *cr ) { crossings.append_unique(cr); }
 
 	// static routines from here
 private:

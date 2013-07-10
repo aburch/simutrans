@@ -15,9 +15,16 @@
 class karte_t;
 class grund_t;
 class ding_t;
+class stadt_t;
 
 class planquadrat_t;
 void swap(planquadrat_t& a, planquadrat_t& b);
+
+struct nearby_halt_t
+{
+	uint8 distance;
+	halthandle_t halt;
+};
 
 
 /**
@@ -29,12 +36,18 @@ class planquadrat_t
 {
 private:
 	/* list of stations that are reaching to this tile (saves lots of time for lookup) */
-	halthandle_t *halt_list;
+	nearby_halt_t *halt_list;
 
 	uint8 ground_size, halt_list_count;
 
 	/* only one station per ground xy tile */
 	halthandle_t this_halt;
+
+	/**
+	 * If this tile belongs to a city, a pointer to that city.
+	 * This saves much lookup time
+	 */
+	stadt_t* city;
 
 	union DATA {
 		grund_t ** some;    // valid if capacity > 1
@@ -46,7 +59,7 @@ public:
 	 * Constructs a planquadrat with initial capacity of one ground
 	 * @author Hansjörg Malthaner
 	 */
-	planquadrat_t() { ground_size=0; data.one = NULL; halt_list_count=0;  halt_list=NULL; }
+	planquadrat_t() { ground_size=0; data.one = NULL; halt_list_count=0;  halt_list=NULL; city = NULL; }
 
 	~planquadrat_t();
 
@@ -87,17 +100,15 @@ public:
 	* @author Hj. Malthaner
 	*/
 	inline grund_t *get_boden_in_hoehe(const sint16 z) const {
-		if(ground_size==1) {
+		if(  ground_size == 1  ) 
+		{
 			// must be valid ground at this point!
-			if(  data.one->get_hoehe() == z  ) {
-				return data.one;
-			}
+		    return data.one->get_hoehe() == z ? data.one : NULL;
 		}
-		else {
-			for(  uint8 i = 0;  i < ground_size;  i++  ) {
-				if(  data.some[i]->get_hoehe() == z  ) {
-					return data.some[i];
-				}
+		for(  int i = ground_size;  --i >= 0; ) {
+			grund_t *gr = data.some[i];
+			if(  gr->get_hoehe() == z  ) {
+				return gr;
 			}
 		}
 		return NULL;
@@ -139,7 +150,7 @@ public:
 	void abgesenkt(karte_t *welt);
 
 	/**
-	* konvertiert Wasser zu Land wenn über Grundwasserniveau angehoben
+	* Converts water to land when raised above the ground water level
 	* @author Hj. Malthaner
 	*/
 	void angehoben(karte_t *welt);
@@ -155,12 +166,15 @@ public:
 	* @return NULL wenn keine Haltestelle, sonst Zeiger auf Haltestelle
 	* @author Hj. Malthaner
 	*/
-	const halthandle_t get_halt() const {return this_halt;}
+	halthandle_t get_halt() const {return this_halt;}
+
+	stadt_t* get_city() const { return city; }
+	void set_city(stadt_t* value) { city = value; }
 
 private:
 	// these functions are private helper functions for halt_list corrections
-	void halt_list_remove( halthandle_t halt );
-	void halt_list_insert_at( halthandle_t halt, uint8 pos );
+	void halt_list_remove(halthandle_t halt);
+	void halt_list_insert_at(halthandle_t halt, uint8 pos, uint8 distance);
 
 public:
 	/*
@@ -176,13 +190,14 @@ public:
 	*/
 	void remove_from_haltlist(karte_t *welt, halthandle_t halt);
 
-	bool is_connected(halthandle_t halt) const;
+	uint8 get_connected(halthandle_t halt) const;
+	bool is_connected(halthandle_t halt) const { return get_connected(halt) < 255; }
 
 	/**
 	* returns the internal array of halts
 	* @author prissi
 	*/
-	const halthandle_t *get_haltlist() const { return halt_list; }
+	const nearby_halt_t *get_haltlist() const { return halt_list; }
 	uint8 get_haltlist_count() const { return halt_list_count; }
 
 	void rdwr(karte_t *welt, loadsave_t *file, koord pos );

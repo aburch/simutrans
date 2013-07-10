@@ -7,8 +7,11 @@
 
 #include "simdebug.h"
 #include "simdings.h"
+#include "simfab.h"
 #include "simgraph.h"
+#include "simmenu.h"
 #include "simplan.h"
+#include "simwerkz.h"
 #include "simworld.h"
 #include "simhalt.h"
 #include "player/simplay.h"
@@ -190,12 +193,12 @@ void planquadrat_t::kartenboden_setzen(grund_t *bd)
 
 
 /**
- * Ersetzt Boden alt durch neu, löscht Boden alt.
+ * replaces the map solid ground (or water) and deletes the old one
  * @author Hansjörg Malthaner
  */
 void planquadrat_t::boden_ersetzen(grund_t *alt, grund_t *neu)
 {
-	assert(alt!=NULL  &&  neu!=NULL);
+	assert(alt!=NULL  &&  neu!=NULL  &&  !alt->is_halt()  );
 
 	if(ground_size<=1) {
 		assert(data.one==alt  ||  ground_size==0);
@@ -222,7 +225,6 @@ void planquadrat_t::boden_ersetzen(grund_t *alt, grund_t *neu)
 		while(  alt->get_top()>0  ) {
 			neu->obj_add( alt->obj_remove_top() );
 		}
-		// delete old ground
 		delete alt;
 	}
 }
@@ -379,10 +381,12 @@ void planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const si
 			const grund_t* gr=data.some[i];
 			const sint8 h = gr->get_hoehe();
 			// above ground
-			if (h > h0) break;
+			if (h > h0) {
+				break;
+			}
 			// not too low?
 			if (h >= hmin) {
-				const sint16 yypos = ypos - tile_raster_scale_y( (h-h0)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width);
+				const sint16 yypos = ypos - tile_raster_scale_y( (h-h0)*TILE_HEIGHT_STEP, raster_tile_width);
 				gr->display_boden(xpos, yypos, raster_tile_width);
 				gr->display_dinge_all(xpos, yypos, raster_tile_width, is_global);
 			}
@@ -393,32 +397,37 @@ void planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const si
 		gr0->display_boden(xpos, ypos, raster_tile_width);
 	}
 
-	// clip everything at the next tile above
-	clip_dimension p_cr;
-	if(  i < ground_size  ) {
-		p_cr = display_get_clip_wh();
-		for(uint8 j=i; j<ground_size; j++) {
-			const sint8 h = data.some[j]->get_hoehe();
-			// too high?
-			if(  h > hmax  ) {
-				break;
-			}
-			// not too low?
-			if(  h >= hmin  ) {
-				// something on top: clip horizontally to prevent trees etc shining trough bridges
-				const sint16 yh = ypos - tile_raster_scale_y( (h-h0)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width) + ((3*raster_tile_width)>>2);
-				if(  yh >= p_cr.y   &&  yh < p_cr.y+p_cr.h  ) {
-					display_set_clip_wh(p_cr.x, yh, p_cr.w, p_cr.h+p_cr.y-yh);
+	if(  umgebung_t::simple_drawing  ) {
+		// ignore trees going though bridges
+		gr0->display_dinge_all_quick_and_dirty(xpos, ypos, raster_tile_width, is_global);
+	}
+	else {
+		// clip everything at the next tile above
+		clip_dimension p_cr;
+		if(  i < ground_size  ) {
+			p_cr = display_get_clip_wh();
+			for(uint8 j=i; j<ground_size; j++) {
+				const sint8 h = data.some[j]->get_hoehe();
+				// too high?
+				if(  h > hmax  ) {
+					break;
 				}
-				break;
+				// not too low?
+				if(  h >= hmin  ) {
+					// something on top: clip horizontally to prevent trees etc shining trough bridges
+					const sint16 yh = ypos - tile_raster_scale_y( (h-h0)*TILE_HEIGHT_STEP, raster_tile_width) + ((3*raster_tile_width)>>2);
+					if(  yh >= p_cr.y   &&  yh < p_cr.y+p_cr.h  ) {
+						display_set_clip_wh(p_cr.x, yh, p_cr.w, p_cr.h+p_cr.y-yh);
+					}
+					break;
+				}
 			}
 		}
-
-	}
-	gr0->display_dinge_all(xpos, ypos, raster_tile_width, is_global);
-	// restore clipping
-	if(  i<ground_size  ) {
-		display_set_clip_wh(p_cr.x, p_cr.y, p_cr.w, p_cr.h);
+		gr0->display_dinge_all(xpos, ypos, raster_tile_width, is_global);
+		// restore clipping
+		if(  i<ground_size  ) {
+			display_set_clip_wh(p_cr.x, p_cr.y, p_cr.w, p_cr.h);
+		}
 	}
 	// above ground
 	for(  ;  i<ground_size;  i++  ) {
@@ -428,7 +437,7 @@ void planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const si
 		if (h > hmax) break;
 		// not too low?
 		if (h >= hmin) {
-			const sint16 yypos = ypos - tile_raster_scale_y( (h-h0)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width);
+			const sint16 yypos = ypos - tile_raster_scale_y( (h-h0)*TILE_HEIGHT_STEP, raster_tile_width);
 			gr->display_boden(xpos, yypos, raster_tile_width);
 			gr->display_dinge_all(xpos, yypos, raster_tile_width, is_global);
 		}
@@ -436,9 +445,63 @@ void planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const si
 }
 
 
+image_id overlay_img(grund_t *gr)
+{
+	// only transparent outline
+	image_id img;
+	if(  gr->get_typ()==grund_t::wasser  ) {
+		// water is always flat and does not return proper image_id
+		img = grund_besch_t::ausserhalb->get_bild(0);
+	}
+	else {
+		img = gr->get_bild();
+		if(  img==IMG_LEER  ) {
+			// foundations or underground mode
+			img = grund_besch_t::get_ground_tile( gr->get_disp_slope(), gr->get_disp_height() );
+		}
+	}
+	return img;
+}
+
 void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos, const sint8 /*hmin*/, const sint8 /*hmax*/) const
 {
 	grund_t *gr=get_kartenboden();
+
+	// building transformers - show outlines of factories
+
+/*	alternative method of finding selected tool - may be more useful in future but use simpler method for now
+	karte_t *welt = gr->get_welt();
+	werkzeug_t *wkz = welt->get_werkzeug(welt->get_active_player_nr());
+	int tool_id = wkz->get_id();
+
+	if(tool_id==(WKZ_TRANSFORMER|GENERAL_TOOL)....	*/
+
+	if( (grund_t::underground_mode == grund_t::ugm_all  ||  (grund_t::underground_mode == grund_t::ugm_level  &&  gr->get_hoehe() == grund_t::underground_level+1) )
+		&&  gr->get_typ()==grund_t::fundament
+		&&  werkzeug_t::general_tool[WKZ_TRANSFORMER]->is_selected(gr->get_welt())) {
+		gebaeude_t *gb = gr->find<gebaeude_t>();
+		if(gb) {
+			fabrik_t* fab=gb->get_fabrik();
+			if(fab) {
+				PLAYER_COLOR_VAL status = COL_RED;
+				if(fab->get_besch()->is_electricity_producer()) {
+					status = COL_LIGHT_BLUE;
+					if(fab->is_transformer_connected()) {
+						status = COL_LIGHT_TURQUOISE;
+					}
+				}
+				else {
+					if(fab->is_transformer_connected()) {
+						status = COL_ORANGE;
+					}
+					if(fab->get_prodfactor_electric()>0) {
+						status = COL_GREEN;
+					}
+				}
+				display_img_blend( overlay_img(gr), xpos, ypos, status | OUTLINE_FLAG | TRANSPARENT50_FLAG, 0, true);
+			}
+		}
+	}
 
 	// display station owner boxes
 	if(umgebung_t::station_coverage_show  &&  halt_list_count>0) {
@@ -446,37 +509,34 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos, const 
 		if(umgebung_t::use_transparency_station_coverage) {
 
 			// only transparent outline
-			image_id img;
-			if(  gr->get_typ()==grund_t::wasser  ) {
-				// water is always flat and do not return proper imaga_id
-				img = grund_besch_t::ausserhalb->get_bild(0);
-			}
-			else {
-				img = gr->get_bild();
-				if(  img==IMG_LEER  ) {
-					// foundations or underground mode
-					img = grund_besch_t::get_ground_tile( gr->get_disp_slope(), gr->get_disp_height() );
-				}
-			}
+			image_id img = overlay_img(gr);
 
 			for(int halt_count = 0; halt_count < halt_list_count; halt_count++) {
-				const PLAYER_COLOR_VAL transparent = PLAYER_FLAG | OUTLINE_FLAG | (halt_list[halt_count]->get_besitzer()->get_player_color1() + 4);
+				const PLAYER_COLOR_VAL transparent = PLAYER_FLAG | OUTLINE_FLAG | (halt_list[halt_count].halt->get_besitzer()->get_player_color1() + 4);
 				display_img_blend( img, xpos, ypos, transparent | TRANSPARENT25_FLAG, 0, 0);
 			}
-/*
-// unfourtunately, too expensive for display
+#ifdef PLOT_PLAYER_OUTLINE_COLOURS
+			// Earlier code comments considered this was too slow for display, but this does not seem the case as of April 2013.
+			// However, this does not work properly: colours are often displayed incorrectly.
+			// The intention of this seems to be to overlay and blend different players' colours in the display of station coverage.
 			// plot player outline colours - we always plot in order of players so that the order of the stations in halt_list
 			// doesn't affect the colour displayed [since blend(col1,blend(col2,screen)) != blend(col2,blend(col1,screen))]
-			for(int spieler_count = 0; spieler_count<MAX_PLAYER_COUNT; spieler_count++) {
+			for(int spieler_count = 0; spieler_count<MAX_PLAYER_COUNT; spieler_count++)
+			{
 				spieler_t *display_player = gr->get_welt()->get_spieler(spieler_count);
-				const PLAYER_COLOR_VAL transparent = PLAYER_FLAG | OUTLINE_FLAG | (display_player->get_player_color1() * 4 + 4);
-				for(int halt_count = 0; halt_count < halt_list_count; halt_count++) {
-					if(halt_list[halt_count]->get_besitzer() == display_player) {
-						display_img_blend( img, xpos, ypos, transparent | TRANSPARENT25_FLAG, 0, 0);
+				if(display_player)
+				{
+					const PLAYER_COLOR_VAL transparent = PLAYER_FLAG | OUTLINE_FLAG | (display_player->get_player_color1() * 4 + 4);
+					for(int halt_count = 0; halt_count < halt_list_count; halt_count++) 
+					{
+						if(halt_list[halt_count].halt->get_besitzer() == display_player)
+						{
+							display_img_blend( img, xpos, ypos, transparent | TRANSPARENT25_FLAG, 0, 0);
+						}
 					}
 				}
 			}
-	*/
+#endif
 		}
 		else {
 			const sint16 raster_tile_width = get_tile_raster_width();
@@ -487,8 +547,8 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos, const 
 			const bool kartenboden_dirty = gr->get_flag(grund_t::dirty);
 			const sint16 off = (raster_tile_width>>5);
 			// suitable start search
-			for(sint16 h=halt_list_count-1;  h>=0;  h--  ) {
-				display_fillbox_wh_clip(x - h * off, y + h * off, r, r, PLAYER_FLAG | (halt_list[h]->get_besitzer()->get_player_color1() + 4), kartenboden_dirty);
+			for (size_t h = halt_list_count; h-- != 0;) {
+				display_fillbox_wh_clip(x - h * off, y + h * off, r, r, PLAYER_FLAG | (halt_list[h].halt->get_besitzer()->get_player_color1() + 4), kartenboden_dirty);
 			}
 		}
 	}
@@ -499,7 +559,7 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos, const 
 		for(uint8 i=1;  i<ground_size;  i++) {
 			grund_t* gr=data.some[i];
 			const sint8 h = gr->get_disp_height();
-			const sint16 yypos = ypos - (h-h0)*get_tile_raster_width()/(2*Z_TILE_STEP);
+			const sint16 yypos = ypos - (h-h0)*get_tile_raster_width()/2;
 			gr->display_overlay(xpos, yypos );
 		}
 	}
@@ -526,7 +586,7 @@ void planquadrat_t::set_halt(halthandle_t halt)
 void planquadrat_t::halt_list_remove( halthandle_t halt )
 {
 	for( uint8 i=0;  i<halt_list_count;  i++ ) {
-		if(halt_list[i]==halt) {
+		if(halt_list[i].halt == halt) {
 			for( uint8 j=i+1;  j<halt_list_count;  j++  ) {
 				halt_list[j-1] = halt_list[j];
 			}
@@ -537,11 +597,11 @@ void planquadrat_t::halt_list_remove( halthandle_t halt )
 }
 
 
-void planquadrat_t::halt_list_insert_at( halthandle_t halt, uint8 pos )
+void planquadrat_t::halt_list_insert_at(halthandle_t halt, uint8 pos, uint8 distance)
 {
 	// extend list?
 	if((halt_list_count%4)==0) {
-		halthandle_t *tmp = new halthandle_t[halt_list_count+4];
+		nearby_halt_t *tmp = new nearby_halt_t[halt_list_count+4];
 		if(halt_list!=NULL) {
 			// now insert
 			for( uint8 i=0;  i<halt_list_count;  i++ ) {
@@ -555,37 +615,43 @@ void planquadrat_t::halt_list_insert_at( halthandle_t halt, uint8 pos )
 	for( uint8 i=halt_list_count;  i>pos;  i-- ) {
 		halt_list[i] = halt_list[i-1];
 	}
-	halt_list[pos] = halt;
+	halt_list[pos].halt = halt;
+	halt_list[pos].distance = distance;
 	halt_list_count ++;
 }
 
 
-/* The following functions takes at least 8 bytes of memory per tile but speed up passenger generation *
+/* The following functions takes at least 9 bytes of memory per tile but speed up passenger generation *
  * @author prissi
+ * Modified: jamespetts, May 2013
  */
 void planquadrat_t::add_to_haltlist(halthandle_t halt)
 {
-	if(halt.is_bound()) {
+	if(halt.is_bound()) 
+	{
 		unsigned insert_pos = 0;
-		// quick and dirty way to our 2d koodinates ...
+		// Quick and dirty way to our 2d co-ordinates 
 		const koord pos = get_kartenboden()->get_pos().get_2d();
-		if(  halt_list_count > 0  ) {
-
-			// since only the first one gets all, we want the closest halt one to be first
+		uint8 distance;
+		if(halt_list_count > 0)
+		{
+			// Since only the first one gets all, we want the closest halt one to be first
 			halt_list_remove(halt);
 			const koord halt_next_pos = halt->get_next_pos(pos);
-			for(insert_pos=0;  insert_pos<halt_list_count;  insert_pos++) {
-
-
-				if(  shortest_distance(halt_list[insert_pos]->get_next_pos(pos), pos) > shortest_distance(halt_next_pos, pos)  ) {
-					halt_list_insert_at( halt, insert_pos );
+			
+			for(insert_pos = 0; insert_pos < halt_list_count; insert_pos++)
+			{
+				distance = (uint8)shortest_distance(halt_next_pos, pos);
+				if(shortest_distance(halt_list[insert_pos].halt->get_next_pos(pos), pos) > distance) 
+				{
+					halt_list_insert_at(halt, insert_pos, distance);
 					return;
 				}
 			}
 			// not found
 		}
 		// first just or just append to the end ...
-		halt_list_insert_at( halt, halt_list_count );
+		halt_list_insert_at(halt, halt_list_count, (uint8)shortest_distance(halt->get_next_pos(pos), pos));
 	}
 }
 
@@ -621,12 +687,14 @@ void planquadrat_t::remove_from_haltlist(karte_t *welt, halthandle_t halt)
  * true, if this halt is reachable from here
  * @author prissi
  */
-bool planquadrat_t::is_connected(halthandle_t halt) const
+uint8 planquadrat_t::get_connected(halthandle_t halt) const
 {
-	for( uint8 i=0;  i<halt_list_count;  i++  ) {
-		if(halt_list[i]==halt) {
-			return true;
+	for(uint8 i = 0; i < halt_list_count; i++)
+	{
+		if(halt_list[i].halt == halt) 
+		{
+			return halt_list[i].distance;
 		}
 	}
-	return false;
+	return 255;
 }

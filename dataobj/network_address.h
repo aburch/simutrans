@@ -11,19 +11,46 @@ public:
 	uint32 ip;
 	uint32 mask;
 
-	net_address_t(uint32 ip_=0, uint32 mask_ = 0xffffffff) : ip(ip_), mask(mask_) {}
+private:
+	char ipstr[16];
+
+	/**
+	 * Generate human readable representation of this IP address
+	 */
+	void init_ipstr();
+
+public:
+	net_address_t(uint32 ip_=0, uint32 mask_ = 0xffffffff);
 
 	net_address_t(const char *);
+
+	net_address_t(const net_address_t&);
 
 	bool matches(const net_address_t &other) const {
 		return (other.ip & mask)==(ip & mask);
 	}
 
-	void rdwr(packet_t *packet);
+	template<class F> void rdwr(F *packet)
+	{
+		packet->rdwr_long(ip);
+		packet->rdwr_long(mask);
+		if (packet->is_loading()) {
+			ipstr[0] = '\0';
+			init_ipstr();
+		}
+	}
 
-	bool operator==(const net_address_t& other) {
+	/**
+	 * Return human readable representation of this IP address
+	 * @author Timothy Baldock <tb@entropy.me.uk>
+	 */
+	const char* get_str () const;
+
+	bool operator==(const net_address_t& other) const {
 		return ip==other.ip  &&  mask == other.mask;
 	}
+
+	uint32 get_ip() const { return ip; }
 };
 
 class address_list_t : public vector_tpl<net_address_t> {

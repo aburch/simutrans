@@ -15,16 +15,18 @@
 #include "../boden/wasser.h"
 #include "../boden/fundament.h"
 
+#include "../dataobj/scenario.h"
 #include "../dings/leitung2.h"
+#include "../dings/tunnel.h"
 #include "../dings/zeiger.h"
 
 #include "../gui/karte.h"
 #include "../gui/werkzeug_waehler.h"
 
+#include "../simcity.h"
 #include "../simdebug.h"
 #include "../simdepot.h"
 #include "../simhalt.h"
-#include "../simskin.h"
 #include "../simtools.h"
 #include "../simwerkz.h"
 #include "../simworld.h"
@@ -230,14 +232,26 @@ bool hausbauer_t::register_besch(haus_besch_t *besch)
 }
 
 
-
-// the tools must survice closing ...
-static stringhashtable_tpl<wkz_station_t *> station_tool;
-static stringhashtable_tpl<wkz_depot_t *> depot_tool;
-
 // all these menus will need a waytype ...
 void hausbauer_t::fill_menu(werkzeug_waehler_t* wzw, haus_besch_t::utyp utyp, waytype_t wt, sint16 /*sound_ok*/, const karte_t* welt)
 {
+	// check if scenario forbids this
+	uint16 toolnr = 0;
+	switch(utyp) {
+		case haus_besch_t::depot:
+			toolnr = WKZ_DEPOT | GENERAL_TOOL;
+			break;
+		case haus_besch_t::hafen:
+		case haus_besch_t::generic_stop:
+		case haus_besch_t::generic_extension:
+			toolnr = WKZ_STATION | GENERAL_TOOL;
+			break;
+		default: ;
+	}
+	if (toolnr > 0  &&  !welt->get_scenario()->is_tool_allowed(welt->get_active_player(), toolnr, wt)) {
+		return;
+	}
+
 	const uint16 time = welt->get_timeline_year_month();
 DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.get_count());
 	FOR(vector_tpl<haus_besch_t const*>, const besch, station_building) {
@@ -266,10 +280,11 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb ) //gebae
 {
 	const haus_tile_besch_t *tile  = gb->get_tile();
 	const haus_besch_t *hb = tile->get_besch();
+	const uint8 layout = tile->get_layout();
 
 	// get startpos and size
 	const koord3d pos = gb->get_pos() - koord3d( tile->get_offset(), 0 );
-	koord size = tile->get_besch()->get_groesse( tile->get_layout() );
+	koord size = tile->get_besch()->get_groesse( layout );
 	koord k;
 
 	if(tile->get_besch()->get_utyp()==haus_besch_t::firmensitz) {
@@ -290,13 +305,13 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb ) //gebae
 					gebaeude_t *gb_part = gr->find<gebaeude_t>();
 					if(gb_part) {
 						// there may be buildings with holes, so we only remove our or the hole!
-						if(gb_part->get_tile()->get_besch()==hb) {
+						if(gb_part->get_tile()  ==  hb->get_tile(layout, k.x, k.y)) {
 							gb_part->set_fab( NULL );
 							planquadrat_t *plan = welt->access( k+pos.get_2d() );
-							for( int i=plan->get_haltlist_count()-1;  i>=0;  i--  ) {
-								halthandle_t halt = plan->get_haltlist()[i];
-								halt->remove_fabriken( fab );
-								plan->remove_from_haltlist( welt, halt );
+							// Remove factory from the halt's list of factories
+							for (size_t i = plan->get_haltlist_count(); i-- != 0;) {
+								nearby_halt_t nearby_halt = plan->get_haltlist()[i];
+								nearby_halt.halt->remove_fabriken(fab);
 							}
 						}
 					}
@@ -311,40 +326,41 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb ) //gebae
 			}
 		}
 		// remove all transformers
-		for(k.y = pos.y; k.y < pos.y+size.y;  k.y ++) {
-			k.x = pos.x-1;
-			grund_t *gr = welt->lookup_kartenboden(k);
-			if(gr) {
-				senke_t *sk = gr->find<senke_t>();
-				if(sk) delete sk;
-				pumpe_t *pp = gr->find<pumpe_t>();
-				if(pp) delete pp;
-			}
-			k.x = pos.x+size.x;
-			gr = welt->lookup_kartenboden(k);
-			if(gr) {
-				senke_t *sk = gr->find<senke_t>();
-				if(sk) delete sk;
-				pumpe_t *pp = gr->find<pumpe_t>();
-				if(pp) delete pp;
-			}
-		}
-		for(k.x = pos.x; k.x < pos.x+size.x;  k.x ++) {
-			k.y = pos.y-1;
-			grund_t *gr = welt->lookup_kartenboden(k);
-			if(gr) {
-				senke_t *sk = gr->find<senke_t>();
-				if(sk) delete sk;
-				pumpe_t *pp = gr->find<pumpe_t>();
-				if(pp) delete pp;
-			}
-			k.y = pos.y+size.y;
-			gr = welt->lookup_kartenboden(k);
-			if(gr) {
-				senke_t *sk = gr->find<senke_t>();
-				if(sk) delete sk;
-				pumpe_t *pp = gr->find<pumpe_t>();
-				if(pp) delete pp;
+		for(k.y = -1; k.y < size.y+1;  k.y ++) {
+			for(k.x = -1; k.x < size.x+1;  k.x ++) {
+				grund_t *gr = NULL;
+				if (0<=k.x  &&  k.x<size.x  &&  0<=k.y  &&  k.y<size.y) {
+					// look below factory
+					gr = welt->lookup(koord3d(k,-1) + pos);
+				}
+				else {
+					// find transformers near factory
+					gr = welt->lookup_kartenboden(k + pos.get_2d());
+				}
+				if (gr) {
+					senke_t *sk = gr->find<senke_t>();
+					if (sk  &&  sk->get_factory() == fab) {
+						sk->mark_image_dirty(sk->get_bild(), 0);
+						delete sk;
+					}
+					pumpe_t* pp = gr->find<pumpe_t>();
+					if (pp  &&  pp->get_factory() == fab) {
+						pp->mark_image_dirty(pp->get_bild(), 0);
+						delete pp;
+					}
+					// remove tunnel
+					if( (sk!=NULL ||  pp!=NULL)  &&  gr->ist_im_tunnel()  &&  gr->get_top()<=1  ) {
+						if (tunnel_t *t = gr->find<tunnel_t>()) {
+							t->entferne( t->get_besitzer() );
+							delete t;
+						}
+						const koord p = gr->get_pos().get_2d();
+						welt->lookup_kartenboden(p)->clear_flag(grund_t::marked);
+						// remove ground
+						welt->access(p)->boden_entfernen(gr);
+						delete gr;
+					}
+				}
 			}
 		}
 		// end clean up transformers
@@ -358,19 +374,32 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb ) //gebae
 			if(gr) {
 				gebaeude_t *gb_part = gr->find<gebaeude_t>();
 				// there may be buildings with holes, so we only remove our!
-				if(gb_part  &&  gb_part->get_tile()->get_besch()==hb) {
+				if(gb_part  &&  gb_part->get_tile() == hb->get_tile(layout, k.x, k.y)) {
 					// ok, now we can go on with deletion
 					gb_part->entferne( sp );
 					delete gb_part;
+//<<<<<<< HEAD
+//=======
+					// if this was a station building: delete ground
+					if(gr->get_halt().is_bound()) {
+						haltestelle_t::remove(welt, sp, gr->get_pos());
+					}
+//>>>>>>> aburch/master
 					// and maybe restore land below
 					if(gr->get_typ()==grund_t::fundament) {
 						const koord newk = k+pos.get_2d();
 						sint8 new_hgt;
 						const uint8 new_slope = welt->recalc_natural_slope(newk,new_hgt);
+						// test for ground at new height
 						const grund_t *gr2 = welt->lookup(koord3d(newk,new_hgt));
+						if((gr2 == NULL  ||  gr2 == gr) &&  new_slope!=hang_t::flach) {
+							// and for ground above new sloped tile
+							gr2 = welt->lookup(koord3d(newk, new_hgt+1));
+						}
 						bool ground_recalc = true;
 						if(gr2  &&  gr2!=gr) {
-							// there is another ground below => do not change height, keep foundation
+							// there is another ground below or above
+							// => do not change height, keep foundation
 							welt->access(newk)->kartenboden_setzen( new boden_t(welt, gr->get_pos(), hang_t::flach ) );
 							ground_recalc = false;
 						}
@@ -378,7 +407,7 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb ) //gebae
 							welt->access(newk)->kartenboden_setzen(new wasser_t(welt, koord3d(newk,new_hgt) ) );
 						}
 						else {
-							if(  (gr2==NULL  ||  gr2==gr)  &&  gr->get_grund_hang()==new_slope  ) {
+							if(  gr->get_grund_hang()==new_slope  ) {
 								ground_recalc = false;
 							}
 							welt->access(newk)->kartenboden_setzen(new boden_t(welt, koord3d(newk,new_hgt), new_slope) );
@@ -417,7 +446,6 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int org
 			const haus_tile_besch_t *tile = besch->get_tile(layout, k.x, k.y);
 			// here test for good tile
 			if (tile == NULL || (
-						k != koord(0, 0) &&
 						besch->get_utyp() != haus_besch_t::hafen &&
 						tile->get_hintergrund(0, 0, 0) == IMG_LEER &&
 						tile->get_vordergrund(0, 0)    == IMG_LEER
@@ -432,7 +460,6 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int org
 			}
 
 			if(besch->ist_fabrik()) {
-//DBG_DEBUG("hausbauer_t::baue()","set_fab() at %i,%i",k.x,k.y);
 				gb->set_fab((fabrik_t *)param);
 			}
 			// try to fake old building
@@ -468,7 +495,81 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int org
 					gr->obj_loesche_alle(sp);	// alles weg außer vehikel ...
 				}
 				needs_ground_recalc |= gr->get_grund_hang()!=hang_t::flach;
-				grund_t *gr2 = new fundament_t(welt, gr->get_pos(), gr->get_grund_hang());
+				// Build fundament up or down?  Up is the default.
+				bool build_up = true;
+				if (dim.x == 1 && dim.y == 1) {
+					// Consider building DOWNWARD.
+					koord front_side_neighbor= koord(0,0);
+					koord other_front_side_neighbor= koord(0,0);
+					switch (org_layout) {
+						case 12:
+						case 4: // SE
+							other_front_side_neighbor = koord(1,0);
+							// fall through
+						case 8:
+						case 0: // south
+							front_side_neighbor = koord(0,1);
+							break;
+						case 13:
+						case 5: // NE
+							other_front_side_neighbor = koord(0,-1);
+							// fall through
+						case 9:
+						case 1: // east
+							front_side_neighbor = koord(1,0);
+							break;
+						case 14:
+						case 6: // NW
+							other_front_side_neighbor = koord(-1,0);
+							// fall through
+						case 10:
+						case 2: // north
+							front_side_neighbor = koord(0,-1);
+							break;
+						case 15:
+						case 7: // SW
+							other_front_side_neighbor = koord(0,1);
+							// fall through
+						case 11:
+						case 3: // west
+							front_side_neighbor = koord(-1,0);
+							break;
+						default: // should not happen
+							break;
+					}
+					if(  front_side_neighbor != koord(0,0)  ) {
+						const grund_t* front_gr = welt->lookup_kartenboden(pos.get_2d() + front_side_neighbor);
+						if(  !front_gr || (front_gr->get_weg_hang() != hang_t::flach)  ) {
+							// Nothing in front, or sloped.  For a corner building, try the other front side.
+							if(  other_front_side_neighbor != koord(0,0)  ) {
+								const grund_t* other_front_gr = welt->lookup_kartenboden(pos.get_2d() + other_front_side_neighbor);
+								if (other_front_gr && (other_front_gr->get_weg_hang() == hang_t::flach)  ) {
+									// Prefer the other front side.
+									front_side_neighbor = other_front_side_neighbor;
+									front_gr = other_front_gr;
+								}
+							}
+						}
+						if(  front_gr  ) {
+							// There really is land in front of this building
+							sint8 front_z = front_gr->get_pos().z + front_gr->get_weg_yoff();
+							// get_weg_yoff will change from the "ground" level to the level of
+							// a flat bridge end on a slope.  (Otherwise it's zero.)
+							// So this is the desired level...
+							if (front_z == gr->get_pos().z) {
+								// Build down to meet the front side.
+								build_up = false;
+							}
+							// Otherwise, prefer to build up.
+							// We are doing the correct thing whenever the building is facing a flat road.
+							// When it isn't, we are doing the right thing (digging down to the base of the
+							// road) in the typical circumstance.  It looks bad on "inside corners" with
+							// hills on two sides; it looks good everywhere else.
+						}
+					}
+				}
+				// Build a "fundament" to put the building on.
+				grund_t *gr2 = new fundament_t(welt, gr->get_pos(), gr->get_grund_hang(), build_up);
 				welt->access(gr->get_pos().get_2d())->boden_ersetzen(gr, gr2);
 				gr = gr2;
 //DBG_DEBUG("hausbauer_t::baue()","ground count now %i",gr->obj_count());
@@ -476,7 +577,7 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int org
 				if(lt) {
 					gr->obj_add( lt );
 				}
-				if(needs_ground_recalc  &&  welt->ist_in_kartengrenzen(pos.get_2d()+k+koord(1,1))  &&  (k.y+1==dim.y  ||  k.x+1==dim.x)) {
+				if(needs_ground_recalc  &&  welt->is_within_limits(pos.get_2d()+k+koord(1,1))  &&  (k.y+1==dim.y  ||  k.x+1==dim.x)) {
 					welt->lookup_kartenboden(pos.get_2d()+k+koord(1,0))->calc_bild();
 					welt->lookup_kartenboden(pos.get_2d()+k+koord(0,1))->calc_bild();
 					welt->lookup_kartenboden(pos.get_2d()+k+koord(1,1))->calc_bild();
@@ -513,9 +614,7 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int org
 }
 
 
-
-gebaeude_t *
-hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int built_layout, const haus_besch_t *besch, void *param)
+gebaeude_t *hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int built_layout, const haus_besch_t *besch, void *param)
 {
 	uint8 corner_layout = 6;	// assume single building (for more than 4 layouts)
 
@@ -555,7 +654,7 @@ hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int built
 					uint8 layoutbase = gb->get_tile()->get_layout();
 					if((layoutbase & 1) == (layout & 1)) {
 						layoutbase &= 0xb; // clear near bit on neighbour
-						gb->set_tile(gb->get_tile()->get_besch()->get_tile(layoutbase, xy.x, xy.y));
+						gb->set_tile( gb->get_tile()->get_besch()->get_tile(layoutbase, xy.x, xy.y), false );
 					}
 				}
 			}
@@ -579,7 +678,7 @@ hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int built
 					uint8 layoutbase = gb->get_tile()->get_layout();
 					if((layoutbase & 1) == (layout & 1)) {
 						layoutbase &= 0xd; // clear far bit on neighbour
-						gb->set_tile(gb->get_tile()->get_besch()->get_tile(layoutbase, xy.x, xy.y));
+						gb->set_tile( gb->get_tile()->get_besch()->get_tile(layoutbase, xy.x, xy.y), false );
 					}
 				}
 			}
@@ -632,14 +731,14 @@ hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int built
 	// remove pointer
 	grund_t *gr = welt->lookup(pos);
 	zeiger_t* zeiger = gr->find<zeiger_t>();
-	if (zeiger) {
+	if(  zeiger  ) {
 		gr->obj_remove(zeiger);
 		zeiger->set_flag(ding_t::not_on_map);
 	}
 
 	gr->obj_add(gb);
 
-	if(station_building.is_contained(besch)  &&  besch->get_utyp()!=haus_besch_t::depot) {
+	if(  station_building.is_contained(besch)  &&  besch->get_utyp()!=haus_besch_t::depot  ) {
 		// is a station/bus stop
 		(*static_cast<halthandle_t *>(param))->add_grund(gr);
 		gr->calc_bild();
@@ -680,11 +779,18 @@ const haus_besch_t* hausbauer_t::get_random_station(const haus_besch_t::utyp uty
 {
 	weighted_vector_tpl<const haus_besch_t*> stops;
 
+	if (wt < 0) {
+		return NULL;
+	}
+
 	FOR(vector_tpl<haus_besch_t const*>, const besch, station_building) {
-		if(besch->get_utyp()==utype  &&  besch->get_extra()==wt  &&  (enables==0  ||  (besch->get_enabled()&enables)!=0)) {
+		if(besch->get_utyp()==utype  &&  besch->get_extra()==(uint32)wt  &&  (enables==0  ||  (besch->get_enabled()&enables)!=0)) {
+			if( !besch->can_be_built_aboveground()) {
+				continue;
+			}
 			// ok, now check timeline
 			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
-				stops.append(besch,max(1,16-besch->get_level()*besch->get_b()*besch->get_h()),16);
+				stops.append(besch,max(1,16-besch->get_level()*besch->get_b()*besch->get_h()));
 			}
 		}
 	}
@@ -714,7 +820,7 @@ const haus_besch_t* hausbauer_t::get_special(uint32 bev, haus_besch_t::utyp utyp
 			if(cl==MAX_CLIMATES  ||  besch->is_allowed_climate(cl)) {
 				// ok, now check timeline
 				if(time==0  ||  (besch->get_intro_year_month()<=time  &&  (ignore_retire  ||  besch->get_retire_year_month() > time)  )  ) {
-					auswahl.append(besch,besch->get_chance(),4);
+					auswahl.append(besch, besch->get_chance());
 				}
 			}
 		}
@@ -731,19 +837,20 @@ const haus_besch_t* hausbauer_t::get_special(uint32 bev, haus_besch_t::utyp utyp
 
 
 /**
- * tries to find something that matches this entry
+ * Try to find a suitable city building from the given list
  * it will skip and jump, and will never return zero, if there is at least a single valid entry in the list
+ * @author Nathanael Nerode (neroden) for clustering
  * @author Hj. Malthaner
  */
-static const haus_besch_t* get_aus_liste(const vector_tpl<const haus_besch_t*>& liste, int level, uint16 time, climate cl, bool allow_earlier)
+static const haus_besch_t* get_city_building_from_list(const vector_tpl<const haus_besch_t*>& building_list, int level, uint16 time, climate cl, bool allow_earlier, uint32 clusters)
 {
-	weighted_vector_tpl<const haus_besch_t *> auswahl(16);
+	weighted_vector_tpl<const haus_besch_t *> selections(16);
 
-//	DBG_MESSAGE("hausbauer_t::get_aus_liste()","target level %i", level );
+//	DBG_MESSAGE("hausbauer_t::get_city_building_from_list()","target level %i", level );
 	const haus_besch_t *besch_at_least=NULL;
-	FOR(vector_tpl<haus_besch_t const*>, const besch, liste)
+	FOR(vector_tpl<haus_besch_t const*>, const besch, building_list)
 	{
-		const uint16 random = simrand(100, "static const haus_besch_t* get_aus_liste");
+		const uint16 random = simrand(100, "static const haus_besch_t* get_city_building_from_list");
 		if(	besch->is_allowed_climate(cl)  &&
 			besch->get_chance()>0  &&
 			(time==0  ||  (besch->get_intro_year_month()<=time  &&  ((allow_earlier && random > 65) || besch->get_retire_year_month()>time)))) {
@@ -752,59 +859,72 @@ static const haus_besch_t* get_aus_liste(const vector_tpl<const haus_besch_t*>& 
 
 		const int thislevel = besch->get_level();
 		if(thislevel>level) {
-			if (auswahl.empty()) {
-				// continue with search ...
+			if (selections.empty()) {
+				// Nothing of the correct level.  Continue with search of next level.
 				level = thislevel;
 			}
 			else {
-				// ok, we found something
+				// We already found something of the correct level; stop.
 				break;
 			}
 		}
 
-		if(thislevel==level  &&  besch->get_chance()>0) {
-			if(cl==MAX_CLIMATES  ||  besch->is_allowed_climate(cl)) {
-				if(time==0  ||  (besch->get_intro_year_month()<=time  &&  ((allow_earlier && random > 65) || besch->get_retire_year_month()>time))) {
-//				DBG_MESSAGE("hausbauer_t::get_aus_liste()","appended %s at %i", besch->get_name(), thislevel );
-					auswahl.append(besch,besch->get_chance(),4);
+		if(  thislevel == level  &&  besch->get_chance() > 0  ) {
+			if(  cl==MAX_CLIMATES  ||  besch->is_allowed_climate(cl)  ) {
+				if(  time == 0  ||  (besch->get_intro_year_month() <= time  &&  ((allow_earlier && random > 65) || besch->get_retire_year_month() > time ))  ) {
+//					DBG_MESSAGE("hausbauer_t::get_city_building_from_list()","appended %s at %i", besch->get_name(), thislevel );
+					/* Level, time period, and climate are all OK.
+					 * Now modify the chance rating by a factor based on the clusters.
+					 */
+					int chance = besch->get_chance();
+					if(  clusters  ) {
+						uint32 my_clusters = besch->get_clusters();
+						if(  my_clusters & clusters  ) {
+							chance *= stadt_t::get_cluster_factor();
+						}
+					}
+					selections.append(besch, chance);
 				}
 			}
 		}
 	}
 
-	if(auswahl.get_sum_weight()==0) {
+	if(selections.get_sum_weight()==0) {
 		// this is some level below, but at least it is something
 		return besch_at_least;
 	}
-	if(auswahl.get_count()==1) {
-		return auswahl.front();
+	if(selections.get_count()==1) {
+		return selections.front();
 	}
 	// now there is something to choose
-	return pick_any_weighted(auswahl);
+	return pick_any_weighted(selections);
 }
 
 
-const haus_besch_t* hausbauer_t::get_gewerbe(int level, uint16 time, climate cl, bool allow_earlier)
+const haus_besch_t* hausbauer_t::get_commercial(int level, uint16 time, climate cl, bool allow_earlier, uint32 clusters)
 {
-	return get_aus_liste(gewerbehaeuser, level, time, cl, allow_earlier);
+	return get_city_building_from_list(gewerbehaeuser, level, time, cl, allow_earlier, clusters);
 }
 
 
-const haus_besch_t* hausbauer_t::get_industrie(int level, uint16 time, climate cl, bool allow_earlier)
+const haus_besch_t* hausbauer_t::get_industrial(int level, uint16 time, climate cl, bool allow_earlier, uint32 clusters)
 {
-	return get_aus_liste(industriehaeuser, level, time, cl, allow_earlier);
+	return get_city_building_from_list(industriehaeuser, level, time, cl, allow_earlier, clusters);
 }
 
 
-const haus_besch_t* hausbauer_t::get_wohnhaus(int level, uint16 time, climate cl, bool allow_earlier)
+const haus_besch_t* hausbauer_t::get_residential(int level, uint16 time, climate cl, bool allow_earlier, uint32 clusters)
 {
-	return get_aus_liste(wohnhaeuser, level, time, cl, allow_earlier);
+	return get_city_building_from_list(wohnhaeuser, level, time, cl, allow_earlier, clusters);
 }
 
 const haus_besch_t* hausbauer_t::get_headquarter(int level, uint16 time)
 {
+	if (level < 0) {
+		return NULL;
+	}
 	FOR(vector_tpl<haus_besch_t const*>, const besch, hausbauer_t::headquarter) {
-		if (besch->get_extra() == level  &&  !besch->is_future(time)  &&  !besch->is_retired(time)) {
+		if (besch->get_extra() == (uint32)level  &&  !besch->is_future(time)  &&  !besch->is_retired(time)) {
 			return besch;
 		}
 	}
@@ -821,8 +941,8 @@ const haus_besch_t *hausbauer_t::waehle_aus_liste(vector_tpl<const haus_besch_t 
 		weighted_vector_tpl<const haus_besch_t *> auswahl(16);
 		FOR(vector_tpl<haus_besch_t const*>, const besch, liste) {
 			if((cl==MAX_CLIMATES  ||  besch->is_allowed_climate(cl))  &&  besch->get_chance()>0  &&  (time==0  ||  (besch->get_intro_year_month()<=time  &&  (ignore_retire  ||  besch->get_retire_year_month()>time)  )  )  ) {
-//				DBG_MESSAGE("hausbauer_t::get_aus_liste()","appended %s at %i", besch->get_name(), thislevel );
-				auswahl.append(besch,besch->get_chance(),4);
+//				DBG_MESSAGE("hausbauer_t::waehle_aus_liste()","appended %s at %i", besch->get_name(), thislevel );
+				auswahl.append(besch, besch->get_chance());
 			}
 		}
 		// now look, what we have got ...

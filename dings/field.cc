@@ -20,7 +20,11 @@
 #include "field.h"
 
 
+#ifdef INLINE_DING_TYPE
+field_t::field_t(karte_t *welt, koord3d p, spieler_t *sp, const field_class_besch_t *besch, fabrik_t *fab) : ding_t(welt, ding_t::field)
+#else
 field_t::field_t(karte_t *welt, koord3d p, spieler_t *sp, const field_class_besch_t *besch, fabrik_t *fab) : ding_t(welt)
+#endif
 {
 	this->besch = besch;
 	this->fab = fab;
@@ -40,8 +44,8 @@ field_t::~field_t()
 
 const char *field_t::ist_entfernbar(const spieler_t *)
 {
-	// we allow removal, if there is less than
-	return (fab->get_field_count() > fab->get_besch()->get_field_group()->get_min_fields()) ? NULL : "Not enough fields would remain.";
+	// Allow removal provided that the number of fields do not fall below half the minimum
+	return (fab->get_field_count() > fab->get_besch()->get_field_group()->get_min_fields() / 2) ? NULL : "Not enough fields would remain.";
 }
 
 
@@ -49,7 +53,7 @@ const char *field_t::ist_entfernbar(const spieler_t *)
 // remove costs
 void field_t::entferne(spieler_t *sp)
 {
-	spieler_t::accounting(sp, welt->get_settings().cst_multiply_remove_field, get_pos().get_2d(), COST_CONSTRUCTION);
+	spieler_t::book_construction_costs(sp, welt->get_settings().cst_multiply_remove_field, get_pos().get_2d(), ignore_wt);
 	mark_image_dirty( get_bild(), 0 );
 }
 
@@ -85,7 +89,5 @@ image_id field_t::get_bild() const
 void field_t::zeige_info()
 {
 	// show the info of the corresponding factory
-	grund_t *gr = welt->lookup(fab->get_pos());
-	gebaeude_t* gb = gr->find<gebaeude_t>();
-	gb->zeige_info();
+	fab->zeige_info();
 }

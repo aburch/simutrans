@@ -9,24 +9,27 @@
 #include "../simworld.h"
 #include "../simmenu.h"
 
+#include "../dataobj/scenario.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/umgebung.h"
 #include "message_frame_t.h"
 #include "../simmesg.h"
 #include "message_option_t.h"
+#include "../dataobj/network_cmd_ingame.h"
+#include "../player/simplay.h"
 
-#include "components/list_button.h"
+
 #include "components/action_listener.h"
 
 
-#define MAX_MESG_TABS (7)
+#define MAX_MESG_TABS (8)
 
 karte_t *message_frame_t::welt = NULL;
 
-static sint32 categories[MAX_MESG_TABS+1] =
+static sint32 categories[MAX_MESG_TABS] =
 {
-	-1,
 	(1 << message_t::chat),
+	(1 << message_t::scenario),
 	(1 << message_t::problems),
 	(1 << message_t::traffic_jams) | (1 << message_t::warnings),
 	(1 << message_t::full),
@@ -38,6 +41,7 @@ static sint32 categories[MAX_MESG_TABS+1] =
 static const char *tab_strings[]=
 {
 	"Chat_msg",
+	"Scenario_msg",
 	"Problems_msg",
 	"Warnings_msg",
 	"Station_msg",
@@ -59,15 +63,26 @@ message_frame_t::message_frame_t(karte_t *welt) :
 	scrolly.set_scroll_amount_y(LINESPACE+1);
 
 	// Knightly : add tabs for classifying messages
-	tabs.set_pos( koord(0, BUTTON_HEIGHT) );
+	tabs.set_pos( koord(0, D_BUTTON_HEIGHT) );
 	tabs.add_tab( &scrolly, translator::translate("All") );
-	for(  int i=umgebung_t::networkmode ? 0 : 1;  i<MAX_MESG_TABS;  ++i  ) {
+	tab_categories.append( -1 );
+
+	if (umgebung_t::networkmode) {
+		tabs.add_tab( &scrolly, translator::translate(tab_strings[0]) );
+		tab_categories.append( categories[0] );
+	}
+	if (welt->get_scenario()->is_scripted()) {
+		tabs.add_tab( &scrolly, translator::translate(tab_strings[1]) );
+		tab_categories.append( categories[1] );
+	}
+	for(  int i=2;  i<MAX_MESG_TABS;  ++i  ) {
 		tabs.add_tab( &scrolly, translator::translate(tab_strings[i]) );
+		tab_categories.append( categories[i] );
 	}
 	tabs.add_listener(this);
 	add_komponente(&tabs);
 
-	option_bt.init(button_t::roundbox, translator::translate("Optionen"), koord(BUTTON1_X,0), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	option_bt.init(button_t::roundbox, translator::translate("Optionen"), koord(BUTTON1_X,0), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	option_bt.add_listener(this);
 	add_komponente(&option_bt);
 
@@ -76,12 +91,13 @@ message_frame_t::message_frame_t(karte_t *welt) :
 	input.add_listener(this);
 	input.set_pos(koord(BUTTON2_X,0));
 	if(  umgebung_t::networkmode  ) {
+		set_transparent( umgebung_t::chat_window_transparency, COL_WHITE );
 		add_komponente(&input);
 		set_focus( &input );
 	}
 
-	set_fenstergroesse(koord(TOTAL_WIDTH, TITLEBAR_HEIGHT+BUTTON_HEIGHT+gui_tab_panel_t::HEADER_VSIZE+2+16*(LINESPACE+1)+scrollbar_t::BAR_SIZE));
-	set_min_windowsize(koord(BUTTON3_X, TITLEBAR_HEIGHT+BUTTON_HEIGHT+gui_tab_panel_t::HEADER_VSIZE+2+3*(LINESPACE+1)+scrollbar_t::BAR_SIZE));
+	set_fenstergroesse(koord(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT+gui_tab_panel_t::HEADER_VSIZE+2+16*(LINESPACE+1)+scrollbar_t::BAR_SIZE));
+	set_min_windowsize(koord(BUTTON3_X, D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT+gui_tab_panel_t::HEADER_VSIZE+2+3*(LINESPACE+1)+scrollbar_t::BAR_SIZE));
 
 	set_resizemode(diagonal_resize);
 	resize(koord(0,0));
@@ -97,10 +113,10 @@ message_frame_t::message_frame_t(karte_t *welt) :
 void message_frame_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta);
-	koord groesse = get_fenstergroesse()-koord(0,TITLEBAR_HEIGHT+BUTTON_HEIGHT);
-	input.set_groesse(koord(groesse.x-scrollbar_t::BAR_SIZE-BUTTON2_X, BUTTON_HEIGHT));
+	koord groesse = get_fenstergroesse()-koord(0,D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT);
+	input.set_groesse(koord(groesse.x-scrollbar_t::BAR_SIZE-BUTTON2_X, D_BUTTON_HEIGHT));
 	tabs.set_groesse(groesse);
-	scrolly.set_groesse(groesse-koord(0,BUTTON_HEIGHT+4+1));
+	scrolly.set_groesse(groesse-koord(0,D_BUTTON_HEIGHT+4+1));
 }
 
 
@@ -111,20 +127,42 @@ bool message_frame_t::action_triggered( gui_action_creator_t *komp, value_t v )
 		create_win(320, 200, new message_option_t(welt), w_info, magic_message_options );
 	}
 	else if(  komp==&input  &&  ibuf[0]!=0  ) {
-		// add message via tool!
-		werkzeug_t *w = create_tool( WKZ_ADD_MESSAGE_TOOL | SIMPLE_TOOL );
-		w->set_default_param( ibuf );
-		welt->set_werkzeug( w, welt->get_active_player() );
-		// since init always returns false, it is save to delete immediately
-		delete w;
+		// Send chat message to server for distribution
+		nwc_chat_t* nwchat = new nwc_chat_t( ibuf, welt->get_active_player()->get_player_nr(), umgebung_t::nickname.c_str() );
+		network_send_server( nwchat );
+
 		ibuf[0] = 0;
-		set_focus(&input);
 	}
 	else if(  komp==&tabs  ) {
 		// Knightly : filter messages by type where necessary
-		if(  stats.filter_messages( categories[umgebung_t::networkmode ? v.i : (v.i==0 ? 0 : v.i+1)] )  ) {
+		if(  stats.filter_messages( tab_categories[v.i] )  ) {
 			scrolly.set_scroll_position(0, 0);
 		}
 	}
 	return true;
+}
+
+
+void message_frame_t::rdwr(loadsave_t *file)
+{
+	koord gr = get_fenstergroesse();
+	sint32 scroll_x = scrolly.get_scroll_x();
+	sint32 scroll_y = scrolly.get_scroll_y();
+	sint16 tabstate = tabs.get_active_tab_index();
+
+	gr.rdwr( file );
+	file->rdwr_str( ibuf, lengthof(ibuf) );
+	file->rdwr_short( tabstate );
+	file->rdwr_long( scroll_x );
+	file->rdwr_long( scroll_y );
+
+	if(  file->is_loading()  ) {
+		if ( tabstate > 0  &&  (uint32)tabstate < tabs.get_count() ) {
+			tabs.set_active_tab_index( tabstate );
+			stats.filter_messages( tab_categories[tabstate] );
+		}
+		set_fenstergroesse( gr );
+		resize( koord(0,0) );
+		scrolly.set_scroll_position( scroll_x, scroll_y );
+	}
 }

@@ -25,6 +25,7 @@ gui_table_t::gui_table_t() : default_cell_size(99,14)
 	grid_width = koord(1,1);
 	grid_color = COL_BLACK;
 	tooltip[0] = 0;
+	set_grid_visible(false);
 }
 
 

@@ -5,6 +5,10 @@
  * (see licence.txt)
  */
 
+/*
+ * Where factory stats are calculated for list dialog
+ */
+
 #include "factorylist_stats_t.h"
 
 #include "../simgraph.h"
@@ -14,8 +18,8 @@
 #include "../simworld.h"
 #include "../simskin.h"
 
+#include "gui_frame.h"
 #include "components/gui_button.h"
-#include "components/list_button.h"
 
 #include "../bauer/warenbauer.h"
 #include "../besch/skin_besch.h"
@@ -57,6 +61,22 @@ class compare_factories
 					break;
 				}
 
+				case factorylist::by_transit:
+				{
+					int a_transit = a->get_eingang().empty() ? -1 : (int)a->get_total_transit();
+					int b_transit = b->get_eingang().empty() ? -1 : (int)b->get_total_transit();
+					cmp = a_transit - b_transit;
+					break;
+				}
+
+				case factorylist::by_available:
+				{
+					int a_in = a->get_eingang().empty() ? -1 : (int)(a->get_total_in()+a->get_total_transit());
+					int b_in = b->get_eingang().empty() ? -1 : (int)(b->get_total_in()+b->get_total_transit());
+					cmp = a_in - b_in;
+					break;
+				}
+
 				case factorylist::by_output:
 				{
 					int a_out = a->get_ausgang().empty() ? -1 : (int)a->get_total_out();
@@ -77,7 +97,9 @@ class compare_factories
 					cmp = a->get_prodfactor_electric() - b->get_prodfactor_electric();
 					break;
 			}
-			if (cmp == 0) cmp = STRICMP(a->get_name(), b->get_name());
+			if (cmp == 0) {
+				cmp = STRICMP(a->get_name(), b->get_name());
+			}
 			return reverse ? cmp > 0 : cmp < 0;
 		}
 
@@ -104,7 +126,7 @@ bool factorylist_stats_t::infowin_event(const event_t * ev)
 		return false;
 	}
 
-	// deperess goto button
+	// un-press goto button
 	if(  ev->button_state>0  &&  ev->cx>0  &&  ev->cx<15  ) {
 		line_selected = line;
 	}
@@ -129,12 +151,12 @@ bool factorylist_stats_t::infowin_event(const event_t * ev)
 void factorylist_stats_t::recalc_size()
 {
 	// show_scroll_x==false ->> groesse.x not important ->> no need to calc text pixel length
-	set_groesse(koord(210, welt->get_fab_list().get_count()*(LINESPACE+1)-10));
+	set_groesse( koord(210, welt->get_fab_list().get_count() * (LINESPACE+1) ) );
 }
 
 
 /**
- * Zeichnet die Komponente
+ * Draw the component
  * @author Hj. Malthaner
  */
 void factorylist_stats_t::zeichnen(koord offset)
@@ -153,27 +175,22 @@ void factorylist_stats_t::zeichnen(koord offset)
 		recalc_size();
 	}
 
-	for (uint32 i=0; i<fab_list.get_count()  &&  yoff<end; i++) {
+	uint32 sel = line_selected;
+	FORX(vector_tpl<fabrik_t*>, const fab, fab_list, yoff += LINESPACE + 1) {
+		if (yoff >= end) break;
 
 		// skip invisible lines
-		if(yoff<start) {
-			yoff += LINESPACE+1;
-			continue;
-		}
+		if (yoff < start) continue;
 
-		const fabrik_t* fab = fab_list[i];
 		if(fab) {
-			//DBG_DEBUG("factorylist_stats_t()","zeichnen() factory %i",i);
 			unsigned indikatorfarbe = fabrik_t::status_to_color[fab->get_status()];
 
 			buf.clear();
-			//		buf.append(i+1);
-			//		buf.append(".) ");
-			buf.append(fab_list[i]->get_name());
+			buf.append(fab->get_name());
 			buf.append(" (");
 
 			if (!fab->get_eingang().empty()) {
-				buf.append(fab->get_total_in(),0);
+				buf.printf( "%i+%i", fab->get_total_in(), fab->get_total_transit() );
 			}
 			else {
 				buf.append("-");
@@ -193,26 +210,25 @@ void factorylist_stats_t::zeichnen(koord offset)
 
 
 			//display_ddd_box_clip(xoff+7, yoff+2, 8, 8, MN_GREY0, MN_GREY4);
-			display_fillbox_wh_clip(xoff+2, yoff+2, INDICATOR_WIDTH, INDICATOR_HEIGHT, indikatorfarbe, true);
+			display_fillbox_wh_clip(xoff+2, yoff+2, D_INDICATOR_WIDTH, D_INDICATOR_HEIGHT, indikatorfarbe, true);
 
 			if(  fab->get_prodfactor_electric()>0  ) {
-				display_color_img(skinverwaltung_t::electricity->get_bild_nr(0), xoff+4+INDICATOR_WIDTH, yoff, 0, false, true);
+				display_color_img(skinverwaltung_t::electricity->get_bild_nr(0), xoff+4+D_INDICATOR_WIDTH, yoff, 0, false, true);
 			}
 			if(  fab->get_prodfactor_pax()>0  ) {
-				display_color_img(skinverwaltung_t::passagiere->get_bild_nr(0), xoff+4+8+INDICATOR_WIDTH, yoff, 0, false, true);
+				display_color_img(skinverwaltung_t::passagiere->get_bild_nr(0), xoff+4+8+D_INDICATOR_WIDTH, yoff, 0, false, true);
 			}
 			if(  fab->get_prodfactor_mail()>0  ) {
-				display_color_img(skinverwaltung_t::post->get_bild_nr(0), xoff+4+18+INDICATOR_WIDTH, yoff, 0, false, true);
+				display_color_img(skinverwaltung_t::post->get_bild_nr(0), xoff+4+18+D_INDICATOR_WIDTH, yoff, 0, false, true);
 			}
 
 			// show text
-			display_proportional_clip(xoff+INDICATOR_WIDTH+6+28,yoff,buf,ALIGN_LEFT,COL_BLACK,true);
+			display_proportional_clip(xoff+D_INDICATOR_WIDTH+6+28,yoff,buf,ALIGN_LEFT,COL_BLACK,true);
 
 			// goto button
-			display_color_img( i!=line_selected ? button_t::arrow_right_normal : button_t::arrow_right_pushed, xoff-14, yoff, 0, false, true);
-
+			image_id const img = sel-- != 0 ? button_t::arrow_right_normal : button_t::arrow_right_pushed;
+			display_color_img(img, xoff-14, yoff, 0, false, true);
 		}
-		yoff += LINESPACE+1;
 	}
 }
 

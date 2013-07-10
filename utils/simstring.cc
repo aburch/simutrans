@@ -1,5 +1,6 @@
 #include "simstring.h"
 
+#include <math.h>
 #include <assert.h>
 #include <string.h>
 #include <stdio.h>
@@ -95,13 +96,14 @@ void set_large_amout(const char *s, const double v)
  * are made!
  * @author Hj. Malthaner
  */
-void money_to_string(char * p, double f)
+void money_to_string(char * p, double f, const bool show_decimal)
 {
 	char   tmp[128];
 	char   *tp = tmp;
 	int    i,l;
+	bool   is_large = fabs(f)>1000.0*large_number_factor;
 
-	if(  f>1000.0*large_number_factor  ) {
+	if(  is_large  ) {
 		sprintf( tp, "%.1f", f/large_number_factor );
 	}
 	else {
@@ -132,13 +134,13 @@ void money_to_string(char * p, double f)
 	}
 	--p;
 
-	if(  f>1000.0*large_number_factor  ) {
+	if(  is_large  ) {
 		// only decimals for smaller numbers; add large number string instead
 		for(  i=0;  large_number_string[i]!=0;  i++  ) {
 			*p++ = large_number_string[i];
 		}
 	}
-	else {
+	else if(  show_decimal  ) {
 		i = l+1;
 		// only decimals for smaller numbers
 		*p++ = fraction_sep;
@@ -268,9 +270,8 @@ char *tstrncpy(char *dest, const char *src, size_t n)
  */
 void rtrim(char * buf)
 {
-	long l = (long)strlen(buf) - 1;
-	while(  l >= 0  &&  buf[l] > 0  &&  buf[l] <= 32  ) {
-		buf[l--] = '\0';
+	for (size_t l = strlen(buf); l-- != 0 && 0 < buf[l] && buf[l] <= 32;) {
+		buf[l] = '\0';
 	}
 }
 

@@ -5,12 +5,14 @@
  * (see licence.txt)
  */
 
+/*
+ * Where the current factory chart statistics are calculated
+ */
 
 #ifndef factory_chart_h
 #define factory_chart_h
 
 #define MAX_PROD_LABEL      (7-1)
-#define ALIGN_RIGHT_PRD_LABEL	(1-1)
 
 #include "../simfab.h"
 #include "gui_frame.h"
@@ -52,9 +54,13 @@ public:
 	factory_chart_t(const fabrik_t *_factory);
 	virtual ~factory_chart_t();
 
+	void set_factory(const fabrik_t *_factory);
+
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	virtual void zeichnen(koord pos);
+
+	void rdwr( loadsave_t *file );
 };
 
 #endif

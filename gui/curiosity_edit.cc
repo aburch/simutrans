@@ -1,22 +1,19 @@
 /*
  * Copyright (c) 1997 - 2004 Hansjörg Malthaner
  *
- * Line management
- *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
  */
 
+/*
+ * Curiosity (attractions) builder dialog
+ */
+
 #include <stdio.h>
 
-#include "../simcolor.h"
 #include "../simtools.h"
 #include "../simworld.h"
-#include "../simgraph.h"
-#include "../simskin.h"
 #include "../simwerkz.h"
-
-#include "components/list_button.h"
 
 #include "../bauer/hausbauer.h"
 
@@ -63,18 +60,18 @@ curiosity_edit_frame_t::curiosity_edit_frame_t(spieler_t* sp_, karte_t* welt) :
 	bt_city_attraction.add_listener(this);
 	bt_city_attraction.pressed = true;
 	add_komponente(&bt_city_attraction);
-	offset_of_comp += BUTTON_HEIGHT;
+	offset_of_comp += D_BUTTON_HEIGHT;
 
 	bt_land_attraction.init( button_t::square_state, "Land attraction", koord(get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
 	bt_land_attraction.add_listener(this);
 	bt_land_attraction.pressed = true;
 	add_komponente(&bt_land_attraction);
-	offset_of_comp += BUTTON_HEIGHT;
+	offset_of_comp += D_BUTTON_HEIGHT;
 
 	bt_monuments.init( button_t::square_state, "Monument", koord(get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
 	bt_monuments.add_listener(this);
 	add_komponente(&bt_monuments);
-	offset_of_comp += BUTTON_HEIGHT;
+	offset_of_comp += D_BUTTON_HEIGHT;
 
 	lb_rotation_info.set_pos( koord( get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
 	add_komponente(&lb_rotation_info);
@@ -89,7 +86,7 @@ curiosity_edit_frame_t::curiosity_edit_frame_t(spieler_t* sp_, karte_t* welt) :
 
 	lb_rotation.set_pos( koord( get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2+44, offset_of_comp-4 ) );
 	add_komponente(&lb_rotation);
-	offset_of_comp += BUTTON_HEIGHT;
+	offset_of_comp += D_BUTTON_HEIGHT;
 
 	fill_list( is_show_trans_name );
 
@@ -98,7 +95,7 @@ curiosity_edit_frame_t::curiosity_edit_frame_t(spieler_t* sp_, karte_t* welt) :
 
 
 
-// fill the current fablist
+// fill the current hauslist
 void curiosity_edit_frame_t::fill_list( bool translate )
 {
 	const bool allow_obsolete = bt_obsolete.pressed;
@@ -134,7 +131,7 @@ void curiosity_edit_frame_t::fill_list( bool translate )
 		}
 	}
 
-	// now buil scrolled list
+	// now build scrolled list
 	scl.clear_elements();
 	scl.set_selection(-1);
 	FOR(vector_tpl<haus_besch_t const*>, const i, hauslist) {
@@ -247,7 +244,7 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 			}
 		}
 
-		// change lable numbers
+		// change label numbers
 		if(rotation == 255) {
 			tstrncpy(rot_str, translator::translate("random"), lengthof(rot_str));
 		}

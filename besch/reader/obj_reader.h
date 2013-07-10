@@ -109,7 +109,12 @@ public:
 
 	static bool init();
 	static bool laden_abschliessen();
-	static bool load(const char *liste, const char *message);
+	/**
+	 * Loads all pak files from a directory, displaying a progress bar if the display is initialized
+	 * @param path Directory to be scanned for PAK files
+	 * @param message Label to show over the progress bar
+	 */
+	static bool load(const char *path, const char *message);
 };
 
 #endif

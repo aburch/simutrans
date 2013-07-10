@@ -96,7 +96,7 @@ void interrupt_check(const char* caller_info)
 				return;
 			}
 			const long diff = ((now - last_time)*welt_modell->get_time_multiplier())/16;
-			if(diff>0) {
+			if(  diff>0  ) {
 				enabled = false;
 				last_time = now;
 				welt_modell->sync_step( diff, !welt_modell->is_fast_forward(), true );

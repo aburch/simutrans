@@ -6,7 +6,7 @@
  */
 
 /*
- * Dialog zur Sprachauswahl
+ * Dialog for language change
  * Hj. Malthaner, 2000
  */
 
@@ -91,15 +91,17 @@ sprachengui_t::sprachengui_t() :
 {
 	buf.clear();
 	buf.append(translator::translate("LANG_CHOOSE\n"));
-	text_label.set_pos( koord(DIALOG_LEFT,DIALOG_TOP) );
+	text_label.set_pos( koord(D_MARGIN_LEFT,D_MARGIN_TOP) );
 	add_komponente( &text_label );
 
-	flags.set_pos( koord(DIALOG_WIDTH-DIALOG_RIGHT-flags.get_groesse().x,-3) );
+	flags.set_pos( koord(DIALOG_WIDTH-D_MARGIN_RIGHT-flags.get_groesse().x,-3) );
 	add_komponente( &flags);
 
-	seperator.set_pos( koord(DIALOG_LEFT, 37) );
-	seperator.set_groesse( koord(DIALOG_WIDTH-DIALOG_RIGHT-flags.get_groesse().x-DIALOG_LEFT-DIALOG_SPACER,0) );
+	seperator.set_pos( koord(D_MARGIN_LEFT, 37) );
+	seperator.set_groesse( koord(DIALOG_WIDTH-D_MARGIN_RIGHT-flags.get_groesse().x-D_MARGIN_LEFT-D_V_SPACE,0) );
 	add_komponente( &seperator );
+
+	sint16 y_size = max( seperator.get_pos().y + seperator.get_groesse().y, flags.get_pos().y + flags.get_groesse().y) + D_H_SPACE;
 
 	const translator::lang_info* lang = translator::get_langs();
 	for (int i = 0; i < translator::get_language_count(); ++i, ++lang) {
@@ -155,15 +157,15 @@ sprachengui_t::sprachengui_t() :
 	for(uint32 i=0; i<count; i++)
 	{
 		const bool right = 2*i >= count;
-		const sint16 x = DIALOG_LEFT + (right  ? DIALOG_WIDTH/2 : 0);
-		const sint16 y = 44 + BUTTON_HEIGHT * (right ? i - (count+1)/2: i);
+		const sint16 x = D_MARGIN_LEFT + (right  ? DIALOG_WIDTH/2 : 0);
+		const sint16 y = y_size + D_BUTTON_HEIGHT * (right ? i - (count+1)/2: i);
 		buttons[i].button->set_pos(koord(x,y));
 		add_komponente( buttons[i].button );
 	}
 
 	chdir(umgebung_t::user_dir);
 
-	set_fenstergroesse( koord(DIALOG_WIDTH, DIALOG_BOTTOM+44+(translator::get_language_count()/2 + 1)*BUTTON_HEIGHT) );
+	set_fenstergroesse( koord(DIALOG_WIDTH, D_MARGIN_BOTTOM+y_size+( (buttons.get_count()+1)/2 + 1)*D_BUTTON_HEIGHT) );
 }
 
 

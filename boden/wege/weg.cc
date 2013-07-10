@@ -43,8 +43,12 @@
 #include "../../besch/roadsign_besch.h"
 
 #include "../../tpl/slist_tpl.h"
-
 #include "../../dings/wayobj.h"
+
+#if MULTI_THREAD>1
+#include <pthread.h>
+static pthread_mutex_t weg_calc_bild_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+#endif
 
 /**
  * Alle instantiierten Wege
@@ -124,9 +128,9 @@ const char *weg_t::waytype_to_string(waytype_t wt)
  * @author Hj. Malthaner
  */
 
-void weg_t::set_max_weight(uint32 w)
+void weg_t::set_max_axle_load(uint32 w)
 {
-	max_weight = w;
+	max_axle_load = w;
 }
 
 
@@ -140,14 +144,16 @@ void weg_t::set_max_weight(uint32 w)
 void weg_t::set_besch(const weg_besch_t *b)
 {
 	besch = b;
-	if(  hat_gehweg() &&  besch->get_wtyp() == road_wt  &&  besch->get_topspeed() > 50  ) {
-		max_speed = 50;
+	if(hat_gehweg() &&  besch->get_wtyp() == road_wt  &&  besch->get_topspeed() > welt->get_city_road()->get_topspeed())
+	{
+		max_speed = welt->get_city_road()->get_topspeed();
 	}
-	else {
+	else 
+	{
 		max_speed = besch->get_topspeed();
 	}
 
-	max_weight = besch->get_max_weight();
+	max_axle_load = besch->get_max_axle_load();
 	way_constraints = besch->get_way_constraints();
 	const grund_t* gr =  welt->lookup(get_pos());
 	if(gr)
@@ -184,7 +190,7 @@ void weg_t::init()
 {
 	ribi = ribi_maske = ribi_t::keine;
 	max_speed = 450;
-	max_weight = 999;
+	max_axle_load = 999;
 	besch = 0;
 	init_statistics();
 	alle_wege.insert(this);
@@ -205,7 +211,7 @@ weg_t::~weg_t()
 		{
 			maint /= 1.4;
 		}
-		spieler_t::add_maintenance( sp,  -maint );
+		spieler_t::add_maintenance( sp,  -maint, besch->get_finance_waytype() );
 	}
 }
 
@@ -253,9 +259,12 @@ void weg_t::rdwr(loadsave_t *file)
 
 	if(file->get_experimental_version() >= 1)
 	{
-		uint16 wdummy16 = max_weight;
+		if (max_axle_load > 32768) {
+			dbg->error("weg_t::rdwr()", "Max axle load out of range");
+		}
+		uint16 wdummy16 = max_axle_load;
 		file->rdwr_short(wdummy16);
-		max_weight = wdummy16;
+		max_axle_load = wdummy16;
 	}
 }
 
@@ -264,7 +273,7 @@ void weg_t::rdwr(loadsave_t *file)
  * Info-text für diesen Weg
  * @author Hj. Malthaner
  */
-void weg_t::info(cbuffer_t & buf) const
+void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 {
 	ding_t::info(buf);
 
@@ -272,10 +281,16 @@ void weg_t::info(cbuffer_t & buf) const
 	buf.append(" ");
 	buf.append(max_speed);
 	buf.append(translator::translate("km/h\n"));
-
-	buf.append(translator::translate("\nMax. weight:"));
+	if(is_bridge || besch->get_styp() == weg_t::type_elevated || waytype == air_wt || waytype == water_wt)
+	{
+		buf.append(translator::translate("\nMax. weight:"));
+	}
+	else
+	{
+		buf.append(translator::translate("\nMax. axle load:"));
+	}
 	buf.append(" ");
-	buf.append(max_weight);
+	buf.append(max_axle_load);
 	buf.append(translator::translate("tonnen"));
 	buf.append("\n");
 	for(sint8 i = 0; i < way_constraints.get_count(); i ++)
@@ -426,14 +441,6 @@ void weg_t::set_images(image_type typ, uint8 ribi, bool snow, bool switch_nw)
 // much faster recalculation of season image
 bool weg_t::check_season( const long )
 {
-	// use snow image if above snowline and above ground
-	bool snow = (get_pos().z >= welt->get_snowline());
-	bool old_snow = (flags&IS_SNOW)!=0;
-	if(  !(snow ^ old_snow)  ) {
-		// season is not changing ...
-		return true;
-	}
-
 	// no way to calculate this or no image set (not visible, in tunnel mouth, etc)
 	if(  besch==NULL  ||  bild==IMG_LEER  ) {
 		return true;
@@ -445,7 +452,15 @@ bool weg_t::check_season( const long )
 		return true;
 	}
 
-	// set new season
+	// use snow image if above snowline and above ground
+	bool snow = (from->ist_karten_boden()  ||  !from->ist_tunnel())  &&  (get_pos().z >= welt->get_snowline());
+	bool old_snow = (flags&IS_SNOW)!=0;
+	if(  !(snow ^ old_snow)  ) {
+		// season is not changing ...
+		return true;
+	}
+
+	// set snow flake
 	flags &= ~IS_SNOW;
 	if(  snow  ) {
 		flags |= IS_SNOW;
@@ -461,7 +476,7 @@ bool weg_t::check_season( const long )
 		set_images(image_diagonal, ribi, snow);
 	}
 	else if(  ribi_t::is_threeway(ribi)  &&  besch->has_switch_bild()  ) {
-		// there might be two states of the switch; remeber it when changing saesons
+		// there might be two states of the switch; remember it when changing seasons
 		if(  bild==besch->get_bild_nr_switch(ribi, old_snow, false)  ) {
 			set_images(image_switch, ribi, snow, false);
 		}
@@ -480,12 +495,29 @@ bool weg_t::check_season( const long )
 }
 
 
+#if MULTI_THREAD>1
+void weg_t::lock_mutex()
+{
+	pthread_mutex_lock( &weg_calc_bild_mutex );
+}
+
+
+void weg_t::unlock_mutex()
+{
+	pthread_mutex_unlock( &weg_calc_bild_mutex );
+}
+#endif
+
+
 void weg_t::calc_bild()
 {
 	if(!welt)
 	{
 		return;
 	}
+#if MULTI_THREAD>1
+	pthread_mutex_lock( &weg_calc_bild_mutex );
+#endif
 	grund_t *from = welt->lookup(get_pos());
 	grund_t *to;
 	image_id old_bild = bild;
@@ -494,6 +526,13 @@ void weg_t::calc_bild()
 		// no ground, in tunnel
 		set_bild(IMG_LEER);
 		set_after_bild(IMG_LEER);
+		if(  from==NULL  ) {
+			dbg->error( "weg_t::calc_bild()", "Own way at %s not found!", get_pos().get_str() );
+		}
+#if MULTI_THREAD>1
+		pthread_mutex_unlock( &weg_calc_bild_mutex );
+#endif
+		return;	// otherwise crashing during enlargement
 	}
 	else if(  from->ist_tunnel() &&  from->ist_karten_boden()  &&  (grund_t::underground_mode==grund_t::ugm_none || (grund_t::underground_mode==grund_t::ugm_level && from->get_hoehe()<grund_t::underground_level))  ) {
 		// in tunnel mouth, no underground mode
@@ -502,11 +541,14 @@ void weg_t::calc_bild()
 	}
 	else if(  from->ist_bruecke()  &&  from->obj_bei(0)==this  ) {
 		// first way on a bridge (bruecke_t will set the image)
+#if MULTI_THREAD>1
+		pthread_mutex_unlock( &weg_calc_bild_mutex );
+#endif
 		return;
 	}
 	else {
 		// use snow image if above snowline and above ground
-		bool snow = (!from->ist_tunnel()   ||  from->ist_karten_boden())  &&  (get_pos().z >= welt->get_snowline());
+		bool snow = (from->ist_karten_boden()  ||  !from->ist_tunnel())  &&  (get_pos().z >= welt->get_snowline());
 		flags &= ~IS_SNOW;
 		if(  snow  ) {
 			flags |= IS_SNOW;
@@ -544,7 +586,8 @@ void weg_t::calc_bild()
 
 					// now apply diagonal image
 					if(is_diagonal()) {
-						if(besch->get_diagonal_bild_nr(ribi, snow) != IMG_LEER) {
+						if( besch->get_diagonal_bild_nr(ribi, snow) != IMG_LEER  ||
+						    besch->get_diagonal_bild_nr(ribi, snow, true) != IMG_LEER) {
 							set_images(image_diagonal, ribi, snow);
 						}
 					}
@@ -556,6 +599,9 @@ void weg_t::calc_bild()
 		mark_image_dirty(old_bild, from->get_weg_yoff());
 		mark_image_dirty(bild, from->get_weg_yoff());
 	}
+#if MULTI_THREAD>1
+	pthread_mutex_unlock( &weg_calc_bild_mutex );
+#endif
 }
 
 // checks, if this way qualifies as diagonal
@@ -663,7 +709,7 @@ void weg_t::laden_abschliessen()
 			maint *= 10;
 			maint /= 14;
 		}
-		spieler_t::add_maintenance( sp,  maint );
+		spieler_t::add_maintenance( sp,  maint, besch->get_finance_waytype() );
 	}
 }
 

@@ -1,6 +1,4 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
  * This file is part of the Simutrans project under the artistic license.
  * (see license.txt)
  */
@@ -22,6 +20,10 @@
 #	define ALLOCA(type, name, count) type* name = static_cast<type*>(alloca(sizeof(type) * (count)))
 #
 # define inline _inline
+#
+#elif defined __clang__
+#	include <stdlib.h>
+#	define ALLOCA(type, name, count) type* name = static_cast<type*>(alloca(sizeof(type) * (count)))
 #else
 #	define ALLOCA(type, name, count) type name[count]
 #endif
@@ -128,23 +130,31 @@ typedef unsigned short      uint16;
 #ifndef __BEOS__
 typedef   signed int        sint32;
 #define SINT32_MAX_VALUE	INT_MAX
+#ifndef NO_UINT32_TYPES
 typedef unsigned int        uint32;
-#define UINT32_MAX_VALUE	UINT_MAX
+#define UINT32_MAX_VALUE	UINT_MAX	
+#endif
 #else
 // BeOS: int!=long (even though both 32 bit)
 typedef   signed long       sint32;
 #define SINT32_MAX_VALUE	LONG_MAX
+#ifndef NO_UINT32_TYPES
 typedef unsigned long       uint32;
 #define UINT32_MAX_VALUE	ULONG_MAX	
+#endif
 #endif
 typedef   signed long long  sint64;
 typedef unsigned long long  uint64;
 #ifdef _MSC_VER
 #	define GCC_PACKED
+#	define GCC_ALIGN32
+#	define GCC_ALIGN64
 #	define NORETURN __declspec(noreturn)
 #	pragma warning(disable: 4200 4311 4800 4996)
 #else
 #	define GCC_PACKED __attribute__ ((__packed__))
+#	define GCC_ALIGN32 __attribute__ (( __aligned__(4) ))
+#	define GCC_ALIGN64 __attribute__ (( __aligned__(8) ))
 #	define NORETURN   __attribute__ ((noreturn))
 #endif
 #define UINT64_MAX_VALUE	ULLONG_MAX

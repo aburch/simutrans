@@ -5,6 +5,13 @@
  * (see licence.txt)
  */
 
+/**
+ * An adapter class to display info windows for ground (floor) objects
+ *
+ * @author Hj. Malthaner
+ * @date 20-Nov-2001
+ */
+
 #include "../simcolor.h"
 #include "../simgraph.h"
 #include "../simworld.h"
@@ -19,7 +26,7 @@ cbuffer_t grund_info_t::gr_info;
 
 
 grund_info_t::grund_info_t(const grund_t* gr_) :
-gui_frame_t( "", NULL),
+	gui_frame_t( translator::translate(gr_->get_name()), NULL),
 	gr(gr_),
 	view(gr_->get_welt(), gr_->get_pos(), koord( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width()*7)/8) )),
 	textarea(&gr_info, 170 + view.get_groesse().x, view.get_groesse() + koord(10, 10))
@@ -46,15 +53,10 @@ gui_frame_t( "", NULL),
 }
 
 
-
 /**
- * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
- * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
- * in dem die Komponente dargestellt wird.
- * 
- * component redraw. The given values refer to the window, ie they 
- * are the coordinates of the window displays rea in which the component
- * we presented (Google)
+ * Draw new component. The values to be passed refer to the window
+ * i.e. It's the screen coordinates of the window where the
+ * component is displayed.
  */
 void grund_info_t::zeichnen(koord pos, koord groesse)
 {
@@ -79,9 +81,17 @@ void grund_info_t::zeichnen(koord pos, koord groesse)
 }
 
 
-koord3d grund_info_t::get_weltpos()
+koord3d grund_info_t::get_weltpos(bool)
 {
 	return gr->get_pos();
+}
+
+
+bool grund_info_t::is_weltpos()
+{
+	karte_t *welt = gr->get_welt();
+	return ( welt->get_x_off() | welt->get_y_off()) == 0  &&
+		welt->get_world_position() == welt->calculate_world_position( gr->get_pos() );
 }
 
 

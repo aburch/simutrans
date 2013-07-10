@@ -42,6 +42,32 @@ koord haus_tile_besch_t::get_offset() const
 
 
 
+waytype_t haus_besch_t::get_finance_waytype() const
+{
+	switch( get_utyp() )
+	{
+		case haus_besch_t::bahnhof:      return track_wt;
+		case haus_besch_t::bushalt:      return road_wt;
+		case haus_besch_t::hafen:        return water_wt;
+		case haus_besch_t::binnenhafen:  return water_wt;
+		case haus_besch_t::airport:      return air_wt;
+		case haus_besch_t::monorailstop: return monorail_wt;
+		case haus_besch_t::bahnhof_geb:  return track_wt;
+		case haus_besch_t::bushalt_geb:  return road_wt;
+		case haus_besch_t::hafen_geb:    return water_wt;
+		case haus_besch_t::binnenhafen_geb: return water_wt;
+		case haus_besch_t::airport_geb:  return air_wt;
+		case haus_besch_t::monorail_geb: return monorail_wt;
+		case haus_besch_t::depot:
+		case haus_besch_t::generic_stop:
+		case haus_besch_t::generic_extension:
+			return (waytype_t) get_extra();
+		default: return ignore_wt;
+	}
+}
+
+
+
 /**
  * Mail generation level
  * @author Hj. Malthaner
@@ -141,13 +167,14 @@ void haus_besch_t::calc_checksum(checksum_t *chk) const
 	chk->input((uint8)allowed_climates);
 	chk->input(intro_date);
 	chk->input(obsolete_date);
+	chk->input(allow_underground);
 	// now check the layout
 	for(uint8 i=0; i<layouts; i++) {
 		sint16 b=get_b(i);
 		for(sint16 x=0; x<b; x++) {
 			sint16 h=get_h(i);
 			for(sint16 y=0; y<h; y++) {
-				if (get_tile(i,x,y)) {
+				if (get_tile(i,x,y)  &&  get_tile(i,x,y)->has_image()) {
 					chk->input((sint16)(x+y+i));
 				}
 			}

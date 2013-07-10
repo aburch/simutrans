@@ -20,13 +20,13 @@
 
 
 struct bild_t {
+	uint32 len;
 	sint16 x;
 	sint16 y;
 	sint16 w;
 	sint16 h;
-	uint8 zoomable; // some image may not be zoomed i.e. icons
-	uint32 len;	// since the maximum size of a node is uint16!
 	image_id bild_nr;	// Speichern wir erstmal als Dummy mit, wird von register_image() ersetzt
+	uint8 zoomable; // some image may not be zoomed i.e. icons
 	uint16 data[];
 };
 
@@ -63,7 +63,10 @@ public:
 	using obj_besch_t::operator new;
 
 	// decodes this image into a 32 bit bitmap with width target_width
-	void decode_img( sint16 xoff, sint16 yoff, uint32 *target, uint32 target_width, uint32 target_height );
+	void decode_img( sint16 xoff, sint16 yoff, uint32 *target, uint32 target_width, uint32 target_height ) const;
+
+	~bild_besch_t();
+	bild_besch_t() { node_info = NULL; }
 
 private:
 	bild_t pic;

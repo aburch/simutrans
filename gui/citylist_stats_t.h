@@ -5,6 +5,10 @@
  * (see licence.txt)
  */
 
+/*
+ * Where the citylist status are calculated (for graphs and statistics)
+ */
+
 #ifndef CITYLIST_STATS_T_H
 #define CITYLIST_STATS_T_H
 
@@ -21,7 +25,7 @@ namespace citylist {
 };
 
 
-/** City list stats display */
+// City list stats display
 class citylist_stats_t : public gui_komponente_t
 {
 private:
@@ -41,10 +45,10 @@ public:
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
-	/** Recalc the current size required to display everything, and set komponente groesse */
+	// Recalc the current size required to display everything, and set component size
 	void recalc_size();
 
-	/** Zeichnet die Komponente */
+	// Draw the component
 	void zeichnen(koord offset);
 };
 

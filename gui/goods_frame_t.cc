@@ -1,31 +1,48 @@
 /*
  * Copyright (c) 1997 - 2003 Hansjörg Malthaner
+ * Copyright 2013 Nathanael Nerode, James Petts
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
+ */
+
+/*
+ * Goods list dialog
  */
 
 #include <algorithm>
 
 #include "goods_frame_t.h"
 #include "components/gui_scrollpane.h"
-#include "components/list_button.h"
+
 
 #include "../bauer/warenbauer.h"
 #include "../besch/ware_besch.h"
 #include "../dataobj/translator.h"
 
+// For waytype_t
+#include "../simtypes.h"
+
 #include "../simcolor.h"
 #include "../simworld.h"
 #include "../simconvoi.h"
 
+// For revenue stuff
 #include "../besch/ware_besch.h"
 
 /**
  * This variable defines the current speed for bonus calculation
- * @author prissi
+ * This is in the "percentage" form in which it runs from -100 to +infinity,
+ * where 0 means "standard speed" and +100 means "100% more than standard speed"
+ * @author neroden
  */
-int goods_frame_t::relative_speed_change = 100;
+int goods_frame_t::relative_speed_percentage = 0;
+
+/**
+ * This variable contains the selected waytype
+ * Relevant for paks with different speedbonuses by waytype
+ */
+waytype_t goods_frame_t::wtype = road_wt;
 
 /**
  * This variable defines by which column the table is sorted
@@ -43,8 +60,8 @@ goods_frame_t::sort_mode_t goods_frame_t::sortby = unsortiert;
  */
 bool goods_frame_t::sortreverse = false;
 
+uint32 goods_frame_t::distance_meters = 1000;
 uint16 goods_frame_t::distance = 1;
-uint16 goods_frame_t::tile_distance = 0;
 uint8 goods_frame_t::comfort = 50;
 uint8 goods_frame_t::catering_level = 0;
 
@@ -53,7 +70,8 @@ const char *goods_frame_t::sort_text[SORT_MODES] = {
 	"gl_btn_sort_name",
 	"gl_btn_sort_revenue",
 	"gl_btn_sort_bonus",
-	"gl_btn_sort_catg"
+	"gl_btn_sort_catg",
+	"gl_btn_sort_weight"
 };
 
 /**
@@ -63,6 +81,7 @@ const char *goods_frame_t::sort_text[SORT_MODES] = {
  * @author falconne
  */
 bool goods_frame_t::filter_goods = false;
+karte_t *goods_frame_t::welt = NULL;
 
 goods_frame_t::goods_frame_t(karte_t *wl) :
 	gui_frame_t( translator::translate("gl_title") ),
@@ -73,67 +92,36 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	change_comfort_label(comfort_txt,COL_WHITE,gui_label_t::right),
 	change_catering_label(catering_txt,COL_WHITE,gui_label_t::right),
 	*/
+	goods_stats( wl ),
 	scrolly(&goods_stats)
 {
-	wtype = road_wt;
-	
-	this->goods_frame_t::welt = wl;
-	int y=BUTTON_HEIGHT+4-TITLEBAR_HEIGHT;
-	
+	this->welt = wl;
+	int y=D_BUTTON_HEIGHT+4-D_TITLEBAR_HEIGHT;
+
 	speed_bonus[0] = 0;
+
+// change_speed_label.set_text(speed_bonus);
+// change_speed_label.set_pos(koord(BUTTON4_X+5, y));
+// add_komponente(&change_speed_label);
+//
+// speed_down.init(button_t::repeatarrowleft, "", koord(BUTTON4_X-20, y), koord(10,D_BUTTON_HEIGHT));
+// speed_down.add_listener(this);
+// add_komponente(&speed_down);
+//
+// speed_up.init(button_t::repeatarrowright, "", koord(BUTTON4_X+10, y), koord(10,D_BUTTON_HEIGHT));
+// speed_up.add_listener(this);
+// add_komponente(&speed_up);
+//
+// y=D_BUTTON_HEIGHT+4+5*LINESPACE;
+
 	distance_txt[0] = 0;
 	comfort_txt[0] = 0;
 	catering_txt[0] = 0;
-	tile_distance = (1000 * distance) / goods_frame_t::welt->get_settings().get_meters_per_tile();
+	distance_meters = (sint32) 1000 * distance;
 
-	/*
-	change_speed_label.set_pos(koord(BUTTON4_X+5, y + 36));
-	add_komponente(&change_speed_label);
-
-	change_distance_label.set_pos(koord(BUTTON4_X+5, y));
-	add_komponente(&change_distance_label);
-
-	change_comfort_label.set_pos(koord(BUTTON4_X+5, y + 12));
-	add_komponente(&change_comfort_label);
-
-	change_catering_label.set_pos(koord(BUTTON4_X+5, y + 24));
-	add_komponente(&change_catering_label);
-	*/
-
-	//speed_down.init(button_t::repeatarrowleft, "", koord(BUTTON4_X-22, y + 36), koord(10,BUTTON_HEIGHT));
-	//speed_down.add_listener(this);
-	//add_komponente(&distance_input);
-
-	//speed_up.init(button_t::repeatarrowright, "", koord(BUTTON4_X+8, y + 36), koord(10,BUTTON_HEIGHT));
-	//speed_up.add_listener(this);
-	//add_komponente(&speed_up);
-
-	//distance_down.init(button_t::repeatarrowleft, "", koord(BUTTON4_X-22, y), koord(10,BUTTON_HEIGHT));
-	//distance_down.add_listener(this);
-	//add_komponente(&distance_down);
-
-	//distance_up.init(button_t::repeatarrowright, "", koord(BUTTON4_X+8, y), koord(10,BUTTON_HEIGHT));
-	//distance_up.add_listener(this);
-	//add_komponente(&distance_up);
-
-	//comfort_down.init(button_t::repeatarrowleft, "", koord(BUTTON4_X-22, y + 12), koord(10,BUTTON_HEIGHT));
-	//comfort_down.add_listener(this);
-	//add_komponente(&comfort_down);
-
-	//comfort_up.init(button_t::repeatarrowright, "", koord(BUTTON4_X+8, y + 12), koord(10,BUTTON_HEIGHT));
-	//comfort_up.add_listener(this);
-	//add_komponente(&comfort_up);
-
-	//catering_down.init(button_t::repeatarrowleft, "", koord(BUTTON4_X-22, y + 24), koord(10,BUTTON_HEIGHT));
-	//catering_down.add_listener(this);
-	//add_komponente(&catering_down);
-
-	//catering_up.init(button_t::repeatarrowright, "", koord(BUTTON4_X+8, y + 24), koord(10,BUTTON_HEIGHT));
-	//catering_up.add_listener(this);
-	//add_komponente(&catering_up);
 
 	distance_input.set_pos(koord(BUTTON4_X-22, y) );
-	distance_input.set_groesse(koord(60, BUTTON_HEIGHT));
+	distance_input.set_groesse(koord(60, D_BUTTON_HEIGHT));
 	distance_input.set_limits( 1, 9999 );
 	distance_input.set_value( distance );
 	distance_input.wrap_mode( false );
@@ -141,7 +129,7 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	add_komponente(&distance_input);
 
 	comfort_input.set_pos(koord(BUTTON4_X-22, y + 12) );
-	comfort_input.set_groesse(koord(60, BUTTON_HEIGHT));
+	comfort_input.set_groesse(koord(60, D_BUTTON_HEIGHT));
 	comfort_input.set_limits( 1, 255 );
 	comfort_input.set_value( comfort );
 	comfort_input.wrap_mode( false );
@@ -149,7 +137,7 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	add_komponente(&comfort_input);
 
 	catering_input.set_pos(koord(BUTTON4_X-22, y + 24) );
-	catering_input.set_groesse(koord(60, BUTTON_HEIGHT));
+	catering_input.set_groesse(koord(60, D_BUTTON_HEIGHT));
 	catering_input.set_limits( 0, 5 );
 	catering_input.set_value( catering_level );
 	catering_input.wrap_mode( false );
@@ -157,9 +145,9 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	add_komponente(&catering_input);
 
 	speed_input.set_pos(koord(BUTTON4_X-22, y + 36) );
-	speed_input.set_groesse(koord(60, BUTTON_HEIGHT));
+	speed_input.set_groesse(koord(60, D_BUTTON_HEIGHT));
 	speed_input.set_limits( -99, 9999 );
-	speed_input.set_value( relative_speed_change - 100 );
+	speed_input.set_value( relative_speed_percentage );
 	speed_input.wrap_mode( false );
 	speed_input.add_listener( this );
 	add_komponente(&speed_input);
@@ -178,7 +166,7 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	way_type.set_max_size(koord(96, LINESPACE*2+2+16));
 	way_type.set_highlight_color(1);
 	
-	y=BUTTON_HEIGHT+6+5*LINESPACE + 25;
+	y=D_BUTTON_HEIGHT+6+5*LINESPACE + 25;
 
 	filter_goods_toggle.init(button_t::square_state, "Show only used", koord(BUTTON1_X, y));
 	filter_goods_toggle.set_tooltip(translator::translate("Only show goods which are currently handled by factories"));
@@ -192,15 +180,15 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 
 	y += LINESPACE+1;
 
-	sortedby.init(button_t::roundbox, "", koord(BUTTON1_X, y), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	sortedby.init(button_t::roundbox, "", koord(BUTTON1_X, y), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	sortedby.add_listener(this);
 	add_komponente(&sortedby);
 
-	sorteddir.init(button_t::roundbox, "", koord(BUTTON2_X, y), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	sorteddir.init(button_t::roundbox, "", koord(BUTTON2_X, y), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	sorteddir.add_listener(this);
 	add_komponente(&sorteddir);
 
-	y += BUTTON_HEIGHT+2;
+	y += D_BUTTON_HEIGHT+2;
 
 	scrolly.set_pos(koord(1, y));
 
@@ -226,10 +214,10 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 
 	int h = (warenbauer_t::get_waren_anzahl()+1)*(LINESPACE+1)+y;
 	if(h>450) {
-		h = y+27*(LINESPACE+1)+TITLEBAR_HEIGHT+1;
+		h = y+27*(LINESPACE+1)+D_TITLEBAR_HEIGHT+1;
 	}
-	set_fenstergroesse(koord(TOTAL_WIDTH, h));
-	set_min_windowsize(koord(TOTAL_WIDTH,3*(LINESPACE+1)+TITLEBAR_HEIGHT+y+1));
+	set_fenstergroesse(koord(D_DEFAULT_WIDTH, h));
+	set_min_windowsize(koord(D_DEFAULT_WIDTH,3*(LINESPACE+1)+D_TITLEBAR_HEIGHT+y+1));
 
 	set_resizemode(vertical_resize);
 	resize (koord(0,0));
@@ -250,88 +238,43 @@ bool goods_frame_t::compare_goods(uint16 const a, uint16 const b)
 			order = a - b;
 			break;
 		case 2: // sort by revenue
-			{			
-				sint32 price[2];
+			{
+				sint64 price[2];
 				for(uint8 i = 0; i < 2; i ++)
 				{
-					const sint64 base_fare = w[i]->get_fare(tile_distance);
-					const sint64 min_fare = base_fare / 10ll;
-					const uint16 speed_bonus_rating = convoi_t::calc_adjusted_speed_bonus(w[i]->get_speed_bonus(), tile_distance, NULL);
-					const sint64 base_bonus = base_fare * (1000l + (relative_speed_change - 100l) * speed_bonus_rating);
-					const sint64 revenue = max(min_fare, base_bonus);
-					price[i] = revenue;
-
-					const uint16 journey_minutes = ((float)tile_distance / (float)((50 * relative_speed_change)/100)) * 0.3 * 60;
-
-					// Comfort matters more the longer the journey.
-					// @author: jamespetts, March 2010
-					float comfort_modifier;
-					if(journey_minutes <= 2)
-					{
-						comfort_modifier = 0.12F;
+					sint64 relevant_speed = ( welt->get_average_speed(wtype) * (relative_speed_percentage + 100) ) / 100;
+					// Roundoff is deliberate here (get two-digit speed)... question this
+					if (relevant_speed <= 0) {
+						// Negative and zero speeds will be due to roundoff errors
+						relevant_speed = 1;
 					}
-					else if(journey_minutes >= 300)
-					{
-						comfort_modifier = 1.0F;
-					}
-					else
-					{
-						const uint16 differential = journey_minutes - 2;
-						const uint16 max_differential = 300 - 2;
-						const float proportion = (float)differential / (float)max_differential;
-						comfort_modifier = (0.8F * proportion) + 0.2F;
-					}
+					const uint16 journey_tenths = (uint16) tenths_from_meters_and_kmh(distance_meters, relevant_speed);
 
-					if(w[i]->get_catg_index() < 1)
-					{
-						//Passengers care about their comfort
-						const uint8 tolerable_comfort = 65;
-
-						if(comfort > tolerable_comfort)
-						{
-							// Apply luxury bonus
-							const uint8 max_differential = 55;
-							const uint8 differential = comfort - tolerable_comfort;
-							const float multiplier = 4 * comfort_modifier;
-							if(differential >= max_differential)
-							{
-								price[i] += (revenue * multiplier);
-							}
-							else
-							{
-								const float proportion = (float)differential / (float)max_differential;
-								price[i] += revenue * (multiplier * proportion);
-							}
-						}
-						else if(comfort < tolerable_comfort)
-						{
-							// Apply discomfort penalty
-							const uint8 max_differential = 200;
-							const uint8 differential = tolerable_comfort - comfort;
-							const float multiplier = 0.95F * comfort_modifier;
-							if(differential >= max_differential)
-							{
-								price[i] -= (revenue * multiplier);
-							}
-							else
-							{
-								const float proportion = (float)differential / (float)max_differential;
-						 		price[i] -= revenue * (multiplier * proportion);
-							}
-						}	
-						// Do nothing if comfort == tolerable_comfort			
-					}
+					price[i] = w[i]->get_fare_with_comfort_catering_speedbonus(welt,
+							comfort, catering_level, journey_tenths, relative_speed_percentage, distance_meters);
 				}
 
 				order = price[0] - price[1];
+//=======
+//			{
+//				const sint32 grundwert1281 = w1->get_preis() * goods_frame_t::welt->get_settings().get_bonus_basefactor();
+//				const sint32 grundwert_bonus1 = w1->get_preis()*(1000l+(relative_speed_change-100l)*w1->get_speed_bonus());
+//				const sint32 price1 = (grundwert1281>grundwert_bonus1 ? grundwert1281 : grundwert_bonus1);
+//				const sint32 grundwert1282 = w2->get_preis() * goods_frame_t::welt->get_settings().get_bonus_basefactor();
+//				const sint32 grundwert_bonus2 = w2->get_preis()*(1000l+(relative_speed_change-100l)*w2->get_speed_bonus());
+//				const sint32 price2 = (grundwert1282>grundwert_bonus2 ? grundwert1282 : grundwert_bonus2);
+//				order = price1-price2;
+//>>>>>>> v111.3
 			}
 			break;
 		case 3: // sort by speed bonus
-			order = w[1]->get_speed_bonus()-w[0]->get_speed_bonus();
+			order = w[0]->get_adjusted_speed_bonus(distance_meters) - w[1]->get_adjusted_speed_bonus(distance_meters);
 			break;
 		case 4: // sort by catg_index
 			order = w[1]->get_catg()-w[0]->get_catg();
 			break;
+		case 5: // sort by weight
+			order = w[0]->get_weight_per_unit() - w[1]->get_weight_per_unit();
 		default: ; // make compiler happy, order will be determined below anyway
 	}
 	if(  order==0  ) {
@@ -340,6 +283,7 @@ bool goods_frame_t::compare_goods(uint16 const a, uint16 const b)
 	}
 	return sortreverse ? order > 0 : order < 0;
 }
+
 
 // creates the list and pass it to the child function good_stats, which does the display stuff ...
 void goods_frame_t::sort_list()
@@ -354,18 +298,17 @@ void goods_frame_t::sort_list()
 	for(unsigned int i=0; i<warenbauer_t::get_waren_anzahl(); i++) {
 		const ware_besch_t * wtyp = warenbauer_t::get_info(i);
 
-		// Hajo: we skip goods that don't generate income
-		//       this should only be true for the special good 'None'
-		// Also skip goods not in the game (Standard 111.1 and later).
-		if(wtyp->get_fare(1) != 0 && (!filter_goods || goods_in_game.is_contained(wtyp))) 
-		{
+		// Skip goods not in the game
+		// Do not skip goods which don't generate income -- it makes it hard to debug paks
+		// Do skip the special good "None"
+		if(  (wtyp != warenbauer_t::nichts) && (!filter_goods || goods_in_game.is_contained(wtyp))  ) {
 			good_list[n++] = i;
 		}
 	}
 
 	std::sort(good_list, good_list + n, compare_goods);
 
-	goods_stats.update_goodslist(good_list, relative_speed_change, n, goods_frame_t::tile_distance, goods_frame_t::comfort, goods_frame_t::catering_level, goods_frame_t::welt, wtype);
+	goods_stats.update_goodslist(good_list, relative_speed_percentage, n, goods_frame_t::distance_meters, goods_frame_t::comfort, goods_frame_t::catering_level, wtype);
 }
 
 
@@ -377,11 +320,7 @@ void goods_frame_t::sort_list()
 void goods_frame_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta);
-
-	//Pre 111.1
-	/*koord groesse = get_fenstergroesse()-koord(0,BUTTON_HEIGHT+4+5*LINESPACE+LINESPACE+1+BUTTON_HEIGHT+2+TITLEBAR_HEIGHT+1+25);*/
-
-	koord groesse = get_fenstergroesse()-scrolly.get_pos()-koord(0,TITLEBAR_HEIGHT+25);
+	koord groesse = get_fenstergroesse()-scrolly.get_pos()-koord(0,D_TITLEBAR_HEIGHT+25);
 	scrolly.set_groesse(groesse);
 }
 
@@ -413,60 +352,13 @@ bool goods_frame_t::action_triggered( gui_action_creator_t *komp,value_t v)
 	//	sort_list();
 	//}
 
-	//else if(komp == &distance_down) 
-	//{
-	//	if(distance > 1) 
-	//	{
-	//		distance --;
-	//		tile_distance = (1000 * distance) / goods_frame_t::welt->get_settings().get_meters_per_tile();
-	//		sort_list();
-	//	}
-	//}
-	//else if(komp == &distance_up) 
-	//{
-	//	distance ++;
-	//	tile_distance = (1000 * distance) / goods_frame_t::welt->get_settings().get_meters_per_tile();
-	//	sort_list();
-	//}
-	//else if(komp == &comfort_down) 
-	//{
-	//	if(comfort > 1) 
-	//	{
-	//		comfort --;
-	//		sort_list();
-	//	}
-	//}
-	//else if(komp == &comfort_up) 
-	//{
-	//	if(comfort < 255) 
-	//	{
-	//		comfort ++;
-	//		sort_list();
-	//	}
-	//}
-	//else if(komp == &catering_down) 
-	//{
-	//	if(catering_level > 0) 
-	//	{
-	//		catering_level --;
-	//		sort_list();
-	//	}
-	//}
-	//else if(komp == &catering_up) 
-	//{
-	//	if(catering_level < 5) 
-	//	{
-	//		catering_level ++;
-	//		sort_list();
-	//	}
-	//}
 	else if (komp == &speed_input) {
-		relative_speed_change = v.i + 100;
+		relative_speed_percentage = v.i;
 		sort_list();
 	}
 	else if (komp == &distance_input) {
 		distance = v.i;
-		tile_distance = (1000 * distance) / goods_frame_t::welt->get_settings().get_meters_per_tile();
+		distance_meters = (sint32) 1000 * distance;
 		sort_list();
 	}
 	else if (komp == &comfort_input) {
@@ -526,40 +418,39 @@ bool goods_frame_t::action_triggered( gui_action_creator_t *komp,value_t v)
 
 
 /**
- * Zeichnet die Komponente
+ * Draw the component
  * @author Hj. Malthaner
  */
 void goods_frame_t::zeichnen(koord pos, koord gr)
 {
 	gui_frame_t::zeichnen(pos, gr);
 
+	// Standard has:
 	//sprintf(speed_bonus,"%i",relative_speed_change-100);
-	//sprintf(distance_txt,"%i",distance);
-	//sprintf(comfort_txt,"%i",comfort);
-	//sprintf(catering_txt,"%i",catering_level);
 
+	sint16 speed_ratio = relative_speed_percentage + 100;
 	speed_message.clear();
 	speed_message.printf(translator::translate("Distance\nComfort\nCatering level\nSpeedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h."),
-		(welt->get_average_speed(road_wt)*relative_speed_change)/100,
-		(welt->get_average_speed(track_wt)*relative_speed_change)/100,
-		(welt->get_average_speed(water_wt)*relative_speed_change)/100,
-		(welt->get_average_speed(air_wt)*relative_speed_change)/100
+		(welt->get_average_speed(road_wt)*speed_ratio)/100,
+		(welt->get_average_speed(track_wt)*speed_ratio)/100,
+		(welt->get_average_speed(water_wt)*speed_ratio)/100,
+		(welt->get_average_speed(air_wt)*speed_ratio)/100
 	);
-	display_multiline_text(pos.x+11, pos.y+BUTTON_HEIGHT+4, speed_message, COL_WHITE);
+	display_multiline_text(pos.x+11, pos.y+D_BUTTON_HEIGHT+4, speed_message, COL_WHITE);
 
 	speed_message.clear();
 	speed_message.printf(translator::translate("tram %i km/h, monorail %i km/h\nmaglev %i km/h, narrowgauge %i km/h."),
-		(welt->get_average_speed(tram_wt)*relative_speed_change)/100,
-		(welt->get_average_speed(monorail_wt)*relative_speed_change)/100,
-		(welt->get_average_speed(maglev_wt)*relative_speed_change)/100,
-		(welt->get_average_speed(narrowgauge_wt)*relative_speed_change)/100
+		(welt->get_average_speed(tram_wt)*speed_ratio)/100,
+		(welt->get_average_speed(monorail_wt)*speed_ratio)/100,
+		(welt->get_average_speed(maglev_wt)*speed_ratio)/100,
+		(welt->get_average_speed(narrowgauge_wt)*speed_ratio)/100
 	);
 
-	display_multiline_text(pos.x+11, pos.y+BUTTON_HEIGHT+4+12+5*LINESPACE, speed_message, COL_WHITE);
+	display_multiline_text(pos.x+11, pos.y+D_BUTTON_HEIGHT+4+12+5*LINESPACE, speed_message, COL_WHITE);
 
 	speed_message.clear();
 	speed_message.printf(translator::translate("\n100 km/h = %i tiles/month"),
 		welt->speed_to_tiles_per_month(kmh_to_speed(100))
 	);
-	display_multiline_text(pos.x+11, pos.y+BUTTON_HEIGHT+4+12+6*LINESPACE, speed_message, COL_WHITE);
+	display_multiline_text(pos.x+11, pos.y+D_BUTTON_HEIGHT+4+12+6*LINESPACE, speed_message, COL_WHITE);
 }

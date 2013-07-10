@@ -39,7 +39,7 @@ typedef unsigned char COLOR_VAL;
 #define COL_LEMON_YELLOW     (31)
 #define COL_BLUE      (147)
 #define COL_DARK_BLUE      (144)
-#define COL_LIGHT_BLUE      (151)
+#define COL_LIGHT_BLUE      (103)
 #define COL_GREEN      (140)
 #define COL_DARK_GREEN     (136)
 #define COL_LIGHT_GREEN      (143)
@@ -116,7 +116,8 @@ typedef unsigned char COLOR_VAL;
 #define COL_AVEARGE_WAIT COL_DARK_PURPLE
 #define COL_COMFORT COL_DARK_TURQUOISE
 #define COL_INTEREST (67)
-#define COL_CREDIT_LIMIT (99)
+#define COL_SOFT_CREDIT_LIMIT COL_PURPLE
+#define COL_HARD_CREDIT_LIMIT 77
 #define COL_CAR_OWNERSHIP (95)
 //#define COL_DISTANCE (87)
 

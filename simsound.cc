@@ -162,8 +162,7 @@ int midi_init(const char *directory)
 	// read a list of soundfiles
 	char full_path[1024];
 	sprintf( full_path, "%smusic/music.tab", directory );
-	FILE * file = fopen( full_path, "rb");
-	if(file) {
+	if (FILE* const file = fopen(full_path, "rb")) {
 		while(!feof(file)) {
 			char buf[256];
 			char title[256];
@@ -196,7 +195,7 @@ int midi_init(const char *directory)
 		fclose(file);
 	}
 	else {
-		dbg->warning("midi_init()","can't open file 'music.tab' for reading, turning music off.");
+		dbg->warning("midi_init()","can't open file '%s' for reading.", full_path);
 	}
 
 	if(max_midi >= 0) {

@@ -39,7 +39,7 @@ void dr_copy(const char *source, size_t length)
 		size_t utf16_count = 0;
 		utf16 char_code;
 		size_t offset = 0;
-		while(  (char_code=utf8_to_utf16((utf8*)(source+offset), &offset))  &&  offset<=length  ) {
+		while(  (char_code=utf8_to_utf16((const utf8*)(source+offset), &offset))  &&  offset<=length  ) {
 			*utf16_buffer++ = char_code;
 			++utf16_count;
 		}
@@ -94,7 +94,7 @@ size_t dr_paste(char *target, size_t max_length)
 			// determine the number of bytes to be pasted
 			if(  has_unicode  ) {
 				// convert clipboard text from utf-16 to utf-8
-				const utf16 *utf16_text = (utf16 *)pText;
+				const utf16 *utf16_text = (const utf16 *)pText;
 				utf8 *utf8_buffer = (utf8 *)buffer;
 				size_t tmp_length = 0;
 				size_t byte_count;

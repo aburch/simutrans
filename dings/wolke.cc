@@ -34,17 +34,18 @@ bool wolke_t::register_besch(const skin_besch_t* besch)
 
 
 
-
-
 wolke_t::wolke_t(karte_t *welt, koord3d pos, sint8 x_off, sint8 y_off, const skin_besch_t* besch ) :
-	ding_no_info_t(welt, pos)
+#ifdef INLINE_DING_TYPE
+    ding_no_info_t(welt, ding_t::sync_wolke, pos)
+#else
+    ding_no_info_t(welt, pos)
+#endif
 {
 	cloud_nr = all_clouds.index_of(besch);
 	base_y_off = clamp( (((sint16)y_off-8)*OBJECT_OFFSET_STEPS)/16, -128, 127 );
 	set_xoff( (x_off*OBJECT_OFFSET_STEPS)/16 );
 	set_yoff( base_y_off );
 	insta_zeit = 0;
-	divisor = 2500/besch->get_bild_anzahl();
 }
 
 
@@ -52,14 +53,28 @@ wolke_t::wolke_t(karte_t *welt, koord3d pos, sint8 x_off, sint8 y_off, const ski
 wolke_t::~wolke_t()
 {
 	mark_image_dirty( get_bild(), 0 );
-	welt->sync_remove(this);
+	if(  insta_zeit != 2499  ) {
+		if(  !welt->sync_way_eyecandy_remove( this )  ) {
+			dbg->error( "wolke_t::~wolke_t()", "wolke not in bthe correct sync list" );
+		}
+	}
 }
 
 
-
+#ifdef INLINE_DING_TYPE
+wolke_t::wolke_t(karte_t* const welt, loadsave_t* const file) : ding_no_info_t(welt, ding_t::sync_wolke)
+#else
 wolke_t::wolke_t(karte_t* const welt, loadsave_t* const file) : ding_no_info_t(welt)
+#endif
 {
 	rdwr(file);
+}
+
+
+image_id wolke_t::get_bild() const
+{
+	const skin_besch_t *besch = all_clouds[cloud_nr];
+	return besch->get_bild_nr( (insta_zeit*besch->get_bild_anzahl())/2500 );
 }
 
 
@@ -73,7 +88,6 @@ void wolke_t::rdwr(loadsave_t *file)
 
 	cloud_nr = 0;
 	insta_zeit = 0;
-	divisor = 10000;
 
 	uint32 ldummy = 0;
 	file->rdwr_long(ldummy);
@@ -91,7 +105,7 @@ void wolke_t::rdwr(loadsave_t *file)
 bool wolke_t::sync_step(long delta_t)
 {
 	insta_zeit += (uint16)delta_t;
-	if(insta_zeit>2500) {
+	if(insta_zeit>=2499) {
 		// delete wolke ...
 		insta_zeit = 2499;
 		return false;
@@ -120,7 +134,11 @@ void wolke_t::rotate90()
 
 /***************************** just for compatibility, the old raucher and smoke clouds *********************************/
 
+#ifdef INLINE_DING_TYPE
+raucher_t::raucher_t(karte_t *welt, loadsave_t *file) : ding_t(welt, ding_t::raucher)
+#else
 raucher_t::raucher_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
+#endif
 {
 	assert(file->is_loading());
 	ding_t::rdwr( file );
@@ -133,7 +151,11 @@ raucher_t::raucher_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 }
 
 
+#ifdef INLINE_DING_TYPE
+async_wolke_t::async_wolke_t(karte_t *welt, loadsave_t *file) : ding_t(welt, ding_t::async_wolke)
+#else
 async_wolke_t::async_wolke_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
+#endif
 {
 	// not saving clouds!
 	assert(file->is_loading());

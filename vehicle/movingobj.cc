@@ -31,17 +31,10 @@
 
 #include "movingobj.h"
 
-/******************************** static stuff for forest rules ****************************************************************/
+/******************************** static stuff: besch management ****************************************************************/
 
-
-/*
- * Diese Tabelle ermöglicht das Auffinden dient zur Auswahl eines Baumtypen
- */
 vector_tpl<const groundobj_besch_t *> movingobj_t::movingobj_typen(0);
 
-/*
- * Diese Tabelle ermöglicht das Auffinden einer Beschreibung durch ihren Namen
- */
 stringhashtable_tpl<groundobj_besch_t *> movingobj_t::besch_names;
 
 
@@ -127,7 +120,7 @@ void movingobj_t::calc_bild()
 	// alter/2048 is the age of the tree
 	const groundobj_besch_t *besch=get_besch();
 	const uint8 seasons = besch->get_seasons()-1;
-	season=0;
+	uint8 season=0;
 
 	// two possibilities
 	switch(seasons) {
@@ -138,7 +131,7 @@ void movingobj_t::calc_bild()
 		case 1: season = welt->get_snowline()<=get_pos().z;
 				break;
 				// summer, winter, snow
-		case 2: season = welt->get_snowline()<=get_pos().z ? 2 : welt->get_jahreszeit()==1;
+		case 2: season = welt->get_snowline()<=get_pos().z ? 2 : welt->get_season()==1;
 				break;
 		default: if(welt->get_snowline()<=get_pos().z) {
 					season = seasons;
@@ -155,7 +148,12 @@ void movingobj_t::calc_bild()
 
 
 
-movingobj_t::movingobj_t(karte_t *welt, loadsave_t *file) : vehikel_basis_t(welt)
+movingobj_t::movingobj_t(karte_t *welt, loadsave_t *file) : 
+#ifdef INLINE_DING_TYPE
+    vehikel_basis_t(welt, movingobj)
+#else
+    vehikel_basis_t(welt)
+#endif
 {
 	rdwr(file);
 	if(get_besch()) {
@@ -165,10 +163,14 @@ movingobj_t::movingobj_t(karte_t *welt, loadsave_t *file) : vehikel_basis_t(welt
 
 
 
-movingobj_t::movingobj_t(karte_t *welt, koord3d pos, const groundobj_besch_t *b ) : vehikel_basis_t(welt, pos)
+movingobj_t::movingobj_t(karte_t *welt, koord3d pos, const groundobj_besch_t *b ) : 
+#ifdef INLINE_DING_TYPE
+    vehikel_basis_t(welt, movingobj, pos)
+#else
+    vehikel_basis_t(welt, pos)
+#endif
 {
-	groundobjtype = movingobj_typen.index_of(b);
-	season = 0xFF;	// mark dirty
+	movingobjtype = movingobj_typen.index_of(b);
 	weg_next = 0;
 	timetochange = 0;	// will do random direct change anyway during next step
 	fahrtrichtung = calc_set_richtung( koord(0,0), koord::west );
@@ -182,14 +184,12 @@ movingobj_t::~movingobj_t()
 }
 
 
-bool movingobj_t::check_season(long /*month*/)
+bool movingobj_t::check_season(long)
 {
-	if(season>1) {
-		const uint8 old_season = season;
-		calc_bild();
-		if(season!=old_season) {
-			mark_image_dirty( get_bild(), 0 );
-		}
+	image_id old_image = get_bild();
+	calc_bild();
+	if(get_bild() != old_image) {
+		mark_image_dirty( get_bild(), 0 );
 	}
 	return true;
 }
@@ -225,15 +225,15 @@ void movingobj_t::rdwr(loadsave_t *file)
 		file->rdwr_str(bname, lengthof(bname));
 		groundobj_besch_t *besch = besch_names.get(bname);
 		if(  besch_names.empty()  ||  besch==NULL  ) {
-			groundobjtype = simrand(movingobj_typen.get_count(), "void movingobj_t::rdwr");
+			movingobjtype = simrand(movingobj_typen.get_count(), "void movingobj_t::rdwr");
 		}
 		else {
-			groundobjtype = (uint8)besch->get_index();
+			movingobjtype = (uint8)besch->get_index();
 		}
 		// if not there, besch will be zero
 		use_calc_height = true;
-		// not saved, recalculate
-		hoff = calc_height();
+		// not saved, recalculate later
+		hoff = 0;
 	}
 	weg_next = 0;
 }
@@ -258,7 +258,7 @@ void movingobj_t::zeige_info()
  * Beobachtungsfenster angezeigt wird.
  * @author Hj. Malthaner
  */
-void movingobj_t::info(cbuffer_t & buf) const
+void movingobj_t::info(cbuffer_t & buf, bool dummy) const
 {
 	ding_t::info(buf);
 
@@ -278,7 +278,7 @@ void movingobj_t::info(cbuffer_t & buf) const
 
 void movingobj_t::entferne(spieler_t *sp)
 {
-	spieler_t::accounting(sp, -get_besch()->get_preis(), get_pos().get_2d(), COST_CONSTRUCTION);
+	spieler_t::book_construction_costs(sp, -get_besch()->get_preis(), get_pos().get_2d(), ignore_wt);
 	mark_image_dirty( get_bild(), 0 );
 	welt->sync_remove( this );
 }
@@ -396,7 +396,7 @@ bool movingobj_t::hop_check()
 
 
 
-void movingobj_t::hop()
+grund_t* movingobj_t::hop()
 {
 	verlasse_feld();
 
@@ -415,10 +415,11 @@ void movingobj_t::hop()
 	}
 
 	set_pos(pos_next);
-	betrete_feld();
+	grund_t *gr = betrete_feld();
 	// next position
 	grund_t *gr_next = welt->lookup_kartenboden(pos_next_next);
 	pos_next = gr_next ? gr_next->get_pos() : get_pos();
+	return gr;
 }
 
 

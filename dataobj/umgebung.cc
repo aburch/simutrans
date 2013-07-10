@@ -4,11 +4,17 @@
 #include "../simversion.h"
 #include "../simconst.h"
 #include "../simtypes.h"
+#include "../simtools.h"
 #include "../simcolor.h"
 #include "../simmesg.h"
 
 sint8 umgebung_t::pak_tile_height_step = 16;
-sint16 umgebung_t::simple_drawing_tile_size = 24;
+
+bool umgebung_t::simple_drawing = false;
+bool umgebung_t::simple_drawing_fast_forward = true;
+sint16 umgebung_t::simple_drawing_normal = 4;
+sint16 umgebung_t::simple_drawing_default = 24;
+
 char umgebung_t::program_dir[1024];
 const char *umgebung_t::user_dir = 0;
 const char *umgebung_t::savegame_version_str = SAVEGAME_VER_NR;
@@ -38,6 +44,8 @@ long umgebung_t::network_frames_per_step = 4;
 uint32 umgebung_t::server_sync_steps_between_checks = 256;
 bool umgebung_t::pause_server_no_clients = false;
 
+std::string umgebung_t::nickname = "";
+
 // this is explicitely and interactively set by user => we do not touch it in init
 const char *umgebung_t::language_iso = "en";
 sint16 umgebung_t::scroll_multi = 2;
@@ -47,6 +55,8 @@ bool umgebung_t::mute_sound = false;
 bool umgebung_t::mute_midi = true;
 bool umgebung_t::shuffle_midi = true;
 sint16 umgebung_t::window_snap_distance = 8;
+koord umgebung_t::iconsize( 32, 32 );
+uint8 umgebung_t::chat_window_transparency = 75;
 
 // only used internally => do not touch further
 bool umgebung_t::quit_simutrans = false;
@@ -79,7 +89,7 @@ bool umgebung_t::window_buttons_right;
 bool umgebung_t::window_frame_active;
 uint8 umgebung_t::verbose_debug;
 uint8 umgebung_t::default_sortmode;
-sint8 umgebung_t::default_mapmode;
+uint32 umgebung_t::default_mapmode;
 uint8 umgebung_t::show_month;
 sint32 umgebung_t::intercity_road_length;
 plainstring umgebung_t::river_type[10];
@@ -93,6 +103,7 @@ uint8 umgebung_t::tooltip_textcolor;
 uint8 umgebung_t::toolbar_max_width;
 uint8 umgebung_t::toolbar_max_height;
 uint8 umgebung_t::cursor_overlay_color;
+uint8 umgebung_t::background_color;
 uint8 umgebung_t::show_vehicle_states;
 bool umgebung_t::visualize_schedule;
 sint8 umgebung_t::daynight_level;
@@ -112,8 +123,6 @@ uint8 umgebung_t::cities_like_water = 60;
 bool umgebung_t::left_to_right_graphs = true;
 uint32 umgebung_t::tooltip_delay;
 uint32 umgebung_t::tooltip_duration;
-
-bool umgebung_t::add_player_name_to_message = true;
 
 uint8 umgebung_t::front_window_bar_color;
 uint8 umgebung_t::front_window_text_color;
@@ -142,7 +151,7 @@ void umgebung_t::init()
 
 	/* station stuff */
 	use_transparency_station_coverage = true;
-	station_coverage_show = NOT_SHOWN_COVERAGE;
+	station_coverage_show = 0;
 
 	show_names = 3;
 
@@ -168,16 +177,8 @@ void umgebung_t::init()
 	savegame_version_str = SAVEGAME_VER_NR;
 	savegame_ex_version_str = EXPERIMENTAL_VER_NR;
 
-	/**
-	 * show month in date?
-	 * @author hsiegeln
-	 */
 	show_month = DATE_FMT_US;
 
-	/**
-	 * Max. Länge für initiale Stadtverbindungen
-	 * @author Hj. Malthaner
-	 */
 	intercity_road_length = 200;
 
 	river_types = 0;
@@ -200,6 +201,8 @@ void umgebung_t::init()
 	toolbar_max_height = 0;
 
 	cursor_overlay_color = COL_ORANGE;
+
+	background_color = COL_GREY2;
 
 	show_vehicle_states = 1;
 
@@ -255,6 +258,23 @@ void umgebung_t::rdwr(loadsave_t *file)
 	file->rdwr_long( message_flags[2] );
 	file->rdwr_long( message_flags[3] );
 
+	if (  file->is_loading()  ) {
+		if(  file->get_version()<110000  ) {
+			// did not know about chat message, so we enable it
+			message_flags[0] |=  (1 << message_t::chat); // ticker
+			message_flags[1] &= ~(1 << message_t::chat); // permanent window off
+			message_flags[2] &= ~(1 << message_t::chat); // timed window off
+			message_flags[3] &= ~(1 << message_t::chat); // do not ignore completely
+		}
+		if(  file->get_version()<=112002  ) {
+			// did not know about scenario message, so we enable it
+			message_flags[0] &= ~(1 << message_t::scenario); // ticker off
+			message_flags[1] |=  (1 << message_t::scenario); // permanent window on
+			message_flags[2] &= ~(1 << message_t::scenario); // timed window off
+			message_flags[3] &= ~(1 << message_t::scenario); // do not ignore completely
+		}
+	}
+
 	file->rdwr_bool( show_tooltips );
 	file->rdwr_byte( tooltip_color );
 	file->rdwr_byte( tooltip_textcolor );
@@ -270,12 +290,23 @@ void umgebung_t::rdwr(loadsave_t *file)
 	file->rdwr_bool( single_info );
 
 	file->rdwr_byte( default_sortmode );
-	file->rdwr_byte( default_mapmode );
+	if(  file->get_version()<111004  ) {
+		sint8 mode = log2(umgebung_t::default_mapmode)-1;
+		file->rdwr_byte( mode );
+		umgebung_t::default_mapmode = mode>=0 ? 1 << mode : 0;
+	}
+	else {
+		file->rdwr_long( umgebung_t::default_mapmode );
+	}
 
 	file->rdwr_bool( window_buttons_right );
 	file->rdwr_bool( window_frame_active );
 
-	file->rdwr_byte( verbose_debug );
+	if(  file->get_version()<=112000  ) {
+		// set by command-line, it does not make sense to save it.
+		uint8 v = verbose_debug;
+		file->rdwr_byte( v );
+	}
 
 	file->rdwr_long( intercity_road_length );
 	if(  file->get_version()<=102002  ) {
@@ -303,8 +334,12 @@ void umgebung_t::rdwr(loadsave_t *file)
 
 	if(  file->get_version()>102001  ) {
 		file->rdwr_byte( show_vehicle_states );
-		bool dummy;
-		file->rdwr_bool(dummy);
+		if(  file->get_experimental_version() >= 1 && file->get_experimental_version() <= 11  ) {
+			// Experimental (but not standard!) was carrying around a dummy variable.
+			// Formerly finance_ltr_graphs.
+			bool dummy = false;
+			file->rdwr_bool(dummy);
+		}
 		file->rdwr_bool(left_to_right_graphs);
 	}
 
@@ -333,16 +368,9 @@ void umgebung_t::rdwr(loadsave_t *file)
 	}
 
 	if(  file->get_version()>=110000  ) {
-		file->rdwr_bool( add_player_name_to_message );
+		bool dummy = false;
+		file->rdwr_bool(dummy); //was add_player_name_to_message
 		file->rdwr_short( window_snap_distance );
-	}
-	else if(  file->is_loading()  ) {
-		// did not know about chat message, so we enable it
-		message_flags[0] |= (1 << message_t::chat);	// ticker
-		message_flags[1] &= ~(1 << message_t::chat); // permanent window off
-		message_flags[2] &= ~(1 << message_t::chat); // tiem window off
-		message_flags[3] &= ~(1 << message_t::chat); // do not ignore completely
-
 	}
 
 	if(  file->get_version()>=111001  ) {
@@ -352,6 +380,13 @@ void umgebung_t::rdwr(loadsave_t *file)
 
 	if(  file->get_version()>=111002  ) {
 		file->rdwr_bool( visualize_schedule );
+	}
+	if(  file->get_version()>=111003  ) {
+		plainstring str = nickname.c_str();
+		file->rdwr_str(str);
+		if (file->is_loading()) {
+			nickname = str ? str.c_str() : "";
+		}
 	}
 	// server settings are not saved, since the are server specific and could be different on different servers on the save computers
 }

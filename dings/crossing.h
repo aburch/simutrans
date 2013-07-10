@@ -29,7 +29,10 @@ protected:
 	const kreuzung_besch_t *besch;
 
 public:
+#ifdef INLINE_DING_TYPE
+#else
 	typ get_typ() const { return crossing; }
+#endif
 	const char* get_name() const { return "Kreuzung"; }
 
 	/**
@@ -52,7 +55,7 @@ public:
 	 * @return string (only used for debugg at the moment)
 	 * @author prissi
 	 */
-	void info(cbuffer_t & buf) const { logic->info(buf); }
+	void info(cbuffer_t & buf, bool dummy = false) const { logic->info(buf); }
 
 	/**
 	 * @return NULL wenn OK, ansonsten eine Fehlermeldung

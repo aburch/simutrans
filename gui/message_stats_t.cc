@@ -6,17 +6,15 @@
  */
 
 #include "components/gui_button.h"
-#include "components/list_button.h"
+
 
 #include "message_stats_t.h"
 
 #include "messagebox.h"
 
 #include "../simgraph.h"
-#include "../simcolor.h"
 #include "../simwin.h"
 #include "../simworld.h"
-#include "../simskin.h"
 
 #include "../dataobj/umgebung.h"
 
@@ -77,7 +75,7 @@ bool message_stats_t::infowin_event(const event_t * ev)
 		sint32 line = ev->cy/(LINESPACE+1);
 		if(  (uint32)line<message_list->get_count()  ) {
 			message_t::node &n = *(message_list->at(line));
-			if(  ev->cx>=2  &&  ev->cx<=12  &&  welt->ist_in_kartengrenzen(n.pos)  ) {
+			if(  ev->cx>=2  &&  ev->cx<=12  &&  welt->is_within_limits(n.pos)  ) {
 				welt->change_world_position( koord3d(n.pos, welt->min_hgt(n.pos)) );
 			}
 			else {
@@ -98,7 +96,7 @@ bool message_stats_t::infowin_event(const event_t * ev)
 		sint32 line = ev->cy/(LINESPACE+1);
 		if(  (uint32)line<message_list->get_count()  ) {
 			message_t::node &n = *(message_list->at(line));
-			if(  welt->ist_in_kartengrenzen(n.pos)  ) {
+			if(  welt->is_within_limits(n.pos)  ) {
 				welt->change_world_position( koord3d(n.pos, welt->min_hgt(n.pos)) );
 			}
 		}
@@ -111,6 +109,8 @@ void message_stats_t::recalc_size()
 {
 	sint16 x_size = 0;
 	sint16 y_size = 0;
+	// avoid overflow if too many messages are in the list
+	sint16 y_max = 0x7fff - LINESPACE - 1;
 
 	// loop copied from ::zeichnen(), trimmed to minimum for x_size calculation
 
@@ -156,6 +156,9 @@ void message_stats_t::recalc_size()
 		left += proportional_string_width(buf);
 		if(  left>x_size  ) {
 			x_size = left;
+		}
+		if(  y_size >= y_max) {
+			break;
 		}
 	}
 

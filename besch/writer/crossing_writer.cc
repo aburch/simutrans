@@ -73,8 +73,8 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	uint8 wegtyp1 = get_waytype(obj.get("waytype[0]"));
 	uint8 wegtyp2 = get_waytype(obj.get("waytype[1]"));
 	if(wegtyp1==wegtyp2) {
-		printf("*** FATAL ***:\nIdentical ways cannot cross (check waytypes)!\n");
-		exit(0);
+		fprintf( stderr, "*** FATAL ***:\nIdentical ways cannot cross (check waytypes)!\n");
+		exit(1);
 	}
 	node.write_uint8(fp, wegtyp1, 2);
 	node.write_uint8(fp, wegtyp2, 3);
@@ -82,14 +82,14 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	// Top speed of this way
 	uv16 = obj.get_int("speed[0]", 0);
 	if(uv16==0) {
-		printf("*** FATAL ***:\nA maxspeed MUST be given for both ways!\n");
-		exit(0);
+		fprintf( stderr, "*** FATAL ***:\nA maxspeed MUST be given for both ways!\n");
+		exit(1);
 	}
 	node.write_uint16(fp, uv16, 4);
 	uv16 = obj.get_int("speed[1]", 0);
 	if(uv16==0) {
-		printf("*** FATAL ***:\nA maxspeed MUST be given for both ways!\n");
-		exit(0);
+		fprintf( stderr, "*** FATAL ***:\nA maxspeed MUST be given for both ways!\n");
+		exit(1);
 	}
 	node.write_uint16(fp, uv16, 6);
 
@@ -135,8 +135,8 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	make_list(obj, openkeys_ew, "openimage[ew]");
 	// these must exists!
 	if (openkeys_ns.empty() || openkeys_ew.empty()) {
-		printf("*** FATAL ***:\nMissing images (at least one openimage! (but %i and %i found)!)\n", openkeys_ns.get_count(), openkeys_ew.get_count());
-		exit(0);
+		fprintf( stderr, "*** FATAL ***:\nMissing images (at least one openimage! (but %i and %i found)!)\n", openkeys_ns.get_count(), openkeys_ew.get_count());
+		exit(1);
 	}
 	write_list(fp, node, openkeys_ns);
 	write_list(fp, node, openkeys_ew);

@@ -23,6 +23,7 @@
 #include <mmsystem.h>
 
 #include "simgraph.h"
+#include "simdebug.h"
 
 
 // needed for wheel
@@ -36,9 +37,6 @@
 // 16 Bit may be much slower than 15 unfourtunately on some hardware
 #define USE_16BIT_DIB
 
-// for redraws in another thread
-//#define MULTI_THREAD
-
 #include "simmem.h"
 #include "simsys_w32_png.h"
 #include "simversion.h"
@@ -50,7 +48,7 @@
 
 typedef unsigned short PIXVAL;
 
-static HWND hwnd;
+static volatile HWND hwnd;
 static bool is_fullscreen = false;
 static bool is_not_top = false;
 static MSG msg;
@@ -63,18 +61,15 @@ static PIXVAL*     AllDibData;
 
 volatile HDC hdc = NULL;
 
+
 #ifdef MULTI_THREAD
 
-
 HANDLE	hFlushThread=0;
-#define WAIT_FOR_SCREEN() {while(hdc) Sleep(5);}
+CRITICAL_SECTION redraw_underway;
 
-#else
-
-// nothing to de done
-#define WAIT_FOR_SCREEN()
+// forward decleration
+DWORD WINAPI dr_flush_screen(LPVOID lpParam);
 #endif
-
 
 
 /*
@@ -118,6 +113,11 @@ int dr_os_open(int const w, int const h, int fullscreen)
 	MaxSize.right = (w+15)&0x7FF0;
 	MaxSize.bottom = h+1;
 
+#ifdef MULTI_THREAD
+	InitializeCriticalSection( &redraw_underway );
+	hFlushThread = CreateThread( NULL, 0, dr_flush_screen, 0, CREATE_SUSPENDED, NULL );
+#endif
+
 	// fake fullscreen
 	if (fullscreen) {
 		// try to force display mode and size
@@ -143,7 +143,8 @@ int dr_os_open(int const w, int const h, int fullscreen)
 	}
 	if(  fullscreen  ) {
 		create_window(WS_EX_TOPMOST, WS_POPUP, 0, 0, w, h);
-	} else {
+	}
+	else {
 		create_window(0, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, w, h);
 	}
 
@@ -181,6 +182,13 @@ int dr_os_open(int const w, int const h, int fullscreen)
 
 void dr_os_close()
 {
+#ifdef MULTI_THREAD
+	if(  hFlushThread  ) {
+		TerminateThread( hFlushThread, 0 );
+		LeaveCriticalSection( &redraw_underway );
+		DeleteCriticalSection( &redraw_underway );
+	}
+#endif
 	if (hwnd != NULL) {
 		DestroyWindow(hwnd);
 	}
@@ -198,7 +206,9 @@ if(  is_fullscreen  ) {
 // reiszes screen
 int dr_textur_resize(unsigned short** const textur, int w, int const h)
 {
-	WAIT_FOR_SCREEN();
+#ifdef MULTI_THREAD
+	EnterCriticalSection( &redraw_underway );
+#endif
 
 	// some cards need those alignments
 	w = (w + 15) & 0x7FF0;
@@ -220,6 +230,10 @@ int dr_textur_resize(unsigned short** const textur, int w, int const h)
 	AllDib->bmiHeader.biHeight = h;
 	WindowSize.right           = w;
 	WindowSize.bottom          = h;
+
+#ifdef MULTI_THREAD
+	LeaveCriticalSection( &redraw_underway );
+#endif
 	return w;
 }
 
@@ -255,10 +269,12 @@ DWORD WINAPI dr_flush_screen(LPVOID lpParam)
 {
 	while(1) {
 		// wait for finish of thread
+		EnterCriticalSection( &redraw_underway );
 		hdc = GetDC(hwnd);
 		display_flush_buffer();
 		ReleaseDC(hwnd, hdc);
 		hdc = NULL;
+		LeaveCriticalSection( &redraw_underway );
 		// suspend myself after one update
 		SuspendThread( hFlushThread );
 	}
@@ -269,12 +285,8 @@ DWORD WINAPI dr_flush_screen(LPVOID lpParam)
 void dr_prepare_flush()
 {
 #ifdef MULTI_THREAD
-	// thread there?
-	if(hFlushThread==0) {
-		DWORD id=22;
-		hFlushThread = CreateThread( NULL, 0, dr_flush_screen, 0, CREATE_SUSPENDED, &id );
-	}
-	WAIT_FOR_SCREEN();
+	// now the thread is finished ...
+	EnterCriticalSection( &redraw_underway );
 #endif
 }
 
@@ -282,6 +294,7 @@ void dr_flush()
 {
 #ifdef MULTI_THREAD
 	// just let the thread do its work
+	LeaveCriticalSection( &redraw_underway );
 	ResumeThread( hFlushThread );
 #else
 	assert(hdc==NULL);
@@ -332,17 +345,16 @@ void set_pointer(int loading)
  *         in case of error.
  * @author Hj. Malthaner
  */
-int dr_screenshot(const char *filename)
+int dr_screenshot(const char *filename, int x, int y, int w, int h)
 {
 #if defined USE_16BIT_DIB
 	int const bpp = COLOUR_DEPTH;
 #else
 	int const bpp = 15;
 #endif
-	if (!dr_screenshot_png(filename, display_get_width() - 1, WindowSize.bottom + 1, AllDib->bmiHeader.biWidth, (unsigned short*)AllDibData, bpp)) {
-		// not successful => save as BMP
-		FILE *fBmp = fopen(filename, "wb");
-		if (fBmp) {
+	if (!dr_screenshot_png(filename, w, h, AllDib->bmiHeader.biWidth, (unsigned short*)AllDibData+x+y*AllDib->bmiHeader.biWidth, bpp)) {
+		// not successful => save full screen as BMP
+		if (FILE* const fBmp = fopen(filename, "wb")) {
 			BITMAPFILEHEADER bf;
 
 			// since the number of drawn pixel can be smaller than the actual width => only use the drawn pixel for bitmap
@@ -402,6 +414,10 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 				while_handling = true;
 
 				if(LOWORD(wParam)!=WA_INACTIVE  &&  is_not_top) {
+#ifdef MULTI_THREAD
+					// no updating while deleting a window please ...
+					EnterCriticalSection( &redraw_underway );
+#endif
 					// try to force display mode and size
 					DEVMODE settings;
 
@@ -421,11 +437,13 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 					ChangeDisplaySettings(&settings, CDS_FULLSCREEN);
 					is_not_top = false;
 
-					Beep( 110, 250 );
 					// must reshow window, otherwise startbar will be topmost ...
 					create_window(WS_EX_TOPMOST, WS_POPUP, 0, 0, MaxSize.right, MaxSize.bottom);
 					DestroyWindow( this_hwnd );
 					while_handling = false;
+#ifdef MULTI_THREAD
+					LeaveCriticalSection( &redraw_underway );
+#endif
 					return true;
 				}
 				else if(LOWORD(wParam)==WA_INACTIVE  &&  !is_not_top) {
@@ -433,7 +451,6 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 					CloseWindow( hwnd );
 					ChangeDisplaySettings( NULL, 0 );
 					is_not_top = true;
-					Beep( 440, 250 );
 				}
 
 				while_handling = false;
@@ -523,8 +540,6 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 			PAINTSTRUCT ps;
 			HDC hdcp;
 
-			WAIT_FOR_SCREEN();
-
 			hdcp = BeginPaint(hwnd, &ps);
 			AllDib->bmiHeader.biHeight = WindowSize.bottom;
 			StretchDIBits(hdcp, 0, 0, WindowSize.right, WindowSize.bottom, 0, WindowSize.bottom + 1, WindowSize.right, -WindowSize.bottom, AllDibData, AllDib, DIB_RGB_COLORS, SRCCOPY);
@@ -597,11 +612,13 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 			break;
 
 		case WM_DESTROY:
-			sys_event.type = SIM_SYSTEM;
-			sys_event.code = SIM_SYSTEM_QUIT;
-			if (AllDibData == NULL) {
-				PostQuitMessage(0);
-				hwnd = NULL;
+			if(  hwnd==this_hwnd  ||  AllDibData == NULL  ) {
+				sys_event.type = SIM_SYSTEM;
+				sys_event.code = SIM_SYSTEM_QUIT;
+				if(  AllDibData == NULL  ) {
+					PostQuitMessage(0);
+					hwnd = NULL;
+				}
 			}
 			break;
 
@@ -671,10 +688,20 @@ void dr_sleep(uint32 millisec)
 	Sleep(millisec);
 }
 
+#ifdef _MSC_VER
+// Needed for MS Visual C++ with /SUBSYSTEM:CONSOLE to work , if /SUBSYSTEM:WINDOWS this function is compiled but unreachable
+int main()
+{
+	HINSTANCE const hInstance = (HINSTANCE)GetModuleHandle(NULL);
+	return WinMain(hInstance,NULL,NULL,NULL);
+}
+#endif
+
 
 int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR, int)
 {
 	WNDCLASSW wc;
+	bool timer_is_set = false;
 
 	wc.lpszClassName = L"Simu";
 	wc.style = CS_HREDRAW | CS_VREDRAW;
@@ -697,11 +724,14 @@ int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR, int)
 		osinfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 		if (GetVersionEx(&osinfo)  &&  osinfo.dwPlatformId==VER_PLATFORM_WIN32_NT) {
 			timeBeginPeriod(1);
+			timer_is_set = true;
 		}
 	}
 
 	int const res = sysmain(__argc, __argv);
-	timeEndPeriod(1);
+	if(  timer_is_set  ) {
+		timeEndPeriod(1);
+	}
 
 #ifdef MULTI_THREAD
 	if(	hFlushThread ) {

@@ -81,10 +81,11 @@ public:
 	};
 
 private:
-	// used in intern_calc_route, saved in the otherwise unused route_t::ANode->count
+	/// flags used in intern_calc_route, saved in the otherwise unused route_t::ANode->count
 	enum build_type_t {
-		build_straight = 1,
-		terraform      = 2
+		build_straight = 1,      ///< next step has to be straight
+		terraform      = 2,      ///< terraform this tile
+		build_tunnel_bridge = 4, ///< bridge/tunnel ends here
 	};
 
 	struct next_gr_t
@@ -130,6 +131,11 @@ private:
 	 * @author Hj. Malthaner
 	 */
 	bool keep_existing_ways;
+
+	/**
+	 * This is overloaded in meaning.  It will keep not only faster ways but also ways
+	 * with higher axle loads or better way constraints. --neroden
+	 */
 	bool keep_existing_faster_ways;
 	bool keep_existing_city_roads;
 

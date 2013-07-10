@@ -5,6 +5,14 @@
  * (see licence.txt)
  */
 
+/**
+ * A container for other gui_komponenten. Is itself
+ * a gui_komponente, and can therefor be nested.
+ *
+ * @author Hj. Malthaner
+ * @date 03-Mar-01
+ */
+
 /*
  * [Mathew Hounsell] Min Size Button On Map Window 20030313
  */
@@ -14,17 +22,18 @@
 gui_container_t::gui_container_t() : gui_komponente_t(), komp_focus(NULL)
 {
 	list_dirty = false;
+	inside_infowin_event = false;
 }
 
 
 /**
- * Fügt eine Komponente zum Container hinzu.
+ * Add component to the container
  * @author Hj. Malthaner
  */
 void gui_container_t::add_komponente(gui_komponente_t *komp)
 {
-	/* insert builds the diologe from bottom to top:
-	 * Essential for comobo-boxes, so they overlap lower elements
+	/* Inserts/builds the dialog from bottom to top:
+	 * Essential for combo-boxes, so they overlap lower elements
 	 */
 	komponenten.insert(komp);
 	list_dirty = true;
@@ -32,7 +41,7 @@ void gui_container_t::add_komponente(gui_komponente_t *komp)
 
 
 /**
- * Entfernt eine Komponente aus dem Container.
+ * Remove/destroy component from container
  * @author Hj. Malthaner
  */
 void gui_container_t::remove_komponente(gui_komponente_t *komp)
@@ -49,7 +58,7 @@ void gui_container_t::remove_komponente(gui_komponente_t *komp)
 
 
 /**
- * Entfernt alle Komponente aus dem Container.
+ * Remove all components from container
  * @author Markus Weber
  */
 void gui_container_t::remove_all()
@@ -68,6 +77,8 @@ void gui_container_t::remove_all()
  */
 bool gui_container_t::infowin_event(const event_t *ev)
 {
+	inside_infowin_event = true;
+
 	bool swallowed = false;
 	gui_komponente_t *new_focus = komp_focus;
 
@@ -81,7 +92,7 @@ bool gui_container_t::infowin_event(const event_t *ev)
 		}
 
 		// Knightly : either event not swallowed, or inner container has no focused child component after TAB event
-		if(  !swallowed  ||  (ev->ev_code==9  &&  komp_focus  &&  komp_focus->get_focus()==NULL)  ) {
+		if(  !swallowed  ||  (ev->ev_code==SIM_KEY_TAB  &&  komp_focus  &&  komp_focus->get_focus()==NULL)  ) {
 			if(  ev->ev_code==SIM_KEY_TAB  ) {
 				// TAB: find new focus
 				new_focus = NULL;
@@ -134,14 +145,16 @@ bool gui_container_t::infowin_event(const event_t *ev)
 		const int y = ev->ev_class==EVENT_MOVE ? ev->my : ev->cy;
 
 		slist_tpl<gui_komponente_t *>handle_mouseover;
-		FOR(slist_tpl<gui_komponente_t*>, const komp, komponenten) {
-			if (list_dirty) break;
+		FOR(  slist_tpl<gui_komponente_t*>,  const komp,  komponenten  ) {
+			if(  list_dirty  ) {
+				break;
+			}
 
 			// Hajo: deliver events if
 			// a) The mouse or click coordinates are inside the component
 			// b) The event affects all components, this are WINDOW events
 			if(  komp  ) {
-				if( DOES_WINDOW_CHILDREN_NEED( ev ) ) { // (Mathew Hounsell)
+				if(  DOES_WINDOW_CHILDREN_NEED( ev )  ) { // (Mathew Hounsell)
 					// Hajo: no need to translate the event, it has no valid coordinates either
 					komp->infowin_event(ev);
 				}
@@ -157,10 +170,12 @@ bool gui_container_t::infowin_event(const event_t *ev)
 		/* since the last drawn are overlaid over all others
 		 * the event-handling must go reverse too
 		 */
-		FOR(slist_tpl<gui_komponente_t*>, const komp, handle_mouseover) {
-			if (list_dirty) break;
+		FOR(  slist_tpl<gui_komponente_t*>,  const komp,  handle_mouseover  ) {
+			if (list_dirty) {
+				break;
+			}
 
-			// Hajo: if componet hit, translate coordinates and deliver event
+			// Hajo: if component hit, translate coordinates and deliver event
 			event_t ev2 = *ev;
 			translate_event(&ev2, -komp->get_pos().x, -komp->get_pos().y);
 
@@ -200,12 +215,13 @@ bool gui_container_t::infowin_event(const event_t *ev)
 		}
 	}
 
+	inside_infowin_event = false;
+
 	return swallowed;
 }
 
 
-/**
- * Zeichnet die Komponente
+/* Draw the component
  * @author Hj. Malthaner
  */
 void gui_container_t::zeichnen(koord offset)
@@ -222,8 +238,8 @@ void gui_container_t::zeichnen(koord offset)
 
 bool gui_container_t::is_focusable()
 {
-	FOR(slist_tpl<gui_komponente_t*>, const c, komponenten) {
-		if (c->is_focusable()) {
+	FOR( slist_tpl<gui_komponente_t*>, const c, komponenten ) {
+		if(  c->is_focusable()  ) {
 			return true;
 		}
 	}
@@ -233,6 +249,9 @@ bool gui_container_t::is_focusable()
 
 void gui_container_t::set_focus( gui_komponente_t *k )
 {
+	if(  inside_infowin_event  ) {
+		dbg->error("gui_container_t::set_focus", "called from inside infowin_event, will have no effect");
+	}
 	if(  komponenten.is_contained(k)  ||  k==NULL  ) {
 		komp_focus = k;
 	}

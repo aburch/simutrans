@@ -11,7 +11,7 @@
 #include "../../simcolor.h"
 
 
-gui_image_list_t::gui_image_list_t(vector_tpl<image_data_t> *images) :
+gui_image_list_t::gui_image_list_t(vector_tpl<image_data_t*> *images) :
     grid(16, 16),
     placement(16, 16)
 {
@@ -30,7 +30,7 @@ gui_image_list_t::gui_image_list_t(vector_tpl<image_data_t> *images) :
 bool gui_image_list_t::infowin_event(const event_t *ev)
 {
 	int sel_index = index_at(-pos, ev->mx, ev->my);
-	if(sel_index!=-1  &&  IS_LEFTCLICK(ev)) {
+	if(  sel_index != -1  &&  (IS_LEFTCLICK(ev)  ||  IS_LEFTDBLCLK(ev))  ) {
 		value_t p;
 		p.i = sel_index;
 		call_listeners( p );
@@ -57,7 +57,7 @@ int gui_image_list_t::index_at(koord parent_pos, int xpos, int ypos) const
 		row * columns + column :
 		column * rows + row;
 
-		if (bild_index < images->get_count()  &&  (*images)[bild_index].image != IMG_LEER) {
+		if (bild_index < images->get_count()  &&  (*images)[bild_index]->image != IMG_LEER) {
 			return bild_index;
 		}
 	}
@@ -73,7 +73,7 @@ void gui_image_list_t::zeichnen(koord parent_pos)
 	const int columns = (groesse.x - 2 * BORDER) / grid.x;
 
 	// sel_index should come from infowin_event, but it is not sure?
-	const unsigned int sel_index = index_at(parent_pos, get_maus_x(), get_maus_y());
+	int sel_index = index_at(parent_pos, get_maus_x(), get_maus_y());
 
 	// zeige verfügbare waggontypen
 	int xmin = parent_pos.x + pos.x + BORDER;
@@ -83,9 +83,8 @@ void gui_image_list_t::zeichnen(koord parent_pos)
 	int xpos = xmin;
 	int ypos = ymin;
 
-	for(unsigned int i=0; i< images->get_count(); i++) {
-		const image_data_t& idata = (*images)[i];
-
+	FOR(vector_tpl<image_data_t*>, const& iptr, *images) {
+		image_data_t const& idata = *iptr;
 		if(idata.count>=0) {
 			// display mark
 
@@ -95,7 +94,7 @@ void gui_image_list_t::zeichnen(koord parent_pos)
 			if(idata.rcolor!=EMPTY_IMAGE_BAR) {
 				display_fillbox_wh_clip( xpos + grid.x/2, ypos + grid.y - 5, grid.x - grid.x/2 - 1, 4, idata.rcolor, true);
 			}
-			if(i == sel_index) {
+			if (sel_index-- == 0) {
 				display_ddd_box_clip(xpos, ypos, grid.x, grid.y, MN_GREY4, MN_GREY0);
 			}
 			display_base_img(idata.image, xpos + placement.x, ypos + placement.y, player_nr, false, true);

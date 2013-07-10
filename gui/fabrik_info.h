@@ -5,8 +5,14 @@
  * (see licence.txt)
  */
 
+/*
+ * Factory info dialog
+ */
+
 #ifndef fabrikinfo_t_h
 #define fabrikinfo_t_h
+
+#include "../simwin.h"
 
 #include "factory_chart.h"
 #include "components/action_listener.h"
@@ -30,11 +36,10 @@ class button_t;
  */
 class gui_fabrik_info_t : public gui_container_t
 {
-private:
+public:
 	const fabrik_t* fab;
 
-public:
-	gui_fabrik_info_t(const fabrik_t* fab);
+	gui_fabrik_info_t() {}
 
 	void zeichnen(koord offset);
 };
@@ -60,7 +65,6 @@ class fabrik_info_t : public gui_frame_t, public action_listener_t
 	ding_view_t view;
 
 	char fabname[256];
-	char fabkoordname[300];
 	gui_textinput_t input;
 
 	button_t *lieferbuttons;
@@ -81,23 +85,24 @@ public:
 	virtual ~fabrik_info_t();
 
 	/**
-	 * Manche Fenster haben einen Hilfetext assoziiert.
-	 * @return den Dateinamen für die Hilfe, oder NULL
+	 * Set the window associated helptext
+	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
 	const char *get_hilfe_datei() const {return "industry_info.txt";}
 
 	virtual bool has_min_sizer() const {return true;}
 
-	virtual koord3d get_weltpos() { return fab->get_pos(); }
+	virtual koord3d get_weltpos(bool) { return fab->get_pos(); }
+
+	virtual bool is_weltpos();
 
 	virtual void set_fenstergroesse(koord groesse);
 
 	/**
-	* komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
-	* das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
-	* in dem die Komponente dargestellt wird.
-	*
+	* Draw new component. The values to be passed refer to the window
+	* i.e. It's the screen coordinates of the window where the
+	* component is displayed.
 	* @author Hj. Malthaner
 	*/
 	virtual void zeichnen(koord pos, koord gr);
@@ -106,6 +111,13 @@ public:
 
 	// rotated map need new info ...
 	void map_rotate90( sint16 ) { update_info(); }
+
+	// this constructor is only used during loading
+	fabrik_info_t(karte_t *welt);
+
+	void rdwr( loadsave_t *file );
+
+	uint32 get_rdwr_id() { return magic_factory_info; }
 };
 
 #endif

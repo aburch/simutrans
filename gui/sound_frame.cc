@@ -5,6 +5,10 @@
  * (see licence.txt)
  */
 
+/*
+ * Dialog for sound settings
+ */
+
 #include <stdio.h>
 
 #include "sound_frame.h"
@@ -136,9 +140,9 @@ sound_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 
 
 /**
- * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
- * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
- * in dem die Komponente dargestellt wird.
+ * Draw new component. The values to be passed refer to the window
+ * i.e. It's the screen coordinates of the window where the
+ * component is displayed.
  * @author Hj. Malthaner
  */
 void sound_frame_t::zeichnen(koord pos, koord gr)

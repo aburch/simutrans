@@ -20,7 +20,7 @@
 #include "components/gui_component_table.h"
 #include "components/gui_label.h"
 #include "components/gui_textarea.h"
-#include "components/list_button.h"
+
 #include "components/action_listener.h"
 #include "components/gui_combobox.h"
 
@@ -45,16 +45,16 @@ class settings_t;
 	width = max(width, proportional_string_width(t)+68);\
 	gui_numberinput_t *ni = new gui_numberinput_t();\
 	ni->init( (sint32)(a), (b), (c), (d), (e) );\
-	ni->set_pos( koord( 2, ypos ) );\
-	ni->set_groesse( koord( 37+7*max(1,(sint16)(log10((double)(c)+1.0)+0.5)), BUTTON_HEIGHT ) );\
+	ni->set_pos( koord( D_MARGIN_LEFT, ypos ) );\
+	ni->set_groesse( koord( 37+7*max(1,(sint16)(log10((double)(c)+1.0)+0.5)), D_BUTTON_HEIGHT ) );\
 	numinp.append( ni );\
 	add_komponente( ni );\
 	gui_label_t *lb = new gui_label_t();\
 	lb->set_text_pointer(t);\
-	lb->set_pos( koord( ni->get_groesse().x+6, ypos ) );\
+	lb->set_pos( koord( D_MARGIN_LEFT + ni->get_groesse().x + 6, ypos + 2 ) );\
 	label.append( lb );\
 	add_komponente( lb );\
-	ypos += BUTTON_HEIGHT;\
+	ypos += D_BUTTON_HEIGHT;\
 }\
 
 #define INIT_NUM_NEW(t,a,b,c,d,e) if(  new_world  ) INIT_NUM( (t), (a), (b), (c), (d) , (e) )
@@ -64,16 +64,16 @@ class settings_t;
 	width = max(width, proportional_string_width(t)+68);\
 	gui_numberinput_t *ni = new gui_numberinput_t();\
 	ni->init( (sint32)( (a)/(sint64)100 ), (b), (c), (d), (e) );\
-	ni->set_pos( koord( 2, ypos ) );\
-	ni->set_groesse( koord( 37+7*max(1,(sint16)(log10((double)(c)+1.0)+0.5)), BUTTON_HEIGHT ) );\
+	ni->set_pos( koord( D_MARGIN_LEFT, ypos ) );\
+	ni->set_groesse( koord( 37+7*max(1,(sint16)(log10((double)(c)+1.0)+0.5)), D_BUTTON_HEIGHT ) );\
 	numinp.append( ni );\
 	add_komponente( ni );\
 	gui_label_t *lb = new gui_label_t();\
 	lb->set_text_pointer(t);\
-	lb->set_pos( koord( ni->get_groesse().x+6, ypos ) );\
+	lb->set_pos( koord( D_MARGIN_LEFT + ni->get_groesse().x + 6, ypos + 2 ) );\
 	label.append( lb );\
 	add_komponente( lb );\
-	ypos += BUTTON_HEIGHT;\
+	ypos += D_BUTTON_HEIGHT;\
 }\
 
 #define INIT_COST_NEW(t,a,b,c,d,e) if(  new_world  ) INIT_COST( (t), (a), (b), (c), (d) , (e) )
@@ -83,10 +83,10 @@ class settings_t;
 	width = max(width, proportional_string_width(t)+6);\
 	gui_label_t *lb = new gui_label_t();\
 	lb->set_text_pointer(t);\
-	lb->set_pos( koord( 4, ypos ) );\
+	lb->set_pos( koord( D_MARGIN_LEFT + 2, ypos ) );\
 	label.append( lb );\
 	add_komponente( lb );\
-	ypos += BUTTON_HEIGHT;\
+	ypos += D_BUTTON_HEIGHT;\
 }\
 
 #define INIT_LB_NEW(t) if(  new_world  ) INIT_LB( (t) )
@@ -95,11 +95,11 @@ class settings_t;
 {\
 	width = max(width, proportional_string_width(t)+22);\
 	button_t *bt = new button_t();\
-	bt->init( button_t::square_automatic, (t), koord( 2, ypos ) );\
+	bt->init( button_t::square_automatic, (t), koord( D_MARGIN_LEFT, ypos ) );\
 	bt->pressed = (a);\
 	button.append( bt );\
 	add_komponente( bt );\
-	ypos += BUTTON_HEIGHT;\
+	ypos += D_BUTTON_HEIGHT;\
 }\
 
 #define INIT_BOOL_NEW(t,a) if(  new_world  ) INIT_BOOL( (t), (a) )
@@ -162,7 +162,7 @@ public:
 	void read(settings_t const*);
 
 	//koord get_groesse() const {
-	//	return koord(width,(numinp.get_count()+button.get_count()+label.get_count())*BUTTON_HEIGHT+seperator*7+6);
+	//	return koord(width,(button.get_count()+label.get_count())*D_BUTTON_HEIGHT+seperator*7+6);
 	//}
 };
 
@@ -176,6 +176,13 @@ class settings_general_stats_t : public settings_stats_t, public action_listener
 public:
 	// needed for savegame combobox
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
+	void init(settings_t const*);
+	void read(settings_t*);
+};
+
+class settings_display_stats_t : public settings_stats_t
+{
+public:
 	void init(settings_t const*);
 	void read(settings_t*);
 };

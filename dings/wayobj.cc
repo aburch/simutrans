@@ -20,6 +20,7 @@
 
 #include "../dataobj/loadsave.h"
 #include "../dataobj/ribi.h"
+#include "../dataobj/scenario.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/umgebung.h"
 
@@ -40,20 +41,31 @@
 #include "tunnel.h"
 #include "wayobj.h"
 
+#if MULTI_THREAD>1
+#include <pthread.h>
+static pthread_mutex_t wayobj_calc_bild_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+#endif
+
 // the descriptions ...
 const way_obj_besch_t *wayobj_t::default_oberleitung=NULL;
 
 stringhashtable_tpl<way_obj_besch_t *> wayobj_t::table;
 
-
+#ifdef INLINE_DING_TYPE
+wayobj_t::wayobj_t(karte_t* const welt, loadsave_t* const file) : ding_no_info_t(welt, ding_t::wayobj)
+#else
 wayobj_t::wayobj_t(karte_t* const welt, loadsave_t* const file) : ding_no_info_t(welt)
+#endif
 {
 	rdwr(file);
 }
 
 
-
+#ifdef INLINE_DING_TYPE
+wayobj_t::wayobj_t(karte_t* const welt, koord3d const pos, spieler_t* const besitzer, ribi_t::ribi const d, way_obj_besch_t const* const b) : ding_no_info_t(welt, ding_t::wayobj, pos)
+#else
 wayobj_t::wayobj_t(karte_t* const welt, koord3d const pos, spieler_t* const besitzer, ribi_t::ribi const d, way_obj_besch_t const* const b) : ding_no_info_t(welt, pos)
+#endif
 {
 	besch = b;
 	dir = d;
@@ -61,16 +73,12 @@ wayobj_t::wayobj_t(karte_t* const welt, koord3d const pos, spieler_t* const besi
 }
 
 
-
 wayobj_t::~wayobj_t()
 {
 	if(!besch) {
 		return;
 	}
-	spieler_t *sp = get_besitzer();
-	if(sp) {
-		sp->add_maintenance(-besch->get_wartung());
-	}
+	spieler_t::add_maintenance(get_besitzer(), -besch->get_wartung(), get_waytype());
 	if(besch->get_own_wtyp()==overheadlines_wt) {
 		grund_t *gr=welt->lookup(get_pos());
 		weg_t *weg=NULL;
@@ -130,8 +138,6 @@ wayobj_t::~wayobj_t()
 }
 
 
-
-
 void wayobj_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t t( file, "wayobj_t" );
@@ -171,19 +177,26 @@ void wayobj_t::rdwr(loadsave_t *file)
 }
 
 
-
-void
-wayobj_t::entferne(spieler_t *sp)
+void wayobj_t::entferne(spieler_t *sp)
 {
 	if(besch) {
-		spieler_t::accounting(sp, -besch->get_preis(), get_pos().get_2d(), COST_CONSTRUCTION);
+		spieler_t::book_construction_costs(sp, -besch->get_preis(), get_pos().get_2d(), besch->get_wtyp());
 	}
 }
 
 
+// returns NULL, if removal is allowed
+// players can remove public owned wayobjs
+const char *wayobj_t::ist_entfernbar(const spieler_t *sp)
+{
+	if(  get_player_nr()==1  ) {
+		return NULL;
+	}
+	return ding_t::ist_entfernbar(sp);
+}
 
-void
-wayobj_t::laden_abschliessen()
+
+void wayobj_t::laden_abschliessen()
 {
 	// (re)set dir
 	if(dir==255) {
@@ -195,9 +208,6 @@ wayobj_t::laden_abschliessen()
 		else {
 			dir = ribi_t::alle;
 		}
-	}
-	else {
-		set_dir(dir);
 	}
 
 	const waytype_t wt = (besch->get_wtyp()==tram_wt) ? track_wt : besch->get_wtyp();
@@ -220,14 +230,8 @@ wayobj_t::laden_abschliessen()
 	//Add the way constraints together.
 	weg->add_way_constraints(besch->get_way_constraints());
 
-	spieler_t *sp = get_besitzer();
-	if(sp) {
-		sp->add_maintenance(besch->get_wartung());
-	}
-
-	calc_bild();
+	spieler_t::add_maintenance(get_besitzer(), besch->get_wartung(), besch->get_wtyp());
 }
-
 
 
 void wayobj_t::rotate90()
@@ -253,14 +257,14 @@ ribi_t::ribi wayobj_t::find_next_ribi(const grund_t *start, const koord dir, con
 }
 
 
-
-void
-wayobj_t::calc_bild()
+void wayobj_t::calc_bild()
 {
+#if MULTI_THREAD>1
+	pthread_mutex_lock( &wayobj_calc_bild_mutex );
+#endif
 	grund_t *gr = welt->lookup(get_pos());
 	diagonal = false;
 	if(gr) {
-
 		const waytype_t wt = (besch->get_wtyp()==tram_wt) ? track_wt : besch->get_wtyp();
 		weg_t *w=gr->get_weg(wt);
 		if(!w) {
@@ -269,6 +273,9 @@ wayobj_t::calc_bild()
 			entferne(get_besitzer());
 			delete this;
 			gr->set_flag(grund_t::dirty);
+#if MULTI_THREAD>1
+			pthread_mutex_unlock( &wayobj_calc_bild_mutex );
+#endif
 			return;
 		}
 
@@ -278,6 +285,9 @@ wayobj_t::calc_bild()
 		// if there is a slope, we are finished, only four choices here (so far)
 		hang = gr->get_weg_hang();
 		if(hang!=hang_t::flach) {
+#if MULTI_THREAD>1
+			pthread_mutex_unlock( &wayobj_calc_bild_mutex );
+#endif
 			return;
 		}
 
@@ -351,6 +361,9 @@ wayobj_t::calc_bild()
 			}
 		}
 	}
+#if MULTI_THREAD>1
+	pthread_mutex_unlock( &wayobj_calc_bild_mutex );
+#endif
 }
 
 
@@ -367,7 +380,7 @@ void wayobj_t::extend_wayobj_t(karte_t *welt, koord3d pos, spieler_t *besitzer, 
 	{
 		wayobj_t *existing_wayobj = gr->get_wayobj( besch->get_wtyp() );
 		if( existing_wayobj ) {
-			if(existing_wayobj->get_besch()->get_topspeed()<besch->get_topspeed()  &&  spieler_t::check_owner(besitzer, existing_wayobj->get_besitzer())) {
+			if(  existing_wayobj->get_besch()->get_topspeed() < besch->get_topspeed()  &&  spieler_t::check_owner(besitzer, existing_wayobj->get_besitzer())  ) {
 				// replace slower by faster
 				dir = dir | existing_wayobj->get_dir();
 				gr->set_flag(grund_t::dirty);
@@ -387,9 +400,10 @@ void wayobj_t::extend_wayobj_t(karte_t *welt, koord3d pos, spieler_t *besitzer, 
 		wayobj_t *wo = new wayobj_t(welt,pos,besitzer,dir,besch);
 		gr->obj_add(wo);
 		wo->laden_abschliessen();
+		wo->calc_bild();
 		wo->mark_image_dirty( wo->get_after_bild(), 0 );
 		wo->set_flag(ding_t::dirty);
-		spieler_t::accounting( besitzer,  -besch->get_preis(), pos.get_2d(), COST_CONSTRUCTION);
+		spieler_t::book_construction_costs( besitzer,  -besch->get_preis(), pos.get_2d(), besch->get_wtyp());
 
 		for( uint8 i = 0; i < 4; i++ ) {
 		// Extend wayobjects around the new one, that aren't already connected.
@@ -426,7 +440,6 @@ static bool compare_wayobj_besch(const way_obj_besch_t* a, const way_obj_besch_t
 }
 
 
-
 bool wayobj_t::alles_geladen()
 {
 	if(table.empty()) {
@@ -445,7 +458,6 @@ bool wayobj_t::alles_geladen()
 
 	return true;
 }
-
 
 
 bool wayobj_t::register_besch(way_obj_besch_t *besch)
@@ -479,14 +491,17 @@ DBG_DEBUG( "wayobj_t::register_besch()","%s", besch->get_name() );
 }
 
 
-
-
 /**
  * Fill menu with icons of given wayobjects from the list
  * @author Hj. Malthaner
  */
 void wayobj_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 /*sound_ok*/, const karte_t *welt)
 {
+	// check if scenario forbids this
+	if (!welt->get_scenario()->is_tool_allowed(welt->get_active_player(), WKZ_WAYOBJ | GENERAL_TOOL, wtyp)) {
+		return;
+	}
+
 	const uint16 time=welt->get_timeline_year_month();
 
 	vector_tpl<const way_obj_besch_t *>matching;
@@ -508,7 +523,6 @@ void wayobj_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 /*sound
 		wzw->add_werkzeug(i->get_builder());
 	}
 }
-
 
 
 const way_obj_besch_t *wayobj_t::wayobj_search(waytype_t wt,waytype_t own,uint16 time)

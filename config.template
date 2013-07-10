@@ -5,6 +5,7 @@
 
 #BACKEND = allegro
 #BACKEND = gdi
+#BACKEND = opengl
 #BACKEND = sdl
 #BACKEND = mixer_sdl
 #BACKEND = posix
@@ -31,6 +32,8 @@
 
 #WIN32_CONSOLE = 1 # adds a console for windows debugging
 
+#MULTI_THREAD = 4 # start this many threads for some tasks like updating, map rotation, ...
+
 # Define these as empty strings, if you don't have the respective config program
 #ALLEGRO_CONFIG = allegro-config
 #PNG_CONFIG     = pkg-config libpng
@@ -46,13 +49,13 @@
 #
 # Changing appearance:
 # USE_SOFTPOINTER: emulate mouse pointer (set automatically in Makefile)
-# HALF_HEIGHT: Enables half height tiles (8 pixel instead 16)
 #
 # Useful for debugging:
 # DEBUG_ROUTES: show routing calculation information in minimap
 # SHOW_FORE_GRUND: show which objects are drawn as foreground
 # DEBUG_FLUSH_BUFFER: show the dirty areas on the screen
 # USE_VALGRIND_MEMCHECK: make valgrind-memcheck aware of the memory allocation stuff in dataobj/freelist
+# SYSLOG: send debug output to syslog
 #
 # Following flags alter game engine (and are off for standard builds)
 # OTTD_LIKE: Enables half height tiles and crossconnects all industries
@@ -61,9 +64,7 @@
 # MAX_CHOOSE_BLOCK_TILES=xxx: maximum distance between choose signal and a
 #    target (undefined means no limit)
 # USE_DIFFERENT_WIND: different airplane approach directions over the map
-# DESTINATION_CITYCARS: Citycars can have a destination (not recommended)
-# COMMAND_LINE_SERVER: Necessary for compiling with simgraph0.cc for the 
-# command line only server.
+# DESTINATION_CITYCARS: Citycars can have a destination (enabled automatically - cannot be disabled)
 #
 # In order to use the flags, add a line like this: (-Dxxx)
 # FLAGS = -DUSE_C
@@ -82,4 +83,4 @@
 # NETTOOL_PROGDIR = $(shell pwd)
 # PROGDIR  = $(shell pwd)
 
-FLAGS = -DNDEBUG -fpermissive
+FLAGS = -fpermissive

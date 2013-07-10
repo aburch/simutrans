@@ -6,6 +6,13 @@
  */
 
 #include <stdio.h>
+#if MULTI_THREAD>1
+#include <pthread.h>
+static pthread_mutex_t verbinde_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t calc_bild_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t pumpe_list_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t senke_list_mutex = PTHREAD_MUTEX_INITIALIZER;
+#endif
 
 #include "leitung2.h"
 #include "../simdebug.h"
@@ -31,31 +38,40 @@
 #include "../tpl/vector_tpl.h"
 #include "../tpl/weighted_vector_tpl.h"
 
-#define PROD 1000
-
-/*
-static const char * measures[] =
+/**
+ * returns possible directions for powerline on this tile
+ */
+ribi_t::ribi get_powerline_ribi(grund_t *gr)
 {
-	"fail",
-	"weak",
-	"good",
-	"strong",
-};
-*/
-
+	hang_t::typ slope = gr->get_weg_hang();
+	ribi_t::ribi ribi = (ribi_t::ribi)ribi_t::alle;
+	if (slope == hang_t::flach) {
+		// respect possible directions for bridge and tunnel starts
+		if (gr->ist_karten_boden()  &&  (gr->ist_tunnel()  ||  gr->ist_bruecke())) {
+			ribi = ribi_t::doppelt( ribi_typ( gr->get_grund_hang() ) );
+		}
+	}
+	else {
+		ribi = ribi_t::doppelt( ribi_typ(slope) );
+	}
+	return ribi;
+}
 
 int leitung_t::gimme_neighbours(leitung_t **conn)
 {
 	int count = 0;
 	grund_t *gr_base = welt->lookup(get_pos());
+	ribi_t::ribi ribi = get_powerline_ribi(gr_base);
 	for(int i=0; i<4; i++) {
 		// get next connected tile (if there)
 		grund_t *gr;
 		conn[i] = NULL;
-		if(  gr_base->get_neighbour( gr, invalid_wt, ribi_t::nsow[i] ) ) {
+		if(  (ribi & ribi_t::nsow[i])  &&  gr_base->get_neighbour( gr, invalid_wt, ribi_t::nsow[i] ) ) {
 			leitung_t *lt = gr->get_leitung();
-			if(  lt  ) 
-			{
+			// check that we can connect to the other tile: correct slope,
+			// both ground or both tunnel or both not tunnel
+			bool const ok = (gr->ist_karten_boden()  &&  gr_base->ist_karten_boden())  ||  (gr->ist_tunnel()==gr_base->ist_tunnel());
+			if(  lt  &&  (ribi_t::rueckwaerts(ribi_t::nsow[i]) & get_powerline_ribi(gr))  &&  ok  ) {
 				if(lt->get_besitzer()->allows_access_to(get_besitzer()->get_player_nr()))
 				{
 					conn[i] = lt;
@@ -80,7 +96,20 @@ fabrik_t *leitung_t::suche_fab_4(const koord pos)
 }
 
 
+#ifdef INLINE_DING_TYPE
+leitung_t::leitung_t(karte_t *welt, typ type, loadsave_t *file) : ding_t(welt, type)
+{
+	city = NULL;
+	bild = IMG_LEER;
+	set_net(NULL);
+	ribi = ribi_t::keine;
+	rdwr(file);
+}
+
+leitung_t::leitung_t(karte_t *welt, loadsave_t *file) : ding_t(welt, ding_t::leitung)
+#else
 leitung_t::leitung_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
+#endif
 {
 	city = NULL;
 	bild = IMG_LEER;
@@ -90,7 +119,20 @@ leitung_t::leitung_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 }
 
 
+#ifdef INLINE_DING_TYPE
+leitung_t::leitung_t(karte_t *welt, typ type, koord3d pos, spieler_t *sp) : ding_t(welt, type, pos)
+{
+	city = NULL;
+	bild = IMG_LEER;
+	set_net(NULL);
+	set_besitzer( sp );
+	set_besch(wegbauer_t::leitung_besch);
+}
+
+leitung_t::leitung_t(karte_t *welt, koord3d pos, spieler_t *sp) : ding_t(welt, ding_t::leitung, pos)
+#else
 leitung_t::leitung_t(karte_t *welt, koord3d pos, spieler_t *sp) : ding_t(welt, pos)
+#endif
 {
 	city = NULL;
 	bild = IMG_LEER;
@@ -135,14 +177,16 @@ leitung_t::~leitung_t()
 		if(neighbours==0) {
 			delete net;
 		}
-		spieler_t::add_maintenance(get_besitzer(), -besch->get_wartung());
+		if(!gr->ist_tunnel()) {
+			spieler_t::add_maintenance(get_besitzer(), -besch->get_wartung(), powerline_wt);
+		}
 	}
 }
 
 
 void leitung_t::entferne(spieler_t *sp) //"remove".
 {
-	spieler_t::accounting(sp, -besch->get_preis()/2, get_pos().get_2d(), COST_CONSTRUCTION);
+	spieler_t::book_construction_costs(sp, -besch->get_preis()/2, get_pos().get_2d(), powerline_wt);
 	mark_image_dirty( bild, 0 );
 }
 
@@ -239,12 +283,13 @@ void leitung_t::calc_bild()
 		// no valid ground; usually happens during building ...
 		return;
 	}
-	if(gr->ist_bruecke()) {
-		// don't display on a bridge)
+	if(gr->ist_bruecke() || (gr->get_typ()==grund_t::tunnelboden && gr->ist_karten_boden())) {
+		// don't display on a bridge or in a tunnel)
 		set_bild(IMG_LEER);
 		return;
 	}
 
+	image_id old_image = get_bild();
 	hang_t::typ hang = gr->get_weg_hang();
 	if(hang != hang_t::flach) {
 		set_bild( besch->get_hang_bild_nr(hang, snow));
@@ -276,6 +321,9 @@ void leitung_t::calc_bild()
 			}
 		}
 	}
+	if (old_image != get_bild()) {
+		mark_image_dirty(old_image,0);
+	}
 }
 
 
@@ -303,52 +351,38 @@ void leitung_t::calc_neighbourhood()
 }
 
 
+void print_power(cbuffer_t & buf, uint64 power_in_kW, const char *fmt_MW, const char *fmt_KW)
+{
+	uint64 power_in_MW = power_in_kW >> POWER_TO_MW;
+	if(power_in_MW)
+	{
+		buf.printf( translator::translate(fmt_MW), (uint) power_in_MW );
+	}
+	else
+	{
+		buf.printf( translator::translate(fmt_KW), (uint) ((power_in_kW * 1000) >> POWER_TO_MW) );
+	}
+}
+
+
 /**
  * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
  * Beobachtungsfenster angezeigt wird.
  * @author Hj. Malthaner
  */
-void leitung_t::info(cbuffer_t & buf) const
+void leitung_t::info(cbuffer_t & buf, bool dummy) const
 {
 	ding_t::info(buf);
 
-	uint32 supply = get_net()->get_supply();
-	uint32 demand = get_net()->get_demand();
-	uint32 load = demand>supply ? supply:demand;
+	const uint64 supply = get_net()->get_supply();
+	const uint64 demand = get_net()->get_demand();
+	const uint64 load = demand>supply ? supply:demand;
 
 	buf.printf( translator::translate("Net ID: %u\n"), (unsigned long)get_net() );
-	if(get_net()->get_max_capacity()>>POWER_TO_MW)
-	{
-		buf.printf( translator::translate("Capacity: %u MW\n"), get_net()->get_max_capacity()>>POWER_TO_MW );
-	}
-	else
-	{
-		buf.printf( translator::translate("Capacity: %u KW\n"), (get_net()->get_max_capacity() * 1000)>>POWER_TO_MW );
-	}
-	if(demand>>POWER_TO_MW)
-	{
-		buf.printf( translator::translate("Demand: %u MW\n"), demand>>POWER_TO_MW );
-	}
-	else
-	{
-		buf.printf( translator::translate("Demand: %u KW\n"), (demand * 1000)>>POWER_TO_MW );
-	}
-	if(supply>>POWER_TO_MW)
-	{
-		buf.printf( translator::translate("Generation: %u MW\n"), supply>>POWER_TO_MW );
-	}
-	else
-	{
-		buf.printf( translator::translate("Generation: %u KW\n"), (supply * 1000)>>POWER_TO_MW );
-	}
-	if(load>>POWER_TO_MW)
-	{
-		buf.printf( translator::translate("Act. load: %u MW\n"), load>>POWER_TO_MW );
-	}
-	else
-	{
-		buf.printf( translator::translate("Act. load: %u KW\n"), (load * 1000)>>POWER_TO_MW );
-	}
+	print_power(buf, get_net()->get_max_capacity(), "Capacity: %u MW\n", "Capacity: %u KW\n");
+	print_power(buf, demand, "Demand: %u MW\n", "Demand: %u KW\n");
+	print_power(buf, supply, "Generation: %u MW\n", "Generation: %u KW\n");
+	print_power(buf, load, "Act. load: %u MW\n", "Act. load: %u KW\n");
 	buf.printf( translator::translate("Usage: %u %%"), (100*load)/(supply>0?supply:1) );
 }
 
@@ -361,11 +395,24 @@ void leitung_t::info(cbuffer_t & buf) const
  */
 void leitung_t::laden_abschliessen()
 {
+#if MULTI_THREAD>1
+	pthread_mutex_lock( &verbinde_mutex );
+#endif
 	verbinde();
+#if MULTI_THREAD>1
+	pthread_mutex_unlock( &verbinde_mutex );
+#endif
+#if MULTI_THREAD>1
+	pthread_mutex_lock( &calc_bild_mutex );
+#endif
 	calc_neighbourhood();
+#if MULTI_THREAD>1
+	pthread_mutex_unlock( &calc_bild_mutex );
+#endif
 	const grund_t *gr = welt->lookup(get_pos());
 	assert(gr);
-	spieler_t::add_maintenance(get_besitzer(), besch->get_wartung());
+
+	spieler_t::add_maintenance(get_besitzer(), besch->get_wartung(), powerline_wt);
 }
 
 
@@ -397,7 +444,6 @@ void leitung_t::rdwr(loadsave_t *file)
 	else 
 	{
 		file->rdwr_long(value);
-		//      net = powernet_t::load_net((powernet_t *) value);
 		set_net(NULL);
 		if(file->get_experimental_version() >= 3)
 		{
@@ -441,7 +487,7 @@ void leitung_t::rdwr(loadsave_t *file)
 						welt->add_missing_paks( bname, karte_t::MISSING_WAY );
 						besch = wegbauer_t::leitung_besch;
 					}
-					dbg->warning("strasse_t::rdwr()", "Unknown powerline %s replaced by %s", bname, besch->get_name() );
+					dbg->warning("leitung_t::rdwr()", "Unknown powerline %s replaced by %s", bname, besch->get_name() );
 				}
 				set_besch(besch);
 			}
@@ -483,7 +529,11 @@ void pumpe_t::step_all(long delta_t)
 	}
 }
 
+#ifdef INLINE_DING_TYPE
+pumpe_t::pumpe_t(karte_t *welt, loadsave_t *file ) : leitung_t( welt, ding_t::pumpe, koord3d::invalid, NULL )
+#else
 pumpe_t::pumpe_t(karte_t *welt, loadsave_t *file ) : leitung_t( welt, koord3d::invalid, NULL )
+#endif
 {
 	fab = NULL;
 	supply = 0;
@@ -491,24 +541,26 @@ pumpe_t::pumpe_t(karte_t *welt, loadsave_t *file ) : leitung_t( welt, koord3d::i
 }
 
 
+#ifdef INLINE_DING_TYPE
+pumpe_t::pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , ding_t::pumpe, pos, sp)
+#else
 pumpe_t::pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , pos, sp)
+#endif
 {
 	fab = NULL;
 	supply = 0;
-	sp->buche(welt->get_settings().cst_transformer, get_pos().get_2d(), COST_CONSTRUCTION);
+	spieler_t::book_construction_costs(sp, welt->get_settings().cst_transformer, get_pos().get_2d(), powerline_wt);
 }
 
 
 pumpe_t::~pumpe_t()
 {
-	pumpe_list.remove( this );
-	if(fab) 
-	{
+	if(fab) {
 		fab->set_transformer_connected( NULL );
-		
 		fab = NULL;
 	}
-	spieler_t::add_maintenance(get_besitzer(), (sint32)welt->get_settings().cst_maintain_transformer);
+	pumpe_list.remove( this );
+	spieler_t::add_maintenance(get_besitzer(), (sint32)welt->get_settings().cst_maintain_transformer, powerline_wt);
 }
 
 
@@ -546,25 +598,49 @@ void pumpe_t::step(long delta_t)
 void pumpe_t::laden_abschliessen()
 {
 	leitung_t::laden_abschliessen();
-	spieler_t::add_maintenance(get_besitzer(), (sint32)-welt->get_settings().cst_maintain_transformer);
+	spieler_t::add_maintenance(get_besitzer(), -welt->get_settings().cst_maintain_transformer, powerline_wt);
 
-	if(fab==NULL  &&  get_net()) {
-		fab = leitung_t::suche_fab_4(get_pos().get_2d());
-		fab->set_transformer_connected( this );
+	assert(get_net());
+
+	if(  fab==NULL  ) {
+		if(welt->lookup(get_pos())->ist_karten_boden()) {
+			// on surface, check around
+			fab = leitung_t::suche_fab_4(get_pos().get_2d());
+		}
+		else {
+			// underground, check directly above
+			fab = fabrik_t::get_fab(welt, get_pos().get_2d());
+		}
+		if(  fab  ) {
+			// only add when factory there
+			fab->set_transformer_connected( this );
+		}
 	}
+#if MULTI_THREAD>1
+	pthread_mutex_lock( &pumpe_list_mutex );
+#endif
 	pumpe_list.insert( this );
-
+#if MULTI_THREAD>1
+	pthread_mutex_unlock( &pumpe_list_mutex );
+#endif
+#if MULTI_THREAD>1
+	pthread_mutex_lock( &calc_bild_mutex );
+#endif
 	set_bild(skinverwaltung_t::pumpe->get_bild_nr(0));
 	is_crossing = false;
+#if MULTI_THREAD>1
+	pthread_mutex_unlock( &calc_bild_mutex );
+#endif
 }
 
 
-void pumpe_t::info(cbuffer_t & buf) const
+void pumpe_t::info(cbuffer_t & buf, bool dummy) const
 {
 	ding_t::info( buf );
 
-	buf.printf( translator::translate("Net ID: %u\n"), (unsigned long)get_net() );
+	buf.printf( translator::translate("Net ID: %lu\n"), (unsigned long)get_net() );
 	buf.printf( translator::translate("Generation: %u MW\n"), supply>>POWER_TO_MW );
+	buf.printf("\n\n"); // pad for consistent dialog size
 }
 
 
@@ -587,7 +663,11 @@ void senke_t::step_all(long delta_t)
 }
 
 
+#ifdef INLINE_DING_TYPE
+senke_t::senke_t(karte_t *welt, loadsave_t *file) : leitung_t( welt, ding_t::senke, koord3d::invalid, NULL )
+#else
 senke_t::senke_t(karte_t *welt, loadsave_t *file) : leitung_t( welt, koord3d::invalid, NULL )
+#endif
 {
 	fab = NULL;
 	einkommen = 0;
@@ -597,10 +677,15 @@ senke_t::senke_t(karte_t *welt, loadsave_t *file) : leitung_t( welt, koord3d::in
 	last_power_demand = 0;
 	power_load = 0;
 	rdwr( file );
+	welt->sync_add(this);
 }
 
 
+#ifdef INLINE_DING_TYPE
+senke_t::senke_t(karte_t *welt, koord3d pos, spieler_t *sp, stadt_t* c) : leitung_t(welt, ding_t::senke, pos, sp)
+#else
 senke_t::senke_t(karte_t *welt, koord3d pos, spieler_t *sp, stadt_t* c) : leitung_t(welt, pos, sp)
+#endif
 {
 	fab = NULL;
 	einkommen = 0;
@@ -614,7 +699,8 @@ senke_t::senke_t(karte_t *welt, koord3d pos, spieler_t *sp, stadt_t* c) : leitun
 	delta_sum = 0;
 	last_power_demand = 0;
 	power_load = 0;
-	sp->buche(welt->get_settings().cst_transformer, get_pos().get_2d(), COST_CONSTRUCTION);
+	spieler_t::book_construction_costs(sp, welt->get_settings().cst_transformer, get_pos().get_2d(), powerline_wt);
+	welt->sync_add(this);
 }
 
 
@@ -638,17 +724,19 @@ senke_t::~senke_t()
 			}
 		}
 	}
-	spieler_t::add_maintenance(get_besitzer(), (sint32)welt->get_settings().cst_maintain_transformer);
+	spieler_t::add_maintenance(get_besitzer(), welt->get_settings().cst_maintain_transformer, powerline_wt);
 }
 
 
 void senke_t::step(long delta_t)
 {
-	if(fab==NULL && city==NULL) {
+	if(fab == NULL && city == NULL)
+	{
 		return;
 	}
 
-	if(delta_t==0) {
+	if(delta_t == 0) 
+	{
 		return;
 	}
 
@@ -667,7 +755,7 @@ void senke_t::step(long delta_t)
 		fab_power_demand = fab->step_power_demand();
 	}
 
-	if(city != NULL)
+	if(city)
 	{
 		const vector_tpl<fabrik_t*>& city_factories = city->get_city_factories();
 		ITERATE(city_factories, i)
@@ -697,7 +785,8 @@ void senke_t::step(long delta_t)
 			// Must use two passes here: first, check all those that don't have enough to supply 
 			// an equal share, then check those that do.
 
-			supply = city_substations->get_element(i)->get_power_load();
+			const powernet_t* net = city_substations->get_element(i)->get_net();
+			supply = net->get_supply() - net->get_demand();
 
 			if(supply < (shared_power_demand / (city_substations_number - checked_substations.get_count())))
 			{
@@ -742,9 +831,11 @@ void senke_t::step(long delta_t)
 		}
 	}
 
+	power_load = get_power_load();
+
 	if(supply_max)
 	{
-		shared_power_demand = get_power_load() ? get_power_load() : get_net()->get_supply();
+		shared_power_demand = get_net()->get_supply() - get_net()->get_demand();
 	}
 
 	// Add only this substation's share of the power. 
@@ -759,32 +850,35 @@ void senke_t::step(long delta_t)
 		load_proportion = (shared_power_demand * 100) / power_demand;
 	}
 
-	power_load = get_power_load();
-
 	/* Now actually feed the power through to the factories and city
 	 * Note that a substation cannot supply both a city and factory at once.
 	 */
-	if (fab != NULL && fab->get_city() == NULL)
+	if(fab && !fab->get_city())
 	{
 		// the connected fab gets priority access to the power supply if there's a shortage
 		// This should use 'min', but the current version of that in simtypes.h 
 		// would cast to signed int (12.05.10)  FIXME.
-		if (fab_power_demand < power_load) {
+		if(fab_power_demand < power_load) 
+		{
 			fab_power_load = fab_power_demand;
-		} else {
+		} 
+		else
+		{
 			fab_power_load = power_load;
 		}
-		fab->add_power( fab_power_load );
-		if (fab_power_demand > fab_power_load) {
+		fab->add_power(fab_power_load);
+		if (fab_power_demand > fab_power_load) 
+		{
 			// this allows subsequently stepped senke to supply demand
 			// which this senke couldn't
 			fab->add_power_demand( power_demand-fab_power_load );
 		}
 	}
-	if (power_load > fab_power_load) {
+	if (power_load > fab_power_load)
+	{
 		municipal_power_load = power_load - fab_power_load;
 	}
-	if(city != NULL)
+	if(city)
 	{
 		// everyone else splits power on a proportional basis -- brownouts!
 		const vector_tpl<fabrik_t*>& city_factories = city->get_city_factories();
@@ -830,7 +924,7 @@ void senke_t::step(long delta_t)
 
 	// Income rollover
 	if(max_einkommen>(2000<<11)) {
-		get_besitzer()->buche(einkommen >> 11, get_pos().get_2d(), COST_POWERLINES);
+		get_besitzer()->book_revenue(einkommen >> 11, get_pos().get_2d(), powerline_wt);
 		einkommen = 0;
 		max_einkommen = 1;
 	}
@@ -915,51 +1009,50 @@ bool senke_t::sync_step(long delta_t)
 void senke_t::laden_abschliessen()
 {
 	leitung_t::laden_abschliessen();
-	spieler_t::add_maintenance(get_besitzer(), (sint32)-welt->get_settings().cst_maintain_transformer);
+	spieler_t::add_maintenance(get_besitzer(), -welt->get_settings().cst_maintain_transformer, powerline_wt);
 
 	check_industry_connexion();
-
+#if MULTI_THREAD>1
+	pthread_mutex_lock( &senke_list_mutex );
+#endif
 	senke_list.insert( this );
-	welt->sync_add(this);
-
+#if MULTI_THREAD>1
+	pthread_mutex_unlock( &senke_list_mutex );
+	pthread_mutex_lock( &calc_bild_mutex );
+#endif
 	set_bild(skinverwaltung_t::senke->get_bild_nr(0));
 	is_crossing = false;
+#if MULTI_THREAD>1
+	pthread_mutex_unlock( &calc_bild_mutex );
+#endif
 }
 
 void senke_t::check_industry_connexion()
 {
 	if(fab == NULL && city == NULL && get_net()) 
 	{
-		fab = leitung_t::suche_fab_4(get_pos().get_2d());
-		if(fab)
-		{
-			fab->set_transformer_connected(this);
+		if(welt->lookup(get_pos())->ist_karten_boden()) {
+			// on surface, check around
+			fab = leitung_t::suche_fab_4(get_pos().get_2d());
+		}
+		else {
+			// underground, check directly above
+			fab = fabrik_t::get_fab(welt, get_pos().get_2d());
+		}
+		if(  fab  ) {
+			fab->set_transformer_connected( this );
 		}
 	}
 }
 
 
-void senke_t::info(cbuffer_t & buf) const
+void senke_t::info(cbuffer_t & buf, bool dummy) const
 {
 	ding_t::info( buf );
 
 	buf.printf( translator::translate("Net ID: %u\n"), (unsigned long)get_net() );
-	if(last_power_demand>>POWER_TO_MW)
-	{
-		buf.printf( translator::translate("Demand: %u MW\n"), last_power_demand>>POWER_TO_MW );
-	}
-	else
-	{
-		buf.printf( translator::translate("Demand: %u KW\n"), (last_power_demand * 1000)>>POWER_TO_MW );
-	}
-	if(power_load>>POWER_TO_MW)
-	{
-		buf.printf( translator::translate("Act. load: %u MW\n"), power_load>>POWER_TO_MW );
-	}
-	else
-	{
-		buf.printf( translator::translate("Act. load: %u KW\n"), (power_load * 1000)>>POWER_TO_MW );
-	}
+	print_power(buf, last_power_demand, "Demand: %u MW\n", "Demand: %u KW\n");
+	print_power(buf, power_load, "Act. load: %u MW\n", "Act. load: %u KW\n");
 	buf.printf( translator::translate("Usage: %u %%"), (100*power_load)/(last_power_demand>0?last_power_demand:1) );
 	if(city)
 	{

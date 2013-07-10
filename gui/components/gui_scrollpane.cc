@@ -6,6 +6,7 @@
 
 #include "../../simdebug.h"
 
+#include "../gui_frame.h"
 #include "gui_scrollpane.h"
 #include "gui_scrollbar.h"
 
@@ -27,10 +28,10 @@ gui_scrollpane_t::gui_scrollpane_t(gui_komponente_t *komp) :
 	set_scroll_discrete_x(false);
 	b_show_scroll_y = true;
 	b_has_size_corner = true;
+	b_has_bottom_margin = false;
 
 	old_komp_groesse = koord::invalid;
 }
-
 
 
 /**
@@ -43,19 +44,28 @@ void gui_scrollpane_t::recalc_sliders(koord groesse)
 	scroll_x.set_groesse(groesse-koord(scrollbar_t::BAR_SIZE,scrollbar_t::BAR_SIZE));
 	scroll_x.set_knob(groesse.x-scrollbar_t::BAR_SIZE, komp->get_groesse().x + komp->get_pos().x);	// set client/komp area
 
-	if(b_has_size_corner  ||  b_show_scroll_x) {
-		scroll_y.set_pos(koord(groesse.x-scrollbar_t::BAR_SIZE, 0));
+	scroll_y.set_pos(koord(groesse.x-scrollbar_t::BAR_SIZE, 0));
+	if(  b_show_scroll_x  ) {
 		scroll_y.set_groesse(groesse-koord(scrollbar_t::BAR_SIZE,scrollbar_t::BAR_SIZE));
+	}
+	else if(  b_has_bottom_margin  ) {
+		scroll_y.set_groesse(groesse-koord(scrollbar_t::BAR_SIZE,scrollbar_t::BAR_SIZE-D_MARGIN_BOTTOM));
+	}
+	else if(  b_has_size_corner  ) {
+		scroll_y.set_groesse(groesse-koord(scrollbar_t::BAR_SIZE,scrollbar_t::BAR_SIZE));
+	}
+	else {
+		scroll_y.set_groesse(groesse);
+	}
+	if(  b_show_scroll_x  ) {
 		scroll_y.set_knob(groesse.y-scrollbar_t::BAR_SIZE, komp->get_groesse().y + komp->get_pos().y);
 	}
 	else {
-		scroll_y.set_pos(koord(groesse.x-scrollbar_t::BAR_SIZE, 0));
-		scroll_y.set_groesse(groesse);
 		scroll_y.set_knob(groesse.y, komp->get_groesse().y + komp->get_pos().y);
 	}
+
 	old_komp_groesse = komp->get_groesse()+komp->get_pos();
 }
-
 
 
 /**
@@ -68,7 +78,6 @@ void gui_scrollpane_t::set_groesse(koord groesse)
 	gui_komponente_t::set_groesse(groesse);
 	recalc_sliders(groesse);
 }
-
 
 
 /**
@@ -142,7 +151,6 @@ bool gui_scrollpane_t::infowin_event(const event_t *ev)
 }
 
 
-
 /**
  * Setzt Positionen der Scrollbars
  * @author Hj. Malthaner
@@ -154,19 +162,16 @@ void gui_scrollpane_t::set_scroll_position(int x, int y)
 }
 
 
-
 int gui_scrollpane_t::get_scroll_x() const
 {
 	return scroll_x.get_knob_offset();
 }
 
 
-
 int gui_scrollpane_t::get_scroll_y() const
 {
 	return scroll_y.get_knob_offset();
 }
-
 
 
 /**

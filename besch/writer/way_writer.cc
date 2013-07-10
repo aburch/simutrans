@@ -1,6 +1,7 @@
 #include <cmath>
 #include <string>
 #include "../../dataobj/tabfile.h"
+#include "../../utils/simstring.h"
 #include "obj_node.h"
 #include "obj_pak_exception.h"
 #include "../weg_besch.h"
@@ -164,26 +165,21 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 			keys.clear();
 
 
-			slist_tpl<string> cursorkeys;
+			if(backtofront == 0) {
+				slist_tpl<string> cursorkeys;
 
-			cursorkeys.append(string(obj.get("cursor")));
-			cursorkeys.append(string(obj.get("icon")));
+				cursorkeys.append(string(obj.get("cursor")));
+				cursorkeys.append(string(obj.get("icon")));
 
-			cursorskin_writer_t::instance()->write_obj(outfp, node, obj, cursorkeys);
-
-			// skip new write code
-			number_seasons = -1;
-		}
-	} else {
-		while(number_seasons < 2) {
-			sprintf(buf, "image[%s][%d]", ribi_codes[0], number_seasons+1);
-			string str = obj.get(buf);
-			if (!str.empty()) {
-				number_seasons++;
-			} else {
-				break;
+				cursorskin_writer_t::instance()->write_obj(outfp, node, obj, cursorkeys);
 			}
 		}
+	} else {
+		sprintf(buf, "image[%s][%d]", ribi_codes[0], number_seasons+1);
+		if (!strempty(obj.get(buf))) {
+			number_seasons++;
+		}
+
 		node.write_data_at(outfp, &number_seasons, 25, 1);
 		write_head(outfp, node, obj);
 

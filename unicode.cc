@@ -46,7 +46,8 @@ utf16 utf8_to_utf16(const utf8* text, size_t* len)
 		*len += 1;
 		return text[0];
 
-	} else if (is_2byte_seq(text[0])) {
+	}
+	else if (is_2byte_seq(text[0])) {
 		if (!is_cont_char(text[1])) {
 			// just assume a 8 Bit normal character then
 			*len += 1;
@@ -56,7 +57,8 @@ utf16 utf8_to_utf16(const utf8* text, size_t* len)
 		// 2 Byte sequence, total letter value is 110xxxxx 10yyyyyy => 00000xxx xxyyyyyy
 		return ((text[0] & 0x1F) << 6) | (text[1] & 0x3F);
 
-	} else if (is_3byte_seq(text[0])) {
+	}
+	else if (is_3byte_seq(text[0])) {
 		if (!is_cont_char(text[1]) || !is_cont_char(text[2])) {
 			// just assume a 8 Bit normal character then
 			*len += 1;
@@ -65,7 +67,8 @@ utf16 utf8_to_utf16(const utf8* text, size_t* len)
 		*len += 3;
 		// 3 Byte sequence, total letter value is 1110xxxx 10yyyyyy 10zzzzzz => xxxxyyyy yyzzzzzz
 		return ((text[0] & 0x0F) << 12) | ((text[1] & 0x3F) << 6) | (text[2] & 0x3F);
-	} else {
+	}
+	else {
 		// 4 Byte characters are UTF32, which we do not support
 		*len += 1;
 		return text[0];

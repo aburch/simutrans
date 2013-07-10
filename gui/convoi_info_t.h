@@ -5,6 +5,13 @@
  * (see licence.txt)
  */
 
+/*
+ * Displays an information window for a convoi
+ *
+ * @author Hj. Malthaner
+ * @date 22-Aug-01
+ */
+
 #include "gui_frame.h"
 #include "components/gui_scrollpane.h"
 #include "components/gui_textarea.h"
@@ -32,13 +39,6 @@
 #define BUTTON_COUNT MAX_CONVOI_COST
 #endif
 
-
-/**
- * Displays an information window for a convoi
- *
- * @author Hj. Malthaner
- * @date 22-Aug-01
- */
 class convoi_info_t : public gui_frame_t, private action_listener_t
 {
 public:
@@ -75,7 +75,7 @@ private:
 	button_t toggler;
 	button_t reverse_button;
 
-	button_t line_button;	// got to line ...
+	button_t line_button;	// goto line ...
 	bool line_bound;
 
 	convoihandle_t cnv;
@@ -113,16 +113,16 @@ public:
 	virtual ~convoi_info_t();
 
 	/**
-	 * Manche Fenster haben einen Hilfetext assoziiert.
-	 * @return den Dateinamen für die Hilfe, oder NULL
+	 * Set the window associated helptext
+	 * @return the filename for the helptext, or NULL
 	 * @author V. Meyer
 	 */
 	const char * get_hilfe_datei() const { return "convoiinfo.txt"; }
 
 	/**
-	 * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
-	 * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
-	 * in dem die Komponente dargestellt wird.
+	 * Draw new component. The values to be passed refer to the window
+	 * i.e. It's the screen coordinates of the window where the
+	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
 	void zeichnen(koord pos, koord gr);
@@ -133,6 +133,10 @@ public:
 	 */
 	virtual void set_fenstergroesse(koord groesse);
 
+	virtual bool is_weltpos();
+
+	virtual koord3d get_weltpos( bool set );
+
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	/**
@@ -140,7 +144,7 @@ public:
 	 */
 	void update_data() { reset_cnv_name(); set_dirty(); }
 
-	// this contructor is only used during loading
+	// this constructor is only used during loading
 	convoi_info_t(karte_t *welt);
 
 	void rdwr( loadsave_t *file );

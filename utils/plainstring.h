@@ -9,9 +9,11 @@
 class plainstring
 {
 	public:
-		plainstring() : str_() {}
+		plainstring() : str_(NULL) {}
 
 		plainstring(char const* const s) : str_(copy_string(s)) {}
+
+		plainstring(const plainstring &other) : str_(copy_string(other.c_str())) {}
 
 		~plainstring() { delete [] str_; }
 
@@ -22,6 +24,8 @@ class plainstring
 			str_ = s;
 			return *this;
 		}
+
+		plainstring& operator =(plainstring const& o) { return *this = o.str_; }
 
 		char const* c_str() const { return str_; }
 

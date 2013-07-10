@@ -394,6 +394,77 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			}
 		}
 	}
+	else if (version==10) {
+		// new: weight in kgs
+		besch->base_price = decode_uint32(p);
+		besch->zuladung = decode_uint16(p);
+		if(!experimental)
+		{
+			// The new Standard datum for loading times is read here.
+			besch->min_loading_time = besch->max_loading_time = decode_uint16(p);
+		}
+		besch->geschw = decode_uint16(p);
+		besch->gewicht = decode_uint32(p);
+		besch->axle_load = decode_uint16(p);
+		besch->leistung = decode_uint32(p);
+		besch->running_cost = decode_uint16(p);
+		if(!experimental)
+		{
+			// Experimental has this as a 32-bit integer, and reads it later.
+			besch->base_fixed_cost = decode_uint16(p);
+		}
+
+		besch->intro_date = decode_uint16(p);
+		besch->obsolete_date = decode_uint16(p);
+		besch->gear = decode_uint16(p);
+
+		besch->typ = decode_uint8(p);
+		besch->sound = decode_sint8(p);
+		besch->engine_type = decode_uint8(p);
+		besch->len = decode_uint8(p);
+		besch->vorgaenger = decode_uint8(p);
+		besch->nachfolger = decode_uint8(p);
+		besch->freight_image_type = decode_uint8(p);
+		if(experimental)
+		{
+			if(experimental_version == 0)
+			{
+				// NOTE: Experimental version reset to 1 with incrementing of
+				// Standard version to 10.
+				besch->is_tilting = decode_uint8(p);
+				way_constraints.set_permissive(decode_uint8(p));
+				way_constraints.set_prohibitive(decode_uint8(p));
+				besch->catering_level = decode_uint8(p);
+				besch->bidirectional = decode_uint8(p);
+				besch->can_lead_from_rear = decode_uint8(p);
+				besch->comfort = decode_uint8(p);
+				besch->overcrowded_capacity = decode_uint16(p);
+				besch->min_loading_time = besch->max_loading_time = decode_uint16(p);
+				besch->upgrades = decode_uint8(p);
+				besch->base_upgrade_price = decode_uint32(p);
+				besch->available_only_as_upgrade = decode_uint8(p);
+				besch->base_fixed_cost = decode_uint32(p);
+				besch->tractive_effort = decode_uint16(p);
+				uint16 air_resistance_hundreds = decode_uint16(p);
+				besch->air_resistance = float32e8_t((uint32) air_resistance_hundreds, (uint32)100);
+				besch->can_be_at_rear = (bool)decode_uint8(p);
+				besch->increase_maintenance_after_years = decode_uint16(p);
+				besch->increase_maintenance_by_percent = decode_uint16(p);
+				besch->years_before_maintenance_max_reached = decode_uint8(p);
+				besch->livery_image_type = decode_uint8(p);
+				besch->min_loading_time_seconds = decode_uint16(p);
+				besch->max_loading_time_seconds = decode_uint16(p);
+				uint16 rolling_resistance_tenths_thousands = decode_uint16(p);
+				besch->rolling_resistance = float32e8_t((uint32) rolling_resistance_tenths_thousands, (uint32)10000);
+				besch->brake_force = decode_uint16(p);
+				besch->minimum_runway_length = decode_uint16(p);
+			}
+			else
+			{
+				dbg->fatal( "vehicle_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version );
+			}
+		}
+	}
 	else {
 		if(  version!=0  ) {
 			dbg->fatal( "vehicle_reader_t::read_node()","Do not know how to handle version=%i", version );
@@ -511,7 +582,12 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	if(version<9) {
 		besch->base_fixed_cost = 0;
-		besch->axle_load = 0;
+		besch->axle_load = besch->gewicht;
+	}
+
+	// old weights were tons
+	if(version<10) {
+		besch->gewicht *= 1000;
 	}
 
 	if(besch->sound==LOAD_SOUND) {
@@ -533,7 +609,7 @@ DBG_MESSAGE("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,besch
 
 	DBG_DEBUG("vehicle_reader_t::read_node()",
 		"version=%d "
-		"way=%d zuladung=%d preis=%d geschw=%d gewicht=%d axle_load=%d leistung=%d "
+		"way=%d zuladung=%d preis=%d geschw=%d gewicht=%g axle_load=%d leistung=%d "
 		"betrieb=%d sound=%d vor=%d nach=%d "
 		"date=%d/%d gear=%d engine_type=%d len=%d is_tilting=%d catering_level=%d "
 		"way_constraints_permissive=%d way_constraints_prohibitive%d bidirectional%d can_lead_from_rear%d",
@@ -542,7 +618,7 @@ DBG_MESSAGE("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,besch
 		besch->zuladung,
 		besch->base_price,
 		besch->geschw,
-		besch->gewicht,
+		besch->gewicht/1000.0,
 		besch->axle_load,
 		besch->leistung,
 		besch->running_cost,

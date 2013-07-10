@@ -117,7 +117,7 @@ public:
 	/** true, when showing a grid
 	 * @author prissi
 	 */
-	static bool show_grid;
+	static volatile bool show_grid;
 
 	/* underground modes */
 	/* @author Dwachs    */
@@ -132,35 +132,33 @@ public:
 
 protected:
 	/**
-	 * Zusammenfassung des Ding-Container als Objekt
-	 * @author V. Meyer
+	 * List of objects on this tile
 	 */
 	dingliste_t dinge;
 
 	/**
-	 * Koordinate in der Karte.
-	 * @author Hj. Malthaner
+	 * Coordinate
 	 */
 	koord3d pos;
 
 	/**
-	 * Flags für das neuzeichnen geänderter Untergründe
-	 * @author Hj. Malthaner
+	 * Flags to indicate existence of halts, ways, to mark dirty
 	 */
 	uint8 flags;
 
 	/**
-	 * 0..100: slopenr, (bild_nr%100), normal ground
-	 * (bild_nr/100)%17 left slope
-	 * (bild_nr/1700) right slope
-	 * @author Hj. Malthaner
+	 * Image number
 	 */
 	image_id bild_nr;
 
-	/* image of the walls */
+	/**
+	 * Image of the walls
+	 */
 	sint8 back_bild_nr;
 
-	// slope (now saved locally), because different grounds need differen slopes
+	/**
+	 * Slope (now saved locally), because different grounds need different slopes
+	 */
 	uint8 slope;
 
 public:
@@ -168,8 +166,7 @@ public:
 	 * setzt die Bildnr. des anzuzeigenden Bodens
 	 * @author Hj. Malthaner
 	 */
-	inline void set_bild(image_id n)
-	{
+	inline void set_bild(image_id n) {
 		bild_nr = n;
 		set_flag(dirty);
 	}
@@ -280,7 +277,7 @@ public:
 	* @return NULL
 	* @author Hj. Malthaner
 	*/
-	virtual void info(cbuffer_t & buf) const;
+	virtual void info(cbuffer_t & buf, bool dummy = false) const;
 
 	/**
 	* Auffforderung, ein Infofenster zu oeffnen.
@@ -329,7 +326,7 @@ public:
 	}
 
 	/* this will be stored locally, since it is called many, many times */
-	inline uint8 ist_karten_boden() const {return (flags&is_kartenboden);}
+	inline bool ist_karten_boden() const {return (flags&is_kartenboden);}
 	void set_kartenboden(bool tf) {if(tf) {flags|=is_kartenboden;} else {flags&=~is_kartenboden;} }
 
 	/**
@@ -347,6 +344,12 @@ public:
 
 	// map rotation
 	virtual void rotate90();
+
+	// we must put the text back to thier proper location after roation ...
+	static void finish_rotate90();
+
+	// since enlargement will require new hases
+	static void enlarge_map( sint16 new_size_x, sint16 new_size_y );
 
 	void sort_trees();
 
@@ -378,7 +381,19 @@ public:
 	halthandle_t get_halt() const;
 	bool is_halt() const { return flags & is_halt_flag; }
 
+	/**
+	 * @return The height of the tile.
+	 */
 	inline sint8 get_hoehe() const {return pos.z;}
+
+	/**
+	 * @param corner hang_t::_corner mask of corners to check.
+	 * @return The height of the tile at the requested corner.
+	 */
+	inline sint8 get_hoehe(hang_t::typ corner) const
+	{
+		return pos.z + (((hang_t::typ)slope & corner )?1:0);
+	}
 
 	void set_hoehe(int h) { pos.z = h;}
 
@@ -436,17 +451,23 @@ public:
 		}
 		return(false);
 	}
+
 	/**
 	 * returns slope of ways as displayed (special cases: bridge ramps, tunnel mouths, undergroundmode etc)
 	 */
 	hang_t::typ get_disp_way_slope() const;
+
 	/**
-	* displays the ground images (including foundations, fences and ways)
-	* @author Hj. Malthaner
-	*/
+	 * Displays the ground images (including foundations, fences and ways)
+	 * @author Hj. Malthaner
+	 */
 	void display_boden(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width) const;
 
-	void display_if_visible(sint16 xpos, sint16 ypos, sint16 raster_tile_width) const;
+	/**
+	 * Displays the tile if it's visible.
+	 * @see is_karten_boden_visible()
+	 */
+	void display_if_visible(sint16 xpos, sint16 ypos, sint16 raster_tile_width);
 
 	/**
 	 * displays everything that is on a tile - the main display routine for objects on tiles
@@ -483,16 +504,17 @@ public:
 	uint8 display_dinge_vh(const sint16 xpos, const sint16 ypos, const uint8 start_offset, const ribi_t::ribi ribi, const bool ontile) const;
 
 	/**
-	 *  displays all foreground images
+	 * displays all foreground images
 	 * @param is_global set to true, if this is called during the whole screen update
 	 * @author dwachs
 	 */
 	void display_dinge_fg(const sint16 xpos, const sint16 ypos, const bool is_global, const uint8 start_offset) const;
-	/* overlayer with signs, good levels and station coverage
+
+	/**
+	 * overlayer with signs, good levels and station coverage
 	 * resets the dirty flag
 	 * @author kierongreen
 	 */
-
 	void display_overlay(sint16 xpos, sint16 ypos);
 
 	inline ding_t *first_obj() const { return dinge.bei(offsets[flags/has_way1]); }
@@ -567,7 +589,7 @@ public:
 		return NULL;
 	}
 
-	uint8 has_two_ways() const { return flags&has_way2; }
+	bool has_two_ways() const { return flags&has_way2; }
 
 	bool hat_weg(waytype_t typ) const { return get_weg(typ)!=NULL; }
 
@@ -735,10 +757,10 @@ public:
 		// only on slope height may changes
 		if(  way_slope  ) {
 			if(ribi & ribi_t::nordost) {
-				h += corner3(way_slope)*Z_TILE_STEP;
+				h += corner3(way_slope);
 			}
 			else {
-				h += corner1(way_slope)*Z_TILE_STEP;
+				h += corner1(way_slope);
 			}
 		}
 
@@ -748,7 +770,7 @@ public:
 		 */
 		if(  way_slope != slope  ) {
 			if(  ist_bruecke()  &&  slope  ) {
-				h += Z_TILE_STEP;	// end or start of a bridge
+				h ++;	// end or start of a bridge
 			}
 		}
 

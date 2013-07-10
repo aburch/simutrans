@@ -12,6 +12,7 @@
 #include "simgraph.h"
 #include "simcolor.h"
 #include "tpl/slist_tpl.h"
+#include "utils/simstring.h"
 
 
 // how much scrolling per call?
@@ -62,16 +63,23 @@ void ticker::add_msg(const char* txt, koord pos, int color)
 
 	if(count < 4) {
 		// Don't repeat messages
-		if (count == 0 || strncmp(txt, list.back().msg, strlen(txt)) != 0) {
+		if (count == 0 || !strstart(list.back().msg, txt)) {
 			node n;
 			int i=0;
 
 			// remove breaks
 			for(  int j=0;  i<250  &&  txt[j]!=0;  j++ ) {
-					if(txt[i]=='\n'  &&  (i==0  ||  n.msg[i-1]!=' ')  ) {
+				if(  txt[j]=='\n'  ) {
+					if(  i==0  ||  n.msg[i-1]==' '  ) {
+						continue;
+					}
 					n.msg[i++] = ' ';
 				}
 				else {
+					if(  txt[j]==' '  &&  (i==0  ||  n.msg[i-1]==' ')  ) {
+						// avoid double or leading spaces
+						continue;
+					}
 					n.msg[i++] = txt[j];
 				}
 			}
@@ -110,7 +118,7 @@ void ticker::zeichnen(void)
 			display_scroll_band( start_y+4, X_DIST, TICKER_HEIGHT-3 );
 			display_fillbox_wh(width-X_DIST, start_y+1, X_DIST, TICKER_HEIGHT, MN_GREY2, true);
 			// ok, ready for the text
-			PUSH_CLIP(width-X_DIST-1,start_y+1,X_DIST+1,TICKER_HEIGHT);
+			PUSH_CLIP( 0, start_y + 1, width - 1, TICKER_HEIGHT );
 			FOR(slist_tpl<node>, & n, list) {
 				n.xpos -= X_DIST;
 				if (n.xpos < width) {
@@ -124,6 +132,9 @@ void ticker::zeichnen(void)
 		// remove old news
 		while (!list.empty()  &&  list.front().xpos + list.front().w < 0) {
 			list.remove_first();
+		}
+		if (list.empty()) {
+			mark_rect_dirty_wc(0, start_y, width, start_y + TICKER_HEIGHT);
 		}
 		if(next_pos>width) {
 			next_pos -= X_DIST;

@@ -9,6 +9,7 @@
 #define gui_stadt_info_h
 
 #include "../simcity.h"
+#include "../simwin.h"
 
 #include "gui_frame.h"
 #include "components/gui_chart.h"
@@ -65,20 +66,12 @@ public:
 
 	virtual ~stadt_info_t();
 
-	/**
-	 * Manche Fenster haben einen Hilfetext assoziiert.
-	 * @return den Dateinamen für die Hilfe, oder NULL
-	 * @author Hj. Malthaner
-	 */
 	const char *get_hilfe_datei() const {return "citywindow.txt";}
 
-	virtual koord3d get_weltpos();
+	virtual koord3d get_weltpos(bool);
 
-	/**
-	* komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
-	* das Fenster, d.h. es sind die Bildschirmkoordinaten des Fensters
-	* in dem die Komponente dargestellt wird.
-	*/
+	virtual bool is_weltpos();
+
 	void zeichnen(koord pos, koord gr);
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
@@ -101,6 +94,13 @@ public:
 	 * resize window in response to a resize event
 	 */
 	void resize(const koord delta);
+
+	// this contructor is only used during loading
+	stadt_info_t(karte_t *welt);
+
+	void rdwr(loadsave_t *);
+
+	uint32 get_rdwr_id() { return magic_city_info_t; }
 };
 
 #endif

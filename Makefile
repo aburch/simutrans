@@ -2,7 +2,7 @@ CFG ?= default
 -include config.$(CFG)
 
 
-BACKENDS      = allegro gdi sdl mixer_sdl posix
+BACKENDS      = allegro gdi opengl sdl mixer_sdl posix
 COLOUR_DEPTHS = 0 16
 OSTYPES       = amiga beos cygwin freebsd haiku linux mingw mac
 
@@ -20,7 +20,7 @@ endif
 
 
 ifeq ($(OSTYPE),amiga)
-  STD_LIBS ?= -lz -lbz2 -lunix -lpthread -lSDL_mixer -lsmpeg -lvorbisfile -lvorbis -logg
+  STD_LIBS ?= -lz -lbz2 -lunix -lSDL_mixer -lsmpeg -lvorbisfile -lvorbis -logg
   CFLAGS += -mcrt=newlib -DUSE_C -DBIG_ENDIAN -gstabs+
   LDFLAGS += -Bstatic -non_shared
 endif
@@ -30,7 +30,7 @@ ifeq ($(OSTYPE),beos)
 endif
 
 ifeq ($(OSTYPE),haiku)
-  LIBS += -lz -lnetwork -lbz2
+  LIBS += -lz -lnetwork -lbz2 -lbe -llocale
 endif
 
 ifeq ($(OSTYPE),freebsd)
@@ -38,7 +38,6 @@ ifeq ($(OSTYPE),freebsd)
 endif
 
 ifeq ($(OSTYPE),mac)
-  CFLAGS  += -DUSE_HW
   CCFLAGS += -Os -fast
   LIBS    += -lz -lbz2
 endif
@@ -52,21 +51,22 @@ ifeq ($(OSTYPE),cygwin)
   SOURCES += simsys_w32_png.cc
   CFLAGS += -I/usr/include/mingw -mwin32 -DNOMINMAX=1
   CCFLAGS += -I/usr/include/mingw -mwin32 -DNOMINMAX=1
-  LDFLAGS += -mno-cygwin
+# Deprecated in GCC 4.7x: see http://forum.simutrans.com/index.php?topic=6556.msg118697#msg118697
+# LDFLAGS += -mno-cygwin
   LIBS   += -lgdi32 -lwinmm -lwsock32 -lz -lbz2
 endif
 
 ifeq ($(OSTYPE),mingw)
   CC ?= gcc
   SOURCES += simsys_w32_png.cc
-  CFLAGS  += -DPNG_STATIC -DZLIB_STATIC -march=pentium -DNOMINMAX=1
-  LDFLAGS += -static-libgcc -static-libstdc++
+  CFLAGS  += -DPNG_STATIC -DZLIB_STATIC -DNOMINMAX=1
   ifeq ($(BACKEND),gdi)
     LIBS += -lunicows
     ifeq  ($(WIN32_CONSOLE),)
       LDFLAGS += -mwindows
     endif
   endif
+  LDFLAGS += -static-libgcc -static-libstdc++
   LIBS += -lmingw32 -lgdi32 -lwinmm -lwsock32 -lz -lbz2
 endif
 
@@ -81,7 +81,7 @@ SDL_CONFIG     ?= sdl-config
 
 
 ifneq ($(OPTIMISE),)
-    CFLAGS += -O3 -fno-schedule-insns
+    CFLAGS += -O3
   ifneq ($(OSTYPE),mac)
     ifneq ($(OSTYPE),haiku)
       ifneq ($(OSTYPE),amiga)
@@ -108,6 +108,7 @@ ifdef DEBUG
     endif
   endif
 else
+# Disable assertions
   CFLAGS += -DNDEBUG
 endif
 
@@ -119,8 +120,20 @@ ifneq ($(PROFILE),)
   LDFLAGS += -pg
 endif
 
+ifneq  ($(MULTI_THREAD),)
+  CFLAGS += -DMULTI_THREAD=$(MULTI_THREAD)
+  ifneq  ($(MULTI_THREAD),1)
+    ifeq ($(OSTYPE),mingw)
+#use lpthreadGC2d for debug alternatively
+      LDFLAGS += -lpthreadGC2
+    else
+      LDFLAGS += -lpthread
+    endif
+  endif
+endif
+
 ifneq ($(WITH_REVISION),)
-  REV = $(shell git log|head -1|tail -c +8|cksum| awk '{print $1}')
+  REV = $(shell svnversion)
   ifneq ($(REV),)
     CFLAGS  += -DREVISION="$(REV)"
   endif
@@ -128,7 +141,6 @@ endif
 
 CFLAGS   += -Wall -W -Wcast-qual -Wpointer-arith -Wcast-align $(FLAGS)
 CCFLAGS  += -Wstrict-prototypes
-
 
 SOURCES += bauer/brueckenbauer.cc
 SOURCES += bauer/fabrikbauer.cc
@@ -152,7 +164,6 @@ SOURCES += besch/reader/ground_reader.cc
 SOURCES += besch/reader/groundobj_reader.cc
 SOURCES += besch/reader/image_reader.cc
 SOURCES += besch/reader/imagelist2d_reader.cc
-SOURCES += besch/reader/imagelist3d_reader.cc
 SOURCES += besch/reader/imagelist_reader.cc
 SOURCES += besch/reader/obj_reader.cc
 SOURCES += besch/reader/pedestrian_reader.cc
@@ -172,6 +183,7 @@ SOURCES += besch/sound_besch.cc
 SOURCES += besch/tunnel_besch.cc
 SOURCES += besch/vehikel_besch.cc
 SOURCES += besch/ware_besch.cc
+SOURCES += besch/weg_besch.cc
 SOURCES += boden/boden.cc
 SOURCES += boden/brueckenboden.cc
 SOURCES += boden/fundament.cc
@@ -195,20 +207,19 @@ SOURCES += dataobj/freelist.cc
 SOURCES += dataobj/gameinfo.cc
 SOURCES += dataobj/koord.cc
 SOURCES += dataobj/koord3d.cc
-SOURCES += dataobj/livery_scheme.cc
 SOURCES += dataobj/loadsave.cc
 SOURCES += dataobj/marker.cc
 SOURCES += dataobj/network.cc
 SOURCES += dataobj/network_address.cc
 SOURCES += dataobj/network_cmd.cc
 SOURCES += dataobj/network_cmd_ingame.cc
+SOURCES += dataobj/network_cmd_scenario.cc
 SOURCES += dataobj/network_cmp_pakset.cc
 SOURCES += dataobj/network_file_transfer.cc
 SOURCES += dataobj/network_packet.cc
 SOURCES += dataobj/network_socket_list.cc
 SOURCES += dataobj/pakset_info.cc
 SOURCES += dataobj/powernet.cc
-SOURCES += dataobj/replace_data.cc
 SOURCES += dataobj/ribi.cc
 SOURCES += dataobj/route.cc
 SOURCES += dataobj/pwd_hash.cc
@@ -245,9 +256,6 @@ SOURCES += gui/display_settings.cc
 SOURCES += gui/components/gui_button.cc
 SOURCES += gui/components/gui_chart.cc
 SOURCES += gui/components/gui_combobox.cc
-SOURCES += gui/components/gui_component_table.cc
-SOURCES += gui/components/gui_convoy_assembler.cc
-SOURCES += gui/components/gui_convoy_label.cc
 SOURCES += gui/components/gui_ding_view_t.cc
 SOURCES += gui/components/gui_fixedwidth_textarea.cc
 SOURCES += gui/components/gui_flowtext.cc
@@ -259,7 +267,6 @@ SOURCES += gui/components/gui_scrolled_list.cc
 SOURCES += gui/components/gui_scrollpane.cc
 SOURCES += gui/components/gui_speedbar.cc
 SOURCES += gui/components/gui_tab_panel.cc
-SOURCES += gui/components/gui_table.cc
 SOURCES += gui/components/gui_textarea.cc
 SOURCES += gui/components/gui_textinput.cc
 SOURCES += gui/components/gui_world_view_t.cc
@@ -267,6 +274,7 @@ SOURCES += gui/convoi_detail_t.cc
 SOURCES += gui/convoi_filter_frame.cc
 SOURCES += gui/convoi_frame.cc
 SOURCES += gui/convoi_info_t.cc
+SOURCES += gui/convoy_item.cc
 SOURCES += gui/curiosity_edit.cc
 SOURCES += gui/curiositylist_frame_t.cc
 SOURCES += gui/curiositylist_stats_t.cc
@@ -312,9 +320,9 @@ SOURCES += gui/pakselector.cc
 SOURCES += gui/password_frame.cc
 SOURCES += gui/player_frame_t.cc
 SOURCES += gui/privatesign_info.cc
-SOURCES += gui/replace_frame.cc
 SOURCES += gui/savegame_frame.cc
 SOURCES += gui/scenario_frame.cc
+SOURCES += gui/scenario_info.cc
 SOURCES += gui/schedule_list.cc
 SOURCES += gui/server_frame.cc
 SOURCES += gui/settings_frame.cc
@@ -332,20 +340,66 @@ SOURCES += old_blockmanager.cc
 SOURCES += player/ai.cc
 SOURCES += player/ai_goods.cc
 SOURCES += player/ai_passenger.cc
+SOURCES += player/finance.cc
 SOURCES += player/simplay.cc
+SOURCES += script/api_class.cc
+SOURCES += script/api_function.cc
+SOURCES += script/api_param.cc
+SOURCES += script/api/api_city.cc
+SOURCES += script/api/api_const.cc
+SOURCES += script/api/api_convoy.cc
+SOURCES += script/api/api_goods_desc.cc
+SOURCES += script/api/api_gui.cc
+SOURCES += script/api/api_factory.cc
+SOURCES += script/api/api_halt.cc
+SOURCES += script/api/api_map_objects.cc
+SOURCES += script/api/api_player.cc
+SOURCES += script/api/api_scenario.cc
+SOURCES += script/api/api_schedule.cc
+SOURCES += script/api/api_settings.cc
+SOURCES += script/api/api_simple.cc
+SOURCES += script/api/api_tiles.cc
+SOURCES += script/api/api_world.cc
+SOURCES += script/api/export_besch.cc
+SOURCES += script/api/get_next.cc
+SOURCES += script/dynamic_string.cc
+SOURCES += script/export_objs.cc
+SOURCES += script/script.cc
+SOURCES += squirrel/sq_extensions.cc
+SOURCES += squirrel/squirrel/sqapi.cc
+SOURCES += squirrel/squirrel/sqclass.cc
+SOURCES += squirrel/squirrel/sqdebug.cc
+SOURCES += squirrel/squirrel/sqlexer.cc
+SOURCES += squirrel/squirrel/sqobject.cc
+SOURCES += squirrel/squirrel/sqtable.cc
+SOURCES += squirrel/squirrel/sqbaselib.cc
+SOURCES += squirrel/squirrel/sqcompiler.cc
+SOURCES += squirrel/squirrel/sqfuncstate.cc
+SOURCES += squirrel/squirrel/sqmem.cc
+SOURCES += squirrel/squirrel/sqstate.cc
+SOURCES += squirrel/squirrel/sqvm.cc
+SOURCES += squirrel/sqstdlib/sqstdaux.cc
+SOURCES += squirrel/sqstdlib/sqstdio.cc
+SOURCES += squirrel/sqstdlib/sqstdrex.cc
+SOURCES += squirrel/sqstdlib/sqstdstring.cc
+SOURCES += squirrel/sqstdlib/sqstdblob.cc
+SOURCES += squirrel/sqstdlib/sqstdmath.cc
+SOURCES += squirrel/sqstdlib/sqstdstream.cc
+SOURCES += squirrel/sqstdlib/sqstdsystem.cc
 SOURCES += simcity.cc
-SOURCES += convoy.cc
 SOURCES += simconvoi.cc
 SOURCES += simdebug.cc
 SOURCES += simdepot.cc
 SOURCES += simdings.cc
 SOURCES += simevent.cc
 SOURCES += simfab.cc
+SOURCES += simgraph$(COLOUR_DEPTH).cc
 SOURCES += simhalt.cc
 SOURCES += simintr.cc
 SOURCES += simio.cc
 SOURCES += simline.cc
 SOURCES += simlinemgmt.cc
+SOURCES += simloadingscreen.cc
 SOURCES += simmain.cc
 SOURCES += simmem.cc
 SOURCES += simmenu.cc
@@ -361,12 +415,11 @@ SOURCES += simware.cc
 SOURCES += simwerkz.cc
 SOURCES += simwin.cc
 SOURCES += simworld.cc
-SOURCES += path_explorer.cc
 SOURCES += sucher/platzsucher.cc
 SOURCES += unicode.cc
 SOURCES += utils/cbuffer_t.cc
 SOURCES += utils/checksum.cc
-SOURCES += utils/float32e8_t.cc
+SOURCES += utils/csv.cc
 SOURCES += utils/log.cc
 SOURCES += utils/memory_rw.cc
 SOURCES += utils/searchfolder.cc
@@ -376,13 +429,17 @@ SOURCES += vehicle/movingobj.cc
 SOURCES += vehicle/simpeople.cc
 SOURCES += vehicle/simvehikel.cc
 SOURCES += vehicle/simverkehr.cc
-
-SOURCES += simgraph$(COLOUR_DEPTH).cc
-
-ifdef DEBUG_WEIGHTMAPS
-  SOURCES += utils/dbg_weightmap.cc
-  CFLAGS += -DDEBUG_WEIGHTMAPS
-endif
+SOURCES += simunits.cc
+SOURCES += convoy.cc
+SOURCES += utils/float32e8_t.cc
+SOURCES += path_explorer.cc
+SOURCES += gui/components/gui_component_table.cc
+SOURCES += gui/components/gui_table.cc
+SOURCES += gui/components/gui_convoy_assembler.cc
+SOURCES += gui/components/gui_convoy_label.cc
+SOURCES += gui/replace_frame.cc
+SOURCES += dataobj/livery_scheme.cc
+SOURCES += dataobj/replace_data.cc
 
 ifeq ($(BACKEND),allegro)
   SOURCES  += simsys_d.cc
@@ -441,7 +498,6 @@ ifeq ($(BACKEND),sdl)
       SDL_LDFLAGS += -mconsole
     endif
   endif
-
   CFLAGS += $(SDL_CFLAGS)
   LIBS   += $(SDL_LDFLAGS)
 endif
@@ -469,6 +525,44 @@ ifeq ($(BACKEND),mixer_sdl)
   LIBS   += $(SDL_LDFLAGS) -lSDL_mixer
 endif
 
+ifeq ($(BACKEND),opengl)
+  SOURCES += simsys_opengl.cc
+  CFLAGS  += -DUSE_16BIT_DIB
+  ifeq ($(OSTYPE),mac)
+    # Core Audio (Quicktime) base sound system routines
+    SOURCES += sound/core-audio_sound.mm
+    SOURCES += music/core-audio_midi.mm
+    LIBS    += -framework Foundation -framework QTKit
+  else
+    SOURCES  += sound/sdl_sound.cc
+    ifeq ($(findstring $(OSTYPE), cygwin mingw),)
+      SOURCES += music/no_midi.cc
+    else
+      SOURCES += music/w32_midi.cc
+    endif
+  endif
+  ifeq ($(SDL_CONFIG),)
+    SDL_CFLAGS  := -I$(MINGDIR)/include/SDL -Dmain=SDL_main
+    SDL_LDFLAGS := -lmingw32 -lSDLmain -lSDL
+    ifeq  ($(WIN32_CONSOLE),)
+      SDL_LDFLAGS += -mwindows
+    endif
+  else
+    SDL_CFLAGS  := $(shell $(SDL_CONFIG) --cflags)
+    SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
+    ifneq  ($(WIN32_CONSOLE),)
+      SDL_LDFLAGS += -mconsole
+    endif
+  endif
+  CFLAGS += $(SDL_CFLAGS)
+  LIBS   += $(SDL_LDFLAGS) -lglew32
+  ifeq ($(OSTYPE),mingw)
+    LIBS += -lopengl32
+  else
+    LIBS += -lGL
+  endif
+endif
+
 ifeq ($(BACKEND),posix)
   SOURCES += simsys_posix.cc
   SOURCES += music/no_midi.cc
@@ -486,11 +580,15 @@ CCFLAGS  += $(CFLAGS)
 CXXFLAGS += $(CFLAGS)
 
 BUILDDIR ?= build/$(CFG)
-
 PROGDIR  ?= $(BUILDDIR)
-PROG     ?= simutrans-experimental
+PROG     ?= sim
+
 
 include common.mk
+
+ifeq ($(OSTYPE),mac)
+  include OSX/osx.mk
+endif
 
 
 .PHONY: makeobj
