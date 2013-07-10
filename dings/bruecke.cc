@@ -14,6 +14,7 @@
 #include "../bauer/brueckenbauer.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
+#include "../dataobj/umgebung.h"
 
 #include "bruecke.h"
 
@@ -35,6 +36,18 @@ bruecke_t::bruecke_t(karte_t *welt, koord3d pos, spieler_t *sp, const bruecke_be
 }
 
 
+// single height segments
+static bruecke_besch_t::img_t single_img[24]= {
+	bruecke_besch_t::NS_Segment, bruecke_besch_t::OW_Segment,
+	bruecke_besch_t::N_Start, bruecke_besch_t::S_Start, bruecke_besch_t::O_Start, bruecke_besch_t::W_Start,
+	bruecke_besch_t::N_Rampe, bruecke_besch_t::S_Rampe, bruecke_besch_t::O_Rampe, bruecke_besch_t::W_Rampe,
+	bruecke_besch_t::NS_Pillar, bruecke_besch_t::OW_Pillar,
+	bruecke_besch_t::NS_Segment, bruecke_besch_t::OW_Segment,
+	bruecke_besch_t::N_Start, bruecke_besch_t::S_Start, bruecke_besch_t::O_Start, bruecke_besch_t::W_Start,
+	bruecke_besch_t::N_Rampe, bruecke_besch_t::S_Rampe, bruecke_besch_t::O_Rampe, bruecke_besch_t::W_Rampe,
+	bruecke_besch_t::NS_Pillar, bruecke_besch_t::OW_Pillar
+};
+
 void bruecke_t::calc_bild()
 {
 	grund_t *gr=welt->lookup(get_pos());
@@ -50,6 +63,9 @@ void bruecke_t::calc_bild()
 
 			// handle cases where old bridges don't have correct images
 			image_id display_image=besch->get_hintergrund( img, is_snow );
+			if(  display_image==IMG_LEER && besch->get_vordergrund( img, is_snow )==IMG_LEER  ) {
+				display_image=besch->get_hintergrund( single_img[img], is_snow );
+			}
 			weg0->set_bild( display_image );
 
 			weg0->set_yoff(-gr->get_weg_yoff() );
@@ -81,7 +97,12 @@ image_id bruecke_t::get_after_bild() const
 	// if on a slope then start of bridge - take the upper value
 	const hang_t::typ slope = gr->get_grund_hang();
 	bool is_snow = welt->get_climate( get_pos().get_2d() ) == arctic_climate  ||  get_pos().z + hang_t::height(slope) >= welt->get_snowline();
-	return besch->get_vordergrund( img, is_snow );
+	// handle cases where old bridges don't have correct images
+	image_id display_image=besch->get_vordergrund( img, is_snow );
+	if(  display_image==IMG_LEER && besch->get_hintergrund( img, is_snow )==IMG_LEER  ) {
+		display_image=besch->get_vordergrund( single_img[img], is_snow );
+	}
+	return display_image;
 }
 
 
@@ -109,6 +130,24 @@ void bruecke_t::rdwr(loadsave_t *file)
 			welt->add_missing_paks( s, karte_t::MISSING_BRIDGE );
 		}
 		guarded_free(const_cast<char *>(s));
+
+		if(  file->get_version() < 112007 && umgebung_t::pak_height_conversion_factor==2  ) {
+			switch(img) {
+				case bruecke_besch_t::OW_Segment: img = bruecke_besch_t::OW_Segment2; break;
+				case bruecke_besch_t::NS_Segment: img = bruecke_besch_t::NS_Segment2; break;
+				case bruecke_besch_t::O_Start:    img = bruecke_besch_t::O_Start2;    break;
+				case bruecke_besch_t::W_Start:    img = bruecke_besch_t::W_Start2;    break;
+				case bruecke_besch_t::S_Start:    img = bruecke_besch_t::S_Start2;    break;
+				case bruecke_besch_t::N_Start:    img = bruecke_besch_t::N_Start2;    break;
+				case bruecke_besch_t::O_Rampe:    img = bruecke_besch_t::O_Rampe2;    break;
+				case bruecke_besch_t::W_Rampe:    img = bruecke_besch_t::W_Rampe2;    break;
+				case bruecke_besch_t::S_Rampe:    img = bruecke_besch_t::S_Rampe2;    break;
+				case bruecke_besch_t::N_Rampe:    img = bruecke_besch_t::N_Rampe2;    break;
+				case bruecke_besch_t::OW_Pillar:  img = bruecke_besch_t::OW_Pillar2;  break;
+				case bruecke_besch_t::NS_Pillar:  img = bruecke_besch_t::NS_Pillar2;  break;
+				default: break;
+			}
+		}
 	}
 }
 
@@ -185,14 +224,15 @@ void bruecke_t::entferne( spieler_t *sp2 )
 
 
 // rotated segment names
-static bruecke_besch_t::img_t rotate90_img[22]= {
+static bruecke_besch_t::img_t rotate90_img[24]= {
 	bruecke_besch_t::OW_Segment, bruecke_besch_t::NS_Segment,
 	bruecke_besch_t::O_Start, bruecke_besch_t::W_Start, bruecke_besch_t::S_Start, bruecke_besch_t::N_Start,
 	bruecke_besch_t::O_Rampe, bruecke_besch_t::W_Rampe, bruecke_besch_t::S_Rampe, bruecke_besch_t::N_Rampe,
 	bruecke_besch_t::OW_Pillar, bruecke_besch_t::NS_Pillar,
 	bruecke_besch_t::OW_Segment2, bruecke_besch_t::NS_Segment2,
 	bruecke_besch_t::O_Start2, bruecke_besch_t::W_Start2, bruecke_besch_t::S_Start2, bruecke_besch_t::N_Start2,
-	bruecke_besch_t::O_Rampe2, bruecke_besch_t::W_Rampe2, bruecke_besch_t::S_Rampe2, bruecke_besch_t::N_Rampe2
+	bruecke_besch_t::O_Rampe2, bruecke_besch_t::W_Rampe2, bruecke_besch_t::S_Rampe2, bruecke_besch_t::N_Rampe2,
+	bruecke_besch_t::OW_Pillar2, bruecke_besch_t::NS_Pillar2
 };
 
 

@@ -66,7 +66,7 @@ public:
 	 * @param zv direction the bridge will face
 	 * @param besch the bridge description.
 	 */
-	static void baue_auffahrt(karte_t *welt, spieler_t *sp, koord3d end, koord zv, const bruecke_besch_t *besch);
+	static void baue_auffahrt(karte_t *welt, spieler_t *sp, koord3d end, ribi_t::ribi ribi_neu, hang_t::typ weg_hang, const bruecke_besch_t *besch);
 
 	/**
 	 * Actually builds the bridge without checks.

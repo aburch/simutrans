@@ -114,6 +114,13 @@ void pillar_t::rdwr(loadsave_t *file)
 			}
 		}
 		asymmetric = besch && besch->has_pillar_asymmetric();
+
+		if(  file->get_version() < 112007 && umgebung_t::pak_height_conversion_factor==2  ) {
+			switch(dir) {
+				case bruecke_besch_t::OW_Pillar:  dir = bruecke_besch_t::OW_Pillar2;  break;
+				case bruecke_besch_t::NS_Pillar:  dir = bruecke_besch_t::NS_Pillar2;  break;
+			}
+		}
 	}
 }
 
@@ -127,5 +134,10 @@ void pillar_t::rotate90()
 	// since we are in the middle of the rotation process
 
 	// the rotated image parameter is just one in front/back
-	dir = (dir == bruecke_besch_t::NS_Pillar) ? bruecke_besch_t::OW_Pillar : bruecke_besch_t::NS_Pillar;
+	switch(dir) {
+		case bruecke_besch_t::NS_Pillar:  dir=bruecke_besch_t::OW_Pillar ; break;
+		case bruecke_besch_t::OW_Pillar:  dir=bruecke_besch_t::NS_Pillar ; break;
+		case bruecke_besch_t::NS_Pillar2: dir=bruecke_besch_t::OW_Pillar2 ; break;
+		case bruecke_besch_t::OW_Pillar2: dir=bruecke_besch_t::NS_Pillar2 ; break;
+	}
 }

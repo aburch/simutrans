@@ -64,7 +64,7 @@ public:
 	 */
 	enum img_t {
 		NS_Segment, OW_Segment, N_Start, S_Start, O_Start, W_Start, N_Rampe, S_Rampe, O_Rampe, W_Rampe, NS_Pillar, OW_Pillar,
-		NS_Segment2, OW_Segment2, N_Start2, S_Start2, O_Start2, W_Start2, N_Rampe2, S_Rampe2, O_Rampe2, W_Rampe2
+		NS_Segment2, OW_Segment2, N_Start2, S_Start2, O_Start2, W_Start2, N_Rampe2, S_Rampe2, O_Rampe2, W_Rampe2, NS_Pillar2, OW_Pillar2
 	};
 
 	/*
@@ -97,10 +97,12 @@ public:
 		return bild != NULL ? bild->get_nummer() : IMG_LEER;
 	}
 
-	static img_t get_simple(ribi_t::ribi ribi);
+	img_t get_simple(ribi_t::ribi ribi, uint8 height) const;
 	img_t get_start(hang_t::typ slope) const;
-	static img_t get_rampe(hang_t::typ slope);
+	img_t get_rampe(hang_t::typ slope) const;
 	static img_t get_pillar(ribi_t::ribi ribi);
+
+	bool has_double_ramp() const;
 
 	img_t get_end(hang_t::typ test_slope, hang_t::typ ground_slope, hang_t::typ way_slope) const;
 

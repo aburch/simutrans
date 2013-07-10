@@ -78,7 +78,12 @@ void brueckenboden_t::rdwr(loadsave_t *file)
 		weg_t *w = get_weg_nr(0);
 		if(w) {
 			const bruecke_besch_t *br_besch = brueckenbauer_t::find_bridge( w->get_waytype(), w->get_max_speed(), 0 );
-			bruecke_t *br = new bruecke_t( welt, get_pos(), welt->get_spieler(1), br_besch, ist_karten_boden() ? br_besch->get_end( slope, get_grund_hang(), get_weg_hang() ) : br_besch->get_simple( w->get_ribi_unmasked() ) );
+			const grund_t *kb = welt->lookup_kartenboden(get_pos().get_2d());
+			int height = 1;
+			if(  kb && get_pos().z - kb->get_pos().z > 1 ) {
+				height = 2;
+			}
+			bruecke_t *br = new bruecke_t( welt, get_pos(), welt->get_spieler(1), br_besch, ist_karten_boden() ? br_besch->get_end( slope, get_grund_hang(), get_weg_hang() ) : br_besch->get_simple( w->get_ribi_unmasked(), height ) );
 			obj_add( br );
 		}
 	}

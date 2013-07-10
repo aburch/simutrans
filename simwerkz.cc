@@ -2386,10 +2386,10 @@ void wkz_brueckenbau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d 
 	// single height -> height is 1
 	// double height -> height is 2
 	const hang_t::typ slope = gr->get_grund_hang();
-	const uint8 max_height = slope ? ((slope & 7) ? 1 : 2) : umgebung_t::pak_height_conversion_factor;
+	const uint8 max_height = slope ? ((slope & 7) ? 1 : 2) : (besch->has_double_ramp()?2:1);
 
 	zeiger_t *way = new zeiger_t( welt, start, sp );
-	const bruecke_besch_t::img_t img0 = besch->get_end( slope, slope, hang_typ(zv) );
+	const bruecke_besch_t::img_t img0 = besch->get_end( slope, slope, hang_typ(zv)*max_height );
 
 	gr->obj_add( way );
 	way->set_bild( besch->get_hintergrund( img0, 0 ) );
@@ -2426,8 +2426,10 @@ void wkz_brueckenbau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d 
 		}
 		zeiger_t *way = new zeiger_t( welt, pos, sp );
 		gr->obj_add( way );
-		way->set_bild(besch->get_hintergrund(besch->get_simple(ribi_mark),0));
-		way->set_after_bild(besch->get_vordergrund(besch->get_simple(ribi_mark), 0));
+		grund_t *kb = welt->lookup_kartenboden(pos.get_2d());
+		sint16 height = pos.z - kb->get_pos().z;
+		way->set_bild(besch->get_hintergrund(besch->get_simple(ribi_mark,height-hang_t::height(kb->get_grund_hang())),0));
+		way->set_after_bild(besch->get_vordergrund(besch->get_simple(ribi_mark,height-hang_t::height(kb->get_grund_hang())), 0));
 		marked.insert( way );
 		way->mark_image_dirty( way->get_bild(), 0 );
 		pos = pos + zv;
@@ -2441,11 +2443,11 @@ void wkz_brueckenbau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d 
 	// single height -> height is 1
 	// double height -> height is 2
 	const hang_t::typ end_slope = gr->get_grund_hang();
-	const uint8 end_max_height = end_slope ? ((end_slope & 7) ? 1 : 2) : umgebung_t::pak_height_conversion_factor;
+	const uint8 end_max_height = end_slope ? ((end_slope & 7) ? 1 : 2) : (pos.z-end.z);
 
 	if(  gr->ist_karten_boden()  &&  end.z + end_max_height == start.z + max_height  ) {
 		zeiger_t *way = new zeiger_t( welt, end, sp );
-		const bruecke_besch_t::img_t img1 = besch->get_end( end_slope, end_slope, hang_typ(-zv) );
+		const bruecke_besch_t::img_t img1 = besch->get_end( end_slope, end_slope, end_slope?0:(pos.z-end.z)*hang_typ(-zv) );
 		gr->obj_add( way );
 		way->set_bild(besch->get_hintergrund(img1, 0));
 		way->set_after_bild(besch->get_vordergrund(img1, 0));
@@ -2557,7 +2559,7 @@ uint8 wkz_brueckenbau_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord
 		const hang_t::typ start_slope = welt->lookup(start)->get_grund_hang();
 		const uint8 start_max_height = start_slope ? ((start_slope & 7) ? 1 : 2) : umgebung_t::pak_height_conversion_factor;
 		const uint8 height_difference = abs( start.z + start_max_height - pos.z - max_height );
-		if(  height_difference  &&  height_difference != umgebung_t::pak_height_conversion_factor  ) {
+		if(  height_difference>1  &&  besch->get_hintergrund(bruecke_besch_t::N_Start2, 0) == IMG_LEER  ) {
 			return 0;
 		}
 
@@ -2566,6 +2568,7 @@ uint8 wkz_brueckenbau_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord
 		if (!ribi_t::ist_einfach(test)  ||  ((test & (~ribi))!=0) ) {
 			return 0;
 		}
+
 		// check whether we can build a bridge here
 		const char *error = NULL;
 		koord3d end = brueckenbauer_t::finde_ende(welt, sp, start, koord(test), besch, error, false, koord_distance(start, pos));
