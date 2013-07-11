@@ -39,6 +39,12 @@
 #
 # (Neither of these have any effect if you are a client, rather than a server, in a network game.)
 # (Also, there is no way to override certain settings which are not loaded from simuconf.tab.)
+#
+# Please note that pak_overrides_savegame_settings (but not the other options) 
+# will also cause electricity.tab, privatecar.tab, speedbonus.tab, and cityrules.tab to be
+# reread, and to override any versions in the saved game.  Due to historical anomalies in the
+# codebase, if these are present in the "user" directory that version will be read instead of the
+# pak version.  (These should not be in the user directory.)
 progdir_overrides_savegame_settings = 0
 pak_overrides_savegame_settings = 0
 userdir_overrides_savegame_settings = 0

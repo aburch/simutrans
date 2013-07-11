@@ -242,11 +242,11 @@ void fabrik_t::arrival_statistics_t::book_arrival(const uint16 amount)
 }
 
 
-void fabrik_t::update_transit( const ware_t *ware, bool add )
+void fabrik_t::update_transit( const ware_t& ware, bool add )
 {
-	if(  ware->index > warenbauer_t::INDEX_NONE  ) {
+	if(  ware.index > warenbauer_t::INDEX_NONE  ) {
 		// only for freights
-		fabrik_t *fab = get_fab( welt, ware->get_zielpos() );
+		fabrik_t *fab = get_fab( welt, ware.get_zielpos() );
 		if(  fab  ) {
 			fab->update_transit_intern( ware, add );
 		}
@@ -255,15 +255,15 @@ void fabrik_t::update_transit( const ware_t *ware, bool add )
 
 
 // just for simplicity ...
-void fabrik_t::update_transit_intern( const ware_t *ware, bool add )
+void fabrik_t::update_transit_intern( const ware_t& ware, bool add )
 {
 	FOR(  array_tpl<ware_production_t>,  &w,  eingang ) {
-		if(  w.get_typ()->get_index() == ware->index  ) {
+		if(  w.get_typ()->get_index() == ware.index  ) {
 			if(  add  ) {
-				w.transit += ware->menge;
+				w.transit += ware.menge;
 			}
 			else {
-				w.transit -= ware->menge;
+				w.transit -= ware.menge;
 			}
 			w.set_stat( w.transit, FAB_GOODS_TRANSIT );
 			return;
@@ -1247,7 +1247,16 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 			if(  ware.menge>(FAB_MAX_INPUT<<precision_bits)  ) {
 				ware.menge = (FAB_MAX_INPUT << precision_bits);
 			}
-			ware.transit = ware.get_stat( 0, FAB_GOODS_TRANSIT );
+			/*
+			* It's very easy for in-transit information to get corrupted,
+			* if an intermediate program version fails to compute it right.
+			* So *always* compute it fresh.  Do NOT load it.
+			* It will be recomputed by halts and vehicles.
+			*
+			* Note, for this to work factories must be loaded before halts and vehicles
+			* (this is how it is currently done in simworld.cc)
+			*/
+			// ware.transit = ware.get_stat( 0, FAB_GOODS_TRANSIT );
 		}
 	}
 
@@ -1563,6 +1572,8 @@ sint32 fabrik_t::liefere_an(const ware_besch_t *typ, sint32 menge)
 		// case : freight
 		FOR(  array_tpl<ware_production_t>, & ware, eingang) {
 			if(  ware.get_typ() == typ  ) {
+				// Can't use update_transit for interface reasons; we don't take a ware argument.
+				// We should, however.
 				ware.transit -= menge;
 				ware.set_stat( ware.transit, FAB_GOODS_TRANSIT );
 				// Hajo: avoid overflow
@@ -2012,7 +2023,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 		best_halt->starte_mit_route(best_ware);
 		best_halt->unload_repeat_counter = 0;
 		best_halt->recalc_status();
-		fabrik_t::update_transit( &best_ware, true );
+		fabrik_t::update_transit( best_ware, true );
 		// add as active destination
 		lieferziele_active_last_month |= (1 << lieferziele.index_of(best_ware.get_zielpos()));
 		ausgang[produkt].book_stat(best_ware.menge, FAB_GOODS_DELIVERED);

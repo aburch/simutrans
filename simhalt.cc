@@ -607,7 +607,7 @@ haltestelle_t::~haltestelle_t()
 	for(uint8 i = 0; i < max_categories; i++) {
 		if (waren[i]) {
 			FOR(vector_tpl<ware_t>, const &w, *waren[i]) {
-				fabrik_t::update_transit(&w, false);
+				fabrik_t::update_transit(w, false);
 			}
 			delete waren[i];
 			waren[i] = NULL;
@@ -1061,9 +1061,7 @@ void haltestelle_t::step()
 
 	recalc_status();
 
-	// Every 256 steps - check whether
-	// passengers/goods have been waiting
-	// too long.
+	// Every 256 steps - check whether passengers/goods have been waiting too long.
 	// Will overflow at 255.
 	if(++check_waiting == 0)
 	{
@@ -1182,7 +1180,8 @@ void haltestelle_t::step()
 						const uint16 waiting_tenths_short = waiting_tenths;
 						add_waiting_time(waiting_tenths_short, tmp.get_zwischenziel(), tmp.get_besch()->get_catg_index());
 
-						// The goods/passengers leave.
+						// The goods/passengers leave.  We must record the lower "in transit" count on factories.
+						fabrik_t::update_transit(tmp, false);
 						tmp.menge = 0;
 
 						// Normally we record long waits below, but we just did, so don't do it twice.
@@ -1749,7 +1748,7 @@ bool haltestelle_t::recall_ware( ware_t& w, uint32 menge )
 				tmp.menge = 0;
 			}
 			book(w.menge, HALT_ARRIVED);
-			fabrik_t::update_transit( &w, false );
+			fabrik_t::update_transit( w, false );
 			resort_freight_info = true;
 			return true;
 		}
@@ -2364,7 +2363,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 
 		DBG_MESSAGE("haltestelle_t::liefere_an()","%s: delivered goods (%d %s) to ??? via ??? could not be routed to their destination!",get_name(), ware.menge, translator::translate(ware.get_name()) );
 		// target halt no longer there => delete and remove from fab in transit
-		fabrik_t::update_transit( &ware, false );
+		fabrik_t::update_transit( ware, false );
 		return ware.menge;
 	}
 #ifdef CHECK_WARE_MERGE
@@ -3073,10 +3072,15 @@ void haltestelle_t::rdwr(loadsave_t *file)
 					ware_t ware(welt,file);
 					if(  ware.menge>0  &&  welt->is_within_limits(ware.get_zielpos())  ) {
 						add_ware_to_halt(ware, true);
-						if(  file->get_version() <= 112000  ) {
+						/*
+						 * It's very easy for in-transit information to get corrupted,
+						 * if an intermediate program version fails to compute it right.
+						 * So *always* compute it fresh.
+						 */ 
+						// if(  file->get_version() <= 112000  ) {
 							// restore intransit information
-							fabrik_t::update_transit( &ware, true );
-						}
+							fabrik_t::update_transit( ware, true );
+						// }
 					}
 					else if(  ware.menge>0  ) 
 					{

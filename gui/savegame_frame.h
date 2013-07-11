@@ -305,7 +305,7 @@ protected:
 	/**
 	 * extracts file name from a full path
 	 */
-	std::string get_filename(const char *fullpath, const bool with_extension = true);
+	std::string get_filename(const char *fullpath, const bool with_extension = true) const;
 
 	virtual void init(const char *suffix, const char *path);
 

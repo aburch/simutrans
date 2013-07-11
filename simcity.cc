@@ -946,8 +946,13 @@ void stadt_t::cityrules_rdwr(loadsave_t *file)
 	// cluster_factor and bridge_success_percentage added by neroden.
 	// It's not clear how to version this, but it *is* only
 	// for networked games... both is *needed* for network games though
-	file->rdwr_long(cluster_factor);
-	file->rdwr_long(bridge_success_percentage);
+	
+	// NOTE: This code is not *only* called for network games.
+	if(file->get_experimental_version() >= 12 || umgebung_t::networkmode)
+	{
+		file->rdwr_long(cluster_factor);
+		file->rdwr_long(bridge_success_percentage);
+	}
 
 	file->rdwr_short(ind_start_score);
 	file->rdwr_short(ind_neighbour_score[0]);
@@ -2762,8 +2767,6 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 		check_road_connexions = true;
 	}
 
-	const uint8 current_month = (uint8)(welt->get_current_month() % 12);
-	
 	if (!stadtauto_t::list_empty()) 
 	{
 		// Spawn citycars
@@ -2887,10 +2890,10 @@ void stadt_t::calc_growth()
 
 	// smaller towns should growth slower to have villages for a longer time
 	sint32 weight_factor = s.get_growthfactor_large();
-	if(bev < s.get_city_threshold_size()) {
+	if(  bev < (sint64)s.get_city_threshold_size()  ) {
 		weight_factor = s.get_growthfactor_small();
 	}
-	else if(bev < s.get_capital_threshold_size()) {
+	else if(  bev < (sint64)s.get_capital_threshold_size()  ) {
 		weight_factor = s.get_growthfactor_medium();
 	}
 
@@ -3116,7 +3119,13 @@ void stadt_t::step_passagiere()
 	// See here for a discussion of ratios: http://forum.simutrans.com/index.php?topic=10920.0
 	// It is probably necessary to refine this further to take account of historical variation,
 	// and allow this to be customised by pakset.
-	const ware_besch_t *const wtyp = (simrand(400, "void stadt_t::step_passagiere() (mail or passengers?")) < 396 ? warenbauer_t::passagiere : warenbauer_t::post;
+	const ware_besch_t * wtyp;
+	if(  simrand(400, "void stadt_t::step_passagiere() (mail or passengers?)") < 396  ) {
+		wtyp = warenbauer_t::passagiere;
+	} else {
+		wtyp = warenbauer_t::post;
+	}
+
 	const city_cost history_type = (wtyp == warenbauer_t::passagiere) ? HIST_PAS_TRANSPORTED : HIST_MAIL_TRANSPORTED;
 	factory_set_t &target_factories = (wtyp==warenbauer_t::passagiere ? target_factories_pax : target_factories_mail);
 
@@ -5036,6 +5045,10 @@ int stadt_t::get_best_layout(const haus_besch_t* h, const koord & k) const {
 void stadt_t::build_city_building(const koord k, bool new_town)
 {
 	grund_t* gr = welt->lookup_kartenboden(k);
+	if (!gr)
+	{
+		return;
+	}
 	const koord3d pos(gr->get_pos());
 
 	// Not building on ways (this was actually tested before be the cityrules), btu you can construct manually
@@ -5575,13 +5588,42 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 					end = brueckenbauer_t::finde_ende(welt, NULL, bd->get_pos(), zv, bridge, err, true);
 				}
 				if(err==NULL  &&   koord_distance( k, end.get_2d())<=3) {
-					brueckenbauer_t::baue_bruecke(welt, NULL, bd->get_pos(), end, zv, bridge, welt->get_city_road());
-					// try to build one connecting piece of road
-					baue_strasse( (end+zv).get_2d(), NULL, false);
-					// try to build a house near the bridge end
-					uint32 old_count = buildings.get_count();
-					for(uint8 i=0; i<lengthof(koord::neighbours)  &&  buildings.get_count() == old_count; i++) {
-						build_city_building(end.get_2d()+zv+koord::neighbours[i], true);
+					// Bridge looks OK, but check the end
+					const grund_t* past_end = welt->lookup_kartenboden( (end+zv).get_2d() );
+					if (past_end == NULL) {
+						// No bridges to nowhere
+						return false;
+					}
+					bool successfully_built_past_end = false;
+					if (past_end->hat_weg(road_wt) ) {
+						// Connecting to a road, all good...
+						successfully_built_past_end = true;
+					} else {
+						// Build a road past the end of the future bridge (even if it has no connections yet)
+						// This may fail, in which case we shouldn't build the bridge
+						successfully_built_past_end = baue_strasse( (end+zv).get_2d(), NULL, true);
+					}
+					if (successfully_built_past_end) {
+						// OK, build the bridge
+						brueckenbauer_t::baue_bruecke(welt, NULL, bd->get_pos(), end, zv, bridge, welt->get_city_road());
+						// Now connect the bridge to the road we built
+						// (Is there an easier way?)
+						baue_strasse( end.get_2d(), NULL, false );
+
+						// try to build a house near the bridge end
+						// Orthogonal only.  Prefer facing onto bridge.
+						koord right_side = koord(ribi_t::rotate90(ribi_t::rueckwaerts(connection_roads)));
+						koord left_side = koord(ribi_t::rotate90l(ribi_t::rueckwaerts(connection_roads)));
+						vector_tpl<koord> appropriate_locs;
+						appropriate_locs.append(end.get_2d()+right_side);
+						appropriate_locs.append(end.get_2d()+left_side);
+						appropriate_locs.append(end.get_2d()+zv+zv);
+						appropriate_locs.append(end.get_2d()+zv+right_side);
+						appropriate_locs.append(end.get_2d()+zv+left_side);
+						uint32 old_count = buildings.get_count();
+						for(uint8 i=0; i<appropriate_locs.get_count()  &&  buildings.get_count() == old_count; i++) {
+							build_city_building(appropriate_locs[i], true);
+						}
 					}
 				}
 			}

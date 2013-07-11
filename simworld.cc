@@ -5639,15 +5639,51 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 		file->rdwr_bool(do_rdwr);
 		if (do_rdwr) 
 		{
+			// This stuff should not be in a saved game.  Unfortunately, due to the vagaries
+			// of the poorly-designed network interface, it is.  Because it is, we need to override
+			// it on demand.
+			bool pak_overrides = umgebung_t::default_einstellungen.get_pak_overrides_savegame_settings();
+
+			// First cityrules
 			stadt_t::cityrules_rdwr(file);
+			if (  !umgebung_t::networkmode || umgebung_t::server  ) {
+				if (pak_overrides) {
+					chdir( umgebung_t::program_dir );
+					printf("stadt_t::cityrules_init in pak dir (%s) for override of save file: ", umgebung_t::objfilename.c_str() );
+					stadt_t::cityrules_init( umgebung_t::objfilename );
+					chdir( umgebung_t::user_dir );
+				}
+			}
+
+			// Next privatecar and electricity
 			if(file->get_experimental_version() >= 9)
 			{
 				stadt_t::privatecar_rdwr(file);
 				stadt_t::electricity_consumption_rdwr(file);
+				if (  !umgebung_t::networkmode || umgebung_t::server  ) {
+					if (pak_overrides) {
+						chdir( umgebung_t::program_dir );
+						printf("stadt_t::privatecar_init in pak dir (%s) for override of save file: ", umgebung_t::objfilename.c_str() );
+						stadt_t::privatecar_init( umgebung_t::objfilename );
+						printf("stadt_t::electricity_consumption_init in pak dir (%s) for override of save file: ", umgebung_t::objfilename.c_str() );
+						stadt_t::electricity_consumption_init( umgebung_t::objfilename );
+						chdir( umgebung_t::user_dir );
+					}
+				}
 			}
+
+			// Finally speedbonus
 			if(file->get_version()>102003 && (file->get_experimental_version() == 0 || file->get_experimental_version() >= 9)) 
 			{
 				vehikelbauer_t::rdwr_speedbonus(file);
+				if (  !umgebung_t::networkmode || umgebung_t::server  ) {
+					if (pak_overrides) {
+						chdir( umgebung_t::program_dir );
+						printf("stadt_t::speedbonus_init in pak dir (%s) for override of save file: ", umgebung_t::objfilename.c_str() );
+						vehikelbauer_t::speedbonus_init( umgebung_t::objfilename );
+						chdir( umgebung_t::user_dir );
+					}
+				}
 			}
 		}
 	}

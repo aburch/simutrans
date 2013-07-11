@@ -163,7 +163,7 @@ bool pakselector_t::check_only_one_option() const
 			if ( !file_row->get_delete_enabled() ) {
 				// This means "no private pak addon options" (overloading of meaning)
 				// Invoke the automatic load feature
-				umgebung_t::objfilename = this->get_filename(file_row->get_name()) + "/";
+				umgebung_t::objfilename = get_filename(file_row->get_name()) + "/";
 				umgebung_t::default_einstellungen.set_with_private_paks( false );
 				return true;
 			}

@@ -840,7 +840,7 @@ std::string savegame_frame_t::get_basename(const char *fullpath)
 }
 
 
-std::string savegame_frame_t::get_filename(const char *fullpath,const bool with_extension)
+std::string savegame_frame_t::get_filename(const char *fullpath,const bool with_extension) const
 {
 	std::string path = fullpath;
 
