@@ -111,10 +111,10 @@ enum magic_numbers {
 
 /**
  * Reads theme configuration data, still not final
- * searches first in user dir, pak dir, program dir
+ * searches a theme.tab inside the specified folder
  * @author prissi
  */
-bool themes_init(const char *objfilename);
+bool themes_init(const char *dir_name);
 
 void init_map_win();
 

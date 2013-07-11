@@ -164,21 +164,15 @@ enum simwin_gadget_et { GADGET_CLOSE, GADGET_HELP, GADGET_SIZE, GADGET_PREV, GAD
  * searches first in user dir, pak dir, program dir
  * @author prissi
  */
-bool themes_init(const char *objfilename)
+bool themes_init(const char *dir_name)
 {
 	tabfile_t themesconf;
 
 	// first take user data, then user global data
-	const std::string user_dir = umgebung_t::user_dir;
-	if(  !themesconf.open((user_dir+"themes/themes.tab").c_str())  ) {
-		const std::string obj_dir = objfilename;
-		if(  !themesconf.open((obj_dir+"themes/themes.tab").c_str())  ) {
-			const std::string prog_dir = umgebung_t::program_dir;
-			if(  !themesconf.open((prog_dir+"themes/themes.tab").c_str())  ) {
-				dbg->error("simwin.cc themes_init()", "Can't read themes.tab" );
-				return false;
-			}
-		}
+	const std::string dir = dir_name;
+	if(  !themesconf.open((dir+"/themes.tab").c_str())  ) {
+		dbg->warning("simwin.cc themes_init()", "Can't read themes.tab from %s", dir_name );
+		return false;
 	}
 
 	tabfileobj_t contents;

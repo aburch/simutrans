@@ -437,6 +437,7 @@ int simu_main(int argc, char** argv)
 			" -sizes              Show current size of some structures\n"
 #endif
 			" -startyear N        start in year N\n"
+			" -theme N            user directory containing theme files\n"
 			" -timeline           enables timeline\n"
 #if defined DEBUG || defined PROFILE
 			" -times              does some simple profiling\n"
@@ -633,7 +634,7 @@ int simu_main(int argc, char** argv)
 	}
 
 	// now set the desired objectfilename (override all previous settings)
-	if (gimme_arg(argc, argv, "-objects", 1)) {
+	if(  gimme_arg(argc, argv, "-objects", 1)  ) {
 		umgebung_t::objfilename = gimme_arg(argc, argv, "-objects", 1);
 		// append slash / replace trailing backslash if necessary
 		uint16 len = umgebung_t::objfilename.length();
@@ -679,10 +680,16 @@ int simu_main(int argc, char** argv)
 
 	// prepare skins first
 	obj_reader_t::init();
-	if(  !themes_init("")  ) {
-		// if no themes (or failed) use old default skin for now
-		chdir( umgebung_t::program_dir );
+	bool themes_ok = false;
+	if(  const char *themestr = gimme_arg(argc, argv, "-theme", 1)  ) {
+		chdir( umgebung_t::user_dir );
+		themes_ok = themes_init(themestr);
 	}
+	if(  !themes_ok  ) {
+		chdir( umgebung_t::program_dir );
+		themes_ok = themes_init("theme");
+	}
+	chdir( umgebung_t::program_dir );
 
 	// likely only the program without graphics was downloaded
 	if (gimme_arg(argc, argv, "-res", 0) != NULL) {
