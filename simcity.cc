@@ -1186,14 +1186,14 @@ bool stadt_t::enlarge_city_borders() {
 	// but start with a random choice.
 	for (int i = 0; i < 4 ; i++) {
 		koord new_lo, new_ur;
-		koord test_first, test_last, test_increment;
+		koord test_first, test_stop, test_increment;
 		switch (  (i + offset_i) % 4 ) {
 			case 0:
 				// North
 				new_lo = lo + koord(0, -1);
 				new_ur = ur;
 				test_first = koord(new_lo.x, new_lo.y);
-				test_last = koord(new_ur.x, new_lo.y);
+				test_stop = koord(new_ur.x + 1, new_lo.y);
 				test_increment = koord(1,0);
 				break;
 			case 1:
@@ -1201,7 +1201,7 @@ bool stadt_t::enlarge_city_borders() {
 				new_lo = lo;
 				new_ur = ur + koord(0, 1);
 				test_first = koord(new_lo.x, new_ur.y);
-				test_last = koord(new_ur.x, new_ur.y);
+				test_stop = koord(new_ur.x + 1, new_ur.y);
 				test_increment = koord(1,0);
 				break;
 			case 2:
@@ -1209,7 +1209,7 @@ bool stadt_t::enlarge_city_borders() {
 				new_lo = lo;
 				new_ur = ur + koord(1, 0);
 				test_first = koord(new_ur.x, new_lo.y);
-				test_last = koord(new_ur.x, new_ur.y);
+				test_stop = koord(new_ur.x, new_ur.y + 1);
 				test_increment = koord(0,1);
 				break;
 			case 3:
@@ -1217,18 +1217,20 @@ bool stadt_t::enlarge_city_borders() {
 				new_lo = lo + koord(-1, 0);
 				new_ur = ur;
 				test_first = koord(new_lo.x, new_lo.y);
-				test_last = koord(new_lo.x, new_ur.y);
+				test_stop = koord(new_lo.x, new_ur.y + 1);
 				test_increment = koord(0,1);
 				break;
 		}
-		if (  !welt->is_within_limits(test_first) || !welt->is_within_limits(test_last)  ) {
+		if (  !welt->is_within_limits(new_lo) || !welt->is_within_limits(new_ur)  ) {
 			// Expansion would take us outside the map
+			// Note that due to the square nature of the limits, we only need to test
+			// opposite corners
 			continue;
 		}
 		// Now check a row along that side to see if it's safe to expand
-		for (koord test = test_first; test == test_last; test = test + test_increment) {
-			stadt_t* tile_city = welt->lookup(test)->get_city();
-			if (tile_city && tile_city != this) {
+		for (koord test = test_first; test != test_stop; test = test + test_increment) {
+			stadt_t* found_city = welt->lookup(test)->get_city();
+			if (found_city && found_city != this) {
 				// We'd be expanding into another city.  Don't!
 				continue;
 			}
@@ -1236,6 +1238,11 @@ bool stadt_t::enlarge_city_borders() {
 		// OK, it's safe to expand.  Do so.
 		lo = new_lo;
 		ur = new_ur;
+		// Mark the tiles as owned by this city.
+		for (koord test = test_first; test != test_stop; test = test + test_increment) {
+			planquadrat_t* pl = welt->access(test);
+			pl->set_city(this);
+		}
 		return true;
 	}
 	return false;
@@ -1244,7 +1251,7 @@ bool stadt_t::enlarge_city_borders() {
 
 bool stadt_t::is_within_city_limits(koord k) const
 {
-	return lo.x < k.x  &&  ur.x > k.x  &&  lo.y < k.y  &&  ur.y > k.y;
+	return lo.x <= k.x  &&  ur.x >= k.x  &&  lo.y <= k.y  &&  ur.y >= k.y;
 }
 
 
@@ -1265,36 +1272,15 @@ void stadt_t::check_city_tiles(bool del)
 		{
 			const koord k(x, y);
 			planquadrat_t* plan = welt->access(k);
-			if(plan)
+			if(!del)
 			{
-				// A city might be inside a city. The inner city
-				// should mark/unmark the tiles in that case.
-				const stadt_t* other_city = plan->get_city();
-				if(!welt->get_is_shutting_down() && other_city != NULL && other_city != this && (is_within_city_limits(other_city->get_pos()) || k == other_city->get_townhall_road()) && !del)
+				plan->set_city(this);
+			}
+			else
+			{
+				if(plan->get_city() == this)
 				{
-					if(other_city->is_within_city_limits(pos) && k != other_city->get_townhall_road())
-					{
-						// Double overlapping cities. Return the smallest.
-						if(other_city->get_einwohner() < get_einwohner())
-						{
-							continue;
-						}
-					}
-					else
-					{
-						continue;
-					}
-				}
-				if(!del)
-				{
-					plan->set_city(this);
-				}
-				else
-				{
-					if(plan->get_city() == this)
-					{
-						plan->set_city(NULL);
-					}
+					plan->set_city(NULL);
 				}
 			}
 		}
@@ -1308,6 +1294,9 @@ void stadt_t::check_city_tiles(bool del)
  */
 void stadt_t::reset_city_borders()
 {
+	// Unmark all city tiles
+	check_city_tiles(true);
+
 	koord new_lo = pos;
 	koord new_ur = pos;
 	koord const& thr = get_townhall_road();
@@ -1343,6 +1332,8 @@ void stadt_t::reset_city_borders()
 	}
 	lo = new_lo;
 	ur = new_ur;
+	// Remark all city tiles
+	check_city_tiles(false);
 }
 
 
