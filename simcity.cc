@@ -5617,6 +5617,8 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 								build_city_building(appropriate_locs[i], true);
 								if (buildings.get_count() != old_count) {
 									// Successful construction.
+									// Fix city limits.
+									reset_city_borders();
 									break;
 								}
 							}
