@@ -1620,20 +1620,38 @@ void reliefkarte_t::zeichnen(koord pos)
 			k[1] =  koord(k[0].x, k[2].y); // bottom left
 			k[3] =  koord(k[2].x, k[0].y); // top right
 
-			k[0] += koord(0, -1); // top left
+
+			// Ones on bottom and right must have 1 added to put dotted line "past" them
+			k[0] += koord(0, 0); // top left
 			karte_to_screen(k[0]);
-			k[0] = k[0] + pos;
+			k[0] += pos;
 
-			karte_to_screen(k[1]); // bottom left
-			k[1] = k[1] + pos;
+			k[1] += koord(0, 1); // bottom left
+			karte_to_screen(k[1]);
+			k[1] += pos;
 
-			k[2] += koord(1, 0); // bottom right
+			k[2] += koord(1, 1); // bottom right
 			karte_to_screen(k[2]);
 			k[2] += pos;
 
-			k[3] += koord(1, -1); // top right
+			k[3] += koord(1, 0); // top right
 			karte_to_screen(k[3]);
 			k[3] += pos;
+
+			// In isometric mode this is more complicated -- the borders will run through the middle of the
+			// relevant tiles if we're not careful
+			if (isometric) {
+				if (zoom_out == 1) {
+					// Correct adjustment is to the right (positive x) by
+					// zoom_in * sqrt(2) * 1/2.  Approximate sqrt(2)/2 by 7/10,
+					// which is good enough up to at least 16x zoom-in.
+					const koord adjustment = koord( zoom_in * 7 / 10, 0);
+					k[0] += adjustment;
+					k[1] += adjustment;
+					k[2] += adjustment;
+					k[3] += adjustment;
+				}
+			}
 
 			display_direct_line_dotted( k[0].x, k[0].y, k[1].x, k[1].y, 3, 3, COL_ORANGE );
 			display_direct_line_dotted( k[1].x, k[1].y, k[2].x, k[2].y, 3, 3, COL_ORANGE );
