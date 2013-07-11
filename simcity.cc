@@ -1142,8 +1142,10 @@ void stadt_t::remove_gebaeude_from_stadt(gebaeude_t* gb)
 /**
  * This function transfers a house from another city to this one
  * It currently only works on 1-tile buildings
+ * It is also currently unused
  * @author neroden
  */
+#if 0
 bool stadt_t::take_citybuilding_from(stadt_t* old_city, gebaeude_t* gb)
 {
  	if (gb == NULL) {
@@ -1169,6 +1171,7 @@ bool stadt_t::take_citybuilding_from(stadt_t* old_city, gebaeude_t* gb)
 	buildings.append(gb, gb->get_tile()->get_besch()->get_level());
 	gb->set_stadt(this);
 }
+#endif
 
 /**
  * Enlarge city limits.
@@ -1178,7 +1181,7 @@ bool stadt_t::take_citybuilding_from(stadt_t* old_city, gebaeude_t* gb)
  */
 bool stadt_t::enlarge_city_borders() {
 	// First, pick a direction, randomly.
-	int offset_i = simrand(4);
+	int offset_i = simrand(4, "stadt_t::enlarge_city_borders()");
 	// We will try all four directions if necessary,
 	// but start with a random choice.
 	for (int i = 0; i < 4 ; i++) {
@@ -1201,7 +1204,7 @@ bool stadt_t::enlarge_city_borders() {
 				test_last = koord(new_ur.x, new_ur.y);
 				test_increment = koord(1,0);
 				break;
-			case 1:
+			case 2:
 				// East
 				new_lo = lo;
 				new_ur = ur + koord(1, 0);
@@ -1209,7 +1212,7 @@ bool stadt_t::enlarge_city_borders() {
 				test_last = koord(new_ur.x, new_ur.y);
 				test_increment = koord(0,1);
 				break;
-			case 0:
+			case 3:
 				// West
 				new_lo = lo + koord(-1, 0);
 				new_ur = ur;
@@ -1669,7 +1672,6 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 	next_step = 0;
 	step_interval = 1;
 	next_growth_step = 0;
-	has_low_density = false;
 
 	stadtinfo_options = 3;	// citizen and growth
 
@@ -1791,7 +1793,6 @@ stadt_t::stadt_t(karte_t* wl, loadsave_t* file) :
 	next_step = 0;
 	step_interval = 1;
 	next_growth_step = 0;
-	has_low_density = false;
 
 	wachstum = 0;
 	stadtinfo_options = 3;
@@ -2215,7 +2216,7 @@ void stadt_t::laden_abschliessen()
 			}
 		}
 	}
-	recalc_city_size();
+	reset_city_borders();
 
 	next_step = 0;
 	next_growth_step = 0;
@@ -5623,7 +5624,7 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 									continue;
 								}
 								build_city_building(appropriate_locs[i], true);
-								if (buildings.get_count != old_count) {
+								if (buildings.get_count() != old_count) {
 									// Successful construction.
 									break;
 								}

@@ -169,7 +169,6 @@ private:
 	koord pos;				// Gruendungsplanquadrat der Stadt ("founding grid square" - Google)
 	koord townhall_road;	// road in front of townhall
 	koord lo, ur;			// max size of housing area
-	bool  has_low_density;	// in this case extend borders by two
 
 	bool allow_citygrowth;	// Whether growth is permitted (true by default)
 
@@ -395,8 +394,9 @@ private:
 	void reset_city_borders();
 	/**
 	 * Enlarges city borders (after being unable to build a building, before trying again)
+	 * Returns false if there are other cities on all four sides
 	 */
-	void enlarge_city_borders();
+	bool enlarge_city_borders();
 
 	// calculates the growth rate for next growth_interval using all the different indicators
 	void calc_growth();
