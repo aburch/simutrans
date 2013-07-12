@@ -9,8 +9,6 @@
 
 #include "simgraph.h"
 
-typedef uint16 PIXVAL;
-
 int large_font_height = 10;
 int large_font_total_height = 11;
 int large_font_ascent = 9;

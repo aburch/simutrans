@@ -152,6 +152,13 @@ void      display_set_height(KOORD_VAL);
 void      display_set_actual_width(KOORD_VAL);
 
 
+/*
+ * pixels stored as RGB 1555
+ * @author Hajo
+ */
+typedef uint16 PIXVAL;
+
+
 int display_get_light(void);
 void display_set_light(int new_light_level);
 

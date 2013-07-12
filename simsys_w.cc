@@ -43,8 +43,6 @@
 #include "simdebug.h"
 #include "macros.h"
 
-typedef unsigned short PIXVAL;
-
 static volatile HWND hwnd;
 static bool is_fullscreen = false;
 static bool is_not_top = false;

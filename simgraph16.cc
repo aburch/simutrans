@@ -59,11 +59,6 @@ static pthread_mutex_t rezoom_recode_img_mutex;
 // undefine for debugging the update routines
 //#define DEBUG_FLUSH_BUFFER
 
-/*
- * Hajo: RGB 1555
- */
-typedef uint16 PIXVAL;
-
 
 #ifdef USE_SOFTPOINTER
 static int softpointer = -1;

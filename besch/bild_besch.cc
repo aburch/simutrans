@@ -6,8 +6,6 @@
 #include <string.h>
 
 
-typedef uint16 PIXVAL;
-
 /*
  * Definition of special colors
  * @author Hj. Malthaner
