@@ -1125,11 +1125,7 @@ void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb, bool ordered)
 				}
 			}
 		}
-		// check borders
-		pruefe_grenzen(pos);
-		if(size!=koord(1,1)) {
-			pruefe_grenzen(pos+size-koord(1,1));
-		}
+		reset_city_borders();
 	}
 }
 
@@ -1139,86 +1135,123 @@ void stadt_t::remove_gebaeude_from_stadt(gebaeude_t* gb)
 {
 	buildings.remove(gb);
 	gb->set_stadt(NULL);
-	recalc_city_size();
+	reset_city_borders();
 }
 
 
-// "Check limits" (Google)
-void stadt_t::pruefe_grenzen(koord k)
+/**
+ * This function transfers a house from another city to this one
+ * It currently only works on 1-tile buildings
+ * It is also currently unused
+ * @author neroden
+ */
+#if 0
+bool stadt_t::take_citybuilding_from(stadt_t* old_city, gebaeude_t* gb)
 {
-	if(  has_low_density  ) {
-		// has extra wide borders => change density calculation
-		has_low_density = (buildings.get_count()<10  ||  (buildings.get_count()*100l)/(abs(ur.x-lo.x-4)*abs(ur.y-lo.y-4)+1) > min_building_density);
-		if(!has_low_density)  {
-			// full recalc needed due to map borders ...
-			recalc_city_size();
-			return;
-		}
+ 	if (gb == NULL) {
+		return false;
 	}
-	else {
-		has_low_density = (buildings.get_count()<10  ||  (buildings.get_count()*100l)/((ur.x-lo.x)*(ur.y-lo.y)+1) > min_building_density);
-		if(has_low_density)  {
-			// wide borders again ..
-			lo -= koord(2,2);
-			ur += koord(2,2);
-		}
-	}
-	// now just add single coordinates
-	if(  has_low_density  ) {
-		if (k.x < lo.x+2) {
-			lo.x = k.x - 2;
-		}
-		if (k.y < lo.y+2) {
-			lo.y = k.y - 2;
-		}
-
-		if (k.x > ur.x-2) {
-			ur.x = k.x + 2;
-		}
-		if (k.y > ur.y-2) {
-			ur.y = k.y + 2;
-		}
-	}
-	else {
-		// first grow within ...
-		if (k.x < lo.x) {
-			lo.x = k.x;
-		}
-		if (k.y < lo.y) {
-			lo.y = k.y;
-		}
-
-		if (k.x > ur.x) {
-			ur.x = k.x;
-		}
-		if (k.y > ur.y) {
-			ur.y = k.y;
-		}
+	if (old_city == NULL) {
+		return false;
 	}
 
-	if (lo.x < 0) {
-		lo.x = 0;
+	const gebaeude_t::typ alt_typ = gb->get_haustyp();
+	if (  alt_typ == gebaeude_t::unbekannt  ) {
+		return false; // only transfer res, com, ind
 	}
-	if (lo.y < 0) {
-		lo.y = 0;
+	if (  gb->get_tile()->get_besch()->get_b()*gb->get_tile()->get_besch()->get_h() !=1  ) {
+		return false; // too big
 	}
-	if ( ur.x >= welt->get_size().x ) {
-		ur.x = welt->get_size().x-1;
-	}
-	if ( ur.y >= welt->get_size().y ) {
-		ur.y = welt->get_size().y-1;
-	}
+
+	// Now we know we can transfer the building
+	old_city->buildings.remove(gb);
+	gb->set_stadt(NULL);
+	old_city->reset_city_borders();
+
+	buildings.append(gb, gb->get_tile()->get_besch()->get_level());
+	gb->set_stadt(this);
 }
+#endif
+
+/**
+ * Enlarge city limits.
+ * Attempts to expand by one tile on one (random) side.
+ * Refuses to expand off the map or into another city.
+ * Returns false in the case of failure to expand.
+ */
+bool stadt_t::enlarge_city_borders() {
+	// First, pick a direction, randomly.
+	int offset_i = simrand(4, "stadt_t::enlarge_city_borders()");
+	// We will try all four directions if necessary,
+	// but start with a random choice.
+	for (int i = 0; i < 4 ; i++) {
+		koord new_lo, new_ur;
+		koord test_first, test_stop, test_increment;
+		switch (  (i + offset_i) % 4 ) {
+			case 0:
+				// North
+				new_lo = lo + koord(0, -1);
+				new_ur = ur;
+				test_first = koord(new_lo.x, new_lo.y);
+				test_stop = koord(new_ur.x + 1, new_lo.y);
+				test_increment = koord(1,0);
+				break;
+			case 1:
+				// South
+				new_lo = lo;
+				new_ur = ur + koord(0, 1);
+				test_first = koord(new_lo.x, new_ur.y);
+				test_stop = koord(new_ur.x + 1, new_ur.y);
+				test_increment = koord(1,0);
+				break;
+			case 2:
+				// East
+				new_lo = lo;
+				new_ur = ur + koord(1, 0);
+				test_first = koord(new_ur.x, new_lo.y);
+				test_stop = koord(new_ur.x, new_ur.y + 1);
+				test_increment = koord(0,1);
+				break;
+			case 3:
+				// West
+				new_lo = lo + koord(-1, 0);
+				new_ur = ur;
+				test_first = koord(new_lo.x, new_lo.y);
+				test_stop = koord(new_lo.x, new_ur.y + 1);
+				test_increment = koord(0,1);
+				break;
+		}
+		if (  !welt->is_within_limits(new_lo) || !welt->is_within_limits(new_ur)  ) {
+			// Expansion would take us outside the map
+			// Note that due to the square nature of the limits, we only need to test
+			// opposite corners
+			continue;
+		}
+		// Now check a row along that side to see if it's safe to expand
+		for (koord test = test_first; test != test_stop; test = test + test_increment) {
+			stadt_t* found_city = welt->lookup(test)->get_city();
+			if (found_city && found_city != this) {
+				// We'd be expanding into another city.  Don't!
+				continue;
+			}
+		}
+		// OK, it's safe to expand.  Do so.
+		lo = new_lo;
+		ur = new_ur;
+		// Mark the tiles as owned by this city.
+		for (koord test = test_first; test != test_stop; test = test + test_increment) {
+			planquadrat_t* pl = welt->access(test);
+			pl->set_city(this);
+		}
+		return true;
+	}
+	return false;
+}
+
 
 bool stadt_t::is_within_city_limits(koord k) const
 {
-	const sint16 li_gr = lo.x - 2;
-	const sint16 re_gr = ur.x + 2;
-	const sint16 ob_gr = lo.y - 2;
-	const sint16 un_gr = ur.y + 2;
-
-	bool inside = li_gr < k.x  &&  re_gr > k.x  &&  ob_gr < k.y  &&  un_gr > k.y;
-	return inside;
+	return lo.x <= k.x  &&  ur.x >= k.x  &&  lo.y <= k.y  &&  ur.y >= k.y;
 }
 
 
@@ -1239,89 +1272,68 @@ void stadt_t::check_city_tiles(bool del)
 		{
 			const koord k(x, y);
 			planquadrat_t* plan = welt->access(k);
-			if(plan)
+			if(!del)
 			{
-				// A city might be inside a city. The inner city
-				// should mark/unmark the tiles in that case.
-				const stadt_t* other_city = plan->get_city();
-				if(!welt->get_is_shutting_down() && other_city != NULL && other_city != this && (is_within_city_limits(other_city->get_pos()) || k == other_city->get_townhall_road()) && !del)
+				plan->set_city(this);
+			}
+			else
+			{
+				if(plan->get_city() == this)
 				{
-					if(other_city->is_within_city_limits(pos) && k != other_city->get_townhall_road())
-					{
-						// Double overlapping cities. Return the smallest.
-						if(other_city->get_einwohner() < get_einwohner())
-						{
-							continue;
-						}
-					}
-					else
-					{
-						continue;
-					}
-				}
-				if(!del)
-				{
-					plan->set_city(this);
-				}
-				else
-				{
-					if(plan->get_city() == this)
-					{
-						plan->set_city(NULL);
-					}
+					plan->set_city(NULL);
 				}
 			}
 		}
 	}
 }
 
-// recalculate the spreading of a city
-// will be updated also after house deletion
-void stadt_t::recalc_city_size()
+/**
+ * Reset city borders to be exactly large enough
+ * to contain all the houses of the city (including the townhall, monuments, etc.)
+ * and the townhall road
+ */
+void stadt_t::reset_city_borders()
 {
-	lo = pos;
-	ur = pos;
+	// Unmark all city tiles
+	check_city_tiles(true);
+
+	koord new_lo = pos;
+	koord new_ur = pos;
+	koord const& thr = get_townhall_road();
+	if (new_lo.x > thr.x) {
+		new_lo.x = thr.x;
+	}
+	if (new_lo.y > thr.y) {
+		new_lo.y = thr.y;
+	}
+	if (new_ur.x < thr.x) {
+		new_ur.x = thr.x;
+	}
+	if (new_ur.y < thr.y) {
+		new_ur.y = thr.y;
+	}
+
 	FOR(weighted_vector_tpl<gebaeude_t*>, const i, buildings) {
 		if (i->get_tile()->get_besch()->get_utyp() != haus_besch_t::firmensitz) {
 			koord const& gb_pos = i->get_pos().get_2d();
-			if (lo.x > gb_pos.x) {
-				lo.x = gb_pos.x;
+			if (new_lo.x > gb_pos.x) {
+				new_lo.x = gb_pos.x;
 			}
-			if (lo.y > gb_pos.y) {
-				lo.y = gb_pos.y;
+			if (new_lo.y > gb_pos.y) {
+				new_lo.y = gb_pos.y;
 			}
-			if (ur.x < gb_pos.x) {
-				ur.x = gb_pos.x;
+			if (new_ur.x < gb_pos.x) {
+				new_ur.x = gb_pos.x;
 			}
-			if (ur.y < gb_pos.y) {
-				ur.y = gb_pos.y;
+			if (new_ur.y < gb_pos.y) {
+				new_ur.y = gb_pos.y;
 			}
 		}
 	}
-
-	has_low_density = (buildings.get_count()<10  ||  (buildings.get_count()*100l)/((ur.x-lo.x)*(ur.y-lo.y)+1) > min_building_density);
-	if(  has_low_density  ) {
-		// wider borders for faster growth of sparse small towns
-		lo.x -= 2;
-		lo.y -= 2;
-		ur.x += 2;
-		ur.y += 2;
-	}
-
-	if (lo.x < 0) {
-		lo.x = 0;
-	}
-	if (lo.y < 0) {
-		lo.y = 0;
-	}
-	if (ur.x >= welt->get_size().x) {
-		ur.x = welt->get_size().x-1;
-	}
-	if (ur.y >= welt->get_size().y) {
-		ur.y = welt->get_size().y-1;
-	}
-
-	check_city_tiles();
+	lo = new_lo;
+	ur = new_ur;
+	// Remark all city tiles
+	check_city_tiles(false);
 }
 
 
@@ -1651,7 +1663,6 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 	next_step = 0;
 	step_interval = 1;
 	next_growth_step = 0;
-	has_low_density = false;
 
 	stadtinfo_options = 3;	// citizen and growth
 
@@ -1773,7 +1784,6 @@ stadt_t::stadt_t(karte_t* wl, loadsave_t* file) :
 	next_step = 0;
 	step_interval = 1;
 	next_growth_step = 0;
-	has_low_density = false;
 
 	wachstum = 0;
 	stadtinfo_options = 3;
@@ -2084,14 +2094,17 @@ void stadt_t::rdwr(loadsave_t* file)
 
 	if(file->is_loading()) 
 	{
-		// 08-Jan-03: Due to some bugs in the special buildings/town hall
-		// placement code, li,re,ob,un could've gotten irregular values
-		// If a game is loaded, the game might suffer from such an mistake
-		// and we need to correct it here.
-		DBG_MESSAGE("stadt_t::rdwr()", "borders (%i,%i) -> (%i,%i)", lo.x, lo.y, ur.x, ur.y);
+		// We have to be rather careful about this.  City borders are no longer strictly determined
+		// by building layout, they are their own thing.  But when loading old files, shrink to fit...
+		if (file->get_experimental_version() < 12) {
+			// 08-Jan-03: Due to some bugs in the special buildings/town hall
+			// placement code, li,re,ob,un could've gotten irregular values
+			// If a game is loaded, the game might suffer from such an mistake
+			// and we need to correct it here.
+			DBG_MESSAGE("stadt_t::rdwr()", "borders (%i,%i) -> (%i,%i)", lo.x, lo.y, ur.x, ur.y);
 
-		// recalculate borders
-		recalc_city_size();	
+			reset_city_borders();
+		}
 
 		connected_cities.clear();
 		connected_industries.clear();
@@ -2194,7 +2207,7 @@ void stadt_t::laden_abschliessen()
 			}
 		}
 	}
-	recalc_city_size();
+	reset_city_borders();
 
 	next_step = 0;
 	next_growth_step = 0;
@@ -5592,15 +5605,29 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 						// Orthogonal only.  Prefer facing onto bridge.
 						koord right_side = koord(ribi_t::rotate90(ribi_t::rueckwaerts(connection_roads)));
 						koord left_side = koord(ribi_t::rotate90l(ribi_t::rueckwaerts(connection_roads)));
-						vector_tpl<koord> appropriate_locs;
+						vector_tpl<koord> appropriate_locs(5);
 						appropriate_locs.append(end.get_2d()+right_side);
 						appropriate_locs.append(end.get_2d()+left_side);
 						appropriate_locs.append(end.get_2d()+zv+zv);
 						appropriate_locs.append(end.get_2d()+zv+right_side);
 						appropriate_locs.append(end.get_2d()+zv+left_side);
 						uint32 old_count = buildings.get_count();
-						for(uint8 i=0; i<appropriate_locs.get_count()  &&  buildings.get_count() == old_count; i++) {
-							build_city_building(appropriate_locs[i], true);
+						for(uint8 i=0; i<appropriate_locs.get_count(); i++) {
+							planquadrat_t const* pl = welt->lookup(appropriate_locs[i]);
+							if (pl) {
+								stadt_t const* tile_city = pl->get_city();
+								if (tile_city && tile_city != this) {
+									// Whoops.  Don't build in another city.  Try the next spot.
+									continue;
+								}
+								build_city_building(appropriate_locs[i], true);
+								if (buildings.get_count() != old_count) {
+									// Successful construction.
+									// Fix city limits.
+									reset_city_borders();
+									break;
+								}
+							}
 						}
 					}
 				}
@@ -5689,8 +5716,16 @@ void stadt_t::baue(bool new_town)
 		}
 		INT_CHECK("simcity 5134");
 	}
-	if(!was_renovated && !welt->get_settings().get_quick_city_growth())
-	{
+	if (was_renovated) {
+		return;
+	}
+	if (welt->get_settings().get_quick_city_growth()) {
+		return;
+	}
+
+	int num_enlarge_tries = 4;
+	do {
+
 		// firstly, determine all potential candidate coordinates
 		vector_tpl<koord> candidates( (ur.x - lo.x + 1) * (ur.y - lo.y + 1) );
 		for(  sint16 j=lo.y;  j<=ur.y;  ++j  ) {
@@ -5753,9 +5788,17 @@ void stadt_t::baue(bool new_town)
 		}
 		// Oooh.  We tried every candidate location and we couldn't build.
 		// (Admittedly, this may be because percentage-chance rules told us not to.)
-		// Here, we should call a subroutine to enlarge the city limits.
-		// FIXME --neroden
-	}
+		// Anyway, if this happened, enlarge the city limits and try again.
+		bool could_enlarge = enlarge_city_borders();
+		if (!could_enlarge) {
+			// Oh boy.  It's not possible to enlarge.  Seriously?
+			// I guess we'd better try merging this city into a neighbor (not implemented yet).
+			num_enlarge_tries = 0;
+		} else {
+			num_enlarge_tries--;
+		}
+	} while (num_enlarge_tries > 0);
+	return;
 }
 
 vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sint32> *sizes_list, sint16 old_x, sint16 old_y)
