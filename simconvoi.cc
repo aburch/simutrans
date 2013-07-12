@@ -71,7 +71,7 @@
  * @author Hj- Malthaner
  */
 #define WTT_LOADING 500
-#define WAIT_INFINITE 9223372036854775807
+#define WAIT_INFINITE 9223372036854775807ll
 
 
 karte_t *convoi_t::welt = NULL;
