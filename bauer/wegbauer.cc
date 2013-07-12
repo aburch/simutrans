@@ -2221,15 +2221,16 @@ void wegbauer_t::baue_strasse()
 									&& ( besch->get_styp() != weg_t::type_elevated )
 									&& ( besch->get_styp() != weg_t::type_underground )
 									&& ! ( sp && sp->is_public_service() )
+									&& (weg->hat_gehweg() || build_sidewalk)
 									);
-				bool add_sidewalk = build_sidewalk  || city_adopts_this;
 
-				weg->set_gehweg(add_sidewalk);
+				weg->set_gehweg(build_sidewalk || weg->hat_gehweg());
 
 				if(!city_adopts_this)
 				{
 					weg->set_besitzer(sp);
-					//...& set diagonal costs
+					// Set maintenance costs here
+					// including corrections for diagonals.
 					weg->laden_abschliessen();
 				}
 			}

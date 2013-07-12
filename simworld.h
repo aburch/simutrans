@@ -39,6 +39,12 @@
 #include "tpl/fixed_list_tpl.h"
 #endif
 
+#ifdef _MSC_VER
+#define snprintf sprintf_s
+#else
+#define sprintf_s snprintf
+#endif 
+
 struct event_t;
 struct sound_info;
 class stadt_t;
