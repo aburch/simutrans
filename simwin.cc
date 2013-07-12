@@ -206,19 +206,19 @@ bool themes_init(const char *dir_name)
 	umgebung_t::second_open_closes_win = contents.get_int("second_open_closes_win", umgebung_t::second_open_closes_win );
 	umgebung_t::remember_window_positions = contents.get_int("remember_window_positions", umgebung_t::remember_window_positions );
 
-	umgebung_t::front_window_bar_color = contents.get_int("front_window_bar_color", umgebung_t::front_window_bar_color );
-	umgebung_t::front_window_text_color = contents.get_int("front_window_text_color", umgebung_t::front_window_text_color );
-	umgebung_t::bottom_window_bar_color = contents.get_int("bottom_window_bar_color", umgebung_t::bottom_window_bar_color );
-	umgebung_t::bottom_window_text_color = contents.get_int("bottom_window_text_color", umgebung_t::bottom_window_text_color );
+	umgebung_t::front_window_bar_color = contents.get_color("front_window_bar_color", umgebung_t::front_window_bar_color );
+	umgebung_t::front_window_text_color = contents.get_color("front_window_text_color", umgebung_t::front_window_text_color );
+	umgebung_t::bottom_window_bar_color = contents.get_color("bottom_window_bar_color", umgebung_t::bottom_window_bar_color );
+	umgebung_t::bottom_window_text_color = contents.get_color("bottom_window_text_color", umgebung_t::bottom_window_text_color );
 
 	umgebung_t::show_tooltips = contents.get_int("show_tooltips", umgebung_t::show_tooltips );
-	umgebung_t::tooltip_color = contents.get_int("tooltip_background_color", umgebung_t::tooltip_color );
-	umgebung_t::tooltip_textcolor = contents.get_int("tooltip_text_color", umgebung_t::tooltip_textcolor );
+	umgebung_t::tooltip_color = contents.get_color("tooltip_background_color", umgebung_t::tooltip_color );
+	umgebung_t::tooltip_textcolor = contents.get_color("tooltip_text_color", umgebung_t::tooltip_textcolor );
 	umgebung_t::tooltip_delay = contents.get_int("tooltip_delay", umgebung_t::tooltip_delay );
 	umgebung_t::tooltip_duration = contents.get_int("tooltip_duration", umgebung_t::tooltip_duration );
 	umgebung_t::toolbar_max_width = contents.get_int("toolbar_max_width", umgebung_t::toolbar_max_width );
 	umgebung_t::toolbar_max_height = contents.get_int("toolbar_max_height", umgebung_t::toolbar_max_height );
-	umgebung_t::cursor_overlay_color = contents.get_int("cursor_overlay_color", umgebung_t::cursor_overlay_color );
+	umgebung_t::cursor_overlay_color = contents.get_color("cursor_overlay_color", umgebung_t::cursor_overlay_color );
 
 	// parsing buttons still needs to be done after agreement what to load
 	return false; //hence we return false for now ...

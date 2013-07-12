@@ -164,6 +164,8 @@ void display_set_light(int new_light_level);
 
 void display_day_night_shift(int night);
 
+// returns next matching color to an rgb
+COLOR_VAL display_get_index_from_rgb( uint8 r, uint8 g, uint8 b );
 
 // scrolls horizontally, will ignore clipping etc.
 void display_scroll_band( const KOORD_VAL start_y, const KOORD_VAL x_offset, const KOORD_VAL h );

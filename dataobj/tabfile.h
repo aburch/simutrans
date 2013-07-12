@@ -137,6 +137,12 @@ public:
 	const koord &get_koord(const char *key, koord def);
 
 	/**
+	 * Get a color index or the next matching color when given a #AABBCC
+	 * @author prissi
+	 */
+	uint8 get_color(const char *key, uint8 def);
+
+	/**
 	 * Get an int
 	 * @author V. Meyer
 	 */

@@ -1866,6 +1866,22 @@ void display_set_player_color_scheme(const int player, const COLOR_VAL col1, con
 }
 
 
+// returns next matching color to an rgb
+COLOR_VAL display_get_index_from_rgb( uint8 r, uint8 g, uint8 b )
+{
+	COLOR_VAL result = 0;
+	unsigned diff = 256*3;
+	for(  int i=0;  i<lengthof(special_pal);  i+=3  ) {
+		unsigned cur_diff = abs(r-special_pal[i+0]) + abs(g-special_pal[i+1]) + abs(b-special_pal[i+2]);
+		if(  cur_diff < diff  ) {
+			result = i/3;
+			diff = cur_diff;
+		}
+	}
+	return result;
+}
+
+
 void register_image(struct bild_t* bild)
 {
 	struct imd* image;

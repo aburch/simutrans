@@ -10,6 +10,7 @@
 #include <ctype.h>
 
 #include "../simdebug.h"
+#include "../simgraph.h"
 #include "koord.h"
 #include "tabfile.h"
 
@@ -93,6 +94,29 @@ const koord &tabfileobj_t::get_koord(const char *key, koord def)
 	ret.x = atoi(value);
 	ret.y = atoi(tmp + 1);
 	return ret;
+}
+
+uint8 tabfileobj_t::get_color(const char *key, uint8 def)
+{
+	const char *value = get(key);
+
+	if(!value || !*value) {
+		return def;
+	}
+	else {
+		// skip spaces/tabs
+		while ( *value>0  &&  *value<=32  ) {
+			value ++;
+		}
+		if(  *value=='#'  ) {
+			uint32 rgb = strtoul( value+1, NULL, 16 ) & 0XFFFFFFul;
+			return display_get_index_from_rgb( rgb>>16, (rgb>>8)&0xFF, rgb&0xFF );
+		}
+		else {
+			// this inputs also hex correct
+			return (uint8)strtol( value, NULL, 0 );
+		}
+	}
 }
 
 int tabfileobj_t::get_int(const char *key, int def)
