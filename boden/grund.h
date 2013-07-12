@@ -138,19 +138,9 @@ protected:
 	dingliste_t dinge;
 
 	/**
-	 * Coordinate
-	 */
-	koord3d pos;
-
-	/**
 	 * Flags to indicate existence of halts, ways, to mark dirty
 	 */
 	uint8 flags;
-
-	/**
-	 * Image number
-	 */
-	image_id bild_nr;
 
 	/**
 	 * Image of the walls
@@ -158,14 +148,24 @@ protected:
 	sint8 back_bild_nr;
 
 	/**
-	 * Slope (now saved locally), because different grounds need different slopes
+	 * Image number
 	 */
-	uint8 slope;
+	image_id bild_nr;
 
 	/**
  	 * Handle to halt built on this ground
 	 */
 	halthandle_t this_halt;
+
+	/**
+	 * Coordinate (40 bits)
+	 */
+	koord3d pos;
+
+	/**
+	 * Slope (now saved locally), because different grounds need different slopes
+	 */
+	uint8 slope;
 
 public:
 	/**
