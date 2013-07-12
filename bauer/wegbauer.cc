@@ -2082,6 +2082,27 @@ bool wegbauer_t::baue_tunnelboden()
 			// check for extension only ...
 			if(tunnel_besch->get_waytype()!=powerline_wt) {
 				gr->weg_erweitern( tunnel_besch->get_waytype(), route.get_ribi(i) );
+
+				tunnel_t *tunnel = gr->find<tunnel_t>();
+				assert( tunnel );
+				// take the faster way
+				if(  !keep_existing_faster_ways  ||  (tunnel->get_besch()->get_topspeed() < tunnel_besch->get_topspeed())  ) {
+					spieler_t::add_maintenance(sp, -tunnel->get_besch()->get_wartung(), tunnel->get_besch()->get_finance_waytype());
+					spieler_t::add_maintenance(sp,  tunnel_besch->get_wartung(), tunnel->get_besch()->get_finance_waytype() );
+
+					tunnel->set_besch(tunnel_besch);
+					weg_t *weg = gr->get_weg(tunnel_besch->get_waytype());
+					weg->set_besch(wb);
+					weg->set_max_speed(tunnel_besch->get_topspeed());
+					// respect max speed of catenary
+					wayobj_t const* const wo = gr->get_wayobj(tunnel_besch->get_waytype());
+					if (wo  &&  wo->get_besch()->get_topspeed() < weg->get_max_speed()) {
+						weg->set_max_speed( wo->get_besch()->get_topspeed() );
+					}
+					gr->calc_bild();
+
+					cost -= tunnel_besch->get_preis();
+				}
 			} else {
 				leitung_t *lt = gr->get_leitung();
 				if(!lt) {
@@ -2092,26 +2113,6 @@ bool wegbauer_t::baue_tunnelboden()
 					lt->leitung_t::laden_abschliessen();	// only change powerline aspect
 					spieler_t::add_maintenance( sp, -lt->get_besch()->get_wartung(), powerline_wt);
 				}
-			}
-			tunnel_t *tunnel = gr->find<tunnel_t>();
-			assert( tunnel );
-			// take the faster way
-			if(  !keep_existing_faster_ways  ||  (tunnel->get_besch()->get_topspeed() < tunnel_besch->get_topspeed())  ) {
-				spieler_t::add_maintenance(sp, -tunnel->get_besch()->get_wartung(), tunnel->get_besch()->get_finance_waytype());
-				spieler_t::add_maintenance(sp,  tunnel_besch->get_wartung(), tunnel->get_besch()->get_finance_waytype() );
-
-				tunnel->set_besch(tunnel_besch);
-				weg_t *weg = gr->get_weg(tunnel_besch->get_waytype());
-				weg->set_besch(wb);
-				weg->set_max_speed(tunnel_besch->get_topspeed());
-				// respect max speed of catenary
-				wayobj_t const* const wo = gr->get_wayobj(tunnel_besch->get_waytype());
-				if (wo  &&  wo->get_besch()->get_topspeed() < weg->get_max_speed()) {
-					weg->set_max_speed( wo->get_besch()->get_topspeed() );
-				}
-				gr->calc_bild();
-
-				cost -= tunnel_besch->get_preis();
 			}
 		}
 	}
