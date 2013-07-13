@@ -697,7 +697,10 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 			// for sources (oil fields, forests ... ) prefer thoses with a smaller distance
 			const unsigned distance = koord_distance(fab->get_pos(),our_fab->get_pos());
 
-			if(distance>6 /*  &&  distance < simrand(welt->get_size().x+welt->get_size().y, "fabrikbauer_t::baue_hierarchie")*/ ) {
+			if(  distance >= welt->get_settings().get_min_factory_spacing()  ) {
+				// Formerly a flat "6", but this wasy arbitrary
+				// Could also check max distance here
+
 				// ok, this would match
 				// but can she supply enough?
 
