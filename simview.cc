@@ -168,6 +168,9 @@ void karte_ansicht_t::display(bool force_dirty)
 #if MULTI_THREAD>1
 	if(  umgebung_t::simple_drawing  &&  can_multithreading  ) {
 
+		// reset polygonal clipping - outside of multithreaded display
+		clear_all_poly_clip();
+
 		if(!spawned_threads) {
 			// we can do the parallel display using posix threads ...
 			pthread_t thread[MULTI_THREAD];

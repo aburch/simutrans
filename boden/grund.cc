@@ -1233,8 +1233,11 @@ hang_t::typ grund_t::get_disp_way_slope() const
 }
 
 
-/** The old main display routine. Only used for very small tile sizes, where clipping error
- * will be only one or two pixels
+/**
+ * The old main display routine. Used for very small tile sizes, where clipping error
+ * will be only one or two pixels.
+ *
+ * Also used in multi-threaded display.
  */
 void grund_t::display_dinge_all_quick_and_dirty(const sint16 xpos, sint16 ypos, const sint16 raster_tile_width, const bool is_global) const
 {
@@ -1243,7 +1246,6 @@ void grund_t::display_dinge_all_quick_and_dirty(const sint16 xpos, sint16 ypos, 
 
 	// here: we are either ground(kartenboden) or visible
 	const bool visible = !ist_karten_boden()  ||  is_karten_boden_visible();
-	clear_all_poly_clip();
 
 	if(visible) {
 		if(is_global  &&  get_flag(grund_t::marked)) {

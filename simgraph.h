@@ -78,7 +78,8 @@ display_set_clip_wh(p_cr.x, p_cr.y, p_cr.w, p_cr.h); \
 }
 
 /**
- * helper functions for clipping along tile borders
+ * Helper functions for clipping along tile borders.
+ * @note NOT multi-thread safe
  * @author Dwachs
  */
 void add_poly_clip(int x0_,int y0_, int x1, int y1, int ribi=15);
