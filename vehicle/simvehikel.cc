@@ -3411,7 +3411,7 @@ void waggon_t::set_convoi(convoi_t *c)
 // need to reset halt reservation (if there was one)
 route_t::route_result_t waggon_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route)
 {
-	if (ist_erstes && route_index < cnv->get_route()->get_count())
+	if(ist_letztes && route_index < cnv->get_route()->get_count())
 	{
 		// free all reserved blocks
 		uint16 dummy;
