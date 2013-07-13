@@ -876,6 +876,35 @@ private:
 	 */
 	void update_map_intern(sint16, sint16, sint16, sint16);
 
+	/**
+	 * This contains all buildings in the world from which passenger
+	 * journeys ultimately start, weighted by their level. 
+	 * @author: jamespetts
+	 */
+	weighted_vector_tpl <gebaeude_t *> passenger_origins;
+
+	/**
+	 * This contains all buildings in the world to which passengers make
+	 * journeys to work, weighted by their (adjusted) level.
+	 * @author: jamespetts
+	 */
+	weighted_vector_tpl <gebaeude_t *> commuter_targets;
+
+	/**
+	 * This contains all buildings in the world to which passengers make
+	 * journeys other than to work, weighted by their (adjusted) level.
+	 * @author: jamespetts
+	 */
+	weighted_vector_tpl <gebaeude_t *> visitor_targets;
+
+	/**
+	 * This contains all buildings in the world to and from which mail
+	 * is delivered and generated respectively, weighted by their mail
+	 * level. 
+	 * @author: jamespetts
+	 */
+	weighted_vector_tpl <gebaeude_t *> mail_origins_and_targets;
+
 public:
 	/**
 	 * Announce server and current state to listserver.

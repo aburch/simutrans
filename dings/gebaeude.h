@@ -25,6 +25,8 @@ class gebaeude_t : public ding_t, sync_steppable
 public:
 	/**
 	 * Vom typ "unbekannt" sind auch spezielle gebaeude z.B. das Rathaus
+	 * "Of type "unknown" are also special gebaeude eg City Hall" (Google)
+	 * residential, commercial, industrial, unknown
 	 * @author Hj. Malthaner
 	 */
 	enum typ {wohnung, gewerbe, industrie, unbekannt};
@@ -75,6 +77,7 @@ private:
 
 	/**
 	 * if true, this ptr union contains a factory pointer
+	 * ? Surely, this cannot be right with an 8 bit integer? Out of date comment?
 	 * @author Hj. Malthaner
 	 */
 	uint8 is_factory:1;

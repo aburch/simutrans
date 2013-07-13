@@ -1096,7 +1096,6 @@ static bool compare_gebaeude_pos(const gebaeude_t* a, const gebaeude_t* b)
 }
 
 
-// this function adds houses to the city house list
 void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb, bool ordered)
 {
 	if (gb != NULL) {
@@ -1115,7 +1114,7 @@ void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb, bool ordered)
 					}
 					else {
 						if(  ordered  ) {
-							buildings.insert_ordered(add_gb, tile->get_besch()->get_level() + 1, compare_gebaeude_pos);
+							buildings.insert_ordered(add_gb, tile->get_besch()->get_level(), compare_gebaeude_pos);
 						}
 						else {
 							buildings.append(add_gb, tile->get_besch()->get_level());
@@ -4012,8 +4011,8 @@ void stadt_t::recalc_target_attractions()
 	}
 }
 
-/* this function generates a random target for passenger/mail
- * changing this strongly affects selection of targets and thus game strategy
+/* This function generates a random target for passengers/mail;
+ * changing this strongly affects selection of targets and thus game strategy.
  */
 stadt_t::destination stadt_t::find_destination(factory_set_t &target_factories, const sint64 generated, pax_return_type* will_return, uint32 min_distance, uint32 max_distance, koord origin)
 {

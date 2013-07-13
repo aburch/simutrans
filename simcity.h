@@ -530,7 +530,10 @@ public:
 	// (called when removed by player, or by town)
 	void remove_gebaeude_from_stadt(gebaeude_t *gb);
 
-	// this function adds houses to the city house list. ordered for multithreaded loading
+	/**
+	* This function adds buildings to the city building list; 
+	* ordered for multithreaded loading.
+	*/
 	void add_gebaeude_to_stadt(const gebaeude_t *gb, bool ordered=false);
 
 	/**
