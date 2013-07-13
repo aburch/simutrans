@@ -581,7 +581,7 @@ CXXFLAGS += $(CFLAGS)
 
 BUILDDIR ?= build/$(CFG)
 PROGDIR  ?= $(BUILDDIR)
-PROG     ?= sim
+PROG     ?= simutrans-experimental
 
 
 include common.mk

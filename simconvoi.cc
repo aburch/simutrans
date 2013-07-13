@@ -2830,7 +2830,7 @@ void convoi_t::vorfahren()
 
 	// finally reserve route (if needed)
 	if(  fahr[0]->get_waytype()!=air_wt  &&  !at_dest  ) {
-		// do not prereserve for airplanes
+		// do not pre-reserve for aircraft
 		for(unsigned i=0; i<anz_vehikel; i++) {
 			// eventually reserve this
 			vehikel_t const& v = *fahr[i];
