@@ -5132,9 +5132,10 @@ const char *wkz_build_haus_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 		if(gb) {
 			// building successful
 			if(  besch->get_utyp()!=haus_besch_t::attraction_land  &&  besch->get_utyp()!=haus_besch_t::attraction_city  ) {
-				stadt_t *city = welt->suche_naechste_stadt( pos.get_2d() );
+				stadt_t *city = welt->get_city( pos.get_2d() );
 				if(city) {
 					city->add_gebaeude_to_stadt(gb);
+					city->reset_city_borders();
 				}
 			}
 			spieler_t::book_construction_costs(sp, welt->get_settings().cst_multiply_remove_haus * besch->get_level() * size.x * size.y, pos.get_2d(), gb->get_waytype());
@@ -5597,9 +5598,10 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 			if(ok) {
 				// then built it
 				hq = hausbauer_t::baue(welt, sp, welt->lookup_kartenboden(pos.get_2d())->get_pos(), rotate, besch, NULL);
-				stadt_t *city = welt->suche_naechste_stadt( pos.get_2d() );
+				stadt_t *city = welt->get_city( pos.get_2d() );
 				if(city) {
 					city->add_gebaeude_to_stadt( hq );
+					city->reset_city_borders();
 				}
 				built = true;
 			}
