@@ -1324,7 +1324,6 @@ void stadt_t::reset_city_borders()
 		if (gb->get_tile()->get_besch()->get_utyp() != haus_besch_t::firmensitz) {
 			// Not an HQ
 			koord gb_pos = gb->get_pos().get_2d();
-			printf("NEW POS %i, %i\n", gb_pos.x, gb_pos.y);
 			if (new_lo.x > gb_pos.x) {
 				new_lo.x = gb_pos.x;
 			}
