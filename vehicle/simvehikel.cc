@@ -3411,7 +3411,7 @@ void waggon_t::set_convoi(convoi_t *c)
 // need to reset halt reservation (if there was one)
 route_t::route_result_t waggon_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route)
 {
-	if (ist_erstes && route_index < cnv->get_route()->get_count())
+	if(ist_letztes && route_index < cnv->get_route()->get_count())
 	{
 		// free all reserved blocks
 		uint16 dummy;
@@ -3655,7 +3655,7 @@ bool waggon_t::is_weg_frei_longblock_signal( signal_t *sig, uint16 next_block, i
 					block_reserver( cnv->get_route(), next_block+1, next_signal, next_crossing, 0, true, false );
 				}
 				sig->set_zustand( roadsign_t::gruen );
-				cnv->set_next_stop_index( min( next_crossing, next_signal ) );
+				cnv->set_next_stop_index( min( min( next_crossing, next_signal ), cnv->get_route()->get_count() ) );
 				return true;
 			}
 		}
@@ -3669,6 +3669,9 @@ bool waggon_t::is_weg_frei_longblock_signal( signal_t *sig, uint16 next_block, i
 		// prepare for next leg of schedule
 		cur_pos = target_rt.back();
 		fpl->increment_index(&fahrplan_index, &reversed);
+	}
+	if(  cnv->get_next_stop_index()-1 <= route_index  ) {
+		cnv->set_next_stop_index( cnv->get_route()->get_count()-1 );
 	}
 	return true;
 }

@@ -1,0 +1,32 @@
+*** How to set up a Simutrans-Experimental server ***
+
+by James E. Petts, February 2011
+
+Simutrans-Experimental version 9.3 and upwards supports playing over the ineternet.
+
+To play Simutrans-Experimental over the internet, it is necessary for there to be a server running Simutrans-Experimental in server mode. To run a server, run Simutrans-Experimental with the "-server" switch at the command line (in Windows, set up a shortcut with "-server" appended to the end of the "target"). The clients can then connect to the server using the server's IP address or DNS name (if any). The default port of 13353 will be assumed unless otherwise specified. 
+
+Although it is possible to use the standard Simutrans-Experimental binary (Simutrans-Experimental.exe in Windows) for this, if running the server on a remote system as a "pure server" (in other words, one which will only be used as a server, and not played locally), and it is recommended that all servers for public games be set up this way, then you should use the special command-line only version of Simutrans-Experimental. This version has no graphics, so it will run faster on the server. The graphics on the clients will be unaffected. 
+
+In Windows, this version is called Simutrans-Experimental-command-line-server.exe. It is important to note that this version will not work unless a pakset is pre-selected in simuconf.tab, as the graphical menu for choosing a pakset does not work in this version without graphics. To use this version of the server, you will need to add the following line to the base version of simuconf.tab (i.e., the one in your /simutrans/config directory, note the one in a pakset subdirectory):
+
+pak_file_path = pak128.Britain-Ex/
+
+The above line can be modified as required if a different pakset is chosen, for example:
+
+pak_file_path = pak.german-exp/
+
+
+The Windows distribution comes with a shortcut with the recommended command line settings to start the game, being: -log 1 -debug 5 -server 13353 -lang en -load network1. The "-load network1" switch causes a saved game of the name "network1.sve" in the default saved game directory to be loaded. This again can be changed as desired.
+
+To set up a network server, it is necessary first to create a saved game in single player mode, then upload it to the server, then run the Simutrans-Experimental server with the command line switch to load the appropriate saved game. You should also change the server_comment = Testserver-Ex line in simuconf.tab to identify your server uniquely.
+
+There is a web page specially set up for Simutrans-Experimental servers in particular at http://simutrans-germany.com/serverlist_ex/. This has been kindly set up by Frank for use by all operators of Simutrans-Experimental servers, and all public servers should be announced on this website. This will enable players to find the server automatically from a list when loading the game.
+
+Note that it is not possible to connect a Simutrans-Standard client to a Simutrans-Experimental server or vice versa.
+
+
+***
+
+
+For more information on setting up a Simutrans server, see: http://forum.simutrans.com/index.php?topic=6424.0 (although note that those instructions are for Standard not Experimental, albeit there is little difference between the two in terms of how to set up a server; the differences are explained above).

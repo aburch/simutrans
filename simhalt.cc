@@ -2319,7 +2319,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 	}
 	// OK, not arrived at a factory, have we arrived somewhere else?
 	const planquadrat_t* plan = welt->lookup(ware.get_zielpos());
-	if(plan && plan->is_connected(self) )
+	if(plan && ((!ware.is_freight() && plan->is_connected(self)) || plan->get_connected(self) <= welt->get_settings().get_station_coverage_factories()))
 	{
 		// Yes, we have.  Passengers & mail vanish mysteriously upon arrival.
 		// FIXME: walking time delay should be implemented right here!

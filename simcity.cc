@@ -947,8 +947,8 @@ void stadt_t::cityrules_rdwr(loadsave_t *file)
 	// It's not clear how to version this, but it *is* only
 	// for networked games... both is *needed* for network games though
 	
-	// NOTE: This code is not *only* called for network games.
-	if(file->get_experimental_version() >= 12 || umgebung_t::networkmode)
+	// NOTE: This code is not *only* called for network games. 
+	if(file->get_experimental_version() >= 12 || file->get_version() >= 112005)
 	{
 		file->rdwr_long(cluster_factor);
 		file->rdwr_long(bridge_success_percentage);
@@ -1115,7 +1115,7 @@ void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb, bool ordered)
 					}
 					else {
 						if(  ordered  ) {
-							buildings.insert_ordered(add_gb, tile->get_besch()->get_level() + 1, compare_gebaeude_pos);
+							buildings.insert_ordered(add_gb, tile->get_besch()->get_level(), compare_gebaeude_pos);
 						}
 						else {
 							buildings.append(add_gb, tile->get_besch()->get_level());
@@ -5129,19 +5129,25 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 				continue;
 			}
 			strasse_t* weg = (strasse_t*)gr->get_weg(road_wt);
-			if (weg != NULL) {
+			if (weg != NULL)
+			{
 				// We found a road... (yes, it is OK to face a road with a different hang)
-				// Extend the sidewalk
+				// Extend the sidewalk (this has the effect of reducing the speed limit to the city speed limit,
+				// which is the speed limit of the current city road).
 				weg->set_gehweg(true);
-				if (gr->get_weg_hang() == gr->get_grund_hang()) {
+				if (gr->get_weg_hang() == gr->get_grund_hang()) 
+				{
 					// This is not a bridge, tunnel, etc.
 					// if not current city road standard OR BETTER, then replace it
-					if (  weg->get_besch() != welt->get_city_road()  ) {
-						if (  welt->get_city_road()->is_at_least_as_good_as(weg->get_besch()) ) {
-							spieler_t *sp = weg->get_besitzer();
-							if (sp == NULL  ||  !gr->get_depot()) {
-								spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung(), road_wt);
-								weg->set_besitzer(NULL); // make public
+					if (weg->get_besch() != welt->get_city_road())
+					{
+						spieler_t *sp = weg->get_besitzer();
+						if (sp == NULL || !gr->get_depot())
+						{
+							spieler_t::add_maintenance(sp, -weg->get_besch()->get_wartung(), road_wt);
+							weg->set_besitzer(NULL); // make public
+							if (welt->get_city_road()->is_at_least_as_good_as(weg->get_besch())) 
+							{
 								weg->set_besch(welt->get_city_road());
 							}
 						}

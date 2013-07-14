@@ -1499,12 +1499,11 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 										&& welt->get_city(weg->get_pos().get_2d())
 										&& welt->get_settings().get_towns_adopt_player_roads()
 										&& !( sp && sp->is_public_service() )
+										&& (alter_weg && alter_weg->hat_gehweg())
 										);
 
-		if (city_adopts_this) {
-			// Add the sidewalk
-			weg->set_gehweg(true);
-		}
+		// Add a pavement to the new road if the old road also had a pavement.
+		weg->set_gehweg(alter_weg && alter_weg->hat_gehweg());
 
 		if( sp && !ist_wasser() && !city_adopts_this )
 		{
