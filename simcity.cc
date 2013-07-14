@@ -1115,7 +1115,7 @@ void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb, bool ordered)
 					}
 					else {
 						if(  ordered  ) {
-							buildings.insert_ordered(add_gb, tile->get_besch()->get_level() + 1, compare_gebaeude_pos);
+							buildings.insert_ordered(add_gb, tile->get_besch()->get_level(), compare_gebaeude_pos);
 						}
 						else {
 							buildings.append(add_gb, tile->get_besch()->get_level());
