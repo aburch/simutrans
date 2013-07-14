@@ -14,11 +14,11 @@
 #include <zlib.h>
 #include "../../tpl/inthashtable_tpl.h"
 
-// if without graphics backend, only copy one pixel
+// if without graphics backend, do not copy any pixel
 #if COLOUR_DEPTH != 0
-#define break_after_first_pixel
+#define skip_reading_pixels_if_no_graphics
 #else
-#define break_after_first_pixel break
+#define skip_reading_pixels_if_no_graphics goto adjust_image
 #endif
 
 obj_besch_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
@@ -43,7 +43,8 @@ obj_besch_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch = new(node.size-12) bild_besch_t();
 	}
 #else
-	besch = new(sizeof(uint16)) bild_besch_t();
+	// reserve space for one single pixel and initialize data
+	besch = bild_besch_t::create_single_pixel();
 #endif
 
 	if(version==0) {
@@ -56,6 +57,7 @@ obj_besch_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		p += 2;	// dummys
 		besch->pic.zoomable = decode_uint8(p);
 
+		skip_reading_pixels_if_no_graphics;
 		//DBG_DEBUG("bild_besch_t::read_node()","x,y=%d,%d  w,h=%d,%d, len=%i",besch->pic.x,besch->pic.y,besch->pic.w,besch->pic.h, besch->pic.len);
 
 		uint16* dest = besch->pic.data;
@@ -69,7 +71,6 @@ obj_besch_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 					data ++;
 				}
 				*dest++ = data;
-				break_after_first_pixel;
 			}
 		}
 	}
@@ -85,11 +86,11 @@ obj_besch_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->pic.zoomable = decode_uint8(p);
 		besch->pic.bild_nr = IMG_LEER;
 
+		skip_reading_pixels_if_no_graphics;
 		uint16* dest = besch->pic.data;
 		if (besch->pic.h > 0) {
 			for (uint i = 0; i < besch->pic.len; i++) {
 				*dest++ = decode_uint16(p);
-				break_after_first_pixel;
 			}
 		}
 	}
@@ -105,11 +106,11 @@ obj_besch_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->pic.zoomable = decode_uint8(p);
 		besch->pic.bild_nr = IMG_LEER;
 
+		skip_reading_pixels_if_no_graphics;
 		uint16* dest = besch->pic.data;
 		if (besch->pic.h > 0) {
 			for (uint i = 0; i < besch->pic.len; i++) {
 				*dest++ = decode_uint16(p);
-				break_after_first_pixel;
 			}
 		}
 	}
@@ -118,6 +119,8 @@ obj_besch_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 
 #if COLOUR_DEPTH == 0
+adjust_image:
+	// reset image parameters, but only for non-empty images
 	if(  besch->pic.h > 0  ) {
 		besch->pic.h = 1;
 	}
@@ -195,7 +198,7 @@ obj_besch_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		}
 		else {
 			// no need to load doubles ...
-			delete besch;
+			delete_node(besch);
 			besch = same;
 		}
 	}
