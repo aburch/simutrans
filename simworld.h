@@ -881,21 +881,21 @@ private:
 	 * journeys ultimately start, weighted by their level. 
 	 * @author: jamespetts
 	 */
-	weighted_vector_tpl <gebaeude_t *> passenger_origins;
+	weighted_vector_tpl <const gebaeude_t *> passenger_origins;
 
 	/**
 	 * This contains all buildings in the world to which passengers make
 	 * journeys to work, weighted by their (adjusted) level.
 	 * @author: jamespetts
 	 */
-	weighted_vector_tpl <gebaeude_t *> commuter_targets;
+	weighted_vector_tpl <const gebaeude_t *> commuter_targets;
 
 	/**
 	 * This contains all buildings in the world to which passengers make
 	 * journeys other than to work, weighted by their (adjusted) level.
 	 * @author: jamespetts
 	 */
-	weighted_vector_tpl <gebaeude_t *> visitor_targets;
+	weighted_vector_tpl <const gebaeude_t *> visitor_targets;
 
 	/**
 	 * This contains all buildings in the world to and from which mail
@@ -903,7 +903,7 @@ private:
 	 * level. 
 	 * @author: jamespetts
 	 */
-	weighted_vector_tpl <gebaeude_t *> mail_origins_and_targets;
+	weighted_vector_tpl <const gebaeude_t *> mail_origins_and_targets;
 
 public:
 	/**
@@ -1331,6 +1331,22 @@ public:
 		 */
 		return get_settings().get_meters_per_tile() * ticks * 30L * 6L/ (4096L * 1000L);
 	}
+
+	enum building_type { passenger_origin, commuter_target, visitor_target, mail, none };
+
+	/**
+	* Adds a single tile of a building to the relevant world list for passenger 
+	* and mail generation purposes
+	* @author: jamespetts
+	*/
+	void add_building_to_world_list(const gebaeude_t *gb, building_type b, bool ordered = false);
+	
+	/**
+	* Removes a single tile of a building to the relevant world list for passenger 
+	* and mail generation purposes
+	* @author: jamespetts
+	*/
+	void remove_building_from_world_list(const gebaeude_t *gb);
 
 private:
 	/*

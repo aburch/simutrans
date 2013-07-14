@@ -178,11 +178,19 @@ public:
 	 */
 	virtual const char *get_name() const;
 
+	/**
+	* Town hall
+	*/
 	bool ist_rathaus() const;
 
+	/**
+	* "Head office" (Google)
+	*/
 	bool ist_firmensitz() const;
 
 	bool is_monument() const;
+
+	bool is_attraction() const;
 
 	/**
 	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem

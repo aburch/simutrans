@@ -7608,3 +7608,118 @@ const vector_tpl<const ware_besch_t*> &karte_t::get_goods_list()
 	return goods_in_game;
 }
 
+//FIXME: Eliminate this duplication somehow.
+static bool compare_gebaeude_pos(const gebaeude_t* a, const gebaeude_t* b)
+{
+	const uint32 pos_a = (a->get_pos().y<<16)+a->get_pos().x;
+	const uint32 pos_b = (b->get_pos().y<<16)+b->get_pos().x;
+	return pos_a<pos_b;
+}
+
+void karte_t::add_building_to_world_list(const gebaeude_t *gb, building_type b, bool ordered)
+{
+	/* Called from stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb, bool ordered)
+		in the case of city buildings, so some pre-processing is done for us.
+		For other buildings (such as extension buildings, depots and industries),
+		it is necessary to add a mutex lock to the calling method as follows:
+
+		#if MULTI_THREAD>1
+				pthread_mutex_lock( &add_to_city_mutex );
+		#endif
+				city->add_gebaeude_to_stadt(this, true); // For example
+		#if MULTI_THREAD>1
+				pthread_mutex_unlock( &add_to_city_mutex );
+		#endif
+				*/
+
+	const haus_tile_besch_t* tile = gb->get_tile();
+	// FIXME: Calibrate these two types of level properly.
+	uint16 passenger_level = gb->get_fabrik() ? gb->get_fabrik()->get_scaled_pax_demand() : tile->get_besch()->get_level();
+	const uint16 mail_level = gb->get_fabrik() ? gb->get_fabrik()->get_scaled_mail_demand() : tile->get_besch()->get_post_level();
+
+	switch(b)
+	{
+	
+	case passenger_origin:
+		if(ordered)
+		{
+			passenger_origins.insert_ordered(gb, passenger_level, compare_gebaeude_pos);
+		}
+		else 
+		{
+			passenger_origins.append(gb, passenger_level);
+		}
+		break;
+
+	case commuter_target:
+
+		if(gb->is_monument())
+		{
+			// Monuments are not commuter targets.
+			break;
+		}
+
+		if(gb->is_attraction())
+		{
+			// Attractions have fewer workers by comparison to visitors.
+			// FIXME: Make this customisable in simuconf.tab
+			passenger_level /= 2;
+		}
+
+		if(ordered)
+		{
+			commuter_targets.insert_ordered(gb, passenger_level, compare_gebaeude_pos);
+		}
+		else 
+		{
+			commuter_targets.append(gb, passenger_level);
+		}
+		break;
+
+	case visitor_target:
+
+		if(gb->is_monument() || gb->is_attraction())
+		{
+			// Attractions/monuments have more visitors than commercial buildings
+			// FIXME: Make this customisable in simuconf.tab
+			passenger_level *= 2;
+		}
+
+		if(ordered)
+		{
+			visitor_targets.insert_ordered(gb, passenger_level, compare_gebaeude_pos);
+		}
+		else 
+		{
+			visitor_targets.append(gb, passenger_level);
+		}
+		break;
+
+	case mail:
+	default:
+
+		if(gb->is_monument())
+		{
+			// Monuments do not receive mail.
+			break;
+		}
+
+		if(ordered)
+		{
+			visitor_targets.insert_ordered(gb, mail_level, compare_gebaeude_pos);
+		}
+		else 
+		{
+			mail_origins_and_targets.append(gb, mail_level);
+		}
+	}
+}
+
+void karte_t::remove_building_from_world_list(const gebaeude_t *gb)
+{
+	// We do not need to specify the type here, as we can try removing from all lists.
+	passenger_origins.remove(gb);
+	commuter_targets.remove(gb);
+	visitor_targets.remove(gb);
+	mail_origins_and_targets.remove(gb);
+}

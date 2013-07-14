@@ -1098,27 +1098,68 @@ static bool compare_gebaeude_pos(const gebaeude_t* a, const gebaeude_t* b)
 
 void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb, bool ordered)
 {
-	if (gb != NULL) {
+	if (gb != NULL)
+	{
 		const haus_tile_besch_t* tile  = gb->get_tile();
 		koord size = tile->get_besch()->get_groesse(tile->get_layout());
 		const koord pos = gb->get_pos().get_2d() - tile->get_offset();
 		koord k;
 
+		if(gb->get_haustyp() == gebaeude_t::unbekannt)
+		{
+			// Monument or town hall: add to the world list whole.
+			// Commuter, visitor and mail
+			welt->add_building_to_world_list(gb, karte_t::visitor_target, ordered);
+			welt->add_building_to_world_list(gb, karte_t::commuter_target, ordered);
+			welt->add_building_to_world_list(gb, karte_t::mail, ordered);
+		}
+
 		// add all tiles
-		for (k.y = 0; k.y < size.y; k.y++) {
-			for (k.x = 0; k.x < size.x; k.x++) {
-				if (gebaeude_t* const add_gb = ding_cast<gebaeude_t>(welt->lookup_kartenboden(pos + k)->first_obj())) {
-					if(add_gb->get_tile()->get_besch()!=gb->get_tile()->get_besch()) {
+		for (k.y = 0; k.y < size.y; k.y++)
+		{
+			for (k.x = 0; k.x < size.x; k.x++)
+			{
+				if (gebaeude_t* const add_gb = ding_cast<gebaeude_t>(welt->lookup_kartenboden(pos + k)->first_obj())) 
+				{
+					if(add_gb->get_tile()->get_besch()!=gb->get_tile()->get_besch())
+					{
 						dbg->error( "stadt_t::add_gebaeude_to_stadt()","two buildings \"%s\" and \"%s\" at (%i,%i): Game will crash during deletion", add_gb->get_tile()->get_besch()->get_name(), gb->get_tile()->get_besch()->get_name(), pos.x + k.x, pos.y + k.y);
 						buildings.remove(add_gb);
+						welt->remove_building_from_world_list(add_gb);
 					}
-					else {
-						if(  ordered  ) {
+					else 
+					{
+						if(ordered)
+						{
 							buildings.insert_ordered(add_gb, tile->get_besch()->get_level(), compare_gebaeude_pos);
 						}
-						else {
+						else 
+						{
 							buildings.append(add_gb, tile->get_besch()->get_level());
 						}
+						
+						// Also add to the world list for passenger generation purposes.
+						if(add_gb->get_haustyp() == gebaeude_t::wohnung)
+						{
+							// Residential - origin and mail
+							welt->add_building_to_world_list(add_gb, karte_t::passenger_origin, ordered);
+							welt->add_building_to_world_list(add_gb, karte_t::mail, ordered);
+						}
+						else if(add_gb->get_haustyp() == gebaeude_t::gewerbe)
+						{
+							// Commercial - commuter, visitor and mail
+							welt->add_building_to_world_list(add_gb, karte_t::visitor_target, ordered);
+							welt->add_building_to_world_list(add_gb, karte_t::commuter_target, ordered);
+							welt->add_building_to_world_list(add_gb, karte_t::mail, ordered);
+						}
+						else if(add_gb->get_haustyp() == gebaeude_t::industrie)
+						{
+							// Industrial - commuter and mail
+							welt->add_building_to_world_list(add_gb, karte_t::commuter_target, ordered);
+							welt->add_building_to_world_list(add_gb, karte_t::mail, ordered);
+						}
+							// Other (town hall and monuments) - commuter, visitor and mail
+							// Do nothing, as these have been added above.
 					}
 					add_gb->set_stadt(this);
 				}
@@ -1133,6 +1174,7 @@ void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb, bool ordered)
 void stadt_t::remove_gebaeude_from_stadt(gebaeude_t* gb)
 {
 	buildings.remove(gb);
+	welt->remove_building_from_world_list(gb);
 	gb->set_stadt(NULL);
 	reset_city_borders();
 }
@@ -1595,6 +1637,7 @@ stadt_t::~stadt_t()
 			// old buildings are not where they think they are, so we ask for map floor
 			gebaeude_t* const gb = buildings.front();
 			buildings.remove(gb);
+			welt->remove_building_from_world_list(gb);
 			assert(  gb!=NULL  &&  !buildings.is_contained(gb)  );
 			if(gb->get_tile()->get_besch()->get_utyp()==haus_besch_t::firmensitz)
 			{
@@ -3928,6 +3971,7 @@ koord stadt_t::get_zufallspunkt(uint32 min_distance, uint32 max_distance, koord 
 				// this building should not be in this list, since it has been already deleted!
 				dbg->error("stadt_t::get_zufallspunkt()", "illegal building in city list of %s: %p removing!", this->get_name(), gb);
 				const_cast<stadt_t*>(this)->buildings.remove(gb);
+				welt->remove_building_from_world_list(gb);
 				k = koord(0, 0);
 			}
 			const uint32 distance = shortest_distance(k, origin);

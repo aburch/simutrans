@@ -667,6 +667,11 @@ bool gebaeude_t::ist_firmensitz() const
 	return tile->get_besch()->ist_firmensitz();
 }
 
+bool gebaeude_t::is_attraction() const
+{
+	return tile->get_besch()->ist_ausflugsziel();
+}
+
 
 gebaeude_t::typ gebaeude_t::get_haustyp() const
 {

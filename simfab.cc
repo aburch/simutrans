@@ -57,6 +57,12 @@
 #include "simwin.h"
 #include "simgraph.h"
 
+#if MULTI_THREAD>1
+#include <pthread.h>
+static pthread_mutex_t sync_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t add_to_world_list_mutex = PTHREAD_MUTEX_INITIALIZER;
+#endif
+
 // Fabrik_t
 
 
@@ -360,6 +366,19 @@ void fabrik_t::update_scaled_pax_demand()
 	}
 	// pax demand for fixed period length
 	arrival_stats_pax.set_scaled_demand( pax_demand );
+
+	if(!welt->get_is_shutting_down())
+	{
+		// Must update the world building list to take into account the new passenger demand (weighting)
+		const grund_t* gr = welt->lookup(pos);
+		if(gr)
+		{
+			const gebaeude_t* gb = gr->find<gebaeude_t>();
+			welt->remove_building_from_world_list(gb);
+			welt->add_building_to_world_list(gb, karte_t::commuter_target, true);
+			welt->add_building_to_world_list(gb, karte_t::mail, true);
+		}
+	}
 }
 
 
@@ -386,6 +405,19 @@ void fabrik_t::update_scaled_mail_demand()
 	}
 	// mail demand for fixed period length
 	arrival_stats_mail.set_scaled_demand( mail_demand );
+
+	if(!welt->get_is_shutting_down())
+	{
+		// Must update the world building list to take into account the new passenger demand (weighting)
+		const grund_t* gr = welt->lookup(pos);
+		if(gr)
+		{
+			const gebaeude_t* gb = gr->find<gebaeude_t>();
+			welt->remove_building_from_world_list(gb);
+			welt->add_building_to_world_list(gb, karte_t::commuter_target, true);
+			welt->add_building_to_world_list(gb, karte_t::mail, true);
+		}
+	}
 }
 
 
@@ -960,6 +992,13 @@ fabrik_t::~fabrik_t()
 		{
 			transformer_connected->clear_factory();
 		}
+	}
+
+	const grund_t* gr = welt->lookup(pos);
+	if(gr)
+	{
+		const gebaeude_t* gb = gr->find<gebaeude_t>();
+		welt->remove_building_from_world_list(gb);
 	}
 }
 
@@ -2707,6 +2746,17 @@ void fabrik_t::laden_abschliessen()
 	// set production, update all production related numbers
 	set_base_production( max(prodbase, prodbase_adjust) );
 	mark_connected_roads(false);
+
+#if MULTI_THREAD>1
+			pthread_mutex_lock( &add_to_world_list_mutex );
+#endif
+			const grund_t* gr = welt->lookup(pos);
+			const gebaeude_t* gb = gr->find<gebaeude_t>();
+			welt->add_building_to_world_list(gb, karte_t::commuter_target, true);
+			welt->add_building_to_world_list(gb, karte_t::mail, true);
+#if MULTI_THREAD>1
+			pthread_mutex_unlock( &add_to_world_list_mutex );
+#endif
 }
 
 
