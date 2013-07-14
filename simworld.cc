@@ -7631,6 +7631,11 @@ void karte_t::add_building_to_world_list(const gebaeude_t *gb, building_type b, 
 				pthread_mutex_unlock( &add_to_city_mutex );
 		#endif
 				*/
+	assert(gb);
+	if(!gb)
+	{
+		return;
+	}
 
 	const haus_tile_besch_t* tile = gb->get_tile();
 	// FIXME: Calibrate these two types of level properly.
@@ -7706,13 +7711,13 @@ void karte_t::add_building_to_world_list(const gebaeude_t *gb, building_type b, 
 
 		if(ordered)
 		{
-			visitor_targets.insert_ordered(gb, mail_level, compare_gebaeude_pos);
+			mail_origins_and_targets.insert_ordered(gb, mail_level, compare_gebaeude_pos);
 		}
 		else 
 		{
 			mail_origins_and_targets.append(gb, mail_level);
 		}
-	}
+	};
 }
 
 void karte_t::remove_building_from_world_list(const gebaeude_t *gb)
@@ -7722,4 +7727,63 @@ void karte_t::remove_building_from_world_list(const gebaeude_t *gb)
 	commuter_targets.remove(gb);
 	visitor_targets.remove(gb);
 	mail_origins_and_targets.remove(gb);
+}
+
+void karte_t::update_weight_of_building_in_world_list(const gebaeude_t *gb, building_type b)
+{
+	if(!gb)
+	{
+		return;
+	}
+	const haus_tile_besch_t* tile = gb->get_tile();
+	// FIXME: Calibrate these two types of level properly.
+	uint16 passenger_level = gb->get_fabrik() ? gb->get_fabrik()->get_scaled_pax_demand() : tile->get_besch()->get_level();
+	const uint16 mail_level = gb->get_fabrik() ? gb->get_fabrik()->get_scaled_mail_demand() : tile->get_besch()->get_post_level();
+
+	switch(b)
+	{
+	case passenger_origin:
+		passenger_origins.update_at(passenger_origins.index_of(gb), passenger_level);
+		break;
+
+	case commuter_target:
+
+		if(gb->is_monument())
+		{
+			// Monuments are not commuter targets.
+			break;
+		}
+
+		if(gb->is_attraction())
+		{
+			// Attractions have fewer workers by comparison to visitors.
+			// FIXME: Make this customisable in simuconf.tab
+			passenger_level /= 2;
+		}
+
+		commuter_targets.update_at(passenger_origins.index_of(gb), passenger_level);
+		break;
+
+	case visitor_target:
+
+		if(gb->is_monument() || gb->is_attraction())
+		{
+			// Attractions/monuments have more visitors than commercial buildings
+			// FIXME: Make this customisable in simuconf.tab
+			passenger_level *= 2;
+		}
+
+		visitor_targets.update_at(passenger_origins.index_of(gb), passenger_level);
+		break;
+
+	case mail:
+	default:
+		if(gb->is_monument())
+		{
+			// Monuments do not receive mail.
+			break;
+		}
+
+		mail_origins_and_targets.update_at(passenger_origins.index_of(gb), mail_level);
+	};
 }

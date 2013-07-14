@@ -1348,6 +1348,13 @@ public:
 	*/
 	void remove_building_from_world_list(const gebaeude_t *gb);
 
+/**
+	* Updates the weight of a building in the world list if it changes its
+	* passenger/mail demand	
+	* @author: jamespetts
+	*/
+	void update_weight_of_building_in_world_list(const gebaeude_t *gb, building_type b);
+
 private:
 	/*
 	 * This is a cache to speed up several unit conversions and avoid

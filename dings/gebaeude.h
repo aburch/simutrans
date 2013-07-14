@@ -248,6 +248,8 @@ public:
 	void new_year();
 
 	void check_road_tiles(bool del);
+
+	uint16 get_weight() const;
 };
 
 

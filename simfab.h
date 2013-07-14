@@ -712,6 +712,8 @@ public:
 	 * Returns a list of goods produced by this factory.
 	 */
 	slist_tpl<const ware_besch_t*> *get_produced_goods() const;
+
+	void add_to_world_list(bool lock = false);
 };
 
 #endif

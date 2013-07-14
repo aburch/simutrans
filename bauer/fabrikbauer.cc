@@ -412,6 +412,7 @@ fabrik_t* fabrikbauer_t::baue_fabrik(karte_t* welt, koord3d* parent, const fabri
 
 	// And adjust local roads
 	fab->mark_connected_roads(false);
+	fab->add_to_world_list();
 
 	// Adjust the actual industry density
 	welt->increase_actual_industry_density(100 / info->get_gewichtung());

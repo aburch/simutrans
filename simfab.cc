@@ -374,9 +374,7 @@ void fabrik_t::update_scaled_pax_demand()
 		if(gr)
 		{
 			const gebaeude_t* gb = gr->find<gebaeude_t>();
-			welt->remove_building_from_world_list(gb);
-			welt->add_building_to_world_list(gb, karte_t::commuter_target, true);
-			welt->add_building_to_world_list(gb, karte_t::mail, true);
+			welt->update_weight_of_building_in_world_list(gb, karte_t::commuter_target);
 		}
 	}
 }
@@ -413,9 +411,7 @@ void fabrik_t::update_scaled_mail_demand()
 		if(gr)
 		{
 			const gebaeude_t* gb = gr->find<gebaeude_t>();
-			welt->remove_building_from_world_list(gb);
-			welt->add_building_to_world_list(gb, karte_t::commuter_target, true);
-			welt->add_building_to_world_list(gb, karte_t::mail, true);
+			welt->update_weight_of_building_in_world_list(gb, karte_t::mail);
 		}
 	}
 }
@@ -2747,16 +2743,7 @@ void fabrik_t::laden_abschliessen()
 	set_base_production( max(prodbase, prodbase_adjust) );
 	mark_connected_roads(false);
 
-#if MULTI_THREAD>1
-			pthread_mutex_lock( &add_to_world_list_mutex );
-#endif
-			const grund_t* gr = welt->lookup(pos);
-			const gebaeude_t* gb = gr->find<gebaeude_t>();
-			welt->add_building_to_world_list(gb, karte_t::commuter_target, true);
-			welt->add_building_to_world_list(gb, karte_t::mail, true);
-#if MULTI_THREAD>1
-			pthread_mutex_unlock( &add_to_world_list_mutex );
-#endif
+	add_to_world_list(true);
 }
 
 
@@ -2888,4 +2875,24 @@ slist_tpl<const ware_besch_t*> *fabrik_t::get_produced_goods() const
 	}
 
 	return goods;
+}
+
+void fabrik_t::add_to_world_list(bool lock)
+{
+#if MULTI_THREAD>1
+			if(lock) pthread_mutex_lock(&add_to_world_list_mutex);
+#endif
+			const grund_t* gr = welt->lookup(pos);
+			const gebaeude_t* gb = gr->find<gebaeude_t>();
+			welt->add_building_to_world_list(gb, karte_t::commuter_target, lock);
+			if(is_end_consumer())
+			{
+				// Consumer only factory - also add as a visitor target, as this is (probably) a shop.
+				// TODO: Add a .dat file parameter to permit this to be disabled for certain industries (e.g. gasworks)
+				welt->add_building_to_world_list(gb, karte_t::visitor_target, lock);
+			}
+			welt->add_building_to_world_list(gb, karte_t::mail, lock);
+#if MULTI_THREAD>1
+			if(lock) pthread_mutex_unlock(&add_to_world_list_mutex);
+#endif
 }

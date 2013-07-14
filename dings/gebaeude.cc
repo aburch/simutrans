@@ -1231,3 +1231,8 @@ void gebaeude_t::mark_images_dirty() const
 		mark_image_dirty( img, -(i*get_tile_raster_width()) );
 	}
 }
+
+uint16 gebaeude_t::get_weight() const
+{
+	return this->tile->get_besch()->get_level();
+}
