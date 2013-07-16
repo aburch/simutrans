@@ -642,6 +642,11 @@ DBG_MESSAGE("karte_t::destroy()", "destroying world");
 
 	is_shutting_down = true;
 
+	passenger_origins.clear();
+	commuter_targets.clear();
+	visitor_targets.clear();
+	mail_origins_and_targets.clear();
+
 	uint32 max_display_progress = 256+stadt.get_count()*10 + haltestelle_t::get_alle_haltestellen().get_count() + convoi_array.get_count() + (cached_size.x*cached_size.y)*2;
 	uint32 old_progress = 0;
 
@@ -4927,7 +4932,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 
 				// Because passengers/mail now register as transported on delivery, these are needed here
 				// to keep an accurate record of the proportion transported.
-				stadt_t* const destination_town = destinations[0].type == 1 ? destinations[0].object.town : NULL;
+				stadt_t* const destination_town = get_city(destinations[0].location);
 				if(destination_town)
 				{
 					destination_town->set_generated_passengers(pax_left_to_do, history_type + 1);
