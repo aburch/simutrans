@@ -89,19 +89,24 @@ sprachengui_t::sprachengui_t() :
 	flags(skinverwaltung_t::flaggensymbol?skinverwaltung_t::flaggensymbol->get_bild_nr(0):IMG_LEER),
 	buttons(translator::get_language_count())
 {
-	buf.clear();
-	buf.append(translator::translate("LANG_CHOOSE\n"));
-	text_label.set_pos( koord(D_MARGIN_LEFT,D_MARGIN_TOP) );
-	add_komponente( &text_label );
+	// Coordinates are relative to parent (TITLEHEIGHT already substracted)
+	koord cursor = koord(D_MARGIN_LEFT,D_MARGIN_TOP);
 
-	flags.set_pos( koord(DIALOG_WIDTH-D_MARGIN_RIGHT-flags.get_groesse().x,-3) );
+	flags.enable_offset_removal(true);
+	flags.set_pos( koord(DIALOG_WIDTH-D_MARGIN_RIGHT-flags.get_groesse().x, cursor.y) );
 	add_komponente( &flags);
 
-	seperator.set_pos( koord(D_MARGIN_LEFT, 37) );
-	seperator.set_groesse( koord(DIALOG_WIDTH-D_MARGIN_RIGHT-flags.get_groesse().x-D_MARGIN_LEFT-D_V_SPACE,0) );
-	add_komponente( &seperator );
+	buf.clear();
+	buf.append(translator::translate("LANG_CHOOSE\n"));
+	text_label.set_pos( cursor );
+	text_label.set_buf(&buf); // force recalculation of size (groesse)
+	add_komponente( &text_label );
+	cursor.y += text_label.get_groesse().y;
 
-	sint16 y_size = max( seperator.get_pos().y + seperator.get_groesse().y, flags.get_pos().y + flags.get_groesse().y) + D_H_SPACE;
+	seperator.set_pos( cursor );
+	seperator.set_width( DIALOG_WIDTH-D_MARGIN_LEFT-D_H_SPACE-flags.get_groesse().x-D_MARGIN_RIGHT );
+	add_komponente( &seperator );
+	cursor.y = max( seperator.get_pos().y + D_DIVIDER_HEIGHT, flags.get_pos().y + flags.get_groesse().y);
 
 	const translator::lang_info* lang = translator::get_langs();
 	for (int i = 0; i < translator::get_language_count(); ++i, ++lang) {
@@ -117,14 +122,15 @@ sprachengui_t::sprachengui_t() :
 		char prop_font_file_name [1024];
 		sprintf(prop_font_file_name, "%s%s", FONT_PATH_X, fontname);
 		bool ok = true;
+
 		font_type fnt;
 		fnt.screen_width = NULL;
 		fnt.char_data = NULL;
-		if(  *fontname==0  ||  !load_font(&fnt,prop_font_file_name)  ) {
+		if(  *fontname == 0  ||  !load_font(&fnt,prop_font_file_name)  ) {
 			ok = false;
 		}
 		else {
-			if(  lang->utf_encoded  &&  fnt.num_chars<=256  ) {
+			if(  lang->utf_encoded  &&  fnt.num_chars <= 256  ) {
 				dbg->warning( "sprachengui_t::sprachengui_t()", "Unicode language %s needs BDF fonts with most likely more than 256 characters!", lang->name );
 			}
 			free(fnt.screen_width);
@@ -156,24 +162,24 @@ sprachengui_t::sprachengui_t() :
 	const uint32 count = buttons.get_count();
 	for(uint32 i=0; i<count; i++)
 	{
-		const bool right = 2*i >= count;
-		const sint16 x = D_MARGIN_LEFT + (right  ? DIALOG_WIDTH/2 : 0);
-		const sint16 y = y_size + D_BUTTON_HEIGHT * (right ? i - (count+1)/2: i);
-		buttons[i].button->set_pos(koord(x,y));
+		const bool right = (2*i >= count);
+		const sint16 x = cursor.x + (right  ? (DIALOG_WIDTH-D_MARGIN_LEFT-D_MARGIN_RIGHT)/2 : 0);
+		const sint16 y = cursor.y + (D_BUTTON_SQUARE+D_V_SPACE)*(right ? i - (count+1)/2: i);
+		buttons[i].button->set_pos(koord(x,y+D_V_SPACE));
 		add_komponente( buttons[i].button );
 	}
 
 	chdir(umgebung_t::user_dir);
 
-	set_fenstergroesse( koord(DIALOG_WIDTH, D_MARGIN_BOTTOM+y_size+( (buttons.get_count()+1)/2 + 1)*D_BUTTON_HEIGHT) );
+	set_fenstergroesse( koord(DIALOG_WIDTH, D_TITLEBAR_HEIGHT + cursor.y + ((count+1)>>1)*(D_BUTTON_SQUARE+D_V_SPACE) + D_MARGIN_BOTTOM ) );
 }
-
 
 
 bool sprachengui_t::action_triggered( gui_action_creator_t *komp, value_t)
 {
 	for(int i=0; i<translator::get_language_count(); i++) {
 		button_t *b = buttons[i].button;
+
 		if(b == komp) {
 			b->pressed = true;
 			translator::set_language(buttons[i].id);
@@ -182,6 +188,7 @@ bool sprachengui_t::action_triggered( gui_action_creator_t *komp, value_t)
 		else {
 			b->pressed = false;
 		}
+
 	}
 	return true;
 }

@@ -1,14 +1,70 @@
 #ifndef __SIMSKIN_H
 #define __SIMSKIN_H
 
+#include "simcolor.h"
 
 template<class T> class slist_tpl;
 class skin_besch_t;
 
+enum skin_images_t {
+	SKIN_WINDOW_BACKGROUND, // 0
+	SKIN_GADGET_CLOSE,
+	SKIN_GADGET_HELP,
+	SKIN_GADGET_MINIMIZE,
+	SKIN_BUTTON_PREVIOUS,
+	SKIN_BUTTON_NEXT,
+	SKIN_BUTTON_CHECKBOX,
+	SKIN_BUTTON_CHECKBOX_CHECKED,
+	SKIN_BUTTON_ARROW_LEFT,
+	SKIN_BUTTON_ARROW_LEFT_PRESSED,
+	SKIN_BUTTON_ARROW_RIGHT, // 10
+	SKIN_BUTTON_ARROW_RIGHT_PRESSED,
+	SKIN_BUTTON_SIDE_LEFT,
+	SKIN_BUTTON_SIDE_RIGHT,
+	SKIN_BUTTON_BODY,
+	SKIN_BUTTON_SIDE_LEFT_PRESSED,
+	SKIN_BUTTON_SIDE_RIGHT_PRESSED,
+	SKIN_BUTTON_BODY_PRESSED,
+	SKIN_BUTTON_ARROW_UP,
+	SKIN_BUTTON_ARROW_UP_PRESSED,
+	SKIN_BUTTON_ARROW_DOWN, // 20
+	SKIN_BUTTON_ARROW_DOWN_PRESSED,
+	SKIN_GADGET_NOTPINNED,
+	SKIN_GADGET_PINNED,
+	SKIN_SCROLLBAR_H_BACKGROUND_LEFT,
+	SKIN_SCROLLBAR_H_BACKGROUND_RIGHT,
+	SKIN_SCROLLBAR_H_BACKGROUND,
+	SKIN_SCROLLBAR_H_KNOB_LEFT,
+	SKIN_SCROLLBAR_H_KNOB_RIGHT,
+	SKIN_SCROLLBAR_H_KNOB_BODY,
+	SKIN_SCROLLBAR_V_BACKGROUND_TOP, // 30
+	SKIN_SCROLLBAR_V_BACKGROUND_BOTTOM,
+	SKIN_SCROLLBAR_V_BACKGROUND,
+	SKIN_SCROLLBAR_V_KNOB_TOP,
+	SKIN_SCROLLBAR_V_KNOB_BOTTOM,
+	SKIN_SCROLLBAR_V_KNOB_BODY,
+	SKIN_WINDOW_RESIZE,
+	SKIN_GADGET_GOTO,
+	SKIN_GADGET_BUTTON
+};
 
 class skinverwaltung_t {
 public:
 	enum skintyp_t { nothing, menu, cursor, symbol, misc };
+
+	/// @name system colours used by gui components
+	/// @{
+	static COLOR_VAL theme_color_highlight;           //@< Colour to draw highlighs in dividers, buttons etc... MN_GREY4
+	static COLOR_VAL theme_color_shadow;              //@< Colour to draw shadows in dividers, buttons etc...   MN_GREY0
+	static COLOR_VAL theme_color_face;                //@< Colour to draw surface in buttons etc...             MN_GREY2
+	static COLOR_VAL theme_color_text;                //@< Colour to draw interactive text in buttons, checkbox etc...
+	static COLOR_VAL theme_color_static_text;         //@< Colour to draw non interactive text in labels etc...
+	static COLOR_VAL theme_color_disabled_text;       //@< Colour to draw disabled text in buttons etc...
+
+	// Not implemented yet
+	static COLOR_VAL theme_color_selected_text;       //@< Colour to draw selected text in edit box etc...
+	static COLOR_VAL theme_color_selected_background; //@< Colour to draw selected text background in edit box etc...
+	/// @}
 
 	/// @name icons used in the toolbars
 	/// @{

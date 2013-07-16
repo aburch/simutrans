@@ -5,10 +5,6 @@
  * (see licence.txt)
  */
 
-/*
- * Intro banner and everything else
- */
-
 #ifndef banner_h
 #define banner_h
 
@@ -18,12 +14,11 @@
 
 class karte_t;
 
-/**
- * Eine Klasse, die ein Fenster zur Auswahl von bis zu acht
- * Parametern für ein Werkzeug per Icon darstellt.
- *
- * @author Hj. Malthaner
+/*
+ * Class to generates the welcome screen with the scrolling
+ * text to celebrate contributors.
  */
+
 class banner_t : public gui_frame_t, action_listener_t
 {
 private:
@@ -31,7 +26,12 @@ private:
 	int line;
 	sint16 xoff, yoff;
 
-	button_t new_map, load_map, load_scenario, join_map, quit;
+	button_t
+		new_map,
+		load_map,
+		load_scenario,
+		join_map, quit;
+
 	gui_image_t logo;
 
 	karte_t *welt;

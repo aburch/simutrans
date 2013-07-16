@@ -87,6 +87,15 @@ public:
 		square_automatic=257
 	};
 
+protected:
+
+	/**
+	 * Hide the base class init() version to force use of
+	 * the extended init() version for buttons.
+	 * @author Max Kielland
+	 */
+	gui_komponente_t::init;
+
 private:
 	/**
 	 * Tooltip for this button
@@ -120,11 +129,27 @@ private:
 	// draw a rectangular button
 	void draw_roundbutton(sint16 x, sint16 y, sint16 w, sint16 h, bool pressed);
 
+	void draw_focus_rect(koord xy, koord wh, KOORD_VAL offset = 1);
+
 	// scrollbar either skinned or simple
 	void draw_scrollbar(sint16 x, sint16 y, sint16 w, sint16 h, bool horizontal, bool slider);
 
 public:
-	static void init_button_images();	// must be called at least once after loading skins
+
+	// button sizes
+	static koord gui_button_size;
+	static koord gui_checkbox_size;
+	static koord gui_arrow_left_size;
+	static koord gui_arrow_right_size;
+	static koord gui_arrow_up_size;
+	static koord gui_arrow_down_size;
+	static koord gui_scrollbar_size;
+	static koord gui_scrollknob_size;
+
+	// length of "..."
+	static KOORD_VAL text_cap_len; // Must be initialised AFTER the font has been loaded.
+
+	static void init_button_images(); // must be called at least once after loading skins
 
 	PLAYER_COLOR_VAL background; //@author hsiegeln
 	PLAYER_COLOR_VAL foreground;
@@ -178,9 +203,9 @@ public:
 	 */
 	void zeichnen(koord offset);
 
-	void enable() { b_enabled = true; }
+	void enable(bool true_false_par = true) { b_enabled = true_false_par; }
 
-	void disable() { b_enabled = false; }
+	void disable() { enable(false); }
 
 	bool enabled() { return b_enabled; }
 

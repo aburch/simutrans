@@ -15,12 +15,13 @@
 #ifndef gui_components_gui_numberinput_h
 #define gui_components_gui_numberinput_h
 
-#include "gui_action_creator.h"
-#include "gui_textinput.h"
-#include "gui_button.h"
 #include "../../simtypes.h"
 #include "../../dataobj/koord.h"
 #include "action_listener.h"
+#include "gui_action_creator.h"
+#include "gui_textinput.h"
+#include "gui_button.h"
+
 
 class gui_numberinput_t :
 	public gui_action_creator_t,
@@ -63,6 +64,7 @@ public:
 	virtual ~gui_numberinput_t() {}
 
 	void set_groesse(koord groesse) OVERRIDE;
+	//void set_groesse(KOORD_VAL size_x_par, KOORD_VAL size_y_par) OVERRIDE;
 
 	// all init in one ...
 	void init( sint32 value, sint32 min, sint32 max, sint32 mode, bool wrap );

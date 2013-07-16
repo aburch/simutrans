@@ -191,8 +191,8 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 
 	cnv->set_sortby( umgebung_t::default_sortmode );
 
-	set_fenstergroesse(koord(total_width, view.get_groesse().y+208+scrollbar_t::BAR_SIZE));
-	set_min_windowsize(koord(total_width, view.get_groesse().y+131+scrollbar_t::BAR_SIZE));
+	set_fenstergroesse(koord(total_width, view.get_groesse().y+208+button_t::gui_scrollbar_size.y));
+	set_min_windowsize(koord(total_width, view.get_groesse().y+131+button_t::gui_scrollbar_size.y));
 
 	set_resizemode(diagonal_resize);
 	resize(koord(0,0));

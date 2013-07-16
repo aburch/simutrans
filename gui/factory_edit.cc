@@ -35,15 +35,11 @@ wkz_build_industries_city_t factory_edit_frame_t::city_chain_tool = wkz_build_in
 wkz_build_factory_t factory_edit_frame_t::fab_tool = wkz_build_factory_t();
 char factory_edit_frame_t::param_str[256];
 
-
-
 static bool compare_fabrik_besch(const fabrik_besch_t* a, const fabrik_besch_t* b)
 {
 	int diff = strcmp( translator::translate(a->get_name()), translator::translate(b->get_name()) );
 	return diff < 0;
 }
-
-
 
 factory_edit_frame_t::factory_edit_frame_t(spieler_t* sp_, karte_t* welt) :
 	extend_edit_gui_t(translator::translate("factorybuilder"), sp_, welt),

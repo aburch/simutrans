@@ -163,6 +163,13 @@ enum simwin_gadget_et { GADGET_CLOSE, GADGET_HELP, GADGET_SIZE, GADGET_PREV, GAD
  * Reads theme configuration data, still not final
  * searches first in user dir, pak dir, program dir
  * @author prissi
+ *
+ * Max Kielland:
+ * Note, there will be a theme manager later on and
+ * each gui object will find their own parameters by
+ * themself after registering its class to the theme
+ * manager. This will be done as the last step in
+ * the chain when loading a theme.
  */
 bool themes_init(const char *dir_name)
 {
@@ -188,15 +195,24 @@ bool themes_init(const char *dir_name)
 	gui_frame_t::gui_vspace = (uint32)contents.get_int("gui_vspace", gui_frame_t::gui_vspace );
 
 	// those two will be anyway set whenever the buttons are reinitialized
-	gui_frame_t::gui_button_width = (uint32)contents.get_int("gui_button_width", gui_frame_t::gui_button_width );
-	gui_frame_t::gui_button_width = (uint32)contents.get_int("gui_button_width", gui_frame_t::gui_button_width );
+	// Max Kielland: This has been moved to button_t
+	button_t::gui_button_size.x = (uint32)contents.get_int("gui_button_width", button_t::gui_button_size.x );
+	button_t::gui_button_size.y = (uint32)contents.get_int("gui_button_height", button_t::gui_button_size.y );
+
+	skinverwaltung_t::theme_color_text = (COLOR_VAL)contents.get_int("gui_text_color",skinverwaltung_t::theme_color_text);
+	skinverwaltung_t::theme_color_static_text = (COLOR_VAL)contents.get_int("gui_static_text_color",skinverwaltung_t::theme_color_static_text);
+	skinverwaltung_t::theme_color_disabled_text = (COLOR_VAL)contents.get_int("gui_disabled_text_color",skinverwaltung_t::theme_color_disabled_text);
+	skinverwaltung_t::theme_color_highlight = (COLOR_VAL)contents.get_int("gui_highlight_color",skinverwaltung_t::theme_color_highlight);
+	skinverwaltung_t::theme_color_shadow = (COLOR_VAL)contents.get_int("gui_shadow_color",skinverwaltung_t::theme_color_shadow);
+	skinverwaltung_t::theme_color_face = (COLOR_VAL)contents.get_int("gui_face_color",skinverwaltung_t::theme_color_face);
 
 	// those two may be rather an own control later on?
 	gui_frame_t::gui_indicator_width = (uint32)contents.get_int("gui_indicator_width", gui_frame_t::gui_indicator_width );
 	gui_frame_t::gui_indicator_height = (uint32)contents.get_int("gui_indicator_height", gui_frame_t::gui_indicator_height );
 
 	// other gui parameter
-	scrollbar_t::BAR_SIZE = (uint32)contents.get_int("gui_scrollbar_width", scrollbar_t::BAR_SIZE );
+	// Max Kielland: Scrollbar size is set by the arrow size in button_t
+	//scrollbar_t::BAR_SIZE = (uint32)contents.get_int("gui_scrollbar_width", scrollbar_t::BAR_SIZE );
 	gui_tab_panel_t::header_vsize = (uint32)contents.get_int("gui_tab_header_vsize", gui_tab_panel_t::header_vsize );
 
 	// stuff in umgebung_t but ratehr GUI	umgebung_t::window_snap_distance = contents.get_int("window_snap_distance", umgebung_t::window_snap_distance );

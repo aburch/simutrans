@@ -1,3 +1,7 @@
+/* This file is part of the Simutrans project under the artistic licence.
+ * (see licence.txt)
+ */
+
 #ifndef gui_scrollbar_h
 #define gui_scrollbar_h
 
@@ -20,15 +24,23 @@ public:
 	enum type { vertical, horizontal };
 
 	// width/height of bar part
-	static sint16 BAR_SIZE;
+	//static sint16 BAR_SIZE;
 
 private:
 	enum type type;
 
+	// private button indexes
+	enum button_element_index {
+		left_top_arrow_index,
+		right_bottom_arrow_index,
+		knob_index,
+		background_index
+	};
+
 	// the following three values are from host (e.g. list), NOT actual size.
 	sint32 knob_offset; // offset from top-left
-	sint32 knob_size; // size of scrollbar knob
-	sint32 knob_area; // size of area where knob moves in
+	sint32 knob_size;   // size of scrollbar knob
+	sint32 knob_area;   // size of area where knob moves in
 
 	/**
 	 * number of pixels to scroll with arrow button press. default: 11 pixels
@@ -48,9 +60,9 @@ private:
 	 */
 	int real_knob_position() {
 		if (type == vertical) {
-			return button_def[2].get_pos().y-12;
+			return button_def[knob_index].get_pos().y-12;
 		} else /* horizontal */ {
-			return button_def[2].get_pos().x-12;
+			return button_def[knob_index].get_pos().x-12;
 		}
 	}
 

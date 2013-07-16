@@ -31,7 +31,8 @@ class settings_t;
 // call this befor any init is done ...
 #define INIT_INIT \
 	width = 16;\
-	sint16 ypos = 4;\
+	height = 0;\
+	sint16 ypos = 0;\
 	remove_all();\
 	free_all();\
 	seperator = 0;\
@@ -43,16 +44,16 @@ class settings_t;
 	width = max(width, proportional_string_width(t)+66);\
 	gui_numberinput_t *ni = new gui_numberinput_t();\
 	ni->init( (sint32)(a), (b), (c), (d), (e) );\
-	ni->set_pos( koord( D_MARGIN_LEFT, ypos ) );\
-	ni->set_groesse( koord( 37+7*max(1,(sint16)(log10((double)(c)+1.0)+0.5)), D_BUTTON_HEIGHT ) );\
+	ni->set_pos( koord( 0, ypos ) );\
+	ni->set_groesse( koord( 37+7*max(1,(sint16)(log10((double)(c)+1.0)+0.5)), D_EDIT_HEIGHT ) );\
 	numinp.append( ni );\
 	add_komponente( ni );\
 	gui_label_t *lb = new gui_label_t();\
 	lb->set_text_pointer(t);\
-	lb->set_pos( koord( D_MARGIN_LEFT + ni->get_groesse().x + 6, ypos + 2 ) );\
+	lb->align_to(ni, ALIGN_CENTER_V + ALIGN_EXTERIOR_H + ALIGN_LEFT, koord(D_H_SPACE,0) );\
 	label.append( lb );\
 	add_komponente( lb );\
-	ypos += D_BUTTON_HEIGHT;\
+	ypos += D_EDIT_HEIGHT;\
 }\
 
 #define INIT_NUM_NEW(t,a,b,c,d,e) if(  new_world  ) INIT_NUM( (t), (a), (b), (c), (d) , (e) )
@@ -62,16 +63,16 @@ class settings_t;
 	width = max(width, proportional_string_width(t)+66);\
 	gui_numberinput_t *ni = new gui_numberinput_t();\
 	ni->init( (sint32)( (a)/(sint64)100 ), (b), (c), (d), (e) );\
-	ni->set_pos( koord( D_MARGIN_LEFT, ypos ) );\
-	ni->set_groesse( koord( 37+7*max(1,(sint16)(log10((double)(c)+1.0)+0.5)), D_BUTTON_HEIGHT ) );\
+	ni->set_pos( koord( 0, ypos ) );\
+	ni->set_groesse( koord( 37+7*max(1,(sint16)(log10((double)(c)+1.0)+0.5)), D_EDIT_HEIGHT ) );\
 	numinp.append( ni );\
 	add_komponente( ni );\
 	gui_label_t *lb = new gui_label_t();\
 	lb->set_text_pointer(t);\
-	lb->set_pos( koord( D_MARGIN_LEFT + ni->get_groesse().x + 6, ypos + 2 ) );\
+	lb->align_to(ni, ALIGN_CENTER_V + ALIGN_EXTERIOR_H + ALIGN_LEFT, koord(D_H_SPACE,0) );\
 	label.append( lb );\
 	add_komponente( lb );\
-	ypos += D_BUTTON_HEIGHT;\
+	ypos += D_EDIT_HEIGHT;\
 }\
 
 #define INIT_COST_NEW(t,a,b,c,d,e) if(  new_world  ) INIT_COST( (t), (a), (b), (c), (d) , (e) )
@@ -81,10 +82,10 @@ class settings_t;
 	width = max(width, proportional_string_width(t)+4);\
 	gui_label_t *lb = new gui_label_t();\
 	lb->set_text_pointer(t);\
-	lb->set_pos( koord( D_MARGIN_LEFT + 2, ypos ) );\
+	lb->set_pos( koord( 0, ypos ) );\
 	label.append( lb );\
 	add_komponente( lb );\
-	ypos += D_BUTTON_HEIGHT;\
+	ypos += LINESPACE;\
 }\
 
 #define INIT_LB_NEW(t) if(  new_world  ) INIT_LB( (t) )
@@ -93,17 +94,17 @@ class settings_t;
 {\
 	width = max(width, proportional_string_width(t)+20);\
 	button_t *bt = new button_t();\
-	bt->init( button_t::square_automatic, (t), koord( D_MARGIN_LEFT, ypos ) );\
+	bt->init( button_t::square_automatic, (t), koord( 0, ypos ) );\
 	bt->pressed = (a);\
 	button.append( bt );\
 	add_komponente( bt );\
-	ypos += D_BUTTON_HEIGHT;\
+	ypos += D_BUTTON_SQUARE;\
 }\
 
 #define INIT_BOOL_NEW(t,a) if(  new_world  ) INIT_BOOL( (t), (a) )
 
 #define SEPERATOR \
-	ypos += 7;\
+	ypos += D_V_SPACE;\
 	seperator += 1;\
 
 
@@ -144,7 +145,7 @@ class settings_t;
 class settings_stats_t
 {
 protected:
-	sint16 width, seperator;
+	sint16 width, height, seperator;
 	bool new_world;
 	// since the copy constructor will no copy the right action listener => pointer
 	slist_tpl<gui_label_t *> label;
@@ -161,7 +162,8 @@ public:
 	void read(settings_t const*);
 
 	koord get_groesse() const {
-		return koord(width,(button.get_count()+label.get_count())*D_BUTTON_HEIGHT+seperator*7+6);
+		//return koord(width,(button.get_count()*D_BUTTON_HEIGHT+label.get_count())*LINESPACE+seperator*D_V_SPACE+6);
+		return koord(width,height);
 	}
 };
 

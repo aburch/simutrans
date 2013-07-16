@@ -11,6 +11,7 @@
 #define gui_gui_label_h
 
 #include "gui_komponente.h"
+#include "../../simskin.h"
 #include "../../simcolor.h"
 
 
@@ -46,15 +47,20 @@ private:
 	const char * text;	// only for direct acess of non-translateable things. Do not use!
 	const char * tooltip;
 
+protected:
+	gui_komponente_t::init;
+
 public:
-	gui_label_t(const char* text=NULL, COLOR_VAL color=COL_BLACK, align_t align=left);
+	//gui_label_t(const char* text=NULL, COLOR_VAL color=COL_BLACK, align_t align=left);
+	gui_label_t(const char* text=NULL, COLOR_VAL color=skinverwaltung_t::theme_color_static_text, align_t align=left);
 
 	// one stop init
-	void init( const char* t, koord p, COLOR_VAL c=COL_BLACK, align_t a=left) {
-		set_pos( p );
-		set_text( t );
-		color = c;
-		align = a;
+	//void init( const char* text_par, koord pos_par, COLOR_VAL color_par=COL_BLACK, align_t align_par=left) {
+	void init( const char* text_par, koord pos_par, COLOR_VAL color_par=skinverwaltung_t::theme_color_static_text, align_t align_par=left) {
+		set_pos( pos_par );
+		set_text( text_par );
+		set_color( color_par );
+		set_align( align_par );
 	}
 
 	/**

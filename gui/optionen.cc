@@ -88,9 +88,10 @@ optionen_gui_t::optionen_gui_t(karte_t *welt) :
 
 			// Squeeze in divider
 			case BUTTON_QUIT:
+				cursor.y -= D_V_SPACE;
 				divider.init( koord(D_MARGIN_LEFT, cursor.y), cursor.x - D_MARGIN_LEFT + D_BUTTON_WIDTH );
 				add_komponente( &divider );
-				cursor.y += divider.get_groesse().y+D_V_SPACE;
+				cursor.y += divider.get_groesse().y; //+D_V_SPACE;
 				break;
 
 		}

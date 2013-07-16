@@ -15,10 +15,10 @@
 
 #include "../dataobj/koord.h"
 #include "../simgraph.h"
-#include "gui_container.h"
 #include "../simcolor.h"
 #include "../dataobj/koord3d.h"
-
+#include "gui_container.h"
+#include "components/gui_button.h"
 
 class loadsave_t;
 class spieler_t;
@@ -36,18 +36,18 @@ class spieler_t;
  */
 
 // Set to 1 for theme test case, 0 "original" look.
-#define THEME_TEST 0
+#define THEME_TEST 1
 
 // theme system colours
-#define SYS_COL_HIGHLIGHT MN_GREY4
-#define SYS_COL_SHADOW    MN_GREY0
-#define SYS_COL_FACE      MN_GREY2
+//#define SYS_COL_HIGHLIGHT MN_GREY4
+//#define SYS_COL_SHADOW    MN_GREY0
+//#define SYS_COL_FACE      MN_GREY2
 
 // default edit field height
-#define D_EDIT_HEIGHT (D_BUTTON_HEIGHT)
+#define D_EDIT_HEIGHT (LINESPACE+4)
 
 // default square button xy size (replace with real values from the skin images)
-#define D_BUTTON_SQUARE (LINESPACE)
+#define D_BUTTON_SQUARE (button_t::gui_checkbox_size.y)
 
 // statusbar bottom of screen
 #define D_STATUSBAR_HEIGHT (16)
@@ -56,16 +56,16 @@ class spieler_t;
 #define D_GADGET_SIZE (gui_frame_t::gui_gadget_size)
 
 // Arrow size (replace with real values from the skin images)
-#define D_ARROW_WIDTH  (10)
-#define D_ARROW_HEIGHT (10)
+//#define D_ARROW_WIDTH  (10)
+//#define D_ARROW_HEIGHT (10)
 
 // Scrollbar params (replace with real values from the skin images)
 #define KNOB_SIZE        (32)
-#define D_SCROLLBAR_SIZE (scrollbar_t::BAR_SIZE)
+//#define D_SCROLLBAR_SIZE (scrollbar_t::BAR_SIZE)
 
 // default button width (may change with langugae and font)
-#define D_BUTTON_WIDTH (gui_frame_t::gui_button_width)
-#define D_BUTTON_HEIGHT (gui_frame_t::gui_button_height)
+#define D_BUTTON_WIDTH (button_t::gui_button_size.x)
+#define D_BUTTON_HEIGHT (button_t::gui_button_size.y)
 
 // titlebar height
 #define D_TITLEBAR_HEIGHT (gui_frame_t::gui_titlebar_height)
@@ -128,8 +128,8 @@ public:
 	};
 
 	// default button sizes
-	static KOORD_VAL gui_button_width;
-	static KOORD_VAL gui_button_height;
+	//static KOORD_VAL gui_button_width;
+	//static KOORD_VAL gui_button_height;
 
 	// titlebar height
 	static KOORD_VAL gui_titlebar_height;

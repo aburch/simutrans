@@ -19,11 +19,12 @@
 #include "../../simwin.h"
 
 gui_label_t::gui_label_t(const char* text, COLOR_VAL color_, align_t align_) :
-	align(align_),
-	color(color_),
+	//align(align_),
+	//color(color_),
 	tooltip(NULL)
 {
-	set_text( text );
+	//set_text( text );
+	init( text, koord (0,0), color_, align_);
 }
 
 

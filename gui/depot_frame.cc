@@ -464,7 +464,7 @@ void depot_frame_t::layout(koord *gr)
 
 	pas.set_grid(grid);
 	pas.set_placement(placement);
-	pas.set_groesse(tabs.get_groesse() - koord(scrollbar_t::BAR_SIZE,0));
+	pas.set_groesse(tabs.get_groesse() - koord(button_t::gui_scrollbar_size.x,0));
 	pas.recalc_size();
 	pas.set_pos(koord(0,0));
 	cont_pas.set_groesse(pas.get_groesse());
@@ -475,7 +475,7 @@ void depot_frame_t::layout(koord *gr)
 
 	electrics.set_grid(grid);
 	electrics.set_placement(placement);
-	electrics.set_groesse(tabs.get_groesse() - koord(scrollbar_t::BAR_SIZE,0));
+	electrics.set_groesse(tabs.get_groesse() - koord(button_t::gui_scrollbar_size.x,0));
 	electrics.recalc_size();
 	electrics.set_pos(koord(0,0));
 	cont_electrics.set_groesse(electrics.get_groesse());
@@ -486,7 +486,7 @@ void depot_frame_t::layout(koord *gr)
 
 	loks.set_grid(grid);
 	loks.set_placement(placement);
-	loks.set_groesse(tabs.get_groesse() - koord(scrollbar_t::BAR_SIZE,0));
+	loks.set_groesse(tabs.get_groesse() - koord(button_t::gui_scrollbar_size.x,0));
 	loks.recalc_size();
 	loks.set_pos(koord(0,0));
 	cont_loks.set_groesse(loks.get_groesse());
@@ -497,7 +497,7 @@ void depot_frame_t::layout(koord *gr)
 
 	waggons.set_grid(grid);
 	waggons.set_placement(placement);
-	waggons.set_groesse(tabs.get_groesse() - koord(scrollbar_t::BAR_SIZE,0));
+	waggons.set_groesse(tabs.get_groesse() - koord(button_t::gui_scrollbar_size.x,0));
 	waggons.recalc_size();
 	waggons.set_pos(koord(0,0));
 	cont_waggons.set_groesse(waggons.get_groesse());

@@ -75,7 +75,7 @@ void settings_general_stats_t::init(settings_t const* const sets)
 	INIT_INIT
 
 	// combobox for savegame version
-	savegame.set_pos( koord(D_MARGIN_LEFT, ypos) );
+	savegame.set_pos( koord(0, ypos) );
 	savegame.set_groesse( koord(70, D_BUTTON_HEIGHT) );
 	for(  uint32 i=0;  i<lengthof(version);  i++  ) {
 		savegame.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( version[i]+2, COL_BLACK ) );
@@ -87,7 +87,7 @@ void settings_general_stats_t::init(settings_t const* const sets)
 	add_komponente( &savegame );
 	savegame.add_listener( this );
 	INIT_LB( "savegame version" );
-	label.back()->set_pos( koord( D_MARGIN_LEFT + 70 + 6, label.back()->get_pos().y + 2 ) );
+	label.back()->set_pos( koord( 70 + 6, label.back()->get_pos().y + 2 ) );
 	SEPERATOR
 	INIT_BOOL( "drive_left", sets->is_drive_left() );
 	INIT_BOOL( "signals_on_left", sets->is_signals_left() );
@@ -114,6 +114,7 @@ void settings_general_stats_t::init(settings_t const* const sets)
 	INIT_BOOL( "only_single_info", umgebung_t::single_info );
 
 	clear_dirty();
+	height = ypos;
 	set_groesse( settings_stats_t::get_groesse() );
 }
 
@@ -177,6 +178,7 @@ void settings_display_stats_t::init(settings_t const* const)
 	INIT_BOOL( "left_to_right_graphs", umgebung_t::left_to_right_graphs );
 
 	clear_dirty();
+	height = ypos;
 	set_groesse( settings_stats_t::get_groesse() );
 }
 
@@ -228,6 +230,7 @@ void settings_routing_stats_t::init(settings_t const* const sets)
 	INIT_NUM( "way_leaving_road", sets->way_count_leaving_road, 1, 1000, gui_numberinput_t::AUTOLINEAR, false );
 
 	clear_dirty();
+	height = ypos;
 	set_groesse( settings_stats_t::get_groesse() );
 }
 
@@ -330,6 +333,7 @@ void settings_economy_stats_t::init(settings_t const* const sets)
 	INIT_NUM( "default_citycar_life", sets->get_stadtauto_duration(), 1, 1200, 12, false );
 
 	clear_dirty();
+	height = ypos;
 	set_groesse( settings_stats_t::get_groesse() );
 }
 
@@ -416,6 +420,8 @@ void settings_costs_stats_t::init(settings_t const* const sets)
 	INIT_COST( "cost_multiply_remove_field", -sets->cst_multiply_remove_field, 1, 100000000, 10, false );
 	INIT_COST( "cost_transformer", -sets->cst_transformer, 1, 100000000, 10, false );
 	INIT_COST( "cost_maintain_transformer", -sets->cst_maintain_transformer, 1, 100000000, 10, false );
+
+	height = ypos;
 	set_groesse( settings_stats_t::get_groesse() );
 }
 
@@ -497,6 +503,7 @@ void settings_climates_stats_t::init(settings_t* const sets)
 	INIT_NUM_NEW( "no_tree_climates", sets->get_no_tree_climates(), 0, 255, 1, false );
 
 	clear_dirty();
+	height = ypos;
 	set_groesse( settings_stats_t::get_groesse() );
 }
 

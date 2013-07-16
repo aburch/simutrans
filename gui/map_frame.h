@@ -58,10 +58,10 @@ private:
 	// Cache of factories in current game world
 	static stringhashtable_tpl<const fabrik_besch_t *> factory_list;
 
-	  /**
-	   * We need to keep track of drag/click events
-	   * @author Hj. Malthaner
-	   */
+	/**
+	 * We need to keep track of drag/click events
+	 * @author Hj. Malthaner
+	 */
 	bool is_dragging;
 
 	/**
@@ -70,21 +70,24 @@ private:
 	 */
 	bool zoomed;
 
-	gui_scrollpane_t scrolly;
+	gui_scrollpane_t
+		scrolly;
 
-	button_t filter_buttons[MAP_MAX_BUTTONS];
+	button_t
+		filter_buttons[MAP_MAX_BUTTONS],
+		zoom_buttons[2],
+		b_rotate45,
+		b_show_legend,
+		b_show_scale,
+		b_show_directory,
+		b_overlay_networks,
+		b_filter_factory_list;
+
+	gui_label_t
+		zoom_label,
+		zoom_value_label;
 
 	void zoom(bool zoom_out);
-	button_t zoom_buttons[2];
-	gui_label_t zoom_label;
-	button_t b_rotate45;
-
-	button_t b_show_legend;
-	button_t b_show_scale;
-	button_t b_show_directory;
-	button_t b_overlay_networks;
-	button_t b_filter_factory_list;
-
 	void update_factory_legend();
 	void show_hide_legend(const bool show);
 	void show_hide_scale(const bool show);

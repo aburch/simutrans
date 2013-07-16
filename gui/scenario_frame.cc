@@ -20,6 +20,25 @@
 
 #include "../utils/cbuffer_t.h"
 
+scenario_frame_t::scenario_frame_t(karte_t *welt) : savegame_frame_t(NULL, true, NULL, false)
+{
+	static cbuffer_t pakset_scenario;
+	static cbuffer_t addons_scenario;
+
+	pakset_scenario.clear();
+	pakset_scenario.printf("%s%sscenario/", umgebung_t::program_dir, umgebung_t::objfilename.c_str());
+
+	addons_scenario.clear();
+	addons_scenario.printf("addons/%sscenario/", umgebung_t::objfilename.c_str());
+
+	this->add_path(addons_scenario);
+	this->add_path(pakset_scenario);
+	this->welt = welt;
+
+	set_name(translator::translate("Load scenario"));
+	set_focus(NULL);
+}
+
 
 /**
  * Aktion, die nach Knopfdruck gestartet wird.
@@ -40,26 +59,6 @@ void scenario_frame_t::action(const char *fullpath)
 		create_win(new news_img(err), w_info, magic_none);
 		delete scn;
 	}
-}
-
-
-scenario_frame_t::scenario_frame_t(karte_t *welt) : savegame_frame_t(NULL, true, NULL, false)
-{
-	static cbuffer_t pakset_scenario;
-	static cbuffer_t addons_scenario;
-
-	pakset_scenario.clear();
-	pakset_scenario.printf("%s%sscenario/", umgebung_t::program_dir, umgebung_t::objfilename.c_str());
-
-	addons_scenario.clear();
-	addons_scenario.printf("addons/%sscenario/", umgebung_t::objfilename.c_str());
-
-	this->add_path(addons_scenario);
-	this->add_path(pakset_scenario);
-	this->welt = welt;
-
-	set_name(translator::translate("Load scenario"));
-	set_focus(NULL);
 }
 
 

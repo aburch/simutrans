@@ -80,12 +80,12 @@ private:
 
 protected:
 
-	gui_textinput_t input;
-	gui_divider_t divider1;                               // 30-Oct-2001  Markus Weber    Added
-	button_t savebutton;                                  // 29-Oct-2001  Markus Weber    Added
-	button_t cancelbutton;                                // 29-Oct-2001  Markus Weber    Added
-	gui_label_t fnlabel;        //filename                // 31-Oct-2001  Markus Weber    Added
-	gui_container_t button_frame;
+	gui_textinput_t  input;
+	gui_divider_t    divider1;                    // 30-Oct-2001  Markus Weber    Added
+	button_t         savebutton;                  // 29-Oct-2001  Markus Weber    Added
+	button_t         cancelbutton;                // 29-Oct-2001  Markus Weber    Added
+	gui_label_t      fnlabel;       //filename    // 31-Oct-2001  Markus Weber    Added
+	gui_container_t  button_frame;
 	gui_scrollpane_t scrolly;
 
 	/**

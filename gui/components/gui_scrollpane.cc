@@ -9,6 +9,7 @@
 #include "../gui_frame.h"
 #include "gui_scrollpane.h"
 #include "gui_scrollbar.h"
+#include "gui_button.h"
 
 #include "../../simgraph.h"
 #include "../../simcolor.h"
@@ -40,25 +41,25 @@ gui_scrollpane_t::gui_scrollpane_t(gui_komponente_t *komp) :
  */
 void gui_scrollpane_t::recalc_sliders(koord groesse)
 {
-	scroll_x.set_pos(koord(0, groesse.y-scrollbar_t::BAR_SIZE));
-	scroll_x.set_groesse(groesse-koord(scrollbar_t::BAR_SIZE,scrollbar_t::BAR_SIZE));
-	scroll_x.set_knob(groesse.x-scrollbar_t::BAR_SIZE, komp->get_groesse().x + komp->get_pos().x);	// set client/komp area
+	scroll_x.set_pos(koord(0, groesse.y-button_t::gui_scrollbar_size.y));
+	scroll_x.set_groesse(groesse-button_t::gui_scrollbar_size);
+	scroll_x.set_knob(groesse.x-button_t::gui_scrollbar_size.x, komp->get_groesse().x + komp->get_pos().x);	// set client/komp area
 
-	scroll_y.set_pos(koord(groesse.x-scrollbar_t::BAR_SIZE, 0));
+	scroll_y.set_pos(koord(groesse.x-button_t::gui_scrollbar_size.x, 0));
 	if(  b_show_scroll_x  ) {
-		scroll_y.set_groesse(groesse-koord(scrollbar_t::BAR_SIZE,scrollbar_t::BAR_SIZE));
+		scroll_y.set_groesse(groesse-button_t::gui_scrollbar_size);
 	}
 	else if(  b_has_bottom_margin  ) {
-		scroll_y.set_groesse(groesse-koord(scrollbar_t::BAR_SIZE,scrollbar_t::BAR_SIZE-D_MARGIN_BOTTOM));
+		scroll_y.set_groesse(groesse-koord(button_t::gui_scrollbar_size.x,button_t::gui_scrollbar_size.y-D_MARGIN_BOTTOM));
 	}
 	else if(  b_has_size_corner  ) {
-		scroll_y.set_groesse(groesse-koord(scrollbar_t::BAR_SIZE,scrollbar_t::BAR_SIZE));
+		scroll_y.set_groesse(groesse-button_t::gui_scrollbar_size);
 	}
 	else {
 		scroll_y.set_groesse(groesse);
 	}
 	if(  b_show_scroll_x  ) {
-		scroll_y.set_knob(groesse.y-scrollbar_t::BAR_SIZE, komp->get_groesse().y + komp->get_pos().y);
+		scroll_y.set_knob(groesse.y-button_t::gui_scrollbar_size.y, komp->get_groesse().y + komp->get_pos().y);
 	}
 	else {
 		scroll_y.set_knob(groesse.y, komp->get_groesse().y + komp->get_pos().y);
@@ -119,7 +120,7 @@ bool gui_scrollpane_t::infowin_event(const event_t *ev)
 				const koord relative_pos = komp->get_focus_pos();
 				if(  b_show_scroll_x  ) {
 					const sint32 knob_offset_x = scroll_x.get_knob_offset();
-					const sint32 view_width = groesse.x-scrollbar_t::BAR_SIZE;
+					const sint32 view_width = groesse.x-button_t::gui_scrollbar_size.x;
 					if(  relative_pos.x<knob_offset_x  ) {
 						scroll_x.set_knob_offset(relative_pos.x);
 					}
@@ -129,7 +130,7 @@ bool gui_scrollpane_t::infowin_event(const event_t *ev)
 				}
 				if(  b_show_scroll_y  ) {
 					const sint32 knob_offset_y = scroll_y.get_knob_offset();
-					const sint32 view_height = (b_has_size_corner || b_show_scroll_x) ? groesse.y-scrollbar_t::BAR_SIZE : groesse.y;
+					const sint32 view_height = (b_has_size_corner || b_show_scroll_x) ? groesse.y-button_t::gui_scrollbar_size.y : groesse.y;
 					if(  relative_pos.y<knob_offset_y  ) {
 						scroll_y.set_knob_offset(relative_pos.y);
 					}
@@ -182,7 +183,7 @@ void gui_scrollpane_t::zeichnen(koord pos)
 {
 	pos += this->pos;
 
-	PUSH_CLIP(pos.x, pos.y, groesse.x-scrollbar_t::BAR_SIZE*b_show_scroll_y, groesse.y-scrollbar_t::BAR_SIZE*b_show_scroll_x );
+	PUSH_CLIP(pos.x, pos.y, groesse.x-button_t::gui_scrollbar_size.x*b_show_scroll_y, groesse.y-button_t::gui_scrollbar_size.y*b_show_scroll_x );
 	komp->zeichnen(pos - koord(scroll_x.get_knob_offset(), scroll_y.get_knob_offset()) + komp->get_pos() );
 	POP_CLIP();
 

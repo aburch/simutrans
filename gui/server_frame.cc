@@ -85,7 +85,6 @@ server_frame_t::server_frame_t(karte_t* w) :
 			add_komponente( &show_offline );
 		}
 
-
 		pos_y += D_BUTTON_HEIGHT;
 		pos_y += D_V_SPACE * 2;                // GUI line goes here
 
@@ -107,6 +106,7 @@ server_frame_t::server_frame_t(karte_t* w) :
 
 		pos_y += D_BUTTON_HEIGHT;
 		pos_y += D_V_SPACE * 2;                // GUI line goes here
+
 	}
 
 	revision.set_pos( koord( D_MARGIN_LEFT, pos_y ) );
@@ -137,7 +137,7 @@ server_frame_t::server_frame_t(karte_t* w) :
 	pos_y += D_V_SPACE * 2;        // GUI line goes here
 
 	const int nick_width = 80;
-	nick_label.set_pos( koord( D_MARGIN_LEFT, pos_y ) );
+	nick_label.set_pos( koord( D_MARGIN_LEFT, pos_y + D_GET_CENTER_ALIGN_OFFSET(LINESPACE,D_BUTTON_HEIGHT) ) );
 	nick_label.set_text( "Nickname:" );
 	add_komponente( &nick_label );
 
@@ -401,7 +401,7 @@ bool server_frame_t::action_triggered (gui_action_creator_t *komp, value_t p)
 			server_scrollitem_t *item = (server_scrollitem_t*)serverlist.get_element( p.i );
 			if(  item->online()  ) {
 				const char *err = network_gameinfo( ((server_scrollitem_t*)serverlist.get_element( p.i ))->get_dns(), &gi );
-				if(  err == NULL  ) {
+				if (  err == NULL  ) {
 					item->set_color( COL_BLACK );
 					update_info();
 				}
@@ -577,6 +577,7 @@ void server_frame_t::zeichnen (koord pos, koord gr)
 		pos_y += D_V_SPACE;
 
 		// drawing twice, but otherwise it will not overlay image
-		serverlist.zeichnen( pos + koord( 0, 16 ) );
+		// Overlay what image? It draws fine the first time, this second redraw paints it in teh wrong place anyway...
+		// serverlist.zeichnen( pos + koord( 0, 16 ) );
 	}
 }

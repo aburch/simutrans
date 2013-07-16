@@ -30,6 +30,7 @@
 #include "../simfab.h"
 #include "../simtools.h"
 
+#define L_ZOOM_WIDTH (50)
 
 static koord old_ij=koord::invalid;
 
@@ -80,22 +81,22 @@ map_button_t button_init[MAP_MAX_BUTTONS] = {
 	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "PaxDest", "Overlay passenger destinations when a town window is open", reliefkarte_t::MAP_PAX_DEST },
 	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "Tourists", "Highlite tourist attraction", reliefkarte_t::MAP_TOURIST },
 	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "Factories", "Highlite factories", reliefkarte_t::MAP_FACTORIES },
-	{ COL_LIGHT_YELLOW, COL_BLACK,        "Passagiere", "Show passenger coverage/passenger network", reliefkarte_t::MAP_PASSENGER },
-	{ COL_LIGHT_YELLOW, COL_BLACK,        "Post", "Show mail service coverage/mail network", reliefkarte_t::MAP_MAIL },
-	{ COL_LIGHT_YELLOW, COL_BLACK,        "Fracht", "Show transported freight/freight network", reliefkarte_t::MAP_FREIGHT },
-	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE,  "Status", "Show capacity and if halt is overcrowded", reliefkarte_t::MAP_STATUS },
-	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE,  "hl_btn_sort_waiting", "Show how many people/much is waiting at halts", reliefkarte_t::MAP_WAITING },
-	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE,  "Queueing", "Show the change of waiting at halts", reliefkarte_t::MAP_WAITCHANGE },
-	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE,  "Service", "Show how many convoi reach a station", reliefkarte_t::MAP_SERVICE },
-	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE,  "Transfers", "Sum of departure/arrivals at halts", reliefkarte_t::MAP_TRANSFER },
-	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE,  "Origin", "Show initial passenger departure", reliefkarte_t::MAP_ORIGIN },
-	{ COL_WHITE,        COL_BLACK,        "Traffic", "Show usage of network", reliefkarte_t::MAP_TRAFFIC },
-	{ COL_WHITE,        COL_BLACK,        "Speedlimit", "Show speedlimit of ways", reliefkarte_t::MAX_SPEEDLIMIT },
-	{ COL_WHITE,        COL_BLACK,        "Tracks", "Highlight railroad tracks", reliefkarte_t::MAP_TRACKS },
-	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,   "Depots", "Highlite depots", reliefkarte_t::MAP_DEPOT },
-	{ COL_WHITE,        COL_BLACK,        "Powerlines", "Highlite electrical transmission lines", reliefkarte_t::MAP_POWERLINES },
-	{ COL_WHITE,        COL_BLACK,        "Forest", "Highlite forests", reliefkarte_t::MAP_FOREST },
-	{ COL_WHITE,        COL_BLACK,        "Ownership", "Show the owenership of infrastructure", reliefkarte_t::MAP_OWNER }
+	{ COL_LIGHT_YELLOW, COL_BLACK,       "Passagiere", "Show passenger coverage/passenger network", reliefkarte_t::MAP_PASSENGER },
+	{ COL_LIGHT_YELLOW, COL_BLACK,       "Post", "Show mail service coverage/mail network", reliefkarte_t::MAP_MAIL },
+	{ COL_LIGHT_YELLOW, COL_BLACK,       "Fracht", "Show transported freight/freight network", reliefkarte_t::MAP_FREIGHT },
+	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE, "Status", "Show capacity and if halt is overcrowded", reliefkarte_t::MAP_STATUS },
+	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE, "hl_btn_sort_waiting", "Show how many people/much is waiting at halts", reliefkarte_t::MAP_WAITING },
+	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE, "Queueing", "Show the change of waiting at halts", reliefkarte_t::MAP_WAITCHANGE },
+	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE, "Service", "Show how many convoi reach a station", reliefkarte_t::MAP_SERVICE },
+	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE, "Transfers", "Sum of departure/arrivals at halts", reliefkarte_t::MAP_TRANSFER },
+	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE, "Origin", "Show initial passenger departure", reliefkarte_t::MAP_ORIGIN },
+	{ COL_WHITE,        COL_BLACK,       "Traffic", "Show usage of network", reliefkarte_t::MAP_TRAFFIC },
+	{ COL_WHITE,        COL_BLACK,       "Speedlimit", "Show speedlimit of ways", reliefkarte_t::MAX_SPEEDLIMIT },
+	{ COL_WHITE,        COL_BLACK,       "Tracks", "Highlight railroad tracks", reliefkarte_t::MAP_TRACKS },
+	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "Depots", "Highlite depots", reliefkarte_t::MAP_DEPOT },
+	{ COL_WHITE,        COL_BLACK,       "Powerlines", "Highlite electrical transmission lines", reliefkarte_t::MAP_POWERLINES },
+	{ COL_WHITE,        COL_BLACK,       "Forest", "Highlite forests", reliefkarte_t::MAP_FOREST },
+	{ COL_WHITE,        COL_BLACK,       "Ownership", "Show the owenership of infrastructure", reliefkarte_t::MAP_OWNER }
 };
 
 
@@ -104,55 +105,77 @@ map_frame_t::map_frame_t(karte_t *w) :
 	scrolly(reliefkarte_t::get_karte()),
 	zoom_label("map zoom")
 {
+	koord cursor( D_MARGIN_LEFT,D_MARGIN_TOP );
 	welt = w;
 
-	// show the various objects
-	b_show_legend.init(button_t::roundbox_state, "Show legend", koord(BUTTON1_X,0), koord(D_BUTTON_WIDTH-1,D_BUTTON_HEIGHT));
+	// selections button
+	b_show_legend.init(button_t::roundbox_state, "Show legend", cursor);
 	b_show_legend.set_tooltip("Shows buttons on special topics.");
 	b_show_legend.add_listener(this);
 	add_komponente(&b_show_legend);
+	cursor.x += D_BUTTON_WIDTH + D_H_SPACE;
 
-	b_show_scale.init(button_t::roundbox_state, "Show map scale", koord(BUTTON2_X-1,0), koord(D_BUTTON_WIDTH+2,D_BUTTON_HEIGHT));
+	// colour codes button
+	b_show_scale.init(button_t::roundbox_state, "Show map scale", cursor);
 	b_show_scale.set_tooltip("Shows the color code for several selections.");
 	b_show_scale.add_listener(this);
 	add_komponente(&b_show_scale);
+	cursor.x += D_BUTTON_WIDTH + D_H_SPACE;
 
-	b_show_directory.init(button_t::roundbox_state, "Show industry", koord(BUTTON3_X+1,0), koord(D_BUTTON_WIDTH-1,D_BUTTON_HEIGHT));
+	// industry list button
+	b_show_directory.init(button_t::roundbox_state, "Show industry", cursor);
 	b_show_directory.set_tooltip("Shows a listing with all industries on the map.");
 	b_show_directory.add_listener(this);
 	add_komponente(&b_show_directory);
+	cursor = koord(D_MARGIN_LEFT, cursor.y + D_BUTTON_HEIGHT + D_H_SPACE);
 
-	// zoom levels
-	zoom_buttons[0].init(button_t::repeatarrowleft, NULL, koord(BUTTON1_X,D_BUTTON_HEIGHT+D_V_SPACE));
+	// zoom levels arrow left
+	zoom_buttons[0].init(button_t::repeatarrowleft, NULL,cursor);
 	zoom_buttons[0].add_listener( this );
 	add_komponente( zoom_buttons+0 );
+	cursor.x += zoom_buttons[0].get_groesse().x;
 
-	zoom_buttons[1].init(button_t::repeatarrowright, NULL, koord(BUTTON1_X+40,D_BUTTON_HEIGHT+D_V_SPACE));
+	// zoom levels label
+	//zoom_label.set_groesse( koord(L_ZOOM_WIDTH,LINESPACE) );
+	//zoom_label.set_pos(cursor);
+	//add_komponente( &zoom_label );
+	cursor.x += L_ZOOM_WIDTH;
+
+	// zoom levels arrow right
+	zoom_buttons[1].init(button_t::repeatarrowright, NULL, cursor);
 	zoom_buttons[1].add_listener( this );
 	add_komponente( zoom_buttons+1 );
-
-	zoom_label.set_pos( koord(BUTTON1_X+54,D_BUTTON_HEIGHT+D_V_SPACE) );
-	add_komponente( &zoom_label );
+	cursor.x += zoom_buttons[1].get_groesse().x + D_H_SPACE;
 
 	// rotate map 45°
-	b_rotate45.init( button_t::square_state, "isometric map", koord(BUTTON1_X+54+proportional_string_width(zoom_label.get_text_pointer())+D_H_SPACE+10,D_BUTTON_HEIGHT+D_V_SPACE));
+	//b_rotate45.init( button_t::square_state, "isometric map", koord(BUTTON1_X+54+proportional_string_width(zoom_label.get_text_pointer())+D_H_SPACE+10,D_BUTTON_HEIGHT+D_V_SPACE));
+	b_rotate45.init( button_t::square_state, "isometric map", cursor);
 	b_rotate45.set_tooltip("Similar view as the main window");
 	b_rotate45.add_listener(this);
 	add_komponente(&b_rotate45);
+	cursor.x += b_rotate45.get_groesse().x;
 
-	b_overlay_networks.init(button_t::square_state, "Networks", koord(BUTTON1_X,D_BUTTON_HEIGHT*2+2*D_V_SPACE));
+	zoom_buttons[0].align_to(&b_rotate45,ALIGN_CENTER_V);
+	zoom_buttons[1].align_to(&b_rotate45,ALIGN_CENTER_V);
+
+	// selections: show networks
+	b_overlay_networks.init(button_t::square_state, "Networks", cursor);
 	b_overlay_networks.set_tooltip("Overlay schedules/network");
 	b_overlay_networks.add_listener(this);
 	b_overlay_networks.set_visible( legend_visible );
 	b_overlay_networks.pressed = (umgebung_t::default_mapmode & reliefkarte_t::MAP_LINES)!=0;
 	add_komponente( &b_overlay_networks );
+	cursor.x += b_overlay_networks.get_groesse().x;
 
-	// filter factory list
-	b_filter_factory_list.init(button_t::square_state, "Show only used", koord(BUTTON1_X,D_BUTTON_HEIGHT*3+4));
+	// factory list: show used button
+	b_filter_factory_list.init(button_t::square_state, "Show only used", cursor);
 	b_filter_factory_list.set_tooltip("In the industry legend show only currently existing factories");
 	b_filter_factory_list.add_listener(this);
 	b_filter_factory_list.set_visible( directory_visible );
 	add_komponente( &b_filter_factory_list );
+	cursor.x += b_filter_factory_list.get_groesse().x;
+
+	cursor = koord( D_MARGIN_LEFT,b_filter_factory_list.get_groesse().y );
 
 	// init factory name legend
 	update_factory_legend();
@@ -483,7 +506,7 @@ bool map_frame_t::infowin_event(const event_t *ev)
 		} while(  zoomed  );
 
 		// then zoom back out to fit
-		const koord s_gr = scrolly.get_groesse() - koord(scrollbar_t::BAR_SIZE, scrollbar_t::BAR_SIZE);
+		const koord s_gr = scrolly.get_groesse() - button_t::gui_scrollbar_size;
 		koord gr = reliefkarte_t::get_karte()->get_groesse();
 		zoomed = true;
 		while(  zoomed  &&  max(gr.x/s_gr.x, gr.y/s_gr.y)  ) {

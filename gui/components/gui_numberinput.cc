@@ -42,15 +42,20 @@ gui_numberinput_t::gui_numberinput_t() :
 	b_enabled = true;
 }
 
+void gui_numberinput_t::set_groesse(koord size_par) {
+//void gui_numberinput_t::set_groesse(KOORD_VAL size_x_par, KOORD_VAL size_y_par) {
 
-void gui_numberinput_t::set_groesse(koord gr)
-{
-	bt_left.set_pos( koord(0, (gr.y - bt_left.get_groesse().y) / 2) );
-	textinp.set_pos( koord( bt_left.get_groesse().x + ARROW_GAP, 0) );
-	textinp.set_groesse( koord( gr.x - bt_left.get_groesse().x - bt_right.get_groesse().x - 2*ARROW_GAP, gr.y) );
-	bt_right.set_pos( koord( gr.x - bt_right.get_groesse().x, (gr.y - bt_right.get_groesse().y) / 2) );
+	gui_komponente_t::set_groesse(size_par);
 
-	gui_komponente_t::groesse = gr;
+	textinp.set_groesse( koord( size_par.x - bt_left.get_groesse().x - bt_right.get_groesse().x, size_par.y) );
+	//bt_left.set_pos( koord(0, (bt_left.get_groesse().y - size_par.y) / 2) );
+	bt_left.align_to(&textinp, ALIGN_CENTER_V);
+	//textinp.set_pos( koord( bt_left.get_groesse().x, 0) );
+	textinp.align_to(&bt_left, ALIGN_EXTERIOR_H | ALIGN_LEFT);
+
+	//bt_right.set_pos( koord( size_par.x - bt_right.get_groesse().x, (size_par.y - bt_right.get_groesse().y) / 2) );
+	bt_right.align_to(&textinp, ALIGN_CENTER_V | ALIGN_EXTERIOR_H | ALIGN_LEFT);
+
 }
 
 

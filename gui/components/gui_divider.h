@@ -11,11 +11,12 @@
 
 #include "gui_komponente.h"
 #include "../../simgraph.h"
-#include "../../simcolor.h"
+#include "../../simskin.h"
 
+class skinverwaltung_t;
 
 /**
- * Eine einfache Trennlinie
+ * A horizontal divider line
  *
  * @date 30-Oct-01
  * @author Markus Weber
@@ -25,13 +26,13 @@ class gui_divider_t : public gui_komponente_t
 public:
 	/**
 	 * Pre-defined divider line styles
-	 * Values > 2 creates an inset bevel
+	 * Values > 2 creates an lowered bevel
 	 * @author Max Kielland
 	*/
-	enum {
+	enum divider_style_t {
 		DIVIDER_RAISED  = 0, //@< 2px divider raised etched
 		DIVIDER_LINE    = 1, //@< 1px divider line (SYS_COL_HIGHLIGHT)
-		DIVIDER_LOWERED = 2  //@< 2px divider lowered etchedkOut  = 0,  //@< 2px divider out
+		DIVIDER_LOWERED = 2  //@< 2px divider lowered etched
 	};
 
 	gui_divider_t(void) { groesse.y = DIVIDER_LOWERED; }
@@ -42,21 +43,18 @@ public:
 	};
 
 	/**
-	* Vorzugsweise sollte diese Methode zum Setzen der Größe benutzt werden,
-	* obwohl groesse public ist.
-	* @author Hj. Malthaner
 	*/
 	void set_width(KOORD_VAL width) { set_groesse(koord(width,groesse.y)); }
 
 	virtual koord get_groesse() const { return koord(groesse.x,max(groesse.y,D_DIVIDER_HEIGHT)); }
 
 	/**
-	 * Zeichnet die Komponente
+	 * Paint method
 	 * @author Markus Weber
 	 */
 	void zeichnen(koord offset) {
 
-		KOORD_VAL h = (groesse.y == DIVIDER_LINE) ? 1 : ( (groesse.y == DIVIDER_LOWERED) ? 2 : groesse.y );
+		KOORD_VAL h = (groesse.y == DIVIDER_LINE) ? 1 : ( (groesse.y == DIVIDER_RAISED) ? 2 : groesse.y );
 		KOORD_VAL align_y = D_GET_CENTER_ALIGN_OFFSET(h,D_DIVIDER_HEIGHT);
 
 		display_ddd_box_clip(
@@ -64,8 +62,8 @@ public:
 			pos.y + offset.y + align_y,
 			groesse.x,
 			groesse.y,
-			SYS_COL_SHADOW,
-			SYS_COL_HIGHLIGHT
+			skinverwaltung_t::theme_color_shadow,
+			skinverwaltung_t::theme_color_highlight
 		);
 	}
 

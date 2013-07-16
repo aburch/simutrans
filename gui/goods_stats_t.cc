@@ -25,6 +25,7 @@
 #include "../utils/simstring.h"
 
 #include "gui_frame.h"
+#include "../gui/components/gui_button.h"
 
 
 karte_t *goods_stats_t::welt = NULL;

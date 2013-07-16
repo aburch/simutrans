@@ -258,7 +258,7 @@ convoi_frame_t::~convoi_frame_t()
 
 bool convoi_frame_t::infowin_event(const event_t *ev)
 {
-	const sint16 xr = vscroll.is_visible() ? scrollbar_t::BAR_SIZE : 1;
+	const sint16 xr = vscroll.is_visible() ? button_t::gui_scrollbar_size.x : 1;
 
 	if(ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE) {
 		destroy_win( magic_convoi_list_filter+owner->get_player_nr() );
@@ -321,8 +321,8 @@ void convoi_frame_t::resize(const koord size_change)                          //
 	else {
 		add_komponente(&vscroll);
 		vscroll.set_visible(true);
-		vscroll.set_pos(koord(groesse.x-scrollbar_t::BAR_SIZE, 47-16-1));
-		vscroll.set_groesse(groesse-koord(scrollbar_t::BAR_SIZE,scrollbar_t::BAR_SIZE));
+		vscroll.set_pos(koord(groesse.x-button_t::gui_scrollbar_size.x, 47-16-1));
+		vscroll.set_groesse(groesse-button_t::gui_scrollbar_size);
 		vscroll.set_scroll_amount( 1 );
 	}
 }
@@ -334,7 +334,7 @@ void convoi_frame_t::zeichnen(koord pos, koord gr)
 
 	gui_frame_t::zeichnen(pos, gr);
 
-	const sint16 xr = vscroll.is_visible() ? scrollbar_t::BAR_SIZE+4 : 6;
+	const sint16 xr = vscroll.is_visible() ? button_t::gui_scrollbar_size.x+4 : 6;
 	PUSH_CLIP(pos.x, pos.y+47, gr.x-xr, gr.y-48 );
 
 	uint32 start = vscroll.get_knob_offset();

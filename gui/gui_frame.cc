@@ -24,8 +24,8 @@
 #include "../besch/skin_besch.h"
 
 // default button sizes
-KOORD_VAL gui_frame_t::gui_button_width = 92;
-KOORD_VAL gui_frame_t::gui_button_height = 14;
+//KOORD_VAL gui_frame_t::gui_button_width = 92;
+//KOORD_VAL gui_frame_t::gui_button_height = 14;
 
 // default titlebar height
 KOORD_VAL gui_frame_t::gui_titlebar_height = 16;
@@ -47,7 +47,7 @@ KOORD_VAL gui_frame_t::gui_vspace = 4;
 KOORD_VAL gui_frame_t::gui_indicator_width = 20;
 KOORD_VAL gui_frame_t::gui_indicator_height = 4;
 
-KOORD_VAL gui_frame_t::gui_divider_height = 2;
+KOORD_VAL gui_frame_t::gui_divider_height = D_V_SPACE*2;
 
 // Insert the container
 gui_frame_t::gui_frame_t(char const* const name, spieler_t const* const sp)
