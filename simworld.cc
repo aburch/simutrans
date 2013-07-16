@@ -4373,7 +4373,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 
 	const uint32 building_count = wtyp == warenbauer_t::passagiere ? passenger_origins.get_count() : mail_origins_and_targets.get_count();
 
-	const uint32 step_interval = 18057457 / (building_count * settings.get_passenger_factor() + 1);
+	const uint32 step_interval = 10989909 / (building_count * settings.get_passenger_factor() + 1);
 	
 	// create passenger rate proportional to town size
 	while(step_interval < next_step) 
