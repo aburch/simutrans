@@ -373,7 +373,7 @@ void fabrik_t::update_scaled_pax_demand()
 		const grund_t* gr = welt->lookup(pos);
 		if(gr)
 		{
-			const gebaeude_t* gb = gr->find<gebaeude_t>();
+			gebaeude_t* gb = gr->find<gebaeude_t>();
 			welt->update_weight_of_building_in_world_list(gb, karte_t::commuter_target);
 		}
 	}
@@ -410,8 +410,8 @@ void fabrik_t::update_scaled_mail_demand()
 		const grund_t* gr = welt->lookup(pos);
 		if(gr)
 		{
-			const gebaeude_t* gb = gr->find<gebaeude_t>();
-			welt->update_weight_of_building_in_world_list(gb, karte_t::mail);
+			gebaeude_t* gb = gr->find<gebaeude_t>();
+			welt->update_weight_of_building_in_world_list(gb, karte_t::mail_origin_or_target);
 		}
 	}
 }
@@ -993,7 +993,7 @@ fabrik_t::~fabrik_t()
 	const grund_t* gr = welt->lookup(pos);
 	if(gr)
 	{
-		const gebaeude_t* gb = gr->find<gebaeude_t>();
+		gebaeude_t* gb = gr->find<gebaeude_t>();
 		welt->remove_building_from_world_list(gb);
 	}
 }
@@ -2883,7 +2883,7 @@ void fabrik_t::add_to_world_list(bool lock)
 			if(lock) pthread_mutex_lock(&add_to_world_list_mutex);
 #endif
 			const grund_t* gr = welt->lookup(pos);
-			const gebaeude_t* gb = gr->find<gebaeude_t>();
+			gebaeude_t* gb = gr->find<gebaeude_t>();
 			welt->add_building_to_world_list(gb, karte_t::commuter_target, lock);
 			if(is_end_consumer())
 			{
@@ -2891,7 +2891,7 @@ void fabrik_t::add_to_world_list(bool lock)
 				// TODO: Add a .dat file parameter to permit this to be disabled for certain industries (e.g. gasworks)
 				welt->add_building_to_world_list(gb, karte_t::visitor_target, lock);
 			}
-			welt->add_building_to_world_list(gb, karte_t::mail, lock);
+			welt->add_building_to_world_list(gb, karte_t::mail_origin_or_target, lock);
 #if MULTI_THREAD>1
 			if(lock) pthread_mutex_unlock(&add_to_world_list_mutex);
 #endif

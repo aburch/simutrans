@@ -162,7 +162,7 @@ void stadt_t::privatecar_rdwr(loadsave_t *file)
 	}
 }
 
-sint16 stadt_t::get_private_car_ownership(sint32 monthyear)
+sint16 stadt_t::get_private_car_ownership(sint32 monthyear) const
 {
 
 	if(monthyear == 0) 
@@ -1096,11 +1096,11 @@ static bool compare_gebaeude_pos(const gebaeude_t* a, const gebaeude_t* b)
 }
 
 
-void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb, bool ordered)
+void stadt_t::add_gebaeude_to_stadt(gebaeude_t* gb, bool ordered)
 {
 	if (gb != NULL)
 	{
-		const haus_tile_besch_t* tile  = gb->get_tile();
+		const haus_tile_besch_t* tile = gb->get_tile();
 		koord size = tile->get_besch()->get_groesse(tile->get_layout());
 		const koord pos = gb->get_pos().get_2d() - tile->get_offset();
 		koord k;
@@ -1111,7 +1111,7 @@ void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb, bool ordered)
 			// Commuter, visitor and mail
 			welt->add_building_to_world_list(gb, karte_t::visitor_target, ordered);
 			welt->add_building_to_world_list(gb, karte_t::commuter_target, ordered);
-			welt->add_building_to_world_list(gb, karte_t::mail, ordered);
+			welt->add_building_to_world_list(gb, karte_t::mail_origin_or_target, ordered);
 		}
 
 		// add all tiles
@@ -1143,20 +1143,20 @@ void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb, bool ordered)
 						{
 							// Residential - origin and mail
 							welt->add_building_to_world_list(add_gb, karte_t::passenger_origin, ordered);
-							welt->add_building_to_world_list(add_gb, karte_t::mail, ordered);
+							welt->add_building_to_world_list(add_gb, karte_t::mail_origin_or_target, ordered);
 						}
 						else if(add_gb->get_haustyp() == gebaeude_t::gewerbe)
 						{
 							// Commercial - commuter, visitor and mail
 							welt->add_building_to_world_list(add_gb, karte_t::visitor_target, ordered);
 							welt->add_building_to_world_list(add_gb, karte_t::commuter_target, ordered);
-							welt->add_building_to_world_list(add_gb, karte_t::mail, ordered);
+							welt->add_building_to_world_list(add_gb, karte_t::mail_origin_or_target, ordered);
 						}
 						else if(add_gb->get_haustyp() == gebaeude_t::industrie)
 						{
 							// Industrial - commuter and mail
 							welt->add_building_to_world_list(add_gb, karte_t::commuter_target, ordered);
-							welt->add_building_to_world_list(add_gb, karte_t::mail, ordered);
+							welt->add_building_to_world_list(add_gb, karte_t::mail_origin_or_target, ordered);
 						}
 							// Other (town hall and monuments) - commuter, visitor and mail
 							// Do nothing, as these have been added above.
@@ -1319,7 +1319,7 @@ void stadt_t::check_city_tiles(bool del)
 			}
 			else
 			{
-				if(plan->get_city() == this)
+				if(plan && plan->get_city() == this)
 				{
 					plan->set_city(NULL);
 				}
@@ -2500,7 +2500,7 @@ void stadt_t::step(long delta_t)
 
 	// create passenger rate proportional to town size
 	while(step_interval < next_step) {
-		step_passagiere();
+		//step_passagiere();
 		step_count++;
 		next_step -= step_interval;
 	}
@@ -3908,6 +3908,8 @@ void stadt_t::step_passagiere()
 	//	DBG_MESSAGE("stadt_t::step_passagiere()", "Zeit für Passagierstep: %ld ms\n", (long)(t1 - t0));
 }
 
+
+// TODO: Remove this method when new passenger generation is ready.
 void stadt_t::register_factory_passenger_generation(int* pax_left_to_do, const ware_besch_t *const wtyp, factory_set_t &target_factories, factory_entry_t* &factory_entry)
 {
 	if( welt->get_settings().get_factory_enforce_demand()  ) 
@@ -4418,7 +4420,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 						}
 					}
 					// and then build it
-					const gebaeude_t* gb = hausbauer_t::baue(welt, besitzer_p, welt->lookup_kartenboden(best_pos + koord(1, 1))->get_pos(), 0, besch);
+					gebaeude_t* gb = hausbauer_t::baue(welt, besitzer_p, welt->lookup_kartenboden(best_pos + koord(1, 1))->get_pos(), 0, besch);
 					hausbauer_t::denkmal_gebaut(besch);
 					add_gebaeude_to_stadt(gb);
 					// tell the player, if not during initialization
@@ -4593,7 +4595,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 			dbg->error( "stadt_t::check_bau_rathaus", "no better postion found!" );
 			return;
 		}
-		gebaeude_t const* const new_gb = hausbauer_t::baue(welt, besitzer_p, welt->lookup_kartenboden(best_pos + offset)->get_pos(), layout, besch);
+		gebaeude_t* new_gb = hausbauer_t::baue(welt, besitzer_p, welt->lookup_kartenboden(best_pos + offset)->get_pos(), layout, besch);
 		DBG_MESSAGE("new townhall", "use layout=%i", layout);
 		add_gebaeude_to_stadt(new_gb);
 		DBG_MESSAGE("stadt_t::check_bau_rathaus()", "add townhall (bev=%i, ptr=%p)", buildings.get_sum_weight(),welt->lookup_kartenboden(best_pos)->first_obj());
@@ -5203,7 +5205,7 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 
 		int layout = get_best_layout(h, k);
 
-		const gebaeude_t* gb = hausbauer_t::baue(welt, NULL, pos, layout, h);
+		gebaeude_t* gb = hausbauer_t::baue(welt, NULL, pos, layout, h);
 		add_gebaeude_to_stadt(gb);
 
 		switch(want_to_have) {

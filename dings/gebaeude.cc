@@ -599,6 +599,33 @@ int gebaeude_t::get_post_level() const
 		return post;
 	}
 	return post*dim.x*dim.y;
+	
+}
+
+uint32 gebaeude_t::get_passengers_per_hundred_months() const
+{
+	if(!is_factory)
+	{
+		// This is equivalent of:
+		// Level *= 1.22, * 100, * 16, / passenger factor
+		return (tile->get_besch()->get_level() * 1952) / welt->get_settings().get_passenger_factor();
+	}
+	else
+	{
+		return ptr.fab->get_scaled_pax_demand();
+	}
+}
+
+uint32 gebaeude_t::get_mail_per_hundred_months() const
+{
+	if(!is_factory)
+	{
+		return (tile->get_besch()->get_post_level() * 20) / welt->get_settings().get_passenger_factor();
+	}
+	else
+	{
+		return ptr.fab->get_scaled_mail_demand();
+	}
 }
 
 

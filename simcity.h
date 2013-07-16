@@ -135,7 +135,7 @@ public:
 	 */
 	static bool cityrules_init(const std::string &objpathname);
 	static void privatecar_init(const std::string &objfilename);
-	sint16 get_private_car_ownership(sint32 monthyear);
+	sint16 get_private_car_ownership(sint32 monthyear) const;
 	uint16 get_electricity_consumption(sint32 monthyear) const;
 	static void electricity_consumption_init(const std::string &objfilename);
 
@@ -152,6 +152,8 @@ public:
 
 	static void set_cluster_factor( uint32 factor ) { stadt_t::cluster_factor = factor; }
 	static uint32 get_cluster_factor() { return stadt_t::cluster_factor; }
+
+	void set_private_car_trip(int passengers, stadt_t* destination_town);
 
 private:
 	static karte_t *welt;
@@ -230,8 +232,6 @@ private:
 	* @author prissi
 	*/
 	void roll_history(void);
-
-	void set_private_car_trip(int passengers, stadt_t* destination_town);
 
 	// This is needed to prevent double counting of incoming traffic.
 	sint32 incoming_private_cars;
@@ -416,12 +416,6 @@ private:
 	void step_passagiere();
 
 	/**
-	 * ein Passagierziel in die Zielkarte eintragen
-	 * @author Hj. Malthaner
-	 */
-	void merke_passagier_ziel(koord ziel, uint8 color);
-
-	/**
 	 * baut Spezialgebaeude, z.B Stadion
 	 * @author Hj. Malthaner
 	 */
@@ -455,8 +449,6 @@ private:
 	// @author neroden
 	const gebaeude_t* get_citybuilding_at(const koord k) const;
 	int get_best_layout(const haus_besch_t* h, const koord & k) const;
-
-	void erzeuge_verkehrsteilnehmer(koord pos, uint16 journey_tenths_of_minutes, koord target);
 
 	/**
 	 * baut ein Stueck Strasse
@@ -498,13 +490,6 @@ private:
 
 	uint16 adjusted_passenger_routing_local_chance;
 
-	// Checks to see whether this town is connected
-	// by road to each other town.
-	// @author: jamespetts, April 2010
-	uint16 check_road_connexion_to(stadt_t* city);
-	uint16 check_road_connexion_to(const fabrik_t* industry);
-	uint16 check_road_connexion_to(const gebaeude_t* attraction);
-
 	bool check_road_connexions;
 
 	inline void register_factory_passenger_generation(int* pax_left_to_do, const ware_besch_t *const wtyp, factory_set_t &target_factories, factory_entry_t* &factory_entry);
@@ -516,6 +501,12 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	void verbinde_fabriken();
+
+	/**
+	 * ein Passagierziel in die Zielkarte eintragen
+	 * @author Hj. Malthaner
+	 */
+	void merke_passagier_ziel(koord ziel, uint8 color);
 
 	/**
 	 * Returns the data set associated with the pax/mail target factories
@@ -534,7 +525,7 @@ public:
 	* This function adds buildings to the city building list; 
 	* ordered for multithreaded loading.
 	*/
-	void add_gebaeude_to_stadt(const gebaeude_t *gb, bool ordered=false);
+	void add_gebaeude_to_stadt(gebaeude_t *gb, bool ordered=false);
 
 	/**
 	* Returns the finance history for cities
@@ -657,6 +648,7 @@ public:
 
 	void neuer_monat(bool check);
 
+	// TODO: Remove this when the new code is finished.
 	//@author: jamespetts
 	union destination_object
 	{
@@ -665,6 +657,7 @@ public:
 		const gebaeude_t* attraction;
 	};
 
+	// TODO: Remove this when the new code is finished.
 	struct destination
 	{
 		koord location;
@@ -679,6 +672,15 @@ public:
 	void add_road_connexion(uint16 journey_time_per_tile, const gebaeude_t* attraction);
 
 	void check_all_private_car_routes();
+
+	// Checks to see whether this town is connected
+	// by road to each other town.
+	// @author: jamespetts, April 2010
+	uint16 check_road_connexion_to(stadt_t* city);
+	uint16 check_road_connexion_to(const fabrik_t* industry);
+	uint16 check_road_connexion_to(const gebaeude_t* attraction);
+
+	void erzeuge_verkehrsteilnehmer(koord pos, uint16 journey_tenths_of_minutes, koord target);
 
 private:
 	/**

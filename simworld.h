@@ -881,21 +881,21 @@ private:
 	 * journeys ultimately start, weighted by their level. 
 	 * @author: jamespetts
 	 */
-	weighted_vector_tpl <const gebaeude_t *> passenger_origins;
+	weighted_vector_tpl <gebaeude_t *> passenger_origins;
 
 	/**
 	 * This contains all buildings in the world to which passengers make
 	 * journeys to work, weighted by their (adjusted) level.
 	 * @author: jamespetts
 	 */
-	weighted_vector_tpl <const gebaeude_t *> commuter_targets;
+	weighted_vector_tpl <gebaeude_t *> commuter_targets;
 
 	/**
 	 * This contains all buildings in the world to which passengers make
 	 * journeys other than to work, weighted by their (adjusted) level.
 	 * @author: jamespetts
 	 */
-	weighted_vector_tpl <const gebaeude_t *> visitor_targets;
+	weighted_vector_tpl <gebaeude_t *> visitor_targets;
 
 	/**
 	 * This contains all buildings in the world to and from which mail
@@ -903,7 +903,50 @@ private:
 	 * level. 
 	 * @author: jamespetts
 	 */
-	weighted_vector_tpl <const gebaeude_t *> mail_origins_and_targets;
+	weighted_vector_tpl <gebaeude_t *> mail_origins_and_targets;
+
+	/** Stores the value of the next step for passenger/mail generation
+	 * purposes.
+	 */
+	uint32 next_step;
+	enum step_type {passenger, mail};
+	uint32 step_count[2];
+
+public:
+
+	enum building_type { passenger_origin, commuter_target, visitor_target, mail_origin_or_target, none };
+	enum trip_type { commuting_trip, visiting_trip, mail_trip };
+
+private:
+
+	//@author: jamespetts
+	union destination_object
+	{
+		stadt_t* town;
+		fabrik_t* industry;
+		const gebaeude_t* attraction;
+	};
+
+	enum destination_object_type { town, factory, attraction };
+
+	struct destination
+	{
+		koord location;
+		uint16 type;
+		destination_object object; 
+		
+		// This is not used in the new system.
+		//factory_entry_t* factory_entry;
+		// destination() { factory_entry = NULL; }
+	};
+
+	/**
+	* Generates passengers and mail from all origin buildings
+	* to be distributed to all destination buildings
+	*/		 	
+	void step_passengers_and_mail(long delta_t);
+
+	destination find_destination(trip_type trip);
 
 public:
 	/**
@@ -1332,28 +1375,26 @@ public:
 		return get_settings().get_meters_per_tile() * ticks * 30L * 6L/ (4096L * 1000L);
 	}
 
-	enum building_type { passenger_origin, commuter_target, visitor_target, mail, none };
-
 	/**
 	* Adds a single tile of a building to the relevant world list for passenger 
 	* and mail generation purposes
 	* @author: jamespetts
 	*/
-	void add_building_to_world_list(const gebaeude_t *gb, building_type b, bool ordered = false);
+	void add_building_to_world_list(gebaeude_t *gb, building_type b, bool ordered = false);
 	
 	/**
 	* Removes a single tile of a building to the relevant world list for passenger 
 	* and mail generation purposes
 	* @author: jamespetts
 	*/
-	void remove_building_from_world_list(const gebaeude_t *gb);
+	void remove_building_from_world_list(gebaeude_t *gb);
 
 /**
 	* Updates the weight of a building in the world list if it changes its
 	* passenger/mail demand	
 	* @author: jamespetts
 	*/
-	void update_weight_of_building_in_world_list(const gebaeude_t *gb, building_type b);
+	void update_weight_of_building_in_world_list(gebaeude_t *gb, building_type b);
 
 private:
 	/*
