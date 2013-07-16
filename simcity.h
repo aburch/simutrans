@@ -269,6 +269,8 @@ private:
 	*/
 	void check_city_tiles(bool del = false);
 
+	void add_building_to_list(gebaeude_t* building, bool ordered = false);
+
 public:
 	/**
 	 * Returns pointer to history for city

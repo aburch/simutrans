@@ -1129,37 +1129,7 @@ void stadt_t::add_gebaeude_to_stadt(gebaeude_t* gb, bool ordered)
 					}
 					else 
 					{
-						if(ordered)
-						{
-							buildings.insert_ordered(add_gb, tile->get_besch()->get_level(), compare_gebaeude_pos);
-						}
-						else 
-						{
-							buildings.append(add_gb, tile->get_besch()->get_level());
-						}
-						
-						// Also add to the world list for passenger generation purposes.
-						if(add_gb->get_haustyp() == gebaeude_t::wohnung)
-						{
-							// Residential - origin and mail
-							welt->add_building_to_world_list(add_gb, karte_t::passenger_origin, ordered);
-							welt->add_building_to_world_list(add_gb, karte_t::mail_origin_or_target, ordered);
-						}
-						else if(add_gb->get_haustyp() == gebaeude_t::gewerbe)
-						{
-							// Commercial - commuter, visitor and mail
-							welt->add_building_to_world_list(add_gb, karte_t::visitor_target, ordered);
-							welt->add_building_to_world_list(add_gb, karte_t::commuter_target, ordered);
-							welt->add_building_to_world_list(add_gb, karte_t::mail_origin_or_target, ordered);
-						}
-						else if(add_gb->get_haustyp() == gebaeude_t::industrie)
-						{
-							// Industrial - commuter and mail
-							welt->add_building_to_world_list(add_gb, karte_t::commuter_target, ordered);
-							welt->add_building_to_world_list(add_gb, karte_t::mail_origin_or_target, ordered);
-						}
-							// Other (town hall and monuments) - commuter, visitor and mail
-							// Do nothing, as these have been added above.
+						add_building_to_list(add_gb, ordered);
 					}
 					add_gb->set_stadt(this);
 				}
@@ -1209,7 +1179,8 @@ bool stadt_t::take_citybuilding_from(stadt_t* old_city, gebaeude_t* gb)
 	gb->set_stadt(NULL);
 	old_city->reset_city_borders();
 
-	buildings.append(gb, gb->get_tile()->get_besch()->get_level());
+	add_building_to_list(add_gb);
+
 	gb->set_stadt(this);
 }
 #endif
@@ -1637,20 +1608,22 @@ stadt_t::~stadt_t()
 			// old buildings are not where they think they are, so we ask for map floor
 			gebaeude_t* const gb = buildings.front();
 			buildings.remove(gb);
-			welt->remove_building_from_world_list(gb);
+			
 			assert(  gb!=NULL  &&  !buildings.is_contained(gb)  );
 			if(gb->get_tile()->get_besch()->get_utyp()==haus_besch_t::firmensitz)
 			{
 				stadt_t *city = welt->suche_naechste_stadt(gb->get_pos().get_2d());
 				gb->set_stadt( city );
-				if(city) {
+				if(city) 
+				{
 					city->buildings.append(gb, gb->get_passagier_level());
 				}
 			}
 			else 
 			{
 				gb->set_stadt( NULL );
-				hausbauer_t::remove(welt,welt->get_spieler(1),gb);
+				welt->remove_building_from_world_list(gb);
+				hausbauer_t::remove(welt,welt->get_spieler(1), gb);
 			}
 		}
 		// Remove substations
@@ -5390,7 +5363,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 		// We *can* skip most of the work in add_gebaeude_to_stadt, because we *just* cleared the location,
 		// so it must be valid!
 		new_gb->set_stadt(this);
-		buildings.append(new_gb, new_gb->get_tile()->get_besch()->get_level());
+		add_building_to_list(new_gb);
 
 		switch(want_to_have) {
 			case gebaeude_t::wohnung:   won += h->get_level() * 10; break;
@@ -5402,6 +5375,35 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 		}
 	}
 	return false;
+}
+
+void stadt_t::add_building_to_list(gebaeude_t* building, bool ordered)
+{
+	buildings.append(building, building->get_tile()->get_besch()->get_level());
+	
+	// Also add to the world list for passenger generation purposes.
+	if(building->get_haustyp() == gebaeude_t::wohnung)
+	{
+		// Residential - origin and mail
+		welt->add_building_to_world_list(building, karte_t::passenger_origin, ordered);
+		welt->add_building_to_world_list(building, karte_t::mail_origin_or_target, ordered);
+	}
+	else if(building->get_haustyp() == gebaeude_t::gewerbe)
+	{
+		// Commercial - commuter, visitor and mail
+		welt->add_building_to_world_list(building, karte_t::visitor_target, ordered);
+		welt->add_building_to_world_list(building, karte_t::commuter_target, ordered);
+		welt->add_building_to_world_list(building, karte_t::mail_origin_or_target, ordered);
+	}
+	else if(building->get_haustyp() == gebaeude_t::industrie)
+	{
+		// Industrial - commuter and mail
+		welt->add_building_to_world_list(building, karte_t::commuter_target, ordered);
+		welt->add_building_to_world_list(building, karte_t::mail_origin_or_target, ordered);
+	}
+	
+	// Other (town hall and monuments) - commuter, visitor and mail
+	// Do nothing, as these have been added in a separate method.
 }
 
 
