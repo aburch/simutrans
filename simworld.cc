@@ -836,7 +836,7 @@ void karte_t::init_felder()
 
 	marker.init(x, y);
 
-	win_set_welt( this );
+	win_set_world( this );
 	reliefkarte_t::get_karte()->set_welt(this);
 
 	for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
@@ -5449,7 +5449,7 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 
 	// Reliefkarte an neue welt anpassen
 	DBG_MESSAGE("karte_t::laden()", "init relief");
-	win_set_welt( this );
+	win_set_world( this );
 	reliefkarte_t::get_karte()->set_welt(this);
 
 	sint32 fabs;

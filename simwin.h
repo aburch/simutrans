@@ -163,10 +163,17 @@ void win_display_flush(double konto); // draw the frame and all windows
 void win_get_event(event_t*);
 void win_poll_event(event_t*);
 
-void win_set_welt(karte_t *welt);
-
 bool win_change_zoom_factor(bool magnify);
 
+/**
+ * Sets the world this window manager is attached to.
+ */
+void win_set_world(karte_t *world);
+
+/**
+ * Forces the redraw of the world on next frame.
+ */
+void win_redraw_world();
 
 /**
  * Sets the tooltip to display.

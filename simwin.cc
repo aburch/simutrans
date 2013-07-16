@@ -121,7 +121,7 @@ bool simwin_t::operator== (const simwin_t &other) const { return gui == other.gu
 static vector_tpl<simwin_t> wins(MAX_WIN);
 static vector_tpl<simwin_t> kill_list(MAX_WIN);
 
-static karte_t* wl = NULL; // Pointer to current world is set in win_set_welt
+static karte_t* wl = NULL; // Pointer to current world is set in win_set_world
 
 static int top_win(int win, bool keep_state );
 static void display_win(int win);
@@ -1687,11 +1687,19 @@ void win_display_flush(double konto)
 }
 
 
-void win_set_welt(karte_t *welt)
+void win_set_world(karte_t *world)
 {
-	wl = welt;
+	wl = world;
 	// remove all save window positions
 	old_win_pos.clear();
+}
+
+
+void win_redraw_world()
+{
+	if(wl) {
+		wl->set_dirty();
+	}
 }
 
 

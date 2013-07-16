@@ -15,6 +15,7 @@
 #include "simevent.h"
 #include "dataobj/umgebung.h"
 #include "simticker.h"
+#include "simwin.h"
 #include "tpl/slist_tpl.h"
 
 
@@ -137,6 +138,7 @@ void loadingscreen_t::set_progress( uint32 progress )
 loadingscreen_t::~loadingscreen_t()
 {
 	if(is_display_init()) {
+		win_redraw_world();
 		mark_screen_dirty();
 		ticker::set_redraw_all(true);
 	}
