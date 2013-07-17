@@ -47,6 +47,8 @@ protected:
 
 	static slist_tpl<depot_t *> all_depots;
 
+	void add_to_world_list(bool lock = false);
+
 public:
 	// Last selected vehicle filter
 	int selected_filter;

@@ -36,6 +36,12 @@
 
 #include "utils/cbuffer_t.h"
 
+#if MULTI_THREAD>1
+#include <pthread.h>
+static pthread_mutex_t sync_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t add_to_world_list_mutex = PTHREAD_MUTEX_INITIALIZER;
+#endif
+
 slist_tpl<depot_t *> depot_t::all_depots;
 
 #ifdef INLINE_DING_TYPE
@@ -52,6 +58,7 @@ depot_t::depot_t(karte_t *welt,loadsave_t *file) : gebaeude_t(welt)
 	selected_filter = VEHICLE_FILTER_RELEVANT;
 	last_selected_line = linehandle_t();
 	command_pending = false;
+	add_to_world_list(true);
 }
 
 
@@ -67,6 +74,7 @@ depot_t::depot_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_tile_besc
 	selected_filter = VEHICLE_FILTER_RELEVANT;
 	last_selected_line = linehandle_t();
 	command_pending = false;
+	add_to_world_list();
 }
 
 
@@ -74,6 +82,12 @@ depot_t::~depot_t()
 {
 	destroy_win((ptrdiff_t)this);
 	all_depots.remove(this);
+	const grund_t* gr = welt->lookup(get_pos());
+	if(gr)
+	{
+		gebaeude_t* gb = gr->find<gebaeude_t>();
+		welt->remove_building_from_world_list(gb);
+	}
 }
 
 
@@ -827,3 +841,16 @@ bool depot_t::is_suitable_for( const vehikel_t * test_vehicle, const uint8 tract
 	return true;
 }
 
+void depot_t::add_to_world_list(bool lock)
+{
+#if MULTI_THREAD>1
+			if(lock) pthread_mutex_lock(&add_to_world_list_mutex);
+#endif
+			const grund_t* gr = welt->lookup(get_pos());
+			gebaeude_t* gb = (gebaeude_t*)this;
+			welt->add_building_to_world_list(gb, karte_t::commuter_target, lock);
+			welt->add_building_to_world_list(gb, karte_t::mail_origin_or_target, lock);
+#if MULTI_THREAD>1
+			if(lock) pthread_mutex_unlock(&add_to_world_list_mutex);
+#endif
+}
