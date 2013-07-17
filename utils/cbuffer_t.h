@@ -2,6 +2,7 @@
 #define cbuffer_t_h
 
 #include <stdarg.h>
+#include <stdlib.h>
 /**
  * A character buffer. Main operation is 'append'
  * @author Hj. Malthaner
