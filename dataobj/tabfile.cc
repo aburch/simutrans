@@ -98,6 +98,10 @@ const koord &tabfileobj_t::get_koord(const char *key, koord def)
 
 uint8 tabfileobj_t::get_color(const char *key, uint8 def)
 {
+#ifdef MAKEOBJ
+	// don't have access to colour conversion code so just return default
+	return def;
+#else
 	const char *value = get(key);
 
 	if(!value || !*value) {
@@ -117,6 +121,7 @@ uint8 tabfileobj_t::get_color(const char *key, uint8 def)
 			return (uint8)strtol( value, NULL, 0 );
 		}
 	}
+#endif
 }
 
 int tabfileobj_t::get_int(const char *key, int def)
