@@ -4490,6 +4490,19 @@ void karte_t::step_passengers_and_mail(long delta_t)
 				destinations[destinations_assigned] = find_destination(trip);
 			}
 
+			//TODO: Change these variable names to something more fitting for this new system.
+			if(trip == commuting_trip)
+			{
+				gb->add_passengers_generated_local(pax_left_to_do);
+			}
+			
+			else if(trip == visiting_trip)
+			{
+				gb->add_passengers_generated_non_local(pax_left_to_do);
+			}
+
+			// Do nothing if trip == mail_trip
+
 			INT_CHECK( "simworld 4483" );
 
 			uint8 current_destination = 0;
@@ -8480,7 +8493,6 @@ void karte_t::add_building_to_world_list(gebaeude_t *gb, building_type b, bool o
 		return;
 	}
 
-	const fabrik_t* TEST_factory = gb->get_fabrik();
 	uint16 passenger_level = gb->get_passengers_per_hundred_months();
 	const uint16 mail_level = gb->get_mail_per_hundred_months();
 
