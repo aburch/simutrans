@@ -1115,13 +1115,13 @@ void stadt_t::add_gebaeude_to_stadt(gebaeude_t* gb, bool ordered)
 		}
 
 		// add all tiles
-		for (k.y = 0; k.y < size.y; k.y++)
+		for(k.y = 0; k.y < size.y; k.y++)
 		{
-			for (k.x = 0; k.x < size.x; k.x++)
+			for(k.x = 0; k.x < size.x; k.x++)
 			{
-				if (gebaeude_t* const add_gb = ding_cast<gebaeude_t>(welt->lookup_kartenboden(pos + k)->first_obj())) 
+				if(gebaeude_t* const add_gb = ding_cast<gebaeude_t>(welt->lookup_kartenboden(pos + k)->first_obj())) 
 				{
-					if(add_gb->get_tile()->get_besch()!=gb->get_tile()->get_besch())
+					if(add_gb->get_tile()->get_besch() != gb->get_tile()->get_besch())
 					{
 						dbg->error( "stadt_t::add_gebaeude_to_stadt()","two buildings \"%s\" and \"%s\" at (%i,%i): Game will crash during deletion", add_gb->get_tile()->get_besch()->get_name(), gb->get_tile()->get_besch()->get_name(), pos.x + k.x, pos.y + k.y);
 						buildings.remove(add_gb);
@@ -1622,7 +1622,6 @@ stadt_t::~stadt_t()
 			else 
 			{
 				gb->set_stadt( NULL );
-				welt->remove_building_from_world_list(gb);
 				hausbauer_t::remove(welt,welt->get_spieler(1), gb);
 			}
 		}

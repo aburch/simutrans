@@ -200,6 +200,8 @@ gebaeude_t::~gebaeude_t()
 			(*j)->remove_connected_attraction(this);
 		}
 	}
+
+	welt->remove_building_from_world_list(this);
 }
 
 
