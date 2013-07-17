@@ -48,7 +48,7 @@ private:
 	const char * tooltip;
 
 protected:
-	gui_komponente_t::init;
+	using gui_komponente_t::init;
 
 public:
 	//gui_label_t(const char* text=NULL, COLOR_VAL color=COL_BLACK, align_t align=left);

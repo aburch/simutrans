@@ -94,7 +94,7 @@ protected:
 	 * the extended init() version for buttons.
 	 * @author Max Kielland
 	 */
-	gui_komponente_t::init;
+	using gui_komponente_t::init;
 
 private:
 	/**
