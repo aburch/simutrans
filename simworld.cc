@@ -4374,6 +4374,16 @@ void karte_t::step_passengers_and_mail(long delta_t)
 	const uint32 building_count = wtyp == warenbauer_t::passagiere ? passenger_origins.get_count() : mail_origins_and_targets.get_count();
 
 	const uint32 step_interval = 10989909 / (building_count * settings.get_passenger_factor() + 1);
+
+	// Add 1 because the simuconf.tab setting is for maximum *alternative* destinations, whereas we need maximum *actual* desintations 
+	// TODO: Allow more destinations here.
+	// This needs to be here, as alloca does not like being inside a loop (undefined whether compiler can re-use memory on subsequent iterations)
+	const uint16 max_destinations = (settings.get_max_alternative_destinations() < 16 ? settings.get_max_alternative_destinations() : 15) + 1;
+
+	//minivec_tpl<halthandle_t> destination_list[16];
+	//size_t const n = max_destinations;
+	//ALLOCA(destination, destinations, n);
+	//ALLOCA(minivec_tpl<halthandle_t>, destination_list, n);
 	
 	// create passenger rate proportional to town size
 	while(step_interval < next_step) 
@@ -4440,9 +4450,6 @@ void karte_t::step_passengers_and_mail(long delta_t)
 		uint8 best_bad_start_halt;
 		bool too_slow_already_set;
 
-		// Add 1 because the simuconf.tab setting is for maximum *alternative* destinations, whereas we need maximum *actual* desintations 
-		const uint8 max_destinations = (settings.get_max_alternative_destinations() < 16 ? settings.get_max_alternative_destinations() : 15) + 1;
-
 		minivec_tpl<halthandle_t> destination_list[16];
 
 		// TODO: Set these from new, bespoke simuconf.tab settings.
@@ -4482,7 +4489,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 				/*trip == visiting_trip ? */
 				simrand_normal(range_visiting_tolerance, "karte_t::step_passengers_and_mail (visiting tolerance?)") + min_visiting_tolerance;
 			
-			//TODO: allow more destinations here using ALLOCA.
+			//TODO: Allow more than this.
 			destination destinations[16];
 
 			for(int destinations_assigned = 0; destinations_assigned <= destination_count; destinations_assigned ++)
