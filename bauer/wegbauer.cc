@@ -2223,7 +2223,14 @@ void wegbauer_t::baue_strasse()
 									&& ! ( sp && sp->is_public_service() )
 									);
 
-				weg->set_gehweg(build_sidewalk || weg->hat_gehweg());
+				// For now, have the city fix adoption/sidewalk issues during road upgrade.
+				// These issues arise from city expansion and contraction, so reconsider this
+				// after city limits work better.
+				if (city_adopts_this) {
+					weg->set_besitzer(NULL);
+				}
+
+				weg->set_gehweg(build_sidewalk || weg->hat_gehweg() || city_adopts_this);
 
 				if(!city_adopts_this)
 				{
