@@ -2221,7 +2221,6 @@ void wegbauer_t::baue_strasse()
 									&& ( besch->get_styp() != weg_t::type_elevated )
 									&& ( besch->get_styp() != weg_t::type_underground )
 									&& ! ( sp && sp->is_public_service() )
-									&& (weg->hat_gehweg() || build_sidewalk)
 									);
 
 				weg->set_gehweg(build_sidewalk || weg->hat_gehweg());

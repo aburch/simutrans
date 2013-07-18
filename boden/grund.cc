@@ -1499,7 +1499,6 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 										&& welt->get_city(weg->get_pos().get_2d())
 										&& welt->get_settings().get_towns_adopt_player_roads()
 										&& !( sp && sp->is_public_service() )
-										&& (alter_weg && alter_weg->hat_gehweg())
 										);
 
 		// Add a pavement to the new road if the old road also had a pavement.
