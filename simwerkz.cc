@@ -797,14 +797,14 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 						for(int m = 0; m < 8; m ++)
 						{
 							const koord kx = k.neighbours[m] + k;
-							if(kx == pos)
-							{ 
-								// The road being deleted obviously does not count.
-								continue;
-							}
 							const sint8 heightx = welt->lookup_hgt(kx);
 							const koord3d k3x(kx.x, kx.y, heightx);
 							const grund_t* grx = welt->lookup(k3x); 
+							if (grx == gr) {
+								// The road being deleted does not count -- but others
+								// at different heights DO count.
+								continue;
+							}
 							const weg_t* w = grx ? grx->get_weg(road_wt) : NULL;
 							if(w && w->get_ribi() > 2)
 							{
@@ -813,14 +813,14 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 								for(int q = 0; q < 4; q ++)
 								{
 									const koord ky = kx.nsow[q] + kx; 
-									if(ky == pos)
-									{ 
-										// The road being deleted obviously does not count.
-										continue;
-									}
 									const sint8 heighty = welt->lookup_hgt(ky);
 									const koord3d k3y(ky.x, ky.y, heighty);
 									const grund_t* gry = welt->lookup(k3y); 
+									if (gry == gr) {
+										// The road being deleted does not count -- but others
+										// at different heights DO count.
+										continue;
+									}
 									const weg_t* wy = gry ? gry->get_weg(road_wt) : NULL;
 									if(wy && wy->get_ribi() > 2)
 									{
@@ -2980,14 +2980,14 @@ const char *wkz_wayremover_t::do_work( karte_t *welt, spieler_t *sp, const koord
 							for(int m = 0; m < 8; m ++)
 							{
 								const koord kx = k.neighbours[m] + k;
-								if(kx == pos)
-								{ 
-									// The road being deleted obviously does not count.
-									continue;
-								}
 								const sint8 heightx = welt->lookup_hgt(kx);
 								const koord3d k3x(kx.x, kx.y, heightx);
 								const grund_t* grx = welt->lookup(k3x); 
+								if (grx == gr) {
+									// The road being deleted does not count -- but others
+									// at different heights DO count.
+									continue;
+								}
 								const weg_t* w = grx ? grx->get_weg(road_wt) : NULL;
 								if(w && w->get_ribi() > 2)
 								{
@@ -2996,14 +2996,14 @@ const char *wkz_wayremover_t::do_work( karte_t *welt, spieler_t *sp, const koord
 									for(int q = 0; q < 4; q ++)
 									{
 										const koord ky = kx.nsow[q] + kx; 
-										if(ky == pos)
-										{ 
-											// The road being deleted obviously does not count.
-											continue;
-										}
 										const sint8 heighty = welt->lookup_hgt(ky);
 										const koord3d k3y(ky.x, ky.y, heighty);
 										const grund_t* gry = welt->lookup(k3y); 
+										if (gry == gr) {
+											// The road being deleted does not count -- but others
+											// at different heights DO count.
+											continue;
+										}
 										const weg_t* wy = gry ? gry->get_weg(road_wt) : NULL;
 										if(wy && wy->get_ribi() > 2)
 										{
