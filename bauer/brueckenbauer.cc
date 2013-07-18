@@ -540,8 +540,15 @@ void brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, ko
 		pos = pos + zv;
 	}
 
+	// end tile height depends on whether slope matches direction...
+	sint8 end_slope_height = end.z;
+	grund_t * gr_end = welt->lookup(end);
+	if(  gr_end->get_grund_hang() != hang_typ(zv) && gr_end->get_grund_hang() != hang_typ(zv)*2  ) {
+		end_slope_height += hang_t::height(gr_end->get_grund_hang());
+	}
+
 	// must determine end tile: on a slope => likely need auffahrt
-	bool need_auffahrt = pos.z != end.z;
+	bool need_auffahrt = pos.z != end_slope_height;
 	if(  need_auffahrt  ) {
 		if(  weg_t const* const w = welt->lookup(end)->get_weg( weg_besch->get_wtyp() )  ) {
 			need_auffahrt &= w->get_besch()->get_styp() != weg_besch_t::elevated;
