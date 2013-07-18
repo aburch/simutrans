@@ -1503,6 +1503,11 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 
 		// Add a pavement to the new road if the old road also had a pavement.
 		weg->set_gehweg(alter_weg && alter_weg->hat_gehweg());
+		// *growl* Add a sidewalk to roads adopted by the city.  This avoids the
+		// "I deleted the road and replaced it, so now there's no sidewalk" phenomenon.
+		if (city_adopts_this) {
+			weg->set_gehweg(true);
+		}
 
 		if( sp && !ist_wasser() && !city_adopts_this )
 		{
