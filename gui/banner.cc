@@ -149,7 +149,7 @@ void banner_t::zeichnen(koord pos, koord gr )
 #ifdef REVISION
 	display_shadow_proportional( cursor.x, cursor.y, COL_WHITE, COL_BLACK, "Version " VERSION_NUMBER " " VERSION_DATE " r" QUOTEME(REVISION), true );
 #else
-	display_shadow_proportional( cursor.x, cursor.y, yp, COL_WHITE, COL_BLACK, "Version " VERSION_NUMBER " " VERSION_DATE, true );
+	display_shadow_proportional( cursor.x, cursor.y, COL_WHITE, COL_BLACK, "Version " VERSION_NUMBER " " VERSION_DATE, true );
 #endif
 	cursor.y += L_LINESPACE_EXTRA_7;
 
