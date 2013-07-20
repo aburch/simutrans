@@ -6006,16 +6006,17 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved messages");
 		}
 	}
 
-	// save all open windows (upon request)
-	file->rdwr_byte( active_player_nr );
-	rdwr_all_win(file);
-
 	if(file->get_experimental_version() >= 12)
 	{
 		file->rdwr_long(next_step);
 		file->rdwr_long(step_count[0]);
 		file->rdwr_long(step_count[1]);
 	}
+
+	// MUST be at the end of the load/save routine.
+	// save all open windows (upon request)
+	file->rdwr_byte( active_player_nr );
+	rdwr_all_win(file);
 
 	file->set_buffered(false);
 
@@ -6959,6 +6960,14 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 		}
 	}
 
+	if(file->get_experimental_version() >= 12)
+	{
+		file->rdwr_long(next_step);
+		file->rdwr_long(step_count[0]);
+		file->rdwr_long(step_count[1]);
+	}
+
+	// MUST be at the end of the load/save routine.
 	if(  file->get_version()>=102004  ) {
 		if(  umgebung_t::restore_UI  ) {
 			file->rdwr_byte( active_player_nr );
@@ -6969,13 +6978,6 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 			 */
 			rdwr_all_win( file );
 		}
-	}
-
-	if(file->get_experimental_version() >= 12)
-	{
-		file->rdwr_long(next_step);
-		file->rdwr_long(step_count[0]);
-		file->rdwr_long(step_count[1]);
 	}
 
 	// Check attractions' road connexions
@@ -8555,7 +8557,7 @@ void karte_t::add_building_to_world_list(gebaeude_t *gb, building_type b, bool o
 		{
 			// Residential to residential journeys are rare.
 			// TODO: Make this customisable in simuconf.tab
-			passenger_level /= 10;
+			passenger_level /= 20;
 		}
 
 		if(ordered)
