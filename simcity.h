@@ -376,6 +376,12 @@ public:
 		void resolve_factories();
 	};
 
+public:
+	/**
+ 	 * recalcs city borders (after loading old files, after house deletion, after house construction)
+	 */
+	void reset_city_borders();
+
 private:
 	/**
 	 * Data of target factories for pax/mail
@@ -390,10 +396,6 @@ private:
 	 */
 	void init_pax_destinations();
 
-	/**
- 	 * recalcs city borders (after loading old files, after house deletion, after house construction)
-	 */
-	void reset_city_borders();
 	/**
 	 * Enlarges city borders (after being unable to build a building, before trying again)
 	 * Returns false if there are other cities on all four sides

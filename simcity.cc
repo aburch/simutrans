@@ -1096,6 +1096,9 @@ static bool compare_gebaeude_pos(const gebaeude_t* a, const gebaeude_t* b)
 }
 
 
+// this function adds houses to the city house list
+// Please note: this is called during loading, on *every tile*.
+// It's therefore not OK to recalc city borders in here.
 void stadt_t::add_gebaeude_to_stadt(gebaeude_t* gb, bool ordered)
 {
 	if (gb != NULL)
@@ -1135,7 +1138,6 @@ void stadt_t::add_gebaeude_to_stadt(gebaeude_t* gb, bool ordered)
 				}
 			}
 		}
-		reset_city_borders();
 	}
 }
 
@@ -1283,16 +1285,19 @@ void stadt_t::check_city_tiles(bool del)
 		for(int y = limit_north; y <= limit_south; y++)
 		{
 			const koord k(x, y);
-			planquadrat_t* plan = welt->access(k);
-			if(!del)
-			{
-				plan->set_city(this);
-			}
-			else
-			{
-				if(plan && plan->get_city() == this)
+			// This can be called with garbage data, especially during loading
+			if(  welt->is_within_limits(k)  ) {
+				planquadrat_t* plan = welt->access(k);
+				if(!del)
 				{
-					plan->set_city(NULL);
+					plan->set_city(this);
+				}
+				else
+				{
+					if(plan->get_city() == this)
+					{
+						plan->set_city(NULL);
+					}
 				}
 			}
 		}
@@ -1325,9 +1330,13 @@ void stadt_t::reset_city_borders()
 		new_ur.y = thr.y;
 	}
 
-	FOR(weighted_vector_tpl<gebaeude_t*>, const i, buildings) {
-		if (i->get_tile()->get_besch()->get_utyp() != haus_besch_t::firmensitz) {
-			koord const& gb_pos = i->get_pos().get_2d();
+	for (
+			weighted_vector_tpl<gebaeude_t*>::const_iterator i = buildings.begin();
+			i != buildings.end(); ++i) {
+		gebaeude_t* gb = *i;
+		if (gb->get_tile()->get_besch()->get_utyp() != haus_besch_t::firmensitz) {
+			// Not an HQ
+			koord gb_pos = gb->get_pos().get_2d();
 			if (new_lo.x > gb_pos.x) {
 				new_lo.x = gb_pos.x;
 			}
@@ -4395,6 +4404,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 					gebaeude_t* gb = hausbauer_t::baue(welt, besitzer_p, welt->lookup_kartenboden(best_pos + koord(1, 1))->get_pos(), 0, besch);
 					hausbauer_t::denkmal_gebaut(besch);
 					add_gebaeude_to_stadt(gb);
+					reset_city_borders();
 					// tell the player, if not during initialization
 					if (!new_town) {
 						cbuffer_t buf;
@@ -4570,6 +4580,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 		gebaeude_t* new_gb = hausbauer_t::baue(welt, besitzer_p, welt->lookup_kartenboden(best_pos + offset)->get_pos(), layout, besch);
 		DBG_MESSAGE("new townhall", "use layout=%i", layout);
 		add_gebaeude_to_stadt(new_gb);
+		reset_city_borders();
 		DBG_MESSAGE("stadt_t::check_bau_rathaus()", "add townhall (bev=%i, ptr=%p)", buildings.get_sum_weight(),welt->lookup_kartenboden(best_pos)->first_obj());
 
 		// if not during initialization
@@ -5179,6 +5190,7 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 
 		gebaeude_t* gb = hausbauer_t::baue(welt, NULL, pos, layout, h);
 		add_gebaeude_to_stadt(gb);
+		reset_city_borders();
 
 		switch(want_to_have) {
 			case gebaeude_t::wohnung:   won += h->get_level() * 10; break;
@@ -5360,7 +5372,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 		koord3d pos = welt->lookup_kartenboden(k)->get_pos();
 		gebaeude_t* new_gb = hausbauer_t::baue(welt, NULL, pos, layout, h);
 		// We *can* skip most of the work in add_gebaeude_to_stadt, because we *just* cleared the location,
-		// so it must be valid!
+		// so it must be valid.  Our borders also should not have changed.
 		new_gb->set_stadt(this);
 		add_building_to_list(new_gb);
 
@@ -5383,9 +5395,10 @@ void stadt_t::add_building_to_list(gebaeude_t* building, bool ordered)
 	// Also add to the world list for passenger generation purposes.
 	if(building->get_haustyp() == gebaeude_t::wohnung)
 	{
-		// Residential - origin and mail
+		// Residential - origin,  mail and (much reduced) visitor target
 		welt->add_building_to_world_list(building, karte_t::passenger_origin, ordered);
 		welt->add_building_to_world_list(building, karte_t::mail_origin_or_target, ordered);
+		welt->add_building_to_world_list(building, karte_t::visitor_target, ordered);
 	}
 	else if(building->get_haustyp() == gebaeude_t::gewerbe)
 	{
