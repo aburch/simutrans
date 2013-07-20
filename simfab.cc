@@ -2493,7 +2493,10 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 		buf.append(translator::translate("Verbrauch"));
 
 		for (uint32 index = 0; index < eingang.get_count(); index++) {
-
+			if(!besch->get_lieferant(index))
+			{
+				continue;
+			}
 			buf.printf("\n - %s %u/%i/%u%s, %u%%",
 				translator::translate(eingang[index].get_typ()->get_name()),
 				(sint32)(0.5+eingang[index].menge / (double)(1<<fabrik_t::precision_bits)),

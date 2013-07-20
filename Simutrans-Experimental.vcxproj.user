@@ -4,7 +4,7 @@
     <ShowAllFiles>false</ShowAllFiles>
     <LocalDebuggerCommandArguments Condition="'$(Configuration)|$(Platform)'=='Debug (network)|Win32'">-log -debug 3 -server 13353 -lang en -load 173</LocalDebuggerCommandArguments>
     <DebuggerFlavor Condition="'$(Configuration)|$(Platform)'=='Debug (network)|Win32'">WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments Condition="'$(Configuration)|$(Platform)'=='Debug (command-line server)|Win32'">-log -debug 3 -server 13353 -lang en -objects Pak128.Britain-Ex-0.9.0 -load factory-issues</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments Condition="'$(Configuration)|$(Platform)'=='Debug (command-line server)|Win32'">-log -debug 3 -server 13353 -lang en -objects Pak128.Britain-Ex-0.9.0 -load bb-july-1967</LocalDebuggerCommandArguments>
     <DebuggerFlavor Condition="'$(Configuration)|$(Platform)'=='Debug (command-line server)|Win32'">WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerCommandArguments Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     </LocalDebuggerCommandArguments>

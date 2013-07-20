@@ -49,6 +49,23 @@ const uint32 bild_besch_t::rgbtab[SPECIAL] = {
 };
 
 
+// creates a single pixel dummy picture
+bild_besch_t* bild_besch_t::create_single_pixel()
+{
+	bild_besch_t* besch = new(4 * sizeof(PIXVAL)) bild_besch_t();
+	besch->pic.len = 1;
+	besch->pic.x = 0;
+	besch->pic.y = 0;
+	besch->pic.w = 1;
+	besch->pic.h = 1;
+	besch->pic.zoomable = 0;
+	besch->pic.data[0] = 0;
+	besch->pic.data[1] = 0;
+	besch->pic.data[2] = 0;
+	besch->pic.data[3] = 0;
+	return besch;
+}
+
 /* rotate_image_data - produces a (rotated) bild_besch
  * only rotates by 90 degrees or multiples thereof, and assumes a square image
  * Otherwise it will only succeed for angle=0;
