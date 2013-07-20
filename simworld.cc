@@ -8528,7 +8528,7 @@ void karte_t::add_building_to_world_list(gebaeude_t *gb, building_type b, bool o
 		if(gb->is_attraction())
 		{
 			// Attractions have fewer workers by comparison to visitors.
-			// FIXME: Make this customisable in simuconf.tab
+			// TODO: Make this customisable in simuconf.tab
 			passenger_level /= 2;
 		}
 
@@ -8547,8 +8547,15 @@ void karte_t::add_building_to_world_list(gebaeude_t *gb, building_type b, bool o
 		if(gb->is_monument() || gb->is_attraction())
 		{
 			// Attractions/monuments have more visitors than commercial buildings
-			// FIXME: Make this customisable in simuconf.tab
+			// TODO: Make this customisable in simuconf.tab
 			passenger_level *= 2;
+		}
+
+		if(gb->get_haustyp() == gebaeude_t::wohnung)
+		{
+			// Residential to residential journeys are rare.
+			// TODO: Make this customisable in simuconf.tab
+			passenger_level /= 10;
 		}
 
 		if(ordered)
