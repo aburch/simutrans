@@ -40,9 +40,6 @@ climate_gui_t::climate_gui_t(settings_t* const sets) :
 	koord cursor = koord (D_MARGIN_LEFT,D_MARGIN_TOP);
 	sint16 labelnr=0;
 
-	// mountain/water stuff
-	sint16 y = D_MARGIN_TOP;
-
 	// Water level
 	water_level.init( sets->get_grundwasser(), -10, 0, gui_numberinput_t::AUTOLINEAR, false );
 	water_level.set_pos( koord(L_COLUMN_EDIT,cursor.y) );

@@ -70,7 +70,7 @@ optionen_gui_t::optionen_gui_t(karte_t *welt) :
 
 	this->welt = welt;
 
-	for(  int i=0;  i<lengthof(option_buttons);  i++  ) {
+	for(  uint i=0;  i<lengthof(option_buttons);  i++  ) {
 
 		switch(i) {
 
