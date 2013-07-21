@@ -5324,19 +5324,22 @@ void convoi_t::unregister_stops()
 void convoi_t::set_next_stop_index(uint16 n)
 {
 	// stop at station or signals, not at waypoints
-   if(  n==INVALID_INDEX  ) 
+   if(n == INVALID_INDEX) 
    {
 	   // find out if stop or waypoint, waypoint: do not brake at waypoints
-	   const koord3d &route_end = route.back();
-	   const int count = fpl->get_count();
 	   bool reverse_waypoint = false;
-	   for(int i = 0; i < count; i ++)
+	   const koord3d route_end = route.back();
+	   if(fahr[0]->get_typ() != ding_t::aircraft)
 	   {
-		   const linieneintrag_t &eintrag = fpl->eintrag[i];
-		   if(eintrag.pos == route_end)
+		   const int count = fpl->get_count();
+		   for(int i = 0; i < count; i ++)
 		   {
-				reverse_waypoint = eintrag.reverse;
-				break;
+			   const linieneintrag_t &eintrag = fpl->eintrag[i];
+			   if(eintrag.pos == route_end)
+			   {
+					reverse_waypoint = eintrag.reverse;
+					break;
+			   }
 		   }
 	   }
 
