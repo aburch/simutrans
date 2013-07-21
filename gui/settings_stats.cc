@@ -281,7 +281,7 @@ void settings_experimental_revenue_stats_t::init( settings_t *sets )
 {
 	INIT_INIT;
 	INIT_NUM( "passenger_routing_packet_size", sets->get_passenger_routing_packet_size(), 1, 64, gui_numberinput_t::AUTOLINEAR, false );
-	INIT_NUM( "max_alternative_destinations", sets->get_max_alternative_destinations(), 0, 4096, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "max_alternative_destinations", sets->get_max_alternative_destinations(), 0, 65534, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM("passenger_max_wait", sets->get_passenger_max_wait(), 0, 311040, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM("min_wait_airport", sets->get_min_wait_airport(), 0, 311040, gui_numberinput_t::AUTOLINEAR, false );
 	{

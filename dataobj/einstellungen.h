@@ -440,7 +440,7 @@ public:
 	//@author: jamespetts
 	// Passenger routing settings
 	uint8 passenger_routing_packet_size;
-	uint8 max_alternative_destinations;
+	uint16 max_alternative_destinations;
 	uint8 passenger_routing_local_chance;
 	uint8 passenger_routing_midrange_chance;
 
@@ -833,8 +833,8 @@ public:
 
 	uint8 get_passenger_routing_packet_size() const { return passenger_routing_packet_size; }
 	void  set_passenger_routing_packet_size(uint8 value) { passenger_routing_packet_size = value; }
-	uint8 get_max_alternative_destinations() const { return max_alternative_destinations; }
-	void  set_max_alternative_destinations(uint8 value) { max_alternative_destinations = value; }
+	uint16 get_max_alternative_destinations() const { return max_alternative_destinations; }
+	void  set_max_alternative_destinations(uint16 value) { max_alternative_destinations = value; }
 	uint8 get_passenger_routing_local_chance() const { return passenger_routing_local_chance; }
 	void  set_passenger_routing_local_chance(uint8 value) { passenger_routing_local_chance = value; }
 	uint8 get_passenger_routing_midrange_chance() const { return passenger_routing_midrange_chance; }

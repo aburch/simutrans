@@ -1107,7 +1107,20 @@ void settings_t::rdwr(loadsave_t *file)
 			}
 
 			file->rdwr_byte(passenger_routing_packet_size);
-			file->rdwr_byte(max_alternative_destinations);
+			if(file->get_experimental_version() >= 12)
+			{
+				file->rdwr_short(max_alternative_destinations);
+			}
+			else
+			{
+				uint8 eight_bit_alternative_destinations = max_alternative_destinations > 255 ? 255 : max_alternative_destinations;
+				file->rdwr_byte(eight_bit_alternative_destinations);
+				if(file->is_loading())
+				{
+					max_alternative_destinations = (uint16)eight_bit_alternative_destinations;
+				}
+			}
+
 			file->rdwr_byte(passenger_routing_local_chance);
 			file->rdwr_byte(passenger_routing_midrange_chance);
 			if(file->get_experimental_version() < 11)
