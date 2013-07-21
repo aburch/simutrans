@@ -3191,7 +3191,7 @@ void stadt_t::step_passagiere()
 	// Add 1 because the simuconf.tab setting is for maximum *alternative* destinations, whereas we need maximum *actual* desintations 
 	const uint8 max_destinations = (s.get_max_alternative_destinations() < 16 ? s.get_max_alternative_destinations() : 15) + 1;
 
-	minivec_tpl<halthandle_t> destination_list[16];
+	vector_tpl<halthandle_t> destination_list[16];
 
 	// Find passenger destination
 	for(int pax_routed = 0, pax_left_to_do = 0; pax_routed < num_pax; pax_routed += pax_left_to_do) 

@@ -1493,7 +1493,7 @@ void haltestelle_t::refresh_routing(const schedule_t *const sched, const minivec
 	}
 }
 
-minivec_tpl<halthandle_t>* haltestelle_t::build_destination_list(ware_t &ware)
+vector_tpl<halthandle_t>* haltestelle_t::build_destination_list(ware_t &ware)
 {
 	const ware_besch_t * warentyp = ware.get_besch();
 
@@ -1505,7 +1505,7 @@ minivec_tpl<halthandle_t>* haltestelle_t::build_destination_list(ware_t &ware)
 	const planquadrat_t *const plan = welt->lookup(ware.get_zielpos());
 	fabrik_t* const fab = fabrik_t::get_fab(welt, ware.get_zielpos());
 
-	minivec_tpl<halthandle_t> *destination_halts_list = new minivec_tpl<halthandle_t>(plan->get_haltlist_count());
+	vector_tpl<halthandle_t> *destination_halts_list = new vector_tpl<halthandle_t>(plan->get_haltlist_count());
 	
 	if(fab)
 	{
@@ -1563,7 +1563,7 @@ minivec_tpl<halthandle_t>* haltestelle_t::build_destination_list(ware_t &ware)
 	return destination_halts_list;
 }
 
-uint16 haltestelle_t::find_route(minivec_tpl<halthandle_t> *destination_halts_list, ware_t &ware, const uint16 previous_journey_time, const koord destination_pos)
+uint16 haltestelle_t::find_route(vector_tpl<halthandle_t> *destination_halts_list, ware_t &ware, const uint16 previous_journey_time, const koord destination_pos)
 {
 	// Find the best route (sequence of halts) for a given packet
 	// from here to its final destination -- *and* reroute the packet.
@@ -1665,7 +1665,7 @@ uint16 haltestelle_t::find_route(minivec_tpl<halthandle_t> *destination_halts_li
 
 uint16 haltestelle_t::find_route (ware_t &ware, const uint16 previous_journey_time)
 {
-	minivec_tpl<halthandle_t> *destination_halts_list = build_destination_list(ware);
+	vector_tpl<halthandle_t> *destination_halts_list = build_destination_list(ware);
 	const uint16 journey_time = find_route(destination_halts_list, ware, previous_journey_time);
 	delete destination_halts_list;
 	return journey_time;

@@ -4376,14 +4376,10 @@ void karte_t::step_passengers_and_mail(long delta_t)
 	const uint32 step_interval = 10989909 / (building_count * settings.get_passenger_factor() + 1);
 
 	// Add 1 because the simuconf.tab setting is for maximum *alternative* destinations, whereas we need maximum *actual* desintations 
-	// TODO: Allow more destinations here.
-	// This needs to be here, as alloca does not like being inside a loop (undefined whether compiler can re-use memory on subsequent iterations)
-	const uint16 max_destinations = (settings.get_max_alternative_destinations() < 16 ? settings.get_max_alternative_destinations() : 15) + 1;
-
-	//minivec_tpl<halthandle_t> destination_list[16];
-	//size_t const n = max_destinations;
-	//ALLOCA(destination, destinations, n);
-	//ALLOCA(minivec_tpl<halthandle_t>, destination_list, n);
+	const uint16 max_destinations = settings.get_max_alternative_destinations() + 1;
+	
+	vector_tpl<destination> destinations(max_destinations);
+	vector_tpl<vector_tpl<halthandle_t> > destination_list(max_destinations);
 	
 	// create passenger rate proportional to town size
 	while(step_interval < next_step) 
@@ -4459,7 +4455,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 		uint8 best_bad_start_halt;
 		bool too_slow_already_set;
 
-		minivec_tpl<halthandle_t> destination_list[16];
+		destination_list.clear();
 
 		// TODO: Set these from new, bespoke simuconf.tab settings.
 		const uint16 min_commuting_tolerance = settings.get_min_midrange_tolerance();
@@ -4577,12 +4573,12 @@ void karte_t::step_passengers_and_mail(long delta_t)
 					}
 				}
 			
-				//TODO: Allow more than this.
-				destination destinations[16];
+				destinations.clear();
 
 				for(int destinations_assigned = 0; destinations_assigned <= destination_count; destinations_assigned ++)
 				{				
-					destinations[destinations_assigned] = find_destination(trip);
+					destinations.append(find_destination(trip));
+					destination_list.append(vector_tpl<halthandle_t>()); 
 				}
 
 				// TODO: Change these variable names to something more fitting for this new system.
