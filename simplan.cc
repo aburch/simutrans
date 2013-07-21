@@ -302,7 +302,7 @@ void planquadrat_t::rdwr(karte_t *welt, loadsave_t *file, koord pos )
 }
 
 
-// start a new month (an change seasons)
+// start a new month (and change seasons)
 void planquadrat_t::check_season(const long month)
 {
 	if(ground_size==0) {

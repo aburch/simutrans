@@ -4476,6 +4476,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 		route_status_type route_status = initialising;
 		uint8 current_destination;
 		uint16 time_per_tile;
+		uint16 tolerance;
 
 		// Find passenger destination
 		for(int pax_routed = 0, pax_left_to_do = 0; pax_routed < num_pax; pax_routed += pax_left_to_do) 
@@ -4513,6 +4514,16 @@ void karte_t::step_passengers_and_mail(long delta_t)
 						simrand(300, "karte_t::step_passengers_and_mail() (commuting or visiting trip?)") <= 200 ?
 						commuting_trip : visiting_trip :
 					  mail_trip;
+
+					  // Set here because we deduct the previous journey time from the tolerance for onward trips.
+
+					  tolerance = 
+						trip == mail_trip ? 
+						65535 : 
+							trip == commuting_trip ?
+							simrand_normal(range_commuting_tolerance, "karte_t::step_passengers_and_mail (commuting tolerance?)") + min_commuting_tolerance : 
+							/*trip == visiting_trip ? */
+							simrand_normal(range_visiting_tolerance, "karte_t::step_passengers_and_mail (visiting tolerance?)") + min_visiting_tolerance;
 				}
 				else
 				{
@@ -4525,6 +4536,10 @@ void karte_t::step_passengers_and_mail(long delta_t)
 
 					// Onward journey - set the initial point to the previous end point.
 					const grund_t* gr = lookup(koord3d(destination_pos, lookup_hgt(destination_pos)));
+					if(!gr)
+					{
+						continue;
+					}
 					gb = gr->find<gebaeude_t>();
 					if(!gb)
 					{
@@ -4561,14 +4576,6 @@ void karte_t::step_passengers_and_mail(long delta_t)
 						}
 					}
 				}
-
-				const uint16 tolerance = 
-				trip == mail_trip ? 
-				65535 : 
-					trip == commuting_trip ?
-					simrand_normal(range_commuting_tolerance, "karte_t::step_passengers_and_mail (commuting tolerance?)") + min_commuting_tolerance : 
-					/*trip == visiting_trip ? */
-					simrand_normal(range_visiting_tolerance, "karte_t::step_passengers_and_mail (visiting tolerance?)") + min_visiting_tolerance;
 			
 				//TODO: Allow more than this.
 				destination destinations[16];
@@ -4622,6 +4629,8 @@ void karte_t::step_passengers_and_mail(long delta_t)
 				too_slow_already_set = false;
 				ware_t pax(wtyp);
 				halthandle_t start_halt;
+				uint16 best_journey_time;
+				uint32 walking_time;
 
 				while(route_status != public_transport && route_status != private_car && route_status != on_foot && current_destination < destination_count)
 				{
@@ -4629,7 +4638,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 					const uint32 straight_line_distance = shortest_distance(origin_pos, destination_pos);
 					// Careful -- use uint32 here to avoid overflow cutoff errors.
 					// This number may be very long.
-					const uint32 walking_time = walking_time_tenths_from_distance(straight_line_distance);
+					walking_time = walking_time_tenths_from_distance(straight_line_distance);
 					car_minutes = 65535;
 
 					// If can_walk is true, it also guarantees that walking_time will fit in a uint16.
@@ -4665,7 +4674,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 						}
 					}
 
-					uint16 best_journey_time = 65535;
+					best_journey_time = 65535;
 					if(start_halts.get_count() == 1 && destination_list[current_destination].get_count() == 1 && start_halts[0].halt == destination_list[current_destination].get_element(0))
 					{
 						/** There is no public transport route, as the only stop
@@ -4877,6 +4886,11 @@ void karte_t::step_passengers_and_mail(long delta_t)
 				switch(route_status)
 				{
 				case public_transport:
+
+					if(tolerance < 65535)
+					{
+						tolerance -= best_journey_time;
+					}
 					if(destinations[current_destination].type == factory)
 					{
 						destinations[current_destination].object.industry->liefere_an(wtyp, pax_left_to_do);
@@ -4909,7 +4923,12 @@ void karte_t::step_passengers_and_mail(long delta_t)
 					break;
 
 				case private_car:
-
+					
+					if(tolerance < 65535)
+					{
+						tolerance -= car_minutes;
+					}
+					
 					if(destinations[current_destination].type == factory)
 					{
 						destinations[current_destination].object.industry->liefere_an(wtyp, pax_left_to_do);
@@ -4935,7 +4954,11 @@ void karte_t::step_passengers_and_mail(long delta_t)
 					break;
 
 				case on_foot:
-
+					
+					if(tolerance < 65535)
+					{
+						tolerance -= walking_time;
+					}	
 					if(destinations[current_destination].type == factory)
 					{
 						destinations[current_destination].object.industry->liefere_an(wtyp, pax_left_to_do);
