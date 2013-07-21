@@ -137,6 +137,15 @@ public:
 	#define MAX_WORLD_HISTORY_YEARS  (12) // number of years to keep history
 	#define MAX_WORLD_HISTORY_MONTHS  (12) // number of months to keep history
 
+	enum route_status_type
+	{
+		initialising,
+		no_route,
+		too_slow,
+		public_transport,
+		private_car,
+		on_foot
+	};
 
 	bool get_is_shutting_down() const { return is_shutting_down; }
 

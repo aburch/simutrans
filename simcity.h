@@ -59,6 +59,7 @@ enum city_cost {
 	MAX_CITY_HISTORY		// Total number of items in array
 };
 
+// TODO: Remove this deprecated code when ready to remove old passenger generation code.
 enum route_status_type
 {
 	no_route = 0,
