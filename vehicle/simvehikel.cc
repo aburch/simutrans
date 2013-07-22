@@ -4784,7 +4784,7 @@ bool aircraft_t::calc_route_internal(
 	suchen = takeoff = touchdown = INVALID_INDEX;
 
 	const weg_t *w_start = welt->lookup(start)->get_weg(air_wt);
-	bool start_in_air = w_start == NULL && state != flying && state != circling && state != landing;
+	bool start_in_air = flughoehe || w_start == NULL;
 
 	const weg_t *w_ziel = welt->lookup(ziel)->get_weg(air_wt);
 	bool end_in_air = w_ziel == NULL;
