@@ -4784,7 +4784,7 @@ bool aircraft_t::calc_route_internal(
 	suchen = takeoff = touchdown = INVALID_INDEX;
 
 	const weg_t *w_start = welt->lookup(start)->get_weg(air_wt);
-	bool start_in_air = w_start == NULL;
+	bool start_in_air = w_start == NULL && state != flying && state != circling && state != landing;
 
 	const weg_t *w_ziel = welt->lookup(ziel)->get_weg(air_wt);
 	bool end_in_air = w_ziel == NULL;
@@ -4801,14 +4801,16 @@ bool aircraft_t::calc_route_internal(
 	}
 
 	koord3d search_start, search_end;
-	if(start_in_air  ||  (w_start->get_besch()->get_styp()==1  &&  ribi_t::ist_einfach(w_start->get_ribi())) ) {
+	if(start_in_air || (w_start && w_start->get_besch()->get_styp()==1 && ribi_t::ist_einfach(w_start->get_ribi())))
+	{
 		// we start here, if we are in the air or at the end of a runway
 		search_start = start;
 		start_in_air = true;
 		route.clear();
 		//DBG_MESSAGE("aircraft_t::calc_route()","start in air at %i,%i,%i",search_start.x,search_start.y,search_start.z);
 	}
-	else {
+	else
+	{
 		// not found and we are not on the takeoff tile (where the route search will fail too) => we try to calculate a complete route, starting with the way to the runway
 
 		// second: find start runway end
