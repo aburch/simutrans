@@ -4865,6 +4865,19 @@ void karte_t::step_passengers_and_mail(long delta_t)
 							route_status = private_car;
 						}
 					}
+					else if(car_minutes != 65535)
+					{
+						route_status = too_slow;
+
+						if(!too_slow_already_set)
+						{
+							best_bad_destination = destination_pos;
+ 							// too_slow_already_set = true;
+							// Do not set too_slow_already_set here, as will
+							// prevent the passengers showing up in a "too slow" 
+							// graph on a subsequent station/stop.
+						}
+					}
 				
 					INT_CHECK("simworld 4731");
 					if(route_status == no_route || route_status == too_slow)
@@ -4998,7 +5011,11 @@ void karte_t::step_passengers_and_mail(long delta_t)
 						city->merke_passagier_ziel(best_bad_destination, COL_LIGHT_PURPLE);
 					}
 
-					start_halt = start_halts[best_bad_start_halt].halt; 					
+					if(too_slow_already_set)
+					{
+						// This will be dud for a private car trip.
+						start_halt = start_halts[best_bad_start_halt].halt; 					
+					}
 					if(start_halt.is_bound())
 					{
 						start_halt->add_pax_too_slow(pax_left_to_do);

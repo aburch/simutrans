@@ -481,12 +481,12 @@ void gebaeude_t::calc_bild()
 {
 	grund_t *gr = welt->lookup(get_pos());
 	// need no ground?
-	if(  remove_ground  &&  gr->get_typ()==grund_t::fundament  ) {
+	if( gr && remove_ground  &&  gr->get_typ()==grund_t::fundament  ) {
 		gr->set_bild( IMG_LEER );
 	}
 	// snow image?
 	snow = 0;
-	if(  tile->get_seasons()>1  ) {
+	if( gr && tile->get_seasons()>1  ) {
 		snow = (!gr->ist_tunnel()  ||  gr->ist_karten_boden())  &&  (get_pos().z-(get_yoff()/TILE_HEIGHT_STEP)>= welt->get_snowline());
 	}
 }
