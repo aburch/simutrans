@@ -4632,6 +4632,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 				{
 					destination_pos = destinations[current_destination].location;
 					const uint32 straight_line_distance = shortest_distance(origin_pos, destination_pos);
+					pax.to_factory = fabrik_t::get_fab(this, destination_pos) ? 1 : 0;
 					// Careful -- use uint32 here to avoid overflow cutoff errors.
 					// This number may be very long.
 					walking_time = walking_time_tenths_from_distance(straight_line_distance);
@@ -5065,7 +5066,6 @@ void karte_t::step_passengers_and_mail(long delta_t)
 					}
 				};
 
-				// TODO: Add code for onward journeys as well as returns.
 				if(set_return_trip)
 				{
 					// Calculate a return journey
@@ -5287,8 +5287,8 @@ karte_t::destination karte_t::find_destination(trip_type trip)
 	current_destination.location = gb->get_pos();
 
 	// Add the correct object type.
-	fabrik_t* fab = gb->get_fabrik();
-	stadt_t* city = gb->get_stadt();
+	fabrik_t* const fab = gb->get_fabrik();
+	stadt_t* const city = gb->get_stadt();
 	if(fab)
 	{
 		current_destination.object.industry = fab;
