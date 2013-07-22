@@ -2304,8 +2304,9 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 	// have we arrived?
 	// FIXME: This code needs to be fixed for multi-tile buildings
 	// such as attractions and city halls, to allow access from any side
-	fabrik_t* const fab = fabrik_t::get_fab( welt, ware.get_zielpos() );
-	if ( ware.to_factory && fab && fab_list.is_contained(fab) ) {
+	fabrik_t* const fab = fabrik_t::get_fab(welt, ware.get_zielpos());
+	if(ware.get_ziel() == self && ware.to_factory && fab && fab_list.is_contained(fab))
+	{
 		// Packet is headed to a factory;
 		// the factory exists;
 		// and the factory is considered linked to this halt.
@@ -2319,7 +2320,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 	}
 	// OK, not arrived at a factory, have we arrived somewhere else?
 	const planquadrat_t* plan = welt->lookup(ware.get_zielpos());
-	if( !(ware.to_factory) && plan && plan->is_connected(self) )
+	if(!(ware.to_factory) && ware.get_ziel() == self && plan && plan->is_connected(self))
 	{
 		// Yes, we have.  Passengers & mail vanish mysteriously upon arrival.
 		// FIXME: walking time delay should be implemented right here!
