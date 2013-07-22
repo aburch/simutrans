@@ -167,7 +167,7 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, spieler_t *sp, koord3d pos, k
 			return koord3d::invalid;
 		}
 		// check for height
-		sint16 height = pos.z -welt->lookup_kartenboden(pos.get_2d())->get_hoehe();
+		sint16 height = pos.z+max_height-welt->lookup_kartenboden(pos.get_2d())->get_hoehe();
 		if(besch->get_max_height()!=0  &&  height>besch->get_max_height()) {
 			error_msg = "bridge is too high for its type!";
 			return koord3d::invalid;
@@ -541,10 +541,10 @@ void brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, ko
 	}
 
 	// end tile height depends on whether slope matches direction...
+	hang_t::typ end_slope = welt->lookup(end)->get_grund_hang();
 	sint8 end_slope_height = end.z;
-	grund_t * gr_end = welt->lookup(end);
-	if(  gr_end->get_grund_hang() != hang_typ(zv) && gr_end->get_grund_hang() != hang_typ(zv)*2  ) {
-		end_slope_height += hang_t::height(gr_end->get_grund_hang());
+	if(  end_slope != hang_typ(zv) && end_slope != hang_typ(zv)*2  ) {
+		end_slope_height += hang_t::height(end_slope);
 	}
 
 	// must determine end tile: on a slope => likely need auffahrt
