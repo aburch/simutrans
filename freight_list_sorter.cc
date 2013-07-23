@@ -287,12 +287,11 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			}
 			// the target name is not correct for the via sort
 
-			const bool is_factory_going = ( sortby!=by_via_sum  &&  ware.to_factory );	// exclude merged packets
-			if(  sortby!=by_via_sum  ||  via_halt==halt  ) 
+			if(sortby!=by_via_sum || via_halt==halt) 
 			{
-				if(  is_factory_going && sortby != by_origin_amount ) 
+				if(sortby != by_origin_amount && ware.to_factory) 
 				{
-					const fabrik_t *const factory = fabrik_t::get_fab( world, ware.get_zielpos() );
+					const fabrik_t *const factory = fabrik_t::get_fab(world, ware.get_zielpos());
 					buf.printf("%s <%i, %i> ", (factory ? factory->get_name() : "Invalid Factory"), ware.get_zielpos().x, ware.get_zielpos().y);
 				}
 			}
@@ -317,7 +316,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 				buf.printf(origin_name);
 			}
 			
-			if((via_halt != halt || is_factory_going) && (sortby == by_via || sortby == by_via_sum))
+			if(via_halt != halt && (sortby == by_via || sortby == by_via_sum))
 			{
 				const char *via_name = "unknown";
 				if(via_halt.is_bound()) 
