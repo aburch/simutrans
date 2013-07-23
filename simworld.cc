@@ -5056,7 +5056,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 						{
 							destinations_checked = 0;
 							halthandle_t halt = halt_list[h].halt;
-							for(; destinations_checked <= destination_count; destinations_checked ++)
+							for(; destinations_checked < destination_count; destinations_checked ++)
 							{
 								// Only mark passengers as being unable to get to their destination due to crowded stops if the stops
 								// could actually have got the passengers to their destination if they were not crowded.
