@@ -937,6 +937,14 @@ fabrik_t::~fabrik_t()
 		city->remove_city_factory(this);
 	}
 
+	const grund_t* gr = welt->lookup(pos);
+	//assert(gr);
+	if(gr)
+	{
+		gebaeude_t* gb = gr->find<gebaeude_t>();
+		welt->remove_building_from_world_list(gb);
+	}
+
 	if (!welt->get_is_shutting_down())
 	{
 		uint16 jobs = 0;
@@ -981,20 +989,13 @@ fabrik_t::~fabrik_t()
 				grund_t *gr = 0;
 				gr = welt->lookup(tmp->get_pos());
 				gebaeude_t* gb = gr->find<gebaeude_t>();
-				hausbauer_t::remove(welt,  welt->get_spieler(1), gb);
+				hausbauer_t::remove(welt, welt->get_spieler(1), gb);
 			}
 		}
 		if(transformer_connected)
 		{
 			transformer_connected->clear_factory();
 		}
-	}
-
-	const grund_t* gr = welt->lookup(pos);
-	if(gr)
-	{
-		gebaeude_t* gb = gr->find<gebaeude_t>();
-		welt->remove_building_from_world_list(gb);
 	}
 }
 
