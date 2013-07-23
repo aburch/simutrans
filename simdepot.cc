@@ -515,9 +515,44 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 			cnv->get_schedule()->advance();
 		}
 
-		// check if convoi is complete
-		if(cnv->get_sum_leistung() == 0 || !cnv->pruefe_alle() || cnv->calc_max_speed(cnv->get_weight_summary()) == 0) {
-			if (local_execution) {
+		bool convoy_unpowered = cnv->get_sum_leistung() == 0 || cnv->calc_max_speed(cnv->get_weight_summary()) == 0;
+
+		if(convoy_unpowered)
+		{
+			// HACK: Not sure what is causing the basic problem with cnv->get_sum_leistung() reporting 0 with some very large aircraft (currently only 747s).
+
+			bool power = false;
+			bool speed = false;
+			vector_tpl<const vehikel_besch_t*> vehicle_types;
+			const uint8 number_of_vehicles = cnv->get_vehikel_anzahl();
+			for(uint8 i = 0; i < number_of_vehicles; i++)
+			{
+				if(cnv->get_vehikel(i)->get_besch()->get_leistung())
+				{
+					power = true;
+				}
+				vehicle_types.append((cnv->get_vehikel(i)->get_besch()));
+			}
+			if(power)
+			{
+				karte_t &world = *welt; 
+				potential_convoy_t convoy(world, vehicle_types);	
+				const vehicle_summary_t &vsum = convoy.get_vehicle_summary();
+				const sint32 friction = convoy.get_current_friction();
+				const double rolling_resistance = convoy.get_resistance_summary().to_double();
+				const uint32 number_of_vehicles = vehicle_types.get_count();
+				const uint32 max_speed = convoy.calc_max_speed(weight_summary_t(vsum.weight, friction));
+				speed = max_speed;
+			}
+
+			convoy_unpowered = !(power && speed); 
+		}
+
+		// check if convoy is complete
+		if(convoy_unpowered || !cnv->pruefe_alle())
+		{
+			if (local_execution) 
+			{
 				create_win( new news_img("Diese Zusammenstellung kann nicht fahren!\n"), w_time_delete, magic_none);
 			}
 		}
