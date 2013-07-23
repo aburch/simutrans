@@ -326,6 +326,7 @@ private:
 	best_t best_strasse;
 
 public:
+	// TODO: Remove this deprecated code completely.
 	/**
 	 * Classes for storing and manipulating target factories and their data
 	 * @author Knightly

@@ -468,7 +468,7 @@ void fabrik_t::update_prodfactor_mail()
 	set_stat(prodfactor_mail, FAB_BOOST_MAIL);
 }
 
-
+// TODO: Remove this deprecated code completely.
 void fabrik_t::recalc_demands_at_target_cities()
 {
 	if (!welt->get_settings().get_factory_enforce_demand()) {
@@ -578,13 +578,13 @@ void fabrik_t::remove_target_city(stadt_t *const city)
 {
 	if(  target_cities.is_contained(city)  ) {
 		target_cities.remove(city);
-		city->access_target_factories_for_pax().remove_factory(this);
+		/*city->access_target_factories_for_pax().remove_factory(this);
 		city->access_target_factories_for_mail().remove_factory(this);
-		recalc_demands_at_target_cities();
+		recalc_demands_at_target_cities();*/
 	}
 }
 
-
+// TODO: Remove this deprecated code completely.
 void fabrik_t::clear_target_cities()
 {
 	FOR(vector_tpl<stadt_t*>, const c, target_cities) {
@@ -2108,7 +2108,7 @@ void fabrik_t::neuer_monat()
 	set_stat( power, FAB_POWER );
 
 	// since target cities' population may be increased -> re-apportion pax/mail demand
-	recalc_demands_at_target_cities();
+	//recalc_demands_at_target_cities();
 
 	// This needs to be re-checked regularly, as cities grow, occasionally shrink and can be deleted.
 	stadt_t* c = welt->get_city(pos.get_2d());
@@ -2681,8 +2681,8 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 			}
 		}
 	}
-
-	if (!target_cities.empty()) {
+	// TODO: Remove this deprecated code entirely
+	/*if (!target_cities.empty()) {
 		if(  has_previous  ) {
 			buf.append("\n\n");
 		}
@@ -2692,7 +2692,7 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 		for(  uint32 c=0;  c<target_cities.get_count();  ++c  ) {
 			buf.append("\n");
 		}
-	}
+	}*/
 
 	// Check *all* tiles for nearby stops... but don't update!
 	if ( !nearby_freight_halts.empty() )

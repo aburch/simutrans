@@ -337,7 +337,8 @@ void gui_fabrik_info_t::zeichnen(koord offset)
 		yoff += LINESPACE;
 	}
 
-	const vector_tpl<stadt_t *> &target_cities = fab->get_target_cities();
+	// TODO: Remove this deprecated code completely.
+	/*const vector_tpl<stadt_t *> &target_cities = fab->get_target_cities();
 	if(  !target_cities.empty()  ) {
 		yoff += LINESPACE;
 
@@ -365,7 +366,7 @@ void gui_fabrik_info_t::zeichnen(koord offset)
 			yoff += LINESPACE;
 		}
 		yoff += 2 * LINESPACE;
-	}
+	}*/
 }
 
 

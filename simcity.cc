@@ -1357,7 +1357,7 @@ void stadt_t::reset_city_borders()
 	check_city_tiles(false);
 }
 
-
+// TODO: Remove this deprecated code completely.
 void stadt_t::init_pax_destinations()
 {
 	pax_destinations_old.clear();
@@ -1385,13 +1385,13 @@ void stadt_t::factory_entry_t::rdwr(loadsave_t *file)
 	}
 }
 
-
+// TODO: Remove this deprecated code completely.
 void stadt_t::factory_entry_t::resolve_factory()
 {
 	factory = fabrik_t::get_fab( welt, koord(factory_pos_x, factory_pos_y) );
 }
 
-
+// TODO: Remove this deprecated code completely.
 const stadt_t::factory_entry_t* stadt_t::factory_set_t::get_entry(const fabrik_t *const factory) const
 {
 	FOR(vector_tpl<factory_entry_t>, const& e, entries) {
@@ -1402,7 +1402,7 @@ const stadt_t::factory_entry_t* stadt_t::factory_set_t::get_entry(const fabrik_t
 	return NULL;	// not found
 }
 
-
+// TODO: Remove this deprecated code completely.
 stadt_t::factory_entry_t* stadt_t::factory_set_t::get_random_entry()
 {
 	if(  total_remaining>0  ) {
@@ -1419,7 +1419,7 @@ stadt_t::factory_entry_t* stadt_t::factory_set_t::get_random_entry()
 	return NULL;
 }
 
-
+// TODO: Remove this deprecated code completely.
 void stadt_t::factory_set_t::update_factory(fabrik_t *const factory, const sint32 demand)
 {
 	if(  entries.is_contained( factory_entry_t(factory) )  ) {
@@ -1437,7 +1437,7 @@ void stadt_t::factory_set_t::update_factory(fabrik_t *const factory, const sint3
 	ratio_stale = true;		// always trigger recalculation of ratio
 }
 
-
+// TODO: Remove this deprecated code completely.
 void stadt_t::factory_set_t::remove_factory(fabrik_t *const factory)
 {
 	if(  entries.is_contained( factory_entry_t(factory) )  ) {
@@ -1449,7 +1449,7 @@ void stadt_t::factory_set_t::remove_factory(fabrik_t *const factory)
 	}
 }
 
-
+// TODO: Remove this deprecated code completely.
 #define SUPPLY_BITS   (3)
 #define SUPPLY_FACTOR (9)	// out of 2^SUPPLY_BITS
 void stadt_t::factory_set_t::recalc_generation_ratio(const sint32 default_percent, const sint64 *city_stats, const int stats_count, const int stat_type)
@@ -1532,7 +1532,7 @@ void stadt_t::factory_set_t::recalc_generation_ratio(const sint32 default_percen
 	}
 }
 
-
+// TODO: Remove this deprecated code completely.
 void stadt_t::factory_set_t::new_month()
 {
 	FOR(vector_tpl<factory_entry_t>, & e, entries) {
@@ -1568,7 +1568,7 @@ void stadt_t::factory_set_t::rdwr(loadsave_t *file)
 	}
 }
 
-
+// TODO: Remove this deprecated code completely.
 void stadt_t::factory_set_t::resolve_factories()
 {
 	uint32 remove_count = 0;
@@ -2057,9 +2057,38 @@ void stadt_t::rdwr(loadsave_t* file)
 		townhall_road = koord::invalid;
 	}
 
+	if(file->get_version() >= 110005 && file->get_experimental_version() < 12) 
+	{
+		// Old "factory_entry_t" code - deprecated, but must skip to the correct 
+		// position in old saved game files. NOTE: There is *no* way to save in 
+		// a version compatible with older saved games with the factory entry
+		// code stripped out.
+		uint32 entry_count = 0;
+		for(int i = 0; i < 2; i ++)
+		{
+			// This must be done twice, as the routine was  
+			// called once for mail and once for passengers.
+			file->rdwr_long(entry_count);
+			if(file->is_loading())
+			{
+				for(uint32 e = 0; e < entry_count; ++e)
+				{
+					koord factory_pos = koord::invalid;
+					factory_pos.rdwr(file);
+					uint32 dummy = 0;
+					file->rdwr_long(dummy);
+					file->rdwr_long(dummy);
+					file->rdwr_long(dummy);
+				}
+			}
+			uint32 total_generated = 0;
+			file->rdwr_long(total_generated);
+		}
+	}
+
 	// data related to target factories
-	target_factories_pax.rdwr( file );
-	target_factories_mail.rdwr( file );
+	//target_factories_pax.rdwr( file );
+	//target_factories_mail.rdwr( file );
 
 	if(file->get_experimental_version() >=9 && file->get_version() >= 110000)
 	{
@@ -2200,7 +2229,7 @@ void stadt_t::laden_abschliessen()
 	}
 
 	// clear the minimaps
-	init_pax_destinations();
+	//init_pax_destinations();
 
 	// init step counter with meaningful value
 	step_interval = (2 << 18u) / (buildings.get_count() * 4 + 1);
@@ -2236,8 +2265,8 @@ void stadt_t::laden_abschliessen()
 	next_growth_step = 0;
 
 	// resolve target factories
-	target_factories_pax.resolve_factories();
-	target_factories_mail.resolve_factories();
+	/*target_factories_pax.resolve_factories();
+	target_factories_mail.resolve_factories();*/
 	if(check_road_connexions)
 	{
 		welt->add_queued_city(this);
@@ -2456,12 +2485,13 @@ void stadt_t::step(long delta_t)
 
 	settings_t const& s = welt->get_settings();
 	// recalculate factory going ratios where necessary
-	if(  target_factories_pax.ratio_stale  ) {
+	// TODO: Remove this deprecated code completely.
+	/*if(  target_factories_pax.ratio_stale  ) {
 		target_factories_pax.recalc_generation_ratio(s.get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_PAS_GENERATED);
 	}
 	if(  target_factories_mail.ratio_stale  ) {
 		target_factories_mail.recalc_generation_ratio(s.get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_MAIL_GENERATED);
-	}
+	}*/
 
 	// is it time for the next step?
 	next_step += delta_t;
@@ -2590,11 +2620,13 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 	calc_internal_passengers(); 
 
 	roll_history();
-	target_factories_pax.new_month();
-	target_factories_mail.new_month();
+	// TODO: Remove this deprecated code completely.
+	/*target_factories_pax.new_month();
+	target_factories_mail.new_month();*/
 	settings_t const& s = welt->get_settings();
-	target_factories_pax.recalc_generation_ratio(s.get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_PAS_GENERATED);
-	target_factories_mail.recalc_generation_ratio(s.get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_MAIL_GENERATED);
+	// TODO: Remove this deprecated code completely.
+	/*target_factories_pax.recalc_generation_ratio(s.get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_PAS_GENERATED);
+	target_factories_mail.recalc_generation_ratio(s.get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_MAIL_GENERATED);*/
 	update_target_cities();
 
 	// We need to calculate the traffic level here, as this determines the vehicle occupancy, which is necessary for the calculation of congestion.
@@ -2850,9 +2882,12 @@ void stadt_t::calc_growth()
 {
 	// now iterate over all factories to get the ratio of producing version nonproducing factories
 	// we use the incoming storage as a measure und we will only look for end consumers (power stations, markets)
-	FOR(vector_tpl<factory_entry_t>, const& i, target_factories_pax.get_entries()) {
-		fabrik_t *const fab = i.factory;
-		if(fab && fab->get_lieferziele().empty() && !fab->get_suppliers().empty()) 
+	const vector_tpl<fabrik_t*> factory_list = welt->get_fab_list();
+
+	ITERATE(factory_list, i)
+	{
+		fabrik_t *const fab = factory_list[i];
+		if(fab && fab->get_city() == this && fab->get_lieferziele().empty() && !fab->get_suppliers().empty()) 
 		{
 			// consumer => check for it storage
 			const fabrik_besch_t *const besch = fab->get_besch();

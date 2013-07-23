@@ -699,9 +699,10 @@ DBG_MESSAGE("karte_t::destroy()", "stops destroyed");
 	ls.set_progress( old_progress );
 
 	// remove all target cities (we can skip recalculation anyway)
-	FOR(vector_tpl<fabrik_t*>, const f, fab_list) {
+	// TODO: Remove this deprecated code completely.
+	/*FOR(vector_tpl<fabrik_t*>, const f, fab_list) {
 		f->clear_target_cities();
-	}
+	}*/
 
 	// delete towns first (will also delete all their houses)
 	// for the next game we need to remember the desired number ...
@@ -3150,7 +3151,8 @@ bool karte_t::rem_fab(fabrik_t *fab)
  	const planquadrat_t* plan = lookup(pos);
 	if (plan) {
 		// remove all links to cities
-		fab->clear_target_cities();
+		// TODO: Remove this deprecated code completely.
+		//fab->clear_target_cities();
 
 		// finally delete it
 		delete fab;
