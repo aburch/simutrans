@@ -142,6 +142,7 @@ public:
 		initialising,
 		no_route,
 		too_slow,
+		overcrowded,
 		public_transport,
 		private_car,
 		on_foot

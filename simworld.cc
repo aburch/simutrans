@@ -4380,9 +4380,6 @@ void karte_t::step_passengers_and_mail(long delta_t)
 	// Add 1 because the simuconf.tab setting is for maximum *alternative* destinations, whereas we need maximum *actual* desintations 
 	const uint16 max_destinations = settings.get_max_alternative_destinations() + 1;
 	
-	vector_tpl<destination> destinations(max_destinations);
-	vector_tpl<vector_tpl<halthandle_t> > destination_list(max_destinations);
-	
 	// create passenger rate proportional to town size
 	while(step_interval < next_step) 
 	{
@@ -4435,8 +4432,11 @@ void karte_t::step_passengers_and_mail(long delta_t)
 		for (int h = plan->get_haltlist_count() - 1; h >= 0; h--) 
 		{
 			nearby_halt_t halt = halt_list[h];
-			if (halt.halt->is_enabled(wtyp) && !halt.halt->is_overcrowded(wtyp->get_catg_index())) 
+			if (halt.halt->is_enabled(wtyp)) 
 			{
+				// Previous versions excluded overcrowded halts here, but we need to know which
+				// overcrowded halt would have been the best start halt if it was not overcrowded,
+				// so do that below.
 				start_halts.append(halt);
 			}
 		}
@@ -4456,8 +4456,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 		koord best_bad_destination;
 		uint8 best_bad_start_halt;
 		bool too_slow_already_set;
-
-		destination_list.clear();
+		bool overcrowded_already_set;
 
 		// TODO: Set these from new, bespoke simuconf.tab settings.
 		const uint16 min_commuting_tolerance = settings.get_min_midrange_tolerance();
@@ -4472,7 +4471,9 @@ void karte_t::step_passengers_and_mail(long delta_t)
 		trip_type trip;
 		koord destination_pos;
 		route_status_type route_status = initialising;
-		uint8 current_destination;
+		destination current_destination;
+		destination first_destination;
+		first_destination.location == koord::invalid;
 		uint16 time_per_tile;
 		uint16 tolerance;
 
@@ -4494,7 +4495,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 			// Mail does not make onward journeys.
 			const uint16 onward_trips = simrand(100, "void stadt_t::step_passagiere() (any onward trips?)") >= 75 && wtyp == warenbauer_t::passagiere ? simrand(max_onward_trips, "void stadt_t::step_passagiere() (how many onward trips?)") + 1 : 1;
 
-			for(int trip_count = 0; trip_count < onward_trips && route_status != no_route && route_status != too_slow; trip_count ++)
+			for(int trip_count = 0; trip_count < onward_trips && route_status != no_route && route_status != too_slow && route_status != overcrowded; trip_count ++)
 			{
 				// Permit onward journeys - but only for successful journeys
 
@@ -4575,13 +4576,8 @@ void karte_t::step_passengers_and_mail(long delta_t)
 					}
 				}
 			
-				destinations.clear();
-
-				for(int destinations_assigned = 0; destinations_assigned <= destination_count; destinations_assigned ++)
-				{				
-					destinations.append(find_destination(trip));
-					destination_list.append(vector_tpl<halthandle_t>()); 
-				}
+				first_destination = find_destination(trip);
+				current_destination = first_destination;
 
 				// TODO: Change these variable names to something more fitting for this new system.
 				if(trip == commuting_trip)
@@ -4597,8 +4593,6 @@ void karte_t::step_passengers_and_mail(long delta_t)
 				// Do nothing if trip == mail_trip
 
 				INT_CHECK("simworld 4557");
-
-				current_destination = 0;
 
 				/**
 				 * Quasi tolerance is necessary because mail can be delivered by hand. If it is delivered
@@ -4622,17 +4616,18 @@ void karte_t::step_passengers_and_mail(long delta_t)
 
 				uint16 car_minutes = 65535;
 
-				best_bad_destination = destinations[0].location;
+				best_bad_destination = first_destination.location;
 				best_bad_start_halt = 0;
 				too_slow_already_set = false;
+				overcrowded_already_set = false;
 				ware_t pax(wtyp);
 				halthandle_t start_halt;
 				uint16 best_journey_time;
 				uint32 walking_time;
 
-				while(route_status != public_transport && route_status != private_car && route_status != on_foot && current_destination < destination_count)
+				for(int n = 0; n < destination_count && route_status != public_transport && route_status != private_car && route_status != on_foot; n++)
 				{
-					destination_pos = destinations[current_destination].location;
+					destination_pos = current_destination.location;
 					const uint32 straight_line_distance = shortest_distance(origin_pos, destination_pos);
 					pax.to_factory = fabrik_t::get_fab(this, destination_pos) ? 1 : 0;
 					// Careful -- use uint32 here to avoid overflow cutoff errors.
@@ -4649,7 +4644,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 						 * If the passengers have no private car, are not in reach of any public transport
 						 * facilities and the journey is too long on foot, do not continue to check other things.
 						 */
-						current_destination ++;
+						current_destination = find_destination(trip);
 						continue;
 					}
 				
@@ -4663,18 +4658,18 @@ void karte_t::step_passengers_and_mail(long delta_t)
 					// (default: 1), they can take passengers within the wider square of the passenger radius. This is intended,
 					// and is as a result of using the below method for all destination types.
 
-							
+					vector_tpl<halthandle_t> destination_list;		
 					for (int h = dest_plan->get_haltlist_count() - 1; h >= 0; h--) 
 					{
 						halthandle_t halt = dest_list[h].halt;
 						if (halt->is_enabled(wtyp)) 
 						{
-							destination_list[current_destination].append(halt);
+							destination_list.append(halt);
 						}
 					}
 
 					best_journey_time = 65535;
-					if(start_halts.get_count() == 1 && destination_list[current_destination].get_count() == 1 && start_halts[0].halt == destination_list[current_destination].get_element(0))
+					if(start_halts.get_count() == 1 && destination_list.get_count() == 1 && start_halts[0].halt == destination_list.get_element(0))
 					{
 						/** There is no public transport route, as the only stop
 						 * for the origin is also the only stop for the desintation.
@@ -4688,19 +4683,21 @@ void karte_t::step_passengers_and_mail(long delta_t)
 						pax.reset();
 						pax.set_zielpos(destination_pos);
 						pax.menge = pax_left_to_do;
-						pax.to_factory = destinations[current_destination].type == factory;
+						pax.to_factory = current_destination.type == factory;
 						//"Menge" = volume (Google)
 
 						// Search for a route using public transport. 
 
-						uint8 best_start_halt = 0;
+						uint32 best_start_halt = 0;
+						uint32 best_non_crowded_start_halt = 0;
 						uint32 current_journey_time;
+						uint32 best_journey_time_including_crowded_halts = 65535;
 
 						ITERATE(start_halts, i)
 						{
 							halthandle_t current_halt = start_halts[i].halt;
 				
-							current_journey_time = current_halt->find_route(&destination_list[current_destination], pax, best_journey_time,destination_pos);
+							current_journey_time = current_halt->find_route(&destination_list, pax, best_journey_time, destination_pos);
 					
 							// Add walking time from the origin to the origin stop. 
 							// Note that the walking time to the destination stop is already added by find_route.
@@ -4714,12 +4711,17 @@ void karte_t::step_passengers_and_mail(long delta_t)
 
 							if(current_journey_time < best_journey_time)
 							{
-								best_journey_time = current_journey_time;
+								if(!current_halt->is_overcrowded(wtyp->get_catg_index()))
+								{
+									best_journey_time = current_journey_time;
+									best_non_crowded_start_halt = i;
+									if(pax.get_ziel().is_bound())
+									{
+										route_status = public_transport;
+									}
+								}
+								best_journey_time_including_crowded_halts = current_journey_time;
 								best_start_halt = i;
-							}
-							if(pax.get_ziel().is_bound())
-							{
-								route_status = public_transport;
 							}
 						}
 
@@ -4737,11 +4739,21 @@ void karte_t::step_passengers_and_mail(long delta_t)
 						// Check first whether the best route is outside
 						// the passengers' tolerance.
 
-						if(route_status == public_transport && best_journey_time >= tolerance)
+						if(best_journey_time_including_crowded_halts < tolerance && route_status != public_transport)
+						{ 
+							route_status = overcrowded; // An overcrowded halt takes precedence over a too slow where applicable.
+							if(!overcrowded_already_set)
+							{
+								best_bad_destination = destination_pos;
+								best_bad_start_halt = best_start_halt;
+								overcrowded_already_set = true;
+							}
+						}
+						else if(route_status == public_transport && best_journey_time >= tolerance)
 						{
 							route_status = too_slow;
 				
-							if(!too_slow_already_set)
+							if(!too_slow_already_set && !overcrowded_already_set)
 							{
 								best_bad_destination = destination_pos;
 								best_bad_start_halt = best_start_halt;
@@ -4758,44 +4770,44 @@ void karte_t::step_passengers_and_mail(long delta_t)
 						}
 					}
 
-					INT_CHECK("simworld.cc 4642");
+					INT_CHECK("simworld.cc 4774");
 			
 					if(has_private_car) 
 					{
 						// time_per_tile here is in 100ths of minutes per tile.
 						// 1/100th of a minute per tile = km/h * 6.
 						time_per_tile = 65535;
-						switch(destinations[current_destination].type)
+						switch(current_destination.type)
 						{
 						case town:
 							//Town
 							if(city)
 							{
-								time_per_tile = city->check_road_connexion_to(destinations[current_destination].object.town);
+								time_per_tile = city->check_road_connexion_to(current_destination.object.town);
 							}
 							else
 							{
 								// Going onward from an out of town attraction or industry to a city building - get route backwards.
-								if(destinations[current_destination].type == attraction)
+								if(current_destination.type == attraction)
 								{
-									time_per_tile = destinations[current_destination].object.town->check_road_connexion_to(destinations[current_destination].object.attraction);
+									time_per_tile = current_destination.object.town->check_road_connexion_to(current_destination.object.attraction);
 								}
-								else if(destinations[current_destination].type == factory)		
+								else if(current_destination.type == factory)		
 								{
-									time_per_tile = destinations[current_destination].object.town->check_road_connexion_to(destinations[current_destination].object.industry);
+									time_per_tile = current_destination.object.town->check_road_connexion_to(current_destination.object.industry);
 								}						
 							}
 							break;
 						case factory:
 							if(city) // Previous time per tile value used as default if the city is not available.
 							{
-								time_per_tile = city->check_road_connexion_to(destinations[current_destination].object.industry);
+								time_per_tile = city->check_road_connexion_to(current_destination.object.industry);
 							}
 							break;
 						case attraction:
 							if(city) // Previous time per tile value used as default if the city is not available.
 							{
-								time_per_tile = city->check_road_connexion_to(destinations[current_destination].object.attraction);
+								time_per_tile = city->check_road_connexion_to(current_destination.object.attraction);
 							}
 							break;
 						default:
@@ -4815,7 +4827,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 							// calculated using the route finder; note that journeys inside cities are not calculated using
 							// the route finder). 
 
-							if(settings.get_assume_everywhere_connected_by_road() || destinations[current_destination].object.town == city)
+							if(settings.get_assume_everywhere_connected_by_road() || current_destination.object.town == city)
 							{
 								// Congestion here is assumed to be on the percentage basis: i.e. the percentage of extra time that
 								// a journey takes owing to congestion. This is the measure used by the TomTom congestion index,
@@ -4824,10 +4836,10 @@ void karte_t::step_passengers_and_mail(long delta_t)
 							
 								//Average congestion of origin and destination towns.
 								uint16 congestion_total;
-								if(destinations[current_destination].type == 1 && destinations[current_destination].object.town != NULL && destinations[current_destination].object.town != city)
+								if(current_destination.type == 1 && current_destination.object.town != NULL && current_destination.object.town != city)
 								{
 									// Destination type is town and the destination town object can be found.
-									congestion_total = (city->get_congestion() + destinations[current_destination].object.town->get_congestion()) / 2;
+									congestion_total = (city->get_congestion() + current_destination.object.town->get_congestion()) / 2;
 								}
 								else
 								{
@@ -4871,7 +4883,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 					{
 						route_status = too_slow;
 
-						if(!too_slow_already_set)
+						if(!too_slow_already_set && !overcrowded_already_set)
 						{
 							best_bad_destination = destination_pos;
  							// too_slow_already_set = true;
@@ -4881,16 +4893,16 @@ void karte_t::step_passengers_and_mail(long delta_t)
 						}
 					}
 				
-					INT_CHECK("simworld 4731");
-					if(route_status == no_route || route_status == too_slow)
+					INT_CHECK("simworld 4897");
+					if(route_status == no_route || route_status == too_slow || route_status == overcrowded)
 					{
-						// Do not increment the counter if there is a good status,
+						// Do not get a new destination if there is a good status,
 						// or else entirely the wrong information will be recorded
 						// below!
-						current_destination ++;
+						current_destination = find_destination(trip);
 					}
 
-				} // While loop (route_status)
+				} // For loop (route_status)
 
 				bool set_return_trip = false;
 				stadt_t* destination_town;
@@ -4903,9 +4915,9 @@ void karte_t::step_passengers_and_mail(long delta_t)
 					{
 						tolerance -= best_journey_time;
 					}
-					if(destinations[current_destination].type == factory)
+					if(current_destination.type == factory)
 					{
-						destinations[current_destination].object.industry->liefere_an(wtyp, pax_left_to_do);
+						current_destination.object.industry->liefere_an(wtyp, pax_left_to_do);
 					}
 					pax.arrival_time = get_zeit_ms();
 					pax.set_origin(start_halt);
@@ -4941,11 +4953,11 @@ void karte_t::step_passengers_and_mail(long delta_t)
 						tolerance -= car_minutes;
 					}
 					
-					if(destinations[current_destination].type == factory)
+					if(current_destination.type == factory)
 					{
-						destinations[current_destination].object.industry->liefere_an(wtyp, pax_left_to_do);
+						current_destination.object.industry->liefere_an(wtyp, pax_left_to_do);
 					}
-					destination_town = destinations[current_destination].type == 1 ? destinations[current_destination].object.town : NULL;
+					destination_town =current_destination.type == 1 ? current_destination.object.town : NULL;
 					city->set_private_car_trip(pax_left_to_do, destination_town);
 					city->merke_passagier_ziel(destination_pos, COL_TURQUOISE);
 	#ifdef DESTINATION_CITYCARS
@@ -4971,9 +4983,9 @@ void karte_t::step_passengers_and_mail(long delta_t)
 					{
 						tolerance -= walking_time;
 					}	
-					if(destinations[current_destination].type == factory)
+					if(current_destination.type == factory)
 					{
-						destinations[current_destination].object.industry->liefere_an(wtyp, pax_left_to_do);
+						current_destination.object.industry->liefere_an(wtyp, pax_left_to_do);
 					}
 
 					// Walking passengers are not marked as "happy", as the player has not made them happy.
@@ -5006,6 +5018,24 @@ void karte_t::step_passengers_and_mail(long delta_t)
 					// Do nothing if trip == mail.
 					break;
 
+				case overcrowded:
+
+					if(city)
+					{
+						city->merke_passagier_ziel(best_bad_destination, COL_RED);
+					}					
+					
+					if(start_halts.get_count() > 0)
+					{
+						start_halt = start_halts[best_bad_start_halt].halt; 					
+						if(start_halt.is_bound())
+						{
+							start_halt->add_pax_unhappy(pax_left_to_do);
+						}
+					}
+
+					break;
+
 				case too_slow:
 		
 					if(city)
@@ -5027,72 +5057,29 @@ void karte_t::step_passengers_and_mail(long delta_t)
 
 				case no_route:
 
-					bool crowded_halts = false;
-					int destinations_checked;
-
+					if(city)
+					{
+						city->merke_passagier_ziel(first_destination.location, COL_DARK_ORANGE);
+					}
+					
 					if(start_halts.get_count() > 0)
 					{
-						/** Passengers/mail cannot reach their destination, but there are some stops in their locality.
-						 * Record their inability to get where they are going at those local stops accordingly. 
-						 */
-
 						start_halt = start_halts[best_bad_start_halt].halt; 					
 						if(start_halt.is_bound())
 						{
 							start_halt->add_pax_no_route(pax_left_to_do);
 						}
 					}
-					else if(plan->get_haltlist_count() > 0)
-					{
-						/** The unhappy passengers will be added to any potential starting stops
-						  * that are crowded, and were therefore excluded from the initial search.
-						  * However, there might be no possible starting stop too. 
-						  */
-	
-						// Re-search for start halts, which must have been crowded, or else
-						// they would not have been excluded from the first search.
-						ware_t test_passengers(wtyp); 
-						for(int h = plan->get_haltlist_count() - 1; h >= 0; h--)
-						{
-							destinations_checked = 0;
-							halthandle_t halt = halt_list[h].halt;
-							for(; destinations_checked < destination_count; destinations_checked ++)
-							{
-								// Only mark passengers as being unable to get to their destination due to crowded stops if the stops
-								// could actually have got the passengers to their destination if they were not crowded.
-								if(halt->is_enabled(wtyp) && halt->find_route(&destination_list[destinations_checked], test_passengers) < 65535)
-								{
-									halt->add_pax_unhappy(num_pax);
-									// Only show as being overcrowded if there are, in fact, potentially suitable but overcrowded stops.
-									crowded_halts = true;
-									break;
-								}
-							}
-						}
-					}	
-			
-					if(crowded_halts && city)
-					{
-						// If the passengers cannot get to a stop that they might reach because of
-						// overcrowding, and all other stops are no route, mark the specific destination
-						// unavailable to the passengers because of overcrowding.
-						city->merke_passagier_ziel(destinations[destinations_checked].location, COL_RED);		
-					}
-
-					else if(city)
-					{
-						city->merke_passagier_ziel(destinations[0].location, COL_DARK_ORANGE);
-					}
 				};
 
 				if(set_return_trip)
 				{
 					// Calculate a return journey
-					// This comes most of the times for free and balances also the amounts!
+					// This comes most of the time for free and also balances the flows of passengers to and from any given place.
 
-					// Because passengers/mail now register as transported on delivery, these are needed here
-					// to keep an accurate record of the proportion transported.
-					stadt_t* const destination_town = get_city(destinations[0].location);
+					// Because passengers/mail now register as transported on delivery, these are needed 
+					// here to keep an accurate record of the proportion transported.
+					stadt_t* const destination_town = get_city(first_destination.location);
 					if(destination_town)
 					{
 						destination_town->set_generated_passengers(pax_left_to_do, history_type + 1);
@@ -5104,12 +5091,12 @@ void karte_t::step_passengers_and_mail(long delta_t)
 						// However, this should not matter much, as equally not recording generated passengers
 						// for all return journeys should still show accurate percentages overall. 
 					}
-					if(destinations[current_destination].type == factory)
+					if(current_destination.type == factory)
 					{
 						// The only passengers generated by a factory are returning passengers who have already reached the factory somehow or another
 						// from home (etc.). Note below multiplication of mail by 3.
 						int adjusted_figure = wtyp == warenbauer_t::post ? pax_left_to_do * 3 : pax_left_to_do;
-						destinations[current_destination].object.industry->book_stat(pax_left_to_do, (wtyp == warenbauer_t::passagiere ? FAB_PAX_GENERATED : FAB_MAIL_GENERATED));
+						current_destination.object.industry->book_stat(pax_left_to_do, (wtyp == warenbauer_t::passagiere ? FAB_PAX_GENERATED : FAB_MAIL_GENERATED));
 					}
 		
 					halthandle_t ret_halt = pax.get_ziel();
@@ -5164,12 +5151,12 @@ void karte_t::step_passengers_and_mail(long delta_t)
 									ret_halt->starte_mit_route(return_pax);
 									ret_halt->unload_repeat_counter = 0;
 								}
-								if(destinations[current_destination].type == factory)
+								if(current_destination.type == factory)
 								{
 									// This is somewhat anomalous, as we are recording that the passengers have departed, not arrived, whereas for cities, we record
 									// that they have successfully arrived. However, this is not easy to implement for factories, as passengers do not store their ultimate
 									// origin, so the origin factory is not known by the time that the passengers reach the end of their journey.
-									destinations[current_destination].object.industry->book_stat(pax_left_to_do, (wtyp == warenbauer_t::passagiere ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED));
+									current_destination.object.industry->book_stat(pax_left_to_do, (wtyp == warenbauer_t::passagiere ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED));
 								}
 							}
 							else 
@@ -5218,12 +5205,12 @@ void karte_t::step_passengers_and_mail(long delta_t)
 
 	#ifdef DESTINATION_CITYCARS
 							//citycars with destination
-							city->erzeuge_verkehrsteilnehmer(destinations[0].location, car_minutes, origin_pos);
+							city->erzeuge_verkehrsteilnehmer(first_destination.location, car_minutes, origin_pos);
 	#endif
 
-							if(destinations[current_destination].type == factory)
+							if(current_destination.type == factory)
 							{
-								destinations[current_destination].object.industry->book_stat(pax_left_to_do, (wtyp ==warenbauer_t::passagiere ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED));
+								current_destination.object.industry->book_stat(pax_left_to_do, (wtyp == warenbauer_t::passagiere ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED));
 							}
 						}
 						else
@@ -5254,9 +5241,9 @@ void karte_t::step_passengers_and_mail(long delta_t)
 								city->add_walking_passengers(pax_left_to_do);
 							}
 						}
-						if(destinations[current_destination].type == factory)
+						if(current_destination.type == factory)
 						{
-							destinations[current_destination].object.industry->book_stat(pax_left_to_do, (wtyp==warenbauer_t::passagiere ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED));
+							current_destination.object.industry->book_stat(pax_left_to_do, (wtyp==warenbauer_t::passagiere ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED));
 						}
 					}
 				} // Set return trip
