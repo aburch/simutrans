@@ -178,6 +178,8 @@ public:
 	 */
 	virtual const char *get_name() const;
 
+	void get_description(cbuffer_t & buf) const;
+
 	/**
 	* Town hall
 	*/

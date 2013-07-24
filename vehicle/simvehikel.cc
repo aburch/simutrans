@@ -1044,18 +1044,6 @@ bool vehikel_t::load_freight(halthandle_t halt, bool overcrowd)
 					break;
 				}
 				ware_t &tmp = *iter_z;
-				
-				// New system: only merges if origins are alike.
-				// @author: jamespetts
-
-				if(ware.can_merge_with(tmp))
-				{
-					tmp.menge += ware.menge;
-					cnv->invalidate_weight_summary();
-					total_freight += ware.menge;
-					ware.menge = 0;
-					break;
-				}
 			}
 
 			// if != 0 we could not join it to existing => load it

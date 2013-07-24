@@ -755,25 +755,28 @@ gebaeude_t* gebaeude_t::get_first_tile()
 	return this;
 }
 
-
-void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
+void gebaeude_t::get_description(cbuffer_t & buf) const
 {
-	ding_t::info(buf);
-
-	if(is_factory  &&  ptr.fab != NULL) {
-		buf.append((char *)0);
+	if(is_factory && ptr.fab != NULL) 
+	{
+		buf.append(ptr.fab->get_name());
 	}
-	else if(zeige_baugrube) {
+	else if(zeige_baugrube) 
+	{
 		buf.append(translator::translate("Baustelle"));
 		buf.append("\n");
 	}
-	else {
+	else
+	{
 		const char *desc = tile->get_besch()->get_name();
-		if(desc != NULL) {
+		if(desc != NULL)
+		{
 			const char *trans_desc = translator::translate(desc);
-			if(trans_desc==desc) {
+			if(trans_desc == desc) 
+			{
 				// no description here
-				switch(get_haustyp()) {
+				switch(get_haustyp())
+				{
 					case wohnung:
 						trans_desc = translator::translate("residential house");
 						break;
@@ -789,20 +792,25 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 				}
 				buf.append(trans_desc);
 			}
-			else {
+			else 
+			{
 				// since the format changed, we remove all but double newlines
 				char *text = new char[strlen(trans_desc)+1];
 				char *dest = text;
 				const char *src = trans_desc;
-				while(  *src!=0  ) {
+				while(  *src!=0  )
+				{
 					*dest = *src;
-					if(src[0]=='\n') {
-						if(src[1]=='\n') {
+					if(src[0]=='\n')
+					{
+						if(src[1]=='\n')
+						{
 							src ++;
 							dest++;
 							*dest = '\n';
 						}
-						else {
+						else
+						{
 							*dest = ' ';
 						}
 					}
@@ -811,7 +819,8 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 				}
 				// remove double line breaks at the end
 				*dest = 0;
-				while( dest>text  &&  *--dest=='\n'  ) {
+				while( dest>text  &&  *--dest=='\n'  ) 
+				{
 					*dest = 0;
 				}
 
@@ -819,7 +828,23 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 				delete [] text;
 			}
 		}
-		buf.append( "\n" );
+		else
+		{
+			buf.append("unknown");
+		}
+	}
+}
+
+
+void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
+{
+	ding_t::info(buf);
+
+	get_description(buf);
+
+	if((!is_factory  &&  ptr.fab != NULL)  && !zeige_baugrube) 
+	{		
+		buf.append("\n\n");
 
 		// belongs to which city?
 		if (!is_factory && ptr.stadt != NULL) {

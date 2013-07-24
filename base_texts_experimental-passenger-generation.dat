@@ -4,6 +4,6 @@
 # Author: jamespetts
 # Created: July 2013
 #
-obj=
-name=
-note=
+obj=program_text
+name=Unknown destination
+note=This is displayed in lists of goods/passengers when the destination building cannot be ascertained. It replaces "invalid factory".

@@ -2114,17 +2114,11 @@
     <None Include="base_texts_experimental_10.27.dat">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="base_texts_experimental_an_dz.dat">
-      <Filter>Header Files</Filter>
-    </None>
     <None Include="base_texts_experimental_an-dz_2.dat">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="base-texts-depot-window-refurbish.dat">
       <Filter>Resource Files</Filter>
-    </None>
-    <None Include="base_texts_experimental_an-dz-2.dat">
-      <Filter>Header Files</Filter>
     </None>
     <None Include="base_texts_experimental_modified_comfort.dat">
       <Filter>Resource Files</Filter>
@@ -2133,6 +2127,12 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="base_texts_experimental-passenger-generation.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="base_texts_experimental_an-dz-2.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="base_texts_experimental_an_dz.dat">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

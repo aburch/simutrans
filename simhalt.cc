@@ -2114,59 +2114,6 @@ uint32 haltestelle_t::get_ware_fuer_zielpos(const ware_besch_t *wtyp, const koor
 	return 0;
 }
 
-#ifdef CHECK_WARE_MERGE
-bool haltestelle_t::vereinige_waren(const ware_t &ware) //"unite were" (Google)
-{
-	// pruefen ob die ware mit bereits wartender ware vereinigt werden kann
-	// "examine whether the ware with software already waiting to be united" (Google)
-	vector_tpl<ware_t> * warray = waren[ware.get_besch()->get_catg_index()];
-	if(warray != NULL) 
-	{
-		FOR(vector_tpl<ware_t>, & tmp, *warray) 
-		{
-
-			/*
-			* OLD SYSTEM - did not take account of origins and timings when merging.
-			*
-			* // es wird auf basis von Haltestellen vereinigt
-			* // prissi: das ist aber ein Fehler für alle anderen Güter, daher Zielkoordinaten für alles, was kein passagier ist ...
-			*
-			* //it is based on uniting stops. 
-			* //prissi: but that is a mistake for all other goods, therefore, target coordinates for everything that is not a passenger ...
-			* // (Google)
-			*
-			* if(ware.same_destination(tmp)) {
-			*/
-
-			// NEW SYSTEM
-			// Adds more checks.
-			// @author: jamespetts
-			if(ware.can_merge_with(tmp))
-			{
-				if(  ware.get_zwischenziel().is_bound()  &&  ware.get_zwischenziel()!=self  ) 
-				{
-					// update route if there is newer route
-					tmp.set_zwischenziel( ware.get_zwischenziel() );
-				}
-
-				// Merge waiting times.
-				if(ware.menge > 0)
-				{
-					//The waiting time for ware will always be zero.
-					tmp.arrival_time = welt->get_zeit_ms() - ((welt->get_zeit_ms() - tmp.arrival_time) * tmp.menge) / (tmp.menge + ware.menge);
-				}
-
-				tmp.menge += ware.menge;
-				resort_freight_info = true;
-				return true;
-			}
-		}
-	}
-	return false;
-}
-#endif 
-
-
 // put the ware into the internal storage
 // take care of all allocation neccessary
 void haltestelle_t::add_ware_to_halt(ware_t ware, bool from_saved)
@@ -2242,18 +2189,6 @@ uint32 haltestelle_t::starte_mit_route(ware_t ware)
 			return ware.menge;
 		}
 	}
-
-#ifdef CHECK_WARE_MERGE
-	// passt das zu bereits wartender ware ?
-	if(vereinige_waren(ware)) {
-		// dann sind wir schon fertig;
-#ifdef DEBUG_SIMRAND_CALLS
-		if (talk)
-			dbg->message("\t", "united with existing ware.");
-#endif
-		return ware.menge;
-	}
-#endif
 
 	if(ware.is_passenger() && unload_repeat_counter < 3 && is_within_walking_distance_of(ware.get_zwischenziel()) && !connexions[0]->get(ware.get_zwischenziel())->best_convoy.is_bound() && !connexions[0]->get(ware.get_zwischenziel())->best_line.is_bound())
 	{
@@ -2344,17 +2279,6 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 #endif
 		return ware.menge;
 	}
-#ifdef CHECK_WARE_MERGE
-	// do we have already something going in this direction here?
-	if(  vereinige_waren(ware)  ) 
-	{
-#ifdef DEBUG_SIMRAND_CALLS
-	if (talk)
-		dbg->message("haltestelle_t::liefere_an", "%d merged in station \"%s\" waren[0].count %d", ware.menge, get_name(), get_warray(0)->get_count());
-#endif
-		return ware.menge;
-	}
-#endif
 
 	if(find_route(ware) == 65535)
 	{
@@ -2367,18 +2291,6 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 		fabrik_t::update_transit( ware, false );
 		return ware.menge;
 	}
-#ifdef CHECK_WARE_MERGE
-	// passt das zu bereits wartender ware ?
-	if(vereinige_waren(ware)) 
-	{
-		// dann sind wir schon fertig;
-#ifdef DEBUG_SIMRAND_CALLS
-	if (talk)
-		dbg->message("haltestelle_t::liefere_an", "%d merged(2) in station \"%s\" waren[0].count %d", ware.menge, get_name(), get_warray(0)->get_count());
-#endif
-		return ware.menge;
-	}
-#endif
 	
 	if(ware.is_passenger() && unload_repeat_counter < 3 && is_within_walking_distance_of(ware.get_zwischenziel()) && !connexions[0]->get(ware.get_zwischenziel())->best_convoy.is_bound() && !connexions[0]->get(ware.get_zwischenziel())->best_line.is_bound() && ware.get_last_transfer().is_bound() && ware.get_last_transfer()->get_basis_pos() != ware.get_zwischenziel()->get_basis_pos())
 	{
@@ -3380,15 +3292,6 @@ void haltestelle_t::laden_abschliessen(bool need_recheck_for_walking_distance)
 				if(warj.menge == 0) 
 				{
 					continue;
-				}
-				for(uint32 k = j + 1; k < count; ++k) 
-				{
-					ware_t& wark = (*warray)[k];
-					if(wark.menge > 0 && warj.can_merge_with(wark)) 
-					{
-						warj.menge += wark.menge;
-						wark.menge = 0;
-					}
 				}
 			}
 		}
