@@ -71,7 +71,12 @@ private:
 
 	friend void *loadsave_thread( void *ptr );
 
+	/**
+	 * Reads into buffer number @p buf_num.
+	 * @returns number of bytes read or -1 in case of error
+	 */
 	int fill_buffer(int buf_num);
+
 	void flush_buffer(int buf_num);
 
 public:

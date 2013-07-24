@@ -57,12 +57,17 @@ void *loadsave_thread( void *ptr )
 			lsp->loadsave_routine->flush_buffer(buf);
 		}
 		else {
-			if(  lsp->loadsave_routine->fill_buffer(buf) <= 0  ) {
+			int res = lsp->loadsave_routine->fill_buffer(buf);
+			if(  res != 0  ) {
+				// wait to sync with main thread before filling the next buffer
+				// in case of error wait once again
+				pthread_barrier_wait(&loadsave_barrier);
+			}
+			if(  res <= 0  ) {
 				// nothing read into buffer - exit
+				// in case of error leave, too
 				break;
 			}
-			// wait to sync with main thread before filling the next buffer
-			pthread_barrier_wait(&loadsave_barrier);
 
 			buf = (buf+1)&1;
 		}
@@ -566,6 +571,7 @@ size_t loadsave_t::read(void *buf, size_t len)
 #endif
 			// check if enough read
 			if(  len-i>buf_len[curr_buff]  ) {
+				dbg->fatal("loadsave_t::read","savegame corrupt, not enough data");
 				return 0;
 			}
 
@@ -598,8 +604,12 @@ int loadsave_t::fill_buffer(int buf_num)
 	if(  is_bzip2()  ) {
 		if(  bse==BZ_OK  ) {
 			r = BZ2_bzRead( &bse, fd->bzfp, ls_buf[buf_num], LS_BUF_SIZE);
+			if (  bse != BZ_OK  &&  bse != BZ_STREAM_END  ) {
+				r = -1; // an error occured
+			}
 		}
 		else {
+			assert(bse == BZ_STREAM_END);
 			r = 0;
 		}
 	}
@@ -613,7 +623,7 @@ int loadsave_t::fill_buffer(int buf_num)
 		fd->bse = bse;
 	}
 	buf_pos[buf_num] = 0;
-	buf_len[buf_num] = r;
+	buf_len[buf_num] = r>=0 ? r : 0; // buf_len is unsigned, set to zero in case of error
 #if MULTI_THREAD>1
 	pthread_mutex_unlock(&loadsave_mutex);
 #endif
