@@ -10,7 +10,7 @@
 # simutrans/config/simuconf.tab (this one)
 # ~/simutrans/simuconf.tab (in the user directory, if singleuser_install == 0 or not present, first only pak-file path will be read)
 # simutrans/pakfilefolder/config/simuconf.tab
-# ~/simutrans/simuconf.tab (readed a second time, s.a.)
+# ~/simutrans/simuconf.tab (read a second time, s.a.)
 #
 #################################program stuff##################################
 #
@@ -103,7 +103,7 @@ way_leaving_road=25
 # also pak dependent
 
 # town growth multiplier factors (electricity is not used at the moment)
-# A heigher factor mean faster growth
+# A higher factor mean faster growth
 # passenger_multiplier = 40
 mail_multiplier = 20
 goods_multiplier = 20
@@ -123,7 +123,7 @@ passenger_factor=16
 factory_worker_percentage = 33
 tourist_percentage = 16
 
-# how much local destinations are prefrerred over time
+# how much local destinations are preferred over time
 # 1 means almost local passengers/mail only, 10000 spreads them over the map
 # You can have up to ten entries, first is the year, next is the factor.
 # The increase between the year will increase first slow then fast towards
@@ -186,13 +186,13 @@ electric_promille = 330
 # true if transformers are allowed underground (default)
 allow_underground_transformers = 1
 
-# with this switch on (default), overcrowded factories will not recieve goods any more
+# with this switch on (default), overcrowded factories will not receive goods any more
 just_in_time = 1
 
 # how much amount in transport is sent before further distribution stops
 # This is only enabled when "just_in_time" is enabled
 # The limit is given in percent of factory storage (0=off)
-# It should be not too low to allow big convois fully loaded at more than one
+# It should be not too low to allow big convoys fully loaded at more than one
 # factory (for medium sized maps 500 seems a reasonable number)
 maximum_intransit_percentage = 0
 
@@ -223,13 +223,13 @@ random_player_colors = 0
 # and there are 0...15 player in the game
 player_color[1] = 1,4
 
-# remove companies without convois after x month (0=off, 6=default)
+# remove companies without convoys after x month (0=off, 6=default)
 remove_dummy_player_months = 6
 
-# remove password of abandoned companies (wihtout any building activity) after x month (0=off default)
+# remove password of abandoned companies (without any building activity) after x month (0=off default)
 unprotect_abandoned_player_months = 0
 
-# how long is a diagonal (512: faktor 2=1024/512, old way, 724: sqrt(2)=1024/724
+# how long is a diagonal (512: factor 2=1024/512, old way, 724: sqrt(2)=1024/724
 # THIS WILL BE ONLY USED, WHEN THIS FILE IS IN THE pakxyz/config!
 #diagonal_multiplier = 724
 
@@ -263,7 +263,7 @@ random_grounds_probability = 10
 # show random moving animals (n = every n suited tiles, default 1000)
 random_wildlife_probability = 1000
 
-# animate the water each intervall (if images available)
+# animate the water each interval (if images available)
 # costs some time for the additional redraw (~1-3%)
 water_animation_ms = 250
 
@@ -278,11 +278,11 @@ citycar_level = 5
 # default is ten years
 default_citycar_life = 36
 
-# Show infos on trees?
+# Show info on trees?
 # (1=on, 0=off)
 tree_info = 1
 
-# Show infos also on bare ground?
+# Show info also on bare ground?
 # (1=on, 0=off)
 ground_info = 0
 
@@ -290,7 +290,7 @@ ground_info = 0
 # (1=on, 0=off)
 townhall_info = 0
 
-# do not show the button to add an inverted schedule for rail based convois
+# do not show the button to add an inverted schedule for rail based convoys
 # (1=hide, 0=show anyway)
 hide_rail_return_ticket = 1
 
@@ -298,7 +298,7 @@ hide_rail_return_ticket = 1
 # even if there are more objects on this tile
 #only_single_info = 1
 
-# show a tooltip on convois at several conditions
+# show a tooltip on convoys at several conditions
 # 0 no messages
 # 1 (default) only no_route and stuck
 # loading and waiting at signals too
@@ -356,12 +356,12 @@ second_open_closes_win = 0
 # first: draw a frame with titlebar color around active window
 #window_frame_active = 0
 
-# second: draw the title with a different brighness (0: dark ... 6: bright)
+# second: draw the title with a different brightness (0: dark ... 6: bright)
 front_window_bar_color = 1
 bottom_window_bar_color = 3
 
 # third (best together with 2nd):use different text color for bar
-# some colors are 215-white, 240-blck 208-214- all shades of gray
+# some colors are 215-white, 240-black 208-214- all shades of gray
 front_window_text_color = 215
 bottom_window_text_color = 209
 
@@ -372,7 +372,7 @@ window_snap_distance = 8
 # show tooltips (default 1=show)
 show_tooltips = 1
 
-# tooltip background color (+-1 arounf this index is used), taken from playercolor table
+# tooltip background color (+-1 around this index is used), taken from player-color table
 tooltip_background_color = 4
 
 # tooltip text color (240=black, 215=white)
@@ -412,9 +412,9 @@ used_vehicle_reduction = 0
 # lowest possible income with speedbonus (1000=1) default 125 (=1/8th)
 bonus_basefactor = 125
 
-# if a convoi runs on a way that belongs to another player, toll may
+# if a convoy runs on a way that belongs to another player, toll may
 # be charged. The number given is the percentage of the running cost
-# of the convoi or the way cost (include electrification if needed).
+# of the convoy or the way cost (include electrification if needed).
 # (default 0)
 toll_runningcost_percentage = 0
 toll_waycost_percentage = 0
@@ -491,7 +491,7 @@ toll_waycost_percentage = 0
 
 # now river stuff
 # first river type (should be defined in pak dependent file)
-# The highest number is the smallest. A river with max_speed==0 is not navigavable by ships.
+# The highest number is the smallest. A river with max_speed==0 is not navigatable by ships.
 #river_type[0] = river
 #river_type[1] = small_river
 #river_type[2] = just_the source
@@ -521,10 +521,10 @@ forest_map_size_divisor = 38
 # Forest count divisor - smaller it is, the more forest are generated
 forest_count_divisor = 16
 
-# Determins how dense are spare trees going to be planted (works inversly)
+# Determines how dense are spare trees going to be planted (works inversely)
 forest_inverse_spare_tree_density = 400
 
-# climate with trees entirely (1: water, 2:desert, 4:tropic, 8:mediterran, 16:temperate, 32:tundra, 64:rocky, 128:arctic)
+# climate with trees entirely (1: water, 2:desert, 4:tropic, 8:mediterranean, 16:temperate, 32:tundra, 64:rocky, 128:arctic)
 # zero (default) means no climate with at least one tree per tile
 tree_climates = 4
 
@@ -550,7 +550,7 @@ use_timeline = 3
 # You will have problems with missing vehicles, do not complain if you do so!
 # Setting it above 2050 will render game bit boring - no new vehicles.
 #
-# other recommended vaule for 64 is 1956
+# other recommended value for 64 is 1956
 #
 starting_year = 1930
 
@@ -567,7 +567,7 @@ starting_month = 1
 # Global time multiplier (will be save with new games)
 # 2^bits_per_month = duration of a game month in microseconds real time
 # default before 99.x was 18. For example, 21 will make the month 2^3=8 times longer in real time
-# production and maintainance cost will be adjusted accordingly.
+# production and maintenance cost will be adjusted accordingly.
 #
 bits_per_month = 20
 
@@ -612,7 +612,7 @@ frames_per_second = 25
 # of tiles visible. If the tiles become equal or smaller than the tile size
 # below, a simpler clipping algorithm will be used, which will give some
 # clipping errors, but is faster. (default size = 4)
-# However, during nromal gaming this will be detrimined automatically, so you
+# However, during normal gaming this will be determined automatically, so you
 # usually you do not need to set this manually.
 simple_drawing_tile_size = 4
 
@@ -624,7 +624,7 @@ fast_forward = 50
 
 ###################################network stuff##############################
 #
-# Synchronized networking is always a trade off between fast respone and safe
+# Synchronized networking is always a trade off between fast response and safe
 # connections. A more relaxed timing will cause delay of commands but is more
 # likely to compensate for clients running slightly faster than the rest.
 #
@@ -637,7 +637,7 @@ fast_forward = 50
 # on all of the addresses returned.
 #listen = ::,0.0.0.0
 
-# How much delay before comands are executed on the clients.
+# How much delay before commands are executed on the clients.
 # A larger number will catch even clients running slightly ahead but cause delay.
 # This is set by the server side.
 #server_frames_ahead = 4
