@@ -139,6 +139,8 @@ ifneq ($(WITH_REVISION),)
   endif
 endif
 
+CCFLAGS += -std=c++11
+
 CFLAGS   += -Wall -W -Wcast-qual -Wpointer-arith -Wcast-align $(FLAGS)
 CCFLAGS  += -Wstrict-prototypes
 
