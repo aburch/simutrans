@@ -114,34 +114,38 @@ public:
 	virtual bool ist_platz_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const
 	{
 		if(  !bauplatz_sucher_t::ist_platz_ok(pos, b, h, cl)  ) {
+			// We need a clear space to build, first of all
 			return false;
 		}
 		bool next_to_road = false;
 
-		for (sint16 x = -1; x < b; x++) {
-			for (sint16 y = -1;  y < h; y++) {
+		// For a 1x1, b=1 and h=1.  We want to go through a grid one larger on all sides
+		// than the factory, so go from pos - 1 to pos + b, pos - 1 to pos + h.
+		for (sint16 x = -1; x <= b; x++) {
+			for (sint16 y = -1;  y <= h; y++) {
 				koord k(pos + koord(x,y));
 				grund_t *gr = welt->lookup_kartenboden(k);
 				if (!gr) {
+					// We want to keep the factory at least 1 away from the edge of the map.
 					return false;
 				}
-				if (	0 <= x  &&  x < b-1  &&  0 <= y  &&  y < h-1) {
-					// inside: nothing on top like elevated monorails?
-					if(  gr->get_leitung()!=NULL  ||  welt->lookup(gr->get_pos()+koord3d(0,0,1)  )!=NULL) {
+				// Do not build in the exclusion zone of another factory.
+				if(  is_factory_at(k.x, k.y)  ) {
+					return false;
+				}
+				if (  -1 < x && x < b && -1 < y && y < h  ) {
+					// Inside the target for factory.
+					// Don't build under bridges, powerlines, etc.
+					if(  gr->get_leitung()!=NULL  ||  welt->lookup(gr->get_pos()+koord3d(0,0,1))!=NULL  ) {
 						// something on top (monorail or powerlines)
 						return false;
 					}
 
 				}
-				else {
-					// border but not corner: near a road if possible
-					if (!next_to_road  && gr &&  (0 <= x  ||  x < b-1)  &&  (0 <= y  ||  y < h-1)) {
-						next_to_road = gr->hat_weg(road_wt);
-					}
-					// try to built a little away from previous factory
-					if( is_factory_at(k.x, k.y)  ) {
-						return false;
-					}
+				else if (  !next_to_road  &&  (-1 < x && x < b) || (-1 < y && y < h)  ) {
+					// Border (because previous clause didn't trigger) but not corner.
+					// Look for a road.
+					next_to_road = gr->hat_weg(road_wt);
 				}
 			}
 		}
@@ -693,7 +697,10 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 			// for sources (oil fields, forests ... ) prefer thoses with a smaller distance
 			const unsigned distance = koord_distance(fab->get_pos(),our_fab->get_pos());
 
-			if(distance>6 /*  &&  distance < simrand(welt->get_size().x+welt->get_size().y, "fabrikbauer_t::baue_hierarchie")*/ ) {
+			if(  distance >= welt->get_settings().get_min_factory_spacing()  ) {
+				// Formerly a flat "6", but this wasy arbitrary
+				// Could also check max distance here
+
 				// ok, this would match
 				// but can she supply enough?
 

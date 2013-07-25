@@ -71,7 +71,7 @@
  * @author Hj- Malthaner
  */
 #define WTT_LOADING 500
-#define WAIT_INFINITE 9223372036854775807
+#define WAIT_INFINITE 9223372036854775807ll
 
 
 karte_t *convoi_t::welt = NULL;
@@ -2830,7 +2830,7 @@ void convoi_t::vorfahren()
 
 	// finally reserve route (if needed)
 	if(  fahr[0]->get_waytype()!=air_wt  &&  !at_dest  ) {
-		// do not prereserve for airplanes
+		// do not pre-reserve for aircraft
 		for(unsigned i=0; i<anz_vehikel; i++) {
 			// eventually reserve this
 			vehikel_t const& v = *fahr[i];
@@ -5326,21 +5326,24 @@ void convoi_t::unregister_stops()
 // set next stop before breaking will occur (or route search etc.)
 // currently only used for tracks
 void convoi_t::set_next_stop_index(uint16 n)
-{
+{	
 	// stop at station or signals, not at waypoints
-   if(  n==INVALID_INDEX  ) 
+   if(n == INVALID_INDEX && !route.empty()) 
    {
 	   // find out if stop or waypoint, waypoint: do not brake at waypoints
-	   const koord3d &route_end = route.back();
-	   const int count = fpl->get_count();
 	   bool reverse_waypoint = false;
-	   for(int i = 0; i < count; i ++)
+	   const koord3d route_end = route.back();
+	   if(fahr[0]->get_typ() != ding_t::aircraft)
 	   {
-		   const linieneintrag_t &eintrag = fpl->eintrag[i];
-		   if(eintrag.pos == route_end)
+		   const int count = fpl->get_count();
+		   for(int i = 0; i < count; i ++)
 		   {
-				reverse_waypoint = eintrag.reverse;
-				break;
+			   const linieneintrag_t &eintrag = fpl->eintrag[i];
+			   if(eintrag.pos == route_end)
+			   {
+					reverse_waypoint = eintrag.reverse;
+					break;
+			   }
 		   }
 	   }
 

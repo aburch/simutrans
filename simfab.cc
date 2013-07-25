@@ -2021,7 +2021,6 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 		}
 		ausgang[produkt].menge -= menge << precision_bits;
 		best_halt->starte_mit_route(best_ware);
-		best_halt->unload_repeat_counter = 0;
 		best_halt->recalc_status();
 		fabrik_t::update_transit( best_ware, true );
 		// add as active destination
@@ -2493,7 +2492,10 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 		buf.append(translator::translate("Verbrauch"));
 
 		for (uint32 index = 0; index < eingang.get_count(); index++) {
-
+			if(!besch->get_lieferant(index))
+			{
+				continue;
+			}
 			buf.printf("\n - %s %u/%i/%u%s, %u%%",
 				translator::translate(eingang[index].get_typ()->get_name()),
 				(sint32)(0.5+eingang[index].menge / (double)(1<<fabrik_t::precision_bits)),

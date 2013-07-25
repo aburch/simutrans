@@ -169,7 +169,6 @@ private:
 	koord pos;				// Gruendungsplanquadrat der Stadt ("founding grid square" - Google)
 	koord townhall_road;	// road in front of townhall
 	koord lo, ur;			// max size of housing area
-	bool  has_low_density;	// in this case extend borders by two
 
 	bool allow_citygrowth;	// Whether growth is permitted (true by default)
 
@@ -375,6 +374,12 @@ public:
 		void resolve_factories();
 	};
 
+public:
+	/**
+ 	 * recalcs city borders (after loading old files, after house deletion, after house construction)
+	 */
+	void reset_city_borders();
+
 private:
 	/**
 	 * Data of target factories for pax/mail
@@ -389,8 +394,11 @@ private:
 	 */
 	void init_pax_destinations();
 
-	// recalcs city borders (after loading and deletion)
-	void recalc_city_size();
+	/**
+	 * Enlarges city borders (after being unable to build a building, before trying again)
+	 * Returns false if there are other cities on all four sides
+	 */
+	bool enlarge_city_borders();
 
 	// calculates the growth rate for next growth_interval using all the different indicators
 	void calc_growth();
@@ -487,8 +495,6 @@ private:
 
 	void bewerte_strasse(koord pos, sint32 rd, const rule_t &regel);
 	void bewerte_haus(koord pos, sint32 rd, const rule_t &regel);
-
-	void pruefe_grenzen(koord pos);
 
 	void calc_internal_passengers();
 

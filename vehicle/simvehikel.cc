@@ -887,7 +887,6 @@ vehikel_t::unload_freight(halthandle_t halt, sint64 & revenue_from_unloading, ar
 						const uint32 menge = halt->liefere_an(tmp); //"supply" (Babelfish)
 						sum_menge += menge;
 						index = tmp.get_index(); // Note that there is only one freight type per vehicle
-						halt->unload_repeat_counter = 0;
 
 						// Calculate the revenue for each packet.
 						// Also, add to the "apportioned revenues" for way tolls.
@@ -3431,7 +3430,7 @@ void waggon_t::set_convoi(convoi_t *c)
 // need to reset halt reservation (if there was one)
 route_t::route_result_t waggon_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route)
 {
-	if (ist_erstes && route_index < cnv->get_route()->get_count())
+	if(ist_letztes && route_index < cnv->get_route()->get_count())
 	{
 		// free all reserved blocks
 		uint16 dummy;
@@ -3676,6 +3675,7 @@ bool waggon_t::is_weg_frei_longblock_signal( signal_t *sig, uint16 next_block, i
 				}
 				sig->set_zustand( roadsign_t::gruen );
 				cnv->set_next_stop_index( min( next_crossing, next_signal ) );
+				//cnv->set_next_stop_index( min( min( next_crossing, next_signal ), cnv->get_route()->get_count() ) );
 				return true;
 			}
 		}
@@ -3689,6 +3689,9 @@ bool waggon_t::is_weg_frei_longblock_signal( signal_t *sig, uint16 next_block, i
 		// prepare for next leg of schedule
 		cur_pos = target_rt.back();
 		fpl->increment_index(&fahrplan_index, &reversed);
+	}
+	if(  cnv->get_next_stop_index()-1 <= route_index  ) {
+		cnv->set_next_stop_index( cnv->get_route()->get_count()-1 );
 	}
 	return true;
 }
@@ -4800,7 +4803,7 @@ bool aircraft_t::calc_route_internal(
 	suchen = takeoff = touchdown = INVALID_INDEX;
 
 	const weg_t *w_start = welt->lookup(start)->get_weg(air_wt);
-	bool start_in_air = w_start == NULL;
+	bool start_in_air = flughoehe || w_start == NULL;
 
 	const weg_t *w_ziel = welt->lookup(ziel)->get_weg(air_wt);
 	bool end_in_air = w_ziel == NULL;
@@ -4817,14 +4820,16 @@ bool aircraft_t::calc_route_internal(
 	}
 
 	koord3d search_start, search_end;
-	if(start_in_air  ||  (w_start->get_besch()->get_styp()==1  &&  ribi_t::ist_einfach(w_start->get_ribi())) ) {
+	if(start_in_air || (w_start && w_start->get_besch()->get_styp()==1 && ribi_t::ist_einfach(w_start->get_ribi())))
+	{
 		// we start here, if we are in the air or at the end of a runway
 		search_start = start;
 		start_in_air = true;
 		route.clear();
 		//DBG_MESSAGE("aircraft_t::calc_route()","start in air at %i,%i,%i",search_start.x,search_start.y,search_start.z);
 	}
-	else {
+	else
+	{
 		// not found and we are not on the takeoff tile (where the route search will fail too) => we try to calculate a complete route, starting with the way to the runway
 
 		// second: find start runway end

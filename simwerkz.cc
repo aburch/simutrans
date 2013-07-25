@@ -815,14 +815,14 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 						for(int m = 0; m < 8; m ++)
 						{
 							const koord kx = k.neighbours[m] + k;
-							if(kx == pos)
-							{ 
-								// The road being deleted obviously does not count.
-								continue;
-							}
 							const sint8 heightx = welt->lookup_hgt(kx);
 							const koord3d k3x(kx.x, kx.y, heightx);
 							const grund_t* grx = welt->lookup(k3x); 
+							if (grx == gr) {
+								// The road being deleted does not count -- but others
+								// at different heights DO count.
+								continue;
+							}
 							const weg_t* w = grx ? grx->get_weg(road_wt) : NULL;
 							if(w && w->get_ribi() > 2)
 							{
@@ -831,14 +831,14 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 								for(int q = 0; q < 4; q ++)
 								{
 									const koord ky = kx.nsow[q] + kx; 
-									if(ky == pos)
-									{ 
-										// The road being deleted obviously does not count.
-										continue;
-									}
 									const sint8 heighty = welt->lookup_hgt(ky);
 									const koord3d k3y(ky.x, ky.y, heighty);
 									const grund_t* gry = welt->lookup(k3y); 
+									if (gry == gr) {
+										// The road being deleted does not count -- but others
+										// at different heights DO count.
+										continue;
+									}
 									const weg_t* wy = gry ? gry->get_weg(road_wt) : NULL;
 									if(wy && wy->get_ribi() > 2)
 									{
@@ -2944,31 +2944,101 @@ const char *wkz_wayremover_t::do_work( karte_t *welt, spieler_t *sp, const koord
 			return "Ways not connected";
 		}
 	}
+
 	bool can_delete = true;	// assume success
 
 	// if successful => delete everything
-	for( uint32 i=0;  i<verbindung.get_count();  i++  ) {
+	for( uint32 i=0;  i<verbindung.get_count();  i++  ) 
+	{
 
-		grund_t *gr=welt->lookup(verbindung.position_bei(i));
+		grund_t *gr = welt->lookup(verbindung.position_bei(i));
 
 		// ground can be missing after deleting a bridge ...
-		if(gr  &&  !gr->ist_wasser()) {
-
-			if(gr->ist_bruecke()) {
-				if(gr->find<bruecke_t>()->get_besch()->get_waytype()==wt) {
-					if(gr->ist_karten_boden()) {
+		if(gr  &&  !gr->ist_wasser()) 
+		{
+			if(gr->ist_bruecke())
+			{
+				if(gr->find<bruecke_t>()->get_besch()->get_waytype()==wt)
+				{
+					if(gr->ist_karten_boden()) 
+					{
 						const char *err = NULL;
 						err = brueckenbauer_t::remove(welt,sp,verbindung.position_bei(i),wt);
-						if(err) {
+						if(err) 
+						{
 							return err;
 						}
 						gr = welt->lookup(verbindung.position_bei(i));
 					}
-					else {
+					else
+					{
 						// do not remove asphalt from a bridge ...
 						continue;
 					}
 				}
+			}
+
+			if(wt == road_wt)
+			{
+				const koord pos = gr->get_pos().get_2d();
+				if(welt->get_city(pos) && welt->get_active_player_nr() != 1)
+				{
+					// Players other than the public player cannot delete a road leaving no access to any city building.
+					for(int n = 0; n < 8; n ++)
+					{
+						const koord k = pos.neighbours[n] + pos;
+						const sint8 height = welt->lookup_hgt(k);
+						const koord3d k3(k.x, k.y, height);
+						const grund_t* gr = welt->lookup(k3); 
+						const gebaeude_t* gb = gr ? gr->find<gebaeude_t>() : NULL;
+						if(gb && gb->get_besitzer() == NULL)
+						{
+							// This is a city building - check for other road connexion. 
+							bool unconnected_city_buildings = true;
+							for(int m = 0; m < 8; m ++)
+							{
+								const koord kx = k.neighbours[m] + k;
+								const sint8 heightx = welt->lookup_hgt(kx);
+								const koord3d k3x(kx.x, kx.y, heightx);
+								const grund_t* grx = welt->lookup(k3x); 
+								if (grx == gr) {
+									// The road being deleted does not count -- but others
+									// at different heights DO count.
+									continue;
+								}
+								const weg_t* w = grx ? grx->get_weg(road_wt) : NULL;
+								if(w && w->get_ribi() > 2)
+								{
+									// We must check that the road is itself connected to somewhere other
+									// than the road that we are trying to delete.
+									for(int q = 0; q < 4; q ++)
+									{
+										const koord ky = kx.nsow[q] + kx; 
+										const sint8 heighty = welt->lookup_hgt(ky);
+										const koord3d k3y(ky.x, ky.y, heighty);
+										const grund_t* gry = welt->lookup(k3y); 
+										if (gry == gr) {
+											// The road being deleted does not count -- but others
+											// at different heights DO count.
+											continue;
+										}
+										const weg_t* wy = gry ? gry->get_weg(road_wt) : NULL;
+										if(wy && wy->get_ribi() > 2)
+										{
+											unconnected_city_buildings = false;
+											break;
+										}
+									}
+								}
+							}
+							if(unconnected_city_buildings)
+							{
+								return "Cannot delete a road where to do so would leave a city building unconnected by road.";
+							}
+						}
+					}
+				}
+				welt->set_recheck_road_connexions();
 			}
 
 			// now the tricky part: delete just part of a way (or everything, if possible)
@@ -5087,9 +5157,10 @@ const char *wkz_build_haus_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 		if(gb) {
 			// building successful
 			if(  besch->get_utyp()!=haus_besch_t::attraction_land  &&  besch->get_utyp()!=haus_besch_t::attraction_city  ) {
-				stadt_t *city = welt->suche_naechste_stadt( pos.get_2d() );
+				stadt_t *city = welt->get_city( pos.get_2d() );
 				if(city) {
 					city->add_gebaeude_to_stadt(gb);
+					city->reset_city_borders();
 				}
 			}
 			spieler_t::book_construction_costs(sp, welt->get_settings().cst_multiply_remove_haus * besch->get_level() * size.x * size.y, pos.get_2d(), gb->get_waytype());
@@ -5552,9 +5623,10 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 			if(ok) {
 				// then built it
 				hq = hausbauer_t::baue(welt, sp, welt->lookup_kartenboden(pos.get_2d())->get_pos(), rotate, besch, NULL);
-				stadt_t *city = welt->suche_naechste_stadt( pos.get_2d() );
+				stadt_t *city = welt->get_city( pos.get_2d() );
 				if(city) {
 					city->add_gebaeude_to_stadt( hq );
+					city->reset_city_borders();
 				}
 				built = true;
 			}

@@ -199,9 +199,10 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, spieler_t *sp, koord3d pos, k
 		}
 
 		// Check for non-length restricted bridges over deep water.
-		if(besch->get_max_length() == 0 && welt->lookup_hgt(pos.get_2d())<welt->get_grundwasser())
+		if(besch->get_max_length() == 0 && welt->lookup_hgt(pos.get_2d()) < welt->get_grundwasser())
 		{
 			error_msg = "Bridge cannot be built over deep water\n";
+			return koord3d::invalid;
 		}
 
 		// check for height
@@ -481,7 +482,6 @@ DBG_MESSAGE("brueckenbauer_t::baue()", "end not ok");
 void brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, koord3d end, koord zv, const bruecke_besch_t *besch, const weg_besch_t *weg_besch)
 {
 	ribi_t::ribi ribi = 0;
-	weg_t *weg=NULL;	// =NULL to keep compiler happy
 
 	DBG_MESSAGE("brueckenbauer_t::baue()", "build from %s", pos.get_str() );
 	baue_auffahrt(welt, sp, pos, zv, besch);
@@ -496,7 +496,7 @@ void brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, ko
 		brueckenboden_t *bruecke = new brueckenboden_t(welt, pos + koord3d(0, 0, 1), 0, 0);
 		welt->access(pos.get_2d())->boden_hinzufuegen(bruecke);
 		if(besch->get_waytype() != powerline_wt) {
-			weg = weg_t::alloc(besch->get_waytype());
+			weg_t * const weg = weg_t::alloc(besch->get_waytype());
 			weg->set_besch(weg_besch);
 			bruecke->neuen_weg_bauen(weg, ribi_t::doppelt(ribi), sp);
 			weg->set_max_speed( besch->get_topspeed() );
@@ -552,7 +552,7 @@ void brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, ko
 			ribi = ribi_t::rueckwaerts( ribi_typ(zv) );
 			if(  !gr->weg_erweitern( besch->get_waytype(), ribi )  ) {
 				// builds new way
-				weg = weg_t::alloc( besch->get_waytype() );
+				weg_t * const weg = weg_t::alloc( besch->get_waytype() );
 				weg->set_besch( weg_besch );
 				weg->set_max_speed( besch->get_topspeed() );
 				weg->set_max_axle_load( besch->get_max_weight() );
@@ -567,7 +567,7 @@ void brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, ko
 			leitung_t *lt = gr->get_leitung();
 			if(  lt==NULL  ) {
 				lt = new leitung_t( welt, end, sp );
-				spieler_t::book_construction_costs(sp, -weg_besch->get_preis(), gr->get_pos().get_2d(), weg->get_waytype());
+				spieler_t::book_construction_costs(sp, -weg_besch->get_preis(), gr->get_pos().get_2d(), powerline_wt);
 				gr->obj_add(lt);
 				lt->set_besch(weg_besch);
 				lt->laden_abschliessen();
