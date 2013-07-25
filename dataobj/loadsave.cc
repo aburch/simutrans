@@ -278,11 +278,7 @@ void loadsave_t::rdwr_string(std::string &s) {
         } else {
                 const char *name = NULL;
                 rdwr_str(name);
-				if (name != NULL) {
-	                s = name;
-				} else {
-					s = "";
-				}
+                s = name;
                 free(const_cast<char *>(name));
         } 
 }
@@ -951,6 +947,9 @@ void loadsave_t::rdwr_str(const char *&s)
 			if(size > 0) {
 				sneu = MALLOCN(char, size + 1);
 				read(sneu, size);
+				sneu[size] = '\0';
+			} else if (size == 0) {
+				sneu = MALLOCN(char, 1);
 				sneu[size] = '\0';
 			}
 			if(s) {
