@@ -3688,16 +3688,16 @@ void karte_t::new_month()
 	if( last_month > 11 ) {
 		last_month = 0;
 	}
-	DBG_MESSAGE("karte_t::neuer_monat()","Month (%d/%d) has started", (last_month%12)+1, last_month/12 );
-	DBG_MESSAGE("karte_t::neuer_monat()","sync_step %u objects", sync_list.get_count() );
+	DBG_MESSAGE("karte_t::new_month()","Month (%d/%d) has started", (last_month%12)+1, last_month/12 );
+	DBG_MESSAGE("karte_t::new_month()","sync_step %u objects", sync_list.get_count() );
 
 	// this should be done before a map update, since the map may want an update of the way usage
-//	DBG_MESSAGE("karte_t::neuer_monat()","ways");
+//	DBG_MESSAGE("karte_t::new_month()","ways");
 	FOR(slist_tpl<weg_t*>, const w, weg_t::get_alle_wege()) {
 		w->neuer_monat();
 	}
 
-//	DBG_MESSAGE("karte_t::neuer_monat()","depots");
+//	DBG_MESSAGE("karte_t::new_month()","depots");
 	// Bernd Gabriel - call new month for depots	
 	FOR(slist_tpl<depot_t *>, const dep, depot_t::get_depot_list()) {
 		dep->neuer_monat();
@@ -3708,7 +3708,7 @@ void karte_t::new_month()
 
 	INT_CHECK("simworld 3042");
 
-//	DBG_MESSAGE("karte_t::neuer_monat()","convois");
+//	DBG_MESSAGE("karte_t::new_month()","convois");
 	// hsiegeln - call new month for convois
 	FOR(vector_tpl<convoihandle_t>, const cnv, convoi_array) {
 		cnv->new_month();
@@ -3719,8 +3719,7 @@ void karte_t::new_month()
 	INT_CHECK("simworld 3053"); 
 	 
 
-//	DBG_MESSAGE("karte_t::neuer_monat()","factories");
-	//fabrik_t * fab;
+//	DBG_MESSAGE("karte_t::new_month()","factories");
 	uint32 total_electric_demand = 1;
 	uint32 electric_productivity = 0;
 	closed_factories_this_month.clear();
@@ -3763,7 +3762,7 @@ void karte_t::new_month()
 	{
 		// Only add one chain per month, and randomise (with a minimum of 8% chance to ensure that any industry deficiency is, on average, remedied in about a year).
 		const uint32 percentage = max((((target_industry_density - actual_industry_density) * 100) / target_industry_density), 8);
-		const uint32 chance = simrand(100, "void karte_t::neuer_monat()");
+		const uint32 chance = simrand(100, "void karte_t::new_month()");
 		if(chance < percentage)
 		{
 			fabrikbauer_t::increase_industry_density(this, true, true);
@@ -3779,7 +3778,7 @@ void karte_t::new_month()
 	}
 
 
-	//	DBG_MESSAGE("karte_t::neuer_monat()","cities");
+	//	DBG_MESSAGE("karte_t::new_month()","cities");
 	stadt.update_weights(get_population);
 	sint32 outstanding_cars = 0;
 	FOR(weighted_vector_tpl<stadt_t*>, const s, stadt) 
@@ -3841,7 +3840,7 @@ void karte_t::new_month()
 
 	INT_CHECK("simworld 3175");
 
-//	DBG_MESSAGE("karte_t::neuer_monat()","halts");
+//	DBG_MESSAGE("karte_t::new_month()","halts");
 	FOR(slist_tpl<halthandle_t>, const s, haltestelle_t::get_alle_haltestellen()) {
 		s->neuer_monat();
 		INT_CHECK("simworld 1877");
@@ -4027,7 +4026,7 @@ void karte_t::recalc_average_speed()
 			city_road = city_road_test;
 		}
 		else {
-			DBG_MESSAGE("karte_t::neuer_monat()","Month %d has started", last_month);
+			DBG_MESSAGE("karte_t::new_month()","Month %d has started", last_month);
 			city_road = wegbauer_t::weg_search(road_wt,50,get_timeline_year_month(),weg_t::type_flat);
 		}
 

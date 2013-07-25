@@ -1182,7 +1182,7 @@ void gebaeude_t::laden_abschliessen()
 }
 
 
-void gebaeude_t::entferne(spieler_t *sp)
+void gebaeude_t::entferne(spieler_t *sp) // "Remove" (Google)
 {
 //	DBG_MESSAGE("gebaeude_t::entferne()","gb %i");
 	// remove costs

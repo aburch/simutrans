@@ -2609,6 +2609,8 @@ void stadt_t::check_all_private_car_routes()
 
 void stadt_t::neuer_monat(bool check) //"New month" (Google)
 {
+	// Not responsible for heap corruption.
+
 	swap<uint8>( pax_destinations_old, pax_destinations_new );
 	pax_destinations_new.clear();
 	pax_destinations_new_change = 0;
@@ -2617,7 +2619,7 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 	{
 		bev ++;
 	}
-	calc_internal_passengers(); 
+	//calc_internal_passengers(); 
 
 	roll_history();
 	// TODO: Remove this deprecated code completely.

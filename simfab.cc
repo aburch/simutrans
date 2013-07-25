@@ -2069,6 +2069,8 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 
 void fabrik_t::neuer_monat()
 {
+	// Not responsible for heap corruption.
+
 	// calculate weighted averages
 	if(  aggregate_weight>0  ) {
 		set_stat( weighted_sum_production / aggregate_weight, FAB_PRODUCTION );
