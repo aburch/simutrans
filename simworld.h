@@ -919,9 +919,7 @@ private:
 	 * purposes.
 	 */
 	uint32 next_step;
-	struct step_type {
-		enum {passenger, mail};
-	};
+	enum step_type {step_passenger, step_mail};
 	uint32 step_count[2];
 
 public:

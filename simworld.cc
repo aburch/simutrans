@@ -4386,10 +4386,10 @@ void karte_t::step_passengers_and_mail(long delta_t)
 		// Substantive passenger generation code starts here
 
 		const city_cost history_type = (wtyp == warenbauer_t::passagiere) ? HIST_PAS_TRANSPORTED : HIST_MAIL_TRANSPORTED;
-		const step_type st = (wtyp == warenbauer_t::passagiere) ? step_type::passenger : step_type::mail;
+		const step_type st = (wtyp == warenbauer_t::passagiere) ? step_passenger : step_mail;
 
 		// Restart at the first buiulding?
-		if(step_count[st] >= building_count) 
+		if(step_count[st] >= building_count)
 		{
 			step_count[st] = 0;
 		}
