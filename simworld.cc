@@ -5148,7 +5148,6 @@ void karte_t::step_passengers_and_mail(long delta_t)
 								{
 									return_pax.arrival_time = get_zeit_ms();
 									ret_halt->starte_mit_route(return_pax);
-									ret_halt->unload_repeat_counter = 0;
 								}
 								if(current_destination.type == factory)
 								{
