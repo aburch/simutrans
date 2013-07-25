@@ -308,7 +308,7 @@ public:
 
 	// remove dummy companies and remove password from abandoned companies
 	uint16 remove_dummy_player_months;
-	uint16 unprotect_abondoned_player_months;
+	uint16 unprotect_abandoned_player_months;
 
 public:
 	/**
@@ -541,7 +541,7 @@ public:
 	bool get_allow_underground_transformers() const { return allow_underground_transformers; }
 
 	uint16 get_remove_dummy_player_months() const { return remove_dummy_player_months; }
-	uint16 get_unprotect_abondoned_player_months() const { return unprotect_abondoned_player_months; }
+	uint16 get_unprotect_abandoned_player_months() const { return unprotect_abandoned_player_months; }
 };
 
 #endif

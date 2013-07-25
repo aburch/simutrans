@@ -215,7 +215,7 @@ settings_t::settings_t() :
 	remove_dummy_player_months = 6;
 
 	// off
-	unprotect_abondoned_player_months = 0;
+	unprotect_abandoned_player_months = 0;
 
 	maint_building = 5000;	// normal buildings
 	way_toll_runningcost_percentage = 0;
@@ -742,7 +742,7 @@ void settings_t::rdwr(loadsave_t *file)
 
 		if(  file->get_version()>=112002  ) {
 			file->rdwr_short( remove_dummy_player_months );
-			file->rdwr_short( unprotect_abondoned_player_months );
+			file->rdwr_short( unprotect_abandoned_player_months );
 		}
 
 		if(  file->get_version()>=112003  ) {
@@ -1162,7 +1162,9 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	// player stuff
 	remove_dummy_player_months = contents.get_int("remove_dummy_player_months", remove_dummy_player_months );
-	unprotect_abondoned_player_months = contents.get_int("unprotect_abondoned_player_months", unprotect_abondoned_player_months );
+	// .. read twice: old and right spelling
+	unprotect_abandoned_player_months = contents.get_int("unprotect_abondoned_player_months", unprotect_abandoned_player_months );
+	unprotect_abandoned_player_months = contents.get_int("unprotect_abandoned_player_months", unprotect_abandoned_player_months );
 	default_player_color_random = contents.get_int("random_player_colors", default_player_color_random ) != 0;
 	for(  int i = 0;  i<MAX_PLAYER_COUNT;  i++  ) {
 		char name[32];
