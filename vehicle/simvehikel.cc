@@ -887,7 +887,6 @@ vehikel_t::unload_freight(halthandle_t halt, sint64 & revenue_from_unloading, ar
 						const uint32 menge = halt->liefere_an(tmp); //"supply" (Babelfish)
 						sum_menge += menge;
 						index = tmp.get_index(); // Note that there is only one freight type per vehicle
-						halt->unload_repeat_counter = 0;
 
 						// Calculate the revenue for each packet.
 						// Also, add to the "apportioned revenues" for way tolls.
