@@ -4922,7 +4922,6 @@ void karte_t::step_passengers_and_mail(long delta_t)
 					pax.arrival_time = get_zeit_ms();
 					pax.set_origin(start_halt);
 					start_halt->starte_mit_route(pax);
-					start_halt->unload_repeat_counter = 0;
 					if(city)
 					{
 						city->merke_passagier_ziel(destination_pos, COL_YELLOW);
