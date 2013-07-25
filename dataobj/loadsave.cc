@@ -948,9 +948,6 @@ void loadsave_t::rdwr_str(const char *&s)
 				sneu = MALLOCN(char, size + 1);
 				read(sneu, size);
 				sneu[size] = '\0';
-			} else if (size == 0) {
-				sneu = MALLOCN(char, 1);
-				sneu[size] = '\0';
 			}
 			if(s) {
 				free(const_cast<char *>(s));
