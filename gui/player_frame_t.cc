@@ -339,10 +339,7 @@ void ki_kontroll_t::update_data()
 			else
 			{
 				access_in[i].set_visible(true);
-				if(i != 1)
-				{
-					access_out[i].set_visible(true);
-				}
+				access_out[i].set_visible(true);
 			}
 
 			// always update locking status

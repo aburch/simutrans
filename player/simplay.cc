@@ -87,6 +87,12 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 	{
 		access[i] = allow_access_by_default;
 	}
+
+	// By default, allow access to the public player.
+	// In most cases, the public player can override the absence of 
+	// access in any event, but this is relevant to whether private
+	// cars may use player roads.
+	access[1] = true; 
 }
 
 
