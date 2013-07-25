@@ -215,8 +215,8 @@ private:
 	// names of the stations ...
 	char language_code_names[4];
 
-	// true, if the different caacities (passengers/mail/freight) are counted seperately
-	bool seperate_halt_capacities;
+	// true, if the different caacities (passengers/mail/freight) are counted separately
+	bool separate_halt_capacities;
 
 	/**
 	 * payment is only for the distance that got shorter between target and start
@@ -444,7 +444,7 @@ public:
 	void set_player_type(uint8 i, uint8 t) { spieler_type[i] = t; }
 	uint8 get_player_type(uint8 i) const { return spieler_type[i]; }
 
-	bool is_seperate_halt_capacities() const { return seperate_halt_capacities ; }
+	bool is_separate_halt_capacities() const { return separate_halt_capacities ; }
 
 	// allowed modes are 0,1,2
 	enum { TO_PREVIOUS=0, TO_TRANSFER, TO_DESTINATION };

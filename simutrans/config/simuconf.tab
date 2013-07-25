@@ -142,7 +142,7 @@ factory_worker_minimum_towns = 1
 factory_worker_maximum_towns = 4
 
 # if enabled (default = 0 off) stops may have different capacities for passengers, mail, and  freight
-seperate_halt_capacities = 0
+separate_halt_capacities = 0
 
 # three modes (default = 0)
 # 1: the payment is only relative to the distance to next interchange, 2 to the trips destination (default 0 is distance since last stop)

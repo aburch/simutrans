@@ -258,7 +258,7 @@ settings_t::settings_t() :
 	way_count_leaving_road=25;
 
 	// defualt: joined capacities
-	seperate_halt_capacities = false;
+	separate_halt_capacities = false;
 
 	// this will pay for distance to next change station
 	pay_for_total_distance = TO_PREVIOUS;
@@ -632,7 +632,7 @@ void settings_t::rdwr(loadsave_t *file)
 		}
 
 		if(file->get_version()>101000) {
-			file->rdwr_bool( seperate_halt_capacities );
+			file->rdwr_bool( separate_halt_capacities );
 			file->rdwr_byte( pay_for_total_distance );
 
 			file->rdwr_short(starting_month );
@@ -872,7 +872,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 		umgebung_t::nickname = ltrim(contents.get("nickname"));
 	}
 
-	// listen directive is a comma seperated list of IP addresses to listen on
+	// listen directive is a comma separated list of IP addresses to listen on
 	if(  *contents.get("listen")  ) {
 		umgebung_t::listen.clear();
 		std::string s = ltrim(contents.get("listen"));
@@ -1037,7 +1037,10 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	factory_maximum_intransit_percentage  = contents.get_int("maximum_intransit_percentage", factory_maximum_intransit_percentage);
 
 	tourist_percentage = contents.get_int("tourist_percentage", tourist_percentage );
-	seperate_halt_capacities = contents.get_int("seperate_halt_capacities", seperate_halt_capacities ) != 0;
+	// .. read twice: old and right spelling
+	separate_halt_capacities = contents.get_int("seperate_halt_capacities", separate_halt_capacities ) != 0;
+	separate_halt_capacities = contents.get_int("separate_halt_capacities", separate_halt_capacities ) != 0;
+
 	pay_for_total_distance = contents.get_int("pay_for_total_distance", pay_for_total_distance );
 	avoid_overcrowding = contents.get_int("avoid_overcrowding", avoid_overcrowding )!=0;
 	no_routing_over_overcrowding = contents.get_int("no_routing_over_overcrowded", no_routing_over_overcrowding )!=0;

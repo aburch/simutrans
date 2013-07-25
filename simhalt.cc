@@ -2363,7 +2363,7 @@ void haltestelle_t::add_to_station_type( grund_t *gr )
 		if(besch) {
 			// enabled the matching types
 			enables |= besch->get_enabled();
-			if (welt->get_settings().is_seperate_halt_capacities()) {
+			if (welt->get_settings().is_separate_halt_capacities()) {
 				if(besch->get_enabled()&1) {
 					capacity[0] += besch->get_level()*32;
 				}
@@ -2436,7 +2436,7 @@ void haltestelle_t::add_to_station_type( grund_t *gr )
 
 	// enabled the matching types
 	enables |= besch->get_enabled();
-	if (welt->get_settings().is_seperate_halt_capacities()) {
+	if (welt->get_settings().is_separate_halt_capacities()) {
 		if(besch->get_enabled()&1) {
 			capacity[0] += besch->get_level()*32;
 		}

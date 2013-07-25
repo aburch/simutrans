@@ -169,7 +169,7 @@ static char const* tooltip_with_price_maintenance_level(karte_t* const welt, cha
 		if(enables&4) {
 			n += sprintf( werkzeug_t::toolstr+n, " %s", translator::translate("Fracht") );
 		}
-	} else if (!welt->get_settings().is_seperate_halt_capacities()) {
+	} else if (!welt->get_settings().is_separate_halt_capacities()) {
 		n += sprintf( werkzeug_t::toolstr+n, ", %s %d", translator::translate("Storage capacity"), level*32 );
 	}
 
