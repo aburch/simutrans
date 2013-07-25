@@ -137,6 +137,16 @@ public:
 	#define MAX_WORLD_HISTORY_YEARS  (12) // number of years to keep history
 	#define MAX_WORLD_HISTORY_MONTHS  (12) // number of months to keep history
 
+	enum route_status_type
+	{
+		initialising,
+		no_route,
+		too_slow,
+		overcrowded,
+		public_transport,
+		private_car,
+		on_foot
+	};
 
 	bool get_is_shutting_down() const { return is_shutting_down; }
 
@@ -876,6 +886,78 @@ private:
 	 */
 	void update_map_intern(sint16, sint16, sint16, sint16);
 
+	/**
+	 * This contains all buildings in the world from which passenger
+	 * journeys ultimately start, weighted by their level. 
+	 * @author: jamespetts
+	 */
+	weighted_vector_tpl <gebaeude_t *> passenger_origins;
+
+	/**
+	 * This contains all buildings in the world to which passengers make
+	 * journeys to work, weighted by their (adjusted) level.
+	 * @author: jamespetts
+	 */
+	weighted_vector_tpl <gebaeude_t *> commuter_targets;
+
+	/**
+	 * This contains all buildings in the world to which passengers make
+	 * journeys other than to work, weighted by their (adjusted) level.
+	 * @author: jamespetts
+	 */
+	weighted_vector_tpl <gebaeude_t *> visitor_targets;
+
+	/**
+	 * This contains all buildings in the world to and from which mail
+	 * is delivered and generated respectively, weighted by their mail
+	 * level. 
+	 * @author: jamespetts
+	 */
+	weighted_vector_tpl <gebaeude_t *> mail_origins_and_targets;
+
+	/** Stores the value of the next step for passenger/mail generation
+	 * purposes.
+	 */
+	uint32 next_step;
+	enum step_type {passenger, mail};
+	uint32 step_count[2];
+
+public:
+
+	enum building_type { passenger_origin, commuter_target, visitor_target, mail_origin_or_target, none };
+	enum trip_type { commuting_trip, visiting_trip, mail_trip };
+
+private:
+
+	//@author: jamespetts
+	union destination_object
+	{
+		stadt_t* town;
+		fabrik_t* industry;
+		const gebaeude_t* attraction;
+	};
+
+	enum destination_object_type { town, factory, attraction };
+
+	struct destination
+	{
+		koord location;
+		uint16 type;
+		destination_object object; 
+		
+		// This is not used in the new system.
+		//factory_entry_t* factory_entry;
+		// destination() { factory_entry = NULL; }
+	};
+
+	/**
+	* Generates passengers and mail from all origin buildings
+	* to be distributed to all destination buildings
+	*/		 	
+	void step_passengers_and_mail(long delta_t);
+
+	destination find_destination(trip_type trip);
+
 public:
 	/**
 	 * Announce server and current state to listserver.
@@ -1302,6 +1384,27 @@ public:
 		 */
 		return get_settings().get_meters_per_tile() * ticks * 30L * 6L/ (4096L * 1000L);
 	}
+
+	/**
+	* Adds a single tile of a building to the relevant world list for passenger 
+	* and mail generation purposes
+	* @author: jamespetts
+	*/
+	void add_building_to_world_list(gebaeude_t *gb, building_type b, bool ordered = false);
+	
+	/**
+	* Removes a single tile of a building to the relevant world list for passenger 
+	* and mail generation purposes
+	* @author: jamespetts
+	*/
+	void remove_building_from_world_list(gebaeude_t *gb);
+
+/**
+	* Updates the weight of a building in the world list if it changes its
+	* passenger/mail demand	
+	* @author: jamespetts
+	*/
+	void update_weight_of_building_in_world_list(gebaeude_t *gb, building_type b);
 
 private:
 	/*

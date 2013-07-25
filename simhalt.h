@@ -414,14 +414,6 @@ private:
 	const char * quote_bezeichnung(int quote) const;
 #endif
 
-#ifdef CHECK_WARE_MERGE
-	/**
-	 * versucht die ware mit beriets wartender ware zusammenzufassen
-	 * @author Hj. Malthaner
-	 */
-	bool vereinige_waren(const ware_t &ware);
-#endif
-
 	// add the ware to the internal storage, called only internally
 	void add_ware_to_halt(ware_t ware, bool from_saved = false);
 
@@ -575,8 +567,8 @@ public:
 	// @author: jamespetts, although much is borrowed from suche_route
 	// Returns the journey time of the best possible route from this halt. Time == 65535 when there is no route.
 	uint16 find_route(ware_t &ware, const uint16 journey_time = 65535);
-	minivec_tpl<halthandle_t>* build_destination_list(ware_t &ware);
-	uint16 find_route(minivec_tpl<halthandle_t> *ziel_list, ware_t & ware, const uint16 journey_time = 65535, const koord destination_pos = koord::invalid);
+	vector_tpl<halthandle_t>* build_destination_list(ware_t &ware);
+	uint16 find_route(vector_tpl<halthandle_t> *ziel_list, ware_t & ware, const uint16 journey_time = 65535, const koord destination_pos = koord::invalid);
 
 	bool get_pax_enabled()  const { return enables & PAX;  }
 	bool get_post_enabled() const { return enables & POST; }

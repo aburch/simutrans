@@ -1107,7 +1107,20 @@ void settings_t::rdwr(loadsave_t *file)
 			}
 
 			file->rdwr_byte(passenger_routing_packet_size);
-			file->rdwr_byte(max_alternative_destinations);
+			if(file->get_experimental_version() >= 12)
+			{
+				file->rdwr_short(max_alternative_destinations);
+			}
+			else
+			{
+				uint8 eight_bit_alternative_destinations = max_alternative_destinations > 255 ? 255 : max_alternative_destinations;
+				file->rdwr_byte(eight_bit_alternative_destinations);
+				if(file->is_loading())
+				{
+					max_alternative_destinations = (uint16)eight_bit_alternative_destinations;
+				}
+			}
+
 			file->rdwr_byte(passenger_routing_local_chance);
 			file->rdwr_byte(passenger_routing_midrange_chance);
 			if(file->get_experimental_version() < 11)
@@ -1895,6 +1908,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	// player stuff
 	remove_dummy_player_months = contents.get_int("remove_dummy_player_months", remove_dummy_player_months );
 	unprotect_abondoned_player_months = contents.get_int("unprotect_abondoned_player_months", unprotect_abondoned_player_months );
+	unprotect_abondoned_player_months = contents.get_int("unprotect_abandoned_player_months", unprotect_abondoned_player_months ); // Correcting spelling error.
 	default_player_color_random = contents.get_int("random_player_colors", default_player_color_random ) != 0;
 	for(  int i = 0;  i<MAX_PLAYER_COUNT;  i++  ) {
 		char name[32];

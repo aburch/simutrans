@@ -200,6 +200,8 @@ gebaeude_t::~gebaeude_t()
 			(*j)->remove_connected_attraction(this);
 		}
 	}
+
+	welt->remove_building_from_world_list(this);
 }
 
 
@@ -479,12 +481,12 @@ void gebaeude_t::calc_bild()
 {
 	grund_t *gr = welt->lookup(get_pos());
 	// need no ground?
-	if(  remove_ground  &&  gr->get_typ()==grund_t::fundament  ) {
+	if( gr && remove_ground  &&  gr->get_typ()==grund_t::fundament  ) {
 		gr->set_bild( IMG_LEER );
 	}
 	// snow image?
 	snow = 0;
-	if(  tile->get_seasons()>1  ) {
+	if( gr && tile->get_seasons()>1  ) {
 		snow = (!gr->ist_tunnel()  ||  gr->ist_karten_boden())  &&  (get_pos().z-(get_yoff()/TILE_HEIGHT_STEP)>= welt->get_snowline());
 	}
 }
@@ -599,6 +601,33 @@ int gebaeude_t::get_post_level() const
 		return post;
 	}
 	return post*dim.x*dim.y;
+	
+}
+
+uint32 gebaeude_t::get_passengers_per_hundred_months() const
+{
+	if(!is_factory)
+	{
+		// This is equivalent of:
+		// Level *= 1.22, * 100, * 16, / passenger factor
+		return (tile->get_besch()->get_level() * 1952) / welt->get_settings().get_passenger_factor();
+	}
+	else
+	{
+		return ptr.fab->get_scaled_pax_demand();
+	}
+}
+
+uint32 gebaeude_t::get_mail_per_hundred_months() const
+{
+	if(!is_factory)
+	{
+		return (tile->get_besch()->get_post_level() * 20) / welt->get_settings().get_passenger_factor();
+	}
+	else
+	{
+		return ptr.fab->get_scaled_mail_demand();
+	}
 }
 
 
@@ -667,6 +696,11 @@ bool gebaeude_t::ist_firmensitz() const
 	return tile->get_besch()->ist_firmensitz();
 }
 
+bool gebaeude_t::is_attraction() const
+{
+	return tile->get_besch()->ist_ausflugsziel();
+}
+
 
 gebaeude_t::typ gebaeude_t::get_haustyp() const
 {
@@ -721,25 +755,28 @@ gebaeude_t* gebaeude_t::get_first_tile()
 	return this;
 }
 
-
-void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
+void gebaeude_t::get_description(cbuffer_t & buf) const
 {
-	ding_t::info(buf);
-
-	if(is_factory  &&  ptr.fab != NULL) {
-		buf.append((char *)0);
+	if(is_factory && ptr.fab != NULL) 
+	{
+		buf.append(ptr.fab->get_name());
 	}
-	else if(zeige_baugrube) {
+	else if(zeige_baugrube) 
+	{
 		buf.append(translator::translate("Baustelle"));
 		buf.append("\n");
 	}
-	else {
+	else
+	{
 		const char *desc = tile->get_besch()->get_name();
-		if(desc != NULL) {
+		if(desc != NULL)
+		{
 			const char *trans_desc = translator::translate(desc);
-			if(trans_desc==desc) {
+			if(trans_desc == desc) 
+			{
 				// no description here
-				switch(get_haustyp()) {
+				switch(get_haustyp())
+				{
 					case wohnung:
 						trans_desc = translator::translate("residential house");
 						break;
@@ -755,20 +792,25 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 				}
 				buf.append(trans_desc);
 			}
-			else {
+			else 
+			{
 				// since the format changed, we remove all but double newlines
 				char *text = new char[strlen(trans_desc)+1];
 				char *dest = text;
 				const char *src = trans_desc;
-				while(  *src!=0  ) {
+				while(  *src!=0  )
+				{
 					*dest = *src;
-					if(src[0]=='\n') {
-						if(src[1]=='\n') {
+					if(src[0]=='\n')
+					{
+						if(src[1]=='\n')
+						{
 							src ++;
 							dest++;
 							*dest = '\n';
 						}
-						else {
+						else
+						{
 							*dest = ' ';
 						}
 					}
@@ -777,7 +819,8 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 				}
 				// remove double line breaks at the end
 				*dest = 0;
-				while( dest>text  &&  *--dest=='\n'  ) {
+				while( dest>text  &&  *--dest=='\n'  ) 
+				{
 					*dest = 0;
 				}
 
@@ -785,7 +828,23 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 				delete [] text;
 			}
 		}
-		buf.append( "\n" );
+		else
+		{
+			buf.append("unknown");
+		}
+	}
+}
+
+
+void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
+{
+	ding_t::info(buf);
+
+	get_description(buf);
+
+	if((!is_factory  &&  ptr.fab != NULL)  && !zeige_baugrube) 
+	{		
+		buf.append("\n\n");
 
 		// belongs to which city?
 		if (!is_factory && ptr.stadt != NULL) {
@@ -1225,4 +1284,9 @@ void gebaeude_t::mark_images_dirty() const
 	for(  int i=0;  img!=IMG_LEER;  img=get_bild(++i)  ) {
 		mark_image_dirty( img, -(i*get_tile_raster_width()) );
 	}
+}
+
+uint16 gebaeude_t::get_weight() const
+{
+	return this->tile->get_besch()->get_level();
 }

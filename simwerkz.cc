@@ -3588,7 +3588,9 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 		return CREDIT_MESSAGE;
 	}
 
-	hausbauer_t::baue(welt, halt->get_besitzer(), k-offsets, rotation, besch, &halt);
+	gebaeude_t* gb = hausbauer_t::baue(welt, halt->get_besitzer(), k-offsets, rotation, besch, &halt);
+	welt->add_building_to_world_list(gb, karte_t::commuter_target);
+	welt->add_building_to_world_list(gb, karte_t::mail_origin_or_target);
 
 	// difficult to distinguish correctly most suitable waytype
 	spieler_t::book_construction_costs(sp,  cost, pos, besch->get_finance_waytype());

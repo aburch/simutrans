@@ -1492,7 +1492,7 @@ void haltestelle_t::refresh_routing(const schedule_t *const sched, const minivec
 	}
 }
 
-minivec_tpl<halthandle_t>* haltestelle_t::build_destination_list(ware_t &ware)
+vector_tpl<halthandle_t>* haltestelle_t::build_destination_list(ware_t &ware)
 {
 	const ware_besch_t * warentyp = ware.get_besch();
 
@@ -1504,7 +1504,7 @@ minivec_tpl<halthandle_t>* haltestelle_t::build_destination_list(ware_t &ware)
 	const planquadrat_t *const plan = welt->lookup(ware.get_zielpos());
 	fabrik_t* const fab = fabrik_t::get_fab(welt, ware.get_zielpos());
 
-	minivec_tpl<halthandle_t> *destination_halts_list = new minivec_tpl<halthandle_t>(plan->get_haltlist_count());
+	vector_tpl<halthandle_t> *destination_halts_list = new vector_tpl<halthandle_t>(plan->get_haltlist_count());
 	
 	if(fab)
 	{
@@ -1562,7 +1562,7 @@ minivec_tpl<halthandle_t>* haltestelle_t::build_destination_list(ware_t &ware)
 	return destination_halts_list;
 }
 
-uint16 haltestelle_t::find_route(minivec_tpl<halthandle_t> *destination_halts_list, ware_t &ware, const uint16 previous_journey_time, const koord destination_pos)
+uint16 haltestelle_t::find_route(vector_tpl<halthandle_t> *destination_halts_list, ware_t &ware, const uint16 previous_journey_time, const koord destination_pos)
 {
 	// Find the best route (sequence of halts) for a given packet
 	// from here to its final destination -- *and* reroute the packet.
@@ -1664,7 +1664,7 @@ uint16 haltestelle_t::find_route(minivec_tpl<halthandle_t> *destination_halts_li
 
 uint16 haltestelle_t::find_route (ware_t &ware, const uint16 previous_journey_time)
 {
-	minivec_tpl<halthandle_t> *destination_halts_list = build_destination_list(ware);
+	vector_tpl<halthandle_t> *destination_halts_list = build_destination_list(ware);
 	const uint16 journey_time = find_route(destination_halts_list, ware, previous_journey_time);
 	delete destination_halts_list;
 	return journey_time;
@@ -2113,59 +2113,6 @@ uint32 haltestelle_t::get_ware_fuer_zielpos(const ware_besch_t *wtyp, const koor
 	return 0;
 }
 
-#ifdef CHECK_WARE_MERGE
-bool haltestelle_t::vereinige_waren(const ware_t &ware) //"unite were" (Google)
-{
-	// pruefen ob die ware mit bereits wartender ware vereinigt werden kann
-	// "examine whether the ware with software already waiting to be united" (Google)
-	vector_tpl<ware_t> * warray = waren[ware.get_besch()->get_catg_index()];
-	if(warray != NULL) 
-	{
-		FOR(vector_tpl<ware_t>, & tmp, *warray) 
-		{
-
-			/*
-			* OLD SYSTEM - did not take account of origins and timings when merging.
-			*
-			* // es wird auf basis von Haltestellen vereinigt
-			* // prissi: das ist aber ein Fehler für alle anderen Güter, daher Zielkoordinaten für alles, was kein passagier ist ...
-			*
-			* //it is based on uniting stops. 
-			* //prissi: but that is a mistake for all other goods, therefore, target coordinates for everything that is not a passenger ...
-			* // (Google)
-			*
-			* if(ware.same_destination(tmp)) {
-			*/
-
-			// NEW SYSTEM
-			// Adds more checks.
-			// @author: jamespetts
-			if(ware.can_merge_with(tmp))
-			{
-				if(  ware.get_zwischenziel().is_bound()  &&  ware.get_zwischenziel()!=self  ) 
-				{
-					// update route if there is newer route
-					tmp.set_zwischenziel( ware.get_zwischenziel() );
-				}
-
-				// Merge waiting times.
-				if(ware.menge > 0)
-				{
-					//The waiting time for ware will always be zero.
-					tmp.arrival_time = welt->get_zeit_ms() - ((welt->get_zeit_ms() - tmp.arrival_time) * tmp.menge) / (tmp.menge + ware.menge);
-				}
-
-				tmp.menge += ware.menge;
-				resort_freight_info = true;
-				return true;
-			}
-		}
-	}
-	return false;
-}
-#endif 
-
-
 // put the ware into the internal storage
 // take care of all allocation neccessary
 void haltestelle_t::add_ware_to_halt(ware_t ware, bool from_saved)
@@ -2261,18 +2208,6 @@ uint32 haltestelle_t::starte_mit_route(ware_t ware)
 		ware.set_last_transfer(self);
 		return ware.get_zwischenziel()->liefere_an(ware, 1);
 	}
-
-#ifdef CHECK_WARE_MERGE
-	// passt das zu bereits wartender ware ?
-	if(vereinige_waren(ware)) {
-		// dann sind wir schon fertig;
-#ifdef DEBUG_SIMRAND_CALLS
-		if (talk)
-			dbg->message("\t", "united with existing ware.");
-#endif
-		return ware.menge;
-	}
-#endif
 
 	// add to internal storage
 	add_ware_to_halt(ware);
@@ -2392,18 +2327,6 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 #endif
 		return ware.get_zwischenziel()->liefere_an(ware, walked_between_stations + 1);
 	}
-
-#ifdef CHECK_WARE_MERGE
-	// do we have already something going in this direction here?
-	if(  vereinige_waren(ware)  )
-	{
-#ifdef DEBUG_SIMRAND_CALLS
-		if (talk)
-			dbg->message("haltestelle_t::liefere_an", "%d merged in station \"%s\" waren[0].count %d", ware.menge, get_name(), get_warray(0)->get_count());
-#endif
-		return ware.menge;
-	}
-#endif
 
 	// add to internal storage
 	add_ware_to_halt(ware);
@@ -3388,15 +3311,6 @@ void haltestelle_t::laden_abschliessen(bool need_recheck_for_walking_distance)
 				if(warj.menge == 0) 
 				{
 					continue;
-				}
-				for(uint32 k = j + 1; k < count; ++k) 
-				{
-					ware_t& wark = (*warray)[k];
-					if(wark.menge > 0 && warj.can_merge_with(wark)) 
-					{
-						warj.menge += wark.menge;
-						wark.menge = 0;
-					}
 				}
 			}
 		}

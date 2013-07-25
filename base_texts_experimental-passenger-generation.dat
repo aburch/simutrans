@@ -1,0 +1,9 @@
+ # Simutranslator settings for Simutrans-Experimental texts
+# Addendum for the reorganisation of the depot window
+#
+# Author: jamespetts
+# Created: July 2013
+#
+obj=program_text
+name=Unknown destination
+note=This is displayed in lists of goods/passengers when the destination building cannot be ascertained. It replaces "invalid factory".

@@ -19,7 +19,7 @@
 
 
 karte_t *freight_list_sorter_t::welt = NULL;
-freight_list_sorter_t::sort_mode_t freight_list_sorter_t::sortby=by_name;
+freight_list_sorter_t::sort_mode_t freight_list_sorter_t::sortby = by_name;
 
 /**
  *  @return whether w1 is less than w2
@@ -108,7 +108,7 @@ bool freight_list_sorter_t::compare_ware(ware_t const& w1, ware_t const& w2)
 
 
 
-void freight_list_sorter_t::add_ware_heading( cbuffer_t &buf, uint32 sum, uint32 max, const ware_t *ware, const char *what_doing )
+void freight_list_sorter_t::add_ware_heading(cbuffer_t &buf, uint32 sum, uint32 max, const ware_t *ware, const char *what_doing)
 {
 	// not the first line?
 	if(  buf.len() > 0  ) {
@@ -287,14 +287,20 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			}
 			// the target name is not correct for the via sort
 
-			const bool is_factory_going = ( sortby!=by_via_sum  &&  ware.to_factory );	// exclude merged packets
-			if(  sortby!=by_via_sum  ||  via_halt==halt  ) 
+			if(sortby != by_via_sum && sortby != by_origin_amount) 
 			{
-				if(  is_factory_going && sortby != by_origin_amount ) 
+				const fabrik_t *const factory = fabrik_t::get_fab(world, ware.get_zielpos());
+				const grund_t* gr = welt->lookup(koord3d(ware.get_zielpos(), welt->lookup_hgt(ware.get_zielpos())));
+				const gebaeude_t* const gb = gr ? gr->find<gebaeude_t>() : NULL;
+				const char* description = "Unknown destination";
+				cbuffer_t dbuf;
+				if(gb)
 				{
-					const fabrik_t *const factory = fabrik_t::get_fab( world, ware.get_zielpos() );
-					buf.printf("%s <%i, %i> ", (factory ? factory->get_name() : "Invalid Factory"), ware.get_zielpos().x, ware.get_zielpos().y);
+					gb->get_description(dbuf);
+					description = dbuf.get_str();
 				}
+
+				buf.printf("%s <%i, %i>\n        ", (factory ? factory->get_name() : description), ware.get_zielpos().x, ware.get_zielpos().y);
 			}
 
 			if(sortby == by_name || sortby == by_amount || sortby == by_origin || (sortby == by_via_sum && via_halt == halt) || sortby == by_via)
@@ -317,7 +323,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 				buf.printf(origin_name);
 			}
 			
-			if((via_halt != halt || is_factory_going) && (sortby == by_via || sortby == by_via_sum))
+			if(via_halt != halt && (sortby == by_via || sortby == by_via_sum))
 			{
 				const char *via_name = "unknown";
 				if(via_halt.is_bound()) 

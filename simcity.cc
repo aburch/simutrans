@@ -162,7 +162,7 @@ void stadt_t::privatecar_rdwr(loadsave_t *file)
 	}
 }
 
-sint16 stadt_t::get_private_car_ownership(sint32 monthyear)
+sint16 stadt_t::get_private_car_ownership(sint32 monthyear) const
 {
 
 	if(monthyear == 0) 
@@ -1099,29 +1099,40 @@ static bool compare_gebaeude_pos(const gebaeude_t* a, const gebaeude_t* b)
 // this function adds houses to the city house list
 // Please note: this is called during loading, on *every tile*.
 // It's therefore not OK to recalc city borders in here.
-void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb, bool ordered)
+void stadt_t::add_gebaeude_to_stadt(gebaeude_t* gb, bool ordered)
 {
-	if (gb != NULL) {
-		const haus_tile_besch_t* tile  = gb->get_tile();
+	if (gb != NULL)
+	{
+		const haus_tile_besch_t* tile = gb->get_tile();
 		koord size = tile->get_besch()->get_groesse(tile->get_layout());
 		const koord pos = gb->get_pos().get_2d() - tile->get_offset();
 		koord k;
 
+		if(gb->get_haustyp() == gebaeude_t::unbekannt)
+		{
+			// Monument or town hall: add to the world list whole.
+			// Commuter, visitor and mail
+			welt->add_building_to_world_list(gb, karte_t::visitor_target, ordered);
+			welt->add_building_to_world_list(gb, karte_t::commuter_target, ordered);
+			welt->add_building_to_world_list(gb, karte_t::mail_origin_or_target, ordered);
+		}
+
 		// add all tiles
-		for (k.y = 0; k.y < size.y; k.y++) {
-			for (k.x = 0; k.x < size.x; k.x++) {
-				if (gebaeude_t* const add_gb = ding_cast<gebaeude_t>(welt->lookup_kartenboden(pos + k)->first_obj())) {
-					if(add_gb->get_tile()->get_besch()!=gb->get_tile()->get_besch()) {
+		for(k.y = 0; k.y < size.y; k.y++)
+		{
+			for(k.x = 0; k.x < size.x; k.x++)
+			{
+				if(gebaeude_t* const add_gb = ding_cast<gebaeude_t>(welt->lookup_kartenboden(pos + k)->first_obj())) 
+				{
+					if(add_gb->get_tile()->get_besch() != gb->get_tile()->get_besch())
+					{
 						dbg->error( "stadt_t::add_gebaeude_to_stadt()","two buildings \"%s\" and \"%s\" at (%i,%i): Game will crash during deletion", add_gb->get_tile()->get_besch()->get_name(), gb->get_tile()->get_besch()->get_name(), pos.x + k.x, pos.y + k.y);
 						buildings.remove(add_gb);
+						welt->remove_building_from_world_list(add_gb);
 					}
-					else {
-						if(  ordered  ) {
-							buildings.insert_ordered(add_gb, tile->get_besch()->get_level(), compare_gebaeude_pos);
-						}
-						else {
-							buildings.append(add_gb, tile->get_besch()->get_level());
-						}
+					else 
+					{
+						add_building_to_list(add_gb, ordered);
 					}
 					add_gb->set_stadt(this);
 				}
@@ -1135,6 +1146,7 @@ void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb, bool ordered)
 void stadt_t::remove_gebaeude_from_stadt(gebaeude_t* gb)
 {
 	buildings.remove(gb);
+	welt->remove_building_from_world_list(gb);
 	gb->set_stadt(NULL);
 	reset_city_borders();
 }
@@ -1169,7 +1181,8 @@ bool stadt_t::take_citybuilding_from(stadt_t* old_city, gebaeude_t* gb)
 	gb->set_stadt(NULL);
 	old_city->reset_city_borders();
 
-	buildings.append(gb, gb->get_tile()->get_besch()->get_level());
+	add_building_to_list(add_gb);
+
 	gb->set_stadt(this);
 }
 #endif
@@ -1379,7 +1392,7 @@ void stadt_t::reset_city_borders()
 	check_city_tiles(false);
 }
 
-
+// TODO: Remove this deprecated code completely.
 void stadt_t::init_pax_destinations()
 {
 	pax_destinations_old.clear();
@@ -1407,13 +1420,13 @@ void stadt_t::factory_entry_t::rdwr(loadsave_t *file)
 	}
 }
 
-
+// TODO: Remove this deprecated code completely.
 void stadt_t::factory_entry_t::resolve_factory()
 {
 	factory = fabrik_t::get_fab( welt, koord(factory_pos_x, factory_pos_y) );
 }
 
-
+// TODO: Remove this deprecated code completely.
 const stadt_t::factory_entry_t* stadt_t::factory_set_t::get_entry(const fabrik_t *const factory) const
 {
 	FOR(vector_tpl<factory_entry_t>, const& e, entries) {
@@ -1424,7 +1437,7 @@ const stadt_t::factory_entry_t* stadt_t::factory_set_t::get_entry(const fabrik_t
 	return NULL;	// not found
 }
 
-
+// TODO: Remove this deprecated code completely.
 stadt_t::factory_entry_t* stadt_t::factory_set_t::get_random_entry()
 {
 	if(  total_remaining>0  ) {
@@ -1441,7 +1454,7 @@ stadt_t::factory_entry_t* stadt_t::factory_set_t::get_random_entry()
 	return NULL;
 }
 
-
+// TODO: Remove this deprecated code completely.
 void stadt_t::factory_set_t::update_factory(fabrik_t *const factory, const sint32 demand)
 {
 	if(  entries.is_contained( factory_entry_t(factory) )  ) {
@@ -1459,7 +1472,7 @@ void stadt_t::factory_set_t::update_factory(fabrik_t *const factory, const sint3
 	ratio_stale = true;		// always trigger recalculation of ratio
 }
 
-
+// TODO: Remove this deprecated code completely.
 void stadt_t::factory_set_t::remove_factory(fabrik_t *const factory)
 {
 	if(  entries.is_contained( factory_entry_t(factory) )  ) {
@@ -1471,7 +1484,7 @@ void stadt_t::factory_set_t::remove_factory(fabrik_t *const factory)
 	}
 }
 
-
+// TODO: Remove this deprecated code completely.
 #define SUPPLY_BITS   (3)
 #define SUPPLY_FACTOR (9)	// out of 2^SUPPLY_BITS
 void stadt_t::factory_set_t::recalc_generation_ratio(const sint32 default_percent, const sint64 *city_stats, const int stats_count, const int stat_type)
@@ -1554,7 +1567,7 @@ void stadt_t::factory_set_t::recalc_generation_ratio(const sint32 default_percen
 	}
 }
 
-
+// TODO: Remove this deprecated code completely.
 void stadt_t::factory_set_t::new_month()
 {
 	FOR(vector_tpl<factory_entry_t>, & e, entries) {
@@ -1590,7 +1603,7 @@ void stadt_t::factory_set_t::rdwr(loadsave_t *file)
 	}
 }
 
-
+// TODO: Remove this deprecated code completely.
 void stadt_t::factory_set_t::resolve_factories()
 {
 	uint32 remove_count = 0;
@@ -1639,19 +1652,21 @@ stadt_t::~stadt_t()
 			// old buildings are not where they think they are, so we ask for map floor
 			gebaeude_t* const gb = buildings.front();
 			buildings.remove(gb);
+			
 			assert(  gb!=NULL  &&  !buildings.is_contained(gb)  );
 			if(gb->get_tile()->get_besch()->get_utyp()==haus_besch_t::firmensitz)
 			{
 				stadt_t *city = welt->suche_naechste_stadt(gb->get_pos().get_2d());
 				gb->set_stadt( city );
-				if(city) {
+				if(city) 
+				{
 					city->buildings.append(gb, gb->get_passagier_level());
 				}
 			}
 			else 
 			{
 				gb->set_stadt( NULL );
-				hausbauer_t::remove(welt,welt->get_spieler(1),gb);
+				hausbauer_t::remove(welt,welt->get_spieler(1), gb);
 			}
 		}
 		// Remove substations
@@ -2077,9 +2092,38 @@ void stadt_t::rdwr(loadsave_t* file)
 		townhall_road = koord::invalid;
 	}
 
+	if(file->get_version() >= 110005 && file->get_experimental_version() < 12) 
+	{
+		// Old "factory_entry_t" code - deprecated, but must skip to the correct 
+		// position in old saved game files. NOTE: There is *no* way to save in 
+		// a version compatible with older saved games with the factory entry
+		// code stripped out.
+		uint32 entry_count = 0;
+		for(int i = 0; i < 2; i ++)
+		{
+			// This must be done twice, as the routine was  
+			// called once for mail and once for passengers.
+			file->rdwr_long(entry_count);
+			if(file->is_loading())
+			{
+				for(uint32 e = 0; e < entry_count; ++e)
+				{
+					koord factory_pos = koord::invalid;
+					factory_pos.rdwr(file);
+					uint32 dummy = 0;
+					file->rdwr_long(dummy);
+					file->rdwr_long(dummy);
+					file->rdwr_long(dummy);
+				}
+			}
+			uint32 total_generated = 0;
+			file->rdwr_long(total_generated);
+		}
+	}
+
 	// data related to target factories
-	target_factories_pax.rdwr( file );
-	target_factories_mail.rdwr( file );
+	//target_factories_pax.rdwr( file );
+	//target_factories_mail.rdwr( file );
 
 	if(file->get_experimental_version() >=9 && file->get_version() >= 110000)
 	{
@@ -2220,7 +2264,7 @@ void stadt_t::laden_abschliessen()
 	}
 
 	// clear the minimaps
-	init_pax_destinations();
+	//init_pax_destinations();
 
 	// init step counter with meaningful value
 	step_interval = (2 << 18u) / (buildings.get_count() * 4 + 1);
@@ -2256,8 +2300,8 @@ void stadt_t::laden_abschliessen()
 	next_growth_step = 0;
 
 	// resolve target factories
-	target_factories_pax.resolve_factories();
-	target_factories_mail.resolve_factories();
+	/*target_factories_pax.resolve_factories();
+	target_factories_mail.resolve_factories();*/
 	if(check_road_connexions)
 	{
 		welt->add_queued_city(this);
@@ -2476,12 +2520,13 @@ void stadt_t::step(long delta_t)
 
 	settings_t const& s = welt->get_settings();
 	// recalculate factory going ratios where necessary
-	if(  target_factories_pax.ratio_stale  ) {
+	// TODO: Remove this deprecated code completely.
+	/*if(  target_factories_pax.ratio_stale  ) {
 		target_factories_pax.recalc_generation_ratio(s.get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_PAS_GENERATED);
 	}
 	if(  target_factories_mail.ratio_stale  ) {
 		target_factories_mail.recalc_generation_ratio(s.get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_MAIL_GENERATED);
-	}
+	}*/
 
 	// is it time for the next step?
 	next_step += delta_t;
@@ -2501,7 +2546,7 @@ void stadt_t::step(long delta_t)
 
 	// create passenger rate proportional to town size
 	while(step_interval < next_step) {
-		step_passagiere();
+		//step_passagiere();
 		step_count++;
 		next_step -= step_interval;
 	}
@@ -2610,11 +2655,13 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 	calc_internal_passengers(); 
 
 	roll_history();
-	target_factories_pax.new_month();
-	target_factories_mail.new_month();
+	// TODO: Remove this deprecated code completely.
+	/*target_factories_pax.new_month();
+	target_factories_mail.new_month();*/
 	settings_t const& s = welt->get_settings();
-	target_factories_pax.recalc_generation_ratio(s.get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_PAS_GENERATED);
-	target_factories_mail.recalc_generation_ratio(s.get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_MAIL_GENERATED);
+	// TODO: Remove this deprecated code completely.
+	/*target_factories_pax.recalc_generation_ratio(s.get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_PAS_GENERATED);
+	target_factories_mail.recalc_generation_ratio(s.get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_MAIL_GENERATED);*/
 	update_target_cities();
 
 	// We need to calculate the traffic level here, as this determines the vehicle occupancy, which is necessary for the calculation of congestion.
@@ -2870,9 +2917,12 @@ void stadt_t::calc_growth()
 {
 	// now iterate over all factories to get the ratio of producing version nonproducing factories
 	// we use the incoming storage as a measure und we will only look for end consumers (power stations, markets)
-	FOR(vector_tpl<factory_entry_t>, const& i, target_factories_pax.get_entries()) {
-		fabrik_t *const fab = i.factory;
-		if(fab && fab->get_lieferziele().empty() && !fab->get_suppliers().empty()) 
+	const vector_tpl<fabrik_t*> factory_list = welt->get_fab_list();
+
+	ITERATE(factory_list, i)
+	{
+		fabrik_t *const fab = factory_list[i];
+		if(fab && fab->get_city() == this && fab->get_lieferziele().empty() && !fab->get_suppliers().empty()) 
 		{
 			// consumer => check for it storage
 			const fabrik_besch_t *const besch = fab->get_besch();
@@ -3211,7 +3261,7 @@ void stadt_t::step_passagiere()
 	// Add 1 because the simuconf.tab setting is for maximum *alternative* destinations, whereas we need maximum *actual* desintations 
 	const uint8 max_destinations = (s.get_max_alternative_destinations() < 16 ? s.get_max_alternative_destinations() : 15) + 1;
 
-	minivec_tpl<halthandle_t> destination_list[16];
+	vector_tpl<halthandle_t> destination_list[16];
 
 	// Find passenger destination
 	for(int pax_routed = 0, pax_left_to_do = 0; pax_routed < num_pax; pax_routed += pax_left_to_do) 
@@ -3907,6 +3957,8 @@ void stadt_t::step_passagiere()
 	//	DBG_MESSAGE("stadt_t::step_passagiere()", "Zeit für Passagierstep: %ld ms\n", (long)(t1 - t0));
 }
 
+
+// TODO: Remove this method when new passenger generation is ready.
 void stadt_t::register_factory_passenger_generation(int* pax_left_to_do, const ware_besch_t *const wtyp, factory_set_t &target_factories, factory_entry_t* &factory_entry)
 {
 	if( welt->get_settings().get_factory_enforce_demand()  ) 
@@ -3970,6 +4022,7 @@ koord stadt_t::get_zufallspunkt(uint32 min_distance, uint32 max_distance, koord 
 				// this building should not be in this list, since it has been already deleted!
 				dbg->error("stadt_t::get_zufallspunkt()", "illegal building in city list of %s: %p removing!", this->get_name(), gb);
 				const_cast<stadt_t*>(this)->buildings.remove(gb);
+				welt->remove_building_from_world_list(gb);
 				k = koord(0, 0);
 			}
 			const uint32 distance = shortest_distance(k, origin);
@@ -4053,8 +4106,8 @@ void stadt_t::recalc_target_attractions()
 	}
 }
 
-/* this function generates a random target for passenger/mail
- * changing this strongly affects selection of targets and thus game strategy
+/* This function generates a random target for passengers/mail;
+ * changing this strongly affects selection of targets and thus game strategy.
  */
 stadt_t::destination stadt_t::find_destination(factory_set_t &target_factories, const sint64 generated, pax_return_type* will_return, uint32 min_distance, uint32 max_distance, koord origin)
 {
@@ -4416,7 +4469,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 						}
 					}
 					// and then build it
-					const gebaeude_t* gb = hausbauer_t::baue(welt, besitzer_p, welt->lookup_kartenboden(best_pos + koord(1, 1))->get_pos(), 0, besch);
+					gebaeude_t* gb = hausbauer_t::baue(welt, besitzer_p, welt->lookup_kartenboden(best_pos + koord(1, 1))->get_pos(), 0, besch);
 					hausbauer_t::denkmal_gebaut(besch);
 					add_gebaeude_to_stadt(gb);
 					reset_city_borders();
@@ -4592,7 +4645,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 			dbg->error( "stadt_t::check_bau_rathaus", "no better postion found!" );
 			return;
 		}
-		gebaeude_t const* const new_gb = hausbauer_t::baue(welt, besitzer_p, welt->lookup_kartenboden(best_pos + offset)->get_pos(), layout, besch);
+		gebaeude_t* new_gb = hausbauer_t::baue(welt, besitzer_p, welt->lookup_kartenboden(best_pos + offset)->get_pos(), layout, besch);
 		DBG_MESSAGE("new townhall", "use layout=%i", layout);
 		add_gebaeude_to_stadt(new_gb);
 		reset_city_borders();
@@ -5203,7 +5256,7 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 
 		int layout = get_best_layout(h, k);
 
-		const gebaeude_t* gb = hausbauer_t::baue(welt, NULL, pos, layout, h);
+		gebaeude_t* gb = hausbauer_t::baue(welt, NULL, pos, layout, h);
 		add_gebaeude_to_stadt(gb);
 		reset_city_borders();
 
@@ -5389,7 +5442,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 		// We *can* skip most of the work in add_gebaeude_to_stadt, because we *just* cleared the location,
 		// so it must be valid.  Our borders also should not have changed.
 		new_gb->set_stadt(this);
-		buildings.append(new_gb, new_gb->get_tile()->get_besch()->get_level());
+		add_building_to_list(new_gb);
 
 		switch(want_to_have) {
 			case gebaeude_t::wohnung:   won += h->get_level() * 10; break;
@@ -5401,6 +5454,36 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 		}
 	}
 	return false;
+}
+
+void stadt_t::add_building_to_list(gebaeude_t* building, bool ordered)
+{
+	buildings.append(building, building->get_tile()->get_besch()->get_level());
+	
+	// Also add to the world list for passenger generation purposes.
+	if(building->get_haustyp() == gebaeude_t::wohnung)
+	{
+		// Residential - origin,  mail and (much reduced) visitor target
+		welt->add_building_to_world_list(building, karte_t::passenger_origin, ordered);
+		welt->add_building_to_world_list(building, karte_t::mail_origin_or_target, ordered);
+		welt->add_building_to_world_list(building, karte_t::visitor_target, ordered);
+	}
+	else if(building->get_haustyp() == gebaeude_t::gewerbe)
+	{
+		// Commercial - commuter, visitor and mail
+		welt->add_building_to_world_list(building, karte_t::visitor_target, ordered);
+		welt->add_building_to_world_list(building, karte_t::commuter_target, ordered);
+		welt->add_building_to_world_list(building, karte_t::mail_origin_or_target, ordered);
+	}
+	else if(building->get_haustyp() == gebaeude_t::industrie)
+	{
+		// Industrial - commuter and mail
+		welt->add_building_to_world_list(building, karte_t::commuter_target, ordered);
+		welt->add_building_to_world_list(building, karte_t::mail_origin_or_target, ordered);
+	}
+	
+	// Other (town hall and monuments) - commuter, visitor and mail
+	// Do nothing, as these have been added in a separate method.
 }
 
 

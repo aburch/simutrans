@@ -133,21 +133,6 @@ public:
 			last_transfer == w.last_transfer;
 	}
 
-	// Lighter version of operator == that only checks equality
-	// of metrics needed for merging.
-	// BG: 21.02.2012: check most varying data first. 
-	inline bool can_merge_with (const ware_t &w) const
-	{
-		return 
-			ziel  == w.ziel  &&
-			origin == w.origin &&
-			index  == w.index  &&
-			to_factory == w.to_factory &&
-			// Only merge the destination *position* if the load is freight (since more than one factory might by connected!)
-			(!to_factory  ||  zielpos==w.zielpos) &&
-			last_transfer == w.last_transfer;
-	}
-
 	int operator!=(const ware_t &w) { return !(*this == w); 	}
 
 	/**

@@ -25,6 +25,8 @@ class gebaeude_t : public ding_t, sync_steppable
 public:
 	/**
 	 * Vom typ "unbekannt" sind auch spezielle gebaeude z.B. das Rathaus
+	 * "Of type "unknown" are also special gebaeude eg City Hall" (Google)
+	 * residential, commercial, industrial, unknown
 	 * @author Hj. Malthaner
 	 */
 	enum typ {wohnung, gewerbe, industrie, unbekannt};
@@ -75,6 +77,7 @@ private:
 
 	/**
 	 * if true, this ptr union contains a factory pointer
+	 * ? Surely, this cannot be right with an 8 bit integer? Out of date comment?
 	 * @author Hj. Malthaner
 	 */
 	uint8 is_factory:1;
@@ -175,11 +178,21 @@ public:
 	 */
 	virtual const char *get_name() const;
 
+	void get_description(cbuffer_t & buf) const;
+
+	/**
+	* Town hall
+	*/
 	bool ist_rathaus() const;
 
+	/**
+	* "Head office" (Google)
+	*/
 	bool ist_firmensitz() const;
 
 	bool is_monument() const;
+
+	bool is_attraction() const;
 
 	/**
 	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
@@ -204,6 +217,22 @@ public:
 	int get_passagier_level() const;
 
 	int get_post_level() const;
+
+	/** 
+	* Return the number of passengers that this  
+	* building generates/demands every month,
+	* multiplied by 100.
+	* @author: jamespetts
+	*/
+	uint32 get_passengers_per_hundred_months() const;
+	
+	/** 
+	* Return the number of units of mail that this  
+	* building generates/demands every month,
+	* multiplied by 100.
+	* @author: jamespetts
+	*/
+	uint32 get_mail_per_hundred_months() const;
 
 	void set_tile( const haus_tile_besch_t *t, bool start_with_construction );
 
@@ -237,6 +266,8 @@ public:
 	void new_year();
 
 	void check_road_tiles(bool del);
+
+	uint16 get_weight() const;
 };
 
 

@@ -3919,20 +3919,11 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 			}
 
 			// then add the actual load
-			FOR(slist_tpl<ware_t>, ware, v->get_fracht()) {
-				FOR(vector_tpl<ware_t>, & tmp, total_fracht) {
-					// could this be joined with existing freight?
-
-					if(ware.can_merge_with(tmp))
-					{
-						tmp.menge += ware.menge;
-						ware.menge = 0;
-						break;
-					}
-				}
-
+			FOR(slist_tpl<ware_t>, ware, v->get_fracht())
+			{
 				// if != 0 we could not join it to existing => load it
-				if(ware.menge != 0) {
+				if(ware.menge != 0) 
+				{
 					total_fracht.append(ware);
 				}
 			}

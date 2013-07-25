@@ -57,6 +57,12 @@
 #include "simwin.h"
 #include "simgraph.h"
 
+#if MULTI_THREAD>1
+#include <pthread.h>
+static pthread_mutex_t sync_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t add_to_world_list_mutex = PTHREAD_MUTEX_INITIALIZER;
+#endif
+
 // Fabrik_t
 
 
@@ -360,6 +366,17 @@ void fabrik_t::update_scaled_pax_demand()
 	}
 	// pax demand for fixed period length
 	arrival_stats_pax.set_scaled_demand( pax_demand );
+
+	if(!welt->get_is_shutting_down())
+	{
+		// Must update the world building list to take into account the new passenger demand (weighting)
+		const grund_t* gr = welt->lookup(pos);
+		if(gr)
+		{
+			gebaeude_t* gb = gr->find<gebaeude_t>();
+			welt->update_weight_of_building_in_world_list(gb, karte_t::commuter_target);
+		}
+	}
 }
 
 
@@ -386,6 +403,17 @@ void fabrik_t::update_scaled_mail_demand()
 	}
 	// mail demand for fixed period length
 	arrival_stats_mail.set_scaled_demand( mail_demand );
+
+	if(!welt->get_is_shutting_down())
+	{
+		// Must update the world building list to take into account the new passenger demand (weighting)
+		const grund_t* gr = welt->lookup(pos);
+		if(gr)
+		{
+			gebaeude_t* gb = gr->find<gebaeude_t>();
+			welt->update_weight_of_building_in_world_list(gb, karte_t::mail_origin_or_target);
+		}
+	}
 }
 
 
@@ -440,7 +468,7 @@ void fabrik_t::update_prodfactor_mail()
 	set_stat(prodfactor_mail, FAB_BOOST_MAIL);
 }
 
-
+// TODO: Remove this deprecated code completely.
 void fabrik_t::recalc_demands_at_target_cities()
 {
 	if (!welt->get_settings().get_factory_enforce_demand()) {
@@ -550,13 +578,13 @@ void fabrik_t::remove_target_city(stadt_t *const city)
 {
 	if(  target_cities.is_contained(city)  ) {
 		target_cities.remove(city);
-		city->access_target_factories_for_pax().remove_factory(this);
+		/*city->access_target_factories_for_pax().remove_factory(this);
 		city->access_target_factories_for_mail().remove_factory(this);
-		recalc_demands_at_target_cities();
+		recalc_demands_at_target_cities();*/
 	}
 }
 
-
+// TODO: Remove this deprecated code completely.
 void fabrik_t::clear_target_cities()
 {
 	FOR(vector_tpl<stadt_t*>, const c, target_cities) {
@@ -909,6 +937,14 @@ fabrik_t::~fabrik_t()
 		city->remove_city_factory(this);
 	}
 
+	const grund_t* gr = welt->lookup(pos);
+	//assert(gr);
+	if(gr)
+	{
+		gebaeude_t* gb = gr->find<gebaeude_t>();
+		welt->remove_building_from_world_list(gb);
+	}
+
 	if (!welt->get_is_shutting_down())
 	{
 		uint16 jobs = 0;
@@ -953,7 +989,7 @@ fabrik_t::~fabrik_t()
 				grund_t *gr = 0;
 				gr = welt->lookup(tmp->get_pos());
 				gebaeude_t* gb = gr->find<gebaeude_t>();
-				hausbauer_t::remove(welt,  welt->get_spieler(1), gb);
+				hausbauer_t::remove(welt, welt->get_spieler(1), gb);
 			}
 		}
 		if(transformer_connected)
@@ -2072,7 +2108,7 @@ void fabrik_t::neuer_monat()
 	set_stat( power, FAB_POWER );
 
 	// since target cities' population may be increased -> re-apportion pax/mail demand
-	recalc_demands_at_target_cities();
+	//recalc_demands_at_target_cities();
 
 	// This needs to be re-checked regularly, as cities grow, occasionally shrink and can be deleted.
 	stadt_t* c = welt->get_city(pos.get_2d());
@@ -2645,8 +2681,8 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 			}
 		}
 	}
-
-	if (!target_cities.empty()) {
+	// TODO: Remove this deprecated code entirely
+	/*if (!target_cities.empty()) {
 		if(  has_previous  ) {
 			buf.append("\n\n");
 		}
@@ -2656,7 +2692,7 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 		for(  uint32 c=0;  c<target_cities.get_count();  ++c  ) {
 			buf.append("\n");
 		}
-	}
+	}*/
 
 	// Check *all* tiles for nearby stops... but don't update!
 	if ( !nearby_freight_halts.empty() )
@@ -2709,6 +2745,8 @@ void fabrik_t::laden_abschliessen()
 	// set production, update all production related numbers
 	set_base_production( max(prodbase, prodbase_adjust) );
 	mark_connected_roads(false);
+
+	add_to_world_list(true);
 }
 
 
@@ -2840,4 +2878,24 @@ slist_tpl<const ware_besch_t*> *fabrik_t::get_produced_goods() const
 	}
 
 	return goods;
+}
+
+void fabrik_t::add_to_world_list(bool lock)
+{
+#if MULTI_THREAD>1
+			if(lock) pthread_mutex_lock(&add_to_world_list_mutex);
+#endif
+			const grund_t* gr = welt->lookup(pos);
+			gebaeude_t* gb = gr->find<gebaeude_t>();
+			welt->add_building_to_world_list(gb, karte_t::commuter_target, lock);
+			if(is_end_consumer())
+			{
+				// Consumer only factory - also add as a visitor target, as this is (probably) a shop.
+				// TODO: Add a .dat file parameter to permit this to be disabled for certain industries (e.g. gasworks)
+				welt->add_building_to_world_list(gb, karte_t::visitor_target, lock);
+			}
+			welt->add_building_to_world_list(gb, karte_t::mail_origin_or_target, lock);
+#if MULTI_THREAD>1
+			if(lock) pthread_mutex_unlock(&add_to_world_list_mutex);
+#endif
 }

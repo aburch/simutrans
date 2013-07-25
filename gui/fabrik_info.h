@@ -69,7 +69,7 @@ class fabrik_info_t : public gui_frame_t, public action_listener_t
 
 	button_t *lieferbuttons;
 	button_t *supplierbuttons;
-	button_t *stadtbuttons;
+	//button_t *stadtbuttons;
 
 	gui_scrollpane_t scrolly;
 	gui_fabrik_info_t fab_info;

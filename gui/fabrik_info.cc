@@ -39,7 +39,7 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	prod(&prod_buf),
 	txt(&info_buf)
 {
-	lieferbuttons = supplierbuttons = stadtbuttons = NULL;
+	lieferbuttons = supplierbuttons = NULL;
 	welt = fab->get_besitzer()->get_welt();
 
 	tstrncpy( fabname, fab->get_name(), lengthof(fabname) );
@@ -107,7 +107,7 @@ fabrik_info_t::~fabrik_info_t()
 
 	delete [] lieferbuttons;
 	delete [] supplierbuttons;
-	delete [] stadtbuttons;
+	//delete [] stadtbuttons;
 }
 
 
@@ -299,7 +299,7 @@ void fabrik_info_t::update_info()
 	int y_off = LINESPACE;
 	make_buttons(lieferbuttons,   fab->get_lieferziele(),   y_off, fab_info, this);
 	make_buttons(supplierbuttons, fab->get_suppliers(),     y_off, fab_info, this);
-	make_buttons(stadtbuttons,    fab->get_target_cities(), y_off, fab_info, this);
+	//make_buttons(stadtbuttons,    fab->get_target_cities(), y_off, fab_info, this);
 
 	fab_info.set_groesse( koord( fab_info.get_groesse().x, txt.get_groesse().y ) );
 }
@@ -337,7 +337,8 @@ void gui_fabrik_info_t::zeichnen(koord offset)
 		yoff += LINESPACE;
 	}
 
-	const vector_tpl<stadt_t *> &target_cities = fab->get_target_cities();
+	// TODO: Remove this deprecated code completely.
+	/*const vector_tpl<stadt_t *> &target_cities = fab->get_target_cities();
 	if(  !target_cities.empty()  ) {
 		yoff += LINESPACE;
 
@@ -365,7 +366,7 @@ void gui_fabrik_info_t::zeichnen(koord offset)
 			yoff += LINESPACE;
 		}
 		yoff += 2 * LINESPACE;
-	}
+	}*/
 }
 
 
@@ -381,7 +382,7 @@ fabrik_info_t::fabrik_info_t(karte_t *w) :
 	prod(&prod_buf),
 	txt(&info_buf)
 {
-	lieferbuttons = supplierbuttons = stadtbuttons = NULL;
+	lieferbuttons = supplierbuttons = NULL;
 	welt = w;
 
 	input.set_pos(koord(D_MARGIN_LEFT,D_MARGIN_TOP));
