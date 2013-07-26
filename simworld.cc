@@ -4658,7 +4658,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 					// and is as a result of using the below method for all destination types.
 
 					vector_tpl<halthandle_t> destination_list;		
-					for (int h = dest_plan->get_haltlist_count() - 1; h >= 0; h--) 
+					for(int h = dest_plan->get_haltlist_count() - 1; h >= 0; h--) 
 					{
 						halthandle_t halt = dest_list[h].halt;
 						if (halt->is_enabled(wtyp)) 
@@ -8623,6 +8623,7 @@ void karte_t::add_building_to_world_list(gebaeude_t *gb, building_type b, bool o
 				pthread_mutex_unlock( &add_to_city_mutex );
 		#endif
 				*/
+
 	assert(gb);
 	if(!gb)
 	{
