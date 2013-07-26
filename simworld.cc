@@ -4385,10 +4385,10 @@ void karte_t::step_passengers_and_mail(long delta_t)
 		// Substantive passenger generation code starts here
 
 		const city_cost history_type = (wtyp == warenbauer_t::passagiere) ? HIST_PAS_TRANSPORTED : HIST_MAIL_TRANSPORTED;
-		const step_type st = (wtyp == warenbauer_t::passagiere) ? step_type::passenger : step_type::mail;
+		const step_type st = (wtyp == warenbauer_t::passagiere) ? step_passenger : step_mail;
 
 		// Restart at the first buiulding?
-		if(step_count[st] >= building_count) 
+		if(step_count[st] >= building_count)
 		{
 			step_count[st] = 0;
 		}
@@ -4921,7 +4921,6 @@ void karte_t::step_passengers_and_mail(long delta_t)
 					pax.arrival_time = get_zeit_ms();
 					pax.set_origin(start_halt);
 					start_halt->starte_mit_route(pax);
-					start_halt->unload_repeat_counter = 0;
 					if(city)
 					{
 						city->merke_passagier_ziel(destination_pos, COL_YELLOW);
@@ -5148,7 +5147,6 @@ void karte_t::step_passengers_and_mail(long delta_t)
 								{
 									return_pax.arrival_time = get_zeit_ms();
 									ret_halt->starte_mit_route(return_pax);
-									ret_halt->unload_repeat_counter = 0;
 								}
 								if(current_destination.type == factory)
 								{

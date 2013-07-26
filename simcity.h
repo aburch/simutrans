@@ -8,6 +8,9 @@
 #ifndef simcity_h
 #define simcity_h
 
+
+#include "dataobj/ribi.h"
+
 #include "simdings.h"
 #include "dings/gebaeude.h"
 
@@ -403,6 +406,11 @@ private:
 	 * Returns false if there are other cities on all four sides
 	 */
 	bool enlarge_city_borders();
+	/**
+	 * Enlarges city borders in a particular direction (N,S,E, or W)
+	 * Returns false if it can't
+	 */
+	bool enlarge_city_borders(ribi_t::ribi direction);
 
 	// calculates the growth rate for next growth_interval using all the different indicators
 	void calc_growth();
@@ -455,6 +463,13 @@ private:
 	// @author neroden
 	const gebaeude_t* get_citybuilding_at(const koord k) const;
 	int get_best_layout(const haus_besch_t* h, const koord & k) const;
+
+	/**
+	 * Build a short road bridge extending from bd in direction.
+	 *
+	 * @author neroden
+	 */
+	bool build_bridge(grund_t* bd, ribi_t::ribi direction);
 
 	/**
 	 * baut ein Stueck Strasse
