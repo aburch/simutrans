@@ -3901,7 +3901,7 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 		}
 	}
 
-	if(destination_is_nonreversing_waypoint || /*cnv->get_state()==convoi_t::CAN_START  ||  cnv->get_state()==convoi_t::CAN_START_ONE_MONTH  ||  cnv->get_state()==convoi_t::CAN_START_TWO_MONTHS ||*/ cnv->get_state()==convoi_t::REVERSING)
+	if(destination_is_nonreversing_waypoint || cnv->get_state()==convoi_t::CAN_START  ||  cnv->get_state()==convoi_t::CAN_START_ONE_MONTH  ||  cnv->get_state()==convoi_t::CAN_START_TWO_MONTHS || cnv->get_state()==convoi_t::REVERSING)
 	{
 		// reserve first block at the start until the next signal
 		grund_t *gr = welt->lookup( get_pos() );
@@ -3912,15 +3912,21 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 				restart_speed = 0;
 				return false;
 			}
-			cnv->set_next_stop_index( next_crossing<next_signal ? next_crossing : next_signal );
+			if(!destination_is_nonreversing_waypoint)
+			{
+				cnv->set_next_stop_index( next_crossing<next_signal ? next_crossing : next_signal );
+			}
 			return true;
 		}
-		cnv->set_next_stop_index( max(route_index,1)-1 );
-		if(  steps<steps_next  ) {
-			// not yet at tile border => can drive to signal safely
-			return true;
+		if(!destination_is_nonreversing_waypoint)
+		{
+			cnv->set_next_stop_index( max(route_index,1)-1 );
+			if(  steps<steps_next  ) {
+				// not yet at tile border => can drive to signal safely
+				return true;
+			}
+			// we start with a signal/crossing => use stuff below ...
 		}
-		// we start with a signal/crossing => use stuff below ...
 	}
 
 	const grund_t *gr = welt->lookup(pos_next);
@@ -4009,7 +4015,6 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 		return ok;
 	}
 
-	const uint16 TEST_id = cnv->self.get_id();
 	const sint32 route_steps = brake_steps > 0 && route_index <= route_infos.get_count() - 1 ? cnv->get_route_infos().get_element((next_block > 0 ? next_block - 1 : 0)).steps_from_start - cnv->get_route_infos().get_element(route_index).steps_from_start : -1;
 	if (route_steps <= brake_steps) 
 	{ 	
@@ -4075,8 +4080,6 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
  */
 bool waggon_t::block_reserver(route_t *route, uint16 start_index, uint16 &next_signal_index, uint16 &next_crossing_index, int count, bool reserve, bool force_unreserve) const
 {
-	const koord3d TEST_pos = cnv->get_pos();
-	
 	bool success=true;
 #ifdef MAX_CHOOSE_BLOCK_TILES
 	int max_tiles=2*MAX_CHOOSE_BLOCK_TILES; // max tiles to check for choosesignals
