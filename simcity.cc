@@ -3508,7 +3508,6 @@ void stadt_t::step_passagiere()
 			pax.arrival_time = welt->get_zeit_ms();
 			pax.set_origin(start_halt);
 			start_halt->starte_mit_route(pax);
-			start_halt->unload_repeat_counter = 0;
 			merke_passagier_ziel(destinations[current_destination].location, COL_YELLOW);
 			set_return_trip = will_return != no_return;
 			// create pedestrians in the near area?
@@ -3751,7 +3750,6 @@ void stadt_t::step_passagiere()
 						{
 							return_pax.arrival_time = welt->get_zeit_ms();
 							ret_halt->starte_mit_route(return_pax);
-							ret_halt->unload_repeat_counter = 0;
 						}
 						if(destinations[current_destination].factory_entry)
 						{
