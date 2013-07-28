@@ -225,9 +225,10 @@ void finance_t::new_month()
 void finance_t::book_interest_monthly() {
 	// This handles both interest on cash balance and interest on loans.
 	// Rate is yearly rate for debt; rate for credit is 1/4 of that.  (Fix this.)
-	uint8 interest_rate = world->get_settings().get_interest_rate_percent();
-	if (interest_rate > 0) {
-		float32e8_t interest (interest_rate);
+	const sint64 interest_rate = (sint64)world->get_settings().get_interest_rate_percent();
+	if (interest_rate > 0)
+	{
+		/*float32e8_t interest (interest_rate);
 		interest /= (float32e8_t)100; // percent
 		interest /= (float32e8_t)12; // monthly
 		if (get_account_balance() >= 0) {
@@ -239,10 +240,21 @@ void finance_t::book_interest_monthly() {
 		// Due to the limitations of float32e8, interest can only go up to +-2^31 per month.
 		// Hopefully this won't be an issue.  It will report errors if it is.
 		// This would require an account balance of over +-257 billion.
-		sint32 booked_interest = interest;
-		com_year[0][ATC_INTEREST] += booked_interest;
-		com_month[0][ATC_INTEREST] += booked_interest;
-		account_balance += booked_interest;
+		sint32 booked_interest = interest;*/
+
+		sint64 interest; 
+		if(get_account_balance() < 0)
+		{
+			interest = (interest_rate * get_account_balance()) / 1200ll;
+		}
+		else
+		{
+			interest = (interest_rate * get_account_balance()) / 4800ll;
+		}
+
+		com_year[0][ATC_INTEREST] += interest;
+		com_month[0][ATC_INTEREST] += interest;
+		account_balance += interest;
 	}
 }
 

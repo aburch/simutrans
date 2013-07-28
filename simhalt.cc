@@ -2189,26 +2189,27 @@ uint32 haltestelle_t::starte_mit_route(ware_t ware)
 		}
 	}
 
-	if(ware.is_passenger()
-		&& is_within_walking_distance_of(ware.get_zwischenziel())
-		&& !connexions[0]->get(ware.get_zwischenziel())->best_convoy.is_bound()
-		&& !connexions[0]->get(ware.get_zwischenziel())->best_line.is_bound()
-		)
-	{
-		// We allow walking from the first station because of the way passenger return journeys work;
-		// they automatically start from the destination halt for the outgoing journey
-		// This is a bug which should be fixed.  The passenger has already walked here,
-		// and presumably does not wish to walk further... --neroden
-		// If this is within walking distance of the next transfer, and there is not a faster way there, walk there.
-		erzeuge_fussgaenger(welt, get_basis_pos3d(), ware.menge);
-#ifdef DEBUG_SIMRAND_CALLS
-		if (talk)
-			dbg->message("\t", "walking to %s", ware.get_zwischenziel()->get_name());
-#endif
-		ware.set_last_transfer(self);
-		return ware.get_zwischenziel()->liefere_an(ware, 1);
-	}
 
+  if(ware.is_passenger()
+    && is_within_walking_distance_of(ware.get_zwischenziel())
+    && !connexions[0]->get(ware.get_zwischenziel())->best_convoy.is_bound()
+    && !connexions[0]->get(ware.get_zwischenziel())->best_line.is_bound()
+    )
+  {
+    // We allow walking from the first station because of the way passenger return journeys work;
+    // they automatically start from the destination halt for the outgoing journey
+    // This is a bug which should be fixed.  The passenger has already walked here,
+    // and presumably does not wish to walk further... --neroden
+    // If this is within walking distance of the next transfer, and there is not a faster way there, walk there.
+    erzeuge_fussgaenger(welt, get_basis_pos3d(), ware.menge);
+#ifdef DEBUG_SIMRAND_CALLS
+    if (talk)
+      dbg->message("\t", "walking to %s", ware.get_zwischenziel()->get_name());
+#endif
+    ware.set_last_transfer(self);
+    return ware.get_zwischenziel()->liefere_an(ware, 1);
+  }
+ 
 	// add to internal storage
 	add_ware_to_halt(ware);
 #ifdef DEBUG_SIMRAND_CALLS
@@ -2259,13 +2260,30 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 	// FIXME: This code needs to be fixed for multi-tile buildings
 	// such as attractions and city halls, to allow access from any side
 	fabrik_t* const fab = fabrik_t::get_fab(welt, ware.get_zielpos());
-	if(ware.get_ziel() == self && ware.to_factory && fab && fab_list.is_contained(fab))
+	const planquadrat_t* plan = welt->lookup(ware.get_zielpos());
+	if(ware.get_ziel() == self && ware.to_factory && fab && (fab_list.is_contained(fab) || ((ware.get_besch() == warenbauer_t::passagiere || ware.get_besch() == warenbauer_t::post) && plan->is_connected(self))))
 	{
 		// Packet is headed to a factory;
 		// the factory exists;
 		// and the factory is considered linked to this halt.
 		// FIXME: this should be delayed by transshipment time / walking time.
 		liefere_an_fabrik(ware);
+		if(ware.get_besch() == warenbauer_t::passagiere)
+		{
+			// Arriving passengers may create pedestrians
+			if(welt->get_settings().get_show_pax()) 
+			{
+				int menge = ware.menge;
+				FOR( slist_tpl<tile_t>, const& i, tiles )
+				{
+					if(menge <= 0)
+					{
+						break;
+					}
+					menge = erzeuge_fussgaenger(welt, i.grund->get_pos(), menge);
+				}
+			}
+		}
 #ifdef DEBUG_SIMRAND_CALLS
 		if (talk)
 			dbg->message("haltestelle_t::liefere_an", "%d arrived at station \"%s\" waren[0].count %d", ware.menge, get_name(), get_warray(0)->get_count());
@@ -2273,18 +2291,20 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 		return ware.menge;
 	}
 	// OK, not arrived at a factory, have we arrived somewhere else?
-	const planquadrat_t* plan = welt->lookup(ware.get_zielpos());
 	if(!(ware.to_factory) && ware.get_ziel() == self && plan && plan->is_connected(self))
 	{
 		// Yes, we have.  Passengers & mail vanish mysteriously upon arrival.
 		// FIXME: walking time delay should be implemented right here!
-		if(ware.get_besch()==warenbauer_t::passagiere)
+		if(ware.get_besch() == warenbauer_t::passagiere)
 		{
-			// arriving passenger may create pedestrians
-			if(welt->get_settings().get_show_pax()) {
+			// Arriving passengers may create pedestrians
+			if(welt->get_settings().get_show_pax())
+			{
 				int menge = ware.menge;
-				FOR( slist_tpl<tile_t>, const& i, tiles ) {
-					if (menge <= 0) {
+				FOR( slist_tpl<tile_t>, const& i, tiles )
+				{
+					if(menge <= 0) 
+					{
 						break;
 					}
 					menge = erzeuge_fussgaenger(welt, i.grund->get_pos(), menge);
@@ -2327,6 +2347,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 #endif
 		return ware.get_zwischenziel()->liefere_an(ware, walked_between_stations + 1);
 	}
+#endif
 
 	// add to internal storage
 	add_ware_to_halt(ware);
@@ -2336,6 +2357,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 #endif
 	return ware.menge;
 }
+
 
 
 void haltestelle_t::info(cbuffer_t & buf, bool dummy) const
