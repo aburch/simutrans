@@ -2347,7 +2347,6 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 #endif
 		return ware.get_zwischenziel()->liefere_an(ware, walked_between_stations + 1);
 	}
-#endif
 
 	// add to internal storage
 	add_ware_to_halt(ware);
