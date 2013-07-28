@@ -378,13 +378,10 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb ) //gebae
 					// ok, now we can go on with deletion
 					gb_part->entferne( sp );
 					delete gb_part;
-//<<<<<<< HEAD
-//=======
 					// if this was a station building: delete ground
 					if(gr->get_halt().is_bound()) {
 						haltestelle_t::remove(welt, sp, gr->get_pos());
 					}
-//>>>>>>> aburch/master
 					// and maybe restore land below
 					if(gr->get_typ()==grund_t::fundament) {
 						const koord newk = k+pos.get_2d();
