@@ -378,7 +378,7 @@ public:
 	void set_route_index(uint16 value) { route_index = value; }
 	const koord3d get_pos_prev() const {return pos_prev;}
 
-    virtual bool reroute(const uint16 reroute_index, const koord3d &ziel);
+    virtual bool reroute(const uint16 reroute_index, const koord3d &ziel, route_t* route = NULL);
 
 	/**
 	* gibt das Basisbild zurueck
