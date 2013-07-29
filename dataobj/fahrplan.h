@@ -100,6 +100,17 @@ public:
 	}
 
 	/**
+	 * Sets the current entry to a reversing type
+	 */
+	void set_reverse()
+	{
+		if(!eintrag.empty())
+		{
+			eintrag[aktuell].reverse = true;
+		}
+	}
+
+	/**
 	 * Increment or decrement the given index according to the given direction.
 	 * Also switches the direction if necessary.
 	 * @author yobbobandana

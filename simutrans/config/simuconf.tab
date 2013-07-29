@@ -1374,7 +1374,7 @@ chat_transparency = 75
 # The number of game months before a player making no changes
 # to its company is unlocked automatically to allow other players
 # to take over.
-unprotect_abondoned_player_months = 36
+unprotect_abandoned_player_months = 120
 
 # The number of game months before a player that has never built
 # anything substantive is deleted automatically.
