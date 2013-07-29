@@ -1404,7 +1404,7 @@ void gui_convoy_assembler_t::update_data()
 						img.rcolor = COL_DARK_ORANGE;
 					}
 				}
-				if(depot_frame && (i.key->get_leistung() > 0 || i.key->get_vorgaenger_count() == 1 && i.key->get_vorgaenger(0)->get_leistung() > 0))
+				if(depot_frame && (i.key->get_leistung() > 0 || i.key->get_vorgaenger_count() == 1 && i.key->get_vorgaenger(0) && i.key->get_vorgaenger(0)->get_leistung() > 0))
 				{
 					const uint8 traction_type = i.key->get_engine_type();
 					const uint8 shifter = 1 << traction_type;
