@@ -1175,6 +1175,80 @@ bool stadt_t::take_citybuilding_from(stadt_t* old_city, gebaeude_t* gb)
 #endif
 
 /**
+ * Expand the city in a particular direction
+ * North, south, east, and west are the only choices
+Return true if it is OK for the city to expand to these borders,
+ * and false if it is not OK
+ *
+ * It is not OK if it would overlap another city
+ */
+bool stadt_t::enlarge_city_borders(ribi_t::ribi direction) {
+	koord new_lo, new_ur;
+	koord test_first, test_stop, test_increment;
+	switch (direction) {
+		case ribi_t::nord:
+			// North
+			new_lo = lo + koord(0, -1);
+			new_ur = ur;
+			test_first = koord(new_lo.x, new_lo.y);
+			test_stop = koord(new_ur.x + 1, new_lo.y);
+			test_increment = koord(1,0);
+			break;
+		case ribi_t::sued:
+			// South
+			new_lo = lo;
+			new_ur = ur + koord(0, 1);
+			test_first = koord(new_lo.x, new_ur.y);
+			test_stop = koord(new_ur.x + 1, new_ur.y);
+			test_increment = koord(1,0);
+			break;
+		case ribi_t::ost:
+			// East
+			new_lo = lo;
+			new_ur = ur + koord(1, 0);
+			test_first = koord(new_ur.x, new_lo.y);
+			test_stop = koord(new_ur.x, new_ur.y + 1);
+			test_increment = koord(0,1);
+			break;
+		case ribi_t::west:
+			// West
+			new_lo = lo + koord(-1, 0);
+			new_ur = ur;
+			test_first = koord(new_lo.x, new_lo.y);
+			test_stop = koord(new_lo.x, new_ur.y + 1);
+			test_increment = koord(0,1);
+			break;
+		default:
+			// This is not allowed
+			return false;
+			break;
+	}
+	if (  !welt->is_within_limits(new_lo) || !welt->is_within_limits(new_ur)  ) {
+		// Expansion would take us outside the map
+		// Note that due to the square nature of the limits, we only need to test
+		// opposite corners
+		return false;
+	}
+	// Now check a row along that side to see if it's safe to expand
+	for (koord test = test_first; test != test_stop; test = test + test_increment) {
+		stadt_t* found_city = welt->lookup(test)->get_city();
+		if (found_city && found_city != this) {
+			// We'd be expanding into another city.  Don't!
+			return false;
+		}
+	}
+	// OK, it's safe to expand in this direction.  Do so.
+	lo = new_lo;
+	ur = new_ur;
+	// Mark the tiles as owned by this city.
+	for (koord test = test_first; test != test_stop; test = test + test_increment) {
+		planquadrat_t* pl = welt->access(test);
+		pl->set_city(this);
+	}
+	return true;
+}
+
+/**
  * Enlarge city limits.
  * Attempts to expand by one tile on one (random) side.
  * Refuses to expand off the map or into another city.
@@ -1186,66 +1260,27 @@ bool stadt_t::enlarge_city_borders() {
 	// We will try all four directions if necessary,
 	// but start with a random choice.
 	for (int i = 0; i < 4 ; i++) {
-		koord new_lo, new_ur;
-		koord test_first, test_stop, test_increment;
+		ribi_t::ribi direction;
 		switch (  (i + offset_i) % 4 ) {
 			case 0:
-				// North
-				new_lo = lo + koord(0, -1);
-				new_ur = ur;
-				test_first = koord(new_lo.x, new_lo.y);
-				test_stop = koord(new_ur.x + 1, new_lo.y);
-				test_increment = koord(1,0);
+				direction = ribi_t::nord;
 				break;
 			case 1:
-				// South
-				new_lo = lo;
-				new_ur = ur + koord(0, 1);
-				test_first = koord(new_lo.x, new_ur.y);
-				test_stop = koord(new_ur.x + 1, new_ur.y);
-				test_increment = koord(1,0);
+				direction = ribi_t::sued;
 				break;
 			case 2:
-				// East
-				new_lo = lo;
-				new_ur = ur + koord(1, 0);
-				test_first = koord(new_ur.x, new_lo.y);
-				test_stop = koord(new_ur.x, new_ur.y + 1);
-				test_increment = koord(0,1);
+				direction = ribi_t::ost;
 				break;
 			case 3:
-				// West
-				new_lo = lo + koord(-1, 0);
-				new_ur = ur;
-				test_first = koord(new_lo.x, new_lo.y);
-				test_stop = koord(new_lo.x, new_ur.y + 1);
-				test_increment = koord(0,1);
+				direction = ribi_t::west;
 				break;
 		}
-		if (  !welt->is_within_limits(new_lo) || !welt->is_within_limits(new_ur)  ) {
-			// Expansion would take us outside the map
-			// Note that due to the square nature of the limits, we only need to test
-			// opposite corners
-			continue;
+		if (enlarge_city_borders(direction)) {
+			return true;
 		}
-		// Now check a row along that side to see if it's safe to expand
-		for (koord test = test_first; test != test_stop; test = test + test_increment) {
-			stadt_t* found_city = welt->lookup(test)->get_city();
-			if (found_city && found_city != this) {
-				// We'd be expanding into another city.  Don't!
-				continue;
-			}
-		}
-		// OK, it's safe to expand.  Do so.
-		lo = new_lo;
-		ur = new_ur;
-		// Mark the tiles as owned by this city.
-		for (koord test = test_first; test != test_stop; test = test + test_increment) {
-			planquadrat_t* pl = welt->access(test);
-			pl->set_city(this);
-		}
-		return true;
+		// otherwise try the next direction
 	}
+	// no directions worked
 	return false;
 }
 
@@ -5409,6 +5444,140 @@ void stadt_t::erzeuge_verkehrsteilnehmer(koord pos, uint16 journey_tenths_of_min
 
 
 /**
+ * Build a river-spanning bridge for the city
+ * bd == startirng ground
+ * zv == direction of construction (must be N, S, E, or W)
+ */
+bool stadt_t::build_bridge(grund_t* bd, ribi_t::ribi direction) {
+	koord k = bd->get_pos().get_2d();
+	koord zv = koord(direction);
+
+	const bruecke_besch_t *bridge = brueckenbauer_t::find_bridge(road_wt, 50, welt->get_timeline_year_month() );
+	if(  bridge==NULL  ) {
+		// does not have a bridge available ...
+		return false;
+	}
+	/*
+	 * We want to discourage city construction of bridges.
+	 * Make a simrand call and refuse to construct a bridge some of the time.
+	 * "bridge_success_percentage" is the percent of the time when bridges should *succeed*.
+	 * --neroden
+	 */
+	if(  simrand(100, "stadt_t::baue_strasse() (bridge check)") >= bridge_success_percentage  ) {
+		return false;
+	}
+	const char *err = NULL;
+	// Prefer "non-AI bridge"
+	koord3d end = brueckenbauer_t::finde_ende(welt, NULL, bd->get_pos(), zv, bridge, err, false);
+	if(  err || koord_distance(k, end.get_2d()) > 3  ) {
+		// allow "AI bridge"
+		end = brueckenbauer_t::finde_ende(welt, NULL, bd->get_pos(), zv, bridge, err, true);
+	}
+	if(  err || koord_distance(k, end.get_2d()) > 3  ) {
+		// no bridge short enough
+		return false;
+	}
+	// Bridge looks OK, but check the end
+	const grund_t* past_end = welt->lookup_kartenboden( (end+zv).get_2d() );
+	if (past_end == NULL) {
+		// No bridges to nowhere
+		return false;
+	}
+	bool successfully_built_past_end = false;
+	if (past_end->hat_weg(road_wt) ) {
+		// Connecting to a road, all good...
+		successfully_built_past_end = true;
+	} else {
+		// Build a road past the end of the future bridge (even if it has no connections yet)
+		// This may fail, in which case we shouldn't build the bridge
+		successfully_built_past_end = baue_strasse( (end+zv).get_2d(), NULL, true);
+	}
+
+	if (!successfully_built_past_end) {
+		return false;
+	}
+	// OK, build the bridge
+	brueckenbauer_t::baue_bruecke(welt, NULL, bd->get_pos(), end, zv, bridge, welt->get_city_road());
+	// Now connect the bridge to the road we built
+	// (Is there an easier way?)
+	baue_strasse( end.get_2d(), NULL, false );
+
+	// Attempt to expand the city repeatedly in the bridge direction
+	bool reached_end_plus_2=false;
+	bool reached_end_plus_1=false;
+	bool reached_end=false;
+	for (koord k_new = k; k_new != end.get_2d() + zv + zv + zv; k_new += zv) {
+		bool expanded_successfully = false;
+		planquadrat_t const* pl = welt->lookup(k_new);
+		if (!pl) {
+			break;
+		}
+		stadt_t const* tile_city = pl->get_city();
+		if (tile_city) {
+			if (tile_city == this) {
+				// Already expanded this far.
+				expanded_successfully = true;
+			} else {
+				// Oops, we ran into another city.
+				break;
+			}
+		} else {
+			// not part of a city, see if we can expand
+			expanded_successfully = enlarge_city_borders(direction);
+		}
+		if (!expanded_successfully) {
+			// If we didn't expand this far, don't expand further
+			break;
+		}
+		if (expanded_successfully) {
+			if (k_new == end.get_2d() + zv + zv) {
+				reached_end_plus_2=true;
+			} else if (k_new == end.get_2d() + zv) {
+				reached_end_plus_1=true;
+			} else if (k_new == end.get_2d()) {
+				reached_end=true;
+			}
+		}
+	}
+
+	// try to build a house near the bridge end
+	// Orthogonal only.  Prefer facing onto bridge.
+	// Build only if we successfully expanded the city onto the location.
+	koord right_side = koord(ribi_t::rotate90(direction));
+	koord left_side = koord(ribi_t::rotate90l(direction));
+	vector_tpl<koord> appropriate_locs(5);
+	if (reached_end) {
+		appropriate_locs.append(end.get_2d()+right_side);
+		appropriate_locs.append(end.get_2d()+left_side);
+	}
+	if (reached_end_plus_2) {
+		appropriate_locs.append(end.get_2d()+zv+zv);
+	}
+	if (reached_end_plus_1) {
+		appropriate_locs.append(end.get_2d()+zv+right_side);
+		appropriate_locs.append(end.get_2d()+zv+left_side);
+	}
+	uint32 old_count = buildings.get_count();
+	for(uint8 i=0; i<appropriate_locs.get_count(); i++) {
+		planquadrat_t const* pl = welt->lookup(appropriate_locs[i]);
+		if (pl) {
+			stadt_t const* tile_city = pl->get_city();
+			if (tile_city && tile_city == this) {
+				build_city_building(appropriate_locs[i], true);
+				if (buildings.get_count() != old_count) {
+					// Successful construction.
+					// Fix city limits.
+					reset_city_borders();
+					break;
+				}
+			}
+		}
+	}
+	return true;
+}
+
+
+/**
  * baut ein Stueck Strasse
  *
  * @param k         Bauposition
@@ -5555,96 +5724,24 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 
 		if (!bd->weg_erweitern(road_wt, connection_roads)) {
 			strasse_t* weg = new strasse_t(welt);
-			// Hajo: city roads should not belong to any player => so we can ignore any contruction costs ...
+			// Hajo: city roads should not belong to any player => so we can ignore any construction costs ...
 			weg->set_besch(welt->get_city_road());
 			weg->set_gehweg(true);
 			bd->neuen_weg_bauen(weg, connection_roads, sp);
-			bd->calc_bild();	// otherwise the
+			bd->calc_bild();
 		}
 		// check to bridge a river
 		if(ribi_t::ist_einfach(connection_roads)) {
-			koord zv = koord(ribi_t::rueckwaerts(connection_roads));
+			ribi_t::ribi direction = ribi_t::rueckwaerts(connection_roads);
+			koord zv = koord(direction);
 			grund_t *bd_next = welt->lookup_kartenboden( k + zv );
-			if(bd_next  &&  (bd_next->ist_wasser()  ||  (bd_next->hat_weg(water_wt)  &&  bd_next->get_weg(water_wt)->get_besch()->get_styp()==255))) {
-				// ok there is a river
-				const bruecke_besch_t *bridge = brueckenbauer_t::find_bridge(road_wt, 50, welt->get_timeline_year_month() );
-				if(  bridge==NULL  ) {
-					// does not have a bridge available ...
-					return false;
-				}
-				/*
-				 * We want to discourage city construction of bridges.
-				 * Make a simrand call and refuse to construct a bridge some of the time.
-				 * "bridge_success_percentage" is the percent of the time when bridges should *succeed*.
-				 * --neroden
-				 */
-				if(  simrand(100, "stadt_t::baue_strasse() (bridge check)") >= bridge_success_percentage  ) {
-					return false;
-				}
-				const char *err = NULL;
-				koord3d end = brueckenbauer_t::finde_ende(welt, NULL, bd->get_pos(), zv, bridge, err, false);
-				if(err  ||   koord_distance( k, end.get_2d())>3) {
-					// try to find shortest possible
-					end = brueckenbauer_t::finde_ende(welt, NULL, bd->get_pos(), zv, bridge, err, true);
-				}
-				if(err==NULL  &&   koord_distance( k, end.get_2d())<=3) {
-					// Bridge looks OK, but check the end
-					const grund_t* past_end = welt->lookup_kartenboden( (end+zv).get_2d() );
-					if (past_end == NULL) {
-						// No bridges to nowhere
-						return false;
-					}
-					bool successfully_built_past_end = false;
-					if (past_end->hat_weg(road_wt) ) {
-						// Connecting to a road, all good...
-						successfully_built_past_end = true;
-					} else {
-						// Build a road past the end of the future bridge (even if it has no connections yet)
-						// This may fail, in which case we shouldn't build the bridge
-						successfully_built_past_end = baue_strasse( (end+zv).get_2d(), NULL, true);
-					}
-					if (successfully_built_past_end) {
-						// OK, build the bridge
-						brueckenbauer_t::baue_bruecke(welt, NULL, bd->get_pos(), end, zv, bridge, welt->get_city_road());
-						// Now connect the bridge to the road we built
-						// (Is there an easier way?)
-						baue_strasse( end.get_2d(), NULL, false );
-
-						// try to build a house near the bridge end
-						// Orthogonal only.  Prefer facing onto bridge.
-						koord right_side = koord(ribi_t::rotate90(ribi_t::rueckwaerts(connection_roads)));
-						koord left_side = koord(ribi_t::rotate90l(ribi_t::rueckwaerts(connection_roads)));
-						vector_tpl<koord> appropriate_locs(5);
-						appropriate_locs.append(end.get_2d()+right_side);
-						appropriate_locs.append(end.get_2d()+left_side);
-						appropriate_locs.append(end.get_2d()+zv+zv);
-						appropriate_locs.append(end.get_2d()+zv+right_side);
-						appropriate_locs.append(end.get_2d()+zv+left_side);
-						uint32 old_count = buildings.get_count();
-						for(uint8 i=0; i<appropriate_locs.get_count(); i++) {
-							planquadrat_t const* pl = welt->lookup(appropriate_locs[i]);
-							if (pl) {
-								stadt_t const* tile_city = pl->get_city();
-								if (tile_city && tile_city != this) {
-									// Whoops.  Don't build in another city.  Try the next spot.
-									continue;
-								}
-								build_city_building(appropriate_locs[i], true);
-								if (buildings.get_count() != old_count) {
-									// Successful construction.
-									// Fix city limits.
-									reset_city_borders();
-									break;
-								}
-							}
-						}
-					}
-				}
+			if(  bd_next && (bd_next->ist_wasser() || bd_next->hat_weg(water_wt))  ) {
+				// ok there is a river or a canal (yes, cities bridge canals)
+				build_bridge(bd, direction);
 			}
 		}
 		return true;
 	}
-
 	return false;
 }
 

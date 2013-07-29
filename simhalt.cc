@@ -1316,7 +1316,7 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 			if(ware.is_passenger()
 				&& is_within_walking_distance_of(ware.get_zwischenziel())
 				&& !connexions[0]->get(ware.get_zwischenziel())->best_convoy.is_bound()
-				&& !connexions[0]->get(ware.get_zwischenziel())->best_line.is_bound()) 
+				&& !connexions[0]->get(ware.get_zwischenziel())->best_line.is_bound())
 			{
 				// FIXME: The passengers need to actually be delayed by the walking time
 				erzeuge_fussgaenger(welt, get_basis_pos3d(), ware.menge);
@@ -2242,26 +2242,25 @@ uint32 haltestelle_t::starte_mit_route(ware_t ware)
 		}
 	}
 
-  if(ware.is_passenger()
-    && is_within_walking_distance_of(ware.get_zwischenziel())
-    && !connexions[0]->get(ware.get_zwischenziel())->best_convoy.is_bound()
-    && !connexions[0]->get(ware.get_zwischenziel())->best_line.is_bound()
-    )
-  {
-    // We allow walking from the first station because of the way passenger return journeys work;
-    // they automatically start from the destination halt for the outgoing journey
-    // This is a bug which should be fixed.  The passenger has already walked here,
-    // and presumably does not wish to walk further... --neroden
-    // If this is within walking distance of the next transfer, and there is not a faster way there, walk there.
-    erzeuge_fussgaenger(welt, get_basis_pos3d(), ware.menge);
+	if(ware.is_passenger()
+		&& is_within_walking_distance_of(ware.get_zwischenziel())
+		&& !connexions[0]->get(ware.get_zwischenziel())->best_convoy.is_bound()
+		&& !connexions[0]->get(ware.get_zwischenziel())->best_line.is_bound()
+		)
+	{
+		// We allow walking from the first station because of the way passenger return journeys work;
+		// they automatically start from the destination halt for the outgoing journey
+		// This is a bug which should be fixed.  The passenger has already walked here,
+		// and presumably does not wish to walk further... --neroden
+		// If this is within walking distance of the next transfer, and there is not a faster way there, walk there.
+		erzeuge_fussgaenger(welt, get_basis_pos3d(), ware.menge);
 #ifdef DEBUG_SIMRAND_CALLS
-    if (talk)
-      dbg->message("\t", "walking to %s", ware.get_zwischenziel()->get_name());
+		if (talk)
+			dbg->message("\t", "walking to %s", ware.get_zwischenziel()->get_name());
 #endif
-    ware.set_last_transfer(self);
-    return ware.get_zwischenziel()->liefere_an(ware, 1);
-  }
- 
+		ware.set_last_transfer(self);
+		return ware.get_zwischenziel()->liefere_an(ware, 1);
+	}
 
 #ifdef CHECK_WARE_MERGE
 	// passt das zu bereits wartender ware ?
@@ -2395,7 +2394,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 		fabrik_t::update_transit( ware, false );
 		return ware.menge;
 	}
-	
+
 	if(ware.is_passenger()
 		&& is_within_walking_distance_of(ware.get_zwischenziel())
 		&& !connexions[0]->get(ware.get_zwischenziel())->best_convoy.is_bound()
@@ -2412,7 +2411,8 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 #endif
 		return ware.get_zwischenziel()->liefere_an(ware, walked_between_stations + 1);
 	}
-	#ifdef CHECK_WARE_MERGE
+
+#ifdef CHECK_WARE_MERGE
 	// do we have already something going in this direction here?
 	if(  vereinige_waren(ware)  )
 	{
