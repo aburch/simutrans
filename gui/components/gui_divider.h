@@ -62,8 +62,8 @@ public:
 			pos.y + offset.y + align_y,
 			groesse.x,
 			groesse.y,
-			skinverwaltung_t::theme_color_shadow,
-			skinverwaltung_t::theme_color_highlight
+			SYSCOL_SHADOW,
+			SYSCOL_HIGHLIGHT
 		);
 	}
 

@@ -86,8 +86,8 @@ void gui_image_list_t::zeichnen(koord parent_pos)
 	FOR(vector_tpl<image_data_t*>, const& iptr, *images) {
 		image_data_t const& idata = *iptr;
 		if(idata.count>=0) {
-			// display mark
 
+			// display mark
 			if(idata.lcolor!=EMPTY_IMAGE_BAR) {
 				display_fillbox_wh_clip( xpos + 1, ypos + grid.y - 5, grid.x/2 - 1, 4, idata.lcolor, true);
 			}
@@ -97,7 +97,16 @@ void gui_image_list_t::zeichnen(koord parent_pos)
 			if (sel_index-- == 0) {
 				display_ddd_box_clip(xpos, ypos, grid.x, grid.y, MN_GREY4, MN_GREY0);
 			}
-			display_base_img(idata.image, xpos + placement.x, ypos + placement.y, player_nr, false, true);
+
+			// Get image data
+			scr_coord_val x,y,w,h;
+			display_get_base_image_offset( idata.image, &x, &y, &w, &h );
+
+			// calculate image offsets
+			y = -y + (grid.y-h) - 6; // align to bottom mark
+			x = -x + 2;              // Add 2 pixel margin
+			//display_base_img(idata.image, xpos + placement.x, ypos + placement.y, player_nr, false, true);
+			display_base_img(idata.image, xpos + x, ypos + y, player_nr, false, true);
 
 			// If necessary, display a number:
 			if(idata.count > 0) {

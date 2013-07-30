@@ -142,7 +142,7 @@ void money_frame_t::update_label(gui_label_t &label, char *buf, int transport_ty
 		buf[strlen(buf)-4] = 0;	// remove comma
 	}
 
-	label.set_text(buf);
+	label.set_text(buf,false);
 	label.set_color(color);
 }
 
@@ -234,18 +234,26 @@ money_frame_t::money_frame_t(spieler_t *sp)
 
 	this->sp = sp;
 
-	const int top = 30;
-	const int left = 12;
+	const scr_coord_val top =  30;
+	const scr_coord_val left = 12;
 
-	const sint16 tyl_x = left+140+55;
-	const sint16 lyl_x = left+240+55;
+	const scr_coord_val tyl_x = left+140+55;
+	const scr_coord_val lyl_x = left+240+55;
 
 	// left column
-	tylabel.set_pos(koord(tyl_x+25,top-1*BUTTONSPACE));
-	lylabel.set_pos(koord(lyl_x+25,top-1*BUTTONSPACE));
+	tylabel.set_pos(koord(left+120,top-1*BUTTONSPACE));
+	tylabel.set_width(tyl_x-left-120+25);
+	lylabel.align_to(&tylabel,ALIGN_EXTERIOR_H | ALIGN_LEFT | ALIGN_TOP);
+	lylabel.set_width(lyl_x+25-lylabel.get_pos().x);
 
-	transport.set_pos(koord(tyl_x+19, top+0*BUTTONSPACE));
-	old_transport.set_pos(koord(lyl_x+19, top+0*BUTTONSPACE));
+	//transport.set_pos(koord(tyl_x+19, top+0*BUTTONSPACE));
+	transport.align_to(&tylabel,ALIGN_LEFT,koord(0,top));
+	transport.set_width(tylabel.get_groesse().x);
+
+	//old_transport.set_pos(koord(lyl_x+19, top+0*BUTTONSPACE));
+	old_transport.align_to(&lylabel,ALIGN_LEFT,koord(0,top));
+	old_transport.set_width(lylabel.get_groesse().x);
+
 	imoney.set_pos(koord(tyl_x,top+1*BUTTONSPACE));
 	old_imoney.set_pos(koord(lyl_x,top+1*BUTTONSPACE));
 	vrmoney.set_pos(koord(tyl_x,top+2*BUTTONSPACE));
@@ -264,10 +272,10 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	old_tmoney.set_pos(koord(lyl_x,top+8*BUTTONSPACE));
 
 	// right column
-	maintenance_label.set_pos(koord(left+340+80, top+2*BUTTONSPACE-2));
+	maintenance_label.set_pos(koord(left+340+80-maintenance_label.get_groesse().x, top+2*BUTTONSPACE-2));
 	maintenance_money.set_pos(koord(left+340+55, top+3*BUTTONSPACE));
 
-	tylabel2.set_pos(koord(left+140+80+335,top+4*BUTTONSPACE-2));
+	tylabel2.set_pos(koord(left+140+80+335-tylabel2.get_groesse().x,top+4*BUTTONSPACE-2));
 	gtmoney.set_pos(koord(left+140+335+55, top+5*BUTTONSPACE));
 	vtmoney.set_pos(koord(left+140+335+55, top+6*BUTTONSPACE));
 	margin.set_pos(koord(left+140+335+55, top+7*BUTTONSPACE));
@@ -442,8 +450,8 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	chart.set_visible( year_month_tabs.get_active_tab_index()==0 );
 	mchart.set_visible( year_month_tabs.get_active_tab_index()==1 );
 
-	tylabel.set_text( year_month_tabs.get_active_tab_index() ? "This Month" : "This Year" );
-	lylabel.set_text( year_month_tabs.get_active_tab_index() ? "Last Month" : "Last Year" );
+	tylabel.set_text( year_month_tabs.get_active_tab_index() ? "This Month" : "This Year", false );
+	lylabel.set_text( year_month_tabs.get_active_tab_index() ? "Last Month" : "Last Year", false );
 
 	// update_label(gui_label_t &label, char *buf, int transport_type, uint8 type, int yearmonth)
 	update_label(conmoney, str_buf[0], transport_type_option, ATV_CONSTRUCTION_COST, 0);

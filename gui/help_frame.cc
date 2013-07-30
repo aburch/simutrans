@@ -30,6 +30,9 @@ help_frame_t::help_frame_t() :
 	scrolly_generaltext(&generaltext),
 	scrolly_helptext(&helptext)
 {
+	// info windows do not show general text
+	scrolly_generaltext.set_visible( false );
+
 	set_text("<title>Unnamed</title><p>No text set</p>");
 
 	helptext.set_pos( koord(D_MARGIN_LEFT,D_MARGIN_TOP) );
@@ -37,9 +40,6 @@ help_frame_t::help_frame_t() :
 
 	scrolly_helptext.set_show_scroll_x(true);
 	add_komponente(&scrolly_helptext);
-
-	// info windows do not show general text
-	scrolly_generaltext.set_visible( false );
 
 	set_resizemode(diagonal_resize);
 	set_min_windowsize( koord( D_MARGIN_LEFT + (button_t::gui_scrollbar_size.x<<1) + DIALOG_MIN_WIDTH + D_MARGIN_RIGHT, D_TITLEBAR_HEIGHT + D_MARGIN_TOP + (button_t::gui_scrollbar_size.y<<1) + D_MARGIN_BOTTOM) );
@@ -474,7 +474,7 @@ void help_frame_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta);
 
-	KOORD_VAL generalwidth = 0;
+	scr_coord_val generalwidth = 0;
 	if(  scrolly_generaltext.is_visible()  ) {
 		// do not use more than 1/3 for the general infomations
 		generalwidth = min( display_get_width()/3, generaltext.get_preferred_size().x ) + button_t::gui_scrollbar_size.x + D_MARGIN_LEFT;

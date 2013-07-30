@@ -279,13 +279,20 @@ void gui_combobox_t::close_box()
 	first_call = true;
 }
 
+void gui_combobox_t::set_pos(koord pos_par)
+{
+	gui_komponente_t::set_pos( pos_par );
+	droplist.set_pos( koord( pos_par.x, pos_par.y + textinp.get_groesse().y ) );
+	//set_groesse(groesse);
+}
 
 void gui_combobox_t::set_groesse(koord gr)
 {
 	gui_komponente_t::set_groesse( gr );
 
-	textinp.set_pos( pos + koord( bt_prev.get_groesse().x + 1, 0) );
-	textinp.set_groesse( koord( gr.x - bt_prev.get_groesse().x - bt_next.get_groesse().x - 2, D_EDIT_HEIGHT) );
+	textinp.set_pos( pos + koord( bt_prev.get_groesse().x, 0) );
+	textinp.set_groesse( koord( gr.x - bt_prev.get_groesse().x - bt_next.get_groesse().x, D_EDIT_HEIGHT) );
+	//textinp.set_width( gr.x - bt_prev.get_groesse().x - bt_next.get_groesse().x );
 	bt_next.set_pos( koord( gr.x - bt_next.get_groesse().x, 0) );
 
 	bt_prev.align_to(&textinp,ALIGN_CENTER_V, koord (0,-pos.y));

@@ -323,12 +323,14 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 		sprintf( str_parts_month, "1/%d",  1<<(16-fpl->get_current_eintrag().waiting_time_shift) );
 	}
 	lb_waitlevel.set_text_pointer( str_parts_month );
-	lb_waitlevel.set_pos( koord( D_BUTTON_WIDTH*2-20, ypos+2 ) );
+	lb_waitlevel.set_pos( koord(0, ypos+2 ) );
+	lb_waitlevel.align_to(&bt_wait_prev,ALIGN_EXTERIOR_H | ALIGN_LEFT | ALIGN_CENTER_V);
 	add_komponente(&lb_waitlevel);
 
 	bt_wait_next.set_pos( koord( D_BUTTON_WIDTH*2-17, ypos+2 ) );
 	bt_wait_next.set_typ(button_t::arrowright);
 	bt_wait_next.add_listener(this);
+	lb_waitlevel.set_width( bt_wait_next.get_pos().x-bt_wait_prev.get_pos().x-bt_wait_prev.get_groesse().x );
 	add_komponente(&bt_wait_next);
 
 	if(  !umgebung_t::hide_rail_return_ticket  ||  fpl->get_waytype()==road_wt  ||  fpl->get_waytype()==air_wt  ||  fpl->get_waytype()==water_wt  ) {

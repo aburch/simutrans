@@ -72,18 +72,21 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	int y=D_BUTTON_HEIGHT+4-D_TITLEBAR_HEIGHT;
 
 	speed_bonus[0] = 0;
-	change_speed_label.set_text(speed_bonus);
-	change_speed_label.set_pos(koord(BUTTON4_X+5, y));
-	add_komponente(&change_speed_label);
-
 	speed_down.init(button_t::repeatarrowleft, "", koord(BUTTON4_X-20, y), koord(10,D_BUTTON_HEIGHT));
 	speed_down.add_listener(this);
 	add_komponente(&speed_down);
 
-	speed_up.init(button_t::repeatarrowright, "", koord(BUTTON4_X+10, y), koord(10,D_BUTTON_HEIGHT));
+	change_speed_label.set_text(speed_bonus);
+	change_speed_label.set_width(display_get_char_max_width("-0123456789")*4);
+	//change_speed_label.set_pos(koord(BUTTON4_X+5, y));
+	change_speed_label.align_to(&speed_down,ALIGN_EXTERIOR_H | ALIGN_LEFT | ALIGN_CENTER_V,koord(D_V_SPACE,0));
+	add_komponente(&change_speed_label);
+
+	//speed_up.init(button_t::repeatarrowright, "", koord(BUTTON4_X+10, y), koord(10,D_BUTTON_HEIGHT));
+	speed_up.init(button_t::repeatarrowright, "",speed_down.get_pos());
+	speed_up.align_to(&change_speed_label,ALIGN_EXTERIOR_H | ALIGN_LEFT, koord(D_V_SPACE,0));
 	speed_up.add_listener(this);
 	add_komponente(&speed_up);
-
 	y=D_BUTTON_HEIGHT+4+5*LINESPACE;
 
 	filter_goods_toggle.init(button_t::square_state, "Show only used", koord(BUTTON1_X, y));

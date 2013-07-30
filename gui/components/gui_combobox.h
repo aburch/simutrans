@@ -126,6 +126,12 @@ public:
 	 */
 	void set_selection(int s);
 
+	/**
+	* Set this component's position.
+	* @author Hj. Malthaner
+	*/
+	virtual void set_pos(koord pos_par);
+
 	void set_groesse(koord groesse) OVERRIDE;
 
 	/**

@@ -30,18 +30,16 @@
 #include "../simfab.h"
 #include "../simtools.h"
 
-#define L_ZOOM_WIDTH (50)
-
 static koord old_ij=koord::invalid;
 
 karte_t *map_frame_t::welt;
 
-koord map_frame_t::size=koord(0,0);
-bool map_frame_t::legend_visible=false;
-bool map_frame_t::scale_visible=false;
-bool map_frame_t::directory_visible=false;
-bool map_frame_t::is_cursor_hidden=false;
-bool map_frame_t::filter_factory_list=true;
+koord map_frame_t::window_size;
+bool  map_frame_t::legend_visible=false;
+bool  map_frame_t::scale_visible=false;
+bool  map_frame_t::directory_visible=false;
+bool  map_frame_t::is_cursor_hidden=false;
+bool  map_frame_t::filter_factory_list=true;
 
 // Caches list of factories in current game world
 stringhashtable_tpl<const fabrik_besch_t *> map_frame_t::factory_list;
@@ -56,11 +54,11 @@ public:
 	legend_entry_t() {}
 	legend_entry_t(const std::string &text_, int colour_) : text(text_), colour(colour_) {}
 	bool operator==(const legend_entry_t& rhs) 	{
-		return text == rhs.text && colour == rhs.colour;
+		return ( (text == rhs.text)  &&  (colour == rhs.colour) );
 	}
 
 	std::string text;
-	int       colour;
+	int         colour;
 };
 
 static vector_tpl<legend_entry_t> legend(16);
@@ -73,6 +71,7 @@ typedef struct {
 	const char *tooltip_text;
 	reliefkarte_t::MAP_MODES mode;
 } map_button_t;
+
 
 map_button_t button_init[MAP_MAX_BUTTONS] = {
 	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "Towns", "Overlay town names", reliefkarte_t::MAP_TOWN },
@@ -100,14 +99,33 @@ map_button_t button_init[MAP_MAX_BUTTONS] = {
 };
 
 
-map_frame_t::map_frame_t(karte_t *w) :
+map_frame_t::map_frame_t(karte_t *world) :
 	gui_frame_t( translator::translate("Reliefkarte") ),
 	scrolly(reliefkarte_t::get_karte()),
-	zoom_label("map zoom")
+	zoom_label("map zoom"),
+	min_label("min"),
+	max_label("max")
 {
 	koord cursor( D_MARGIN_LEFT,D_MARGIN_TOP );
-	welt = w;
+	scr_coord_val zoom_label_width = display_get_char_max_width("0123456789") * 4 + display_get_char_width(':');
 
+	welt = world;
+	old_ij = koord::invalid;
+	is_dragging = false;
+	zoomed = false;
+
+	// init map
+	reliefkarte_t *karte = reliefkarte_t::get_karte();
+	karte->set_welt( welt );
+
+	const koord gr = karte->get_groesse();
+	const koord s_gr=scrolly.get_groesse();
+	const koord ij = welt->get_world_position();
+	const koord win_size = gr-s_gr; // this is the visible area
+	karte->set_mode( (reliefkarte_t::MAP_MODES)umgebung_t::default_mapmode );
+	scrolly.set_scroll_position(  max(0,min(ij.x-win_size.x/2,gr.x)), max(0, min(ij.y-win_size.y/2,gr.y)) );
+
+	// first row of coontrols
 	// selections button
 	b_show_legend.init(button_t::roundbox_state, "Show legend", cursor);
 	b_show_legend.set_tooltip("Shows buttons on special topics.");
@@ -115,19 +133,26 @@ map_frame_t::map_frame_t(karte_t *w) :
 	add_komponente(&b_show_legend);
 	cursor.x += D_BUTTON_WIDTH + D_H_SPACE;
 
-	// colour codes button
-	b_show_scale.init(button_t::roundbox_state, "Show map scale", cursor);
-	b_show_scale.set_tooltip("Shows the color code for several selections.");
-	b_show_scale.add_listener(this);
-	add_komponente(&b_show_scale);
-	cursor.x += D_BUTTON_WIDTH + D_H_SPACE;
-
 	// industry list button
 	b_show_directory.init(button_t::roundbox_state, "Show industry", cursor);
 	b_show_directory.set_tooltip("Shows a listing with all industries on the map.");
 	b_show_directory.add_listener(this);
 	add_komponente(&b_show_directory);
-	cursor = koord(D_MARGIN_LEFT, cursor.y + D_BUTTON_HEIGHT + D_H_SPACE);
+	cursor.x += D_BUTTON_WIDTH + D_H_SPACE;
+
+	// scale button
+	b_show_scale.init(button_t::roundbox_state, "Show map scale", cursor);
+	b_show_scale.set_tooltip("Shows the color code for several selections.");
+	b_show_scale.add_listener(this);
+	add_komponente(&b_show_scale);
+	cursor = koord(D_MARGIN_LEFT, cursor.y + D_BUTTON_HEIGHT + D_V_SPACE);
+
+	// second row of controls
+	// zoom levels label
+	zoom_label.set_pos(cursor);
+	zoom_label.set_color(SYSCOL_TEXT);
+	add_komponente( &zoom_label );
+	cursor.x += zoom_label.get_groesse().x + D_H_SPACE;
 
 	// zoom levels arrow left
 	zoom_buttons[0].init(button_t::repeatarrowleft, NULL,cursor);
@@ -135,11 +160,13 @@ map_frame_t::map_frame_t(karte_t *w) :
 	add_komponente( zoom_buttons+0 );
 	cursor.x += zoom_buttons[0].get_groesse().x;
 
-	// zoom levels label
-	//zoom_label.set_groesse( koord(L_ZOOM_WIDTH,LINESPACE) );
-	//zoom_label.set_pos(cursor);
-	//add_komponente( &zoom_label );
-	cursor.x += L_ZOOM_WIDTH;
+	// zoom level value label
+	zoom_value_label.set_pos(cursor);
+	zoom_value_label.set_groesse( koord(zoom_label_width,LINESPACE) );
+	zoom_value_label.set_align(gui_label_t::centered);
+	zoom_value_label.set_color(SYSCOL_TEXT);
+	add_komponente( &zoom_value_label );
+	cursor.x += zoom_label_width;
 
 	// zoom levels arrow right
 	zoom_buttons[1].init(button_t::repeatarrowright, NULL, cursor);
@@ -148,97 +175,73 @@ map_frame_t::map_frame_t(karte_t *w) :
 	cursor.x += zoom_buttons[1].get_groesse().x + D_H_SPACE;
 
 	// rotate map 45°
-	//b_rotate45.init( button_t::square_state, "isometric map", koord(BUTTON1_X+54+proportional_string_width(zoom_label.get_text_pointer())+D_H_SPACE+10,D_BUTTON_HEIGHT+D_V_SPACE));
 	b_rotate45.init( button_t::square_state, "isometric map", cursor);
 	b_rotate45.set_tooltip("Similar view as the main window");
 	b_rotate45.add_listener(this);
+	b_rotate45.pressed = karte->isometric;
 	add_komponente(&b_rotate45);
-	cursor.x += b_rotate45.get_groesse().x;
 
-	zoom_buttons[0].align_to(&b_rotate45,ALIGN_CENTER_V);
-	zoom_buttons[1].align_to(&b_rotate45,ALIGN_CENTER_V);
+	// align second row
+	// Max Kielland: This will be done automatically (and properly) by the new gui_layout_t control in the near future.
+	zoom_value_label.align_to(&zoom_buttons[0],ALIGN_CENTER_V);
+	zoom_buttons[1].align_to(&zoom_buttons[0],ALIGN_CENTER_V);
+	zoom_label.align_to(&zoom_buttons[0],ALIGN_CENTER_V);
+	b_rotate45.align_to(&zoom_buttons[0],ALIGN_CENTER_V);
+	cursor = koord(D_MARGIN_LEFT,zoom_buttons[0].get_pos().y+zoom_buttons[0].get_groesse().y+D_V_SPACE);
 
-	// selections: show networks
-	b_overlay_networks.init(button_t::square_state, "Networks", cursor);
+	// legend container
+	filter_container.set_pos(cursor);
+	filter_container.set_visible(false);
+	add_komponente(&filter_container);
+
+	// insert selections: show networks, in legend container
+	b_overlay_networks.init(button_t::square_state, "Networks");
 	b_overlay_networks.set_tooltip("Overlay schedules/network");
 	b_overlay_networks.add_listener(this);
-	b_overlay_networks.set_visible( legend_visible );
 	b_overlay_networks.pressed = (umgebung_t::default_mapmode & reliefkarte_t::MAP_LINES)!=0;
-	add_komponente( &b_overlay_networks );
-	cursor.x += b_overlay_networks.get_groesse().x;
+	filter_container.add_komponente( &b_overlay_networks );
 
-	// factory list: show used button
-	b_filter_factory_list.init(button_t::square_state, "Show only used", cursor);
-	b_filter_factory_list.set_tooltip("In the industry legend show only currently existing factories");
-	b_filter_factory_list.add_listener(this);
-	b_filter_factory_list.set_visible( directory_visible );
-	add_komponente( &b_filter_factory_list );
-	cursor.x += b_filter_factory_list.get_groesse().x;
-
-	cursor = koord( D_MARGIN_LEFT,b_filter_factory_list.get_groesse().y );
-
-	// init factory name legend
-	update_factory_legend();
-
-	// init the rest
-	scrolly.set_pos( koord(0, D_BUTTON_HEIGHT*4 + 2) );
-	scrolly.set_show_scroll_x(true);
-	scrolly.set_scroll_discrete_y(false);
-	add_komponente(&scrolly);
-
-	// and now the buttons
+	// insert filter buttons in legend container
 	for (int type=0; type<MAP_MAX_BUTTONS; type++) {
-		filter_buttons[type].init( button_t::box_state, button_init[type].button_text, koord(0,0), koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+		filter_buttons[type].init( button_t::box_state, button_init[type].button_text);
 		filter_buttons[type].set_tooltip( button_init[type].tooltip_text );
-		filter_buttons[type].set_visible(false);
 		filter_buttons[type].pressed = button_init[type].mode&umgebung_t::default_mapmode;
 		filter_buttons[type].background = filter_buttons[type].pressed ? button_init[type].select_color : button_init[type].color;
 		filter_buttons[type].foreground = filter_buttons[type].pressed ? COL_WHITE : COL_BLACK;
 		filter_buttons[type].add_listener(this);
-		add_komponente(filter_buttons + type);
+		filter_container.add_komponente(filter_buttons + type);
 	}
 
- 	// Hajo: Hack: use static size if set by a former object
-	const koord size2 = size;
+	// directory container
+	directory_container.set_pos(cursor);
+	directory_container.set_visible(false);
+	add_komponente(&directory_container);
 
-	set_fenstergroesse(koord(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+256+6));
-	set_min_windowsize(koord(BUTTON4_X, D_TITLEBAR_HEIGHT+2*D_BUTTON_HEIGHT+4+64));
+	// factory list: show used button
+	b_filter_factory_list.init(button_t::square_state, "Show only used");
+	b_filter_factory_list.set_tooltip("In the industry legend show only currently existing factories");
+	b_filter_factory_list.add_listener(this);
+	directory_container.add_komponente( &b_filter_factory_list );
+	update_factory_legend();
 
-	if(  size2 != koord(0,0)  ) {
-		if(  legend_visible  ) {
-			show_hide_legend( legend_visible );
-		}
-		if(  scale_visible  ) {
-			show_hide_scale( scale_visible );
-		}
-		if(  directory_visible  ) {
-			show_hide_directory( directory_visible );
-		}
+	// scale container
+	scale_container.set_pos(cursor);
+	scale_container.set_visible(false);
+	add_komponente(&scale_container);
+	scale_container.add_komponente(&min_label);
+	scale_container.add_komponente(&max_label);
 
-		resize( size2 - get_fenstergroesse() );
-	}
+	// map scrolly
+	scrolly.set_show_scroll_x(true);
+	scrolly.set_scroll_discrete_y(false);
+	add_komponente(&scrolly);
 
+	// resore window size and options
+	set_fenstergroesse( window_size );
+	show_hide_legend( legend_visible );
+	show_hide_scale( scale_visible );
+	show_hide_directory( directory_visible );
 	set_resizemode(diagonal_resize);
-	resize(koord(0,0));
-
-	reliefkarte_t *karte = reliefkarte_t::get_karte();
-	karte->set_welt( welt );
-
-	const koord gr = karte->get_groesse();
-	const koord s_gr=scrolly.get_groesse();
-	const koord ij = welt->get_world_position();
-	const koord win_size = gr-s_gr;	// this is the visible area
-	scrolly.set_scroll_position(  max(0,min(ij.x-win_size.x/2,gr.x)), max(0, min(ij.y-win_size.y/2,gr.y)) );
-
-	old_ij = koord::invalid;
-
-	// Hajo: Trigger layouting
-	is_dragging = false;
-	zoomed = false;
-
-	karte->set_mode( (reliefkarte_t::MAP_MODES)umgebung_t::default_mapmode );
-
-	b_rotate45.pressed = karte->isometric;
 }
 
 
@@ -267,13 +270,14 @@ void map_frame_t::update_factory_legend()
 
 		// If any names are too long for current windows size, shorten them. Can't be done in above loop in case shortening some names cause
 		// then to become non unique and thus get clumped together
+		scr_coord_val client_width = get_fenstergroesse().x - D_MARGIN_LEFT - D_MARGIN_RIGHT;
 		const int dot_len = proportional_string_width("..");
-		const int fac_cols = clamp(legend.get_count(), 1, get_fenstergroesse().x / (D_DEFAULT_WIDTH/3));
+		const int fac_cols = clamp(legend.get_count(), 1, client_width / ((D_DEFAULT_WIDTH-D_MARGINS_X)/3));
 
 		FOR(vector_tpl<legend_entry_t>, & l, legend) {
 			std::string label = l.text;
 			size_t i;
-			for(  i=12;  i < label.size()  &&  display_calc_proportional_string_len_width(label.c_str(), i) < get_fenstergroesse().x / fac_cols - dot_len - 13;  i++  ) {}
+			for(  i=12;  i < label.size()  &&  display_calc_proportional_string_len_width(label.c_str(), i) < (client_width / fac_cols) - dot_len - D_INDICATOR_BOX_WIDTH - 2 - D_H_SPACE;  i++  ) {}
 			if(  i < label.size()  ) {
 				label = label.substr(0, i);
 				label.append("..");
@@ -286,61 +290,29 @@ void map_frame_t::update_factory_legend()
 
 void map_frame_t::show_hide_legend(const bool show)
 {
+	filter_container.set_visible(show);
 	b_show_legend.pressed = show;
 	legend_visible = show;
-
-	b_overlay_networks.set_visible( show );
-
-	const int col = max( 1, min( (get_fenstergroesse().x-2)/(D_BUTTON_WIDTH+D_H_SPACE), MAP_MAX_BUTTONS ) );
-	const int row = ((MAP_MAX_BUTTONS-1)/col)+1;
-	const int offset_y = (D_BUTTON_HEIGHT+2)*row;
-	const koord offset = show ? koord(0, offset_y) : koord(0, -offset_y);
-
-	for(  int type=0;  type<MAP_MAX_BUTTONS;  type++  ) {
-		filter_buttons[type].set_visible(show);
-	}
-	scrolly.set_pos(scrolly.get_pos() + offset);
-
-	set_min_windowsize(get_min_windowsize() + offset);
-	set_fenstergroesse(get_fenstergroesse() + offset);
-	resize(koord(0,0));
+	resize();
 }
 
 
 void map_frame_t::show_hide_scale(const bool show)
 {
+	scale_container.set_visible(show);
 	b_show_scale.pressed = show;
 	scale_visible = show;
-
-	const koord offset = show ? koord(0, (LINESPACE+4)) : koord(0, -(LINESPACE+4));
-
-	scrolly.set_pos(scrolly.get_pos() + offset);
-
-	set_min_windowsize(get_min_windowsize() + offset);
-	set_fenstergroesse(get_fenstergroesse() + offset);
-	resize(koord(0,0));
+	resize();
 }
 
 
 void map_frame_t::show_hide_directory(const bool show)
 {
-	bool directory_view_toggeled = (b_show_directory.pressed != show);
+	directory_container.set_visible(show);
 	b_show_directory.pressed = show;
 	b_filter_factory_list.pressed = filter_factory_list;
 	directory_visible = show;
-
-	b_filter_factory_list.set_visible( directory_visible );
-
-	const int fac_cols = clamp( legend.get_count(), 1, get_fenstergroesse().x / (D_DEFAULT_WIDTH/3) );
-	const int fac_rows = (legend.get_count() - 1) / fac_cols + 1 + D_V_SPACE*2 + D_BUTTON_HEIGHT;
-	//No need to resize when only factory filter button state changes
-	const koord offset = directory_view_toggeled ? (show ? koord(0, (fac_rows*LINESPACE)) : koord(0, -(fac_rows*LINESPACE))) : koord(0, 0);
-
-	scrolly.set_pos(scrolly.get_pos() + offset);
-
-	set_min_windowsize(get_min_windowsize() + offset);
-	set_fenstergroesse(get_fenstergroesse() + offset);
-	resize(koord(0,0));
+	resize();
 }
 
 
@@ -420,7 +392,7 @@ void map_frame_t::zoom(bool magnify)
 {
 	if (reliefkarte_t::get_karte()->change_zoom_factor(magnify)) {
 		// recalc all the other data incl scrollbars
-		resize(koord(0,0));
+		resize();
 	}
 }
 
@@ -461,7 +433,7 @@ bool map_frame_t::infowin_event(const event_t *ev)
 	}
 	else if(  IS_RIGHTRELEASE(ev)  ) {
 		if(!is_dragging) {
-			resize( koord(0,0) );
+			resize();
 		}
 		is_dragging = false;
 		display_show_pointer(true);
@@ -532,9 +504,8 @@ bool map_frame_t::infowin_event(const event_t *ev)
 void map_frame_t::set_fenstergroesse(koord groesse)
 {
 	gui_frame_t::set_fenstergroesse( groesse );
-
-	scrolly.set_groesse(get_client_windowsize()-scrolly.get_pos());
-	map_frame_t::size = get_fenstergroesse();
+	window_size = get_fenstergroesse();
+	scrolly.set_groesse(get_client_windowsize()-scrolly.get_pos()-koord(1,1));
 }
 
 
@@ -543,56 +514,66 @@ void map_frame_t::set_fenstergroesse(koord groesse)
  * @author Hj. Malthaner
  * @date   01-Jun-2002
  */
+
 void map_frame_t::resize(const koord delta)
 {
-	gui_frame_t::resize(delta);
+	scr_coord_val offset_y = filter_container.get_pos().y;
+	scr_coord_val client_width = get_fenstergroesse().x-D_MARGIN_LEFT - D_MARGIN_RIGHT;
 
-	const KOORD_VAL old_offset_y = scrolly.get_pos().y;
-	int offset_y = D_BUTTON_HEIGHT*2 + D_V_SPACE*2;
-
+	// resize legend
 	if(legend_visible) {
-		// MOVE NETWORK OVERLAY BUTTON
-		b_overlay_networks.set_pos( koord( D_MARGIN_LEFT, offset_y ) );
-		offset_y += D_BUTTON_HEIGHT;
+		scr_coord_val button_y = b_overlay_networks.get_groesse().y+D_V_SPACE;
+		koord pos;
 
-		// calculate space with legend
-		const int col = max( 1, min( (get_fenstergroesse().x-D_MARGIN_LEFT-D_MARGIN_RIGHT+D_H_SPACE)/(D_BUTTON_WIDTH+D_H_SPACE), MAP_MAX_BUTTONS ) );
+		// calculate number of columns and rows for buttons
+		const int col = max( 1, min( client_width/(D_BUTTON_WIDTH+D_H_SPACE), MAP_MAX_BUTTONS ) );
 		const int row = ((MAP_MAX_BUTTONS-1)/col)+1;
 
 		// set button pos
 		for (int type=0; type<MAP_MAX_BUTTONS; type++) {
-			koord pos = koord( D_MARGIN_LEFT+(D_BUTTON_WIDTH+D_H_SPACE)*(type%col), offset_y+(D_BUTTON_HEIGHT+2)*((int)type/col) );
+			pos = koord( (D_BUTTON_WIDTH+D_H_SPACE)*(type%col), button_y+(D_BUTTON_HEIGHT+D_V_SPACE)*((int)type/col) );
 			filter_buttons[type].set_pos( pos );
 		}
-		offset_y += (D_BUTTON_HEIGHT+2)*row;
-		offset_y += D_V_SPACE;
-	}
 
-	if(scale_visible) {
-		// plus scale bar
-		offset_y += LINESPACE;
-		offset_y += D_V_SPACE;
+		// calculate client height and set height
+		filter_container.set_groesse(koord(client_width, (D_BUTTON_HEIGHT+D_V_SPACE)*(row+1) ));
+		offset_y += filter_container.get_groesse().y + D_V_SPACE;
 	}
 
 	if(directory_visible) {
-		b_filter_factory_list.set_pos( koord( D_MARGIN_LEFT, offset_y ) );
-		offset_y += D_BUTTON_HEIGHT;
+		scr_coord_val button_y = b_filter_factory_list.get_groesse().y+D_V_SPACE;
+		scr_coord_val line_height = max(D_INDICATOR_BOX_HEIGHT,LINESPACE);
+
+		directory_container.set_pos(koord(D_MARGIN_LEFT,offset_y));
+
+
 		// full program including factory texts
 		update_factory_legend();
-		const int fac_cols = clamp( legend.get_count(), 1, get_fenstergroesse().x / (D_DEFAULT_WIDTH/3));
+
+		const int fac_cols = clamp( legend.get_count(), 1, client_width / ((D_DEFAULT_WIDTH-D_MARGINS_X)/3));
 		const int fac_rows = (legend.get_count() - 1) / fac_cols + 1;
-		offset_y += fac_rows*LINESPACE;
-		offset_y += D_V_SPACE;
+
+		// calculate client height and set height
+		directory_container.set_groesse(koord(client_width,button_y+fac_rows*line_height));
+		offset_y += directory_container.get_groesse().y + D_V_SPACE;
+	}
+
+	// resize scale
+	if(scale_visible) {
+		scale_container.set_pos(koord(D_MARGIN_LEFT,offset_y));
+		scale_container.set_groesse(koord(client_width,LINESPACE));
+		max_label.align_to(&scale_container,ALIGN_RIGHT,koord(scale_container.get_pos().x,0));
+		offset_y += scale_container.get_groesse().y + D_V_SPACE;
 	}
 
 	// offset of map
-	scrolly.set_pos( koord(0,offset_y) );
+	scrolly.set_pos( koord(1,offset_y) );
+
+	scr_coord_val min_width = max(BUTTON4_X+D_MARGIN_RIGHT-D_H_SPACE,D_DEFAULT_WIDTH);
+	set_min_windowsize(koord(min_width, D_TITLEBAR_HEIGHT+offset_y+64+button_t::gui_scrollbar_size.y+1));
 	set_dirty();
 
-	if(  offset_y != old_offset_y  ) {
-		set_min_windowsize(get_min_windowsize() + koord(0,offset_y - old_offset_y));
-		resize(koord(0,0));
-	}
+	gui_frame_t::resize(delta);
 }
 
 
@@ -604,10 +585,14 @@ void map_frame_t::resize(const koord delta)
  */
 void map_frame_t::zeichnen(koord pos, koord gr)
 {
+	char buf[16];
+	sint16 zoom_in, zoom_out;
+	//scr_rect client(scr_coord(pos.x+D_MARGIN_LEFT,pos.y+D_TITLEBAR_HEIGHT),gr.x-D_MARGIN_LEFT - D_MARGIN_RIGHT,gr.y-D_TITLEBAR_HEIGHT);
+
 	// update our stored screen position
 	screenpos = pos;
 
-	reliefkarte_t::get_karte()->set_xy_offset_size( koord(scrolly.get_scroll_x(), scrolly.get_scroll_y()), koord(scrolly.get_groesse()-koord(12,11)) );
+	reliefkarte_t::get_karte()->set_xy_offset_size( koord(scrolly.get_scroll_x(), scrolly.get_scroll_y()), koord(scrolly.get_groesse()-button_t::gui_scrollbar_size) );
 
 	// first: check if cursor within map screen size
 	karte_t *welt=reliefkarte_t::get_karte()->get_welt();
@@ -627,51 +612,38 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 		old_ij = ij;
 	}
 
-	gui_frame_t::zeichnen(pos, gr);
-
-	char buf[16];
-	sint16 zoom_in, zoom_out;
+	// update zoom factors and zoom label
 	reliefkarte_t::get_karte()->get_zoom_factors(zoom_out, zoom_in);
 	sprintf( buf, "%i:%i", zoom_in, zoom_out );
-	int zoomextwidth = display_proportional( pos.x+BUTTON1_X+D_BUTTON_HEIGHT+D_H_SPACE, pos.y+D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT+D_V_SPACE, buf, ALIGN_LEFT, COL_WHITE, true);
-	// move zoom arrow position and label accordingly
-	zoom_buttons[1].set_pos( koord( BUTTON1_X+D_BUTTON_HEIGHT+2*D_H_SPACE+zoomextwidth, zoom_buttons[1].get_pos().y ) );
-	zoom_label.set_pos( koord( BUTTON1_X+2*D_BUTTON_HEIGHT+3*D_H_SPACE+zoomextwidth, zoom_label.get_pos().y ) );
-	b_rotate45.set_pos( koord( zoom_label.get_pos().x+proportional_string_width(zoom_label.get_text_pointer())+D_H_SPACE+10, b_rotate45.get_pos().y ) );
+	zoom_value_label.set_text_pointer(buf,false);
 
-	int offset_y = D_BUTTON_HEIGHT*2 + D_V_SPACE*2 + D_TITLEBAR_HEIGHT;
-	if(legend_visible) {
-		offset_y = D_TITLEBAR_HEIGHT+filter_buttons[MAP_MAX_BUTTONS-1].get_pos().y+D_BUTTON_HEIGHT+2+D_V_SPACE;
-	}
+	// draw all child controls
+	gui_frame_t::zeichnen(pos, gr);
 
 	// draw scale
 	if(scale_visible) {
-		koord bar_pos = pos + koord( 0, offset_y+2 );
+		scr_coord bar_pos( pos.x + scale_container.get_pos().x, pos.y + scale_container.get_pos().y + D_TITLEBAR_HEIGHT );
+		scr_coord_val bar_client_x = scale_container.get_groesse().x - min_label.get_groesse().x - max_label.get_groesse().x - (D_H_SPACE<<1);
+		double bar_width = (double)bar_client_x/(double)MAX_SEVERITY_COLORS;
 		// color bar
 		for(  int i=0;  i<MAX_SEVERITY_COLORS;  i++  ) {
-			display_fillbox_wh(bar_pos.x + 30 + i*(gr.x-60)/MAX_SEVERITY_COLORS, bar_pos.y+2,  (gr.x-60)/(MAX_SEVERITY_COLORS-1), 7, reliefkarte_t::calc_severity_color(i,MAX_SEVERITY_COLORS), false);
+			display_fillbox_wh(bar_pos.x + min_label.get_groesse().x + D_H_SPACE + (i*bar_width), bar_pos.y+2,  bar_width+1, 7, reliefkarte_t::calc_severity_color(i,MAX_SEVERITY_COLORS), false);
 		}
-		display_proportional(bar_pos.x + 26, bar_pos.y, translator::translate("min"), ALIGN_RIGHT, COL_BLACK, false);
-		display_proportional(bar_pos.x + size.x - 26, bar_pos.y, translator::translate("max"), ALIGN_LEFT, COL_BLACK, false);
-		offset_y += LINESPACE;
-		offset_y += D_V_SPACE;
 	}
 
 	// draw factory descriptions
 	if(directory_visible) {
-		offset_y += D_BUTTON_HEIGHT;
+		scr_coord_val offset_y = directory_container.get_pos().y + b_filter_factory_list.get_groesse().y + D_V_SPACE;
+		const int columns = clamp(legend.get_count(), 1, (gr.x-D_MARGIN_RIGHT-D_MARGIN_LEFT) / ((D_DEFAULT_WIDTH-D_MARGINS_X)/3));
+		scr_coord_val u = 0;
+		scr_coord_val line_height = max(D_INDICATOR_BOX_HEIGHT,LINESPACE);
 
-		const int fac_cols = clamp(legend.get_count(), 1, gr.x / (D_DEFAULT_WIDTH/3));
-		uint u = 0;
 		FORX(vector_tpl<legend_entry_t>, const& i, legend, ++u) {
-			const int xpos = pos.x + (u % fac_cols) * (gr.x-fac_cols/2-1)/fac_cols + 3;
-			const int ypos = pos.y + (u / fac_cols) * LINESPACE + offset_y+2;
-
-			if(  ypos+LINESPACE > pos.y+gr.y  ) {
-				break;
-			}
-			display_fillbox_wh(xpos, ypos + 1 , 7, 7, i.colour, false);
-			display_proportional(xpos + 9, ypos, i.text.c_str(), ALIGN_LEFT, COL_BLACK, false);
+			const int xpos = pos.x+D_MARGIN_LEFT + (u % columns) * (gr.x-D_MARGIN_RIGHT-columns/2-1)/columns;
+			const int ypos = pos.y+D_TITLEBAR_HEIGHT + offset_y + (u / columns) * line_height;
+			display_fillbox_wh(xpos, ypos + D_GET_CENTER_ALIGN_OFFSET(D_INDICATOR_BOX_HEIGHT,LINESPACE), D_INDICATOR_BOX_WIDTH, D_INDICATOR_BOX_HEIGHT, i.colour, false);
+			display_ddd_box(xpos, ypos + D_GET_CENTER_ALIGN_OFFSET(D_INDICATOR_BOX_HEIGHT,LINESPACE), D_INDICATOR_BOX_WIDTH, D_INDICATOR_BOX_HEIGHT,SYSCOL_SHADOW,SYSCOL_SHADOW,false);
+			display_proportional(xpos + D_INDICATOR_BOX_WIDTH + 2, ypos, i.text.c_str(), ALIGN_LEFT, SYSCOL_STATIC_TEXT, false);
 		}
 	}
 }
@@ -708,7 +680,7 @@ void map_frame_t::rdwr( loadsave_t *file )
 		koord savesize;
 		savesize.rdwr(file);
 		set_fenstergroesse( savesize );
-		resize( koord(0,0) );
+		resize();
 		// notify minimap of new settings
 		reliefkarte_t::get_karte()->calc_map_groesse();
 		scrolly.set_groesse( scrolly.get_groesse() );

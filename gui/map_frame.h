@@ -45,7 +45,7 @@ private:
 	 * so we use a static variable here.
 	 * @author Hj. Malthaner
 	 */
-	static koord size;
+	static koord window_size;
 	static koord screenpos;
 
 	static bool legend_visible;
@@ -70,6 +70,11 @@ private:
 	 */
 	bool zoomed;
 
+	gui_container_t
+		filter_container,
+		scale_container,
+		directory_container;
+
 	gui_scrollpane_t
 		scrolly;
 
@@ -85,7 +90,9 @@ private:
 
 	gui_label_t
 		zoom_label,
-		zoom_value_label;
+		zoom_value_label,
+		min_label,
+		max_label;
 
 	void zoom(bool zoom_out);
 	void update_factory_legend();
@@ -133,7 +140,7 @@ public:
 	 * @author Hj. Malthaner
 	 * @date   01-Jun-2002
 	 */
-	void resize(const koord delta);
+	void resize(const koord delta=koord(0,0));
 
 	/**
 	 * Draw new component. The values to be passed refer to the window

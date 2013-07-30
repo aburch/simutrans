@@ -6,50 +6,43 @@
  * This file is part of the Simutrans project under the artistic licence.
  */
 
-#include <stdio.h>
-#include <string.h>
-
-#include "../../simdebug.h"
 #include "gui_label.h"
 #include "../gui_frame.h"
-#include "../../simgraph.h"
-#include "../../simcolor.h"
 #include "../../dataobj/translator.h"
 #include "../../utils/simstring.h"
 #include "../../simwin.h"
 
 gui_label_t::gui_label_t(const char* text, COLOR_VAL color_, align_t align_) :
-	//align(align_),
-	//color(color_),
 	tooltip(NULL)
 {
-	//set_text( text );
+	set_groesse( koord( D_BUTTON_WIDTH, LINESPACE ) );
 	init( text, koord (0,0), color_, align_);
 }
 
 
-void gui_label_t::set_text(const char *text)
+void gui_label_t::set_text(const char *text, bool autosize)
 {
-	set_text_pointer(translator::translate(text));
+	if (text != NULL) {
+		set_text_pointer(translator::translate(text), autosize);
+	} else {
+		set_text_pointer(NULL, false);
+	}
 }
 
 
-void gui_label_t::set_text_pointer(const char *text)
+void gui_label_t::set_text_pointer(const char *text_par, bool autosize)
 {
-	this->text = text;
+	text = text_par;
 
-	if (text) {
-		koord groesse;
-		groesse.x = display_calc_proportional_string_len_width(text,strlen(text));
-		groesse.y = LINESPACE;
-		set_groesse(groesse);
+	if (autosize && text && *text != '\0') {
+		set_groesse( koord( display_calc_proportional_string_len_width(text,strlen(text)),LINESPACE ) );
 	}
 }
 
 
 void gui_label_t::zeichnen(koord offset)
 {
-	if(align == money) {
+	if(  align == money  ) {
 		if(text) {
 			const char *seperator = NULL;
 
@@ -74,6 +67,8 @@ void gui_label_t::zeichnen(koord offset)
 
 	else if(text) {
 		int al;
+		string_clip str_clip;
+		KOORD_VAL align_offset_x=0;
 
 		switch(align) {
 			case left:
@@ -81,18 +76,24 @@ void gui_label_t::zeichnen(koord offset)
 				break;
 			case centered:
 				al = ALIGN_CENTER_H;
+				align_offset_x = (groesse.x>>1);
 				break;
 			case right:
 				al = ALIGN_RIGHT;
+				align_offset_x = groesse.x;
 				break;
 			default:
 				al = ALIGN_LEFT;
 		}
 
-		display_proportional_clip(pos.x+offset.x, pos.y+offset.y, text, al, color, true);
+		str_clip = display_calc_proportional_string_index(text,groesse.x,0,"..");
+		if(  str_clip.fit  ) {
+			display_proportional_clip(pos.x+offset.x+align_offset_x, pos.y+offset.y, text, al, color, true);
+		} else {
+			display_text_proportional_len_clip( pos.x+offset.x+align_offset_x, pos.y+offset.y, text, al | DT_DIRTY | DT_CLIP, color, str_clip.len);
+			display_text_proportional_len_clip( pos.x+offset.x+align_offset_x+str_clip.width, pos.y+offset.y, "..", al | DT_DIRTY | DT_CLIP, color, 2);
+		}
 
-		// Max Kielland, tracking color for debug
-		//display_proportional_clip(pos.x+offset.x, pos.y+offset.y, text, al, COL_CASH, true);
 	}
 
 	if ( tooltip  &&  getroffen(get_maus_x()-offset.x, get_maus_y()-offset.y) ) {

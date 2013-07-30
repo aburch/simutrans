@@ -66,7 +66,7 @@ public:
 	* Initialises the component's position and size.
 	* @author Max Kielland
 	*/
-	virtual void init(koord pos_par, koord size_par) {
+	virtual void init(koord pos_par, koord size_par=koord(0,0)) {
 		set_pos(pos_par);
 		set_groesse(size_par);
 	}
@@ -130,6 +130,22 @@ public:
 	*/
 	virtual koord get_groesse() const {
 		return groesse;
+	}
+
+	/**
+	* Set this component's width.
+	* @author Max Kielland
+	*/
+	virtual void set_width(scr_coord_val width_par) {
+		set_groesse(koord(width_par,groesse.y));
+	}
+
+	/**
+	* Set this component's height.
+	* @author Max Kielland
+	*/
+	virtual void set_height(scr_coord_val height_par) {
+		set_groesse(koord(groesse.x,height_par));
 	}
 
 	/**

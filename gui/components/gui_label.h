@@ -11,8 +11,8 @@
 #define gui_gui_label_h
 
 #include "gui_komponente.h"
-#include "../../simskin.h"
 #include "../../simcolor.h"
+#include "../../simskin.h"
 
 
 /**
@@ -51,14 +51,11 @@ protected:
 	using gui_komponente_t::init;
 
 public:
-	//gui_label_t(const char* text=NULL, COLOR_VAL color=COL_BLACK, align_t align=left);
-	gui_label_t(const char* text=NULL, COLOR_VAL color=skinverwaltung_t::theme_color_static_text, align_t align=left);
+	gui_label_t(const char* text=NULL, COLOR_VAL color=SYSCOL_STATIC_TEXT, align_t align=left);
 
-	// one stop init
-	//void init( const char* text_par, koord pos_par, COLOR_VAL color_par=COL_BLACK, align_t align_par=left) {
-	void init( const char* text_par, koord pos_par, COLOR_VAL color_par=skinverwaltung_t::theme_color_static_text, align_t align_par=left) {
-		set_pos( pos_par );
-		set_text( text_par );
+	void init( const char* text_par, koord pos_par, COLOR_VAL color_par=SYSCOL_STATIC_TEXT, align_t align_par=left) {
+		set_pos  ( pos_par   );
+		set_text ( text_par  );
 		set_color( color_par );
 		set_align( align_par );
 	}
@@ -67,13 +64,13 @@ public:
 	 * Sets the text to display, after translating it.
 	 * @author Hansjörg Malthaner
 	 */
-	void set_text(const char *text);
+	void set_text(const char *text, bool autosize=true);
 
 	/**
 	 * Sets the text without translation.
 	 * @author Hansjörg Malthaner
 	 */
-	void set_text_pointer(const char *text);
+	void set_text_pointer(const char *text, bool autosize=true);
 
 	/**
 	 * returns the pointer (i.e. for freeing untranslater contents)

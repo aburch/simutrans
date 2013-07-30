@@ -184,7 +184,7 @@ private:
 	cbuffer_t txt_convoi_power;
 	cbuffer_t txt_convoi_weight;
 
-	KOORD_VAL second_column_x; // x position of the second text column
+	scr_coord_val second_column_x; // x position of the second text column
 
 	enum { va_append, va_insert, va_sell };
 	uint8 veh_action;

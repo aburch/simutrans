@@ -124,15 +124,19 @@ private:
 	const char *translated_text;
 
 	// private function for displaying buttons or their replacement
-	void display_button_image(sint16 x, sint16 y, int number, bool pushed) const;
+	void display_button_image(scr_coord_val x, scr_coord_val y, int number, bool pushed) const;
 
 	// draw a rectangular button
-	void draw_roundbutton(sint16 x, sint16 y, sint16 w, sint16 h, bool pressed);
+	void draw_roundbutton(scr_coord_val x, scr_coord_val y, scr_coord_val w, scr_coord_val h, bool pressed);
 
-	void draw_focus_rect(koord xy, koord wh, KOORD_VAL offset = 1);
+	void draw_focus_rect(koord xy, koord wh, scr_coord_val offset = 1);
 
 	// scrollbar either skinned or simple
-	void draw_scrollbar(sint16 x, sint16 y, sint16 w, sint16 h, bool horizontal, bool slider);
+	void draw_scrollbar(scr_coord_val x, scr_coord_val y, scr_coord_val w, scr_coord_val h, bool horizontal, bool slider);
+
+	// Hide these
+	button_t(const button_t&);        // forbidden
+	void operator =(const button_t&); // forbidden
 
 public:
 
@@ -145,20 +149,21 @@ public:
 	static koord gui_arrow_down_size;
 	static koord gui_scrollbar_size;
 	static koord gui_scrollknob_size;
+	static koord gui_indicator_box_size;
 
 	// length of "..."
-	static KOORD_VAL text_cap_len; // Must be initialised AFTER the font has been loaded.
+	//static KOORD_VAL text_cap_len; // Must be initialised AFTER the font has been loaded.
 
 	static void init_button_images(); // must be called at least once after loading skins
 
-	PLAYER_COLOR_VAL background; //@author hsiegeln
-	PLAYER_COLOR_VAL foreground;
+	COLOR_VAL background; //@author hsiegeln
+	COLOR_VAL foreground;
 
 	bool pressed;
 
 	button_t();
 
-	void init(enum type typ, const char *text, koord pos, koord size = koord::invalid);
+	void init(enum type typ, const char *text, koord pos=koord(0,0), koord size = koord::invalid);
 
 	void set_typ(enum type typ);
 
@@ -174,7 +179,7 @@ public:
 	 * Get/Set text to position
 	 * @author prissi
 	 */
-	void set_targetpos(const koord k ) { this->targetpos.x = k.x; this->targetpos.y = k.y; }
+	void set_targetpos(const koord k ) { targetpos.x = k.x; targetpos.y = k.y; }
 
 	/**
 	 * Set the displayed text of the button when not to translate
@@ -214,9 +219,6 @@ public:
 
 	void update_focusability();
 
-private:
-	button_t(const button_t&);        // forbidden
-	void operator =(const button_t&); // forbidden
 };
 
 #endif

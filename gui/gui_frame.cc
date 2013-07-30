@@ -23,10 +23,6 @@
 #include "../simskin.h"
 #include "../besch/skin_besch.h"
 
-// default button sizes
-//KOORD_VAL gui_frame_t::gui_button_width = 92;
-//KOORD_VAL gui_frame_t::gui_button_height = 14;
-
 // default titlebar height
 KOORD_VAL gui_frame_t::gui_titlebar_height = 16;
 

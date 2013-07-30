@@ -127,8 +127,8 @@ server_frame_t::server_frame_t(karte_t* w) :
 	pos_y += LINESPACE;
 	pos_y += D_V_SPACE * 2;        // GUI line goes here
 
-	date.set_pos( koord( ww - D_MARGIN_LEFT, pos_y ) );
-	date.set_align( gui_label_t::right );
+	date.set_pos( koord( ww - D_MARGIN_LEFT - date.get_groesse().x, pos_y ) );
+	//date.set_align( gui_label_t::right );
 	add_komponente( &date );
 
 	// Leave room for elements added during draw phase (multiline text + map)
@@ -185,6 +185,7 @@ void server_frame_t::update_error (const char* errortext)
 	buf.clear();
 	display_map = false;
 	date.set_text( errortext );
+	date.set_pos( koord( get_fenstergroesse().x - D_MARGIN_RIGHT - date.get_groesse().x, date.get_pos().y ) );
 	revision.set_text( "" );
 	pak_version.set_text( "" );
 	join.disable();
@@ -280,6 +281,7 @@ void server_frame_t::update_info ()
 			break;
 	}
 	date.set_text( time );
+	date.set_pos( koord( get_fenstergroesse().x - D_MARGIN_RIGHT - date.get_groesse().x, date.get_pos().y ) );
 	set_dirty();
 }
 

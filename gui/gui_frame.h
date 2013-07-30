@@ -35,13 +35,8 @@ class spieler_t;
  * These is going to be moved into the theme handling later.
  */
 
-// Set to 1 for theme test case, 0 "original" look.
-#define THEME_TEST 1
-
-// theme system colours
-//#define SYS_COL_HIGHLIGHT MN_GREY4
-//#define SYS_COL_SHADOW    MN_GREY0
-//#define SYS_COL_FACE      MN_GREY2
+#define D_INDICATOR_BOX_HEIGHT (button_t::gui_indicator_box_size.y)
+#define D_INDICATOR_BOX_WIDTH  (button_t::gui_indicator_box_size.x)
 
 // default edit field height
 #define D_EDIT_HEIGHT (LINESPACE+4)
@@ -53,15 +48,10 @@ class spieler_t;
 #define D_STATUSBAR_HEIGHT (16)
 
 // gadget size
-#define D_GADGET_SIZE (gui_frame_t::gui_gadget_size)
-
-// Arrow size (replace with real values from the skin images)
-//#define D_ARROW_WIDTH  (10)
-//#define D_ARROW_HEIGHT (10)
+#define D_GADGET_SIZE (D_TITLEBAR_HEIGHT)
 
 // Scrollbar params (replace with real values from the skin images)
 #define KNOB_SIZE        (32)
-//#define D_SCROLLBAR_SIZE (scrollbar_t::BAR_SIZE)
 
 // default button width (may change with langugae and font)
 #define D_BUTTON_WIDTH (button_t::gui_button_size.x)
@@ -80,6 +70,9 @@ class spieler_t;
 #define D_MARGIN_TOP (gui_frame_t::gui_frame_top)
 #define D_MARGIN_RIGHT (gui_frame_t::gui_frame_right)
 #define D_MARGIN_BOTTOM (gui_frame_t::gui_frame_bottom)
+
+#define D_MARGINS_X (D_MARGIN_LEFT + D_MARGIN_RIGHT)
+#define D_MARGINS_Y (D_MARGIN_TOP + D_MARGIN_BOTTOM)
 
 // space between two elements
 #define D_H_SPACE (gui_frame_t::gui_hspace)
