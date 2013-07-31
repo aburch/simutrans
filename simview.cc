@@ -133,6 +133,7 @@ void karte_ansicht_t::display(bool force_dirty)
 		// calculate also days if desired
 		uint32 month = welt->get_last_month();
 		const uint32 ticks_this_month = welt->get_zeit_ms() % welt->ticks_per_world_month;
+		const sint64 half_hours_so_far = welt->ticks_to_seconds(welt->get_zeit_ms()) / (30 * 60);
 		uint32 stunden2;
 		switch(umgebung_t::show_month) {
 			case umgebung_t::DATE_FMT_SEASON:
@@ -142,7 +143,6 @@ void karte_ansicht_t::display(bool force_dirty)
 			case umgebung_t::DATE_FMT_INTERNAL_MINUTE:
 				// Cycle once per 24 hours.
 				// hours2night has 48 entries, so we want a "half hour count"
-				const sint64 half_hours_so_far = welt->ticks_to_seconds(welt->get_zeit_ms()) / (30 * 60);
 				stunden2 = half_hours_so_far % 48;
 				break;
 			default:
