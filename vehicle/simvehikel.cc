@@ -2306,7 +2306,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 		if(besch) {
 			calc_bild();
 			// full weight after loading
-			sum_weight =  get_fracht_gewicht() + besch->get_gewicht();
+			sum_weight = get_fracht_gewicht() + besch->get_gewicht();
 		}
 		// recalc total freight
 		total_freight = 0;
