@@ -1254,7 +1254,7 @@ void convoi_t::suche_neue_route()
  * @author Hj. Malthaner
  */
 void convoi_t::step()
-{
+{	
 	if(wait_lock!=0) {
 		return;
 	}
@@ -1264,7 +1264,7 @@ void convoi_t::step()
 	if (line_update_pending.is_bound()) {
 		check_pending_updates();
 	}
-
+	
 	bool autostart = false;
 
 	switch(state) {
@@ -4856,13 +4856,25 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	}
 
 	// reset the wait_lock
-	if ( state == ROUTING_1 ) {
+	if(state == ROUTING_1)
+	{
 		wait_lock = 0;
-	} else {
-		// The random extra wait here is designed to avoid processing every convoi at once
-		wait_lock = (go_on_ticks - welt->get_zeit_ms())/2 + (self.get_id())%1024;
-		if (wait_lock < 0 ) {
+	} 
+	else
+	{
+		// The random extra wait here is designed to avoid processing every convoy at once
+		wait_lock = (go_on_ticks - welt->get_zeit_ms()) / 2 + (self.get_id()) % 1024;
+		if (wait_lock < 0 ) 
+		{
 			wait_lock = 0;
+		}
+		else if(wait_lock > 8192 && go_on_ticks == WAIT_INFINITE)
+		{
+			// This is needed because the above calculation (from Standard) produces excessively
+			// large numbers on occasions due to the conversion in Experimental of certain values
+			// (karte_t::ticks and go_on_ticks) to sint64. It would be better ultimately to fix that, 
+			// but this seems to work for now.
+			wait_lock = 8192;
 		}
 	}
 }
