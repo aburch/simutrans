@@ -4798,6 +4798,12 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	if(go_on_ticks == WAIT_INFINITE) 
 	{
 		const sint64 departure_time = (arrival_time + current_loading_time) - reversing_time;
+		if(haltestelle_t::get_halt(welt, get_pos(), get_besitzer()) != haltestelle_t::get_halt(welt, fpl->get_current_eintrag().pos, get_besitzer()))
+		{
+			// Sometimes, for some reason, the loading method is entered with the wrong schedule entry. Make sure that this does not cause
+			// convoys to become stuck trying to get a full load at stops where this is not possible (freight consumers, etc.).
+			loading_limit = 0;
+		}
 		if(!loading_limit || loading_level >= loading_limit) 
 		{
 			go_on_ticks = max(departure_time, arrival_time);
@@ -4815,7 +4821,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 				go_on_ticks_spacing = (wait_from_ticks + spacing * queue_pos) - reversing_time;
 			}
 			sint64 go_on_ticks_waiting = WAIT_INFINITE;
-			if (fpl->get_current_eintrag().waiting_time_shift > 0)
+			if(fpl->get_current_eintrag().waiting_time_shift > 0)
 			{
 				// Max. wait for load
 				go_on_ticks_waiting = welt->get_zeit_ms() + (welt->ticks_per_world_month >> (16 - fpl->get_current_eintrag().waiting_time_shift)) - reversing_time;
