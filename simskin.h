@@ -3,6 +3,17 @@
 
 #include "simcolor.h"
 
+// Max Kielland
+// Classic helper macro to transform a #define value into a "string"
+#define STR_HELPER(x) #x
+#define STR(x) STR_HELPER(x)
+
+// For test purposes themes can be disabled or an alternative theme.tab file can be used.
+//  -1 = No theme, use interrnal fallback
+//   0 = Normal use, read theme.tab
+// n>0 = Use alternative file named theme_n.tab
+#define THEME 0
+
 template<class T> class slist_tpl;
 class skin_besch_t;
 
@@ -57,7 +68,8 @@ public:
 	static COLOR_VAL theme_color_highlight;           //@< Colour to draw highlighs in dividers, buttons etc... MN_GREY4
 	static COLOR_VAL theme_color_shadow;              //@< Colour to draw shadows in dividers, buttons etc...   MN_GREY0
 	static COLOR_VAL theme_color_face;                //@< Colour to draw surface in buttons etc...             MN_GREY2
-	static COLOR_VAL theme_color_text;                //@< Colour to draw interactive text in buttons, checkbox etc...
+	static COLOR_VAL theme_color_button_text;         //@< Colour to draw button text
+	static COLOR_VAL theme_color_text;                //@< Colour to draw interactive text checkbox etc...
 	static COLOR_VAL theme_color_static_text;         //@< Colour to draw non interactive text in labels etc...
 	static COLOR_VAL theme_color_disabled_text;       //@< Colour to draw disabled text in buttons etc...
 

@@ -70,6 +70,9 @@ public:
 	static image_id scrollbar_slider_bottom;
 	static image_id scrollbar_slider_center;
 
+	static COLOR_VAL button_color_text;
+	static COLOR_VAL button_color_disabled_text;
+
 	/* the button with the postfix state do not automatically change their state like the normal button do
 	 * the _state buttons must be changed by the caller!
 	 * _automatic buttons do everything themselves, i.e. depress/release alternately

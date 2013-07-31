@@ -8,14 +8,15 @@
  */
 
  // colours
-COLOR_VAL skinverwaltung_t::theme_color_highlight = MN_GREY4;
-COLOR_VAL skinverwaltung_t::theme_color_shadow    = MN_GREY0;
-COLOR_VAL skinverwaltung_t::theme_color_face      = MN_GREY2;
-COLOR_VAL skinverwaltung_t::theme_color_text      = COL_BLACK;
-COLOR_VAL skinverwaltung_t::theme_color_selected_text;
-COLOR_VAL skinverwaltung_t::theme_color_selected_background;
-COLOR_VAL skinverwaltung_t::theme_color_static_text = MN_GREY4;
-COLOR_VAL skinverwaltung_t::theme_color_disabled_text = MN_GREY4;
+COLOR_VAL skinverwaltung_t::theme_color_highlight           = MN_GREY4;
+COLOR_VAL skinverwaltung_t::theme_color_shadow              = MN_GREY0;
+COLOR_VAL skinverwaltung_t::theme_color_face                = MN_GREY2;
+COLOR_VAL skinverwaltung_t::theme_color_button_text         = COL_BLACK;
+COLOR_VAL skinverwaltung_t::theme_color_text                = COL_WHITE;
+COLOR_VAL skinverwaltung_t::theme_color_selected_text       = COL_WHITE;
+COLOR_VAL skinverwaltung_t::theme_color_selected_background = COL_BLUE;
+COLOR_VAL skinverwaltung_t::theme_color_static_text         = COL_BLACK;
+COLOR_VAL skinverwaltung_t::theme_color_disabled_text       = MN_GREY4;
 
 // menus
 const skin_besch_t* skinverwaltung_t::werkzeuge_general  = NULL;

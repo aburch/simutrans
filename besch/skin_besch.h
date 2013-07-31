@@ -22,7 +22,7 @@
  *  Kindknoten:
  *	0   Name
  *	1   Copyright
- *	2   Bildliste
+ *	2   Image list
  */
 class skin_besch_t : public obj_besch_std_name_t {
 public:

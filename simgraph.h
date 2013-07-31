@@ -20,6 +20,7 @@ extern int large_font_total_height;
 #include "simcolor.h"
 #include "unicode.h"
 #include "simtypes.h"
+#include "scr_coord.h"
 
 #define LINEASCENT (large_font_ascent)
 #define LINESPACE (large_font_total_height)
@@ -62,7 +63,6 @@ typedef short KOORD_VAL;
 struct clip_dimension {
 	KOORD_VAL x, xx, w, y, yy, h;
 };
-
 
 // helper macros
 
@@ -119,7 +119,7 @@ void reset_textur(void *new_textur);
  */
 #define UNICODE_SUPPORT
 
-int	display_set_unicode(int use_unicode);
+int display_set_unicode(int use_unicode);
 
 /* Loads the font
  * @author prissi
@@ -269,6 +269,15 @@ long get_prev_char(const char* text, long pos);
 KOORD_VAL display_get_char_width(utf16 c);
 
 /**
+ * Returns the width of the widest character in a string.
+ * @param text  pointer to a string of characters to evaluate.
+ * @param len   length of text buffer to evaluate. If set to 0,
+ *              evaluate until nul termination.
+ * @author      Max Kielland
+ */
+KOORD_VAL display_get_char_max_width(const char* text, size_t len=0);
+
+/**
  * For the next logical character in the text, returns the character code
  * as well as retrieves the char byte count and the screen pixel width
  * CAUTION : The text pointer advances to point to the next logical character
@@ -283,6 +292,14 @@ unsigned short get_next_char_with_metrics(const char* &text, unsigned char &byte
  * @author Knightly
  */
 unsigned short get_prev_char_with_metrics(const char* &text, const char *const text_start, unsigned char &byte_length, unsigned char &pixel_width);
+
+
+/*
+ * If an eclipse len is given, it will only return the last character up to this len if the full length cannot be fitted
+ * @returns index of next chracter. if text[index]==0 the whole string fits
+ */
+size_t display_fit_proportional( const char* text, scr_coord_val max_width, scr_coord_val eclipse_width=0 );
+
 
 /* routines for string len (macros for compatibility with old calls) */
 #define proportional_string_width(text)          display_calc_proportional_string_len_width(text, 0x7FFF)

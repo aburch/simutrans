@@ -40,15 +40,15 @@ static char *fgets_line(char *buffer, int max_len, FILE *file)
 }
 
 
-const char *translator::lang_info::translate(const char* text) const
+const char *translator::lang_info::translate(const char *text) const
 {
-	if (text    == NULL) {
+	if(  text    == NULL  ) {
 		return "(null)";
 	}
-	if (text[0] == '\0') {
+	if(  text[0] == '\0'  ) {
 		return text;
 	}
-	const char* trans = texts.get(text);
+	const char *trans = texts.get(text);
 	return trans != NULL ? trans : text;
 }
 
@@ -130,9 +130,9 @@ static inline int is_cont_char(utf8 c) { return (c & 0xC0) == 0x80; }
 
 
 // recodes string to put them into the tables
-static char* recode(const char* src, bool translate_from_utf, bool translate_to_utf)
+static char *recode(const char *src, bool translate_from_utf, bool translate_to_utf)
 {
-	char* base;
+	char *base;
 	if (translate_to_utf!=translate_from_utf) {
 		// worst case
 		base = MALLOCN(char, strlen(src) * 2 + 2);
@@ -140,7 +140,7 @@ static char* recode(const char* src, bool translate_from_utf, bool translate_to_
 	else {
 		base = MALLOCN(char, strlen(src) + 2);
 	}
-	char* dst = base;
+	char *dst = base;
 	uint8 c = 0;
 
 	do {
@@ -188,14 +188,14 @@ static char* recode(const char* src, bool translate_from_utf, bool translate_to_
 static char pakset_path[256];
 
 // List of custom city and streetnames
-vector_tpl<char*> translator::city_name_list;
-vector_tpl<char*> translator::street_name_list;
+vector_tpl<char *> translator::city_name_list;
+vector_tpl<char *> translator::street_name_list;
 
 
 // fills a list from a file with the given prefix followed by a language code
-void translator::load_custom_list( int lang, vector_tpl<char*> &name_list, const char *fileprefix )
+void translator::load_custom_list( int lang, vector_tpl<char *>&name_list, const char *fileprefix )
 {
-	FILE* file;
+	FILE *file;
 
 	// alle namen aufräumen
 	FOR(vector_tpl<char*>, const i, name_list) {
@@ -276,7 +276,7 @@ void translator::init_custom_names(int lang)
 		for(  uint i = 0;  i < 36;  i++  ) {
 			char name[32];
 			sprintf( name, "%%%c_CITY_SYLL", i+(i<10 ? '0' : 'A'-10 ) );
-			const char* s1 = translator::translate(name,lang);
+			const char *s1 = translator::translate(name,lang);
 			if(s1==name) {
 				// name not available ...
 				continue;
@@ -286,13 +286,13 @@ void translator::init_custom_names(int lang)
 			for(  uint j = 0;  j < 36;  j++  ) {
 
 				sprintf( name, "&%c_CITY_SYLL", j+(j<10 ? '0' : 'A'-10 ) );
-				const char* s2 = translator::translate(name,lang);
+				const char *s2 = translator::translate(name,lang);
 				if(s2==name) {
 					// name not available ...
 					continue;
 				}
 				const size_t l2 = strlen(s2);
-				char* const c = MALLOCN(char, l1 + l2 + 1);
+				char *const c = MALLOCN(char, l1 + l2 + 1);
 				sprintf(c, "%s%s", s1, s2);
 				city_name_list.append(c);
 			}
@@ -350,7 +350,7 @@ void translator::load_language_file(FILE* file)
 }
 
 
-static translator::lang_info* get_lang_by_iso(const char* iso)
+static translator::lang_info* get_lang_by_iso(const char *iso)
 {
 	for (translator::lang_info* i = langs; i != langs + translator::get_language_count(); ++i) {
 		if (i->iso_base[0] == iso[0] && i->iso_base[1] == iso[1]) {
@@ -361,7 +361,7 @@ static translator::lang_info* get_lang_by_iso(const char* iso)
 }
 
 
-void translator::load_files_from_folder(const char* folder_name, const char* what)
+void translator::load_files_from_folder(const char *folder_name, const char *what)
 {
 	searchfolder_t folder;
 	int num_pak_lang_dat = folder.search(folder_name, "tab");
@@ -379,10 +379,12 @@ void translator::load_files_from_folder(const char* folder_name, const char* wha
 				bool file_is_utf = is_unicode_file(file);
 				load_language_file_body(file, &lang->texts, lang->utf_encoded, file_is_utf);
 				fclose(file);
-			} else {
+			}
+			else {
 				dbg->warning("translator::load_files_from_folder()", "cannot open '%s'", fileName.c_str());
 			}
-		} else {
+		}
+		else {
 			dbg->warning("translator::load_files_from_folder()", "no %s texts for language '%s'", what, iso.c_str());
 		}
 	}
@@ -500,6 +502,7 @@ void translator::set_language(int lang)
 		umgebung_t::default_einstellungen.set_name_language_iso( langs[lang].iso );
 		display_set_unicode(langs[lang].utf_encoded);
 		init_custom_names(lang);
+		current_langinfo->eclipse_width = proportional_string_width( translate("...") );
 		DBG_MESSAGE("translator::set_language()", "%s, unicode %d", langs[lang].name, langs[lang].utf_encoded);
 	}
 	else {
@@ -509,10 +512,10 @@ void translator::set_language(int lang)
 
 
 // returns the id for this language or -1 if not there
-int translator::get_language(const char* iso)
+int translator::get_language(const char *iso)
 {
 	for(  int i = 0;  i < single_instance.lang_count;  i++  ) {
-		const char* iso_base = langs[i].iso_base;
+		const char *iso_base = langs[i].iso_base;
 		if(  iso_base[0] == iso[0]  &&  iso_base[1] == iso[1]  ) {
 			return i;
 		}
@@ -521,10 +524,10 @@ int translator::get_language(const char* iso)
 }
 
 
-void translator::set_language(const char* iso)
+void translator::set_language(const char *iso)
 {
 	for(  int i = 0;  i < single_instance.lang_count;  i++  ) {
-		const char* iso_base = langs[i].iso_base;
+		const char *iso_base = langs[i].iso_base;
 		if(  iso_base[0] == iso[0]  &&  iso_base[1] == iso[1]  ) {
 			set_language(i);
 			return;
@@ -533,21 +536,21 @@ void translator::set_language(const char* iso)
 }
 
 
-const char* translator::translate(const char* str)
+const char *translator::translate(const char *str)
 {
 	return get_lang()->translate(str);
 }
 
 
-const char* translator::translate(const char* str, int lang)
+const char *translator::translate(const char *str, int lang)
 {
 	return langs[lang].translate(str);
 }
 
 
-const char* translator::get_month_name(uint16 month)
+const char *translator::get_month_name(uint16 month)
 {
-	static const char* const month_names[] = {
+	static const char *const month_names[] = {
 		"January",
 		"February",
 		"March",
@@ -566,7 +569,7 @@ const char* translator::get_month_name(uint16 month)
 
 
 /* get a name for a non-matching object */
-const char* translator::compatibility_name(const char* str)
+const char *translator::compatibility_name(const char *str)
 {
 	if(  str==NULL  ) {
 		return "(null)";
@@ -574,6 +577,6 @@ const char* translator::compatibility_name(const char* str)
 	if(  str[0]=='\0'  ) {
 		return str;
 	}
-	const char* trans = compatibility.get(str);
+	const char *trans = compatibility.get(str);
 	return trans != NULL ? trans : str;
 }

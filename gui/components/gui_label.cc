@@ -12,6 +12,9 @@
 #include "../../utils/simstring.h"
 #include "../../simwin.h"
 
+
+
+
 gui_label_t::gui_label_t(const char* text, COLOR_VAL color_, align_t align_) :
 	tooltip(NULL)
 {
@@ -24,7 +27,8 @@ void gui_label_t::set_text(const char *text, bool autosize)
 {
 	if (text != NULL) {
 		set_text_pointer(translator::translate(text), autosize);
-	} else {
+	}
+	else {
 		set_text_pointer(NULL, false);
 	}
 }
@@ -67,7 +71,6 @@ void gui_label_t::zeichnen(koord offset)
 
 	else if(text) {
 		int al;
-		string_clip str_clip;
 		KOORD_VAL align_offset_x=0;
 
 		switch(align) {
@@ -86,12 +89,13 @@ void gui_label_t::zeichnen(koord offset)
 				al = ALIGN_LEFT;
 		}
 
-		str_clip = display_calc_proportional_string_index(text,groesse.x,0,"..");
-		if(  str_clip.fit  ) {
+		size_t idx = display_fit_proportional( text, groesse.x+1, translator::get_lang()->eclipse_width );
+		if(  text[idx]==0  ) {
 			display_proportional_clip(pos.x+offset.x+align_offset_x, pos.y+offset.y, text, al, color, true);
-		} else {
-			display_text_proportional_len_clip( pos.x+offset.x+align_offset_x, pos.y+offset.y, text, al | DT_DIRTY | DT_CLIP, color, str_clip.len);
-			display_text_proportional_len_clip( pos.x+offset.x+align_offset_x+str_clip.width, pos.y+offset.y, "..", al | DT_DIRTY | DT_CLIP, color, 2);
+		}
+		else {
+			scr_coord_val w = display_text_proportional_len_clip( pos.x+offset.x+align_offset_x, pos.y+offset.y, text, al | DT_DIRTY | DT_CLIP, color, idx );
+			display_proportional_clip( pos.x+offset.x+align_offset_x+w, pos.y+offset.y, translator::translate("..."), al | DT_DIRTY | DT_CLIP, color, false );
 		}
 
 	}

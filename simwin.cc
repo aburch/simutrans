@@ -171,13 +171,21 @@ enum simwin_gadget_et { GADGET_CLOSE, GADGET_HELP, GADGET_SIZE, GADGET_PREV, GAD
  * manager. This will be done as the last step in
  * the chain when loading a theme.
  */
+
+#if THEME == -1
+bool themes_init(const char *dir_name) { return false; }
+#else
 bool themes_init(const char *dir_name)
 {
 	tabfile_t themesconf;
 
 	// first take user data, then user global data
 	const std::string dir = dir_name;
+#if THEME > 0
+	if(  !themesconf.open((dir+"/themes_" STR(THEME) ".tab").c_str())  ) {
+#else
 	if(  !themesconf.open((dir+"/themes.tab").c_str())  ) {
+#endif
 		dbg->warning("simwin.cc themes_init()", "Can't read themes.tab from %s", dir_name );
 		return false;
 	}
@@ -187,27 +195,32 @@ bool themes_init(const char *dir_name)
 
 	// first the stuff for the dialogues
 	gui_frame_t::gui_titlebar_height = (uint32)contents.get_int("gui_titlebar_height", gui_frame_t::gui_titlebar_height );
-	gui_frame_t::gui_frame_left = (uint32)contents.get_int("gui_frame_left", gui_frame_t::gui_frame_left );
-	gui_frame_t::gui_frame_top = (uint32)contents.get_int("gui_frame_top", gui_frame_t::gui_frame_top );
-	gui_frame_t::gui_frame_right = (uint32)contents.get_int("gui_frame_right", gui_frame_t::gui_frame_right );
-	gui_frame_t::gui_frame_bottom = (uint32)contents.get_int("gui_frame_bottom", gui_frame_t::gui_frame_bottom );
-	gui_frame_t::gui_hspace = (uint32)contents.get_int("gui_hspace", gui_frame_t::gui_hspace );
-	gui_frame_t::gui_vspace = (uint32)contents.get_int("gui_vspace", gui_frame_t::gui_vspace );
+	gui_frame_t::gui_frame_left =      (uint32)contents.get_int("gui_frame_left",      gui_frame_t::gui_frame_left );
+	gui_frame_t::gui_frame_top =       (uint32)contents.get_int("gui_frame_top",       gui_frame_t::gui_frame_top );
+	gui_frame_t::gui_frame_right =     (uint32)contents.get_int("gui_frame_right",     gui_frame_t::gui_frame_right );
+	gui_frame_t::gui_frame_bottom =    (uint32)contents.get_int("gui_frame_bottom",    gui_frame_t::gui_frame_bottom );
+	gui_frame_t::gui_hspace =          (uint32)contents.get_int("gui_hspace",          gui_frame_t::gui_hspace );
+	gui_frame_t::gui_vspace =          (uint32)contents.get_int("gui_vspace",          gui_frame_t::gui_vspace );
 
 	// those two will be anyway set whenever the buttons are reinitialized
 	// Max Kielland: This has been moved to button_t
-	button_t::gui_button_size.x = (uint32)contents.get_int("gui_button_width", button_t::gui_button_size.x );
+	button_t::gui_button_size.x = (uint32)contents.get_int("gui_button_width",  button_t::gui_button_size.x );
 	button_t::gui_button_size.y = (uint32)contents.get_int("gui_button_height", button_t::gui_button_size.y );
 
-	skinverwaltung_t::theme_color_text = (COLOR_VAL)contents.get_int("gui_text_color",skinverwaltung_t::theme_color_text);
-	skinverwaltung_t::theme_color_static_text = (COLOR_VAL)contents.get_int("gui_static_text_color",skinverwaltung_t::theme_color_static_text);
-	skinverwaltung_t::theme_color_disabled_text = (COLOR_VAL)contents.get_int("gui_disabled_text_color",skinverwaltung_t::theme_color_disabled_text);
-	skinverwaltung_t::theme_color_highlight = (COLOR_VAL)contents.get_int("gui_highlight_color",skinverwaltung_t::theme_color_highlight);
-	skinverwaltung_t::theme_color_shadow = (COLOR_VAL)contents.get_int("gui_shadow_color",skinverwaltung_t::theme_color_shadow);
-	skinverwaltung_t::theme_color_face = (COLOR_VAL)contents.get_int("gui_face_color",skinverwaltung_t::theme_color_face);
+	button_t::button_color_text = (uint32)contents.get_int("button_color_text", button_t::button_color_text );
+	button_t::button_color_disabled_text = (uint32)contents.get_int("button_color_disabled_text", button_t::button_color_disabled_text );
+
+	// maybe not the best place, rather use simwin for the static defines?
+	skinverwaltung_t::theme_color_text =          (COLOR_VAL)contents.get_int("gui_text_color",          SYSCOL_TEXT);
+	skinverwaltung_t::theme_color_static_text =   (COLOR_VAL)contents.get_int("gui_static_text_color",   SYSCOL_STATIC_TEXT);
+	skinverwaltung_t::theme_color_disabled_text = (COLOR_VAL)contents.get_int("gui_disabled_text_color", SYSCOL_DISABLED_TEXT);
+	skinverwaltung_t::theme_color_highlight =     (COLOR_VAL)contents.get_int("gui_highlight_color",     SYSCOL_HIGHLIGHT);
+	skinverwaltung_t::theme_color_shadow =        (COLOR_VAL)contents.get_int("gui_shadow_color",        SYSCOL_SHADOW);
+	skinverwaltung_t::theme_color_face =          (COLOR_VAL)contents.get_int("gui_face_color",          SYSCOL_FACE);
+	skinverwaltung_t::theme_color_button_text =   (COLOR_VAL)contents.get_int("gui_button_text_color",   SYSCOL_BUTTON_TEXT);
 
 	// those two may be rather an own control later on?
-	gui_frame_t::gui_indicator_width = (uint32)contents.get_int("gui_indicator_width", gui_frame_t::gui_indicator_width );
+	gui_frame_t::gui_indicator_width =  (uint32)contents.get_int("gui_indicator_width",  gui_frame_t::gui_indicator_width );
 	gui_frame_t::gui_indicator_height = (uint32)contents.get_int("gui_indicator_height", gui_frame_t::gui_indicator_height );
 
 	// other gui parameter
@@ -216,30 +229,30 @@ bool themes_init(const char *dir_name)
 	gui_tab_panel_t::header_vsize = (uint32)contents.get_int("gui_tab_header_vsize", gui_tab_panel_t::header_vsize );
 
 	// stuff in umgebung_t but ratehr GUI	umgebung_t::window_snap_distance = contents.get_int("window_snap_distance", umgebung_t::window_snap_distance );
-	umgebung_t::window_buttons_right = contents.get_int("window_buttons_right", umgebung_t::window_buttons_right );
-	umgebung_t::left_to_right_graphs = contents.get_int("left_to_right_graphs", umgebung_t::left_to_right_graphs );
-	umgebung_t::window_frame_active = contents.get_int("window_frame_active", umgebung_t::window_frame_active );
-	umgebung_t::second_open_closes_win = contents.get_int("second_open_closes_win", umgebung_t::second_open_closes_win );
+	umgebung_t::window_buttons_right =      contents.get_int("window_buttons_right",      umgebung_t::window_buttons_right );
+	umgebung_t::left_to_right_graphs =      contents.get_int("left_to_right_graphs",      umgebung_t::left_to_right_graphs );
+	umgebung_t::window_frame_active =       contents.get_int("window_frame_active",       umgebung_t::window_frame_active );
+	umgebung_t::second_open_closes_win =    contents.get_int("second_open_closes_win",    umgebung_t::second_open_closes_win );
 	umgebung_t::remember_window_positions = contents.get_int("remember_window_positions", umgebung_t::remember_window_positions );
 
-	umgebung_t::front_window_bar_color = contents.get_color("front_window_bar_color", umgebung_t::front_window_bar_color );
-	umgebung_t::front_window_text_color = contents.get_color("front_window_text_color", umgebung_t::front_window_text_color );
-	umgebung_t::bottom_window_bar_color = contents.get_color("bottom_window_bar_color", umgebung_t::bottom_window_bar_color );
+	umgebung_t::front_window_bar_color =   contents.get_color("front_window_bar_color",   umgebung_t::front_window_bar_color );
+	umgebung_t::front_window_text_color =  contents.get_color("front_window_text_color",  umgebung_t::front_window_text_color );
+	umgebung_t::bottom_window_bar_color =  contents.get_color("bottom_window_bar_color",  umgebung_t::bottom_window_bar_color );
 	umgebung_t::bottom_window_text_color = contents.get_color("bottom_window_text_color", umgebung_t::bottom_window_text_color );
 
-	umgebung_t::show_tooltips = contents.get_int("show_tooltips", umgebung_t::show_tooltips );
-	umgebung_t::tooltip_color = contents.get_color("tooltip_background_color", umgebung_t::tooltip_color );
-	umgebung_t::tooltip_textcolor = contents.get_color("tooltip_text_color", umgebung_t::tooltip_textcolor );
-	umgebung_t::tooltip_delay = contents.get_int("tooltip_delay", umgebung_t::tooltip_delay );
-	umgebung_t::tooltip_duration = contents.get_int("tooltip_duration", umgebung_t::tooltip_duration );
-	umgebung_t::toolbar_max_width = contents.get_int("toolbar_max_width", umgebung_t::toolbar_max_width );
-	umgebung_t::toolbar_max_height = contents.get_int("toolbar_max_height", umgebung_t::toolbar_max_height );
-	umgebung_t::cursor_overlay_color = contents.get_color("cursor_overlay_color", umgebung_t::cursor_overlay_color );
+	umgebung_t::show_tooltips =        contents.get_int("show_tooltips",              umgebung_t::show_tooltips );
+	umgebung_t::tooltip_color =        contents.get_color("tooltip_background_color", umgebung_t::tooltip_color );
+	umgebung_t::tooltip_textcolor =    contents.get_color("tooltip_text_color",       umgebung_t::tooltip_textcolor );
+	umgebung_t::tooltip_delay =        contents.get_int("tooltip_delay",              umgebung_t::tooltip_delay );
+	umgebung_t::tooltip_duration =     contents.get_int("tooltip_duration",           umgebung_t::tooltip_duration );
+	umgebung_t::toolbar_max_width =    contents.get_int("toolbar_max_width",          umgebung_t::toolbar_max_width );
+	umgebung_t::toolbar_max_height =   contents.get_int("toolbar_max_height",         umgebung_t::toolbar_max_height );
+	umgebung_t::cursor_overlay_color = contents.get_color("cursor_overlay_color",     umgebung_t::cursor_overlay_color );
 
 	// parsing buttons still needs to be done after agreement what to load
 	return false; //hence we return false for now ...
 }
-
+#endif
 
 /**
  * Display a window gadget

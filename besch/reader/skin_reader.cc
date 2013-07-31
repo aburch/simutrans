@@ -31,5 +31,5 @@ void skin_reader_t::register_obj(obj_besch_t *&data)
 bool skin_reader_t::successfully_loaded() const
 {
 	DBG_MESSAGE("skin_reader_t::successfully_loaded()","");
-    return skinverwaltung_t::alles_geladen(get_skintype());
+	return skinverwaltung_t::alles_geladen(get_skintype());
 }

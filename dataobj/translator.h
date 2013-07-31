@@ -50,10 +50,11 @@ public:
 		const char* translate(const char* text) const;
 
 		stringhashtable_tpl<const char*> texts;
-		const char* name;
-		const char* iso;
-		const char* iso_base;
+		const char *name;
+		const char *iso;
+		const char *iso_base;
 		bool utf_encoded;
+		uint8 eclipse_width;
 	};
 
 	static void init_custom_names(int lang);
@@ -74,7 +75,6 @@ public:
 	 * folder_name is relative to current dir (set by chdir)
 	 */
 	static void load_files_from_folder(const char* folder_name, const char* what);
-
 
 	/**
 	 * Get/Set the currently selected language, based on the

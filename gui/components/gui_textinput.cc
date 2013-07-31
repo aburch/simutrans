@@ -43,7 +43,8 @@ gui_textinput_t::gui_textinput_t() :
 size_t gui_textinput_t::calc_cursor_pos(const int x)
 {
 	size_t new_cursor_pos = 0;
-	if (  text  ) {
+	if(  text  ) {
+
 		const char* tmp_text = text;
 		uint8 byte_length = 0;
 		uint8 pixel_width = 0;
@@ -331,13 +332,19 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 		// acting on release causes unwanted recalculations of cursor position for long strings and (scroll_offset>0)
 		// moreover, only (click) or (release) event happened inside textinput, the other one could lie outside
 		// Knightly : use mouse *click* position; update both head and tail cursors
-		tail_cursor_pos = head_cursor_pos = calc_cursor_pos(ev->cx);
+		tail_cursor_pos = 0;
+		if(  text  ) {
+			tail_cursor_pos = head_cursor_pos = display_fit_proportional( text, ev->cx - 2 + scroll_offset );
+		}
 		cursor_reference_time = dr_time();	// update reference time for cursor blinking
 		return true;
 	}
 	else if(  IS_LEFTDRAG(ev)  ) {
 		// Knightly : use mouse *move* position; update head cursor only in order to enable text selection
-		head_cursor_pos = calc_cursor_pos(ev->mx);
+		head_cursor_pos = 0;
+		if(  text  ) {
+			head_cursor_pos = head_cursor_pos = display_fit_proportional( text, ev->mx - 1 + scroll_offset );
+		}
 		cursor_reference_time = dr_time();	// update reference time for cursor blinking
 		return true;
 	}

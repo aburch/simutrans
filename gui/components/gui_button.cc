@@ -40,12 +40,13 @@
 #define RB_BODY_BUTTON (202)
 #define RB_RIGHT_BUTTON (203)
 
+COLOR_VAL button_t::button_color_text = COL_BLACK;
+COLOR_VAL button_t::button_color_disabled_text = MN_GREY0;
+
 /**
  * Max Kielland
  * These are the built in default theme element sizes and
- * are overriden by the PAK file if a new size is defined.
- * The last step is the .tab file where the user can do the
- * final override
+ * are overriden by the PAK file if a new image is defined.
  */
 koord button_t::gui_button_size        = koord(92,14);
 koord button_t::gui_checkbox_size      = koord(10,10);
@@ -56,9 +57,6 @@ koord button_t::gui_arrow_down_size    = koord(14,14);
 koord button_t::gui_scrollbar_size     = koord(14,14);
 koord button_t::gui_scrollknob_size    = koord(14,14);
 koord button_t::gui_indicator_box_size = koord(10, 6);
-
-// Length in pixels of ".." for capped strings.
-//KOORD_VAL button_t::text_cap_len;
 
 /*
  * Hajo: image numbers of button skins
@@ -418,7 +416,7 @@ void button_t::set_typ(enum type t)
 	switch (type&STATE_MASK) {
 
 		case square:
-			foreground = SYSCOL_TEXT;
+			foreground = SYSCOL_BUTTON_TEXT;
 			if(  !strempty(translated_text)  ) {
 				set_text(translated_text);
 				set_groesse ( koord( gui_checkbox_size.x + D_H_SPACE + proportional_string_width( translated_text ), max(gui_checkbox_size.y,LINESPACE)) );
@@ -593,7 +591,6 @@ void button_t::zeichnen(koord offset)
 	const scr_coord_val by = offset.y + pos.y;
 	const scr_coord_val bw = groesse.x;
 	const scr_coord_val bh = groesse.y;
-	string_clip str_clip;
 
 	// Offset to center text relative to the button's height
 	const scr_coord_val y_text_offset = D_GET_CENTER_ALIGN_OFFSET(LINESPACE,max(groesse.y,LINESPACE));
@@ -602,8 +599,6 @@ void button_t::zeichnen(koord offset)
 
 		case box: // old, 4-line box
 			{
-				int len = proportional_string_width(translated_text);
-
 				if (pressed) {
 					display_ddd_box_clip(bx, by, bw, bh, SYSCOL_SHADOW, SYSCOL_HIGHLIGHT);
 				}
@@ -612,13 +607,13 @@ void button_t::zeichnen(koord offset)
 				}
 				display_fillbox_wh_clip(bx+1, by+1, bw-2, bh-2, background, false);
 
-				str_clip = display_calc_proportional_string_index(translated_text,bw-3,0,"..");
-				if(  str_clip.fit  ) {
-					display_proportional_clip(bx+1+max((bw-str_clip.width-2)/2,0),by+y_text_offset, translated_text, ALIGN_LEFT, b_enabled ? foreground : SYSCOL_DISABLED_TEXT, true);
-				} else {
-					scr_coord_val offset_x = (((bw-3)-(str_clip.width+str_clip.symbol_width))>>1);
-					display_text_proportional_len_clip( bx+1+offset_x,by+y_text_offset, translated_text, ALIGN_LEFT | DT_DIRTY | DT_CLIP, b_enabled ? foreground : SYSCOL_DISABLED_TEXT, str_clip.len);
-					display_text_proportional_len_clip( bx+2+offset_x+str_clip.width,by+y_text_offset, "..", ALIGN_LEFT | DT_DIRTY | DT_CLIP, b_enabled ? foreground : SYSCOL_DISABLED_TEXT, 2);
+				size_t idx = display_fit_proportional(translated_text, bw-3, translator::get_lang()->eclipse_width );
+				if(  translated_text[idx]==0  ) {
+					display_proportional_clip( bx+bw/2, by+y_text_offset, translated_text, ALIGN_CENTER_H, b_enabled ? foreground : SYSCOL_DISABLED_TEXT, true);
+				}
+				else {
+					scr_coord_val w = display_text_proportional_len_clip( bx+1, by+y_text_offset, translated_text, ALIGN_LEFT | DT_DIRTY | DT_CLIP, b_enabled ? foreground : SYSCOL_DISABLED_BUTTON_TEXT, idx );
+					display_proportional_clip( bx+1+w, by+y_text_offset, translator::translate("..."), ALIGN_LEFT | DT_DIRTY | DT_CLIP, b_enabled ? foreground : SYSCOL_DISABLED_BUTTON_TEXT, true );
 				}
 
 				if(  win_get_focus()==this  ) {
@@ -629,16 +624,15 @@ void button_t::zeichnen(koord offset)
 
 		case roundbox: // button with round corners
 			{
-				int len = proportional_string_width(translated_text);
 				draw_roundbutton( bx, by, bw, bh, pressed );
 
-				str_clip = display_calc_proportional_string_index(translated_text,bw-3,0,"..");
-				if(  str_clip.fit  ) {
-					display_proportional_clip(bx+1+max((bw-str_clip.width-2)/2,0),by+y_text_offset, translated_text, ALIGN_LEFT, b_enabled ? foreground : SYSCOL_DISABLED_TEXT, true);
-				} else {
-					scr_coord_val offset_x = (((bw-3)-(str_clip.width+str_clip.symbol_width))>>1);
-					display_text_proportional_len_clip( bx+1+offset_x,by+y_text_offset, translated_text, ALIGN_LEFT | DT_DIRTY | DT_CLIP, b_enabled ? foreground : SYSCOL_DISABLED_TEXT, str_clip.len);
-					display_text_proportional_len_clip( bx+2+offset_x+str_clip.width,by+y_text_offset, "..", ALIGN_LEFT | DT_DIRTY | DT_CLIP, b_enabled ? foreground : SYSCOL_DISABLED_TEXT, 2);
+				size_t idx = display_fit_proportional(translated_text, bw-3, translator::get_lang()->eclipse_width );
+				if(  translated_text[idx]==0  ) {
+					display_proportional_clip( bx+bw/2, by+y_text_offset, translated_text, ALIGN_CENTER_H, b_enabled ? foreground : SYSCOL_DISABLED_BUTTON_TEXT, true);
+				}
+				else {
+					scr_coord_val w = display_text_proportional_len_clip( bx+1, by+y_text_offset, translated_text, ALIGN_LEFT | DT_DIRTY | DT_CLIP, b_enabled ? foreground : SYSCOL_DISABLED_BUTTON_TEXT, idx );
+					display_proportional_clip( bx+1+w, by+y_text_offset, translator::translate("..."), ALIGN_LEFT | DT_DIRTY | DT_CLIP, b_enabled ? foreground : SYSCOL_DISABLED_BUTTON_TEXT, true );
 				}
 
 				if(  win_get_focus()==this  ) {
@@ -659,17 +653,18 @@ void button_t::zeichnen(koord offset)
 					display_fillbox_wh_clip( bx, by+box_y_offset, gui_checkbox_size.x, gui_checkbox_size.y, COL_BLACK, true );
 					display_fillbox_wh_clip( bx+1, by+1+box_y_offset, gui_checkbox_size.x-2, gui_checkbox_size.y-2, pressed ? SYSCOL_HIGHLIGHT : MN_GREY1, true );
 					if(pressed) {
-						display_proportional_clip(bx+1+D_GET_CENTER_ALIGN_OFFSET(width,gui_checkbox_size.x),by+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,groesse.y) , "X", ALIGN_LEFT, b_enabled ? foreground : SYSCOL_DISABLED_TEXT, true);
+						display_proportional_clip( bx+1+D_GET_CENTER_ALIGN_OFFSET(width,gui_checkbox_size.x),by+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,groesse.y) , "X", ALIGN_LEFT, b_enabled ? foreground : SYSCOL_DISABLED_BUTTON_TEXT, true);
 					}
 				}
 
 				if(  text  ) {
-					str_clip = display_calc_proportional_string_index(translated_text,groesse.x-gui_checkbox_size.x+D_H_SPACE,0,"..");
-					if(  str_clip.fit  ) {
-						display_proportional_clip(bx+gui_checkbox_size.x+D_H_SPACE, by+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,groesse.y), translated_text, ALIGN_LEFT, b_enabled ? foreground : SYSCOL_DISABLED_TEXT, true);
-					} else {
-						display_text_proportional_len_clip( pos.x+offset.x, pos.y+offset.y, translated_text, ALIGN_LEFT | DT_DIRTY | DT_CLIP,  b_enabled ? foreground : SYSCOL_DISABLED_TEXT, str_clip.len);
-						display_text_proportional_len_clip( pos.x+offset.x+str_clip.width, pos.y+offset.y, "..", ALIGN_LEFT | DT_DIRTY | DT_CLIP,  b_enabled ? foreground : SYSCOL_DISABLED_TEXT, 2);
+					size_t idx = display_fit_proportional( translated_text, bw-D_H_SPACE-gui_checkbox_size.x+1, translator::get_lang()->eclipse_width );
+					if(  translated_text[idx]==0  ) {
+						display_proportional_clip( bx+gui_checkbox_size.x+D_H_SPACE, by+y_text_offset, translated_text, ALIGN_LEFT, b_enabled ? foreground : SYSCOL_DISABLED_TEXT, true);
+					}
+					else {
+						scr_coord_val w = display_text_proportional_len_clip( bx+gui_checkbox_size.x+D_H_SPACE, by+y_text_offset, translated_text, ALIGN_LEFT | DT_DIRTY | DT_CLIP, b_enabled ? foreground : SYSCOL_DISABLED_TEXT, idx );
+						display_proportional_clip( bx+gui_checkbox_size.x+D_H_SPACE+w, by+y_text_offset, translator::translate("..."), ALIGN_LEFT | DT_DIRTY | DT_CLIP, b_enabled ? foreground : SYSCOL_DISABLED_TEXT, true );
 					}
 				}
 
@@ -769,7 +764,7 @@ void button_t::zeichnen(koord offset)
 		break;
 	}
 
-	if(translated_tooltip &&  getroffen( get_maus_x()-offset.x, get_maus_y()-offset.y )) {
+	if(  translated_tooltip  &&  getroffen( get_maus_x()-offset.x, get_maus_y()-offset.y )  ) {
 		win_set_tooltip(get_maus_x() + TOOLTIP_MOUSE_OFFSET_X, by + bh + TOOLTIP_MOUSE_OFFSET_Y, translated_tooltip, this);
 	}
 }

@@ -144,5 +144,4 @@ static inline koord operator - (const koord &a)
 {
 	return koord(-a.x, -a.y);
 }
-
 #endif
