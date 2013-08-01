@@ -555,8 +555,8 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 		interest.set_text(str_buf[31]);
 		interest.set_color(COL_YELLOW);
 		money_to_string(str_buf[32], 0 );
-		interest.set_text(str_buf[32]);
-		interest.set_color(COL_YELLOW);
+		old_interest.set_text(str_buf[32]);
+		old_interest.set_color(COL_YELLOW);
 	}
 
 	update_label(cash_money, str_buf[14], TT_MAX, ATC_CASH, 0);
