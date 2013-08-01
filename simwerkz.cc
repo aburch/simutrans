@@ -180,14 +180,8 @@ static halthandle_t suche_nahe_haltestelle(spieler_t *sp, karte_t *welt, koord3d
 	if(  const planquadrat_t *plan = welt->lookup(pos.get_2d())  ) {
 		for(  uint8 i=0;  i < plan->get_boden_count();  i++  ) {
 			halthandle_t my_halt = plan->get_boden_bei(i)->get_halt();
-			if(  my_halt.is_bound()  ) {
-				if(  sp==my_halt->get_besitzer()  ||  my_halt->get_besitzer()->get_player_nr()==1  ) {
+			if(  my_halt.is_bound() &&  sp==my_halt->get_besitzer() ) {
 					return my_halt;
-				} else {
-					// Someone else's stop above or below us.  Consider this to be not valid, reject
-					// This isn't quite right --neroden
-					return halthandle_t();
-				}
 			}
 		}
 	}
