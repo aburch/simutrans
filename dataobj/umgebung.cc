@@ -334,7 +334,7 @@ void umgebung_t::rdwr(loadsave_t *file)
 
 	if(  file->get_version()>102001  ) {
 		file->rdwr_byte( show_vehicle_states );
-		if(  file->get_experimental_version() >= 1 && file->get_experimental_version() <= 11  ) {
+		if(  file->get_experimental_version() >= 1 && file->get_experimental_version() < 12  && file->get_version() < 112005 ) {
 			// Experimental (but not standard!) was carrying around a dummy variable.
 			// Formerly finance_ltr_graphs.
 			bool dummy = false;
