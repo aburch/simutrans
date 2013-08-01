@@ -1004,10 +1004,10 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 	return strdup("Unnamed");
 }
 
-// add convoi to loading
-void haltestelle_t::request_loading( convoihandle_t cnv )
+// Add convoy to loading
+void haltestelle_t::request_loading(convoihandle_t cnv)
 {
-	if(  !loading_here.is_contained(cnv)  ) 
+	if(!loading_here.is_contained(cnv))
 	{
 		loading_here.append(cnv);
 	}
@@ -2315,13 +2315,30 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 	// FIXME: This code needs to be fixed for multi-tile buildings
 	// such as attractions and city halls, to allow access from any side
 	fabrik_t* const fab = fabrik_t::get_fab(welt, ware.get_zielpos());
-	if(ware.get_ziel() == self && ware.to_factory && fab && fab_list.is_contained(fab))
+	const planquadrat_t* plan = welt->lookup(ware.get_zielpos());
+	if(ware.get_ziel() == self && ware.to_factory && fab && (fab_list.is_contained(fab) || ((ware.get_besch() == warenbauer_t::passagiere || ware.get_besch() == warenbauer_t::post) && plan->is_connected(self))))
 	{
 		// Packet is headed to a factory;
 		// the factory exists;
 		// and the factory is considered linked to this halt.
 		// FIXME: this should be delayed by transshipment time / walking time.
 		liefere_an_fabrik(ware);
+		if(ware.get_besch() == warenbauer_t::passagiere)
+		{
+			// Arriving passengers may create pedestrians
+			if(welt->get_settings().get_show_pax()) 
+			{
+				int menge = ware.menge;
+				FOR( slist_tpl<tile_t>, const& i, tiles )
+				{
+					if(menge <= 0)
+					{
+						break;
+					}
+					menge = erzeuge_fussgaenger(welt, i.grund->get_pos(), menge);
+				}
+			}
+		}
 #ifdef DEBUG_SIMRAND_CALLS
 		if (talk)
 			dbg->message("haltestelle_t::liefere_an", "%d arrived at station \"%s\" waren[0].count %d", ware.menge, get_name(), get_warray(0)->get_count());
@@ -2329,18 +2346,20 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 		return ware.menge;
 	}
 	// OK, not arrived at a factory, have we arrived somewhere else?
-	const planquadrat_t* plan = welt->lookup(ware.get_zielpos());
 	if(!(ware.to_factory) && ware.get_ziel() == self && plan && plan->is_connected(self))
 	{
 		// Yes, we have.  Passengers & mail vanish mysteriously upon arrival.
 		// FIXME: walking time delay should be implemented right here!
-		if(ware.get_besch()==warenbauer_t::passagiere)
+		if(ware.get_besch() == warenbauer_t::passagiere)
 		{
-			// arriving passenger may create pedestrians
-			if(welt->get_settings().get_show_pax()) {
+			// Arriving passengers may create pedestrians
+			if(welt->get_settings().get_show_pax())
+			{
 				int menge = ware.menge;
-				FOR( slist_tpl<tile_t>, const& i, tiles ) {
-					if (menge <= 0) {
+				FOR( slist_tpl<tile_t>, const& i, tiles )
+				{
+					if(menge <= 0) 
+					{
 						break;
 					}
 					menge = erzeuge_fussgaenger(welt, i.grund->get_pos(), menge);
@@ -2385,6 +2404,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 	}
 
 #ifdef CHECK_WARE_MERGE
+
 	// do we have already something going in this direction here?
 	if(  vereinige_waren(ware)  )
 	{
@@ -2404,6 +2424,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 #endif
 	return ware.menge;
 }
+
 
 
 void haltestelle_t::info(cbuffer_t & buf, bool dummy) const
@@ -2511,16 +2532,19 @@ sint64 haltestelle_t::calc_maintenance() const
 
 
 // changes this to a public transfer exchange stop
-bool haltestelle_t::make_public_and_join( spieler_t *sp )
+bool haltestelle_t::make_public_and_join(spieler_t *sp)
 {
-	spieler_t *public_owner=welt->get_spieler(1);
+	spieler_t *public_owner = welt->get_spieler(1);
+	const bool compensate = sp == public_owner;
 	slist_tpl<halthandle_t> joining;
 
 	// only something to do if not yet owner ...
-	if(besitzer_p!=public_owner) {
+	if(besitzer_p != public_owner) 
+	{
 		// First run through to see if we can afford this.
 		sint64 total_charge = 0;
-		FOR(slist_tpl<tile_t>, const& i, tiles) {
+		FOR(slist_tpl<tile_t>, const& i, tiles)
+		{
 			grund_t* const gr = i.grund;
 			gebaeude_t* gb = gr->find<gebaeude_t>();
 			if(gb)
@@ -2530,15 +2554,24 @@ bool haltestelle_t::make_public_and_join( spieler_t *sp )
 				if(besch->get_base_station_maintenance() == 2147483647)
 				{
 					// Default value - no specific maintenance set. Use the old method
-					costs =welt->get_settings().maint_building * besch->get_level();
+					costs = welt->get_settings().maint_building * besch->get_level();
 				}
 				else
 				{
 					// New method - get the specified factor.
 					costs = besch->get_station_maintenance();
 				}
-				// Sixty months of maintenance is the payment to the public player for this
-				total_charge += welt->calc_adjusted_monthly_figure(costs * 60);
+				
+				if(!compensate)
+				{
+					// Sixty months of maintenance is the payment to the public player for this
+					total_charge += welt->calc_adjusted_monthly_figure(costs * 60);
+				}
+				else
+				{
+					// If the public player itself is doing this, it pays a normal price.
+					total_charge += welt->calc_adjusted_monthly_figure(costs);
+				}
 				if(!sp->can_afford(total_charge))
 				{
 					// We can't afford this.  Bail out.
@@ -2549,18 +2582,19 @@ bool haltestelle_t::make_public_and_join( spieler_t *sp )
 		// Now run through to actually transfer ownership
 		// and recalculate maintenance; must do maintenance here, not above,
 		// in order to properly assign it by waytype
-		FOR(slist_tpl<tile_t>, const& i, tiles) {
+		FOR(slist_tpl<tile_t>, const& i, tiles) 
+		{
 			grund_t* const gr = i.grund;
 			gebaeude_t* gb = gr->find<gebaeude_t>();
 			if(gb)
 			{
-				spieler_t *gb_sp=gb->get_besitzer();
+				spieler_t *gb_sp = gb->get_besitzer();
 				const haus_besch_t* besch = gb->get_tile()->get_besch();
 				sint32 costs;
 				if(besch->get_base_station_maintenance() == 2147483647)
 				{
 					// Default value - no specific maintenance set. Use the old method
-					costs =welt->get_settings().maint_building * besch->get_level();
+					costs = welt->get_settings().maint_building * besch->get_level();
 				}
 				else
 				{
@@ -2571,10 +2605,21 @@ bool haltestelle_t::make_public_and_join( spieler_t *sp )
 				gb->set_besitzer(public_owner);
 				gb->set_flag(ding_t::dirty);
 				spieler_t::add_maintenance(public_owner, costs, gb->get_waytype() );
-				// it is not real construction cost, it is fee payed for public authority for future maintenance. So money are transferred to public authority
-				sint64 charge = welt->calc_adjusted_monthly_figure(costs * 60);
-				spieler_t::book_construction_costs( sp,          -charge, get_basis_pos(), gb->get_waytype());
-				spieler_t::book_construction_costs( public_owner, charge, koord::invalid, gb->get_waytype());
+				if(!compensate)
+				{
+					// Player is voluntarily turning this over to the public player:
+					// pay a fee for the public player for future maintenance. 
+					sint64 charge = welt->calc_adjusted_monthly_figure(costs * 60);
+					spieler_t::book_construction_costs(sp,         -charge, get_basis_pos(), gb->get_waytype());
+					spieler_t::book_construction_costs(public_owner, charge, koord::invalid, gb->get_waytype());
+				}
+				else
+				{
+					// The public player itself is acquiring this stop compulsorily, so pay compensation.
+					sint64 charge = welt->calc_adjusted_monthly_figure(costs);
+					spieler_t::book_construction_costs(sp,       -charge, get_basis_pos(), gb->get_waytype());
+					spieler_t::book_construction_costs(besitzer_p, charge, koord::invalid, gb->get_waytype());
+				}
 			}
 			// ok, valid start, now we can join them
 			// First search the same square

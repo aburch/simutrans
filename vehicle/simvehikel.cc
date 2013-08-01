@@ -1317,11 +1317,16 @@ route_t::route_result_t vehikel_t::calc_route(koord3d start, koord3d ziel, sint3
 	return route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_highest_axle_load() : get_sum_weight(), 0, 4294967295U, cnv != NULL ? cnv->get_weight_summary().weight / 1000 : get_gesamtgewicht());
 }
 
-bool vehikel_t::reroute(const uint16 reroute_index, const koord3d &ziel)
+bool vehikel_t::reroute(const uint16 reroute_index, const koord3d &ziel, route_t* route)
 {
 	route_t xroute;    // new scheduled route from position at reroute_index to ziel
-	bool done = cnv && calc_route(cnv->get_route()->position_bei(reroute_index), ziel, speed_to_kmh(cnv->get_min_top_speed()), &xroute);
-	if (done)
+	const bool live = route == NULL;
+	if(route == NULL && cnv)
+	{
+		route = (cnv->get_route());
+	}
+	bool done = route && calc_route(route->position_bei(reroute_index), ziel, speed_to_kmh(cnv->get_min_top_speed()), &xroute);
+	if(done && live)
 	{
 		// convoy replaces existing route starting at reroute_index with found route. 
 		cnv->update_route(reroute_index, xroute);
@@ -2321,7 +2326,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 		if(besch) {
 			calc_bild();
 			// full weight after loading
-			sum_weight =  get_fracht_gewicht() + besch->get_gewicht();
+			sum_weight = get_fracht_gewicht() + besch->get_gewicht();
 		}
 		// recalc total freight
 		total_freight = 0;
@@ -3876,24 +3881,42 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 	assert(ist_erstes);
 	uint16 next_signal, next_crossing;
 	const linieneintrag_t destination = cnv->get_schedule()->get_current_eintrag();
-	const bool destination_is_nonreversing_waypoint = !destination.reverse && !haltestelle_t::get_halt(welt, destination.pos, get_besitzer()).is_bound() && (!welt->lookup(destination.pos) || !welt->lookup(destination.pos)->get_depot());
+	bool destination_is_nonreversing_waypoint = !destination.reverse && !haltestelle_t::get_halt(welt, destination.pos, get_besitzer()).is_bound() && (!welt->lookup(destination.pos) || !welt->lookup(destination.pos)->get_depot());
 	if(destination_is_nonreversing_waypoint)
 	{
+		const koord3d last_tile_before_destination = cnv->get_route()->position_bei(cnv->get_route()->get_count() - 2);
+		const int index_of_last_tile_before_destination = cnv->get_route()->index_of(last_tile_before_destination);
 		schedule_t *fpl = cnv->get_schedule();
-		uint8 index = fpl->get_aktuell();
+		zugfahrplan_t shadow_schedule;
+		shadow_schedule.copy_from(fpl);
+		const uint8 index = shadow_schedule.get_aktuell();
+		uint8 modified_index = index;
 		bool reversed = cnv->get_reverse_schedule();
-		fpl->increment_index(&index, &reversed);
-		if (reroute(cnv->get_route()->get_count() - 1, fpl->eintrag[index].pos))
+		shadow_schedule.increment_index(&modified_index, &reversed);
+		route_t shadow_route;
+		shadow_route.kopiere(cnv->get_route());
+		if(reroute(cnv->get_route()->get_count() - 1, fpl->eintrag[modified_index].pos, &shadow_route))
 		{
-			if (reversed)
+			const koord3d first_tile_after_original_destination = cnv->get_route()->position_bei(min(cnv->get_route()->get_count() - 1, index_of_last_tile_before_destination));
+			if(first_tile_after_original_destination == last_tile_before_destination)
 			{
-				fpl->advance_reverse();
+				destination_is_nonreversing_waypoint = false;
+				fpl->set_reverse();
 			}
 			else
 			{
-				fpl->advance();
+				fpl->increment_index(&modified_index, &reversed);
+				reroute(cnv->get_route()->get_count() - 1, fpl->eintrag[modified_index].pos);
+				if(reversed)
+				{
+					fpl->advance_reverse();
+				}
+				else
+				{
+					fpl->advance();
+				}
+				cnv->set_next_stop_index(INVALID_INDEX);
 			}
-			cnv->set_next_stop_index(INVALID_INDEX);
 		}
 	}
 
@@ -3908,15 +3931,21 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 				restart_speed = 0;
 				return false;
 			}
-			cnv->set_next_stop_index( next_crossing<next_signal ? next_crossing : next_signal );
+			if(!destination_is_nonreversing_waypoint)
+			{
+				cnv->set_next_stop_index( next_crossing<next_signal ? next_crossing : next_signal );
+			}
 			return true;
 		}
-		cnv->set_next_stop_index( max(route_index,1)-1 );
-		if(  steps<steps_next  ) {
-			// not yet at tile border => can drive to signal safely
-			return true;
+		if(!destination_is_nonreversing_waypoint)
+		{
+			cnv->set_next_stop_index( max(route_index,1)-1 );
+			if(  steps<steps_next  ) {
+				// not yet at tile border => can drive to signal safely
+				return true;
+			}
+			// we start with a signal/crossing => use stuff below ...
 		}
-		// we start with a signal/crossing => use stuff below ...
 	}
 
 	const grund_t *gr = welt->lookup(pos_next);
@@ -3949,8 +3978,8 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 	convoi_t::route_infos_t &route_infos = cnv->get_route_infos();
 
 	// is there any signal/crossing to be reserved?
-	uint16 next_block = cnv->get_next_stop_index() - 1;
-	uint16 last_index = route.get_count() - 1;
+	uint32 next_block = cnv->get_next_stop_index() - 1;
+	uint32 last_index = route.get_count() - 1;
 	if(next_block > last_index) 
 	{
 		const sint32 route_steps = route_infos.get_element(last_index).steps_from_start - (route_index < route_infos.get_count() ? route_infos.get_element(route_index).steps_from_start : 0);
@@ -5167,7 +5196,8 @@ bool aircraft_t::ist_weg_frei( int & restart_speed, bool )
 		convoi_t &convoy = *cnv;
 		const sint32 brake_steps = convoy.calc_min_braking_distance(welt->get_settings(), convoy.get_weight_summary(), cnv->get_akt_speed());
 		const sint32 route_steps = route_infos.calc_steps(route_infos.get_element(route_index).steps_from_start, route_infos.get_element(last_index).steps_from_start);
-		if (route_steps <= brake_steps)
+		const grund_t* gr = welt->lookup(cnv->get_schedule()->get_current_eintrag().pos);
+		if(route_steps <= brake_steps && (!gr || !gr->get_depot())) // Do not recalculate a route if the route ends in a depot.
 		{ 	
 			// we need a longer route to decide, whether we will have to throttle:
 			schedule_t *fpl = cnv->get_schedule();

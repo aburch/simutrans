@@ -1271,7 +1271,7 @@ bits_per_month = 20
 # "bzip2" uses another compression algorithm
 # other options are "xml", "xml_zipped" and "xml_bzip2"
 # xml detects more errors of broken savegames but files are much larger
-# bzip2 savegames are smaller than zipped but saving/loading takes longer
+# bzip2 savegames are smaller than zipped but saving/loading takes much longer
 saveformat = zipped
 
 # autosave every x months (0=off)
@@ -1312,7 +1312,7 @@ fast_forward = 100
 # How much commands should be delayed before sending back to clients.
 # A larger number will catch even clients running slightly ahead but cause delay.
 # This is set by the server side.
-server_frames_ahead = 4
+server_frames_ahead = 6
 
 # How much extra delay in command execution on the client side, on top of server_frames_ahead.
 # A larger number can compensate for larger fluctuations in communication latency.
@@ -1374,7 +1374,7 @@ chat_transparency = 75
 # The number of game months before a player making no changes
 # to its company is unlocked automatically to allow other players
 # to take over.
-unprotect_abondoned_player_months = 36
+unprotect_abandoned_player_months = 120
 
 # The number of game months before a player that has never built
 # anything substantive is deleted automatically.
