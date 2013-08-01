@@ -6068,12 +6068,29 @@ const char *wkz_make_stop_public_t::work( karte_t *welt, spieler_t *sp, koord3d 
 					return "No suitable ground!";
 				}
 				// change maintenance and ownership
-				sint64 costs = w->get_besch()->get_wartung();
+				sint64 maintenance_cost = w->get_besch()->get_wartung();
+				sint64 construction_cost;
+				if(sp == public_player)
+				{
+					construction_cost = w->get_besch()->get_preis();
+				}
+				else
+				{
+					construction_cost = maintenance_cost * 60;
+				}
 
 				if(gr->ist_im_tunnel()) 
 				{
 					tunnel_t *t = gr->find<tunnel_t>();
-					costs = t->get_besch()->get_wartung();
+					maintenance_cost = t->get_besch()->get_wartung();
+					if(sp == public_player)
+					{
+						construction_cost = t->get_besch()->get_preis();
+					}
+					else
+					{
+						construction_cost = maintenance_cost * 60;
+					}
 					if(t->get_besitzer() == public_player)
 					{
 						t->set_besitzer(NULL);
@@ -6087,7 +6104,15 @@ const char *wkz_make_stop_public_t::work( karte_t *welt, spieler_t *sp, koord3d 
 				if(gr->ist_bruecke())
 				{
 					bruecke_t* b = gr->find<bruecke_t>();
-					costs = b->get_besch()->get_wartung();
+					maintenance_cost = b->get_besch()->get_wartung();
+					if(sp == public_player)
+					{
+						construction_cost = b->get_besch()->get_preis();
+					}
+					else
+					{
+						construction_cost = maintenance_cost * 60;
+					}
 					if(b->get_besitzer() == public_player)
 					{
 						b->set_besitzer(NULL);
@@ -6097,37 +6122,57 @@ const char *wkz_make_stop_public_t::work( karte_t *welt, spieler_t *sp, koord3d 
 						b->set_besitzer(public_player);
 					}
 				}
-				
+
 				if(w->get_besitzer() == public_player)
 				{
 					w->set_besitzer(NULL);
 				}
 				else
 				{
-					spieler_t::add_maintenance( w->get_besitzer(), -costs, w->get_besch()->get_finance_waytype() );
-					spieler_t::book_construction_costs( w->get_besitzer(), -costs*60, gr->get_pos().get_2d(), w->get_besch()->get_finance_waytype() );
+					spieler_t::add_maintenance(w->get_besitzer(), -maintenance_cost, w->get_besch()->get_finance_waytype());
+					spieler_t::book_construction_costs(sp, -construction_cost, gr->get_pos().get_2d(), w->get_besch()->get_finance_waytype());
+					if(sp == public_player)
+					{
+						// If this is done by the public player, pay compensation.
+						spieler_t::book_construction_costs(w->get_besitzer(), construction_cost, gr->get_pos().get_2d(), w->get_besch()->get_finance_waytype());
+					}
 					w->set_besitzer(public_player);
-					spieler_t::add_maintenance(public_player, costs );
+					spieler_t::add_maintenance(public_player, maintenance_cost);
 				}
 
 				w->set_flag(ding_t::dirty);
 				// now search for wayobjects
-				for(  uint8 i=1;  i<gr->get_top();  i++  ) {
-					if(  wayobj_t *wo = ding_cast<wayobj_t>(gr->obj_bei(i))  ) {
-						costs = wo->get_besch()->get_wartung();
-						spieler_t::add_maintenance( wo->get_besitzer(), -costs, w->get_besch()->get_finance_waytype() );
-						spieler_t::book_construction_costs(wo->get_besitzer(), -costs*60, gr->get_pos().get_2d(), w->get_waytype());
-						wo->set_besitzer( welt->get_spieler(1) );
+				for(uint8 i = 1; i < gr->get_top(); i++) 
+				{
+					if(wayobj_t *wo = ding_cast<wayobj_t>(gr->obj_bei(i))) 
+					{
+						maintenance_cost = wo->get_besch()->get_wartung();
+						
+						spieler_t::add_maintenance(sp, -maintenance_cost, w->get_besch()->get_finance_waytype() );
+						
+						if(sp == public_player)
+						{
+							// If this is done by the public player, pay compensation.
+							construction_cost = wo->get_besch()->get_preis();
+							spieler_t::book_construction_costs(wo->get_besitzer(), construction_cost, gr->get_pos().get_2d(), w->get_besch()->get_finance_waytype());
+						}
+						else
+						{
+							// Price is based on 60 months' maintenance
+							construction_cost = maintenance_cost * 60;
+						}
+						spieler_t::book_construction_costs(sp, -construction_cost, gr->get_pos().get_2d(), w->get_waytype());
+						wo->set_besitzer(public_player);
 						wo->set_flag(ding_t::dirty);
-						spieler_t::add_maintenance( welt->get_spieler(1), costs, w->get_besch()->get_finance_waytype() );
-						spieler_t::book_construction_costs( welt->get_spieler(1), costs*60, koord::invalid, w->get_waytype());
+						spieler_t::add_maintenance(public_player, maintenance_cost, w->get_besch()->get_finance_waytype());
 					}
 				}
 				// and add message
-				if(  sp->get_player_nr()!=1  &&  umgebung_t::networkmode  ) {
+				if(/*sp->get_player_nr()!=1  &&*/umgebung_t::networkmode) 
+				{
 					cbuffer_t buf;
-					buf.printf( translator::translate("(%s) now public way."), w->get_pos().get_str() );
-					welt->get_message()->add_message( buf, w->get_pos().get_2d(), message_t::ai, PLAYER_FLAG|sp->get_player_nr(), IMG_LEER );
+					buf.printf(translator::translate("(%s) now public way."), w->get_pos().get_str());
+					welt->get_message()->add_message(buf, w->get_pos().get_2d(), message_t::ai, PLAYER_FLAG|sp->get_player_nr(), IMG_LEER);
 				}
 			}
 		}
@@ -6138,7 +6183,7 @@ const char *wkz_make_stop_public_t::work( karte_t *welt, spieler_t *sp, koord3d 
 	else 
 	{
 		halthandle_t halt = pl->get_halt();
-		if( sp != public_player && !(spieler_t::check_owner(halt->get_besitzer(),sp)  ||  halt->get_besitzer() == public_player)  )
+		if(sp != public_player && !(spieler_t::check_owner(halt->get_besitzer(), sp) || halt->get_besitzer() == public_player))
 		{
 			return "Das Feld gehoert\neinem anderen Spieler\n";
 		}

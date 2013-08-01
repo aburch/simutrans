@@ -1254,7 +1254,7 @@ void convoi_t::suche_neue_route()
  * @author Hj. Malthaner
  */
 void convoi_t::step()
-{
+{	
 	if(wait_lock!=0) {
 		return;
 	}
@@ -1264,7 +1264,7 @@ void convoi_t::step()
 	if (line_update_pending.is_bound()) {
 		check_pending_updates();
 	}
-
+	
 	bool autostart = false;
 
 	switch(state) {
@@ -4789,6 +4789,12 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	if(go_on_ticks == WAIT_INFINITE) 
 	{
 		const sint64 departure_time = (arrival_time + current_loading_time) - reversing_time;
+		if(haltestelle_t::get_halt(welt, get_pos(), get_besitzer()) != haltestelle_t::get_halt(welt, fpl->get_current_eintrag().pos, get_besitzer()))
+		{
+			// Sometimes, for some reason, the loading method is entered with the wrong schedule entry. Make sure that this does not cause
+			// convoys to become stuck trying to get a full load at stops where this is not possible (freight consumers, etc.).
+			loading_limit = 0;
+		}
 		if(!loading_limit || loading_level >= loading_limit) 
 		{
 			go_on_ticks = max(departure_time, arrival_time);
@@ -4806,7 +4812,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 				go_on_ticks_spacing = (wait_from_ticks + spacing * queue_pos) - reversing_time;
 			}
 			sint64 go_on_ticks_waiting = WAIT_INFINITE;
-			if (fpl->get_current_eintrag().waiting_time_shift > 0)
+			if(fpl->get_current_eintrag().waiting_time_shift > 0)
 			{
 				// Max. wait for load
 				go_on_ticks_waiting = welt->get_zeit_ms() + (welt->ticks_per_world_month >> (16 - fpl->get_current_eintrag().waiting_time_shift)) - reversing_time;
@@ -4841,13 +4847,25 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	}
 
 	// reset the wait_lock
-	if ( state == ROUTING_1 ) {
+	if(state == ROUTING_1)
+	{
 		wait_lock = 0;
-	} else {
-		// The random extra wait here is designed to avoid processing every convoi at once
-		wait_lock = (go_on_ticks - welt->get_zeit_ms())/2 + (self.get_id())%1024;
-		if (wait_lock < 0 ) {
+	} 
+	else
+	{
+		// The random extra wait here is designed to avoid processing every convoy at once
+		wait_lock = (go_on_ticks - welt->get_zeit_ms()) / 2 + (self.get_id()) % 1024;
+		if (wait_lock < 0 ) 
+		{
 			wait_lock = 0;
+		}
+		else if(wait_lock > 8192 && go_on_ticks == WAIT_INFINITE)
+		{
+			// This is needed because the above calculation (from Standard) produces excessively
+			// large numbers on occasions due to the conversion in Experimental of certain values
+			// (karte_t::ticks and go_on_ticks) to sint64. It would be better ultimately to fix that, 
+			// but this seems to work for now.
+			wait_lock = 8192;
 		}
 	}
 }
@@ -5555,6 +5573,18 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 		}
 	}
 
+	aircraft_t* aircraft = NULL;
+
+	if(get_vehikel(0)->get_typ() == ding_t::aircraft)
+	{
+		// Flying aircraft cannot find a depot in the normal way, so go to the home depot.
+		aircraft = (aircraft_t*)get_vehikel(0);
+		if(!aircraft->is_on_ground())
+		{
+			use_home_depot = true;
+		}
+	}
+
 	bool home_depot_valid = false;
 	if (use_home_depot) {
 		// Check for a valid home depot.  It is quite easy to get savegames with
@@ -5614,6 +5644,17 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 				depot_pos = route.position_bei(route.get_count() - 1);
 				other_depot_found = true;
 			}
+		}
+	}
+
+	if(aircraft && !aircraft->is_on_ground() && home_depot_valid)
+	{
+		// Flying aircraft cannot find a route using the normal means: send to their home depot instead.
+		aircraft->calc_route(get_pos(), home_depot, speed_to_kmh(get_min_top_speed()), &route);
+		if(!route.empty()) 
+		{
+			depot_pos = route.position_bei(route.get_count() - 1);
+			home_depot_found = true;
 		}
 	}
 
