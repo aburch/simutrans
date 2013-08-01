@@ -218,9 +218,6 @@ public:
 
 	static uint8 pedestrian_limit;
 
-	// To prevent infinite loops in obscure situations
-	uint8 unload_repeat_counter;
-
 	/**
 	 * Liste aller felder (Grund-Objekte) die zu dieser Haltestelle gehören
 	 * @author Hj. Malthaner
@@ -699,7 +696,7 @@ public:
 	 * @return angenommene menge
 	 * @author Hj. Malthaner/prissi
 	 */
-	uint32 liefere_an(ware_t ware);
+	uint32 liefere_an(ware_t ware, uint8 walked_between_stations = 0);
 	uint32 starte_mit_route(ware_t ware);
 
 	const grund_t *find_matching_position(waytype_t wt) const;

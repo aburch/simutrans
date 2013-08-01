@@ -8,6 +8,9 @@
 #ifndef simcity_h
 #define simcity_h
 
+
+#include "dataobj/ribi.h"
+
 #include "simdings.h"
 #include "dings/gebaeude.h"
 
@@ -169,7 +172,6 @@ private:
 	koord pos;				// Gruendungsplanquadrat der Stadt ("founding grid square" - Google)
 	koord townhall_road;	// road in front of townhall
 	koord lo, ur;			// max size of housing area
-	bool  has_low_density;	// in this case extend borders by two
 
 	bool allow_citygrowth;	// Whether growth is permitted (true by default)
 
@@ -375,6 +377,12 @@ public:
 		void resolve_factories();
 	};
 
+public:
+	/**
+ 	 * recalcs city borders (after loading old files, after house deletion, after house construction)
+	 */
+	void reset_city_borders();
+
 private:
 	/**
 	 * Data of target factories for pax/mail
@@ -389,8 +397,16 @@ private:
 	 */
 	void init_pax_destinations();
 
-	// recalcs city borders (after loading and deletion)
-	void recalc_city_size();
+	/**
+	 * Enlarges city borders (after being unable to build a building, before trying again)
+	 * Returns false if there are other cities on all four sides
+	 */
+	bool enlarge_city_borders();
+	/**
+	 * Enlarges city borders in a particular direction (N,S,E, or W)
+	 * Returns false if it can't
+	 */
+	bool enlarge_city_borders(ribi_t::ribi direction);
 
 	// calculates the growth rate for next growth_interval using all the different indicators
 	void calc_growth();
@@ -453,6 +469,13 @@ private:
 	void erzeuge_verkehrsteilnehmer(koord pos, uint16 journey_tenths_of_minutes, koord target);
 
 	/**
+	 * Build a short road bridge extending from bd in direction.
+	 *
+	 * @author neroden
+	 */
+	bool build_bridge(grund_t* bd, ribi_t::ribi direction);
+
+	/**
 	 * baut ein Stueck Strasse
 	 *
 	 * @param k         Bauposition
@@ -487,8 +510,6 @@ private:
 
 	void bewerte_strasse(koord pos, sint32 rd, const rule_t &regel);
 	void bewerte_haus(koord pos, sint32 rd, const rule_t &regel);
-
-	void pruefe_grenzen(koord pos);
 
 	void calc_internal_passengers();
 

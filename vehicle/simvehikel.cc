@@ -887,7 +887,6 @@ vehikel_t::unload_freight(halthandle_t halt, sint64 & revenue_from_unloading, ar
 						const uint32 menge = halt->liefere_an(tmp); //"supply" (Babelfish)
 						sum_menge += menge;
 						index = tmp.get_index(); // Note that there is only one freight type per vehicle
-						halt->unload_repeat_counter = 0;
 
 						// Calculate the revenue for each packet.
 						// Also, add to the "apportioned revenues" for way tolls.
@@ -3675,7 +3674,8 @@ bool waggon_t::is_weg_frei_longblock_signal( signal_t *sig, uint16 next_block, i
 					block_reserver( cnv->get_route(), next_block+1, next_signal, next_crossing, 0, true, false );
 				}
 				sig->set_zustand( roadsign_t::gruen );
-				cnv->set_next_stop_index( min( min( next_crossing, next_signal ), cnv->get_route()->get_count() ) );
+				cnv->set_next_stop_index( min( next_crossing, next_signal ) );
+				//cnv->set_next_stop_index( min( min( next_crossing, next_signal ), cnv->get_route()->get_count() ) );
 				return true;
 			}
 		}
@@ -4803,7 +4803,7 @@ bool aircraft_t::calc_route_internal(
 	suchen = takeoff = touchdown = INVALID_INDEX;
 
 	const weg_t *w_start = welt->lookup(start)->get_weg(air_wt);
-	bool start_in_air = w_start == NULL;
+	bool start_in_air = flughoehe || w_start == NULL;
 
 	const weg_t *w_ziel = welt->lookup(ziel)->get_weg(air_wt);
 	bool end_in_air = w_ziel == NULL;
@@ -4820,14 +4820,16 @@ bool aircraft_t::calc_route_internal(
 	}
 
 	koord3d search_start, search_end;
-	if(start_in_air  ||  (w_start->get_besch()->get_styp()==1  &&  ribi_t::ist_einfach(w_start->get_ribi())) ) {
+	if(start_in_air || (w_start && w_start->get_besch()->get_styp()==1 && ribi_t::ist_einfach(w_start->get_ribi())))
+	{
 		// we start here, if we are in the air or at the end of a runway
 		search_start = start;
 		start_in_air = true;
 		route.clear();
 		//DBG_MESSAGE("aircraft_t::calc_route()","start in air at %i,%i,%i",search_start.x,search_start.y,search_start.z);
 	}
-	else {
+	else
+	{
 		// not found and we are not on the takeoff tile (where the route search will fail too) => we try to calculate a complete route, starting with the way to the runway
 
 		// second: find start runway end

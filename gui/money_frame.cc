@@ -31,6 +31,7 @@ static uint32 bFilterStates[MAX_PLAYER_COUNT];
 
 #define COST_BALANCE    10 // bank balance
 
+#define BUTTONWIDTH 120
 #define BUTTONSPACE 14
 
 #define COLUMN_TWO_START 10
@@ -118,7 +119,7 @@ const uint8 money_frame_t::cost_type[3*MAX_PLAYER_COST_BUTTON] =
 };
 
 
-/* order has to be same as in enum transport_type in file simtypes.h */
+/* order has to be same as in enum transport_type in file player/finance.h */
 const char * money_frame_t::transport_type_values[TT_MAX] = {
 	"All",
 	"Truck",
@@ -156,10 +157,12 @@ sint64 money_frame_t::get_statistics_value(int tt, uint8 type, int yearmonth, bo
  * @param type value from accounting_type_common (if transport_type==TT_ALL) or accounting_type_vehicles
  * @param yearmonth how many months/years back in history (0 == current)
  * @param label_type MONEY or STANDARD
+ * @param always_monthly: reference monthly values even when in "year" mode
  */
-void money_frame_t::update_label(gui_label_t &label, char *buf, int transport_type, uint8 type, int yearmonth, int label_type)
+void money_frame_t::update_label(gui_label_t &label, char *buf, int transport_type, uint8 type, int yearmonth, int label_type, bool always_monthly)
 {
-	sint64 value = get_statistics_value(transport_type, type, yearmonth, year_month_tabs.get_active_tab_index()==1);
+	bool monthly = always_monthly || year_month_tabs.get_active_tab_index()==1;
+	sint64 value = get_statistics_value(transport_type, type, yearmonth, monthly);
 	int color = value >= 0 ? (value > 0 ? MONEY_PLUS : COL_YELLOW) : MONEY_MINUS;
 
 	if (label_type == MONEY) {
@@ -261,7 +264,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		warn("", COL_YELLOW, gui_label_t::left),
 		scenario("", COL_BLACK, gui_label_t::left),
 		transport_type_option(0),
-		headquarter_view(sp->get_welt(), koord3d::invalid, koord(120, 64))
+		headquarter_view(sp->get_welt(), koord3d::invalid, koord(BUTTONWIDTH, 64))
 {
 	if(sp->get_welt()->get_spieler(0)!=sp) {
 		sprintf(money_frame_title,translator::translate("Finances of %s"),translator::translate(sp->get_name()) );
@@ -273,8 +276,18 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	const int top = 30;
 	const int left = 12;
 
-	const sint16 tyl_x = left+140+55;
-	const sint16 lyl_x = left+240+55;
+	// Button components are left-aligned, but number components aren't.
+	// Number components are aligned at the *decimal point*,
+	// which is 25 to the left of the *right* edge!
+	const sint16 tyl_x = left + BUTTONWIDTH + 100 - 25; // "this month" column numbers
+	const sint16 lyl_x = left + BUTTONWIDTH + 2 * 100 - 25; // "last month" column numbers
+
+	const sint16 c2_x = left + BUTTONWIDTH + 2 * 100 + 15; // center column left edge (fixed costs)
+	const sint16 c2_num_x = c2_x + 85 - 25; // center column number alignment
+
+	const sint16 c3_btn_x = c2_x + 85 + 15; // right column buttons
+	const sint16 c3_num_x = c3_btn_x + BUTTONWIDTH + 100 - 25; // numbers for right column of buttons
+	const sint16 WINDOW_WIDTH = c3_num_x + 25 + 15;
 
 	// left column
 	tylabel.set_pos(koord(tyl_x+25,top-1*BUTTONSPACE));
@@ -301,26 +314,26 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	transport.set_pos(koord(tyl_x+19, top+9*BUTTONSPACE)); // units transported
 	old_transport.set_pos(koord(lyl_x+19, top+9*BUTTONSPACE));
 
-	// right column (upper)
-	maintenance_label.set_pos(koord(left+140+335+55, top-1*BUTTONSPACE-2));
-	maintenance_label2.set_pos(koord(left+140+335+55, top+0*BUTTONSPACE-2));
+	// center column (above selector box)
+	maintenance_label.set_pos(koord(c2_num_x+25, top-1*BUTTONSPACE));
+	maintenance_label2.set_pos(koord(c2_num_x+25, top+0*BUTTONSPACE));
 	// vehicle maintenance money should be the same height as running costs
-	// vehicle_maintenance_money.set_pos(koord(left+140+335+55, top+1*BUTTONSPACE));
+	// vehicle_maintenance_money.set_pos(koord(c2_num_x, top+1*BUTTONSPACE));
 	// maintenance money should be the same height as inf. maintenance (mmoney)
-	maintenance_money.set_pos(koord(left+140+335+55, top+2*BUTTONSPACE));
+	maintenance_money.set_pos(koord(c2_num_x, top+2*BUTTONSPACE));
 
 	// right column (lower)
-	tylabel2.set_pos(koord(left+140+80+335,top+3*BUTTONSPACE-2));
-	cash_money.set_pos(koord(left+140+335+55, top+4*BUTTONSPACE));
-	assets.set_pos(koord(left+140+335+55, top+5*BUTTONSPACE));
-	net_wealth.set_pos(koord(left+140+335+55, top+6*BUTTONSPACE));
-	soft_credit_limit.set_pos(koord(left+140+335+55, top+7*BUTTONSPACE));
-	hard_credit_limit.set_pos(koord(left+140+335+55, top+8*BUTTONSPACE));
-	margin.set_pos(koord(left+140+335+55, top+9*BUTTONSPACE));
+	tylabel2.set_pos(koord(c3_num_x+25, top+3*BUTTONSPACE-2));
+	cash_money.set_pos(koord(c3_num_x, top+4*BUTTONSPACE));
+	assets.set_pos(koord(c3_num_x, top+5*BUTTONSPACE));
+	net_wealth.set_pos(koord(c3_num_x, top+6*BUTTONSPACE));
+	soft_credit_limit.set_pos(koord(c3_num_x, top+7*BUTTONSPACE));
+	hard_credit_limit.set_pos(koord(c3_num_x, top+8*BUTTONSPACE));
+	margin.set_pos(koord(c3_num_x, top+9*BUTTONSPACE));
 
 
 	// Scenario and warning location
-	warn.set_pos(koord(left+335, top+10*BUTTONSPACE));
+	warn.set_pos(koord(c2_x, top+10*BUTTONSPACE));
 	if(sp->get_player_nr()!=1  &&  sp->get_welt()->get_scenario()->active()) {
 		scenario.set_pos( koord( 10,1 ) );
 		sp->get_welt()->get_scenario()->update_scenario_texts();
@@ -412,16 +425,17 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	old_pos = sp->get_headquarter_pos();
 	headquarter_tooltip[0] = 0;
 
+	// Headquarters is at upper right
 	if(  sp->get_ai_id()!=spieler_t::HUMAN  ) {
 		// misuse headquarter button for AI configure
-		headquarter.init(button_t::box, "Configure AI", koord(582-12-120, 0), koord(120, BUTTONSPACE));
+		headquarter.init(button_t::box, "Configure AI", koord(c3_btn_x, 0), koord(BUTTONWIDTH, BUTTONSPACE));
 		headquarter.add_listener(this);
 		add_komponente(&headquarter);
 		headquarter.set_tooltip( "Configure AI setttings" );
 	}
 	else if(old_level > 0  ||  hausbauer_t::get_headquarter(0,sp->get_welt()->get_timeline_year_month())!=NULL) {
 
-		headquarter.init(button_t::box, old_pos!=koord::invalid ? "upgrade HQ" : "build HQ", koord(582-12-120, 0), koord(120, BUTTONSPACE));
+		headquarter.init(button_t::box, old_pos!=koord::invalid ? "upgrade HQ" : "build HQ", koord(c3_btn_x, 0), koord(BUTTONWIDTH, BUTTONSPACE));
 		headquarter.add_listener(this);
 		add_komponente(&headquarter);
 		headquarter.set_tooltip( NULL );
@@ -440,19 +454,19 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	if(old_pos!=koord::invalid) {
 		headquarter_view.set_location( sp->get_welt()->lookup_kartenboden( sp->get_headquarter_pos() )->get_pos() );
 	}
-	headquarter_view.set_pos( koord(582-12-120, BUTTONSPACE) );
+	headquarter_view.set_pos( koord(c3_btn_x, BUTTONSPACE) );
 	add_komponente(&headquarter_view);
 
 	// add filter buttons
 	for(int ibutton=0;  ibutton<COLUMN_TWO_START;  ibutton++) {
-		filterButtons[ibutton].init(button_t::box, cost_type_name[ibutton], koord(left, top+ibutton*BUTTONSPACE-2), koord(120, BUTTONSPACE));
+		filterButtons[ibutton].init(button_t::box, cost_type_name[ibutton], koord(left, top+ibutton*BUTTONSPACE-2), koord(BUTTONWIDTH, BUTTONSPACE));
 		filterButtons[ibutton].add_listener(this);
 		filterButtons[ibutton].background = cost_type_color[ibutton];
 		filterButtons[ibutton].set_tooltip(cost_tooltip[ibutton]);
 		add_komponente(filterButtons + ibutton);
 	}
 	for(int ibutton=COLUMN_TWO_START;  ibutton<MAX_PLAYER_COST_BUTTON;  ibutton++) {
-		filterButtons[ibutton].init(button_t::box, cost_type_name[ibutton], koord(left+335, top+(ibutton-6)*BUTTONSPACE-2), koord(120, BUTTONSPACE));
+		filterButtons[ibutton].init(button_t::box, cost_type_name[ibutton], koord(c3_btn_x, top+(ibutton-6)*BUTTONSPACE-2), koord(BUTTONWIDTH, BUTTONSPACE));
 		filterButtons[ibutton].add_listener(this);
 		filterButtons[ibutton].background = cost_type_color[ibutton];
 		filterButtons[ibutton].set_tooltip(cost_tooltip[ibutton]);
@@ -471,9 +485,9 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		}
 	}
 
-	transport_type_c.set_pos(koord(koord(left+335-12-2, 0)));
-	transport_type_c.set_groesse( koord(116,D_BUTTON_HEIGHT) );
-	transport_type_c.set_max_size( koord( 116, 1*BUTTONSPACE ) );
+	transport_type_c.set_pos( koord(c2_x - 14, top + 3 * BUTTONSPACE) ); // below fixed costs
+	transport_type_c.set_groesse( koord( 85 + 14 + 14, D_BUTTON_HEIGHT) ); // width of column plus spacing
+	transport_type_c.set_max_size( koord( 85 + 14 + 14, 7*BUTTONSPACE ) );
 	for(int i=0, count=0; i<TT_MAX; ++i) {
 		if (!is_chart_table_zero(i)) {
 			transport_type_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(transport_type_values[i]), COL_BLACK));
@@ -487,7 +501,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 
 	const int WINDOW_HEIGHT = TOP_OF_CHART + HEIGHT_OF_CHART + 10 + BUTTONSPACE * 2 ; // formerly 340
 	// The extra room below the chart is for (a) labels, (b) year label (BUTTONSPACE), (c) empty space
-	set_fenstergroesse(koord(582, WINDOW_HEIGHT));
+	set_fenstergroesse(koord(WINDOW_WIDTH, WINDOW_HEIGHT));
 }
 
 
@@ -529,14 +543,30 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	update_label(toll,     str_buf[24], transport_type_option, ATV_WAY_TOLL, 0);
 	update_label(old_toll, str_buf[25], transport_type_option, ATV_WAY_TOLL, 1);
 
-	update_label(interest, str_buf[31], TT_MAX, ATC_INTEREST, 0);
-	update_label(old_interest, str_buf[32], TT_MAX, ATC_INTEREST, 1);
+	// It causes confusion when interest shows up with transport types other than "all" or "other".
+	// Arguably interest should be registered by transport type (for borrowing against railcars etc.)
+	// but that is a complex enhancement which require savefile format changes.
+	if (transport_type_option == TT_ALL || transport_type_option == TT_OTHER) {
+		update_label(interest, str_buf[31], TT_MAX, ATC_INTEREST, 0);
+		update_label(old_interest, str_buf[32], TT_MAX, ATC_INTEREST, 1);
+	} else {
+		// Print interest as zero.  (Doesn't affect graph, only number entries.)
+		money_to_string(str_buf[31], 0 );
+		interest.set_text(str_buf[31]);
+		interest.set_color(COL_YELLOW);
+		money_to_string(str_buf[32], 0 );
+		old_interest.set_text(str_buf[32]);
+		old_interest.set_color(COL_YELLOW);
+	}
 
 	update_label(cash_money, str_buf[14], TT_MAX, ATC_CASH, 0);
 	update_label(assets, str_buf[17], transport_type_option, ATV_NON_FINANCIAL_ASSETS, 0);
 	update_label(net_wealth, str_buf[18], TT_MAX, ATC_NETWEALTH, 0);
-	update_label(soft_credit_limit, str_buf[33], TT_MAX, ATC_SOFT_CREDIT_LIMIT, 0);
-	update_label(hard_credit_limit, str_buf[34], TT_MAX, ATC_HARD_CREDIT_LIMIT, 0);
+
+	// To avoid confusion, these should always show the current month's credit limit, even when "year" is selected
+	update_label(soft_credit_limit, str_buf[33], TT_MAX, ATC_SOFT_CREDIT_LIMIT, 0, true);
+	update_label(hard_credit_limit, str_buf[34], TT_MAX, ATC_HARD_CREDIT_LIMIT, 0, true);
+
 	update_label(margin, str_buf[19], transport_type_option, ATV_PROFIT_MARGIN, 0);
 	str_buf[19][strlen(str_buf[19])-1] = '%';	// remove cent sign
 

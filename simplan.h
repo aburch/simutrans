@@ -40,9 +40,6 @@ private:
 
 	uint8 ground_size, halt_list_count;
 
-	/* only one station per ground xy tile */
-	halthandle_t this_halt;
-
 	/**
 	 * If this tile belongs to a city, a pointer to that city.
 	 * This saves much lookup time

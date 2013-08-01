@@ -199,9 +199,10 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, spieler_t *sp, koord3d pos, k
 		}
 
 		// Check for non-length restricted bridges over deep water.
-		if(besch->get_max_length() == 0 && welt->lookup_hgt(pos.get_2d())<welt->get_grundwasser())
+		if(besch->get_max_length() == 0 && welt->lookup_hgt(pos.get_2d()) < welt->get_grundwasser())
 		{
 			error_msg = "Bridge cannot be built over deep water\n";
+			return koord3d::invalid;
 		}
 
 		// check for height

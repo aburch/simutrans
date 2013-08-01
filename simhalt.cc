@@ -440,8 +440,6 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 
 	// Added by : Knightly
 	inauguration_time = 0;
-
-	unload_repeat_counter = 0;
 }
 
 
@@ -492,8 +490,6 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 
 	// Added by : Knightly
 	inauguration_time = dr_time();
-
-	unload_repeat_counter = 0;
 
 	control_towers = 0;
 
@@ -1308,17 +1304,20 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 
 			// If the passengers have re-routed so that they now
 			// walk to the next transfer, go there immediately.
-			if(ware.is_passenger() && is_within_walking_distance_of(ware.get_zwischenziel()) && !connexions[0]->get(ware.get_zwischenziel())->best_convoy.is_bound() && !connexions[0]->get(ware.get_zwischenziel())->best_line.is_bound())
+			if(ware.is_passenger()
+				&& is_within_walking_distance_of(ware.get_zwischenziel())
+				&& !connexions[0]->get(ware.get_zwischenziel())->best_convoy.is_bound()
+				&& !connexions[0]->get(ware.get_zwischenziel())->best_line.is_bound())
 			{
 				// FIXME: The passengers need to actually be delayed by the walking time
 				erzeuge_fussgaenger(welt, get_basis_pos3d(), ware.menge);
-				ware.get_zwischenziel()->liefere_an(ware);
+				ware.get_zwischenziel()->liefere_an(ware, 1); // start counting walking steps at 1 again
 				continue;
 			}
 
 			// add to new array
 			new_warray->append( ware );
-		}	
+		}
 
 #ifdef DEBUG_SIMRAND_CALLS
 		if (talk)
@@ -2234,6 +2233,26 @@ uint32 haltestelle_t::starte_mit_route(ware_t ware)
 		}
 	}
 
+	if(ware.is_passenger()
+		&& is_within_walking_distance_of(ware.get_zwischenziel())
+		&& !connexions[0]->get(ware.get_zwischenziel())->best_convoy.is_bound()
+		&& !connexions[0]->get(ware.get_zwischenziel())->best_line.is_bound()
+		)
+	{
+		// We allow walking from the first station because of the way passenger return journeys work;
+		// they automatically start from the destination halt for the outgoing journey
+		// This is a bug which should be fixed.  The passenger has already walked here,
+		// and presumably does not wish to walk further... --neroden
+		// If this is within walking distance of the next transfer, and there is not a faster way there, walk there.
+		erzeuge_fussgaenger(welt, get_basis_pos3d(), ware.menge);
+#ifdef DEBUG_SIMRAND_CALLS
+		if (talk)
+			dbg->message("\t", "walking to %s", ware.get_zwischenziel()->get_name());
+#endif
+		ware.set_last_transfer(self);
+		return ware.get_zwischenziel()->liefere_an(ware, 1);
+	}
+
 #ifdef CHECK_WARE_MERGE
 	// passt das zu bereits wartender ware ?
 	if(vereinige_waren(ware)) {
@@ -2246,43 +2265,43 @@ uint32 haltestelle_t::starte_mit_route(ware_t ware)
 	}
 #endif
 
-	if(ware.is_passenger() && unload_repeat_counter < 3 && is_within_walking_distance_of(ware.get_zwischenziel()) && !connexions[0]->get(ware.get_zwischenziel())->best_convoy.is_bound() && !connexions[0]->get(ware.get_zwischenziel())->best_line.is_bound())
-	{
-		// If this is within walking distance of the next transfer, and there is not a faster way there, walk there.
-		erzeuge_fussgaenger(welt, get_basis_pos3d(), ware.menge);
-		unload_repeat_counter ++;
+	// add to internal storage
+	add_ware_to_halt(ware);
 #ifdef DEBUG_SIMRAND_CALLS
-		if (talk)
-			dbg->message("\t", "walking to %s", ware.get_zwischenziel()->get_name());
-#endif
-		return ware.get_zwischenziel()->liefere_an(ware);
-	}
-	else
+	if (talk)
 	{
-		// add to internal storage
-		add_ware_to_halt(ware);
-#ifdef DEBUG_SIMRAND_CALLS
-		if (talk)
-		{
-			const vector_tpl<ware_t> * warray = waren[ware.get_besch()->get_catg_index()];
-			dbg->message("\t", "warray count %d", (*warray).get_count());
-		}
-#endif
-		return ware.menge;
+		const vector_tpl<ware_t> * warray = waren[ware.get_besch()->get_catg_index()];
+		dbg->message("\t", "warray count %d", (*warray).get_count());
 	}
+#endif
+	return ware.menge;
 }
 
 
 
 /* Recieves ware and tries to route it further on
  * if no route is found, it will be removed
+ *
+ * walked_between_stations defaults to 0; it should be set to 1 when walking here from another station
+ * and incremented if this happens repeatedly
+ *
  * @author prissi
  */
-uint32 haltestelle_t::liefere_an(ware_t ware)
+uint32 haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 {
 #ifdef DEBUG_SIMRAND_CALLS
 	bool talk = !strcmp(get_name(), "Newton Abbot Railway Station");
 #endif
+
+	if (walked_between_stations >= 4) {
+		// With repeated walking between stations -- and as long as the walking takes no actual time
+		// (which is a bug which should be fixed) -- there is some danger of infinite loops.
+		// Check for an excessively long number of walking steps.  If we have one, complain and fail.
+		//
+		// This was the 4th consecutive attempt to walk between stations.  Fail.
+dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s has walked too many times", ware.menge, translator::translate(ware.get_name()), get_name() );
+		return ware.menge;
+	}
 
 	// no valid next stops?
 	if(!ware.get_ziel().is_bound()  ||  !ware.get_zwischenziel().is_bound()) 
@@ -2295,8 +2314,9 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 	// have we arrived?
 	// FIXME: This code needs to be fixed for multi-tile buildings
 	// such as attractions and city halls, to allow access from any side
-	fabrik_t* const fab = fabrik_t::get_fab( welt, ware.get_zielpos() );
-	if ( ware.to_factory && fab && fab_list.is_contained(fab) ) {
+	fabrik_t* const fab = fabrik_t::get_fab(welt, ware.get_zielpos());
+	if(ware.get_ziel() == self && ware.to_factory && fab && fab_list.is_contained(fab))
+	{
 		// Packet is headed to a factory;
 		// the factory exists;
 		// and the factory is considered linked to this halt.
@@ -2310,7 +2330,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 	}
 	// OK, not arrived at a factory, have we arrived somewhere else?
 	const planquadrat_t* plan = welt->lookup(ware.get_zielpos());
-	if( !(ware.to_factory) && plan && plan->is_connected(self) )
+	if(!(ware.to_factory) && ware.get_ziel() == self && plan && plan->is_connected(self))
 	{
 		// Yes, we have.  Passengers & mail vanish mysteriously upon arrival.
 		// FIXME: walking time delay should be implemented right here!
@@ -2334,17 +2354,6 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 #endif
 		return ware.menge;
 	}
-#ifdef CHECK_WARE_MERGE
-	// do we have already something going in this direction here?
-	if(  vereinige_waren(ware)  ) 
-	{
-#ifdef DEBUG_SIMRAND_CALLS
-	if (talk)
-		dbg->message("haltestelle_t::liefere_an", "%d merged in station \"%s\" waren[0].count %d", ware.menge, get_name(), get_warray(0)->get_count());
-#endif
-		return ware.menge;
-	}
-#endif
 
 	if(find_route(ware) == 65535)
 	{
@@ -2357,37 +2366,38 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 		fabrik_t::update_transit( ware, false );
 		return ware.menge;
 	}
-#ifdef CHECK_WARE_MERGE
-	// passt das zu bereits wartender ware ?
-	if(vereinige_waren(ware)) 
+
+	if(ware.is_passenger()
+		&& is_within_walking_distance_of(ware.get_zwischenziel())
+		&& !connexions[0]->get(ware.get_zwischenziel())->best_convoy.is_bound()
+		&& !connexions[0]->get(ware.get_zwischenziel())->best_line.is_bound()
+		)
 	{
-		// dann sind wir schon fertig;
-#ifdef DEBUG_SIMRAND_CALLS
-	if (talk)
-		dbg->message("haltestelle_t::liefere_an", "%d merged(2) in station \"%s\" waren[0].count %d", ware.menge, get_name(), get_warray(0)->get_count());
-#endif
-		return ware.menge;
-	}
-#endif
-	
-	if(ware.is_passenger() && unload_repeat_counter < 3 && is_within_walking_distance_of(ware.get_zwischenziel()) && !connexions[0]->get(ware.get_zwischenziel())->best_convoy.is_bound() && !connexions[0]->get(ware.get_zwischenziel())->best_line.is_bound() && ware.get_last_transfer().is_bound() && ware.get_last_transfer()->get_basis_pos() != ware.get_zwischenziel()->get_basis_pos())
-	{
+		// We would like to prohibit "back to back walking" but it requires altering the path explorer.
 		// If this is within walking distance of the next transfer, and there is not a faster way there, walk there.
 		erzeuge_fussgaenger(welt, get_basis_pos3d(), ware.menge);
 		ware.set_last_transfer(self);
-		unload_repeat_counter ++;
 #ifdef DEBUG_SIMRAND_CALLS
 		if (talk)
 			dbg->message("haltestelle_t::liefere_an", "%d walk to station \"%s\" waren[0].count %d", ware.menge, ware.get_zwischenziel()->get_name(), get_warray(0)->get_count());
 #endif
-		return ware.get_zwischenziel()->liefere_an(ware);
-	}
-	else
-	{
-		// add to internal storage
-		add_ware_to_halt(ware);
+		return ware.get_zwischenziel()->liefere_an(ware, walked_between_stations + 1);
 	}
 
+#ifdef CHECK_WARE_MERGE
+	// do we have already something going in this direction here?
+	if(  vereinige_waren(ware)  )
+	{
+#ifdef DEBUG_SIMRAND_CALLS
+		if (talk)
+			dbg->message("haltestelle_t::liefere_an", "%d merged in station \"%s\" waren[0].count %d", ware.menge, get_name(), get_warray(0)->get_count());
+#endif
+		return ware.menge;
+	}
+#endif
+
+	// add to internal storage
+	add_ware_to_halt(ware);
 #ifdef DEBUG_SIMRAND_CALLS
 	if (talk)
 		dbg->message("haltestelle_t::liefere_an", "%d waiting for transfer to station \"%s\" waren[0].count %d", ware.menge, ware.get_zwischenziel()->get_name(), get_warray(0)->get_count());
@@ -2567,6 +2577,15 @@ bool haltestelle_t::make_public_and_join( spieler_t *sp )
 				spieler_t::book_construction_costs( public_owner, charge, koord::invalid, gb->get_waytype());
 			}
 			// ok, valid start, now we can join them
+			// First search the same square
+			const planquadrat_t *pl = welt->lookup(gr->get_pos().get_2d());
+			for(  uint8 i=0;  i < pl->get_boden_count();  i++  ) {
+				halthandle_t my_halt = pl->get_boden_bei(i)->get_halt();
+				if(  my_halt.is_bound()  &&  my_halt->get_besitzer()==public_owner  &&  !joining.is_contained(my_halt)  ) {
+					joining.append(my_halt);
+				}
+			}
+			// Now neighboring squares
 			for( uint8 i=0;  i<8;  i++  ) {
 				const planquadrat_t *pl2 = welt->lookup(gr->get_pos().get_2d()+koord::neighbours[i]);
 				if(  pl2  ) {
@@ -2851,7 +2870,6 @@ void haltestelle_t::rdwr(loadsave_t *file)
 
 	sint32 spieler_n;
 	koord3d k;
-	unload_repeat_counter = 0;
 #ifdef DEBUG_SIMRAND_CALLS
 	loading = file->is_loading();
 #endif
