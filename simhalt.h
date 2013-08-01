@@ -538,14 +538,6 @@ public:
 	sint64 calc_maintenance() const;
 
 	bool make_public_and_join( spieler_t *sp );
-////=======
-//
-//	vector_tpl<connection_t> const& get_pax_connections()  const { return all_links[warenbauer_t::INDEX_PAS].connections;  }
-//	vector_tpl<connection_t> const& get_mail_connections() const { return all_links[warenbauer_t::INDEX_MAIL].connections; }
-//
-//	// returns the matchin warenziele
-//	vector_tpl<connection_t> const& get_connections(uint8 const catg_index) const { return all_links[catg_index].connections; }
-////>>>>>>> aburch/master
 
 	/**
 	 * Checks if there is connection for certain freight to the other halt.

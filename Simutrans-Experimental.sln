@@ -8,6 +8,7 @@ Global
 		Debug (command-line server)|Win32 = Debug (command-line server)|Win32
 		Debug (network)|Win32 = Debug (network)|Win32
 		Debug (SDL)|Win32 = Debug (SDL)|Win32
+		Debug (single threaded)|Win32 = Debug (single threaded)|Win32
 		Debug SDL|Win32 = Debug SDL|Win32
 		Debug|Win32 = Debug|Win32
 		Dr. Memory|Win32 = Dr. Memory|Win32
@@ -25,6 +26,8 @@ Global
 		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (network)|Win32.Build.0 = Debug (network)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (SDL)|Win32.ActiveCfg = Debug (SDL)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (SDL)|Win32.Build.0 = Debug (SDL)|Win32
+		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (single threaded)|Win32.ActiveCfg = Debug (single threaded)|Win32
+		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (single threaded)|Win32.Build.0 = Debug (single threaded)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Debug SDL|Win32.ActiveCfg = Debug (SDL)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Debug SDL|Win32.Build.0 = Debug (SDL)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Debug|Win32.ActiveCfg = Debug|Win32
