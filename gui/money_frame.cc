@@ -119,7 +119,7 @@ const uint8 money_frame_t::cost_type[3*MAX_PLAYER_COST_BUTTON] =
 };
 
 
-/* order has to be same as in enum transport_type in file simtypes.h */
+/* order has to be same as in enum transport_type in file player/finance.h */
 const char * money_frame_t::transport_type_values[TT_MAX] = {
 	"All",
 	"Truck",
@@ -157,10 +157,12 @@ sint64 money_frame_t::get_statistics_value(int tt, uint8 type, int yearmonth, bo
  * @param type value from accounting_type_common (if transport_type==TT_ALL) or accounting_type_vehicles
  * @param yearmonth how many months/years back in history (0 == current)
  * @param label_type MONEY or STANDARD
+ * @param always_monthly: reference monthly values even when in "year" mode
  */
-void money_frame_t::update_label(gui_label_t &label, char *buf, int transport_type, uint8 type, int yearmonth, int label_type)
+void money_frame_t::update_label(gui_label_t &label, char *buf, int transport_type, uint8 type, int yearmonth, int label_type, bool always_monthly)
 {
-	sint64 value = get_statistics_value(transport_type, type, yearmonth, year_month_tabs.get_active_tab_index()==1);
+	bool monthly = always_monthly || year_month_tabs.get_active_tab_index()==1;
+	sint64 value = get_statistics_value(transport_type, type, yearmonth, monthly);
 	int color = value >= 0 ? (value > 0 ? MONEY_PLUS : COL_YELLOW) : MONEY_MINUS;
 
 	if (label_type == MONEY) {
@@ -541,14 +543,30 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	update_label(toll,     str_buf[24], transport_type_option, ATV_WAY_TOLL, 0);
 	update_label(old_toll, str_buf[25], transport_type_option, ATV_WAY_TOLL, 1);
 
-	update_label(interest, str_buf[31], TT_MAX, ATC_INTEREST, 0);
-	update_label(old_interest, str_buf[32], TT_MAX, ATC_INTEREST, 1);
+	// It causes confusion when interest shows up with transport types other than "all" or "other".
+	// Arguably interest should be registered by transport type (for borrowing against railcars etc.)
+	// but that is a complex enhancement which require savefile format changes.
+	if (transport_type_option == TT_ALL || transport_type_option == TT_OTHER) {
+		update_label(interest, str_buf[31], TT_MAX, ATC_INTEREST, 0);
+		update_label(old_interest, str_buf[32], TT_MAX, ATC_INTEREST, 1);
+	} else {
+		// Print interest as zero.  (Doesn't affect graph, only number entries.)
+		money_to_string(str_buf[31], 0 );
+		interest.set_text(str_buf[31]);
+		interest.set_color(COL_YELLOW);
+		money_to_string(str_buf[32], 0 );
+		interest.set_text(str_buf[32]);
+		interest.set_color(COL_YELLOW);
+	}
 
 	update_label(cash_money, str_buf[14], TT_MAX, ATC_CASH, 0);
 	update_label(assets, str_buf[17], transport_type_option, ATV_NON_FINANCIAL_ASSETS, 0);
 	update_label(net_wealth, str_buf[18], TT_MAX, ATC_NETWEALTH, 0);
-	update_label(soft_credit_limit, str_buf[33], TT_MAX, ATC_SOFT_CREDIT_LIMIT, 0);
-	update_label(hard_credit_limit, str_buf[34], TT_MAX, ATC_HARD_CREDIT_LIMIT, 0);
+
+	// To avoid confusion, these should always show the current month's credit limit, even when "year" is selected
+	update_label(soft_credit_limit, str_buf[33], TT_MAX, ATC_SOFT_CREDIT_LIMIT, 0, true);
+	update_label(hard_credit_limit, str_buf[34], TT_MAX, ATC_HARD_CREDIT_LIMIT, 0, true);
+
 	update_label(margin, str_buf[19], transport_type_option, ATV_PROFIT_MARGIN, 0);
 	str_buf[19][strlen(str_buf[19])-1] = '%';	// remove cent sign
 
