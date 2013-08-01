@@ -2577,6 +2577,15 @@ bool haltestelle_t::make_public_and_join( spieler_t *sp )
 				spieler_t::book_construction_costs( public_owner, charge, koord::invalid, gb->get_waytype());
 			}
 			// ok, valid start, now we can join them
+			// First search the same square
+			const planquadrat_t *pl = welt->lookup(gr->get_pos().get_2d());
+			for(  uint8 i=0;  i < pl->get_boden_count();  i++  ) {
+				halthandle_t my_halt = pl->get_boden_bei(i)->get_halt();
+				if(  my_halt.is_bound()  &&  my_halt->get_besitzer()==public_owner  &&  !joining.is_contained(my_halt)  ) {
+					joining.append(my_halt);
+				}
+			}
+			// Now neighboring squares
 			for( uint8 i=0;  i<8;  i++  ) {
 				const planquadrat_t *pl2 = welt->lookup(gr->get_pos().get_2d()+koord::neighbours[i]);
 				if(  pl2  ) {
