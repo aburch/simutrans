@@ -86,7 +86,7 @@ private:
 	gui_combobox_t transport_type_c;
 
 	/// Helper method to update number label text and color
-	void update_label(gui_label_t &label, char *buf, int transport_type, uint8 type, int yearmonth, int label_type = MONEY);
+	void update_label(gui_label_t &label, char *buf, int transport_type, uint8 type, int yearmonth, int label_type = MONEY, bool always_monthly = false);
 
 	spieler_t *sp;
 
