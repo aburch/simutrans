@@ -5176,7 +5176,8 @@ bool aircraft_t::ist_weg_frei( int & restart_speed, bool )
 		convoi_t &convoy = *cnv;
 		const sint32 brake_steps = convoy.calc_min_braking_distance(welt->get_settings(), convoy.get_weight_summary(), cnv->get_akt_speed());
 		const sint32 route_steps = route_infos.calc_steps(route_infos.get_element(route_index).steps_from_start, route_infos.get_element(last_index).steps_from_start);
-		if (route_steps <= brake_steps)
+		const grund_t* gr = welt->lookup(cnv->get_schedule()->get_current_eintrag().pos);
+		if(route_steps <= brake_steps && (!gr || !gr->get_depot())) // Do not recalculate a route if the route ends in a depot.
 		{ 	
 			// we need a longer route to decide, whether we will have to throttle:
 			schedule_t *fpl = cnv->get_schedule();

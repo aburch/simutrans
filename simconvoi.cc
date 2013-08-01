@@ -5582,6 +5582,18 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 		}
 	}
 
+	aircraft_t* aircraft = NULL;
+
+	if(get_vehikel(0)->get_typ() == ding_t::aircraft)
+	{
+		// Flying aircraft cannot find a depot in the normal way, so go to the home depot.
+		aircraft = (aircraft_t*)get_vehikel(0);
+		if(!aircraft->is_on_ground())
+		{
+			use_home_depot = true;
+		}
+	}
+
 	bool home_depot_valid = false;
 	if (use_home_depot) {
 		// Check for a valid home depot.  It is quite easy to get savegames with
@@ -5641,6 +5653,17 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 				depot_pos = route.position_bei(route.get_count() - 1);
 				other_depot_found = true;
 			}
+		}
+	}
+
+	if(aircraft && !aircraft->is_on_ground() && home_depot_valid)
+	{
+		// Flying aircraft cannot find a route using the normal means: send to their home depot instead.
+		aircraft->calc_route(get_pos(), home_depot, speed_to_kmh(get_min_top_speed()), &route);
+		if(!route.empty()) 
+		{
+			depot_pos = route.position_bei(route.get_count() - 1);
+			home_depot_found = true;
 		}
 	}
 
