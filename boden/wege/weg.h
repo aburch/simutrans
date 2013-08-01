@@ -18,6 +18,7 @@
 class karte_t;
 class weg_besch_t;
 class cbuffer_t;
+class spieler_t;
 template <class T> class slist_tpl;
 
 
@@ -347,6 +348,9 @@ public:
 
 	// correct maintainace
 	void laden_abschliessen();
+
+	// Should a city adopt this, if it is being built/upgrade by player sp?
+	bool should_city_adopt_this(const spieler_t* sp);
 } GCC_PACKED;
 
 #endif

@@ -45,6 +45,9 @@
 #include "../../tpl/slist_tpl.h"
 #include "../../dings/wayobj.h"
 
+#include "../../dings/gebaeude.h" // for ::should_city_adopt_this
+#include "../../besch/haus_besch.h" // for ::should_city_adopt_this
+
 #if MULTI_THREAD>1
 #include <pthread.h>
 static pthread_mutex_t weg_calc_bild_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
@@ -723,4 +726,80 @@ const char *weg_t::ist_entfernbar(const spieler_t *sp, bool allow_public)
 		return NULL;
 	}
 	return ding_t::ist_entfernbar(sp);
+}
+
+/**
+ *  Check whether the city should adopt the road.
+ *  (Adopting the road sets a speed limit and builds a sidewalk.)
+ */
+bool weg_t::should_city_adopt_this(const spieler_t* sp) {
+	if (! welt->get_settings().get_towns_adopt_player_roads() ) {
+		return false;
+	}
+	if (this->get_waytype() != road_wt) {
+		// Cities only adopt roads
+		return false;
+	}
+	if ( this->get_besch()->get_styp() == weg_t::type_elevated ) {
+		// It would be too profitable for players if cities adopted elevated roads
+		return false;
+	}
+	if ( this->get_besch()->get_styp() == weg_t::type_underground ) {
+		// It would be too profitable for players if cities adopted tunnels
+		return false;
+	}
+	if ( sp && sp->is_public_service() ) {
+		// Do not adopt public service roads, so that players can't mess with them
+		return false;
+	}
+	const koord & pos = this->get_pos().get_2d();
+	if (!welt->get_city(pos)) {
+		// Don't adopt roads outside the city limits.
+		// Note, this also returns false on invalid coordinates
+		return false;
+	}
+
+	bool has_neighbouring_building = false;
+	for(uint8 i = 0; i < 8; i ++)
+	{
+		// Look for neighbouring buildings at ground level
+		const grund_t* const gr = welt->lookup_kartenboden(pos + koord::neighbours[i]);
+		if (!gr) {
+			continue;
+		}
+		const gebaeude_t* const neighbouring_building = gr->find<gebaeude_t>();
+		if(!neighbouring_building) {
+			continue;
+		}
+		const haus_besch_t* const besch = neighbouring_building->get_tile()->get_besch();
+		// Most buildings count, including station extension buildings.
+		// But some do *not*, namely platforms and depots.
+		switch (besch->get_typ()) {
+			case gebaeude_t::wohnung:
+			case gebaeude_t::gewerbe:
+			case gebaeude_t::industrie:
+				has_neighbouring_building = true;
+				break;
+			default:
+				; // keep looking
+		}
+		switch (besch->get_utyp()) {
+			case haus_besch_t::attraction_city:
+			case haus_besch_t::attraction_land:
+			case haus_besch_t::denkmal: // monument
+			case haus_besch_t::fabrik: // factory
+			case haus_besch_t::rathaus: // town hall
+			case haus_besch_t::generic_extension:
+			case haus_besch_t::firmensitz: // HQ
+			case haus_besch_t::hafen: // dock
+				has_neighbouring_building = true;
+				break;
+			case haus_besch_t::depot:
+			case haus_besch_t::generic_stop:
+			default:
+				; // continue checking
+		}
+	}
+	// If we found a neighbouring building, we will adopt the road.
+	return has_neighbouring_building;
 }
