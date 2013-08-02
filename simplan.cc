@@ -565,6 +565,21 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos, const 
 }
 
 
+// finds halt belonging to player sp
+// if NULL is passed, will find any halt on this tile
+// (somwhat random, although ground level will be preferred -- don't call this with NULL)
+halthandle_t planquadrat_t::get_halt(spieler_t *sp) const
+{
+	for(  uint8 i=0;  i < get_boden_count();  i++  ) {
+		halthandle_t my_halt = get_boden_bei(i)->get_halt();
+		if (  my_halt.is_bound() && (sp==NULL || sp==my_halt->get_besitzer())  ) {
+			return my_halt;
+		}
+	}
+	return halthandle_t();
+}
+
+
 
 // these functions are private helper functions for halt_list
 void planquadrat_t::halt_list_remove( halthandle_t halt )

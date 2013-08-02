@@ -152,6 +152,14 @@ public:
 	*/
 	void angehoben(karte_t *welt);
 
+	/**
+	* returns halthandle belonging to player sp
+	* returns a random halt if sp is NULL
+	* @return NULL if no halt present
+	* @author Kieron Green
+	*/
+	halthandle_t get_halt(spieler_t *sp) const;
+
 	stadt_t* get_city() const { return city; }
 	void set_city(stadt_t* value) { city = value; }
 
