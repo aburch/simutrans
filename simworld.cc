@@ -6180,7 +6180,7 @@ void karte_t::update_map()
  * return an index to a halt
  * optionally limit to that owned by player sp
  * by default create a new halt if none found
- * Only used during loading of *old* saved games
+ * -- create_halt==true is used during loading of *old* saved games
  */
 halthandle_t karte_t::get_halt_koord_index(koord k, spieler_t *sp, bool create_halt)
 {

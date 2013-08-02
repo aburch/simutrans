@@ -1777,7 +1777,7 @@ public:
 	 * Returns an index to a halt at koord k
 	 * optionally limit to that owned by player sp
 	 * by default create a new halt if none found
-	 * @note Only used during loading
+	 * @note "create_halt"==true is used during loading old games
 	 */
 	halthandle_t get_halt_koord_index(koord k, spieler_t *sp=NULL, bool create_halt=true);
 

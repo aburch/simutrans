@@ -177,13 +177,9 @@ char *tooltip_with_price_maintenance_level(karte_t *welt, const char *tip, sint6
 static halthandle_t suche_nahe_haltestelle(spieler_t *sp, karte_t *welt, koord3d pos, sint16 b=1, sint16 h=1)
 {
 	// any other ground with a valid stop here?
-	if(  const planquadrat_t *plan = welt->lookup(pos.get_2d())  ) {
-		for(  uint8 i=0;  i < plan->get_boden_count();  i++  ) {
-			halthandle_t my_halt = plan->get_boden_bei(i)->get_halt();
-			if(  my_halt.is_bound() &&  sp==my_halt->get_besitzer() ) {
-					return my_halt;
-			}
-		}
+	halthandle_t my_halt = welt->get_halt_koord_index( pos.get_2d(), sp, false);
+	if(  my_halt.is_bound()  ) {
+		return my_halt;
 	}
 
 	ribi_t::ribi ribi = ribi_t::keine;
@@ -214,65 +210,40 @@ static halthandle_t suche_nahe_haltestelle(spieler_t *sp, karte_t *welt, koord3d
 
 	// first try to connect to our own following ways
 	for(  int i=0;  i<iAnzahl;  i++ ) {
-		if(  const planquadrat_t *plan = welt->lookup(pos.get_2d()+next_try_dir[i])  ) {
-			for(  uint8 i=0;  i < plan->get_boden_count();  i++  ) {
-				halthandle_t my_halt = plan->get_boden_bei(i)->get_halt();
-				if(  my_halt.is_bound() && sp==my_halt->get_besitzer()  ) {
-					return my_halt;
-				}
-			}
+		my_halt = welt->get_halt_koord_index( pos.get_2d()+next_try_dir[i], sp, false);
+		if(  my_halt.is_bound()  ) {
+			return my_halt;
 		}
 	}
 
 	// now just search all neighbours
 	for(  sint16 y=-1;  y<=h;  y++  ) {
-		if(  const planquadrat_t *plan = welt->lookup(pos.get_2d()+koord(-1,y))  ) {
-			for(  uint8 i=0;  i < plan->get_boden_count();  i++  ) {
-				halthandle_t my_halt = plan->get_boden_bei(i)->get_halt();
-				if(  my_halt.is_bound() && sp==my_halt->get_besitzer()  ) {
-					return my_halt;
-				}
-			}
+		my_halt = welt->get_halt_koord_index( pos.get_2d()+koord(-1,y), sp, false);
+		if(  my_halt.is_bound()  ) {
+			return my_halt;
 		}
-		if(  const planquadrat_t *plan = welt->lookup(pos.get_2d()+koord(b,y))  ) {
-			for(  uint8 i=0;  i < plan->get_boden_count();  i++  ) {
-				halthandle_t my_halt = plan->get_boden_bei(i)->get_halt();
-				if(  my_halt.is_bound() && sp==my_halt->get_besitzer()  ) {
-					return my_halt;
-				}
-			}
+		my_halt = welt->get_halt_koord_index( pos.get_2d()+koord(b,y), sp, false);
+		if(  my_halt.is_bound()  ) {
+			return my_halt;
 		}
 	}
 	for(  sint16 x=0;  x<b;  x++  ) {
-		const planquadrat_t *plan = welt->lookup( pos.get_2d()+koord(x,-1) );
-		if(plan) {
-			for(  uint8 i=0;  i < plan->get_boden_count();  i++  ) {
-				halthandle_t my_halt = plan->get_boden_bei(i)->get_halt();
-				if(  my_halt.is_bound() && sp==my_halt->get_besitzer()  ) {
-					return my_halt;
-				}
-			}
+		my_halt = welt->get_halt_koord_index( pos.get_2d()+koord(x,-1), sp, false);
+		if(  my_halt.is_bound()  ) {
+			return my_halt;
 		}
-		plan = welt->lookup( pos.get_2d()+koord(x,h) );
-		if(plan) {
-			for(  uint8 i=0;  i < plan->get_boden_count();  i++  ) {
-				halthandle_t my_halt = plan->get_boden_bei(i)->get_halt();
-				if(  my_halt.is_bound() && sp==my_halt->get_besitzer()  ) {
-					return my_halt;
-				}
-			}
+		my_halt = welt->get_halt_koord_index( pos.get_2d()+koord(x,h), sp, false);
+		if(  my_halt.is_bound()  ) {
+			return my_halt;
 		}
 	}
 
 #if AUTOJOIN_PUBLIC
 	// now search everything for public stops
 	for(  int i=0;  i<8;  i++ ) {
-		const planquadrat_t *plan = welt->lookup(pos.get_2d()+koord::neighbours[i]);
-		for(  uint8 i=0;  i < plan->get_boden_count();  i++  ) {
-			halthandle_t my_halt = plan->get_boden_bei(i)->get_halt();
-			if(  my_halt.is_bound() && sp==my_halt->get_besitzer()  ) {
-				return my_halt;
-			}
+		my_halt = welt->get_halt_koord_index( pos.get_2d()+koord::neighbours[i], welt->get_spieler(1), false);
+		if(  my_halt.is_bound()  ) {
+			return my_halt;
 		}
 	}
 #endif
