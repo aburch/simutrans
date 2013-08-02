@@ -1774,10 +1774,12 @@ public:
 	~karte_t();
 
 	/**
-	 * Returns an index to a halt (or creates a new one)
+	 * Returns an index to a halt at koord k
+	 * optionally limit to that owned by player sp
+	 * by default create a new halt if none found
 	 * @note Only used during loading
 	 */
-	halthandle_t get_halt_koord_index(koord k);
+	halthandle_t get_halt_koord_index(koord k, spieler_t *sp=NULL, bool create_halt=true);
 
 	/**
 	 * Checks if the planquadrat at coordinate (x,y)

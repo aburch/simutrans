@@ -6176,10 +6176,13 @@ void karte_t::update_map()
 	set_dirty();
 }
 
-
-// return an index to a halt (or creates a new one)
-// only used during loading of *old* saved games
-halthandle_t karte_t::get_halt_koord_index(koord k)
+/**
+ * return an index to a halt
+ * optionally limit to that owned by player sp
+ * by default create a new halt if none found
+ * Only used during loading of *old* saved games
+ */
+halthandle_t karte_t::get_halt_koord_index(koord k, spieler_t *sp, bool create_halt)
 {
 	if(!is_within_limits(k)) {
 		return halthandle_t();
@@ -6194,8 +6197,14 @@ halthandle_t karte_t::get_halt_koord_index(koord k)
 			return my_halt;
 		}
 	}
-	// No halts found => create one
-	return haltestelle_t::create( this, k, NULL );
+	if(  create_halt  ) {
+		// No halts found => create one
+		return haltestelle_t::create( this, k, NULL );
+	}
+	else {
+		// Return empty handle
+		return halthandle_t();
+	}
 }
 
 
