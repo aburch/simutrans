@@ -268,6 +268,8 @@ public:
 	void check_road_tiles(bool del);
 
 	uint16 get_weight() const;
+
+	bool get_is_factory() const { return is_factory; }
 };
 
 

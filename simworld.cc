@@ -837,11 +837,12 @@ void karte_t::add_stadt(stadt_t *s)
 	settings.set_anzahl_staedte(settings.get_anzahl_staedte() + 1);
 	stadt.append(s, s->get_einwohner());
 
-	// Knightly : add links between this city and other cities as well as attractions
-	FOR(weighted_vector_tpl<stadt_t*>, const c, stadt) {
+	// Knightly : add links between this city and other cities as well as attractions#
+	// TODO: Remove this deprecated code entirely.
+	/*FOR(weighted_vector_tpl<stadt_t*>, const c, stadt) {
 		c->add_target_city(s);
 	}
-	s->recalc_target_cities();
+	s->recalc_target_cities();*/
 	s->recalc_target_attractions();
 }
 
@@ -862,15 +863,17 @@ bool karte_t::rem_stadt(stadt_t *s)
 	settings.set_anzahl_staedte(settings.get_anzahl_staedte() - 1);
 
 	// Knightly : remove links between this city and other cities
-	FOR(weighted_vector_tpl<stadt_t*>, const c, stadt) {
+	// TODO: Remove this deprecated code entierly.
+	/*FOR(weighted_vector_tpl<stadt_t*>, const c, stadt) {
 		c->remove_target_city(s);
-	}
+	}*/
 
 	// remove all links from factories
 	DBG_DEBUG4("karte_t::rem_stadt()", "fab_list %i", fab_list.get_count() );
-	FOR(vector_tpl<fabrik_t*>, const f, fab_list) {
+	// TODO: Remove this deprecated code entirely
+	/*FOR(vector_tpl<fabrik_t*>, const f, fab_list) {
 		f->remove_target_city(s);
-	}
+	}*/
 
 	// ok, we can delete this
 	DBG_MESSAGE("karte_t::rem_stadt()", "delete" );
@@ -3137,10 +3140,11 @@ bool karte_t::rem_fab(fabrik_t *fab)
 				// This will only remove if it is no longer connected
 				plan->remove_from_haltlist( this, tmp_list[i].halt );
 				// then reconnect
-				if(tmp_list[i].halt.is_bound())
+				// TODO: Remove this deprecated code entirely.
+				/*if(tmp_list[i].halt.is_bound())
 				{
 					tmp_list[i].halt->verbinde_fabriken();
-				}
+				}*/
 			}
 		}
 	}
@@ -4248,11 +4252,11 @@ void karte_t::step()
 	// now step all towns (to generate passengers)
 	DBG_DEBUG4("karte_t::step 6", "step cities");
 	sint64 bev=0;
-	step_passengers_and_mail(delta_t);
 	FOR(weighted_vector_tpl<stadt_t*>, const i, stadt) {
 		i->step(delta_t);
 		bev += i->get_finance_history_month(0, HIST_CITICENS);
 	}
+	step_passengers_and_mail(delta_t);
 
 	// the inhabitants stuff
 	finance_history_month[0][WORLD_CITICENS] = bev;
@@ -5290,8 +5294,8 @@ karte_t::destination karte_t::find_destination(trip_type trip)
 	current_destination.location = gb->get_pos();
 
 	// Add the correct object type.
-	fabrik_t* const fab = gb->get_fabrik();
-	stadt_t* const city = gb->get_stadt();
+	fabrik_t* const fab = gb->get_is_factory() ? gb->get_fabrik() : NULL;
+	stadt_t* const city = fab ? NULL : gb->get_stadt();
 	if(fab)
 	{
 		current_destination.object.industry = fab;
@@ -6899,7 +6903,8 @@ DBG_MESSAGE("karte_t::laden()", "laden_abschliesen for tiles finished" );
 	weighted_vector_tpl<stadt_t*> new_weighted_stadt(stadt.get_count() + 1);
 	FOR(weighted_vector_tpl<stadt_t*>, const s, stadt) {
 		s->laden_abschliessen();
-		s->recalc_target_cities();
+		// TODO: Remove this deprecated code entirely.
+		//s->recalc_target_cities();
 		new_weighted_stadt.append(s, s->get_einwohner());
 		INT_CHECK("simworld 1278");
 	}
@@ -6922,9 +6927,10 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 		// this needs to avoid the first city to be connected to all town
 		settings.set_factory_worker_minimum_towns(0);
 		settings.set_factory_worker_maximum_towns(stadt.get_count() + 1);
-		FOR(weighted_vector_tpl<stadt_t*>, const i, stadt) {
+		// TODO: Remove this deprecated code entirely.
+		/*FOR(weighted_vector_tpl<stadt_t*>, const i, stadt) {
 			i->verbinde_fabriken();
-		}
+		}*/
 		settings.set_factory_worker_minimum_towns(temp_min);
 		settings.set_factory_worker_maximum_towns(temp_max);
 	}
@@ -8727,8 +8733,10 @@ void karte_t::remove_building_from_world_list(gebaeude_t *gb)
 
 void karte_t::update_weight_of_building_in_world_list(gebaeude_t *gb, building_type b)
 {
-	if(!gb)
+	if(!gb || gb->get_is_factory() && gb->get_fabrik() == NULL)
 	{
+		// The tile will be set to "is_factory" but the factory pointer will be NULL when
+		// this is called from a field of a factory that is closing down.
 		return;
 	}
 	uint16 passenger_level = gb->get_passengers_per_hundred_months();

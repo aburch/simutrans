@@ -1766,7 +1766,8 @@ const char *wkz_add_city_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 
 				welt->add_stadt(stadt);
 				stadt->laden_abschliessen();
-				stadt->verbinde_fabriken();
+				// TODO: Remove this deprecated code entirely.
+				//stadt->verbinde_fabriken();
 
 				spieler_t::book_construction_costs(sp, welt->get_settings().cst_found_city, pos.get_2d(), ignore_wt);
 				reliefkarte_t::get_karte()->calc_map();
@@ -1847,9 +1848,10 @@ const char *wkz_change_city_size_t::work( karte_t *welt, spieler_t * sp, koord3d
 	if(city!=NULL) {
 		city->change_size( atoi(default_param) );
 		// Knightly : update the links from other cities to this city
-		FOR(weighted_vector_tpl<stadt_t*>, const c, welt->get_staedte()) {
+		// TODO: Remove this deprecated code entirely
+		/*FOR(weighted_vector_tpl<stadt_t*>, const c, welt->get_staedte()) {
 			c->update_target_city(city); 
-		}
+		}*/
 		return NULL;
 	}
 	return "";

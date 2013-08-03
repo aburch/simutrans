@@ -478,14 +478,15 @@ fabrik_t* fabrikbauer_t::baue_fabrik(karte_t* welt, koord3d* parent, const fabri
 			distance_stadt.insert_ordered(i, RelativeDistanceOrdering(fab->get_pos().get_2d()));
 		}
 		settings_t const& s = welt->get_settings();
-		FOR(vector_tpl<stadt_t*>, const i, distance_stadt) {
+		//TODO: Remove this deprecated code entirely.
+		/*FOR(vector_tpl<stadt_t*>, const i, distance_stadt) {
 			uint32 const ntgt = fab->get_target_cities().get_count();
 			if (ntgt >= s.get_factory_worker_maximum_towns()) break;
 			if (ntgt < s.get_factory_worker_minimum_towns() ||
 					koord_distance(fab->get_pos(), i->get_pos()) < s.get_factory_worker_radius()) {
 				fab->add_target_city(i);
 			}
-		}
+		}*/
 	}
 	return fab;
 }

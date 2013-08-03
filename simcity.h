@@ -521,7 +521,8 @@ public:
 	 * "looking jobs for residents" (Google)
 	 * @author Hj. Malthaner
 	 */
-	void verbinde_fabriken();
+	// TODO: Remove this deprecated code entirely.
+	// void verbinde_fabriken();
 
 	/**
 	 * ein Passagierziel in die Zielkarte eintragen
@@ -736,7 +737,7 @@ private:
 	 * List of target cities weighted by both city size and distance
 	 * @author Knightly
 	 */
-	weighted_vector_tpl<target_city_t> target_cities;
+	//weighted_vector_tpl<target_city_t> target_cities;
 
 	/**
 	 * List of target attractions weighted by both passenger level and distance
@@ -750,11 +751,11 @@ public:
 	 * Functions for manipulating the list of target cities
 	 * @author Knightly
 	 */
-	void add_target_city(stadt_t *const city);
+	/*void add_target_city(stadt_t *const city);
 	void remove_target_city(stadt_t *const city) { target_cities.remove( target_city_t(city, 0) ); }
 	void update_target_city(stadt_t *const city);
 	void update_target_cities();
-	void recalc_target_cities();
+	void recalc_target_cities();*/
 
 	/**
 	 * Functions for manipulating the list of target attractions
@@ -811,7 +812,7 @@ public:
 
 	uint8 get_congestion() const { return (uint8) city_history_month[0][HIST_CONGESTION]; }
 
-	void add_city_factory(fabrik_t *fab) { city_factories.append(fab); }
+	void add_city_factory(fabrik_t *fab) { city_factories.append_unique(fab); }
 	void remove_city_factory(fabrik_t *fab) { city_factories.remove(fab); }
 	const vector_tpl<fabrik_t*>& get_city_factories() const { return city_factories; }
 

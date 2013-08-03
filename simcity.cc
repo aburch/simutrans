@@ -2467,29 +2467,30 @@ void stadt_t::zeige_info(void)
 
 
 /* calculates the factories which belongs to certain cities */
-void stadt_t::verbinde_fabriken()
-{
-	DBG_MESSAGE("stadt_t::verbinde_fabriken()", "search factories near %s (center at %i,%i)", get_name(), pos.x, pos.y);
-	assert( target_factories_pax.get_entries().empty() );
-	assert( target_factories_mail.get_entries().empty() );
-
-	ITERATE(welt->get_fab_list(), i)
-	{
-		fabrik_t* fab = welt->get_fab_list()[i];
-		const uint32 count = fab->get_target_cities().get_count();
-		settings_t const& s = welt->get_settings();
-		if (count < s.get_factory_worker_maximum_towns() && shortest_distance(fab->get_pos().get_2d(), pos) < s.get_factory_worker_radius()) 
-		{
-			fab->add_target_city(this);
-			if(fab->get_target_cities().get_count() >=welt->get_settings().get_factory_worker_maximum_towns())
-			{
-				break;
-			}
-		}
-	}
-	DBG_MESSAGE("stadt_t::verbinde_fabriken()", "is connected with %i/%i factories (total demand=%i/%i) for pax/mail.",
-		target_factories_pax.get_entries().get_count(), target_factories_mail.get_entries().get_count(), target_factories_pax.total_demand, target_factories_mail.total_demand);
-}
+// TODO: Remove this deprecated code entirely.
+//void stadt_t::verbinde_fabriken()
+//{
+//	DBG_MESSAGE("stadt_t::verbinde_fabriken()", "search factories near %s (center at %i,%i)", get_name(), pos.x, pos.y);
+//	assert( target_factories_pax.get_entries().empty() );
+//	assert( target_factories_mail.get_entries().empty() );
+//
+//	ITERATE(welt->get_fab_list(), i)
+//	{
+//		fabrik_t* fab = welt->get_fab_list()[i];
+//		const uint32 count = fab->get_target_cities().get_count();
+//		settings_t const& s = welt->get_settings();
+//		if (count < s.get_factory_worker_maximum_towns() && shortest_distance(fab->get_pos().get_2d(), pos) < s.get_factory_worker_radius()) 
+//		{
+//			fab->add_target_city(this);
+//			if(fab->get_target_cities().get_count() >=welt->get_settings().get_factory_worker_maximum_towns())
+//			{
+//				break;
+//			}
+//		}
+//	}
+//	DBG_MESSAGE("stadt_t::verbinde_fabriken()", "is connected with %i/%i factories (total demand=%i/%i) for pax/mail.",
+//		target_factories_pax.get_entries().get_count(), target_factories_mail.get_entries().get_count(), target_factories_pax.total_demand, target_factories_mail.total_demand);
+//}
 
 
 /* change size of city
@@ -2548,20 +2549,20 @@ void stadt_t::step(long delta_t)
 		step_interval = 1;
 	}
 
-	while(stadt_t::city_growth_step < next_growth_step) {
+	/*while(stadt_t::city_growth_step < next_growth_step) {
 		calc_growth();
 		step_grow_city();
 		next_growth_step -= stadt_t::city_growth_step;
-	}
+	}*/
 
 	// create passenger rate proportional to town size
-	while(step_interval < next_step) {
-		//step_passagiere();
-		step_count++;
-		next_step -= step_interval;
-	}
+	//while(step_interval < next_step) {
+	//	//step_passagiere();
+	//	step_count++;
+	//	next_step -= step_interval;
+	//}
 
-	// update history (might be changed do to construction/destroying of houses)
+	// update history (might be changed due to construction/destroying of houses)
 	city_history_month[0][HIST_CITICENS] = get_einwohner();	// total number
 	city_history_year[0][HIST_CITICENS] = get_einwohner();
 
@@ -2673,8 +2674,8 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 	settings_t const& s = welt->get_settings();
 	// TODO: Remove this deprecated code completely.
 	/*target_factories_pax.recalc_generation_ratio(s.get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_PAS_GENERATED);
-	target_factories_mail.recalc_generation_ratio(s.get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_MAIL_GENERATED);*/
-	update_target_cities();
+	target_factories_mail.recalc_generation_ratio(s.get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_MAIL_GENERATED);
+	update_target_cities();*/
 
 	// We need to calculate the traffic level here, as this determines the vehicle occupancy, which is necessary for the calculation of congestion.
 	// Manual assignment of traffic level modifiers, since I could not find a suitable mathematical formula.
@@ -3079,21 +3080,27 @@ uint16 stadt_t::check_road_connexion_to(stadt_t* city)
 
 uint16 stadt_t::check_road_connexion_to(const fabrik_t* industry)
 {
+	// This is faster but does not currently work. FIXME
+	stadt_t* city = industry->get_city(); 
+
+	//stadt_t* city = welt->get_city(industry->get_pos().get_2d());
+
 	if(welt->get_settings().get_assume_everywhere_connected_by_road())
 	{
 		// With this setting, we add congestion factoring at a later stage.
-		return industry->get_city() && industry->get_city() == this ? welt->get_generic_road_time_per_tile_city() : welt->get_generic_road_time_per_tile_intercity();
+		return city && city == this ? welt->get_generic_road_time_per_tile_city() : welt->get_generic_road_time_per_tile_intercity();
 	}
 	
 	if(connected_industries.is_contained(industry->get_pos().get_2d()))
 	{
 		return connected_industries.get(industry->get_pos().get_2d());
 	}
-	if(industry->get_city())
+
+	if(city)
 	{
 		// If an industry is in a city, presume that it is connected
 		// if the city is connected. Do not presume the converse.
-		const uint16 time_to_city = check_road_connexion_to(industry->get_city());
+		const uint16 time_to_city = check_road_connexion_to(city);
 		if(time_to_city < 65535)
 		{
 			return time_to_city;
@@ -4065,39 +4072,39 @@ koord stadt_t::get_zufallspunkt(uint32 min_distance, uint32 max_distance, koord 
 }
 
 
-void stadt_t::add_target_city(stadt_t *const city)
-{
-	assert( city != NULL );
-	target_cities.insert_ordered(
-		target_city_t( city, shortest_distance( this->get_pos(), city->get_pos() ) ),
-		max( city->get_einwohner(), 1 ),
-		target_city_t::less_than
-	);
-}
+//void stadt_t::add_target_city(stadt_t *const city)
+//{
+//	assert( city != NULL );
+//	target_cities.insert_ordered(
+//		target_city_t( city, shortest_distance( this->get_pos(), city->get_pos() ) ),
+//		max( city->get_einwohner(), 1 ),
+//		target_city_t::less_than
+//	);
+//}
 
 
-void stadt_t::update_target_city(stadt_t *const city)
-{
-	assert( city != NULL );
-	target_cities.update( target_city_t( city, 0 ), max( city->get_einwohner(), 1 ) );
-}
+//void stadt_t::update_target_city(stadt_t *const city)
+//{
+//	assert( city != NULL );
+//	target_cities.update( target_city_t( city, 0 ), max( city->get_einwohner(), 1 ) );
+//}
 
 
-void stadt_t::update_target_cities()
-{
-	for(  uint32 c=0;  c<target_cities.get_count();  ++c  ) {
-		target_cities.update_at( c, max( target_cities[c].city->get_einwohner(), 1 ) );
-	}
-}
+//void stadt_t::update_target_cities()
+//{
+//	for(  uint32 c=0;  c<target_cities.get_count();  ++c  ) {
+//		target_cities.update_at( c, max( target_cities[c].city->get_einwohner(), 1 ) );
+//	}
+//}
 
 
-void stadt_t::recalc_target_cities()
-{
-	target_cities.clear();
-	FOR(weighted_vector_tpl<stadt_t*>, const c, welt->get_staedte()) {
-		add_target_city(c);
-	}
-}
+//void stadt_t::recalc_target_cities()
+//{
+//	target_cities.clear();
+//	FOR(weighted_vector_tpl<stadt_t*>, const c, welt->get_staedte()) {
+//		add_target_city(c);
+//	}
+//}
 
 
 void stadt_t::add_target_attraction(gebaeude_t *const attraction)
@@ -4121,6 +4128,7 @@ void stadt_t::recalc_target_attractions()
 /* This function generates a random target for passengers/mail;
  * changing this strongly affects selection of targets and thus game strategy.
  */
+// TODO: Remove this deprecated code
 stadt_t::destination stadt_t::find_destination(factory_set_t &target_factories, const sint64 generated, pax_return_type* will_return, uint32 min_distance, uint32 max_distance, koord origin)
 {
 	const int rand = simrand(100, "stadt_t::destination stadt_t::find_destination (init)");
@@ -4709,11 +4717,11 @@ void stadt_t::check_bau_rathaus(bool new_town)
 			const weighted_vector_tpl<stadt_t *> &cities = welt->get_staedte();
 			if(  cities.is_contained(this)  ) {
 				// update only if this city has already been added to the world
-				for(  uint32 c=0;  c<cities.get_count();  ++c  ) {
+				/*for(  uint32 c=0;  c<cities.get_count();  ++c  ) {
 					cities[c]->remove_target_city(this);
 					cities[c]->add_target_city(this);
 				}
-				recalc_target_cities();
+				recalc_target_cities();*/ //TODO: Remove this deprecated code entirely.
 				recalc_target_attractions();
 			}
 		}

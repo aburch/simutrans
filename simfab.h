@@ -216,7 +216,7 @@ private:
 	void verteile_waren(const uint32 produkt);
 
 	// List of target cities
-	vector_tpl<stadt_t *> target_cities;
+	/*vector_tpl<stadt_t *> target_cities;*/
 
 	spieler_t *besitzer_p; //"possessive" (Google)
 	static karte_t *welt;
@@ -341,7 +341,8 @@ private:
 	 * Re-calculate the pax/mail demands of factory at target cities
 	 * @author Knightly
 	 */
-	void recalc_demands_at_target_cities();
+	// TODO: Remove this deprecated code entirely
+	//void recalc_demands_at_target_cities();
 
 	/**
 	 * Recalculate storage capacities based on prodbase or capacities contributed by fields
@@ -494,10 +495,10 @@ public:
 	 * Functions for manipulating the list of connected cities
 	 * @author Hj. Malthaner/prissi/Knightly
 	 */
-	void add_target_city(stadt_t *const city);
+	/*void add_target_city(stadt_t *const city);
 	void remove_target_city(stadt_t *const city);
 	void clear_target_cities();
-	const vector_tpl<stadt_t *>& get_target_cities() const { return target_cities; }
+	const vector_tpl<stadt_t *>& get_target_cities() const { return target_cities; }*/
 
 	/**
 	 * Fügt ein neues Lieferziel hinzu
