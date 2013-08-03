@@ -1156,7 +1156,7 @@ void stadt_t::remove_gebaeude_from_stadt(gebaeude_t* gb)
 void stadt_t::update_gebaeude_from_stadt(gebaeude_t* gb)
 {
 	buildings.remove(gb);
-	buildings.append(gb, gb->get_tile()->get_besch()->get_level());
+	buildings.append_unique(gb, gb->get_tile()->get_besch()->get_level());
 	welt->remove_building_from_world_list(gb);
 	add_building_to_list(gb);
 }
@@ -1670,7 +1670,7 @@ stadt_t::~stadt_t()
 				gb->set_stadt( city );
 				if(city) 
 				{
-					city->buildings.append(gb, gb->get_passagier_level());
+					city->buildings.append_unique(gb, gb->get_passagier_level());
 				}
 			}
 			else 
@@ -3080,10 +3080,7 @@ uint16 stadt_t::check_road_connexion_to(stadt_t* city)
 
 uint16 stadt_t::check_road_connexion_to(const fabrik_t* industry)
 {
-	// This is faster but does not currently work. FIXME
 	stadt_t* city = industry->get_city(); 
-
-	//stadt_t* city = welt->get_city(industry->get_pos().get_2d());
 
 	if(welt->get_settings().get_assume_everywhere_connected_by_road())
 	{
@@ -5485,7 +5482,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 
 void stadt_t::add_building_to_list(gebaeude_t* building, bool ordered)
 {
-	buildings.append(building, building->get_tile()->get_besch()->get_level());
+	buildings.append_unique(building, building->get_tile()->get_besch()->get_level());
 	
 	// Also add to the world list for passenger generation purposes.
 	if(building->get_haustyp() == gebaeude_t::wohnung)
