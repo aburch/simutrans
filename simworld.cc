@@ -842,8 +842,8 @@ void karte_t::add_stadt(stadt_t *s)
 	/*FOR(weighted_vector_tpl<stadt_t*>, const c, stadt) {
 		c->add_target_city(s);
 	}
-	s->recalc_target_cities();*/
-	s->recalc_target_attractions();
+	s->recalc_target_cities();
+	s->recalc_target_attractions();*/
 }
 
 
@@ -3180,9 +3180,10 @@ void karte_t::add_ausflugsziel(gebaeude_t *gb)
 	add_building_to_world_list(gb, mail_origin_or_target);
 
 	// Knightly : add links between this attraction and all cities
-	FOR(weighted_vector_tpl<stadt_t*>, const c, stadt) {
+	// TODO: Remove this deprecated code completely
+	/*FOR(weighted_vector_tpl<stadt_t*>, const c, stadt) {
 		c->add_target_attraction(gb);
-	}
+	}*/
 }
 
 
@@ -3193,9 +3194,10 @@ void karte_t::remove_ausflugsziel(gebaeude_t *gb)
 	remove_building_from_world_list(gb);
 
 	// Knightly : remove links between this attraction and all cities
-	FOR(weighted_vector_tpl<stadt_t*>, const c, stadt) {
+	// TODO: Remove this deprecated code completely
+	/*FOR(weighted_vector_tpl<stadt_t*>, const c, stadt) {
 		c->remove_target_attraction(gb);
-	}
+	}*/
 }
 
 

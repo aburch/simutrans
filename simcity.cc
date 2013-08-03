@@ -4101,24 +4101,24 @@ koord stadt_t::get_zufallspunkt(uint32 min_distance, uint32 max_distance, koord 
 //	}
 //}
 
+// TODO: Remove this deprecated code completely
+//void stadt_t::add_target_attraction(gebaeude_t *const attraction)
+//{
+//	assert( attraction != NULL );
+//	target_attractions.append(
+//		attraction,
+//		weight_by_distance( attraction->get_passagier_level() << 4, shortest_distance( get_center(), attraction->get_pos().get_2d() ) )
+//	);
+//}
 
-void stadt_t::add_target_attraction(gebaeude_t *const attraction)
-{
-	assert( attraction != NULL );
-	target_attractions.append(
-		attraction,
-		weight_by_distance( attraction->get_passagier_level() << 4, shortest_distance( get_center(), attraction->get_pos().get_2d() ) )
-	);
-}
 
-
-void stadt_t::recalc_target_attractions()
-{
-	target_attractions.clear();
-	FOR(weighted_vector_tpl<gebaeude_t*>, const a, welt->get_ausflugsziele()) {
-		add_target_attraction(a);
-	}
-}
+//void stadt_t::recalc_target_attractions()
+//{
+//	target_attractions.clear();
+//	FOR(weighted_vector_tpl<gebaeude_t*>, const a, welt->get_ausflugsziele()) {
+//		add_target_attraction(a);
+//	}
+//}
 
 /* This function generates a random target for passengers/mail;
  * changing this strongly affects selection of targets and thus game strategy.
@@ -4168,14 +4168,14 @@ stadt_t::destination stadt_t::find_destination(factory_set_t &target_factories, 
 	else if(rand <welt->get_settings().get_tourist_percentage() + welt->get_settings().get_factory_worker_percentage() && welt->get_ausflugsziele().get_sum_weight() > 0 ) 
 	{ 		
 		*will_return = tourist_return;	// tourists will return
-		const gebaeude_t* gb = pick_any_weighted(target_attractions);
+		const gebaeude_t* gb = /*pick_any_weighted(target_attractions);*/ NULL;
 		current_destination.type = TOURIST_PAX;
 		uint8 counter = 0;
 		do
 		{
 			while(counter ++ < 32 && (shortest_distance(origin, gb->get_pos().get_2d()) > max_distance || shortest_distance(origin, gb->get_pos().get_2d()) < min_distance))
 			{
-				gb = pick_any_weighted(target_attractions);
+				//gb = pick_any_weighted(target_attractions);
 			}
 			current_destination.location = gb->get_pos().get_2d();
 		} while(current_destination.location == origin); // The destination must not be the same as the origin, so keep retrying until it is not.
@@ -4716,8 +4716,8 @@ void stadt_t::check_bau_rathaus(bool new_town)
 					cities[c]->remove_target_city(this);
 					cities[c]->add_target_city(this);
 				}
-				recalc_target_cities();*/ //TODO: Remove this deprecated code entirely.
-				recalc_target_attractions();
+				recalc_target_cities(); //TODO: Remove this deprecated code entirely.
+				recalc_target_attractions();*/
 			}
 		}
 	}

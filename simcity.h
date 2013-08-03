@@ -743,7 +743,8 @@ private:
 	 * List of target attractions weighted by both passenger level and distance
 	 * @author Knightly
 	 */
-	weighted_vector_tpl<gebaeude_t *> target_attractions;
+	// TODO: Remove this deprecated code entirely
+	//weighted_vector_tpl<gebaeude_t *> target_attractions;
 
 public:
 
@@ -761,9 +762,10 @@ public:
 	 * Functions for manipulating the list of target attractions
 	 * @author Knightly
 	 */
-	void add_target_attraction(gebaeude_t *const attraction);
+	// TODO: Remove this deprecated code entirely
+	/*void add_target_attraction(gebaeude_t *const attraction);
 	void remove_target_attraction(gebaeude_t *const attraction) { target_attractions.remove(attraction); }
-	void recalc_target_attractions();
+	void recalc_target_attractions();*/
 
 	/**
 	 * such ein (zufälliges) ziel für einen Passagier
