@@ -698,6 +698,7 @@ fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
 	power_demand = 0;
 	prodfactor_electric = 0;
 	lieferziele_active_last_month = 0;
+	city = NULL;
 
 	rdwr(file);
 
@@ -847,6 +848,12 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 
 	delta_slot = 0;
 	times_expanded = 0;
+
+	city = welt->get_city(pos.get_2d());
+	if(city != NULL)
+	{
+		city->add_city_factory(this);
+	}
 
 	update_scaled_electric_amount();
 	update_scaled_pax_demand();
