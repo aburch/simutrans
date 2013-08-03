@@ -323,15 +323,19 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 			return false;
 		}
 		// and change name to dock ...
-		halthandle_t halt = welt->lookup(bushalt)->get_halt();
-		char* const name = halt->create_name(bushalt, "Dock");
-		halt->set_name( name );
-		free(name);
+		grund_t *gr = welt->lookup_kartenboden(bushalt);
+		halthandle_t halt = gr ? gr->get_halt() : halthandle_t();
+		if (halt.is_bound()) { // it should be, but avoid crashes
+			char* const name = halt->create_name(bushalt, "Dock");
+			halt->set_name( name );
+			free(name);
+		}
 		// finally built the dock
 		const haus_besch_t* dock_besch = hausbauer_t::get_random_station(haus_besch_t::hafen, water_wt, welt->get_timeline_year_month(), 0);
 		welt->lookup_kartenboden(start_harbour)->obj_loesche_alle(this);
 		call_general_tool( WKZ_STATION, start_harbour, dock_besch->get_name() );
-		start_hub = welt->lookup(start_harbour)->get_halt();
+		grund_t *harbour_gr = welt->lookup_kartenboden(start_harbour);
+		start_hub = harbour_gr ? harbour_gr->get_halt() : halthandle_t();
 		// eventually we must built a hub in the next town
 		start_connect_hub = get_our_hub( start_stadt );
 		if(!start_connect_hub.is_bound()) {
@@ -352,15 +356,19 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 			return false;
 		}
 		// and change name to dock ...
-		halthandle_t halt = welt->lookup(bushalt)->get_halt();
-		char* const name = halt->create_name(bushalt, "Dock");
-		halt->set_name( name );
-		free(name);
+		grund_t *gr = welt->lookup_kartenboden(bushalt);
+		halthandle_t halt = gr ? gr->get_halt() : halthandle_t();
+		if (halt.is_bound()) { // it should be, but avoid crashes
+			char* const name = halt->create_name(bushalt, "Dock");
+			halt->set_name( name );
+			free(name);
+		}
 		// finally built the dock
 		const haus_besch_t* dock_besch = hausbauer_t::get_random_station(haus_besch_t::hafen, water_wt, welt->get_timeline_year_month(), 0 );
 		welt->lookup_kartenboden(end_harbour)->obj_loesche_alle(this);
 		call_general_tool( WKZ_STATION, end_harbour, dock_besch->get_name() );
-		end_hub = welt->lookup(end_harbour)->get_halt();
+		grund_t *harbour_gr = welt->lookup_kartenboden(end_harbour);
+		end_hub = harbour_gr ? harbour_gr->get_halt() : halthandle_t();
 		// eventually we must built a hub in the next town
 		end_connect_hub = get_our_hub( end_stadt );
 		if(!end_connect_hub.is_bound()) {
@@ -542,10 +550,13 @@ halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int r
 		return halthandle_t();
 	}
 	// and change name to airport ...
-	halthandle_t halt = welt->lookup(bushalt)->get_halt();
-	char* const name = halt->create_name(bushalt, "Airport");
-	halt->set_name( name );
-	free(name);
+	grund_t *gr = welt->lookup_kartenboden(bushalt);
+	halthandle_t halt = gr ? gr->get_halt() : halthandle_t();
+	if (halt.is_bound()) { // it should be, but avoid crashes
+		char* const name = halt->create_name(bushalt, "Airport");
+		halt->set_name( name );
+		free(name);
+	}
 	// built also runway now ...
 	bauigel.route_fuer( wegbauer_t::luft, runway_besch, NULL, NULL );
 	bauigel.calc_straight_route( welt->lookup_kartenboden(pos+trypos[rotation==0?3:0])->get_pos(), welt->lookup_kartenboden(pos+trypos[1+(rotation&1)])->get_pos() );

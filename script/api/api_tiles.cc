@@ -222,7 +222,7 @@ void export_tiles(HSQUIRRELVM vm)
 	 * Access halt at this tile.
 	 * @returns halt_x instance or null/false if no halt is present
 	 */
-	register_method(vm, &planquadrat_t::get_halt, "get_halt");
+	register_method(vm, &grund_t::get_halt, "get_halt");
 
 	/**
 	 * Access tile at specified height.

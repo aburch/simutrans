@@ -133,7 +133,7 @@ PLAYER_COLOR_VAL grund_t::text_farbe() const
 	// Now, we use the color of label_t owner
 	if(is_halt()  &&  find<label_t>()==NULL) {
 		// only halt label
-		const halthandle_t halt = welt->lookup(pos.get_2d())->get_halt();
+		const halthandle_t halt = get_halt();
 		const spieler_t *sp=halt->get_besitzer();
 		if(sp) {
 			return PLAYER_FLAG|(sp->get_player_color1()+4);
@@ -436,8 +436,8 @@ grund_t::~grund_t()
 	set_text(NULL);
 
 	dinge.loesche_alle(NULL,0);
-	if(flags&is_halt_flag  &&  welt->is_within_limits(pos.get_2d())) {
-		welt->lookup(pos.get_2d())->get_halt()->rem_grund(this);
+	if(flags&is_halt_flag) {
+		get_halt()->rem_grund(this);
 	}
 }
 
@@ -610,10 +610,13 @@ void grund_t::set_halt(halthandle_t halt)
 		}
 	}
 	// then add or remove halt flag
+	// and record the halt
 	if(  add  ) {
+		this_halt = halt;
 		flags |= is_halt_flag|dirty;
 	}
 	else {
+		this_halt = halthandle_t();
 		flags &= ~is_halt_flag;
 		flags |= dirty;
 	}
@@ -623,7 +626,7 @@ void grund_t::set_halt(halthandle_t halt)
 
 halthandle_t grund_t::get_halt() const
 {
-	return (flags&is_halt_flag) ? welt->lookup(pos.get_2d())->get_halt() : halthandle_t();
+	return (flags&is_halt_flag) ? this_halt : halthandle_t();
 }
 
 
@@ -1561,7 +1564,7 @@ void grund_t::display_overlay(const sint16 xpos, const sint16 ypos)
 
 		// display station waiting information/status
 		if(umgebung_t::show_names & 2) {
-			const halthandle_t halt = welt->lookup(pos.get_2d())->get_halt();
+			const halthandle_t halt = get_halt();
 			if(halt.is_bound()  &&  halt->get_basis_pos3d()==pos) {
 				halt->display_status(xpos, ypos);
 			}

@@ -1963,11 +1963,14 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	if(  old_y < new_groesse_y  ) {
 		for(  sint16 x=0;  x<old_x;  x++  ) {
 			for(  sint16 y=old_y-cov;  y<old_y;  y++  ) {
-				halthandle_t h = plan[x+y*new_groesse_x].get_halt();
-				if(  h.is_bound()  ) {
-					for(  sint16 xp=max(0,x-cov);  xp<x+cov+1;  xp++  ) {
-						for(  sint16 yp=y;  yp<y+cov+1;  yp++  ) {
-							plan[xp+yp*new_groesse_x].add_to_haltlist(h);
+				const planquadrat_t* pl = &plan[x+y*new_groesse_x];
+				for(  uint8 i=0;  i < pl->get_boden_count();  i++  ) {
+					halthandle_t h = pl->get_boden_bei(i)->get_halt();
+					if(  h.is_bound()  ) {
+						for(  sint16 xp=max(0,x-cov);  xp<x+cov+1;  xp++  ) {
+							for(  sint16 yp=y;  yp<y+cov+1;  yp++  ) {
+								plan[xp+yp*new_groesse_x].add_to_haltlist(h);
+							}
 						}
 					}
 				}
@@ -1977,11 +1980,14 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	if(  old_x < new_groesse_x  ) {
 		for(  sint16 x=old_x-cov;  x<old_x;  x++  ) {
 			for(  sint16 y=0;  y<old_y;  y++  ) {
-				halthandle_t h = plan[x+y*new_groesse_x].get_halt();
-				if(  h.is_bound()  ) {
-					for(  sint16 xp=x;  xp<x+cov+1;  xp++  ) {
-						for(  sint16 yp=max(0,y-cov);  yp<y+cov+1;  yp++  ) {
-							plan[xp+yp*new_groesse_x].add_to_haltlist(h);
+				const planquadrat_t* pl = &plan[x+y*new_groesse_x];
+				for(  uint8 i=0;  i < pl->get_boden_count();  i++  ) {
+					halthandle_t h = pl->get_boden_bei(i)->get_halt();
+					if(  h.is_bound()  ) {
+						for(  sint16 xp=x;  xp<x+cov+1;  xp++  ) {
+							for(  sint16 yp=max(0,y-cov);  yp<y+cov+1;  yp++  ) {
+								plan[xp+yp*new_groesse_x].add_to_haltlist(h);
+							}
 						}
 					}
 				}
@@ -2036,6 +2042,9 @@ karte_t::karte_t() :
 	follow_convoi = convoihandle_t();
 	set_dirty();
 	set_scroll_lock(false);
+
+	// for new world just set load version to current savegame version
+	load_version = loadsave_t::int_version( umgebung_t::savegame_version_str, NULL, NULL );;
 
 	// standard prices
 	warenbauer_t::set_multiplier( 1000 );
@@ -5176,9 +5185,6 @@ DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 }
 
 
-// ugly hack, only needed for laden_abschliessen tree restorage
-uint32 file_version = 0;
-
 void karte_t::plans_laden_abschliessen( sint16 x_min, sint16 x_max, sint16 y_min, sint16 y_max )
 {
 	for(  int y = y_min;  y < y_max;  y++  ) {
@@ -5193,7 +5199,7 @@ void karte_t::plans_laden_abschliessen( sint16 x_min, sint16 x_max, sint16 y_min
 						d->laden_abschliessen();
 					}
 				}
-				if(  file_version<=111000  &&  gr->ist_natur()  ) {
+				if(  load_version<=111000  &&  gr->ist_natur()  ) {
 					gr->sort_trees();
 				}
 				gr->calc_bild();
@@ -5235,6 +5241,9 @@ void karte_t::load(loadsave_t *file)
 	settings = umgebung_t::default_einstellungen;
 	settings.rdwr(file);
 	loaded_rotation = settings.get_rotation();
+
+	// some functions (laden_abschliessen) need to know what version was loaded
+	load_version = file->get_version();
 
 	if(  umgebung_t::networkmode  ) {
 		// to have games synchronized, transfer random counter too
@@ -5578,8 +5587,6 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 
 	ls.set_progress( (get_size().y*3)/2+256 );
 
-	// ugly hack to pass file version to laden_abschliessen multithreaded
-	file_version = file->get_version();
 	world_xy_loop(&karte_t::plans_laden_abschliessen, true);
 	ls.set_progress( (get_size().y*3)/2+256+get_size().y/8 );
 
@@ -5895,20 +5902,34 @@ void karte_t::recalc_transitions(koord k)
 }
 
 
-// return an index to a halt (or creates a new one)
-// only used during loading
-halthandle_t karte_t::get_halt_koord_index(koord k)
+/**
+ * return an index to a halt
+ * optionally limit to that owned by player sp
+ * by default create a new halt if none found
+ */
+
+halthandle_t karte_t::get_halt_koord_index(koord k, spieler_t *sp, bool create_halt)
 {
 	if(!is_within_limits(k)) {
 		return halthandle_t();
 	}
 	// already there?
-	const halthandle_t h=lookup(k)->get_halt();
-	if(!h.is_bound()) {
-		// no => create
+	// check through all the grounds
+	const planquadrat_t* plan = lookup(k);
+	if(plan) {
+		halthandle_t my_halt = plan->get_halt(sp);
+		if(  my_halt.is_bound()  ) {
+			return my_halt;
+		}
+	}
+	if(  create_halt  ) {
+		// No halts found => create one
 		return haltestelle_t::create( this, k, NULL );
 	}
-	return h;
+	else {
+		// Return empty handle
+		return halthandle_t();
+	}
 }
 
 

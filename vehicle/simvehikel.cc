@@ -1603,7 +1603,30 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 
 	// koordinate of the last stop
 	if(file->get_version()>=99015) {
-		last_stop_pos.rdwr(file);
+		// This used to be 2d, now it's 3d.
+		if(file->get_version() < 112008) {
+			if(file->is_saving()) {
+				koord last_stop_pos_2d = last_stop_pos.get_2d();
+				last_stop_pos_2d.rdwr(file);
+			}
+			else {
+				// loading.  Assume ground level stop (could be wrong, but how would we know?)
+				koord last_stop_pos_2d = koord::invalid;
+				last_stop_pos_2d.rdwr(file);
+				const grund_t* gr = welt->lookup_kartenboden(last_stop_pos_2d);
+				if (gr) {
+					last_stop_pos = koord3d(last_stop_pos_2d, gr->get_hoehe());
+				}
+				else {
+					// no ground?!?
+					last_stop_pos = koord3d::invalid;
+				}
+			}
+		}
+		else {
+			// current version, 3d
+			last_stop_pos.rdwr(file);
+		}
 	}
 
 	if(file->is_loading()) {

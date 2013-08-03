@@ -162,7 +162,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	line_update_pending = linehandle_t();
 
 	home_depot = koord3d::invalid;
-	last_stop_pos = koord3d::invalid;
+	// last_stop_pos = koord3d::invalid;
 
 	recalc_data_front = true;
 	recalc_data = true;
@@ -514,7 +514,7 @@ void convoi_t::call_convoi_tool( const char function, const char *extra ) const
 
 void convoi_t::rotate90( const sint16 y_size )
 {
-	last_stop_pos.rotate90( y_size );
+	// last_stop_pos.rotate90( y_size );
 	record_pos.rotate90( y_size );
 	home_depot.rotate90( y_size );
 	route.rotate90( y_size );
@@ -2264,14 +2264,19 @@ void convoi_t::rdwr(loadsave_t *file)
 		home_depot.rdwr(file);
 	}
 
+	// Old versions recorded last_stop_pos in convoi, not in vehicle
+	koord3d last_stop_pos_convoi = koord3d(0,0,0);
+	if (anz_vehikel !=0) {
+		last_stop_pos_convoi = fahr[0]->last_stop_pos;
+	}
 	if(file->get_version()>=87001) {
-		last_stop_pos.rdwr(file);
+		last_stop_pos_convoi.rdwr(file);
 	}
 	else {
-		last_stop_pos =
-			!route.empty()   ? route.front()      :
-			anz_vehikel != 0 ? fahr[0]->get_pos() :
-			koord3d(0, 0, 0);
+		last_stop_pos_convoi =
+		!route.empty()   ? route.front()      :
+		anz_vehikel != 0 ? fahr[0]->get_pos() :
+		koord3d(0, 0, 0);
 	}
 
 	// for leaving the depot routine
@@ -2304,7 +2309,7 @@ void convoi_t::rdwr(loadsave_t *file)
 	// since 99015, the last stop will be maintained by the vehikels themselves
 	if(file->get_version()<99015) {
 		for(unsigned i=0; i<anz_vehikel; i++) {
-			fahr[i]->last_stop_pos = last_stop_pos.get_2d();
+			fahr[i]->last_stop_pos = last_stop_pos_convoi;
 		}
 	}
 
@@ -2571,10 +2576,10 @@ void convoi_t::calc_gewinn()
 	for(unsigned i=0; i<anz_vehikel; i++) {
 		vehikel_t* v = fahr[i];
 		sint64 tmp;
-		gewinn += tmp = v->calc_gewinn(v->last_stop_pos, v->get_pos().get_2d() );
+		gewinn += tmp = v->calc_gewinn(v->last_stop_pos.get_2d(), v->get_pos().get_2d() );
 		// get_schedule is needed as v->get_waytype() returns track_wt for trams (instead of tram_wt
 		besitzer_p->book_revenue(tmp, fahr[0]->get_pos().get_2d(), get_schedule()->get_waytype(), v->get_fracht_typ()->get_index() );
-		v->last_stop_pos = v->get_pos().get_2d();
+		v->last_stop_pos = v->get_pos();
 	}
 
 	// update statistics of average speed
@@ -2648,12 +2653,12 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 		}
 
 		// we need not to call this on the same position
-		if(  v->last_stop_pos != v->get_pos().get_2d()  ) {
+		if(  v->last_stop_pos != v->get_pos()  ) {
 			sint64 tmp;
 			// calc_revenue
-			gewinn += tmp = v->calc_gewinn(v->last_stop_pos, v->get_pos().get_2d() );
+			gewinn += tmp = v->calc_gewinn(v->last_stop_pos.get_2d(), v->get_pos().get_2d() );
 			besitzer_p->book_revenue(tmp, fahr[0]->get_pos().get_2d(), get_schedule()->get_waytype(), v->get_fracht_typ()->get_index());
-			v->last_stop_pos = v->get_pos().get_2d();
+			v->last_stop_pos = v->get_pos();
 		}
 
 		changed_loading_level |= v->entladen(halt);

@@ -1513,11 +1513,20 @@ public:
 
 	~karte_t();
 
+
+
 	/**
-	 * Returns an index to a halt (or creates a new one)
-	 * @note Only used during loading
+	 * File version used when loading (or current if generated)
+	 * @note Useful for laden_abschliessen
 	 */
-	halthandle_t get_halt_koord_index(koord k);
+	uint32 load_version;
+
+	/**
+	 * Returns an index to a halt at koord k
+   	 * optionally limit to that owned by player sp
+   	 * by default create a new halt if none found
+	 */
+	halthandle_t get_halt_koord_index(koord k, spieler_t *sp=NULL, bool create_halt=true);
 
 	/**
 	 * Checks if the planquadrat at coordinate (x,y)

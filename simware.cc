@@ -144,13 +144,15 @@ void ware_t::rdwr(karte_t *welt,loadsave_t *file)
 
 void ware_t::laden_abschliessen(karte_t *welt,spieler_t * /*sp*/)
 {
-	// since some halt was referred by with several koordinates
-	// this routine will correct it
-	if(ziel.is_bound()) {
-		ziel = welt->lookup(ziel->get_init_pos())->get_halt();
-	}
-	if(zwischenziel.is_bound()) {
-		zwischenziel = welt->lookup(zwischenziel->get_init_pos())->get_halt();
+	if(  welt->load_version<=111005  ) {
+		// since some halt was referred by with several koordinates
+		// this routine will correct it
+		if(ziel.is_bound()) {
+			ziel = welt->get_halt_koord_index(ziel->get_init_pos());
+		}
+		if(zwischenziel.is_bound()) {
+			zwischenziel = welt->get_halt_koord_index(zwischenziel->get_init_pos());
+		}
 	}
 	update_factory_target(welt);
 }

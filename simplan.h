@@ -36,9 +36,6 @@ private:
 	// stores climate related settings
 	uint8 climate_data;
 
-	/* only one station per ground xy tile */
-	halthandle_t this_halt;
-
 	union DATA {
 		grund_t ** some;    // valid if capacity > 1
 		grund_t * one;      // valid if capacity == 1
@@ -200,17 +197,11 @@ public:
 	void angehoben(karte_t *welt);
 
 	/**
-	* since stops may be multilevel, but waren uses pos, we mirror here any halt that is on this square
-	* @author Hj. Malthaner
+	* returns halthandle belonging to player sp if present
+	* @return NULL if no halt present
+	* @author Kieron Green
 	*/
-	void set_halt(halthandle_t halt);
-
-	/**
-	* returns a halthandle, if some ground here has a stop
-	* @return NULL wenn keine Haltestelle, sonst Zeiger auf Haltestelle
-	* @author Hj. Malthaner
-	*/
-	halthandle_t get_halt() const {return this_halt;}
+	halthandle_t get_halt(spieler_t *sp) const;
 
 private:
 	// these functions are private helper functions for halt_list corrections

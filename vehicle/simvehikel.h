@@ -264,7 +264,7 @@ protected:
 
 public:
 	// the coordinates, where the vehicle was loaded the last time
-	koord last_stop_pos;
+	koord3d last_stop_pos;
 
 	convoi_t *get_convoi() const { return cnv; }
 

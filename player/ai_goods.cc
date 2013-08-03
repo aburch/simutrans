@@ -1029,7 +1029,14 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 				harbour=platz1;
 				int ships_needed = 1 + (prod*koord_distance(harbour,start->get_pos().get_2d())) / (ship_vehicle->get_zuladung()*max(20,ship_vehicle->get_geschw()));
 				if(create_ship_transport_vehikel(start,ships_needed)) {
-					if(welt->lookup(harbour)->get_halt()->get_fab_list().is_contained(ziel)) {
+					bool already_connected = false;
+					const planquadrat_t* pl = welt->lookup(harbour);
+					for(  uint8 i=0;  i<pl->get_boden_count();  i++  ) {
+						if(  pl->get_boden_bei(i)->get_halt()->get_fab_list().is_contained(ziel)  ) {
+							already_connected = true;
+						}
+					}
+					if(  already_connected  ) {
 						// so close, so we are already connected
 						grund_t *gr = welt->lookup_kartenboden(platz2);
 						if (gr) gr->obj_loesche_alle(this);

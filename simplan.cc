@@ -36,7 +36,6 @@
 
 void swap(planquadrat_t& a, planquadrat_t& b)
 {
-	sim::swap(a.this_halt, b.this_halt);
 	sim::swap(a.halt_list, b.halt_list);
 	sim::swap(a.ground_size, b.ground_size);
 	sim::swap(a.halt_list_count, b.halt_list_count);
@@ -593,20 +592,18 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos, const 
 }
 
 
-/**
- * Manche Böden können zu Haltestellen gehören.
- * Der Zeiger auf die Haltestelle wird hiermit gesetzt.
- * @author Hj. Malthaner
- */
-void planquadrat_t::set_halt(halthandle_t halt)
+// finds halt belonging to player sp
+halthandle_t planquadrat_t::get_halt(spieler_t *sp) const
 {
-	if(halt.is_bound()  &&  this_halt.is_bound()  &&  halt!=this_halt) {
-		// will only happend during loading
-		koord k = (ground_size>0) ? get_kartenboden()->get_pos().get_2d() : koord::invalid;
-		DBG_MESSAGE("planquadrat_t::set_halt()","assign new halt to already bound halt at (%i,%i)!", k.x, k.y );
+	for(  uint8 i=0;  i < get_boden_count();  i++  ) {
+		halthandle_t my_halt = get_boden_bei(i)->get_halt();
+		if(  my_halt.is_bound() && (sp==NULL || sp==my_halt->get_besitzer())  ) {
+			return my_halt;
+		}
 	}
-	this_halt = halt;
+	return halthandle_t();
 }
+
 
 
 // these functions are private helper functions for halt_list
@@ -680,27 +677,32 @@ void planquadrat_t::add_to_haltlist(halthandle_t halt)
 /**
  * removes the halt from a ground
  * however this funtion check, whether there is really no other part still reachable
- * @author prissi
+ * @author prissi, neroden
  */
 void planquadrat_t::remove_from_haltlist(karte_t *welt, halthandle_t halt)
 {
+	halt_list_remove(halt);
+
+	// We might still be connected (to a different tile on the halt, in which case reconnect.
+
 	// quick and dirty way to our 2d koodinates ...
 	const koord pos = get_kartenboden()->get_pos().get_2d();
-
 	int const cov = welt->get_settings().get_station_coverage();
 	for (int y = -cov; y <= cov; y++) {
 		for (int x = -cov; x <= cov; x++) {
 			koord test_pos = pos+koord(x,y);
 			const planquadrat_t *pl = welt->lookup(test_pos);
-
-			if(pl   &&  pl->get_halt()==halt  ) {
-				// still conncected  => do nothing
-				return;
+			if (pl) {
+				for(  uint i = 0;  i < pl->get_boden_count();  i++  ) {
+					if (  pl->get_boden_bei(i)->get_halt() == halt  ) {
+						// still connected
+						// Reset distance computation
+						add_to_haltlist(halt);
+					}
+				}
 			}
 		}
 	}
-	// if we reached here, we are not connected to this halt anymore
-	halt_list_remove(halt);
 }
 
 
