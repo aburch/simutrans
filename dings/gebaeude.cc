@@ -158,10 +158,10 @@ gebaeude_t::gebaeude_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_til
  */
 gebaeude_t::~gebaeude_t()
 {
-	stadt_t* city = get_stadt();
-	if(city) 
+	stadt_t* our_city = get_stadt();
+	if(our_city) 
 	{
-		city->remove_gebaeude_from_stadt(this);
+		our_city->remove_gebaeude_from_stadt(this);
 	}
 
 	if(sync) {
@@ -1164,12 +1164,12 @@ void gebaeude_t::laden_abschliessen()
 	// citybuilding, but no town?
 	if(  tile->get_offset()==koord(0,0)  ) {
 		if(  tile->get_besch()->is_connected_with_town()  ) {
-			stadt_t *city = (ptr.stadt==NULL) ? welt->suche_naechste_stadt( get_pos().get_2d() ) : ptr.stadt;
-			if(city) {
+			stadt_t *our_city = (ptr.stadt==NULL) ? welt->suche_naechste_stadt( get_pos().get_2d() ) : ptr.stadt;
+			if(our_city) {
 #if MULTI_THREAD>1
 				pthread_mutex_lock( &add_to_city_mutex );
 #endif
-				city->add_gebaeude_to_stadt(this, true);
+				our_city->add_gebaeude_to_stadt(this, true);
 #if MULTI_THREAD>1
 				pthread_mutex_unlock( &add_to_city_mutex );
 #endif

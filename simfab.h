@@ -403,13 +403,6 @@ private:
 	// scales the amount of production based on the amount already in storage
 	uint32 scale_output_production(const uint32 product, uint32 menge) const;
 
-//	/**
-//	 * increase the amount for a time delta_t scaled to a fixed time PRODUCTION_DELTA_T
-//	 * @author Hj. Malthaner - original
-//	 */
-//	uint32 produktion(uint32 produkt, long delta_t) const;
-//>>>>>>> jamespetts/private-cars
-
 	// This is the city within whose city limits the factory is located.
 	// NULL if it is outside a city. This is re-checked monthly.
 	// @author: jamespetts

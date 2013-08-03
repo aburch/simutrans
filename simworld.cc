@@ -4405,6 +4405,11 @@ void karte_t::step_passengers_and_mail(long delta_t)
 		// Pick the building from which to generate passengers/mail
 		gebaeude_t* gb = wtyp == warenbauer_t::passagiere ? passenger_origins[step_count[st]] : mail_origins_and_targets[step_count[st]];
 		stadt_t* city = gb->get_stadt();
+		fabrik_t* building_factory = gb->get_fabrik();
+		if(building_factory)
+		{
+			city = building_factory->get_city();
+		}
 
 		// We need this for recording statistics for onward journeys in the very original departure point.
 		gebaeude_t* const first_origin = gb;
@@ -4830,7 +4835,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 							// calculated using the route finder; note that journeys inside cities are not calculated using
 							// the route finder). 
 
-							if(settings.get_assume_everywhere_connected_by_road() || current_destination.object.town == city)
+							if(settings.get_assume_everywhere_connected_by_road() || (current_destination.type == town && current_destination.object.town == city))
 							{
 								// Congestion here is assumed to be on the percentage basis: i.e. the percentage of extra time that
 								// a journey takes owing to congestion. This is the measure used by the TomTom congestion index,
@@ -4839,7 +4844,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 							
 								//Average congestion of origin and destination towns.
 								uint16 congestion_total;
-								if(current_destination.type == 1 && current_destination.object.town != NULL && current_destination.object.town != city)
+								if(current_destination.object.town != NULL && current_destination.object.town != city)
 								{
 									// Destination type is town and the destination town object can be found.
 									congestion_total = (city->get_congestion() + current_destination.object.town->get_congestion()) / 2;
@@ -4937,6 +4942,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 					}
 					// We cannot do this on arrival, as the ware packets do not remember their origin building.
 					// TODO: Change the names of these from "local" and "non-local" to "commuting" and "visiting".
+					
 					if(trip == commuting_trip)
 					{
 						gb->add_passengers_succeeded_local(pax_left_to_do);
@@ -4959,7 +4965,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 					{
 						current_destination.object.industry->liefere_an(wtyp, pax_left_to_do);
 					}
-					destination_town =current_destination.type == 1 ? current_destination.object.town : NULL;
+					destination_town = current_destination.type == town ? current_destination.object.town : NULL;
 					city->set_private_car_trip(pax_left_to_do, destination_town);
 					city->merke_passagier_ziel(destination_pos, COL_TURQUOISE);
 	#ifdef DESTINATION_CITYCARS
@@ -5294,8 +5300,8 @@ karte_t::destination karte_t::find_destination(trip_type trip)
 	current_destination.location = gb->get_pos();
 
 	// Add the correct object type.
-	fabrik_t* const fab = gb->get_is_factory() ? gb->get_fabrik() : NULL;
-	stadt_t* const city = fab ? NULL : gb->get_stadt();
+	fabrik_t* const fab = gb->get_fabrik();
+	stadt_t* const city = gb->get_stadt();
 	if(fab)
 	{
 		current_destination.object.industry = fab;
@@ -5306,7 +5312,7 @@ karte_t::destination karte_t::find_destination(trip_type trip)
 		current_destination.object.town = city;
 		current_destination.type = karte_t::town;
 	}
-	else // Attraction
+	else // Attraction (out of town)
 	{
 		current_destination.object.attraction = gb;
 		current_destination.type = karte_t::attraction;

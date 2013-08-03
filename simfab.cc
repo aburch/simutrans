@@ -766,6 +766,11 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 	total_input = total_transit = total_output = 0;
 	status = nothing;
 	lieferziele_active_last_month = 0;
+	city = welt->get_city(pos.get_2d());
+	if(city != NULL)
+	{
+		city->add_city_factory(this);
+	}
 
 	if(fabesch->get_platzierung() == 2 && city && fabesch->get_produkte() == 0)
 	{
@@ -848,12 +853,6 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 
 	delta_slot = 0;
 	times_expanded = 0;
-
-	city = welt->get_city(pos.get_2d());
-	if(city != NULL)
-	{
-		city->add_city_factory(this);
-	}
 
 	update_scaled_electric_amount();
 	update_scaled_pax_demand();
@@ -2053,10 +2052,6 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 
 void fabrik_t::neuer_monat()
 {
-	// Not responsible for heap corruption.
-
-	const char* TEST_name = get_name();
-	
 	// calculate weighted averages
 	if(  aggregate_weight>0  ) {
 		set_stat( weighted_sum_production / aggregate_weight, FAB_PRODUCTION );
