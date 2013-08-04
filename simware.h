@@ -25,12 +25,6 @@ public:
 	/// amount of goods
 	uint32 menge : 23;
 
-	/**
-	 * To indicate that the ware's destination is a factory/consumer store
-	 * @author Knightly
-	 */
-	uint32 to_factory : 1;
-
 private:
 	/**
 	 * Handle of target station.

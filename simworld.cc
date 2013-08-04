@@ -4639,7 +4639,6 @@ void karte_t::step_passengers_and_mail(long delta_t)
 				{
 					destination_pos = current_destination.location;
 					const uint32 straight_line_distance = shortest_distance(origin_pos, destination_pos);
-					pax.to_factory = fabrik_t::get_fab(this, destination_pos) ? 1 : 0;
 					// Careful -- use uint32 here to avoid overflow cutoff errors.
 					// This number may be very long.
 					walking_time = walking_time_tenths_from_distance(straight_line_distance);
@@ -4693,7 +4692,6 @@ void karte_t::step_passengers_and_mail(long delta_t)
 						pax.reset();
 						pax.set_zielpos(destination_pos);
 						pax.menge = pax_left_to_do;
-						pax.to_factory = current_destination.type == factory;
 						//"Menge" = volume (Google)
 
 						// Search for a route using public transport. 
@@ -5142,7 +5140,6 @@ void karte_t::step_passengers_and_mail(long delta_t)
 							if(found) 
 							{
 								ware_t return_pax(wtyp, ret_halt);
-								return_pax.to_factory = 0;
 								if(wtyp==warenbauer_t::post) 
 								{
 								// attractions/factory generate more mail than they recieve

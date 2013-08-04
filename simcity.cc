@@ -3179,6 +3179,7 @@ void stadt_t::add_road_connexion(uint16 journey_time_per_tile, const gebaeude_t*
 /* this creates passengers and mail for everything is is therefore one of the CPU hogs of the machine
  * think trice, before applying optimisation here ...
  */
+/* TODO: Remove this deprecated code entirely.
 void stadt_t::step_passagiere()
 {
 	settings_t const& s = welt->get_settings();
@@ -3285,7 +3286,7 @@ void stadt_t::step_passagiere()
 		* single pax, but packets. If possible, we do 7 passengers at a time
 		* the last packet might have less then 7 pax
 		* Number now not fixed at 7, but set in simuconf.tab (@author: jamespetts)
-		*/
+
 
 		pax_left_to_do = min(passenger_packet_size, num_pax - pax_routed);
 
@@ -3310,7 +3311,7 @@ void stadt_t::step_passagiere()
 				simrand_normal(range_local_tolerance, "void stadt_t::step_passagiere() (local tolerance?)") + min_local_tolerance : 
 			range == midrange ? 
 				simrand_normal(range_midrange_tolerance, "void stadt_t::step_passagiere() (midrange tolerance?)") + min_midrange_tolerance : 
-			/*longdistance*/
+			/*longdistance
 			simrand_normal(range_longdistance_tolerance, "void stadt_t::step_passagiere() (longdistance tolerance?)") + min_longdistance_tolerance;
 		destination destinations[16];
 		for(int destinations_assigned = 0; destinations_assigned <= destination_count; destinations_assigned ++)
@@ -3369,7 +3370,7 @@ void stadt_t::step_passagiere()
 		 * In addition, walking tolerance is divided by two for non-local journeys because
 		 * passengers prefer not to walk for long distances, as it is tiring especially with luggage.
 		 * (This isn't quite right and the game logic for it should be fixed.)
-		 */
+
 		uint16 quasi_tolerance = tolerance;
 		if(wtyp == warenbauer_t::post) {
 			quasi_tolerance = simrand_normal(range_local_tolerance, "void stadt_t::step_passagiere() (local tolerance?)") + min_local_tolerance;
@@ -3403,7 +3404,7 @@ void stadt_t::step_passagiere()
 				/**
 				 * If the passengers have no private car, are not in reach of any public transport
 				 * facilities and the journey is too long on foot, do not continue to check other things.
-				 */
+
 				current_destination ++;
 				continue;
 			}
@@ -3434,7 +3435,7 @@ void stadt_t::step_passagiere()
 			{
 				/** There is no public transport route, as the only stop
 				 * for the origin is also the only stop for the desintation.
-				 */
+
 				start_halt = start_halts[0].halt;
 			}
 			else
@@ -3741,7 +3742,6 @@ void stadt_t::step_passagiere()
 			{
 				/** Passengers/mail cannot reach their destination, but there are some stops in their locality.
 				 * Record their inability to get where they are going at those local stops accordingly. 
-				 */
 
 				start_halt = start_halts[best_bad_start_halt].halt; 					
 				if(start_halt.is_bound())
@@ -3754,7 +3754,6 @@ void stadt_t::step_passagiere()
 				/** The unhappy passengers will be added to any potential starting stops
 				  * that are crowded, and were therefore excluded from the initial search.
 				  * However, there might be no possible starting stop too. 
-				  */
 	
 				// Re-search for start halts, which must have been crowded, or else
 				// they would not have been excluded from the first search.
@@ -3969,7 +3968,7 @@ void stadt_t::step_passagiere()
 
 	//	long t1 = get_current_time_millis();
 	//	DBG_MESSAGE("stadt_t::step_passagiere()", "Zeit für Passagierstep: %ld ms\n", (long)(t1 - t0));
-}
+}*/
 
 
 // TODO: Remove this method when new passenger generation is ready.

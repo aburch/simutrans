@@ -427,7 +427,8 @@ private:
 	 * verteilt die Passagiere auf die Haltestellen
 	 * @author Hj. Malthaner
 	 */
-	void step_passagiere();
+	// TODO: Remove this deprecated code entirely.
+	//void step_passagiere();
 
 	/**
 	 * baut Spezialgebaeude, z.B Stadion

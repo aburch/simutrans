@@ -31,7 +31,6 @@ ware_t::ware_t() : ziel(), zwischenziel(), zielpos(-1, -1)
 	menge = 0;
 	index = 0;
 	arrival_time = 0;
-	to_factory = 0;
 }
 
 
@@ -41,7 +40,6 @@ ware_t::ware_t(const ware_besch_t *wtyp) : ziel(), zwischenziel(), zielpos(-1, -
 	menge = 0;
 	index = wtyp->get_index();
 	arrival_time = 0;
-	to_factory = 0;
 }
 
 // Constructor for new revenue system: packet of cargo keeps track of its origin.
@@ -78,13 +76,11 @@ void ware_t::rdwr(karte_t *welt,loadsave_t *file)
 		file->rdwr_long(max);
 	}
 
-	if(  file->get_version()>=110005  ) {
-		uint8 factory_going = to_factory;
-		file->rdwr_byte(factory_going);
-		to_factory = factory_going;
-	}
-	else if(  file->is_loading()  ) {
-		to_factory = 0;
+	if(file->get_version()>=110005 && file->get_experimental_version() < 12) 
+	{
+		// Was "to_factory" / "factory_going".
+		uint8 dummy;
+		file->rdwr_byte(dummy);
 	}
 
 	uint8 catg=0;
@@ -241,13 +237,6 @@ void ware_t::rdwr(karte_t *welt,loadsave_t *file)
 	{
 		last_transfer.set_id(origin.get_id());
 	}
-	
-	// restore factory-flag
-	if(  file->get_version()<110005  &&  file->is_loading()  ) {
-		if (fabrik_t::get_fab(welt, zielpos)) {
-			to_factory = 1;
-		}
-	}
 }
 
 void ware_t::laden_abschliessen(karte_t *welt, spieler_t * /*sp*/)  //"Invite finish" (Google); "load lock" (Babelfish).
@@ -286,12 +275,10 @@ void ware_t::rotate90( karte_t *welt, sint16 y_size )
 
 void ware_t::update_factory_target(karte_t *welt)
 {
-	if (to_factory) {
-		// assert that target coordinates are unique for cargo going to the same factory
-		// as new cargo will be generated with possibly new factory coordinates
-		fabrik_t *fab = fabrik_t::get_fab( welt, zielpos );
-		if (fab) {
-			zielpos = fab->get_pos().get_2d();
-		}
+	// assert that target coordinates are unique for cargo going to the same factory
+	// as new cargo will be generated with possibly new factory coordinates
+	fabrik_t *fab = fabrik_t::get_fab( welt, zielpos );
+	if (fab) {
+		zielpos = fab->get_pos().get_2d();
 	}
 }

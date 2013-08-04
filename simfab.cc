@@ -1942,7 +1942,6 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 				if(  needed>=0  ) {
 					ware_t ware(ausgang[produkt].get_typ(), nearby_halt.halt);
 					ware.menge = menge;
-					ware.to_factory = 1;
 					ware.set_zielpos( lieferziel );
 					ware.arrival_time = welt->get_zeit_ms();
 

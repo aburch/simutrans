@@ -1288,7 +1288,7 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 			}
 
 			// If we are within delivery distance of our target factory, go there.
-			if (ware.to_factory)
+			if(fabrik_t::get_fab(welt, ware.get_zielpos()))
 			{
 				// What factory are we trying to deliver to? (FIXME: use fab handles)
 				fabrik_t* fab = fabrik_t::get_fab( welt, ware.get_zielpos() );
@@ -2165,7 +2165,8 @@ uint32 haltestelle_t::starte_mit_route(ware_t ware)
 #endif
 
 	if(ware.get_ziel()==self) {
-		if(  ware.to_factory  ) {
+		if(fabrik_t::get_fab(welt, ware.get_zielpos())) 
+		{
 			// muss an fabrik geliefert werden
 			liefere_an_fabrik(ware);
 		}
@@ -2261,7 +2262,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 	// such as attractions and city halls, to allow access from any side
 	fabrik_t* const fab = fabrik_t::get_fab(welt, ware.get_zielpos());
 	const planquadrat_t* plan = welt->lookup(ware.get_zielpos());
-	if(ware.get_ziel() == self && ware.to_factory && fab && (fab_list.is_contained(fab) || ((ware.get_besch() == warenbauer_t::passagiere || ware.get_besch() == warenbauer_t::post) && plan->is_connected(self))))
+	if(ware.get_ziel() == self && fab && (fab_list.is_contained(fab) || ((ware.get_besch() == warenbauer_t::passagiere || ware.get_besch() == warenbauer_t::post) && plan->is_connected(self))))
 	{
 		// Packet is headed to a factory;
 		// the factory exists;
@@ -2291,7 +2292,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 		return ware.menge;
 	}
 	// OK, not arrived at a factory, have we arrived somewhere else?
-	if(!(ware.to_factory) && ware.get_ziel() == self && plan && plan->is_connected(self))
+	if(!(fabrik_t::get_fab(welt, ware.get_zielpos())) && ware.get_ziel() == self && plan && plan->is_connected(self))
 	{
 		// Yes, we have.  Passengers & mail vanish mysteriously upon arrival.
 		// FIXME: walking time delay should be implemented right here!
