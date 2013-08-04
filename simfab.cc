@@ -670,14 +670,9 @@ fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
 	power_demand = 0;
 	prodfactor_electric = 0;
 	lieferziele_active_last_month = 0;
+	city = NULL;
 
 	rdwr(file);
-
-	city = welt->get_city(pos.get_2d());
-	if(city != NULL)
-	{
-		city->add_city_factory(this);
-	}
 
 	delta_sum = 0;
 	delta_menge = 0;
@@ -2676,6 +2671,12 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 
 void fabrik_t::laden_abschliessen()
 {
+	city = welt->get_city(pos.get_2d());
+	if(city != NULL)
+	{
+		city->add_city_factory(this);
+	}
+	
 	if (welt->get_settings().is_crossconnect_factories()) {
 		add_all_suppliers();
 	}
