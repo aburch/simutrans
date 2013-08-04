@@ -6028,7 +6028,7 @@ uint32 stadt_t::get_power_demand() const
 
 void stadt_t::add_substation(senke_t* substation)
 { 
-	substations.append(substation); 
+	substations.append_unique(substation); 
 }
 
 void stadt_t::remove_substation(senke_t* substation)
