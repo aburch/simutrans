@@ -6,6 +6,7 @@
 #include "simware.h"
 #include "simfab.h"
 #include "simworld.h"
+#include "simcity.h"
 
 #include "dataobj/translator.h"
 
@@ -299,8 +300,21 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 					gb->get_description(dbuf);
 					description = dbuf.get_str();
 				}
+				const stadt_t* city = welt->get_city(ware.get_zielpos());
+				const char* town_name;
+				if(city)
+				{
+					town_name = city->get_name();
+				}
 
-				buf.printf("%s <%i, %i>\n        ", (factory ? factory->get_name() : description), ware.get_zielpos().x, ware.get_zielpos().y);
+				if(city)
+				{
+					buf.printf("%s <%i, %i> (%s)\n        ", (factory ? factory->get_name() : description), ware.get_zielpos().x, ware.get_zielpos().y, town_name);
+				}
+				else
+				{
+					buf.printf("%s <%i, %i>\n        ", (factory ? factory->get_name() : description), ware.get_zielpos().x, ware.get_zielpos().y);
+				}
 			}
 
 			if(sortby == by_name || sortby == by_amount || sortby == by_origin || (sortby == by_via_sum && via_halt == halt) || sortby == by_via)
