@@ -81,7 +81,7 @@ userdir_overrides_savegame_settings = 0
 # maximum number of position tested during a way search
 # 100000 should be ok even for large maps with ships
 # 10000 is ok for everything else (consumes 16*x Bytes main memory, no further harm)
-max_route_steps = 2000000
+max_route_steps = 1000000
 
 # Size of the catchment area of a station/stop in tiles.
 # This is for city buildings (mail and passengers) only.
