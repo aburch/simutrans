@@ -666,6 +666,7 @@ void settings_routing_stats_t::init(settings_t const* const sets)
 void settings_routing_stats_t::read(settings_t* const sets)
 {
 	READ_INIT
+	const uint32 old_route_steps = sets->max_route_steps;
 	// routing of goods
 	READ_BOOL_VALUE( sets->seperate_halt_capacities );
 	READ_BOOL_VALUE( sets->avoid_overcrowding );
@@ -684,6 +685,12 @@ void settings_routing_stats_t::read(settings_t* const sets)
 	READ_NUM_VALUE( sets->way_count_tunnel );
 	READ_NUM_VALUE( sets->way_max_bridge_len );
 	READ_NUM_VALUE( sets->way_count_leaving_road );
+
+	if(old_route_steps !=  sets->max_route_steps)
+	{
+		route_t::TERM_NODES();
+		route_t::INIT_NODES(sets->max_route_steps, koord::invalid);
+	}
 }
 
 
