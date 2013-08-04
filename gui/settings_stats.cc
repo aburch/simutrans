@@ -683,6 +683,9 @@ void settings_routing_stats_t::read(settings_t* const sets)
 	READ_NUM_VALUE( sets->way_count_tunnel );
 	READ_NUM_VALUE( sets->way_max_bridge_len );
 	READ_NUM_VALUE( sets->way_count_leaving_road );
+
+	route_t::TERM_NODES();
+	route_t::INIT_NODES(sets->max_route_steps, koord::invalid);
 }
 
 
