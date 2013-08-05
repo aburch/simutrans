@@ -266,10 +266,13 @@ seperate_halt_capacities = 1
 # to the "unhappy passengers" graph, which will have an effect on revenue.
 avoid_overcrowding = 0
 
-# This is the number of passengers routed at once,
-# to save CPU resources. Decreasing this number will
-# make the game run more slowly. Default = 7.
-passenger_routing_packet_size = 7
+# Passengers and mail are generated in "packets" of more than one passenger/bundle of mail
+# in order to improve game performance (think of them as groups of people or groups of mail
+# items). The size of the packet can be anything up to the number specified below. The actual
+# number depends on: (1) the below maximum; (2) the size of the building generating the mail/
+# passengers; and (3) a random factor.
+
+passenger_routing_packet_size = 18
 
 # This setting determines the relationship between the number of private car trips
 # generated and (1) the congestion recorded in the cities; and (2) the number of
@@ -435,8 +438,6 @@ passenger_routing_midrange_chance = 12
 # possible number of alternative destinations, the chances will be even.
 # For example, if the number is set at 2, there will be an equal chance
 # of passengers having 0, 1 or 2 alternative destinations).
-#
-# Max: 7
 
 max_alternative_destinations = 4
 

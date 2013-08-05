@@ -4392,6 +4392,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 
 		const city_cost history_type = (wtyp == warenbauer_t::passagiere) ? HIST_PAS_TRANSPORTED : HIST_MAIL_TRANSPORTED;
 		const step_type st = (wtyp == warenbauer_t::passagiere) ? step_passenger : step_mail;
+		const uint8 max_packet_size = simrand(settings.get_passenger_routing_packet_size(), "void karte_t::step_passengers_and_mail(long delta_t) passenger packet size") + 1;
 
 		// Restart at the first buiulding?
 		if(step_count[st] >= building_count)
@@ -4497,7 +4498,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 			* Number now not fixed at 7, but set in simuconf.tab (@author: jamespetts)
 			*/
 
-			pax_left_to_do = min(settings.get_passenger_routing_packet_size(), num_pax - pax_routed);
+			pax_left_to_do = min(max_packet_size, num_pax - pax_routed);
 
 			// TODO: Set these percentages in simuconf.tab
 			// (1) Percentage chance of (not) having any onward journeys at all.
@@ -4815,8 +4816,9 @@ void karte_t::step_passengers_and_mail(long delta_t)
 						case attraction:
 							if(city) // Previous time per tile value used as default if the city is not available.
 							{
+								const stadt_t* TEST_city = current_destination.object.attraction->get_stadt();
 								time_per_tile = city->check_road_connexion_to(current_destination.object.attraction);
-							}
+							}							
 							break;
 						default:
 							//Some error - this should not be reached.
@@ -8634,10 +8636,6 @@ void karte_t::add_building_to_world_list(gebaeude_t *gb, building_type b, bool o
 				*/
 
 	assert(gb);
-	if(!gb)
-	{
-		return;
-	}
 
 	uint16 passenger_level = gb->get_passengers_per_hundred_months();
 	const uint16 mail_level = gb->get_mail_per_hundred_months();
@@ -8649,10 +8647,13 @@ void karte_t::add_building_to_world_list(gebaeude_t *gb, building_type b, bool o
 		if(ordered)
 		{
 			passenger_origins.insert_ordered(gb, passenger_level, compare_gebaeude_pos);
+			// Pepople visit each others' houses, but this is not a common type of trip.
+			visitor_targets.insert_ordered(gb, passenger_level / 100, compare_gebaeude_pos);
 		}
 		else 
 		{
 			passenger_origins.append(gb, passenger_level);
+			visitor_targets.append(gb, passenger_level / 100);
 		}
 		break;
 
