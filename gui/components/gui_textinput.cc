@@ -343,7 +343,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 		// Knightly : use mouse *move* position; update head cursor only in order to enable text selection
 		head_cursor_pos = 0;
 		if(  text  ) {
-			head_cursor_pos = head_cursor_pos = display_fit_proportional( text, ev->mx - 1 + scroll_offset );
+			head_cursor_pos = display_fit_proportional( text, ev->mx - 1 + scroll_offset );
 		}
 		cursor_reference_time = dr_time();	// update reference time for cursor blinking
 		return true;
