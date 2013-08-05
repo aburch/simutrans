@@ -1017,11 +1017,12 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 	bool ok = false;
 
 	grund_t *gr1 = welt->lookup(pos);
+	const sint8 water_hgt = welt->get_water_hgt( pos.get_2d() );
 	if(  gr1  ) {
 		const uint8 max_hdiff = grund_besch_t::double_grounds ?  2 : 1;
 
 		// at least a pixel away from the border?
-		if(  pos.z < welt->get_water_hgt( pos.get_2d() )  &&  !gr1->ist_tunnel()  ) {
+		if(  pos.z < water_hgt  &&  !gr1->ist_tunnel()  ) {
 			return "Maximum tile height difference reached.";
 		}
 
@@ -1090,12 +1091,12 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 			else if(  new_slope==ALL_DOWN_SLOPE  ) {
 				if(  gr1->get_grund_hang()==hang_typ(ribis)  ) {
 					// do not lower tiles to sea
-					if(  pos.z == welt->get_water_hgt( pos.get_2d() )  &&  !gr1->ist_tunnel()  ) {
+					if(  pos.z == water_hgt  &&  !gr1->ist_tunnel()  ) {
 						return "Tile not empty.";
 					}
 				}
 				else if(  gr1->get_grund_hang() == hang_typ(ribis) * 2  ) {
-					if(  pos.z == welt->get_water_hgt( pos.get_2d() )  &&  !gr1->ist_tunnel()  ) {
+					if(  pos.z == water_hgt  &&  !gr1->ist_tunnel()  ) {
 						return "Tile not empty.";
 					}
 					new_slope = hang_typ(ribis);
@@ -1143,7 +1144,7 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 			}
 
 			// now prevent being lowered below neighbouring water
-			sint8 water_table = (welt->get_water_hgt( pos.get_2d() ) >= (gr1->get_hoehe() + gr1->get_grund_hang() ? 1 : 0)) ? welt->get_water_hgt( pos.get_2d() ) : welt->get_grundwasser() - 4;
+			sint8 water_table = (water_hgt >= (gr1->get_hoehe() + gr1->get_grund_hang() ? 1 : 0)) ? water_hgt : welt->get_grundwasser() - 4;
 			sint8 min_neighbour_height = gr1->get_hoehe();
 
 			for(  sint16 i = 0 ;  i < 8 ;  i++  ) {
@@ -1269,15 +1270,15 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 			}
 
 			// ok, was sucess
-			if(  !gr1->ist_wasser()  &&  new_slope == 0  &&  new_pos.z == welt->get_water_hgt( pos.get_2d() )  &&  gr1->get_typ() != grund_t::tunnelboden  ) {
+			if(  !gr1->ist_wasser()  &&  new_slope == 0  &&  new_pos.z == water_hgt  &&  gr1->get_typ() != grund_t::tunnelboden  ) {
 				// now water
 				gr1->obj_loesche_alle(sp);
 				welt->access(pos.get_2d())->kartenboden_setzen( new wasser_t(welt,new_pos) );
 				gr1 = welt->lookup_kartenboden(new_pos.get_2d());
 			}
-			else if(  gr1->ist_wasser()  &&  (new_pos.z > welt->get_water_hgt( pos.get_2d() )  ||  new_slope != 0)  ) {
+			else if(  gr1->ist_wasser()  &&  (new_pos.z > water_hgt  ||  new_slope != 0)  ) {
 				// build underwater hill first
-				if(  !welt->ebne_planquadrat( sp, pos.get_2d(), welt->get_water_hgt( pos.get_2d() ), false, true )  ) {
+				if(  !welt->ebne_planquadrat( sp, pos.get_2d(), water_hgt, false, true )  ) {
 					return "Tile not empty.";
 				}
 				gr1->obj_loesche_alle(sp);
@@ -1318,7 +1319,7 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 						delete d;
 					}
 					// connect canals to sea
-					if(  gr1->get_hoehe() == welt->get_water_hgt( pos.get_2d() )  &&  gr1->hat_weg(water_wt)  ) {
+					if(  gr1->get_hoehe() == water_hgt  &&  gr1->hat_weg(water_wt)  ) {
 						grund_t *sea = welt->lookup_kartenboden(new_pos.get_2d() - koord( ribi_typ(new_slope ) ));
 						if (sea  &&  sea->ist_wasser()) {
 							gr1->weg_erweitern(water_wt, ribi_t::rueckwaerts(ribi_typ(new_slope)));
@@ -1335,7 +1336,7 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 				}
 				// corect the grid height
 				if(  gr1->ist_wasser()  ) {
-					sint8 grid_hgt = min( welt->get_water_hgt( pos.get_2d() ), welt->lookup_hgt( pos.get_2d() ) );
+					sint8 grid_hgt = min( water_hgt, welt->lookup_hgt( pos.get_2d() ) );
 					welt->set_grid_hgt(pos.get_2d(), grid_hgt );
 				}
 				else {

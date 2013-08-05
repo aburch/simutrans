@@ -324,26 +324,27 @@ void planquadrat_t::correct_water(karte_t *welt)
 	hang_t::typ slope = gr->get_grund_hang();
 	sint8 max_height = gr->get_hoehe() + hang_t::height( slope );
 	koord k = gr->get_pos().get_2d();
-	if(  gr  &&  gr->get_typ() != grund_t::wasser  &&  max_height <= welt->get_water_hgt(k)  ) {
+	sint8 water_hgt = welt->get_water_hgt(k);
+	if(  gr  &&  gr->get_typ() != grund_t::wasser  &&  max_height <= water_hgt  ) {
 		// below water but ground => convert
-		kartenboden_setzen( new wasser_t( welt, koord3d( k, welt->get_water_hgt(k) ) ) );
+		kartenboden_setzen( new wasser_t( welt, koord3d( k, water_hgt ) ) );
 	}
-	else if(  gr  &&  gr->get_typ() == grund_t::wasser  &&  max_height > welt->get_water_hgt(k)  ) {
+	else if(  gr  &&  gr->get_typ() == grund_t::wasser  &&  max_height > water_hgt  ) {
 		// water above ground => to ground
 		kartenboden_setzen( new boden_t( welt, gr->get_pos(), gr->get_disp_slope() ) );
 	}
-	else if(  gr  &&  gr->get_typ() == grund_t::wasser  &&  gr->get_hoehe() != welt->get_water_hgt(k)  ) {
+	else if(  gr  &&  gr->get_typ() == grund_t::wasser  &&  gr->get_hoehe() != water_hgt  ) {
 		// water at wrong height
-		gr->set_hoehe( welt->get_water_hgt(k) );
+		gr->set_hoehe( water_hgt );
 	}
 
 	gr = get_kartenboden();
-	if(  gr  &&  gr->get_typ() != grund_t::wasser  &&  gr->get_disp_height() < welt->get_water_hgt(k)  &&  welt->max_hgt(k) > welt->get_water_hgt(k)  ) {
-		sint8 disp_hneu = welt->get_water_hgt(k);
-		sint8 disp_hn_sw = max( gr->get_hoehe() + corner1(slope), welt->get_water_hgt(k) );
-		sint8 disp_hn_se = max( gr->get_hoehe() + corner2(slope), welt->get_water_hgt(k) );
-		sint8 disp_hn_ne = max( gr->get_hoehe() + corner3(slope), welt->get_water_hgt(k) );
-		sint8 disp_hn_nw = max( gr->get_hoehe() + corner4(slope), welt->get_water_hgt(k) );
+	if(  gr  &&  gr->get_typ() != grund_t::wasser  &&  gr->get_disp_height() < water_hgt  &&  welt->max_hgt(k) > water_hgt  ) {
+		sint8 disp_hneu = water_hgt;
+		sint8 disp_hn_sw = max( gr->get_hoehe() + corner1(slope), water_hgt );
+		sint8 disp_hn_se = max( gr->get_hoehe() + corner2(slope), water_hgt );
+		sint8 disp_hn_ne = max( gr->get_hoehe() + corner3(slope), water_hgt );
+		sint8 disp_hn_nw = max( gr->get_hoehe() + corner4(slope), water_hgt );
 		const uint8 sneu = (disp_hn_sw - disp_hneu) + ((disp_hn_se - disp_hneu) * 3) + ((disp_hn_ne - disp_hneu) * 9) + ((disp_hn_nw - disp_hneu) * 27);
 		gr->set_hoehe( disp_hneu );
 		gr->set_grund_hang( (hang_t::typ)sneu );
