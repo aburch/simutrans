@@ -58,7 +58,11 @@
 
 #define PACKET_SIZE (7)
 
+// since we use 32 bit per growth steps, we use this varible to take care of the remaining sub citicen growth
+#define CITYGROWTH_PER_CITICEN (0x0000000100000000ll)
+
 karte_t* stadt_t::welt = NULL; // one is enough ...
+
 
 /********************************* From here on cityrules stuff *****************************************/
 
@@ -1071,9 +1075,9 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 	// 1. Rathaus bei 0 Leuten bauen
 	check_bau_rathaus(true);
 
-	wachstum = 0;
+	unsupplied_city_growth = 0;
 	allow_citygrowth = true;
-	change_size( citizens );
+	change_size( citizens, true );
 
 	// fill with start citizen ...
 	sint64 bew = get_einwohner();
@@ -1112,7 +1116,7 @@ stadt_t::stadt_t(karte_t* wl, loadsave_t* file) :
 	next_growth_step = 0;
 	has_low_density = false;
 
-	wachstum = 0;
+	unsupplied_city_growth = 0;
 	stadtinfo_options = 3;
 
 	rdwr(file);
@@ -1144,6 +1148,16 @@ void stadt_t::rdwr(loadsave_t* file)
 	file->rdwr_long(bev);
 	file->rdwr_long(arb);
 	file->rdwr_long(won);
+
+	if(  file->get_version()>=112009  ) {
+		// Must record the partial (less than 1 citizen) growth factor
+		// Otherwise we will get network desyncs
+		// Also allows accumulation of small growth factors
+		file->rdwr_longlong(unsupplied_city_growth);
+	}
+	else if( file->is_loading()  ) {
+		unsupplied_city_growth = 0;
+	}
 	// old values zentrum_namen_cnt : aussen_namen_cnt
 	if(file->get_version()<99018) {
 		sint32 dummy=0;
@@ -1271,7 +1285,7 @@ void stadt_t::laden_abschliessen()
 
 	// new city => need to grow
 	if (buildings.empty()) {
-		step_grow_city();
+		step_grow_city(true);
 	}
 
 	// clear the minimaps
@@ -1400,35 +1414,29 @@ void stadt_t::verbinde_fabriken()
 
 /* change size of city
  * @author prissi */
-void stadt_t::change_size(sint32 delta_citizen)
+void stadt_t::change_size( sint64 delta_citizen, bool new_town)
 {
 	DBG_MESSAGE("stadt_t::change_size()", "%i + %i", bev, delta_citizen);
-	if (delta_citizen > 0) {
-		wachstum = delta_citizen<<4;
-		step_grow_city();
+	if(  delta_citizen > 0  ) {
+		unsupplied_city_growth += delta_citizen * CITYGROWTH_PER_CITICEN;
+		step_grow_city(new_town);
 	}
-	if (delta_citizen < 0) {
-		wachstum = 0;
-		if (bev > -delta_citizen) {
+	if(  delta_citizen < 0  ) {
+		if(  bev > -delta_citizen  ) {
 			bev += delta_citizen;
 		}
 		else {
 //				remove_city();
-			bev = 0;
+			bev = 1;
 		}
-		step_grow_city();
+		step_grow_city(new_town);
 	}
-	wachstum = 0;
 	DBG_MESSAGE("stadt_t::change_size()", "%i+%i", bev, delta_citizen);
 }
 
 
 void stadt_t::step(long delta_t)
 {
-	if(delta_t>20000) {
-		delta_t = 1;
-	}
-
 	settings_t const& s = welt->get_settings();
 	// recalculate factory going ratios where necessary
 	if(  target_factories_pax.ratio_stale  ) {
@@ -1608,7 +1616,7 @@ void stadt_t::calc_growth()
 
 	// maybe this town should stay static
 	if(  !allow_citygrowth  ) {
-		wachstum = 0;
+		unsupplied_city_growth = 0;
 		return;
 	}
 
@@ -1621,6 +1629,10 @@ void stadt_t::calc_growth()
 	sint32     const   mail        = (sint32)( (h[HIST_MAIL_TRANSPORTED] * (s.get_mail_multiplier()      << 6)) / (h[HIST_MAIL_GENERATED] + 1) );
 	sint32     const   electricity = 0;
 	sint32     const   goods       = (sint32)( h[HIST_GOODS_NEEDED] == 0 ? 0 : (h[HIST_GOODS_RECIEVED] * (s.get_goods_multiplier() << 6)) / (h[HIST_GOODS_NEEDED]) );
+	sint32     const   total_supply_percentage = pas + mail + electricity + goods;
+	// By construction, this is a percentage times 2^6.
+	// We will divide it by 2^4=16 for traditional reasons, which means
+	// it generates 2^2 (=4) or fewer people at 100%.
 
 	// smaller towns should growth slower to have villages for a longer time
 	sint32 const weight_factor =
@@ -1629,24 +1641,45 @@ void stadt_t::calc_growth()
 		s.get_growthfactor_large();
 
 	// now give the growth for this step
-	wachstum += (pas+mail+electricity+goods) / weight_factor;
+	sint32 growth_factor = weight_factor > 0 ? total_supply_percentage / weight_factor : 0;
+
+	sint64 new_unsupplied_city_growth = growth_factor * (CITYGROWTH_PER_CITICEN / 16);
+
+	// OK.  Now we must adjust for the steps per month.
+	// Cities were growing way too fast without this adjustment.
+	// The original value was based on 18 bit months.
+	const sint64 tpm = welt->ticks_per_world_month;
+	const sint64 old_ticks_per_world_month = (1ll << 18);
+	if(  tpm > old_ticks_per_world_month  ) {
+		new_unsupplied_city_growth *= (tpm / old_ticks_per_world_month);
+	}
+	else {
+		new_unsupplied_city_growth /= (old_ticks_per_world_month / tpm);
+	}
+	// on may add another multiplier here for further slowdown/speed up
+
+	unsupplied_city_growth += new_unsupplied_city_growth;
 }
 
 
 // does constructions ...
-void stadt_t::step_grow_city()
+void stadt_t::step_grow_city( bool new_town )
 {
-	bool new_town = (bev == 0);
-	// since we use internall a finer value ...
-	const int	growth_step = (wachstum>>4);
-	wachstum &= 0x0F;
+	// Try harder to build if this is a new town
+	int num_tries = new_town ? 1000 : 30;
+
+	// since we use internally a finer value ...
+	const sint64 growth_steps = unsupplied_city_growth / CITYGROWTH_PER_CITICEN;
+	if(  growth_steps > 0  ) {
+		unsupplied_city_growth %= CITYGROWTH_PER_CITICEN;
+	}
 
 	// Hajo: let city grow in steps of 1
 	// @author prissi: No growth without development
-	for (int n = 0; n < growth_step; n++) {
-		bev++; // Hajo: bevoelkerung wachsen lassen
+	for(  sint64 n = 0;  n < growth_steps;  n++  ) {
+		bev++;
 
-		for (int i = 0; i < 30 && bev * 2 > won + arb + 100; i++) {
+		for(  int i = 0;  i < num_tries  &&  bev * 2 > won + arb + 100;  i++  ) {
 			baue();
 		}
 

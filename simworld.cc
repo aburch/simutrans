@@ -1073,10 +1073,13 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 				 */
 				current_month = game_start;
 				bool not_updated = false;
+				bool new_town = true;
 				while(  current_bev < citizens  ) {
 					growth = min( citizens-current_bev, growth*2 );
 					current_bev += growth;
-					stadt[i]->change_size( growth );
+					stadt[i]->change_size( growth, new_town );
+					// Only "new" for the first change_size call
+					new_town = false;
 					if(  current_bev > citizens/2  &&  not_updated  ) {
 						ls.set_progress( ++old_progress );
 						not_updated = true;

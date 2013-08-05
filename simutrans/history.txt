@@ -5,6 +5,7 @@
 	FIX: long block signals direct in front of stations gave deadlocks
 	ADD: fixed maintenance for vehciles is now booked
 	ADD: (jk271) way toll statistics now
+	ADD: (neroden/kierongreen) stacked stations eith different owners are now possible
 
 
 Release of 112.3: (r6520 on 17-May-2013):
