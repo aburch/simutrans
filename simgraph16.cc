@@ -1871,7 +1871,7 @@ COLOR_VAL display_get_index_from_rgb( uint8 r, uint8 g, uint8 b )
 {
 	COLOR_VAL result = 0;
 	unsigned diff = 256*3;
-	for(  int i=0;  i<lengthof(special_pal);  i+=3  ) {
+	for(  unsigned i=0;  i<lengthof(special_pal);  i+=3  ) {
 		unsigned cur_diff = abs(r-special_pal[i+0]) + abs(g-special_pal[i+1]) + abs(b-special_pal[i+2]);
 		if(  cur_diff < diff  ) {
 			result = i/3;
@@ -3694,7 +3694,7 @@ KOORD_VAL display_get_char_max_width(const char* text, size_t len) {
 
 	KOORD_VAL max_len=0;
 
-	for(int n=0; (len && n<len) || (len==0 && *text != '\0'); n++) {
+	for(unsigned n=0; (len && n<len) || (len==0 && *text != '\0'); n++) {
 		max_len = max(max_len,display_get_char_width(*text++));
 	}
 
