@@ -1807,10 +1807,11 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 
 		for(  sint16 x = 0;  x < new_groesse_x;  x++  ) {
 			for(  sint16 y = (x >= old_x)? 0 : old_y;  y < new_groesse_y;  y++  ) {
-				if(  get_water_hgt( koord( x, y ) ) < lookup_hgt( koord( x, y ) )  &&  lookup_hgt( koord( x, y ) ) == max_hgt( koord( x, y ) )
-				  &&  ( ( get_water_hgt(  koord( x, y ) + koord::nord ) == lookup_hgt( koord( x, y ) )  &&  get_water_hgt( koord( x, y ) + koord::sued ) == lookup_hgt( koord(x,y) ) )
-				  ||  ( get_water_hgt( koord( x, y ) + koord::ost ) == lookup_hgt( koord( x, y ) )  &&  get_water_hgt( koord( x, y ) + koord::west ) == lookup_hgt( koord( x, y ) ) ) )  ) {
-					set_water_hgt( koord( x, y ), lookup_hgt( koord( x, y ) ) );
+				sint8 hgt = lookup_hgt( koord( x, y ) );
+				if(  get_water_hgt( koord( x, y ) ) < hgt  &&  hgt == max_hgt( koord( x, y ) )
+				  &&  ( ( get_water_hgt(  koord( x, y ) + koord::nord ) == hgt  &&  get_water_hgt( koord( x, y ) + koord::sued ) == hgt )
+				  ||  ( get_water_hgt( koord( x, y ) + koord::ost ) == hgt  &&  get_water_hgt( koord( x, y ) + koord::west ) == hgt ) )  ) {
+					set_water_hgt( koord( x, y ), hgt );
 				}
 			}
 		}

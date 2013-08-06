@@ -1152,8 +1152,9 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 
 				if(  welt->is_within_grid_limits( neighbour )  ) {
 					grund_t *gr2 = welt->lookup_kartenboden( neighbour );
-					if(  gr2  &&  (welt->get_water_hgt( neighbour ) >= (gr2->get_hoehe() + (gr2->get_grund_hang() ? 1 : 0)))  ) {
-						water_table = max( water_table, welt->get_water_hgt( neighbour ) );
+					const sint8 water_hgt_neighbour = welt->get_water_hgt( neighbour );
+					if(  gr2  &&  (water_hgt_neighbour >= (gr2->get_hoehe() + (gr2->get_grund_hang() ? 1 : 0)))  ) {
+						water_table = max( water_table, water_hgt_neighbour );
 					}
 					if(  gr2  &&  gr2->get_hoehe() < min_neighbour_height  ) {
 						min_neighbour_height = gr2->get_hoehe();
@@ -1323,15 +1324,7 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 						grund_t *sea = welt->lookup_kartenboden(new_pos.get_2d() - koord( ribi_typ(new_slope ) ));
 						if (sea  &&  sea->ist_wasser()) {
 							gr1->weg_erweitern(water_wt, ribi_t::rueckwaerts(ribi_typ(new_slope)));
-							sea->calc_bild();
 						}
-					}
-				}
-				// recalc slope walls on neightbours
-				for(int y=-1; y<=1; y++) {
-					for(int x=-1; x<=1; x++) {
-						grund_t *gr = welt->lookup_kartenboden(pos.get_2d()+koord(x,y));
-						gr->calc_bild();
 					}
 				}
 				// corect the grid height
@@ -1343,6 +1336,9 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 					welt->set_grid_hgt(pos.get_2d(), gr1->get_hoehe()+ corner4(gr1->get_grund_hang()) );
 				}
 				reliefkarte_t::get_karte()->calc_map_pixel(pos.get_2d());
+
+				// calc climate doesn't just calc a new climate - it also recalcs images of neighbouring tiles
+				// these may have changes due to canals connecting to sea or changed slope walls
 				welt->calc_climate( pos.get_2d(), true );
 			}
 			settings_t const& s = welt->get_settings();
@@ -1741,10 +1737,11 @@ const char *wkz_set_climate_t::do_work( karte_t *welt, spieler_t *, const koord3
 				if(  cl != water_climate  ) {
 					bool ok = true;
 					if(  gr->ist_wasser()  ) {
-						ok = welt->get_water_hgt(pos) == welt->lookup_hgt(pos)  &&  welt->is_plan_height_changeable( pos.x, pos.y );
+						const sint8 hgt = welt->lookup_hgt(pos);
+						ok = welt->get_water_hgt(pos) == hgt  &&  welt->is_plan_height_changeable( pos.x, pos.y );
 						if(  ok  ) {
 							gr->obj_loesche_alle( NULL );
-							welt->set_water_hgt( pos, welt->lookup_hgt(pos) - 1 );
+							welt->set_water_hgt( pos, hgt - 1 );
 							welt->access(pos)->correct_water(welt);
 						}
 					}
@@ -3563,19 +3560,23 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.
 	koord dx2;
 	switch(hang) {
 		case hang_t::sued:
+		case hang_t::sued*2:
 			layout = 0;
 			dx2 = koord::west;
 			break;
 		case hang_t::ost:
+		case hang_t::ost*2:
 			layout = 1;
 			dx2 = koord::nord;
 			break;
 		case hang_t::nord:
+		case hang_t::nord*2:
 			layout = 2;
 			dx2 = koord::west;
 			bau_pos = welt->lookup_kartenboden(last_pos)->get_pos();
 			break;
 		case hang_t::west:
+		case hang_t::west*2:
 			layout = 3;
 			dx2 = koord::nord;
 			bau_pos = welt->lookup_kartenboden(last_pos)->get_pos();
@@ -3763,6 +3764,12 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 				grund_t * gr_tmp = welt->lookup(koord3d(pos+koord::nsow[i],offset-1));
 				if(gr_tmp && gr_tmp->get_weg_yoff()/TILE_HEIGHT_STEP == 1) {
 					gr = gr_tmp;
+				}
+				else {
+					grund_t * gr_tmp = welt->lookup(koord3d(pos+koord::nsow[i],offset-2));
+					if(gr_tmp && gr_tmp->get_weg_yoff()/TILE_HEIGHT_STEP == 2) {
+						gr = gr_tmp;
+					}
 				}
 			}
 			if(  gr && gr->get_halt().is_bound()  ) {
