@@ -3114,37 +3114,17 @@ uint16 stadt_t::check_road_connexion_to(const gebaeude_t* attraction)
 		return welt->get_generic_road_time_per_tile_intercity() * 6;
 	}
 	
-	if(connected_attractions.is_contained(attraction->get_pos().get_2d()))
-	{
-		return connected_attractions.get(attraction->get_pos().get_2d());
-	}
 	const koord pos = attraction->get_pos().get_2d();
-	grund_t *gr;
-	weg_t* road = NULL;
-	for(uint8 i = 0; i < 16; i ++)
+	if(connected_attractions.is_contained(pos))
 	{
-		koord3d pos3d(pos + pos.second_neighbours[i], welt->lookup_hgt(pos + pos.second_neighbours[i]));
-		gr = welt->lookup(pos3d);
-		if(!gr)
-		{
-			pos3d.z ++;
-			gr = welt->lookup(pos3d);
-			if(!gr)
-			{
-				continue;
-			}
-		}
-		road = gr->get_weg(road_wt);
-		if(road != NULL)
-		{
-			break;
-		}
+		return connected_attractions.get(pos);
 	}
-	if(road == NULL)
+	else
 	{
-		return 65535;
+		// Check all tiles of the attraction to see whether any of them is contained.
+		
 	}
-
+	
 	return 65535;
 }
 

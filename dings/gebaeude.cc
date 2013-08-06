@@ -212,6 +212,9 @@ void gebaeude_t::check_road_tiles(bool del)
 	koord size = tile->get_besch()->get_groesse(tile->get_layout());
 	koord k;
 	grund_t* gr_this;
+
+	vector_tpl<gebaeude_t*> building_list;
+	building_list.append(this);
 	
 	for(k.y = 0; k.y < size.y; k.y ++) 
 	{
@@ -225,30 +228,37 @@ void gebaeude_t::check_road_tiles(bool del)
 				// there may be buildings with holes
 				if(gb_part && gb_part->get_tile()->get_besch() == hb) 
 				{
-					for(uint8 i = 0; i < 8; i ++)
-					{
-						// Check for connected roads. Only roads in immediately neighbouring tiles
-						// and only those on the same height will register a connexion.
-						koord pos_neighbour = k_3d.get_2d() + (k_3d.get_2d().neighbours[i]);
-						koord3d pos3d(pos_neighbour, k_3d.z);
-						gr_this = welt->lookup(pos3d);
-						if(!gr_this)
-						{
-							continue;
-						}
-						strasse_t* str = (strasse_t*)gr_this->get_weg(road_wt);
-						if(str)
-						{
-							if(del)
-							{
-								str->connected_attractions.remove(this);
-							}
-							else
-							{
-								str->connected_attractions.append_unique(this);
-							}
-						}
-					}
+					building_list.append_unique(gb_part);
+				}
+			}
+		}
+	}
+
+	ITERATE(building_list, n)
+	{
+		const gebaeude_t* gb = building_list[n];
+
+		for(uint8 i = 0; i < 8; i ++)
+		{
+			// Check for connected roads. Only roads in immediately neighbouring tiles
+			// and only those on the same height will register a connexion.
+			koord pos_neighbour = gb->get_pos().get_2d() + (gb->get_pos().get_2d().neighbours[i]);
+			koord3d pos3d(pos_neighbour, gb->get_pos().z);
+			gr_this = welt->lookup(pos3d);
+			if(!gr_this)
+			{
+				continue;
+			}
+			strasse_t* str = (strasse_t*)gr_this->get_weg(road_wt);
+			if(str)
+			{
+				if(del)
+				{
+					str->connected_attractions.remove(this);
+				}
+				else
+				{
+					str->connected_attractions.append_unique(this);
 				}
 			}
 		}

@@ -4816,7 +4816,6 @@ void karte_t::step_passengers_and_mail(long delta_t)
 						case attraction:
 							if(city) // Previous time per tile value used as default if the city is not available.
 							{
-								const stadt_t* TEST_city = current_destination.object.attraction->get_stadt();
 								time_per_tile = city->check_road_connexion_to(current_destination.object.attraction);
 							}							
 							break;
