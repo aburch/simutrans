@@ -1648,7 +1648,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 	}
 
 	// not connected?
-	const planquadrat_t *plan = welt->lookup(pos.get_2d());
+	const planquadrat_t *plan = welt->access(pos.get_2d());
 	if(  plan == NULL  ) {
 		dbg->fatal("fabrik_t::verteile_waren", "%s has not distibution target", get_name() );
 	}
@@ -1854,7 +1854,7 @@ void fabrik_t::recalc_factory_status()
 	char status_ein;
 	char status_aus;
 
-	int haltcount=welt->lookup(pos.get_2d())->get_haltlist_count();
+	int haltcount=welt->access(pos.get_2d())->get_haltlist_count();
 
 	// set bits for input
 	warenlager = 0;
@@ -2087,7 +2087,7 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 		}
 	}
 
-	const planquadrat_t *plan = welt->lookup(get_pos().get_2d());
+	const planquadrat_t *plan = welt->access(get_pos().get_2d());
 	if(plan  &&  plan->get_haltlist_count()>0) {
 		if(  has_previous  ) {
 			buf.append("\n\n");

@@ -499,7 +499,7 @@ class denkmal_platz_sucher_t : public platzsucher_t {
 
 		virtual bool ist_feld_ok(koord pos, koord d, climate_bits cl) const
 		{
-			const planquadrat_t* plan = welt->lookup(pos + d);
+			const planquadrat_t* plan = welt->access(pos + d);
 
 			// Hajo: can't build here
 			if (plan == NULL) return false;
@@ -1723,7 +1723,7 @@ void stadt_t::step_passagiere()
 
 	// suitable start search
 	const koord origin_pos = gb->get_pos().get_2d();
-	const planquadrat_t *const plan = welt->lookup(origin_pos);
+	const planquadrat_t *const plan = welt->access(origin_pos);
 	const halthandle_t *const halt_list = plan->get_haltlist();
 
 	// suitable start search

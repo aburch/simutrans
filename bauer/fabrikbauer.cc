@@ -441,7 +441,7 @@ fabrik_t* fabrikbauer_t::baue_fabrik(karte_t* welt, koord3d* parent, const fabri
 
 		for(  k.x=pos.x;  k.x<pos.x+dim.x;  k.x++  ) {
 			for(  k.y=pos.y;  k.y<pos.y+dim.y;  k.y++  ) {
-				const planquadrat_t *plan = welt->lookup(k);
+				const planquadrat_t *plan = welt->access(k);
 				const halthandle_t *halt_list = plan->get_haltlist();
 				for(  unsigned h=0;  h<plan->get_haltlist_count();  h++  ) {
 					halt_list[h]->verbinde_fabriken();

@@ -985,7 +985,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 
 				//display climate transitions - only needed if below snowline (snow_transition>0)
 				//need to process whole tile for all heights anyway as water transitions are needed for all heights
-				const planquadrat_t * plan = welt->lookup( pos.get_2d() );
+				const planquadrat_t * plan = welt->access( pos.get_2d() );
 				uint8 climate_corners = plan->get_climate_corners();
 				const sint8 snow_transition = welt->get_snowline() - pos.z;
 				weg_t *weg = get_weg(road_wt);
@@ -1789,7 +1789,7 @@ bool grund_t::get_neighbour(grund_t *&to, waytype_t type, ribi_t::ribi ribi) con
 		return false;
 	}
 
-	const planquadrat_t * plan = welt->lookup(pos.get_2d() + koord(ribi) );
+	const planquadrat_t * plan = welt->access(pos.get_2d() + koord(ribi) );
 	if(!plan) {
 		return false;
 	}

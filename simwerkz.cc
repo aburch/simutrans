@@ -1825,7 +1825,7 @@ const char *wkz_change_water_height_t::work( karte_t *welt, spieler_t *, koord3d
 	do {
 		// firstly we must be able to change ground height
 		bool ok = welt->is_plan_height_changeable( k.x, k.y )  &&  k.x > 0  &&  k.y > 0  &&  k.x < welt->get_size().x - 1  &&  k.y < welt->get_size().y - 1;
-		const planquadrat_t *plan = welt->lookup(k);
+		const planquadrat_t *plan = welt->access(k);
 
 		// next there cannot be any other grounds above this tile
 		sint8 h = plan->get_kartenboden()->get_hoehe() + 1;
@@ -3270,7 +3270,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 					halthandle_t last_halt;
 					for(  sint16 x=0;  x<testsize.x;  x++  ) {
 						for(  sint16 y=0;  y<testsize.y;  y++  ) {
-							const planquadrat_t *pl = welt->lookup( pos-offset+koord(x,y) );
+							const planquadrat_t *pl = welt->access( pos-offset+koord(x,y) );
 							if (pl) {
 								for(  uint8 i=0;  i < pl->get_boden_count();  i++  ) {
 									halthandle_t test_halt = pl->get_boden_bei(i)->get_halt();
@@ -3311,7 +3311,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 					// test also diagonal corners (that is why from -1 to size!)
 					for(  sint16 y=-1;  y<=testsize.y;  y++  ) {
 						// left (for all tiles, even bridges)
-						const planquadrat_t *pl = welt->lookup( test_start+koord(-1,y) );
+						const planquadrat_t *pl = welt->access( test_start+koord(-1,y) );
 						if(  pl  ) {
 							for(  uint b=0;  b < pl->get_boden_count();  b++  ) {
 								grund_t *gr = pl->get_boden_bei(b);
@@ -3325,7 +3325,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 								}
 							}
 						}
-						pl = welt->lookup( test_start+koord(testsize.x,y) );
+						pl = welt->access( test_start+koord(testsize.x,y) );
 						if(  pl  ) {
 							for(  uint b=0;  b < pl->get_boden_count();  b++  ) {
 								grund_t *gr = pl->get_boden_bei(b);
@@ -3343,7 +3343,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 					// corners were already checked, but to get correct numbers, we must check them again here
 					for(  sint16 x=-1;  x<=testsize.x;  x++  ) {
 						// upper and lower
-						const planquadrat_t *pl = welt->lookup( test_start+koord(x,-1) );
+						const planquadrat_t *pl = welt->access( test_start+koord(x,-1) );
 						if(  pl  ) {
 							for(  uint b=0;  b < pl->get_boden_count();  b++  ) {
 								grund_t *gr = pl->get_boden_bei(b);
@@ -3357,7 +3357,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 								}
 							}
 						}
-						pl = welt->lookup( test_start+koord(x,testsize.y) );
+						pl = welt->access( test_start+koord(x,testsize.y) );
 						if(  pl  ) {
 							for(  uint b=0;  b < pl->get_boden_count();  b++  ) {
 								grund_t *gr = pl->get_boden_bei(b);
@@ -3414,7 +3414,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 		// check over/under halt again
 		for(  sint16 x=0;  x<besch->get_b(rotation);  x++  ) {
 			for(  sint16 y=0;  y<besch->get_h(rotation);  y++  ) {
-				const planquadrat_t *pl = welt->lookup( pos-offsets+koord(x,y) );
+				const planquadrat_t *pl = welt->access( pos-offsets+koord(x,y) );
 				for(  uint8 i=0;  i < pl->get_boden_count();  i++  ) {
 					halthandle_t test_halt = pl->get_boden_bei(i)->get_halt();
 					if( test_halt.is_bound()  &&  spieler_t::check_owner( new_owner, test_halt->get_besitzer()) ) {
@@ -3441,7 +3441,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 		// check over/under halt
 		for(  sint16 x=0;  x<testsize.x;  x++  ) {
 			for(  sint16 y=0;  y<testsize.y;  y++  ) {
-				const planquadrat_t *pl = welt->lookup(pos+koord(x,y));
+				const planquadrat_t *pl = welt->access(pos+koord(x,y));
 				for(  uint8 i=0;  i < pl->get_boden_count();  i++  ) {
 					halthandle_t test_halt = pl->get_boden_bei(i)->get_halt();
 					if(test_halt.is_bound()) {
@@ -3514,7 +3514,7 @@ const char *wkz_station_t::wkz_station_dock_aux(karte_t *welt, spieler_t *sp, ko
 				return "Zu nah am Kartenrand";
 			}
 			// search for nearby stops
-			const planquadrat_t* pl = welt->lookup(pos-dx*i);
+			const planquadrat_t* pl = welt->access(pos-dx*i);
 			for(  uint8 j=0;  j < pl->get_boden_count();  j++  ) {
 				halthandle_t test_halt = pl->get_boden_bei(j)->get_halt();
 				if(test_halt.is_bound()) {

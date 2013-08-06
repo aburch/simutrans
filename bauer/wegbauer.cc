@@ -778,7 +778,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 					ok &= to->get_typ() == grund_t::fundament && to->find<field_t>();
 				}
 				// no bridges and monorails here in the air
-				ok &= (welt->lookup(to_pos)->get_boden_in_hoehe(to->get_pos().z+1)==NULL);
+				ok &= (welt->access(to_pos)->get_boden_in_hoehe(to->get_pos().z+1)==NULL);
 			}
 
 			// calculate costs

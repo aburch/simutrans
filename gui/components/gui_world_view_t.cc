@@ -152,7 +152,7 @@ void world_view_t::internal_draw(const koord offset, ding_t const* const ding)
 			continue;
 		}
 
-		const planquadrat_t * const plan = welt->lookup(k);
+		const planquadrat_t * const plan = welt->access(k);
 		if(!plan) {
 			continue;
 		}

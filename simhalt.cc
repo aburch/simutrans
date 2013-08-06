@@ -147,7 +147,7 @@ halthandle_t haltestelle_t::get_halt(const karte_t *welt, const koord3d pos, con
 		// no halt? => we do the water check
 		if(gr->ist_wasser()) {
 			// may catch bus stops close to water ...
-			const planquadrat_t *plan = welt->lookup(pos.get_2d());
+			const planquadrat_t *plan = welt->access(pos.get_2d());
 			const uint8 cnt = plan->get_haltlist_count();
 			// first check for own stop
 			for(  uint8 i=0;  i<cnt;  i++  ) {
@@ -906,7 +906,7 @@ bool haltestelle_t::reroute_goods(sint16 &units_remaining)
 				}
 
 				// since also the factory halt list is added to the ground, we can use just this ...
-				if(  welt->lookup(ware.get_zielpos())->is_connected(self)  ) {
+				if(  welt->access(ware.get_zielpos())->is_connected(self)  ) {
 					// we are already there!
 					if(  ware.to_factory  ) {
 						liefere_an_fabrik(ware);
@@ -1244,7 +1244,7 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 	const uint8 ware_catg_idx = ware.get_besch()->get_catg_index();
 
 	// since also the factory halt list is added to the ground, we can use just this ...
-	const planquadrat_t *const plan = welt->lookup( ware.get_zielpos() );
+	const planquadrat_t *const plan = welt->access( ware.get_zielpos() );
 	const halthandle_t *const halt_list = plan->get_haltlist();
 	// but we can only use a subset of these
 	static vector_tpl<halthandle_t> end_halts(16);
@@ -1531,7 +1531,7 @@ void haltestelle_t::search_route_resumable(  ware_t &ware   )
 	ware.set_ziel( halthandle_t() );
 	ware.set_zwischenziel( halthandle_t() );
 	// find suitable destination halts for the ware packet's target position
-	const planquadrat_t *const plan = welt->lookup( ware.get_zielpos() );
+	const planquadrat_t *const plan = welt->access( ware.get_zielpos() );
 	const halthandle_t *const halt_list = plan->get_haltlist();
 
 	// check halt list for presence of current halt
@@ -2038,7 +2038,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 	}
 
 	// did we arrived?
-	if(  welt->lookup(ware.get_zielpos())->is_connected(self)  ) {
+	if(  welt->access(ware.get_zielpos())->is_connected(self)  ) {
 		if(  ware.to_factory  ) {
 			// muss an fabrik geliefert werden
 			liefere_an_fabrik(ware);
@@ -2202,7 +2202,7 @@ void haltestelle_t::make_public_and_join( spieler_t *sp )
 			}
 			// ok, valid start, now we can join them
 			// First search the same square
-			const planquadrat_t *pl = welt->lookup(gr->get_pos().get_2d());
+			const planquadrat_t *pl = welt->access(gr->get_pos().get_2d());
 			for(  uint8 i=0;  i < pl->get_boden_count();  i++  ) {
 				halthandle_t my_halt = pl->get_boden_bei(i)->get_halt();
 				if(  my_halt.is_bound()  &&  my_halt->get_besitzer()==public_owner  &&  !joining.is_contained(my_halt)  ) {
@@ -2211,7 +2211,7 @@ void haltestelle_t::make_public_and_join( spieler_t *sp )
 			}
 			// Now neighboring squares
 			for( uint8 i=0;  i<8;  i++  ) {
-				const planquadrat_t *pl2 = welt->lookup(gr->get_pos().get_2d()+koord::neighbours[i]);
+				const planquadrat_t *pl2 = welt->access(gr->get_pos().get_2d()+koord::neighbours[i]);
 				if(  pl2  ) {
 					for(  uint8 i=0;  i < pl2->get_boden_count();  i++  ) {
 						halthandle_t my_halt = pl2->get_boden_bei(i)->get_halt();
@@ -2965,7 +2965,7 @@ bool haltestelle_t::add_grund(grund_t *gr)
 	// This entire loop is just for the assertion below.
 	// Consider deleting the assertion --neroden
 	bool grund_is_where_it_should_be = false;
-	const planquadrat_t* plan = welt->lookup(pos);
+	const planquadrat_t* plan = welt->access(pos);
 	for(  uint8 i=0;  i < plan->get_boden_count();  i++  ) {
 		const grund_t* found_gr = plan->get_boden_bei(i);
 		if (found_gr == gr) {

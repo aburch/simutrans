@@ -692,7 +692,7 @@ void planquadrat_t::remove_from_haltlist(karte_t *welt, halthandle_t halt)
 	for (int y = -cov; y <= cov; y++) {
 		for (int x = -cov; x <= cov; x++) {
 			koord test_pos = pos+koord(x,y);
-			const planquadrat_t *pl = welt->lookup(test_pos);
+			const planquadrat_t *pl = welt->access(test_pos);
 			if (pl) {
 				for(  uint i = 0;  i < pl->get_boden_count();  i++  ) {
 					if (  pl->get_boden_bei(i)->get_halt() == halt  ) {

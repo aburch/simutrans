@@ -244,7 +244,7 @@ void karte_ansicht_t::display(bool force_dirty)
 			const int xpos = x*(IMG_SIZE/2) + const_x_off;
 
 			if(  xpos+IMG_SIZE>0  ) {
-				const planquadrat_t *plan=welt->lookup(koord(i,j));
+				const planquadrat_t *plan=welt->access(i,j);
 				if(plan  &&  plan->get_kartenboden()) {
 					const grund_t *gr = plan->get_kartenboden();
 					// minimum height: ground height for overground,
@@ -447,8 +447,7 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 			const int xpos = x*(IMG_SIZE/2) + const_x_off;
 
 			if(  xpos+IMG_SIZE>lt.x  ) {
-				const koord pos(i,j);
-				const planquadrat_t *plan=welt->lookup(pos);
+				const planquadrat_t *plan=welt->access(i,j);
 				if(plan  &&  plan->get_kartenboden()) {
 					const grund_t *gr = plan->get_kartenboden();
 					// minimum height: ground height for overground,
@@ -479,6 +478,7 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 					if(yypos-IMG_SIZE*3<wh.y+lt.y  &&  yypos+IMG_SIZE>lt.y) {
 
 						if(  umgebung_t::hide_under_cursor  &&  needs_hiding  ) {
+							const koord pos(i,j);
 							if(  koord_distance(pos,cursor_pos) < umgebung_t::cursor_hide_range  ) {
 								// If the corresponding setting is on, then hide trees and buildings under mouse cursor
 								if(  !lock_restore_hiding  ) {

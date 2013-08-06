@@ -542,7 +542,7 @@ gebaeude_t *hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d po
 			gebaeude_t* gb = gr->find<gebaeude_t>();
 			if(gb==NULL) {
 				// no building on same level, check other levels
-				const planquadrat_t *pl = welt->lookup(checkpos.get_2d());
+				const planquadrat_t *pl = welt->access(checkpos.get_2d());
 				if (pl) {
 					for(  uint8 i=0;  i<pl->get_boden_count();  i++  ) {
 						gr = pl->get_boden_bei(i);

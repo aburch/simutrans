@@ -244,7 +244,7 @@ void vehikel_basis_t::verlasse_feld()
 
 		// check, whether it is on another height ...
 		if(welt->is_within_limits( get_pos().get_2d() )) {
-			gr = welt->lookup( get_pos().get_2d() )->get_boden_von_obj(this);
+			gr = welt->access( get_pos().get_2d() )->get_boden_von_obj(this);
 			if(gr) {
 				gr->obj_remove(this);
 				dbg->warning("vehikel_basis_t::verlasse_feld()","removed vehicle typ %i (%p) from %d %d",get_typ(), this, get_pos().x, get_pos().y);
@@ -257,7 +257,7 @@ void vehikel_basis_t::verlasse_feld()
 
 		for(k.y=0; k.y<welt->get_size().y; k.y++) {
 			for(k.x=0; k.x<welt->get_size().x; k.x++) {
-				grund_t *gr = welt->lookup( k )->get_boden_von_obj(this);
+				grund_t *gr = welt->access( k )->get_boden_von_obj(this);
 				if(gr && gr->obj_remove(this)) {
 					dbg->warning("vehikel_basis_t::verlasse_feld()","removed vehicle typ %i (%p) from %d %d",get_name(), this, k.x, k.y);
 					ok = true;

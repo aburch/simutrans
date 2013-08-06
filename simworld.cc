@@ -584,10 +584,10 @@ void karte_t::cleanup_karte( int xoff, int yoff )
 			// recalc water ribis
 			if (recalc_water) {
 				if (i>0) {
-					lookup_kartenboden(koord(i-1,j))->calc_bild();
+					lookup_kartenboden(i-1,j)->calc_bild();
 				}
 				if (j>0) {
-					lookup_kartenboden(koord(i,j-1))->calc_bild();
+					lookup_kartenboden(i,j-1)->calc_bild();
 				}
 			}
 		}
@@ -1732,26 +1732,26 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 
 	if ( old_x > 0  &&  old_y > 0){
 		for(i=0; i<old_x; i++) {
-			gr = lookup_kartenboden(koord(i, old_y-1));
+			gr = lookup_kartenboden(i, old_y-1);
 			h = gr->get_hoehe(hang_t::corner_SW);
 			raise_grid_to(i, old_y+1, h);
 		}
 		for(i=0; i<old_y; i++) {
-			gr = lookup_kartenboden(koord(old_x-1, i));
+			gr = lookup_kartenboden(old_x-1, i);
 			h = gr->get_hoehe(hang_t::corner_NE);
 			raise_grid_to(old_x+1, i, h);
 		}
 		for(i=0; i<old_x; i++) {
-			gr = lookup_kartenboden(koord(i, old_y-1));
+			gr = lookup_kartenboden(i, old_y-1);
 			h = gr->get_hoehe(hang_t::corner_SW);
 			lower_grid_to(i, old_y+1, h );
 		}
 		for(i=0; i<old_y; i++) {
-			gr = lookup_kartenboden(koord(old_x-1, i));
+			gr = lookup_kartenboden(old_x-1, i);
 			h = gr->get_hoehe(hang_t::corner_NE);
 			lower_grid_to(old_x+1, i, h);
 		}
-		gr = lookup_kartenboden(koord(old_x-1, old_y -1));
+		gr = lookup_kartenboden(old_x-1, old_y -1);
 		h = gr ->get_hoehe(hang_t::corner_SE);
 		raise_grid_to(old_x+1, old_y+1, h);
 		lower_grid_to(old_x+1, old_y+1, h);
@@ -1760,8 +1760,8 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	// create grounds on new part
 	for (sint16 ix = 0; ix<new_groesse_x; ix++) {
 		for (sint16 iy = (ix>=old_x)?0:old_y; iy<new_groesse_y; iy++) {
-			koord k = koord(ix,iy);
-			access(k)->kartenboden_setzen( new boden_t( this, koord3d( ix, iy, max( min_hgt(k), get_water_hgt(k) ) ), 0 ) );
+			koord k(ix,iy);
+			access(ix,iy)->kartenboden_setzen( new boden_t( this, koord3d( ix, iy, max( min_hgt(k), get_water_hgt(k) ) ), 0 ) );
 		}
 	}
 
@@ -1773,7 +1773,7 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 		// raise water submerging landscape to depth of highest lakes
 		for(  sint16 x = 0;  x < new_groesse_x;  x++  ) {
 			for(  sint16 y = (x >= old_x) ? 0 : old_y;  y < new_groesse_y;  y++  ) {
-					set_water_hgt( koord( x, y ), grundwasser + 8 );
+					set_water_hgt(x, y, grundwasser + 8 );
 			}
 		}
 
@@ -1793,13 +1793,13 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 		// remove remaining surface water
 		for(  sint16 x = 0;  x < new_groesse_x;  x++  ) {
 			for(  sint16 y = (x >= old_x) ? 0 : old_y;  y < new_groesse_y;  y++  ) {
-				const sint8 water_hgt = get_water_hgt( koord( x, y ) );
+				const sint8 water_hgt = get_water_hgt(x, y);
 				if(  water_hgt > grundwasser  ) {
 					if(  water_hgt <= min_hgt( koord( x, y ) )  ) {
-						set_water_hgt( koord( x, y ), grundwasser );
+						set_water_hgt(x, y, grundwasser );
 					}
 					else {
-						set_water_hgt( koord( x, y ), max( grundwasser, water_hgt + grundwasser ) );
+						set_water_hgt(x, y, max( grundwasser, water_hgt + grundwasser ) );
 					}
 				}
 			}
@@ -1807,11 +1807,12 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 
 		for(  sint16 x = 0;  x < new_groesse_x;  x++  ) {
 			for(  sint16 y = (x >= old_x)? 0 : old_y;  y < new_groesse_y;  y++  ) {
-				sint8 hgt = lookup_hgt( koord( x, y ) );
-				if(  get_water_hgt( koord( x, y ) ) < hgt  &&  hgt == max_hgt( koord( x, y ) )
-				  &&  ( ( get_water_hgt(  koord( x, y ) + koord::nord ) == hgt  &&  get_water_hgt( koord( x, y ) + koord::sued ) == hgt )
-				  ||  ( get_water_hgt( koord( x, y ) + koord::ost ) == hgt  &&  get_water_hgt( koord( x, y ) + koord::west ) == hgt ) )  ) {
-					set_water_hgt( koord( x, y ), hgt );
+				koord k(x,y);
+				sint8 hgt = lookup_hgt( k );
+				if(  get_water_hgt( k ) < hgt  &&  hgt == max_hgt( k )
+				  &&  ( ( get_water_hgt(  k + koord::nord ) == hgt  &&  get_water_hgt( k + koord::sued ) == hgt )
+				  ||  ( get_water_hgt( k + koord::ost ) == hgt  &&  get_water_hgt( k + koord::west ) == hgt ) )  ) {
+					set_water_hgt( k, hgt );
 				}
 			}
 		}
@@ -1819,8 +1820,7 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 		// correct grounds after lakes added
 		for(  sint16 ix = 0;  ix < new_groesse_x;  ix++  ) {
 			for(  sint16 iy = (ix >= old_x) ? 0 : old_y;  iy < new_groesse_y;  iy++  ) {
-				koord k = koord( ix, iy );
-				access(k)->correct_water(this);
+				access(ix,iy)->correct_water(this);
 			}
 		}
 	}
@@ -1897,7 +1897,7 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	for( sint16 ix = 0;  ix<new_groesse_x;  ix++  ) {
 		for(  sint16 iy = (ix >= old_x - 19) ? 0 : max( old_y - 19, 0 );  iy < new_groesse_y;  iy++  ) {
 			koord k( ix, iy );
-			if(  lookup(k)->get_climate()  ==  desert_climate  ) {
+			if(  access(k)->get_climate()  ==  desert_climate  ) {
 				uint8 neighbour_beach = 0;
 				//look up neighbouring climates
 				climate neighbour_climate[8];
@@ -2103,7 +2103,7 @@ karte_t::~karte_t()
 
 bool karte_t::can_lower_plan_to(sint16 x, sint16 y, sint8 h) const
 {
-	const planquadrat_t *plan = lookup(koord(x,y));
+	const planquadrat_t *plan = access(x,y);
 
 	if(  plan==NULL  ) {
 		return false;
@@ -2147,7 +2147,7 @@ bool karte_t::can_lower_plan_to(sint16 x, sint16 y, sint8 h) const
 
 bool karte_t::can_raise_plan_to(sint16 x, sint16 y, sint8 h) const
 {
-	const planquadrat_t *plan = lookup(koord(x,y));
+	const planquadrat_t *plan = access(x,y);
 	if(  plan == 0  ||  !is_plan_height_changeable(x, y)  ) {
 		return false;
 	}
@@ -2166,7 +2166,7 @@ bool karte_t::can_raise_plan_to(sint16 x, sint16 y, sint8 h) const
 
 bool karte_t::is_plan_height_changeable(sint16 x, sint16 y) const
 {
-	const planquadrat_t *plan = lookup(koord(x,y));
+	const planquadrat_t *plan = access(x,y);
 	bool ok = true;
 
 	if(plan != NULL) {
@@ -2204,14 +2204,14 @@ bool karte_t::can_raise_to(sint16 x, sint16 y, bool keep_water, sint8 hsw, sint8
 {
 	bool ok = false;
 	if(is_within_limits(x,y)) {
-		grund_t *gr = lookup_kartenboden(koord(x,y));
+		grund_t *gr = lookup_kartenboden(x,y);
 		const sint8 water_hgt = get_water_hgt( koord( x, y ));
 		const sint8 h0 = gr->get_hoehe();
 		// which corners have to be raised?
-		const sint8 h0_sw = scorner1(ctest) ? (gr->ist_wasser() ? min( water_hgt, lookup_hgt( koord( x, y + 1 ) ) )     : h0 + corner1( gr->get_grund_hang() ) ) : hsw + 1;
-		const sint8 h0_se = scorner2(ctest) ? (gr->ist_wasser() ? min( water_hgt, lookup_hgt( koord( x + 1, y + 1 ) ) ) : h0 + corner2( gr->get_grund_hang() ) ) : hse + 1;
-		const sint8 h0_ne = scorner3(ctest) ? (gr->ist_wasser() ? min( water_hgt, lookup_hgt( koord( x + 1, y ) ) )     : h0 + corner3( gr->get_grund_hang() ) ) : hne + 1;
-		const sint8 h0_nw = scorner4(ctest) ? (gr->ist_wasser() ? min( water_hgt, lookup_hgt( koord( x , y ) ) )        : h0 + corner4( gr->get_grund_hang() ) ) : hnw + 1;
+		const sint8 h0_sw = scorner1(ctest) ? (gr->ist_wasser() ? min( water_hgt, lookup_hgt(x,y+1) )   : h0 + corner1( gr->get_grund_hang() ) ) : hsw + 1;
+		const sint8 h0_se = scorner2(ctest) ? (gr->ist_wasser() ? min( water_hgt, lookup_hgt(x+1,y+1) ) : h0 + corner2( gr->get_grund_hang() ) ) : hse + 1;
+		const sint8 h0_ne = scorner3(ctest) ? (gr->ist_wasser() ? min( water_hgt, lookup_hgt(x+1,y) )   : h0 + corner3( gr->get_grund_hang() ) ) : hne + 1;
+		const sint8 h0_nw = scorner4(ctest) ? (gr->ist_wasser() ? min( water_hgt, lookup_hgt(x,y) )     : h0 + corner4( gr->get_grund_hang() ) ) : hnw + 1;
 
 		const sint8 max_hgt = max(max(hsw,hse),max(hne,hnw));
 
@@ -2275,14 +2275,14 @@ int karte_t::raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 {
 	int n=0;
 	if(is_within_limits(x,y)) {
-		grund_t *gr = lookup_kartenboden(koord(x,y));
-		const sint8 water_hgt = get_water_hgt( koord( x, y ));
+		grund_t *gr = lookup_kartenboden(x,y);
+		const sint8 water_hgt = get_water_hgt(x,y);
 		const sint8 h0 = gr->get_hoehe();
 		// old height
-		const sint8 h0_sw = gr->ist_wasser() ? min(water_hgt, lookup_hgt( koord( x, y + 1 ) ) )     : h0 + corner1( gr->get_grund_hang() );
-		const sint8 h0_se = gr->ist_wasser() ? min(water_hgt, lookup_hgt( koord( x + 1, y + 1 ) ) ) : h0 + corner2( gr->get_grund_hang() );
-		const sint8 h0_ne = gr->ist_wasser() ? min(water_hgt, lookup_hgt( koord( x + 1, y ) ) )     : h0 + corner3( gr->get_grund_hang() );
-		const sint8 h0_nw = gr->ist_wasser() ? min(water_hgt, lookup_hgt( koord( x , y ) ) )        : h0 + corner4( gr->get_grund_hang() );
+		const sint8 h0_sw = gr->ist_wasser() ? min(water_hgt, lookup_hgt(x,y+1) )   : h0 + corner1( gr->get_grund_hang() );
+		const sint8 h0_se = gr->ist_wasser() ? min(water_hgt, lookup_hgt(x+1,y+1) ) : h0 + corner2( gr->get_grund_hang() );
+		const sint8 h0_ne = gr->ist_wasser() ? min(water_hgt, lookup_hgt(x+1,y) )   : h0 + corner3( gr->get_grund_hang() );
+		const sint8 h0_nw = gr->ist_wasser() ? min(water_hgt, lookup_hgt(x,y) )     : h0 + corner4( gr->get_grund_hang() );
 
 		// new height
 		const sint8 hn_sw = max(hsw, h0_sw);
@@ -2315,17 +2315,17 @@ int karte_t::raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 		}
 
 		// update north point in grid
-		set_grid_hgt(koord(x,y), hn_nw);
+		set_grid_hgt(x, y, hn_nw);
 		calc_climate(koord(x,y), true);
 		if ( x == cached_size.x ) {
 			// update eastern grid coordinates too if we are in the edge.
-			set_grid_hgt(koord(x+1, y), hn_ne);
-			set_grid_hgt(koord(x+1, y+1), hn_se);
+			set_grid_hgt(x+1, y, hn_ne);
+			set_grid_hgt(x+1, y+1, hn_se);
 		}
 		if ( y == cached_size.y ) {
 			// update southern grid coordinates too if we are in the edge.
-			set_grid_hgt(koord(x, y+1), hn_sw);
-			set_grid_hgt(koord(x+1, y+1), hn_se);
+			set_grid_hgt(x, y+1, hn_sw);
+			set_grid_hgt(x+1, y+1, hn_se);
 		}
 
 		n += hn_sw > h0_sw ? 1 : 0 + hn_se > h0_se ? 1 : 0 + hn_ne > h0_ne ? 1 : 0 + hn_nw > h0_nw ? 1 : 0;
@@ -2367,12 +2367,12 @@ int karte_t::raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 			n += raise_to( x - 1, y, hw, hsw, hnw, hw );
 		}
 
-		lookup_kartenboden(koord(x,y))->calc_bild();
+		lookup_kartenboden(x,y)->calc_bild();
 		if ( (x+1) < cached_size.x ) {
-			lookup_kartenboden(koord(x+1,y))->calc_bild();
+			lookup_kartenboden(x+1,y)->calc_bild();
 		}
 		if ( (y+1) < cached_size.y ) {
-			lookup_kartenboden(koord(x,y+1))->calc_bild();
+			lookup_kartenboden(x,y+1)->calc_bild();
 		}
 	}
 	return n;
@@ -2441,14 +2441,14 @@ bool karte_t::can_lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, 
 {
 	bool ok = false;
 	if(is_within_limits(x,y)) {
-		grund_t *gr = lookup_kartenboden(koord(x,y));
-		const sint8 water_hgt = get_water_hgt( koord( x, y ));
+		grund_t *gr = lookup_kartenboden(x,y);
+		const sint8 water_hgt = get_water_hgt(x,y);
 		const sint8 h0 = gr->get_hoehe();
 		// which corners have to be raised?
-		const sint8 h0_sw = scorner1(ctest) ? (gr->ist_wasser() ? min( water_hgt, lookup_hgt( koord( x, y + 1 ) ) )     : h0 + corner1( gr->get_grund_hang() ) ) : hsw - 1;
-		const sint8 h0_se = scorner2(ctest) ? (gr->ist_wasser() ? min( water_hgt, lookup_hgt( koord( x + 1, y + 1 ) ) ) : h0 + corner2( gr->get_grund_hang() ) ) : hse - 1;
-		const sint8 h0_ne = scorner3(ctest) ? (gr->ist_wasser() ? min( water_hgt, lookup_hgt( koord( x, y + 1 ) ) )     : h0 + corner3( gr->get_grund_hang() ) ) : hne - 1;
-		const sint8 h0_nw = scorner4(ctest) ? (gr->ist_wasser() ? min( water_hgt, lookup_hgt( koord( x, y ) ) )         : h0 + corner4( gr->get_grund_hang() ) ) : hnw - 1;
+		const sint8 h0_sw = scorner1(ctest) ? (gr->ist_wasser() ? min( water_hgt, lookup_hgt(x,y+1) )   : h0 + corner1( gr->get_grund_hang() ) ) : hsw - 1;
+		const sint8 h0_se = scorner2(ctest) ? (gr->ist_wasser() ? min( water_hgt, lookup_hgt(x+1,y+1) ) : h0 + corner2( gr->get_grund_hang() ) ) : hse - 1;
+		const sint8 h0_ne = scorner3(ctest) ? (gr->ist_wasser() ? min( water_hgt, lookup_hgt(x,y+1) )   : h0 + corner3( gr->get_grund_hang() ) ) : hne - 1;
+		const sint8 h0_nw = scorner4(ctest) ? (gr->ist_wasser() ? min( water_hgt, lookup_hgt(x,y) )     : h0 + corner4( gr->get_grund_hang() ) ) : hnw - 1;
 
 		const uint8 max_hdiff = grund_besch_t::double_grounds ?  2 : 1;
 
@@ -2514,14 +2514,14 @@ int karte_t::lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 {
 	int n=0;
 	if(is_within_limits(x,y)) {
-		grund_t *gr = lookup_kartenboden(koord(x,y));
-		sint8 water_hgt = get_water_hgt( koord( x, y ));
+		grund_t *gr = lookup_kartenboden(x,y);
+		sint8 water_hgt = get_water_hgt(x,y);
 		const sint8 h0 = gr->get_hoehe();
 		// old height
-		const sint8 h0_sw = gr->ist_wasser() ? min( water_hgt, lookup_hgt( koord( x , y + 1 ) ) )    : h0 + corner1( gr->get_grund_hang() );
-		const sint8 h0_se = gr->ist_wasser() ? min( water_hgt, lookup_hgt( koord( x + 1, y + 1 ) ) ) : h0 + corner2( gr->get_grund_hang() );
-		const sint8 h0_ne = gr->ist_wasser() ? min( water_hgt, lookup_hgt( koord( x + 1, y ) ) )     : h0 + corner3( gr->get_grund_hang() );
-		const sint8 h0_nw = gr->ist_wasser() ? min( water_hgt, lookup_hgt( koord( x , y ) ) )        : h0 + corner4( gr->get_grund_hang() );
+		const sint8 h0_sw = gr->ist_wasser() ? min( water_hgt, lookup_hgt(x,y+1) )   : h0 + corner1( gr->get_grund_hang() );
+		const sint8 h0_se = gr->ist_wasser() ? min( water_hgt, lookup_hgt(x+1,y+1) ) : h0 + corner2( gr->get_grund_hang() );
+		const sint8 h0_ne = gr->ist_wasser() ? min( water_hgt, lookup_hgt(x+1,y) )   : h0 + corner3( gr->get_grund_hang() );
+		const sint8 h0_nw = gr->ist_wasser() ? min( water_hgt, lookup_hgt(x,y) )     : h0 + corner4( gr->get_grund_hang() );
 		// new height
 		const sint8 hn_sw = min(hsw, h0_sw);
 		const sint8 hn_se = min(hse, h0_se);
@@ -2591,9 +2591,9 @@ int karte_t::lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 
 			// only allow water table to be lowered (except for case of sea level)
 			// this prevents severe (errors!
-			if(  water_table < get_water_hgt( koord( x, y ) )/* || water_table==grundwasser*/) {
+			if(  water_table < get_water_hgt(x,y)/* || water_table==grundwasser*/) {
 				water_hgt = water_table;
-				set_water_hgt( koord( x, y ), water_table );
+				set_water_hgt(x, y, water_table );
 			}
 		}
 
@@ -2612,16 +2612,16 @@ int karte_t::lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 			access(x,y)->abgesenkt(this);
 		}
 		// update north point in grid
-		set_grid_hgt(koord(x, y), hn_nw);
+		set_grid_hgt(x, y, hn_nw);
 		if ( x == cached_size.x ) {
 			// update eastern grid coordinates too if we are in the edge.
-			set_grid_hgt(koord(x+1, y), hn_ne);
-			set_grid_hgt(koord(x+1, y+1), hn_se);
+			set_grid_hgt(x+1, y, hn_ne);
+			set_grid_hgt(x+1, y+1, hn_se);
 		}
 		if ( y == cached_size.y ) {
 			// update southern grid coordinates too if we are in the edge.
-			set_grid_hgt(koord(x, y+1), hn_sw);
-			set_grid_hgt(koord(x+1, y+1), hn_se);
+			set_grid_hgt(x, y+1, hn_sw);
+			set_grid_hgt(x+1, y+1, hn_se);
 		}
 
 		// water heights
@@ -2697,12 +2697,12 @@ int karte_t::lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 			n += lower_to( x - 1, y, hw, hsw, hnw, hw );
 		}
 
-		lookup_kartenboden(koord(x,y))->calc_bild();
+		lookup_kartenboden(x,y)->calc_bild();
 		if( (x+1) < cached_size.x ) {
-			lookup_kartenboden(koord(x+1,y))->calc_bild();
+			lookup_kartenboden(x+1,y)->calc_bild();
 		}
 		if( (y+1) < cached_size.y ) {
-			lookup_kartenboden(koord(x,y+1))->calc_bild();
+			lookup_kartenboden(x,y+1)->calc_bild();
 		}
 	}
 	return n;
@@ -5203,7 +5203,7 @@ void karte_t::plans_laden_abschliessen( sint16 x_min, sint16 x_max, sint16 y_min
 {
 	for(  int y = y_min;  y < y_max;  y++  ) {
 		for(  int x = x_min; x < x_max;  x++  ) {
-			const planquadrat_t *plan = lookup(koord(x,y));
+			const planquadrat_t *plan = access(x,y);
 			const int boden_count = plan->get_boden_count();
 			for(  int schicht = 0;  schicht < boden_count;  schicht++  ) {
 				grund_t *gr = plan->get_boden_bei(schicht);
@@ -5399,7 +5399,7 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 				sint32 hgt;
 				file->rdwr_long(hgt);
 				// old height step was 16!
-				set_grid_hgt(koord(x, y), hgt/16 );
+				set_grid_hgt(x, y, hgt/16 );
 			}
 		}
 	}
@@ -5930,7 +5930,7 @@ halthandle_t karte_t::get_halt_koord_index(koord k, spieler_t *sp, bool create_h
 	}
 	// already there?
 	// check through all the grounds
-	const planquadrat_t* plan = lookup(k);
+	const planquadrat_t* plan = access(k);
 	if(plan) {
 		halthandle_t my_halt = plan->get_halt(sp);
 		if(  my_halt.is_bound()  ) {
@@ -5985,7 +5985,7 @@ void karte_t::mark_area( const koord3d pos, const koord size, const bool mark ) 
 		for( sint16 x=pos.x;  x<pos.x+size.x;  x++  ) {
 			grund_t *gr = lookup( koord3d(x,y,pos.z));
 			if (!gr) {
-				gr = lookup_kartenboden( koord(x,y) );
+				gr = lookup_kartenboden( x,y );
 			}
 			if(gr) {
 				if(mark) {
@@ -6215,7 +6215,7 @@ grund_t* karte_t::get_ground_on_screen_coordinate(const koord screen_pos, sint32
 		}
 		if (grund_t::underground_mode==grund_t::ugm_level && hgt==hmax) {
 			// fallback in sliced mode, if no ground is under cursor
-			bd = lookup_kartenboden(koord(found_i,found_j));
+			bd = lookup_kartenboden(found_i,found_j);
 		}
 		else if (intersect_grid){
 			// We try to intersect with virtual nonexistent border tiles in south and east.

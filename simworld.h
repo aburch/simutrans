@@ -1240,7 +1240,7 @@ public:
 	 * @author Kieron Green
 	 */
 	inline climate get_climate(koord k) const {
-		const planquadrat_t *plan = lookup(k);
+		const planquadrat_t *plan = access(k);
 		return plan ? plan->get_climate() : water_climate;
 	}
 
@@ -1296,19 +1296,6 @@ public:
 
 	/**
 	 * @return True if the specified coordinate is inside the world tiles(planquadrat_t) limits, false otherwise.
-	 * @param k (x,y) coordinate.
-	 * @note Inline because called very frequently!
-	 */
-	inline bool is_within_limits(koord k) const {
-		// prissi: since negative values will make the whole result negative, we can use bitwise or
-		// faster, since pentiums and other long pipeline processors do not like jumps
-		return (k.x|k.y|(cached_size.x-k.x)|(cached_size.y-k.y))>=0;
-		// this is only 67% of the above speed
-		//return k.x>=0 &&  k.y>=0  &&  cached_groesse_karte_x>=k.x  &&  cached_groesse_karte_y>=k.y;
-	}
-
-	/**
-	 * @return True if the specified coordinate is inside the world tiles(planquadrat_t) limits, false otherwise.
 	 * @param x X coordinate.
 	 * @param y Y coordinate.
 	 * @note Inline because called very frequently!
@@ -1321,16 +1308,11 @@ public:
 	}
 
 	/**
-	 * @return True if the specified coordinate is inside the world height grid limits, false otherwise.
+	 * @return True if the specified coordinate is inside the world tiles(planquadrat_t) limits, false otherwise.
 	 * @param k (x,y) coordinate.
 	 * @note Inline because called very frequently!
 	 */
-	inline bool is_within_grid_limits(const koord &k) const {
-	// prissi: since negative values will make the whole result negative, we can use bitwise or
-	// faster, since pentiums and other long pipeline processors do not like jumps
-		return (k.x|k.y|(cached_grid_size.x-k.x)|(cached_grid_size.y-k.y))>=0;
-//		return k.x>=0 &&  k.y>=0  &&  cached_groesse_gitter_x>=k.x  &&  cached_groesse_gitter_y>=k.y;
-	}
+	inline bool is_within_limits(koord k) const { return is_within_limits(k.x, k.y); }
 
 	/**
 	 * @return True if the specified coordinate is inside the world height grid limits, false otherwise.
@@ -1347,6 +1329,13 @@ public:
 
 	/**
 	 * @return True if the specified coordinate is inside the world height grid limits, false otherwise.
+	 * @param k (x,y) coordinate.
+	 * @note Inline because called very frequently!
+	 */
+	inline bool is_within_grid_limits(const koord &k) const { return is_within_grid_limits(k.x, k.y); }
+
+	/**
+	 * @return True if the specified coordinate is inside the world height grid limits, false otherwise.
 	 * @param x X coordinate.
 	 * @param y Y coordinate.
 	 * @note Inline because called very frequently!
@@ -1356,23 +1345,13 @@ public:
 	}
 
 	/**
-	 * @return Planquadrat an koordinate pos
-	 * @note Inline because called very frequently!
-	 * @author Hj. Malthaner
-	 */
-	inline const planquadrat_t *lookup(const koord &k) const
-	{
-		return is_within_limits(k.x, k.y) ? &plan[k.x+k.y*cached_grid_size.x] : 0;
-	}
-
-	/**
 	 * @return grund an pos/hoehe
 	 * @note Inline because called very frequently!
 	 * @author Hj. Malthaner
 	 */
 	inline grund_t *lookup(const koord3d &pos) const
 	{
-		const planquadrat_t *plan = lookup(pos.get_2d());
+		const planquadrat_t *plan = access(pos.get_2d());
 		return plan ? plan->get_boden_in_hoehe(pos.z) : NULL;
 	}
 
@@ -1417,12 +1396,12 @@ public:
 		}
 
 		if ( ( pos.x == cached_grid_size.x )  &&  ( pos.y == cached_grid_size.y ) ) {
-			return lookup(koord(pos.x-1, pos.y-1))->get_kartenboden();
+			return access(koord(pos.x-1, pos.y-1))->get_kartenboden();
 		}
 		else if ( pos.x == cached_grid_size.x ) {
-			return lookup(koord(pos.x-1, pos.y))->get_kartenboden();
+			return access(koord(pos.x-1, pos.y))->get_kartenboden();
 		}
-		return lookup(koord(pos.x, pos.y-1))->get_kartenboden();
+		return access(koord(pos.x, pos.y-1))->get_kartenboden();
 	}
 
 	/**
@@ -1454,10 +1433,12 @@ public:
 	 * @return grund at the bottom (where house will be build)
 	 * @note Inline because called very frequently!
 	 */
-	inline grund_t *lookup_kartenboden(const koord &pos) const
+	inline grund_t *lookup_kartenboden(const sint16 x, const sint16 y) const
 	{
-		return is_within_limits(pos.x, pos.y) ? plan[pos.x+pos.y*cached_grid_size.x].get_kartenboden() : NULL;
+		return is_within_limits(x, y) ? plan[x+y*cached_grid_size.x].get_kartenboden() : NULL;
 	}
+
+	inline grund_t *lookup_kartenboden(const koord &pos) const { return lookup_kartenboden(pos.x, pos.y); }
 
 	/**
 	 * @return The natural slope at a position.
@@ -1641,38 +1622,46 @@ public:
 		return is_within_limits(i, j) ? &plan[i + j*cached_grid_size.x] : NULL;
 	}
 
-	inline planquadrat_t *access(koord k) const {
-		return is_within_limits(k) ? &plan[k.x + k.y*cached_grid_size.x] : NULL;
-	}
+	inline planquadrat_t *access(koord k) const { return access(k.x, k.y); }
 
 	/**
 	 * @return Height at the grid point i, j
 	 * @author Hj. Malthaner
 	 */
-	inline sint8 lookup_hgt(koord k) const {
-		return is_within_grid_limits(k.x, k.y) ? grid_hgts[k.x + k.y*(cached_grid_size.x+1)] : grundwasser;
+	inline sint8 lookup_hgt(sint16 x, sint16 y) const {
+		return is_within_grid_limits(x, y) ? grid_hgts[x + y*(cached_grid_size.x+1)] : grundwasser;
 	}
+
+	inline sint8 lookup_hgt(koord k) const { return lookup_hgt(k.x, k.y); }
 
 	/**
 	 * Sets grid height.
 	 * Never set grid_hgts manually, always use this method!
 	 * @author Hj. Malthaner
 	 */
-	void set_grid_hgt(koord k, sint8 hgt) { grid_hgts[k.x + k.y*(uint32)(cached_grid_size.x+1)] = hgt; }
+	void set_grid_hgt(sint16 x, sint16 y, sint8 hgt) { grid_hgts[x + y*(uint32)(cached_grid_size.x+1)] = hgt; }
+
+	inline void set_grid_hgt(koord k, sint8 hgt) { set_grid_hgt(k.x, k.y, hgt); }
+
 
 	/**
 	 * @return water height
 	 * @author Kieron Green
 	 */
-	inline sint8 get_water_hgt(koord k) const {
-		return is_within_limits( k.x, k.y ) ? water_hgts[k.x + k.y * (cached_grid_size.x)] : grundwasser;
+	inline sint8 get_water_hgt(sint16 x, sint16 y) const {
+		return is_within_limits( x, y ) ? water_hgts[x + y * (cached_grid_size.x)] : grundwasser;
 	}
+
+	inline sint8 get_water_hgt(koord k) const { return get_water_hgt(k.x, k.y); }
+
 
 	/**
 	 * Sets water height.
 	 * @author Kieron Green
 	 */
-	void set_water_hgt(koord k, sint8 hgt) { water_hgts[k.x + k.y * (uint32)(cached_grid_size.x)] = (hgt); }
+	void set_water_hgt(sint16 x, sint16 y, sint8 hgt) { water_hgts[x + y * (uint32)(cached_grid_size.x)] = (hgt); }
+
+	inline void set_water_hgt(koord k, sint8 hgt) {  set_water_hgt(k.x, k.y, hgt); }
 
 	/**
 	 * Fills array with corner heights of neighbours

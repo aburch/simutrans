@@ -386,7 +386,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 	for (int y = pos1.y - cov; y <= pos1.y + cov; ++y) {
 		for (int x = pos1.x - cov; x <= pos1.x + cov; ++x) {
 			koord p(x,y);
-			const planquadrat_t *plan = welt->lookup(p);
+			const planquadrat_t *plan = welt->access(p);
 			if(plan) {
 				grund_t *gr = plan->get_kartenboden();
 				if(  gr->ist_wasser()  &&  !gr->get_halt().is_bound()  ) {
@@ -403,7 +403,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 	for (int y = pos1.y - cov; y <= pos1.y + cov; ++y) {
 		for (int x = pos1.x - cov; x <= pos1.x + cov; ++x) {
 			koord p(x,y);
-			const planquadrat_t *plan = welt->lookup(p);
+			const planquadrat_t *plan = welt->access(p);
 			if(plan) {
 				grund_t *gr = plan->get_kartenboden();
 				if(  gr->ist_wasser()  &&  !gr->get_halt().is_bound()  ) {
@@ -835,7 +835,7 @@ void ai_passenger_t::walk_city(linehandle_t const line, grund_t* const start, in
 				uint16 const cov = welt->get_settings().get_station_coverage();
 				for (sint16 y = to->get_pos().y - cov; y <= to->get_pos().y + cov + 1; ++y) {
 					for (sint16 x = to->get_pos().x - cov; x <= to->get_pos().x + cov + 1; ++x) {
-						const planquadrat_t *pl = welt->lookup(koord(x,y));
+						const planquadrat_t *pl = welt->access(koord(x,y));
 						// check, if we have a passenger stop already here
 						if(pl  &&  pl->get_haltlist_count()>0) {
 							const halthandle_t *hl=pl->get_haltlist();

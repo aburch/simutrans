@@ -383,7 +383,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 
 			to = NULL;
 			if(is_airplane) {
-				const planquadrat_t *pl=welt->lookup(gr->get_pos().get_2d()+koord(next_ribi[r]));
+				const planquadrat_t *pl=welt->access(gr->get_pos().get_2d()+koord(next_ribi[r]));
 				if(pl) {
 					to = pl->get_kartenboden();
 				}

@@ -719,7 +719,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 	}
 
 	// always use to uppermost ground
-	const planquadrat_t *plan=welt->lookup(k);
+	const planquadrat_t *plan=welt->access(k);
 	if(plan==NULL  ||  plan->get_boden_count()==0) {
 		return;
 	}
