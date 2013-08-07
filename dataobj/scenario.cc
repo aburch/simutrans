@@ -146,7 +146,14 @@ bool scenario_t::load_script(const char* filename)
 		dbg->error("scenario_t::load_script", "error [%s] calling %s", err, basefile);
 		return false;
 	}
+
+	// register api functions
 	register_export_function(script->get_vm(), welt);
+	err = script->get_error();
+	if (err) {
+		dbg->error("scenario_t::load_script", "error [%s] calling register_export_function", err);
+		return false;
+	}
 
 	// init strings
 	dynamic_string::init();
