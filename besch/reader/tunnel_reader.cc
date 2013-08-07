@@ -11,7 +11,7 @@
 #include "tunnel_reader.h"
 
 #include "../../bauer/tunnelbauer.h"
-#include "../../dataobj/pakset_info.h"
+#include "../../network/pakset_info.h"
 
 
 void tunnel_reader_t::register_obj(obj_besch_t *&data)

@@ -2,7 +2,7 @@
 #define _PAKSET_INFO_H
 
 #include "../tpl/stringhashtable_tpl.h"
-#include "../utils/checksum.h"
+#include "checksum.h"
 
 
 class pakset_info_t

@@ -16,7 +16,7 @@
 #include "../simcolor.h"
 #include "../simworld.h"
 #include "../simmenu.h"
-#include "../dataobj/network_cmd_ingame.h"
+#include "../network/network_cmd_ingame.h"
 #include "../dataobj/umgebung.h"
 #include "../dataobj/scenario.h"
 #include "../dataobj/translator.h"

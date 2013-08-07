@@ -1,6 +1,6 @@
 #include "fabrik_besch.h"
 #include "xref_besch.h"
-#include "../utils/checksum.h"
+#include "../network/checksum.h"
 
 
 void field_class_besch_t::calc_checksum(checksum_t *chk) const

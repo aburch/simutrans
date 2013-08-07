@@ -27,7 +27,7 @@
 
 #include "dataobj/marker.h"
 #include "dataobj/einstellungen.h"
-#include "dataobj/pwd_hash.h"
+#include "network/pwd_hash.h"
 #include "dataobj/loadsave.h"
 
 #include "simplan.h"

@@ -11,7 +11,7 @@
 #include "bildliste_besch.h"
 #include "../dataobj/ribi.h"
 #include "../simtypes.h"
-#include "../utils/checksum.h"
+#include "../network/checksum.h"
 
 
 /*

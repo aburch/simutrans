@@ -6,7 +6,7 @@
 #include "../intro_dates.h"
 #include "../obj_node_info.h"
 #include "building_reader.h"
-#include "../../dataobj/pakset_info.h"
+#include "../../network/pakset_info.h"
 
 
 obj_besch_t * tile_reader_t::read_node(FILE *fp, obj_node_info_t &node)

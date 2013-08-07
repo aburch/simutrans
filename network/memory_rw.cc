@@ -1,11 +1,9 @@
-
 #include "memory_rw.h"
 #include <string.h>
 #include <stdlib.h>
-#include "plainstring.h"
 #include "../simdebug.h"
 #include "../simmem.h"
-#include "plainstring.h"
+#include "../utils/plainstring.h"
 
 
 memory_rw_t::memory_rw_t( void *ptr, uint32 max, bool saving )

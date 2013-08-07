@@ -13,7 +13,7 @@
 #include "obj_besch_std_name.h"
 #include "skin_besch.h"
 #include "../dataobj/ribi.h"
-#include "../utils/checksum.h"
+#include "../network/checksum.h"
 
 
 class werkzeug_t;

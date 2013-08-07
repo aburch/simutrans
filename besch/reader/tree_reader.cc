@@ -7,7 +7,7 @@
 #include "../baum_besch.h"
 #include "../obj_node_info.h"
 #include "tree_reader.h"
-#include "../../dataobj/pakset_info.h"
+#include "../../network/pakset_info.h"
 
 
 void tree_reader_t::register_obj(obj_besch_t *&data)

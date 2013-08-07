@@ -4,7 +4,7 @@
 #include "network_packet.h"
 
 #ifndef NETTOOL
-#include "umgebung.h"
+#include "../dataobj/umgebung.h"
 #endif
 
 

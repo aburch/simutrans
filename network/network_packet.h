@@ -2,7 +2,7 @@
 #define _NETWORK_PACKET_H
 
 #include "../simtypes.h"
-#include "../utils/memory_rw.h"
+#include "memory_rw.h"
 #include "network.h"
 
 #define MAX_PACKET_LEN (8192)

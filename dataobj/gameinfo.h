@@ -5,7 +5,7 @@
 #include "../simtypes.h"
 #include "../simconst.h"
 #include "../tpl/array2d_tpl.h"
-#include "../utils/checksum.h"
+#include "../network/checksum.h"
 
 class karte_t;
 class loadsave_t;

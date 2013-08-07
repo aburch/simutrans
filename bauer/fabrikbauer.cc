@@ -22,7 +22,7 @@
 
 #include "../dataobj/einstellungen.h"
 #include "../dataobj/umgebung.h"
-#include "../dataobj/pakset_info.h"
+#include "../network/pakset_info.h"
 #include "../dataobj/translator.h"
 
 #include "../tpl/vector_tpl.h"

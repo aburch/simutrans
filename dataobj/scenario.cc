@@ -11,8 +11,8 @@
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/umgebung.h"
-#include "../dataobj/network.h"
-#include "../dataobj/network_cmd_scenario.h"
+#include "../network/network.h"
+#include "../network/network_cmd_scenario.h"
 #include "../dataobj/fahrplan.h"
 
 #include "../utils/cbuffer_t.h"

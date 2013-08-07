@@ -2,8 +2,8 @@
 #include "network_packet.h"
 #include "network.h"
 #include "network_socket_list.h"
-#include "translator.h"
-#include "umgebung.h"
+#include "../dataobj/translator.h"
+#include "../dataobj/umgebung.h"
 #include "../utils/cbuffer_t.h"
 #include "../simloadingscreen.h"
 

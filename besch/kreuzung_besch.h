@@ -11,7 +11,7 @@
 #include "bild_besch.h"
 #include "bildliste_besch.h"
 #include "../simtypes.h"
-#include "../utils/checksum.h"
+#include "../network/checksum.h"
 
 
 class checksum_t;

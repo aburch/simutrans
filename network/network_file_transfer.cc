@@ -65,9 +65,9 @@ char const* network_receive_file(SOCKET const s, char const* const save_as, long
 #include "network_cmd_ingame.h"
 #include "network_socket_list.h"
 
-#include "loadsave.h"
-#include "gameinfo.h"
-#include "umgebung.h"
+#include "../dataobj/loadsave.h"
+#include "../dataobj/gameinfo.h"
+#include "../dataobj/umgebung.h"
 #include "../simworld.h"
 #include "../utils/simstring.h"
 

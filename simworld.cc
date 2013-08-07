@@ -72,10 +72,10 @@
 #include "gui/karte.h"
 #include "gui/player_frame_t.h"
 
-#include "dataobj/network.h"
-#include "dataobj/network_file_transfer.h"
-#include "dataobj/network_socket_list.h"
-#include "dataobj/network_cmd_ingame.h"
+#include "network/network.h"
+#include "network/network_file_transfer.h"
+#include "network/network_socket_list.h"
+#include "network/network_cmd_ingame.h"
 #include "dataobj/ribi.h"
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
@@ -86,7 +86,7 @@
 
 #include "utils/cbuffer_t.h"
 #include "utils/simstring.h"
-#include "utils/memory_rw.h"
+#include "network/memory_rw.h"
 
 #include "bauer/brueckenbauer.h"
 #include "bauer/tunnelbauer.h"

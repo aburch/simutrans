@@ -20,12 +20,12 @@
 
 
 #include "../dataobj/translator.h"
-#include "../dataobj/network.h"
-#include "../dataobj/network_file_transfer.h"
-#include "../dataobj/network_cmd_ingame.h"
-#include "../dataobj/network_cmp_pakset.h"
+#include "../network/network.h"
+#include "../network/network_file_transfer.h"
+#include "../network/network_cmd_ingame.h"
+#include "../network/network_cmp_pakset.h"
 #include "../dataobj/umgebung.h"
-#include "../dataobj/pakset_info.h"
+#include "../network/pakset_info.h"
 #include "../player/simplay.h"
 #include "server_frame.h"
 #include "messagebox.h"

@@ -1,7 +1,7 @@
 #ifndef _CHECKSUM_H_
 #define _CHECKSUM_H_
 
-#include "sha1.h"
+#include "../utils/sha1.h"
 
 class checksum_t
 {

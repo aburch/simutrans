@@ -75,7 +75,7 @@
 #include "dataobj/fahrplan.h"
 #include "dataobj/route.h"
 #include "dataobj/scenario.h"
-#include "dataobj/network_cmd_ingame.h" // for dragging raise / lower tools
+#include "network/network_cmd_ingame.h" // for dragging raise / lower tools
 
 #include "bauer/tunnelbauer.h"
 #include "bauer/brueckenbauer.h"
@@ -87,7 +87,7 @@
 
 #include "tpl/vector_tpl.h"
 
-#include "utils/memory_rw.h"
+#include "network/memory_rw.h"
 #include "utils/simstring.h"
 
 #include "simwerkz.h"

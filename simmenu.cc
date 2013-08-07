@@ -42,7 +42,7 @@
 #include "gui/werkzeug_waehler.h"
 
 #include "utils/simstring.h"
-#include "utils/memory_rw.h"
+#include "network/memory_rw.h"
 
 
 // for key loockup; is always sorted during the game

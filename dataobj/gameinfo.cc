@@ -7,8 +7,8 @@
  */
 
 #include "gameinfo.h"
-#include "network.h"
-#include "network_socket_list.h"
+#include "../network/network.h"
+#include "../network/network_socket_list.h"
 #include "einstellungen.h"
 #include "translator.h"
 #include "umgebung.h"
@@ -22,7 +22,7 @@
 #include "../gui/karte.h"
 #include "../utils/simstring.h"
 #include "loadsave.h"
-#include "pakset_info.h"
+#include "../network/pakset_info.h"
 #include "../simversion.h"
 
 

@@ -15,7 +15,7 @@
 #include "message_frame_t.h"
 #include "../simmesg.h"
 #include "message_option_t.h"
-#include "../dataobj/network_cmd_ingame.h"
+#include "../network/network_cmd_ingame.h"
 #include "../player/simplay.h"
 
 

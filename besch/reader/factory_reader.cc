@@ -5,7 +5,7 @@
 #include "../obj_node_info.h"
 #include "../fabrik_besch.h"
 #include "../xref_besch.h"
-#include "../../dataobj/pakset_info.h"
+#include "../../network/pakset_info.h"
 
 #include "factory_reader.h"
 

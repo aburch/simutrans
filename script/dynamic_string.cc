@@ -3,8 +3,8 @@
 
 #include "../simsys.h"
 #include "../simworld.h"
-#include "../dataobj/network.h"
-#include "../dataobj/network_cmd_scenario.h"
+#include "../network/network.h"
+#include "../network/network_cmd_scenario.h"
 #include "../dataobj/umgebung.h"
 #include "../player/simplay.h"
 #include "../tpl/plainstringhashtable_tpl.h"

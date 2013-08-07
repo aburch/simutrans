@@ -12,7 +12,7 @@
 #include "../simworld.h"
 
 #include "../dataobj/translator.h"
-#include "../dataobj/network_cmd_ingame.h"
+#include "../network/network_cmd_ingame.h"
 
 #include "../utils/cbuffer_t.h"
 #include "../utils/sha1.h"

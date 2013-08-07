@@ -9,7 +9,7 @@
 #include "../obj_node_info.h"
 
 #include "../../simdebug.h"
-#include "../../dataobj/pakset_info.h"
+#include "../../network/pakset_info.h"
 
 
 void crossing_reader_t::register_obj(obj_besch_t *&data)

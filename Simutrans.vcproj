@@ -335,7 +335,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\utils\checksum.cc"
+				RelativePath=".\network\checksum.cc"
 				>
 			</File>
 			<File
@@ -763,7 +763,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\utils\memory_rw.cc"
+				RelativePath=".\network\memory_rw.cc"
 				>
 			</File>
 			<File
@@ -803,39 +803,39 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dataobj\network.cc"
+				RelativePath=".\network\network.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\dataobj\network_address.cc"
+				RelativePath=".\network\network_address.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\dataobj\network_cmd.cc"
+				RelativePath=".\network\network_cmd.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\dataobj\network_cmd_ingame.cc"
+				RelativePath=".\network\network_cmd_ingame.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\dataobj\network_cmd_scenario.cc"
+				RelativePath=".\network\network_cmd_scenario.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\dataobj\network_cmp_pakset.cc"
+				RelativePath=".\network\network_cmp_pakset.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\dataobj\network_file_transfer.cc"
+				RelativePath=".\network\network_file_transfer.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\dataobj\network_packet.cc"
+				RelativePath=".\network\network_packet.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\dataobj\network_socket_list.cc"
+				RelativePath=".\network\network_socket_list.cc"
 				>
 			</File>
 			<File
@@ -855,7 +855,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dataobj\pakset_info.cc"
+				RelativePath=".\network\pakset_info.cc"
 				>
 			</File>
 			<File
@@ -887,7 +887,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dataobj\pwd_hash.cc"
+				RelativePath=".\network\pwd_hash.cc"
 				>
 			</File>
 			<File
@@ -1495,7 +1495,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\utils\checksum.h"
+				RelativePath=".\network\checksum.h"
 				>
 			</File>
 			<File
@@ -1975,7 +1975,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\utils\memory_rw.h"
+				RelativePath=".\network\memory_rw.h"
 				>
 			</File>
 			<File
@@ -2023,39 +2023,39 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dataobj\network.h"
+				RelativePath=".\network\network.h"
 				>
 			</File>
 			<File
-				RelativePath=".\dataobj\network_address.h"
+				RelativePath=".\network\network_address.h"
 				>
 			</File>
 			<File
-				RelativePath=".\dataobj\network_cmd.h"
+				RelativePath=".\network\network_cmd.h"
 				>
 			</File>
 			<File
-				RelativePath=".\dataobj\network_cmd_ingame.h"
+				RelativePath=".\network\network_cmd_ingame.h"
 				>
 			</File>
 			<File
-				RelativePath=".\dataobj\network_cmd_scenario.h"
+				RelativePath=".\network\network_cmd_scenario.h"
 				>
 			</File>
 			<File
-				RelativePath=".\dataobj\network_cmp_pakset.h"
+				RelativePath=".\network\network_cmp_pakset.h"
 				>
 			</File>
 			<File
-				RelativePath=".\dataobj\network_file_transfer.h"
+				RelativePath=".\network\network_file_transfer.h"
 				>
 			</File>
 			<File
-				RelativePath=".\dataobj\network_packet.h"
+				RelativePath=".\network\network_packet.h"
 				>
 			</File>
 			<File
-				RelativePath=".\dataobj\network_socket_list.h"
+				RelativePath=".\network\network_socket_list.h"
 				>
 			</File>
 			<File
@@ -2095,7 +2095,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dataobj\pakset_info.h"
+				RelativePath=".\utils\pakset_info.h"
 				>
 			</File>
 			<File
@@ -2139,7 +2139,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dataobj\pwd_hash.h"
+				RelativePath=".\utils\pwd_hash.h"
 				>
 			</File>
 			<File

@@ -7,7 +7,7 @@
 
 #include "bridge_reader.h"
 #include "../obj_node_info.h"
-#include "../../dataobj/pakset_info.h"
+#include "../../network/pakset_info.h"
 
 
 void bridge_reader_t::register_obj(obj_besch_t *&data)

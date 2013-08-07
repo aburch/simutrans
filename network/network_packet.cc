@@ -1,4 +1,3 @@
-
 #include "../simdebug.h"
 #include "network_packet.h"
 #include "network_socket_list.h"

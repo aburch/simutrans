@@ -7,7 +7,7 @@
 #ifndef simplay_h
 #define simplay_h
 
-#include "../dataobj/pwd_hash.h"
+#include "../network/pwd_hash.h"
 #include "../simtypes.h"
 #include "../simlinemgmt.h"
 

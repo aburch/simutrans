@@ -5,7 +5,7 @@
 #include "../simworld.h"
 #include "../tpl/slist_tpl.h"
 #include "../utils/plainstring.h"
-#include "koord3d.h"
+#include "../dataobj/koord3d.h"
 
 class memory_rw_t;
 class connection_info_t;

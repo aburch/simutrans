@@ -8,7 +8,7 @@
 
 #include "../dataobj/ribi.h"
 #include "tunnel_besch.h"
-#include "../utils/checksum.h"
+#include "../network/checksum.h"
 #include "../boden/wege/weg.h"
 
 

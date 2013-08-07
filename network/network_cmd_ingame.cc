@@ -6,9 +6,9 @@
 #include "network_cmp_pakset.h"
 #include "network_cmd_scenario.h"
 
-#include "loadsave.h"
-#include "gameinfo.h"
-#include "scenario.h"
+#include "../dataobj/loadsave.h"
+#include "../dataobj/gameinfo.h"
+#include "../dataobj/scenario.h"
 #include "../simtools.h"
 #include "../simmenu.h"
 #include "../simversion.h"
