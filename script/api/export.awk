@@ -73,6 +73,10 @@ function split_params(string)
 # beginning of class definition
 # begin_class("factory_x", "extend_get");
 /(begin|create)_.*class/ {
+	# ignore class name inside error messages as in 'dbg->error("create_class", "failed ..")'
+	if ( /dbg->(message|warning|error|fatal)/ ) {
+		next
+	}
 	# class with parent class
 	if ( /_class[^"]*"([^"]*)"[^"]*"([^"]*)".*/ ) {
 		match($0, /_class[^"]*"([^"]*)"[^"]*"([^"]*)".*/, data)

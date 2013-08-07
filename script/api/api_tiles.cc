@@ -224,7 +224,7 @@ void export_tiles(HSQUIRRELVM vm)
 	// register_function(..., "constructor", ...);
 	/**
 	 * Access some halt at this square.
-	 * @note Deprecated, use square_x::get_player_halt or tile_x::get_halt instead!
+	 * @deprecated Use square_x::get_player_halt or tile_x::get_halt instead!
 	 * @returns halt_x instance or null/false if no halt is present
 	 */
 	register_method(vm, &get_first_halt_on_square, "get_halt", true);
