@@ -4986,11 +4986,11 @@ void karte_t::step_passengers_and_mail(long delta_t)
 					// We cannot do this on arrival, as the ware packets do not remember their origin building.
 					// TODO: Change the names of these from "local" and "non-local" to "commuting" and "visiting".
 					
-					if(trip == commuting_trip)
+					if(trip == commuting_trip && gb)
 					{
 						gb->add_passengers_succeeded_local(pax_left_to_do);
 					}
-					else if(trip == visiting_trip)
+					else if(trip == visiting_trip && gb)
 					{
 						gb->add_passengers_succeeded_non_local(pax_left_to_do);
 					}
@@ -5067,7 +5067,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 					// TODO: Change the names of these from "local" and "non-local" to "commuting" and "visiting".
 					if(trip == commuting_trip)
 					{
-						gb->add_passengers_succeeded_local(pax_left_to_do);
+						first_origin->add_passengers_succeeded_local(pax_left_to_do);
 						if(current_destination.type == factory)
 						{
 							// Only add commuting passengers at a factory.
@@ -5089,7 +5089,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 					}
 					else if(trip == visiting_trip)
 					{
-						gb->add_passengers_succeeded_non_local(pax_left_to_do);
+						first_origin->add_passengers_succeeded_non_local(pax_left_to_do);
 					}
 					// Do nothing if trip == mail.
 					break;
