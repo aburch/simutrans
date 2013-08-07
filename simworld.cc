@@ -1761,7 +1761,7 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	for (sint16 ix = 0; ix<new_groesse_x; ix++) {
 		for (sint16 iy = (ix>=old_x)?0:old_y; iy<new_groesse_y; iy++) {
 			koord k(ix,iy);
-			access(ix,iy)->kartenboden_setzen( new boden_t( this, koord3d( ix, iy, max( min_hgt(k), get_water_hgt(k) ) ), 0 ) );
+			access(k)->kartenboden_setzen( new boden_t( this, koord3d( ix, iy, max( min_hgt(k), get_water_hgt(k) ) ), 0 ) );
 		}
 	}
 
@@ -2205,7 +2205,7 @@ bool karte_t::can_raise_to(sint16 x, sint16 y, bool keep_water, sint8 hsw, sint8
 	bool ok = false;
 	if(is_within_limits(x,y)) {
 		grund_t *gr = lookup_kartenboden(x,y);
-		const sint8 water_hgt = get_water_hgt( koord( x, y ));
+		const sint8 water_hgt = get_water_hgt(x,y);
 		const sint8 h0 = gr->get_hoehe();
 		// which corners have to be raised?
 		const sint8 h0_sw = scorner1(ctest) ? (gr->ist_wasser() ? min( water_hgt, lookup_hgt(x,y+1) )   : h0 + corner1( gr->get_grund_hang() ) ) : hsw + 1;
@@ -4582,7 +4582,6 @@ uint8 karte_t::recalc_natural_slope( const koord pos, sint8 &new_height ) const
 			if(  old_height < new_height  ) {
 				not_ok |= lookup(koord3d(pos,old_height+1))!=NULL;
 			}
-			not_ok |= lookup(koord3d(pos,new_height))!=NULL;
 		}
 
 		if(  not_ok  ) {

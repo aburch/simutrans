@@ -191,10 +191,6 @@ static halthandle_t suche_nahe_haltestelle(spieler_t *sp, karte_t *welt, koord3d
 		return my_halt;
 	}
 
-	ribi_t::ribi ribi = ribi_t::keine;
-	koord next_try_dir[4];  // will be updated each step: biggest distance try first ...
-	int iAnzahl = 0;
-
 	grund_t *bd = welt->lookup(pos);
 	if(  bd==NULL  ) {
 		bd = welt->lookup_kartenboden(pos.get_2d());
@@ -202,48 +198,24 @@ static halthandle_t suche_nahe_haltestelle(spieler_t *sp, karte_t *welt, koord3d
 
 	// first we try to connect to a stop straight in our direction; otherwise our station may break during construction
 	if(  bd->hat_wege()  ) {
-		ribi = bd->get_weg_nr(0)->get_ribi_unmasked();
-	}
-	if(  ribi_t::nord & ribi ) {
-		next_try_dir[iAnzahl++] = koord(0,-1);
-	}
-	if(  ribi_t::sued & ribi ) {
-		next_try_dir[iAnzahl++] = koord(0,1);
-	}
-	if(  ribi_t::ost & ribi ) {
-		next_try_dir[iAnzahl++] = koord(1,0);
-	}
-	if(  ribi_t::west & ribi ) {
-		next_try_dir[iAnzahl++] = koord(-1,0);
-	}
-
-	// first try to connect to our own following ways
-	for(  int i=0;  i<iAnzahl;  i++ ) {
-		my_halt = welt->get_halt_koord_index( pos.get_2d()+next_try_dir[i], sp, false );
-		if(  my_halt.is_bound()  ) {
-			return my_halt;
+		ribi_t::ribi ribi = bd->get_weg_nr(0)->get_ribi_unmasked();
+		for(  int i=0;  i<4;  i++ ) {
+			if(  ribi_t::nsow[i] & ribi ) {
+				my_halt = welt->get_halt_koord_index( pos.get_2d()+koord::nsow[i], sp, false );
+				if(  my_halt.is_bound()  ) {
+					return my_halt;
+				}
+			}
 		}
 	}
 
 	// now just search all neighbours
 	for(  sint16 y=-1;  y<=h;  y++  ) {
-		my_halt = welt->get_halt_koord_index( pos.get_2d()+koord(-1,y), sp, false );
-		if(  my_halt.is_bound()  ) {
-			return my_halt;
-		}
-		my_halt = welt->get_halt_koord_index( pos.get_2d()+koord(b,y), sp, false );
-		if(  my_halt.is_bound()  ) {
-			return my_halt;
-		}
-	}
-	for(  sint16 x=0;  x<b;  x++  ) {
-		my_halt = welt->get_halt_koord_index( pos.get_2d()+koord(x,-1), sp, false );
-		if(  my_halt.is_bound()  ) {
-			return my_halt;
-		}
-		my_halt = welt->get_halt_koord_index( pos.get_2d()+koord(x,h), sp, false );
-		if(  my_halt.is_bound()  ) {
-			return my_halt;
+		for(  sint16 x=-1;  x<=b;  (x==-1 && y>-1 && y<h) ? x=b:x++  ) {
+			my_halt = welt->get_halt_koord_index( pos.get_2d()+koord(x,y), sp, false );
+			if(  my_halt.is_bound()  ) {
+				return my_halt;
+			}
 		}
 	}
 
@@ -1207,45 +1179,20 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 
 		// check, if action is valid ...
 		const sint16 hgt=new_pos.z;
-		// maximum difference
+		// maximum difference check with tiles to north, south east and west
 		const sint8 test_hgt = hgt+(new_slope!=0);
 
 		if(  gr1->get_typ()==grund_t::boden  ) {
-			// first left side
-			const grund_t *grleft=welt->lookup_kartenboden(pos.get_2d()+koord(-1,0));
-			if(grleft) {
-				const sint16 left_hgt=grleft->get_hoehe() + (new_slope==ALL_DOWN_SLOPE && grleft->get_grund_hang()? 1 : 0);
-				const sint8 diff_from_ground = abs(left_hgt-test_hgt);
-				if(  diff_from_ground > 2 * max_hdiff  ) {
-					return "Maximum tile height difference reached.";
-				}
-			}
+			for(  sint16 i = 0 ;  i < 4 ;  i++  ) {
+				const koord neighbour = pos.get_2d() + koord::nsow[i];
 
-			// right side
-			const grund_t *grright=welt->lookup_kartenboden(pos.get_2d()+koord(1,0));
-			if(grright) {
-				const sint16 right_hgt=grright->get_hoehe()  + (new_slope==ALL_DOWN_SLOPE && grright->get_grund_hang()? 1 : 0);
-				const sint8 diff_from_ground = abs(right_hgt-test_hgt);
-				if(  diff_from_ground > 2 * max_hdiff  ) {
-					return "Maximum tile height difference reached.";
-				}
-			}
-
-			const grund_t *grback=welt->lookup_kartenboden(pos.get_2d()+koord(0,-1));
-			if(grback) {
-				const sint16 back_hgt=grback->get_hoehe()  + (new_slope==ALL_DOWN_SLOPE && grback->get_grund_hang()? 1 : 0);
-				const sint8 diff_from_ground = abs(back_hgt-test_hgt);
-				if(  diff_from_ground > 2 * max_hdiff  ) {
-					return "Maximum tile height difference reached.";
-				}
-			}
-
-			const grund_t *grfront=welt->lookup_kartenboden(pos.get_2d()+koord(0,1));
-			if(grfront) {
-				const sint16 front_hgt=grfront->get_hoehe()  + (new_slope==ALL_DOWN_SLOPE && grfront->get_grund_hang()? 1 : 0);
-				const sint8 diff_from_ground = abs(front_hgt-test_hgt);
-				if(  diff_from_ground > 2 * max_hdiff  ) {
-					return "Maximum tile height difference reached.";
+				const grund_t *gr_neighbour=welt->lookup_kartenboden(neighbour);
+				if(gr_neighbour) {
+					const sint16 gr_neighbour_hgt=gr_neighbour->get_hoehe() + (new_slope==ALL_DOWN_SLOPE && gr_neighbour->get_grund_hang()? 1 : 0);
+					const sint8 diff_from_ground = abs(gr_neighbour_hgt-test_hgt);
+					if(  diff_from_ground > 2 * max_hdiff  ) {
+						return "Maximum tile height difference reached.";
+					}
 				}
 			}
 		}
@@ -1324,10 +1271,18 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 						grund_t *sea = welt->lookup_kartenboden(new_pos.get_2d() - koord( ribi_typ(new_slope ) ));
 						if (sea  &&  sea->ist_wasser()) {
 							gr1->weg_erweitern(water_wt, ribi_t::rueckwaerts(ribi_typ(new_slope)));
+							sea->calc_bild();
 						}
 					}
 				}
-				// corect the grid height
+				// recalc slope walls on neighbours
+				for(int y=-1; y<=1; y++) {
+					for(int x=-1; x<=1; x++) {
+						grund_t *gr = welt->lookup_kartenboden(pos.get_2d()+koord(x,y));
+						gr->calc_bild();
+					}
+				}
+				// correct the grid height
 				if(  gr1->ist_wasser()  ) {
 					sint8 grid_hgt = min( water_hgt, welt->lookup_hgt( pos.get_2d() ) );
 					welt->set_grid_hgt(pos.get_2d(), grid_hgt );
@@ -1337,8 +1292,6 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 				}
 				reliefkarte_t::get_karte()->calc_map_pixel(pos.get_2d());
 
-				// calc climate doesn't just calc a new climate - it also recalcs images of neighbouring tiles
-				// these may have changes due to canals connecting to sea or changed slope walls
 				welt->calc_climate( pos.get_2d(), true );
 			}
 			settings_t const& s = welt->get_settings();
@@ -1882,7 +1835,7 @@ const char *wkz_change_water_height_t::work( karte_t *welt, spieler_t *, koord3d
 		for(  int x = 1;  x<welt->get_size().x - 1;  x++  ) {
 			if(  stage[array_koord(x,y)] > -1  ) {
 				// calculate new height, slope and climate and set water height
-				grund_t *gr2 =welt->lookup_kartenboden( koord( x, y ) );
+				grund_t *gr2 =welt->lookup_kartenboden(x, y);
 
 				// remove any objects on this tile
 				gr2->obj_loesche_alle( NULL );
@@ -1894,13 +1847,13 @@ const char *wkz_change_water_height_t::work( karte_t *welt, spieler_t *, koord3d
 
 				// if min grid height here is less than ground height it will be because either we are partially or totally water
 				if(  h0 > min_grid_hgt  ) {
-					h0_nw = welt->lookup_hgt( koord( x, y ) );
-					h0_ne = welt->lookup_hgt( koord( x + 1, y ) );
-					h0_se = welt->lookup_hgt( koord( x + 1, y + 1 ) );
-					h0_sw = welt->lookup_hgt( koord( x, y + 1 ) );
+					h0_nw = welt->lookup_hgt(x, y);
+					h0_ne = welt->lookup_hgt(x+1, y);
+					h0_se = welt->lookup_hgt(x+1, y+1);
+					h0_sw = welt->lookup_hgt(x, y+1);
 					if(  !gr2->ist_wasser()  ) {
 						// partially water - while this appears to be a single height slope actually it is a double height slope half underwater
-						const sint8 water_hgt = welt->get_water_hgt( koord( x, y ) );
+						const sint8 water_hgt = welt->get_water_hgt(x, y);
 						h0_nw >= water_hgt ? h0_nw = h0 + corner4( gr2->get_grund_hang() ) : 0;
 						h0_ne >= water_hgt ? h0_ne = h0 + corner3( gr2->get_grund_hang() ) : 0;
 						h0_se >= water_hgt ? h0_se = h0 + corner2( gr2->get_grund_hang() ) : 0;
@@ -1927,8 +1880,8 @@ const char *wkz_change_water_height_t::work( karte_t *welt, spieler_t *, koord3d
 				const uint8 sneu = (hneu_sw - hneu > 2 ? 2 : hneu_sw - hneu) + ((hneu_se - hneu > 2 ? 2 : hneu_se-hneu) * 3) + ((hneu_ne - hneu > 2 ? 2 : hneu_ne - hneu) * 9) + ((hneu_nw - hneu > 2 ? 2 : hneu_nw - hneu) * 27);
 				gr2->set_grund_hang( sneu );
 
-				welt->set_water_hgt( koord( x, y ), new_water_height );
-				welt->access( koord( x, y ) )->correct_water( welt );
+				welt->set_water_hgt(x, y, new_water_height );
+				welt->access(x, y)->correct_water( welt );
 				welt->calc_climate( koord( x, y ), true );
 			}
 		}
@@ -3305,101 +3258,68 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 						offsets = offset;
 					}
 					koord test_start = pos-offset;
+
 					// find all surrounding tiles with a stop
-					int neighbour_halt_n = 0, neighbour_halt_s = 0, neighbour_halt_e = 0, neighbour_halt_w = 0;
-					int best_halt_n = 0, best_halt_s = 0, best_halt_e = 0, best_halt_w = 0;
+					// for following section of code arrays are arranged north = 0, east = 1, south = 2, west = 3
+					int neighbour_halts[4] = { 0, 0, 0, 0 };
+					int best_halts[4] = { 0, 0, 0, 0 };
+
 					// test also diagonal corners (that is why from -1 to size!)
 					for(  sint16 y=-1;  y<=testsize.y;  y++  ) {
-						// left (for all tiles, even bridges)
-						const planquadrat_t *pl = welt->access( test_start+koord(-1,y) );
-						if(  pl  ) {
-							for(  uint b=0;  b < pl->get_boden_count();  b++  ) {
-								grund_t *gr = pl->get_boden_bei(b);
-								if(  gr->is_halt()  &&  gr->get_halt().is_bound() &&  new_owner == gr->get_halt()->get_besitzer()  ) {
-									halt = gr->get_halt();
-									neighbour_halt_w ++;
-									gebaeude_t *gb = gr->find<gebaeude_t>();
-									if(  gr->hat_wege()  &&  gb  &&  gb->get_tile()->get_besch()->get_extra()==besch->get_extra()  ) {
-										best_halt_w ++;
-									}
-								}
-							}
-						}
-						pl = welt->access( test_start+koord(testsize.x,y) );
-						if(  pl  ) {
-							for(  uint b=0;  b < pl->get_boden_count();  b++  ) {
-								grund_t *gr = pl->get_boden_bei(b);
-								if(  gr->is_halt()  &&  gr->get_halt().is_bound() &&  new_owner == gr->get_halt()->get_besitzer()  ) {
-									halt = gr->get_halt();
-									neighbour_halt_e ++;
-									gebaeude_t *gb = gr->find<gebaeude_t>();
-									if(  gr->hat_wege()  &&  gb  &&  gb->get_tile()->get_besch()->get_extra()==besch->get_extra()  ) {
-										best_halt_e ++;
-									}
-								}
-							}
-						}
-					}
-					// corners were already checked, but to get correct numbers, we must check them again here
-					for(  sint16 x=-1;  x<=testsize.x;  x++  ) {
-						// upper and lower
-						const planquadrat_t *pl = welt->access( test_start+koord(x,-1) );
-						if(  pl  ) {
-							for(  uint b=0;  b < pl->get_boden_count();  b++  ) {
-								grund_t *gr = pl->get_boden_bei(b);
-								if(  gr->is_halt()  &&  gr->get_halt().is_bound() &&  new_owner == gr->get_halt()->get_besitzer()  ) {
-									halt = gr->get_halt();
-									neighbour_halt_n ++;
-									gebaeude_t *gb = gr->find<gebaeude_t>();
-									if(  gr->hat_wege()  &&  gb  &&  gb->get_tile()->get_besch()->get_extra()==besch->get_extra()  ) {
-										best_halt_n ++;
-									}
-								}
-							}
-						}
-						pl = welt->access( test_start+koord(x,testsize.y) );
-						if(  pl  ) {
-							for(  uint b=0;  b < pl->get_boden_count();  b++  ) {
-								grund_t *gr = pl->get_boden_bei(b);
-								if(  gr->is_halt()  &&  gr->get_halt().is_bound() &&  new_owner == gr->get_halt()->get_besitzer()  ) {
-									halt = gr->get_halt();
-									neighbour_halt_s ++;
-									gebaeude_t *gb = gr->find<gebaeude_t>();
-									if(  gr->hat_wege()  &&  gb  &&  gb->get_tile()->get_besch()->get_extra()==besch->get_extra()  ) {
-										best_halt_s ++;
+						for(  sint16 x=-1;  x<=testsize.x;  (x==-1 && y>-1 && y<testsize.y)?x=testsize.x:x++  ) {
+							const planquadrat_t *pl = welt->access( test_start+koord(x,y) );
+							if(  pl  ) {
+								for(  uint b=0;  b < pl->get_boden_count();  b++  ) {
+									grund_t *gr = pl->get_boden_bei(b);
+									if(  gr->is_halt()  &&  gr->get_halt().is_bound() &&  new_owner == gr->get_halt()->get_besitzer()  ) {
+										halt = gr->get_halt();
+										gebaeude_t *gb = gr->find<gebaeude_t>();
+										bool best = gr->hat_wege()  &&  gb  &&  gb->get_tile()->get_besch()->get_extra()==besch->get_extra();
+
+										// north
+										if(  y==-1  ) {
+											neighbour_halts[0] ++;
+											if(  best  ) {
+												best_halts[0] ++;
+											}
+										}
+
+										// east
+										if(  x==testsize.x  ) {
+											neighbour_halts[1] ++;
+											if(  best  ) {
+												best_halts[1] ++;
+											}
+										}
+
+										// south
+										if(  y==testsize.y  ) {
+											neighbour_halts[2] ++;
+											if(  best  ) {
+												best_halts[2] ++;
+											}
+										}
+
+										// west
+										if(  x==-1  ) {
+											neighbour_halts[3] ++;
+											if(  best  ) {
+												best_halts[3] ++;
+											}
+										}
 									}
 								}
 							}
 						}
 					}
+
 					// now find out, if this offset/rotation is better ... (i.e. matches more fitting buildings)
-					if(  r==0  ) {
-						// r=0 is either facing south or north
-						if(  best_halt_n>best_halt  ||  (best_halt==0  &&  neighbour_halt_n>any_halt)  ) {
-							best_halt = best_halt_n;
-							any_halt = neighbour_halt_n;
-							rotation = 0;
-							offsets = offset;
-						}
-						if(  best_halt_s>best_halt  ||  (best_halt==0  &&  neighbour_halt_s>any_halt)  ) {
-							best_halt = best_halt_s;
-							any_halt = neighbour_halt_s;
-							rotation = 2;
-							offsets = offset;
-						}
-					}
-					else {
-						// r=1 is either facing east or west
-						if(  best_halt_w>best_halt  ||  (best_halt==0  &&  neighbour_halt_w>any_halt)  ) {
-							best_halt = best_halt_w;
-							any_halt = neighbour_halt_w;
-							rotation = 1;
-							offsets = offset;
-						}
-						if(  best_halt_e>best_halt  ||  (best_halt==0  &&  neighbour_halt_e>any_halt)  ) {
-							best_halt = best_halt_e;
-							any_halt = neighbour_halt_e;
-							rotation = 3;
+					// for r=0 we check north and south, for r=1 we check east and west
+					for(  int i=0;  i<4;  i+=2  ) {
+						if(  best_halts[i]>best_halt  ||  (best_halt==0  &&  neighbour_halts[i]>any_halt)  ) {
+							best_halt = best_halts[i];
+							any_halt = neighbour_halts[i];
+							rotation = i;
 							offsets = offset;
 						}
 					}

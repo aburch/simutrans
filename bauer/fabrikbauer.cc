@@ -411,15 +411,14 @@ fabrik_t* fabrikbauer_t::baue_fabrik(karte_t* welt, koord3d* parent, const fabri
 		const haus_besch_t *besch = info->get_haus();
 		koord dim = besch->get_groesse(rotate);
 
-		koord k;
 		halthandle_t halt = haltestelle_t::create(welt, pos.get_2d(), welt->get_spieler(1));
 		if(halt.is_bound()) {
 
-			for(k.x=pos.x; k.x<pos.x+dim.x; k.x++) {
-				for(k.y=pos.y; k.y<pos.y+dim.y; k.y++) {
-					if(welt->is_within_limits(k)) {
+			for(  int x=pos.x;  x<pos.x+dim.x;  x++  ) {
+				for(  int y=pos.y;  y<pos.y+dim.y;  y++  ) {
+					if(welt->is_within_limits(x,y)) {
 						// add all water to station
-						grund_t *gr = welt->lookup_kartenboden(k);
+						grund_t *gr = welt->lookup_kartenboden(x,y);
 						// build only on gb, otherwise can't remove it
 						// also savegame restore only halt on gb
 						// this needs for bad fish swarm
@@ -437,11 +436,10 @@ fabrik_t* fabrikbauer_t::baue_fabrik(karte_t* welt, koord3d* parent, const fabri
 		// connenct factory to stations
 		// search for near stations and connect factory to them
 		koord dim = info->get_haus()->get_groesse(rotate);
-		koord k;
 
-		for(  k.x=pos.x;  k.x<pos.x+dim.x;  k.x++  ) {
-			for(  k.y=pos.y;  k.y<pos.y+dim.y;  k.y++  ) {
-				const planquadrat_t *plan = welt->access(k);
+		for(  int x=pos.x;  x<pos.x+dim.x;  x++  ) {
+			for(  int y=pos.y;  y<pos.y+dim.y;  y++  ) {
+				const planquadrat_t *plan = welt->access(x,y);
 				const halthandle_t *halt_list = plan->get_haltlist();
 				for(  unsigned h=0;  h<plan->get_haltlist_count();  h++  ) {
 					halt_list[h]->verbinde_fabriken();
