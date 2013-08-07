@@ -1348,7 +1348,7 @@ uint32 gebaeude_t::check_remaining_available_jobs() const
 
 uint32 gebaeude_t::get_total_jobs() const
 {
-	return get_haustyp() == industrie || get_haustyp() == gewerbe || get_haustyp() == unbekannt ? tile->get_besch()->get_level() * welt->get_settings().get_meters_per_tile() / 31 : 0;
+	return get_haustyp() == wohnung ? 0 : tile->get_besch()->get_level() * welt->get_settings().get_meters_per_tile() / 31;
 }
 
 bool gebaeude_t::jobs_available() const

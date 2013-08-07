@@ -4481,7 +4481,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 
 		trip_type trip;
 		koord destination_pos;
-		route_status_type route_status = initialising;
+		route_status_type route_status;
 		destination current_destination;
 		destination first_destination;
 		first_destination.location == koord::invalid;
@@ -4506,13 +4506,13 @@ void karte_t::step_passengers_and_mail(long delta_t)
 			// Mail does not make onward journeys.
 			const uint16 onward_trips = simrand(100, "void stadt_t::step_passagiere() (any onward trips?)") >= 75 && wtyp == warenbauer_t::passagiere ? simrand(max_onward_trips, "void stadt_t::step_passagiere() (how many onward trips?)") + 1 : 1;
 
-			for(int trip_count = 0; trip_count < onward_trips && route_status != no_route && route_status != too_slow && route_status != overcrowded; trip_count ++)
+			route_status = initialising;
+
+			for(int trip_count = 0; trip_count < onward_trips && route_status != no_route && route_status != too_slow && route_status != overcrowded && route_status != destination_unavailable; trip_count ++)
 			{
 				// Permit onward journeys - but only for successful journeys
 
-				const uint8 destination_count = simrand(max_destinations, "void stadt_t::step_passagiere() (number of destinations?)") + 1;
-
-				route_status = no_route;
+				const int destination_count = simrand(max_destinations, "void stadt_t::step_passagiere() (number of destinations?)") + 1;
 
 				// Split passengers between commuting trips and other trips.
 				// TODO: Have the proportion of commuting trips (currently fixed at 2/3rds) customisable in simuconf.tab.
@@ -4636,6 +4636,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 				halthandle_t start_halt;
 				uint16 best_journey_time;
 				uint32 walking_time;
+				route_status = initialising;
 
 				for(int n = 0; n < destination_count && route_status != public_transport && route_status != private_car && route_status != on_foot; n++)
 				{
@@ -4647,9 +4648,16 @@ void karte_t::step_passengers_and_mail(long delta_t)
 							if(current_destination.object.industry->get_stat(0, FAB_PAX_ARRIVED) >= current_destination.object.industry->get_scaled_pax_demand())
 							{
 								// TODO: Find a way of separating the factory's passenger demand for workers and for visitors.
-								route_status = destination_unavailable;
-								current_destination = find_destination(trip);
-								continue;
+								if(route_status == initialising)
+								{
+									// This is the lowest priority route status.
+									route_status = destination_unavailable;
+								}
+								if(n < destination_count - 1)
+								{
+									current_destination = find_destination(trip);
+									continue;
+								}
 							}
 						}
 						else
@@ -4657,12 +4665,25 @@ void karte_t::step_passengers_and_mail(long delta_t)
 							const grund_t* gr = lookup(koord3d(destination_pos, lookup_hgt(destination_pos)));
 							if(!gr || !gr->find<gebaeude_t>()|| !gr->find<gebaeude_t>()->jobs_available())
 							{
-								route_status = destination_unavailable;
-								current_destination = find_destination(trip);
-								continue;
+								if(route_status == initialising)
+								{
+									// This is the lowest priority route status.
+									route_status = destination_unavailable;
+								}
+								if(n < destination_count - 1)
+								{
+									current_destination = find_destination(trip);
+									continue;
+								}
 							}
 						}
 					}
+
+					if(route_status == initialising)
+					{
+						route_status = no_route;
+					}
+
 					const uint32 straight_line_distance = shortest_distance(origin_pos, destination_pos);
 					// Careful -- use uint32 here to avoid overflow cutoff errors.
 					// This number may be very long.
@@ -4672,7 +4693,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 					// If can_walk is true, it also guarantees that walking_time will fit in a uint16.
 					const bool can_walk = walking_time <= quasi_tolerance;
 
-					if(!has_private_car && !can_walk && start_halts.empty())
+					if(!has_private_car && !can_walk && start_halts.empty() && n < destination_count - 1)
 					{
 						/**
 						 * If the passengers have no private car, are not in reach of any public transport
@@ -4927,9 +4948,10 @@ void karte_t::step_passengers_and_mail(long delta_t)
 					}
 				
 					INT_CHECK("simworld 4897");
-					if(route_status == no_route || route_status == too_slow || route_status == overcrowded)
+					if((route_status == no_route || route_status == too_slow || route_status == overcrowded || route_status == destination_unavailable) && n < destination_count - 1)
 					{
 						// Do not get a new destination if there is a good status,
+						// or if this is the last destination to be assigned,
 						// or else entirely the wrong information will be recorded
 						// below!
 						current_destination = find_destination(trip);
