@@ -21,7 +21,7 @@
 #include "../boden/wege/schiene.h"
 #include "../dings/leitung2.h"
 #include "../utils/cbuffer_t.h"
-#include "../simgraph.h"
+#include "../display/simgraph.h"
 #include "../simtools.h"
 #include "../player/simplay.h"
 

@@ -12,9 +12,9 @@
 
 #include "../simworld.h"
 #include "../simdebug.h"
-#include "../simgraph.h"
+#include "../display/simgraph.h"
 #include "../simcolor.h"
-#include "../simwin.h"
+#include "../gui/simwin.h"
 #include "../utils/simstring.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/umgebung.h"

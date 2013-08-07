@@ -6,7 +6,7 @@
 #ifndef factorylist_frame_t_h
 #define factorylist_frame_t_h
 
-#include "gui_frame.h"
+#include "frame.h"
 #include "components/gui_scrollpane.h"
 #include "components/gui_label.h"
 #include "factorylist_stats_t.h"

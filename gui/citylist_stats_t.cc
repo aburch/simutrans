@@ -14,8 +14,8 @@
 
 #include "../simcity.h"
 #include "../simcolor.h"
-#include "../simgraph.h"
-#include "../simwin.h"
+#include "../display/simgraph.h"
+#include "../gui/simwin.h"
 #include "../simworld.h"
 
 #include "../besch/skin_besch.h"

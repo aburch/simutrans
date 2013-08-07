@@ -14,8 +14,8 @@
 
 #include <stddef.h> // for ptrdiff_t
 
-#include "simtypes.h"
-#include "simconst.h"
+#include "../simtypes.h"
+#include "../simconst.h"
 
 class karte_t;
 class koord;

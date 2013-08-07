@@ -18,8 +18,8 @@
 
 #include "../simdebug.h"
 #include "../simworld.h"
-#include "../simwin.h"
-#include "../simimg.h"
+#include "../gui/simwin.h"
+#include "../display/simimg.h"
 #include "../simmesg.h"
 #include "../simskin.h"
 #include "../simtools.h"
@@ -44,7 +44,7 @@
 
 #include "../simcolor.h"
 
-#include "../simgraph.h"
+#include "../display/simgraph.h"
 
 #include "load_relief_frame.h"
 
@@ -77,6 +77,7 @@ welt_gui_t::welt_gui_t(karte_t* const world_par, settings_t* const sets_par) :
 	// Coordinates are relative to parent (TITLEHEIGHT already substracted)
 	koord cursor(D_MARGIN_LEFT,D_MARGIN_TOP);
 	scr_coord_val edit_Width = display_get_char_max_width("0123456789")*5 + button_t::gui_arrow_left_size.x + button_t::gui_arrow_right_size.x;
+	scr_coord_val label_width = L_COLUMN1_X - D_MARGIN_LEFT - D_H_SPACE;
 
 	world = world_par;
 	sets = sets_par;
@@ -137,12 +138,14 @@ welt_gui_t::welt_gui_t(karte_t* const world_par, settings_t* const sets_par) :
 
 	// Map number label
 	map_number_label.init("2WORLD_CHOOSE",cursor);
+	map_number_label.set_width( label_width );
 	map_number_label.align_to(&inp_map_number,ALIGN_CENTER_V);
 	add_komponente( &map_number_label );
 	cursor.y += D_EDIT_HEIGHT;
 
 	// Map size label
 	size_label.init("Size (%d MB):",cursor);
+	size_label.set_width( label_width );
 	add_komponente( &size_label );
 	cursor.y += LINESPACE;
 
@@ -176,6 +179,8 @@ welt_gui_t::welt_gui_t(karte_t* const world_par, settings_t* const sets_par) :
 	add_komponente( &load_map );
 	cursor.y += D_BUTTON_HEIGHT + D_V_SPACE;
 
+	label_width = L_COLUMN2_X - D_MARGIN_LEFT - D_H_SPACE;
+
 	// Number of towns edit
 	inp_number_of_towns.set_pos(koord(L_COLUMN2_X,cursor.y) );
 	inp_number_of_towns.set_groesse(koord(edit_Width, D_EDIT_HEIGHT));
@@ -186,6 +191,7 @@ welt_gui_t::welt_gui_t(karte_t* const world_par, settings_t* const sets_par) :
 
 	// Number of towns label
 	cities_label.init("5WORLD_CHOOSE",cursor);
+	cities_label.set_width( label_width );
 	cities_label.align_to(&inp_number_of_towns,ALIGN_CENTER_V);
 	add_komponente( &cities_label );
 	cursor.y += D_EDIT_HEIGHT;
@@ -201,6 +207,7 @@ welt_gui_t::welt_gui_t(karte_t* const world_par, settings_t* const sets_par) :
 
 	// Town size label
 	median_label.init("Median Citizen per town",cursor);
+	median_label.set_width( label_width );
 	median_label.align_to(&inp_town_size,ALIGN_CENTER_V);
 	add_komponente( &median_label );
 	cursor.y += D_EDIT_HEIGHT;
@@ -216,6 +223,7 @@ welt_gui_t::welt_gui_t(karte_t* const world_par, settings_t* const sets_par) :
 
 	// Intercity road length label
 	intercity_label.init("Intercity road len:",cursor);
+	intercity_label.set_width( label_width );
 	intercity_label.align_to(&inp_intercity_road_len,ALIGN_CENTER_V);
 	add_komponente( &intercity_label );
 	cursor.y += D_EDIT_HEIGHT;
@@ -230,6 +238,7 @@ welt_gui_t::welt_gui_t(karte_t* const world_par, settings_t* const sets_par) :
 
 	// Factories label
 	factories_label.init("No. of Factories",cursor);
+	factories_label.set_width( label_width );
 	factories_label.align_to(&inp_other_industries,ALIGN_CENTER_V);
 	add_komponente( &factories_label );
 	cursor.y += D_EDIT_HEIGHT;
@@ -244,6 +253,7 @@ welt_gui_t::welt_gui_t(karte_t* const world_par, settings_t* const sets_par) :
 
 	// Tourist attr. label
 	tourist_label.init("Tourist attractions",cursor);
+	tourist_label.set_width( label_width );
 	tourist_label.align_to(&inp_tourist_attractions,ALIGN_CENTER_V);
 	add_komponente( &tourist_label );
 	cursor.y += D_EDIT_HEIGHT;
@@ -260,6 +270,7 @@ welt_gui_t::welt_gui_t(karte_t* const world_par, settings_t* const sets_par) :
 
 	// Use timeline checkbox
 	use_intro_dates.init(button_t::square_state,"Use timeline start year", cursor);
+	use_intro_dates.set_width( label_width );
 	use_intro_dates.align_to(&inp_intro_date,ALIGN_CENTER_V);
 	use_intro_dates.pressed = sets->get_use_timeline()&1;
 	use_intro_dates.add_listener( this );
@@ -268,6 +279,7 @@ welt_gui_t::welt_gui_t(karte_t* const world_par, settings_t* const sets_par) :
 
 	// Use beginner mode checkbox
 	use_beginner_mode.init(button_t::square_state, "Use beginner mode", cursor);
+	use_beginner_mode.set_width( label_width );
 	use_beginner_mode.set_tooltip("Higher transport fees, crossconnect all factories");
 	use_beginner_mode.pressed = sets->get_beginner_mode();
 	use_beginner_mode.add_listener( this );

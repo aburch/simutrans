@@ -11,8 +11,8 @@
 
 #include "../simworld.h"
 #include "../simcolor.h"
-#include "../simgraph.h"
-#include "../simwin.h"
+#include "../display/simgraph.h"
+#include "../gui/simwin.h"
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
 #include "../utils/csv.h"

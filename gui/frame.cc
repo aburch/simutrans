@@ -12,10 +12,10 @@
 
 #include <stdio.h>
 
-#include "gui_frame.h"
+#include "frame.h"
 #include "../simcolor.h"
-#include "../simgraph.h"
-#include "../simwin.h"
+#include "../display/simgraph.h"
+#include "../gui/simwin.h"
 #include "../simworld.h"
 #include "../player/simplay.h"
 

@@ -9,15 +9,15 @@
  * This class defines all toolbar dialogues, i.e. the part the user will see
  */
 
-#include "../simimg.h"
+#include "../display/simimg.h"
 #include "../simworld.h"
-#include "../simwin.h"
-#include "../simgraph.h"
+#include "../gui/simwin.h"
+#include "../display/simgraph.h"
 #include "../simmenu.h"
 #include "../dataobj/umgebung.h"
 #include "../utils/for.h"
 #include "werkzeug_waehler.h"
-#include "../gui/gui_frame.h"
+#include "../gui/frame.h"
 
 #define MIN_WIDTH (80)
 

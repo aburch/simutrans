@@ -17,7 +17,7 @@
 #include "../simcolor.h"
 #include "../simconvoi.h"
 #include "../simintr.h"
-#include "../simgraph.h"
+#include "../display/simgraph.h"
 #include "../simmenu.h"
 #include "../simskin.h"
 #include "../simline.h"

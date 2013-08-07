@@ -6,7 +6,7 @@
  */
 
 #include "welt.h"
-#include "../simwin.h"
+#include "../gui/simwin.h"
 #include "../simversion.h"
 #include "../dataobj/einstellungen.h"
 #include "../dataobj/umgebung.h"

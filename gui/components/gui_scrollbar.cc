@@ -8,7 +8,7 @@
 
 #include "../../simdebug.h"
 #include "../../simcolor.h"
-#include "../../simgraph.h"
+#include "../../display/simgraph.h"
 #include "../../simskin.h"
 #include "../../besch/skin_besch.h"
 #include "action_listener.h"

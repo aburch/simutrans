@@ -10,7 +10,7 @@
 #define gui_components_gui_divider_h
 
 #include "gui_komponente.h"
-#include "../../simgraph.h"
+#include "../../display/simgraph.h"
 #include "../../simskin.h"
 
 class skinverwaltung_t;

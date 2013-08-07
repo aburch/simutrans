@@ -16,14 +16,14 @@
 #include <string.h>
 #include <algorithm>
 
-#include "gui_convoiinfo.h"
+#include "components/gui_convoiinfo.h"
 
 
 #include "convoi_frame.h"
 #include "convoi_filter_frame.h"
 
 #include "../simconvoi.h"
-#include "../simwin.h"
+#include "../gui/simwin.h"
 #include "../simworld.h"
 #include "../besch/ware_besch.h"
 #include "../bauer/warenbauer.h"
@@ -221,16 +221,18 @@ convoi_frame_t::convoi_frame_t(spieler_t* sp) :
 
 	sort_label.set_pos(koord(BUTTON1_X, 2));
 	add_komponente(&sort_label);
-	sortedby.init(button_t::roundbox, "", koord(BUTTON1_X, 14), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+
+	filter_label.set_pos(koord(BUTTON3_X, 2));
+	add_komponente(&filter_label);
+
+	sortedby.init(button_t::roundbox, "", koord(BUTTON1_X, 14));
 	sortedby.add_listener(this);
 	add_komponente(&sortedby);
+
 
 	sorteddir.init(button_t::roundbox, "", koord(BUTTON2_X, 14), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	sorteddir.add_listener(this);
 	add_komponente(&sorteddir);
-
-	filter_label.set_pos(koord(BUTTON3_X, 2));
-	add_komponente(&filter_label);
 
 	filter_on.init(button_t::roundbox, filter_is_on ? "cl_btn_filter_enable" : "cl_btn_filter_disable", koord(BUTTON3_X, 14), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	filter_on.add_listener(this);

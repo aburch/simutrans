@@ -10,17 +10,17 @@
  */
 
 #include "gui_convoiinfo.h"
-#include "../simworld.h"
-#include "../vehicle/simvehikel.h"
-#include "../simconvoi.h"
-#include "../simcolor.h"
-#include "../simgraph.h"
-#include "../player/simplay.h"
-#include "../simline.h"
+#include "../../simworld.h"
+#include "../../vehicle/simvehikel.h"
+#include "../../simconvoi.h"
+#include "../../simcolor.h"
+#include "../../display/simgraph.h"
+#include "../../player/simplay.h"
+#include "../../simline.h"
 
-#include "../dataobj/translator.h"
+#include "../../dataobj/translator.h"
 
-#include "../utils/simstring.h"
+#include "../../utils/simstring.h"
 
 
 gui_convoiinfo_t::gui_convoiinfo_t(convoihandle_t cnv)

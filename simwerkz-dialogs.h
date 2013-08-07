@@ -12,7 +12,7 @@
 #define simwerkz_dialogs_h
 
 #include "simmenu.h"
-#include "simwin.h"
+#include "gui/simwin.h"
 
 #include "dataobj/translator.h"
 

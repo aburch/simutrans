@@ -12,10 +12,10 @@
 #include "simmain.h"
 #include "simworld.h"
 #include "simware.h"
-#include "simview.h"
-#include "simwin.h"
+#include "display/simview.h"
+#include "gui/simwin.h"
 #include "simhalt.h"
-#include "simimg.h"
+#include "display/simimg.h"
 #include "simcolor.h"
 #include "simskin.h"
 #include "simconst.h"
@@ -31,7 +31,7 @@
 #include "simwerkz.h"
 
 #include "simsys.h"
-#include "simgraph.h"
+#include "display/simgraph.h"
 #include "simevent.h"
 #include "simtools.h"
 

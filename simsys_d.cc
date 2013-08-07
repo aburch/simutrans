@@ -10,7 +10,7 @@
 #include "macros.h"
 #include "simsys.h"
 #include "simevent.h"
-#include "simgraph.h"
+#include "display/simgraph.h"
 #include "simsys_w32_png.h"
 #include "simversion.h"
 

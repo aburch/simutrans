@@ -13,7 +13,7 @@
  */
 
 #include "../simcolor.h"
-#include "../simgraph.h"
+#include "../display/simgraph.h"
 #include "../simworld.h"
 #include "../dataobj/translator.h"
 #include "../utils/simstring.h"

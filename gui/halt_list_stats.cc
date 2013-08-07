@@ -10,10 +10,10 @@
 #include "../simhalt.h"
 #include "../simskin.h"
 #include "../simcolor.h"
-#include "../simgraph.h"
+#include "../display/simgraph.h"
 #include "../player/simplay.h"
 #include "../simworld.h"
-#include "../simimg.h"
+#include "../display/simimg.h"
 
 #include "../dataobj/translator.h"
 
@@ -22,7 +22,7 @@
 #include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"
 
-#include "gui_frame.h"
+#include "frame.h"
 
 
 /**

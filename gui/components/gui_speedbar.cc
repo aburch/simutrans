@@ -8,7 +8,7 @@
 #include <string.h>
 
 #include "gui_speedbar.h"
-#include "../../simgraph.h"
+#include "../../display/simgraph.h"
 #include "../../simcolor.h"
 #include "../../simtypes.h"
 

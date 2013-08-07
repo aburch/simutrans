@@ -8,7 +8,7 @@
 #include <string.h>
 #include "../simdebug.h"
 #include "../simwerkz.h"
-#include "../simwin.h"
+#include "../gui/simwin.h"
 #include "../simworld.h"
 
 #include "../dataobj/translator.h"

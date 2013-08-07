@@ -13,7 +13,7 @@
 #include "../simdebug.h"
 #include "../simsys.h"
 #include "../simtypes.h"
-#include "../simgraph.h"	// for unicode stuff
+#include "../display/simgraph.h" // for unicode stuff
 #include "translator.h"
 #include "loadsave.h"
 #include "umgebung.h"

@@ -8,7 +8,7 @@
 #include "simdebug.h"
 #include "simdings.h"
 #include "simfab.h"
-#include "simgraph.h"
+#include "display/simgraph.h"
 #include "simmenu.h"
 #include "simplan.h"
 #include "simwerkz.h"

@@ -11,9 +11,9 @@
 #include "simdebug.h"
 #include "simmesg.h"
 #include "simticker.h"
-#include "simgraph.h"
+#include "display/simgraph.h"
 #include "simcolor.h"
-#include "simwin.h"
+#include "gui/simwin.h"
 #include "simworld.h"
 
 #include "dataobj/loadsave.h"

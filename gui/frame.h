@@ -14,10 +14,10 @@
 #define gui_gui_frame_h
 
 #include "../dataobj/koord.h"
-#include "../simgraph.h"
+#include "../display/simgraph.h"
 #include "../simcolor.h"
 #include "../dataobj/koord3d.h"
-#include "gui_container.h"
+#include "components/gui_container.h"
 #include "components/gui_button.h"
 
 class loadsave_t;

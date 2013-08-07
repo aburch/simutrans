@@ -18,7 +18,7 @@
 #include "../utils/cbuffer_t.h"
 
 // error popup
-#include "../simwin.h"
+#include "../gui/simwin.h"
 #include "../gui/scenario_info.h"
 
 // scripting

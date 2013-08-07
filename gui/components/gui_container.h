@@ -17,10 +17,10 @@
 #define gui_container_h
 
 
-#include "../simdebug.h"
-#include "../simevent.h"
-#include "../tpl/slist_tpl.h"
-#include "components/gui_komponente.h"
+#include "../../simdebug.h"
+#include "../../simevent.h"
+#include "../../tpl/slist_tpl.h"
+#include "gui_komponente.h"
 
 class gui_container_t : public gui_komponente_t
 {
@@ -40,6 +40,10 @@ public:
 
 	// needed for WIN_OPEN events
 	void clear_dirty() { list_dirty=false; }
+
+	virtual scr_rect calc_client(void) const OVERRIDE;
+
+	virtual void set_children_width(scr_coord_val width = 0);
 
 	/**
 	* Adds a Component to the Container.

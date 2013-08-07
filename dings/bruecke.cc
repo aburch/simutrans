@@ -9,7 +9,7 @@
 #include "../simdings.h"
 #include "../boden/grund.h"
 #include "../player/simplay.h"
-#include "../simimg.h"
+#include "../display/simimg.h"
 #include "../simmem.h"
 #include "../bauer/brueckenbauer.h"
 #include "../dataobj/loadsave.h"

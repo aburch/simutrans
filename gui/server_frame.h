@@ -7,7 +7,7 @@
 #ifndef gui_serverframe_h
 #define gui_serverframe_h
 
-#include "gui_frame.h"
+#include "frame.h"
 #include "components/gui_button.h"
 #include "components/gui_combobox.h"
 #include "components/gui_label.h"

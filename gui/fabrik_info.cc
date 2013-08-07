@@ -18,9 +18,9 @@
 
 #include "../simfab.h"
 #include "../simcolor.h"
-#include "../simgraph.h"
+#include "../display/simgraph.h"
 #include "../simcity.h"
-#include "../simwin.h"
+#include "../gui/simwin.h"
 #include "../simmenu.h"
 #include "../player/simplay.h"
 #include "../simworld.h"

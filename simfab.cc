@@ -15,7 +15,7 @@
 #include <string.h>
 
 #include "simdebug.h"
-#include "simimg.h"
+#include "display/simimg.h"
 #include "simcolor.h"
 #include "boden/grund.h"
 #include "boden/boden.h"
@@ -51,8 +51,8 @@
 
 #include "utils/cbuffer_t.h"
 
-#include "simwin.h"
-#include "simgraph.h"
+#include "gui/simwin.h"
+#include "display/simgraph.h"
 
 // Fabrik_t
 

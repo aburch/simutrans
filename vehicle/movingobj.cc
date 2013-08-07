@@ -10,7 +10,7 @@
 #include "../simdebug.h"
 #include "../simworld.h"
 #include "../simdings.h"
-#include "../simimg.h"
+#include "../display/simimg.h"
 #include "../player/simplay.h"
 #include "../simtools.h"
 #include "../simtypes.h"

@@ -11,11 +11,11 @@
  */
 
 #include "gui_tab_panel.h"
-#include "../gui_frame.h"
+#include "../frame.h"
 #include "../../simevent.h"
-#include "../../simgraph.h"
+#include "../../display/simgraph.h"
 #include "../../simcolor.h"
-#include "../../simwin.h"
+#include "../../gui/simwin.h"
 
 #include "../../besch/skin_besch.h"
 

@@ -16,10 +16,10 @@
 #include "../vehicle/simvehikel.h"
 #include "../simconvoi.h"
 #include "../simdepot.h"
-#include "../simwin.h"
+#include "../gui/simwin.h"
 #include "../simcolor.h"
 #include "../simdebug.h"
-#include "../simgraph.h"
+#include "../display/simgraph.h"
 #include "../simline.h"
 #include "../simlinemgmt.h"
 #include "../simmenu.h"
@@ -88,6 +88,8 @@ depot_frame_t::depot_frame_t(depot_t* depot) :
 	scrolly_waggons(&cont_waggons),
 	lb_vehicle_filter("Filter:", SYSCOL_STATIC_TEXT, gui_label_t::right)
 {
+	koord gr = koord(0,0);
+
 DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->get_max_convoi_length());
 	last_selected_line = depot->get_last_selected_line();
 	no_schedule_text     = translator::translate("<no schedule set>");
@@ -226,10 +228,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	vehicle_filter.add_listener(this);
 	add_komponente(&vehicle_filter);
 
-	koord gr = koord(0,0);
 	build_vehicle_lists();
-	layout(&gr);
-	gui_frame_t::set_fenstergroesse(gr);
 
 	// text will be translated by ourselves (after update data)!
 	lb_convois.set_text_pointer( txt_convois );
@@ -242,6 +241,9 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 
 	// Bolt image for electrified depots:
 	add_komponente(&img_bolt);
+
+	layout(&gr);
+	gui_frame_t::set_fenstergroesse(gr);
 
 	set_resizemode( diagonal_resize );
 
@@ -397,6 +399,7 @@ void depot_frame_t::layout(koord *gr)
 	 * [SELECT]:
 	 */
 	lb_convois.set_pos(koord(D_MARGIN_LEFT, SELECT_VSTART + 3));
+	lb_convois.set_width( selector_x - D_H_SPACE );
 
 	convoy_selector.set_pos(koord(D_MARGIN_LEFT + selector_x, SELECT_VSTART));
 	convoy_selector.set_groesse(koord(DEPOT_FRAME_WIDTH - D_MARGIN_RIGHT - D_MARGIN_LEFT - selector_x, D_BUTTON_HEIGHT));
@@ -408,6 +411,7 @@ void depot_frame_t::layout(koord *gr)
 	 */
 	line_button.set_pos(koord(D_MARGIN_LEFT, SELECT_VSTART + D_BUTTON_HEIGHT + 3));
 	lb_convoi_line.set_pos(koord(D_MARGIN_LEFT + line_button.get_groesse().x + 2, SELECT_VSTART + D_BUTTON_HEIGHT + 3));
+	lb_convoi_line.set_width( selector_x - line_button.get_groesse().x - 2 - D_H_SPACE );
 
 	line_selector.set_pos(koord(D_MARGIN_LEFT + selector_x, SELECT_VSTART + D_BUTTON_HEIGHT));
 	line_selector.set_groesse(koord(DEPOT_FRAME_WIDTH - D_MARGIN_RIGHT - D_MARGIN_LEFT - selector_x, D_BUTTON_HEIGHT));
@@ -422,22 +426,24 @@ void depot_frame_t::layout(koord *gr)
 	convoi.set_groesse(koord(CLIST_WIDTH, CLIST_HEIGHT));
 
 	sb_convoi_length.set_pos(koord((DEPOT_FRAME_WIDTH-CLIST_WIDTH) / 2 + 5,CONVOI_VSTART + grid.y + 5));
-	sb_convoi_length.set_groesse(koord(CLIST_WIDTH - 10, 4));
 
 	lb_convoi_count.set_pos(koord(D_MARGIN_LEFT, CINFO_VSTART));
-	lb_convoi_count.set_width(CONVOI_WIDTH);
+	lb_convoi_count.set_width( second_column_w - D_H_SPACE );
 	cont_convoi_capacity.set_pos(koord(second_column_x, CINFO_VSTART));
 	cont_convoi_capacity.set_width(second_column_w);
+
 	lb_convoi_cost.set_pos(koord(D_MARGIN_LEFT, CINFO_VSTART + LINESPACE * 1));
-	lb_convoi_cost.set_width(CONVOI_WIDTH);
+	lb_convoi_cost.set_width( second_column_w - D_H_SPACE );
 	lb_convoi_value.set_pos(koord(second_column_x, CINFO_VSTART + LINESPACE * 1));
 	lb_convoi_value.set_width(second_column_w);
+
 	lb_convoi_power.set_pos(koord(D_MARGIN_LEFT, CINFO_VSTART + LINESPACE * 2));
-	lb_convoi_power.set_width(CONVOI_WIDTH);
+	lb_convoi_power.set_width( second_column_w - D_H_SPACE );
 	lb_convoi_weight.set_pos(koord(second_column_x, CINFO_VSTART + LINESPACE * 2));
 	lb_convoi_weight.set_width(second_column_w);
+
 	lb_convoi_speed.set_pos(koord(D_MARGIN_LEFT, CINFO_VSTART + LINESPACE * 3));
-	lb_convoi_speed.set_width(CONVOI_WIDTH);
+	lb_convoi_speed.set_width( second_column_w - D_H_SPACE );
 
 	/*
 	 * [ACTIONS]
@@ -523,8 +529,7 @@ void depot_frame_t::layout(koord *gr)
 	bt_show_all.set_pos(koord(D_MARGIN_LEFT, INFO_VSTART + D_BUTTON_HEIGHT + 1));
 	bt_show_all.pressed = show_all;
 
-	scr_coord_val w = max(72, bt_show_all.get_groesse().x);
-	bt_obsolete.set_pos(koord(D_MARGIN_LEFT + w + 4 + 6, INFO_VSTART + D_BUTTON_HEIGHT + 1));
+	bt_obsolete.align_to( &bt_show_all, ALIGN_EXTERIOR_H | ALIGN_LEFT | ALIGN_TOP, koord( D_H_SPACE, 0 ) );
 	bt_obsolete.pressed = show_retired_vehicles;
 
 	vehicle_filter.set_pos(koord(D_MARGIN_LEFT + (DEPOT_FRAME_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT) * 3 / 4 + 3, INFO_VSTART + D_BUTTON_HEIGHT));
@@ -540,8 +545,8 @@ void depot_frame_t::layout(koord *gr)
 
 void depot_frame_t::set_fenstergroesse( koord gr )
 {
-	layout(&gr);
 	update_data();
+	layout(&gr);
 	gui_frame_t::set_fenstergroesse(gr);
 }
 
@@ -1646,7 +1651,7 @@ void depot_convoi_capacity_t::zeichnen(koord off)
 {
 	cbuffer_t cbuf;
 
-	int w = 0;
+	scr_coord_val w = 0;
 	cbuf.clear();
 	cbuf.printf("%s %d", translator::translate("Capacity:"), total_pax );
 	w += display_proportional_clip( pos.x+off.x + w, pos.y+off.y , cbuf, ALIGN_LEFT, SYSCOL_STATIC_TEXT, true);

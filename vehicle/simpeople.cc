@@ -9,7 +9,7 @@
 
 #include "../simdebug.h"
 #include "../simworld.h"
-#include "../simimg.h"
+#include "../display/simimg.h"
 
 #include "../simtools.h"
 #include "../boden/grund.h"

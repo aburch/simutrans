@@ -11,14 +11,14 @@
 
 #include "factorylist_stats_t.h"
 
-#include "../simgraph.h"
+#include "../display/simgraph.h"
 #include "../simskin.h"
 #include "../simcolor.h"
 #include "../simfab.h"
 #include "../simworld.h"
 #include "../simskin.h"
 
-#include "gui_frame.h"
+#include "frame.h"
 #include "components/gui_button.h"
 
 #include "../bauer/warenbauer.h"

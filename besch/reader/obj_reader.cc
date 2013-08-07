@@ -3,7 +3,7 @@
 
 // for the progress bar
 #include "../../simcolor.h"
-#include "../../simimg.h"
+#include "../../display/simimg.h"
 #include "../../simsys.h"
 #include "../../simtypes.h"
 #include "../../simloadingscreen.h"
@@ -50,6 +50,7 @@ void obj_reader_t::register_reader()
 
 bool obj_reader_t::init()
 {
+#if THEME != -1
 	// search for skins first
 	chdir( umgebung_t::program_dir );
 	load( "skin/", translator::translate("Loading skins ...") );
@@ -57,6 +58,7 @@ bool obj_reader_t::init()
 		chdir( umgebung_t::user_dir );
 		load( "skin/", translator::translate("Loading skins ...") );
 	}
+#endif
 	chdir( umgebung_t::program_dir );
 	button_t::init_button_images();
 	return true;

@@ -13,12 +13,12 @@
 
 #include "../../macros.h"
 #include "../../simdebug.h"
-#include "../gui_frame.h"
+#include "../frame.h"
 #include "gui_combobox.h"
 #include "../../simevent.h"
-#include "../../simgraph.h"
+#include "../../display/simgraph.h"
 #include "../../simcolor.h"
-#include "../../simwin.h"
+#include "../../gui/simwin.h"
 #include "../../utils/simstring.h"
 
 

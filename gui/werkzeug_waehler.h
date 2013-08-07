@@ -11,9 +11,9 @@
 #ifndef gui_werkzeug_waehler_h
 #define gui_werkzeug_waehler_h
 
-#include "gui_frame.h"
+#include "frame.h"
 #include "../tpl/vector_tpl.h"
-#include "../simwin.h"
+#include "../gui/simwin.h"
 
 class karte_t;
 class werkzeug_t;

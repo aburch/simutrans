@@ -19,7 +19,7 @@
 #include "bildliste_besch.h"
 #include "text_besch.h"
 #include "../simtypes.h"
-#include "../simimg.h"
+#include "../display/simimg.h"
 
 #include "../dataobj/ribi.h"
 

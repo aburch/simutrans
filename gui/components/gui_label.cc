@@ -7,10 +7,10 @@
  */
 
 #include "gui_label.h"
-#include "../gui_frame.h"
+#include "../frame.h"
 #include "../../dataobj/translator.h"
 #include "../../utils/simstring.h"
-#include "../../simwin.h"
+#include "../../gui/simwin.h"
 
 
 
@@ -71,7 +71,8 @@ void gui_label_t::zeichnen(koord offset)
 
 	else if(text) {
 		int al;
-		KOORD_VAL align_offset_x=0;
+		scr_coord_val align_offset_x = 0;
+		scr_coord_val align_offset_y = D_GET_CENTER_ALIGN_OFFSET( LINESPACE, groesse.y );
 
 		switch(align) {
 			case left:
@@ -91,18 +92,18 @@ void gui_label_t::zeichnen(koord offset)
 
 		size_t idx = display_fit_proportional( text, groesse.x+1, translator::get_lang()->eclipse_width );
 		if(  text[idx]==0  ) {
-			display_proportional_clip(pos.x+offset.x+align_offset_x, pos.y+offset.y, text, al, color, true);
+			display_proportional_clip(pos.x + offset.x + align_offset_x, pos.y + offset.y + align_offset_y, text, al, color, true);
 		}
 		else {
 			scr_coord_val w = display_text_proportional_len_clip( pos.x+offset.x+align_offset_x, pos.y+offset.y, text, al | DT_DIRTY | DT_CLIP, color, idx );
-			display_proportional_clip( pos.x+offset.x+align_offset_x+w, pos.y+offset.y, translator::translate("..."), al | DT_DIRTY | DT_CLIP, color, false );
+			display_proportional_clip( pos.x + offset.x + align_offset_x + w, pos.y + offset.y + align_offset_y, translator::translate("..."), al | DT_DIRTY | DT_CLIP, color, false );
 		}
 
 	}
 
 	if ( tooltip  &&  getroffen(get_maus_x()-offset.x, get_maus_y()-offset.y) ) {
-		const KOORD_VAL by = offset.y + pos.y;
-		const KOORD_VAL bh = groesse.y;
+		const scr_coord_val by = offset.y + pos.y;
+		const scr_coord_val bh = groesse.y;
 
 		win_set_tooltip(get_maus_x() + TOOLTIP_MOUSE_OFFSET_X, by + bh + TOOLTIP_MOUSE_OFFSET_Y, tooltip, this);
 	}

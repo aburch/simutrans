@@ -9,7 +9,7 @@
 #include "dataobj/koord.h"
 #include "simdebug.h"
 #include "simticker.h"
-#include "simgraph.h"
+#include "display/simgraph.h"
 #include "simcolor.h"
 #include "tpl/slist_tpl.h"
 #include "utils/simstring.h"

@@ -12,7 +12,7 @@
 #ifndef fabrikinfo_t_h
 #define fabrikinfo_t_h
 
-#include "../simwin.h"
+#include "../gui/simwin.h"
 
 #include "factory_chart.h"
 #include "components/action_listener.h"
@@ -20,7 +20,7 @@
 #include "components/gui_textarea.h"
 #include "components/gui_textinput.h"
 #include "components/gui_ding_view_t.h"
-#include "gui_container.h"
+#include "components/gui_container.h"
 #include "../utils/cbuffer_t.h"
 
 class welt_t;

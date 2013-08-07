@@ -16,7 +16,7 @@
 #include "action_listener.h"
 #include "gui_action_creator.h"
 #include "../../simcolor.h"
-#include "../../simgraph.h"
+#include "../../display/simgraph.h"
 #include "../../utils/plainstring.h"
 #include "../../tpl/vector_tpl.h"
 

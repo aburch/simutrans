@@ -1,8 +1,8 @@
 #ifndef gui_extend_edit_h
 #define gui_extend_edit_h
 
-#include "gui_frame.h"
-#include "gui_container.h"
+#include "frame.h"
+#include "components/gui_container.h"
 #include "components/gui_textinput.h"
 #include "components/gui_scrolled_list.h"
 #include "components/gui_scrollpane.h"
@@ -12,7 +12,7 @@
 #include "components/gui_image.h"
 #include "components/gui_fixedwidth_textarea.h"
 
-#include "gui_convoiinfo.h"
+#include "components/gui_convoiinfo.h"
 #include "../utils/cbuffer_t.h"
 #include "../simtypes.h"
 

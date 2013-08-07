@@ -6,7 +6,7 @@
 #ifndef gui_sprachen_h
 #define gui_sprachen_h
 
-#include "gui_frame.h"
+#include "frame.h"
 #include "components/action_listener.h"
 #include "components/gui_button.h"
 #include "components/gui_textarea.h"

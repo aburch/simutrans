@@ -10,7 +10,7 @@
 
 #include "components/gui_button.h"
 #include "components/gui_image.h"
-#include "gui_frame.h"
+#include "frame.h"
 
 class karte_t;
 

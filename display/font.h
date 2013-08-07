@@ -1,7 +1,7 @@
 #ifndef FONT_H
 #define FONT_H
 
-#include "simtypes.h"
+#include "../simtypes.h"
 
 struct font_type
 {

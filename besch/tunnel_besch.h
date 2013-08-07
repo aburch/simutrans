@@ -17,7 +17,7 @@
 #ifndef __TUNNEL_BESCH_H
 #define __TUNNEL_BESCH_H
 
-#include "../simimg.h"
+#include "../display/simimg.h"
 #include "../simtypes.h"
 #include "obj_besch_std_name.h"
 #include "skin_besch.h"

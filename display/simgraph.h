@@ -17,9 +17,9 @@
 extern int large_font_ascent;
 extern int large_font_total_height;
 
-#include "simcolor.h"
-#include "unicode.h"
-#include "simtypes.h"
+#include "../simcolor.h"
+#include "../unicode.h"
+#include "../simtypes.h"
 #include "scr_coord.h"
 
 #define LINEASCENT (large_font_ascent)

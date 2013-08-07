@@ -11,7 +11,7 @@
  * @author V. Meyer
  */
 
-#include "gui_frame.h"
+#include "frame.h"
 #include "components/gui_label.h"
 #include "components/gui_scrollpane.h"
 #include "components/action_listener.h"

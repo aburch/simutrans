@@ -9,7 +9,7 @@
 #define wayobj_t_h
 
 #include "../simtypes.h"
-#include "../simimg.h"
+#include "../display/simimg.h"
 #include "../simdings.h"
 #include "../dataobj/ribi.h"
 #include "../besch/way_obj_besch.h"

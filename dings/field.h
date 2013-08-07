@@ -2,7 +2,7 @@
 #define dings_field_h
 
 #include "../simdings.h"
-#include "../simimg.h"
+#include "../display/simimg.h"
 
 
 class field_class_besch_t;

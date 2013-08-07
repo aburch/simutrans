@@ -29,7 +29,7 @@
 
 #include "../grund.h"
 #include "../../simworld.h"
-#include "../../simimg.h"
+#include "../../display/simimg.h"
 #include "../../simhalt.h"
 #include "../../simdings.h"
 #include "../../player/simplay.h"

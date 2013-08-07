@@ -14,7 +14,7 @@
 #include <string.h>
 
 #include "gui_textarea.h"
-#include "../../simgraph.h"
+#include "../../display/simgraph.h"
 #include "../../simdebug.h"
 #include "../../simcolor.h"
 #include "../../simskin.h"

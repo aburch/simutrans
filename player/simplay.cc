@@ -22,7 +22,7 @@
 #include "../simsound.h"
 #include "../simticker.h"
 #include "../simwerkz.h"
-#include "../simwin.h"
+#include "../gui/simwin.h"
 #include "../simworld.h"
 
 #include "../bauer/brueckenbauer.h"

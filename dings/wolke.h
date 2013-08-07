@@ -4,7 +4,7 @@
 #include "../besch/skin_besch.h"
 #include "../ifc/sync_steppable.h"
 #include "../tpl/vector_tpl.h"
-#include "../simimg.h"
+#include "../display/simimg.h"
 
 class karte_t;
 

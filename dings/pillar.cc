@@ -9,7 +9,7 @@
 #include "../simworld.h"
 #include "../simdings.h"
 #include "../simmem.h"
-#include "../simimg.h"
+#include "../display/simimg.h"
 
 #include "../bauer/brueckenbauer.h"
 

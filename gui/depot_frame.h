@@ -12,7 +12,7 @@
 #ifndef gui_depot_frame2_t_h
 #define gui_depot_frame2_t_h
 
-#include "gui_frame.h"
+#include "frame.h"
 #include "components/gui_label.h"
 #include "components/gui_image.h"
 #include "components/gui_image_list.h"

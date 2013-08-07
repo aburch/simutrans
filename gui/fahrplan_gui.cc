@@ -12,7 +12,7 @@
 #include "../simhalt.h"
 #include "../simworld.h"
 #include "../simmenu.h"
-#include "../simgraph.h"
+#include "../display/simgraph.h"
 
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
@@ -266,16 +266,16 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	old_line_count = 0;
 	strcpy(no_line, translator::translate("<no line>"));
 
-	sint16 ypos = 0;
+	scr_coord_val ypos = 0;
 	if(  cnv.is_bound()  ) {
 		// things, only relevant to convois, like creating/selecting lines
-		lb_line.set_pos(koord(10, ypos+2));
-		add_komponente(&lb_line);
-
-		bt_promote_to_line.init(button_t::roundbox, "promote to line", koord( BUTTON3_X, ypos ), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT) );
+		bt_promote_to_line.init( button_t::roundbox, "promote to line", koord( BUTTON3_X, ypos ) );
 		bt_promote_to_line.set_tooltip("Create a new line based on this schedule");
 		bt_promote_to_line.add_listener(this);
 		add_komponente(&bt_promote_to_line);
+
+		lb_line.align_to( &bt_promote_to_line, ALIGN_CENTER_V, koord( D_MARGIN_LEFT, 0 ) );
+		add_komponente( &lb_line );
 
 		ypos += D_BUTTON_HEIGHT+1;
 
@@ -294,27 +294,21 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	}
 
 	// loading level and return tickets
-	lb_load.set_pos( koord( 10, ypos+2 ) );
-	add_komponente(&lb_load);
+	scr_coord_val label_width = min( (D_BUTTON_WIDTH<<1) + D_H_SPACE, max( lb_load.get_groesse().x, lb_wait.get_groesse().x ) );
 
-	numimp_load.set_pos( koord( D_BUTTON_WIDTH*2-65, ypos ) );
-	numimp_load.set_groesse( koord( 60, D_BUTTON_HEIGHT ) );
+	numimp_load.set_pos( koord( D_MARGIN_LEFT + label_width + D_H_SPACE, ypos ) );
+	numimp_load.set_width( 60 );
 	numimp_load.set_value( fpl->get_current_eintrag().ladegrad );
 	numimp_load.set_limits( 0, 100 );
 	numimp_load.set_increment_mode( gui_numberinput_t::PROGRESS );
 	numimp_load.add_listener(this);
 	add_komponente(&numimp_load);
 
-	ypos += D_BUTTON_HEIGHT;
+	lb_load.set_width( label_width );
+	lb_load.align_to( &numimp_load, ALIGN_CENTER_V, koord( D_MARGIN_LEFT, 0 ) );
+	add_komponente( &lb_load );
 
-	// waiting in parts per month
-	lb_wait.set_pos( koord( 10, ypos+2 ) );
-	add_komponente(&lb_wait);
-
-	bt_wait_prev.set_pos( koord( D_BUTTON_WIDTH*2-65, ypos+2 ) );
-	bt_wait_prev.set_typ(button_t::arrowleft);
-	bt_wait_prev.add_listener(this);
-	add_komponente(&bt_wait_prev);
+	ypos += numimp_load.get_groesse().y;
 
 	if(  fpl->get_current_eintrag().waiting_time_shift==0  ) {
 		strcpy( str_parts_month, translator::translate("off") );
@@ -323,15 +317,25 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 		sprintf( str_parts_month, "1/%d",  1<<(16-fpl->get_current_eintrag().waiting_time_shift) );
 	}
 	lb_waitlevel.set_text_pointer( str_parts_month );
-	lb_waitlevel.set_pos( koord(0, ypos+2 ) );
-	lb_waitlevel.align_to(&bt_wait_prev,ALIGN_EXTERIOR_H | ALIGN_LEFT | ALIGN_CENTER_V);
+	lb_waitlevel.set_groesse( numimp_load.get_groesse() - koord( button_t::gui_arrow_left_size.x + button_t::gui_arrow_right_size.x , 0 ) );
+	lb_waitlevel.align_to( &numimp_load, ALIGN_EXTERIOR_V | ALIGN_TOP | ALIGN_LEFT, koord( button_t::gui_arrow_left_size.x, 0 ) );
 	add_komponente(&lb_waitlevel);
 
-	bt_wait_next.set_pos( koord( D_BUTTON_WIDTH*2-17, ypos+2 ) );
-	bt_wait_next.set_typ(button_t::arrowright);
+	// waiting in parts per month
+	bt_wait_prev.set_typ( button_t::arrowleft );
+	bt_wait_prev.align_to( &lb_waitlevel, ALIGN_EXTERIOR_H | ALIGN_RIGHT | ALIGN_CENTER_V );
+	bt_wait_prev.add_listener(this);
+	add_komponente( &bt_wait_prev );
+
+	bt_wait_next.set_typ( button_t::arrowright );
+	bt_wait_next.align_to( &lb_waitlevel, ALIGN_EXTERIOR_H | ALIGN_LEFT | ALIGN_CENTER_V );
 	bt_wait_next.add_listener(this);
 	lb_waitlevel.set_width( bt_wait_next.get_pos().x-bt_wait_prev.get_pos().x-bt_wait_prev.get_groesse().x );
-	add_komponente(&bt_wait_next);
+	add_komponente( &bt_wait_next );
+
+	lb_wait.set_width( label_width );
+	lb_wait.align_to( &lb_waitlevel, ALIGN_CENTER_V, koord( D_MARGIN_LEFT, 0 ) );
+	add_komponente( &lb_wait );
 
 	if(  !umgebung_t::hide_rail_return_ticket  ||  fpl->get_waytype()==road_wt  ||  fpl->get_waytype()==air_wt  ||  fpl->get_waytype()==water_wt  ) {
 		//  hide the return ticket on rail stuff, where it causes much trouble
@@ -341,7 +345,7 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 		add_komponente(&bt_return);
 	}
 
-	ypos += D_BUTTON_HEIGHT;
+	ypos += lb_waitlevel.get_groesse().y;
 
 	bt_add.init(button_t::roundbox_state, "Add Stop", koord(BUTTON1_X, ypos ), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT) );
 	bt_add.set_tooltip("Appends stops at the end of the schedule");

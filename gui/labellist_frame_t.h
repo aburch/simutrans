@@ -1,7 +1,7 @@
 #ifndef labellist_frame_t_h
 #define labellist_frame_t_h
 
-#include "../gui/gui_frame.h"
+#include "../gui/frame.h"
 #include "../gui/labellist_stats_t.h"
 #include "components/action_listener.h"
 #include "components/gui_label.h"

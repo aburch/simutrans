@@ -7,7 +7,7 @@
 
 #include "labellist_stats_t.h"
 
-#include "../simgraph.h"
+#include "../display/simgraph.h"
 #include "../simtypes.h"
 #include "../simworld.h"
 #include "../player/simplay.h"

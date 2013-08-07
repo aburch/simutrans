@@ -4,7 +4,7 @@
 #include "gui_action_creator.h"
 #include "gui_komponente.h"
 #include "../../tpl/vector_tpl.h"
-#include "../../simimg.h"
+#include "../../display/simimg.h"
 #include "../../simcolor.h"
 
 #define EMPTY_IMAGE_BAR (255)

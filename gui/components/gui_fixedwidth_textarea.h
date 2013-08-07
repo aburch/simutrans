@@ -9,7 +9,7 @@
 #define gui_fixedwidth_textarea_h
 
 #include "gui_komponente.h"
-#include "../../simgraph.h"
+#include "../../display/simgraph.h"
 
 class cbuffer_t;
 

@@ -14,7 +14,7 @@
 #include "../simdebug.h"
 #include "../simworld.h"
 #include "../simwerkz.h"
-#include "../simwin.h"
+#include "../gui/simwin.h"
 #include "station_building_select.h"
 #include "components/gui_button.h"
 

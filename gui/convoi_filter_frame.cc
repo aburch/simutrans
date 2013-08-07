@@ -14,7 +14,7 @@
 
 #include "convoi_filter_frame.h"
 #include "convoi_frame.h"
-#include "gui_convoiinfo.h"
+#include "components/gui_convoiinfo.h"
 #include "../simcolor.h"
 
 #include "../besch/ware_besch.h"

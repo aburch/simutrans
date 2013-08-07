@@ -12,10 +12,10 @@
 #ifndef gui_convoiinfo_h
 #define gui_convoiinfo_h
 
-#include "../dataobj/koord.h"
+#include "../../dataobj/koord.h"
 #include "gui_container.h"
-#include "components/gui_speedbar.h"
-#include "../convoihandle_t.h"
+#include "gui_speedbar.h"
+#include "../../convoihandle_t.h"
 
 
 /**

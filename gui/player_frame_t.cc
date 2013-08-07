@@ -21,7 +21,7 @@
 #include "../dataobj/scenario.h"
 #include "../dataobj/translator.h"
 
-#include "../simwin.h"
+#include "../gui/simwin.h"
 #include "../utils/simstring.h"
 
 #include "money_frame.h" // for the finances
@@ -34,8 +34,8 @@
  * This is for now hard coded.
  */
 #define L_FRACTION_WIDTH (25)
-
-#define DIALOG_WIDTH (295)
+#define L_FINANCE_WIDTH  (max( D_BUTTON_WIDTH, 125 ))
+#define L_DIALOG_WIDTH   (300)
 
 karte_t *ki_kontroll_t::welt = NULL;
 
@@ -67,6 +67,7 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 		if(  i >= 2  ) {
 			// AI button (small square)
 			player_active[i-2].init(button_t::square_state, "", cursor);
+			player_active[i-2].align_to( &player_get_finances[i], ALIGN_CENTER_V );
 			player_active[i-2].add_listener(this);
 			if(sp  &&  sp->get_ai_id()!=spieler_t::HUMAN  &&  player_tools_allowed) {
 				add_komponente( player_active+i-2 );
@@ -75,7 +76,7 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 		cursor.x += D_BUTTON_SQUARE + D_H_SPACE;
 
 		// Player select button (arrow)
-		player_change_to[i].init(button_t::arrowright_state, " ", cursor);
+		player_change_to[i].init(button_t::arrowright_state, "", cursor);
 		player_change_to[i].add_listener(this);
 
 		// Allow player change to human and public only (no AI)
@@ -85,13 +86,13 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 		cursor.x += button_t::gui_arrow_right_size.x + D_H_SPACE;
 
 		// Prepare finances button
-		player_get_finances[i].init(button_t::box, "", cursor, koord(D_BUTTON_WIDTH,D_EDIT_HEIGHT));
-		player_get_finances[i].background = PLAYER_FLAG|((sp ? sp->get_player_color1():i*8)+4);
+		player_get_finances[i].init( button_t::box, "", cursor, koord( L_FINANCE_WIDTH, D_EDIT_HEIGHT ) );
+		player_get_finances[i].background = PLAYER_FLAG | ((sp ? sp->get_player_color1():i*8)+4);
 		player_get_finances[i].add_listener(this);
 
 		// Player type selector, Combobox
-		player_select[i].set_pos(cursor);
-		player_select[i].set_groesse( koord(D_BUTTON_WIDTH,D_EDIT_HEIGHT) );
+		player_select[i].set_pos( cursor );
+		player_select[i].set_groesse( koord( L_FINANCE_WIDTH, D_EDIT_HEIGHT ) );
 		player_select[i].set_focusable( false );
 
 		// Create combobox list data
@@ -118,11 +119,12 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 			}
 			player_get_finances[i].set_visible(false);
 		}
-		cursor.x += D_BUTTON_WIDTH + D_H_SPACE;
+		cursor.x += L_FINANCE_WIDTH + D_H_SPACE;
 
 		// password/locked button
 		player_lock[i].init(button_t::box, "", cursor, koord(D_EDIT_HEIGHT,D_EDIT_HEIGHT));
 		player_lock[i].background = (sp && sp->is_locked()) ? (sp->is_unlock_pending() ? COL_YELLOW : COL_RED) : COL_GREEN;
+		player_lock[i].enable( welt->get_spieler(i) );
 		player_lock[i].add_listener(this);
 		if (player_tools_allowed) {
 			add_komponente( player_lock+i );
@@ -134,6 +136,11 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 		ai_income[i] = new gui_label_t(account_str[i], MONEY_PLUS, gui_label_t::money);
 		ai_income[i]->align_to(&player_select[i],ALIGN_CENTER_V);
 		add_komponente( ai_income[i] );
+
+		player_change_to[i].align_to( &player_lock[i], ALIGN_CENTER_V );
+		if(  i >= 2  ) {
+			player_active[i-2].align_to( &player_lock[i], ALIGN_CENTER_V );
+		}
 
 		cursor.y += D_EDIT_HEIGHT + D_V_SPACE;
 		cursor.x  = D_MARGIN_LEFT;
@@ -149,7 +156,7 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 	add_komponente( &freeplay );
 	cursor.y += D_BUTTON_SQUARE;
 
-	set_fenstergroesse(koord(DIALOG_WIDTH, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM));
+	set_fenstergroesse( koord( L_DIALOG_WIDTH, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM ) );
 	update_data();
 }
 
@@ -178,13 +185,12 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t p )
 
 	// Check the GUI list of buttons
 	for(int i=0; i<MAX_PLAYER_COUNT-1; i++) {
-
 		if(i>=2  &&  komp==(player_active+i-2)) {
-
 			// switch AI on/off
 			if(  welt->get_spieler(i)==NULL  ) {
 				// create new AI
 				welt->call_change_player_tool(karte_t::new_player, i, player_select[i].get_selection());
+				player_lock[i].enable( welt->get_spieler(i) );
 			}
 			else {
 				// Current AI on/off

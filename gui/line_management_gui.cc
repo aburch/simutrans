@@ -9,7 +9,7 @@
 #include "../dataobj/loadsave.h"
 #include "../gui/karte.h"
 #include "../simline.h"
-#include "../simwin.h"
+#include "../gui/simwin.h"
 #include "../simwerkz.h"
 #include "../simlinemgmt.h"
 #include "../utils/cbuffer_t.h"

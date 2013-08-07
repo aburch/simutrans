@@ -5,7 +5,7 @@
  * (see licence.txt)
  */
 
-#include "../simwin.h"
+#include "../gui/simwin.h"
 #include "../simworld.h"
 #include "../simmenu.h"
 

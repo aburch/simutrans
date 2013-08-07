@@ -11,7 +11,7 @@
 #include "kennfarbe.h"
 #include "../simdebug.h"
 #include "../simevent.h"
-#include "../simimg.h"
+#include "../display/simimg.h"
 #include "../simworld.h"
 #include "../besch/skin_besch.h"
 #include "../simskin.h"

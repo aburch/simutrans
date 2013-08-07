@@ -14,7 +14,7 @@
 #ifndef CONVOI_FILTER_FRAME_H
 #define  CONVOI_FILTER_FRAME_H
 
-#include "gui_frame.h"
+#include "frame.h"
 #include "components/gui_label.h"
 #include "components/gui_scrollpane.h"
 #include "components/action_listener.h"

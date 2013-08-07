@@ -3,7 +3,7 @@
 
 #include "../simdings.h"
 #include "../simtypes.h"
-#include "../simimg.h"
+#include "../display/simimg.h"
 
 /** @file zeiger.h object to mark tiles */
 

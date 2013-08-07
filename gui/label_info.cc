@@ -8,7 +8,7 @@
 #include "label_info.h"
 #include "../simworld.h"
 #include "../simcolor.h"
-#include "../simwin.h"
+#include "../gui/simwin.h"
 #include "../simmenu.h"
 #include "../besch/skin_besch.h"
 #include "../dataobj/translator.h"

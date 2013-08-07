@@ -19,7 +19,7 @@
 #include "gui_action_creator.h"
 #include "gui_komponente.h"
 #include "../../simcolor.h"
-#include "../../simgraph.h"
+#include "../../display/simgraph.h"
 
 
 class gui_textinput_t :

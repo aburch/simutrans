@@ -14,13 +14,13 @@
 
 #include "../simdebug.h"
 #include "../simworld.h"
-#include "../simwin.h"
+#include "../gui/simwin.h"
 
 #include "../dataobj/einstellungen.h"
 #include "../dataobj/umgebung.h"
 #include "../dataobj/translator.h"
 
-#include "../simgraph.h"
+#include "../display/simgraph.h"
 
 #include "../utils/simstring.h"
 
@@ -75,13 +75,14 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 	add_komponente( &mountain_roughness );
 	numberinput_lbl[labelnr].init( "Map roughness", cursor );
 	numberinput_lbl[labelnr].align_to(&mountain_roughness,ALIGN_CENTER_V);
-	numberinput_lbl[labelnr].set_width(label_width);
+	numberinput_lbl[labelnr].set_width( label_width );
 	add_komponente( numberinput_lbl+labelnr );
 	labelnr++;
 	cursor.y += D_EDIT_HEIGHT+D_V_SPACE;
 
 	// summer snowline always starting above highest climate
 	numberinput_lbl[labelnr].init( "Summer snowline", cursor );
+	numberinput_lbl[labelnr].set_width(label_width);
 	add_komponente( numberinput_lbl+labelnr );
 	labelnr++;
 	sprintf( snowline_txt ,"%d", sets->get_climate_borders()[arctic_climate] );
@@ -98,7 +99,7 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 	add_komponente( &snowline_winter );
 	numberinput_lbl[labelnr].init( "Winter snowline", cursor );
 	numberinput_lbl[labelnr].align_to(&snowline_winter,ALIGN_CENTER_V);
-	numberinput_lbl[labelnr].set_width(label_width);
+	numberinput_lbl[labelnr].set_width( label_width );
 	add_komponente( numberinput_lbl+labelnr );
 	labelnr++;
 	cursor.y += D_EDIT_HEIGHT;
@@ -116,6 +117,7 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 			arctic = sets->get_climate_borders()[i];
 		}
 		numberinput_lbl[labelnr].init( grund_besch_t::get_climate_name_from_bit((climate)(i+1)), cursor );
+		numberinput_lbl[labelnr].set_width(label_width);
 		numberinput_lbl[labelnr].align_to(&climate_borders_ui[i],ALIGN_CENTER_V);
 		add_komponente( numberinput_lbl+labelnr );
 		labelnr++;

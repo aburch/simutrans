@@ -8,7 +8,7 @@
 #include <stdio.h>
 
 #include "../simmem.h"
-#include "../simwin.h"
+#include "../gui/simwin.h"
 #include "../simmenu.h"
 #include "../simsys.h"
 #include "../simworld.h"

@@ -28,7 +28,7 @@
 #include "simplan.h"
 #include "simtools.h"
 #include "player/simplay.h"
-#include "simwin.h"
+#include "gui/simwin.h"
 #include "simworld.h"
 #include "simware.h"
 

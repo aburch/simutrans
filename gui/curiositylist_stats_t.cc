@@ -12,7 +12,7 @@
 
 #include "curiositylist_stats_t.h"
 
-#include "../simgraph.h"
+#include "../display/simgraph.h"
 #include "../simtypes.h"
 #include "../simcolor.h"
 #include "../simworld.h"
@@ -29,7 +29,7 @@
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
 
-#include "gui_frame.h"
+#include "frame.h"
 
 
 curiositylist_stats_t::curiositylist_stats_t(karte_t* w, curiositylist::sort_mode_t sortby, bool sortreverse) :

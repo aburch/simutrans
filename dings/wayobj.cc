@@ -13,7 +13,7 @@
 
 #include "../boden/grund.h"
 #include "../simworld.h"
-#include "../simimg.h"
+#include "../display/simimg.h"
 #include "../simdings.h"
 #include "../player/simplay.h"
 #include "../simwerkz.h"

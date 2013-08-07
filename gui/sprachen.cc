@@ -14,12 +14,12 @@
 
 #include "../simdebug.h"
 #include "../pathes.h"
-#include "../simimg.h"
+#include "../display/simimg.h"
 #include "../simskin.h"
 #include "../besch/skin_besch.h"
 #include "sprachen.h"
 
-#include "../font.h"
+#include "../display/font.h"
 
 #include "../dataobj/umgebung.h"
 #include "../dataobj/translator.h"
@@ -160,12 +160,14 @@ sprachengui_t::sprachengui_t() :
 
 	// now set position
 	const uint32 count = buttons.get_count();
+	const scr_coord_val width = ((DIALOG_WIDTH - D_MARGINS_X - D_H_SPACE) >> 1);
 	for(uint32 i=0; i<count; i++)
 	{
 		const bool right = (2*i >= count);
-		const sint16 x = cursor.x + (right  ? (DIALOG_WIDTH-D_MARGIN_LEFT-D_MARGIN_RIGHT)/2 : 0);
-		const sint16 y = cursor.y + (D_BUTTON_SQUARE+D_V_SPACE)*(right ? i - (count+1)/2: i);
-		buttons[i].button->set_pos(koord(x,y+D_V_SPACE));
+		const scr_coord_val x = cursor.x + (right ? width + D_H_SPACE : 0);
+		const scr_coord_val y = cursor.y + (D_BUTTON_SQUARE + D_V_SPACE) * (right ? i - (count + 1) / 2: i);
+		buttons[i].button->set_pos( koord( x, y + D_V_SPACE ) );
+		buttons[i].button->set_width( width );
 		add_komponente( buttons[i].button );
 	}
 

@@ -13,7 +13,7 @@
 #ifndef _simimg_h
 #define _simimg_h
 
-#include "simtypes.h"
+#include "../simtypes.h"
 
 typedef uint16 image_id;
 

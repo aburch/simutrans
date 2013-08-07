@@ -14,7 +14,7 @@
 #include "../simunits.h"
 #include "../simdebug.h"
 #include "../simdings.h"
-#include "../simimg.h"
+#include "../display/simimg.h"
 #include "../player/simplay.h"
 #include "../simwerkz.h"
 #include "../simworld.h"

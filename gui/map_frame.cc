@@ -18,8 +18,8 @@
 
 
 #include "../simworld.h"
-#include "../simwin.h"
-#include "../simgraph.h"
+#include "../gui/simwin.h"
+#include "../display/simgraph.h"
 #include "../simcolor.h"
 #include "../bauer/fabrikbauer.h"
 #include "../dataobj/umgebung.h"

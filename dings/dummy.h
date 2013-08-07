@@ -2,7 +2,7 @@
 #define dings_dummy_h
 
 #include "../simdings.h"
-#include "../simimg.h"
+#include "../display/simimg.h"
 
 
 /**

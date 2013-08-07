@@ -23,9 +23,9 @@
 #include "simdebug.h"
 #include "simdepot.h"
 #include "simfab.h"
-#include "simgraph.h"
+#include "display/simgraph.h"
 #include "simhalt.h"
-#include "simimg.h"
+#include "display/simimg.h"
 #include "simintr.h"
 #include "simio.h"
 #include "simlinemgmt.h"
@@ -39,9 +39,9 @@
 #include "simtools.h"
 #include "simunits.h"
 #include "simversion.h"
-#include "simview.h"
+#include "display/simview.h"
 #include "simwerkz.h"
-#include "simwin.h"
+#include "gui/simwin.h"
 #include "simworld.h"
 
 

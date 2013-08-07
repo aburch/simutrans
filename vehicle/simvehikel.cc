@@ -36,10 +36,10 @@
 #include "../simhalt.h"
 #include "../simsound.h"
 
-#include "../simimg.h"
+#include "../display/simimg.h"
 #include "../simmesg.h"
 #include "../simcolor.h"
-#include "../simgraph.h"
+#include "../display/simgraph.h"
 
 #include "../simline.h"
 

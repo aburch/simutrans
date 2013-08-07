@@ -10,7 +10,7 @@
 
 #include <string>
 
-#include "gui_frame.h"
+#include "frame.h"
 #include "components/gui_scrollpane.h"
 #include "components/gui_flowtext.h"
 #include "components/action_listener.h"

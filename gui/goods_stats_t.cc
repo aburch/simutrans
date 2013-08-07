@@ -13,7 +13,7 @@
 
 #include "goods_stats_t.h"
 
-#include "../simgraph.h"
+#include "../display/simgraph.h"
 #include "../simcolor.h"
 #include "../simworld.h"
 
@@ -24,7 +24,7 @@
 #include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"
 
-#include "gui_frame.h"
+#include "frame.h"
 #include "../gui/components/gui_button.h"
 
 
@@ -52,9 +52,10 @@ void goods_stats_t::update_goodslist( uint16 *g, int b, int l )
  */
 void goods_stats_t::zeichnen(koord offset)
 {
-	int yoff = offset.y;
+	scr_coord_val yoff = offset.y;
 	char money_buf[256];
 	cbuffer_t buf;
+	offset.x += pos.x;
 
 	for(  uint16 i=0;  i<listed_goods;  i++  ) {
 		const ware_besch_t * wtyp = warenbauer_t::get_info(goodslist[i]);

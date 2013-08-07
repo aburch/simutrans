@@ -8,7 +8,7 @@
 #include "simlinemgmt.h"
 #include "simline.h"
 #include "simconvoi.h"
-#include "simwin.h"
+#include "gui/simwin.h"
 #include "simworld.h"
 #include "simtypes.h"
 #include "simintr.h"

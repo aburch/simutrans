@@ -3,11 +3,11 @@
 #include <stdio.h>
 
 #include "../simdebug.h"
-#include "../simwin.h"
+#include "../gui/simwin.h"
 #include "../simtypes.h"
 #include "../simworld.h"
 #include "../simhalt.h"
-#include "../simimg.h"
+#include "../display/simimg.h"
 
 #include "../utils/cbuffer_t.h"
 #include "../gui/messagebox.h"

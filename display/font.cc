@@ -1,11 +1,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "simtypes.h"
-#include "simmem.h"
-#include "macros.h"
+#include "../simtypes.h"
+#include "../simmem.h"
+#include "../macros.h"
 #include "font.h"
-#include "utils/simstring.h"
+#include "../utils/simstring.h"
 
 
 /* if defined, for the old .fnt files a .bdf core will be generated */

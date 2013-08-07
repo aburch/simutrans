@@ -6,7 +6,7 @@
 #include <algorithm>
 
 #include "../simdebug.h"
-#include "../simgraph.h"
+#include "../display/simgraph.h"
 #include "../simworld.h"
 
 #include "../bauer/hausbauer.h"

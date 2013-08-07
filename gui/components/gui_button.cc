@@ -12,9 +12,9 @@
 #include "gui_button.h"
 
 #include "../../simcolor.h"
-#include "../../simgraph.h"
+#include "../../display/simgraph.h"
 #include "../../simevent.h"
-#include "../../simwin.h"
+#include "../../gui/simwin.h"
 
 #include "../../dataobj/translator.h"
 
@@ -22,7 +22,7 @@
 #include "../../besch/skin_besch.h"
 #include "../../utils/simstring.h"
 
-#include "../gui_frame.h"
+#include "../frame.h"
 
 #define STATE_MASK (127)
 #define AUTOMATIC_MASK (255)
@@ -605,7 +605,7 @@ void button_t::zeichnen(koord offset)
 				else {
 					display_ddd_box_clip(bx, by, bw, bh, COL_GREY6, COL_GREY3);
 				}
-				display_fillbox_wh_clip(bx+1, by+1, bw-2, bh-2, background, false);
+				display_fillbox_wh_clip(bx+1, by+1, bw-2, bh-2, b_enabled ? background : SYSCOL_FACE, false);
 
 				size_t idx = display_fit_proportional(translated_text, bw-3, translator::get_lang()->eclipse_width );
 				if(  translated_text[idx]==0  ) {

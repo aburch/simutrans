@@ -6,12 +6,12 @@
 
 #include "../../simdebug.h"
 
-#include "../gui_frame.h"
+#include "../frame.h"
 #include "gui_scrollpane.h"
 #include "gui_scrollbar.h"
 #include "gui_button.h"
 
-#include "../../simgraph.h"
+#include "../../display/simgraph.h"
 #include "../../simcolor.h"
 
 

@@ -8,7 +8,7 @@
 #include <stdio.h>
 
 #include "../../simworld.h"
-#include "../../simimg.h"
+#include "../../display/simimg.h"
 
 #include "../../besch/grund_besch.h"
 #include "../../besch/weg_besch.h"

@@ -17,10 +17,10 @@
 #include "../simdepot.h"
 #include "../vehicle/simvehikel.h"
 #include "../simcolor.h"
-#include "../simgraph.h"
+#include "../display/simgraph.h"
 #include "../simworld.h"
 #include "../simmenu.h"
-#include "../simwin.h"
+#include "../gui/simwin.h"
 
 #include "../dataobj/fahrplan.h"
 #include "../dataobj/translator.h"

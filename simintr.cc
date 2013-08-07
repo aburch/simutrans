@@ -11,13 +11,13 @@
 #include "simdebug.h"
 #include "simsys.h"
 #include "simintr.h"
-#include "simwin.h"
+#include "gui/simwin.h"
 #include "player/simplay.h"
 #include "dataobj/umgebung.h"
 #include "dataobj/translator.h"
 
 #include "simworld.h"
-#include "simview.h"
+#include "display/simview.h"
 
 #include "boden/wasser.h"
 

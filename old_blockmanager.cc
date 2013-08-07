@@ -11,7 +11,7 @@
 #include "simworld.h"
 #include "player/simplay.h"
 #include "simmesg.h"
-#include "simimg.h"
+#include "display/simimg.h"
 #include "dings/signal.h"
 #include "dings/tunnel.h"
 #include "boden/grund.h"

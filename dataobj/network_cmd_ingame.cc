@@ -12,7 +12,7 @@
 #include "../simtools.h"
 #include "../simmenu.h"
 #include "../simversion.h"
-#include "../simwin.h"
+#include "../gui/simwin.h"
 #include "../simmesg.h"
 #include "../simsys.h"
 #include "../dataobj/umgebung.h"

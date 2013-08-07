@@ -25,6 +25,31 @@ gui_container_t::gui_container_t() : gui_komponente_t(), komp_focus(NULL)
 	inside_infowin_event = false;
 }
 
+/**
+ * Returns the bounding rectangle for all child controls.
+ * @author Max Kielland
+ */
+scr_rect gui_container_t::calc_client(void) const
+{
+	scr_rect client_bound;
+
+	FOR(slist_tpl<gui_komponente_t*>, const c, komponenten) {
+		client_bound.make_union( c->get_client() );
+	}
+	client_bound.move_to(pos.x,pos.y);
+	return client_bound;
+}
+
+void gui_container_t::set_children_width(scr_coord_val width) {
+
+	if (width == 0) {
+		width = client.get_width();
+	}
+
+	FOR(slist_tpl<gui_komponente_t*>, const c, komponenten) {
+		c->set_width(width);
+	}
+}
 
 /**
  * Add component to the container

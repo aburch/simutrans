@@ -10,15 +10,15 @@
 #ifndef gui_schedule_list_h
 #define gui_schedule_list_h
 
-#include "gui_frame.h"
-#include "gui_container.h"
+#include "frame.h"
+#include "components/gui_container.h"
 #include "components/gui_label.h"
 #include "components/gui_chart.h"
 #include "components/gui_textinput.h"
 #include "components/gui_scrolled_list.h"
 #include "components/gui_scrollpane.h"
 #include "components/gui_tab_panel.h"
-#include "gui_convoiinfo.h"
+#include "components/gui_convoiinfo.h"
 #include "../simline.h"
 
 class spieler_t;

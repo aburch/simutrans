@@ -7,8 +7,8 @@
 #ifndef __BILD_BESCH_H
 #define __BILD_BESCH_H
 
-#include "../simgraph.h"
-#include "../simimg.h"
+#include "../display/simgraph.h"
+#include "../display/simimg.h"
 #include "obj_besch.h"
 
 

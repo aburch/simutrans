@@ -16,7 +16,7 @@
 #include "simcity.h"
 #include "simtools.h"
 #include "simmesg.h"
-#include "simwin.h"
+#include "gui/simwin.h"
 
 #include "bauer/fabrikbauer.h"
 #include "bauer/vehikelbauer.h"
@@ -29,7 +29,7 @@
 
 #include "simdepot.h"
 #include "simfab.h"
-#include "simimg.h"
+#include "display/simimg.h"
 #include "simintr.h"
 #include "simhalt.h"
 #include "simskin.h"

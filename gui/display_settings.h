@@ -6,7 +6,7 @@
 #ifndef _display_settings_h_
 #define _display_settings_h_
 
-#include "gui_frame.h"
+#include "frame.h"
 #include "components/gui_divider.h"
 #include "components/gui_label.h"
 #include "components/gui_button.h"
@@ -55,6 +55,10 @@ private:
 		divider2,
 		divider3,
 		divider4;
+
+	gui_container_t
+		label_container,
+		value_container;
 
 	// Non translated text buffers for label values
 	char frame_time_buf[BUF_MAXLEN_MS_FORMAT];

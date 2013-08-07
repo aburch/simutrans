@@ -12,8 +12,8 @@
 
 #include "messagebox.h"
 
-#include "../simgraph.h"
-#include "../simwin.h"
+#include "../display/simgraph.h"
+#include "../gui/simwin.h"
 #include "../simworld.h"
 
 #include "../dataobj/umgebung.h"

@@ -9,7 +9,7 @@
 #ifndef gui_fahrplan_gui_h
 #define gui_fahrplan_gui_h
 
-#include "gui_frame.h"
+#include "frame.h"
 
 #include "components/gui_label.h"
 #include "components/gui_numberinput.h"
@@ -22,7 +22,7 @@
 
 #include "../convoihandle_t.h"
 #include "../linehandle_t.h"
-#include "../simwin.h"
+#include "../gui/simwin.h"
 #include "../tpl/vector_tpl.h"
 
 

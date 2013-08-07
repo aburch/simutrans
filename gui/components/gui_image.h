@@ -10,8 +10,8 @@
 #ifndef gui_image_h
 #define gui_image_h
 
-#include "../../simimg.h"
-#include "../../simgraph.h"
+#include "../../display/simimg.h"
+#include "../../display/simgraph.h"
 #include "gui_komponente.h"
 
 

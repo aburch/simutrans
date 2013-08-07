@@ -12,7 +12,7 @@
 #include "../simdings.h"
 #include "../boden/wege/schiene.h"
 #include "../boden/grund.h"
-#include "../simimg.h"
+#include "../display/simimg.h"
 #include "../dataobj/ribi.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"

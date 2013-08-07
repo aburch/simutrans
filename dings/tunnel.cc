@@ -11,7 +11,7 @@
 #include "../simdings.h"
 #include "../player/simplay.h"
 #include "../boden/grund.h"
-#include "../simimg.h"
+#include "../display/simimg.h"
 #include "../bauer/tunnelbauer.h"
 
 #include "../dataobj/loadsave.h"

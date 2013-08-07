@@ -9,7 +9,7 @@
 #define dings_crossing_h
 
 #include "../simtypes.h"
-#include "../simimg.h"
+#include "../display/simimg.h"
 #include "../besch/kreuzung_besch.h"
 #include "../dataobj/crossing_logic.h"
 

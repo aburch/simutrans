@@ -2,7 +2,7 @@
 #define label_h
 
 #include "../simdings.h"
-#include "../simimg.h"
+#include "../display/simimg.h"
 
 class label_t : public ding_t
 {

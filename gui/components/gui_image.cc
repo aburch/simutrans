@@ -1,5 +1,5 @@
 #include "gui_image.h"
-#include "../gui_frame.h"
+#include "../frame.h"
 
 gui_image_t::gui_image_t( const image_id i, const uint8 p, control_alignment_t alignment_par, bool remove_offset_enabled )
 : player_nr(p)

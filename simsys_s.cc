@@ -19,7 +19,7 @@
 #include "simversion.h"
 #include "simsys.h"
 #include "simevent.h"
-#include "simgraph.h"
+#include "display/simgraph.h"
 #include "simdebug.h"
 
 

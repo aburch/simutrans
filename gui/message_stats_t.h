@@ -9,7 +9,7 @@
 #define message_stats_t_h
 
 #include "components/gui_komponente.h"
-#include "../simimg.h"
+#include "../display/simimg.h"
 #include "../simmesg.h"
 #include "../tpl/slist_tpl.h"
 

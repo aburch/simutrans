@@ -6,7 +6,7 @@
 #ifndef gui_tab_panel_h
 #define gui_tab_panel_h
 
-#include "../../simimg.h"
+#include "../../display/simimg.h"
 
 #include "../../besch/skin_besch.h"
 

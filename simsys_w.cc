@@ -20,7 +20,7 @@
 #include <wingdi.h>
 #include <mmsystem.h>
 
-#include "simgraph.h"
+#include "display/simgraph.h"
 #include "simdebug.h"
 
 

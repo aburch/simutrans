@@ -10,7 +10,7 @@
 
 
 #include "../halthandle_t.h"
-#include "../simimg.h"
+#include "../display/simimg.h"
 #include "../simcolor.h"
 #include "../simconst.h"
 #include "../dataobj/koord3d.h"

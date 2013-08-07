@@ -7,7 +7,7 @@
 #include "fahrplan_gui.h"
 #include "components/gui_textinput.h"
 #include "components/action_listener.h"
-#include "gui_frame.h"
+#include "frame.h"
 
 #include "../linehandle_t.h"
 

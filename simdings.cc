@@ -16,10 +16,10 @@
 #include <stdlib.h>
 
 #include "simdebug.h"
-#include "simimg.h"
+#include "display/simimg.h"
 #include "simcolor.h"
-#include "simgraph.h"
-#include "simwin.h"
+#include "display/simgraph.h"
+#include "gui/simwin.h"
 #include "player/simplay.h"
 #include "simdings.h"
 #include "simworld.h"

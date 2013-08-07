@@ -13,7 +13,7 @@
 #include "halthandle_t.h"
 
 #include "simdings.h"
-#include "simgraph.h"
+#include "display/simgraph.h"
 #include "simtypes.h"
 
 #include "bauer/warenbauer.h"

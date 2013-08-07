@@ -11,11 +11,11 @@
 #include "besch/bild_besch.h"
 #include "besch/skin_besch.h"
 #include "simskin.h"
-#include "simgraph.h"
+#include "display/simgraph.h"
 #include "simevent.h"
 #include "dataobj/umgebung.h"
 #include "simticker.h"
-#include "simwin.h"
+#include "gui/simwin.h"
 #include "tpl/slist_tpl.h"
 
 

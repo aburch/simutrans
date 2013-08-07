@@ -13,7 +13,7 @@
 #include "display_settings.h"
 #include "../simdebug.h"
 #include "../simworld.h"
-#include "../simimg.h"
+#include "../display/simimg.h"
 #include "../simintr.h"
 #include "../simcolor.h"
 #include "../dataobj/einstellungen.h"
@@ -21,22 +21,26 @@
 #include "../dataobj/translator.h"
 #include "../dings/baum.h"
 #include "../dings/zeiger.h"
-#include "../simgraph.h"
+#include "../display/simgraph.h"
 #include "../simmenu.h"
 #include "../player/simplay.h"
 #include "../utils/simstring.h"
 
 
 // Local params
-#define L_EDIT_WIDTH (50)
 #define L_DIALOG_WIDTH (220)
 
 
 color_gui_t::color_gui_t(karte_t *welt) :
 gui_frame_t( translator::translate("Helligk. u. Farben") )
 {
+	koord cursor = koord( D_MARGIN_LEFT, D_MARGIN_TOP );
 	this->welt = welt;
-	koord cursor = koord (D_MARGIN_LEFT,D_MARGIN_TOP);
+
+	// Use one of the edit controls to calculate width
+	inp_underground_level.set_width_by_len(3);
+	const scr_coord_val edit_width = inp_underground_level.get_groesse().x;
+	const scr_coord_val label_width = L_DIALOG_WIDTH - D_MARGINS_X - D_H_SPACE - edit_width;
 
 	// Max Kielland: No need to put right aligned controls in place here.
 	// They will be positioned in the resize window function.
@@ -45,22 +49,25 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[17].set_pos( cursor );
 	buttons[17].set_typ(button_t::square_state);
 	buttons[17].set_text("show grid");
+	buttons[17].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
 	cursor.y += D_BUTTON_SQUARE + D_V_SPACE;
 
 	// Underground view checkbox
 	buttons[16].set_pos( cursor );
 	buttons[16].set_typ(button_t::square_state);
 	buttons[16].set_text("underground mode");
+	buttons[16].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
 	cursor.y += D_BUTTON_SQUARE + D_V_SPACE;
 
 	// Show slice map view checkbox
 	buttons[20].set_pos( cursor );
 	buttons[20].set_typ(button_t::square_state);
 	buttons[20].set_text("sliced underground mode");
+	buttons[20].set_width( label_width );
 
 	// underground slice edit
 	inp_underground_level.set_pos( cursor );
-	inp_underground_level.set_groesse( koord( L_EDIT_WIDTH, D_EDIT_HEIGHT ) );
+	inp_underground_level.set_width( edit_width );
 	inp_underground_level.align_to(&buttons[20], ALIGN_CENTER_V);
 	inp_underground_level.set_value( grund_t::underground_mode==grund_t::ugm_level ? grund_t::underground_level : welt->get_zeiger()->get_pos().z);
 	inp_underground_level.set_limits(welt->get_grundwasser()-10, 32);
@@ -71,17 +78,19 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[9].set_pos( cursor );
 	buttons[9].set_typ(button_t::square_state);
 	buttons[9].set_text("8WORLD_CHOOSE");
+	buttons[9].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
 	buttons[9].pressed = umgebung_t::night_shift;
 	cursor.y += D_BUTTON_SQUARE + D_V_SPACE;
 
 	// Brightness label
 	brightness_label.init("1LIGHT_CHOOSE",cursor);
+	brightness_label.set_width( label_width );
 	add_komponente(&brightness_label);
 	cursor.y += LINESPACE + D_V_SPACE;
 
 	// brightness edit
 	brightness.set_pos( cursor );
-	brightness.set_groesse( koord( L_EDIT_WIDTH, D_EDIT_HEIGHT ) );
+	brightness.set_width( edit_width );
 	brightness.align_to(&brightness_label, ALIGN_CENTER_V);
 	brightness.set_value( umgebung_t::daynight_level );
 	brightness.set_limits( 0, 9 );
@@ -91,17 +100,19 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[6].set_pos( cursor );
 	buttons[6].set_typ(button_t::square_state);
 	buttons[6].set_text("4LIGHT_CHOOSE");
+	buttons[6].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
 	buttons[6].pressed = umgebung_t::scroll_multi < 0;
 	cursor.y += D_BUTTON_SQUARE + D_V_SPACE;
 
 	// Scroll speed label
 	scrollspeed_label.init("3LIGHT_CHOOSE",cursor);
+	scrollspeed_label.set_width( label_width );
 	add_komponente(&scrollspeed_label);
-	cursor.y += LINESPACE; // + D_V_SPACE;
+	cursor.y += LINESPACE;
 
 	// Scroll speed edit
 	scrollspeed.set_pos( cursor );
-	scrollspeed.set_groesse( koord( L_EDIT_WIDTH, D_EDIT_HEIGHT ) );
+	scrollspeed.set_width( edit_width );
 	scrollspeed.align_to(&scrollspeed_label, ALIGN_CENTER_V);
 	scrollspeed.set_value( abs(umgebung_t::scroll_multi) );
 	scrollspeed.set_limits( 1, 9 );
@@ -110,12 +121,13 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	// Divider 1
 	divider1.set_pos( cursor );
 	add_komponente(&divider1);
-	cursor.y += D_DIVIDER_HEIGHT; // + D_V_SPACE;
+	cursor.y += D_DIVIDER_HEIGHT;
 
 	// Transparent instead of hidden checkbox
 	buttons[10].set_pos( cursor );
 	buttons[10].set_typ(button_t::square_state);
 	buttons[10].set_text("hide transparent");
+	buttons[10].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
 	buttons[10].pressed = umgebung_t::hide_with_transparency;
 	cursor.y += D_BUTTON_SQUARE + D_V_SPACE;
 
@@ -123,6 +135,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[11].set_pos( cursor );
 	buttons[11].set_typ(button_t::square_state);
 	buttons[11].set_text("hide trees");
+	buttons[11].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
 	cursor.y += D_BUTTON_SQUARE + D_V_SPACE;
 
 	// Hide buildings arrows
@@ -141,26 +154,28 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[21].set_pos( cursor );
 	buttons[21].set_typ( button_t::square_state );
 	buttons[21].set_text( "Smart hide objects" );
+	buttons[21].set_width( label_width );
 	buttons[21].set_tooltip( "hide objects under cursor" );
 
 	// Smart hide objects edit
 	cursor_hide_range.set_pos( cursor );
-	cursor_hide_range.set_groesse( koord( L_EDIT_WIDTH, D_EDIT_HEIGHT ) );
+	cursor_hide_range.set_width( edit_width );
 	cursor_hide_range.align_to(&buttons[21], ALIGN_CENTER_V);
 	cursor_hide_range.set_value(umgebung_t::cursor_hide_range);
 	cursor_hide_range.set_limits( 0, 10 );
 	cursor_hide_range.add_listener(this);
-	cursor.y += D_BUTTON_SQUARE; // + D_V_SPACE;
+	cursor.y += D_BUTTON_SQUARE;
 
 	// Divider 2
 	divider2.set_pos( cursor );
 	add_komponente(&divider2);
-	cursor.y += D_DIVIDER_HEIGHT; // + D_V_SPACE;
+	cursor.y += D_DIVIDER_HEIGHT;
 
 	// Transparent station coverage
 	buttons[14].set_pos( cursor );
 	buttons[14].set_typ(button_t::square_state);
 	buttons[14].set_text("transparent station coverage");
+	buttons[14].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
 	buttons[14].pressed = umgebung_t::use_transparency_station_coverage;
 	cursor.y += D_BUTTON_SQUARE + D_V_SPACE;
 
@@ -168,6 +183,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[15].set_pos( cursor );
 	buttons[15].set_typ(button_t::square_state);
 	buttons[15].set_text("show station coverage");
+	buttons[15].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
 	cursor.y += D_BUTTON_SQUARE + D_V_SPACE;
 
 	// Show station names arrow
@@ -180,18 +196,20 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[19].set_pos( cursor );
 	buttons[19].set_typ(button_t::square_state);
 	buttons[19].set_text("show waiting bars");
+	buttons[19].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
 	buttons[19].pressed = umgebung_t::show_names&2;
-	cursor.y += D_BUTTON_SQUARE; // + D_V_SPACE;
+	cursor.y += D_BUTTON_SQUARE;
 
 	// Divider 3
 	divider3.set_pos( cursor );
 	add_komponente(&divider3);
-	cursor.y += D_DIVIDER_HEIGHT; // + D_V_SPACE;
+	cursor.y += D_DIVIDER_HEIGHT;
 
 	// Pedestrians in towns checkbox
 	buttons[8].set_pos( cursor );
 	buttons[8].set_typ(button_t::square_state);
 	buttons[8].set_text("6LIGHT_CHOOSE");
+	buttons[8].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
 	buttons[8].pressed = welt->get_settings().get_random_pedestrians();
 	cursor.y += D_BUTTON_SQUARE + D_V_SPACE;
 
@@ -199,16 +217,18 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[7].set_pos( cursor );
 	buttons[7].set_typ(button_t::square_state);
 	buttons[7].set_text("5LIGHT_CHOOSE");
+	buttons[7].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
 	buttons[7].pressed = welt->get_settings().get_show_pax();
 	cursor.y += D_BUTTON_SQUARE + D_V_SPACE;
 
 	// Traffic density label
 	traffic_density_label.init("6WORLD_CHOOSE",cursor);
+	traffic_density_label.set_width( label_width );
 	add_komponente(&traffic_density_label);
 
 	// Traffic density edit
 	traffic_density.set_pos( cursor );
-	traffic_density.set_groesse( koord( L_EDIT_WIDTH, D_EDIT_HEIGHT ) );
+	traffic_density.set_width( edit_width );
 	traffic_density.align_to(&traffic_density_label, ALIGN_CENTER_V);
 	traffic_density.set_value(welt->get_settings().get_verkehr_level());
 	traffic_density.set_limits( 0, 16 );
@@ -231,42 +251,55 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[22].set_pos( cursor );
 	buttons[22].set_typ( button_t::square_state );
 	buttons[22].set_text( "Highlite schedule" );
-	cursor.y += D_BUTTON_SQUARE; // + D_V_SPACE;
+	buttons[22].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
+	cursor.y += D_BUTTON_SQUARE;
 
 	// Divider 4
 	divider4.set_pos( cursor );
 	add_komponente(&divider4);
-	cursor.y += D_DIVIDER_HEIGHT; // + D_V_SPACE;
+	cursor.y += D_DIVIDER_HEIGHT;
+
+	// add controls to info container
+	label_container.init( cursor );
+	cursor = koord(0,0);
 
 	// Frame time label
 	frame_time_label.init("Frame time:", cursor, COL_BLACK );
-	frame_time_value_label.init(frame_time_buf, koord (frame_time_label.get_pos().x + frame_time_label.get_groesse().x, cursor.y), COL_WHITE );
-	add_komponente(&frame_time_label);
-	add_komponente(&frame_time_value_label);
+	frame_time_value_label.init( frame_time_buf, koord(0, cursor.y), COL_WHITE );
+	label_container.add_komponente( &frame_time_label );
+	value_container.add_komponente( &frame_time_value_label );
 	cursor.y += LINESPACE;
 
 	// Idle time label
 	idle_time_label.init("Idle:", cursor, COL_BLACK);
-	idle_time_value_label.init(idle_time_buf, koord (idle_time_label.get_pos().x + idle_time_label.get_groesse().x, cursor.y), COL_WHITE);
-	add_komponente(&idle_time_label);
-	add_komponente(&idle_time_value_label);
+	idle_time_value_label.init( idle_time_buf, koord(0, cursor.y), COL_WHITE );
+	label_container.add_komponente( &idle_time_label );
+	value_container.add_komponente( &idle_time_value_label );
 	cursor.y += LINESPACE;
 
 	// FPS label
 	fps_label.init("FPS:", cursor, COL_BLACK );
-	fps_value_label.init(fps_buf, koord (fps_label.get_pos().x + fps_label.get_groesse().x, cursor.y), COL_WHITE);
-	add_komponente(&fps_label);
-	add_komponente(&fps_value_label);
+	fps_value_label.init( fps_buf, koord(0, cursor.y), COL_WHITE );
+	label_container.add_komponente( &fps_label );
+	value_container.add_komponente( &fps_value_label );
 	cursor.y += LINESPACE;
 
 	// Simloops label
 	simloops_label.init("Sim:", cursor, COL_BLACK );
-	simloops_value_label.init(simloops_buf, koord (simloops_label.get_pos().x + simloops_label.get_groesse().x, cursor.y), COL_WHITE);
-	add_komponente(&simloops_label);
-	add_komponente(&simloops_value_label);
+	simloops_value_label.init( simloops_buf, koord(0, cursor.y), COL_WHITE );
+	label_container.add_komponente( &simloops_label );
+	value_container.add_komponente( &simloops_value_label );
 	cursor.y += LINESPACE;
 
-	for(int i=0;  i<COLORS_MAX_BUTTONS;  i++ ) {
+	// Align all values with labels
+	scr_rect bounds = label_container.calc_client();
+	label_container.set_groesse( koord( bounds.get_width(), bounds.get_height() ) );
+	label_container.set_children_width();
+	value_container.align_to( &label_container, ALIGN_EXTERIOR_H | ALIGN_LEFT | ALIGN_TOP, koord( D_H_SPACE, 0 ) );
+	value_container.set_width( L_DIALOG_WIDTH - D_MARGINS_X - label_container.get_groesse().x - D_H_SPACE );
+	value_container.set_children_width();
+
+	for(  int i = 0;  i < COLORS_MAX_BUTTONS;  i++  ) {
 		buttons[i].add_listener(this);
 	}
 
@@ -302,6 +335,10 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	// add_komponente( buttons+4 );
 	// add_komponente( buttons+5 );
 
+	add_komponente( &label_container );
+	add_komponente( &value_container );
+	cursor.y = label_container.get_pos().y + label_container.get_groesse().y;
+
 	set_resizemode(gui_frame_t::horizonal_resize);
 	set_min_windowsize( koord(L_DIALOG_WIDTH, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM) );
 	set_fenstergroesse( koord(L_DIALOG_WIDTH, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM) );
@@ -310,11 +347,11 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 
 void color_gui_t::set_fenstergroesse(koord groesse)
 {
-	KOORD_VAL column;
+	scr_coord_val column;
 
 	gui_frame_t::set_fenstergroesse(groesse);
 
-	column = groesse.x - D_MARGIN_RIGHT - L_EDIT_WIDTH;
+	column = groesse.x - D_MARGIN_RIGHT - inp_underground_level.get_groesse().x;
 	inp_underground_level.set_pos ( koord( column, inp_underground_level.get_pos().y ) );
 	brightness.set_pos            ( koord( column, brightness.get_pos().y            ) );
 	scrollspeed.set_pos           ( koord( column, scrollspeed.get_pos().y           ) );
@@ -325,7 +362,7 @@ void color_gui_t::set_fenstergroesse(koord groesse)
 	buttons[1].set_pos            ( koord( column, buttons[1].get_pos().y            ) );
 	buttons[13].set_pos           ( koord( column, buttons[13].get_pos().y           ) );
 
-	column = groesse.x - D_MARGIN_LEFT - D_MARGIN_RIGHT;
+	column = groesse.x - D_MARGINS_X;
 	divider1.set_width            ( column );
 	divider2.set_width            ( column );
 	divider3.set_width            ( column );

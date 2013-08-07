@@ -8,17 +8,17 @@
 #include <stdio.h>
 #include <math.h>
 
-#include "macros.h"
-#include "simtypes.h"
+#include "../macros.h"
+#include "../simtypes.h"
 #include "font.h"
-#include "pathes.h"
-#include "simconst.h"
-#include "simsys.h"
-#include "simmem.h"
-#include "simdebug.h"
-#include "besch/bild_besch.h"
-#include "unicode.h"
-#include "simticker.h"
+#include "../pathes.h"
+#include "../simconst.h"
+#include "../simsys.h"
+#include "../simmem.h"
+#include "../simdebug.h"
+#include "../besch/bild_besch.h"
+#include "../unicode.h"
+#include "../simticker.h"
 #include "simgraph.h"
 
 

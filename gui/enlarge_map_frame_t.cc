@@ -14,8 +14,8 @@
 
 #include "../simdebug.h"
 #include "../simworld.h"
-#include "../simwin.h"
-#include "../simimg.h"
+#include "../gui/simwin.h"
+#include "../display/simimg.h"
 #include "../simtools.h"
 #include "../simintr.h"
 
@@ -31,7 +31,7 @@
 
 #include "../simcolor.h"
 
-#include "../simgraph.h"
+#include "../display/simgraph.h"
 
 #include "../utils/simstring.h"
 

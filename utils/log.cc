@@ -29,8 +29,8 @@
 
 // for display ...
 #include "../gui/messagebox.h"
-#include "../simgraph.h"
-#include "../simwin.h"
+#include "../display/simgraph.h"
+#include "../gui/simwin.h"
 
 #include "../dataobj/umgebung.h"
 #endif

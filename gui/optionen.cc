@@ -10,13 +10,13 @@
  * Niels Roest, Hj. Malthaner, 2000
  */
 
-#include "gui_frame.h"
+#include "frame.h"
 #include "components/gui_button.h"
 #include "components/gui_divider.h"
 #include "components/action_listener.h"
 
 #include "../simworld.h"
-#include "../simwin.h"
+#include "../gui/simwin.h"
 #include "optionen.h"
 #include "display_settings.h"
 #include "sprachen.h"

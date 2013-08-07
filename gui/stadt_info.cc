@@ -19,7 +19,7 @@
 #include "stadt_info.h"
 #include "karte.h"
 
-#include "../simgraph.h"
+#include "../display/simgraph.h"
 
 #define PAX_DEST_X (138)
 #define PAX_DEST_Y (20)

@@ -9,7 +9,7 @@
 #define simdings_h
 
 #include "simtypes.h"
-#include "simimg.h"
+#include "display/simimg.h"
 #include "simcolor.h"
 #include "dataobj/koord3d.h"
 

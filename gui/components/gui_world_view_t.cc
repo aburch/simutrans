@@ -9,9 +9,9 @@
 
 #include "gui_world_view_t.h"
 #include "../../simworld.h"
-#include "../../simview.h"
+#include "../../display/simview.h"
 #include "../../simdings.h"
-#include "../../simgraph.h"
+#include "../../display/simgraph.h"
 #include "../../simcolor.h"
 #include "../../vehicle/simvehikel.h"
 #include "../../boden/grund.h"

@@ -10,10 +10,10 @@
  * @author Dwachs 2008
  */
 
-#include "../gui_frame.h"
+#include "../frame.h"
 #include "gui_numberinput.h"
-#include "../../simwin.h"
-#include "../../simgraph.h"
+#include "../../gui/simwin.h"
+#include "../../display/simgraph.h"
 #include "../../macros.h"
 #include "../../dataobj/translator.h"
 
@@ -40,20 +40,17 @@ gui_numberinput_t::gui_numberinput_t() :
 	set_increment_mode( 1 );
 	wrap_mode( true );
 	b_enabled = true;
+
+	set_groesse( koord( D_BUTTON_WIDTH, D_EDIT_HEIGHT ) );
 }
 
 void gui_numberinput_t::set_groesse(koord size_par) {
-//void gui_numberinput_t::set_groesse(KOORD_VAL size_x_par, KOORD_VAL size_y_par) {
 
 	gui_komponente_t::set_groesse(size_par);
 
 	textinp.set_groesse( koord( size_par.x - bt_left.get_groesse().x - bt_right.get_groesse().x, size_par.y) );
-	//bt_left.set_pos( koord(0, (bt_left.get_groesse().y - size_par.y) / 2) );
 	bt_left.align_to(&textinp, ALIGN_CENTER_V);
-	//textinp.set_pos( koord( bt_left.get_groesse().x, 0) );
 	textinp.align_to(&bt_left, ALIGN_EXTERIOR_H | ALIGN_LEFT);
-
-	//bt_right.set_pos( koord( size_par.x - bt_right.get_groesse().x, (size_par.y - bt_right.get_groesse().y) / 2) );
 	bt_right.align_to(&textinp, ALIGN_CENTER_V | ALIGN_EXTERIOR_H | ALIGN_LEFT);
 
 }

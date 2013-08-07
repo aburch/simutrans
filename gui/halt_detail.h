@@ -10,13 +10,13 @@
 
 #include "components/gui_textarea.h"
 
-#include "gui_frame.h"
+#include "frame.h"
 #include "components/gui_scrollpane.h"
 #include "components/gui_label.h"
 
 #include "../halthandle_t.h"
 #include "../utils/cbuffer_t.h"
-#include "../simwin.h"
+#include "../gui/simwin.h"
 
 class spieler_t;
 

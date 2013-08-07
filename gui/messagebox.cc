@@ -6,7 +6,7 @@
  */
 
 #include "../simworld.h"
-#include "../simgraph.h"
+#include "../display/simgraph.h"
 
 #include "../simskin.h"
 #include "../besch/skin_besch.h"

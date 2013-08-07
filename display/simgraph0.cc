@@ -3,9 +3,9 @@
  * Available under the Artistic License (see license.txt)
  */
 
-#include "simconst.h"
-#include "simsys.h"
-#include "besch/bild_besch.h"
+#include "../simconst.h"
+#include "../simsys.h"
+#include "../besch/bild_besch.h"
 
 #include "simgraph.h"
 

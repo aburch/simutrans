@@ -12,7 +12,7 @@
 #include "thing_info.h"
 #include "components/action_listener.h"
 #include "components/gui_button.h"
-#include "gui_container.h"
+#include "components/gui_container.h"
 
 class roadsign_t;
 

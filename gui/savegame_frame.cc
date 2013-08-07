@@ -13,7 +13,7 @@
 
 #include "../simdebug.h"
 #include "../simsys.h"
-#include "../simwin.h"
+#include "../gui/simwin.h"
 
 #include "../dataobj/umgebung.h"
 #include "../dataobj/translator.h"

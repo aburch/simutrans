@@ -2,7 +2,7 @@
 #include <string.h>
 #include "../../simcolor.h"
 #include "../../simevent.h"
-#include "../../simgraph.h"
+#include "../../display/simgraph.h"
 #include "../../dataobj/translator.h"
 #include "../../utils/simstring.h"
 

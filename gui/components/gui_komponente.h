@@ -10,7 +10,7 @@
 
 #include "../../dataobj/koord.h"
 #include "../../simevent.h"
-#include "../../simgraph.h"
+#include "../../display/simgraph.h"
 
 struct event_t;
 
@@ -48,6 +48,24 @@ protected:
 	* @author Hj. Malthaner
 	*/
 	koord groesse;
+
+	/**
+	 * Components client rectangle in relation
+	 * to its parent.
+	 * @author Max Kielland
+	 */
+	scr_rect client;
+
+	/**
+	* Set this component's client rectangle.
+	* This function is protected because no one else
+	* than the component itself should set the client
+	* rectangle.
+	* @author Max Kielland
+	*/
+	virtual void set_client(scr_rect client_par) {
+		client = client_par;
+	}
 
 public:
 	/**
@@ -106,6 +124,7 @@ public:
 	*/
 	virtual void set_pos(koord pos_par) {
 		pos = pos_par;
+		client.move_to( pos_par );
 	}
 
 	/**
@@ -122,6 +141,7 @@ public:
 	*/
 	virtual void set_groesse(koord size_par) {
 		groesse = size_par;
+		client.set_size( size_par );
 	}
 
 	/**
@@ -146,6 +166,22 @@ public:
 	*/
 	virtual void set_height(scr_coord_val height_par) {
 		set_groesse(koord(groesse.x,height_par));
+	}
+
+	/**
+	* Get this component's client rectangle.
+	* @author Max Kielland
+	*/
+	virtual scr_rect get_client() const {
+		return client;
+	}
+
+	/**
+	* Get this component's needed client rectangle.
+	* @author Max Kielland
+	*/
+	virtual scr_rect calc_client(void) const {
+		return get_client();
 	}
 
 	/**

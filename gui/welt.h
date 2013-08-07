@@ -9,7 +9,7 @@
 #ifndef welt_gui_h
 #define welt_gui_h
 
-#include "gui_frame.h"
+#include "frame.h"
 #include "components/gui_button.h"
 #include "components/gui_label.h"
 #include "components/action_listener.h"

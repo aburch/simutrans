@@ -15,13 +15,13 @@
 #define MAX_PROD_LABEL      (7-1)
 
 #include "../simfab.h"
-#include "gui_frame.h"
+#include "frame.h"
 #include "components/action_listener.h"
 #include "components/gui_label.h"
 #include "components/gui_button.h"
 #include "components/gui_chart.h"
 #include "components/gui_tab_panel.h"
-#include "gui_container.h"
+#include "components/gui_container.h"
 
 
 class factory_chart_t : public gui_container_t, private action_listener_t

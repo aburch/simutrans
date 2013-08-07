@@ -11,7 +11,7 @@
 #define gui_jumpframe_h
 
 #include "components/action_listener.h"
-#include "gui_frame.h"
+#include "frame.h"
 #include "components/gui_textinput.h"
 #include "components/gui_divider.h"
 #include "components/gui_button.h"

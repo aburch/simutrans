@@ -14,7 +14,7 @@
 #include "simconvoi.h"
 #include "simhalt.h"
 #include "simdepot.h"
-#include "simwin.h"
+#include "gui/simwin.h"
 #include "simmenu.h"
 #include "simcolor.h"
 #include "simmesg.h"

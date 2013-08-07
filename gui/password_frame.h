@@ -10,8 +10,8 @@
 
 
 #include "components/action_listener.h"
-#include "gui_frame.h"
-#include "gui_container.h"
+#include "frame.h"
+#include "components/gui_container.h"
 #include "components/gui_textinput.h"
 #include "components/gui_label.h"
 

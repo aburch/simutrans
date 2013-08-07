@@ -11,7 +11,7 @@
 #include "scenario_info.h"
 #include "messagebox.h"
 
-#include "../simwin.h"
+#include "../gui/simwin.h"
 #include "../simworld.h"
 
 #include "../dataobj/umgebung.h"

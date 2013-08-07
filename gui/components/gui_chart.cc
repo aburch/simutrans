@@ -9,9 +9,9 @@
 #include "gui_chart.h"
 #include "../../dataobj/umgebung.h"
 #include "../../utils/simstring.h"
-#include "../../simgraph.h"
+#include "../../display/simgraph.h"
 #include "../../simcolor.h"
-#include "../../simwin.h"
+#include "../../gui/simwin.h"
 
 static char tooltip[64];
 

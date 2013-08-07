@@ -2,9 +2,9 @@
 #define message_option_h
 
 #include "../simmesg.h"
-#include "../simwin.h"
+#include "../gui/simwin.h"
 
-#include "gui_frame.h"
+#include "frame.h"
 #include "components/action_listener.h"
 #include "components/gui_button.h"
 #include "components/gui_textarea.h"

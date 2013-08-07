@@ -15,7 +15,7 @@
 #include "gui_action_creator.h"
 #include "gui_komponente.h"
 #include "../../simcolor.h"
-#include "../../simimg.h"
+#include "../../display/simimg.h"
 
 
 /**

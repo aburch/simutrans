@@ -7,7 +7,7 @@
 #ifndef __SKIN_BESCH_H
 #define __SKIN_BESCH_H
 
-#include "../simimg.h"
+#include "../display/simimg.h"
 #include "obj_besch_std_name.h"
 #include "bildliste2d_besch.h"
 

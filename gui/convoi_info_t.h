@@ -12,7 +12,7 @@
  * @date 22-Aug-01
  */
 
-#include "gui_frame.h"
+#include "frame.h"
 #include "components/gui_scrollpane.h"
 #include "components/gui_textarea.h"
 #include "components/gui_textinput.h"
@@ -25,7 +25,7 @@
 #include "../convoihandle_t.h"
 #include "../linehandle_t.h"
 #include "../simconvoi.h"
-#include "../simwin.h"
+#include "../gui/simwin.h"
 
 #include "../utils/cbuffer_t.h"
 

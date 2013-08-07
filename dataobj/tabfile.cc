@@ -10,7 +10,7 @@
 #include <ctype.h>
 
 #include "../simdebug.h"
-#include "../simgraph.h"
+#include "../display/simgraph.h"
 #include "koord.h"
 #include "tabfile.h"
 

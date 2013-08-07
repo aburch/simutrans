@@ -23,7 +23,7 @@
 #include "../simhalt.h"
 #include "../simware.h"
 #include "../simfab.h"
-#include "../simwin.h"
+#include "../gui/simwin.h"
 #include "../besch/skin_besch.h"
 
 #include "../bauer/warenbauer.h"

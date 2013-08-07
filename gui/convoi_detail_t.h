@@ -9,8 +9,8 @@
  * Convoi details window
  */
 
-#include "gui_frame.h"
-#include "gui_container.h"
+#include "frame.h"
+#include "components/gui_container.h"
 #include "components/gui_scrollpane.h"
 #include "components/gui_textarea.h"
 #include "components/gui_textinput.h"
@@ -19,7 +19,7 @@
 #include "components/gui_label.h"                  // 09-Dec-2001      Markus Weber    Added
 #include "components/action_listener.h"
 #include "../convoihandle_t.h"
-#include "../simwin.h"
+#include "../gui/simwin.h"
 
 class koord;
 

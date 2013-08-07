@@ -12,9 +12,8 @@
 
 #include "gui_komponente.h"
 #include "../../simcolor.h"
-#include "../../simgraph.h"
+#include "../../display/simgraph.h"
 #include "../../tpl/array2d_tpl.h"
-//#include "../../simworld.h"
 
 #define MAP_PREVIEW_SIZE_X ((KOORD_VAL)(64))
 #define MAP_PREVIEW_SIZE_Y ((KOORD_VAL)(64))
@@ -26,7 +25,6 @@
  * @date 2013-06-02
  *
  */
-//class karte_t;
 class gui_map_preview_t : public gui_komponente_t
 {
 
