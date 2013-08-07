@@ -1571,7 +1571,7 @@ void depot_frame_t::draw_vehicle_info_text(koord pos)
 			sprintf( buf + n, "%s %8s", translator::translate("Restwert:"), tmp );
 		}
 
-		display_multiline_text( pos.x + second_column_x, pos.y + D_TITLEBAR_HEIGHT + bt_show_all.get_pos().y + bt_show_all.get_groesse().y + D_V_SPACE, buf, SYSCOL_STATIC_TEXT);
+		display_multiline_text( pos.x + second_column_x, pos.y + D_TITLEBAR_HEIGHT + bt_show_all.get_pos().y + bt_show_all.get_groesse().y + D_V_SPACE + LINESPACE, buf, SYSCOL_STATIC_TEXT);
 
 		// update speedbar
 		new_vehicle_length_sb = new_vehicle_length_sb_force_zero ? 0 : convoi_length_ok_sb + convoi_length_slower_sb + convoi_length_too_slow_sb + veh_type->get_length();
