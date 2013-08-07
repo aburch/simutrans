@@ -13,7 +13,7 @@
 #include "../tpl/slist_tpl.h"
 #include "../tpl/vector_tpl.h"
 #include "components/action_listener.h"
-#include "frame.h"
+#include "gui_frame.h"
 #include "components/gui_container.h"
 #include "components/gui_scrollpane.h"
 #include "components/gui_textinput.h"

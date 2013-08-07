@@ -13,7 +13,7 @@
 #define gui_kennfarbe_h
 
 #include "../utils/cbuffer_t.h"
-#include "frame.h"
+#include "gui_frame.h"
 #include "components/action_listener.h"
 #include "components/gui_textarea.h"
 #include "components/gui_label.h"

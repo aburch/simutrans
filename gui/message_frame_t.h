@@ -10,7 +10,7 @@
 
 #include "../gui/simwin.h"
 
-#include "frame.h"
+#include "gui_frame.h"
 #include "components/gui_button.h"
 #include "components/gui_scrollpane.h"
 #include "components/gui_tab_panel.h"

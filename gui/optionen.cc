@@ -10,7 +10,7 @@
  * Niels Roest, Hj. Malthaner, 2000
  */
 
-#include "frame.h"
+#include "gui_frame.h"
 #include "components/gui_button.h"
 #include "components/gui_divider.h"
 #include "components/action_listener.h"

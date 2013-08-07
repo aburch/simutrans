@@ -11,7 +11,7 @@
 #ifndef gui_werkzeug_waehler_h
 #define gui_werkzeug_waehler_h
 
-#include "frame.h"
+#include "gui_frame.h"
 #include "../tpl/vector_tpl.h"
 #include "../gui/simwin.h"
 

@@ -5,7 +5,7 @@
 #ifndef bigger_map_gui_h
 #define bigger_map_gui_h
 
-#include "frame.h"
+#include "gui_frame.h"
 #include "components/gui_label.h"
 #include "components/action_listener.h"
 #include "components/gui_numberinput.h"

@@ -18,7 +18,7 @@
 #include "../simworld.h"
 #include "../simskin.h"
 
-#include "frame.h"
+#include "gui_frame.h"
 #include "components/gui_button.h"
 
 #include "../bauer/warenbauer.h"

@@ -10,7 +10,7 @@
 #ifndef gui_schedule_list_h
 #define gui_schedule_list_h
 
-#include "frame.h"
+#include "gui_frame.h"
 #include "components/gui_container.h"
 #include "components/gui_label.h"
 #include "components/gui_chart.h"

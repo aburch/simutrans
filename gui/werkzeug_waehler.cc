@@ -17,7 +17,7 @@
 #include "../dataobj/umgebung.h"
 #include "../utils/for.h"
 #include "werkzeug_waehler.h"
-#include "../gui/frame.h"
+#include "../gui/gui_frame.h"
 
 #define MIN_WIDTH (80)
 

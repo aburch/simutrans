@@ -6,7 +6,7 @@
 #ifndef signal_spacing_h
 #define signal_spacing_h
 
-#include "frame.h"
+#include "gui_frame.h"
 #include "components/action_listener.h"
 
 class gui_numberinput_t;

@@ -22,7 +22,7 @@
 #include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"
 
-#include "frame.h"
+#include "gui_frame.h"
 
 
 /**

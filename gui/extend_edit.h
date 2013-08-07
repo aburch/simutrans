@@ -1,7 +1,7 @@
 #ifndef gui_extend_edit_h
 #define gui_extend_edit_h
 
-#include "frame.h"
+#include "gui_frame.h"
 #include "components/gui_container.h"
 #include "components/gui_textinput.h"
 #include "components/gui_scrolled_list.h"

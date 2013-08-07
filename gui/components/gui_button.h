@@ -169,6 +169,7 @@ public:
 	void init(enum type typ, const char *text, koord pos=koord(0,0), koord size = koord::invalid);
 
 	void set_typ(enum type typ);
+	enum type get_type() const { return this->type; }
 
 	const char * get_text() const {return text;}
 

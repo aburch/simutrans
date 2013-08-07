@@ -41,9 +41,11 @@ public:
 	// needed for WIN_OPEN events
 	void clear_dirty() { list_dirty=false; }
 
-	virtual scr_rect calc_client(void) const OVERRIDE;
-
-	virtual void set_children_width(scr_coord_val width = 0);
+	/**
+	 * Returns the minimum rectangle which encloses all children
+	 * @author Max Kielland
+	 */
+	scr_rect gui_container_t::get_min_boundaries(void) const;
 
 	/**
 	* Adds a Component to the Container.

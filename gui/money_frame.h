@@ -8,7 +8,7 @@
 #ifndef money_frame_h
 #define money_frame_h
 
-#include "frame.h"
+#include "gui_frame.h"
 #include "components/action_listener.h"
 #include "components/gui_button.h"
 #include "components/gui_label.h"

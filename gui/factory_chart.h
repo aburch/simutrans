@@ -15,7 +15,7 @@
 #define MAX_PROD_LABEL      (7-1)
 
 #include "../simfab.h"
-#include "frame.h"
+#include "gui_frame.h"
 #include "components/action_listener.h"
 #include "components/gui_label.h"
 #include "components/gui_button.h"

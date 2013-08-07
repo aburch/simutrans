@@ -22,7 +22,7 @@
 #include "../../besch/skin_besch.h"
 #include "../../utils/simstring.h"
 
-#include "../frame.h"
+#include "../gui_frame.h"
 
 #define STATE_MASK (127)
 #define AUTOMATIC_MASK (255)

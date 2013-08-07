@@ -16,7 +16,7 @@
 #define __convoi_frame_h
 
 #include "convoi_filter_frame.h"
-#include "frame.h"
+#include "gui_frame.h"
 #include "components/gui_container.h"
 #include "components/gui_scrollbar.h"
 #include "components/gui_speedbar.h"

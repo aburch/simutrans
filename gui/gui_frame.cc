@@ -12,7 +12,7 @@
 
 #include <stdio.h>
 
-#include "frame.h"
+#include "gui_frame.h"
 #include "../simcolor.h"
 #include "../display/simgraph.h"
 #include "../gui/simwin.h"

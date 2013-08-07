@@ -13,7 +13,7 @@
 #ifndef gui_halt_info_h
 #define gui_halt_info_h
 
-#include "frame.h"
+#include "gui_frame.h"
 #include "components/gui_label.h"
 #include "components/gui_scrollpane.h"
 #include "components/gui_textarea.h"

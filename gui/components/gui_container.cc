@@ -26,30 +26,19 @@ gui_container_t::gui_container_t() : gui_komponente_t(), komp_focus(NULL)
 }
 
 /**
- * Returns the bounding rectangle for all child controls.
+ * Returns the minimum rectangle which encloses all children
  * @author Max Kielland
  */
-scr_rect gui_container_t::calc_client(void) const
+scr_rect gui_container_t::get_min_boundaries(void) const
 {
 	scr_rect client_bound;
 
-	FOR(slist_tpl<gui_komponente_t*>, const c, komponenten) {
-		client_bound.make_union( c->get_client() );
+	FOR( slist_tpl<gui_komponente_t*>, const c, komponenten ) {
+		client_bound.merge( scr_rect( c->get_pos(), c->get_groesse().x, c->get_groesse().y ) );
 	}
-	client_bound.move_to(pos.x,pos.y);
 	return client_bound;
 }
 
-void gui_container_t::set_children_width(scr_coord_val width) {
-
-	if (width == 0) {
-		width = client.get_width();
-	}
-
-	FOR(slist_tpl<gui_komponente_t*>, const c, komponenten) {
-		c->set_width(width);
-	}
-}
 
 /**
  * Add component to the container

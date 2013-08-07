@@ -4,7 +4,7 @@
 #include "../simmesg.h"
 #include "../gui/simwin.h"
 
-#include "frame.h"
+#include "gui_frame.h"
 #include "components/action_listener.h"
 #include "components/gui_button.h"
 #include "components/gui_textarea.h"

@@ -6,7 +6,7 @@
 #define _SCEN_INFO_H_
 
 
-#include "frame.h"
+#include "gui_frame.h"
 #include "components/gui_flowtext.h"
 #include "components/gui_tab_panel.h"
 #include "components/gui_scrollpane.h"

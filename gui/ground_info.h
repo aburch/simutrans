@@ -15,7 +15,7 @@
 #ifndef gui_ground_info_h
 #define gui_ground_info_h
 
-#include "frame.h"
+#include "gui_frame.h"
 #include "components/gui_location_view_t.h"
 #include "../utils/cbuffer_t.h"
 #include "components/gui_fixedwidth_textarea.h"

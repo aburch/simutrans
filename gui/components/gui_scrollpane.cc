@@ -6,7 +6,7 @@
 
 #include "../../simdebug.h"
 
-#include "../frame.h"
+#include "../gui_frame.h"
 #include "gui_scrollpane.h"
 #include "gui_scrollbar.h"
 #include "gui_button.h"

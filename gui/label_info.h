@@ -8,7 +8,7 @@
 #ifndef gui_label_info_h
 #define gui_label_info_h
 
-#include "frame.h"
+#include "gui_frame.h"
 #include "components/gui_label.h"
 #include "components/gui_textarea.h"
 #include "components/gui_textinput.h"

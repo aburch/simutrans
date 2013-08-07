@@ -11,7 +11,7 @@
  */
 
 #include "gui_tab_panel.h"
-#include "../frame.h"
+#include "../gui_frame.h"
 #include "../../simevent.h"
 #include "../../display/simgraph.h"
 #include "../../simcolor.h"

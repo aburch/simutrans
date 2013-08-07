@@ -7,7 +7,7 @@
  */
 
 #include "gui_label.h"
-#include "../frame.h"
+#include "../gui_frame.h"
 #include "../../dataobj/translator.h"
 #include "../../utils/simstring.h"
 #include "../../gui/simwin.h"

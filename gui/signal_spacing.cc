@@ -3,7 +3,7 @@
  * Used by wkz_roadsign_t
  */
 
-#include "frame.h"
+#include "gui_frame.h"
 #include "components/gui_button.h"
 #include "components/gui_label.h"
 #include "components/action_listener.h"

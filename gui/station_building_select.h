@@ -13,7 +13,7 @@
 #define station_building_select_h
 
 #include "components/action_listener.h"
-#include "frame.h"
+#include "gui_frame.h"
 #include "components/gui_button.h"
 #include "components/gui_image.h"
 #include "components/gui_label.h"

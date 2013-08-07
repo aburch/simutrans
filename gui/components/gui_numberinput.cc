@@ -10,7 +10,7 @@
  * @author Dwachs 2008
  */
 
-#include "../frame.h"
+#include "../gui_frame.h"
 #include "gui_numberinput.h"
 #include "../../gui/simwin.h"
 #include "../../display/simgraph.h"

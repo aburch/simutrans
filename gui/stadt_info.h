@@ -11,7 +11,7 @@
 #include "../simcity.h"
 #include "../gui/simwin.h"
 
-#include "frame.h"
+#include "gui_frame.h"
 #include "components/gui_chart.h"
 #include "components/gui_textinput.h"
 #include "components/action_listener.h"

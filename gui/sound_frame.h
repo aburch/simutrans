@@ -12,7 +12,7 @@
  * @date 09-Apr-01
  */
 
-#include "frame.h"
+#include "gui_frame.h"
 #include "components/gui_scrollbar.h"
 #include "components/gui_label.h"
 #include "components/gui_button.h"

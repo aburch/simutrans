@@ -13,7 +13,7 @@
 
 #include "../../macros.h"
 #include "../../simdebug.h"
-#include "../frame.h"
+#include "../gui_frame.h"
 #include "gui_combobox.h"
 #include "../../simevent.h"
 #include "../../display/simgraph.h"

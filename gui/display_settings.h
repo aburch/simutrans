@@ -6,7 +6,7 @@
 #ifndef _display_settings_h_
 #define _display_settings_h_
 
-#include "frame.h"
+#include "gui_frame.h"
 #include "components/gui_divider.h"
 #include "components/gui_label.h"
 #include "components/gui_button.h"

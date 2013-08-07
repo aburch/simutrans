@@ -260,44 +260,43 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	cursor.y += D_DIVIDER_HEIGHT;
 
 	// add controls to info container
-	label_container.init( cursor );
-	cursor = koord(0,0);
+	label_container.set_pos( cursor );
+	koord label_cursor = koord(0,0);
 
 	// Frame time label
-	frame_time_label.init("Frame time:", cursor, COL_BLACK );
-	frame_time_value_label.init( frame_time_buf, koord(0, cursor.y), COL_WHITE );
+	frame_time_label.init("Frame time:", label_cursor, COL_BLACK );
+	frame_time_value_label.init( frame_time_buf, koord(0, label_cursor.y), COL_WHITE );
 	label_container.add_komponente( &frame_time_label );
 	value_container.add_komponente( &frame_time_value_label );
-	cursor.y += LINESPACE;
+	label_cursor.y += LINESPACE;
 
 	// Idle time label
-	idle_time_label.init("Idle:", cursor, COL_BLACK);
-	idle_time_value_label.init( idle_time_buf, koord(0, cursor.y), COL_WHITE );
+	idle_time_label.init("Idle:", label_cursor, COL_BLACK);
+	idle_time_value_label.init( idle_time_buf, koord(0, label_cursor.y), COL_WHITE );
 	label_container.add_komponente( &idle_time_label );
 	value_container.add_komponente( &idle_time_value_label );
-	cursor.y += LINESPACE;
+	label_cursor.y += LINESPACE;
 
 	// FPS label
-	fps_label.init("FPS:", cursor, COL_BLACK );
-	fps_value_label.init( fps_buf, koord(0, cursor.y), COL_WHITE );
+	fps_label.init("FPS:", label_cursor, COL_BLACK );
+	fps_value_label.init( fps_buf, koord(0, label_cursor.y), COL_WHITE );
 	label_container.add_komponente( &fps_label );
 	value_container.add_komponente( &fps_value_label );
-	cursor.y += LINESPACE;
+	label_cursor.y += LINESPACE;
 
 	// Simloops label
-	simloops_label.init("Sim:", cursor, COL_BLACK );
-	simloops_value_label.init( simloops_buf, koord(0, cursor.y), COL_WHITE );
+	simloops_label.init("Sim:", label_cursor, COL_BLACK );
+	simloops_value_label.init( simloops_buf, koord(0, label_cursor.y), COL_WHITE );
 	label_container.add_komponente( &simloops_label );
 	value_container.add_komponente( &simloops_value_label );
-	cursor.y += LINESPACE;
+	label_cursor.y += LINESPACE;
 
 	// Align all values with labels
-	scr_rect bounds = label_container.calc_client();
+	scr_rect bounds = label_container.get_min_boundaries();
 	label_container.set_groesse( koord( bounds.get_width(), bounds.get_height() ) );
-	label_container.set_children_width();
-	value_container.align_to( &label_container, ALIGN_EXTERIOR_H | ALIGN_LEFT | ALIGN_TOP, koord( D_H_SPACE, 0 ) );
-	value_container.set_width( L_DIALOG_WIDTH - D_MARGINS_X - label_container.get_groesse().x - D_H_SPACE );
-	value_container.set_children_width();
+	value_container.set_pos( koord( bounds.get_pos().x+bounds.get_width()+D_H_SPACE, cursor.y ) );
+//	value_container.align_to( &label_container, ALIGN_EXTERIOR_H | ALIGN_LEFT | ALIGN_TOP, koord( D_H_SPACE, 0 ) );
+	value_container.set_groesse( koord( L_DIALOG_WIDTH - D_MARGINS_X - label_container.get_groesse().x - D_H_SPACE, bounds.get_height() ) );
 
 	for(  int i = 0;  i < COLORS_MAX_BUTTONS;  i++  ) {
 		buttons[i].add_listener(this);
@@ -337,7 +336,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 
 	add_komponente( &label_container );
 	add_komponente( &value_container );
-	cursor.y = label_container.get_pos().y + label_container.get_groesse().y;
+	cursor.y += label_container.get_groesse().y;
 
 	set_resizemode(gui_frame_t::horizonal_resize);
 	set_min_windowsize( koord(L_DIALOG_WIDTH, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM) );
@@ -348,6 +347,14 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 void color_gui_t::set_fenstergroesse(koord groesse)
 {
 	scr_coord_val column;
+	scr_coord_val delta_w = groesse.x - gui_frame_t::get_fenstergroesse().x;
+
+	for(  int i=0;  i<COLORS_MAX_BUTTONS;  i++  ) {
+		if(  buttons[i].get_type() == button_t::square_state  ) {
+			// resize buttons too to fix text
+			buttons[i].set_groesse( buttons[i].get_groesse() + koord(delta_w,0) );
+		}
+	}
 
 	gui_frame_t::set_fenstergroesse(groesse);
 

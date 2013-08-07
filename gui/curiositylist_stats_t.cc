@@ -29,7 +29,7 @@
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
 
-#include "frame.h"
+#include "gui_frame.h"
 
 
 curiositylist_stats_t::curiositylist_stats_t(karte_t* w, curiositylist::sort_mode_t sortby, bool sortreverse) :

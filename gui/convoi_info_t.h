@@ -12,7 +12,7 @@
  * @date 22-Aug-01
  */
 
-#include "frame.h"
+#include "gui_frame.h"
 #include "components/gui_scrollpane.h"
 #include "components/gui_textarea.h"
 #include "components/gui_textinput.h"

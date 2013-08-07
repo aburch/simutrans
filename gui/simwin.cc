@@ -46,7 +46,7 @@
 #include "map_frame.h"
 #include "help_frame.h"
 #include "messagebox.h"
-#include "frame.h"
+#include "gui_frame.h"
 
 #include "../player/simplay.h"
 #include "../tpl/inthashtable_tpl.h"

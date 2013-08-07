@@ -6,7 +6,7 @@
 #ifndef curiositylist_frame_t_h
 #define curiositylist_frame_t_h
 
-#include "../gui/frame.h"
+#include "../gui/gui_frame.h"
 #include "../gui/curiositylist_stats_t.h"
 #include "components/action_listener.h"
 #include "components/gui_label.h"

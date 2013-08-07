@@ -12,7 +12,7 @@
 #ifndef gui_map_frame_h
 #define gui_map_frame_h
 
-#include "frame.h"
+#include "gui_frame.h"
 #include "../gui/simwin.h"
 #include "components/gui_scrollpane.h"
 #include "components/action_listener.h"

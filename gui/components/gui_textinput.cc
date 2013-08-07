@@ -15,7 +15,7 @@
 
 #include <string.h>
 
-#include "../frame.h"
+#include "../gui_frame.h"
 #include "gui_textinput.h"
 #include "../../gui/simwin.h"
 #include "../../simsys.h"

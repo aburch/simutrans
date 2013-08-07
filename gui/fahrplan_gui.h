@@ -9,7 +9,7 @@
 #ifndef gui_fahrplan_gui_h
 #define gui_fahrplan_gui_h
 
-#include "frame.h"
+#include "gui_frame.h"
 
 #include "components/gui_label.h"
 #include "components/gui_numberinput.h"
