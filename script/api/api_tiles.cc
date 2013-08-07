@@ -57,6 +57,10 @@ SQInteger get_neighbour(HSQUIRRELVM vm)
 	return param<grund_t*>::push(vm, to);
 }
 
+halthandle_t get_first_halt_on_square(planquadrat_t* plan)
+{
+	return plan->get_halt(NULL);
+}
 
 void export_tiles(HSQUIRRELVM vm)
 {
@@ -219,10 +223,18 @@ void export_tiles(HSQUIRRELVM vm)
 	// actually defined simutrans/script/scenario_base.nut
 	// register_function(..., "constructor", ...);
 	/**
-	 * Access halt at this tile.
+	 * Access some halt at this square.
+	 * @note Deprecated, use square_x::get_player_halt or tile_x::get_halt instead!
 	 * @returns halt_x instance or null/false if no halt is present
 	 */
-	register_method(vm, &grund_t::get_halt, "get_halt");
+	register_method(vm, &get_first_halt_on_square, "get_halt", true);
+
+	/**
+	 * Access halt of this player at this map position.
+	 * @param pl potential owner of halt
+	 * @returns halt_x instance or null/false if no halt is present
+	 */
+	register_method(vm, &planquadrat_t::get_halt, "get_player_halt");
 
 	/**
 	 * Access tile at specified height.

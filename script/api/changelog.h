@@ -2,7 +2,12 @@
 
 /** @page changelog Changelog
  *
- * @section post-112-2 Current trunk
+ * @section api-trunk Current trunk
+ *
+ * - Added square_x::get_player_halt
+ * - Deprecated square_x::get_halt, use square_x::get_player_halt or tile_x::get_halt instead!
+ *
+ * @section api-112-3 Release 112.3
  *
  * - Added good_desc_list_x
  * - Added tile_x::is_bridge, tile_x::is_empty, tile_x::is_ground, tile_x::is_tunnel, tile_x::is_water

@@ -147,6 +147,7 @@ BEGIN {
 	export_types["tile_x::has_ways"] = "bool()"
 	export_types["tile_x::has_two_ways"] = "bool()"
 	export_types["square_x::get_halt"] = "halt_x()"
+	export_types["square_x::get_player_halt"] = "halt_x(player_x)"
 	export_types["square_x::get_tile_at_height"] = "tile_x(integer)"
 	export_types["square_x::get_ground_tile"] = "tile_x()"
 	export_types["world::is_coord_valid"] = "bool(coord)"
