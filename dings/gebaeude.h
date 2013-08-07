@@ -106,6 +106,23 @@ private:
 	uint16 passengers_generated_non_local;
 	uint16 passengers_succeeded_non_local;
 	uint8 passenger_success_percent_last_year_non_local;
+
+	/**
+	* This is the number of jobs supplied by this building
+	* multiplied by the number of ticks per month, subtracted
+	* from the creation time, to which is added the number
+	* of ticks per month whenever a commuter reaches this
+	* destination. Further, this value is set so that, 
+	* whenever a number is added to it, it will never be less
+	* than that number plus the number of ticks per month
+	* multiplied by the number of available jobs minus
+	* the current time. This is intended to prevent more
+	* commuters going to this building each month than there
+	* are jobs available for them. 
+	* @author: jamespetts
+	*/
+	sint64 available_jobs_by_time;
+
 #ifdef INLINE_DING_TYPE
 protected:
 	gebaeude_t(karte_t *welt, ding_t::typ type);
@@ -270,6 +287,25 @@ public:
 	uint16 get_weight() const;
 
 	bool get_is_factory() const { return is_factory; }
+
+	/**
+	* Call this method when commuting passengers are sent to this building.
+	* Pass the number of passengers being sent.
+	* @author: jamespetts, August 2013
+	*/
+	void set_commute_trip(uint16 number);
+
+	uint32 get_total_jobs() const;
+
+	bool jobs_available() const;
+
+private:
+	sint64 calc_available_jobs_by_time() const;
+
+	/**
+	* Returns the number of jobs left in this building this month.
+	*/
+	uint32 check_remaining_available_jobs() const;
 };
 
 

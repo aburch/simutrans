@@ -25,6 +25,10 @@ public:
 	/// amount of goods
 	uint32 menge : 23;
 
+	// Necessary to determine whether to book 
+	// jobs taken on arrival.
+	bool is_commuting_trip : 1;
+
 private:
 	/**
 	 * Handle of target station.

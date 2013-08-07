@@ -143,6 +143,7 @@ public:
 		no_route,
 		too_slow,
 		overcrowded,
+		destination_unavailable,
 		public_transport,
 		private_car,
 		on_foot
@@ -944,10 +945,6 @@ private:
 		koord location;
 		uint16 type;
 		destination_object object; 
-		
-		// This is not used in the new system.
-		//factory_entry_t* factory_entry;
-		// destination() { factory_entry = NULL; }
 	};
 
 	/**

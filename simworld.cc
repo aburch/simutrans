@@ -4632,6 +4632,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 				too_slow_already_set = false;
 				overcrowded_already_set = false;
 				ware_t pax(wtyp);
+				pax.is_commuting_trip = trip == commuting_trip;
 				halthandle_t start_halt;
 				uint16 best_journey_time;
 				uint32 walking_time;
@@ -4639,6 +4640,29 @@ void karte_t::step_passengers_and_mail(long delta_t)
 				for(int n = 0; n < destination_count && route_status != public_transport && route_status != private_car && route_status != on_foot; n++)
 				{
 					destination_pos = current_destination.location;
+					if(trip == commuting_trip)
+					{
+						if(current_destination.type == factory)
+						{
+							if(current_destination.object.industry->get_stat(0, FAB_PAX_ARRIVED) >= current_destination.object.industry->get_scaled_pax_demand())
+							{
+								// TODO: Find a way of separating the factory's passenger demand for workers and for visitors.
+								route_status = destination_unavailable;
+								current_destination = find_destination(trip);
+								continue;
+							}
+						}
+						else
+						{
+							const grund_t* gr = lookup(koord3d(destination_pos, lookup_hgt(destination_pos)));
+							if(!gr || !gr->find<gebaeude_t>()|| !gr->find<gebaeude_t>()->jobs_available())
+							{
+								route_status = destination_unavailable;
+								current_destination = find_destination(trip);
+								continue;
+							}
+						}
+					}
 					const uint32 straight_line_distance = shortest_distance(origin_pos, destination_pos);
 					// Careful -- use uint32 here to avoid overflow cutoff errors.
 					// This number may be very long.
@@ -4924,14 +4948,10 @@ void karte_t::step_passengers_and_mail(long delta_t)
 					{
 						tolerance -= best_journey_time;
 					}
-					if(current_destination.type == factory)
-					{
-						current_destination.object.industry->liefere_an(wtyp, pax_left_to_do);
-					}
 					pax.arrival_time = get_zeit_ms();
 					pax.set_origin(start_halt);
 					start_halt->starte_mit_route(pax);
-					if(city)
+					if(city && wtyp == warenbauer_t::passagiere)
 					{
 						city->merke_passagier_ziel(destination_pos, COL_YELLOW);
 					}
@@ -4962,10 +4982,6 @@ void karte_t::step_passengers_and_mail(long delta_t)
 						tolerance -= car_minutes;
 					}
 					
-					if(current_destination.type == factory)
-					{
-						current_destination.object.industry->liefere_an(wtyp, pax_left_to_do);
-					}
 					destination_town = current_destination.type == town ? current_destination.object.town : NULL;
 					city->set_private_car_trip(pax_left_to_do, destination_town);
 					city->merke_passagier_ziel(destination_pos, COL_TURQUOISE);
@@ -4978,6 +4994,24 @@ void karte_t::step_passengers_and_mail(long delta_t)
 					if(trip == commuting_trip)
 					{
 						gb->add_passengers_succeeded_local(pax_left_to_do);
+						if(current_destination.type == factory)
+						{
+							// Only add commuting passengers at a factory.
+							// TODO: Separate commuting/visiting trips for factories.
+							current_destination.object.industry->liefere_an(wtyp, pax_left_to_do);
+						}
+						else
+						{
+							const grund_t* gr = lookup(koord3d(destination_pos, lookup_hgt(destination_pos)));
+							if(gr)
+							{
+								gebaeude_t* gb_dest = gr->find<gebaeude_t>();
+								if(gb_dest)
+								{
+									gb_dest->set_commute_trip(pax_left_to_do);
+								}
+							}
+						}
 					}
 					else if(trip == visiting_trip)
 					{
@@ -4992,24 +5026,17 @@ void karte_t::step_passengers_and_mail(long delta_t)
 					{
 						tolerance -= walking_time;
 					}	
-					if(current_destination.type == factory)
-					{
-						current_destination.object.industry->liefere_an(wtyp, pax_left_to_do);
-					}
 
 					// Walking passengers are not marked as "happy", as the player has not made them happy.
 
-					if(city)
-					{
-						city->merke_passagier_ziel(destination_pos, COL_DARK_YELLOW);
-					}
-					if (settings.get_random_pedestrians() && wtyp == warenbauer_t::passagiere) 
+					if(settings.get_random_pedestrians() && wtyp == warenbauer_t::passagiere) 
 					{
 						haltestelle_t::erzeuge_fussgaenger(this, origin_pos_3d, pax_left_to_do);
 					}
 				
 					if(city && wtyp == warenbauer_t::passagiere)
 					{
+						city->merke_passagier_ziel(destination_pos, COL_DARK_YELLOW);
 						city->add_walking_passengers(pax_left_to_do);
 					}
 					set_return_trip = true;
@@ -5019,6 +5046,24 @@ void karte_t::step_passengers_and_mail(long delta_t)
 					if(trip == commuting_trip)
 					{
 						gb->add_passengers_succeeded_local(pax_left_to_do);
+						if(current_destination.type == factory)
+						{
+							// Only add commuting passengers at a factory.
+							// TODO: Separate commuting/visiting trips for factories.
+							current_destination.object.industry->liefere_an(wtyp, pax_left_to_do);
+						}
+						else
+						{
+							const grund_t* gr = lookup(koord3d(destination_pos, lookup_hgt(destination_pos)));
+							if(gr)
+							{
+								gebaeude_t* gb_dest = gr->find<gebaeude_t>();
+								if(gb_dest)
+								{
+									gb_dest->set_commute_trip(pax_left_to_do);
+								}
+							}
+						}
 					}
 					else if(trip == visiting_trip)
 					{
@@ -5029,7 +5074,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 
 				case overcrowded:
 
-					if(city)
+					if(city && wtyp == warenbauer_t::passagiere)
 					{
 						city->merke_passagier_ziel(best_bad_destination, COL_RED);
 					}					
@@ -5047,7 +5092,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 
 				case too_slow:
 		
-					if(city)
+					if(city && wtyp == warenbauer_t::passagiere)
 					{
 						city->merke_passagier_ziel(best_bad_destination, COL_LIGHT_PURPLE);
 					}
@@ -5065,13 +5110,21 @@ void karte_t::step_passengers_and_mail(long delta_t)
 					break;
 
 				case no_route:
+				case destination_unavailable:
 
-					if(city)
+					if(city && wtyp == warenbauer_t::passagiere)
 					{
-						city->merke_passagier_ziel(first_destination.location, COL_DARK_ORANGE);
+						if(route_status == destination_unavailable)
+						{
+							city->merke_passagier_ziel(first_destination.location, COL_DARK_RED);
+						}
+						else
+						{
+							city->merke_passagier_ziel(first_destination.location, COL_DARK_ORANGE);
+						}
 					}
 					
-					if(start_halts.get_count() > 0)
+					if(route_status != destination_unavailable && start_halts.get_count() > 0)
 					{
 						start_halt = start_halts[best_bad_start_halt].halt; 					
 						if(start_halt.is_bound())
@@ -5095,7 +5148,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 					}
 					else if(city)
 					{
-						city->set_generated_passengers(num_pax, history_type + 1);
+						city->set_generated_passengers(pax_left_to_do, history_type + 1);
 						// Cannot add success figures for buildings here as cannot get a building from a koord. 
 						// However, this should not matter much, as equally not recording generated passengers
 						// for all return journeys should still show accurate percentages overall. 
@@ -5232,11 +5285,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 
 					if(return_on_foot)
 					{
-						if(city)
-						{
-							city->merke_passagier_ziel(origin_pos, COL_DARK_YELLOW);
-						}
-						if(wtyp == warenbauer_t::passagiere && destination_town)
+						if(wtyp == warenbauer_t::passagiere)
 						{
 							if(destination_town)
 							{
@@ -5245,6 +5294,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 							else if(city)
 							{
 								// Local, attraction or industry.
+								city->merke_passagier_ziel(origin_pos, COL_DARK_YELLOW);
 								city->add_walking_passengers(pax_left_to_do);
 							}
 						}

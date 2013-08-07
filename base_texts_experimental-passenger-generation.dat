@@ -7,3 +7,12 @@
 obj=program_text
 name=Unknown destination
 note=This is displayed in lists of goods/passengers when the destination building cannot be ascertained. It replaces "invalid factory".
+-
+obj=program_text
+name=commuting
+note=This is displayed in lists of goods/passengers when the passengers are on a commuting trip.
+-
+obj=program_text
+name=visiting
+note=This is displayed in lists of goods/passengers when are on a visiting trip.
+-

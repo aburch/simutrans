@@ -2268,14 +2268,19 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 		// the factory exists;
 		// and the factory is considered linked to this halt.
 		// FIXME: this should be delayed by transshipment time / walking time.
-		liefere_an_fabrik(ware);
+		if(ware.get_besch() != warenbauer_t::passagiere || ware.is_commuting_trip)
+		{
+			// Only book arriving passengers for commuting trips.
+			// TODO: Have a proper system for recording jobs/visitors separately.
+			liefere_an_fabrik(ware);
+		}
 		if(ware.get_besch() == warenbauer_t::passagiere)
 		{
 			// Arriving passengers may create pedestrians
 			if(welt->get_settings().get_show_pax()) 
 			{
 				int menge = ware.menge;
-				FOR( slist_tpl<tile_t>, const& i, tiles )
+				FOR(slist_tpl<tile_t>, const& i, tiles)
 				{
 					if(menge <= 0)
 					{
@@ -2298,6 +2303,18 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 		// FIXME: walking time delay should be implemented right here!
 		if(ware.get_besch() == warenbauer_t::passagiere)
 		{
+			if(ware.is_commuting_trip)
+			{
+				const grund_t* gr = welt->lookup(koord3d(ware.get_zielpos(), welt->lookup_hgt((ware.get_zielpos()))));
+				if(gr)
+				{
+					gebaeude_t* gb_dest = gr->find<gebaeude_t>();
+					if(gb_dest)
+					{
+						gb_dest->set_commute_trip(ware.menge);
+					}
+				}
+			}
 			// Arriving passengers may create pedestrians
 			if(welt->get_settings().get_show_pax())
 			{

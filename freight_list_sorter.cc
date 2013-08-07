@@ -229,7 +229,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			halthandle_t const via_halt		= wlist[j].get_zwischenziel();
 			halthandle_t const origin_halt	= wlist[j].get_origin();
 
-			const char * name = "unknown";
+			const char * name = translator::translate("unknown");
 			if(  halt.is_bound()  ) {
 				name = halt->get_name();
 			}
@@ -293,7 +293,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 				const fabrik_t *const factory = fabrik_t::get_fab(world, ware.get_zielpos());
 				const grund_t* gr = welt->lookup(koord3d(ware.get_zielpos(), welt->lookup_hgt(ware.get_zielpos())));
 				const gebaeude_t* const gb = gr ? gr->find<gebaeude_t>() : NULL;
-				const char* description = "Unknown destination";
+				const char* description = translator::translate("Unknown destination");
 				cbuffer_t dbuf;
 				if(gb)
 				{
@@ -307,19 +307,21 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 					town_name = city->get_name();
 				}
 
+				const char* trip_type = ware.is_commuting_trip ? translator::translate("commuting") : translator::translate("visiting");
+
 				if(city)
 				{
-					buf.printf("%s <%i, %i> (%s)\n        ", (factory ? factory->get_name() : description), ware.get_zielpos().x, ware.get_zielpos().y, town_name);
+					buf.printf("%s <%i, %i> (%s; %s)\n        ", (factory ? factory->get_name() : description), ware.get_zielpos().x, ware.get_zielpos().y, town_name, trip_type);
 				}
 				else
 				{
-					buf.printf("%s <%i, %i>\n        ", (factory ? factory->get_name() : description), ware.get_zielpos().x, ware.get_zielpos().y);
+					buf.printf("%s <%i, %i> (%s)\n        ", (factory ? factory->get_name() : description), ware.get_zielpos().x, ware.get_zielpos().y, trip_type);
 				}
 			}
 
 			if(sortby == by_name || sortby == by_amount || sortby == by_origin || (sortby == by_via_sum && via_halt == halt) || sortby == by_via)
 			{
-				const char *destination_name = "unknown";
+				const char *destination_name = translator::translate("unknown");
 				if(halt.is_bound()) 
 				{
 					destination_name = halt->get_name();
@@ -329,7 +331,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 
 			if(sortby == by_origin_amount)
 			{
-				const char *origin_name = "unknown";
+				const char *origin_name = translator::translate("unknown");
 				if(origin_halt.is_bound()) 
 				{
 					origin_name = origin_halt->get_name();
@@ -339,7 +341,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			
 			if(via_halt != halt && (sortby == by_via || sortby == by_via_sum))
 			{
-				const char *via_name = "unknown";
+				const char *via_name = translator::translate("unknown");
 				if(via_halt.is_bound()) 
 				{
 					via_name = via_halt->get_name();
@@ -348,7 +350,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			}
 			if(sortby == by_origin)
 			{
-				const char *origin_name = "unknown";
+				const char *origin_name = translator::translate("unknown");
 				if(origin_halt.is_bound()) 
 				{
 					origin_name = origin_halt->get_name();

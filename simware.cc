@@ -237,6 +237,13 @@ void ware_t::rdwr(karte_t *welt,loadsave_t *file)
 	{
 		last_transfer.set_id(origin.get_id());
 	}
+
+	if(file->get_experimental_version() >= 12)
+	{
+		bool commuting = is_commuting_trip;
+		file->rdwr_bool(commuting);
+		is_commuting_trip = commuting;
+	}
 }
 
 void ware_t::laden_abschliessen(karte_t *welt, spieler_t * /*sp*/)  //"Invite finish" (Google); "load lock" (Babelfish).

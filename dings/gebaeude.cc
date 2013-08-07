@@ -72,6 +72,7 @@ void gebaeude_t::init()
 	passengers_generated_non_local = 0;
 	passengers_succeeded_non_local = 0;
 	passenger_success_percent_last_year_non_local = 0;
+	available_jobs_by_time = -9223372036854775808ll;
 }
 
 
@@ -264,7 +265,6 @@ void gebaeude_t::check_road_tiles(bool del)
 		}
 	}
 }
-
 
 void gebaeude_t::rotate90()
 {
@@ -852,7 +852,7 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 
 	get_description(buf);
 
-	if((!is_factory  &&  ptr.fab != NULL)  && !zeige_baugrube) 
+	if(!is_factory && !zeige_baugrube) 
 	{		
 		buf.append("\n\n");
 
@@ -872,6 +872,8 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 			buf.printf("%s%u", translator::translate("\nBauzeit bis"), h.get_retire_year_month() / 12);
 		}
 
+		buf.printf("\nTEST total jobs: %i; remaining jobs: %i", get_total_jobs(), check_remaining_available_jobs());
+		
 		buf.append("\n");
 		if(get_besitzer()==NULL) {
 			buf.append("\n");
@@ -989,6 +991,11 @@ void gebaeude_t::rdwr(loadsave_t *file)
 	else
 	{
 		file->rdwr_longlong(insta_zeit);
+	}
+
+	if(file->get_experimental_version() >= 12)
+	{
+		file->rdwr_longlong(available_jobs_by_time);
 	}
 
 	if(file->is_loading()) {
@@ -1299,4 +1306,54 @@ void gebaeude_t::mark_images_dirty() const
 uint16 gebaeude_t::get_weight() const
 {
 	return this->tile->get_besch()->get_level();
+}
+
+sint64 gebaeude_t::calc_available_jobs_by_time() const
+{
+	// This assumes that the number of jobs for shops/offices scales with the level. This might not be the best way of doing it (shops have more visitors per job
+	// than offices, for example), but to separate this would add great complexity, not least because of the conversion between "level" and actual jobs.
+	const sint64 job_ticks_per_month = get_total_jobs() * welt->ticks_per_world_month;
+	return welt->get_zeit_ms() - job_ticks_per_month;
+}
+
+void gebaeude_t::set_commute_trip(uint16 number)
+{
+	// Record the number of arriving workers by encoding the earliest time at which new workers can arrive.
+	const sint64 job_ticks = number * welt->ticks_per_world_month;
+	const sint64 new_jobs_by_time = calc_available_jobs_by_time();
+	available_jobs_by_time = max(new_jobs_by_time + job_ticks, available_jobs_by_time + job_ticks);
+}
+
+uint32 gebaeude_t::check_remaining_available_jobs() const
+{
+	if(!jobs_available())
+	{
+		// All the jobs are taken for the time being.
+		return 0;
+	}
+	else
+	{
+		const uint32 total_jobs = get_total_jobs();
+		const sint64 job_ticks_per_month = total_jobs * welt->ticks_per_world_month;
+		if(available_jobs_by_time < welt->get_zeit_ms() - job_ticks_per_month)
+		{
+			// Uninitialised or stale - all jobs available
+			return total_jobs;
+		}
+		const sint64 delta_t = welt->get_zeit_ms() - available_jobs_by_time;
+		const sint64 jobs = delta_t * total_jobs / job_ticks_per_month;
+		return (uint32)jobs;
+	}
+}
+
+uint32 gebaeude_t::get_total_jobs() const
+{
+	return get_haustyp() == industrie || get_haustyp() == gewerbe || get_haustyp() == unbekannt ? tile->get_besch()->get_level() * welt->get_settings().get_meters_per_tile() / 31 : 0;
+}
+
+bool gebaeude_t::jobs_available() const
+{ 
+	const sint64 ticks = welt->get_zeit_ms();
+	bool difference = available_jobs_by_time <= ticks;
+	return difference;
 }
