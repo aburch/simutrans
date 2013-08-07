@@ -345,7 +345,7 @@ bool karte_t::get_height_data_from_file( const char *filename, sint8 grundwasser
 					int G = fgetc(file);
 					int R = fgetc(file);
 					fgetc(file);	// dummy
-					h_table[i] = (((R*2+G*3+B)/4 - 224) & 0xFFF0)/16;
+					h_table[i] = ((umgebung_t::pak_height_conversion_factor*((R*2+G*3+B)/4 - 224)) & 0xFFF0)/16;
 				}
 				// now read the data
 				fseek( file, data_offset, SEEK_SET );
@@ -415,7 +415,7 @@ bool karte_t::get_height_data_from_file( const char *filename, sint8 grundwasser
 						int B = fgetc(file);
 						int G = fgetc(file);
 						int R = fgetc(file);
-						hfield[x+offset] = (((R*2+G*3+B)/4 - 224) & 0xFFF0)/16;
+						hfield[x+offset] = ((umgebung_t::pak_height_conversion_factor*((R*2+G*3+B)/4 - 224)) & 0xFFF0)/16;
 					}
 					fseek( file, (4-((w*3)&3))&3, SEEK_CUR );	// skip superfluos bytes at the end of each scanline
 				}
@@ -478,7 +478,7 @@ bool karte_t::get_height_data_from_file( const char *filename, sint8 grundwasser
 					int R = fgetc(file);
 					int G = fgetc(file);
 					int B = fgetc(file);
-					hfield[x+(y*w)] =  (((R*2+G*3+B)/4 - 224) & 0xFFF0)/16;
+					hfield[x+(y*w)] =  ((umgebung_t::pak_height_conversion_factor*((R*2+G*3+B)/4 - 224)) & 0xFFF0)/16;
 				}
 			}
 
@@ -580,7 +580,8 @@ void karte_t::cleanup_karte( int xoff, int yoff )
 			else {
 				gr->set_grund_hang( slope );
 			}
-			pl->get_kartenboden()->calc_bild();
+			// shouldn't need to calc images here as will be done later
+			/*pl->get_kartenboden()->calc_bild();
 			// recalc water ribis
 			if (recalc_water) {
 				if (i>0) {
@@ -589,7 +590,7 @@ void karte_t::cleanup_karte( int xoff, int yoff )
 				if (j>0) {
 					lookup_kartenboden(i,j-1)->calc_bild();
 				}
-			}
+			}*/
 		}
 	}
 }
