@@ -140,8 +140,9 @@ void begin_ding_class(HSQUIRRELVM vm, const char* name, const char* base = NULL)
 {
 	SQInteger res = create_class(vm, name, base);
 	if(  !SQ_SUCCEEDED(res)  ) {
-		// todo Better error Message!
-		dbg->error( "begin_ding_class()", "create_class failed for %s (Check for outdated scenario.nut)!", name );
+		// base class not found: maybe scenario_base.nut is not up-to-date
+		dbg->error( "begin_ding_class()", "Create class failed for %s. Base class %s missing. Please update simutrans (or just script/scenario_base.nut)!", name, base );
+		sq_raise_error(vm, "Create class failed for %s. Base class %s missing. Please update simutrans (or just script/scenario_base.nut)!", name, base);
 	}
 	// store typetag to identify pointers
 	sq_settypetag(vm, -1, ding_t_tag + bind_code<D>::dingtype);
