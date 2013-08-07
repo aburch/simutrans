@@ -5301,7 +5301,10 @@ void karte_t::step_passengers_and_mail(long delta_t)
 							{
 								ret_halt->add_pax_no_route(pax_left_to_do);
 							}
-							city->merke_passagier_ziel(origin_pos, COL_DARK_ORANGE);
+							if(city)
+							{
+								city->merke_passagier_ziel(origin_pos, COL_DARK_ORANGE);
+							}
 						}
 					}
 

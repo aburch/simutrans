@@ -210,7 +210,7 @@ void gebaeude_t::check_road_tiles(bool del)
 {
 	const haus_besch_t *hb = tile->get_besch();
 	const koord3d pos = get_pos() - koord3d(tile->get_offset(), 0);
-	koord size = tile->get_besch()->get_groesse(tile->get_layout());
+	koord size = hb->get_groesse(tile->get_layout());
 	koord k;
 	grund_t* gr_this;
 

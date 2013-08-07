@@ -3119,12 +3119,12 @@ uint16 stadt_t::check_road_connexion_to(const gebaeude_t* attraction)
 	{
 		return connected_attractions.get(pos);
 	}
-	else
+	else if(welt->get_city(pos))
 	{
-		// Check all tiles of the attraction to see whether any of them is contained.
-		
+		// If this attraction is in a city. assume it to be connected to the same extent as the rest of the city.
+		return check_road_connexion_to(welt->get_city(pos));
 	}
-	
+
 	return 65535;
 }
 
@@ -3152,7 +3152,38 @@ void stadt_t::add_road_connexion(uint16 journey_time_per_tile, const gebaeude_t*
 	{
 		return;
 	}
-	connected_attractions.set(attraction->get_pos().get_2d(), journey_time_per_tile);
+
+	const koord3d attraction_pos = attraction->get_pos();
+	connected_attractions.set(attraction_pos.get_2d(), journey_time_per_tile);
+
+	// Add all tiles of an attraction here.
+	if(!attraction->get_tile())
+	{
+		return;
+	}
+	const haus_besch_t *hb = attraction->get_tile()->get_besch();
+	const koord attraction_size = hb->get_groesse(attraction->get_tile()->get_layout());
+	koord k;
+	grund_t* gr_this;
+	
+
+	for(k.y = 0; k.y < attraction_size.y; k.y ++) 
+	{
+		for(k.x = 0; k.x < attraction_size.x; k.x ++) 
+		{
+			koord3d k_3d = koord3d(k, 0) + attraction_pos;
+			grund_t *gr = welt->lookup(k_3d);
+			if(gr) 
+			{
+				gebaeude_t *gb_part = gr->find<gebaeude_t>();
+				// there may be buildings with holes
+				if(gb_part && gb_part->get_tile()->get_besch() == hb) 
+				{
+					connected_attractions.set(gb_part->get_pos().get_2d(), journey_time_per_tile);
+				}
+			}
+		}
+	}	
 }
 
 
