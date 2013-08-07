@@ -220,9 +220,10 @@ void export_city(HSQUIRRELVM vm)
 
 	/**
 	 * Change city size. City will immediately grow.
+	 * @param delta City size will change by this number.
 	 * @warning cannot be used in network games.
 	 */
-	register_method(vm, &stadt_t::change_size, "change_size");
+	register_method_fv(vm, &stadt_t::change_size, "change_size", freevariable<bool>(false));
 
 	/**
 	 * Enable or disable city growth.
