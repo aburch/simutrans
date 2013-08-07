@@ -11,6 +11,7 @@ void sq_raise_error(HSQUIRRELVM vm, const SQChar *s, ...)
 	vm->Raise_Error_vl(s, vl);
 	va_end(vl);
 
+	vm->_error_handler_called = false;
 	vm->CallErrorHandler(vm->_lasterror);
 }
 
