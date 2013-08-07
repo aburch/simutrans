@@ -6,23 +6,23 @@
 
 #include <stdio.h>
 
-#include "..\simworld.h"
+#include "../simworld.h"
 #include "simview.h"
 #include "simgraph.h"
 
-#include "..\simticker.h"
-#include "..\simdebug.h"
-#include "..\simdings.h"
-#include "..\simconst.h"
-#include "..\simplan.h"
-#include "..\simmenu.h"
-#include "..\player/simplay.h"
-#include "..\besch/grund_besch.h"
-#include "..\boden/wasser.h"
-#include "..\dataobj/umgebung.h"
-#include "..\dings/zeiger.h"
+#include "../simticker.h"
+#include "../simdebug.h"
+#include "../simdings.h"
+#include "../simconst.h"
+#include "../simplan.h"
+#include "../simmenu.h"
+#include "../player/simplay.h"
+#include "../besch/grund_besch.h"
+#include "../boden/wasser.h"
+#include "../dataobj/umgebung.h"
+#include "../dings/zeiger.h"
 
-#include "..\simtools.h"
+#include "../simtools.h"
 
 karte_ansicht_t::karte_ansicht_t(karte_t *welt)
 {
