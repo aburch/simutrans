@@ -363,7 +363,7 @@ void depot_frame_t::layout(koord *gr)
 	* build_vehicle_lists() fills loks_vec and waggon_vec.
 	* Total width will be expanded to match complete columns in panel.
 	*/
-	const scr_coord_val total_h = PANEL_VSTART + VINFO_HEIGHT + D_TITLEBAR_HEIGHT + TAB_HEADER_V_SIZE + 2 * gui_image_list_t::BORDER + D_MARGIN_BOTTOM;
+	const scr_coord_val total_h = PANEL_VSTART + VINFO_HEIGHT + D_TITLEBAR_HEIGHT + TAB_HEADER_V_SIZE + 2 * gui_image_list_t::BORDER + D_MARGIN_BOTTOM + 1;
 	scr_coord_val PANEL_ROWS = max(1, ((fgr.y-total_h)/grid.y) );
 	if(  gr  &&  gr->y == 0  ) {
 		PANEL_ROWS = 3;
@@ -426,6 +426,7 @@ void depot_frame_t::layout(koord *gr)
 	convoi.set_groesse(koord(CLIST_WIDTH, CLIST_HEIGHT));
 
 	sb_convoi_length.set_pos(koord((DEPOT_FRAME_WIDTH-CLIST_WIDTH) / 2 + 5,CONVOI_VSTART + grid.y + 5));
+	sb_convoi_length.set_groesse(koord(CLIST_WIDTH - 10, 4));
 
 	lb_convoi_count.set_pos(koord(D_MARGIN_LEFT, CINFO_VSTART));
 	lb_convoi_count.set_width( second_column_w - D_H_SPACE );
@@ -520,7 +521,6 @@ void depot_frame_t::layout(koord *gr)
 	/*
 	* [BOTTOM]
 	*/
-
 	bt_veh_action.set_pos(koord(D_MARGIN_LEFT + (DEPOT_FRAME_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT) * 3 / 4 + 3, INFO_VSTART));
 	bt_veh_action.set_groesse(koord((DEPOT_FRAME_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT) - (DEPOT_FRAME_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT) * 3 / 4 - 3, D_BUTTON_HEIGHT));
 
@@ -529,7 +529,8 @@ void depot_frame_t::layout(koord *gr)
 	bt_show_all.set_pos(koord(D_MARGIN_LEFT, INFO_VSTART + D_BUTTON_HEIGHT + 1));
 	bt_show_all.pressed = show_all;
 
-	bt_obsolete.align_to( &bt_show_all, ALIGN_EXTERIOR_H | ALIGN_LEFT | ALIGN_TOP, koord( D_H_SPACE, 0 ) );
+	const int w = max(72, bt_show_all.get_groesse().x);
+	bt_obsolete.set_pos(koord(D_MARGIN_LEFT + w + 4 + 6, INFO_VSTART + D_BUTTON_HEIGHT + 1));
 	bt_obsolete.pressed = show_retired_vehicles;
 
 	vehicle_filter.set_pos(koord(D_MARGIN_LEFT + (DEPOT_FRAME_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT) * 3 / 4 + 3, INFO_VSTART + D_BUTTON_HEIGHT));
@@ -1492,7 +1493,7 @@ void depot_frame_t::draw_vehicle_info_text(koord pos)
 				break;
 			}
 		}
-		display_proportional( pos.x + D_MARGIN_LEFT, pos.y + D_TITLEBAR_HEIGHT + div_tabbottom.get_pos().y + div_tabbottom.get_groesse().y, c, ALIGN_LEFT, COL_BLACK, true );
+		display_proportional( pos.x + D_MARGIN_LEFT, pos.y + D_TITLEBAR_HEIGHT + div_tabbottom.get_pos().y + div_tabbottom.get_groesse().y + 1, c, ALIGN_LEFT, COL_BLACK, true );
 	}
 
 	if(  veh_type  ) {

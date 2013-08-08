@@ -23,27 +23,8 @@
 
 #define D_HALF_BUTTON_WIDTH (D_BUTTON_WIDTH/2)
 
-koord convoi_filter_frame_t::filter_buttons_pos[FILTER_BUTTONS] = {
-	koord(D_MARGIN_LEFT, D_MARGIN_TOP),
-	koord(125, 0),
-	koord(D_MARGIN_LEFT, 2*D_BUTTON_HEIGHT+D_V_SPACE),
-	koord(D_MARGIN_LEFT + D_H_SPACE, 3*D_BUTTON_HEIGHT + D_V_SPACE),
-	koord(D_MARGIN_LEFT + D_H_SPACE, 4*D_BUTTON_HEIGHT + D_V_SPACE),
-	koord(D_MARGIN_LEFT + D_H_SPACE, 5*D_BUTTON_HEIGHT + D_V_SPACE),
-	koord(D_MARGIN_LEFT + D_H_SPACE, 6*D_BUTTON_HEIGHT + D_V_SPACE),
-	koord(D_MARGIN_LEFT + D_H_SPACE, 7*D_BUTTON_HEIGHT + D_V_SPACE),
-	koord(D_MARGIN_LEFT + D_H_SPACE, 8*D_BUTTON_HEIGHT + D_V_SPACE),
-	koord(D_MARGIN_LEFT + D_H_SPACE, 9*D_BUTTON_HEIGHT + D_V_SPACE),
-	koord(D_MARGIN_LEFT + D_H_SPACE, 10*D_BUTTON_HEIGHT + D_V_SPACE),
-	koord(D_MARGIN_LEFT, 11*D_BUTTON_HEIGHT + 2*D_V_SPACE),
-	koord(D_MARGIN_LEFT + D_H_SPACE, 12*D_BUTTON_HEIGHT + 2*D_V_SPACE),
-	koord(D_MARGIN_LEFT + D_H_SPACE, 13*D_BUTTON_HEIGHT + 2*D_V_SPACE),
-	koord(D_MARGIN_LEFT + D_H_SPACE, 14*D_BUTTON_HEIGHT + 2*D_V_SPACE),
-	koord(D_MARGIN_LEFT + D_H_SPACE, 15*D_BUTTON_HEIGHT + 2*D_V_SPACE),
-	koord(D_MARGIN_LEFT + D_H_SPACE, 16*D_BUTTON_HEIGHT + 2*D_V_SPACE),
-	koord(D_MARGIN_LEFT + D_H_SPACE, 17*D_BUTTON_HEIGHT + 2*D_V_SPACE),
-	koord(D_MARGIN_LEFT + D_H_SPACE, 18*D_BUTTON_HEIGHT + 2*D_V_SPACE)
-};
+
+koord convoi_filter_frame_t::filter_buttons_pos[FILTER_BUTTONS];
 
 const char *convoi_filter_frame_t::filter_buttons_text[FILTER_BUTTONS] = {
 	"clf_chk_name_filter",
@@ -99,8 +80,28 @@ convoi_filter_frame_t::convoi_filter_frame_t(spieler_t *sp, convoi_frame_t *m, u
 	main_frame(m),
 	ware_scrolly(&ware_cont)
 {
-	int yp = D_MARGIN_TOP;
+	// cannot init these earlier as D_BUTTON_HEIGHT==0 then.
+	filter_buttons_pos[0] = koord(D_MARGIN_LEFT, 2);
+	filter_buttons_pos[1] = koord(125, 2);
+	filter_buttons_pos[2] = koord(D_MARGIN_LEFT, 2 * D_BUTTON_HEIGHT + D_V_SPACE);
+	filter_buttons_pos[3] = koord(D_MARGIN_LEFT + D_H_SPACE, 3 * D_BUTTON_HEIGHT + D_V_SPACE);
+	filter_buttons_pos[4] = koord(D_MARGIN_LEFT + D_H_SPACE, 4 * D_BUTTON_HEIGHT + D_V_SPACE);
+	filter_buttons_pos[5] = koord(D_MARGIN_LEFT + D_H_SPACE, 5 * D_BUTTON_HEIGHT + D_V_SPACE);
+	filter_buttons_pos[6] = koord(D_MARGIN_LEFT + D_H_SPACE, 6 * D_BUTTON_HEIGHT + D_V_SPACE);
+	filter_buttons_pos[7] = koord(D_MARGIN_LEFT + D_H_SPACE, 7 * D_BUTTON_HEIGHT + D_V_SPACE);
+	filter_buttons_pos[8] = koord(D_MARGIN_LEFT + D_H_SPACE, 8 * D_BUTTON_HEIGHT + D_V_SPACE);
+	filter_buttons_pos[9] = koord(D_MARGIN_LEFT + D_H_SPACE, 9 * D_BUTTON_HEIGHT + D_V_SPACE);
+	filter_buttons_pos[10] = koord(D_MARGIN_LEFT + D_H_SPACE, 10 * D_BUTTON_HEIGHT + D_V_SPACE);
+	filter_buttons_pos[11] = koord(D_MARGIN_LEFT, 11 * D_BUTTON_HEIGHT + 2 * D_V_SPACE);
+	filter_buttons_pos[12] = koord(D_MARGIN_LEFT + D_H_SPACE, 12 * D_BUTTON_HEIGHT + 2 * D_V_SPACE);
+	filter_buttons_pos[13] = koord(D_MARGIN_LEFT + D_H_SPACE, 13 * D_BUTTON_HEIGHT + 2 * D_V_SPACE);
+	filter_buttons_pos[14] = koord(D_MARGIN_LEFT + D_H_SPACE, 14 * D_BUTTON_HEIGHT + 2 * D_V_SPACE);
+	filter_buttons_pos[15] = koord(D_MARGIN_LEFT + D_H_SPACE, 15 * D_BUTTON_HEIGHT + 2 * D_V_SPACE);
+	filter_buttons_pos[16] = koord(D_MARGIN_LEFT + D_H_SPACE, 16 * D_BUTTON_HEIGHT + 2 * D_V_SPACE);
+	filter_buttons_pos[17] = koord(D_MARGIN_LEFT + D_H_SPACE, 17 * D_BUTTON_HEIGHT + 2 * D_V_SPACE);
+	filter_buttons_pos[18] = koord(D_MARGIN_LEFT + D_H_SPACE, 18 * D_BUTTON_HEIGHT + 2 * D_V_SPACE);
 
+	int yp = 2;
 	for(  int i=0; i < FILTER_BUTTONS; i++  ) {
 		filter_buttons[i].init(button_t::square_state, filter_buttons_text[i], filter_buttons_pos[i]);
 		filter_buttons[i].add_listener(this);
@@ -113,7 +114,7 @@ convoi_filter_frame_t::convoi_filter_frame_t(spieler_t *sp, convoi_frame_t *m, u
 
 	yp += D_BUTTON_HEIGHT;
 
-	name_filter_input.set_pos(koord(D_MARGIN_LEFT, yp));
+	name_filter_input.set_pos(koord(D_MARGIN_LEFT, yp - 2));
 	name_filter_input.set_groesse(koord(100, D_BUTTON_HEIGHT));
 	name_filter_input.set_text( name_filter_text, lengthof(name_filter_text) );
 	name_filter_input.add_listener(this);

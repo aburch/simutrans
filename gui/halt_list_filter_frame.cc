@@ -19,24 +19,7 @@
 #include "../bauer/warenbauer.h"
 #include "../dataobj/translator.h"
 
-koord halt_list_filter_frame_t::filter_buttons_pos[FILTER_BUTTONS] = {
-	koord(4, 2),
-	koord(125, 2),
-	koord(265, 2),
-	koord(4, 2*D_BUTTON_HEIGHT+4),
-	koord(9, 3*D_BUTTON_HEIGHT+4),
-	koord(9, 4*D_BUTTON_HEIGHT+4),
-	koord(9, 5*D_BUTTON_HEIGHT+4),
-	koord(9, 6*D_BUTTON_HEIGHT+4),
-	koord(9, 7*D_BUTTON_HEIGHT+4),
-	koord(9, 8*D_BUTTON_HEIGHT+4),
-	koord(9, 9*D_BUTTON_HEIGHT+4),
-	koord(9, 10*D_BUTTON_HEIGHT+4),
-	koord(9, 11*D_BUTTON_HEIGHT+4),
-	koord(4, 12*D_BUTTON_HEIGHT+8),
-	koord(9, 13*D_BUTTON_HEIGHT+8),
-	koord(9, 14*D_BUTTON_HEIGHT+8)
-};
+koord halt_list_filter_frame_t::filter_buttons_pos[FILTER_BUTTONS];
 
 const char *halt_list_filter_frame_t::filter_buttons_text[FILTER_BUTTONS] = {
 	"hlf_chk_name_filter",
@@ -83,6 +66,24 @@ halt_list_filter_frame_t::halt_list_filter_frame_t(spieler_t *sp, halt_list_fram
 	ware_scrolly_an(&ware_cont_an)
 {
 	this->main_frame = main_frame;
+
+	// cannot init these earlier as D_BUTTON_HEIGHT==0 then.
+	filter_buttons_pos[0] = koord(4, 2);
+	filter_buttons_pos[1] = koord(125, 2);
+	filter_buttons_pos[2] = koord(265, 2);
+	filter_buttons_pos[3] = koord(4, 2 * D_BUTTON_HEIGHT + D_V_SPACE);
+	filter_buttons_pos[4] = koord(9, 3 * D_BUTTON_HEIGHT + D_V_SPACE);
+	filter_buttons_pos[5] = koord(9, 4 * D_BUTTON_HEIGHT + D_V_SPACE);
+	filter_buttons_pos[6] = koord(9, 5 * D_BUTTON_HEIGHT + D_V_SPACE);
+	filter_buttons_pos[7] = koord(9, 6 * D_BUTTON_HEIGHT + D_V_SPACE);
+	filter_buttons_pos[8] = koord(9, 7 * D_BUTTON_HEIGHT + D_V_SPACE);
+	filter_buttons_pos[9] = koord(9, 8 * D_BUTTON_HEIGHT + D_V_SPACE);
+	filter_buttons_pos[10] = koord(9, 9 * D_BUTTON_HEIGHT + D_V_SPACE);
+	filter_buttons_pos[11] = koord(9, 10 * D_BUTTON_HEIGHT + D_V_SPACE);
+	filter_buttons_pos[12] = koord(9, 11 * D_BUTTON_HEIGHT + D_V_SPACE);
+	filter_buttons_pos[13] = koord(4, 12 * D_BUTTON_HEIGHT + 2 * D_V_SPACE);
+	filter_buttons_pos[14] = koord(9, 13 * D_BUTTON_HEIGHT + 2 * D_V_SPACE);
+	filter_buttons_pos[15] = koord(9, 14 * D_BUTTON_HEIGHT + 2 * D_V_SPACE);
 
 	for(  int i=0;  i<FILTER_BUTTONS;  i++  ) {
 		filter_buttons[i].init(button_t::square, filter_buttons_text[i], filter_buttons_pos[i]);

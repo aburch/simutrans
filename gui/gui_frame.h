@@ -39,7 +39,7 @@ class spieler_t;
 #define D_INDICATOR_BOX_WIDTH  (button_t::gui_indicator_box_size.x)
 
 // default edit field height
-#define D_EDIT_HEIGHT (LINESPACE+4)
+#define D_EDIT_HEIGHT (LINESPACE+3)
 
 // default square button xy size (replace with real values from the skin images)
 #define D_BUTTON_SQUARE (button_t::gui_checkbox_size.y)
