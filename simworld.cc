@@ -4548,9 +4548,19 @@ void karte_t::step_passengers_and_mail(long delta_t)
 					const grund_t* gr = lookup(koord3d(destination_pos, lookup_hgt(destination_pos)));
 					if(!gr)
 					{
+						// Artificial slopes makes this harder.
+						gr = lookup(koord3d(destination_pos, lookup_hgt(destination_pos) + 1));
+					}
+					if(!gr)
+					{
+						gr = lookup(koord3d(destination_pos, lookup_hgt(destination_pos) - 1));
+					}
+					if(!gr)
+					{
 						continue;
 					}
 					gb = gr->find<gebaeude_t>();
+					
 					if(!gb)
 					{
 						// This sometimes happens for unknown reasons. 
@@ -4656,14 +4666,24 @@ void karte_t::step_passengers_and_mail(long delta_t)
 								if(n < destination_count - 1)
 								{
 									current_destination = find_destination(trip);
-									continue;
 								}
+								continue;
 							}
 						}
 						else
 						{
-							const grund_t* gr = lookup(koord3d(destination_pos, lookup_hgt(destination_pos)));
-							if(!gr || !gr->find<gebaeude_t>()|| !gr->find<gebaeude_t>()->jobs_available())
+							
+							grund_t* gr = lookup(koord3d(destination_pos, lookup_hgt(destination_pos)));
+							if(!gr)
+							{
+								// Artificial slopes make this harder.
+								gr = lookup(koord3d(destination_pos, lookup_hgt(destination_pos) + 1));
+							}
+							if(!gr)
+							{
+								gr = lookup(koord3d(destination_pos, lookup_hgt(destination_pos) - 1));
+							}
+							if(!gr || !gr->find<gebaeude_t>() || !gr->find<gebaeude_t>()->jobs_available())
 							{
 								if(route_status == initialising)
 								{
@@ -4673,8 +4693,8 @@ void karte_t::step_passengers_and_mail(long delta_t)
 								if(n < destination_count - 1)
 								{
 									current_destination = find_destination(trip);
-									continue;
 								}
+								continue;
 							}
 						}
 					}
@@ -4693,13 +4713,16 @@ void karte_t::step_passengers_and_mail(long delta_t)
 					// If can_walk is true, it also guarantees that walking_time will fit in a uint16.
 					const bool can_walk = walking_time <= quasi_tolerance;
 
-					if(!has_private_car && !can_walk && start_halts.empty() && n < destination_count - 1)
+					if(!has_private_car && !can_walk && start_halts.empty())
 					{
 						/**
 						 * If the passengers have no private car, are not in reach of any public transport
 						 * facilities and the journey is too long on foot, do not continue to check other things.
 						 */
-						current_destination = find_destination(trip);
+						if(n < destination_count - 1)
+						{
+							current_destination = find_destination(trip);
+						}
 						continue;
 					}
 				
@@ -5025,6 +5048,15 @@ void karte_t::step_passengers_and_mail(long delta_t)
 						else
 						{
 							const grund_t* gr = lookup(koord3d(destination_pos, lookup_hgt(destination_pos)));
+							if(!gr)
+							{
+								// Artificial slopes make this harder.
+								gr = lookup(koord3d(destination_pos, lookup_hgt(destination_pos) + 1));
+							}
+							if(!gr)
+							{
+								gr = lookup(koord3d(destination_pos, lookup_hgt(destination_pos) - 1));
+							}
 							if(gr)
 							{
 								gebaeude_t* gb_dest = gr->find<gebaeude_t>();
@@ -5077,6 +5109,15 @@ void karte_t::step_passengers_and_mail(long delta_t)
 						else
 						{
 							const grund_t* gr = lookup(koord3d(destination_pos, lookup_hgt(destination_pos)));
+							if(!gr)
+							{
+								// Artificial slopes make this harder.
+								gr = lookup(koord3d(destination_pos, lookup_hgt(destination_pos) + 1));
+							}
+							if(!gr)
+							{
+								gr = lookup(koord3d(destination_pos, lookup_hgt(destination_pos) - 1));
+							}
 							if(gr)
 							{
 								gebaeude_t* gb_dest = gr->find<gebaeude_t>();
