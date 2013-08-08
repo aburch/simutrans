@@ -45,7 +45,7 @@ public:
 	 * Returns the minimum rectangle which encloses all children
 	 * @author Max Kielland
 	 */
-	scr_rect gui_container_t::get_min_boundaries(void) const;
+	scr_rect get_min_boundaries(void) const;
 
 	/**
 	* Adds a Component to the Container.

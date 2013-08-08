@@ -199,7 +199,7 @@ typedef struct tag_scr_rect_t {
 		(rect_par.bottom_right().y < top_left().y) );
 	}
 
-	void make_union(const tag_scr_rect_t &rect_par) {
+	void merge(const tag_scr_rect_t &rect_par) {
 		left = min(left,rect_par.left);
 		right = max(right,rect_par.right);
 		top = min(top,rect_par.top);
