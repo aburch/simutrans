@@ -3157,7 +3157,7 @@ void stadt_t::add_road_connexion(uint16 journey_time_per_tile, const gebaeude_t*
 	connected_attractions.set(attraction_pos.get_2d(), journey_time_per_tile);
 
 	// Add all tiles of an attraction here.
-	if(!attraction->get_tile())
+	if(!attraction->get_tile() || attraction_pos == koord::invalid)
 	{
 		return;
 	}
