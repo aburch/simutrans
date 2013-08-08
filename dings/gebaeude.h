@@ -305,7 +305,7 @@ private:
 	/**
 	* Returns the number of jobs left in this building this month.
 	*/
-	uint32 check_remaining_available_jobs() const;
+	sint32 check_remaining_available_jobs() const;
 };
 
 

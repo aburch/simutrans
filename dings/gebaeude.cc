@@ -1312,38 +1312,37 @@ sint64 gebaeude_t::calc_available_jobs_by_time() const
 {
 	// This assumes that the number of jobs for shops/offices scales with the level. This might not be the best way of doing it (shops have more visitors per job
 	// than offices, for example), but to separate this would add great complexity, not least because of the conversion between "level" and actual jobs.
-	const sint64 job_ticks_per_month = get_total_jobs() * welt->ticks_per_world_month;
-	return welt->get_zeit_ms() - job_ticks_per_month;
+	return welt->get_zeit_ms() - welt->ticks_per_world_month;
 }
 
 void gebaeude_t::set_commute_trip(uint16 number)
 {
 	// Record the number of arriving workers by encoding the earliest time at which new workers can arrive.
-	const sint64 job_ticks = number * welt->ticks_per_world_month;
+	const sint64 job_ticks = (number * welt->ticks_per_world_month) / get_total_jobs();
 	const sint64 new_jobs_by_time = calc_available_jobs_by_time();
 	available_jobs_by_time = max(new_jobs_by_time + job_ticks, available_jobs_by_time + job_ticks);
 }
 
-uint32 gebaeude_t::check_remaining_available_jobs() const
+sint32 gebaeude_t::check_remaining_available_jobs() const
 {
-	if(!jobs_available())
+	bool TEST_available_simple_method = jobs_available();
+	/*if(!jobs_available())
 	{
 		// All the jobs are taken for the time being.
-		return 0;
+		//return 0;
 	}
 	else
-	{
+	{*/
 		const uint32 total_jobs = get_total_jobs();
-		const sint64 job_ticks_per_month = total_jobs * welt->ticks_per_world_month;
-		if(available_jobs_by_time < welt->get_zeit_ms() - job_ticks_per_month)
+		if(available_jobs_by_time < welt->get_zeit_ms() - welt->ticks_per_world_month)
 		{
 			// Uninitialised or stale - all jobs available
 			return total_jobs;
 		}
 		const sint64 delta_t = welt->get_zeit_ms() - available_jobs_by_time;
-		const sint64 jobs = delta_t * total_jobs / job_ticks_per_month;
-		return (uint32)jobs;
-	}
+		const sint64 jobs = delta_t * total_jobs / welt->ticks_per_world_month;
+		return (sint32)jobs;
+	//}
 }
 
 uint32 gebaeude_t::get_total_jobs() const
