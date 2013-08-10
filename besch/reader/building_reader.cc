@@ -160,7 +160,7 @@ void building_reader_t::register_obj(obj_besch_t *&data)
 	}
 
 	if(  besch->allow_underground == 255  ) {
-		// only old stops were allowed underground
+		// Only old stops were allowed underground
 		besch->allow_underground = besch->utype==haus_besch_t::generic_stop ? 2 : 0;
 	}
 
@@ -227,7 +227,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		// underground mode added
 		besch->gtyp      = (gebaeude_t::typ)decode_uint8(p);
 		besch->utype     = (haus_besch_t::utyp)decode_uint8(p);
-		besch->level     = decode_uint16(p) + 1;
+		besch->level     = decode_uint16(p) + 1; //TODO: Remove this on version stepping (for Experimental only).
 		besch->extra_data= decode_uint32(p);
 		besch->groesse.x = decode_uint16(p);
 		besch->groesse.y = decode_uint16(p);

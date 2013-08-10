@@ -41,8 +41,6 @@ static uint8 get_engine_type(const char* engine_type, tabfileobj_t& obj)
 		uv8 = vehikel_besch_t::unknown;
 	}
 
-	// printf("Engine type %s -> %d\n", engine_type, uv8);
-
 	return uv8;
 }
 
@@ -190,7 +188,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		utype = haus_besch_t::generic_extension;
 		const char *wt = obj.get("waytype");
 		if(wt  &&  *wt>' ') {
-			// not waytype => just a generic exten that fits all
+			// not waytype => just a generic extension that fits all
 			extra_data = get_waytype(wt);
 		}
 	} else if (!STRICMP(type_name, "depot")) {
@@ -215,7 +213,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		dbg->fatal( "building_writer_t::write_obj()","%s is obsolete type for %s", type_name, obj.get("name") );
 	}
 
-	// is is an station extension building?
+	// Is this a station extension building?
 	if (obj.get_int("extension_building", 0) > 0) {
 		dbg->fatal("building_writer_t::write_obj()","extension_building is obsolete keyword for %s; use stop/extension and waytype!", obj.get("name") );
 	}
@@ -232,6 +230,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 
 	if(  utype==haus_besch_t::generic_extension  ||  utype==haus_besch_t::generic_stop  ||  utype==haus_besch_t::hafen  ||  utype==haus_besch_t::depot  ||  utype==haus_besch_t::fabrik  ) {
 		// since elevel was reduced by one beforehand ...
+		// TODO: Remove this when the reduction of level is removed.
 		++level;
 	}
 
