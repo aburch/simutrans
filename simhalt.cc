@@ -211,7 +211,7 @@ static vector_tpl<linehandle_t>stale_lines;
 /* we allow only for a single stop per planquadrat
  * this will only return something if this stop belongs to same player or is public, or is a dock (when on water)
  */
-halthandle_t haltestelle_t::get_halt(const karte_t *welt, const koord3d pos, const spieler_t *sp )
+halthandle_t haltestelle_t::get_halt(const karte_t *welt, const koord3d pos, const spieler_t *sp)
 {
 	const grund_t *gr = welt->lookup(pos);
 	if(gr) 
@@ -223,7 +223,10 @@ halthandle_t haltestelle_t::get_halt(const karte_t *welt, const koord3d pos, con
 			w = gr->get_weg_nr(1);
 		}
 
-		if(gr->get_halt().is_bound() && (gr->get_halt()->check_access(sp) || (w && spieler_t::check_owner(w->get_besitzer(), sp))))
+		// Stops on public roads, even those belonging to other players, should be able to be used by all players.
+		if(gr->get_halt().is_bound() && (gr->get_halt()->check_access(sp) || 
+			(w && spieler_t::check_owner(w->get_besitzer(), sp))) || 
+			(w && (w->get_waytype() == road_wt || w->get_waytype() == tram_wt) && (w->get_besitzer() == NULL || w->get_besitzer()->get_player_nr() == 1)))
 		{
 			return gr->get_halt();
 		}
@@ -3751,16 +3754,22 @@ bool haltestelle_t::add_grund(grund_t *gr)
 	bool public_halt = get_besitzer() == welt->get_spieler(1);
 
 	uint8 const pl_min = public_halt ? 0                : get_besitzer()->get_player_nr();
-	uint8 const pl_max = public_halt ? MAX_PLAYER_COUNT : get_besitzer()->get_player_nr()+1;
+	uint8 const pl_max = public_halt ? MAX_PLAYER_COUNT : get_besitzer()->get_player_nr() + 1;
 	// iterate over all lines (public halt: all lines, other: only player's lines)
-	for(  uint8 i=pl_min;  i<pl_max;  i++  ) {
-		if(  spieler_t *sp = welt->get_spieler(i)  ) {
+	for(uint8 i = pl_min; i < pl_max; i++) 
+	{
+		if(spieler_t *sp = welt->get_spieler(i))
+		{
 			sp->simlinemgmt.get_lines(simline_t::line, &check_line);
-			FOR(  vector_tpl<linehandle_t>, const j, check_line  ) {
+			FOR(vector_tpl<linehandle_t>, const j, check_line)
+			{
 				// only add unknown lines
-				if(  !registered_lines.is_contained(j)  &&  j->count_convoys() > 0  ) {
-					FOR(  minivec_tpl<linieneintrag_t>, const& k, j->get_schedule()->eintrag  ) {
-						if(  get_halt(welt, k.pos, sp) == self  ) {
+				if(!registered_lines.is_contained(j) && j->count_convoys() > 0)
+				{
+					FOR(minivec_tpl<linieneintrag_t>, const& k, j->get_schedule()->eintrag)
+					{
+						if(get_halt(welt, k.pos, sp) == self)
+						{
 							registered_lines.append(j);
 							break;
 						}
