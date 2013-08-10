@@ -17,8 +17,7 @@ class strasse_t : public weg_t
 public:
 	static const weg_besch_t *default_strasse;
 
-	minivec_tpl<fabrik_t*> connected_factories;
-	minivec_tpl<gebaeude_t*> connected_attractions;
+	minivec_tpl<gebaeude_t*> connected_buildings;
 
 	strasse_t(karte_t *welt, loadsave_t *file);
 	strasse_t(karte_t *welt);

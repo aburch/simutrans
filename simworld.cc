@@ -5169,24 +5169,8 @@ void karte_t::step_passengers_and_mail(long delta_t)
 						}
 						else
 						{
-							const grund_t* gr = lookup(koord3d(destination_pos, lookup_hgt(destination_pos)));
-							if(!gr)
-							{
-								// Artificial slopes make this harder.
-								gr = lookup(koord3d(destination_pos, lookup_hgt(destination_pos) + 1));
-							}
-							if(!gr)
-							{
-								gr = lookup(koord3d(destination_pos, lookup_hgt(destination_pos) - 1));
-							}
-							if(gr)
-							{
-								gebaeude_t* gb_dest = gr->find<gebaeude_t>();
-								if(gb_dest)
-								{
-									gb_dest->set_commute_trip(pax_left_to_do);
-								}
-							}
+							current_destination.building->set_commute_trip(pax_left_to_do);
+
 						}
 					}
 					else if(trip == visiting_trip)
@@ -8871,6 +8855,8 @@ void karte_t::add_building_to_world_list(gebaeude_t *gb, building_type b, bool o
 	// Only add one tile per building here.
 	gb = gb->get_first_tile();
 
+	// TODO: Separate visitor and commuter demand here, and make industry
+	// commuter demand based on the industry's passenger demand parameter
 	uint16 passenger_level = gb->get_passengers_per_hundred_months();
 	const uint16 mail_level = gb->get_mail_per_hundred_months();
 
@@ -8886,8 +8872,8 @@ void karte_t::add_building_to_world_list(gebaeude_t *gb, building_type b, bool o
 		}
 		else 
 		{
-			passenger_origins.append(gb, passenger_level);
-			visitor_targets.append(gb, passenger_level / 100);
+			passenger_origins.append_unique(gb, passenger_level);
+			visitor_targets.append_unique(gb, passenger_level / 100);
 		}
 		break;
 
@@ -8912,7 +8898,7 @@ void karte_t::add_building_to_world_list(gebaeude_t *gb, building_type b, bool o
 		}
 		else 
 		{
-			commuter_targets.append(gb, passenger_level);
+			commuter_targets.append_unique(gb, passenger_level);
 		}
 		break;
 
@@ -8938,7 +8924,7 @@ void karte_t::add_building_to_world_list(gebaeude_t *gb, building_type b, bool o
 		}
 		else 
 		{
-			visitor_targets.append(gb, passenger_level);
+			visitor_targets.append_unique(gb, passenger_level);
 		}
 		break;
 
@@ -8957,7 +8943,7 @@ void karte_t::add_building_to_world_list(gebaeude_t *gb, building_type b, bool o
 		}
 		else 
 		{
-			mail_origins_and_targets.append(gb, mail_level);
+			mail_origins_and_targets.append_unique(gb, mail_level);
 		}
 	};
 }

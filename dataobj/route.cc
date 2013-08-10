@@ -322,29 +322,19 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 					}
 				}
 				
-				const strasse_t* str = (strasse_t*)gr->get_weg(road_wt);
-				if(str && str->connected_factories.get_count() > 0)
-				{
-					// This is a factory destination.
-					FOR(minivec_tpl<fabrik_t*>, const fab, str->connected_factories)
-					{
-						const uint16 straight_line_distance = shortest_distance(origin_city->get_townhall_road(), k);
-						if(straight_line_distance > 0)
-						{
-							origin_city->add_road_connexion(tmp->g / straight_line_distance, fab);
-						}
-						else
-						{
-							origin_city->add_road_connexion(1, fab);
-						}
-					}
-				}
+				strasse_t* str = (strasse_t*)gr->get_weg(road_wt);
 
-				if(str && str->connected_attractions.get_count() > 0)
+				if(str && str->connected_buildings.get_count() > 0)
 				{
-					// This is an attraction destination.
-					FOR(minivec_tpl<gebaeude_t*>, const gb, str->connected_attractions)
+					FOR(minivec_tpl<gebaeude_t*>, const gb, str->connected_buildings)
 					{
+						if(!gb)
+						{
+							// Dud building - remove
+							str->connected_buildings.remove(gb);
+							continue;
+						}
+						
 						uint16 straight_line_distance = shortest_distance(origin_city->get_townhall_road(), k);
 						uint16 journey_time_per_tile;
 						if(straight_line_distance == 0)
@@ -355,11 +345,19 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 						{
 							journey_time_per_tile = tmp->g / straight_line_distance;
 						}
-						origin_city->add_road_connexion(journey_time_per_tile, gb);
+						const fabrik_t* fab = gb->get_fabrik();
+						if(fab)
+						{
+							// This is an industry
+							origin_city->add_road_connexion(journey_time_per_tile, fab);
+						}
+						else
+						{
+							origin_city->add_road_connexion(journey_time_per_tile, gb);
+						}
 					}
 				}
 			}
-
 		}
 
 		// testing all four possible directions

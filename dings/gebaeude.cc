@@ -188,7 +188,7 @@ gebaeude_t::~gebaeude_t()
 		sint64 maint;
 		if(tile->get_besch()->get_base_station_maintenance() == 2147483647)
 		{
-			maint = welt->get_settings().maint_building*tile->get_besch()->get_level();
+			maint = welt->get_settings().maint_building * tile->get_besch()->get_level();
 		}
 		else
 		{
@@ -258,11 +258,11 @@ void gebaeude_t::check_road_tiles(bool del)
 			{
 				if(del)
 				{
-					str->connected_attractions.remove(this);
+					str->connected_buildings.remove(this);
 				}
 				else
 				{
-					str->connected_attractions.append_unique(this);
+					str->connected_buildings.append_unique(this);
 				}
 			}
 		}
@@ -592,29 +592,18 @@ image_id gebaeude_t::get_after_bild() const
 
 
 /*
- * calculate the passenger level as funtion of the city size (if there)
+ * This and the next method once multiplied the level by the size
+ *  of the building, but this is no longer relevant as of Experimental 12.0
  */
 int gebaeude_t::get_passagier_level() const
 {
-	koord dim = tile->get_besch()->get_groesse();  //("Groesse" = "size")
-	long pax = tile->get_besch()->get_level();
-	if(  !is_factory  &&  ptr.stadt != NULL  ) {
-		// belongs to a city ...
-		return pax;
-	}
-	return pax*dim.x*dim.y;
+	return tile->get_besch()->get_level();
 }
 
 
 int gebaeude_t::get_post_level() const
 {
-	koord dim = tile->get_besch()->get_groesse();
-	long post = tile->get_besch()->get_post_level();
-	if(  !is_factory  &&  ptr.stadt != NULL  ) {
-		return post;
-	}
-	return post*dim.x*dim.y;
-	
+	return tile->get_besch()->get_post_level();	
 }
 
 uint32 gebaeude_t::get_passengers_per_hundred_months() const
@@ -1321,7 +1310,8 @@ sint64 gebaeude_t::calc_available_jobs_by_time() const
 void gebaeude_t::set_commute_trip(uint16 number)
 {
 	// Record the number of arriving workers by encoding the earliest time at which new workers can arrive.
-	const sint64 job_ticks = (number * welt->ticks_per_world_month) / get_total_jobs();
+	const uint32 total_jobs = get_total_jobs();
+	const sint64 job_ticks = (number * welt->ticks_per_world_month) / (total_jobs < 1 ? 1 : total_jobs);
 	const sint64 new_jobs_by_time = calc_available_jobs_by_time();
 	available_jobs_by_time = max(new_jobs_by_time + job_ticks, available_jobs_by_time + job_ticks);
 }

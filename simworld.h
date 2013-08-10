@@ -936,7 +936,7 @@ private:
 	{
 		koord location;
 		uint16 type;
-		const gebaeude_t* building; 
+		gebaeude_t* building; 
 	};
 
 	/**

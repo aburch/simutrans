@@ -6396,11 +6396,7 @@ bool private_car_destination_finder_t::ist_ziel(const grund_t* gr, const grund_t
 	}
 
 	const strasse_t* str = (strasse_t*)gr->get_weg(road_wt);
-	if(str->connected_factories.get_count() > 0)
-	{
-		return true;
-	}
-	if(str->connected_attractions.get_count() > 0)
+	if(str->connected_buildings.get_count() > 0)
 	{
 		return true;
 	}
