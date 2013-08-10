@@ -4384,8 +4384,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 
 	// Add 1 because the simuconf.tab setting is for maximum *alternative* destinations, whereas we need maximum *actual* desintations 
 	const uint16 max_destinations = settings.get_max_alternative_destinations() + 1;
-	
-	// create passenger rate proportional to town size
+
 	while(step_interval < next_step) 
 	{
 		// Substantive passenger generation code starts here
@@ -4432,27 +4431,65 @@ void karte_t::step_passengers_and_mail(long delta_t)
 			// so register the passengers as being created in the ultimate origin city.
 			get_city(first_origin->get_pos())->set_generated_passengers(num_pax, history_type + 1);
 		}
-
-		// Suitable start search (public transport)
+	
+		const haus_tile_besch_t* tile = first_origin->get_tile();
+		const haus_besch_t *hb = tile->get_besch();
 		koord3d origin_pos_3d = gb->get_pos();
 		koord origin_pos = origin_pos_3d.get_2d();
-		const planquadrat_t* plan = lookup(origin_pos);
-		const nearby_halt_t* halt_list = plan->get_haltlist();
+		koord size = hb->get_groesse(tile->get_layout());
+		vector_tpl<const planquadrat_t*> tile_list;
 
-		vector_tpl<nearby_halt_t> start_halts(plan->get_haltlist_count());
-		for (int h = plan->get_haltlist_count() - 1; h >= 0; h--) 
+		if(size == koord(1,1))
 		{
-			nearby_halt_t halt = halt_list[h];
-			if (halt.halt->is_enabled(wtyp)) 
+			// A single tiled building - just check the single tile.
+			tile_list.append(lookup(origin_pos));
+		}
+		else
+		{
+			// A multi-tiled building: check all tiles. Any tile within the 
+			// coverage radius of a building connects the whole building.
+			const koord3d pos = first_origin->get_pos() - koord3d(tile->get_offset(), 0);
+			koord k;
+			grund_t* gr_this;
+	
+			for(k.y = 0; k.y < size.y; k.y ++) 
 			{
-				// Previous versions excluded overcrowded halts here, but we need to know which
-				// overcrowded halt would have been the best start halt if it was not overcrowded,
-				// so do that below.
-				start_halts.append(halt);
+				for(k.x = 0; k.x < size.x; k.x ++) 
+				{
+					koord3d k_3d = koord3d(k, 0) + pos;
+					grund_t *gr = lookup(k_3d);
+					if(gr) 
+					{
+						gebaeude_t *gb_part = gr->find<gebaeude_t>();
+						// There may be buildings with holes.
+						if(gb_part && gb_part->get_tile()->get_besch() == hb) 
+						{
+							tile_list.append(lookup(k_3d.get_2d()));
+						}
+					}
+				}
 			}
 		}
 
-		INT_CHECK("simworld 4440");
+		// Suitable start search (public transport)
+		vector_tpl<nearby_halt_t> start_halts(tile_list[0]->get_haltlist_count() * size.x * size.y);
+		FOR(vector_tpl<const planquadrat_t*>, const& current_tile, tile_list)
+		{
+			const nearby_halt_t* halt_list = current_tile->get_haltlist();
+			for(int h = current_tile->get_haltlist_count() - 1; h >= 0; h--) 
+			{
+				nearby_halt_t halt = halt_list[h];
+				if (halt.halt->is_enabled(wtyp)) 
+				{
+					// Previous versions excluded overcrowded halts here, but we need to know which
+					// overcrowded halt would have been the best start halt if it was not overcrowded,
+					// so do that below.
+					start_halts.append(halt);
+				}
+			}
+		}
+
+		INT_CHECK("simworld 4490");
 
 		// Check whether this batch of passengers has access to a private car each.
 		// Check run in batches to save computational effort.
@@ -4583,16 +4620,61 @@ void karte_t::step_passengers_and_mail(long delta_t)
 					// Regenerate the start halts information for this new onward trip.
 					// We cannot reuse "destination_list" as this is a list of halthandles,
 					// not nearby_halt_t objects.
+
 					origin_pos = destination_pos;
-					plan = lookup(origin_pos);
-					halt_list = plan->get_haltlist();
+					tile = gb->get_tile();
+					hb = tile->get_besch();	
+					size = hb->get_groesse(tile->get_layout());
+					tile_list.clear();
 					start_halts.clear();
-					for(int h = plan->get_haltlist_count() - 1; h >= 0; h--) 
+
+					if(size == koord(1,1))
 					{
-						nearby_halt_t halt = halt_list[h];
-						if (halt.halt->is_enabled(wtyp) && !halt.halt->is_overcrowded(wtyp->get_catg_index())) 
+						// A single tiled building - just check the single tile.
+						tile_list.append(lookup(origin_pos));
+					}
+					else
+					{
+						// A multi-tiled building: check all tiles. Any tile within the 
+						// coverage radius of a building connects the whole building.
+						const koord3d pos = first_origin->get_pos() - koord3d(tile->get_offset(), 0);
+						koord k;
+						grund_t* gr_this;
+	
+						for(k.y = 0; k.y < size.y; k.y ++) 
 						{
-							start_halts.append(halt);
+							for(k.x = 0; k.x < size.x; k.x ++) 
+							{
+								koord3d k_3d = koord3d(k, 0) + pos;
+								grund_t *gr = lookup(k_3d);
+								if(gr) 
+								{
+									gebaeude_t *gb_part = gr->find<gebaeude_t>();
+									// There may be buildings with holes.
+									if(gb_part && gb_part->get_tile()->get_besch() == hb) 
+									{
+										tile_list.append(lookup(k_3d.get_2d()));
+									}
+								}
+							}
+						}
+					}
+
+					// Suitable start search (public transport)
+					start_halts.clear();
+					FOR(vector_tpl<const planquadrat_t*>, const& current_tile, tile_list)
+					{
+						const nearby_halt_t* halt_list = current_tile->get_haltlist();
+						for(int h = current_tile->get_haltlist_count() - 1; h >= 0; h--) 
+						{
+							nearby_halt_t halt = halt_list[h];
+							if (halt.halt->is_enabled(wtyp)) 
+							{
+								// Previous versions excluded overcrowded halts here, but we need to know which
+								// overcrowded halt would have been the best start halt if it was not overcrowded,
+								// so do that below.
+								start_halts.append(halt);
+							}
 						}
 					}
 				}
@@ -4655,7 +4737,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 					{
 						if(current_destination.type == factory)
 						{
-							if(current_destination.object.industry->get_stat(0, FAB_PAX_ARRIVED) >= current_destination.object.industry->get_scaled_pax_demand())
+							if(current_destination.building->get_fabrik()->get_stat(0, FAB_PAX_ARRIVED) >= current_destination.building->get_fabrik()->get_scaled_pax_demand())
 							{
 								// TODO: Find a way of separating the factory's passenger demand for workers and for visitors.
 								if(route_status == initialising)
@@ -4725,24 +4807,64 @@ void karte_t::step_passengers_and_mail(long delta_t)
 						}
 						continue;
 					}
-				
-					// Dario: Check if there's a stop near destination
-					const planquadrat_t* dest_plan = lookup(destination_pos);
-					const nearby_halt_t* dest_list = dest_plan->get_haltlist();
-			
-					// Knightly : we can avoid duplicated efforts by building destination halt list here at the same time
+
+					// Check for a suitable stop within range of the destination.
 
 					// Note that, although factories are only *connected* now if they are within the smaller factory radius
 					// (default: 1), they can take passengers within the wider square of the passenger radius. This is intended,
 					// and is as a result of using the below method for all destination types.
 
-					vector_tpl<halthandle_t> destination_list;		
-					for(int h = dest_plan->get_haltlist_count() - 1; h >= 0; h--) 
+					tile = current_destination.building->get_tile();
+					hb = tile->get_besch();
+					koord size = hb->get_groesse(tile->get_layout());
+					tile_list.clear();
+
+					if(size == koord(1,1))
 					{
-						halthandle_t halt = dest_list[h].halt;
-						if (halt->is_enabled(wtyp)) 
+						// A single tiled building - just check the single tile.
+						tile_list.append(lookup(current_destination.location));
+					}
+					else
+					{
+						// A multi-tiled building: check all tiles. Any tile within the 
+						// coverage radius of a building connects the whole building.
+						const koord3d pos = current_destination.building->get_pos() - koord3d(tile->get_offset(), 0);
+						koord k;
+						grund_t* gr_this;
+	
+						for(k.y = 0; k.y < size.y; k.y ++) 
 						{
-							destination_list.append(halt);
+							for(k.x = 0; k.x < size.x; k.x ++) 
+							{
+								koord3d k_3d = koord3d(k, 0) + pos;
+								grund_t *gr = lookup(k_3d);
+								if(gr) 
+								{
+									gebaeude_t *gb_part = gr->find<gebaeude_t>();
+									// There may be buildings with holes.
+									if(gb_part && gb_part->get_tile()->get_besch() == hb) 
+									{
+										tile_list.append(lookup(k_3d.get_2d()));
+									}
+								}
+							}
+						}
+					}
+
+					vector_tpl<halthandle_t> destination_list(tile_list[0]->get_haltlist_count() * size.x * size.y);
+					FOR(vector_tpl<const planquadrat_t*>, const& current_tile, tile_list)
+					{
+						const nearby_halt_t* halt_list = current_tile->get_haltlist();
+						for(int h = current_tile->get_haltlist_count() - 1; h >= 0; h--) 
+						{
+							halthandle_t halt = halt_list[h].halt;
+							if(halt->is_enabled(wtyp)) 
+							{
+								// Previous versions excluded overcrowded halts here, but we need to know which
+								// overcrowded halt would have been the best start halt if it was not overcrowded,
+								// so do that below.
+								destination_list.append(halt);
+							}
 						}
 					}
 
@@ -4860,31 +4982,31 @@ void karte_t::step_passengers_and_mail(long delta_t)
 							//Town
 							if(city)
 							{
-								time_per_tile = city->check_road_connexion_to(current_destination.object.town);
+								time_per_tile = city->check_road_connexion_to(current_destination.building->get_stadt());
 							}
 							else
 							{
 								// Going onward from an out of town attraction or industry to a city building - get route backwards.
 								if(current_destination.type == attraction)
 								{
-									time_per_tile = current_destination.object.town->check_road_connexion_to(current_destination.object.attraction);
+									time_per_tile = current_destination.building->get_stadt()->check_road_connexion_to(current_destination.building);
 								}
 								else if(current_destination.type == factory)		
 								{
-									time_per_tile = current_destination.object.town->check_road_connexion_to(current_destination.object.industry);
+									time_per_tile = current_destination.building->get_stadt()->check_road_connexion_to(current_destination.building->get_fabrik());
 								}						
 							}
 							break;
 						case factory:
 							if(city) // Previous time per tile value used as default if the city is not available.
 							{
-								time_per_tile = city->check_road_connexion_to(current_destination.object.industry);
+								time_per_tile = city->check_road_connexion_to(current_destination.building->get_fabrik());
 							}
 							break;
 						case attraction:
 							if(city) // Previous time per tile value used as default if the city is not available.
 							{
-								time_per_tile = city->check_road_connexion_to(current_destination.object.attraction);
+								time_per_tile = city->check_road_connexion_to(current_destination.building);
 							}							
 							break;
 						default:
@@ -4904,7 +5026,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 							// calculated using the route finder; note that journeys inside cities are not calculated using
 							// the route finder). 
 
-							if(settings.get_assume_everywhere_connected_by_road() || (current_destination.type == town && current_destination.object.town == city))
+							if(settings.get_assume_everywhere_connected_by_road() || (current_destination.type == town && current_destination.building->get_stadt() == city))
 							{
 								// Congestion here is assumed to be on the percentage basis: i.e. the percentage of extra time that
 								// a journey takes owing to congestion. This is the measure used by the TomTom congestion index,
@@ -4913,10 +5035,10 @@ void karte_t::step_passengers_and_mail(long delta_t)
 							
 								//Average congestion of origin and destination towns.
 								uint16 congestion_total;
-								if(current_destination.object.town != NULL && current_destination.object.town != city)
+								if(current_destination.building->get_stadt() != NULL && current_destination.building->get_stadt() != city)
 								{
 									// Destination type is town and the destination town object can be found.
-									congestion_total = (city->get_congestion() + current_destination.object.town->get_congestion()) / 2;
+									congestion_total = (city->get_congestion() + current_destination.building->get_stadt()->get_congestion()) / 2;
 								}
 								else
 								{
@@ -5027,7 +5149,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 						tolerance -= car_minutes;
 					}
 					
-					destination_town = current_destination.type == town ? current_destination.object.town : NULL;
+					destination_town = current_destination.type == town ? current_destination.building->get_stadt() : NULL;
 					city->set_private_car_trip(pax_left_to_do, destination_town);
 					city->merke_passagier_ziel(destination_pos, COL_TURQUOISE);
 	#ifdef DESTINATION_CITYCARS
@@ -5043,7 +5165,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 						{
 							// Only add commuting passengers at a factory.
 							// TODO: Separate commuting/visiting trips for factories.
-							current_destination.object.industry->liefere_an(wtyp, pax_left_to_do);
+							current_destination.building->get_fabrik()->liefere_an(wtyp, pax_left_to_do);
 						}
 						else
 						{
@@ -5104,7 +5226,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 						{
 							// Only add commuting passengers at a factory.
 							// TODO: Separate commuting/visiting trips for factories.
-							current_destination.object.industry->liefere_an(wtyp, pax_left_to_do);
+							current_destination.building->get_fabrik()->liefere_an(wtyp, pax_left_to_do);
 						}
 						else
 						{
@@ -5221,7 +5343,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 						// The only passengers generated by a factory are returning passengers who have already reached the factory somehow or another
 						// from home (etc.). Note below multiplication of mail by 3.
 						int adjusted_figure = wtyp == warenbauer_t::post ? pax_left_to_do * 3 : pax_left_to_do;
-						current_destination.object.industry->book_stat(pax_left_to_do, (wtyp == warenbauer_t::passagiere ? FAB_PAX_GENERATED : FAB_MAIL_GENERATED));
+						current_destination.building->get_fabrik()->book_stat(pax_left_to_do, (wtyp == warenbauer_t::passagiere ? FAB_PAX_GENERATED : FAB_MAIL_GENERATED));
 					}
 		
 					halthandle_t ret_halt = pax.get_ziel();
@@ -5232,9 +5354,9 @@ void karte_t::step_passengers_and_mail(long delta_t)
 					{
 						// We just have to ensure that the ware can be delivered to this station/stop.
 						bool found = false;
-						for (uint i = 0; i < plan->get_haltlist_count(); i++) 
+						for(uint i = 0; i < plan->get_haltlist_count(); i++) 
 						{
-							halthandle_t test_halt = halt_list[i].halt;
+							halthandle_t test_halt = start_halts[i].halt;
 				
 							if(test_halt->is_enabled(wtyp) && (start_halt == test_halt || test_halt->get_connexions(wtyp->get_catg_index())->access(start_halt) != NULL))
 							{
@@ -5279,7 +5401,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 									// This is somewhat anomalous, as we are recording that the passengers have departed, not arrived, whereas for cities, we record
 									// that they have successfully arrived. However, this is not easy to implement for factories, as passengers do not store their ultimate
 									// origin, so the origin factory is not known by the time that the passengers reach the end of their journey.
-									current_destination.object.industry->book_stat(pax_left_to_do, (wtyp == warenbauer_t::passagiere ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED));
+									current_destination.building->get_fabrik()->book_stat(pax_left_to_do, (wtyp == warenbauer_t::passagiere ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED));
 								}
 							}
 							else 
@@ -5333,7 +5455,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 
 							if(current_destination.type == factory)
 							{
-								current_destination.object.industry->book_stat(pax_left_to_do, (wtyp == warenbauer_t::passagiere ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED));
+								current_destination.building->get_fabrik()->book_stat(pax_left_to_do, (wtyp == warenbauer_t::passagiere ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED));
 							}
 						}
 						else
@@ -5366,7 +5488,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 						}
 						if(current_destination.type == factory)
 						{
-							current_destination.object.industry->book_stat(pax_left_to_do, (wtyp==warenbauer_t::passagiere ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED));
+							current_destination.building->get_fabrik()->book_stat(pax_left_to_do, (wtyp==warenbauer_t::passagiere ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED));
 						}
 					}
 				} // Set return trip
@@ -5384,7 +5506,6 @@ void karte_t::step_passengers_and_mail(long delta_t)
 karte_t::destination karte_t::find_destination(trip_type trip)
 {
 	destination current_destination;
-	current_destination.object.town = NULL;
 	current_destination.type = 1;
 	gebaeude_t* gb;
 
@@ -5393,8 +5514,6 @@ karte_t::destination karte_t::find_destination(trip_type trip)
 	
 	case commuting_trip: 
 		gb = pick_any_weighted(commuter_targets);
-		// TODO: Check whether all available jobs at the destination are taken.
-		// Find intelligent way of dealing with this issue.
 		break;
 
 	case visiting_trip:
@@ -5414,23 +5533,21 @@ karte_t::destination karte_t::find_destination(trip_type trip)
 	}
 
 	current_destination.location = gb->get_pos();
+	current_destination.building = gb;
 
 	// Add the correct object type.
 	fabrik_t* const fab = gb->get_fabrik();
 	stadt_t* const city = gb->get_stadt();
 	if(fab)
 	{
-		current_destination.object.industry = fab;
 		current_destination.type = karte_t::factory;
 	}
 	else if(city)
 	{
-		current_destination.object.town = city;
 		current_destination.type = karte_t::town;
 	}
 	else // Attraction (out of town)
 	{
-		current_destination.object.attraction = gb;
 		current_destination.type = karte_t::attraction;
 	}
 
@@ -8751,6 +8868,8 @@ void karte_t::add_building_to_world_list(gebaeude_t *gb, building_type b, bool o
 				*/
 
 	assert(gb);
+	// Only add one tile per building here.
+	gb = gb->get_first_tile();
 
 	uint16 passenger_level = gb->get_passengers_per_hundred_months();
 	const uint16 mail_level = gb->get_mail_per_hundred_months();

@@ -930,21 +930,13 @@ public:
 
 private:
 
-	//@author: jamespetts
-	union destination_object
-	{
-		stadt_t* town;
-		fabrik_t* industry;
-		const gebaeude_t* attraction;
-	};
-
 	enum destination_object_type { town, factory, attraction };
 
 	struct destination
 	{
 		koord location;
 		uint16 type;
-		destination_object object; 
+		const gebaeude_t* building; 
 	};
 
 	/**

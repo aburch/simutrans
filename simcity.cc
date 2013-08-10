@@ -1108,15 +1108,6 @@ void stadt_t::add_gebaeude_to_stadt(gebaeude_t* gb, bool ordered)
 		const koord pos = gb->get_pos().get_2d() - tile->get_offset();
 		koord k;
 
-		if(gb->get_haustyp() == gebaeude_t::unbekannt)
-		{
-			// Monument or town hall: add to the world list whole.
-			// Commuter, visitor and mail
-			welt->add_building_to_world_list(gb, karte_t::visitor_target, ordered);
-			welt->add_building_to_world_list(gb, karte_t::commuter_target, ordered);
-			welt->add_building_to_world_list(gb, karte_t::mail_origin_or_target, ordered);
-		}
-
 		// add all tiles
 		for(k.y = 0; k.y < size.y; k.y++)
 		{
@@ -4314,14 +4305,54 @@ uint16 stadt_t::get_max_dimension()
 
 void stadt_t::merke_passagier_ziel(koord k, uint8 color)
 {
-	const uint8 existing_colour = pax_destinations_new.get(k);
-	if(color != COL_DARK_ORANGE || existing_colour == 0)
+	vector_tpl<koord> building_list;
+	building_list.append(k);
+	const grund_t* gr = welt->lookup(koord3d(k, welt->lookup_hgt(k)));
+	if(gr)
 	{
-		// "No route" is less useful than more specific indications to that same destination.
-		// Therefore, do not over-write anything else with "no route" within the same month.
-		pax_destinations_new_change ++;
-		pax_destinations_new.set(k, color);
+		const gebaeude_t* gb = gr->find<gebaeude_t>();
+		if(gb)
+		{
+			const haus_tile_besch_t* tile = gb->get_tile();
+			const haus_besch_t *hb = tile->get_besch();
+			koord size = hb->get_groesse(tile->get_layout());
+
+			if(size != koord(1,1))
+			{
+				// Only add more tiles for multi-tiled buildings.
+				// Single tiled buildings have already had their tile added.
+
+				const koord3d pos = gb->get_pos() - koord3d(tile->get_offset(), 0);
+				koord k;
+				grund_t* gr_this;
+	
+				for(k.y = 0; k.y < size.y; k.y ++) 
+				{
+					for(k.x = 0; k.x < size.x; k.x ++) 
+					{
+						koord3d k_3d = koord3d(k, 0) + pos;
+						grund_t *gr = welt->lookup(k_3d);
+						if(gr) 
+						{
+							gebaeude_t *gb_part = gr->find<gebaeude_t>();
+							// There may be buildings with holes.
+							if(gb_part && gb_part->get_tile()->get_besch() == hb && k_3d.get_2d() != k) 
+							{
+								building_list.append(k_3d.get_2d());
+							}
+						}
+					}
+				}
+			}
+		}
 	}
+	
+	FOR(vector_tpl<koord>, const& position, building_list)
+	{
+		pax_destinations_new.set(position, color);
+	}
+
+	pax_destinations_new_change ++;
 }
 
 
@@ -5493,29 +5524,27 @@ void stadt_t::add_building_to_list(gebaeude_t* building, bool ordered)
 	buildings.append_unique(building, building->get_tile()->get_besch()->get_level());
 	
 	// Also add to the world list for passenger generation purposes.
+
+	// All types of city building generate/receive mail.
+	welt->add_building_to_world_list(building, karte_t::visitor_target, ordered);
+
 	if(building->get_haustyp() == gebaeude_t::wohnung)
 	{
-		// Residential - origin,  mail and (much reduced) visitor target
+		// Residential - origin and (much reduced) visitor target
 		welt->add_building_to_world_list(building, karte_t::passenger_origin, ordered);
-		welt->add_building_to_world_list(building, karte_t::mail_origin_or_target, ordered);
 		welt->add_building_to_world_list(building, karte_t::visitor_target, ordered);
 	}
-	else if(building->get_haustyp() == gebaeude_t::gewerbe)
+	else if(building->get_haustyp() == gebaeude_t::gewerbe || building->get_haustyp() == gebaeude_t::unbekannt)
 	{
-		// Commercial - commuter, visitor and mail
+		// Commercial and attractions - commuter and visitor targets
 		welt->add_building_to_world_list(building, karte_t::visitor_target, ordered);
 		welt->add_building_to_world_list(building, karte_t::commuter_target, ordered);
-		welt->add_building_to_world_list(building, karte_t::mail_origin_or_target, ordered);
 	}
 	else if(building->get_haustyp() == gebaeude_t::industrie)
 	{
-		// Industrial - commuter and mail
+		// Industrial - commuter targets only
 		welt->add_building_to_world_list(building, karte_t::commuter_target, ordered);
-		welt->add_building_to_world_list(building, karte_t::mail_origin_or_target, ordered);
 	}
-	
-	// Other (town hall and monuments) - commuter, visitor and mail
-	// Do nothing, as these have been added in a separate method.
 }
 
 
