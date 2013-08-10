@@ -640,7 +640,6 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 				{
 						continue;
 				}
-				
 				if(enforce_weight_limits > 1 && w != NULL)
 				{
 					// Bernd Gabriel, Mar 10, 2010: way limit info
@@ -650,7 +649,21 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 						// Bridges care about convoy weight, whereas other types of way
 						// care about axle weight.
 						bridge_tile_count ++;
-						const uint32 way_max_convoy_weight = w->get_max_axle_load(); // This is actually maximum convoy weight: the name is odd because of the virtual method.
+						
+						// This is actually maximum convoy weight: the name is odd because of the virtual method.
+						uint32 way_max_convoy_weight;
+						
+						if(w->get_besch()->get_styp() == weg_t::type_tram)
+						{
+							// Trams need to check the weight of the underlying bridge.
+							const weg_t* underlying_bridge = welt->lookup(w->get_pos())->get_weg(road_wt);
+							way_max_convoy_weight = underlying_bridge->get_max_axle_load(); 
+						}
+						else
+						{
+							way_max_convoy_weight = w->get_max_axle_load(); 
+						}
+
 						// This ensures that only that part of the convoy that is actually on the bridge counts.
 						uint32 adjusted_convoy_weight = tile_length == 0 ? convoy_weight : (convoy_weight * max(bridge_tile_count - 2, 1)) / tile_length;
 						const uint32 min_weight = min(adjusted_convoy_weight, convoy_weight);

@@ -32,11 +32,13 @@ uint8 haus_tile_besch_t::get_layout() const
  *  Beschreibung:
  *      Bestimmt die Relativ-Position des Einzelbildes im Gesamtbild des
  *	Gebäudes.
+ *
+ * Description: Specifies the relative position of the frame in the overall image of the building. (Google)
  */
 koord haus_tile_besch_t::get_offset() const
 {
 	const haus_besch_t *besch = get_besch();
-	koord groesse = besch->get_groesse(get_layout());	// ggf. gedreht
+	koord groesse = besch->get_groesse(get_layout());	// ggf. gedreht ("rotated" - Google)
 	return koord( index % groesse.x, (index / groesse.x) % groesse.y );
 }
 

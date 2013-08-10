@@ -170,12 +170,15 @@ gebaeude_t::~gebaeude_t()
 		welt->sync_eyecandy_remove(this);
 	}
 
-	check_road_tiles(true);
-
+	
 	// tiles might be invalid, if no description is found during loading
-	if(tile  &&  tile->get_besch()  &&  tile->get_besch()->ist_ausflugsziel()) 
+	if(tile && tile->get_besch()) 
 	{
-		welt->remove_ausflugsziel(this);
+		check_road_tiles(true);
+		if(tile->get_besch()->ist_ausflugsziel())
+		{
+			welt->remove_ausflugsziel(this);
+		}
 	}
 
 	count = 0;
