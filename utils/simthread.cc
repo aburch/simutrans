@@ -1,6 +1,6 @@
 #include "simthread.h"
 
-#if _POSIX_BARRIERS<0
+#if _POSIX_BARRIERS>0
 // use native pthread barriers
 #else
 // implement barriers using other pthread primitives

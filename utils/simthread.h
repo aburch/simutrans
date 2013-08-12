@@ -15,7 +15,7 @@
 #define PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP PTHREAD_RECURSIVE_MUTEX_INITIALIZER
 #endif
 
-#if _POSIX_BARRIERS<0
+#if _POSIX_BARRIERS>0
 // redirect simthread functions to use supported pthread barriers
 typedef pthread_barrierattr_t simthread_barrierattr_t;
 typedef pthread_barrier_t simthread_barrier_t;
