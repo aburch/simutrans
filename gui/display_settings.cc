@@ -294,7 +294,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	// Align all values with labels
 	scr_rect bounds = label_container.get_min_boundaries();
 	label_container.set_groesse( koord( bounds.get_width(), bounds.get_height() ) );
-	value_container.set_pos( koord( bounds.get_pos().x+bounds.get_width()+D_H_SPACE, cursor.y ) );
+	value_container.set_pos( label_container.get_pos() + koord( bounds.get_pos().x+bounds.get_width()+D_H_SPACE, cursor.y ) );
 //	value_container.align_to( &label_container, ALIGN_EXTERIOR_H | ALIGN_LEFT | ALIGN_TOP, koord( D_H_SPACE, 0 ) );
 	value_container.set_groesse( koord( L_DIALOG_WIDTH - D_MARGINS_X - label_container.get_groesse().x - D_H_SPACE, bounds.get_height() ) );
 
@@ -347,12 +347,12 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 void color_gui_t::set_fenstergroesse(koord groesse)
 {
 	scr_coord_val column;
-	scr_coord_val delta_w = groesse.x - gui_frame_t::get_fenstergroesse().x;
+	scr_coord_val delta_w = groesse.x - D_MARGINS_X;
 
 	for(  int i=0;  i<COLORS_MAX_BUTTONS;  i++  ) {
 		if(  buttons[i].get_type() == button_t::square_state  ) {
 			// resize buttons too to fix text
-			buttons[i].set_groesse( buttons[i].get_groesse() + koord(delta_w,0) );
+			buttons[i].set_groesse( koord(delta_w,buttons[i].get_groesse().y) );
 		}
 	}
 

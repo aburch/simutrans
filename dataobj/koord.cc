@@ -1,5 +1,6 @@
 #include "koord.h"
 #include "loadsave.h"
+#include "../display/scr_coord.h"
 #include "../simtools.h"
 #include "../simconst.h"
 
@@ -133,6 +134,15 @@ const koord koord::from_hang[] = {
 	koord( 0,  0), // 79:
 	koord( 0,  0)  // 80:
 };
+
+/**
+	* type conversion from koord to the new scr_coord
+	* @author Max Kielland
+	*/
+koord::operator scr_coord()
+{
+	return scr_coord( x, y );
+}
 
 
 void koord::rdwr(loadsave_t *file)

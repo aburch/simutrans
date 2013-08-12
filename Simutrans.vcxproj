@@ -117,9 +117,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="besch\weg_besch.cc" />
+    <ClCompile Include="display\font.cc" />
+    <ClCompile Include="display\simgraph16.cc" />
+    <ClCompile Include="display\simview.cc" />
+    <ClCompile Include="gui\components\gui_container.cc" />
+    <ClCompile Include="gui\components\gui_convoiinfo.cc" />
     <ClCompile Include="gui\components\gui_image.cc" />
     <ClCompile Include="gui\components\gui_komponente.cc" />
     <ClCompile Include="gui\components\gui_map_preview.cc" />
+    <ClCompile Include="gui\simwin.cc" />
     <ClCompile Include="player\ai.cc" />
     <ClCompile Include="player\ai_goods.cc" />
     <ClCompile Include="gui\ai_option_t.cc" />
@@ -195,7 +201,6 @@
     <ClCompile Include="dataobj\fahrplan.cc" />
     <ClCompile Include="gui\fahrplan_gui.cc" />
     <ClCompile Include="dings\field.cc" />
-    <ClCompile Include="font.cc" />
     <ClCompile Include="dataobj\freelist.cc" />
     <ClCompile Include="freight_list_sorter.cc" />
     <ClCompile Include="boden\fundament.cc" />
@@ -214,8 +219,6 @@
     <ClCompile Include="gui\components\gui_button.cc" />
     <ClCompile Include="gui\components\gui_chart.cc" />
     <ClCompile Include="gui\components\gui_combobox.cc" />
-    <ClCompile Include="gui\gui_container.cc" />
-    <ClCompile Include="gui\gui_convoiinfo.cc" />
     <ClCompile Include="gui\components\gui_ding_view_t.cc" />
     <ClCompile Include="gui\components\gui_fixedwidth_textarea.cc" />
     <ClCompile Include="gui\components\gui_flowtext.cc" />
@@ -270,6 +273,7 @@
     <ClCompile Include="gui\money_frame.cc" />
     <ClCompile Include="boden\wege\monorail.cc" />
     <ClCompile Include="boden\monorailboden.cc" />
+    <ClCompile Include="utils\simthread.cc" />
     <ClCompile Include="vehicle\movingobj.cc" />
     <ClCompile Include="boden\wege\narrowgauge.cc" />
     <ClCompile Include="network\network.cc" />
@@ -322,7 +326,6 @@
     <ClCompile Include="simdings.cc" />
     <ClCompile Include="simevent.cc" />
     <ClCompile Include="simfab.cc" />
-    <ClCompile Include="simgraph16.cc" />
     <ClCompile Include="simhalt.cc" />
     <ClCompile Include="simintr.cc" />
     <ClCompile Include="simio.cc" />
@@ -345,10 +348,8 @@
     <ClCompile Include="simtools.cc" />
     <ClCompile Include="vehicle\simvehikel.cc" />
     <ClCompile Include="vehicle\simverkehr.cc" />
-    <ClCompile Include="simview.cc" />
     <ClCompile Include="simware.cc" />
     <ClCompile Include="simwerkz.cc" />
-    <ClCompile Include="simwin.cc" />
     <ClCompile Include="simworld.cc" />
     <ClCompile Include="besch\reader\skin_reader.cc" />
     <ClCompile Include="besch\sound_besch.cc" />
@@ -413,7 +414,15 @@
     <ClCompile Include="dings\zeiger.cc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="display\font.h" />
+    <ClInclude Include="display\scr_coord.h" />
+    <ClInclude Include="display\simgraph.h" />
+    <ClInclude Include="display\simimg.h" />
+    <ClInclude Include="display\simview.h" />
     <ClInclude Include="gui\components\action_listener.h" />
+    <ClInclude Include="gui\components\gui_container.h" />
+    <ClInclude Include="gui\components\gui_convoiinfo.h" />
+    <ClInclude Include="gui\simwin.h" />
     <ClInclude Include="player\ai.h" />
     <ClInclude Include="player\ai_goods.h" />
     <ClInclude Include="gui\ai_option_t.h" />
@@ -479,7 +488,6 @@
     <ClInclude Include="dataobj\fahrplan.h" />
     <ClInclude Include="gui\fahrplan_gui.h" />
     <ClInclude Include="dings\field.h" />
-    <ClInclude Include="font.h" />
     <ClInclude Include="dataobj\freelist.h" />
     <ClInclude Include="freight_list_sorter.h" />
     <ClInclude Include="boden\fundament.h" />
@@ -501,8 +509,6 @@
     <ClInclude Include="gui\components\gui_button.h" />
     <ClInclude Include="gui\components\gui_chart.h" />
     <ClInclude Include="gui\components\gui_combobox.h" />
-    <ClInclude Include="gui\gui_container.h" />
-    <ClInclude Include="gui\gui_convoiinfo.h" />
     <ClInclude Include="gui\components\gui_ding_view_t.h" />
     <ClInclude Include="gui\components\gui_divider.h" />
     <ClInclude Include="gui\components\gui_fixedwidth_textarea.h" />
@@ -571,6 +577,7 @@
     <ClInclude Include="gui\money_frame.h" />
     <ClInclude Include="boden\wege\monorail.h" />
     <ClInclude Include="boden\monorailboden.h" />
+    <ClInclude Include="utils\simthread.h" />
     <ClInclude Include="vehicle\movingobj.h" />
     <ClInclude Include="music\music.h" />
     <ClInclude Include="boden\wege\narrowgauge.h" />
@@ -635,9 +642,7 @@
     <ClInclude Include="simdings.h" />
     <ClInclude Include="simevent.h" />
     <ClInclude Include="simfab.h" />
-    <ClInclude Include="simgraph.h" />
     <ClInclude Include="simhalt.h" />
-    <ClInclude Include="simimg.h" />
     <ClInclude Include="simintr.h" />
     <ClInclude Include="simio.h" />
     <ClInclude Include="simline.h" />
@@ -660,11 +665,9 @@
     <ClInclude Include="vehicle\simvehikel.h" />
     <ClInclude Include="vehicle\simverkehr.h" />
     <ClInclude Include="simversion.h" />
-    <ClInclude Include="simview.h" />
     <ClInclude Include="simware.h" />
     <ClInclude Include="simwerkz-dialogs.h" />
     <ClInclude Include="simwerkz.h" />
-    <ClInclude Include="simwin.h" />
     <ClInclude Include="simworld.h" />
     <ClInclude Include="besch\skin_besch.h" />
     <ClInclude Include="besch\reader\skin_reader.h" />

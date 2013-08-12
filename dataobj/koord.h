@@ -3,11 +3,11 @@
 
 #include "ribi.h"
 #include "../simtypes.h"
-#include "../display/scr_coord.h"
 
 #include <stdlib.h>
 
 class loadsave_t;
+class scr_coord;
 
 /**
  * 2d Koordinaten
@@ -55,10 +55,7 @@ public:
 	 * type conversion from koord to the new scr_coord
 	 * @author Max Kielland
 	 */
-	operator scr_coord()
-	{
-		return scr_coord( x, y );
-	}
+	operator scr_coord();
 
 	void rotate90( sint16 y_size )
 	{

@@ -1,239 +1,211 @@
-#ifndef scr_coord_h
+ #ifndef scr_coord_h
 #define scr_coord_h
 
+#include <assert.h>
+#include "../dataobj/koord.h"
 #include "../simtypes.h"
 
 // Screen coordinate type
 typedef sint16 scr_coord_val;
 
 // Two dimensional point type
-typedef struct tag_scr_coord_t {
-
+class scr_coord
+{
+public:
 	scr_coord_val x;
 	scr_coord_val y;
 
-	tag_scr_coord_t() {
-		tag_scr_coord_t(0,0);
-	}
+	scr_coord() { x=0; y=0; } // should this be rather undined constant or so!
 
-	tag_scr_coord_t(scr_coord_val x_par, scr_coord_val y_par) {
-		x = x_par;
-		y = y_par;
-	}
+	scr_coord( scr_coord_val x_, scr_coord_val y_ ) { x = x_; y=y_; }
 
-/*	tag_scr_coord_t(koord pos_par) {
-		tag_scr_coord_t(pos_par.x,pos_par.y);
-	}
-*/
-	bool operator ==(const tag_scr_coord_t& point_par) const {
-		return (x == point_par.x) && (y == point_par.y);
-	}
+	scr_coord(const koord pos_par) { x = pos_par.x; y = pos_par.y; }
 
-	bool operator !=(const tag_scr_coord_t& point_par) const {
-		return !(point_par == *this);
-	}
+	bool operator ==(const scr_coord& other) const { return ((x-other.x) | (y-other.y)) == 0; }
 
-	tag_scr_coord_t operator +(const tag_scr_coord_t& point_par) const {
-		return tag_scr_coord_t(point_par.x + this->x, point_par.y + this->y);
-	}
+	bool operator !=(const scr_coord& other) const { return !(other == *this ); }
 
-	tag_scr_coord_t operator -(const tag_scr_coord_t& point_par) const {
-		return tag_scr_coord_t(this->x - point_par.x, this->y - point_par.y );
-	}
+	const scr_coord operator +(const scr_coord& other ) const { return scr_coord( other.x + x, other.y + y); }
 
-	tag_scr_coord_t& operator +=(const tag_scr_coord_t& point_par) {
-		this->x += point_par.x;
-		this->y += point_par.y;
+	const scr_coord operator -(const scr_coord& other ) const { return scr_coord( x - other.x, y - other.y ); }
+
+	const scr_coord& operator +=(const scr_coord& other ) {
+		x += other.x;
+		y += other.y;
 		return *this;
 	}
 
-	tag_scr_coord_t& operator -=(const tag_scr_coord_t& point_par) {
-		this->x -= point_par.x;
-		this->y -= point_par.y;
+	const scr_coord& operator -=(const scr_coord& other ) {
+		x += other.x;
+		y += other.y;
 		return *this;
 	}
 
-	void add_offset(scr_coord_val delta_x, scr_coord_val delta_y) {
+	void add_offset( scr_coord_val delta_x, scr_coord_val delta_y ) {
 		x += delta_x;
 		y += delta_y;
 	}
 
-	void set(scr_coord_val x_par, scr_coord_val y_par) {
+	void set( scr_coord_val x_par, scr_coord_val y_par ) {
+		x = x_par;
+		y = y_par;
+	}
+};
+
+
+// Rectangle type
+class scr_rect
+{
+private:
+	enum { INVALID=-32109 };
+
+	scr_coord_val x;
+	scr_coord_val y;
+	scr_coord_val w;
+	scr_coord_val h;
+
+	bool is_valid() {
+		return x != INVALID;
+	}
+
+	// always enforce a positive width and height
+	void normalize() {
+		assert( is_valid() );
+		if(  w<0  ) {
+			x -= w;
+			w = -w;
+		}
+		if(  h<0  ) {
+			y -= h;
+			h = -h;
+		}
+	}
+
+	void init( scr_coord_val x_par, scr_coord_val y_par, scr_coord_val w_par, scr_coord_val h_par ) {
+		x = x_par;
+		y = y_par;
+		w = w_par;
+		h = h_par;
+		normalize();
+	}
+
+public:
+	scr_rect() { x = INVALID; y = w = h = 0; }
+
+	scr_rect( const scr_coord& pt ) { init( pt.x, pt.y, 0, 0 ); }
+
+	scr_rect( const scr_coord& pt, scr_coord_val w, scr_coord_val h ) { init( pt.x, pt.y, w, h ); }
+
+	// for now still accepted ...
+	scr_rect( const koord& pt ) { init( pt.x, pt.y, 0, 0 ); }
+	scr_rect( const koord& pt, scr_coord_val w, scr_coord_val h ) { init( pt.x, pt.y, w, h ); }
+
+	scr_rect(const scr_coord& point1, const scr_coord& point2 ) {
+		init( point1.x, point1.y, point2.x-point1.x, point2.y-point1.y );
+	}
+
+	const scr_coord get_pos() const {
+		return scr_coord( x, y );
+	}
+
+	const scr_coord get_topleft() const {
+		return scr_coord( x, y );
+	}
+
+	void set_topleft( const scr_coord& point ) {
+		w = (x+w) - point.x;
+		h = (y+h) - point.y;
+		x = point.x;
+		y = point.y;
+		normalize();
+	}
+
+	const scr_coord get_bottomright() const {
+		return scr_coord( x+w, y+h );
+	}
+
+	void set_bottomright( const scr_coord& point ) {
+		w = point.x - x;
+		h = point.y - y;
+		normalize();
+	}
+
+	scr_coord_val get_width() const { return w; }
+
+	void set_width(scr_coord_val width) {
+		w = width;
+		normalize();
+	}
+
+	scr_coord_val get_height() const { return h; }
+
+	void set_height(scr_coord_val height) {
+		h = height;
+		normalize();
+	}
+
+	const scr_coord get_size(void) const { return scr_coord( w, h ); }
+
+	void set_size( scr_coord_val width, scr_coord_val height) {
+		w = width;
+		h = height;
+		normalize();
+	}
+
+	bool operator ==(const scr_rect& rect) const {
+		return ( (x-rect.x) | (y-rect.y) | (w-rect.w) | (h-rect.h) ) == 0;
+	}
+
+	bool operator !=(const scr_rect& rect_par) const {
+		return !(rect_par==*this);
+	}
+
+	bool is_empty() const { return (w|h) == 0; }
+
+	// point in rect; border (x+w) is still counting as contained
+	bool contains( const scr_coord& pt ) const {
+		return (  x <= pt.x  &&  x+w >= pt.x  &&  y <=pt.y  &&  y+h >= pt.y  );
+	}
+
+	bool contains( const scr_rect& rect ) const {
+		return (  x <= rect.x  &&  x+w >= rect.x+rect.w  &&  y <= rect.y  &&  y+h >= rect.y+rect.h  );
+	}
+
+	bool is_overlapping( const scr_rect &rect ) const {
+		return !( (get_bottomright().x < rect.get_topleft().x) ||
+		(get_bottomright().y < rect.get_topleft().y) ||
+		(rect.get_bottomright().x < x) ||
+		(rect.get_bottomright().y < y) );
+	}
+
+	// will contain the
+	void merge( const scr_rect &rect ) {
+		if(  !is_valid()  ) {
+			*this = rect;
+		}
+		else {
+			scr_coord pt( min(x,rect.x), min(y,rect.y) );
+			w = max(x+w,rect.x+rect.w)-pt.x;
+			h = max(y+h,rect.y+rect.h)-pt.y;
+			x = pt.x;
+			y = pt.y;
+		}
+	}
+
+	void move( scr_coord_val x_par, scr_coord_val y_par ) {
 		x = x_par;
 		y = y_par;
 	}
 
-	void set(const tag_scr_coord_t& point_par) {
-		x = point_par.x;
-		y = point_par.y;
+	void move( const scr_coord& point ) {
+		move( point.x, point.y );
 	}
 
-} scr_coord;
-
-// Rectangle type
-typedef struct tag_scr_rect_t {
-
-	scr_coord_val left;
-	scr_coord_val top;
-	scr_coord_val right;
-	scr_coord_val bottom;
-
-	tag_scr_rect_t() {
-		init(0,0,0,0);
-	}
-
-	tag_scr_rect_t(const scr_coord& point_par) {
-		init(point_par.x, point_par.y, point_par.x, point_par.y);
-	}
-
-	tag_scr_rect_t(const scr_coord& point_par, scr_coord_val width_par, scr_coord_val height_par) {
-		init (point_par.x, point_par.y, point_par.x + width_par, point_par.y + height_par);
-	}
-
-	tag_scr_rect_t(scr_coord_val x_par, scr_coord_val y_par, scr_coord_val xx_par, scr_coord_val yy_par) {
-		init(x_par, y_par, xx_par, yy_par);
-	}
-
-	tag_scr_rect_t(const scr_coord& point1_par, const scr_coord& point2_par) {
-		init(point1_par.x, point1_par.y, point2_par.x, point2_par.y);
-	}
-
-	void init(scr_coord_val x_par, scr_coord_val y_par, scr_coord_val xx_par, scr_coord_val yy_par) {
-		left = x_par;
-		top = y_par;
-		right = xx_par;
-		bottom = yy_par;
+	void expand( scr_coord_val delta_x_par, scr_coord_val delta_y_par ) {
+		w += delta_x_par;
+		h += delta_y_par;
 		normalize();
 	}
 
-	scr_coord& top_left() {
-		return *((scr_coord*)this);
-	}
-
-	scr_coord& bottom_right() {
-		return *((scr_coord*)this+1);
-	}
-
-	const scr_coord& top_left() const {
-		return *((scr_coord const *)this);
-	}
-
-	const scr_coord& bottom_right() const {
-		return *((scr_coord const *)this+1);
-	}
-
-	scr_coord_val get_width() const {
-		return right - left;
-	}
-
-	void set_width(scr_coord_val width) {
-		right = left + width;
-	}
-
-	scr_coord_val get_height() const {
-		return bottom - top;
-	}
-
-	void set_height(scr_coord_val height) {
-		bottom = top + height;
-	}
-
-	scr_coord get_size(void) {
-		return scr_coord(get_width(),get_height());
-	}
-
-	void set_size(scr_coord_val width, scr_coord_val height) {
-		set_width(width);
-		set_height(height);
-	}
-
-	void set_size(scr_coord size) {
-		set_size(size.x,size.y);
-	}
-
-	void set_size(tag_scr_rect_t rect) {
-		set_size(rect.get_size());
-	}
-
-	scr_coord get_pos() const {
-		return scr_coord(left, top);
-	}
-
-	void normalize() {
-		if (top > bottom) {
-			top    = top ^ bottom;
-			bottom = top ^ bottom;
-			top    = top ^ bottom;
-		}
-		if (left > right) {
-			left  = left ^ right;
-			right = left ^ right;
-			left  = left ^ right;
-		}
-	}
-
-	bool operator ==(const tag_scr_rect_t& rect_par) const {
-		return ( (left == rect_par.left)  &&  (top == rect_par.top)  &&  (right == rect_par.right)  &&  (bottom == rect_par.bottom) );
-	}
-
-	bool operator !=(const tag_scr_rect_t& rect_par) const {
-		return !(rect_par==*this);
-	}
-
-	bool is_empty() const {
-		return ( (right == left) || (bottom == top) );
-	}
-
-	bool contains(const scr_coord& point_par) const {
-		return ( (point_par.x >= left)  &&  (point_par.y >= top)  &&  (point_par.x < right)  &&  (point_par.y < bottom) );
-	}
-
-	bool contains(const tag_scr_rect_t& rect_par) const {
-		return contains(rect_par.top_left()) && contains(rect_par.bottom_right());
-	}
-
-	bool is_overlapping(const tag_scr_rect_t &rect_par) const {
-		return !( (bottom_right().x < rect_par.top_left().x) ||
-		(bottom_right().y < rect_par.top_left().y) ||
-		(rect_par.bottom_right().x < top_left().x) ||
-		(rect_par.bottom_right().y < top_left().y) );
-	}
-
-	void merge(const tag_scr_rect_t &rect_par) {
-		left = min(left,rect_par.left);
-		right = max(right,rect_par.right);
-		top = min(top,rect_par.top);
-		bottom = max(bottom,rect_par.bottom);
-	}
-
-	void add_offset(scr_coord_val delta_x_par, scr_coord_val delta_y_par) {
-		left   += delta_x_par;
-		right  += delta_x_par;
-		top    += delta_y_par;
-		bottom += delta_y_par;
-	}
-
-	void move_to(scr_coord_val coord_x_par, scr_coord_val coord_y_par) {
-		add_offset(coord_x_par - left, coord_y_par - top);
-	}
-
-	void move_to(const scr_coord& point_par) {
-		add_offset(point_par.x - left, point_par.y - top);
-	}
-
-	void expand(scr_coord_val delta_x_par, scr_coord_val delta_y_par) {
-		left   -= delta_x_par;
-		right  += delta_x_par;
-		top    -= delta_y_par;
-		bottom += delta_y_par;
-	}
-
-	void expand(scr_coord_val left_par, scr_coord_val top_par, scr_coord_val right_par, scr_coord_val bottom_par) {
-		left   -= left_par;
-		right  += right_par;
-		top    -= top_par;
-		bottom += bottom_par;
-	}
-
-} scr_rect;
+};
 #endif
