@@ -48,7 +48,7 @@
 #endif
 
 #if MULTI_THREAD>1
-#include <pthread.h>
+#include "../utils/simthread.h"
 
 // currently just redrawing/rezooming
 static pthread_mutex_t rezoom_recode_img_mutex;

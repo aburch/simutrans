@@ -93,11 +93,9 @@ static SDL_Cursor* hourglass;
 static SDL_Cursor* blank;
 
 #if MULTI_THREAD>1
-// enable barriers by this
-#define _XOPEN_SOURCE 600
-#include <pthread.h>
+#include "utils/simthread.h"
 
-static pthread_barrier_t redraw_barrier;
+static simthread_barrier_t redraw_barrier;
 static pthread_mutex_t redraw_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 // parameters passed starting a thread
@@ -111,7 +109,7 @@ static redraw_param_t redraw_param;
 void* redraw_thread( void* ptr )
 {
 	while(true) {
-		pthread_barrier_wait( &redraw_barrier );	// wait to start
+		simthread_barrier_wait( &redraw_barrier );	// wait to start
 		pthread_mutex_lock( &redraw_mutex );
 		display_flush_buffer();
 		if(  use_hw  ) {
@@ -189,7 +187,7 @@ int dr_os_open(int w, int const h, int const fullscreen)
 {
 #if MULTI_THREAD>1
 	// init barrier
-	pthread_barrier_init( &redraw_barrier, NULL, 2);
+	simthread_barrier_init( &redraw_barrier, NULL, 2);
 
 	// Initialize and set thread detached attribute
 	pthread_attr_t attr;
@@ -347,7 +345,7 @@ void dr_flush(void)
 {
 #if MULTI_THREAD>1
 	pthread_mutex_unlock( &redraw_mutex );
-	pthread_barrier_wait( &redraw_barrier );	// start thread
+	simthread_barrier_wait( &redraw_barrier );	// start thread
 #else
 	display_flush_buffer();
 	if(  use_hw  ) {

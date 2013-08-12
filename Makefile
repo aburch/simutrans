@@ -427,6 +427,7 @@ SOURCES += utils/log.cc
 SOURCES += utils/searchfolder.cc
 SOURCES += utils/sha1.cc
 SOURCES += utils/simstring.cc
+SOURCES += utils/simthread.cc
 SOURCES += vehicle/movingobj.cc
 SOURCES += vehicle/simpeople.cc
 SOURCES += vehicle/simvehikel.cc

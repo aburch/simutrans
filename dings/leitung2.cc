@@ -7,7 +7,7 @@
 
 #include <stdio.h>
 #if MULTI_THREAD>1
-#include <pthread.h>
+#include "../utils/simthread.h"
 static pthread_mutex_t verbinde_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t calc_bild_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t pumpe_list_mutex = PTHREAD_MUTEX_INITIALIZER;

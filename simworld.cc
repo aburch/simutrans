@@ -119,14 +119,12 @@ static std::string last_network_game;
 stringhashtable_tpl<karte_t::missing_level_t>missing_pak_names;
 
 #if MULTI_THREAD>1
-// enable barriers by this
-#define _XOPEN_SOURCE 600
-#include <pthread.h>
+#include "utils/simthread.h"
 #include <semaphore.h>
 
 bool spawned_world_threads=false; // global job indicator array
-static pthread_barrier_t world_barrier_start;
-static pthread_barrier_t world_barrier_end;
+static simthread_barrier_t world_barrier_start;
+static simthread_barrier_t world_barrier_end;
 
 
 // to start a thread
@@ -152,7 +150,7 @@ void *karte_t::world_xy_loop_thread(void *ptr)
 	world_thread_param_t *param = reinterpret_cast<world_thread_param_t *>(ptr);
 	while(true) {
 		if(param->keep_running) {
-			pthread_barrier_wait( &world_barrier_start );	// wait for all to start
+			simthread_barrier_wait( &world_barrier_start );	// wait for all to start
 		}
 
 		sint16 x_min = 0;
@@ -174,7 +172,7 @@ void *karte_t::world_xy_loop_thread(void *ptr)
 		}
 
 		if(param->keep_running) {
-			pthread_barrier_wait( &world_barrier_end );	// wait for all to finish
+			simthread_barrier_wait( &world_barrier_end );	// wait for all to finish
 		}
 		else {
 			return NULL;
@@ -229,8 +227,8 @@ void karte_t::world_xy_loop(xy_loop_func function, uint8 flags)
 		pthread_attr_init(&attr);
 		pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 		// init barrier
-		pthread_barrier_init( &world_barrier_start, NULL, MULTI_THREAD );
-		pthread_barrier_init( &world_barrier_end, NULL, MULTI_THREAD );
+		simthread_barrier_init( &world_barrier_start, NULL, MULTI_THREAD );
+		simthread_barrier_init( &world_barrier_end, NULL, MULTI_THREAD );
 
 		for(  int t=0;  t<MULTI_THREAD-1;  t++  ) {
 			if(  pthread_create(&thread[t], &attr, world_xy_loop_thread, (void *)&world_thread_param[t])  ) {
@@ -246,12 +244,12 @@ void karte_t::world_xy_loop(xy_loop_func function, uint8 flags)
 
 
 	// and start processing
-	pthread_barrier_wait( &world_barrier_start );
+	simthread_barrier_wait( &world_barrier_start );
 
 	// the last we can run ourselves
 	world_xy_loop_thread(&world_thread_param[MULTI_THREAD-1]);
 
-	pthread_barrier_wait( &world_barrier_end );
+	simthread_barrier_wait( &world_barrier_end );
 
 	// return from thread
 	for(  int t = 0;  t < MULTI_THREAD - 1;  t++  ) {

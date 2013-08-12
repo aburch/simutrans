@@ -23,7 +23,7 @@ struct nodelist_node_t
 };
 
 #if MULTI_THREAD>1
-#include <pthread.h>
+#include "../utils/simthread.h"
 static pthread_mutex_t freelist_mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
