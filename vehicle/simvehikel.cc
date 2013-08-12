@@ -227,10 +227,10 @@ void vehikel_basis_t::verlasse_feld()
 {
 	// first: release crossing
 	grund_t *gr = welt->lookup(get_pos());
-	if(gr  &&  gr->ist_uebergang()) {
+	if(  gr  &&  gr->ist_uebergang()  ) {
 		crossing_t *cr = gr->find<crossing_t>(2);
 		grund_t *gr2 = welt->lookup(pos_next);
-		if(gr2==NULL  ||  gr2==gr  ||  !gr2->ist_uebergang()  ||  cr->get_logic()!=gr2->find<crossing_t>(2)->get_logic()) {
+		if(  gr2==NULL  ||  gr2==gr  ||  !gr2->ist_uebergang()  ||  cr->get_logic()!=gr2->find<crossing_t>(2)->get_logic()  ) {
 			cr->release_crossing(this);
 		}
 	}
@@ -243,9 +243,10 @@ void vehikel_basis_t::verlasse_feld()
 		DBG_MESSAGE("vehikel_basis_t::verlasse_feld()","checking all plan squares");
 
 		// check, whether it is on another height ...
-		if(welt->is_within_limits( get_pos().get_2d() )) {
-			gr = welt->access( get_pos().get_2d() )->get_boden_von_obj(this);
-			if(gr) {
+		const planquadrat_t *pl = welt->access( get_pos().get_2d() );
+		if(  pl  ) {
+			gr = pl->get_boden_von_obj(this);
+			if(  gr  ) {
 				gr->obj_remove(this);
 				dbg->warning("vehikel_basis_t::verlasse_feld()","removed vehicle typ %i (%p) from %d %d",get_typ(), this, get_pos().x, get_pos().y);
 			}

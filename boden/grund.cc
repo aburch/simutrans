@@ -836,6 +836,7 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width) const
 {
 	const bool dirty = get_flag(grund_t::dirty);
+	const koord k = get_pos().get_2d();
 
 	// here: we are either ground(kartenboden) or visible
 	const bool visible = !ist_karten_boden()  ||  is_karten_boden_visible();
@@ -862,7 +863,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 				const uint8 back_height = min(i==0?corner1(slope):corner3(slope),corner4(slope));
 				yoff[i] = tile_raster_scale_y( -TILE_HEIGHT_STEP*back_height, raster_tile_width );
 				if(  back_bild[i]  ) {
-					grund_t *gr = welt->lookup_kartenboden( get_pos().get_2d() + koord::nsow[(i-1)&3] );
+					grund_t *gr = welt->lookup_kartenboden( k + koord::nsow[(i-1)&3] );
 					if(  gr  ) {
 						// for left we test corners 2 and 3 (east), for back we use 1 and 2 (south)
 						const sint8 gr_slope = gr->get_disp_slope();
@@ -898,7 +899,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 
 				//display climate transitions - only needed if below snowline (snow_transition>0)
 				//need to process whole tile for all heights anyway as water transitions are needed for all heights
-				const planquadrat_t * plan = welt->access( pos.get_2d() );
+				const planquadrat_t * plan = welt->access( k );
 				uint8 climate_corners = plan->get_climate_corners();
 				const sint8 snow_transition = welt->get_snowline() - pos.z;
 				weg_t *weg = get_weg(road_wt);
@@ -907,12 +908,12 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 
 					// get neighbour corner heights
 					sint8 neighbour_height[8][4];
-					welt->get_neighbour_heights( pos.get_2d(), neighbour_height );
+					welt->get_neighbour_heights( k, neighbour_height );
 
 					//look up neighbouring climates
 					climate neighbour_climate[8];
 					for(  int i = 0;  i < 8;  i++  ) {
-						neighbour_climate[i] = welt->get_climate( pos.get_2d() + koord::neighbours[i] );
+						neighbour_climate[i] = welt->get_climate( k + koord::neighbours[i] );
 					}
 
 					climate climate0 = plan->get_climate();
@@ -1786,7 +1787,7 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 			}
 		}
 		// remove ribi from canals to sea level
-		if(  wt == water_wt  &&  pos.z == welt->get_water_hgt( pos.get_2d() )  &&  slope != hang_t::flach  ) {
+		if(  wt == water_wt  &&  pos.z == welt->get_water_hgt( here )  &&  slope != hang_t::flach  ) {
 			rem &= ~ribi_t::doppelt(ribi_typ(slope));
 		}
 
@@ -1866,7 +1867,7 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 			costs -= weg_entfernen(wt, true);
 			if(flags&is_kartenboden) {
 				// remove ribis from sea tiles
-				if(  wt == water_wt  &&  pos.z == welt->get_water_hgt( pos.get_2d() )  &&  slope != hang_t::flach  ) {
+				if(  wt == water_wt  &&  pos.z == welt->get_water_hgt( here )  &&  slope != hang_t::flach  ) {
 					grund_t *gr = welt->lookup_kartenboden(here - ribi_typ(slope));
 					if (gr  &&  gr->ist_wasser()) {
 						gr->calc_bild(); // to recalculate ribis
@@ -1877,7 +1878,7 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 					// remove remaining dings
 					obj_loesche_alle( sp );
 					// set to normal ground
-					welt->access(pos.get_2d())->kartenboden_setzen( new boden_t( welt, pos, slope ) );
+					welt->access(here)->kartenboden_setzen( new boden_t( welt, pos, slope ) );
 					// now this is already deleted !
 				}
 			}

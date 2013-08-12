@@ -35,11 +35,12 @@ void wasser_t::prepare_for_refresh()
 
 void wasser_t::calc_bild_internal()
 {
-	sint16 height = welt->get_water_hgt( get_pos().get_2d() );
+	koord pos2d(get_pos().get_2d());
+	sint16 height = welt->get_water_hgt( pos2d );
 	set_hoehe( height );
 	slope = hang_t::flach;
 
-	sint16 zpos = min( welt->lookup_hgt( get_pos().get_2d() ), height ); // otherwise slope will fail ...
+	sint16 zpos = min( welt->lookup_hgt( pos2d ), height ); // otherwise slope will fail ...
 
 	if (grund_t::underground_mode==grund_t::ugm_level && grund_t::underground_level < zpos) {
 		set_bild(IMG_LEER);
@@ -51,7 +52,7 @@ void wasser_t::calc_bild_internal()
 	// test tiles to north, south, east and west and add to ribi if water
 	ribi = ribi_t::keine;
 	for(  int i=0;  i<4;  i++  ) {
-		grund_t *gr_neighbour = welt->lookup_kartenboden(pos.get_2d() + koord::nsow[i]);
+		grund_t *gr_neighbour = welt->lookup_kartenboden(pos2d + koord::nsow[i]);
 		if (gr_neighbour  &&  (gr_neighbour->ist_wasser()  ||  gr_neighbour->hat_weg(water_wt))) {
 			ribi |= ribi_t::nsow[i];
 		}

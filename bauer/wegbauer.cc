@@ -547,7 +547,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 
 	// universal check for elevated things ...
 	if(bautyp&elevated_flag) {
-		if(  to->hat_weg(air_wt)  ||  welt->lookup_hgt( to->get_pos().get_2d() ) < welt->get_water_hgt( to->get_pos().get_2d() )  ||  !check_for_leitung( zv, to )  ||  (!to->ist_karten_boden()  &&  to->get_typ() != grund_t::monorailboden)  ||  to->get_typ() == grund_t::brueckenboden  ||  to->get_typ() == grund_t::tunnelboden  ) {
+		if(  to->hat_weg(air_wt)  ||  welt->lookup_hgt( to_pos ) < welt->get_water_hgt( to_pos )  ||  !check_for_leitung( zv, to )  ||  (!to->ist_karten_boden()  &&  to->get_typ() != grund_t::monorailboden)  ||  to->get_typ() == grund_t::brueckenboden  ||  to->get_typ() == grund_t::tunnelboden  ) {
 			// no suitable ground below!
 			return false;
 		}
@@ -1786,7 +1786,7 @@ long ms=dr_time();
 		else {
 			intern_calc_route( ziel, start );
 		}
-		while (!route.empty() && welt->lookup(route[0])->get_grund_hang() == hang_t::flach) {
+		while (!route.empty() && welt->lookup(route[0])->get_grund_hang() == hang_t::flach && welt->lookup(route[1])->ist_wasser()) {
 			// remove leading water ...
 			route.remove_at(0);
 		}
