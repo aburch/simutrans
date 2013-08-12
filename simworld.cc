@@ -1734,35 +1734,38 @@ bool karte_t::can_flood_to_depth(  koord k, sint8 new_water_height, sint8 *stage
 	our_stage[offset]=0;
 	do {
 		for(  int i = our_stage[offset];  i < 8;  i++  ) {
-			// we will use (i+3)&8 rather than i as this means memory access will be sequential
 			koord k_neighbour = k + koord::neighbours[i];
-			grund_t *gr2 = lookup_kartenboden(k_neighbour);
-			if(  gr2  ) {
+			if(  is_within_limits(k_neighbour)  ) {
 				const uint32 neighbour_offset = array_koord(k_neighbour.x,k_neighbour.y);
+
+				// already visited
+				if(our_stage[neighbour_offset] != -1) goto next_neighbour;
+
+				// water height above
+				if(water_hgts[neighbour_offset] >= new_water_height) goto next_neighbour;
+
+				grund_t *gr2 = lookup_kartenboden_nocheck(k_neighbour);
+				if(  !gr2  ) goto next_neighbour;
 
 				sint8 neighbour_height = gr2->get_hoehe();
 
-				// move onto this tile if it hasn't been processed yet
-				bool ok = our_stage[neighbour_offset] == -1  &&  neighbour_height < new_water_height;
+				// land height above
+				if(neighbour_height >= new_water_height) goto next_neighbour;
 
-				// move onto this tile unless it already has water at new level, or the land level is above new level
-				ok = ok  &&  water_hgts[neighbour_offset] < new_water_height;
-
-				if(  ok  ) {
-					//move on to next tile
-					from_dir[neighbour_offset] = i;
-					stage[neighbour_offset] = 0;
-					our_stage[neighbour_offset] = 0;
-					our_stage[offset] = i;
-					k = k_neighbour;
-					offset = array_koord(k.x,k.y);
-					break;
-				}
+				//move on to next tile
+				from_dir[neighbour_offset] = i;
+				stage[neighbour_offset] = 0;
+				our_stage[neighbour_offset] = 0;
+				our_stage[offset] = i;
+				k = k_neighbour;
+				offset = array_koord(k.x,k.y);
+				break;
 			}
 			else {
 				// edge of map - we keep iterating so we can mark all connected tiles as failing
 				succeeded = false;
 			}
+			next_neighbour:
 			//return back to previous tile
 			if(  i==7  ) {
 				k = k - koord::neighbours[from_dir[offset]];
