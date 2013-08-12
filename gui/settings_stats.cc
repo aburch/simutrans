@@ -462,11 +462,14 @@ void settings_costs_stats_t::read(settings_t* const sets)
 
 void settings_climates_stats_t::init(settings_t* const sets)
 {
+	int mountain_height_start = (int)sets->get_max_mountain_height();
+	int mountain_roughness_start = (int)(sets->get_map_roughness()*20.0 + 0.5)-8;
+
 	local_sets = sets;
 	INIT_INIT
 	INIT_NUM_NEW( "Water level", sets->get_grundwasser(), -10, 0, gui_numberinput_t::AUTOLINEAR, false );
-	INIT_NUM_NEW( "Mountain height", sets->get_max_mountain_height(), 0, 320, 10, false );
-	INIT_NUM_NEW( "Map roughness", (sets->get_map_roughness()*20.0 + 0.5)-8, 0, 7, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM_NEW( "Mountain height", mountain_height_start, 0, min(1000,100*(11-mountain_roughness_start)), 10, false );
+	INIT_NUM_NEW( "Map roughness", mountain_roughness_start, 0, min(10, 11-((mountain_height_start+99)/100)), gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR
 	INIT_LB( "Summer snowline" );
 	INIT_NUM( "Winter snowline", sets->get_winter_snowline(), sets->get_grundwasser(), 24, gui_numberinput_t::AUTOLINEAR, false );

@@ -54,8 +54,12 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 	labelnr++;
 	cursor.y += D_EDIT_HEIGHT;
 
+	// Height and roughness
+	int mountain_height_start = (int)sets->get_max_mountain_height();
+	int mountain_roughness_start = (int)(sets->get_map_roughness()*20.0 + 0.5)-8;
+
 	// Mountain height
-	mountain_height.init( (int)sets->get_max_mountain_height(), 0, 320, 10, false );
+	mountain_height.init( mountain_height_start, 0, min(1000,100*(11-mountain_roughness_start)), 10, false );
 	mountain_height.set_pos( koord(L_COLUMN_EDIT,cursor.y) );
 	mountain_height.set_groesse( koord(edit_width, D_EDIT_HEIGHT) );
 	mountain_height.add_listener( this );
@@ -68,7 +72,7 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 	cursor.y += D_EDIT_HEIGHT;
 
 	// Mountain roughness
-	mountain_roughness.init( (int)(sets->get_map_roughness()*20.0 + 0.5)-8, 0, 10, gui_numberinput_t::AUTOLINEAR, false );
+	mountain_roughness.init( mountain_roughness_start, 0, min(10, 11-((mountain_height_start+99)/100)), gui_numberinput_t::AUTOLINEAR, false );
 	mountain_roughness.set_pos( koord(L_COLUMN_EDIT,cursor.y) );
 	mountain_roughness.set_groesse( koord(edit_width, D_EDIT_HEIGHT) );
 	mountain_roughness.add_listener( this );
@@ -193,12 +197,14 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	}
 	else if(komp==&mountain_height) {
 		sets->max_mountain_height = v.i;
+		mountain_roughness.set_limits(0,min(10,11-((v.i+99)/100)));
 		if(  welt_gui  ) {
 			welt_gui->update_preview();
 		}
 	}
 	else if(komp==&mountain_roughness) {
 		sets->map_roughness = (double)(v.i+8)/20.0;
+		mountain_height.set_limits(0,min(1000,100*(11-v.i)));
 		if(  welt_gui  ) {
 			welt_gui->update_preview();
 		}
