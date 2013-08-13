@@ -8,6 +8,7 @@
 #define _XOPEN_SOURCE 600
 #endif
 
+#include <unistd.h>   // _POSIX_BARRIERS macro
 #include <pthread.h>
 
 // Mac OS X defines this initializers without _NP.
@@ -15,7 +16,12 @@
 #define PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP PTHREAD_RECURSIVE_MUTEX_INITIALIZER
 #endif
 
-#if _POSIX_BARRIERS>0
+// use our implementation if no posix barriers are available
+#if defined(_POSIX_BARRIERS)  &&  (_POSIX_BARRIERS > 0)
+#define _USE_POSIX_BARRIERS
+#endif
+
+#ifdef _USE_POSIX_BARRIERS
 // redirect simthread functions to use supported pthread barriers
 typedef pthread_barrierattr_t simthread_barrierattr_t;
 typedef pthread_barrier_t simthread_barrier_t;
@@ -38,8 +44,8 @@ int simthread_barrier_init(simthread_barrier_t *barrier, const simthread_barrier
 int simthread_barrier_destroy(simthread_barrier_t *barrier);
 int simthread_barrier_wait(simthread_barrier_t *barrier);
 
-#endif
+#endif // _USE_POSIX_BARRIERS
 
-#endif
+#endif // MULTI_THREAD>1
 
 #endif

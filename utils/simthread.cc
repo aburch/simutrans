@@ -1,7 +1,8 @@
 #include "simthread.h"
 
-#if _POSIX_BARRIERS>0
+#if defined(_USE_POSIX_BARRIERS)  ||  (MULTI_THREAD <= 1)
 // use native pthread barriers
+// (and do not try to compile this file for non-multithread builds)
 #else
 // implement barriers using other pthread primitives
 #include <errno.h>
