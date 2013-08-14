@@ -437,15 +437,24 @@ void leitung_t::rdwr(loadsave_t *file)
 		koord city_pos = koord::invalid;
 		if(city != NULL)
 		{
-			if(file->get_experimental_version() >= 12 || (file->get_experimental_version() == 11 && file->get_version() >= 112006))
-			{
-				senke_t* city_substation = (senke_t*)this;
-				uint32 last_power_demand = city_substation->get_last_power_demand();
-				file->rdwr_long(last_power_demand);
-			}
 			city_pos = city->get_pos();
 		}
 		city_pos.rdwr(file);
+
+		if(file->get_experimental_version() >= 12 || (file->get_experimental_version() == 11 && file->get_version() >= 112006))
+		{
+			if(get_typ() == senke)
+			{
+				senke_t* substation = (senke_t*)this;
+				uint32 lpd = substation->get_last_power_demand();
+				file->rdwr_long(lpd);
+			}
+			else
+			{
+				uint32 dummy = 4294967295; // 32 bit unsigned integer max.
+				file->rdwr_long(dummy);
+			}
+		}
 	}
 	else 
 	{
@@ -458,14 +467,18 @@ void leitung_t::rdwr(loadsave_t *file)
 			city = welt->get_city(city_pos);
 			if(city)
 			{
-				senke_t* city_substation = (senke_t*)this;
-				if(file->get_experimental_version() >= 12 || (file->get_experimental_version() == 11 && file->get_version() >= 112006))
+				city->add_substation((senke_t*)this);
+			}
+
+			if(file->get_experimental_version() >= 12 || (file->get_experimental_version() == 11 && file->get_version() >= 112006))
+			{
+				uint32 lpd = 0;
+				file->rdwr_long(lpd);
+				if(lpd != 4294967295)
 				{
-					uint32 last_power_demand = 0;
-					file->rdwr_long(last_power_demand);
-					city_substation->set_last_power_demand(last_power_demand);
+					senke_t* substation = (senke_t*)this;
+					substation->set_last_power_demand(lpd);
 				}
-				city->add_substation(city_substation);
 			}
 		}
 	}
