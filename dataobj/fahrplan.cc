@@ -482,18 +482,6 @@ bool schedule_t::similar( karte_t *welt, const schedule_t *fpl, const spieler_t 
 }
 
 
-
-//void schedule_t::add_return_way()
-//{
-//	if(  eintrag.get_count()<127  &&  eintrag.get_count()>1  ) {
-//		for(  uint8 maxi=eintrag.get_count()-2;  maxi>0;  maxi--  ) {
-//			eintrag.append(eintrag[maxi]);
-//		}
-//	}
-//}
-//>>>>>>> v111.3
-
-
 void schedule_t::sprintf_schedule( cbuffer_t &buf ) const
 {
 	buf.append( aktuell );
