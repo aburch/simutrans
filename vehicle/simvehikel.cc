@@ -799,8 +799,7 @@ void vehikel_t::set_convoi(convoi_t *c)
  * @return sum of unloaded goods
  * @author Hj. Malthaner
  */
-uint16
-vehikel_t::unload_freight(halthandle_t halt, sint64 & revenue_from_unloading, array_tpl<sint64> & apportioned_revenues)
+uint16 vehikel_t::unload_freight(halthandle_t halt, sint64 & revenue_from_unloading, array_tpl<sint64> & apportioned_revenues)
 {
 	uint16 sum_menge = 0, sum_delivered = 0, index = 0;
 	revenue_from_unloading=0;
@@ -3852,39 +3851,19 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 	bool destination_is_nonreversing_waypoint = !destination.reverse && !haltestelle_t::get_halt(welt, destination.pos, get_besitzer()).is_bound() && (!welt->lookup(destination.pos) || !welt->lookup(destination.pos)->get_depot());
 	if(destination_is_nonreversing_waypoint)
 	{
-		const koord3d last_tile_before_destination = cnv->get_route()->position_bei(cnv->get_route()->get_count() - 2);
-		const int index_of_last_tile_before_destination = cnv->get_route()->index_of(last_tile_before_destination);
 		schedule_t *fpl = cnv->get_schedule();
-		zugfahrplan_t shadow_schedule;
-		shadow_schedule.copy_from(fpl);
-		const uint8 index = shadow_schedule.get_aktuell();
+		const uint8 index = fpl->get_aktuell();
 		uint8 modified_index = index;
 		bool reversed = cnv->get_reverse_schedule();
-		shadow_schedule.increment_index(&modified_index, &reversed);
-		route_t shadow_route;
-		shadow_route.kopiere(cnv->get_route());
-		if(reroute(cnv->get_route()->get_count() - 1, fpl->eintrag[modified_index].pos, &shadow_route))
+		fpl->increment_index(&modified_index, &reversed);
+		reroute(cnv->get_route()->get_count() - 1, fpl->eintrag[modified_index].pos);
+		if(reversed)
 		{
-			const koord3d first_tile_after_original_destination = cnv->get_route()->position_bei(min(cnv->get_route()->get_count() - 1, index_of_last_tile_before_destination));
-			if(first_tile_after_original_destination == last_tile_before_destination)
-			{
-				destination_is_nonreversing_waypoint = false;
-				fpl->set_reverse();
-			}
-			else
-			{
-				fpl->increment_index(&modified_index, &reversed);
-				reroute(cnv->get_route()->get_count() - 1, fpl->eintrag[modified_index].pos);
-				if(reversed)
-				{
-					fpl->advance_reverse();
-				}
-				else
-				{
-					fpl->advance();
-				}
-				cnv->set_next_stop_index(INVALID_INDEX);
-			}
+			fpl->advance_reverse();
+		}
+		else
+		{
+			fpl->advance();
 		}
 	}
 
@@ -3952,9 +3931,9 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 	{
 		const sint32 route_steps = route_infos.get_element(last_index).steps_from_start - (route_index < route_infos.get_count() ? route_infos.get_element(route_index).steps_from_start : 0);
 		bool weg_frei = route_steps >= brake_steps || brake_steps == 0 || route_steps == 0; // If brake_steps == 0 and weg_frei == false, weird excess block reservations can occur that cause blockages.
-		if (!weg_frei)
+		if(!weg_frei)
 		{ 	
-			// we need a longer route to decide, whether we will have to start braking:
+			// We need a longer route to decide whether we shall have to start braking:
 			route_t target_rt;
 			schedule_t *fpl = cnv->get_schedule();
 			const koord3d start_pos = route.position_bei(last_index);
@@ -3963,12 +3942,12 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 			fpl->increment_index(&index, &reversed);
 			const koord3d next_ziel = fpl->eintrag[index].pos;
 
-			weg_frei = !target_rt.calc_route( welt, start_pos, next_ziel, this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(), welt->get_settings().get_max_route_steps());
-			if (!weg_frei)
+			weg_frei = !target_rt.calc_route(welt, start_pos, next_ziel, this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(), welt->get_settings().get_max_route_steps());
+			if(!weg_frei)
 			{
 				ribi_t::ribi old_dir = calc_richtung(route.position_bei(last_index - 1).get_2d(), route.position_bei(last_index).get_2d());
 				ribi_t::ribi new_dir = calc_richtung(target_rt.position_bei(0).get_2d(), target_rt.position_bei(1).get_2d());
-				if (old_dir & ribi_t::rueckwaerts(new_dir))
+				if(old_dir & ribi_t::rueckwaerts(new_dir))
 				{
 					// convoy must reverse and thus stop at the waypoint. No need to extend the route now.
 					// Extending the route now would confuse tile reservation.

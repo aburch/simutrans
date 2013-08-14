@@ -22,7 +22,7 @@
 
 #include "../tpl/slist_tpl.h"
 
-linieneintrag_t schedule_t::dummy_eintrag(koord3d::invalid, 0, 0, 0, false);
+linieneintrag_t schedule_t::dummy_eintrag(koord3d::invalid, 0, 0, 0, true);
 
 schedule_t::schedule_t(loadsave_t* const file)
 {
@@ -107,7 +107,7 @@ bool schedule_t::insert(const grund_t* gr, uint16 ladegrad, uint8 waiting_time_s
 	}
 
 	if(  ist_halt_erlaubt(gr)  ) {
-		eintrag.insert_at(aktuell, linieneintrag_t(gr->get_pos(), ladegrad, waiting_time_shift, spacing_shift, false));
+		eintrag.insert_at(aktuell, linieneintrag_t(gr->get_pos(), ladegrad, waiting_time_shift, spacing_shift, !gr->get_halt().is_bound()));
 		aktuell ++;
 		return true;
 	}
@@ -138,7 +138,7 @@ bool schedule_t::append(const grund_t* gr, uint16 ladegrad, uint8 waiting_time_s
 	}
 
 	if(ist_halt_erlaubt(gr)) {
-		eintrag.append(linieneintrag_t(gr->get_pos(), ladegrad, waiting_time_shift, spacing_shift, false), 4);
+		eintrag.append(linieneintrag_t(gr->get_pos(), ladegrad, waiting_time_shift, spacing_shift, !gr->get_halt().is_bound()), 4);
 		return true;
 	}
 	else {
@@ -230,7 +230,7 @@ void schedule_t::rdwr(loadsave_t *file)
 			uint32 dummy;
 			pos.rdwr(file);
 			file->rdwr_long(dummy);
-			eintrag.append(linieneintrag_t(pos, (uint8)dummy, 0, 0, false));
+			eintrag.append(linieneintrag_t(pos, (uint8)dummy, 0, 0, true));
 		}
 	}
 	else {
@@ -238,7 +238,7 @@ void schedule_t::rdwr(loadsave_t *file)
 		for(  uint8 i=0;  i<size;  i++  ) {
 			if(eintrag.get_count()<=i) {
 				eintrag.append( linieneintrag_t() );
-				eintrag[i] .waiting_time_shift = 0;
+				eintrag[i].waiting_time_shift = 0;
 				eintrag[i].spacing_shift = 0;
 				eintrag[i].reverse = false;
 			}
@@ -480,18 +480,6 @@ bool schedule_t::similar( karte_t *welt, const schedule_t *fpl, const spieler_t 
 	}
 	return true;
 }
-
-
-
-//void schedule_t::add_return_way()
-//{
-//	if(  eintrag.get_count()<127  &&  eintrag.get_count()>1  ) {
-//		for(  uint8 maxi=eintrag.get_count()-2;  maxi>0;  maxi--  ) {
-//			eintrag.append(eintrag[maxi]);
-//		}
-//	}
-//}
-//>>>>>>> v111.3
 
 
 void schedule_t::sprintf_schedule( cbuffer_t &buf ) const

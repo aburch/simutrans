@@ -225,6 +225,9 @@ public:
 	void check_industry_connexion();
 
 	const fabrik_t* get_factory() const { return fab; }
+
+	uint32 get_last_power_demand() const { return last_power_demand; }
+	void set_last_power_demand(uint32 value) { last_power_demand = value; }
 };
 
 

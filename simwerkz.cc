@@ -1913,12 +1913,13 @@ const char *wkz_plant_tree_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
  */
 static const char *wkz_fahrplan_insert_aux(karte_t *welt, spieler_t *sp, koord3d pos, schedule_t *fpl, bool append)
 {
-	if(fpl == NULL) {
+	if(fpl == NULL) 
+	{
 		dbg->warning("wkz_fahrplan_insert_aux()","Schedule is (null), doing nothing");
 		return 0;
 	}
 	grund_t *bd = welt->lookup(pos);
-	if (bd) 
+	if(bd) 
 	{
 		// now just for error messages, we're assuming a valid ground
 		// check for right way type
@@ -1927,12 +1928,12 @@ static const char *wkz_fahrplan_insert_aux(karte_t *welt, spieler_t *sp, koord3d
 			return fpl->fehlermeldung();
 		}
 		// and check for ownership
-		weg_t *w = bd->get_weg( fpl->get_waytype() );
-		if(  w==NULL  &&  fpl->get_waytype()==tram_wt  )
+		weg_t *w = bd->get_weg(fpl->get_waytype());
+		if(w == NULL && fpl->get_waytype() == tram_wt)
 		{
-				w = bd->get_weg( track_wt );
+			w = bd->get_weg( track_wt );
 		}
-		if(  !bd->is_halt()  )
+		if(!bd->is_halt())
 		{
 			if(w != NULL && w->get_besitzer() && !w->get_besitzer()->allows_access_to(sp->get_player_nr()))
 			{

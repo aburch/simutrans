@@ -557,7 +557,7 @@ int fabrikbauer_t::baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, 
 		assert( can_save );
 	}
 
-	// intown needs different place search
+	// Industries in town needs different place search
 	if (info->get_platzierung() == fabrik_besch_t::Stadt) {
 
 		koord size=info->get_haus()->get_groesse(0);
@@ -677,7 +677,7 @@ int fabrikbauer_t::baue_link_hierarchie(const fabrik_t* our_fab, const fabrik_be
 	}
 
 	// how much we need?
-	sint32 verbrauch = our_fab->get_base_production()*lieferant->get_verbrauch();
+	sint32 verbrauch = our_fab->get_base_production() * lieferant->get_verbrauch();
 
 	slist_tpl<fabs_to_crossconnect_t> factories_to_correct;
 	slist_tpl<fabrik_t *> new_factories;	// since the crosscorrection must be done later
@@ -700,7 +700,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 			const unsigned distance = koord_distance(fab->get_pos(),our_fab->get_pos());
 
 			if(  distance >= welt->get_settings().get_min_factory_spacing()  ) {
-				// Formerly a flat "6", but this wasy arbitrary
+				// Formerly a flat "6", but this was arbitrary
 				// Could also check max distance here
 
 				// ok, this would match
@@ -847,15 +847,33 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","failed to built lieferant %s aroun
 
 	/* now the crossconnect part:
 	 * connect also the factories we stole from before ... */
-	FOR(slist_tpl<fabrik_t*>, const fab, new_factories) {
-		for (slist_tpl<fabs_to_crossconnect_t>::iterator i = factories_to_correct.begin(), end = factories_to_correct.end(); i != end;) {
+	FOR(slist_tpl<fabrik_t*>, const fab, new_factories)
+	{
+		for (slist_tpl<fabs_to_crossconnect_t>::iterator i = factories_to_correct.begin(), end = factories_to_correct.end(); i != end;) 
+		{
 			i->demand -= 1;
-			fab->add_lieferziel(i->fab->get_pos().get_2d());
-			i->fab->add_supplier(fab->get_pos().get_2d());
-			if (i->demand < 0) {
+			const uint count = fab->get_besch()->get_produkte();
+			bool supplies_correct_goods = false;
+			for(int x = 0; x < count; x ++)
+			{
+				const fabrik_produkt_besch_t* test_prod = fab->get_besch()->get_produkt(x);
+				if(i->fab->get_produced_goods()->is_contained(test_prod->get_ware()))
+				{
+					supplies_correct_goods = true;
+					break;
+				}
+			}
+			if(supplies_correct_goods)
+			{
+				fab->add_lieferziel(i->fab->get_pos().get_2d());
+				i->fab->add_supplier(fab->get_pos().get_2d());
+			}
+			if (i->demand < 0)
+			{
 				i = factories_to_correct.erase(i);
 			}
-			else {
+			else 
+			{
 				++i;
 			}
 		}
