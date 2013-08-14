@@ -437,7 +437,7 @@ void leitung_t::rdwr(loadsave_t *file)
 		koord city_pos = koord::invalid;
 		if(city != NULL)
 		{
-			if(file->get_experimental_version() >= 12)
+			if(file->get_experimental_version() >= 12 || (file->get_experimental_version() == 11 && file->get_version() >= 112006))
 			{
 				senke_t* city_substation = (senke_t*)this;
 				uint32 last_power_demand = city_substation->get_last_power_demand();
@@ -459,7 +459,7 @@ void leitung_t::rdwr(loadsave_t *file)
 			if(city)
 			{
 				senke_t* city_substation = (senke_t*)this;
-				if(file->get_experimental_version() >= 12)
+				if(file->get_experimental_version() >= 12 || (file->get_experimental_version() == 11 && file->get_version() >= 112006))
 				{
 					uint32 last_power_demand = 0;
 					file->rdwr_long(last_power_demand);
@@ -471,7 +471,7 @@ void leitung_t::rdwr(loadsave_t *file)
 	}
 	if(get_typ() == leitung) 
 	{
-		/* ATTENTION: during loading thus MUST not be called from the constructor!!!
+		/* ATTENTION: during loading this MUST not be called from the constructor!!!
 		 * (Otherwise it will be always true!)
 		 */
 		if(file->get_version() > 102002 && (file->get_experimental_version() >= 8 || file->get_experimental_version() == 0))
