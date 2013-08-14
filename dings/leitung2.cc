@@ -434,9 +434,15 @@ void leitung_t::rdwr(loadsave_t *file)
 	{
 		value = (unsigned long)get_net();
 		file->rdwr_long(value);
-		koord city_pos  = koord::invalid;
+		koord city_pos = koord::invalid;
 		if(city != NULL)
 		{
+			if(file->get_experimental_version() >= 12)
+			{
+				senke_t* city_substation = (senke_t*)this;
+				uint32 last_power_demand = city_substation->get_last_power_demand();
+				file->rdwr_long(last_power_demand);
+			}
 			city_pos = city->get_pos();
 		}
 		city_pos.rdwr(file);
@@ -452,11 +458,18 @@ void leitung_t::rdwr(loadsave_t *file)
 			city = welt->get_city(city_pos);
 			if(city)
 			{
-				city->add_substation((senke_t*)this);
+				senke_t* city_substation = (senke_t*)this;
+				if(file->get_experimental_version() >= 12)
+				{
+					uint32 last_power_demand = 0;
+					file->rdwr_long(last_power_demand);
+					city_substation->set_last_power_demand(last_power_demand);
+				}
+				city->add_substation(city_substation);
 			}
 		}
 	}
-	if(get_typ()==leitung) 
+	if(get_typ() == leitung) 
 	{
 		/* ATTENTION: during loading thus MUST not be called from the constructor!!!
 		 * (Otherwise it will be always true!)
@@ -943,8 +956,8 @@ void senke_t::step(long delta_t)
 
 uint32 senke_t::get_power_load() const
 {
-	uint32 pl = power_load;
-	uint32 net_demand = get_net()->get_demand();
+	const uint32 net_demand = get_net()->get_demand();
+	uint32 pl;
 	if(  net_demand > 0  ) 
 	{
 		pl = (last_power_demand * ((get_net()->get_supply() << 5) / net_demand)) >>5 ; //  <<5 for max calculation precision fitting within uint32 with max supply capped in dataobj/powernet.cc max_capacity
