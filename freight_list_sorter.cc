@@ -307,15 +307,23 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 					town_name = city->get_name();
 				}
 
-				const char* trip_type = ware.is_commuting_trip ? translator::translate("commuting") : translator::translate("visiting");
+				const char* trip_type = (ware.is_commuting_trip ? translator::translate("commuting") : translator::translate("visiting"));
 
-				if(city)
+				if(city && ware.is_passenger())
 				{
 					buf.printf("%s <%i, %i> (%s; %s)\n        ", (factory ? factory->get_name() : description), ware.get_zielpos().x, ware.get_zielpos().y, town_name, trip_type);
 				}
-				else
+				else if(ware.is_passenger())
 				{
 					buf.printf("%s <%i, %i> (%s)\n        ", (factory ? factory->get_name() : description), ware.get_zielpos().x, ware.get_zielpos().y, trip_type);
+				}
+				else if(city)
+				{
+					buf.printf("%s <%i, %i> (%s)\n        ", (factory ? factory->get_name() : description), ware.get_zielpos().x, ware.get_zielpos().y, town_name);
+				}
+				else
+				{
+					buf.printf("%s <%i, %i>\n        ", (factory ? factory->get_name() : description), ware.get_zielpos().x, ware.get_zielpos().y);
 				}
 			}
 
