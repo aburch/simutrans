@@ -434,12 +434,27 @@ void leitung_t::rdwr(loadsave_t *file)
 	{
 		value = (unsigned long)get_net();
 		file->rdwr_long(value);
-		koord city_pos  = koord::invalid;
+		koord city_pos = koord::invalid;
 		if(city != NULL)
 		{
 			city_pos = city->get_pos();
 		}
 		city_pos.rdwr(file);
+
+		if(file->get_experimental_version() >= 12 || (file->get_experimental_version() == 11 && file->get_version() >= 112006))
+		{
+			if(get_typ() == senke)
+			{
+				senke_t* substation = (senke_t*)this;
+				uint32 lpd = substation->get_last_power_demand();
+				file->rdwr_long(lpd);
+			}
+			else
+			{
+				uint32 dummy = 4294967295; // 32 bit unsigned integer max.
+				file->rdwr_long(dummy);
+			}
+		}
 	}
 	else 
 	{
@@ -454,11 +469,22 @@ void leitung_t::rdwr(loadsave_t *file)
 			{
 				city->add_substation((senke_t*)this);
 			}
+
+			if(file->get_experimental_version() >= 12 || (file->get_experimental_version() == 11 && file->get_version() >= 112006))
+			{
+				uint32 lpd = 0;
+				file->rdwr_long(lpd);
+				if(lpd != 4294967295)
+				{
+					senke_t* substation = (senke_t*)this;
+					substation->set_last_power_demand(lpd);
+				}
+			}
 		}
 	}
-	if(get_typ()==leitung) 
+	if(get_typ() == leitung) 
 	{
-		/* ATTENTION: during loading thus MUST not be called from the constructor!!!
+		/* ATTENTION: during loading this MUST not be called from the constructor!!!
 		 * (Otherwise it will be always true!)
 		 */
 		if(file->get_version() > 102002 && (file->get_experimental_version() >= 8 || file->get_experimental_version() == 0))
@@ -749,10 +775,19 @@ void senke_t::step(long delta_t)
 	uint32 municipal_power_load = 0;
 
 	/* First add up all sources of demand and add the demand to the net. */
-	if (fab != NULL && fab->get_city() == NULL)
+	if(fab != NULL && fab->get_city() == NULL)
 	{
 		// Factories in cities are dealt with separetely.
 		fab_power_demand = fab->step_power_demand();
+	}
+
+	if(fab && !city && fab->get_city())
+	{
+		// A marginal case - a substation connected to a factory in a city
+		// that is not itself in a city. In this case, the whole city
+		// should be supplied.
+		city = fab->get_city();
+		fab = NULL; // Avoid having to recheck fab->get_city() many times later.
 	}
 
 	if(city)
@@ -805,7 +840,7 @@ void senke_t::step(long delta_t)
 
 		uint32 demand_distribution;
 		uint8 count = 0;
-		for(uint16 n = 0; n < city_substations->get_count(); n ++)
+		ITERATE_PTR(city_substations, n)
 		{
 			// Now check those that have more than enough power.
 
@@ -855,7 +890,7 @@ void senke_t::step(long delta_t)
 	 */
 	if(fab && !fab->get_city())
 	{
-		// the connected fab gets priority access to the power supply if there's a shortage
+		// The connected industry gets priority access to the power supply if there's a shortage.
 		// This should use 'min', but the current version of that in simtypes.h 
 		// would cast to signed int (12.05.10)  FIXME.
 		if(fab_power_demand < power_load) 
@@ -867,20 +902,20 @@ void senke_t::step(long delta_t)
 			fab_power_load = power_load;
 		}
 		fab->add_power(fab_power_load);
-		if (fab_power_demand > fab_power_load) 
+		if(fab_power_demand > fab_power_load) 
 		{
 			// this allows subsequently stepped senke to supply demand
 			// which this senke couldn't
-			fab->add_power_demand( power_demand-fab_power_load );
+			fab->add_power_demand(power_demand-fab_power_load);
 		}
 	}
-	if (power_load > fab_power_load)
+	if(power_load > fab_power_load)
 	{
 		municipal_power_load = power_load - fab_power_load;
 	}
 	if(city)
 	{
-		// everyone else splits power on a proportional basis -- brownouts!
+		// Everyone else splits power on a proportional basis -- brownouts!
 		const vector_tpl<fabrik_t*>& city_factories = city->get_city_factories();
 		ITERATE(city_factories, i)
 		{
@@ -892,12 +927,12 @@ void senke_t::step(long delta_t)
 					* ((municipal_power_load << 5)
 					/ municipal_power_demand
 				)) >> 5; // <<5 for same reasons as above, FIXME
-			city_factories[i]->add_power( current_factory_load );
+			city_factories[i]->add_power(current_factory_load);
 			if (current_factory_demand > current_factory_load) 
 			{
 				// this allows subsequently stepped senke to supply demand
 				// which this senke couldn't
-				city_factories[i]->add_power_demand( current_factory_demand - current_factory_load );
+				city_factories[i]->add_power_demand(current_factory_demand - current_factory_load);
 			}
 		}
 		// City gets growth credit for power for both citizens and city factories
@@ -934,8 +969,8 @@ void senke_t::step(long delta_t)
 
 uint32 senke_t::get_power_load() const
 {
-	uint32 pl = power_load;
-	uint32 net_demand = get_net()->get_demand();
+	const uint32 net_demand = get_net()->get_demand();
+	uint32 pl;
 	if(  net_demand > 0  ) 
 	{
 		pl = (last_power_demand * ((get_net()->get_supply() << 5) / net_demand)) >>5 ; //  <<5 for max calculation precision fitting within uint32 with max supply capped in dataobj/powernet.cc max_capacity

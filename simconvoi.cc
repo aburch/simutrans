@@ -1180,6 +1180,8 @@ bool convoi_t::drive_to()
 			}
 		}
 
+		unreserve_route();
+
 		bool success = calc_route(start, ziel, speed_to_kmh(get_min_top_speed()));
 		grund_t* gr = welt->lookup(ziel);
 		bool extend_route = gr;

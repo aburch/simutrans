@@ -1365,7 +1365,6 @@ void gui_convoy_assembler_t::update_data()
 		*  purple/purple available only as upgrade
 		*  dark purple/dark purple cannot upgrade to this vehicle
 		*/
-
 		if(veh_action == va_insert) {
 			if(!info->can_lead(veh)  ||  (veh  &&  !veh->can_follow(info))) {
 				img.lcolor = COL_RED;
