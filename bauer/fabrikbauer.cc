@@ -858,6 +858,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","failed to built lieferant %s aroun
 				if(i->fab->get_produced_goods()->is_contained(test_prod->get_ware()))
 				{
 					supplies_correct_goods = true;
+					break;
 				}
 			}
 			if(supplies_correct_goods)
