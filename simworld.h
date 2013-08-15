@@ -1292,9 +1292,10 @@ private:
 	 */
 	void drain_tile(koord k, sint8 water_height);
 	bool can_flood_to_depth(koord k, sint8 new_water_height, sint8 *stage, sint8 *our_stage) const;
-	void flood_to_depth(sint8 new_water_height, sint8 *stage);
 
 public:
+	void flood_to_depth(sint8 new_water_height, sint8 *stage);
+
 	/**
 	 * Set a new tool as current: calls local_set_werkzeug or sends to server.
 	 */

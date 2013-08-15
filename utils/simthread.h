@@ -8,7 +8,11 @@
 #define _XOPEN_SOURCE 600
 #endif
 
+#ifndef _MSC_VER
 #include <unistd.h>   // _POSIX_BARRIERS macro
+// Visual C++ does not supply unistd.h
+#endif
+
 #include <pthread.h>
 
 // Mac OS X defines this initializers without _NP.

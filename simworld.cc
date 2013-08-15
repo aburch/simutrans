@@ -1691,16 +1691,15 @@ void karte_t::create_lakes(  int xoff, int yoff  )
 	delete [] new_stage;
 	delete [] local_stage;
 
-//printf("%d: creating lakes - correcting grounds\n",dr_time());
+printf("%d: creating lakes - correcting grounds\n",dr_time());
 	// correct grounds after lakes added
-	for(  uint16 iy = 0;  iy < size_y;  iy++  ) {
-/*			for(  sint16 ix = 0;  ix < size_x;  ix++  ) {
-			access_nocheck(ix,iy)->correct_water(this);
-		}*/
-		uint32 offset_max = array_koord(size_x - 1,iy);
-		for(  uint32 offset = array_koord(0,iy);  offset < offset_max;  offset++  ) {
-			plan[offset].correct_water(this);
+/*	for(  uint16 y = 0;  y < size_y;  y++  ) {
+		for(  sint16 x = 0;  x < size_x;  x++  ) {
+			access_nocheck(x,y)->correct_water(this);
 		}
+	}*/
+	for (planquadrat_t *pl = plan; pl < (plan + size_x * size_y); pl++) {
+		pl->correct_water(this);
 	}
 }
 
@@ -1784,59 +1783,21 @@ bool karte_t::can_flood_to_depth(  koord k, sint8 new_water_height, sint8 *stage
 
 void karte_t::flood_to_depth(  sint8 new_water_height, sint8 *stage  )
 {
-	// loop over map to find marked tiles
-	for(  int y = 0;  y<get_size().y;  y++  ) {
-		for(  int x = 0;  x<get_size().x;  x++  ) {
+	const uint16 size_x = get_size().x;
+	const uint16 size_y = get_size().y;
+
+/*	// loop over map to find marked tiles
+	for(  int y = 0;  y<size_y;  y++  ) {
+		for(  int x = 0;  x<size_x;  x++  ) {
 			if(  stage[array_koord(x,y)] > -1  ) {
-				// calculate new height, slope and climate and set water height
-				grund_t *gr2 =lookup_kartenboden_nocheck(x, y);
-
-				// remove any objects on this tile
-				gr2->obj_loesche_alle( NULL );
-
-				const sint8 h0 = gr2->get_hoehe();
-				const sint8 min_grid_hgt = min_hgt_nocheck( koord( x, y ) );
-
-				sint8 h0_nw, h0_ne, h0_se, h0_sw;
-
-				// if min grid height here is less than ground height it will be because either we are partially or totally water
-				if(  h0 > min_grid_hgt  ) {
-					h0_nw = lookup_hgt_nocheck(x, y);
-					h0_ne = lookup_hgt_nocheck(x+1, y);
-					h0_se = lookup_hgt_nocheck(x+1, y+1);
-					h0_sw = lookup_hgt_nocheck(x, y+1);
-					if(  !gr2->ist_wasser()  ) {
-						// partially water - while this appears to be a single height slope actually it is a double height slope half underwater
-						const sint8 water_hgt = get_water_hgt(x, y);
-						h0_nw >= water_hgt ? h0_nw = h0 + corner4( gr2->get_grund_hang() ) : 0;
-						h0_ne >= water_hgt ? h0_ne = h0 + corner3( gr2->get_grund_hang() ) : 0;
-						h0_se >= water_hgt ? h0_se = h0 + corner2( gr2->get_grund_hang() ) : 0;
-						h0_sw >= water_hgt ? h0_sw = h0 + corner1( gr2->get_grund_hang() ) : 0;
-					}
-				}
-				else {
-					// fully land
-					h0_nw = h0 + corner4( gr2->get_grund_hang() );
-					h0_ne = h0 + corner3( gr2->get_grund_hang() );
-					h0_se = h0 + corner2( gr2->get_grund_hang() );
-					h0_sw = h0 + corner1( gr2->get_grund_hang() );
-				}
-
-
-				const sint8 hneu_nw = max( new_water_height, h0_nw );
-				const sint8 hneu_ne = max( new_water_height, h0_ne );
-				const sint8 hneu_se = max( new_water_height, h0_se );
-				const sint8 hneu_sw = max( new_water_height, h0_sw );
-				const sint8 hneu = min( min( hneu_nw, hneu_ne ), min( hneu_se, hneu_sw ) );
-
-				gr2->set_hoehe( hneu );
-
-				const uint8 sneu = (hneu_sw - hneu > 2 ? 2 : hneu_sw - hneu) + ((hneu_se - hneu > 2 ? 2 : hneu_se-hneu) * 3) + ((hneu_ne - hneu > 2 ? 2 : hneu_ne - hneu) * 9) + ((hneu_nw - hneu > 2 ? 2 : hneu_nw - hneu) * 27);
-				gr2->set_grund_hang( sneu );
-
 				set_water_hgt(x, y, new_water_height );
 			}
 		}
+	}*/
+	uint32 offset_max = array_koord(0,size_y);
+	for(  uint32 offset = 0;  offset < offset_max;  offset++  ) {
+		if(  stage[offset] == -1  ) continue;
+		water_hgts[offset] = new_water_height;
 	}
 }
 
@@ -2139,13 +2100,13 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 		ls.set_progress(4);
 	}
 
-//printf("%d: creating lakes\n",dr_time());
+printf("%d: creating lakes\n",dr_time());
 	create_lakes( old_x, old_y );
 	if (  old_x == 0  &&  old_y == 0  ) {
 		ls.set_progress(13);
 	}
 
-//printf("%d: calculating climates\n",dr_time());
+printf("%d: calculating climates\n",dr_time());
 	// set climates in new area and old map near seam
 	for(  sint16 iy = 0;  iy < new_groesse_y;  iy++  ) {
 		for(  sint16 ix = (iy >= old_y - 19) ? 0 : max( old_x - 19, 0 );  ix < new_groesse_x;  ix++  ) {

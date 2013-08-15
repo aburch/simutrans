@@ -1228,7 +1228,7 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 			}
 
 			// ok, was sucess
-			if(  !gr1->ist_wasser()  &&  new_slope == 0  &&  new_pos.z == water_hgt  &&  gr1->get_typ() != grund_t::tunnelboden  ) {
+			if(  !gr1->ist_wasser()  &&  new_slope == 0  &&  hgt == water_hgt  &&  gr1->get_typ() != grund_t::tunnelboden  ) {
 				// now water
 				gr1->obj_loesche_alle(sp);
 				welt->access(k)->kartenboden_setzen( new wasser_t(welt,new_pos) );
