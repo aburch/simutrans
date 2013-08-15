@@ -1229,12 +1229,14 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 
 			// ok, was sucess
 			if(  !gr1->ist_wasser()  &&  new_slope == 0  &&  hgt == water_hgt  &&  gr1->get_typ() != grund_t::tunnelboden  ) {
+printf("New water");
 				// now water
 				gr1->obj_loesche_alle(sp);
 				welt->access(k)->kartenboden_setzen( new wasser_t(welt,new_pos) );
 				gr1 = welt->lookup_kartenboden(k);
 			}
 			else if(  gr1->ist_wasser()  &&  (new_pos.z > water_hgt  ||  new_slope != 0)  ) {
+printf("Newground");
 				// build underwater hill first
 				if(  !welt->ebne_planquadrat( sp, k, water_hgt, false, true )  ) {
 					return "Tile not empty.";
@@ -1244,6 +1246,7 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 				gr1 = welt->lookup_kartenboden(k);
 			}
 			else {
+printf("Alter slope");
 				gr1->set_grund_hang(new_slope);
 				gr1->set_pos(new_pos);
 				gr1->clear_flag(grund_t::marked);

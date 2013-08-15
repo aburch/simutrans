@@ -130,6 +130,8 @@ private:
 	uint16 no_tree_climates;
 	bool no_trees;
 
+	bool lake;
+
 	// game mechanics
 	uint8 allow_player_change;
 	uint8 use_timeline;
@@ -515,6 +517,9 @@ public:
 	uint16 get_no_tree_climates() const { return no_tree_climates; }
 	bool get_no_trees() const { return no_trees; }
 	void set_no_trees(bool b) { no_trees = b; }
+
+	bool get_lake() const { return lake; }
+	void set_lake(bool b) { lake = b; }
 
 	uint32 get_industry_increase_every() const { return industry_increase; }
 	void set_industry_increase_every( uint32 n ) { industry_increase = n; }

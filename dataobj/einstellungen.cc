@@ -81,6 +81,8 @@ settings_t::settings_t() :
 	no_tree_climates = 0;	// bit set, if this climate is to be void of random trees
 	no_trees = false;	// if set, no trees at all, may be useful for low end engines
 
+	lake = true;	// if set lakes will be added to map
+
 	// some settigns more
 	allow_player_change = true;
 	use_timeline = 2;

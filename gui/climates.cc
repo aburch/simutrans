@@ -138,6 +138,13 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 	add_komponente( &no_tree );
 	cursor.y += D_BUTTON_SQUARE + D_V_SPACE;
 
+	lake.init( button_t::square_state, "lake", cursor );
+	lake.set_width(DIALOG_WIDTH-D_MARGINS_X);
+	lake.pressed = sets->get_lake();
+	lake.add_listener( this );
+	add_komponente( &lake );
+	cursor.y += D_BUTTON_SQUARE + D_V_SPACE;
+
 	river_n.init( sets->get_river_number(), 0, 1024, gui_numberinput_t::POWER2, false );
 	river_n.set_pos( koord(L_COLUMN_EDIT, cursor.y) );
 	river_n.set_groesse( koord(edit_width, D_EDIT_HEIGHT) );
@@ -188,6 +195,10 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	if(komp==&no_tree) {
 		no_tree.pressed ^= 1;
 		sets->set_no_trees(no_tree.pressed);
+	}
+	else if(komp==&lake) {
+		lake.pressed ^= 1;
+		sets->set_lake(lake.pressed);
 	}
 	else if(komp==&water_level) {
 		sets->grundwasser = (sint16)v.i;

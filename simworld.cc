@@ -2100,8 +2100,11 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 		ls.set_progress(4);
 	}
 
+	if(  sets->get_lake()  ) {
 printf("%d: creating lakes\n",dr_time());
-	create_lakes( old_x, old_y );
+		create_lakes( old_x, old_y );
+	}
+
 	if (  old_x == 0  &&  old_y == 0  ) {
 		ls.set_progress(13);
 	}

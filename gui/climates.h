@@ -49,6 +49,9 @@ private:
 	button_t
 		no_tree; // without tree
 
+	button_t
+		lake; // lake
+
 	gui_numberinput_t
 		river_n,
 		river_min,
