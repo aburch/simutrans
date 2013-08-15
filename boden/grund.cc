@@ -913,7 +913,11 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 					//look up neighbouring climates
 					climate neighbour_climate[8];
 					for(  int i = 0;  i < 8;  i++  ) {
-						neighbour_climate[i] = welt->get_climate( k + koord::neighbours[i] );
+						koord k_neighbour = k + koord::neighbours[i];
+						if(  !welt->is_within_limits(k_neighbour)  ) {
+							k_neighbour = welt->get_closest_coordinate(k_neighbour);
+						}
+						neighbour_climate[i] = welt->get_climate( k_neighbour );
 					}
 
 					climate climate0 = plan->get_climate();

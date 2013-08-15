@@ -1372,6 +1372,11 @@ public:
 	}
 
 	/**
+	 * Returns the closest coordinate to outside_pos that is within the world
+	 */
+	koord get_closest_coordinate(koord outside_pos);
+
+	/**
 	 * @return grund an pos/hoehe
 	 * @note Inline because called very frequently!
 	 * @author Hj. Malthaner

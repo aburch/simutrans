@@ -1794,7 +1794,7 @@ void karte_t::flood_to_depth(  sint8 new_water_height, sint8 *stage  )
 			}
 		}
 	}*/
-	uint32 offset_max = array_koord(0,size_y);
+	uint32 offset_max = size_x*size_y;
 	for(  uint32 offset = 0;  offset < offset_max;  offset++  ) {
 		if(  stage[offset] == -1  ) continue;
 		water_hgts[offset] = new_water_height;
@@ -1880,7 +1880,11 @@ void karte_t::create_beaches(  int xoff, int yoff  )
 				//look up neighbouring climates
 				climate neighbour_climate[8];
 				for(  int i = 0;  i < 8;  i++  ) {
-					neighbour_climate[i] = get_climate( k + koord::neighbours[i]  );
+					koord k_neighbour = k + koord::neighbours[i];
+					if(  !is_within_limits(k_neighbour)  ) {
+						k_neighbour = get_closest_coordinate(k_neighbour);
+					}
+					neighbour_climate[i] = get_climate( k_neighbour );
 				}
 
 				// get transition climate - look for each corner in turn
@@ -6088,10 +6092,61 @@ void karte_t::get_neighbour_heights(const koord k, sint8 neighbour_height[8][4])
 			}
 		}
 		else {
-			neighbour_height[i][0] = grundwasser;
+			switch(i) {
+				case 0: // nw
+					neighbour_height[i][0] = grundwasser;
+					neighbour_height[i][1] = max( lookup_hgt( k+koord(0,0) ), get_water_hgt( k ) );
+					neighbour_height[i][2] = grundwasser;
+					neighbour_height[i][3] = grundwasser;
+				break;
+				case 1: // w
+					neighbour_height[i][0] = grundwasser;
+					neighbour_height[i][1] = max( lookup_hgt( k+koord(0,1) ), get_water_hgt( k ) );
+					neighbour_height[i][2] = max( lookup_hgt( k+koord(0,0) ), get_water_hgt( k ) );
+					neighbour_height[i][3] = grundwasser;
+				break;
+				case 2: // sw
+					neighbour_height[i][0] = grundwasser;
+					neighbour_height[i][1] = grundwasser;
+					neighbour_height[i][2] = max( lookup_hgt( k+koord(0,1) ), get_water_hgt( k ) );
+					neighbour_height[i][3] = grundwasser;
+				break;
+				case 3: // s
+					neighbour_height[i][0] = grundwasser;
+					neighbour_height[i][1] = grundwasser;
+					neighbour_height[i][2] = max( lookup_hgt( k+koord(1,1) ), get_water_hgt( k ) );
+					neighbour_height[i][3] = max( lookup_hgt( k+koord(0,1) ), get_water_hgt( k ) );
+				break;
+				case 4: // se
+					neighbour_height[i][0] = grundwasser;
+					neighbour_height[i][1] = grundwasser;
+					neighbour_height[i][2] = grundwasser;
+					neighbour_height[i][3] = max( lookup_hgt( k+koord(1,1) ), get_water_hgt( k ) );
+				break;
+				case 5: // e
+					neighbour_height[i][0] = max( lookup_hgt( k+koord(1,1) ), get_water_hgt( k ) );
+					neighbour_height[i][1] = grundwasser;
+					neighbour_height[i][2] = grundwasser;
+					neighbour_height[i][3] = max( lookup_hgt( k+koord(1,0) ), get_water_hgt( k ) );
+				break;
+				case 6: // ne
+					neighbour_height[i][0] = max( lookup_hgt( k+koord(1,0) ), get_water_hgt( k ) );
+					neighbour_height[i][1] = grundwasser;
+					neighbour_height[i][2] = grundwasser;
+					neighbour_height[i][3] = grundwasser;
+				break;
+				case 7: // n
+					neighbour_height[i][0] = max( lookup_hgt( k+koord(0,0) ), get_water_hgt( k ) );
+					neighbour_height[i][1] = max( lookup_hgt( k+koord(1,0) ), get_water_hgt( k ) );
+					neighbour_height[i][2] = grundwasser;
+					neighbour_height[i][3] = grundwasser;
+				break;
+			}
+
+			/*neighbour_height[i][0] = grundwasser;
 			neighbour_height[i][1] = grundwasser;
 			neighbour_height[i][2] = grundwasser;
-			neighbour_height[i][3] = grundwasser;
+			neighbour_height[i][3] = grundwasser;*/
 		}
 	}
 }
@@ -6138,7 +6193,11 @@ void karte_t::recalc_transitions(koord k)
 		// look up neighbouring climates
 		climate neighbour_climate[8];
 		for(  int i = 0;  i < 8;  i++  ) { // 0 = nw, 1 = w etc.
-			neighbour_climate[i] = get_climate( k + koord::neighbours[i] );
+			koord k_neighbour = k + koord::neighbours[i];
+			if(  !is_within_limits(k_neighbour)  ) {
+				k_neighbour = get_closest_coordinate(k_neighbour);
+			}
+			neighbour_climate[i] = get_climate( k_neighbour );
 		}
 
 		uint8 climate_corners = 0;
@@ -6422,6 +6481,24 @@ void karte_t::set_fast_forward(bool ff)
 			}
 		}
 	}
+}
+
+
+koord karte_t::get_closest_coordinate(koord outside_pos)
+{
+	if(  outside_pos.x < 0  ) {
+		outside_pos.x = 0;
+	}
+	if(  outside_pos.y < 0  ) {
+		outside_pos.y = 0;
+	}
+	if(  outside_pos.x >= get_size().x  ) {
+		outside_pos.x = get_size().x-1;
+	}
+	if(  outside_pos.y >= get_size().y  ) {
+		outside_pos.y = get_size().y-1;
+	}
+	return outside_pos;
 }
 
 
