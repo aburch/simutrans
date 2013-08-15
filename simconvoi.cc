@@ -369,7 +369,11 @@ uint32 convoi_t::move_to(karte_t const& welt, koord3d const& k, uint16 const sta
 
 		/* Set pos_prev to the starting point this way.  Otherwise it may be
 		 * elsewhere, especially on curves and with already broken convois. */
-		v.set_pos(k);
+		if(state != REVERSING)
+		{
+			// This causes unsightly setting back when convoys are reversing.
+			v.set_pos(k);
+		}
 		v.neue_fahrt(start_index, true);
 		if (welt.lookup(v.get_pos())) {
 			v.set_pos(k);
