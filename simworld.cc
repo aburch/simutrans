@@ -1691,7 +1691,7 @@ void karte_t::create_lakes(  int xoff, int yoff  )
 	delete [] new_stage;
 	delete [] local_stage;
 
-printf("%d: creating lakes - correcting grounds\n",dr_time());
+//printf("%d: creating lakes - correcting grounds\n",dr_time());
 	// correct grounds after lakes added
 /*	for(  uint16 y = 0;  y < size_y;  y++  ) {
 		for(  sint16 x = 0;  x < size_x;  x++  ) {
@@ -2101,7 +2101,7 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	}
 
 	if(  sets->get_lake()  ) {
-printf("%d: creating lakes\n",dr_time());
+//printf("%d: creating lakes\n",dr_time());
 		create_lakes( old_x, old_y );
 	}
 
@@ -2109,7 +2109,7 @@ printf("%d: creating lakes\n",dr_time());
 		ls.set_progress(13);
 	}
 
-printf("%d: calculating climates\n",dr_time());
+//printf("%d: calculating climates\n",dr_time());
 	// set climates in new area and old map near seam
 	for(  sint16 iy = 0;  iy < new_groesse_y;  iy++  ) {
 		for(  sint16 ix = (iy >= old_y - 19) ? 0 : max( old_x - 19, 0 );  ix < new_groesse_x;  ix++  ) {
