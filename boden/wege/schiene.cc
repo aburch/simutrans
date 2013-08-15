@@ -79,12 +79,12 @@ void schiene_t::info(cbuffer_t & buf, bool is_bridge) const
  * true, if this rail can be reserved
  * @author prissi
  */
-bool schiene_t::reserve(convoihandle_t c, ribi_t::ribi dir  )
+bool schiene_t::reserve(convoihandle_t c, ribi_t::ribi dir)
 {
 	if(can_reserve(c)) 
 	{
 		const grund_t* gr = welt->lookup(get_pos());
-		if(gr->get_convoi_vehicle())
+		if(c->get_vehikel(0)->get_waytype() != tram_wt && gr->get_convoi_vehicle())
 		{
 			return false;
 		}
