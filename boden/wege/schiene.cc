@@ -84,7 +84,7 @@ bool schiene_t::reserve(convoihandle_t c, ribi_t::ribi dir)
 	if(can_reserve(c)) 
 	{
 		const grund_t* gr = welt->lookup(get_pos());
-		if(c->get_vehikel(0)->get_waytype() != tram_wt && gr->get_convoi_vehicle())
+		if(gr->get_convoi_vehicle())
 		{
 			return false;
 		}
