@@ -2863,7 +2863,7 @@ void convoi_t::vorfahren()
 						}
 						
 						// Next, reserve the rest (if any) of the platform.
-						grund_t* to = welt->lookup(fahr[0]->is_first() ? fahr[0]->get_pos() : fahr[anz_vehikel - 1]->get_pos());
+						grund_t* to = gr;
 						if(to)
 						{
 							koord3d last_pos = gr->get_pos();
