@@ -2008,8 +2008,7 @@ vehikel_t::calc_bild() //"Bild" = "picture" (Google)
 	}
 }
 
-ribi_t::ribi
-vehikel_t::get_direction_of_travel()
+ribi_t::ribi vehikel_t::get_direction_of_travel() const
 {
 	ribi_t::ribi dir = get_fahrtrichtung();
 	if(reversed)
@@ -3747,13 +3746,6 @@ bool waggon_t::is_weg_frei_choose_signal( signal_t *sig, const uint16 start_bloc
 		// note: any old reservations should be invalid after the block reserver call.
 		// => We can now start freshly all over
 
-		if(!cnv->is_waiting()) {
-			restart_speed = -1;
-			target_halt = halthandle_t();
-			return false;
-		}
-		// now we are in a step and can use the route search array
-
 		// now it we are in a step and can use the route search
 		route_t target_rt;
 		const int richtung = ribi_typ(get_pos().get_2d(),pos_next.get_2d());	// to avoid confusion at diagonals
@@ -3890,9 +3882,9 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 				restart_speed = 0;
 				return false;
 			}
-			if(!destination_is_nonreversing_waypoint)
+			if(!destination_is_nonreversing_waypoint || cnv->get_state() != convoi_t::CAN_START || cnv->get_state() != convoi_t::CAN_START_ONE_MONTH || cnv->get_state() != convoi_t::CAN_START_TWO_MONTHS)
 			{
-				cnv->set_next_stop_index( next_crossing<next_signal ? next_crossing : next_signal );
+				cnv->set_next_stop_index(next_crossing<next_signal ? next_crossing : next_signal);
 			}
 			return true;
 		}
@@ -4278,7 +4270,10 @@ void waggon_t::verlasse_feld()
 		if(gr) {
 			schiene_t *sch0 = (schiene_t *) gr->get_weg(get_waytype());
 			if(sch0) {
-				sch0->unreserve(this);
+				if(!cnv || cnv->get_state() != convoi_t::REVERSING)
+				{
+					sch0->unreserve(this);
+				}
 				// tell next signal?
 				// and swith to red
 				if(sch0->has_signal()) {
@@ -4303,7 +4298,10 @@ grund_t* waggon_t::betrete_feld()
 		sch0->book(cargo, WAY_STAT_GOODS);
 		if(ist_erstes) {
 			sch0->book(1, WAY_STAT_CONVOIS);
-			sch0->reserve( cnv->self, get_fahrtrichtung() );
+			if(cnv->get_state() != convoi_t::REVERSING)
+			{
+				sch0->reserve( cnv->self, get_fahrtrichtung() );
+			}
 		}
 	}
 	return gr;
