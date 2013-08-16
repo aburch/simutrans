@@ -4133,14 +4133,16 @@ int haltestelle_t::get_queue_pos(convoihandle_t cnv) const
 	int count = 0;
 	for(slist_tpl<convoihandle_t>::const_iterator i = loading_here.begin(), end = loading_here.end();  i != end && (*i) != cnv; ++i)
 	{
-		if(!(*i).is_bound())
+		if(!(*i).is_bound() || welt->lookup((*i)->get_pos())->get_halt() != self)
 		{
 			continue;
 		}
 		if((*i)->get_line() == line && 
 			((*i)->get_schedule()->get_aktuell() == cnv->get_schedule()->get_aktuell()
 			|| ((*i)->get_state() == convoi_t::REVERSING
-			&& (*i)->get_reverse_schedule() ? (*i)->get_schedule()->get_aktuell() + 1 == cnv->get_schedule()->get_aktuell() : (*i)->get_schedule()->get_aktuell() - 1 == cnv->get_schedule()->get_aktuell())))
+			&& (*i)->get_reverse_schedule() ? 
+				(*i)->get_schedule()->get_aktuell() + 1 == cnv->get_schedule()->get_aktuell() :
+				(*i)->get_schedule()->get_aktuell() - 1 == cnv->get_schedule()->get_aktuell())))
 		{
 			count++;
 		}
