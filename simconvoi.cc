@@ -362,8 +362,12 @@ uint32 convoi_t::move_to(karte_t const& welt, koord3d const& k, uint16 const sta
 			v.mark_image_dirty(v.get_bild(), v.get_hoff());
 			v.verlasse_feld();
 			// maybe unreserve this
-			if (schiene_t* const rails = ding_cast<schiene_t>(gr->get_weg(v.get_waytype()))) {
-				rails->unreserve(&v);
+			if(schiene_t* const rails = ding_cast<schiene_t>(gr->get_weg(v.get_waytype()))) 
+			{
+				if(state != REVERSING)
+				{
+					rails->unreserve(&v);
+				}
 			}
 		}
 
@@ -2818,14 +2822,69 @@ void convoi_t::vorfahren()
 			}
 			// to advance more smoothly
 			int restart_speed=-1;
-			if(fahr[0]->ist_weg_frei(restart_speed,false)) {
-				// can reserve new block => drive on
-				if(haltestelle_t::get_halt(welt,k0,besitzer_p).is_bound()) {
-					fahr[0]->play_sound();
-				}
-				if(state != REVERSING)
+			if(state != REVERSING)
+			{
+				if(fahr[0]->ist_weg_frei(restart_speed, false)) 
 				{
+					// can reserve new block => drive on
+					if(haltestelle_t::get_halt(welt, k0, besitzer_p).is_bound())
+					{
+						fahr[0]->play_sound();
+					}
 					state = DRIVING;
+				}
+			}
+			else
+			{
+				// If a rail type vehicle is reversing in a station, reserve the entire platform.
+				const waytype_t wt = fahr[0]->get_waytype();
+				if(wt == track_wt || wt == monorail_wt || wt == maglev_wt || wt == tram_wt || wt == narrowgauge_wt)
+				{
+					grund_t* vgr = gr;
+					schiene_t *w = (schiene_t *)vgr->get_weg(wt);
+					if(w)
+					{
+						ribi_t::ribi direction_of_travel = fahr[0]->get_fahrtrichtung();
+						// First, reserve under the entire train (which might be outside the station in part)
+						for(unsigned i = 0; i < anz_vehikel; i++) 
+						{
+							vehikel_t const& v = *fahr[i];
+							vgr = welt->lookup(v.get_pos());
+							if(!vgr)
+							{
+								continue;
+							}
+							w = (schiene_t *)vgr->get_weg(wt);
+							if(!w)
+							{
+								continue;
+							}
+							w->reserve(self, direction_of_travel); 
+						}
+						
+						// Next, reserve the rest (if any) of the platform.
+						grund_t* to = welt->lookup(fahr[0]->is_first() ? fahr[0]->get_pos() : fahr[anz_vehikel - 1]->get_pos());
+						if(to)
+						{
+							koord3d last_pos = gr->get_pos();
+							while(haltestelle_t::get_halt(welt, to->get_pos(), besitzer_p).is_bound())
+							{		
+								w = (schiene_t *)to->get_weg(wt);
+								if(!w)
+								{
+									continue;
+								}
+								w->reserve(self, direction_of_travel); 
+								last_pos = to->get_pos();
+								to->get_neighbour(to, wt, direction_of_travel);
+								if(last_pos == to->get_pos())
+								{
+									// Prevent infinite loops.
+									break;
+								}
+							}
+						}
+					}
 				}
 			}
 		}

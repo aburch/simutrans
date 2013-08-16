@@ -596,7 +596,7 @@ public:
 
 	// Gets modified direction, used for drawing
 	// vehicles in reverse formation.
-	ribi_t::ribi get_direction_of_travel();
+	ribi_t::ribi get_direction_of_travel() const;
 
 	uint16 get_sum_weight() const { return (sum_weight + 499) / 1000; }
 
