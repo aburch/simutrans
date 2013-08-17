@@ -265,6 +265,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 
 	// Frame time label
 	frame_time_label.init("Frame time:", label_cursor, COL_BLACK );
+	sprintf(frame_time_buf," ***** ms" );
 	frame_time_value_label.init( frame_time_buf, koord(0, label_cursor.y), COL_WHITE );
 	label_container.add_komponente( &frame_time_label );
 	value_container.add_komponente( &frame_time_value_label );
@@ -272,6 +273,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 
 	// Idle time label
 	idle_time_label.init("Idle:", label_cursor, COL_BLACK);
+	sprintf(idle_time_buf," ***** ms" );
 	idle_time_value_label.init( idle_time_buf, koord(0, label_cursor.y), COL_WHITE );
 	label_container.add_komponente( &idle_time_label );
 	value_container.add_komponente( &idle_time_value_label );
@@ -279,6 +281,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 
 	// FPS label
 	fps_label.init("FPS:", label_cursor, COL_BLACK );
+	sprintf(fps_buf," *** fps*" );
 	fps_value_label.init( fps_buf, koord(0, label_cursor.y), COL_WHITE );
 	label_container.add_komponente( &fps_label );
 	value_container.add_komponente( &fps_value_label );
@@ -286,6 +289,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 
 	// Simloops label
 	simloops_label.init("Sim:", label_cursor, COL_BLACK );
+	sprintf(simloops_buf," ********" );
 	simloops_value_label.init( simloops_buf, koord(0, label_cursor.y), COL_WHITE );
 	label_container.add_komponente( &simloops_label );
 	value_container.add_komponente( &simloops_value_label );
@@ -294,7 +298,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	// Align all values with labels
 	scr_rect bounds = label_container.get_min_boundaries();
 	label_container.set_groesse( koord( bounds.get_width(), bounds.get_height() ) );
-	value_container.set_pos( label_container.get_pos() + koord( bounds.get_pos().x+bounds.get_width()+D_H_SPACE, cursor.y ) );
+	value_container.set_pos( label_container.get_pos() + koord( bounds.get_width()+D_H_SPACE, 0 ) );
 //	value_container.align_to( &label_container, ALIGN_EXTERIOR_H | ALIGN_LEFT | ALIGN_TOP, koord( D_H_SPACE, 0 ) );
 	value_container.set_groesse( koord( L_DIALOG_WIDTH - D_MARGINS_X - label_container.get_groesse().x - D_H_SPACE, bounds.get_height() ) );
 
