@@ -182,14 +182,16 @@ grund_t::grund_t(karte_t *wl, loadsave_t *file)
 
 void grund_t::rdwr(loadsave_t *file)
 {
+	koord k = pos.get_2d();
+
 	// water saves its correct height => no need to save grid heights anymore
-	sint8 z = welt->lookup_hgt( pos.get_2d() ); // save grid height for water tiles - including partial water tiles
-	sint8 z_w = welt->get_water_hgt( pos.get_2d() );
+	sint8 z = welt->lookup_hgt( k ); // save grid height for water tiles - including partial water tiles
+	sint8 z_w = welt->get_water_hgt( k );
 	if(  !(get_typ() == grund_t::boden  ||  get_typ() == grund_t::wasser)  ||  z > z_w  ) {
 		z = pos.z; // all other tiles save ground height
 	}
 
-	planquadrat_t *plan = welt->access( pos.get_2d() );
+	planquadrat_t *plan = welt->access( k );
 	uint8 climate_data = plan->get_climate() + (plan->get_climate_corners() << 4);
 
 	xml_tag_t g( file, "grund_t" );
@@ -205,7 +207,7 @@ void grund_t::rdwr(loadsave_t *file)
 	else {
 		file->rdwr_byte(z);
 		file->rdwr_byte(z_w);
-		if(  file->is_loading()  &&  !ist_wasser()  &&  !welt->lookup_kartenboden( pos.get_2d() )  &&  z < z_w  ) {
+		if(  file->is_loading()  &&  !ist_wasser()  &&  !welt->lookup_kartenboden( k )  &&  z < z_w  ) {
 			// partially in water, restore correct ground height while keeping grid height
 			// if kartenboden doesn't exist we will become it
 			pos.z = z_w;
@@ -280,7 +282,7 @@ void grund_t::rdwr(loadsave_t *file)
 			else {
 				z_southeast += corner2(slope);
 			}
-			welt->set_grid_hgt( pos.get_2d() + koord(1,1), z_southeast );
+			welt->set_grid_hgt( k + koord(1,1), z_southeast );
 		}
 		if(  pos.x == welt->get_size().x-1  ) {
 			sint8 z_east = z;
@@ -290,7 +292,7 @@ void grund_t::rdwr(loadsave_t *file)
 			else {
 				z_east += corner3(slope);
 			}
-			welt->set_grid_hgt( pos.get_2d() + koord(1,0), z_east );
+			welt->set_grid_hgt( k + koord(1,0), z_east );
 		}
 		if(  pos.y == welt->get_size().y-1  ) {
 			sint8 z_south = z;
@@ -300,7 +302,7 @@ void grund_t::rdwr(loadsave_t *file)
 			else {
 				z_south += corner1(slope);
 			}
-			welt->set_grid_hgt( pos.get_2d() + koord(0,1), z_south );
+			welt->set_grid_hgt( k + koord(0,1), z_south );
 		}
 
 		if(  get_typ() == grund_t::wasser  &&  z > z_w  ) {
@@ -309,8 +311,8 @@ void grund_t::rdwr(loadsave_t *file)
 		else {
 			z += corner4(slope);
 		}
-		welt->set_grid_hgt( pos.get_2d(), z );
-		welt->set_water_hgt( pos.get_2d(), z_w );
+		welt->set_grid_hgt( k, z );
+		welt->set_water_hgt( k, z_w );
 	}
 
 	// loading ways from here on

@@ -5703,11 +5703,7 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 		}
 
 		// set transitions
-		for(  int y = 0;  y < get_size().y;  y++  ) {
-			for(  int x = 0;  x < get_size().x;   x++  ) {
-				recalc_transitions( koord( x, y ) );
-			}
-		}
+		world_xy_loop(&karte_t::recalc_transitions_loop, 0);
 	}
 
 	// Reliefkarte an neue welt anpassen
