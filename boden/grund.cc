@@ -271,6 +271,38 @@ void grund_t::rdwr(loadsave_t *file)
 
 	// restore grid
 	if(  file->is_loading()  ) {
+		// for south/east map edges we need to restore more than one point
+		if(  pos.x == welt->get_size().x-1  &&  pos.y == welt->get_size().y-1  ) {
+			sint8 z_southeast = z;
+			if(  get_typ() == grund_t::wasser  &&  z_southeast > z_w  ) {
+				z_southeast = z_w;
+			}
+			else {
+				z_southeast += corner2(slope);
+			}
+			welt->set_grid_hgt( pos.get_2d() + koord(1,1), z_southeast );
+		}
+		if(  pos.x == welt->get_size().x-1  ) {
+			sint8 z_east = z;
+			if(  get_typ() == grund_t::wasser  &&  z_east > z_w  ) {
+				z_east = z_w;
+			}
+			else {
+				z_east += corner3(slope);
+			}
+			welt->set_grid_hgt( pos.get_2d() + koord(1,0), z_east );
+		}
+		if(  pos.y == welt->get_size().y-1  ) {
+			sint8 z_south = z;
+			if(  get_typ() == grund_t::wasser  &&  z_south > z_w  ) {
+				z_south = z_w;
+			}
+			else {
+				z_south += corner1(slope);
+			}
+			welt->set_grid_hgt( pos.get_2d() + koord(0,1), z_south );
+		}
+
 		if(  get_typ() == grund_t::wasser  &&  z > z_w  ) {
 			z = z_w;
 		}

@@ -5662,18 +5662,6 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 			file->rdwr_byte(grid_hgts[i]);
 		}
 	}
-	else {
-		// just restore the border as ground level
-		// the heightfield is restored in grund_t::rdwr
-		// but the south and east border of the map have to be resetted to water level
-		DBG_MESSAGE("karte_t::laden()","calculating grid corners");
-		for( sint16 i=0;  i<=cached_grid_size.x;  i++  ) {
-			grid_hgts[i + cached_grid_size.y*(cached_grid_size.x+1)] = grundwasser;
-		}
-		for( sint16 j=0;  j<=cached_grid_size.y;  j++  ) {
-			grid_hgts[cached_grid_size.x + j*(cached_grid_size.x+1)] = grundwasser;
-		}
-	}
 
 	if(file->get_version()<88009) {
 		DBG_MESSAGE("karte_t::laden()","loading slopes from older version");
