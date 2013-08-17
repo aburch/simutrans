@@ -889,7 +889,7 @@ uint16 vehikel_t::unload_freight(halthandle_t halt, sint64 & revenue_from_unload
 
 						// Calculate the revenue for each packet.
 						// Also, add to the "apportioned revenues" for way tolls.
-						revenue_from_unloading += cnv->calc_revenue(tmp, apportioned_revenues);
+						revenue_from_unloading += menge > 0 ? cnv->calc_revenue(tmp, apportioned_revenues) : 0;
 
 						// book delivered goods to destination
 						if(end_halt == halt) 

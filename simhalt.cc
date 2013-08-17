@@ -1082,6 +1082,19 @@ void haltestelle_t::step()
 					continue;
 				}
 
+				// Check whether these goods/passengers are waiting to go to a factory that has been deleted.
+				fabrik_t* const fab = fabrik_t::get_fab(welt, tmp.get_zielpos());
+				if(tmp.to_factory && !fab)
+				{
+					// The goods/passengers leave.  We must record the lower "in transit" count on factories.
+					fabrik_t::update_transit(tmp, false);
+					tmp.menge = 0;
+
+					// No need to record waiting times if the goods are discarded because their destination
+					// does not exist.
+					continue;
+				}
+
 				uint32 waiting_tenths = convoi_t::get_waiting_minutes(welt->get_zeit_ms() - tmp.arrival_time);
 
 				// Checks to see whether the freight has been waiting too long.
@@ -2312,22 +2325,29 @@ uint32 haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 		// Check for an excessively long number of walking steps.  If we have one, complain and fail.
 		//
 		// This was the 4th consecutive attempt to walk between stations.  Fail.
-dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s has walked too many times", ware.menge, translator::translate(ware.get_name()), get_name() );
+		dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s has walked too many times", ware.menge, translator::translate(ware.get_name()), get_name() );
 		return ware.menge;
 	}
 
 	// no valid next stops?
-	if(!ware.get_ziel().is_bound()  ||  !ware.get_zwischenziel().is_bound()) 
+	if(!ware.get_ziel().is_bound() || !ware.get_zwischenziel().is_bound()) 
 	{
 		// write a log entry and discard the goods
-dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer a route to their destination!", ware.menge, translator::translate(ware.get_name()), get_name() );
-		return ware.menge;
+		dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer a route to their destination!", ware.menge, translator::translate(ware.get_name()), get_name() );
+		return 0;
+	}
+
+	fabrik_t* const fab = fabrik_t::get_fab(welt, ware.get_zielpos());
+	if(ware.to_factory && !fab)
+	{
+		// Destination factory has been deleted: write a log entry and discard the goods.
+		dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s were intended for a factory that has been deleted.", ware.menge, translator::translate(ware.get_name()), get_name() );
+		return 0;
 	}
 
 	// have we arrived?
 	// FIXME: This code needs to be fixed for multi-tile buildings
 	// such as attractions and city halls, to allow access from any side
-	fabrik_t* const fab = fabrik_t::get_fab(welt, ware.get_zielpos());
 	const planquadrat_t* plan = welt->lookup(ware.get_zielpos());
 	if(ware.get_ziel() == self && ware.to_factory && fab && (fab_list.is_contained(fab) || ((ware.get_besch() == warenbauer_t::passagiere || ware.get_besch() == warenbauer_t::post) && plan->is_connected(self))))
 	{
