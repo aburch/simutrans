@@ -4102,16 +4102,28 @@ void convoi_t::laden() //"load" (Babelfish)
 	// Calculate average speed and journey time
 	// @author: jamespetts
 	
-	halthandle_t halt = haltestelle_t::get_halt(welt, fpl->get_current_eintrag().pos,besitzer_p);
+	halthandle_t halt = haltestelle_t::get_halt(welt, fpl->get_current_eintrag().pos, besitzer_p);
 	id_pair pair(last_stop_id, halt.get_id());
 	
 	// The calculation of the journey distance does not need to use normalised halt locations for comparison, so
 	// a more accurate distance can be used. Query whether the formula from halt_detail.cc should be used here instead
 	// (That formula has the effect of finding the distance between the nearest points of two halts).
-	const uint32 journey_distance = shortest_distance(fahr[0]->get_pos().get_2d(), fahr[0]->last_stop_pos);
+	const koord3d pos3d = fahr[0]->get_pos();
+	koord pos;
+	halthandle_t new_halt = haltestelle_t::get_halt(welt, pos3d, fahr[0]->get_besitzer());
+	if(new_halt.is_bound())
+	{
+		pos = pos3d.get_2d();
+	}
+	else
+	{
+		pos = halt->get_basis_pos();
+	}
 
-	//last_stop_pos will be set to get_pos().get_2d() in hat_gehalten (called from inside halt->request_loading later
-	//so code inside if will be executed once. At arrival time.
+	const uint32 journey_distance = shortest_distance(pos, fahr[0]->last_stop_pos);
+
+	// last_stop_pos will be set to get_pos().get_2d() in hat_gehalten (called from inside halt->request_loading later
+	// so code inside if will be executed once. At arrival time.
 	if(journey_distance > 0)
 	{
 		arrival_time = welt->get_zeit_ms();
