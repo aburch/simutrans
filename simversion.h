@@ -75,9 +75,7 @@
 /*********************** Settings related to network games ********************/
 
 /* Server to announce status to */
-//#define ANNOUNCE_SERVER "servers.experimental.simutrans.org:80"
-// Temporary workaround for DNS problem
-#define ANNOUNCE_SERVER "82.113.155.83:80"
+#define ANNOUNCE_SERVER "servers.experimental.simutrans.org:80"
 
 /* Relative URL of the announce function on server */
 #define ANNOUNCE_URL "/announce"
