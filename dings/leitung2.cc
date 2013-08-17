@@ -813,7 +813,7 @@ void senke_t::step(long delta_t)
 		vector_tpl<senke_t*>* city_substations = city->get_substations();
 		uint32 city_substations_number = city_substations->get_count();
 
-		sint64 supply;
+		uint64 supply;
 		vector_tpl<senke_t*> checked_substations;
 		ITERATE_PTR(city_substations, i)
 		{
