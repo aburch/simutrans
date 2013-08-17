@@ -545,7 +545,7 @@ public:
 
 	/**
 	* senkes give back wanted power they can't supply such that a senke on a different powernet can try suppling
-	* WARNING: senke stepping order can vary between ingame construction and savegame loading => different results after saveing/loading the game
+	* WARNING: senke stepping order can vary between ingame construction and savegame loading => different results after saving/loading the game
 	*/
 	void add_power_demand(uint32 p) { power_demand +=p; }
 
@@ -557,7 +557,7 @@ public:
 	/**
 	* Used to limit transformers to one per factory
 	*/
-	bool is_transformer_connected() const { return (bool)transformer_connected; }
+	bool is_transformer_connected() const { return (bool)transformer_connected || ((bool)city && !besch->is_electricity_producer()); }
 	leitung_t* get_transformer_connected() { return transformer_connected; }
 	void set_transformer_connected(leitung_t* connected) { transformer_connected = connected; }
 
