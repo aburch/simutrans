@@ -187,7 +187,7 @@ void grund_t::rdwr(loadsave_t *file)
 	// water saves its correct height => no need to save grid heights anymore
 	sint8 z = welt->lookup_hgt( k ); // save grid height for water tiles - including partial water tiles
 	sint8 z_w = welt->get_water_hgt( k );
-	if(  !(get_typ() == grund_t::boden  ||  get_typ() == grund_t::wasser)  ||  z > z_w  ) {
+	if(  !(get_typ() == grund_t::boden  ||  get_typ() == grund_t::wasser) || pos.z > z_w || z > z_w  ) {
 		z = pos.z; // all other tiles save ground height
 	}
 

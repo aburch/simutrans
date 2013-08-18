@@ -1705,6 +1705,13 @@ const char *wkz_set_climate_t::do_work( karte_t *welt, spieler_t *, const koord3
 					if(  gr->ist_wasser()  ) {
 						const sint8 hgt = welt->lookup_hgt(k);
 						ok = welt->get_water_hgt(k) == hgt  &&  welt->is_plan_height_changeable( k.x, k.y );
+						// check s, se, e - these must not be deep water!
+						for(  int i = 3 ;  i < 6 && ok ;  i++  ) {
+							koord k_neighbour(k + koord::neighbours[i]);
+							if(  welt->is_within_grid_limits(k_neighbour)  ) {
+								ok = welt->lookup_hgt(k_neighbour) >= hgt;
+							}
+						}
 						if(  ok  ) {
 							gr->obj_loesche_alle( NULL );
 							welt->set_water_hgt( k, hgt - 1 );
@@ -1858,14 +1865,21 @@ const char *wkz_change_water_height_t::work( karte_t *welt, spieler_t *, koord3d
 
 				sint8 h0_nw, h0_ne, h0_se, h0_sw;
 
-				// if min grid height here is less than ground height it will be because either we are partially or totally water
-				if(  h0 > min_grid_hgt  ) {
+				if(  gr2->ist_wasser()  ) {
+					// water - maximum existing height can be is old water height no matter what surrounding grids are
+					h0_nw = min(h0, welt->lookup_hgt(x, y));
+					h0_ne = min(h0, welt->lookup_hgt(x+1, y));
+					h0_se = min(h0, welt->lookup_hgt(x+1, y+1));
+					h0_sw = min(h0, welt->lookup_hgt(x, y+1));
+				}
+				else if(  h0 > min_grid_hgt  ) {
+					// if min grid height here is less than ground height it will be because we are partially water
 					h0_nw = welt->lookup_hgt(x, y);
 					h0_ne = welt->lookup_hgt(x+1, y);
 					h0_se = welt->lookup_hgt(x+1, y+1);
 					h0_sw = welt->lookup_hgt(x, y+1);
 					if(  !gr2->ist_wasser()  ) {
-						// partially water - while this appears to be a single height slope actually it is a double height slope half underwater
+						// while this appears to be a single height slope actually it is a double height slope half underwater
 						const sint8 water_hgt = welt->get_water_hgt(x, y);
 						h0_nw >= water_hgt ? h0_nw = h0 + corner4( gr2->get_grund_hang() ) : 0;
 						h0_ne >= water_hgt ? h0_ne = h0 + corner3( gr2->get_grund_hang() ) : 0;
