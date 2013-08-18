@@ -252,8 +252,11 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	// Stands in place of the "level" setting, but uses "level" data by default.
 
 	sint32 station_capacity = obj.get_int("station_capacity", level * 32);
+	station_capacity = obj.get_int("capacity", station_capacity);
 	sint32 station_maintenance = obj.get_int("station_maintenance", 2147483647); //NOTE: Default cannot be set because it depends on a world factor. Must detect this number and put in default if it is found.
+	station_maintenance = obj.get_int("maintenance", station_maintenance);
 	sint32 station_price = obj.get_int("station_price", 2147483647);
+	station_price = obj.get_int("cost", station_price);
 
 	uint8 allow_underground = obj.get_int("allow_underground", 2);
 
