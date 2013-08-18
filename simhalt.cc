@@ -1023,15 +1023,15 @@ void haltestelle_t::request_loading(convoihandle_t cnv)
 	{
 		loading_here.append(cnv);
 	}
-	if(  last_loading_step != welt->get_steps()  ) 
+	if(last_loading_step != welt->get_steps()) 
 	{
 		last_loading_step = welt->get_steps();
 
 		// now iterate over all convois
-		for(  slist_tpl<convoihandle_t>::iterator i = loading_here.begin(), end = loading_here.end();  i != end;  ) 
+		for(slist_tpl<convoihandle_t>::iterator i = loading_here.begin(), end = loading_here.end();  i != end;) 
 		{
 			convoihandle_t const c = *i;
-			if (c.is_bound() && (c->get_state() == convoi_t::LOADING || c->get_state() == convoi_t::REVERSING)) 
+			if (c.is_bound() && (c->get_state() == convoi_t::LOADING || c->get_state() == convoi_t::REVERSING) && get_halt(welt, c->get_pos(), c->get_besitzer()) == self) 
 			{
 				// now we load into convoi
 				c->hat_gehalten(self);
@@ -1039,7 +1039,7 @@ void haltestelle_t::request_loading(convoihandle_t cnv)
 			}
 			else 
 			{
-				i = loading_here.erase( i );
+				i = loading_here.erase(i);
 			}
 		}
 	}
