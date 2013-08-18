@@ -188,6 +188,20 @@ class haus_besch_t : public obj_besch_std_name_t { // Daten für ein ganzes Gebäu
 	uint8  enables;		// if it is a stop, what is enabled ...
 	uint8  chance;         // Hajo: chance to build, special buildings, only other is weight factor
 
+
+	/** @author: jamespetts.
+	 * Additional fields for separate capacity/maintenance
+	 * If these are not specified in the .dat file, they are set to
+	 * COST_MAGIC then calculated from the "level" in the old way.
+	 */
+
+	sint32 price;
+	sint32 maintenance;
+	uint16 capacity;
+
+#define COST_MAGIC (2147483647)
+
+
 	climate_bits	allowed_climates;
 
 	// when was this building allowed
@@ -342,6 +356,14 @@ public:
 	* @author prissi
 	*/
 	uint16 get_animation_time() const { return animation_time; }
+
+	/**
+	* @see above for maintenance/price/capacity variable information
+	* @author Kieron Green/jamespetts
+	*/
+	sint32 get_maintenance(karte_t *welt) const;
+	sint32 get_price(karte_t *welt) const;
+	uint16 get_capacity() const;
 
 	// default tool for building
 	werkzeug_t *get_builder() const {

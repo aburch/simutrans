@@ -100,7 +100,7 @@ gebaeude_t::gebaeude_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_til
 	init();
 	if(t) {
 		set_tile(t,true);	// this will set init time etc.
-		spieler_t::add_maintenance(get_besitzer(), welt->get_settings().maint_building * tile->get_besch()->get_level(), tile->get_besch()->get_finance_waytype());
+		spieler_t::add_maintenance(get_besitzer(), tile->get_besch()->get_maintenance(welt), tile->get_besch()->get_finance_waytype() );
 	}
 
 	grund_t *gr=welt->lookup(pos);
@@ -135,7 +135,7 @@ gebaeude_t::~gebaeude_t()
 	count = 0;
 	anim_time = 0;
 	if(tile) {
-		spieler_t::add_maintenance(get_besitzer(), -welt->get_settings().maint_building*tile->get_besch()->get_level(), tile->get_besch()->get_finance_waytype());
+		spieler_t::add_maintenance(get_besitzer(), -tile->get_besch()->get_maintenance(welt), tile->get_besch()->get_finance_waytype());
 	}
 }
 
@@ -875,7 +875,7 @@ void gebaeude_t::rdwr(loadsave_t *file)
  */
 void gebaeude_t::laden_abschliessen()
 {
-	spieler_t::add_maintenance(get_besitzer(), welt->get_settings().maint_building * tile->get_besch()->get_level(), tile->get_besch()->get_finance_waytype());
+	spieler_t::add_maintenance(get_besitzer(), tile->get_besch()->get_maintenance(welt), tile->get_besch()->get_finance_waytype());
 
 	// citybuilding, but no town?
 	if(  tile->get_offset()==koord(0,0)  ) {
@@ -903,10 +903,12 @@ void gebaeude_t::entferne(spieler_t *sp)
 //	DBG_MESSAGE("gebaeude_t::entferne()","gb %i");
 	// remove costs
 	sint64 cost = welt->get_settings().cst_multiply_remove_haus;
+
 	// tearing down halts is always single costs only
 	if (tile->get_besch()->get_utyp() < haus_besch_t::bahnhof) {
 		cost *= tile->get_besch()->get_level() + 1;
 	}
+
 	spieler_t::book_construction_costs(sp, cost, get_pos().get_2d(), tile->get_besch()->get_finance_waytype());
 
 	// may need to update next buildings, in the case of start, middle, end buildings

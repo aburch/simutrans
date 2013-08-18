@@ -143,7 +143,7 @@ char *tooltip_with_price_maintenance(karte_t *welt, const char *tip, sint64 pric
 /**
  * Creates a tooltip from tip text and money value
  */
-static char const* tooltip_with_price_maintenance_level(karte_t* const welt, char const* const tip, sint64 const price, sint64 const maintenance, uint32 const level, uint8 const enables)
+static char const* tooltip_with_price_maintenance_capacity(karte_t* const welt, char const* const tip, sint64 const price, sint64 const maintenance, uint32 const capacity, uint8 const enables)
 {
 	int n = sprintf(werkzeug_t::toolstr, "%s, ", translator::translate(tip) );
 	money_to_string(werkzeug_t::toolstr+n, (double)price/-100.0);
@@ -159,7 +159,7 @@ static char const* tooltip_with_price_maintenance_level(karte_t* const welt, cha
 	n = strlen(werkzeug_t::toolstr);
 
 	if((enables&7)!=0) {
-		n += sprintf( werkzeug_t::toolstr+n, ", %d", level*32 );
+		n += sprintf( werkzeug_t::toolstr+n, ", %d", capacity );
 		if(enables&1) {
 			n += sprintf( werkzeug_t::toolstr+n, " %s", translator::translate("Passagiere") );
 		}
@@ -170,7 +170,7 @@ static char const* tooltip_with_price_maintenance_level(karte_t* const welt, cha
 			n += sprintf( werkzeug_t::toolstr+n, " %s", translator::translate("Fracht") );
 		}
 	} else if (!welt->get_settings().is_separate_halt_capacities()) {
-		n += sprintf( werkzeug_t::toolstr+n, ", %s %d", translator::translate("Storage capacity"), level*32 );
+		n += sprintf( werkzeug_t::toolstr+n, ", %s %d", translator::translate("Storage capacity"), capacity );
 	}
 
 	return werkzeug_t::toolstr;
@@ -3423,12 +3423,12 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 
 	hausbauer_t::baue(welt, halt->get_besitzer(), pos-offsets, rotation, besch, &halt);
 
-	settings_t const& s      = welt->get_settings();
-	sint32     const  factor = besch->get_level() * besch->get_b() * besch->get_h();
-	sint64            cost   = s.cst_multiply_post * factor;
-	if(sp!=halt->get_besitzer()  &&  halt->get_besitzer()==welt->get_spieler(1)) {
+	sint32     const  factor = besch->get_b() * besch->get_h();
+	sint64     cost = -besch->get_price(welt) * factor;
+
+	if(  sp!=halt->get_besitzer()  &&  halt->get_besitzer()==welt->get_spieler(1)  ) {
 		// public stops are expensive!
-		cost -= (s.maint_building * factor * 60);
+		cost -= (besch->get_maintenance(welt) * factor * 60);
 	}
 	// difficult to distinguish correctly most suitable waytype
 	spieler_t::book_construction_costs(sp,  cost, k, besch->get_finance_waytype());
@@ -3594,10 +3594,11 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", k.x,
 		halt = haltestelle_t::create(welt, k, sp);
 	}
 	hausbauer_t::baue(welt, halt->get_besitzer(), bau_pos, layout, besch, &halt);
-	sint64 costs = welt->get_settings().cst_multiply_dock * besch->get_level();
-	if(  sp!=halt->get_besitzer()  ) {
+	sint64 costs = -besch->get_price(welt);
+	if(  sp!=halt->get_besitzer() && sp != welt->get_spieler(1)  ) {
 		// public stops are expensive!
-		costs -= (welt->get_settings().maint_building * besch->get_level() * 60);
+		// (Except for the public player itself)
+		costs -= (besch->get_maintenance(welt) * 60);
 	}
 	for(  int i=0;  i<=len;  i++  ) {
 		koord p=k-dx*i;
@@ -3810,11 +3811,13 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 	}
 
 	sint64 old_cost = old_level * cost;
-	cost *= besch->get_level()*besch->get_b()*besch->get_h();
-	cost -= old_cost/2;
-	if(  sp!=halt->get_besitzer()  ) {
+	cost *= besch->get_b()*besch->get_h();
+	cost += old_cost/2;
+	if(  sp!=halt->get_besitzer() && sp != welt->get_spieler(1)  ) {
 		// public stops are expensive!
-		cost -= (welt->get_settings().maint_building * besch->get_level() * besch->get_b() * besch->get_h() * 60);
+		// (Except for the public player itself)
+
+		cost -= (besch->get_maintenance(welt) * besch->get_b() * besch->get_h() * 60);
 	}
 	spieler_t::book_construction_costs(sp,  cost, k, wegtype);
 	if(  umgebung_t::station_coverage_show  &&  welt->get_zeiger()->get_pos().get_2d()==k  ) {
@@ -3912,37 +3915,29 @@ const char* wkz_station_t::get_tooltip(const spieler_t *sp) const
 {
 	sint8               dummy;
 	karte_t&            welt     = *sp->get_welt();
-	settings_t   const& settings = welt.get_settings();
 	haus_besch_t const& besch    = *get_besch(dummy);
-	uint32              level    = besch.get_level();
-	sint64              price;
-	switch (besch.get_utyp()) {
-		case haus_besch_t::generic_stop:
-			switch (besch.get_extra()) {
-				case track_wt:
-				case monorail_wt:
-				case maglev_wt:
-				case tram_wt:
-				case narrowgauge_wt: price = settings.cst_multiply_station;     break;
-				case road_wt:        price = settings.cst_multiply_roadstop;    break;
-				case water_wt:       price = settings.cst_multiply_dock;        break;
-				case air_wt:         price = settings.cst_multiply_airterminal; break;
-				case ignore_wt:      price = settings.cst_multiply_post;        break;
-				default:             goto invalid;
-			}
-			break;
 
-		case haus_besch_t::generic_extension: price = settings.cst_multiply_post; goto scale_by_size;
-		case haus_besch_t::hafen:             price = settings.cst_multiply_dock; goto scale_by_size;
-scale_by_size:
-			level = level * besch.get_groesse().x * besch.get_groesse().y;
-			break;
+	sint64 price = 0;
+	sint64 maint = 0;
+	uint32 cap = besch.get_capacity(); // This is always correct in the besch object.
 
-		default:
-invalid:
-			return "Illegal description";
+	maint = besch.get_maintenance(&welt);
+
+	if(  besch.get_utyp()==haus_besch_t::generic_stop || besch.get_utyp()==haus_besch_t::generic_extension || besch.get_utyp()==haus_besch_t::hafen  ) {
+		price = -besch.get_price(&welt);
 	}
-	return tooltip_with_price_maintenance_level(&welt, besch.get_name(), price * level, settings.maint_building * level, level, besch.get_enabled());
+	else {
+		return "Illegal description";
+	}
+
+	if(besch.get_utyp()==haus_besch_t::generic_extension || besch.get_utyp()==haus_besch_t::hafen) {
+		const sint16 size_multiplier = besch.get_groesse().x * besch.get_groesse().y;
+		price *= size_multiplier;
+		cap *= size_multiplier;
+		maint *= size_multiplier;
+	}
+
+	return tooltip_with_price_maintenance_capacity(&welt, besch.get_name(), price, maint, cap, besch.get_enabled());
 }
 
 waytype_t wkz_station_t::get_waytype() const
@@ -4052,23 +4047,23 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 			}
 			break;
 		case haus_besch_t::generic_stop: {
-			settings_t const& s = welt->get_settings();
+			sint64 cost = -besch->get_price(welt);
 			switch(besch->get_extra()) {
 				case road_wt:
-					msg = wkz_station_t::wkz_station_aux(welt, sp, pos, besch, road_wt, s.cst_multiply_roadstop, "H");
+					msg = wkz_station_t::wkz_station_aux(welt, sp, pos, besch, road_wt, cost, "H");
 					break;
 				case track_wt:
 				case monorail_wt:
 				case maglev_wt:
 				case narrowgauge_wt:
 				case tram_wt:
-					msg = wkz_station_t::wkz_station_aux(welt, sp, pos, besch, (waytype_t)besch->get_extra(), s.cst_multiply_station, "BF");
+					msg = wkz_station_t::wkz_station_aux(welt, sp, pos, besch, (waytype_t)besch->get_extra(), cost, "BF");
 					break;
 				case water_wt:
-					msg = wkz_station_t::wkz_station_aux(welt, sp, pos, besch, water_wt, s.cst_multiply_dock, "Dock");
+					msg = wkz_station_t::wkz_station_aux(welt, sp, pos, besch, water_wt, cost, "Dock");
 					break;
 				case air_wt:
-					msg = wkz_station_t::wkz_station_aux(welt, sp, pos, besch, air_wt, s.cst_multiply_airterminal, "Airport");
+					msg = wkz_station_t::wkz_station_aux(welt, sp, pos, besch, air_wt, cost, "Airport");
 					break;
 			}
 			break;

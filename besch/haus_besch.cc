@@ -5,6 +5,8 @@
  */
 #include "../simdebug.h"
 
+#include "../simworld.h"
+
 #include "haus_besch.h"
 #include "../network/checksum.h"
 
@@ -167,6 +169,9 @@ void haus_besch_t::calc_checksum(checksum_t *chk) const
 	chk->input((uint8)allowed_climates);
 	chk->input(intro_date);
 	chk->input(obsolete_date);
+	chk->input(maintenance);
+	chk->input(price);
+	chk->input(capacity);
 	chk->input(allow_underground);
 	// now check the layout
 	for(uint8 i=0; i<layouts; i++) {
@@ -180,4 +185,73 @@ void haus_besch_t::calc_checksum(checksum_t *chk) const
 			}
 		}
 	}
+}
+
+
+/**
+* @station get functions - see haus_besch.h for variable information
+* @author jamespetts
+*/
+
+sint32 haus_besch_t::get_maintenance(karte_t *welt) const
+{
+	if(  maintenance == COST_MAGIC  ) {
+		return welt->get_settings().maint_building*get_level();
+	}
+	else {
+		return maintenance;
+	}
+}
+
+
+sint32 haus_besch_t::get_price(karte_t *welt) const
+{
+	if(  price == COST_MAGIC  ) {
+		settings_t const& s = welt->get_settings();
+		switch (get_utyp()) {
+			case haus_besch_t::hafen:
+				return -s.cst_multiply_dock * get_level();
+			break;
+			case haus_besch_t::generic_extension:
+				return -s.cst_multiply_post * get_level();
+			break;
+			case haus_besch_t::generic_stop: {
+				switch(get_extra()) {
+					case road_wt:
+						return -s.cst_multiply_roadstop * get_level();
+					break;
+					case track_wt:
+					case monorail_wt:
+					case maglev_wt:
+					case narrowgauge_wt:
+					case tram_wt:
+						return -s.cst_multiply_station * get_level();
+					break;
+					case water_wt:
+						return -s.cst_multiply_dock * get_level();
+					break;
+					case air_wt:
+						return -s.cst_multiply_airterminal * get_level();
+					break;
+					case 0:
+						return -s.cst_multiply_post * get_level();
+					break;
+				}
+			}
+			break;
+			default:
+				return 0;
+			break;
+		}
+	}
+	else {
+		return price;
+	}
+	return 0;
+}
+
+
+uint16 haus_besch_t::get_capacity() const
+{
+	return capacity;
 }

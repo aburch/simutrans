@@ -79,7 +79,7 @@ static uint32 get_cluster_data(tabfileobj_t& obj)
 void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
 	// Hajo: take care, hardocded size of node on disc here!
-	obj_node_t node(this, 27, &parent);
+	obj_node_t node(this, 37, &parent);
 
 	write_head(fp, node, obj);
 
@@ -213,6 +213,28 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12 +
 		obj.get_int("retire_month", 1) - 1;
 
+	// @author: Kieron Green (ideas from experimental code by jamespetts)
+	// capacity and price information.
+	// Stands in place of the "level" setting, but uses "level" data by default.
+
+	//NOTE: Default for maintenance and price must be set when loading so use magic default here
+	//also check for "station_xx" for experimental compatibility
+
+	sint32 capacity = obj.get_int("capacity", level * 32);
+	if(  capacity == level * 32  ) {
+		capacity = obj.get_int("station_capacity", level * 32);
+	}
+
+	sint32 maintenance = obj.get_int("maintenance", COST_MAGIC);
+	if(  maintenance == COST_MAGIC  ) {
+		maintenance = obj.get_int("station_maintenance", COST_MAGIC);
+	}
+
+	sint32 price = obj.get_int("cost", COST_MAGIC);
+	if(  price == COST_MAGIC  ) {
+		price = obj.get_int("station_price", COST_MAGIC);
+	}
+
 	uint8 allow_underground = obj.get_int("allow_underground", 2);
 
 	if(allow_underground > 2)
@@ -303,7 +325,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	}
 
 	// Hajo: write version data
-	node.write_uint16(fp, 0x8007,            0);
+	node.write_uint16(fp, 0x8008,            0);
 
 	// Hajo: write besch data
 	node.write_uint8 (fp, gtyp,              2);
@@ -320,7 +342,10 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	node.write_uint16(fp, intro_date,       20);
 	node.write_uint16(fp, obsolete_date,    22);
 	node.write_uint16(fp, animation_time,   24);
-	node.write_uint8 (fp, allow_underground,26);
+	node.write_uint16(fp, capacity,         26);
+	node.write_sint32(fp, maintenance,      28);
+	node.write_sint32(fp, price,	        32);
+	node.write_uint8 (fp, allow_underground,36);
 
 	// probably add some icons, if defined
 	slist_tpl<string> cursorkeys;
