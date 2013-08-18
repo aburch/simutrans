@@ -3331,7 +3331,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 
 					// now find out, if this offset/rotation is better ... (i.e. matches more fitting buildings)
 					// for r=0 we check north and south, for r=1 we check east and west
-					for(  int i=0;  i<4;  i+=2  ) {
+					for(  int i=r;  i<4;  i+=2  ) {
 						if(  best_halts[i]>best_halt  ||  (best_halt==0  &&  neighbour_halts[i]>any_halt)  ) {
 							best_halt = best_halts[i];
 							any_halt = neighbour_halts[i];
