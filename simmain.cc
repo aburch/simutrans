@@ -881,7 +881,7 @@ int simu_main(int argc, char** argv)
 		sint16 idummy;
 		string dummy;
 		if (simuconf.open(obj_conf.c_str())) {
-			printf("parse_simuconf() in addons: ", obj_conf.c_str());
+			printf("parse_simuconf() in addons: %s", obj_conf.c_str());
 			umgebung_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 			simuconf.close();
 		}

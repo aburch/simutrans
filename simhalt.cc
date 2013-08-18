@@ -3044,12 +3044,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 	// version and therefore not predicatable by simutrans.
 	
 	uint8 max_catg_count_game = warenbauer_t::get_max_catg_index();
-	uint8 max_catg_count_file;
-
-	if(file->is_saving() || file->get_experimental_version() <= 10)
-	{
-		max_catg_count_file = max_catg_count_game; 
-	}
+	uint8 max_catg_count_file = max_catg_count_game;
 	
 	if(file->get_experimental_version() >= 11)
 	{
@@ -3490,7 +3485,7 @@ void haltestelle_t::laden_abschliessen(bool need_recheck_for_walking_distance)
 		}
 	}
 	else {
-		const char *current_name = bd->get_text();
+		const char *current_name = bd ? bd->get_text() : translator::translate("Invalid stop");
 		if(  all_names.get(current_name).is_bound()  &&  fabrik_t::get_fab(welt, get_basis_pos())==NULL  ) {
 			// try to get a new name ...
 			const char *new_name;

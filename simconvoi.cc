@@ -2841,7 +2841,7 @@ void convoi_t::vorfahren()
 				if(wt == track_wt || wt == monorail_wt || wt == maglev_wt || wt == tram_wt || wt == narrowgauge_wt)
 				{
 					grund_t* vgr = gr;
-					schiene_t *w = (schiene_t *)vgr->get_weg(wt);
+					schiene_t *w = gr ? (schiene_t *)vgr->get_weg(wt) : NULL;
 					if(w)
 					{
 						ribi_t::ribi direction_of_travel = fahr[0]->get_fahrtrichtung();
@@ -4064,7 +4064,10 @@ void convoi_t::open_schedule_window( bool show )
 		create_win( new fahrplan_gui_t(fpl,get_besitzer(),self), w_info, (ptrdiff_t)fpl );
 		// TODO: what happens if no client opens the window??
 	}
-	fpl->eingabe_beginnen();
+	if(fpl)
+	{
+		fpl->eingabe_beginnen();
+	}
 }
 
 

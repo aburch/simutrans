@@ -779,7 +779,7 @@ void vehikel_t::set_convoi(convoi_t *c)
 			if (!r.empty() && route_index < r.get_count() - 1) {
 				grund_t const* const gr = welt->lookup(pos_next);
 				if (!gr || !gr->get_weg(get_waytype())) {
-					if (!(water_wt == get_waytype()  &&  gr->ist_wasser())) { // ships on the open sea are valid
+					if (!(water_wt == get_waytype()  && gr && gr->ist_wasser())) { // ships on the open sea are valid
 						pos_next = r.position_bei(route_index + 1U);
 					}
 				}
@@ -2704,7 +2704,7 @@ bool automobil_t::ist_befahrbar(const grund_t *bd) const
 	}
 	if(!is_checker)
 	{
-		bool electric = cnv!=NULL  ?  cnv->needs_electrification() : besch->get_engine_type()==vehikel_besch_t::electric;
+		bool electric = cnv != NULL ? cnv->needs_electrification() : besch->get_engine_type() == vehikel_besch_t::electric;
 		if(electric  &&  !str->is_electrified()) {
 			return false;
 		}
@@ -2723,7 +2723,7 @@ bool automobil_t::ist_befahrbar(const grund_t *bd) const
 				return false;
 			}
 			// do not search further for a free stop beyond here
-			if(target_halt.is_bound()  &&  cnv->is_waiting()  &&  (rs->get_besch()->get_flags() & roadsign_besch_t::END_OF_CHOOSE_AREA)) {
+			if(target_halt.is_bound() && cnv && cnv->is_waiting() && (rs->get_besch()->get_flags() & roadsign_besch_t::END_OF_CHOOSE_AREA)) {
 				return false;
 			}
 		}
@@ -3428,7 +3428,7 @@ route_t::route_result_t waggon_t::calc_route(koord3d start, koord3d ziel, sint32
 	if(r == route_t::valid_route_halt_too_short)
 	{
 		cbuffer_t buf;
-		buf.printf( translator::translate("Vehicle %s cannot choose because stop too short!"), cnv->get_name());
+		buf.printf( translator::translate("Vehicle %s cannot choose because stop too short!"), cnv ? cnv->get_name() : "Invalid convoy");
 		welt->get_message()->add_message( (const char *)buf, ziel.get_2d(), message_t::warnings, PLAYER_FLAG | cnv->get_besitzer()->get_player_nr(), cnv->front()->get_basis_bild() );
 	}
 	return r;
@@ -3473,7 +3473,7 @@ bool waggon_t::ist_befahrbar(const grund_t *bd) const
 		}
 	}
 
-	if(  target_halt.is_bound()  &&  cnv->is_waiting()  ) 
+	if(  target_halt.is_bound() && cnv && cnv->is_waiting()  ) 
 	{
 		// we are searching a stop here:
 		// ok, we can go where we already are ...
@@ -4253,7 +4253,10 @@ bool waggon_t::block_reserver(route_t *route, uint16 start_index, uint16 &next_s
 			route->remove_koord_from(early_platform_index);
 		}
 	}
-	cnv->set_next_reservation_index( i );
+	if(cnv)
+	{
+		cnv->set_next_reservation_index( i );
+	}
 
 	return true;
 }
@@ -4720,7 +4723,7 @@ DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","found no route to free 
 // must also take care of stops under traveling and the like
 route_t::route_result_t aircraft_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route)
 {
-	if(ist_erstes  &&  cnv) {
+	if(ist_erstes) {
 		// free target reservation
 		if(  target_halt.is_bound() ) {
 			if (grund_t* const target = welt->lookup(cnv->get_route()->back())) {
