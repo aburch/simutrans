@@ -1468,30 +1468,22 @@ void gui_convoy_assembler_t::update_data()
 							// If we are using the replacing window,
 							// vehicle_list is the list of all vehicles in the current convoy.
 							// vehicles is the list of the vehicles to replace them with.
-							sint8 upgradeable_count = 0;
-							ITERATE(vehicles,j)
-							{
-								if(vehicles[j] == info)
-								{
-									// Counts the number of vehicles in the current convoy that can
-									// upgrade to the currently selected vehicle.
-									upgradeable_count --;
-								}
-							}
+							int upgradable_count = 0;
+							
 							ITERATE(vehicle_list,j)
 							{
 								for(uint16 k = 0; k < vehicle_list[j]->get_upgrades_count(); k++)
 								{
 									if(vehicle_list[j]->get_upgrades(k) && (vehicle_list[j]->get_upgrades(k) == info))
 									{
-										// Counts the number of vehicles currently marked to be upgraded
-										// to the selected vehicle.
-										upgradeable_count ++;
+										// Counts the number of vehicles in the current convoy that can
+										// upgrade to the currently selected vehicle.
+										upgradable_count ++;
 									}
 								}
 							}
 
-							if(upgradeable_count < 1)
+							if(upgradable_count == 0)
 							{
 								//There are not enough vehicles left to upgrade.
 								img.lcolor = COL_DARK_PURPLE;
