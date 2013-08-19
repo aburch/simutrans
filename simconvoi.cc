@@ -5251,13 +5251,13 @@ void convoi_t::check_pending_updates()
 			fpl = create_schedule();
 		}
 		schedule_t* new_fpl = line_update_pending->get_schedule();
-		int aktuell = fpl->get_aktuell(); // save current position of schedule
+		uint8 aktuell = fpl->get_aktuell(); // save current position of schedule
 		bool is_same = false;
 		bool is_depot = false;
 		koord3d current = koord3d::invalid, depot = koord3d::invalid;
 
 		if (fpl->empty() || new_fpl->empty()) {
-			// was no entry or is no entry => goto  1st stop
+			// There was no entry or is no entry: go to the first stop
 			aktuell = 0;
 		}
 		else {
@@ -5273,9 +5273,13 @@ void convoi_t::check_pending_updates()
 				is_depot = (welt->lookup(current)  &&  welt->lookup(current)->get_depot() != NULL);
 
 				if(is_depot) {
-					// depot => aktuell+1 (depot will be restore later before this)
+					// depot => aktuell+1 (depot will be restored later before this)
 					depot = current;
 					fpl->remove();
+					if(fpl->empty())
+					{
+						goto end_check;
+					}
 					current = fpl->get_current_eintrag().pos;
 				}
 
@@ -5337,6 +5341,7 @@ void convoi_t::check_pending_updates()
 				is_same = aktuell < new_fpl->get_count() && matches_halt(current,new_fpl->eintrag[aktuell].pos);
 			}
 		}
+end_check: 
 
 		// we may need to update the line and connection tables
 		if(  !line.is_bound()  ) {
