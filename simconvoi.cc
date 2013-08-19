@@ -4114,7 +4114,7 @@ void convoi_t::laden() //"load" (Babelfish)
 	const koord3d pos3d = fahr[0]->get_pos();
 	koord pos;
 	halthandle_t new_halt = haltestelle_t::get_halt(welt, pos3d, fahr[0]->get_besitzer());
-	if(new_halt.is_bound())
+	if(!new_halt.is_bound())
 	{
 		pos = pos3d.get_2d();
 	}
