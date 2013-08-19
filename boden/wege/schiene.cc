@@ -83,11 +83,6 @@ bool schiene_t::reserve(convoihandle_t c, ribi_t::ribi dir)
 {
 	if(can_reserve(c)) 
 	{
-		/*const grund_t* gr = welt->lookup(get_pos());
-		if(gr->get_convoi_vehicle())
-		{
-			return false;
-		}*/
 		reserved = c;
 		/* for threeway and forway switches we may need to alter graphic, if
 		 * direction is a diagonal (i.e. on the switching part)

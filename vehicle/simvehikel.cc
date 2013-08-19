@@ -3473,14 +3473,23 @@ bool waggon_t::ist_befahrbar(const grund_t *bd) const
 		}
 	}
 
-	if(  target_halt.is_bound() && cnv && cnv->is_waiting()  ) 
+	bool check_reservation = true;
+
+	if(target_halt.is_bound() && cnv && cnv->is_waiting()) 
 	{
 		// we are searching a stop here:
 		// ok, we can go where we already are ...
 		if(bd->get_pos() == get_pos()) 
 		{
-			return check_access(sch);
+			return true;
 		}
+		// but we can only use empty blocks ...
+		// now check, if we could enter here
+		check_reservation = sch->can_reserve(cnv->self);
+	}
+
+	if(cnv && cnv->get_is_choosing())
+	{
 		// we cannot pass an end of choose area
 		if(sch->has_sign()) 
 		{
@@ -3493,12 +3502,10 @@ bool waggon_t::ist_befahrbar(const grund_t *bd) const
 				}
 			}
 		}
-		// but we can only use empty blocks ...
-		// now check, if we could enter here
-		return check_access(sch) && sch->can_reserve(cnv->self);
+		check_reservation = sch->can_reserve(cnv->self);
 	}
 
-	return check_access(sch);
+	return check_access(sch) && check_reservation;
 }
 
 
@@ -3694,25 +3701,33 @@ bool waggon_t::is_weg_frei_choose_signal( signal_t *sig, const uint16 start_bloc
 	target_halt = halthandle_t();
 
 	// check, if there is another choose signal or end_of_choose on the route
-	for(  uint32 idx=start_block+1;  choose_ok  &&  idx<cnv->get_route()->get_count();  idx++  ) {
+	for(uint32 idx = start_block + 1; choose_ok && idx < cnv->get_route()->get_count(); idx++)
+	{
 		grund_t *gr = welt->lookup(cnv->get_route()->position_bei(idx));
-		if(  gr==0  ) {
+		if(!gr)
+		{
 			choose_ok = false;
 			break;
 		}
-		if(  gr->get_halt()==target->get_halt()  ) {
+		const koord3d TEST_pos = gr->get_pos();
+		if(gr->get_halt() == target->get_halt()) 
+		{
 			target_halt = gr->get_halt();
 			break;
 		}
 		weg_t *way = gr->get_weg(get_waytype());
-		if(  way==0  ) {
+		if(!way)
+		{
 			choose_ok = false;
 			break;
 		}
-		if(  way->has_sign()  ) {
+		if(way->has_sign())
+		{
 			roadsign_t *rs = gr->find<roadsign_t>(1);
-			if(  rs  &&  rs->get_besch()->get_wtyp()==get_waytype()  ) {
-				if(  (rs->get_besch()->get_flags()&roadsign_besch_t::END_OF_CHOOSE_AREA)!=0  ) {
+			if(rs && rs->get_besch()->get_wtyp()==get_waytype())
+			{
+				if((rs->get_besch()->get_flags() & roadsign_besch_t::END_OF_CHOOSE_AREA) != 0)
+				{
 					// end of choose on route => not choosing here
 					choose_ok = false;
 				}
@@ -3749,15 +3764,17 @@ bool waggon_t::is_weg_frei_choose_signal( signal_t *sig, const uint16 start_bloc
 		// now it we are in a step and can use the route search
 		route_t target_rt;
 		const int richtung = ribi_typ(get_pos().get_2d(),pos_next.get_2d());	// to avoid confusion at diagonals
+		cnv->set_is_choosing(true);
 #ifdef MAX_CHOOSE_BLOCK_TILES
-		if(  !target_rt.find_route( welt, cnv->get_route()->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, cnv->get_highest_axle_load(), MAX_CHOOSE_BLOCK_TILES )  ) {
+		if(  !target_rt.find_route( welt, cnv->get_route()->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, cnv->get_highest_axle_load(), MAX_CHOOSE_BLOCK_TILES, route_t::choose_signal )  ) {
 #else
-		if(  !target_rt.find_route( welt, cnv->get_route()->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, cnv->get_highest_axle_load(), welt->get_size().x+welt->get_size().y )  ) {
+		if(  !target_rt.find_route( welt, cnv->get_route()->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, cnv->get_highest_axle_load(), welt->get_size().x+welt->get_size().y, route_t::choose_signal )  ) {
 #endif
 			// nothing empty or not route with less than MAX_CHOOSE_BLOCK_TILES tiles
 			target_halt = halthandle_t();
 			sig->set_zustand(  roadsign_t::rot );
 			restart_speed = 0;
+			cnv->set_is_choosing(false);
 			return false;
 		}
 		else {
@@ -3768,6 +3785,7 @@ bool waggon_t::is_weg_frei_choose_signal( signal_t *sig, const uint16 start_bloc
 				target_halt = halthandle_t();
 				sig->set_zustand(  roadsign_t::rot );
 				restart_speed = 0;
+				cnv->set_is_choosing(false);
 				return false;
 			}
 		}
@@ -4028,11 +4046,15 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 		}
 
 		// next check for signal
-		if(  sch1->has_signal()  ) {
-			if(  !is_weg_frei_signal( next_block, restart_speed )  ) {
+		if(  sch1->has_signal()  )
+		{
+			if(  !is_weg_frei_signal( next_block, restart_speed )  )
+			{
 				// only return false, if we are directly in front of the signal
+				cnv->set_is_choosing(false);
 				return cnv->get_next_stop_index()>route_index;
 			}
+			cnv->set_is_choosing(false);
 		}
 	}
 	return true;

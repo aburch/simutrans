@@ -217,6 +217,7 @@ convoi_t::convoi_t(karte_t* wl, loadsave_t* file) : fahr(max_vehicle, NULL)
 	self = convoihandle_t();
 	init(wl, 0);
 	replace = NULL;
+	is_choosing = false;
 
 	no_route_retry_count = 0;
 	rdwr(file);
@@ -246,6 +247,7 @@ convoi_t::convoi_t(spieler_t* sp) : fahr(max_vehicle, NULL)
 	welt->add_convoi( self );
 	init_financial_history();
 	current_stop = 255;
+	is_choosing = false;
 
 	// Added by : Knightly
 	old_fpl = NULL;
@@ -4114,7 +4116,7 @@ void convoi_t::laden() //"load" (Babelfish)
 	const koord3d pos3d = fahr[0]->get_pos();
 	koord pos;
 	halthandle_t new_halt = haltestelle_t::get_halt(welt, pos3d, fahr[0]->get_besitzer());
-	if(!new_halt.is_bound())
+	if(new_halt.is_bound() || !halt.is_bound())
 	{
 		pos = pos3d.get_2d();
 	}
@@ -5587,7 +5589,7 @@ public:
 	{ 
 		return master->get_waytype(); 
 	};
-	virtual bool ist_befahrbar( const grund_t* gr ) const 
+	virtual bool ist_befahrbar( const grund_t* gr) const 
 	{ 
 		return master->ist_befahrbar(gr); 
 	};
