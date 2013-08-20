@@ -1083,8 +1083,10 @@ void haltestelle_t::step()
 				}
 
 				// Check whether these goods/passengers are waiting to go to a factory that has been deleted.
-				fabrik_t* const fab = fabrik_t::get_fab(welt, tmp.get_zielpos());
-				if(tmp.to_factory && !fab)
+				const grund_t* gr = welt->lookup_kartenboden(tmp.get_zielpos());
+				const gebaeude_t* const gb = gr ? gr->find<gebaeude_t>() : NULL;
+				fabrik_t* const fab = gb ? gb->get_fabrik() : NULL;
+				if(!gb || tmp.is_freight() && !fab)
 				{
 					// The goods/passengers leave.  We must record the lower "in transit" count on factories.
 					fabrik_t::update_transit(tmp, false);
@@ -2272,8 +2274,10 @@ uint32 haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 		return 0;
 	}
 
-	fabrik_t* const fab = fabrik_t::get_fab(welt, ware.get_zielpos());
-	if(ware.to_factory && !fab)
+	const grund_t* gr = welt->lookup_kartenboden(ware.get_zielpos());
+	const gebaeude_t* const gb = gr ? gr->find<gebaeude_t>() : NULL;
+	fabrik_t* const fab = gb ? gb->get_fabrik() : NULL;
+	if(!gb || ware.is_freight() && !fab)
 	{
 		// Destination factory has been deleted: write a log entry and discard the goods.
 		dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s were intended for a factory that has been deleted.", ware.menge, translator::translate(ware.get_name()), get_name() );
