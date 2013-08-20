@@ -1802,7 +1802,7 @@ void vehikel_t::calc_drag_coefficient(const grund_t *gr) //,const int h_alt, con
 	if(alte_fahrtrichtung != fahrtrichtung) //"Old direction != direction"	
 	{
 		//The level (if any) of additional friction to apply around corners.
-		const uint8 curve_friction_factor =welt->get_settings().get_curve_friction_factor(waytype);
+		const uint8 curve_friction_factor = welt->get_settings().get_curve_friction_factor(waytype);
 		current_friction += curve_friction_factor;
 	}
 
@@ -1817,13 +1817,13 @@ void vehikel_t::calc_drag_coefficient(const grund_t *gr) //,const int h_alt, con
 		{
 			//Uphill
 			//current_friction += 45;
-			current_friction = min(base_friction + 75, current_friction + 42);
+			current_friction = min(base_friction + 70, current_friction + 41);
 		}
 		else
 		{
 			//Downhill
 			//current_friction -= 45;
-			current_friction = max(base_friction - 40, current_friction - 22);
+			current_friction = max(base_friction - 42, current_friction - 24);
 		}
 	}
 	else
