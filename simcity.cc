@@ -2639,7 +2639,7 @@ void stadt_t::check_all_private_car_routes()
 	route_t private_car_route;
 	automobil_t checker(welt);
 	private_car_destination_finder_t finder(welt, &checker, this);
-	private_car_route.find_route(welt, origin, &finder, welt->get_citycar_speed_average(), ribi_t::alle, 1, depth, true);
+	private_car_route.find_route(welt, origin, &finder, welt->get_citycar_speed_average(), ribi_t::alle, 1, depth, route_t::private_car_checker);
 
 	check_road_connexions = false;
 }

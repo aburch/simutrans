@@ -13,7 +13,7 @@
 #define SIM_VERSION_MAJOR 112
 #define SIM_VERSION_MINOR   3
 #define SIM_VERSION_PATCH   0
-#define SIM_VERSION_BUILD SIM_BUILD_RELEASE
+#define SIM_VERSION_BUILD SIM_BUILD_NIGHTLY
 
 // Beware: SAVEGAME minor is often ahead of version minor when there were patches.
 // ==> These have no direct connection at all!
@@ -75,9 +75,7 @@
 /*********************** Settings related to network games ********************/
 
 /* Server to announce status to */
-//#define ANNOUNCE_SERVER "servers.experimental.simutrans.org:80"
-// Temporary workaround for DNS problem
-#define ANNOUNCE_SERVER "82.113.155.83:80"
+#define ANNOUNCE_SERVER "servers.experimental.simutrans.org:80"
 
 /* Relative URL of the announce function on server */
 #define ANNOUNCE_URL "/announce"

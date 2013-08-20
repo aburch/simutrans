@@ -2151,7 +2151,7 @@ public:
 		if(hours)
 		{
 			minutes %= 60;
-#if defined(_WIN32)
+#if defined(_WIN32) || defined (_M_X64)
 			sprintf_s(p, size, "%u:%02u:%02u", hours, minutes, seconds);
 #else
 			snprintf(p, size, "%u:%02u:%02u", hours, minutes, seconds);
@@ -2159,7 +2159,7 @@ public:
 		}
 		else
 		{
-#if defined(_WIN32)
+#if defined(_WIN32) || defined (_M_X64)
 			sprintf_s(p, size, "%u:%02u", minutes, seconds);
 #else
 			snprintf(p, size, "%u:%02u", minutes, seconds);

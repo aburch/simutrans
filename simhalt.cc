@@ -1023,15 +1023,15 @@ void haltestelle_t::request_loading(convoihandle_t cnv)
 	{
 		loading_here.append(cnv);
 	}
-	if(  last_loading_step != welt->get_steps()  ) 
+	if(last_loading_step != welt->get_steps()) 
 	{
 		last_loading_step = welt->get_steps();
 
 		// now iterate over all convois
-		for(  slist_tpl<convoihandle_t>::iterator i = loading_here.begin(), end = loading_here.end();  i != end;  ) 
+		for(slist_tpl<convoihandle_t>::iterator i = loading_here.begin(), end = loading_here.end();  i != end;) 
 		{
 			convoihandle_t const c = *i;
-			if (c.is_bound() && (c->get_state() == convoi_t::LOADING || c->get_state() == convoi_t::REVERSING)) 
+			if (c.is_bound() && (c->get_state() == convoi_t::LOADING || c->get_state() == convoi_t::REVERSING) && ((get_halt(welt, c->get_pos(), besitzer_p) == self) || (c->get_vehikel(0)->get_waytype() == water_wt && c->get_state() == convoi_t::LOADING && get_halt(welt, c->get_schedule()->get_current_eintrag().pos, besitzer_p) == self)))
 			{
 				// now we load into convoi
 				c->hat_gehalten(self);
@@ -1039,7 +1039,7 @@ void haltestelle_t::request_loading(convoihandle_t cnv)
 			}
 			else 
 			{
-				i = loading_here.erase( i );
+				i = loading_here.erase(i);
 			}
 		}
 	}
@@ -1079,6 +1079,19 @@ void haltestelle_t::step()
 				// skip empty entries
 				if(tmp.menge == 0)
 				{
+					continue;
+				}
+
+				// Check whether these goods/passengers are waiting to go to a factory that has been deleted.
+				fabrik_t* const fab = fabrik_t::get_fab(welt, tmp.get_zielpos());
+				if(tmp.to_factory && !fab)
+				{
+					// The goods/passengers leave.  We must record the lower "in transit" count on factories.
+					fabrik_t::update_transit(tmp, false);
+					tmp.menge = 0;
+
+					// No need to record waiting times if the goods are discarded because their destination
+					// does not exist.
 					continue;
 				}
 
@@ -2247,22 +2260,29 @@ uint32 haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 		// Check for an excessively long number of walking steps.  If we have one, complain and fail.
 		//
 		// This was the 4th consecutive attempt to walk between stations.  Fail.
-dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s has walked too many times", ware.menge, translator::translate(ware.get_name()), get_name() );
+		dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s has walked too many times", ware.menge, translator::translate(ware.get_name()), get_name() );
 		return ware.menge;
 	}
 
 	// no valid next stops?
-	if(!ware.get_ziel().is_bound()  ||  !ware.get_zwischenziel().is_bound()) 
+	if(!ware.get_ziel().is_bound() || !ware.get_zwischenziel().is_bound()) 
 	{
 		// write a log entry and discard the goods
-dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer a route to their destination!", ware.menge, translator::translate(ware.get_name()), get_name() );
-		return ware.menge;
+		dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer a route to their destination!", ware.menge, translator::translate(ware.get_name()), get_name() );
+		return 0;
+	}
+
+	fabrik_t* const fab = fabrik_t::get_fab(welt, ware.get_zielpos());
+	if(ware.to_factory && !fab)
+	{
+		// Destination factory has been deleted: write a log entry and discard the goods.
+		dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s were intended for a factory that has been deleted.", ware.menge, translator::translate(ware.get_name()), get_name() );
+		return 0;
 	}
 
 	// have we arrived?
 	// FIXME: This code needs to be fixed for multi-tile buildings
 	// such as attractions and city halls, to allow access from any side
-	fabrik_t* const fab = fabrik_t::get_fab(welt, ware.get_zielpos());
 	const planquadrat_t* plan = welt->lookup(ware.get_zielpos());
 	if(ware.get_ziel() == self && fab && (fab_list.is_contained(fab) || ((ware.get_besch() == warenbauer_t::passagiere || ware.get_besch() == warenbauer_t::post) && plan->is_connected(self))))
 	{
@@ -2965,12 +2985,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 	// version and therefore not predicatable by simutrans.
 	
 	uint8 max_catg_count_game = warenbauer_t::get_max_catg_index();
-	uint8 max_catg_count_file;
-
-	if(file->is_saving() || file->get_experimental_version() <= 10)
-	{
-		max_catg_count_file = max_catg_count_game; 
-	}
+	uint8 max_catg_count_file = max_catg_count_game;
 	
 	if(file->get_experimental_version() >= 11)
 	{
@@ -3342,6 +3357,12 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		// and it's pretty fast to compute during loading
 		file->rdwr_short(transfer_time);
 	}
+
+	if(file->get_experimental_version() >= 12)
+	{
+		file->rdwr_byte(check_waiting);
+	}
+
 	// So compute it fresh every time
 	calc_transfer_time();
 
@@ -3402,7 +3423,7 @@ void haltestelle_t::laden_abschliessen(bool need_recheck_for_walking_distance)
 		}
 	}
 	else {
-		const char *current_name = bd->get_text();
+		const char *current_name = bd ? bd->get_text() : translator::translate("Invalid stop");
 		if(  all_names.get(current_name).is_bound()  &&  fabrik_t::get_fab(welt, get_basis_pos())==NULL  ) {
 			// try to get a new name ...
 			const char *new_name;
@@ -4065,14 +4086,16 @@ int haltestelle_t::get_queue_pos(convoihandle_t cnv) const
 	int count = 0;
 	for(slist_tpl<convoihandle_t>::const_iterator i = loading_here.begin(), end = loading_here.end();  i != end && (*i) != cnv; ++i)
 	{
-		if(!(*i).is_bound())
+		if(!(*i).is_bound() || welt->lookup((*i)->get_pos())->get_halt() != self)
 		{
 			continue;
 		}
 		if((*i)->get_line() == line && 
 			((*i)->get_schedule()->get_aktuell() == cnv->get_schedule()->get_aktuell()
 			|| ((*i)->get_state() == convoi_t::REVERSING
-			&& (*i)->get_reverse_schedule() ? (*i)->get_schedule()->get_aktuell() + 1 == cnv->get_schedule()->get_aktuell() : (*i)->get_schedule()->get_aktuell() - 1 == cnv->get_schedule()->get_aktuell())))
+			&& (*i)->get_reverse_schedule() ? 
+				(*i)->get_schedule()->get_aktuell() + 1 == cnv->get_schedule()->get_aktuell() :
+				(*i)->get_schedule()->get_aktuell() - 1 == cnv->get_schedule()->get_aktuell())))
 		{
 			count++;
 		}

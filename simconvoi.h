@@ -677,6 +677,16 @@ private:
 	 */
 	void book_departure_time(sint64 time);
 
+	/**
+	 * Whether this convoy is in the process
+	 * of trying to reserve a path from a 
+	 * choose signal. Only relevant for rail
+	 * convoys, as this is for the block 
+	 * reserver.
+	 * @author: jamespetts
+	 */
+	bool is_choosing:1; 
+
 public: 
 	/**
 	 * Some precalculated often used infos about a tile of the convoy's route.
@@ -925,14 +935,8 @@ public:
 	 * @return total power of this convoi
 	 * @author Hj. Malthaner
 	 */
-//<<<<<<< HEAD
 	inline uint32 get_sum_leistung() {return get_continuous_power();}
 	inline sint32 get_min_top_speed() {return get_vehicle_summary().max_sim_speed;}
-//=======
-//	const uint32 & get_sum_leistung() const {return sum_leistung;}
-//	const sint32 & get_min_top_speed() const {return min_top_speed;}
-//	const sint32 & get_speed_limit() const {return speed_limit;}
-//>>>>>>> ad21768f2e2255525ad3ebe48dcb5fbeb8ad21d6
 
 	/// @returns weight of the convoy's vehicles (excluding freight)
 	inline sint64 get_sum_gewicht() {return get_vehicle_summary().weight;}
@@ -1082,6 +1086,9 @@ public:
 	* @author yobbobandana
 	*/
 	void set_reverse_schedule(bool reverse) { reverse_schedule = reverse; }
+
+	void set_is_choosing(bool value) { is_choosing = value; }
+	bool get_is_choosing() const { return is_choosing; }
 
 	/**
 	* The table of point-to-point average journey times.

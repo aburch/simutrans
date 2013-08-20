@@ -79,9 +79,10 @@ void schiene_t::info(cbuffer_t & buf, bool is_bridge) const
  * true, if this rail can be reserved
  * @author prissi
  */
-bool schiene_t::reserve(convoihandle_t c, ribi_t::ribi dir  )
+bool schiene_t::reserve(convoihandle_t c, ribi_t::ribi dir)
 {
-	if(can_reserve(c)) {
+	if(can_reserve(c)) 
+	{
 		reserved = c;
 		/* for threeway and forway switches we may need to alter graphic, if
 		 * direction is a diagonal (i.e. on the switching part)
