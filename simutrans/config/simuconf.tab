@@ -380,7 +380,8 @@ towns_adopt_player_roads = 1
 allow_making_public = 0
 
 # This is the maximum level of building that can be constructed or upgraded
-# beneath an elevated way, or over which an elevated way can be built. 
+# beneath an elevated way or bridge, or over which an elevated way or bridge 
+# can be built. 
 # 0 = no limit.
 
 max_elevated_way_building_level = 2

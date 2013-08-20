@@ -5210,9 +5210,9 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 	{
 		grund_t* gr = welt->lookup(gb->get_pos());
 		way = gr ? gr->get_weg((waytype_t)i) : NULL;
-		if(way && (wegbauer_t::bautyp_t)way->get_besch()->get_wtyp() & wegbauer_t::elevated_flag)
+		if((way && (wegbauer_t::bautyp_t)way->get_besch()->get_wtyp() & wegbauer_t::elevated_flag) || (gr && gr-> ist_bruecke()))
 		{ 
-			// Limit this if any elevated way is found.
+			// Limit this if any elevated way or bridge is found.
 			max_level = welt->get_settings().get_max_elevated_way_building_level();
 			break;
 		}

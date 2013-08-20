@@ -1,0 +1,11 @@
+# Simutranslator settings for Simutrans-Experimental texts
+# Addendum for the inclusion of bridges in the rules about building height.
+#
+# Author: jamespetts
+# Created: August 2013
+#
+obj=program_text
+name=Bridges cannot be built over large buildings.
+note=The error message given when attempting to build a bridge over one or more buildings whose level exceeds that set in "max_elevated_way_building_level".
+-
+
