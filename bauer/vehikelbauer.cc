@@ -429,7 +429,7 @@ const vehikel_besch_t *vehikelbauer_t::vehikel_search( waytype_t wt, const uint1
 					if(  besch==NULL  ||  difference<(int)simrand(25, "vehikelbauer_t::vehikel_search")    ) {
 						// then we want this vehicle!
 						besch = test_besch;
-						DBG_MESSAGE( "vehikelbauer_t::vehikel_search","Found car %s",besch->get_name());
+						DBG_MESSAGE( "vehikelbauer_t::vehikel_search","Found car %s", besch ? besch->get_name() : "null");
 					}
 
 				else {
@@ -563,7 +563,7 @@ const vehikel_besch_t *vehikelbauer_t::get_best_matching( waytype_t wt, const ui
 				{
 					// then we want this vehicle!
 					besch = test_besch;
-					DBG_MESSAGE( "vehikelbauer_t::get_best_matching","Found car %s",besch->get_name());
+					DBG_MESSAGE( "vehikelbauer_t::get_best_matching","Found car %s", besch ? besch->get_name() : "null");
 				}
 			}
 			else {

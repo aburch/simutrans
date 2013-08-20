@@ -4087,6 +4087,10 @@ bool waggon_t::block_reserver(route_t *route, uint16 start_index, uint16 &next_s
 	{
 		fpl = cnv->get_schedule();
 	}
+	else
+	{
+		return false;
+	}
 	bool do_early_platform_search =	fpl != NULL
 		&& (fpl->is_mirrored() || fpl->is_bidirectional())
 		&& fpl->get_current_eintrag().ladegrad == 0;

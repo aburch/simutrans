@@ -764,7 +764,10 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 			ribi &= bridge_ribi;
 
 			bruecke_t *br = gr->find<bruecke_t>();
-			br->entferne(sp);
+			if(br)
+			{
+				br->entferne(sp);
+			}
 			delete br;
 
 			// stops on flag bridges ends with road + track on it

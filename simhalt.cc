@@ -3444,7 +3444,10 @@ void haltestelle_t::laden_abschliessen(bool need_recheck_for_walking_distance)
 				new_name = create_name( get_basis_pos(), "H" );
 			}
 			dbg->warning("haltestelle_t::set_name()","name already used: \'%s\' -> \'%s\'", current_name, new_name );
-			bd->set_text( new_name );
+			if(bd)
+			{
+				bd->set_text( new_name );
+			}
 			current_name = new_name;
 		}
 		all_names.set( current_name, self );

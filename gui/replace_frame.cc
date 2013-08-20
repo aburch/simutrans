@@ -665,7 +665,7 @@ sint64 replace_frame_t::calc_total_cost()
 						{
 							veh = current_vehicles[l]->get_besch();
 							keep_vehicles.append_unique(l);
-							total_cost += veh->get_upgrades(c)->get_upgrade_price();
+							total_cost += veh ? veh->get_upgrades(c)->get_upgrade_price() : 0;
 							goto end_loop;
 						}
 					}

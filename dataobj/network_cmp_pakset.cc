@@ -108,7 +108,10 @@ void nwc_pakset_info_t::rdwr()
 		if(  packet->is_loading()  ) {
 			chk = new checksum_t();
 		}
-		chk->rdwr(packet);
+		if(chk)
+		{
+			chk->rdwr(packet);
+		}
 	}
 }
 

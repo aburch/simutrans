@@ -214,21 +214,24 @@ void wayobj_t::laden_abschliessen()
 	weg_t *weg = welt->lookup(get_pos())->get_weg(wt);
 
 	// electrify a way if we are a catenary
-	if(besch->get_own_wtyp()==overheadlines_wt) {	
-		if(weg) {
+	if(besch->get_own_wtyp()==overheadlines_wt) 
+	{	
+		if(weg)
+		{
 			// Weg wieder freigeben, wenn das Signal nicht mehr da ist.
 			weg->set_electrify(true);
-			if(weg->get_max_speed()>besch->get_topspeed()) {
+			if(weg->get_max_speed()>besch->get_topspeed())
+			{
 				weg->set_max_speed(besch->get_topspeed());
 			}
+			// Add the way constraints together.
+			weg->add_way_constraints(besch->get_way_constraints());
 		}
-		else {
+		else 
+		{
 			dbg->warning("wayobj_t::laden_abschliessen()","ground was not a way!");
 		}
 	}
-
-	//Add the way constraints together.
-	weg->add_way_constraints(besch->get_way_constraints());
 
 	spieler_t::add_maintenance(get_besitzer(), besch->get_wartung(), besch->get_wtyp());
 }
