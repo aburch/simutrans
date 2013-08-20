@@ -3416,6 +3416,12 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		// and it's pretty fast to compute during loading
 		file->rdwr_short(transfer_time);
 	}
+
+	if(file->get_experimental_version() >= 12 || file->get_experimental_version() >= 11 && file->get_version() >= 112006)
+	{
+		file->rdwr_byte(check_waiting);
+	}
+
 	// So compute it fresh every time
 	calc_transfer_time();
 
