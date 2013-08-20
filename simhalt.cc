@@ -3417,7 +3417,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		file->rdwr_short(transfer_time);
 	}
 
-	if(file->get_experimental_version() >= 12 || file->get_experimental_version() >= 11 && file->get_version() >= 112006)
+	if(file->get_experimental_version() >= 12)
 	{
 		file->rdwr_byte(check_waiting);
 	}
