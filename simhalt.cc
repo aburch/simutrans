@@ -2331,7 +2331,7 @@ uint32 haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 		{
 			if(ware.is_commuting_trip)
 			{
-				const grund_t* gr = welt->lookup(koord3d(ware.get_zielpos(), welt->lookup_hgt((ware.get_zielpos()))));
+				const grund_t* gr = welt->lookup_kartenboden(ware.get_zielpos());
 				if(gr)
 				{
 					gebaeude_t* gb_dest = gr->find<gebaeude_t>();
@@ -2345,7 +2345,7 @@ uint32 haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 			if(welt->get_settings().get_show_pax())
 			{
 				int menge = ware.menge;
-				FOR( slist_tpl<tile_t>, const& i, tiles )
+				FOR(slist_tpl<tile_t>, const& i, tiles)
 				{
 					if(menge <= 0) 
 					{

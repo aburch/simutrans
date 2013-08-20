@@ -291,7 +291,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			if(sortby != by_via_sum && sortby != by_origin_amount) 
 			{
 				const fabrik_t *const factory = fabrik_t::get_fab(world, ware.get_zielpos());
-				const grund_t* gr = welt->lookup(koord3d(ware.get_zielpos(), welt->lookup_hgt(ware.get_zielpos())));
+				const grund_t* gr = welt->lookup_kartenboden(ware.get_zielpos());
 				const gebaeude_t* const gb = gr ? gr->find<gebaeude_t>() : NULL;
 				const char* description = translator::translate("Unknown destination");
 				cbuffer_t dbuf;

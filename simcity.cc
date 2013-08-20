@@ -2623,8 +2623,10 @@ void stadt_t::roll_history()
 void stadt_t::check_all_private_car_routes()
 {
 	const uint32 depth = welt->get_max_road_check_depth();
-	const koord3d origin(townhall_road.x, townhall_road.y, welt->lookup_hgt(townhall_road));
-	if(welt->lookup(origin.get_2d())->get_city() != this)
+	const planquadrat_t* plan = welt->lookup(townhall_road); 
+	const grund_t* gr = welt->lookup_kartenboden(townhall_road);
+	const koord3d origin = gr ? gr->get_pos() : koord3d::invalid;
+	if(plan->get_city() != this)
 	{
 		// This sometimes happens shortly after the map rotating. Return here to avoid crashing.
 		dbg->error("void stadt_t::check_all_private_car_routes()", "Townhall road does not register as being in its origin city - cannot check private car routes");
@@ -3055,8 +3057,8 @@ uint16 stadt_t::check_road_connexion_to(stadt_t* city)
 	if(city == this)
 	{
 		// Should always be possible to travel within the city.
-		const koord3d pos3d(townhall_road, welt->lookup_hgt(townhall_road));
-		const weg_t* road = welt->lookup(pos3d) ? welt->lookup(pos3d)->get_weg(road_wt) : NULL;
+		const grund_t* gr = welt->lookup_kartenboden(townhall_road);
+		const weg_t* road = gr ? gr->get_weg(road_wt) : NULL;
 		const uint16 journey_time_per_tile = road ? road->get_besch() == welt->get_city_road() ? welt->get_generic_road_time_per_tile_city() : welt->calc_generic_road_time_per_tile(road->get_besch()) : welt->get_generic_road_time_per_tile_city();
 		connected_cities.put(pos, journey_time_per_tile);
 		return journey_time_per_tile;
@@ -4307,7 +4309,7 @@ void stadt_t::merke_passagier_ziel(koord k, uint8 color)
 {
 	vector_tpl<koord> building_list;
 	building_list.append(k);
-	const grund_t* gr = welt->lookup(koord3d(k, welt->lookup_hgt(k)));
+	const grund_t* gr = welt->lookup_kartenboden(k);
 	if(gr)
 	{
 		const gebaeude_t* gb = gr->find<gebaeude_t>();

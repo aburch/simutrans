@@ -2222,7 +2222,7 @@ void wegbauer_t::baue_strasse()
 				for(uint8 i = 0; i < 8; i ++)
 				{
 					koord pos(weg->get_pos() + weg->get_pos().neighbours[i]);
-					gr = welt->lookup(koord3d(pos, welt->lookup_hgt(pos)));
+					gr = welt->lookup_kartenboden(pos);
 					if(!gr || !welt->get_city(pos)) 
 					{
 						continue;

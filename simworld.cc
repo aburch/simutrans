@@ -4582,16 +4582,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 					}
 
 					// Onward journey - set the initial point to the previous end point.
-					const grund_t* gr = lookup(koord3d(destination_pos, lookup_hgt(destination_pos)));
-					if(!gr)
-					{
-						// Artificial slopes makes this harder.
-						gr = lookup(koord3d(destination_pos, lookup_hgt(destination_pos) + 1));
-					}
-					if(!gr)
-					{
-						gr = lookup(koord3d(destination_pos, lookup_hgt(destination_pos) - 1));
-					}
+					const grund_t* gr = lookup_kartenboden(destination_pos);
 					if(!gr)
 					{
 						continue;
@@ -4755,16 +4746,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 						else
 						{
 							
-							grund_t* gr = lookup(koord3d(destination_pos, lookup_hgt(destination_pos)));
-							if(!gr)
-							{
-								// Artificial slopes make this harder.
-								gr = lookup(koord3d(destination_pos, lookup_hgt(destination_pos) + 1));
-							}
-							if(!gr)
-							{
-								gr = lookup(koord3d(destination_pos, lookup_hgt(destination_pos) - 1));
-							}
+							grund_t* gr = lookup_kartenboden(destination_pos);
 							if(!gr || !gr->find<gebaeude_t>() || !gr->find<gebaeude_t>()->jobs_available())
 							{
 								if(route_status == initialising)
@@ -5214,16 +5196,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 						}
 						else
 						{
-							const grund_t* gr = lookup(koord3d(destination_pos, lookup_hgt(destination_pos)));
-							if(!gr)
-							{
-								// Artificial slopes make this harder.
-								gr = lookup(koord3d(destination_pos, lookup_hgt(destination_pos) + 1));
-							}
-							if(!gr)
-							{
-								gr = lookup(koord3d(destination_pos, lookup_hgt(destination_pos) - 1));
-							}
+							const grund_t* gr = lookup_kartenboden(destination_pos);
 							if(gr)
 							{
 								gebaeude_t* gb_dest = gr->find<gebaeude_t>();
