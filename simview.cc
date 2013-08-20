@@ -344,7 +344,7 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 #endif
 	bool lock_restore_grid = false;	// true while showing grid
 	bool lock_restore_hiding = false; // true while hiding buildings/trees around cursor
-	const bool needs_hiding = !umgebung_t::hide_trees  |  (umgebung_t::hide_buildings != umgebung_t::ALL_HIDDEN_BUIDLING);
+	const bool needs_hiding = !umgebung_t::hide_trees  ||  (umgebung_t::hide_buildings != umgebung_t::ALL_HIDDEN_BUIDLING);
 
 	for( int y=y_min;  y<y_max;  y++  ) {
 

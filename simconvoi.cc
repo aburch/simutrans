@@ -217,6 +217,7 @@ convoi_t::convoi_t(karte_t* wl, loadsave_t* file) : fahr(max_vehicle, NULL)
 	self = convoihandle_t();
 	init(wl, 0);
 	replace = NULL;
+	is_choosing = false;
 
 	no_route_retry_count = 0;
 	rdwr(file);
@@ -246,6 +247,7 @@ convoi_t::convoi_t(spieler_t* sp) : fahr(max_vehicle, NULL)
 	welt->add_convoi( self );
 	init_financial_history();
 	current_stop = 255;
+	is_choosing = false;
 
 	// Added by : Knightly
 	old_fpl = NULL;
@@ -362,14 +364,22 @@ uint32 convoi_t::move_to(karte_t const& welt, koord3d const& k, uint16 const sta
 			v.mark_image_dirty(v.get_bild(), v.get_hoff());
 			v.verlasse_feld();
 			// maybe unreserve this
-			if (schiene_t* const rails = ding_cast<schiene_t>(gr->get_weg(v.get_waytype()))) {
-				rails->unreserve(&v);
+			if(schiene_t* const rails = ding_cast<schiene_t>(gr->get_weg(v.get_waytype()))) 
+			{
+				if(state != REVERSING)
+				{
+					rails->unreserve(&v);
+				}
 			}
 		}
 
 		/* Set pos_prev to the starting point this way.  Otherwise it may be
 		 * elsewhere, especially on curves and with already broken convois. */
-		v.set_pos(k);
+		if(state != REVERSING)
+		{
+			// This causes unsightly setting back when convoys are reversing.
+			v.set_pos(k);
+		}
 		v.neue_fahrt(start_index, true);
 		if (welt.lookup(v.get_pos())) {
 			v.set_pos(k);
@@ -2814,14 +2824,69 @@ void convoi_t::vorfahren()
 			}
 			// to advance more smoothly
 			int restart_speed=-1;
-			if(fahr[0]->ist_weg_frei(restart_speed,false)) {
-				// can reserve new block => drive on
-				if(haltestelle_t::get_halt(welt,k0,besitzer_p).is_bound()) {
-					fahr[0]->play_sound();
-				}
-				if(state != REVERSING)
+			if(state != REVERSING)
+			{
+				if(fahr[0]->ist_weg_frei(restart_speed, false)) 
 				{
+					// can reserve new block => drive on
+					if(haltestelle_t::get_halt(welt, k0, besitzer_p).is_bound())
+					{
+						fahr[0]->play_sound();
+					}
 					state = DRIVING;
+				}
+			}
+			else
+			{
+				// If a rail type vehicle is reversing in a station, reserve the entire platform.
+				const waytype_t wt = fahr[0]->get_waytype();
+				if(wt == track_wt || wt == monorail_wt || wt == maglev_wt || wt == tram_wt || wt == narrowgauge_wt)
+				{
+					grund_t* vgr = gr;
+					schiene_t *w = gr ? (schiene_t *)vgr->get_weg(wt) : NULL;
+					if(w)
+					{
+						ribi_t::ribi direction_of_travel = fahr[0]->get_fahrtrichtung();
+						// First, reserve under the entire train (which might be outside the station in part)
+						for(unsigned i = 0; i < anz_vehikel; i++) 
+						{
+							vehikel_t const& v = *fahr[i];
+							vgr = welt->lookup(v.get_pos());
+							if(!vgr)
+							{
+								continue;
+							}
+							w = (schiene_t *)vgr->get_weg(wt);
+							if(!w)
+							{
+								continue;
+							}
+							w->reserve(self, direction_of_travel); 
+						}
+						
+						// Next, reserve the rest (if any) of the platform.
+						grund_t* to = gr;
+						if(to)
+						{
+							koord3d last_pos = gr->get_pos();
+							while(haltestelle_t::get_halt(welt, to->get_pos(), besitzer_p).is_bound())
+							{		
+								w = (schiene_t *)to->get_weg(wt);
+								if(!w)
+								{
+									continue;
+								}
+								w->reserve(self, direction_of_travel); 
+								last_pos = to->get_pos();
+								to->get_neighbour(to, wt, direction_of_travel);
+								if(last_pos == to->get_pos())
+								{
+									// Prevent infinite loops.
+									break;
+								}
+							}
+						}
+					}
 				}
 			}
 		}
@@ -4001,7 +4066,10 @@ void convoi_t::open_schedule_window( bool show )
 		create_win( new fahrplan_gui_t(fpl,get_besitzer(),self), w_info, (ptrdiff_t)fpl );
 		// TODO: what happens if no client opens the window??
 	}
-	fpl->eingabe_beginnen();
+	if(fpl)
+	{
+		fpl->eingabe_beginnen();
+	}
 }
 
 
@@ -4039,16 +4107,34 @@ void convoi_t::laden() //"load" (Babelfish)
 	// Calculate average speed and journey time
 	// @author: jamespetts
 	
-	halthandle_t halt = haltestelle_t::get_halt(welt, fpl->get_current_eintrag().pos,besitzer_p);
+	halthandle_t halt = haltestelle_t::get_halt(welt, fpl->get_current_eintrag().pos, besitzer_p);
 	id_pair pair(last_stop_id, halt.get_id());
 	
 	// The calculation of the journey distance does not need to use normalised halt locations for comparison, so
 	// a more accurate distance can be used. Query whether the formula from halt_detail.cc should be used here instead
 	// (That formula has the effect of finding the distance between the nearest points of two halts).
-	const uint32 journey_distance = shortest_distance(fahr[0]->get_pos().get_2d(), fahr[0]->last_stop_pos);
+	const koord3d pos3d = fahr[0]->get_pos();
+	koord pos;
+	halthandle_t new_halt = haltestelle_t::get_halt(welt, pos3d, fahr[0]->get_besitzer());
+	if(new_halt.is_bound() || !halt.is_bound())
+	{
+		pos = pos3d.get_2d();
+		if(halt != new_halt)
+		{
+			halt = new_halt;
+		}
+	}
+	else
+	{
+		pos = halt->get_basis_pos();
+	}
 
-	//last_stop_pos will be set to get_pos().get_2d() in hat_gehalten (called from inside halt->request_loading later
-	//so code inside if will be executed once. At arrival time.
+	const uint32 journey_distance = shortest_distance(pos, fahr[0]->last_stop_pos);
+
+	// last_stop_pos will be set to get_pos().get_2d() in hat_gehalten (called from inside halt->request_loading later
+	// so code inside if will be executed once. At arrival time.
+	minivec_tpl<uint8> departure_entries_to_remove(fpl->get_count());
+	bool clear_departures = false;
 	if(journey_distance > 0)
 	{
 		arrival_time = welt->get_zeit_ms();
@@ -4237,92 +4323,88 @@ write_basic_line:
 			}
 			while(starting_stop != current_stop && idp.x != idp.y);
 		}
-	}
-
-	bool clear_departures = false;
-	minivec_tpl<uint8> departure_entries_to_remove(fpl->get_count());
 	
-	if(!is_circular_route())
-	{
-		uint8 stop = fpl->get_aktuell();
-		uint8 previous_stop = stop;
-
-		bool rev = reverse_schedule;
-		bool anti_rev = !rev;
-		halthandle_t stop_hh;
-		halthandle_t previous_stop_hh;
-
-		for(int i = 0; i < fpl->get_count(); i ++)
+		if(!is_circular_route())
 		{
-			fpl->increment_index(&previous_stop, &anti_rev);
-			fpl->increment_index(&stop, &rev);
-			if(i == 0)
+			uint8 stop = fpl->get_aktuell();
+			uint8 previous_stop = stop;
+
+			bool rev = reverse_schedule;
+			bool anti_rev = !rev;
+			halthandle_t stop_hh;
+			halthandle_t previous_stop_hh;
+
+			for(int i = 0; i < fpl->get_count(); i ++)
 			{
-				clear_departures = reverse_schedule != rev;
-				if(clear_departures)
+				fpl->increment_index(&previous_stop, &anti_rev);
+				fpl->increment_index(&stop, &rev);
+				if(i == 0)
 				{
+					clear_departures = reverse_schedule != rev;
+					if(clear_departures)
+					{
+						break;
+					}
+				}
+				const grund_t* gr_this = welt->lookup(fpl->eintrag[stop].pos);
+				const grund_t* gr_previous = welt->lookup(fpl->eintrag[previous_stop].pos);
+				if(gr_previous && gr_this)
+				{
+					stop_hh = gr_this->get_halt();
+					previous_stop_hh = gr_previous->get_halt();
+				}
+				else
+				{
+					// Something has gone wrong.
+					dbg->error("void convoi_t::laden() ", "Cannot lookup halt");
+					continue;
+				}
+
+				if(previous_stop_hh.get_id() == stop_hh.get_id())
+				{
+					departure_entries_to_remove.append(stop_hh.get_id());
+				}
+				else
+				{
+					clear_departures = false;
 					break;
 				}
+				// If we reach the end of the list without breaking,
+				// we can simply clear the whole list.
+				clear_departures = true;
 			}
-			const grund_t* gr_this = welt->lookup(fpl->eintrag[stop].pos);
-			const grund_t* gr_previous = welt->lookup(fpl->eintrag[previous_stop].pos);
-			if(gr_previous && gr_this)
-			{
-				stop_hh = gr_this->get_halt();
-				previous_stop_hh = gr_previous->get_halt();
-			}
-			else
-			{
-				// Something has gone wrong.
-				dbg->error("void convoi_t::laden() ", "Cannot lookup halt");
-				continue;
-			}
-
-			if(previous_stop_hh.get_id() == stop_hh.get_id())
-			{
-				departure_entries_to_remove.append(stop_hh.get_id());
-			}
-			else
-			{
-				clear_departures = false;
-				break;
-			}
-			// If we reach the end of the list without breaking,
-			// we can simply clear the whole list.
-			clear_departures = true;
 		}
-	}
 		
-	// Recalculate comfort
-	const uint8 comfort = get_comfort();
-	if(comfort)
-	{
-		book(get_comfort(), CONVOI_COMFORT);
-	}
-
-	FOR(departure_map, & iter, *departures)
-	{
-		// Accumulate distance 
-		const grund_t* gr = welt->lookup(fpl->get_current_eintrag().pos);
-		if(gr && is_circular_route() && iter.key == gr->get_halt().get_id())
+		// Recalculate comfort
+		const uint8 comfort = get_comfort();
+		if(comfort)
 		{
-			// If this is a circular route, reset distances from this halt,
-			// as the list of departures is never reset for a circular route,
-			// so, without this resetting, the distance would accumulate for
-			// ever!
-			iter.value.reset_distances();
+			book(get_comfort(), CONVOI_COMFORT);
 		}
-		else
+
+		FOR(departure_map, & iter, *departures)
 		{
-			iter.value.add_overall_distance(journey_distance);
+			// Accumulate distance 
+			const grund_t* gr = welt->lookup(fpl->get_current_eintrag().pos);
+			if(gr && is_circular_route() && iter.key == gr->get_halt().get_id())
+			{
+				// If this is a circular route, reset distances from this halt,
+				// as the list of departures is never reset for a circular route,
+				// so, without this resetting, the distance would accumulate for
+				// ever!
+				iter.value.reset_distances();
+			}
+			else
+			{
+				iter.value.add_overall_distance(journey_distance);
+			}
+		}
+
+		if(state == FAHRPLANEINGABE) //"ENTER SCHEDULE" (Google)
+		{ 
+			return;
 		}
 	}
-
-	if(state == FAHRPLANEINGABE) //"ENTER SCHEDULE" (Google)
-	{ 
-		return;
-	}
-
 	if (halt.is_bound()) 
 	{
 		//const spieler_t* owner = halt->get_besitzer(); //"get owner" (Google)
@@ -4346,34 +4428,37 @@ write_basic_line:
 			halt->request_loading(self);
 		}
 	}
-
-	if(clear_departures)
+	if(journey_distance > 0)
 	{
-		// If this is the end of the schedule, the departure times need to be reset
-		// so as to avoid over-writing good journey time data with data comprising 
-		// the time between the last departure on the previous run to the current
-		// stop, which will give excessively long times.
-		departures->clear();
-	}
-	else
-	{
-		// In many cases, simply clearing the list does not help, such as a 
-		// Y shaped route. In such cases, halts must be pruned
-		// selectively. 
-
-		ITERATE(departure_entries_to_remove, i)
+		if(clear_departures)
 		{
-			departures->remove(departure_entries_to_remove[i]);
+			// If this is the end of the schedule, the departure times need to be reset
+			// so as to avoid over-writing good journey time data with data comprising 
+			// the time between the last departure on the previous run to the current
+			// stop, which will give excessively long times.
+			departures->clear();
+		}
+		else
+		{
+			// In many cases, simply clearing the list does not help, such as a 
+			// Y shaped route. In such cases, halts must be pruned
+			// selectively. 
+
+			ITERATE(departure_entries_to_remove, i)
+			{
+				departures->remove(departure_entries_to_remove[i]);
+			}
+		}
+
+		if(line.is_bound())
+		{
+			line->calc_is_alternating_circular_route();
 		}
 	}
 
-	if (wait_lock == 0 ) {
-		wait_lock = WTT_LOADING;
-	}
-
-	if(line.is_bound())
+	if (wait_lock == 0 ) 
 	{
-		line->calc_is_alternating_circular_route();
+		wait_lock = WTT_LOADING;
 	}
 }
 
@@ -5171,13 +5256,13 @@ void convoi_t::check_pending_updates()
 			fpl = create_schedule();
 		}
 		schedule_t* new_fpl = line_update_pending->get_schedule();
-		int aktuell = fpl->get_aktuell(); // save current position of schedule
+		uint8 aktuell = fpl->get_aktuell(); // save current position of schedule
 		bool is_same = false;
 		bool is_depot = false;
 		koord3d current = koord3d::invalid, depot = koord3d::invalid;
 
 		if (fpl->empty() || new_fpl->empty()) {
-			// was no entry or is no entry => goto  1st stop
+			// There was no entry or is no entry: go to the first stop
 			aktuell = 0;
 		}
 		else {
@@ -5193,9 +5278,13 @@ void convoi_t::check_pending_updates()
 				is_depot = (welt->lookup(current)  &&  welt->lookup(current)->get_depot() != NULL);
 
 				if(is_depot) {
-					// depot => aktuell+1 (depot will be restore later before this)
+					// depot => aktuell+1 (depot will be restored later before this)
 					depot = current;
 					fpl->remove();
+					if(fpl->empty())
+					{
+						goto end_check;
+					}
 					current = fpl->get_current_eintrag().pos;
 				}
 
@@ -5257,6 +5346,7 @@ void convoi_t::check_pending_updates()
 				is_same = aktuell < new_fpl->get_count() && matches_halt(current,new_fpl->eintrag[aktuell].pos);
 			}
 		}
+end_check: 
 
 		// we may need to update the line and connection tables
 		if(  !line.is_bound()  ) {
@@ -5509,7 +5599,7 @@ public:
 	{ 
 		return master->get_waytype(); 
 	};
-	virtual bool ist_befahrbar( const grund_t* gr ) const 
+	virtual bool ist_befahrbar( const grund_t* gr) const 
 	{ 
 		return master->ist_befahrbar(gr); 
 	};

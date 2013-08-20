@@ -437,7 +437,7 @@ stadtauto_t::stadtauto_t(karte_t* const welt, koord3d const pos, koord const tar
 	pos_next_next = koord3d::invalid;
 	time_to_life = welt->get_settings().get_stadtauto_duration() << welt->ticks_per_world_month_shift;
 	current_speed = 48;
-	ms_traffic_jam = 0;
+	ms_traffic_jam = 2147483647;
 #ifdef DESTINATION_CITYCARS
 	this->target = target;
 #else
@@ -477,8 +477,19 @@ bool stadtauto_t::sync_step(long delta_t)
 		}
 		weg_next = 0;
 	}
-	else {
-		weg_next += current_speed*delta_t;
+	else 
+	{
+		if(ms_traffic_jam == 2147483647)
+		{
+			ms_traffic_jam = 0;
+			// If this is the first step, get the car moving at a sensible speed as soon as possible.
+			weg_next += kmh_to_speed(50) * delta_t;
+			steps_next = 1;
+		}
+		else
+		{
+			weg_next += current_speed * delta_t;
+		}
 		const uint32 distance = fahre_basis( weg_next );
 		// hop_check could have set weg_next to zero, check for possible underflow here
 		if (weg_next > distance) {

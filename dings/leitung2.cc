@@ -811,9 +811,9 @@ void senke_t::step(long delta_t)
 		// Check to see whether there are any *other* substations in the city that supply it with electricity,
 		// and divide the demand between them.
 		vector_tpl<senke_t*>* city_substations = city->get_substations();
-		uint16 city_substations_number = city_substations->get_count();
+		uint32 city_substations_number = city_substations->get_count();
 
-		uint32 supply;
+		uint64 supply;
 		vector_tpl<senke_t*> checked_substations;
 		ITERATE_PTR(city_substations, i)
 		{
@@ -821,7 +821,7 @@ void senke_t::step(long delta_t)
 			// an equal share, then check those that do.
 
 			const powernet_t* net = city_substations->get_element(i)->get_net();
-			supply = net->get_supply() - net->get_demand();
+			supply = net->get_supply() - (net->get_demand() - shared_power_demand);
 
 			if(supply < (shared_power_demand / (city_substations_number - checked_substations.get_count())))
 			{
@@ -919,7 +919,7 @@ void senke_t::step(long delta_t)
 		const vector_tpl<fabrik_t*>& city_factories = city->get_city_factories();
 		ITERATE(city_factories, i)
 		{
-			city_factories[i]->set_transformer_connected(this);
+			//city_factories[i]->set_transformer_connected(this);
 			const uint32 current_factory_demand = (city_factories[i]->step_power_demand() * load_proportion) / 100;
 			const uint32 current_factory_load = municipal_power_demand == 0 ? current_factory_demand : 
 				(

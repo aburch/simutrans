@@ -191,7 +191,7 @@ void route_t::RELEASE_NODES(uint8 nodes_index)
 /* find the route to an unknown location
  * @author prissi
  */
-bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, const uint32 max_khm, uint8 start_dir, uint32 weight, uint32 max_depth, bool private_car_checker)
+bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, const uint32 max_khm, uint8 start_dir, uint32 weight, uint32 max_depth, find_route_flags flags)
 {
 	bool ok = false;
 
@@ -292,7 +292,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 		// already there
 		if(fahr->ist_ziel(gr, tmp->parent == NULL ? NULL : tmp->parent->gr))
 		{
-			if(!private_car_checker)
+			if(flags != private_car_checker)
 			{
 				// we added a target to the closed list: check for length
 				break;
@@ -433,7 +433,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 	}
 	else
 	{
-		if(!private_car_checker)
+		if(flags != private_car_checker)
 		{
 			// reached => construct route
 			route.clear();

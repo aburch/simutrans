@@ -155,11 +155,13 @@ public:
 	 */
 	bool append_straight_route( karte_t *w, koord3d );
 
+	enum find_route_flags { none, private_car_checker, choose_signal };
+
 	/* find the route to an unknown location (where tile_found becomes true)
 	* the max_depth is the maximum length of a route
 	* @author prissi
 	*/
-	bool find_route(karte_t *w, const koord3d start, fahrer_t *fahr, const uint32 max_khm, uint8 start_dir, uint32 weight, uint32 max_depth, bool private_car_checker = false);
+	bool find_route(karte_t *w, const koord3d start, fahrer_t *fahr, const uint32 max_khm, uint8 start_dir, uint32 weight, uint32 max_depth, find_route_flags flags = none);
 
 	/**
 	 * berechnet eine route von start nach ziel.
