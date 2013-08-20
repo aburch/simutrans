@@ -4119,6 +4119,10 @@ void convoi_t::laden() //"load" (Babelfish)
 	if(new_halt.is_bound() || !halt.is_bound())
 	{
 		pos = pos3d.get_2d();
+		if(halt != new_halt)
+		{
+			halt = new_halt;
+		}
 	}
 	else
 	{
@@ -4129,6 +4133,8 @@ void convoi_t::laden() //"load" (Babelfish)
 
 	// last_stop_pos will be set to get_pos().get_2d() in hat_gehalten (called from inside halt->request_loading later
 	// so code inside if will be executed once. At arrival time.
+	minivec_tpl<uint8> departure_entries_to_remove(fpl->get_count());
+	bool clear_departures = false;
 	if(journey_distance > 0)
 	{
 		arrival_time = welt->get_zeit_ms();
@@ -4317,92 +4323,88 @@ write_basic_line:
 			}
 			while(starting_stop != current_stop && idp.x != idp.y);
 		}
-	}
-
-	bool clear_departures = false;
-	minivec_tpl<uint8> departure_entries_to_remove(fpl->get_count());
 	
-	if(!is_circular_route())
-	{
-		uint8 stop = fpl->get_aktuell();
-		uint8 previous_stop = stop;
-
-		bool rev = reverse_schedule;
-		bool anti_rev = !rev;
-		halthandle_t stop_hh;
-		halthandle_t previous_stop_hh;
-
-		for(int i = 0; i < fpl->get_count(); i ++)
+		if(!is_circular_route())
 		{
-			fpl->increment_index(&previous_stop, &anti_rev);
-			fpl->increment_index(&stop, &rev);
-			if(i == 0)
+			uint8 stop = fpl->get_aktuell();
+			uint8 previous_stop = stop;
+
+			bool rev = reverse_schedule;
+			bool anti_rev = !rev;
+			halthandle_t stop_hh;
+			halthandle_t previous_stop_hh;
+
+			for(int i = 0; i < fpl->get_count(); i ++)
 			{
-				clear_departures = reverse_schedule != rev;
-				if(clear_departures)
+				fpl->increment_index(&previous_stop, &anti_rev);
+				fpl->increment_index(&stop, &rev);
+				if(i == 0)
 				{
+					clear_departures = reverse_schedule != rev;
+					if(clear_departures)
+					{
+						break;
+					}
+				}
+				const grund_t* gr_this = welt->lookup(fpl->eintrag[stop].pos);
+				const grund_t* gr_previous = welt->lookup(fpl->eintrag[previous_stop].pos);
+				if(gr_previous && gr_this)
+				{
+					stop_hh = gr_this->get_halt();
+					previous_stop_hh = gr_previous->get_halt();
+				}
+				else
+				{
+					// Something has gone wrong.
+					dbg->error("void convoi_t::laden() ", "Cannot lookup halt");
+					continue;
+				}
+
+				if(previous_stop_hh.get_id() == stop_hh.get_id())
+				{
+					departure_entries_to_remove.append(stop_hh.get_id());
+				}
+				else
+				{
+					clear_departures = false;
 					break;
 				}
+				// If we reach the end of the list without breaking,
+				// we can simply clear the whole list.
+				clear_departures = true;
 			}
-			const grund_t* gr_this = welt->lookup(fpl->eintrag[stop].pos);
-			const grund_t* gr_previous = welt->lookup(fpl->eintrag[previous_stop].pos);
-			if(gr_previous && gr_this)
-			{
-				stop_hh = gr_this->get_halt();
-				previous_stop_hh = gr_previous->get_halt();
-			}
-			else
-			{
-				// Something has gone wrong.
-				dbg->error("void convoi_t::laden() ", "Cannot lookup halt");
-				continue;
-			}
-
-			if(previous_stop_hh.get_id() == stop_hh.get_id())
-			{
-				departure_entries_to_remove.append(stop_hh.get_id());
-			}
-			else
-			{
-				clear_departures = false;
-				break;
-			}
-			// If we reach the end of the list without breaking,
-			// we can simply clear the whole list.
-			clear_departures = true;
 		}
-	}
 		
-	// Recalculate comfort
-	const uint8 comfort = get_comfort();
-	if(comfort)
-	{
-		book(get_comfort(), CONVOI_COMFORT);
-	}
-
-	FOR(departure_map, & iter, *departures)
-	{
-		// Accumulate distance 
-		const grund_t* gr = welt->lookup(fpl->get_current_eintrag().pos);
-		if(gr && is_circular_route() && iter.key == gr->get_halt().get_id())
+		// Recalculate comfort
+		const uint8 comfort = get_comfort();
+		if(comfort)
 		{
-			// If this is a circular route, reset distances from this halt,
-			// as the list of departures is never reset for a circular route,
-			// so, without this resetting, the distance would accumulate for
-			// ever!
-			iter.value.reset_distances();
+			book(get_comfort(), CONVOI_COMFORT);
 		}
-		else
+
+		FOR(departure_map, & iter, *departures)
 		{
-			iter.value.add_overall_distance(journey_distance);
+			// Accumulate distance 
+			const grund_t* gr = welt->lookup(fpl->get_current_eintrag().pos);
+			if(gr && is_circular_route() && iter.key == gr->get_halt().get_id())
+			{
+				// If this is a circular route, reset distances from this halt,
+				// as the list of departures is never reset for a circular route,
+				// so, without this resetting, the distance would accumulate for
+				// ever!
+				iter.value.reset_distances();
+			}
+			else
+			{
+				iter.value.add_overall_distance(journey_distance);
+			}
+		}
+
+		if(state == FAHRPLANEINGABE) //"ENTER SCHEDULE" (Google)
+		{ 
+			return;
 		}
 	}
-
-	if(state == FAHRPLANEINGABE) //"ENTER SCHEDULE" (Google)
-	{ 
-		return;
-	}
-
 	if (halt.is_bound()) 
 	{
 		//const spieler_t* owner = halt->get_besitzer(); //"get owner" (Google)
@@ -4426,34 +4428,37 @@ write_basic_line:
 			halt->request_loading(self);
 		}
 	}
-
-	if(clear_departures)
+	if(journey_distance > 0)
 	{
-		// If this is the end of the schedule, the departure times need to be reset
-		// so as to avoid over-writing good journey time data with data comprising 
-		// the time between the last departure on the previous run to the current
-		// stop, which will give excessively long times.
-		departures->clear();
-	}
-	else
-	{
-		// In many cases, simply clearing the list does not help, such as a 
-		// Y shaped route. In such cases, halts must be pruned
-		// selectively. 
-
-		ITERATE(departure_entries_to_remove, i)
+		if(clear_departures)
 		{
-			departures->remove(departure_entries_to_remove[i]);
+			// If this is the end of the schedule, the departure times need to be reset
+			// so as to avoid over-writing good journey time data with data comprising 
+			// the time between the last departure on the previous run to the current
+			// stop, which will give excessively long times.
+			departures->clear();
+		}
+		else
+		{
+			// In many cases, simply clearing the list does not help, such as a 
+			// Y shaped route. In such cases, halts must be pruned
+			// selectively. 
+
+			ITERATE(departure_entries_to_remove, i)
+			{
+				departures->remove(departure_entries_to_remove[i]);
+			}
+		}
+
+		if(line.is_bound())
+		{
+			line->calc_is_alternating_circular_route();
 		}
 	}
 
-	if (wait_lock == 0 ) {
-		wait_lock = WTT_LOADING;
-	}
-
-	if(line.is_bound())
+	if (wait_lock == 0 ) 
 	{
-		line->calc_is_alternating_circular_route();
+		wait_lock = WTT_LOADING;
 	}
 }
 
