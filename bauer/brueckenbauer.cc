@@ -26,8 +26,10 @@
 #include "../gui/karte.h"
 
 #include "../besch/bruecke_besch.h"
+#include "../besch/haus_besch.h"
 
 #include "../dataobj/scenario.h"
+
 #include "../dings/bruecke.h"
 #include "../dings/leitung2.h"
 #include "../dings/pillar.h"
@@ -211,6 +213,17 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, spieler_t *sp, koord3d pos, k
 			error_msg = "bridge is too high for its type!";
 			return koord3d::invalid;
 		}
+
+		//  Check for buildings underneath that exceed the bridge's level limit
+		const grund_t* gr = welt->lookup(pos);
+		const gebaeude_t* gb = gr ? gr->find<gebaeude_t>() : NULL;
+		const uint8 max_level = welt->get_settings().get_max_elevated_way_building_level();
+		if(gb && gb->get_tile()->get_besch()->get_level() > max_level)
+		{
+			error_msg = "Bridges cannot be built over large buildings.";
+			return koord3d::invalid;
+		}
+
 		// and if ground is above bridge / double slopes
 		if (height < -1) {
 			break; // to trigger the right error message

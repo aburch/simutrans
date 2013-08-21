@@ -665,7 +665,8 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 						}
 
 						// This ensures that only that part of the convoy that is actually on the bridge counts.
-						uint32 adjusted_convoy_weight = tile_length == 0 ? convoy_weight : (convoy_weight * max(bridge_tile_count - 2, 1)) / tile_length;
+						const sint32 proper_tile_length = tile_length > 8888 ? tile_length - 8888 : tile_length;
+						uint32 adjusted_convoy_weight = tile_length == 0 ? convoy_weight : (convoy_weight * max(bridge_tile_count - 2, 1)) / proper_tile_length;
 						const uint32 min_weight = min(adjusted_convoy_weight, convoy_weight);
 						if(min_weight > way_max_convoy_weight)
 						{
