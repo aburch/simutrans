@@ -4927,7 +4927,9 @@ bool karte_t::square_is_free(koord k, sint16 w, sint16 h, int *last_y, climate_b
 					test_climate = water_climate;
 				}
 			}
-			if(  platz_h != max_height  ||  !gr->ist_natur()  ||  gr->kann_alle_obj_entfernen(NULL) != NULL  ||  (cl & (1 << test_climate)) == 0  ) {
+			if(  platz_h != max_height  ||  !gr->ist_natur()  ||  gr->kann_alle_obj_entfernen(NULL) != NULL  ||
+			     (cl & (1 << test_climate)) == 0  ||  ( slope && (lookup( gr->get_pos()+koord3d(0,0,1) ) ||
+			     (hang_t::height(slope)==2 && lookup( gr->get_pos()+koord3d(0,0,2) )) ))  ) {
 				if(  last_y  ) {
 					*last_y = k_check.y;
 				}
