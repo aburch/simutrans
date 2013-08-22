@@ -2872,20 +2872,14 @@ slist_tpl<const ware_besch_t*> *fabrik_t::get_produced_goods() const
 
 void fabrik_t::add_to_world_list(bool lock)
 {
-#if MULTI_THREAD>1
-			if(lock) pthread_mutex_lock(&add_to_world_list_mutex);
-#endif
 			const grund_t* gr = welt->lookup(pos);
 			gebaeude_t* gb = gr->find<gebaeude_t>();
-			welt->add_building_to_world_list(gb, karte_t::commuter_target, lock);
+			welt->add_building_to_world_list(gb, karte_t::commuter_target);
 			if(is_end_consumer())
 			{
 				// Consumer only factory - also add as a visitor target, as this is (probably) a shop.
 				// TODO: Add a .dat file parameter to permit this to be disabled for certain industries (e.g. gasworks)
-				welt->add_building_to_world_list(gb, karte_t::visitor_target, lock);
+				welt->add_building_to_world_list(gb, karte_t::visitor_target);
 			}
-			welt->add_building_to_world_list(gb, karte_t::mail_origin_or_target, lock);
-#if MULTI_THREAD>1
-			if(lock) pthread_mutex_unlock(&add_to_world_list_mutex);
-#endif
+			welt->add_building_to_world_list(gb, karte_t::mail_origin_or_target);
 }

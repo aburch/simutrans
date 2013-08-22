@@ -1178,7 +1178,7 @@ void gebaeude_t::laden_abschliessen()
 #if MULTI_THREAD>1
 				pthread_mutex_lock( &add_to_city_mutex );
 #endif
-				our_city->add_gebaeude_to_stadt(this, true);
+				our_city->add_gebaeude_to_stadt(this, umgebung_t::networkmode);
 #if MULTI_THREAD>1
 				pthread_mutex_unlock( &add_to_city_mutex );
 #endif

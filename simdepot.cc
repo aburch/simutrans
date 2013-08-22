@@ -878,14 +878,8 @@ bool depot_t::is_suitable_for( const vehikel_t * test_vehicle, const uint8 tract
 
 void depot_t::add_to_world_list(bool lock)
 {
-#if MULTI_THREAD>1
-			if(lock) pthread_mutex_lock(&add_to_world_list_mutex);
-#endif
 			const grund_t* gr = welt->lookup(get_pos());
 			gebaeude_t* gb = (gebaeude_t*)this;
-			welt->add_building_to_world_list(gb, karte_t::commuter_target, lock);
-			welt->add_building_to_world_list(gb, karte_t::mail_origin_or_target, lock);
-#if MULTI_THREAD>1
-			if(lock) pthread_mutex_unlock(&add_to_world_list_mutex);
-#endif
+			welt->add_building_to_world_list(gb, karte_t::commuter_target);
+			welt->add_building_to_world_list(gb, karte_t::mail_origin_or_target);
 }

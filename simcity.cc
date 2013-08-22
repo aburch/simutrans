@@ -5523,32 +5523,55 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 
 void stadt_t::add_building_to_list(gebaeude_t* building, bool ordered)
 {
-	buildings.append_unique(building, building->get_tile()->get_besch()->get_level());
-	
-	// Also add to the world list for passenger generation purposes.
-
-	// All types of city building generate/receive mail.
-	welt->add_building_to_world_list(building, karte_t::visitor_target, ordered);
-
-	if(building->get_haustyp() == gebaeude_t::wohnung)
+	if(ordered) 
 	{
-		// Residential - origin and (much reduced) visitor target
-		welt->add_building_to_world_list(building, karte_t::passenger_origin, ordered);
-		welt->add_building_to_world_list(building, karte_t::visitor_target, ordered);
+		buildings.insert_ordered(building, building->get_tile()->get_besch()->get_level(), compare_gebaeude_pos);
 	}
-	else if(building->get_haustyp() == gebaeude_t::gewerbe || building->get_haustyp() == gebaeude_t::unbekannt)
+	else 
 	{
-		// Commercial and attractions - commuter and visitor targets
-		welt->add_building_to_world_list(building, karte_t::visitor_target, ordered);
-		welt->add_building_to_world_list(building, karte_t::commuter_target, ordered);
+		buildings.append_unique(building, building->get_tile()->get_besch()->get_level());
 	}
-	else if(building->get_haustyp() == gebaeude_t::industrie)
+
+	if(!ordered)
 	{
-		// Industrial - commuter targets only
-		welt->add_building_to_world_list(building, karte_t::commuter_target, ordered);
+		// Also add to the world list for passenger generation purposes.
+
+		// Do not add them at this juncture if this is a network game, 
+		// as this will require them to be added to the world list in order (or risk network 
+		// desyncs), and adding them in order is very slow (much slower than running 
+		// single-threaded). This must be added elsewhere if this is a network game.
+
+		// All types of city building generate/receive mail.
+		welt->add_building_to_world_list(building, karte_t::visitor_target);
+
+		if(building->get_haustyp() == gebaeude_t::wohnung)
+		{
+			// Residential - origin and (much reduced) visitor target
+			welt->add_building_to_world_list(building, karte_t::passenger_origin);
+			welt->add_building_to_world_list(building, karte_t::visitor_target);
+		}
+		else if(building->get_haustyp() == gebaeude_t::gewerbe || building->get_haustyp() == gebaeude_t::unbekannt)
+		{
+			// Commercial and attractions - commuter and visitor targets
+			welt->add_building_to_world_list(building, karte_t::visitor_target);
+			welt->add_building_to_world_list(building, karte_t::commuter_target);
+		}
+		else if(building->get_haustyp() == gebaeude_t::industrie)
+		{
+			// Industrial - commuter targets only
+			welt->add_building_to_world_list(building, karte_t::commuter_target);
+		}
 	}
 }
 
+void stadt_t::add_all_buildings_to_world_list()
+{
+	for(weighted_vector_tpl<gebaeude_t*>::const_iterator i = buildings.begin(); i != buildings.end(); ++i) 
+	{
+		gebaeude_t* gb = *i;
+		add_building_to_list(gb, false);
+	}
+}
 
 void stadt_t::erzeuge_verkehrsteilnehmer(koord pos, uint16 journey_tenths_of_minutes, koord target)
 {

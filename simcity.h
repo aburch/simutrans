@@ -320,6 +320,8 @@ public:
 
 	void add_power_demand(uint32 p) { city_history_month[0][HIST_POWER_NEEDED] += p; city_history_year[0][HIST_POWER_NEEDED] += p; }
 
+	void add_all_buildings_to_world_list();
+
 	/* end of history related thingies */
 private:
 	sint32 best_haus_wert;

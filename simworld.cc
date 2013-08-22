@@ -7101,11 +7101,19 @@ DBG_MESSAGE("karte_t::laden()", "laden_abschliesen for tiles finished" );
 		s->laden_abschliessen();
 		// TODO: Remove this deprecated code entirely.
 		//s->recalc_target_cities();
+		// Must add city buildings to the world list here in any network game
+		// to ensure that they are added in identical order.
+		if(umgebung_t::networkmode)
+		{
+			s->add_all_buildings_to_world_list();
+		}
 		new_weighted_stadt.append(s, s->get_einwohner());
 		INT_CHECK("simworld 1278");
 	}
 	swap(stadt, new_weighted_stadt);
 	DBG_MESSAGE("karte_t::laden()", "cities initialized");
+
+	
 
 	ls.set_progress( (get_size().y*3)/2+256+get_size().y/4 );
 
@@ -8800,15 +8808,7 @@ const vector_tpl<const ware_besch_t*> &karte_t::get_goods_list()
 	return goods_in_game;
 }
 
-//FIXME: Eliminate this duplication somehow.
-static bool compare_gebaeude_pos(const gebaeude_t* a, const gebaeude_t* b)
-{
-	const uint32 pos_a = (a->get_pos().y<<16)+a->get_pos().x;
-	const uint32 pos_b = (b->get_pos().y<<16)+b->get_pos().x;
-	return pos_a<pos_b;
-}
-
-void karte_t::add_building_to_world_list(gebaeude_t *gb, building_type b, bool ordered)
+void karte_t::add_building_to_world_list(gebaeude_t *gb, building_type b)
 {
 	/* Called from stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb, bool ordered)
 		in the case of city buildings, so some pre-processing is done for us.
@@ -8837,17 +8837,9 @@ void karte_t::add_building_to_world_list(gebaeude_t *gb, building_type b, bool o
 	{
 	
 	case passenger_origin:
-		if(ordered)
-		{
-			passenger_origins.insert_ordered(gb, passenger_level, compare_gebaeude_pos);
-			// Pepople visit each others' houses, but this is not a common type of trip.
-			visitor_targets.insert_ordered(gb, passenger_level / 100, compare_gebaeude_pos);
-		}
-		else 
-		{
-			passenger_origins.append_unique(gb, passenger_level);
-			visitor_targets.append_unique(gb, passenger_level / 100);
-		}
+		// Pepople visit each others' houses, but this is not a common type of trip.
+		passenger_origins.append_unique(gb, passenger_level);
+		visitor_targets.append_unique(gb, passenger_level / 100);
 		break;
 
 	case commuter_target:
@@ -8865,14 +8857,7 @@ void karte_t::add_building_to_world_list(gebaeude_t *gb, building_type b, bool o
 			passenger_level /= 2;
 		}
 
-		if(ordered)
-		{
-			commuter_targets.insert_ordered(gb, passenger_level, compare_gebaeude_pos);
-		}
-		else 
-		{
-			commuter_targets.append_unique(gb, passenger_level);
-		}
+		commuter_targets.append(gb, passenger_level);
 		break;
 
 	case visitor_target:
@@ -8890,15 +8875,7 @@ void karte_t::add_building_to_world_list(gebaeude_t *gb, building_type b, bool o
 			// TODO: Make this customisable in simuconf.tab
 			passenger_level /= 20;
 		}
-
-		if(ordered)
-		{
-			visitor_targets.insert_ordered(gb, passenger_level, compare_gebaeude_pos);
-		}
-		else 
-		{
-			visitor_targets.append_unique(gb, passenger_level);
-		}
+		visitor_targets.append(gb, passenger_level);
 		break;
 
 	case mail_origin_or_target:
@@ -8906,18 +8883,12 @@ void karte_t::add_building_to_world_list(gebaeude_t *gb, building_type b, bool o
 
 		if(gb->is_monument())
 		{
-			// Monuments do not receive mail.
+			// Monuments do not send or receive mail.
 			break;
 		}
-
-		if(ordered)
-		{
-			mail_origins_and_targets.insert_ordered(gb, mail_level, compare_gebaeude_pos);
-		}
-		else 
-		{
-			mail_origins_and_targets.append_unique(gb, mail_level);
-		}
+		
+		mail_origins_and_targets.append(gb, mail_level);
+		
 	};
 }
 

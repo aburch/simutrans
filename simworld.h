@@ -1379,7 +1379,7 @@ public:
 	* and mail generation purposes
 	* @author: jamespetts
 	*/
-	void add_building_to_world_list(gebaeude_t *gb, building_type b, bool ordered = false);
+	void add_building_to_world_list(gebaeude_t *gb, building_type b);
 	
 	/**
 	* Removes a single tile of a building to the relevant world list for passenger 
