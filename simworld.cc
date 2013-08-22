@@ -3736,7 +3736,7 @@ void karte_t::new_month()
 	}
 
 	FOR(vector_tpl<fabrik_t*>, const fab, closed_factories_this_month)
-    {
+	{
 		if(fab_list.is_contained(fab)) 
 		{
 			grund_t *gr = lookup(fab->get_pos());
