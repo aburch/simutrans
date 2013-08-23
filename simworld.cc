@@ -2802,7 +2802,7 @@ int karte_t::lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 				// here we look at the bit in neighbour_flags for this direction
 				// we shift it i bits to the right and test the least significant bit
 
-				if(  is_within_grid_limits( neighbour )  &&  ((neighbour_flags >> i) & 1)  ) {
+				if(  is_within_limits( neighbour )  &&  ((neighbour_flags >> i) & 1)  ) {
 					grund_t *gr2 = lookup_kartenboden_nocheck( neighbour );
 					const sint8 water_hgt_neighbour = get_water_hgt_nocheck( neighbour );
 					if(  gr2  &&  (water_hgt_neighbour >= gr2->get_hoehe())  &&  water_hgt_neighbour <= hneu  ) {
