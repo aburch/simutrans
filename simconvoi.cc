@@ -2039,12 +2039,22 @@ void convoi_t::ziel_erreicht()
 	else {
 		// no suitable depot reached, check for stop!
 		halthandle_t halt = haltestelle_t::get_halt(welt, v->get_pos(),besitzer_p);
-		if(  halt.is_bound() &&  gr->get_weg_ribi(v->get_waytype())!=0  ) {
+		if(  halt.is_bound() &&  gr->get_weg_ribi(v->get_waytype())!=0  )
+		{
 			// seems to be a stop, so book the money for the trip
 			set_akt_speed(0);
 			halt->book(1, HALT_CONVOIS_ARRIVED);
 			state = LOADING;
 			go_on_ticks = WAIT_INFINITE;	// we will eventually wait from now on
+			if(fahr[0]->get_waytype() == air_wt)
+			{
+				aircraft_t* aircraft = (aircraft_t*)fahr[0];
+				if(aircraft->get_flyingheight() > 0)
+				{
+					// VTOL aircraft landing - set to landed state.
+					aircraft->force_land();
+				}
+			}
 		}
 		else {
 			// Neither depot nor station: waypoint

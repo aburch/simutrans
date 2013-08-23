@@ -4810,8 +4810,13 @@ bool aircraft_t::calc_route_internal(
 {
 	//DBG_MESSAGE("aircraft_t::calc_route_internal()","search route from %i,%i,%i to %i,%i,%i",start.x,start.y,start.z,ziel.x,ziel.y,ziel.z);
 
+	const bool vtol = get_besch()->get_minimum_runway_length() == 0;
 	runway_too_short = false;
 	suchen = takeoff = touchdown = INVALID_INDEX;
+	if(vtol)
+	{
+		takeoff = 0;
+	}
 
 	const weg_t *w_start = welt->lookup(start)->get_weg(air_wt);
 	bool start_in_air = flughoehe || w_start == NULL;
@@ -4831,7 +4836,7 @@ bool aircraft_t::calc_route_internal(
 	}
 
 	koord3d search_start, search_end;
-	if(start_in_air || (w_start && w_start->get_besch()->get_styp()==1 && ribi_t::ist_einfach(w_start->get_ribi())))
+	if(start_in_air || vtol || (w_start && w_start->get_besch()->get_styp()==1 && ribi_t::ist_einfach(w_start->get_ribi())))
 	{
 		// we start here, if we are in the air or at the end of a runway
 		search_start = start;
@@ -5010,7 +5015,7 @@ bool aircraft_t::calc_route_internal(
 			}
 		}
 
-		touchdown = route.get_count()+2;
+		touchdown = route.get_count() + 2;
 		route.append_straight_route(welt,search_end);
 
 		// now the route to ziel search point (+1, since it will check before entering the tile ...)
@@ -5173,7 +5178,7 @@ bool aircraft_t::ist_weg_frei( int & restart_speed, bool )
 
 	uint16 next_block = cnv->get_next_stop_index() - 1;
 	uint16 last_index = route.get_count() - 1;
-	if (next_block > 65000) 
+	if(next_block > 65000) 
 	{
 		convoi_t &convoy = *cnv;
 		const sint32 brake_steps = convoy.calc_min_braking_distance(welt->get_settings(), convoy.get_weight_summary(), cnv->get_akt_speed());
