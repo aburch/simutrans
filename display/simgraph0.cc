@@ -97,6 +97,11 @@ void display_set_player_color_scheme(const int, const COLOR_VAL, const COLOR_VAL
 {
 }
 
+COLOR_VAL display_get_index_from_rgb(uint8, uint8, uint8)
+{
+	return 0;
+}
+
 void register_image(struct bild_t* bild)
 {
 	bild->bild_nr = 1;
@@ -241,6 +246,11 @@ KOORD_VAL display_get_char_width(utf16)
 	return 0;
 }
 
+KOORD_VAL display_get_char_max_width(const char*, size_t)
+{
+	return 0;
+}
+
 unsigned short get_next_char_with_metrics(const char* &, unsigned char &, unsigned char &)
 {
 	return 0;
@@ -251,12 +261,17 @@ unsigned short get_prev_char_with_metrics(const char* &, const char *const, unsi
 	return 0;
 }
 
+size_t display_fit_proportional(const char *, scr_coord_val, scr_coord_val)
+{
+	return 0;
+}
+
 int display_calc_proportional_string_len_width(const char*, size_t)
 {
 	return 0;
 }
 
-int display_text_proportional_len_clip(KOORD_VAL, KOORD_VAL, const char*, int, const PLAYER_COLOR_VAL, long)
+int display_text_proportional_len_clip(KOORD_VAL, KOORD_VAL, const char*, control_alignment_t, const PLAYER_COLOR_VAL, long)
 {
 	return 0;
 }
