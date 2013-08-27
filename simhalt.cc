@@ -2330,18 +2330,18 @@ void haltestelle_t::add_to_station_type( grund_t *gr )
 			enables |= besch->get_enabled();
 			if (welt->get_settings().is_separate_halt_capacities()) {
 				if(besch->get_enabled()&1) {
-					capacity[0] += besch->get_level()*32;
+					capacity[0] += besch->get_capacity();
 				}
 				if(besch->get_enabled()&2) {
-					capacity[1] += besch->get_level()*32;
+					capacity[1] += besch->get_capacity();
 				}
 				if(besch->get_enabled()&4) {
-					capacity[2] += besch->get_level()*32;
+					capacity[2] += besch->get_capacity();
 				}
 			}
 			else {
 				// no sperate capacities: sum up all
-				capacity[0] += besch->get_level()*32;
+				capacity[0] += besch->get_capacity();
 				capacity[2] = capacity[1] = capacity[0];
 			}
 		}
@@ -2403,18 +2403,18 @@ void haltestelle_t::add_to_station_type( grund_t *gr )
 	enables |= besch->get_enabled();
 	if (welt->get_settings().is_separate_halt_capacities()) {
 		if(besch->get_enabled()&1) {
-			capacity[0] += besch->get_level()*32;
+			capacity[0] += besch->get_capacity();
 		}
 		if(besch->get_enabled()&2) {
-			capacity[1] += besch->get_level()*32;
+			capacity[1] += besch->get_capacity();
 		}
 		if(besch->get_enabled()&4) {
-			capacity[2] += besch->get_level()*32;
+			capacity[2] += besch->get_capacity();
 		}
 	}
 	else {
 		// no sperate capacities: sum up all
-		capacity[0] += besch->get_level()*32;
+		capacity[0] += besch->get_capacity();
 		capacity[2] = capacity[1] = capacity[0];
 	}
 }
