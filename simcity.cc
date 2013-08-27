@@ -438,6 +438,10 @@ bool stadt_t::cityrules_init(const std::string &objfilename)
 */
 void stadt_t::cityrules_rdwr(loadsave_t *file)
 {
+	if(  file->get_version() >= 112008  ) {
+		file->rdwr_long( cluster_factor );
+	}
+
 	file->rdwr_long(renovation_percentage);
 	file->rdwr_long(min_building_density);
 
