@@ -309,16 +309,16 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	// add buttons for sensible keyboard tab order
 	add_komponente( buttons+17 );
 	add_komponente( buttons+16 );
-	add_komponente( buttons+20 );
 	add_komponente( &inp_underground_level );
+	add_komponente( buttons+20 );
 	add_komponente( buttons+9 );
 	add_komponente( &brightness );
 	add_komponente( buttons+6 );
 	add_komponente( &scrollspeed );
 	add_komponente( buttons+10 );
 	add_komponente( buttons+11 );
-	add_komponente( buttons+21);
 	add_komponente( &cursor_hide_range );
+	add_komponente( buttons+21);
 	add_komponente( buttons+12 );
 	add_komponente( buttons+13 );
 	add_komponente( buttons+14 );
