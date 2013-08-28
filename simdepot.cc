@@ -379,7 +379,10 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv, bool local_execution
 	{
 		if( old_cnv->get_schedule() && (!old_cnv->get_schedule()->ist_abgeschlossen()) )
 		{           
-			create_win( new news_img("Schedule is incomplete/not finished"), w_time_delete, magic_none);
+			if(local_execution)
+			{
+				create_win( new news_img("Schedule is incomplete/not finished"), w_time_delete, magic_none);
+			}
 			return convoihandle_t();
         }
 		convoihandle_t new_cnv = add_convoi( false );

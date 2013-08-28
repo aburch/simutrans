@@ -1031,7 +1031,12 @@ void haltestelle_t::request_loading(convoihandle_t cnv)
 		for(slist_tpl<convoihandle_t>::iterator i = loading_here.begin(), end = loading_here.end();  i != end;) 
 		{
 			convoihandle_t const c = *i;
-			if (c.is_bound() && (c->get_state() == convoi_t::LOADING || c->get_state() == convoi_t::REVERSING) && ((get_halt(welt, c->get_pos(), besitzer_p) == self) || (c->get_vehikel(0)->get_waytype() == water_wt && c->get_state() == convoi_t::LOADING && get_halt(welt, c->get_schedule()->get_current_eintrag().pos, besitzer_p) == self)))
+			if (c.is_bound()
+				&& (c->get_state() == convoi_t::LOADING || c->get_state() == convoi_t::REVERSING) 
+				&& ((get_halt(welt, c->get_pos(), besitzer_p) == self) 
+					|| (c->get_vehikel(0)->get_waytype() == water_wt 
+					&& c->get_state() == convoi_t::LOADING 
+					&& get_halt(welt, c->get_schedule()->get_current_eintrag().pos, besitzer_p) == self)))
 			{
 				// now we load into convoi
 				c->hat_gehalten(self);
