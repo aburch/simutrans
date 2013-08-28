@@ -111,14 +111,14 @@ SOCKET network_open_address(char const* cp, char const*& err)
 
 #ifdef USE_IP4_ONLY
 	// Network load. Address format e.g.: "128.0.0.1:13353"
-	char address[32];
+	char address[1024];
 	static char err_str[256];
 	uint16 port = 13353;
 	const char *cp2 = strrchr(cp,':');
 	if(cp2!=NULL) {
 		port=atoi(cp2+1);
 		// Copy the address part
-		tstrncpy(address,cp,cp2-cp>31?31:cp2-cp+1);
+		tstrncpy(address,cp,cp2-cp>sizeof(address)-1?sizeof(address)-1:cp2-cp+1);
 		cp = address;
 	}
 
@@ -188,7 +188,7 @@ SOCKET network_open_address(char const* cp, char const*& err)
 		}
 		else {
 			// Copy the address part
-			tstrncpy( address, cp, cp2 - cp > 31 ? 31 : cp2 - cp + 1 );
+			tstrncpy( address, cp, cp2 - cp >= sizeof(address) ? sizeof(address) : cp2 - cp + 1 );
 		}
 		cp = address;
 	}
@@ -255,7 +255,8 @@ SOCKET network_open_address(char const* cp, char const*& err)
 			// Correct size for salen parameter of getnameinfo call depends on address family
 			if (  walk_local->ai_family == AF_INET6  ) {
 				socklen_local = sizeof(struct sockaddr_in6);
-			} else {
+			}
+			else {
 				socklen_local = sizeof(struct sockaddr_in);
 			}
 			// Validate address + get string representation for logging
@@ -290,7 +291,8 @@ SOCKET network_open_address(char const* cp, char const*& err)
 				// Correct size for salen parameter of getnameinfo call depends on address family
 				if (  walk_remote->ai_family == AF_INET6  ) {
 					socklen_remote = sizeof(struct sockaddr_in6);
-				} else {
+				}
+				else {
 					socklen_remote = sizeof(struct sockaddr_in);
 				}
 
