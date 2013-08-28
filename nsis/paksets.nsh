@@ -205,11 +205,10 @@ SectionEnd
 Section /o "pak192 Comic (Freeware)" pak192comic
   AddSize 40882
   StrCpy $downloadlink "http://simutrans-germany.com/files/upload/pak192.comic_0-2-2_112-2.zip"
-;  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak192.comic/pak192.comic_102-2-1/pak192.comic_0-1-9-1_102-2-1.zip"
   StrCpy $archievename "pak192.comic_0-2-2_112-2.zip"
   StrCpy $downloadname "pak192.comic"
   StrCpy $VersionString "pak192.comic [Version 0.2.2]"
-  Call DownloadInstallZip
+  Call DownloadInstallZipWithoutSimutrans
 SectionEnd
 
 
