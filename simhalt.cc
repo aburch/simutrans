@@ -4159,7 +4159,7 @@ int haltestelle_t::get_queue_pos(convoihandle_t cnv) const
 	int count = 0;
 	for(slist_tpl<convoihandle_t>::const_iterator i = loading_here.begin(), end = loading_here.end();  i != end && (*i) != cnv; ++i)
 	{
-		if(!(*i).is_bound() || welt->lookup((*i)->get_pos())->get_halt() != self)
+		if(!(*i).is_bound() || get_halt(welt, (*i)->get_pos(), besitzer_p) != self)
 		{
 			continue;
 		}
