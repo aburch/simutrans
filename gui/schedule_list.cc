@@ -121,7 +121,7 @@ static bool compare_lines(line_scrollitem_t* a, line_scrollitem_t* b)
 	if(  atxt[0]>='0'  &&  atxt[0]<='9'  ) {
 		aint = atoi( atxt );
 	}
-	else if(  atxt[1]>='0'  &&  atxt[1]<='9'  ) {
+	else if(  atxt[0]=='('  &&  atxt[1]>='0'  &&  atxt[1]<='9'  ) {
 		aint = atoi( atxt+1 );
 	}
 	const char *btxt = b->get_text();
@@ -129,7 +129,7 @@ static bool compare_lines(line_scrollitem_t* a, line_scrollitem_t* b)
 	if(  btxt[0]>='0'  &&  btxt[0]<='9'  ) {
 		bint = atoi( btxt );
 	}
-	else if(  btxt[1]>='0'  &&  btxt[1]<='9'  ) {
+	else if(  btxt[0]=='('  &&  btxt[1]>='0'  &&  btxt[1]<='9'  ) {
 		bint = atoi( btxt+1 );
 	}
 	if(  aint!=bint  ) {
