@@ -4113,7 +4113,7 @@ bool waggon_t::block_reserver(route_t *route, uint16 start_index, uint16 &next_s
 	}
 
 	// find next block segment enroute
-	uint16 i=start_index;
+	uint16 i = start_index - (count == 100000 ? 1 : 0);
 	uint16 skip_index=INVALID_INDEX;
 	next_signal_index=INVALID_INDEX;
 	next_crossing_index=INVALID_INDEX;
