@@ -755,7 +755,7 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 		return;
 	}
 	sint8 back_bild_nr=0;
-	bool is_building = false;
+	bool is_building = get_typ()==grund_t::fundament;
 	const bool isvisible = is_visible();
 	bool fence[2]={false, false};
 	const koord k = get_pos().get_2d();
@@ -841,12 +841,12 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 			if(  (diff_from_ground_1-corner_a>0  ||  diff_from_ground_2-corner_b>0)
 				&&  (diff_from_ground_1>0  ||  diff_from_ground_2>0)  ) {
 				back_bild_nr += get_backbild_from_diff( diff_from_ground_1, diff_from_ground_2 )*(i==0?1:11);
+				is_building |= gr->get_typ()==grund_t::fundament;
 			}
 			// avoid covering of slope by building ...
 			if(  (left_back_is_building  ||  gr->get_flag(draw_as_ding))  &&  (back_bild_nr>i*11  ||  gr->get_back_bild(1-i)!=IMG_LEER)) {
 				set_flag(grund_t::draw_as_ding);
 			}
-			is_building |= gr->get_typ()==grund_t::fundament;
 		}
 	}
 
@@ -861,7 +861,6 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 		if(fence_offset) {
 			back_bild_nr = 121 + fence_offset;
 		}
-		is_building = get_typ()==grund_t::fundament;
 	}
 	this->back_bild_nr = (is_building!=0)? -back_bild_nr : back_bild_nr;
 }
