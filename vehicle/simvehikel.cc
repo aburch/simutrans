@@ -3974,14 +3974,30 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 					// convoy must reverse and thus stop at the waypoint. No need to extend the route now.
 					// Extending the route now would confuse tile reservation.
 					fpl->eintrag[fpl->get_aktuell()].reverse = true;
+					linehandle_t line = cnv->get_line();
+					if(line.is_bound())
+					{
+						simlinemgmt_t::update_line(line);
+					}
 				}
 				else
 				{
 					// convoy can pass waypoint without reversing/stopping. Append route to next stop/waypoint
+					
+					linehandle_t line = cnv->get_line();
+					fpl->eintrag[fpl->get_aktuell()].reverse = false;
+					if(line.is_bound())
+					{
+						simlinemgmt_t::update_line(line);
+					}
 					if (reversed)
+					{
 						fpl->advance_reverse();
+					}
 					else
+					{
 						fpl->advance();
+					}
 					cnv->update_route(last_index, target_rt);
 					weg_frei = block_reserver( &route, last_index, next_signal, next_crossing, 0, true, false );
 					last_index = route.get_count() - 1;

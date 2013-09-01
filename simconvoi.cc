@@ -336,7 +336,7 @@ void convoi_t::unreserve_route()
 
 
 /**
- * unreserves the whole remaining route
+ * reserves the whole remaining route
  */
 void convoi_t::reserve_route()
 {
@@ -2816,6 +2816,11 @@ void convoi_t::vorfahren()
 				// It might be possible for "stop" to be > the number of 
 				// items in the schedule if the schedule has changed recently.
 				schedule->eintrag[stop].reverse = (state == REVERSING);
+				const linehandle_t line = get_line();
+				if(line.is_bound())
+				{
+					simlinemgmt_t::update_line(line);
+				}
 			}
 			//const bool check_rev = rev;
 			schedule->increment_index(&stop, &rev);

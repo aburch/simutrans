@@ -41,7 +41,7 @@ public:
 	 * update a line -> apply updated fahrplan to all convoys
 	 * @author hsiegeln
 	 */
-	void update_line(linehandle_t line);
+	static void update_line(linehandle_t line);
 
 	/*
 	 * load or save the linemanagement
