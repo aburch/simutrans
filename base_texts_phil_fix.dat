@@ -1,0 +1,10 @@
+# Simutranslator settings for Simutrans-Experimental texts
+# Addendum for a bug fix posted by Philip on the forum.
+#
+# Author: jamespetts
+# Created: August 2013
+#
+obj=program_text
+name=Schedule is incomplete/not finished
+note=Error message shown when a player attempts to copy a convoy with an incomplete schedule
+-
