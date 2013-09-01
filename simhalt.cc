@@ -530,9 +530,9 @@ haltestelle_t::~haltestelle_t()
 	FOR(slist_tpl<halthandle_t>, & current_halt, alle_haltestellen)
 	{
 		// If it's not bound, or waiting_times isn't initialized, this could crash
-		if (current_halt.is_bound() && current_halt->waiting_times)
+		if(current_halt.is_bound() && current_halt->waiting_times)
 		{
-			for ( int category = 0; category < warenbauer_t::get_max_catg_index(); category++ )
+			for(int category = 0; category < warenbauer_t::get_max_catg_index(); category++)
 			{
 				current_halt->waiting_times[category].remove(self.get_id());
 			}
@@ -1606,16 +1606,20 @@ uint16 haltestelle_t::find_route(vector_tpl<halthandle_t> *destination_halts_lis
 	const uint8 ware_catg = ware.get_besch()->get_catg_index();
 
 	bool found_a_halt = false;
-	for (uint8 i = 0; i < destination_halts_list->get_count(); i++)
+	for(uint8 i = 0; i < destination_halts_list->get_count(); i++)
 	{
 		uint16 test_time;
 		halthandle_t test_transfer;
 		path_explorer_t::get_catg_path_between(ware_catg, self, (*destination_halts_list)[i], test_time, test_transfer);
 
-		if(! (*destination_halts_list)[i].is_bound() ) {
+		if(!(*destination_halts_list)[i].is_bound()) 
+		{
 			// This halt has been deleted recently.  Don't go there.
 			continue;
-		} else {
+		} 
+		
+		else
+		{
 			found_a_halt = true;
 		}
 
@@ -1623,12 +1627,14 @@ uint16 haltestelle_t::find_route(vector_tpl<halthandle_t> *destination_halts_lis
 		long_test_time = (uint32)test_time; // get the test time from the path explorer...
 
 		koord real_destination_pos = koord::invalid;
-		if(destination_pos != koord::invalid) {
+		if(destination_pos != koord::invalid)
+		{
 			// Called with a specific destination position, not set by ware
 			// Done for passenger alternate-destination searches, I think?
 			real_destination_pos = destination_pos;
 		}
-		else {
+		else 
+		{
 			// Packet has a specific destination postition
 			// Done for real packets
 			real_destination_pos = ware.get_zielpos();
@@ -1636,8 +1642,9 @@ uint16 haltestelle_t::find_route(vector_tpl<halthandle_t> *destination_halts_lis
 		// Find the halt square closest to the real destination (closest exit)
 		destination_stop_pos = (*destination_halts_list)[i]->get_next_pos(real_destination_pos);
 		// And find the shortest walking distance to there.
-		uint32 walk_distance = shortest_distance(destination_stop_pos, real_destination_pos);
-		if (!ware.is_freight()) {
+		const uint32 walk_distance = shortest_distance(destination_stop_pos, real_destination_pos);
+		if(!ware.is_freight())
+		{
 			// Passengers or mail.
 			// Calculate walking time from destination stop to final destination; add it.
 			long_test_time += welt->walking_time_tenths_from_distance(walk_distance);
@@ -1667,7 +1674,8 @@ uint16 haltestelle_t::find_route(vector_tpl<halthandle_t> *destination_halts_lis
 		}
 	}
 
-	if (  !found_a_halt  ) {
+	if(!found_a_halt)
+	{
 		//no target station found
 		ware.set_ziel(halthandle_t());
 		ware.set_zwischenziel(halthandle_t());
@@ -1680,12 +1688,13 @@ uint16 haltestelle_t::find_route(vector_tpl<halthandle_t> *destination_halts_lis
 		ware.set_zwischenziel(best_transfer);
 		return best_journey_time;
 	}
-	else {
+	else 
+	{
 		return best_journey_time;
 	}
 }
 
-uint16 haltestelle_t::find_route (ware_t &ware, const uint16 previous_journey_time)
+uint16 haltestelle_t::find_route(ware_t &ware, const uint16 previous_journey_time)
 {
 	vector_tpl<halthandle_t> *destination_halts_list = build_destination_list(ware);
 	const uint16 journey_time = find_route(destination_halts_list, ware, previous_journey_time);
