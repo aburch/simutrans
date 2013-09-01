@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug (command-line server)|Win32">
@@ -559,7 +559,7 @@
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;Strmiids.lib;Ws2_32.lib;shell32.lib;pthreadVCE2.lib</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;Strmiids.lib;Ws2_32.lib;shell32.lib;pthreadVC2.lib</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName)-debug.exe</OutputFile>
       <AdditionalLibraryDirectories>..\OpenTTD\win64\library;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
