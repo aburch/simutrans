@@ -631,7 +631,7 @@ haltestelle_t::~haltestelle_t()
 
 	// Update nearby factories' lists of connected halts.
 	// Must be done AFTER updating the planquadrats,
-	// AND after updating our own list.  Yuck!
+	// AND after updating our own list. 
 	FOR (vector_tpl<fabrik_t*>, fab, affected_fab_list)
 	{
 		fab->recalc_nearby_halts();
