@@ -315,7 +315,7 @@ bool tunnelbauer_t::baue_tunnel(karte_t *welt, spieler_t *sp, koord3d start, koo
 	weg_t *weg = NULL;
 	leitung_t *lt = NULL;
 	koord3d pos = start;
-	int cost = 0, maint = 0;
+	sint64 cost = 0, maint = 0;
 	const weg_besch_t *weg_besch;
 	waytype_t wegtyp = besch->get_waytype();
 
@@ -418,7 +418,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 }
 
 
-void tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, koord3d end, koord zv, const tunnel_besch_t *besch, const weg_besch_t *weg_besch, int &cost)
+void tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, koord3d end, koord zv, const tunnel_besch_t *besch, const weg_besch_t *weg_besch, sint64 &cost)
 {
 	grund_t *alter_boden = welt->lookup(end);
 	ribi_t::ribi ribi = 0;
@@ -510,7 +510,7 @@ void tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, koord3d end, koo
 	}
 
 	spieler_t::add_maintenance( sp,  besch->get_wartung(), besch->get_finance_waytype() );
-	cost += besch->get_preis();
+	cost += (sint64)besch->get_preis();
 }
 
 

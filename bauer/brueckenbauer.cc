@@ -218,7 +218,7 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, spieler_t *sp, koord3d pos, k
 		const grund_t* gr = welt->lookup(pos);
 		const gebaeude_t* gb = gr ? gr->find<gebaeude_t>() : NULL;
 		const uint8 max_level = welt->get_settings().get_max_elevated_way_building_level();
-		if(gb && gb->get_tile()->get_besch()->get_level() > max_level)
+		if(gb && gb->get_tile()->get_besch()->get_level() > max_level && !haltestelle_t::get_halt(welt, gb->get_pos(), NULL).is_bound())
 		{
 			error_msg = "Bridges cannot be built over large buildings.";
 			return koord3d::invalid;

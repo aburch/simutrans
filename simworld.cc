@@ -3735,6 +3735,17 @@ void karte_t::new_month()
 		}
 	}
 
+	FOR(vector_tpl<fabrik_t*>, const fab, closed_factories_this_month)
+	{
+		if(fab_list.is_contained(fab)) 
+		{
+			grund_t *gr = lookup(fab->get_pos());
+			gebaeude_t* gb = gr->find<gebaeude_t>();
+	   
+			hausbauer_t::remove(this, get_spieler(1), gb);
+		}
+	}
+
 	// Check to see whether more factories need to be added
 	// to replace ones that have closed.
 	// @author: jamespetts

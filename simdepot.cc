@@ -375,8 +375,16 @@ bool depot_t::check_obsolete_inventory(convoihandle_t cnv)
 convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv, bool local_execution)
 {
 	if(  old_cnv.is_bound()  &&  !convoihandle_t::is_exhausted()  &&
-		old_cnv->get_vehikel_anzahl() > 0  &&  get_waytype() == old_cnv->front()->get_besch()->get_waytype() ) {
-
+		old_cnv->get_vehikel_anzahl() > 0  &&  get_waytype() == old_cnv->front()->get_besch()->get_waytype() )
+	{
+		if( old_cnv->get_schedule() && (!old_cnv->get_schedule()->ist_abgeschlossen()) )
+		{           
+			if(local_execution)
+			{
+				create_win( new news_img("Schedule is incomplete/not finished"), w_time_delete, magic_none);
+			}
+			return convoihandle_t();
+        }
 		convoihandle_t new_cnv = add_convoi( false );
 		new_cnv->set_name(old_cnv->get_internal_name());
 		new_cnv->set_livery_scheme_index(old_cnv->get_livery_scheme_index());
@@ -396,10 +404,17 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv, bool local_execution
 					if(!get_besitzer()->can_afford(total_price))
 					{
 						create_win( new news_img(CREDIT_MESSAGE), w_time_delete, magic_none);
-						if(!new_cnv.is_bound() || new_cnv->get_vehikel_anzahl() == 0)
+						if(!new_cnv.is_bound())
 						{
 							return new_cnv;
 						}
+
+						if(new_cnv->get_vehikel_anzahl() == 0)
+						{
+							disassemble_convoi(new_cnv, true);
+							return convoihandle_t();
+						}
+
 						break; // ... and what happens with the first few vehicles, if you: return convoihandle_t();
 						
 					}

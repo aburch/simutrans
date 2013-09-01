@@ -5917,7 +5917,7 @@ const char *wkz_stop_moving_t::do_work( karte_t *welt, spieler_t *sp, const koor
 						if(last_halt.is_bound()) {
 							last_halt->remove_line(line);
 						}
-						sp->simlinemgmt.update_line(line);
+						simlinemgmt_t::update_line(line);
 					}
 				}
 			}
@@ -6833,7 +6833,7 @@ bool wkz_change_line_t::init( karte_t *welt, spieler_t *sp )
 					if (fpl->sscanf_schedule( p )  &&  scenario_check_schedule(welt, sp, fpl, is_local_execution()) ) {
 						fpl->eingabe_abschliessen();
 						line->set_schedule( fpl );
-						line->get_besitzer()->simlinemgmt.update_line(line);
+						simlinemgmt_t::update_line(line);
 					}
 					else {
 						// could not read schedule, do not assign
@@ -7535,7 +7535,7 @@ bool wkz_access_t::init(karte_t* const welt, spieler_t *sp)
 				}
 				if(!entries_to_remove.empty())
 				{
-					receiving_player->simlinemgmt.update_line(current_line);
+					simlinemgmt_t::update_line(current_line);
 				}
 			}
 		}
