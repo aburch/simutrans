@@ -118,7 +118,7 @@ SOCKET network_open_address(char const* cp, char const*& err)
 	if(cp2!=NULL) {
 		port=atoi(cp2+1);
 		// Copy the address part
-		tstrncpy(address,cp,cp2-cp>31?31:cp2-cp+1);
+		tstrncpy(address,cp,cp2-cp>1023?1023:cp2-cp+1);
 		cp = address;
 	}
 
@@ -188,7 +188,7 @@ SOCKET network_open_address(char const* cp, char const*& err)
 		}
 		else {
 			// Copy the address part
-			tstrncpy( address, cp, cp2 - cp > 31 ? 31 : cp2 - cp + 1 );
+			tstrncpy( address, cp, cp2 - cp > 1023 ? 1023 : cp2 - cp + 1 );
 		}
 		cp = address;
 	}

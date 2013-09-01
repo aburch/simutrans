@@ -329,14 +329,14 @@ void convoi_t::unreserve_route()
 		if (lok) {
 			// free all reserved blocks
 			uint16 dummy;
-			lok->block_reserver(get_route(), back()->get_route_index(), dummy, dummy,  100000, false, true);
+			lok->block_reserver(get_route(), back()->get_route_index(), dummy, dummy, 100000, false, true);
 		}
 	}
 }
 
 
 /**
- * unreserves the whole remaining route
+ * reserves the whole remaining route
  */
 void convoi_t::reserve_route()
 {
@@ -964,7 +964,7 @@ convoi_t::route_infos_t& convoi_t::get_route_infos()
 
 		// calc route infos
 		route_infos.set_count(route_count);
-		uint32 i = max(0, current_route_index - 2);
+		uint32 i = min(max(0, current_route_index - 2), route_count - 1);
 
 		koord3d current_tile = route.position_bei(i);
 		convoi_t::route_info_t &start_info = route_infos.get_element(i);
@@ -2039,12 +2039,22 @@ void convoi_t::ziel_erreicht()
 	else {
 		// no suitable depot reached, check for stop!
 		halthandle_t halt = haltestelle_t::get_halt(welt, v->get_pos(),besitzer_p);
-		if(  halt.is_bound() &&  gr->get_weg_ribi(v->get_waytype())!=0  ) {
+		if(  halt.is_bound() &&  gr->get_weg_ribi(v->get_waytype())!=0  )
+		{
 			// seems to be a stop, so book the money for the trip
 			set_akt_speed(0);
 			halt->book(1, HALT_CONVOIS_ARRIVED);
 			state = LOADING;
 			go_on_ticks = WAIT_INFINITE;	// we will eventually wait from now on
+			if(fahr[0]->get_waytype() == air_wt)
+			{
+				aircraft_t* aircraft = (aircraft_t*)fahr[0];
+				if(aircraft->get_flyingheight() > 0)
+				{
+					// VTOL aircraft landing - set to landed state.
+					aircraft->force_land();
+				}
+			}
 		}
 		else {
 			// Neither depot nor station: waypoint
@@ -2806,6 +2816,11 @@ void convoi_t::vorfahren()
 				// It might be possible for "stop" to be > the number of 
 				// items in the schedule if the schedule has changed recently.
 				schedule->eintrag[stop].reverse = (state == REVERSING);
+				const linehandle_t line = get_line();
+				if(line.is_bound())
+				{
+					simlinemgmt_t::update_line(line);
+				}
 			}
 			//const bool check_rev = rev;
 			schedule->increment_index(&stop, &rev);

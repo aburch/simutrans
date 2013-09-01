@@ -963,6 +963,8 @@ public:
 
 	int get_flyingheight() const {return flughoehe-hoff-2;}
 
+	void force_land() { flughoehe = 0; target_height = 0; state = taxiing_to_halt; }
+
 	// image: when flying empty, on ground the plane
 	virtual image_id get_bild() const {return !is_on_ground() ? IMG_LEER : bild;}
 

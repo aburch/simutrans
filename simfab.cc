@@ -2299,7 +2299,6 @@ void fabrik_t::neuer_monat()
 			}
 
 			welt->closed_factories_this_month.append(this);
-			hausbauer_t::remove(welt, welt->get_spieler(1), gb);
 		}
 	}
 	// NOTE: No code should come after this part, as the closing down code may cause this object to be deleted.
