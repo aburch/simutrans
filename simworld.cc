@@ -8849,8 +8849,8 @@ void karte_t::add_building_to_world_list(gebaeude_t *gb, building_type b)
 	
 	case passenger_origin:
 		// Pepople visit each others' houses, but this is not a common type of trip.
-		passenger_origins.append_unique(gb, passenger_level);
-		visitor_targets.append_unique(gb, passenger_level / 100);
+		passenger_origins.append(gb, passenger_level);
+		visitor_targets.append(gb, passenger_level / 100);
 		break;
 
 	case commuter_target:
