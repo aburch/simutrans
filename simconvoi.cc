@@ -2805,6 +2805,7 @@ void convoi_t::vorfahren()
 		{
 			 counter = 2;
 		}
+		bool need_to_update_line = false;
 		while(counter > 0 && schedule->get_count() > 0)
 		{
 			uint8 stop = fpl->get_aktuell();
@@ -2815,19 +2816,27 @@ void convoi_t::vorfahren()
 			{
 				// It might be possible for "stop" to be > the number of 
 				// items in the schedule if the schedule has changed recently.
-				schedule->eintrag[stop].reverse = (state == REVERSING);
-				const linehandle_t line = get_line();
-				if(line.is_bound())
+				if(schedule->eintrag[stop].reverse != (state == REVERSING))
 				{
-					simlinemgmt_t::update_line(line);
+					need_to_update_line = true;
+					schedule->eintrag[stop].reverse = (state == REVERSING);
 				}
 			}
-			//const bool check_rev = rev;
+
 			schedule->increment_index(&stop, &rev);
 			counter --;
 			if(counter > 0)
 			{
 				schedule = line->get_schedule();
+			}
+		}
+
+		if(need_to_update_line)
+		{
+			const linehandle_t line = get_line();
+			if(line.is_bound())
+			{
+				simlinemgmt_t::update_line(line);
 			}
 		}
 
