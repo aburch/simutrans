@@ -147,10 +147,11 @@ uint32 simrand_normal(const uint32 max, const char* caller)
 uint32 simrand_normal(const uint32 max, const char*)
 #endif
 {
+	const uint32 adj_max = max == 0 ? 1 : max;
 #ifdef DEBUG_SIMRAND_CALLS
 	return ((simrand(max, caller) * simrand(max, "simrand_normal")) / max);
 #else
-	return ((simrand(max, "simrand_normal") * simrand(max, "simrand_normal")) / max);
+	return ((simrand(max, "simrand_normal") * simrand(max, "simrand_normal")) / adj_max);
 #endif
 }
 
