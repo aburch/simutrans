@@ -103,7 +103,8 @@ SQInteger script_api::param<ding_t*>::push(HSQUIRRELVM vm, ding_t* const& d)
 		{
 			waytype_t wt = d->get_waytype();
 			switch(wt) {
-				default: script_api::param<weg_t*>::push(vm, (weg_t*)d);
+				default:
+					return script_api::param<weg_t*>::push(vm, (weg_t*)d);
 			}
 		}
 		default:
