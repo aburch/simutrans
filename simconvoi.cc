@@ -585,6 +585,12 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 	{
 		fahr[i]->remove_stale_freight();
 	}
+
+	loading_limit = fpl->get_current_eintrag().ladegrad; 
+	if(state == LOADING)
+	{
+		laden();
+	}
 }
 
 
