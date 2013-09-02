@@ -451,7 +451,7 @@ void planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const si
 				if(  h >= hmin  ) {
 					// something on top: clip horizontally to prevent trees etc shining trough bridges
 					const sint16 yh = ypos - tile_raster_scale_y( (h-h0)*TILE_HEIGHT_STEP, raster_tile_width) + ((3*raster_tile_width)>>2);
-					if(  yh >= p_cr.y   &&  yh < p_cr.y+p_cr.h  ) {
+					if(  yh >= p_cr.y  ) {
 						display_set_clip_wh(p_cr.x, yh, p_cr.w, p_cr.h+p_cr.y-yh);
 					}
 					break;
