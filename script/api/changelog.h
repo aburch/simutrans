@@ -5,6 +5,7 @@
  * @section api-trunk Current trunk
  *
  * - Added square_x::get_player_halt
+ * - Added way_x::get_dirs,way_x::get_dirs_masked
  * - Deprecated square_x::get_halt, use square_x::get_player_halt or tile_x::get_halt instead!
  *
  * @section api-112-3 Release 112.3

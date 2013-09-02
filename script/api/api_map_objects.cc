@@ -2,6 +2,7 @@
 
 /** @file api_map_objects.cc exports all map-objects. */
 
+#include "api_simple.h"
 #include "../api_class.h"
 #include "../api_function.h"
 
@@ -133,6 +134,17 @@ template<> struct bind_code<ding_t> { static const uint8 dingtype = ding_t::ding
 getpush_ding_pos(baum_t, ding_t::baum);
 getpush_ding_pos(gebaeude_t, ding_t::gebaeude);
 getpush_ding_pos(weg_t, ding_t::way);
+
+// return way ribis, have to implement a wrapper, to correctly rotate ribi
+static SQInteger get_way_ribi(HSQUIRRELVM vm)
+{
+	weg_t *w = param<weg_t*>::get(vm, 1);
+	bool masked = param<waytype_t>::get(vm, 2);
+
+	ribi_t::ribi ribi = w ? (masked ? w->get_ribi() : w->get_ribi_unmasked() ) : 0;
+
+	return push_ribi(vm, ribi);
+}
 
 // create class
 template<class D>
@@ -270,6 +282,18 @@ void export_map_objects(HSQUIRRELVM vm)
 	 * @return whether there is a crossing associated to the way on the tile
 	 */
 	register_method(vm, &weg_t::is_crossing, "is_crossing");
+	/**
+	 * Return directions of this way. One-way signs are ignored here.
+	 * @returns direction
+	 * @typemask dir()
+	 */
+	register_function_fv(vm, &get_way_ribi, "get_dirs", 1, "x", freevariable<bool>(false) );
+	/**
+	 * Return directions of this way. Some signs restrict available directions.
+	 * @returns direction
+	 * @typemask dir()
+	 */
+	register_function_fv(vm, &get_way_ribi, "get_dirs_masked", 1, "x", freevariable<bool>(true) );
 
 	end_class(vm);
 }

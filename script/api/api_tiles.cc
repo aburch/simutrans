@@ -31,7 +31,7 @@ SQInteger get_object_index(HSQUIRRELVM vm)
 
 
 // return way ribis, have to implement a wrapper, to correctly rotate ribi
-SQInteger get_way_ribi(HSQUIRRELVM vm)
+static SQInteger get_way_ribi(HSQUIRRELVM vm)
 {
 	grund_t *gr = param<grund_t*>::get(vm, 1);
 	waytype_t wt = param<waytype_t>::get(vm, 2);
