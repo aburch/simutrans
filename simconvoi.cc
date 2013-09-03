@@ -329,7 +329,7 @@ void convoi_t::unreserve_route()
 		if (lok) {
 			// free all reserved blocks
 			uint16 dummy;
-			lok->block_reserver(get_route(), back()->get_route_index(), dummy, dummy, 100000, false, true);
+			lok->block_reserver(get_route(), back()->get_route_index(), dummy, dummy, 100001, false, true);
 		}
 	}
 }
@@ -584,6 +584,12 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 	for(int i = 0; i < anz_vehikel; i++) 
 	{
 		fahr[i]->remove_stale_freight();
+	}
+
+	loading_limit = fpl->get_current_eintrag().ladegrad; 
+	if(state == LOADING)
+	{
+		laden();
 	}
 }
 
