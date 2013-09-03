@@ -2480,7 +2480,7 @@ void vehikel_t::display_after(int xpos, int ypos, bool is_gobal) const
 				{
 					char waiting_time[64];
 					cnv->snprintf_remaining_loading_time(waiting_time, sizeof(waiting_time));
-					if (cnv->get_loading_limit()) 
+					if(cnv->get_loading_limit()) 
 					{
 						if(!cnv->is_wait_infinite() && strcmp(waiting_time, "0:00")) 
 						{
@@ -3744,7 +3744,7 @@ bool waggon_t::is_weg_frei_choose_signal( signal_t *sig, const uint16 start_bloc
 	}
 
 	target_halt = target->get_halt();
-	if(  !block_reserver( cnv->get_route(), start_block+1, next_signal, next_crossing, 100001, true, false )  ) {
+	if(  !block_reserver( cnv->get_route(), start_block+1, next_signal, next_crossing, 100000, true, false )  ) {
 		// no free route to target!
 		// note: any old reservations should be invalid after the block reserver call.
 		// => We can now start freshly all over
@@ -3877,14 +3877,18 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 		}
 	}
 
-	if(destination_is_nonreversing_waypoint || cnv->get_state()==convoi_t::CAN_START  ||  cnv->get_state()==convoi_t::CAN_START_ONE_MONTH  ||  cnv->get_state()==convoi_t::CAN_START_TWO_MONTHS || cnv->get_state()==convoi_t::REVERSING)
+	const bool starting_from_stand = cnv->get_state()==convoi_t::CAN_START  ||  cnv->get_state()==convoi_t::CAN_START_ONE_MONTH  ||  cnv->get_state()==convoi_t::CAN_START_TWO_MONTHS || cnv->get_state()==convoi_t::REVERSING;
+
+	if(destination_is_nonreversing_waypoint || starting_from_stand)
 	{
 		// reserve first block at the start until the next signal
 		grund_t *gr = welt->lookup( get_pos() );
 		weg_t *w = gr ? gr->get_weg(get_waytype()) : NULL;
-		if(  w==NULL  ||  !(w->has_signal()  ||  w->is_crossing())  ) {
+		if(w==NULL || !((w->has_signal() || w->is_crossing()) && !starting_from_stand))
+		{
 			// free track => reserve up to next signal
-			if( !block_reserver(cnv->get_route(), max(route_index,1)-1, next_signal, next_crossing, 0, true, false )  ) {
+			if(!block_reserver(cnv->get_route(), max(route_index,1)-1, next_signal, next_crossing, 0, true, false )) 
+			{
 				restart_speed = 0;
 				return false;
 			}
@@ -4121,7 +4125,7 @@ bool waggon_t::block_reserver(route_t *route, uint16 start_index, uint16 &next_s
 	}
 
 	// find next block segment enroute
-	uint16 i = start_index - (count == 100000 ? 1 : 0);
+	uint16 i = start_index - (count == 100001 ? 1 : 0);
 	uint16 skip_index=INVALID_INDEX;
 	next_signal_index=INVALID_INDEX;
 	next_crossing_index=INVALID_INDEX;
