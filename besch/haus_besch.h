@@ -191,16 +191,19 @@ class haus_besch_t : public obj_besch_std_name_t { // Daten für ein ganzes Gebäu
 	uint8  enables;		// if it is a stop, what is enabled ...
 	uint8  chance;         // Hajo: chance to build, special buildings, only other is weight factor
 
-	// @author: jamespetts. 
-	// Additional fields for separate station capacity/maintenance
-	// If these are not specified in the .dat file, they are calculated
-	// from the "level" in the old way.
+	/** @author: jamespetts.
+	 * Additional fields for separate capacity/maintenance
+	 * If these are not specified in the .dat file, they are set to
+	 * COST_MAGIC then calculated from the "level" in the old way.
+	 */
 
-	sint32 station_price;
-	sint32 scaled_station_price;
-	sint32 station_maintenance;
-	sint32 scaled_station_maintenance;
-	uint16 station_capacity;
+	sint32 price;
+	sint32 scaled_price;
+	sint32 maintenance;
+	sint32 scaled_maintenance;
+	uint16 capacity;
+
+	#define COST_MAGIC (2147483647) 
 
 	climate_bits allowed_climates;
 
@@ -295,7 +298,7 @@ public:
 
 	const haus_tile_besch_t *get_tile(int layout, int x, int y) const;
 
-	// returns true,if building can be rotated
+	// returns true if the building can be rotated
 	bool can_rotate() const {
 		if(groesse.x!=groesse.y  &&  layouts==1) {
 			return false;
@@ -354,7 +357,7 @@ public:
 	climate_bits get_allowed_climate_bits() const { return allowed_climates; }
 
 	/**
-	* @return station flags (only used for station buildings and oil riggs)
+	* @return station flags (only used for station buildings and oil rigs)
 	* @author prissi
 	*/
 	int get_enabled() const { return enables; }
@@ -365,15 +368,26 @@ public:
 	*/
 	uint16 get_animation_time() const { return animation_time; }
 
-	sint32 get_station_maintenance() const { return scaled_station_maintenance; }
+	/** Recent versions of Standard have incorporated get_maintenance (etc.) from
+	  * Experimental (which Experimental formerly called "station_maintenance", etc.,
+	  * instead of just "maintenance" etc.). 
+	  * 
+	  * In Standard, the actual price is calculated on the fly in the getter methods.
+	  * (See here: https://github.com/aburch/simutrans/commit/7192edc40cee52dc10f44b6d444dd4d668eaa365
+	  * for the Standard code). This is not desirable here because: (1) it does not
+	  * work well with Experimental's price scaling; and (2) it requires repeated 
+	  * recalculation of the prices, which is unnecessary work. 
+	  */
 
-	sint32 get_base_station_maintenance() const { return  station_maintenance; }
+	sint32 get_maintenance() const { return scaled_maintenance; }
 
-	sint32 get_station_price() const { return scaled_station_price; }
+	sint32 get_base_maintenance() const { return maintenance; }
 
-	sint32 get_base_station_price() const { return  station_price; }
+	sint32 get_price() const { return scaled_price; }
 
-	uint16 get_station_capacity() const { return station_capacity; }
+	sint32 get_base_price() const { return  price; }
+
+	uint16 get_capacity() const { return capacity; }
 
 	uint8 get_allow_underground() const { return allow_underground; }
 
@@ -382,10 +396,10 @@ public:
 	void set_scale(uint16 scale_factor) 
 	{
 		// BG: 29.08.2009: explicit typecasts avoid warnings
-		const sint32 scaled_price = station_price == 2147483647 ? station_price : (sint32) set_scale_generic<sint64>((sint64)station_price, scale_factor);
-		const sint32 scaled_maintenance = station_maintenance == 2147483647 ? station_maintenance : (sint32) set_scale_generic<sint64>((sint64)station_maintenance, scale_factor);
-		scaled_station_price = (scaled_price < (station_price > 0 ? 1 : 0) ? 1: scaled_price);
-		scaled_station_maintenance = (scaled_maintenance < (station_maintenance > 0 ? 1 : 0) ? 1: scaled_maintenance);
+		const sint32 scaled_price_x = price == COST_MAGIC ? price : (sint32) set_scale_generic<sint64>((sint64)price, scale_factor);
+		const sint32 scaled_maintenance_x = maintenance == COST_MAGIC ? maintenance : (sint32) set_scale_generic<sint64>((sint64)maintenance, scale_factor);
+		scaled_price = (scaled_price_x < (price > 0 ? 1 : 0) ? 1: scaled_price_x);
+		scaled_maintenance = (scaled_maintenance_x < (maintenance > 0 ? 1 : 0) ? 1: scaled_maintenance_x);
 	}
 
 	// default tool for building

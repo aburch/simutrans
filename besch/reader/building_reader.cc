@@ -218,11 +218,52 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		}
 	}
 
-	// These two cannot be set properly here - must be set to the maximum 
-	// value so that simhalt.cc can detect when they need to be set properly.
-	besch->station_maintenance = 2147483647; 
-	besch->station_price = 2147483647;
-	if(version == 7) {
+	if(version == 8) 
+	{
+		// Versioned node, version 8
+		// station price, maintenance and capacity added
+		besch->gtyp      = (gebaeude_t::typ)decode_uint8(p);
+		besch->utype     = (haus_besch_t::utyp)decode_uint8(p);
+		besch->level     = decode_uint16(p);
+		besch->extra_data= decode_uint32(p);
+		besch->groesse.x = decode_uint16(p);
+		besch->groesse.y = decode_uint16(p);
+		besch->layouts   = decode_uint8(p);
+		besch->allowed_climates = (climate_bits)decode_uint16(p);
+		besch->enables   = decode_uint8(p);
+		if(experimental_version < 1 && besch->utype == haus_besch_t::depot)
+		{
+			besch->enables = 255;
+		}
+		besch->flags     = (haus_besch_t::flag_t)decode_uint8(p);
+		besch->chance    = decode_uint8(p);
+		besch->intro_date    = decode_uint16(p);
+		besch->obsolete_date = decode_uint16(p);
+		besch->animation_time = decode_uint16(p);
+		besch->capacity  = decode_uint16(p);
+		besch->maintenance = decode_sint32(p);
+		besch->price     = decode_sint32(p);
+		besch->allow_underground = decode_uint8(p);
+		if(experimental && experimental_version == 2)
+		{
+			besch->is_control_tower = decode_uint8(p);
+		}
+		else
+		{
+			besch->is_control_tower = 0;
+		}
+	  } 
+
+	if(version <= 7)
+	{
+		// capacity, maintenance and price were set from level
+		besch->capacity = besch->level * 32;
+		besch->maintenance = COST_MAGIC;
+		besch->price = COST_MAGIC;
+	} 
+
+	if(version == 7)
+	{
 		// Versioned node, version 7
 		// underground mode added
 		besch->gtyp      = (gebaeude_t::typ)decode_uint8(p);
@@ -245,7 +286,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->animation_time = decode_uint16(p);
 		
 		// Set default levels for Experimental
-		besch->station_capacity = besch->level * 32;
+		besch->capacity = besch->level * 32;
 		besch->is_control_tower = 0;
 
 		if(experimental)
@@ -256,9 +297,9 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			}
 			else
 			{
-				besch->station_capacity = decode_uint16(p);
-				besch->station_maintenance = decode_sint32(p);
-				besch->station_price = decode_sint32(p);
+				besch->capacity = decode_uint16(p);
+				besch->maintenance = decode_sint32(p);
+				besch->price = decode_sint32(p);
 			}
 		}
 
@@ -294,7 +335,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->animation_time = decode_uint16(p);
 		
 		// Set default levels for Experimental
-		besch->station_capacity = besch->level * 32;
+		besch->capacity = besch->level * 32;
 		besch->allow_underground = besch->utype == haus_besch_t::generic_stop ? 2 : 0; 
 		besch->is_control_tower = 0;
 
@@ -306,17 +347,17 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			}
 			else if(experimental_version == 2)
 			{
-				besch->station_capacity = decode_uint16(p);
-				besch->station_maintenance = decode_sint32(p);
-				besch->station_price = decode_sint32(p);
+				besch->capacity = decode_uint16(p);
+				besch->maintenance = decode_sint32(p);
+				besch->price = decode_sint32(p);
 				besch->allow_underground = decode_uint8(p);
 				besch->is_control_tower = decode_uint8(p);
 			}
 			else
 			{
-				besch->station_capacity = decode_uint16(p);
-				besch->station_maintenance = decode_sint32(p);
-				besch->station_price = decode_sint32(p);
+				besch->capacity = decode_uint16(p);
+				besch->maintenance = decode_sint32(p);
+				besch->price = decode_sint32(p);
 				besch->is_control_tower = 0;
 				besch->allow_underground = besch->utype == haus_besch_t::generic_stop ? 2 : 0; 
 			}
@@ -451,14 +492,14 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	if(!experimental)
 	{
 		// Set default levels for Experimental
-		besch->station_capacity = besch->level * 32;
+		besch->capacity = besch->level * 32;
 		// Old versions when read should allow underground stations, but not underground extension buildings.
 		besch->allow_underground = besch->utype == haus_besch_t::generic_stop ? 2 : 0; 
 		besch->is_control_tower = 0;
 	}
 
-	besch->scaled_station_maintenance = besch->station_maintenance;
-	besch->scaled_station_price = besch->station_price;
+	besch->scaled_maintenance = besch->maintenance;
+	besch->scaled_price = besch->price;
 
 	// correct old station buildings ...
 

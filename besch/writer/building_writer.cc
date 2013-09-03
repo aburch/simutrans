@@ -246,16 +246,28 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12 +
 		obj.get_int("retire_month", 1) - 1;
 
-	// @author: jamespetts
-	// Station-specific capacity and price information.
+	// @author: Kieron Green (ideas from original experimental code by jamespetts)
+	// capacity and price information.
 	// Stands in place of the "level" setting, but uses "level" data by default.
 
-	sint32 station_capacity = obj.get_int("station_capacity", level * 32);
-	station_capacity = obj.get_int("capacity", station_capacity);
-	sint32 station_maintenance = obj.get_int("station_maintenance", 2147483647); //NOTE: Default cannot be set because it depends on a world factor. Must detect this number and put in default if it is found.
-	station_maintenance = obj.get_int("maintenance", station_maintenance);
-	sint32 station_price = obj.get_int("station_price", 2147483647);
-	station_price = obj.get_int("cost", station_price);
+	 // NOTE: Default for maintenance and price must be set when loading so use magic default here
+	 // also check for "station_xx" for backwards compatibility
+		
+	sint32 capacity = obj.get_int("capacity", level * 32);
+	if(  capacity == level * 32  ) {
+		capacity = obj.get_int("station_capacity", level * 32);
+	}
+	
+	sint32 maintenance = obj.get_int("maintenance", COST_MAGIC);
+	if(  maintenance == COST_MAGIC  ) {
+		maintenance = obj.get_int("station_maintenance", COST_MAGIC);
+	}
+	
+	sint32 price = obj.get_int("cost", COST_MAGIC);
+	if(  price == COST_MAGIC  ) {
+		price = obj.get_int("station_price", COST_MAGIC);
+	}
+	 
 
 	uint8 allow_underground = obj.get_int("allow_underground", 2);
 
@@ -381,7 +393,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		}
 	}
 
-	uint16 version = 0x8007;
+	uint16 version = 0x8008;
 	
 	// This is the overlay flag for Simutrans-Experimental
 	// This sets the *second* highest bit to 1. 
@@ -413,9 +425,9 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	node.write_uint16(fp, intro_date,			20);
 	node.write_uint16(fp, obsolete_date,		22);
 	node.write_uint16(fp, animation_time,		24);
-	node.write_uint16(fp, station_capacity,		26);
-	node.write_sint32(fp, station_maintenance,	28);
-	node.write_sint32(fp, station_price,		32);
+	node.write_uint16(fp, capacity,				26);
+	node.write_sint32(fp, maintenance,			28);
+	node.write_sint32(fp, price,				32);
 	node.write_uint8(fp, allow_underground,		36);
 	node.write_uint8(fp, is_control_tower,		37);
 	

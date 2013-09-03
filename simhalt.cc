@@ -2505,7 +2505,7 @@ sint64 haltestelle_t::calc_maintenance() const
 		if (gebaeude_t* const gb = i.grund->find<gebaeude_t>()) 
 		{
 			const haus_besch_t* besch = gb->get_tile()->get_besch();
-			if(besch->get_base_station_maintenance() == 2147483647)
+			if(besch->get_base_maintenance() == COST_MAGIC)
 			{
 				// Default value - no specific maintenance set. Use the old method
 				maintenance += welt->get_settings().maint_building * besch->get_level();
@@ -2513,7 +2513,7 @@ sint64 haltestelle_t::calc_maintenance() const
 			else
 			{
 				// New method - get the specified factor.
-				maintenance += besch->get_station_maintenance();
+				maintenance += besch->get_maintenance();
 			}
 		}
 	}
@@ -2541,7 +2541,7 @@ bool haltestelle_t::make_public_and_join(spieler_t *sp)
 			{
 				const haus_besch_t* besch = gb->get_tile()->get_besch();
 				sint32 costs;
-				if(besch->get_base_station_maintenance() == 2147483647)
+				if(besch->get_base_maintenance() == COST_MAGIC)
 				{
 					// Default value - no specific maintenance set. Use the old method
 					costs = welt->get_settings().maint_building * besch->get_level();
@@ -2549,7 +2549,7 @@ bool haltestelle_t::make_public_and_join(spieler_t *sp)
 				else
 				{
 					// New method - get the specified factor.
-					costs = besch->get_station_maintenance();
+					costs = besch->get_maintenance();
 				}
 				
 				if(!compensate)
@@ -2581,7 +2581,7 @@ bool haltestelle_t::make_public_and_join(spieler_t *sp)
 				spieler_t *gb_sp = gb->get_besitzer();
 				const haus_besch_t* besch = gb->get_tile()->get_besch();
 				sint32 costs;
-				if(besch->get_base_station_maintenance() == 2147483647)
+				if(besch->get_base_maintenance() == COST_MAGIC)
 				{
 					// Default value - no specific maintenance set. Use the old method
 					costs = welt->get_settings().maint_building * besch->get_level();
@@ -2589,7 +2589,7 @@ bool haltestelle_t::make_public_and_join(spieler_t *sp)
 				else
 				{
 					// New method - get the specified factor.
-					costs = besch->get_station_maintenance();
+					costs = besch->get_maintenance();
 				}
 				spieler_t::add_maintenance( gb_sp, -costs, gb->get_waytype() );
 				gb->set_besitzer(public_owner);
@@ -2656,7 +2656,7 @@ bool haltestelle_t::make_public_and_join(spieler_t *sp)
 					spieler_t *gb_sp=gb->get_besitzer();
 					sint32 costs;
 
-					if(gb->get_tile()->get_besch()->get_base_station_maintenance() == 2147483647)
+					if(gb->get_tile()->get_besch()->get_base_maintenance() == COST_MAGIC)
 					{
 						// Default value - no specific maintenance set. Use the old method
 						costs = welt->get_settings().maint_building * gb->get_tile()->get_besch()->get_level();
@@ -2664,7 +2664,7 @@ bool haltestelle_t::make_public_and_join(spieler_t *sp)
 					else
 					{
 						// New method - get the specified factor.
-						costs = gb->get_tile()->get_besch()->get_station_maintenance();
+						costs = gb->get_tile()->get_besch()->get_maintenance();
 					}
 					
 					spieler_t::add_maintenance( gb_sp, -costs, gb->get_waytype() );
@@ -2753,18 +2753,18 @@ void haltestelle_t::add_to_station_type( grund_t *gr )
 			enables |= besch->get_enabled();
 			if( welt->get_settings().is_seperate_halt_capacities()) {
 				if(besch->get_enabled()&1) {
-					capacity[0] += besch->get_station_capacity();
+					capacity[0] += besch->get_capacity();
 				}
 				if(besch->get_enabled()&2) {
-					capacity[1] += besch->get_station_capacity();
+					capacity[1] += besch->get_capacity();
 				}
 				if(besch->get_enabled()&4) {
-					capacity[2] += besch->get_station_capacity();
+					capacity[2] += besch->get_capacity();
 				}
 			}
 			else {
 				// no sperate capacities: sum up all
-				capacity[0] += besch->get_station_capacity();
+				capacity[0] += besch->get_capacity();
 				capacity[2] = capacity[1] = capacity[0];
 			}
 		}
@@ -2827,18 +2827,18 @@ void haltestelle_t::add_to_station_type( grund_t *gr )
 	enables |= besch->get_enabled();
 	if( welt->get_settings().is_seperate_halt_capacities()  ) {
 		if(besch->get_enabled()&1) {
-			capacity[0] +=  besch->get_station_capacity();
+			capacity[0] +=  besch->get_capacity();
 		}
 		if(besch->get_enabled()&2) {
-			capacity[1] +=  besch->get_station_capacity();
+			capacity[1] +=  besch->get_capacity();
 		}
 		if(besch->get_enabled()&4) {
-			capacity[2] +=  besch->get_station_capacity();
+			capacity[2] +=  besch->get_capacity();
 		}
 	}
 	else {
 		// no sperate capacities: sum up all
-		capacity[0] +=  besch->get_station_capacity();
+		capacity[0] +=  besch->get_capacity();
 		capacity[2] = capacity[1] = capacity[0];
 	}
 }

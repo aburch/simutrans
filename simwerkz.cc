@@ -3570,13 +3570,13 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 
 	sint64 cost;
 	sint32 const factor = besch->get_level() * besch->get_b() * besch->get_h();
-	if(besch->get_base_station_price() == 2147483647)
+	if(besch->get_base_price() == COST_MAGIC)
 	{
 		cost = s.cst_multiply_post * factor;
 	}
 	else
 	{
-		cost = -besch->get_station_price() * besch->get_b() * besch->get_h();
+		cost = -besch->get_price() * besch->get_b() * besch->get_h();
 	}
 
 	if(sp!=halt->get_besitzer()  &&  halt->get_besitzer()==welt->get_spieler(1) && sp != welt->get_spieler(1))
@@ -3620,13 +3620,13 @@ const char *wkz_station_t::wkz_station_dock_aux(karte_t *welt, spieler_t *sp, ko
 	halthandle_t halt;
 
 	sint64 costs;
-	if(besch->get_base_station_price() == 2147483647)
+	if(besch->get_base_price() == COST_MAGIC)
 	{
 		costs =welt->get_settings().cst_multiply_dock * besch->get_level();
 	}
 	else
 	{
-		costs = -besch->get_station_price();
+		costs = -besch->get_price();
 	}
 
 	if(!spieler_t::can_afford(sp, -costs))
@@ -3782,13 +3782,13 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.
 		// public stops are expensive!
 		// (Except for the public player itself)
 		sint64 maint;
-		if(besch->get_base_station_maintenance() == 2147483647)
+		if(besch->get_base_maintenance() == COST_MAGIC)
 		{
 			maint = welt->get_settings().maint_building * besch->get_level();
 		}
 		else
 		{
-			maint = besch->get_station_maintenance();
+			maint = besch->get_maintenance();
 		}
 
 		costs -= (maint * 60);
@@ -3980,7 +3980,7 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 		{
 			const haus_besch_t *old_besch = gb->get_tile()->get_besch();
 			old_level = old_besch->get_level();
-			if( old_besch->get_level() >= besch->get_level() &&  old_besch->get_station_capacity() > besch->get_station_capacity()) 
+			if( old_besch->get_level() >= besch->get_level() &&  old_besch->get_capacity() > besch->get_capacity()) 
 			{
 				return "Upgrade must have\na higher level";
 			}
@@ -4029,13 +4029,13 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 		// public stops are expensive!
 		// (Except for the public player itself, of course)
 		sint64 maint;
-		if(besch->get_base_station_maintenance() == 2147483647)
+		if(besch->get_base_maintenance() == COST_MAGIC)
 		{
 			maint = welt->get_settings().maint_building * besch->get_level();
 		}
 		else
 		{
-			maint = besch->get_station_maintenance();
+			maint = besch->get_maintenance();
 		}
 		adjusted_cost -= welt->calc_adjusted_monthly_figure(maint * 60);
 	}
@@ -4153,20 +4153,20 @@ char const* wkz_station_t::get_tooltip(spieler_t const*sp) const
 	const haus_besch_t *besch=get_besch(dummy);
 	sint64 price = 0;
 	sint64 maint = 0;
-	uint32 cap = besch->get_station_capacity(); // This is always correct in the besch object.
+	uint32 cap = besch->get_capacity(); // This is always correct in the besch object.
 	if(  besch->get_utyp()==haus_besch_t::generic_stop  ) 
 	{
-		if(besch->get_base_station_maintenance() != 2147483647)
+		if(besch->get_base_maintenance() != COST_MAGIC)
 		{
-			maint = besch->get_station_maintenance();
+			maint = besch->get_maintenance();
 		}
 		else
 		{
 			maint = sp->get_welt()->get_settings().maint_building*besch->get_level();
 		}
-		if(besch->get_base_station_price() != 2147483647)
+		if(besch->get_base_price() != COST_MAGIC)
 		{
-			price = -besch->get_station_price();
+			price = -besch->get_price();
 		}
 		else
 		{
@@ -4198,18 +4198,18 @@ char const* wkz_station_t::get_tooltip(spieler_t const*sp) const
 	}
 	else if(besch->get_utyp()==haus_besch_t::generic_extension || besch->get_utyp()==haus_besch_t::hafen) 
 	{
-		if(besch->get_base_station_maintenance() != 2147483647)
+		if(besch->get_base_maintenance() != COST_MAGIC)
 		{
-			maint = besch->get_station_maintenance();
+			maint = besch->get_maintenance();
 		}
 		else
 		{
 			maint = sp->get_welt()->get_settings().maint_building * besch->get_level();
 		}
 
-		if(besch->get_base_station_price() != 2147483647)
+		if(besch->get_base_price() != COST_MAGIC)
 		{
-			price = -besch->get_station_price();
+			price = -besch->get_price();
 		}
 		else
 		{
@@ -4341,13 +4341,13 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 	switch (besch->get_utyp()) 
 	{
 		case haus_besch_t::hafen:
-			if(besch->get_base_station_price() == 2147483647)
+			if(besch->get_base_price() == COST_MAGIC)
 			{
 				cost = s.cst_multiply_dock * besch->get_level();
 			}
 			else
 			{
-				cost = -besch->get_station_price();
+				cost = -besch->get_price();
 			}
 			if(!spieler_t::can_afford(sp, -cost))
 			{
@@ -4367,13 +4367,13 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 			settings_t const& s = welt->get_settings();
 			switch(besch->get_extra()) {
 				case road_wt:
-					if(besch->get_base_station_price() == 2147483647)
+					if(besch->get_base_price() == COST_MAGIC)
 					{
 						cost = s.cst_multiply_roadstop * besch->get_level();
 					}
 					else
 					{
-						cost = -besch->get_station_price();
+						cost = -besch->get_price();
 					}
 					if(!spieler_t::can_afford(sp, -cost))
 					{
@@ -4386,13 +4386,13 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 				case maglev_wt:
 				case narrowgauge_wt:
 				case tram_wt:
-					if(besch->get_base_station_price() == 2147483647)
+					if(besch->get_base_price() == COST_MAGIC)
 					{
 						cost = s.cst_multiply_station * besch->get_level();
 					}
 					else
 					{
-						cost = -besch->get_station_price();
+						cost = -besch->get_price();
 					}
 					if(!spieler_t::can_afford(sp, -cost))
 					{
@@ -4401,13 +4401,13 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 					msg = wkz_station_t::wkz_station_aux(welt, sp, pos, besch, (waytype_t)besch->get_extra(), cost, "BF");
 					break;
 				case water_wt:
-					if(besch->get_base_station_price() == 2147483647)
+					if(besch->get_base_price() == COST_MAGIC)
 					{
 						cost = s.cst_multiply_dock * besch->get_level();
 					}
 					else
 					{
-						cost = -besch->get_station_price();
+						cost = -besch->get_price();
 					}
 					if(!spieler_t::can_afford(sp, -cost))
 					{
@@ -4416,13 +4416,13 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 					msg = wkz_station_t::wkz_station_aux(welt, sp, pos, besch, water_wt, cost, "Dock");
 					break;
 				case air_wt:
-					if(besch->get_base_station_price() == 2147483647)
+					if(besch->get_base_price() == COST_MAGIC)
 					{
 						cost = s.cst_multiply_airterminal * besch->get_level();
 					}
 					else
 					{
-						cost = -besch->get_station_price();
+						cost = -besch->get_price();
 					}
 					if(!spieler_t::can_afford(sp, -cost))
 					{

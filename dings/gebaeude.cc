@@ -131,13 +131,13 @@ gebaeude_t::gebaeude_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_til
 	{
 		set_tile(t,true);	// this will set init time etc.
 		sint64 maint;
-		if(tile->get_besch()->get_base_station_maintenance() == 2147483647)
+		if(tile->get_besch()->get_base_maintenance() == COST_MAGIC)
 		{
 			maint = welt->get_settings().maint_building*tile->get_besch()->get_level();
 		}
 		else
 		{
-			maint = tile->get_besch()->get_station_maintenance();
+			maint = tile->get_besch()->get_maintenance();
 		}
 		spieler_t::add_maintenance(get_besitzer(), maint, tile->get_besch()->get_finance_waytype() );
 	}
@@ -186,13 +186,13 @@ gebaeude_t::~gebaeude_t()
 	if(tile) 
 	{
 		sint64 maint;
-		if(tile->get_besch()->get_base_station_maintenance() == 2147483647)
+		if(tile->get_besch()->get_base_maintenance() == COST_MAGIC)
 		{
 			maint = welt->get_settings().maint_building * tile->get_besch()->get_level();
 		}
 		else
 		{
-			maint = tile->get_besch()->get_station_maintenance();
+			maint = tile->get_besch()->get_maintenance();
 		}
 		spieler_t::add_maintenance(get_besitzer(), -maint);
 	}
@@ -1163,8 +1163,8 @@ void gebaeude_t::rdwr(loadsave_t *file)
 void gebaeude_t::laden_abschliessen()
 {
 	calc_bild();
-	sint64 maint = tile->get_besch()->get_station_maintenance();
-	if(maint == 2147483647) 
+	sint64 maint = tile->get_besch()->get_maintenance();
+	if(maint == COST_MAGIC) 
 	{
 		maint = welt->get_settings().maint_building*tile->get_besch()->get_level();
 	}
@@ -1209,9 +1209,9 @@ void gebaeude_t::entferne(spieler_t *sp) // "Remove" (Google)
 	else 
 	{
 		// tearing down halts is always single costs only
-		cost = besch->get_station_price();
-		// This check is necessary because the number of 2147483647 is used if no price is specified. 
-		if(besch->get_base_station_price() == 2147483647)
+		cost = besch->get_price();
+		// This check is necessary because the number of COST_MAGIC is used if no price is specified. 
+		if(besch->get_base_price() == COST_MAGIC)
 		{
 			// TODO: find a way of checking what *kind* of stop that this is. This assumes railway.
 			cost = welt->get_settings().cst_multiply_station * besch->get_level();
@@ -1297,7 +1297,7 @@ void gebaeude_t::mark_images_dirty() const
 
 uint16 gebaeude_t::get_weight() const
 {
-	return this->tile->get_besch()->get_level();
+	return tile->get_besch()->get_level();
 }
 
 sint64 gebaeude_t::calc_available_jobs_by_time() const
@@ -1318,7 +1318,7 @@ void gebaeude_t::set_commute_trip(uint16 number)
 
 sint32 gebaeude_t::check_remaining_available_jobs() const
 {
-	bool TEST_available_simple_method = jobs_available();
+	// Commenting out the "if(!jobs_available())" code will allow jobs to be shown as negative.
 	/*if(!jobs_available())
 	{
 		// All the jobs are taken for the time being.

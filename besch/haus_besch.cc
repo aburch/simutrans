@@ -169,6 +169,9 @@ void haus_besch_t::calc_checksum(checksum_t *chk) const
 	chk->input((uint8)allowed_climates);
 	chk->input(intro_date);
 	chk->input(obsolete_date);
+	chk->input(maintenance);
+	chk->input(price);
+	chk->input(capacity);
 	chk->input(allow_underground);
 	// now check the layout
 	for(uint8 i=0; i<layouts; i++) {
@@ -184,9 +187,5 @@ void haus_besch_t::calc_checksum(checksum_t *chk) const
 	}
 
 	//Experimental settings
-	chk->input(station_maintenance);
-	chk->input(station_price);
-	chk->input(station_capacity);
-	chk->input(allow_underground ? 1 : 0);
-	chk->input(is_control_tower ? 1 : 0);
+	chk->input(is_control_tower);
 }
