@@ -132,6 +132,10 @@ void loadingscreen_t::set_progress( uint32 progress )
 
 	this->progress = progress;
 	display();
+
+	if (progress > max_progress) {
+		dbg->error("loadingscreen_t::set_progress", "too much progress: actual = %d max = %d", progress, max_progress);
+	}
 }
 
 

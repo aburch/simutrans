@@ -5819,7 +5819,7 @@ DBG_MESSAGE("karte_t::laden()", "%d convois/trains loaded", convoi_array.get_cou
 		else {
 			settings.automaten[i] = false;
 		}
-		ls.set_progress( (get_size().y*3)/2+128+16*i );
+		ls.set_progress( (get_size().y*3)/2+128+8*i );
 	}
 DBG_MESSAGE("karte_t::laden()", "players loaded");
 
