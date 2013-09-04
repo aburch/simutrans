@@ -461,7 +461,7 @@ namespace script_api {
 	}
 
 
-	SQInteger param<schedule_t*>::push(HSQUIRRELVM vm, schedule_t* const& v)
+	SQInteger param<schedule_t*>::push(HSQUIRRELVM vm, const schedule_t* const& v)
 	{
 		if (v) {
 			return push_instance(vm, "schedule_x", v->get_waytype(), v->eintrag);

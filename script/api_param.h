@@ -272,7 +272,7 @@ namespace script_api {
 	declare_specialized_param(karte_t*, ".", "world");
 	declare_specialized_param(planquadrat_t*, "t|x|y", "square_x");
 	declare_specialized_param(settings_t*, "t|x|y", "settings");
-	declare_specialized_param(schedule_t*, "t|x|y", "schedule_x");
+	declare_specialized_param(const schedule_t*, "t|x|y", "schedule_x");
 	declare_specialized_param(linieneintrag_t, "t|x|y", "schedule_entry_x");
 	declare_specialized_param(scenario_t*, "t|x|y", "");
 	declare_specialized_param(spieler_t*, "t|x|y", "player_x");

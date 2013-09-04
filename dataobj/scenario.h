@@ -391,13 +391,13 @@ public:
 	 * Called for instance in karte_t::local_set_werkzeug to change active tool or when filling toolbars.
 	 * @return true if player can use this tool.
 	 */
-	bool is_tool_allowed(spieler_t* sp, uint16 wkz_id, sint16 wt=invalid_wt);
+	bool is_tool_allowed(const spieler_t* sp, uint16 wkz_id, sint16 wt=invalid_wt);
 
 	/**
 	 * Checks if player can use the tool at this position.
 	 * @return NULL if allowed otherwise error message
 	 */
-	const char* is_work_allowed_here(spieler_t* sp, uint16 wkz_id, sint16 wt, koord3d pos);
+	const char* is_work_allowed_here(const spieler_t* sp, uint16 wkz_id, sint16 wt, koord3d pos);
 
 	/**
 	 * Checks if player can use this schedule.
@@ -407,7 +407,7 @@ public:
 	 *
 	 * @return null if allowed, an error message otherwise
 	 */
-	const char* is_schedule_allowed(spieler_t* sp, schedule_t* schedule);
+	const char* is_schedule_allowed(const spieler_t* sp, const schedule_t* schedule);
 
 
 	/// @return debug dump of forbidden tools

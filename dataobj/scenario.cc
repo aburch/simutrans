@@ -436,7 +436,7 @@ void scenario_t::clear_rules()
 }
 
 
-bool scenario_t::is_tool_allowed(spieler_t* sp, uint16 wkz_id, sint16 wt)
+bool scenario_t::is_tool_allowed(const spieler_t* sp, uint16 wkz_id, sint16 wt)
 {
 	if (what_scenario != SCRIPTED  &&  what_scenario != SCRIPTED_NETWORK) {
 		return true;
@@ -473,7 +473,7 @@ bool scenario_t::is_tool_allowed(spieler_t* sp, uint16 wkz_id, sint16 wt)
 	return true;
 }
 
-const char* scenario_t::is_work_allowed_here(spieler_t* sp, uint16 wkz_id, sint16 wt, koord3d pos)
+const char* scenario_t::is_work_allowed_here(const spieler_t* sp, uint16 wkz_id, sint16 wt, koord3d pos)
 {
 	if (what_scenario != SCRIPTED  &&  what_scenario != SCRIPTED_NETWORK) {
 		return NULL;
@@ -525,7 +525,7 @@ const char* scenario_t::is_work_allowed_here(spieler_t* sp, uint16 wkz_id, sint1
 }
 
 
-const char* scenario_t::is_schedule_allowed(spieler_t* sp, schedule_t* schedule)
+const char* scenario_t::is_schedule_allowed(const spieler_t* sp, const schedule_t* schedule)
 {
 	// sanity checks
 	if (schedule == NULL) {
