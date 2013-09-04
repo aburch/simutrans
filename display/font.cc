@@ -66,7 +66,7 @@ static void dsp_read_bdf_glyph(FILE *fin, uint8 *data, uint8 *screen_w, int char
 
 		fgets(str, sizeof(str), fin);
 
-		// endcoding (sint8 number) in decimal
+		// encoding (sint8 number) in decimal
 		if (strstart(str, "ENCODING")) {
 			char_nr = atoi(str + 8);
 			if (char_nr == 0 || (sint32)char_nr >= char_limit) {
@@ -171,7 +171,7 @@ static bool dsp_read_bdf_font(FILE* fin, font_type* font)
 		}
 
 		if (strstart(str, "CHARS") && str[5] <= ' ') {
-			// the characters 0xFFFF and 0xFFFE are guranteed to be non-unicode characters
+			// the characters 0xFFFF and 0xFFFE are guaranteed to be non-unicode characters
 			f_chars = atoi(str + 5) <= 256 ? 256 : 65534;
 
 			data = (uint8*)calloc(f_chars, CHARACTER_LEN);

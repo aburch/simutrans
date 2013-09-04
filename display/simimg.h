@@ -6,7 +6,7 @@
  */
 
 /*
- * Defines fuer die Bildchen
+ * Defines to handle images
  * Hj. Malthaner, 13.07.98
  */
 

@@ -5,11 +5,11 @@
  */
 
 /*
- * Versuch einer Graphic fuer Simulationsspiele
+ * Attempt of graphics for the Simulation game
  * Hj. Malthaner, Aug. 1997
  *
  *
- * 3D, isometrische Darstellung
+ * 3D, isometric representation
  */
 #ifndef simgraph_h
 #define simgraph_h
@@ -192,7 +192,7 @@ void display_rezoomed_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, co
 void display_rezoomed_img_alpha(const unsigned n, const unsigned alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty);
 #define display_img_alpha( n, a, f, x, y, c, dn, d ) display_rezoomed_img_alpha( (n), (a), (f), (x), (y), 0, (c), (dn), (d) )
 
-// display image with color (if there) and optinal day and nightchange
+// display image with color (if there) and optional day and night change
 void display_color_img(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty);
 
 // display unzoomed image
@@ -296,7 +296,7 @@ unsigned short get_prev_char_with_metrics(const char* &text, const char *const t
 
 /*
  * If an eclipse len is given, it will only return the last character up to this len if the full length cannot be fitted
- * @returns index of next chracter. if text[index]==0 the whole string fits
+ * @returns index of next character. if text[index]==0 the whole string fits
  */
 size_t display_fit_proportional( const char* text, scr_coord_val max_width, scr_coord_val eclipse_width=0 );
 

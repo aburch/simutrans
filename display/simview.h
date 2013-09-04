@@ -28,7 +28,7 @@ public:
 	/**
 	 * Draws the visible world on screen.
 	 * @param dirty If set to true, will mark the whole screen as dirty.
-	 * @see display_flush_buffer() for the consequences of setting screen areas dity.
+	 * @see display_flush_buffer() for the consequences of setting screen areas dirty.
 	 */
 	void display(bool dirty);
 

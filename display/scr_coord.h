@@ -15,7 +15,7 @@ public:
 	scr_coord_val x;
 	scr_coord_val y;
 
-	scr_coord() { x=0; y=0; } // should this be rather undined constant or so!
+	scr_coord() { x=0; y=0; }
 
 	scr_coord( scr_coord_val x_, scr_coord_val y_ ) { x = x_; y=y_; }
 

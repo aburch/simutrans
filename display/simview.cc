@@ -56,7 +56,7 @@ typedef struct{
 	sint16	y_max;
 } display_region_param_t;
 
-// now the paramters
+// now the parameters
 static display_region_param_t ka[MULTI_THREAD];
 
 void *display_region_thread( void *ptr )
@@ -166,7 +166,7 @@ void karte_ansicht_t::display(bool force_dirty)
 #if MULTI_THREAD>1
 	if(  umgebung_t::simple_drawing  &&  can_multithreading  ) {
 
-		// reset polygonal clipping - outside of multithreaded display
+		// reset polygonal clipping - outside of multi-threaded display
 		clear_all_poly_clip();
 
 		if(!spawned_threads) {
@@ -186,7 +186,7 @@ void karte_ansicht_t::display(bool force_dirty)
 			for(  int t=0;  t<MULTI_THREAD-1;  t++  ) {
 				if(  pthread_create(&thread[t], &attr, display_region_thread, (void *)&ka[t])  ) {
 					can_multithreading = false;
-					dbg->error( "karte_ansicht_t::display()", "cannot multithread, error at thread #%i", t+1 );
+					dbg->error( "karte_ansicht_t::display()", "cannot multi-thread, error at thread #%i", t+1 );
 					return;
 				}
 			}
@@ -249,7 +249,7 @@ void karte_ansicht_t::display(bool force_dirty)
 					// for the definition of underground_level see grund_t::set_underground_mode
 					const sint8 hmin = min(gr->get_hoehe(), grund_t::underground_level);
 
-					// maximum height: 127 for overground, undergroundlevel for sliced, ground height-1 for complete underground view
+					// maximum height: 127 for overground, underground level for sliced, ground height-1 for complete underground view
 					const sint8 hmax = grund_t::underground_mode==grund_t::ugm_all ? gr->get_hoehe()-(!gr->ist_tunnel()) : grund_t::underground_level;
 
 					sint16 yypos = ypos - tile_raster_scale_y( min(gr->get_hoehe(),hmax_ground)*TILE_HEIGHT_STEP, IMG_SIZE);
@@ -265,7 +265,7 @@ void karte_ansicht_t::display(bool force_dirty)
 	DBG_DEBUG4("karte_ansicht_t::display", "display pointer");
 	if( zeiger  &&  zeiger->get_pos() != koord3d::invalid ) {
 		bool dirty = zeiger->get_flag(ding_t::dirty);
-		// better not try to twist your brain to follow the retransformation ...
+		// better not try to twist your brain to follow the re-transformation ...
 		const koord diff = zeiger->get_pos().get_2d()-welt->get_world_position()-welt->get_view_ij_offset();
 		const sint16 x = (diff.x-diff.y)*(IMG_SIZE/2) + const_x_off;
 		const sint16 y = (diff.x+diff.y)*(IMG_SIZE/4) - tile_raster_scale_y( zeiger->get_pos().z*TILE_HEIGHT_STEP, IMG_SIZE) + ((display_get_width()/IMG_SIZE)&1)*(IMG_SIZE/4) + const_y_off;
@@ -407,7 +407,7 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 					}
 				}
 				else {
-					// check if ouside visible
+					// check if outside visible
 					outside_visible = true;
 					if(  umgebung_t::draw_outside_tile  ) {
 						const sint16 yypos = ypos - tile_raster_scale_y(welt->get_grundwasser()*TILE_HEIGHT_STEP, IMG_SIZE);
@@ -452,7 +452,7 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 					// for the definition of underground_level see grund_t::set_underground_mode
 					const sint8 hmin = min(gr->get_hoehe(), grund_t::underground_level);
 
-					// maximum height: 127 for overground, undergroundlevel for sliced, ground height-1 for complete underground view
+					// maximum height: 127 for overground, underground level for sliced, ground height-1 for complete underground view
 					const sint8 hmax = grund_t::underground_mode==grund_t::ugm_all ? gr->get_hoehe()-(!gr->ist_tunnel()) : grund_t::underground_level;
 
 					/* long version
@@ -516,7 +516,7 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 			}
 		}
 	}
-	// relese lock if still set
+	// release lock if still set
 	if(  lock_restore_hiding  ) {
 		lock_restore_hiding = false;
 		umgebung_t::hide_trees = saved_hide_trees;
