@@ -1,8 +1,8 @@
 /**
- * Bewegliche Objekte fuer Simutrans.
- * Transportfahrzeuge sind in simvehikel.h definiert, da sie sich
- * stark von den hier definierten Fahrzeugen fuer den Individualverkehr
- * unterscheiden.
+ * Moving objects for Simutrans.
+ * Transport vehicles are defined in simvehikel.h, because they greatly
+ * differ from the vehicles defined herein for the individual traffic
+ * (pedestrians, citycars, movingobj aka flock of sheep).
  *
  * Hj. Malthaner
  *
@@ -20,7 +20,7 @@
 
 #include "simverkehr.h"
 #ifdef DESTINATION_CITYCARS
-// for final citcar destinations
+// for final citycar destinations
 #include "simpeople.h"
 #endif
 
@@ -41,7 +41,7 @@
 #include "../utils/cbuffer_t.h"
 
 /**********************************************************************************************************************/
-/* Verkehrsteilnehmer (basis class) from here on */
+/* Road users (Verkehrsteilnehmer) basis class from here on */
 
 
 verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt) :
@@ -55,7 +55,7 @@ verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt) :
 
 /**
  * Ensures that this object is removed correctly from the list
- * of sync steppable things!
+ * of sync step-able things!
  * @author Hj. Malthaner
  */
 verkehrsteilnehmer_t::~verkehrsteilnehmer_t()
@@ -117,7 +117,7 @@ verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt, koord3d pos, uint16 ra
 
 
 /**
- * Öffnet ein neues Beobachtungsfenster für das Objekt.
+ * Open a new observation window for the object.
  * @author Hj. Malthaner
  */
 void verkehrsteilnehmer_t::zeige_info()
@@ -252,8 +252,8 @@ static bool compare_stadtauto_besch(const stadtauto_besch_t* a, const stadtauto_
 		diff = a->get_geschw() - b->get_geschw();
 	}
 	if (diff == 0) {
-		/* Gleiches Level - wir führen eine künstliche, aber eindeutige Sortierung
-		 * über den Namen herbei. */
+		/* same Level - we introduce an artificial, but unique resort
+		 * on the induced name. */
 		diff = strcmp(a->get_name(), b->get_name());
 	}
 	return diff < 0;
@@ -483,7 +483,7 @@ bool stadtauto_t::ist_weg_frei(grund_t *gr)
 		}
 	}
 	else {
-		// driving on: check for crossongs etc. too
+		// driving on: check for crossings etc. too
 		const uint8 next_fahrtrichtung = this->calc_richtung(get_pos().get_2d(), pos_next_next.get_2d());
 
 		// do not block this crossing (if possible)
@@ -513,7 +513,7 @@ bool stadtauto_t::ist_weg_frei(grund_t *gr)
 				vehikel_basis_t *dt = no_cars_blocking( gr, NULL, this_fahrtrichtung, next_fahrtrichtung, next_fahrtrichtung );
 				if(  dt  ) {
 					if(dt->is_stuck()) {
-						// previous vehicle is stucked => end of traffic jam ...
+						// previous vehicle is stuck => end of traffic jam ...
 						frei = false;
 					}
 					else {
@@ -550,7 +550,7 @@ bool stadtauto_t::ist_weg_frei(grund_t *gr)
 				// approaching railway crossing: check if empty
 				return false;
 			}
-			// no further check, when already entered a crossing (to alloew leaving it)
+			// no further check, when already entered a crossing (to allow leaving it)
 			grund_t *gr_here = welt->lookup(get_pos());
 			if(gr_here  &&  gr_here->ist_uebergang()) {
 				return true;
@@ -571,14 +571,14 @@ bool stadtauto_t::ist_weg_frei(grund_t *gr)
 				if(no_cars_blocking( test, NULL, next_fahrtrichtung, nextnext_fahrtrichtung, nextnext_fahrtrichtung )) {
 					return false;
 				}
-				// ok, left the crossint
+				// ok, left the crossing
 				if(!test->find<crossing_t>(2)) {
 					// approaching railway crossing: check if empty
 					crossing_t* cr = gr->find<crossing_t>(2);
 					return cr->request_crossing( this );
 				}
 				else {
-					// seems to be a deadend.
+					// seems to be a dead-end.
 					if(  (test->get_weg_ribi(road_wt)&next_fahrtrichtung) == 0  ) {
 						// will be going back
 						pos_next_next=get_pos();
@@ -640,7 +640,7 @@ bool stadtauto_t::hop_check()
 		return false;
 	}
 
-	// traffic light phase check (since this is on next tile, it will always be neccessary!)
+	// traffic light phase check (since this is on next tile, it will always be necessary!)
 	const ribi_t::ribi fahrtrichtung90 = ribi_typ(get_pos().get_2d(),pos_next.get_2d());
 
 	if(  weg->has_sign(  )) {
@@ -656,7 +656,7 @@ bool stadtauto_t::hop_check()
 		}
 	}
 
-	// next tile unknow => find next tile
+	// next tile unknown => find next tile
 	if(pos_next_next==koord3d::invalid) {
 
 		// ok, nobody did delete the road in front of us
@@ -864,7 +864,7 @@ bool stadtauto_t::can_overtake( overtaker_t *other_overtaker, sint32 other_speed
 		 */
 		grund_t *gr = welt->lookup(get_pos());
 		if(  gr==NULL  ) {
-			// should never happen, since there is a vehcile in front of us ...
+			// should never happen, since there is a vehicle in front of us ...
 			return false;
 		}
 		weg_t *str = gr->get_weg(road_wt);
@@ -951,7 +951,7 @@ bool stadtauto_t::can_overtake( overtaker_t *other_overtaker, sint32 other_speed
 
 	while(  distance > 0  ) {
 
-		// we allow stops and slopes, since emtpy stops and slopes cannot affect us
+		// we allow stops and slopes, since empty stops and slopes cannot affect us
 		// (citycars do not slow down on slopes!)
 
 		// start of bridge is one level deeper
@@ -989,11 +989,11 @@ bool stadtauto_t::can_overtake( overtaker_t *other_overtaker, sint32 other_speed
 
 		/* Now we must check for next position:
 		 * crossings are ok, as long as we cannot exit there due to one way signs
-		 * much cheeper calculation: only go on in the direction of before (since no slopes allowed anyway ... )
+		 * much cheaper calculation: only go on in the direction of before (since no slopes allowed anyway ... )
 		 */
 		grund_t *to = welt->lookup( check_pos + koord((ribi_t::ribi)(str->get_ribi()&direction)) );
 		if(  ribi_t::is_threeway(str->get_ribi())  ||  to==NULL) {
-			// check for entries/exits/bridges, if neccessary
+			// check for entries/exits/bridges, if necessary
 			ribi_t::ribi rib = str->get_ribi();
 			bool found_one = false;
 			for(  int r=0;  r<4;  r++  ) {
@@ -1041,7 +1041,7 @@ bool stadtauto_t::can_overtake( overtaker_t *other_overtaker, sint32 other_speed
 
 	// Second phase: only facing traffic is forbidden
 	//   Since street speed can change, we do the calculation with time.
-	//   Each empty tile will substract tile_dimension/max_street_speed.
+	//   Each empty tile will subtract tile_dimension/max_street_speed.
 	//   If time is exhausted, we are guaranteed that no facing traffic will
 	//   invade the dangerous zone.
 	time_overtaking = (time_overtaking << 16)/(sint32)current_speed;
@@ -1059,10 +1059,10 @@ bool stadtauto_t::can_overtake( overtaker_t *other_overtaker, sint32 other_speed
 			check_pos.z ++;
 		}
 
-		// much cheeper calculation: only go on in the direction of before ...
+		// much cheaper calculation: only go on in the direction of before ...
 		grund_t *to = welt->lookup( check_pos + koord((ribi_t::ribi)(str->get_ribi()&direction)) );
 		if(  ribi_t::is_threeway(str->get_ribi())  ||  to==NULL  ) {
-			// check for crossings/bridges, if neccessary
+			// check for crossings/bridges, if necessary
 			bool found_one = false;
 			for(  int r=0;  r<4;  r++  ) {
 				if(check_pos.get_2d()+koord::nsow[r]==pos_prev) {
@@ -1085,7 +1085,7 @@ bool stadtauto_t::can_overtake( overtaker_t *other_overtaker, sint32 other_speed
 			break;
 		}
 
-		// Check for other vehicles in facing directiona
+		// Check for other vehicles in facing direction
 		// now only I know direction on this tile ...
 		ribi_t::ribi their_direction = ribi_t::rueckwaerts(calc_richtung( pos_prev_prev, to->get_pos().get_2d() ));
 		const uint8 top = gr->get_top();

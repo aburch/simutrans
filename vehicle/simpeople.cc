@@ -26,8 +26,7 @@ stringhashtable_tpl<const fussgaenger_besch_t *> fussgaenger_t::table;
 
 static bool compare_fussgaenger_besch(const fussgaenger_besch_t* a, const fussgaenger_besch_t* b)
 {
-	/* Gleiches Level - wir führen eine künstliche, aber eindeutige Sortierung
-	 * über den Namen herbei. */
+	// sort pedestrian objects descriptors by their name
 	return strcmp(a->get_name(), b->get_name())<0;
 }
 
@@ -110,7 +109,7 @@ void fussgaenger_t::rdwr(loadsave_t *file)
 		char s[256];
 		file->rdwr_str(s, lengthof(s));
 		besch = table.get(s);
-		// unknow pedestrian => create random new one
+		// unknown pedestrian => create random new one
 		if(besch == NULL  &&  !liste.empty()  ) {
 			besch = pick_any_weighted(liste);
 		}
@@ -123,7 +122,7 @@ void fussgaenger_t::rdwr(loadsave_t *file)
 
 
 
-// create anzahl pedestrains (if possible)
+// create a number (anzahl) of pedestrians (if possible)
 void fussgaenger_t::erzeuge_fussgaenger_an(karte_t *welt, const koord3d k, int &anzahl)
 {
 	if (liste.empty()) {

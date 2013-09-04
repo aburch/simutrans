@@ -2,10 +2,10 @@
 #define _simmover_h
 
 /**
- * Bewegliche Objekte fuer Simutrans.
- * Transportfahrzeuge sind in simvehikel.h definiert, da sie sich
- * stark von den hier definierten Fahrzeugen fuer den Individualverkehr
- * unterscheiden.
+ * Moving objects for Simutrans.
+ * Transport vehicles are defined in simvehikel.h, because they greatly
+ * differ from the vehicles defined herein for the individual traffic
+ * (pedestrians, citycars, movingobj aka flock of sheep).
  *
  * Hj. Malthaner
  *
@@ -29,7 +29,7 @@ class verkehrsteilnehmer_t : public vehikel_basis_t, public sync_steppable
 {
 protected:
 	/**
-	 * Entfernungszaehler
+	 * Distance count
 	 * @author Hj. Malthaner
 	 */
 	uint32 weg_next;
@@ -53,7 +53,7 @@ public:
 	typ get_typ() const  = 0;
 
 	/**
-	 * Öffnet ein neues Beobachtungsfenster für das Objekt.
+	 * Open a new observation window for the object.
 	 * @author Hj. Malthaner
 	 */
 	virtual void zeige_info();
@@ -82,7 +82,7 @@ private:
 	koord3d pos_next_next;
 
 	/**
-	 * Aktuelle Geschwindigkeit
+	 * Actual speed
 	 * @author Hj. Malthaner
 	 */
 	uint16 current_speed;
@@ -118,8 +118,8 @@ public:
 	typ get_typ() const { return verkehr; }
 
 	/**
-	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
-	 * Beobachtungsfenster angezeigt wird.
+	 * @return a description string for the object
+	 * e.g. for the observation window/dialog
 	 * @author Hj. Malthaner
 	 * @see simwin
 	 */
@@ -128,7 +128,7 @@ public:
 	// true, if this vehicle did not moved for some time
 	virtual bool is_stuck() { return current_speed==0;}
 
-	/* this function builts the list of the allowed citycars
+	/* this function builds the list of the allowed citycars
 	 * it should be called every month and in the beginning of a new game
 	 * @author prissi
 	 */

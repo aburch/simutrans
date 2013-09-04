@@ -6,7 +6,7 @@
 class fussgaenger_besch_t;
 
 /**
- * Fußgänger sind auch Verkehrsteilnehmer.
+ * Pedestrians also are road users.
  *
  * @author Hj. Malthaner
  * @see verkehrsteilnehmer_t

@@ -233,7 +233,7 @@ void movingobj_t::rdwr(loadsave_t *file)
 
 
 /**
- * Öffnet ein neues Beobachtungsfenster für das Objekt.
+ * Open a new observation window for the object.
  * @author Hj. Malthaner
  */
 void movingobj_t::zeige_info()

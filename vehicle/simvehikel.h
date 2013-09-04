@@ -29,10 +29,10 @@ class signal_t;
 class ware_t;
 class route_t;
 
-/*----------------------- Fahrdings ------------------------------------*/
+/*----------------------- Movables ------------------------------------*/
 
 /**
- * Basisklasse für alle Fahrzeuge
+ * Base class for all vehicles
  *
  * @author Hj. Malthaner
  */
@@ -53,7 +53,7 @@ protected:
 	static sint8 overtaking_base_offsets[8][2];
 
 	/**
-	 * Aktuelle Fahrtrichtung in Bildschirm-Koordinaten
+	 * Actual travel direction in screen coordinates
 	 * @author Hj. Malthaner
 	 */
 	ribi_t::ribi fahrtrichtung;
@@ -61,7 +61,7 @@ protected:
 	// true on slope (make calc_height much faster)
 	uint8 use_calc_height:1;
 
-	// if true, use offests to emulate driving on other side
+	// if true, use offsets to emulate driving on other side
 	uint8 drives_on_left:1;
 
 	sint8 dx, dy;
@@ -76,7 +76,7 @@ protected:
 	koord3d pos_next;
 
 	/**
-	 * Offsets fuer Bergauf/Bergab
+	 * Offsets for uphill/downhill
 	 * @author Hj. Malthaner
 	 */
 	sint8 hoff;
@@ -174,7 +174,7 @@ template<> inline vehikel_basis_t* ding_cast<vehikel_basis_t>(ding_t* const d)
 
 
 /**
- * Klasse für alle Fahrzeuge mit Route
+ * Class for all vehicles with route
  *
  * @author Hj. Malthaner
  */
@@ -183,7 +183,7 @@ class vehikel_t : public vehikel_basis_t, public fahrer_t
 {
 private:
 	/**
-	* Kaufdatum in months
+	* Date of purchase in months
 	* @author Hj. Malthaner
 	*/
 	sint32 insta_zeit;
@@ -198,8 +198,7 @@ private:
 	bool hop_check();
 
 	/**
-	 * berechnet aktuelle Geschwindigkeit aufgrund der Steigung
-	 * (Hoehendifferenz) der Fahrbahn
+	 * Calculate friction caused by slopes and curves.
 	 */
 	virtual void calc_akt_speed(const grund_t *gr);
 
@@ -239,12 +238,12 @@ protected:
 	*/
 	uint16 route_index;
 
-	uint16 total_freight;	// since the sum is needed quite often, it is chached
-	slist_tpl<ware_t> fracht;   // liste der gerade transportierten güter
+	uint16 total_freight;	// since the sum is needed quite often, it is cached
+	slist_tpl<ware_t> fracht;   // list of goods being transported
 
 	const vehikel_besch_t *besch;
 
-	convoi_t *cnv;		// != NULL falls das vehikel zu einem Convoi gehoert
+	convoi_t *cnv;		// != NULL if the vehicle is part of a Convoi
 
 	/**
 	* Previous position on our path
@@ -252,8 +251,8 @@ protected:
 	*/
 	koord3d pos_prev;
 
-	bool ist_erstes:1;				// falls vehikel im convoi fährt, geben diese
-	bool ist_letztes:1;				// flags auskunft über die position
+	bool ist_erstes:1;	// true, if vehicle is first vehicle of a convoi
+	bool ist_letztes:1;	// true, if vehicle is last vehicle of a convoi
 	bool rauchen:1;
 	bool check_for_finish:1;		// true, if on the last tile
 	bool has_driven:1;
@@ -279,8 +278,7 @@ public:
 	virtual waytype_t get_waytype() const = 0;
 
 	/**
-	* Ermittelt die für das Fahrzeug geltenden Richtungsbits,
-	* abhängig vom Untergrund.
+	* Determine the direction bits for this kind of vehicle.
 	*
 	* @author Hj. Malthaner, 04.01.01
 	*/
@@ -295,7 +293,7 @@ public:
 	const koord3d get_pos_prev() const {return pos_prev;}
 
 	/**
-	* gibt das Basisbild zurueck
+	* Get the base image.
 	* @author Hj. Malthaner
 	*/
 	int get_basis_bild() const { return besch->get_basis_bild(); }
@@ -313,14 +311,14 @@ public:
 	int get_betriebskosten() const { return besch->get_betriebskosten(); }
 
 	/**
-	* spielt den Sound, wenn das Vehikel sichtbar ist
+	* Play sound, when the vehicle is visible on screen
 	* @author Hj. Malthaner
 	*/
 	void play_sound() const;
 
 	/**
-	* Bereitet Fahrzeiug auf neue Fahrt vor - wird aufgerufen wenn
-	* der Convoi eine neue Route ermittelt
+	* Prepare vehicle for new ride - called when the Convoi
+	* determines a new route
 	* @author Hj. Malthaner
 	*/
 	void neue_fahrt( uint16 start_route_index, bool recalc );
@@ -337,7 +335,7 @@ public:
 	void info(cbuffer_t & buf) const;
 
 	/**
-	* Ermittelt fahrtrichtung
+	* Determine travel direction
 	* @author Hj. Malthaner
 	*/
 	ribi_t::ribi richtung() const;
@@ -356,7 +354,7 @@ public:
 	// the convoi takes care of the max_speed of the vehicle
 	sint32 get_speed_limit() const { return speed_limit; }
 
-	const slist_tpl<ware_t> & get_fracht() const { return fracht;}   // liste der gerade transportierten güter
+	const slist_tpl<ware_t> & get_fracht() const { return fracht;}   // list of goods being transported
 
 	/**
 	 * Rotate freight target coordinates, has to be called after rotating factories.
@@ -364,12 +362,12 @@ public:
 	void rotate90_freight_destinations(const sint16 y_size);
 
 	/**
-	* berechnet die gesamtmenge der beförderten waren
+	* Calculate the total quantity of goods moved
 	*/
 	uint16 get_fracht_menge() const { return total_freight; }
 
 	/**
-	* Berechnet Gesamtgewicht der transportierten Fracht in KG
+	* Calculate transported cargo total weight in KG
 	* @author Hj. Malthaner
 	*/
 	uint32 get_fracht_gewicht() const;
@@ -377,26 +375,26 @@ public:
 	const char * get_fracht_name() const;
 
 	/**
-	* setzt den typ der beförderbaren ware
+	* get the type of cargo this vehicle can transport
 	*/
 	const ware_besch_t* get_fracht_typ() const { return besch->get_ware(); }
 
 	/**
-	* setzt die maximale Kapazitaet
+	* Get the maximum capacity
 	*/
 	uint16 get_fracht_max() const {return besch->get_zuladung(); }
 
 	const char * get_fracht_mass() const;
 
 	/**
-	* erstellt einen Info-Text zur Fracht, z.B. zur Darstellung in einem
-	* Info-Fenster
+	* create an info text for the freight
+	* e.g. to display in a info window
 	* @author Hj. Malthaner
 	*/
 	void get_fracht_info(cbuffer_t & buf) const;
 
 	/**
-	* loescht alle fracht aus dem Fahrzeug
+	* Delete all vehicle load
 	* @author Hj. Malthaner
 	*/
 	void loesche_fracht();
@@ -411,17 +409,17 @@ public:
 	sint64  calc_gewinn(koord start, koord end) const;
 
 	/**
-	* fahrzeug an haltestelle entladen
+	* unload vehicles in stops
 	* @author Hj. Malthaner
 	*/
 	bool entladen(halthandle_t halt);
 
 	/**
-	* fahrzeug an haltestelle beladen
+	* load vehicle at stop
 	*/
 	bool beladen(halthandle_t halt);
 
-	// sets or querey begin and end of convois
+	// sets or query begin and end of convois
 	void set_erstes(bool janein) {ist_erstes = janein;}
 	bool is_first() {return ist_erstes;}
 
@@ -441,7 +439,7 @@ public:
 	void remove_stale_freight();
 
 	/**
-	* erzeuge einen für diesen Vehikeltyp passenden Fahrplan
+	* Generate a matching schedule for the vehicle type
 	* @author Hj. Malthaner
 	*/
 	virtual schedule_t * erzeuge_neuen_fahrplan() const = 0;
@@ -456,7 +454,7 @@ public:
 	// true, if this vehicle did not moved for some time
 	virtual bool is_stuck() { return cnv==NULL  ||  cnv->is_waiting(); }
 
-	// this draws a tooltips for things stucked on depot order or lost
+	// this draws a tooltips for things stuck on depot order or lost
 	virtual void display_after(int xpos, int ypos, bool dirty) const;
 };
 
@@ -468,8 +466,8 @@ template<> inline vehikel_t* ding_cast<vehikel_t>(ding_t* const d)
 
 
 /**
- * Eine Klasse für Strassenfahrzeuge. Verwaltet das Aussehen der
- * Fahrzeuge und die Befahrbarkeit des Untergrundes.
+ * A class for road vehicles. Manages the look of the vehicles
+ * and the navigability of tiles.
  *
  * @author Hj. Malthaner
  * @see vehikel_t
@@ -490,7 +488,7 @@ public:
 	virtual waytype_t get_waytype() const { return road_wt; }
 
 	automobil_t(karte_t *welt, loadsave_t *file, bool first, bool last);
-	automobil_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv); // start und fahrplan
+	automobil_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv); // start and schedule
 
 	virtual void set_convoi(convoi_t *c);
 
@@ -516,8 +514,8 @@ public:
 
 
 /**
- * Eine Klasse für Schienenfahrzeuge. Verwaltet das Aussehen der
- * Fahrzeuge und die Befahrbarkeit des Untergrundes.
+ * A class for rail vehicles (trains). Manages the look of the vehicles
+ * and the navigability of tiles.
  *
  * @author Hj. Malthaner
  * @see vehikel_t
@@ -541,7 +539,7 @@ protected:
 public:
 	virtual waytype_t get_waytype() const { return track_wt; }
 
-	// since we might need to unreserve previously used blocks, we must do this before calculation a new route
+	// since we might need to un-reserve previously used blocks, we must do this before calculation a new route
 	bool calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route);
 
 	// how expensive to go here (for way search)
@@ -553,7 +551,7 @@ public:
 	// handles all block stuff and route choosing ...
 	virtual bool ist_weg_frei(int &restart_speed, bool );
 
-	// reserves or unreserves all blocks and returns the handle to the next block (if there)
+	// reserves or un-reserves all blocks and returns the handle to the next block (if there)
 	// returns true on successful reservation
 	bool block_reserver(const route_t *route, uint16 start_index, uint16 &next_signal, uint16 &next_crossing, int signal_count, bool reserve, bool force_unreserve ) const;
 
@@ -562,7 +560,7 @@ public:
 	typ get_typ() const { return waggon; }
 
 	waggon_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last);
-	waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t *cnv); // start und fahrplan
+	waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t *cnv);
 	~waggon_t();
 
 	virtual void set_convoi(convoi_t *c);
@@ -573,7 +571,7 @@ public:
 
 
 /**
- * very similar to normal railroad, so wie can implement it here completely ...
+ * very similar to normal railroad, so we can implement it here completely ...
  * @author prissi
  * @see vehikel_t
  */
@@ -594,7 +592,7 @@ public:
 
 
 /**
- * very similar to normal railroad, so wie can implement it here completely ...
+ * very similar to normal railroad, so we can implement it here completely ...
  * @author prissi
  * @see vehikel_t
  */
@@ -615,7 +613,7 @@ public:
 
 
 /**
- * very similar to normal railroad, so wie can implement it here completely ...
+ * very similar to normal railroad, so we can implement it here completely ...
  * @author prissi
  * @see vehikel_t
  */
@@ -636,8 +634,8 @@ public:
 
 
 /**
- * Eine Klasse für Wasserfahrzeuge. Verwaltet das Aussehen der
- * Fahrzeuge und die Befahrbarkeit des Untergrundes.
+ * A class for naval vehicles. Manages the look of the vehicles
+ * and the navigability of tiles.
  *
  * @author Hj. Malthaner
  * @see vehikel_t
@@ -661,7 +659,7 @@ public:
 	virtual bool ist_ziel(const grund_t *,const grund_t *) const {return 0;}
 
 	schiff_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last);
-	schiff_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv); // start und fahrplan
+	schiff_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv);
 
 	ding_t::typ get_typ() const { return schiff; }
 
@@ -670,8 +668,8 @@ public:
 
 
 /**
- * Eine Klasse für Flugzeuge. Verwaltet das Aussehen der
- * Fahrzeuge und die Befahrbarkeit des Untergrundes.
+ * A class for aircrafts. Manages the look of the vehicles
+ * and the navigability of tiles.
  *
  * @author hsiegeln
  * @see vehikel_t
@@ -715,7 +713,7 @@ protected:
 
 public:
 	aircraft_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last);
-	aircraft_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv); // start und fahrplan
+	aircraft_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv); // start and schedule
 
 	// since we are drawing ourselves, we must mark ourselves dirty during deletion
 	~aircraft_t();
