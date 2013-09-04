@@ -66,7 +66,7 @@ protected:
 	bool is_dragging;
 	sint16 drag_height;
 
-	bool drag(karte_t *welt, koord k, sint16 h, int &n);
+	const char* drag(karte_t *welt, spieler_t*, koord k, sint16 h, int &n);
 	virtual sint16 get_drag_height(karte_t *welt, koord k) = 0;
 	bool check_dragging();
 public:

@@ -155,7 +155,7 @@ bool ai_t::suche_platz(koord pos, koord &size, koord *dirs) const
 	for(  int dir=0;  dir<max_dir;  dir++  ) {
 		for( sint16 i=0;  i<=length;  i++  ) {
 			grund_t *gr = welt->lookup_kartenboden(  pos + (dirs[dir]*i)  );
-			if(  gr == NULL  ||  gr->get_halt().is_bound()  ||  !welt->can_ebne_planquadrat( pos, start_z )  ||  !gr->ist_natur()  ||  gr->kann_alle_obj_entfernen(this) != NULL  ||  gr->get_hoehe() < welt->get_water_hgt( pos + (dirs[dir] * i) )  ) {
+			if(  gr == NULL  ||  gr->get_halt().is_bound()  ||  !welt->can_ebne_planquadrat(this, pos, start_z )  ||  !gr->ist_natur()  ||  gr->kann_alle_obj_entfernen(this) != NULL  ||  gr->get_hoehe() < welt->get_water_hgt( pos + (dirs[dir] * i) )  ) {
 				return false;
 			}
 		}

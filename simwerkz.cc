@@ -773,28 +773,30 @@ const char *wkz_raise_lower_base_t::move( karte_t *welt, spieler_t *sp, uint16 b
 }
 
 
-bool wkz_raise_lower_base_t::drag(karte_t *welt, koord k, sint16 height, int &n)
+const char* wkz_raise_lower_base_t::drag(karte_t *welt, spieler_t *sp, koord k, sint16 height, int &n)
 {
 	if(!welt->is_within_limits(k)) {
-		return false;
+		return "";
 	}
+	const char* err = NULL;
 
 	// dragging may be going up or down!
 	while(welt->lookup_hgt(k)<height) {
-		int diff = welt->grid_raise(k);
+		int diff = welt->grid_raise(sp, k, err);
 		if(diff==0) break;
 		n += diff;
 	}
+
 	// when going down need to check here we will not be going below sea level
 	// cannot rely on check within lower as water height can be recalculated
 	while(  height >= welt->get_water_hgt(k)  &&  welt->lookup_hgt(k) > height  ) {
-		int diff = welt->grid_lower(k);
+		int diff = welt->grid_lower(sp, k, err);
 		if(  diff == 0  ) {
 			break;
 		}
 		n += diff;
 	}
-	return height == welt->lookup_hgt(k);
+	return err; //height == welt->lookup_hgt(k);
 }
 
 
@@ -841,7 +843,7 @@ const char *wkz_raise_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 		return NULL;
 	}
 
-	bool ok = false;
+	const char* err = NULL;
 	koord k = pos.get_2d();
 
 	CHECK_FUNDS();
@@ -855,16 +857,16 @@ const char *wkz_raise_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 			int n = 0;	// tiles changed
 			if (!strempty(default_param)) {
 				// called by dragging or by AI
-				ok = drag(welt, k, atoi(default_param), n);
+				err = drag(welt, sp, k, atoi(default_param), n);
 			}
 			else {
-				n = welt->grid_raise(k);
-				ok = (n!=0);
+				n = welt->grid_raise(sp, k, err);
 			}
 			if(n>0) {
 				spieler_t::book_construction_costs(sp, welt->get_settings().cst_alter_land * n, k, ignore_wt);
 			}
-			return !ok ? "Tile not empty." : (n ? NULL : "");
+			return err == NULL ? (n ? NULL : "")
+			                   : (*err == 0 ? "Tile not empty." : err);
 		}
 		else {
 			// no mountains higher than welt->get_maximumheight() ...
@@ -907,7 +909,7 @@ const char *wkz_lower_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 		return NULL;
 	}
 
-	bool ok = false;
+	const char* err = NULL;
 	koord k = pos.get_2d();
 
 	CHECK_FUNDS();
@@ -919,16 +921,16 @@ const char *wkz_lower_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 			int n = 0; // tiles changed
 			if (!strempty(default_param)) {
 				// called by dragging or by AI
-				ok = drag(welt, k, atoi(default_param), n);
+				err = drag(welt, sp, k, atoi(default_param), n);
 			}
 			else {
-				n = welt->grid_lower(k);
-				ok = (n!=0);
+				n = welt->grid_lower(sp, k, err);
 			}
 			if(n>0) {
 				spieler_t::book_construction_costs(sp, welt->get_settings().cst_alter_land * n, k, ignore_wt);
 			}
-			return !ok ? "Tile not empty." : (n ? NULL : "");
+			return err == NULL ? (n ? NULL : "")
+			                   : (*err == 0 ? "Tile not empty." : err);
 		}
 		else {
 			// below water level

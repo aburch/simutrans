@@ -422,6 +422,7 @@ private:
 	/**
 	 * Checks whether the heights of the corners of the tile at (@p x, @p y) can be raised.
 	 * If the desired height of a corner is lower than its current height, this corner is ignored.
+	 * @param sp player who wants to lower
 	 * @param x coordinate
 	 * @param y coordinate
 	 * @param keep_water returns false if water tiles would be raised above water
@@ -430,9 +431,9 @@ private:
 	 * @param hse desired height of ne-corner
 	 * @param hnw desired height of nw-corner
 	 * @param ctest which directions should be recursively checked (ribi_t style bitmap)
-	 * @returns whether raise_to operation can be performed
+	 * @returns NULL if raise_to operation can be performed, an error message otherwise
 	 */
-	bool can_raise_to(sint16 x, sint16 y, bool keep_water, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, uint8 ctest=15) const;
+	const char* can_raise_to(const spieler_t* sp, sint16 x, sint16 y, bool keep_water, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, uint8 ctest=15) const;
 
 	/**
 	 * Raises heights of the corners of the tile at (@p x, @p y).
@@ -447,6 +448,7 @@ private:
 	/**
 	 * Checks whether the heights of the corners of the tile at (@p x, @p y) can be lowered.
 	 * If the desired height of a corner is higher than its current height, this corner is ignored.
+	 * @param sp player who wants to lower
 	 * @param x coordinate
 	 * @param y coordinate
 	 * @param hsw desired height of sw-corner
@@ -454,9 +456,9 @@ private:
 	 * @param hse desired height of ne-corner
 	 * @param hnw desired height of nw-corner
 	 * @param ctest which directions should be recursively checked (ribi_t style bitmap)
-	 * @returns whether lower_to operation can be performed
+	 * @returns NULL if lower_to operation can be performed, an error message otherwise
 	 */
-	bool can_lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, uint8 ctest=15) const;
+	const char* can_lower_to(const spieler_t* sp, sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, uint8 ctest=15) const;
 
 	/**
 	 * Lowers heights of the corners of the tile at (@p x, @p y).
@@ -1559,14 +1561,14 @@ public:
 	 * can be lowered at the specified height.
 	 * @author V. Meyer
 	 */
-	bool can_lower_plan_to(sint16 x, sint16 y, sint8 h) const;
+	const char* can_lower_plan_to(const spieler_t *sp, sint16 x, sint16 y, sint8 h) const;
 
 	/**
 	 * Checks if the planquadrat at coordinate (x,y)
 	 * can be raised at the specified height.
 	 * @author V. Meyer
 	 */
-	bool can_raise_plan_to(sint16 x, sint16 y, sint8 h) const;
+	const char* can_raise_plan_to(const spieler_t *sp, sint16 x, sint16 y, sint8 h) const;
 
 	/**
 	 * Checks if the whole planquadrat at coordinates (x,y) height can
@@ -1579,16 +1581,16 @@ public:
 	 * Increases the height of the grid coordinate (x, y) by one.
 	 * @param pos Grid coordinate.
 	 */
-	int grid_raise(koord k);
+	int grid_raise(const spieler_t *sp, koord pos, const char*&err);
 
 	/**
 	 * Decreases the height of the grid coordinate (x, y) by one.
 	 * @param pos Grid coordinate.
 	 */
-	int grid_lower(koord k);
+	int grid_lower(const spieler_t *sp, koord pos, const char*&err);
 
 	// mostly used by AI: Ask to flatten a tile
-	bool can_ebne_planquadrat(koord k, sint8 hgt, bool keep_water=false, bool make_underwater_hill=false) const;
+	bool can_ebne_planquadrat(const spieler_t *sp, koord k, sint8 hgt, bool keep_water=false, bool make_underwater_hill=false) const;
 	bool ebne_planquadrat(spieler_t *sp, koord k, sint8 hgt, bool keep_water=false, bool make_underwater_hill=false);
 
 	// the convois are also handled each step => thus we keep track of them too

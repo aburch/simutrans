@@ -2832,10 +2832,10 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 	// dwachs: If not able to built here, try to make artificial slope
 	hang_t::typ slope = bd->get_grund_hang();
 	if (!hang_t::ist_wegbar(slope)) {
-		if (welt->can_ebne_planquadrat(k, bd->get_hoehe()+1, true)) {
+		if (welt->can_ebne_planquadrat(NULL, k, bd->get_hoehe()+1, true)) {
 			welt->ebne_planquadrat(NULL, k, bd->get_hoehe()+1, true);
 		}
-		else if(  bd->get_hoehe() > welt->get_water_hgt(k)  &&  welt->can_ebne_planquadrat( k, bd->get_hoehe() )  ) {
+		else if(  bd->get_hoehe() > welt->get_water_hgt(k)  &&  welt->can_ebne_planquadrat(NULL, k, bd->get_hoehe() )  ) {
 			welt->ebne_planquadrat(NULL, k, bd->get_hoehe());
 		}
 		else {
