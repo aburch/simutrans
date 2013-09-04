@@ -18,8 +18,7 @@
 class label_t;
 
 /**
- * Dies stellt ein Fenster mit den Zielinformationen
- * fuer eine Haltestelle dar.
+ * Label creation/edition window
  *
  * @author Hj. Malthaner
  */

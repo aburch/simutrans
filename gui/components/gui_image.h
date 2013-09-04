@@ -41,7 +41,7 @@ class gui_image_t : public gui_komponente_t
 		void enable_offset_removal(bool remove_offsets) { set_image(id,remove_offsets); }
 
 		/**
-		 * Zeichnet die Komponente
+		 * Draw the component
 		 * @author Hj. Malthaner
 		 */
 		void zeichnen( koord offset );

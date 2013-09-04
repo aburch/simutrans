@@ -17,7 +17,7 @@ struct event_t;
 /**
  * Base class for all GUI components.
  *
- * @autor Hj. Malthaner
+ * @author Hj. Malthaner
  */
 class gui_komponente_t
 {
@@ -51,13 +51,13 @@ protected:
 
 public:
 	/**
-	* Basic contructor, initialises member variables
+	* Basic constructor, initialises member variables
 	* @author Hj. Malthaner
 	*/
 	gui_komponente_t(bool _focusable = false) : visible(true), focusable(_focusable) {}
 
 	/**
-	* Virtual destructor so all decendent classes are destructed right
+	* Virtual destructor so all descendant classes are destructed right
 	* @author Hj. Malthaner
 	*/
 	virtual ~gui_komponente_t() {}
@@ -162,7 +162,7 @@ public:
 	* - component has focus
 	* - mouse is over this component
 	* - event for all components
-	* @return: true for swalloing this event
+	* @return: true for swallowing this event
 	* @author Hj. Malthaner
 	* prissi: default -> do nothing
 	*/
@@ -177,8 +177,8 @@ public:
 	virtual void zeichnen(koord offset) = 0;
 
 	/**
-	 * returns the element that has focus
-	 * other derivates like scrolld list of tabs will
+	 * returns the element that has focus.
+	 * child classes like scrolled list of tabs should
 	 * return a child component.
 	 */
 	virtual gui_komponente_t *get_focus() {
@@ -197,7 +197,7 @@ public:
 	/**
 	 * Align this component against a target component
 	 * @param component_par the component to align against
-	 * @param alignment_par the requested alignmnent
+	 * @param alignment_par the requested alignment
 	 * @param offset_par Offset added to final alignment
 	 * @author Max Kielland
 	 */

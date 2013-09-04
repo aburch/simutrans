@@ -50,7 +50,7 @@ private:
 	bool has_prev_next;
 
 	/**
-	 * Fenstertitel
+	 * Window title
 	 * @author Hj. Malthaner
 	 */
 	const char *titel;

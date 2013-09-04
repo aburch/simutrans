@@ -160,7 +160,7 @@ void gui_flowtext_t::set_text(const char *text)
 					i += skip;
 					if(  symbol == 0x3001  ||  symbol == 0x3002  ) {
 						att = ATT_NO_SPACE;
-						// CJK full stop, komma, space
+						// CJK full stop, comma, space
 						break;
 					}
 					// every CJK symbol could be used to break, so break after 10 characters

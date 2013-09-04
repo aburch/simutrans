@@ -5,8 +5,8 @@
 
 
 /**
- * Displays a location on the world world
- * @autor Hj. Malthaner
+ * Displays a location on the world
+ * @author Hj. Malthaner
  */
 class location_view_t : public world_view_t
 {

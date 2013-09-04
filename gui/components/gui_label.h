@@ -16,12 +16,12 @@
 
 
 /**
- * Eine Label-Komponente
+ * The label component
  *
  * @author Hj. Malthaner
  * @date 04-Mar-01
  *
- * Added Aligment support
+ * Added Alignment support
  * @author: Volker Meyer
  * @date 25.05.03
  */
@@ -39,12 +39,12 @@ private:
 	align_t align;
 
 	/**
-	 * Farbe des Labels
+	 * Color of the Labels
 	 * @author Hansjörg Malthaner
 	 */
 	COLOR_VAL color;
 
-	const char * text;	// only for direct acess of non-translateable things. Do not use!
+	const char * text;	// only for direct access of non-translatable things. Do not use!
 	const char * tooltip;
 
 protected:
@@ -73,13 +73,13 @@ public:
 	void set_text_pointer(const char *text, bool autosize=true);
 
 	/**
-	 * returns the pointer (i.e. for freeing untranslater contents)
+	 * returns the pointer (i.e. for freeing untranslated contents)
 	 * @author Hansjörg Malthaner
 	 */
 	const char * get_text_pointer() { return text; }
 
 	/**
-	 * returns the tooltip pointer (i.e. for freeing untranslater contents)
+	 * returns the tooltip pointer (i.e. for freeing untranslated contents)
 	 */
 	const char * get_tooltip_pointer() { return tooltip; }
 

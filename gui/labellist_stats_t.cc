@@ -126,8 +126,6 @@ bool labellist_stats_t::infowin_event(const event_t * ev)
 	if (pos==koord::invalid) {
 		return false;
 	}
-
-	// deperess goto button
 	if(  ev->button_state>0  &&  ev->cx>0  &&  ev->cx<15  ) {
 		line_selected = line;
 	}
@@ -185,7 +183,7 @@ void labellist_stats_t::recalc_size()
 
 
 /**
- * Zeichnet die Komponente
+ * Draw the component
  * @author Hj. Malthaner
  */
 void labellist_stats_t::zeichnen(koord offset)

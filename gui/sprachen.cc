@@ -89,7 +89,7 @@ sprachengui_t::sprachengui_t() :
 	flags(skinverwaltung_t::flaggensymbol?skinverwaltung_t::flaggensymbol->get_bild_nr(0):IMG_LEER),
 	buttons(translator::get_language_count())
 {
-	// Coordinates are relative to parent (TITLEHEIGHT already substracted)
+	// Coordinates are relative to parent (TITLEHEIGHT already subtracted)
 	koord cursor = koord(D_MARGIN_LEFT,D_MARGIN_TOP);
 
 	flags.enable_offset_removal(true);

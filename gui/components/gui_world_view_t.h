@@ -19,7 +19,7 @@ class karte_t;
 
 /**
  * Displays a little piece of the world
- * @autor Hj. Malthaner
+ * @author Hj. Malthaner
  */
 class world_view_t : public gui_komponente_t
 {

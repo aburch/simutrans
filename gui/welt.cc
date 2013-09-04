@@ -46,8 +46,6 @@
 
 #include "../display/simgraph.h"
 
-#include "load_relief_frame.h"
-
 #include "../simsys.h"
 #include "../utils/simstring.h"
 
@@ -74,7 +72,7 @@ welt_gui_t::welt_gui_t(karte_t* const world_par, settings_t* const sets_par) :
 	gui_frame_t( translator::translate("Neue Welt" ) ),
 	map(0,0)
 {
-	// Coordinates are relative to parent (TITLEHEIGHT already substracted)
+	// Coordinates are relative to parent (TITLEHEIGHT already subtracted)
 	koord cursor(D_MARGIN_LEFT,D_MARGIN_TOP);
 	scr_coord_val edit_Width = display_get_char_max_width("0123456789")*5 + button_t::gui_arrow_left_size.x + button_t::gui_arrow_right_size.x;
 	scr_coord_val label_width = L_COLUMN1_X - D_MARGIN_LEFT - D_H_SPACE;
@@ -92,7 +90,7 @@ welt_gui_t::welt_gui_t(karte_t* const world_par, settings_t* const sets_par) :
 	uint16 game_start = 4999;
 	uint16 game_ends = 0;
 
-	// first check townhalls
+	// first check town halls
 	FOR(vector_tpl<haus_besch_t const*>, const besch, *hausbauer_t::get_list(haus_besch_t::rathaus)) {
 		uint16 intro_year = (besch->get_intro_year_month()+11)/12;
 		if(  intro_year<game_start  ) {
@@ -608,7 +606,7 @@ bool  welt_gui_t::infowin_event(const event_t *ev)
 
 void welt_gui_t::zeichnen(koord pos, koord gr)
 {
-	// Coordinates are relative to parent (TITLEHEIGHT **NOT** substracted)
+	// Coordinates are relative to parent (TITLEHEIGHT **NOT** subtracted)
 	cbuffer_t buf;
 
 	// Update child controls before redraw

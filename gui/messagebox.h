@@ -9,7 +9,7 @@
 #include "../utils/cbuffer_t.h"
 
 /**
- * Eine Klasse für Nachrichtenfenster.
+ * A class for Message/news window.
  * @author Hj. Malthaner
  */
 class news_window : public gui_frame_t

@@ -4,7 +4,7 @@
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
  *
- * Maintains the list of custon labels assigned to different palces on the map
+ * Maintains the list of custom labels assigned to different places on the map
  */
 
 #ifndef gui_jumpframe_h

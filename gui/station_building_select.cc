@@ -48,8 +48,20 @@ station_building_select_t::station_building_select_t(karte_t *welt, const haus_b
 	int x_diff = (width==rw*8) ? 0 : ((D_BUTTON_WIDTH>width) ? min((D_BUTTON_WIDTH-width)/2,rw*2) : rw*2);
 	width = max(D_BUTTON_WIDTH,width);
 	int height = (besch->get_b(0)==1) ? ((besch->get_h(0)==1) ? rw*4 : rw*5) : ((besch->get_h(0)==1) ? rw*5 : rw*6);
-	const koord img_offsets[4]={ koord(rw*2-x_diff,0), koord(-x_diff,rw), koord(rw*4-x_diff,rw), koord(rw*2-x_diff,rw*2) };
-	const koord base_offsets[6]={ koord(0,0), koord(width+10,0), koord(0,height+D_BUTTON_HEIGHT+10),  koord(width+10,height+D_BUTTON_HEIGHT+10), koord(width+10,0), koord(0,0) };
+	const koord img_offsets[4]={
+		koord(rw*2-x_diff,0),
+		koord(-x_diff,rw),
+		koord(rw*4-x_diff,rw),
+		koord(rw*2-x_diff,rw*2)
+	};
+	const koord base_offsets[6]={
+		koord(D_MARGIN_LEFT,D_MARGIN_TOP+LINESPACE),             // 1st image if layout < 2
+		koord(width+D_MARGIN_LEFT+10,D_MARGIN_TOP+LINESPACE),	   // 2nd image if layout < 2
+		koord(D_MARGIN_LEFT,height+D_BUTTON_HEIGHT+10),		   // 3rd image, 1st second row
+		koord(width+D_MARGIN_LEFT+10,height+D_BUTTON_HEIGHT+10), // 4th image, 2nd second row
+		base_offsets[1],                                         // 2nd image if layout > 2
+		base_offsets[0],                                         // 1st image if layout > 2
+	};
 
 	// image placeholder
 	for( sint16 i=0;  i<layout;  i++ ) {
@@ -88,9 +100,9 @@ station_building_select_t::station_building_select_t(karte_t *welt, const haus_b
 	}
 
 	// text
-	sprintf(buf, "X=%i,Y=%i", besch->get_b(0), besch->get_h(0) );
+	sprintf(buf, "X=%i, Y=%i", besch->get_b(0), besch->get_h(0) );
 	txt.set_text_pointer(buf);
-	txt.set_pos( koord(10, 0) );
+	txt.set_pos( koord(D_MARGIN_LEFT, D_MARGIN_TOP) );
 	add_komponente( &txt );
 
 	// button
@@ -99,7 +111,7 @@ station_building_select_t::station_building_select_t(karte_t *welt, const haus_b
 		actionbutton[i].add_listener(this);
 		add_komponente(&actionbutton[i]);
 	}
-	set_fenstergroesse(koord(width*2+10, (height+D_BUTTON_HEIGHT+10)*(row+1)+10));
+	set_fenstergroesse(koord(width*2+10+D_MARGIN_LEFT+D_MARGIN_RIGHT, (height+D_BUTTON_HEIGHT)*(row+1)+D_MARGIN_TOP+D_MARGIN_BOTTOM+D_TITLEBAR_HEIGHT+LINESPACE));
 }
 
 

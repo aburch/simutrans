@@ -20,7 +20,7 @@
  * @author Volker Meyer
  * @date  09.06.2003
  *
- * Eine Komponenete die eine Liste von Bildern darstellt.
+ * A component that represents a list of images.
  * @author Hj. Malthaner
  */
 class gui_image_list_t :
@@ -63,7 +63,7 @@ private:
 	int use_rows;
 
 	/**
-	 * Kennfarbe für Bilder (Spielerfarbe).
+	 * Player number to obtain player color used to display the images.
 	 * @author Hj. Malthaner
 	 */
 	sint8 player_nr;
@@ -95,7 +95,7 @@ public:
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**
-	 * Zeichnet die Bilder
+	 * Draw/record the picture
 	 * @author Hj. Malthaner
 	 */
 	virtual void zeichnen(koord offset);

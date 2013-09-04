@@ -50,7 +50,7 @@ void gui_image_t::set_image( const image_id i, bool remove_offsets ) {
 
 
 /**
- * Zeichnet die Komponente
+ * Draw the component
  * @author Hj. Malthaner
  */
 void gui_image_t::zeichnen( koord offset ) {

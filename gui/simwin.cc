@@ -99,7 +99,7 @@ class simwin_t
 {
 public:
 	koord pos;              // Window position
-	uint32 dauer;           // Wie lange soll das Fenster angezeigt werden ?
+	uint32 dauer;           // How long should the window stay open?
 	uint8 wt;               // the flags for the window type
 	ptrdiff_t magic_number; // either magic number or this pointer (which is unique too)
 	gui_frame_t *gui;
@@ -167,7 +167,7 @@ enum simwin_gadget_et { GADGET_CLOSE, GADGET_HELP, GADGET_SIZE, GADGET_PREV, GAD
  * Max Kielland:
  * Note, there will be a theme manager later on and
  * each gui object will find their own parameters by
- * themself after registering its class to the theme
+ * themselves after registering its class to the theme
  * manager. This will be done as the last step in
  * the chain when loading a theme.
  */
@@ -228,7 +228,7 @@ bool themes_init(const char *dir_name)
 	//scrollbar_t::BAR_SIZE = (uint32)contents.get_int("gui_scrollbar_width", scrollbar_t::BAR_SIZE );
 	gui_tab_panel_t::header_vsize = (uint32)contents.get_int("gui_tab_header_vsize", gui_tab_panel_t::header_vsize );
 
-	// stuff in umgebung_t but ratehr GUI	umgebung_t::window_snap_distance = contents.get_int("window_snap_distance", umgebung_t::window_snap_distance );
+	// stuff in umgebung_t but rather GUI	umgebung_t::window_snap_distance = contents.get_int("window_snap_distance", umgebung_t::window_snap_distance );
 	umgebung_t::window_buttons_right =      contents.get_int("window_buttons_right",      umgebung_t::window_buttons_right );
 	umgebung_t::left_to_right_graphs =      contents.get_int("left_to_right_graphs",      umgebung_t::left_to_right_graphs );
 	umgebung_t::window_frame_active =       contents.get_int("window_frame_active",       umgebung_t::window_frame_active );
@@ -413,7 +413,7 @@ static simwin_gadget_et decode_gadget_boxes(
 }
 
 //-------------------------------------------------------------------------
-// (Mathew Hounsell) Refactored
+// (Mathew Hounsell) Re-factored
 static void win_draw_window_title(const koord pos, const koord gr,
 		const PLAYER_COLOR_VAL titel_farbe,
 		const char * const text,
@@ -470,7 +470,7 @@ static void win_draw_window_dragger(koord pos, koord gr)
 gui_frame_t *win_get_magic(ptrdiff_t magic)
 {
 	if(  magic!=-1  &&  magic!=0  ) {
-		// es kann nur ein fenster fuer jede pos. magic number geben
+		// there is at most one window with a positive magic number
 		FOR( vector_tpl<simwin_t>, const& i, wins ) {
 			if(  i.magic_number == magic  ) {
 				// if 'special' magic number, return it

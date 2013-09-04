@@ -30,7 +30,7 @@
 
 /* Max Kielland
  * Until gui_label_t has been modified we don't know the size
- * of the fractionpart in a localised currency.
+ * of the fraction part in a localised currency.
  * This is for now hard coded.
  */
 #define L_FRACTION_WIDTH (25)
@@ -216,7 +216,7 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t p )
 			break;
 		}
 
-		// Change player name and/or pasword
+		// Change player name and/or password
 		if(komp==(player_lock+i)  &&  welt->get_spieler(i)) {
 			if (!welt->get_spieler(i)->is_unlock_pending()) {
 				// set password
@@ -225,7 +225,7 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t p )
 			}
 		}
 
-		// New player asigned in an empty slot
+		// New player assigned in an empty slot
 		if(komp==(player_select+i)) {
 
 			// make active player

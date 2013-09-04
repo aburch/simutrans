@@ -147,8 +147,6 @@ static uint8 selected_tab = 0;
 /// selected line per tab
 static linehandle_t selected_line[simline_t::MAX_LINE_TYPE];
 
-// Hajo: 17-Jan-04: changed layout to make components fit into
-// a width of 400 pixels -> original size was unuseable in 640x480
 schedule_list_gui_t::schedule_list_gui_t(spieler_t *sp_) :
 	gui_frame_t( translator::translate("Line Management"), sp_),
 	sp(sp_),
@@ -337,8 +335,7 @@ schedule_list_gui_t::~schedule_list_gui_t()
 
 
 /**
- * Mausklicks werden hiermit an die GUI-Komponenten
- * gemeldet
+ * Mouse clicks are hereby reported to the GUI-Components
  */
 bool schedule_list_gui_t::infowin_event(const event_t *ev)
 {
@@ -818,7 +815,7 @@ void schedule_list_gui_t::rdwr( loadsave_t *file )
 	file->rdwr_long( cont_yoff );
 	file->rdwr_long( halt_xoff );
 	file->rdwr_long( halt_yoff );
-	// open dialoge
+	// open dialogue
 	if(  file->is_loading()  ) {
 		show_lineinfo( line );
 		set_fenstergroesse( gr );

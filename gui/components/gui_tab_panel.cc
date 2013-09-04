@@ -95,7 +95,7 @@ bool gui_tab_panel_t::infowin_event(const event_t *ev)
 	}
 
 	if(  IS_LEFTRELEASE(ev)  &&  (ev->my > 0  &&  ev->my < TAB_HEADER_V_SIZE-1)  )  {
-		// Reiter getroffen
+		// tab selector was hit
 		int text_x = required_groesse.x>groesse.x ? 14 : 4;
 		int k=0;
 		FORX(slist_tpl<tab>, const& i, tabs, ++k) {
@@ -129,7 +129,7 @@ bool gui_tab_panel_t::infowin_event(const event_t *ev)
 	}
 
 	if(  ev->ev_class == EVENT_KEYBOARD  ||  DOES_WINDOW_CHILDREN_NEED(ev)  ||  get_aktives_tab()->getroffen(ev->mx, ev->my)  ||  get_aktives_tab()->getroffen(ev->cx, ev->cy)) {
-		// Komponente getroffen
+		// active tab was hit
 		event_t ev2 = *ev;
 		translate_event(&ev2, -get_aktives_tab()->get_pos().x, -get_aktives_tab()->get_pos().y );
 		return get_aktives_tab()->infowin_event(&ev2);
@@ -141,7 +141,7 @@ bool gui_tab_panel_t::infowin_event(const event_t *ev)
 
 void gui_tab_panel_t::zeichnen(koord parent_pos)
 {
-	// Position am Bildschirm/Fenster
+	// Position in screen/window
 	int xpos = parent_pos.x + pos.x;
 	const int ypos = parent_pos.y + pos.y;
 

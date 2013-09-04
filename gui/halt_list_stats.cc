@@ -49,7 +49,7 @@ bool halt_list_stats_t::infowin_event(const event_t *ev)
 
 
 /**
- * Zeichnet die Komponente
+ * Draw the component
  * @author Markus Weber
  */
 void halt_list_stats_t::zeichnen(koord offset)

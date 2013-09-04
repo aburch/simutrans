@@ -24,8 +24,7 @@ class stadt_t;
 template <class T> class sparse_tpl;
 
 /**
- * Dies stellt ein Fenster mit den Informationen
- * ueber eine Stadt dar.
+ * Presents a window with city information
  *
  * @author Hj. Malthaner
  */
@@ -95,7 +94,7 @@ public:
 	 */
 	void resize(const koord delta);
 
-	// this contructor is only used during loading
+	// this constructor is only used during loading
 	stadt_info_t(karte_t *welt);
 
 	void rdwr(loadsave_t *);

@@ -77,7 +77,7 @@ public:
 private:
 	enum type type;
 	int selection; // only used when type is 'select'.
-	int border; // must be subtracted from groesse.y to get netto size
+	int border; // must be subtracted from groesse.y to get net size
 	int offset; // vertical offset of top left position.
 
 	/**

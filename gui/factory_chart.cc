@@ -112,7 +112,7 @@ static const char *const label_text[MAX_PROD_LABEL] =
 // Max Kielland
 // we can't initialise global statics with #defines
 // of variables because these variables aren't initialized yet.
-// This table is refering to grid positions instead of pixel positions.
+// This table is referring to grid positions instead of pixel positions.
 static const koord label_pos[MAX_PROD_LABEL] =
 {
 	koord(2, 0),

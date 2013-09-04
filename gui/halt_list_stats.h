@@ -15,7 +15,7 @@
 
 
 /**
- * @autor Hj. Malthaner
+ * @author Hj. Malthaner
  */
 class halt_list_stats_t : public gui_komponente_t
 {

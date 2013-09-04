@@ -44,7 +44,7 @@ sound_frame_t::sound_frame_t()
 
 	koord cursor = koord(D_MARGIN_LEFT,D_MARGIN_TOP);
 
-	// Sound volumne label
+	// Sound volume label
 	sound_volume_label.set_pos(cursor);
 	add_komponente(&sound_volume_label);
 	cursor.y += LINESPACE + D_V_SPACE;

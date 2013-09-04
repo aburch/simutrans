@@ -163,12 +163,6 @@ void gui_frame_t::resize(const koord delta)
  * i.e. It's the screen coordinates of the window where the
  * component is displayed.
  *
- * (Google translate: Max Kielland)
- * zeichnen = paint?
- * Paint the component. The passed values relate to
- * the window (gr = client size?), i.e. it is the Bildschirkoordinaten the window
- * in which the component is displayed.
- *
  * @author Hj. Malthaner
  */
 void gui_frame_t::zeichnen(koord pos, koord gr)

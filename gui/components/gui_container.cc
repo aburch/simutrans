@@ -242,7 +242,7 @@ void gui_container_t::zeichnen(koord offset)
 {
 	const koord screen_pos = pos + offset;
 
-	// For debug purpose, draw the container's boundry
+	// For debug purpose, draw the container's boundary
 	//display_ddd_box(screen_pos.x,screen_pos.y,get_groesse().x, get_groesse().y,COL_GREY4,COL_GREY6,true);
 
 	FOR(slist_tpl<gui_komponente_t*>, const c, komponenten) {

@@ -8,7 +8,7 @@
 /*
  * A text display component
  *
- * @autor Hj. Malthaner
+ * @author Hj. Malthaner
  */
 
 #ifndef gui_textarea_h
@@ -23,7 +23,7 @@ class gui_textarea_t : public gui_komponente_t
 private:
 	/**
 	* The text to display. May be multi-lined.
-	* @autor Hj. Malthaner
+	* @author Hj. Malthaner
 	*/
 	cbuffer_t* buf;
 

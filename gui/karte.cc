@@ -68,7 +68,7 @@ const uint8 reliefkarte_t::severity_color[MAX_SEVERITY_COLORS] =
 	106, 2, 85, 86, 29, 30, 171, 71, 39, 132
 };
 
-// Kenfarben fuer die Karte
+// Way colours for the map
 #define STRASSE_KENN      (208)
 #define SCHIENE_KENN      (185)
 #define CHANNEL_KENN      (147)
@@ -203,7 +203,7 @@ void reliefkarte_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoin
 
 
 
-// some rountes for the relief map with schedules
+// some routines for the relief map with schedules
 static uint32 number_to_radius( uint32 n )
 {
 	return log2( n>>5 );
@@ -430,7 +430,7 @@ static void line_segment_draw( waytype_t type, koord start, uint8 start_offset, 
 }
 
 
-// converts karte koordinates to screen corrdinates
+// converts map (karte) koordinates to screen koordinates
 void reliefkarte_t::karte_to_screen( koord &k ) const
 {
 	// must be down before/after, of one would loose bits ...
@@ -451,7 +451,7 @@ void reliefkarte_t::karte_to_screen( koord &k ) const
 }
 
 
-// and retransform
+// and re-transform
 inline void reliefkarte_t::screen_to_karte( koord &k ) const
 {
 	k = koord( (k.x*zoom_out)/zoom_in, (k.y*zoom_out)/zoom_in );
@@ -609,7 +609,9 @@ void reliefkarte_t::set_relief_farbe_area(koord k, int areasize, uint8 color)
 
 
 /**
- * calculates ground color for position (hoehe - grundwasser).
+ * calculates ground color for position relative to water height
+ * @param hoehe height of the tile
+ * @param grundwasser water height
  * @author Hj. Malthaner
  */
 uint8 reliefkarte_t::calc_hoehe_farbe(const sint16 hoehe, const sint16 grundwasser)
@@ -619,7 +621,7 @@ uint8 reliefkarte_t::calc_hoehe_farbe(const sint16 hoehe, const sint16 grundwass
 
 
 /**
- * Updated Kartenfarbe an Position k
+ * Updated Map color(Kartenfarbe) an Position k
  * @author Hj. Malthaner
  */
 uint8 reliefkarte_t::calc_relief_farbe(const grund_t *gr)
@@ -982,7 +984,7 @@ reliefkarte_t *reliefkarte_t::get_karte()
 
 void reliefkarte_t::set_welt(karte_t *welt)
 {
-	this->welt = welt;			// Welt fuer display_win() merken
+	this->welt = welt;
 	if(relief) {
 		delete relief;
 		relief = NULL;
@@ -1194,7 +1196,7 @@ void reliefkarte_t::zeichnen(koord pos)
 						// does this line has a matching freight
 						if(  mode & MAP_PASSENGER  ) {
 							if(  !linee[j]->get_goods_catg_index().is_contained( warenbauer_t::INDEX_PAS )  ) {
-								// no pasengers
+								// no passengers
 								continue;
 							}
 						}
@@ -1240,7 +1242,7 @@ void reliefkarte_t::zeichnen(koord pos)
 				}
 			}
 
-			// now add all unboad convois
+			// now add all unbound convois
 			FOR( vector_tpl<convoihandle_t>, cnv, welt->convoys() ) {
 				if(  !cnv.is_bound()  ||  cnv->get_line().is_bound()  ) {
 					// not there or already part of a line
@@ -1251,7 +1253,7 @@ void reliefkarte_t::zeichnen(koord pos)
 					// does this line has a matching freight
 					if(  mode & MAP_PASSENGER  ) {
 						if(  !cnv->get_goods_catg_index().is_contained( warenbauer_t::INDEX_PAS )  ) {
-							// no pasengers
+							// no passengers
 							continue;
 						}
 					}
@@ -1329,7 +1331,7 @@ void reliefkarte_t::zeichnen(koord pos)
 			}
 		}
 		else {
-			// easier with rectagular maps ...
+			// easier with rectangular maps ...
 			display_blend_wh( cur_off.x+pos.x, cur_off.y+pos.y, relief->get_width(), relief->get_height(), COL_WHITE, 75 );
 		}
 
@@ -1364,7 +1366,7 @@ void reliefkarte_t::zeichnen(koord pos)
 
 	// display station information here (even without overlay)
 	halthandle_t display_station;
-	// only fille cache if needed
+	// only fill cache if needed
 	if(  mode & MAP_MODE_HALT_FLAGS  &&  stop_cache.empty()  ) {
 		if(  mode&MAP_ORIGIN  ) {
 			FOR( const slist_tpl<halthandle_t>, halt, haltestelle_t::get_alle_haltestellen() ) {
@@ -1541,7 +1543,7 @@ void reliefkarte_t::zeichnen(koord pos)
 		temp_stop = temp_stop + pos;
 		display_ddd_proportional_clip( temp_stop.x + 10, temp_stop.y + 7, proportional_string_width( display_station->get_name() ) + 8, 0, display_station->get_besitzer()->get_player_color1()+3, COL_WHITE, display_station->get_name(), false );
 	}
-	max_waiting_change = new_max_waiting_change;	// update waiting tendenies
+	max_waiting_change = new_max_waiting_change;	// update waiting tendencies
 
 	// if we do not do this here, vehicles would erase the town names
 	// ADD: if CRTL key is pressed, temporary show the name

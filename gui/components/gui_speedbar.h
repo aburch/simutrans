@@ -41,7 +41,7 @@ public:
 	void set_vertical(bool vertical) { this->vertical = vertical; }
 
 	/**
-	 * Zeichnet die Komponente
+	 * Draw the component
 	 */
 	void zeichnen(koord offset);
 };

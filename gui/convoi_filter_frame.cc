@@ -142,7 +142,7 @@ convoi_filter_frame_t::convoi_filter_frame_t(spieler_t *sp, convoi_frame_t *m, u
 			continue;
 		}
 		if(  ware->get_catg() == 0  ) {
-			// Sonderfracht: Each good is special
+			// Special freight: Each good is special
 			ware_item_t *item = new ware_item_t(this, ware);
 			item->init(button_t::square_state, translator::translate(ware->get_name()), koord(5, D_BUTTON_HEIGHT*n++));
 			item->pressed = active_ware.is_contained(ware);

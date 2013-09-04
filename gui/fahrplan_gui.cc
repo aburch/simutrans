@@ -447,7 +447,7 @@ void fahrplan_gui_t::update_selection()
 
 
 /**
- * Mouse click are hereby reported to its GUI-Components
+ * Mouse clicks are hereby reported to its GUI-Components
  */
 bool fahrplan_gui_t::infowin_event(const event_t *ev)
 {

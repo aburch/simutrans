@@ -91,8 +91,7 @@ extend_edit_gui_t::extend_edit_gui_t(const char *name, spieler_t* sp_, karte_t* 
 
 
 /**
- * Mausklicks werden hiermit an die GUI-Komponenten
- * gemeldet
+ * Mouse click are hereby reported to its GUI-Components
  */
 bool extend_edit_gui_t::infowin_event(const event_t *ev)
 {

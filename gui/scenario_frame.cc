@@ -41,7 +41,7 @@ scenario_frame_t::scenario_frame_t(karte_t *welt) : savegame_frame_t(NULL, true,
 
 
 /**
- * Aktion, die nach Knopfdruck gestartet wird.
+ * Action, started after button pressing.
  * @author Hansjörg Malthaner
  */
 void scenario_frame_t::action(const char *fullpath)

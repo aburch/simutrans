@@ -24,8 +24,8 @@
 
 #define L_PADDING_LEFT     (0)    // Extra left side padding inside scrollbox
 #define BUTTON_COL_PERCENT (0.45) // Button column coverage in % of client area
-#define MIN_ROWS           (4)    // Minimum file entrys to show (calculates min window size)
-#define DEFAULT_ROWS       (12)   // Number of file entrys to show as default
+#define MIN_ROWS           (4)    // Minimum file entries to show (calculates min window size)
+#define DEFAULT_ROWS       (12)   // Number of file entries to show as default
 #define DIALOG_WIDTH       (488)  // You go and figure...
 
 // The part of the dialog that is always fixed.
@@ -181,7 +181,7 @@ void savegame_frame_t::list_filled()
 		y += D_BUTTON_HEIGHT;
 	}
 
-	// since width was maybe increased, we only set the heigth.
+	// since width was maybe increased, we only set the height.
 	button_frame.set_groesse(koord(get_fenstergroesse().x, y));
 
 	// force position and size calculation of list elements
@@ -209,7 +209,7 @@ void savegame_frame_t::add_file(const char *fullpath, const char *filename, cons
 	slist_tpl<dir_entry_t>::iterator i = entries.begin();
 	slist_tpl<dir_entry_t>::iterator end = entries.end();
 
-	// This needs optimizing, advance to the last section, since inserts come allways to the last section, we could just update  last one on last_section
+	// This needs optimizing, advance to the last section, since inserts come always to the last section, we could just update  last one on last_section
 
 	slist_tpl<dir_entry_t>::iterator lastfound;
 	while(i != end) {
@@ -225,7 +225,7 @@ void savegame_frame_t::add_file(const char *fullpath, const char *filename, cons
 	if(!strstart(pak, compare_to.c_str())) {
 		// skip current ones
 		while(i != end) {
-			// extract palname in same format than in savegames ...
+			// extract pakname in same format than in savegames ...
 			if(!strstart(i->label->get_text_pointer(), compare_to.c_str())) {
 				break;
 			}
@@ -350,8 +350,7 @@ bool savegame_frame_t::action_triggered(gui_action_creator_t *komp, value_t /* *
 
 
 /**
- * Bei Scrollpanes _muss_ diese Methode zum setzen der Groesse
- * benutzt werden.
+ * Scrollpanes _must_ be used in this method to set the size
  * @author Hj. Malthaner
  */
 void savegame_frame_t::set_fenstergroesse(koord groesse)
@@ -503,7 +502,7 @@ void savegame_frame_t::fill_list()
 			}
 			else{
 				// NOTE: we just free "fullname" memory when add_file is not called. That memory will be
-				// free'd in the class destructor. This way we save the cost of re-allocate/copy it inside there
+				// freed in the class destructor. This way we save the cost of re-allocate/copy it inside there
 				delete [] fullname;
 			}
 		}
@@ -558,7 +557,7 @@ void savegame_frame_t::add_section(std::string &name){
 		size_t user_dir_len = strlen(umgebung_t::user_dir);
 
 		if ( name_len+user_dir_len > FILENAME_MAX-1 ) {
-			// shoudn't happen, but I'll control anyway
+			// shouldn't happen, but I'll control anyway
 			strcpy(path_expanded,"** ERROR ** Path too long");
 		}
 		else {
@@ -591,7 +590,7 @@ void savegame_frame_t::add_path(const char * path){
 	this->paths.append(path);
 }
 /**
- * @note On Windows Plattform, we use the trash bin.
+ * @note On Windows Platform, we use the trash bin.
  */
 bool savegame_frame_t::del_action(const char * fullpath)
 {

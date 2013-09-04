@@ -25,9 +25,8 @@ class loadsave_t;
 #define ALWAYS_LARGE 1
 
 /**
- * Diese Klasse dient zur Darstellung der Reliefkarte
- * (18.06.00 von simwin getrennt)
- * Als Singleton implementiert.
+ * This class is used to render the relief map.
+ * Implemented as singleton.
  *
  * @author Hj. Malthaner
  */
@@ -186,7 +185,7 @@ public:
 	*/
 	static uint8 calc_hoehe_farbe(const sint16 hoehe, const sint16 grundwasser);
 
-	// needed for town pasenger map
+	// needed for town passenger map
 	static uint8 calc_relief_farbe(const grund_t *gr);
 
 	// public, since the convoi updates need this
@@ -209,7 +208,7 @@ public:
 
 	void calc_map();
 
-	// calculates the current size of the map (but do nopt change anything else)
+	// calculates the current size of the map (but do not change anything else)
 	void calc_map_groesse();
 
 	~reliefkarte_t();

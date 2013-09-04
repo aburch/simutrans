@@ -21,7 +21,7 @@
 /**
  * One element of the vehicle list display
  *
- * @autor Hj. Malthaner
+ * @author Hj. Malthaner
  */
 class gui_convoiinfo_t : public gui_komponente_t
 {

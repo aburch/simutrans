@@ -53,7 +53,7 @@ class spieler_t;
 // Scrollbar params (replace with real values from the skin images)
 #define KNOB_SIZE        (32)
 
-// default button width (may change with langugae and font)
+// default button width (may change with language and font)
 #define D_BUTTON_WIDTH (button_t::gui_button_size.x)
 #define D_BUTTON_HEIGHT (button_t::gui_button_size.y)
 
@@ -90,7 +90,7 @@ class spieler_t;
 #define D_GET_CENTER_ALIGN_OFFSET(N1,N2) ((N2-N1)>>1)
 #define D_GET_FAR_ALIGN_OFFSET(N1,N2) (N2-N1)
 
-// The width of a typical dialoge (either list/covoi/factory) and intial width when it makes sense
+// The width of a typical dialogue (either list/covoi/factory) and initial width when it makes sense
 #define D_DEFAULT_WIDTH (D_MARGIN_LEFT + 4*D_BUTTON_WIDTH + 3*D_H_SPACE + D_MARGIN_RIGHT)
 
 // dimensions of indicator bars (not yet a gui element ...)
@@ -263,7 +263,7 @@ public:
 
 	/**
 	 * Max Kielland 2013: Client size auto calculation with title bar and margins.
-	 * @return returns the usable width and heigth of the window
+	 * @return the usable width and height of the window
 	 * @author Markus Weber
 	 * @date   11-May-2002
 	*/

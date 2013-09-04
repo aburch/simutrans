@@ -166,7 +166,7 @@ void world_view_t::internal_draw(const koord offset, ding_t const* const ding)
 		// for the definition of underground_level see grund_t::set_underground_mode
 		const sint8 hmin = min(h, grund_t::underground_level);
 
-		// maximum height: 127 for overground, undergroundlevel for sliced, ground height-1 for complete underground view
+		// maximum height: 127 for overground, underground level for sliced, ground height-1 for complete underground view
 		const sint8 hmax = grund_t::underground_mode == grund_t::ugm_all ? h - !kb->ist_tunnel() : grund_t::underground_level;
 
 		const sint16 yypos = display_off.y + (off.y + off.x) * 16 * raster / 64 - tile_raster_scale_y(h * TILE_HEIGHT_STEP, raster);

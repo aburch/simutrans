@@ -75,7 +75,7 @@ void gui_image_list_t::zeichnen(koord parent_pos)
 	// sel_index should come from infowin_event, but it is not sure?
 	int sel_index = index_at(parent_pos, get_maus_x(), get_maus_y());
 
-	// zeige verfügbare waggontypen
+	// Show available wagon types
 	int xmin = parent_pos.x + pos.x + BORDER;
 	int ymin = parent_pos.y + pos.y + BORDER;
 	int ymax = ymin + rows * grid.y;

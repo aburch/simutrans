@@ -579,7 +579,7 @@ void server_frame_t::zeichnen (koord pos, koord gr)
 		pos_y += D_V_SPACE;
 
 		// drawing twice, but otherwise it will not overlay image
-		// Overlay what image? It draws fine the first time, this second redraw paints it in teh wrong place anyway...
+		// Overlay what image? It draws fine the first time, this second redraw paints it in the wrong place anyway...
 		// serverlist.zeichnen( pos + koord( 0, 16 ) );
 	}
 }

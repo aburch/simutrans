@@ -29,7 +29,7 @@ news_window::news_window(const char* t, PLAYER_COLOR_VAL title_color) :
 
 
 // Knightly :	set component boundary and windows size, position component and add it to the component list
-//				if component is NULL, the messsage box will contain only text
+//				if component is NULL, the message box will contain only text
 void news_window::extend_window_with_component(gui_komponente_t *const component, const koord size, const koord offset)
 {
 	if(  component  ) {

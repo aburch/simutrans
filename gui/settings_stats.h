@@ -25,10 +25,10 @@
 class settings_t;
 
 /* With the following macros, elements could be added to the property lists.
- * ATTENTION: In the init and read preocedures, the order of the item MUST be identical!
+ * ATTENTION: In the init and read procedures, the order of the items MUST be identical!
  */
 
-// call this befor any init is done ...
+// call this before any init is done ...
 #define INIT_INIT \
 	width = 16;\
 	height = 0;\

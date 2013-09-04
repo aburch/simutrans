@@ -52,16 +52,15 @@ public:
 	 */
 	typedef sint64 (*convert_proc) (const sint64);
 
-	/*
-	 * adds a curve to the graph
-	 * paramters:
-	 * @color: color for this curve; default 0
-	 * @values: reference to values
-	 * @size: elements to skip before next valid entry (only usefull in multidimensional arrays)
-	 * @offset: element to start with
-	 * @elements: elements in values
-	 * @proc: conversion procedure to be applied to supplied values
-	 * returns curve's id
+	/**
+	 * Adds a curve to the graph
+	 * @param color    color for this curve; default 0
+	 * @param values   reference to values
+	 * @param size     elements to skip before next valid entry (only useful in multidimensional arrays)
+	 * @param offset   element to start with
+	 * @param elements elements in values
+	 * @param proc     conversion procedure to be applied to supplied values
+	 * @returns curve's id
 	 * @author hsiegeln
 	 */
 	int add_curve(int color, const sint64 *values, int size, int offset, int elements, int type, bool show, bool show_value, int precision, convert_proc proc=NULL);

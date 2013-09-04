@@ -83,7 +83,7 @@ void gui_convoiinfo_t::zeichnen(koord offset)
 			max_x = max(max_x,w+5);
 		}
 
-		// we will use their images offests and width to shift them to their correct position
+		// we will use their images offsets and width to shift them to their correct position
 		// this should work with any vehicle size ...
 		const int xoff = max(190, max_x);
 		int left = pos.x+offset.x+xoff+4;

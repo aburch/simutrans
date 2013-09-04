@@ -45,7 +45,9 @@ public:
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
-	// Recalc the current size required to display everything, and set component size
+	/**
+	 * Recalc the size required to display everything and set size (groesse).
+	 */
 	void recalc_size();
 
 	// Draw the component

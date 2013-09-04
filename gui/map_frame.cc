@@ -125,7 +125,7 @@ map_frame_t::map_frame_t(karte_t *world) :
 	karte->set_mode( (reliefkarte_t::MAP_MODES)umgebung_t::default_mapmode );
 	scrolly.set_scroll_position(  max(0,min(ij.x-win_size.x/2,gr.x)), max(0, min(ij.y-win_size.y/2,gr.y)) );
 
-	// first row of coontrols
+	// first row of controls
 	// selections button
 	b_show_legend.init(button_t::roundbox_state, "Show legend", cursor);
 	b_show_legend.set_tooltip("Shows buttons on special topics.");
@@ -236,7 +236,7 @@ map_frame_t::map_frame_t(karte_t *world) :
 	scrolly.set_scroll_discrete_y(false);
 	add_komponente(&scrolly);
 
-	// resore window size and options
+	// restore window size and options
 	set_fenstergroesse( window_size );
 	show_hide_legend( legend_visible );
 	show_hide_scale( scale_visible );
@@ -459,7 +459,7 @@ bool map_frame_t::infowin_event(const event_t *ev)
 		return true;
 	}
 	else if(  IS_LEFTDBLCLK(ev)  &&  reliefkarte_t::get_karte()->getroffen(ev2.mx,ev2.my)  ) {
-		// recenter cursor by scrolling
+		// re-center cursor by scrolling
 		koord ij = reliefkarte_t::get_karte()->get_welt()->get_world_position();
 		reliefkarte_t::get_karte()->karte_to_screen(ij);
 		const koord s_gr = scrolly.get_groesse();
@@ -599,12 +599,12 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 	koord ij = welt->get_world_position();
 	if(welt->is_within_limits(ij)) {
 		reliefkarte_t::get_karte()->karte_to_screen(ij);
-		// only recenter if zoomed or world position has changed and its outside visible area
+		// only re-center if zoomed or world position has changed and its outside visible area
 		const koord groesse = scrolly.get_groesse();
 		if(zoomed  ||  ( old_ij != ij  &&
 				( scrolly.get_scroll_x()>ij.x  ||  scrolly.get_scroll_x()+groesse.x<=ij.x  ||
 				  scrolly.get_scroll_y()>ij.y  ||  scrolly.get_scroll_y()+groesse.y<=ij.y ) ) ) {
-				// recenter cursor by scrolling
+				// re-center cursor by scrolling
 				scrolly.set_scroll_position( max(0,ij.x-(groesse.x/2)), max(0,ij.y-(groesse.y/2)) );
 				zoomed = false;
 		}

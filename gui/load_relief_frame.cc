@@ -15,7 +15,7 @@
 #include "../dataobj/umgebung.h"
 
 /**
- * Aktion, die nach Knopfdruck gestartet wird.
+ * Action, started on button pressing
  * @author Hansjörg Malthaner
  */
 void load_relief_frame_t::action(const char *fullpath)

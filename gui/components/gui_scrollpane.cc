@@ -16,7 +16,7 @@
 
 
 /**
- * @param komp Die zu scrollende Komponente
+ * @param komp, the scrolling component
  * @author Hj. Malthaner
  */
 gui_scrollpane_t::gui_scrollpane_t(gui_komponente_t *komp) :
@@ -70,8 +70,7 @@ void gui_scrollpane_t::recalc_sliders(koord groesse)
 
 
 /**
- * Bei Scrollpanes _muss_ diese Methode zum setzen der Groesse
- * benutzt werden.
+ * Scrollpanes _must_ be used in this method to set the size
  * @author Hj. Malthaner
  */
 void gui_scrollpane_t::set_groesse(koord groesse)
@@ -153,7 +152,7 @@ bool gui_scrollpane_t::infowin_event(const event_t *ev)
 
 
 /**
- * Setzt Positionen der Scrollbars
+ * Set the position of the Scrollbars
  * @author Hj. Malthaner
  */
 void gui_scrollpane_t::set_scroll_position(int x, int y)
@@ -176,7 +175,7 @@ int gui_scrollpane_t::get_scroll_y() const
 
 
 /**
- * Zeichnet die Komponente
+ * Draw the component
  * @author Hj. Malthaner
  */
 void gui_scrollpane_t::zeichnen(koord pos)

@@ -82,7 +82,7 @@ bool pakselector_t::action_triggered(gui_action_creator_t *komp, value_t v)
 
 /**
  * This method returns true if filename is what we want and false if not.
- * A PAK directory is concidered valid if the file ground.outside.pak exists.
+ * A PAK directory is considered valid if the file ground.outside.pak exists.
 */
 bool pakselector_t::check_file(const char *filename, const char *)
 {
@@ -95,7 +95,7 @@ bool pakselector_t::check_file(const char *filename, const char *)
 		return true;
 	}
 
-	// the file was not found or couldn't be opend.
+	// the file was not found or couldn't be opened.
 	return false;
 }
 

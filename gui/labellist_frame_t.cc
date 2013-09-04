@@ -105,7 +105,6 @@ bool labellist_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* 
 void labellist_frame_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta);
-	// fensterhoehe - 16(title) -offset (header)
 	koord groesse = get_fenstergroesse()-koord(0,D_TITLEBAR_HEIGHT+14+D_BUTTON_HEIGHT+2+1);
 	scrolly.set_groesse(groesse);
 }
@@ -113,7 +112,7 @@ void labellist_frame_t::resize(const koord delta)
 
 
 /**
-* This function refreshs the station-list
+* This function refreshes the label list
 * @author Markus Weber/Volker Meyer
 */
 void labellist_frame_t::display_list(void)

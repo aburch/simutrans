@@ -18,7 +18,7 @@ class gui_scrollpane_t : public gui_komponente_t
 {
 private:
 	/**
-	 * Die zu scrollende Komponente
+	 * The scrolling component
 	 * @author Hj. Malthaner
 	 */
 	gui_komponente_t *komp;
@@ -39,20 +39,19 @@ private:
 
 public:
 	/**
-	 * @param komp Die zu scrollende Komponente
+	 * @param komp, the scrolling component
 	 * @author Hj. Malthaner
 	 */
 	gui_scrollpane_t(gui_komponente_t *komp);
 
 	/**
-	 * Bei Scrollpanes _muss_ diese Methode zum setzen der Groesse
-	 * benutzt werden.
+	 * This method MUST be used to set the size of scrollpanes.
 	 * @author Hj. Malthaner
 	 */
 	void set_groesse(koord groesse) OVERRIDE;
 
 	/**
-	 * Setzt Positionen der Scrollbars
+	 * Set the position of the Scrollbars
 	 * @author Hj. Malthaner
 	 */
 	void set_scroll_position(int x, int y);
@@ -69,7 +68,7 @@ public:
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**
-	 * Zeichnet die Komponente
+	 * Draw the component
 	 * @author Hj. Malthaner
 	 */
 	void zeichnen(koord offset);

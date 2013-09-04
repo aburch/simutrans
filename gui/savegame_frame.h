@@ -22,10 +22,10 @@
 #include "components/gui_button.h"
 
 /**
- * Base class from wich all GUI dialogs to load/save generics can inherit from
+ * Base class from which all GUI dialogs to load/save generics can inherit from
  * @author Hansjoerg Malthaner
- * @author Makohs
- * @note Based on previous original work from the simutrans team and Hansjoerg Malthaner
+ * @author Markohs
+ * @note Based on previous original work from the Simutrans team and Hansjoerg Malthaner
  * @note When I refer to a "qualified" path I mean it can contain sub-directories or even fully qualified path. i.e. : "save/a.sve" or "c:\simutrans\scenario\file.nut"
  */
 class savegame_frame_t : public gui_frame_t, action_listener_t
@@ -38,7 +38,7 @@ private:
 	bool in_action;
 
 	/**
-	 * Paths in wich this dialog will search for
+	 * Paths in which this dialog will search for
 	 */
 	vector_tpl<std::string> paths;
 
@@ -89,7 +89,7 @@ protected:
 	gui_scrollpane_t scrolly;
 
 	/**
-	 * Entries in list can be actual file entries or headers, that have a diferent look
+	 * Entries in list can be actual file entries or headers, that have a different look
 	 */
 	enum dirlist_item_t {LI_HEADER,LI_ENTRY};
 
@@ -203,10 +203,10 @@ protected:
 
 public:
 	/**
-	 * @param suffix Filename suffix, i.e. ".sve", you can omit the intial dot, i.e. "sve", NULL to not enforce any extension.
+	 * @param suffix Filename suffix, i.e. ".sve", you can omit the initial dot, i.e. "sve", NULL to not enforce any extension.
 	 * @param only_directories will just process directory entries, not files.
 	 * @param path Default path to search at. If NULL, next call to add_path will define the default path.
-	 * @param delete_enabled Determins if we'll add delete buttons to the frame.
+	 * @param delete_enabled Determines if we'll add delete buttons to the frame.
 	 * @author Hj. Malthaner
 	 */
 	savegame_frame_t(const char *suffix = NULL, bool only_directories = false, const char *path = NULL, const bool delete_enabled = true);

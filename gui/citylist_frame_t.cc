@@ -217,7 +217,7 @@ void citylist_frame_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta);
 
-	koord groesse = get_fenstergroesse()-koord(0,D_TITLEBAR_HEIGHT+42+1);	// fensterhoehe - 16(title) -42 (header)
+	koord groesse = get_fenstergroesse()-koord(0,D_TITLEBAR_HEIGHT+42+1);	// window size - title - 42(header)
 	if(show_stats.pressed) {
 		// additional space for statistics
 		groesse += koord(0,-CHART_HEIGHT);

@@ -26,7 +26,7 @@
 #include "../bauer/hausbauer.h"
 
 
-// remebers last settings
+// remembers last settings
 static uint32 bFilterStates[MAX_PLAYER_COUNT];
 
 #define COST_BALANCE    10 // bank balance
@@ -632,7 +632,7 @@ void money_frame_t::rdwr( loadsave_t *file )
 	bool monthly = mchart.is_visible();;
 	file->rdwr_bool( monthly );
 
-	// button state already cooledcted
+	// button state already collected
 	file->rdwr_long( bFilterStates[sp->get_player_nr()] );
 
 	if(  file->is_loading()  ) {

@@ -30,7 +30,7 @@ protected:
 	virtual void action(const char *fullpath);
 
 	/**
-	 * Aktion, die nach X-Knopfdruck gestartet wird.
+	 * Action, started after X-Button pressing
 	 * @author V. Meyer
 	 */
 	virtual bool del_action(const char *f) { action(f); return true; }

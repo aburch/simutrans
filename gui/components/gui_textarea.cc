@@ -8,7 +8,7 @@
 /*
  * A text display component
  *
- * @autor Hj. Malthaner
+ * @author Hj. Malthaner
  */
 
 #include <string.h>

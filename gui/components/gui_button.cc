@@ -46,7 +46,7 @@ COLOR_VAL button_t::button_color_disabled_text = MN_GREY0;
 /**
  * Max Kielland
  * These are the built in default theme element sizes and
- * are overriden by the PAK file if a new image is defined.
+ * are overridden by the PAK file if a new image is defined.
  */
 koord button_t::gui_button_size        = koord(92,14);
 koord button_t::gui_checkbox_size      = koord(10,10);
@@ -314,7 +314,7 @@ void button_t::draw_roundbutton(scr_coord_val x, scr_coord_val y, scr_coord_val 
 			display_set_clip_wh(cl.x, cl.y, cl.w, cl.h );
 		}
 		else {
-			// Buttons in a differents width than original skin image
+			// Buttons in a different width than original skin image
 			for(  scr_coord_val j=0;  j+cw < w-rw-lw;  j += cw  ) {
 				display_button_image(x+j+lw, y, RB_BODY_BUTTON, pressed);
 			}

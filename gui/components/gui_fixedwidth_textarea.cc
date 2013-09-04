@@ -50,7 +50,7 @@ void gui_fixedwidth_textarea_t::set_reserved_area(const koord area)
 
 void gui_fixedwidth_textarea_t::set_groesse(koord groesse)
 {
-	// y-component (height) in groesse is deliberately ignored
+	// y-component (height) in size (groesse) is deliberately ignored
 	set_width(groesse.x);
 }
 
@@ -77,7 +77,7 @@ void gui_fixedwidth_textarea_t::calc_display_text(const koord offset, const bool
 		// force at end of text or newline
 		const KOORD_VAL max_width = ( y<reserved_area.y ) ? get_groesse().x-reserved_area.x : get_groesse().x;
 
-		// smaller than the allowd width?
+		// smaller than the allowed width?
 		do {
 
 			// end of line?

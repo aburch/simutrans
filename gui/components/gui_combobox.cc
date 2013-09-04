@@ -109,7 +109,7 @@ DBG_MESSAGE("event","HOWDY!");
 		if(first_call) {
 			// prepare for selection
 
-			// swallow the first mouseclick
+			// swallow the first mouse click
 			if(IS_LEFTRELEASE(ev)) {
 				first_call = false;
 			}

@@ -98,7 +98,7 @@ void line_management_gui_t::rdwr(loadsave_t *file)
 	fpl->rdwr(file);
 	if(  file->is_loading()  ) {
 		spieler_t *sp = welt->get_spieler(player_nr);
-		assert(sp);	// since it was alive during saving, this shoudl never happen
+		assert(sp);	// since it was alive during saving, this should never happen
 
 		if(  line.is_bound()  &&  old_fpl->matches( welt, line->get_schedule() )  ) {
 			// now we can open the window ...

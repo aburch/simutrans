@@ -6,7 +6,7 @@
  */
 
 /*
- * AI bahavior options from AI finance window
+ * AI behavior options from AI finance window
  * 2006 prissi
  */
 
@@ -44,7 +44,7 @@ ai_option_t::ai_option_t( spieler_t *sp ) :
 
 	ypos += D_BUTTON_HEIGHT+4;
 
-	// find out if the mode is avalable and can be activated
+	// find out if the mode is available and can be activated
 
 	buttons[0].init( button_t::square_state, "road vehicle", koord(10,ypos), koord( 120, D_BUTTON_HEIGHT ) );
 	buttons[0].pressed = ai->has_road_transport();
