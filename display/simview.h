@@ -41,8 +41,8 @@ public:
 	 * remain visible.
 	 * @param lt Top-left pixel coordinate of the rectangle. In pixels.
 	 * @param wt Width and height f the rectangle. In pixels.
-	 * @param y_min Minimum height of the screen (top pixel row) to start processing objects to draw.
-	 * @param y_max Minimum height of the screen (bottom pixel row) to start processing objects to draw.
+	 * @param y_min Minumum height of the screen (top pixel row) to start processing objects to draw.
+	 * @param y_max Maximum height of the screen (bottom pixel row) to start processing objects to draw.
 	 * @param dirty If set to true, will mark the whole rectangle as dirty.
 	 * @param threaded If set to true, indicates there are more threads drawing on screen, and this routine will use mutexes when needed.
 	 */
