@@ -295,6 +295,10 @@ public:
 	*/
 	void set_commute_trip(uint16 number);
 
+	uint32 get_total_pop() const;
+
+	uint32 get_visitor_demand() const;
+
 	uint32 get_total_jobs() const;
 
 	bool jobs_available() const;

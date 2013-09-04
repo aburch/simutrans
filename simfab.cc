@@ -365,6 +365,7 @@ void fabrik_t::update_scaled_pax_demand()
 		scaled_pax_demand = pax_demand;
 	}
 	// pax demand for fixed period length
+	// FIXME: This should be scaled_demand *but* the scaling needs to be re-done.
 	arrival_stats_pax.set_scaled_demand( pax_demand );
 
 	if(!welt->get_is_shutting_down())

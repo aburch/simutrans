@@ -944,17 +944,20 @@ void senke_t::step(long delta_t)
 	{
 		// City, or factory demand not specified in pak: use old fixed demands
 		max_einkommen += last_power_demand * delta_t / PRODUCTION_DELTA_T;
-		einkommen += power_load  * delta_t / PRODUCTION_DELTA_T;
+		einkommen += power_load * delta_t / PRODUCTION_DELTA_T;
 	}
 	else if(welt->ticks_per_world_month_shift >= 18ll)
 	{
+		// TODO: Re-arrange this method to allow calculating for meters per tile without having to compute this at every step.
+		// Method: store a version of PRODUCTION_DELTA_T that is adjusted by the "calc_adjusted_monthly_figure" algorithm, and
+		// use that instead of either this method or calling "calc_adjusted_monthly_figure" every step.
 		max_einkommen += (last_power_demand * delta_t / PRODUCTION_DELTA_T) >> (welt->ticks_per_world_month_shift-18);
-		einkommen += (power_load  * delta_t / PRODUCTION_DELTA_T) >> (welt->ticks_per_world_month_shift-18);
+		einkommen += (power_load * delta_t / PRODUCTION_DELTA_T) >> (welt->ticks_per_world_month_shift-18);
 	}
 	else 
 	{
 		max_einkommen += (last_power_demand * delta_t / PRODUCTION_DELTA_T) << (18-welt->ticks_per_world_month_shift);
-		einkommen += (power_load  * delta_t / PRODUCTION_DELTA_T) << (18-welt->ticks_per_world_month_shift);
+		einkommen += (power_load * delta_t / PRODUCTION_DELTA_T) << (18-welt->ticks_per_world_month_shift);
 	}
 
 	// Income rollover

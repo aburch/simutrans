@@ -1324,24 +1324,52 @@ public:
 	 *
 	 * @author: Bernd Gabriel, 14.06.2009
 	 */
-	sint32 calc_adjusted_monthly_figure(sint32 nominal_monthly_figure) {
-		if (ticks_per_world_month_shift >= 18) {
+
+	// TODO: Add adjustment for meters_per_tile here and deploy this method more universally
+	// instead of bespoke bits per month algorithms distributed throughout the code.
+	
+	// Further, consider adding a global adjustment figure.
+	// For example, at all defaults, 1,000 meters per tile and 18 bits per month, we get 3.2 hours
+	// (that is, 3:12h) in a month, or 1/7.5th of a day. If we want to have raw numbers based on
+	// daily production for factories, daily electricity usage, daily passenger demand, etc. we
+	// would need to multiply the defaults by 7.5 if we want the raw numbers in the pakset to be
+	// based on these real life values.
+	// Consider what to do about things already calibrated to a different level.
+
+	// To adjust for meters per tile with a default of 1,000, we need to divide 1,000 by meters per tile
+	// then divide the nominal monthly figure by the resulting amount. 
+	// E.g., at 500 m/tile, we would have (1,000 / 500 = 2; adjusted_figure = nominal_monthly_figure / 2)
+
+	sint32 calc_adjusted_monthly_figure(sint32 nominal_monthly_figure) 
+	{
+		if (ticks_per_world_month_shift >= 18)
+		{
 			return (sint32)(nominal_monthly_figure << (ticks_per_world_month_shift - 18l)); 
-		} else {
+		}
+		else
+		{
 			return (sint32)(nominal_monthly_figure >> (18l - ticks_per_world_month_shift)); 
 		}
 	}
-	sint64 calc_adjusted_monthly_figure(sint64 nominal_monthly_figure) {
-		if (ticks_per_world_month_shift >= 18) {
+	sint64 calc_adjusted_monthly_figure(sint64 nominal_monthly_figure) 
+	{
+		if (ticks_per_world_month_shift >= 18)
+		{
 			return nominal_monthly_figure << (ticks_per_world_month_shift - 18ll); 
-		} else {
+		} 
+		else 
+		{
 			return nominal_monthly_figure >> (18ll - ticks_per_world_month_shift); 
 		}
 	}
-	uint32 calc_adjusted_monthly_figure(uint32 nominal_monthly_figure) {
-		if (ticks_per_world_month_shift >= 18) {
+	uint32 calc_adjusted_monthly_figure(uint32 nominal_monthly_figure)
+	{
+		if (ticks_per_world_month_shift >= 18)
+		{
 			return (uint32)(nominal_monthly_figure << ((uint32)ticks_per_world_month_shift - 18u)); 
-		} else {
+		} 
+		else
+		{
 			return (uint32)(nominal_monthly_figure >> (18u - (uint32)ticks_per_world_month_shift)); 
 		}
 	}
@@ -1371,7 +1399,7 @@ public:
 		 * This also needs to be changed because it's stupid; it's based on
 		 * old settings which are now in simunits.h
 		 */
-		return get_settings().get_meters_per_tile() * ticks * 30L * 6L/ (4096L * 1000L);
+		return get_settings().get_meters_per_tile() * ticks * 30L * 6L / (4096L * 1000L);
 	}
 
 	/**
@@ -1430,7 +1458,8 @@ private:
 	 * They are conceptually constant
 	 * @author neroden
 	 */
-	void set_speed_factors() const {
+	void set_speed_factors() const 
+	{
 		// effectively sets movement_denominator to 2^8 = 128
 		movement_denominator_shift = 8;
 		// Save confusion within this method: this will be optimized out

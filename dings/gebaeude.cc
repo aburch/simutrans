@@ -616,6 +616,10 @@ uint32 gebaeude_t::get_passengers_per_hundred_months() const
 	}
 	else
 	{
+		const uint32 TEST_base = (tile->get_besch()->get_level() * 1952) / welt->get_settings().get_passenger_factor();
+		const uint32 TEST_base_alternative = tile->get_besch()->get_level() * 122;
+		const uint32 TEST_factory = ptr.fab->get_scaled_pax_demand();
+		const uint32 TEST_total_jobs = get_total_jobs();
 		return ptr.fab->get_scaled_pax_demand();
 	}
 }
@@ -1316,6 +1320,22 @@ void gebaeude_t::set_commute_trip(uint16 number)
 	available_jobs_by_time = max(new_jobs_by_time + job_ticks, available_jobs_by_time + job_ticks);
 }
 
+uint32 gebaeude_t::get_total_pop() const
+{
+	return get_haustyp() == wohnung ? tile->get_besch()->get_level() * welt->get_settings().get_meters_per_tile() / 31 : 0;
+}
+
+uint32 gebaeude_t::get_visitor_demand() const
+{
+	const uint32 value = tile->get_besch()->get_level() * welt->get_settings().get_meters_per_tile() / 31;
+	return get_haustyp() == wohnung ? value / 100 : value;
+}
+
+uint32 gebaeude_t::get_total_jobs() const
+{
+	return get_haustyp() == wohnung ? 0 : tile->get_besch()->get_level() * welt->get_settings().get_meters_per_tile() / 31;
+}
+
 sint32 gebaeude_t::check_remaining_available_jobs() const
 {
 	// Commenting out the "if(!jobs_available())" code will allow jobs to be shown as negative.
@@ -1336,11 +1356,6 @@ sint32 gebaeude_t::check_remaining_available_jobs() const
 		const sint64 jobs = delta_t * total_jobs / welt->ticks_per_world_month;
 		return (sint32)jobs;
 	//}
-}
-
-uint32 gebaeude_t::get_total_jobs() const
-{
-	return get_haustyp() == wohnung ? 0 : tile->get_besch()->get_level() * welt->get_settings().get_meters_per_tile() / 31;
 }
 
 bool gebaeude_t::jobs_available() const
