@@ -200,7 +200,7 @@ private:
 	/**
 	 * Calculate friction caused by slopes and curves.
 	 */
-	virtual void calc_akt_speed(const grund_t *gr);
+	virtual void calc_friction(const grund_t *gr);
 
 	/**
 	 * Unload freight to halt
@@ -646,7 +646,7 @@ protected:
 	// how expensive to go here (for way search)
 	virtual int get_kosten(const grund_t *, const sint32, koord) const { return 1; }
 
-	void calc_akt_speed(const grund_t *gr);
+	void calc_friction(const grund_t *gr);
 
 	bool ist_befahrbar(const grund_t *bd) const;
 
@@ -755,8 +755,8 @@ public:
 	// this draws the "real" aircrafts (when flying)
 	virtual void display_after(int xpos, int ypos, bool dirty) const;
 
-	// the speed calculation happens it calc_height
-	void calc_akt_speed(const grund_t*) {}
+	// friction calculation happens in calc_height
+	void calc_friction(const grund_t*) {}
 
 	bool is_on_ground() const { return flughoehe==0  &&  !(state==circling  ||  state==flying); }
 

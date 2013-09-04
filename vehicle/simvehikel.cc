@@ -1156,7 +1156,7 @@ grund_t* vehikel_t::hop()
 	// friction factors and speed limit may have changed
 	cnv->must_recalc_data();
 
-	calc_akt_speed(gr);
+	calc_friction(gr);
 	return gr;
 }
 
@@ -1165,7 +1165,7 @@ grund_t* vehikel_t::hop()
  * flat, slope, curve ...
  * @author prissi, HJ, Dwachs
  */
-void vehikel_t::calc_akt_speed(const grund_t *gr)
+void vehikel_t::calc_friction(const grund_t *gr)
 {
 
 	// assume straight flat track
@@ -3169,7 +3169,7 @@ bool schiff_t::ist_befahrbar(const grund_t *bd) const
 /* Since slopes are handled different for ships
  * @author prissi
  */
-void schiff_t::calc_akt_speed(const grund_t *gr)
+void schiff_t::calc_friction(const grund_t *gr)
 {
 	// or a hill?
 	if(gr->get_weg_hang()) {
