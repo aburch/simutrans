@@ -3932,6 +3932,7 @@ void karte_t::update_frame_sleep_time(long /*delta*/)
 				// more than 1s since last zoom => check if zoom out is a way to improve it
 				if(  last_ms-last_interaction > 5000  &&  get_current_tile_raster_width() < 32  ) {
 					zoom_factor_up();
+					set_dirty();
 					last_interaction = last_ms-1000;
 				}
 			}
