@@ -15,22 +15,9 @@
 
 void citycar_reader_t::register_obj(obj_besch_t *&data)
 {
-    stadtauto_besch_t *besch = static_cast<stadtauto_besch_t *>(data);
-
-	// init the length information
-	for( int i=0;  i<8;  i++ ) {
-		if(i<4) {
-			besch->length[i] = 12+2;
-		} else if(i<6) {
-			besch->length[i] = 8+2;
-		}
-		else {
-			besch->length[i] = 16+2;
-		}
-	}
+	stadtauto_besch_t *besch = static_cast<stadtauto_besch_t *>(data);
 
 	stadtauto_t::register_besch(besch);
-//    printf("...Stadtauto %s geladen\n", besch->get_name());
 
 	checksum_t *chk = new checksum_t();
 	besch->calc_checksum(chk);

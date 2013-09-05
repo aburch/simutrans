@@ -38,8 +38,6 @@ class stadtauto_besch_t : public obj_besch_std_name_t {
 	uint16 intro_date;
 	uint16 obsolete_date;
 
-	uint8	length[8];	// length of pixel until leaving the field (not used)
-
 public:
 	int get_bild_nr(ribi_t::dir dir) const
 	{
@@ -63,10 +61,6 @@ public:
 	 */
 	int get_retire_year_month() const { return obsolete_date;}
 
-	/* @return the normalized distance to the next vehicle
-	* @author prissi
-	*/
-	uint8 get_length_to_next( uint8 next_dir ) const { return length[next_dir]; }
 
 	void calc_checksum(checksum_t *chk) const
 	{
