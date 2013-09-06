@@ -1134,6 +1134,11 @@ static void recode_normal_img(const unsigned int n)
 {
 #if MULTI_THREAD>1
 	pthread_mutex_lock( &rezoom_recode_img_mutex );
+	if(  (images[n].recode_flags & FLAG_NORMAL_RECODE) == 0  ) {
+		// other thread did already the re-coding ...
+		pthread_mutex_unlock( &rezoom_recode_img_mutex );
+		return;
+	}
 #endif
 	PIXVAL *src = images[n].zoom_data != NULL ? images[n].zoom_data : images[n].base_data;
 
@@ -1149,8 +1154,6 @@ static void recode_normal_img(const unsigned int n)
 #endif
 }
 
-
-#ifdef NEED_PLAYER_RECODE
 
 /**
  * Convert a certain image data to actual output data for a certain player
@@ -1187,22 +1190,25 @@ static void recode_color_img(const unsigned int n, const unsigned char player_nr
 	// Hajo: may this image be zoomed
 #if MULTI_THREAD>1
 	pthread_mutex_lock( &rezoom_recode_img_mutex );
+	if(  images[n].player_flags != NEED_PLAYER_RECODE  ) {
+		// other thread did already the re-code...
+		pthread_mutex_unlock( &rezoom_recode_img_mutex );
+		return;
+	}
 #endif
 	PIXVAL *src = images[n].zoom_data != NULL ? images[n].zoom_data : images[n].base_data;
 
-	images[n].player_flags = player_nr;
 	if(  images[n].player_data == NULL  ) {
 		images[n].player_data = MALLOCN(PIXVAL, images[n].len);
 	}
 	// contains now the player color ...
 	activate_player_color( player_nr, true );
 	recode_img_src_target_color(images[n].h, src, images[n].player_data );
+	images[n].player_flags = player_nr;
 #if MULTI_THREAD>1
 	pthread_mutex_unlock( &rezoom_recode_img_mutex );
 #endif
 }
-
-#endif
 
 
 // for zoom out
