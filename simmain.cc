@@ -342,8 +342,8 @@ static void ask_language()
 
 
 /**
- * Dies wird in main mittels set_new_handler gesetzt und von der
- * Laufzeitumgebung im Falle des Speichermangels bei new() aufgerufen
+ * This function will be set in the main function as the handler the runtime enviroment will
+ * call in the case it lacks memory for new()
  */
 static void sim_new_handler()
 {
