@@ -1901,6 +1901,11 @@ public:
 	 * Called by the server before sending the sync commands.
 	 */
 	uint32 generate_new_map_counter() const;
+
+private:
+	void process_network_commands(sint32* ms_difference);
+	void do_network_world_command(network_world_command_t *nwc);
+	uint32 get_next_command_step();
 };
 
 #endif

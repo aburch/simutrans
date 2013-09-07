@@ -7072,6 +7072,145 @@ static void encode_URI(cbuffer_t& buf, char const* const text)
 }
 
 
+void karte_t::process_network_commands(sint32 *ms_difference)
+{
+	// did we receive a new command?
+	unsigned long ms = dr_time();
+	network_command_t *nwc = network_check_activity( this, next_step_time>ms ? min( next_step_time-ms, 5) : 0 );
+	if(  nwc==NULL  &&  !network_check_server_connection()  ) {
+		dbg->warning("karte_t::process_network_commands", "lost connection to server");
+		network_disconnect();
+		return;
+	}
+
+	// process the received command
+	while (nwc) {
+		// check timing
+		if (nwc->get_id()==NWC_CHECK) {
+			// checking for synchronisation
+			nwc_check_t* nwcheck = (nwc_check_t*)nwc;
+			// are we on time?
+			*ms_difference = 0;
+			sint64 const difftime = (sint64)next_step_time - dr_time() + ((sint64)nwcheck->server_sync_step - sync_steps - settings.get_server_frames_ahead() - umgebung_t::additional_client_frames_behind) * fix_ratio_frame_time;
+			if(  difftime<0  ) {
+				// running ahead
+				next_step_time += (uint32)(-difftime);
+			}
+			else {
+				// more gentle catching up
+				*ms_difference = (sint32)difftime;
+			}
+			dbg->message("NWC_CHECK","time difference to server %lli",difftime);
+		}
+		// check random number generator states
+		if(  umgebung_t::server  &&  nwc->get_id()==NWC_TOOL  ) {
+			nwc_tool_t *nwt = dynamic_cast<nwc_tool_t *>(nwc);
+			if(  nwt->is_from_initiator()  ) {
+				if(  nwt->last_sync_step>sync_steps  ) {
+					dbg->warning("karte_t::process_network_commands", "client was too fast (skipping command)" );
+					delete nwc;
+					nwc = NULL;
+				}
+				// out of sync => drop client (but we can only compare if nwt->last_sync_step is not too old)
+				else if(  is_checklist_available(nwt->last_sync_step)  &&  LCHKLST(nwt->last_sync_step)!=nwt->last_checklist  ) {
+					// lost synchronisation -> server kicks client out actively
+					char buf[256];
+					const int offset = LCHKLST(nwt->last_sync_step).print(buf, "server");
+					nwt->last_checklist.print(buf + offset, "initiator");
+					dbg->warning("karte_t::process_network_commands", "kicking client due to checklist mismatch : sync_step=%u %s", nwt->last_sync_step, buf);
+					socket_list_t::remove_client( nwc->get_sender() );
+					delete nwc;
+					nwc = NULL;
+				}
+			}
+		}
+
+		// execute command, append to command queue if necessary
+		if(nwc  &&  nwc->execute(this)) {
+			// network_world_command_t's will be appended to command queue in execute
+			// all others have to be deleted here
+			delete nwc;
+
+		}
+		// fetch the next command
+		nwc = network_get_received_command();
+	}
+	uint32 next_command_step = get_next_command_step();
+
+	// send data
+	ms = dr_time();
+	network_process_send_queues( next_step_time>ms ? min( next_step_time-ms, 5) : 0 );
+
+	// process enqueued network world commands
+	while(  !command_queue.empty()  &&  (next_command_step<=sync_steps/*  ||  step_mode&PAUSE_FLAG*/)  ) {
+		network_world_command_t *nwc = command_queue.remove_first();
+		if (nwc) {
+			do_network_world_command(nwc);
+			delete nwc;
+		}
+		next_command_step = get_next_command_step();
+	}
+}
+
+void karte_t::do_network_world_command(network_world_command_t *nwc)
+{
+	// want to execute something in the past?
+	if (nwc->get_sync_step() < sync_steps) {
+		if (!nwc->ignore_old_events()) {
+			dbg->warning("karte_t:::do_network_world_command", "wanted to do_command(%d) in the past", nwc->get_id());
+			network_disconnect();
+		}
+	}
+	// check map counter
+	else if (nwc->get_map_counter() != map_counter) {
+		dbg->warning("karte_t:::do_network_world_command", "wanted to do_command(%d) from another world", nwc->get_id());
+	}
+	// check random counter?
+	else if(  nwc->get_id()==NWC_CHECK  ) {
+		nwc_check_t* nwcheck = (nwc_check_t*)nwc;
+		// this was the random number at the previous sync step on the server
+		const checklist_t &server_checklist = nwcheck->server_checklist;
+		const uint32 server_sync_step = nwcheck->server_sync_step;
+		char buf[256];
+		const int offset = server_checklist.print(buf, "server");
+		LCHKLST(server_sync_step).print(buf + offset, "client");
+		dbg->warning("karte_t:::do_network_world_command", "sync_step=%u  %s", server_sync_step, buf);
+		if(  LCHKLST(server_sync_step)!=server_checklist  ) {
+			dbg->warning("karte_t:::do_network_world_command", "disconnecting due to checklist mismatch" );
+			network_disconnect();
+		}
+	}
+	else {
+		if(  nwc->get_id()==NWC_TOOL  ) {
+			nwc_tool_t *nwt = dynamic_cast<nwc_tool_t *>(nwc);
+			if(  is_checklist_available(nwt->last_sync_step)  &&  LCHKLST(nwt->last_sync_step)!=nwt->last_checklist  ) {
+				// lost synchronisation ...
+				char buf[256];
+				const int offset = nwt->last_checklist.print(buf, "server");
+				LCHKLST(nwt->last_sync_step).print(buf + offset, "executor");
+				dbg->warning("karte_t:::do_network_world_command", "skipping command due to checklist mismatch : sync_step=%u %s", nwt->last_sync_step, buf);
+				if(  !umgebung_t::server  ) {
+					network_disconnect();
+				}
+				delete nwc;
+				return;
+			}
+		}
+		nwc->do_command(this);
+	}
+}
+
+uint32 karte_t::get_next_command_step()
+{
+	// when execute next command?
+	if(  !command_queue.empty()  ) {
+		return command_queue.front()->get_sync_step();
+	}
+	else {
+		return 0xFFFFFFFFu;
+	}
+}
+
 bool karte_t::interactive(uint32 quit_month)
 {
 	event_t ev;
@@ -7095,7 +7234,6 @@ bool karte_t::interactive(uint32 quit_month)
 			last_checklists[i] = checklist_t();
 		}
 	}
-	uint32 next_command_step = 0xFFFFFFFFu;
 	sint32 ms_difference = 0;
 	reset_timer();
 	DBG_DEBUG4("karte_t::interactive", "welcome in this routine");
@@ -7199,77 +7337,7 @@ bool karte_t::interactive(uint32 quit_month)
 		}
 
 		if(  umgebung_t::networkmode  ) {
-			// did we receive a new command?
-			unsigned long ms = dr_time();
-			network_command_t *nwc = network_check_activity( this, next_step_time>ms ? min( next_step_time-ms, 5) : 0 );
-			if(  nwc==NULL  &&  !network_check_server_connection()  ) {
-				dbg->warning("karte_t::interactive", "lost connection to server");
-				network_disconnect();
-			}
-
-			// process all the received commands at once
-			while (nwc) {
-				// check timing
-				if (nwc->get_id()==NWC_CHECK) {
-					// checking for synchronisation
-					nwc_check_t* nwcheck = (nwc_check_t*)nwc;
-					// are we on time?
-					ms_difference = 0;
-					sint64 const difftime = (sint64)next_step_time - dr_time() + ((sint64)nwcheck->server_sync_step - sync_steps - settings.get_server_frames_ahead() - umgebung_t::additional_client_frames_behind) * fix_ratio_frame_time;
-					if(  difftime<0  ) {
-						// running ahead
-						next_step_time += (uint32)(-difftime);
-					}
-					else {
-						// more gentle catching up
-						ms_difference = (sint32)difftime;
-					}
-					dbg->message("NWC_CHECK","time difference to server %lli",difftime);
-				}
-				// check random number generator states
-				if(  umgebung_t::server  &&  nwc->get_id()==NWC_TOOL  ) {
-					nwc_tool_t *nwt = dynamic_cast<nwc_tool_t *>(nwc);
-					if(  nwt->is_from_initiator()  ) {
-						if(  nwt->last_sync_step>sync_steps  ) {
-							dbg->warning("karte_t::interactive", "client was too fast (skipping command)" );
-							delete nwc;
-							nwc = NULL;
-						}
-						// out of sync => drop client (but we can only compare if nwt->last_sync_step is not too old)
-						else if(  is_checklist_available(nwt->last_sync_step)  &&  LCHKLST(nwt->last_sync_step)!=nwt->last_checklist  ) {
-							// lost synchronisation -> server kicks client out actively
-							char buf[256];
-							const int offset = LCHKLST(nwt->last_sync_step).print(buf, "server");
-							nwt->last_checklist.print(buf + offset, "initiator");
-							dbg->warning("karte_t::interactive", "kicking client due to checklist mismatch : sync_step=%u %s", nwt->last_sync_step, buf);
-							socket_list_t::remove_client( nwc->get_sender() );
-							delete nwc;
-							nwc = NULL;
-						}
-					}
-				}
-
-				// execute command, append to command queue if necessary
-				if(nwc  &&  nwc->execute(this)) {
-					// network_world_command_t's will be appended to command queue in execute
-					// all others have to be deleted here
-					delete nwc;
-
-				}
-				// fetch the next command
-				nwc = network_get_received_command();
-			}
-			// when execute next command?
-			if(  !command_queue.empty()  ) {
-				next_command_step = command_queue.front()->get_sync_step();
-			}
-			else {
-				next_command_step = 0xFFFFFFFFu;
-			}
-
-			// send data
-			ms = dr_time();
-			network_process_send_queues( next_step_time>ms ? min( next_step_time-ms, 5) : 0 );
+			process_network_commands(&ms_difference);
 		}
 		else {
 			// we wait here for maximum 9ms
@@ -7288,64 +7356,6 @@ bool karte_t::interactive(uint32 quit_month)
 				INT_CHECK( "karte_t::interactive()" );
 			}
 			DBG_DEBUG4("karte_t::interactive", "end of sleep");
-		}
-
-		while(  !command_queue.empty()  &&  (next_command_step<=sync_steps/*  ||  step_mode&PAUSE_FLAG*/)  ) {
-			network_world_command_t *nwc = command_queue.remove_first();
-			if (nwc) {
-				// want to execute something in the past?
-				if (nwc->get_sync_step() < sync_steps) {
-					if (!nwc->ignore_old_events()) {
-						dbg->warning("karte_t::interactive", "wanted to do_command(%d) in the past", nwc->get_id());
-						network_disconnect();
-					}
-				}
-				// check map counter
-				else if (nwc->get_map_counter() != map_counter) {
-					dbg->warning("karte_t::interactive", "wanted to do_command(%d) from another world", nwc->get_id());
-				}
-				// check random counter?
-				else if(  nwc->get_id()==NWC_CHECK  ) {
-					nwc_check_t* nwcheck = (nwc_check_t*)nwc;
-					// this was the random number at the previous sync step on the server
-					const checklist_t &server_checklist = nwcheck->server_checklist;
-					const uint32 server_sync_step = nwcheck->server_sync_step;
-					char buf[256];
-					const int offset = server_checklist.print(buf, "server");
-					LCHKLST(server_sync_step).print(buf + offset, "client");
-					dbg->warning("karte_t::interactive", "sync_step=%u  %s", server_sync_step, buf);
-					if(  LCHKLST(server_sync_step)!=server_checklist  ) {
-						dbg->warning("karte_t::interactive", "disconnecting due to checklist mismatch" );
-						network_disconnect();
-					}
-				}
-				else {
-					if(  nwc->get_id()==NWC_TOOL  ) {
-						nwc_tool_t *nwt = dynamic_cast<nwc_tool_t *>(nwc);
-						if(  is_checklist_available(nwt->last_sync_step)  &&  LCHKLST(nwt->last_sync_step)!=nwt->last_checklist  ) {
-							// lost synchronisation ...
-							char buf[256];
-							const int offset = nwt->last_checklist.print(buf, "server");
-							LCHKLST(nwt->last_sync_step).print(buf + offset, "executor");
-							dbg->warning("karte_t::interactive", "skipping command due to checklist mismatch : sync_step=%u %s", nwt->last_sync_step, buf);
-							if(  !umgebung_t::server  ) {
-								network_disconnect();
-							}
-							delete nwc;
-							continue;
-						}
-					}
-					nwc->do_command(this);
-				}
-				delete nwc;
-			}
-			// when execute next command?
-			if(  !command_queue.empty()  ) {
-				next_command_step = command_queue.front()->get_sync_step();
-			}
-			else {
-				next_command_step = 0xFFFFFFFFu;
-			}
 		}
 
 		// time for the next step?
