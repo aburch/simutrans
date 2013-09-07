@@ -99,10 +99,13 @@ static bool compare_hq_besch(const haus_besch_t* a, const haus_besch_t* b)
 static bool compare_station_besch(const haus_besch_t* a, const haus_besch_t* b)
 {
 	int diff = a->get_enabled() - b->get_enabled();
-	if (diff == 0) {
+	if(  diff == 0  ) {
+		diff = a->get_capacity() - b->get_capacity();
+	}
+	if(  diff == 0  ) {
 		diff = a->get_level() - b->get_level();
 	}
-	if (diff == 0) {
+	if(  diff == 0  ) {
 		/* Gleiches Level - wir führen eine künstliche, aber eindeutige Sortierung
 		 * über den Namen herbei. */
 		diff = strcmp(a->get_name(), b->get_name());
@@ -240,16 +243,16 @@ void hausbauer_t::fill_menu(werkzeug_waehler_t* wzw, haus_besch_t::utyp utyp, wa
 			break;
 		default: ;
 	}
-	if (toolnr > 0  &&  !welt->get_scenario()->is_tool_allowed(welt->get_active_player(), toolnr, wt)) {
+	if(  toolnr > 0  &&  !welt->get_scenario()->is_tool_allowed(welt->get_active_player(), toolnr, wt)  ) {
 		return;
 	}
 
 	const uint16 time = welt->get_timeline_year_month();
 DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.get_count());
-	FOR(vector_tpl<haus_besch_t const*>, const besch, station_building) {
+	FOR(  vector_tpl<haus_besch_t const*>,  const besch,  station_building  ) {
 //		DBG_DEBUG("hausbauer_t::fill_menu()", "try to add %s (%p)", besch->get_name(), besch);
 		if(  besch->get_utyp()==utyp  &&  besch->get_builder()  &&  (utyp==haus_besch_t::firmensitz  ||  besch->get_extra()==(uint16)wt)  ) {
-			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
+			if(  time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)  ) {
 				wzw->add_werkzeug( besch->get_builder() );
 			}
 		}
@@ -420,7 +423,6 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb )
 		}
 	}
 }
-
 
 
 gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int org_layout, const haus_besch_t* besch, void* param)

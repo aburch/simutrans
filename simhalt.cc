@@ -2167,8 +2167,8 @@ void haltestelle_t::zeige_info()
 sint64 haltestelle_t::calc_maintenance() const
 {
 	sint64 maintenance = 0;
-	FOR(slist_tpl<tile_t>, const& i, tiles) {
-		if (gebaeude_t* const gb = i.grund->find<gebaeude_t>()) {
+	FOR(  slist_tpl<tile_t>,  const& i,  tiles  ) {
+		if(  gebaeude_t* const gb = i.grund->find<gebaeude_t>()  ) {
 			maintenance += welt->get_settings().maint_building * gb->get_tile()->get_besch()->get_level();
 		}
 	}
@@ -2191,14 +2191,14 @@ void haltestelle_t::make_public_and_join( spieler_t *sp )
 			gebaeude_t* gb = gr->find<gebaeude_t>();
 			if(gb) {
 				spieler_t *gb_sp=gb->get_besitzer();
-				sint64 const costs = welt->get_settings().maint_building * gb->get_tile()->get_besch()->get_level();
-				spieler_t::add_maintenance( gb_sp, -costs, gb->get_waytype() );
-				gb->set_besitzer(public_owner);
-				gb->set_flag(ding_t::dirty);
-				spieler_t::add_maintenance(public_owner, costs, gb->get_waytype() );
+				sint64 const monthly_costs = welt->get_settings().maint_building * gb->get_tile()->get_besch()->get_level();
+				spieler_t::add_maintenance( gb_sp, -monthly_costs, gb->get_waytype() );
+				gb->set_besitzer( public_owner );
+				gb->set_flag( ding_t::dirty );
+				spieler_t::add_maintenance(public_owner, monthly_costs, gb->get_waytype() );
 				// it is not real construction cost, it is fee payed for public authority for future maintenance. So money are transferred to public authority
-				spieler_t::book_construction_costs( sp,          -costs*60, get_basis_pos(), gb->get_waytype());
-				spieler_t::book_construction_costs( public_owner, costs*60, koord::invalid, gb->get_waytype());
+				spieler_t::book_construction_costs( sp,          -monthly_costs*60, get_basis_pos(), gb->get_waytype());
+				spieler_t::book_construction_costs( public_owner, monthly_costs*60, koord::invalid, gb->get_waytype());
 			}
 			// ok, valid start, now we can join them
 			// First search the same square
@@ -2254,13 +2254,13 @@ void haltestelle_t::make_public_and_join( spieler_t *sp )
 				spieler_t *gb_sp=gb->get_besitzer();
 				if(public_owner!=gb_sp) {
 					spieler_t *gb_sp=gb->get_besitzer();
-					sint64 const costs = welt->get_settings().maint_building * gb->get_tile()->get_besch()->get_level();
-					spieler_t::add_maintenance( gb_sp, -costs, gb->get_waytype() );
-					spieler_t::book_construction_costs(gb_sp,         costs*60, gr->get_pos().get_2d(), gb->get_waytype());
-					spieler_t::book_construction_costs(public_owner, -costs*60, koord::invalid, gb->get_waytype());
+					sint64 const monthly_costs = welt->get_settings().maint_building * gb->get_tile()->get_besch()->get_level();
+					spieler_t::add_maintenance( gb_sp, -monthly_costs, gb->get_waytype() );
+					spieler_t::book_construction_costs(gb_sp,         monthly_costs*60, gr->get_pos().get_2d(), gb->get_waytype());
+					spieler_t::book_construction_costs(public_owner, -monthly_costs*60, koord::invalid, gb->get_waytype());
 					gb->set_besitzer(public_owner);
 					gb->set_flag(ding_t::dirty);
-					spieler_t::add_maintenance(public_owner, costs, gb->get_waytype() );
+					spieler_t::add_maintenance(public_owner, monthly_costs, gb->get_waytype() );
 				}
 			}
 			// transfer tiles to us
