@@ -18,7 +18,6 @@ ifeq ($(findstring $(OSTYPE), $(OSTYPES)),)
   $(error Unkown OSTYPE "$(OSTYPE)", must be one of "$(OSTYPES)")
 endif
 
-
 ifeq ($(OSTYPE),amiga)
   STD_LIBS ?= -lz -lbz2 -lunix -lSDL_mixer -lsmpeg -lvorbisfile -lvorbis -logg
   CFLAGS += -mcrt=newlib -DUSE_C -DBIG_ENDIAN -gstabs+
@@ -46,7 +45,6 @@ ifeq ($(OSTYPE),linux)
   LIBS += -lz -lbz2
 endif
 
-
 ifeq ($(OSTYPE),cygwin)
   SOURCES += simsys_w32_png.cc
   CFLAGS += -I/usr/include/mingw -mwin32 -DNOMINMAX=1
@@ -61,12 +59,20 @@ ifeq ($(OSTYPE),mingw)
   CFLAGS  += -DPNG_STATIC -DZLIB_STATIC -DNOMINMAX=1
   ifeq ($(BACKEND),gdi)
     LIBS += -lunicows
-    ifeq  ($(WIN32_CONSOLE),)
-      LDFLAGS += -mwindows
-    endif
   endif
   LDFLAGS += -static-libgcc -static-libstdc++
   LIBS += -lmingw32 -lgdi32 -lwinmm -lwsock32 -lz -lbz2
+endif
+
+ifneq ($(findstring $(OSTYPE), cygwin mingw),)
+  # Disable the console on Windows unless WIN32_CONSOLE is set or graphics are disabled
+  ifneq ($(WIN32_CONSOLE),)
+    LDFLAGS += -mconsole
+  else ifeq ($(BACKEND),posix)
+    LDFLAGS += -mconsole
+  else
+    LDFLAGS += -mwindows
+  endif
 endif
 
 ifeq ($(OSTYPE),mingw)
@@ -480,16 +486,10 @@ ifeq ($(BACKEND),sdl)
     else
       SDL_CFLAGS  := -I$(MINGDIR)/include/SDL -Dmain=SDL_main
       SDL_LDFLAGS := -lSDLmain -lSDL
-      ifeq  ($(WIN32_CONSOLE),)
-        SDL_LDFLAGS += -mwindows
-      endif
     endif
   else
     SDL_CFLAGS  := $(shell $(SDL_CONFIG) --cflags)
     SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
-    ifneq  ($(WIN32_CONSOLE),)
-      SDL_LDFLAGS += -mconsole
-    endif
   endif
   CFLAGS += $(SDL_CFLAGS)
   LIBS   += $(SDL_LDFLAGS)
@@ -504,15 +504,9 @@ ifeq ($(BACKEND),mixer_sdl)
   ifeq ($(SDL_CONFIG),)
     SDL_CFLAGS  := -I$(MINGDIR)/include/SDL -Dmain=SDL_main
     SDL_LDFLAGS := -lmingw32 -lSDLmain -lSDL
-    ifeq  ($(WIN32_CONSOLE),)
-      SDL_LDFLAGS += -mwindows
-    endif
   else
     SDL_CFLAGS  := $(shell $(SDL_CONFIG) --cflags)
     SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
-    ifneq  ($(WIN32_CONSOLE),)
-      SDL_LDFLAGS += -mconsole
-    endif
   endif
   CFLAGS += $(SDL_CFLAGS)
   LIBS   += $(SDL_LDFLAGS) -lSDL_mixer
@@ -537,15 +531,9 @@ ifeq ($(BACKEND),opengl)
   ifeq ($(SDL_CONFIG),)
     SDL_CFLAGS  := -I$(MINGDIR)/include/SDL -Dmain=SDL_main
     SDL_LDFLAGS := -lmingw32 -lSDLmain -lSDL
-    ifeq  ($(WIN32_CONSOLE),)
-      SDL_LDFLAGS += -mwindows
-    endif
   else
     SDL_CFLAGS  := $(shell $(SDL_CONFIG) --cflags)
     SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
-    ifneq  ($(WIN32_CONSOLE),)
-      SDL_LDFLAGS += -mconsole
-    endif
   endif
   CFLAGS += $(SDL_CFLAGS)
   LIBS   += $(SDL_LDFLAGS) -lglew32

@@ -15,7 +15,7 @@ public:
 	scr_coord_val x;
 	scr_coord_val y;
 
-	scr_coord() { x=0; y=0; }
+	scr_coord() { x=0; y=0; } // should this be rather an undefined constant or so!
 
 	scr_coord( scr_coord_val x_, scr_coord_val y_ ) { x = x_; y=y_; }
 
@@ -178,7 +178,7 @@ public:
 		(rect.get_bottomright().y < y) );
 	}
 
-	// will contain the
+	// will contain the merged rectangle
 	void merge( const scr_rect &rect ) {
 		if(  !is_valid()  ) {
 			*this = rect;
