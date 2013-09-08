@@ -195,16 +195,20 @@ void karte_ansicht_t::display(bool force_dirty)
 		}
 
 		// set parameter for each thread
+		const KOORD_VAL wh_x = disp_width / MULTI_THREAD;
+		KOORD_VAL lt_x = 0;
 		for(  int t = 0;  t < MULTI_THREAD - 1;  t++  ) {
 		   	ka[t].show_routine = this;
-			ka[t].lt_cl = koord( (t * disp_width) / MULTI_THREAD, menu_height );
-			ka[t].wh_cl = koord( disp_width / MULTI_THREAD, disp_height - menu_height );
+			ka[t].lt_cl = koord( lt_x, menu_height );
+			ka[t].wh_cl = koord( wh_x, disp_height - menu_height );
 			ka[t].lt = ka[t].lt_cl - koord( IMG_SIZE/2, 0 ); // process tiles IMG_SIZE/2 outside clipping range for correct tree display at thread seams
 			ka[t].wh = ka[t].wh_cl + koord( IMG_SIZE, 0 );
 			ka[t].y_min = y_min;
 			ka[t].y_max = dpy_height + 4 * 4;
 			ka[t].thread_num = t;
+			lt_x += wh_x;
 		}
+
 		// init variables required to draw smart cursor
 		threads_req_pause = false;
 		num_threads_paused = 0;
@@ -212,10 +216,10 @@ void karte_ansicht_t::display(bool force_dirty)
 		// and start drawing
 		simthread_barrier_wait( &display_barrier_start );
 
-		// the last we can run ourselves
+		// the last we can run ourselves, setting clip_wh to the screen edge instead of wh_x (in case disp_width % MULTI_THREAD != 0)
 		clear_all_poly_clip( MULTI_THREAD-1 );
-		display_set_clip_wh_cl( ((MULTI_THREAD - 1) * disp_width) / MULTI_THREAD, menu_height, disp_width / MULTI_THREAD, disp_height - menu_height, MULTI_THREAD - 1 );
-		display_region( koord( ((MULTI_THREAD - 1) * disp_width) / MULTI_THREAD - IMG_SIZE / 2, menu_height ), koord( disp_width / MULTI_THREAD + IMG_SIZE, disp_height - menu_height ), y_min, dpy_height + 4 * 4, false, true, MULTI_THREAD - 1 );
+		display_set_clip_wh_cl( lt_x, menu_height, disp_width - lt_x, disp_height - menu_height, MULTI_THREAD - 1 );
+		display_region( koord( lt_x - IMG_SIZE / 2, menu_height ), koord( disp_width - lt_x + IMG_SIZE, disp_height - menu_height ), y_min, dpy_height + 4 * 4, false, true, MULTI_THREAD - 1 );
 
 		simthread_barrier_wait( &display_barrier_end );
 
