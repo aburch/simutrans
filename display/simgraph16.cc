@@ -347,8 +347,9 @@ struct imd {
 };
 
 // Flags for recoding
-#define FLAG_ZOOMABLE (1)
-#define FLAG_REZOOM (2)
+#define FLAG_HAS_PLAYER_COLOR (1)
+#define FLAG_ZOOMABLE (2)
+#define FLAG_REZOOM (4)
 //#define FLAG_POSITION_CHANGED (16)
 
 
@@ -1962,8 +1963,34 @@ void register_image(struct bild_t* bild)
 	image->y = bild->y;
 	image->h = bild->h;
 
-	image->recode_flags = FLAG_REZOOM | (bild->zoomable & FLAG_ZOOMABLE);
+	image->recode_flags = FLAG_REZOOM;
+	if(  bild->zoomable  ) {
+		image->recode_flags |= FLAG_ZOOMABLE;
+	}
 	image->player_flags = 0xFFFF; // recode all player colors
+
+	// find out if there are really player colors
+	for(  PIXVAL *src = bild->data, y = 0;  y < bild->h;  ++y  ) {
+		uint16 runlen;
+
+		// decode line
+		runlen = *src++;
+		do {
+			// clear run .. nothign to do
+			runlen = *src++;
+			// no this many color pixel
+			while(  runlen--  ) {
+				// get rgb components
+				PIXVAL s = *src++;
+				if(  s>=0x8000  &&  s<0x8010  ) {
+					image->recode_flags |= FLAG_HAS_PLAYER_COLOR;
+					goto has_it;
+				}
+			}
+			runlen = *src++;
+		} while(  runlen!=0  );	// end of row: runlen == 0
+	}
+	has_it:
 
 	for(  uint8 i = 0;  i < MAX_PLAYER_COUNT;  i++  ) {
 		image->data[i] = NULL;
@@ -1979,6 +2006,9 @@ void register_image(struct bild_t* bild)
 
 	// since we do not recode them, we can work with the original data
 	image->base_data = bild->data;
+
+	// now find out, it it containsplayer colors
+
 }
 
 
@@ -2315,12 +2345,14 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
  * @author prissi
  */
 #if MULTI_THREAD>1
-void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 use_player, const int /*daynight*/, const int dirty, const sint8 clip_num)
+void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 player_nr_raw, const int /*daynight*/, const int dirty, const sint8 clip_num)
 #else
-void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 use_player, const int /*daynight*/, const int dirty)
+void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 player_nr_raw, const int /*daynight*/, const int dirty)
 #endif
 {
 	if(  n < anz_images  ) {
+		// only use player images if needed
+		const sint8 use_player = (images[n].recode_flags & FLAG_HAS_PLAYER_COLOR) * player_nr_raw;
 		// need to go to nightmode and or re-zoomed?
 		PIXVAL *sp;
 		if(  use_player > 0  ) {
@@ -2505,12 +2537,14 @@ static void display_color_img_wc(const PIXVAL *sp, KOORD_VAL x, KOORD_VAL y, KOO
  * @author Hj. Malthaner
  */
 #if MULTI_THREAD>1
-void display_color_img_cl(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 player_nr, const int daynight, const int dirty, const sint8 clip_num)
+void display_color_img_cl(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, sint8 player_nr_raw, const int daynight, const int dirty, const sint8 clip_num)
 #else
-void display_color_img(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 player_nr, const int daynight, const int dirty)
+void display_color_img(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, sint8 player_nr_raw, const int daynight, const int dirty)
 #endif
 {
 	if(  n < anz_images  ) {
+		// do we have to use a player nr?
+		const sint8 player_nr = (images[n].recode_flags & FLAG_HAS_PLAYER_COLOR) * player_nr_raw;
 		// first: size check
 		if(  (images[n].recode_flags & FLAG_REZOOM)  ) {
 			rezoom_img( n );
