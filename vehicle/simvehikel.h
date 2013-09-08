@@ -454,8 +454,12 @@ public:
 	// true, if this vehicle did not moved for some time
 	virtual bool is_stuck() { return cnv==NULL  ||  cnv->is_waiting(); }
 
-	// this draws a tooltips for things stuck on depot order or lost
+	// this routine will display a tooltip for lost, on depot order, and stuck vehicles
+#if MULTI_THREAD>1
+	virtual void display_overlay(int xpos, int ypos) const;
+#else
 	virtual void display_after(int xpos, int ypos, bool dirty) const;
+#endif
 };
 
 
@@ -752,8 +756,16 @@ public:
 	// shadow has black color (when flying)
 	virtual PLAYER_COLOR_VAL get_outline_colour() const {return !is_on_ground() ? TRANSPARENT75_FLAG | OUTLINE_FLAG | COL_BLACK : 0;}
 
+#if MULTI_THREAD>1
+	// this draws the "real" aircrafts (when flying)
+	virtual void display_after(int xpos, int ypos, const sint8 clip_num) const;
+
+	// this routine will display a tooltip for lost, on depot order, and stuck vehicles
+	virtual void display_overlay(int xpos, int ypos) const;
+#else
 	// this draws the "real" aircrafts (when flying)
 	virtual void display_after(int xpos, int ypos, bool dirty) const;
+#endif
 
 	// friction calculation happens in calc_height
 	void calc_friction(const grund_t*) {}

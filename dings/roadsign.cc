@@ -484,23 +484,39 @@ void roadsign_t::rotate90()
 
 
 // to correct offset on slopes
+#if MULTI_THREAD>1
+void roadsign_t::display_after(int xpos, int ypos, const sint8 clip_num ) const
+#else
 void roadsign_t::display_after(int xpos, int ypos, bool ) const
+#endif
 {
-	if(after_bild!=IMG_LEER) {
+	if(  after_bild != IMG_LEER  ) {
 		const int raster_width = get_current_tile_raster_width();
-		xpos += tile_raster_scale_x(after_xoffset, raster_width);
-		ypos += tile_raster_scale_y(after_yoffset, raster_width);
+		xpos += tile_raster_scale_x( after_xoffset, raster_width );
+		ypos += tile_raster_scale_y( after_yoffset, raster_width );
 		// draw with owner
-		if(get_player_nr()!=PLAYER_UNOWNED) {
+		if(  get_player_nr() != PLAYER_UNOWNED  ) {
 			if(  ding_t::show_owner  ) {
-				display_blend(after_bild, xpos, ypos, 0, (get_besitzer()->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, dirty);
+#if MULTI_THREAD>1
+				display_blend( after_bild, xpos, ypos, 0, (get_besitzer()->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, dirty, clip_num );
+#else
+				display_blend( after_bild, xpos, ypos, 0, (get_besitzer()->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, dirty );
+#endif
 			}
 			else {
-				display_color(after_bild, xpos, ypos, get_player_nr(), true, get_flag(ding_t::dirty) );
+#if MULTI_THREAD>1
+				display_color( after_bild, xpos, ypos, get_player_nr(), true, get_flag(ding_t::dirty), clip_num );
+#else
+				display_color( after_bild, xpos, ypos, get_player_nr(), true, get_flag(ding_t::dirty) );
+#endif
 			}
 		}
 		else {
-			display_normal(after_bild, xpos, ypos, 0, true, get_flag(ding_t::dirty) );
+#if MULTI_THREAD>1
+			display_normal( after_bild, xpos, ypos, 0, true, get_flag(ding_t::dirty), clip_num );
+#else
+			display_normal( after_bild, xpos, ypos, 0, true, get_flag(ding_t::dirty) );
+#endif
 		}
 	}
 }

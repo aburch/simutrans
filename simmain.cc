@@ -124,7 +124,11 @@ static void show_times(karte_t *welt, karte_ansicht_t *view)
 
  	long ms = dr_time();
 	for (i = 0;  i < 6000000;  i++) {
+#if MULTI_THREAD>1
+ 		display_img( img, 50, 50, 1, 0);
+#else
  		display_img( img, 50, 50, 1);
+#endif
 	}
 	dbg->message( "display_img()", "%i iterations took %li ms", i, dr_time() - ms );
 

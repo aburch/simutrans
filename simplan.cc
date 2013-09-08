@@ -405,43 +405,64 @@ void planquadrat_t::angehoben(karte_t *welt)
 }
 
 
+#if MULTI_THREAD>1
+void planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, bool is_global, const sint8 hmin, const sint8 hmax, const sint8 clip_num) const
+#else
 void planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, bool is_global, const sint8 hmin, const sint8 hmax) const
+#endif
 {
-	grund_t *gr0=get_kartenboden();
+	grund_t *gr0 = get_kartenboden();
 	const sint8 h0 = gr0->get_disp_height();
-	uint8 i=1;
+	uint8 i = 1;
 	// underground
-	if (hmin < h0) {
-		for(;  i<ground_size;  i++) {
-			const grund_t* gr=data.some[i];
+	if(  hmin < h0  ) {
+		for(  ;  i < ground_size;  i++  ) {
+			const grund_t* gr = data.some[i];
 			const sint8 h = gr->get_hoehe();
 			// above ground
-			if (h > h0) {
+			if(  h > h0  ) {
 				break;
 			}
 			// not too low?
-			if (h >= hmin) {
-				const sint16 yypos = ypos - tile_raster_scale_y( (h-h0)*TILE_HEIGHT_STEP, raster_tile_width);
-				gr->display_boden(xpos, yypos, raster_tile_width);
-				gr->display_dinge_all(xpos, yypos, raster_tile_width, is_global);
+			if(  h >= hmin  ) {
+				const sint16 yypos = ypos - tile_raster_scale_y( (h - h0) * TILE_HEIGHT_STEP, raster_tile_width );
+#if MULTI_THREAD>1
+				gr->display_boden( xpos, yypos, raster_tile_width, clip_num );
+				gr->display_dinge_all( xpos, yypos, raster_tile_width, is_global, clip_num );
+#else
+				gr->display_boden( xpos, yypos, raster_tile_width );
+				gr->display_dinge_all( xpos, yypos, raster_tile_width, is_global );
+#endif
 			}
 		}
 	}
 	//const bool kartenboden_dirty = gr->get_flag(grund_t::dirty);
-	if(gr0->get_flag(grund_t::draw_as_ding)  ||  !gr0->is_karten_boden_visible()) {
-		gr0->display_boden(xpos, ypos, raster_tile_width);
+	if(  gr0->get_flag( grund_t::draw_as_ding )  ||  !gr0->is_karten_boden_visible()  ) {
+#if MULTI_THREAD>1
+		gr0->display_boden( xpos, ypos, raster_tile_width, clip_num );
+#else
+		gr0->display_boden( xpos, ypos, raster_tile_width );
+#endif
 	}
 
 	if(  umgebung_t::simple_drawing  ) {
 		// ignore trees going though bridges
-		gr0->display_dinge_all_quick_and_dirty(xpos, ypos, raster_tile_width, is_global);
+#if MULTI_THREAD>1
+		gr0->display_dinge_all_quick_and_dirty( xpos, ypos, raster_tile_width, is_global, clip_num );
+#else
+		gr0->display_dinge_all_quick_and_dirty( xpos, ypos, raster_tile_width, is_global );
+#endif
 	}
 	else {
 		// clip everything at the next tile above
 		clip_dimension p_cr;
 		if(  i < ground_size  ) {
+#if MULTI_THREAD>1
+			p_cr = display_get_clip_wh_cl( clip_num );
+#else
 			p_cr = display_get_clip_wh();
-			for(uint8 j=i; j<ground_size; j++) {
+#endif
+			for(  uint8 j = i;  j < ground_size;  j++  ) {
 				const sint8 h = data.some[j]->get_hoehe();
 				// too high?
 				if(  h > hmax  ) {
@@ -450,31 +471,51 @@ void planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const si
 				// not too low?
 				if(  h >= hmin  ) {
 					// something on top: clip horizontally to prevent trees etc shining trough bridges
-					const sint16 yh = ypos - tile_raster_scale_y( (h-h0)*TILE_HEIGHT_STEP, raster_tile_width) + ((3*raster_tile_width)>>2);
+					const sint16 yh = ypos - tile_raster_scale_y( (h - h0) * TILE_HEIGHT_STEP, raster_tile_width ) + ((3 * raster_tile_width) >> 2);
 					if(  yh >= p_cr.y  ) {
-						display_set_clip_wh(p_cr.x, yh, p_cr.w, p_cr.h+p_cr.y-yh);
+#if MULTI_THREAD>1
+						display_set_clip_wh_cl(p_cr.x, yh, p_cr.w, p_cr.h + p_cr.y - yh, clip_num  );
+#else
+						display_set_clip_wh( p_cr.x, yh, p_cr.w, p_cr.h + p_cr.y - yh );
+#endif
 					}
 					break;
 				}
 			}
+#if MULTI_THREAD>1
+			gr0->display_dinge_all( xpos, ypos, raster_tile_width, is_global, clip_num );
+			display_set_clip_wh_cl( p_cr.x, p_cr.y, p_cr.w, p_cr.h, clip_num ); // restore clipping
+#else
+			gr0->display_dinge_all( xpos, ypos, raster_tile_width, is_global );
+			display_set_clip_wh( p_cr.x, p_cr.y, p_cr.w, p_cr.h ); // restore clipping
+#endif
 		}
-		gr0->display_dinge_all(xpos, ypos, raster_tile_width, is_global);
-		// restore clipping
-		if(  i<ground_size  ) {
-			display_set_clip_wh(p_cr.x, p_cr.y, p_cr.w, p_cr.h);
+		else {
+#if MULTI_THREAD>1
+			gr0->display_dinge_all( xpos, ypos, raster_tile_width, is_global, clip_num );
+#else
+			gr0->display_dinge_all( xpos, ypos, raster_tile_width, is_global );
+#endif
 		}
 	}
 	// above ground
-	for(  ;  i<ground_size;  i++  ) {
-		const grund_t* gr=data.some[i];
+	for(  ;  i < ground_size;  i++  ) {
+		const grund_t* gr = data.some[i];
 		const sint8 h = gr->get_hoehe();
 		// too high?
-		if (h > hmax) break;
+		if(  h > hmax  ) {
+			break;
+		}
 		// not too low?
-		if (h >= hmin) {
-			const sint16 yypos = ypos - tile_raster_scale_y( (h-h0)*TILE_HEIGHT_STEP, raster_tile_width);
-			gr->display_boden(xpos, yypos, raster_tile_width);
-			gr->display_dinge_all(xpos, yypos, raster_tile_width, is_global);
+		if(  h >= hmin  ) {
+			const sint16 yypos = ypos - tile_raster_scale_y( (h - h0) * TILE_HEIGHT_STEP, raster_tile_width );
+#if MULTI_THREAD>1
+			gr->display_boden( xpos, yypos, raster_tile_width, clip_num );
+			gr->display_dinge_all( xpos, yypos, raster_tile_width, is_global, clip_num );
+#else
+			gr->display_boden( xpos, yypos, raster_tile_width );
+			gr->display_dinge_all( xpos, yypos, raster_tile_width, is_global );
+#endif
 		}
 	}
 }
@@ -498,7 +539,8 @@ image_id overlay_img(grund_t *gr)
 	return img;
 }
 
-void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos, const sint8 /*hmin*/, const sint8 /*hmax*/) const
+
+void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 {
 	grund_t *gr=get_kartenboden();
 
@@ -580,14 +622,14 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos, const 
 		}
 	}
 
-	gr->display_overlay(xpos, ypos );
-	if(ground_size>1) {
+	gr->display_overlay( xpos, ypos );
+	if(  ground_size > 1  ) {
 		const sint8 h0 = gr->get_disp_height();
-		for(uint8 i=1;  i<ground_size;  i++) {
-			grund_t* gr=data.some[i];
+		for(  uint8 i = 1;  i < ground_size;  i++  ) {
+			grund_t* gr = data.some[i];
 			const sint8 h = gr->get_disp_height();
-			const sint16 yypos = ypos - (h-h0)*get_tile_raster_width()/2;
-			gr->display_overlay(xpos, yypos );
+			const sint16 yypos = ypos - (h - h0 ) * get_tile_raster_width() / 2;
+			gr->display_overlay( xpos, yypos );
 		}
 	}
 }

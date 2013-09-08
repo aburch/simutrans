@@ -33,7 +33,6 @@
 #include "utils/simstring.h"
 
 
-
 /**
  * Pointer to the world of this thing. Static to conserve space.
  * Change to instance variable once more than one world is available.
@@ -42,7 +41,6 @@
 karte_t * ding_t::welt = NULL;
 
 bool ding_t::show_owner = false;
-
 
 
 void ding_t::init(karte_t *wl)
@@ -201,12 +199,15 @@ void ding_t::rdwr(loadsave_t *file)
 }
 
 
-
 /**
  * draw the object
- * the dirty-flag is resetted from dingliste_t::display_dinge_fg
+ * the dirty-flag is reset from dingliste_t::display_dinge_fg, or dingliste_t::display_overlay when multithreaded
  */
+#if MULTI_THREAD>1
+void ding_t::display(int xpos, int ypos, const sint8 clip_num) const
+#else
 void ding_t::display(int xpos, int ypos) const
+#endif
 {
 	image_id bild = get_bild();
 	image_id const outline_bild = get_outline_bild();
@@ -224,37 +225,61 @@ void ding_t::display(int xpos, int ypos) const
 		const int start_ypos = ypos;
 		for(  int j=0;  bild!=IMG_LEER;  ) {
 
-			if(besitzer_n!=PLAYER_UNOWNED) {
+			if(  besitzer_n != PLAYER_UNOWNED  ) {
 				if(  ding_t::show_owner  ) {
-					display_blend(bild, xpos, ypos, besitzer_n, (welt->get_spieler(besitzer_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty);
+#if MULTI_THREAD>1
+					display_blend( bild, xpos, ypos, besitzer_n, (welt->get_spieler(besitzer_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty, clip_num );
+#else
+					display_blend( bild, xpos, ypos, besitzer_n, (welt->get_spieler(besitzer_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty );
+#endif
 				}
 				else {
-					display_color(bild, xpos, ypos, besitzer_n, true, is_dirty);
+#if MULTI_THREAD>1
+					display_color( bild, xpos, ypos, besitzer_n, true, is_dirty, clip_num );
+#else
+					display_color( bild, xpos, ypos, besitzer_n, true, is_dirty );
+#endif
 				}
 			}
 			else {
-				display_normal(bild, xpos, ypos, 0, true, is_dirty);
+#if MULTI_THREAD>1
+				display_normal( bild, xpos, ypos, 0, true, is_dirty, clip_num );
+#else
+				display_normal( bild, xpos, ypos, 0, true, is_dirty );
+#endif
 			}
 			// this ding has another image on top (e.g. skyscraper)
 			ypos -= raster_width;
 			bild = get_bild(++j);
 		}
 
-		if(  outline_bild!=IMG_LEER  ) {
+		if(  outline_bild != IMG_LEER  ) {
 			// transparency?
 			const PLAYER_COLOR_VAL transparent = get_outline_colour();
-			if(TRANSPARENT_FLAGS&transparent) {
+			if(  TRANSPARENT_FLAGS&transparent  ) {
 				// only transparent outline
-				display_blend(get_outline_bild(), xpos, start_ypos, besitzer_n, transparent, 0, is_dirty);
+#if MULTI_THREAD>1
+				display_blend( get_outline_bild(), xpos, start_ypos, besitzer_n, transparent, 0, is_dirty, clip_num );
+#else
+				display_blend( get_outline_bild(), xpos, start_ypos, besitzer_n, transparent, 0, is_dirty );
+#endif
 			}
 			else if(  ding_t::get_flag( highlight )  ) {
 				// highlight this tile
-				display_blend(get_bild(), xpos, start_ypos, besitzer_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty);
+#if MULTI_THREAD>1
+				display_blend( get_bild(), xpos, start_ypos, besitzer_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty, clip_num );
+#else
+				display_blend( get_bild(), xpos, start_ypos, besitzer_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty );
+#endif
 			}
 		}
 		else if(  ding_t::get_flag( highlight )  ) {
 			// highlight this tile
-			display_blend(get_bild(), xpos, start_ypos, besitzer_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty);
+#if MULTI_THREAD>1
+			display_blend( get_bild(), xpos, start_ypos, besitzer_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty, clip_num );
+#else
+			display_blend( get_bild(), xpos, start_ypos, besitzer_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty );
+#endif
 		}
 	}
 }
@@ -273,39 +298,61 @@ void ding_t::rotate90()
 }
 
 
-
+#if MULTI_THREAD>1
+void ding_t::display_after(int xpos, int ypos, const sint8 clip_num) const
+#else
 void ding_t::display_after(int xpos, int ypos, bool) const
+#endif
 {
 	image_id bild = get_after_bild();
-	if(bild != IMG_LEER) {
+	if(  bild != IMG_LEER  ) {
 		const int raster_width = get_current_tile_raster_width();
-		const bool is_dirty = get_flag(ding_t::dirty);
+		const bool is_dirty = get_flag( ding_t::dirty );
 
-		xpos += tile_raster_scale_x(get_xoff(), raster_width);
-		ypos += tile_raster_scale_y(get_yoff(), raster_width);
+		xpos += tile_raster_scale_x( get_xoff(), raster_width );
+		ypos += tile_raster_scale_y( get_yoff(), raster_width );
 
-		if(besitzer_n!=PLAYER_UNOWNED) {
+		if(  besitzer_n != PLAYER_UNOWNED  ) {
 			if(  ding_t::show_owner  ) {
-				display_blend(bild, xpos, ypos, besitzer_n, (welt->get_spieler(besitzer_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty);
+#if MULTI_THREAD>1
+				display_blend( bild, xpos, ypos, besitzer_n, (welt->get_spieler(besitzer_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty, clip_num );
+#else
+				display_blend( bild, xpos, ypos, besitzer_n, (welt->get_spieler(besitzer_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty );
+#endif
 			}
 			else if(  ding_t::get_flag( highlight )  ) {
 				// highlight this tile
-				display_blend( bild, xpos, ypos, besitzer_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty);
+#if MULTI_THREAD>1
+				display_blend( bild, xpos, ypos, besitzer_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty, clip_num );
+#else
+				display_blend( bild, xpos, ypos, besitzer_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty );
+#endif
 			}
 			else {
-				display_color(bild, xpos, ypos, besitzer_n, true, is_dirty);
+#if MULTI_THREAD>1
+				display_color( bild, xpos, ypos, besitzer_n, true, is_dirty, clip_num );
+#else
+				display_color( bild, xpos, ypos, besitzer_n, true, is_dirty );
+#endif
 			}
 		}
 		else if(  ding_t::get_flag( highlight )  ) {
 			// highlight this tile
-			display_blend( bild, xpos, ypos, besitzer_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty);
+#if MULTI_THREAD>1
+			display_blend( bild, xpos, ypos, besitzer_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty, clip_num );
+#else
+			display_blend( bild, xpos, ypos, besitzer_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty );
+#endif
 		}
 		else {
-			display_normal(bild, xpos, ypos, 0, true, is_dirty );
+#if MULTI_THREAD>1
+			display_normal( bild, xpos, ypos, 0, true, is_dirty, clip_num );
+#else
+			display_normal( bild, xpos, ypos, 0, true, is_dirty );
+#endif
 		}
 	}
 }
-
 
 
 /*
@@ -313,9 +360,9 @@ void ding_t::display_after(int xpos, int ypos, bool) const
  * sometimes they have an extra offset, this is the yoff parameter
 * @author prissi
  */
-void ding_t::mark_image_dirty(image_id bild,sint16 yoff) const
+void ding_t::mark_image_dirty(image_id bild, sint16 yoff) const
 {
-	if(bild!=IMG_LEER) {
+	if(  bild != IMG_LEER  ) {
 		const sint16 rasterweite = get_tile_raster_width();
 		int xpos=0, ypos=0;
 		if(  is_moving()  ) {

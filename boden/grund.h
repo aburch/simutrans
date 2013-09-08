@@ -484,26 +484,42 @@ public:
 	 * Displays the ground images (including foundations, fences and ways)
 	 * @author Hj. Malthaner
 	 */
+#if MULTI_THREAD>1
+	void display_boden(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, const sint8 clip_num, bool force_show_grid=false) const;
+#else
 	void display_boden(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width) const;
+#endif
 
 	/**
 	 * Displays the earth at the border
 	 * @author prissi
 	 */
+#if MULTI_THREAD>1
+	void display_border( sint16 xpos, sint16 ypos, const sint16 raster_tile_width, const sint8 clip_num );
+#else
 	void display_border( sint16 xpos, sint16 ypos, const sint16 raster_tile_width );
+#endif
 
 	/**
 	 * Displays the tile if it's visible.
 	 * @see is_karten_boden_visible()
 	 */
+#if MULTI_THREAD>1
+	void display_if_visible(sint16 xpos, sint16 ypos, const sint16 raster_tile_width, const sint8 clip_num, bool force_show_grid=false);
+#else
 	void display_if_visible(sint16 xpos, sint16 ypos, const sint16 raster_tile_width);
+#endif
 
 	/**
 	 * displays everything that is on a tile - the main display routine for objects on tiles
 	 * @param is_global set to true, if this is called during the whole screen update
 	 * @author dwachs
 	 */
+#if MULTI_THREAD>1
+	void display_dinge_all(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, const bool is_global, const sint8 clip_num) const;
+#else
 	void display_dinge_all(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, const bool is_global) const;
+#endif
 
 	/**
 	 * similar to above but yieleds clipping error
@@ -511,7 +527,11 @@ public:
 	 * @param is_global set to true, if this is called during the whole screen update
 	 * @author prissi
 	 */
+#if MULTI_THREAD>1
+	void display_dinge_all_quick_and_dirty(const sint16 xpos, sint16 ypos, const sint16 raster_tile_width, const bool is_global, const sint8 clip_num) const;
+#else
 	void display_dinge_all_quick_and_dirty(const sint16 xpos, sint16 ypos, const sint16 raster_tile_width, const bool is_global) const;
+#endif
 
 	/**
 	 * displays background images of all non-moving objects on the tile
@@ -521,7 +541,11 @@ public:
 	 * @return index of first vehicle on the tile
 	 * @author dwachs
 	 */
+#if MULTI_THREAD>1
+	uint8 display_dinge_bg(const sint16 xpos, const sint16 ypos, const bool is_global, const bool draw_ways, const bool visible, const sint8 clip_num) const;
+#else
 	uint8 display_dinge_bg(const sint16 xpos, const sint16 ypos, const bool is_global, const bool draw_ways, const bool visible) const;
+#endif
 
 	/**
 	 * displays vehicle (background) images
@@ -530,14 +554,23 @@ public:
 	 * @param ontile is true if we are on the tile that defines the clipping
 	 * @author dwachs
 	 */
+#if MULTI_THREAD>1
+	uint8 display_dinge_vh(const sint16 xpos, const sint16 ypos, const uint8 start_offset, const ribi_t::ribi ribi, const bool ontile, const sint8 clip_num) const;
+#else
 	uint8 display_dinge_vh(const sint16 xpos, const sint16 ypos, const uint8 start_offset, const ribi_t::ribi ribi, const bool ontile) const;
+#endif
 
 	/**
 	 * displays all foreground images
 	 * @param is_global set to true, if this is called during the whole screen update
 	 * @author dwachs
 	 */
+
+#if MULTI_THREAD>1
+	void display_dinge_fg(const sint16 xpos, const sint16 ypos, const bool is_global, const uint8 start_offset, const sint8 clip_num) const;
+#else
 	void display_dinge_fg(const sint16 xpos, const sint16 ypos, const bool is_global, const uint8 start_offset) const;
+#endif
 
 	/**
 	 * overlayer with signs, good levels and station coverage

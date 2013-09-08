@@ -1707,11 +1707,15 @@ vehikel_t::~vehikel_t()
 }
 
 
-// this routine will display a tooltip for lost, on depot order and stuck vehicles
+#if MULTI_THREAD>1
+void vehikel_t::display_overlay(int xpos, int ypos) const
+{
+	if(  cnv  &&  ist_erstes  ) {
+#else
 void vehikel_t::display_after(int xpos, int ypos, bool is_gobal) const
 {
-	if(is_gobal  &&  cnv  &&  ist_erstes) {
-
+	if(  is_gobal  &&  cnv  &&  ist_erstes  ) {
+#endif
 		COLOR_VAL color = COL_GREEN; // not used, but stop compiler warning about uninitialized
 		char tooltip_text[1024];
 		tooltip_text[0] = 0;
@@ -1794,7 +1798,7 @@ void vehikel_t::display_after(int xpos, int ypos, bool is_gobal) const
 			xpos += tile_raster_scale_x(get_xoff(), raster_width);
 			ypos += tile_raster_scale_y(get_yoff(), raster_width)+14;
 			if(ypos>LINESPACE+32  &&  ypos+LINESPACE<display_get_clip_wh().yy) {
-				display_ddd_proportional_clip( xpos, ypos, width, 0, color, COL_BLACK, tooltip_text, true);
+				display_ddd_proportional_clip( xpos, ypos, width, 0, color, COL_BLACK, tooltip_text, true );
 			}
 		}
 	}
@@ -4157,14 +4161,18 @@ grund_t* aircraft_t::hop()
 
 
 // this routine will display the aircraft (if in flight)
+#if MULTI_THREAD>1
+void aircraft_t::display_after(int xpos_org, int ypos_org, const sint8 clip_num) const
+#else
 void aircraft_t::display_after(int xpos_org, int ypos_org, bool is_global) const
+#endif
 {
-	if(bild != IMG_LEER  &&  !is_on_ground()) {
+	if(  bild != IMG_LEER  &&  !is_on_ground()  ) {
 		int xpos = xpos_org, ypos = ypos_org;
 
 		const int raster_width = get_current_tile_raster_width();
 		const sint16 z = get_pos().z;
-		if (z + flughoehe/TILE_HEIGHT_STEP - 1 > grund_t::underground_level) {
+		if(  z + flughoehe/TILE_HEIGHT_STEP - 1 > grund_t::underground_level  ) {
 			return;
 		}
 		const sint16 target = target_height - ((sint16)z*TILE_HEIGHT_STEP);
@@ -4182,13 +4190,42 @@ void aircraft_t::display_after(int xpos_org, int ypos_org, bool is_global) const
 
 		// will be dirty
 		// the aircraft!!!
-		display_color(bild, xpos, ypos, get_player_nr(), true, true/*get_flag(ding_t::dirty)*/ );
-
-		vehikel_t::display_after( xpos_org, ypos_org-tile_raster_scale_y(current_flughohe-hoff-2, raster_width), is_global );
+#if MULTI_THREAD>1
+		display_color( bild, xpos, ypos, get_player_nr(), true, true/*get_flag(ding_t::dirty)*/, clip_num );
+#else
+		display_color( bild, xpos, ypos, get_player_nr(), true, true/*get_flag(ding_t::dirty)*/ );
+		vehikel_t::display_after( xpos_org, ypos_org - tile_raster_scale_y( current_flughohe - hoff - 2, raster_width ), is_global );
+#endif
 	}
+#if MULTI_THREAD>1
+}
+void aircraft_t::display_overlay(int xpos_org, int ypos_org) const
+{
+	if(  bild != IMG_LEER  &&  !is_on_ground()  ) {
+		const int raster_width = get_current_tile_raster_width();
+		const sint16 z = get_pos().z;
+		if(  z + flughoehe/TILE_HEIGHT_STEP - 1 > grund_t::underground_level  ) {
+			return;
+		}
+		const sint16 target = target_height - ((sint16)z*TILE_HEIGHT_STEP);
+		sint16 current_flughohe = flughoehe;
+		if(  current_flughohe < target  ) {
+			current_flughohe += (steps*TILE_HEIGHT_STEP) >> 8;
+		}
+		else if(  current_flughohe > target  ) {
+			current_flughohe -= (steps*TILE_HEIGHT_STEP) >> 8;
+		}
+
+		vehikel_t::display_overlay( xpos_org, ypos_org - tile_raster_scale_y( current_flughohe - hoff - 2, raster_width ) );
+	}
+#endif
 	else if(  is_on_ground()  ) {
 		// show loading tooltips on ground
+#if MULTI_THREAD>1
+		vehikel_t::display_overlay( xpos_org, ypos_org );
+#else
 		vehikel_t::display_after( xpos_org, ypos_org, is_global );
+#endif
 	}
 }
 

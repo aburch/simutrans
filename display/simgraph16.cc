@@ -75,29 +75,191 @@ int old_my = -1;
 
 
 /*
- * Hajo: Current clipping rectangle
- */
-static clip_dimension clip_rect;
-
-// and the variables for polygon clipping
-
-/*
  * struct to hold the information about visible area
  * at screen line y
  * associated to some clipline
  */
 struct xrange {
-	int sx,sy;
+	int sx, sy;
 	KOORD_VAL y;
 	bool non_convex_active;
 };
 
+
+class clip_line_t {
+private:
+	// line from (x0,y0) to (x1 y1)
+	// clip (do not draw) everything right from the ray (x0,y0)->(x1,y1)
+	// pixels on the ray are not drawn
+	// (not_convex) if y0>=y1 then clip along the path (x0,-inf)->(x0,y0)->(x1,y1)
+	// (not_convex) if y0<y1  then clip along the path (x0,y0)->(x1,y1)->(x1,+inf)
+	int x0, y0;
+	int dx, dy, sdy, sdx;
+	int inc;
+	bool non_convex;
+
+public:
+	void clip_from_to(int x0_, int y0_, int x1, int y1, bool non_convex_) {
+		x0 = x0_;
+		dx = x1 - x0;
+		y0 = y0_;
+		dy = y1 - y0;
+		non_convex = non_convex_;
+		int steps = (abs(dx) > abs(dy) ? abs(dx) : abs(dy));
+		if(  steps == 0  ) {
+			return;
+		}
+		sdx = (dx << 16) / steps;
+		sdy = (dy << 16) / steps;
+		// to stay right from the line
+		// left border: xmin <= x
+		// right border: x < xmax
+		if(  dy > 0  ) {
+			if(  dy > dx  ) {
+				inc = 1 << 16;
+			}
+			else {
+				inc = (dx << 16) / dy;
+			}
+		}
+		else if(  dy < 0  ) {
+			if(  dy < dx  ) {
+				inc = 0; // (+1)-1 << 16;
+			}
+			else {
+				inc = (1 << 16) - (dx << 16) / dy;
+			}
+		}
+	}
+
+	// clip if
+	// ( x-x0) . (  y1-y0 )
+	// ( y-y0) . (-(x1-x0)) < 0
+	// -- initialize the clipping
+	//    has to be called before image will be drawn
+	//    return interval for x coordinate
+	inline void get_x_range(KOORD_VAL y, xrange &r, bool use_non_convex) const {
+		// do everything for the previous row
+		y--;
+		r.y = y;
+		r.non_convex_active = false;
+		if(  non_convex  &&  use_non_convex  &&  y < y0  &&  y < (y0 + dy)  ) {
+			r.non_convex_active = true;
+		}
+		else if(  dy != 0  ) {
+			// init Bresenham algorithm
+			const int t = ((y - y0) << 16) / sdy;
+			// sx >> 16 = x
+			// sy >> 16 = y
+			r.sx = t * sdx + inc + (x0 << 16);
+			r.sy = t * sdy + (y0 << 16);
+		}
+	}
+
+	// -- step one line down, return interval for x coordinate
+	inline void inc_y(xrange &r, int &xmin, int &xmax) const {
+		r.y++;
+		// switch between clip vertical and along ray
+		if(  r.non_convex_active  ) {
+			if(  r.y == min( y0, y0 + dy )  ) {
+				r.non_convex_active = false;
+				if(  dy != 0  ) {
+					// init Bresenham algorithm
+					const int t = ((r.y - y0) << 16) / sdy;
+					// sx >> 16 = x
+					// sy >> 16 = y
+					r.sx = t * sdx + inc + (x0 << 16);
+					r.sy = t * sdy + (y0 << 16);
+					if(  dy > 0  ) {
+						const int r_xmin = r.sx >> 16;
+						if(  xmin < r_xmin  ) {
+							xmin = r_xmin;
+						}
+					}
+					else {
+						const int r_xmax = r.sx >> 16;
+						if(  xmax > r_xmax  ) {
+							xmax = r_xmax;
+						}
+					}
+				}
+			}
+			else {
+				if(  dy < 0  ) {
+					const int r_xmax = x0 + dx;
+					if(  xmax > r_xmax  ) {
+						xmax = r_xmax;
+					}
+				}
+				else {
+					const int r_xmin = x0 + 1;
+					if(  xmin < r_xmin  ) {
+						xmin = r_xmin;
+					}
+				}
+			}
+		}
+		// go along the ray, Bresenham
+		else if(  dy != 0  ) {
+			if(  dy > 0  ) {
+				do {
+					r.sx += sdx;
+					r.sy += sdy;
+				} while(  (r.sy >> 16) < r.y  );
+				const int r_xmin = r.sx >> 16;
+				if(  xmin < r_xmin  ) {
+					xmin = r_xmin;
+				}
+			}
+			else {
+				do {
+					r.sx -= sdx;
+					r.sy -= sdy;
+				} while(  (r.sy >> 16) < r.y  );
+				const int r_xmax = r.sx >> 16;
+				if(  xmax > r_xmax  ) {
+					xmax = r_xmax;
+				}
+			}
+		}
+		// horizontal clip
+		else {
+			const bool clip = dx * (r.y - y0) > 0;
+			if(  clip  ) {
+				// invisible row
+				xmin = +1;
+				xmax = -1;
+			}
+		}
+	}
+};
+
+
 #define MAX_POLY_CLIPS 6
-static xrange      xranges[MAX_POLY_CLIPS];
-static uint8       clip_ribi[MAX_POLY_CLIPS];
+#if MULTI_THREAD>1
+static struct {
+	// current clipping rectangle
+	clip_dimension clip_rect;
+	// poly clipping variables
+	int number_of_clips;
+	uint8 active_ribi;
+	uint8 clip_ribi[MAX_POLY_CLIPS];
+	clip_line_t poly_clips[MAX_POLY_CLIPS];
+	xrange xranges[MAX_POLY_CLIPS];
+} GCC_ALIGN(64) clips[MULTI_THREAD]; // aligned to separate cachelines
+#else
+ /*
+ * Hajo: Current clipping rectangle
+ */
+static clip_dimension clip_rect;
+
+// and the variables for polygon clipping
 static int number_of_clips =0;
 static uint8 active_ribi = 15; // set all to active
-
+static uint8       clip_ribi[MAX_POLY_CLIPS];
+static clip_line_t poly_clips[MAX_POLY_CLIPS];
+static xrange      xranges[MAX_POLY_CLIPS];
+#endif
 
 /* Flag, if we have Unicode font => do unicode (UTF8) support! *
  * @author prissi
@@ -132,7 +294,7 @@ static PIXVAL rgbmap_day_night[RGBMAPSIZE];
 static PIXVAL rgbmap_all_day[RGBMAPSIZE];
 
 
-/**
+/*
  * Hajo:used by pixel copy functions, is one of rgbmap_day_night
  * rgbmap_all_day
  */
@@ -163,38 +325,31 @@ static uint8 player_offsets[MAX_PLAYER_COUNT][2];
  * Hajo: Image map descriptor structure
  */
 struct imd {
-	sint16 base_x; // min x offset
-	sint16 base_y; // min y offset
-	sint16 base_w; //  width
-	sint16 base_h; // height
-
 	sint16 x; // current (zoomed) min x offset
 	sint16 y; // current (zoomed) min y offset
 	sint16 w; // current (zoomed) width
 	sint16 h; // current (zoomed) height
 
-	uint32 len; // base image data size (used for allocation purposes only)
+	uint8 recode_flags;
+	uint16 player_flags; // bit # is player number, ==1 cache image needs recoding
 
-	uint8 recode_flags; // divers flags for recoding
-	uint8 player_flags; // 128 = free/needs recode, otherwise coded to this color in player_data
-
-	PIXVAL* data; // current data, zoomed and adapted to output format RGB 555 or RGB 565
+	PIXVAL* data[MAX_PLAYER_COUNT]; // current data - zoomed and recolored (player + daynight)
 
 	PIXVAL* zoom_data; // zoomed original data
+	uint32 len;    // current zoom image data size (or base if not zoomed) (used for allocation purposes only)
+
+	sint16 base_x; // min x offset
+	sint16 base_y; // min y offset
+	sint16 base_w; // width
+	sint16 base_h; // height
 
 	PIXVAL* base_data; // original image data
-
-	PIXVAL* player_data; // current data coded for player1 (since many building belong to him)
 };
 
-// flags for recoding
+// Flags for recoding
 #define FLAG_ZOOMABLE (1)
-#define FLAG_PLAYERCOLOR (2)
-#define FLAG_REZOOM (4)
-#define FLAG_NORMAL_RECODE (8)
-#define FLAG_POSITION_CHANGED (16)
-
-#define NEED_PLAYER_RECODE (128)
+#define FLAG_REZOOM (2)
+//#define FLAG_POSITION_CHANGED (16)
 
 
 static KOORD_VAL disp_width  = 640;
@@ -637,10 +792,17 @@ static bool clip_lr(KOORD_VAL *x, KOORD_VAL *w, const KOORD_VAL left, const KOOR
  * Get the clipping rectangle dimensions
  * @author Hj. Malthaner
  */
+#if MULTI_THREAD>1
+clip_dimension display_get_clip_wh_cl(const sint8 clip_num)
+{
+	return clips[clip_num].clip_rect;
+}
+#else
 clip_dimension display_get_clip_wh()
 {
 	return clip_rect;
 }
+#endif
 
 
 /**
@@ -653,10 +815,25 @@ clip_dimension display_get_clip_wh()
  *  clip.x < xp+w <= clip.xx
  * analogously for the y coordinate
  */
+#if MULTI_THREAD>1
+void display_set_clip_wh_cl(KOORD_VAL x, KOORD_VAL y, KOORD_VAL w, KOORD_VAL h, const sint8 clip_num)
+{
+	clip_wh( &x, &w, 0, disp_width );
+	clip_wh( &y, &h, 0, disp_height );
+
+	clips[clip_num].clip_rect.x = x;
+	clips[clip_num].clip_rect.y = y;
+	clips[clip_num].clip_rect.w = w;
+	clips[clip_num].clip_rect.h = h;
+
+	clips[clip_num].clip_rect.xx = x + w; // watch out, clips to KOORD_VAL max
+	clips[clip_num].clip_rect.yy = y + h; // watch out, clips to KOORD_VAL max
+}
+#else
 void display_set_clip_wh(KOORD_VAL x, KOORD_VAL y, KOORD_VAL w, KOORD_VAL h)
 {
-	clip_wh(&x, &w, 0, disp_width);
-	clip_wh(&y, &h, 0, disp_height);
+	clip_wh( &x, &w, 0, disp_width );
+	clip_wh( &y, &h, 0, disp_height );
 
 	clip_rect.x = x;
 	clip_rect.y = y;
@@ -666,146 +843,7 @@ void display_set_clip_wh(KOORD_VAL x, KOORD_VAL y, KOORD_VAL w, KOORD_VAL h)
 	clip_rect.xx = x + w; // watch out, clips to KOORD_VAL max
 	clip_rect.yy = y + h; // watch out, clips to KOORD_VAL max
 }
-
-
-class clip_line_t {
-private:
-	// line from (x0,y0) to (x1 y1)
-	// clip (do not draw) everything right from the ray (x0,y0)->(x1,y1)
-	// pixels on the ray are not drawn
-	// (not_convex) if y0>=y1 then clip along the path (x0,-inf)->(x0,y0)->(x1,y1)
-	// (not_convex) if y0<y1  then clip along the path (x0,y0)->(x1,y1)->(x1,+inf)
-	int x0,y0;
-	int dx,dy,sdy,sdx;
-	int inc;
-	bool non_convex;
-
-public:
-	void clip_from_to(int x0_,int y0_, int x1, int y1, bool non_convex_) {
-		x0 = x0_;
-		dx = x1-x0;
-		y0 = y0_;
-		dy = y1-y0;
-		non_convex = non_convex_;
-		int steps = (abs(dx) > abs(dy) ? abs(dx) : abs(dy));
-		if (steps == 0) {
-			return;
-		}
-		sdx = (dx << 16) / steps;
-		sdy = (dy << 16) / steps;
-		// to stay right from the line
-		// left border: xmin <= x
-		// right border: x < xmax
-		if (dy>0) {
-			if (dy > dx) {
-				inc = 1 << 16;
-			}
-			else {
-				inc = (dx << 16)/dy;
-			}
-		}
-		else if (dy<0) {
-			if (dy < dx) {
-				inc = 0; // (+1)-1 << 16;
-			}
-			else {
-				inc = (1 << 16) - (dx << 16) / dy;
-			}
-		}
-	}
-
-	// clip if
-	// ( x-x0) . (  y1-y0 )
-	// ( y-y0) . (-(x1-x0)) < 0
-	// -- initialize the clipping
-	//    has to be called before image will be drawn
-	//    return interval for x coordinate
-	inline void get_x_range(KOORD_VAL y, xrange &r, bool use_non_convex) const {
-		// do everything for the previous row
-		y--;
-		r.y = y;
-		r.non_convex_active = false;
-		if (non_convex  &&  use_non_convex  &&  y<y0  &&  y<(y0+dy)) {
-			r.non_convex_active = true;
-		}
-		else if (dy != 0) {
-			// init Bresenham algorithm
-			const int t = ((y-y0) << 16) / sdy;
-			// sx >> 16 = x
-			// sy >> 16 = y
-			r.sx = t * sdx + inc + (x0 << 16);
-			r.sy = t * sdy + (y0 << 16);
-		}
-	}
-
-	// -- step one line down, return interval for x coordinate
-	inline void inc_y(xrange &r, int &xmin, int &xmax) const {
-		r.y ++;
-		// switch between clip vertical and along ray
-		if (r.non_convex_active) {
-			if (r.y==min(y0,y0+dy)) {
-				r.non_convex_active = false;
-				if (dy != 0) {
-					// init Bresenham algorithm
-					const int t = ((r.y-y0) << 16) / sdy;
-					// sx >> 16 = x
-					// sy >> 16 = y
-					r.sx = t * sdx + inc + (x0 << 16);
-					r.sy = t * sdy + (y0 << 16);
-					if (dy > 0) {
-						const int r_xmin = r.sx >> 16;
-						if (xmin < r_xmin) xmin = r_xmin;
-					}
-					else {
-						const int r_xmax = r.sx >> 16;
-						if (xmax > r_xmax) xmax = r_xmax;
-					}
-				}
-			}
-			else {
-				if (dy<0) {
-					const int r_xmax = x0+dx;
-					if (xmax > r_xmax) xmax = r_xmax;
-				}
-				else {
-					const int r_xmin = x0+1;
-					if (xmin < r_xmin) xmin = r_xmin;
-				}
-			}
-		}
-		// go along the ray, Bresenham
-		else if (dy!=0) {
-			if (dy > 0) {
-				do {
-					r.sx += sdx;
-					r.sy += sdy;
-				} while ((r.sy >> 16) < r.y);
-				const int r_xmin = r.sx >> 16;
-				if (xmin < r_xmin) xmin = r_xmin;
-			}
-			else {
-				do {
-					r.sx -= sdx;
-					r.sy -= sdy;
-				} while ((r.sy >> 16) < r.y);
-				const int r_xmax = r.sx >> 16;
-				if (xmax > r_xmax) xmax = r_xmax;
-			}
-		}
-		// horizontal clip
-		else {
-			const bool clip = dx*(r.y-y0)>0;
-			if (clip) {
-				// invisible row
-				xmin = +1;
-				xmax = -1;
-			}
-		}
-	}
-};
-
-
-static clip_line_t poly_clips[MAX_POLY_CLIPS];
+#endif
 
 
 /*
@@ -813,47 +851,84 @@ static clip_line_t poly_clips[MAX_POLY_CLIPS];
  * with associated ribi
  * if ribi & 16 then non-convex clipping.
  */
+#if MULTI_THREAD>1
+void add_poly_clip(int x0,int y0, int x1, int y1, int ribi, const sint8 clip_num)
+{
+	if(  clips[clip_num].number_of_clips < MAX_POLY_CLIPS  ) {
+		clips[clip_num].poly_clips[clips[clip_num].number_of_clips].clip_from_to( x0, y0, x1, y1, ribi&16 );
+		clips[clip_num].clip_ribi[clips[clip_num].number_of_clips] = ribi&15;
+		clips[clip_num].number_of_clips++;
+	}
+}
+#else
 void add_poly_clip(int x0,int y0, int x1, int y1, int ribi)
 {
-	if (number_of_clips < MAX_POLY_CLIPS) {
-		poly_clips[number_of_clips].clip_from_to(x0,y0,x1,y1,ribi&16);
+	if(  number_of_clips < MAX_POLY_CLIPS  ) {
+		poly_clips[number_of_clips].clip_from_to( x0, y0, x1, y1, ribi&16 );
 		clip_ribi[number_of_clips] = ribi&15;
 		number_of_clips++;
 	}
 }
+#endif
 
 
 /*
  * Clears all clipping lines
  */
+#if MULTI_THREAD>1
+void clear_all_poly_clip(const sint8 clip_num)
+{
+	clips[clip_num].number_of_clips = 0;
+	clips[clip_num].active_ribi = 15; // set all to active
+}
+#else
 void clear_all_poly_clip()
 {
 	number_of_clips = 0;
 	active_ribi = 15; // set all to active
 }
+#endif
 
 
 /*
  * Activates clipping lines associated with ribi
  * ie if clip_ribi[i] & active_ribi
  */
+#if MULTI_THREAD>1
+void activate_ribi_clip(int ribi, const sint8 clip_num)
+{
+	clips[clip_num].active_ribi = ribi;
+}
+#else
 void activate_ribi_clip(int ribi)
 {
 	active_ribi = ribi;
 }
+#endif
 
 
 /*
  * Initialize clipping region for image starting at screen line y
  */
-static inline void init_ranges(int y)
+#if MULTI_THREAD>1
+static inline void init_ranges(int y, const sint8 clip_num)
 {
-	for (uint8 i=0; i<number_of_clips; i++) {
-		if (clip_ribi[i] & active_ribi) {
-			poly_clips[i].get_x_range(y,xranges[i], active_ribi & 16);
+	for(  uint8 i = 0;  i < clips[clip_num].number_of_clips;  i++  ) {
+		if(  (clips[clip_num].clip_ribi[i] & clips[clip_num].active_ribi)  ) {
+			clips[clip_num].poly_clips[i].get_x_range( y, clips[clip_num].xranges[i], clips[clip_num].active_ribi & 16 );
 		}
 	}
 }
+#else
+static inline void init_ranges(int y)
+{
+	for(  uint8 i = 0;  i < number_of_clips;  i++  ) {
+		if(  (clip_ribi[i] & active_ribi)  ) {
+			poly_clips[i].get_x_range( y, xranges[i], active_ribi & 16 );
+		}
+	}
+}
+#endif
 
 
 /*
@@ -861,16 +936,29 @@ static inline void init_ranges(int y)
  * Computes l/r border for the next line (ie y+1)
  * takes also clipping rectangle into account
  */
+#if MULTI_THREAD>1
+inline void get_xrange_and_step_y(int &xmin, int &xmax, const sint8 clip_num)
+{
+	xmin = clips[clip_num].clip_rect.x;
+	xmax = clips[clip_num].clip_rect.xx;
+	for(  uint8 i = 0;  i < clips[clip_num].number_of_clips;  i++  ) {
+		if(  (clips[clip_num].clip_ribi[i] & clips[clip_num].active_ribi)  ) {
+			clips[clip_num].poly_clips[i].inc_y( clips[clip_num].xranges[i], xmin, xmax );
+		}
+	}
+}
+#else
 inline void get_xrange_and_step_y(int &xmin, int &xmax)
 {
 	xmin = clip_rect.x;
 	xmax = clip_rect.xx;
-	for (uint8 i=0; i<number_of_clips; i++) {
-		if (clip_ribi[i] & active_ribi) {
-			poly_clips[i].inc_y(xranges[i], xmin, xmax);
+	for(  uint8 i = 0;  i < number_of_clips;  i++  ) {
+		if(  (clip_ribi[i] & active_ribi)  ) {
+			poly_clips[i].inc_y( xranges[i], xmin, xmax );
 		}
 	}
 }
+#endif
 
 
 // ------------------------------ dirty tile stuff --------------------------------
@@ -948,6 +1036,27 @@ void mark_rect_dirty_wc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2)
 }
 
 
+#if MULTI_THREAD>1
+void mark_rect_dirty_clip(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2, const sint8 clip_num)
+{
+	// inside clip_rect?
+	if(  x2 >= clips[clip_num].clip_rect.x  &&  y2 >= clips[clip_num].clip_rect.y  &&  x1 < clips[clip_num].clip_rect.xx  &&  y1 < clips[clip_num].clip_rect.yy  ) {
+		if(  x1 < clips[clip_num].clip_rect.x  ) {
+			x1 = clips[clip_num].clip_rect.x;
+		}
+		if(  y1 < clips[clip_num].clip_rect.y  ) {
+			y1 = clips[clip_num].clip_rect.y;
+		}
+		if(  x2 > clips[clip_num].clip_rect.xx  ) {
+			x2 = clips[clip_num].clip_rect.xx ;
+		}
+		if(  y2 > clips[clip_num].clip_rect.yy  ) {
+			y2 = clips[clip_num].clip_rect.yy;
+		}
+		mark_rect_dirty_nc( x1, y1, x2, y2 );
+	}
+}
+#else
 void mark_rect_dirty_clip(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2)
 {
 	// inside clip_rect?
@@ -967,6 +1076,7 @@ void mark_rect_dirty_clip(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2
 		mark_rect_dirty_nc( x1, y1, x2, y2 );
 	}
 }
+#endif
 
 
 /**
@@ -999,24 +1109,20 @@ void display_mark_img_dirty(unsigned bild, KOORD_VAL xp, KOORD_VAL yp)
 // ------------------------- rendering images for display --------------------------------
 
 /*
- * Simutrans caches two player colored images, to allow faster drawing of them
+ * Simutrans caches player colored images, to allow faster drawing of them
  * They are derived from a base image, which may need zooming too
  */
 
 /**
- * Re-zooms all images
+ * Flag all images for rezoom on next draw
  * @author Hj. Malthaner
  */
 static void rezoom(void)
 {
-	uint16 n;
-
-	for (n = 0; n < anz_images; n++) {
-		if((images[n].recode_flags & FLAG_ZOOMABLE) != 0 && images[n].base_h > 0) {
+	for(  uint16 n = 0;  n < anz_images;  n++  ) {
+		if(  (images[n].recode_flags & FLAG_ZOOMABLE) != 0  &&  images[n].base_h > 0  ) {
 			images[n].recode_flags |= FLAG_REZOOM;
 		}
-		images[n].recode_flags |= FLAG_NORMAL_RECODE;
-		images[n].player_flags = NEED_PLAYER_RECODE;	// color will be set next time
 	}
 }
 
@@ -1086,97 +1192,39 @@ static void activate_player_color(sint8 player_nr, bool daynight)
 
 
 /**
- * Convert image data to actual output data
+ * Flag all images to recode colors on next draw
  * @author Hj. Malthaner
  */
 static void recode(void)
 {
-	unsigned n;
-
-	for (n = 0; n < anz_images; n++) {
-		// recode images only if the recoded image is needed
-		images[n].recode_flags |= FLAG_NORMAL_RECODE;
-		images[n].player_flags = NEED_PLAYER_RECODE;
+	for(  uint16 n = 0;  n < anz_images;  n++  ) {
+		images[n].player_flags = 0xFFFF;  // recode all player colors
 	}
 }
 
 
 /**
  * Convert a certain image data to actual output data
- * @author Hj. Malthaner
+ * @author prissi
  */
 static void recode_img_src_target(KOORD_VAL h, PIXVAL *src, PIXVAL *target)
 {
-	if (h > 0) {
-		do {
-			uint16 runlen = *target++ = *src++;
-
-			// decode rows
-			do {
-				// clear run is always ok
-
-				runlen = *target++ = *src++;
-				while (runlen--) {
-					// now just convert the color pixels
-					*target++ = rgbmap_day_night[*src++];
-				}
-			} while ((runlen = *target++ = *src++));
-		} while (--h);
-	}
-}
-
-
-/**
- * Handles the conversion of an image to the output color
- * @author prissi
- */
-static void recode_normal_img(const unsigned int n)
-{
-#if MULTI_THREAD>1
-	pthread_mutex_lock( &rezoom_recode_img_mutex );
-	if(  (images[n].recode_flags & FLAG_NORMAL_RECODE) == 0  ) {
-		// other thread did already the re-coding ...
-		pthread_mutex_unlock( &rezoom_recode_img_mutex );
-		return;
-	}
-#endif
-	PIXVAL *src = images[n].zoom_data != NULL ? images[n].zoom_data : images[n].base_data;
-
-	if (images[n].data == NULL) {
-		images[n].data = MALLOCN(PIXVAL, images[n].len);
-	}
-	// now do normal recode
-	activate_player_color( 0, true );
-	recode_img_src_target(images[n].h, src, images[n].data);
-	images[n].recode_flags &= ~FLAG_NORMAL_RECODE;
-#if MULTI_THREAD>1
-	pthread_mutex_unlock( &rezoom_recode_img_mutex );
-#endif
-}
-
-
-/**
- * Convert a certain image data to actual output data for a certain player
- * @author prissi
- */
-static void recode_img_src_target_color(KOORD_VAL h, PIXVAL *src, PIXVAL *target)
-{
-	if (h > 0) {
+	if(  h > 0  ) {
 		do {
 			uint16 runlen = *target++ = *src++;
 			// decode rows
-
 			do {
 				// clear run is always ok
-
 				runlen = *target++ = *src++;
+
 				// now just convert the color pixels
-				while (runlen--) {
+				while(  runlen--  ) {
 					*target++ = rgbmap_day_night[*src++];
 				}
+
 				// next clear run or zero = end
-			} while ((runlen = *target++ = *src++));
-		} while (--h);
+			} while(  (runlen = *target++ = *src++)  );
+		} while(  --h  );
 	}
 }
 
@@ -1185,12 +1233,12 @@ static void recode_img_src_target_color(KOORD_VAL h, PIXVAL *src, PIXVAL *target
  * Handles the conversion of an image to the output color
  * @author prissi
  */
-static void recode_color_img(const unsigned int n, const unsigned char player_nr)
+static void recode_img(const unsigned int n, const unsigned char player_nr)
 {
 	// Hajo: may this image be zoomed
 #if MULTI_THREAD>1
 	pthread_mutex_lock( &rezoom_recode_img_mutex );
-	if(  images[n].player_flags != NEED_PLAYER_RECODE  ) {
+	if(  (images[n].player_flags & (1<<player_nr)) == 0  ) {
 		// other thread did already the re-code...
 		pthread_mutex_unlock( &rezoom_recode_img_mutex );
 		return;
@@ -1198,13 +1246,13 @@ static void recode_color_img(const unsigned int n, const unsigned char player_nr
 #endif
 	PIXVAL *src = images[n].zoom_data != NULL ? images[n].zoom_data : images[n].base_data;
 
-	if(  images[n].player_data == NULL  ) {
-		images[n].player_data = MALLOCN(PIXVAL, images[n].len);
+	if(  images[n].data[player_nr] == NULL  ) {
+		images[n].data[player_nr] = MALLOCN( PIXVAL, images[n].len );
 	}
 	// contains now the player color ...
 	activate_player_color( player_nr, true );
-	recode_img_src_target_color(images[n].h, src, images[n].player_data );
-	images[n].player_flags = player_nr;
+	recode_img_src_target( images[n].h, src, images[n].data[player_nr] );
+	images[n].player_flags &= ~(1<<player_nr);
 #if MULTI_THREAD>1
 	pthread_mutex_unlock( &rezoom_recode_img_mutex );
 #endif
@@ -1274,7 +1322,7 @@ PIXVAL inline zoomin_pixel(uint8 *p, uint8* pab, uint8 *prl, uint8* pdia)
 static void rezoom_img(const image_id n)
 {
 	// Hajo: may this image be zoomed
-	if (n < anz_images && images[n].base_h > 0) {
+	if(  n < anz_images  &&  images[n].base_h > 0  ) {
 #if MULTI_THREAD>1
 		pthread_mutex_lock( &rezoom_recode_img_mutex );
 		if(  (images[n].recode_flags & FLAG_REZOOM) == 0  ) {
@@ -1284,48 +1332,42 @@ static void rezoom_img(const image_id n)
 		}
 #endif
 		// we may need night conversion afterwards
-		images[n].recode_flags &= ~FLAG_REZOOM;
-		images[n].recode_flags |= FLAG_NORMAL_RECODE;
-		images[n].player_flags = NEED_PLAYER_RECODE;
+		images[n].player_flags = 0xFFFF; // recode all player colors
 
 		//  we recalculate the len (since it may be larger than before)
 		// thus we have to free the old caches
-		if (images[n].zoom_data != NULL) {
-			guarded_free(images[n].zoom_data);
+		if(  images[n].zoom_data != NULL  ) {
+			guarded_free( images[n].zoom_data );
 			images[n].zoom_data = NULL;
 		}
-		if (images[n].data != NULL) {
-			guarded_free(images[n].data);
-			images[n].data = NULL;
-		}
-		if (images[n].player_data != NULL) {
-			guarded_free(images[n].player_data);
-			images[n].player_data = NULL;
+		for(  uint8 i = 0;  i < MAX_PLAYER_COUNT;  i++  ) {
+			if(  images[n].data[i] != NULL  ) {
+				guarded_free( images[n].data[i] );
+				images[n].data[i] = NULL;
+			}
 		}
 
 		// just restore original size?
-		if (tile_raster_width == base_tile_raster_width  ||  (images[n].recode_flags&FLAG_ZOOMABLE)==0) {
-
+		if(  tile_raster_width == base_tile_raster_width  ||  (images[n].recode_flags&FLAG_ZOOMABLE) == 0)   {
 			// this we can do be a simple copy ...
 			images[n].x = images[n].base_x;
 			images[n].w = images[n].base_w;
 			images[n].y = images[n].base_y;
 			images[n].h = images[n].base_h;
-			{
-				// recalculate length
-				sint16 h = images[n].base_h;
-				PIXVAL *sp = images[n].base_data;
+			// recalculate length
+			sint16 h = images[n].base_h;
+			PIXVAL *sp = images[n].base_data;
 
-				while(h-->0) {
-					do {
-						// clear run + colored run + next clear run
-						sp++;
-						sp += *sp + 1;
-					} while (*sp);
+			while(  h-- > 0  ) {
+				do {
+					// clear run + colored run + next clear run
 					sp++;
-				}
-				images[n].len = (uint32)(size_t)(sp-images[n].base_data);
+					sp += *sp + 1;
+				} while (*sp);
+				sp++;
 			}
+			images[n].len = (uint32)(size_t)(sp - images[n].base_data);
+			images[n].recode_flags &= ~FLAG_REZOOM;
 #if MULTI_THREAD>1
 			pthread_mutex_unlock( &rezoom_recode_img_mutex );
 #endif
@@ -1339,7 +1381,7 @@ static void rezoom_img(const image_id n)
 		images[n].w = (images[n].base_w*zoom_num[zoom_factor]) / zoom_den[zoom_factor];
 		images[n].h = (images[n].base_h*zoom_num[zoom_factor]) / zoom_den[zoom_factor];
 
-		if (images[n].h > 0  &&  images[n].w > 0) {
+		if(  images[n].h > 0  &&  images[n].w > 0  ) {
 			// just recalculate the image in the new size
 			static uint8 *baseimage = NULL;
 			static uint32 size = 0;
@@ -1355,7 +1397,6 @@ static void rezoom_img(const image_id n)
 			const sint16 yr_margin = max(-y_rem, 0);
 			// baseimage top-left  corner is at (xl_margin, yl_margin)
 			// ...       low-right corner is at (xr_margin, yr_margin)
-
 
 			sint32 orgzoomwidth = ((images[n].base_w + zoom_den[zoom_factor] - 1 ) / zoom_den[zoom_factor]) * zoom_den[zoom_factor];
 			sint32 newzoomwidth = (orgzoomwidth*zoom_num[zoom_factor])/zoom_den[zoom_factor];
@@ -1417,7 +1458,6 @@ static void rezoom_img(const image_id n)
 					runlen = *src++;
 				} while (runlen!=0);
 			}
-
 
 			// now we have the image, we do a repack then
 			dest = baseimage2;
@@ -1731,6 +1771,7 @@ static void rezoom_img(const image_id n)
 //			}
 			images[n].h = 0;
 		}
+		images[n].recode_flags &= ~FLAG_REZOOM;
 #if MULTI_THREAD>1
 		pthread_mutex_unlock( &rezoom_recode_img_mutex );
 #endif
@@ -1921,47 +1962,23 @@ void register_image(struct bild_t* bild)
 	image->y = bild->y;
 	image->h = bild->h;
 
+	image->recode_flags = FLAG_REZOOM | (bild->zoomable & FLAG_ZOOMABLE);
+	image->player_flags = 0xFFFF; // recode all player colors
+
+	for(  uint8 i = 0;  i < MAX_PLAYER_COUNT;  i++  ) {
+		image->data[i] = NULL;
+	}
+
+	image->zoom_data = NULL;
+	image->len = bild->len;
+
 	image->base_x = bild->x;
 	image->base_w = bild->w;
 	image->base_y = bild->y;
 	image->base_h = bild->h;
 
-	image->len = bild->len;
-
-	// allocate and copy if needed
-	image->recode_flags = FLAG_NORMAL_RECODE | FLAG_REZOOM | (bild->zoomable & FLAG_ZOOMABLE);
-	image->player_flags = NEED_PLAYER_RECODE;
-
-	image->base_data = NULL;
-	image->zoom_data = NULL;
-	image->data = NULL;
-	image->player_data = NULL;	// caches data for one AI
-
 	// since we do not recode them, we can work with the original data
 	image->base_data = bild->data;
-
-	// does this image have color?
-	if(  bild->h > 0  ) {
-		int h = bild->h;
-		const PIXVAL *src = image->base_data;
-
-		do {
-			src++; // offset of first start
-			do {
-				uint16 runlen;
-
-				for (runlen = *src++; runlen != 0; runlen--) {
-					PIXVAL pix = *src++;
-
-					if (pix>=0x8000  &&  pix<=0x800F) {
-						image->recode_flags |= FLAG_PLAYERCOLOR;
-						return;
-					}
-				}
-				// next clear run or zero = end
-			} while(  *src++ != 0  );
-		} while(  --h != 0  );
-	}
 }
 
 
@@ -1969,16 +1986,15 @@ void register_image(struct bild_t* bild)
 // (mostly needed when changing climate zones)
 void display_free_all_images_above( unsigned above )
 {
-	while( above<anz_images) {
+	while( above < anz_images  ) {
 		anz_images--;
-		if(images[anz_images].zoom_data!=NULL) {
+		if(  images[anz_images].zoom_data != NULL  ) {
 			guarded_free( images[anz_images].zoom_data );
 		}
-		if(images[anz_images].player_data!=NULL) {
-			guarded_free( images[anz_images].player_data );
-		}
-		if(images[anz_images].data!=NULL) {
-			guarded_free( images[anz_images].data );
+		for(  uint8 i = 0;  i < MAX_PLAYER_COUNT;  i++  ) {
+			if(  images[anz_images].data[i] != NULL  ) {
+				guarded_free( images[anz_images].data[i] );
+			}
 		}
 	}
 }
@@ -2007,7 +2023,7 @@ void display_get_base_image_offset(unsigned bild, KOORD_VAL *xoff, KOORD_VAL *yo
 	}
 }
 
-
+/*
 // prissi: changes the offset of an image
 // we need it this complex, because the actual x-offset is coded into the image
 void display_set_base_image_offset(unsigned bild, KOORD_VAL xoff, KOORD_VAL yoff)
@@ -2031,7 +2047,7 @@ void display_set_base_image_offset(unsigned bild, KOORD_VAL xoff, KOORD_VAL yoff
 	images[bild].base_x += xoff;
 	images[bild].base_y += yoff;
 }
-
+*/
 
 // ------------------ display all kind of images from here on ------------------------------
 
@@ -2072,6 +2088,8 @@ enum pixcopy_routines {
 
 
 template<pixcopy_routines copyroutine> void templated_pixcopy(PIXVAL *dest, const PIXVAL *src, const PIXVAL * const end);
+
+
 template<> void templated_pixcopy<plain>(PIXVAL *dest, const PIXVAL *src, const PIXVAL * const end)
 {
 	pixcopy(dest, src, end);
@@ -2088,15 +2106,23 @@ template<> void templated_pixcopy<colored>(PIXVAL *dest, const PIXVAL *src, cons
  * draws image with clipping along arbitrary lines
  * @author Dwachs
  */
+#if MULTI_THREAD>1
+template<pixcopy_routines copyroutine>
+static void display_img_pc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp, const sint8 clip_num)
+#else
 template<pixcopy_routines copyroutine>
 static void display_img_pc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp)
+#endif
 {
-	if (h > 0) {
+	if(  h > 0  ) {
 		PIXVAL *tp = textur + yp * disp_width;
 
 		// initialize clipping
-		init_ranges(yp);
-
+#if MULTI_THREAD>1
+		init_ranges( yp, clip_num );
+#else
+		init_ranges( yp );
+#endif
 		do { // line decoder
 			int xpos = xp;
 
@@ -2105,8 +2131,11 @@ static void display_img_pc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 
 			// get left/right boundary, step
 			int xmin, xmax;
-			get_xrange_and_step_y(xmin, xmax);
-
+#if MULTI_THREAD>1
+			get_xrange_and_step_y( xmin, xmax, clip_num );
+#else
+			get_xrange_and_step_y( xmin, xmax );
+#endif
 			do {
 				// we start with a clear run
 				xpos += runlen;
@@ -2136,9 +2165,13 @@ static void display_img_pc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
  * Draw image with horizontal clipping
  * @author Hj. Malthaner
  */
+#if MULTI_THREAD>1
+static void display_img_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp, const sint8 clip_num)
+#else
 static void display_img_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp)
+#endif
 {
-	if (h > 0) {
+	if(  h > 0  ) {
 		PIXVAL *tp = textur + yp * disp_width;
 
 		do { // line decoder
@@ -2155,10 +2188,15 @@ static void display_img_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 				runlen = *sp++;
 
 				// Hajo: something to display?
-				if (xpos + runlen > clip_rect.x && xpos < clip_rect.xx) {
+#if MULTI_THREAD>1
+				if(  xpos + runlen > clips[clip_num].clip_rect.x  &&  xpos < clips[clip_num].clip_rect.xx  ) {
+					const int left = (xpos >= clips[clip_num].clip_rect.x ? 0 : clips[clip_num].clip_rect.x - xpos);
+					const int len  = (clips[clip_num].clip_rect.xx - xpos >= runlen ? runlen : clips[clip_num].clip_rect.xx - xpos);
+#else
+				if(  xpos + runlen > clip_rect.x  &&  xpos < clip_rect.xx  ) {
 					const int left = (xpos >= clip_rect.x ? 0 : clip_rect.x - xpos);
 					const int len  = (clip_rect.xx - xpos >= runlen ? runlen : clip_rect.xx - xpos);
-
+#endif
 					pixcopy(tp + xpos + left, sp + left, sp + len);
 				}
 
@@ -2276,56 +2314,67 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
  * Draw image with vertical clipping (quickly) and horizontal (slowly)
  * @author prissi
  */
+#if MULTI_THREAD>1
+void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 use_player, const int /*daynight*/, const int dirty, const sint8 clip_num)
+#else
 void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 use_player, const int /*daynight*/, const int dirty)
+#endif
 {
-	if (n < anz_images) {
+	if(  n < anz_images  ) {
 		// need to go to nightmode and or re-zoomed?
 		PIXVAL *sp;
-		KOORD_VAL h, reduce_h, skip_lines;
-
-		if (use_player) {
-			sp = images[n].player_data;
-			if (sp == NULL) {
-				printf("CImg %i failed!\n", n);
+		if(  use_player > 0  ) {
+			// player colour images are rezoomed/recoloured in display_color_img
+			sp = images[n].data[use_player];
+			if(  sp == NULL  ) {
+				printf("CImg[%i] %i failed!\n", use_player, n);
 				return;
 			}
 		}
 		else {
-			if (images[n].recode_flags&FLAG_REZOOM) {
-				rezoom_img(n);
-				recode_normal_img(n);
+			if(  (images[n].recode_flags & FLAG_REZOOM)  ) {
+				rezoom_img( n );
+				recode_img( n, 0 );
 			}
-			else if (images[n].recode_flags&FLAG_NORMAL_RECODE) {
-				recode_normal_img(n);
+			else if(  (images[n].player_flags & 1)  ) {
+				recode_img( n, 0 );
 			}
-			sp = images[n].data;
-			if (sp == NULL) {
+			sp = images[n].data[0];
+			if(  sp == NULL  ) {
 				printf("Img %i failed!\n", n);
 				return;
 			}
 		}
 		// now, since zooming may have change this image
 		yp += images[n].y;
-		h = images[n].h; // may change due to vertical clipping
+		KOORD_VAL h = images[n].h; // may change due to vertical clipping
 
 		// in the next line the vertical clipping will be handled
 		// by that way the drawing routines must only take into account the horizontal clipping
 		// this should be much faster in most cases
 
 		// must the height be reduced?
-		reduce_h = yp + h - clip_rect.yy;
-		if (reduce_h > 0) {
+#if MULTI_THREAD>1
+		KOORD_VAL reduce_h = yp + h - clips[clip_num].clip_rect.yy;
+#else
+		KOORD_VAL reduce_h = yp + h - clip_rect.yy;
+#endif
+		if(  reduce_h > 0  ) {
 			h -= reduce_h;
 		}
 		// still something to draw
-		if (h <= 0) {
+		if(  h <= 0  ) {
 			return;
 		}
 
 		// vertically lines to skip (only bottom is visible
-		skip_lines = clip_rect.y - (int)yp;
-		if (skip_lines > 0) {
-			if (skip_lines >= h) {
+#if MULTI_THREAD>1
+		KOORD_VAL skip_lines = clips[clip_num].clip_rect.y - (int)yp;
+#else
+		KOORD_VAL skip_lines = clip_rect.y - (int)yp;
+#endif
+		if(  skip_lines > 0  ) {
+			if(  skip_lines >= h  ) {
 				// not visible at all
 				return;
 			}
@@ -2350,27 +2399,49 @@ void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 u
 			xp += images[n].x;
 
 			// clipping at poly lines?
-			if (number_of_clips>0) {
-					display_img_pc<plain>(h, xp, yp, sp);
+#if MULTI_THREAD>1
+			if(  clips[clip_num].number_of_clips > 0  ) {
+					display_img_pc<plain>( h, xp, yp, sp, clip_num );
+#else
+			if(  number_of_clips > 0  ) {
+					display_img_pc<plain>( h, xp, yp, sp );
+#endif
 					// since height may be reduced, start marking here
-					if (dirty) {
-						mark_rect_dirty_clip(xp, yp, xp + w - 1, yp + h - 1);
+					if(  dirty  ) {
+#if MULTI_THREAD>1
+						mark_rect_dirty_clip( xp, yp, xp + w - 1, yp + h - 1, clip_num );
+#else
+						mark_rect_dirty_clip( xp, yp, xp + w - 1, yp + h - 1 );
+#endif
 					}
 			}
 			else {
 				// use horizontal clipping or skip it?
-				if (xp >= clip_rect.x  &&  xp + w <= clip_rect.xx) {
+#if MULTI_THREAD>1
+				if(  xp >= clips[clip_num].clip_rect.x  &&  xp + w <= clips[clip_num].clip_rect.xx  ) {
+#else
+				if(  xp >= clip_rect.x  &&  xp + w <= clip_rect.xx  ) {
+#endif
 					// marking change?
-					if (dirty) {
-						mark_rect_dirty_nc(xp, yp, xp + w - 1, yp + h - 1);
+					if(  dirty  ) {
+						mark_rect_dirty_nc( xp, yp, xp + w - 1, yp + h - 1 );
 					}
-					display_img_nc(h, xp, yp, sp);
+					display_img_nc( h, xp, yp, sp );
 				}
-				else if (xp < clip_rect.xx  &&  xp + w > clip_rect.x) {
-					display_img_wc(h, xp, yp, sp);
+#if MULTI_THREAD>1
+				else if(  xp < clips[clip_num].clip_rect.xx  &&  xp + w > clips[clip_num].clip_rect.x  ) {
+					display_img_wc( h, xp, yp, sp, clip_num );
+#else
+				else if(  xp < clip_rect.xx  &&  xp + w > clip_rect.x  ) {
+					display_img_wc( h, xp, yp, sp );
+#endif
 					// since height may be reduced, start marking here
-					if (dirty) {
-						mark_rect_dirty_clip(xp, yp, xp + w - 1, yp + h - 1);
+					if(  dirty  ) {
+#if MULTI_THREAD>1
+						mark_rect_dirty_clip( xp, yp, xp + w - 1, yp + h - 1, clip_num );
+#else
+						mark_rect_dirty_clip( xp, yp, xp + w - 1, yp + h - 1 );
+#endif
 					}
 				}
 			}
@@ -2385,7 +2456,11 @@ void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 u
  * color replacement needs the original data => sp points to non-cached data
  * @author hajo/prissi
  */
+#if MULTI_THREAD>1
+static void display_color_img_wc(const PIXVAL *sp, KOORD_VAL x, KOORD_VAL y, KOORD_VAL h, const sint8 clip_num )
+#else
 static void display_color_img_wc(const PIXVAL *sp, KOORD_VAL x, KOORD_VAL y, KOORD_VAL h )
+#endif
 {
 	PIXVAL *tp = textur + y * disp_width;
 
@@ -2404,10 +2479,15 @@ static void display_color_img_wc(const PIXVAL *sp, KOORD_VAL x, KOORD_VAL y, KOO
 			runlen = *sp++;
 
 			// Hajo: something to display?
-			if (xpos + runlen > clip_rect.x && xpos < clip_rect.xx) {
+#if MULTI_THREAD>1
+			if(  xpos + runlen > clips[clip_num].clip_rect.x  &&  xpos < clips[clip_num].clip_rect.xx  ) {
+				const int left = (xpos >= clips[clip_num].clip_rect.x ? 0 : clips[clip_num].clip_rect.x - xpos);
+				const int len  = (clips[clip_num].clip_rect.xx - xpos > runlen ? runlen : clips[clip_num].clip_rect.xx - xpos);
+#else
+			if(  xpos + runlen > clip_rect.x  &&  xpos < clip_rect.xx  ) {
 				const int left = (xpos >= clip_rect.x ? 0 : clip_rect.x - xpos);
 				const int len  = (clip_rect.xx-xpos > runlen ? runlen : clip_rect.xx - xpos);
-
+#endif
 				colorpixcopy(tp + xpos + left, sp + left, sp + len);
 			}
 
@@ -2424,71 +2504,65 @@ static void display_color_img_wc(const PIXVAL *sp, KOORD_VAL x, KOORD_VAL y, KOO
  * Draw Image, replaced player color
  * @author Hj. Malthaner
  */
+#if MULTI_THREAD>1
+void display_color_img_cl(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 player_nr, const int daynight, const int dirty, const sint8 clip_num)
+#else
 void display_color_img(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 player_nr, const int daynight, const int dirty)
+#endif
 {
-	if (n < anz_images) {
-
+	if(  n < anz_images  ) {
 		// first: size check
-		if (images[n].recode_flags&FLAG_REZOOM) {
-			rezoom_img(n);
+		if(  (images[n].recode_flags & FLAG_REZOOM)  ) {
+			rezoom_img( n );
 		}
 
-		if(  daynight  ||  night_shift==0  ) {
-			// Hajo: since the colors for player 0 are already right,
-			// only use the expensive replacement routine for colored images
-			// of other players
-			if(  player_nr==0  ||  (images[n].recode_flags & FLAG_PLAYERCOLOR)==0  ) {
-				display_img_aux(n, xp, yp, false, true, dirty);
-				return;
+		if(  daynight  ||  night_shift == 0  ) {
+			// ok, now we could use the same faster code as for the normal images
+			if(  (images[n].player_flags & (1<<player_nr))  ) {
+				recode_img( n, player_nr );
 			}
-
-			// first test, if we can/need to build a cached version
-			if(  (images[n].player_flags&(~NEED_PLAYER_RECODE)) == 0  ) {
-				// we can still recolor if needed
-				recode_color_img(n, player_nr);
-			}
-			// ok, there is a cached version
-			if(  (images[n].player_flags&(~NEED_PLAYER_RECODE)) == player_nr  ) {
-				// ok, now we could use the same faster code as for the normal images
-				display_img_aux(n, xp, yp, true, true, dirty);
-				return;
-			}
+#if MULTI_THREAD>1
+			display_img_aux( n, xp, yp, player_nr, true, dirty, clip_num );
+#else
+			display_img_aux( n, xp, yp, player_nr, true, dirty );
+#endif
+			return;
 		}
-
+		else {
+		// do player colour substitution but not daynight - can't use cached images. Do NOT call multithreaded.
 		// prissi: now test if visible and clipping needed
-		{
 			const KOORD_VAL x = images[n].x + xp;
 			      KOORD_VAL y = images[n].y + yp;
 			const KOORD_VAL w = images[n].w;
 			      KOORD_VAL h = images[n].h;
-
-			if (h <= 0 || x >= clip_rect.xx || y >= clip_rect.yy || x + w <= clip_rect.x || y + h <= clip_rect.y) {
+#if MULTI_THREAD>1
+			if(  h <= 0  ||  x >= clips[clip_num].clip_rect.xx  ||  y >= clips[clip_num].clip_rect.yy  ||  x + w <= clips[clip_num].clip_rect.x  ||  y + h <= clips[clip_num].clip_rect.y  ) {
+#else
+			if(  h <= 0  ||  x >= clip_rect.xx  ||  y >= clip_rect.yy  ||  x + w <= clip_rect.x  ||  y + h <= clip_rect.y  ) {
+#endif
 				// not visible => we are done
 				// happens quite often ...
 				return;
 			}
 
-			if (dirty) {
-				mark_rect_dirty_wc(x, y, x + w - 1, y + h - 1);
+			if(  dirty  ) {
+				mark_rect_dirty_wc( x, y, x + w - 1, y + h - 1 );
 			}
 
-			// colors for 2nd company color
-			if(player_nr>=0) {
-				activate_player_color( player_nr, daynight );
-			}
-			else {
-				// no player
-				activate_player_color( 0, daynight );
-			}
+			activate_player_color( player_nr, daynight );
+
 			// color replacement needs the original data => sp points to non-cached data
 			const PIXVAL *sp = (tile_raster_width != base_tile_raster_width  &&  images[n].zoom_data != NULL) ? images[n].zoom_data : images[n].base_data;
 
 			// clip top/bottom
-			KOORD_VAL yoff = clip_wh(&y, &h, clip_rect.y, clip_rect.yy);
-			if (h > 0) { // clipping may have reduced it
-
+#if MULTI_THREAD>1
+			KOORD_VAL yoff = clip_wh( &y, &h, clips[clip_num].clip_rect.y, clips[clip_num].clip_rect.yy );
+#else
+			KOORD_VAL yoff = clip_wh( &y, &h, clip_rect.y, clip_rect.yy );
+#endif
+			if(  h > 0  ) { // clipping may have reduced it
 				// clip top
-				while (yoff) {
+				while(  yoff  ) {
 					yoff--;
 					do {
 						// clear run + colored run + next clear run
@@ -2499,11 +2573,20 @@ void display_color_img(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8
 				}
 
 				// clipping at poly lines?
-				if (number_of_clips>0) {
-					display_img_pc<colored>(h, x, y, sp);
+#if MULTI_THREAD>1
+				if(  clips[clip_num].number_of_clips > 0  ) {
+					display_img_pc<colored>( h, x, y, sp, clip_num );
+#else
+				if(  number_of_clips > 0  ) {
+					display_img_pc<colored>( h, x, y, sp );
+#endif
 				}
 				else {
-					display_color_img_wc(sp, x, y, h );
+#if MULTI_THREAD>1
+					display_color_img_wc( sp, x, y, h, clip_num );
+#else
+					display_color_img_wc( sp, x, y, h );
+#endif
 				}
 			}
 		}
@@ -2515,21 +2598,32 @@ void display_color_img(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8
  * draw unscaled images, replaces base color
  * @author prissi
  */
+#if MULTI_THREAD>1
+void display_base_img_cl(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 player_nr, const int daynight, const int dirty, const sint8 clip_num)
+#else
 void display_base_img(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 player_nr, const int daynight, const int dirty)
+#endif
 {
 	if(  base_tile_raster_width==tile_raster_width  ) {
 		// same size => use standard routine
+#if MULTI_THREAD>1
+		display_color_img_cl( n, xp, yp, player_nr, daynight, dirty, clip_num );
+#else
 		display_color_img( n, xp, yp, player_nr, daynight, dirty );
+#endif
 	}
-	else if (n < anz_images) {
-
+	else if(  n < anz_images  ) {
 		// prissi: now test if visible and clipping needed
 		const KOORD_VAL x = images[n].base_x + xp;
 		      KOORD_VAL y = images[n].base_y + yp;
 		const KOORD_VAL w = images[n].base_w;
 		      KOORD_VAL h = images[n].base_h;
 
-		if (h <= 0 || x >= clip_rect.xx || y >= clip_rect.yy || x + w <= clip_rect.x || y + h <= clip_rect.y) {
+#if MULTI_THREAD>1
+		if(  h <= 0  ||  x >= clips[clip_num].clip_rect.xx  ||  y >= clips[clip_num].clip_rect.yy  ||  x + w <= clips[clip_num].clip_rect.x  ||  y + h <= clips[clip_num].clip_rect.y  ) {
+#else
+		if(  h <= 0  ||  x >= clip_rect.xx  ||  y >= clip_rect.yy  ||  x + w <= clip_rect.x  ||  y + h <= clip_rect.y  ) {
+#endif
 			// not visible => we are done
 			// happens quite often ...
 			return;
@@ -2552,11 +2646,14 @@ void display_base_img(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 
 		const PIXVAL *sp = images[n].base_data;
 
 		// clip top/bottom
-		KOORD_VAL yoff = clip_wh(&y, &h, clip_rect.y, clip_rect.yy);
-		if (h > 0) { // clipping may have reduced it
-
+#if MULTI_THREAD>1
+		KOORD_VAL yoff = clip_wh( &y, &h, clips[clip_num].clip_rect.y, clips[clip_num].clip_rect.yy );
+#else
+		KOORD_VAL yoff = clip_wh( &y, &h, clip_rect.y, clip_rect.yy );
+#endif
+		if(  h > 0  ) { // clipping may have reduced it
 			// clip top
-			while (yoff) {
+			while(  yoff  ) {
 				yoff--;
 				do {
 					// clear run + colored run + next clear run
@@ -2566,11 +2663,20 @@ void display_base_img(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 
 				sp++;
 			}
 			// clipping at poly lines?
-			if (number_of_clips>0) {
-				display_img_pc<colored>(h, x, y, sp);
+#if MULTI_THREAD>1
+			if(  clips[clip_num].number_of_clips > 0  ) {
+				display_img_pc<colored>( h, x, y, sp, clip_num );
+#else
+			if(  number_of_clips > 0  ) {
+				display_img_pc<colored>( h, x, y, sp );
+#endif
 			}
 			else {
+#if MULTI_THREAD>1
+				display_color_img_wc( sp, x, y, h, clip_num );
+#else
 				display_color_img_wc( sp, x, y, h );
+#endif
 			}
 		}
 
@@ -2792,8 +2898,11 @@ static blend_proc outline[3];
  */
 void display_blend_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, int color, int percent_blend )
 {
-	if(  clip_lr(&xp, &w, clip_rect.x, clip_rect.xx)  &&  clip_lr(&yp, &h, clip_rect.y, clip_rect.yy)  ) {
-
+#if MULTI_THREAD>1
+	if(  clip_lr( &xp, &w, clips[0].clip_rect.x, clips[0].clip_rect.xx )  &&  clip_lr( &yp, &h, clips[0].clip_rect.y, clips[0].clip_rect.yy )  ) {
+#else
+	if(  clip_lr( &xp, &w, clip_rect.x, clip_rect.xx )  &&  clip_lr( &yp, &h, clip_rect.y, clip_rect.yy )  ) {
+#endif
 		const PIXVAL colval = specialcolormap_all_day[color & 0xFF];
 		const PIXVAL alpha = (percent_blend*64)/100;
 
@@ -2865,9 +2974,13 @@ void display_blend_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, int 
 }
 
 
+#if MULTI_THREAD>1
+static void display_img_blend_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp, int colour, blend_proc p, const sint8 clip_num )
+#else
 static void display_img_blend_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp, int colour, blend_proc p )
+#endif
 {
-	if (h > 0) {
+	if(  h > 0  ) {
 		PIXVAL *tp = textur + yp * disp_width;
 
 		do { // line decoder
@@ -2884,9 +2997,15 @@ static void display_img_blend_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VA
 				runlen = *sp++;
 
 				// Hajo: something to display?
-				if (xpos + runlen > clip_rect.x && xpos < clip_rect.xx) {
+#if MULTI_THREAD>1
+				if(  xpos + runlen > clips[clip_num].clip_rect.x  &&  xpos < clips[clip_num].clip_rect.xx  ) {
+					const int left = (xpos >= clips[clip_num].clip_rect.x ? 0 : clips[clip_num].clip_rect.x - xpos);
+					const int len  = (clips[clip_num].clip_rect.xx - xpos >= runlen ? runlen : clips[clip_num].clip_rect.xx - xpos);
+#else
+				if(  xpos + runlen > clip_rect.x  &&  xpos < clip_rect.xx  ) {
 					const int left = (xpos >= clip_rect.x ? 0 : clip_rect.x - xpos);
 					const int len  = (clip_rect.xx - xpos >= runlen ? runlen : clip_rect.xx - xpos);
+#endif
 					p(tp + xpos + left, sp + left, colour, len - left);
 				}
 
@@ -3068,7 +3187,11 @@ static void pix_alpha_recode_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL *a
 }
 
 
+#if MULTI_THREAD>1
+static void display_img_alpha_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp, const PIXVAL *alphamap, const uint8 alpha_flags, int colour, alpha_proc p, const sint8 clip_num )
+#else
 static void display_img_alpha_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp, const PIXVAL *alphamap, const uint8 alpha_flags, int colour, alpha_proc p )
+#endif
 {
 	if(  h > 0  ) {
 		PIXVAL *tp = textur + yp * disp_width;
@@ -3089,9 +3212,15 @@ static void display_img_alpha_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VA
 				alphamap++;
 
 				// Hajo: something to display?
+#if MULTI_THREAD>1
+				if(  xpos + runlen > clips[clip_num].clip_rect.x  &&  xpos < clips[clip_num].clip_rect.xx  ) {
+					const int left = (xpos >= clips[clip_num].clip_rect.x ? 0 : clips[clip_num].clip_rect.x - xpos);
+					const int len  = (clips[clip_num].clip_rect.xx - xpos >= runlen ? runlen : clips[clip_num].clip_rect.xx - xpos);
+#else
 				if(  xpos + runlen > clip_rect.x  &&  xpos < clip_rect.xx  ) {
 					const int left = (xpos >= clip_rect.x ? 0 : clip_rect.x - xpos);
 					const int len  = (clip_rect.xx - xpos >= runlen ? runlen : clip_rect.xx - xpos);
+#endif
 					p( tp + xpos + left, sp + left, alphamap + left, alpha_flags, colour, len - left );
 				}
 
@@ -3111,42 +3240,52 @@ static void display_img_alpha_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VA
  * draws the transparent outline of an image
  * @author kierongreen
  */
+#if MULTI_THREAD>1
+void display_rezoomed_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char /*player_nr*/, const PLAYER_COLOR_VAL color_index, const int /*daynight*/, const int dirty, const sint8 clip_num)
+#else
 void display_rezoomed_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char /*player_nr*/, const PLAYER_COLOR_VAL color_index, const int /*daynight*/, const int dirty)
+#endif
 {
-	if (n < anz_images) {
+	if(  n < anz_images  ) {
 		// need to go to nightmode and or rezoomed?
-		PIXVAL *sp;
-		KOORD_VAL h, reduce_h, skip_lines;
-
-		if (images[n].recode_flags&FLAG_REZOOM) {
-			rezoom_img(n);
-			recode_normal_img(n);
-		} else if (images[n].recode_flags&FLAG_NORMAL_RECODE) {
-			recode_normal_img(n);
+		if(  (images[n].recode_flags & FLAG_REZOOM)  ) {
+			rezoom_img( n );
+			recode_img( n, 0 );
 		}
-		sp = images[n].data;
+		else if(  (images[n].player_flags & 1)  ) {
+			recode_img( n, 0 );
+		}
+		PIXVAL *sp = images[n].data[0];
 
 		// now, since zooming may have change this image
 		xp += images[n].x;
 		yp += images[n].y;
-		h = images[n].h; // may change due to vertical clipping
+		KOORD_VAL h = images[n].h; // may change due to vertical clipping
 
 		// in the next line the vertical clipping will be handled
 		// by that way the drawing routines must only take into account the horizontal clipping
 		// this should be much faster in most cases
 
 		// must the height be reduced?
-		reduce_h = yp + h - clip_rect.yy;
-		if (reduce_h > 0) {
+#if MULTI_THREAD>1
+		KOORD_VAL reduce_h = yp + h - clips[clip_num].clip_rect.yy;
+#else
+		KOORD_VAL reduce_h = yp + h - clip_rect.yy;
+#endif
+		if(  reduce_h > 0  ) {
 			h -= reduce_h;
 		}
 		// still something to draw
-		if (h <= 0) return;
+		if(  h <= 0  ) return;
 
 		// vertically lines to skip (only bottom is visible
-		skip_lines = clip_rect.y - (int)yp;
-		if (skip_lines > 0) {
-			if (skip_lines >= h) {
+#if MULTI_THREAD>1
+		KOORD_VAL skip_lines = clips[clip_num].clip_rect.y - (int)yp;
+#else
+		KOORD_VAL skip_lines = clip_rect.y - (int)yp;
+#endif
+		if(  skip_lines > 0  ) {
+			if(  skip_lines >= h  ) {
 				// not visible at all
 				return;
 			}
@@ -3174,17 +3313,27 @@ void display_rezoomed_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, co
 			blend_proc pix_blend = (color_index&OUTLINE_FLAG) ? outline[ (color_index&TRANSPARENT_FLAGS)/TRANSPARENT25_FLAG - 1 ] : blend[ (color_index&TRANSPARENT_FLAGS)/TRANSPARENT25_FLAG - 1 ];
 
 			// use horizontal clipping or skip it?
-			if (xp >= clip_rect.x && xp + w  <= clip_rect.xx) {
+#if MULTI_THREAD>1
+			if(  xp >= clips[clip_num].clip_rect.x  &&  xp + w  <= clips[clip_num].clip_rect.xx  ) {
+#else
+			if(  xp >= clip_rect.x  &&  xp + w  <= clip_rect.xx  ) {
+#endif
 				// marking change?
-				if (dirty) {
-					mark_rect_dirty_nc(xp, yp, xp + w - 1, yp + h - 1);
+				if(  dirty  ) {
+					mark_rect_dirty_nc( xp, yp, xp + w - 1, yp + h - 1 );
 				}
+#if MULTI_THREAD>1
+				display_img_blend_wc( h, xp, yp, sp, color, pix_blend, clip_num );
+			} else if(  xp < clips[clip_num].clip_rect.xx  &&  xp + w > clips[clip_num].clip_rect.x  ) {
+				display_img_blend_wc( h, xp, yp, sp, color, pix_blend, clip_num );
+#else
 				display_img_blend_wc( h, xp, yp, sp, color, pix_blend );
-			} else if (xp < clip_rect.xx && xp + w > clip_rect.x) {
+			} else if(  xp < clip_rect.xx  &&  xp + w > clip_rect.x  ) {
 				display_img_blend_wc( h, xp, yp, sp, color, pix_blend );
+#endif
 				// since height may be reduced, start marking here
-				if (dirty) {
-					mark_rect_dirty_wc(xp, yp, xp + w - 1, yp + h - 1);
+				if(  dirty  ) {
+					mark_rect_dirty_wc( xp, yp, xp + w - 1, yp + h - 1 );
 				}
 			}
 		}
@@ -3192,38 +3341,42 @@ void display_rezoomed_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, co
 }
 
 
+#if MULTI_THREAD>1
+void display_rezoomed_img_alpha(const unsigned n, const unsigned alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char /*player_nr*/, const PLAYER_COLOR_VAL color_index, const int /*daynight*/, const int dirty, const sint8 clip_num)
+#else
 void display_rezoomed_img_alpha(const unsigned n, const unsigned alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char /*player_nr*/, const PLAYER_COLOR_VAL color_index, const int /*daynight*/, const int dirty)
+#endif
 {
 	if(  n < anz_images  &&  alpha_n < anz_images  ) {
 		// need to go to nightmode and or rezoomed?
-		PIXVAL *sp;
-		PIXVAL *alphamap;
-		KOORD_VAL h, reduce_h, skip_lines;
-
-		if(  images[n].recode_flags & FLAG_REZOOM  ) {
-			rezoom_img(n);
-			recode_normal_img(n);
+		if(  (images[n].recode_flags & FLAG_REZOOM)  ) {
+			rezoom_img( n );
+			recode_img( n, 0 );
 		}
-		else if(  images[n].recode_flags & FLAG_NORMAL_RECODE  ) {
-			recode_normal_img(n);
+		else if(  (images[n].player_flags & 1)  ) {
+			recode_img( n, 0 );
 		}
-		if(  images[alpha_n].recode_flags & FLAG_REZOOM  ) {
-			rezoom_img(alpha_n);
+		if(  (images[alpha_n].recode_flags & FLAG_REZOOM)  ) {
+			rezoom_img( alpha_n );
 		}
-		sp = images[n].data;
+		PIXVAL *sp = images[n].data[0];
 		// alphamap image uses base data as we don't want to recode
-		alphamap = images[alpha_n].zoom_data != NULL ? images[alpha_n].zoom_data : images[alpha_n].base_data;
+		PIXVAL *alphamap = images[alpha_n].zoom_data != NULL ? images[alpha_n].zoom_data : images[alpha_n].base_data;
 		// now, since zooming may have change this image
 		xp += images[n].x;
 		yp += images[n].y;
-		h = images[n].h; // may change due to vertical clipping
+		KOORD_VAL h = images[n].h; // may change due to vertical clipping
 
 		// in the next line the vertical clipping will be handled
 		// by that way the drawing routines must only take into account the horizontal clipping
 		// this should be much faster in most cases
 
 		// must the height be reduced?
-		reduce_h = yp + h - clip_rect.yy;
+#if MULTI_THREAD>1
+		KOORD_VAL reduce_h = yp + h - clips[clip_num].clip_rect.yy;
+#else
+		KOORD_VAL reduce_h = yp + h - clip_rect.yy;
+#endif
 		if(  reduce_h > 0  ) {
 			h -= reduce_h;
 		}
@@ -3233,7 +3386,11 @@ void display_rezoomed_img_alpha(const unsigned n, const unsigned alpha_n, const 
 		}
 
 		// vertically lines to skip (only bottom is visible
-		skip_lines = clip_rect.y - (int)yp;
+#if MULTI_THREAD>1
+		KOORD_VAL skip_lines = clips[clip_num].clip_rect.y - (int)yp;
+#else
+		KOORD_VAL skip_lines = clip_rect.y - (int)yp;
+#endif
 		if(  skip_lines > 0  ) {
 			if(  skip_lines >= h  ) {
 				// not visible at all
@@ -3264,15 +3421,28 @@ void display_rezoomed_img_alpha(const unsigned n, const unsigned alpha_n, const 
 			const PIXVAL color = specialcolormap_all_day[color_index & 0xFF];
 
 			// use horizontal clipping or skip it?
+#if MULTI_THREAD>1
+			if(  xp >= clips[clip_num].clip_rect.x  &&  xp + w  <= clips[clip_num].clip_rect.xx  ) {
+#else
 			if(  xp >= clip_rect.x  &&  xp + w  <= clip_rect.xx  ) {
+#endif
 				// marking change?
 				if(  dirty  ) {
 					mark_rect_dirty_nc( xp, yp, xp + w - 1, yp + h - 1 );
 				}
+#if MULTI_THREAD>1
+				display_img_alpha_wc( h, xp, yp, sp, alphamap, alpha_flags, color, alpha, clip_num );
+#else
 				display_img_alpha_wc( h, xp, yp, sp, alphamap, alpha_flags, color, alpha );
+#endif
 			}
+#if MULTI_THREAD>1
+			else if(  xp < clips[clip_num].clip_rect.xx  &&  xp + w > clips[clip_num].clip_rect.x  ) {
+				display_img_alpha_wc( h, xp, yp, sp, alphamap, alpha_flags, color, alpha, clip_num );
+#else
 			else if(  xp < clip_rect.xx  &&  xp + w > clip_rect.x  ) {
 				display_img_alpha_wc( h, xp, yp, sp, alphamap, alpha_flags, color, alpha );
+#endif
 				// since height may be reduced, start marking here
 				if(  dirty  ) {
 					mark_rect_dirty_wc( xp, yp, xp + w - 1, yp + h - 1 );
@@ -3284,21 +3454,31 @@ void display_rezoomed_img_alpha(const unsigned n, const unsigned alpha_n, const 
 
 
 // Knightly : For blending or outlining unzoomed image. Adapted from display_base_img() and display_unzoomed_img_blend()
+#if MULTI_THREAD>1
+void display_base_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty, const sint8 clip_num)
+#else
 void display_base_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty)
+#endif
 {
-	if(  base_tile_raster_width==tile_raster_width  ) {
+	if(  base_tile_raster_width == tile_raster_width  ) {
 		// same size => use standard routine
+#if MULTI_THREAD>1
+		display_rezoomed_img_blend( n, xp, yp, player_nr, color_index, daynight, dirty, clip_num );
+#else
 		display_rezoomed_img_blend( n, xp, yp, player_nr, color_index, daynight, dirty );
+#endif
 	}
-	else if (n < anz_images) {
-
+	else if(  n < anz_images  ) {
 		// prissi: now test if visible and clipping needed
 		KOORD_VAL x = images[n].base_x + xp;
 		KOORD_VAL y = images[n].base_y + yp;
 		KOORD_VAL w = images[n].base_w;
 		KOORD_VAL h = images[n].base_h;
-
-		if (h == 0 || x >= clip_rect.xx || y >= clip_rect.yy || x + w <= clip_rect.x || y + h <= clip_rect.y) {
+#if MULTI_THREAD>1
+		if(  h == 0  ||  x >= clips[clip_num].clip_rect.xx  ||  y >= clips[clip_num].clip_rect.yy  ||  x + w <= clips[clip_num].clip_rect.x  ||  y + h <= clips[clip_num].clip_rect.y  ) {
+#else
+		if(  h == 0  ||  x >= clip_rect.xx  ||  y >= clip_rect.yy  ||  x + w <= clip_rect.x  ||  y + h <= clip_rect.y  ) {
+#endif
 			// not visible => we are done
 			// happens quite often ...
 			return;
@@ -3307,14 +3487,22 @@ void display_base_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const 
 		PIXVAL *sp = images[n].base_data;
 
 		// must the height be reduced?
+#if MULTI_THREAD>1
+		KOORD_VAL reduce_h = y + h - clips[clip_num].clip_rect.yy;
+#else
 		KOORD_VAL reduce_h = y + h - clip_rect.yy;
-		if (reduce_h > 0) {
+#endif
+		if(  reduce_h > 0  ) {
 			h -= reduce_h;
 		}
 
 		// vertical lines to skip (only bottom is visible)
+#if MULTI_THREAD>1
+		KOORD_VAL skip_lines = clips[clip_num].clip_rect.y - (int)y;
+#else
 		KOORD_VAL skip_lines = clip_rect.y - (int)y;
-		if (skip_lines > 0) {
+#endif
+		if(  skip_lines > 0  ) {
 			h -= skip_lines;
 			y += skip_lines;
 			// now skip them
@@ -3347,28 +3535,48 @@ void display_base_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const 
 			}
 
 			// use horizontal clipping or skip it?
-			if(  x>=clip_rect.x  &&  x+w<=clip_rect.xx  ) {
-				if (dirty) {
-					mark_rect_dirty_nc(x, y, x + w - 1, y + h - 1);
+#if MULTI_THREAD>1
+			if(  x >= clips[clip_num].clip_rect.x  &&  x + w <= clips[clip_num].clip_rect.xx  ) {
+#else
+			if(  x >= clip_rect.x  &&  x + w <= clip_rect.xx  ) {
+#endif
+				if(  dirty  ) {
+					mark_rect_dirty_nc( x, y, x + w - 1, y + h - 1 );
 				}
+#if MULTI_THREAD>1
+				display_img_blend_wc( h, x, y, sp, color, pix_blend, clip_num );
+#else
 				display_img_blend_wc( h, x, y, sp, color, pix_blend );
+#endif
 			}
 			else {
-				if (dirty) {
-					mark_rect_dirty_wc(x, y, x + w - 1, y + h - 1);
+				if(  dirty  ) {
+					mark_rect_dirty_wc( x, y, x + w - 1, y + h - 1 );
 				}
+#if MULTI_THREAD>1
+				display_img_blend_wc( h, x, y, sp, color, pix_blend, clip_num );
+#else
 				display_img_blend_wc( h, x, y, sp, color, pix_blend );
+#endif
 			}
 		}
 	} // number ok
 }
 
 
+#if MULTI_THREAD>1
+void display_base_img_alpha(const unsigned n, const unsigned alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty, const sint8 clip_num)
+#else
 void display_base_img_alpha(const unsigned n, const unsigned alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty)
+#endif
 {
 	if(  base_tile_raster_width == tile_raster_width  ) {
 		// same size => use standard routine
+#if MULTI_THREAD>1
+		display_rezoomed_img_alpha( n, alpha_n, alpha_flags, xp, yp, player_nr, color_index, daynight, dirty, clip_num );
+#else
 		display_rezoomed_img_alpha( n, alpha_n, alpha_flags, xp, yp, player_nr, color_index, daynight, dirty );
+#endif
 	}
 	else if(  n < anz_images  ) {
 		// prissi: now test if visible and clipping needed
@@ -3376,8 +3584,11 @@ void display_base_img_alpha(const unsigned n, const unsigned alpha_n, const unsi
 		KOORD_VAL y = images[n].base_y + yp;
 		KOORD_VAL w = images[n].base_w;
 		KOORD_VAL h = images[n].base_h;
-
+#if MULTI_THREAD>1
+		if(  h == 0  ||  x >= clips[clip_num].clip_rect.xx  ||  y >= clips[clip_num].clip_rect.yy  ||  x + w <= clips[clip_num].clip_rect.x  ||  y + h <= clips[clip_num].clip_rect.y  ) {
+#else
 		if(  h == 0  ||  x >= clip_rect.xx  ||  y >= clip_rect.yy  ||  x + w <= clip_rect.x  ||  y + h <= clip_rect.y  ) {
+#endif
 			// not visible => we are done
 			// happens quite often ...
 			return;
@@ -3387,13 +3598,21 @@ void display_base_img_alpha(const unsigned n, const unsigned alpha_n, const unsi
 		PIXVAL *alphamap = images[alpha_n].base_data;
 
 		// must the height be reduced?
+#if MULTI_THREAD>1
+		KOORD_VAL reduce_h = y + h - clips[clip_num].clip_rect.yy;
+#else
 		KOORD_VAL reduce_h = y + h - clip_rect.yy;
+#endif
 		if(  reduce_h > 0  ) {
 			h -= reduce_h;
 		}
 
 		// vertical lines to skip (only bottom is visible)
+#if MULTI_THREAD>1
+		KOORD_VAL skip_lines = clips[clip_num].clip_rect.y - (int)y;
+#else
 		KOORD_VAL skip_lines = clip_rect.y - (int)y;
+#endif
 		if(  skip_lines > 0  ) {
 			h -= skip_lines;
 			y += skip_lines;
@@ -3432,17 +3651,29 @@ void display_base_img_alpha(const unsigned n, const unsigned alpha_n, const unsi
 			}
 
 			// use horizontal clipping or skip it?
+#if MULTI_THREAD>1
+			if(  x >= clips[clip_num].clip_rect.x  &&  x + w <= clips[clip_num].clip_rect.xx  ) {
+#else
 			if(  x >= clip_rect.x  &&  x + w <= clip_rect.xx  ) {
-				if( dirty ) {
+#endif
+				if(  dirty  ) {
 					mark_rect_dirty_nc( x, y, x + w - 1, y + h - 1 );
 				}
+#if MULTI_THREAD>1
+				display_img_alpha_wc( h, x, y, sp, alphamap, alpha_flags, color, alpha_recode, clip_num );
+#else
 				display_img_alpha_wc( h, x, y, sp, alphamap, alpha_flags, color, alpha_recode );
+#endif
 			}
 			else {
 				if(  dirty  ) {
 					mark_rect_dirty_wc( x, y, x + w - 1, y + h - 1 );
 				}
+#if MULTI_THREAD>1
+				display_img_alpha_wc( h, x, y, sp, alphamap, alpha_flags, color, alpha_recode, clip_num );
+#else
 				display_img_alpha_wc( h, x, y, sp, alphamap, alpha_flags, color, alpha_recode );
+#endif
 			}
 		}
 	} // number ok
@@ -3482,7 +3713,11 @@ static void display_pixel(KOORD_VAL x, KOORD_VAL y, PIXVAL color, bool mark_dirt
 static void display_pixel(KOORD_VAL x, KOORD_VAL y, PIXVAL color)
 #endif
 {
-	if (x >= clip_rect.x && x < clip_rect.xx && y >= clip_rect.y && y < clip_rect.yy) {
+#if MULTI_THREAD>1
+	if(  x >= clips[0].clip_rect.x  &&  x < clips[0].clip_rect.xx  &&  y >= clips[0].clip_rect.y  &&  y < clips[0].clip_rect.yy  ) {
+#else
+	if(  x >= clip_rect.x  &&  x < clip_rect.xx  &&  y >= clip_rect.y  &&  y < clip_rect.yy  ) {
+#endif
 		PIXVAL* const p = textur + x + y * disp_width;
 
 		*p = color;
@@ -3564,10 +3799,17 @@ void display_fillbox_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PL
 }
 
 
+#if MULTI_THREAD>1
+void display_fillbox_wh_clip_cl(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, bool dirty, const sint8 clip_num)
+{
+	display_fb_internal( xp, yp, w, h, color, dirty, clips[clip_num].clip_rect.x, clips[clip_num].clip_rect.xx, clips[clip_num].clip_rect.y, clips[clip_num].clip_rect.yy );
+}
+#else
 void display_fillbox_wh_clip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, bool dirty)
 {
-	display_fb_internal(xp, yp, w, h, color, dirty, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy);
+	display_fb_internal( xp, yp, w, h, color, dirty, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy );
 }
+#endif
 
 
 /**
@@ -3596,10 +3838,17 @@ void display_vline_wh(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PLAYE
 }
 
 
+#if MULTI_THREAD>1
+void display_vline_wh_clip_cl(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PLAYER_COLOR_VAL color, bool dirty, const sint8 clip_num)
+{
+	display_vl_internal( xp, yp, h, color, dirty, clips[clip_num].clip_rect.x, clips[clip_num].clip_rect.xx, clips[clip_num].clip_rect.y, clips[clip_num].clip_rect.yy );
+}
+#else
 void display_vline_wh_clip(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PLAYER_COLOR_VAL color, bool dirty)
 {
-	display_vl_internal(xp, yp, h, color, dirty, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy);
+	display_vl_internal( xp, yp, h, color, dirty, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy );
 }
+#endif
 
 
 /**
@@ -3608,18 +3857,25 @@ void display_vline_wh_clip(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const 
 void display_array_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, const COLOR_VAL *arr)
 {
 	const int arr_w = w;
-	const KOORD_VAL xoff = clip_wh(&xp, &w, clip_rect.x, clip_rect.xx);
-	const KOORD_VAL yoff = clip_wh(&yp, &h, clip_rect.y, clip_rect.yy);
-
-	if (w > 0 && h > 0) {
+#if MULTI_THREAD>1
+	const KOORD_VAL xoff = clip_wh( &xp, &w, clips[0].clip_rect.x, clips[0].clip_rect.xx );
+	const KOORD_VAL yoff = clip_wh( &yp, &h, clips[0].clip_rect.y, clips[0].clip_rect.yy );
+#else
+	const KOORD_VAL xoff = clip_wh( &xp, &w, clip_rect.x, clip_rect.xx );
+	const KOORD_VAL yoff = clip_wh( &yp, &h, clip_rect.y, clip_rect.yy );
+#endif
+	if(  w > 0  &&  h > 0  ) {
 		PIXVAL *p = textur + xp + yp * disp_width;
 		const COLOR_VAL *arr_src = arr;
 
 		mark_rect_dirty_nc(xp, yp, xp + w - 1, yp + h - 1);
-
-		if (xp == clip_rect.x) arr_src += xoff;
-		if (yp == clip_rect.y) arr_src += yoff * arr_w;
-
+#if MULTI_THREAD>1
+		if(  xp == clips[0].clip_rect.x  ) arr_src += xoff;
+		if(  yp == clips[0].clip_rect.y  ) arr_src += yoff * arr_w;
+#else
+		if(  xp == clip_rect.x  ) arr_src += xoff;
+		if(  yp == clip_rect.y  ) arr_src += yoff * arr_w;
+#endif
 		do {
 			unsigned int ww = w;
 
@@ -3905,7 +4161,11 @@ static unsigned char get_h_mask(const int xL, const int xR, const int cL, const 
  * @author Volker Meyer, prissi
  * @date  15.06.2003, 2.1.2005
  */
+#if MULTI_THREAD>1
+int display_text_proportional_len_clip_cl(KOORD_VAL x, KOORD_VAL y, const char* txt, control_alignment_t flags, const PLAYER_COLOR_VAL color_index, long len, const sint8 clip_num)
+#else
 int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt, control_alignment_t flags, const PLAYER_COLOR_VAL color_index, long len)
+#endif
 {
 	const font_type* const fnt = &large_font;
 	KOORD_VAL cL, cR, cT, cB;
@@ -3926,11 +4186,18 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
 #endif
 
 	// TAKE CARE: Clipping area may be larger than actual screen size ...
-	if (flags & DT_CLIP) {
+	if(  (flags & DT_CLIP)  ) {
+#if MULTI_THREAD>1
+		cL = clips[clip_num].clip_rect.x;
+		cR = clips[clip_num].clip_rect.xx;
+		cT = clips[clip_num].clip_rect.y;
+		cB = clips[clip_num].clip_rect.yy;
+#else
 		cL = clip_rect.x;
 		cR = clip_rect.xx;
 		cT = clip_rect.y;
 		cB = clip_rect.yy;
+#endif
 	}
 	else {
 		cL = 0;
@@ -4074,9 +4341,13 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
 		x += char_width_2;
 	}
 
-	if (flags & DT_DIRTY) {
+	if(  flags & DT_DIRTY  ) {
 		// here, because only now we know the length also for ALIGN_LEFT text
-		mark_rect_dirty_clip(x0, y, x - 1, y + 10 - 1);
+#if MULTI_THREAD>1
+		mark_rect_dirty_clip( x0, y, x - 1, y + 10 - 1, clip_num );
+#else
+		mark_rect_dirty_clip( x0, y, x - 1, y + 10 - 1 );
+#endif
 	}
 	// warning: actual len might be longer, due to clipping!
 	return x - x0;
@@ -4152,19 +4423,35 @@ void display_ddd_proportional(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, K
  * display text in 3d box with clipping
  * @author: hsiegeln
  */
+#if MULTI_THREAD>1
+void display_ddd_proportional_clip_cl(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, KOORD_VAL hgt, PLAYER_COLOR_VAL ddd_farbe, PLAYER_COLOR_VAL text_farbe, const char *text, int dirty, const sint8 clip_num)
+{
+	int halfheight = large_font_total_height / 2 + 1;
+
+	display_fillbox_wh_clip_cl( xpos - 2, ypos - halfheight - 1 - hgt, width, 1,              ddd_farbe + 1, dirty, clip_num );
+	display_fillbox_wh_clip_cl( xpos - 2, ypos - halfheight - hgt,     width, halfheight * 2, ddd_farbe,     dirty, clip_num );
+	display_fillbox_wh_clip_cl( xpos - 2, ypos + halfheight - hgt,     width, 1,              ddd_farbe - 1, dirty, clip_num );
+
+	display_vline_wh_clip_cl( xpos - 2,         ypos - halfheight - 1 - hgt, halfheight * 2 + 1, ddd_farbe + 1, dirty, clip_num );
+	display_vline_wh_clip_cl( xpos + width - 3, ypos - halfheight - 1 - hgt, halfheight * 2 + 1, ddd_farbe - 1, dirty, clip_num );
+
+	display_text_proportional_len_clip_cl( xpos + 2, ypos - 5 + (12 - large_font_total_height) / 2, text, ALIGN_LEFT | DT_CLIP, text_farbe, -1, clip_num );
+}
+#else
 void display_ddd_proportional_clip(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, KOORD_VAL hgt, PLAYER_COLOR_VAL ddd_farbe, PLAYER_COLOR_VAL text_farbe, const char *text, int dirty)
 {
 	int halfheight = large_font_total_height / 2 + 1;
 
-	display_fillbox_wh_clip(xpos - 2, ypos - halfheight - 1 - hgt, width, 1,              ddd_farbe + 1, dirty);
-	display_fillbox_wh_clip(xpos - 2, ypos - halfheight - hgt,     width, halfheight * 2, ddd_farbe,     dirty);
-	display_fillbox_wh_clip(xpos - 2, ypos + halfheight - hgt,     width, 1,              ddd_farbe - 1, dirty);
+	display_fillbox_wh_clip( xpos - 2, ypos - halfheight - 1 - hgt, width, 1,              ddd_farbe + 1, dirty );
+	display_fillbox_wh_clip( xpos - 2, ypos - halfheight - hgt,     width, halfheight * 2, ddd_farbe,     dirty );
+	display_fillbox_wh_clip( xpos - 2, ypos + halfheight - hgt,     width, 1,              ddd_farbe - 1, dirty );
 
-	display_vline_wh_clip(xpos - 2,         ypos - halfheight - 1 - hgt, halfheight * 2 + 1, ddd_farbe + 1, dirty);
-	display_vline_wh_clip(xpos + width - 3, ypos - halfheight - 1 - hgt, halfheight * 2 + 1, ddd_farbe - 1, dirty);
+	display_vline_wh_clip( xpos - 2,         ypos - halfheight - 1 - hgt, halfheight * 2 + 1, ddd_farbe + 1, dirty );
+	display_vline_wh_clip( xpos + width - 3, ypos - halfheight - 1 - hgt, halfheight * 2 + 1, ddd_farbe - 1, dirty );
 
-	display_text_proportional_len_clip(xpos + 2, ypos - 5 + (12 - large_font_total_height) / 2, text, ALIGN_LEFT | DT_CLIP, text_farbe, -1);
+	display_text_proportional_len_clip( xpos + 2, ypos - 5 + (12 - large_font_total_height) / 2, text, ALIGN_LEFT | DT_CLIP, text_farbe, -1 );
 }
+#endif
 
 
 /**
@@ -4335,11 +4622,15 @@ void display_filled_circle( KOORD_VAL x0, KOORD_VAL  y0, int radius, const PLAYE
 	int x = 0;
 	int y = radius;
 
-	display_fb_internal( x0-radius, y0, radius+radius+1, 1, color, false, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy);
+#if MULTI_THREAD>1
+	display_fb_internal( x0-radius, y0, radius+radius+1, 1, color, false, clips[0].clip_rect.x, clips[0].clip_rect.xx, clips[0].clip_rect.y, clips[0].clip_rect.yy );
+#else
+	display_fb_internal( x0-radius, y0, radius+radius+1, 1, color, false, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy );
+#endif
 	display_pixel( x0, y0 + radius, colval );
 	display_pixel( x0, y0 - radius, colval );
 	display_pixel( x0 + radius, y0, colval );
-	display_pixel( x0 - radius, y0, colval);
+	display_pixel( x0 - radius, y0, colval );
 
 	while(x < y) {
 		// ddF_x == 2 * x + 1;
@@ -4354,12 +4645,19 @@ void display_filled_circle( KOORD_VAL x0, KOORD_VAL  y0, int radius, const PLAYE
 		x++;
 		ddF_x += 2;
 		f += ddF_x;
+#if MULTI_THREAD>1
+		display_fb_internal( x0-x, y0+y, x+x, 1, color, false, clips[0].clip_rect.x, clips[0].clip_rect.xx, clips[0].clip_rect.y, clips[0].clip_rect.yy );
+		display_fb_internal( x0-x, y0-y, x+x, 1, color, false, clips[0].clip_rect.x, clips[0].clip_rect.xx, clips[0].clip_rect.y, clips[0].clip_rect.yy );
 
-		display_fb_internal( x0-x, y0+y, x+x, 1, color, false, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy);
-		display_fb_internal( x0-x, y0-y, x+x, 1, color, false, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy);
+		display_fb_internal( x0-y, y0+x, y+y, 1, color, false, clips[0].clip_rect.x, clips[0].clip_rect.xx, clips[0].clip_rect.y, clips[0].clip_rect.yy );
+		display_fb_internal( x0-y, y0-x, y+y, 1, color, false, clips[0].clip_rect.x, clips[0].clip_rect.xx, clips[0].clip_rect.y, clips[0].clip_rect.yy );
+#else
+		display_fb_internal( x0-x, y0+y, x+x, 1, color, false, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy );
+		display_fb_internal( x0-x, y0-y, x+x, 1, color, false, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy );
 
-		display_fb_internal( x0-y, y0+x, y+y, 1, color, false, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy);
-		display_fb_internal( x0-y, y0-x, y+y, 1, color, false, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy);
+		display_fb_internal( x0-y, y0+x, y+y, 1, color, false, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy );
+		display_fb_internal( x0-y, y0-x, y+y, 1, color, false, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy );
+#endif
 	}
 //	mark_rect_dirty_wc( x0-radius, y0-radius, x0+radius+1, y0+radius+1 );
 }

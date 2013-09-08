@@ -139,8 +139,13 @@ void world_view_t::internal_draw(const koord offset, ding_t const* const ding)
 		const sint16 yypos = display_off.y + (off.y + off.x) * 16 * raster / 64 - tile_raster_scale_y(kb->get_hoehe() * TILE_HEIGHT_STEP, raster);
 		if(  gr.y < yypos  ) {
 			break; // enough with grounds
-		} else if (  0 <= yypos + raster  ) {
-			kb->display_if_visible(pos.x + off_x, pos.y + yypos, raster);
+		}
+		else if(  0 <= yypos + raster  ) {
+#if MULTI_THREAD>1
+			kb->display_if_visible( pos.x + off_x, pos.y + yypos, raster, 0 );
+#else
+			kb->display_if_visible( pos.x + off_x, pos.y + yypos, raster );
+#endif
 		}
 	}
 
@@ -171,8 +176,13 @@ void world_view_t::internal_draw(const koord offset, ding_t const* const ding)
 
 		const sint16 yypos = display_off.y + (off.y + off.x) * 16 * raster / 64 - tile_raster_scale_y(h * TILE_HEIGHT_STEP, raster);
 		if(  0 <= yypos + raster  &&  yypos - raster * 2 < gr.y  ) {
-			plan->display_dinge(pos.x + off_x, pos.y + yypos, raster, false, hmin, hmax);
-		} else if(  yypos > gr.y  ) {
+#if MULTI_THREAD>1
+			plan->display_dinge( pos.x + off_x, pos.y + yypos, raster, false, hmin, hmax, 0 );
+#else
+			plan->display_dinge( pos.x + off_x, pos.y + yypos, raster, false, hmin, hmax );
+#endif
+		}
+		else if(  yypos > gr.y  ) {
 			break; // now we can finish
 		}
 	}
@@ -181,7 +191,11 @@ void world_view_t::internal_draw(const koord offset, ding_t const* const ding)
 	if(  y_offset != 0  ) {
 		const grund_t * const g     = welt->lookup(ding->get_pos());
 		const sint16          yypos = display_off.y - tile_raster_scale_y(2 * y_offset * 16, raster) - tile_raster_scale_y(g->get_hoehe() * TILE_HEIGHT_STEP, raster);
-		g->display_dinge_all(pos.x + display_off.x, pos.y + yypos, raster, false);
+#if MULTI_THREAD>1
+		g->display_dinge_all( pos.x + display_off.x, pos.y + yypos, raster, false, 0 );
+#else
+		g->display_dinge_all( pos.x + display_off.x, pos.y + yypos, raster, false );
+#endif
 	}
 
 	display_set_clip_wh(old_clip.x, old_clip.y, old_clip.w, old_clip.h);

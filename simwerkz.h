@@ -807,7 +807,7 @@ public:
 	}
 	bool init( karte_t *welt, spieler_t * ) {
 		umgebung_t::hide_buildings ++;
-		if(umgebung_t::hide_buildings>umgebung_t::ALL_HIDDEN_BUIDLING) {
+		if(umgebung_t::hide_buildings>umgebung_t::ALL_HIDDEN_BUILDING) {
 			umgebung_t::hide_buildings = umgebung_t::NOT_HIDE;
 		}
 		welt->set_dirty();

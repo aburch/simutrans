@@ -186,15 +186,13 @@ void *karte_t::world_xy_loop_thread(void *ptr)
 
 void karte_t::world_xy_loop(xy_loop_func function, uint8 flags)
 {
-	bool sync_x_steps = (flags&SYNCX_FLAG)==SYNCX_FLAG;
-	bool use_grids = (flags&GRIDS_FLAG)==GRIDS_FLAG;
-
+	const bool use_grids = (flags & GRIDS_FLAG) == GRIDS_FLAG;
 	uint16 max_x = use_grids?(cached_grid_size.x+1):cached_grid_size.x;
 	uint16 max_y = use_grids?(cached_grid_size.y+1):cached_grid_size.y;
-
 #if MULTI_THREAD>1
 	set_random_mode( INTERACTIVE_RANDOM ); // do not allow simrand() here!
 
+	const bool sync_x_steps = (flags & SYNCX_FLAG) == SYNCX_FLAG;
 
 	// semaphores to synchronize progress in x direction
 	sem_t sems[MULTI_THREAD-1];
@@ -218,7 +216,6 @@ void karte_t::world_xy_loop(xy_loop_func function, uint8 flags)
 		world_thread_param[t].keep_running = t < MULTI_THREAD - 1;
 	}
 
-
 	if(!spawned_world_threads) {
 		// we can do the parallel display using posix threads ...
 		pthread_t thread[MULTI_THREAD];
@@ -232,7 +229,6 @@ void karte_t::world_xy_loop(xy_loop_func function, uint8 flags)
 
 		for(  int t=0;  t<MULTI_THREAD-1;  t++  ) {
 			if(  pthread_create(&thread[t], &attr, world_xy_loop_thread, (void *)&world_thread_param[t])  ) {
-//				can_multithreading = false;
 				dbg->fatal( "karte_t::world_xy_loop()", "cannot multithread, error at thread #%i", t+1 );
 				return;
 			}
@@ -241,7 +237,6 @@ void karte_t::world_xy_loop(xy_loop_func function, uint8 flags)
 		spawned_world_threads = true;
 		pthread_attr_destroy(&attr);
 	}
-
 
 	// and start processing
 	simthread_barrier_wait( &world_barrier_start );

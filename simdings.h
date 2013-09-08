@@ -321,13 +321,29 @@ public:
 	 * Draw backgroung image of object
 	 * (everything that could be potentially behind vehicles)
 	 */
+#if MULTI_THREAD>1
+	void display(int xpos, int ypos, const sint8 clip_num) const;
+#else
 	void display(int xpos, int ypos) const;
+#endif
 
 	/**
 	 * Draw foreground image
 	 * (everything that is in front of vehicles)
 	 */
+#if MULTI_THREAD>1
+	virtual void display_after(int xpos, int ypos, const sint8 clip_num) const;
+#else
 	virtual void display_after(int xpos, int ypos, bool is_global) const;
+#endif
+
+#if MULTI_THREAD>1
+	/**
+	 * Draw overlays
+	 * (convoi tooltips)
+	 */
+	virtual void display_overlay(int /*xpos*/, int /*ypos*/) const { return; }
+#endif
 
 	/**
 	* when a vehicle moves or a cloud moves, it needs to mark the old spot as dirty (to copy to screen)
