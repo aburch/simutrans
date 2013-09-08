@@ -29,6 +29,7 @@
 #include "dataobj/einstellungen.h"
 #include "network/pwd_hash.h"
 #include "dataobj/loadsave.h"
+#include "dataobj/records.h"
 
 #include "simplan.h"
 
@@ -377,42 +378,10 @@ private:
 	sint64 finance_history_month[MAX_WORLD_HISTORY_MONTHS][MAX_WORLD_COST];
 
 	/**
-	 * @name World record speed management
-	 *       These variables keep track of the fastest vehicles in game.
-	 * @{
+	 * World record speed manager.
+	 * Keeps track of the fastest vehicles in game.
 	 */
-	/**
-	 * Class representing a word speed record.
-	 */
-	class speed_record_t {
-	public:
-		convoihandle_t cnv;
-		sint32	speed;
-		koord	pos;
-		spieler_t *besitzer;
-		sint32 year_month;
-
-		speed_record_t() : cnv(), speed(0), pos(koord::invalid), besitzer(NULL), year_month(0) {}
-	};
-
-	/// World rail speed record
-	speed_record_t max_rail_speed;
-	/// World monorail speed record
-	speed_record_t max_monorail_speed;
-	/// World maglev speed record
-	speed_record_t max_maglev_speed;
-	/// World narrowgauge speed record
-	speed_record_t max_narrowgauge_speed;
-	/// World road speed record
-	speed_record_t max_road_speed;
-	/// World ship speed record
-	speed_record_t max_ship_speed;
-	/// World air speed record
-	speed_record_t max_air_speed;
-
-	/**
-	 * @}
-	 */
+	records_t *records;
 
 	/**
 	 * Attached view to this world.

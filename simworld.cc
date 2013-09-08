@@ -911,13 +911,7 @@ void karte_t::init_felder()
 	average_speed[3] = 350;
 
 	// clear world records
-	max_road_speed.speed = 0;
-	max_rail_speed.speed = 0;
-	max_monorail_speed.speed = 0;
-	max_maglev_speed.speed = 0;
-	max_narrowgauge_speed.speed = 0;
-	max_ship_speed.speed = 0;
-	max_air_speed.speed = 0;
+	records->clear_speed_records();
 
 	// make timer loop invalid
 	for( int i=0;  i<32;  i++ ) {
@@ -1506,7 +1500,6 @@ void karte_t::init(settings_t* const sets, sint8 const* const h_field)
 	else {
 		warenbauer_t::set_multiplier( 1000 );
 	}
-	max_rail_speed.speed = max_monorail_speed.speed = max_maglev_speed.speed = max_narrowgauge_speed.speed = max_road_speed.speed = max_ship_speed.speed = max_air_speed.speed = 0;
 
 	recalc_snowline();
 
@@ -2302,6 +2295,8 @@ karte_t::karte_t() :
 	cached_size.x = 0;
 	cached_size.y = 0;
 
+	records = new records_t(this->msg);
+
 	// generate ground textures once
 	grund_besch_t::init_ground_textures(this);
 }
@@ -2315,6 +2310,7 @@ karte_t::~karte_t()
 
 	// not deleting the werkzeuge of this map ...
 	delete msg;
+	delete records;
 }
 
 const char* karte_t::can_lower_plan_to(const spieler_t *sp, sint16 x, sint16 y, sint8 h) const
@@ -4228,77 +4224,14 @@ void karte_t::recalc_average_speed()
 // returns the current speed record
 sint32 karte_t::get_record_speed( waytype_t w ) const
 {
-	switch(w) {
-		case road_wt: return max_road_speed.speed;
-		case track_wt:
-		case tram_wt: return max_rail_speed.speed;
-		case monorail_wt: return max_monorail_speed.speed;
-		case maglev_wt: return max_maglev_speed.speed;
-		case narrowgauge_wt: return max_narrowgauge_speed.speed;
-		case water_wt: return max_ship_speed.speed;
-		case air_wt: return max_air_speed.speed;
-		default: return 0;
-	}
+	return records->get_record_speed(w);
 }
 
 
 // sets the new speed record
 void karte_t::notify_record( convoihandle_t cnv, sint32 max_speed, koord k )
 {
-	speed_record_t *sr = NULL;
-	switch (cnv->front()->get_waytype()) {
-		case road_wt: sr = &max_road_speed; break;
-		case track_wt:
-		case tram_wt: sr = &max_rail_speed; break;
-		case monorail_wt: sr = &max_monorail_speed; break;
-		case maglev_wt: sr = &max_maglev_speed; break;
-		case narrowgauge_wt: sr = &max_narrowgauge_speed; break;
-		case water_wt: sr = &max_ship_speed; break;
-		case air_wt: sr = &max_air_speed; break;
-		default: assert(0);
-	}
-
-	// avoid the case of two convois with identical max speed ...
-	if(cnv!=sr->cnv  &&  sr->speed+1==max_speed) {
-		return;
-	}
-
-	// really new/faster?
-	if(k!=sr->pos  ||  sr->speed+1<max_speed) {
-		// update it
-		sr->cnv = cnv;
-		sr->speed = max_speed-1;
-		sr->year_month = current_month;
-		sr->pos = k;
-		sr->besitzer = NULL; // will be set, when accepted
-	}
-	else {
-		sr->cnv = cnv;
-		sr->speed = max_speed-1;
-		sr->pos = k;
-
-		// same convoi and same position
-		if(sr->besitzer==NULL  &&  current_month!=sr->year_month) {
-			// notfiy the world of this new record
-			sr->speed = max_speed-1;
-			sr->besitzer = cnv->get_besitzer();
-			const char* msg;
-			switch (cnv->front()->get_waytype()) {
-				default: NOT_REACHED
-				case road_wt:     msg = "New world record for motorcars: %.1f km/h by %s."; break;
-				case track_wt:
-				case tram_wt:     msg = "New world record for railways: %.1f km/h by %s.";  break;
-				case monorail_wt: msg = "New world record for monorails: %.1f km/h by %s."; break;
-				case maglev_wt: msg = "New world record for maglevs: %.1f km/h by %s."; break;
-				case narrowgauge_wt: msg = "New world record for narrowgauges: %.1f km/h by %s."; break;
-				case water_wt:    msg = "New world record for ship: %.1f km/h by %s.";      break;
-				case air_wt:      msg = "New world record for planes: %.1f km/h by %s.";    break;
-			}
-			cbuffer_t buf;
-			buf.printf( translator::translate(msg), (float)speed_to_kmh(10*sr->speed)/10.0, sr->cnv->get_name() );
-			get_message()->add_message( buf, sr->pos, message_t::new_vehicle, PLAYER_FLAG|sr->besitzer->get_player_nr() );
-		}
-	}
+	records->notify_record(cnv, max_speed, k, current_month);
 }
 
 

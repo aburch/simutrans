@@ -117,6 +117,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="besch\weg_besch.cc" />
+    <ClCompile Include="dataobj\records.cc" />
     <ClCompile Include="display\font.cc" />
     <ClCompile Include="display\simgraph16.cc" />
     <ClCompile Include="display\simview.cc" />
@@ -414,6 +415,7 @@
     <ClCompile Include="dings\zeiger.cc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="dataobj\records.h" />
     <ClInclude Include="display\font.h" />
     <ClInclude Include="display\scr_coord.h" />
     <ClInclude Include="display\simgraph.h" />
