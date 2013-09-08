@@ -234,6 +234,12 @@ private:
 	uint32 sound_wait_time;
 
 	/**
+	 * Gets an ambient sound id appropriate for the given tile.
+	 * Returns NO_SOUND if no appropriate sound is found.
+	 */
+	sint16 get_sound_id(grund_t *gr);
+
+	/**
 	 * If this is true, the map will not be scrolled on right-drag.
 	 * @author Hj. Malthaner
 	 */

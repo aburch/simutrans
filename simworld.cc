@@ -7108,6 +7108,30 @@ uint32 karte_t::get_next_command_step()
 	}
 }
 
+sint16 karte_t::get_sound_id(grund_t *gr)
+{
+	if(  gr->ist_natur()  ||  gr->ist_wasser()  ) {
+		sint16 id = NO_SOUND;
+		if(  gr->get_pos().z >= get_snowline()  ) {
+			id = sound_besch_t::climate_sounds[ arctic_climate ];
+		}
+		else {
+			id = sound_besch_t::climate_sounds[get_climate( zeiger->get_pos().get_2d() )];
+		}
+		if (id != NO_SOUND) {
+			return id;
+		}
+		// try, if there is another sound ready
+		if(  zeiger->get_pos().z==grundwasser  &&  !gr->ist_wasser()  ) {
+			return sound_besch_t::beach_sound;
+		}
+		else if(  gr->get_top()>0  &&  gr->obj_bei(0)->get_typ()==ding_t::baum  ) {
+			return sound_besch_t::forest_sound;
+		}
+	}
+	return NO_SOUND;
+}
+
 bool karte_t::interactive(uint32 quit_month)
 {
 	event_t ev;
@@ -7155,24 +7179,7 @@ bool karte_t::interactive(uint32 quit_month)
 				// we play an ambient sound, if enabled
 				grund_t *gr = lookup(zeiger->get_pos());
 				if(  gr  ) {
-					sint16 id = NO_SOUND;
-					if(  gr->ist_natur()  ||  gr->ist_wasser()  ) {
-						if(  gr->get_pos().z >= get_snowline()  ) {
-							id = sound_besch_t::climate_sounds[ arctic_climate ];
-						}
-						else {
-							id = sound_besch_t::climate_sounds[get_climate( zeiger->get_pos().get_2d() )];
-						}
-						if(  id==NO_SOUND  ) {
-							// try, if there is another sound ready
-							if(  zeiger->get_pos().z==grundwasser  &&  !gr->ist_wasser()  ) {
-								id = sound_besch_t::beach_sound;
-							}
-							else if(  gr->get_top()>0  &&  gr->obj_bei(0)->get_typ()==ding_t::baum  ) {
-								id = sound_besch_t::forest_sound;
-							}
-						}
-					}
+					sint16 id = get_sound_id(gr);
 					if(  id!=NO_SOUND  ) {
 						sound_play(id);
 					}
