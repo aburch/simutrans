@@ -432,6 +432,8 @@ void button_t::set_typ(enum type t)
 			break;
 
 		case posbutton:
+			set_no_translate( true );
+			// fallthrough
 		case arrowright:
 		case repeatarrowright:
 			set_groesse( gui_arrow_right_size );
