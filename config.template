@@ -7,6 +7,7 @@
 #BACKEND = gdi
 #BACKEND = opengl
 #BACKEND = sdl
+#BACKEND = sdl2
 #BACKEND = mixer_sdl
 #BACKEND = posix
 
@@ -38,6 +39,7 @@
 #ALLEGRO_CONFIG = allegro-config
 #PNG_CONFIG     = pkg-config libpng
 #SDL_CONFIG     = sdl-config
+#SDL2_CONFIG    = sdl2-config
 
 #VERBOSE = 1
 

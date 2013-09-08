@@ -2,7 +2,7 @@ CFG ?= default
 -include config.$(CFG)
 
 
-BACKENDS      = allegro gdi opengl sdl mixer_sdl posix
+BACKENDS      = allegro gdi opengl sdl sdl2 mixer_sdl posix
 COLOUR_DEPTHS = 0 16
 OSTYPES       = amiga beos cygwin freebsd haiku linux mingw mac
 
@@ -83,7 +83,7 @@ endif
 
 ALLEGRO_CONFIG ?= allegro-config
 SDL_CONFIG     ?= sdl-config
-
+SDL2_CONFIG    ?= sdl2-config
 
 ifneq ($(OPTIMISE),)
     CFLAGS += -O3
@@ -124,7 +124,7 @@ ifneq ($(PROFILE),)
   LDFLAGS += -pg
 endif
 
-ifneq  ($(MULTI_THREAD),)
+ifneq ($(MULTI_THREAD),)
   CFLAGS += -DMULTI_THREAD=$(MULTI_THREAD)
   ifneq  ($(MULTI_THREAD),1)
     ifeq ($(OSTYPE),mingw)
@@ -455,17 +455,14 @@ ifeq ($(BACKEND),allegro)
   LIBS   += $(ALLEGRO_LDFLAGS)
 endif
 
-
 ifeq ($(BACKEND),gdi)
   SOURCES += simsys_w.cc
   SOURCES += music/w32_midi.cc
   SOURCES += sound/win32_sound.cc
 endif
 
-
 ifeq ($(BACKEND),sdl)
   SOURCES += simsys_s.cc
-  CFLAGS  += -DUSE_16BIT_DIB
   ifeq ($(OSTYPE),mac)
     # Core Audio (Quicktime) base sound system routines
     SOURCES += sound/core-audio_sound.mm
@@ -495,12 +492,41 @@ ifeq ($(BACKEND),sdl)
   LIBS   += $(SDL_LDFLAGS)
 endif
 
+ifeq ($(BACKEND),sdl2)
+  SOURCES += simsys_s2.cc
+  ifeq ($(OSTYPE),mac)
+    # Core Audio (Quicktime) base sound system routines
+    SOURCES += sound/core-audio_sound.mm
+    SOURCES += music/core-audio_midi.mm
+    LIBS    += -framework Foundation -framework QTKit
+  else
+    SOURCES  += sound/sdl_sound.cc
+    ifeq ($(findstring $(OSTYPE), cygwin mingw),)
+      SOURCES += music/no_midi.cc
+    else
+      SOURCES += music/w32_midi.cc
+    endif
+  endif
+  ifeq ($(SDL2_CONFIG),)
+    ifeq ($(OSTYPE),mac)
+      SDL_CFLAGS  := -I/System/Libraries/Frameworks/SDL2/Headers -Dmain=SDL_main
+      SDL_LDFLAGS := -framework SDL2 -framework Cocoa -I/System/Libraries/Frameworks/SDL2/Headers SDLMain.m
+    else
+      SDL_CFLAGS  := -I$(MINGDIR)/include/SDL2 -Dmain=SDL_main
+      SDL_LDFLAGS := -lSDL2main -lSDL2
+    endif
+  else
+    SDL_CFLAGS  := $(shell $(SDL2_CONFIG) --cflags)
+    SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --libs)
+  endif
+  CFLAGS += $(SDL_CFLAGS)
+  LIBS   += $(SDL_LDFLAGS)
+endif
 
 ifeq ($(BACKEND),mixer_sdl)
   SOURCES += simsys_s.cc
   SOURCES += sound/sdl_mixer_sound.cc
   SOURCES += music/sdl_midi.cc
-  CFLAGS  += -DUSE_16BIT_DIB
   ifeq ($(SDL_CONFIG),)
     SDL_CFLAGS  := -I$(MINGDIR)/include/SDL -Dmain=SDL_main
     SDL_LDFLAGS := -lmingw32 -lSDLmain -lSDL
@@ -514,7 +540,6 @@ endif
 
 ifeq ($(BACKEND),opengl)
   SOURCES += simsys_opengl.cc
-  CFLAGS  += -DUSE_16BIT_DIB
   ifeq ($(OSTYPE),mac)
     # Core Audio (Quicktime) base sound system routines
     SOURCES += sound/core-audio_sound.mm
