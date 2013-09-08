@@ -640,13 +640,12 @@ halthandle_t planquadrat_t::get_halt(spieler_t *sp) const
 {
 	for(  uint8 i=0;  i < get_boden_count();  i++  ) {
 		halthandle_t my_halt = get_boden_bei(i)->get_halt();
-		if(  my_halt.is_bound() && (sp==NULL || sp==my_halt->get_besitzer())  ) {
+		if(  my_halt.is_bound()  &&  (sp == NULL  ||  sp == my_halt->get_besitzer())  ) {
 			return my_halt;
 		}
 	}
 	return halthandle_t();
 }
-
 
 
 // these functions are private helper functions for halt_list

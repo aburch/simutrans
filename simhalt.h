@@ -22,6 +22,8 @@
 
 #include "dataobj/koord.h"
 
+#include "tpl/inthashtable_tpl.h"
+
 #include "tpl/slist_tpl.h"
 #include "tpl/vector_tpl.h"
 #include "tpl/binary_heap_tpl.h"
@@ -84,6 +86,15 @@ private:
 	 * @author prissi
 	 */
 	static stringhashtable_tpl<halthandle_t> all_names;
+
+	/**
+	 * finds a stop by koord
+	 * @author prissi
+	 */
+	static inthashtable_tpl<sint32,halthandle_t> all_koords;
+
+	// since size_x*size_y < 0x1000000, we have just to shift the high bits
+	#define get_halt_key(k,width) ( ((k).x*(width)+(k).y) /*+ ((k).z << 25)*/ )
 
 	/*
 	 * struct holds new financial history for line
@@ -149,6 +160,13 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	static int erzeuge_fussgaenger(karte_t *welt, const koord3d pos, int anzahl);
+
+	/**
+	 * Returns an index to a halt at koord k
+   	 * optionally limit to that owned by player sp
+   	 * by default create a new halt if none found
+	 */
+	static halthandle_t get_halt_koord_index(koord k, spieler_t *sp=NULL, bool create_halt=true);
 
 	/*
 	 * this will only return something if this stop belongs to same player or is public, or is a dock (when on water)

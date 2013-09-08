@@ -6242,37 +6242,6 @@ void karte_t::create_grounds_loop( sint16 x_min, sint16 x_max, sint16 y_min, sin
 }
 
 
-/**
- * return an index to a halt
- * optionally limit to that owned by player sp
- * by default create a new halt if none found
- */
-
-halthandle_t karte_t::get_halt_koord_index(koord k, spieler_t *sp, bool create_halt)
-{
-	if(!is_within_limits(k)) {
-		return halthandle_t();
-	}
-	// already there?
-	// check through all the grounds
-	const planquadrat_t* plan = access_nocheck(k);
-	if(plan) {
-		halthandle_t my_halt = plan->get_halt(sp);
-		if(  my_halt.is_bound()  ) {
-			return my_halt;
-		}
-	}
-	if(  create_halt  ) {
-		// No halts found => create one
-		return haltestelle_t::create( this, k, NULL );
-	}
-	else {
-		// Return empty handle
-		return halthandle_t();
-	}
-}
-
-
 uint8 karte_t::sp2num(spieler_t *sp)
 {
 	if(  sp==NULL  ) {

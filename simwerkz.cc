@@ -188,9 +188,12 @@ static halthandle_t suche_nahe_haltestelle(spieler_t *sp, karte_t *welt, koord3d
 	koord k(pos.get_2d());
 
 	// any other ground with a valid stop here?
-	halthandle_t my_halt = welt->get_halt_koord_index( k, sp, false );
-	if(  my_halt.is_bound()  ) {
-		return my_halt;
+	halthandle_t my_halt;
+	if(  planquadrat_t* plan=welt->access(pos.get_2d())  ) {
+		my_halt = plan->get_halt( sp );
+		if(  my_halt.is_bound()  ) {
+			return my_halt;
+		}
 	}
 
 	grund_t *bd = welt->lookup(pos);
@@ -203,9 +206,11 @@ static halthandle_t suche_nahe_haltestelle(spieler_t *sp, karte_t *welt, koord3d
 		ribi_t::ribi ribi = bd->get_weg_nr(0)->get_ribi_unmasked();
 		for(  int i=0;  i<4;  i++ ) {
 			if(  ribi_t::nsow[i] & ribi ) {
-				my_halt = welt->get_halt_koord_index( k+koord::nsow[i], sp, false );
-				if(  my_halt.is_bound()  ) {
-					return my_halt;
+				if(  planquadrat_t* plan=welt->access(k+koord::nsow[i])  ) {
+					my_halt = plan->get_halt( sp );
+					if(  my_halt.is_bound()  ) {
+						return my_halt;
+					}
 				}
 			}
 		}
@@ -214,9 +219,11 @@ static halthandle_t suche_nahe_haltestelle(spieler_t *sp, karte_t *welt, koord3d
 	// now just search all neighbours
 	for(  sint16 y=-1;  y<=h;  y++  ) {
 		for(  sint16 x=-1;  x<=b;  (x==-1 && y>-1 && y<h) ? x=b:x++  ) {
-			my_halt = welt->get_halt_koord_index( k+koord(x,y), sp, false );
-			if(  my_halt.is_bound()  ) {
-				return my_halt;
+			if(  planquadrat_t* plan=welt->access(k+koord(x,y))  ) {
+				my_halt = plan->get_halt( sp );
+				if(  my_halt.is_bound()  ) {
+					return my_halt;
+				}
 			}
 		}
 	}
@@ -224,9 +231,11 @@ static halthandle_t suche_nahe_haltestelle(spieler_t *sp, karte_t *welt, koord3d
 #if AUTOJOIN_PUBLIC
 	// now search everything for public stops
 	for(  int i=0;  i<8;  i++ ) {
-		my_halt = welt->get_halt_koord_index( k+koord::neighbours[i], welt->get_spieler(1), false );
-		if(  my_halt.is_bound()  ) {
-			return my_halt;
+		if(  planquadrat_t* plan=welt->access(k+koord::neighbours[i])  ) {
+			my_halt = plan->get_halt( welt->get_spieler(1) );
+			if(  my_halt.is_bound()  ) {
+				return my_halt;
+			}
 		}
 	}
 #endif
