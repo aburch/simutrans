@@ -3971,6 +3971,8 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 
 	halthandle_t old_halt = bd->get_halt();
 	uint16 old_level = 0;
+       int old_b = 0;
+       int old_h = 0;
 
 	halthandle_t halt;
 
@@ -3980,6 +3982,8 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 		{
 			const haus_besch_t *old_besch = gb->get_tile()->get_besch();
 			old_level = old_besch->get_level();
+			old_b = old_besch->get_b();
+			old_h = old_besch->get_h();
 			if( old_besch->get_level() >= besch->get_level() &&  old_besch->get_capacity() > besch->get_capacity()) 
 			{
 				return "Upgrade must have\na higher level";
@@ -4020,7 +4024,7 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 		free(name);
 	}
 
-	const sint64 old_cost = old_level * cost;
+	const sint64 old_cost = old_b * old_h * cost;
 	
 	adjusted_cost -= old_cost / 2;
 
