@@ -784,27 +784,30 @@ const char *wkz_raise_lower_base_t::move( karte_t *welt, spieler_t *sp, uint16 b
 
 const char* wkz_raise_lower_base_t::drag(karte_t *welt, spieler_t *sp, koord k, sint16 height, int &n)
 {
-	if(!welt->is_within_limits(k)) {
+	if(  !welt->is_within_limits(k)  ) {
 		return "";
 	}
 	const char* err = NULL;
 
 	// dragging may be going up or down!
-	while(welt->lookup_hgt(k)<height) {
-		int diff = welt->grid_raise(sp, k, err);
-		if(diff==0) break;
-		n += diff;
-	}
-
-	// when going down need to check here we will not be going below sea level
-	// cannot rely on check within lower as water height can be recalculated
-	while(  height >= welt->get_water_hgt(k)  &&  welt->lookup_hgt(k) > height  ) {
-		int diff = welt->grid_lower(sp, k, err);
+	while(  welt->lookup_hgt(k) < height &&  height <= welt->get_maximumheight()  ) {
+		int diff = welt->grid_raise( sp, k, err );
 		if(  diff == 0  ) {
 			break;
 		}
 		n += diff;
 	}
+
+	// when going down need to check here we will not be going below sea level
+	// cannot rely on check within lower as water height can be recalculated
+	while(  height >= welt->get_water_hgt(k)  &&  welt->lookup_hgt(k) > height  &&  height >= welt->get_minimumheight()  ) {
+		int diff = welt->grid_lower( sp, k, err );
+		if(  diff == 0  ) {
+			break;
+		}
+		n += diff;
+	}
+
 	return err; //height == welt->lookup_hgt(k);
 }
 
