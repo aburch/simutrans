@@ -4,7 +4,7 @@
  * This file is part of the Simutrans project under the artistic license.
  */
 
-#include "SDL.h"
+#include <SDL.h>
 
 #ifdef _WIN32
 // windows.h defines min and max macros which we don't want
@@ -241,11 +241,11 @@ int dr_os_open(int w, int const h, int const fullscreen)
 		fprintf( stderr, "Couldn't open the window: %s\n", SDL_GetError() );
 		return 0;
 	}
-	DBG_MESSAGE("dr_os_open(SDL)", "SDL realized screen size width=%d, height=%d (requested w=%d, h=%d)", screen->w, screen->h, w, h );
 
 	if(  !internal_create_surfaces( true )  ) {
 		return 0;
 	}
+	DBG_MESSAGE("dr_os_open(SDL)", "SDL realized screen size width=%d, height=%d (requested w=%d, h=%d)", screen->w, screen->h, w, h );
 
 	SDL_ShowCursor(0);
 	arrow = SDL_GetCursor();
