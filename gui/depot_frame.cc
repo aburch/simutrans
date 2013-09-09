@@ -444,7 +444,7 @@ void depot_frame_t::layout(koord *gr)
 	lb_convoi_weight.set_width(second_column_w);
 
 	lb_convoi_speed.set_pos(koord(D_MARGIN_LEFT, CINFO_VSTART + LINESPACE * 3));
-	lb_convoi_speed.set_width( second_column_w - D_H_SPACE );
+	lb_convoi_speed.set_width( DEPOT_FRAME_WIDTH - D_MARGIN_RIGHT - D_MARGIN_LEFT );
 
 	/*
 	 * [ACTIONS]
