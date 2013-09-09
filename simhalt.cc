@@ -140,7 +140,7 @@ void haltestelle_t::step_all()
  * return an index to a halt; it is only used for old games
  * by default create a new halt if none found
  */
-halthandle_t haltestelle_t::get_halt_koord_index(koord k, spieler_t *sp, bool create_halt)
+halthandle_t haltestelle_t::get_halt_koord_index(koord k, spieler_t */*sp*/, bool create_halt)
 {
 	if(!spieler_t::get_welt()->is_within_limits(k)) {
 		return halthandle_t();
