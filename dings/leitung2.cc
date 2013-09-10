@@ -104,6 +104,7 @@ leitung_t::leitung_t(karte_t *welt, typ type, loadsave_t *file) : ding_t(welt, t
 	set_net(NULL);
 	ribi = ribi_t::keine;
 	rdwr(file);
+	modified_production_delta_t = welt->calc_adjusted_monthly_figure(PRODUCTION_DELTA_T);
 }
 
 leitung_t::leitung_t(karte_t *welt, loadsave_t *file) : ding_t(welt, ding_t::leitung)
@@ -116,6 +117,7 @@ leitung_t::leitung_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 	set_net(NULL);
 	ribi = ribi_t::keine;
 	rdwr(file);
+	modified_production_delta_t = welt->calc_adjusted_monthly_figure(PRODUCTION_DELTA_T);
 }
 
 
@@ -127,6 +129,7 @@ leitung_t::leitung_t(karte_t *welt, typ type, koord3d pos, spieler_t *sp) : ding
 	set_net(NULL);
 	set_besitzer( sp );
 	set_besch(wegbauer_t::leitung_besch);
+	modified_production_delta_t = welt->calc_adjusted_monthly_figure(PRODUCTION_DELTA_T);
 }
 
 leitung_t::leitung_t(karte_t *welt, koord3d pos, spieler_t *sp) : ding_t(welt, ding_t::leitung, pos)
@@ -139,6 +142,7 @@ leitung_t::leitung_t(karte_t *welt, koord3d pos, spieler_t *sp) : ding_t(welt, p
 	set_net(NULL);
 	set_besitzer( sp );
 	set_besch(wegbauer_t::leitung_besch);
+	modified_production_delta_t = welt->calc_adjusted_monthly_figure(PRODUCTION_DELTA_T);
 }
 
 
@@ -943,21 +947,13 @@ void senke_t::step(long delta_t)
 	if(!fab || fab->get_besch()->get_electric_amount() == 65535)
 	{
 		// City, or factory demand not specified in pak: use old fixed demands
-		max_einkommen += last_power_demand * delta_t / PRODUCTION_DELTA_T;
-		einkommen += power_load * delta_t / PRODUCTION_DELTA_T;
+		max_einkommen += last_power_demand * delta_t / modified_production_delta_t;
+		einkommen += power_load * delta_t / modified_production_delta_t;
 	}
-	else if(welt->ticks_per_world_month_shift >= 18ll)
+	else
 	{
-		// TODO: Re-arrange this method to allow calculating for meters per tile without having to compute this at every step.
-		// Method: store a version of PRODUCTION_DELTA_T that is adjusted by the "calc_adjusted_monthly_figure" algorithm, and
-		// use that instead of either this method or calling "calc_adjusted_monthly_figure" every step.
-		max_einkommen += (last_power_demand * delta_t / PRODUCTION_DELTA_T) >> (welt->ticks_per_world_month_shift-18);
-		einkommen += (power_load * delta_t / PRODUCTION_DELTA_T) >> (welt->ticks_per_world_month_shift-18);
-	}
-	else 
-	{
-		max_einkommen += (last_power_demand * delta_t / PRODUCTION_DELTA_T) << (18-welt->ticks_per_world_month_shift);
-		einkommen += (power_load * delta_t / PRODUCTION_DELTA_T) << (18-welt->ticks_per_world_month_shift);
+		max_einkommen += (last_power_demand * delta_t / modified_production_delta_t);
+		einkommen += (power_load * delta_t / modified_production_delta_t);
 	}
 
 	// Income rollover

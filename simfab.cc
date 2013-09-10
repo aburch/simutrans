@@ -351,21 +351,10 @@ void fabrik_t::update_scaled_pax_demand()
 	// formula : besch_pax_demand * (current_production_base / besch_production_base); (prod >> 1) is for rounding
 	const uint32 pax_demand = (uint32)( ( besch_pax_demand * (sint64)prodbase + (prod >> 1) ) / prod );
 	// then, scaling based on month length
-	const uint32 bits_per_month = welt->ticks_per_world_month_shift;
-	if(  bits_per_month>18  ) {
-		scaled_pax_demand = pax_demand << (bits_per_month - 18);
-	}
-	else if(  bits_per_month<18  ) {
-		scaled_pax_demand = pax_demand >> (18 - bits_per_month);
-		if(  scaled_pax_demand==0  &&  besch_pax_demand>0  ) {
-			scaled_pax_demand = 1;	// since besch pax demand > 0 -> ensure no less than 1
-		}
-	}
-	else {
-		scaled_pax_demand = pax_demand;
-	}
+	scaled_pax_demand = max(welt->calc_adjusted_monthly_figure(pax_demand), 1);
+
 	// pax demand for fixed period length
-	// FIXME: This should be scaled_demand *but* the scaling needs to be re-done.
+	// It is intended that pax_demand, not scaled_pax_demand be used here despite the method name.
 	arrival_stats_pax.set_scaled_demand( pax_demand );
 
 	if(!welt->get_is_shutting_down())
@@ -389,20 +378,10 @@ void fabrik_t::update_scaled_mail_demand()
 	// formula : besch_mail_demand * (current_production_base / besch_production_base); (prod >> 1) is for rounding
 	const uint32 mail_demand = (uint32)( ( besch_mail_demand * (sint64)prodbase + (prod >> 1) ) / prod );
 	// then, scaling based on month length
-	const uint32 bits_per_month = welt->ticks_per_world_month_shift;
-	if(  bits_per_month>18  ) {
-		scaled_mail_demand = mail_demand << (bits_per_month - 18);
-	}
-	else if(  bits_per_month<18  ) {
-		scaled_mail_demand = mail_demand >> (18 - bits_per_month);
-		if(  scaled_mail_demand==0  &&  besch_mail_demand>0  ) {
-			scaled_mail_demand = 1;	// since besch mail demand > 0 -> ensure no less than 1
-		}
-	}
-	else {
-		scaled_mail_demand = mail_demand;
-	}
+	scaled_mail_demand = max(welt->calc_adjusted_monthly_figure(mail_demand), 1);
+
 	// mail demand for fixed period length
+	// It is intended that mail_demand, not scaled_mail_demand be used here despite the method name
 	arrival_stats_mail.set_scaled_demand( mail_demand );
 
 	if(!welt->get_is_shutting_down())

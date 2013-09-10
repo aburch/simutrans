@@ -61,6 +61,13 @@ protected:
 	*/
 	void calc_bild();
 
+	/**
+	* Use this value for scaling electricity consumption/demand
+	* by both meters per tile and bits per month
+	* @author: jamespetts
+	*/
+	sint32 modified_production_delta_t;
+
 public:
 	powernet_t* get_net() const { return net; }
 	void set_net(powernet_t* p) { net = p; }

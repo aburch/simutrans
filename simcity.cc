@@ -2762,18 +2762,9 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 			
 		uint16 cars_per_tile_base = 800;
 
-		if(welt->ticks_per_world_month_shift >= 18ll)
-		{
-			cars_per_tile_thousandths >>= (welt->ticks_per_world_month_shift-18);
-			cars_per_tile_base >>= (welt->ticks_per_world_month_shift-18);
-			congestion_density_factor >>= (welt->ticks_per_world_month_shift-18);
-		}
-		else 
-		{
-			cars_per_tile_thousandths <<= (18-welt->ticks_per_world_month_shift);
-			cars_per_tile_base >>= (welt->ticks_per_world_month_shift-18);
-			congestion_density_factor <<= (18-welt->ticks_per_world_month_shift);
-		}
+		welt->calc_adjusted_monthly_figure(cars_per_tile_thousandths);
+		welt->calc_adjusted_monthly_figure(cars_per_tile_base);
+		welt->calc_adjusted_monthly_figure(congestion_density_factor);
 
 		if(congestion_density_factor == 0)
 		{

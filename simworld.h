@@ -1281,22 +1281,25 @@ public:
 	/** 
 	 * calc_adjusted_monthly_figure()
 	 *
+	 * NOTE: Avoid calling this from a method called from step(), as this is now more
+	 * computationally intensive than previously. Precalculate figures periodically instead.
+	 *
 	 * Quantities defined on a per month base must be adjusted according to the virtual
-	 * game speed defined by the ticks per month setting in simuconf.tab.
+	 * game speed defined by the ticks per month and meters per tile settings in simuconf.tab.
 	 *
 	 * NOTICE: Don't confuse, on the one hand, the game speed, represented by the number in the 
-	 * lower right hand corner, and, on the other hand, the ticks per month setting. 
+	 * lower right hand corner, and, on the other hand, the ticks per month and meters per tile 
+	 * settings.
 	 *
 	 * The first increases or decreases the speed of all things that happen in the game by the 
 	 * same amount: the whole game is fast forwarded or slowed down.
 	 *
-	 * The second is very different: it alters the relative scale of the speed of the game, 
+	 * The second are very different: they alter the relative scale of the speed of the game, 
 	 * on the one hand, against the passing of time on the other. Increasing the speed using 
-	 * the ticks per month setting (which requires reducing the number in simuconf.tab) 
-	 * increases the number of months/years that pass in comparison to everything else that 
-	 * happens in the game.
+	 * the ticks per month or metters per tile settings increases the number of months/years
+	 * that pass in comparison to everything else that  happens in the game.
 	 *
-	 * Example: 
+	 * Example (for bits per month only): 
 	 *
 	 * suppose that you have a railway between two towns: A and B, and one train on 
 	 * that railway. At a speed setting of 1.00 and a ticks per month setting of 18 (the default), 
@@ -1325,52 +1328,74 @@ public:
 	 * @author: Bernd Gabriel, 14.06.2009
 	 */
 
-	// TODO: Add adjustment for meters_per_tile here and deploy this method more universally
-	// instead of bespoke bits per month algorithms distributed throughout the code.
+	// TODO: Deploy this method more universally instead of bespoke bits per month algorithms distributed throughout the code.
 	
-	// Further, consider adding a global adjustment figure.
-	// For example, at all defaults, 1,000 meters per tile and 18 bits per month, we get 3.2 hours
+	// At all defaults, 1,000 meters per tile and 18 bits per month, we get 3.2 hours
 	// (that is, 3:12h) in a month, or 1/7.5th of a day. If we want to have raw numbers based on
 	// daily production for factories, daily electricity usage, daily passenger demand, etc. we
 	// would need to multiply the defaults by 7.5 if we want the raw numbers in the pakset to be
 	// based on these real life values.
-	// Consider what to do about things already calibrated to a different level.
-
-	// To adjust for meters per tile with a default of 1,000, we need to divide 1,000 by meters per tile
-	// then divide the nominal monthly figure by the resulting amount. 
-	// E.g., at 500 m/tile, we would have (1,000 / 500 = 2; adjusted_figure = nominal_monthly_figure / 2)
+	// Consider what to do about things already calibrated to a different level. (Answer: they could probably
+	// do with recalibration anyway).
 
 	sint32 calc_adjusted_monthly_figure(sint32 nominal_monthly_figure) 
 	{
+		// Adjust for meters per tile
+
+		// TODO: Have the below figure set from simuconf.tab. Base is 1,000 for Standard games; 7,500 calibrates for input values from .dat files being 1 month = 1 day.
+		const sint32 adjusted_base_meters_per_tile = 7500;
+		const sint32 adjustment_factor = adjusted_base_meters_per_tile / (sint32)get_settings().get_meters_per_tile();
+		const sint32 adjusted_monthly_figure = nominal_monthly_figure / adjustment_factor;
+		
+		// Adjust for bits per month
+
 		if (ticks_per_world_month_shift >= 18)
 		{
-			return (sint32)(nominal_monthly_figure << (ticks_per_world_month_shift - 18l)); 
+			return (sint32)(adjusted_monthly_figure << (ticks_per_world_month_shift - 18l)); 
 		}
 		else
 		{
-			return (sint32)(nominal_monthly_figure >> (18l - ticks_per_world_month_shift)); 
+			return (sint32)(adjusted_monthly_figure >> (18l - ticks_per_world_month_shift)); 
 		}
 	}
 	sint64 calc_adjusted_monthly_figure(sint64 nominal_monthly_figure) 
 	{
+		// Adjust for meters per tile
+
+		// TODO: Have the below figure set from simuconf.tab. Base is 1,000 for Standard games; 7,500 calibrates for input values from .dat files being 1 month = 1 day.
+		const sint64 adjusted_base_meters_per_tile = 7500l; 
+		const sint64 adjustment_factor = adjusted_base_meters_per_tile / (sint64)get_settings().get_meters_per_tile();
+		const sint64 adjusted_monthly_figure = nominal_monthly_figure / adjustment_factor;
+		
+		// Adjust for bits per month	
+		
 		if (ticks_per_world_month_shift >= 18)
 		{
-			return nominal_monthly_figure << (ticks_per_world_month_shift - 18ll); 
+			return adjusted_monthly_figure << (ticks_per_world_month_shift - 18ll); 
 		} 
 		else 
-		{
-			return nominal_monthly_figure >> (18ll - ticks_per_world_month_shift); 
+		{			
+			return adjusted_monthly_figure >> (18ll - ticks_per_world_month_shift); 
 		}
 	}
 	uint32 calc_adjusted_monthly_figure(uint32 nominal_monthly_figure)
 	{
+		// Adjust for meters per tile
+
+		// TODO: Have the below figure set from simuconf.tab. Base is 1,000 for Standard games; 7,500 calibrates for input values from .dat files being 1 month = 1 day.
+		const uint32 adjusted_base_meters_per_tile = 7500; 
+		const uint32 adjustment_factor = adjusted_base_meters_per_tile / (uint32)get_settings().get_meters_per_tile();
+		const uint32 adjusted_monthly_figure = nominal_monthly_figure / adjustment_factor;
+		
+		// Adjust for bits per month
+		
 		if (ticks_per_world_month_shift >= 18)
 		{
-			return (uint32)(nominal_monthly_figure << ((uint32)ticks_per_world_month_shift - 18u)); 
+			return (uint32)(adjusted_monthly_figure << ((uint32)ticks_per_world_month_shift - 18u)); 
 		} 
 		else
 		{
-			return (uint32)(nominal_monthly_figure >> (18u - (uint32)ticks_per_world_month_shift)); 
+			return (uint32)(adjusted_monthly_figure >> (18u - (uint32)ticks_per_world_month_shift)); 
 		}
 	}
 
