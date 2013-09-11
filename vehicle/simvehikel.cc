@@ -570,8 +570,8 @@ sint8 vehikel_basis_t::calc_height(grund_t *gr)
 vehikel_basis_t *vehikel_basis_t::no_cars_blocking( const grund_t *gr, const convoi_t *cnv, const uint8 current_fahrtrichtung, const uint8 next_fahrtrichtung, const uint8 next_90fahrtrichtung )
 {
 	// Search vehicle
-	for(  uint8 pos=1;  pos<(volatile uint8)gr->get_top();  pos++ ) {
-		if (vehikel_basis_t* const v = ding_cast<vehikel_basis_t>(gr->obj_bei(pos))) {
+	for(  uint8 pos=1;  pos<(volatile uint8)gr->get_top();  pos++  ) {
+		if(  vehikel_basis_t* const v = ding_cast<vehikel_basis_t>(gr->obj_bei(pos))  ) {
 			if(  v->get_typ()==ding_t::fussgaenger  ) {
 				continue;
 			}
@@ -579,34 +579,39 @@ vehikel_basis_t *vehikel_basis_t::no_cars_blocking( const grund_t *gr, const con
 			// check for car
 			uint8 other_fahrtrichtung=255;
 			bool other_moving = false;
-			if (automobil_t const* const at = ding_cast<automobil_t>(v)) {
+			if(  automobil_t const* const at = ding_cast<automobil_t>(v)  ) {
 				// ignore ourself
-				if(cnv==at->get_convoi()) {
+				if(  cnv == at->get_convoi()  ) {
 					continue;
 				}
 				other_fahrtrichtung = at->get_fahrtrichtung();
 				other_moving = at->get_convoi()->get_akt_speed() > kmh_to_speed(1);
 			}
 			// check for city car
-			else if(  v->get_waytype()==road_wt  ) {
+			else if(  v->get_waytype() == road_wt  ) {
 				other_fahrtrichtung = v->get_fahrtrichtung();
-				if(stadtauto_t const* const sa = ding_cast<stadtauto_t>(v)){
+				if(  stadtauto_t const* const sa = ding_cast<stadtauto_t>(v)  ){
 					other_moving = sa->get_current_speed() > 1;
 				}
 			}
 
 			// ok, there is another car ...
-			if(other_fahrtrichtung!=255) {
+			if(  other_fahrtrichtung != 255  ) {
+				if(  next_fahrtrichtung == other_fahrtrichtung  ) {
+					// cars going in the same direction => that mean blocking ...
+					return v;
+				}
+
 				const ribi_t::ribi other_90fahrtrichtung = (gr->get_pos().get_2d() == v->get_pos_next().get_2d()) ? other_fahrtrichtung : calc_richtung(gr->get_pos().get_2d(),v->get_pos_next().get_2d());
-				if(  other_90fahrtrichtung==next_90fahrtrichtung  ) {
+				if(  other_90fahrtrichtung == next_90fahrtrichtung  ) {
 					// Want to exit in same as other   ~50% of the time
 					return v;
 				}
 
 				const bool across = next_fahrtrichtung == (drives_on_left ? ribi_t::rotate45l(next_90fahrtrichtung) : ribi_t::rotate45(next_90fahrtrichtung)); // turning across the opposite directions lane
 				const bool other_across = other_fahrtrichtung == (drives_on_left ? ribi_t::rotate45l(other_90fahrtrichtung) : ribi_t::rotate45(other_90fahrtrichtung)); // other is turning across the opposite directions lane
-				if(  other_fahrtrichtung==next_fahrtrichtung  && !(other_across || across)  ) {
-					// entering same straight waypoint as other   ~18%
+				if(  other_fahrtrichtung == next_fahrtrichtung  &&  !(other_across || across)  ) {
+					// entering same straight waypoint as other ~18%
 					return v;
 				}
 
@@ -615,18 +620,18 @@ vehikel_basis_t *vehikel_basis_t::no_cars_blocking( const grund_t *gr, const con
 				const bool other_straight = other_fahrtrichtung == other_90fahrtrichtung; // other is driving straight
 				const bool other_exit_same_side = current_90fahrtrichtung == other_90fahrtrichtung; // other is exiting same side as we're entering
 				const bool other_exit_opposite_side = ribi_t::rueckwaerts(current_90fahrtrichtung) == other_90fahrtrichtung; // other is exiting side across from where we're entering
-				if(  across  &&  ((ribi_t::ist_orthogonal(current_90fahrtrichtung,other_fahrtrichtung) && other_moving) || (other_across && other_exit_opposite_side) || ((other_across||other_straight) && other_exit_same_side && other_moving) ) )  {
+				if(  across  &&  ((ribi_t::ist_orthogonal(current_90fahrtrichtung,other_fahrtrichtung)  &&  other_moving)  ||  (other_across  &&  other_exit_opposite_side)  ||  ((other_across  ||  other_straight)  &&  other_exit_same_side  &&  other_moving) ) )  {
 					// other turning across in front of us from orth entry dir'n   ~4%
 					return v;
 				}
 
 				const bool headon = ribi_t::rueckwaerts(current_fahrtrichtung) == other_fahrtrichtung; // we're meeting the other headon
 				const bool other_exit_across = (drives_on_left ? ribi_t::rotate90l(next_90fahrtrichtung) : ribi_t::rotate90(next_90fahrtrichtung)) == other_90fahrtrichtung; // other is exiting by turning across the opposite directions lane
-				if( straight && (ribi_t::ist_orthogonal(current_90fahrtrichtung,other_fahrtrichtung) || (other_across && other_moving && (other_exit_across || (other_exit_same_side && !headon))) ) ) {
+				if(  straight  &&  (ribi_t::ist_orthogonal(current_90fahrtrichtung,other_fahrtrichtung)  ||  (other_across  &&  other_moving  &&  (other_exit_across  ||  (other_exit_same_side  &&  !headon))) ) ) {
 					// other turning across in front of us, but allow if other is stopped - duplicating historic behaviour   ~2%
 					return v;
 				}
-				else if(  other_fahrtrichtung==current_fahrtrichtung && current_90fahrtrichtung==ribi_t::keine  ) {
+				else if(  other_fahrtrichtung == current_fahrtrichtung  &&  current_90fahrtrichtung == ribi_t::keine  ) {
 					// entering same diagonal waypoint as other   ~1%
 					return v;
 				}
