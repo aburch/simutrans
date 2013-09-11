@@ -597,8 +597,8 @@ vehikel_basis_t *vehikel_basis_t::no_cars_blocking( const grund_t *gr, const con
 
 			// ok, there is another car ...
 			if(  other_fahrtrichtung != 255  ) {
-				if(  next_fahrtrichtung == other_fahrtrichtung  ) {
-					// cars going in the same direction => that mean blocking ...
+				if(  next_fahrtrichtung == other_fahrtrichtung  &&  !ribi_t::is_threeway(gr->get_weg_ribi(road_wt))  ) {
+					// cars going in the same direction and no crossing => that mean blocking ...
 					return v;
 				}
 
