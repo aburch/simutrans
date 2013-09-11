@@ -930,7 +930,7 @@ public:
 
 private:
 
-	enum destination_object_type { town, factory, attraction };
+	enum destination_object_type { town, factory, attraction, invalid };
 
 	struct destination
 	{

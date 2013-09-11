@@ -5474,7 +5474,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 karte_t::destination karte_t::find_destination(trip_type trip)
 {
 	destination current_destination;
-	current_destination.type = 1;
+	current_destination.type = karte_t::invalid;
 	gebaeude_t* gb;
 
 	switch(trip)
@@ -8848,7 +8848,7 @@ void karte_t::add_building_to_world_list(gebaeude_t *gb, building_type b)
 	{
 	
 	case passenger_origin:
-		// Pepople visit each others' houses, but this is not a common type of trip.
+		// People visit each others' houses, but this is not a common type of trip.
 		passenger_origins.append(gb, passenger_level);
 		visitor_targets.append(gb, passenger_level / 100);
 		break;
