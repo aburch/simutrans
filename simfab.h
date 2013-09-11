@@ -663,8 +663,8 @@ public:
 	sint32 get_base_production() const { return prodbase; }
 	void set_base_production(sint32 p);
 
-	// TODO: Use calc_adjusted_monthly_figure here, but refctor so as to avoid calling that method every step.
-	sint32 get_current_production() const { return ((sint64)prodbase * (sint64)(get_prodfactor()))>>(26l-(long)welt->ticks_per_world_month_shift); }
+	// TODO: Refctor so as to avoid calling this method every step.
+	sint32 get_current_production() const { return (welt->calc_adjusted_monthly_figure(((sint64)prodbase * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_electric + prodfactor_pax + prodfactor_mail)))) >> 8l; }
 
 	/* prissi: returns the status of the current factory, as well as output */
 	enum { bad, medium, good, inactive, nothing };
