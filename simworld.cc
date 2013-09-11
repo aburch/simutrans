@@ -5509,6 +5509,10 @@ karte_t::destination karte_t::find_destination(trip_type trip)
 	if(fab)
 	{
 		current_destination.type = karte_t::factory;
+		// For some reason, these two lines seem to be necessary to avoid crashes caused by
+		// dud gebaeude_t pointers that otherwise seem sometimes to occur.
+		current_destination.location = fab->get_pos().get_2d();
+		current_destination.building = lookup(fab->get_pos())->find<gebaeude_t>();
 	}
 	else if(city)
 	{
