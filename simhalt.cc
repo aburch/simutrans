@@ -2316,6 +2316,11 @@ uint32 haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 		}
 		if(ware.get_besch() == warenbauer_t::passagiere)
 		{
+			if(ware.is_commuting_trip)
+			{
+				gebaeude_t* gb = welt->lookup(fab->get_pos())->find<gebaeude_t>();
+				gb->set_commute_trip(ware.menge);
+			}
 			// Arriving passengers may create pedestrians
 			if(welt->get_settings().get_show_pax()) 
 			{

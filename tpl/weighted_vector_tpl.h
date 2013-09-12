@@ -319,6 +319,17 @@ template<class T> class weighted_vector_tpl
 			return false;
 		}
 
+		/** removes all copies of element, if contained */
+		bool remove_all(T elem)
+		{
+			bool any_to_remove = false;
+			for (uint32 i = 0; i < count; i++)
+			{
+				if (nodes != NULL && nodes[i].data == elem) any_to_remove = remove_at(i);
+			}
+			return any_to_remove;
+		}
+
 		/** removes element at position */
 		bool remove_at(uint32 pos)
 		{

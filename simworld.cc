@@ -4737,40 +4737,19 @@ void karte_t::step_passengers_and_mail(long delta_t)
 					destination_pos = current_destination.location;
 					if(trip == commuting_trip)
 					{
-						if(current_destination.type == factory)
+						grund_t* gr = lookup_kartenboden(destination_pos);
+						if(!gr || !gr->find<gebaeude_t>() || !gr->find<gebaeude_t>()->jobs_available())
 						{
-							if(current_destination.building->get_fabrik()->get_stat(0, FAB_PAX_ARRIVED) >= current_destination.building->get_fabrik()->get_scaled_pax_demand())
+							if(route_status == initialising)
 							{
-								// TODO: Find a way of separating the factory's passenger demand for workers and for visitors.
-								if(route_status == initialising)
-								{
-									// This is the lowest priority route status.
-									route_status = destination_unavailable;
-								}
-								if(n < destination_count - 1)
-								{
-									current_destination = find_destination(trip);
-								}
-								continue;
+								// This is the lowest priority route status.
+								route_status = destination_unavailable;
 							}
-						}
-						else
-						{
-							
-							grund_t* gr = lookup_kartenboden(destination_pos);
-							if(!gr || !gr->find<gebaeude_t>() || !gr->find<gebaeude_t>()->jobs_available())
+							if(n < destination_count - 1)
 							{
-								if(route_status == initialising)
-								{
-									// This is the lowest priority route status.
-									route_status = destination_unavailable;
-								}
-								if(n < destination_count - 1)
-								{
-									current_destination = find_destination(trip);
-								}
-								continue;
+								current_destination = find_destination(trip);
 							}
+							continue;
 						}
 					}
 
@@ -5160,11 +5139,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 							// TODO: Separate commuting/visiting trips for factories.
 							current_destination.building->get_fabrik()->liefere_an(wtyp, pax_left_to_do);
 						}
-						else
-						{
-							current_destination.building->set_commute_trip(pax_left_to_do);
-
-						}
+						current_destination.building->set_commute_trip(pax_left_to_do);
 					}
 					else if(trip == visiting_trip)
 					{
@@ -5205,16 +5180,14 @@ void karte_t::step_passengers_and_mail(long delta_t)
 							// TODO: Separate commuting/visiting trips for factories.
 							current_destination.building->get_fabrik()->liefere_an(wtyp, pax_left_to_do);
 						}
-						else
+
+						const grund_t* gr = lookup_kartenboden(destination_pos);
+						if(gr)
 						{
-							const grund_t* gr = lookup_kartenboden(destination_pos);
-							if(gr)
+							gebaeude_t* gb_dest = gr->find<gebaeude_t>();
+							if(gb_dest)
 							{
-								gebaeude_t* gb_dest = gr->find<gebaeude_t>();
-								if(gb_dest)
-								{
-									gb_dest->set_commute_trip(pax_left_to_do);
-								}
+								gb_dest->set_commute_trip(pax_left_to_do);
 							}
 						}
 					}
@@ -5509,10 +5482,24 @@ karte_t::destination karte_t::find_destination(trip_type trip)
 	if(fab)
 	{
 		current_destination.type = karte_t::factory;
-		// For some reason, these two lines seem to be necessary to avoid crashes caused by
+		// For some reason, these lines seem to be necessary to avoid crashes caused by
 		// dud gebaeude_t pointers that otherwise seem sometimes to occur.
 		current_destination.location = fab->get_pos().get_2d();
-		current_destination.building = lookup(fab->get_pos())->find<gebaeude_t>();
+		const grund_t* gr = lookup(fab->get_pos());
+		gebaeude_t* factory_building = NULL;
+		if(gr)
+		{
+			factory_building = gr->find<gebaeude_t>();
+		}
+		if(!gr || !factory_building)
+		{
+			current_destination.location = koord::invalid;
+			return current_destination;
+		}
+		else
+		{
+			current_destination.building = lookup(fab->get_pos())->find<gebaeude_t>();
+		}
 	}
 	else if(city)
 	{
@@ -8873,7 +8860,7 @@ void karte_t::add_building_to_world_list(gebaeude_t *gb, building_type b)
 		}
 
 		commuter_targets.append(gb, passenger_level);
-		break;
+		break; 
 
 	case visitor_target:
 
@@ -8910,10 +8897,10 @@ void karte_t::add_building_to_world_list(gebaeude_t *gb, building_type b)
 void karte_t::remove_building_from_world_list(gebaeude_t *gb)
 {
 	// We do not need to specify the type here, as we can try removing from all lists.
-	passenger_origins.remove(gb);
-	commuter_targets.remove(gb);
-	visitor_targets.remove(gb);
-	mail_origins_and_targets.remove(gb);
+	passenger_origins.remove_all(gb);
+	commuter_targets.remove_all(gb);
+	visitor_targets.remove_all(gb);
+	mail_origins_and_targets.remove_all(gb);
 }
 
 void karte_t::update_weight_of_building_in_world_list(gebaeude_t *gb, building_type b)
