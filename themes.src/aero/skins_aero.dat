@@ -1,0 +1,90 @@
+#
+# Simutrans window skin definitions for themes
+# Author: prissi
+#
+# All image name must starts with "> " to have them unzoomeable
+#
+# This theme tries a macintosh-look
+#
+--
+Obj=menu
+name=Button
+# unpressed left, middle, right
+Image[0]=> button.0.0
+Image[1]=> button.0.1
+Image[2]=> button.0.2
+# pressed left, middle, right
+Image[3]=> button.1.0
+Image[4]=> button.1.1
+Image[5]=> button.1.2
+--
+Obj=menu
+name=Squarebutton
+# unpressed
+Image[0]=> squarebutton.0.0
+# pressed
+Image[1]=> squarebutton.0.1
+--
+Obj=menu
+name=Posbutton
+# unpressed
+Image[0]=> posbutton.0.0
+# pressed
+Image[1]=> posbutton.0.1
+--
+Obj=menu
+name=Scrollbar
+# unpressed pressed left and right
+Image[0]=> scrollbar.0.0
+Image[1]=> scrollbar.0.1
+Image[2]=> scrollbar.0.2
+Image[3]=> scrollbar.0.3
+# scrollbar back left right center
+Image[4]=> scrollbar.1.0
+Image[5]=> scrollbar.1.1
+Image[6]=> scrollbar.1.2
+# scrollbar knob left right center
+Image[7]=> scrollbar.1.3
+Image[8]=> scrollbar.1.4
+Image[9]=> scrollbar.1.5
+# unpressed pressed up and down
+Image[10]=> scrollbar.2.0
+Image[11]=> scrollbar.2.1
+Image[12]=> scrollbar.2.2
+Image[13]=> scrollbar.2.3
+# scrollbar back up down center
+Image[14]=> scrollbar.3.0
+Image[15]=> scrollbar.3.1
+Image[16]=> scrollbar.3.2
+# scrollbar knob up down center
+Image[17]=> scrollbar.3.3
+Image[18]=> scrollbar.3.4
+Image[19]=> scrollbar.3.5
+--
+# window background
+Obj=menu
+name=Back
+Image[0]=> back.0.0
+--
+# window symbols
+Obj=menu
+name=Gadget
+# close
+Image[0]=> gadget.0.0
+# help
+Image[1]=> gadget.0.1
+# minimize
+Image[2]=> gadget.0.2
+# previous
+Image[3]=> gadget.0.3
+# next
+Image[4]=> gadget.0.4
+# unsticky
+Image[5]=> gadget.0.5
+# sticky
+Image[6]=> gadget.0.6
+# resize corner
+Image[7]=> gadget.0.7
+# goto pos
+Image[8]=> gadget.0.8
+--

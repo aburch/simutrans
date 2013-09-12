@@ -8,6 +8,7 @@
 #include "gui_action_creator.h"
 #include "../../simevent.h"
 #include "gui_button.h"
+#include "../gui_theme.h"
 
 
 /**
@@ -70,9 +71,10 @@ class scrollbar_t :
 		 */
 		int real_knob_position() {
 			if (type == vertical) {
-				return button_def[knob_index].get_pos().y-button_t::gui_scrollbar_size.y;
-			} else /* horizontal */ {
-				return button_def[knob_index].get_pos().x-button_t::gui_scrollbar_size.x;
+				return button_def[knob_index].get_pos().y-D_SCROLLBAR_HEIGHT;
+			}
+			else /* horizontal */ {
+				return button_def[knob_index].get_pos().x-D_SCROLLBAR_WIDTH;
 			}
 		}
 

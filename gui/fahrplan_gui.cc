@@ -168,7 +168,7 @@ void fahrplan_gui_stats_t::zeichnen(koord offset)
 	if(  fpl->empty()  ) {
 		buf.clear();
 		buf.append(translator::translate("Please click on the map to add\nwaypoints or stops to this\nschedule."));
-		sint16 const width = display_multiline_text(offset.x + 4, offset.y, buf, COL_WHITE);
+		sint16 const width = display_multiline_text(offset.x + 4, offset.y, buf, SYSCOL_TEXT_HIGHLITE );
 		set_groesse(koord(width + 4 + 16, 3 * LINESPACE));
 	}
 	else {
@@ -191,7 +191,7 @@ void fahrplan_gui_stats_t::zeichnen(koord offset)
 			}
 
 			// the goto button (right arrow)
-			image_id const img = sel == 0 ? button_t::arrow_right_pushed : button_t::arrow_right_normal;
+			image_id const img = sel == 0 ? button_t::pos_button_pushed : button_t::pos_button_normal;
 			display_color_img(img, offset.x + 2, offset.y, 0, false, true);
 		}
 		set_groesse(koord(width + 16, fpl->get_count() * (LINESPACE + 1)));
@@ -317,8 +317,8 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 		sprintf( str_parts_month, "1/%d",  1<<(16-fpl->get_current_eintrag().waiting_time_shift) );
 	}
 	lb_waitlevel.set_text_pointer( str_parts_month );
-	lb_waitlevel.set_groesse( numimp_load.get_groesse() - koord( button_t::gui_arrow_left_size.x + button_t::gui_arrow_right_size.x , 0 ) );
-	lb_waitlevel.align_to( &numimp_load, ALIGN_EXTERIOR_V | ALIGN_TOP | ALIGN_LEFT, koord( button_t::gui_arrow_left_size.x, 0 ) );
+	lb_waitlevel.set_groesse( numimp_load.get_groesse() - koord( gui_theme_t::gui_arrow_left_size.x + gui_theme_t::gui_arrow_right_size.x , 0 ) );
+	lb_waitlevel.align_to( &numimp_load, ALIGN_EXTERIOR_V | ALIGN_TOP | ALIGN_LEFT, koord( gui_theme_t::gui_arrow_left_size.x, 0 ) );
 	add_komponente(&lb_waitlevel);
 
 	// waiting in parts per month

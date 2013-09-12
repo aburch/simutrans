@@ -46,6 +46,7 @@
 #include "gui/settings_frame.h"
 #include "gui/server_frame.h"
 #include "gui/schedule_list.h"
+#include "gui/themeselector.h"
 
 class spieler_t;
 
@@ -497,6 +498,21 @@ public:
 		return false;
 	}
 	bool exit(karte_t*, spieler_t*) OVERRIDE { destroy_win(magic_server_frame_t); return false; }
+	bool is_init_network_save() const OVERRIDE { return true; }
+	bool is_work_network_save() const OVERRIDE { return true; }
+};
+
+/* open thems selector settings */
+class wkz_themes_t : public werkzeug_t {
+public:
+	wkz_themes_t() : werkzeug_t(WKZ_THEMES | DIALOGE_TOOL) {}
+	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("Select a theme for display"); }
+	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_themes); }
+	bool init(karte_t* welt, spieler_t*) OVERRIDE {
+		create_win(new themeselector_t(), w_info, magic_themes);
+		return false;
+	}
+	bool exit(karte_t*, spieler_t*) OVERRIDE { destroy_win(magic_themes); return false; }
 	bool is_init_network_save() const OVERRIDE { return true; }
 	bool is_work_network_save() const OVERRIDE { return true; }
 };

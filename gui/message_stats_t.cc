@@ -216,7 +216,7 @@ void message_stats_t::zeichnen(koord offset)
 		// goto information
 		if(  n.pos!=koord::invalid  ) {
 			// goto button
-			display_color_img( message_selected!=((y-offset.y)/(LINESPACE+1)) ? button_t::arrow_right_normal : button_t::arrow_right_pushed, offset.x + 2, y, 0, false, true);
+			display_color_img( message_selected!=((y-offset.y)/(LINESPACE+1)) ? button_t::pos_button_normal : button_t::pos_button_pushed, offset.x + 2, y, 0, false, true);
 		}
 
 		// correct for player color

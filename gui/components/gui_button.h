@@ -28,7 +28,14 @@ class button_t :
 	public gui_action_creator_t,
 	public gui_komponente_t
 {
-public:
+	friend class gui_theme_t;
+	friend class scrollbar_t;
+
+public:	// only posbutton needed throughout the code
+	static image_id pos_button_pushed;
+	static image_id pos_button_normal;
+
+private:
 	/*
 	 * if there is a skin, those are the button ids used then
 	 */
@@ -70,9 +77,7 @@ public:
 	static image_id scrollbar_slider_bottom;
 	static image_id scrollbar_slider_center;
 
-	static COLOR_VAL button_color_text;
-	static COLOR_VAL button_color_disabled_text;
-
+public:
 	/* the button with the postfix state do not automatically change their state like the normal button do
 	 * the _state buttons must be changed by the caller!
 	 * _automatic buttons do everything themselves, i.e. depress/release alternately
@@ -91,7 +96,6 @@ public:
 	};
 
 protected:
-
 	/**
 	 * Hide the base class init() version to force use of
 	 * the extended init() version for buttons.
@@ -142,23 +146,6 @@ private:
 	void operator =(const button_t&); // forbidden
 
 public:
-
-	// button sizes
-	static koord gui_button_size;
-	static koord gui_checkbox_size;
-	static koord gui_arrow_left_size;
-	static koord gui_arrow_right_size;
-	static koord gui_arrow_up_size;
-	static koord gui_arrow_down_size;
-	static koord gui_scrollbar_size;
-	static koord gui_scrollknob_size;
-	static koord gui_indicator_box_size;
-
-	// length of "..."
-	//static KOORD_VAL text_cap_len; // Must be initialised AFTER the font has been loaded.
-
-	static void init_button_images(); // must be called at least once after loading skins
-
 	COLOR_VAL background; //@author hsiegeln
 	COLOR_VAL foreground;
 

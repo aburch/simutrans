@@ -126,7 +126,9 @@
     <ClCompile Include="gui\components\gui_image.cc" />
     <ClCompile Include="gui\components\gui_komponente.cc" />
     <ClCompile Include="gui\components\gui_map_preview.cc" />
+    <ClCompile Include="gui\gui_theme.cc" />
     <ClCompile Include="gui\simwin.cc" />
+    <ClCompile Include="gui\themeselector.cc" />
     <ClCompile Include="player\ai.cc" />
     <ClCompile Include="player\ai_goods.cc" />
     <ClCompile Include="gui\ai_option_t.cc" />
@@ -424,7 +426,9 @@
     <ClInclude Include="gui\components\action_listener.h" />
     <ClInclude Include="gui\components\gui_container.h" />
     <ClInclude Include="gui\components\gui_convoiinfo.h" />
+    <ClInclude Include="gui\gui_theme.h" />
     <ClInclude Include="gui\simwin.h" />
+    <ClInclude Include="gui\themeselector.h" />
     <ClInclude Include="player\ai.h" />
     <ClInclude Include="player\ai_goods.h" />
     <ClInclude Include="gui\ai_option_t.h" />

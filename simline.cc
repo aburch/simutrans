@@ -380,7 +380,8 @@ void simline_t::recalc_status()
 	else if(financial_history[0][LINE_PROFIT]<0) {
 		// ok, not performing best
 		state_color = COL_RED;
-	} else if((financial_history[0][LINE_OPERATIONS]|financial_history[1][LINE_OPERATIONS])==0) {
+	}
+	else if((financial_history[0][LINE_OPERATIONS]|financial_history[1][LINE_OPERATIONS])==0) {
 		// nothing moved
 		state_color = COL_YELLOW;
 	}

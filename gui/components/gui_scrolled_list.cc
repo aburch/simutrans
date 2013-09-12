@@ -152,13 +152,13 @@ void gui_scrolled_list_t::set_groesse(koord groesse)
 /* resizes scrollbar */
 void gui_scrolled_list_t::adjust_scrollbar()
 {
-	sb.set_pos(koord(groesse.x-button_t::gui_scrollbar_size.x,0));
+	sb.set_pos(koord(groesse.x-D_SCROLLBAR_WIDTH,0));
 
 	int vz = total_vertical_size();
 	// need scrollbar?
 	if ( groesse.y-border < vz) {
 		sb.set_visible(true);
-		sb.set_groesse(koord(button_t::gui_scrollbar_size.x, (int)groesse.y+border-1));
+		sb.set_groesse(koord(D_SCROLLBAR_WIDTH, (int)groesse.y+border-1));
 		sb.set_knob(groesse.y-border, vz);
 	}
 	else {
@@ -173,7 +173,7 @@ bool gui_scrolled_list_t::infowin_event(const event_t *ev)
 	const int y = ev->cy;
 
 	// size without scrollbar
-	const int w = groesse.x - button_t::gui_scrollbar_size.x+2;
+	const int w = groesse.x - D_SCROLLBAR_WIDTH+2;
 	const int h = groesse.y;
 	if(x <= w) { // inside list
 		switch(type) {
@@ -223,7 +223,7 @@ void gui_scrolled_list_t::zeichnen(koord pos)
 
 	const int x = pos.x;
 	const int y = pos.y;
-	const int w = gr.x-button_t::gui_scrollbar_size.x;
+	const int w = gr.x-D_SCROLLBAR_WIDTH;
 	const int h = gr.y;
 
 	switch(type) {

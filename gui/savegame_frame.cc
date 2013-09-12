@@ -201,6 +201,7 @@ void savegame_frame_t::add_file(const char *fullpath, const char *filename, cons
 	if(!no_cutting_suffix) {
 		name[strlen(name)-4] = '\0';
 	}
+	button->set_typ( button_t::roundbox );
 	button->set_no_translate(true);
 	button->set_text(name);	// to avoid translation
 
@@ -261,6 +262,7 @@ void savegame_frame_t::add_file(const char *fullpath, const char *filename, cons
 	gui_label_t* l = new gui_label_t(NULL);
 	l->set_text_pointer(date);
 	button_t *del = new button_t();
+	del->set_typ( button_t::roundbox );
 	entries.insert(i, dir_entry_t(button, del, l, LI_ENTRY, fullpath));
 }
 
@@ -378,7 +380,7 @@ void savegame_frame_t::set_fenstergroesse(koord groesse)
 	// Arrange list elements (file names)
 	sint16 y = 0;
 	sint16 curr_section = 0;
-	sint16 column_width = ( (groesse.x - D_MARGIN_LEFT-L_PADDING_LEFT-D_BUTTON_HEIGHT-2*D_H_SPACE-button_t::gui_scrollbar_size.x-D_MARGIN_RIGHT) * BUTTON_COL_PERCENT );
+	sint16 column_width = ( (groesse.x - D_MARGIN_LEFT-L_PADDING_LEFT-D_BUTTON_HEIGHT-2*D_H_SPACE-D_SCROLLBAR_WIDTH-D_MARGIN_RIGHT) * BUTTON_COL_PERCENT );
 
 	FOR(slist_tpl<dir_entry_t>, const& i, entries) {
 
@@ -416,7 +418,7 @@ void savegame_frame_t::set_fenstergroesse(koord groesse)
 		}
 	}
 
-	button_frame.set_groesse( koord(scrolly.get_groesse().x - button_t::gui_scrollbar_size.x, button_frame.get_groesse().y) );
+	button_frame.set_groesse( koord(scrolly.get_groesse().x - D_SCROLLBAR_WIDTH, button_frame.get_groesse().y) );
 
 	//divider1.set_pos( koord ( D_MARGIN_LEFT, groesse.y - D_MARGIN_BOTTOM - D_BUTTON_HEIGHT - D_DIVIDER_HEIGHT - D_TITLEBAR_HEIGHT ) );
 	//divider1.set_width( groesse.x - D_MARGIN_LEFT - D_MARGIN_RIGHT );
@@ -573,13 +575,14 @@ void savegame_frame_t::add_section(std::string &name){
 
 	sprintf(label_text,"%s %s", prefix_label , shortened_path);
 
-	gui_label_t* l = new gui_label_t(NULL, COL_WHITE);
+	gui_label_t* l = new gui_label_t(NULL, SYSCOL_TEXT_HIGHLITE);
 	l->set_text_pointer(label_text);
 	l->set_tooltip(path_expanded);
 
 	this->entries.append(dir_entry_t(NULL, NULL, l, LI_HEADER, NULL));
 	this->num_sections++;
 }
+
 
 void savegame_frame_t::add_path(const char * path){
 
@@ -589,6 +592,8 @@ void savegame_frame_t::add_path(const char * path){
 	}
 	this->paths.append(path);
 }
+
+
 /**
  * @note On Windows Platform, we use the trash bin.
  */

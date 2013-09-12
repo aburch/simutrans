@@ -52,6 +52,7 @@
 // Hajo: System event codes must match those from simsys.h !!!
 #define SYSTEM_QUIT                   1
 #define SYSTEM_RESIZE                 2
+#define SYSTEM_RELOAD_WINDOWS         3
 
 /* normal keys have range 0-255, special key follow above 255 */
 /* other would be better for true unicode support :( */

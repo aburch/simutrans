@@ -83,7 +83,7 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 		if (sp  &&  player_change_allowed) {
 			add_komponente(player_change_to+i);
 		}
-		cursor.x += button_t::gui_arrow_right_size.x + D_H_SPACE;
+		cursor.x += gui_theme_t::gui_arrow_right_size.x + D_H_SPACE;
 
 		// Prepare finances button
 		player_get_finances[i].init( button_t::box, "", cursor, koord( L_FINANCE_WIDTH, D_EDIT_HEIGHT ) );

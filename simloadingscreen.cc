@@ -16,6 +16,7 @@
 #include "dataobj/umgebung.h"
 #include "simticker.h"
 #include "gui/simwin.h"
+#include "gui/gui_theme.h"
 #include "tpl/slist_tpl.h"
 
 
@@ -91,7 +92,7 @@ void loadingscreen_t::display()
 		display_fillbox_wh( quarter_width, half_height - 5, bar_len,  12, COL_BLUE, true );
 
 		if(  what  ) {
-			display_proportional( half_width, half_height-4, what, ALIGN_CENTER_H, COL_WHITE, false );
+			display_proportional( half_width, half_height-4, what, ALIGN_CENTER_H, SYSCOL_TEXT_HIGHLITE, false );
 		}
 
 		dr_flush();

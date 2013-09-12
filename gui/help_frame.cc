@@ -42,7 +42,7 @@ help_frame_t::help_frame_t() :
 	add_komponente(&scrolly_helptext);
 
 	set_resizemode(diagonal_resize);
-	set_min_windowsize( koord( D_MARGIN_LEFT + (button_t::gui_scrollbar_size.x<<1) + DIALOG_MIN_WIDTH + D_MARGIN_RIGHT, D_TITLEBAR_HEIGHT + D_MARGIN_TOP + (button_t::gui_scrollbar_size.y<<1) + D_MARGIN_BOTTOM) );
+	set_min_windowsize( koord( D_MARGIN_LEFT + (D_SCROLLBAR_WIDTH<<1) + DIALOG_MIN_WIDTH + D_MARGIN_RIGHT, D_TITLEBAR_HEIGHT + D_MARGIN_TOP + (D_SCROLLBAR_HEIGHT<<1) + D_MARGIN_BOTTOM) );
 }
 
 
@@ -168,7 +168,7 @@ help_frame_t::help_frame_t(char const* const filename) :
 	//add_komponente(&scrolly_helptext);
 
 	set_resizemode(diagonal_resize);
-	set_min_windowsize(koord(200, D_TITLEBAR_HEIGHT + D_MARGIN_TOP + (button_t::gui_scrollbar_size.y) + D_MARGIN_BOTTOM));
+	set_min_windowsize(koord(200, D_TITLEBAR_HEIGHT + D_MARGIN_TOP + (D_SCROLLBAR_HEIGHT) + D_MARGIN_BOTTOM));
 }
 
 
@@ -257,10 +257,10 @@ void help_frame_t::set_text(const char * buf, bool resize_frame )
 		}
 
 		// calculate sizes (might not a help but info window, which do not have general text)
-		KOORD_VAL size_x = helptext.get_groesse().x + D_MARGIN_LEFT + D_MARGIN_RIGHT + button_t::gui_scrollbar_size.x;
-		KOORD_VAL size_y = helptext.get_groesse().y + D_TITLEBAR_HEIGHT + D_MARGIN_TOP  + D_MARGIN_BOTTOM + button_t::gui_scrollbar_size.y;
+		KOORD_VAL size_x = helptext.get_groesse().x + D_MARGIN_LEFT + D_MARGIN_RIGHT + D_SCROLLBAR_WIDTH;
+		KOORD_VAL size_y = helptext.get_groesse().y + D_TITLEBAR_HEIGHT + D_MARGIN_TOP  + D_MARGIN_BOTTOM + D_SCROLLBAR_HEIGHT;
 		if(  scrolly_generaltext.is_visible()  ) {
-			size_x += generaltext.get_groesse().x + button_t::gui_scrollbar_size.x + D_H_SPACE;
+			size_x += generaltext.get_groesse().x + D_SCROLLBAR_WIDTH + D_H_SPACE;
 		}
 		// set window size
 		if(  size_x > display_get_width()-32  ) {
@@ -477,10 +477,10 @@ void help_frame_t::resize(const koord delta)
 	scr_coord_val generalwidth = 0;
 	if(  scrolly_generaltext.is_visible()  ) {
 		// do not use more than 1/3 for the general infomations
-		generalwidth = min( display_get_width()/3, generaltext.get_preferred_size().x ) + button_t::gui_scrollbar_size.x + D_MARGIN_LEFT;
+		generalwidth = min( display_get_width()/3, generaltext.get_preferred_size().x ) + D_SCROLLBAR_WIDTH + D_MARGIN_LEFT;
 		scrolly_generaltext.set_groesse( koord( generalwidth, get_fenstergroesse().y-D_TITLEBAR_HEIGHT ) );
 
-		koord general_gr = scrolly_generaltext.get_groesse() - button_t::gui_scrollbar_size - koord(D_MARGIN_LEFT,D_MARGIN_TOP);
+		koord general_gr = scrolly_generaltext.get_groesse() - gui_theme_t::gui_scrollbar_size - koord(D_MARGIN_LEFT,D_MARGIN_TOP);
 		generaltext.set_groesse( general_gr );
 		generaltext.set_groesse( generaltext.get_text_size() );
 
@@ -490,7 +490,7 @@ void help_frame_t::resize(const koord delta)
 
 	scrolly_helptext.set_groesse( get_fenstergroesse() - koord( generalwidth, D_TITLEBAR_HEIGHT ) );
 
-	koord helptext_gr =  scrolly_helptext.get_groesse() - helptext.get_pos() - button_t::gui_scrollbar_size - koord(D_MARGIN_LEFT,D_MARGIN_TOP);
+	koord helptext_gr =  scrolly_helptext.get_groesse() - helptext.get_pos() - gui_theme_t::gui_scrollbar_size - koord(D_MARGIN_LEFT,D_MARGIN_TOP);
 
 	helptext.set_groesse( helptext_gr );
 	helptext.set_groesse( helptext.get_text_size() );

@@ -29,34 +29,17 @@
 
 // default button codes
 #define SQUARE_BUTTON 0
-#define ARROW_LEFT 1
-#define ARROW_RIGHT 2
-#define ARROW_UP 3
-#define ARROW_DOWN 4
-#define SCROLL_BAR 5
+#define POS_BUTTON 1
+#define ARROW_LEFT 2
+#define ARROW_RIGHT 3
+#define ARROW_UP 4
+#define ARROW_DOWN 5
+#define SCROLL_BAR 6
 
 // colors
 #define RB_LEFT_BUTTON (201)
 #define RB_BODY_BUTTON (202)
 #define RB_RIGHT_BUTTON (203)
-
-COLOR_VAL button_t::button_color_text = COL_BLACK;
-COLOR_VAL button_t::button_color_disabled_text = MN_GREY0;
-
-/**
- * Max Kielland
- * These are the built in default theme element sizes and
- * are overridden by the PAK file if a new image is defined.
- */
-koord button_t::gui_button_size        = koord(92,14);
-koord button_t::gui_checkbox_size      = koord(10,10);
-koord button_t::gui_arrow_left_size    = koord(14,14);
-koord button_t::gui_arrow_right_size   = koord(14,14);
-koord button_t::gui_arrow_up_size      = koord(14,14);
-koord button_t::gui_arrow_down_size    = koord(14,14);
-koord button_t::gui_scrollbar_size     = koord(14,14);
-koord button_t::gui_scrollknob_size    = koord(14,14);
-koord button_t::gui_indicator_box_size = koord(10, 6);
 
 /*
  * Hajo: image numbers of button skins
@@ -64,10 +47,15 @@ koord button_t::gui_indicator_box_size = koord(10, 6);
  */
 image_id button_t::square_button_pushed    = IMG_LEER;
 image_id button_t::square_button_normal    = IMG_LEER;
+
+image_id button_t::pos_button_pushed       = IMG_LEER;
+image_id button_t::pos_button_normal       = IMG_LEER;
+
+// those are the arrows of the scrollbar
 image_id button_t::arrow_left_pushed       = IMG_LEER;
 image_id button_t::arrow_left_normal       = IMG_LEER;
-image_id button_t::arrow_right_pushed      = IMG_LEER;
 image_id button_t::arrow_right_normal      = IMG_LEER;
+image_id button_t::arrow_right_pushed      = IMG_LEER;
 image_id button_t::arrow_up_pushed         = IMG_LEER;
 image_id button_t::arrow_up_normal         = IMG_LEER;
 image_id button_t::arrow_down_pushed       = IMG_LEER;
@@ -131,130 +119,6 @@ void button_t::init(enum type type_par, const char *text_par, koord pos_par, koo
 
 
 /**
- * Lazy button image number init
- * @author Hj. Malthaner
- */
-void button_t::init_button_images() {
-
-	const bild_t *image;
-
-	if(skinverwaltung_t::window_skin!=NULL) {
-
-		square_button_normal    = skinverwaltung_t::window_skin->get_bild_nr( SKIN_BUTTON_CHECKBOX               );
-		square_button_pushed    = skinverwaltung_t::window_skin->get_bild_nr( SKIN_BUTTON_CHECKBOX_CHECKED       );
-		arrow_left_normal       = skinverwaltung_t::window_skin->get_bild_nr( SKIN_BUTTON_ARROW_LEFT             );
-		arrow_left_pushed       = skinverwaltung_t::window_skin->get_bild_nr( SKIN_BUTTON_ARROW_LEFT_PRESSED     );
-		arrow_right_normal      = skinverwaltung_t::window_skin->get_bild_nr( SKIN_BUTTON_ARROW_RIGHT            );
-		arrow_right_pushed      = skinverwaltung_t::window_skin->get_bild_nr( SKIN_BUTTON_ARROW_RIGHT_PRESSED    );
-		b_cap_left              = skinverwaltung_t::window_skin->get_bild_nr( SKIN_BUTTON_SIDE_LEFT              );
-		b_cap_right             = skinverwaltung_t::window_skin->get_bild_nr( SKIN_BUTTON_SIDE_RIGHT             );
-		b_body                  = skinverwaltung_t::window_skin->get_bild_nr( SKIN_BUTTON_BODY                   );
-		b_cap_left_p            = skinverwaltung_t::window_skin->get_bild_nr( SKIN_BUTTON_SIDE_LEFT_PRESSED      );
-		b_cap_right_p           = skinverwaltung_t::window_skin->get_bild_nr( SKIN_BUTTON_SIDE_RIGHT_PRESSED     );
-		b_body_p                = skinverwaltung_t::window_skin->get_bild_nr( SKIN_BUTTON_BODY_PRESSED           );
-		arrow_up_normal         = skinverwaltung_t::window_skin->get_bild_nr( SKIN_BUTTON_ARROW_UP               );
-		arrow_up_pushed         = skinverwaltung_t::window_skin->get_bild_nr( SKIN_BUTTON_ARROW_UP_PRESSED       );
-		arrow_down_normal       = skinverwaltung_t::window_skin->get_bild_nr( SKIN_BUTTON_ARROW_DOWN             );
-		arrow_down_pushed       = skinverwaltung_t::window_skin->get_bild_nr( SKIN_BUTTON_ARROW_DOWN_PRESSED     );
-		scrollbar_left          = skinverwaltung_t::window_skin->get_bild_nr( SKIN_SCROLLBAR_H_BACKGROUND_LEFT   );
-		scrollbar_right         = skinverwaltung_t::window_skin->get_bild_nr( SKIN_SCROLLBAR_H_BACKGROUND_RIGHT  );
-		scrollbar_middle        = skinverwaltung_t::window_skin->get_bild_nr( SKIN_SCROLLBAR_H_BACKGROUND        );
-		scrollbar_slider_left   = skinverwaltung_t::window_skin->get_bild_nr( SKIN_SCROLLBAR_H_KNOB_LEFT         );
-		scrollbar_slider_right  = skinverwaltung_t::window_skin->get_bild_nr( SKIN_SCROLLBAR_H_KNOB_RIGHT        );
-		scrollbar_slider_middle = skinverwaltung_t::window_skin->get_bild_nr( SKIN_SCROLLBAR_H_KNOB_BODY         );
-		scrollbar_top           = skinverwaltung_t::window_skin->get_bild_nr( SKIN_SCROLLBAR_V_BACKGROUND_TOP    );
-		scrollbar_bottom        = skinverwaltung_t::window_skin->get_bild_nr( SKIN_SCROLLBAR_V_BACKGROUND_BOTTOM );
-		scrollbar_center        = skinverwaltung_t::window_skin->get_bild_nr( SKIN_SCROLLBAR_V_BACKGROUND        );
-		scrollbar_slider_top    = skinverwaltung_t::window_skin->get_bild_nr( SKIN_SCROLLBAR_V_KNOB_TOP          );
-		scrollbar_slider_bottom = skinverwaltung_t::window_skin->get_bild_nr( SKIN_SCROLLBAR_V_KNOB_BOTTOM       );
-		scrollbar_slider_center = skinverwaltung_t::window_skin->get_bild_nr( SKIN_SCROLLBAR_V_KNOB_BODY         );
-
-		// Calculate checkbox size
-		if(  square_button_normal != IMG_LEER  ) {
-			image = skinverwaltung_t::window_skin->get_bild( SKIN_BUTTON_CHECKBOX )->get_pic();
-			gui_checkbox_size = koord(image->w,image->h);
-		}
-
-		// Calculate arrow left size
-		if(  arrow_left_normal != IMG_LEER  ) {
-			image = skinverwaltung_t::window_skin->get_bild( SKIN_BUTTON_ARROW_LEFT )->get_pic();
-			gui_arrow_left_size = koord(image->w,image->h);
-		}
-
-		// Calculate arrow right size
-		if(  arrow_right_normal != IMG_LEER  ) {
-			image = skinverwaltung_t::window_skin->get_bild( SKIN_BUTTON_ARROW_RIGHT )->get_pic();
-			gui_arrow_right_size = koord(image->w,image->h);
-		}
-
-		// Calculate arrow up size
-		if(  arrow_up_normal != IMG_LEER  ) {
-			image = skinverwaltung_t::window_skin->get_bild( SKIN_BUTTON_ARROW_UP )->get_pic();
-			gui_arrow_up_size = koord(image->w,image->h);
-		}
-
-		// Calculate arrow down size
-		if(  arrow_down_normal != IMG_LEER  ) {
-			image = skinverwaltung_t::window_skin->get_bild( SKIN_BUTTON_ARROW_DOWN )->get_pic();
-			gui_arrow_down_size = koord(image->w,image->h);
-		}
-
-		// Calculate round button size
-		if(  (b_cap_left != IMG_LEER)  &&  (b_cap_right != IMG_LEER)  &&  (b_body != IMG_LEER)  ) {
-
-			// calculate button width
-			scr_coord_val button_width = skinverwaltung_t::window_skin->get_bild( SKIN_BUTTON_SIDE_LEFT  )->get_pic()->w +
-			                             skinverwaltung_t::window_skin->get_bild( SKIN_BUTTON_SIDE_RIGHT )->get_pic()->w +
-			                             skinverwaltung_t::window_skin->get_bild( SKIN_BUTTON_BODY       )->get_pic()->w;
-			gui_button_size.x = max(gui_button_size.x,button_width);
-
-			// calculate button height
-			// gui_button_size.y = max(gui_button_size.y, skinverwaltung_t::window_skin->get_bild(SKIN_BUTTON_BODY)->get_pic()->h);
-			gui_button_size.y = max(gui_button_size.y, skinverwaltung_t::window_skin->get_bild(SKIN_BUTTON_BODY)->get_pic()->h);
-		}
-
-		// Calculate V scrollbar size
-		image = NULL;
-		if(  scrollbar_center != IMG_LEER  ) {
-			image = skinverwaltung_t::window_skin->get_bild( SKIN_SCROLLBAR_V_BACKGROUND )->get_pic();
-		}
-		else if(  scrollbar_slider_center != IMG_LEER  ) {
-			image = skinverwaltung_t::window_skin->get_bild( SKIN_SCROLLBAR_V_KNOB_BODY )->get_pic();
-		}
-		gui_scrollbar_size.x = (image) ? image->w : gui_arrow_up_size.x;
-
-		if(  scrollbar_slider_center != IMG_LEER  ) {
-			image = skinverwaltung_t::window_skin->get_bild( SKIN_SCROLLBAR_V_KNOB_BODY )->get_pic();
-			gui_scrollknob_size.x = image->w;
-		}
-		else {
-			gui_scrollknob_size.x = gui_scrollbar_size.x;
-		}
-
-		// Calculate H scrollbar size
-		image = NULL;
-		if(  scrollbar_middle != IMG_LEER  ) {
-			image = skinverwaltung_t::window_skin->get_bild( SKIN_SCROLLBAR_H_BACKGROUND )->get_pic();
-		}
-		else if(  scrollbar_slider_middle != IMG_LEER  ) {
-			image = skinverwaltung_t::window_skin->get_bild( SKIN_SCROLLBAR_H_KNOB_BODY )->get_pic();
-		}
-		gui_scrollbar_size.y = (image) ? image->h : gui_arrow_left_size.y;
-
-		if ( scrollbar_slider_middle != IMG_LEER ) {
-			image = skinverwaltung_t::window_skin->get_bild( SKIN_SCROLLBAR_H_KNOB_BODY )->get_pic();
-			gui_scrollknob_size.y = image->h;
-		}
-		else {
-			gui_scrollknob_size.y = gui_scrollbar_size.y;
-		}
-
-	}
-
-}
-
-
-/**
  * Displays the different button types
  * @author Hj. Malthaner
  */
@@ -265,6 +129,9 @@ void button_t::display_button_image(scr_coord_val x, scr_coord_val y, int number
 	switch (number) {
 		case SQUARE_BUTTON:
 			button = pushed ? square_button_pushed : square_button_normal;
+			break;
+		case POS_BUTTON:
+			button = pushed ? pos_button_pushed : pos_button_normal;
 			break;
 		case ARROW_LEFT:
 			button = pushed ? arrow_left_pushed : arrow_left_normal;
@@ -296,15 +163,15 @@ void button_t::display_button_image(scr_coord_val x, scr_coord_val y, int number
 // draw a rectangular button
 void button_t::draw_roundbutton(scr_coord_val x, scr_coord_val y, scr_coord_val w, scr_coord_val h, bool pressed)
 {
-	if(  (h == gui_button_size.y) && (
+	if(  (h == D_BUTTON_HEIGHT) && (
 		                               ( !pressed && (b_cap_left   != IMG_LEER) && (b_cap_right   != IMG_LEER) && (b_body   != IMG_LEER)) ||
 		                               (  pressed && (b_cap_left_p != IMG_LEER) && (b_cap_right_p != IMG_LEER) && (b_body_p != IMG_LEER))
 		                             )
 	  ) {
 
-		const scr_coord_val lw = skinverwaltung_t::window_skin->get_bild(SKIN_BUTTON_SIDE_LEFT  + (3*pressed))->get_pic()->w;
-		const scr_coord_val rw = skinverwaltung_t::window_skin->get_bild(SKIN_BUTTON_SIDE_RIGHT + (3*pressed))->get_pic()->w;
-		const scr_coord_val cw = skinverwaltung_t::window_skin->get_bild(SKIN_BUTTON_BODY       + (3*pressed))->get_pic()->w;
+		const scr_coord_val lw = skinverwaltung_t::button->get_bild(SKIN_BUTTON_SIDE_LEFT  + (3*pressed))->get_pic()->w;
+		const scr_coord_val rw = skinverwaltung_t::button->get_bild(SKIN_BUTTON_SIDE_RIGHT + (3*pressed))->get_pic()->w;
+		const scr_coord_val cw = skinverwaltung_t::button->get_bild(SKIN_BUTTON_BODY       + (3*pressed))->get_pic()->w;
 
 		// first the center (may need extra clipping)
 		if(  w-lw-rw < cw  ) {
@@ -361,48 +228,48 @@ void button_t::draw_scrollbar(scr_coord_val x, scr_coord_val y, scr_coord_val w,
 	if(  scrollbar_middle!=IMG_LEER  ) {
 		if(  horizontal  ) {
 			const int image_offset = (slider ? SKIN_SCROLLBAR_H_KNOB_LEFT : SKIN_SCROLLBAR_H_BACKGROUND_LEFT);
-			const scr_coord_val lw = skinverwaltung_t::window_skin->get_bild(image_offset)->get_pic()->w;
-			const scr_coord_val rw = skinverwaltung_t::window_skin->get_bild(image_offset+1)->get_pic()->w;
+			const scr_coord_val lw = skinverwaltung_t::scrollbar->get_bild(image_offset)->get_pic()->w;
+			const scr_coord_val rw = skinverwaltung_t::scrollbar->get_bild(image_offset+1)->get_pic()->w;
 			// first the center (may need extra clipping)
 			if(w-lw-rw<64) {
 				clip_dimension const cl = display_get_clip_wh();
 				display_set_clip_wh(cl.x, cl.y, max(0,min(x+w-rw,cl.xx)-cl.x), cl.h );
-				display_color_img(skinverwaltung_t::window_skin->get_bild_nr(image_offset+2), x+lw, y, 0, false, true);
+				display_color_img(skinverwaltung_t::scrollbar->get_bild_nr(image_offset+2), x+lw, y, 0, false, true);
 				display_set_clip_wh(cl.x, cl.y, cl.w, cl.h );
 			}
 			else {
 				// wider buttons
 				for( scr_coord_val j=0;  j+64<w-rw-lw;  j+=64) {
-					display_color_img(skinverwaltung_t::window_skin->get_bild_nr(image_offset+2), x+j+lw, y, 0, false, true);
+					display_color_img(skinverwaltung_t::scrollbar->get_bild_nr(image_offset+2), x+j+lw, y, 0, false, true);
 				}
-				display_color_img(skinverwaltung_t::window_skin->get_bild_nr(image_offset+2), x+w-rw-64, y, 0, false, true);
+				display_color_img(skinverwaltung_t::scrollbar->get_bild_nr(image_offset+2), x+w-rw-64, y, 0, false, true);
 			}
 			// now the begin and end ...
-			display_color_img( skinverwaltung_t::window_skin->get_bild_nr(image_offset+0), x, y, 0, false, true);
-			display_color_img( skinverwaltung_t::window_skin->get_bild_nr(image_offset+1), x+w-rw, y, 0, false, true);
+			display_color_img( skinverwaltung_t::scrollbar->get_bild_nr(image_offset+0), x, y, 0, false, true);
+			display_color_img( skinverwaltung_t::scrollbar->get_bild_nr(image_offset+1), x+w-rw, y, 0, false, true);
 		}
 		else {
 			// vertical bar ...
 			const int image_offset = (slider ? SKIN_SCROLLBAR_V_KNOB_TOP : SKIN_SCROLLBAR_V_BACKGROUND_TOP);
-			const scr_coord_val lh = skinverwaltung_t::window_skin->get_bild(image_offset)->get_pic()->h;
-			const scr_coord_val rh = skinverwaltung_t::window_skin->get_bild(image_offset+1)->get_pic()->h;
+			const scr_coord_val lh = skinverwaltung_t::scrollbar->get_bild(image_offset)->get_pic()->h;
+			const scr_coord_val rh = skinverwaltung_t::scrollbar->get_bild(image_offset+1)->get_pic()->h;
 			// first the center (may need extra clipping)
 			if(h-lh-rh<64) {
 				clip_dimension const cl = display_get_clip_wh();
 				display_set_clip_wh(cl.x, cl.y, cl.w, max(0,min(y+h-rh,cl.yy)-cl.y) );
-				display_color_img(skinverwaltung_t::window_skin->get_bild_nr(image_offset+2), x, y+lh, 0, false, true);
+				display_color_img(skinverwaltung_t::scrollbar->get_bild_nr(image_offset+2), x, y+lh, 0, false, true);
 				display_set_clip_wh(cl.x, cl.y, cl.w, cl.h );
 			}
 			else {
 				// wider buttons
 				for( scr_coord_val j=0;  j+64<h-rh-lh;  j+=64) {
-					display_color_img(skinverwaltung_t::window_skin->get_bild_nr(image_offset+2), x, y+lh+j, 0, false, true);
+					display_color_img(skinverwaltung_t::scrollbar->get_bild_nr(image_offset+2), x, y+lh+j, 0, false, true);
 				}
-				display_color_img(skinverwaltung_t::window_skin->get_bild_nr(image_offset+2), x, y+h-rh-64, 0, false, true);
+				display_color_img(skinverwaltung_t::scrollbar->get_bild_nr(image_offset+2), x, y+h-rh-64, 0, false, true);
 			}
 			// now the begin and end ...
-			display_color_img(skinverwaltung_t::window_skin->get_bild_nr(image_offset+0), x, y, 0, false, true);
-			display_color_img(skinverwaltung_t::window_skin->get_bild_nr(image_offset+1), x, y+h-rh, 0, false, true);
+			display_color_img(skinverwaltung_t::scrollbar->get_bild_nr(image_offset+0), x, y, 0, false, true);
+			display_color_img(skinverwaltung_t::scrollbar->get_bild_nr(image_offset+1), x, y+h-rh, 0, false, true);
 		}
 	}
 }
@@ -419,16 +286,16 @@ void button_t::set_typ(enum type t)
 			foreground = SYSCOL_BUTTON_TEXT;
 			if(  !strempty(translated_text)  ) {
 				set_text(translated_text);
-				set_groesse ( koord( gui_checkbox_size.x + D_H_SPACE + proportional_string_width( translated_text ), max(gui_checkbox_size.y,LINESPACE)) );
+				set_groesse ( koord( gui_theme_t::gui_checkbox_size.x + D_H_SPACE + proportional_string_width( translated_text ), max(gui_theme_t::gui_checkbox_size.y,LINESPACE)) );
 			}
 			else {
-				set_groesse( koord( gui_checkbox_size.x, max(gui_checkbox_size.y,LINESPACE)) );
+				set_groesse( koord( gui_theme_t::gui_checkbox_size.x, max(gui_theme_t::gui_checkbox_size.y,LINESPACE)) );
 			}
 			break;
 
 		case arrowleft:
 		case repeatarrowleft:
-			set_groesse( gui_arrow_left_size );
+			set_groesse( gui_theme_t::gui_arrow_left_size );
 			break;
 
 		case posbutton:
@@ -436,20 +303,20 @@ void button_t::set_typ(enum type t)
 			// fallthrough
 		case arrowright:
 		case repeatarrowright:
-			set_groesse( gui_arrow_right_size );
+			set_groesse( gui_theme_t::gui_arrow_right_size );
 			break;
 
 		case arrowup:
-			set_groesse( gui_arrow_up_size );
+			set_groesse( gui_theme_t::gui_arrow_up_size );
 			break;
 
 		case arrowdown:
-			set_groesse( gui_arrow_down_size );
+			set_groesse( gui_theme_t::gui_arrow_down_size );
 			break;
 
 		case roundbox:
 		case box:
-			set_groesse( koord (gui_button_size.x, max(gui_button_size.y,LINESPACE)) );
+			set_groesse( koord (gui_theme_t::gui_button_size.x, max(D_BUTTON_HEIGHT,LINESPACE)) );
 			break;
 
 		default:
@@ -469,7 +336,7 @@ void button_t::set_text(const char * text)
 	translated_text = b_no_translate ? text : translator::translate(text);
 
 	if(  (type & STATE_MASK) == square  &&  !strempty(translated_text)  ) {
-		set_groesse ( koord( gui_checkbox_size.x + D_H_SPACE + proportional_string_width( translated_text ), max(gui_checkbox_size.y,LINESPACE)) );
+		set_groesse ( koord( gui_theme_t::gui_checkbox_size.x + D_H_SPACE + proportional_string_width( translated_text ), max(gui_theme_t::gui_checkbox_size.y,LINESPACE)) );
 	}
 }
 
@@ -646,32 +513,32 @@ void button_t::zeichnen(koord offset)
 
 		case square: // checkbox with text
 			{
-				scr_coord_val box_y_offset = D_GET_CENTER_ALIGN_OFFSET(gui_checkbox_size.y,groesse.y);
+				scr_coord_val box_y_offset = D_GET_CENTER_ALIGN_OFFSET(gui_theme_t::gui_checkbox_size.y,groesse.y);
 				if(  square_button_pushed != IMG_LEER  ) {
 					display_button_image(bx, by+box_y_offset, SQUARE_BUTTON, pressed);
 				}
 				else {
 					scr_coord_val width = display_get_char_width('X');
-					display_fillbox_wh_clip( bx, by+box_y_offset, gui_checkbox_size.x, gui_checkbox_size.y, COL_BLACK, true );
-					display_fillbox_wh_clip( bx+1, by+1+box_y_offset, gui_checkbox_size.x-2, gui_checkbox_size.y-2, pressed ? SYSCOL_HIGHLIGHT : MN_GREY1, true );
+					display_fillbox_wh_clip( bx, by+box_y_offset, gui_theme_t::gui_checkbox_size.x, gui_theme_t::gui_checkbox_size.y, COL_BLACK, true );
+					display_fillbox_wh_clip( bx+1, by+1+box_y_offset, gui_theme_t::gui_checkbox_size.x-2, gui_theme_t::gui_checkbox_size.y-2, pressed ? SYSCOL_HIGHLIGHT : MN_GREY1, true );
 					if(pressed) {
-						display_proportional_clip( bx+1+D_GET_CENTER_ALIGN_OFFSET(width,gui_checkbox_size.x),by+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,groesse.y) , "X", ALIGN_LEFT, b_enabled ? foreground : SYSCOL_DISABLED_BUTTON_TEXT, true);
+						display_proportional_clip( bx+1+D_GET_CENTER_ALIGN_OFFSET(width,gui_theme_t::gui_checkbox_size.x),by+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,groesse.y) , "X", ALIGN_LEFT, b_enabled ? foreground : SYSCOL_DISABLED_BUTTON_TEXT, true);
 					}
 				}
 
 				if(  text  ) {
-					size_t idx = display_fit_proportional( translated_text, bw-D_H_SPACE-gui_checkbox_size.x+1, translator::get_lang()->eclipse_width );
+					size_t idx = display_fit_proportional( translated_text, bw-D_H_SPACE-gui_theme_t::gui_checkbox_size.x+1, translator::get_lang()->eclipse_width );
 					if(  translated_text[idx]==0  ) {
-						display_proportional_clip( bx+gui_checkbox_size.x+D_H_SPACE, by+y_text_offset, translated_text, ALIGN_LEFT, b_enabled ? foreground : SYSCOL_DISABLED_TEXT, true);
+						display_proportional_clip( bx+gui_theme_t::gui_checkbox_size.x+D_H_SPACE, by+y_text_offset, translated_text, ALIGN_LEFT, b_enabled ? foreground : SYSCOL_DISABLED_TEXT, true);
 					}
 					else {
-						scr_coord_val w = display_text_proportional_len_clip( bx+gui_checkbox_size.x+D_H_SPACE, by+y_text_offset, translated_text, ALIGN_LEFT | DT_DIRTY | DT_CLIP, b_enabled ? foreground : SYSCOL_DISABLED_TEXT, idx );
-						display_proportional_clip( bx+gui_checkbox_size.x+D_H_SPACE+w, by+y_text_offset, translator::translate("..."), ALIGN_LEFT | DT_DIRTY | DT_CLIP, b_enabled ? foreground : SYSCOL_DISABLED_TEXT, true );
+						scr_coord_val w = display_text_proportional_len_clip( bx+gui_theme_t::gui_checkbox_size.x+D_H_SPACE, by+y_text_offset, translated_text, ALIGN_LEFT | DT_DIRTY | DT_CLIP, b_enabled ? foreground : SYSCOL_DISABLED_TEXT, idx );
+						display_proportional_clip( bx+gui_theme_t::gui_checkbox_size.x+D_H_SPACE+w, by+y_text_offset, translator::translate("..."), ALIGN_LEFT | DT_DIRTY | DT_CLIP, b_enabled ? foreground : SYSCOL_DISABLED_TEXT, true );
 					}
 				}
 
 				if(  win_get_focus() == this  ) {
-					draw_focus_rect(koord(bx,by+box_y_offset), gui_checkbox_size );
+					draw_focus_rect(koord(bx,by+box_y_offset), gui_theme_t::gui_checkbox_size );
 				}
 			}
 			break;
@@ -683,13 +550,16 @@ void button_t::zeichnen(koord offset)
 			}
 			else {
 				scr_coord_val width = display_get_char_width('<');
-				display_ddd_box_clip( bx, by, gui_arrow_left_size.x, gui_arrow_left_size.y, pressed ? COL_GREY3 : COL_GREY6, pressed ? COL_GREY6 : COL_GREY3 );
-				display_proportional_clip(bx+1+D_GET_CENTER_ALIGN_OFFSET(width,gui_arrow_left_size.x),by+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,groesse.y) , "<", ALIGN_LEFT, COL_BLACK, true);
+				display_ddd_box_clip( bx, by, gui_theme_t::gui_arrow_left_size.x, gui_theme_t::gui_arrow_left_size.y, pressed ? COL_GREY3 : COL_GREY6, pressed ? COL_GREY6 : COL_GREY3 );
+				display_proportional_clip(bx+1+D_GET_CENTER_ALIGN_OFFSET(width,gui_theme_t::gui_arrow_left_size.x),by+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,groesse.y) , "<", ALIGN_LEFT, COL_BLACK, true);
 
 			}
 			break;
 
 		case posbutton:
+			display_button_image(bx, by, POS_BUTTON, pressed);
+			break;
+
 		case arrowright:
 		case repeatarrowright:
 			if(  arrow_right_pushed!=IMG_LEER  ) {
@@ -697,8 +567,8 @@ void button_t::zeichnen(koord offset)
 			}
 			else {
 				scr_coord_val width = display_get_char_width('>');
-				display_ddd_box_clip( bx, by, gui_arrow_right_size.x, gui_arrow_right_size.y, pressed ? COL_GREY3 : COL_GREY6, pressed ? COL_GREY6 : COL_GREY3 );
-				display_proportional_clip(bx+1+D_GET_CENTER_ALIGN_OFFSET(width,gui_arrow_right_size.x),by+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,groesse.y) , ">", ALIGN_LEFT, COL_BLACK, true);
+				display_ddd_box_clip( bx, by, gui_theme_t::gui_arrow_right_size.x, gui_theme_t::gui_arrow_right_size.y, pressed ? COL_GREY3 : COL_GREY6, pressed ? COL_GREY6 : COL_GREY3 );
+				display_proportional_clip(bx+1+D_GET_CENTER_ALIGN_OFFSET(width,gui_theme_t::gui_arrow_right_size.x),by+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,groesse.y) , ">", ALIGN_LEFT, COL_BLACK, true);
 			}
 			break;
 
@@ -708,8 +578,8 @@ void button_t::zeichnen(koord offset)
 			}
 			else {
 				scr_coord_val width = display_get_char_width('^');
-				display_ddd_box_clip( bx, by, gui_arrow_up_size.x, gui_arrow_up_size.y, pressed ? COL_GREY3 : COL_GREY6, pressed ? COL_GREY6 : COL_GREY3 );
-				display_proportional_clip(bx+1+D_GET_CENTER_ALIGN_OFFSET(width,gui_arrow_up_size.x),by+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,groesse.y) , "^", ALIGN_LEFT, COL_BLACK, true);
+				display_ddd_box_clip( bx, by, gui_theme_t::gui_arrow_up_size.x, gui_theme_t::gui_arrow_up_size.y, pressed ? COL_GREY3 : COL_GREY6, pressed ? COL_GREY6 : COL_GREY3 );
+				display_proportional_clip(bx+1+D_GET_CENTER_ALIGN_OFFSET(width,gui_theme_t::gui_arrow_up_size.x),by+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,groesse.y) , "^", ALIGN_LEFT, COL_BLACK, true);
 			}
 			break;
 
@@ -719,8 +589,8 @@ void button_t::zeichnen(koord offset)
 			}
 			else {
 				scr_coord_val width = display_get_char_width('v');
-				display_ddd_box_clip( bx, by, gui_arrow_down_size.x, gui_arrow_down_size.y, pressed ? COL_GREY3 : COL_GREY6, pressed ? COL_GREY6 : COL_GREY3 );
-				display_proportional_clip(bx+1+D_GET_CENTER_ALIGN_OFFSET(width,gui_arrow_down_size.x),by+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,groesse.y) , "v", ALIGN_LEFT, COL_BLACK, true);
+				display_ddd_box_clip( bx, by, gui_theme_t::gui_arrow_down_size.x, gui_theme_t::gui_arrow_down_size.y, pressed ? COL_GREY3 : COL_GREY6, pressed ? COL_GREY6 : COL_GREY3 );
+				display_proportional_clip(bx+1+D_GET_CENTER_ALIGN_OFFSET(width,gui_theme_t::gui_arrow_down_size.x),by+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,groesse.y) , "v", ALIGN_LEFT, COL_BLACK, true);
 			}
 			break;
 

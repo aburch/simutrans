@@ -14,6 +14,7 @@
 #include "simware.h"
 #include "display/simview.h"
 #include "gui/simwin.h"
+#include "gui/gui_theme.h"
 #include "simhalt.h"
 #include "display/simimg.h"
 #include "simcolor.h"
@@ -683,15 +684,15 @@ int simu_main(int argc, char** argv)
 //#endif
 
 	// prepare skins first
-	obj_reader_t::init();
 	bool themes_ok = false;
 	if(  const char *themestr = gimme_arg(argc, argv, "-theme", 1)  ) {
 		chdir( umgebung_t::user_dir );
-		themes_ok = themes_init(themestr);
+		themes_ok = gui_theme_t::themes_init(themestr);
 	}
 	if(  !themes_ok  ) {
 		chdir( umgebung_t::program_dir );
-		themes_ok = themes_init("theme");
+		chdir( "themes" );
+		themes_ok = gui_theme_t::themes_init("themes.tab");
 	}
 	chdir( umgebung_t::program_dir );
 

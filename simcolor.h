@@ -108,15 +108,16 @@ typedef unsigned char COLOR_VAL;
 #define COL_ARRIVED         COL_DARK_ORANGE
 #define COL_DEPARTED        COL_DARK_YELLOW
 
-#define SYSCOL_HIGHLIGHT          skinverwaltung_t::theme_color_highlight
-#define SYSCOL_SHADOW             skinverwaltung_t::theme_color_shadow
-#define SYSCOL_FACE               skinverwaltung_t::theme_color_face
-#define SYSCOL_BUTTON_TEXT        button_t::button_color_text
-#define SYSCOL_DISABLED_BUTTON_TEXT        button_t::button_color_disabled_text
-#define SYSCOL_TEXT               skinverwaltung_t::theme_color_text
-#define SYSCOL_SELECTED_TEXT      skinverwaltung_t::theme_color_selected_text
-#define SYSCOL_SELECTED_BACGROUND skinverwaltung_t::theme_color_selected_background
-#define SYSCOL_STATIC_TEXT        skinverwaltung_t::theme_color_static_text
-#define SYSCOL_DISABLED_TEXT      skinverwaltung_t::theme_color_disabled_text
+#define SYSCOL_HIGHLIGHT          gui_theme_t::theme_color_highlight
+#define SYSCOL_SHADOW             gui_theme_t::theme_color_shadow
+#define SYSCOL_FACE               gui_theme_t::theme_color_face
+#define SYSCOL_BUTTON_TEXT        gui_theme_t::button_color_text
+#define SYSCOL_DISABLED_BUTTON_TEXT        gui_theme_t::button_color_disabled_text
+#define SYSCOL_TEXT               gui_theme_t::theme_color_text
+#define SYSCOL_TEXT_HIGHLITE      gui_theme_t::theme_color_text_highlite
+#define SYSCOL_SELECTED_TEXT      gui_theme_t::theme_color_selected_text
+#define SYSCOL_SELECTED_BACGROUND gui_theme_t::theme_color_selected_background
+#define SYSCOL_STATIC_TEXT        gui_theme_t::theme_color_static_text
+#define SYSCOL_DISABLED_TEXT      gui_theme_t::theme_color_disabled_text
 
 #endif

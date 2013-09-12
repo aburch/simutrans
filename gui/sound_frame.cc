@@ -50,13 +50,13 @@ sound_frame_t::sound_frame_t()
 	cursor.y += LINESPACE + D_V_SPACE;
 
 	sound_volume_scrollbar.set_pos(cursor);
-	sound_volume_scrollbar.set_groesse(koord(DIALOG_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT, button_t::gui_scrollbar_size.y));
+	sound_volume_scrollbar.set_groesse(koord(DIALOG_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT, D_SCROLLBAR_HEIGHT));
 	sound_volume_scrollbar.set_knob(L_KNOB_SIZE, 255+L_KNOB_SIZE);
 	sound_volume_scrollbar.set_knob_offset(sound_get_global_volume());
 	sound_volume_scrollbar.set_scroll_discrete(false);
 	add_komponente(&sound_volume_scrollbar);
 	sound_volume_scrollbar.add_listener( this );
-	cursor.y += button_t::gui_scrollbar_size.y + D_V_SPACE;
+	cursor.y += D_SCROLLBAR_HEIGHT + D_V_SPACE;
 
 	sound_mute_button.init( button_t::square_state, "mute sound", cursor ); // 1 = align with scrollbar background
 	sound_mute_button.pressed = sound_get_mute();
@@ -70,13 +70,13 @@ sound_frame_t::sound_frame_t()
 	cursor.y += LINESPACE + D_V_SPACE;
 
 	music_volume_scrollbar.set_pos( cursor );
-	music_volume_scrollbar.set_groesse(koord(DIALOG_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT, button_t::gui_scrollbar_size.y));
+	music_volume_scrollbar.set_groesse(koord(DIALOG_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT, D_SCROLLBAR_HEIGHT));
 	music_volume_scrollbar.set_knob(L_KNOB_SIZE, 255+L_KNOB_SIZE);
 	music_volume_scrollbar.set_knob_offset(sound_get_midi_volume());
 	music_volume_scrollbar.set_scroll_discrete(false);
 	music_volume_scrollbar.add_listener( this );
 	add_komponente(&music_volume_scrollbar);
-	cursor.y += button_t::gui_scrollbar_size.y + D_V_SPACE;
+	cursor.y += D_SCROLLBAR_HEIGHT + D_V_SPACE;
 
 	music_mute_button.init( button_t::square_state, "disable midi",cursor ); // 1 = align with scrollbar background
 	music_mute_button.pressed = midi_get_mute();
@@ -119,9 +119,7 @@ sound_frame_t::sound_frame_t()
 }
 
 
-
-bool
-sound_frame_t::action_triggered( gui_action_creator_t *komp, value_t p)
+bool sound_frame_t::action_triggered( gui_action_creator_t *komp, value_t p)
 {
 	if (komp == &next_song_button) {
 		midi_stop();

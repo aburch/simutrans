@@ -21,6 +21,7 @@
 #include "gui_action_creator.h"
 #include "gui_textinput.h"
 #include "gui_button.h"
+#include "../gui_theme.h"
 
 
 class gui_numberinput_t :
@@ -64,7 +65,8 @@ public:
 	virtual ~gui_numberinput_t() {}
 
 	void set_groesse(koord groesse) OVERRIDE;
-	void set_width_by_len(size_t width, const char* symbols = NULL) { set_width( display_get_char_max_width( (symbols) ? symbols : "+-/0123456789" ) * width + button_t::gui_arrow_left_size.x + button_t::gui_arrow_right_size.x + 2 ); }
+	void set_width_by_len(size_t width, const char* symbols = NULL) {
+		set_width( display_get_char_max_width( (symbols) ? symbols : "+-/0123456789" ) * width + gui_theme_t::gui_arrow_left_size.x + gui_theme_t::gui_arrow_right_size.x + 2 ); }
 
 	// all init in one ...
 	void init( sint32 value, sint32 min, sint32 max, sint32 mode, bool wrap );

@@ -26,6 +26,8 @@
 #include "../player/simplay.h"
 #include "../utils/simstring.h"
 
+#include "themeselector.h"
+#include "simwin.h"
 
 // Local params
 #define L_DIALOG_WIDTH (220)
@@ -44,6 +46,13 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 
 	// Max Kielland: No need to put right aligned controls in place here.
 	// They will be positioned in the resize window function.
+
+	// Show thememanager
+	buttons[23].set_pos( cursor );
+	buttons[23].set_typ(button_t::roundbox_state);
+	buttons[23].set_text("Select a theme for display");
+	buttons[23].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
+	cursor.y += D_BUTTON_HEIGHT + D_V_SPACE;
 
 	// Show grid checkbox
 	buttons[17].set_pos( cursor );
@@ -266,7 +275,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	// Frame time label
 	frame_time_label.init("Frame time:", label_cursor, COL_BLACK );
 	sprintf(frame_time_buf," ***** ms" );
-	frame_time_value_label.init( frame_time_buf, koord(0, label_cursor.y), COL_WHITE );
+	frame_time_value_label.init( frame_time_buf, koord(0, label_cursor.y), SYSCOL_TEXT_HIGHLITE );
 	label_container.add_komponente( &frame_time_label );
 	value_container.add_komponente( &frame_time_value_label );
 	label_cursor.y += LINESPACE;
@@ -274,7 +283,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	// Idle time label
 	idle_time_label.init("Idle:", label_cursor, COL_BLACK);
 	sprintf(idle_time_buf," ***** ms" );
-	idle_time_value_label.init( idle_time_buf, koord(0, label_cursor.y), COL_WHITE );
+	idle_time_value_label.init( idle_time_buf, koord(0, label_cursor.y), SYSCOL_TEXT_HIGHLITE );
 	label_container.add_komponente( &idle_time_label );
 	value_container.add_komponente( &idle_time_value_label );
 	label_cursor.y += LINESPACE;
@@ -282,7 +291,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	// FPS label
 	fps_label.init("FPS:", label_cursor, COL_BLACK );
 	sprintf(fps_buf," *** fps*" );
-	fps_value_label.init( fps_buf, koord(0, label_cursor.y), COL_WHITE );
+	fps_value_label.init( fps_buf, koord(0, label_cursor.y), SYSCOL_TEXT_HIGHLITE );
 	label_container.add_komponente( &fps_label );
 	value_container.add_komponente( &fps_value_label );
 	label_cursor.y += LINESPACE;
@@ -290,7 +299,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	// Simloops label
 	simloops_label.init("Sim:", label_cursor, COL_BLACK );
 	sprintf(simloops_buf," ********" );
-	simloops_value_label.init( simloops_buf, koord(0, label_cursor.y), COL_WHITE );
+	simloops_value_label.init( simloops_buf, koord(0, label_cursor.y), SYSCOL_TEXT_HIGHLITE );
 	label_container.add_komponente( &simloops_label );
 	value_container.add_komponente( &simloops_value_label );
 	label_cursor.y += LINESPACE;
@@ -307,6 +316,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	}
 
 	// add buttons for sensible keyboard tab order
+	add_komponente( buttons+23 );
 	add_komponente( buttons+17 );
 	add_komponente( buttons+16 );
 	add_komponente( &inp_underground_level );
@@ -369,7 +379,7 @@ void color_gui_t::set_fenstergroesse(koord groesse)
 	traffic_density.set_pos       ( koord( column, traffic_density.get_pos().y       ) );
 	cursor_hide_range.set_pos     ( koord( column, cursor_hide_range.get_pos().y     ) );
 
-	column = groesse.x - D_MARGIN_RIGHT - button_t::gui_arrow_right_size.x;
+	column = groesse.x - D_MARGIN_RIGHT - gui_theme_t::gui_arrow_right_size.x;
 	buttons[1].set_pos            ( koord( column, buttons[1].get_pos().y            ) );
 	buttons[13].set_pos           ( koord( column, buttons[13].get_pos().y           ) );
 
@@ -562,6 +572,10 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 			// calc new images
 			welt->update_map();
 		}
+	} else
+
+	if((buttons+23)==komp) {
+		create_win(new themeselector_t(), w_info, magic_themes);
 	}
 
 	welt->set_dirty();
@@ -598,7 +612,7 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 	uint32 loops;
 	uint32 target_fps = welt->is_fast_forward() ? 10 : umgebung_t::fps;
 	loops = welt->get_realFPS();
-	color = COL_WHITE;
+	color = SYSCOL_TEXT_HIGHLITE;
 	if(  loops < (target_fps*3)/4  ) {
 		color = ( loops <= target_fps/2 ) ? COL_RED : COL_YELLOW;
 	}
@@ -612,7 +626,7 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 
 	//simloops_label
 	loops = welt->get_simloops();
-	color = COL_WHITE;
+	color = SYSCOL_TEXT_HIGHLITE;
 	if(  loops <= 30  ) {
 		color = (loops<=20) ? COL_RED : COL_YELLOW;
 	}

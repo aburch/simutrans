@@ -148,7 +148,7 @@ void gui_tab_panel_t::zeichnen(koord parent_pos)
 	if(  required_groesse.x>groesse.x  ||  offset_tab > 0) {
 		left.zeichnen( parent_pos+pos );
 		right.zeichnen( parent_pos+pos );
-		display_fillbox_wh_clip(xpos, ypos+TAB_HEADER_V_SIZE-1, 10, 1, COL_WHITE, true);
+		display_fillbox_wh_clip(xpos, ypos+TAB_HEADER_V_SIZE-1, 10, 1, SYSCOL_TEXT_HIGHLITE, true);
 		xpos += 10;
 	}
 
@@ -180,7 +180,7 @@ void gui_tab_panel_t::zeichnen(koord parent_pos)
 				display_vline_wh_clip(text_x+width+3, ypos+5, TAB_HEADER_V_SIZE-6, MN_GREY0, true);
 
 				if(text) {
-					display_proportional_clip(text_x, ypos+7, text, ALIGN_LEFT, COL_WHITE, true);
+					display_proportional_clip(text_x, ypos+7, text, ALIGN_LEFT, SYSCOL_TEXT_HIGHLITE, true);
 				}
 				else {
 					KOORD_VAL const y = ypos   - iter.img->get_pic()->y + 10            - iter.img->get_pic()->h / 2;

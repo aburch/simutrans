@@ -149,7 +149,7 @@ void pakselector_t::fill_list()
 		umgebung_t::objfilename = "";
 	}
 	button_frame.set_groesse ( koord (addon_button_width + width + D_H_SPACE, y) );
-	scrolly.set_groesse( button_frame.get_groesse() + koord( D_H_SPACE + button_t::gui_scrollbar_size.x, 0 ) );
+	scrolly.set_groesse( button_frame.get_groesse() + koord( D_H_SPACE + D_SCROLLBAR_WIDTH, 0 ) );
 
 	set_fenstergroesse( koord(
 		D_MARGIN_LEFT + scrolly.get_groesse().x + D_MARGIN_RIGHT,
@@ -182,7 +182,7 @@ void pakselector_t::set_fenstergroesse(koord groesse)
 
 	// Adjust filename buttons
 	KOORD_VAL y = 0;
-	KOORD_VAL button_width = groesse.x - D_MARGIN_LEFT - D_MARGIN_RIGHT - button_t::gui_scrollbar_size.x - 2*D_H_SPACE - addon_button_width;
+	KOORD_VAL button_width = groesse.x - D_MARGIN_LEFT - D_MARGIN_RIGHT - D_SCROLLBAR_WIDTH - 2*D_H_SPACE - addon_button_width;
 	FOR(slist_tpl<dir_entry_t>, const& i, entries) {
 
 		if (i.type == LI_HEADER && this->num_sections > 1) {

@@ -293,6 +293,7 @@ SOURCES += gui/goods_frame_t.cc
 SOURCES += gui/goods_stats_t.cc
 SOURCES += gui/ground_info.cc
 SOURCES += gui/gui_frame.cc
+SOURCES += gui/gui_theme.cc
 SOURCES += gui/halt_detail.cc
 SOURCES += gui/halt_info.cc
 SOURCES += gui/halt_list_filter_frame.cc

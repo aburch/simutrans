@@ -23,27 +23,6 @@
 #include "../simskin.h"
 #include "../besch/skin_besch.h"
 
-// default titlebar height
-KOORD_VAL gui_frame_t::gui_titlebar_height = 16;
-
-// Max Kielland: default gadget size
-KOORD_VAL gui_frame_t::gui_gadget_size = 16;
-
-// dialog borders
-KOORD_VAL gui_frame_t::gui_frame_left = 10;
-KOORD_VAL gui_frame_t::gui_frame_top = 10;
-KOORD_VAL gui_frame_t::gui_frame_right = 10;
-KOORD_VAL gui_frame_t::gui_frame_bottom = 10;
-
-// space between two elements
-KOORD_VAL gui_frame_t::gui_hspace = 4;
-KOORD_VAL gui_frame_t::gui_vspace = 4;
-
-// size of status indicator elements (colored boxes in factories, station and others)
-KOORD_VAL gui_frame_t::gui_indicator_width = 20;
-KOORD_VAL gui_frame_t::gui_indicator_height = 4;
-
-KOORD_VAL gui_frame_t::gui_divider_height = D_V_SPACE*2;
 
 // Insert the container
 gui_frame_t::gui_frame_t(char const* const name, spieler_t const* const sp)
@@ -57,7 +36,6 @@ gui_frame_t::gui_frame_t(char const* const name, spieler_t const* const sp)
 	opaque = true;
 	dirty = true;
 }
-
 
 
 /**
@@ -178,8 +156,8 @@ void gui_frame_t::zeichnen(koord pos, koord gr)
 
 	if(  opaque  ) {
 		// Hajo: skinned windows code
-		if(skinverwaltung_t::window_skin!=NULL) {
-			const int img = skinverwaltung_t::window_skin->get_bild_nr(0);
+		if(skinverwaltung_t::back!=NULL) {
+			const int img = skinverwaltung_t::back->get_bild_nr(0);
 
 			if (img != IMG_LEER) {
 				for(int j=0; j<gr.y; j+=64) {

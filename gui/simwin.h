@@ -41,6 +41,7 @@ enum magic_numbers {
 	// from here on, delete second 'new'-ed object in create_win
 	magic_settings_frame_t,
 	magic_sprachengui_t,
+	magic_themes,
 	magic_welt_gui_t,
 	magic_climate,
 	magic_reliefmap,
@@ -108,13 +109,6 @@ enum magic_numbers {
 
 // Holding time for auto-closing windows
 #define MESG_WAIT 80
-
-/**
- * Reads theme configuration data, still not final
- * searches a theme.tab inside the specified folder
- * @author prissi
- */
-bool themes_init(const char *dir_name);
 
 void init_map_win();
 

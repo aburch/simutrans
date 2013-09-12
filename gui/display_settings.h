@@ -12,7 +12,7 @@
 #include "components/gui_button.h"
 #include "components/gui_numberinput.h"
 
-#define COLORS_MAX_BUTTONS (23)
+#define COLORS_MAX_BUTTONS (24)
 #define BUF_MAXLEN_MS_FORMAT (10)
 
 class karte_t;

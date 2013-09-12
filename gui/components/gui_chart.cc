@@ -11,7 +11,8 @@
 #include "../../utils/simstring.h"
 #include "../../display/simgraph.h"
 #include "../../simcolor.h"
-#include "../../gui/simwin.h"
+#include "../simwin.h"
+#include "../gui_theme.h"
 
 static char tooltip[64];
 
@@ -142,12 +143,12 @@ void gui_chart_t::zeichnen(koord offset)
 
 		// draw zero number only, if it will not disturb any other printed values!
 		if ((baseline > 18) && (baseline < groesse.y -18)) {
-			display_proportional_clip(offset.x - 4, offset.y+(KOORD_VAL)baseline-3, "0", ALIGN_RIGHT, COL_WHITE, true );
+			display_proportional_clip(offset.x - 4, offset.y+(KOORD_VAL)baseline-3, "0", ALIGN_RIGHT, SYSCOL_TEXT_HIGHLITE, true );
 		}
 
 		// display min/max money values
-		display_proportional_clip(offset.x - 4, offset.y-5, cmax, ALIGN_RIGHT, COL_WHITE, true );
-		display_proportional_clip(offset.x - 4, offset.y+groesse.y-5, cmin, ALIGN_RIGHT, COL_WHITE, true );
+		display_proportional_clip(offset.x - 4, offset.y-5, cmax, ALIGN_RIGHT, SYSCOL_TEXT_HIGHLITE, true );
+		display_proportional_clip(offset.x - 4, offset.y+groesse.y-5, cmin, ALIGN_RIGHT, SYSCOL_TEXT_HIGHLITE, true );
 	}
 
 	// draw chart frame

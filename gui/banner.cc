@@ -94,7 +94,7 @@ banner_t::banner_t( karte_t *w) : gui_frame_t(""),
 	quit.init( button_t::roundbox, "Beenden", cursor );
 	quit.add_listener( this );
 	add_komponente( &quit );
-	cursor += button_t::gui_button_size;
+	cursor += gui_theme_t::gui_button_size;
 
 	set_fenstergroesse( koord( L_DIALOG_WIDTH, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM ) );
 }
@@ -147,22 +147,22 @@ void banner_t::zeichnen(koord pos, koord gr )
 	cursor.y += L_LINESPACE_EXTRA_5;
 
 #ifdef REVISION
-	display_shadow_proportional( cursor.x, cursor.y, COL_WHITE, COL_BLACK, "Version " VERSION_NUMBER " " VERSION_DATE " r" QUOTEME(REVISION), true );
+	display_shadow_proportional( cursor.x, cursor.y, SYSCOL_TEXT_HIGHLITE, COL_BLACK, "Version " VERSION_NUMBER " " VERSION_DATE " r" QUOTEME(REVISION), true );
 #else
-	display_shadow_proportional( cursor.x, cursor.y, COL_WHITE, COL_BLACK, "Version " VERSION_NUMBER " " VERSION_DATE, true );
+	display_shadow_proportional( cursor.x, cursor.y, SYSCOL_TEXT_HIGHLITE, COL_BLACK, "Version " VERSION_NUMBER " " VERSION_DATE, true );
 #endif
 	cursor.y += L_LINESPACE_EXTRA_7;
 
 	display_shadow_proportional( cursor.x, cursor.y, COL_PT, COL_BLACK, "The version is developed by", true );
 	cursor += koord (L_TEXT_INDENT,L_LINESPACE_EXTRA_5);
 
-	display_shadow_proportional( cursor.x, cursor.y, COL_WHITE, COL_BLACK, "the simutrans team", true );
+	display_shadow_proportional( cursor.x, cursor.y, SYSCOL_TEXT_HIGHLITE, COL_BLACK, "the simutrans team", true );
 	cursor.y += L_LINESPACE_EXTRA_2;
 
-	display_shadow_proportional( cursor.x, cursor.y, COL_WHITE, COL_BLACK, "under the Artistic Licence", true );
+	display_shadow_proportional( cursor.x, cursor.y, SYSCOL_TEXT_HIGHLITE, COL_BLACK, "under the Artistic Licence", true );
 	cursor.y += L_LINESPACE_EXTRA_2;
 
-	display_shadow_proportional( cursor.x, cursor.y, COL_WHITE, COL_BLACK, "based on Simutrans 84.22.1", true );
+	display_shadow_proportional( cursor.x, cursor.y, SYSCOL_TEXT_HIGHLITE, COL_BLACK, "based on Simutrans 84.22.1", true );
 	cursor += koord (-L_TEXT_INDENT,L_LINESPACE_EXTRA_7);
 
 	display_shadow_proportional( cursor.x, cursor.y, COL_ORANGE, COL_BLACK, "Selling of the program is forbidden.", true );
@@ -171,13 +171,13 @@ void banner_t::zeichnen(koord pos, koord gr )
 	display_shadow_proportional( cursor.x, cursor.y, COL_PT, COL_BLACK, "For questions and support please visit:", true );
 	cursor += koord (L_TEXT_INDENT,L_LINESPACE_EXTRA_2);
 
-	display_shadow_proportional( cursor.x, cursor.y, COL_WHITE, COL_BLACK, "http://www.simutrans.com", true );
+	display_shadow_proportional( cursor.x, cursor.y, SYSCOL_TEXT_HIGHLITE, COL_BLACK, "http://www.simutrans.com", true );
 	cursor.y += L_LINESPACE_EXTRA_2;
 
-	display_shadow_proportional( cursor.x, cursor.y, COL_WHITE, COL_BLACK, "http://forum.simutrans.com", true );
+	display_shadow_proportional( cursor.x, cursor.y, SYSCOL_TEXT_HIGHLITE, COL_BLACK, "http://forum.simutrans.com", true );
 	cursor.y += L_LINESPACE_EXTRA_2;
 
-	display_shadow_proportional( cursor.x, cursor.y, COL_WHITE, COL_BLACK, "http://wiki.simutrans-germany.com/", true );
+	display_shadow_proportional( cursor.x, cursor.y, SYSCOL_TEXT_HIGHLITE, COL_BLACK, "http://wiki.simutrans-germany.com/", true );
 	cursor.y += L_LINESPACE_EXTRA_7;
 
 	// now the scrolling

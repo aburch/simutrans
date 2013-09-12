@@ -43,16 +43,17 @@
 
 #include "../dings/zeiger.h"
 
-#include "map_frame.h"
-#include "help_frame.h"
-#include "messagebox.h"
-#include "gui_frame.h"
 
 #include "../player/simplay.h"
 #include "../tpl/inthashtable_tpl.h"
 #include "../tpl/vector_tpl.h"
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
+
+#include "map_frame.h"
+#include "help_frame.h"
+#include "messagebox.h"
+#include "gui_frame.h"
 
 // needed to restore/save them
 #include "werkzeug_waehler.h"
@@ -69,8 +70,9 @@
 #include "message_frame_t.h"
 #include "message_option_t.h"
 #include "fabrik_info.h"
+#include "themeselector.h"
 
-
+#include "../simversion.h"
 
 class inthashtable_tpl<ptrdiff_t,koord> old_win_pos;
 
@@ -155,110 +157,12 @@ static void destroy_framed_win(simwin_t *win);
 // Helper Functions
 
 #define REVERSE_GADGETS (!umgebung_t::window_buttons_right)
-// (Mathew Hounsell) A "Gadget Box" is a windows control button.
-enum simwin_gadget_et { GADGET_CLOSE, GADGET_HELP, GADGET_SIZE, GADGET_PREV, GADGET_NEXT, GADGET_GOTOPOS=36, GADGET_STICKY=21, GADGET_STICKY_PUSHED, COUNT_GADGET=255 };
-
-
-/**
- * Reads theme configuration data, still not final
- * searches first in user dir, pak dir, program dir
- * @author prissi
- *
- * Max Kielland:
- * Note, there will be a theme manager later on and
- * each gui object will find their own parameters by
- * themselves after registering its class to the theme
- * manager. This will be done as the last step in
- * the chain when loading a theme.
- */
-
-#if THEME == -1
-bool themes_init(const char *dir_name) { return false; }
-#else
-bool themes_init(const char *dir_name)
-{
-	tabfile_t themesconf;
-
-	// first take user data, then user global data
-	const std::string dir = dir_name;
-#if THEME > 0
-	if(  !themesconf.open((dir+"/themes_" STR(THEME) ".tab").c_str())  ) {
-#else
-	if(  !themesconf.open((dir+"/themes.tab").c_str())  ) {
-#endif
-		dbg->warning("simwin.cc themes_init()", "Can't read themes.tab from %s", dir_name );
-		return false;
-	}
-
-	tabfileobj_t contents;
-	themesconf.read(contents);
-
-	// first the stuff for the dialogues
-	gui_frame_t::gui_titlebar_height = (uint32)contents.get_int("gui_titlebar_height", gui_frame_t::gui_titlebar_height );
-	gui_frame_t::gui_frame_left =      (uint32)contents.get_int("gui_frame_left",      gui_frame_t::gui_frame_left );
-	gui_frame_t::gui_frame_top =       (uint32)contents.get_int("gui_frame_top",       gui_frame_t::gui_frame_top );
-	gui_frame_t::gui_frame_right =     (uint32)contents.get_int("gui_frame_right",     gui_frame_t::gui_frame_right );
-	gui_frame_t::gui_frame_bottom =    (uint32)contents.get_int("gui_frame_bottom",    gui_frame_t::gui_frame_bottom );
-	gui_frame_t::gui_hspace =          (uint32)contents.get_int("gui_hspace",          gui_frame_t::gui_hspace );
-	gui_frame_t::gui_vspace =          (uint32)contents.get_int("gui_vspace",          gui_frame_t::gui_vspace );
-
-	// those two will be anyway set whenever the buttons are reinitialized
-	// Max Kielland: This has been moved to button_t
-	button_t::gui_button_size.x = (uint32)contents.get_int("gui_button_width",  button_t::gui_button_size.x );
-	button_t::gui_button_size.y = (uint32)contents.get_int("gui_button_height", button_t::gui_button_size.y );
-
-	button_t::button_color_text = (uint32)contents.get_int("button_color_text", button_t::button_color_text );
-	button_t::button_color_disabled_text = (uint32)contents.get_int("button_color_disabled_text", button_t::button_color_disabled_text );
-
-	// maybe not the best place, rather use simwin for the static defines?
-	skinverwaltung_t::theme_color_text =          (COLOR_VAL)contents.get_int("gui_text_color",          SYSCOL_TEXT);
-	skinverwaltung_t::theme_color_static_text =   (COLOR_VAL)contents.get_int("gui_static_text_color",   SYSCOL_STATIC_TEXT);
-	skinverwaltung_t::theme_color_disabled_text = (COLOR_VAL)contents.get_int("gui_disabled_text_color", SYSCOL_DISABLED_TEXT);
-	skinverwaltung_t::theme_color_highlight =     (COLOR_VAL)contents.get_int("gui_highlight_color",     SYSCOL_HIGHLIGHT);
-	skinverwaltung_t::theme_color_shadow =        (COLOR_VAL)contents.get_int("gui_shadow_color",        SYSCOL_SHADOW);
-	skinverwaltung_t::theme_color_face =          (COLOR_VAL)contents.get_int("gui_face_color",          SYSCOL_FACE);
-	skinverwaltung_t::theme_color_button_text =   (COLOR_VAL)contents.get_int("gui_button_text_color",   SYSCOL_BUTTON_TEXT);
-
-	// those two may be rather an own control later on?
-	gui_frame_t::gui_indicator_width =  (uint32)contents.get_int("gui_indicator_width",  gui_frame_t::gui_indicator_width );
-	gui_frame_t::gui_indicator_height = (uint32)contents.get_int("gui_indicator_height", gui_frame_t::gui_indicator_height );
-
-	// other gui parameter
-	// Max Kielland: Scrollbar size is set by the arrow size in button_t
-	//scrollbar_t::BAR_SIZE = (uint32)contents.get_int("gui_scrollbar_width", scrollbar_t::BAR_SIZE );
-	gui_tab_panel_t::header_vsize = (uint32)contents.get_int("gui_tab_header_vsize", gui_tab_panel_t::header_vsize );
-
-	// stuff in umgebung_t but rather GUI	umgebung_t::window_snap_distance = contents.get_int("window_snap_distance", umgebung_t::window_snap_distance );
-	umgebung_t::window_buttons_right =      contents.get_int("window_buttons_right",      umgebung_t::window_buttons_right );
-	umgebung_t::left_to_right_graphs =      contents.get_int("left_to_right_graphs",      umgebung_t::left_to_right_graphs );
-	umgebung_t::window_frame_active =       contents.get_int("window_frame_active",       umgebung_t::window_frame_active );
-	umgebung_t::second_open_closes_win =    contents.get_int("second_open_closes_win",    umgebung_t::second_open_closes_win );
-	umgebung_t::remember_window_positions = contents.get_int("remember_window_positions", umgebung_t::remember_window_positions );
-
-	umgebung_t::front_window_bar_color =   contents.get_color("front_window_bar_color",   umgebung_t::front_window_bar_color );
-	umgebung_t::front_window_text_color =  contents.get_color("front_window_text_color",  umgebung_t::front_window_text_color );
-	umgebung_t::bottom_window_bar_color =  contents.get_color("bottom_window_bar_color",  umgebung_t::bottom_window_bar_color );
-	umgebung_t::bottom_window_text_color = contents.get_color("bottom_window_text_color", umgebung_t::bottom_window_text_color );
-
-	umgebung_t::show_tooltips =        contents.get_int("show_tooltips",              umgebung_t::show_tooltips );
-	umgebung_t::tooltip_color =        contents.get_color("tooltip_background_color", umgebung_t::tooltip_color );
-	umgebung_t::tooltip_textcolor =    contents.get_color("tooltip_text_color",       umgebung_t::tooltip_textcolor );
-	umgebung_t::tooltip_delay =        contents.get_int("tooltip_delay",              umgebung_t::tooltip_delay );
-	umgebung_t::tooltip_duration =     contents.get_int("tooltip_duration",           umgebung_t::tooltip_duration );
-	umgebung_t::toolbar_max_width =    contents.get_int("toolbar_max_width",          umgebung_t::toolbar_max_width );
-	umgebung_t::toolbar_max_height =   contents.get_int("toolbar_max_height",         umgebung_t::toolbar_max_height );
-	umgebung_t::cursor_overlay_color = contents.get_color("cursor_overlay_color",     umgebung_t::cursor_overlay_color );
-
-	// parsing buttons still needs to be done after agreement what to load
-	return false; //hence we return false for now ...
-}
-#endif
 
 /**
  * Display a window gadget
  * @author Hj. Malthaner
  */
-static int display_gadget_box(simwin_gadget_et const  code,
+static int display_gadget_box(sint8 code,
 			      int const x, int const y,
 			      int const color,
 			      bool const pushed)
@@ -266,9 +170,9 @@ static int display_gadget_box(simwin_gadget_et const  code,
 
 	// If we have a skin, get gadget image data
 	const bild_t *img = NULL;
-	if(  skinverwaltung_t::window_skin  ) {
+	if(  skinverwaltung_t::gadget  ) {
 		// "x", "?", "=", "«", "»"
-		const bild_besch_t *pic = skinverwaltung_t::window_skin->get_bild(code+1);
+		const bild_besch_t *pic = skinverwaltung_t::gadget->get_bild(code);
 		if (  pic != NULL  ) {
 			img = pic->get_pic();
 		}
@@ -284,20 +188,21 @@ static int display_gadget_box(simwin_gadget_et const  code,
 		// Max Kielland: This center the gadget image and compensates for any left/top margins within the image to be backward compatible with older PAK sets.
 		display_color_img(img->bild_nr, x + D_GET_CENTER_ALIGN_OFFSET(img->w,D_GADGET_SIZE)-img->x, y + D_GET_CENTER_ALIGN_OFFSET(img->h,D_GADGET_SIZE)-img->y, 0, false, false);
 
-	} else {
+	}
+	else {
 		const char *gadget_text = "#";
 		static const char *gadget_texts[5]={ "X", "?", "=", "<", ">" };
 
-		if(  code <= GADGET_NEXT  ) {
+		if(  code <= SKIN_BUTTON_NEXT  ) {
 			gadget_text = gadget_texts[code];
 		}
-		else if(  code == GADGET_GOTOPOS  ) {
+		else if(  code == SKIN_GADGET_GOTOPOS  ) {
 			gadget_text	= "*";
 		}
-		else if(  code == GADGET_STICKY  ) {
+		else if(  code == SKIN_GADGET_NOTPINNED  ) {
 			gadget_text	= "s";
 		}
-		else if(  code == GADGET_STICKY_PUSHED  ) {
+		else if(  code == SKIN_GADGET_PINNED  ) {
 			gadget_text	= "S";
 		}
 		display_proportional( x+4, y+4, gadget_text, ALIGN_LEFT, COL_BLACK, false );
@@ -327,33 +232,32 @@ static int display_gadget_boxes(
 
 	// Only the close and sticky gadget can be pushed.
 	if(  flags->close  ) {
-		width += k*display_gadget_box( GADGET_CLOSE, x + width, y, color, close_pushed );
+		width += k*display_gadget_box( SKIN_GADGET_CLOSE, x + width, y, color, close_pushed );
 	}
 	if(  flags->size  ) {
-		width += k*display_gadget_box( GADGET_SIZE, x + width, y, color, false );
+		width += k*display_gadget_box( SKIN_GADGET_MINIMIZE, x + width, y, color, false );
 	}
 	if(  flags->help  ) {
-		width += k*display_gadget_box( GADGET_HELP, x + width, y, color, false );
+		width += k*display_gadget_box( SKIN_GADGET_HELP, x + width, y, color, false );
 	}
 	if(  flags->prev  ) {
-		width += k*display_gadget_box( GADGET_PREV, x + width, y, color, false );
+		width += k*display_gadget_box( SKIN_BUTTON_PREVIOUS, x + width, y, color, false );
 	}
 	if(  flags->next  ) {
-		width += k*display_gadget_box( GADGET_NEXT, x + width, y, color, false );
+		width += k*display_gadget_box( SKIN_BUTTON_NEXT, x + width, y, color, false );
 	}
 	if(  flags->gotopos  ) {
-		width += k*display_gadget_box( GADGET_GOTOPOS, x + width, y, color, goto_pushed );
+		width += k*display_gadget_box( SKIN_GADGET_GOTOPOS, x + width, y, color, goto_pushed );
 	}
 	if(  flags->sticky  ) {
-		width += k*display_gadget_box( sticky_pushed ? GADGET_STICKY_PUSHED : GADGET_STICKY, x + width, y, color, sticky_pushed );
+		width += k*display_gadget_box( sticky_pushed ? SKIN_GADGET_PINNED : SKIN_GADGET_NOTPINNED, x + width, y, color, sticky_pushed );
 	}
-
 
 	return abs( width );
 }
 
 
-static simwin_gadget_et decode_gadget_boxes(
+static sint8 decode_gadget_boxes(
                simwin_gadget_flags_t const * const flags,
                int const x,
                int const px
@@ -367,49 +271,49 @@ static simwin_gadget_et decode_gadget_boxes(
 	if( flags->close ) {
 		if( offset >= 0  &&  offset<D_GADGET_SIZE  ) {
 //DBG_MESSAGE("simwin_gadget_et decode_gadget_boxes()","close" );
-			return GADGET_CLOSE;
+			return SKIN_GADGET_CLOSE;
 		}
 		offset += w;
 	}
 	if( flags->size ) {
 		if( offset >= 0  &&  offset<D_GADGET_SIZE  ) {
 //DBG_MESSAGE("simwin_gadget_et decode_gadget_boxes()","size" );
-			return GADGET_SIZE;
+			return SKIN_GADGET_MINIMIZE;
 		}
 		offset += w;
 	}
 	if( flags->help ) {
 		if( offset >= 0  &&  offset<D_GADGET_SIZE  ) {
 //DBG_MESSAGE("simwin_gadget_et decode_gadget_boxes()","help" );
-			return GADGET_HELP;
+			return SKIN_GADGET_HELP;
 		}
 		offset += w;
 	}
 	if( flags->prev ) {
 		if( offset >= 0  &&  offset<D_GADGET_SIZE  ) {
-			return GADGET_PREV;
+			return SKIN_BUTTON_PREVIOUS;
 		}
 		offset += w;
 	}
 	if( flags->next ) {
 		if( offset >= 0  &&  offset<D_GADGET_SIZE  ) {
-			return GADGET_NEXT;
+			return SKIN_BUTTON_NEXT;
 		}
 		offset += w;
 	}
 	if( flags->gotopos ) {
 		if( offset >= 0  &&  offset<D_GADGET_SIZE  ) {
-			return GADGET_GOTOPOS;
+			return SKIN_GADGET_GOTOPOS;
 		}
 		offset += w;
 	}
 	if( flags->sticky ) {
 		if( offset >= 0  &&  offset<D_GADGET_SIZE  ) {
-			return GADGET_STICKY;
+			return SKIN_GADGET_NOTPINNED;
 		}
 		offset += w;
 	}
-	return COUNT_GADGET;
+	return SKIN_GADGET_COUNT;
 }
 
 //-------------------------------------------------------------------------
@@ -450,8 +354,8 @@ static void win_draw_window_title(const koord pos, const koord gr,
 static void win_draw_window_dragger(koord pos, koord gr)
 {
 	pos += gr;
-	if(  skinverwaltung_t::window_skin  &&  skinverwaltung_t::window_skin->get_bild_nr(36)!=IMG_LEER  ) {
-		const bild_besch_t *dragger = skinverwaltung_t::window_skin->get_bild(36);
+	if(  skinverwaltung_t::gadget  &&  skinverwaltung_t::gadget->get_bild_nr(SKIN_WINDOW_RESIZE)!=IMG_LEER  ) {
+		const bild_besch_t *dragger = skinverwaltung_t::gadget->get_bild(SKIN_WINDOW_RESIZE);
 		display_color_img( dragger->get_nummer(), pos.x-dragger->get_pic()->w, pos.y-dragger->get_pic()->h, 0, false, false);
 	}
 	else {
@@ -569,6 +473,7 @@ void rdwr_all_win(loadsave_t *file)
 					// actual dialogues to restore
 					case magic_convoi_info:    w = new convoi_info_t(wl); break;
 					case magic_convoi_detail:  w = new convoi_detail_t(wl); break;
+					case magic_themes:         w = new themeselector_t(); break;
 					case magic_halt_info:      w = new halt_info_t(wl); break;
 					case magic_halt_detail:    w = new halt_detail_t(wl); break;
 					case magic_reliefmap:      w = new map_frame_t(wl); break;
@@ -592,7 +497,7 @@ void rdwr_all_win(loadsave_t *file)
 							w = werkzeug_t::toolbar_tool[id-magic_toolbar]->get_werkzeug_waehler();
 						}
 						else {
-							dbg->fatal( "rdwr_all_win()", "No idea how to restore magic $%Xlu", id );
+							dbg->fatal( "rdwr_all_win()", "No idea how to restore magic 0x%X", id );
 						}
 				}
 				/* sequence is now the same for all dialogues
@@ -1384,48 +1289,49 @@ bool check_pos_win(event_t *ev)
 				wins[i].flags.help = ( wins[i].gui->get_hilfe_datei() != NULL );
 
 				// Where Was It ?
-				simwin_gadget_et code = decode_gadget_boxes( ( & wins[i].flags ), wins[i].pos.x + (REVERSE_GADGETS?0:wins[i].gui->get_fenstergroesse().x-D_GADGET_SIZE-4), x );
+				sint8 code = decode_gadget_boxes( ( & wins[i].flags ), wins[i].pos.x + (REVERSE_GADGETS?0:wins[i].gui->get_fenstergroesse().x-D_GADGET_SIZE-4), x );
 
 				switch( code ) {
-					case GADGET_CLOSE :
+					case SKIN_GADGET_CLOSE :
 						if (IS_LEFTCLICK(ev)) {
 							wins[i].closing = true;
 						}
 						else if  (IS_LEFTRELEASE(ev)) {
-							if (  ev->my>=wins[i].pos.y  &&  ev->my<wins[i].pos.y+D_GADGET_SIZE  &&  decode_gadget_boxes( ( & wins[i].flags ), wins[i].pos.x + (REVERSE_GADGETS?0:wins[i].gui->get_fenstergroesse().x-D_GADGET_SIZE-4), ev->mx )==GADGET_CLOSE) {
+							if (  ev->my>=wins[i].pos.y  &&  ev->my<wins[i].pos.y+D_GADGET_SIZE  &&  decode_gadget_boxes( ( & wins[i].flags ), wins[i].pos.x + (REVERSE_GADGETS?0:wins[i].gui->get_fenstergroesse().x-D_GADGET_SIZE-4), ev->mx )==SKIN_GADGET_CLOSE) {
 								destroy_win(wins[i].gui);
-							} else {
+							}
+							else {
 								wins[i].closing = false;
 							}
 						}
 						break;
-					case GADGET_SIZE: // (Mathew Hounsell)
+					case SKIN_GADGET_MINIMIZE: // (Mathew Hounsell)
 						if (IS_LEFTCLICK(ev)) {
 							ev->ev_class = WINDOW_MAKE_MIN_SIZE;
 							ev->ev_code = 0;
 							wins[i].gui->infowin_event( ev );
 						}
 						break;
-					case GADGET_HELP :
+					case SKIN_GADGET_HELP :
 						if (IS_LEFTCLICK(ev)) {
 							help_frame_t::open_help_on( wins[i].gui->get_hilfe_datei() );
 						}
 						break;
-					case GADGET_PREV:
+					case SKIN_BUTTON_PREVIOUS:
 						if (IS_LEFTCLICK(ev)) {
 							ev->ev_class = WINDOW_CHOOSE_NEXT;
 							ev->ev_code = PREV_WINDOW;  // backward
 							wins[i].gui->infowin_event( ev );
 						}
 						break;
-					case GADGET_NEXT:
+					case SKIN_BUTTON_NEXT:
 						if (IS_LEFTCLICK(ev)) {
 							ev->ev_class = WINDOW_CHOOSE_NEXT;
 							ev->ev_code = NEXT_WINDOW;  // forward
 							wins[i].gui->infowin_event( ev );
 						}
 						break;
-					case GADGET_GOTOPOS:
+					case SKIN_GADGET_GOTOPOS:
 						if (IS_LEFTCLICK(ev)) {
 							// change position on map (or follow)
 							koord3d k = wins[i].gui->get_weltpos(true);
@@ -1434,7 +1340,7 @@ bool check_pos_win(event_t *ev)
 							}
 						}
 						break;
-					case GADGET_STICKY:
+					case SKIN_GADGET_NOTPINNED:
 						if (IS_LEFTCLICK(ev)) {
 							wins[i].sticky = !wins[i].sticky;
 							// mark title bar dirty
@@ -1512,11 +1418,27 @@ void win_poll_event(event_t* const ev)
 {
 	display_poll_event(ev);
 	// main window resized
-	if(ev->ev_class==EVENT_SYSTEM  &&  ev->ev_code==SYSTEM_RESIZE) {
+	if(  ev->ev_class==EVENT_SYSTEM  &&  ev->ev_code==SYSTEM_RESIZE  ) {
 		// main window resized
 		simgraph_resize( ev->mx, ev->my );
 		ticker::redraw_ticker();
 		wl->set_dirty();
+		ev->ev_class = EVENT_NONE;
+	}
+	// save and reload all windows (currently only used when a new theme is applied)
+	if(  ev->ev_class==EVENT_SYSTEM  &&  ev->ev_code==SYSTEM_RELOAD_WINDOWS  ) {
+		chdir( umgebung_t::user_dir );
+		loadsave_t dlg;
+		if(  dlg.wr_open( "dlgpos.xml", loadsave_t::xml_zipped, "temp", SERVER_SAVEGAME_VER_NR )  ) {
+			// save all
+			rdwr_all_win( &dlg );
+			dlg.close();
+			destroy_all_win( true );
+			if(  dlg.rd_open( "dlgpos.xml" )  ) {
+				// and reload them ...
+				rdwr_all_win( &dlg );
+			}
+		}
 		ev->ev_class = EVENT_NONE;
 	}
 }

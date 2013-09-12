@@ -26,14 +26,14 @@ scrollbar_t::scrollbar_t(type_t type) :
 	visible_mode = show_auto;
 
 	if (type == vertical) {
-		groesse = koord(button_t::gui_scrollbar_size.x,40); // 40 = default scrollbar height
+		groesse = koord(D_SCROLLBAR_WIDTH,40); // 40 = default scrollbar height
 		button_def[left_top_arrow_index].set_typ(button_t::arrowup);
 		button_def[right_bottom_arrow_index].set_typ(button_t::arrowdown);
 		button_def[knob_index].set_typ(button_t::scrollbar_vertical);
 		button_def[background_index].set_typ(button_t::scrollbar_vertical);
 	}
 	else { // horizontal
-		groesse = koord(40,button_t::gui_scrollbar_size.y); // 40 = default scrollbar length
+		groesse = koord(40,D_SCROLLBAR_HEIGHT); // 40 = default scrollbar length
 		button_def[left_top_arrow_index].set_typ(button_t::arrowleft);
 		button_def[right_bottom_arrow_index].set_typ(button_t::arrowright);
 		button_def[knob_index].set_typ(button_t::scrollbar_horizontal);
@@ -76,7 +76,7 @@ void scrollbar_t::set_knob(scr_coord_val size, scr_coord_val area)
 void scrollbar_t::reposition_buttons()
 {
 
-	const scr_coord_val area = (type == vertical ? groesse.y-button_t::gui_arrow_up_size.y-button_t::gui_arrow_down_size.y : groesse.x-button_t::gui_arrow_left_size.x-button_t::gui_arrow_right_size.x); // area will be actual area knob can move in
+	const scr_coord_val area = (type == vertical ? groesse.y-gui_theme_t::gui_arrow_up_size.y-gui_theme_t::gui_arrow_down_size.y : groesse.x-gui_theme_t::gui_arrow_left_size.x-gui_theme_t::gui_arrow_right_size.x); // area will be actual area knob can move in
 
 	// check if scrollbar is too low
 	if(  knob_size+knob_offset>knob_area+(knob_scroll_discrete?(knob_scroll_amount-1):0)  ) {
@@ -104,37 +104,37 @@ void scrollbar_t::reposition_buttons()
 	scr_coord_val size = (scr_coord_val)( (float)knob_size*ratio+.5);
 	if(type == vertical) {
 
-		button_def[left_top_arrow_index].set_pos( koord( (button_t::gui_scrollbar_size.x-button_t::gui_arrow_up_size.x)/2, 0) );
-		button_def[right_bottom_arrow_index].set_pos( koord( (button_t::gui_scrollbar_size.x-button_t::gui_arrow_down_size.x)/2, groesse.y-button_t::gui_arrow_down_size.y) );
-		button_def[knob_index].set_pos( koord( 0, button_t::gui_arrow_up_size.y+offset ) );
+		button_def[left_top_arrow_index].set_pos( koord( (D_SCROLLBAR_WIDTH-gui_theme_t::gui_arrow_up_size.x)/2, 0) );
+		button_def[right_bottom_arrow_index].set_pos( koord( (D_SCROLLBAR_WIDTH-gui_theme_t::gui_arrow_down_size.x)/2, groesse.y-gui_theme_t::gui_arrow_down_size.y) );
+		button_def[knob_index].set_pos( koord( 0, gui_theme_t::gui_arrow_up_size.y+offset ) );
 
 		if(  button_t::scrollbar_slider_top!=IMG_LEER  ) {
 			size = max( size,
-			            skinverwaltung_t::window_skin->get_bild(SKIN_SCROLLBAR_V_KNOB_TOP)->get_pic()->h+
-			            skinverwaltung_t::window_skin->get_bild(SKIN_SCROLLBAR_V_KNOB_BOTTOM)->get_pic()->h
+			            skinverwaltung_t::scrollbar->get_bild(SKIN_SCROLLBAR_V_KNOB_TOP)->get_pic()->h+
+			            skinverwaltung_t::scrollbar->get_bild(SKIN_SCROLLBAR_V_KNOB_BOTTOM)->get_pic()->h
 			          );
 		}
 
-		button_def[knob_index].set_groesse( koord(button_t::gui_scrollknob_size.x,size) );
-		button_def[background_index].set_pos( koord(0,button_t::gui_arrow_up_size.y) );
-		button_def[background_index].set_groesse( koord(button_t::gui_scrollbar_size.x,groesse.y-button_t::gui_arrow_up_size.y-button_t::gui_arrow_down_size.y) );
+		button_def[knob_index].set_groesse( koord(gui_theme_t::gui_scrollknob_size.x,size) );
+		button_def[background_index].set_pos( koord(0,gui_theme_t::gui_arrow_up_size.y) );
+		button_def[background_index].set_groesse( koord(D_SCROLLBAR_WIDTH,groesse.y-gui_theme_t::gui_arrow_up_size.y-gui_theme_t::gui_arrow_down_size.y) );
 	}
 	else { // horizontal
 
-		button_def[left_top_arrow_index].set_pos( koord(0,(button_t::gui_scrollbar_size.y-button_t::gui_arrow_left_size.y)/2) );
-		button_def[right_bottom_arrow_index].set_pos( koord(groesse.x-button_t::gui_arrow_right_size.x,(button_t::gui_scrollbar_size.y-button_t::gui_arrow_right_size.y)/2) );
-		button_def[knob_index].set_pos( koord(button_t::gui_arrow_left_size.x+offset,0) );
+		button_def[left_top_arrow_index].set_pos( koord(0,(D_SCROLLBAR_HEIGHT-gui_theme_t::gui_arrow_left_size.y)/2) );
+		button_def[right_bottom_arrow_index].set_pos( koord(groesse.x-gui_theme_t::gui_arrow_right_size.x,(D_SCROLLBAR_HEIGHT-gui_theme_t::gui_arrow_right_size.y)/2) );
+		button_def[knob_index].set_pos( koord(gui_theme_t::gui_arrow_left_size.x+offset,0) );
 
 		if(  button_t::scrollbar_slider_left!=IMG_LEER  ) {
 			size = max( size,
-			            skinverwaltung_t::window_skin->get_bild(SKIN_SCROLLBAR_H_KNOB_LEFT)->get_pic()->w+
-			            skinverwaltung_t::window_skin->get_bild(SKIN_SCROLLBAR_H_KNOB_RIGHT)->get_pic()->w
+			            skinverwaltung_t::scrollbar->get_bild(SKIN_SCROLLBAR_H_KNOB_LEFT)->get_pic()->w+
+			            skinverwaltung_t::scrollbar->get_bild(SKIN_SCROLLBAR_H_KNOB_RIGHT)->get_pic()->w
 			          );
 		}
 
-		button_def[knob_index].set_groesse( koord(size,button_t::gui_scrollknob_size.y) );
-		button_def[background_index].set_pos( koord(button_t::gui_arrow_left_size.x,0) );
-		button_def[background_index].set_groesse( koord(groesse.x-button_t::gui_arrow_left_size.x-button_t::gui_arrow_right_size.x,button_t::gui_scrollbar_size.y) );
+		button_def[knob_index].set_groesse( koord(size,gui_theme_t::gui_scrollknob_size.y) );
+		button_def[background_index].set_pos( koord(gui_theme_t::gui_arrow_left_size.x,0) );
+		button_def[background_index].set_groesse( koord(groesse.x-gui_theme_t::gui_arrow_left_size.x-gui_theme_t::gui_arrow_right_size.x,D_SCROLLBAR_HEIGHT) );
 	}
 
 	full = ( button_def[knob_index].get_groesse()  ==  button_def[background_index].get_groesse() );
@@ -146,7 +146,7 @@ void scrollbar_t::reposition_buttons()
 // signals slider drag. If slider hits end, returned amount is smaller.
 sint32 scrollbar_t::slider_drag(sint32 amount)
 {
-	const scr_coord_val area = (type == vertical ? groesse.y-button_t::gui_arrow_up_size.y-button_t::gui_arrow_down_size.y : groesse.x-button_t::gui_arrow_left_size.x-button_t::gui_arrow_right_size.x); // area will be actual area knob can move in
+	const scr_coord_val area = (type == vertical ? groesse.y-gui_theme_t::gui_arrow_up_size.y-gui_theme_t::gui_arrow_down_size.y : groesse.x-gui_theme_t::gui_arrow_left_size.x-gui_theme_t::gui_arrow_right_size.x); // area will be actual area knob can move in
 
 	const float ratio = (float)area / (float)knob_area;
 	amount = (int)( (float)amount / ratio );

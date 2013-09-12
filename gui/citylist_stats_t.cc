@@ -148,7 +148,7 @@ void citylist_stats_t::zeichnen(koord offset)
 			display_proportional_clip(offset.x + 4 + 10, offset.y, buf, ALIGN_LEFT, COL_BLACK, true);
 
 			// goto button
-			image_id const img = sel-- != 0 ? button_t::arrow_right_normal : button_t::arrow_right_pushed;
+			image_id const img = sel-- != 0 ? button_t::pos_button_normal : button_t::pos_button_pushed;
 			display_color_img(img, offset.x + 2, offset.y, 0, false, true);
 
 			if(  win_get_magic( (ptrdiff_t)stadt )  ) {

@@ -12,6 +12,7 @@
 
 #include "gui_komponente.h"
 #include "../../simcolor.h"
+#include "../gui_theme.h"
 #include "../../simskin.h"
 
 

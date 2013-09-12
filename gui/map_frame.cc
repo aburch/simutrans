@@ -478,7 +478,7 @@ bool map_frame_t::infowin_event(const event_t *ev)
 		} while(  zoomed  );
 
 		// then zoom back out to fit
-		const koord s_gr = scrolly.get_groesse() - button_t::gui_scrollbar_size;
+		const koord s_gr = scrolly.get_groesse() - gui_theme_t::gui_scrollbar_size;
 		koord gr = reliefkarte_t::get_karte()->get_groesse();
 		zoomed = true;
 		while(  zoomed  &&  max(gr.x/s_gr.x, gr.y/s_gr.y)  ) {
@@ -570,7 +570,7 @@ void map_frame_t::resize(const koord delta)
 	scrolly.set_pos( koord(1,offset_y) );
 
 	scr_coord_val min_width = max(BUTTON4_X+D_MARGIN_RIGHT-D_H_SPACE,D_DEFAULT_WIDTH);
-	set_min_windowsize(koord(min_width, D_TITLEBAR_HEIGHT+offset_y+64+button_t::gui_scrollbar_size.y+1));
+	set_min_windowsize(koord(min_width, D_TITLEBAR_HEIGHT+offset_y+64+D_SCROLLBAR_HEIGHT+1));
 	set_dirty();
 
 	gui_frame_t::resize(delta);
@@ -592,7 +592,7 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 	// update our stored screen position
 	screenpos = pos;
 
-	reliefkarte_t::get_karte()->set_xy_offset_size( koord(scrolly.get_scroll_x(), scrolly.get_scroll_y()), koord(scrolly.get_groesse()-button_t::gui_scrollbar_size) );
+	reliefkarte_t::get_karte()->set_xy_offset_size( koord(scrolly.get_scroll_x(), scrolly.get_scroll_y()), koord(scrolly.get_groesse()-gui_theme_t::gui_scrollbar_size) );
 
 	// first: check if cursor within map screen size
 	karte_t *welt=reliefkarte_t::get_karte()->get_welt();

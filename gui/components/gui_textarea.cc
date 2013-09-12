@@ -18,6 +18,7 @@
 #include "../../simdebug.h"
 #include "../../simcolor.h"
 #include "../../simskin.h"
+#include "../gui_theme.h"
 #include "../../utils/cbuffer_t.h"
 
 #define L_PADDING_RIGHT (10)

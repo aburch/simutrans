@@ -341,7 +341,7 @@ void halt_list_frame_t::display_list(void)
 
 bool halt_list_frame_t::infowin_event(const event_t *ev)
 {
-	const sint16 xr = vscroll.is_visible() ? button_t::gui_scrollbar_size.x : 1;
+	const sint16 xr = vscroll.is_visible() ? D_SCROLLBAR_WIDTH : 1;
 
 	if(ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE) {
 		if(filter_frame) {
@@ -421,8 +421,8 @@ void halt_list_frame_t::resize(const koord size_change)
 	else {
 		add_komponente(&vscroll);
 		vscroll.set_visible(true);
-		vscroll.set_pos(koord(groesse.x-button_t::gui_scrollbar_size.x, 47-D_TITLEBAR_HEIGHT-1));
-		vscroll.set_groesse(groesse-button_t::gui_scrollbar_size);
+		vscroll.set_pos(koord(groesse.x-D_SCROLLBAR_WIDTH, 47-D_TITLEBAR_HEIGHT-1));
+		vscroll.set_groesse(groesse-gui_theme_t::gui_scrollbar_size);
 		vscroll.set_scroll_amount( 1 );
 	}
 }
@@ -434,7 +434,7 @@ void halt_list_frame_t::zeichnen(koord pos, koord gr)
 
 	gui_frame_t::zeichnen(pos, gr);
 
-	const sint16 xr = vscroll.is_visible() ? button_t::gui_scrollbar_size.x+4 : 6;
+	const sint16 xr = vscroll.is_visible() ? D_SCROLLBAR_WIDTH+4 : 6;
 	PUSH_CLIP(pos.x, pos.y+47, gr.x-xr, gr.y-48 );
 
 	const sint32 start = vscroll.get_knob_offset();

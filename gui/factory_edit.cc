@@ -44,7 +44,7 @@ static bool compare_fabrik_besch(const fabrik_besch_t* a, const fabrik_besch_t* 
 factory_edit_frame_t::factory_edit_frame_t(spieler_t* sp_, karte_t* welt) :
 	extend_edit_gui_t(translator::translate("factorybuilder"), sp_, welt),
 	fablist(16),
-	lb_rotation( rot_str, COL_WHITE, gui_label_t::right ),
+	lb_rotation( rot_str, SYSCOL_TEXT_HIGHLITE, gui_label_t::right ),
 	lb_rotation_info( translator::translate("Rotation"), COL_BLACK, gui_label_t::left ),
 	lb_production_info( translator::translate("Produktion"), COL_BLACK, gui_label_t::left )
 {

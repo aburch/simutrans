@@ -34,7 +34,7 @@
 climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 	gui_frame_t( translator::translate("Climate Control") )
 {
-	const scr_coord_val edit_width = display_get_char_max_width("-0123456789")*4 + button_t::gui_arrow_left_size.x + button_t::gui_arrow_right_size.x + 4;
+	const scr_coord_val edit_width = display_get_char_max_width("-0123456789")*4 + gui_theme_t::gui_arrow_left_size.x + gui_theme_t::gui_arrow_right_size.x + 4;
 	const scr_coord_val label_width = L_COLUMN_EDIT - D_MARGIN_LEFT-D_H_SPACE;
 	koord cursor(D_MARGIN_LEFT,D_MARGIN_TOP);
 	sint16 labelnr=0;
@@ -90,8 +90,8 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 	add_komponente( numberinput_lbl+labelnr );
 	labelnr++;
 	sprintf( snowline_txt ,"%d", sets->get_climate_borders()[arctic_climate] );
-	summer_snowline.init( snowline_txt, cursor, COL_WHITE);
-	summer_snowline.align_to(&mountain_roughness,ALIGN_RIGHT,koord(button_t::gui_arrow_right_size.x,0));
+	summer_snowline.init( snowline_txt, cursor, SYSCOL_TEXT_HIGHLITE);
+	summer_snowline.align_to(&mountain_roughness,ALIGN_RIGHT,koord(gui_theme_t::gui_arrow_right_size.x,0));
 	add_komponente( &summer_snowline );
 	cursor.y += LINESPACE+D_V_SPACE;
 

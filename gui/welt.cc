@@ -74,7 +74,7 @@ welt_gui_t::welt_gui_t(karte_t* const world_par, settings_t* const sets_par) :
 {
 	// Coordinates are relative to parent (TITLEHEIGHT already subtracted)
 	koord cursor(D_MARGIN_LEFT,D_MARGIN_TOP);
-	scr_coord_val edit_Width = display_get_char_max_width("0123456789")*5 + button_t::gui_arrow_left_size.x + button_t::gui_arrow_right_size.x;
+	scr_coord_val edit_Width = display_get_char_max_width("0123456789")*5 + gui_theme_t::gui_arrow_left_size.x + gui_theme_t::gui_arrow_right_size.x;
 	scr_coord_val label_width = L_COLUMN1_X - D_MARGIN_LEFT - D_H_SPACE;
 
 	world = world_par;

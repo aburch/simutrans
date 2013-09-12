@@ -226,7 +226,7 @@ public:
 	/**
 	 * Start the directory processing
 	 */
-	void fill_list();
+	virtual void fill_list();
 };
 
 #endif

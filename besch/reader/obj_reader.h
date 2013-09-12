@@ -77,7 +77,6 @@ class obj_reader_t
 	static unresolved_map unresolved;
 	static ptrhashtable_tpl<obj_besch_t **, int>  fatals;
 
-	static void read_file(const char *name);
 	static void read_nodes(FILE* fp, obj_besch_t*& data, int register_nodes,uint32 version);
 	static void skip_nodes(FILE *fp,uint32 version);
 
@@ -107,7 +106,6 @@ public:
 	virtual obj_type get_type() const = 0;
 	virtual const char *get_type_name() const = 0;
 
-	static bool init();
 	static bool laden_abschliessen();
 	/**
 	 * Loads all pak files from a directory, displaying a progress bar if the display is initialized
@@ -115,6 +113,9 @@ public:
 	 * @param message Label to show over the progress bar
 	 */
 	static bool load(const char *path, const char *message);
+
+	// Only for single files, must take care ob all the cleanup/registering matrix themeselves
+	static void read_file(const char *name);
 };
 
 #endif

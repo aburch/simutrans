@@ -159,8 +159,8 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt) :
 	scrolly.set_show_scroll_x(true);
 	add_komponente(&scrolly);
 
-	set_fenstergroesse(koord(total_width, view.get_groesse().y+208+button_t::gui_scrollbar_size.y));
-	set_min_windowsize(koord(total_width, view.get_groesse().y+131+button_t::gui_scrollbar_size.y));
+	set_fenstergroesse(koord(total_width, view.get_groesse().y+208+D_SCROLLBAR_HEIGHT));
+	set_min_windowsize(koord(total_width, view.get_groesse().y+131+D_SCROLLBAR_HEIGHT));
 
 	set_resizemode(diagonal_resize);     // 31-May-02	markus weber	added
 	resize(koord(0,0));
