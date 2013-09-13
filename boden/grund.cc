@@ -1493,44 +1493,18 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 			}
 		}
 
-		bool has_neighbouring_building = false;
-		const gebaeude_t* neighbouring_building;
-		const grund_t* gr;
-		for(uint8 i = 0; i < 8; i ++)
-		{
-			koord pos(weg->get_pos() + weg->get_pos().neighbours[i]);
-			gr = welt->lookup_kartenboden(pos);
-			if(!gr || !welt->get_city(pos)) 
-			{
-				continue;
-			}
-			neighbouring_building = gr->find<gebaeude_t>();
-			if(neighbouring_building && neighbouring_building->get_besitzer() == NULL)
-			{
-				has_neighbouring_building = true;
-				break;
-			}
-		}
-
-		const bool city_adopts_this = (weg->get_waytype() == road_wt
-										&& ( weg->get_besch()->get_styp() != weg_t::type_elevated )
-										&& ( weg->get_besch()->get_styp() != weg_t::type_underground )
-										&& welt->get_city(weg->get_pos().get_2d())
-										&& welt->get_settings().get_towns_adopt_player_roads()
-										&& !( sp && sp->is_public_service() )
-										&& has_neighbouring_building
-										);
-
 		// Add a pavement to the new road if the old road also had a pavement.
 		weg->set_gehweg(alter_weg && alter_weg->hat_gehweg());
-		// Add a sidewalk to roads adopted by the city.  This avoids the
-		// "I deleted the road and replaced it, so now there's no sidewalk" phenomenon.
-		if (city_adopts_this) 
+
+		// Add a pavement to roads adopted by the city.  This avoids the
+		// "I deleted the road and replaced it, so now there's no pavement" phenomenon.
+		bool city_adopts_this = weg->should_city_adopt_this(sp);
+		if (city_adopts_this)
 		{
+			// Add road and set speed limit.
 			weg->set_gehweg(true);
 		}
-
-		if( sp && !ist_wasser() && !city_adopts_this )
+		else if(sp && !ist_wasser() && !city_adopts_this)
 		{
 			// Set the owner
 			weg->set_besitzer(sp);
