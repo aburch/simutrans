@@ -2216,46 +2216,15 @@ void wegbauer_t::baue_strasse()
 					weg->set_max_speed( wo->get_besch()->get_topspeed() );
 				}
 
-				bool has_neighbouring_building = false;
-				const gebaeude_t* neighbouring_building;
-				const grund_t* gr;
-				for(uint8 i = 0; i < 8; i ++)
-				{
-					koord pos(weg->get_pos() + weg->get_pos().neighbours[i]);
-					gr = welt->lookup(koord3d(pos, welt->lookup_hgt(pos)));
-					if(!gr || !welt->get_city(pos)) 
-					{
-						continue;
-					}
-					neighbouring_building = gr->find<gebaeude_t>();
-					if(neighbouring_building && neighbouring_building->get_besitzer() == NULL)
-					{
-						has_neighbouring_building = true;
-						break;
-					}
-				}
-
-				// Does the town adopt this road as its own, including maintenance costs?
-				const bool city_adopts_this = (welt->lookup(k)->get_city()
-									&& welt->get_settings().get_towns_adopt_player_roads()
-									&& ( besch->get_styp() != weg_t::type_elevated )
-									&& ( besch->get_styp() != weg_t::type_underground )
-									&& ! ( sp && sp->is_public_service() )
-									&& has_neighbouring_building
-									);
-
 				// For now, have the city fix adoption/sidewalk issues during road upgrade.
 				// These issues arise from city expansion and contraction, so reconsider this
 				// after city limits work better.
-				if (city_adopts_this) 
-				{
-					weg->set_besitzer(NULL);
-				}
-
+				bool city_adopts_this = weg->should_city_adopt_this(sp);
 				weg->set_gehweg(build_sidewalk || weg->hat_gehweg() || city_adopts_this);
 
-				if(!city_adopts_this)
-				{
+				if (city_adopts_this) {
+					weg->set_besitzer(NULL);
+				} else {
 					weg->set_besitzer(sp);
 					// Set maintenance costs here
 					// including corrections for diagonals.

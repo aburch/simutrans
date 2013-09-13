@@ -937,7 +937,7 @@ void settings_t::rdwr(loadsave_t *file)
 			uint16 max_b_min;
 			uint16 median_b = 0;
 			uint16 max_b_percent = max_bonus_multiplier_percent;
-			if (file->get_experimental_version() >= 6 && file->get_experimental_version() <= 11) {
+			if (file->get_experimental_version() >= 6 && file->get_experimental_version() < 12 && file->get_version() < 112005) {
 				// These were in tiles.
 				min_b_max = (sint32) min_bonus_max_distance * 1000 / meters_per_tile;
 				median_b = (sint32) median_bonus_distance * 1000 / meters_per_tile;
@@ -1028,7 +1028,7 @@ void settings_t::rdwr(loadsave_t *file)
 				}
 			}
 
-			if (file->get_experimental_version() >= 6 && file->get_experimental_version() <= 11)
+			if (file->get_experimental_version() >= 6 && file->get_experimental_version() < 11 && file->get_version() < 112005)
 			{
 				// These were in tiles.
 				min_bonus_max_distance = (sint32) min_b_max * meters_per_tile / 1000;
