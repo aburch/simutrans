@@ -218,7 +218,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 
 	bt_obsolete.set_typ(button_t::square);
 	bt_obsolete.set_text("Show obsolete");
-	if(  get_welt()->get_settings().get_allow_buying_obsolete_vehicles()  ) {
+	if(  spieler_t::get_welt()->get_settings().get_allow_buying_obsolete_vehicles()  ) {
 		bt_obsolete.add_listener(this);
 		bt_obsolete.set_tooltip("Show also vehicles no longer in production.");
 		add_komponente(&bt_obsolete);
@@ -591,7 +591,7 @@ void depot_frame_t::add_to_vehicle_list(const vehikel_besch_t *info)
 		if (depot->selected_filter == VEHICLE_FILTER_RELEVANT) {
 			if(freight->get_catg_index() >= 3) {
 				bool found = false;
-				FOR(vector_tpl<ware_besch_t const*>, const i, get_welt()->get_goods_list()) {
+				FOR(vector_tpl<ware_besch_t const*>, const i, spieler_t::get_welt()->get_goods_list()) {
 					if (freight->get_catg_index() == i->get_catg_index()) {
 						found = true;
 						break;
@@ -604,8 +604,8 @@ void depot_frame_t::add_to_vehicle_list(const vehikel_besch_t *info)
 		} else if (depot->selected_filter > VEHICLE_FILTER_RELEVANT) {
 			// Filter on specific selected good
 			uint32 goods_index = depot->selected_filter - VEHICLE_FILTER_GOODS_OFFSET;
-			if (goods_index < get_welt()->get_goods_list().get_count()) {
-				const ware_besch_t *selected_good = get_welt()->get_goods_list()[goods_index];
+			if (goods_index < spieler_t::get_welt()->get_goods_list().get_count()) {
+				const ware_besch_t *selected_good = spieler_t::get_welt()->get_goods_list()[goods_index];
 				if (freight->get_catg_index() != selected_good->get_catg_index()) {
 					return; // This vehicle can't transport the selected good
 				}
@@ -644,7 +644,7 @@ void depot_frame_t::build_vehicle_lists()
 		return;
 	}
 
-	const int month_now = get_welt()->get_timeline_year_month();
+	const int month_now = spieler_t::get_welt()->get_timeline_year_month();
 
 	// free vectors
 	clear_ptr_vector(pas_vec);
@@ -656,7 +656,7 @@ void depot_frame_t::build_vehicle_lists()
 
 	// we do not allow to built electric vehicle in a depot without electrification
 	const waytype_t wt = depot->get_waytype();
-	const weg_t *w = get_welt()->lookup(depot->get_pos())->get_weg(wt!=tram_wt ? wt : track_wt);
+	const weg_t *w = spieler_t::get_welt()->lookup(depot->get_pos())->get_weg(wt!=tram_wt ? wt : track_wt);
 	const bool weg_electrified = w ? w->is_electrified() : false;
 
 	img_bolt.set_image( weg_electrified ? skinverwaltung_t::electricity->get_bild_nr(0) : IMG_LEER );
@@ -715,7 +715,7 @@ void depot_frame_t::update_data()
 	static const char *txt_veh_action[3] = { "anhaengen", "voranstellen", "verkaufen" };
 
 	// change green into blue for retired vehicles
-	const int month_now = get_welt()->get_timeline_year_month();
+	const int month_now = spieler_t::get_welt()->get_timeline_year_month();
 
 	bt_veh_action.set_text(txt_veh_action[veh_action]);
 
@@ -896,7 +896,7 @@ void depot_frame_t::update_data()
 	vehicle_filter.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("All"), COL_BLACK));
 	vehicle_filter.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("Relevant"), COL_BLACK));
 
-	FOR(vector_tpl<ware_besch_t const*>, const i, get_welt()->get_goods_list()) {
+	FOR(vector_tpl<ware_besch_t const*>, const i, spieler_t::get_welt()->get_goods_list()) {
 		vehicle_filter.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(i->get_name()), COL_BLACK));
 	}
 
@@ -1004,7 +1004,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp, value_t p)
 		else if(  komp == &line_button  ) {
 			if(  cnv.is_bound()  ) {
 				cnv->get_besitzer()->simlinemgmt.show_lineinfo( cnv->get_besitzer(), cnv->get_line() );
-				cnv->get_welt()->set_dirty();
+				spieler_t::get_welt()->set_dirty();
 			}
 		}
 		else if(  komp == &bt_sell  ) {
@@ -1045,7 +1045,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp, value_t p)
 		}
 		else if(  komp == &bt_copy_convoi  ) {
 			if(  cnv.is_bound()  ) {
-				if(  !get_welt()->use_timeline()  ||  get_welt()->get_settings().get_allow_buying_obsolete_vehicles()  ||  depot->check_obsolete_inventory( cnv )  ) {
+				if(  !spieler_t::get_welt()->use_timeline()  ||  spieler_t::get_welt()->get_settings().get_allow_buying_obsolete_vehicles()  ||  depot->check_obsolete_inventory( cnv )  ) {
 					depot->call_depot_tool('c', cnv, NULL);
 				}
 				else {
@@ -1132,11 +1132,6 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp, value_t p)
 
 bool depot_frame_t::infowin_event(const event_t *ev)
 {
-	if(ev->ev_code!=WIN_CLOSE  &&  get_welt()->get_active_player() != depot->get_besitzer()) {
-		destroy_win(this);
-		return true;
-	}
-
 	const bool swallowed = gui_frame_t::infowin_event(ev);
 
 	// HACK make line_selector focusable again
@@ -1171,11 +1166,11 @@ bool depot_frame_t::infowin_event(const event_t *ev)
 
 			next_dep->zeige_info();
 			win_set_pos(win_get_magic((ptrdiff_t)next_dep), pos.x, pos.y);
-			get_welt()->change_world_position(next_dep->get_pos());
+			spieler_t::get_welt()->change_world_position(next_dep->get_pos());
 		}
 		else {
 			// recenter on current depot
-			get_welt()->change_world_position(depot->get_pos());
+			spieler_t::get_welt()->change_world_position(depot->get_pos());
 		}
 
 		return true;
@@ -1210,10 +1205,11 @@ bool depot_frame_t::infowin_event(const event_t *ev)
 
 void depot_frame_t::zeichnen(koord pos, koord groesse)
 {
-	if(  get_welt()->get_active_player() != depot->get_besitzer()  ) {
+	/*
+	if(  spieler_t::get_welt()->get_active_player() != depot->get_besitzer()  ) {
 		destroy_win(this);
 		return;
-	}
+	}*/
 
 	convoihandle_t cnv = depot->get_convoi(icnv);
 	// check for data inconsistencies (can happen with withdraw-all and vehicle in depot)
@@ -1420,7 +1416,7 @@ void depot_frame_t::fahrplaneingabe()
 			assert(fpl!=NULL);
 			gui_frame_t *fplwin = win_get_magic( (ptrdiff_t)fpl );
 			if(  fplwin == NULL  ) {
-				cnv->open_schedule_window( get_welt()->get_active_player() == cnv->get_besitzer() );
+				cnv->open_schedule_window( spieler_t::get_welt()->get_active_player() == cnv->get_besitzer() );
 			}
 			else {
 				top_win( fplwin );
@@ -1498,7 +1494,7 @@ void depot_frame_t::draw_vehicle_info_text(koord pos)
 
 	if(  veh_type  ) {
 		// column 1
-		int n = sprintf( buf, "%s", translator::translate( veh_type->get_name(), depot->get_welt()->get_settings().get_name_language_id() ) );
+		int n = sprintf( buf, "%s", translator::translate( veh_type->get_name(), spieler_t::get_welt()->get_settings().get_name_language_id() ) );
 
 		if(  veh_type->get_leistung() > 0  ) { // LOCO
 			n += sprintf( buf + n, " (%s)\n", translator::translate( engine_type_names[veh_type->get_engine_type()+1] ) );

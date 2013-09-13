@@ -232,8 +232,6 @@ private:
 
 	void image_from_storage_list(gui_image_list_t::image_data_t *bild_data);
 
-	karte_t* get_welt() { return depot->get_welt(); }
-
 public:
 	// the next two are only needed for depot_t update notifications
 	void activate_convoi( convoihandle_t cnv );
