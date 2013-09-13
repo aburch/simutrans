@@ -24,7 +24,7 @@ public:
 	const char * get_hilfe_datei() const { return ""; }
 
 	uint32 get_rdwr_id() { return magic_themes; }
-	void themeselector_t::rdwr( loadsave_t *file );
+	void rdwr( loadsave_t *file );
 };
 
 #endif
