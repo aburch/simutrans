@@ -334,6 +334,7 @@ SOURCES += gui/sound_frame.cc
 SOURCES += gui/sprachen.cc
 SOURCES += gui/stadt_info.cc
 SOURCES += gui/station_building_select.cc
+SOURCES += gui/themeselector.cc
 SOURCES += gui/thing_info.cc
 SOURCES += gui/trafficlight_info.cc
 SOURCES += gui/welt.cc

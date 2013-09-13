@@ -5,10 +5,9 @@
 #ifndef themeselector_h
 #define themeselector_h
 
-#include "simwin.h"
 #include "savegame_frame.h"
 #include "components/gui_textarea.h"
-#include "../utils/cbuffer_t.h"
+#include "simwin.h"
 
 class themeselector_t : public savegame_frame_t
 {
