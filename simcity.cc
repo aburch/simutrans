@@ -2240,7 +2240,7 @@ void stadt_t::rdwr(loadsave_t* file)
 			check_road_connexions = false;
 		}
 
-		if(file->get_experimental_version() >= 12 && file->get_version() >= 110000)
+		if(file->get_experimental_version() >= 12)
 		{
 			file->rdwr_long(wachstum);
 		}
