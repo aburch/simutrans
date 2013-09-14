@@ -302,16 +302,17 @@ bool gui_theme_t::themes_init(const char *file_name)
 	const std::string buttonpak = contents.get("themeimages");
 	if(  buttonpak.length()>0  ) {
 		std::string path;
-		if(  char *s = (char *)strrchr( file_name, '/' )  ) {
+		char *pathname = strdup(file_name);
+		if(  char *s = strrchr( pathname, '/' )  ) {
 			*s = 0;
-			chdir( file_name );
 		}
-		else if(  char *s = (char *)strrchr( file_name, '\\' )  ) {
+		else if(  char *s = strrchr( pathname, '\\' )  ) {
 			*s = 0;
-			chdir( file_name );
 		}
+		chdir( pathname );
 		obj_reader_t::read_file(buttonpak.c_str());
 		gui_theme_t::init_gui_images();
+		free(pathname);
 	}
 
 	// parsing buttons still needs to be done after agreement what to load
