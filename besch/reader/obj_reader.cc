@@ -12,9 +12,6 @@
 #include "../grund_besch.h"	// for the error message!
 #include "../../simskin.h"
 
-// for init of button images
-#include "../../gui/components/gui_button.h"
-
 // normal stuff
 #include "../../dataobj/translator.h"
 #include "../../dataobj/umgebung.h"
