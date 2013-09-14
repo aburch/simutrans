@@ -140,7 +140,7 @@ bool ai_t::call_general_tool( int tool, koord k, const char *param )
 /* returns ok, of there is a suitable space found
  * only check into two directions, the ones given by dir
  */
-bool ai_t::suche_platz(koord pos, koord &size, koord *dirs) const
+bool ai_t::suche_platz(koord pos, koord &size, koord *dirs)
 {
 	sint16 length = abs( size.x + size.y );
 

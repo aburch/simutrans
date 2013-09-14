@@ -405,10 +405,9 @@ private:
 	 * @param hse desired height of se-corner
 	 * @param hse desired height of ne-corner
 	 * @param hnw desired height of nw-corner
-	 * @param ctest which directions should be recursively checked (ribi_t style bitmap)
 	 * @returns NULL if raise_to operation can be performed, an error message otherwise
 	 */
-	const char* can_raise_to(const spieler_t* sp, sint16 x, sint16 y, bool keep_water, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, uint8 ctest=15) const;
+	const char* can_raise_to(const spieler_t* sp, sint16 x, sint16 y, bool keep_water, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw) const;
 
 	/**
 	 * Raises heights of the corners of the tile at (@p x, @p y).
@@ -430,10 +429,9 @@ private:
 	 * @param hse desired height of se-corner
 	 * @param hse desired height of ne-corner
 	 * @param hnw desired height of nw-corner
-	 * @param ctest which directions should be recursively checked (ribi_t style bitmap)
 	 * @returns NULL if lower_to operation can be performed, an error message otherwise
 	 */
-	const char* can_lower_to(const spieler_t* sp, sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, uint8 ctest=15) const;
+	const char* can_lower_to(const spieler_t* sp, sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw) const;
 
 	/**
 	 * Lowers heights of the corners of the tile at (@p x, @p y).
@@ -1558,8 +1556,76 @@ public:
 	int grid_lower(const spieler_t *sp, koord pos, const char*&err);
 
 	// mostly used by AI: Ask to flatten a tile
-	bool can_ebne_planquadrat(const spieler_t *sp, koord k, sint8 hgt, bool keep_water=false, bool make_underwater_hill=false) const;
-	bool ebne_planquadrat(spieler_t *sp, koord k, sint8 hgt, bool keep_water=false, bool make_underwater_hill=false);
+	bool can_ebne_planquadrat(spieler_t *sp, koord k, sint8 hgt, bool keep_water=false, bool make_underwater_hill=false);
+	bool ebne_planquadrat(spieler_t *sp, koord k, sint8 hgt, bool keep_water=false, bool make_underwater_hill=false, bool justcheck=false);
+
+	/**
+	 * Class to manage terraform operations.
+	 * Can be used for raise only or lower only operations, but not mixed.
+	 */
+	class terraformer_t {
+		/// Structure to save terraforming operations
+		struct node_t {
+			sint16 x;    ///< x-coordinate
+			sint16 y;    ///< y-coordinate
+			sint8  h[4]; ///< height of corners, order: sw se ne nw
+			uint8  changed;
+
+			node_t(sint16 x_, sint16 y_, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, uint8 c)
+			: x(x_), y(y_), changed(c) { h[0]=hsw; h[1]=hse; h[2]=hne; h[3]=hnw; }
+
+			node_t() : x(-1), y(-1), changed(0) {}
+
+			/// compares position
+			bool operator== (const node_t& a) const { return (a.x==x)  && (a.y==y); }
+
+			/// compares position
+			static bool comp(const node_t& a, const node_t& b);
+		};
+
+		vector_tpl<node_t> list; ///< list of affected tiles
+		uint8 actual_flag;       ///< internal flag to iterate through list
+		bool ready;              ///< internal flag to signal iteration ready
+		karte_t* welt;
+
+		void add_node(bool raise, sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw);
+	public:
+		terraformer_t(karte_t* w) { init(); welt = w; }
+
+		void init() { list.clear(); actual_flag = 1; ready = false; }
+
+		/**
+		 * Add tile to be raised.
+		 */
+		void add_raise_node(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw);
+
+		/**
+		 * Add tile to be lowered.
+		 */
+		void add_lower_node(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw);
+
+		/**
+		 * Generate list of all tiles that will be affected.
+		 */
+		void iterate(bool raise);
+
+		/// Check whether raise operation would succeed
+		const char* can_raise_all(const spieler_t *sp, bool keep_water=false) const;
+		/// Check whether lower operation would succeed
+		const char* can_lower_all(const spieler_t *sp) const;
+
+		/// Do the raise operations
+		int raise_all();
+		/// Do the lower operations
+		int lower_all();
+	};
+
+private:
+	/// Internal functions to be used with terraformer_t to propagate terrain changes to neighbouring tiles
+	void prepare_raise(terraformer_t& digger, sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw);
+	void prepare_lower(terraformer_t& digger, sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw);
+
+public:
 
 	// the convois are also handled each step => thus we keep track of them too
 	void add_convoi(convoihandle_t);

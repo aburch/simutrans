@@ -87,7 +87,7 @@ public:
 	virtual void tell_tool_result(werkzeug_t *tool, koord3d pos, const char *err, bool local);
 
 	// find space for stations
-	bool suche_platz(koord pos, koord &size, koord *dirs) const;
+	bool suche_platz(koord pos, koord &size, koord *dirs);
 	bool suche_platz(koord &start, koord &size, koord target, koord off);
 
 	// removes building markers
