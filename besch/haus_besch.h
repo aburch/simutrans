@@ -121,7 +121,7 @@ public:
  *	3   Tile 2
  *	... ...
  */
-class haus_besch_t : public obj_besch_std_name_t { // Daten für ein ganzes Gebäude
+class haus_besch_t : public obj_besch_timelined_t {
 	friend class building_reader_t;
 
 	public:
@@ -203,10 +203,6 @@ class haus_besch_t : public obj_besch_std_name_t { // Daten für ein ganzes Gebäu
 
 
 	climate_bits	allowed_climates;
-
-	// when was this building allowed
-	uint16 intro_date;
-	uint16 obsolete_date;
 
 	/**
 	 * Whether this building can or must be built underground.
@@ -312,28 +308,6 @@ public:
 	*/
 	const skin_besch_t * get_cursor() const {
 		return flags & FLAG_HAS_CURSOR ? get_child<skin_besch_t>(2 + groesse.x * groesse.y * layouts) : 0;
-	}
-
-	/**
-	* @return introduction month
-	* @author Hj. Malthaner
-	*/
-	uint32 get_intro_year_month() const { return intro_date; }
-
-	/**
-	* @return time when obsolete
-	* @author prissi
-	*/
-	uint32 get_retire_year_month() const { return obsolete_date; }
-
-	// true if future
-	bool is_future (const uint16 month_now) const {
-		return month_now  &&  (intro_date > month_now);
-	}
-
-	// true if obsolete
-	bool is_retired (const uint16 month_now) const {
-		return month_now  &&  (obsolete_date <= month_now);
 	}
 
 	// the right house for this area?

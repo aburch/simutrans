@@ -33,41 +33,10 @@ class checksum_t;
  *
  * @author  Volker Meyer, Hj. Malthaner
  */
-class way_obj_besch_t : public obj_besch_std_name_t {
+class way_obj_besch_t : public obj_besch_transport_infrastructure_t {
     friend class way_obj_reader_t;
 
 private:
-    /**
-     * Price per square
-     * @author Hj. Malthaner
-     */
-    uint32 price;
-
-    /**
-     * Maintenance cost per square/month
-     * @author Hj. Malthaner
-     */
-    uint32 maintenance;
-
-    /**
-     * Max speed
-     * @author Hj. Malthaner
-     */
-    sint32 topspeed;
-
-    /**
-     * Introduction date
-     * @author Hj. Malthaner
-     */
-    uint16 intro_date;
-    uint16 obsolete_date;
-
-    /**
-     * Way type: i.e. road or track
-     * @see waytype_t
-     * @author Hj. Malthaner
-     */
-    uint8 wtyp;
 
     /**
      * set to powerline of overheadwire or ignore
@@ -76,25 +45,7 @@ private:
      */
 	uint8 own_wtyp;
 
-	werkzeug_t *builder;
-
 public:
-	long get_preis() const { return price; }
-
-	long get_wartung() const { return maintenance; }
-
-	/**
-	 * Determines max speed in km/h allowed on this way
-	 * @author Hj. Malthaner
-	 */
-	sint32 get_topspeed() const { return topspeed; }
-
-	/**
-	 * get way type
-	 * @see waytype_t
-	 * @author Hj. Malthaner
-	 */
-	waytype_t get_wtyp() const { return (waytype_t)wtyp; }
 
 	/**
 	* returns the system type of this way (mostly used with rails)
@@ -217,39 +168,15 @@ public:
 	}
 
 	/**
-	* @return introduction year
-	* @author Hj. Malthaner
-	*/
-	uint16 get_intro_year_month() const { return intro_date; }
-
-	/**
-	* @return introduction month
-	* @author Hj. Malthaner
-	*/
-	uint16 get_retire_year_month() const { return obsolete_date; }
-
-	/**
 	* Skin: cursor (index 0) and icon (index 1)
 	* @author Hj. Malthaner
 	*/
 	skin_besch_t const* get_cursor() const { return get_child<skin_besch_t>(8); }
 
-	// default tool for building
-	werkzeug_t *get_builder() const {
-		return builder;
-	}
-	void set_builder( werkzeug_t *w )  {
-		builder = w;
-	}
 
 	void calc_checksum(checksum_t *chk) const
 	{
-		chk->input(price);
-		chk->input(maintenance);
-		chk->input(topspeed);
-		chk->input(intro_date);
-		chk->input(obsolete_date);
-		chk->input(wtyp);
+		obj_besch_transport_infrastructure_t::calc_checksum(chk);
 		chk->input(own_wtyp);
 	}
 };

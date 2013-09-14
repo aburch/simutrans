@@ -18,9 +18,6 @@
 #include "../network/checksum.h"
 
 
-class werkzeug_t;
-class checksum_t;
-
 /*
  *  Autor:
  *      prissi
@@ -33,31 +30,13 @@ class checksum_t;
  *	1   Copyright
  *	2   Image list (Bildliste)
  */
-class roadsign_besch_t : public obj_besch_std_name_t {
+class roadsign_besch_t : public obj_besch_transport_infrastructure_t {
 	friend class roadsign_reader_t;
 
 private:
 	uint8 flags;
 
-	/**
-	* Way type: i.e. road or track
-	* @see waytype_t
-	* @author prissi
-	*/
-	uint8 wtyp;
-
 	uint16 min_speed;	// 0 = no min speed
-
-	uint32 cost;
-
-	/**
-	* Introduction date
-	* @author prissi
-	*/
-	uint16 intro_date;
-	uint16 obsolete_date;
-
-	werkzeug_t *builder;
 
 public:
 	enum types {
@@ -82,16 +61,7 @@ public:
 
 	skin_besch_t const* get_cursor() const { return get_child<skin_besch_t>(3); }
 
-	/**
-	 * get way type
-	 * @see waytype_t
-	 * @author Hj. Malthaner
-	 */
-	waytype_t get_wtyp() const { return (waytype_t)wtyp; }
-
 	sint32 get_min_speed() const { return min_speed; }
-
-	sint32 get_preis() const { return cost; }
 
 	bool is_single_way() const { return (flags&ONE_WAY)!=0; }
 
@@ -120,34 +90,11 @@ public:
 
 	types get_flags() const { return (types)flags; }
 
-	/**
-	* @return introduction year
-	* @author prissi
-	*/
-	uint16 get_intro_year_month() const { return intro_date; }
-
-	/**
-	* @return introduction month
-	* @author prissi
-	*/
-	uint16 get_retire_year_month() const { return obsolete_date; }
-
-	// default tool for building
-	werkzeug_t *get_builder() const {
-		return builder;
-	}
-	void set_builder( werkzeug_t *w )  {
-		builder = w;
-	}
-
 	void calc_checksum(checksum_t *chk) const
 	{
+		obj_besch_transport_infrastructure_t::calc_checksum(chk);
 		chk->input(flags);
-		chk->input(wtyp);
 		chk->input(min_speed);
-		chk->input(cost);
-		chk->input(intro_date);
-		chk->input(obsolete_date);
 	}
 };
 

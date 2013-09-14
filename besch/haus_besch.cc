@@ -155,6 +155,7 @@ int haus_besch_t::layout_anpassen(int layout) const
 
 void haus_besch_t::calc_checksum(checksum_t *chk) const
 {
+	obj_besch_timelined_t::calc_checksum(chk);
 	chk->input((uint8)gtyp);
 	chk->input((uint8)utype);
 	chk->input(animation_time);
@@ -167,8 +168,6 @@ void haus_besch_t::calc_checksum(checksum_t *chk) const
 	chk->input(enables);
 	chk->input(chance);
 	chk->input((uint8)allowed_climates);
-	chk->input(intro_date);
-	chk->input(obsolete_date);
 	chk->input(maintenance);
 	chk->input(price);
 	chk->input(capacity);

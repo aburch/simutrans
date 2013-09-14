@@ -46,24 +46,24 @@ obj_besch_t * way_obj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	if(version==1) {
 		// Versioned node, version 3
-		besch->price = decode_uint32(p);
+		besch->cost = decode_uint32(p);
 		besch->maintenance = decode_uint32(p);
 		besch->topspeed = decode_uint32(p);
 		besch->intro_date = decode_uint16(p);
 		besch->obsolete_date = decode_uint16(p);
-		besch->wtyp = decode_uint8(p);
+		besch->wt = decode_uint8(p);
 		besch->own_wtyp = decode_uint8(p);
 	}
 	else {
 		dbg->fatal("way_obj_reader_t::read_node()","Invalid version %d", version);
 	}
   DBG_DEBUG("way_obj_reader_t::read_node()",
-	     "version=%d price=%d maintenance=%d topspeed=%d wtype=%d styp=%d intro_year=%i",
+	     "version=%d cost=%d maintenance=%d topspeed=%d wtype=%d styp=%d intro_year=%i",
 	     version,
-	     besch->price,
+	     besch->cost,
 	     besch->maintenance,
 	     besch->topspeed,
-	     besch->wtyp,
+	     besch->wt,
 	     besch->own_wtyp,
 	     besch->intro_date/12);
 

@@ -8,7 +8,6 @@
 
 #include "../dataobj/ribi.h"
 #include "tunnel_besch.h"
-#include "../network/checksum.h"
 #include "../boden/wege/weg.h"
 
 
@@ -95,17 +94,6 @@ int tunnel_besch_t::hang_indices[81] = {
 	-1, // 79:
 	-1  // 80:
 };
-
-
-void tunnel_besch_t::calc_checksum(checksum_t *chk) const
-{
-	chk->input(topspeed);
-	chk->input(preis);
-	chk->input(maintenance);
-	chk->input(wegtyp);
-	chk->input(intro_date);
-	chk->input(obsolete_date);
-}
 
 
 waytype_t tunnel_besch_t::get_finance_waytype() const

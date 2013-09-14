@@ -27,20 +27,11 @@ class werkzeug_t;
 class checksum_t;
 
 
-class bruecke_besch_t : public obj_besch_std_name_t {
+class bruecke_besch_t : public obj_besch_transport_infrastructure_t {
     friend class bridge_reader_t;
 
 private:
-	sint32  topspeed;
-	uint32  preis;
 
-	/**
-	* Maintenance cost per square/month
-	* @author Hj. Malthaner
-	*/
-	uint32 maintenance;
-
-	uint8  wegtyp;
 	uint8 pillars_every;	// =0 off
 	bool pillars_asymmetric;	// =0 off else leave one off for north/west slopes
 	uint offset;	// flag, because old bridges had their name/copyright at the wrong position
@@ -48,15 +39,10 @@ private:
 	uint8 max_length;	// =0 off, else maximum length
 	uint8 max_height;	// =0 off, else maximum length
 
-	// allowed era
-	uint16 intro_date;
-	uint16 obsolete_date;
-
 	/* number of seasons (0 = none, 1 = no snow/snow
 	*/
-	sint8 number_seasons;
 
-	werkzeug_t *builder;
+	sint8 number_seasons;
 
 public:
 	/*
@@ -106,23 +92,11 @@ public:
 
 	img_t get_end(hang_t::typ test_slope, hang_t::typ ground_slope, hang_t::typ way_slope) const;
 
-	waytype_t get_waytype() const { return static_cast<waytype_t>(wegtyp); }
-
 	/**
 	 * There is no way to distinguish between train bridge and tram bridge.
 	 * However there are no real tram bridges possible in the game.
 	 */
 	waytype_t get_finance_waytype() const { return get_waytype(); }
-
-	sint32 get_preis() const { return preis; }
-
-	sint32 get_wartung() const { return maintenance; }
-
-	/**
-	 * Determines max speed in km/h allowed on this bridge
-	 * @author Hj. Malthaner
-	 */
-	sint32  get_topspeed() const { return topspeed; }
 
 	/**
 	 * Distance of pillars (=0 for no pillars)
@@ -147,26 +121,6 @@ public:
 	 * @author prissi
 	 */
 	int  get_max_height() const { return max_height; }
-
-	/**
-	 * @return introduction month
-	 * @author Hj. Malthaner
-	 */
-	int get_intro_year_month() const { return intro_date; }
-
-	/**
-	 * @return time when obsolete
-	 * @author prissi
-	 */
-	int get_retire_year_month() const { return obsolete_date; }
-
-	// default tool for building
-	werkzeug_t *get_builder() const {
-		return builder;
-	}
-	void set_builder( werkzeug_t *w )  {
-		builder = w;
-	}
 
 	void calc_checksum(checksum_t *chk) const;
 };

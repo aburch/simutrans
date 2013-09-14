@@ -49,7 +49,7 @@ obj_besch_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->min_speed = kmh_to_speed(decode_uint16(p));
 		besch->cost = decode_uint32(p);
 		besch->flags = decode_uint8(p);
-		besch->wtyp = decode_uint8(p);
+		besch->wt = decode_uint8(p);
 		besch->intro_date = decode_uint16(p);
 		besch->obsolete_date = decode_uint16(p);
 	}
@@ -60,7 +60,7 @@ obj_besch_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->flags = decode_uint8(p);
 		besch->intro_date = DEFAULT_INTRO_DATE*12;
 		besch->obsolete_date = DEFAULT_RETIRE_DATE*12;
-		besch->wtyp = road_wt;
+		besch->wt = road_wt;
 	}
 	else if(version==1) {
 		// Versioned node, version 1
@@ -69,11 +69,11 @@ obj_besch_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->flags = decode_uint8(p);
 		besch->intro_date = DEFAULT_INTRO_DATE*12;
 		besch->obsolete_date = DEFAULT_RETIRE_DATE*12;
-		besch->wtyp = road_wt;
+		besch->wt = road_wt;
 	}
 	else {
 		dbg->fatal("roadsign_reader_t::read_node()","version 0 not supported. File corrupt?");
 	}
-	DBG_DEBUG("roadsign_reader_t::read_node()","min_speed=%i, cost=%i, flags=%x, wtyp=%i, intro=%i%i, retire=%i,%i",besch->min_speed,besch->cost/100,besch->flags,besch->wtyp,besch->intro_date%12+1,besch->intro_date/12,besch->obsolete_date%12+1,besch->obsolete_date/12 );
+	DBG_DEBUG("roadsign_reader_t::read_node()","min_speed=%i, cost=%i, flags=%x, wt=%i, intro=%i%i, retire=%i,%i",besch->min_speed,besch->cost/100,besch->flags,besch->wt,besch->intro_date%12+1,besch->intro_date/12,besch->obsolete_date%12+1,besch->obsolete_date/12 );
 	return besch;
 }

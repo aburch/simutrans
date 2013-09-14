@@ -50,9 +50,9 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	if(version == 1) {
 		// Versioned node, version 1
 
-		besch->preis = decode_uint32(p);
+		besch->cost = decode_uint32(p);
 		besch->zuladung = decode_uint16(p);
-		besch->geschw = decode_uint16(p);
+		besch->topspeed = decode_uint16(p);
 		besch->gewicht = decode_uint16(p);
 		besch->leistung = decode_uint16(p);
 		besch->running_cost = decode_uint16(p);
@@ -60,7 +60,7 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->intro_date = decode_uint16(p);
 		besch->gear = decode_uint8(p);
 
-		besch->typ = decode_uint8(p);
+		besch->wt = decode_uint8(p);
 		besch->sound = decode_sint8(p);
 		besch->vorgaenger = decode_uint8(p);
 		besch->nachfolger = decode_uint8(p);
@@ -70,9 +70,9 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	else if(version == 2) {
 		// Versioned node, version 2
 
-		besch->preis = decode_uint32(p);
+		besch->cost = decode_uint32(p);
 		besch->zuladung = decode_uint16(p);
-		besch->geschw = decode_uint16(p);
+		besch->topspeed = decode_uint16(p);
 		besch->gewicht = decode_uint16(p);
 		besch->leistung = decode_uint16(p);
 		besch->running_cost = decode_uint16(p);
@@ -80,7 +80,7 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->intro_date = decode_uint16(p);
 		besch->gear = decode_uint8(p);
 
-		besch->typ = decode_uint8(p);
+		besch->wt = decode_uint8(p);
 		besch->sound = decode_sint8(p);
 		besch->vorgaenger = decode_uint8(p);
 		besch->nachfolger = decode_uint8(p);
@@ -93,9 +93,9 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		// version 4 identical, just other values for the waytype
 		// version 5 just uses the new scheme for data calculation
 
-		besch->preis = decode_uint32(p);
+		besch->cost = decode_uint32(p);
 		besch->zuladung = decode_uint16(p);
-		besch->geschw = decode_uint16(p);
+		besch->topspeed = decode_uint16(p);
 		besch->gewicht = decode_uint16(p);
 		besch->leistung = decode_uint16(p);
 		besch->running_cost = decode_uint16(p);
@@ -104,7 +104,7 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->obsolete_date = decode_uint16(p);
 		besch->gear = decode_uint8(p);
 
-		besch->typ = decode_uint8(p);
+		besch->wt = decode_uint8(p);
 		besch->sound = decode_sint8(p);
 		besch->vorgaenger = decode_uint8(p);
 		besch->nachfolger = decode_uint8(p);
@@ -113,9 +113,9 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	else if (version==6) {
 		// version 5 just 32 bit for power and 16 Bit for gear
 
-		besch->preis = decode_uint32(p);
+		besch->cost = decode_uint32(p);
 		besch->zuladung = decode_uint16(p);
-		besch->geschw = decode_uint16(p);
+		besch->topspeed = decode_uint16(p);
 		besch->gewicht = decode_uint16(p);
 		besch->leistung = decode_uint32(p);
 		besch->running_cost = decode_uint16(p);
@@ -124,7 +124,7 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->obsolete_date = decode_uint16(p);
 		besch->gear = decode_uint16(p);
 
-		besch->typ = decode_uint8(p);
+		besch->wt = decode_uint8(p);
 		besch->sound = decode_sint8(p);
 		besch->engine_type = decode_uint8(p);
 		besch->vorgaenger = decode_uint8(p);
@@ -133,9 +133,9 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	else if (version==7) {
 		// different length of cars ...
 
-		besch->preis = decode_uint32(p);
+		besch->cost = decode_uint32(p);
 		besch->zuladung = decode_uint16(p);
-		besch->geschw = decode_uint16(p);
+		besch->topspeed = decode_uint16(p);
 		besch->gewicht = decode_uint16(p);
 		besch->leistung = decode_uint32(p);
 		besch->running_cost = decode_uint16(p);
@@ -144,7 +144,7 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->obsolete_date = decode_uint16(p);
 		besch->gear = decode_uint16(p);
 
-		besch->typ = decode_uint8(p);
+		besch->wt = decode_uint8(p);
 		besch->sound = decode_sint8(p);
 		besch->engine_type = decode_uint8(p);
 		besch->len = decode_uint8(p);
@@ -153,9 +153,9 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 	else if (version==8) {
 		// multiple freight images...
-		besch->preis = decode_uint32(p);
+		besch->cost = decode_uint32(p);
 		besch->zuladung = decode_uint16(p);
-		besch->geschw = decode_uint16(p);
+		besch->topspeed = decode_uint16(p);
 		besch->gewicht = decode_uint16(p);
 		besch->leistung = decode_uint32(p);
 		besch->running_cost = decode_uint16(p);
@@ -164,7 +164,7 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->obsolete_date = decode_uint16(p);
 		besch->gear = decode_uint16(p);
 
-		besch->typ = decode_uint8(p);
+		besch->wt = decode_uint8(p);
 		besch->sound = decode_sint8(p);
 		besch->engine_type = decode_uint8(p);
 		besch->len = decode_uint8(p);
@@ -174,10 +174,10 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 	else if (version==9) {
 		// new: fixed_cost, loading_time, axle_load
-		besch->preis = decode_uint32(p);
+		besch->cost = decode_uint32(p);
 		besch->zuladung = decode_uint16(p);
 		besch->loading_time = decode_uint16(p);
-		besch->geschw = decode_uint16(p);
+		besch->topspeed = decode_uint16(p);
 		besch->gewicht = decode_uint16(p);
 		besch->axle_load = decode_uint16(p);
 		besch->leistung = decode_uint32(p);
@@ -188,7 +188,7 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->obsolete_date = decode_uint16(p);
 		besch->gear = decode_uint16(p);
 
-		besch->typ = decode_uint8(p);
+		besch->wt = decode_uint8(p);
 		besch->sound = decode_sint8(p);
 		besch->engine_type = decode_uint8(p);
 		besch->len = decode_uint8(p);
@@ -198,10 +198,10 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 	else if (version==10) {
 		// new: weight in kgs
-		besch->preis = decode_uint32(p);
+		besch->cost = decode_uint32(p);
 		besch->zuladung = decode_uint16(p);
 		besch->loading_time = decode_uint16(p);
-		besch->geschw = decode_uint16(p);
+		besch->topspeed = decode_uint16(p);
 		besch->gewicht = decode_uint32(p);
 		besch->axle_load = decode_uint16(p);
 		besch->leistung = decode_uint32(p);
@@ -212,7 +212,7 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->obsolete_date = decode_uint16(p);
 		besch->gear = decode_uint16(p);
 
-		besch->typ = decode_uint8(p);
+		besch->wt = decode_uint8(p);
 		besch->sound = decode_sint8(p);
 		besch->engine_type = decode_uint8(p);
 		besch->len = decode_uint8(p);
@@ -226,10 +226,10 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		}
 		// old node, version 0
 
-		besch->typ = (sint8)v;
+		besch->wt = (sint8)v;
 		besch->zuladung = decode_uint16(p);
-		besch->preis = decode_uint32(p);
-		besch->geschw = decode_uint16(p);
+		besch->cost = decode_uint32(p);
+		besch->topspeed = decode_uint16(p);
 		besch->gewicht = decode_uint16(p);
 		besch->leistung = decode_uint16(p);
 		besch->running_cost = decode_uint16(p);
@@ -251,13 +251,13 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	//change the vehicle type
 	if(version<4) {
-		if(besch->typ==4) {
+		if(besch->wt==4) {
 			besch->engine_type = vehikel_besch_t::electric;
-			besch->typ = 1;
+			besch->wt = 1;
 		}
 		// convert to new standard
 		static const waytype_t convert_from_old[8]={road_wt, track_wt, water_wt, air_wt, invalid_wt, monorail_wt, invalid_wt, tram_wt };
-		besch->typ = convert_from_old[besch->typ];
+		besch->wt = convert_from_old[besch->wt];
 	}
 
 	// before version 5 dates were based on base 12 ...
@@ -310,14 +310,14 @@ DBG_MESSAGE("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,besch
 
 	DBG_DEBUG("vehicle_reader_t::read_node()",
 		"version=%d "
-		"way=%d zuladung=%d preis=%d geschw=%d gewicht=%g axle_load=%d leistung=%d "
+		"way=%d zuladung=%d cost=%d topspeed=%d gewicht=%g axle_load=%d leistung=%d "
 		"betrieb=%d sound=%d vor=%d nach=%d "
 		"date=%d/%d gear=%d engine_type=%d len=%d",
 		version,
-		besch->typ,
+		besch->wt,
 		besch->zuladung,
-		besch->preis,
-		besch->geschw,
+		besch->cost,
+		besch->topspeed,
 		besch->gewicht/1000.0,
 		besch->axle_load,
 		besch->leistung,

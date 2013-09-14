@@ -42,7 +42,7 @@ class checksum_t;
  *
  * @author Volker Meyer, Hj. Malthaner, kierongreen
  */
-class vehikel_besch_t : public obj_besch_std_name_t {
+class vehikel_besch_t : public obj_besch_transport_related_t {
     friend class vehicle_reader_t;
     friend class vehikelbauer_t;
 
@@ -65,21 +65,16 @@ public:
 
 
 private:
-	uint32  preis;
 	uint16  zuladung;
-	uint16	loading_time;	// time per full loading/unloading
-	uint16  geschw;
+	uint16  loading_time;	// time per full loading/unloading
 	uint32  gewicht;
 	uint16  axle_load;
 	uint32  leistung;
 	uint16  running_cost;
 	uint16  fixed_cost;
 
-	uint16  intro_date; // introduction date
-	uint16  obsolete_date; //phase out at
 	uint16  gear;       // engine gear (power multiplier), 64=100
 
-	sint8  typ;         	// see weg_t for allowed types
 	uint8 len;			// length (=8 is half a tile, the old default)
 	sint8 sound;
 
@@ -98,15 +93,15 @@ public:
 	// default vehicle (used for way seach and similar tasks)
 	// since it has no images and not even a name knot any calls to this will case a crash
 	vehikel_besch_t(uint8 wtyp, uint16 speed, engine_t engine) {
-		freight_image_type = preis = zuladung = axle_load = running_cost = fixed_cost = intro_date = vorgaenger = nachfolger = 0;
+		freight_image_type = cost = zuladung = axle_load = running_cost = fixed_cost = intro_date = vorgaenger = nachfolger = 0;
 		leistung = gewicht = 1;
 		loading_time = 1000;
 		gear = 64;
 		len = 8;
 		sound = -1;
-		typ = wtyp;
+		wt = wtyp;
 		engine_type = (uint8)engine;
-		geschw = speed;
+		topspeed = speed;
 	}
 
 	ware_besch_t const* get_ware() const { return get_child<ware_besch_t>(2); }
@@ -240,41 +235,14 @@ public:
 
 	bool can_follow_any() const { return nachfolger==0; }
 
-	waytype_t get_waytype() const { return static_cast<waytype_t>(typ); }
 	uint16 get_zuladung() const { return zuladung; }
 	uint16 get_loading_time() const { return loading_time; } // ms per full loading/unloading
-	uint32 get_preis() const { return preis; }
-	sint32 get_geschw() const { return geschw; }
 	uint32 get_gewicht() const { return gewicht; }
 	uint16 get_axle_load() const { return axle_load; }
 	uint32 get_leistung() const { return leistung; }
 	uint16 get_betriebskosten() const { return running_cost; }
 	uint16 get_maintenance() const { return fixed_cost; }
 	sint8 get_sound() const { return sound; }
-
-	/**
-	* @return introduction year
-	* @author Hj. Malthaner
-	*/
-	uint16 get_intro_year_month() const { return intro_date; }
-
-	/**
-	* @return time when obsolete
-	* @author prissi
-	*/
-	uint16 get_retire_year_month() const { return obsolete_date; }
-
-	// true if future
-	bool is_future (const uint16 month_now) const
-	{
-		return month_now  &&  (intro_date > month_now);
-	}
-
-	// true if obsolete
-	bool is_retired (const uint16 month_now) const
-	{
-		return month_now  &&  (obsolete_date <= month_now);
-	}
 
 	/**
 	* 64 = 1.00

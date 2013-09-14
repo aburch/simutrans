@@ -25,23 +25,12 @@
 #include "weg_besch.h"
 
 
-class checksum_t;
-
-class tunnel_besch_t : public obj_besch_std_name_t {
+class tunnel_besch_t : public obj_besch_transport_infrastructure_t {
 	friend class tunnel_reader_t;
 	friend class tunnelbauer_t;	// to convert the old tunnels to new ones
 
 private:
 	static int hang_indices[81];
-
-	sint32 topspeed;	// speed in km/h
-	uint32 preis;	// 1/100 credits
-	uint32 maintenance;	// monthly cost for bits_per_month=18
-	uint8 wegtyp;	// waytype for tunnel
-
-	// allowed era
-	uint16 intro_date;
-	uint16 obsolete_date;
 
 	/* number of seasons (0 = none, 1 = no snow/snow
 	 */
@@ -54,8 +43,6 @@ private:
 	/* Has broad portals?
 	 */
 	uint8 broad_portals;
-
-	werkzeug_t *builder;
 
 public:
 	const bild_besch_t *get_hintergrund(hang_t::typ hang, uint8 season, uint8 type ) const
@@ -84,21 +71,7 @@ public:
 
 	skin_besch_t const* get_cursor() const { return get_child<skin_besch_t>(4); }
 
-
-	// get costs etc.
-	waytype_t get_waytype() const { return static_cast<waytype_t>(wegtyp); }
-
 	waytype_t get_finance_waytype() const;
-
-	sint32 get_preis() const { return preis; }
-
-	sint32 get_wartung() const { return maintenance; }
-
-	sint32  get_topspeed() const { return topspeed; }
-
-	uint16 get_intro_year_month() const { return intro_date; }
-
-	uint16 get_retire_year_month() const { return obsolete_date; }
 
 	const weg_besch_t *get_weg_besch() const
 	{
@@ -108,17 +81,7 @@ public:
 		return NULL;
 	}
 
-	// default tool for building
-	werkzeug_t *get_builder() const {
-		return builder;
-	}
-	void set_builder( werkzeug_t *w )  {
-		builder = w;
-	}
-
 	bool has_broad_portals() const { return (broad_portals != 0); };
-
-	void calc_checksum(checksum_t *chk) const;
 };
 
 #endif

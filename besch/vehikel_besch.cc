@@ -4,19 +4,15 @@
 
 void vehikel_besch_t::calc_checksum(checksum_t *chk) const
 {
-	chk->input(preis);
+	obj_besch_transport_related_t::calc_checksum(chk);
 	chk->input(zuladung);
 	chk->input(loading_time);
-	chk->input(geschw);
 	chk->input(gewicht);
 	chk->input(axle_load);
 	chk->input(leistung);
 	chk->input(running_cost);
 	chk->input(fixed_cost);
-	chk->input(intro_date);
-	chk->input(obsolete_date);
 	chk->input(gear);
-	chk->input(typ);
 	chk->input(len);
 	chk->input(vorgaenger);
 	chk->input(nachfolger);
