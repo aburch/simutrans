@@ -711,15 +711,19 @@ static void destroy_framed_win(simwin_t *wins)
 	}
 
 	if(  (wins->wt&w_do_not_delete)==0  ) {
+
+		// save pointer to gui window:
+		// could be modified if wins points to value in kill_list and kill_list is modified! nasty surprise
+		gui_frame_t* gui = wins->gui;
 		// remove from kill list first
 		// otherwise delete will be called again on that window
 		for(  uint j = 0;  j < kill_list.get_count();  j++  ) {
-			if(  kill_list[j].gui == wins->gui  ) {
+			if(  kill_list[j].gui == gui  ) {
 				kill_list.remove_at(j);
 				break;
 			}
 		}
-		delete wins->gui;
+		delete gui;
 	}
 	// set dirty flag to refill background
 	if(wl) {
