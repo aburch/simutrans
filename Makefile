@@ -157,6 +157,7 @@ SOURCES += besch/bruecke_besch.cc
 SOURCES += besch/fabrik_besch.cc
 SOURCES += besch/grund_besch.cc
 SOURCES += besch/haus_besch.cc
+SOURCES += besch/obj_besch_std_name.cc
 SOURCES += besch/reader/bridge_reader.cc
 SOURCES += besch/reader/building_reader.cc
 SOURCES += besch/reader/citycar_reader.cc
