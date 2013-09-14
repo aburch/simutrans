@@ -52,7 +52,7 @@ static bool compare_haus_besch(const haus_besch_t* a, const haus_besch_t* b)
 citybuilding_edit_frame_t::citybuilding_edit_frame_t(spieler_t* sp_, karte_t* welt) :
 	extend_edit_gui_t(translator::translate("citybuilding builder"), sp_, welt),
 	hauslist(16),
-	lb_rotation( rot_str, SYSCOL_TEXT_HIGHLITE, gui_label_t::right ),
+	lb_rotation( rot_str, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right ),
 	lb_rotation_info( translator::translate("Rotation"), COL_BLACK, gui_label_t::left )
 {
 	rot_str[0] = 0;

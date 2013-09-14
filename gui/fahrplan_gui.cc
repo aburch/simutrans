@@ -168,7 +168,7 @@ void fahrplan_gui_stats_t::zeichnen(koord offset)
 	if(  fpl->empty()  ) {
 		buf.clear();
 		buf.append(translator::translate("Please click on the map to add\nwaypoints or stops to this\nschedule."));
-		sint16 const width = display_multiline_text(offset.x + 4, offset.y, buf, SYSCOL_TEXT_HIGHLITE );
+		sint16 const width = display_multiline_text(offset.x + 4, offset.y, buf, SYSCOL_TEXT_HIGHLIGHT );
 		set_groesse(koord(width + 4 + 16, 3 * LINESPACE));
 	}
 	else {

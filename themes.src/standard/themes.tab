@@ -1,3 +1,4 @@
+# Default simutrans theme
 #
 # name of the theme (will be shown with file selector)
 name=Simutrans (standard size)
@@ -27,7 +28,7 @@ tooltip_duration = 5000
 #cursor_overlay_color = 149
 
 # in default theme white text
-gui_text_highlite = #FFFFFF
+gui_text_highlight= #FFFFFF
 
 ##################################window stuff##################################
 

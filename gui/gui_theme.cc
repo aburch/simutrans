@@ -24,7 +24,7 @@ COLOR_VAL gui_theme_t::theme_color_shadow              = MN_GREY0;
 COLOR_VAL gui_theme_t::theme_color_face                = MN_GREY2;
 COLOR_VAL gui_theme_t::theme_color_button_text         = COL_BLACK;
 COLOR_VAL gui_theme_t::theme_color_text                = COL_BLACK;
-COLOR_VAL gui_theme_t::theme_color_text_highlite       = COL_WHITE;
+COLOR_VAL gui_theme_t::theme_color_text_highlight      = COL_WHITE;
 COLOR_VAL gui_theme_t::theme_color_selected_text       = COL_WHITE;
 COLOR_VAL gui_theme_t::theme_color_selected_background = COL_BLUE;
 COLOR_VAL gui_theme_t::theme_color_static_text         = COL_BLACK;
@@ -260,7 +260,7 @@ bool gui_theme_t::themes_init(const char *file_name)
 
 	// maybe not the best place, rather use simwin for the static defines?
 	gui_theme_t::theme_color_text =          (COLOR_VAL)contents.get_color("gui_text_color",          SYSCOL_TEXT);
-	gui_theme_t::theme_color_text_highlite = (COLOR_VAL)contents.get_color("gui_text_highlite",       SYSCOL_TEXT_HIGHLITE);
+	gui_theme_t::theme_color_text_highlight =(COLOR_VAL)contents.get_color("gui_text_highlight",      SYSCOL_TEXT_HIGHLIGHT);
 	gui_theme_t::theme_color_static_text =   (COLOR_VAL)contents.get_color("gui_static_text_color",   SYSCOL_STATIC_TEXT);
 	gui_theme_t::theme_color_disabled_text = (COLOR_VAL)contents.get_color("gui_disabled_text_color", SYSCOL_DISABLED_TEXT);
 	gui_theme_t::theme_color_highlight =     (COLOR_VAL)contents.get_color("gui_highlight_color",     SYSCOL_HIGHLIGHT);

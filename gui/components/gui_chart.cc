@@ -143,12 +143,12 @@ void gui_chart_t::zeichnen(koord offset)
 
 		// draw zero number only, if it will not disturb any other printed values!
 		if ((baseline > 18) && (baseline < groesse.y -18)) {
-			display_proportional_clip(offset.x - 4, offset.y+(KOORD_VAL)baseline-3, "0", ALIGN_RIGHT, SYSCOL_TEXT_HIGHLITE, true );
+			display_proportional_clip(offset.x - 4, offset.y+(KOORD_VAL)baseline-3, "0", ALIGN_RIGHT, SYSCOL_TEXT_HIGHLIGHT, true );
 		}
 
 		// display min/max money values
-		display_proportional_clip(offset.x - 4, offset.y-5, cmax, ALIGN_RIGHT, SYSCOL_TEXT_HIGHLITE, true );
-		display_proportional_clip(offset.x - 4, offset.y+groesse.y-5, cmin, ALIGN_RIGHT, SYSCOL_TEXT_HIGHLITE, true );
+		display_proportional_clip(offset.x - 4, offset.y-5, cmax, ALIGN_RIGHT, SYSCOL_TEXT_HIGHLIGHT, true );
+		display_proportional_clip(offset.x - 4, offset.y+groesse.y-5, cmin, ALIGN_RIGHT, SYSCOL_TEXT_HIGHLIGHT, true );
 	}
 
 	// draw chart frame

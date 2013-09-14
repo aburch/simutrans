@@ -92,7 +92,7 @@ void loadingscreen_t::display()
 		display_fillbox_wh( quarter_width, half_height - 5, bar_len,  12, COL_BLUE, true );
 
 		if(  what  ) {
-			display_proportional( half_width, half_height-4, what, ALIGN_CENTER_H, SYSCOL_TEXT_HIGHLITE, false );
+			display_proportional( half_width, half_height-4, what, ALIGN_CENTER_H, SYSCOL_TEXT_HIGHLIGHT, false );
 		}
 
 		dr_flush();

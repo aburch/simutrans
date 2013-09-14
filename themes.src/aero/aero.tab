@@ -19,7 +19,7 @@ tooltip_delay = 500
 tooltip_duration = 5000
 
 # in default theme white text, but this is not visible with this theme
-gui_text_highlite = #76B4F3
+gui_text_highlight = #76B4F3
 
 # Color of cursor overlay, which is blended over marked ground tiles
 # The available colors and their numbers can be found on

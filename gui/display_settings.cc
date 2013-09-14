@@ -275,7 +275,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	// Frame time label
 	frame_time_label.init("Frame time:", label_cursor, COL_BLACK );
 	sprintf(frame_time_buf," ***** ms" );
-	frame_time_value_label.init( frame_time_buf, koord(0, label_cursor.y), SYSCOL_TEXT_HIGHLITE );
+	frame_time_value_label.init( frame_time_buf, koord(0, label_cursor.y), SYSCOL_TEXT_HIGHLIGHT );
 	label_container.add_komponente( &frame_time_label );
 	value_container.add_komponente( &frame_time_value_label );
 	label_cursor.y += LINESPACE;
@@ -283,7 +283,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	// Idle time label
 	idle_time_label.init("Idle:", label_cursor, COL_BLACK);
 	sprintf(idle_time_buf," ***** ms" );
-	idle_time_value_label.init( idle_time_buf, koord(0, label_cursor.y), SYSCOL_TEXT_HIGHLITE );
+	idle_time_value_label.init( idle_time_buf, koord(0, label_cursor.y), SYSCOL_TEXT_HIGHLIGHT );
 	label_container.add_komponente( &idle_time_label );
 	value_container.add_komponente( &idle_time_value_label );
 	label_cursor.y += LINESPACE;
@@ -291,7 +291,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	// FPS label
 	fps_label.init("FPS:", label_cursor, COL_BLACK );
 	sprintf(fps_buf," *** fps*" );
-	fps_value_label.init( fps_buf, koord(0, label_cursor.y), SYSCOL_TEXT_HIGHLITE );
+	fps_value_label.init( fps_buf, koord(0, label_cursor.y), SYSCOL_TEXT_HIGHLIGHT );
 	label_container.add_komponente( &fps_label );
 	value_container.add_komponente( &fps_value_label );
 	label_cursor.y += LINESPACE;
@@ -299,7 +299,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	// Simloops label
 	simloops_label.init("Sim:", label_cursor, COL_BLACK );
 	sprintf(simloops_buf," ********" );
-	simloops_value_label.init( simloops_buf, koord(0, label_cursor.y), SYSCOL_TEXT_HIGHLITE );
+	simloops_value_label.init( simloops_buf, koord(0, label_cursor.y), SYSCOL_TEXT_HIGHLIGHT );
 	label_container.add_komponente( &simloops_label );
 	value_container.add_komponente( &simloops_value_label );
 	label_cursor.y += LINESPACE;
@@ -612,7 +612,7 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 	uint32 loops;
 	uint32 target_fps = welt->is_fast_forward() ? 10 : umgebung_t::fps;
 	loops = welt->get_realFPS();
-	color = SYSCOL_TEXT_HIGHLITE;
+	color = SYSCOL_TEXT_HIGHLIGHT;
 	if(  loops < (target_fps*3)/4  ) {
 		color = ( loops <= target_fps/2 ) ? COL_RED : COL_YELLOW;
 	}
@@ -626,7 +626,7 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 
 	//simloops_label
 	loops = welt->get_simloops();
-	color = SYSCOL_TEXT_HIGHLITE;
+	color = SYSCOL_TEXT_HIGHLIGHT;
 	if(  loops <= 30  ) {
 		color = (loops<=20) ? COL_RED : COL_YELLOW;
 	}
