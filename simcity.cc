@@ -5538,7 +5538,7 @@ void stadt_t::add_building_to_list(gebaeude_t* building, bool ordered)
 		// single-threaded). This must be added elsewhere if this is a network game.
 
 		// All types of city building generate/receive mail.
-		welt->add_building_to_world_list(building, karte_t::visitor_target);
+		welt->add_building_to_world_list(building, karte_t::mail_origin_or_target);
 
 		if(building->get_haustyp() == gebaeude_t::wohnung)
 		{

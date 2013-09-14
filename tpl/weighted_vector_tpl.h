@@ -325,7 +325,11 @@ template<class T> class weighted_vector_tpl
 			bool any_to_remove = false;
 			for (uint32 i = 0; i < count; i++)
 			{
-				if (nodes != NULL && nodes[i].data == elem) any_to_remove = remove_at(i);
+				if(nodes != NULL && nodes[i].data == elem) 
+				{
+					any_to_remove = remove_at(i);
+					i--;
+				}
 			}
 			return any_to_remove;
 		}
