@@ -8,14 +8,13 @@
 /* this file has all functions for variable gui elements */
 
 
-
 #include "gui_theme.h"
 #include "../simskin.h"
 #include "../simsys.h"
 #include "../dataobj/umgebung.h"
 #include "../dataobj/tabfile.h"
-#include "components\gui_button.h"
-#include "components\gui_tab_panel.h"
+#include "components/gui_button.h"
+#include "components/gui_tab_panel.h"
 #include "../besch/skin_besch.h"
 #include "../besch/reader/obj_reader.h"
 

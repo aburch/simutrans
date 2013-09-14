@@ -69,7 +69,9 @@ void themeselector_t::fill_list()
 	KOORD_VAL width = 0;
 
 	add_path( ((std::string)umgebung_t::program_dir+"themes/").c_str() );
-	add_path( ((std::string)umgebung_t::user_dir+"themes/").c_str() );
+	if(  strcmp( umgebung_t::program_dir, umgebung_t::user_dir ) != 0  ) {
+		add_path( ((std::string)umgebung_t::user_dir+"themes/").c_str() );
+	}
 
 	// do the search ...
 	savegame_frame_t::fill_list();
