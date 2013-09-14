@@ -66,7 +66,6 @@ const char *themeselector_t::get_info(const char *fn )
 void themeselector_t::fill_list()
 {
 	KOORD_VAL y = 0;
-	KOORD_VAL width = 0;
 
 	add_path( ((std::string)umgebung_t::program_dir+"themes/").c_str() );
 	if(  strcmp( umgebung_t::program_dir, umgebung_t::user_dir ) != 0  ) {

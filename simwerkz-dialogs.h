@@ -508,7 +508,7 @@ public:
 	wkz_themes_t() : werkzeug_t(WKZ_THEMES | DIALOGE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("Select a theme for display"); }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_themes); }
-	bool init(karte_t* welt, spieler_t*) OVERRIDE {
+	bool init(karte_t*, spieler_t*) OVERRIDE {
 		create_win(new themeselector_t(), w_info, magic_themes);
 		return false;
 	}

@@ -322,8 +322,6 @@ void ki_kontroll_t::update_data()
  */
 void ki_kontroll_t::zeichnen(koord pos, koord gr)
 {
-	koord cursor = koord( D_MARGIN_LEFT, D_MARGIN_TOP );
-
 	// Update free play
 	freeplay.pressed = welt->get_settings().is_freeplay();
 	if (welt->get_spieler(1)->is_locked() || !welt->get_settings().get_allow_player_change()) {
