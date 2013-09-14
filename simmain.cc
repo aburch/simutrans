@@ -639,8 +639,8 @@ int simu_main(int argc, char** argv)
 	}
 
 	// now set the desired objectfilename (override all previous settings)
-	if(  gimme_arg(argc, argv, "-objects", 1)  ) {
-		umgebung_t::objfilename = gimme_arg(argc, argv, "-objects", 1);
+	if(  const char *fn = gimme_arg(argc, argv, "-objects", 1)  ) {
+		umgebung_t::objfilename = fn;
 		// append slash / replace trailing backslash if necessary
 		uint16 len = umgebung_t::objfilename.length();
 		if (len > 0) {
@@ -653,7 +653,21 @@ int simu_main(int argc, char** argv)
 			}
 		}
 	}
-
+	else if(  const char *filename = gimme_arg(argc, argv, "-load", 1)  ) {
+		// try to get a pak file path from a savegame file
+		// read pak_extension from file
+		loadsave_t test;
+		std::string fn = umgebung_t::user_dir;
+		fn += "save/";
+		fn += filename;
+		if(  test.rd_open(fn.c_str())  ) {
+			// add pak extension
+			std::string pak_extension = test.get_pak_extension();
+			if(  pak_extension!="(unknown)"  ) {
+				umgebung_t::objfilename = pak_extension + "/";
+			}
+		}
+	}
 
 	// starting a server?
 	if(  gimme_arg(argc, argv, "-server", 0)  ) {
