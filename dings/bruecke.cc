@@ -54,7 +54,7 @@ void bruecke_t::calc_bild()
 	if(gr) {
 		// if we are on the bridge, put the image into the ground, so we can have two ways ...
 		if(  weg_t *weg0 = gr->get_weg_nr(0)  ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			weg0->lock_mutex();
 #endif
 			// if on a slope then start of bridge - take the upper value
@@ -72,16 +72,16 @@ void bruecke_t::calc_bild()
 
 			weg0->set_after_bild(IMG_LEER);
 			weg0->set_flag(ding_t::dirty);
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			weg0->unlock_mutex();
 #endif
 
 			if(  weg_t *weg1 = gr->get_weg_nr(1)  ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 				weg1->lock_mutex();
 #endif
 				weg1->set_yoff(-gr->get_weg_yoff() );
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 				weg1->unlock_mutex();
 #endif
 			}

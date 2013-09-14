@@ -866,7 +866,7 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 }
 
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, const sint8 clip_num, const bool force_show_grid) const
 #else
 void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width) const
@@ -885,7 +885,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 		if(abs_back_bild_nr>121) {
 			// fence before a drop
 			const sint16 offset = -tile_raster_scale_y( TILE_HEIGHT_STEP*corner4(get_grund_hang()), raster_tile_width);
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			display_normal( grund_besch_t::fences->get_bild( abs_back_bild_nr + (artificial ? -122 + 3 : -122) ), xpos, ypos + offset, 0, true, dirty, clip_num );
 #else
 			display_normal( grund_besch_t::fences->get_bild( abs_back_bild_nr + (artificial ? -122 + 3 : -122) ), xpos, ypos + offset, 0, true, dirty );
@@ -913,7 +913,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 
 						sint16 hgt_diff = gr->get_disp_height() - get_disp_height() + min( corner_a, corner_b ) - back_height;
 						while(  hgt_diff > 2  ||  (hgt_diff > 0  &&  corner_a != corner_b)  ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 							display_normal( sl_draw->get_bild( 4+4*(hgt_diff>1)+11*i ), xpos, ypos + yoff[i], 0, true, dirty, clip_num );
 #else
 							display_normal( sl_draw->get_bild( 4+4*(hgt_diff>1)+11*i ), xpos, ypos + yoff[i], 0, true, dirty );
@@ -922,7 +922,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 							hgt_diff -= 2;
 						}
 					}
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 					display_normal( sl_draw->get_bild( back_bild[i] ), xpos, ypos + yoff[i], 0, true, dirty, clip_num );
 #else
 					display_normal( sl_draw->get_bild( back_bild[i] ), xpos, ypos + yoff[i], 0, true, dirty );
@@ -937,7 +937,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 	if(bild==IMG_LEER) {
 		// only check for forced redraw (of marked ... )
 		if(dirty) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			mark_rect_dirty_clip( xpos, ypos + raster_tile_width / 2, xpos + raster_tile_width - 1, ypos + raster_tile_width - 1, clip_num );
 #else
 			mark_rect_dirty_clip( xpos, ypos + raster_tile_width / 2, xpos + raster_tile_width - 1, ypos + raster_tile_width - 1 );
@@ -948,7 +948,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 		if(get_typ()!=wasser) {
 			// show image if tile is visible
 			if (visible)  {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 				display_normal( get_bild(), xpos, ypos, 0, true, dirty, clip_num );
 #else
 				display_normal( get_bild(), xpos, ypos, 0, true, dirty );
@@ -1026,7 +1026,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 									}
 								}
 								// overlay transition climates
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 								display_alpha( grund_besch_t::get_climate_tile( transition_climate, slope ), grund_besch_t::get_alpha_tile( slope, overlay_corners ), ALPHA_GREEN | ALPHA_RED, xpos, ypos, 0, 0, true, dirty, clip_num );
 #else
 								display_alpha( grund_besch_t::get_climate_tile( transition_climate, slope ), grund_besch_t::get_alpha_tile( slope, overlay_corners ), ALPHA_GREEN | ALPHA_RED, xpos, ypos, 0, 0, true, dirty );
@@ -1037,7 +1037,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 					}
 					// finally overlay any water transition
 					if(  water_corners  ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 						display_alpha( grund_besch_t::get_water_tile(slope), grund_besch_t::get_beach_tile( slope, water_corners ), ALPHA_BLUE, xpos, ypos, 0, 0, true, dirty, clip_num );
 #else
 						display_alpha( grund_besch_t::get_water_tile(slope), grund_besch_t::get_beach_tile( slope, water_corners ), ALPHA_BLUE, xpos, ypos, 0, 0, true, dirty );
@@ -1049,7 +1049,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 				if(  slope != 0  &&  (!weg  ||  !weg->hat_gehweg())  ) {
 					switch(  snow_transition  ) {
 						case 1: {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 							display_alpha( grund_besch_t::get_snow_tile(slope), grund_besch_t::get_alpha_tile(slope), ALPHA_GREEN | ALPHA_RED, xpos, ypos, 0, 0, true, dirty, clip_num );
 #else
 							display_alpha( grund_besch_t::get_snow_tile(slope), grund_besch_t::get_alpha_tile(slope), ALPHA_GREEN | ALPHA_RED, xpos, ypos, 0, 0, true, dirty );
@@ -1058,7 +1058,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 						}
 						case 2: {
 							if(  hang_t::height(slope) > 1  ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 								display_alpha( grund_besch_t::get_snow_tile(slope), grund_besch_t::get_alpha_tile(slope), ALPHA_RED, xpos, ypos, 0, 0, true, dirty, clip_num );
 #else
 								display_alpha( grund_besch_t::get_snow_tile(slope), grund_besch_t::get_alpha_tile(slope), ALPHA_RED, xpos, ypos, 0, 0, true, dirty );
@@ -1071,13 +1071,13 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 
 				// we show additionally a grid
 				// for undergroundmode = ugm_all the grid is plotted in display_dinge
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 				if(  show_grid  || force_show_grid  ) {
 #else
 				if(  show_grid  ){
 #endif
 					const uint8 hang = get_grund_hang();
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 					display_normal( grund_besch_t::get_border_image(hang), xpos, ypos, 0, true, dirty, clip_num );
 #else
 					display_normal( grund_besch_t::get_border_image(hang), xpos, ypos, 0, true, dirty );
@@ -1088,14 +1088,14 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 		else {
 			// take animation into account
 			if(  underground_mode != ugm_all  ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 				display_normal( grund_besch_t::sea->get_bild(get_bild(),wasser_t::stage), xpos, ypos, 0, true, dirty|wasser_t::change_stage, clip_num );
 #else
 				display_normal( grund_besch_t::sea->get_bild(get_bild(),wasser_t::stage), xpos, ypos, 0, true, dirty|wasser_t::change_stage );
 #endif
 			}
 			else {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 				display_blend( grund_besch_t::sea->get_bild(get_bild(),wasser_t::stage), xpos, ypos, 0, TRANSPARENT50_FLAG, true, dirty|wasser_t::change_stage, clip_num);
 #else
 				display_blend( grund_besch_t::sea->get_bild(get_bild(),wasser_t::stage), xpos, ypos, 0, TRANSPARENT50_FLAG, true, dirty|wasser_t::change_stage);
@@ -1114,7 +1114,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 			// .. nonconvex n/w if not both n/w are active
 			if(  clip  ) {
 				const ribi_t::ribi way_ribi = (static_cast<const weg_t*>(d))->get_ribi_unmasked();
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 				clear_all_poly_clip( clip_num );
 #else
 				clear_all_poly_clip();
@@ -1122,7 +1122,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 				const uint8 non_convex = (way_ribi & ribi_t::nordwest) == ribi_t::nordwest ? 0 : 16;
 				if(  way_ribi & ribi_t::west  ) {
 					const int dh = corner4(get_disp_way_slope()) * hgt_step;
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 					add_poly_clip( xpos + raster_tile_width / 2 - 1, ypos + raster_tile_width / 2 - dh, xpos - 1, ypos + 3 * raster_tile_width / 4 - dh, ribi_t::west | non_convex, clip_num );
 #else
 					add_poly_clip( xpos + raster_tile_width / 2 - 1, ypos + raster_tile_width / 2 - dh, xpos - 1, ypos + 3 * raster_tile_width / 4 - dh, ribi_t::west | non_convex );
@@ -1130,19 +1130,19 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 				}
 				if(  way_ribi & ribi_t::nord  ) {
 					const int dh = corner4(get_disp_way_slope()) * hgt_step;
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 					add_poly_clip( xpos + raster_tile_width - 1, ypos + 3 * raster_tile_width / 4 - 1 - dh, xpos + raster_tile_width / 2 - 1, ypos + raster_tile_width / 2 - 1 - dh, ribi_t::nord | non_convex, clip_num );
 #else
 					add_poly_clip( xpos + raster_tile_width - 1, ypos + 3 * raster_tile_width / 4 - 1 - dh, xpos + raster_tile_width / 2 - 1, ypos + raster_tile_width / 2 - 1 - dh, ribi_t::nord | non_convex );
 #endif
 				}
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 				activate_ribi_clip( way_ribi & ribi_t::nordwest, clip_num );
 #else
 				activate_ribi_clip( way_ribi & ribi_t::nordwest );
 #endif
 			}
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			d->display( xpos, ypos, clip_num );
 #else
 			d->display( xpos, ypos );
@@ -1150,7 +1150,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 		}
 		// end of clipping
 		if(  clip  ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			clear_all_poly_clip( clip_num );
 #else
 			clear_all_poly_clip();
@@ -1160,7 +1160,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 }
 
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 void grund_t::display_border( sint16 xpos, sint16 ypos, const sint16 raster_tile_width, const sint8 clip_num )
 #else
 void grund_t::display_border( sint16 xpos, sint16 ypos, const sint16 raster_tile_width )
@@ -1184,7 +1184,7 @@ void grund_t::display_border( sint16 xpos, sint16 ypos, const sint16 raster_tile
 		diff = -min(corner1(slope),corner2(slope));
 		sint16 zz = pos.z-welt->get_grundwasser();
 		if(  diff < zz && ((zz-diff)&1)==1  ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			display_normal( grund_besch_t::slopes->get_bild(15), x, y, 0, true, false, clip_num );
 #else
 			display_normal( grund_besch_t::slopes->get_bild(15), x, y, 0, true, false );
@@ -1194,7 +1194,7 @@ void grund_t::display_border( sint16 xpos, sint16 ypos, const sint16 raster_tile
 		}
 		// ok, now we have the height; since the slopes may end with a fence they are drawn in reverse order
 		while(  diff < zz  ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			display_normal( grund_besch_t::slopes->get_bild(19), x, y, 0, true, false, clip_num );
 #else
 			display_normal( grund_besch_t::slopes->get_bild(19), x, y, 0, true, false );
@@ -1202,7 +1202,7 @@ void grund_t::display_border( sint16 xpos, sint16 ypos, const sint16 raster_tile
 			y -= hgt_step*2;
 			diff+=2;
 		}
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		display_normal( slope_img, x, y, 0, true, false, clip_num );
 #else
 		display_normal( slope_img, x, y, 0, true, false );
@@ -1219,7 +1219,7 @@ void grund_t::display_border( sint16 xpos, sint16 ypos, const sint16 raster_tile
 		diff = -min(corner2(slope),corner3(slope));
 		sint16 zz = pos.z-welt->get_grundwasser();
 		if(  diff < zz && ((zz-diff)&1)==1  ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			display_normal( grund_besch_t::slopes->get_bild(4), x, y, 0, true, false, clip_num );
 #else
 			display_normal( grund_besch_t::slopes->get_bild(4), x, y, 0, true, false );
@@ -1229,7 +1229,7 @@ void grund_t::display_border( sint16 xpos, sint16 ypos, const sint16 raster_tile
 		}
 		// ok, now we have the height; since the slopes may end with a fence they are drawn in reverse order
 		while(  diff < zz  ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			display_normal( grund_besch_t::slopes->get_bild(8), x, y, 0, true, false, clip_num );
 #else
 			display_normal( grund_besch_t::slopes->get_bild(8), x, y, 0, true, false );
@@ -1237,7 +1237,7 @@ void grund_t::display_border( sint16 xpos, sint16 ypos, const sint16 raster_tile
 			y -= hgt_step*2;
 			diff+=2;
 		}
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		display_normal( slope_img, x, y, 0, true, false, clip_num );
 #else
 		display_normal( slope_img, x, y, 0, true, false );
@@ -1246,7 +1246,7 @@ void grund_t::display_border( sint16 xpos, sint16 ypos, const sint16 raster_tile
 }
 
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 void grund_t::display_if_visible(sint16 xpos, sint16 ypos, const sint16 raster_tile_width, const sint8 clip_num, const bool force_show_grid)
 #else
 void grund_t::display_if_visible(sint16 xpos, sint16 ypos, const sint16 raster_tile_width)
@@ -1258,7 +1258,7 @@ void grund_t::display_if_visible(sint16 xpos, sint16 ypos, const sint16 raster_t
 
 	if(  umgebung_t::draw_earth_border  &&  (pos.x-welt->get_size().x+1 == 0  ||  pos.y-welt->get_size().y+1 == 0)  ) {
 		// the last tile. might need a border
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		display_border( xpos, ypos, raster_tile_width, clip_num );
 #else
 		display_border( xpos, ypos, raster_tile_width );
@@ -1266,7 +1266,7 @@ void grund_t::display_if_visible(sint16 xpos, sint16 ypos, const sint16 raster_t
 	}
 
 	if(!get_flag(grund_t::draw_as_ding)) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		display_boden( xpos, ypos, raster_tile_width, clip_num, force_show_grid );
 #else
 		display_boden( xpos, ypos, raster_tile_width );
@@ -1312,7 +1312,7 @@ hang_t::typ grund_t::get_disp_way_slope() const
  *
  * Also used in multi-threaded display.
  */
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 void grund_t::display_dinge_all_quick_and_dirty(const sint16 xpos, sint16 ypos, const sint16 raster_tile_width, const bool is_global, const sint8 clip_num) const
 #else
 void grund_t::display_dinge_all_quick_and_dirty(const sint16 xpos, sint16 ypos, const sint16 raster_tile_width, const bool is_global) const
@@ -1327,7 +1327,7 @@ void grund_t::display_dinge_all_quick_and_dirty(const sint16 xpos, sint16 ypos, 
 	if(  visible  ) {
 		if(  is_global  &&  get_flag( grund_t::marked )  ) {
 			const uint8 hang = get_grund_hang();
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			display_img( grund_besch_t::get_marker_image( hang, true ), xpos, ypos, dirty, clip_num );
 			dinge.display_dinge_quick_and_dirty( xpos, ypos, start_offset, clip_num );
 			display_img( grund_besch_t::get_marker_image( hang, false ), xpos, ypos, dirty, clip_num );
@@ -1341,14 +1341,14 @@ void grund_t::display_dinge_all_quick_and_dirty(const sint16 xpos, sint16 ypos, 
 				if(  pos.z > gr->get_hoehe()  ) {
 					//display front part of marker for grunds in between
 					for(  sint8 z = pos.z - 1;  z > gr->get_hoehe();  z--  ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 						display_img( grund_besch_t::get_marker_image(0, false), xpos, ypos - tile_raster_scale_y( (z - pos.z) * TILE_HEIGHT_STEP, raster_tile_width ), true, clip_num );
 #else
 						display_img( grund_besch_t::get_marker_image(0, false), xpos, ypos - tile_raster_scale_y( (z - pos.z) * TILE_HEIGHT_STEP, raster_tile_width ), true );
 #endif
 					}
 					//display front part of marker for ground
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 					display_img( grund_besch_t::get_marker_image( gr->get_grund_hang(), false ), xpos, ypos - tile_raster_scale_y( (gr->get_hoehe() - pos.z) * TILE_HEIGHT_STEP, raster_tile_width ), true, clip_num );
 #else
 					display_img( grund_besch_t::get_marker_image( gr->get_grund_hang(), false ), xpos, ypos - tile_raster_scale_y( (gr->get_hoehe() - pos.z) * TILE_HEIGHT_STEP, raster_tile_width ), true );
@@ -1357,7 +1357,7 @@ void grund_t::display_dinge_all_quick_and_dirty(const sint16 xpos, sint16 ypos, 
 				else if(  pos.z < gr->get_disp_height()  ) {
 					//display back part of marker for grunds in between
 					for(  sint8 z = pos.z + 1;  z < gr->get_disp_height();  z++  ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 						display_img( grund_besch_t::get_border_image(0), xpos, ypos - tile_raster_scale_y( (z - pos.z) * TILE_HEIGHT_STEP, raster_tile_width ), true, clip_num );
 #else
 						display_img( grund_besch_t::get_border_image(0), xpos, ypos - tile_raster_scale_y( (z - pos.z) * TILE_HEIGHT_STEP, raster_tile_width ), true );
@@ -1365,7 +1365,7 @@ void grund_t::display_dinge_all_quick_and_dirty(const sint16 xpos, sint16 ypos, 
 					}
 					//display back part of marker for ground
 					const uint8 kbhang = gr->get_grund_hang() | gr->get_weg_hang();
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 					display_img( grund_besch_t::get_border_image(kbhang), xpos, ypos - tile_raster_scale_y( (gr->get_hoehe() - pos.z) * TILE_HEIGHT_STEP, raster_tile_width ), true, clip_num );
 #else
 					display_img( grund_besch_t::get_border_image(kbhang), xpos, ypos - tile_raster_scale_y( (gr->get_hoehe() - pos.z) * TILE_HEIGHT_STEP, raster_tile_width ), true );
@@ -1374,7 +1374,7 @@ void grund_t::display_dinge_all_quick_and_dirty(const sint16 xpos, sint16 ypos, 
 			}
 		}
 		else {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			dinge.display_dinge_quick_and_dirty( xpos, ypos, start_offset, clip_num );
 #else
 			dinge.display_dinge_quick_and_dirty( xpos, ypos, start_offset, is_global );
@@ -1384,14 +1384,14 @@ void grund_t::display_dinge_all_quick_and_dirty(const sint16 xpos, sint16 ypos, 
 	else { // must be karten_boden
 		// in undergroundmode: draw ground grid
 		const uint8 hang = underground_mode==ugm_all ? get_grund_hang() : (uint8)hang_t::flach;
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		display_img( grund_besch_t::get_border_image(hang), xpos, ypos, dirty, clip_num );
 #else
 		display_img( grund_besch_t::get_border_image(hang), xpos, ypos, dirty );
 #endif
 		// show marker for marked but invisible tiles
 		if(  is_global  &&  get_flag(grund_t::marked)  ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			display_img( grund_besch_t::get_marker_image( hang, true ), xpos, ypos, dirty, clip_num );
 			display_img( grund_besch_t::get_marker_image( hang, false ), xpos, ypos, dirty, clip_num );
 #else
@@ -1423,14 +1423,14 @@ Algorithm:
 5) display vehicles of ne/e/se/s/sw neighbors
 6) display our foreground (foreground image of station/overheadwire piles etc) no clipping
 */
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, const bool is_global, const sint8 clip_num) const
 #else
 void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, const bool is_global) const
 #endif
 {
 	if(  umgebung_t::simple_drawing  ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		display_dinge_all_quick_and_dirty( xpos, ypos, raster_tile_width, is_global, clip_num );
 #else
 		display_dinge_all_quick_and_dirty( xpos, ypos, raster_tile_width, is_global );
@@ -1439,7 +1439,7 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 	}
 
 	// end of clipping
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	clear_all_poly_clip( clip_num );
 #else
 	clear_all_poly_clip();
@@ -1462,14 +1462,14 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 	// now ways? - no clipping needed, avoid all the ribi-checks
 	if (ribi==ribi_t::keine) {
 		// display background
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		const uint8 offset_vh = display_dinge_bg( xpos, ypos, is_global, true, visible, clip_num );
 #else
 		const uint8 offset_vh = display_dinge_bg( xpos, ypos, is_global, true, visible );
 #endif
 		if (visible) {
 			// display our vehicles
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			const uint8 offset_fg = display_dinge_vh( xpos, ypos, offset_vh, ribi, true, clip_num );
 			// foreground
 			display_dinge_fg( xpos, ypos, is_global, offset_fg, clip_num );
@@ -1494,7 +1494,7 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 	const uint8 non_convex = ((ribi & ribi_t::nordwest) == ribi_t::nordwest)  &&  back_bild_nr ? 0 : 16;
 	if(  ribi & ribi_t::west  ) {
 		const int dh = corner4(slope) * hgt_step;
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		add_poly_clip( xpos + raster_tile_width / 2 - 1, ypos + raster_tile_width / 2 - dh, xpos - 1, ypos + 3 * raster_tile_width / 4 - dh, ribi_t::west | non_convex, clip_num );
 #else
 		add_poly_clip( xpos + raster_tile_width / 2 - 1, ypos + raster_tile_width / 2 - dh, xpos - 1, ypos + 3 * raster_tile_width / 4 - dh, ribi_t::west | non_convex );
@@ -1502,7 +1502,7 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 	}
 	if(  ribi & ribi_t::nord  ) {
 		const int dh = corner4(slope) * hgt_step;
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		add_poly_clip( xpos + raster_tile_width - 1, ypos + 3 * raster_tile_width / 4 - 1 - dh, xpos + raster_tile_width / 2 + 1, ypos + raster_tile_width / 2 - dh, ribi_t::nord | non_convex, clip_num );
 #else
 		add_poly_clip( xpos + raster_tile_width - 1, ypos + 3 * raster_tile_width / 4 - 1 - dh, xpos + raster_tile_width / 2 + 1, ypos + raster_tile_width / 2 - dh, ribi_t::nord | non_convex );
@@ -1510,7 +1510,7 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 	}
 	if(  ribi & ribi_t::ost  ) {
 		const int dh = corner2(slope) * hgt_step;
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		add_poly_clip( xpos + raster_tile_width / 2, ypos + raster_tile_width - dh, xpos + raster_tile_width, ypos + 3 * raster_tile_width / 4 - dh, ribi_t::ost, clip_num );
 #else
 		add_poly_clip( xpos + raster_tile_width / 2, ypos + raster_tile_width - dh, xpos + raster_tile_width, ypos + 3 * raster_tile_width / 4 - dh, ribi_t::ost );
@@ -1518,7 +1518,7 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 	}
 	if(  ribi & ribi_t::sued  ) {
 		const int dh = corner2(slope) * hgt_step;
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		add_poly_clip( xpos, ypos + 3 * raster_tile_width / 4 + 1 - dh, xpos + raster_tile_width / 2, ypos + raster_tile_width + 1 - dh, ribi_t::sued, clip_num );
 #else
 		add_poly_clip( xpos, ypos + 3 * raster_tile_width / 4 + 1 - dh, xpos + raster_tile_width / 2, ypos + raster_tile_width + 1 - dh, ribi_t::sued );
@@ -1526,7 +1526,7 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 	}
 	// display background
 	// get offset of first vehicle
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	activate_ribi_clip( (ribi_t::nordwest & ribi) | 16, clip_num );
 	const uint8 offset_vh = display_dinge_bg( xpos, ypos, is_global, false, visible, clip_num );
 #else
@@ -1535,7 +1535,7 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 #endif
 	if(  !visible  ) {
 		// end of clipping
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		clear_all_poly_clip( clip_num );
 #else
 		clear_all_poly_clip();
@@ -1547,7 +1547,7 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 	if(  ribi & ribi_t::west  ) {
 		grund_t *gr;
 		if(  get_neighbour( gr, invalid_wt, ribi_t::west )  ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			gr->display_dinge_vh( xpos - raster_tile_width / 2, ypos - raster_tile_width / 4 - tile_raster_scale_y( (gr->get_hoehe() - pos.z) * TILE_HEIGHT_STEP, raster_tile_width ), 0, ribi_t::west, false, clip_num );
 #else
 			gr->display_dinge_vh( xpos - raster_tile_width / 2, ypos - raster_tile_width / 4 - tile_raster_scale_y( (gr->get_hoehe() - pos.z) * TILE_HEIGHT_STEP, raster_tile_width ), 0, ribi_t::west, false );
@@ -1559,7 +1559,7 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 	if(  ribi & ribi_t::nord  ) {
 		grund_t *gr;
 		if(  get_neighbour( gr, invalid_wt, ribi_t::nord )  ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			gr->display_dinge_vh( xpos + raster_tile_width / 2, ypos - raster_tile_width / 4 - tile_raster_scale_y( (gr->get_hoehe() - pos.z) * TILE_HEIGHT_STEP, raster_tile_width ), 0, ribi_t::nord, false, clip_num );
 #else
 			gr->display_dinge_vh( xpos + raster_tile_width / 2, ypos - raster_tile_width / 4 - tile_raster_scale_y( (gr->get_hoehe() - pos.z) * TILE_HEIGHT_STEP, raster_tile_width ), 0, ribi_t::nord, false );
@@ -1569,7 +1569,7 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 		}
 	}
 	if(  (ribi & ribi_t::nordwest)  &&  gr_nw  ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		gr_nw->display_dinge_vh( xpos, ypos - raster_tile_width / 2 - tile_raster_scale_y( (gr_nw->get_hoehe() - pos.z) * TILE_HEIGHT_STEP, raster_tile_width ), 0, ribi_t::nordwest, false, clip_num );
 #else
 		gr_nw->display_dinge_vh( xpos, ypos - raster_tile_width / 2-tile_raster_scale_y( (gr_nw->get_hoehe() - pos.z) * TILE_HEIGHT_STEP, raster_tile_width ), 0, ribi_t::nordwest, false );
@@ -1580,7 +1580,7 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 		grund_t *gr;
 		if(  get_neighbour( gr, invalid_wt, ribi_t::ost )  ) {
 			const bool draw_other_ways = (flags&draw_as_ding)  ||  (gr->flags&draw_as_ding)  ||  !gr->ist_karten_boden();
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			activate_ribi_clip( ribi_t::ost, clip_num );
 			gr->display_dinge_bg( xpos + raster_tile_width / 2, ypos + raster_tile_width / 4 - tile_raster_scale_y( (gr->get_hoehe() - pos.z) * TILE_HEIGHT_STEP, raster_tile_width ), is_global, draw_other_ways, true, clip_num );
 #else
@@ -1593,7 +1593,7 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 		grund_t *gr;
 		if(  get_neighbour( gr, invalid_wt, ribi_t::sued )  ) {
 			const bool draw_other_ways = (flags&draw_as_ding)  ||  (gr->flags&draw_as_ding)  ||  !gr->ist_karten_boden();
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			activate_ribi_clip( ribi_t::sued, clip_num );
 			gr->display_dinge_bg( xpos - raster_tile_width / 2, ypos + raster_tile_width / 4 - tile_raster_scale_y( (gr->get_hoehe() - pos.z) * TILE_HEIGHT_STEP, raster_tile_width ), is_global, draw_other_ways, true, clip_num );
 #else
@@ -1603,7 +1603,7 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 		}
 	}
 	// display our vehicles
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	const uint8 offset_fg = display_dinge_vh( xpos, ypos, offset_vh, ribi, true, clip_num );
 #else
 	const uint8 offset_fg = display_dinge_vh( xpos, ypos, offset_vh, ribi, true );
@@ -1613,7 +1613,7 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 	if(  ribi & ribi_t::ost  ) {
 		grund_t *gr;
 		if(  get_neighbour( gr, invalid_wt, ribi_t::ost )  ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			gr->display_dinge_vh( xpos + raster_tile_width / 2, ypos + raster_tile_width / 4 - tile_raster_scale_y( (gr->get_hoehe() - pos.z) * TILE_HEIGHT_STEP, raster_tile_width ), 0, ribi_t::ost, ontile_se, clip_num );
 #else
 			gr->display_dinge_vh( xpos + raster_tile_width / 2, ypos + raster_tile_width / 4 - tile_raster_scale_y( (gr->get_hoehe() - pos.z) * TILE_HEIGHT_STEP, raster_tile_width ), 0, ribi_t::ost, ontile_se );
@@ -1625,7 +1625,7 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 	if(  ribi & ribi_t::sued  ) {
 		grund_t *gr;
 		if(  get_neighbour( gr, invalid_wt, ribi_t::sued )  ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			gr->display_dinge_vh( xpos - raster_tile_width / 2, ypos + raster_tile_width / 4 - tile_raster_scale_y( (gr->get_hoehe() - pos.z) * TILE_HEIGHT_STEP, raster_tile_width ), 0, ribi_t::sued, ontile_se, clip_num );
 #else
 			gr->display_dinge_vh( xpos - raster_tile_width / 2, ypos + raster_tile_width / 4 - tile_raster_scale_y( (gr->get_hoehe() - pos.z) * TILE_HEIGHT_STEP, raster_tile_width ), 0, ribi_t::sued, ontile_se );
@@ -1635,28 +1635,28 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 		}
 	}
 	if(  (ribi & ribi_t::nordost)  &&  gr_ne  ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		gr_ne->display_dinge_vh( xpos + raster_tile_width, ypos - tile_raster_scale_y( (gr_ne->get_hoehe() - pos.z) * TILE_HEIGHT_STEP, raster_tile_width ), 0, ribi_t::nordost, ontile_se, clip_num );
 #else
 		gr_ne->display_dinge_vh( xpos + raster_tile_width, ypos - tile_raster_scale_y( (gr_ne->get_hoehe() - pos.z)*TILE_HEIGHT_STEP, raster_tile_width ), 0, ribi_t::nordost, ontile_se );
 #endif
 	}
 	if(  (ribi & ribi_t::suedwest)  &&  gr_sw  ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		gr_sw->display_dinge_vh( xpos - raster_tile_width, ypos - tile_raster_scale_y( (gr_sw->get_hoehe() - pos.z) * TILE_HEIGHT_STEP, raster_tile_width ), 0, ribi_t::suedwest, ontile_se, clip_num );
 #else
 		gr_sw->display_dinge_vh( xpos - raster_tile_width, ypos - tile_raster_scale_y( (gr_sw->get_hoehe() - pos.z) * TILE_HEIGHT_STEP, raster_tile_width ), 0, ribi_t::suedwest, ontile_se );
 #endif
 	}
 	if(  (ribi & ribi_t::suedost)  &&  gr_se  ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		gr_se->display_dinge_vh( xpos, ypos + raster_tile_width / 2 - tile_raster_scale_y( (gr_se->get_hoehe() - pos.z) * TILE_HEIGHT_STEP, raster_tile_width ), 0, ribi_t::suedost, ontile_se, clip_num );
 #else
 		gr_se->display_dinge_vh( xpos, ypos + raster_tile_width / 2 - tile_raster_scale_y( (gr_se->get_hoehe() - pos.z) * TILE_HEIGHT_STEP, raster_tile_width ), 0, ribi_t::suedost, ontile_se );
 #endif
 	}
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	// end of clipping
 	clear_all_poly_clip( clip_num );
 
@@ -1672,7 +1672,7 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 }
 
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 uint8 grund_t::display_dinge_bg(const sint16 xpos, const sint16 ypos, const bool is_global, const bool draw_ways, const bool visible, const sint8 clip_num) const
 #else
 uint8 grund_t::display_dinge_bg(const sint16 xpos, const sint16 ypos, const bool is_global, const bool draw_ways, const bool visible) const
@@ -1683,7 +1683,7 @@ uint8 grund_t::display_dinge_bg(const sint16 xpos, const sint16 ypos, const bool
 	if(  visible  ) {
 		// display back part of markers
 		if(  is_global  &&  get_flag( grund_t::marked )  ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			display_normal( grund_besch_t::get_marker_image( get_grund_hang(), true ), xpos, ypos, 0, true, dirty, clip_num );
 #else
 			display_normal( grund_besch_t::get_marker_image( get_grund_hang(), true ), xpos, ypos, 0, true, dirty );
@@ -1694,14 +1694,14 @@ uint8 grund_t::display_dinge_bg(const sint16 xpos, const sint16 ypos, const bool
 				if(  pos.z < gr->get_disp_height()  ) {
 					//display back part of marker for grunds in between
 					for(  sint8 z = pos.z + 1;  z < gr->get_disp_height();  z++  ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 						display_normal( grund_besch_t::get_marker_image(0, true), xpos, ypos - tile_raster_scale_y( (z - pos.z) * TILE_HEIGHT_STEP, raster_tile_width ), 0, true, true, clip_num );
 #else
 						display_normal( grund_besch_t::get_marker_image(0, true), xpos, ypos - tile_raster_scale_y( (z - pos.z) * TILE_HEIGHT_STEP, raster_tile_width ), 0, true, true );
 #endif
 					}
 					//display back part of marker for ground
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 					display_normal( grund_besch_t::get_marker_image( gr->get_grund_hang() | gr->get_weg_hang(), true ), xpos, ypos - tile_raster_scale_y( (gr->get_hoehe() - pos.z) * TILE_HEIGHT_STEP, raster_tile_width ), 0, true, true, clip_num );
 #else
 					display_normal( grund_besch_t::get_marker_image( gr->get_grund_hang() | gr->get_weg_hang(), true ), xpos, ypos - tile_raster_scale_y( (gr->get_hoehe() - pos.z) * TILE_HEIGHT_STEP, raster_tile_width ), 0, true, true );
@@ -1711,7 +1711,7 @@ uint8 grund_t::display_dinge_bg(const sint16 xpos, const sint16 ypos, const bool
 		}
 		// display background images of everything but vehicles
 		const uint8 start_offset = draw_ways ? 0 : offsets[flags/has_way1];
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		return dinge.display_dinge_bg( xpos, ypos, start_offset, clip_num );
 #else
 		return dinge.display_dinge_bg( xpos, ypos, start_offset );
@@ -1720,14 +1720,14 @@ uint8 grund_t::display_dinge_bg(const sint16 xpos, const sint16 ypos, const bool
 	else { // must be karten_boden
 		// in undergroundmode: draw ground grid
 		const uint8 hang = underground_mode == ugm_all ? get_grund_hang() : (hang_t::typ)hang_t::flach;
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		display_normal( grund_besch_t::get_border_image(hang), xpos, ypos, 0, true, dirty, clip_num );
 #else
 		display_normal( grund_besch_t::get_border_image(hang), xpos, ypos, 0, true, dirty );
 #endif
 		// show marker for marked but invisible tiles
 		if(  is_global  &&  get_flag( grund_t::marked )  ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			display_img( grund_besch_t::get_marker_image( hang, true ), xpos, ypos, dirty, clip_num );
 			display_img( grund_besch_t::get_marker_image( hang, false ), xpos, ypos, dirty, clip_num );
 #else
@@ -1740,7 +1740,7 @@ uint8 grund_t::display_dinge_bg(const sint16 xpos, const sint16 ypos, const bool
 }
 
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 uint8 grund_t::display_dinge_vh(const sint16 xpos, const sint16 ypos, const uint8 start_offset, const ribi_t::ribi ribi, const bool ontile, const sint8 clip_num) const
 {
 	return dinge.display_dinge_vh( xpos, ypos, start_offset, ribi, ontile, clip_num );
@@ -1754,21 +1754,21 @@ uint8 grund_t::display_dinge_vh(const sint16 xpos, const sint16 ypos, const uint
 
 
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 void grund_t::display_dinge_fg(const sint16 xpos, const sint16 ypos, const bool is_global, const uint8 start_offset, const sint8 clip_num) const
 #else
 void grund_t::display_dinge_fg(const sint16 xpos, const sint16 ypos, const bool is_global, const uint8 start_offset) const
 #endif
 {
 	const bool dirty = get_flag(grund_t::dirty);
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	dinge.display_dinge_fg( xpos, ypos, start_offset, clip_num );
 #else
 	dinge.display_dinge_fg( xpos, ypos, start_offset, is_global );
 #endif
 	// display front part of markers
 	if(  is_global  &&  get_flag( grund_t::marked )  ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		display_normal( grund_besch_t::get_marker_image( get_grund_hang(), false ), xpos, ypos, 0, true, dirty, clip_num );
 #else
 		display_normal( grund_besch_t::get_marker_image( get_grund_hang(), false ), xpos, ypos, 0, true, dirty );
@@ -1779,14 +1779,14 @@ void grund_t::display_dinge_fg(const sint16 xpos, const sint16 ypos, const bool 
 			if(  pos.z > gr->get_hoehe()  ) {
 				//display front part of marker for grunds in between
 				for(  sint8 z = pos.z - 1;  z > gr->get_hoehe();  z--  ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 					display_normal( grund_besch_t::get_marker_image( 0, false ), xpos, ypos - tile_raster_scale_y( (z - pos.z) * TILE_HEIGHT_STEP, raster_tile_width ), 0, true, true, clip_num );
 #else
 					display_normal( grund_besch_t::get_marker_image( 0, false ), xpos, ypos - tile_raster_scale_y( (z - pos.z) * TILE_HEIGHT_STEP, raster_tile_width ), 0, true, true );
 #endif
 				}
 				//display front part of marker for ground
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 				display_normal( grund_besch_t::get_marker_image( gr->get_grund_hang(), false ), xpos, ypos - tile_raster_scale_y( (gr->get_hoehe() - pos.z) * TILE_HEIGHT_STEP, raster_tile_width ), 0, true, true, clip_num );
 #else
 				display_normal( grund_besch_t::get_marker_image( gr->get_grund_hang(), false ), xpos, ypos - tile_raster_scale_y( (gr->get_hoehe() - pos.z) * TILE_HEIGHT_STEP, raster_tile_width ), 0, true, true );
@@ -1800,7 +1800,7 @@ void grund_t::display_dinge_fg(const sint16 xpos, const sint16 ypos, const bool 
 void grund_t::display_overlay(const sint16 xpos, const sint16 ypos)
 {
 	const bool dirty = get_flag(grund_t::dirty);
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	dinge.display_dinge_overlay( xpos, ypos );
 #endif
 	// marker/station text

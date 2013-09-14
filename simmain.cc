@@ -125,7 +125,7 @@ static void show_times(karte_t *welt, karte_ansicht_t *view)
 
  	long ms = dr_time();
 	for (i = 0;  i < 6000000;  i++) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
  		display_img( img, 50, 50, 1, 0);
 #else
  		display_img( img, 50, 50, 1);
@@ -869,6 +869,12 @@ int simu_main(int argc, char** argv)
 	convoihandle_t::init( 1024 );
 	linehandle_t::init( 1024 );
 	halthandle_t::init( 1024 );
+
+#ifndef MULTI_THREAD
+	if(  umgebung_t::num_threads > 1  ) {
+		dbg->important("Multithreading not enabled: threads = %d ignored.", umgebung_t::num_threads );
+	}
+#endif
 
 	// just check before loading objects
 	if (!gimme_arg(argc, argv, "-nosound", 0)  &&  dr_init_sound()) {

@@ -92,7 +92,7 @@ static SDL_Cursor* arrow;
 static SDL_Cursor* hourglass;
 static SDL_Cursor* blank;
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 #include "utils/simthread.h"
 
 static simthread_barrier_t redraw_barrier;
@@ -185,7 +185,7 @@ resolution dr_query_screen_resolution()
 // open the window
 int dr_os_open(int w, int const h, int const fullscreen)
 {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	// init barrier
 	simthread_barrier_init( &redraw_barrier, NULL, 2);
 
@@ -257,7 +257,7 @@ int dr_os_open(int w, int const h, int const fullscreen)
 // shut down SDL
 void dr_os_close()
 {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	// make sure redraw thread is waiting before closing
 	pthread_mutex_lock( &redraw_mutex );
 #endif
@@ -272,7 +272,7 @@ void dr_os_close()
 // resizes screen
 int dr_textur_resize(unsigned short** const textur, int w, int const h)
 {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	pthread_mutex_lock( &redraw_mutex );
 #endif
 	if(  use_hw  ) {
@@ -305,7 +305,7 @@ int dr_textur_resize(unsigned short** const textur, int w, int const h)
 		fflush(NULL);
 	}
 	*textur = (unsigned short*)screen->pixels;
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	pthread_mutex_unlock( &redraw_mutex );
 #endif
 	return w;
@@ -334,7 +334,7 @@ unsigned int get_system_color(unsigned int r, unsigned int g, unsigned int b)
 
 void dr_prepare_flush()
 {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	pthread_mutex_lock( &redraw_mutex );
 #endif
 	return;
@@ -343,7 +343,7 @@ void dr_prepare_flush()
 
 void dr_flush(void)
 {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	pthread_mutex_unlock( &redraw_mutex );
 	simthread_barrier_wait( &redraw_barrier );	// start thread
 #else
@@ -384,7 +384,7 @@ void dr_textur(int xp, int yp, int w, int h)
 		if(  w*h > 0  )
 #endif
 		{
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			SDL_UpdateRect( screen, xp, yp, w, h );
 #else
 			if(  num_SDL_Rects < MAX_SDL_RECTS  ) {

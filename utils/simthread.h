@@ -1,7 +1,7 @@
 #ifndef simthread_h
 #define simthread_h
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 
 #if _XOPEN_SOURCE < 600
 // enable barriers by this
@@ -50,6 +50,6 @@ int simthread_barrier_wait(simthread_barrier_t *barrier);
 
 #endif // _USE_POSIX_BARRIERS
 
-#endif // MULTI_THREAD>1
+#endif // MULTI_THREAD
 
 #endif

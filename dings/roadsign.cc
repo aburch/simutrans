@@ -484,7 +484,7 @@ void roadsign_t::rotate90()
 
 
 // to correct offset on slopes
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 void roadsign_t::display_after(int xpos, int ypos, const sint8 clip_num ) const
 #else
 void roadsign_t::display_after(int xpos, int ypos, bool ) const
@@ -497,14 +497,14 @@ void roadsign_t::display_after(int xpos, int ypos, bool ) const
 		// draw with owner
 		if(  get_player_nr() != PLAYER_UNOWNED  ) {
 			if(  ding_t::show_owner  ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 				display_blend( after_bild, xpos, ypos, 0, (get_besitzer()->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, dirty, clip_num );
 #else
 				display_blend( after_bild, xpos, ypos, 0, (get_besitzer()->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, dirty );
 #endif
 			}
 			else {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 				display_color( after_bild, xpos, ypos, get_player_nr(), true, get_flag(ding_t::dirty), clip_num );
 #else
 				display_color( after_bild, xpos, ypos, get_player_nr(), true, get_flag(ding_t::dirty) );
@@ -512,7 +512,7 @@ void roadsign_t::display_after(int xpos, int ypos, bool ) const
 			}
 		}
 		else {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			display_normal( after_bild, xpos, ypos, 0, true, get_flag(ding_t::dirty), clip_num );
 #else
 			display_normal( after_bild, xpos, ypos, 0, true, get_flag(ding_t::dirty) );

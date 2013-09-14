@@ -41,7 +41,7 @@
 #include "tunnel.h"
 #include "wayobj.h"
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 #include "../utils/simthread.h"
 static pthread_mutex_t wayobj_calc_bild_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 #endif
@@ -248,7 +248,7 @@ ribi_t::ribi wayobj_t::find_next_ribi(const grund_t *start, const koord dir, con
 
 void wayobj_t::calc_bild()
 {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	pthread_mutex_lock( &wayobj_calc_bild_mutex );
 #endif
 	grund_t *gr = welt->lookup(get_pos());
@@ -262,7 +262,7 @@ void wayobj_t::calc_bild()
 			entferne(get_besitzer());
 			delete this;
 			gr->set_flag(grund_t::dirty);
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			pthread_mutex_unlock( &wayobj_calc_bild_mutex );
 #endif
 			return;
@@ -274,7 +274,7 @@ void wayobj_t::calc_bild()
 		// if there is a slope, we are finished, only four choices here (so far)
 		hang = gr->get_weg_hang();
 		if(hang!=hang_t::flach) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			pthread_mutex_unlock( &wayobj_calc_bild_mutex );
 #endif
 			return;
@@ -350,7 +350,7 @@ void wayobj_t::calc_bild()
 			}
 		}
 	}
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	pthread_mutex_unlock( &wayobj_calc_bild_mutex );
 #endif
 }

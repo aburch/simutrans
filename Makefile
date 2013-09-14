@@ -125,14 +125,12 @@ ifneq ($(PROFILE),)
 endif
 
 ifneq ($(MULTI_THREAD),)
-  CFLAGS += -DMULTI_THREAD=$(MULTI_THREAD)
-  ifneq  ($(MULTI_THREAD),1)
-    ifeq ($(OSTYPE),mingw)
+  CFLAGS += -DMULTI_THREAD
+  ifeq ($(OSTYPE),mingw)
 #use lpthreadGC2d for debug alternatively
-      LDFLAGS += -lpthreadGC2
-    else
-      LDFLAGS += -lpthread
-    endif
+    LDFLAGS += -lpthreadGC2
+  else
+    LDFLAGS += -lpthread
   endif
 endif
 

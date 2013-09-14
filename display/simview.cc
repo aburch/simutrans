@@ -40,7 +40,7 @@ static const sint8 hours2night[] =
     2,3,4,4,4,4,4,4
 };
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 #include "../utils/simthread.h"
 
 bool spawned_threads=false; // global job indicator array
@@ -58,7 +58,7 @@ typedef struct{
 } display_region_param_t;
 
 // now the parameters
-static display_region_param_t ka[MULTI_THREAD];
+static display_region_param_t ka[MAX_THREADS];
 
 void *display_region_thread( void *ptr )
 {
@@ -169,35 +169,34 @@ void karte_ansicht_t::display(bool force_dirty)
 	int y_min = (-const_y_off + 4*tile_raster_scale_y( min(hmax_ground, welt->get_grundwasser())*TILE_HEIGHT_STEP, IMG_SIZE )
 					+ 4*(menu_height-IMG_SIZE)-IMG_SIZE/2-1) / IMG_SIZE;
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	if(  can_multithreading  ) {
 		if(  !spawned_threads  ) {
 			// we can do the parallel display using posix threads ...
-			pthread_t thread[MULTI_THREAD];
+			pthread_t thread[MAX_THREADS];
 			/* Initialize and set thread detached attribute */
 			pthread_attr_t attr;
 			pthread_attr_init( &attr );
 			pthread_attr_setdetachstate( &attr, PTHREAD_CREATE_DETACHED );
 			// init barrier
-			simthread_barrier_init( &display_barrier_start, NULL, MULTI_THREAD );
-			simthread_barrier_init( &display_barrier_end, NULL, MULTI_THREAD );
+			simthread_barrier_init( &display_barrier_start, NULL, umgebung_t::num_threads );
+			simthread_barrier_init( &display_barrier_end, NULL, umgebung_t::num_threads );
 
-			for(  int t = 0;  t < MULTI_THREAD - 1;  t++  ) {
+			for(  int t = 0;  t < umgebung_t::num_threads - 1;  t++  ) {
 				if(  pthread_create( &thread[t], &attr, display_region_thread, (void *)&ka[t] )  ) {
 					can_multithreading = false;
 					dbg->error( "karte_ansicht_t::display()", "cannot multi-thread, error at thread #%i", t+1 );
 					return;
 				}
 			}
-
 			spawned_threads = true;
 			pthread_attr_destroy( &attr );
 		}
 
 		// set parameter for each thread
-		const KOORD_VAL wh_x = disp_width / MULTI_THREAD;
+		const KOORD_VAL wh_x = disp_width / umgebung_t::num_threads;
 		KOORD_VAL lt_x = 0;
-		for(  int t = 0;  t < MULTI_THREAD - 1;  t++  ) {
+		for(  int t = 0;  t < umgebung_t::num_threads - 1;  t++  ) {
 		   	ka[t].show_routine = this;
 			ka[t].lt_cl = koord( lt_x, menu_height );
 			ka[t].wh_cl = koord( wh_x, disp_height - menu_height );
@@ -216,10 +215,10 @@ void karte_ansicht_t::display(bool force_dirty)
 		// and start drawing
 		simthread_barrier_wait( &display_barrier_start );
 
-		// the last we can run ourselves, setting clip_wh to the screen edge instead of wh_x (in case disp_width % MULTI_THREAD != 0)
-		clear_all_poly_clip( MULTI_THREAD-1 );
-		display_set_clip_wh_cl( lt_x, menu_height, disp_width - lt_x, disp_height - menu_height, MULTI_THREAD - 1 );
-		display_region( koord( lt_x - IMG_SIZE / 2, menu_height ), koord( disp_width - lt_x + IMG_SIZE, disp_height - menu_height ), y_min, dpy_height + 4 * 4, false, true, MULTI_THREAD - 1 );
+		// the last we can run ourselves, setting clip_wh to the screen edge instead of wh_x (in case disp_width % num_threads != 0)
+		clear_all_poly_clip( umgebung_t::num_threads - 1 );
+		display_set_clip_wh_cl( lt_x, menu_height, disp_width - lt_x, disp_height - menu_height, umgebung_t::num_threads - 1 );
+		display_region( koord( lt_x - IMG_SIZE / 2, menu_height ), koord( disp_width - lt_x + IMG_SIZE, disp_height - menu_height ), y_min, dpy_height + 4 * 4, false, true, umgebung_t::num_threads - 1 );
 
 		simthread_barrier_wait( &display_barrier_end );
 
@@ -287,7 +286,7 @@ void karte_ansicht_t::display(bool force_dirty)
 				}
 			}
 		}
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		zeiger->display( x + tile_raster_scale_x( zeiger->get_xoff(), IMG_SIZE ), y + tile_raster_scale_y( zeiger->get_yoff(), IMG_SIZE ), 0 );
 #else
 		zeiger->display( x + tile_raster_scale_x( zeiger->get_xoff(), IMG_SIZE ), y + tile_raster_scale_y( zeiger->get_yoff(), IMG_SIZE ) );
@@ -312,7 +311,7 @@ void karte_ansicht_t::display(bool force_dirty)
 }
 
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const sint16 y_max, bool /*force_dirty*/, bool threaded, const sint8 clip_num )
 #else
 void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const sint16 y_max, bool /*force_dirty*/ )
@@ -349,7 +348,7 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 				if(  grund_t* const kb = welt->lookup_kartenboden(pos)  ) {
 					const sint16 yypos = ypos - tile_raster_scale_y( min( kb->get_hoehe(), hmax_ground ) * TILE_HEIGHT_STEP, IMG_SIZE );
 					if(  yypos - IMG_SIZE < lt.y + wh.y  &&  yypos + IMG_SIZE > lt.y  ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 						bool force_show_grid;
 						if(  umgebung_t::hide_under_cursor  &&  koord_distance( pos, cursor_pos ) < umgebung_t::cursor_hide_range  ) {
 								force_show_grid = true;
@@ -376,7 +375,7 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 					}
 					// not on screen? We still might need to plot the border ...
 					else if(  umgebung_t::draw_earth_border  &&  (pos.x-welt->get_size().x+1 == 0  ||  pos.y-welt->get_size().y+1 == 0)  ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 						kb->display_border( xpos, yypos, IMG_SIZE, clip_num );
 #else
 						kb->display_border( xpos, yypos, IMG_SIZE );
@@ -388,7 +387,7 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 					outside_visible = true;
 					if(  umgebung_t::draw_outside_tile  ) {
 						const sint16 yypos = ypos - tile_raster_scale_y( welt->get_grundwasser() * TILE_HEIGHT_STEP, IMG_SIZE );
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 						display_normal( grund_besch_t::ausserhalb->get_bild(0), xpos, yypos, 0, true, false, clip_num );
 #else
 						display_normal( grund_besch_t::ausserhalb->get_bild(0), xpos, yypos, 0, true, false );
@@ -446,7 +445,7 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 						const koord pos(i,j);
 						if(  umgebung_t::hide_under_cursor  &&  needs_hiding  ) {
 							// If the corresponding setting is on, then hide trees and buildings under mouse cursor
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 							if(  threaded  ) {
 								pthread_mutex_lock( &hide_mutex  );
 								if(  threads_req_pause  ) {
@@ -464,7 +463,7 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 								if(  koord_distance( pos, cursor_pos ) < umgebung_t::cursor_hide_range  ) {
 									// wait until all threads are paused
 									threads_req_pause = true;
-									while(  num_threads_paused < MULTI_THREAD - 1  ) {
+									while(  num_threads_paused < umgebung_t::num_threads - 1  ) {
 										pthread_cond_wait( &waiting_cond, &hide_mutex );
 									}
 
@@ -498,7 +497,7 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 									umgebung_t::hide_trees = true;
 									umgebung_t::hide_buildings = umgebung_t::ALL_HIDDEN_BUILDING;
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 									plan->display_dinge( xpos, yypos, IMG_SIZE, true, hmin, hmax, clip_num );
 #else
 									plan->display_dinge( xpos, yypos, IMG_SIZE, true, hmin, hmax );
@@ -508,19 +507,19 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 									umgebung_t::hide_buildings = saved_hide_buildings;
 								}
 								else {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 									plan->display_dinge( xpos, yypos, IMG_SIZE, true, hmin, hmax, clip_num );
 #else
 									plan->display_dinge( xpos, yypos, IMG_SIZE, true, hmin, hmax );
 #endif
 								}
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 							}
 #endif
 						}
 						else {
 							// hiding turned off, draw multithreaded
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 							plan->display_dinge( xpos, yypos, IMG_SIZE, true, hmin, hmax, clip_num );
 #else
 							plan->display_dinge( xpos, yypos, IMG_SIZE, true, hmin, hmax );
@@ -531,7 +530,7 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 			}
 		}
 	}
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	// show thread as paused when finished
 	if(  threaded  ) {
 		pthread_mutex_lock( &hide_mutex  );

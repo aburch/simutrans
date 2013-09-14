@@ -455,7 +455,7 @@ public:
 	virtual bool is_stuck() { return cnv==NULL  ||  cnv->is_waiting(); }
 
 	// this routine will display a tooltip for lost, on depot order, and stuck vehicles
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	virtual void display_overlay(int xpos, int ypos) const;
 #else
 	virtual void display_after(int xpos, int ypos, bool dirty) const;
@@ -756,7 +756,7 @@ public:
 	// shadow has black color (when flying)
 	virtual PLAYER_COLOR_VAL get_outline_colour() const {return !is_on_ground() ? TRANSPARENT75_FLAG | OUTLINE_FLAG | COL_BLACK : 0;}
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	// this draws the "real" aircrafts (when flying)
 	virtual void display_after(int xpos, int ypos, const sint8 clip_num) const;
 

@@ -33,7 +33,7 @@
 
 #WIN32_CONSOLE = 1 # adds a console for windows debugging
 
-#MULTI_THREAD = 4 # start this many threads for some tasks like updating, map rotation, ...
+#MULTI_THREAD = 1 # Enable multithreading
 
 # Define these as empty strings, if you don't have the respective config program
 #ALLEGRO_CONFIG = allegro-config

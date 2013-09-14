@@ -100,6 +100,7 @@ uint8 umgebung_t::river_types;
 sint32 umgebung_t::autosave;
 uint32 umgebung_t::fps;
 sint16 umgebung_t::max_acceleration;
+uint8 umgebung_t::num_threads;
 bool umgebung_t::show_tooltips;
 uint8 umgebung_t::tooltip_color;
 uint8 umgebung_t::tooltip_textcolor;
@@ -185,6 +186,12 @@ void umgebung_t::init()
 
 	// maximum speedup set to 1000 (effectively no limit)
 	max_acceleration=50;
+
+#ifdef MULTI_THREAD
+	num_threads = 4;
+#else
+	num_threads = 1;
+#endif
 
 	show_tooltips = true;
 	tooltip_color = 4;

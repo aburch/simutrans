@@ -44,7 +44,7 @@
 
 #include "../../tpl/slist_tpl.h"
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 #include "../../utils/simthread.h"
 static pthread_mutex_t weg_calc_bild_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 #endif
@@ -400,7 +400,7 @@ bool weg_t::check_season( const long )
 }
 
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 void weg_t::lock_mutex()
 {
 	pthread_mutex_lock( &weg_calc_bild_mutex );
@@ -416,7 +416,7 @@ void weg_t::unlock_mutex()
 
 void weg_t::calc_bild()
 {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	pthread_mutex_lock( &weg_calc_bild_mutex );
 #endif
 	grund_t *from = welt->lookup(get_pos());
@@ -430,7 +430,7 @@ void weg_t::calc_bild()
 		if(  from==NULL  ) {
 			dbg->error( "weg_t::calc_bild()", "Own way at %s not found!", get_pos().get_str() );
 		}
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		pthread_mutex_unlock( &weg_calc_bild_mutex );
 #endif
 		return;	// otherwise crashing during enlargement
@@ -442,7 +442,7 @@ void weg_t::calc_bild()
 	}
 	else if(  from->ist_bruecke()  &&  from->obj_bei(0)==this  ) {
 		// first way on a bridge (bruecke_t will set the image)
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		pthread_mutex_unlock( &weg_calc_bild_mutex );
 #endif
 		return;
@@ -500,7 +500,7 @@ void weg_t::calc_bild()
 		mark_image_dirty(old_bild, from->get_weg_yoff());
 		mark_image_dirty(bild, from->get_weg_yoff());
 	}
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	pthread_mutex_unlock( &weg_calc_bild_mutex );
 #endif
 }

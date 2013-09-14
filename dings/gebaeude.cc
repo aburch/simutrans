@@ -8,7 +8,7 @@
 #include <string.h>
 #include <ctype.h>
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 #include "../utils/simthread.h"
 static pthread_mutex_t sync_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t add_to_city_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -263,27 +263,27 @@ void gebaeude_t::set_tile( const haus_tile_besch_t *new_tile, bool start_with_co
 	if(sync) {
 		if(new_tile->get_phasen()<=1  &&  !zeige_baugrube) {
 			// need to stop animation
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			pthread_mutex_lock( &sync_mutex );
 #endif
 			welt->sync_eyecandy_remove(this);
 			sync = false;
 			count = 0;
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			pthread_mutex_unlock( &sync_mutex );
 #endif
 		}
 	}
 	else if(new_tile->get_phasen()>1  ||  zeige_baugrube) {
 		// needs now animation
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		pthread_mutex_lock( &sync_mutex );
 #endif
 		count = sim_async_rand(new_tile->get_phasen());
 		anim_time = 0;
 		welt->sync_eyecandy_add(this);
 		sync = true;
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		pthread_mutex_unlock( &sync_mutex );
 #endif
 	}
@@ -882,11 +882,11 @@ void gebaeude_t::laden_abschliessen()
 		if(  tile->get_besch()->is_connected_with_town()  ) {
 			stadt_t *city = (ptr.stadt==NULL) ? welt->suche_naechste_stadt( get_pos().get_2d() ) : ptr.stadt;
 			if(city) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 				pthread_mutex_lock( &add_to_city_mutex );
 #endif
 				city->add_gebaeude_to_stadt(this, true);
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 				pthread_mutex_unlock( &add_to_city_mutex );
 #endif
 			}

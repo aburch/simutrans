@@ -40,7 +40,7 @@ void mark_rect_dirty_wc(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL)
 {
 }
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 void mark_rect_dirty_clip(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, const sint8)
 #else
 void mark_rect_dirty_clip(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL)
@@ -151,7 +151,7 @@ int get_maus_y(void)
 	return sys_event.my;
 }
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 clip_dimension display_get_clip_wh_cl(const sint8)
 #else
 clip_dimension display_get_clip_wh()
@@ -161,7 +161,7 @@ clip_dimension display_get_clip_wh()
 	return clip_rect;
 }
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 void display_set_clip_wh_cl(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, const sint8)
 #else
 void display_set_clip_wh(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL)
@@ -181,7 +181,7 @@ static inline void colorpixcopy(PIXVAL *, const PIXVAL *, const PIXVAL * const)
 {
 }
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 void display_img_aux(const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const int, const int, const sint8)
 #else
 void display_img_aux(const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const int, const int)
@@ -189,7 +189,7 @@ void display_img_aux(const unsigned, KOORD_VAL, KOORD_VAL, const signed char, co
 {
 }
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 void display_color_img_cl(const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const int, const int, const sint8)
 #else
 void display_color_img(const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const int, const int)
@@ -197,7 +197,7 @@ void display_color_img(const unsigned, KOORD_VAL, KOORD_VAL, const signed char, 
 {
 }
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 void display_base_img_cl(const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const int, const int, const sint8)
 #else
 void display_base_img(const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const int, const int)
@@ -205,7 +205,7 @@ void display_base_img(const unsigned, KOORD_VAL, KOORD_VAL, const signed char, c
 {
 }
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 void display_rezoomed_img_blend(const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int, const sint8)
 #else
 void display_rezoomed_img_blend(const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int)
@@ -213,7 +213,7 @@ void display_rezoomed_img_blend(const unsigned, KOORD_VAL, KOORD_VAL, const sign
 {
 }
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 void display_rezoomed_img_alpha(const unsigned, const unsigned, const uint8, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int, const sint8)
 #else
 void display_rezoomed_img_alpha(const unsigned, const unsigned, const uint8, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int)
@@ -221,7 +221,7 @@ void display_rezoomed_img_alpha(const unsigned, const unsigned, const uint8, KOO
 {
 }
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 void display_base_img_blend(const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int, const sint8)
 #else
 void display_base_img_blend(const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int)
@@ -229,7 +229,7 @@ void display_base_img_blend(const unsigned, KOORD_VAL, KOORD_VAL, const signed c
 {
 }
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 void display_base_img_alpha(const unsigned, const unsigned, const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int, const sint8)
 #else
 void display_base_img_alpha(const unsigned, const unsigned, const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int)
@@ -238,7 +238,7 @@ void display_base_img_alpha(const unsigned, const unsigned, const unsigned, KOOR
 }
 
 // Knightly : variables for storing currently used image procedure set and tile raster width
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 display_image_proc display_normal = display_base_img_cl;
 display_image_proc display_color = display_base_img_cl;
 #else
@@ -258,7 +258,7 @@ void display_fillbox_wh(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR
 {
 }
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 void display_fillbox_wh_clip_cl(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, bool, const sint8)
 #else
 void display_fillbox_wh_clip(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, bool)
@@ -270,7 +270,7 @@ void display_vline_wh(KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, bool)
 {
 }
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 void display_vline_wh_clip_cl(KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, bool, const sint8)
 #else
 void display_vline_wh_clip(KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, bool)
@@ -325,7 +325,7 @@ int display_calc_proportional_string_len_width(const char*, size_t)
 	return 0;
 }
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 int display_text_proportional_len_clip_cl(KOORD_VAL, KOORD_VAL, const char*, control_alignment_t, const PLAYER_COLOR_VAL, long, const sint8)
 #else
 int display_text_proportional_len_clip(KOORD_VAL, KOORD_VAL, const char*, control_alignment_t, const PLAYER_COLOR_VAL, long)
@@ -354,7 +354,7 @@ void display_ddd_proportional(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER
 {
 }
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 void display_ddd_proportional_clip_cl(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, PLAYER_COLOR_VAL, const char *, int, const sint8)
 #else
 void display_ddd_proportional_clip(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, PLAYER_COLOR_VAL, const char *, int)
@@ -449,7 +449,7 @@ void display_progress(int, int)
 {
 }
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 void add_poly_clip(int, int, int, int, int, const sint8)
 {
 }

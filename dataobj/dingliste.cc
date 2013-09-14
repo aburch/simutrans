@@ -1119,7 +1119,7 @@ void dingliste_t::dump() const
 /** display all things, faster, but will lead to clipping errors
  *  @author prissi
  */
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 void dingliste_t::display_dinge_quick_and_dirty( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const sint8 clip_num ) const
 #else
 void dingliste_t::display_dinge_quick_and_dirty( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const bool is_global ) const
@@ -1130,7 +1130,7 @@ void dingliste_t::display_dinge_quick_and_dirty( const sint16 xpos, const sint16
 	}
 	else if(capacity==1) {
 		if(start_offset==0) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			obj.one->display( xpos, ypos, clip_num );
 			obj.one->display_after(xpos, ypos, clip_num );
 #else
@@ -1146,7 +1146,7 @@ void dingliste_t::display_dinge_quick_and_dirty( const sint16 xpos, const sint16
 
 	for(  uint8 n = start_offset;  n < top;  n++  ) {
 		// ist dort ein objekt ?
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		obj.some[n]->display( xpos, ypos, clip_num );
 #else
 		obj.some[n]->display( xpos, ypos );
@@ -1154,7 +1154,7 @@ void dingliste_t::display_dinge_quick_and_dirty( const sint16 xpos, const sint16
 	}
 	// foreground (needs to be done backwards!
 	for(  size_t n = top;  n-- != 0;    ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		obj.some[n]->display_after( xpos, ypos, clip_num );
 #else
 		obj.some[n]->display_after( xpos, ypos, is_global );
@@ -1175,7 +1175,7 @@ void dingliste_t::display_dinge_quick_and_dirty( const sint16 xpos, const sint16
  * local_display_dinge_bg()        .. local function to avoid code duplication, returns false if the first non-valid obj is reached
  * @author Dwachs
  */
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 inline bool local_display_dinge_bg(const ding_t *ding, const sint16 xpos, const sint16 ypos, const sint8 clip_num)
 #else
 inline bool local_display_dinge_bg(const ding_t *ding, const sint16 xpos, const sint16 ypos)
@@ -1183,7 +1183,7 @@ inline bool local_display_dinge_bg(const ding_t *ding, const sint16 xpos, const 
 {
 	const bool display_ding = !ding->is_moving();
 	if(  display_ding  ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		ding->display( xpos, ypos, clip_num );
 #else
 		ding->display( xpos, ypos );
@@ -1193,7 +1193,7 @@ inline bool local_display_dinge_bg(const ding_t *ding, const sint16 xpos, const 
 }
 
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 uint8 dingliste_t::display_dinge_bg( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const sint8 clip_num) const
 #else
 uint8 dingliste_t::display_dinge_bg( const sint16 xpos, const sint16 ypos, const uint8 start_offset) const
@@ -1204,7 +1204,7 @@ uint8 dingliste_t::display_dinge_bg( const sint16 xpos, const sint16 ypos, const
 	}
 
 	if(  capacity == 1  ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		return local_display_dinge_bg( obj.one, xpos, ypos, clip_num );
 #else
 		return local_display_dinge_bg( obj.one, xpos, ypos );
@@ -1212,7 +1212,7 @@ uint8 dingliste_t::display_dinge_bg( const sint16 xpos, const sint16 ypos, const
 	}
 
 	for(  uint8 n = start_offset;  n < top;  n++  ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		if(  !local_display_dinge_bg( obj.some[n], xpos, ypos, clip_num )  ) {
 #else
 		if(  !local_display_dinge_bg( obj.some[n], xpos, ypos )  ) {
@@ -1235,7 +1235,7 @@ uint8 dingliste_t::display_dinge_bg( const sint16 xpos, const sint16 ypos, const
  * local_display_dinge_vh()        .. local function to avoid code duplication, returns false if the first non-valid obj is reached
  * @author Dwachs
  */
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 inline bool local_display_dinge_vh( ding_t *ding, const sint16 xpos, const sint16 ypos, const ribi_t::ribi ribi, const bool ontile, const sint8 clip_num)
 #else
 inline bool local_display_dinge_vh(const ding_t *ding, const sint16 xpos, const sint16 ypos, const ribi_t::ribi ribi, const bool ontile)
@@ -1248,7 +1248,7 @@ inline bool local_display_dinge_vh(const ding_t *ding, const sint16 xpos, const 
 		if(  ontile  ||  (veh_ribi & ribi) == ribi  ||  (ribi_t::rueckwaerts(veh_ribi) & ribi )== ribi  ||  ding->get_typ() == ding_t::aircraft  ) {
 			// activate clipping only for our direction masked by the ribi argument
 			// use non-convex clipping (16) only if we are on the currently drawn tile or its n/w neighbours
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			activate_ribi_clip( ((veh_ribi|ribi_t::rueckwaerts(veh_ribi))&ribi) | (ontile  ||  ribi == ribi_t::nord  ||  ribi == ribi_t::west ? 16 : 0), clip_num );
 			ding->display( xpos, ypos, clip_num );
 #else
@@ -1265,7 +1265,7 @@ inline bool local_display_dinge_vh(const ding_t *ding, const sint16 xpos, const 
 }
 
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 uint8 dingliste_t::display_dinge_vh( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const ribi_t::ribi ribi, const bool ontile, const sint8 clip_num ) const
 #else
 uint8 dingliste_t::display_dinge_vh( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const ribi_t::ribi ribi, const bool ontile ) const
@@ -1276,7 +1276,7 @@ uint8 dingliste_t::display_dinge_vh( const sint16 xpos, const sint16 ypos, const
 	}
 
 	if(  capacity <= 1  ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		uint8 i = local_display_dinge_vh( obj.one, xpos, ypos, ribi, ontile, clip_num );
 		activate_ribi_clip( ribi_t::alle, clip_num );
 #else
@@ -1288,7 +1288,7 @@ uint8 dingliste_t::display_dinge_vh( const sint16 xpos, const sint16 ypos, const
 
 	uint8 nr_v = start_offset;
 	for(  uint8 n = start_offset;  n < top;  n++  ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		if(  local_display_dinge_vh( obj.some[n], xpos, ypos, ribi, ontile, clip_num )  ) {
 #else
 		if(  local_display_dinge_vh( obj.some[n], xpos, ypos, ribi, ontile )  ) {
@@ -1299,7 +1299,7 @@ uint8 dingliste_t::display_dinge_vh( const sint16 xpos, const sint16 ypos, const
 			break;
 		}
 	}
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	activate_ribi_clip( ribi_t::alle, clip_num );
 #else
 	activate_ribi_clip();
@@ -1313,7 +1313,7 @@ uint8 dingliste_t::display_dinge_vh( const sint16 xpos, const sint16 ypos, const
  * @param start_offset .. draws also background images of all objects with index>=start_offset
  * @param is_global will be only true for the main display; all miniworld windows should still reset main window
  */
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 void dingliste_t::display_dinge_fg( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const sint8 clip_num ) const
 #else
 void dingliste_t::display_dinge_fg( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const bool is_global ) const
@@ -1327,13 +1327,13 @@ void dingliste_t::display_dinge_fg( const sint16 xpos, const sint16 ypos, const 
 	// now draw start_offset background and all foreground!
 	if(  capacity == 1  ) {
 		if(  start_offset == 0  ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			obj.one->display( xpos, ypos, clip_num );
 #else
 			obj.one->display( xpos, ypos );
 #endif
 		}
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		obj.one->display_after( xpos, ypos, clip_num );
 #else
 		obj.one->display_after( xpos, ypos, is_global );
@@ -1345,7 +1345,7 @@ void dingliste_t::display_dinge_fg( const sint16 xpos, const sint16 ypos, const 
 	}
 
 	for(  uint8 n = start_offset;  n < top;  n++  ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		obj.some[n]->display( xpos, ypos, clip_num );
 #else
 		obj.some[n]->display( xpos, ypos );
@@ -1353,7 +1353,7 @@ void dingliste_t::display_dinge_fg( const sint16 xpos, const sint16 ypos, const 
 	}
 	// foreground (needs to be done backwards!)
 	for(  size_t n = top;  n-- != 0;    ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		obj.some[n]->display_after( xpos, ypos, clip_num );
 #else
 		obj.some[n]->display_after( xpos, ypos, is_global );
@@ -1366,7 +1366,7 @@ void dingliste_t::display_dinge_fg( const sint16 xpos, const sint16 ypos, const 
 }
 
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 void dingliste_t::display_dinge_overlay(const sint16 xpos, const sint16 ypos) const
 {
 	if(  top == 0  ) {

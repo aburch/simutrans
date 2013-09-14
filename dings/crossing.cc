@@ -24,7 +24,7 @@
 
 #include "crossing.h"
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 #include "../utils/simthread.h"
 static pthread_mutex_t crossing_logic_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 #endif
@@ -87,13 +87,13 @@ void crossing_t::state_changed()
  */
 void crossing_t::calc_bild()
 {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	pthread_mutex_lock( &crossing_logic_mutex );
 #endif
 	if(  logic  ) {
 		zustand = logic->get_state();
 	}
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	pthread_mutex_unlock( &crossing_logic_mutex );
 #endif
 	const bool snow_image = get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate;
@@ -188,12 +188,12 @@ void crossing_t::laden_abschliessen()
 		w1->count_sign();
 		w2->count_sign();
 		ns = ribi_t::ist_gerade_ns(w2->get_ribi_unmasked());
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		pthread_mutex_lock( &crossing_logic_mutex );
 #endif
 		crossing_logic_t::add( welt, this, static_cast<crossing_logic_t::crossing_state_t>(zustand) );
 		logic->recalc_state();
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		pthread_mutex_unlock( &crossing_logic_mutex );
 #endif
 	}

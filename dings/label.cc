@@ -25,7 +25,7 @@
 
 #include "label.h"
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 #include "../utils/simthread.h"
 static pthread_mutex_t add_label_mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
@@ -69,7 +69,7 @@ label_t::~label_t()
 
 void label_t::laden_abschliessen()
 {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	pthread_mutex_lock( &add_label_mutex );
 #endif
 	// only now coordinates are known
@@ -80,7 +80,7 @@ void label_t::laden_abschliessen()
 	if (!gr->get_flag(grund_t::has_text)) {
 		gr->set_text("");
 	}
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	pthread_mutex_unlock( &add_label_mutex );
 #endif
 }

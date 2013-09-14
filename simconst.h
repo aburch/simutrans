@@ -51,6 +51,9 @@
 // allow minspeed and private way signs on waterways (imho pointless)
 //#define ENABLE_WATERWAY_SIGNS
 
+// Maximum number of threads
+#define MAX_THREADS (12)
+
 
 /*********************** Useful things for debugging ... ********************/
 

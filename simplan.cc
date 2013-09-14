@@ -405,7 +405,7 @@ void planquadrat_t::angehoben(karte_t *welt)
 }
 
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 void planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, bool is_global, const sint8 hmin, const sint8 hmax, const sint8 clip_num) const
 #else
 void planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, bool is_global, const sint8 hmin, const sint8 hmax) const
@@ -426,7 +426,7 @@ void planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const si
 			// not too low?
 			if(  h >= hmin  ) {
 				const sint16 yypos = ypos - tile_raster_scale_y( (h - h0) * TILE_HEIGHT_STEP, raster_tile_width );
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 				gr->display_boden( xpos, yypos, raster_tile_width, clip_num );
 				gr->display_dinge_all( xpos, yypos, raster_tile_width, is_global, clip_num );
 #else
@@ -438,7 +438,7 @@ void planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const si
 	}
 	//const bool kartenboden_dirty = gr->get_flag(grund_t::dirty);
 	if(  gr0->get_flag( grund_t::draw_as_ding )  ||  !gr0->is_karten_boden_visible()  ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		gr0->display_boden( xpos, ypos, raster_tile_width, clip_num );
 #else
 		gr0->display_boden( xpos, ypos, raster_tile_width );
@@ -447,7 +447,7 @@ void planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const si
 
 	if(  umgebung_t::simple_drawing  ) {
 		// ignore trees going though bridges
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		gr0->display_dinge_all_quick_and_dirty( xpos, ypos, raster_tile_width, is_global, clip_num );
 #else
 		gr0->display_dinge_all_quick_and_dirty( xpos, ypos, raster_tile_width, is_global );
@@ -457,7 +457,7 @@ void planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const si
 		// clip everything at the next tile above
 		clip_dimension p_cr;
 		if(  i < ground_size  ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			p_cr = display_get_clip_wh_cl( clip_num );
 #else
 			p_cr = display_get_clip_wh();
@@ -473,7 +473,7 @@ void planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const si
 					// something on top: clip horizontally to prevent trees etc shining trough bridges
 					const sint16 yh = ypos - tile_raster_scale_y( (h - h0) * TILE_HEIGHT_STEP, raster_tile_width ) + ((3 * raster_tile_width) >> 2);
 					if(  yh >= p_cr.y  ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 						display_set_clip_wh_cl(p_cr.x, yh, p_cr.w, p_cr.h + p_cr.y - yh, clip_num  );
 #else
 						display_set_clip_wh( p_cr.x, yh, p_cr.w, p_cr.h + p_cr.y - yh );
@@ -482,7 +482,7 @@ void planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const si
 					break;
 				}
 			}
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			gr0->display_dinge_all( xpos, ypos, raster_tile_width, is_global, clip_num );
 			display_set_clip_wh_cl( p_cr.x, p_cr.y, p_cr.w, p_cr.h, clip_num ); // restore clipping
 #else
@@ -491,7 +491,7 @@ void planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const si
 #endif
 		}
 		else {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			gr0->display_dinge_all( xpos, ypos, raster_tile_width, is_global, clip_num );
 #else
 			gr0->display_dinge_all( xpos, ypos, raster_tile_width, is_global );
@@ -509,7 +509,7 @@ void planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const si
 		// not too low?
 		if(  h >= hmin  ) {
 			const sint16 yypos = ypos - tile_raster_scale_y( (h - h0) * TILE_HEIGHT_STEP, raster_tile_width );
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			gr->display_boden( xpos, yypos, raster_tile_width, clip_num );
 			gr->display_dinge_all( xpos, yypos, raster_tile_width, is_global, clip_num );
 #else

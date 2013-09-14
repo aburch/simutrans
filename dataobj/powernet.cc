@@ -8,7 +8,7 @@
 #include "../simdebug.h"
 #include "powernet.h"
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 #include "../utils/simthread.h"
 static pthread_mutex_t netlist_mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
@@ -40,11 +40,11 @@ void powernet_t::step_all(long delta_t)
 
 powernet_t::powernet_t()
 {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	pthread_mutex_lock( &netlist_mutex );
 #endif
 	powernet_list.insert( this );
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	pthread_mutex_unlock( &netlist_mutex );
 #endif
 
@@ -57,11 +57,11 @@ powernet_t::powernet_t()
 
 powernet_t::~powernet_t()
 {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	pthread_mutex_lock( &netlist_mutex );
 #endif
 	powernet_list.remove( this );
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	pthread_mutex_unlock( &netlist_mutex );
 #endif
 }

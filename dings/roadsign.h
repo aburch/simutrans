@@ -124,7 +124,7 @@ public:
 	* (needed to get the right offset even on hills)
 	* @author V. Meyer
 	*/
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	void display_after(int xpos, int ypos, const sint8 clip_num) const;
 #else
 	void display_after(int xpos, int ypos, bool dirty) const;

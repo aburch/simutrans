@@ -1712,7 +1712,7 @@ vehikel_t::~vehikel_t()
 }
 
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 void vehikel_t::display_overlay(int xpos, int ypos) const
 {
 	if(  cnv  &&  ist_erstes  ) {
@@ -4166,7 +4166,7 @@ grund_t* aircraft_t::hop()
 
 
 // this routine will display the aircraft (if in flight)
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 void aircraft_t::display_after(int xpos_org, int ypos_org, const sint8 clip_num) const
 #else
 void aircraft_t::display_after(int xpos_org, int ypos_org, bool is_global) const
@@ -4195,14 +4195,14 @@ void aircraft_t::display_after(int xpos_org, int ypos_org, bool is_global) const
 
 		// will be dirty
 		// the aircraft!!!
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		display_color( bild, xpos, ypos, get_player_nr(), true, true/*get_flag(ding_t::dirty)*/, clip_num );
 #else
 		display_color( bild, xpos, ypos, get_player_nr(), true, true/*get_flag(ding_t::dirty)*/ );
 		vehikel_t::display_after( xpos_org, ypos_org - tile_raster_scale_y( current_flughohe - hoff - 2, raster_width ), is_global );
 #endif
 	}
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 }
 void aircraft_t::display_overlay(int xpos_org, int ypos_org) const
 {
@@ -4226,7 +4226,7 @@ void aircraft_t::display_overlay(int xpos_org, int ypos_org) const
 #endif
 	else if(  is_on_ground()  ) {
 		// show loading tooltips on ground
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		vehikel_t::display_overlay( xpos_org, ypos_org );
 #else
 		vehikel_t::display_after( xpos_org, ypos_org, is_global );

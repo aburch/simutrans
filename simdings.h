@@ -321,7 +321,7 @@ public:
 	 * Draw backgroung image of object
 	 * (everything that could be potentially behind vehicles)
 	 */
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	void display(int xpos, int ypos, const sint8 clip_num) const;
 #else
 	void display(int xpos, int ypos) const;
@@ -331,13 +331,13 @@ public:
 	 * Draw foreground image
 	 * (everything that is in front of vehicles)
 	 */
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	virtual void display_after(int xpos, int ypos, const sint8 clip_num) const;
 #else
 	virtual void display_after(int xpos, int ypos, bool is_global) const;
 #endif
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	/**
 	 * Draw overlays
 	 * (convoi tooltips)

@@ -46,7 +46,7 @@ public:
 	 * @param dirty If set to true, will mark the whole rectangle as dirty.
 	 * @param threaded If set to true, indicates there are more threads drawing on screen, and this routine will use mutexes when needed.
 	 */
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	void display_region( koord lt, koord wh, sint16 y_min, const sint16 y_max, bool force_dirty, bool threaded, const sint8 clip_num );
 #else
 	void display_region( koord lt, koord wh, sint16 y_min, const sint16 y_max, bool force_dirty );

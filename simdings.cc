@@ -203,7 +203,7 @@ void ding_t::rdwr(loadsave_t *file)
  * draw the object
  * the dirty-flag is reset from dingliste_t::display_dinge_fg, or dingliste_t::display_overlay when multithreaded
  */
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 void ding_t::display(int xpos, int ypos, const sint8 clip_num) const
 #else
 void ding_t::display(int xpos, int ypos) const
@@ -227,14 +227,14 @@ void ding_t::display(int xpos, int ypos) const
 
 			if(  besitzer_n != PLAYER_UNOWNED  ) {
 				if(  ding_t::show_owner  ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 					display_blend( bild, xpos, ypos, besitzer_n, (welt->get_spieler(besitzer_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty, clip_num );
 #else
 					display_blend( bild, xpos, ypos, besitzer_n, (welt->get_spieler(besitzer_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty );
 #endif
 				}
 				else {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 					display_color( bild, xpos, ypos, besitzer_n, true, is_dirty, clip_num );
 #else
 					display_color( bild, xpos, ypos, besitzer_n, true, is_dirty );
@@ -242,7 +242,7 @@ void ding_t::display(int xpos, int ypos) const
 				}
 			}
 			else {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 				display_normal( bild, xpos, ypos, 0, true, is_dirty, clip_num );
 #else
 				display_normal( bild, xpos, ypos, 0, true, is_dirty );
@@ -258,7 +258,7 @@ void ding_t::display(int xpos, int ypos) const
 			const PLAYER_COLOR_VAL transparent = get_outline_colour();
 			if(  TRANSPARENT_FLAGS&transparent  ) {
 				// only transparent outline
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 				display_blend( get_outline_bild(), xpos, start_ypos, besitzer_n, transparent, 0, is_dirty, clip_num );
 #else
 				display_blend( get_outline_bild(), xpos, start_ypos, besitzer_n, transparent, 0, is_dirty );
@@ -266,7 +266,7 @@ void ding_t::display(int xpos, int ypos) const
 			}
 			else if(  ding_t::get_flag( highlight )  ) {
 				// highlight this tile
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 				display_blend( get_bild(), xpos, start_ypos, besitzer_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty, clip_num );
 #else
 				display_blend( get_bild(), xpos, start_ypos, besitzer_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty );
@@ -275,7 +275,7 @@ void ding_t::display(int xpos, int ypos) const
 		}
 		else if(  ding_t::get_flag( highlight )  ) {
 			// highlight this tile
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			display_blend( get_bild(), xpos, start_ypos, besitzer_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty, clip_num );
 #else
 			display_blend( get_bild(), xpos, start_ypos, besitzer_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty );
@@ -298,7 +298,7 @@ void ding_t::rotate90()
 }
 
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 void ding_t::display_after(int xpos, int ypos, const sint8 clip_num) const
 #else
 void ding_t::display_after(int xpos, int ypos, bool) const
@@ -314,7 +314,7 @@ void ding_t::display_after(int xpos, int ypos, bool) const
 
 		if(  besitzer_n != PLAYER_UNOWNED  ) {
 			if(  ding_t::show_owner  ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 				display_blend( bild, xpos, ypos, besitzer_n, (welt->get_spieler(besitzer_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty, clip_num );
 #else
 				display_blend( bild, xpos, ypos, besitzer_n, (welt->get_spieler(besitzer_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty );
@@ -322,14 +322,14 @@ void ding_t::display_after(int xpos, int ypos, bool) const
 			}
 			else if(  ding_t::get_flag( highlight )  ) {
 				// highlight this tile
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 				display_blend( bild, xpos, ypos, besitzer_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty, clip_num );
 #else
 				display_blend( bild, xpos, ypos, besitzer_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty );
 #endif
 			}
 			else {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 				display_color( bild, xpos, ypos, besitzer_n, true, is_dirty, clip_num );
 #else
 				display_color( bild, xpos, ypos, besitzer_n, true, is_dirty );
@@ -338,14 +338,14 @@ void ding_t::display_after(int xpos, int ypos, bool) const
 		}
 		else if(  ding_t::get_flag( highlight )  ) {
 			// highlight this tile
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			display_blend( bild, xpos, ypos, besitzer_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty, clip_num );
 #else
 			display_blend( bild, xpos, ypos, besitzer_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty );
 #endif
 		}
 		else {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			display_normal( bild, xpos, ypos, 0, true, is_dirty, clip_num );
 #else
 			display_normal( bild, xpos, ypos, 0, true, is_dirty );

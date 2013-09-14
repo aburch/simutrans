@@ -100,7 +100,7 @@ public:
 	/** display all things, faster, but will lead to clipping errors
 	 *  @author prissi
 	 */
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	void display_dinge_quick_and_dirty( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const sint8 clip_num ) const;
 #else
 	void display_dinge_quick_and_dirty( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const bool is_global ) const;
@@ -109,7 +109,7 @@ public:
 	/* display all things, called by the routines in grund_t
 	*  @author prissi,dwachs
 	*/
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	uint8 display_dinge_bg(const sint16 xpos, const sint16 ypos, const uint8 start_offset, const sint8 clip_num) const;
 	uint8 display_dinge_vh(const sint16 xpos, const sint16 ypos, const uint8 start_offset, const ribi_t::ribi ribi, const bool ontile, const sint8 clip_num ) const;
 	void display_dinge_fg(const sint16 xpos, const sint16 ypos, const uint8 start_offset, const sint8 clip_num ) const;

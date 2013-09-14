@@ -118,7 +118,7 @@ static std::string last_network_game;
 
 stringhashtable_tpl<karte_t::missing_level_t>missing_pak_names;
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 #include "utils/simthread.h"
 #include <semaphore.h>
 
@@ -143,7 +143,7 @@ typedef struct{
 
 
 // now the paramters
-static world_thread_param_t world_thread_param[MULTI_THREAD];
+static world_thread_param_t world_thread_param[MAX_THREADS];
 
 void *karte_t::world_xy_loop_thread(void *ptr)
 {
@@ -189,65 +189,64 @@ void karte_t::world_xy_loop(xy_loop_func function, uint8 flags)
 	const bool use_grids = (flags & GRIDS_FLAG) == GRIDS_FLAG;
 	uint16 max_x = use_grids?(cached_grid_size.x+1):cached_grid_size.x;
 	uint16 max_y = use_grids?(cached_grid_size.y+1):cached_grid_size.y;
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	set_random_mode( INTERACTIVE_RANDOM ); // do not allow simrand() here!
 
 	const bool sync_x_steps = (flags & SYNCX_FLAG) == SYNCX_FLAG;
 
 	// semaphores to synchronize progress in x direction
-	sem_t sems[MULTI_THREAD-1];
+	sem_t sems[MAX_THREADS-1];
 
-	for(  int t = 0;  t < MULTI_THREAD;  t++  ) {
-		if(  sync_x_steps  &&  t < MULTI_THREAD - 1  ) {
+	for(  int t = 0;  t < umgebung_t::num_threads;  t++  ) {
+		if(  sync_x_steps  &&  t < umgebung_t::num_threads - 1  ) {
 			sem_init(&sems[t], 0, 0);
 		}
 
    		world_thread_param[t].welt = this;
    		world_thread_param[t].thread_num = t;
-		world_thread_param[t].x_step = min(64, max_x/MULTI_THREAD);
+		world_thread_param[t].x_step = min( 64, max_x / umgebung_t::num_threads );
 		world_thread_param[t].x_world_max = max_x;
-		world_thread_param[t].y_min = (t*max_y)/MULTI_THREAD;
-		world_thread_param[t].y_max = ((t+1)*max_y)/MULTI_THREAD;
+		world_thread_param[t].y_min = (t * max_y) / umgebung_t::num_threads;
+		world_thread_param[t].y_max = ((t + 1) * max_y) / umgebung_t::num_threads;
 		world_thread_param[t].function = function;
 
 		world_thread_param[t].wait_for_previous = sync_x_steps  &&  t > 0 ? &sems[t-1] : NULL;
-		world_thread_param[t].signal_to_next    = sync_x_steps  &&  t < MULTI_THREAD - 1 ? &sems[t] : NULL;
+		world_thread_param[t].signal_to_next    = sync_x_steps  &&  t < umgebung_t::num_threads - 1 ? &sems[t] : NULL;
 
-		world_thread_param[t].keep_running = t < MULTI_THREAD - 1;
+		world_thread_param[t].keep_running = t < umgebung_t::num_threads - 1;
 	}
 
-	if(!spawned_world_threads) {
+	if(  !spawned_world_threads  ) {
 		// we can do the parallel display using posix threads ...
-		pthread_t thread[MULTI_THREAD];
+		pthread_t thread[MAX_THREADS];
 		/* Initialize and set thread detached attribute */
 		pthread_attr_t attr;
-		pthread_attr_init(&attr);
-		pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+		pthread_attr_init( &attr );
+		pthread_attr_setdetachstate( &attr, PTHREAD_CREATE_DETACHED );
 		// init barrier
-		simthread_barrier_init( &world_barrier_start, NULL, MULTI_THREAD );
-		simthread_barrier_init( &world_barrier_end, NULL, MULTI_THREAD );
+		simthread_barrier_init( &world_barrier_start, NULL, umgebung_t::num_threads );
+		simthread_barrier_init( &world_barrier_end, NULL, umgebung_t::num_threads );
 
-		for(  int t=0;  t<MULTI_THREAD-1;  t++  ) {
-			if(  pthread_create(&thread[t], &attr, world_xy_loop_thread, (void *)&world_thread_param[t])  ) {
+		for(  int t = 0;  t < umgebung_t::num_threads - 1;  t++  ) {
+			if(  pthread_create( &thread[t], &attr, world_xy_loop_thread, (void *)&world_thread_param[t] )  ) {
 				dbg->fatal( "karte_t::world_xy_loop()", "cannot multithread, error at thread #%i", t+1 );
 				return;
 			}
 		}
-
 		spawned_world_threads = true;
-		pthread_attr_destroy(&attr);
+		pthread_attr_destroy( &attr );
 	}
 
 	// and start processing
 	simthread_barrier_wait( &world_barrier_start );
 
 	// the last we can run ourselves
-	world_xy_loop_thread(&world_thread_param[MULTI_THREAD-1]);
+	world_xy_loop_thread(&world_thread_param[umgebung_t::num_threads-1]);
 
 	simthread_barrier_wait( &world_barrier_end );
 
 	// return from thread
-	for(  int t = 0;  t < MULTI_THREAD - 1;  t++  ) {
+	for(  int t = 0;  t < umgebung_t::num_threads - 1;  t++  ) {
 		if(  sync_x_steps  ) {
 			sem_destroy(&sems[t]);
 		}

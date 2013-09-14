@@ -236,7 +236,7 @@ public:
 	// will toggle the seasons ...
 	void check_season(const long month);
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	void display_dinge(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, const bool is_global, const sint8 hmin, const sint8 hmax, const sint8 clip_num) const;
 #else
 	void display_dinge(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, const bool is_global, const sint8 hmin, const sint8 hmax) const;

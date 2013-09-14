@@ -556,11 +556,14 @@ frames_per_second = 25
 # usually you do not need to set this manually.
 simple_drawing_tile_size = 4
 
-# you can force fast redraw for fast froward by this (default off)
+# you can force fast redraw for fast forward by this (default off)
 simple_drawing_fast_forward = 1
 
 # How much faster should the game proceed with fast forward (limited by your computer and size of the map)
 fast_forward = 50
+
+# How many threads to use (default 4)
+#threads = 4
 
 ###################################network stuff##############################
 #

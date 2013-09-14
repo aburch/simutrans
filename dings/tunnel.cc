@@ -24,7 +24,7 @@
 
 #include "tunnel.h"
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 #include "../utils/simthread.h"
 static pthread_mutex_t tunnel_calc_bild_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 #endif
@@ -58,7 +58,7 @@ waytype_t tunnel_t::get_waytype() const
 
 void tunnel_t::calc_bild()
 {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	pthread_mutex_lock( &tunnel_calc_bild_mutex );
 #endif
 	const grund_t *gr = welt->lookup(get_pos());
@@ -98,7 +98,7 @@ void tunnel_t::calc_bild()
 		set_bild( IMG_LEER );
 		set_after_bild( IMG_LEER );
 	}
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	pthread_mutex_unlock( &tunnel_calc_bild_mutex );
 #endif
 }

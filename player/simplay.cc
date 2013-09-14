@@ -57,7 +57,7 @@
 
 karte_t *spieler_t::welt = NULL;
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 #include "../utils/simthread.h"
 static pthread_mutex_t laden_abschl_mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
@@ -117,11 +117,11 @@ void spieler_t::book_construction_costs(spieler_t * const sp, const sint64 amoun
 sint32 spieler_t::add_maintenance(sint32 change, waytype_t const wt)
 {
 	int tmp = 0;
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		pthread_mutex_lock( &laden_abschl_mutex  );
 #endif
 	tmp = finance->book_maintenance(change, wt);
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		pthread_mutex_unlock( &laden_abschl_mutex  );
 #endif
 	return tmp;

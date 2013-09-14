@@ -324,6 +324,9 @@ public:
 	/// maximum acceleration with fast forward
 	static sint16 max_acceleration;
 
+	/// number of threads to use (if MULTI_THREAD defined)
+	static uint8 num_threads;
+
 	/// false to quit the programs
 	static bool quit_simutrans;
 

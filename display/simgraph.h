@@ -81,7 +81,7 @@ display_set_clip_wh(p_cr.x, p_cr.y, p_cr.w, p_cr.h); \
  * Helper functions for clipping along tile borders.
  * @author Dwachs
  */
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 void add_poly_clip(int x0_,int y0_, int x1, int y1, int ribi, const sint8 clip_num);
 void clear_all_poly_clip(const sint8 clip_num);
 void activate_ribi_clip(int ribi, const sint8 clip_num);
@@ -149,7 +149,7 @@ int get_maus_y(void);
 
 
 void mark_rect_dirty_wc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2); // clips to screen only
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 void mark_rect_dirty_clip(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2, const sint8 clip_num); // clips to clip_rect
 #else
 void mark_rect_dirty_clip(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2); // clips to clip_rect
@@ -184,7 +184,7 @@ void display_scroll_band( const KOORD_VAL start_y, const KOORD_VAL x_offset, con
 void display_set_player_color_scheme(const int player, const COLOR_VAL col1, const COLOR_VAL col2 );
 
 // display image with day and night change
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty, const sint8 clip_num);
 #define display_img( n, x, y, d, c ) display_img_aux( (n), (x), (y), 0, true, (d), (c) )
 #else
@@ -196,7 +196,7 @@ void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed 
  * draws the images with alpha, either blended or as outline
  * @author kierongreen
  */
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 void display_rezoomed_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty, const sint8 clip_num);
 #define display_img_blend( n, x, y, c, dn, d ) display_rezoomed_img_blend( (n), (x), (y), 0, (c), (dn), (d), 0 )
 #else
@@ -208,7 +208,7 @@ void display_rezoomed_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, co
 #define ALPHA_GREEN 0x2
 #define ALPHA_BLUE 0x4
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 void display_rezoomed_img_alpha(const unsigned n, const unsigned alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty, const sint8 clip_num);
 #define display_img_alpha( n, a, f, x, y, c, dn, d ) display_rezoomed_img_alpha( (n), (a), (f), (x), (y), 0, (c), (dn), (d), 0 )
 #else
@@ -217,7 +217,7 @@ void display_rezoomed_img_alpha(const unsigned n, const unsigned alpha_n, const 
 #endif
 
 // display image with color (if there) and optional day and night change
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 void display_color_img_cl(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty, const sint8 clip_num);
 #define display_color_img( n, x, y, p, dn, d ) display_color_img_cl( (n), (x), (y), (p), (dn), (d), 0 )
 #else
@@ -225,7 +225,7 @@ void display_color_img(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signe
 #endif
 
 // display unzoomed image
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 void display_base_img_cl(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty, const sint8 clip_num);
 #define display_base_img( n, x, y, p, dn, d ) display_base_img_cl( (n), (x), (y), (p), (dn), (d), 0 )
 #else
@@ -233,7 +233,7 @@ void display_base_img(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed
 #endif
 
 // Knightly : display unzoomed image with alpha, either blended or as outline
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 void display_base_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty, const sint8 clip_num);
 void display_base_img_alpha(const unsigned n, const unsigned alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty, const sint8 clip_num);
 #else
@@ -242,7 +242,7 @@ void display_base_img_alpha(const unsigned n, const unsigned alpha_n, const unsi
 #endif
 
 // Knightly : pointer to image display procedures
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 typedef void (*display_image_proc)(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty, const sint8 clip_num);
 typedef void (*display_blend_proc)(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty, const sint8 clip_num);
 typedef void (*display_alpha_proc)(const unsigned n, const unsigned alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty, const sint8 clip_num);
@@ -263,7 +263,7 @@ extern signed short current_tile_raster_width;
 #define get_current_tile_raster_width() (current_tile_raster_width)
 
 // Knightly : for switching between image procedure sets and setting current tile raster width
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 #define display_set_image_proc( is_global ) \
 { \
 	if(  is_global  ) { \
@@ -305,7 +305,7 @@ extern signed short current_tile_raster_width;
 void display_blend_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, int color, int percent_blend );
 
 void display_fillbox_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, bool dirty);
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 void display_fillbox_wh_clip_cl(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, bool dirty, const sint8 clip_num);
 #define display_fillbox_wh_clip( x, y, w, h, c, d ) display_fillbox_wh_clip_cl( (x), (y), (w), (h), (c), (d), 0 )
 #else
@@ -313,7 +313,7 @@ void display_fillbox_wh_clip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL 
 #endif
 
 void display_vline_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, PLAYER_COLOR_VAL color, bool dirty);
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 void display_vline_wh_clip_cl(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, PLAYER_COLOR_VAL c, bool dirty, const sint8 clip_num);
 #define display_vline_wh_clip( x, y, h, c, d ) display_vline_wh_clip_cl( (x), (y), (h), (c), (d), 0 )
 #else
@@ -391,7 +391,7 @@ int display_calc_proportional_string_len_width(const char* text, size_t len);
  * @date  15.06.2003, 2.1.2005
  */
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 int display_text_proportional_len_clip_cl(KOORD_VAL x, KOORD_VAL y, const char* txt, control_alignment_t flags, const PLAYER_COLOR_VAL color_index, long len, const sint8 clip_num);
 /* macro are for compatibility */
 #define display_proportional(     x,  y, txt, align, color, dirty) display_text_proportional_len_clip_cl(x, y, txt, align | (dirty ? DT_DIRTY : 0),           color,  -1, 0)
@@ -405,7 +405,7 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
 #endif
 
 void display_ddd_proportional(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, KOORD_VAL hgt,PLAYER_COLOR_VAL ddd_farbe, PLAYER_COLOR_VAL text_farbe,const char *text, int dirty);
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 void display_ddd_proportional_clip_cl(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, KOORD_VAL hgt,PLAYER_COLOR_VAL ddd_farbe, PLAYER_COLOR_VAL text_farbe, const char *text, int dirty, const sint8 clip_num);
 #define display_ddd_proportional_clip( x, y, w, h, ddd, t, txt, d ) display_ddd_proportional_clip_cl( (x), (y), (w), (h), (ddd), (t), (txt), (d), 0 )
 #else
@@ -420,7 +420,7 @@ void display_circle( KOORD_VAL x0, KOORD_VAL  y0, int radius, const PLAYER_COLOR
 void display_filled_circle( KOORD_VAL x0, KOORD_VAL  y0, int radius, const PLAYER_COLOR_VAL color );
 void draw_bezier(KOORD_VAL Ax, KOORD_VAL Ay, KOORD_VAL Bx, KOORD_VAL By, KOORD_VAL ADx, KOORD_VAL ADy, KOORD_VAL BDx, KOORD_VAL BDy, const PLAYER_COLOR_VAL colore, KOORD_VAL draw, KOORD_VAL dontDraw);
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 void display_set_clip_wh_cl(KOORD_VAL x, KOORD_VAL y, KOORD_VAL w, KOORD_VAL h, const sint8 clip_num);
 #define display_set_clip_wh( x, y, w, h ) display_set_clip_wh_cl( (x), (y), (w), (h), 0 )
 clip_dimension display_get_clip_wh_cl(const sint8 clip_num);
