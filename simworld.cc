@@ -3174,7 +3174,7 @@ bool karte_t::rem_fab(fabrik_t *fab)
 void karte_t::add_ausflugsziel(gebaeude_t *gb)
 {
 	assert(gb != NULL);
-	ausflugsziele.append( gb, gb->get_tile()->get_besch()->get_level() );
+	ausflugsziele.append(gb, gb->get_adjusted_visitor_demand());
 	add_building_to_world_list(gb);
 
 	// Knightly : add links between this attraction and all cities
@@ -3188,7 +3188,7 @@ void karte_t::add_ausflugsziel(gebaeude_t *gb)
 void karte_t::remove_ausflugsziel(gebaeude_t *gb)
 {
 	assert(gb != NULL);
-	ausflugsziele.remove( gb );
+	ausflugsziele.remove(gb);
 	remove_building_from_world_list(gb);
 
 	// Knightly : remove links between this attraction and all cities
@@ -4367,7 +4367,7 @@ void karte_t::step()
 
 void karte_t::step_passengers_and_mail(long delta_t)
 {
-	if(delta_t > 20000) 
+	if(delta_t > ticks_per_world_month) 
 	{
 		delta_t = 1;
 	}
@@ -4388,6 +4388,9 @@ void karte_t::step_passengers_and_mail(long delta_t)
 	const uint32 building_count = wtyp == warenbauer_t::passagiere ? passenger_origins.get_count() : mail_origins_and_targets.get_count();
 
 	const uint32 step_interval = 10989909 / (building_count * settings.get_passenger_factor() + 1);
+
+	const uint32 TEST_passenger_origins_weight = passenger_origins.get_sum_weight();
+	const uint32 TEST_mail_weight = mail_origins_and_targets.get_sum_weight();
 
 	// Add 1 because the simuconf.tab setting is for maximum *alternative* destinations, whereas we need maximum *actual* desintations 
 	const uint16 max_destinations = settings.get_max_alternative_destinations() + 1;
@@ -4426,7 +4429,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 		const int num_pax =
 		(wtyp == warenbauer_t::passagiere) ?
 			(gb->get_tile()->get_besch()->get_level()) :
-			(gb->get_tile()->get_besch()->get_post_level());
+			(gb->get_tile()->get_besch()->get_post_level()); // TODO: Replace this with new system.
 
 		if(city)
 		{
@@ -8799,7 +8802,10 @@ void karte_t::add_building_to_world_list(gebaeude_t *gb)
 	commuter_targets.append(gb, gb->get_adjusted_jobs());
 	visitor_targets.append(gb, gb->get_adjusted_visitor_demand());
 	mail_origins_and_targets.append(gb, gb->get_adjusted_mail_demand());
-
+	const uint32 TEST_mail_demand = gb->get_adjusted_mail_demand();
+	const uint32 TEST_base_mail_demand = gb->get_mail_demand();
+	const uint32 TEST_mail_weight = mail_origins_and_targets.get_sum_weight();
+	const char* TEST_name = gb->get_name();
 }
 
 void karte_t::remove_building_from_world_list(gebaeude_t *gb)
