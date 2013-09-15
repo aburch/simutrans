@@ -920,8 +920,6 @@ private:
 	 * purposes.
 	 */
 	uint32 next_step;
-	enum step_type {step_passenger, step_mail};
-	uint32 step_count[2];
 
 public:
 

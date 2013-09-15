@@ -1987,8 +1987,6 @@ karte_t::karte_t() :
 	network_frame_count = 0;
 	sync_steps = 0;
 	next_step = 0;
-	step_count[0] = 0;
-	step_count[1] = 0;
 
 	for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
 		werkzeug[i] = werkzeug_t::general_tool[WKZ_ABFRAGE];
@@ -4400,14 +4398,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 		// Substantive passenger generation code starts here
 
 		const city_cost history_type = (wtyp == warenbauer_t::passagiere) ? HIST_PAS_TRANSPORTED : HIST_MAIL_TRANSPORTED;
-		const step_type st = (wtyp == warenbauer_t::passagiere) ? step_passenger : step_mail;
 		const uint8 max_packet_size = simrand(settings.get_passenger_routing_packet_size(), "void karte_t::step_passengers_and_mail(long delta_t) passenger packet size") + 1;
-
-		// Restart at the first buiulding?
-		if(step_count[st] >= building_count)
-		{
-			step_count[st] = 0;
-		}
 
 		if(building_count == 0)
 		{
@@ -4415,7 +4406,20 @@ void karte_t::step_passengers_and_mail(long delta_t)
 		}
 
 		// Pick the building from which to generate passengers/mail
-		gebaeude_t* gb = wtyp == warenbauer_t::passagiere ? passenger_origins[step_count[st]] : mail_origins_and_targets[step_count[st]];
+		gebaeude_t* gb;
+		if(wtyp == warenbauer_t::passagiere)
+		{
+			// Pick a passenger building at random
+			const uint32 weight = simrand(passenger_origins.get_sum_weight() - 1, "void karte_t::step_passengers_and_mail(long delta_t) pick origin building (passengers)");
+			gb = passenger_origins.at_weight(weight);
+		}
+		else
+		{
+			// Pick a mail building at random
+			const uint32 weight = simrand(mail_origins_and_targets.get_sum_weight() - 1, "void karte_t::step_passengers_and_mail(long delta_t) pick origin building (mail)");
+			gb = mail_origins_and_targets.at_weight(weight);
+		}
+
 		stadt_t* city = gb->get_stadt();
 		fabrik_t* building_factory = gb->get_fabrik();
 		if(building_factory)
@@ -5438,7 +5442,6 @@ void karte_t::step_passengers_and_mail(long delta_t)
 
 		// Substantive passenger generation code ends here
 
-		step_count[st]++;
 		next_step -= step_interval;
 	} // While loop (step interval)
 }
@@ -6317,8 +6320,6 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved messages");
 	if(file->get_experimental_version() >= 12)
 	{
 		file->rdwr_long(next_step);
-		file->rdwr_long(step_count[0]);
-		file->rdwr_long(step_count[1]);
 	}
 
 	// MUST be at the end of the load/save routine.
@@ -7282,8 +7283,6 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 	if(file->get_experimental_version() >= 12)
 	{
 		file->rdwr_long(next_step);
-		file->rdwr_long(step_count[0]);
-		file->rdwr_long(step_count[1]);
 	}
 
 	// MUST be at the end of the load/save routine.
@@ -8802,10 +8801,6 @@ void karte_t::add_building_to_world_list(gebaeude_t *gb)
 	commuter_targets.append(gb, gb->get_adjusted_jobs());
 	visitor_targets.append(gb, gb->get_adjusted_visitor_demand());
 	mail_origins_and_targets.append(gb, gb->get_adjusted_mail_demand());
-	const uint32 TEST_mail_demand = gb->get_adjusted_mail_demand();
-	const uint32 TEST_base_mail_demand = gb->get_mail_demand();
-	const uint32 TEST_mail_weight = mail_origins_and_targets.get_sum_weight();
-	const char* TEST_name = gb->get_name();
 }
 
 void karte_t::remove_building_from_world_list(gebaeude_t *gb)
