@@ -17,7 +17,7 @@
 class checksum_t;
 
 /* Knightly : this besch will store data specific to each class of fields
- * Fields are xref'ed from skin_besch_t
+ * Fields are xref'd from skin_besch_t
  */
 class field_class_besch_t : public obj_besch_t {
 	friend class factory_field_class_reader_t;
@@ -221,7 +221,7 @@ private:
 	uint16 lieferanten; //"supplier" (Babelfish)
 	uint16 produkte; //"products" (Babelfish)
 	uint8 fields;	// only if there are any ...
-	uint16 pax_level;
+	uint16 pax_level; // Kept for backwards compatibility only. This is now read from the associated gebaeude_t object.
 	uint16 electricity_proportion; // Modifier of electricity consumption (a legacy setting for Experimental only)
 	uint16 inverse_electricity_proportion;
 	bool electricity_producer;
@@ -234,8 +234,8 @@ private:
 	uint16 pax_boost;
 	uint16 mail_boost;
 	uint16 electric_amount;
-	uint16 pax_demand;
-	uint16 mail_demand;
+	uint16 pax_demand; // Kept for backwards compatibility only. This is now read from the associated gebaeude_t object.
+	uint16 mail_demand; // Kept for backwards compatibility only. This is now read from the associated gebaeude_t object.
 
 public:
 	/*

@@ -5537,26 +5537,7 @@ void stadt_t::add_building_to_list(gebaeude_t* building, bool ordered)
 		// desyncs), and adding them in order is very slow (much slower than running 
 		// single-threaded). This must be added elsewhere if this is a network game.
 
-		// All types of city building generate/receive mail.
-		welt->add_building_to_world_list(building, karte_t::mail_origin_or_target);
-
-		if(building->get_haustyp() == gebaeude_t::wohnung)
-		{
-			// Residential - origin and (much reduced) visitor target
-			welt->add_building_to_world_list(building, karte_t::passenger_origin);
-			welt->add_building_to_world_list(building, karte_t::visitor_target);
-		}
-		else if(building->get_haustyp() == gebaeude_t::gewerbe || building->get_haustyp() == gebaeude_t::unbekannt)
-		{
-			// Commercial and attractions - commuter and visitor targets
-			welt->add_building_to_world_list(building, karte_t::visitor_target);
-			welt->add_building_to_world_list(building, karte_t::commuter_target);
-		}
-		else if(building->get_haustyp() == gebaeude_t::industrie)
-		{
-			// Industrial - commuter targets only
-			welt->add_building_to_world_list(building, karte_t::commuter_target);
-		}
+		welt->add_building_to_world_list(building);
 	}
 }
 

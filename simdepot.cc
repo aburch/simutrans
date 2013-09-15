@@ -897,7 +897,6 @@ void depot_t::add_to_world_list(bool lock)
 		if(gr)
 		{
 			gebaeude_t* gb = (gebaeude_t*)this;
-			welt->add_building_to_world_list(gb, karte_t::commuter_target);
-			welt->add_building_to_world_list(gb, karte_t::mail_origin_or_target);
+			welt->add_building_to_world_list(gb);
 		}
 }

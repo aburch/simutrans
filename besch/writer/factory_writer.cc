@@ -167,7 +167,6 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		fprintf( stderr, "ERROR:\nmissing an indentification color!\n");
 		exit(1);
 	}
-	uint16 const pax_level = obj.get_int("pax_level", 12);
 
 	uint16 const electricity_percent = obj.get_int("electricity_percent", 17);
 
@@ -180,10 +179,8 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	uint16 const pax_boost       = (obj.get_int("passenger_boost",        0) * 256 + 500) / 1000;
 	uint16 const mail_boost      = (obj.get_int("mail_boost",             0) * 256 + 500) / 1000;
 	uint16 const electric_amount =  obj.get_int("electricity_amount", 65535);
-	uint16 const pax_demand      =  obj.get_int("passenger_demand",   65535);
-	uint16 const mail_demand     =  obj.get_int("mail_demand",        65535);
 
-	obj_node_t node(this, 41, &parent);
+	obj_node_t node(this, 35, &parent);
 
 	obj.put("type", "fac");
 
@@ -270,7 +267,9 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// Start at 0x100 and increment in hundreds (hex).
 
 	// 0x200 - version 7.0 and greater. Includes xref factories for upgrades.
-	version += 0x200;
+	// 0x300 - version 12.0 and greater. Removes passenger/mail parameters,
+	// which are now in the gebaeude_t objects.
+	version += 0x300;
 	
 	node.write_uint16(fp, version,             0); // version
 	node.write_uint16(fp, platzierung,         2);
@@ -281,19 +280,16 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	node.write_uint8 (fp, fields,             11);
 	node.write_uint16(fp, lieferanten,        12);
 	node.write_uint16(fp, produkte,           14);
-	node.write_uint16(fp, pax_level,          16);
-	node.write_uint16(fp, electricity_percent,18);
-	node.write_sint8 (fp, upgrades,			  20);
-	node.write_uint16(fp, expand_probability, 21);
-	node.write_uint16(fp, expand_minimum,     23);
-	node.write_uint16(fp, expand_range,       25);
-	node.write_uint16(fp, expand_times,       27);
-	node.write_uint16(fp, electric_boost,     29);
-	node.write_uint16(fp, pax_boost,          31);
-	node.write_uint16(fp, mail_boost,         33);
-	node.write_uint16(fp, electric_amount,    35);
-	node.write_uint16(fp, pax_demand,         37);
-	node.write_uint16(fp, mail_demand,        39);
+	node.write_uint16(fp, electricity_percent,16);
+	node.write_sint8 (fp, upgrades,			  18);
+	node.write_uint16(fp, expand_probability, 19);
+	node.write_uint16(fp, expand_minimum,     21);
+	node.write_uint16(fp, expand_range,       23);
+	node.write_uint16(fp, expand_times,       25);
+	node.write_uint16(fp, electric_boost,     27);
+	node.write_uint16(fp, pax_boost,          29);
+	node.write_uint16(fp, mail_boost,         31);
+	node.write_uint16(fp, electric_amount,    33);
 
 	node.write(fp);
 }

@@ -3175,9 +3175,7 @@ void karte_t::add_ausflugsziel(gebaeude_t *gb)
 {
 	assert(gb != NULL);
 	ausflugsziele.append( gb, gb->get_tile()->get_besch()->get_level() );
-	add_building_to_world_list(gb, visitor_target);
-	add_building_to_world_list(gb, commuter_target);
-	add_building_to_world_list(gb, mail_origin_or_target);
+	add_building_to_world_list(gb);
 
 	// Knightly : add links between this attraction and all cities
 	// TODO: Remove this deprecated code completely
@@ -8792,88 +8790,17 @@ const vector_tpl<const ware_besch_t*> &karte_t::get_goods_list()
 	return goods_in_game;
 }
 
-void karte_t::add_building_to_world_list(gebaeude_t *gb, building_type b)
+void karte_t::add_building_to_world_list(gebaeude_t *gb)
 {
-	/* Called from stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb, bool ordered)
-		in the case of city buildings, so some pre-processing is done for us.
-		For other buildings (such as extension buildings, depots and industries),
-		it is necessary to add a mutex lock to the calling method as follows:
-
-		#if MULTI_THREAD>1
-				pthread_mutex_lock( &add_to_city_mutex );
-		#endif
-				city->add_gebaeude_to_stadt(this, true); // For example
-		#if MULTI_THREAD>1
-				pthread_mutex_unlock( &add_to_city_mutex );
-		#endif
-				*/
-
 	assert(gb);
 	// Only add one tile per building here.
 	gb = gb->get_first_tile();
 
-	// TODO: Separate visitor and commuter demand here, and make industry
-	// commuter demand based on the industry's passenger demand parameter
-	uint16 passenger_level = gb->get_passengers_per_hundred_months();
-	const uint16 mail_level = gb->get_mail_per_hundred_months();
+	passenger_origins.append(gb, gb->get_adjusted_population());
+	commuter_targets.append(gb, gb->get_adjusted_jobs());
+	visitor_targets.append(gb, gb->get_adjusted_visitor_demand());
+	mail_origins_and_targets.append(gb, gb->get_adjusted_mail_demand());
 
-	switch(b)
-	{
-	
-	case passenger_origin:
-		// People visit each others' houses, but this is not a common type of trip.
-		passenger_origins.append(gb, passenger_level);
-		visitor_targets.append(gb, passenger_level / 100);
-		break;
-
-	case commuter_target:
-
-		if(gb->is_monument())
-		{
-			// Monuments are not commuter targets.
-			break;
-		}
-
-		if(gb->is_attraction())
-		{
-			// Attractions have fewer workers by comparison to visitors.
-			// TODO: Make this customisable in simuconf.tab
-			passenger_level /= 2;
-		}
-
-		commuter_targets.append(gb, passenger_level);
-		break; 
-
-	case visitor_target:
-
-		if(gb->is_monument() || gb->is_attraction())
-		{
-			// Attractions/monuments have more visitors than commercial buildings
-			// TODO: Make this customisable in simuconf.tab
-			passenger_level *= 2;
-		}
-
-		if(gb->get_haustyp() == gebaeude_t::wohnung)
-		{
-			// Residential to residential journeys are rare.
-			// TODO: Make this customisable in simuconf.tab
-			passenger_level /= 20;
-		}
-		visitor_targets.append(gb, passenger_level);
-		break;
-
-	case mail_origin_or_target:
-	default:
-
-		if(gb->is_monument())
-		{
-			// Monuments do not send or receive mail.
-			break;
-		}
-		
-		mail_origins_and_targets.append(gb, mail_level);
-		
-	};
 }
 
 void karte_t::remove_building_from_world_list(gebaeude_t *gb)
@@ -8885,7 +8812,7 @@ void karte_t::remove_building_from_world_list(gebaeude_t *gb)
 	mail_origins_and_targets.remove_all(gb);
 }
 
-void karte_t::update_weight_of_building_in_world_list(gebaeude_t *gb, building_type b)
+void karte_t::update_weight_of_building_in_world_list(gebaeude_t *gb)
 {
 	if(!gb || gb->get_is_factory() && gb->get_fabrik() == NULL)
 	{
@@ -8893,62 +8820,24 @@ void karte_t::update_weight_of_building_in_world_list(gebaeude_t *gb, building_t
 		// this is called from a field of a factory that is closing down.
 		return;
 	}
-	uint16 passenger_level = gb->get_passengers_per_hundred_months();
-	const uint16 mail_level = gb->get_mail_per_hundred_months();
 
-	switch(b)
+	if(passenger_origins.is_contained(gb))
 	{
-	case passenger_origin:
-		if(passenger_origins.is_contained(gb))
-		{
-			passenger_origins.update_at(passenger_origins.index_of(gb), passenger_level);
-		}
-		break;
+		passenger_origins.update_at(passenger_origins.index_of(gb), gb->get_adjusted_population());
+	}
 
-	case commuter_target:
+	if(commuter_targets.is_contained(gb))
+	{
+		commuter_targets.update_at(commuter_targets.index_of(gb), gb->get_adjusted_jobs());
+	}
 
-		if(gb->is_monument())
-		{
-			// Monuments are not commuter targets.
-			break;
-		}
+	if(visitor_targets.is_contained(gb))
+	{
+		visitor_targets.update_at(visitor_targets.index_of(gb), gb->get_adjusted_visitor_demand());
+	}
 
-		if(gb->is_attraction())
-		{
-			// Attractions have fewer workers by comparison to visitors.
-			// FIXME: Make this customisable in simuconf.tab
-			passenger_level /= 2;
-		}
-		if(commuter_targets.is_contained(gb))
-		{
-			commuter_targets.update_at(commuter_targets.index_of(gb), passenger_level);
-		}
-		break;
-
-	case visitor_target:
-
-		if(gb->is_monument() || gb->is_attraction())
-		{
-			// Attractions/monuments have more visitors than commercial buildings
-			// FIXME: Make this customisable in simuconf.tab
-			passenger_level *= 2;
-		}
-		if(visitor_targets.is_contained(gb))
-		{
-			visitor_targets.update_at(visitor_targets.index_of(gb), passenger_level);
-		}
-		break;
-
-	case mail_origin_or_target:
-	default:
-		if(gb->is_monument())
-		{
-			// Monuments do not receive mail.
-			break;
-		}
-		if(mail_origins_and_targets.is_contained(gb))
-		{
-			mail_origins_and_targets.update_at(mail_origins_and_targets.index_of(gb), mail_level);
-		}
-	};
+	if(mail_origins_and_targets.is_contained(gb))
+	{
+		mail_origins_and_targets.update_at(mail_origins_and_targets.index_of(gb), gb->get_adjusted_mail_demand());
+	}
 }

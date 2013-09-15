@@ -347,9 +347,17 @@ void fabrik_t::update_scaled_pax_demand()
 {
 	// first, scaling based on current production base
 	const sint64 prod = besch->get_produktivitaet() > 0 ? besch->get_produktivitaet() : 1;
-	const sint64 besch_pax_demand = ( besch->get_pax_demand()==65535 ? besch->get_pax_level() : besch->get_pax_demand() );
-	// formula : besch_pax_demand * (current_production_base / besch_production_base); (prod >> 1) is for rounding
-	const uint32 pax_demand = (uint32)( ( besch_pax_demand * (sint64)prodbase + (prod >> 1) ) / prod );
+	const grund_t* gr = welt->lookup(pos);
+	gebaeude_t* gb = NULL;
+	if(gr)
+	{
+		// It is not clear why "gr" is sometimes NULL here, even on dry land.
+		gb = gr->find<gebaeude_t>();
+	}
+
+	const sint64 base_pax_demand = (!gb || gb->get_tile()->get_besch()->get_employment_capacity() == 65535) ? (besch->get_pax_demand() == 65535 ? besch->get_pax_level() : besch->get_pax_demand()) : gb->get_jobs();
+	// formula : base_pax_demand * (current_production_base / besch_production_base); (prod >> 1) is for rounding
+	const uint32 pax_demand = (uint32)( ( base_pax_demand * (sint64)prodbase + (prod >> 1) ) / prod );
 	// then, scaling based on month length
 	scaled_pax_demand = max(welt->calc_adjusted_monthly_figure(pax_demand), 1);
 
@@ -360,11 +368,9 @@ void fabrik_t::update_scaled_pax_demand()
 	if(!welt->get_is_shutting_down())
 	{
 		// Must update the world building list to take into account the new passenger demand (weighting)
-		const grund_t* gr = welt->lookup(pos);
-		if(gr)
+		if(gb)
 		{
-			gebaeude_t* gb = gr->find<gebaeude_t>();
-			welt->update_weight_of_building_in_world_list(gb, karte_t::commuter_target);
+			welt->update_weight_of_building_in_world_list(gb);
 		}
 	}
 }
@@ -374,9 +380,17 @@ void fabrik_t::update_scaled_mail_demand()
 {
 	// first, scaling based on current production base
 	const sint64 prod = besch->get_produktivitaet() > 0 ? besch->get_produktivitaet() : 1;
-	const sint64 besch_mail_demand = ( besch->get_mail_demand()==65535 ? (besch->get_pax_level()>>2) : besch->get_mail_demand() );
+	const grund_t* gr = welt->lookup(pos);
+	gebaeude_t* gb = NULL;
+	if(gr)
+	{
+		// It is not clear why "gr" is sometimes NULL here, even on dry land.
+		gb = gr->find<gebaeude_t>();
+	}
+
+	const sint64 base_mail_demand = (!gb || gb->get_tile()->get_besch()->get_mail_demand_and_production_capacity() == 65535) ? (besch->get_mail_demand() == 65535 ? (besch->get_pax_level() >> 2) : besch->get_mail_demand()) : gb->get_mail_demand();
 	// formula : besch_mail_demand * (current_production_base / besch_production_base); (prod >> 1) is for rounding
-	const uint32 mail_demand = (uint32)( ( besch_mail_demand * (sint64)prodbase + (prod >> 1) ) / prod );
+	const uint32 mail_demand = (uint32)( ( base_mail_demand * (sint64)prodbase + (prod >> 1) ) / prod );
 	// then, scaling based on month length
 	scaled_mail_demand = max(welt->calc_adjusted_monthly_figure(mail_demand), 1);
 
@@ -388,10 +402,9 @@ void fabrik_t::update_scaled_mail_demand()
 	{
 		// Must update the world building list to take into account the new passenger demand (weighting)
 		const grund_t* gr = welt->lookup(pos);
-		if(gr)
+		if(gb)
 		{
-			gebaeude_t* gb = gr->find<gebaeude_t>();
-			welt->update_weight_of_building_in_world_list(gb, karte_t::mail_origin_or_target);
+			welt->update_weight_of_building_in_world_list(gb);
 		}
 	}
 }
@@ -2851,14 +2864,7 @@ slist_tpl<const ware_besch_t*> *fabrik_t::get_produced_goods() const
 
 void fabrik_t::add_to_world_list(bool lock)
 {
-			const grund_t* gr = welt->lookup(pos);
-			gebaeude_t* gb = gr->find<gebaeude_t>();
-			welt->add_building_to_world_list(gb, karte_t::commuter_target);
-			if(is_end_consumer())
-			{
-				// Consumer only factory - also add as a visitor target, as this is (probably) a shop.
-				// TODO: Add a .dat file parameter to permit this to be disabled for certain industries (e.g. gasworks)
-				welt->add_building_to_world_list(gb, karte_t::visitor_target);
-			}
-			welt->add_building_to_world_list(gb, karte_t::mail_origin_or_target);
+		const grund_t* gr = welt->lookup(pos);
+		gebaeude_t* gb = gr->find<gebaeude_t>();
+		welt->add_building_to_world_list(gb);
 }

@@ -231,7 +231,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->layouts   = decode_uint8(p);
 		besch->allowed_climates = (climate_bits)decode_uint16(p);
 		besch->enables   = decode_uint8(p);
-		if(experimental_version < 1 && besch->utype == haus_besch_t::depot)
+		if(!experimental && besch->utype == haus_besch_t::depot)
 		{
 			besch->enables = 255;
 		}
@@ -244,22 +244,33 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->maintenance = decode_sint32(p);
 		besch->price     = decode_sint32(p);
 		besch->allow_underground = decode_uint8(p);
-		if(experimental && experimental_version == 2)
+		if(experimental)
 		{
 			besch->is_control_tower = decode_uint8(p);
+			besch->population_and_visitor_demand_capacity = decode_uint16(p);
+			besch->employment_capacity = decode_uint16(p);
+			besch->mail_demand_and_production_capacity = decode_uint16(p);
 		}
 		else
 		{
 			besch->is_control_tower = 0;
+			// These have to be set later
+			besch->population_and_visitor_demand_capacity = 65535;
+			besch->employment_capacity = 65535;
+			besch->mail_demand_and_production_capacity = 65535;
 		}
-	  } 
+	  }
 
 	if(version <= 7)
 	{
-		// capacity, maintenance and price were set from level
+		// Capacity, maintenance and price were set from level;
+		// as was the population, employment and mail capacity.
 		besch->capacity = besch->level * 32;
 		besch->maintenance = COST_MAGIC;
 		besch->price = COST_MAGIC;
+		besch->population_and_visitor_demand_capacity = 65535;
+		besch->employment_capacity = 65535;
+		besch->mail_demand_and_production_capacity = 65535;
 	} 
 
 	if(version == 7)
@@ -268,7 +279,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		// underground mode added
 		besch->gtyp      = (gebaeude_t::typ)decode_uint8(p);
 		besch->utype     = (haus_besch_t::utyp)decode_uint8(p);
-		besch->level     = decode_uint16(p) + 1; //TODO: Remove this on version stepping (for Experimental only).
+		besch->level     = decode_uint16(p) + 1; // This was necessary for the previous versions.
 		besch->extra_data= decode_uint32(p);
 		besch->groesse.x = decode_uint16(p);
 		besch->groesse.y = decode_uint16(p);

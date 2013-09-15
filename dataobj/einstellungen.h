@@ -612,6 +612,11 @@ public:
 	uint16 remove_dummy_player_months;
 	uint16 unprotect_abondoned_player_months;
 
+	uint16 population_per_level;
+	uint16 visitor_demand_per_level;
+	uint16 jobs_per_level;
+	uint16 mail_per_level;
+
 public:
 	/**
 	 * If map is read from a heightfield, this is the name of the heightfield.
@@ -779,7 +784,6 @@ public:
 	uint8  get_tolerable_comfort_long() const { return tolerable_comfort_long; }
 	uint16 get_tolerable_comfort_long_minutes() const { return tolerable_comfort_long_minutes; }
 	void   cache_comfort_tables(); // Cache the list of values above in piecewise-linear functions.
-
 
 	uint16 get_max_luxury_bonus_percent() const { return max_luxury_bonus_percent; }
 	void   set_max_luxury_bonus_percent(uint16 value) { max_luxury_bonus_percent = value; }
@@ -992,7 +996,6 @@ public:
 	void set_default_increase_maintenance_after_years(waytype_t wtype, uint16 value) { default_increase_maintenance_after_years[wtype] = value; }
 	uint32 get_server_frames_ahead() const { return server_frames_ahead; }
 
-
 	uint8 get_spacing_shift_mode() const { return spacing_shift_mode; }
 	void set_spacing_shift_mode(uint8 s) { spacing_shift_mode = s; }
 
@@ -1043,6 +1046,12 @@ public:
 
 	uint16 get_remove_dummy_player_months() const { return remove_dummy_player_months; }
 	uint16 get_unprotect_abondoned_player_months() const { return unprotect_abondoned_player_months; }
+
+	// TODO: Add GUI setting to change these in advanced settings window. This will need setters here.
+	uint16 get_population_per_level() const { return population_per_level; }
+	uint16 get_visitor_demand_per_level() const { return visitor_demand_per_level; }
+	uint16 get_jobs_per_level() const { return jobs_per_level; }
+	uint16 get_mail_per_level() const { return mail_per_level; }
 };
 
 #endif 

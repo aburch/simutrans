@@ -279,7 +279,14 @@ obj_besch_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->fields = decode_uint8(p);
 		besch->lieferanten = decode_uint16(p);
 		besch->produkte = decode_uint16(p);
-		besch->pax_level = decode_uint16(p);
+		if(experimental && experimental_version > 1)
+		{
+			besch->pax_level = 65535;
+		}
+		else
+		{
+			besch->pax_level = decode_uint16(p);
+		}
 		if(experimental)
 		{
 			besch->electricity_proportion = decode_uint16(p); 
@@ -293,7 +300,7 @@ obj_besch_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			{
 				besch->upgrades = 0;
 			}
-			if(experimental_version > 1)
+			if(experimental_version > 2)
 			{
 				// Check for incompatible future versions
 				dbg->fatal( "factory_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version );
@@ -307,8 +314,16 @@ obj_besch_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->pax_boost = decode_uint16(p);
 		besch->mail_boost = decode_uint16(p);
 		besch->electric_amount = decode_uint16(p);
-		besch->pax_demand = decode_uint16(p);
-		besch->mail_demand = decode_uint16(p);
+		if(experimental && experimental_version > 1)
+		{
+			besch->pax_demand = 65535;
+			besch->mail_demand = 65535;
+		}
+		else
+		{
+			besch->pax_demand = decode_uint16(p);
+			besch->mail_demand = decode_uint16(p);
+		}
 		DBG_DEBUG("factory_reader_t::read_node()","version=3, platz=%i, lieferanten=%i, pax=%i", besch->platzierung, besch->lieferanten, besch->pax_level );
 	} else if(version == 2) {
 		// Versioned node, version 2

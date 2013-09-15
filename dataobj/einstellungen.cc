@@ -498,6 +498,11 @@ settings_t::settings_t() :
 
 	spacing_shift_mode = SPACING_SHIFT_PER_STOP;
 	spacing_shift_divisor = 24*60;
+
+	population_per_level = 3;
+	visitor_demand_per_level = 3;
+	jobs_per_level = 2;
+	mail_per_level = 1;
 }
 
 void settings_t::set_default_climates()
@@ -1487,6 +1492,14 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_short( max_factory_spacing_percentage );
 		}
 		// otherwise the default values of the last one will be used
+
+		if(file->get_experimental_version() >= 12)
+		{
+			file->rdwr_short(population_per_level);
+			file->rdwr_short(visitor_demand_per_level);
+			file->rdwr_short(jobs_per_level);
+			file->rdwr_short(mail_per_level);
+		}
 	}
 
 #ifdef DEBUG_SIMRAND_CALLS
@@ -2320,6 +2333,11 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	max_city_size  = contents.get_int("max_city_size", max_city_size);
 	spacing_shift_mode = contents.get_int("spacing_shift_mode", spacing_shift_mode);
 	spacing_shift_divisor = contents.get_int("spacing_shift_divisor", spacing_shift_divisor);
+
+	population_per_level = contents.get_int("population_per_level", population_per_level);
+	visitor_demand_per_level = contents.get_int("visitor_demand_per_level", visitor_demand_per_level);
+	jobs_per_level = contents.get_int("jobs_per_level", jobs_per_level);
+	mail_per_level = contents.get_int("mail_per_level", mail_per_level);
 
 	// OK, this is a bit complex.  We are at risk of loading the same livery schemes repeatedly, which
 	// gives duplicate livery schemes and utter confusion.

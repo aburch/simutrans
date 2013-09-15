@@ -203,6 +203,10 @@ class haus_besch_t : public obj_besch_std_name_t { // Daten für ein ganzes Gebäu
 	sint32 scaled_maintenance;
 	uint16 capacity;
 
+	uint16 population_and_visitor_demand_capacity; // Population capacity if residential, otherwise visitor demand.
+	uint16 employment_capacity; // Capacity for jobs (this figure is not used for industries)
+	uint16 mail_demand_and_production_capacity; // Both generation and demand for mail (assumed to be symmetric). 
+
 	#define COST_MAGIC (2147483647) 
 
 	climate_bits allowed_climates;
@@ -425,6 +429,11 @@ public:
 			return extra_data;
 		}
 	}
+
+	uint16 get_population_and_visitor_demand_capacity() const { return population_and_visitor_demand_capacity; }
+	uint16 get_employment_capacity() const { return employment_capacity; }
+	uint16 get_mail_demand_and_production_capacity() const { return mail_demand_and_production_capacity; }
+
 };
 
 

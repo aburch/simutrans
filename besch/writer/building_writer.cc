@@ -111,7 +111,7 @@ static uint32 get_cluster_data(tabfileobj_t& obj)
 void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
 	// Hajo: take care, hardocded size of node on disc here!
-	obj_node_t node(this, 38, &parent);
+	obj_node_t node(this, 44, &parent);
 
 	write_head(fp, node, obj);
 
@@ -137,12 +137,14 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	uint32                     extra_data       = 0;
 	climate_bits               allowed_climates = all_but_water_climate; // all but water
 	uint8                      enables          = 0;
-	uint16                     level            = obj.get_int("level", 1) - 1; // TODO: Remove this -1, which is now reset in the reader, when the version is incremented.
+	uint16                     level            = obj.get_int("level", 1);
 	haus_besch_t::flag_t const flags            =
 		(obj.get_int("noinfo",         0) > 0 ? haus_besch_t::FLAG_KEINE_INFO  : haus_besch_t::FLAG_NULL) |
 		(obj.get_int("noconstruction", 0) > 0 ? haus_besch_t::FLAG_KEINE_GRUBE : haus_besch_t::FLAG_NULL) |
 		(obj.get_int("needs_ground",   0) > 0 ? haus_besch_t::FLAG_NEED_GROUND : haus_besch_t::FLAG_NULL);
 	uint16               const animation_time   = obj.get_int("animation_time", 300);
+
+	level = obj.get_int("pax_level", level); // Needed for conversion from old factories.
 
 	// get the allowed area for this building
 	const char* climate_str = obj.get("climates");
@@ -312,6 +314,12 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 
 	uint8 is_control_tower = obj.get_int("is_control_tower", 0);
 
+	uint16 population_and_visitor_demand_capacity = obj.get_int("population_and_visitor_demand_capacity", 65535);
+	uint16 employment_capacity = obj.get_int("passenger_demand", gtyp == gebaeude_t::wohnung ? 0 : 65535);
+	employment_capacity = obj.get_int("employment_capacity", gtyp == gebaeude_t::wohnung ? 0 : employment_capacity);
+	uint16 mail_demand_and_production_capacity = obj.get_int("mail_demand", 65535);	
+	mail_demand_and_production_capacity = obj.get_int("mail_demand_and_production_capacity", mail_demand_and_production_capacity);
+
 	// scan for most number of seasons
 	int seasons = 1;
 	for (int l = 0; l < layouts; l++) { // each layout
@@ -402,34 +410,36 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	// Finally, this is the experimental version number. This is *added*
 	// to the standard version number, to be subtracted again when read.
 	// Start at 0x100 and increment in hundreds (hex).
-	// 0x200 - Depot traction types.
-	// 0x300 - Allow underground
-	version += 0x300;
+	// Reset to 0x100 for Standard 0x8008
+	version += 0x100;
 	
 	// Hajo: write version data
 
-	node.write_uint16(fp, version,				0);
+	node.write_uint16(fp, version,									0);
 
 	// Hajo: write besch data
-	node.write_uint8 (fp, gtyp,					2);
-	node.write_uint8 (fp, utype,				3);
-	node.write_uint16(fp, level,				4);
-	node.write_uint32(fp, extra_data,			6);
-	node.write_uint16(fp, groesse.x,			10);
-	node.write_uint16(fp, groesse.y,			12);
-	node.write_uint8 (fp, layouts,				14);
-	node.write_uint16(fp, allowed_climates,		15);
-	node.write_uint8 (fp, enables,				17);
-	node.write_uint8 (fp, flags,				18);
-	node.write_uint8 (fp, chance,				19);
-	node.write_uint16(fp, intro_date,			20);
-	node.write_uint16(fp, obsolete_date,		22);
-	node.write_uint16(fp, animation_time,		24);
-	node.write_uint16(fp, capacity,				26);
-	node.write_sint32(fp, maintenance,			28);
-	node.write_sint32(fp, price,				32);
-	node.write_uint8(fp, allow_underground,		36);
-	node.write_uint8(fp, is_control_tower,		37);
+	node.write_uint8 (fp, gtyp,										2);
+	node.write_uint8 (fp, utype,									3);
+	node.write_uint16(fp, level,									4);
+	node.write_uint32(fp, extra_data,								6);
+	node.write_uint16(fp, groesse.x,								10);
+	node.write_uint16(fp, groesse.y,								12);
+	node.write_uint8 (fp, layouts,									14);
+	node.write_uint16(fp, allowed_climates,							15);
+	node.write_uint8 (fp, enables,									17);
+	node.write_uint8 (fp, flags,									18);
+	node.write_uint8 (fp, chance,									19);
+	node.write_uint16(fp, intro_date,								20);
+	node.write_uint16(fp, obsolete_date,							22);
+	node.write_uint16(fp, animation_time,							24);
+	node.write_uint16(fp, capacity,									26);
+	node.write_sint32(fp, maintenance,								28);
+	node.write_sint32(fp, price,									32);
+	node.write_uint8(fp, allow_underground,							36);
+	node.write_uint8(fp, is_control_tower,							37);
+	node.write_uint16(fp, population_and_visitor_demand_capacity,	38);
+	node.write_uint16(fp, employment_capacity,						40);
+	node.write_uint16(fp, mail_demand_and_production_capacity,		42);
 	
 
 	// probably add some icons, if defined

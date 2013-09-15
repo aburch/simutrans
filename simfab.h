@@ -709,6 +709,9 @@ public:
 	slist_tpl<const ware_besch_t*> *get_produced_goods() const;
 
 	void add_to_world_list(bool lock = false);
+
+	inline uint32 get_base_pax_demand() const { return arrival_stats_pax.get_scaled_demand(); }
+	inline uint32 get_base_mail_demand() const { return arrival_stats_mail.get_scaled_demand(); }
 };
 
 #endif

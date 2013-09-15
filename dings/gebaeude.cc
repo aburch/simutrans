@@ -619,7 +619,7 @@ uint32 gebaeude_t::get_passengers_per_hundred_months() const
 		const uint32 TEST_base = (tile->get_besch()->get_level() * 1952) / welt->get_settings().get_passenger_factor();
 		const uint32 TEST_base_alternative = tile->get_besch()->get_level() * 122;
 		const uint32 TEST_factory = ptr.fab->get_scaled_pax_demand();
-		const uint32 TEST_total_jobs = get_total_jobs();
+		const uint32 TEST_total_jobs = get_adjusted_jobs();
 		return ptr.fab->get_scaled_pax_demand();
 	}
 }
@@ -868,7 +868,7 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 			buf.printf("%s%u", translator::translate("\nBauzeit bis"), h.get_retire_year_month() / 12);
 		}
 
-		buf.printf("\nTEST total jobs: %i; remaining jobs: %i", get_total_jobs(), check_remaining_available_jobs());
+		buf.printf("\nTEST total jobs: %i; remaining jobs: %i", get_adjusted_jobs(), check_remaining_available_jobs());
 		
 		buf.append("\n");
 		if(get_besitzer()==NULL) {
@@ -1142,6 +1142,13 @@ void gebaeude_t::rdwr(loadsave_t *file)
 		file->rdwr_byte(passenger_success_percent_last_year_non_local);
 	}
 
+	if(file->get_experimental_version() >= 12)
+	{
+		file->rdwr_short(people.population); // No need to distinguish the parts of the union here.
+		file->rdwr_short(jobs);
+		file->rdwr_short(mail_demand);
+	}
+
 	if(file->is_loading()) {
 		count = 0;
 		anim_time = 0;
@@ -1192,6 +1199,23 @@ void gebaeude_t::laden_abschliessen()
 			ptr.stadt = NULL;
 		}
 	}
+
+	if(tile->get_besch()->get_typ() == wohnung)
+	{
+		people.population = tile->get_besch()->get_population_and_visitor_demand_capacity() == 65535 ? tile->get_besch()->get_level() * welt->get_settings().get_population_per_level() : tile->get_besch()->get_population_and_visitor_demand_capacity();
+		adjusted_people.population = welt->calc_adjusted_monthly_figure(people.population);
+	}
+	else
+	{
+		people.visitor_demand = tile->get_besch()->get_population_and_visitor_demand_capacity() == 65535 ? tile->get_besch()->get_level() * welt->get_settings().get_visitor_demand_per_level() : tile->get_besch()->get_population_and_visitor_demand_capacity();
+		adjusted_people.visitor_demand = welt->calc_adjusted_monthly_figure(people.visitor_demand);
+	}
+	
+	jobs = tile->get_besch()->get_employment_capacity() == 65535 ? (is_monument() || tile->get_besch()->get_typ() == wohnung) ? 0 : tile->get_besch()->get_level() * welt->get_settings().get_jobs_per_level() : tile->get_besch()->get_employment_capacity();
+	mail_demand = tile->get_besch()->get_mail_demand_and_production_capacity() == 65535 ? is_monument() ? 0 : tile->get_besch()->get_level() * welt->get_settings().get_mail_per_level() : tile->get_besch()->get_mail_demand_and_production_capacity();
+
+	adjusted_jobs = welt->calc_adjusted_monthly_figure(jobs);
+	adjusted_mail_demand = welt->calc_adjusted_monthly_figure(mail_demand);
 }
 
 
@@ -1314,27 +1338,92 @@ sint64 gebaeude_t::calc_available_jobs_by_time() const
 void gebaeude_t::set_commute_trip(uint16 number)
 {
 	// Record the number of arriving workers by encoding the earliest time at which new workers can arrive.
-	const uint32 total_jobs = get_total_jobs();
+	const uint32 total_jobs = get_adjusted_jobs();
 	const sint64 job_ticks = (number * welt->ticks_per_world_month) / (total_jobs < 1 ? 1 : total_jobs);
 	const sint64 new_jobs_by_time = calc_available_jobs_by_time();
 	available_jobs_by_time = max(new_jobs_by_time + job_ticks, available_jobs_by_time + job_ticks);
 }
 
-uint32 gebaeude_t::get_total_pop() const
+uint16 gebaeude_t::get_population() const
 {
-	return get_haustyp() == wohnung ? tile->get_besch()->get_level() * welt->get_settings().get_meters_per_tile() / 31 : 0;
+	return get_haustyp() == wohnung ? people.population : 0;
 }
 
-uint32 gebaeude_t::get_visitor_demand() const
+uint16 gebaeude_t::get_adjusted_population() const
 {
-	const uint32 value = tile->get_besch()->get_level() * welt->get_settings().get_meters_per_tile() / 31;
-	return get_haustyp() == wohnung ? value / 100 : value;
+	return get_haustyp() == wohnung ? adjusted_people.population : 0;
 }
 
-uint32 gebaeude_t::get_total_jobs() const
+uint16 gebaeude_t::get_visitor_demand() const
 {
-	return get_haustyp() == wohnung ? 0 : tile->get_besch()->get_level() * welt->get_settings().get_meters_per_tile() / 31;
+	if(get_haustyp() != wohnung)
+	{
+		return people.visitor_demand;
+	}
+
+	uint16 reduced_demand = people.population / 5;
+	return reduced_demand > 0 ? reduced_demand : 1;
 }
+
+uint16 gebaeude_t::get_adjusted_visitor_demand() const
+{
+	if(get_haustyp() != wohnung)
+	{
+		return adjusted_people.visitor_demand;
+	}
+
+	uint16 reduced_demand = adjusted_people.population / 5;
+	return reduced_demand > 0 ? reduced_demand : 1;
+}
+
+uint16 gebaeude_t::get_jobs() const
+{
+	if(!is_factory)
+	{
+		return jobs;
+	}
+	else
+	{
+		return (uint16)get_fabrik()->get_base_pax_demand();
+	}
+}
+
+uint16 gebaeude_t::get_adjusted_jobs() const
+{
+	if(!is_factory)
+	{
+		return adjusted_jobs;
+	}
+	else
+	{
+		return (uint16)get_fabrik()->get_scaled_pax_demand();
+	}
+}
+
+uint16 gebaeude_t::get_mail_demand() const
+{
+	if(!is_factory)
+	{
+		return mail_demand;
+	}
+	else
+	{
+		return (uint16)get_fabrik()->get_base_mail_demand();
+	}
+}
+
+uint16 gebaeude_t::get_adjusted_mail_demand() const
+{
+	if(!is_factory)
+	{
+		return adjusted_mail_demand;
+	}
+	else
+	{
+		return (uint16)get_fabrik()->get_scaled_mail_demand();
+	}
+}
+
 
 sint32 gebaeude_t::check_remaining_available_jobs() const
 {
@@ -1346,15 +1435,15 @@ sint32 gebaeude_t::check_remaining_available_jobs() const
 	}
 	else
 	{*/
-		const uint32 total_jobs = get_total_jobs();
+		const uint32 total_jobs = get_adjusted_jobs();
 		if(available_jobs_by_time < welt->get_zeit_ms() - welt->ticks_per_world_month)
 		{
 			// Uninitialised or stale - all jobs available
 			return total_jobs;
 		}
 		const sint64 delta_t = welt->get_zeit_ms() - available_jobs_by_time;
-		const sint64 jobs = delta_t * total_jobs / welt->ticks_per_world_month;
-		return (sint32)jobs;
+		const sint64 remaining_jobs = delta_t * total_jobs / welt->ticks_per_world_month;
+		return (sint32)remaining_jobs;
 	//}
 }
 

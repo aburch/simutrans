@@ -24,7 +24,6 @@ uint8 haus_tile_besch_t::get_layout() const
 }
 
 
-
 /*
  *  Autor:
  *      Volker Meyer

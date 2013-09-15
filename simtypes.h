@@ -314,6 +314,8 @@ union value_t
 	long i;
 };
 
+#define IGNORE_ZERO_WEIGHT
+
 #else
 // c definitionen
 typedef enum bool { false, true } bool;
