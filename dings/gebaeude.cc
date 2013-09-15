@@ -1141,6 +1141,29 @@ void gebaeude_t::rdwr(loadsave_t *file)
 		count = 0;
 		anim_time = 0;
 		sync = false;
+
+		if(tile->get_besch()->get_typ() == wohnung)
+		{
+			people.population = tile->get_besch()->get_population_and_visitor_demand_capacity() == 65535 ? tile->get_besch()->get_level() * welt->get_settings().get_population_per_level() : tile->get_besch()->get_population_and_visitor_demand_capacity();
+			adjusted_people.population = welt->calc_adjusted_monthly_figure(people.population);
+		}
+		else
+		{
+			people.visitor_demand = tile->get_besch()->get_population_and_visitor_demand_capacity() == 65535 ? tile->get_besch()->get_level() * welt->get_settings().get_visitor_demand_per_level() : tile->get_besch()->get_population_and_visitor_demand_capacity();
+			adjusted_people.visitor_demand = welt->calc_adjusted_monthly_figure(people.visitor_demand);
+		}
+	
+		jobs = tile->get_besch()->get_employment_capacity() == 65535 ? (is_monument() || tile->get_besch()->get_typ() == wohnung) ? 0 : tile->get_besch()->get_level() * welt->get_settings().get_jobs_per_level() : tile->get_besch()->get_employment_capacity();
+		mail_demand = tile->get_besch()->get_mail_demand_and_production_capacity() == 65535 ? is_monument() ? 0 : tile->get_besch()->get_level() * welt->get_settings().get_mail_per_level() : tile->get_besch()->get_mail_demand_and_production_capacity();
+
+		adjusted_jobs = welt->calc_adjusted_monthly_figure(jobs);
+		adjusted_mail_demand = welt->calc_adjusted_monthly_figure(mail_demand);
+
+		// Hajo: rebuild tourist attraction list
+		if(tile && tile->get_besch()->ist_ausflugsziel()) 
+		{
+			welt->add_ausflugsziel(this);
+		}
 	}
 }
 
@@ -1163,29 +1186,6 @@ void gebaeude_t::laden_abschliessen()
 		maint = welt->get_settings().maint_building*tile->get_besch()->get_level();
 	}
 	spieler_t::add_maintenance(get_besitzer(), maint, tile->get_besch()->get_finance_waytype());
-
-	if(tile->get_besch()->get_typ() == wohnung)
-	{
-		people.population = tile->get_besch()->get_population_and_visitor_demand_capacity() == 65535 ? tile->get_besch()->get_level() * welt->get_settings().get_population_per_level() : tile->get_besch()->get_population_and_visitor_demand_capacity();
-		adjusted_people.population = welt->calc_adjusted_monthly_figure(people.population);
-	}
-	else
-	{
-		people.visitor_demand = tile->get_besch()->get_population_and_visitor_demand_capacity() == 65535 ? tile->get_besch()->get_level() * welt->get_settings().get_visitor_demand_per_level() : tile->get_besch()->get_population_and_visitor_demand_capacity();
-		adjusted_people.visitor_demand = welt->calc_adjusted_monthly_figure(people.visitor_demand);
-	}
-	
-	jobs = tile->get_besch()->get_employment_capacity() == 65535 ? (is_monument() || tile->get_besch()->get_typ() == wohnung) ? 0 : tile->get_besch()->get_level() * welt->get_settings().get_jobs_per_level() : tile->get_besch()->get_employment_capacity();
-	mail_demand = tile->get_besch()->get_mail_demand_and_production_capacity() == 65535 ? is_monument() ? 0 : tile->get_besch()->get_level() * welt->get_settings().get_mail_per_level() : tile->get_besch()->get_mail_demand_and_production_capacity();
-
-	adjusted_jobs = welt->calc_adjusted_monthly_figure(jobs);
-	adjusted_mail_demand = welt->calc_adjusted_monthly_figure(mail_demand);
-
-	// Hajo: rebuild tourist attraction list
-	if(tile && tile->get_besch()->ist_ausflugsziel()) 
-	{
-		welt->add_ausflugsziel(this);
-	}
 
 	// citybuilding, but no town?
 	if(  tile->get_offset()==koord(0,0)  ) {
