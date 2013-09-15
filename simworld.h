@@ -1343,20 +1343,22 @@ public:
 		// Adjust for meters per tile
 
 		// TODO: Have the below figure set from simuconf.tab. Base is 1,000 for Standard games; 7,500 calibrates for input values from .dat files being 1 month = 1 day.
-		const sint32 adjusted_base_meters_per_tile = 7500;
-		const sint32 adjustment_factor = adjusted_base_meters_per_tile / (sint32)get_settings().get_meters_per_tile();
+		const sint32 base_meters_per_tile = 7500;
+		// TODO: Have the below set from simuconf.tab. The default base, as from Standard, is 18.
+		const sint32 base_bits_per_month = 18l;
+		const sint32 adjustment_factor = base_meters_per_tile / (sint32)get_settings().get_meters_per_tile();
 		
 		// Adjust for bits per month
 
-		if(ticks_per_world_month_shift >= 18)
+		if(ticks_per_world_month_shift >= base_bits_per_month)
 		{
-			const sint32 adjusted_monthly_figure = (sint32)(nominal_monthly_figure << (ticks_per_world_month_shift - 18l)); 
+			const sint32 adjusted_monthly_figure = (sint32)(nominal_monthly_figure << (ticks_per_world_month_shift - base_bits_per_month)); 
 			return adjusted_monthly_figure / adjustment_factor;
 		}
 		else
 		{
 			const sint32 adjusted_monthly_figure = nominal_monthly_figure / adjustment_factor;
-			return (sint32)(adjusted_monthly_figure >> (18l - ticks_per_world_month_shift)); 
+			return (sint32)(adjusted_monthly_figure >> (base_bits_per_month - ticks_per_world_month_shift)); 
 		}
 	}
 
@@ -1365,20 +1367,22 @@ public:
 		// Adjust for meters per tile
 
 		// TODO: Have the below figure set from simuconf.tab. Base is 1,000 for Standard games; 7,500 calibrates for input values from .dat files being 1 month = 1 day.
-		const sint64 adjusted_base_meters_per_tile = 7500l; 
-		const sint64 adjustment_factor = adjusted_base_meters_per_tile / (sint64)get_settings().get_meters_per_tile();	
+		const sint64 base_meters_per_tile = 7500l; 
+		// TODO: Have the below set from simuconf.tab. The default base, as from Standard, is 18.
+		const sint64 base_bits_per_month = 18ll;
+		const sint64 adjustment_factor = base_meters_per_tile / (sint64)get_settings().get_meters_per_tile();	
 		
 		// Adjust for bits per month	
 
-		if (ticks_per_world_month_shift >= 18)
+		if(ticks_per_world_month_shift >= base_bits_per_month)
 		{
 			const sint64 adjusted_monthly_figure = nominal_monthly_figure / adjustment_factor;
-			return (adjusted_monthly_figure << -(18ll - ticks_per_world_month_shift)); 
+			return (adjusted_monthly_figure << -(base_bits_per_month - ticks_per_world_month_shift)); 
 		} 
 		else 
 		{			
 			const sint64 adjusted_monthly_figure = nominal_monthly_figure / adjustment_factor;
-			return adjusted_monthly_figure >> (18ll - ticks_per_world_month_shift); 
+			return adjusted_monthly_figure >> (base_bits_per_month - ticks_per_world_month_shift); 
 		}
 	}
 
@@ -1387,20 +1391,22 @@ public:
 		// Adjust for meters per tile
 
 		// TODO: Have the below figure set from simuconf.tab. Base is 1,000 for Standard games; 7,500 calibrates for input values from .dat files being 1 month = 1 day.
-		const uint32 adjusted_base_meters_per_tile = 7500; 
-		const uint32 adjustment_factor = adjusted_base_meters_per_tile / (uint32)get_settings().get_meters_per_tile();
+		const uint32 base_meters_per_tile = 7500; 
+		// TODO: Have the below set from simuconf.tab. The default base, as from Standard, is 18.
+		const uint32 base_bits_per_month = 18u;
+		const uint32 adjustment_factor = base_meters_per_tile / (uint32)get_settings().get_meters_per_tile();
 		
 		// Adjust for bits per month
 
-		if(ticks_per_world_month_shift >= 18)
+		if(ticks_per_world_month_shift >= base_bits_per_month)
 		{
-			const uint32 adjusted_monthly_figure = (uint32)(nominal_monthly_figure << (ticks_per_world_month_shift - 18l)); 
+			const uint32 adjusted_monthly_figure = (uint32)(nominal_monthly_figure << (ticks_per_world_month_shift - base_bits_per_month)); 
 			return adjusted_monthly_figure / adjustment_factor;
 		}
 		else
 		{
 			const uint32 adjusted_monthly_figure = nominal_monthly_figure / adjustment_factor;
-			return (uint32)(adjusted_monthly_figure >> (18u - ticks_per_world_month_shift)); 
+			return (uint32)(adjusted_monthly_figure >> (base_bits_per_month - ticks_per_world_month_shift)); 
 		}
 	}
 
