@@ -157,6 +157,9 @@ public:
 	enum { precision_bits = 10, old_precision_bits = 10, precision_mask = 1023 };
 
 private:
+
+	gebaeude_t* building;
+		
 	/**
 	 * Factory statistics
 	 * @author Knightly
@@ -417,6 +420,8 @@ public:
 	fabrik_t(koord3d pos, spieler_t* sp, const fabrik_besch_t* fabesch, sint32 initial_prod_base);
 	~fabrik_t();
 
+	gebaeude_t* get_building();
+
 	/**
 	 * Return/book statistics
 	 * @author Knightly
@@ -510,8 +515,6 @@ public:
 	 */
 	void  add_supplier(koord pos);
 	void  rem_supplier(koord pos);
-
-
 
 	/**
 	 * @return menge der ware typ ("quantity of the goods type")
@@ -708,7 +711,7 @@ public:
 	 */
 	slist_tpl<const ware_besch_t*> *get_produced_goods() const;
 
-	void add_to_world_list(bool lock = false);
+	void add_to_world_list();
 
 	inline uint32 get_base_pax_demand() const { return arrival_stats_pax.get_scaled_demand(); }
 	inline uint32 get_base_mail_demand() const { return arrival_stats_mail.get_scaled_demand(); }

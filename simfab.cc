@@ -345,28 +345,22 @@ void fabrik_t::update_scaled_electric_amount()
 
 void fabrik_t::update_scaled_pax_demand()
 {
-	// first, scaling based on current production base
-	const sint64 prod = besch->get_produktivitaet() > 0 ? besch->get_produktivitaet() : 1;
-	const grund_t* gr = welt->lookup(pos);
-	gebaeude_t* gb = NULL;
-	if(gr)
-	{
-		// It is not clear why "gr" is sometimes NULL here, even on dry land.
-		gb = gr->find<gebaeude_t>();
-	}
-
-	const sint64 base_pax_demand = (!gb || gb->get_tile()->get_besch()->get_employment_capacity() == 65535) ? (besch->get_pax_demand() == 65535 ? besch->get_pax_level() : besch->get_pax_demand()) : gb->get_jobs();
-	// formula : base_pax_demand * (current_production_base / besch_production_base); (prod >> 1) is for rounding
-	const uint32 pax_demand = (uint32)( ( base_pax_demand * (sint64)prodbase + (prod >> 1) ) / prod );
-	// then, scaling based on month length
-	scaled_pax_demand = max(welt->calc_adjusted_monthly_figure(pax_demand), 1);
-
-	// pax demand for fixed period length
-	// It is intended that pax_demand, not scaled_pax_demand be used here despite the method name.
-	arrival_stats_pax.set_scaled_demand( pax_demand );
-
 	if(!welt->get_is_shutting_down())
 	{
+		// first, scaling based on current production base
+		const sint64 prod = besch->get_produktivitaet() > 0 ? besch->get_produktivitaet() : 1;
+		gebaeude_t* gb = get_building();
+
+		const sint64 base_pax_demand = (!gb || gb->get_tile()->get_besch()->get_employment_capacity() == 65535) ? (besch->get_pax_demand() == 65535 ? besch->get_pax_level() : besch->get_pax_demand()) : gb->get_jobs();
+		// formula : base_pax_demand * (current_production_base / besch_production_base); (prod >> 1) is for rounding
+		const uint32 pax_demand = (uint32)( ( base_pax_demand * (sint64)prodbase + (prod >> 1) ) / prod );
+		// then, scaling based on month length
+		scaled_pax_demand = max(welt->calc_adjusted_monthly_figure(pax_demand), 1);
+
+		// pax demand for fixed period length
+		// It is intended that pax_demand, not scaled_pax_demand be used here despite the method name.
+		arrival_stats_pax.set_scaled_demand( pax_demand );
+
 		// Must update the world building list to take into account the new passenger demand (weighting)
 		if(gb)
 		{
@@ -378,30 +372,23 @@ void fabrik_t::update_scaled_pax_demand()
 
 void fabrik_t::update_scaled_mail_demand()
 {
-	// first, scaling based on current production base
-	const sint64 prod = besch->get_produktivitaet() > 0 ? besch->get_produktivitaet() : 1;
-	const grund_t* gr = welt->lookup(pos);
-	gebaeude_t* gb = NULL;
-	if(gr)
-	{
-		// It is not clear why "gr" is sometimes NULL here, even on dry land.
-		gb = gr->find<gebaeude_t>();
-	}
-
-	const sint64 base_mail_demand = (!gb || gb->get_tile()->get_besch()->get_mail_demand_and_production_capacity() == 65535) ? (besch->get_mail_demand() == 65535 ? (besch->get_pax_level() >> 2) : besch->get_mail_demand()) : gb->get_mail_demand();
-	// formula : besch_mail_demand * (current_production_base / besch_production_base); (prod >> 1) is for rounding
-	const uint32 mail_demand = (uint32)( ( base_mail_demand * (sint64)prodbase + (prod >> 1) ) / prod );
-	// then, scaling based on month length
-	scaled_mail_demand = max(welt->calc_adjusted_monthly_figure(mail_demand), 1);
-
-	// mail demand for fixed period length
-	// It is intended that mail_demand, not scaled_mail_demand be used here despite the method name
-	arrival_stats_mail.set_scaled_demand( mail_demand );
-
 	if(!welt->get_is_shutting_down())
 	{
+		// first, scaling based on current production base
+		const sint64 prod = besch->get_produktivitaet() > 0 ? besch->get_produktivitaet() : 1;
+		gebaeude_t* gb = get_building();
+
+		const sint64 base_mail_demand = (!gb || gb->get_tile()->get_besch()->get_mail_demand_and_production_capacity() == 65535) ? (besch->get_mail_demand() == 65535 ? (besch->get_pax_level() >> 2) : besch->get_mail_demand()) : gb->get_mail_demand();
+		// formula : besch_mail_demand * (current_production_base / besch_production_base); (prod >> 1) is for rounding
+		const uint32 mail_demand = (uint32)( ( base_mail_demand * (sint64)prodbase + (prod >> 1) ) / prod );
+		// then, scaling based on month length
+		scaled_mail_demand = max(welt->calc_adjusted_monthly_figure(mail_demand), 1);
+
+		// mail demand for fixed period length
+		// It is intended that mail_demand, not scaled_mail_demand be used here despite the method name
+		arrival_stats_mail.set_scaled_demand( mail_demand );
+
 		// Must update the world building list to take into account the new passenger demand (weighting)
-		const grund_t* gr = welt->lookup(pos);
 		if(gb)
 		{
 			welt->update_weight_of_building_in_world_list(gb);
@@ -692,6 +679,7 @@ fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
 	prodfactor_electric = 0;
 	lieferziele_active_last_month = 0;
 	city = NULL;
+	building = NULL;
 
 	rdwr(file);
 
@@ -735,6 +723,7 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 	welt = spieler->get_welt();
 	pos.z = welt->max_hgt(pos.get_2d());
 	pos_origin = pos;
+	building = NULL;
 
 	besitzer_p = spieler;
 
@@ -924,25 +913,17 @@ fabrik_t::~fabrik_t()
 		city->remove_city_factory(this);
 	}
 
-	const grund_t* gr = welt->lookup(pos);
-	//assert(gr);
-	if(gr)
-	{
-		gebaeude_t* gb = gr->find<gebaeude_t>();
-		welt->remove_building_from_world_list(gb);
-	}
+	welt->remove_building_from_world_list(get_building());
 
-	if (!welt->get_is_shutting_down())
+	if(!welt->get_is_shutting_down())
 	{
-		uint16 jobs = 0;
 		if (besch != NULL)
 		{
 			welt->decrease_actual_industry_density(100 / besch->get_gewichtung());
-			jobs = besch->get_pax_level();
 		}
 
-		//Disconnect this factory from all chains.
-		//@author: jamespetts
+		// Disconnect this factory from all chains.
+		// @author: jamespetts
 		uint32 number_of_customers = lieferziele.get_count();
 		uint32 number_of_suppliers = suppliers.get_count();
 		const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
@@ -952,18 +933,16 @@ fabrik_t::~fabrik_t()
 		}
 		
 		char buf[192];
-		sprintf(buf, translator::translate("Industry:\n%s\nhas closed,\nwith the loss\nof %d jobs.\n%d upstream\nsuppliers and\n%d downstream\ncustomers\nare affected."), translator::translate(get_name()), jobs, number_of_suppliers, number_of_customers);
+		sprintf(buf, translator::translate("Industry:\n%s\nhas closed,\nwith the loss\nof %d jobs.\n%d upstream\nsuppliers and\n%d downstream\ncustomers\nare affected."), translator::translate(get_name()), get_base_pax_demand(), number_of_suppliers, number_of_customers);
 		welt->get_message()->add_message(buf, pos.get_2d(), message_t::industry, COL_DARK_RED, skinverwaltung_t::neujahrsymbol->get_bild_nr(0));
 		for(sint32 i = number_of_customers - 1; i >= 0; i --)
 		{
 			fabrik_t* tmp = get_fab(welt, lieferziele[i]);
 			if(tmp && tmp->disconnect_supplier(pos.get_2d()))
 			{
-				//Orphaned, must be deleted.
-				grund_t *gr = 0;
-				gr = welt->lookup(tmp->get_pos());
-				gebaeude_t* gb = gr->find<gebaeude_t>();
-				hausbauer_t::remove(welt,  welt->get_spieler(1), gb);
+				// Orphaned, must be deleted.
+				gebaeude_t* gb = tmp->get_building();
+				hausbauer_t::remove(welt, welt->get_spieler(1), gb);
 			}
 		}
 
@@ -972,10 +951,8 @@ fabrik_t::~fabrik_t()
 			fabrik_t* tmp = get_fab(welt, suppliers[i]);
 			if(tmp && tmp->disconnect_consumer(pos.get_2d()))
 			{
-				//Orphaned, must be deleted.
-				grund_t *gr = 0;
-				gr = welt->lookup(tmp->get_pos());
-				gebaeude_t* gb = gr->find<gebaeude_t>();
+				// Orphaned, must be deleted.
+				gebaeude_t* gb = tmp->get_building();
 				hausbauer_t::remove(welt, welt->get_spieler(1), gb);
 			}
 		}
@@ -991,8 +968,8 @@ void fabrik_t::baue(sint32 rotate, bool build_fields, bool force_initial_prodbas
 {
 	this->rotate = rotate;
 	pos_origin = welt->lookup_kartenboden(pos_origin.get_2d())->get_pos();
-	gebaeude_t *gb = hausbauer_t::baue(welt, besitzer_p, pos_origin, rotate, besch->get_haus(), this);
-	pos = gb->get_pos();
+	building = hausbauer_t::baue(welt, besitzer_p, pos_origin, rotate, besch->get_haus(), this);
+	pos = building->get_pos();
 	pos_origin.z = pos.z;
 
 	if(besch->get_field_group()) {
@@ -2137,9 +2114,6 @@ void fabrik_t::neuer_monat()
 
 		if(closedown)
 		{
-			grund_t *gr = 0;
-			gr = welt->lookup(pos);
-			gebaeude_t* gb = gr->find<gebaeude_t>();
 			char buf[192];
 			
 			const int upgrades_count = besch->get_upgrades_count();
@@ -2199,7 +2173,7 @@ void fabrik_t::neuer_monat()
 						const char* old_name = get_name();
 						besch = new_type;
 						const char* new_name = get_name();
-						gb->calc_bild();
+						get_building()->calc_bild();
 						// Base production is randomised, so is an instance value. Must re-set from the type.
 						prodbase = besch->get_produktivitaet() + simrand(besch->get_bereich(), "void fabrik_t::neuer_monat()");
 						// Re-add the fields
@@ -2441,8 +2415,7 @@ void fabrik_t::recalc_factory_status()
 
 void fabrik_t::zeige_info()
 {
-	gebaeude_t *gb = welt->lookup(pos)->find<gebaeude_t>();
-	create_win(new fabrik_info_t(this, gb), w_info, (ptrdiff_t)this );
+	create_win(new fabrik_info_t(this, get_building()), w_info, (ptrdiff_t)this );
 }
 
 
@@ -2728,7 +2701,7 @@ void fabrik_t::laden_abschliessen()
 	set_base_production( max(prodbase, prodbase_adjust) );
 	mark_connected_roads(false);
 
-	add_to_world_list(true);
+	add_to_world_list();
 }
 
 
@@ -2862,9 +2835,22 @@ slist_tpl<const ware_besch_t*> *fabrik_t::get_produced_goods() const
 	return goods;
 }
 
-void fabrik_t::add_to_world_list(bool lock)
+void fabrik_t::add_to_world_list()
 {
-		const grund_t* gr = welt->lookup(pos);
-		gebaeude_t* gb = gr->find<gebaeude_t>();
-		welt->add_building_to_world_list(gb);
+	welt->add_building_to_world_list(get_building());
+}
+
+gebaeude_t* fabrik_t::get_building()
+{
+	if(building)
+	{
+		return building;
+	}
+	const grund_t* gr = welt->lookup(pos);
+	if(gr)
+	{
+		building = gr->find<gebaeude_t>();
+		return building;
+	}
+	return NULL;
 }

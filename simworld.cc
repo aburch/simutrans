@@ -3756,9 +3756,7 @@ void karte_t::new_month()
 	{
 		if(fab_list.is_contained(fab)) 
 		{
-			grund_t *gr = lookup(fab->get_pos());
-			gebaeude_t* gb = gr->find<gebaeude_t>();
-	   
+			gebaeude_t* gb = fab->get_building();
 			hausbauer_t::remove(this, get_spieler(1), gb);
 		}
 	}
@@ -6856,7 +6854,8 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 	stadt.resize(settings.get_anzahl_staedte());
 	for (int i = 0; i < settings.get_anzahl_staedte(); ++i) {
 		stadt_t *s = new stadt_t(this, file);
-		stadt.append( s, s->get_einwohner());
+		const sint32 population = s->get_einwohner();
+		stadt.append(s, population > 0 ? population : 1); // This has to be at least 1, or else the weighted vector will not add it. TODO: Remove this check once the population checking method is improved.
 	}
 
 	DBG_MESSAGE("karte_t::laden()","loading blocks");

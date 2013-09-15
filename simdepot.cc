@@ -893,10 +893,10 @@ bool depot_t::is_suitable_for( const vehikel_t * test_vehicle, const uint8 tract
 
 void depot_t::add_to_world_list(bool lock)
 {
-		const grund_t* gr = welt->lookup(get_pos());
-		if(gr)
-		{
-			gebaeude_t* gb = (gebaeude_t*)this;
-			welt->add_building_to_world_list(gb);
-		}
+	const grund_t* gr = welt->lookup(get_pos());
+	if(gr)
+	{
+		gebaeude_t* gb = (gebaeude_t*)this;
+		welt->add_building_to_world_list(gb);
+	}
 }
