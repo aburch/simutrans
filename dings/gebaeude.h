@@ -269,23 +269,7 @@ public:
 	 */
 	int get_passagier_level() const;
 
-	int get_post_level() const;
-
-	/** 
-	* Return the number of passengers that this  
-	* building generates/demands every month,
-	* multiplied by 100.
-	* @author: jamespetts
-	*/
-	uint32 get_passengers_per_hundred_months() const;
-	
-	/** 
-	* Return the number of units of mail that this  
-	* building generates/demands every month,
-	* multiplied by 100.
-	* @author: jamespetts
-	*/
-	uint32 get_mail_per_hundred_months() const;
+	int get_post_level() const; 
 
 	void set_tile( const haus_tile_besch_t *t, bool start_with_construction );
 

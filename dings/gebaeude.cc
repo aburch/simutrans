@@ -612,47 +612,17 @@ image_id gebaeude_t::get_after_bild() const
  * This and the next method once multiplied the level by the size
  *  of the building, but this is no longer relevant as of Experimental 12.0
  */
+// TODO: Remove this deprecated code.
 int gebaeude_t::get_passagier_level() const
 {
 	return tile->get_besch()->get_level();
 }
 
-
+// TODO: Remove this deprecated code.
 int gebaeude_t::get_post_level() const
 {
 	return tile->get_besch()->get_post_level();	
 }
-
-uint32 gebaeude_t::get_passengers_per_hundred_months() const
-{
-	if(!is_factory)
-	{
-		// This is equivalent of:
-		// Level *= 1.22, * 100, * 16, / passenger factor
-		return (tile->get_besch()->get_level() * 1952) / welt->get_settings().get_passenger_factor();
-	}
-	else
-	{
-		const uint32 TEST_base = (tile->get_besch()->get_level() * 1952) / welt->get_settings().get_passenger_factor();
-		const uint32 TEST_base_alternative = tile->get_besch()->get_level() * 122;
-		const uint32 TEST_factory = ptr.fab->get_scaled_pax_demand();
-		const uint32 TEST_total_jobs = get_adjusted_jobs();
-		return ptr.fab->get_scaled_pax_demand();
-	}
-}
-
-uint32 gebaeude_t::get_mail_per_hundred_months() const
-{
-	if(!is_factory)
-	{
-		return (tile->get_besch()->get_post_level() * 20) / welt->get_settings().get_passenger_factor();
-	}
-	else
-	{
-		return ptr.fab->get_scaled_mail_demand();
-	}
-}
-
 
 /**
  * @return eigener Name oder Name der Fabrik falls Teil einer Fabrik
@@ -875,8 +845,8 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 		}
 
 		if(  get_tile()->get_besch()->get_utyp() < haus_besch_t::bahnhof  ) {
-			buf.printf("%s: %d\n", translator::translate("Passagierrate"), get_passagier_level());
-			buf.printf("%s: %d\n", translator::translate("Postrate"),      get_post_level());
+			buf.printf("%s: %d\n", translator::translate("Passagierrate"), people.population); // TODO: Consider updating the names for this.
+			buf.printf("%s: %d\n", translator::translate("Postrate"),      mail_demand);
 		}
 
 		haus_besch_t const& h = *tile->get_besch();

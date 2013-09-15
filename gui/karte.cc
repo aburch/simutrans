@@ -958,7 +958,7 @@ void reliefkarte_t::calc_map()
 		// find the current maximum
 		max_tourist_ziele = 1;
 		FOR(weighted_vector_tpl<gebaeude_t*>, const i, ausflugsziele) {
-			int const pax = i->get_passagier_level();
+			int const pax = i->get_adjusted_visitor_demand();
 			if (max_tourist_ziele < pax) {
 				max_tourist_ziele = pax;
 			}
@@ -966,7 +966,7 @@ void reliefkarte_t::calc_map()
 		// draw them
 		FOR(weighted_vector_tpl<gebaeude_t*>, const g, ausflugsziele) {
 			koord pos = g->get_pos().get_2d();
-			set_relief_farbe_area( pos, 7, calc_severity_color(g->get_passagier_level(), max_tourist_ziele));
+			set_relief_farbe_area( pos, 7, calc_severity_color(g->get_adjusted_visitor_demand(), max_tourist_ziele));
 		}
 		return;
 	}
@@ -1668,11 +1668,11 @@ void reliefkarte_t::zeichnen(koord pos)
 				koord gb_pos = gb->get_pos().get_2d();
 				karte_to_screen( gb_pos );
 				gb_pos = gb_pos + pos;
-				int const pax = gb->get_passagier_level();
+				int const pax = gb->get_adjusted_visitor_demand();
 				if(  max_tourist_ziele < pax  ) {
 					max_tourist_ziele = pax;
 				}
-				COLOR_VAL color = calc_severity_color_log(gb->get_passagier_level(), max_tourist_ziele);
+				COLOR_VAL color = calc_severity_color_log(gb->get_adjusted_visitor_demand(), max_tourist_ziele);
 				int radius = max( (number_to_radius( pax*4 )*zoom_in)/zoom_out, 1 );
 				display_filled_circle( gb_pos.x, gb_pos.y, radius, color );
 				display_circle( gb_pos.x, gb_pos.y, radius, COL_BLACK );

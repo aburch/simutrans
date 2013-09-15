@@ -211,14 +211,8 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 			buf.append("\n\n");
 			buf.append( translator::translate( besch->get_name() ) );
 
-			buf.printf("\n\n%s: %i\n",translator::translate("Passagierrate"),besch->get_level());
-			if(besch->get_utyp()==haus_besch_t::attraction_land) {
-				// same with passengers
-				buf.printf("%s: %i\n",translator::translate("Postrate"),besch->get_level());
-			}
-			else {
-				buf.printf("%s: %i\n",translator::translate("Postrate"),besch->get_post_level());
-			}
+			buf.printf("\n\n%s: %i\n",translator::translate("Passagierrate"), besch->get_population_and_visitor_demand_capacity());
+			buf.printf("%s: %i\n",translator::translate("Postrate"), besch->get_mail_demand_and_production_capacity());
 
 			buf.printf("%s%u", translator::translate("\nBauzeit von"), besch->get_intro_year_month() / 12);
 			if(besch->get_retire_year_month()!=DEFAULT_RETIRE_DATE*12) {

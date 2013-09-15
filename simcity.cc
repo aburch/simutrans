@@ -1661,7 +1661,14 @@ stadt_t::~stadt_t()
 				gb->set_stadt( city );
 				if(city) 
 				{
-					city->buildings.append_unique(gb, gb->get_passagier_level());
+					if(gb->get_tile()->get_besch()->get_typ() == gebaeude_t::wohnung)
+					{
+						city->buildings.append_unique(gb, gb->get_adjusted_population());
+					}
+					else
+					{
+						city->buildings.append_unique(gb, gb->get_adjusted_visitor_demand());
+					}
 				}
 			}
 			else 

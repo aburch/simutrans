@@ -1003,7 +1003,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","searching attraction");
 					koord pos, size;
 					if(ausflug) {
 						const gebaeude_t* a = ausflugsziele[i];
-						if (a->get_post_level() <= 25) {
+						if (a->get_mail_demand() <= 25) {
 							// not a good object to go to ...
 							continue;
 						}

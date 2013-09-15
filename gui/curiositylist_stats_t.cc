@@ -63,7 +63,7 @@ class compare_curiosities
 				}
 
 				case curiositylist::by_paxlevel:
-					cmp = a->get_passagier_level() - b->get_passagier_level();
+					cmp = a->get_adjusted_visitor_demand() - b->get_adjusted_visitor_demand();
 					break;
 			}
 			return reverse ? cmp > 0 : cmp < 0;
@@ -89,7 +89,7 @@ void curiositylist_stats_t::get_unique_attractions(curiositylist::sort_mode_t sb
 	FOR(weighted_vector_tpl<gebaeude_t*>, const geb, ausflugsziele) {
 		if (geb != NULL &&
 				geb->get_first_tile() == geb &&
-				geb->get_passagier_level() != 0) {
+				geb->get_adjusted_visitor_demand() != 0) {
 			attractions.insert_ordered( geb, compare_curiosities(sortby, sortreverse) );
 		}
 	}
@@ -239,7 +239,7 @@ void curiositylist_stats_t::zeichnen(koord offset)
 		}
 		*dst = '\0';
 		// now we have a short name ...
-		buf.printf("%s (%d)", short_name, geb->get_passagier_level());
+		buf.printf("%s (%d)", short_name, geb->get_visitor_demand());
 
 		display_proportional_clip(xoff+D_INDICATOR_WIDTH+10+9,yoff,buf,ALIGN_LEFT,COL_BLACK,true);
 
