@@ -65,8 +65,8 @@ public:
 class obj_besch_transport_related_t : public obj_besch_timelined_t {
 
 protected:
-	uint32 maintenance;   ///< monthly cost for bits_per_month=18
-	uint32 cost;	    ///< cost to build this thing [1/100 credits] per tile/object
+	sint32 maintenance;   ///< monthly cost for bits_per_month=18
+	sint32 cost;          ///< cost to build this thing [1/100 credits] per tile/object
 	uint8  wt;            ///< waytype of this thing
 	sint32 topspeed;      ///< maximum allowed speed in km/h
 
@@ -74,10 +74,10 @@ public:
 	obj_besch_transport_related_t() : obj_besch_timelined_t(),
 		maintenance(0), cost(0), wt(255), topspeed(0) {}
 
-	uint32 get_maintenance() const { return maintenance; }
-	uint32 get_wartung() const { return maintenance; }
+	sint32 get_maintenance() const { return maintenance; }
+	sint32 get_wartung() const { return maintenance; }
 
-	uint32 get_preis() const { return cost; }
+	sint32 get_preis() const { return cost; }
 
 	waytype_t get_waytype() const { return static_cast<waytype_t>(wt); }
 	waytype_t get_wtyp() const { return get_waytype(); }
