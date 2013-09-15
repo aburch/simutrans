@@ -1373,7 +1373,7 @@ public:
 		if (ticks_per_world_month_shift >= 18)
 		{
 			const sint64 adjusted_monthly_figure = nominal_monthly_figure / adjustment_factor;
-			return (adjusted_monthly_figure >> (18ll - ticks_per_world_month_shift)); 
+			return (adjusted_monthly_figure << -(18ll - ticks_per_world_month_shift)); 
 		} 
 		else 
 		{			

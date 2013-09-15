@@ -142,6 +142,23 @@ gebaeude_t::gebaeude_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_til
 		spieler_t::add_maintenance(get_besitzer(), maint, tile->get_besch()->get_finance_waytype() );
 	}
 
+	if(tile->get_besch()->get_typ() == wohnung)
+	{
+		people.population = tile->get_besch()->get_population_and_visitor_demand_capacity() == 65535 ? tile->get_besch()->get_level() * welt->get_settings().get_population_per_level() : tile->get_besch()->get_population_and_visitor_demand_capacity();
+		adjusted_people.population = welt->calc_adjusted_monthly_figure(people.population);
+	}
+	else
+	{
+		people.visitor_demand = tile->get_besch()->get_population_and_visitor_demand_capacity() == 65535 ? tile->get_besch()->get_level() * welt->get_settings().get_visitor_demand_per_level() : tile->get_besch()->get_population_and_visitor_demand_capacity();
+		adjusted_people.visitor_demand = welt->calc_adjusted_monthly_figure(people.visitor_demand);
+	}
+	
+	jobs = tile->get_besch()->get_employment_capacity() == 65535 ? (is_monument() || tile->get_besch()->get_typ() == wohnung) ? 0 : tile->get_besch()->get_level() * welt->get_settings().get_jobs_per_level() : tile->get_besch()->get_employment_capacity();
+	mail_demand = tile->get_besch()->get_mail_demand_and_production_capacity() == 65535 ? is_monument() ? 0 : tile->get_besch()->get_level() * welt->get_settings().get_mail_per_level() : tile->get_besch()->get_mail_demand_and_production_capacity();
+
+	adjusted_jobs = welt->calc_adjusted_monthly_figure(jobs);
+	adjusted_mail_demand = welt->calc_adjusted_monthly_figure(mail_demand);
+
 	grund_t *gr=welt->lookup(get_pos());
 	if(gr  &&  gr->get_weg_hang()!=gr->get_grund_hang()) {
 		set_yoff(-TILE_HEIGHT_STEP);
