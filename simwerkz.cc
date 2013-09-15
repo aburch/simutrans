@@ -5232,7 +5232,8 @@ const char *wkz_build_industries_land_t::work( karte_t *welt, spieler_t *sp, koo
 		// eventually adjust production
 		sint32 initial_prod = -1;
 		if (!strempty(default_param)) {
-			initial_prod = welt->calc_adjusted_monthly_figure(atol(default_param + 2));
+			sint32 value = atol(default_param + 2);
+			initial_prod = welt->calc_adjusted_monthly_figure(value);
 		}
 
 		koord3d k = gr->get_pos();
@@ -5302,7 +5303,8 @@ const char *wkz_build_industries_city_t::work( karte_t *welt, spieler_t *sp, koo
 	// eventually adjust production
 	sint32 initial_prod = -1;
 	if (!strempty(default_param)) {
-		initial_prod = welt->calc_adjusted_monthly_figure(atol(default_param + 2));
+		sint32 value = atol(default_param+2);
+		initial_prod = welt->calc_adjusted_monthly_figure(value);
 	}
 
 	k = gr->get_pos();
@@ -5406,7 +5408,8 @@ const char *wkz_build_factory_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 		// eventually adjust production
 		sint32 initial_prod = -1;
 		if (!strempty(default_param)) {
-			initial_prod = welt->calc_adjusted_monthly_figure(atol(default_param + 2));
+			sint32 value = atol(default_param+2);
+			initial_prod = welt->calc_adjusted_monthly_figure(value);
 		}
 
 		fabrik_t *f = fabrikbauer_t::baue_fabrik(welt, NULL, fab, initial_prod, rotation, gr->get_pos(), welt->get_spieler(1));
