@@ -919,7 +919,8 @@ private:
 	/** Stores the value of the next step for passenger/mail generation
 	 * purposes.
 	 */
-	uint32 next_step;
+	uint32 next_step_passenger;
+	uint32 next_step_mail;
 
 public:
 
@@ -942,6 +943,8 @@ private:
 	* to be distributed to all destination buildings
 	*/		 	
 	void step_passengers_and_mail(long delta_t);
+
+	void generate_passengers_or_mail(const ware_besch_t * wtyp);
 
 	destination find_destination(trip_type trip);
 
