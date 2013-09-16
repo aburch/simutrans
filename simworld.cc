@@ -4380,14 +4380,14 @@ void karte_t::step_passengers_and_mail(long delta_t)
 	// TODO: Have these set from simuconf.tab (and calc_adjusted_monthly_figure, passenger_factor from legacy saves)
 	// These represent the number of passenger trips and units/packets/bundles of mail posted per unit
 	// of population or mail demand per month, divided by 100. NOTE: This excludes return and onward journeys.
-	const uint32 passenger_trips_per_month_hundredths = calc_adjusted_monthly_figure(185u); 
+	const uint32 passenger_trips_per_month_hundredths = calc_adjusted_monthly_figure(200u); 
 	const uint32 mail_packets_per_month_hundredths = calc_adjusted_monthly_figure(10u);
 
 	const uint32 passenger_trips_per_month = (passenger_origins_weight * passenger_trips_per_month_hundredths) / 100u;
 	const uint32 mail_packets_per_month = (mail_weight * mail_packets_per_month_hundredths) / 100u;
 
-	const uint32 passenger_step_interval = ticks_per_world_month / passenger_trips_per_month;
-	const uint32 mail_step_interval = ticks_per_world_month / mail_packets_per_month;
+	passenger_step_interval = ticks_per_world_month / passenger_trips_per_month;
+	mail_step_interval = ticks_per_world_month / mail_packets_per_month;
 
 	while(passenger_step_interval <= next_step_passenger) 
 	{
@@ -4395,8 +4395,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 		{
 			return;
 		}
-		generate_passengers_or_mail(warenbauer_t::passagiere);
-		next_step_passenger -= passenger_step_interval;
+		generate_passengers_or_mail(warenbauer_t::passagiere);	
 	} 
 
 	while(mail_step_interval <= next_step_mail) 
@@ -4406,7 +4405,6 @@ void karte_t::step_passengers_and_mail(long delta_t)
 			return;
 		}
 		generate_passengers_or_mail(warenbauer_t::post);
-		next_step_mail -= mail_step_interval;
 	} 
 }
 
@@ -4444,8 +4442,8 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 
 	const int num_pax =
 	(wtyp == warenbauer_t::passagiere) ?
-		(gb->get_tile()->get_besch()->get_level()) :
-		(gb->get_tile()->get_besch()->get_post_level()); // TODO: Replace this with new system.
+		(gb->get_adjusted_population()) :
+		(gb->get_adjusted_mail_demand()); 
 
 	if(city)
 	{
@@ -5451,6 +5449,15 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 		} // Onward journeys (for loop)
 
 	} // For loop (passenger/mail packets)
+
+	if(wtyp == warenbauer_t::passagiere)
+	{
+		next_step_passenger -= (passenger_step_interval * num_pax);
+	}
+	else
+	{
+		next_step_mail -= (mail_step_interval * num_pax);
+	}
 }
 
 karte_t::destination karte_t::find_destination(trip_type trip)

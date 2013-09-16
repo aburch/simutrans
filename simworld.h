@@ -919,8 +919,11 @@ private:
 	/** Stores the value of the next step for passenger/mail generation
 	 * purposes.
 	 */
-	uint32 next_step_passenger;
-	uint32 next_step_mail;
+	sint32 next_step_passenger;
+	sint32 next_step_mail;
+
+	sint32 passenger_step_interval;
+	sint32 mail_step_interval;
 
 public:
 
