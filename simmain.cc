@@ -886,6 +886,7 @@ int simu_main(int argc, char** argv)
 
 #ifndef MULTI_THREAD
 	if(  umgebung_t::num_threads > 1  ) {
+		umgebung_t::num_threads = 1;
 		dbg->important("Multithreading not enabled: threads = %d ignored.", umgebung_t::num_threads );
 	}
 #endif
