@@ -968,7 +968,10 @@ void fabrik_t::baue(sint32 rotate, bool build_fields, bool force_initial_prodbas
 {
 	this->rotate = rotate;
 	pos_origin = welt->lookup_kartenboden(pos_origin.get_2d())->get_pos();
-	building = hausbauer_t::baue(welt, besitzer_p, pos_origin, rotate, besch->get_haus(), this);
+	if(!building)
+	{
+ 		building = hausbauer_t::baue(welt, besitzer_p, pos_origin, rotate, besch->get_haus(), this);
+	}
 	pos = building->get_pos();
 	pos_origin.z = pos.z;
 
@@ -1461,6 +1464,15 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 				name = 0;
 			}
 		}
+	}
+
+	if(file->get_experimental_version() >= 12)
+	{
+		grund_t *gr = welt->lookup(pos_origin);
+		gebaeude_t *gb = gr->find<gebaeude_t>();
+		
+		building = gb;
+		building->set_fab(this);
 	}
 }
 

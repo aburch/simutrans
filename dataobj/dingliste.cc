@@ -1162,8 +1162,6 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				||  d->get_typ()==ding_t::async_wolke
 				// fields will be built by factory
 				||  d->get_typ()==ding_t::field
-				// do not save factory buildings => factory will reconstruct them
-				||  (d->get_typ()==ding_t::gebaeude  &&  ((gebaeude_t *)d)->get_fabrik())
 				// things with convoi will not be saved
 				||  (d->get_typ()>=66  &&  d->get_typ()<82)
 				||  (umgebung_t::server  &&  d->get_typ()==ding_t::baum  &&  file->get_version()>=110001)

@@ -177,7 +177,7 @@ gebaeude_t::gebaeude_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_til
 gebaeude_t::~gebaeude_t()
 {
 	stadt_t* our_city = get_stadt();
-	if(our_city) 
+	if(our_city && !welt->get_is_shutting_down()) 
 	{
 		our_city->remove_gebaeude_from_stadt(this);
 	}
@@ -947,8 +947,6 @@ void gebaeude_t::new_year()
 
 void gebaeude_t::rdwr(loadsave_t *file)
 {
-	// do not save factory buildings => factory will reconstruct them
-	assert(!is_factory);
 	xml_tag_t d( file, "gebaeude_t" );
 
 	ding_t::rdwr(file);
@@ -1106,8 +1104,17 @@ void gebaeude_t::rdwr(loadsave_t *file)
 		file->rdwr_byte(dummy);
 	}
 
+	if(file->get_experimental_version() >= 12)
+	{
+		bool f = is_factory;
+		file->rdwr_bool(f);
+		is_factory = f;
+		ptr.fab = NULL; // set_fab will be called soon enough, hopefully
+	}
+
 	// restore city pointer here
-	if(  file->get_version()>=99014  ) {
+	if(file->get_version()>=99014 && !is_factory) 
+	{
 		sint32 city_index = -1;
 		if(  file->is_saving()  &&  ptr.stadt!=NULL  ) {
 			city_index = welt->get_staedte().index_of( ptr.stadt );
