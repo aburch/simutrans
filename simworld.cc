@@ -3586,16 +3586,32 @@ void karte_t::remove_ausflugsziel(gebaeude_t *gb)
 
 stadt_t *karte_t::suche_naechste_stadt(const koord k) const
 {
-	long min_dist = 99999999;
-	stadt_t *best = NULL;
+	uint32 min_dist = 99999999;
+	bool contains = false;
+	stadt_t *best = NULL;	// within city limits
 
-	if(is_within_limits(k)) {
-		FOR(weighted_vector_tpl<stadt_t*>, const s, stadt) {
-			const koord k_stadt = s->get_pos();
-			const long dist = (k.x-k_stadt.x)*(k.x-k_stadt.x) + (k.y-k_stadt.y)*(k.y-k_stadt.y);
-			if(dist < min_dist) {
-					min_dist = dist;
+	if(  is_within_limits(k)  ) {
+		FOR(  weighted_vector_tpl<stadt_t*>,  const s,  stadt  ) {
+			if(  k.x >= s->get_linksoben().x  &&  k.y >= s->get_linksoben().y  &&  k.x < s->get_rechtsunten().x  &&  k.y < s->get_rechtsunten().y  ) {
+				const long dist = koord_distance( k, s->get_center() );
+				if(  !contains  ) {
+					// no city within limits => this is best
 					best = s;
+					min_dist = dist;
+				}
+				else if(  dist < min_dist  ) {
+					best = s;
+					min_dist = dist;
+				}
+				contains = true;
+			}
+			else if(  !contains  ) {
+				// so far no cities found within its city limit
+				const uint32 dist = koord_distance( k, s->get_center() );
+				if(  dist < min_dist  ) {
+					best = s;
+					min_dist = dist;
+				}
 			}
 		}
 	}

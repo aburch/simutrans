@@ -116,6 +116,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="besch\obj_besch_std_name.cc" />
     <ClCompile Include="besch\weg_besch.cc" />
     <ClCompile Include="dataobj\records.cc" />
     <ClCompile Include="display\font.cc" />

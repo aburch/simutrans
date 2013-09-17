@@ -1666,7 +1666,8 @@ public:
 	const vector_tpl<const ware_besch_t*> &get_goods_list();
 
 	/**
-	 * Seaches and returns the closest city to the supplied coordinates.
+	 * Seaches and returns the closest city
+	 * but prefers even farther cities if within their city limits
 	 * @author Hj. Malthaner
 	 */
 	stadt_t *suche_naechste_stadt(koord k) const;
