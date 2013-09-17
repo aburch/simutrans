@@ -4383,7 +4383,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 	const uint32 passenger_trips_per_month_hundredths = calc_adjusted_monthly_figure(200u); 
 	const uint32 mail_packets_per_month_hundredths = calc_adjusted_monthly_figure(10u);
 
-	const uint32 passenger_trips_per_month = (passenger_origins_weight * passenger_trips_per_month_hundredths) / 100u;
+	const uint32 passenger_trips_per_month = max((passenger_origins_weight * passenger_trips_per_month_hundredths) / 100u, 1u);
 	const uint32 mail_packets_per_month = (mail_weight * mail_packets_per_month_hundredths) / 100u;
 
 	passenger_step_interval = ticks_per_world_month / passenger_trips_per_month;
