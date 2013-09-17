@@ -17,6 +17,7 @@
 #include "../simmem.h"
 #include "../simdebug.h"
 #include "../besch/bild_besch.h"
+#include "../dataobj/umgebung.h"
 #include "../unicode.h"
 #include "../simticker.h"
 #include "simgraph.h"
@@ -51,7 +52,8 @@
 #include "../utils/simthread.h"
 
 // currently just redrawing/rezooming
-static pthread_mutex_t rezoom_recode_img_mutex;
+static pthread_mutex_t rezoom_img_mutex[MAX_THREADS];
+static pthread_mutex_t recode_img_mutex;
 #endif
 
 #include "simgraph.h"
@@ -357,6 +359,13 @@ static KOORD_VAL disp_width  = 640;
 static KOORD_VAL disp_actual_width  = 640;
 static KOORD_VAL disp_height = 480;
 
+
+/*
+ * Static buffers for rezoom_img()
+ */
+static uint8 *rezoom_baseimage[MAX_THREADS];
+static PIXVAL *rezoom_baseimage2[MAX_THREADS];
+static size_t rezoom_size[MAX_THREADS];
 
 /*
  * Image table
@@ -1238,10 +1247,10 @@ static void recode_img(const unsigned int n, const unsigned char player_nr)
 {
 	// Hajo: may this image be zoomed
 #ifdef MULTI_THREAD
-	pthread_mutex_lock( &rezoom_recode_img_mutex );
+	pthread_mutex_lock( &recode_img_mutex );
 	if(  (images[n].player_flags & (1<<player_nr)) == 0  ) {
 		// other thread did already the re-code...
-		pthread_mutex_unlock( &rezoom_recode_img_mutex );
+		pthread_mutex_unlock( &recode_img_mutex );
 		return;
 	}
 #endif
@@ -1255,7 +1264,7 @@ static void recode_img(const unsigned int n, const unsigned char player_nr)
 	recode_img_src_target( images[n].h, src, images[n].data[player_nr] );
 	images[n].player_flags &= ~(1<<player_nr);
 #ifdef MULTI_THREAD
-	pthread_mutex_unlock( &rezoom_recode_img_mutex );
+	pthread_mutex_unlock( &recode_img_mutex );
 #endif
 }
 
@@ -1325,10 +1334,10 @@ static void rezoom_img(const image_id n)
 	// Hajo: may this image be zoomed
 	if(  n < anz_images  &&  images[n].base_h > 0  ) {
 #ifdef MULTI_THREAD
-		pthread_mutex_lock( &rezoom_recode_img_mutex );
+		pthread_mutex_lock( &rezoom_img_mutex[n % umgebung_t::num_threads] );
 		if(  (images[n].recode_flags & FLAG_REZOOM) == 0  ) {
 			// other routine did already the re-zooming ...
-			pthread_mutex_unlock( &rezoom_recode_img_mutex );
+			pthread_mutex_unlock( &rezoom_img_mutex[n % umgebung_t::num_threads] );
 			return;
 		}
 #endif
@@ -1349,7 +1358,7 @@ static void rezoom_img(const image_id n)
 		}
 
 		// just restore original size?
-		if(  tile_raster_width == base_tile_raster_width  ||  (images[n].recode_flags&FLAG_ZOOMABLE) == 0)   {
+		if(  tile_raster_width == base_tile_raster_width  ||  (images[n].recode_flags&FLAG_ZOOMABLE) == 0  ) {
 			// this we can do be a simple copy ...
 			images[n].x = images[n].base_x;
 			images[n].w = images[n].base_w;
@@ -1364,34 +1373,31 @@ static void rezoom_img(const image_id n)
 					// clear run + colored run + next clear run
 					sp++;
 					sp += *sp + 1;
-				} while (*sp);
+				} while(  *sp  );
 				sp++;
 			}
 			images[n].len = (uint32)(size_t)(sp - images[n].base_data);
 			images[n].recode_flags &= ~FLAG_REZOOM;
 #ifdef MULTI_THREAD
-			pthread_mutex_unlock( &rezoom_recode_img_mutex );
+			pthread_mutex_unlock( &rezoom_img_mutex[n % umgebung_t::num_threads] );
 #endif
 			return;
 		}
 
 		// now we want to downsize the image
 		// just divide the sizes
-		images[n].x = (images[n].base_x*zoom_num[zoom_factor]) / zoom_den[zoom_factor];
-		images[n].y = (images[n].base_y*zoom_num[zoom_factor]) / zoom_den[zoom_factor];
-		images[n].w = (images[n].base_w*zoom_num[zoom_factor]) / zoom_den[zoom_factor];
-		images[n].h = (images[n].base_h*zoom_num[zoom_factor]) / zoom_den[zoom_factor];
+		images[n].x = (images[n].base_x * zoom_num[zoom_factor]) / zoom_den[zoom_factor];
+		images[n].y = (images[n].base_y * zoom_num[zoom_factor]) / zoom_den[zoom_factor];
+		images[n].w = (images[n].base_w * zoom_num[zoom_factor]) / zoom_den[zoom_factor];
+		images[n].h = (images[n].base_h * zoom_num[zoom_factor]) / zoom_den[zoom_factor];
 
 		if(  images[n].h > 0  &&  images[n].w > 0  ) {
 			// just recalculate the image in the new size
-			static uint8 *baseimage = NULL;
-			static uint32 size = 0;
-			static PIXVAL *baseimage2 = NULL;
 			PIXVAL *src = images[n].base_data;
 			PIXVAL *dest = NULL;
 			// embed the baseimage in an image with margin ~ remainder
-			const sint16 x_rem = (images[n].base_x*zoom_num[zoom_factor]) % zoom_den[zoom_factor];
-			const sint16 y_rem = (images[n].base_y*zoom_num[zoom_factor]) % zoom_den[zoom_factor];
+			const sint16 x_rem = (images[n].base_x * zoom_num[zoom_factor]) % zoom_den[zoom_factor];
+			const sint16 y_rem = (images[n].base_y * zoom_num[zoom_factor]) % zoom_den[zoom_factor];
 			const sint16 xl_margin = max( x_rem, 0);
 			const sint16 xr_margin = max(-x_rem, 0);
 			const sint16 yl_margin = max( y_rem, 0);
@@ -1402,7 +1408,7 @@ static void rezoom_img(const image_id n)
 			sint32 orgzoomwidth = ((images[n].base_w + zoom_den[zoom_factor] - 1 ) / zoom_den[zoom_factor]) * zoom_den[zoom_factor];
 			sint32 newzoomwidth = (orgzoomwidth*zoom_num[zoom_factor])/zoom_den[zoom_factor];
 			sint32 orgzoomheight = ((images[n].base_h + zoom_den[zoom_factor] - 1 ) / zoom_den[zoom_factor]) * zoom_den[zoom_factor];
-			sint32 newzoomheight = (orgzoomheight*zoom_num[zoom_factor])/zoom_den[zoom_factor];
+			sint32 newzoomheight = (orgzoomheight * zoom_num[zoom_factor]) / zoom_den[zoom_factor];
 
 			// we will unpack, re-sample, pack it
 
@@ -1416,37 +1422,38 @@ static void rezoom_img(const image_id n)
 			// We end with an over sized buffer for the normal usage, but since it's re-used for all re-zooms,
 			// it's not performance critical and we are safe from all possible inputs.
 
-			size_t new_size = ( ( (newzoomwidth*3) / 2 ) + 1 + 2)*newzoomheight*sizeof(PIXVAL);
-			size_t unpack_size = (xl_margin+orgzoomwidth+xr_margin)*(yl_margin+orgzoomheight+yr_margin)*4;
-			if( unpack_size > new_size ) {
+			size_t new_size = ( ( (newzoomwidth * 3) / 2 ) + 1 + 2) * newzoomheight * sizeof(PIXVAL);
+			size_t unpack_size = (xl_margin + orgzoomwidth + xr_margin) * (yl_margin + orgzoomheight + yr_margin) * 4;
+			if(  unpack_size > new_size  ) {
 				new_size = unpack_size;
 			}
-			if(size < new_size) {
-				free( baseimage );
-				free( baseimage2 );
-				size = new_size;
-				baseimage  = MALLOCN( uint8, size );
-				baseimage2 = (PIXVAL *)MALLOCN( uint8, size );
+			new_size = ((new_size * 128) + 127) / 128; // enlarge slightly to try and keep buffers on their own cacheline for multithreaded access. A portable aligned_alloc would be better.
+			if(  rezoom_size[n % umgebung_t::num_threads] < new_size  ) {
+				free( rezoom_baseimage2[n % umgebung_t::num_threads] );
+				free( rezoom_baseimage[n % umgebung_t::num_threads] );
+				rezoom_size[n % umgebung_t::num_threads] = new_size;
+				rezoom_baseimage[n % umgebung_t::num_threads]  = MALLOCN( uint8, new_size );
+				rezoom_baseimage2[n % umgebung_t::num_threads] = (PIXVAL *)MALLOCN( uint8, new_size );
 			}
-			memset( baseimage, 255, size ); // fill with invalid data to mark transparent regions
+			memset( rezoom_baseimage[n % umgebung_t::num_threads], 255, new_size ); // fill with invalid data to mark transparent regions
 
 			// index of top-left corner
-			uint32 baseoff = 4*(yl_margin*(xl_margin+orgzoomwidth+xr_margin)+xl_margin);
-			sint32 basewidth = xl_margin+orgzoomwidth+xr_margin;
+			uint32 baseoff = 4 * (yl_margin * (xl_margin + orgzoomwidth + xr_margin) + xl_margin);
+			sint32 basewidth = xl_margin + orgzoomwidth + xr_margin;
 
 			// now: unpack the image
-			for (sint32 y = 0; y < images[n].base_h; ++y) {
+			for(  sint32 y = 0;  y < images[n].base_h;  ++y  ) {
 				uint16 runlen;
-				uint8 *p = baseimage + baseoff + y*(basewidth*4);
+				uint8 *p = rezoom_baseimage[n % umgebung_t::num_threads] + baseoff + y * (basewidth * 4);
 
 				// decode line
 				runlen = *src++;
 				do {
 					// clear run
-					p += runlen*4;
+					p += runlen * 4;
 					// color pixel
 					runlen = *src++;
-					while (runlen--) {
+					while(  runlen--  ) {
 						// get rgb components
 						PIXVAL s = *src++;
 						*p++ = (s>>15);
@@ -1457,86 +1464,85 @@ static void rezoom_img(const image_id n)
 						*p++ = (s & 31);
 					}
 					runlen = *src++;
-				} while (runlen!=0);
+				} while(  runlen != 0  );
 			}
 
 			// now we have the image, we do a repack then
-			dest = baseimage2;
-			switch(zoom_den[zoom_factor]) {
+			dest = rezoom_baseimage2[n % umgebung_t::num_threads];
+			switch(  zoom_den[zoom_factor]  ) {
 				case 1: {
 					assert(zoom_num[zoom_factor]==2);
 
 					// first half row - just copy values, do not fiddle with neighbor colors
-					uint8 *p1 = baseimage + baseoff;
-					for(  sint16 x=0;  x<orgzoomwidth;  x++  ) {
-						PIXVAL c1 = compress_pixel_transparent(p1 +(x*4) );
+					uint8 *p1 = rezoom_baseimage[n % umgebung_t::num_threads] + baseoff;
+					for(  sint16 x = 0;  x < orgzoomwidth;  x++  ) {
+						PIXVAL c1 = compress_pixel_transparent( p1 + (x * 4) );
 						// now set the pixel ...
-						dest[x*2] = c1;
-						dest[x*2+1] = c1;
+						dest[x * 2] = c1;
+						dest[x * 2 + 1] = c1;
 					}
 					// skip one line
 					dest += newzoomwidth;
 
-					for(  sint16 y=0;  y<orgzoomheight-1;  y++  ) {
-						uint8 *p1 = baseimage + baseoff + y*(basewidth*4);
+					for(  sint16 y = 0;  y < orgzoomheight - 1;  y++  ) {
+						uint8 *p1 = rezoom_baseimage[n % umgebung_t::num_threads] + baseoff + y * (basewidth * 4);
 						// copy leftmost pixels
-						dest[0] = compress_pixel_transparent(p1);
-						dest[newzoomwidth] = compress_pixel_transparent(p1+basewidth*4);
-						for(  sint16 x=0;  x<orgzoomwidth-1;  x++  ) {
-							uint8 *px1=p1+(x*4);
+						dest[0] = compress_pixel_transparent( p1 );
+						dest[newzoomwidth] = compress_pixel_transparent( p1 + basewidth * 4 );
+						for(  sint16 x = 0;  x < orgzoomwidth - 1;  x++  ) {
+							uint8 *px1 = p1 + (x * 4);
 							// pixel at 2,2 in 2x2 superpixel
-							dest[x*2+1] = zoomin_pixel(px1, px1+4, px1+basewidth*4, px1+basewidth*4+4);
+							dest[x * 2 + 1] = zoomin_pixel( px1, px1 + 4, px1 + basewidth * 4, px1 + basewidth * 4 + 4 );
 
 							// 2x2 superpixel is transparent but original pixel was not
 							// preserve one pixel
-							if( dest[x*2+1]==0x73FE  &&  px1[0]!=255  &&  dest[x*2]==0x73FE
-								&&  dest[x*2-newzoomwidth]==0x73FE  &&  dest[x*2-newzoomwidth-1]==0x73FE) {
+							if(  dest[x * 2 + 1] == 0x73FE  &&  px1[0] != 255  &&  dest[x * 2] == 0x73FE  &&  dest[x * 2 - newzoomwidth] == 0x73FE  &&  dest[x * 2 - newzoomwidth - 1] == 0x73FE  ) {
 								// preserve one pixel
-								dest[x*2+1] = compress_pixel(px1);
+								dest[x * 2 + 1] = compress_pixel( px1 );
 							}
 
 							// pixel at 2,1 in next 2x2 superpixel
-							dest[x*2+2] = zoomin_pixel(px1+4, px1, px1+basewidth*4+4, px1+basewidth*4);
+							dest[x * 2 + 2] = zoomin_pixel( px1 + 4, px1, px1 + basewidth * 4 + 4, px1 + basewidth * 4 );
 
 							// pixel at 1,2 in next row 2x2 superpixel
-							dest[x*2+newzoomwidth+1] = zoomin_pixel(px1+basewidth*4, px1+basewidth*4+4, px1, px1+4);
+							dest[x * 2 + newzoomwidth + 1] = zoomin_pixel( px1 + basewidth * 4, px1 + basewidth * 4 + 4, px1, px1 + 4 );
 
 							// pixel at 1,1 in next row next 2x2 superpixel
-							dest[x*2+newzoomwidth+2] = zoomin_pixel(px1+basewidth*4+4, px1+basewidth*4, px1+4, px1);
+							dest[x * 2 + newzoomwidth + 2] = zoomin_pixel( px1 + basewidth * 4 + 4, px1 + basewidth * 4, px1 + 4, px1 );
 						}
 						// copy rightmost pixels
-						dest[2*orgzoomwidth-1] = compress_pixel_transparent(p1+4*(orgzoomwidth-1));
-						dest[2*orgzoomwidth+newzoomwidth-1] = compress_pixel_transparent(p1+4*(orgzoomwidth-1)+basewidth*4);
+						dest[2 * orgzoomwidth - 1] = compress_pixel_transparent( p1 + 4 * (orgzoomwidth - 1) );
+						dest[2 * orgzoomwidth + newzoomwidth - 1] = compress_pixel_transparent( p1 + 4 * (orgzoomwidth - 1) + basewidth * 4 );
 						// skip two lines
-						dest += 2*newzoomwidth;
+						dest += 2 * newzoomwidth;
 					}
 					// last half row - just copy values, do not fiddle with neighbor colors
-					p1 = baseimage + baseoff + (orgzoomheight-1)*(basewidth*4);
-					for(  sint16 x=0;  x<orgzoomwidth;  x++  ) {
-						PIXVAL c1 = compress_pixel_transparent(p1 +(x*4) );
+					p1 = rezoom_baseimage[n % umgebung_t::num_threads] + baseoff + (orgzoomheight - 1) * (basewidth * 4);
+					for(  sint16 x = 0;  x < orgzoomwidth;  x++  ) {
+						PIXVAL c1 = compress_pixel_transparent( p1 + (x * 4) );
 						// now set the pixel ...
-						dest[x*2]   = c1;
-						dest[x*2+1] = c1;
+						dest[x * 2]   = c1;
+						dest[x * 2 + 1] = c1;
 					}
 					break;
 				}
 				case 2:
-					for(  sint16 y=0;  y<newzoomheight;  y++  ) {
-						uint8 *p1 = baseimage + baseoff + ((y*zoom_den[zoom_factor]+0-y_rem)/zoom_num[zoom_factor])*(basewidth*4);
-						uint8 *p2 = baseimage + baseoff + ((y*zoom_den[zoom_factor]+1-y_rem)/zoom_num[zoom_factor])*(basewidth*4);
-						for(  sint16 x=0;  x<newzoomwidth;  x++  ) {
-							uint8 valid=0;
-							uint8 r=0,g=0,b=0;
-							sint16 xreal1 = ((x*zoom_den[zoom_factor]+0-x_rem)/zoom_num[zoom_factor])*4;
-							sint16 xreal2 = ((x*zoom_den[zoom_factor]+1-x_rem)/zoom_num[zoom_factor])*4;
-							SumSubpixel(p1+xreal1);
-							SumSubpixel(p1+xreal2);
-							SumSubpixel(p2+xreal1);
-							SumSubpixel(p2+xreal2);
-							if(valid==0) {
+					for(  sint16 y = 0;  y < newzoomheight;  y++  ) {
+						uint8 *p1 = rezoom_baseimage[n % umgebung_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 0 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
+						uint8 *p2 = rezoom_baseimage[n % umgebung_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 1 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
+						for(  sint16 x = 0;  x < newzoomwidth;  x++  ) {
+							uint8 valid = 0;
+							uint8 r = 0, g = 0, b = 0;
+							sint16 xreal1 = ((x * zoom_den[zoom_factor] + 0 - x_rem) / zoom_num[zoom_factor]) * 4;
+							sint16 xreal2 = ((x * zoom_den[zoom_factor] + 1 - x_rem) / zoom_num[zoom_factor]) * 4;
+							SumSubpixel( p1 + xreal1 );
+							SumSubpixel( p1 + xreal2 );
+							SumSubpixel( p2 + xreal1 );
+							SumSubpixel( p2 + xreal2 );
+							if(  valid == 0  ) {
 								*dest++ = 0x73FE;
 							}
-							else if(valid==255) {
+							else if(  valid == 255  ) {
 								*dest++ = (0x8000 | r) + (((uint16)g)<<5) + (((uint16)b)<<10);
 							}
 							else {
@@ -1546,29 +1552,29 @@ static void rezoom_img(const image_id n)
 					}
 					break;
 				case 3:
-					for(  sint16 y=0;  y<newzoomheight;  y++  ) {
-						uint8 *p1 = baseimage + baseoff + ((y*zoom_den[zoom_factor]+0-y_rem)/zoom_num[zoom_factor])*(basewidth*4);
-						uint8 *p2 = baseimage + baseoff + ((y*zoom_den[zoom_factor]+1-y_rem)/zoom_num[zoom_factor])*(basewidth*4);
-						uint8 *p3 = baseimage + baseoff + ((y*zoom_den[zoom_factor]+2-y_rem)/zoom_num[zoom_factor])*(basewidth*4);
-						for(  sint16 x=0;  x<newzoomwidth;  x++  ) {
-							uint8 valid=0;
-							uint16 r=0,g=0,b=0;
-							sint16 xreal1 = ((x*zoom_den[zoom_factor]+0-x_rem)/zoom_num[zoom_factor])*4;
-							sint16 xreal2 = ((x*zoom_den[zoom_factor]+1-x_rem)/zoom_num[zoom_factor])*4;
-							sint16 xreal3 = ((x*zoom_den[zoom_factor]+2-x_rem)/zoom_num[zoom_factor])*4;
-							SumSubpixel(p1+xreal1);
-							SumSubpixel(p1+xreal2);
-							SumSubpixel(p1+xreal3);
-							SumSubpixel(p2+xreal1);
-							SumSubpixel(p2+xreal2);
-							SumSubpixel(p2+xreal3);
-							SumSubpixel(p3+xreal1);
-							SumSubpixel(p3+xreal2);
-							SumSubpixel(p3+xreal3);
-							if(valid==0) {
+					for(  sint16 y = 0;  y < newzoomheight;  y++  ) {
+						uint8 *p1 = rezoom_baseimage[n % umgebung_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 0 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
+						uint8 *p2 = rezoom_baseimage[n % umgebung_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 1 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
+						uint8 *p3 = rezoom_baseimage[n % umgebung_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 2 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
+						for(  sint16 x = 0;  x < newzoomwidth;  x++  ) {
+							uint8 valid = 0;
+							uint16 r = 0, g = 0, b = 0;
+							sint16 xreal1 = ((x * zoom_den[zoom_factor] + 0 - x_rem) / zoom_num[zoom_factor]) * 4;
+							sint16 xreal2 = ((x * zoom_den[zoom_factor] + 1 - x_rem) / zoom_num[zoom_factor]) * 4;
+							sint16 xreal3 = ((x * zoom_den[zoom_factor] + 2 - x_rem) / zoom_num[zoom_factor]) * 4;
+							SumSubpixel( p1 + xreal1 );
+							SumSubpixel( p1 + xreal2 );
+							SumSubpixel( p1 + xreal3 );
+							SumSubpixel( p2 + xreal1 );
+							SumSubpixel( p2 + xreal2 );
+							SumSubpixel( p2 + xreal3 );
+							SumSubpixel( p3 + xreal1 );
+							SumSubpixel( p3 + xreal2 );
+							SumSubpixel( p3 + xreal3 );
+							if(  valid == 0  ) {
 								*dest++ = 0x73FE;
 							}
-							else if(valid==255) {
+							else if(  valid == 255  ) {
 								*dest++ = (0x8000 | r) + (((uint16)g)<<5) + (((uint16)b)<<10);
 							}
 							else {
@@ -1578,38 +1584,38 @@ static void rezoom_img(const image_id n)
 					}
 					break;
 				case 4:
-					for(  sint16 y=0;  y<newzoomheight;  y++  ) {
-						uint8 *p1 = baseimage + baseoff + ((y*zoom_den[zoom_factor]+0-y_rem)/zoom_num[zoom_factor])*(basewidth*4);
-						uint8 *p2 = baseimage + baseoff + ((y*zoom_den[zoom_factor]+1-y_rem)/zoom_num[zoom_factor])*(basewidth*4);
-						uint8 *p3 = baseimage + baseoff + ((y*zoom_den[zoom_factor]+2-y_rem)/zoom_num[zoom_factor])*(basewidth*4);
-						uint8 *p4 = baseimage + baseoff + ((y*zoom_den[zoom_factor]+3-y_rem)/zoom_num[zoom_factor])*(basewidth*4);
-						for(  sint16 x=0;  x<newzoomwidth;  x++  ) {
-							uint8 valid=0;
-							uint16 r=0,g=0,b=0;
-							sint16 xreal1 = ((x*zoom_den[zoom_factor]+0-x_rem)/zoom_num[zoom_factor])*4;
-							sint16 xreal2 = ((x*zoom_den[zoom_factor]+1-x_rem)/zoom_num[zoom_factor])*4;
-							sint16 xreal3 = ((x*zoom_den[zoom_factor]+2-x_rem)/zoom_num[zoom_factor])*4;
-							sint16 xreal4 = ((x*zoom_den[zoom_factor]+3-x_rem)/zoom_num[zoom_factor])*4;
-							SumSubpixel(p1+xreal1);
-							SumSubpixel(p1+xreal2);
-							SumSubpixel(p1+xreal3);
-							SumSubpixel(p1+xreal4);
-							SumSubpixel(p2+xreal1);
-							SumSubpixel(p2+xreal2);
-							SumSubpixel(p2+xreal3);
-							SumSubpixel(p2+xreal4);
-							SumSubpixel(p3+xreal1);
-							SumSubpixel(p3+xreal2);
-							SumSubpixel(p3+xreal3);
-							SumSubpixel(p3+xreal4);
-							SumSubpixel(p4+xreal1);
-							SumSubpixel(p4+xreal2);
-							SumSubpixel(p4+xreal3);
-							SumSubpixel(p4+xreal4);
-							if(valid==0) {
+					for(  sint16 y = 0;  y < newzoomheight;  y++  ) {
+						uint8 *p1 = rezoom_baseimage[n % umgebung_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 0 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
+						uint8 *p2 = rezoom_baseimage[n % umgebung_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 1 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
+						uint8 *p3 = rezoom_baseimage[n % umgebung_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 2 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
+						uint8 *p4 = rezoom_baseimage[n % umgebung_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 3 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
+						for(  sint16 x = 0;  x < newzoomwidth;  x++  ) {
+							uint8 valid = 0;
+							uint16 r = 0, g = 0, b = 0;
+							sint16 xreal1 = ((x * zoom_den[zoom_factor] + 0 - x_rem) / zoom_num[zoom_factor]) * 4;
+							sint16 xreal2 = ((x * zoom_den[zoom_factor] + 1 - x_rem) / zoom_num[zoom_factor]) * 4;
+							sint16 xreal3 = ((x * zoom_den[zoom_factor] + 2 - x_rem) / zoom_num[zoom_factor]) * 4;
+							sint16 xreal4 = ((x * zoom_den[zoom_factor] + 3 - x_rem) / zoom_num[zoom_factor]) * 4;
+							SumSubpixel( p1 + xreal1 );
+							SumSubpixel( p1 + xreal2 );
+							SumSubpixel( p1 + xreal3 );
+							SumSubpixel( p1 + xreal4 );
+							SumSubpixel( p2 + xreal1 );
+							SumSubpixel( p2 + xreal2 );
+							SumSubpixel( p2 + xreal3 );
+							SumSubpixel( p2 + xreal4 );
+							SumSubpixel( p3 + xreal1 );
+							SumSubpixel( p3 + xreal2 );
+							SumSubpixel( p3 + xreal3 );
+							SumSubpixel( p3 + xreal4 );
+							SumSubpixel( p4 + xreal1 );
+							SumSubpixel( p4 + xreal2 );
+							SumSubpixel( p4 + xreal3 );
+							SumSubpixel( p4 + xreal4 );
+							if(  valid == 0  ) {
 								*dest++ = 0x73FE;
 							}
-							else if(valid==255) {
+							else if(  valid == 255  ) {
 								*dest++ = (0x8000 | r) + (((uint16)g)<<5) + (((uint16)b)<<10);
 							}
 							else {
@@ -1619,94 +1625,94 @@ static void rezoom_img(const image_id n)
 					}
 					break;
 				case 8:
-					for(  sint16 y=0;  y<newzoomheight;  y++  ) {
-						uint8 *p1 = baseimage + baseoff + ((y*zoom_den[zoom_factor]+0-y_rem)/zoom_num[zoom_factor])*(basewidth*4);
-						uint8 *p2 = baseimage + baseoff + ((y*zoom_den[zoom_factor]+1-y_rem)/zoom_num[zoom_factor])*(basewidth*4);
-						uint8 *p3 = baseimage + baseoff + ((y*zoom_den[zoom_factor]+2-y_rem)/zoom_num[zoom_factor])*(basewidth*4);
-						uint8 *p4 = baseimage + baseoff + ((y*zoom_den[zoom_factor]+3-y_rem)/zoom_num[zoom_factor])*(basewidth*4);
-						uint8 *p5 = baseimage + baseoff + ((y*zoom_den[zoom_factor]+4-y_rem)/zoom_num[zoom_factor])*(basewidth*4);
-						uint8 *p6 = baseimage + baseoff + ((y*zoom_den[zoom_factor]+5-y_rem)/zoom_num[zoom_factor])*(basewidth*4);
-						uint8 *p7 = baseimage + baseoff + ((y*zoom_den[zoom_factor]+6-y_rem)/zoom_num[zoom_factor])*(basewidth*4);
-						uint8 *p8 = baseimage + baseoff + ((y*zoom_den[zoom_factor]+7-y_rem)/zoom_num[zoom_factor])*(basewidth*4);
-						for(  sint16 x=0;  x<newzoomwidth;  x++  ) {
-							uint8 valid=0;
-							uint16 r=0,g=0,b=0;
-							sint16 xreal1 = ((x*zoom_den[zoom_factor]+0-x_rem)/zoom_num[zoom_factor])*4;
-							sint16 xreal2 = ((x*zoom_den[zoom_factor]+1-x_rem)/zoom_num[zoom_factor])*4;
-							sint16 xreal3 = ((x*zoom_den[zoom_factor]+2-x_rem)/zoom_num[zoom_factor])*4;
-							sint16 xreal4 = ((x*zoom_den[zoom_factor]+3-x_rem)/zoom_num[zoom_factor])*4;
-							sint16 xreal5 = ((x*zoom_den[zoom_factor]+4-x_rem)/zoom_num[zoom_factor])*4;
-							sint16 xreal6 = ((x*zoom_den[zoom_factor]+5-x_rem)/zoom_num[zoom_factor])*4;
-							sint16 xreal7 = ((x*zoom_den[zoom_factor]+6-x_rem)/zoom_num[zoom_factor])*4;
-							sint16 xreal8 = ((x*zoom_den[zoom_factor]+7-x_rem)/zoom_num[zoom_factor])*4;
-							SumSubpixel(p1+xreal1);
-							SumSubpixel(p1+xreal2);
-							SumSubpixel(p1+xreal3);
-							SumSubpixel(p1+xreal4);
-							SumSubpixel(p1+xreal5);
-							SumSubpixel(p1+xreal6);
-							SumSubpixel(p1+xreal7);
-							SumSubpixel(p1+xreal8);
-							SumSubpixel(p2+xreal1);
-							SumSubpixel(p2+xreal2);
-							SumSubpixel(p2+xreal3);
-							SumSubpixel(p2+xreal4);
-							SumSubpixel(p2+xreal5);
-							SumSubpixel(p2+xreal6);
-							SumSubpixel(p2+xreal7);
-							SumSubpixel(p2+xreal8);
-							SumSubpixel(p3+xreal1);
-							SumSubpixel(p3+xreal2);
-							SumSubpixel(p3+xreal3);
-							SumSubpixel(p3+xreal4);
-							SumSubpixel(p3+xreal5);
-							SumSubpixel(p3+xreal6);
-							SumSubpixel(p3+xreal7);
-							SumSubpixel(p3+xreal8);
-							SumSubpixel(p4+xreal1);
-							SumSubpixel(p4+xreal2);
-							SumSubpixel(p4+xreal3);
-							SumSubpixel(p4+xreal4);
-							SumSubpixel(p4+xreal5);
-							SumSubpixel(p4+xreal6);
-							SumSubpixel(p4+xreal7);
-							SumSubpixel(p4+xreal8);
-							SumSubpixel(p5+xreal1);
-							SumSubpixel(p5+xreal2);
-							SumSubpixel(p5+xreal3);
-							SumSubpixel(p5+xreal4);
-							SumSubpixel(p5+xreal5);
-							SumSubpixel(p5+xreal6);
-							SumSubpixel(p5+xreal7);
-							SumSubpixel(p5+xreal8);
-							SumSubpixel(p6+xreal1);
-							SumSubpixel(p6+xreal2);
-							SumSubpixel(p6+xreal3);
-							SumSubpixel(p6+xreal4);
-							SumSubpixel(p6+xreal5);
-							SumSubpixel(p6+xreal6);
-							SumSubpixel(p6+xreal7);
-							SumSubpixel(p6+xreal8);
-							SumSubpixel(p7+xreal1);
-							SumSubpixel(p7+xreal2);
-							SumSubpixel(p7+xreal3);
-							SumSubpixel(p7+xreal4);
-							SumSubpixel(p7+xreal5);
-							SumSubpixel(p7+xreal6);
-							SumSubpixel(p7+xreal7);
-							SumSubpixel(p7+xreal8);
-							SumSubpixel(p8+xreal1);
-							SumSubpixel(p8+xreal2);
-							SumSubpixel(p8+xreal3);
-							SumSubpixel(p8+xreal4);
-							SumSubpixel(p8+xreal5);
-							SumSubpixel(p8+xreal6);
-							SumSubpixel(p8+xreal7);
-							SumSubpixel(p8+xreal8);
-							if(valid==0) {
+					for(  sint16 y = 0;  y < newzoomheight;  y++  ) {
+						uint8 *p1 = rezoom_baseimage[n % umgebung_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 0 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
+						uint8 *p2 = rezoom_baseimage[n % umgebung_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 1 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
+						uint8 *p3 = rezoom_baseimage[n % umgebung_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 2 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
+						uint8 *p4 = rezoom_baseimage[n % umgebung_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 3 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
+						uint8 *p5 = rezoom_baseimage[n % umgebung_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 4 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
+						uint8 *p6 = rezoom_baseimage[n % umgebung_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 5 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
+						uint8 *p7 = rezoom_baseimage[n % umgebung_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 6 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
+						uint8 *p8 = rezoom_baseimage[n % umgebung_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 7 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
+						for(  sint16 x = 0;  x < newzoomwidth;  x++  ) {
+							uint8 valid = 0;
+							uint16 r = 0, g = 0, b = 0;
+							sint16 xreal1 = ((x * zoom_den[zoom_factor] + 0 - x_rem) / zoom_num[zoom_factor]) * 4;
+							sint16 xreal2 = ((x * zoom_den[zoom_factor] + 1 - x_rem) / zoom_num[zoom_factor]) * 4;
+							sint16 xreal3 = ((x * zoom_den[zoom_factor] + 2 - x_rem) / zoom_num[zoom_factor]) * 4;
+							sint16 xreal4 = ((x * zoom_den[zoom_factor] + 3 - x_rem) / zoom_num[zoom_factor]) * 4;
+							sint16 xreal5 = ((x * zoom_den[zoom_factor] + 4 - x_rem) / zoom_num[zoom_factor]) * 4;
+							sint16 xreal6 = ((x * zoom_den[zoom_factor] + 5 - x_rem) / zoom_num[zoom_factor]) * 4;
+							sint16 xreal7 = ((x * zoom_den[zoom_factor] + 6 - x_rem) / zoom_num[zoom_factor]) * 4;
+							sint16 xreal8 = ((x * zoom_den[zoom_factor] + 7 - x_rem) / zoom_num[zoom_factor]) * 4;
+							SumSubpixel( p1 + xreal1 );
+							SumSubpixel( p1 + xreal2 );
+							SumSubpixel( p1 + xreal3 );
+							SumSubpixel( p1 + xreal4 );
+							SumSubpixel( p1 + xreal5 );
+							SumSubpixel( p1 + xreal6 );
+							SumSubpixel( p1 + xreal7 );
+							SumSubpixel( p1 + xreal8 );
+							SumSubpixel( p2 + xreal1 );
+							SumSubpixel( p2 + xreal2 );
+							SumSubpixel( p2 + xreal3 );
+							SumSubpixel( p2 + xreal4 );
+							SumSubpixel( p2 + xreal5 );
+							SumSubpixel( p2 + xreal6 );
+							SumSubpixel( p2 + xreal7 );
+							SumSubpixel( p2 + xreal8 );
+							SumSubpixel( p3 + xreal1 );
+							SumSubpixel( p3 + xreal2 );
+							SumSubpixel( p3 + xreal3 );
+							SumSubpixel( p3 + xreal4 );
+							SumSubpixel( p3 + xreal5 );
+							SumSubpixel( p3 + xreal6 );
+							SumSubpixel( p3 + xreal7 );
+							SumSubpixel( p3 + xreal8 );
+							SumSubpixel( p4 + xreal1 );
+							SumSubpixel( p4 + xreal2 );
+							SumSubpixel( p4 + xreal3 );
+							SumSubpixel( p4 + xreal4 );
+							SumSubpixel( p4 + xreal5 );
+							SumSubpixel( p4 + xreal6 );
+							SumSubpixel( p4 + xreal7 );
+							SumSubpixel( p4 + xreal8 );
+							SumSubpixel( p5 + xreal1 );
+							SumSubpixel( p5 + xreal2 );
+							SumSubpixel( p5 + xreal3 );
+							SumSubpixel( p5 + xreal4 );
+							SumSubpixel( p5 + xreal5 );
+							SumSubpixel( p5 + xreal6 );
+							SumSubpixel( p5 + xreal7 );
+							SumSubpixel( p5 + xreal8 );
+							SumSubpixel( p6 + xreal1 );
+							SumSubpixel( p6 + xreal2 );
+							SumSubpixel( p6 + xreal3 );
+							SumSubpixel( p6 + xreal4 );
+							SumSubpixel( p6 + xreal5 );
+							SumSubpixel( p6 + xreal6 );
+							SumSubpixel( p6 + xreal7 );
+							SumSubpixel( p6 + xreal8 );
+							SumSubpixel( p7 + xreal1 );
+							SumSubpixel( p7 + xreal2 );
+							SumSubpixel( p7 + xreal3 );
+							SumSubpixel( p7 + xreal4 );
+							SumSubpixel( p7 + xreal5 );
+							SumSubpixel( p7 + xreal6 );
+							SumSubpixel( p7 + xreal7 );
+							SumSubpixel( p7 + xreal8 );
+							SumSubpixel( p8 + xreal1 );
+							SumSubpixel( p8 + xreal2 );
+							SumSubpixel( p8 + xreal3 );
+							SumSubpixel( p8 + xreal4 );
+							SumSubpixel( p8 + xreal5 );
+							SumSubpixel( p8 + xreal6 );
+							SumSubpixel( p8 + xreal7 );
+							SumSubpixel( p8 + xreal8 );
+							if(  valid == 0  ) {
 								*dest++ = 0x73FE;
 							}
-							else if(valid==255) {
+							else if(  valid == 255  ) {
 								*dest++ = (0x8000 | r) + (((uint16)g)<<5) + (((uint16)b)<<10);
 							}
 							else {
@@ -1719,21 +1725,21 @@ static void rezoom_img(const image_id n)
 			}
 
 			// now encode the image again
-			dest = (PIXVAL*)baseimage;
-			for(  sint16 y=0;  y<newzoomheight;  y++  ) {
-				PIXVAL *line = ((PIXVAL *)baseimage2) + (y*newzoomwidth);
+			dest = (PIXVAL*)rezoom_baseimage[n % umgebung_t::num_threads];
+			for(  sint16 y = 0;  y < newzoomheight;  y++  ) {
+				PIXVAL *line = ((PIXVAL *)rezoom_baseimage2[n % umgebung_t::num_threads]) + (y * newzoomwidth);
 				PIXVAL i;
 				sint16 x = 0;
 				uint16 clear_colored_run_pair_count = 0;
 
 				do {
 					// check length of transparent pixels
-					for (i = 0;  x < newzoomwidth  &&  line[x] == 0x73FE;  i++, x++)
+					for(  i = 0;  x < newzoomwidth  &&  line[x] == 0x73FE;  i++, x++  )
 						{}
 					// first runlength: transparent pixels
 					*dest++ = i;
 					// copy for non-transparent
-					for (i = 0;  x < newzoomwidth  &&  line[x] != 0x73FE;  i++, x++) {
+					for(  i = 0;  x < newzoomwidth  &&  line[x] != 0x73FE;  i++, x++  ) {
 						dest[i + 1] = line[x];
 					}
 
@@ -1741,7 +1747,7 @@ static void rezoom_img(const image_id n)
 					 *		If it is not the first clear-colored-run pair and its colored run is empty
 					 *		--> it is superfluous and can be removed by rolling back the pointer
 					 */
-					if(  clear_colored_run_pair_count>0  &&  i==0  ) {
+					if(  clear_colored_run_pair_count > 0  &&  i == 0  ) {
 						dest--;
 						// this only happens at the end of a line, so no need to increment clear_colored_run_pair_count
 					}
@@ -1750,19 +1756,19 @@ static void rezoom_img(const image_id n)
 						dest += i;	// skip them
 						clear_colored_run_pair_count++;
 					}
-				} while(x<newzoomwidth);
+				} while(  x < newzoomwidth  );
 				*dest++ = 0; // mark line end
 			}
 
 			// something left?
 			images[n].w = newzoomwidth;
 			images[n].h = newzoomheight;
-			if(newzoomheight>0) {
-				const size_t zoom_len = (size_t)(((uint8 *)dest) - ((uint8 *)baseimage));
-				images[n].len = (uint32)(zoom_len/sizeof(PIXVAL));
+			if(  newzoomheight > 0  ) {
+				const size_t zoom_len = (size_t)(((uint8 *)dest) - ((uint8 *)rezoom_baseimage[n % umgebung_t::num_threads]));
+				images[n].len = (uint32)(zoom_len / sizeof(PIXVAL));
 				images[n].zoom_data = MALLOCN(PIXVAL, images[n].len);
-				assert( images[n].zoom_data  );
-				memcpy( images[n].zoom_data, baseimage, zoom_len );
+				assert( images[n].zoom_data );
+				memcpy( images[n].zoom_data, rezoom_baseimage[n % umgebung_t::num_threads], zoom_len );
 			}
 		}
 		else {
@@ -1774,7 +1780,7 @@ static void rezoom_img(const image_id n)
 		}
 		images[n].recode_flags &= ~FLAG_REZOOM;
 #ifdef MULTI_THREAD
-		pthread_mutex_unlock( &rezoom_recode_img_mutex );
+		pthread_mutex_unlock( &rezoom_img_mutex[n % umgebung_t::num_threads] );
 #endif
 	}
 }
@@ -4970,18 +4976,26 @@ int get_maus_y(void)
  */
 void simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 {
-	int i;
-
 	disp_actual_width = width;
 	disp_height = height;
 
 #ifdef MULTI_THREAD
-	pthread_mutex_init( &rezoom_recode_img_mutex, NULL );
+	pthread_mutex_init( &recode_img_mutex, NULL );
 #endif
+
+	// init rezoom_img()
+	for(  int i = 0;  i < MAX_THREADS;  i++  ) {
+#ifdef MULTI_THREAD
+		pthread_mutex_init( &rezoom_img_mutex[i], NULL );
+#endif
+		rezoom_baseimage[i] = NULL;
+		rezoom_baseimage2[i] = NULL;
+		rezoom_size[i] = 0;
+	}
+
 	// get real width from os-dependent routines
 	disp_width = dr_os_open(width, height, full_screen);
 	if(  disp_width>0  ) {
-
 		textur = dr_textur_init();
 
 		// init, load, and check fonts
@@ -5012,7 +5026,7 @@ void simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 	MEMZERON( tile_dirty_old, tile_buffer_length );
 
 	// init player colors
-	for(i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
+	for( int i = 0;  i < MAX_PLAYER_COUNT;  i++  ) {
 		player_offsets[i][0] = i*8;
 		player_offsets[i][1] = i*8+24;
 	}
@@ -5090,7 +5104,10 @@ void simgraph_exit()
 	tile_dirty = tile_dirty_old = NULL;
 	images = NULL;
 #ifdef MULTI_THREAD
-	pthread_mutex_destroy( &rezoom_recode_img_mutex );
+	pthread_mutex_destroy( &recode_img_mutex );
+	for(  int i = 0;  i < MAX_THREADS;  i++  ) {
+		pthread_mutex_destroy( &rezoom_img_mutex[i] );
+	}
 #endif
 }
 
