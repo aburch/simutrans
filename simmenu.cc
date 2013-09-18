@@ -548,7 +548,8 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 				else {
 					dbg->error( "werkzeug_t::read_menu()", "When parsing menuconf.tab: No general tool %i defined (max %i)!", toolnr, GENERAL_TOOL_COUNT );
 				}
-			} else if (char const* const c = strstart(toolname, "simple_tool[")) {
+			}
+			else if (char const* const c = strstart(toolname, "simple_tool[")) {
 				uint8 const toolnr = atoi(c);
 				if(  toolnr<SIMPLE_TOOL_COUNT  ) {
 					if(create_tool) {

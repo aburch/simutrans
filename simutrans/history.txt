@@ -131,6 +131,7 @@ Release of 111.2.1 (r5434 on 28-Feb-2012): (111.2 had a severe bug with zipped g
 	ADD: goto-button to chat messages, coordinate taken from @x,y or (x,y)
 	CHG: overhauled color choose dialog with ideas from Hajo
 	FIX: lots of double free errors (mostly in network code)
+	FIX: No new buying obsolete stuff, just allow appending
 
 
 Release of 111.1 (r5115 on 23-Jan-2012):

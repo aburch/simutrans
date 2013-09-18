@@ -6479,7 +6479,7 @@ bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 
 					if(tool!='a') {
 						// start of composition
-						while (info->get_vorgaenger_count() == 1 && info->get_vorgaenger(0) != NULL  &&  !new_vehicle_info.is_contained(info)) {
+						while(  info->get_vorgaenger_count() == 1  &&  info->get_vorgaenger(0) != NULL  &&  !new_vehicle_info.is_contained(info)  ) {
 							info = info->get_vorgaenger(0);
 							new_vehicle_info.insert(info);
 						}
@@ -6487,14 +6487,14 @@ bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 					}
 					while(info) {
 						new_vehicle_info.append( info );
-						if(info->get_nachfolger_count()!=1  ||  (tool=='i'  &&  info==start_info)  ||  new_vehicle_info.is_contained(info->get_nachfolger(0))) {
+						if(info->get_nachfolger_count() != 1  ||  (tool == 'i'  &&  info == start_info)  ||  new_vehicle_info.is_contained(info->get_nachfolger(0))  ) {
 							break;
 						}
 						info = info->get_nachfolger(0);
 					}
 					// now we have a valid composition together
 					if(  tool=='s'  ) {
-						while(new_vehicle_info.get_count()) {
+						while(  new_vehicle_info.get_count()  ) {
 							// We sell the newest vehicle - gives most money back.
 							vehikel_t* veh = depot->find_oldest_newest(new_vehicle_info.remove_first(), false);
 							if(veh != NULL) {
@@ -6503,22 +6503,32 @@ bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 						}
 					}
 					else {
+						// now check if we are allowed to buy this (we test only leading vehicle, so one can still buy hidden stuff)
+						info = new_vehicle_info.front();
+						if(  welt->get_timeline_year_month()  &&  (info->is_future(welt->get_timeline_year_month())  ||  info->is_retired(welt->get_timeline_year_month()))  &&  !welt->get_settings().get_allow_buying_obsolete_vehicles()  ) {
+							// only allow append/insert, if in depot do not create new obsolte vehicles
+							if(  !depot->find_oldest_newest(info, true)  ) {
+								// just fail silent
+								return false;
+							}
+						}
+
 						// append/insert into convoi; create one if needed
 						depot->clear_command_pending();
-						if(!cnv.is_bound()) {
+						if(  !cnv.is_bound()  ) {
 							if(  convoihandle_t::is_exhausted()  ) {
-								if (is_local_execution()) {
+								if(  is_local_execution()  ) {
 									create_win( new news_img("Convoi handles exhausted!"), w_time_delete, magic_none);
 								}
 								return false;
 							}
 							// create a new convoi
 							cnv = depot->add_convoi( is_local_execution() );
-							cnv->set_name(new_vehicle_info.front()->get_name());
+							cnv->set_name( new_vehicle_info.front()->get_name() );
 						}
 
 						// now we have a valid cnv
-						if(cnv->get_vehikel_anzahl()+new_vehicle_info.get_count() <= depot->get_max_convoi_length()) {
+						if(  cnv->get_vehikel_anzahl()+new_vehicle_info.get_count() <= depot->get_max_convoi_length()  ) {
 
 							for(  unsigned i=0;  i<new_vehicle_info.get_count();  i++  ) {
 								// insert/append needs reverse order
@@ -6526,7 +6536,7 @@ bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 								// We add the oldest vehicle - newer stay for selling
 								const vehikel_besch_t* vb = new_vehicle_info.at(nr);
 								vehikel_t* veh = depot->find_oldest_newest(vb, true);
-								if (veh == NULL) {
+								if(  veh == NULL  ) {
 									// nothing there => we buy it
 									veh = depot->buy_vehicle(vb);
 								}

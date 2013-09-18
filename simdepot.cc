@@ -231,11 +231,11 @@ void depot_t::sell_vehicle(vehikel_t* veh)
 vehikel_t* depot_t::find_oldest_newest(const vehikel_besch_t* besch, bool old)
 {
 	vehikel_t* found_veh = NULL;
-	FOR(slist_tpl<vehikel_t*>, const veh, vehicles) {
-		if (veh->get_besch() == besch) {
+	FOR(  slist_tpl<vehikel_t*>,  const veh,  vehicles  ) {
+		if(  veh->get_besch() == besch  ) {
 			// joy of XOR, finally a line where I could use it!
-			if (found_veh == NULL ||
-					old ^ (found_veh->get_insta_zeit() > veh->get_insta_zeit())) {
+			if(  found_veh == NULL  ||
+					old ^ (found_veh->get_insta_zeit() > veh->get_insta_zeit())  ) {
 				found_veh = veh;
 			}
 		}

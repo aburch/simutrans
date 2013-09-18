@@ -319,7 +319,7 @@ static bild_besch_t* create_alpha_tile(const bild_besch_t* bild_lightmap, hang_t
 
 				// first; check, if we are front or back half
 				// back half means, we are above a line from the left_y (corner1), middle_y, right_y (corner2)
-				const sint16 back_y = (tile_x < x_y / 2) ? corner1_y + ((middle_y - corner1_y) * tile_x) / (x_y / 2) : middle_y + ((corner3_y - middle_y) * (tile_x - (x_y / 2))) / (x_y / 2);
+				const sint16 back_y = (x_y < 2) ? 0 : ( (tile_x < x_y / 2) ? corner1_y + ((middle_y - corner1_y) * tile_x) / (x_y / 2) : middle_y + ((corner3_y - middle_y) * (tile_x - (x_y / 2))) / (x_y / 2) );
 				// in the middle? the it is just the diagonal in the mixmap
 				if(  back_y == tile_y  ) {
 					tile_y_corrected = 0;
@@ -353,11 +353,11 @@ static bild_besch_t* create_alpha_tile(const bild_besch_t* bild_lightmap, hang_t
 						x = x_y - tile_x;
 					}
 					// we are in the front tile => calculate border y
-					sint16 frontborder_y;
+					sint16 frontborder_y = 0;
 					if(  tile_x > x_y / 2  ) {
 						frontborder_y = corner2_y + ((corner3_y - corner2_y) * (x_y / 2 - x)) / (x_y / 2);
 					}
-					else {
+					else if(  x_y >=2  ) {
 						frontborder_y = corner1_y + ((corner2_y - corner1_y) * x) / (x_y / 2);
 					}
 					// ok, now we have to calculate the y coordinate ...
