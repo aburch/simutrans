@@ -26,7 +26,7 @@
 #include "utils/log.h"
 
 /**
- * Never access this directly!
+ * Logger instance, this is a globally exported object.
  * @author Hj. Malthaner
  */
 extern log_t *dbg;
