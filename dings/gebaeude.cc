@@ -1109,7 +1109,6 @@ void gebaeude_t::rdwr(loadsave_t *file)
 		bool f = is_factory;
 		file->rdwr_bool(f);
 		is_factory = f;
-		ptr.fab = NULL; // set_fab will be called soon enough, hopefully
 	}
 
 	// restore city pointer here
