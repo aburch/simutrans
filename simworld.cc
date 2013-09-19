@@ -8857,6 +8857,7 @@ void karte_t::remove_building_from_world_list(gebaeude_t *gb)
 
 void karte_t::update_weight_of_building_in_world_list(gebaeude_t *gb)
 {
+	gb = gb->get_first_tile();
 	if(!gb || gb->get_is_factory() && gb->get_fabrik() == NULL)
 	{
 		// The tile will be set to "is_factory" but the factory pointer will be NULL when

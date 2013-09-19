@@ -5562,16 +5562,18 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 						}
 					}
 					hq = gb;
-					if (ok) {
+					if (ok) 
+					{
+						welt->remove_building_from_world_list(gb);
 						// upgrade the tiles
 						koord pos_hq = pos.get_2d() - gb->get_tile()->get_offset();
 						for (sint16 x=0; x<size.x; x++) {
 							for (sint16 y=0; y<size.y; y++) {
 								if (const haus_tile_besch_t *tile = besch->get_tile(layout, x, y)) {
 									if (grund_t *gr = welt->lookup_kartenboden(pos_hq + koord(x,y))) {
-										if (gebaeude_t *gb = gr->find<gebaeude_t>()) {
-											if (gb  &&  gb->get_besitzer()==sp  &&  prev_besch==gb->get_tile()->get_besch()) {
-												gb->set_tile( tile, true );
+										if (gebaeude_t *gb_new = gr->find<gebaeude_t>()) {
+											if (gb_new && gb_new->get_besitzer()==sp && prev_besch==gb_new->get_tile()->get_besch()) {
+												gb_new->set_tile( tile, true );
 											}
 										}
 									}
@@ -5579,6 +5581,7 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 							}
 						}
 						built = true;
+						welt->add_building_to_world_list(hq);
 					}
 
 				}
@@ -5611,7 +5614,8 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 				hq = hausbauer_t::baue(welt, sp, welt->lookup_kartenboden(pos.get_2d())->get_pos(), rotate, besch, NULL);
 				stadt_t *city = welt->get_city( pos.get_2d() );
 				if(city) {
-					city->add_gebaeude_to_stadt( hq );
+					city->add_gebaeude_to_stadt(hq);
+					welt->add_building_to_world_list(hq);
 					city->reset_city_borders();
 				}
 				built = true;
