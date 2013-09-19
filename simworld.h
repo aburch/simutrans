@@ -131,6 +131,7 @@ public:
 		WORLD_MAIL_GENERATED,	//!< all letters generated
 		WORLD_GOODS_RATIO,		//!< ratio of chain completeness
 		WORLD_TRANSPORTED_GOODS,//!< all transported goods
+		WORLD_CAR_OWNERSHIP,	//!< The proportion of people with access to a private car
 		MAX_WORLD_COST
 	};
 
@@ -164,6 +165,9 @@ public:
 	 * factories, vehicles, roadsigns or catenary may be severe
 	 */
 	enum missing_level_t { NOT_MISSING=0, MISSING_FACTORY=1, MISSING_VEHICLE=2, MISSING_SIGN=3, MISSING_WAYOBJ=4, MISSING_ERROR=4, MISSING_BRIDGE, MISSING_BUILDING, MISSING_WAY };
+
+	void set_car_ownership_history_month(int month, sint64 value) { finance_history_month[month][WORLD_CAR_OWNERSHIP] = value; }
+	void set_car_ownership_history_year(int year, sint64 value) { finance_history_year[year][WORLD_CAR_OWNERSHIP] = value; }
 
 private:
 	/**

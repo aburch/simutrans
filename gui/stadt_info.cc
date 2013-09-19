@@ -38,7 +38,7 @@ const char *hist_type[MAX_CITY_HISTORY] =
   "Verkehrsteilnehmer", "Transported", "Passagiere",  "Walked",
   "sended", "Post", "Goods supplied",  
   "Goods", "Power supply", "Power demand", 
-  "Congestion", "Car ownership"
+  "Congestion"
 
 };
 
@@ -48,7 +48,7 @@ const int hist_type_color[MAX_CITY_HISTORY] =
 	110, COL_LIGHT_BLUE, COL_PASSENGERS, COL_LILAC,
 	COL_LIGHT_YELLOW, COL_YELLOW, COL_LIGHT_BROWN,
 	COL_BROWN, COL_ELECTRICITY-1, COL_ELECTRICITY+2, 
-	COL_DARK_TURQUOISE, COL_CAR_OWNERSHIP
+	COL_DARK_TURQUOISE
 };
 
 

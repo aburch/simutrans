@@ -175,6 +175,13 @@ void export_world(HSQUIRRELVM vm)
 	STATIC register_method_fv(vm, &get_world_stat, "get_transported_goods", freevariable2<bool,sint32>(true, karte_t::WORLD_TRANSPORTED_GOODS), true );
 
 	/**
+	 * Get monthly statistics of proportion of people with access to a private car.
+	 * @returns array, index [0] corresponds to current month
+	 * @see city_x::get_generated_mail city_x::get_transported_mail
+	 */
+	STATIC register_method_fv(vm, &get_world_stat, "get_car_ownership", freevariable2<bool,sint32>(true, karte_t::WORLD_CAR_OWNERSHIP), true );
+
+	/**
 	 * Get per year statistics of total number of citizens.
 	 * @returns array, index [0] corresponds to current year
 	 */
@@ -232,6 +239,13 @@ void export_world(HSQUIRRELVM vm)
 	 * @see city_x::get_generated_mail city_x::get_transported_mail
 	 */
 	STATIC register_method_fv(vm, &get_world_stat, "get_year_ratio_goods",       freevariable2<bool,sint32>(false, karte_t::WORLD_GOODS_RATIO), true );
+
+	/**
+	 * Get per year statistics of the proportion of people with access to a private car.
+	 * @returns array, index [0] corresponds to current year
+	 * @see city_x::get_generated_mail city_x::get_transported_mail
+	 */
+	STATIC register_method_fv(vm, &get_world_stat, "get_year_car_ownership",       freevariable2<bool,sint32>(false, karte_t::WORLD_CAR_OWNERSHIP), true );
 	/**
 	 * Get per year statistics of total number of transported goods.
 	 * @returns array, index [0] corresponds to current year

@@ -58,9 +58,10 @@ enum city_cost {
 	HIST_POWER_RECIEVED,	// power consumption 
 	HIST_POWER_NEEDED,		// Power demand by the city.
 	HIST_CONGESTION,		// Level of congestion in the city, expressed in percent.
-	HIST_CAR_OWNERSHIP,		// Proportion of total population who have access to cars.
 	MAX_CITY_HISTORY		// Total number of items in array
 };
+
+#define LEGACY_HIST_CAR_OWNERSHIP (14)
 
 // TODO: Remove this deprecated code when ready to remove old passenger generation code.
 enum route_status_type

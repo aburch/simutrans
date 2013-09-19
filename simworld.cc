@@ -5619,20 +5619,22 @@ void karte_t::update_history()
 	sint64 total_pas_year = 1, trans_pas_year = 0;
 	sint64 total_mail_year = 1, trans_mail_year = 0;
 	sint64 total_goods_year = 1, supplied_goods_year = 0;
+	const stadt_t* generic_city = NULL;
 	FOR(weighted_vector_tpl<stadt_t*>, const i, stadt) {
-		bev                 += i->get_finance_history_month(0, HIST_CITICENS);
-		trans_pas           += i->get_finance_history_month(0, HIST_PAS_TRANSPORTED);
-		total_pas           += i->get_finance_history_month(0, HIST_PAS_GENERATED);
-		trans_mail          += i->get_finance_history_month(0, HIST_MAIL_TRANSPORTED);
-		total_mail          += i->get_finance_history_month(0, HIST_MAIL_GENERATED);
-		supplied_goods      += i->get_finance_history_month(0, HIST_GOODS_RECIEVED);
-		total_goods         += i->get_finance_history_month(0, HIST_GOODS_NEEDED);
-		trans_pas_year      += i->get_finance_history_year( 0, HIST_PAS_TRANSPORTED);
-		total_pas_year      += i->get_finance_history_year( 0, HIST_PAS_GENERATED);
-		trans_mail_year     += i->get_finance_history_year( 0, HIST_MAIL_TRANSPORTED);
-		total_mail_year     += i->get_finance_history_year( 0, HIST_MAIL_GENERATED);
-		supplied_goods_year += i->get_finance_history_year( 0, HIST_GOODS_RECIEVED);
-		total_goods_year    += i->get_finance_history_year( 0, HIST_GOODS_NEEDED);
+		bev							+= i->get_finance_history_month(0, HIST_CITICENS);
+		trans_pas					+= i->get_finance_history_month(0, HIST_PAS_TRANSPORTED);
+		total_pas					+= i->get_finance_history_month(0, HIST_PAS_GENERATED);
+		trans_mail					+= i->get_finance_history_month(0, HIST_MAIL_TRANSPORTED);
+		total_mail					+= i->get_finance_history_month(0, HIST_MAIL_GENERATED);
+		supplied_goods				+= i->get_finance_history_month(0, HIST_GOODS_RECIEVED);
+		total_goods					+= i->get_finance_history_month(0, HIST_GOODS_NEEDED);
+		trans_pas_year				+= i->get_finance_history_year( 0, HIST_PAS_TRANSPORTED);
+		total_pas_year				+= i->get_finance_history_year( 0, HIST_PAS_GENERATED);
+		trans_mail_year				+= i->get_finance_history_year( 0, HIST_MAIL_TRANSPORTED);
+		total_mail_year				+= i->get_finance_history_year( 0, HIST_MAIL_GENERATED);
+		supplied_goods_year			+= i->get_finance_history_year( 0, HIST_GOODS_RECIEVED);
+		total_goods_year			+= i->get_finance_history_year( 0, HIST_GOODS_NEEDED);
+		generic_city = i;
 	}
 
 	finance_history_month[0][WORLD_GROWTH] = bev-last_month_bev;
@@ -5668,6 +5670,16 @@ void karte_t::update_history()
 	}
 	finance_history_month[0][WORLD_TRANSPORTED_GOODS] = transported;
 	finance_history_year[0][WORLD_TRANSPORTED_GOODS] = transported_year;
+
+	finance_history_month[0][WORLD_CAR_OWNERSHIP] = generic_city->get_private_car_ownership(get_timeline_year_month());
+
+	// Average the annual figure
+	sint64 car_ownership_sum = 0;
+	for(uint8 months = 0; months < MAX_WORLD_HISTORY_MONTHS; months ++)
+	{
+		car_ownership_sum += finance_history_month[months][WORLD_CAR_OWNERSHIP];
+	}
+	finance_history_year[0][WORLD_CAR_OWNERSHIP] = car_ownership_sum / MAX_WORLD_HISTORY_MONTHS;
 }
 
 
@@ -7182,15 +7194,30 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 	if(file->get_version()<99018) {
 		restore_history();
 	}
-	else {
-		// most recent savegame version is 99018
-		for (int year = 0;  year<MAX_WORLD_HISTORY_YEARS;  year++) {
-			for (int cost_type = 0; cost_type<MAX_WORLD_COST; cost_type++) {
+	else 
+	{
+		int adapted_max_world_cost;
+		if(file->get_experimental_version() >= 12)
+		{
+			adapted_max_world_cost = MAX_WORLD_COST;
+		}
+		else
+		{
+			// Before Experimental version 12, private car ownership data were saved in cities.
+			adapted_max_world_cost = MAX_WORLD_COST - 1;
+		}
+		
+		for(int year = 0; year < MAX_WORLD_HISTORY_YEARS; year++) 
+		{
+			for(int cost_type = 0; cost_type < adapted_max_world_cost; cost_type++) 
+			{
 				file->rdwr_longlong(finance_history_year[year][cost_type]);
 			}
 		}
-		for (int month = 0;month<MAX_WORLD_HISTORY_MONTHS;month++) {
-			for (int cost_type = 0; cost_type<MAX_WORLD_COST; cost_type++) {
+		for(int month = 0; month < MAX_WORLD_HISTORY_MONTHS; month++) 
+		{
+			for(int cost_type = 0; cost_type < adapted_max_world_cost; cost_type++) 
+			{
 				file->rdwr_longlong(finance_history_month[month][cost_type]);
 			}
 		}

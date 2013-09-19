@@ -1795,9 +1795,6 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 	outgoing_private_cars = 0;
 	incoming_private_cars = 0;
 
-	city_history_month[0][HIST_CAR_OWNERSHIP] = get_private_car_ownership(welt->get_timeline_year_month());
-	city_history_year[0][HIST_CAR_OWNERSHIP] = get_private_car_ownership(welt->get_timeline_year_month());
-
 	calc_internal_passengers();
 
 	check_road_connexions = false;
@@ -2005,7 +2002,7 @@ void stadt_t::rdwr(loadsave_t* file)
 		// save button settings for this town
 		file->rdwr_long( stadtinfo_options);
 	}
-	else if(file->get_experimental_version() > 0 && (file->get_experimental_version() < 3|| file->get_experimental_version() == 0))
+	else if(file->get_experimental_version() > 0 && (file->get_experimental_version() < 3 || file->get_experimental_version() == 0))
 	{
 		// Move congestion history to the correct place (shares with power received).
 		
@@ -2050,9 +2047,19 @@ void stadt_t::rdwr(loadsave_t* file)
 	}
 	else if(file->get_experimental_version() >= 3)
 	{
-		for (uint year = 0; year < MAX_CITY_HISTORY_YEARS; year++) 
+		int adapted_max_city_history;
+		if(file->get_experimental_version() < 12)
 		{
-			for (uint hist_type = 0; hist_type < MAX_CITY_HISTORY; hist_type++) 
+			// Earlier versions stored car ownership in the city history data. It is now stored in the world.
+			adapted_max_city_history = MAX_CITY_HISTORY + 1;
+		}
+		else
+		{
+			adapted_max_city_history = MAX_CITY_HISTORY;
+		}
+		for(uint year = 0; year < MAX_CITY_HISTORY_YEARS; year++) 
+		{
+			for(uint hist_type = 0; hist_type < adapted_max_city_history; hist_type++) 
 			{
 				if(hist_type == HIST_PAS_WALKED && (file->get_experimental_version() < 10 || file->get_version() < 111001))
 				{
@@ -2060,12 +2067,21 @@ void stadt_t::rdwr(loadsave_t* file)
 					city_history_year[year][hist_type] = 0;
 					continue;
 				}
-				file->rdwr_longlong(city_history_year[year][hist_type]);
+				if(hist_type != LEGACY_HIST_CAR_OWNERSHIP)
+				{
+					file->rdwr_longlong(city_history_year[year][hist_type]);
+				}
+				else
+				{
+					sint64 car_ownership_history = welt->get_finance_history_year(0, karte_t::WORLD_CAR_OWNERSHIP);
+					file->rdwr_longlong(car_ownership_history);
+					welt->set_car_ownership_history_year(year, car_ownership_history);
+				}
 			}
 		}
-		for (uint month = 0; month < MAX_CITY_HISTORY_MONTHS; month++) 
+		for(uint month = 0; month < MAX_CITY_HISTORY_MONTHS; month++) 
 		{
-			for (uint hist_type = 0; hist_type < MAX_CITY_HISTORY; hist_type++) 
+			for(uint hist_type = 0; hist_type < adapted_max_city_history; hist_type++) 
 			{
 				if(hist_type == HIST_PAS_WALKED && (file->get_experimental_version() < 10 || file->get_version() < 111001))
 				{
@@ -2073,11 +2089,20 @@ void stadt_t::rdwr(loadsave_t* file)
 					city_history_month[month][hist_type] = 0;
 					continue;
 				}
-				file->rdwr_longlong(city_history_month[month][hist_type]);
+				if(hist_type != LEGACY_HIST_CAR_OWNERSHIP)
+				{
+					file->rdwr_longlong(city_history_month[month][hist_type]);
+				}
+				else
+				{
+					sint64 car_ownership_history = welt->get_finance_history_month(0, karte_t::WORLD_CAR_OWNERSHIP);
+					file->rdwr_longlong(car_ownership_history);
+					welt->set_car_ownership_history_month(month, car_ownership_history);
+				}
 			}
 		}
 		// save button settings for this town
-		file->rdwr_long( stadtinfo_options);
+		file->rdwr_long(stadtinfo_options);
 	}
 
 	if(file->get_version()>99014  &&  file->get_version()<99016) {
@@ -2833,15 +2858,6 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 		const sint64 adjusted_ratio = ((sint64)traffic_level * congestion_density_factor) / 1000l;
 		city_history_month[0][HIST_CONGESTION] = (trips_per_hour * adjusted_ratio) / (sint64)road_hectometers;
 	}
-	
-
-	city_history_month[0][HIST_CAR_OWNERSHIP] = get_private_car_ownership(welt->get_timeline_year_month());
-	sint64 car_ownership_sum = 0;
-	for(uint8 months = 0; months < MAX_CITY_HISTORY_MONTHS; months ++)
-	{
-		car_ownership_sum += city_history_month[months][HIST_CAR_OWNERSHIP];
-	}
-	city_history_year[0][HIST_CAR_OWNERSHIP] = car_ownership_sum / MAX_CITY_HISTORY_MONTHS;
 
 	// Clearing these will force recalculation as necessary.
 	// Cannot do this too often, as it severely impacts on performance.

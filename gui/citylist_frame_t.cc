@@ -43,7 +43,7 @@ const char *citylist_frame_t::sort_text[citylist::SORT_MODES] = {
 	"Growth"
 };
 
-const char citylist_frame_t::hist_type[karte_t::MAX_WORLD_COST][20] =
+const char citylist_frame_t::hist_type[karte_t::MAX_WORLD_COST][21] =
 {
 	"citicens",
 	"Growth",
@@ -56,7 +56,8 @@ const char citylist_frame_t::hist_type[karte_t::MAX_WORLD_COST][20] =
 	"sended",
 	"Post",
 	"Arrived",
-	"Goods"
+	"Goods",
+	"Car ownership"
 };
 
 const char citylist_frame_t::hist_type_tooltip[karte_t::MAX_WORLD_COST][256] =
@@ -88,7 +89,8 @@ const uint8 citylist_frame_t::hist_type_color[karte_t::MAX_WORLD_COST] =
 	COL_LIGHT_YELLOW,
 	COL_YELLOW,
 	COL_LIGHT_BROWN,
-	COL_BROWN
+	COL_BROWN,
+	COL_CAR_OWNERSHIP
 };
 
 const uint8 citylist_frame_t::hist_type_type[karte_t::MAX_WORLD_COST] =
@@ -104,6 +106,7 @@ const uint8 citylist_frame_t::hist_type_type[karte_t::MAX_WORLD_COST] =
 	MONEY,
 	STANDARD,
 	MONEY,
+	STANDARD,
 	STANDARD
 };
 
@@ -146,7 +149,7 @@ citylist_frame_t::citylist_frame_t(karte_t * welt) :
 	year_month_tabs.set_visible(false);
 	add_komponente(&year_month_tabs);
 
-	const sint16 yb = 42+CHART_HEIGHT-D_BUTTON_HEIGHT*3-8;
+	const sint16 yb = 42+CHART_HEIGHT-D_BUTTON_HEIGHT*4-8;
 	chart.set_pos(koord(60,8+gui_tab_panel_t::HEADER_VSIZE));
 	chart.set_groesse(koord(D_DEFAULT_WIDTH-60-8,yb-16-42-10-gui_tab_panel_t::HEADER_VSIZE));
 	chart.set_dimension(12, karte_t::MAX_WORLD_COST*MAX_WORLD_HISTORY_YEARS);
