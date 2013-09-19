@@ -1333,8 +1333,8 @@ sint64 gebaeude_t::calc_available_jobs_by_time() const
 void gebaeude_t::set_commute_trip(uint16 number)
 {
 	// Record the number of arriving workers by encoding the earliest time at which new workers can arrive.
-	const uint32 total_jobs = get_adjusted_jobs();
-	const sint64 job_ticks = (number * welt->ticks_per_world_month) / (total_jobs < 1 ? 1 : total_jobs);
+	const sint64 total_jobs = (sint64)get_adjusted_jobs();
+	const sint64 job_ticks = ((sint64)number * welt->ticks_per_world_month) / (total_jobs < 1 ? 1 : total_jobs);
 	const sint64 new_jobs_by_time = calc_available_jobs_by_time();
 	available_jobs_by_time = max(new_jobs_by_time + job_ticks, available_jobs_by_time + job_ticks);
 }

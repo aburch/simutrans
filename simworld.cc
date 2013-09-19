@@ -4400,7 +4400,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 
 	while(mail_step_interval <= next_step_mail) 
 	{
-		if(passenger_origins.get_count() == 0)
+		if(mail_origins_and_targets.get_count() == 0)
 		{
 			return;
 		}
@@ -4484,6 +4484,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 				grund_t *gr = lookup(k_3d);
 				if(gr) 
 				{
+					/* This would fail for depots, but those are 1x1 buildings */
 					gebaeude_t *gb_part = gr->find<gebaeude_t>();
 					// There may be buildings with holes.
 					if(gb_part && gb_part->get_tile()->get_besch() == hb) 
@@ -4545,7 +4546,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 	route_status_type route_status;
 	destination current_destination;
 	destination first_destination;
-	first_destination.location == koord::invalid;
+	first_destination.location = koord::invalid;
 	uint16 time_per_tile;
 	uint16 tolerance;
 
@@ -4751,7 +4752,8 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 				if(trip == commuting_trip)
 				{
 					grund_t* gr = lookup_kartenboden(destination_pos);
-					if(!gr || !gr->find<gebaeude_t>() || !gr->find<gebaeude_t>()->jobs_available())
+					gebaeude_t* gb = current_destination.building;
+					if(!gb || !gb->jobs_available())
 					{
 						if(route_status == initialising)
 						{
@@ -4759,7 +4761,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 							route_status = destination_unavailable;
 						}
 						if(n < destination_count - 1)
-						{
+						{const grund_t* gr = lookup_kartenboden(destination_pos);
 							current_destination = find_destination(trip);
 						}
 						continue;
@@ -5194,15 +5196,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 						current_destination.building->get_fabrik()->liefere_an(wtyp, pax_left_to_do);
 					}
 
-					const grund_t* gr = lookup_kartenboden(destination_pos);
-					if(gr)
-					{
-						gebaeude_t* gb_dest = gr->find<gebaeude_t>();
-						if(gb_dest)
-						{
-							gb_dest->set_commute_trip(pax_left_to_do);
-						}
-					}
+					current_destination.building->set_commute_trip(pax_left_to_do);
 				}
 				else if(trip == visiting_trip)
 				{
@@ -8837,8 +8831,10 @@ const vector_tpl<const ware_besch_t*> &karte_t::get_goods_list()
 void karte_t::add_building_to_world_list(gebaeude_t *gb)
 {
 	assert(gb);
-	// Only add one tile per building here.
-	gb = gb->get_first_tile();
+	if(gb != gb->get_first_tile())
+	{
+		return;
+	}
 
 	passenger_origins.append(gb, gb->get_adjusted_population());
 	commuter_targets.append(gb, gb->get_adjusted_jobs());
