@@ -46,6 +46,7 @@ void tunnel_reader_t::convert_old_tunnel(tunnel_besch_t *besch)
 	besch->cost = 200000;
 	besch->intro_date = DEFAULT_INTRO_DATE*12;
 	besch->obsolete_date = DEFAULT_RETIRE_DATE*12;
+	besch->has_way = false;
 }
 
 
