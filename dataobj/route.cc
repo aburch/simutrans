@@ -179,7 +179,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 
 //DBG_MESSAGE("route_t::find_route()","calc route from %d,%d,%d",start.x, start.y, start.z);
 
-	const grund_t* gr;
+	bool target_reached = false;
 	do {
 		// Hajo: this is too expensive to be called each step
 		if((step & 4095) == 0) {
@@ -187,19 +187,20 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 		}
 
 		tmp = queue.pop();
-		if(  welt->ist_markiert(tmp->gr)  ) {
+		const grund_t* gr = tmp->gr;
+
+		if(  welt->ist_markiert(gr)  ) {
 			// we were already here on a faster route, thus ignore this branch
 			// (trading speed against memory consumption)
 			continue;
 		}
-
-		gr = tmp->gr;
 		welt->markiere(gr);
 
 //DBG_DEBUG("add to close","(%i,%i,%i) f=%i",gr->get_pos().x,gr->get_pos().y,gr->get_pos().z,tmp->f);
 		// already there
 		if(  fahr->ist_ziel( gr, tmp->parent==NULL ? NULL : tmp->parent->gr )  ) {
 			// we added a target to the closed list: check for length
+			target_reached = true;
 			break;
 		}
 
@@ -237,7 +238,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 
 //DBG_DEBUG("reached","");
 	// target reached?
-	if(!fahr->ist_ziel(gr,tmp->parent==NULL?NULL:tmp->parent->gr)  ||  step >= MAX_STEP) {
+	if(!target_reached  ||  step >= MAX_STEP) {
 		if(  step >= MAX_STEP  ) {
 			dbg->warning("route_t::find_route()","Too many steps (%i>=max %i) in route (too long/complex)",step,MAX_STEP);
 		}
@@ -250,7 +251,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 			tmp = tmp->parent;
 		}
 		ok = !route.empty();
-  }
+	}
 
 	RELEASE_NODE();
 	return ok;
