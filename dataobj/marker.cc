@@ -52,7 +52,7 @@ void marker_t::markiere(const grund_t *gr)
 			const int bit = gr->get_pos().y*cached_groesse+gr->get_pos().x;
 			bits[bit/bit_unit] |= 1 << (bit & bit_mask);
 		}
-		else if(!more.get(gr)) {
+		else {
 			more.set(gr, true);
 		}
 	}
