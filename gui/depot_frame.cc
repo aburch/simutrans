@@ -601,7 +601,8 @@ void depot_frame_t::add_to_vehicle_list(const vehikel_besch_t *info)
 				// If no current goods can be transported by this vehicle, don't display it
 				if (!found) return;
 			}
-		} else if (depot->selected_filter > VEHICLE_FILTER_RELEVANT) {
+		}
+		else if (depot->selected_filter > VEHICLE_FILTER_RELEVANT) {
 			// Filter on specific selected good
 			uint32 goods_index = depot->selected_filter - VEHICLE_FILTER_GOODS_OFFSET;
 			if (goods_index < spieler_t::get_welt()->get_goods_list().get_count()) {
@@ -1132,11 +1133,30 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp, value_t p)
 
 bool depot_frame_t::infowin_event(const event_t *ev)
 {
+	// enable disable button actions
+	const bool action_allowed = spieler_t::get_welt()->get_active_player() == depot->get_besitzer();
+	bt_new_line.enable( action_allowed );
+	bt_change_line.enable( action_allowed );
+	bt_copy_convoi.enable( action_allowed );
+	bt_apply_line.enable( action_allowed );
+	bt_start.enable( action_allowed );
+	bt_schedule.enable( action_allowed );
+	bt_destroy.enable( action_allowed );
+	bt_sell.enable( action_allowed );
+	bt_obsolete.enable( action_allowed );
+	bt_show_all.enable( action_allowed );
+	bt_veh_action.enable( action_allowed );
+	line_button.enable( action_allowed );
+//	convoy_selector.
+	if(  !action_allowed  &&  ev->ev_class <= INFOWIN  ) {
+		return false;
+	}
+
 	const bool swallowed = gui_frame_t::infowin_event(ev);
 
 	// HACK make line_selector focusable again
 	// now we can release focus
-	if (!line_selector.is_focusable( ) ) {
+	if(  !line_selector.is_focusable( ) ) {
 		line_selector.set_focusable( true );
 		set_focus(NULL);
 	}
@@ -1205,11 +1225,19 @@ bool depot_frame_t::infowin_event(const event_t *ev)
 
 void depot_frame_t::zeichnen(koord pos, koord groesse)
 {
-	/*
-	if(  spieler_t::get_welt()->get_active_player() != depot->get_besitzer()  ) {
-		destroy_win(this);
-		return;
-	}*/
+	const bool action_allowed = spieler_t::get_welt()->get_active_player() == depot->get_besitzer();
+	bt_new_line.enable( action_allowed );
+	bt_change_line.enable( action_allowed );
+	bt_copy_convoi.enable( action_allowed );
+	bt_apply_line.enable( action_allowed );
+	bt_start.enable( action_allowed );
+	bt_schedule.enable( action_allowed );
+	bt_destroy.enable( action_allowed );
+	bt_sell.enable( action_allowed );
+	bt_obsolete.enable( action_allowed );
+	bt_show_all.enable( action_allowed );
+	bt_veh_action.enable( action_allowed );
+	line_button.enable( action_allowed );
 
 	convoihandle_t cnv = depot->get_convoi(icnv);
 	// check for data inconsistencies (can happen with withdraw-all and vehicle in depot)
