@@ -3579,7 +3579,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 		cost = -besch->get_price() * besch->get_b() * besch->get_h();
 	}
 
-	if(sp!=halt->get_besitzer()  &&  halt->get_besitzer()==welt->get_spieler(1) && sp != welt->get_spieler(1))
+	if(sp!=halt->get_besitzer() && halt->get_besitzer()==welt->get_spieler(1) && sp != welt->get_spieler(1))
 	{
 		// public stops are expensive!
 		// (Except for the public player itself)
