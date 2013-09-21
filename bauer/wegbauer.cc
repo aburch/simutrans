@@ -44,6 +44,7 @@
 
 #include "../dataobj/environment.h"
 #include "../dataobj/route.h"
+#include "../dataobj/marker.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/scenario.h"
 
@@ -1258,8 +1259,8 @@ long wegbauer_t::intern_calc_route(const vector_tpl<koord3d> &start, const vecto
 
 	static binary_heap_tpl <route_t::ANode *> queue;
 
-	// nothing in lists
-	welt->unmarkiere_alle();
+	// initialize marker field
+	marker_t& marker = marker_t::instance(welt->get_size().x, welt->get_size().y);
 
 	// clear the queue (should be empty anyhow)
 	queue.clear();
@@ -1310,7 +1311,7 @@ long wegbauer_t::intern_calc_route(const vector_tpl<koord3d> &start, const vecto
 	do {
 		route_t::ANode *test_tmp = queue.pop();
 
-		if(welt->ist_markiert(test_tmp->gr)) {
+		if(marker.ist_markiert(test_tmp->gr)) {
 			// we were already here on a faster route, thus ignore this branch
 			// (trading speed against memory consumption)
 			continue;
@@ -1318,7 +1319,7 @@ long wegbauer_t::intern_calc_route(const vector_tpl<koord3d> &start, const vecto
 
 		tmp = test_tmp;
 		gr = tmp->gr;
-		welt->markiere(gr);
+		marker.markiere(gr);
 		gr_pos = gr->get_pos();
 
 #ifdef DEBUG_ROUTES
@@ -1375,7 +1376,7 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->get_pos().x,gr->get_pos().y,g
 			}
 
 			// something valid?
-			if(welt->ist_markiert(to)) {
+			if(marker.ist_markiert(to)) {
 				continue;
 			}
 

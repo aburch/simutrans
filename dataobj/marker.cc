@@ -1,10 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hj. Malthaner
- *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
- *
- * Author: V. Meyer
  */
 
 #include <string.h>
@@ -13,7 +9,7 @@
 #include "../boden/grund.h"
 #include "marker.h"
 
-
+marker_t marker_t::the_instance;
 
 void marker_t::init(int welt_groesse_x,int welt_groesse_y)
 {
@@ -29,6 +25,12 @@ void marker_t::init(int welt_groesse_x,int welt_groesse_y)
 		bits = NULL;
 	}
 	unmarkiere_alle();
+}
+
+marker_t& marker_t::instance(int welt_groesse_x,int welt_groesse_y)
+{
+	the_instance.init(welt_groesse_x, welt_groesse_y);
+	return the_instance;
 }
 
 marker_t::~marker_t()

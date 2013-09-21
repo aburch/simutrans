@@ -24,6 +24,7 @@
 
 #include "../dataobj/fahrplan.h"
 #include "../dataobj/loadsave.h"
+#include "../dataobj/marker.h"
 
 #include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"
@@ -821,10 +822,10 @@ void ai_passenger_t::walk_city(linehandle_t const line, grund_t* const start, in
 
 		// ok, if connected, not marked, and not owner by somebody else
 		grund_t *to;
-		if(  start->get_neighbour(to, road_wt, ribi_t::nsow[r] )  &&  !welt->ist_markiert(to)  &&  check_owner(to->obj_bei(0)->get_besitzer(),this)  ) {
+		if(  start->get_neighbour(to, road_wt, ribi_t::nsow[r] )  &&  !marker->ist_markiert(to)  &&  check_owner(to->obj_bei(0)->get_besitzer(),this)  ) {
 
 			// ok, here is a valid street tile
-			welt->markiere(to);
+			marker->markiere(to);
 
 			// can built a station here
 			if(  ribi_t::ist_gerade(to->get_weg_ribi(road_wt))  ) {
@@ -894,7 +895,7 @@ void ai_passenger_t::cover_city_with_bus_route(koord start_pos, int number_of_st
 	}
 
 	// nothing in lists
-	welt->unmarkiere_alle();
+	marker = &marker_t::instance(welt->get_size().x, welt->get_size().y);
 
 	// and init all stuff for recursion
 	grund_t *start = welt->lookup_kartenboden(start_pos);
@@ -921,6 +922,7 @@ void ai_passenger_t::cover_city_with_bus_route(koord start_pos, int number_of_st
 	else {
 		simlinemgmt.delete_line( line );
 	}
+	marker = NULL;
 }
 
 

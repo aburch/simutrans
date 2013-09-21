@@ -27,6 +27,7 @@
 
 #include "../besch/bruecke_besch.h"
 
+#include "../dataobj/marker.h"
 #include "../dataobj/scenario.h"
 #include "../dings/bruecke.h"
 #include "../dings/leitung2.h"
@@ -636,7 +637,7 @@ void brueckenbauer_t::baue_auffahrt(karte_t* welt, spieler_t* sp, koord3d end, r
 
 const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, waytype_t wegtyp)
 {
-	marker_t    marker(welt->get_size().x, welt->get_size().y);
+	marker_t& marker = marker_t::instance(welt->get_size().x, welt->get_size().y);
 	slist_tpl<koord3d> end_list;
 	slist_tpl<koord3d> part_list;
 	slist_tpl<koord3d> tmp_list;

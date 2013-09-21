@@ -780,10 +780,6 @@ DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
 		water_hgts = NULL;
 	}
 
-	// marker aufraeumen
-	marker.init(0,0);
-DBG_MESSAGE("karte_t::destroy()", "marker destroyed");
-
 	// spieler aufraeumen
 	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
 		if(spieler[i]) {
@@ -890,8 +886,6 @@ void karte_t::init_felder()
 	MEMZERON(grid_hgts, (x + 1) * (y + 1));
 	water_hgts = new sint8[x * y];
 	MEMZERON(water_hgts, x * y);
-
-	marker.init(x, y);
 
 	win_set_world( this );
 	reliefkarte_t::get_karte()->set_welt(this);
@@ -2163,9 +2157,6 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 		}
 	}
 
-	// Resize marker_t:
-	marker.init( new_groesse_x, new_groesse_y );
-
 	distribute_groundobjs_cities( sets->get_anzahl_staedte(), sets->get_mittlere_einwohnerzahl(), old_x, old_y );
 
 	// hausbauer_t::neue_karte(); <- this would reinit monuments! do not do this!
@@ -2236,8 +2227,7 @@ karte_t::karte_t() :
 	settings(env_t::default_settings),
 	convoi_array(0),
 	ausflugsziele(16),
-	stadt(0),
-	marker(0,0)
+	stadt(0)
 {
 	// length of day and other time stuff
 	ticks_per_world_month_shift = 20;
@@ -3475,8 +3465,7 @@ DBG_MESSAGE( "karte_t::rotate90()", "called" );
 	win_rotate90( cached_size.x );
 
 	if( cached_grid_size.x != cached_grid_size.y ) {
-		// the marking array and the map must be reinit
-		marker.init( cached_grid_size.x, cached_grid_size.y );
+		// the map must be reinit
 		reliefkarte_t::get_karte()->set_welt( this );
 	}
 

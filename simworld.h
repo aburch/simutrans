@@ -25,7 +25,6 @@
 #include "tpl/vector_tpl.h"
 #include "tpl/slist_tpl.h"
 
-#include "dataobj/marker.h"
 #include "dataobj/settings.h"
 #include "network/pwd_hash.h"
 #include "dataobj/loadsave.h"
@@ -523,11 +522,6 @@ private:
 	/**
 	 * @}
 	 */
-
-	/**
-	 * ??
-	 */
-	marker_t marker;
 
 	/**
 	 * @name Player management
@@ -1472,31 +1466,6 @@ public:
 	 * @note No checking, and only using the grind for calculation.
 	 */
 	uint8	calc_natural_slope( const koord k ) const;
-
-	/**
-	 * Wird vom Strassenbauer als Orientierungshilfe benutzt.
-	 * @author Hj. Malthaner
-	 */
-	inline void markiere(const grund_t* gr) { marker.markiere(gr); }
-
-	/**
-	 * Wird vom Strassenbauer zum Entfernen der Orientierungshilfen benutzt.
-	 * @author Hj. Malthaner
-	 */
-	inline void unmarkiere(const grund_t* gr) { marker.unmarkiere(gr); }
-
-	/**
-	 * Entfernt alle Markierungen.
-	 * @author Hj. Malthaner
-	 */
-	inline void unmarkiere_alle() { marker.unmarkiere_alle(); }
-
-	/**
-	 * Testet ob der Grund markiert ist.
-	 * @return Gibt true zurueck wenn der Untergrund markiert ist sonst false.
-	 * @author Hj. Malthaner
-	 */
-	inline bool ist_markiert(const grund_t* gr) const { return marker.ist_markiert(gr); }
 
 	 /**
 	  * Initialize map.

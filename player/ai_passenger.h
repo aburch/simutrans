@@ -9,6 +9,7 @@
 
 #include "ai.h"
 
+class marker_t;
 
 class ai_passenger_t : public ai_t
 {
@@ -45,6 +46,9 @@ private:
 	const stadt_t *end_stadt;	// target is town
 	const gebaeude_t *end_ausflugsziel;
 	fabrik_t *ziel;
+
+	// marker field
+	marker_t *marker;
 
 	halthandle_t  get_our_hub( const stadt_t *s ) const;
 
