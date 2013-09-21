@@ -467,6 +467,7 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int org
 			leitung_t *lt = NULL;
 
 			if(!gr->ist_wasser() && besch->get_utyp() != haus_besch_t::hafen)
+			{
 				// very likely remove all
 				if(!gr->hat_wege()) {
 					lt = gr->find<leitung_t>();
@@ -553,8 +554,9 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int org
 				grund_t *gr2 = new fundament_t(welt, gr->get_pos(), gr->get_grund_hang(), build_up);
 				welt->access(gr->get_pos().get_2d())->boden_ersetzen(gr, gr2);
 				gr = gr2;
+			}
 //DBG_DEBUG("hausbauer_t::baue()","ground count now %i",gr->obj_count());
-			gebaeude_t *gb = new gebaeude_t(welt, pos + k, sp, tile);
+			gebaeude_t *gb = new gebaeude_t(welt, gr->get_pos(), sp, tile);
 			if (first_building == NULL) {
 				first_building = gb;
 			}
