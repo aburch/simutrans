@@ -23,7 +23,6 @@ SQInteger push_time(HSQUIRRELVM vm, uint32 yearmonth)
 
 SQInteger world_get_time(HSQUIRRELVM vm)
 {
-	sq_newtableex(vm, 2);
 	return push_time(vm, welt->get_current_month() );
 }
 
