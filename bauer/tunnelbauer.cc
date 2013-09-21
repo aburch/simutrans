@@ -519,7 +519,7 @@ const char *tunnelbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d start, w
 	// Erstmal das ganze Außmaß des Tunnels bestimmen und sehen,
 	// ob uns was im Weg ist.
 	tmp_list.insert(pos);
-	marker.markiere(welt->lookup(pos));
+	marker.mark(welt->lookup(pos));
 	waytype_t delete_wegtyp = wegtyp==powerline_wt ? invalid_wt : wegtyp;
 
 	do {
@@ -549,11 +549,11 @@ const char *tunnelbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d start, w
 		for(int r = 0; r < 4; r++) {
 			if((zv == koord::invalid || zv == koord::nsow[r]) &&
 				from->get_neighbour(to, delete_wegtyp, ribi_t::nsow[r]) &&
-				!marker.ist_markiert(to) &&
+				!marker.is_marked(to) &&
 				(wegtyp != powerline_wt || to->get_leitung()))
 			{
 				tmp_list.insert(to->get_pos());
-				marker.markiere(to);
+				marker.mark(to);
 			}
 		}
 	} while (!tmp_list.empty());

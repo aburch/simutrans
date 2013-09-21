@@ -1375,7 +1375,7 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->get_pos().x,gr->get_pos().y,g
 			}
 
 			// something valid?
-			if(marker.ist_markiert(to)) {
+			if(marker.is_marked(to)) {
 				continue;
 			}
 

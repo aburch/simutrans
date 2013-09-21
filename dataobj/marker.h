@@ -55,18 +55,18 @@ public:
 	/**
 	 * Marks tile as visited.
 	 */
-	void markiere(const grund_t *gr);
+	void mark(const grund_t *gr);
 
 	/**
 	 * Unmarks tile as visited.
 	 */
-	void unmarkiere(const grund_t *gr);
+	void unmark(const grund_t *gr);
 
 	/**
 	 * Checks if tile is visited.
 	 * @returns true if tile was already visited
 	 */
-	bool ist_markiert(const grund_t *gr) const;
+	bool is_marked(const grund_t *gr) const;
 
 	/**
 	 * Checks if tile is visited. Marks tile as visited if not visited before.
@@ -77,7 +77,7 @@ public:
 	/**
 	 * Marks all fields as not visited.
 	 */
-	void unmarkiere_alle();
+	void unmark_all();
 };
 
 #endif

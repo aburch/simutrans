@@ -24,7 +24,7 @@ void marker_t::init(int welt_groesse_x,int welt_groesse_y)
 	else {
 		bits = NULL;
 	}
-	unmarkiere_alle();
+	unmark_all();
 }
 
 marker_t& marker_t::instance(int welt_groesse_x,int welt_groesse_y)
@@ -38,7 +38,7 @@ marker_t::~marker_t()
 	delete [] bits;
 }
 
-void marker_t::unmarkiere_alle()
+void marker_t::unmark_all()
 {
 	if(bits) {
 		MEMZERON(bits, bits_groesse);
@@ -46,7 +46,7 @@ void marker_t::unmarkiere_alle()
 	more.clear();
 }
 
-void marker_t::markiere(const grund_t *gr)
+void marker_t::mark(const grund_t *gr)
 {
 	if(gr != NULL) {
 		if(gr->ist_karten_boden()) {
@@ -60,7 +60,7 @@ void marker_t::markiere(const grund_t *gr)
 	}
 }
 
-void marker_t::unmarkiere(const grund_t *gr)
+void marker_t::unmark(const grund_t *gr)
 {
 	if(gr != NULL) {
 		if(gr->ist_karten_boden()) {
@@ -74,7 +74,7 @@ void marker_t::unmarkiere(const grund_t *gr)
 	}
 }
 
-bool marker_t::ist_markiert(const grund_t *gr) const
+bool marker_t::is_marked(const grund_t *gr) const
 {
 	if(gr==NULL) {
 		return false;

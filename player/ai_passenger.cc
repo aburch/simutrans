@@ -822,10 +822,10 @@ void ai_passenger_t::walk_city(linehandle_t const line, grund_t* const start, in
 
 		// ok, if connected, not marked, and not owner by somebody else
 		grund_t *to;
-		if(  start->get_neighbour(to, road_wt, ribi_t::nsow[r] )  &&  !marker->ist_markiert(to)  &&  check_owner(to->obj_bei(0)->get_besitzer(),this)  ) {
+		if(  start->get_neighbour(to, road_wt, ribi_t::nsow[r] )  &&  !marker->is_marked(to)  &&  check_owner(to->obj_bei(0)->get_besitzer(),this)  ) {
 
 			// ok, here is a valid street tile
-			marker->markiere(to);
+			marker->mark(to);
 
 			// can built a station here
 			if(  ribi_t::ist_gerade(to->get_weg_ribi(road_wt))  ) {

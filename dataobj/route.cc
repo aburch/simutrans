@@ -205,7 +205,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 			if(  (ribi & ribi_t::nsow[r] & start_dir)!=0  // allowed dir (we can restrict the first step by start_dir)
 				&& koord_distance(start.get_2d(),gr->get_pos().get_2d()+koord::nsow[r])<max_depth	// not too far away
 				&& gr->get_neighbour(to, wegtyp, ribi_t::nsow[r])  // is connected
-				&& marker.ist_markiert(to) // not already tested
+				&& marker.is_marked(to) // not already tested
 				&& fahr->ist_befahrbar(to)	// can be driven on
 			) {
 				// not in there or taken out => add new
@@ -340,7 +340,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 			tmp = new_top;
 			new_top = NULL;
 			gr = tmp->gr;
-			marker.markiere(gr);
+			marker.mark(gr);
 		}
 		else {
 			tmp = queue.pop();
@@ -381,7 +381,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 			}
 
 			// a way goes here, and it is not marked (i.e. in the closed list)
-			if((to  ||  gr->get_neighbour(to, wegtyp, next_ribi[r]))  &&  fahr->ist_befahrbar(to)  &&  !marker.ist_markiert(to)) {
+			if((to  ||  gr->get_neighbour(to, wegtyp, next_ribi[r]))  &&  fahr->ist_befahrbar(to)  &&  !marker.is_marked(to)) {
 
 				// Do not go on a tile, where a oneway sign forbids going.
 				// This saves time and fixed the bug, that a oneway sign on the final tile was ignored.
