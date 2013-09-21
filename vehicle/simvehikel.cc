@@ -2462,7 +2462,7 @@ bool waggon_t::ist_befahrbar(const grund_t *bd) const
 	if(sch->has_sign()) {
 		const roadsign_t* rs = bd->find<roadsign_t>();
 		if(  rs->get_besch()->get_wtyp()==get_waytype()  ) {
-			if(  rs->get_besch()->get_min_speed() > 0  &&  rs->get_besch()->get_min_speed() > cnv->get_min_top_speed()  ) {
+			if(  cnv != NULL  &&  rs->get_besch()->get_min_speed() > 0  &&  rs->get_besch()->get_min_speed() > cnv->get_min_top_speed()  ) {
 				// below speed limit
 				return false;
 			}
@@ -3160,7 +3160,7 @@ bool schiff_t::ist_befahrbar(const grund_t *bd) const
 	if(  w  &&  w->has_sign()  ) {
 		const roadsign_t* rs = bd->find<roadsign_t>();
 		if(  rs->get_besch()->get_wtyp()==get_waytype()  ) {
-			if(  rs->get_besch()->get_min_speed() > 0  &&  rs->get_besch()->get_min_speed() > cnv->get_min_top_speed()  ) {
+			if(  cnv !=NULL  &&  rs->get_besch()->get_min_speed() > 0  &&  rs->get_besch()->get_min_speed() > cnv->get_min_top_speed()  ) {
 				// below speed limit
 				return false;
 			}
