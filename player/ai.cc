@@ -145,23 +145,35 @@ bool ai_t::suche_platz(koord pos, koord &size, koord *dirs)
 	sint16 length = abs( size.x + size.y );
 
 	const grund_t *gr = welt->lookup_kartenboden(pos);
-	if(gr==NULL) {
+	if(  gr==NULL  ) {
 		return false;
 	}
 
 	sint8 start_z = gr->get_hoehe();
 	int max_dir = length==0 ? 1 : 2;
+	bool place_ok;
+
 	// two rotations
 	for(  int dir=0;  dir<max_dir;  dir++  ) {
-		for( sint16 i=0;  i<=length;  i++  ) {
+		place_ok = true;
+		for(  sint16 i=0;  i<=length;  i++  ) {
 			grund_t *gr = welt->lookup_kartenboden(  pos + (dirs[dir]*i)  );
-			if(  gr == NULL  ||  gr->get_halt().is_bound()  ||  !welt->can_ebne_planquadrat(this, pos, start_z )  ||  !gr->ist_natur()  ||  gr->kann_alle_obj_entfernen(this) != NULL  ||  gr->get_hoehe() < welt->get_water_hgt( pos + (dirs[dir] * i) )  ) {
-				return false;
+			if(  gr == NULL
+				||  gr->get_halt().is_bound()
+				||  !welt->can_ebne_planquadrat(this, pos, start_z )
+				||  !gr->ist_natur()
+				||  gr->kann_alle_obj_entfernen(this) != NULL
+				||  gr->get_hoehe() < welt->get_water_hgt( pos + (dirs[dir] * i) )  ) {
+					// something is blocking construction, try next rotation
+					place_ok = false;
+					break;
 			}
 		}
-		// aparently we can built this rotation here
-		size = dirs[dir]*length;
-		return true;
+		if(  place_ok  ) {
+			// apparently we can build this rotation here
+			size = dirs[dir]*length;
+			return true;
+		}
 	}
 	return false;
 }
