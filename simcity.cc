@@ -1142,17 +1142,6 @@ void stadt_t::remove_gebaeude_from_stadt(gebaeude_t* gb)
 	reset_city_borders();
 }
 
-#ifndef REPLACE_BUILDINGS
-// just updates the weight count of this building (after a renovation)
-void stadt_t::update_gebaeude_from_stadt(gebaeude_t* gb)
-{
-	buildings.remove(gb);
-	buildings.append_unique(gb, gb->get_tile()->get_besch()->get_level());
-	welt->remove_building_from_world_list(gb);
-	add_building_to_list(gb);
-}
-#endif
-
 /**
  * This function transfers a house from another city to this one
  * It currently only works on 1-tile buildings
@@ -5510,7 +5499,6 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 		}
 
 		const int layout = get_best_layout(h, k);
-#if REPLACE_BUILDINGS
 		// The building is being replaced.  The surrounding landscape may have changed since it was
 		// last built, and the new building should change height along with it, rather than maintain the old
 		// height.  So delete and rebuild, even though it's slower.
@@ -5522,13 +5510,6 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 		// so it must be valid.  Our borders also should not have changed.
 		new_gb->set_stadt(this);
 		add_building_to_list(new_gb);
-#else
-		// exchange building; try to face it to street in front
-		gb->mark_images_dirty();
-		gb->set_tile( h->get_tile(layout, 0, 0), true );
-		welt->lookup_kartenboden(k)->calc_bild();
-		update_gebaeude_from_stadt(gb);
-#endif
 		switch(want_to_have) {
 			case gebaeude_t::wohnung:   won += h->get_level() * 10; break;
 			case gebaeude_t::gewerbe:   arb += h->get_level() * 20; break;

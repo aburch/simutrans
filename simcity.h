@@ -553,10 +553,6 @@ public:
 	*/
 	void add_gebaeude_to_stadt(gebaeude_t *gb, bool ordered=false);
 
-#ifndef REPLACE_BUILDINGS
-	// changes the weight; must be called if there is a new definition (tile) for that house
-	void update_gebaeude_from_stadt(gebaeude_t *gb);
-#endif
 	/**
 	* Returns the finance history for cities
 	* @author hsiegeln
