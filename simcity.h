@@ -45,6 +45,8 @@ class haus_besch_t;
 
 enum city_cost {
 	HIST_CITICENS=0,		// total people
+	HIST_JOBS,				// Total jobs
+	HIST_VISITOR_DEMAND,	// Total visitor demand
 	HIST_GROWTH,			// growth (just for convenience)
 	HIST_BUILDING,			// number of buildings
 	HIST_CITYCARS,			// Amount of private traffic produced by the city
@@ -61,7 +63,7 @@ enum city_cost {
 	MAX_CITY_HISTORY		// Total number of items in array
 };
 
-#define LEGACY_HIST_CAR_OWNERSHIP (14)
+#define LEGACY_HIST_CAR_OWNERSHIP (16)
 
 // TODO: Remove this deprecated code when ready to remove old passenger generation code.
 enum route_status_type

@@ -111,6 +111,16 @@ void export_city(HSQUIRRELVM vm)
 	 */
 	register_method_fv(vm, &get_city_stat, "get_citizens",              freevariable2<bool,sint32>(true, HIST_CITICENS), true);
 	/**
+	 * Get monthly statistics of number of citizens.
+	 * @returns array, index [0] corresponds to current month
+	 */
+	register_method_fv(vm, &get_city_stat, "get_jobs",              freevariable2<bool,sint32>(true, HIST_JOBS), true);
+	/**
+	 * Get monthly statistics of number of citizens.
+	 * @returns array, index [0] corresponds to current month
+	 */
+	register_method_fv(vm, &get_city_stat, "get_visitor_demand",              freevariable2<bool,sint32>(true, HIST_VISITOR_DEMAND), true);
+	/**
 	 * Get monthly statistics of number of city growth.
 	 * @returns array, index [0] corresponds to current month
 	 */
@@ -150,6 +160,16 @@ void export_city(HSQUIRRELVM vm)
 	 * @returns array, index [0] corresponds to current year
 	 */
 	register_method_fv(vm, &get_city_stat, "get_year_citizens",         freevariable2<bool,sint32>(false, HIST_CITICENS), true );
+	/**
+	 * Get per year statistics of number of citizens.
+	 * @returns array, index [0] corresponds to current year
+	 */
+	register_method_fv(vm, &get_city_stat, "get_year_jobs",         freevariable2<bool,sint32>(false, HIST_JOBS), true );
+	/**
+	 * Get per year statistics of number of citizens.
+	 * @returns array, index [0] corresponds to current year
+	 */
+	register_method_fv(vm, &get_city_stat, "get_year_visitor_demand",         freevariable2<bool,sint32>(false, HIST_VISITOR_DEMAND), true );
 	/**
 	 * Get per year statistics of number of city growth.
 	 * @returns array, index [0] corresponds to current year
