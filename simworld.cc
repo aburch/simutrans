@@ -6268,33 +6268,36 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved messages");
 	dummy = ij_off.y;
 	file->rdwr_long(dummy);
 
-	if(file->get_version()>=99018)
+	if(file->get_version() >= 99018)
 	{
 		// Most recent Standard version is 99018
-
-		int adapted_max_world_cost;
-		if(file->get_experimental_version() >= 12)
-		{
-			adapted_max_world_cost = MAX_WORLD_COST;
-		}
-		else
-		{
-			// Before Experimental version 12, private car ownership data were saved in cities.
-			adapted_max_world_cost = MAX_WORLD_COST - 1;
-		}
 		
 		for (int year = 0; year < /*MAX_WORLD_HISTORY_YEARS*/ 12; year++)
 		{
-			for (int cost_type = 0; cost_type < adapted_max_world_cost; cost_type++)
+			for (int cost_type = 0; cost_type < MAX_WORLD_COST; cost_type++)
 			{
-				file->rdwr_longlong(finance_history_year[year][cost_type]);
+				if(file->get_experimental_version() < 12 && (cost_type == WORLD_JOBS || cost_type == WORLD_VISITOR_DEMAND || cost_type == WORLD_CAR_OWNERSHIP))
+				{
+					finance_history_year[year][cost_type] = 0;
+				}
+				else
+				{
+					file->rdwr_longlong(finance_history_year[year][cost_type]);
+				}
 			}
 		}
 		for (int month = 0; month < /*MAX_WORLD_HISTORY_MONTHS*/ 12; month++)
 		{
-			for (int cost_type = 0; cost_type < adapted_max_world_cost; cost_type++)
+			for (int cost_type = 0; cost_type < MAX_WORLD_COST; cost_type++)
 			{
-				file->rdwr_longlong(finance_history_month[month][cost_type]);
+				if(file->get_experimental_version() < 12 && (cost_type == WORLD_JOBS || cost_type == WORLD_VISITOR_DEMAND || cost_type == WORLD_CAR_OWNERSHIP))
+				{
+					finance_history_month[month][cost_type] = 0;
+				}
+				else
+				{
+					file->rdwr_longlong(finance_history_month[month][cost_type]);
+				}
 			}
 		}
 	}
@@ -7207,29 +7210,32 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 	}
 	else 
 	{
-		int adapted_max_world_cost;
-		if(file->get_experimental_version() >= 12)
-		{
-			adapted_max_world_cost = MAX_WORLD_COST;
-		}
-		else
-		{
-			// Before Experimental version 12, private car ownership data were saved in cities.
-			adapted_max_world_cost = MAX_WORLD_COST - 1;
-		}
-		
 		for(int year = 0; year < MAX_WORLD_HISTORY_YEARS; year++) 
 		{
-			for(int cost_type = 0; cost_type < adapted_max_world_cost; cost_type++) 
+			for(int cost_type = 0; cost_type < MAX_WORLD_COST; cost_type++) 
 			{
-				file->rdwr_longlong(finance_history_year[year][cost_type]);
+				if(file->get_experimental_version() < 12 && (cost_type == WORLD_JOBS || cost_type == WORLD_VISITOR_DEMAND || cost_type == WORLD_CAR_OWNERSHIP))
+				{
+					finance_history_year[year][cost_type] = 0;
+				}
+				else
+				{
+					file->rdwr_longlong(finance_history_year[year][cost_type]);
+				}
 			}
 		}
 		for(int month = 0; month < MAX_WORLD_HISTORY_MONTHS; month++) 
 		{
-			for(int cost_type = 0; cost_type < adapted_max_world_cost; cost_type++) 
+			for(int cost_type = 0; cost_type < MAX_WORLD_COST; cost_type++) 
 			{
-				file->rdwr_longlong(finance_history_month[month][cost_type]);
+				if(file->get_experimental_version() < 12 && (cost_type == WORLD_JOBS || cost_type == WORLD_VISITOR_DEMAND || cost_type == WORLD_CAR_OWNERSHIP))
+				{
+					finance_history_year[month][cost_type] = 0;
+				}
+				else
+				{
+					file->rdwr_longlong(finance_history_month[month][cost_type]);
+				}
 			}
 		}
 		last_month_bev = finance_history_month[1][WORLD_CITICENS];

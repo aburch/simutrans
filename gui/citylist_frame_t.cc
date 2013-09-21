@@ -46,6 +46,8 @@ const char *citylist_frame_t::sort_text[citylist::SORT_MODES] = {
 const char citylist_frame_t::hist_type[karte_t::MAX_WORLD_COST][21] =
 {
 	"citicens",
+	"Jobs",
+	"Visitor demand",
 	"Growth",
 	"Towns",
 	"Factories",
@@ -63,6 +65,8 @@ const char citylist_frame_t::hist_type[karte_t::MAX_WORLD_COST][21] =
 const char citylist_frame_t::hist_type_tooltip[karte_t::MAX_WORLD_COST][256] =
 {
 	"The number of inhabitants of the region",
+	"The number of jobs in the region",
+	"The number of visitors demanded in the region",
 	"The number of inhabitants by which the region has increased",
 	"The number of urban areas in the region",
 	"The number of industries in the region",
@@ -73,12 +77,15 @@ const char citylist_frame_t::hist_type_tooltip[karte_t::MAX_WORLD_COST][256] =
 	"The amount of mail transported in the region overall",
 	"The total amount of mail generated in the region",
 	"The percentage of available goods that have been transported in the region",
-	"The total number of mail/passengers/goods transported in the region"
+	"The total number of mail/passengers/goods transported in the region",
+	"The percentage of people who have access to a private car"
 };
 
 const uint8 citylist_frame_t::hist_type_color[karte_t::MAX_WORLD_COST] =
 {
 	COL_WHITE,
+	COL_GREY6,
+	COL_GREY3,
 	COL_DARK_GREEN,
 	COL_LIGHT_PURPLE,
 	71 /*COL_GREEN*/,
@@ -95,6 +102,8 @@ const uint8 citylist_frame_t::hist_type_color[karte_t::MAX_WORLD_COST] =
 
 const uint8 citylist_frame_t::hist_type_type[karte_t::MAX_WORLD_COST] =
 {
+	STANDARD,
+	STANDARD,
 	STANDARD,
 	STANDARD,
 	STANDARD,

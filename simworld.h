@@ -120,6 +120,8 @@ public:
 
 	enum player_cost {
 		WORLD_CITICENS=0,		//!< total people
+		WORLD_JOBS,				//!< total jobs
+		WORLD_VISITOR_DEMAND,	//!< total visitor demand
 		WORLD_GROWTH,			//!< growth (just for convenience)
 		WORLD_TOWNS,			//!< number of all cities
 		WORLD_FACTORIES,		//!< number of all consuming only factories

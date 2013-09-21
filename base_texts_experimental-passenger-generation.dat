@@ -6,13 +6,33 @@
 #
 obj=program_text
 name=Unknown destination
-note=This is displayed in lists of goods/passengers when the destination building cannot be ascertained. It replaces "invalid factory".
+note=Text displayed in lists of goods/passengers when the destination building cannot be ascertained. It replaces "invalid factory".
 -
 obj=program_text
 name=commuting
-note=This is displayed in lists of goods/passengers when the passengers are on a commuting trip.
+note=Text displayed in lists of goods/passengers when the passengers are on a commuting trip.
 -
 obj=program_text
 name=visiting
-note=This is displayed in lists of goods/passengers when are on a visiting trip.
+note=Text displayed in lists of goods/passengers when are on a visiting trip.
+-
+obj=program_text
+name=The percentage of people who have access to a private car
+note=Tooltip for private car ownership percentage in the world chart
+-
+obj=program_text
+name=Jobs
+note=Name for jobs graph in the world chart
+-
+obj=program_text
+name=Visitor demand
+note=Name for visitor demand graph in the world chart
+-
+obj=program_text
+name=The number of jobs in the region
+note=Tooltip for total jobs figure in the world chart
+-
+obj=program_text
+name=The number of visitors demanded in the region
+note=Tooltip for visitor demand figure in the world chart
 -
