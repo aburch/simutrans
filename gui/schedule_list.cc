@@ -7,7 +7,6 @@
  * (see licence.txt)
  */
 
-#include <algorithm>
 #include <stdio.h>
 
 #include "messagebox.h"
@@ -87,57 +86,10 @@ static uint8 statistic_type[MAX_LINE_COST]={
 	STANDARD, STANDARD, MONEY, MONEY, MONEY, STANDARD, STANDARD, STANDARD, MONEY
 };
 
-enum sort_modes_t { SORT_BY_NAME=0, SORT_BY_ID, SORT_BY_PROFIT, SORT_BY_TRANSPORTED, SORT_BY_CONVOIS, SORT_BY_DISTANCE, MAX_SORT_MODES };
-static uint8 current_sort_mode = 0;
+int current_sort_mode = 0;
 
 #define LINE_NAME_COLUMN_WIDTH ((D_BUTTON_WIDTH*3)+11+4)
 #define SCL_HEIGHT (15*LINESPACE)
-
-
-static bool compare_lines(line_scrollitem_t* a, line_scrollitem_t* b)
-{
-	switch(  current_sort_mode  ) {
-		case SORT_BY_NAME:	// default
-			break;
-		case SORT_BY_ID:
-			return (a->get_line().get_id(),b->get_line().get_id())<0;
-		case SORT_BY_PROFIT:
-			return (a->get_line()->get_finance_history(1,LINE_PROFIT) - b->get_line()->get_finance_history(1,LINE_PROFIT))<0;
-		case SORT_BY_TRANSPORTED:
-			return (a->get_line()->get_finance_history(1,LINE_TRANSPORTED_GOODS) - b->get_line()->get_finance_history(1,LINE_TRANSPORTED_GOODS))<0;
-		case SORT_BY_CONVOIS:
-			return (a->get_line()->get_finance_history(1,LINE_CONVOIS) - b->get_line()->get_finance_history(1,LINE_CONVOIS))<0;
-		case SORT_BY_DISTANCE:
-			// normalizing to the number of convoys to get the fastest ones ...
-			return (a->get_line()->get_finance_history(1,LINE_DISTANCE)/max(1,a->get_line()->get_finance_history(1,LINE_CONVOIS)) -
-			        b->get_line()->get_finance_history(1,LINE_DISTANCE)/max(1,b->get_line()->get_finance_history(1,LINE_CONVOIS)) )<0;
-	}
-	// default sorting ...
-
-	// first: try to sort by number
-	const char *atxt = a->get_text();
-	int aint = 0;
-	// isdigit produces with UTF8 assertions ...
-	if(  atxt[0]>='0'  &&  atxt[0]<='9'  ) {
-		aint = atoi( atxt );
-	}
-	else if(  atxt[0]=='('  &&  atxt[1]>='0'  &&  atxt[1]<='9'  ) {
-		aint = atoi( atxt+1 );
-	}
-	const char *btxt = b->get_text();
-	int bint = 0;
-	if(  btxt[0]>='0'  &&  btxt[0]<='9'  ) {
-		bint = atoi( btxt );
-	}
-	else if(  btxt[0]=='('  &&  btxt[1]>='0'  &&  btxt[1]<='9'  ) {
-		bint = atoi( btxt+1 );
-	}
-	if(  aint!=bint  ) {
-		return (aint-bint)<0;
-	}
-	// otherwise: sort by name
-	return strcmp(atxt, btxt)<0;
-}
 
 
 /// selected tab per player
@@ -607,11 +559,10 @@ void schedule_list_gui_t::build_line_list(int filter)
 
 	FOR(vector_tpl<linehandle_t>, const l, lines) {
 		// search name
-		if (strstr(l->get_name(), schedule_filter))
+		if(  strstr(l->get_name(), schedule_filter)  ) {
 			selected_lines.append(new line_scrollitem_t(l));
+		}
 	}
-
-	std::sort(selected_lines.begin(),selected_lines.end(),compare_lines);
 
 	FOR(vector_tpl<line_scrollitem_t*>, const i, selected_lines) {
 		scl.append_element(i);
@@ -623,6 +574,8 @@ void schedule_list_gui_t::build_line_list(int filter)
 	scl.set_sb_offset( sb_offset );
 	if(  sel>=0  ) {
 		scl.set_selection( sel );
+		line_scrollitem_t::sort_mode = (line_scrollitem_t::sort_modes_t)current_sort_mode;
+		scl.sort();
 		scl.show_selection( sel );
 	}
 

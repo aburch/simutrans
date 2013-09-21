@@ -117,7 +117,6 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	line_selector.set_wrapping(false);
 	line_selector.set_focusable(true);
 	add_komponente(&line_selector);
-	depot->get_besitzer()->simlinemgmt.sort_lines();
 
 	// goto line button
 	line_button.set_typ(button_t::posbutton);
@@ -859,37 +858,42 @@ void depot_frame_t::update_data()
 
 	// update the line selector
 	line_selector.clear_elements();
-	if(  cnv.is_bound()  &&  cnv->get_schedule()  &&  !cnv->get_schedule()->empty()  ) {
-		if(  cnv->get_line().is_bound()  ) {
-			line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( clear_schedule_text, COL_BLACK ) );
-			line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( new_line_text, COL_BLACK ) );
-		}
-		else {
-			line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( unique_schedule_text, COL_BLACK ) );
-			line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( promote_to_line_text, COL_BLACK ) );
-		}
-	}
-	else {
-		line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( no_schedule_text, COL_BLACK ) );
-		line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( new_line_text, COL_BLACK ) );
-	}
-
-	if(  last_selected_line.is_bound()  ) {
-		line_selector.append_element( new line_scrollitem_t( last_selected_line ) );
-	}
-	line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( line_seperator, COL_BLACK ) );
-	line_selector.set_selection(0);
-	selected_line = linehandle_t();
 
 	// check all matching lines
+	selected_line = linehandle_t();
 	vector_tpl<linehandle_t> lines;
 	get_line_list(depot, &lines);
-	FOR(vector_tpl<linehandle_t>, const line, lines) {
+	line_selector.set_selection( 0 );
+	FOR(  vector_tpl<linehandle_t>,  const line,  lines  ) {
 		line_selector.append_element( new line_scrollitem_t(line) );
 		if(  cnv.is_bound()  &&  line == cnv->get_line()  ) {
 			line_selector.set_selection( line_selector.count_elements() - 1 );
 			selected_line = line;
 		}
+	}
+	line_selector.sort();
+
+	line_selector.insert_element( new gui_scrolled_list_t::const_text_scrollitem_t( line_seperator, COL_BLACK ) );
+	if(  last_selected_line.is_bound()  ) {
+		line_selector.insert_element( new line_scrollitem_t( last_selected_line ) );
+	}
+	if(  cnv.is_bound()  &&  cnv->get_schedule()  &&  !cnv->get_schedule()->empty()  ) {
+		if(  cnv->get_line().is_bound()  ) {
+			line_selector.insert_element( new gui_scrolled_list_t::const_text_scrollitem_t( new_line_text, COL_BLACK ) );
+			line_selector.insert_element( new gui_scrolled_list_t::const_text_scrollitem_t( clear_schedule_text, COL_BLACK ) );
+		}
+		else {
+			line_selector.insert_element( new gui_scrolled_list_t::const_text_scrollitem_t( promote_to_line_text, COL_BLACK ) );
+			line_selector.insert_element( new gui_scrolled_list_t::const_text_scrollitem_t( unique_schedule_text, COL_BLACK ) );
+		}
+	}
+	else {
+		line_selector.insert_element( new gui_scrolled_list_t::const_text_scrollitem_t( new_line_text, COL_BLACK ) );
+		line_selector.insert_element( new gui_scrolled_list_t::const_text_scrollitem_t( no_schedule_text, COL_BLACK ) );
+	}
+	if(  !selected_line.is_bound()  ) {
+		// select "create new schedule"
+		line_selector.set_selection( 0 );
 	}
 
 	// Update vehicle filter

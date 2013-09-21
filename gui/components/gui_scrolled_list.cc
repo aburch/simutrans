@@ -9,6 +9,7 @@
  * @author Niels Roest, additions by Hj. Malthaner
  */
 
+#include <algorithm>
 #include <stdio.h>
 
 #include "gui_scrollbar.h"
@@ -18,6 +19,19 @@
 #include "../../simcolor.h"
 #include "../../gui/simwin.h"
 
+
+// help for sorting
+bool  gui_scrolled_list_t::const_text_scrollitem_t::compare( scrollitem_t *a, scrollitem_t *b )
+{
+	return strcmp( ((const_text_scrollitem_t *)a)->get_text(), ((const_text_scrollitem_t *)b)->get_text() );
+}
+
+
+bool  gui_scrolled_list_t::const_text_scrollitem_t::sort( vector_tpl<scrollitem_t *>&v ) const
+{
+	std::sort( v.begin(), v.end(), const_text_scrollitem_t::compare );
+	return true;
+}
 
 
 // draws a single line of text
@@ -91,6 +105,9 @@ DBG_MESSAGE("gui_scrolled_list_t::show_selection()","sel=%d, offset=%d, groesse.
 }
 
 
+
+
+
 void gui_scrolled_list_t::clear_elements()
 {
 	for(  uint32 i=0;  i<item_list.get_count();  i++  ) {
@@ -111,6 +128,38 @@ void gui_scrolled_list_t::append_element( scrollitem_t *item )
 	item_list.append( item );
 	adjust_scrollbar();
 }
+
+
+void gui_scrolled_list_t::insert_element( scrollitem_t *item )
+{
+	item_list.insert_at( 0, item );
+	if(  selection >=0 ) {
+		selection ++;
+	}
+	adjust_scrollbar();
+}
+
+
+void gui_scrolled_list_t::sort()
+{
+	if(  item_list.get_count() > 1  ) {
+		scrollitem_t *sel = NULL;
+		if(  selection>=0  ) {
+			sel = item_list[selection];
+		}
+		item_list[0]->sort( item_list );
+		// now we may need to update the selection
+		if(  sel  ) {
+			for(  uint32 i=0;  i<item_list.get_count();  i++  ) {
+				if(  item_list[i] == sel  ) {
+					selection = i;
+					return;
+				}
+			}
+		}
+	}
+}
+
 
 // minimum vertical size
 // no less than 3, must be room for scrollbuttons

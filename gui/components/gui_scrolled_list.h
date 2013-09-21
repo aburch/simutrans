@@ -39,6 +39,7 @@ public:
 		virtual char const* get_text() const = 0;
 		virtual bool is_valid() { return true; }	//  can be used to indicate invalid entries
 		virtual bool is_editable() { return false; }
+		virtual bool sort( vector_tpl<scrollitem_t *> & ) const { return false; } // not sorted, leave vector as before
 	};
 
 	// only uses pointer, non-editable
@@ -46,6 +47,7 @@ public:
 	protected:
 		const char *consttext;
 		COLOR_VAL color;
+		static bool compare( scrollitem_t *a, scrollitem_t *b );
 	public:
 		const_text_scrollitem_t(char const* const t, uint8 const col) : consttext(t), color(col) {}
 
@@ -57,6 +59,8 @@ public:
 
 		virtual char const* get_text() const { return consttext; }
 		virtual void set_text(char const *) {}
+
+		virtual bool sort( vector_tpl<scrollitem_t *>&v ) const;
 	};
 
 	// editable text
@@ -76,7 +80,7 @@ public:
 
 private:
 	enum type type;
-	int selection; // only used when type is 'select'.
+	sint32 selection; // only used when type is 'select'.
 	int border; // must be subtracted from groesse.y to get net size
 	int offset; // vertical offset of top left position.
 
@@ -112,7 +116,11 @@ public:
 	 *  with recalculate_slider() to update the scrollbar properly. */
 	void clear_elements();
 	void append_element( scrollitem_t *item );
+	void insert_element( scrollitem_t *item );
 	scrollitem_t *get_element(sint32 i) const { return ((uint32)i<item_list.get_count()) ? item_list[i] : NULL; }
+
+	// sort the list
+	void sort();
 
 	// set the first element to be shown in the list
 	sint32 get_sb_offset() { return sb.get_knob_offset(); }

@@ -285,7 +285,6 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 		line_selector.set_highlight_color(sp->get_player_color1() + 1);
 		line_selector.clear_elements();
 
-		sp->simlinemgmt.sort_lines();
 		init_line_selector();
 		line_selector.add_listener(this);
 		add_komponente(&line_selector);
@@ -644,9 +643,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 void fahrplan_gui_t::init_line_selector()
 {
 	line_selector.clear_elements();
-	line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( no_line, COL_BLACK ) );
 	int selection = 0;
-	sp->simlinemgmt.sort_lines();	// to take care of renaming ...
 	sp->simlinemgmt.get_lines(fpl->get_type(), &lines);
 
 	// keep assignment with identical schedules
@@ -659,19 +656,23 @@ void fahrplan_gui_t::init_line_selector()
 		}
 	}
 
-	FOR(vector_tpl<linehandle_t>, const line, lines) {
+	FOR(  vector_tpl<linehandle_t>,  line,  lines  ) {
 		line_selector.append_element( new line_scrollitem_t(line) );
 		if(  !new_line.is_bound()  ) {
 			if(  fpl->matches( sp->get_welt(), line->get_schedule() )  ) {
-				selection = line_selector.count_elements() - 1;
+				selection = line_selector.count_elements();
 				new_line = line;
 			}
 		}
-		else if(  line==new_line  ) {
-			selection = line_selector.count_elements() - 1;
+		else if(  new_line == line  ) {
+			selection = line_selector.count_elements();
 		}
 	}
+
 	line_selector.set_selection( selection );
+	line_scrollitem_t::sort_mode = line_scrollitem_t::SORT_BY_NAME;
+	line_selector.sort();
+	line_selector.insert_element( new gui_scrolled_list_t::const_text_scrollitem_t( no_line, COL_BLACK ) );
 	old_line_count = sp->simlinemgmt.get_line_count();
 	last_schedule_count = fpl->get_count();
 }

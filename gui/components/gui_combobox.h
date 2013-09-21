@@ -72,6 +72,8 @@ public:
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
+	void sort() { droplist.sort(); }
+
 	/**
 	 * Draw the component
 	 * @author Hj. Malthaner
@@ -83,6 +85,12 @@ public:
 	 * @author hsiegeln
 	 */
 	void append_element( gui_scrolled_list_t::scrollitem_t *item ) { droplist.append_element( item ); set_max_size( max_size ); }
+
+	/**
+	 * add insert to droplist
+	 * @author hsiegeln
+	 */
+	void insert_element( gui_scrolled_list_t::scrollitem_t *item ) { droplist.insert_element( item ); set_max_size( max_size ); }
 
 	/**
 	 * remove all elements from droplist
