@@ -503,7 +503,7 @@ int simu_main(int argc, char** argv)
 	printf("Use work dir %s\n", env_t::program_dir);
 
 	// only the specified pak conf should override this!
-	uint16 pak_diagonal_multiplier = env_t::default_einstellungen.get_pak_diagonal_multiplier();
+	uint16 pak_diagonal_multiplier = env_t::default_settings.get_pak_diagonal_multiplier();
 	sint8 pak_tile_height = TILE_HEIGHT_STEP;
 
 	// parsing config/simuconf.tab
@@ -607,11 +607,11 @@ int simu_main(int argc, char** argv)
 		else {
 			found_settings = true;
 			env_t::rdwr(&file);
-			env_t::default_einstellungen.rdwr(&file);
+			env_t::default_settings.rdwr(&file);
 			file.close();
 			// reset to false (otherwise these settings will persist)
-			env_t::default_einstellungen.set_freeplay( false );
-			env_t::default_einstellungen.set_allow_player_change( true );
+			env_t::default_settings.set_freeplay( false );
+			env_t::default_settings.set_allow_player_change( true );
 			env_t::server_announce = 0;
 		}
 	}
@@ -621,7 +621,7 @@ int simu_main(int argc, char** argv)
 	if(  found_simuconf  ) {
 		if(simuconf.open(path_to_simuconf)) {
 			printf("parse_simuconf() at config/simuconf.tab: ");
-			env_t::default_einstellungen.parse_simuconf( simuconf, disp_width, disp_height, fullscreen, env_t::objfilename );
+			env_t::default_settings.parse_simuconf( simuconf, disp_width, disp_height, fullscreen, env_t::objfilename );
 		}
 	}
 
@@ -630,12 +630,12 @@ int simu_main(int argc, char** argv)
 	string obj_conf = string(env_t::user_dir) + "simuconf.tab";
 	if (simuconf.open(obj_conf.c_str())) {
 		printf("parse_simuconf() at %s: ", obj_conf.c_str() );
-		env_t::default_einstellungen.parse_simuconf( simuconf, disp_width, disp_height, fullscreen, env_t::objfilename );
+		env_t::default_settings.parse_simuconf( simuconf, disp_width, disp_height, fullscreen, env_t::objfilename );
 	}
 
-	// umgebung: override previous settings
+	// env: override previous settings
 	if(  (gimme_arg(argc, argv, "-freeplay", 0) != NULL)  ) {
-		env_t::default_einstellungen.set_freeplay( true );
+		env_t::default_settings.set_freeplay( true );
 	}
 
 	// now set the desired objectfilename (override all previous settings)
@@ -831,8 +831,8 @@ int simu_main(int argc, char** argv)
 		sint16 idummy;
 		string dummy;
 		dbg->important("parse_simuconf() at %s: ", obj_conf.c_str());
-		env_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
-		pak_diagonal_multiplier = env_t::default_einstellungen.get_pak_diagonal_multiplier();
+		env_t::default_settings.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
+		pak_diagonal_multiplier = env_t::default_settings.get_pak_diagonal_multiplier();
 		pak_tile_height = TILE_HEIGHT_STEP;
 		simuconf.close();
 	}
@@ -842,41 +842,41 @@ int simu_main(int argc, char** argv)
 		sint16 idummy;
 		string dummy;
 		dbg->important("parse_simuconf() at %s: ", obj_conf.c_str());
-		env_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
+		env_t::default_settings.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 		simuconf.close();
 	}
 
 	// load with private addons (now in addons/pak-name either in simutrans main dir or in userdir)
 	if(  gimme_arg(argc, argv, "-objects", 1) != NULL  ) {
 		if(gimme_arg(argc, argv, "-addons", 0) != NULL) {
-			env_t::default_einstellungen.set_with_private_paks( true );
+			env_t::default_settings.set_with_private_paks( true );
 		}
 		if(gimme_arg(argc, argv, "-noaddons", 0) != NULL) {
-			env_t::default_einstellungen.set_with_private_paks( false );
+			env_t::default_settings.set_with_private_paks( false );
 		}
 	}
 
 	// parse ~/simutrans/pakxyz/config.tab"
-	if(  env_t::default_einstellungen.get_with_private_paks()  ) {
+	if(  env_t::default_settings.get_with_private_paks()  ) {
 		obj_conf = string(env_t::user_dir) + "addons/" + env_t::objfilename + "config/simuconf.tab";
 		sint16 idummy;
 		string dummy;
 		if (simuconf.open(obj_conf.c_str())) {
 			dbg->important("parse_simuconf() at %s: ", obj_conf.c_str());
-			env_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
+			env_t::default_settings.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 			simuconf.close();
 		}
 		// and parse user settings again ...
 		obj_conf = string(env_t::user_dir) + "simuconf.tab";
 		if (simuconf.open(obj_conf.c_str())) {
 			dbg->important("parse_simuconf() at %s: ", obj_conf.c_str());
-			env_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
+			env_t::default_settings.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 			simuconf.close();
 		}
 	}
 
 	// now (re)set the correct length from the pak
-	env_t::default_einstellungen.set_pak_diagonal_multiplier( pak_diagonal_multiplier );
+	env_t::default_settings.set_pak_diagonal_multiplier( pak_diagonal_multiplier );
 	vehikel_basis_t::set_diagonal_multiplier( pak_diagonal_multiplier, pak_diagonal_multiplier );
 	TILE_HEIGHT_STEP = pak_tile_height;
 
@@ -943,12 +943,12 @@ int simu_main(int argc, char** argv)
 	// loading all paks
 	dbg->important("Reading object data from %s...", env_t::objfilename.c_str());
 	obj_reader_t::load(env_t::objfilename.c_str(), translator::translate("Loading paks ...") );
-	if(  env_t::default_einstellungen.get_with_private_paks()  ) {
+	if(  env_t::default_settings.get_with_private_paks()  ) {
 		// try to read addons from private directory
 		chdir( env_t::user_dir );
 		if(!obj_reader_t::load(("addons/" + env_t::objfilename).c_str(), translator::translate("Loading addon paks ..."))) {
 			fprintf(stderr, "reading addon object data failed (disabling).\n");
-			env_t::default_einstellungen.set_with_private_paks( false );
+			env_t::default_settings.set_with_private_paks( false );
 		}
 		chdir( env_t::program_dir );
 	}
@@ -1024,14 +1024,14 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	if(  gimme_arg(argc, argv, "-timeline", 0) != NULL  ) {
 		const char* ref_str = gimme_arg(argc, argv, "-timeline", 1);
 		if(  ref_str != NULL  ) {
-			env_t::default_einstellungen.set_use_timeline( atoi(ref_str) );
+			env_t::default_settings.set_use_timeline( atoi(ref_str) );
 		}
 	}
 
 	if(  gimme_arg(argc, argv, "-startyear", 0) != NULL  ) {
 		const char * ref_str = gimme_arg(argc, argv, "-startyear", 1); //1930
 		if(  ref_str != NULL  ) {
-			env_t::default_einstellungen.set_starting_year( clamp(atoi(ref_str),1,2999) );
+			env_t::default_settings.set_starting_year( clamp(atoi(ref_str),1,2999) );
 		}
 	}
 
@@ -1114,7 +1114,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		sint32 old_autosave = env_t::autosave;
 		env_t::autosave = false;
 		settings_t sets;
-		sets.copy_city_road( env_t::default_einstellungen );
+		sets.copy_city_road( env_t::default_settings );
 		sets.set_default_climates();
 		sets.set_use_timeline( 1 );
 		sets.set_groesse(64,64);
@@ -1218,7 +1218,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		}
 
 		if(  new_world  ) {
-			modal_dialogue( new welt_gui_t(welt, &env_t::default_einstellungen), magic_welt_gui_t, welt, never_quit );
+			modal_dialogue( new welt_gui_t(welt, &env_t::default_settings), magic_welt_gui_t, welt, never_quit );
 			if(  env_t::quit_simutrans  ) {
 				break;
 			}
@@ -1244,7 +1244,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	chdir( env_t::user_dir );
 	if(  file.wr_open("settings.xml",loadsave_t::xml,"settings only/",SAVEGAME_VER_NR)  ) {
 		env_t::rdwr(&file);
-		env_t::default_einstellungen.rdwr(&file);
+		env_t::default_settings.rdwr(&file);
 		file.close();
 	}
 

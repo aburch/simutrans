@@ -198,7 +198,7 @@ SOCKET network_open_address(char const* cp, char const*& err)
 	bool connected = false;
 
 #ifdef NETTOOL
-	// Nettool doesn't have umgebung, so fake it
+	// Nettool doesn't have env, so fake it
 	vector_tpl<std::string> ips;
 	ips.append_unique("::");
 	ips.append_unique("0.0.0.0");
@@ -372,7 +372,7 @@ bool network_init_server( int port )
 #else // USE_IP4_ONLY
 
 #ifdef NETTOOL
-	// Nettool doesn't have umgebung, so fake it
+	// Nettool doesn't have env, so fake it
 	vector_tpl<std::string> ips;
 	ips.append_unique("::");
 	ips.append_unique("0.0.0.0");

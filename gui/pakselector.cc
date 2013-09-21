@@ -44,7 +44,7 @@ pakselector_t::pakselector_t() :
 void pakselector_t::action(const char *fullpath)
 {
 	env_t::objfilename = get_filename(fullpath)+"/";
-	env_t::default_einstellungen.set_with_private_paks( false );
+	env_t::default_settings.set_with_private_paks( false );
 }
 
 
@@ -52,7 +52,7 @@ bool pakselector_t::del_action(const char *fullpath)
 {
 	// cannot delete set => use this for selection
 	env_t::objfilename = get_filename(fullpath)+"/";
-	env_t::default_einstellungen.set_with_private_paks( true );
+	env_t::default_settings.set_with_private_paks( true );
 	return true;
 }
 

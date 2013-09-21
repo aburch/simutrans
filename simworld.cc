@@ -2233,7 +2233,7 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 
 
 karte_t::karte_t() :
-	settings(env_t::default_einstellungen),
+	settings(env_t::default_settings),
 	convoi_array(0),
 	ausflugsziele(16),
 	stadt(0),
@@ -5509,7 +5509,7 @@ void karte_t::load(loadsave_t *file)
 
 	// jetzt geht das laden los
 	dbg->warning("karte_t::laden", "Fileversion: %d", file->get_version());
-	settings = env_t::default_einstellungen;
+	settings = env_t::default_settings;
 	settings.rdwr(file);
 	loaded_rotation = settings.get_rotation();
 
@@ -5523,10 +5523,10 @@ void karte_t::load(loadsave_t *file)
 	}
 
 	if(  !env_t::networkmode  ||  (env_t::server  &&  socket_list_t::get_playing_clients()==0)  ) {
-		if (settings.get_allow_player_change() && env_t::default_einstellungen.get_use_timeline() < 2) {
+		if (settings.get_allow_player_change() && env_t::default_settings.get_use_timeline() < 2) {
 			// not locked => eventually switch off timeline settings, if explicitly stated
-			settings.set_use_timeline(env_t::default_einstellungen.get_use_timeline());
-			DBG_DEBUG("karte_t::laden", "timeline: reset to %i", env_t::default_einstellungen.get_use_timeline() );
+			settings.set_use_timeline(env_t::default_settings.get_use_timeline());
+			DBG_DEBUG("karte_t::laden", "timeline: reset to %i", env_t::default_settings.get_use_timeline() );
 		}
 	}
 	if (settings.get_beginner_mode()) {
@@ -5575,7 +5575,7 @@ DBG_DEBUG("karte_t::laden", "init felder ok");
 	file->rdwr_long(last_month);
 	file->rdwr_long(last_year);
 	if(file->get_version()<86006) {
-		last_year += env_t::default_einstellungen.get_starting_year();
+		last_year += env_t::default_settings.get_starting_year();
 	}
 	// old game might have wrong month
 	last_month %= 12;

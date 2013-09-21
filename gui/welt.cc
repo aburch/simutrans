@@ -79,7 +79,7 @@ welt_gui_t::welt_gui_t(karte_t* const world_par, settings_t* const sets_par) :
 
 	world = world_par;
 	sets = sets_par;
-	sets->beginner_mode = env_t::default_einstellungen.get_beginner_mode();
+	sets->beginner_mode = env_t::default_settings.get_beginner_mode();
 
 	city_density       = ( sets->get_anzahl_staedte()      ) ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_anzahl_staedte()      : 0.0;
 	industry_density   = ( sets->get_factory_count()       ) ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_factory_count()       : 0.0;
@@ -560,20 +560,20 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		world->get_message()->clear();
 		create_win(200, 100, new news_img("Erzeuge neue Karte.\n", skinverwaltung_t::neueweltsymbol->get_bild_nr(0)), w_info, magic_none);
 		if(loaded_heightfield) {
-			world->load_heightfield(&env_t::default_einstellungen);
+			world->load_heightfield(&env_t::default_settings);
 		}
 		else {
-			env_t::default_einstellungen.heightfield = "";
-			world->init( &env_t::default_einstellungen, 0 );
+			env_t::default_settings.heightfield = "";
+			world->init( &env_t::default_settings, 0 );
 		}
 		destroy_all_win(true);
-		world->step_month( env_t::default_einstellungen.get_starting_month() );
+		world->step_month( env_t::default_settings.get_starting_month() );
 		world->set_pause(false);
 		// save setting ...
 		loadsave_t file;
 		if(file.wr_open("default.sve",loadsave_t::binary,"settings only",SAVEGAME_VER_NR)) {
 			// save default setting
-			env_t::default_einstellungen.rdwr(&file);
+			env_t::default_settings.rdwr(&file);
 			file.close();
 		}
 	}

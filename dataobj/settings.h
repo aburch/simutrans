@@ -7,7 +7,7 @@
 
 
 /**
- * Spieleinstellungen
+ * Game settings
  *
  * Hj. Malthaner
  *

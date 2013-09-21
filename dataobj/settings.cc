@@ -1,5 +1,5 @@
 /*
- * Spieleinstellungen
+ * Game settings
  *
  * Hj. Malthaner
  *
@@ -293,6 +293,7 @@ void settings_t::set_default_climates()
 
 void settings_t::rdwr(loadsave_t *file)
 {
+	// used to be called einstellungen_t - keep old name during save/load for compatibility
 	xml_tag_t e( file, "einstellungen_t" );
 
 	if(file->get_version() < 86000) {
@@ -554,7 +555,7 @@ void settings_t::rdwr(loadsave_t *file)
 						save_starting_money = get_starting_money(starting_year );
 					}
 					if(save_starting_money==0) {
-						save_starting_money = env_t::default_einstellungen.get_starting_money(starting_year );
+						save_starting_money = env_t::default_settings.get_starting_money(starting_year );
 					}
 					if(save_starting_money==0) {
 						save_starting_money = 20000000;
@@ -563,7 +564,7 @@ void settings_t::rdwr(loadsave_t *file)
 				file->rdwr_longlong(save_starting_money );
 				if(file->is_loading()) {
 					if(save_starting_money==0) {
-						save_starting_money = env_t::default_einstellungen.get_starting_money(starting_year );
+						save_starting_money = env_t::default_settings.get_starting_money(starting_year );
 					}
 					if(save_starting_money==0) {
 						save_starting_money = 20000000;

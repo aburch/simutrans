@@ -434,7 +434,7 @@ bool translator::load(const string &path_to_pakset)
 	const string folderName(path_to_pakset + "text/");
 	load_files_from_folder(folderName.c_str(), "pak");
 
-	if(  env_t::default_einstellungen.get_with_private_paks()  ) {
+	if(  env_t::default_settings.get_with_private_paks()  ) {
 		chdir( env_t::user_dir );
 		// now read the pakset specific text
 		// there can be more than one file per language, provided it is name like iso_xyz.tab
@@ -459,7 +459,7 @@ bool translator::load(const string &path_to_pakset)
 	}
 
 	// also addon compatibility ...
-	if(  env_t::default_einstellungen.get_with_private_paks()  ) {
+	if(  env_t::default_settings.get_with_private_paks()  ) {
 		chdir( env_t::user_dir );
 		if (FILE* const file = fopen(string("addons/"+path_to_pakset + "compat.tab").c_str(), "rb")) {
 			load_language_file_body(file, &compatibility, false, false);
@@ -499,7 +499,7 @@ void translator::set_language(int lang)
 		single_instance.current_lang = lang;
 		current_langinfo = langs+lang;
 		env_t::language_iso = langs[lang].iso;
-		env_t::default_einstellungen.set_name_language_iso( langs[lang].iso );
+		env_t::default_settings.set_name_language_iso( langs[lang].iso );
 		display_set_unicode(langs[lang].utf_encoded);
 		init_custom_names(lang);
 		current_langinfo->eclipse_width = proportional_string_width( translate("...") );

@@ -385,7 +385,7 @@ public:
 	/// default settings
 	/// read in simmain.cc from various tab files
 	/// @see simmain.cc
-	static settings_t default_einstellungen;
+	static settings_t default_settings;
 
 	/// construct always straight ways
 	/// as if ctrl-key permanently pressed

@@ -63,7 +63,7 @@ bool env_t::hide_rail_return_ticket = true;
 bool env_t::quit_simutrans = false;
 
 // default settings for new games
-settings_t env_t::default_einstellungen;
+settings_t env_t::default_settings;
 
 
 // the following initialisation is not important; set values in init()!
@@ -236,6 +236,7 @@ void env_t::init()
 // save/restore environment
 void env_t::rdwr(loadsave_t *file)
 {
+	// env_t used to be called umgebung_t - keep old name when saving and loading for compatibility
 	xml_tag_t u( file, "umgebung_t" );
 
 	file->rdwr_short( scroll_multi );
