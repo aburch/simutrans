@@ -5515,9 +5515,8 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 			case gebaeude_t::gewerbe:   arb += h->get_level() * 20; break;
 			case gebaeude_t::industrie: arb += h->get_level() * 20; break;
 			default: break;
-
-		return true;
 		}
+		return true;
 	}
 	return false;
 }
