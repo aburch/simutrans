@@ -69,6 +69,12 @@ public:
 	bool ist_markiert(const grund_t *gr) const;
 
 	/**
+	 * Checks if tile is visited. Marks tile as visited if not visited before.
+	 * @returns true if tile was already visited
+	 */
+	bool test_and_mark(const grund_t *gr);
+
+	/**
 	 * Marks all fields as not visited.
 	 */
 	void unmarkiere_alle();

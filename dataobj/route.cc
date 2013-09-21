@@ -111,16 +111,6 @@ DBG_MESSAGE("route_t::append_straight_route()","start from (%i,%i) to (%i,%i)",p
 }
 
 
-static bool is_in_list(vector_tpl<route_t::ANode*> const& list, grund_t const* const to)
-{
-	FOR(vector_tpl<route_t::ANode*>, const i, list) {
-		if (i->gr == to) {
-			return true;
-		}
-	}
-	return false;
-}
-
 
 // node arrays
 route_t::ANode* route_t::nodes=NULL;
@@ -191,12 +181,13 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 		tmp = queue.pop();
 		const grund_t* gr = tmp->gr;
 
-		if(  marker.ist_markiert(gr)  ) {
+		if(  marker.test_and_mark(gr)  ) {
 			// we were already here on a faster route, thus ignore this branch
 			// (trading speed against memory consumption)
 			continue;
 		}
-		marker.markiere(gr);
+		// tile is marked as visited
+
 
 //DBG_DEBUG("add to close","(%i,%i,%i) f=%i",gr->get_pos().x,gr->get_pos().y,gr->get_pos().z,tmp->f);
 		// already there
@@ -348,18 +339,18 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 			// this is not in closed list, no check necessary
 			tmp = new_top;
 			new_top = NULL;
+			gr = tmp->gr;
+			marker.markiere(gr);
 		}
 		else {
 			tmp = queue.pop();
-			if(marker.ist_markiert(tmp->gr)) {
+			gr = tmp->gr;
+			if(marker.test_and_mark(gr)) {
 				// we were already here on a faster route, thus ignore this branch
 				// (trading speed against memory consumption)
 				continue;
 			}
 		}
-
-		gr = tmp->gr;
-		marker.markiere(gr);
 
 		// we took the target pos out of the closed list
 		if(  ziel == gr->get_pos()  ) {

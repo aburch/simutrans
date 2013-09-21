@@ -88,3 +88,21 @@ bool marker_t::ist_markiert(const grund_t *gr) const
 		return more.get(gr);
 	}
 }
+
+bool marker_t::test_and_mark(const grund_t *gr)
+{
+	if(gr != NULL) {
+		if(gr->ist_karten_boden()) {
+			// ground level
+			const int bit = gr->get_pos().y*cached_groesse+gr->get_pos().x;
+			if ((bits[bit/bit_unit] & (1 << (bit & bit_mask))) != 0) {
+				return true;
+			}
+			bits[bit/bit_unit] |= 1 << (bit & bit_mask);
+		}
+		else {
+			return more.set(gr, true);
+		}
+	}
+	return false;
+}

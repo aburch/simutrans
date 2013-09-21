@@ -1311,7 +1311,7 @@ long wegbauer_t::intern_calc_route(const vector_tpl<koord3d> &start, const vecto
 	do {
 		route_t::ANode *test_tmp = queue.pop();
 
-		if(marker.ist_markiert(test_tmp->gr)) {
+		if(marker.test_and_mark(test_tmp->gr)) {
 			// we were already here on a faster route, thus ignore this branch
 			// (trading speed against memory consumption)
 			continue;
@@ -1319,7 +1319,6 @@ long wegbauer_t::intern_calc_route(const vector_tpl<koord3d> &start, const vecto
 
 		tmp = test_tmp;
 		gr = tmp->gr;
-		marker.markiere(gr);
 		gr_pos = gr->get_pos();
 
 #ifdef DEBUG_ROUTES
