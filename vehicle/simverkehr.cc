@@ -122,7 +122,7 @@ verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt, koord3d pos, uint16 ra
  */
 void verkehrsteilnehmer_t::zeige_info()
 {
-	if(environment_t::verkehrsteilnehmer_info) {
+	if(env_t::verkehrsteilnehmer_info) {
 		ding_t::zeige_info();
 	}
 }

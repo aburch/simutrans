@@ -1724,7 +1724,7 @@ void vehikel_t::display_after(int xpos, int ypos, bool is_gobal) const
 		COLOR_VAL color = COL_GREEN; // not used, but stop compiler warning about uninitialized
 		char tooltip_text[1024];
 		tooltip_text[0] = 0;
-		uint8 state = environment_t::show_vehicle_states;
+		uint8 state = env_t::show_vehicle_states;
 		if(  state==1  ) {
 			// only show when mouse over vehicle
 			if(  welt->get_zeiger()->get_pos()==get_pos()  ) {

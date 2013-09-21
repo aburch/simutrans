@@ -140,7 +140,7 @@ bool scenario_t::load_script(const char* filename)
 	export_global_constants(script->get_vm());
 	// load scenario base definitions
 	char basefile[1024];
-	sprintf( basefile, "%sscript/scenario_base.nut", environment_t::program_dir );
+	sprintf( basefile, "%sscript/scenario_base.nut", env_t::program_dir );
 	const char* err = script->call_script(basefile);
 	if (err) { // should not happen ...
 		dbg->error("scenario_t::load_script", "error [%s] calling %s", err, basefile);
@@ -351,7 +351,7 @@ end:
 
 void scenario_t::call_forbid_tool(forbidden_t *test, bool forbid)
 {
-	if (environment_t::server) {
+	if (env_t::server) {
 		// send information over network
 		nwc_scenario_rules_t *nws = new nwc_scenario_rules_t(welt->get_sync_steps() + 1, welt->get_map_counter());
 		nws->rule = test;
@@ -531,7 +531,7 @@ const char* scenario_t::is_schedule_allowed(const spieler_t* sp, const schedule_
 	if (schedule == NULL) {
 		return "";
 	}
-	if (schedule->empty()  ||  environment_t::server) {
+	if (schedule->empty()  ||  env_t::server) {
 		// empty schedule, networkgame: all allowed
 		return NULL;
 	}
@@ -559,7 +559,7 @@ void scenario_t::step()
 {
 	if (!script) {
 		// update texts at clients if info window open
-		if (environment_t::networkmode  &&  !environment_t::server  &&  win_get_magic(magic_scenario_info)) {
+		if (env_t::networkmode  &&  !env_t::server  &&  win_get_magic(magic_scenario_info)) {
 			update_scenario_texts();
 		}
 		return;
@@ -598,7 +598,7 @@ void scenario_t::step()
 	update_won_lost(new_won, new_lost);
 
 	// server sends the new state to the clients
-	if (environment_t::server  &&  (new_won | new_lost)) {
+	if (env_t::server  &&  (new_won | new_lost)) {
 		nwc_scenario_t *nwc = new nwc_scenario_t();
 		nwc->won = new_won;
 		nwc->lost = new_lost;
@@ -742,7 +742,7 @@ void scenario_t::rdwr(loadsave_t *file)
 			plainstring str;
 			file->rdwr_str(str);
 			dbg->warning("scenario_t::rdwr", "loaded persistent scenario data: %s", str.c_str());
-			if (environment_t::networkmode   &&  !environment_t::server) {
+			if (env_t::networkmode   &&  !env_t::server) {
 				// client playing network scenario game:
 				// script files are not available
 				what_scenario = SCRIPTED_NETWORK;
@@ -753,13 +753,13 @@ void scenario_t::rdwr(loadsave_t *file)
 				cbuffer_t script_filename;
 
 				// try addon directory first
-				scenario_path = ( std::string("addons/") + environment_t::objfilename + "scenario/" + scenario_name.c_str() + "/").c_str();
+				scenario_path = ( std::string("addons/") + env_t::objfilename + "scenario/" + scenario_name.c_str() + "/").c_str();
 				script_filename.printf("%sscenario.nut", scenario_path.c_str());
 				rdwr_error = !load_script(script_filename);
 
 				// failed, try scenario from pakset directory
 				if (rdwr_error) {
-					scenario_path = (environment_t::program_dir + environment_t::objfilename + "scenario/" + scenario_name.c_str() + "/").c_str();
+					scenario_path = (env_t::program_dir + env_t::objfilename + "scenario/" + scenario_name.c_str() + "/").c_str();
 					script_filename.clear();
 					script_filename.printf("%sscenario.nut", scenario_path.c_str());
 					rdwr_error = !load_script(script_filename);

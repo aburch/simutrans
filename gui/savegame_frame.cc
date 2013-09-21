@@ -205,7 +205,7 @@ void savegame_frame_t::add_file(const char *fullpath, const char *filename, cons
 	button->set_no_translate(true);
 	button->set_text(name);	// to avoid translation
 
-	std::string const compare_to = !environment_t::objfilename.empty() ? environment_t::objfilename.substr(0, environment_t::objfilename.size() - 1) + " -" : std::string();
+	std::string const compare_to = !env_t::objfilename.empty() ? env_t::objfilename.substr(0, env_t::objfilename.size() - 1) + " -" : std::string();
 	// sort by date descending:
 	slist_tpl<dir_entry_t>::iterator i = entries.begin();
 	slist_tpl<dir_entry_t>::iterator end = entries.end();
@@ -360,9 +360,9 @@ void savegame_frame_t::set_fenstergroesse(koord groesse)
 
 	const sint32 width = groesse.x - D_MARGIN_RIGHT;
 
-	if(groesse.y > display_get_height()-environment_t::iconsize.y-D_STATUSBAR_HEIGHT) {
+	if(groesse.y > display_get_height()-env_t::iconsize.y-D_STATUSBAR_HEIGHT) {
 		// too high ...
-		groesse.y = FIXED_DIALOG_HEIGHT + D_BUTTON_HEIGHT * ((display_get_height() - environment_t::iconsize.y - D_STATUSBAR_HEIGHT - FIXED_DIALOG_HEIGHT) / D_BUTTON_HEIGHT);
+		groesse.y = FIXED_DIALOG_HEIGHT + D_BUTTON_HEIGHT * ((display_get_height() - env_t::iconsize.y - D_STATUSBAR_HEIGHT - FIXED_DIALOG_HEIGHT) / D_BUTTON_HEIGHT);
 	}
 
 	if(groesse.x > display_get_width()) {
@@ -547,23 +547,23 @@ void savegame_frame_t::add_section(std::string &name){
 	char *label_text = new char [SHORTENED_SIZE+prefix_len+2];
 	char *path_expanded = new char[FILENAME_MAX];
 
-	size_t program_dir_len = strlen(environment_t::program_dir);
+	size_t program_dir_len = strlen(env_t::program_dir);
 
-	if (strncmp(name.c_str(),environment_t::program_dir,program_dir_len) == 0) {
+	if (strncmp(name.c_str(),env_t::program_dir,program_dir_len) == 0) {
 		// starts with program_dir
 		strncpy(path_expanded, name.c_str(), FILENAME_MAX);
 	}
 	else {
 		// user_dir path
 		size_t name_len = strlen(name.c_str());
-		size_t user_dir_len = strlen(environment_t::user_dir);
+		size_t user_dir_len = strlen(env_t::user_dir);
 
 		if ( name_len+user_dir_len > FILENAME_MAX-1 ) {
 			// shouldn't happen, but I'll control anyway
 			strcpy(path_expanded,"** ERROR ** Path too long");
 		}
 		else {
-			sprintf(path_expanded,"%s%s", environment_t::user_dir, name.c_str());
+			sprintf(path_expanded,"%s%s", env_t::user_dir, name.c_str());
 		}
 	}
 

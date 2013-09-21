@@ -118,7 +118,7 @@ void loadingscreen_t::set_progress( uint32 progress )
 			display_logo();
 		}
 		else if(  ev->ev_code == SYSTEM_QUIT  ) {
-			environment_t::quit_simutrans = true;
+			env_t::quit_simutrans = true;
 		}
 		delete ev;
 	}

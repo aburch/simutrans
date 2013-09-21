@@ -79,7 +79,7 @@ welt_gui_t::welt_gui_t(karte_t* const world_par, settings_t* const sets_par) :
 
 	world = world_par;
 	sets = sets_par;
-	sets->beginner_mode = environment_t::default_einstellungen.get_beginner_mode();
+	sets->beginner_mode = env_t::default_einstellungen.get_beginner_mode();
 
 	city_density       = ( sets->get_anzahl_staedte()      ) ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_anzahl_staedte()      : 0.0;
 	industry_density   = ( sets->get_factory_count()       ) ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_factory_count()       : 0.0;
@@ -215,8 +215,8 @@ welt_gui_t::welt_gui_t(karte_t* const world_par, settings_t* const sets_par) :
 	inp_intercity_road_len.set_groesse(koord(edit_Width, D_EDIT_HEIGHT));
 	inp_intercity_road_len.add_listener(this);
 	inp_intercity_road_len.set_limits(0,9999);
-	inp_intercity_road_len.set_value( environment_t::intercity_road_length );
-	inp_intercity_road_len.set_increment_mode( environment_t::intercity_road_length>=1000 ? 100 : 20 );
+	inp_intercity_road_len.set_value( env_t::intercity_road_length );
+	inp_intercity_road_len.set_increment_mode( env_t::intercity_road_length>=1000 ? 100 : 20 );
 	add_komponente( &inp_intercity_road_len );
 
 	// Intercity road length label
@@ -482,7 +482,7 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		sets->set_mittlere_einwohnerzahl( v.i );
 	}
 	else if(komp==&inp_intercity_road_len) {
-		environment_t::intercity_road_length = v.i;
+		env_t::intercity_road_length = v.i;
 		inp_intercity_road_len.set_increment_mode( v.i>=1000 ? 100 : 20 );
 	}
 	else if(komp==&inp_other_industries) {
@@ -506,7 +506,7 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		// load relief
 		loaded_heightfield = false;
 		sets->heightfield = "";
-		sets->grundwasser = -2*environment_t::pak_height_conversion_factor;
+		sets->grundwasser = -2*env_t::pak_height_conversion_factor;
 		create_win(new load_relief_frame_t(sets), w_info, magic_load_t);
 		knr = sets->get_karte_nummer();	// otherwise using cancel would not show the normal generated map again
 	}
@@ -560,26 +560,26 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		world->get_message()->clear();
 		create_win(200, 100, new news_img("Erzeuge neue Karte.\n", skinverwaltung_t::neueweltsymbol->get_bild_nr(0)), w_info, magic_none);
 		if(loaded_heightfield) {
-			world->load_heightfield(&environment_t::default_einstellungen);
+			world->load_heightfield(&env_t::default_einstellungen);
 		}
 		else {
-			environment_t::default_einstellungen.heightfield = "";
-			world->init( &environment_t::default_einstellungen, 0 );
+			env_t::default_einstellungen.heightfield = "";
+			world->init( &env_t::default_einstellungen, 0 );
 		}
 		destroy_all_win(true);
-		world->step_month( environment_t::default_einstellungen.get_starting_month() );
+		world->step_month( env_t::default_einstellungen.get_starting_month() );
 		world->set_pause(false);
 		// save setting ...
 		loadsave_t file;
 		if(file.wr_open("default.sve",loadsave_t::binary,"settings only",SAVEGAME_VER_NR)) {
 			// save default setting
-			environment_t::default_einstellungen.rdwr(&file);
+			env_t::default_einstellungen.rdwr(&file);
 			file.close();
 		}
 	}
 	else if(komp==&quit_game) {
 		destroy_all_win(true);
-		environment_t::quit_simutrans = true;
+		env_t::quit_simutrans = true;
 	}
 
 	if(knr>=0) {

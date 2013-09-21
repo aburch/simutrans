@@ -1055,7 +1055,7 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				||  (d->get_typ()==ding_t::gebaeude  &&  ((gebaeude_t *)d)->get_fabrik())
 				// things with convoi will not be saved
 				||  (d->get_typ()>=66  &&  d->get_typ()<82)
-				||  (environment_t::server  &&  d->get_typ()==ding_t::baum  &&  file->get_version()>=110001)
+				||  (env_t::server  &&  d->get_typ()==ding_t::baum  &&  file->get_version()>=110001)
 			) {
 				// these objects are simply not saved
 			}

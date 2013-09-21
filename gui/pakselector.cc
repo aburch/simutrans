@@ -12,7 +12,7 @@
 #define L_ADDON_WIDTH (150)
 
 pakselector_t::pakselector_t() :
-	savegame_frame_t( NULL, true, environment_t::program_dir),
+	savegame_frame_t( NULL, true, env_t::program_dir),
 	notice_label(&notice_buffer)
 {
 	// remove unnecessary buttons
@@ -43,16 +43,16 @@ pakselector_t::pakselector_t() :
  */
 void pakselector_t::action(const char *fullpath)
 {
-	environment_t::objfilename = get_filename(fullpath)+"/";
-	environment_t::default_einstellungen.set_with_private_paks( false );
+	env_t::objfilename = get_filename(fullpath)+"/";
+	env_t::default_einstellungen.set_with_private_paks( false );
 }
 
 
 bool pakselector_t::del_action(const char *fullpath)
 {
 	// cannot delete set => use this for selection
-	environment_t::objfilename = get_filename(fullpath)+"/";
-	environment_t::default_einstellungen.set_with_private_paks( true );
+	env_t::objfilename = get_filename(fullpath)+"/";
+	env_t::default_einstellungen.set_with_private_paks( true );
 	return true;
 }
 
@@ -123,7 +123,7 @@ void pakselector_t::fill_list()
 
 		// look for addon directory
 		path.clear();
-		path.printf("%saddons/%s", environment_t::user_dir, i.button->get_text());
+		path.printf("%saddons/%s", env_t::user_dir, i.button->get_text());
 		i.del->set_groesse( koord(addon_button_width,D_BUTTON_HEIGHT) );
 		i.del->set_text("Load with addons");
 
@@ -135,18 +135,18 @@ void pakselector_t::fill_list()
 
 			// if list contains only one header, one pakset entry without addons
 			// store path to pakset temporary, reset later if more choices available
-			environment_t::objfilename = (std::string)i.button->get_text() + "/";
-			// if environment_t::objfilename is non-empty then simmain.cc will close the window immediately
+			env_t::objfilename = (std::string)i.button->get_text() + "/";
+			// if env_t::objfilename is non-empty then simmain.cc will close the window immediately
 		}
 		i.button->align_to(i.del,ALIGN_EXTERIOR_H | ALIGN_LEFT, koord(D_H_SPACE,0) );
 		width = max( width, proportional_string_width( i.button->get_text() ) );
 		y += D_BUTTON_HEIGHT;
 	}
-	chdir( environment_t::program_dir );
+	chdir( env_t::program_dir );
 
 	if(entries.get_count() > this->num_sections+1) {
 		// empty path as more than one pakset is present, user has to choose
-		environment_t::objfilename = "";
+		env_t::objfilename = "";
 	}
 	button_frame.set_groesse ( koord (addon_button_width + width + D_H_SPACE, y) );
 	scrolly.set_groesse( button_frame.get_groesse() + koord( D_H_SPACE + D_SCROLLBAR_WIDTH, 0 ) );
@@ -163,8 +163,8 @@ void pakselector_t::set_fenstergroesse(koord groesse)
 	// Adjust max window size
 	groesse.x = max(groesse.x,D_MARGIN_LEFT + notice_label.get_groesse().x + D_MARGIN_RIGHT);
 
-	if(groesse.y > display_get_height()-environment_t::iconsize.y-D_STATUSBAR_HEIGHT) {
-		groesse.y = display_get_height()-environment_t::iconsize.y-D_STATUSBAR_HEIGHT;
+	if(groesse.y > display_get_height()-env_t::iconsize.y-D_STATUSBAR_HEIGHT) {
+		groesse.y = display_get_height()-env_t::iconsize.y-D_STATUSBAR_HEIGHT;
 	}
 
 	if(groesse.x > display_get_width()) {

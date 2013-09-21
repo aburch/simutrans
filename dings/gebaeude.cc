@@ -371,13 +371,13 @@ void gebaeude_t::calc_bild()
 
 image_id gebaeude_t::get_bild() const
 {
-	if(environment_t::hide_buildings!=0  &&  tile->has_image()) {
+	if(env_t::hide_buildings!=0  &&  tile->has_image()) {
 		// opaque houses
 		if(get_haustyp()!=unbekannt) {
-			return environment_t::hide_with_transparency ? skinverwaltung_t::fussweg->get_bild_nr(0) : skinverwaltung_t::construction_site->get_bild_nr(0);
-		} else if(  (environment_t::hide_buildings == environment_t::ALL_HIDDEN_BUILDING  &&  tile->get_besch()->get_utyp() < haus_besch_t::weitere)) {
+			return env_t::hide_with_transparency ? skinverwaltung_t::fussweg->get_bild_nr(0) : skinverwaltung_t::construction_site->get_bild_nr(0);
+		} else if(  (env_t::hide_buildings == env_t::ALL_HIDDEN_BUILDING  &&  tile->get_besch()->get_utyp() < haus_besch_t::weitere)) {
 			// hide with transparency or tile without information
-			if(environment_t::hide_with_transparency) {
+			if(env_t::hide_with_transparency) {
 				if(tile->get_besch()->get_utyp() == haus_besch_t::fabrik  &&  ptr.fab->get_besch()->get_platzierung() == fabrik_besch_t::Wasser) {
 					// no ground tiles for water thingies
 					return IMG_LEER;
@@ -403,7 +403,7 @@ image_id gebaeude_t::get_bild() const
 
 image_id gebaeude_t::get_outline_bild() const
 {
-	if(environment_t::hide_buildings!=0  &&  environment_t::hide_with_transparency  &&  !zeige_baugrube) {
+	if(env_t::hide_buildings!=0  &&  env_t::hide_with_transparency  &&  !zeige_baugrube) {
 		// opaque houses
 		return tile->get_hintergrund(count, 0, snow);
 	}
@@ -416,10 +416,10 @@ PLAYER_COLOR_VAL gebaeude_t::get_outline_colour() const
 {
 	COLOR_VAL colours[] = { COL_BLACK, COL_YELLOW, COL_YELLOW, COL_PURPLE, COL_RED, COL_GREEN };
 	PLAYER_COLOR_VAL disp_colour = 0;
-	if(environment_t::hide_buildings!=environment_t::NOT_HIDE) {
+	if(env_t::hide_buildings!=env_t::NOT_HIDE) {
 		if(get_haustyp()!=unbekannt) {
 			disp_colour = colours[0] | TRANSPARENT50_FLAG | OUTLINE_FLAG;
-		} else if (environment_t::hide_buildings == environment_t::ALL_HIDDEN_BUILDING && tile->get_besch()->get_utyp() < haus_besch_t::weitere) {
+		} else if (env_t::hide_buildings == env_t::ALL_HIDDEN_BUILDING && tile->get_besch()->get_utyp() < haus_besch_t::weitere) {
 			// special bilding
 			disp_colour = colours[tile->get_besch()->get_utyp()] | TRANSPARENT50_FLAG | OUTLINE_FLAG;
 		}
@@ -430,7 +430,7 @@ PLAYER_COLOR_VAL gebaeude_t::get_outline_colour() const
 
 image_id gebaeude_t::get_bild(int nr) const
 {
-	if(zeige_baugrube || environment_t::hide_buildings) {
+	if(zeige_baugrube || env_t::hide_buildings) {
 		return IMG_LEER;
 	}
 	else {
@@ -445,7 +445,7 @@ image_id gebaeude_t::get_after_bild() const
 	if(zeige_baugrube) {
 		return IMG_LEER;
 	}
-	if (environment_t::hide_buildings != 0 && tile->get_besch()->get_utyp() < haus_besch_t::weitere) {
+	if (env_t::hide_buildings != 0 && tile->get_besch()->get_utyp() < haus_besch_t::weitere) {
 		return IMG_LEER;
 	}
 	else {
@@ -569,7 +569,7 @@ void gebaeude_t::zeige_info()
 	}
 
 	if(!tile->get_besch()->ist_ohne_info()) {
-		if(!special  ||  (environment_t::townhall_info  &&  old_count==win_get_open_count()) ) {
+		if(!special  ||  (env_t::townhall_info  &&  old_count==win_get_open_count()) ) {
 			// open info window for the first tile of our building (not relying on presence of (0,0) tile)
 			get_first_tile()->ding_t::zeige_info();
 		}
@@ -972,8 +972,8 @@ void gebaeude_t::mark_images_dirty() const
 	// remove all traces from the screen
 	image_id img;
 	if(  zeige_baugrube  ||
-			(!environment_t::hide_with_transparency  &&
-				environment_t::hide_buildings>(get_haustyp()!=unbekannt ? environment_t::NOT_HIDE : environment_t::SOME_HIDDEN_BUILDING))  ) {
+			(!env_t::hide_with_transparency  &&
+				env_t::hide_buildings>(get_haustyp()!=unbekannt ? env_t::NOT_HIDE : env_t::SOME_HIDDEN_BUILDING))  ) {
 		img = skinverwaltung_t::construction_site->get_bild_nr(0);
 	}
 	else {

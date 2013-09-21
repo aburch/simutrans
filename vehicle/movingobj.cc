@@ -238,7 +238,7 @@ void movingobj_t::rdwr(loadsave_t *file)
  */
 void movingobj_t::zeige_info()
 {
-	if(environment_t::tree_info) {
+	if(env_t::tree_info) {
 		ding_t::zeige_info();
 	}
 }

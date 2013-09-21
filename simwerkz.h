@@ -521,10 +521,10 @@ public:
 class wkz_lock_game_t : public werkzeug_t {
 public:
 	wkz_lock_game_t() : werkzeug_t(WKZ_LOCK_GAME | GENERAL_TOOL) {}
-	char const* get_tooltip(spieler_t const*) const OVERRIDE { return environment_t::networkmode ? translator::translate("deactivated in online mode") : translator::translate("Lock game"); }
-	image_id get_icon(spieler_t*) const OVERRIDE { return environment_t::networkmode ? IMG_LEER : icon; }
+	char const* get_tooltip(spieler_t const*) const OVERRIDE { return env_t::networkmode ? translator::translate("deactivated in online mode") : translator::translate("Lock game"); }
+	image_id get_icon(spieler_t*) const OVERRIDE { return env_t::networkmode ? IMG_LEER : icon; }
 	// deactivate in network mode
-	bool init( karte_t *, spieler_t *) { return !environment_t::networkmode; }
+	bool init( karte_t *, spieler_t *) { return !env_t::networkmode; }
 	const char *work( karte_t *welt, spieler_t *, koord3d );
 	bool is_init_network_save() const OVERRIDE { return true; }
 };
@@ -601,30 +601,30 @@ public:
 class wkz_pause_t : public werkzeug_t {
 public:
 	wkz_pause_t() : werkzeug_t(WKZ_PAUSE | SIMPLE_TOOL) {}
-	char const* get_tooltip(spieler_t const*) const OVERRIDE { return environment_t::networkmode ? translator::translate("deactivated in online mode") : translator::translate("Pause"); }
-	image_id get_icon(spieler_t*) const OVERRIDE { return environment_t::networkmode ? IMG_LEER : icon; }
+	char const* get_tooltip(spieler_t const*) const OVERRIDE { return env_t::networkmode ? translator::translate("deactivated in online mode") : translator::translate("Pause"); }
+	image_id get_icon(spieler_t*) const OVERRIDE { return env_t::networkmode ? IMG_LEER : icon; }
 	bool is_selected(karte_t const* const welt) const OVERRIDE { return welt->is_paused(); }
 	bool init( karte_t *welt, spieler_t * ) {
-		if(  !environment_t::networkmode  ) {
+		if(  !env_t::networkmode  ) {
 			welt->set_fast_forward(0);
 			welt->set_pause( welt->is_paused()^1 );
 		}
 		return false;
 	}
 	bool exit( karte_t *w, spieler_t *s ) { return init(w,s); }
-	bool is_init_network_save() const OVERRIDE { return !environment_t::networkmode; }
-	bool is_work_network_save() const OVERRIDE { return !environment_t::networkmode; }
+	bool is_init_network_save() const OVERRIDE { return !env_t::networkmode; }
+	bool is_work_network_save() const OVERRIDE { return !env_t::networkmode; }
 };
 
 class wkz_fastforward_t : public werkzeug_t {
 public:
 	wkz_fastforward_t() : werkzeug_t(WKZ_FASTFORWARD | SIMPLE_TOOL) {}
-	char const* get_tooltip(spieler_t const*) const OVERRIDE { return environment_t::networkmode ? translator::translate("deactivated in online mode") : translator::translate("Fast forward"); }
-	image_id get_icon(spieler_t*) const OVERRIDE { return environment_t::networkmode ? IMG_LEER : icon; }
+	char const* get_tooltip(spieler_t const*) const OVERRIDE { return env_t::networkmode ? translator::translate("deactivated in online mode") : translator::translate("Fast forward"); }
+	image_id get_icon(spieler_t*) const OVERRIDE { return env_t::networkmode ? IMG_LEER : icon; }
 	bool is_selected(karte_t const* const welt) const OVERRIDE { return welt->is_fast_forward(); }
 	bool init( karte_t *welt, spieler_t * ) {
-		if(  !environment_t::networkmode  ) {
-			if(  welt->is_fast_forward()  &&  environment_t::simple_drawing_fast_forward  ) {
+		if(  !env_t::networkmode  ) {
+			if(  welt->is_fast_forward()  &&  env_t::simple_drawing_fast_forward  ) {
 				welt->set_dirty();
 			}
 			welt->set_pause(0);
@@ -633,8 +633,8 @@ public:
 		return false;
 	}
 	bool exit( karte_t *w, spieler_t *s ) { return init(w,s); }
-	bool is_init_network_save() const OVERRIDE { return !environment_t::networkmode; }
-	bool is_work_network_save() const OVERRIDE { return !environment_t::networkmode; }
+	bool is_init_network_save() const OVERRIDE { return !env_t::networkmode; }
+	bool is_work_network_save() const OVERRIDE { return !env_t::networkmode; }
 };
 
 class wkz_screenshot_t : public werkzeug_t {
@@ -697,7 +697,7 @@ public:
 		return faktor>0 ? translator::translate("Accelerate time") : translator::translate("Deccelerate time");
 	}
 	bool init( karte_t *welt, spieler_t * ) {
-		if(  !environment_t::networkmode  ) {
+		if(  !env_t::networkmode  ) {
 			welt->change_time_multiplier( atoi(default_param) );
 		}
 		return false;
@@ -727,9 +727,9 @@ class wkz_show_coverage_t : public werkzeug_t {
 public:
 	wkz_show_coverage_t() : werkzeug_t(WKZ_SHOW_COVERAGE | SIMPLE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("show station coverage"); }
-	bool is_selected(karte_t const*) const OVERRIDE { return environment_t::station_coverage_show; }
+	bool is_selected(karte_t const*) const OVERRIDE { return env_t::station_coverage_show; }
 	bool init( karte_t *welt, spieler_t * ) {
-		environment_t::station_coverage_show = !environment_t::station_coverage_show;
+		env_t::station_coverage_show = !env_t::station_coverage_show;
 		welt->set_dirty();
 		return false;
 	}
@@ -743,26 +743,26 @@ public:
 	wkz_show_name_t() : werkzeug_t(WKZ_SHOW_NAMES | SIMPLE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE {
 		return translator::translate(
-			(environment_t::show_names>>2)==2 ? "hide station names" :
-			(environment_t::show_names&1) ? "show waiting bars" : "show station names");
+			(env_t::show_names>>2)==2 ? "hide station names" :
+			(env_t::show_names&1) ? "show waiting bars" : "show station names");
 	}
 	bool init( karte_t *welt, spieler_t * ) {
-		if(  environment_t::show_names>=11  ) {
-			if(  (environment_t::show_names&3)==3  ) {
-				environment_t::show_names = 0;
+		if(  env_t::show_names>=11  ) {
+			if(  (env_t::show_names&3)==3  ) {
+				env_t::show_names = 0;
 			}
 			else {
-				environment_t::show_names = 2;
+				env_t::show_names = 2;
 			}
 		}
-		else if(  environment_t::show_names==2  ) {
-				environment_t::show_names = 3;
+		else if(  env_t::show_names==2  ) {
+				env_t::show_names = 3;
 		}
-		else if(  environment_t::show_names==0  ) {
-			environment_t::show_names = 1;
+		else if(  env_t::show_names==0  ) {
+			env_t::show_names = 1;
 		}
 		else {
-			environment_t::show_names += 4;
+			env_t::show_names += 4;
 		}
 		welt->set_dirty();
 		return false;
@@ -790,7 +790,7 @@ class wkz_show_trees_t : public werkzeug_t {
 public:
 	wkz_show_trees_t() : werkzeug_t(WKZ_SHOW_TREES | SIMPLE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("hide trees"); }
-	bool is_selected(karte_t const*) const OVERRIDE {return environment_t::hide_trees; }
+	bool is_selected(karte_t const*) const OVERRIDE {return env_t::hide_trees; }
 	bool init( karte_t *welt, spieler_t * );
 	bool exit( karte_t *w, spieler_t *s ) { return init(w,s); }
 	bool is_init_network_save() const OVERRIDE { return true; }
@@ -802,13 +802,13 @@ public:
 	wkz_show_houses_t() : werkzeug_t(WKZ_SHOW_HOUSES | SIMPLE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE {
 		return translator::translate(
-			environment_t::hide_buildings==0 ? "hide city building" :
-			(environment_t::hide_buildings==1) ? "hide all building" : "show all building");
+			env_t::hide_buildings==0 ? "hide city building" :
+			(env_t::hide_buildings==1) ? "hide all building" : "show all building");
 	}
 	bool init( karte_t *welt, spieler_t * ) {
-		environment_t::hide_buildings ++;
-		if(environment_t::hide_buildings>environment_t::ALL_HIDDEN_BUILDING) {
-			environment_t::hide_buildings = environment_t::NOT_HIDE;
+		env_t::hide_buildings ++;
+		if(env_t::hide_buildings>env_t::ALL_HIDDEN_BUILDING) {
+			env_t::hide_buildings = env_t::NOT_HIDE;
 		}
 		welt->set_dirty();
 		return false;
@@ -834,11 +834,11 @@ public:
 class wkz_rotate90_t : public werkzeug_t {
 public:
 	wkz_rotate90_t() : werkzeug_t(WKZ_ROTATE90 | SIMPLE_TOOL) {}
-	image_id get_icon(spieler_t*) const OVERRIDE { return environment_t::networkmode ? IMG_LEER : icon; }
-	char const* get_tooltip(spieler_t const*) const OVERRIDE { return environment_t::networkmode ? translator::translate("deactivated in online mode") : translator::translate("Rotate map"); }
+	image_id get_icon(spieler_t*) const OVERRIDE { return env_t::networkmode ? IMG_LEER : icon; }
+	char const* get_tooltip(spieler_t const*) const OVERRIDE { return env_t::networkmode ? translator::translate("deactivated in online mode") : translator::translate("Rotate map"); }
 	bool init( karte_t *welt, spieler_t * ) OVERRIDE;
-	bool is_init_network_save() const OVERRIDE { return !environment_t::networkmode; }
-	bool is_work_network_save() const OVERRIDE { return !environment_t::networkmode; }
+	bool is_init_network_save() const OVERRIDE { return !env_t::networkmode; }
+	bool is_work_network_save() const OVERRIDE { return !env_t::networkmode; }
 };
 
 class wkz_quit_t : public werkzeug_t {
@@ -879,7 +879,7 @@ public:
 	wkz_vehicle_tooltips_t() : werkzeug_t(WKZ_VEHICLE_TOOLTIPS | SIMPLE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("Toggle vehicle tooltips"); }
 	bool init( karte_t *welt, spieler_t * ) {
-		environment_t::show_vehicle_states = (environment_t::show_vehicle_states+1)%3;
+		env_t::show_vehicle_states = (env_t::show_vehicle_states+1)%3;
 		welt->set_dirty();
 		return false;
 	}
@@ -893,7 +893,7 @@ public:
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("5LIGHT_CHOOSE"); }
 	bool is_selected(karte_t const* const welt) const OVERRIDE { return welt->get_settings().get_show_pax(); }
 	bool init( karte_t *welt, spieler_t * ) {
-		if( !environment_t::networkmode) {
+		if( !env_t::networkmode) {
 			settings_t& s = welt->get_settings();
 			s.set_show_pax(!s.get_show_pax());
 		}
@@ -909,7 +909,7 @@ public:
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("6LIGHT_CHOOSE"); }
 	bool is_selected(karte_t const* const welt) const OVERRIDE { return welt->get_settings().get_random_pedestrians(); }
 	bool init( karte_t *welt, spieler_t * ) {
-		if( !environment_t::networkmode) {
+		if( !env_t::networkmode) {
 			settings_t& s = welt->get_settings();
 			s.set_random_pedestrians(!s.get_random_pedestrians());
 		}
@@ -951,9 +951,9 @@ class wkz_hide_under_cursor_t : public werkzeug_t {
 public:
 	wkz_hide_under_cursor_t() : werkzeug_t(WKZ_HIDE_UNDER_CURSOR | SIMPLE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("hide objects under cursor"); }
-	bool is_selected(karte_t const*) const OVERRIDE { return environment_t::hide_under_cursor; }
+	bool is_selected(karte_t const*) const OVERRIDE { return env_t::hide_under_cursor; }
 	bool init( karte_t *welt, spieler_t * ) {
-		environment_t::hide_under_cursor = !environment_t::hide_under_cursor  &&  environment_t::cursor_hide_range>0;
+		env_t::hide_under_cursor = !env_t::hide_under_cursor  &&  env_t::cursor_hide_range>0;
 		welt->set_dirty();
 		return false;
 	}

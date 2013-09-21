@@ -300,7 +300,7 @@ const char *wkz_abfrage_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 	if(gr) {
 		DBG_MESSAGE("wkz_abfrage()","checking map square %s", pos.get_str());
 
-		if(  environment_t::single_info  ) {
+		if(  env_t::single_info  ) {
 
 			int old_count = win_get_open_count();
 
@@ -386,7 +386,7 @@ const char *wkz_abfrage_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 			int old_count = win_get_open_count();
 			gr->get_depot()->zeige_info();
 			// did some new window open?
-			if(environment_t::single_info  &&  old_count!=win_get_open_count()) {
+			if(env_t::single_info  &&  old_count!=win_get_open_count()) {
 				return NULL;
 			}
 		}
@@ -768,7 +768,7 @@ const char *wkz_raise_lower_base_t::move( karte_t *welt, spieler_t *sp, uint16 b
 		is_dragging = true;
 		sprintf( buf, "%i", drag_height );
 		default_param = buf;
-		if (environment_t::networkmode) {
+		if (env_t::networkmode) {
 			// queue tool for network
 			nwc_tool_t *nwc = new nwc_tool_t(sp, this, pos, welt->get_steps(), welt->get_map_counter(), false);
 			network_send_server(nwc);
@@ -1180,11 +1180,11 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 			if(  !gr2  ) {
 				gr2 = welt->lookup( new_pos + koord3d(0, 0, 2) );
 			}
-			if(  !gr2  &&  environment_t::pak_height_conversion_factor  ==  2  &&  (gr1->hat_wege()  ||  gr1->get_leitung())  ) {
+			if(  !gr2  &&  env_t::pak_height_conversion_factor  ==  2  &&  (gr1->hat_wege()  ||  gr1->get_leitung())  ) {
 				gr2 = welt->lookup( new_pos + koord3d(0, 0, 3) );
 			}
 			// slope may alter amount of clearance required
-			if(  gr2  &&  gr2->get_pos().z - new_pos.z + hang_t::diff( gr2->get_weg_hang(), new_slope ) < environment_t::pak_height_conversion_factor  ) {
+			if(  gr2  &&  gr2->get_pos().z - new_pos.z + hang_t::diff( gr2->get_weg_hang(), new_slope ) < env_t::pak_height_conversion_factor  ) {
 				return "Tile not empty.";
 			}
 		}
@@ -1193,11 +1193,11 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 			if(  !gr2  ) {
 				gr2 = welt->lookup( new_pos + koord3d(0, 0, -2) );
 			}
-			if(  !gr2  &&  environment_t::pak_height_conversion_factor == 2  ) {
+			if(  !gr2  &&  env_t::pak_height_conversion_factor == 2  ) {
 				gr2 = welt->lookup( new_pos + koord3d(0, 0, -3) );
 			}
 			// slope may alter amount of clearance required
-			if(  gr2  &&  new_pos.z - gr2->get_pos().z + hang_t::diff( new_slope, gr2->get_weg_hang() ) < environment_t::pak_height_conversion_factor  ) {
+			if(  gr2  &&  new_pos.z - gr2->get_pos().z + hang_t::diff( new_slope, gr2->get_weg_hang() ) < env_t::pak_height_conversion_factor  ) {
 				return "Tile not empty.";
 			}
 		}
@@ -1428,7 +1428,7 @@ bool wkz_transformer_t::init( karte_t *welt, spieler_t *)
 
 const char *wkz_transformer_t::check_pos( karte_t *welt, spieler_t *, koord3d pos )
 {
-	if(grund_t::underground_mode == grund_t::ugm_all  &&  environment_t::networkmode) {
+	if(grund_t::underground_mode == grund_t::ugm_all  &&  env_t::networkmode) {
 		// clients cannot guess at which height transformer should be build
 		return "Cannot built this station/building\nin underground mode here.";
 	}
@@ -1457,7 +1457,7 @@ const char *wkz_transformer_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 	fabrik_t *fab = NULL;
 	// full underground mode: coordinate is on ground, adjust it to one level below ground
 	// not possible in network mode!
-	if (!environment_t::networkmode  &&  grund_t::underground_mode == grund_t::ugm_all) {
+	if (!env_t::networkmode  &&  grund_t::underground_mode == grund_t::ugm_all) {
 		pos = gr->get_pos() - koord3d(0,0,1);
 	}
 	// search for factory
@@ -1939,7 +1939,7 @@ char const* wkz_plant_tree_t::move(karte_t* const welt, spieler_t* const sp, uin
 	if (b==0) {
 		return NULL;
 	}
-	if (environment_t::networkmode) {
+	if (env_t::networkmode) {
 		// queue tool for network
 		nwc_tool_t *nwc = new nwc_tool_t(sp, this, pos, welt->get_steps(), welt->get_map_counter(), false);
 		network_send_server(nwc);
@@ -2165,7 +2165,7 @@ uint8 wkz_wegebau_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord3d &
 		}
 		// elevated ways have to check tile above
 		if(  elevated  ) {
-			gr = welt->lookup( pos + koord3d( 0, 0, environment_t::pak_height_conversion_factor ) );
+			gr = welt->lookup( pos + koord3d( 0, 0, env_t::pak_height_conversion_factor ) );
 			if(  gr == NULL  ) {
 				return 2;
 			}
@@ -2219,7 +2219,7 @@ void wkz_wegebau_t::calc_route( wegbauer_t &bauigel, const koord3d &start, const
 	else {
 		bauigel.set_keep_existing_faster_ways( true );
 	}
-	if(  is_ctrl_pressed()  ||  (environment_t::straight_way_without_control  &&  !environment_t::networkmode)  ) {
+	if(  is_ctrl_pressed()  ||  (env_t::straight_way_without_control  &&  !env_t::networkmode)  ) {
 		DBG_MESSAGE("wkz_wegebau()", "try straight route");
 		bauigel.calc_straight_route(start,end);
 	}
@@ -2248,7 +2248,7 @@ void wkz_wegebau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &sta
 	wegbauer_t bauigel(welt, sp);
 	calc_route( bauigel, start, end );
 
-	uint8 offset = (besch->get_styp() == 1  &&  besch->get_wtyp() != air_wt) ? environment_t::pak_height_conversion_factor : 0;
+	uint8 offset = (besch->get_styp() == 1  &&  besch->get_wtyp() != air_wt) ? env_t::pak_height_conversion_factor : 0;
 
 	if(  bauigel.get_count()>1  ) {
 		// Set tooltip first (no dummygrounds, if bauigel.calc_casts() is called).
@@ -2470,7 +2470,7 @@ uint8 wkz_brueckenbau_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord
 		return 0;
 	}
 
-	if(  welt->lookup( pos + koord3d(0, 0, 1))  ||  (environment_t::pak_height_conversion_factor == 2  &&  welt->lookup( pos + koord3d(0, 0, 2) ))  ) {
+	if(  welt->lookup( pos + koord3d(0, 0, 1))  ||  (env_t::pak_height_conversion_factor == 2  &&  welt->lookup( pos + koord3d(0, 0, 2) ))  ) {
 		return 0;
 	}
 
@@ -2532,9 +2532,9 @@ uint8 wkz_brueckenbau_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord
 		// single height -> height is 1
 		// double height -> height is 2
 		const hang_t::typ slope = gr->get_grund_hang();
-		const uint8 max_height = slope ? ((slope & 7) ? 1 : 2) : environment_t::pak_height_conversion_factor;
+		const uint8 max_height = slope ? ((slope & 7) ? 1 : 2) : env_t::pak_height_conversion_factor;
 		const hang_t::typ start_slope = welt->lookup(start)->get_grund_hang();
-		const uint8 start_max_height = start_slope ? ((start_slope & 7) ? 1 : 2) : environment_t::pak_height_conversion_factor;
+		const uint8 start_max_height = start_slope ? ((start_slope & 7) ? 1 : 2) : env_t::pak_height_conversion_factor;
 		const uint8 height_difference = abs( start.z + start_max_height - pos.z - max_height );
 		if(  height_difference>1  &&  besch->get_hintergrund(bruecke_besch_t::N_Start2, 0) == IMG_LEER  ) {
 			return 0;
@@ -3620,7 +3620,7 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", k.x,
 	}
 
 	halt->recalc_station_type();
-	if(  environment_t::station_coverage_show  &&  welt->get_zeiger()->get_pos().get_2d()==k  ) {
+	if(  env_t::station_coverage_show  &&  welt->get_zeiger()->get_pos().get_2d()==k  ) {
 		// since we are larger now ...
 		halt->mark_unmark_coverage( true );
 	}
@@ -3834,7 +3834,7 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 		cost -= (besch->get_maintenance(welt) * besch->get_b() * besch->get_h() * 60);
 	}
 	spieler_t::book_construction_costs(sp,  cost, k, wegtype);
-	if(  environment_t::station_coverage_show  &&  welt->get_zeiger()->get_pos().get_2d()==k  ) {
+	if(  env_t::station_coverage_show  &&  welt->get_zeiger()->get_pos().get_2d()==k  ) {
 		// since we are larger now ...
 		halt->mark_unmark_coverage( true );
 	}
@@ -4014,7 +4014,7 @@ const char *wkz_station_t::move( karte_t *welt, spieler_t *sp, uint16 buttonstat
 			return "";
 		}
 
-		if(  environment_t::networkmode  ) {
+		if(  env_t::networkmode  ) {
 			// queue tool for network
 			nwc_tool_t *nwc = new nwc_tool_t(sp, this, pos, welt->get_steps(), welt->get_map_counter(), false);
 			network_send_server(nwc);
@@ -5241,7 +5241,7 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 const char *wkz_lock_game_t::work( karte_t *welt, spieler_t *, koord3d )
 {
 	// tool can never be executed in network mode
-	if (environment_t::networkmode) {
+	if (env_t::networkmode) {
 		return "";
 	}
 	// as the result depends on the local locked state of public player
@@ -5563,22 +5563,22 @@ char const* wkz_daynight_level_t::get_tooltip(spieler_t const*) const
 }
 
 bool wkz_daynight_level_t::init( karte_t *, spieler_t * ) {
-	if(grund_t::underground_mode==grund_t::ugm_all  ||  environment_t::night_shift) {
+	if(grund_t::underground_mode==grund_t::ugm_all  ||  env_t::night_shift) {
 		return false;
 	}
 	if (!strempty(default_param)) {
-		if(default_param[0]=='+'  &&  environment_t::daynight_level > 0) {
+		if(default_param[0]=='+'  &&  env_t::daynight_level > 0) {
 			// '+': fade in one level
-			environment_t::daynight_level = environment_t::daynight_level-1;
+			env_t::daynight_level = env_t::daynight_level-1;
 		}
 		else if (default_param[0]=='-') {
 			// '-': fade out one level
-			environment_t::daynight_level = environment_t::daynight_level+1;
+			env_t::daynight_level = env_t::daynight_level+1;
 		}
 		else {
 			// number: toggle number/0. 4 or 5 is good for night
 			const sint8 level = atoi(default_param);
-			environment_t::daynight_level = (environment_t::daynight_level==0) ? level : 0;
+			env_t::daynight_level = (env_t::daynight_level==0) ? level : 0;
 		}
 	}
 	return false;
@@ -5698,7 +5698,7 @@ const char *wkz_make_stop_public_t::work( karte_t *welt, spieler_t *sp, koord3d 
 					}
 				}
 				// and add message
-				if(  sp->get_player_nr()!=1  &&  environment_t::networkmode  ) {
+				if(  sp->get_player_nr()!=1  &&  env_t::networkmode  ) {
 					cbuffer_t buf;
 					buf.printf( translator::translate("(%s) now public way."), w->get_pos().get_str() );
 					welt->get_message()->add_message( buf, w->get_pos().get_2d(), message_t::ai, PLAYER_FLAG|sp->get_player_nr(), IMG_LEER );
@@ -5725,7 +5725,7 @@ const char *wkz_make_stop_public_t::work( karte_t *welt, spieler_t *sp, koord3d 
 
 bool wkz_show_trees_t::init( karte_t *welt, spieler_t * )
 {
-	environment_t::hide_trees = !environment_t::hide_trees;
+	env_t::hide_trees = !env_t::hide_trees;
 	baum_t::recalc_outline_color();
 	welt->set_dirty();
 	return false;
@@ -5936,7 +5936,7 @@ void wkz_show_underground_t::draw_after(karte_t *welt, koord k, bool dirty) cons
 
 bool wkz_rotate90_t::init( karte_t *welt, spieler_t * )
 {
-	if(  !environment_t::networkmode  ) {
+	if(  !env_t::networkmode  ) {
 		welt->rotate90();
 		welt->update_map();
 	}
@@ -6066,7 +6066,7 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 		return false;
 	}
 	// ownership check for network games
-	if (cnv.is_bound()  &&  environment_t::networkmode  &&  !spieler_t::check_owner(cnv->get_besitzer(), sp)) {
+	if (cnv.is_bound()  &&  env_t::networkmode  &&  !spieler_t::check_owner(cnv->get_besitzer(), sp)) {
 		return false;
 	}
 
@@ -6209,7 +6209,7 @@ bool wkz_change_line_t::init( karte_t *welt, spieler_t *sp )
 	line.set_id( line_id );
 
 	// ownership check for network games
-	if (line.is_bound()  &&  environment_t::networkmode  && !spieler_t::check_owner(line->get_besitzer(), sp)) {
+	if (line.is_bound()  &&  env_t::networkmode  && !spieler_t::check_owner(line->get_besitzer(), sp)) {
 		return false;
 	}
 
@@ -6585,7 +6585,7 @@ bool wkz_change_player_t::init( karte_t *welt, spieler_t *sp)
 	// ok now do our stuff
 	switch(  tool  ) {
 		case 'a': // activate/deactivate AI
-			if(  player  &&  player->get_ai_id()!=spieler_t::HUMAN  &&  (sp==welt->get_spieler(1)  ||  !environment_t::networkmode)  ) {
+			if(  player  &&  player->get_ai_id()!=spieler_t::HUMAN  &&  (sp==welt->get_spieler(1)  ||  !env_t::networkmode)  ) {
 				player->set_active(state);
 				welt->get_settings().set_player_active(id, player->is_active());
 			}
@@ -6738,7 +6738,7 @@ bool wkz_rename_t::init(karte_t* const welt, spieler_t *sp)
 		{
 			halthandle_t halt;
 			halt.set_id( id );
-			if(  halt.is_bound()  &&  (!environment_t::networkmode  ||  spieler_t::check_owner(halt->get_besitzer(), sp))  ) {
+			if(  halt.is_bound()  &&  (!env_t::networkmode  ||  spieler_t::check_owner(halt->get_besitzer(), sp))  ) {
 				halt->set_name( p );
 				return false;
 			}
@@ -6749,7 +6749,7 @@ bool wkz_rename_t::init(karte_t* const welt, spieler_t *sp)
 		{
 			linehandle_t line;
 			line.set_id( id );
-			if(  line.is_bound()  &&  (!environment_t::networkmode  ||  spieler_t::check_owner(line->get_besitzer(), sp))  ) {
+			if(  line.is_bound()  &&  (!env_t::networkmode  ||  spieler_t::check_owner(line->get_besitzer(), sp))  ) {
 				line->set_name( p );
 
 				schedule_list_gui_t *sl = dynamic_cast<schedule_list_gui_t *>(win_get_magic(magic_line_management_t+sp->get_player_nr()));
@@ -6765,7 +6765,7 @@ bool wkz_rename_t::init(karte_t* const welt, spieler_t *sp)
 		{
 			convoihandle_t cnv;
 			cnv.set_id( id );
-			if(  cnv.is_bound()  &&  (!environment_t::networkmode  ||  spieler_t::check_owner(cnv->get_besitzer(), sp))  ) {
+			if(  cnv.is_bound()  &&  (!env_t::networkmode  ||  spieler_t::check_owner(cnv->get_besitzer(), sp))  ) {
 				//  set name without ID
 				cnv->set_name( p, false );
 				return false;
@@ -6785,7 +6785,7 @@ bool wkz_rename_t::init(karte_t* const welt, spieler_t *sp)
 		case 'm':
 			if(  grund_t *gr = welt->lookup(pos)  ) {
 				label_t *label = gr->find<label_t>();
-				if (label  &&  (!environment_t::networkmode  ||  spieler_t::check_owner(label->get_besitzer(), sp))  ) {
+				if (label  &&  (!env_t::networkmode  ||  spieler_t::check_owner(label->get_besitzer(), sp))  ) {
 					gr->set_text(p);
 				}
 				return false;

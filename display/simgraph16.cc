@@ -1334,10 +1334,10 @@ static void rezoom_img(const image_id n)
 	// Hajo: may this image be zoomed
 	if(  n < anz_images  &&  images[n].base_h > 0  ) {
 #ifdef MULTI_THREAD
-		pthread_mutex_lock( &rezoom_img_mutex[n % environment_t::num_threads] );
+		pthread_mutex_lock( &rezoom_img_mutex[n % env_t::num_threads] );
 		if(  (images[n].recode_flags & FLAG_REZOOM) == 0  ) {
 			// other routine did already the re-zooming ...
-			pthread_mutex_unlock( &rezoom_img_mutex[n % environment_t::num_threads] );
+			pthread_mutex_unlock( &rezoom_img_mutex[n % env_t::num_threads] );
 			return;
 		}
 #endif
@@ -1379,7 +1379,7 @@ static void rezoom_img(const image_id n)
 			images[n].len = (uint32)(size_t)(sp - images[n].base_data);
 			images[n].recode_flags &= ~FLAG_REZOOM;
 #ifdef MULTI_THREAD
-			pthread_mutex_unlock( &rezoom_img_mutex[n % environment_t::num_threads] );
+			pthread_mutex_unlock( &rezoom_img_mutex[n % env_t::num_threads] );
 #endif
 			return;
 		}
@@ -1428,14 +1428,14 @@ static void rezoom_img(const image_id n)
 				new_size = unpack_size;
 			}
 			new_size = ((new_size * 128) + 127) / 128; // enlarge slightly to try and keep buffers on their own cacheline for multithreaded access. A portable aligned_alloc would be better.
-			if(  rezoom_size[n % environment_t::num_threads] < new_size  ) {
-				free( rezoom_baseimage2[n % environment_t::num_threads] );
-				free( rezoom_baseimage[n % environment_t::num_threads] );
-				rezoom_size[n % environment_t::num_threads] = new_size;
-				rezoom_baseimage[n % environment_t::num_threads]  = MALLOCN( uint8, new_size );
-				rezoom_baseimage2[n % environment_t::num_threads] = (PIXVAL *)MALLOCN( uint8, new_size );
+			if(  rezoom_size[n % env_t::num_threads] < new_size  ) {
+				free( rezoom_baseimage2[n % env_t::num_threads] );
+				free( rezoom_baseimage[n % env_t::num_threads] );
+				rezoom_size[n % env_t::num_threads] = new_size;
+				rezoom_baseimage[n % env_t::num_threads]  = MALLOCN( uint8, new_size );
+				rezoom_baseimage2[n % env_t::num_threads] = (PIXVAL *)MALLOCN( uint8, new_size );
 			}
-			memset( rezoom_baseimage[n % environment_t::num_threads], 255, new_size ); // fill with invalid data to mark transparent regions
+			memset( rezoom_baseimage[n % env_t::num_threads], 255, new_size ); // fill with invalid data to mark transparent regions
 
 			// index of top-left corner
 			uint32 baseoff = 4 * (yl_margin * (xl_margin + orgzoomwidth + xr_margin) + xl_margin);
@@ -1444,7 +1444,7 @@ static void rezoom_img(const image_id n)
 			// now: unpack the image
 			for(  sint32 y = 0;  y < images[n].base_h;  ++y  ) {
 				uint16 runlen;
-				uint8 *p = rezoom_baseimage[n % environment_t::num_threads] + baseoff + y * (basewidth * 4);
+				uint8 *p = rezoom_baseimage[n % env_t::num_threads] + baseoff + y * (basewidth * 4);
 
 				// decode line
 				runlen = *src++;
@@ -1468,13 +1468,13 @@ static void rezoom_img(const image_id n)
 			}
 
 			// now we have the image, we do a repack then
-			dest = rezoom_baseimage2[n % environment_t::num_threads];
+			dest = rezoom_baseimage2[n % env_t::num_threads];
 			switch(  zoom_den[zoom_factor]  ) {
 				case 1: {
 					assert(zoom_num[zoom_factor]==2);
 
 					// first half row - just copy values, do not fiddle with neighbor colors
-					uint8 *p1 = rezoom_baseimage[n % environment_t::num_threads] + baseoff;
+					uint8 *p1 = rezoom_baseimage[n % env_t::num_threads] + baseoff;
 					for(  sint16 x = 0;  x < orgzoomwidth;  x++  ) {
 						PIXVAL c1 = compress_pixel_transparent( p1 + (x * 4) );
 						// now set the pixel ...
@@ -1485,7 +1485,7 @@ static void rezoom_img(const image_id n)
 					dest += newzoomwidth;
 
 					for(  sint16 y = 0;  y < orgzoomheight - 1;  y++  ) {
-						uint8 *p1 = rezoom_baseimage[n % environment_t::num_threads] + baseoff + y * (basewidth * 4);
+						uint8 *p1 = rezoom_baseimage[n % env_t::num_threads] + baseoff + y * (basewidth * 4);
 						// copy leftmost pixels
 						dest[0] = compress_pixel_transparent( p1 );
 						dest[newzoomwidth] = compress_pixel_transparent( p1 + basewidth * 4 );
@@ -1517,7 +1517,7 @@ static void rezoom_img(const image_id n)
 						dest += 2 * newzoomwidth;
 					}
 					// last half row - just copy values, do not fiddle with neighbor colors
-					p1 = rezoom_baseimage[n % environment_t::num_threads] + baseoff + (orgzoomheight - 1) * (basewidth * 4);
+					p1 = rezoom_baseimage[n % env_t::num_threads] + baseoff + (orgzoomheight - 1) * (basewidth * 4);
 					for(  sint16 x = 0;  x < orgzoomwidth;  x++  ) {
 						PIXVAL c1 = compress_pixel_transparent( p1 + (x * 4) );
 						// now set the pixel ...
@@ -1528,8 +1528,8 @@ static void rezoom_img(const image_id n)
 				}
 				case 2:
 					for(  sint16 y = 0;  y < newzoomheight;  y++  ) {
-						uint8 *p1 = rezoom_baseimage[n % environment_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 0 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
-						uint8 *p2 = rezoom_baseimage[n % environment_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 1 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
+						uint8 *p1 = rezoom_baseimage[n % env_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 0 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
+						uint8 *p2 = rezoom_baseimage[n % env_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 1 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
 						for(  sint16 x = 0;  x < newzoomwidth;  x++  ) {
 							uint8 valid = 0;
 							uint8 r = 0, g = 0, b = 0;
@@ -1553,9 +1553,9 @@ static void rezoom_img(const image_id n)
 					break;
 				case 3:
 					for(  sint16 y = 0;  y < newzoomheight;  y++  ) {
-						uint8 *p1 = rezoom_baseimage[n % environment_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 0 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
-						uint8 *p2 = rezoom_baseimage[n % environment_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 1 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
-						uint8 *p3 = rezoom_baseimage[n % environment_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 2 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
+						uint8 *p1 = rezoom_baseimage[n % env_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 0 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
+						uint8 *p2 = rezoom_baseimage[n % env_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 1 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
+						uint8 *p3 = rezoom_baseimage[n % env_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 2 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
 						for(  sint16 x = 0;  x < newzoomwidth;  x++  ) {
 							uint8 valid = 0;
 							uint16 r = 0, g = 0, b = 0;
@@ -1585,10 +1585,10 @@ static void rezoom_img(const image_id n)
 					break;
 				case 4:
 					for(  sint16 y = 0;  y < newzoomheight;  y++  ) {
-						uint8 *p1 = rezoom_baseimage[n % environment_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 0 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
-						uint8 *p2 = rezoom_baseimage[n % environment_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 1 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
-						uint8 *p3 = rezoom_baseimage[n % environment_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 2 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
-						uint8 *p4 = rezoom_baseimage[n % environment_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 3 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
+						uint8 *p1 = rezoom_baseimage[n % env_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 0 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
+						uint8 *p2 = rezoom_baseimage[n % env_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 1 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
+						uint8 *p3 = rezoom_baseimage[n % env_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 2 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
+						uint8 *p4 = rezoom_baseimage[n % env_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 3 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
 						for(  sint16 x = 0;  x < newzoomwidth;  x++  ) {
 							uint8 valid = 0;
 							uint16 r = 0, g = 0, b = 0;
@@ -1626,14 +1626,14 @@ static void rezoom_img(const image_id n)
 					break;
 				case 8:
 					for(  sint16 y = 0;  y < newzoomheight;  y++  ) {
-						uint8 *p1 = rezoom_baseimage[n % environment_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 0 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
-						uint8 *p2 = rezoom_baseimage[n % environment_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 1 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
-						uint8 *p3 = rezoom_baseimage[n % environment_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 2 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
-						uint8 *p4 = rezoom_baseimage[n % environment_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 3 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
-						uint8 *p5 = rezoom_baseimage[n % environment_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 4 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
-						uint8 *p6 = rezoom_baseimage[n % environment_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 5 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
-						uint8 *p7 = rezoom_baseimage[n % environment_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 6 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
-						uint8 *p8 = rezoom_baseimage[n % environment_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 7 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
+						uint8 *p1 = rezoom_baseimage[n % env_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 0 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
+						uint8 *p2 = rezoom_baseimage[n % env_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 1 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
+						uint8 *p3 = rezoom_baseimage[n % env_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 2 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
+						uint8 *p4 = rezoom_baseimage[n % env_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 3 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
+						uint8 *p5 = rezoom_baseimage[n % env_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 4 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
+						uint8 *p6 = rezoom_baseimage[n % env_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 5 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
+						uint8 *p7 = rezoom_baseimage[n % env_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 6 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
+						uint8 *p8 = rezoom_baseimage[n % env_t::num_threads] + baseoff + ((y * zoom_den[zoom_factor] + 7 - y_rem) / zoom_num[zoom_factor]) * (basewidth * 4);
 						for(  sint16 x = 0;  x < newzoomwidth;  x++  ) {
 							uint8 valid = 0;
 							uint16 r = 0, g = 0, b = 0;
@@ -1725,9 +1725,9 @@ static void rezoom_img(const image_id n)
 			}
 
 			// now encode the image again
-			dest = (PIXVAL*)rezoom_baseimage[n % environment_t::num_threads];
+			dest = (PIXVAL*)rezoom_baseimage[n % env_t::num_threads];
 			for(  sint16 y = 0;  y < newzoomheight;  y++  ) {
-				PIXVAL *line = ((PIXVAL *)rezoom_baseimage2[n % environment_t::num_threads]) + (y * newzoomwidth);
+				PIXVAL *line = ((PIXVAL *)rezoom_baseimage2[n % env_t::num_threads]) + (y * newzoomwidth);
 				PIXVAL i;
 				sint16 x = 0;
 				uint16 clear_colored_run_pair_count = 0;
@@ -1764,11 +1764,11 @@ static void rezoom_img(const image_id n)
 			images[n].w = newzoomwidth;
 			images[n].h = newzoomheight;
 			if(  newzoomheight > 0  ) {
-				const size_t zoom_len = (size_t)(((uint8 *)dest) - ((uint8 *)rezoom_baseimage[n % environment_t::num_threads]));
+				const size_t zoom_len = (size_t)(((uint8 *)dest) - ((uint8 *)rezoom_baseimage[n % env_t::num_threads]));
 				images[n].len = (uint32)(zoom_len / sizeof(PIXVAL));
 				images[n].zoom_data = MALLOCN(PIXVAL, images[n].len);
 				assert( images[n].zoom_data );
-				memcpy( images[n].zoom_data, rezoom_baseimage[n % environment_t::num_threads], zoom_len );
+				memcpy( images[n].zoom_data, rezoom_baseimage[n % env_t::num_threads], zoom_len );
 			}
 		}
 		else {
@@ -1780,7 +1780,7 @@ static void rezoom_img(const image_id n)
 		}
 		images[n].recode_flags &= ~FLAG_REZOOM;
 #ifdef MULTI_THREAD
-		pthread_mutex_unlock( &rezoom_img_mutex[n % environment_t::num_threads] );
+		pthread_mutex_unlock( &rezoom_img_mutex[n % env_t::num_threads] );
 #endif
 	}
 }

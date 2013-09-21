@@ -164,7 +164,7 @@ koord3d tunnelbauer_t::finde_ende(karte_t *welt, spieler_t *sp, koord3d pos, koo
 		gr = welt->lookup(pos);
 		if(gr) {
 			const uint8 slope = gr->get_grund_hang();
-			const uint8 slope_height = environment_t::pak_height_conversion_factor;
+			const uint8 slope_height = env_t::pak_height_conversion_factor;
 			if(  gr->get_typ() != grund_t::boden  ||  slope != hang_typ(-zv) * slope_height  ||  gr->is_halt()  ||  ((wegtyp != powerline_wt) ? gr->get_leitung() != NULL : gr->hat_wege())  ) {
 				// must end on boden_t and correct slope and not on halts
 				// ways cannot end on powerlines, powerlines cannot end on ways
@@ -207,7 +207,7 @@ koord3d tunnelbauer_t::finde_ende(karte_t *welt, spieler_t *sp, koord3d pos, koo
 			return koord3d::invalid;  // Was im Weg (schräger Hang oder so)
 		}
 
-		if(  environment_t::pak_height_conversion_factor == 2  ) {
+		if(  env_t::pak_height_conversion_factor == 2  ) {
 			// no grounds one above or below
 			if(  welt->lookup( pos + koord3d(0, 0, -1) )  ||  welt->lookup( pos + koord3d(0, 0, 1) )  ) {
 				return koord3d::invalid;
@@ -263,7 +263,7 @@ const char *tunnelbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, const 
 	}
 
 	// for conversion factor 1, must be single height, for conversion factor 2, must be double
-	if(  (environment_t::pak_height_conversion_factor == 1  &&  !(slope & 7))  ||  (environment_t::pak_height_conversion_factor == 2  &&  (slope & 7))  ) {
+	if(  (env_t::pak_height_conversion_factor == 1  &&  !(slope & 7))  ||  (env_t::pak_height_conversion_factor == 2  &&  (slope & 7))  ) {
 		return "Tunnel muss an\neinfachem\nHang beginnen!\n";
 	}
 

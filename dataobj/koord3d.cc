@@ -54,7 +54,7 @@ void koord3d::rdwr(loadsave_t *file)
 
 	if(  file->is_loading()  &&  file->get_version() < 112007  &&  x != -1  &&  y != -1  ) {
 		// convert heights from old single height saved game
-		z *= environment_t::pak_height_conversion_factor;
+		z *= env_t::pak_height_conversion_factor;
 	}
 }
 

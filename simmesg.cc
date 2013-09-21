@@ -218,7 +218,7 @@ void message_t::rdwr( loadsave_t *file )
 {
 	uint16 msg_count;
 	if(  file->is_saving()  ) {
-		if(  environment_t::server  ) {
+		if(  env_t::server  ) {
 			// on server: do not save local messages
 			msg_count = 0;
 			FOR(slist_tpl<node*>, const i, list) {

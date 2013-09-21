@@ -277,27 +277,27 @@ bool gui_theme_t::themes_init(const char *file_name)
 	//scrollbar_t::BAR_SIZE = (uint32)contents.get_int("gui_scrollbar_width", scrollbar_t::BAR_SIZE );
 	gui_tab_panel_t::header_vsize = (uint32)contents.get_int("gui_tab_header_vsize", gui_tab_panel_t::header_vsize );
 
-	// stuff in environment_t but rather GUI
-	environment_t::window_buttons_right =      contents.get_int("window_buttons_right",      environment_t::window_buttons_right );
-	environment_t::left_to_right_graphs =      contents.get_int("left_to_right_graphs",      environment_t::left_to_right_graphs );
-	environment_t::window_frame_active =       contents.get_int("window_frame_active",       environment_t::window_frame_active );
-	environment_t::second_open_closes_win =    contents.get_int("second_open_closes_win",    environment_t::second_open_closes_win );
-	environment_t::remember_window_positions = contents.get_int("remember_window_positions", environment_t::remember_window_positions );
-	environment_t::window_snap_distance = contents.get_int("window_snap_distance", environment_t::window_snap_distance );
+	// stuff in env_t but rather GUI
+	env_t::window_buttons_right =      contents.get_int("window_buttons_right",      env_t::window_buttons_right );
+	env_t::left_to_right_graphs =      contents.get_int("left_to_right_graphs",      env_t::left_to_right_graphs );
+	env_t::window_frame_active =       contents.get_int("window_frame_active",       env_t::window_frame_active );
+	env_t::second_open_closes_win =    contents.get_int("second_open_closes_win",    env_t::second_open_closes_win );
+	env_t::remember_window_positions = contents.get_int("remember_window_positions", env_t::remember_window_positions );
+	env_t::window_snap_distance = contents.get_int("window_snap_distance", env_t::window_snap_distance );
 
-	environment_t::front_window_bar_color =   contents.get_color("front_window_bar_color",   environment_t::front_window_bar_color );
-	environment_t::front_window_text_color =  contents.get_color("front_window_text_color",  environment_t::front_window_text_color );
-	environment_t::bottom_window_bar_color =  contents.get_color("bottom_window_bar_color",  environment_t::bottom_window_bar_color );
-	environment_t::bottom_window_text_color = contents.get_color("bottom_window_text_color", environment_t::bottom_window_text_color );
+	env_t::front_window_bar_color =   contents.get_color("front_window_bar_color",   env_t::front_window_bar_color );
+	env_t::front_window_text_color =  contents.get_color("front_window_text_color",  env_t::front_window_text_color );
+	env_t::bottom_window_bar_color =  contents.get_color("bottom_window_bar_color",  env_t::bottom_window_bar_color );
+	env_t::bottom_window_text_color = contents.get_color("bottom_window_text_color", env_t::bottom_window_text_color );
 
-	environment_t::show_tooltips =        contents.get_int("show_tooltips",              environment_t::show_tooltips );
-	environment_t::tooltip_color =        contents.get_color("tooltip_background_color", environment_t::tooltip_color );
-	environment_t::tooltip_textcolor =    contents.get_color("tooltip_text_color",       environment_t::tooltip_textcolor );
-	environment_t::tooltip_delay =        contents.get_int("tooltip_delay",              environment_t::tooltip_delay );
-	environment_t::tooltip_duration =     contents.get_int("tooltip_duration",           environment_t::tooltip_duration );
-	environment_t::toolbar_max_width =    contents.get_int("toolbar_max_width",          environment_t::toolbar_max_width );
-	environment_t::toolbar_max_height =   contents.get_int("toolbar_max_height",         environment_t::toolbar_max_height );
-	environment_t::cursor_overlay_color = contents.get_color("cursor_overlay_color",     environment_t::cursor_overlay_color );
+	env_t::show_tooltips =        contents.get_int("show_tooltips",              env_t::show_tooltips );
+	env_t::tooltip_color =        contents.get_color("tooltip_background_color", env_t::tooltip_color );
+	env_t::tooltip_textcolor =    contents.get_color("tooltip_text_color",       env_t::tooltip_textcolor );
+	env_t::tooltip_delay =        contents.get_int("tooltip_delay",              env_t::tooltip_delay );
+	env_t::tooltip_duration =     contents.get_int("tooltip_duration",           env_t::tooltip_duration );
+	env_t::toolbar_max_width =    contents.get_int("toolbar_max_width",          env_t::toolbar_max_width );
+	env_t::toolbar_max_height =   contents.get_int("toolbar_max_height",         env_t::toolbar_max_height );
+	env_t::cursor_overlay_color = contents.get_color("cursor_overlay_color",     env_t::cursor_overlay_color );
 
 	const std::string buttonpak = contents.get("themeimages");
 	if(  buttonpak.length()>0  ) {

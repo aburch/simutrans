@@ -138,7 +138,7 @@ const char *network_connect(const char *cp, karte_t *world)
 	if(  err==NULL  ) {
 		// want to join
 		{
-			nwc_join_t nwc_join( environment_t::nickname.c_str() );
+			nwc_join_t nwc_join( env_t::nickname.c_str() );
 			nwc_join.rdwr();
 			if (!nwc_join.send(my_client_socket)) {
 				err = "send of NWC_JOIN failed";
@@ -167,7 +167,7 @@ const char *network_connect(const char *cp, karte_t *world)
 			goto end;
 		}
 		// set nickname
-		environment_t::nickname = nwj->nickname.c_str();
+		env_t::nickname = nwj->nickname.c_str();
 
 		network_set_client_id(nwj->client_id);
 		// update map counter

@@ -384,8 +384,8 @@ void baum_t::calc_bild()
 
 image_id baum_t::get_bild() const
 {
-	if(  environment_t::hide_trees  ) {
-		if(  environment_t::hide_with_transparency  ) {
+	if(  env_t::hide_trees  ) {
+		if(  env_t::hide_with_transparency  ) {
 			// we need the real age for transparency or real image
 			return IMG_LEER;
 		}
@@ -583,7 +583,7 @@ void baum_t::laden_abschliessen()
  */
 void baum_t::zeige_info()
 {
-	if(environment_t::tree_info) {
+	if(env_t::tree_info) {
 		ding_t::zeige_info();
 	}
 }

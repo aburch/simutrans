@@ -28,7 +28,7 @@ bool nwc_pakset_info_t::execute(karte_t *)
 {
 	// server side of the communication
 	// client side in network_compare_pakset_with_server
-	if(  environment_t::server  ) {
+	if(  env_t::server  ) {
 		nwc_pakset_info_t nwi;
 		bool send = false;
 		bool ready = false;

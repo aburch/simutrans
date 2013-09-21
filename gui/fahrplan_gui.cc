@@ -45,7 +45,7 @@ karte_t *fahrplan_gui_t::welt = NULL;
 // shows/deletes highlighting of tiles
 void fahrplan_gui_stats_t::highlight_schedule( schedule_t *markfpl, bool marking )
 {
-	marking &= environment_t::visualize_schedule;
+	marking &= env_t::visualize_schedule;
 	FOR(minivec_tpl<linieneintrag_t>, const& i, markfpl->eintrag) {
 		if (grund_t* const gr = welt->lookup(i.pos)) {
 			for(  uint idx=0;  idx<gr->get_top();  idx++  ) {
@@ -337,7 +337,7 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	lb_wait.align_to( &lb_waitlevel, ALIGN_CENTER_V, koord( D_MARGIN_LEFT, 0 ) );
 	add_komponente( &lb_wait );
 
-	if(  !environment_t::hide_rail_return_ticket  ||  fpl->get_waytype()==road_wt  ||  fpl->get_waytype()==air_wt  ||  fpl->get_waytype()==water_wt  ) {
+	if(  !env_t::hide_rail_return_ticket  ||  fpl->get_waytype()==road_wt  ||  fpl->get_waytype()==air_wt  ||  fpl->get_waytype()==water_wt  ) {
 		//  hide the return ticket on rail stuff, where it causes much trouble
 		bt_return.init(button_t::roundbox, "return ticket", koord(BUTTON3_X, ypos ), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT) );
 		bt_return.set_tooltip("Add stops for backward travel");

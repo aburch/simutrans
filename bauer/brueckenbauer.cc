@@ -204,7 +204,7 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, spieler_t *sp, koord3d pos, k
 			// invalid ground in its way => while loop will finish
 		}
 
-		if(  environment_t::pak_height_conversion_factor == 2  ) {
+		if(  env_t::pak_height_conversion_factor == 2  ) {
 			// tile above cannot have way
 			grund_t *to2 = welt->lookup( pos + koord3d(0, 0, max_height + 1) );
 			if(  to2  &&  to2->get_weg_nr(0)  ) {
@@ -231,7 +231,7 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, spieler_t *sp, koord3d pos, k
 							// don't have necessary double height ramp to end here
 							ok = false;
 						}
-						else if(  i == max_height - 1 && environment_t::pak_height_conversion_factor == 2  &&  ((wegtyp != powerline_wt && gr2->get_weg_nr(0) && gr2->get_weg_nr(0)->get_besch()->get_topspeed()>0)  ||  gr2->get_leitung())  ) {
+						else if(  i == max_height - 1 && env_t::pak_height_conversion_factor == 2  &&  ((wegtyp != powerline_wt && gr2->get_weg_nr(0) && gr2->get_weg_nr(0)->get_besch()->get_topspeed()>0)  ||  gr2->get_leitung())  ) {
 							// must try to end if conversion factor 2 and flat way or powerline 1 tile below
 							must_end = true;
 						}

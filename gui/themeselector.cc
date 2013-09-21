@@ -67,9 +67,9 @@ void themeselector_t::fill_list()
 {
 	KOORD_VAL y = 0;
 
-	add_path( ((std::string)environment_t::program_dir+"themes/").c_str() );
-	if(  strcmp( environment_t::program_dir, environment_t::user_dir ) != 0  ) {
-		add_path( ((std::string)environment_t::user_dir+"themes/").c_str() );
+	add_path( ((std::string)env_t::program_dir+"themes/").c_str() );
+	if(  strcmp( env_t::program_dir, env_t::user_dir ) != 0  ) {
+		add_path( ((std::string)env_t::user_dir+"themes/").c_str() );
 	}
 
 	// do the search ...

@@ -45,7 +45,7 @@ private:
 	/// e.g. my_scenario
 	plainstring scenario_name;
 
-	/// path to scenario directory (relative to environment_t::program_dir)
+	/// path to scenario directory (relative to env_t::program_dir)
 	/// e.g. pak/scenario/my_scenario/
 	plainstring scenario_path;
 

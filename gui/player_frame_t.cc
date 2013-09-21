@@ -98,7 +98,7 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 		// Create combobox list data
 		player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("slot empty"), COL_BLACK ) );
 		player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Manual (Human)"), COL_BLACK ) );
-		if(  !welt->get_spieler(1)->is_locked()  ||  !environment_t::networkmode  ) {
+		if(  !welt->get_spieler(1)->is_locked()  ||  !env_t::networkmode  ) {
 			player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Goods AI"), COL_BLACK ) );
 			player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Passenger AI"), COL_BLACK ) );
 		}
@@ -293,7 +293,7 @@ void ki_kontroll_t::update_data()
 				}
 			}
 
-			if(  environment_t::networkmode  ) {
+			if(  env_t::networkmode  ) {
 
 				// change available selection of AIs
 				if(  !welt->get_spieler(1)->is_locked()  ) {

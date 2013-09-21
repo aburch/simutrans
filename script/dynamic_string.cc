@@ -78,7 +78,7 @@ void dynamic_string::update(script_vm_t *script, spieler_t *sp, bool force_updat
 		}
 	}
 	else {
-		if (environment_t::networkmode  &&  !environment_t::server) {
+		if (env_t::networkmode  &&  !env_t::server) {
 			s = dynamic_string::fetch_result( function, script, this, force_update);
 			if ( s == NULL) {
 				s = "Waiting for server response...";
@@ -100,7 +100,7 @@ const char* dynamic_string::fetch_result(const char* function, script_vm_t *scri
 	bool const needs_update = entry == NULL  ||  force_update;
 
 	if (needs_update) {
-		if (script != NULL  ||  environment_t::server) {
+		if (script != NULL  ||  env_t::server) {
 			// directly call script if at server
 			if (script) {
 				plainstring str = call_script(function, script);

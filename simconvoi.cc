@@ -476,7 +476,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 	}
 	// when saving with open window, this can happen
 	if(  state==FAHRPLANEINGABE  ) {
-		if (environment_t::networkmode) {
+		if (env_t::networkmode) {
 			wait_lock = 30000; // 60s to drive on, if the client in question had left
 		}
 		fpl->eingabe_abschliessen();
@@ -2372,7 +2372,7 @@ void convoi_t::zeige_info()
 		}
 	}
 	else {
-		if(  environment_t::verbose_debug  ) {
+		if(  env_t::verbose_debug  ) {
 			dump();
 		}
 		create_win( new convoi_info_t(self), w_info, magic_convoi_info+self.get_id() );

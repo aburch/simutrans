@@ -74,7 +74,7 @@ void zeiger_t::change_pos(koord3d k )
 				gr = welt->lookup_kartenboden( k.get_2d() );
 			}
 			if(gr) {
-				if(  gr->get_halt().is_bound()  &&  environment_t::station_coverage_show  ) {
+				if(  gr->get_halt().is_bound()  &&  env_t::station_coverage_show  ) {
 					gr->get_halt()->mark_unmark_coverage( true );
 				}
 				welt->mark_area( k-(area*center)/2, area, true );

@@ -43,12 +43,12 @@ server_frame_t::server_frame_t(karte_t* w) :
 	update_info();
 	display_map = true;
 
-	const int ww = !environment_t::networkmode ? 320 : 280;  // Window width
+	const int ww = !env_t::networkmode ? 320 : 280;  // Window width
 	sint16 pos_y = D_MARGIN_TOP;      // Initial location
 
 	// When in network mode, display only local map info (and nickname changer)
 	// When not in network mode, display server picker
-	if (  !environment_t::networkmode  ) {
+	if (  !env_t::networkmode  ) {
 		info_list.set_pos( koord( D_MARGIN_LEFT, pos_y ) );
 		info_list.set_text( "Select a server to join:" );
 		add_komponente( &info_list );
@@ -145,12 +145,12 @@ server_frame_t::server_frame_t(karte_t* w) :
 	nick.add_listener(this);
 	nick.set_text( nick_buf, lengthof( nick_buf ) );
 	nick.set_groesse( koord( ww - D_MARGIN_LEFT - D_H_SPACE - D_MARGIN_RIGHT - nick_width, D_BUTTON_HEIGHT ) );
-	tstrncpy( nick_buf, environment_t::nickname.c_str(), min( lengthof( nick_buf ), environment_t::nickname.length() + 1 ) );
+	tstrncpy( nick_buf, env_t::nickname.c_str(), min( lengthof( nick_buf ), env_t::nickname.length() + 1 ) );
 	add_komponente( &nick );
 
 	pos_y += D_BUTTON_HEIGHT;
 
-	if (  !environment_t::networkmode  ) {
+	if (  !env_t::networkmode  ) {
 		pos_y += D_V_SPACE * 2;                // GUI line goes here
 
 		const int button_width = 112;
@@ -265,18 +265,18 @@ void server_frame_t::update_info ()
 
 	time.clear();
 	char const* const month = translator::get_month_name(gi.get_current_month());
-	switch (environment_t::show_month) {
-		case environment_t::DATE_FMT_GERMAN:
-		case environment_t::DATE_FMT_MONTH:
-		case environment_t::DATE_FMT_SEASON:
-		case environment_t::DATE_FMT_GERMAN_NO_SEASON:
+	switch (env_t::show_month) {
+		case env_t::DATE_FMT_GERMAN:
+		case env_t::DATE_FMT_MONTH:
+		case env_t::DATE_FMT_SEASON:
+		case env_t::DATE_FMT_GERMAN_NO_SEASON:
 			time.printf( "%s %d", month, gi.get_current_year() );
 			break;
 
-		case environment_t::DATE_FMT_US:
-		case environment_t::DATE_FMT_JAPANESE:
-		case environment_t::DATE_FMT_JAPANESE_NO_SEASON:
-		case environment_t::DATE_FMT_US_NO_SEASON:
+		case env_t::DATE_FMT_US:
+		case env_t::DATE_FMT_JAPANESE:
+		case env_t::DATE_FMT_JAPANESE_NO_SEASON:
+		case env_t::DATE_FMT_US_NO_SEASON:
 			time.printf( "%i/%s", gi.get_current_year(), month );
 			break;
 	}
@@ -449,16 +449,16 @@ bool server_frame_t::action_triggered (gui_action_creator_t *komp, value_t p)
 	}
 	else if (  &nick == komp  ) {
 		char* nickname = nick.get_text();
-		if (  environment_t::networkmode  ) {
+		if (  env_t::networkmode  ) {
 			// Only try and change the nick with server if we're in network mode
-			if (  environment_t::nickname != nickname  ) {
-				environment_t::nickname = nickname;
+			if (  env_t::nickname != nickname  ) {
+				env_t::nickname = nickname;
 				nwc_nick_t* nwc = new nwc_nick_t( nickname );
 				network_send_server( nwc );
 			}
 		}
 		else {
-			environment_t::nickname = nickname;
+			env_t::nickname = nickname;
 		}
 	}
 	else if (  &join == komp  ) {
@@ -466,7 +466,7 @@ bool server_frame_t::action_triggered (gui_action_creator_t *komp, value_t p)
 		if (  strlen( nickname ) == 0  ) {
 			// forbid joining?
 		}
-		environment_t::nickname = nickname;
+		env_t::nickname = nickname;
 		std::string filename = "net:";
 
 		// Prefer serverlist entry if one is selected
@@ -516,8 +516,8 @@ bool server_frame_t::action_triggered (gui_action_creator_t *komp, value_t p)
 void server_frame_t::zeichnen (koord pos, koord gr)
 {
 	// update nickname if necessary
-	if (  get_focus() != &nick  &&  environment_t::nickname != nick_buf  ) {
-		tstrncpy( nick_buf, environment_t::nickname.c_str(), min( lengthof( nick_buf ), environment_t::nickname.length() + 1 ) );
+	if (  get_focus() != &nick  &&  env_t::nickname != nick_buf  ) {
+		tstrncpy( nick_buf, env_t::nickname.c_str(), min( lengthof( nick_buf ), env_t::nickname.length() + 1 ) );
 	}
 
 	gui_frame_t::zeichnen( pos, gr );
@@ -525,7 +525,7 @@ void server_frame_t::zeichnen (koord pos, koord gr)
 	sint16 pos_y = pos.y + D_TITLEBAR_HEIGHT;
 	pos_y += D_MARGIN_TOP;
 
-	if (  !environment_t::networkmode  ) {
+	if (  !env_t::networkmode  ) {
 		pos_y += LINESPACE;             // List info text
 		pos_y += D_V_SPACE;             // padding
 		pos_y += D_BUTTON_HEIGHT * 6;   // serverlist gui_scrolled_list_t
@@ -573,7 +573,7 @@ void server_frame_t::zeichnen (koord pos, koord gr)
 	pos_y += D_BUTTON_HEIGHT; // Nick entry
 
 	// Buttons at bottom of dialog
-	if (  !environment_t::networkmode  ) {
+	if (  !env_t::networkmode  ) {
 		pos_y += D_V_SPACE;
 		display_ddd_box_clip( pos.x + D_MARGIN_LEFT, pos_y, gr.x - D_MARGIN_LEFT - D_MARGIN_RIGHT, 0, MN_GREY0, MN_GREY4 );
 		pos_y += D_V_SPACE;

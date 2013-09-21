@@ -19,7 +19,7 @@ static FILE* file = NULL;
 
 void script_api::start_squirrel_type_logging()
 {
-	if (environment_t::verbose_debug < 2) {
+	if (env_t::verbose_debug < 2) {
 		return;
 	}
 	file = fopen("squirrel_types.awk", "w");

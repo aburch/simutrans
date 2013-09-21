@@ -190,7 +190,7 @@ static const char *load_text(char const* const filename )
 {
 	std::string file_prefix("text/");
 	std::string fullname = file_prefix + translator::get_lang()->iso + "/" + filename;
-	chdir(environment_t::program_dir);
+	chdir(env_t::program_dir);
 
 	FILE* file = fopen(fullname.c_str(), "rb");
 	if (!file) {
@@ -202,7 +202,7 @@ static const char *load_text(char const* const filename )
 		file = fopen((file_prefix + "/en/" + filename).c_str(), "rb");
 	}
 	// go back to load/save dir
-	chdir( environment_t::user_dir );
+	chdir( env_t::user_dir );
 
 	if(file) {
 		fseek(file,0,SEEK_END);
@@ -358,7 +358,7 @@ FILE *help_frame_t::has_helpfile( char const* const filename, int &mode )
 	mode = native;
 	std::string file_prefix("text/");
 	std::string fullname = file_prefix + translator::get_lang()->iso + "/" + filename;
-	chdir(environment_t::program_dir);
+	chdir(env_t::program_dir);
 
 	FILE* file = fopen(fullname.c_str(), "rb");
 	if(  !file  &&  strcmp(translator::get_lang()->iso,translator::get_lang()->iso_base)  ) {
@@ -371,7 +371,7 @@ FILE *help_frame_t::has_helpfile( char const* const filename, int &mode )
 		mode = english;
 	}
 	// go back to load/save dir
-	chdir( environment_t::user_dir );
+	chdir( env_t::user_dir );
 	// success?
 	if(  !file  ) {
 		mode = missing;

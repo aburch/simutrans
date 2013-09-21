@@ -10,7 +10,7 @@
 #include "../tpl/vector_tpl.h"
 #include "../utils/plainstring.h"
 
-#define TILE_HEIGHT_STEP (environment_t::pak_tile_height_step)
+#define TILE_HEIGHT_STEP (env_t::pak_tile_height_step)
 
 
 /**
@@ -20,7 +20,7 @@
  *
  * @author Hj. Malthaner
  */
-class environment_t
+class env_t
 {
 public:
 	/// points to the current simutrans data directory

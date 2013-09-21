@@ -115,7 +115,7 @@ void pillar_t::rdwr(loadsave_t *file)
 		}
 		asymmetric = besch && besch->has_pillar_asymmetric();
 
-		if(  file->get_version() < 112007 && environment_t::pak_height_conversion_factor==2  ) {
+		if(  file->get_version() < 112007 && env_t::pak_height_conversion_factor==2  ) {
 			switch(dir) {
 				case bruecke_besch_t::OW_Pillar:  dir = bruecke_besch_t::OW_Pillar2;  break;
 				case bruecke_besch_t::NS_Pillar:  dir = bruecke_besch_t::NS_Pillar2;  break;

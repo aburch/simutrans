@@ -25,7 +25,7 @@ bool nwc_scenario_t::execute(karte_t *welt)
 	}
 	script_vm_t *script = scen->script;
 
-	if (environment_t::server) {
+	if (env_t::server) {
 		switch (what) {
 			case CALL_SCRIPT:
 			case CALL_SCRIPT_ANSWER: {

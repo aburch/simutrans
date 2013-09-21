@@ -60,8 +60,8 @@ void sound_besch_t::init()
 {
 	// ok, now init
 	sound_on = true;
-	sound_path = environment_t::program_dir;
-	sound_path= sound_path + environment_t::objfilename + "sound/";
+	sound_path = env_t::program_dir;
+	sound_path= sound_path + env_t::objfilename + "sound/";
 	// process sound.tab
 	tabfile_t soundconf;
 	if (soundconf.open((sound_path + "sound.tab").c_str())) {

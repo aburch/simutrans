@@ -222,8 +222,8 @@ void grund_t::rdwr(loadsave_t *file)
 
 	if(  file->is_loading()  &&  file->get_version() < 112007  ) {
 		// convert heights from old single height saved game - water already at correct height
-		pos.z = get_typ() == grund_t::wasser ? pos.z : pos.z * environment_t::pak_height_conversion_factor;
-		z = z * environment_t::pak_height_conversion_factor;
+		pos.z = get_typ() == grund_t::wasser ? pos.z : pos.z * env_t::pak_height_conversion_factor;
+		z = z * env_t::pak_height_conversion_factor;
 	}
 
 	if(file->is_saving()) {
@@ -264,7 +264,7 @@ void grund_t::rdwr(loadsave_t *file)
 
 	if(  file->is_loading()  &&  file->get_version() < 112007  ) {
 		// convert slopes from old single height saved game
-		slope = (scorner1(slope) + scorner2(slope) * 3 + scorner3(slope) * 9 + scorner4(slope) * 27) * environment_t::pak_height_conversion_factor;
+		slope = (scorner1(slope) + scorner2(slope) * 3 + scorner3(slope) * 9 + scorner4(slope) * 27) * env_t::pak_height_conversion_factor;
 	}
 	if(  file->is_loading()  &&  !grund_besch_t::double_grounds  ) {
 		// truncate double slopes to single slopes
@@ -579,11 +579,11 @@ void grund_t::zeige_info()
 	int old_count = win_get_open_count();
 	if(get_halt().is_bound()) {
 		get_halt()->zeige_info();
-		if(environment_t::single_info  &&  old_count!=win_get_open_count()  ) {
+		if(env_t::single_info  &&  old_count!=win_get_open_count()  ) {
 			return;
 		}
 	}
-	if(environment_t::ground_info  ||  hat_wege()) {
+	if(env_t::ground_info  ||  hat_wege()) {
 		create_win(new grund_info_t(this), w_info, (ptrdiff_t)this);
 	}
 }
@@ -1106,7 +1106,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 	}
 	// display ways
 	if(  visible  &&  (flags&has_way1)  ){
-		const bool clip = (  (flags&draw_as_ding)  ||  !ist_karten_boden()  )  &&  !environment_t::simple_drawing;
+		const bool clip = (  (flags&draw_as_ding)  ||  !ist_karten_boden()  )  &&  !env_t::simple_drawing;
 		const int hgt_step = tile_raster_scale_y( TILE_HEIGHT_STEP, raster_tile_width );
 		for(  uint8 i = 0;  i < offsets[flags / has_way1];  i++  ) {
 			ding_t* d = obj_bei(i);
@@ -1256,7 +1256,7 @@ void grund_t::display_if_visible(sint16 xpos, sint16 ypos, const sint16 raster_t
 		return;
 	}
 
-	if(  environment_t::draw_earth_border  &&  (pos.x-welt->get_size().x+1 == 0  ||  pos.y-welt->get_size().y+1 == 0)  ) {
+	if(  env_t::draw_earth_border  &&  (pos.x-welt->get_size().x+1 == 0  ||  pos.y-welt->get_size().y+1 == 0)  ) {
 		// the last tile. might need a border
 #ifdef MULTI_THREAD
 		display_border( xpos, ypos, raster_tile_width, clip_num );
@@ -1429,7 +1429,7 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, const bool is_global) const
 #endif
 {
-	if(  environment_t::simple_drawing  ) {
+	if(  env_t::simple_drawing  ) {
 #ifdef MULTI_THREAD
 		display_dinge_all_quick_and_dirty( xpos, ypos, raster_tile_width, is_global, clip_num );
 #else
@@ -1804,15 +1804,15 @@ void grund_t::display_overlay(const sint16 xpos, const sint16 ypos)
 	dinge.display_dinge_overlay( xpos, ypos );
 #endif
 	// marker/station text
-	if(  get_flag(has_text)  &&  environment_t::show_names  ) {
-		if(  environment_t::show_names&1  ) {
+	if(  get_flag(has_text)  &&  env_t::show_names  ) {
+		if(  env_t::show_names&1  ) {
 			const char *text = get_text();
 			const sint16 raster_tile_width = get_tile_raster_width();
 			const int width = proportional_string_width(text)+7;
 			int new_xpos = xpos - (width-raster_tile_width)/2;
 			PLAYER_COLOR_VAL pc = text_farbe();
 
-			switch( environment_t::show_names >> 2 ) {
+			switch( env_t::show_names >> 2 ) {
 				case 0:
 					display_ddd_proportional_clip( new_xpos, ypos, width, 0, pc, COL_BLACK, text, dirty );
 					break;
@@ -1828,7 +1828,7 @@ void grund_t::display_overlay(const sint16 xpos, const sint16 ypos)
 		}
 
 		// display station waiting information/status
-		if(environment_t::show_names & 2) {
+		if(env_t::show_names & 2) {
 			const halthandle_t halt = get_halt();
 			if(halt.is_bound()  &&  halt->get_basis_pos3d()==pos) {
 				halt->display_status(xpos, ypos);

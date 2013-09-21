@@ -89,7 +89,7 @@ bool password_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 		// store the hash
 		sp->get_welt()->store_player_password_hash( sp->get_player_nr(), hash );
 
-		if(  environment_t::networkmode) {
+		if(  env_t::networkmode) {
 			sp->unlock(!sp->is_locked(), true);
 			// send hash to server: it will unlock player or change password
 			nwc_auth_player_t *nwc = new nwc_auth_player_t(sp->get_player_nr(), hash);

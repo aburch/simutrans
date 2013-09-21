@@ -28,8 +28,8 @@ load_relief_frame_t::load_relief_frame_t(settings_t* const sets) : savegame_fram
 {
 	static char extra_path[1024];
 
-	sprintf(extra_path,"%s%smaps/", environment_t::program_dir, environment_t::objfilename.c_str());
-	//sprintf(extra_path,"%smaps/", environment_t::program_dir);
+	sprintf(extra_path,"%s%smaps/", env_t::program_dir, env_t::objfilename.c_str());
+	//sprintf(extra_path,"%smaps/", env_t::program_dir);
 
 	this->add_path(extra_path);
 

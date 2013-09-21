@@ -89,23 +89,23 @@ bool settings_frame_t::action_triggered( gui_action_creator_t *komp, value_t )
 	if(  komp==&revert_to_default  ) {
 		// reread from simucon.tab(s) the settings and apply them
 		tabfile_t simuconf;
-		environment_t::init();
+		env_t::init();
 		*sets = settings_t();
-		chdir( environment_t::program_dir );
+		chdir( env_t::program_dir );
 		if(simuconf.open("config/simuconf.tab")) {
 			sint16 dummy16;
 			string dummy_str;
 			sets->parse_simuconf( simuconf, dummy16, dummy16, dummy16, dummy_str );
 		}
-		stadt_t::cityrules_init(environment_t::objfilename);
-		chdir( environment_t::program_dir );
-		chdir( environment_t::objfilename.c_str() );
+		stadt_t::cityrules_init(env_t::objfilename);
+		chdir( env_t::program_dir );
+		chdir( env_t::objfilename.c_str() );
 		if(simuconf.open("config/simuconf.tab")) {
 			sint16 dummy16;
 			string dummy_str;
 			sets->parse_simuconf( simuconf, dummy16, dummy16, dummy16, dummy_str );
 		}
-		chdir(  environment_t::user_dir  );
+		chdir(  env_t::user_dir  );
 		if(simuconf.open("simuconf.tab")) {
 			sint16 dummy16;
 			string dummy_str;
@@ -124,7 +124,7 @@ bool settings_frame_t::action_triggered( gui_action_creator_t *komp, value_t )
 	else if(  komp==&revert_to_last_save  ) {
 		// load settings of last generated map
 		loadsave_t file;
-		chdir( environment_t::user_dir  );
+		chdir( env_t::user_dir  );
 		if(  file.rd_open("default.sve")  ) {
 			sets->rdwr(&file);
 			file.close();
