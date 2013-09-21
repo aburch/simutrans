@@ -13,7 +13,7 @@
 
 #include "../besch/skin_besch.h"
 #include "../dataobj/translator.h"
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 #include "message_option_t.h"
 
 #define BUTTON_ROW (110+D_MARGIN_LEFT+D_BUTTON_HEIGHT+D_H_SPACE)

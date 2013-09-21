@@ -11,7 +11,7 @@
 #include "../simworld.h"
 #include "../simcolor.h"
 #include "../dataobj/translator.h"
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 #include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"
 

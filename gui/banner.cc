@@ -16,7 +16,7 @@
 #include "../display/simgraph.h"
 #include "../macros.h"
 #include "../besch/skin_besch.h"
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 
 #include "banner.h"
 #include "loadsave_frame.h"
@@ -112,7 +112,7 @@ bool banner_t::infowin_event(const event_t *ev)
 bool banner_t::action_triggered( gui_action_creator_t *komp, value_t)
 {
 	if(  komp == &quit  ) {
-		umgebung_t::quit_simutrans = true;
+		environment_t::quit_simutrans = true;
 		destroy_all_win(true);
 	}
 	else if(  komp == &new_map  ) {

@@ -14,7 +14,7 @@
 
 // normal stuff
 #include "../../dataobj/translator.h"
-#include "../../dataobj/umgebung.h"
+#include "../../dataobj/environment.h"
 
 #include "../../utils/searchfolder.h"
 #include "../../utils/simstring.h"

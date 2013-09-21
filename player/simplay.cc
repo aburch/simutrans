@@ -34,11 +34,11 @@
 
 #include "../boden/grund.h"
 
-#include "../dataobj/einstellungen.h"
+#include "../dataobj/settings.h"
 #include "../dataobj/scenario.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 
 #include "../dings/bruecke.h"
 #include "../dings/gebaeude.h"
@@ -326,7 +326,7 @@ bool spieler_t::neuer_monat()
 	if(  finance->get_account_balance() < 0  ) {
 		finance->increase_account_overdrawn();
 		if(  !welt->get_settings().is_freeplay()  &&  player_nr != 1  ) {
-			if(  welt->get_active_player_nr()==player_nr  &&  !umgebung_t::networkmode  ) {
+			if(  welt->get_active_player_nr()==player_nr  &&  !environment_t::networkmode  ) {
 				if(  finance->get_netwealth() < 0 ) {
 					destroy_all_win(true);
 					create_win( display_get_width()/2-128, 40, new news_img("Bankrott:\n\nDu bist bankrott.\n"), w_info, magic_none);
@@ -371,7 +371,7 @@ bool spieler_t::neuer_monat()
 		finance->set_account_overdrawn( 0 );
 	}
 
-	if(  umgebung_t::networkmode  &&  player_nr>1  &&  !automat  ) {
+	if(  environment_t::networkmode  &&  player_nr>1  &&  !automat  ) {
 		// find out dummy companies (i.e. no vehicle running within x months)
 		if(  welt->get_settings().get_remove_dummy_player_months()  &&  player_age >= welt->get_settings().get_remove_dummy_player_months()  )  {
 			bool no_cnv = true;

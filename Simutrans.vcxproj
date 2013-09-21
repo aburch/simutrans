@@ -189,7 +189,7 @@
     <ClCompile Include="dataobj\dingliste.cc" />
     <ClCompile Include="gui\display_settings.cc" />
     <ClCompile Include="script\dynamic_string.cc" />
-    <ClCompile Include="dataobj\einstellungen.cc" />
+    <ClCompile Include="dataobj\settings.cc" />
     <ClCompile Include="gui\enlarge_map_frame_t.cc" />
     <ClCompile Include="script\api\export_besch.cc" />
     <ClCompile Include="script\export_objs.cc" />
@@ -395,7 +395,7 @@
     <ClCompile Include="besch\reader\tunnel_reader.cc" />
     <ClCompile Include="bauer\tunnelbauer.cc" />
     <ClCompile Include="boden\tunnelboden.cc" />
-    <ClCompile Include="dataobj\umgebung.cc" />
+    <ClCompile Include="dataobj\environment.cc" />
     <ClCompile Include="unicode.cc" />
     <ClCompile Include="besch\reader\vehicle_reader.cc" />
     <ClCompile Include="besch\vehikel_besch.cc" />
@@ -480,7 +480,7 @@
     <ClInclude Include="gui\display_settings.h" />
     <ClInclude Include="dings\dummy.h" />
     <ClInclude Include="script\dynamic_string.h" />
-    <ClInclude Include="dataobj\einstellungen.h" />
+    <ClInclude Include="dataobj\settings.h" />
     <ClInclude Include="gui\enlarge_map_frame_t.h" />
     <ClInclude Include="gui\extend_edit.h" />
     <ClInclude Include="besch\fabrik_besch.h" />
@@ -724,7 +724,7 @@
     <ClInclude Include="besch\reader\tunnel_reader.h" />
     <ClInclude Include="bauer\tunnelbauer.h" />
     <ClInclude Include="boden\tunnelboden.h" />
-    <ClInclude Include="dataobj\umgebung.h" />
+    <ClInclude Include="dataobj\environment.h" />
     <ClInclude Include="unicode.h" />
     <ClInclude Include="tpl\vector_tpl.h" />
     <ClInclude Include="besch\reader\vehicle_reader.h" />

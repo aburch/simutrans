@@ -22,7 +22,7 @@
 #include "../simconst.h"
 
 #ifndef NETTOOL
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 #endif
 
 #ifdef NETTOOL
@@ -203,7 +203,7 @@ SOCKET network_open_address(char const* cp, char const*& err)
 	ips.append_unique("::");
 	ips.append_unique("0.0.0.0");
 #else
-	vector_tpl<std::string> const& ips = umgebung_t::listen;
+	vector_tpl<std::string> const& ips = environment_t::listen;
 #endif
 	// For each address in the list of listen addresses try and create a socket to transmit on
 	// Use the first one which works
@@ -240,7 +240,7 @@ SOCKET network_open_address(char const* cp, char const*& err)
 		if (  (ret = getaddrinfo( ip.c_str(), 0, &local_hints, &local )) != 0  ) {
 			dbg->warning( "network_open_address()", "Failed to getaddrinfo for %s, error was: %s", ip.c_str(), gai_strerror(ret) );
 #ifndef NETTOOL
-			umgebung_t::listen.remove_at( i );
+			environment_t::listen.remove_at( i );
 #endif
 			i --;
 			continue;
@@ -332,7 +332,7 @@ SOCKET network_open_address(char const* cp, char const*& err)
 
 /**
  * Start up server on the port specified
- * Server will listen on all addresses specified in umgebung_t::listen
+ * Server will listen on all addresses specified in environment_t::listen
  * @return true on success
  */
 bool network_init_server( int port )
@@ -377,7 +377,7 @@ bool network_init_server( int port )
 	ips.append_unique("::");
 	ips.append_unique("0.0.0.0");
 #else
-	vector_tpl<std::string> const& ips = umgebung_t::listen;
+	vector_tpl<std::string> const& ips = environment_t::listen;
 #endif
 	// For each address in the list of listen addresses try and create a socket to listen on
 	FOR(vector_tpl<std::string>, const& ip, ips) {
@@ -819,6 +819,6 @@ void network_core_shutdown()
 
 	network_active = false;
 #ifndef NETTOOL
-	umgebung_t::networkmode = false;
+	environment_t::networkmode = false;
 #endif
 }

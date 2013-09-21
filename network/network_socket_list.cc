@@ -4,7 +4,7 @@
 #include "network_packet.h"
 
 #ifndef NETTOOL
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 #endif
 
 
@@ -217,12 +217,12 @@ void socket_list_t::add_server( SOCKET sock )
 	if (i==0) {
 #ifndef NETTOOL
 		// set server nickname
-		if (!umgebung_t::nickname.empty()) {
-			list[i]->nickname = umgebung_t::nickname.c_str();
+		if (!environment_t::nickname.empty()) {
+			list[i]->nickname = environment_t::nickname.c_str();
 		}
 		else {
 			list[i]->nickname = "Server#0";
-			umgebung_t::nickname = list[i]->nickname.c_str();
+			environment_t::nickname = list[i]->nickname.c_str();
 		}
 #endif //NETTOOL
 	}
@@ -240,7 +240,7 @@ bool socket_list_t::remove_client( SOCKET sock )
 #ifdef NETTOOL
 			if (list[j]->state == socket_info_t::playing) {
 #else //NETTOOL
-			if (umgebung_t::server  &&  list[j]->state == socket_info_t::playing) {
+			if (environment_t::server  &&  list[j]->state == socket_info_t::playing) {
 #endif //NETTOOL
 				change_state(j, socket_info_t::has_left);
 			}

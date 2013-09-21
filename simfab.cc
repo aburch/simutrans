@@ -37,8 +37,8 @@
 #include "dings/field.h"
 #include "dings/leitung2.h"
 
-#include "dataobj/einstellungen.h"
-#include "dataobj/umgebung.h"
+#include "dataobj/settings.h"
+#include "dataobj/environment.h"
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
 

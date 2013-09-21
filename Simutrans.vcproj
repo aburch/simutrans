@@ -427,7 +427,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dataobj\einstellungen.cc"
+				RelativePath=".\dataobj\settings.cc"
 				>
 			</File>
 			<File
@@ -1297,7 +1297,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dataobj\umgebung.cc"
+				RelativePath=".\dataobj\environment.cc"
 				>
 			</File>
 			<File
@@ -1583,7 +1583,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dataobj\einstellungen.h"
+				RelativePath=".\dataobj\settings.h"
 				>
 			</File>
 			<File
@@ -2587,7 +2587,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dataobj\umgebung.h"
+				RelativePath=".\dataobj\environment.h"
 				>
 			</File>
 			<File

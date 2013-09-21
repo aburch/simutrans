@@ -11,7 +11,7 @@
 #include "../tpl/stringhashtable_tpl.h"
 #include "../tpl/vector_tpl.h"
 #include "../besch/groundobj_besch.h"
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 
 /**
  * Decorative objects, like rocks, ponds etc.

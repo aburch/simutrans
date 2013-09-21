@@ -21,7 +21,7 @@
 
 #include "../display/font.h"
 
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 #include "../dataobj/translator.h"
 #include "../simsys.h"
 #include "../utils/simstring.h"
@@ -52,9 +52,9 @@ void sprachengui_t::init_font_from_lang()
 	// load large font
 	char prop_font_file_name [1024];
 	sprintf(prop_font_file_name, "%s%s", FONT_PATH_X, prop_font_file);
-	chdir(umgebung_t::program_dir);
+	chdir(environment_t::program_dir);
 	display_load_font(prop_font_file_name);
-	chdir(umgebung_t::user_dir);
+	chdir(environment_t::user_dir);
 
 	const char * p = translator::translate("SEP_THOUSAND");
 	char c = ',';
@@ -117,7 +117,7 @@ sprachengui_t::sprachengui_t() :
 		b->set_no_translate(true);
 
 		// check, if font exists
-		chdir(umgebung_t::program_dir);
+		chdir(environment_t::program_dir);
 		const char* fontname = lang->translate("PROP_FONT_FILE");
 		char prop_font_file_name [1024];
 		sprintf(prop_font_file_name, "%s%s", FONT_PATH_X, fontname);
@@ -171,7 +171,7 @@ sprachengui_t::sprachengui_t() :
 		add_komponente( buttons[i].button );
 	}
 
-	chdir(umgebung_t::user_dir);
+	chdir(environment_t::user_dir);
 
 	set_fenstergroesse( koord(DIALOG_WIDTH, D_TITLEBAR_HEIGHT + cursor.y + ((count+1)>>1)*(D_BUTTON_SQUARE+D_V_SPACE) + D_MARGIN_BOTTOM ) );
 }

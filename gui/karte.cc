@@ -12,7 +12,7 @@
 #include "fahrplan_gui.h"
 
 #include "../dataobj/translator.h"
-#include "../dataobj/einstellungen.h"
+#include "../dataobj/settings.h"
 #include "../dataobj/fahrplan.h"
 #include "../dataobj/powernet.h"
 #include "../dataobj/ribi.h"

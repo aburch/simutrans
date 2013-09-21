@@ -25,7 +25,7 @@
 #include "../freight_list_sorter.h"
 
 #include "../dataobj/fahrplan.h"
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/loadsave.h"
 
@@ -98,7 +98,7 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt) :
 {
 	this->halt = halt;
 	this->welt = welt;
-	halt->set_sortby( umgebung_t::default_sortmode );
+	halt->set_sortby( environment_t::default_sortmode );
 
 	const sint16 offset_below_viewport = 21 + view.get_groesse().y;
 	const sint16 total_width = D_MARGIN_LEFT + 3*(D_BUTTON_WIDTH + D_H_SPACE) + max( D_BUTTON_WIDTH, view.get_groesse().x ) + D_MARGIN_RIGHT;
@@ -135,7 +135,7 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt) :
 	const sint16 yoff = offset_below_viewport+D_BUTTON_HEIGHT+1-D_BUTTON_HEIGHT-2;
 
 	// hsiegeln: added sort_button
-	sort_button.init(button_t::roundbox, sort_text[umgebung_t::default_sortmode],koord(BUTTON1_X, yoff), koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	sort_button.init(button_t::roundbox, sort_text[environment_t::default_sortmode],koord(BUTTON1_X, yoff), koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	sort_button.set_tooltip("Sort waiting list by");
 	sort_button.add_listener(this);
 	add_komponente(&sort_button);
@@ -477,7 +477,7 @@ void halt_info_t::update_departures()
 		joined_buf.append( " " );
 		joined_buf.append( translator::translate( "Departures to\n" ) );
 		FOR( vector_tpl<halt_info_t::dest_info_t>, hi, destinations ) {
-			if(  freight_list_sorter_t::by_via_sum != umgebung_t::default_sortmode  ||  !exclude.is_contained( hi.halt )  ) {
+			if(  freight_list_sorter_t::by_via_sum != environment_t::default_sortmode  ||  !exclude.is_contained( hi.halt )  ) {
 				joined_buf.printf( "  %s %s\n", tick_to_string( hi.delta_ticks, false ), hi.halt->get_name() );
 				exclude.append( hi.halt );
 			}
@@ -489,7 +489,7 @@ void halt_info_t::update_departures()
 	if(  origins.get_count()>0  ) {
 		joined_buf.append( translator::translate( "Arrivals from\n" ) );
 		FOR( vector_tpl<halt_info_t::dest_info_t>, hi, origins ) {
-			if(  freight_list_sorter_t::by_via_sum != umgebung_t::default_sortmode  ||  !exclude.is_contained( hi.halt )  ) {
+			if(  freight_list_sorter_t::by_via_sum != environment_t::default_sortmode  ||  !exclude.is_contained( hi.halt )  ) {
 				joined_buf.printf( "  %s %s\n", tick_to_string( hi.delta_ticks, false ), hi.halt->get_name() );
 				exclude.append( hi.halt );
 			}
@@ -511,9 +511,9 @@ bool halt_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 		create_win( new halt_detail_t(halt), w_info, magic_halt_detail + halt.get_id() );
 	}
 	else if (comp == &sort_button) { 	// @author hsiegeln sort button pressed
-		umgebung_t::default_sortmode = ((int)(halt->get_sortby())+1)%4;
-		halt->set_sortby((freight_list_sorter_t::sort_mode_t) umgebung_t::default_sortmode);
-		sort_button.set_text(sort_text[umgebung_t::default_sortmode]);
+		environment_t::default_sortmode = ((int)(halt->get_sortby())+1)%4;
+		halt->set_sortby((freight_list_sorter_t::sort_mode_t) environment_t::default_sortmode);
+		sort_button.set_text(sort_text[environment_t::default_sortmode]);
 	}
 	else  if (comp == &toggler) {
 		show_hide_statistics( toggler.pressed^1 );
@@ -614,7 +614,7 @@ void halt_info_t::rdwr(loadsave_t *file)
 	halt_pos.rdwr( file );
 	gr.rdwr( file );
 	file->rdwr_long( flags );
-	file->rdwr_byte( umgebung_t::default_sortmode );
+	file->rdwr_byte( environment_t::default_sortmode );
 	file->rdwr_bool( stats );
 	file->rdwr_bool( departures );
 	file->rdwr_long( xoff );

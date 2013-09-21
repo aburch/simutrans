@@ -13,7 +13,7 @@
 #include "simskin.h"
 #include "display/simgraph.h"
 #include "simevent.h"
-#include "dataobj/umgebung.h"
+#include "dataobj/environment.h"
 #include "simticker.h"
 #include "gui/simwin.h"
 #include "gui/gui_theme.h"
@@ -118,7 +118,7 @@ void loadingscreen_t::set_progress( uint32 progress )
 			display_logo();
 		}
 		else if(  ev->ev_code == SYSTEM_QUIT  ) {
-			umgebung_t::quit_simutrans = true;
+			environment_t::quit_simutrans = true;
 		}
 		delete ev;
 	}

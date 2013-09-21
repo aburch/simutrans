@@ -8,7 +8,7 @@
 #include "../bauer/tunnelbauer.h"
 
 #include "../dataobj/loadsave.h"
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 #include "../dataobj/translator.h"
 #include "../dings/tunnel.h"
 
@@ -55,7 +55,7 @@ void tunnelboden_t::calc_bild_internal()
 		}
 
 		if(  grund_t::underground_mode == grund_t::ugm_none  ) {
-			if(  (get_grund_hang() == hang_t::west * umgebung_t::pak_height_conversion_factor  &&  abs(back_bild_nr) > 11)  ||  (get_grund_hang() == hang_t::nord * umgebung_t::pak_height_conversion_factor  &&  get_back_bild(0) != IMG_LEER)  ) {
+			if(  (get_grund_hang() == hang_t::west * environment_t::pak_height_conversion_factor  &&  abs(back_bild_nr) > 11)  ||  (get_grund_hang() == hang_t::nord * environment_t::pak_height_conversion_factor  &&  get_back_bild(0) != IMG_LEER)  ) {
 				// must draw as ding, since there is a slope here nearby
 				koord pos = get_pos().get_2d() + koord(get_grund_hang());
 				grund_t *gr = welt->lookup_kartenboden(pos);

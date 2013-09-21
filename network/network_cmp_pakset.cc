@@ -3,7 +3,7 @@
 #include "network.h"
 #include "network_socket_list.h"
 #include "../dataobj/translator.h"
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 #include "../utils/cbuffer_t.h"
 #include "../simloadingscreen.h"
 
@@ -28,7 +28,7 @@ bool nwc_pakset_info_t::execute(karte_t *)
 {
 	// server side of the communication
 	// client side in network_compare_pakset_with_server
-	if(  umgebung_t::server  ) {
+	if(  environment_t::server  ) {
 		nwc_pakset_info_t nwi;
 		bool send = false;
 		bool ready = false;

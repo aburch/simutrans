@@ -19,7 +19,7 @@
 #include "../player/simplay.h"
 #include "../besch/grund_besch.h"
 #include "../boden/wasser.h"
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 #include "../dings/zeiger.h"
 
 #include "../simtools.h"
@@ -96,7 +96,7 @@ void karte_ansicht_t::display(bool force_dirty)
 	uint32 rs = get_random_seed();
 	const sint16 disp_width = display_get_width();
 	const sint16 disp_real_height = display_get_height();
-	const sint16 menu_height = umgebung_t::iconsize.y;
+	const sint16 menu_height = environment_t::iconsize.y;
 	const sint16 IMG_SIZE = get_tile_raster_width();
 
 	const sint16 disp_height = display_get_height() - 16 - (!ticker::empty() ? 16 : 0);
@@ -130,15 +130,15 @@ void karte_ansicht_t::display(bool force_dirty)
 	if(grund_t::underground_mode == grund_t::ugm_all) {
 		display_day_night_shift(0);
 	}
-	else if(!umgebung_t::night_shift) {
-		display_day_night_shift(umgebung_t::daynight_level);
+	else if(!environment_t::night_shift) {
+		display_day_night_shift(environment_t::daynight_level);
 	}
 	else {
 		// calculate also days if desired
 		uint32 month = welt->get_last_month();
 		const uint32 ticks_this_month = welt->get_zeit_ms() % welt->ticks_per_world_month;
 		uint32 stunden2;
-		if (umgebung_t::show_month > umgebung_t::DATE_FMT_MONTH) {
+		if (environment_t::show_month > environment_t::DATE_FMT_MONTH) {
 			static sint32 tage_per_month[12]={31,28,31,30,31,30,31,31,30,31,30,31};
 			stunden2 = (((sint64)ticks_this_month*tage_per_month[month]) >> (welt->ticks_per_world_month_shift-17));
 			stunden2 = ((stunden2*3) / 8192) % 48;
@@ -146,7 +146,7 @@ void karte_ansicht_t::display(bool force_dirty)
 		else {
 			stunden2 = ( (ticks_this_month * 3) >> (welt->ticks_per_world_month_shift-4) )%48;
 		}
-		display_day_night_shift(hours2night[stunden2]+umgebung_t::daynight_level);
+		display_day_night_shift(hours2night[stunden2]+environment_t::daynight_level);
 	}
 
 	// not very elegant, but works:
@@ -179,10 +179,10 @@ void karte_ansicht_t::display(bool force_dirty)
 			pthread_attr_init( &attr );
 			pthread_attr_setdetachstate( &attr, PTHREAD_CREATE_DETACHED );
 			// init barrier
-			simthread_barrier_init( &display_barrier_start, NULL, umgebung_t::num_threads );
-			simthread_barrier_init( &display_barrier_end, NULL, umgebung_t::num_threads );
+			simthread_barrier_init( &display_barrier_start, NULL, environment_t::num_threads );
+			simthread_barrier_init( &display_barrier_end, NULL, environment_t::num_threads );
 
-			for(  int t = 0;  t < umgebung_t::num_threads - 1;  t++  ) {
+			for(  int t = 0;  t < environment_t::num_threads - 1;  t++  ) {
 				if(  pthread_create( &thread[t], &attr, display_region_thread, (void *)&ka[t] )  ) {
 					can_multithreading = false;
 					dbg->error( "karte_ansicht_t::display()", "cannot multi-thread, error at thread #%i", t+1 );
@@ -194,9 +194,9 @@ void karte_ansicht_t::display(bool force_dirty)
 		}
 
 		// set parameter for each thread
-		const KOORD_VAL wh_x = disp_width / umgebung_t::num_threads;
+		const KOORD_VAL wh_x = disp_width / environment_t::num_threads;
 		KOORD_VAL lt_x = 0;
-		for(  int t = 0;  t < umgebung_t::num_threads - 1;  t++  ) {
+		for(  int t = 0;  t < environment_t::num_threads - 1;  t++  ) {
 		   	ka[t].show_routine = this;
 			ka[t].lt_cl = koord( lt_x, menu_height );
 			ka[t].wh_cl = koord( wh_x, disp_height - menu_height );
@@ -216,9 +216,9 @@ void karte_ansicht_t::display(bool force_dirty)
 		simthread_barrier_wait( &display_barrier_start );
 
 		// the last we can run ourselves, setting clip_wh to the screen edge instead of wh_x (in case disp_width % num_threads != 0)
-		clear_all_poly_clip( umgebung_t::num_threads - 1 );
-		display_set_clip_wh_cl( lt_x, menu_height, disp_width - lt_x, disp_height - menu_height, umgebung_t::num_threads - 1 );
-		display_region( koord( lt_x - IMG_SIZE / 2, menu_height ), koord( disp_width - lt_x + IMG_SIZE, disp_height - menu_height ), y_min, dpy_height + 4 * 4, false, true, umgebung_t::num_threads - 1 );
+		clear_all_poly_clip( environment_t::num_threads - 1 );
+		display_set_clip_wh_cl( lt_x, menu_height, disp_width - lt_x, disp_height - menu_height, environment_t::num_threads - 1 );
+		display_region( koord( lt_x - IMG_SIZE / 2, menu_height ), koord( disp_width - lt_x + IMG_SIZE, disp_height - menu_height ), y_min, dpy_height + 4 * 4, false, true, environment_t::num_threads - 1 );
 
 		simthread_barrier_wait( &display_barrier_end );
 
@@ -269,7 +269,7 @@ void karte_ansicht_t::display(bool force_dirty)
 		if(zeiger->get_yoff()==Z_PLAN) {
 			grund_t *gr = welt->lookup( zeiger->get_pos() );
 			if(gr && gr->is_visible()) {
-				const PLAYER_COLOR_VAL transparent = TRANSPARENT25_FLAG|OUTLINE_FLAG| umgebung_t::cursor_overlay_color;
+				const PLAYER_COLOR_VAL transparent = TRANSPARENT25_FLAG|OUTLINE_FLAG| environment_t::cursor_overlay_color;
 				if(  gr->get_bild()==IMG_LEER  ) {
 					if(  gr->hat_wege()  ) {
 						display_img_blend( gr->obj_bei(0)->get_bild(), x, y, transparent, 0, dirty );
@@ -331,7 +331,7 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 
 	// prepare for selectively display
 	const koord cursor_pos = welt->get_zeiger() ? welt->get_zeiger()->get_pos().get_2d() : koord(-1000, -1000);
-	const bool needs_hiding = !umgebung_t::hide_trees  ||  (umgebung_t::hide_buildings != umgebung_t::ALL_HIDDEN_BUILDING);
+	const bool needs_hiding = !environment_t::hide_trees  ||  (environment_t::hide_buildings != environment_t::ALL_HIDDEN_BUILDING);
 
 	for(  int y = y_min;  y < y_max;  y++  ) {
 		const sint16 ypos = y * (IMG_SIZE / 4) + const_y_off;
@@ -350,7 +350,7 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 					if(  yypos - IMG_SIZE < lt.y + wh.y  &&  yypos + IMG_SIZE > lt.y  ) {
 #ifdef MULTI_THREAD
 						bool force_show_grid;
-						if(  umgebung_t::hide_under_cursor  &&  koord_distance( pos, cursor_pos ) < umgebung_t::cursor_hide_range  ) {
+						if(  environment_t::hide_under_cursor  &&  koord_distance( pos, cursor_pos ) < environment_t::cursor_hide_range  ) {
 								force_show_grid = true;
 								kb->set_flag( grund_t::dirty );
 						}
@@ -359,7 +359,7 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 						}
 						kb->display_if_visible( xpos, yypos, IMG_SIZE, clip_num, force_show_grid );
 #else
-						if(  umgebung_t::hide_under_cursor  &&  koord_distance( pos, cursor_pos ) < umgebung_t::cursor_hide_range  ) {
+						if(  environment_t::hide_under_cursor  &&  koord_distance( pos, cursor_pos ) < environment_t::cursor_hide_range  ) {
 								const bool saved_grid = grund_t::show_grid;
 								grund_t::show_grid = true;
 								kb->set_flag( grund_t::dirty );
@@ -374,7 +374,7 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 
 					}
 					// not on screen? We still might need to plot the border ...
-					else if(  umgebung_t::draw_earth_border  &&  (pos.x-welt->get_size().x+1 == 0  ||  pos.y-welt->get_size().y+1 == 0)  ) {
+					else if(  environment_t::draw_earth_border  &&  (pos.x-welt->get_size().x+1 == 0  ||  pos.y-welt->get_size().y+1 == 0)  ) {
 #ifdef MULTI_THREAD
 						kb->display_border( xpos, yypos, IMG_SIZE, clip_num );
 #else
@@ -385,7 +385,7 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 				else {
 					// check if outside visible
 					outside_visible = true;
-					if(  umgebung_t::draw_outside_tile  ) {
+					if(  environment_t::draw_outside_tile  ) {
 						const sint16 yypos = ypos - tile_raster_scale_y( welt->get_grundwasser() * TILE_HEIGHT_STEP, IMG_SIZE );
 #ifdef MULTI_THREAD
 						display_normal( grund_besch_t::ausserhalb->get_bild(0), xpos, yypos, 0, true, false, clip_num );
@@ -443,7 +443,7 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 					sint16 yypos = ypos - tile_raster_scale_y( min( gr->get_hoehe(), hmax_ground ) * TILE_HEIGHT_STEP, IMG_SIZE );
 					if(  yypos - IMG_SIZE * 3 < wh.y + lt.y  &&  yypos + IMG_SIZE > lt.y  ) {
 						const koord pos(i,j);
-						if(  umgebung_t::hide_under_cursor  &&  needs_hiding  ) {
+						if(  environment_t::hide_under_cursor  &&  needs_hiding  ) {
 							// If the corresponding setting is on, then hide trees and buildings under mouse cursor
 #ifdef MULTI_THREAD
 							if(  threaded  ) {
@@ -460,23 +460,23 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 
 									num_threads_paused--;
 								}
-								if(  koord_distance( pos, cursor_pos ) < umgebung_t::cursor_hide_range  ) {
+								if(  koord_distance( pos, cursor_pos ) < environment_t::cursor_hide_range  ) {
 									// wait until all threads are paused
 									threads_req_pause = true;
-									while(  num_threads_paused < umgebung_t::num_threads - 1  ) {
+									while(  num_threads_paused < environment_t::num_threads - 1  ) {
 										pthread_cond_wait( &waiting_cond, &hide_mutex );
 									}
 
 									// proceed with drawing in the hidden area singlethreaded
-									const bool saved_hide_trees = umgebung_t::hide_trees;
-									const uint8 saved_hide_buildings = umgebung_t::hide_buildings;
-									umgebung_t::hide_trees = true;
-									umgebung_t::hide_buildings = umgebung_t::ALL_HIDDEN_BUILDING;
+									const bool saved_hide_trees = environment_t::hide_trees;
+									const uint8 saved_hide_buildings = environment_t::hide_buildings;
+									environment_t::hide_trees = true;
+									environment_t::hide_buildings = environment_t::ALL_HIDDEN_BUILDING;
 
 									plan->display_dinge( xpos, yypos, IMG_SIZE, true, hmin, hmax, clip_num );
 
-									umgebung_t::hide_trees = saved_hide_trees;
-									umgebung_t::hide_buildings = saved_hide_buildings;
+									environment_t::hide_trees = saved_hide_trees;
+									environment_t::hide_buildings = saved_hide_buildings;
 
 									// unpause all threads
 									threads_req_pause = false;
@@ -491,11 +491,11 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 							}
 							else {
 #endif
-								if(  koord_distance( pos, cursor_pos ) < umgebung_t::cursor_hide_range  ) {
-									const bool saved_hide_trees = umgebung_t::hide_trees;
-									const uint8 saved_hide_buildings = umgebung_t::hide_buildings;
-									umgebung_t::hide_trees = true;
-									umgebung_t::hide_buildings = umgebung_t::ALL_HIDDEN_BUILDING;
+								if(  koord_distance( pos, cursor_pos ) < environment_t::cursor_hide_range  ) {
+									const bool saved_hide_trees = environment_t::hide_trees;
+									const uint8 saved_hide_buildings = environment_t::hide_buildings;
+									environment_t::hide_trees = true;
+									environment_t::hide_buildings = environment_t::ALL_HIDDEN_BUILDING;
 
 #ifdef MULTI_THREAD
 									plan->display_dinge( xpos, yypos, IMG_SIZE, true, hmin, hmax, clip_num );
@@ -503,8 +503,8 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 									plan->display_dinge( xpos, yypos, IMG_SIZE, true, hmin, hmax );
 #endif
 
-									umgebung_t::hide_trees = saved_hide_trees;
-									umgebung_t::hide_buildings = saved_hide_buildings;
+									environment_t::hide_trees = saved_hide_trees;
+									environment_t::hide_buildings = saved_hide_buildings;
 								}
 								else {
 #ifdef MULTI_THREAD
@@ -544,7 +544,7 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 
 void karte_ansicht_t::display_background( KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, bool dirty )
 {
-	if(  !(umgebung_t::draw_earth_border  &&  umgebung_t::draw_outside_tile)  ) {
-		display_fillbox_wh(xp, yp, w, h, umgebung_t::background_color, dirty );
+	if(  !(environment_t::draw_earth_border  &&  environment_t::draw_outside_tile)  ) {
+		display_fillbox_wh(xp, yp, w, h, environment_t::background_color, dirty );
 	}
 }

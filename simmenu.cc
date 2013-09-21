@@ -31,7 +31,7 @@
 #include "boden/grund.h"
 #include "boden/wege/strasse.h"
 
-#include "dataobj/umgebung.h"
+#include "dataobj/environment.h"
 #include "dataobj/tabfile.h"
 #include "dataobj/scenario.h"
 
@@ -431,10 +431,10 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 	// now the toolbar tools
 	DBG_MESSAGE( "werkzeug_t::read_menu()", "Reading toolbars" );
 	// default size
-	umgebung_t::iconsize = koord( contents.get_int("icon_width",32), contents.get_int("icon_height",32) );
+	environment_t::iconsize = koord( contents.get_int("icon_width",32), contents.get_int("icon_height",32) );
 	// first: add main menu
 	toolbar_tool.resize( skinverwaltung_t::werkzeuge_toolbars->get_bild_anzahl() );
-	toolbar_tool.append(new toolbar_t(TOOLBAR_TOOL, "", "", umgebung_t::iconsize));
+	toolbar_tool.append(new toolbar_t(TOOLBAR_TOOL, "", "", environment_t::iconsize));
 	// now for the rest
 	for(  uint16 i=0;  i<toolbar_tool.get_count();  i++  ) {
 		char id[256];
@@ -591,7 +591,7 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 					const char *title = c;
 					c += strcspn(c, ",");
 					if (*c != '\0') *c++ = '\0';
-					toolbar_t* const tb = new toolbar_t(toolbar_tool.get_count() | TOOLBAR_TOOL, title, c, umgebung_t::iconsize);
+					toolbar_t* const tb = new toolbar_t(toolbar_tool.get_count() | TOOLBAR_TOOL, title, c, environment_t::iconsize);
 					toolbar_tool.append(tb);
 					addtool = tb;
 				}

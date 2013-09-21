@@ -7,7 +7,7 @@
 #include <cmath>
 
 #include "gui_chart.h"
-#include "../../dataobj/umgebung.h"
+#include "../../dataobj/environment.h"
 #include "../../utils/simstring.h"
 #include "../../display/simgraph.h"
 #include "../../simcolor.h"
@@ -127,7 +127,7 @@ void gui_chart_t::zeichnen(koord offset)
 		display_fillbox_wh_clip(offset.x, offset.y, groesse.x, groesse.y, background, false);
 	}
 	int tmpx, factor;
-	if(umgebung_t::left_to_right_graphs) {
+	if(environment_t::left_to_right_graphs) {
 		tmpx = offset.x + groesse.x - groesse.x % (x_elements - 1);
 		factor = -1;
 	}
@@ -157,7 +157,7 @@ void gui_chart_t::zeichnen(koord offset)
 	// draw chart lines
 	KOORD_VAL x_last = 0;  // remember last digit position to avoid overwriting by next label
 	for(  int i = 0;  i < x_elements;  i++  ) {
-		const int j = umgebung_t::left_to_right_graphs ? x_elements - 1 - i : i;
+		const int j = environment_t::left_to_right_graphs ? x_elements - 1 - i : i;
 		const KOORD_VAL x0 = tmpx + factor * (groesse.x / (x_elements - 1) ) * j;
 		if(  show_x_axis  ) {
 			// display x-axis
@@ -174,7 +174,7 @@ void gui_chart_t::zeichnen(koord offset)
 	// display current value?
 	int tooltip_n=-1;
 	if(tooltipkoord!=koord::invalid) {
-		if(umgebung_t::left_to_right_graphs) {
+		if(environment_t::left_to_right_graphs) {
 			tooltip_n = x_elements-1-(tooltipkoord.x*x_elements+4)/(groesse.x|1);
 		}
 		else {
@@ -217,7 +217,7 @@ void gui_chart_t::zeichnen(koord offset)
 					// for the first element print the current value (optionally)
 					// only print value if not too narrow to min/max/zero
 					if(  c.show_value  ) {
-						if(  umgebung_t::left_to_right_graphs  ) {
+						if(  environment_t::left_to_right_graphs  ) {
 							number_to_string(cmin, (double)tmp, c.precision);
 							const sint16 width = proportional_string_width(cmin)+7;
 							display_ddd_proportional( tmpx + 8, (KOORD_VAL)(offset.y+baseline-(int)(tmp/scale)-4), width, 0, COL_GREY4, c.color, cmin, true);
@@ -250,7 +250,7 @@ void gui_chart_t::zeichnen(koord offset)
 				// for the first element print the current value (optionally)
 				// only print value if not too close to min/max/zero
 				if(  t==0  &&  line.show_value  ) {
-					if(  umgebung_t::left_to_right_graphs  ) {
+					if(  environment_t::left_to_right_graphs  ) {
 						number_to_string(cmin, (double)tmp, line.precision);
 						const sint16 width = proportional_string_width(cmin)+7;
 						display_ddd_proportional( tmpx + 8, (KOORD_VAL)(offset.y+baseline-(int)(tmp/scale)-4), width, 0, COL_GREY4, line.color, cmin, true);

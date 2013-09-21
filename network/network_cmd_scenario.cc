@@ -3,7 +3,7 @@
 #include "network_packet.h"
 #include "../simworld.h"
 #include "../dataobj/scenario.h"
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 
 
 void nwc_scenario_t::rdwr()
@@ -25,7 +25,7 @@ bool nwc_scenario_t::execute(karte_t *welt)
 	}
 	script_vm_t *script = scen->script;
 
-	if (umgebung_t::server) {
+	if (environment_t::server) {
 		switch (what) {
 			case CALL_SCRIPT:
 			case CALL_SCRIPT_ANSWER: {

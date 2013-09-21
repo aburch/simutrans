@@ -16,8 +16,8 @@
 #include "../simworld.h"
 #include "../gui/simwin.h"
 
-#include "../dataobj/einstellungen.h"
-#include "../dataobj/umgebung.h"
+#include "../dataobj/settings.h"
+#include "../dataobj/environment.h"
 #include "../dataobj/translator.h"
 
 #include "../display/simgraph.h"

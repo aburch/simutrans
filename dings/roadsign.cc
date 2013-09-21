@@ -28,7 +28,7 @@
 #include "../dataobj/loadsave.h"
 #include "../dataobj/scenario.h"
 #include "../dataobj/translator.h"
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 
 #include "../gui/trafficlight_info.h"
 #include "../gui/privatesign_info.h"

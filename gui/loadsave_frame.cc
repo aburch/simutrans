@@ -16,7 +16,7 @@
 #include "../simversion.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 #include "../pathes.h"
 #include "../utils/simstring.h"
 
@@ -63,7 +63,7 @@ void loadsave_frame_t::action(const char *filename)
 		welt->load(filename);
 	}
 	else {
-		welt->save( filename, loadsave_t::save_mode, umgebung_t::savegame_version_str, false );
+		welt->save( filename, loadsave_t::save_mode, environment_t::savegame_version_str, false );
 		welt->set_dirty();
 		welt->reset_timer();
 	}

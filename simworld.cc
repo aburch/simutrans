@@ -80,8 +80,8 @@
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
 #include "dataobj/scenario.h"
-#include "dataobj/einstellungen.h"
-#include "dataobj/umgebung.h"
+#include "dataobj/settings.h"
+#include "dataobj/environment.h"
 #include "dataobj/powernet.h"
 
 #include "utils/cbuffer_t.h"
@@ -197,23 +197,23 @@ void karte_t::world_xy_loop(xy_loop_func function, uint8 flags)
 	// semaphores to synchronize progress in x direction
 	sem_t sems[MAX_THREADS-1];
 
-	for(  int t = 0;  t < umgebung_t::num_threads;  t++  ) {
-		if(  sync_x_steps  &&  t < umgebung_t::num_threads - 1  ) {
+	for(  int t = 0;  t < environment_t::num_threads;  t++  ) {
+		if(  sync_x_steps  &&  t < environment_t::num_threads - 1  ) {
 			sem_init(&sems[t], 0, 0);
 		}
 
    		world_thread_param[t].welt = this;
    		world_thread_param[t].thread_num = t;
-		world_thread_param[t].x_step = min( 64, max_x / umgebung_t::num_threads );
+		world_thread_param[t].x_step = min( 64, max_x / environment_t::num_threads );
 		world_thread_param[t].x_world_max = max_x;
-		world_thread_param[t].y_min = (t * max_y) / umgebung_t::num_threads;
-		world_thread_param[t].y_max = ((t + 1) * max_y) / umgebung_t::num_threads;
+		world_thread_param[t].y_min = (t * max_y) / environment_t::num_threads;
+		world_thread_param[t].y_max = ((t + 1) * max_y) / environment_t::num_threads;
 		world_thread_param[t].function = function;
 
 		world_thread_param[t].wait_for_previous = sync_x_steps  &&  t > 0 ? &sems[t-1] : NULL;
-		world_thread_param[t].signal_to_next    = sync_x_steps  &&  t < umgebung_t::num_threads - 1 ? &sems[t] : NULL;
+		world_thread_param[t].signal_to_next    = sync_x_steps  &&  t < environment_t::num_threads - 1 ? &sems[t] : NULL;
 
-		world_thread_param[t].keep_running = t < umgebung_t::num_threads - 1;
+		world_thread_param[t].keep_running = t < environment_t::num_threads - 1;
 	}
 
 	if(  !spawned_world_threads  ) {
@@ -224,10 +224,10 @@ void karte_t::world_xy_loop(xy_loop_func function, uint8 flags)
 		pthread_attr_init( &attr );
 		pthread_attr_setdetachstate( &attr, PTHREAD_CREATE_DETACHED );
 		// init barrier
-		simthread_barrier_init( &world_barrier_start, NULL, umgebung_t::num_threads );
-		simthread_barrier_init( &world_barrier_end, NULL, umgebung_t::num_threads );
+		simthread_barrier_init( &world_barrier_start, NULL, environment_t::num_threads );
+		simthread_barrier_init( &world_barrier_end, NULL, environment_t::num_threads );
 
-		for(  int t = 0;  t < umgebung_t::num_threads - 1;  t++  ) {
+		for(  int t = 0;  t < environment_t::num_threads - 1;  t++  ) {
 			if(  pthread_create( &thread[t], &attr, world_xy_loop_thread, (void *)&world_thread_param[t] )  ) {
 				dbg->fatal( "karte_t::world_xy_loop()", "cannot multithread, error at thread #%i", t+1 );
 				return;
@@ -241,12 +241,12 @@ void karte_t::world_xy_loop(xy_loop_func function, uint8 flags)
 	simthread_barrier_wait( &world_barrier_start );
 
 	// the last we can run ourselves
-	world_xy_loop_thread(&world_thread_param[umgebung_t::num_threads-1]);
+	world_xy_loop_thread(&world_thread_param[environment_t::num_threads-1]);
 
 	simthread_barrier_wait( &world_barrier_end );
 
 	// return from thread
-	for(  int t = 0;  t < umgebung_t::num_threads - 1;  t++  ) {
+	for(  int t = 0;  t < environment_t::num_threads - 1;  t++  ) {
 		if(  sync_x_steps  ) {
 			sem_destroy(&sems[t]);
 		}
@@ -382,7 +382,7 @@ bool karte_t::get_height_data_from_file( const char *filename, sint8 grundwasser
 					int G = fgetc(file);
 					int R = fgetc(file);
 					fgetc(file);	// dummy
-					h_table[i] = ((umgebung_t::pak_height_conversion_factor*((R*2+G*3+B)/4 - 224)) & 0xFFF0)/16;
+					h_table[i] = ((environment_t::pak_height_conversion_factor*((R*2+G*3+B)/4 - 224)) & 0xFFF0)/16;
 				}
 				// now read the data
 				fseek( file, data_offset, SEEK_SET );
@@ -452,7 +452,7 @@ bool karte_t::get_height_data_from_file( const char *filename, sint8 grundwasser
 						int B = fgetc(file);
 						int G = fgetc(file);
 						int R = fgetc(file);
-						hfield[x+offset] = ((umgebung_t::pak_height_conversion_factor*((R*2+G*3+B)/4 - 224)) & 0xFFF0)/16;
+						hfield[x+offset] = ((environment_t::pak_height_conversion_factor*((R*2+G*3+B)/4 - 224)) & 0xFFF0)/16;
 					}
 					fseek( file, (4-((w*3)&3))&3, SEEK_CUR );	// skip superfluos bytes at the end of each scanline
 				}
@@ -515,7 +515,7 @@ bool karte_t::get_height_data_from_file( const char *filename, sint8 grundwasser
 					int R = fgetc(file);
 					int G = fgetc(file);
 					int B = fgetc(file);
-					hfield[x+(y*w)] =  ((umgebung_t::pak_height_conversion_factor*((R*2+G*3+B)/4 - 224)) & 0xFFF0)/16;
+					hfield[x+(y*w)] =  ((environment_t::pak_height_conversion_factor*((R*2+G*3+B)/4 - 224)) & 0xFFF0)/16;
 				}
 			}
 
@@ -946,7 +946,7 @@ void karte_t::init_felder()
 
 	nosave_warning = nosave = false;
 
-	if (umgebung_t::server) {
+	if (environment_t::server) {
 		nwc_auth_player_t::init_player_lock_server(this);
 	}
 }
@@ -964,7 +964,7 @@ void karte_t::set_scenario(scenario_t *s)
 void karte_t::create_rivers( sint16 number )
 {
 	// First check, wether there is a canal:
-	const weg_besch_t* river_besch = wegbauer_t::get_besch( umgebung_t::river_type[umgebung_t::river_types-1], 0 );
+	const weg_besch_t* river_besch = wegbauer_t::get_besch( environment_t::river_type[environment_t::river_types-1], 0 );
 	if(  river_besch == NULL  ) {
 		// should never reaching here ...
 		dbg->warning("karte_t::create_rivers()","There is no river defined!\n");
@@ -1053,7 +1053,7 @@ void karte_t::create_rivers( sint16 number )
 void karte_t::distribute_groundobjs_cities(int new_anzahl_staedte, sint32 new_mittlere_einwohnerzahl, sint16 old_x, sint16 old_y )
 {
 DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing rivers");
-	if (umgebung_t::river_types > 0 && settings.get_river_number() > 0) {
+	if (environment_t::river_types > 0 && settings.get_river_number() > 0) {
 		create_rivers(settings.get_river_number());
 	}
 
@@ -1159,7 +1159,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 		wegbauer_t bauigel (this, spieler[1] );
 		bauigel.route_fuer(wegbauer_t::strasse | wegbauer_t::terraform_flag, besch, tunnelbauer_t::find_tunnel(road_wt,15,get_timeline_year_month()), brueckenbauer_t::find_bridge(road_wt,15,get_timeline_year_month()) );
 		bauigel.set_keep_existing_ways(true);
-		bauigel.set_maximum(umgebung_t::intercity_road_length);
+		bauigel.set_maximum(environment_t::intercity_road_length);
 
 		// **** intercity road construction
 		int count = 0;
@@ -1218,7 +1218,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 					city_dist.at(i,j) = koord_distance(k[i], k[j]);
 					city_dist.at(j,i) = city_dist.at(i,j);
 					// count unbuildable connections to new cities
-					if(  j>=old_anzahl_staedte && city_dist.at(i,j) >= umgebung_t::intercity_road_length  ) {
+					if(  j>=old_anzahl_staedte && city_dist.at(i,j) >= environment_t::intercity_road_length  ) {
 						count++;
 					}
 				}
@@ -1249,7 +1249,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 			while( phase < 2  ) {
 				ready = true;
 				koord conn = koord::invalid;
-				sint32 best = umgebung_t::intercity_road_length;
+				sint32 best = environment_t::intercity_road_length;
 
 				if(  phase == 0  ) {
 					// loop over all unconnected cities
@@ -1268,7 +1268,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 						}
 					}
 					// did we completed a connection component?
-					if(  !ready  &&  best == umgebung_t::intercity_road_length  ) {
+					if(  !ready  &&  best == environment_t::intercity_road_length  ) {
 						// next component
 						conn_comp++;
 						// try the first not connected city
@@ -1290,13 +1290,13 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 								bool ok = true;
 								// is there a connection i..l..j ? forbid stumpfe winkel
 								for (int l = 0; l < settings.get_anzahl_staedte(); ++l) {
-									if(  city_flag[i] == city_flag[l]  &&  city_dist.at(i,l) == umgebung_t::intercity_road_length  &&  city_dist.at(j,l) == umgebung_t::intercity_road_length  ) {
+									if(  city_flag[i] == city_flag[l]  &&  city_dist.at(i,l) == environment_t::intercity_road_length  &&  city_dist.at(j,l) == environment_t::intercity_road_length  ) {
 										// cosine < 0 ?
 										koord3d d1 = k[i]-k[l];
 										koord3d d2 = k[j]-k[l];
 										if(  d1.x*d2.x + d1.y*d2.y < 0  ) {
-											city_dist.at(i,j) = umgebung_t::intercity_road_length+1;
-											city_dist.at(j,i) = umgebung_t::intercity_road_length+1;
+											city_dist.at(i,j) = environment_t::intercity_road_length+1;
+											city_dist.at(j,i) = environment_t::intercity_road_length+1;
 											ok = false;
 											count ++;
 											break;
@@ -1326,7 +1326,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 						}
 					}
 					else {
-						bauigel.set_maximum(umgebung_t::intercity_road_length);
+						bauigel.set_maximum(environment_t::intercity_road_length);
 						build = true;
 					}
 
@@ -1340,22 +1340,22 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 							city_flag[ conn.y ] = conn_comp;
 						}
 						// mark as built
-						city_dist.at(conn) =  umgebung_t::intercity_road_length;
-						city_dist.at(conn.y, conn.x) =  umgebung_t::intercity_road_length;
+						city_dist.at(conn) =  environment_t::intercity_road_length;
+						city_dist.at(conn.y, conn.x) =  environment_t::intercity_road_length;
 						count ++;
 					}
 					else {
 						// do not try again
-						city_dist.at(conn) =  umgebung_t::intercity_road_length+1;
-						city_dist.at(conn.y, conn.x) =  umgebung_t::intercity_road_length+1;
+						city_dist.at(conn) =  environment_t::intercity_road_length+1;
+						city_dist.at(conn.y, conn.x) =  environment_t::intercity_road_length+1;
 						count ++;
 
 						if(  phase == 0  ) {
 							// do not try to connect to this connected component again
 							for(  int i = 0;  i < settings.get_anzahl_staedte();  ++i  ) {
-								if(  city_flag[i] == conn_comp  && city_dist.at(i, conn.y)<umgebung_t::intercity_road_length) {
-									city_dist.at(i, conn.y) =  umgebung_t::intercity_road_length+1;
-									city_dist.at(conn.y, i) =  umgebung_t::intercity_road_length+1;
+								if(  city_flag[i] == conn_comp  && city_dist.at(i, conn.y)<environment_t::intercity_road_length) {
+									city_dist.at(i, conn.y) =  environment_t::intercity_road_length+1;
+									city_dist.at(conn.y, i) =  environment_t::intercity_road_length+1;
 									count++;
 								}
 							}
@@ -1384,10 +1384,10 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 	}
 
 DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing groundobjs");
-	if(  umgebung_t::ground_object_probability > 0  ) {
+	if(  environment_t::ground_object_probability > 0  ) {
 		// add eyecandy like rocky, moles, flowers, ...
 		koord k;
-		sint32 queried = simrand(umgebung_t::ground_object_probability*2-1);
+		sint32 queried = simrand(environment_t::ground_object_probability*2-1);
 		for(  k.y=0;  k.y<get_size().y;  k.y++  ) {
 			for(  k.x=(k.y<old_y)?old_x:0;  k.x<get_size().x;  k.x++  ) {
 				grund_t *gr = lookup_kartenboden_nocheck(k);
@@ -1396,7 +1396,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing groundobjs");
 					if(  queried<0  ) {
 						const groundobj_besch_t *besch = groundobj_t::random_groundobj_for_climate( get_climate(k), gr->get_grund_hang() );
 						if(besch) {
-							queried = simrand(umgebung_t::ground_object_probability*2-1);
+							queried = simrand(environment_t::ground_object_probability*2-1);
 							gr->obj_add( new groundobj_t( this, gr->get_pos(), besch ) );
 						}
 					}
@@ -1406,11 +1406,11 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing groundobjs");
 	}
 
 DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing movingobjs");
-	if(  umgebung_t::moving_object_probability > 0  ) {
+	if(  environment_t::moving_object_probability > 0  ) {
 		// add animals and so on (must be done after growing and all other objects, that could change ground coordinates)
 		koord k;
 		bool has_water = movingobj_t::random_movingobj_for_climate( water_climate )!=NULL;
-		sint32 queried = simrand(umgebung_t::moving_object_probability*2);
+		sint32 queried = simrand(environment_t::moving_object_probability*2);
 		// no need to test the borders, since they are mostly slopes anyway
 		for(k.y=1; k.y<get_size().y-1; k.y++) {
 			for(k.x=(k.y<old_y)?old_x:1; k.x<get_size().x-1; k.x++) {
@@ -1422,7 +1422,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing movingobjs");
 						const groundobj_besch_t *besch = movingobj_t::random_movingobj_for_climate( get_climate(k) );
 						if(  besch  &&  ( besch->get_waytype() != water_wt  ||  gr->get_hoehe() <= get_water_hgt_nocheck(k) )  ) {
 							if(besch->get_speed()!=0) {
-								queried = simrand(umgebung_t::moving_object_probability*2);
+								queried = simrand(environment_t::moving_object_probability*2);
 								gr->obj_add( new movingobj_t( this, gr->get_pos(), besch ) );
 							}
 						}
@@ -1438,8 +1438,8 @@ void karte_t::init(settings_t* const sets, sint8 const* const h_field)
 {
 	clear_random_mode( 7 );
 	mute_sound(true);
-	if (umgebung_t::networkmode) {
-		if (umgebung_t::server) {
+	if (environment_t::networkmode) {
+		if (environment_t::server) {
 			network_reset_server();
 		}
 		else {
@@ -1463,7 +1463,7 @@ void karte_t::init(settings_t* const sets, sint8 const* const h_field)
 
 	settings = *sets;
 	// names during creation time
-	settings.set_name_language_iso(umgebung_t::language_iso);
+	settings.set_name_language_iso(environment_t::language_iso);
 	settings.set_use_timeline(settings.get_use_timeline() & 1);
 
 	x_off = y_off = 0;
@@ -2233,7 +2233,7 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 
 
 karte_t::karte_t() :
-	settings(umgebung_t::default_einstellungen),
+	settings(environment_t::default_einstellungen),
 	convoi_array(0),
 	ausflugsziele(16),
 	stadt(0),
@@ -2261,7 +2261,7 @@ karte_t::karte_t() :
 	set_scroll_lock(false);
 
 	// for new world just set load version to current savegame version
-	load_version = loadsave_t::int_version( umgebung_t::savegame_version_str, NULL, NULL );;
+	load_version = loadsave_t::int_version( environment_t::savegame_version_str, NULL, NULL );;
 
 	// standard prices
 	warenbauer_t::set_multiplier( 1000 );
@@ -2338,10 +2338,10 @@ const char* karte_t::can_lower_plan_to(const spieler_t *sp, sint16 x, sint16 y, 
 	if(  !gr  ) {
 		gr = plan->get_boden_in_hoehe( h - 2 );
 	}
-	if(  !gr  &&  umgebung_t::pak_height_conversion_factor == 2  ) {
+	if(  !gr  &&  environment_t::pak_height_conversion_factor == 2  ) {
 		gr = plan->get_boden_in_hoehe( h - 2 );
 	}
-	if(  gr  &&  h-gr->get_pos().z + hang_t::height( gr->get_weg_hang() ) < umgebung_t::pak_height_conversion_factor  ) {
+	if(  gr  &&  h-gr->get_pos().z + hang_t::height( gr->get_weg_hang() ) < environment_t::pak_height_conversion_factor  ) {
 		return "";
 	}
 
@@ -3110,7 +3110,7 @@ void karte_t::rdwr_player_password_hashes(loadsave_t *file)
 
 void karte_t::call_change_player_tool(uint8 cmd, uint8 player_nr, uint16 param, bool scripted_call)
 {
-	if (umgebung_t::networkmode) {
+	if (environment_t::networkmode) {
 		nwc_chg_player_t *nwc = new nwc_chg_player_t(sync_steps, map_counter, cmd, player_nr, param, scripted_call);
 
 		network_send_server(nwc);
@@ -3196,7 +3196,7 @@ void karte_t::set_werkzeug( werkzeug_t *w, spieler_t *sp )
 		return;
 	}
 	w->flags |= event_get_last_control_shift();
-	if(!umgebung_t::networkmode  ||  w->is_init_network_save()  ) {
+	if(!environment_t::networkmode  ||  w->is_init_network_save()  ) {
 		local_set_werkzeug(w, sp);
 	}
 	else {
@@ -3929,7 +3929,7 @@ void karte_t::update_frame_sleep_time(long /*delta*/)
 		realFPS = (32000u) / (last_ms-last_frame_ms[last_frame_idx]);
 	}
 	else {
-		realFPS = umgebung_t::fps;
+		realFPS = environment_t::fps;
 		simloops = 60;
 	}
 
@@ -3948,32 +3948,32 @@ void karte_t::update_frame_sleep_time(long /*delta*/)
 			simloops = (10000*32l)/(last_step_nr[last_step]-last_step_nr[steps%32]);
 		}
 		// (de-)activate faster redraw
-		umgebung_t::simple_drawing = (umgebung_t::simple_drawing_normal >= get_tile_raster_width());
+		environment_t::simple_drawing = (environment_t::simple_drawing_normal >= get_tile_raster_width());
 
 		// calaculate and activate fast redraw ..
-		if(  realFPS > (umgebung_t::fps*17/16)  ) {
+		if(  realFPS > (environment_t::fps*17/16)  ) {
 			// decrease fast tile zoom by one
-			if(  umgebung_t::simple_drawing_normal > umgebung_t::simple_drawing_default  ) {
-				umgebung_t::simple_drawing_normal --;
+			if(  environment_t::simple_drawing_normal > environment_t::simple_drawing_default  ) {
+				environment_t::simple_drawing_normal --;
 			}
 		}
-		else if(  realFPS < umgebung_t::fps/2  ) {
+		else if(  realFPS < environment_t::fps/2  ) {
 			// activate simple redraw
-			umgebung_t::simple_drawing_normal = max( umgebung_t::simple_drawing_normal, get_tile_raster_width()+1 );
+			environment_t::simple_drawing_normal = max( environment_t::simple_drawing_normal, get_tile_raster_width()+1 );
 		}
-		else if(  realFPS < (umgebung_t::fps*15)/16  )  {
+		else if(  realFPS < (environment_t::fps*15)/16  )  {
 			// increase fast tile redraw by one if below current tile size
-			if(  umgebung_t::simple_drawing_normal <= (get_tile_raster_width()*3)/2  ) {
-				umgebung_t::simple_drawing_normal ++;
+			if(  environment_t::simple_drawing_normal <= (get_tile_raster_width()*3)/2  ) {
+				environment_t::simple_drawing_normal ++;
 			}
 		}
 		else if(  idle_time > 0  ) {
 			// decrease fast tile zoom by one
-			if(  umgebung_t::simple_drawing_normal > umgebung_t::simple_drawing_default  ) {
-				umgebung_t::simple_drawing_normal --;
+			if(  environment_t::simple_drawing_normal > environment_t::simple_drawing_default  ) {
+				environment_t::simple_drawing_normal --;
 			}
 		}
-		umgebung_t::simple_drawing = (umgebung_t::simple_drawing_normal >= get_tile_raster_width());
+		environment_t::simple_drawing = (environment_t::simple_drawing_normal >= get_tile_raster_width());
 
 		// way too slow => try to increase time ...
 		if(  last_ms-last_interaction > 100  ) {
@@ -3995,12 +3995,12 @@ void karte_t::update_frame_sleep_time(long /*delta*/)
 		}
 		else {
 			// change frame spacing ... (pause will be changed by step() directly)
-			if(realFPS>(umgebung_t::fps*17/16)) {
+			if(realFPS>(environment_t::fps*17/16)) {
 				increase_frame_time();
 			}
-			else if(realFPS<umgebung_t::fps) {
+			else if(realFPS<environment_t::fps) {
 				if(  1000u/get_frame_time() < 2*realFPS  ) {
-					if(  realFPS < (umgebung_t::fps/2)  ) {
+					if(  realFPS < (environment_t::fps/2)  ) {
 						set_frame_time( get_frame_time()-1 );
 						next_step_time = last_ms;
 					}
@@ -4018,7 +4018,7 @@ void karte_t::update_frame_sleep_time(long /*delta*/)
 	}
 	else  { // here only with fyst forward ...
 		// try to get 10 fps or lower rate (if set)
-		sint32 frame_intervall = max( 100, 1000/umgebung_t::fps );
+		sint32 frame_intervall = max( 100, 1000/environment_t::fps );
 		if(get_frame_time()>frame_intervall) {
 			reduce_frame_time();
 		}
@@ -4026,7 +4026,7 @@ void karte_t::update_frame_sleep_time(long /*delta*/)
 			increase_frame_time();
 		}
 		// (de-)activate faster redraw
-		umgebung_t::simple_drawing = umgebung_t::simple_drawing_fast_forward  ||  (umgebung_t::simple_drawing_normal >= get_tile_raster_width());
+		environment_t::simple_drawing = environment_t::simple_drawing_fast_forward  ||  (environment_t::simple_drawing_normal >= get_tile_raster_width());
 	}
 }
 
@@ -4157,10 +4157,10 @@ void karte_t::new_month()
 	werkzeug_t::update_toolbars(this);
 
 
-	if( !umgebung_t::networkmode  &&  umgebung_t::autosave>0  &&  last_month%umgebung_t::autosave==0 ) {
+	if( !environment_t::networkmode  &&  environment_t::autosave>0  &&  last_month%environment_t::autosave==0 ) {
 		char buf[128];
 		sprintf( buf, "save/autosave%02i.sve", last_month+1 );
-		save( buf, loadsave_t::autosave_mode, umgebung_t::savegame_version_str, true );
+		save( buf, loadsave_t::autosave_mode, environment_t::savegame_version_str, true );
 	}
 }
 
@@ -4355,12 +4355,12 @@ void karte_t::step()
 			simloops = (10000*32) / (last_step_nr[steps%32]-last_step_nr[(steps+1)%32]);
 		}
 		// now try to approach the target speed
-		if(last_5_simloops<umgebung_t::max_acceleration) {
+		if(last_5_simloops<environment_t::max_acceleration) {
 			if(idle_time>0) {
 				idle_time --;
 			}
 		}
-		else if(simloops>8u*umgebung_t::max_acceleration) {
+		else if(simloops>8u*environment_t::max_acceleration) {
 			if((long)idle_time<get_frame_time()-10) {
 				idle_time ++;
 			}
@@ -4461,8 +4461,8 @@ void karte_t::step()
 	}
 
 	// number of playing clients changed
-	if(  umgebung_t::server  &&  last_clients!=socket_list_t::get_playing_clients()  ) {
-		if(  umgebung_t::server_announce  ) {
+	if(  environment_t::server  &&  last_clients!=socket_list_t::get_playing_clients()  ) {
+		if(  environment_t::server_announce  ) {
 			// inform the master server
 			announce_server( 1 );
 		}
@@ -4721,8 +4721,8 @@ void karte_t::move_view(event_t *ev)
 	if(!scroll_lock) {
 		koord new_ij = ij_off;
 
-		sint16 new_xoff = x_off - (ev->mx - ev->cx) * umgebung_t::scroll_multi;
-		sint16 new_yoff = y_off - (ev->my-ev->cy) * umgebung_t::scroll_multi;
+		sint16 new_xoff = x_off - (ev->mx - ev->cx) * environment_t::scroll_multi;
+		sint16 new_yoff = y_off - (ev->my-ev->cy) * environment_t::scroll_multi;
 
 		// this sets the new position and mark screen dirty
 		// => with next refresh we will be at a new location
@@ -5002,7 +5002,7 @@ DBG_MESSAGE("karte_t::speichern()", "saving game to '%s'", filename);
 	const char *savename = save_temp ? "save/_temp.sve" : filename;
 
 	display_show_load_pointer( true );
-	if(!file.wr_open( savename, savemode, umgebung_t::objfilename.c_str(), version_str )) {
+	if(!file.wr_open( savename, savemode, environment_t::objfilename.c_str(), version_str )) {
 		create_win(new news_img("Kann Spielstand\nnicht speichern.\n"), w_info, magic_none);
 		dbg->error("karte_t::speichern()","cannot open file for writing! check permissions!");
 	}
@@ -5094,7 +5094,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 
 	// rdwr cityrules for networkgames
 	if(file->get_version()>102002) {
-		bool do_rdwr = umgebung_t::networkmode;
+		bool do_rdwr = environment_t::networkmode;
 		file->rdwr_bool(do_rdwr);
 		if (do_rdwr) {
 			stadt_t::cityrules_rdwr(file);
@@ -5264,10 +5264,10 @@ bool karte_t::load(const char *filename)
 
 	if(  strstart(filename, "net:")  ) {
 		// probably finish network mode?
-		if(  umgebung_t::networkmode  ) {
+		if(  environment_t::networkmode  ) {
 			network_core_shutdown();
 		}
-		chdir( umgebung_t::user_dir );
+		chdir( environment_t::user_dir );
 		const char *err = network_connect(filename+4, this);
 		if(err) {
 			create_win( new news_img(err), w_info, magic_none );
@@ -5276,7 +5276,7 @@ bool karte_t::load(const char *filename)
 			return false;
 		}
 		else {
-			umgebung_t::networkmode = true;
+			environment_t::networkmode = true;
 			name.printf( "client%i-network.sve", network_get_client_id() );
 			restore_player_nr = strcmp( last_network_game.c_str(), filename )==0;
 			if(  !restore_player_nr  ) {
@@ -5286,10 +5286,10 @@ bool karte_t::load(const char *filename)
 	}
 	else {
 		// probably finish network mode first?
-		if(  umgebung_t::networkmode  ) {
-			if (  umgebung_t::server  ) {
+		if(  environment_t::networkmode  ) {
+			if (  environment_t::server  ) {
 				char fn[256];
-				sprintf( fn, "server%d-network.sve", umgebung_t::server );
+				sprintf( fn, "server%d-network.sve", environment_t::server );
 				if(  strcmp(filename, fn) != 0  ) {
 					// stay in networkmode, but disconnect clients
 					dbg->warning("karte_t::laden","disconnecting all clients");
@@ -5337,13 +5337,13 @@ DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 
 		load(&file);
 
-		if(  umgebung_t::networkmode  ) {
+		if(  environment_t::networkmode  ) {
 			clear_command_queue();
 		}
 
-		if(  umgebung_t::server  ) {
+		if(  environment_t::server  ) {
 			step_mode = FIX_RATIO;
-			if(  umgebung_t::server  ) {
+			if(  environment_t::server  ) {
 				// meaningless to use a locked map; there are passwords now
 				settings.set_allow_player_change(true);
 				// language of map becomes server language
@@ -5352,7 +5352,7 @@ DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 
 			if(  server_reload_pwd_hashes  ) {
 				char fn[256];
-				sprintf( fn, "server%d-pwdhash.sve", umgebung_t::server );
+				sprintf( fn, "server%d-pwdhash.sve", environment_t::server );
 				loadsave_t pwdfile;
 				if (pwdfile.rd_open(fn)) {
 					rdwr_player_password_hashes( &pwdfile );
@@ -5363,7 +5363,7 @@ DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 				server_reload_pwd_hashes = false;
 			}
 		}
-		else if(  umgebung_t::networkmode  ) {
+		else if(  environment_t::networkmode  ) {
 			step_mode = PAUSE_FLAG|FIX_RATIO;
 			switch_active_player( last_active_player_nr, true );
 			if(  is_within_limits(oldpos)  ) {
@@ -5388,7 +5388,7 @@ DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 			delete scenario;
 			scenario = new scenario_t(this);
 		}
-		else if(  !umgebung_t::networkmode  ||  !umgebung_t::restore_UI  ) {
+		else if(  !environment_t::networkmode  ||  !environment_t::restore_UI  ) {
 			// warning message about missing paks
 			if(  !missing_pak_names.empty()  ) {
 
@@ -5509,24 +5509,24 @@ void karte_t::load(loadsave_t *file)
 
 	// jetzt geht das laden los
 	dbg->warning("karte_t::laden", "Fileversion: %d", file->get_version());
-	settings = umgebung_t::default_einstellungen;
+	settings = environment_t::default_einstellungen;
 	settings.rdwr(file);
 	loaded_rotation = settings.get_rotation();
 
 	// some functions (laden_abschliessen) need to know what version was loaded
 	load_version = file->get_version();
 
-	if(  umgebung_t::networkmode  ) {
+	if(  environment_t::networkmode  ) {
 		// to have games synchronized, transfer random counter too
 		setsimrand(settings.get_random_counter(), 0xFFFFFFFFu );
 		translator::init_custom_names(settings.get_name_language_id());
 	}
 
-	if(  !umgebung_t::networkmode  ||  (umgebung_t::server  &&  socket_list_t::get_playing_clients()==0)  ) {
-		if (settings.get_allow_player_change() && umgebung_t::default_einstellungen.get_use_timeline() < 2) {
+	if(  !environment_t::networkmode  ||  (environment_t::server  &&  socket_list_t::get_playing_clients()==0)  ) {
+		if (settings.get_allow_player_change() && environment_t::default_einstellungen.get_use_timeline() < 2) {
 			// not locked => eventually switch off timeline settings, if explicitly stated
-			settings.set_use_timeline(umgebung_t::default_einstellungen.get_use_timeline());
-			DBG_DEBUG("karte_t::laden", "timeline: reset to %i", umgebung_t::default_einstellungen.get_use_timeline() );
+			settings.set_use_timeline(environment_t::default_einstellungen.get_use_timeline());
+			DBG_DEBUG("karte_t::laden", "timeline: reset to %i", environment_t::default_einstellungen.get_use_timeline() );
 		}
 	}
 	if (settings.get_beginner_mode()) {
@@ -5575,7 +5575,7 @@ DBG_DEBUG("karte_t::laden", "init felder ok");
 	file->rdwr_long(last_month);
 	file->rdwr_long(last_year);
 	if(file->get_version()<86006) {
-		last_year += umgebung_t::default_einstellungen.get_starting_year();
+		last_year += environment_t::default_einstellungen.get_starting_year();
 	}
 	// old game might have wrong month
 	last_month %= 12;
@@ -5618,7 +5618,7 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 
 	// rdwr cityrules, speedbonus for networkgames
 	if(file->get_version()>102002) {
-		bool do_rdwr = umgebung_t::networkmode;
+		bool do_rdwr = environment_t::networkmode;
 		file->rdwr_bool(do_rdwr);
 		if (do_rdwr) {
 			stadt_t::cityrules_rdwr(file);
@@ -5815,7 +5815,7 @@ DBG_MESSAGE("karte_t::laden()", "players loaded");
 	if(  file->get_version()>=102005  ) {
 		msg->rdwr(file);
 	}
-	else if(  !umgebung_t::networkmode  ) {
+	else if(  !environment_t::networkmode  ) {
 		msg->clear();
 	}
 DBG_MESSAGE("karte_t::laden()", "messages loaded");
@@ -5966,7 +5966,7 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 
 	// restore locked state
 	// network game this will be done in nwc_sync_t::do_command
-	if(  !umgebung_t::networkmode  ) {
+	if(  !environment_t::networkmode  ) {
 		for(  uint8 i=0;  i<PLAYER_UNOWNED;  i++  ) {
 			if(  spieler[i]  ) {
 				spieler[i]->check_unlock( player_password_hash[i] );
@@ -5975,12 +5975,12 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 	}
 	// initialize lock info for local server player
 	// if call from sync command, lock info will be corrected there
-	if(  umgebung_t::server) {
+	if(  environment_t::server) {
 		nwc_auth_player_t::init_player_lock_server(this);
 	}
 
 	if(  file->get_version()>=102004  ) {
-		if(  umgebung_t::restore_UI  ) {
+		if(  environment_t::restore_UI  ) {
 			file->rdwr_byte( active_player_nr );
 			active_player = spieler[active_player_nr];
 			/* restore all open windows
@@ -6295,7 +6295,7 @@ void karte_t::reset_timer()
 	sound_wait_time = AMBIENT_SOUND_INTERVALL;
 	intr_set_last_time(last_tick_sync);
 
-	if(  umgebung_t::networkmode  &&  (step_mode&PAUSE_FLAG)==0  ) {
+	if(  environment_t::networkmode  &&  (step_mode&PAUSE_FLAG)==0  ) {
 		step_mode = FIX_RATIO;
 	}
 
@@ -6336,7 +6336,7 @@ void karte_t::reset_timer()
 		last_frame_idx = 0;
 		simloops = 60;
 
-		set_frame_time( 1000/umgebung_t::fps );
+		set_frame_time( 1000/environment_t::fps );
 		next_step_time = last_tick_sync+(3200/get_time_multiplier() );
 		intr_enable();
 	}
@@ -6353,7 +6353,7 @@ void karte_t::reset_interaction()
 void karte_t::set_map_counter(uint32 new_map_counter)
 {
 	map_counter = new_map_counter;
-	if(  umgebung_t::server  ) {
+	if(  environment_t::server  ) {
 		nwc_ready_t::append_map_counter(map_counter);
 	}
 }
@@ -6395,7 +6395,7 @@ void karte_t::step_month( sint16 months )
 
 void karte_t::change_time_multiplier(sint32 delta)
 {
-	if(  !umgebung_t::networkmode  ) {
+	if(  !environment_t::networkmode  ) {
 		time_multiplier += delta;
 		if(time_multiplier<=0) {
 			time_multiplier = 1;
@@ -6425,7 +6425,7 @@ void karte_t::set_pause(bool p)
 
 void karte_t::set_fast_forward(bool ff)
 {
-	if(  !umgebung_t::networkmode  ) {
+	if(  !environment_t::networkmode  ) {
 		if(  ff  ) {
 			if(  step_mode==NORMAL  ) {
 				step_mode = FAST_FORWARD;
@@ -6632,7 +6632,7 @@ void karte_t::move_cursor(const event_t *ev)
 
 		zeiger->change_pos(pos);
 
-		if(  !umgebung_t::networkmode  ||  wkz->is_move_network_save(get_active_player())) {
+		if(  !environment_t::networkmode  ||  wkz->is_move_network_save(get_active_player())) {
 			wkz->flags = event_get_last_control_shift() | werkzeug_t::WFL_LOCAL;
 			if(wkz->check_pos( this, get_active_player(), zeiger->get_pos() )==NULL) {
 				if(  ev->button_state == 0  ) {
@@ -6717,7 +6717,7 @@ void karte_t::remove_player(uint8 player_nr)
 		if(  player_nr == active_player_nr  ) {
 			active_player_nr = 0;
 			active_player = spieler[0];
-			if(  !umgebung_t::server  ) {
+			if(  !environment_t::server  ) {
 				create_win( display_get_width()/2-128, 40, new news_img("Bankrott:\n\nDu bist bankrott.\n"), w_info, magic_none);
 			}
 		}
@@ -6881,7 +6881,7 @@ void karte_t::interactive_event(event_t &ev)
 			err = wkz->check_pos( this, get_active_player(), zeiger->get_pos() );
 			if (err==NULL) {
 				wkz->flags = event_get_last_control_shift();
-				if (!umgebung_t::networkmode  ||  wkz->is_work_network_save()  ||  wkz->is_work_here_network_save( this, get_active_player(), zeiger->get_pos() ) ) {
+				if (!environment_t::networkmode  ||  wkz->is_work_network_save()  ||  wkz->is_work_here_network_save( this, get_active_player(), zeiger->get_pos() ) ) {
 					// do the work
 					wkz->flags |= werkzeug_t::WFL_LOCAL;
 					// check allowance by scenario
@@ -6950,19 +6950,19 @@ void karte_t::interactive_event(event_t &ev)
 void karte_t::stop(bool exit_game)
 {
 	finish_loop = true;
-	umgebung_t::quit_simutrans = exit_game;
+	environment_t::quit_simutrans = exit_game;
 }
 
 
 void karte_t::network_game_set_pause(bool pause_, uint32 syncsteps_)
 {
-	if (umgebung_t::networkmode) {
+	if (environment_t::networkmode) {
 		sync_steps = syncsteps_;
 		steps = sync_steps / settings.get_frames_per_step();
 		network_frame_count = sync_steps % settings.get_frames_per_step();
 		dbg->warning("karte_t::network_game_set_pause", "steps=%d sync_steps=%d pause=%d", steps, sync_steps, pause_);
 		if (pause_) {
-			if (!umgebung_t::server) {
+			if (!environment_t::server) {
 				reset_timer();
 				step_mode = PAUSE_FLAG|FIX_RATIO;
 			}
@@ -6972,11 +6972,11 @@ void karte_t::network_game_set_pause(bool pause_, uint32 syncsteps_)
 		}
 		else {
 			step_mode = FIX_RATIO;
-			if (!umgebung_t::server) {
+			if (!environment_t::server) {
 				/* make sure, the server is really that far ahead
 				 * Sleep() on windows often returns before!
 				 */
-				unsigned long const ms = dr_time() + (settings.get_server_frames_ahead() + (uint32)umgebung_t::additional_client_frames_behind) * fix_ratio_frame_time;
+				unsigned long const ms = dr_time() + (settings.get_server_frames_ahead() + (uint32)environment_t::additional_client_frames_behind) * fix_ratio_frame_time;
 				while(  dr_time()<ms  ) {
 					dr_sleep ( 10 );
 				}
@@ -7047,7 +7047,7 @@ void karte_t::process_network_commands(sint32 *ms_difference)
 			nwc_check_t* nwcheck = (nwc_check_t*)nwc;
 			// are we on time?
 			*ms_difference = 0;
-			sint64 const difftime = (sint64)next_step_time - dr_time() + ((sint64)nwcheck->server_sync_step - sync_steps - settings.get_server_frames_ahead() - umgebung_t::additional_client_frames_behind) * fix_ratio_frame_time;
+			sint64 const difftime = (sint64)next_step_time - dr_time() + ((sint64)nwcheck->server_sync_step - sync_steps - settings.get_server_frames_ahead() - environment_t::additional_client_frames_behind) * fix_ratio_frame_time;
 			if(  difftime<0  ) {
 				// running ahead
 				next_step_time += (uint32)(-difftime);
@@ -7059,7 +7059,7 @@ void karte_t::process_network_commands(sint32 *ms_difference)
 			dbg->message("NWC_CHECK","time difference to server %lli",difftime);
 		}
 		// check random number generator states
-		if(  umgebung_t::server  &&  nwc->get_id()==NWC_TOOL  ) {
+		if(  environment_t::server  &&  nwc->get_id()==NWC_TOOL  ) {
 			nwc_tool_t *nwt = dynamic_cast<nwc_tool_t *>(nwc);
 			if(  nwt->is_from_initiator()  ) {
 				if(  nwt->last_sync_step>sync_steps  ) {
@@ -7145,7 +7145,7 @@ void karte_t::do_network_world_command(network_world_command_t *nwc)
 				const int offset = nwt->last_checklist.print(buf, "server");
 				LCHKLST(nwt->last_sync_step).print(buf + offset, "executor");
 				dbg->warning("karte_t:::do_network_world_command", "skipping command due to checklist mismatch : sync_step=%u %s", nwt->last_sync_step, buf);
-				if(  !umgebung_t::server  ) {
+				if(  !environment_t::server  ) {
 					network_disconnect();
 				}
 				delete nwc;
@@ -7208,7 +7208,7 @@ bool karte_t::interactive(uint32 quit_month)
 		scenario->stop();
 	}
 	// only needed for network
-	if(  umgebung_t::networkmode  ) {
+	if(  environment_t::networkmode  ) {
 		// clear the checklist history
 		for(  int i=0;  i<LAST_CHECKLISTS_COUNT;  ++i  ) {
 			last_checklists[i] = checklist_t();
@@ -7218,12 +7218,12 @@ bool karte_t::interactive(uint32 quit_month)
 	reset_timer();
 	DBG_DEBUG4("karte_t::interactive", "welcome in this routine");
 
-	if(  umgebung_t::server  ) {
+	if(  environment_t::server  ) {
 		step_mode |= FIX_RATIO;
 
 		reset_timer();
 		// Announce server startup to the listing server
-		if(  umgebung_t::server_announce  ) {
+		if(  environment_t::server_announce  ) {
 			announce_server( 0 );
 		}
 	}
@@ -7255,13 +7255,13 @@ bool karte_t::interactive(uint32 quit_month)
 		if(ev.ev_class==EVENT_SYSTEM  &&  ev.ev_code==SYSTEM_QUIT) {
 			// quit the program if this windows is closed
 			destroy_all_win(true);
-			umgebung_t::quit_simutrans = true;
+			environment_t::quit_simutrans = true;
 			break;
 		}
 
 		if(ev.ev_class!=EVENT_NONE &&  ev.ev_class!=IGNORE_EVENT) {
 
-			if(  umgebung_t::networkmode  ) {
+			if(  environment_t::networkmode  ) {
 				set_random_mode( INTERACTIVE_RANDOM );
 			}
 
@@ -7293,13 +7293,13 @@ bool karte_t::interactive(uint32 quit_month)
 				move_cursor(&ev);
 			}
 
-			if(  umgebung_t::networkmode  ) {
+			if(  environment_t::networkmode  ) {
 				clear_random_mode( INTERACTIVE_RANDOM );
 			}
 			DBG_DEBUG4("karte_t::interactive", "end of event handling");
 		}
 
-		if(  umgebung_t::networkmode  ) {
+		if(  environment_t::networkmode  ) {
 			process_network_commands(&ms_difference);
 		}
 		else {
@@ -7322,7 +7322,7 @@ bool karte_t::interactive(uint32 quit_month)
 		}
 
 		// time for the next step?
-		uint32 time = dr_time(); // - (umgebung_t::server ? 0 : 5000);
+		uint32 time = dr_time(); // - (environment_t::server ? 0 : 5000);
 		if(  next_step_time<=time  ) {
 			if(  step_mode&PAUSE_FLAG  ) {
 				// only update display
@@ -7357,22 +7357,22 @@ bool karte_t::interactive(uint32 quit_month)
 					sync_steps = steps * settings.get_frames_per_step() + network_frame_count;
 					LCHKLST(sync_steps) = checklist_t(get_random_seed(), halthandle_t::get_next_check(), linehandle_t::get_next_check(), convoihandle_t::get_next_check());
 					// some serverside tasks
-					if(  umgebung_t::networkmode  &&  umgebung_t::server  ) {
+					if(  environment_t::networkmode  &&  environment_t::server  ) {
 						// broadcast sync info
 						if (  (network_frame_count==0  &&  (sint64)dr_time()-(sint64)next_step_time>fix_ratio_frame_time*2)
-								||  (sync_steps % umgebung_t::server_sync_steps_between_checks)==0  ) {
+								||  (sync_steps % environment_t::server_sync_steps_between_checks)==0  ) {
 							nwc_check_t* nwc = new nwc_check_t(sync_steps + 1, map_counter, LCHKLST(sync_steps), sync_steps);
 							network_send_all(nwc, true);
 						}
 					}
 #if DEBUG>4
-					if(  umgebung_t::networkmode  &&  (sync_steps & 7)==0  &&  umgebung_t::verbose_debug>4  ) {
+					if(  environment_t::networkmode  &&  (sync_steps & 7)==0  &&  environment_t::verbose_debug>4  ) {
 						dbg->message("karte_t::interactive", "time=%lu sync=%d  rand=%d", dr_time(), sync_steps, LRAND(sync_steps));
 					}
 #endif
 
 					// no clients -> pause game
-					if (  umgebung_t::networkmode  &&  umgebung_t::pause_server_no_clients  &&  socket_list_t::get_playing_clients() == 0  &&  !nwc_join_t::is_pending()  ) {
+					if (  environment_t::networkmode  &&  environment_t::pause_server_no_clients  &&  socket_list_t::get_playing_clients() == 0  &&  !nwc_join_t::is_pending()  ) {
 						set_pause(true);
 					}
 				}
@@ -7388,8 +7388,8 @@ bool karte_t::interactive(uint32 quit_month)
 		}
 
 		// Interval-based server announcements
-		if (  umgebung_t::server_announce  &&  umgebung_t::server_announce_interval > 0  &&
-			dr_time() >= server_last_announce_time + (uint32)umgebung_t::server_announce_interval * 1000  ) {
+		if (  environment_t::server_announce  &&  environment_t::server_announce_interval > 0  &&
+			dr_time() >= server_last_announce_time + (uint32)environment_t::server_announce_interval * 1000  ) {
 			announce_server( 1 );
 		}
 
@@ -7402,11 +7402,11 @@ bool karte_t::interactive(uint32 quit_month)
 	} while(!finish_loop  &&  get_current_month()<quit_month);
 
 	if(  get_current_month() >= quit_month  ) {
-		umgebung_t::quit_simutrans = true;
+		environment_t::quit_simutrans = true;
 	}
 
 	// On quit announce server as being offline
-	if(  umgebung_t::server  &&  umgebung_t::server_announce  ) {
+	if(  environment_t::server  &&  environment_t::server_announce  ) {
 		announce_server( 2 );
 	}
 
@@ -7428,14 +7428,14 @@ void karte_t::announce_server(int status)
 	// Announce game info to server, format is:
 	// st=on&dns=server.com&port=13353&rev=1234&pak=pak128&name=some+name&time=3,1923&size=256,256&active=[0-16]&locked=[0-16]&clients=[0-16]&towns=15&citizens=3245&factories=33&convoys=56&stops=17
 	// (This is the data part of an HTTP POST)
-	if(  umgebung_t::server_announce  ) {
+	if(  environment_t::server_announce  ) {
 		cbuffer_t buf;
 		// Always send dns and port as these are used as the unique identifier for the server
 		buf.append( "&dns=" );
-		encode_URI( buf, umgebung_t::server_dns.c_str() );
-		buf.printf( "&port=%u", umgebung_t::server );
+		encode_URI( buf, environment_t::server_dns.c_str() );
+		buf.printf( "&port=%u", environment_t::server );
 		// Always send announce interval to allow listing server to predict next announce
-		buf.printf( "&aiv=%u", umgebung_t::server_announce_interval );
+		buf.printf( "&aiv=%u", environment_t::server_announce_interval );
 		// Always send status, either online or offline
 		if (  status == 0  ||  status == 1  ) {
 			buf.append( "&st=1" );
@@ -7464,7 +7464,7 @@ void karte_t::announce_server(int status)
 			}
 			else {
 				// construct from pak name
-				std::string pak_name = umgebung_t::objfilename;
+				std::string pak_name = environment_t::objfilename;
 				pak_name.erase( pak_name.length() - 1 );
 				encode_URI( buf, pak_name.c_str() );
 			}
@@ -7472,19 +7472,19 @@ void karte_t::announce_server(int status)
 			buf.printf( "&start=%u,%u", settings.get_starting_month() + 1, settings.get_starting_year() );
 			// Add server name for listing
 			buf.append( "&name=" );
-			encode_URI( buf, umgebung_t::server_name.c_str() );
+			encode_URI( buf, environment_t::server_name.c_str() );
 			// Add server comments for listing
 			buf.append( "&comments=" );
-			encode_URI( buf, umgebung_t::server_comments.c_str() );
+			encode_URI( buf, environment_t::server_comments.c_str() );
 			// Add server maintainer email for listing
 			buf.append( "&email=" );
-			encode_URI( buf, umgebung_t::server_email.c_str() );
+			encode_URI( buf, environment_t::server_email.c_str() );
 			// Add server pakset URL for listing
 			buf.append( "&pakurl=" );
-			encode_URI( buf, umgebung_t::server_pakurl.c_str() );
+			encode_URI( buf, environment_t::server_pakurl.c_str() );
 			// Add server info URL for listing
 			buf.append( "&infurl=" );
-			encode_URI( buf, umgebung_t::server_infurl.c_str() );
+			encode_URI( buf, environment_t::server_infurl.c_str() );
 
 			// TODO send minimap data as well							// TODO
 		}

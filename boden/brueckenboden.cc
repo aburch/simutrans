@@ -8,7 +8,7 @@
 #include "../besch/bruecke_besch.h"
 
 #include "../dataobj/loadsave.h"
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 #include "../dataobj/translator.h"
 
 #include "../utils/cbuffer_t.h"
@@ -70,7 +70,7 @@ void brueckenboden_t::rdwr(loadsave_t *file)
 
 	if(  file->is_loading()  &&  file->get_version() < 112007  ) {
 		// convert slopes from old single height saved game
-		weg_hang = (scorner1(weg_hang) + scorner2(weg_hang) * 3 + scorner3(weg_hang) * 9 + scorner4(weg_hang) * 27) * umgebung_t::pak_height_conversion_factor;
+		weg_hang = (scorner1(weg_hang) + scorner2(weg_hang) * 3 + scorner3(weg_hang) * 9 + scorner4(weg_hang) * 27) * environment_t::pak_height_conversion_factor;
 	}
 
 	if(!find<bruecke_t>()) {

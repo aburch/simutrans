@@ -16,7 +16,7 @@
 #include "../gui/simwin.h"
 #include "../simworld.h"
 
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 
 
 message_stats_t::message_stats_t(karte_t *w) :
@@ -119,20 +119,20 @@ void message_stats_t::recalc_size()
 
 		// add time
 		char time[64];
-		switch (umgebung_t::show_month) {
-			case umgebung_t::DATE_FMT_GERMAN:
-			case umgebung_t::DATE_FMT_GERMAN_NO_SEASON:
+		switch (environment_t::show_month) {
+			case environment_t::DATE_FMT_GERMAN:
+			case environment_t::DATE_FMT_GERMAN_NO_SEASON:
 				sprintf(time, "(%d.%d)", (n.time%12)+1, n.time/12 );
 				break;
 
-			case umgebung_t::DATE_FMT_MONTH:
-			case umgebung_t::DATE_FMT_US:
-			case umgebung_t::DATE_FMT_US_NO_SEASON:
+			case environment_t::DATE_FMT_MONTH:
+			case environment_t::DATE_FMT_US:
+			case environment_t::DATE_FMT_US_NO_SEASON:
 				sprintf(time, "(%d/%d)", (n.time%12)+1, n.time/12 );
 				break;
 
-			case umgebung_t::DATE_FMT_JAPANESE:
-			case umgebung_t::DATE_FMT_JAPANESE_NO_SEASON:
+			case environment_t::DATE_FMT_JAPANESE:
+			case environment_t::DATE_FMT_JAPANESE_NO_SEASON:
 				sprintf(time, "(%d/%d)", n.time/12, (n.time%12)+1 );
 				break;
 
@@ -224,20 +224,20 @@ void message_stats_t::zeichnen(koord offset)
 
 		// add time
 		char time[64];
-		switch (umgebung_t::show_month) {
-			case umgebung_t::DATE_FMT_GERMAN:
-			case umgebung_t::DATE_FMT_GERMAN_NO_SEASON:
+		switch (environment_t::show_month) {
+			case environment_t::DATE_FMT_GERMAN:
+			case environment_t::DATE_FMT_GERMAN_NO_SEASON:
 				sprintf(time, "(%d.%d)", (n.time%12)+1, n.time/12 );
 				break;
 
-			case umgebung_t::DATE_FMT_MONTH:
-			case umgebung_t::DATE_FMT_US:
-			case umgebung_t::DATE_FMT_US_NO_SEASON:
+			case environment_t::DATE_FMT_MONTH:
+			case environment_t::DATE_FMT_US:
+			case environment_t::DATE_FMT_US_NO_SEASON:
 				sprintf(time, "(%d/%d)", (n.time%12)+1, n.time/12 );
 				break;
 
-			case umgebung_t::DATE_FMT_JAPANESE:
-			case umgebung_t::DATE_FMT_JAPANESE_NO_SEASON:
+			case environment_t::DATE_FMT_JAPANESE:
+			case environment_t::DATE_FMT_JAPANESE_NO_SEASON:
 				sprintf(time, "(%d/%d)", n.time/12, (n.time%12)+1 );
 				break;
 

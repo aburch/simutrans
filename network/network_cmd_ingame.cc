@@ -15,7 +15,7 @@
 #include "../gui/simwin.h"
 #include "../simmesg.h"
 #include "../simsys.h"
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 #include "../player/simplay.h"
 #include "../gui/player_frame_t.h"
 #include "../utils/cbuffer_t.h"
@@ -73,7 +73,7 @@ void nwc_gameinfo_t::rdwr()
 // will send the gameinfo to the client
 bool nwc_gameinfo_t::execute(karte_t *welt)
 {
-	if (umgebung_t::server) {
+	if (environment_t::server) {
 		dbg->message("nwc_gameinfo_t::execute", "");
 		// TODO: check whether we can send a file
 		nwc_gameinfo_t nwgi;
@@ -130,7 +130,7 @@ void nwc_nick_t::rdwr()
  */
 bool nwc_nick_t::execute(karte_t *welt)
 {
-	if(umgebung_t::server) {
+	if(environment_t::server) {
 		uint32 client_id = socket_list_t::get_client_id(packet->get_sender());
 
 		if(nickname==NULL) {
@@ -162,7 +162,7 @@ generate_default_nick:
 		return true;
 	}
 	else {
-		umgebung_t::nickname = nickname!=NULL ? nickname.c_str() : "(null)";
+		environment_t::nickname = nickname!=NULL ? nickname.c_str() : "(null)";
 	}
 	return true;
 }
@@ -227,7 +227,7 @@ void nwc_nick_t::server_tools(karte_t *welt, uint32 client_id, uint8 what, const
 			}
 			else {
 				// human at server
-				umgebung_t::nickname = nick;
+				environment_t::nickname = nick;
 			}
 			break;
 		}
@@ -308,7 +308,7 @@ bool nwc_chat_t::execute (karte_t* welt)
 
 
 	// Relay message to all listening clients
-	if (  umgebung_t::server  ) {
+	if (  environment_t::server  ) {
 		uint32 client_id = socket_list_t::get_client_id( packet->get_sender() );
 
 		dbg->warning("nwc_chat_t::execute", "server, client id: %d", client_id);
@@ -395,7 +395,7 @@ void nwc_join_t::rdwr()
 
 bool nwc_join_t::execute(karte_t *welt)
 {
-	if(umgebung_t::server) {
+	if(environment_t::server) {
 		dbg->message("nwc_join_t::execute", "");
 		// TODO: check whether we can send a file
 		nwc_join_t nwj;
@@ -468,7 +468,7 @@ void nwc_ready_t::clear_map_counters()
 
 bool nwc_ready_t::execute(karte_t *welt)
 {
-	if(  umgebung_t::server  ) {
+	if(  environment_t::server  ) {
 		// compare checklist
 		if(  welt->is_checklist_available(sync_step)  &&  checklist!=welt->get_checklist_at(sync_step)  ) {
 			// client has gone out of sync
@@ -529,7 +529,7 @@ bool nwc_auth_player_t::execute(karte_t *welt)
 {
 	dbg->message("nwc_auth_player_t::execute","plnr = %d  unlock = %d  our_client_id = %d", player_nr, player_unlocked, our_client_id);
 
-	if(  umgebung_t::server  &&  !(our_client_id==0  &&  player_nr==255)) {
+	if(  environment_t::server  &&  !(our_client_id==0  &&  player_nr==255)) {
 		// sent to server, and not sent to player playing on server
 		if (socket_list_t::is_valid_client_id(our_client_id)) {
 
@@ -636,7 +636,7 @@ bool network_world_command_t::execute(karte_t *welt)
 		// command from another world
 		// could happen if we are behind and still have to execute the next sync command
 		dbg->warning("network_world_command_t::execute", "wanted to execute(%d) from another world (mpc=%d)", get_id(), map_counter);
-		if (umgebung_t::server) {
+		if (environment_t::server) {
 			return true; // to delete cmd
 		}
 		// map_counter has to be checked before calling do_command()
@@ -675,18 +675,18 @@ void nwc_sync_t::do_command(karte_t *welt)
 	}
 	// transfer game, all clients need to sync (save, reload, and pause)
 	// now save and send
-	chdir( umgebung_t::user_dir );
-	if(  !umgebung_t::server  ) {
+	chdir( environment_t::user_dir );
+	if(  !environment_t::server  ) {
 		char fn[256];
 		sprintf( fn, "client%i-network.sve", network_get_client_id() );
 
-		bool old_restore_UI = umgebung_t::restore_UI;
-		umgebung_t::restore_UI = true;
+		bool old_restore_UI = environment_t::restore_UI;
+		environment_t::restore_UI = true;
 
 		welt->save( fn, loadsave_t::autosave_mode, SERVER_SAVEGAME_VER_NR, false );
 		uint32 old_sync_steps = welt->get_sync_steps();
 		welt->load( fn );
-		umgebung_t::restore_UI = old_restore_UI;
+		environment_t::restore_UI = old_restore_UI;
 
 		// pause clients, restore steps
 		welt->network_game_set_pause( true, old_sync_steps);
@@ -701,7 +701,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 	else {
 		char fn[256];
 		// first save password hashes
-		sprintf( fn, "server%d-pwdhash.sve", umgebung_t::server );
+		sprintf( fn, "server%d-pwdhash.sve", environment_t::server );
 		loadsave_t file;
 		if(file.wr_open(fn, loadsave_t::save_mode, "hashes", SAVEGAME_VER_NR )) {
 			welt->rdwr_player_password_hashes( &file );
@@ -722,9 +722,9 @@ void nwc_sync_t::do_command(karte_t *welt)
 		}
 
 		// save game
-		sprintf( fn, "server%d-network.sve", umgebung_t::server );
-		bool old_restore_UI = umgebung_t::restore_UI;
-		umgebung_t::restore_UI = true;
+		sprintf( fn, "server%d-network.sve", environment_t::server );
+		bool old_restore_UI = environment_t::restore_UI;
+		environment_t::restore_UI = true;
 		welt->save( fn, loadsave_t::save_mode, SERVER_SAVEGAME_VER_NR, false );
 
 		// ok, now sending game
@@ -736,7 +736,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 
 		uint32 old_sync_steps = welt->get_sync_steps();
 		welt->load( fn );
-		umgebung_t::restore_UI = old_restore_UI;
+		environment_t::restore_UI = old_restore_UI;
 
 		// restore steps
 		welt->network_game_set_pause( false, old_sync_steps);
@@ -785,7 +785,7 @@ void nwc_check_t::rdwr()
 	network_world_command_t::rdwr();
 	server_checklist.rdwr(packet);
 	packet->rdwr_long(server_sync_step);
-	if (packet->is_loading()  &&  umgebung_t::server) {
+	if (packet->is_loading()  &&  environment_t::server) {
 		// server does not receive nwc_check_t-commands
 		packet->failed();
 	}
@@ -797,7 +797,7 @@ void network_broadcast_world_command_t::rdwr()
 	network_world_command_t::rdwr();
 	packet->rdwr_bool(exec);
 
-	if (packet->is_loading()  &&  umgebung_t::server  &&  exec) {
+	if (packet->is_loading()  &&  environment_t::server  &&  exec) {
 		// server does not receive exec-commands
 		packet->failed();
 	}
@@ -811,7 +811,7 @@ bool network_broadcast_world_command_t::execute(karte_t *welt)
 		// append to command queue
 		return network_world_command_t::execute(welt);
 	}
-	else if (umgebung_t::server) {
+	else if (environment_t::server) {
 		// clone
 		network_broadcast_world_command_t *nwc = clone(welt);
 		if (nwc == NULL) {
@@ -898,7 +898,7 @@ void nwc_chg_player_t::do_command(karte_t *welt)
 	welt->change_player_tool(cmd, player_nr, param, true, true);
 
 	// store IP of client who created this company
-	if (umgebung_t::server  &&   cmd == karte_t::new_player  &&  player_nr < lengthof(company_creator)) {
+	if (environment_t::server  &&   cmd == karte_t::new_player  &&  player_nr < lengthof(company_creator)) {
 		company_creator[player_nr] =  pending_company_creator;
 
 		if (pending_company_creator) {
@@ -1267,7 +1267,7 @@ extern address_list_t blacklist;
 
 bool nwc_service_t::execute(karte_t *welt)
 {
-	if (flag>=SRVC_MAX  ||  !umgebung_t::server) {
+	if (flag>=SRVC_MAX  ||  !environment_t::server) {
 		// wrong flag, no server
 		return true;  // to delete
 	}
@@ -1283,7 +1283,7 @@ bool nwc_service_t::execute(karte_t *welt)
 			nwc_service_t nws;
 			nws.flag = SRVC_LOGIN_ADMIN;
 			// check password
-			bool ok = !umgebung_t::server_admin_pw.empty()  &&  umgebung_t::server_admin_pw.compare(text)==0;
+			bool ok = !environment_t::server_admin_pw.empty()  &&  environment_t::server_admin_pw.compare(text)==0;
 			if (ok) {
 				socket_list_t::get_client(sender_id).state = socket_info_t::admin;
 			}

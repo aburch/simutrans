@@ -16,8 +16,8 @@
 #include "../display/simimg.h"
 #include "../simintr.h"
 #include "../simcolor.h"
-#include "../dataobj/einstellungen.h"
-#include "../dataobj/umgebung.h"
+#include "../dataobj/settings.h"
+#include "../dataobj/environment.h"
 #include "../dataobj/translator.h"
 #include "../dings/baum.h"
 #include "../dings/zeiger.h"
@@ -88,7 +88,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[9].set_typ(button_t::square_state);
 	buttons[9].set_text("8WORLD_CHOOSE");
 	buttons[9].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
-	buttons[9].pressed = umgebung_t::night_shift;
+	buttons[9].pressed = environment_t::night_shift;
 	cursor.y += D_BUTTON_SQUARE + D_V_SPACE;
 
 	// Brightness label
@@ -101,7 +101,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	brightness.set_pos( cursor );
 	brightness.set_width( edit_width );
 	brightness.align_to(&brightness_label, ALIGN_CENTER_V);
-	brightness.set_value( umgebung_t::daynight_level );
+	brightness.set_value( environment_t::daynight_level );
 	brightness.set_limits( 0, 9 );
 	brightness.add_listener(this);
 
@@ -110,7 +110,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[6].set_typ(button_t::square_state);
 	buttons[6].set_text("4LIGHT_CHOOSE");
 	buttons[6].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
-	buttons[6].pressed = umgebung_t::scroll_multi < 0;
+	buttons[6].pressed = environment_t::scroll_multi < 0;
 	cursor.y += D_BUTTON_SQUARE + D_V_SPACE;
 
 	// Scroll speed label
@@ -123,7 +123,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	scrollspeed.set_pos( cursor );
 	scrollspeed.set_width( edit_width );
 	scrollspeed.align_to(&scrollspeed_label, ALIGN_CENTER_V);
-	scrollspeed.set_value( abs(umgebung_t::scroll_multi) );
+	scrollspeed.set_value( abs(environment_t::scroll_multi) );
 	scrollspeed.set_limits( 1, 9 );
 	scrollspeed.add_listener(this);
 
@@ -137,7 +137,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[10].set_typ(button_t::square_state);
 	buttons[10].set_text("hide transparent");
 	buttons[10].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
-	buttons[10].pressed = umgebung_t::hide_with_transparency;
+	buttons[10].pressed = environment_t::hide_with_transparency;
 	cursor.y += D_BUTTON_SQUARE + D_V_SPACE;
 
 	// Hide trees checkbox
@@ -170,7 +170,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	cursor_hide_range.set_pos( cursor );
 	cursor_hide_range.set_width( edit_width );
 	cursor_hide_range.align_to(&buttons[21], ALIGN_CENTER_V);
-	cursor_hide_range.set_value(umgebung_t::cursor_hide_range);
+	cursor_hide_range.set_value(environment_t::cursor_hide_range);
 	cursor_hide_range.set_limits( 0, 10 );
 	cursor_hide_range.add_listener(this);
 	cursor.y += D_BUTTON_SQUARE;
@@ -185,7 +185,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[14].set_typ(button_t::square_state);
 	buttons[14].set_text("transparent station coverage");
 	buttons[14].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
-	buttons[14].pressed = umgebung_t::use_transparency_station_coverage;
+	buttons[14].pressed = environment_t::use_transparency_station_coverage;
 	cursor.y += D_BUTTON_SQUARE + D_V_SPACE;
 
 	// Show station coverage
@@ -206,7 +206,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[19].set_typ(button_t::square_state);
 	buttons[19].set_text("show waiting bars");
 	buttons[19].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
-	buttons[19].pressed = umgebung_t::show_names&2;
+	buttons[19].pressed = environment_t::show_names&2;
 	cursor.y += D_BUTTON_SQUARE;
 
 	// Divider 3
@@ -397,12 +397,12 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 
 	// Brightness edit
 	if(&brightness==komp) {
-	  umgebung_t::daynight_level = (sint8)v.i;
+	  environment_t::daynight_level = (sint8)v.i;
 	} else
 
 	// Traffic density edit
 	if(&traffic_density==komp) {
-		if(  !umgebung_t::networkmode  ||  welt->get_active_player_nr()==1  ) {
+		if(  !environment_t::networkmode  ||  welt->get_active_player_nr()==1  ) {
 			static char level[16];
 			sprintf(level, "%li", v.i);
 			werkzeug_t::simple_tool[WKZ_TRAFFIC_LEVEL&0xFFF]->set_default_param( level );
@@ -415,82 +415,82 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 
 	// Scroll speed edit
 	if(&scrollspeed==komp) {
-		umgebung_t::scroll_multi = (sint16)( buttons[6].pressed ? -v.i : v.i );
+		environment_t::scroll_multi = (sint16)( buttons[6].pressed ? -v.i : v.i );
 	} else
 
 	// Smart hide objects edit
 	if(&cursor_hide_range==komp) {
-		umgebung_t::cursor_hide_range = cursor_hide_range.get_value();
+		environment_t::cursor_hide_range = cursor_hide_range.get_value();
 	} else
 
 	// Convoy tooltip left arrows
 	if((buttons+0)==komp) {
-		umgebung_t::show_vehicle_states = (umgebung_t::show_vehicle_states+2)%3;
+		environment_t::show_vehicle_states = (environment_t::show_vehicle_states+2)%3;
 	} else
 
 	// Convoy tooltip right arrow
 	if((buttons+1)==komp) {
-		umgebung_t::show_vehicle_states = (umgebung_t::show_vehicle_states+1)%3;
+		environment_t::show_vehicle_states = (environment_t::show_vehicle_states+1)%3;
 	} else
 
 	// Scroll inverse checkbox
 	if((buttons+6)==komp) {
 		buttons[6].pressed ^= 1;
-		umgebung_t::scroll_multi = -umgebung_t::scroll_multi;
+		environment_t::scroll_multi = -environment_t::scroll_multi;
 	} else
 
 	// Pedestrians at stops checkbox
 	if((buttons+7)==komp) {
-		if(  !umgebung_t::networkmode  ||  welt->get_active_player_nr()==1  ) {
+		if(  !environment_t::networkmode  ||  welt->get_active_player_nr()==1  ) {
 			welt->set_werkzeug( werkzeug_t::simple_tool[WKZ_TOOGLE_PAX&0xFFF], welt->get_active_player() );
 		}
 	} else
 
 	// Pedestrians in towns checkbox
 	if((buttons+8)==komp) {
-		if(  !umgebung_t::networkmode  ||  welt->get_active_player_nr()==1  ) {
+		if(  !environment_t::networkmode  ||  welt->get_active_player_nr()==1  ) {
 			welt->set_werkzeug( werkzeug_t::simple_tool[WKZ_TOOGLE_PEDESTRIANS&0xFFF], welt->get_active_player() );
 		}
 	} else
 
 	// Day/night change checkbox
 	if((buttons+9)==komp) {
-		umgebung_t::night_shift = !umgebung_t::night_shift;
+		environment_t::night_shift = !environment_t::night_shift;
 		buttons[9].pressed ^= 1;
 	} else
 
 	// Transparent instead of hidden checkbox
 	if((buttons+10)==komp) {
-		umgebung_t::hide_with_transparency = !umgebung_t::hide_with_transparency;
+		environment_t::hide_with_transparency = !environment_t::hide_with_transparency;
 		buttons[10].pressed ^= 1;
 		baum_t::recalc_outline_color();
 	} else
 
 	// Hide trees checkbox
 	if((buttons+11)==komp) {
-		umgebung_t::hide_trees = !umgebung_t::hide_trees;
+		environment_t::hide_trees = !environment_t::hide_trees;
 		baum_t::recalc_outline_color();
 	} else
 
 	// Hide buildings left arrows
 	if((buttons+12)==komp) {
-		umgebung_t::hide_buildings = (umgebung_t::hide_buildings+2)%3;
+		environment_t::hide_buildings = (environment_t::hide_buildings+2)%3;
 	} else
 
 	// Hide buildings right arrows
 	if((buttons+13)==komp) {
-		umgebung_t::hide_buildings = (umgebung_t::hide_buildings+1)%3;
+		environment_t::hide_buildings = (environment_t::hide_buildings+1)%3;
 	} else
 
 	// Transparent station coverage
 	if((buttons+14)==komp) {
-		umgebung_t::use_transparency_station_coverage = !umgebung_t::use_transparency_station_coverage;
+		environment_t::use_transparency_station_coverage = !environment_t::use_transparency_station_coverage;
 		buttons[14].pressed ^= 1;
 	} else
 
 	// Show station coverage
 	if((buttons+15)==komp) {
-		umgebung_t::station_coverage_show = umgebung_t::station_coverage_show==0 ? 0xFF : 0;
+		environment_t::station_coverage_show = environment_t::station_coverage_show==0 ? 0xFF : 0;
 	} else
 
 	// Underground view checkbox
@@ -514,23 +514,23 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 
 	// Show station names arrow
 	if((buttons+18)==komp) {
-		if(  umgebung_t::show_names&1  ) {
-			if(  (umgebung_t::show_names>>2) == 2  ) {
-				umgebung_t::show_names &= 2;
+		if(  environment_t::show_names&1  ) {
+			if(  (environment_t::show_names>>2) == 2  ) {
+				environment_t::show_names &= 2;
 			}
 			else {
-				umgebung_t::show_names += 4;
+				environment_t::show_names += 4;
 			}
 		}
 		else {
-			umgebung_t::show_names &= 2;
-			umgebung_t::show_names |= 1;
+			environment_t::show_names &= 2;
+			environment_t::show_names |= 1;
 		}
 	} else
 
 	// Show waiting bars checkbox
 	if((buttons+19)==komp) {
-		umgebung_t::show_names ^= 2;
+		environment_t::show_names ^= 2;
 	} else
 
 	// Show slice map view checkbox
@@ -551,8 +551,8 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	if((buttons+21)==komp) {
 
 		// see simwerkz.cc::wkz_hide_under_cursor_t::init
-		umgebung_t::hide_under_cursor = !umgebung_t::hide_under_cursor  &&  umgebung_t::cursor_hide_range>0;
-		buttons[21].pressed = umgebung_t::hide_under_cursor;
+		environment_t::hide_under_cursor = !environment_t::hide_under_cursor  &&  environment_t::cursor_hide_range>0;
+		buttons[21].pressed = environment_t::hide_under_cursor;
 
 		// renew toolbar
 		werkzeug_t::update_toolbars(welt);
@@ -560,8 +560,8 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 
 	// Show schedule's stop checkbox
 	if((buttons+22)==komp) {
-		umgebung_t::visualize_schedule = !umgebung_t::visualize_schedule;
-		buttons[22].pressed = umgebung_t::visualize_schedule;
+		environment_t::visualize_schedule = !environment_t::visualize_schedule;
+		buttons[22].pressed = environment_t::visualize_schedule;
 	} else
 
 	// underground slice edit
@@ -591,26 +591,26 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 	// Update button states that was changed with keyboard ...
 	buttons[ 7].pressed = welt->get_settings().get_show_pax();
 	buttons[ 8].pressed = welt->get_settings().get_random_pedestrians();
-	buttons[11].pressed = umgebung_t::hide_trees;
-	buttons[21].pressed = umgebung_t::hide_under_cursor;
-	buttons[15].pressed = umgebung_t::station_coverage_show;
+	buttons[11].pressed = environment_t::hide_trees;
+	buttons[21].pressed = environment_t::hide_under_cursor;
+	buttons[15].pressed = environment_t::station_coverage_show;
 	buttons[16].pressed = grund_t::underground_mode == grund_t::ugm_all;
 	buttons[17].pressed = grund_t::show_grid;
-	//buttons[18].pressed = umgebung_t::show_names&1;
-	buttons[19].pressed = (umgebung_t::show_names&2)!=0;
+	//buttons[18].pressed = environment_t::show_names&1;
+	buttons[19].pressed = (environment_t::show_names&2)!=0;
 	buttons[20].pressed = grund_t::underground_mode == grund_t::ugm_level;
-	buttons[22].pressed = umgebung_t::visualize_schedule;
+	buttons[22].pressed = environment_t::visualize_schedule;
 
 	// Update label buffers
-	hide_buildings_label.set_text( umgebung_t::hide_buildings==0 ? "no buildings hidden" : (umgebung_t::hide_buildings==1 ? "hide city building" : "hide all building") );
-	convoy_tooltip_label.set_text( umgebung_t::show_vehicle_states==0 ? "convoi error tooltips" : (umgebung_t::show_vehicle_states==1 ? "convoi mouseover tooltips" : "all convoi tooltips") );
+	hide_buildings_label.set_text( environment_t::hide_buildings==0 ? "no buildings hidden" : (environment_t::hide_buildings==1 ? "hide city building" : "hide all building") );
+	convoy_tooltip_label.set_text( environment_t::show_vehicle_states==0 ? "convoi error tooltips" : (environment_t::show_vehicle_states==1 ? "convoi mouseover tooltips" : "all convoi tooltips") );
 	sprintf(frame_time_buf," %ld ms", get_frame_time() );
 	sprintf(idle_time_buf, " %d ms", welt->get_schlaf_zeit() );
 
 	// fps_label
 	uint8  color;
 	uint32 loops;
-	uint32 target_fps = welt->is_fast_forward() ? 10 : umgebung_t::fps;
+	uint32 target_fps = welt->is_fast_forward() ? 10 : environment_t::fps;
 	loops = welt->get_realFPS();
 	color = SYSCOL_TEXT_HIGHLIGHT;
 	if(  loops < (target_fps*3)/4  ) {
@@ -619,7 +619,7 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 	fps_value_label.set_color(color);
 	sprintf(fps_buf," %d fps", loops );
 #ifdef DEBUG
-	if(  umgebung_t::simple_drawing  ) {
+	if(  environment_t::simple_drawing  ) {
 		strcat( fps_buf, "*" );
 	}
 #endif
@@ -637,12 +637,12 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 	gui_frame_t::zeichnen(pos, gr);
 
 	// Draw user defined components (not a component object)
-	if(  umgebung_t::show_names&1  ) {
+	if(  environment_t::show_names&1  ) {
 
 		PLAYER_COLOR_VAL pc = welt->get_active_player() ? welt->get_active_player()->get_player_color1()+4 : COL_ORANGE; // Why +4?
 		const char *text = translator::translate("show station names");
 
-		switch( umgebung_t::show_names >> 2 ) {
+		switch( environment_t::show_names >> 2 ) {
 			case 0:
 				display_ddd_proportional_clip( x+buttons[18].get_pos().x+buttons[18].get_groesse().x+D_H_SPACE, y+buttons[18].get_pos().y+buttons[18].get_groesse().y/2, proportional_string_width(text)+7, 0, pc, COL_BLACK, text, 1 );
 				break;

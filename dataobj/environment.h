@@ -1,16 +1,16 @@
-#ifndef dataobj_umgebung_h
-#define dataobj_umgebung_h
+#ifndef dataobj_environment_h
+#define dataobj_environment_h
 
 #include <string>
 #include "../simtypes.h"
 #include "../simconst.h"
-#include "einstellungen.h"
+#include "settings.h"
 #include "koord.h"
 
 #include "../tpl/vector_tpl.h"
 #include "../utils/plainstring.h"
 
-#define TILE_HEIGHT_STEP (umgebung_t::pak_tile_height_step)
+#define TILE_HEIGHT_STEP (environment_t::pak_tile_height_step)
 
 
 /**
@@ -20,7 +20,7 @@
  *
  * @author Hj. Malthaner
  */
-class umgebung_t
+class environment_t
 {
 public:
 	/// points to the current simutrans data directory

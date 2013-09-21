@@ -40,7 +40,7 @@
 #include "dataobj/route.h"
 #include "dataobj/loadsave.h"
 #include "dataobj/translator.h"
-#include "dataobj/umgebung.h"
+#include "dataobj/environment.h"
 
 #include "dings/crossing.h"
 #include "dings/roadsign.h"
@@ -476,7 +476,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 	}
 	// when saving with open window, this can happen
 	if(  state==FAHRPLANEINGABE  ) {
-		if (umgebung_t::networkmode) {
+		if (environment_t::networkmode) {
 			wait_lock = 30000; // 60s to drive on, if the client in question had left
 		}
 		fpl->eingabe_abschliessen();
@@ -2372,7 +2372,7 @@ void convoi_t::zeige_info()
 		}
 	}
 	else {
-		if(  umgebung_t::verbose_debug  ) {
+		if(  environment_t::verbose_debug  ) {
 			dump();
 		}
 		create_win( new convoi_info_t(self), w_info, magic_convoi_info+self.get_id() );

@@ -17,7 +17,7 @@
 #include "../gui/simwin.h"
 #include "../utils/simstring.h"
 #include "../dataobj/translator.h"
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 #include "../dataobj/scenario.h"
 #include "../dataobj/loadsave.h"
 

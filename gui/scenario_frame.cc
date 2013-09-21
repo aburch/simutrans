@@ -14,7 +14,7 @@
 #include "../gui/simwin.h"
 #include "../simworld.h"
 
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 #include "../dataobj/scenario.h"
 #include "../dataobj/translator.h"
 
@@ -26,10 +26,10 @@ scenario_frame_t::scenario_frame_t(karte_t *welt) : savegame_frame_t(NULL, true,
 	static cbuffer_t addons_scenario;
 
 	pakset_scenario.clear();
-	pakset_scenario.printf("%s%sscenario/", umgebung_t::program_dir, umgebung_t::objfilename.c_str());
+	pakset_scenario.printf("%s%sscenario/", environment_t::program_dir, environment_t::objfilename.c_str());
 
 	addons_scenario.clear();
-	addons_scenario.printf("addons/%sscenario/", umgebung_t::objfilename.c_str());
+	addons_scenario.printf("addons/%sscenario/", environment_t::objfilename.c_str());
 
 	this->add_path(addons_scenario);
 	this->add_path(pakset_scenario);

@@ -10,7 +10,7 @@
 
 #include "../besch/grund_besch.h"
 
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 
 
 
@@ -22,8 +22,8 @@ bool wasser_t::change_stage = false;
 // for animated waves
 void wasser_t::prepare_for_refresh()
 {
-	if(!welt->is_fast_forward()  &&  umgebung_t::water_animation>0) {
-		int new_stage = (welt->get_zeit_ms() / umgebung_t::water_animation) % grund_besch_t::water_animation_stages;
+	if(!welt->is_fast_forward()  &&  environment_t::water_animation>0) {
+		int new_stage = (welt->get_zeit_ms() / environment_t::water_animation) % grund_besch_t::water_animation_stages;
 		wasser_t::change_stage = (new_stage != stage);
 		wasser_t::stage = new_stage;
 	}

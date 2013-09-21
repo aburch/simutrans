@@ -22,7 +22,7 @@
 #include "simtools.h"
 #include "simdebug.h"
 
-#include "dataobj/umgebung.h"
+#include "dataobj/environment.h"
 #include "utils/plainstring.h"
 #include "utils/simstring.h"
 
@@ -53,7 +53,7 @@ static int current_midi = -1;  // Hajo: init with error condition,
  */
 void sound_set_global_volume(int volume)
 {
-	umgebung_t::global_volume = volume;
+	environment_t::global_volume = volume;
 }
 
 
@@ -63,25 +63,25 @@ void sound_set_global_volume(int volume)
  */
 int sound_get_global_volume()
 {
-	return umgebung_t::global_volume;
+	return environment_t::global_volume;
 }
 
 
 void sound_set_mute(bool on)
 {
-	umgebung_t::mute_sound = on;
+	environment_t::mute_sound = on;
 }
 
 bool sound_get_mute()
 {
-	return (  umgebung_t::mute_sound  ||  SFX_CASH == NO_SOUND  );
+	return (  environment_t::mute_sound  ||  SFX_CASH == NO_SOUND  );
 }
 
 
 void sound_play(uint16 const idx, uint8 const volume)
 {
-	if(  idx != (uint16)NO_SOUND  &&  !umgebung_t::mute_sound  ) {
-	  dr_play_sample(idx, volume * umgebung_t::global_volume >> 8);
+	if(  idx != (uint16)NO_SOUND  &&  !environment_t::mute_sound  ) {
+	  dr_play_sample(idx, volume * environment_t::global_volume >> 8);
 	}
 }
 
@@ -90,12 +90,12 @@ void sound_play(uint16 const idx, uint8 const volume)
 
 bool sound_get_shuffle_midi()
 {
-	return umgebung_t::shuffle_midi;
+	return environment_t::shuffle_midi;
 }
 
 void sound_set_shuffle_midi( bool shuffle )
 {
-	umgebung_t::shuffle_midi = shuffle;
+	environment_t::shuffle_midi = shuffle;
 }
 
 
@@ -107,10 +107,10 @@ void sound_set_shuffle_midi( bool shuffle )
  */
 void sound_set_midi_volume(int volume)
 {
-	if(  !umgebung_t::mute_midi  &&  max_midi > -1  ) {
+	if(  !environment_t::mute_midi  &&  max_midi > -1  ) {
 	  dr_set_midi_volume(volume);
 	}
-	umgebung_t::midi_volume = volume;
+	environment_t::midi_volume = volume;
 }
 
 
@@ -122,7 +122,7 @@ void sound_set_midi_volume(int volume)
  */
 int sound_get_midi_volume()
 {
-	return umgebung_t::midi_volume;
+	return environment_t::midi_volume;
 }
 
 
@@ -231,17 +231,17 @@ void midi_set_mute(bool on)
 {
 	on |= (  max_midi == -1  );
 	if(  on  ) {
-	  if(  !umgebung_t::mute_midi  ) {
+	  if(  !environment_t::mute_midi  ) {
 	    dr_stop_midi();
 	  }
-	  umgebung_t::mute_midi = true;
+	  environment_t::mute_midi = true;
 	}
 	else {
-	  if(  umgebung_t::mute_midi  ) {
-	    umgebung_t::mute_midi = false;
+	  if(  environment_t::mute_midi  ) {
+	    environment_t::mute_midi = false;
 	    midi_play(current_midi);
 	  }
-	  dr_set_midi_volume(umgebung_t::midi_volume);
+	  dr_set_midi_volume(environment_t::midi_volume);
 	}
 }
 
@@ -249,7 +249,7 @@ void midi_set_mute(bool on)
 
 bool midi_get_mute()
 {
-	return  (  umgebung_t::mute_midi  ||  max_midi == -1  );
+	return  (  environment_t::mute_midi  ||  max_midi == -1  );
 }
 
 
@@ -264,7 +264,7 @@ void check_midi()
 {
 	// Check for next sound
 	if(  dr_midi_pos() < 0  ||  new_midi == true  ) {
-	  if(  umgebung_t::shuffle_midi  &&  max_midi > 1  ) {
+	  if(  environment_t::shuffle_midi  &&  max_midi > 1  ) {
 
 	    // shuffle songs (must not use simrand()!)
 	    int new_song = sim_async_rand(max_midi);

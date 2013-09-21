@@ -13,7 +13,7 @@
 #include "../simdings.h"
 #include "../simhalt.h"
 #include "../boden/grund.h"
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 #include "zeiger.h"
 
 zeiger_t::zeiger_t(karte_t *welt, loadsave_t *file) : ding_no_info_t(welt)
@@ -74,7 +74,7 @@ void zeiger_t::change_pos(koord3d k )
 				gr = welt->lookup_kartenboden( k.get_2d() );
 			}
 			if(gr) {
-				if(  gr->get_halt().is_bound()  &&  umgebung_t::station_coverage_show  ) {
+				if(  gr->get_halt().is_bound()  &&  environment_t::station_coverage_show  ) {
 					gr->get_halt()->mark_unmark_coverage( true );
 				}
 				welt->mark_area( k-(area*center)/2, area, true );

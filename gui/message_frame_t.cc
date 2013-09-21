@@ -11,7 +11,7 @@
 
 #include "../dataobj/scenario.h"
 #include "../dataobj/translator.h"
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 #include "message_frame_t.h"
 #include "../simmesg.h"
 #include "message_option_t.h"
@@ -67,7 +67,7 @@ message_frame_t::message_frame_t(karte_t *welt) :
 	tabs.add_tab( &scrolly, translator::translate("All") );
 	tab_categories.append( -1 );
 
-	if (umgebung_t::networkmode) {
+	if (environment_t::networkmode) {
 		tabs.add_tab( &scrolly, translator::translate(tab_strings[0]) );
 		tab_categories.append( categories[0] );
 	}
@@ -90,8 +90,8 @@ message_frame_t::message_frame_t(karte_t *welt) :
 	input.set_text(ibuf, lengthof(ibuf) );
 	input.add_listener(this);
 	input.set_pos(koord(BUTTON2_X,0));
-	if(  umgebung_t::networkmode  ) {
-		set_transparent( umgebung_t::chat_window_transparency, COL_WHITE );
+	if(  environment_t::networkmode  ) {
+		set_transparent( environment_t::chat_window_transparency, COL_WHITE );
 		add_komponente(&input);
 		set_focus( &input );
 	}
@@ -128,7 +128,7 @@ bool message_frame_t::action_triggered( gui_action_creator_t *komp, value_t v )
 	}
 	else if(  komp==&input  &&  ibuf[0]!=0  ) {
 		// Send chat message to server for distribution
-		nwc_chat_t* nwchat = new nwc_chat_t( ibuf, welt->get_active_player()->get_player_nr(), umgebung_t::nickname.c_str() );
+		nwc_chat_t* nwchat = new nwc_chat_t( ibuf, welt->get_active_player()->get_player_nr(), environment_t::nickname.c_str() );
 		network_send_server( nwchat );
 
 		ibuf[0] = 0;

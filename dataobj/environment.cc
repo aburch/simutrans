@@ -1,5 +1,5 @@
 #include <string>
-#include "umgebung.h"
+#include "environment.h"
 #include "loadsave.h"
 #include "../simversion.h"
 #include "../simconst.h"
@@ -8,123 +8,123 @@
 #include "../simcolor.h"
 #include "../simmesg.h"
 
-sint8 umgebung_t::pak_tile_height_step = 16;
-sint8 umgebung_t::pak_height_conversion_factor = 1;
+sint8 environment_t::pak_tile_height_step = 16;
+sint8 environment_t::pak_height_conversion_factor = 1;
 
-bool umgebung_t::simple_drawing = false;
-bool umgebung_t::simple_drawing_fast_forward = true;
-sint16 umgebung_t::simple_drawing_normal = 4;
-sint16 umgebung_t::simple_drawing_default = 24;
+bool environment_t::simple_drawing = false;
+bool environment_t::simple_drawing_fast_forward = true;
+sint16 environment_t::simple_drawing_normal = 4;
+sint16 environment_t::simple_drawing_default = 24;
 
-char umgebung_t::program_dir[1024];
-const char *umgebung_t::user_dir = 0;
-const char *umgebung_t::savegame_version_str = SAVEGAME_VER_NR;
-bool umgebung_t::straight_way_without_control = false;
-bool umgebung_t::networkmode = false;
-bool umgebung_t::restore_UI = false;
+char environment_t::program_dir[1024];
+const char *environment_t::user_dir = 0;
+const char *environment_t::savegame_version_str = SAVEGAME_VER_NR;
+bool environment_t::straight_way_without_control = false;
+bool environment_t::networkmode = false;
+bool environment_t::restore_UI = false;
 extern uint16 network_server_port;
-uint16 const &umgebung_t::server = network_server_port;
+uint16 const &environment_t::server = network_server_port;
 
 // Disable announce by default
-uint32 umgebung_t::server_announce = 0;
+uint32 environment_t::server_announce = 0;
 // Minimum is every 60 seconds, default is every 15 minutes (900 seconds), maximum is 86400 (1 day)
-sint32 umgebung_t::server_announce_interval = 900;
-std::string umgebung_t::server_dns;
-std::string umgebung_t::server_name;
-std::string umgebung_t::server_comments;
-std::string umgebung_t::server_email;
-std::string umgebung_t::server_pakurl;
-std::string umgebung_t::server_infurl;
-std::string umgebung_t::server_admin_pw;
-vector_tpl<std::string> umgebung_t::listen;
+sint32 environment_t::server_announce_interval = 900;
+std::string environment_t::server_dns;
+std::string environment_t::server_name;
+std::string environment_t::server_comments;
+std::string environment_t::server_email;
+std::string environment_t::server_pakurl;
+std::string environment_t::server_infurl;
+std::string environment_t::server_admin_pw;
+vector_tpl<std::string> environment_t::listen;
 
-long umgebung_t::server_frames_ahead = 4;
-long umgebung_t::additional_client_frames_behind = 0;
-long umgebung_t::network_frames_per_step = 4;
-uint32 umgebung_t::server_sync_steps_between_checks = 256;
-bool umgebung_t::pause_server_no_clients = false;
+long environment_t::server_frames_ahead = 4;
+long environment_t::additional_client_frames_behind = 0;
+long environment_t::network_frames_per_step = 4;
+uint32 environment_t::server_sync_steps_between_checks = 256;
+bool environment_t::pause_server_no_clients = false;
 
-std::string umgebung_t::nickname = "";
+std::string environment_t::nickname = "";
 
 // this is explicitely and interactively set by user => we do not touch it in init
-const char *umgebung_t::language_iso = "en";
-sint16 umgebung_t::scroll_multi = 1;
-sint16 umgebung_t::global_volume = 127;
-sint16 umgebung_t::midi_volume = 127;
-bool umgebung_t::mute_sound = false;
-bool umgebung_t::mute_midi = false;
-bool umgebung_t::shuffle_midi = true;
-sint16 umgebung_t::window_snap_distance = 8;
-koord umgebung_t::iconsize( 32, 32 );
-uint8 umgebung_t::chat_window_transparency = 75;
-bool umgebung_t::hide_rail_return_ticket = true;
+const char *environment_t::language_iso = "en";
+sint16 environment_t::scroll_multi = 1;
+sint16 environment_t::global_volume = 127;
+sint16 environment_t::midi_volume = 127;
+bool environment_t::mute_sound = false;
+bool environment_t::mute_midi = false;
+bool environment_t::shuffle_midi = true;
+sint16 environment_t::window_snap_distance = 8;
+koord environment_t::iconsize( 32, 32 );
+uint8 environment_t::chat_window_transparency = 75;
+bool environment_t::hide_rail_return_ticket = true;
 
 // only used internally => do not touch further
-bool umgebung_t::quit_simutrans = false;
+bool environment_t::quit_simutrans = false;
 
 // default settings for new games
-settings_t umgebung_t::default_einstellungen;
+settings_t environment_t::default_einstellungen;
 
 
 // the following initialisation is not important; set values in init()!
-std::string umgebung_t::objfilename;
-bool umgebung_t::night_shift;
-bool umgebung_t::hide_with_transparency;
-bool umgebung_t::hide_trees;
-uint8 umgebung_t::hide_buildings;
-bool umgebung_t::hide_under_cursor;
-uint16 umgebung_t::cursor_hide_range;
-bool umgebung_t::use_transparency_station_coverage;
-uint8 umgebung_t::station_coverage_show;
-sint32 umgebung_t::show_names;
-sint32 umgebung_t::message_flags[4];
-uint32 umgebung_t::water_animation;
-uint32 umgebung_t::ground_object_probability;
-uint32 umgebung_t::moving_object_probability;
-bool umgebung_t::verkehrsteilnehmer_info;
-bool umgebung_t::tree_info;
-bool umgebung_t::ground_info;
-bool umgebung_t::townhall_info;
-bool umgebung_t::single_info;
-bool umgebung_t::window_buttons_right;
-bool umgebung_t::second_open_closes_win;
-bool umgebung_t::remember_window_positions;
-bool umgebung_t::window_frame_active;
-uint8 umgebung_t::verbose_debug;
-uint8 umgebung_t::default_sortmode;
-uint32 umgebung_t::default_mapmode;
-uint8 umgebung_t::show_month;
-sint32 umgebung_t::intercity_road_length;
-plainstring umgebung_t::river_type[10];
-uint8 umgebung_t::river_types;
-sint32 umgebung_t::autosave;
-uint32 umgebung_t::fps;
-sint16 umgebung_t::max_acceleration;
-uint8 umgebung_t::num_threads;
-bool umgebung_t::show_tooltips;
-uint8 umgebung_t::tooltip_color;
-uint8 umgebung_t::tooltip_textcolor;
-uint8 umgebung_t::toolbar_max_width;
-uint8 umgebung_t::toolbar_max_height;
-uint8 umgebung_t::cursor_overlay_color;
-uint8 umgebung_t::background_color;
-bool umgebung_t::draw_earth_border;
-bool umgebung_t::draw_outside_tile;
-uint8 umgebung_t::show_vehicle_states;
-bool umgebung_t::visualize_schedule;
-sint8 umgebung_t::daynight_level;
-bool umgebung_t::left_to_right_graphs;
-uint32 umgebung_t::tooltip_delay;
-uint32 umgebung_t::tooltip_duration;
+std::string environment_t::objfilename;
+bool environment_t::night_shift;
+bool environment_t::hide_with_transparency;
+bool environment_t::hide_trees;
+uint8 environment_t::hide_buildings;
+bool environment_t::hide_under_cursor;
+uint16 environment_t::cursor_hide_range;
+bool environment_t::use_transparency_station_coverage;
+uint8 environment_t::station_coverage_show;
+sint32 environment_t::show_names;
+sint32 environment_t::message_flags[4];
+uint32 environment_t::water_animation;
+uint32 environment_t::ground_object_probability;
+uint32 environment_t::moving_object_probability;
+bool environment_t::verkehrsteilnehmer_info;
+bool environment_t::tree_info;
+bool environment_t::ground_info;
+bool environment_t::townhall_info;
+bool environment_t::single_info;
+bool environment_t::window_buttons_right;
+bool environment_t::second_open_closes_win;
+bool environment_t::remember_window_positions;
+bool environment_t::window_frame_active;
+uint8 environment_t::verbose_debug;
+uint8 environment_t::default_sortmode;
+uint32 environment_t::default_mapmode;
+uint8 environment_t::show_month;
+sint32 environment_t::intercity_road_length;
+plainstring environment_t::river_type[10];
+uint8 environment_t::river_types;
+sint32 environment_t::autosave;
+uint32 environment_t::fps;
+sint16 environment_t::max_acceleration;
+uint8 environment_t::num_threads;
+bool environment_t::show_tooltips;
+uint8 environment_t::tooltip_color;
+uint8 environment_t::tooltip_textcolor;
+uint8 environment_t::toolbar_max_width;
+uint8 environment_t::toolbar_max_height;
+uint8 environment_t::cursor_overlay_color;
+uint8 environment_t::background_color;
+bool environment_t::draw_earth_border;
+bool environment_t::draw_outside_tile;
+uint8 environment_t::show_vehicle_states;
+bool environment_t::visualize_schedule;
+sint8 environment_t::daynight_level;
+bool environment_t::left_to_right_graphs;
+uint32 environment_t::tooltip_delay;
+uint32 environment_t::tooltip_duration;
 
-uint8 umgebung_t::front_window_bar_color;
-uint8 umgebung_t::front_window_text_color;
-uint8 umgebung_t::bottom_window_bar_color;
-uint8 umgebung_t::bottom_window_text_color;
+uint8 environment_t::front_window_bar_color;
+uint8 environment_t::front_window_text_color;
+uint8 environment_t::bottom_window_bar_color;
+uint8 environment_t::bottom_window_text_color;
 
 
 // Hajo: hier Standardwerte belegen.
-void umgebung_t::init()
+void environment_t::init()
 {
 	// settings for messages
 	message_flags[0] = 0x017F;
@@ -136,7 +136,7 @@ void umgebung_t::init()
 
 	hide_with_transparency = true;
 	hide_trees = false;
-	hide_buildings = umgebung_t::NOT_HIDE;
+	hide_buildings = environment_t::NOT_HIDE;
 	hide_under_cursor = false;
 	cursor_hide_range = 5;
 
@@ -234,7 +234,7 @@ void umgebung_t::init()
 
 
 // save/restore environment
-void umgebung_t::rdwr(loadsave_t *file)
+void environment_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t u( file, "umgebung_t" );
 
@@ -294,12 +294,12 @@ void umgebung_t::rdwr(loadsave_t *file)
 
 	file->rdwr_byte( default_sortmode );
 	if(  file->get_version()<111004  ) {
-		sint8 mode = log2(umgebung_t::default_mapmode)-1;
+		sint8 mode = log2(environment_t::default_mapmode)-1;
 		file->rdwr_byte( mode );
-		umgebung_t::default_mapmode = mode>=0 ? 1 << mode : 0;
+		environment_t::default_mapmode = mode>=0 ? 1 << mode : 0;
 	}
 	else {
-		file->rdwr_long( umgebung_t::default_mapmode );
+		file->rdwr_long( environment_t::default_mapmode );
 	}
 
 	file->rdwr_bool( window_buttons_right );

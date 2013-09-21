@@ -26,7 +26,7 @@
 #include "tpl/slist_tpl.h"
 
 #include "dataobj/marker.h"
-#include "dataobj/einstellungen.h"
+#include "dataobj/settings.h"
 #include "network/pwd_hash.h"
 #include "dataobj/loadsave.h"
 #include "dataobj/records.h"

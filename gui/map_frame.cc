@@ -22,7 +22,7 @@
 #include "../display/simgraph.h"
 #include "../simcolor.h"
 #include "../bauer/fabrikbauer.h"
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/koord.h"
 #include "../dataobj/loadsave.h"
@@ -122,7 +122,7 @@ map_frame_t::map_frame_t(karte_t *world) :
 	const koord s_gr=scrolly.get_groesse();
 	const koord ij = welt->get_world_position();
 	const koord win_size = gr-s_gr; // this is the visible area
-	karte->set_mode( (reliefkarte_t::MAP_MODES)umgebung_t::default_mapmode );
+	karte->set_mode( (reliefkarte_t::MAP_MODES)environment_t::default_mapmode );
 	scrolly.set_scroll_position(  max(0,min(ij.x-win_size.x/2,gr.x)), max(0, min(ij.y-win_size.y/2,gr.y)) );
 
 	// first row of controls
@@ -198,14 +198,14 @@ map_frame_t::map_frame_t(karte_t *world) :
 	b_overlay_networks.init(button_t::square_state, "Networks");
 	b_overlay_networks.set_tooltip("Overlay schedules/network");
 	b_overlay_networks.add_listener(this);
-	b_overlay_networks.pressed = (umgebung_t::default_mapmode & reliefkarte_t::MAP_LINES)!=0;
+	b_overlay_networks.pressed = (environment_t::default_mapmode & reliefkarte_t::MAP_LINES)!=0;
 	filter_container.add_komponente( &b_overlay_networks );
 
 	// insert filter buttons in legend container
 	for (int type=0; type<MAP_MAX_BUTTONS; type++) {
 		filter_buttons[type].init( button_t::box_state, button_init[type].button_text);
 		filter_buttons[type].set_tooltip( button_init[type].tooltip_text );
-		filter_buttons[type].pressed = button_init[type].mode&umgebung_t::default_mapmode;
+		filter_buttons[type].pressed = button_init[type].mode&environment_t::default_mapmode;
 		filter_buttons[type].background = filter_buttons[type].pressed ? button_init[type].select_color : button_init[type].color;
 		filter_buttons[type].foreground = filter_buttons[type].pressed ? COL_WHITE : COL_BLACK;
 		filter_buttons[type].add_listener(this);
@@ -349,37 +349,37 @@ bool map_frame_t::action_triggered( gui_action_creator_t *komp, value_t)
 	else if(komp==&b_overlay_networks) {
 		b_overlay_networks.pressed ^= 1;
 		if(  b_overlay_networks.pressed  ) {
-			umgebung_t::default_mapmode |= reliefkarte_t::MAP_LINES;
+			environment_t::default_mapmode |= reliefkarte_t::MAP_LINES;
 		}
 		else {
-			umgebung_t::default_mapmode &= ~reliefkarte_t::MAP_LINES;
+			environment_t::default_mapmode &= ~reliefkarte_t::MAP_LINES;
 		}
-		reliefkarte_t::get_karte()->set_mode(  (reliefkarte_t::MAP_MODES)umgebung_t::default_mapmode  );
+		reliefkarte_t::get_karte()->set_mode(  (reliefkarte_t::MAP_MODES)environment_t::default_mapmode  );
 	}
 	else {
 		for(  int i=0;  i<MAP_MAX_BUTTONS;  i++  ) {
 			if(  komp == filter_buttons+i  ) {
 				if(  filter_buttons[i].pressed  ) {
-					umgebung_t::default_mapmode &= ~button_init[i].mode;
+					environment_t::default_mapmode &= ~button_init[i].mode;
 				}
 				else {
 					if(  (button_init[i].mode & reliefkarte_t::MAP_MODE_FLAGS) == 0  ) {
 						// clear all persistent states
-						umgebung_t::default_mapmode &= reliefkarte_t::MAP_MODE_FLAGS;
+						environment_t::default_mapmode &= reliefkarte_t::MAP_MODE_FLAGS;
 					}
 					else if(  button_init[i].mode & reliefkarte_t::MAP_MODE_HALT_FLAGS  ) {
 						// clear all other halt states
-						umgebung_t::default_mapmode &= ~reliefkarte_t::MAP_MODE_HALT_FLAGS;
+						environment_t::default_mapmode &= ~reliefkarte_t::MAP_MODE_HALT_FLAGS;
 					}
-					umgebung_t::default_mapmode |= button_init[i].mode;
+					environment_t::default_mapmode |= button_init[i].mode;
 				}
 				filter_buttons[i].pressed ^= 1;
 				break;
 			}
 		}
-		reliefkarte_t::get_karte()->set_mode(  (reliefkarte_t::MAP_MODES)umgebung_t::default_mapmode  );
+		reliefkarte_t::get_karte()->set_mode(  (reliefkarte_t::MAP_MODES)environment_t::default_mapmode  );
 		for(  int i=0;  i<MAP_MAX_BUTTONS;  i++  ) {
-			filter_buttons[i].pressed = (button_init[i].mode&umgebung_t::default_mapmode)!=0;
+			filter_buttons[i].pressed = (button_init[i].mode&environment_t::default_mapmode)!=0;
 			filter_buttons[i].background = filter_buttons[i].pressed ? button_init[i].select_color : button_init[i].color;
 			filter_buttons[i].foreground = filter_buttons[i].pressed ? COL_WHITE : COL_BLACK;
 		}
@@ -444,7 +444,7 @@ bool map_frame_t::infowin_event(const event_t *ev)
 	else if(  IS_RIGHTDRAG(ev)  &&  reliefkarte_t::get_karte()->getroffen(ev2.mx,ev2.my)  &&  reliefkarte_t::get_karte()->getroffen(ev2.cx,ev2.cy)  ) {
 		int x = scrolly.get_scroll_x();
 		int y = scrolly.get_scroll_y();
-		const int scroll_direction = ( umgebung_t::scroll_multi>0 ? 1 : -1 );
+		const int scroll_direction = ( environment_t::scroll_multi>0 ? 1 : -1 );
 
 		x += (ev->mx - ev->cx)*scroll_direction*2;
 		y += (ev->my - ev->cy)*scroll_direction*2;
@@ -651,8 +651,8 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 
 void map_frame_t::rdwr( loadsave_t *file )
 {
-	bool is_show_schedule = (umgebung_t::default_mapmode & reliefkarte_t::MAP_LINES);
-	bool is_show_fab = (umgebung_t::default_mapmode & reliefkarte_t::MAP_FACTORIES);
+	bool is_show_schedule = (environment_t::default_mapmode & reliefkarte_t::MAP_LINES);
+	bool is_show_fab = (environment_t::default_mapmode & reliefkarte_t::MAP_FACTORIES);
 
 	file->rdwr_bool( reliefkarte_t::get_karte()->isometric );
 	if(  file->get_version()<111004  ) {
@@ -665,15 +665,15 @@ void map_frame_t::rdwr( loadsave_t *file )
 	file->rdwr_bool( scale_visible );
 	file->rdwr_bool( directory_visible );
 	if(  file->get_version()<111004  ) {
-		sint8 mode = log2(umgebung_t::default_mapmode & ~reliefkarte_t::MAP_MODE_FLAGS);
+		sint8 mode = log2(environment_t::default_mapmode & ~reliefkarte_t::MAP_MODE_FLAGS);
 		file->rdwr_byte( mode );
-		umgebung_t::default_mapmode = 1 << mode;
-		umgebung_t::default_mapmode = mode>=0 ? 1 << mode : 0;
-		umgebung_t::default_mapmode |= is_show_schedule * reliefkarte_t::MAP_LINES;
-		umgebung_t::default_mapmode |= is_show_fab * reliefkarte_t::MAP_FACTORIES;
+		environment_t::default_mapmode = 1 << mode;
+		environment_t::default_mapmode = mode>=0 ? 1 << mode : 0;
+		environment_t::default_mapmode |= is_show_schedule * reliefkarte_t::MAP_LINES;
+		environment_t::default_mapmode |= is_show_fab * reliefkarte_t::MAP_FACTORIES;
 	}
 	else {
-		file->rdwr_long( umgebung_t::default_mapmode );
+		file->rdwr_long( environment_t::default_mapmode );
 	}
 
 	if(  file->is_loading()  ) {
@@ -691,16 +691,16 @@ void map_frame_t::rdwr( loadsave_t *file )
 		file->rdwr_long( yoff );
 		scrolly.set_scroll_position( xoff, yoff );
 
-		reliefkarte_t::get_karte()->set_mode((reliefkarte_t::MAP_MODES)umgebung_t::default_mapmode);
+		reliefkarte_t::get_karte()->set_mode((reliefkarte_t::MAP_MODES)environment_t::default_mapmode);
 		for (uint i=0;i<MAP_MAX_BUTTONS;i++) {
-			filter_buttons[i].pressed = i==umgebung_t::default_mapmode;
+			filter_buttons[i].pressed = i==environment_t::default_mapmode;
 		}
 		if(  legend_visible!=show_legend_state  ) {
 			action_triggered( &b_show_legend, (long)0 );
 		}
 		b_filter_factory_list.set_visible( directory_visible );
 
-		b_overlay_networks.pressed = (umgebung_t::default_mapmode & reliefkarte_t::MAP_LINES)!=0;
+		b_overlay_networks.pressed = (environment_t::default_mapmode & reliefkarte_t::MAP_LINES)!=0;
 	}
 	else {
 		koord gr = get_fenstergroesse();

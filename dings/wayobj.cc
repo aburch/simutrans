@@ -22,7 +22,7 @@
 #include "../dataobj/ribi.h"
 #include "../dataobj/scenario.h"
 #include "../dataobj/translator.h"
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 
 #include "../besch/bruecke_besch.h"
 #include "../besch/tunnel_besch.h"

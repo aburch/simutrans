@@ -18,7 +18,7 @@
 #include "../boden/wege/weg.h"
 
 #include "../dataobj/loadsave.h"
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 
 #include "../utils/cbuffer_t.h"
 

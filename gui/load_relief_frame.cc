@@ -11,8 +11,8 @@
 #include "../simworld.h"
 #include "load_relief_frame.h"
 #include "../dataobj/translator.h"
-#include "../dataobj/einstellungen.h"
-#include "../dataobj/umgebung.h"
+#include "../dataobj/settings.h"
+#include "../dataobj/environment.h"
 
 /**
  * Action, started on button pressing
@@ -28,8 +28,8 @@ load_relief_frame_t::load_relief_frame_t(settings_t* const sets) : savegame_fram
 {
 	static char extra_path[1024];
 
-	sprintf(extra_path,"%s%smaps/", umgebung_t::program_dir, umgebung_t::objfilename.c_str());
-	//sprintf(extra_path,"%smaps/", umgebung_t::program_dir);
+	sprintf(extra_path,"%s%smaps/", environment_t::program_dir, environment_t::objfilename.c_str());
+	//sprintf(extra_path,"%smaps/", environment_t::program_dir);
 
 	this->add_path(extra_path);
 

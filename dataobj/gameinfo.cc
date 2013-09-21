@@ -9,9 +9,9 @@
 #include "gameinfo.h"
 #include "../network/network.h"
 #include "../network/network_socket_list.h"
-#include "einstellungen.h"
+#include "settings.h"
 #include "translator.h"
-#include "umgebung.h"
+#include "environment.h"
 #include "../simtools.h"
 #include "../simdebug.h"
 #include "../simworld.h"
@@ -99,7 +99,7 @@ gameinfo_t::gameinfo_t(karte_t *welt) :
 	}
 	else {
 		// construct from pak name
-		pak_name = umgebung_t::objfilename;
+		pak_name = environment_t::objfilename;
 		pak_name.erase( pak_name.length()-1 );
 	}
 

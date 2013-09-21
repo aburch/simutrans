@@ -20,8 +20,8 @@
 
 #include "../boden/grund.h"
 
-#include "../dataobj/einstellungen.h"
-#include "../dataobj/umgebung.h"
+#include "../dataobj/settings.h"
+#include "../dataobj/environment.h"
 #include "../network/pakset_info.h"
 #include "../dataobj/translator.h"
 

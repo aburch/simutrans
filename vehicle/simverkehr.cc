@@ -26,7 +26,7 @@
 
 #include "../dataobj/translator.h"
 #include "../dataobj/loadsave.h"
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 
 #include "../dings/crossing.h"
 #include "../dings/roadsign.h"
@@ -122,7 +122,7 @@ verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt, koord3d pos, uint16 ra
  */
 void verkehrsteilnehmer_t::zeige_info()
 {
-	if(umgebung_t::verkehrsteilnehmer_info) {
+	if(environment_t::verkehrsteilnehmer_info) {
 		ding_t::zeige_info();
 	}
 }

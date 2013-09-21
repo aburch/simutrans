@@ -427,11 +427,11 @@ public:
 class wkz_enlarge_map_t : public werkzeug_t{
 public:
 	wkz_enlarge_map_t() : werkzeug_t(WKZ_ENLARGE_MAP | DIALOGE_TOOL) {}
-	char const* get_tooltip(spieler_t const*) const OVERRIDE { return umgebung_t::networkmode ? translator::translate("deactivated in online mode") : translator::translate("enlarge map"); }
-	image_id get_icon(spieler_t *) const { return umgebung_t::networkmode ? IMG_LEER : icon; }
+	char const* get_tooltip(spieler_t const*) const OVERRIDE { return environment_t::networkmode ? translator::translate("deactivated in online mode") : translator::translate("enlarge map"); }
+	image_id get_icon(spieler_t *) const { return environment_t::networkmode ? IMG_LEER : icon; }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_bigger_map); }
 	bool init(karte_t* welt, spieler_t* sp) OVERRIDE {
-		if(  !umgebung_t::networkmode  ) {
+		if(  !environment_t::networkmode  ) {
 			destroy_all_win( true );
 			create_win( new enlarge_map_frame_t(sp,welt), w_info, magic_bigger_map );
 		}
@@ -459,11 +459,11 @@ public:
 class wkz_climates_t : public werkzeug_t {
 public:
 	wkz_climates_t() : werkzeug_t(WKZ_CLIMATES | DIALOGE_TOOL) {}
-	char const* get_tooltip(spieler_t const*) const OVERRIDE { return (!umgebung_t::networkmode  ||  umgebung_t::server) ? translator::translate("Climate Control") : translator::translate("deactivated in online mode"); }
-	image_id get_icon(spieler_t *) const { return (!umgebung_t::networkmode  ||  umgebung_t::server) ? icon : IMG_LEER; }
+	char const* get_tooltip(spieler_t const*) const OVERRIDE { return (!environment_t::networkmode  ||  environment_t::server) ? translator::translate("Climate Control") : translator::translate("deactivated in online mode"); }
+	image_id get_icon(spieler_t *) const { return (!environment_t::networkmode  ||  environment_t::server) ? icon : IMG_LEER; }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_climate); }
 	bool init(karte_t* welt, spieler_t*) OVERRIDE {
-		if(  !umgebung_t::networkmode  ||  umgebung_t::server  ) {
+		if(  !environment_t::networkmode  ||  environment_t::server  ) {
 			create_win(new climate_gui_t(&welt->get_settings()), w_info, magic_climate);
 		}
 		return false;
@@ -475,11 +475,11 @@ public:
 class wkz_settings_t : public werkzeug_t {
 public:
 	wkz_settings_t() : werkzeug_t(WKZ_SETTINGS | DIALOGE_TOOL) {}
-	char const* get_tooltip(spieler_t const*) const OVERRIDE { return (!umgebung_t::networkmode  ||  umgebung_t::server) ? translator::translate("Setting") : translator::translate("deactivated in online mode"); }
-	image_id get_icon(spieler_t *) const { return (!umgebung_t::networkmode  ||  umgebung_t::server) ? icon : IMG_LEER; }
+	char const* get_tooltip(spieler_t const*) const OVERRIDE { return (!environment_t::networkmode  ||  environment_t::server) ? translator::translate("Setting") : translator::translate("deactivated in online mode"); }
+	image_id get_icon(spieler_t *) const { return (!environment_t::networkmode  ||  environment_t::server) ? icon : IMG_LEER; }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_settings_frame_t); }
 	bool init(karte_t* welt, spieler_t*) OVERRIDE {
-		if(  !umgebung_t::networkmode  ||  umgebung_t::server  ) {
+		if(  !environment_t::networkmode  ||  environment_t::server  ) {
 			create_win(new settings_frame_t(&welt->get_settings()), w_info, magic_settings_frame_t);
 		}
 		return false;

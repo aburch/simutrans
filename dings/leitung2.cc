@@ -30,7 +30,7 @@ static pthread_mutex_t senke_list_mutex = PTHREAD_MUTEX_INITIALIZER;
 #include "../dataobj/translator.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/powernet.h"
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 
 #include "../boden/grund.h"
 #include "../bauer/wegbauer.h"

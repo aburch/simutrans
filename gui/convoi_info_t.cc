@@ -24,7 +24,7 @@
 
 #include "../dataobj/fahrplan.h"
 #include "../dataobj/translator.h"
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 #include "../dataobj/loadsave.h"
 #include "fahrplan_gui.h"
 // @author hsiegeln
@@ -150,7 +150,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 
 	const sint16 yoff = offset_below_viewport+46-D_BUTTON_HEIGHT-2;
 
-	sort_button.init(button_t::roundbox, sort_text[umgebung_t::default_sortmode], koord(BUTTON1_X,yoff), koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	sort_button.init(button_t::roundbox, sort_text[environment_t::default_sortmode], koord(BUTTON1_X,yoff), koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	sort_button.set_tooltip("Sort by");
 	sort_button.add_listener(this);
 	add_komponente(&sort_button);
@@ -189,7 +189,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	line_button.add_listener( this );
 	line_bound = false;
 
-	cnv->set_sortby( umgebung_t::default_sortmode );
+	cnv->set_sortby( environment_t::default_sortmode );
 
 	set_fenstergroesse(koord(total_width, view.get_groesse().y+208+D_SCROLLBAR_HEIGHT));
 	set_min_windowsize(koord(total_width, view.get_groesse().y+131+D_SCROLLBAR_HEIGHT));
@@ -414,9 +414,9 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 	// sort by what
 	if(komp == &sort_button) {
 		// sort by what
-		umgebung_t::default_sortmode = (sort_mode_t)((int)(cnv->get_sortby()+1)%(int)SORT_MODES);
-		sort_button.set_text(sort_text[umgebung_t::default_sortmode]);
-		cnv->set_sortby( umgebung_t::default_sortmode );
+		environment_t::default_sortmode = (sort_mode_t)((int)(cnv->get_sortby()+1)%(int)SORT_MODES);
+		sort_button.set_text(sort_text[environment_t::default_sortmode]);
+		cnv->set_sortby( environment_t::default_sortmode );
 	}
 
 	// some actions only allowed, when I am the player
@@ -618,7 +618,7 @@ void convoi_info_t::rdwr(loadsave_t *file)
 
 	gr.rdwr( file );
 	file->rdwr_long( flags );
-	file->rdwr_byte( umgebung_t::default_sortmode );
+	file->rdwr_byte( environment_t::default_sortmode );
 	file->rdwr_bool( stats );
 	file->rdwr_long( xoff );
 	file->rdwr_long( yoff );

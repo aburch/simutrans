@@ -19,7 +19,7 @@
 #include "../simtools.h"
 #include "../simintr.h"
 
-#include "../dataobj/einstellungen.h"
+#include "../dataobj/settings.h"
 #include "../dataobj/translator.h"
 
 // just for their structure size ...

@@ -17,7 +17,7 @@
 #include "simworld.h"
 
 #include "dataobj/loadsave.h"
-#include "dataobj/umgebung.h"
+#include "dataobj/environment.h"
 #include "player/simplay.h"
 #include "utils/simstring.h"
 #include "tpl/slist_tpl.h"
@@ -218,7 +218,7 @@ void message_t::rdwr( loadsave_t *file )
 {
 	uint16 msg_count;
 	if(  file->is_saving()  ) {
-		if(  umgebung_t::server  ) {
+		if(  environment_t::server  ) {
 			// on server: do not save local messages
 			msg_count = 0;
 			FOR(slist_tpl<node*>, const i, list) {

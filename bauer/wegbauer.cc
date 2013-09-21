@@ -42,7 +42,7 @@
 #include "../boden/tunnelboden.h"
 #include "../boden/grund.h"
 
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 #include "../dataobj/route.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/scenario.h"
@@ -567,7 +567,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		}
 		// up to now 'to' and 'from' refered to the ground one height step below the elevated way
 		// now get the grounds at the right height
-		koord3d pos = to->get_pos() + koord3d( 0, 0, umgebung_t::pak_height_conversion_factor );
+		koord3d pos = to->get_pos() + koord3d( 0, 0, environment_t::pak_height_conversion_factor );
 		grund_t *to2 = welt->lookup(pos);
 		if(to2) {
 			if(to2->get_weg_nr(0)) {
@@ -591,7 +591,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 			to = &to_dummy;
 		}
 
-		pos = from->get_pos() + koord3d( 0, 0, umgebung_t::pak_height_conversion_factor );
+		pos = from->get_pos() + koord3d( 0, 0, environment_t::pak_height_conversion_factor );
 		grund_t *from2 = welt->lookup(pos);
 		if(from2) {
 			from = from2;
@@ -606,7 +606,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		// now 'from' and 'to' point to grounds at the right height
 	}
 
-	if(  umgebung_t::pak_height_conversion_factor == 2  ) {
+	if(  environment_t::pak_height_conversion_factor == 2  ) {
 		// cannot build if conversion factor 2, we aren't powerline and way with maximum speed > 0 or powerline 1 tile below
 		grund_t *to2 = welt->lookup( to->get_pos() + koord3d(0, 0, -1) );
 		if(  to2 && (((bautyp&bautyp_mask)!=leitung && to2->get_weg_nr(0) && to2->get_weg_nr(0)->get_besch()->get_topspeed()>0) || to2->get_leitung())  ) {
@@ -1912,7 +1912,7 @@ wegbauer_t::baue_tunnel_und_bruecken()
 sint64 wegbauer_t::calc_costs()
 {
 	sint64 costs=0;
-	koord3d offset = koord3d( 0, 0, bautyp & elevated_flag ? umgebung_t::pak_height_conversion_factor : 0 );
+	koord3d offset = koord3d( 0, 0, bautyp & elevated_flag ? environment_t::pak_height_conversion_factor : 0 );
 
 	sint32 single_cost;
 	sint32 new_speedlimit;
@@ -2128,7 +2128,7 @@ void wegbauer_t::baue_elevated()
 		planquadrat_t* const plan = welt->access(i.get_2d());
 
 		grund_t* const gr0 = plan->get_boden_in_hoehe(i.z);
-		i.z += umgebung_t::pak_height_conversion_factor;
+		i.z += environment_t::pak_height_conversion_factor;
 		grund_t* const gr  = plan->get_boden_in_hoehe(i.z);
 
 		if(gr==NULL) {
@@ -2454,7 +2454,7 @@ void wegbauer_t::baue_fluss()
 	}
 
 	// we will make rivers gradually larger by stepping up their width
-	if(  umgebung_t::river_types>1  &&  start_n<get_count()) {
+	if(  environment_t::river_types>1  &&  start_n<get_count()) {
 		/* since we will stop at the first crossing with an existent river,
 		 * we cannot make sure, we have the same destination;
 		 * thus we use the routefinder to find the sea
@@ -2465,16 +2465,16 @@ void wegbauer_t::baue_fluss()
 			FOR(koord3d_vector_t, const& i, to_the_sea.get_route()) {
 				if (weg_t* const w = welt->lookup(i)->get_weg(water_wt)) {
 					int type;
-					for(  type=umgebung_t::river_types-1;  type>0;  type--  ) {
+					for(  type=environment_t::river_types-1;  type>0;  type--  ) {
 						// llokup type
-						if(  w->get_besch()==alle_wegtypen.get(umgebung_t::river_type[type])  ) {
+						if(  w->get_besch()==alle_wegtypen.get(environment_t::river_type[type])  ) {
 							break;
 						}
 					}
 					// still room to expand
 					if(  type>0  ) {
 						// thus we enlarge
-						w->set_besch( alle_wegtypen.get(umgebung_t::river_type[type-1]) );
+						w->set_besch( alle_wegtypen.get(environment_t::river_type[type-1]) );
 						w->calc_bild();
 					}
 				}

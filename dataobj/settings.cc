@@ -9,8 +9,8 @@
 #include <string>
 #include <math.h>
 
-#include "einstellungen.h"
-#include "umgebung.h"
+#include "settings.h"
+#include "environment.h"
 #include "../simconst.h"
 #include "../simtools.h"
 #include "../simtypes.h"
@@ -435,11 +435,11 @@ void settings_t::rdwr(loadsave_t *file)
 		}
 
 		if(  file->is_loading()  &&  file->get_version() < 112007  ) {
-			grundwasser *= umgebung_t::pak_height_conversion_factor;
+			grundwasser *= environment_t::pak_height_conversion_factor;
 			for(  int i = 0;  i < 8;  i++  ) {
-				climate_borders[i] *= umgebung_t::pak_height_conversion_factor;
+				climate_borders[i] *= environment_t::pak_height_conversion_factor;
 			}
-			winter_snowline *= umgebung_t::pak_height_conversion_factor;
+			winter_snowline *= environment_t::pak_height_conversion_factor;
 		}
 
 		// since vehicle will need realignment afterwards!
@@ -554,7 +554,7 @@ void settings_t::rdwr(loadsave_t *file)
 						save_starting_money = get_starting_money(starting_year );
 					}
 					if(save_starting_money==0) {
-						save_starting_money = umgebung_t::default_einstellungen.get_starting_money(starting_year );
+						save_starting_money = environment_t::default_einstellungen.get_starting_money(starting_year );
 					}
 					if(save_starting_money==0) {
 						save_starting_money = 20000000;
@@ -563,7 +563,7 @@ void settings_t::rdwr(loadsave_t *file)
 				file->rdwr_longlong(save_starting_money );
 				if(file->is_loading()) {
 					if(save_starting_money==0) {
-						save_starting_money = umgebung_t::default_einstellungen.get_starting_money(starting_year );
+						save_starting_money = environment_t::default_einstellungen.get_starting_money(starting_year );
 					}
 					if(save_starting_money==0) {
 						save_starting_money = 20000000;
@@ -613,7 +613,7 @@ void settings_t::rdwr(loadsave_t *file)
 		}
 		else {
 			// name of stops
-			set_name_language_iso( umgebung_t::language_iso );
+			set_name_language_iso( environment_t::language_iso );
 
 			// default AIs active
 			for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
@@ -655,15 +655,15 @@ void settings_t::rdwr(loadsave_t *file)
 			// network stuff
 			random_counter = get_random_seed( );
 			file->rdwr_long( random_counter );
-			if(  !umgebung_t::networkmode  ||  umgebung_t::server  ) {
-				frames_per_second = clamp(umgebung_t::fps,5,100 );	// update it on the server to the current setting
-				frames_per_step = umgebung_t::network_frames_per_step;
+			if(  !environment_t::networkmode  ||  environment_t::server  ) {
+				frames_per_second = clamp(environment_t::fps,5,100 );	// update it on the server to the current setting
+				frames_per_step = environment_t::network_frames_per_step;
 			}
 			file->rdwr_long( frames_per_second );
 			file->rdwr_long( frames_per_step );
-			if(  !umgebung_t::networkmode  ||  umgebung_t::server  ) {
-				frames_per_second = umgebung_t::fps;	// update it on the server to the current setting
-				frames_per_step = umgebung_t::network_frames_per_step;
+			if(  !environment_t::networkmode  ||  environment_t::server  ) {
+				frames_per_second = environment_t::fps;	// update it on the server to the current setting
+				frames_per_step = environment_t::network_frames_per_step;
 			}
 			file->rdwr_bool( allow_buying_obsolete_vehicles );
 			file->rdwr_long( factory_worker_minimum_towns );
@@ -681,12 +681,12 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_long( industry_increase );
 		}
 		if(  file->get_version()>=110000  ) {
-			if(  !umgebung_t::networkmode  ||  umgebung_t::server  ) {
-				server_frames_ahead = umgebung_t::server_frames_ahead;
+			if(  !environment_t::networkmode  ||  environment_t::server  ) {
+				server_frames_ahead = environment_t::server_frames_ahead;
 			}
 			file->rdwr_long( server_frames_ahead );
-			if(  !umgebung_t::networkmode  ||  umgebung_t::server  ) {
-				server_frames_ahead = umgebung_t::server_frames_ahead;
+			if(  !environment_t::networkmode  ||  environment_t::server  ) {
+				server_frames_ahead = environment_t::server_frames_ahead;
 			}
 			file->rdwr_short( used_vehicle_reduction );
 		}
@@ -782,102 +782,102 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	}
 #endif
 
-	umgebung_t::water_animation = contents.get_int("water_animation_ms", umgebung_t::water_animation );
-	umgebung_t::ground_object_probability = contents.get_int("random_grounds_probability", umgebung_t::ground_object_probability );
-	umgebung_t::moving_object_probability = contents.get_int("random_wildlife_probability", umgebung_t::moving_object_probability );
+	environment_t::water_animation = contents.get_int("water_animation_ms", environment_t::water_animation );
+	environment_t::ground_object_probability = contents.get_int("random_grounds_probability", environment_t::ground_object_probability );
+	environment_t::moving_object_probability = contents.get_int("random_wildlife_probability", environment_t::moving_object_probability );
 
-	umgebung_t::straight_way_without_control = contents.get_int("straight_way_without_control", umgebung_t::straight_way_without_control) != 0;
+	environment_t::straight_way_without_control = contents.get_int("straight_way_without_control", environment_t::straight_way_without_control) != 0;
 
-	umgebung_t::verkehrsteilnehmer_info = contents.get_int("pedes_and_car_info", umgebung_t::verkehrsteilnehmer_info) != 0;
-	umgebung_t::tree_info = contents.get_int("tree_info", umgebung_t::tree_info) != 0;
-	umgebung_t::ground_info = contents.get_int("ground_info", umgebung_t::ground_info) != 0;
-	umgebung_t::townhall_info = contents.get_int("townhall_info", umgebung_t::townhall_info) != 0;
-	umgebung_t::single_info = contents.get_int("only_single_info", umgebung_t::single_info );
+	environment_t::verkehrsteilnehmer_info = contents.get_int("pedes_and_car_info", environment_t::verkehrsteilnehmer_info) != 0;
+	environment_t::tree_info = contents.get_int("tree_info", environment_t::tree_info) != 0;
+	environment_t::ground_info = contents.get_int("ground_info", environment_t::ground_info) != 0;
+	environment_t::townhall_info = contents.get_int("townhall_info", environment_t::townhall_info) != 0;
+	environment_t::single_info = contents.get_int("only_single_info", environment_t::single_info );
 
-	umgebung_t::window_snap_distance = contents.get_int("window_snap_distance", umgebung_t::window_snap_distance );
-	umgebung_t::window_buttons_right = contents.get_int("window_buttons_right", umgebung_t::window_buttons_right );
-	umgebung_t::left_to_right_graphs = contents.get_int("left_to_right_graphs", umgebung_t::left_to_right_graphs );
-	umgebung_t::window_frame_active = contents.get_int("window_frame_active", umgebung_t::window_frame_active );
-	umgebung_t::second_open_closes_win = contents.get_int("second_open_closes_win", umgebung_t::second_open_closes_win );
-	umgebung_t::remember_window_positions = contents.get_int("remember_window_positions", umgebung_t::remember_window_positions );
+	environment_t::window_snap_distance = contents.get_int("window_snap_distance", environment_t::window_snap_distance );
+	environment_t::window_buttons_right = contents.get_int("window_buttons_right", environment_t::window_buttons_right );
+	environment_t::left_to_right_graphs = contents.get_int("left_to_right_graphs", environment_t::left_to_right_graphs );
+	environment_t::window_frame_active = contents.get_int("window_frame_active", environment_t::window_frame_active );
+	environment_t::second_open_closes_win = contents.get_int("second_open_closes_win", environment_t::second_open_closes_win );
+	environment_t::remember_window_positions = contents.get_int("remember_window_positions", environment_t::remember_window_positions );
 
-	umgebung_t::front_window_bar_color = contents.get_int("front_window_bar_color", umgebung_t::front_window_bar_color );
-	umgebung_t::front_window_text_color = contents.get_int("front_window_text_color", umgebung_t::front_window_text_color );
-	umgebung_t::bottom_window_bar_color = contents.get_int("bottom_window_bar_color", umgebung_t::bottom_window_bar_color );
-	umgebung_t::bottom_window_text_color = contents.get_int("bottom_window_text_color", umgebung_t::bottom_window_text_color );
+	environment_t::front_window_bar_color = contents.get_int("front_window_bar_color", environment_t::front_window_bar_color );
+	environment_t::front_window_text_color = contents.get_int("front_window_text_color", environment_t::front_window_text_color );
+	environment_t::bottom_window_bar_color = contents.get_int("bottom_window_bar_color", environment_t::bottom_window_bar_color );
+	environment_t::bottom_window_text_color = contents.get_int("bottom_window_text_color", environment_t::bottom_window_text_color );
 
-	umgebung_t::show_tooltips = contents.get_int("show_tooltips", umgebung_t::show_tooltips );
-	umgebung_t::tooltip_color = contents.get_int("tooltip_background_color", umgebung_t::tooltip_color );
-	umgebung_t::tooltip_textcolor = contents.get_int("tooltip_text_color", umgebung_t::tooltip_textcolor );
-	umgebung_t::tooltip_delay = contents.get_int("tooltip_delay", umgebung_t::tooltip_delay );
-	umgebung_t::tooltip_duration = contents.get_int("tooltip_duration", umgebung_t::tooltip_duration );
-	umgebung_t::toolbar_max_width = contents.get_int("toolbar_max_width", umgebung_t::toolbar_max_width );
-	umgebung_t::toolbar_max_height = contents.get_int("toolbar_max_height", umgebung_t::toolbar_max_height );
-	umgebung_t::cursor_overlay_color = contents.get_int("cursor_overlay_color", umgebung_t::cursor_overlay_color );
+	environment_t::show_tooltips = contents.get_int("show_tooltips", environment_t::show_tooltips );
+	environment_t::tooltip_color = contents.get_int("tooltip_background_color", environment_t::tooltip_color );
+	environment_t::tooltip_textcolor = contents.get_int("tooltip_text_color", environment_t::tooltip_textcolor );
+	environment_t::tooltip_delay = contents.get_int("tooltip_delay", environment_t::tooltip_delay );
+	environment_t::tooltip_duration = contents.get_int("tooltip_duration", environment_t::tooltip_duration );
+	environment_t::toolbar_max_width = contents.get_int("toolbar_max_width", environment_t::toolbar_max_width );
+	environment_t::toolbar_max_height = contents.get_int("toolbar_max_height", environment_t::toolbar_max_height );
+	environment_t::cursor_overlay_color = contents.get_int("cursor_overlay_color", environment_t::cursor_overlay_color );
 
 	// how to show the stuff outside the map
-	umgebung_t::background_color = contents.get_int("background_color", umgebung_t::background_color );
-	umgebung_t::draw_earth_border = contents.get_int("draw_earth_border", umgebung_t::draw_earth_border ) != 0;
-	umgebung_t::draw_outside_tile = contents.get_int("draw_outside_tile", umgebung_t::draw_outside_tile ) != 0;
+	environment_t::background_color = contents.get_int("background_color", environment_t::background_color );
+	environment_t::draw_earth_border = contents.get_int("draw_earth_border", environment_t::draw_earth_border ) != 0;
+	environment_t::draw_outside_tile = contents.get_int("draw_outside_tile", environment_t::draw_outside_tile ) != 0;
 
 	// display stuff
-	umgebung_t::show_names = contents.get_int("show_names", umgebung_t::show_names );
-	umgebung_t::show_month = contents.get_int("show_month", umgebung_t::show_month );
-	umgebung_t::max_acceleration = contents.get_int("fast_forward", umgebung_t::max_acceleration );
-	umgebung_t::fps = contents.get_int("frames_per_second",umgebung_t::fps );
-	umgebung_t::num_threads = clamp( contents.get_int("threads", umgebung_t::num_threads ), 1, MAX_THREADS );
-	umgebung_t::simple_drawing_default = contents.get_int("simple_drawing_tile_size",umgebung_t::simple_drawing_default );
-	umgebung_t::simple_drawing_fast_forward = contents.get_int("simple_drawing_fast_forward",umgebung_t::simple_drawing_fast_forward );
-	umgebung_t::visualize_schedule = contents.get_int("visualize_schedule",umgebung_t::visualize_schedule )!=0;
-	umgebung_t::show_vehicle_states = contents.get_int("show_vehicle_states",umgebung_t::show_vehicle_states );
+	environment_t::show_names = contents.get_int("show_names", environment_t::show_names );
+	environment_t::show_month = contents.get_int("show_month", environment_t::show_month );
+	environment_t::max_acceleration = contents.get_int("fast_forward", environment_t::max_acceleration );
+	environment_t::fps = contents.get_int("frames_per_second",environment_t::fps );
+	environment_t::num_threads = clamp( contents.get_int("threads", environment_t::num_threads ), 1, MAX_THREADS );
+	environment_t::simple_drawing_default = contents.get_int("simple_drawing_tile_size",environment_t::simple_drawing_default );
+	environment_t::simple_drawing_fast_forward = contents.get_int("simple_drawing_fast_forward",environment_t::simple_drawing_fast_forward );
+	environment_t::visualize_schedule = contents.get_int("visualize_schedule",environment_t::visualize_schedule )!=0;
+	environment_t::show_vehicle_states = contents.get_int("show_vehicle_states",environment_t::show_vehicle_states );
 
-	umgebung_t::hide_rail_return_ticket = contents.get_int("hide_rail_return_ticket",umgebung_t::hide_rail_return_ticket );
-	umgebung_t::chat_window_transparency = contents.get_int("chat_transparency",umgebung_t::chat_window_transparency );
+	environment_t::hide_rail_return_ticket = contents.get_int("hide_rail_return_ticket",environment_t::hide_rail_return_ticket );
+	environment_t::chat_window_transparency = contents.get_int("chat_transparency",environment_t::chat_window_transparency );
 
 	// network stuff
-	umgebung_t::server_frames_ahead = contents.get_int("server_frames_ahead", umgebung_t::server_frames_ahead );
-	umgebung_t::additional_client_frames_behind = contents.get_int("additional_client_frames_behind", umgebung_t::additional_client_frames_behind);
-	umgebung_t::network_frames_per_step = contents.get_int("server_frames_per_step", umgebung_t::network_frames_per_step );
-	umgebung_t::server_sync_steps_between_checks = contents.get_int("server_frames_between_checks", umgebung_t::server_sync_steps_between_checks );
-	umgebung_t::pause_server_no_clients = contents.get_int("pause_server_no_clients", umgebung_t::pause_server_no_clients );
+	environment_t::server_frames_ahead = contents.get_int("server_frames_ahead", environment_t::server_frames_ahead );
+	environment_t::additional_client_frames_behind = contents.get_int("additional_client_frames_behind", environment_t::additional_client_frames_behind);
+	environment_t::network_frames_per_step = contents.get_int("server_frames_per_step", environment_t::network_frames_per_step );
+	environment_t::server_sync_steps_between_checks = contents.get_int("server_frames_between_checks", environment_t::server_sync_steps_between_checks );
+	environment_t::pause_server_no_clients = contents.get_int("pause_server_no_clients", environment_t::pause_server_no_clients );
 
-	umgebung_t::server_announce = contents.get_int("announce_server", umgebung_t::server_announce );
-	umgebung_t::server_announce = contents.get_int("server_announce", umgebung_t::server_announce );
-	umgebung_t::server_announce_interval = contents.get_int("server_announce_intervall", umgebung_t::server_announce_interval );
-	umgebung_t::server_announce_interval = contents.get_int("server_announce_interval", umgebung_t::server_announce_interval );
-	if (umgebung_t::server_announce_interval < 60) {
-		umgebung_t::server_announce_interval = 60;
-	} else if (umgebung_t::server_announce_interval > 86400) {
-		umgebung_t::server_announce_interval = 86400;
+	environment_t::server_announce = contents.get_int("announce_server", environment_t::server_announce );
+	environment_t::server_announce = contents.get_int("server_announce", environment_t::server_announce );
+	environment_t::server_announce_interval = contents.get_int("server_announce_intervall", environment_t::server_announce_interval );
+	environment_t::server_announce_interval = contents.get_int("server_announce_interval", environment_t::server_announce_interval );
+	if (environment_t::server_announce_interval < 60) {
+		environment_t::server_announce_interval = 60;
+	} else if (environment_t::server_announce_interval > 86400) {
+		environment_t::server_announce_interval = 86400;
 	}
 	if(  *contents.get("server_dns")  ) {
-		umgebung_t::server_dns = ltrim(contents.get("server_dns"));
+		environment_t::server_dns = ltrim(contents.get("server_dns"));
 	}
 	if(  *contents.get("server_name")  ) {
-		umgebung_t::server_name = ltrim(contents.get("server_name"));
+		environment_t::server_name = ltrim(contents.get("server_name"));
 	}
 	if(  *contents.get("server_comments")  ) {
-		umgebung_t::server_comments = ltrim(contents.get("server_comments"));
+		environment_t::server_comments = ltrim(contents.get("server_comments"));
 	}
 	if(  *contents.get("server_email")  ) {
-		umgebung_t::server_email = ltrim(contents.get("server_email"));
+		environment_t::server_email = ltrim(contents.get("server_email"));
 	}
 	if(  *contents.get("server_pakurl")  ) {
-		umgebung_t::server_pakurl = ltrim(contents.get("server_pakurl"));
+		environment_t::server_pakurl = ltrim(contents.get("server_pakurl"));
 	}
 	if(  *contents.get("server_infurl")  ) {
-		umgebung_t::server_infurl = ltrim(contents.get("server_infurl"));
+		environment_t::server_infurl = ltrim(contents.get("server_infurl"));
 	}
 	if(  *contents.get("server_admin_pw")  ) {
-		umgebung_t::server_admin_pw = ltrim(contents.get("server_admin_pw"));
+		environment_t::server_admin_pw = ltrim(contents.get("server_admin_pw"));
 	}
 	if(  *contents.get("nickname")  ) {
-		umgebung_t::nickname = ltrim(contents.get("nickname"));
+		environment_t::nickname = ltrim(contents.get("nickname"));
 	}
 
 	// listen directive is a comma separated list of IP addresses to listen on
 	if(  *contents.get("listen")  ) {
-		umgebung_t::listen.clear();
+		environment_t::listen.clear();
 		std::string s = ltrim(contents.get("listen"));
 
 		// Find index of first ',' copy from start of string to that position
@@ -888,11 +888,11 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 		size_t end;
 
 		end = s.find_first_of(",");
-		umgebung_t::listen.append_unique( ltrim( s.substr( start, end ).c_str() ) );
+		environment_t::listen.append_unique( ltrim( s.substr( start, end ).c_str() ) );
 		while (  end != std::string::npos  ) {
 			start = end;
 			end = s.find_first_of( ",", start + 1 );
-			umgebung_t::listen.append_unique( ltrim( s.substr( start + 1, end - 1 - start ).c_str() ) );
+			environment_t::listen.append_unique( ltrim( s.substr( start + 1, end - 1 - start ).c_str() ) );
 		}
 	}
 
@@ -906,10 +906,10 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 		sprintf( name, "river_type[%i]", i );
 		const char *test = ltrim(contents.get(name) );
 		if(*test) {
-			const int add_river = i<umgebung_t::river_types ? i : umgebung_t::river_types;
-			umgebung_t::river_type[add_river] = test;
-			if(  add_river==umgebung_t::river_types  ) {
-				umgebung_t::river_types++;
+			const int add_river = i<environment_t::river_types ? i : environment_t::river_types;
+			environment_t::river_type[add_river] = test;
+			if(  add_river==environment_t::river_types  ) {
+				environment_t::river_types++;
 			}
 		}
 	}
@@ -1019,7 +1019,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 		num_intercity_roads = 1;
 	}
 
-	umgebung_t::autosave = (contents.get_int("autosave", umgebung_t::autosave) );
+	environment_t::autosave = (contents.get_int("autosave", environment_t::autosave) );
 
 	// routing stuff
 	max_route_steps = contents.get_int("max_route_steps", max_route_steps );
@@ -1211,9 +1211,9 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	// these are pak specific; the diagonal length affect traveling time (is game critical)
 	pak_diagonal_multiplier = contents.get_int("diagonal_multiplier", pak_diagonal_multiplier );
 	// the height in z-direction will only cause pixel errors but not a different behaviour
-	umgebung_t::pak_tile_height_step = contents.get_int("tile_height", umgebung_t::pak_tile_height_step );
+	environment_t::pak_tile_height_step = contents.get_int("tile_height", environment_t::pak_tile_height_step );
 	// new height for old slopes after conversion - 1=single height, 2=double height
-	umgebung_t::pak_height_conversion_factor = contents.get_int("height_conversion_factor", umgebung_t::pak_height_conversion_factor );
+	environment_t::pak_height_conversion_factor = contents.get_int("height_conversion_factor", environment_t::pak_height_conversion_factor );
 
 	min_factory_spacing = contents.get_int("factory_spacing", min_factory_spacing );
 	min_factory_spacing = contents.get_int("min_factory_spacing", min_factory_spacing );
@@ -1321,7 +1321,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 int settings_t::get_name_language_id() const
 {
 	int lang = -1;
-	if(  umgebung_t::networkmode  ) {
+	if(  environment_t::networkmode  ) {
 		lang = translator::get_language( language_code_names );
 	}
 	if(  lang == -1  ) {

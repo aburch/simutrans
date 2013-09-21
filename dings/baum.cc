@@ -27,7 +27,7 @@
 
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 #include "../dataobj/freelist.h"
 
 
@@ -384,8 +384,8 @@ void baum_t::calc_bild()
 
 image_id baum_t::get_bild() const
 {
-	if(  umgebung_t::hide_trees  ) {
-		if(  umgebung_t::hide_with_transparency  ) {
+	if(  environment_t::hide_trees  ) {
+		if(  environment_t::hide_with_transparency  ) {
 			// we need the real age for transparency or real image
 			return IMG_LEER;
 		}
@@ -583,7 +583,7 @@ void baum_t::laden_abschliessen()
  */
 void baum_t::zeige_info()
 {
-	if(umgebung_t::tree_info) {
+	if(environment_t::tree_info) {
 		ding_t::zeige_info();
 	}
 }

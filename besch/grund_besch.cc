@@ -17,7 +17,7 @@
 #include "../simconst.h"
 #include "spezial_obj_tpl.h"
 #include "grund_besch.h"
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 
 const int totalslopes_single = 16;
 const int totalslopes = 81;
@@ -488,7 +488,7 @@ bool grund_besch_t::register_besch(const grund_besch_t *besch)
 		}
 		// then ignore all ms settings
 		if(water_animation_stages==1) {
-			umgebung_t::water_animation = 0;
+			environment_t::water_animation = 0;
 		}
 		water_depth_levels = besch->get_child<bildliste2d_besch_t>(2)->get_anzahl()-2;
 		if(water_depth_levels<=0) {

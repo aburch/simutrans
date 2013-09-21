@@ -4,7 +4,7 @@
 
 #include "../api_class.h"
 #include "../api_function.h"
-#include "../../dataobj/einstellungen.h"
+#include "../../dataobj/settings.h"
 #include "../../simmenu.h"
 #include "../../simworld.h"
 

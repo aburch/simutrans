@@ -35,7 +35,7 @@
 #include "../simworld.h"
 
 #include "../dataobj/translator.h"
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/tabfile.h"
 
@@ -156,7 +156,7 @@ static void destroy_framed_win(simwin_t *win);
 //=========================================================================
 // Helper Functions
 
-#define REVERSE_GADGETS (!umgebung_t::window_buttons_right)
+#define REVERSE_GADGETS (!environment_t::window_buttons_right)
 
 /**
  * Display a window gadget
@@ -543,7 +543,7 @@ int create_win(int x, int y, gui_frame_t* const gui, wintype const wt, ptrdiff_t
 	assert(gui!=NULL  &&  magic!=0);
 
 	if(  gui_frame_t *win = win_get_magic(magic)  ) {
-		if(  umgebung_t::second_open_closes_win  ) {
+		if(  environment_t::second_open_closes_win  ) {
 			destroy_win( win );
 			if(  !( wt & w_do_not_delete )  ) {
 				delete gui;
@@ -555,7 +555,7 @@ int create_win(int x, int y, gui_frame_t* const gui, wintype const wt, ptrdiff_t
 		return -1;
 	}
 
-	if(  x==-1  &&  y==-1  &&  umgebung_t::remember_window_positions  ) {
+	if(  x==-1  &&  y==-1  &&  environment_t::remember_window_positions  ) {
 		// look for window in hash table
 		if(  koord *k = old_win_pos.access(magic)  ) {
 			x = k->x;
@@ -582,13 +582,13 @@ int create_win(int x, int y, gui_frame_t* const gui, wintype const wt, ptrdiff_t
 		if (!wins.empty()) {
 			// mark old dirty
 			const koord gr = wins.back().gui->get_fenstergroesse();
-			mark_rect_dirty_wc( wins.back().pos.x - 1, wins.back().pos.y - 1, wins.back().pos.x + gr.x + 2, wins.back().pos.y + gr.y + 2 ); // -1, +2 for umgebung_t::window_frame_active
+			mark_rect_dirty_wc( wins.back().pos.x - 1, wins.back().pos.y - 1, wins.back().pos.x + gr.x + 2, wins.back().pos.y + gr.y + 2 ); // -1, +2 for environment_t::window_frame_active
 		}
 
 		wins.append( simwin_t() );
 		simwin_t& win = wins.back();
 
-		sint16 const menu_height = umgebung_t::iconsize.y;
+		sint16 const menu_height = environment_t::iconsize.y;
 
 		// (Mathew Hounsell) Make Sure Closes Aren't Forgotten.
 		// Must Reset as the entries and thus flags are reused
@@ -691,7 +691,7 @@ static void destroy_framed_win(simwin_t *wins)
 {
 	// mark dirty
 	const koord gr = wins->gui->get_fenstergroesse();
-	mark_rect_dirty_wc( wins->pos.x - 1, wins->pos.y - 1, wins->pos.x + gr.x + 2, wins->pos.y + gr.y + 2 ); // -1, +2 for umgebung_t::window_frame_active
+	mark_rect_dirty_wc( wins->pos.x - 1, wins->pos.y - 1, wins->pos.x + gr.x + 2, wins->pos.y + gr.y + 2 ); // -1, +2 for environment_t::window_frame_active
 
 	if(wins->gui) {
 		event_t ev;
@@ -807,7 +807,7 @@ int top_win(int win, bool keep_state )
 
 	// mark old dirty
 	koord gr = wins.back().gui->get_fenstergroesse();
-	mark_rect_dirty_wc( wins.back().pos.x - 1, wins.back().pos.y - 1, wins.back().pos.x + gr.x + 2, wins.back().pos.y + gr.y + 2 ); // -1, +2 for umgebung_t::window_frame_active
+	mark_rect_dirty_wc( wins.back().pos.x - 1, wins.back().pos.y - 1, wins.back().pos.x + gr.x + 2, wins.back().pos.y + gr.y + 2 ); // -1, +2 for environment_t::window_frame_active
 //    mark_rect_dirty_wc( wins.back().pos.x, wins.back().pos.y, wins.back().pos.x+wins.back().gui->get_windowsize().x, wins.back().pos.y+D_TITLEBAR_HEIGHT );
 
 	simwin_t tmp = wins[win];
@@ -819,7 +819,7 @@ int top_win(int win, bool keep_state )
 
 	 // mark new dirty
 	gr = wins.back().gui->get_fenstergroesse();
-	mark_rect_dirty_wc( wins.back().pos.x - 1, wins.back().pos.y - 1, wins.back().pos.x + gr.x + 2, wins.back().pos.y + gr.y + 2 ); // -1, +2 for umgebung_t::window_frame_active
+	mark_rect_dirty_wc( wins.back().pos.x - 1, wins.back().pos.y - 1, wins.back().pos.x + gr.x + 2, wins.back().pos.y + gr.y + 2 ); // -1, +2 for environment_t::window_frame_active
 
 	event_t ev;
 
@@ -846,12 +846,12 @@ void display_win(int win)
 	gui_frame_t *komp = wins[win].gui;
 	koord gr = komp->get_fenstergroesse();
 	koord pos = wins[win].pos;
-	PLAYER_COLOR_VAL title_color = (komp->get_titelcolor()&0xF8)+umgebung_t::front_window_bar_color;
-	PLAYER_COLOR_VAL text_color = +umgebung_t::front_window_text_color;
+	PLAYER_COLOR_VAL title_color = (komp->get_titelcolor()&0xF8)+environment_t::front_window_bar_color;
+	PLAYER_COLOR_VAL text_color = +environment_t::front_window_text_color;
 	if(  (unsigned)win!=wins.get_count()-1  ) {
 		// not top => maximum brightness
-		title_color = (title_color&0xF8)+umgebung_t::bottom_window_bar_color;
-		text_color = umgebung_t::bottom_window_text_color;
+		title_color = (title_color&0xF8)+environment_t::bottom_window_bar_color;
+		text_color = environment_t::bottom_window_text_color;
 	}
 	bool need_dragger = komp->get_resizemode() != gui_frame_t::no_resize;
 
@@ -873,7 +873,7 @@ void display_win(int win)
 		}
 	}
 	// mark top window, if requested
-	if(umgebung_t::window_frame_active  &&  (unsigned)win==wins.get_count()-1) {
+	if(environment_t::window_frame_active  &&  (unsigned)win==wins.get_count()-1) {
 		const int y_off = wins[win].flags.title ? 0 : D_TITLEBAR_HEIGHT;
 		if(!wins[win].rollup) {
 			display_ddd_box( wins[win].pos.x-1, wins[win].pos.y-1 + y_off, gr.x+2, gr.y+2 - y_off, title_color, title_color+1, wins[win].gui->is_dirty() );
@@ -946,7 +946,7 @@ static void remove_old_win()
 
 static inline void snap_check_distance( sint16 *r, const sint16 a, const sint16 b )
 {
-	if(  abs(a-b)<=umgebung_t::window_snap_distance  ) {
+	if(  abs(a-b)<=environment_t::window_snap_distance  ) {
 		*r = a;
 	}
 }
@@ -1074,7 +1074,7 @@ void move_win(int win, event_t *ev)
 	koord to_pos = wins[win].pos+(mouse_to-mouse_from);
 	const koord to_gr = from_gr;
 
-	if(  umgebung_t::window_snap_distance>0  ) {
+	if(  environment_t::window_snap_distance>0  ) {
 		snap_check_win( win, &to_pos, from_pos, from_gr, to_pos, to_gr );
 	}
 
@@ -1086,7 +1086,7 @@ void move_win(int win, event_t *ev)
 	const koord delta = to_pos - from_pos;
 
 	wins[win].pos += delta;
-	// need to mark all of old and new positions dirty. -1, +2 for umgebung_t::window_frame_active
+	// need to mark all of old and new positions dirty. -1, +2 for environment_t::window_frame_active
 	mark_rect_dirty_wc( from_pos.x - 1, from_pos.y - 1, from_pos.x + from_gr.x + 2, from_pos.y + from_gr.y + 2 );
 	mark_rect_dirty_wc( to_pos.x - 1, to_pos.y - 1, to_pos.x + to_gr.x + 2, to_pos.y + to_gr.y + 2 );
 	// set dirty flag to refill background
@@ -1113,12 +1113,12 @@ void resize_win(int win, event_t *ev)
 	const koord to_pos = from_pos;
 	koord to_gr = from_gr+(mouse_to-mouse_from);
 
-	if(  umgebung_t::window_snap_distance>0  ) {
+	if(  environment_t::window_snap_distance>0  ) {
 		snap_check_win( win, &to_gr, from_pos, from_gr, to_pos, to_gr );
 	}
 
 	// since we may be smaller afterwards
-	mark_rect_dirty_wc( from_pos.x - 1, from_pos.y - 1, from_pos.x + from_gr.x + 2, from_pos.y + from_gr.y + 2 ); // -1, +2 for umgebung_t::window_frame_active
+	mark_rect_dirty_wc( from_pos.x - 1, from_pos.y - 1, from_pos.x + from_gr.x + 2, from_pos.y + from_gr.y + 2 ); // -1, +2 for environment_t::window_frame_active
 	// set dirty flag to refill background
 	if(wl) {
 		wl->set_background_dirty();
@@ -1168,7 +1168,7 @@ void win_set_pos(gui_frame_t *gui, int x, int y)
 			wins[i].pos.x = x;
 			wins[i].pos.y = y;
 			const koord gr = wins[i].gui->get_fenstergroesse();
-			mark_rect_dirty_wc( x - 1, y - 1, x + gr.x + 2, y + gr.y + 2 ); // -1, +2 for umgebung_t::window_frame_active
+			mark_rect_dirty_wc( x - 1, y - 1, x + gr.x + 2, y + gr.y + 2 ); // -1, +2 for environment_t::window_frame_active
 			return;
 		}
 	}
@@ -1431,7 +1431,7 @@ void win_poll_event(event_t* const ev)
 	}
 	// save and reload all windows (currently only used when a new theme is applied)
 	if(  ev->ev_class==EVENT_SYSTEM  &&  ev->ev_code==SYSTEM_RELOAD_WINDOWS  ) {
-		chdir( umgebung_t::user_dir );
+		chdir( environment_t::user_dir );
 		loadsave_t dlg;
 		if(  dlg.wr_open( "dlgpos.xml", loadsave_t::xml_zipped, "temp", SERVER_SAVEGAME_VER_NR )  ) {
 			// save all
@@ -1493,14 +1493,14 @@ void win_display_flush(double konto)
 		display_all_win();
 		remove_old_win();
 
-		if(umgebung_t::show_tooltips) {
+		if(environment_t::show_tooltips) {
 			// Hajo: check if there is a tooltip to display
 			if(  tooltip_text  &&  *tooltip_text  ) {
 				// Knightly : display tooltip when current owner is invalid or when it is within visible duration
 				unsigned long elapsed_time;
-				if(  !tooltip_owner  ||  ((elapsed_time=dr_time()-tooltip_register_time)>umgebung_t::tooltip_delay  &&  elapsed_time<=umgebung_t::tooltip_delay+umgebung_t::tooltip_duration)  ) {
+				if(  !tooltip_owner  ||  ((elapsed_time=dr_time()-tooltip_register_time)>environment_t::tooltip_delay  &&  elapsed_time<=environment_t::tooltip_delay+environment_t::tooltip_duration)  ) {
 					const sint16 width = proportional_string_width(tooltip_text)+7;
-					display_ddd_proportional_clip(min(tooltip_xpos,disp_width-width), max(menu_height+7,tooltip_ypos), width, 0, umgebung_t::tooltip_color, umgebung_t::tooltip_textcolor, tooltip_text, true);
+					display_ddd_proportional_clip(min(tooltip_xpos,disp_width-width), max(menu_height+7,tooltip_ypos), width, 0, environment_t::tooltip_color, environment_t::tooltip_textcolor, tooltip_text, true);
 					if(wl) {
 						wl->set_background_dirty();
 					}
@@ -1508,7 +1508,7 @@ void win_display_flush(double konto)
 			}
 			else if(static_tooltip_text!=NULL  &&  *static_tooltip_text) {
 				const sint16 width = proportional_string_width(static_tooltip_text)+7;
-				display_ddd_proportional_clip(min(get_maus_x()+16,disp_width-width), max(menu_height+7,get_maus_y()-16), width, 0, umgebung_t::tooltip_color, umgebung_t::tooltip_textcolor, static_tooltip_text, true);
+				display_ddd_proportional_clip(min(get_maus_x()+16,disp_width-width), max(menu_height+7,get_maus_y()-16), width, 0, environment_t::tooltip_color, environment_t::tooltip_textcolor, static_tooltip_text, true);
 				if(wl) {
 					wl->set_background_dirty();
 				}
@@ -1564,7 +1564,7 @@ void win_display_flush(double konto)
 	}
 
 	// shown if connected
-	if(  umgebung_t::networkmode  &&  skinverwaltung_t::networksymbol  ) {
+	if(  environment_t::networkmode  &&  skinverwaltung_t::networksymbol  ) {
 		right_border -= 14;
 		display_color_img( skinverwaltung_t::networksymbol->get_bild_nr(0), right_border, disp_height-15, 0, false, true );
 		if(  tooltip_check  &&  tooltip_xpos>=right_border  ) {
@@ -1606,7 +1606,7 @@ void win_display_flush(double konto)
 	if(wl->show_distance!=koord3d::invalid  &&  wl->show_distance!=pos) {
 		info.printf("-(%d,%d)", wl->show_distance.x-pos.x, wl->show_distance.y-pos.y );
 	}
-	if(  !umgebung_t::networkmode  ) {
+	if(  !environment_t::networkmode  ) {
 		// time multiplier text
 		if(wl->is_fast_forward()) {
 			info.printf(" %s(T~%1.2f)", skinverwaltung_t::fastforwardsymbol?"":">> ", wl->get_simloops()/50.0 );
@@ -1619,7 +1619,7 @@ void win_display_flush(double konto)
 		}
 	}
 #ifdef DEBUG
-	if(  umgebung_t::verbose_debug>3  ) {
+	if(  environment_t::verbose_debug>3  ) {
 		if(  haltestelle_t::get_rerouting_status()==RECONNECTING  ) {
 			info.append( " +" );
 		}
@@ -1688,8 +1688,8 @@ void win_set_tooltip(int xpos, int ypos, const char *text, const void *const own
 			if(  group  &&  group==tooltip_group  ) {
 				// case : same group
 				const unsigned long elapsed_time = current_time - tooltip_register_time;
-				const unsigned long threshold = umgebung_t::tooltip_delay - (umgebung_t::tooltip_delay>>2);	// 3/4 of delay
-				if(  elapsed_time>threshold  &&  elapsed_time<=umgebung_t::tooltip_delay+umgebung_t::tooltip_duration  ) {
+				const unsigned long threshold = environment_t::tooltip_delay - (environment_t::tooltip_delay>>2);	// 3/4 of delay
+				if(  elapsed_time>threshold  &&  elapsed_time<=environment_t::tooltip_delay+environment_t::tooltip_duration  ) {
 					// case : threshold was reached and duration not expired -> delay time is reduced to 1/4
 					tooltip_register_time = current_time - threshold;
 				}

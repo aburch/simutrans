@@ -25,14 +25,14 @@
 #define debuglevel (0)
 
 #else
-#define debuglevel (umgebung_t::verbose_debug)
+#define debuglevel (environment_t::verbose_debug)
 
 // for display ...
 #include "../gui/messagebox.h"
 #include "../display/simgraph.h"
 #include "../gui/simwin.h"
 
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 #endif
 #endif
 
@@ -296,9 +296,9 @@ void log_t::fatal(const char *who, const char *format, ...)
 	puts( buffer );
 #else
 #  ifdef DEBUG
-	int old_level = umgebung_t::verbose_debug;
+	int old_level = environment_t::verbose_debug;
 #  endif
-	umgebung_t::verbose_debug = 0;	// no more window concerning messages
+	environment_t::verbose_debug = 0;	// no more window concerning messages
 	if(is_display_init()) {
 		// show notification
 		destroy_all_win( true );

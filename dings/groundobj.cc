@@ -21,7 +21,7 @@
 
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 #include "../dataobj/freelist.h"
 
 
@@ -204,7 +204,7 @@ void groundobj_t::rdwr(loadsave_t *file)
  */
 void groundobj_t::zeige_info()
 {
-	if(umgebung_t::tree_info) {
+	if(environment_t::tree_info) {
 		ding_t::zeige_info();
 	}
 }

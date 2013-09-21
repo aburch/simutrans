@@ -1,5 +1,5 @@
-#ifndef dataobj_einstellungen_h
-#define dataobj_einstellungen_h
+#ifndef dataobj_settings_h
+#define dataobj_settings_h
 
 #include <string>
 #include "../simtypes.h"

@@ -42,10 +42,10 @@
 #include "dings/gebaeude.h"
 
 #include "dataobj/translator.h"
-#include "dataobj/einstellungen.h"
+#include "dataobj/settings.h"
 #include "dataobj/loadsave.h"
 #include "dataobj/tabfile.h"
-#include "dataobj/umgebung.h"
+#include "dataobj/environment.h"
 
 #include "sucher/bauplatz_sucher.h"
 #include "bauer/wegbauer.h"
@@ -283,7 +283,7 @@ bool stadt_t::cityrules_init(const std::string &objfilename)
 {
 	tabfile_t cityconf;
 	// first take user data, then user global data
-	const std::string user_dir=umgebung_t::user_dir;
+	const std::string user_dir=environment_t::user_dir;
 	if (!cityconf.open((user_dir+"cityrules.tab").c_str())) {
 		if (!cityconf.open((objfilename+"config/cityrules.tab").c_str())) {
 			dbg->fatal("stadt_t::init()", "Can't read cityrules.tab" );

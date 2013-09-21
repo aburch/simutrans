@@ -41,7 +41,7 @@
 #include "../bauer/vehikelbauer.h"
 #include "../dataobj/fahrplan.h"
 #include "../dataobj/translator.h"
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 
 #include "../player/simplay.h"
 

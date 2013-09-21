@@ -7,7 +7,7 @@
 #include "themeselector.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 #include "../dataobj/tabfile.h"
 #include "../simsys.h"
 #include "../simevent.h"
@@ -67,9 +67,9 @@ void themeselector_t::fill_list()
 {
 	KOORD_VAL y = 0;
 
-	add_path( ((std::string)umgebung_t::program_dir+"themes/").c_str() );
-	if(  strcmp( umgebung_t::program_dir, umgebung_t::user_dir ) != 0  ) {
-		add_path( ((std::string)umgebung_t::user_dir+"themes/").c_str() );
+	add_path( ((std::string)environment_t::program_dir+"themes/").c_str() );
+	if(  strcmp( environment_t::program_dir, environment_t::user_dir ) != 0  ) {
+		add_path( ((std::string)environment_t::user_dir+"themes/").c_str() );
 	}
 
 	// do the search ...

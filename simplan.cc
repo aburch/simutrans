@@ -29,7 +29,7 @@
 #include "dings/gebaeude.h"
 
 #include "dataobj/loadsave.h"
-#include "dataobj/umgebung.h"
+#include "dataobj/environment.h"
 
 #include "gui/karte.h"
 
@@ -445,7 +445,7 @@ void planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const si
 #endif
 	}
 
-	if(  umgebung_t::simple_drawing  ) {
+	if(  environment_t::simple_drawing  ) {
 		// ignore trees going though bridges
 #ifdef MULTI_THREAD
 		gr0->display_dinge_all_quick_and_dirty( xpos, ypos, raster_tile_width, is_global, clip_num );
@@ -581,9 +581,9 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 	}
 
 	// display station owner boxes
-	if(umgebung_t::station_coverage_show  &&  halt_list_count>0) {
+	if(environment_t::station_coverage_show  &&  halt_list_count>0) {
 
-		if(umgebung_t::use_transparency_station_coverage) {
+		if(environment_t::use_transparency_station_coverage) {
 
 			// only transparent outline
 			image_id img = overlay_img(gr);
