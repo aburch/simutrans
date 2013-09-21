@@ -205,7 +205,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 			if(  (ribi & ribi_t::nsow[r] & start_dir)!=0  // allowed dir (we can restrict the first step by start_dir)
 				&& koord_distance(start.get_2d(),gr->get_pos().get_2d()+koord::nsow[r])<max_depth	// not too far away
 				&& gr->get_neighbour(to, wegtyp, ribi_t::nsow[r])  // is connected
-				&& marker.is_marked(to) // not already tested
+				&& !marker.is_marked(to) // not already tested
 				&& fahr->ist_befahrbar(to)	// can be driven on
 			) {
 				// not in there or taken out => add new
