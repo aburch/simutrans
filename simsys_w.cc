@@ -8,11 +8,12 @@
 #error "Only Windows has GDI!"
 #endif
 
+// windows Bibliotheken DirectDraw 5.x (must be defined before any includes!)
+#define UNICODE 1
+
 #include <stdio.h>
 #include <stdlib.h>
 
-// windows Bibliotheken DirectDraw 5.x
-#define UNICODE 1
 // windows.h defines min and max macros which we don't want
 #define NOMINMAX 1
 #include <windows.h>

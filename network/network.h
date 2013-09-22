@@ -8,6 +8,9 @@
 
 #define NOMINMAX 1
 
+// So that windows.h won't include all kinds of things
+#define WIN32_LEAN_AND_MEAN
+
 // first: we must find out version number
 #ifndef WINVER
 #	define _WINSOCKAPI_
