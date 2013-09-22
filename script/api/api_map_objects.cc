@@ -6,33 +6,33 @@
 #include "../api_class.h"
 #include "../api_function.h"
 
-#include "../../simdings.h"
+#include "../../simobj.h"
 #include "../../simworld.h"
 #include "../../dataobj/scenario.h"
-#include "../../dings/baum.h"
-#include "../../dings/gebaeude.h"
+#include "../../obj/baum.h"
+#include "../../obj/gebaeude.h"
 
 using namespace script_api;
 
-// use pointers to ding_t_tag[ <type> ] to tag the ding_t classes
-static uint8 ding_t_tag[256];
+// use pointers to obj_t_tag[ <type> ] to tag the obj_t classes
+static uint8 obj_t_tag[256];
 
 /*
- * template struct to bind ding_t-type to ding_t classes
+ * template struct to bind obj_t-type to obj_t classes
  */
 template<class D> struct bind_code;
 
 /*
- * Class to templatify access of ding_t objects
+ * Class to templatify access of obj_t objects
  */
-template<class D> struct access_dings {
+template<class D> struct access_objs {
 
 	/*
 	 * Access object: check whether object is still on this tile.
 	 */
 	static D* get_by_pos(HSQUIRRELVM vm, SQInteger index)
 	{
-		SQUserPointer tag = ding_t_tag + bind_code<D>::dingtype;
+		SQUserPointer tag = obj_t_tag + bind_code<D>::objtype;
 		SQUserPointer p = NULL;
 		if (SQ_SUCCEEDED(sq_getinstanceup(vm, index, &p, tag))  &&  p) {
 			D *d = static_cast<D*>(p);
@@ -72,7 +72,7 @@ template<class D> struct access_dings {
 
 };
 
-SQInteger exp_ding_pos_constructor(HSQUIRRELVM vm)
+SQInteger exp_obj_pos_constructor(HSQUIRRELVM vm)
 {
 	sint16 x = param<sint16>::get(vm, 2);
 	sint16 y = param<sint16>::get(vm, 3);
@@ -85,21 +85,21 @@ SQInteger exp_ding_pos_constructor(HSQUIRRELVM vm)
 }
 
 // we have to resolve instances of derived classes here...
-SQInteger script_api::param<ding_t*>::push(HSQUIRRELVM vm, ding_t* const& d)
+SQInteger script_api::param<obj_t*>::push(HSQUIRRELVM vm, obj_t* const& d)
 {
 	if (d == NULL) {
 		sq_pushnull(vm);
 		return 1;
 	}
-	ding_t::typ type = d->get_typ();
+	obj_t::typ type = d->get_typ();
 	switch(type) {
-		case ding_t::baum:
+		case obj_t::baum:
 			return script_api::param<baum_t*>::push(vm, (baum_t*)d);
 
-		case ding_t::gebaeude:
+		case obj_t::gebaeude:
 			return script_api::param<gebaeude_t*>::push(vm, (gebaeude_t*)d);
 
-		case ding_t::way:
+		case obj_t::way:
 		{
 			waytype_t wt = d->get_waytype();
 			switch(wt) {
@@ -108,33 +108,33 @@ SQInteger script_api::param<ding_t*>::push(HSQUIRRELVM vm, ding_t* const& d)
 			}
 		}
 		default:
-			return access_dings<ding_t>::push_with_pos(vm, d);
+			return access_objs<obj_t>::push_with_pos(vm, d);
 	}
 }
 
-ding_t* script_api::param<ding_t*>::get(HSQUIRRELVM vm, SQInteger index)
+obj_t* script_api::param<obj_t*>::get(HSQUIRRELVM vm, SQInteger index)
 {
-	return access_dings<ding_t>::get_by_pos(vm, index);
+	return access_objs<obj_t>::get_by_pos(vm, index);
 }
 
-template<> struct bind_code<ding_t> { static const uint8 dingtype = ding_t::ding; };
+template<> struct bind_code<obj_t> { static const uint8 objtype = obj_t::obj; };
 
-// macro to implement get and push for ding_t's with position
-#define getpush_ding_pos(D, type) \
+// macro to implement get and push for obj_t's with position
+#define getpush_obj_pos(D, type) \
 	D* script_api::param<D*>::get(HSQUIRRELVM vm, SQInteger index) \
 	{ \
-		return access_dings<D>::get_by_pos(vm, index); \
+		return access_objs<D>::get_by_pos(vm, index); \
 	} \
 	SQInteger script_api::param<D*>::push(HSQUIRRELVM vm, D* const& d) \
 	{ \
-		return access_dings<D>::push_with_pos(vm, d); \
+		return access_objs<D>::push_with_pos(vm, d); \
 	} \
-	template<> struct bind_code<D> { static const uint8 dingtype = type; };
+	template<> struct bind_code<D> { static const uint8 objtype = type; };
 
 // implementation of get and push by macros
-getpush_ding_pos(baum_t, ding_t::baum);
-getpush_ding_pos(gebaeude_t, ding_t::gebaeude);
-getpush_ding_pos(weg_t, ding_t::way);
+getpush_obj_pos(baum_t, obj_t::baum);
+getpush_obj_pos(gebaeude_t, obj_t::gebaeude);
+getpush_obj_pos(weg_t, obj_t::way);
 
 // return way ribis, have to implement a wrapper, to correctly rotate ribi
 static SQInteger get_way_ribi(HSQUIRRELVM vm)
@@ -149,16 +149,16 @@ static SQInteger get_way_ribi(HSQUIRRELVM vm)
 
 // create class
 template<class D>
-void begin_ding_class(HSQUIRRELVM vm, const char* name, const char* base = NULL)
+void begin_obj_class(HSQUIRRELVM vm, const char* name, const char* base = NULL)
 {
 	SQInteger res = create_class(vm, name, base);
 	if(  !SQ_SUCCEEDED(res)  ) {
 		// base class not found: maybe scenario_base.nut is not up-to-date
-		dbg->error( "begin_ding_class()", "Create class failed for %s. Base class %s missing. Please update simutrans (or just script/scenario_base.nut)!", name, base );
+		dbg->error( "begin_obj_class()", "Create class failed for %s. Base class %s missing. Please update simutrans (or just script/scenario_base.nut)!", name, base );
 		sq_raise_error(vm, "Create class failed for %s. Base class %s missing. Please update simutrans (or just script/scenario_base.nut)!", name, base);
 	}
 	// store typetag to identify pointers
-	sq_settypetag(vm, -1, ding_t_tag + bind_code<D>::dingtype);
+	sq_settypetag(vm, -1, obj_t_tag + bind_code<D>::objtype);
 	// now functions can be registered
 }
 
@@ -170,41 +170,41 @@ void export_map_objects(HSQUIRRELVM vm)
 	 * These classes cannot modify anything.
 	 */
 	begin_class(vm, "map_object_x", "extend_get,coord");
-	sq_settypetag(vm, -1, ding_t_tag + bind_code<ding_t>::dingtype);
+	sq_settypetag(vm, -1, obj_t_tag + bind_code<obj_t>::objtype);
 	/**
 	 * @returns owner of the object.
 	 */
-	register_method(vm, &ding_t::get_besitzer, "get_owner");
+	register_method(vm, &obj_t::get_besitzer, "get_owner");
 	/**
 	 * @returns raw name.
 	 */
-	register_method(vm, &ding_t::get_name, "get_name");
+	register_method(vm, &obj_t::get_name, "get_name");
 	/**
 	 * @returns way type, can be @ref wt_invalid.
 	 */
-	register_method(vm, &ding_t::get_waytype, "get_waytype");
+	register_method(vm, &obj_t::get_waytype, "get_waytype");
 	/**
 	 * @returns position.
 	 */
-	register_method(vm, &ding_t::get_pos, "get_pos");
+	register_method(vm, &obj_t::get_pos, "get_pos");
 	/**
 	 * Checks whether player can remove this object.
 	 * @returns error message or null if object can be removed.
 	 */
-	register_method(vm, &ding_t::ist_entfernbar, "is_removable");
+	register_method(vm, &obj_t::ist_entfernbar, "is_removable");
 	/**
 	 * @returns type of object.
 	 */
-	register_method(vm, &ding_t::get_typ, "get_type");
+	register_method(vm, &obj_t::get_typ, "get_type");
 	end_class(vm);
 
 
 	/**
 	 * Trees on the map.
 	 */
-	begin_ding_class<baum_t>(vm, "tree_x", "map_object_x");
+	begin_obj_class<baum_t>(vm, "tree_x", "map_object_x");
 
-	register_function(vm, exp_ding_pos_constructor, "constructor", 4, "xiii");
+	register_function(vm, exp_obj_pos_constructor, "constructor", 4, "xiii");
 	/**
 	 * @returns age of tree in months.
 	 */
@@ -215,9 +215,9 @@ void export_map_objects(HSQUIRRELVM vm)
 	/**
 	 * Buildings.
 	 */
-	begin_ding_class<gebaeude_t>(vm, "building_x", "map_object_x");
+	begin_obj_class<gebaeude_t>(vm, "building_x", "map_object_x");
 
-	register_function(vm, exp_ding_pos_constructor, "constructor", 4, "xiii");
+	register_function(vm, exp_obj_pos_constructor, "constructor", 4, "xiii");
 
 	/**
 	 * @returns factory if building belongs to one, otherwise null
@@ -255,9 +255,9 @@ void export_map_objects(HSQUIRRELVM vm)
 	/**
 	 * Ways.
 	 */
-	begin_ding_class<weg_t>(vm, "way_x", "map_object_x");
+	begin_obj_class<weg_t>(vm, "way_x", "map_object_x");
 
-	register_function(vm, exp_ding_pos_constructor, "constructor", 4, "xiii");
+	register_function(vm, exp_obj_pos_constructor, "constructor", 4, "xiii");
 
 	/**
 	 * @return if this way has sidewalk - only meaningfull for roads

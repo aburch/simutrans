@@ -9,7 +9,7 @@
 
 #include "../simdebug.h"
 #include "../simworld.h"
-#include "../simdings.h"
+#include "../simobj.h"
 #include "../display/simimg.h"
 #include "../player/simplay.h"
 #include "../simtools.h"
@@ -27,7 +27,7 @@
 #include "../dataobj/translator.h"
 #include "../dataobj/environment.h"
 
-#include "../dings/baum.h"
+#include "../obj/baum.h"
 
 #include "movingobj.h"
 
@@ -239,7 +239,7 @@ void movingobj_t::rdwr(loadsave_t *file)
 void movingobj_t::zeige_info()
 {
 	if(env_t::tree_info) {
-		ding_t::zeige_info();
+		obj_t::zeige_info();
 	}
 }
 
@@ -252,7 +252,7 @@ void movingobj_t::zeige_info()
  */
 void movingobj_t::info(cbuffer_t & buf) const
 {
-	ding_t::info(buf);
+	obj_t::info(buf);
 
 	buf.append(translator::translate(get_besch()->get_name()));
 	if (char const* const maker = get_besch()->get_copyright()) {

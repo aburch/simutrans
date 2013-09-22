@@ -41,7 +41,7 @@
 
 #include "../besch/skin_besch.h"
 
-#include "../dings/zeiger.h"
+#include "../obj/zeiger.h"
 
 
 #include "../player/simplay.h"

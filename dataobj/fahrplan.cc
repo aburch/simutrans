@@ -13,7 +13,7 @@
 #include "../gui/messagebox.h"
 #include "../besch/haus_besch.h"
 #include "../boden/grund.h"
-#include "../dings/gebaeude.h"
+#include "../obj/gebaeude.h"
 #include "../player/simplay.h"
 #include "../simdepot.h"
 #include "loadsave.h"

@@ -9,7 +9,7 @@
 #define _simdepot_h
 
 #include "tpl/slist_tpl.h"
-#include "dings/gebaeude.h"
+#include "obj/gebaeude.h"
 #include "convoihandle_t.h"
 #include "simline.h"
 
@@ -55,7 +55,7 @@ public:
 	int selected_filter;
 
 	// finds the next/previous depot relative to the current position
-	static depot_t *find_depot( koord3d start, const ding_t::typ depot_type, const spieler_t *sp, bool next);
+	static depot_t *find_depot( koord3d start, const obj_t::typ depot_type, const spieler_t *sp, bool next);
 
 	static const slist_tpl<depot_t *>& get_depot_list() { return all_depots; }
 
@@ -272,7 +272,7 @@ public:
 	int get_y_grid() const { return 24; }
 	unsigned get_max_convoi_length() const;
 
-	virtual ding_t::typ get_typ() const { return bahndepot; }
+	virtual obj_t::typ get_typ() const { return bahndepot; }
 	virtual const char *get_name() const {return "Bahndepot"; }
 };
 
@@ -285,7 +285,7 @@ public:
 
 	virtual simline_t::linetype get_line_type() const { return simline_t::tramline; }
 
-	virtual ding_t::typ get_typ() const { return tramdepot; }
+	virtual obj_t::typ get_typ() const { return tramdepot; }
 	virtual const char *get_name() const {return "Tramdepot"; }
 };
 
@@ -297,7 +297,7 @@ public:
 
 	virtual simline_t::linetype get_line_type() const { return simline_t::monorailline; }
 
-	virtual ding_t::typ get_typ() const { return monoraildepot; }
+	virtual obj_t::typ get_typ() const { return monoraildepot; }
 	virtual const char *get_name() const {return "Monoraildepot"; }
 };
 
@@ -309,7 +309,7 @@ public:
 
 	virtual simline_t::linetype get_line_type() const { return simline_t::maglevline; }
 
-	virtual ding_t::typ get_typ() const { return maglevdepot; }
+	virtual obj_t::typ get_typ() const { return maglevdepot; }
 	virtual const char *get_name() const {return "Maglevdepot"; }
 };
 
@@ -321,7 +321,7 @@ public:
 
 	virtual simline_t::linetype get_line_type() const { return simline_t::narrowgaugeline; }
 
-	virtual ding_t::typ get_typ() const { return narrowgaugedepot; }
+	virtual obj_t::typ get_typ() const { return narrowgaugedepot; }
 	virtual const char *get_name() const {return "Narrowgaugedepot"; }
 };
 
@@ -357,7 +357,7 @@ public:
 	int get_y_grid() const { return 24; }
 	unsigned get_max_convoi_length() const { return 4; }
 
-	ding_t::typ get_typ() const { return strassendepot; }
+	obj_t::typ get_typ() const { return strassendepot; }
 	const char *get_name() const {return "Strassendepot";}
 };
 
@@ -393,7 +393,7 @@ public:
 	int get_y_grid() const { return 46; }
 
 	unsigned get_max_convoi_length() const { return 4; }
-	ding_t::typ get_typ() const { return schiffdepot; }
+	obj_t::typ get_typ() const { return schiffdepot; }
 	const char *get_name() const {return "Schiffdepot";}
 };
 
@@ -424,7 +424,7 @@ public:
 	int get_y_grid() const { return 36; }
 	unsigned get_max_convoi_length() const { return 1; }
 
-	ding_t::typ get_typ() const { return airdepot; }
+	obj_t::typ get_typ() const { return airdepot; }
 	const char *get_name() const {return "Hangar";}
 };
 

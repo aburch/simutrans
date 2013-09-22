@@ -27,7 +27,7 @@
 #include "dataobj/translator.h"
 
 #include "bauer/hausbauer.h"
-#include "dings/gebaeude.h"
+#include "obj/gebaeude.h"
 
 #include "bauer/vehikelbauer.h"
 
@@ -69,7 +69,7 @@ depot_t::~depot_t()
 
 
 // finds the next/previous depot relative to the current position
-depot_t *depot_t::find_depot( koord3d start, const ding_t::typ depot_type, const spieler_t *sp, bool forward)
+depot_t *depot_t::find_depot( koord3d start, const obj_t::typ depot_type, const spieler_t *sp, bool forward)
 {
 	depot_t *found = NULL;
 	koord3d found_pos = forward ? koord3d(welt->get_size().x+1,welt->get_size().y+1,welt->get_grundwasser()) : koord3d(-1,-1,-1);
@@ -504,7 +504,7 @@ void depot_t::rdwr_vehikel(slist_tpl<vehikel_t *> &list, loadsave_t *file)
 
 		DBG_MESSAGE("depot_t::vehikel_laden()","loading %d vehicles",count);
 		for(int i=0; i<count; i++) {
-			ding_t::typ typ = (ding_t::typ)file->rd_obj_id();
+			obj_t::typ typ = (obj_t::typ)file->rd_obj_id();
 
 			vehikel_t *v = NULL;
 			const bool first = false;

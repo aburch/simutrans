@@ -25,9 +25,9 @@
 #include "../dataobj/environment.h"
 #include "../dataobj/marker.h"
 
-#include "../dings/tunnel.h"
-#include "../dings/leitung2.h"
-#include "../dings/signal.h"
+#include "../obj/tunnel.h"
+#include "../obj/leitung2.h"
+#include "../obj/signal.h"
 
 #include "../gui/messagebox.h"
 #include "../gui/werkzeug_waehler.h"

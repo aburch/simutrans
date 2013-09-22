@@ -12,8 +12,8 @@
 #include "../simworld.h"
 #include "../player/simplay.h"
 
-#include "../dings/gebaeude.h"
-#include "../dings/label.h"
+#include "../obj/gebaeude.h"
+#include "../obj/label.h"
 
 #include "../besch/haus_besch.h"
 #include "../besch/skin_besch.h"

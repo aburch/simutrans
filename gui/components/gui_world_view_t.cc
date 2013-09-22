@@ -10,12 +10,11 @@
 #include "gui_world_view_t.h"
 #include "../../simworld.h"
 #include "../../display/simview.h"
-#include "../../simdings.h"
+#include "../../simobj.h"
 #include "../../display/simgraph.h"
 #include "../../simcolor.h"
 #include "../../vehicle/simvehikel.h"
 #include "../../boden/grund.h"
-#include "../../simdings.h"
 
 #include "../../dataobj/environment.h"
 #include "../../dataobj/koord3d.h"
@@ -56,7 +55,7 @@ bool world_view_t::infowin_event(const event_t* ev)
 }
 
 
-void world_view_t::internal_draw(const koord offset, ding_t const* const ding)
+void world_view_t::internal_draw(const koord offset, obj_t const* const obj)
 {
 	display_set_image_proc(false);
 
@@ -64,10 +63,10 @@ void world_view_t::internal_draw(const koord offset, ding_t const* const ding)
 	const koord   here      = here3d.get_2d();
 	koord         fine_here = koord(0, 0);
 	sint16        y_offset  = 0;
-	if(ding) { // offsets?
-		fine_here = koord(tile_raster_scale_x(-ding->get_xoff(), raster), tile_raster_scale_y(-ding->get_yoff() % (OBJECT_OFFSET_STEPS * 2), raster));
-		y_offset  = ding->get_yoff() / (OBJECT_OFFSET_STEPS * 2);
-		if(vehikel_basis_t const* const v = ding_cast<vehikel_basis_t>(ding)) {
+	if(obj) { // offsets?
+		fine_here = koord(tile_raster_scale_x(-obj->get_xoff(), raster), tile_raster_scale_y(-obj->get_yoff() % (OBJECT_OFFSET_STEPS * 2), raster));
+		y_offset  = obj->get_yoff() / (OBJECT_OFFSET_STEPS * 2);
+		if(vehikel_basis_t const* const v = obj_cast<vehikel_basis_t>(obj)) {
 			int x = 0;
 			int y = 0;
 			v->get_screen_offset(x, y, raster);
@@ -81,8 +80,8 @@ void world_view_t::internal_draw(const koord offset, ding_t const* const ding)
 	}
 
 	int hgt = tile_raster_scale_y(here3d.z * TILE_HEIGHT_STEP, raster);
-	if(ding) {
-		aircraft_t const* const plane = ding_cast<aircraft_t>(ding);
+	if(obj) {
+		aircraft_t const* const plane = obj_cast<aircraft_t>(obj);
 		if(plane) {
 			hgt += tile_raster_scale_y(plane->get_flyingheight(), raster);
 		}
@@ -117,7 +116,7 @@ void world_view_t::internal_draw(const koord offset, ding_t const* const ding)
 		welt->get_view()->display_background(pos.x, pos.y, gr.x, gr.y, true);
 	}
 
-	const sint16 yoff = ding && ding->is_moving() ?
+	const sint16 yoff = obj && obj->is_moving() ?
 		gr.y / 2 - raster * 3 / 4 : // align 1/4 raster from the bottom of the image
 		gr.y     - raster;          // align the bottom of the image
 	const koord display_off = koord((gr.x - raster) / 2, hgt + yoff) + fine_here;
@@ -177,9 +176,9 @@ void world_view_t::internal_draw(const koord offset, ding_t const* const ding)
 		const sint16 yypos = display_off.y + (off.y + off.x) * 16 * raster / 64 - tile_raster_scale_y(h * TILE_HEIGHT_STEP, raster);
 		if(  0 <= yypos + raster  &&  yypos - raster * 2 < gr.y  ) {
 #ifdef MULTI_THREAD
-			plan->display_dinge( pos.x + off_x, pos.y + yypos, raster, false, hmin, hmax, 0 );
+			plan->display_obj( pos.x + off_x, pos.y + yypos, raster, false, hmin, hmax, 0 );
 #else
-			plan->display_dinge( pos.x + off_x, pos.y + yypos, raster, false, hmin, hmax );
+			plan->display_obj( pos.x + off_x, pos.y + yypos, raster, false, hmin, hmax );
 #endif
 		}
 		else if(  yypos > gr.y  ) {
@@ -189,12 +188,12 @@ void world_view_t::internal_draw(const koord offset, ding_t const* const ding)
 
 	// this should only happen for airplanes: out of image, so we need to extra display them
 	if(  y_offset != 0  ) {
-		const grund_t * const g     = welt->lookup(ding->get_pos());
+		const grund_t * const g     = welt->lookup(obj->get_pos());
 		const sint16          yypos = display_off.y - tile_raster_scale_y(2 * y_offset * 16, raster) - tile_raster_scale_y(g->get_hoehe() * TILE_HEIGHT_STEP, raster);
 #ifdef MULTI_THREAD
-		g->display_dinge_all( pos.x + display_off.x, pos.y + yypos, raster, false, 0 );
+		g->display_obj_all( pos.x + display_off.x, pos.y + yypos, raster, false, 0 );
 #else
-		g->display_dinge_all( pos.x + display_off.x, pos.y + yypos, raster, false );
+		g->display_obj_all( pos.x + display_off.x, pos.y + yypos, raster, false );
 #endif
 	}
 

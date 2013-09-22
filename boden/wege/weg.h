@@ -10,7 +10,7 @@
 
 #include "../../display/simimg.h"
 #include "../../simtypes.h"
-#include "../../simdings.h"
+#include "../../simobj.h"
 #include "../../besch/weg_besch.h"
 #include "../../dataobj/koord3d.h"
 
@@ -47,7 +47,7 @@ enum way_statistics {
  *
  * @author Hj. Malthaner
  */
-class weg_t : public ding_no_info_t
+class weg_t : public obj_no_info_t
 {
 public:
 	/**
@@ -135,8 +135,8 @@ protected:
 	void set_images(image_type typ, uint8 ribi, bool snow, bool switch_nw=false);
 
 public:
-	weg_t(karte_t* const welt, loadsave_t*) : ding_no_info_t(welt) { init(); }
-	weg_t(karte_t* const welt) : ding_no_info_t(welt) { init(); }
+	weg_t(karte_t* const welt, loadsave_t*) : obj_no_info_t(welt) { init(); }
+	weg_t(karte_t* const welt) : obj_no_info_t(welt) { init(); }
 
 	virtual ~weg_t();
 
@@ -201,7 +201,7 @@ public:
 	* @return Gibt den typ des Objekts zurück.
 	* @author Hj. Malthaner
 	*/
-	typ get_typ() const { return ding_t::way; }
+	typ get_typ() const { return obj_t::way; }
 
 	/**
 	* Die Bezeichnung des Wegs

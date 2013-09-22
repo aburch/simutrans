@@ -4,7 +4,7 @@
 /** @file api_param.h templates for transfer of function call parameters */
 
 #include "../squirrel/squirrel.h"
-#include "../simdings.h"
+#include "../simobj.h"
 #include "../simtypes.h"
 #include "../halthandle_t.h"
 #include "../utils/cbuffer_t.h"
@@ -252,7 +252,7 @@ namespace script_api {
 	declare_specialized_param(uint64, "i", "integer");
 	declare_specialized_param(sint64, "i", "integer");
 	declare_specialized_param(waytype_t, "i", "way_types");
-	declare_specialized_param(ding_t::typ, "i", "map_objects");
+	declare_specialized_param(obj_t::typ, "i", "map_objects");
 
 	declare_specialized_param(double, "f", "float");
 
@@ -284,8 +284,8 @@ namespace script_api {
 	declare_specialized_param(const ware_production_t*, "t|x|y", "factory_production_x");
 	declare_param_mask(ware_production_t*, "t|x|y", "factory_production_x");
 
-	// export of ding_t derived classes in api/map_objects.cc
-	declare_specialized_param(ding_t*, "t|x|y", "map_object_x");
+	// export of obj_t derived classes in api/map_objects.cc
+	declare_specialized_param(obj_t*, "t|x|y", "map_object_x");
 	declare_specialized_param(baum_t*, "t|x|y", "tree_x");
 	declare_specialized_param(gebaeude_t*, "t|x|y", "building_x");
 	declare_specialized_param(weg_t*, "t|x|y", "way_x");

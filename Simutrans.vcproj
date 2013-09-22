@@ -291,7 +291,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dings\baum.cc"
+				RelativePath=".\obj\baum.cc"
 				>
 			</File>
 			<File
@@ -311,7 +311,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dings\bruecke.cc"
+				RelativePath=".\obj\bruecke.cc"
 				>
 			</File>
 			<File
@@ -383,7 +383,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dings\crossing.cc"
+				RelativePath=".\obj\crossing.cc"
 				>
 			</File>
 			<File
@@ -415,7 +415,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dataobj\dingliste.cc"
+				RelativePath=".\dataobj\objlist.cc"
 				>
 			</File>
 			<File
@@ -487,7 +487,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dings\field.cc"
+				RelativePath=".\obj\field.cc"
 				>
 			</File>
 			<File
@@ -515,7 +515,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dings\gebaeude.cc"
+				RelativePath=".\obj\gebaeude.cc"
 				>
 			</File>
 			<File
@@ -543,7 +543,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dings\groundobj.cc"
+				RelativePath=".\obj\groundobj.cc"
 				>
 			</File>
 			<File
@@ -579,7 +579,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\gui\components\gui_ding_view_t.cc"
+				RelativePath=".\gui\components\gui_obj_view_t.cc"
 				>
 			</File>
 			<File
@@ -707,7 +707,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dings\label.cc"
+				RelativePath=".\obj\label.cc"
 				>
 			</File>
 			<File
@@ -723,7 +723,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dings\leitung2.cc"
+				RelativePath=".\obj\leitung2.cc"
 				>
 			</File>
 			<File
@@ -867,7 +867,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dings\pillar.cc"
+				RelativePath=".\obj\pillar.cc"
 				>
 			</File>
 			<File
@@ -895,7 +895,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dings\roadsign.cc"
+				RelativePath=".\obj\roadsign.cc"
 				>
 			</File>
 			<File
@@ -963,7 +963,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dings\signal.cc"
+				RelativePath=".\obj\signal.cc"
 				>
 			</File>
 			<File
@@ -991,7 +991,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\simdings.cc"
+				RelativePath=".\simobj.cc"
 				>
 			</File>
 			<File
@@ -1261,7 +1261,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\gui\thing_info.cc"
+				RelativePath=".\gui\obj_info.cc"
 				>
 			</File>
 			<File
@@ -1277,7 +1277,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dings\tunnel.cc"
+				RelativePath=".\obj\tunnel.cc"
 				>
 			</File>
 			<File
@@ -1345,7 +1345,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dings\wayobj.cc"
+				RelativePath=".\obj\wayobj.cc"
 				>
 			</File>
 			<File
@@ -1369,7 +1369,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dings\wolke.cc"
+				RelativePath=".\obj\wolke.cc"
 				>
 			</File>
 			<File
@@ -1377,7 +1377,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dings\zeiger.cc"
+				RelativePath=".\obj\zeiger.cc"
 				>
 			</File>
 		</Filter>
@@ -1431,7 +1431,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dings\baum.h"
+				RelativePath=".\obj\baum.h"
 				>
 			</File>
 			<File
@@ -1471,7 +1471,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dings\bruecke.h"
+				RelativePath=".\obj\bruecke.h"
 				>
 			</File>
 			<File
@@ -1539,7 +1539,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dings\crossing.h"
+				RelativePath=".\obj\crossing.h"
 				>
 			</File>
 			<File
@@ -1567,7 +1567,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dataobj\dingliste.h"
+				RelativePath=".\dataobj\objlist.h"
 				>
 			</File>
 			<File
@@ -1575,7 +1575,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dings\dummy.h"
+				RelativePath=".\obj\dummy.h"
 				>
 			</File>
 			<File
@@ -1639,7 +1639,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dings\field.h"
+				RelativePath=".\obj\field.h"
 				>
 			</File>
 			<File
@@ -1667,7 +1667,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dings\gebaeude.h"
+				RelativePath=".\obj\gebaeude.h"
 				>
 			</File>
 			<File
@@ -1695,7 +1695,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dings\groundobj.h"
+				RelativePath=".\obj\groundobj.h"
 				>
 			</File>
 			<File
@@ -1739,7 +1739,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\gui\components\gui_ding_view_t.h"
+				RelativePath=".\gui\components\gui_obj_view_t.h"
 				>
 			</File>
 			<File
@@ -1907,7 +1907,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dings\label.h"
+				RelativePath=".\obj\label.h"
 				>
 			</File>
 			<File
@@ -1923,7 +1923,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dings\leitung2.h"
+				RelativePath=".\obj\leitung2.h"
 				>
 			</File>
 			<File
@@ -2111,7 +2111,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dings\pillar.h"
+				RelativePath=".\obj\pillar.h"
 				>
 			</File>
 			<File
@@ -2151,7 +2151,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dings\roadsign.h"
+				RelativePath=".\obj\roadsign.h"
 				>
 			</File>
 			<File
@@ -2223,7 +2223,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dings\signal.h"
+				RelativePath=".\obj\signal.h"
 				>
 			</File>
 			<File
@@ -2255,7 +2255,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\simdings.h"
+				RelativePath=".\simobj.h"
 				>
 			</File>
 			<File
@@ -2551,7 +2551,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\gui\thing_info.h"
+				RelativePath=".\gui\obj_info.h"
 				>
 			</File>
 			<File
@@ -2567,7 +2567,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dings\tunnel.h"
+				RelativePath=".\obj\tunnel.h"
 				>
 			</File>
 			<File
@@ -2639,7 +2639,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dings\wayobj.h"
+				RelativePath=".\obj\wayobj.h"
 				>
 			</File>
 			<File
@@ -2667,7 +2667,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dings\wolke.h"
+				RelativePath=".\obj\wolke.h"
 				>
 			</File>
 			<File
@@ -2679,7 +2679,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dings\zeiger.h"
+				RelativePath=".\obj\zeiger.h"
 				>
 			</File>
 		</Filter>

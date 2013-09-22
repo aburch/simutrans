@@ -8,8 +8,8 @@
 #ifndef simcity_h
 #define simcity_h
 
-#include "simdings.h"
-#include "dings/gebaeude.h"
+#include "simobj.h"
+#include "obj/gebaeude.h"
 
 #include "tpl/vector_tpl.h"
 #include "tpl/weighted_vector_tpl.h"

@@ -50,8 +50,8 @@
 #include "dataobj/environment.h"
 #include "dataobj/warenziel.h"
 
-#include "dings/gebaeude.h"
-#include "dings/label.h"
+#include "obj/gebaeude.h"
+#include "obj/label.h"
 
 #include "gui/halt_info.h"
 #include "gui/halt_detail.h"
@@ -2227,7 +2227,7 @@ void haltestelle_t::make_public_and_join( spieler_t *sp )
 				sint64 const monthly_costs = welt->get_settings().maint_building * gb->get_tile()->get_besch()->get_level();
 				spieler_t::add_maintenance( gb_sp, -monthly_costs, gb->get_waytype() );
 				gb->set_besitzer( public_owner );
-				gb->set_flag( ding_t::dirty );
+				gb->set_flag( obj_t::dirty );
 				spieler_t::add_maintenance(public_owner, monthly_costs, gb->get_waytype() );
 				// it is not real construction cost, it is fee payed for public authority for future maintenance. So money are transferred to public authority
 				spieler_t::book_construction_costs( sp,          -monthly_costs*60, get_basis_pos(), gb->get_waytype());
@@ -2292,7 +2292,7 @@ void haltestelle_t::make_public_and_join( spieler_t *sp )
 					spieler_t::book_construction_costs(gb_sp,         monthly_costs*60, gr->get_pos().get_2d(), gb->get_waytype());
 					spieler_t::book_construction_costs(public_owner, -monthly_costs*60, koord::invalid, gb->get_waytype());
 					gb->set_besitzer(public_owner);
-					gb->set_flag(ding_t::dirty);
+					gb->set_flag(obj_t::dirty);
 					spieler_t::add_maintenance(public_owner, monthly_costs, gb->get_waytype() );
 				}
 			}
@@ -3203,7 +3203,7 @@ const grund_t *haltestelle_t::find_matching_position(const waytype_t w) const
 /* checks, if there is an unoccupied loading bay for this kind of thing
  * @author prissi
  */
-bool haltestelle_t::find_free_position(const waytype_t w,convoihandle_t cnv,const ding_t::typ d) const
+bool haltestelle_t::find_free_position(const waytype_t w,convoihandle_t cnv,const obj_t::typ d) const
 {
 	// iterate over all tiles
 	FOR(slist_tpl<tile_t>, const& i, tiles) {

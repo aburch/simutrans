@@ -1,7 +1,7 @@
 #include "../simdebug.h"
 #include "../simworld.h"
 
-#include "../dings/bruecke.h"
+#include "../obj/bruecke.h"
 #include "../bauer/brueckenbauer.h"
 
 #include "../besch/grund_besch.h"
@@ -39,12 +39,12 @@ void brueckenboden_t::calc_bild_internal()
 		if(ist_karten_boden()) {
 			set_bild( grund_besch_t::get_ground_tile(this) );
 			grund_t::calc_back_bild(get_pos().z,slope);
-			set_flag(draw_as_ding);
+			set_flag(draw_as_obj);
 			if(  (get_grund_hang()==hang_t::west  &&  abs(back_bild_nr)>11)  ||  (get_grund_hang()==hang_t::nord  &&  get_back_bild(0)!=IMG_LEER)  ) {
-				// must draw as ding, since there is a slop here nearby
+				// must draw as obj, since there is a slop here nearby
 				koord pos = get_pos().get_2d()+koord(get_grund_hang());
 				grund_t *gr = welt->lookup_kartenboden(pos);
-				gr->set_flag(grund_t::draw_as_ding);
+				gr->set_flag(grund_t::draw_as_obj);
 			}
 		}
 		else {

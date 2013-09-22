@@ -62,12 +62,12 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 	vehikel_t const* const fahr = cnv->front();
 	if(  get_filter(convoi_filter_frame_t::typ_filter)  ) {
 		switch(fahr->get_typ()) {
-			case ding_t::automobil:
+			case obj_t::automobil:
 				if(!get_filter(convoi_filter_frame_t::lkws_filter)) {
 					return false;
 				}
 				break;
-			case ding_t::waggon:
+			case obj_t::waggon:
 				// filter trams: a convoi is considered tram if the first vehicle is a tram vehicle
 				if(fahr->get_besch()->get_waytype()==tram_wt) {
 					if (!get_filter(convoi_filter_frame_t::tram_filter)) {
@@ -78,27 +78,27 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 					return false;
 				}
 				break;
-			case ding_t::schiff:
+			case obj_t::schiff:
 				if(!get_filter(convoi_filter_frame_t::schiffe_filter)) {
 					return false;
 				}
 				break;
-			case ding_t::aircraft:
+			case obj_t::aircraft:
 				if(!get_filter(convoi_filter_frame_t::aircraft_filter)) {
 					return false;
 				}
 				break;
-			case ding_t::monorailwaggon:
+			case obj_t::monorailwaggon:
 				if(!get_filter(convoi_filter_frame_t::monorail_filter)) {
 					return false;
 				}
 				break;
-			case ding_t::maglevwaggon:
+			case obj_t::maglevwaggon:
 				if(!get_filter(convoi_filter_frame_t::maglev_filter)) {
 					return false;
 				}
 				break;
-			case ding_t::narrowgaugewaggon:
+			case obj_t::narrowgaugewaggon:
 				if(!get_filter(convoi_filter_frame_t::narrowgauge_filter)) {
 					return false;
 				}

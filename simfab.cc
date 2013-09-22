@@ -32,10 +32,10 @@
 
 #include "simintr.h"
 
-#include "dings/wolke.h"
-#include "dings/gebaeude.h"
-#include "dings/field.h"
-#include "dings/leitung2.h"
+#include "obj/wolke.h"
+#include "obj/gebaeude.h"
+#include "obj/field.h"
+#include "obj/leitung2.h"
 
 #include "dataobj/settings.h"
 #include "dataobj/environment.h"

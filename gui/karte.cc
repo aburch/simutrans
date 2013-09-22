@@ -19,7 +19,7 @@
 #include "../dataobj/loadsave.h"
 
 #include "../boden/wege/schiene.h"
-#include "../dings/leitung2.h"
+#include "../obj/leitung2.h"
 #include "../utils/cbuffer_t.h"
 #include "../display/simgraph.h"
 #include "../simtools.h"
@@ -850,7 +850,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 			break;
 
 		case MAP_FOREST:
-			if(  gr->get_top()>1  &&  gr->obj_bei(gr->get_top()-1)->get_typ()==ding_t::baum  ) {
+			if(  gr->get_top()>1  &&  gr->obj_bei(gr->get_top()-1)->get_typ()==obj_t::baum  ) {
 				set_relief_farbe(k, COL_GREEN );
 			}
 			break;
@@ -1641,7 +1641,7 @@ void reliefkarte_t::zeichnen(koord pos)
 				depot_pos = depot_pos + pos;
 				// offset of one to avoid
 				static COLOR_VAL depot_typ_to_color[19]={ COL_ORANGE, COL_YELLOW, COL_RED, 0, 0, 0, 0, 0, 0, COL_PURPLE, COL_DARK_RED, COL_DARK_ORANGE, 0, 0, 0, 0, 0, 0, COL_LIGHT_RED };
-				display_filled_circle( depot_pos.x, depot_pos.y, 4, depot_typ_to_color[d->get_typ() - ding_t::bahndepot] );
+				display_filled_circle( depot_pos.x, depot_pos.y, 4, depot_typ_to_color[d->get_typ() - obj_t::bahndepot] );
 				display_circle( depot_pos.x, depot_pos.y, 4, COL_BLACK );
 			}
 		}

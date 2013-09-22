@@ -42,9 +42,9 @@
 #include "dataobj/translator.h"
 #include "dataobj/environment.h"
 
-#include "dings/crossing.h"
-#include "dings/roadsign.h"
-#include "dings/wayobj.h"
+#include "obj/crossing.h"
+#include "obj/roadsign.h"
+#include "obj/wayobj.h"
 
 #include "vehicle/simvehikel.h"
 #include "vehicle/overtaker.h"
@@ -278,7 +278,7 @@ uint32 convoi_t::move_to(karte_t const& welt, koord3d const& k, uint16 const sta
 			v.mark_image_dirty(v.get_bild(), v.get_hoff());
 			v.verlasse_feld();
 			// maybe unreserve this
-			if (schiene_t* const rails = ding_cast<schiene_t>(gr->get_weg(v.get_waytype()))) {
+			if (schiene_t* const rails = obj_cast<schiene_t>(gr->get_weg(v.get_waytype()))) {
 				rails->unreserve(&v);
 			}
 		}
@@ -460,7 +460,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 				// eventually reserve this again
 				grund_t *gr=welt->lookup(v->get_pos());
 				// airplanes may have no ground ...
-				if (schiene_t* const sch0 = ding_cast<schiene_t>(gr->get_weg(fahr[i]->get_waytype()))) {
+				if (schiene_t* const sch0 = obj_cast<schiene_t>(gr->get_weg(fahr[i]->get_waytype()))) {
 					sch0->reserve(self,ribi_t::keine);
 				}
 			}
@@ -618,8 +618,8 @@ void convoi_t::add_running_cost( const weg_t *weg )
 				// toll for using electricity
 				grund_t *gr = welt->lookup(weg->get_pos());
 				for(  int i=1;  i<gr->get_top();  i++  ) {
-					ding_t *d=gr->obj_bei(i);
-					if(  wayobj_t const* const wo = ding_cast<wayobj_t>(d)  )  {
+					obj_t *d=gr->obj_bei(i);
+					if(  wayobj_t const* const wo = obj_cast<wayobj_t>(d)  )  {
 						if(  wo->get_waytype()==weg->get_waytype()  ) {
 							toll += (wo->get_besch()->get_wartung()*welt->get_settings().get_way_toll_waycost_percentage())/100l;
 							break;
@@ -1065,7 +1065,7 @@ void convoi_t::step()
 				else if(  steps_driven==0  ) {
 					// on rail depot tile, do not reserve this
 					if(  grund_t *gr = welt->lookup(fahr[0]->get_pos())  ) {
-						if (schiene_t* const sch0 = ding_cast<schiene_t>(gr->get_weg(fahr[0]->get_waytype()))) {
+						if (schiene_t* const sch0 = obj_cast<schiene_t>(gr->get_weg(fahr[0]->get_waytype()))) {
 							sch0->unreserve(fahr[0]);
 						}
 					}
@@ -1247,7 +1247,7 @@ void convoi_t::betrete_depot(depot_t *dep)
 			// remove from blockstrecke
 			v->set_letztes(true);
 			v->verlasse_feld();
-			v->set_flag( ding_t::not_on_map );
+			v->set_flag( obj_t::not_on_map );
 		}
 	}
 
@@ -1297,7 +1297,7 @@ void convoi_t::start()
 			restwert_delta -= fahr[i]->calc_restwert();
 			fahr[i]->set_driven();
 			restwert_delta += fahr[i]->calc_restwert();
-			fahr[i]->clear_flag( ding_t::not_on_map );
+			fahr[i]->clear_flag( obj_t::not_on_map );
 			fahr[i]->beladen( halthandle_t() );
 		}
 		fahr[0]->set_erstes( true );
@@ -1805,7 +1805,7 @@ void convoi_t::vorfahren()
 					cr->release_crossing(v);
 				}
 				// eventually unreserve this
-				if (schiene_t* const sch0 = ding_cast<schiene_t>(gr->get_weg(fahr[i]->get_waytype()))) {
+				if (schiene_t* const sch0 = obj_cast<schiene_t>(gr->get_weg(fahr[i]->get_waytype()))) {
 					sch0->unreserve(v);
 				}
 			}
@@ -1903,7 +1903,7 @@ void convoi_t::vorfahren()
 		for(unsigned i=0; i<anz_vehikel; i++) {
 			// eventually reserve this
 			vehikel_t const& v = *fahr[i];
-			if (schiene_t* const sch0 = ding_cast<schiene_t>(welt->lookup(v.get_pos())->get_weg(v.get_waytype()))) {
+			if (schiene_t* const sch0 = obj_cast<schiene_t>(welt->lookup(v.get_pos())->get_weg(v.get_waytype()))) {
 				sch0->reserve(self,ribi_t::keine);
 			}
 			else {
@@ -2028,7 +2028,7 @@ void convoi_t::rdwr(loadsave_t *file)
 		bool override_monorail = false;
 		is_electric = false;
 		for(  uint8 i=0;  i<anz_vehikel;  i++  ) {
-			ding_t::typ typ = (ding_t::typ)file->rd_obj_id();
+			obj_t::typ typ = (obj_t::typ)file->rd_obj_id();
 			vehikel_t *v = 0;
 
 			const bool first = (i==0);
@@ -2039,18 +2039,18 @@ void convoi_t::rdwr(loadsave_t *file)
 			}
 			else {
 				switch(typ) {
-					case ding_t::old_automobil:
-					case ding_t::automobil: v = new automobil_t(welt, file, first, last);  break;
-					case ding_t::old_waggon:
-					case ding_t::waggon:    v = new waggon_t(welt, file, first, last);     break;
-					case ding_t::old_schiff:
-					case ding_t::schiff:    v = new schiff_t(welt, file, first, last);     break;
-					case ding_t::old_aircraft:
-					case ding_t::aircraft:    v = new aircraft_t(welt, file, first, last);     break;
-					case ding_t::old_monorailwaggon:
-					case ding_t::monorailwaggon:    v = new monorail_waggon_t(welt, file, first, last);     break;
-					case ding_t::maglevwaggon:         v = new maglev_waggon_t(welt, file, first, last);     break;
-					case ding_t::narrowgaugewaggon:    v = new narrowgauge_waggon_t(welt, file, first, last);     break;
+					case obj_t::old_automobil:
+					case obj_t::automobil: v = new automobil_t(welt, file, first, last);  break;
+					case obj_t::old_waggon:
+					case obj_t::waggon:    v = new waggon_t(welt, file, first, last);     break;
+					case obj_t::old_schiff:
+					case obj_t::schiff:    v = new schiff_t(welt, file, first, last);     break;
+					case obj_t::old_aircraft:
+					case obj_t::aircraft:    v = new aircraft_t(welt, file, first, last);     break;
+					case obj_t::old_monorailwaggon:
+					case obj_t::monorailwaggon:    v = new monorail_waggon_t(welt, file, first, last);     break;
+					case obj_t::maglevwaggon:         v = new maglev_waggon_t(welt, file, first, last);     break;
+					case obj_t::narrowgaugewaggon:    v = new narrowgauge_waggon_t(welt, file, first, last);     break;
 					default:
 						dbg->fatal("convoi_t::convoi_t()","Can't load vehicle type %d", typ);
 				}
@@ -2068,7 +2068,7 @@ void convoi_t::rdwr(loadsave_t *file)
 			// in very old games, monorail was a railway
 			// so we need to convert this
 			// freight will be lost, but game will be loadable
-			if(i==0  &&  v->get_besch()->get_waytype()==monorail_wt  &&  v->get_typ()==ding_t::waggon) {
+			if(i==0  &&  v->get_besch()->get_waytype()==monorail_wt  &&  v->get_typ()==obj_t::waggon) {
 				override_monorail = true;
 				vehikel_t *v_neu = new monorail_waggon_t( v->get_pos(), v->get_besch(), v->get_besitzer(), NULL );
 				v->loesche_fracht();
@@ -2129,10 +2129,10 @@ void convoi_t::rdwr(loadsave_t *file)
 					dbg->warning( "convoi_t::rdwr()", "cannot put vehicle on ground at (%s)", gr->get_pos().get_str() );
 				}
 				gr->obj_add(v);
-				v->clear_flag(ding_t::not_on_map);
+				v->clear_flag(obj_t::not_on_map);
 			}
 			else {
-				v->set_flag(ding_t::not_on_map);
+				v->set_flag(obj_t::not_on_map);
 			}
 
 			// add to convoi
@@ -2855,7 +2855,7 @@ void convoi_t::destroy()
 	if(  state == INITIAL  ) {
 		// in depot => not on map
 		for(  uint8 i = anz_vehikel;  i-- != 0;  ) {
-			fahr[i]->set_flag( ding_t::not_on_map );
+			fahr[i]->set_flag( obj_t::not_on_map );
 		}
 	}
 	state = SELF_DESTRUCT;
@@ -2875,7 +2875,7 @@ void convoi_t::destroy()
 	besitzer_p->book_new_vehicle( calc_restwert(), get_pos().get_2d(), fahr[0] ? fahr[0]->get_besch()->get_waytype() : ignore_wt );
 
 	for(  uint8 i = anz_vehikel;  i-- != 0;  ) {
-		if(  !fahr[i]->get_flag( ding_t::not_on_map )  ) {
+		if(  !fahr[i]->get_flag( obj_t::not_on_map )  ) {
 			// remove from rails/roads/crossings
 			grund_t *gr = welt->lookup(fahr[i]->get_pos());
 			fahr[i]->set_letztes( true );
@@ -2883,7 +2883,7 @@ void convoi_t::destroy()
 			if(  gr  &&  gr->ist_uebergang()  ) {
 				gr->find<crossing_t>()->release_crossing(fahr[i]);
 			}
-			fahr[i]->set_flag( ding_t::not_on_map );
+			fahr[i]->set_flag( obj_t::not_on_map );
 
 		}
 		fahr[i]->loesche_fracht();
@@ -3347,7 +3347,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 			// Check for other vehicles on the next tile
 			const uint8 top = gr->get_top();
 			for(  uint8 j=1;  j<top;  j++  ) {
-				if(  vehikel_basis_t* const v = ding_cast<vehikel_basis_t>(gr->obj_bei(j))  ) {
+				if(  vehikel_basis_t* const v = obj_cast<vehikel_basis_t>(gr->obj_bei(j))  ) {
 					// check for other traffic on the road
 					const overtaker_t *ov = v->get_overtaker();
 					if(ov) {
@@ -3355,7 +3355,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 							return false;
 						}
 					}
-					else if(  v->get_waytype()==road_wt  &&  v->get_typ()!=ding_t::fussgaenger  ) {
+					else if(  v->get_waytype()==road_wt  &&  v->get_typ()!=obj_t::fussgaenger  ) {
 						return false;
 					}
 				}
@@ -3432,7 +3432,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 		// Check for other vehicles
 		const uint8 top = gr->get_top();
 		for(  uint8 j=1;  j<top;  j++ ) {
-			if (vehikel_basis_t* const v = ding_cast<vehikel_basis_t>(gr->obj_bei(j))) {
+			if (vehikel_basis_t* const v = obj_cast<vehikel_basis_t>(gr->obj_bei(j))) {
 				// check for other traffic on the road
 				const overtaker_t *ov = v->get_overtaker();
 				if(ov) {
@@ -3440,7 +3440,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 						return false;
 					}
 				}
-				else if(  v->get_waytype()==road_wt  &&  v->get_typ()!=ding_t::fussgaenger  ) {
+				else if(  v->get_waytype()==road_wt  &&  v->get_typ()!=obj_t::fussgaenger  ) {
 					// sheeps etc.
 					return false;
 				}
@@ -3491,7 +3491,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 		ribi_t::ribi their_direction = ribi_t::rueckwaerts( fahr[0]->calc_richtung(pos_prev, pos_next.get_2d()) );
 		const uint8 top = gr->get_top();
 		for(  uint8 j=1;  j<top;  j++ ) {
-			vehikel_basis_t* const v = ding_cast<vehikel_basis_t>(gr->obj_bei(j));
+			vehikel_basis_t* const v = obj_cast<vehikel_basis_t>(gr->obj_bei(j));
 			if (v && v->get_fahrtrichtung() == their_direction && v->get_overtaker()) {
 				return false;
 			}

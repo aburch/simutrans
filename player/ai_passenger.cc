@@ -101,9 +101,9 @@ koord ai_passenger_t::find_area_for_hub( const koord lo, const koord ru, const k
 			if(gr) {
 				// flat, solid
 				if(  gr->get_typ()==grund_t::boden  &&  gr->get_grund_hang()==hang_t::flach  ) {
-					const ding_t* thing = gr->obj_bei(0);
+					const obj_t* obj = gr->obj_bei(0);
 					int test_dist = koord_distance( trypos, basis );
-					if (!thing || !thing->get_besitzer() || thing->get_besitzer() == sim::up_cast<spieler_t const*>(this)) {
+					if (!obj || !obj->get_besitzer() || obj->get_besitzer() == sim::up_cast<spieler_t const*>(this)) {
 						if(  gr->is_halt()  &&  check_owner( gr->get_halt()->get_besitzer(), this )  &&  gr->hat_weg(road_wt)  ) {
 							// ok, one halt belongs already to us ... (should not really happen!) but might be a public stop
 							return trypos;
@@ -266,7 +266,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 		// we use the free own vehikel_besch_t
 		vehikel_besch_t remover_besch( water_wt, 500, vehikel_besch_t::diesel );
 		vehikel_t* test_driver = vehikelbauer_t::baue( koord3d( start_harbour - start_dx, welt->get_water_hgt( start_harbour - start_dx ) ), this, NULL, &remover_besch );
-		test_driver->set_flag( ding_t::not_on_map );
+		test_driver->set_flag( obj_t::not_on_map );
 		route_t verbindung;
 		bool connected = verbindung.calc_route( welt, koord3d( start_harbour - start_dx, welt->get_water_hgt( start_harbour - start_dx ) ), koord3d( end_harbour - end_dx, welt->get_water_hgt( end_harbour - end_dx ) ), test_driver, 0, 0 );
 		delete test_driver;

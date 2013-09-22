@@ -40,10 +40,10 @@
 #include "../dataobj/translator.h"
 #include "../dataobj/environment.h"
 
-#include "../dings/bruecke.h"
-#include "../dings/gebaeude.h"
-#include "../dings/leitung2.h"
-#include "../dings/tunnel.h"
+#include "../obj/bruecke.h"
+#include "../obj/gebaeude.h"
+#include "../obj/leitung2.h"
+#include "../obj/tunnel.h"
 
 #include "../gui/messagebox.h"
 
@@ -565,26 +565,26 @@ void spieler_t::ai_bankrupt()
 				}
 				bool count_signs = false;
 				for (size_t i = gr->get_top(); i-- != 0;) {
-					ding_t *dt = gr->obj_bei(i);
+					obj_t *dt = gr->obj_bei(i);
 					if(dt->get_besitzer()==this) {
 						switch(dt->get_typ()) {
-							case ding_t::roadsign:
-							case ding_t::signal:
+							case obj_t::roadsign:
+							case obj_t::signal:
 								count_signs = true;
-							case ding_t::airdepot:
-							case ding_t::bahndepot:
-							case ding_t::monoraildepot:
-							case ding_t::tramdepot:
-							case ding_t::strassendepot:
-							case ding_t::schiffdepot:
-							case ding_t::senke:
-							case ding_t::pumpe:
-							case ding_t::wayobj:
-							case ding_t::label:
+							case obj_t::airdepot:
+							case obj_t::bahndepot:
+							case obj_t::monoraildepot:
+							case obj_t::tramdepot:
+							case obj_t::strassendepot:
+							case obj_t::schiffdepot:
+							case obj_t::senke:
+							case obj_t::pumpe:
+							case obj_t::wayobj:
+							case obj_t::label:
 								dt->entferne(this);
 								delete dt;
 								break;
-							case ding_t::leitung:
+							case obj_t::leitung:
 								if(gr->ist_bruecke()) {
 									add_maintenance( -((leitung_t*)dt)->get_besch()->get_wartung(), powerline_wt );
 									// do not remove powerline from bridges
@@ -595,10 +595,10 @@ void spieler_t::ai_bankrupt()
 									delete dt;
 								}
 								break;
-							case ding_t::gebaeude:
+							case obj_t::gebaeude:
 								hausbauer_t::remove( welt, this, (gebaeude_t *)dt );
 								break;
-							case ding_t::way:
+							case obj_t::way:
 							{
 								weg_t *w=(weg_t *)dt;
 								if (gr->ist_bruecke()  ||  gr->ist_tunnel()) {
@@ -613,11 +613,11 @@ void spieler_t::ai_bankrupt()
 								}
 								break;
 							}
-							case ding_t::bruecke:
+							case obj_t::bruecke:
 								add_maintenance( -((bruecke_t*)dt)->get_besch()->get_wartung(), dt->get_waytype() );
 								dt->set_besitzer( NULL );
 								break;
-							case ding_t::tunnel:
+							case obj_t::tunnel:
 								add_maintenance( -((tunnel_t*)dt)->get_besch()->get_wartung(), ((tunnel_t*)dt)->get_besch()->get_finance_waytype() );
 								dt->set_besitzer( NULL );
 								break;
@@ -879,24 +879,24 @@ sint64 spieler_t::undo()
 			for( unsigned i=0;  i<gr->get_top();  i++  ) {
 				switch(gr->obj_bei(i)->get_typ()) {
 					// these are allowed
-					case ding_t::zeiger:
-					case ding_t::wolke:
-					case ding_t::leitung:
-					case ding_t::pillar:
-					case ding_t::way:
-					case ding_t::label:
-					case ding_t::crossing:
-					case ding_t::fussgaenger:
-					case ding_t::verkehr:
-					case ding_t::movingobj:
+					case obj_t::zeiger:
+					case obj_t::wolke:
+					case obj_t::leitung:
+					case obj_t::pillar:
+					case obj_t::way:
+					case obj_t::label:
+					case obj_t::crossing:
+					case obj_t::fussgaenger:
+					case obj_t::verkehr:
+					case obj_t::movingobj:
 						break;
 					// special case airplane
 					// they can be everywhere, so we allow for everythign but runway undo
-					case ding_t::aircraft: {
+					case obj_t::aircraft: {
 						if(undo_type!=air_wt) {
 							break;
 						}
-						const aircraft_t* aircraft = ding_cast<aircraft_t>(gr->obj_bei(i));
+						const aircraft_t* aircraft = obj_cast<aircraft_t>(gr->obj_bei(i));
 						// flying aircrafts are ok
 						if(!aircraft->is_on_ground()) {
 							break;

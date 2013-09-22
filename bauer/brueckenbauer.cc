@@ -29,10 +29,10 @@
 
 #include "../dataobj/marker.h"
 #include "../dataobj/scenario.h"
-#include "../dings/bruecke.h"
-#include "../dings/leitung2.h"
-#include "../dings/pillar.h"
-#include "../dings/signal.h"
+#include "../obj/bruecke.h"
+#include "../obj/leitung2.h"
+#include "../obj/pillar.h"
+#include "../obj/signal.h"
 #include "../dataobj/crossing_logic.h"
 
 #include "../tpl/stringhashtable_tpl.h"
@@ -360,7 +360,7 @@ bool brueckenbauer_t::ist_ende_ok(spieler_t *sp, const grund_t *gr)
 	if(  gr->ist_uebergang()  ||  (  gr->hat_wege()  &&  gr->get_leitung()  )  ) {
 		return false;
 	}
-	ding_t *d=gr->obj_bei(0);
+	obj_t *d=gr->obj_bei(0);
 	if (d != NULL) {
 		if (d->ist_entfernbar(sp)!=NULL) {
 			return false;
@@ -712,7 +712,7 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 
 		// finally delete all pillars (if there)
 		gr = welt->lookup_kartenboden(pos.get_2d());
-		while (ding_t* const p = gr->find<pillar_t>()) {
+		while (obj_t* const p = gr->find<pillar_t>()) {
 			p->entferne(p->get_besitzer());
 			delete p;
 		}
@@ -725,7 +725,7 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 
 		grund_t *gr = welt->lookup(pos);
 		if(wegtyp==powerline_wt) {
-			while (ding_t* const br = gr->find<bruecke_t>()) {
+			while (obj_t* const br = gr->find<bruecke_t>()) {
 				br->entferne(sp);
 				delete br;
 			}

@@ -6,7 +6,7 @@
  */
 
 #include "simdebug.h"
-#include "simdings.h"
+#include "simobj.h"
 #include "simfab.h"
 #include "display/simgraph.h"
 #include "simmenu.h"
@@ -26,7 +26,7 @@
 #include "boden/brueckenboden.h"
 #include "boden/monorailboden.h"
 
-#include "dings/gebaeude.h"
+#include "obj/gebaeude.h"
 
 #include "dataobj/loadsave.h"
 #include "dataobj/environment.h"
@@ -69,7 +69,7 @@ planquadrat_t::~planquadrat_t()
 }
 
 
-grund_t *planquadrat_t::get_boden_von_obj(ding_t *obj) const
+grund_t *planquadrat_t::get_boden_von_obj(obj_t *obj) const
 {
 	if(ground_size==1) {
 		if(data.one  &&  data.one->obj_ist_da(obj)) {
@@ -406,9 +406,9 @@ void planquadrat_t::angehoben(karte_t *welt)
 
 
 #ifdef MULTI_THREAD
-void planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, bool is_global, const sint8 hmin, const sint8 hmax, const sint8 clip_num) const
+void planquadrat_t::display_obj(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, bool is_global, const sint8 hmin, const sint8 hmax, const sint8 clip_num) const
 #else
-void planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, bool is_global, const sint8 hmin, const sint8 hmax) const
+void planquadrat_t::display_obj(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, bool is_global, const sint8 hmin, const sint8 hmax) const
 #endif
 {
 	grund_t *gr0 = get_kartenboden();
@@ -428,16 +428,16 @@ void planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const si
 				const sint16 yypos = ypos - tile_raster_scale_y( (h - h0) * TILE_HEIGHT_STEP, raster_tile_width );
 #ifdef MULTI_THREAD
 				gr->display_boden( xpos, yypos, raster_tile_width, clip_num );
-				gr->display_dinge_all( xpos, yypos, raster_tile_width, is_global, clip_num );
+				gr->display_obj_all( xpos, yypos, raster_tile_width, is_global, clip_num );
 #else
 				gr->display_boden( xpos, yypos, raster_tile_width );
-				gr->display_dinge_all( xpos, yypos, raster_tile_width, is_global );
+				gr->display_obj_all( xpos, yypos, raster_tile_width, is_global );
 #endif
 			}
 		}
 	}
 	//const bool kartenboden_dirty = gr->get_flag(grund_t::dirty);
-	if(  gr0->get_flag( grund_t::draw_as_ding )  ||  !gr0->is_karten_boden_visible()  ) {
+	if(  gr0->get_flag( grund_t::draw_as_obj )  ||  !gr0->is_karten_boden_visible()  ) {
 #ifdef MULTI_THREAD
 		gr0->display_boden( xpos, ypos, raster_tile_width, clip_num );
 #else
@@ -448,9 +448,9 @@ void planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const si
 	if(  env_t::simple_drawing  ) {
 		// ignore trees going though bridges
 #ifdef MULTI_THREAD
-		gr0->display_dinge_all_quick_and_dirty( xpos, ypos, raster_tile_width, is_global, clip_num );
+		gr0->display_obj_all_quick_and_dirty( xpos, ypos, raster_tile_width, is_global, clip_num );
 #else
-		gr0->display_dinge_all_quick_and_dirty( xpos, ypos, raster_tile_width, is_global );
+		gr0->display_obj_all_quick_and_dirty( xpos, ypos, raster_tile_width, is_global );
 #endif
 	}
 	else {
@@ -483,18 +483,18 @@ void planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const si
 				}
 			}
 #ifdef MULTI_THREAD
-			gr0->display_dinge_all( xpos, ypos, raster_tile_width, is_global, clip_num );
+			gr0->display_obj_all( xpos, ypos, raster_tile_width, is_global, clip_num );
 			display_set_clip_wh_cl( p_cr.x, p_cr.y, p_cr.w, p_cr.h, clip_num ); // restore clipping
 #else
-			gr0->display_dinge_all( xpos, ypos, raster_tile_width, is_global );
+			gr0->display_obj_all( xpos, ypos, raster_tile_width, is_global );
 			display_set_clip_wh( p_cr.x, p_cr.y, p_cr.w, p_cr.h ); // restore clipping
 #endif
 		}
 		else {
 #ifdef MULTI_THREAD
-			gr0->display_dinge_all( xpos, ypos, raster_tile_width, is_global, clip_num );
+			gr0->display_obj_all( xpos, ypos, raster_tile_width, is_global, clip_num );
 #else
-			gr0->display_dinge_all( xpos, ypos, raster_tile_width, is_global );
+			gr0->display_obj_all( xpos, ypos, raster_tile_width, is_global );
 #endif
 		}
 	}
@@ -511,10 +511,10 @@ void planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const si
 			const sint16 yypos = ypos - tile_raster_scale_y( (h - h0) * TILE_HEIGHT_STEP, raster_tile_width );
 #ifdef MULTI_THREAD
 			gr->display_boden( xpos, yypos, raster_tile_width, clip_num );
-			gr->display_dinge_all( xpos, yypos, raster_tile_width, is_global, clip_num );
+			gr->display_obj_all( xpos, yypos, raster_tile_width, is_global, clip_num );
 #else
 			gr->display_boden( xpos, yypos, raster_tile_width );
-			gr->display_dinge_all( xpos, yypos, raster_tile_width, is_global );
+			gr->display_obj_all( xpos, yypos, raster_tile_width, is_global );
 #endif
 		}
 	}

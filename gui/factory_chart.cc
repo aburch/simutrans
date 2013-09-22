@@ -9,7 +9,7 @@
  * Where the current factory chart statistics are calculated
  */
 
-#include "../dings/leitung2.h"
+#include "../obj/leitung2.h"
 #include "../dataobj/translator.h"
 
 #include "factory_chart.h"

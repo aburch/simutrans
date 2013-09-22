@@ -19,7 +19,7 @@
 #include "components/gui_scrollpane.h"
 #include "components/gui_textarea.h"
 #include "components/gui_textinput.h"
-#include "components/gui_ding_view_t.h"
+#include "components/gui_obj_view_t.h"
 #include "components/gui_container.h"
 #include "../utils/cbuffer_t.h"
 
@@ -62,7 +62,7 @@ class fabrik_info_t : public gui_frame_t, public action_listener_t
 
 	button_t details_button;
 
-	ding_view_t view;
+	obj_view_t view;
 
 	char fabname[256];
 	gui_textinput_t input;

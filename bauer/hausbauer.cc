@@ -16,9 +16,9 @@
 #include "../boden/fundament.h"
 
 #include "../dataobj/scenario.h"
-#include "../dings/leitung2.h"
-#include "../dings/tunnel.h"
-#include "../dings/zeiger.h"
+#include "../obj/leitung2.h"
+#include "../obj/tunnel.h"
+#include "../obj/zeiger.h"
 
 #include "../gui/karte.h"
 #include "../gui/werkzeug_waehler.h"
@@ -641,7 +641,7 @@ gebaeude_t *hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d po
 	zeiger_t* zeiger = gr->find<zeiger_t>();
 	if(  zeiger  ) {
 		gr->obj_remove(zeiger);
-		zeiger->set_flag(ding_t::not_on_map);
+		zeiger->set_flag(obj_t::not_on_map);
 	}
 
 	gr->obj_add(gb);

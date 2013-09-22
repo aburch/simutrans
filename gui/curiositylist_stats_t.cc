@@ -19,7 +19,7 @@
 #include "../simhalt.h"
 #include "../simskin.h"
 
-#include "../dings/gebaeude.h"
+#include "../obj/gebaeude.h"
 
 #include "../besch/haus_besch.h"
 #include "../besch/skin_besch.h"

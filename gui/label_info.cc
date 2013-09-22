@@ -12,7 +12,7 @@
 #include "../simmenu.h"
 #include "../besch/skin_besch.h"
 #include "../dataobj/translator.h"
-#include "../dings/label.h"
+#include "../obj/label.h"
 #include "../player/simplay.h"
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"

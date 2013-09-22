@@ -6,14 +6,14 @@
  */
 
 #include "privatesign_info.h"
-#include "../dings/roadsign.h"
+#include "../obj/roadsign.h"
 #include "../player/simplay.h"
 
 
 #include "../simmenu.h"
 
 privatesign_info_t::privatesign_info_t(roadsign_t* s) :
-	ding_infowin_t(s),
+	obj_infowin_t(s),
 	sign(s)
 {
 	karte_t *welt = sign->get_welt();

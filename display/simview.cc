@@ -12,7 +12,7 @@
 
 #include "../simticker.h"
 #include "../simdebug.h"
-#include "../simdings.h"
+#include "../simobj.h"
 #include "../simconst.h"
 #include "../simplan.h"
 #include "../simmenu.h"
@@ -20,7 +20,7 @@
 #include "../besch/grund_besch.h"
 #include "../boden/wasser.h"
 #include "../dataobj/environment.h"
-#include "../dings/zeiger.h"
+#include "../obj/zeiger.h"
 
 #include "../simtools.h"
 
@@ -257,10 +257,10 @@ void karte_ansicht_t::display(bool force_dirty)
 		}
 	}
 
-	ding_t *zeiger = welt->get_zeiger();
+	obj_t *zeiger = welt->get_zeiger();
 	DBG_DEBUG4("karte_ansicht_t::display", "display pointer");
 	if( zeiger  &&  zeiger->get_pos() != koord3d::invalid ) {
-		bool dirty = zeiger->get_flag(ding_t::dirty);
+		bool dirty = zeiger->get_flag(obj_t::dirty);
 		// better not try to twist your brain to follow the re-transformation ...
 		const koord diff = zeiger->get_pos().get_2d()-welt->get_world_position()-welt->get_view_ij_offset();
 		const sint16 x = (diff.x-diff.y)*(IMG_SIZE/2) + const_x_off;
@@ -291,7 +291,7 @@ void karte_ansicht_t::display(bool force_dirty)
 #else
 		zeiger->display( x + tile_raster_scale_x( zeiger->get_xoff(), IMG_SIZE ), y + tile_raster_scale_y( zeiger->get_yoff(), IMG_SIZE ) );
 #endif
-		zeiger->clear_flag( ding_t::dirty );
+		zeiger->clear_flag( obj_t::dirty );
 	}
 
 	if(welt) {
@@ -473,7 +473,7 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 									env_t::hide_trees = true;
 									env_t::hide_buildings = env_t::ALL_HIDDEN_BUILDING;
 
-									plan->display_dinge( xpos, yypos, IMG_SIZE, true, hmin, hmax, clip_num );
+									plan->display_obj( xpos, yypos, IMG_SIZE, true, hmin, hmax, clip_num );
 
 									env_t::hide_trees = saved_hide_trees;
 									env_t::hide_buildings = saved_hide_buildings;
@@ -486,7 +486,7 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 								else {
 									// not in the hidden area, draw multithreaded
 									pthread_mutex_unlock( &hide_mutex  );
-									plan->display_dinge( xpos, yypos, IMG_SIZE, true, hmin, hmax, clip_num );
+									plan->display_obj( xpos, yypos, IMG_SIZE, true, hmin, hmax, clip_num );
 								}
 							}
 							else {
@@ -498,9 +498,9 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 									env_t::hide_buildings = env_t::ALL_HIDDEN_BUILDING;
 
 #ifdef MULTI_THREAD
-									plan->display_dinge( xpos, yypos, IMG_SIZE, true, hmin, hmax, clip_num );
+									plan->display_obj( xpos, yypos, IMG_SIZE, true, hmin, hmax, clip_num );
 #else
-									plan->display_dinge( xpos, yypos, IMG_SIZE, true, hmin, hmax );
+									plan->display_obj( xpos, yypos, IMG_SIZE, true, hmin, hmax );
 #endif
 
 									env_t::hide_trees = saved_hide_trees;
@@ -508,9 +508,9 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 								}
 								else {
 #ifdef MULTI_THREAD
-									plan->display_dinge( xpos, yypos, IMG_SIZE, true, hmin, hmax, clip_num );
+									plan->display_obj( xpos, yypos, IMG_SIZE, true, hmin, hmax, clip_num );
 #else
-									plan->display_dinge( xpos, yypos, IMG_SIZE, true, hmin, hmax );
+									plan->display_obj( xpos, yypos, IMG_SIZE, true, hmin, hmax );
 #endif
 								}
 #ifdef MULTI_THREAD
@@ -520,9 +520,9 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 						else {
 							// hiding turned off, draw multithreaded
 #ifdef MULTI_THREAD
-							plan->display_dinge( xpos, yypos, IMG_SIZE, true, hmin, hmax, clip_num );
+							plan->display_obj( xpos, yypos, IMG_SIZE, true, hmin, hmax, clip_num );
 #else
-							plan->display_dinge( xpos, yypos, IMG_SIZE, true, hmin, hmax );
+							plan->display_obj( xpos, yypos, IMG_SIZE, true, hmin, hmax );
 #endif
 						}
 					}

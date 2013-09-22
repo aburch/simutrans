@@ -13,7 +13,7 @@
 static pthread_mutex_t netlist_mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
-// max capacity = (max<uint64> >> 5) -1, see senke_t::step in dings/leitung2.cc
+// max capacity = (max<uint64> >> 5) -1, see senke_t::step in obj/leitung2.cc
 //uint64 powernet_t::max_capacity = (1<<44)-1; // max to allow display with uint32 after POWER_TO_MW shift
 const uint64 powernet_t::max_capacity = (1953125ull<<23); // nicer number for human display (corresponds to 4 TW)
 

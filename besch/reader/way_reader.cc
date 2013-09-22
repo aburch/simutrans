@@ -57,7 +57,7 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->obsolete_date = DEFAULT_RETIRE_DATE*12;
 		besch->wt = road_wt;
 		besch->styp = 0;
-		besch->draw_as_ding = false;
+		besch->draw_as_obj = false;
 		besch->number_seasons = 0;
 	}
 	else {
@@ -75,7 +75,7 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			besch->obsolete_date = decode_uint16(p);
 			besch->wt = decode_uint8(p);
 			besch->styp = decode_uint8(p);
-			besch->draw_as_ding = decode_uint8(p);
+			besch->draw_as_obj = decode_uint8(p);
 			besch->number_seasons = decode_sint8(p);
 		}
 		else if(version==3) {
@@ -88,7 +88,7 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			besch->obsolete_date = decode_uint16(p);
 			besch->wt = decode_uint8(p);
 			besch->styp = decode_uint8(p);
-			besch->draw_as_ding = decode_uint8(p);
+			besch->draw_as_obj = decode_uint8(p);
 			besch->number_seasons = 0;
 		}
 		else if(version==2) {
@@ -101,7 +101,7 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			besch->obsolete_date = decode_uint16(p);
 			besch->wt = decode_uint8(p);
 			besch->styp = decode_uint8(p);
-			besch->draw_as_ding = false;
+			besch->draw_as_obj = false;
 			besch->number_seasons = 0;
 		}
 		else if(version == 1) {
@@ -115,7 +115,7 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			besch->wt = decode_uint8(p);
 			besch->styp = decode_uint8(p);
 			besch->obsolete_date = DEFAULT_RETIRE_DATE*12;
-			besch->draw_as_ding = false;
+			besch->draw_as_obj = false;
 			besch->number_seasons = 0;
 		}
 		else {

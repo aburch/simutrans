@@ -7,7 +7,7 @@
 #include "../simworld.h"
 #include "../simskin.h"
 
-#include "../dings/baum.h"
+#include "../obj/baum.h"
 
 #include "../dataobj/environment.h"
 #include "../dataobj/loadsave.h"
@@ -32,7 +32,7 @@ boden_t::boden_t(karte_t *welt, loadsave_t *file, koord pos ) : grund_t( welt, k
 			// check, if we still have this tree ... (if there are not trees, the first index is NULL!)
 			if (id < baum_t::get_anzahl_besch() && baum_t::get_all_besch()[id]) {
 				baum_t *tree = new baum_t( welt, get_pos(), (uint8)id, age, slope );
-				dinge.add( tree );
+				objlist.add( tree );
 			}
 			else {
 				dbg->warning( "boden_t::boden_t()", "Could not restore tree type %i at (%s)", id, pos.get_str() );
@@ -58,9 +58,9 @@ void boden_t::rdwr(loadsave_t *file)
 	if(  file->get_version()>=110001  ) {
 		// a server send the smallest possible savegames to clients, i.e. saves only types and age of trees
 		if(  env_t::server  &&  !hat_wege()  ) {
-			for(  uint8 i=0;  i<dinge.get_top();  i++  ) {
-				ding_t *d = dinge.bei(i);
-				if(  d->get_typ()==ding_t::baum  ) {
+			for(  uint8 i=0;  i<objlist.get_top();  i++  ) {
+				obj_t *d = objlist.bei(i);
+				if(  d->get_typ()==obj_t::baum  ) {
 					baum_t *tree = (baum_t *)d;
 					file->wr_obj_id( tree->get_besch_id() );
 					uint32 age = tree->get_age();

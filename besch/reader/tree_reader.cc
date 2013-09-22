@@ -1,8 +1,8 @@
 #include <stdio.h>
 
-#include "../../simdings.h"
+#include "../../simobj.h"
 #include "../../simdebug.h"
-#include "../../dings/baum.h"
+#include "../../obj/baum.h"
 
 #include "../baum_besch.h"
 #include "../obj_node_info.h"

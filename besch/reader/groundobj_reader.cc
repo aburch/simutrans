@@ -1,9 +1,9 @@
 #include <stdio.h>
 
 #include "../../simunits.h"
-#include "../../simdings.h"
+#include "../../simobj.h"
 #include "../../simdebug.h"
-#include "../../dings/groundobj.h"
+#include "../../obj/groundobj.h"
 #include "../../vehicle/movingobj.h"
 
 #include "../groundobj_besch.h"

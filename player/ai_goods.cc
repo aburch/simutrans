@@ -26,7 +26,7 @@
 #include "../dataobj/fahrplan.h"
 #include "../dataobj/loadsave.h"
 
-#include "../dings/wayobj.h"
+#include "../obj/wayobj.h"
 
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"

@@ -57,18 +57,18 @@
 #include "gui/privatesign_info.h"
 #include "gui/messagebox.h"
 
-#include "dings/zeiger.h"
-#include "dings/bruecke.h"
-#include "dings/tunnel.h"
-#include "dings/groundobj.h"
-#include "dings/signal.h"
-#include "dings/crossing.h"
-#include "dings/roadsign.h"
-#include "dings/wayobj.h"
-#include "dings/leitung2.h"
-#include "dings/baum.h"
-#include "dings/field.h"
-#include "dings/label.h"
+#include "obj/zeiger.h"
+#include "obj/bruecke.h"
+#include "obj/tunnel.h"
+#include "obj/groundobj.h"
+#include "obj/signal.h"
+#include "obj/crossing.h"
+#include "obj/roadsign.h"
+#include "obj/wayobj.h"
+#include "obj/leitung2.h"
+#include "obj/baum.h"
+#include "obj/field.h"
+#include "obj/label.h"
 
 #include "dataobj/settings.h"
 #include "dataobj/environment.h"
@@ -307,8 +307,8 @@ const char *wkz_abfrage_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 			if(  is_ctrl_pressed()  ) {
 				// reverse order
 				for(int n=0;  n<gr->get_top();  n++  ) {
-					ding_t *dt = gr->obj_bei(n);
-					if(dt  &&  dt->get_typ()!=ding_t::wayobj  &&  dt->get_typ()!=ding_t::pillar  &&  dt->get_typ()!=ding_t::label) {
+					obj_t *dt = gr->obj_bei(n);
+					if(dt  &&  dt->get_typ()!=obj_t::wayobj  &&  dt->get_typ()!=obj_t::pillar  &&  dt->get_typ()!=obj_t::label) {
 						DBG_MESSAGE("wkz_abfrage()", "index %d", n);
 						dt->zeige_info();
 						// did some new window open?
@@ -356,8 +356,8 @@ const char *wkz_abfrage_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 				}
 
 				for (size_t n = gr->get_top(); n-- != 0;) {
-					ding_t *dt = gr->obj_bei(n);
-					if(dt  &&  dt->get_typ()!=ding_t::wayobj  &&  dt->get_typ()!=ding_t::pillar  &&  dt->get_typ()!=ding_t::label) {
+					obj_t *dt = gr->obj_bei(n);
+					if(dt  &&  dt->get_typ()!=obj_t::wayobj  &&  dt->get_typ()!=obj_t::pillar  &&  dt->get_typ()!=obj_t::label) {
 						DBG_MESSAGE("wkz_abfrage()", "index %u", (unsigned)n);
 						dt->zeige_info();
 						// did some new window open?
@@ -375,8 +375,8 @@ const char *wkz_abfrage_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 			// lowest (less interesting) first
 			gr->zeige_info();
 			for(int n=0; n<gr->get_top();  n++  ) {
-				ding_t *dt = gr->obj_bei(n);
-				if(dt  &&  dt->get_typ()!=ding_t::wayobj  &&  dt->get_typ()!=ding_t::pillar) {
+				obj_t *dt = gr->obj_bei(n);
+				if(dt  &&  dt->get_typ()!=obj_t::wayobj  &&  dt->get_typ()!=obj_t::pillar) {
 					dt->zeige_info();
 				}
 			}
@@ -1272,7 +1272,7 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 				// correct tree offsets if slope has changed
 				if(  slope_changed  ) {
 					for(  int i=0;  i<gr1->get_top();  i++  ) {
-						baum_t *tree = ding_cast<baum_t>(gr1->obj_bei(i));
+						baum_t *tree = obj_cast<baum_t>(gr1->obj_bei(i));
 						if (tree) {
 							tree->recalc_off();
 						}
@@ -1335,8 +1335,8 @@ const char *wkz_marker_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 	grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
 	if (gr) {
 		if(!gr->get_text()) {
-			const ding_t* thing = gr->obj_bei(0);
-			if(thing == NULL  ||  thing->get_besitzer() == sp  ||  (spieler_t::check_owner(thing->get_besitzer(), sp)  &&  (thing->get_typ() != ding_t::gebaeude))) {
+			const obj_t* thing = gr->obj_bei(0);
+			if(thing == NULL  ||  thing->get_besitzer() == sp  ||  (spieler_t::check_owner(thing->get_besitzer(), sp)  &&  (thing->get_typ() != obj_t::gebaeude))) {
 				gr->obj_add(new label_t(welt, gr->get_pos(), sp, "\0"));
 				if (is_local_execution()) {
 					gr->find<label_t>()->zeige_info();
@@ -1375,7 +1375,7 @@ const char *wkz_clear_reservation_t::work( karte_t *welt, spieler_t *, koord3d p
 	if(gr) {
 		for(unsigned wnr=0;  wnr<2;  wnr++  ) {
 
-			schiene_t const* const w = ding_cast<schiene_t>(gr->get_weg_nr(wnr));
+			schiene_t const* const w = obj_cast<schiene_t>(gr->get_weg_nr(wnr));
 			// is this a reserved track?
 			if(w!=NULL  &&  w->is_reserved()) {
 				/* now we do a very crude procedure:
@@ -1390,7 +1390,7 @@ const char *wkz_clear_reservation_t::work( karte_t *welt, spieler_t *, koord3d p
 				}
 				FOR(slist_tpl<weg_t*>, const w, weg_t::get_alle_wege()) {
 					if (w->get_waytype() == waytype) {
-						schiene_t* const sch = ding_cast<schiene_t>(w);
+						schiene_t* const sch = obj_cast<schiene_t>(w);
 						if (sch->get_reserved_convoi() == cnv) {
 							vehikel_t& v = *cnv->front();
 							if (!gr->suche_obj(v.get_typ())) {
@@ -1545,7 +1545,7 @@ const char *wkz_add_city_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 			gr->get_grund_hang() == 0  &&
 			hausbauer_t::get_special( 0, haus_besch_t::rathaus, welt->get_timeline_year_month(), 0, welt->get_climate( k ) ) != NULL  ) {
 
-			gebaeude_t const* const gb = ding_cast<gebaeude_t>(gr->first_obj());
+			gebaeude_t const* const gb = obj_cast<gebaeude_t>(gr->first_obj());
 			if(gb && gb->ist_rathaus()) {
 				dbg->warning("wkz_add_city()", "Already a city here");
 				return "Tile not empty.";
@@ -2186,7 +2186,7 @@ uint8 wkz_wegebau_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord3d &
 		// check for ownership but ignore moving things
 		if(sp!=NULL) {
 			for(uint8 i=0; i<gr->obj_count(); i++) {
-				ding_t* dt = gr->obj_bei(i);
+				obj_t* dt = gr->obj_bei(i);
 				if (!dt->is_moving()  &&  dt->ist_entfernbar(sp)!=NULL) {
 					error =  dt->ist_entfernbar(sp); // "Das Feld gehoert\neinem anderen Spieler\n";
 					return 0;
@@ -2378,12 +2378,12 @@ void wkz_brueckenbau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d 
 	// eventually we have to remove trees on start tile
 	if (besch->get_waytype() != powerline_wt) {
 		for(  uint8 i=0;  i<gr->get_top();  i++  ) {
-			ding_t *dt = gr->obj_bei(i);
+			obj_t *dt = gr->obj_bei(i);
 			switch(dt->get_typ()) {
-				case ding_t::baum:
+				case obj_t::baum:
 					costs -= welt->get_settings().cst_remove_tree;
 					break;
-				case ding_t::groundobj:
+				case obj_t::groundobj:
 					costs += ((groundobj_t *)dt)->get_besch()->get_preis();
 					break;
 				default: break;
@@ -2444,12 +2444,12 @@ void wkz_brueckenbau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d 
 	// eventually we have to remove trees on end tile
 	if (besch->get_waytype() != powerline_wt) {
 		for(  uint8 i=0;  i<gr->get_top();  i++  ) {
-			ding_t *dt = gr->obj_bei(i);
+			obj_t *dt = gr->obj_bei(i);
 			switch(dt->get_typ()) {
-				case ding_t::baum:
+				case obj_t::baum:
 					costs -= welt->get_settings().cst_remove_tree;
 					break;
-				case ding_t::groundobj:
+				case obj_t::groundobj:
 					costs += ((groundobj_t *)dt)->get_besch()->get_preis();
 					break;
 				default: break;
@@ -2848,7 +2848,7 @@ bool wkz_wayremover_t::calc_route( route_t &verbindung, spieler_t *sp, const koo
 		if(  wt!=powerline_wt  ) {
 			vehikel_besch_t remover_besch(wt, 500, vehikel_besch_t::diesel );
 			vehikel_t *driver = vehikelbauer_t::baue(start, sp, NULL, &remover_besch);
-			driver->set_flag( ding_t::not_on_map );
+			driver->set_flag( obj_t::not_on_map );
 			test_driver = driver;
 		}
 		else {
@@ -2878,23 +2878,23 @@ bool wkz_wayremover_t::calc_route( route_t &verbindung, spieler_t *sp, const koo
 				bool check_all = !gr->ist_karten_boden()  &&  gr->has_two_ways()  &&  gr->get_weg_nr(0)->get_waytype()==wt;
 				// we have to do a fine check
 				for( uint i=0;  i<gr->get_top()  &&  can_delete;  i++  ) {
-					ding_t *d = gr->obj_bei(i);
+					obj_t *d = gr->obj_bei(i);
 					const uint8 type = d->get_typ();
 					// ignore pillars, powerlines
-					if (type == ding_t::pillar  ||  type==ding_t::leitung) {
+					if (type == obj_t::pillar  ||  type==obj_t::leitung) {
 						continue;
 					}
 					// ignore flying aircraft
-					if (type == ding_t::aircraft  &&  !(static_cast<aircraft_t*>(d)->is_on_ground())) {
+					if (type == obj_t::aircraft  &&  !(static_cast<aircraft_t*>(d)->is_on_ground())) {
 						continue;
 					}
-					const waytype_t ding_wt = d->get_waytype();
+					const waytype_t obj_wt = d->get_waytype();
 					// way-related things
-					if (ding_wt != invalid_wt) {
+					if (obj_wt != invalid_wt) {
 						// check this thing if it has the same waytype or if we want to remove the whole bridge/tunnel tile
 						// special case: stations - take care not to produce station without any way
-						const bool lonely_station = type==ding_t::gebaeude  &&  !gr->has_two_ways();
-						if (check_all ||  ding_wt == wt  ||  lonely_station) {
+						const bool lonely_station = type==obj_t::gebaeude  &&  !gr->has_two_ways();
+						if (check_all ||  obj_wt == wt  ||  lonely_station) {
 							can_delete = (calc_route_error = d->ist_entfernbar(sp)) == NULL;
 						}
 					}
@@ -3101,7 +3101,7 @@ bool wkz_wayobj_t::calc_route( route_t &verbindung, spieler_t *sp, const koord3d
 	// get a default vehikel
 	vehikel_besch_t remover_besch( wt, 500, vehikel_besch_t::diesel );
 	vehikel_t* test_vehicle = vehikelbauer_t::baue(start, sp, NULL, &remover_besch);
-	test_vehicle->set_flag( ding_t::not_on_map );
+	test_vehicle->set_flag( obj_t::not_on_map );
 	fahrer_t* test_driver = scenario_checker_t::apply(test_vehicle, sp, this);
 
 	bool can_built;
@@ -4259,7 +4259,7 @@ bool wkz_roadsign_t::calc_route( route_t &verbindung, spieler_t *sp, const koord
 	// get a default vehikel
 	vehikel_besch_t rs_besch( besch->get_wtyp(), 500, vehikel_besch_t::diesel );
 	vehikel_t* test_vehicle = vehikelbauer_t::baue(start, sp, NULL, &rs_besch);
-	test_vehicle->set_flag(ding_t::not_on_map);
+	test_vehicle->set_flag(obj_t::not_on_map);
 	fahrer_t* test_driver = scenario_checker_t::apply(test_vehicle, sp, this);
 
 	bool can_built;
@@ -4302,7 +4302,7 @@ void wkz_roadsign_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &st
 	else {
 		dummy_rs = new roadsign_t(welt, sp, koord3d::invalid, ribi_t::keine, besch);
 	}
-	dummy_rs->set_flag(ding_t::not_on_map);
+	dummy_rs->set_flag(obj_t::not_on_map);
 
 	bool single_ribi = besch->is_signal_type() || besch->is_single_way() || besch->is_choose_sign();
 	for(  uint16 i = 0;  i < route.get_count();  i++  ) {
@@ -5683,16 +5683,16 @@ const char *wkz_make_stop_public_t::work( karte_t *welt, spieler_t *sp, koord3d 
 				spieler_t::book_construction_costs(   w->get_besitzer(), -costs*60, gr->get_pos().get_2d(), w->get_besch()->get_finance_waytype());
 				spieler_t::book_construction_costs( welt->get_spieler(1), costs*60, koord::invalid, w->get_besch()->get_finance_waytype());
 				w->set_besitzer( welt->get_spieler(1) );
-				w->set_flag(ding_t::dirty);
+				w->set_flag(obj_t::dirty);
 				spieler_t::add_maintenance( welt->get_spieler(1), costs, w->get_besch()->get_finance_waytype() );
 				// now search for wayobjects
 				for(  uint8 i=1;  i<gr->get_top();  i++  ) {
-					if(  wayobj_t *wo = ding_cast<wayobj_t>(gr->obj_bei(i))  ) {
+					if(  wayobj_t *wo = obj_cast<wayobj_t>(gr->obj_bei(i))  ) {
 						costs = wo->get_besch()->get_wartung();
 						spieler_t::add_maintenance( wo->get_besitzer(), -costs, w->get_besch()->get_finance_waytype() );
 						spieler_t::book_construction_costs(wo->get_besitzer(), -costs*60, gr->get_pos().get_2d(), w->get_waytype());
 						wo->set_besitzer( welt->get_spieler(1) );
-						wo->set_flag(ding_t::dirty);
+						wo->set_flag(obj_t::dirty);
 						spieler_t::add_maintenance( welt->get_spieler(1), costs, w->get_besch()->get_finance_waytype() );
 						spieler_t::book_construction_costs( welt->get_spieler(1), costs*60, koord::invalid, w->get_waytype());
 					}

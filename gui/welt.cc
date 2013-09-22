@@ -37,7 +37,7 @@
 
 // just for their structure size ...
 #include "../boden/wege/schiene.h"
-#include "../dings/baum.h"
+#include "../obj/baum.h"
 #include "../simcity.h"
 #include "../vehicle/simvehikel.h"
 #include "../player/simplay.h"

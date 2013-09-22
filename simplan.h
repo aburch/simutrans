@@ -14,7 +14,7 @@
 
 class karte_t;
 class grund_t;
-class ding_t;
+class obj_t;
 
 class planquadrat_t;
 void swap(planquadrat_t& a, planquadrat_t& b);
@@ -115,7 +115,7 @@ public:
 	* @return grund_t * with thing or NULL
 	* @author V. Meyer
 	*/
-	grund_t *get_boden_von_obj(ding_t *obj) const;
+	grund_t *get_boden_von_obj(obj_t *obj) const;
 
 	/**
 	* ground saved at index position idx (zero would be normal ground)
@@ -237,9 +237,9 @@ public:
 	void check_season(const long month);
 
 #ifdef MULTI_THREAD
-	void display_dinge(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, const bool is_global, const sint8 hmin, const sint8 hmax, const sint8 clip_num) const;
+	void display_obj(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, const bool is_global, const sint8 hmin, const sint8 hmax, const sint8 clip_num) const;
 #else
-	void display_dinge(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, const bool is_global, const sint8 hmin, const sint8 hmax) const;
+	void display_obj(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, const bool is_global, const sint8 hmin, const sint8 hmax) const;
 #endif
 
 	void display_tileoverlay(sint16 xpos, sint16 ypos, const sint8 hmin, const sint8 hmax) const;

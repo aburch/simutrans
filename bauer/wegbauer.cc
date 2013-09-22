@@ -51,14 +51,14 @@
 // binary heap, since we only need insert and pop
 #include "../tpl/binary_heap_tpl.h" // fastest
 
-#include "../dings/field.h"
-#include "../dings/gebaeude.h"
-#include "../dings/bruecke.h"
-#include "../dings/tunnel.h"
-#include "../dings/crossing.h"
-#include "../dings/leitung2.h"
-#include "../dings/groundobj.h"
-#include "../dings/wayobj.h"
+#include "../obj/field.h"
+#include "../obj/gebaeude.h"
+#include "../obj/bruecke.h"
+#include "../obj/tunnel.h"
+#include "../obj/crossing.h"
+#include "../obj/leitung2.h"
+#include "../obj/groundobj.h"
+#include "../obj/wayobj.h"
 
 #include "../ifc/fahrer.h"
 
@@ -1990,12 +1990,12 @@ sint64 wegbauer_t::calc_costs()
 			}
 			// eventually we have to remove trees
 			for(  uint8 i=0;  i<gr->get_top();  i++  ) {
-				ding_t *dt = gr->obj_bei(i);
+				obj_t *dt = gr->obj_bei(i);
 				switch(dt->get_typ()) {
-					case ding_t::baum:
+					case obj_t::baum:
 						costs -= welt->get_settings().cst_remove_tree;
 						break;
-					case ding_t::groundobj:
+					case obj_t::groundobj:
 						costs += ((groundobj_t *)dt)->get_besch()->get_preis();
 						break;
 					default: break;

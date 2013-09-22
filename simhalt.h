@@ -12,7 +12,7 @@
 #include "linehandle_t.h"
 #include "halthandle_t.h"
 
-#include "simdings.h"
+#include "simobj.h"
 #include "display/simgraph.h"
 #include "simtypes.h"
 
@@ -640,7 +640,7 @@ public:
 	/* checks, if there is an unoccupied loading bay for this kind of thing
 	* @author prissi
 	*/
-	bool find_free_position(const waytype_t w ,convoihandle_t cnv,const ding_t::typ d) const;
+	bool find_free_position(const waytype_t w ,convoihandle_t cnv,const obj_t::typ d) const;
 
 	/* reserves a position (caution: railblocks work differently!
 	* @author prissi

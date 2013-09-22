@@ -6,7 +6,7 @@
  *
  * All moving stuff (vehikel_basis_t) and all player vehicle (derived from vehikel_t)
  *
- * 01.11.99  getrennt von simdings.cc
+ * 01.11.99  getrennt von simobj.cc
  *
  * Hansjoerg Malthaner, Nov. 1999
  */
@@ -45,11 +45,11 @@
 
 #include "../simintr.h"
 
-#include "../dings/wolke.h"
-#include "../dings/signal.h"
-#include "../dings/roadsign.h"
-#include "../dings/crossing.h"
-#include "../dings/zeiger.h"
+#include "../obj/wolke.h"
+#include "../obj/signal.h"
+#include "../obj/roadsign.h"
+#include "../obj/crossing.h"
+#include "../obj/zeiger.h"
 
 #include "../gui/karte.h"
 
@@ -174,10 +174,10 @@ bool vehikel_basis_t::is_about_to_hop( const sint8 neu_xoff, const sint8 neu_yof
 
 
 vehikel_basis_t::vehikel_basis_t(karte_t *welt):
-	ding_t(welt)
+	obj_t(welt)
 {
 	bild = IMG_LEER;
-	set_flag( ding_t::is_vehicle );
+	set_flag( obj_t::is_vehicle );
 	steps = 0;
 	steps_next = VEHICLE_STEPS_PER_TILE - 1;
 	use_calc_height = true;
@@ -189,10 +189,10 @@ vehikel_basis_t::vehikel_basis_t(karte_t *welt):
 
 
 vehikel_basis_t::vehikel_basis_t(karte_t *welt, koord3d pos):
-	ding_t(welt, pos)
+	obj_t(welt, pos)
 {
 	bild = IMG_LEER;
-	set_flag( ding_t::is_vehicle );
+	set_flag( obj_t::is_vehicle );
 	pos_next = pos;
 	steps = 0;
 	steps_next = VEHICLE_STEPS_PER_TILE - 1;
@@ -302,9 +302,9 @@ uint32 vehikel_basis_t::fahre_basis(uint32 distance)
 		return 0;
 	}
 	// ok, so moving ...
-	if(  !get_flag(ding_t::dirty)  ) {
+	if(  !get_flag(obj_t::dirty)  ) {
 		mark_image_dirty( bild, hoff );
-		set_flag( ding_t::dirty );
+		set_flag( obj_t::dirty );
 	}
 
 	grund_t *gr = NULL; // if hopped, then this is new position
@@ -571,15 +571,15 @@ vehikel_basis_t *vehikel_basis_t::no_cars_blocking( const grund_t *gr, const con
 {
 	// Search vehicle
 	for(  uint8 pos=1;  pos<(volatile uint8)gr->get_top();  pos++  ) {
-		if(  vehikel_basis_t* const v = ding_cast<vehikel_basis_t>(gr->obj_bei(pos))  ) {
-			if(  v->get_typ()==ding_t::fussgaenger  ) {
+		if(  vehikel_basis_t* const v = obj_cast<vehikel_basis_t>(gr->obj_bei(pos))  ) {
+			if(  v->get_typ()==obj_t::fussgaenger  ) {
 				continue;
 			}
 
 			// check for car
 			uint8 other_fahrtrichtung=255;
 			bool other_moving = false;
-			if(  automobil_t const* const at = ding_cast<automobil_t>(v)  ) {
+			if(  automobil_t const* const at = obj_cast<automobil_t>(v)  ) {
 				// ignore ourself
 				if(  cnv == at->get_convoi()  ) {
 					continue;
@@ -590,7 +590,7 @@ vehikel_basis_t *vehikel_basis_t::no_cars_blocking( const grund_t *gr, const con
 			// check for city car
 			else if(  v->get_waytype() == road_wt  ) {
 				other_fahrtrichtung = v->get_fahrtrichtung();
-				if(  stadtauto_t const* const sa = ding_cast<stadtauto_t>(v)  ){
+				if(  stadtauto_t const* const sa = obj_cast<stadtauto_t>(v)  ){
 					other_moving = sa->get_current_speed() > 1;
 				}
 			}
@@ -1207,7 +1207,7 @@ void vehikel_t::rauche() const
 			if(  gr  ) {
 				wolke_t* const abgas =  new wolke_t( welt, get_pos(), get_xoff() + ((dx * (sint16)((uint16)steps * OBJECT_OFFSET_STEPS)) >> 8), get_yoff() + ((dy * (sint16)((uint16)steps * OBJECT_OFFSET_STEPS)) >> 8) + hoff, besch->get_rauch() );
 				if(  !gr->obj_add( abgas )  ) {
-					abgas->set_flag( ding_t::not_on_map );
+					abgas->set_flag( obj_t::not_on_map );
 					delete abgas;
 				}
 				else {
@@ -1422,14 +1422,14 @@ void vehikel_t::calc_bild()
 		set_bild(besch->get_bild_nr(ribi_t::get_dir(get_fahrtrichtung()), fracht.front().get_besch()));
 	}
 	if(old_bild!=get_bild()) {
-		set_flag(ding_t::dirty);
+		set_flag(obj_t::dirty);
 	}
 }
 
 
 void vehikel_t::rdwr(loadsave_t *file)
 {
-	// this is only called from dingliste => we save nothing ...
+	// this is only called from objlist => we save nothing ...
 	assert(  file->is_saving()  );
 }
 
@@ -1449,9 +1449,9 @@ void vehikel_t::rdwr_from_convoi(loadsave_t *file)
 		}
 	}
 
-	ding_t::rdwr(file);
+	obj_t::rdwr(file);
 
-	// since ding_t does no longer save positions
+	// since obj_t does no longer save positions
 	if(  file->get_version()>=101000  ) {
 		koord3d pos = get_pos();
 		pos.rdwr(file);
@@ -2032,7 +2032,7 @@ bool automobil_t::choose_route( int &restart_speed, ribi_t::dir richtung, uint16
 
 			// check if there is a free position
 			// this is much faster than waysearch
-			if(  !target_halt->find_free_position(road_wt,cnv->self,ding_t::automobil  )) {
+			if(  !target_halt->find_free_position(road_wt,cnv->self,obj_t::automobil  )) {
 				restart_speed = 0;
 				target_halt = halthandle_t();
 				return false;
@@ -2207,7 +2207,7 @@ bool automobil_t::ist_weg_frei(int &restart_speed, bool second_check)
 			if(  dt  &&  test_index > route_index + 1u  &&  !str->is_crossing()  &&  !int_block  ) {
 				// found a car blocking us after checking at least 1 intersection or crossing
 				// and the car is in a place we could stop. So if it can move, assume it will, so we will too.
-				if(  automobil_t const* const car = ding_cast<automobil_t>(dt)  ) {
+				if(  automobil_t const* const car = obj_cast<automobil_t>(dt)  ) {
 					const convoi_t* const ocnv = car->get_convoi();
 					int dummy;
 					if(  ocnv->front()->get_route_index() < ocnv->get_route()->get_count()  &&  ocnv->front()->ist_weg_frei(dummy, true)  ) {
@@ -2235,13 +2235,13 @@ bool automobil_t::ist_weg_frei(int &restart_speed, bool second_check)
 							return true;
 						}
 						// not overtaking/being overtake: we need to make a more thought test!
-						if(  automobil_t const* const car = ding_cast<automobil_t>(dt)  ) {
+						if(  automobil_t const* const car = obj_cast<automobil_t>(dt)  ) {
 							convoi_t* const ocnv = car->get_convoi();
 							if(  cnv->can_overtake( ocnv, (ocnv->get_state()==convoi_t::LOADING ? 0 : over->get_max_power_speed()), ocnv->get_length_in_steps()+ocnv->get_vehikel(0)->get_steps())  ) {
 								return true;
 							}
 						}
-						else if(  stadtauto_t* const caut = ding_cast<stadtauto_t>(dt)  ) {
+						else if(  stadtauto_t* const caut = obj_cast<stadtauto_t>(dt)  ) {
 							if(  cnv->can_overtake(caut, caut->get_besch()->get_geschw(), VEHICLE_STEPS_PER_TILE)  ) {
 								return true;
 							}
@@ -2441,7 +2441,7 @@ bool waggon_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t
 
 bool waggon_t::ist_befahrbar(const grund_t *bd) const
 {
-	schiene_t const* const sch = ding_cast<schiene_t>(bd->get_weg(get_waytype()));
+	schiene_t const* const sch = obj_cast<schiene_t>(bd->get_weg(get_waytype()));
 	if(  !sch  ) {
 		return false;
 	}
@@ -3391,7 +3391,7 @@ bool aircraft_t::find_route_to_stop_position()
 
 	// is our target occupied?
 //	DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","state %i",state);
-	if(!target_halt->find_free_position(air_wt,cnv->self,ding_t::aircraft)  ) {
+	if(!target_halt->find_free_position(air_wt,cnv->self,obj_t::aircraft)  ) {
 		target_halt = halthandle_t();
 		DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","no free position found!");
 		return false;
@@ -3772,8 +3772,8 @@ bool aircraft_t::ist_weg_frei( int & restart_speed, bool )
 		// check, if tile occupied by a plane on ground
 		if(  route_index > 1  ) {
 			for(  uint8 i = 1;  i<gr->get_top();  i++  ) {
-				ding_t *d = gr->obj_bei(i);
-				if(  d->get_typ()==ding_t::aircraft  &&  ((aircraft_t *)d)->is_on_ground()  ) {
+				obj_t *d = gr->obj_bei(i);
+				if(  d->get_typ()==obj_t::aircraft  &&  ((aircraft_t *)d)->is_on_ground()  ) {
 					restart_speed = 0;
 					return false;
 				}
@@ -4040,7 +4040,7 @@ uint8 aircraft_t::get_approach_ribi( koord3d start, koord3d ziel )
 
 grund_t* aircraft_t::hop()
 {
-	if(  !get_flag(ding_t::dirty)  ) {
+	if(  !get_flag(obj_t::dirty)  ) {
 		mark_image_dirty( bild, get_yoff()-flughoehe-hoff-2 );
 	}
 
@@ -4196,9 +4196,9 @@ void aircraft_t::display_after(int xpos_org, int ypos_org, bool is_global) const
 		// will be dirty
 		// the aircraft!!!
 #ifdef MULTI_THREAD
-		display_color( bild, xpos, ypos, get_player_nr(), true, true/*get_flag(ding_t::dirty)*/, clip_num );
+		display_color( bild, xpos, ypos, get_player_nr(), true, true/*get_flag(obj_t::dirty)*/, clip_num );
 #else
-		display_color( bild, xpos, ypos, get_player_nr(), true, true/*get_flag(ding_t::dirty)*/ );
+		display_color( bild, xpos, ypos, get_player_nr(), true, true/*get_flag(obj_t::dirty)*/ );
 		vehikel_t::display_after( xpos_org, ypos_org - tile_raster_scale_y( current_flughohe - hoff - 2, raster_width ), is_global );
 #endif
 	}

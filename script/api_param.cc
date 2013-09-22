@@ -128,11 +128,11 @@ namespace script_api {
 	}
 
 
-	ding_t::typ param<ding_t::typ>::get(HSQUIRRELVM vm, SQInteger index)
+	obj_t::typ param<obj_t::typ>::get(HSQUIRRELVM vm, SQInteger index)
 	{
-		return (ding_t::typ)(param<uint8>::get(vm, index));
+		return (obj_t::typ)(param<uint8>::get(vm, index));
 	}
-	SQInteger param<ding_t::typ>::push(HSQUIRRELVM vm, ding_t::typ const& v)
+	SQInteger param<obj_t::typ>::push(HSQUIRRELVM vm, obj_t::typ const& v)
 	{
 		return param<uint8>::push(vm, v);
 	}

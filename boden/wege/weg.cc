@@ -9,7 +9,7 @@
  * 14.06.00 getrennt von simgrund.cc
  * Überarbeitet Januar 2001
  *
- * derived from simdings.h in 2007
+ * derived from simobj.h in 2007
  *
  * von Hj. Malthaner
  */
@@ -31,11 +31,11 @@
 #include "../../simworld.h"
 #include "../../display/simimg.h"
 #include "../../simhalt.h"
-#include "../../simdings.h"
+#include "../../simobj.h"
 #include "../../player/simplay.h"
-#include "../../dings/roadsign.h"
-#include "../../dings/signal.h"
-#include "../../dings/crossing.h"
+#include "../../obj/roadsign.h"
+#include "../../obj/signal.h"
+#include "../../obj/crossing.h"
 #include "../../utils/cbuffer_t.h"
 #include "../../dataobj/translator.h"
 #include "../../dataobj/loadsave.h"
@@ -229,7 +229,7 @@ void weg_t::rdwr(loadsave_t *file)
  */
 void weg_t::info(cbuffer_t & buf) const
 {
-	ding_t::info(buf);
+	obj_t::info(buf);
 
 	buf.printf("%s %u%s", translator::translate("Max. speed:"), max_speed, translator::translate("km/h\n"));
 	buf.printf("%s%u",    translator::translate("\nRibi (unmasked)"), get_ribi_unmasked());
@@ -268,7 +268,7 @@ void weg_t::info(cbuffer_t & buf) const
  */
 void weg_t::rotate90()
 {
-	ding_t::rotate90();
+	obj_t::rotate90();
 	ribi = ribi_t::rotate90( ribi );
 	ribi_maske = ribi_t::rotate90( ribi_maske );
 }
@@ -298,16 +298,16 @@ void weg_t::count_sign()
 		}
 		// since way 0 is at least present here ...
 		for( ;  i<gr->get_top();  i++  ) {
-			ding_t *d=gr->obj_bei(i);
+			obj_t *d=gr->obj_bei(i);
 			// sign for us?
-			if(  roadsign_t const* const sign = ding_cast<roadsign_t>(d)  ) {
+			if(  roadsign_t const* const sign = obj_cast<roadsign_t>(d)  ) {
 				if(  sign->get_besch()->get_wtyp() == get_besch()->get_wtyp()  ) {
 					// here is a sign ...
 					flags |= HAS_SIGN;
 					return;
 				}
 			}
-			if(  signal_t const* const signal = ding_cast<signal_t>(d)  ) {
+			if(  signal_t const* const signal = obj_cast<signal_t>(d)  ) {
 				if(  signal->get_besch()->get_wtyp() == get_besch()->get_wtyp()  ) {
 					// here is a signal ...
 					flags |= HAS_SIGNAL;
@@ -575,5 +575,5 @@ const char *weg_t::ist_entfernbar(const spieler_t *sp)
 	if(  get_player_nr()==1  ) {
 		return NULL;
 	}
-	return ding_t::ist_entfernbar(sp);
+	return obj_t::ist_entfernbar(sp);
 }

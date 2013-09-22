@@ -22,11 +22,11 @@ SQInteger get_object_index(HSQUIRRELVM vm)
 	grund_t *gr = param<grund_t*>::get(vm, 1);
 	uint8 index = param<uint8>::get(vm, 2);
 
-	ding_t *ding = NULL;
+	obj_t *obj = NULL;
 	if (gr  &&  index < gr->get_top()) {
-		ding = gr->obj_bei(index);
+		obj = gr->obj_bei(index);
 	}
-	return param<ding_t*>::push(vm, ding);
+	return param<obj_t*>::push(vm, obj);
 }
 
 

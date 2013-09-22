@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "../../dings/roadsign.h"
+#include "../../obj/roadsign.h"
 #include "../../simunits.h"	// for kmh to speed conversion
 #include "../roadsign_besch.h"
 #include "../intro_dates.h"

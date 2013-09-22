@@ -13,7 +13,7 @@
 #include "../../dataobj/koord3d.h"
 #include "../../tpl/vector_tpl.h"
 
-class ding_t;
+class obj_t;
 class karte_t;
 
 
@@ -31,7 +31,7 @@ private:
 protected:
 	virtual koord3d get_location() = 0;
 
-	void internal_draw(koord offset, ding_t const *);
+	void internal_draw(koord offset, obj_t const *);
 
 	void calc_offsets(koord size, sint16 dy_off);
 

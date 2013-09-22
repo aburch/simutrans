@@ -39,7 +39,7 @@
 #include "simintr.h"
 #include "simdebug.h"
 
-#include "dings/gebaeude.h"
+#include "obj/gebaeude.h"
 
 #include "dataobj/translator.h"
 #include "dataobj/settings.h"
@@ -207,7 +207,7 @@ bool stadt_t::bewerte_loc(const koord pos, const rule_t &regel, int rotation)
 				break;
 			case 'h':
 				// is house
-				if (gr->get_typ() != grund_t::fundament  ||  gr->obj_bei(0)->get_typ()!=ding_t::gebaeude) return false;
+				if (gr->get_typ() != grund_t::fundament  ||  gr->obj_bei(0)->get_typ()!=obj_t::gebaeude) return false;
 				break;
 			case 'H':
 				// no house
@@ -598,7 +598,7 @@ void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb, bool ordered)
 		// add all tiles
 		for (k.y = 0; k.y < size.y; k.y++) {
 			for (k.x = 0; k.x < size.x; k.x++) {
-				if (gebaeude_t* const add_gb = ding_cast<gebaeude_t>(welt->lookup_kartenboden(pos + k)->first_obj())) {
+				if (gebaeude_t* const add_gb = obj_cast<gebaeude_t>(welt->lookup_kartenboden(pos + k)->first_obj())) {
 					if(add_gb->get_tile()->get_besch()!=gb->get_tile()->get_besch()) {
 						dbg->error( "stadt_t::add_gebaeude_to_stadt()","two buildings \"%s\" and \"%s\" at (%i,%i): Game will crash during deletion", add_gb->get_tile()->get_besch()->get_name(), gb->get_tile()->get_besch()->get_name(), pos.x + k.x, pos.y + k.y);
 						buildings.remove(add_gb);
@@ -1303,7 +1303,7 @@ void stadt_t::laden_abschliessen()
 
 	if(townhall_road==koord::invalid) {
 		// guess road tile based on current orientation
-		gebaeude_t const* const gb = ding_cast<gebaeude_t>(welt->lookup_kartenboden(pos)->first_obj());
+		gebaeude_t const* const gb = obj_cast<gebaeude_t>(welt->lookup_kartenboden(pos)->first_obj());
 		if(  gb  &&  gb->ist_rathaus()  ) {
 			koord k(gb->get_tile()->get_besch()->get_groesse(gb->get_tile()->get_layout()));
 			switch (gb->get_tile()->get_layout()) {
@@ -2191,7 +2191,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 	const haus_besch_t* besch = hausbauer_t::get_special( bev, haus_besch_t::rathaus, welt->get_timeline_year_month(), bev == 0, welt->get_climate(pos) );
 	if(besch != NULL) {
 		grund_t* gr = welt->lookup_kartenboden(pos);
-		gebaeude_t* gb = ding_cast<gebaeude_t>(gr->first_obj());
+		gebaeude_t* gb = obj_cast<gebaeude_t>(gr->first_obj());
 		bool neugruendung = !gb || !gb->ist_rathaus();
 		bool umziehen = !neugruendung;
 		koord alte_str(koord::invalid);
@@ -2218,7 +2218,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 				for(uint8 test_layout = 0; test_layout<4; test_layout++) {
 					// is there a part of our townhall in this corner
 					grund_t *gr0 = welt->lookup_kartenboden(pos + corner_offset);
-					gebaeude_t const* const gb0 = gr0 ? ding_cast<gebaeude_t>(gr0->first_obj()) : 0;
+					gebaeude_t const* const gb0 = gr0 ? obj_cast<gebaeude_t>(gr0->first_obj()) : 0;
 					if (gb0  &&  gb0->ist_rathaus()  &&  gb0->get_tile()->get_besch()==besch_alt  &&  gb0->get_stadt()==this) {
 						old_layout = test_layout;
 						pos_alt = best_pos = gr->get_pos().get_2d() + koord(test_layout%3!=0 ? corner_offset.x : 0, test_layout&2 ? corner_offset.y : 0);
@@ -2422,7 +2422,7 @@ gebaeude_t::typ stadt_t::was_ist_an(const koord k) const
 	gebaeude_t::typ t = gebaeude_t::unbekannt;
 
 	if (gr != NULL) {
-		if (gebaeude_t const* const gb = ding_cast<gebaeude_t>(gr->first_obj())) {
+		if (gebaeude_t const* const gb = obj_cast<gebaeude_t>(gr->first_obj())) {
 			t = gb->get_haustyp();
 		}
 	}
@@ -2510,9 +2510,9 @@ void stadt_t::build_city_building(const koord k)
 	uint32 neighbor_building_clusters = 0;
 	for(  int i = 0;  i < 4;  i++  ) {
 		grund_t* gr = welt->lookup_kartenboden(k + neighbors[i]);
-		if(  gr && gr->get_typ() == grund_t::fundament  &&  gr->obj_bei(0)->get_typ() == ding_t::gebaeude  ) {
+		if(  gr && gr->get_typ() == grund_t::fundament  &&  gr->obj_bei(0)->get_typ() == obj_t::gebaeude  ) {
 			// We have a building as a neighbor...
-			gebaeude_t const* const gb = ding_cast<gebaeude_t>(gr->first_obj());
+			gebaeude_t const* const gb = obj_cast<gebaeude_t>(gr->first_obj());
 			if(  gb != NULL  ) {
 				// We really have a building as a neighbor...
 				const haus_besch_t* neighbor_building = gb->get_tile()->get_besch();
@@ -2648,9 +2648,9 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 	uint32 neighbor_building_clusters = 0;
 	for (int i = 0; i < 4; i++) {
 		grund_t* gr = welt->lookup_kartenboden(k + neighbors[i]);
-		if (gr  &&  gr->get_typ() == grund_t::fundament  &&  gr->obj_bei(0)->get_typ() == ding_t::gebaeude) {
+		if (gr  &&  gr->get_typ() == grund_t::fundament  &&  gr->obj_bei(0)->get_typ() == obj_t::gebaeude) {
 			// We have a building as a neighbor...
-			gebaeude_t const* const gb = ding_cast<gebaeude_t>(gr->first_obj());
+			gebaeude_t const* const gb = obj_cast<gebaeude_t>(gr->first_obj());
 			if (gb != NULL) {
 				// We really have a building as a neighbor...
 				const haus_besch_t* neighbor_building = gb->get_tile()->get_besch();
@@ -2737,7 +2737,7 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 				else if(  gr->get_typ() == grund_t::fundament  ) {
 					// do not renovate, if the identical building is already in a neighbour tile
 					// identical mean same besch and same rotation (neroden suggested to relax this for clusters)
-					gebaeude_t const* const gb = ding_cast<gebaeude_t>(gr->first_obj());
+					gebaeude_t const* const gb = obj_cast<gebaeude_t>(gr->first_obj());
 					if(  gb  &&  gb->get_tile()->get_besch() == h  &&  gb->get_tile() == h->get_tile(building_layout[streetdir], 0, 0)  ) {
 						return;
 					}

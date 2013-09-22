@@ -59,7 +59,7 @@ private:
 
 	/* true, if a tile with this way should be always drawn as a thing
 	*/
-	uint8 draw_as_ding;
+	uint8 draw_as_obj;
 
 	/* number of seasons (0 = none, 1 = no snow/snow
 	*/
@@ -204,7 +204,7 @@ public:
 	}
 
 	/* true, if this tile is to be drawn as a normal thing */
-	bool is_draw_as_ding() const { return draw_as_ding; }
+	bool is_draw_as_obj() const { return draw_as_obj; }
 
 	/**
 	* Skin: cursor (index 0) and icon (index 1)

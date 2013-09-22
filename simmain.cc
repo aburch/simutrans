@@ -49,7 +49,7 @@
 #include "gui/load_relief_frame.h"
 #include "gui/scenario_frame.h"
 
-#include "dings/baum.h"
+#include "obj/baum.h"
 
 #include "utils/simstring.h"
 #include "utils/searchfolder.h"
@@ -90,7 +90,7 @@ static void show_sizes()
 	DBG_MESSAGE("sizes", "ribi_t::ribi: %d", sizeof(ribi_t::ribi));
 	DBG_MESSAGE("sizes", "halthandle_t: %d\n", sizeof(halthandle_t));
 
-	DBG_MESSAGE("sizes", "ding_t: %d", sizeof(ding_t));
+	DBG_MESSAGE("sizes", "obj_t: %d", sizeof(obj_t));
 	DBG_MESSAGE("sizes", "gebaeude_t: %d", sizeof(gebaeude_t));
 	DBG_MESSAGE("sizes", "baum_t: %d", sizeof(baum_t));
 	DBG_MESSAGE("sizes", "weg_t: %d", sizeof(weg_t));

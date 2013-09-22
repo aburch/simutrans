@@ -19,7 +19,7 @@
 
 #include "../boden/grund.h"
 
-#include "../dings/zeiger.h"
+#include "../obj/zeiger.h"
 
 #include "../dataobj/fahrplan.h"
 #include "../dataobj/loadsave.h"
@@ -49,14 +49,14 @@ void fahrplan_gui_stats_t::highlight_schedule( schedule_t *markfpl, bool marking
 	FOR(minivec_tpl<linieneintrag_t>, const& i, markfpl->eintrag) {
 		if (grund_t* const gr = welt->lookup(i.pos)) {
 			for(  uint idx=0;  idx<gr->get_top();  idx++  ) {
-				ding_t *d = gr->obj_bei(idx);
+				obj_t *d = gr->obj_bei(idx);
 				if(  marking  ) {
 					if(  !d->is_moving()  ) {
-						d->set_flag( ding_t::highlight );
+						d->set_flag( obj_t::highlight );
 					}
 				}
 				else {
-					d->clear_flag( ding_t::highlight );
+					d->clear_flag( obj_t::highlight );
 				}
 			}
 			gr->set_flag( grund_t::dirty );
@@ -84,11 +84,11 @@ void fahrplan_gui_stats_t::highlight_schedule( schedule_t *markfpl, bool marking
 		aktuell_mark->set_pos( markfpl->eintrag[markfpl->get_aktuell()].pos );
 		if(  grund_t *gr = welt->lookup(aktuell_mark->get_pos())  ) {
 			gr->obj_add( aktuell_mark );
-			aktuell_mark->set_flag( ding_t::dirty );
+			aktuell_mark->set_flag( obj_t::dirty );
 			gr->set_flag( grund_t::dirty );
 		}
 	}
-	aktuell_mark->clear_flag( ding_t::highlight );
+	aktuell_mark->clear_flag( obj_t::highlight );
 }
 
 

@@ -108,7 +108,7 @@ public:
 };
 
 
-template<> inline schiene_t* ding_cast<schiene_t>(ding_t* const d)
+template<> inline schiene_t* obj_cast<schiene_t>(obj_t* const d)
 {
 	return dynamic_cast<schiene_t*>(d);
 }

@@ -10,12 +10,12 @@
  */
 
 #include "trafficlight_info.h"
-#include "../dings/roadsign.h" // The rest of the dialog
+#include "../obj/roadsign.h" // The rest of the dialog
 
 #include "../simmenu.h"
 
 trafficlight_info_t::trafficlight_info_t(roadsign_t* s) :
-	ding_infowin_t(s),
+	obj_infowin_t(s),
 	ampel(s)
 {
 	ns.set_pos( koord(10,get_fenstergroesse().y-40) );

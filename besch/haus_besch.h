@@ -11,7 +11,7 @@
 #include "bildliste2d_besch.h"
 #include "obj_besch_std_name.h"
 #include "skin_besch.h"
-#include "../dings/gebaeude.h"
+#include "../obj/gebaeude.h"
 
 
 class haus_besch_t;

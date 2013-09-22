@@ -35,9 +35,9 @@
 #include "dataobj/tabfile.h"
 #include "dataobj/scenario.h"
 
-#include "dings/roadsign.h"
-#include "dings/wayobj.h"
-#include "dings/zeiger.h"
+#include "obj/roadsign.h"
+#include "obj/wayobj.h"
+#include "obj/zeiger.h"
 
 #include "gui/werkzeug_waehler.h"
 

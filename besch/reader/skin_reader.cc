@@ -1,10 +1,10 @@
 #include <stdio.h>
 
-#include "../../simdings.h"
+#include "../../simobj.h"
 #include "../../simdebug.h"
 #include "../../simskin.h"
 
-#include "../../dings/wolke.h"
+#include "../../obj/wolke.h"
 
 #include "../skin_besch.h"
 #include "skin_reader.h"

@@ -10,14 +10,14 @@
 #include "simtypes.h"
 #include "simworld.h"
 #include "simmenu.h"
-#include "simdings.h"
+#include "simobj.h"
 
 #include "boden/wege/schiene.h"
 
 #include "dataobj/environment.h"
 #include "dataobj/translator.h"
 
-#include "dings/baum.h"
+#include "obj/baum.h"
 
 #include "player/simplay.h"
 
@@ -937,9 +937,9 @@ class wkz_view_owner_t : public werkzeug_t {
 public:
 	wkz_view_owner_t() : werkzeug_t(WKZ_VIEW_OWNER | SIMPLE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("show/hide object owner"); }
-	bool is_selected(karte_t const*) const OVERRIDE { return ding_t::show_owner; }
+	bool is_selected(karte_t const*) const OVERRIDE { return obj_t::show_owner; }
 	bool init( karte_t *welt, spieler_t * ) {
-		ding_t::show_owner ^= 1;
+		obj_t::show_owner ^= 1;
 		welt->set_dirty();
 		return false;
 	}

@@ -57,14 +57,14 @@
 #include "vehicle/movingobj.h"
 #include "boden/wege/schiene.h"
 
-#include "dings/zeiger.h"
-#include "dings/baum.h"
-#include "dings/signal.h"
-#include "dings/roadsign.h"
-#include "dings/wayobj.h"
-#include "dings/groundobj.h"
-#include "dings/gebaeude.h"
-#include "dings/leitung2.h"
+#include "obj/zeiger.h"
+#include "obj/baum.h"
+#include "obj/signal.h"
+#include "obj/roadsign.h"
+#include "obj/wayobj.h"
+#include "obj/groundobj.h"
+#include "obj/gebaeude.h"
+#include "obj/leitung2.h"
 
 #include "gui/password_frame.h"
 #include "gui/messagebox.h"
@@ -1172,7 +1172,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 				}
 				else {
 					// look for a road near the townhall
-					gebaeude_t const* const gb = ding_cast<gebaeude_t>(lookup_kartenboden(stadt[i]->get_pos())->first_obj());
+					gebaeude_t const* const gb = obj_cast<gebaeude_t>(lookup_kartenboden(stadt[i]->get_pos())->first_obj());
 					bool ok = false;
 					if(  gb  &&  gb->ist_rathaus()  ) {
 						koord k_check = stadt[i]->get_pos() + koord(-1,-1);
@@ -1231,7 +1231,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 			vehikel_t* test_driver;
 			vehikel_besch_t test_drive_besch(road_wt, 500, vehikel_besch_t::diesel );
 			test_driver = vehikelbauer_t::baue(koord3d(), spieler[1], NULL, &test_drive_besch);
-			test_driver->set_flag( ding_t::not_on_map );
+			test_driver->set_flag( obj_t::not_on_map );
 
 			bool ready=false;
 			uint8 phase=0;
@@ -2388,15 +2388,15 @@ bool karte_t::is_plan_height_changeable(sint16 x, sint16 y) const
 		ok = (gr->ist_natur() || gr->ist_wasser())  &&  !gr->hat_wege()  &&  !gr->is_halt();
 
 		for(  int i=0; ok  &&  i<gr->get_top(); i++  ) {
-			const ding_t *dt = gr->obj_bei(i);
+			const obj_t *dt = gr->obj_bei(i);
 			assert(dt != NULL);
 			ok =
-				dt->get_typ() == ding_t::baum  ||
-				dt->get_typ() == ding_t::zeiger  ||
-				dt->get_typ() == ding_t::wolke  ||
-				dt->get_typ() == ding_t::sync_wolke  ||
-				dt->get_typ() == ding_t::async_wolke  ||
-				dt->get_typ() == ding_t::groundobj;
+				dt->get_typ() == obj_t::baum  ||
+				dt->get_typ() == obj_t::zeiger  ||
+				dt->get_typ() == obj_t::wolke  ||
+				dt->get_typ() == obj_t::sync_wolke  ||
+				dt->get_typ() == obj_t::async_wolke  ||
+				dt->get_typ() == obj_t::groundobj;
 		}
 	}
 
@@ -5454,7 +5454,7 @@ void karte_t::plans_laden_abschliessen( sint16 x_min, sint16 x_max, sint16 y_min
 			for(  int schicht = 0;  schicht < boden_count;  schicht++  ) {
 				grund_t *gr = plan->get_boden_bei(schicht);
 				for(  int n = 0;  n < gr->get_top();  n++  ) {
-					ding_t *d = gr->obj_bei(n);
+					obj_t *d = gr->obj_bei(n);
 					if(d) {
 						d->laden_abschliessen();
 					}
@@ -7173,7 +7173,7 @@ sint16 karte_t::get_sound_id(grund_t *gr)
 		if(  zeiger->get_pos().z==grundwasser  &&  !gr->ist_wasser()  ) {
 			return sound_besch_t::beach_sound;
 		}
-		else if(  gr->get_top()>0  &&  gr->obj_bei(0)->get_typ()==ding_t::baum  ) {
+		else if(  gr->get_top()>0  &&  gr->obj_bei(0)->get_typ()==obj_t::baum  ) {
 			return sound_besch_t::forest_sound;
 		}
 	}

@@ -85,10 +85,10 @@ bool schiene_t::reserve(convoihandle_t c, ribi_t::ribi dir  )
 			mark_image_dirty( get_bild(), 0 );
 			mark_image_dirty( get_after_bild(), 0 );
 			set_images(image_switch, get_ribi_unmasked(), is_snow(), (dir==ribi_t::nordost  ||  dir==ribi_t::suedwest) );
-			set_flag( ding_t::dirty );
+			set_flag( obj_t::dirty );
 		}
 		if(schiene_t::show_reservations) {
-			set_flag( ding_t::dirty );
+			set_flag( obj_t::dirty );
 		}
 		return true;
 	}
@@ -108,7 +108,7 @@ bool schiene_t::unreserve(convoihandle_t c)
 	if(reserved.is_bound()  &&  reserved==c) {
 		reserved = convoihandle_t();
 		if(schiene_t::show_reservations) {
-			set_flag( ding_t::dirty );
+			set_flag( obj_t::dirty );
 		}
 		return true;
 	}
@@ -131,7 +131,7 @@ bool schiene_t::unreserve(vehikel_t *)
 //	if(!welt->lookup(get_pos())->suche_obj(v->get_typ())) {
 		reserved = convoihandle_t();
 		if(schiene_t::show_reservations) {
-			set_flag( ding_t::dirty );
+			set_flag( obj_t::dirty );
 		}
 		return true;
 //	}

@@ -3,7 +3,7 @@
 #include "../../utils/simstring.h"
 
 #include "../way_obj_besch.h"
-#include "../../dings/wayobj.h"
+#include "../../obj/wayobj.h"
 
 #include "way_obj_reader.h"
 #include "../obj_node_info.h"

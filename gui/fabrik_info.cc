@@ -437,7 +437,7 @@ void fabrik_info_t::rdwr( loadsave_t *file )
 		fab = fabrik_t::get_fab( welt, fabpos );
 
 		// will fail on factories with no ground or no building at (0,0)
-		view.set_ding( welt->lookup_kartenboden( fabpos )->find<gebaeude_t>() );
+		view.set_obj( welt->lookup_kartenboden( fabpos )->find<gebaeude_t>() );
 		view.set_groesse( viewsize );
 		view.set_pos( viewpos );
 		chart.set_factory( fab );

@@ -14,7 +14,7 @@
 
 #include "../simtypes.h"
 #include "../simconvoi.h"
-#include "../simdings.h"
+#include "../simobj.h"
 #include "../halthandle_t.h"
 #include "../convoihandle_t.h"
 #include "../ifc/fahrer.h"
@@ -36,7 +36,7 @@ class route_t;
  *
  * @author Hj. Malthaner
  */
-class vehikel_basis_t : public ding_t
+class vehikel_basis_t : public obj_t
 {
 protected:
 	// offsets for different directions
@@ -149,7 +149,7 @@ public:
 
 	/**
 	 * Vehicle movement: enter tile, add this to the ground.
-	 * @pre position (ding_t::pos) needs to be updated prior to calling this functions
+	 * @pre position (obj_t::pos) needs to be updated prior to calling this functions
 	 * @return pointer to ground (never NULL)
 	 */
 	virtual grund_t* betrete_feld();
@@ -167,7 +167,7 @@ public:
 };
 
 
-template<> inline vehikel_basis_t* ding_cast<vehikel_basis_t>(ding_t* const d)
+template<> inline vehikel_basis_t* obj_cast<vehikel_basis_t>(obj_t* const d)
 {
 	return d->is_moving() ? static_cast<vehikel_basis_t*>(d) : 0;
 }
@@ -463,7 +463,7 @@ public:
 };
 
 
-template<> inline vehikel_t* ding_cast<vehikel_t>(ding_t* const d)
+template<> inline vehikel_t* obj_cast<vehikel_t>(obj_t* const d)
 {
 	return dynamic_cast<vehikel_t*>(d);
 }
@@ -509,7 +509,7 @@ public:
 	// since we must consider overtaking, we use this for offset calculation
 	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const;
 
-	ding_t::typ get_typ() const { return automobil; }
+	obj_t::typ get_typ() const { return automobil; }
 
 	schedule_t * erzeuge_neuen_fahrplan() const;
 
@@ -665,7 +665,7 @@ public:
 	schiff_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last);
 	schiff_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv);
 
-	ding_t::typ get_typ() const { return schiff; }
+	obj_t::typ get_typ() const { return schiff; }
 
 	schedule_t * erzeuge_neuen_fahrplan() const;
 };
