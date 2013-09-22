@@ -565,9 +565,9 @@ void spieler_t::ai_bankrupt()
 				}
 				bool count_signs = false;
 				for (size_t i = gr->get_top(); i-- != 0;) {
-					obj_t *dt = gr->obj_bei(i);
-					if(dt->get_besitzer()==this) {
-						switch(dt->get_typ()) {
+					obj_t *obj = gr->obj_bei(i);
+					if(obj->get_besitzer()==this) {
+						switch(obj->get_typ()) {
 							case obj_t::roadsign:
 							case obj_t::signal:
 								count_signs = true;
@@ -581,26 +581,26 @@ void spieler_t::ai_bankrupt()
 							case obj_t::pumpe:
 							case obj_t::wayobj:
 							case obj_t::label:
-								dt->entferne(this);
-								delete dt;
+								obj->entferne(this);
+								delete obj;
 								break;
 							case obj_t::leitung:
 								if(gr->ist_bruecke()) {
-									add_maintenance( -((leitung_t*)dt)->get_besch()->get_wartung(), powerline_wt );
+									add_maintenance( -((leitung_t*)obj)->get_besch()->get_wartung(), powerline_wt );
 									// do not remove powerline from bridges
-									dt->set_besitzer( welt->get_spieler(1) );
+									obj->set_besitzer( welt->get_spieler(1) );
 								}
 								else {
-									dt->entferne(this);
-									delete dt;
+									obj->entferne(this);
+									delete obj;
 								}
 								break;
 							case obj_t::gebaeude:
-								hausbauer_t::remove( welt, this, (gebaeude_t *)dt );
+								hausbauer_t::remove( welt, this, (gebaeude_t *)obj );
 								break;
 							case obj_t::way:
 							{
-								weg_t *w=(weg_t *)dt;
+								weg_t *w=(weg_t *)obj;
 								if (gr->ist_bruecke()  ||  gr->ist_tunnel()) {
 									w->set_besitzer( NULL );
 								}
@@ -614,16 +614,16 @@ void spieler_t::ai_bankrupt()
 								break;
 							}
 							case obj_t::bruecke:
-								add_maintenance( -((bruecke_t*)dt)->get_besch()->get_wartung(), dt->get_waytype() );
-								dt->set_besitzer( NULL );
+								add_maintenance( -((bruecke_t*)obj)->get_besch()->get_wartung(), obj->get_waytype() );
+								obj->set_besitzer( NULL );
 								break;
 							case obj_t::tunnel:
-								add_maintenance( -((tunnel_t*)dt)->get_besch()->get_wartung(), ((tunnel_t*)dt)->get_besch()->get_finance_waytype() );
-								dt->set_besitzer( NULL );
+								add_maintenance( -((tunnel_t*)obj)->get_besch()->get_wartung(), ((tunnel_t*)obj)->get_besch()->get_finance_waytype() );
+								obj->set_besitzer( NULL );
 								break;
 
 							default:
-								dt->set_besitzer( welt->get_spieler(1) );
+								obj->set_besitzer( welt->get_spieler(1) );
 						}
 					}
 				}

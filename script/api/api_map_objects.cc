@@ -35,11 +35,11 @@ template<class D> struct access_objs {
 		SQUserPointer tag = obj_t_tag + bind_code<D>::objtype;
 		SQUserPointer p = NULL;
 		if (SQ_SUCCEEDED(sq_getinstanceup(vm, index, &p, tag))  &&  p) {
-			D *d = static_cast<D*>(p);
+			D *obj = static_cast<D*>(p);
 			koord3d pos = param<koord3d>::get(vm, index);
 			grund_t *gr = welt->lookup(pos);
-			if (gr  &&  gr->obj_ist_da(d)) {
-				return d;
+			if (gr  &&  gr->obj_ist_da(obj)) {
+				return obj;
 			}
 			else {
 				// object or tile disappeared: clear userpointer
@@ -52,21 +52,21 @@ template<class D> struct access_objs {
 	/*
 	 * Create instance: call constructor with coordinates.
 	 */
-	static SQInteger push_with_pos(HSQUIRRELVM vm, D* const& d)
+	static SQInteger push_with_pos(HSQUIRRELVM vm, D* const& obj)
 	{
-		if (d == NULL) {
+		if (obj == NULL) {
 			sq_pushnull(vm);
 			return 1;
 		}
-		koord pos = d->get_pos().get_2d();
+		koord pos = obj->get_pos().get_2d();
 		welt->get_scenario()->koord_w2sq(pos);
 		sint16 x = pos.x;
 		sint16 y = pos.y;
-		sint8  z = d->get_pos().z;
+		sint8  z = obj->get_pos().z;
 		if (!SQ_SUCCEEDED(push_instance(vm, script_api::param<D*>::squirrel_type(), x, y, z))) {
 			return SQ_ERROR;
 		}
-		sq_setinstanceup(vm, -1, d);
+		sq_setinstanceup(vm, -1, obj);
 		return 1;
 	}
 
@@ -85,30 +85,30 @@ SQInteger exp_obj_pos_constructor(HSQUIRRELVM vm)
 }
 
 // we have to resolve instances of derived classes here...
-SQInteger script_api::param<obj_t*>::push(HSQUIRRELVM vm, obj_t* const& d)
+SQInteger script_api::param<obj_t*>::push(HSQUIRRELVM vm, obj_t* const& obj)
 {
-	if (d == NULL) {
+	if (obj == NULL) {
 		sq_pushnull(vm);
 		return 1;
 	}
-	obj_t::typ type = d->get_typ();
+	obj_t::typ type = obj->get_typ();
 	switch(type) {
 		case obj_t::baum:
-			return script_api::param<baum_t*>::push(vm, (baum_t*)d);
+			return script_api::param<baum_t*>::push(vm, (baum_t*)obj);
 
 		case obj_t::gebaeude:
-			return script_api::param<gebaeude_t*>::push(vm, (gebaeude_t*)d);
+			return script_api::param<gebaeude_t*>::push(vm, (gebaeude_t*)obj);
 
 		case obj_t::way:
 		{
-			waytype_t wt = d->get_waytype();
+			waytype_t wt = obj->get_waytype();
 			switch(wt) {
 				default:
-					return script_api::param<weg_t*>::push(vm, (weg_t*)d);
+					return script_api::param<weg_t*>::push(vm, (weg_t*)obj);
 			}
 		}
 		default:
-			return access_objs<obj_t>::push_with_pos(vm, d);
+			return access_objs<obj_t>::push_with_pos(vm, obj);
 	}
 }
 
@@ -125,9 +125,9 @@ template<> struct bind_code<obj_t> { static const uint8 objtype = obj_t::obj; };
 	{ \
 		return access_objs<D>::get_by_pos(vm, index); \
 	} \
-	SQInteger script_api::param<D*>::push(HSQUIRRELVM vm, D* const& d) \
+	SQInteger script_api::param<D*>::push(HSQUIRRELVM vm, D* const& obj) \
 	{ \
-		return access_objs<D>::push_with_pos(vm, d); \
+		return access_objs<D>::push_with_pos(vm, obj); \
 	} \
 	template<> struct bind_code<D> { static const uint8 objtype = type; };
 

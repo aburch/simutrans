@@ -2153,26 +2153,26 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 				continue;
 			}
 
-			obj_t *d=obj_bei((uint8)i);
+			obj_t *obj=obj_bei((uint8)i);
 			// do not delete ways
-			if(  d->get_typ()==obj_t::way  ) {
+			if(  obj->get_typ()==obj_t::way  ) {
 				continue;
 			}
-			if (roadsign_t* const sign = obj_cast<roadsign_t>(d)) {
+			if (roadsign_t* const sign = obj_cast<roadsign_t>(obj)) {
 				// roadsigns: check dir: dirs changed => delete
 				if (sign->get_besch()->get_wtyp() == wt && (sign->get_dir() & ~add) != 0) {
 					costs -= sign->get_besch()->get_preis();
 					delete sign;
 					signs_deleted = true;
 				}
-			} else if (signal_t* const signal = obj_cast<signal_t>(d)) {
+			} else if (signal_t* const signal = obj_cast<signal_t>(obj)) {
 				// singal: not on crossings => remove all
 				if (signal->get_besch()->get_wtyp() == wt) {
 					costs -= signal->get_besch()->get_preis();
 					delete signal;
 					signs_deleted = true;
 				}
-			} else if (wayobj_t* const wayobj = obj_cast<wayobj_t>(d)) {
+			} else if (wayobj_t* const wayobj = obj_cast<wayobj_t>(obj)) {
 				// wayobj: check dir
 				if (add == ribi_t::keine && wayobj->get_besch()->get_wtyp() == wt) {
 					uint8 new_dir=wayobj->get_dir()&add;
@@ -2185,13 +2185,13 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 						delete wayobj;
 					}
 				}
-			} else if (stadtauto_t* const citycar = obj_cast<stadtauto_t>(d)) {
+			} else if (stadtauto_t* const citycar = obj_cast<stadtauto_t>(obj)) {
 				// citycar: just delete
 				if (wt == road_wt) delete citycar;
-			} else if (fussgaenger_t* const pedestrian = obj_cast<fussgaenger_t>(d)) {
+			} else if (fussgaenger_t* const pedestrian = obj_cast<fussgaenger_t>(obj)) {
 				// pedestrians: just delete
 				if (wt == road_wt) delete pedestrian;
-			} else if (tunnel_t* const tunnel = obj_cast<tunnel_t>(d)) {
+			} else if (tunnel_t* const tunnel = obj_cast<tunnel_t>(obj)) {
 				// remove tunnel portal, if not the last tile ...
 				// must be done before weg_entfernen() to get maintenance right
 				uint8 wt = tunnel->get_besch()->get_waytype();
@@ -2258,8 +2258,8 @@ wayobj_t *grund_t::get_wayobj( waytype_t wt ) const
 
 	// since there might be more than one, we have to iterate through all of them
 	for(  uint8 i = 0;  i < get_top();  i++  ) {
-		obj_t *d = obj_bei(i);
-		if (wayobj_t* const wayobj = obj_cast<wayobj_t>(d)) {
+		obj_t *obj = obj_bei(i);
+		if (wayobj_t* const wayobj = obj_cast<wayobj_t>(obj)) {
 			waytype_t wt2 = wayobj->get_besch()->get_wtyp();
 			if(  wt2 == tram_wt  ) {
 				wt2 = track_wt;

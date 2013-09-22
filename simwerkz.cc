@@ -307,10 +307,10 @@ const char *wkz_abfrage_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 			if(  is_ctrl_pressed()  ) {
 				// reverse order
 				for(int n=0;  n<gr->get_top();  n++  ) {
-					obj_t *dt = gr->obj_bei(n);
-					if(dt  &&  dt->get_typ()!=obj_t::wayobj  &&  dt->get_typ()!=obj_t::pillar  &&  dt->get_typ()!=obj_t::label) {
+					obj_t *obj = gr->obj_bei(n);
+					if(  obj && obj->get_typ()!=obj_t::wayobj && obj->get_typ()!=obj_t::pillar && obj->get_typ()!=obj_t::label  ) {
 						DBG_MESSAGE("wkz_abfrage()", "index %d", n);
-						dt->zeige_info();
+						obj->zeige_info();
 						// did some new window open?
 						if(old_count!=win_get_open_count()) {
 							return NULL;
@@ -356,10 +356,10 @@ const char *wkz_abfrage_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 				}
 
 				for (size_t n = gr->get_top(); n-- != 0;) {
-					obj_t *dt = gr->obj_bei(n);
-					if(dt  &&  dt->get_typ()!=obj_t::wayobj  &&  dt->get_typ()!=obj_t::pillar  &&  dt->get_typ()!=obj_t::label) {
+					obj_t *obj = gr->obj_bei(n);
+					if(  obj && obj->get_typ()!=obj_t::wayobj && obj->get_typ()!=obj_t::pillar && obj->get_typ()!=obj_t::label  ) {
 						DBG_MESSAGE("wkz_abfrage()", "index %u", (unsigned)n);
-						dt->zeige_info();
+						obj->zeige_info();
 						// did some new window open?
 						if(old_count!=win_get_open_count()) {
 							return NULL;
@@ -375,9 +375,9 @@ const char *wkz_abfrage_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 			// lowest (less interesting) first
 			gr->zeige_info();
 			for(int n=0; n<gr->get_top();  n++  ) {
-				obj_t *dt = gr->obj_bei(n);
-				if(dt  &&  dt->get_typ()!=obj_t::wayobj  &&  dt->get_typ()!=obj_t::pillar) {
-					dt->zeige_info();
+				obj_t *obj = gr->obj_bei(n);
+				if(  obj && obj->get_typ()!=obj_t::wayobj && obj->get_typ()!=obj_t::pillar  ) {
+					obj->zeige_info();
 				}
 			}
 		}
@@ -1286,10 +1286,10 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 			if(  gr1->ist_karten_boden()  ) {
 				if(  new_slope!=hang_t::flach  ) {
 					// no lakes on slopes ...
-					groundobj_t *d = gr1->find<groundobj_t>();
-					if(  d  &&  d->get_besch()->get_phases()!=16  ) {
-						d->entferne(sp);
-						delete d;
+					groundobj_t *obj = gr1->find<groundobj_t>();
+					if(  obj  &&  obj->get_besch()->get_phases()!=16  ) {
+						obj->entferne(sp);
+						delete obj;
 					}
 					// connect canals to sea
 					if(  gr1->get_hoehe() == water_hgt  &&  gr1->hat_weg(water_wt)  ) {
@@ -2378,13 +2378,13 @@ void wkz_brueckenbau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d 
 	// eventually we have to remove trees on start tile
 	if (besch->get_waytype() != powerline_wt) {
 		for(  uint8 i=0;  i<gr->get_top();  i++  ) {
-			obj_t *dt = gr->obj_bei(i);
-			switch(dt->get_typ()) {
+			obj_t *obj = gr->obj_bei(i);
+			switch(obj->get_typ()) {
 				case obj_t::baum:
 					costs -= welt->get_settings().cst_remove_tree;
 					break;
 				case obj_t::groundobj:
-					costs += ((groundobj_t *)dt)->get_besch()->get_preis();
+					costs += ((groundobj_t *)obj)->get_besch()->get_preis();
 					break;
 				default: break;
 			}
@@ -2444,13 +2444,13 @@ void wkz_brueckenbau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d 
 	// eventually we have to remove trees on end tile
 	if (besch->get_waytype() != powerline_wt) {
 		for(  uint8 i=0;  i<gr->get_top();  i++  ) {
-			obj_t *dt = gr->obj_bei(i);
-			switch(dt->get_typ()) {
+			obj_t *obj = gr->obj_bei(i);
+			switch(obj->get_typ()) {
 				case obj_t::baum:
 					costs -= welt->get_settings().cst_remove_tree;
 					break;
 				case obj_t::groundobj:
-					costs += ((groundobj_t *)dt)->get_besch()->get_preis();
+					costs += ((groundobj_t *)obj)->get_besch()->get_preis();
 					break;
 				default: break;
 			}
@@ -2878,29 +2878,29 @@ bool wkz_wayremover_t::calc_route( route_t &verbindung, spieler_t *sp, const koo
 				bool check_all = !gr->ist_karten_boden()  &&  gr->has_two_ways()  &&  gr->get_weg_nr(0)->get_waytype()==wt;
 				// we have to do a fine check
 				for( uint i=0;  i<gr->get_top()  &&  can_delete;  i++  ) {
-					obj_t *d = gr->obj_bei(i);
-					const uint8 type = d->get_typ();
+					obj_t *obj = gr->obj_bei(i);
+					const uint8 type = obj->get_typ();
 					// ignore pillars, powerlines
 					if (type == obj_t::pillar  ||  type==obj_t::leitung) {
 						continue;
 					}
 					// ignore flying aircraft
-					if (type == obj_t::aircraft  &&  !(static_cast<aircraft_t*>(d)->is_on_ground())) {
+					if (type == obj_t::aircraft  &&  !(static_cast<aircraft_t*>(obj)->is_on_ground())) {
 						continue;
 					}
-					const waytype_t obj_wt = d->get_waytype();
+					const waytype_t obj_wt = obj->get_waytype();
 					// way-related things
 					if (obj_wt != invalid_wt) {
 						// check this thing if it has the same waytype or if we want to remove the whole bridge/tunnel tile
 						// special case: stations - take care not to produce station without any way
 						const bool lonely_station = type==obj_t::gebaeude  &&  !gr->has_two_ways();
 						if (check_all ||  obj_wt == wt  ||  lonely_station) {
-							can_delete = (calc_route_error = d->ist_entfernbar(sp)) == NULL;
+							can_delete = (calc_route_error = obj->ist_entfernbar(sp)) == NULL;
 						}
 					}
 					// all other stuff
 					else {
-						can_delete = (calc_route_error = d->ist_entfernbar(sp)) == NULL;
+						can_delete = (calc_route_error = obj->ist_entfernbar(sp)) == NULL;
 					}
 				}
 			}

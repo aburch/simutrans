@@ -354,25 +354,25 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, spieler_t *sp, koord3d pos, k
 
 bool brueckenbauer_t::ist_ende_ok(spieler_t *sp, const grund_t *gr)
 {
-	if(gr->get_typ()!=grund_t::boden  &&  gr->get_typ()!=grund_t::monorailboden) {
+	if(  gr->get_typ()!=grund_t::boden  &&  gr->get_typ()!=grund_t::monorailboden  ) {
 		return false;
 	}
 	if(  gr->ist_uebergang()  ||  (  gr->hat_wege()  &&  gr->get_leitung()  )  ) {
 		return false;
 	}
-	obj_t *d=gr->obj_bei(0);
-	if (d != NULL) {
-		if (d->ist_entfernbar(sp)!=NULL) {
+	obj_t *obj=gr->obj_bei(0);
+	if (  obj!=NULL  ) {
+		if (  obj->ist_entfernbar(sp)!=NULL  ) {
 			return false;
 		}
 	}
-	if(gr->get_halt().is_bound()) {
+	if(  gr->get_halt().is_bound()  ) {
 		return false;
 	}
-	if(gr->get_depot()) {
+	if(  gr->get_depot()  ) {
 		return false;
 	}
-	if(gr->find<senke_t>()!=NULL  ||  gr->find<pumpe_t>()!=NULL) {
+	if(  gr->find<senke_t>()!=NULL  ||  gr->find<pumpe_t>()!=NULL  ) {
 		return false;
 	}
 	return true;

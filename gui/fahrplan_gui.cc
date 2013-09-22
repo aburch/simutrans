@@ -49,14 +49,14 @@ void fahrplan_gui_stats_t::highlight_schedule( schedule_t *markfpl, bool marking
 	FOR(minivec_tpl<linieneintrag_t>, const& i, markfpl->eintrag) {
 		if (grund_t* const gr = welt->lookup(i.pos)) {
 			for(  uint idx=0;  idx<gr->get_top();  idx++  ) {
-				obj_t *d = gr->obj_bei(idx);
+				obj_t *obj = gr->obj_bei(idx);
 				if(  marking  ) {
-					if(  !d->is_moving()  ) {
-						d->set_flag( obj_t::highlight );
+					if(  !obj->is_moving()  ) {
+						obj->set_flag( obj_t::highlight );
 					}
 				}
 				else {
-					d->clear_flag( obj_t::highlight );
+					obj->clear_flag( obj_t::highlight );
 				}
 			}
 			gr->set_flag( grund_t::dirty );

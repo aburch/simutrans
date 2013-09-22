@@ -22,7 +22,6 @@
 #include "../obj/gebaeude.h"
 #include "../obj/signal.h"
 #include "../obj/label.h"
-#include "../obj/gebaeude.h"
 #include "../obj/leitung2.h"
 #include "../obj/wayobj.h"
 #include "../obj/roadsign.h"
@@ -518,23 +517,23 @@ bool objlist_t::add(obj_t* new_obj)
 // since it does not shrink list or checks for ownership
 obj_t *objlist_t::remove_last()
 {
-	obj_t *d=NULL;
+	obj_t *last_obj=NULL;
 	if(capacity==0) {
 		// nothing
 	}
 	else if(capacity==1) {
-		d = obj.one;
+		last_obj = obj.one;
 		obj.one = NULL;
 		capacity = top = 0;
 	}
 	else {
 		if(top>0) {
 			top --;
-			d = obj.some[top];
+			last_obj = obj.some[top];
 			obj.some[top] = NULL;
 		}
 	}
-	return d;
+	return last_obj;
 }
 
 
@@ -790,18 +789,18 @@ void objlist_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				continue;
 			}
 
-			obj_t *d = NULL;
+			obj_t *new_obj = NULL;
 
 			switch(typ) {
-				case obj_t::bruecke:	    d = new bruecke_t (welt, file);	        break;
-				case obj_t::tunnel:	    d = new tunnel_t (welt, file);	        break;
-				case obj_t::pumpe:		    d = new pumpe_t (welt, file);	        break;
-				case obj_t::leitung:	    d = new leitung_t (welt, file);	        break;
-				case obj_t::senke:		    d = new senke_t (welt, file);	        break;
-				case obj_t::zeiger:	    d = new zeiger_t (welt, file);	        break;
-				case obj_t::signal:	    d = new signal_t (welt, file);   break;
-				case obj_t::label:			d = new label_t(welt,file); break;
-				case obj_t::crossing:		d = new crossing_t(welt,file); break;
+				case obj_t::bruecke:	    new_obj = new bruecke_t (welt, file);	        break;
+				case obj_t::tunnel:	    new_obj = new tunnel_t (welt, file);	        break;
+				case obj_t::pumpe:		    new_obj = new pumpe_t (welt, file);	        break;
+				case obj_t::leitung:	    new_obj = new leitung_t (welt, file);	        break;
+				case obj_t::senke:		    new_obj = new senke_t (welt, file);	        break;
+				case obj_t::zeiger:	    new_obj = new zeiger_t (welt, file);	        break;
+				case obj_t::signal:	    new_obj = new signal_t (welt, file);   break;
+				case obj_t::label:			new_obj = new label_t(welt,file); break;
+				case obj_t::crossing:		new_obj = new crossing_t(welt,file); break;
 
 				case obj_t::wayobj:
 				{
@@ -810,10 +809,10 @@ void objlist_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 						// ignore missing wayobjs
 						wo->set_flag(obj_t::not_on_map);
 						delete wo;
-						d = NULL;
+						new_obj = NULL;
 					}
 					else {
-						d = wo;
+						new_obj = wo;
 					}
 					break;
 				}
@@ -828,10 +827,10 @@ void objlist_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 						// no pedestrians ... delete this
 						pedestrian->set_flag(obj_t::not_on_map);
 						delete pedestrian;
-						d = NULL;
+						new_obj = NULL;
 					}
 					else {
-						d = pedestrian;
+						new_obj = pedestrian;
 					}
 					break;
 				}
@@ -847,7 +846,7 @@ void objlist_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 						delete car;
 					}
 					else {
-						d = car;
+						new_obj = car;
 					}
 					break;
 				}
@@ -855,29 +854,29 @@ void objlist_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				case obj_t::old_monoraildepot:
 					typ = obj_t::monoraildepot;
 				case obj_t::monoraildepot:
-					d = new monoraildepot_t (welt, file);
+					new_obj = new monoraildepot_t (welt, file);
 					break;
 				case obj_t::old_tramdepot:
 					typ = obj_t::tramdepot;
 				case obj_t::tramdepot:
-					d = new tramdepot_t (welt, file);
+					new_obj = new tramdepot_t (welt, file);
 					break;
 				case obj_t::strassendepot:
-					d = new strassendepot_t (welt, file);
+					new_obj = new strassendepot_t (welt, file);
 					break;
 				case obj_t::schiffdepot:
-					d = new schiffdepot_t (welt, file);
+					new_obj = new schiffdepot_t (welt, file);
 					break;
 				case obj_t::old_airdepot:
 					typ = obj_t::airdepot;
 				case obj_t::airdepot:
-					d = new airdepot_t (welt, file);
+					new_obj = new airdepot_t (welt, file);
 					break;
 				case obj_t::maglevdepot:
-					d = new maglevdepot_t (welt, file);
+					new_obj = new maglevdepot_t (welt, file);
 					break;
 				case obj_t::narrowgaugedepot:
-					d = new narrowgaugedepot_t (welt, file);
+					new_obj = new narrowgaugedepot_t (welt, file);
 					break;
 
 				case obj_t::bahndepot:
@@ -897,8 +896,8 @@ void objlist_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 						bd = new bahndepot_t( welt, gb.get_pos(), gb.get_besitzer(), NULL );
 					}
 					bd->rdwr_vehicles(file);
-					d   = bd;
-					typ = d->get_typ();
+					new_obj   = bd;
+					typ = new_obj->get_typ();
 					// do not remove from this position, since there will be nothing
 					gb.set_flag(obj_t::not_on_map);
 				}
@@ -911,7 +910,7 @@ void objlist_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				{
 					pillar_t *p = new pillar_t(welt, file);
 					if(p->get_besch()!=NULL  &&  p->get_besch()->get_pillar()!=0) {
-						d = p;
+						new_obj = p;
 					}
 					else {
 						// has no pillar ...
@@ -938,7 +937,7 @@ void objlist_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 						}
 					}
 					else {
-						d = b;
+						new_obj = b;
 					}
 				}
 				break;
@@ -953,7 +952,7 @@ void objlist_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 						delete groundobj;
 					}
 					else {
-						d = groundobj;
+						new_obj = groundobj;
 					}
 					break;
 				}
@@ -967,7 +966,7 @@ void objlist_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 						delete movingobj;
 					}
 					else {
-						d = movingobj;
+						new_obj = movingobj;
 					}
 					break;
 				}
@@ -982,7 +981,7 @@ void objlist_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 						gb = NULL;
 					}
 					else {
-						d = gb;
+						new_obj = gb;
 					}
 				}
 				break;
@@ -998,7 +997,7 @@ void objlist_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 						delete rs;
 					}
 					else {
-						d = rs;
+						new_obj = rs;
 					}
 				}
 				break;
@@ -1017,22 +1016,22 @@ void objlist_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 					dbg->fatal("objlist_t::laden()", "During loading: Unknown object type '%d'", typ);
 			}
 
-			if(d  &&  d->get_typ()!=typ) {
-				dbg->warning( "objlist_t::rdwr()","typ error : %i instead %i on %i,%i, object ignored!", d->get_typ(), typ, d->get_pos().x, d->get_pos().y );
-				d = NULL;
+			if(new_obj  &&  new_obj->get_typ()!=typ) {
+				dbg->warning( "objlist_t::rdwr()","typ error : %i instead %i on %i,%i, object ignored!", new_obj->get_typ(), typ, new_obj->get_pos().x, new_obj->get_pos().y );
+				new_obj = NULL;
 			}
 
-			if(d  &&  d->get_pos()==koord3d::invalid) {
-				d->set_pos( current_pos );
+			if(new_obj  &&  new_obj->get_pos()==koord3d::invalid) {
+				new_obj->set_pos( current_pos );
 			}
 
-			if(d  &&  d->get_pos()!=current_pos) {
-				dbg->warning("objlist_t::rdwr()","position error: %i,%i,%i instead %i,%i,%i (object will be ignored)",d->get_pos().x,d->get_pos().y,d->get_pos().z,current_pos.x,current_pos.y,current_pos.z);
-				d = NULL;
+			if(new_obj  &&  new_obj->get_pos()!=current_pos) {
+				dbg->warning("objlist_t::rdwr()","position error: %i,%i,%i instead %i,%i,%i (object will be ignored)",new_obj->get_pos().x,new_obj->get_pos().y,new_obj->get_pos().z,current_pos.x,current_pos.y,current_pos.z);
+				new_obj = NULL;
 			}
 
-			if(d) {
-				add(d);
+			if(new_obj) {
+				add(new_obj);
 			}
 		}
 	}
@@ -1043,24 +1042,24 @@ void objlist_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 		obj_t *save[256];
 		sint32 max_object_index = 0;
 		for(  uint16 i=0;  i<top;  i++  ) {
-			obj_t *d = bei((uint8)i);
-			if(d->get_typ()==obj_t::way
+			obj_t *new_obj = bei((uint8)i);
+			if(new_obj->get_typ()==obj_t::way
 				// do not save smoke
-				||  d->get_typ()==obj_t::raucher
-				||  d->get_typ()==obj_t::sync_wolke
-				||  d->get_typ()==obj_t::async_wolke
+				||  new_obj->get_typ()==obj_t::raucher
+				||  new_obj->get_typ()==obj_t::sync_wolke
+				||  new_obj->get_typ()==obj_t::async_wolke
 				// fields will be built by factory
-				||  d->get_typ()==obj_t::field
+				||  new_obj->get_typ()==obj_t::field
 				// do not save factory buildings => factory will reconstruct them
-				||  (d->get_typ()==obj_t::gebaeude  &&  ((gebaeude_t *)d)->get_fabrik())
+				||  (new_obj->get_typ()==obj_t::gebaeude  &&  ((gebaeude_t *)new_obj)->get_fabrik())
 				// things with convoi will not be saved
-				||  (d->get_typ()>=66  &&  d->get_typ()<82)
-				||  (env_t::server  &&  d->get_typ()==obj_t::baum  &&  file->get_version()>=110001)
+				||  (new_obj->get_typ()>=66  &&  new_obj->get_typ()<82)
+				||  (env_t::server  &&  new_obj->get_typ()==obj_t::baum  &&  file->get_version()>=110001)
 			) {
 				// these objects are simply not saved
 			}
 			else {
-				save[max_object_index++] = d;
+				save[max_object_index++] = new_obj;
 			}
 		}
 		// now we know the number of stuff to save
@@ -1073,20 +1072,20 @@ void objlist_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 			file->rdwr_byte( obj_count );
 		}
 		for(sint32 i=0; i<=max_object_index; i++) {
-			obj_t *d = save[i];
-			if(d->get_pos()==current_pos) {
-				file->wr_obj_id(d->get_typ());
-				d->rdwr(file);
+			obj_t *new_obj = save[i];
+			if(new_obj->get_pos()==current_pos) {
+				file->wr_obj_id(new_obj->get_typ());
+				new_obj->rdwr(file);
 			}
-			else if (d->get_pos().get_2d() == current_pos.get_2d()) {
+			else if (new_obj->get_pos().get_2d() == current_pos.get_2d()) {
 				// ok, just error in z direction => we will correct it
-				dbg->warning( "objlist_t::rdwr()","position error: z pos corrected on %i,%i from %i to %i", d->get_pos().x, d->get_pos().y, d->get_pos().z, current_pos.z);
-				file->wr_obj_id(d->get_typ());
-				d->set_pos(current_pos);
-				d->rdwr(file);
+				dbg->warning( "objlist_t::rdwr()","position error: z pos corrected on %i,%i from %i to %i", new_obj->get_pos().x, new_obj->get_pos().y, new_obj->get_pos().z, current_pos.z);
+				file->wr_obj_id(new_obj->get_typ());
+				new_obj->set_pos(current_pos);
+				new_obj->rdwr(file);
 			}
 			else {
-				dbg->error("objlist_t::rdwr()","unresolvable position error: %i,%i instead %i,%i (object type %i will be not saved!)", d->get_pos().x, d->get_pos().y, current_pos.x, current_pos.y, d->get_typ());
+				dbg->error("objlist_t::rdwr()","unresolvable position error: %i,%i instead %i,%i (object type %i will be not saved!)", new_obj->get_pos().x, new_obj->get_pos().y, current_pos.x, current_pos.y, new_obj->get_typ());
 				file->wr_obj_id(-1);
 			}
 		}
@@ -1399,9 +1398,9 @@ void objlist_t::check_season(const long month)
 		if(  top!=capacity  ) {
 			dbg->fatal( "objlist_t::check_season()", "top not matching!" );
 		}
-		obj_t *d = obj.one;
-		if(  !d->check_season(month)  ) {
-			delete d;
+		obj_t *check_obj = obj.one;
+		if(  !check_obj->check_season(month)  ) {
+			delete check_obj;
 		}
 	}
 	else {
@@ -1409,9 +1408,9 @@ void objlist_t::check_season(const long month)
 		slist_tpl<obj_t *>to_remove;
 
 		for(  uint8 i=0;  i<top;  i++  ) {
-			obj_t *d = obj.some[i];
-			if(  !d->check_season(month)  ) {
-				to_remove.insert( d );
+			obj_t *check_obj = obj.some[i];
+			if(  !check_obj->check_season(month)  ) {
+				to_remove.insert( check_obj );
 			}
 		}
 

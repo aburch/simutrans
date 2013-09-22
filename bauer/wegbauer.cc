@@ -1990,13 +1990,13 @@ sint64 wegbauer_t::calc_costs()
 			}
 			// eventually we have to remove trees
 			for(  uint8 i=0;  i<gr->get_top();  i++  ) {
-				obj_t *dt = gr->obj_bei(i);
-				switch(dt->get_typ()) {
+				obj_t *obj = gr->obj_bei(i);
+				switch(obj->get_typ()) {
 					case obj_t::baum:
 						costs -= welt->get_settings().cst_remove_tree;
 						break;
 					case obj_t::groundobj:
-						costs += ((groundobj_t *)dt)->get_besch()->get_preis();
+						costs += ((groundobj_t *)obj)->get_besch()->get_preis();
 						break;
 					default: break;
 				}

@@ -103,9 +103,9 @@ uint8 baum_t::plant_tree_on_coordinate(karte_t * welt, koord pos, const uint8 ma
 	grund_t * gr = welt->lookup_kartenboden(pos);
 	if(  gr  ) {
 		if(  get_anzahl_besch( welt->get_climate(pos) ) > 0  &&  gr->ist_natur()  &&  gr->get_top() < maximum_count  ) {
-			obj_t *ding = gr->obj_bei(0);
-			if(ding) {
-				switch(ding->get_typ()) {
+			obj_t *obj = gr->obj_bei(0);
+			if(obj) {
+				switch(obj->get_typ()) {
 					case obj_t::wolke:
 					case obj_t::aircraft:
 					case obj_t::baum:
@@ -115,7 +115,7 @@ uint8 baum_t::plant_tree_on_coordinate(karte_t * welt, koord pos, const uint8 ma
 						// ok to built here
 						break;
 					case obj_t::groundobj:
-						if(((groundobj_t *)ding)->get_besch()->can_built_trees_here()) {
+						if(((groundobj_t *)obj)->get_besch()->can_built_trees_here()) {
 							break;
 						}
 						// leave these (and all other empty)

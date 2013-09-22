@@ -59,9 +59,9 @@ void boden_t::rdwr(loadsave_t *file)
 		// a server send the smallest possible savegames to clients, i.e. saves only types and age of trees
 		if(  env_t::server  &&  !hat_wege()  ) {
 			for(  uint8 i=0;  i<objlist.get_top();  i++  ) {
-				obj_t *d = objlist.bei(i);
-				if(  d->get_typ()==obj_t::baum  ) {
-					baum_t *tree = (baum_t *)d;
+				obj_t *obj = objlist.bei(i);
+				if(  obj->get_typ()==obj_t::baum  ) {
+					baum_t *tree = (baum_t *)obj;
 					file->wr_obj_id( tree->get_besch_id() );
 					uint32 age = tree->get_age();
 					file->rdwr_long( age );

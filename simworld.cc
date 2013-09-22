@@ -2388,15 +2388,15 @@ bool karte_t::is_plan_height_changeable(sint16 x, sint16 y) const
 		ok = (gr->ist_natur() || gr->ist_wasser())  &&  !gr->hat_wege()  &&  !gr->is_halt();
 
 		for(  int i=0; ok  &&  i<gr->get_top(); i++  ) {
-			const obj_t *dt = gr->obj_bei(i);
-			assert(dt != NULL);
+			const obj_t *obj = gr->obj_bei(i);
+			assert(obj != NULL);
 			ok =
-				dt->get_typ() == obj_t::baum  ||
-				dt->get_typ() == obj_t::zeiger  ||
-				dt->get_typ() == obj_t::wolke  ||
-				dt->get_typ() == obj_t::sync_wolke  ||
-				dt->get_typ() == obj_t::async_wolke  ||
-				dt->get_typ() == obj_t::groundobj;
+				obj->get_typ() == obj_t::baum  ||
+				obj->get_typ() == obj_t::zeiger  ||
+				obj->get_typ() == obj_t::wolke  ||
+				obj->get_typ() == obj_t::sync_wolke  ||
+				obj->get_typ() == obj_t::async_wolke  ||
+				obj->get_typ() == obj_t::groundobj;
 		}
 	}
 
@@ -5454,9 +5454,9 @@ void karte_t::plans_laden_abschliessen( sint16 x_min, sint16 x_max, sint16 y_min
 			for(  int schicht = 0;  schicht < boden_count;  schicht++  ) {
 				grund_t *gr = plan->get_boden_bei(schicht);
 				for(  int n = 0;  n < gr->get_top();  n++  ) {
-					obj_t *d = gr->obj_bei(n);
-					if(d) {
-						d->laden_abschliessen();
+					obj_t *obj = gr->obj_bei(n);
+					if(obj) {
+						obj->laden_abschliessen();
 					}
 				}
 				if(  load_version<=111000  &&  gr->ist_natur()  ) {

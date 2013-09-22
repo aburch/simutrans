@@ -2110,7 +2110,7 @@ bool automobil_t::ist_weg_frei(int &restart_speed, bool second_check)
 			}
 		}
 
-		vehikel_basis_t *dt = NULL;
+		vehikel_basis_t *obj = NULL;
 		uint32 test_index = route_index + 1u;
 
 		// way should be clear for overtaking: we checked previously
@@ -2122,13 +2122,13 @@ bool automobil_t::ist_weg_frei(int &restart_speed, bool second_check)
 			ribi_t::ribi curr_90fahrtrichtung = calc_richtung(get_pos().get_2d(), pos_next.get_2d());
 			ribi_t::ribi next_fahrtrichtung   = calc_richtung(get_pos().get_2d(), next);
 			ribi_t::ribi next_90fahrtrichtung = calc_richtung(pos_next.get_2d(), next);
-			dt = no_cars_blocking( gr, cnv, curr_fahrtrichtung, next_fahrtrichtung, next_90fahrtrichtung );
+			obj = no_cars_blocking( gr, cnv, curr_fahrtrichtung, next_fahrtrichtung, next_90fahrtrichtung );
 
 			// do not block intersections
 			bool int_block = ribi_t::is_threeway(str->get_ribi_unmasked())  &&  (((drives_on_left ? ribi_t::rotate90l(curr_90fahrtrichtung) : ribi_t::rotate90(curr_90fahrtrichtung)) & str->get_ribi_unmasked())  ||  curr_90fahrtrichtung != next_90fahrtrichtung  ||  (rs  &&  rs->get_besch()->is_traffic_light()));
 
 			// check exit from crossings and intersections, allow to proceed after 4 consecutive
-			while(  !dt   &&  (str->is_crossing()  ||  int_block)  &&  test_index < r.get_count()  &&  test_index < route_index + 4u  ) {
+			while(  !obj   &&  (str->is_crossing()  ||  int_block)  &&  test_index < r.get_count()  &&  test_index < route_index + 4u  ) {
 				if(  str->is_crossing()  ) {
 					crossing_t* cr = gr->find<crossing_t>(2);
 					if(  !cr->request_crossing(this)  ) {
@@ -2160,7 +2160,7 @@ bool automobil_t::ist_weg_frei(int &restart_speed, bool second_check)
 					next                 = r.position_bei(test_index + 1u).get_2d();
 					next_fahrtrichtung   = calc_richtung(r.position_bei(test_index - 1u).get_2d(), next);
 					next_90fahrtrichtung = calc_richtung(r.position_bei(test_index).get_2d(),     next);
-					dt = no_cars_blocking( gr, cnv, curr_fahrtrichtung, next_fahrtrichtung, next_90fahrtrichtung );
+					obj = no_cars_blocking( gr, cnv, curr_fahrtrichtung, next_fahrtrichtung, next_90fahrtrichtung );
 				}
 				else {
 					next                 = r.position_bei(test_index).get_2d();
@@ -2168,7 +2168,7 @@ bool automobil_t::ist_weg_frei(int &restart_speed, bool second_check)
 					if(  curr_fahrtrichtung == next_90fahrtrichtung  ||  !gr->is_halt()  ) {
 						// check cars but allow to enter intersection if we are turning even when a car is blocking the halt on the last tile of our route
 						// preserves old bus terminal behaviour
-						dt = no_cars_blocking( gr, cnv, curr_fahrtrichtung, next_90fahrtrichtung, ribi_t::keine );
+						obj = no_cars_blocking( gr, cnv, curr_fahrtrichtung, next_90fahrtrichtung, ribi_t::keine );
 					}
 				}
 
@@ -2204,10 +2204,10 @@ bool automobil_t::ist_weg_frei(int &restart_speed, bool second_check)
 				test_index++;
 			}
 
-			if(  dt  &&  test_index > route_index + 1u  &&  !str->is_crossing()  &&  !int_block  ) {
+			if(  obj  &&  test_index > route_index + 1u  &&  !str->is_crossing()  &&  !int_block  ) {
 				// found a car blocking us after checking at least 1 intersection or crossing
 				// and the car is in a place we could stop. So if it can move, assume it will, so we will too.
-				if(  automobil_t const* const car = obj_cast<automobil_t>(dt)  ) {
+				if(  automobil_t const* const car = obj_cast<automobil_t>(obj)  ) {
 					const convoi_t* const ocnv = car->get_convoi();
 					int dummy;
 					if(  ocnv->front()->get_route_index() < ocnv->get_route()->get_count()  &&  ocnv->front()->ist_weg_frei(dummy, true)  ) {
@@ -2218,8 +2218,8 @@ bool automobil_t::ist_weg_frei(int &restart_speed, bool second_check)
 		}
 
 		// stuck message ...
-		if(  dt  &&  !second_check  ) {
-			if(  dt->is_stuck()  ) {
+		if(  obj  &&  !second_check  ) {
+			if(  obj->is_stuck()  ) {
 				// end of traffic jam, but no stuck message, because previous vehicle is stuck too
 				restart_speed = 0;
 				cnv->set_tiles_overtaking(0);
@@ -2228,20 +2228,20 @@ bool automobil_t::ist_weg_frei(int &restart_speed, bool second_check)
 			else {
 				if(  test_index == route_index + 1u  ) {
 					// no intersections or crossings, we might be able to overtake this one ...
-					overtaker_t *over = dt->get_overtaker();
+					overtaker_t *over = obj->get_overtaker();
 					if(  over  &&  !over->is_overtaken()  ) {
 						if(  over->is_overtaking()  ) {
 							// otherwise we would stop every time being overtaken
 							return true;
 						}
 						// not overtaking/being overtake: we need to make a more thought test!
-						if(  automobil_t const* const car = obj_cast<automobil_t>(dt)  ) {
+						if(  automobil_t const* const car = obj_cast<automobil_t>(obj)  ) {
 							convoi_t* const ocnv = car->get_convoi();
 							if(  cnv->can_overtake( ocnv, (ocnv->get_state()==convoi_t::LOADING ? 0 : over->get_max_power_speed()), ocnv->get_length_in_steps()+ocnv->get_vehikel(0)->get_steps())  ) {
 								return true;
 							}
 						}
-						else if(  stadtauto_t* const caut = obj_cast<stadtauto_t>(dt)  ) {
+						else if(  stadtauto_t* const caut = obj_cast<stadtauto_t>(obj)  ) {
 							if(  cnv->can_overtake(caut, caut->get_besch()->get_geschw(), VEHICLE_STEPS_PER_TILE)  ) {
 								return true;
 							}
@@ -2254,7 +2254,7 @@ bool automobil_t::ist_weg_frei(int &restart_speed, bool second_check)
 			}
 		}
 
-		return dt==NULL;
+		return obj==NULL;
 	}
 
 	return true;
@@ -3772,8 +3772,8 @@ bool aircraft_t::ist_weg_frei( int & restart_speed, bool )
 		// check, if tile occupied by a plane on ground
 		if(  route_index > 1  ) {
 			for(  uint8 i = 1;  i<gr->get_top();  i++  ) {
-				obj_t *d = gr->obj_bei(i);
-				if(  d->get_typ()==obj_t::aircraft  &&  ((aircraft_t *)d)->is_on_ground()  ) {
+				obj_t *obj = gr->obj_bei(i);
+				if(  obj->get_typ()==obj_t::aircraft  &&  ((aircraft_t *)obj)->is_on_ground()  ) {
 					restart_speed = 0;
 					return false;
 				}

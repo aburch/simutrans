@@ -298,16 +298,16 @@ void weg_t::count_sign()
 		}
 		// since way 0 is at least present here ...
 		for( ;  i<gr->get_top();  i++  ) {
-			obj_t *d=gr->obj_bei(i);
+			obj_t *obj=gr->obj_bei(i);
 			// sign for us?
-			if(  roadsign_t const* const sign = obj_cast<roadsign_t>(d)  ) {
+			if(  roadsign_t const* const sign = obj_cast<roadsign_t>(obj)  ) {
 				if(  sign->get_besch()->get_wtyp() == get_besch()->get_wtyp()  ) {
 					// here is a sign ...
 					flags |= HAS_SIGN;
 					return;
 				}
 			}
-			if(  signal_t const* const signal = obj_cast<signal_t>(d)  ) {
+			if(  signal_t const* const signal = obj_cast<signal_t>(obj)  ) {
 				if(  signal->get_besch()->get_wtyp() == get_besch()->get_wtyp()  ) {
 					// here is a signal ...
 					flags |= HAS_SIGNAL;
