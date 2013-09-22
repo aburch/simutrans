@@ -145,7 +145,12 @@ void gui_scrolled_list_t::sort()
 	if(  item_list.get_count() > 1  ) {
 		scrollitem_t *sel = NULL;
 		if(  selection>=0  ) {
-			sel = item_list[selection];
+			if(  selection < item_list.get_count()  ) {
+				sel = item_list[selection];
+			}
+			else {
+				selection = -1;
+			}
 		}
 		item_list[0]->sort( item_list );
 		// now we may need to update the selection

@@ -378,7 +378,7 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t 
 		}
 		selected_line[selected_tab] = line;
 		// brute force: just recalculate whole list on each click to keep it current
-		build_line_list(tabs.get_active_tab_index());
+//		build_line_list(tabs.get_active_tab_index());
 	}
 	else if (komp == &inp_filter) {
 		if(  strcmp(old_schedule_filter,schedule_filter)  ) {
@@ -552,7 +552,6 @@ void schedule_list_gui_t::build_line_list(int filter)
 {
 	const sint32 sb_offset = line.is_bound() ? scl.get_sb_offset() : 0;
 	sint32 sel = -1;
-	sp->simlinemgmt.sort_lines();	// to take care of renaming ...
 	scl.clear_elements();
 	sp->simlinemgmt.get_lines(tabs_to_lineindex[filter], &lines);
 	vector_tpl<line_scrollitem_t *>selected_lines;
@@ -566,18 +565,15 @@ void schedule_list_gui_t::build_line_list(int filter)
 
 	FOR(vector_tpl<line_scrollitem_t*>, const i, selected_lines) {
 		scl.append_element(i);
-		if (line == i->get_line()) {
+		if(  line == i->get_line()  ) {
 			sel = scl.get_count() - 1;
 		}
 	}
 
 	scl.set_sb_offset( sb_offset );
-	if(  sel>=0  ) {
-		scl.set_selection( sel );
-		line_scrollitem_t::sort_mode = (line_scrollitem_t::sort_modes_t)current_sort_mode;
-		scl.sort();
-		scl.show_selection( sel );
-	}
+	scl.set_selection( sel );
+	line_scrollitem_t::sort_mode = (line_scrollitem_t::sort_modes_t)current_sort_mode;
+	scl.sort();
 
 	old_line_count = sp->simlinemgmt.get_line_count();
 }
