@@ -468,7 +468,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->obsolete_date = DEFAULT_RETIRE_DATE*12;
 		besch->animation_time = 300;
 	}
-	else {
+	else if(version == 0) {
 		// old node, version 0
 		besch->gtyp      = (gebaeude_t::typ)v;
 		decode_uint16(p);
