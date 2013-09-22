@@ -218,6 +218,18 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		}
 	}
 
+	if(version <= 7)
+	{
+		// Capacity, maintenance and price were set from level;
+		// as was the population, employment and mail capacity.
+		besch->capacity = besch->level * 32;
+		besch->maintenance = COST_MAGIC;
+		besch->price = COST_MAGIC;
+		besch->population_and_visitor_demand_capacity = 65535;
+		besch->employment_capacity = 65535;
+		besch->mail_demand_and_production_capacity = 65535;
+	} 
+
 	if(version == 8) 
 	{
 		// Versioned node, version 8
@@ -259,21 +271,8 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			besch->employment_capacity = 65535;
 			besch->mail_demand_and_production_capacity = 65535;
 		}
-	  }
-
-	if(version <= 7)
-	{
-		// Capacity, maintenance and price were set from level;
-		// as was the population, employment and mail capacity.
-		besch->capacity = besch->level * 32;
-		besch->maintenance = COST_MAGIC;
-		besch->price = COST_MAGIC;
-		besch->population_and_visitor_demand_capacity = 65535;
-		besch->employment_capacity = 65535;
-		besch->mail_demand_and_production_capacity = 65535;
-	} 
-
-	if(version == 7)
+	}
+	else if(version == 7)
 	{
 		// Versioned node, version 7
 		// underground mode added
@@ -469,7 +468,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->obsolete_date = DEFAULT_RETIRE_DATE*12;
 		besch->animation_time = 300;
 	}
-	else {
+	else if(version == 0) {
 		// old node, version 0
 		besch->gtyp      = (gebaeude_t::typ)v;
 		decode_uint16(p);
