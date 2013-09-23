@@ -11,18 +11,24 @@
 
 marker_t marker_t::the_instance;
 
+
 void marker_t::init(int welt_groesse_x,int welt_groesse_y)
 {
+	// do not reallocate it, if same size ...
 	cached_groesse = welt_groesse_x;
-	bits_groesse = (welt_groesse_x*welt_groesse_y + bit_mask) / (bit_unit);
-	if(bits) {
-		delete [] bits;
-	}
-	if(bits_groesse) {
-		bits = new unsigned char[bits_groesse];
-	}
-	else {
-		bits = NULL;
+	int new_bits_groesse = (welt_groesse_x*welt_groesse_y + bit_mask) / (bit_unit);
+
+	if(  bits_groesse != new_bits_groesse  ) {
+		bits_groesse = new_bits_groesse;
+		if(bits) {
+			delete [] bits;
+		}
+		if(bits_groesse) {
+			bits = new unsigned char[bits_groesse];
+		}
+		else {
+			bits = NULL;
+		}
 	}
 	unmark_all();
 }

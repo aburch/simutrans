@@ -138,6 +138,7 @@
     <ClCompile Include="script\api\api_city.cc" />
     <ClCompile Include="script\api\api_gui.cc" />
     <ClCompile Include="script\api\api_map_objects.cc" />
+    <ClCompile Include="script\api\api_obj_desc_base.cc" />
     <ClCompile Include="script\api\api_schedule.cc" />
     <ClCompile Include="script\api\api_simple.cc" />
     <ClCompile Include="script\api_class.cc" />
@@ -438,6 +439,7 @@
     <ClInclude Include="script\api\api.h" />
     <ClInclude Include="script\api\api_base.h" />
     <ClInclude Include="script\api\api_doc.h" />
+    <ClInclude Include="script\api\api_obj_desc_base.h" />
     <ClInclude Include="simloadingscreen.h" />
     <ClInclude Include="tpl\array2d_tpl.h" />
     <ClInclude Include="tpl\array_tpl.h" />
