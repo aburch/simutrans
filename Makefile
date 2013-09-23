@@ -368,6 +368,7 @@ SOURCES += script/api/api_gui.cc
 SOURCES += script/api/api_factory.cc
 SOURCES += script/api/api_halt.cc
 SOURCES += script/api/api_map_objects.cc
+SOURCES += script/api/api_obj_desc_base.cc
 SOURCES += script/api/api_player.cc
 SOURCES += script/api/api_scenario.cc
 SOURCES += script/api/api_schedule.cc

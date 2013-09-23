@@ -18,7 +18,6 @@ class karte_t;
 class koord;
 class koord3d;
 struct linieneintrag_t;
-class obj_besch_std_name_t;
 class planquadrat_t;
 class plainstring;
 class scenario_t;
@@ -27,7 +26,6 @@ class settings_t;
 class spieler_t;
 class stadt_t;
 class ware_production_t;
-class ware_besch_t;
 class weg_t;
 
 /**
@@ -229,6 +227,7 @@ namespace script_api {
 	template<> struct param<T> { \
 		static T get(HSQUIRRELVM vm, SQInteger index); \
 		static SQInteger push(HSQUIRRELVM vm, T const& v);\
+		static void* tag(); \
 		declare_create_slot(T); \
 		declare_types(mask, sqtype); \
 	};
@@ -277,10 +276,6 @@ namespace script_api {
 	declare_specialized_param(scenario_t*, "t|x|y", "");
 	declare_specialized_param(spieler_t*, "t|x|y", "player_x");
 	declare_specialized_param(stadt_t*, "t|x|y", "city_x");
-	declare_specialized_param(const obj_besch_std_name_t*, "t|x|y", "obj_desc_x"); // in api/export_besch.cc
-	declare_param_mask(obj_besch_std_name_t*, "t|x|y", "obj_desc_x");
-	declare_specialized_param(const ware_besch_t*, "t|x|y", "good_desc_x");
-	declare_param_mask(ware_besch_t*, "t|x|y", "good_desc_x");
 	declare_specialized_param(const ware_production_t*, "t|x|y", "factory_production_x");
 	declare_param_mask(ware_production_t*, "t|x|y", "factory_production_x");
 

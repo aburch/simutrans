@@ -4,6 +4,17 @@
 #include "squirrel/sqvm.h"       // for Raise_Error_vl
 #include <stdarg.h>
 
+
+void* get_instanceup(HSQUIRRELVM vm, SQInteger index, void* tag, const char* type)
+{
+	void* ptr = NULL;
+	if(!SQ_SUCCEEDED(sq_getinstanceup(vm, index, &ptr, tag))) {
+		sq_raise_error(vm, "Expected instance of class %s.", type ? type : "<unknown>");
+	}
+	return ptr;
+}
+
+
 void sq_raise_error(HSQUIRRELVM vm, const SQChar *s, ...)
 {
 	va_list vl;

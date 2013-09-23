@@ -3,6 +3,8 @@
 /** @file api_halt.cc exports halt/station related functions. */
 
 #include "get_next.h"
+
+#include "api_obj_desc_base.h"
 #include "../api_class.h"
 #include "../api_function.h"
 #include "../../simhalt.h"

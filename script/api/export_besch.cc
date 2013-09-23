@@ -8,22 +8,8 @@
 
 using namespace script_api;
 
-static vector_tpl<const void*> registered_besch_functions;
 
-
-const obj_besch_std_name_t* param<const obj_besch_std_name_t*>::get(HSQUIRRELVM vm, SQInteger index)
-{
-	void *tag = NULL;
-	// get type tag of class
-	sq_gettypetag(vm, index, &tag);
-	if(tag  &&  registered_besch_functions.is_contained(tag)) {
-		void* besch = NULL;
-		if(SQ_SUCCEEDED(sq_getinstanceup(vm, index, &besch, NULL))) {
-			return (obj_besch_std_name_t*)besch;
-		}
-	}
-	return NULL;
-}
+static vector_tpl<GETBESCHFUNC> registered_besch_functions;
 
 
 SQInteger get_besch_pointer(HSQUIRRELVM vm)
@@ -32,9 +18,9 @@ SQInteger get_besch_pointer(HSQUIRRELVM vm)
 	// get type tag of class
 	sq_gettypetag(vm, 1, &tag);
 	plainstring name = param<plainstring>::get(vm, 2);
-	if (tag  &&  registered_besch_functions.is_contained(tag) ) {
+	if (tag  &&  registered_besch_functions.is_contained((GETBESCHFUNC)tag) ) {
 		// call method
-		const void *besch = ((const void* (*)(const char*))tag)(name.c_str());
+		const void *besch = ((GETBESCHFUNC)tag)(name.c_str());
 		// set userpointer of class instance
 		sq_setinstanceup(vm, 1, const_cast<void*>(besch) );
 		return 0;
@@ -43,13 +29,13 @@ SQInteger get_besch_pointer(HSQUIRRELVM vm)
 }
 
 
-void begin_besch_class(HSQUIRRELVM vm, const char* name, const void* (*func)(const char*))
+void begin_besch_class(HSQUIRRELVM vm, const char* name, const char* base, GETBESCHFUNC func)
 {
-	SQInteger res = create_class(vm, name, "extend_get");
+	SQInteger res = create_class(vm, name, base);
 	assert( SQ_SUCCEEDED(res) );
 	// store method to retrieve besch in typetag pointer
 	sq_settypetag(vm, -1, (void*)func);
-	registered_besch_functions.append_unique( (void*)func );
+	registered_besch_functions.append_unique( func );
 	// register constructor
 	register_function(vm, get_besch_pointer, "constructor", 2, "xs");
 	// now functions can be registered

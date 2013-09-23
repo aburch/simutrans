@@ -23,6 +23,23 @@ namespace script_api {
 	SQInteger create_class(HSQUIRRELVM vm, const char* classname, const char* baseclass = NULL);
 
 	/**
+	 * Creates squirrel class on the stack. Inherits from @p baseclass.
+	 * Has to be complemented by call to end_class.
+	 * Assigns the tag from param<C>::tag() to the class.
+	 * @tparam C assigns tag from C::tag() to the new class
+	 * @return SQ_OK or SQ_ERROR
+	 */
+	template<class C>
+	SQInteger create_class(HSQUIRRELVM vm, const char* classname, const char* baseclass = NULL)
+	{
+		SQInteger res = create_class(vm, classname, baseclass);
+		if (SQ_SUCCEEDED(res)) {
+			sq_settypetag(vm, -1, param<C>::tag());
+		}
+		return res;
+	}
+
+	/**
 	 * Pushes class on stack.
 	 * Has to be complemented by call to end_class.
 	 * @param classname name of squirrel class, must exist prior to calling this function
