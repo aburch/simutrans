@@ -5651,14 +5651,9 @@ bool stadt_t::build_bridge(grund_t* bd, ribi_t::ribi direction) {
 		return false;
 	}
 	bool successfully_built_past_end = false;
-	if (past_end->hat_weg(road_wt) ) {
-		// Connecting to a road, all good...
-		successfully_built_past_end = true;
-	} else {
-		// Build a road past the end of the future bridge (even if it has no connections yet)
-		// This may fail, in which case we shouldn't build the bridge
-		successfully_built_past_end = baue_strasse( (end+zv).get_2d(), NULL, true);
-	}
+	// Build a road past the end of the future bridge (even if it has no connections yet)
+	// This may fail, in which case we shouldn't build the bridge
+	successfully_built_past_end = baue_strasse( (end+zv).get_2d(), NULL, true);
 
 	if (!successfully_built_past_end) {
 		return false;
@@ -5667,7 +5662,7 @@ bool stadt_t::build_bridge(grund_t* bd, ribi_t::ribi direction) {
 	brueckenbauer_t::baue_bruecke(welt, NULL, bd->get_pos(), end, zv, bridge, welt->get_city_road());
 	// Now connect the bridge to the road we built
 	// (Is there an easier way?)
-	baue_strasse( end.get_2d(), NULL, false );
+	baue_strasse( (end+zv).get_2d(), NULL, false );
 
 	// Attempt to expand the city repeatedly in the bridge direction
 	bool reached_end_plus_2=false;
