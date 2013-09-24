@@ -1645,18 +1645,17 @@ const char *wkz_change_city_size_t::work( karte_t *welt, spieler_t *, koord3d po
 /* change climate
  * @author kieron
  */
+const char *wkz_set_climate_t::get_tooltip(spieler_t const*) const
+{
+	sprintf( werkzeug_t::toolstr, translator::translate( "Set tile climate" ), translator::translate( grund_besch_t::get_climate_name_from_bit((climate)atoi(default_param)) ) );
+	return werkzeug_t::toolstr;
+}
+
 uint8 wkz_set_climate_t::is_valid_pos(karte_t *, spieler_t *, const koord3d &, const char *&, const koord3d &)
 {
 	// do really nothing ...
 	return 2;
 }
-
-/*bool wkz_set_climate_t::init(karte_t *, spieler_t *)
-{
-	cursor = werkzeug_t::general_tool[WKZ_SETSLOPE]->cursor;
-	return true;
-}*/
-
 
 void wkz_set_climate_t::mark_tiles(karte_t *welt, spieler_t *, const koord3d &start, const koord3d &end)
 {

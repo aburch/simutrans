@@ -207,7 +207,7 @@ public:
 class wkz_set_climate_t : public two_click_werkzeug_t {
 public:
 	wkz_set_climate_t() : two_click_werkzeug_t(WKZ_SET_CLIMATE | GENERAL_TOOL) {}
-	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate( "Set tile climate" ); }
+	char const* get_tooltip(spieler_t const*) const OVERRIDE;
 private:
 	char const* do_work(karte_t*, spieler_t*, koord3d const&, koord3d const&) OVERRIDE;
 	void mark_tiles(karte_t*, spieler_t*, koord3d const&, koord3d const&) OVERRIDE;
@@ -583,7 +583,6 @@ public:
 	char const* work(karte_t*, spieler_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
 };
-
 
 
 // internal tool: show error message at specific coordinate

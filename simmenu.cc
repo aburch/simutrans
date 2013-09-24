@@ -88,8 +88,6 @@ werkzeug_t *create_general_tool(int toolnr)
 		case WKZ_TRANSFORMER:      tool = new wkz_transformer_t(); break;
 		case WKZ_ADD_CITY:         tool = new wkz_add_city_t(); break;
 		case WKZ_CHANGE_CITY_SIZE: tool = new wkz_change_city_size_t(); break;
-		case WKZ_CHANGE_WATER_HEIGHT: tool = new wkz_change_water_height_t(); break;
-		case WKZ_SET_CLIMATE:      tool = new wkz_set_climate_t(); break;
 		case WKZ_PLANT_TREE:       tool = new wkz_plant_tree_t(); break;
 		case WKZ_FAHRPLAN_ADD:     tool = new wkz_fahrplan_add_t(); break;
 		case WKZ_FAHRPLAN_INS:     tool = new wkz_fahrplan_ins_t(); break;
@@ -117,6 +115,8 @@ werkzeug_t *create_general_tool(int toolnr)
 		case WKZ_BUY_HOUSE:        tool = new wkz_buy_house_t(); break;
 		case WKZ_CITYROAD:         tool = new wkz_build_cityroad(); break;
 		case WKZ_ERR_MESSAGE_TOOL: tool = new wkz_error_message_t(); break;
+		case WKZ_CHANGE_WATER_HEIGHT: tool = new wkz_change_water_height_t(); break;
+		case WKZ_SET_CLIMATE:      tool = new wkz_set_climate_t(); break;
 		default:                   dbg->error("create_general_tool()","cannot satisfy request for general_tool[%i]!",toolnr);
 		                           return NULL;
 	}
