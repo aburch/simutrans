@@ -261,23 +261,39 @@ void gebaeude_t::check_road_tiles(bool del)
 
 		for(uint8 i = 0; i < 8; i ++)
 		{
-			// Check for connected roads. Only roads in immediately neighbouring tiles
-			// and only those on the same height will register a connexion.
+			/* This is tricky: roads can change height, and we're currently
+			 * not keeping track of when they do. We might show
+			 * up as connecting to a road that's no longer at the right
+			 * height. Therefore, iterate over all possible road levels when
+			 * removing, but not when adding new connections. */
 			koord pos_neighbour = gb->get_pos().get_2d() + (gb->get_pos().get_2d().neighbours[i]);
-			koord3d pos3d(pos_neighbour, gb->get_pos().z);
-			gr_this = welt->lookup(pos3d);
-			if(!gr_this)
-			{
-				continue;
-			}
-			strasse_t* str = (strasse_t*)gr_this->get_weg(road_wt);
-			if(str)
-			{
-				if(del)
+			if(del) {
+				planquadrat_t *plan = welt->lookup(pos_neighbour);
+				if(!plan)
 				{
-					str->connected_buildings.remove(this);
+					continue;
 				}
-				else
+				for(int j=0; j<plan->get_boden_count(); j++) {
+					grund_t *bd = plan->get_boden_bei(j);
+					strasse_t *str = (strasse_t *)bd->get_weg(road_wt);
+
+					if(str) {
+						str->connected_buildings.remove(this);
+					}
+				}
+			} else {
+				koord3d pos3d(pos_neighbour, gb->get_pos().z);
+
+				// Check for connected roads. Only roads in immediately neighbouring tiles
+				// and only those on the same height will register a connexion.
+				gr_this = welt->lookup(pos3d);
+
+				if(!gr_this)
+				{
+					continue;
+				}
+				strasse_t* str = (strasse_t*)gr_this->get_weg(road_wt);
+				if(str)
 				{
 					str->connected_buildings.append_unique(this);
 				}

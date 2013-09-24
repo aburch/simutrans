@@ -367,6 +367,20 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb ) //gebae
 		welt->rem_fab(fab);
 	}
 
+
+	for(k.y = 0; k.y < size.y; k.y ++) {
+		for(k.x = 0; k.x < size.x; k.x ++) {
+			grund_t *gr = welt->lookup(koord3d(k,0)+pos);
+			if(gr) {
+				gebaeude_t *gb_part = gr->find<gebaeude_t>();
+				// there may be buildings with holes, so we only remove our!
+				if(gb_part  &&  gb_part->get_tile() == hb->get_tile(layout, k.x, k.y)) {
+					gb_part->check_road_tiles(true);
+				}
+			}
+		}
+	}
+
 	// delete just our house
 	for(k.y = 0; k.y < size.y; k.y ++) {
 		for(k.x = 0; k.x < size.x; k.x ++) {
