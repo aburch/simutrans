@@ -1127,6 +1127,35 @@ public:
 		}
 	}
 
+	/**
+	 * Scales value proportionally with month length.
+	 * Used to scale monthly maintenance costs and factory production.
+	 * @returns value << ( ticks_per_world_month_shift -18 )
+	 */
+	sint64 scale_with_month_length(sint64 value)
+	{
+		const int left_shift = ticks_per_world_month_shift - 18;
+		if (left_shift >= 0) {
+			return value << left_shift;
+		} else {
+			return value >> (-left_shift);
+		}
+	}
+	/**
+	 * Scales value inverse proportionally with month length.
+	 * Used to scale monthly maintenance costs and factory production.
+	 * @returns value << ( 18 - ticks_per_world_month_shift )
+	 */
+	sint64 inverse_scale_with_month_length(sint64 value)
+	{
+		const int left_shift = 18 - ticks_per_world_month_shift;
+		if (left_shift >= 0) {
+			return value << left_shift;
+		} else {
+			return value >> (-left_shift);
+		}
+	}
+
 	sint32 get_time_multiplier() const { return time_multiplier; }
 	void change_time_multiplier( sint32 delta );
 

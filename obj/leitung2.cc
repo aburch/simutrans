@@ -646,13 +646,9 @@ void senke_t::step(long delta_t)
 		max_einkommen += last_power_demand * delta_t / PRODUCTION_DELTA_T;
 		einkommen += power_load  * delta_t / PRODUCTION_DELTA_T;
 	}
-	else if(  welt->ticks_per_world_month_shift >= 18  ) {
-		max_einkommen += (last_power_demand * delta_t / PRODUCTION_DELTA_T) >> (welt->ticks_per_world_month_shift-18);
-		einkommen += (power_load  * delta_t / PRODUCTION_DELTA_T) >> (welt->ticks_per_world_month_shift-18);
-	}
 	else {
-		max_einkommen += (last_power_demand * delta_t / PRODUCTION_DELTA_T) << (18-welt->ticks_per_world_month_shift);
-		einkommen += (power_load  * delta_t / PRODUCTION_DELTA_T) << (18-welt->ticks_per_world_month_shift);
+		max_einkommen += welt->inverse_scale_with_month_length( last_power_demand * delta_t / PRODUCTION_DELTA_T);
+		einkommen += welt->inverse_scale_with_month_length(power_load  * delta_t / PRODUCTION_DELTA_T);
 	}
 
 	if(max_einkommen>(2000<<11)) {

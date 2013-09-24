@@ -168,26 +168,14 @@ void finance_t::calc_finance_history()
 sint64 finance_t::get_maintenance_with_bits(transport_type tt) const
 {
 	assert(tt<TT_MAX);
-
-	if(  world->ticks_per_world_month_shift>=18  ) {
-		return ((sint64)maintenance[tt]) << (world->ticks_per_world_month_shift-18);
-	}
-	else{
-		return ((sint64)maintenance[tt]) >> (18-world->ticks_per_world_month_shift);
-	}
+	return world->scale_with_month_length((sint64)maintenance[tt]);
 }
 
 
 sint64 finance_t::get_vehicle_maintenance_with_bits(transport_type tt) const
 {
 	assert(tt<TT_MAX);
-
-	if(  world->ticks_per_world_month_shift>=18  ) {
-		return ((sint64)vehicle_maintenance[tt]) << (world->ticks_per_world_month_shift-18);
-	}
-	else{
-		return ((sint64)vehicle_maintenance[tt]) >> (18-world->ticks_per_world_month_shift);
-	}
+	return world->scale_with_month_length((sint64)vehicle_maintenance[tt]);
 }
 
 

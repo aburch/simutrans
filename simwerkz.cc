@@ -129,11 +129,7 @@ char *tooltip_with_price_maintenance(karte_t *welt, const char *tip, sint64 pric
 	strcat( werkzeug_t::toolstr, " (" );
 	n = strlen(werkzeug_t::toolstr);
 
-	money_to_string(werkzeug_t::toolstr+n,
-		welt->ticks_per_world_month_shift>=18 ?
-		(double)(maintenance << (welt->ticks_per_world_month_shift - 18)) / 100.0 :
-		(double)(maintenance >> (18 - welt->ticks_per_world_month_shift)) / 100.0
-	);
+	money_to_string(werkzeug_t::toolstr+n, (double)(welt->scale_with_month_length(maintenance) ) / 100.0);
 	strcat( werkzeug_t::toolstr, ")" );
 	return werkzeug_t::toolstr;
 }
@@ -150,11 +146,7 @@ static char const* tooltip_with_price_maintenance_capacity(karte_t* const welt, 
 	strcat( werkzeug_t::toolstr, " (" );
 	n = strlen(werkzeug_t::toolstr);
 
-	money_to_string(werkzeug_t::toolstr+n,
-		welt->ticks_per_world_month_shift>=18 ?
-		(double)(maintenance << (welt->ticks_per_world_month_shift - 18)) / 100.0 :
-		(double)(maintenance >> (18 - welt->ticks_per_world_month_shift)) / 100.0
-			);
+	money_to_string(werkzeug_t::toolstr+n, (double)(welt->scale_with_month_length(maintenance) ) / 100.0);
 	strcat( werkzeug_t::toolstr, ")" );
 	n = strlen(werkzeug_t::toolstr);
 
@@ -1411,7 +1403,7 @@ const char *wkz_clear_reservation_t::work( karte_t *welt, spieler_t *, koord3d p
 const char* wkz_transformer_t::get_tooltip(const spieler_t *sp) const
 {
 	settings_t const& s = sp->get_welt()->get_settings();
-	sprintf(toolstr, "%s, %ld$ (%ld$)", translator::translate("Build drain"), (long)(s.cst_transformer / -100), (long)(s.cst_maintain_transformer << (sp->get_welt()->ticks_per_world_month_shift - 18)) / -100);
+	sprintf(toolstr, "%s, %ld$ (%ld$)", translator::translate("Build drain"), (long)(s.cst_transformer / -100), (long)(sp->get_welt()->scale_with_month_length(s.cst_maintain_transformer)) / -100);
 	return toolstr;
 }
 
@@ -4848,7 +4840,7 @@ const char *wkz_build_industries_land_t::work( karte_t *welt, spieler_t *sp, koo
 		// eventually adjust production
 		sint32 initial_prod = -1;
 		if (!strempty(default_param)) {
-			initial_prod = atol(default_param+2)>>(welt->ticks_per_world_month_shift-18);
+			initial_prod = welt->inverse_scale_with_month_length( atol(default_param+2) );
 		}
 
 		koord3d build_pos = gr->get_pos();
@@ -4916,7 +4908,7 @@ const char *wkz_build_industries_city_t::work( karte_t *welt, spieler_t *sp, koo
 	// eventually adjust production
 	sint32 initial_prod = -1;
 	if (!strempty(default_param)) {
-		initial_prod = atol(default_param+2)>>(welt->ticks_per_world_month_shift-18);
+		initial_prod = welt->inverse_scale_with_month_length( atol(default_param+2) );
 	}
 
 	pos = gr->get_pos();
@@ -5011,7 +5003,7 @@ const char *wkz_build_factory_t::work( karte_t *welt, spieler_t *sp, koord3d pos
 		// eventually adjust production
 		sint32 initial_prod = -1;
 		if (!strempty(default_param)) {
-			initial_prod = atol(default_param+2)>>(welt->ticks_per_world_month_shift-18);
+			initial_prod = welt->inverse_scale_with_month_length( atol(default_param+2) );
 		}
 
 		fabrik_t *f = fabrikbauer_t::baue_fabrik(welt, NULL, fab, initial_prod, rotation, gr->get_pos(), welt->get_spieler(1));
