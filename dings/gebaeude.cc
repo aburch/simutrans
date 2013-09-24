@@ -267,21 +267,26 @@ void gebaeude_t::check_road_tiles(bool del)
 			 * height. Therefore, iterate over all possible road levels when
 			 * removing, but not when adding new connections. */
 			koord pos_neighbour = gb->get_pos().get_2d() + (gb->get_pos().get_2d().neighbours[i]);
-			if(del) {
-				planquadrat_t *plan = welt->lookup(pos_neighbour);
+			if(del)
+			{
+				const planquadrat_t *plan = welt->lookup(pos_neighbour);
 				if(!plan)
 				{
 					continue;
 				}
-				for(int j=0; j<plan->get_boden_count(); j++) {
+				for(int j=0; j<plan->get_boden_count(); j++) 
+				{
 					grund_t *bd = plan->get_boden_bei(j);
 					strasse_t *str = (strasse_t *)bd->get_weg(road_wt);
 
-					if(str) {
+					if(str) 
+					{
 						str->connected_buildings.remove(this);
 					}
 				}
-			} else {
+			}
+			else 
+			{
 				koord3d pos3d(pos_neighbour, gb->get_pos().z);
 
 				// Check for connected roads. Only roads in immediately neighbouring tiles
