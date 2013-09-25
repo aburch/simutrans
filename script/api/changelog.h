@@ -4,6 +4,7 @@
  *
  * @section api-trunk Current trunk
  *
+ * - Added time_x
  * - Added way_system_types
  * - Added square_x::get_player_halt
  * - Added way_x::get_dirs,way_x::get_dirs_masked

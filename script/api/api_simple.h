@@ -11,6 +11,12 @@ namespace script_api {
 	SQInteger push_ribi(HSQUIRRELVM vm, ribi_t::ribi ribi);
 
 	ribi_t::ribi get_ribi(HSQUIRRELVM vm, SQInteger index);
+
+	struct mytime_t
+	{
+		uint32 raw;
+		mytime_t(uint32 r_) : raw(r_) {}
+	};
 };
 
 #endif
