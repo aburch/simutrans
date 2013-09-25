@@ -87,8 +87,8 @@ void export_goods_desc(HSQUIRRELVM vm)
 	 * Constructor.
 	 * @param name raw name of the freight type.
 	 * @typemask (string)
-	 * register_function( .., "constructor", .. )
 	 */
+	// register_function( .., "constructor", .. )
 
 	/**
 	 * @return freight category. 0=Passengers, 1=Mail, 2=None, >=3 anything else

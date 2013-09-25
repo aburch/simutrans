@@ -151,9 +151,9 @@ void export_global_constants(HSQUIRRELVM vm)
 	/// flat ways
 	enum_slot(vm, "st_flat", weg_t::type_flat);
 	/// elevated ways
-	enum_slot(vm, "st_flat", weg_t::type_elevated);
+	enum_slot(vm, "st_elevated", weg_t::type_elevated);
 	/// tram tracks (here way type has to be wt_tram)
-	enum_slot(vm, "st_flat", weg_t::type_tram);
+	enum_slot(vm, "st_tram", weg_t::type_tram);
 	end_enum();
 
 	// players
