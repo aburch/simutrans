@@ -116,7 +116,7 @@ void export_global_constants(HSQUIRRELVM vm)
 	end_enum();
 
 	/**
-	 * Constants to different way types.
+	 * Constants for different way types.
 	 */
 	begin_enum("way_types");
 	/// catch all value: used to forbid tools for all waytypes
@@ -141,6 +141,19 @@ void export_global_constants(HSQUIRRELVM vm)
 	enum_slot(vm, "wt_power", powerline_wt);
 	/// invalid
 	enum_slot(vm, "wt_invalid", invalid_wt);
+	end_enum();
+
+	/**
+	 * Constants for different system types of ways.
+	 * System type could take also other values than the ones defined here.
+	 */
+	begin_enum("way_system_types");
+	/// flat ways
+	enum_slot(vm, "st_flat", weg_t::type_flat);
+	/// elevated ways
+	enum_slot(vm, "st_flat", weg_t::type_elevated);
+	/// tram tracks (here way type has to be wt_tram)
+	enum_slot(vm, "st_flat", weg_t::type_tram);
 	end_enum();
 
 	// players
