@@ -1686,8 +1686,9 @@ void wkz_set_climate_t::mark_tiles(karte_t *welt, spieler_t *, const koord3d &st
 }
 
 
-const char *wkz_set_climate_t::do_work( karte_t *welt, spieler_t *, const koord3d &start, const koord3d &end )
+const char *wkz_set_climate_t::do_work( karte_t *welt, spieler_t *sp, const koord3d &start, const koord3d &end )
 {
+	int n = 0;	// tiles altered
 	climate cl = (climate) atoi(default_param);
 	koord k1, k2;
 	if(  end == koord3d::invalid  ) {
@@ -1726,6 +1727,7 @@ const char *wkz_set_climate_t::do_work( karte_t *welt, spieler_t *, const koord3
 					if(  ok  ) {
 						welt->set_climate( k, cl, true );
 						reliefkarte_t::get_karte()->calc_map_pixel( k );
+						n ++;
 					}
 				}
 				else if(  !gr->ist_wasser()  &&  gr->get_grund_hang() == hang_t::flach  &&  welt->is_plan_height_changeable( k.x, k.y )  ) {
@@ -1742,11 +1744,15 @@ const char *wkz_set_climate_t::do_work( karte_t *welt, spieler_t *, const koord3
 						welt->access(k)->correct_water(welt);
 						welt->set_climate( k, water_climate, true );
 						reliefkarte_t::get_karte()->calc_map_pixel( k );
+						n ++;
 					}
 				}
 
 			}
 		}
+	}
+	if(n>0) {
+		spieler_t::book_construction_costs(sp, welt->get_settings().cst_alter_climate * n, k, ignore_wt);
 	}
 	return NULL;
 }

@@ -280,6 +280,7 @@ public:
 	// alter landscape
 	sint64 cst_buy_land;
 	sint64 cst_alter_land;
+	sint64 cst_alter_climate;
 	sint64 cst_set_slope;
 	sint64 cst_found_city;
 	sint64 cst_multiply_found_industry;

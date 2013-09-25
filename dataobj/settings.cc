@@ -239,6 +239,7 @@ settings_t::settings_t() :
 	// alter landscape
 	cst_buy_land=-10000;
 	cst_alter_land=-100000;
+	cst_alter_climate=-100000;
 	cst_set_slope=-250000;
 	cst_found_city=-500000000;
 	cst_multiply_found_industry=-2000000;
@@ -752,6 +753,9 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_short( max_factory_spacing );
 			file->rdwr_short( max_factory_spacing_percentage );
 		}
+		if(  file->get_version()>=112008  ) {
+			file->rdwr_longlong( cst_alter_climate );
+		}
 		// otherwise the default values of the last one will be used
 	}
 }
@@ -1247,6 +1251,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	cst_buy_land = contents.get_int64("cost_buy_land", cst_buy_land/(-100) ) * -100;
 	cst_alter_land = contents.get_int64("cost_alter_land", cst_alter_land/(-100) ) * -100;
 	cst_set_slope = contents.get_int64("cost_set_slope", cst_set_slope/(-100) ) * -100;
+	cst_alter_climate = contents.get_int64("cost_alter_climate", cst_alter_climate/(-100) ) * -100;
 	cst_found_city = contents.get_int64("cost_found_city", cst_found_city/(-100) ) * -100;
 	cst_multiply_found_industry = contents.get_int64("cost_multiply_found_industry", cst_multiply_found_industry/(-100) ) * -100;
 	cst_remove_tree = contents.get_int64("cost_remove_tree", cst_remove_tree/(-100) ) * -100;
