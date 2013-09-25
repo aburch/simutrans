@@ -27,6 +27,7 @@ public:
 	 * @param extension Extension of files to search for. Input a empty string to not enforce the restriction.
 	 * @param only_directories Extra restriction, will only consider directory entries.
 	 * @param prepend_path Will force prepending the base path to the output on each entry.
+	 * @returns Number files that matched the search parameters.
 	 */
 	int search(const std::string &filepath, const std::string &extension, const bool only_directories = false, const bool prepend_path = true);
 
