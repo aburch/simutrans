@@ -573,9 +573,24 @@ class dir {
 
 	static nsew = [1, 4, 2, 8]
 }
+
+class time_x {
+	raw = 1
+	year = 0
+	month = 1
+}
+
+class coord {
+	x = -1
+	y = -1
+}
+
+class coord3d extends coord {
+	z = -1
+}
+
 /**
  * The same metamethod magic as in the class extend_get.
- * Seems to be impossible to achieve for both tables and classes without code duplication.
  */
 table_with_extend_get <- {
 
