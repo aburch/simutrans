@@ -76,8 +76,6 @@ public:
 	static void gimme_short_stop_name(cbuffer_t& buf, karte_t* welt, spieler_t const* sp, linieneintrag_t const& entry, int max_chars);
 
 private:
-	static char no_line[128];
-
 	enum mode_t {adding, inserting, removing, undefined_mode};
 
 	vector_tpl<linehandle_t> lines;

@@ -38,7 +38,6 @@
 #include "components/gui_button.h"
 #include "karte.h"
 
-char fahrplan_gui_t::no_line[128];	// contains the current translation of "<no line>"
 karte_t *fahrplan_gui_t::welt = NULL;
 
 
@@ -264,7 +263,6 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 		old_line = new_line = cnv_->get_line();
 	}
 	old_line_count = 0;
-	strcpy(no_line, translator::translate("<no line>"));
 
 	scr_coord_val ypos = 0;
 	if(  cnv.is_bound()  ) {
@@ -660,7 +658,7 @@ void fahrplan_gui_t::init_line_selector()
 		line_selector.append_element( new line_scrollitem_t(line) );
 		if(  !new_line.is_bound()  ) {
 			if(  fpl->matches( sp->get_welt(), line->get_schedule() )  ) {
-				selection = line_selector.count_elements();
+				selection = line_selector.count_elements()-1;
 				new_line = line;
 			}
 		}
@@ -672,7 +670,7 @@ void fahrplan_gui_t::init_line_selector()
 	line_selector.set_selection( selection );
 	line_scrollitem_t::sort_mode = line_scrollitem_t::SORT_BY_NAME;
 	line_selector.sort();
-	line_selector.insert_element( new gui_scrolled_list_t::const_text_scrollitem_t( no_line, COL_BLACK ) );
+	line_selector.insert_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("<no line>"), COL_BLACK ) );
 	old_line_count = sp->simlinemgmt.get_line_count();
 	last_schedule_count = fpl->get_count();
 }
