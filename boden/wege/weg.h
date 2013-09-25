@@ -67,7 +67,12 @@ public:
 		IS_SNOW = 0x80	// marker, if above snowline currently
 	};
 
-	enum system_type { type_flat=0, type_elevated=1, type_tram=7, type_underground=64, type_all=255 };
+	enum system_type {
+		type_flat     = 0,	///< flat track
+		type_elevated = 1,	///< flag for elevated ways
+		type_tram     = 7,	///< tram track (waytype = track_wt), hardcoded values everywhere ...
+		type_all      = 255
+	};
 
 private:
 	/**
