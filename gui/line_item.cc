@@ -60,6 +60,7 @@ bool line_scrollitem_t::compare( gui_scrolled_list_t::scrollitem_t *aa, gui_scro
 				// normalizing to the number of convoys to get the fastest ones ...
 				return (a->get_line()->get_finance_history(1,LINE_DISTANCE)/max(1,a->get_line()->get_finance_history(1,LINE_CONVOIS)) -
 						b->get_line()->get_finance_history(1,LINE_DISTANCE)/max(1,b->get_line()->get_finance_history(1,LINE_CONVOIS)) )<0;
+			default: break;
 		}
 		// default sorting ...
 	}
