@@ -99,7 +99,14 @@ fussgaenger_t::~fussgaenger_t()
 
 void fussgaenger_t::calc_bild()
 {
-	set_bild(besch->get_bild_nr(ribi_t::get_dir(get_fahrtrichtung())));
+	if(!besch)
+	{
+		time_to_life = 0;
+	}
+	else
+	{
+		set_bild(besch->get_bild_nr(ribi_t::get_dir(get_fahrtrichtung())));
+	}
 }
 
 
