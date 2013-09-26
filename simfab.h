@@ -577,7 +577,7 @@ public:
 	sint32 get_base_production() const { return prodbase; }
 	void set_base_production(sint32 p);
 
-	sint32 get_current_production() const { return welt->scale_with_month_length( ((sint64)prodbase * (sint64)get_prodfactor())>>8 ); }
+	sint32 get_current_production() const { return (sint32)welt->scale_with_month_length( ((sint64)prodbase * (sint64)get_prodfactor())>>8 ); }
 
 	/* prissi: returns the status of the current factory, as well as output */
 	enum { bad, medium, good, inactive, nothing };
