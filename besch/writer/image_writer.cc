@@ -119,6 +119,7 @@ uint16 *image_writer_t::encode_image(int x, int y, dimension* dim, int* len)
 	for (line = 0; line < height; line++) {
 		int row_px_count = 0;
 		uint32 pix = block_getpix(x, y + line);
+		row_px_count++;
 		uint16 count = 0;
 		uint16 clear_colored_run_pair_count = 0;
 
@@ -126,8 +127,8 @@ uint16 *image_writer_t::encode_image(int x, int y, dimension* dim, int* len)
 			count = 0;
 			while (pix == SPECIAL_TRANSPARENT && row_px_count < width) {
 				count++;
-				row_px_count++;
 				pix = block_getpix(x + row_px_count, y + line);
+				row_px_count++;
 			}
 
 			*dest++ = endian(count);
@@ -138,8 +139,8 @@ uint16 *image_writer_t::encode_image(int x, int y, dimension* dim, int* len)
 			while (pix != SPECIAL_TRANSPARENT && row_px_count < width) {
 				*dest++ = pixrgb_to_pixval(pix);
 				count++;
-				row_px_count++;
 				pix = block_getpix(x + row_px_count, y + line);
+				row_px_count++;
 			}
 
 			/* Knightly:
