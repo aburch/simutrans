@@ -98,7 +98,7 @@ static void read_png(unsigned char** block, unsigned* width, unsigned* height, F
 	// we use fixed height here because block is of limited, fixed size
 	// not fixed any more
 
-	*block = REALLOC(*block, unsigned char, *height * *width * 6);
+	*block = REALLOC(*block, unsigned char, *height * *width * 3);
 
 	// *block = malloc(*height * *width * 6);
 
