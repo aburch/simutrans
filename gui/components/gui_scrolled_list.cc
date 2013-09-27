@@ -27,9 +27,13 @@ bool  gui_scrolled_list_t::const_text_scrollitem_t::compare( scrollitem_t *a, sc
 }
 
 
-bool  gui_scrolled_list_t::const_text_scrollitem_t::sort( vector_tpl<scrollitem_t *>&v ) const
+bool  gui_scrolled_list_t::const_text_scrollitem_t::sort( vector_tpl<scrollitem_t *>&v, int offset, void * ) const
 {
-	std::sort( v.begin(), v.end(), const_text_scrollitem_t::compare );
+	vector_tpl<scrollitem_t *>::iterator start = v.begin();
+	while(  offset-->0  ) {
+		++start;
+	}
+	std::sort( start, v.end(), const_text_scrollitem_t::compare );
 	return true;
 }
 
@@ -140,11 +144,11 @@ void gui_scrolled_list_t::insert_element( scrollitem_t *item )
 }
 
 
-void gui_scrolled_list_t::sort()
+void gui_scrolled_list_t::sort( int offset, void *sort_param )
 {
 	if(  item_list.get_count() > 1  ) {
 		scrollitem_t *sel = NULL;
-		if(  selection>=0  ) {
+		if(  selection>=offset  ) {
 			if(  selection < item_list.get_count()  ) {
 				sel = item_list[selection];
 			}
@@ -152,10 +156,10 @@ void gui_scrolled_list_t::sort()
 				selection = -1;
 			}
 		}
-		item_list[0]->sort( item_list );
+		item_list[0]->sort( item_list, offset, sort_param );
 		// now we may need to update the selection
 		if(  sel  ) {
-			for(  uint32 i=0;  i<item_list.get_count();  i++  ) {
+			for(  uint32 i=offset;  i<item_list.get_count();  i++  ) {
 				if(  item_list[i] == sel  ) {
 					selection = i;
 					return;

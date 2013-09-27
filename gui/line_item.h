@@ -16,7 +16,7 @@ public:
 	// helper to sort
 	enum sort_modes_t { SORT_BY_NAME=0, SORT_BY_ID, SORT_BY_PROFIT, SORT_BY_TRANSPORTED, SORT_BY_CONVOIS, SORT_BY_DISTANCE, MAX_SORT_MODES };
 	static sort_modes_t sort_mode;
-	virtual bool sort( vector_tpl<scrollitem_t *>&v ) const;
+	virtual bool sort( vector_tpl<scrollitem_t *>&v, int, void * ) const OVERRIDE;
 	// normal items
 	line_scrollitem_t( linehandle_t l ) : gui_scrolled_list_t::const_text_scrollitem_t( NULL, COL_ORANGE ) { line = l; }
 	COLOR_VAL get_color() OVERRIDE;

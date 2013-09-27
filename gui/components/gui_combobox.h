@@ -72,7 +72,7 @@ public:
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
-	void sort() { droplist.sort(); }
+	void sort( int offset, void *sort_param ) { droplist.sort( offset, sort_param ); }
 
 	/**
 	 * Draw the component

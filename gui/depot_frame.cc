@@ -859,21 +859,6 @@ void depot_frame_t::update_data()
 	// update the line selector
 	line_selector.clear_elements();
 
-	// check all matching lines
-	selected_line = linehandle_t();
-	vector_tpl<linehandle_t> lines;
-	get_line_list(depot, &lines);
-	line_selector.set_selection( 0 );
-	FOR(  vector_tpl<linehandle_t>,  const line,  lines  ) {
-		line_selector.append_element( new line_scrollitem_t(line) );
-		if(  cnv.is_bound()  &&  line == cnv->get_line()  ) {
-			line_selector.set_selection( line_selector.count_elements() - 1 );
-			selected_line = line;
-		}
-	}
-	line_selector.sort();
-
-	line_selector.insert_element( new gui_scrolled_list_t::const_text_scrollitem_t( line_seperator, COL_BLACK ) );
 	if(  last_selected_line.is_bound()  ) {
 		line_selector.insert_element( new line_scrollitem_t( last_selected_line ) );
 	}
@@ -895,6 +880,21 @@ void depot_frame_t::update_data()
 		// select "create new schedule"
 		line_selector.set_selection( 0 );
 	}
+	line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( line_seperator, COL_BLACK ) );
+
+	// check all matching lines
+	selected_line = linehandle_t();
+	vector_tpl<linehandle_t> lines;
+	get_line_list(depot, &lines);
+	line_selector.set_selection( 0 );
+	FOR(  vector_tpl<linehandle_t>,  const line,  lines  ) {
+		line_selector.append_element( new line_scrollitem_t(line) );
+		if(  cnv.is_bound()  &&  line == cnv->get_line()  ) {
+			line_selector.set_selection( line_selector.count_elements() - 1 );
+			selected_line = line;
+		}
+	}
+	line_selector.sort( last_selected_line.is_bound()+3, NULL );
 
 	// Update vehicle filter
 	vehicle_filter.clear_elements();

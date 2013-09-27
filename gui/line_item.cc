@@ -91,8 +91,12 @@ bool line_scrollitem_t::compare( gui_scrolled_list_t::scrollitem_t *aa, gui_scro
 }
 
 
-bool line_scrollitem_t::sort( vector_tpl<scrollitem_t *>&v ) const
+bool line_scrollitem_t::sort( vector_tpl<scrollitem_t *>&v, int offset, void * ) const
 {
-	std::sort( v.begin(), v.end(), line_scrollitem_t::compare );
+	vector_tpl<scrollitem_t *>::iterator start = v.begin();
+	while(  offset-->0  ) {
+		++start;
+	}
+	std::sort( start, v.end(), line_scrollitem_t::compare );
 	return true;
 }

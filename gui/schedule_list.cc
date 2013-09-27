@@ -573,7 +573,7 @@ void schedule_list_gui_t::build_line_list(int filter)
 	scl.set_sb_offset( sb_offset );
 	scl.set_selection( sel );
 	line_scrollitem_t::sort_mode = (line_scrollitem_t::sort_modes_t)current_sort_mode;
-	scl.sort();
+	scl.sort( 0, NULL );
 
 	old_line_count = sp->simlinemgmt.get_line_count();
 }

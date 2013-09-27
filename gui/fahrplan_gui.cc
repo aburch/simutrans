@@ -596,7 +596,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 		fpl->add_return_way();
 	}
 	else if(komp == &line_selector) {
-		int selection = p.i;
+		int selection = p.i - !new_line.is_bound();
 //DBG_MESSAGE("fahrplan_gui_t::action_triggered()","line selection=%i",selection);
 		if(  (uint32)(selection-1)<(uint32)line_selector.count_elements()  ) {
 			new_line = lines[selection - 1];
@@ -653,6 +653,10 @@ void fahrplan_gui_t::init_line_selector()
 			new_line = linehandle_t();
 		}
 	}
+	if(  !new_line.is_bound()  ) {
+		selection = 0;
+		line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("<no line>"), COL_BLACK ) );
+	}
 
 	FOR(  vector_tpl<linehandle_t>,  line,  lines  ) {
 		line_selector.append_element( new line_scrollitem_t(line) );
@@ -663,14 +667,13 @@ void fahrplan_gui_t::init_line_selector()
 			}
 		}
 		else if(  new_line == line  ) {
-			selection = line_selector.count_elements();
+			selection = line_selector.count_elements()-1;
 		}
 	}
 
 	line_selector.set_selection( selection );
 	line_scrollitem_t::sort_mode = line_scrollitem_t::SORT_BY_NAME;
-	line_selector.sort();
-	line_selector.insert_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("<no line>"), COL_BLACK ) );
+	line_selector.sort( 1, NULL );
 	old_line_count = sp->simlinemgmt.get_line_count();
 	last_schedule_count = fpl->get_count();
 }
