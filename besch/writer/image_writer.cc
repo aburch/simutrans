@@ -306,7 +306,7 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, string an_imagek
 	if (bild.len) {
 		// only called, if there is something to store
 		node.write_data_at(outfp, pixdata, 12, bild.len * sizeof(PIXVAL));
-		free(pixdata);
+		delete [] pixdata;
 	}
 #elif IMG_VERSION2
 	// version 1 or 2
@@ -324,7 +324,7 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, string an_imagek
 	if (bild.len) {
 		// only called, if there is something to store
 		node.write_data_at(outfp, pixdata, 10, bild.len * sizeof(PIXVAL));
-		free(pixdata);
+		delete [] pixdata;
 	}
 #else
 	// version 3
@@ -342,7 +342,7 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, string an_imagek
 	if (bild.len) {
 		// only called, if there is something to store
 		node.write_data_at(outfp, pixdata, 10, bild.len * sizeof(uint16));
-		free(pixdata);
+		delete [] pixdata;
 	}
 #endif
 
