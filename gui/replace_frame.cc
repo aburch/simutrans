@@ -43,6 +43,7 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 {	
 	const uint32 a_button_height = 14;
 	const uint32 margin = 6;
+	txt_money[0] = 0;
 	lb_money.set_text_pointer(txt_money);
 	add_komponente(&lb_money);
 	
@@ -68,6 +69,9 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	numinp[state_skip].set_limits( 0, 999 );
 	numinp[state_skip].set_increment_mode( 1 );
 	numinp[state_skip].add_listener(this);
+	txt_n_replace[0] = 0;
+	txt_n_sell[0] = 0;
+	txt_n_skip[0] = 0;
 	lb_n_replace.set_text_pointer(txt_n_replace);
 	lb_n_sell.set_text_pointer(txt_n_sell);
 	lb_n_skip.set_text_pointer(txt_n_skip);
