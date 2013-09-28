@@ -123,7 +123,7 @@ public:
 		* rather than route distance (+1)
 		*/
 	private:
-		uint32 accumulated_distance_since_departure[MAX_PLAYER_COUNT + 1];
+		uint32 accumulated_distance_since_departure[MAX_PLAYER_COUNT + 2];
 
 	public:
 
