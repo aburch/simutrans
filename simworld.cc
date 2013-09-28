@@ -3808,7 +3808,7 @@ void karte_t::new_month()
 	}
 	recheck_road_connexions = false;
 
-	if(fabrikbauer_t::power_stations_available(this) && (((sint64)electric_productivity * 4000l) / total_electric_demand) < (sint64)get_settings().get_electric_promille())
+	if(fabrikbauer_t::power_stations_available(this) && total_electric_demand && (((sint64)electric_productivity * 4000l) / total_electric_demand) < (sint64)get_settings().get_electric_promille())
 	{
 		// Add industries if there is a shortage of electricity - power stations will be built.
 		// Also, check whether power stations are available, or else large quantities of other industries will
