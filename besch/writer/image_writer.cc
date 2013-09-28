@@ -116,18 +116,18 @@ uint16 *image_writer_t::encode_image(int x, int y, dimension* dim, int* len)
 	const int width = dim->xmax - dim->xmin + 1;
 	const int height = dim->ymax - dim->ymin + 1;
 
-	for (line = 0; line < height; line++) {
-		int row_px_count = 0;
-		uint32 pix = block_getpix(x, y + line);
+	for(  line = 0;  line < height;  line++  ) {
+		int row_px_count = 0;	// index of the currently handled pixel
+		uint32 pix = block_getpix( x, y + line );
 		row_px_count++;
 		uint16 count = 0;
 		uint16 clear_colored_run_pair_count = 0;
 
 		do {
 			count = 0;
-			while (pix == SPECIAL_TRANSPARENT && row_px_count < width) {
+			while(  pix == SPECIAL_TRANSPARENT  &&  row_px_count <= width  ) {
 				count++;
-				pix = block_getpix(x + row_px_count, y + line);
+				pix = block_getpix( x + row_px_count, y + line );
 				row_px_count++;
 			}
 
@@ -136,10 +136,10 @@ uint16 *image_writer_t::encode_image(int x, int y, dimension* dim, int* len)
 			colored_run_counter = dest++;
 			count = 0;
 
-			while (pix != SPECIAL_TRANSPARENT && row_px_count < width) {
+			while(  pix != SPECIAL_TRANSPARENT  &&  row_px_count <= width  ) {
 				*dest++ = pixrgb_to_pixval(pix);
 				count++;
-				pix = block_getpix(x + row_px_count, y + line);
+				pix = block_getpix( x + row_px_count, y + line );
 				row_px_count++;
 			}
 
@@ -147,7 +147,7 @@ uint16 *image_writer_t::encode_image(int x, int y, dimension* dim, int* len)
 			 *		If it is not the first clear-colored-run pair and its colored run is empty
 			 *		--> it is superfluous and can be removed by rolling back the pointer
 			 */
-			if(  clear_colored_run_pair_count>0  &&  count==0  ) {
+			if(  clear_colored_run_pair_count > 0  &&  count == 0  ) {
 				dest -= 2;
 				// this only happens at the end of a line, so no need to increment clear_colored_run_pair_count
 			}
@@ -155,7 +155,7 @@ uint16 *image_writer_t::encode_image(int x, int y, dimension* dim, int* len)
 				*colored_run_counter = endian(count);
 				clear_colored_run_pair_count++;
 			}
-		} while (row_px_count < width);
+		} while(  row_px_count <= width  );
 
 		*dest++ = 0;
 	}
