@@ -95,13 +95,17 @@ climate_gui_t::climate_gui_t(settings_t* const sets) :
 	add_komponente( &cities_ignore_height );
 	y += D_BUTTON_HEIGHT;
 
+	numberinput_lbl[labelnr].init("Cities like water", koord( D_MARGIN_LEFT, y+2 ) );
+	add_komponente( numberinput_lbl+labelnr );
+	labelnr++;
+
 	cities_like_water.set_pos(koord(LEFT_ARROW, y) );
 	cities_like_water.set_groesse(koord(RIGHT_ARROW - LEFT_ARROW + 10, D_BUTTON_HEIGHT));
 	cities_like_water.set_limits( 0, 100 );
-	cities_like_water.set_value( (int)(umgebung_t::cities_like_water));
-	cities_like_water.wrap_mode( false );
-	cities_like_water.add_listener( this );
-	add_komponente( &cities_like_water );
+	cities_like_water.set_value((int)(umgebung_t::cities_like_water));
+	cities_like_water.wrap_mode(false);
+	cities_like_water.add_listener(this);
+	add_komponente(&cities_like_water);
 	y += D_BUTTON_HEIGHT;
 
 	// summer snowline always starting above highest climate
@@ -158,7 +162,7 @@ climate_gui_t::climate_gui_t(settings_t* const sets) :
 	hilly.pressed = umgebung_t::hilly;
 
 	cities_ignore_height.pressed = umgebung_t::cities_ignore_height;
-	cities_like_water.set_value( (int)(umgebung_t::cities_like_water));
+	cities_like_water.set_value((int)(umgebung_t::cities_like_water));
 
 	// and finally river stuff
 	numberinput_lbl[labelnr].init( "Number of rivers", koord( D_MARGIN_LEFT, y+2 ) );

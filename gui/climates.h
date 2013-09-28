@@ -27,7 +27,7 @@ class climate_gui_t  : public gui_frame_t, private action_listener_t
 private:
 	settings_t* sets;
 
-	enum { MAX_CLIMATE_LABEL=14 };
+	enum { MAX_CLIMATE_LABEL=15 };
 
 	// since decrease/increase buttons always pair these ...
 	gui_numberinput_t water_level, mountain_height, mountain_roughness;
