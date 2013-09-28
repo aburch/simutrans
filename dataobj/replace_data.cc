@@ -104,21 +104,22 @@ bool replace_data_t::sscanf_replace(const char *ptr)
 {
 	const char *p = ptr;
 	// Firstly, get the general settings.
-	const char as = *p++;
-	autostart = atoi(&as);
-	const char rid = *p++;
-	retain_in_depot = atoi(&rid);
-	const char uhd = *p++;
-	use_home_depot = atoi(&uhd);
-	const char auev = *p++;
-	allow_using_existing_vehicles = atoi(&auev);
+	const char as[2] = { *p++, 0 };
+	autostart = atoi(as);
+	const char rid[2] = { *p++, 0 };
+	retain_in_depot = atoi(rid);
+	const char uhd[2] = { *p++, 0 };
+	use_home_depot = atoi(uhd);
+	const char auev[2] = { *p++, 0 };
+	allow_using_existing_vehicles = atoi(auev);
 
 	//Secondly, get the number of replacing vehicles
-	char rv[5];
+	char rv[6];
 	for(uint8 i = 0; i < 5; i ++)
 	{
 		rv[i] = *p++;
 	}
+	rv[5] = 0;
 	number_of_convoys = atoi(rv);
 
 	// Thirdly, get the replacing vehicles.
