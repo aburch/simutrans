@@ -6170,13 +6170,7 @@ void convoi_t::snprintf_remaining_loading_time(char *p, size_t size) const
  */
 void convoi_t::snprintf_remaining_reversing_time(char *p, size_t size) const
 {
-	const sint32 remaining_ticks = (sint32)(departures->get(last_stop_id).departure_time - welt->get_zeit_ms());
-	uint32 ticks_left = 0;
-	if(remaining_ticks >= 0)
-	{
-		ticks_left = remaining_ticks;
-	}
-	welt->sprintf_ticks(p, size, ticks_left);
+	welt->sprintf_ticks(p, size, wait_lock);
 }
 
 uint32 convoi_t::calc_highest_axle_load()

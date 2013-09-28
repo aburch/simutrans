@@ -3877,7 +3877,7 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 		}
 	}
 
-	const bool starting_from_stand = cnv->get_state()==convoi_t::CAN_START  ||  cnv->get_state()==convoi_t::CAN_START_ONE_MONTH  ||  cnv->get_state()==convoi_t::CAN_START_TWO_MONTHS || cnv->get_state()==convoi_t::REVERSING;
+	const bool starting_from_stand = cnv->get_state() == convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH || cnv->get_state() == convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS || cnv->get_state() == convoi_t::WAITING_FOR_CLEARANCE || convoi_t::CAN_START || cnv->get_state() == convoi_t::CAN_START_ONE_MONTH || cnv->get_state() == convoi_t::CAN_START_TWO_MONTHS || cnv->get_state() == convoi_t::REVERSING;
 
 	if(destination_is_nonreversing_waypoint || starting_from_stand)
 	{

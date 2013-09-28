@@ -219,8 +219,9 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 					production += field_group_besch->get_field_class(field_class_index)->get_field_production();
 				}
 			}
-			production = (uint32) welt->calc_adjusted_monthly_figure(production);
-			inp_production.set_value( production);
+			production = (uint32)welt->calc_adjusted_monthly_figure(production);
+			inp_production.set_value(production);
+
 			// show produced goods
 			buf.clear();
 			if (!fab_besch->is_consumer_only()) {

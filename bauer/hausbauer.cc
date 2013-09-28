@@ -552,7 +552,8 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int org
 							// get_weg_yoff will change from the "ground" level to the level of
 							// a flat bridge end on a slope.  (Otherwise it's zero.)
 							// So this is the desired level...
-							if (front_z == gr->get_pos().z) {
+							if (front_z == gr->get_pos().z &&
+							    front_z > welt->get_grundwasser()) {
 								// Build down to meet the front side.
 								build_up = false;
 							}
