@@ -3254,7 +3254,7 @@ void stadt_t::step_passagiere()
 			/*longdistance*/
 			simrand_normal(range_longdistance_tolerance, "void stadt_t::step_passagiere() (longdistance tolerance?)") + min_longdistance_tolerance;
 		destination destinations[16];
-		for(int destinations_assigned = 0; destinations_assigned <= destination_count; destinations_assigned ++)
+		for(int destinations_assigned = 0; destinations_assigned < destination_count; destinations_assigned ++)
 		{				
 			if(range == local)
 			{

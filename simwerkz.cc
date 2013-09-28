@@ -6800,6 +6800,7 @@ bool wkz_change_line_t::init( karte_t *welt, spieler_t *sp )
 
 				// no need to check schedule for scenario conditions, as schedule is only copied
 				line->get_schedule()->sscanf_schedule( p );
+				line->get_schedule()->eingabe_abschliessen();	// just in case ...
 				if (is_local_execution()) {
 					fahrplan_gui_t *fg = dynamic_cast<fahrplan_gui_t *>(win_get_magic((ptrdiff_t)t));
 					if(  fg  ) {
