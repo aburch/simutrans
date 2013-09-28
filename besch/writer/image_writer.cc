@@ -113,32 +113,43 @@ uint16 *image_writer_t::encode_image(int x, int y, dimension* dim, int* len)
 
 	x += dim->xmin;
 	y += dim->ymin;
-	const int width = dim->xmax - dim->xmin + 1;
-	const int height = dim->ymax - dim->ymin + 1;
 
-	for(  line = 0;  line < height;  line++  ) {
+	const int img_width  = dim->xmax - dim->xmin + 1;
+	const int img_height = dim->ymax - dim->ymin + 1;
+
+	for(  line = 0;  line < img_height;  line++  ) {
 		int row_px_count = 0;	// index of the currently handled pixel
-		uint32 pix = block_getpix( x, y + line );
-		row_px_count++;
 		uint16 count = 0;
 		uint16 clear_colored_run_pair_count = 0;
 
-		do {
-			count = 0;
-			while(  pix == SPECIAL_TRANSPARENT  &&  row_px_count <= width  ) {
-				count++;
+		do { // read one row
+
+			uint32 pix = block_getpix( x + row_px_count, y + line );
+			row_px_count++;
+
+			// read transparent pixels
+			while(  pix == SPECIAL_TRANSPARENT  ) {
+				count ++;
+				if (row_px_count >= img_width) { // end of line ?
+					break;
+				}
 				pix = block_getpix( x + row_px_count, y + line );
 				row_px_count++;
 			}
-
+			// write number of transparent pixels
 			*dest++ = endian(count);
 
+			// position to write number of colored pixels to
 			colored_run_counter = dest++;
 			count = 0;
 
-			while(  pix != SPECIAL_TRANSPARENT  &&  row_px_count <= width  ) {
+			while(  pix != SPECIAL_TRANSPARENT  ) {
+				// write the colored pixel
 				*dest++ = pixrgb_to_pixval(pix);
 				count++;
+				if (row_px_count >= img_width) { // end of line ?
+					break;
+				}
 				pix = block_getpix( x + row_px_count, y + line );
 				row_px_count++;
 			}
@@ -155,7 +166,7 @@ uint16 *image_writer_t::encode_image(int x, int y, dimension* dim, int* len)
 				*colored_run_counter = endian(count);
 				clear_colored_run_pair_count++;
 			}
-		} while(  row_px_count <= width  );
+		} while(  row_px_count < img_width  );
 
 		*dest++ = 0;
 	}
