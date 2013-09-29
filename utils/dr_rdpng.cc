@@ -80,18 +80,21 @@ static void read_png(unsigned char** block, unsigned* width, unsigned* height, F
 		// palette + transparency, which is a really rare but possible combination.
 	}
 
+	// update info - png_get_rowbytes might return incorrect values
+	png_read_update_info( png_ptr,  info_ptr);
+
 	png_start_read_image(png_ptr);
 
 	/* The easiest way to read the image: */
 
-	rowbytes = png_get_rowbytes(png_ptr, info_ptr) * 3;
+	rowbytes = png_get_rowbytes(png_ptr, info_ptr);
 	row_pointers = MALLOCN(png_byte*, *height);
 
-	row_pointers[0] = MALLOCN(png_byte, rowbytes * *height * 2);
-
+	row_pointers[0] = MALLOCN(png_byte, rowbytes * *height);
 	for (row = 1; row < *height; row++) {
-		row_pointers[row] = row_pointers[row - 1] + rowbytes * 2;
+		row_pointers[row] = row_pointers[row - 1] + rowbytes;
 	}
+
 	/* Read the entire image in one go */
 	png_read_image(png_ptr, row_pointers);
 
@@ -100,13 +103,10 @@ static void read_png(unsigned char** block, unsigned* width, unsigned* height, F
 
 	*block = REALLOC(*block, unsigned char, *height * *width * 3);
 
-	// *block = malloc(*height * *width * 6);
-
 	dst = *block;
 	for (y = 0; y < *height; y++) {
 		for (x = 0; x < *width * 3; x++) {
 			*dst++ = row_pointers[y][x];
-			// *dst++ = 0;
 		}
 	}
 
