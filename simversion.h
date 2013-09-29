@@ -20,7 +20,6 @@
 #define SIM_SAVE_MINOR      5
 #define SIM_SERVER_MINOR    6
 
-
 #define EX_VERSION_MAJOR	12
 #define EX_VERSION_MINOR	9000
 
