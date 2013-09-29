@@ -1425,8 +1425,13 @@ void gui_convoy_assembler_t::update_data()
 					// Do not allow purchasing of vehicle if depot is on an incompatible way.
 					img.lcolor = COL_RED;
 					img.rcolor = COL_RED;
-				}
-				if(depot_frame && i.key->get_axle_load() > welt->lookup(depot_frame->get_depot()->get_pos())->get_weg(depot_frame->get_depot()->get_waytype())->get_max_axle_load())
+				} //(highest_axle_load * 100) / weight_limit > 110)
+				if(depot_frame && 
+					(welt->get_settings().get_enforce_weight_limits() == 2
+						&& i.key->get_axle_load() > welt->lookup(depot_frame->get_depot()->get_pos())->get_weg(depot_frame->get_depot()->get_waytype())->get_max_axle_load())
+					|| (welt->get_settings().get_enforce_weight_limits() == 3
+						&& (i.key->get_axle_load() * 100) / welt->lookup(depot_frame->get_depot()->get_pos())->get_weg(depot_frame->get_depot()->get_waytype())->get_max_axle_load() < 110))
+					
 				{
 					// Indicate if vehicles are too heavy
 					img.lcolor = COL_GREY3;
