@@ -156,7 +156,7 @@ void gui_scrolled_list_t::sort( int offset, void *sort_param )
 				selection = -1;
 			}
 		}
-		item_list[0]->sort( item_list, offset, sort_param );
+		item_list[offset]->sort( item_list, offset, sort_param );
 		// now we may need to update the selection
 		if(  sel  ) {
 			for(  uint32 i=offset;  i<item_list.get_count();  i++  ) {
