@@ -934,7 +934,8 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 					}
 					const uint8 shifter = 1 << info->get_engine_type();
 					const bool correct_traction_type = !depot_frame || (shifter & depot_frame->get_depot()->get_tile()->get_besch()->get_enabled());
-					if(!correct_traction_type && (info->get_leistung() > 0 || (veh_action == va_insert && info->get_vorgaenger_count() == 1 && info->get_vorgaenger(0)->get_leistung() > 0)))
+					const bool correct_way_constraint = !depot_frame || missing_way_constraints_t(info->get_way_constraints(), welt->lookup(depot_frame->get_depot()->get_pos())->get_weg(depot_frame->get_depot()->get_waytype())->get_way_constraints()).ist_befahrbar();
+					if(!correct_way_constraint || (!correct_traction_type && (info->get_leistung() > 0 || (veh_action == va_insert && info->get_vorgaenger_count() == 1 && info->get_vorgaenger(0)->get_leistung() > 0))))
 					{
 						append = false;
 					}
@@ -1382,11 +1383,11 @@ void gui_convoy_assembler_t::update_data()
 		}
 		if (veh_action != va_sell)
 		{
-			//Check whether too expensive
-			//@author: jamespetts
+			// Check whether too expensive
+			// @author: jamespetts
 			if(img.lcolor == ok_color || img.lcolor == COL_YELLOW)
 			{
-				//Only flag as too expensive that which could be purchased anyway.
+				// Only flag as too expensive that which could be purchased but for its price.
 				if(upgrade == u_buy)
 				{
 					if(!sp->can_afford(info->get_preis()))
@@ -1413,6 +1414,12 @@ void gui_convoy_assembler_t::update_data()
 						img.lcolor = COL_RED;
 						img.rcolor = COL_RED;
 					}
+				}
+				if(depot_frame && !missing_way_constraints_t(i.key->get_way_constraints(), welt->lookup(depot_frame->get_depot()->get_pos())->get_weg(depot_frame->get_depot()->get_waytype())->get_way_constraints()).ist_befahrbar())
+				{
+					// Do not allow purchasing of vehicle if depot is on an incompatible way.
+					img.lcolor = COL_RED;
+					img.rcolor = COL_RED;
 				}
 			}
 		}
