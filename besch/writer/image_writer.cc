@@ -119,13 +119,13 @@ uint16 *image_writer_t::encode_image(int x, int y, dimension* dim, int* len)
 
 	for(  line = 0;  line < img_height;  line++  ) {
 		int row_px_count = 0;	// index of the currently handled pixel
-		uint16 count = 0;
 		uint16 clear_colored_run_pair_count = 0;
 
-		do { // read one row
+		uint32 pix = block_getpix( x + row_px_count, y + line );
+		row_px_count++;
 
-			uint32 pix = block_getpix( x + row_px_count, y + line );
-			row_px_count++;
+		do { // read one row
+			uint16 count = 0;
 
 			// read transparent pixels
 			while(  pix == SPECIAL_TRANSPARENT  ) {
