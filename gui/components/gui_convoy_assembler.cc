@@ -1140,6 +1140,8 @@ void gui_convoy_assembler_t::image_from_storage_list(gui_image_list_t::image_dat
 		depot_t *depot = depot_frame->get_depot();
 		if(bild_data->lcolor != COL_RED &&
 			bild_data->rcolor != COL_RED &&
+			bild_data->rcolor != COL_GREY3 &&
+			bild_data->lcolor != COL_GREY3 &&
 			bild_data->rcolor != COL_DARK_PURPLE &&
 			bild_data->lcolor != COL_DARK_PURPLE &&
 			bild_data->rcolor != COL_PURPLE &&
@@ -1150,6 +1152,7 @@ void gui_convoy_assembler_t::image_from_storage_list(gui_image_list_t::image_dat
 		{
 			// Dark orange = too expensive
 			// Purple = available only as upgrade
+			// Grey = too heavy
 
 			if(veh_action == va_sell)
 			{
@@ -1169,6 +1172,8 @@ void gui_convoy_assembler_t::image_from_storage_list(gui_image_list_t::image_dat
 	{
 		if(bild_data->lcolor != COL_RED &&
 			bild_data->rcolor != COL_RED &&
+			bild_data->rcolor != COL_GREY3 &&
+			bild_data->lcolor != COL_GREY3 &&
 			bild_data->rcolor != COL_DARK_PURPLE &&
 			bild_data->lcolor != COL_DARK_PURPLE &&
 			bild_data->rcolor != COL_PURPLE &&
@@ -1420,6 +1425,12 @@ void gui_convoy_assembler_t::update_data()
 					// Do not allow purchasing of vehicle if depot is on an incompatible way.
 					img.lcolor = COL_RED;
 					img.rcolor = COL_RED;
+				}
+				if(depot_frame && i.key->get_axle_load() > welt->lookup(depot_frame->get_depot()->get_pos())->get_weg(depot_frame->get_depot()->get_waytype())->get_max_axle_load())
+				{
+					// Indicate if vehicles are too heavy
+					img.lcolor = COL_GREY3;
+					img.rcolor = COL_GREY3;
 				}
 			}
 		}
