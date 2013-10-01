@@ -149,14 +149,16 @@ void gui_scrolled_list_t::sort( int offset, void *sort_param )
 	if(  item_list.get_count() > 1  ) {
 		scrollitem_t *sel = NULL;
 		if(  selection>=offset  ) {
-			if(  selection < item_list.get_count()  ) {
+			if(  selection >=0  &&  (uint32)selection < item_list.get_count()  ) {
 				sel = item_list[selection];
 			}
 			else {
 				selection = -1;
 			}
 		}
-		item_list[offset]->sort( item_list, offset, sort_param );
+		if (offset >=0  &&  (uint32)offset < item_list.get_count()) {
+			item_list[offset]->sort( item_list, offset, sort_param );
+		}
 		// now we may need to update the selection
 		if(  sel  ) {
 			for(  uint32 i=offset;  i<item_list.get_count();  i++  ) {
