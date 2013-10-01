@@ -1069,7 +1069,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp, value_t p)
 			}
 		}
 		else if(  komp == &line_selector  ) {
-			int selection = p.i;
+			const int selection = p.i;
 			if(  selection == 0  ) { // unique
 				if(  selected_line.is_bound()  ) {
 					selected_line = linehandle_t();
@@ -1102,15 +1102,12 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp, value_t p)
 					apply_line();
 					return true;
 				}
-				selection -= 4;
 			}
-			else { // skip separator
-				selection -= 3;
-			}
-			if(  selection >= 0  &&  (uint32)selection < (uint32)line_selector.count_elements()  ) {
-				vector_tpl<linehandle_t> lines;
-				get_line_list( depot, &lines );
-				selected_line = lines[selection];
+
+			// access the selected element to get selected line
+			line_scrollitem_t *item = dynamic_cast<line_scrollitem_t*>(line_selector.get_element(selection));
+			if(  item  ) {
+				selected_line = item->get_line();
 				depot->set_last_selected_line( selected_line );
 				last_selected_line = selected_line;
 				apply_line();
