@@ -7241,14 +7241,14 @@ bool karte_t::interactive(uint32 quit_month)
 		DBG_DEBUG4("karte_t::interactive", "calling win_poll_event");
 		win_poll_event(&ev);
 
-		if(ev.ev_class==EVENT_SYSTEM  &&  ev.ev_code==SYSTEM_QUIT) {
+		if(  ev.ev_class == EVENT_SYSTEM  &&  ev.ev_code == SYSTEM_QUIT  ) {
 			// quit the program if this windows is closed
 			destroy_all_win(true);
 			env_t::quit_simutrans = true;
 			break;
 		}
 
-		if(ev.ev_class!=EVENT_NONE &&  ev.ev_class!=IGNORE_EVENT) {
+		if(  ev.ev_class != EVENT_NONE &&  ev.ev_class != IGNORE_EVENT  ) {
 
 			if(  env_t::networkmode  ) {
 				set_random_mode( INTERACTIVE_RANDOM );
@@ -7261,10 +7261,12 @@ bool karte_t::interactive(uint32 quit_month)
 				if(IS_RIGHTCLICK(&ev)) {
 					display_show_pointer(false);
 					cursor_hidden = true;
-				} else if(IS_RIGHTRELEASE(&ev)) {
+				}
+				else if(IS_RIGHTRELEASE(&ev)) {
 					display_show_pointer(true);
 					cursor_hidden = false;
-				} else if(IS_RIGHTDRAG(&ev)) {
+				}
+				else if(IS_RIGHTDRAG(&ev)) {
 					// unset following
 					follow_convoi = convoihandle_t();
 					move_view(&ev);
