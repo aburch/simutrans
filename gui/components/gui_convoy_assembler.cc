@@ -934,7 +934,8 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 					}
 					const uint8 shifter = 1 << info->get_engine_type();
 					const bool correct_traction_type = !depot_frame || (shifter & depot_frame->get_depot()->get_tile()->get_besch()->get_enabled());
-					const bool correct_way_constraint = !depot_frame || missing_way_constraints_t(info->get_way_constraints(), welt->lookup(depot_frame->get_depot()->get_pos())->get_weg(depot_frame->get_depot()->get_waytype())->get_way_constraints()).ist_befahrbar();
+					const weg_t* way = depot_frame ? welt->lookup(depot_frame->get_depot()->get_pos())->get_weg(depot_frame->get_depot()->get_waytype()) : NULL;
+					const bool correct_way_constraint = !way || missing_way_constraints_t(info->get_way_constraints(), way->get_way_constraints()).ist_befahrbar();
 					if(!correct_way_constraint || (!correct_traction_type && (info->get_leistung() > 0 || (veh_action == va_insert && info->get_vorgaenger_count() == 1 && info->get_vorgaenger(0)->get_leistung() > 0))))
 					{
 						append = false;
@@ -1420,17 +1421,18 @@ void gui_convoy_assembler_t::update_data()
 						img.rcolor = COL_RED;
 					}
 				}
-				if(depot_frame && !missing_way_constraints_t(i.key->get_way_constraints(), welt->lookup(depot_frame->get_depot()->get_pos())->get_weg(depot_frame->get_depot()->get_waytype())->get_way_constraints()).ist_befahrbar())
+				const weg_t* way = depot_frame ? welt->lookup(depot_frame->get_depot()->get_pos())->get_weg(depot_frame->get_depot()->get_waytype()) : NULL;
+				if(way && !missing_way_constraints_t(i.key->get_way_constraints(), way->get_way_constraints()).ist_befahrbar())
 				{
 					// Do not allow purchasing of vehicle if depot is on an incompatible way.
 					img.lcolor = COL_RED;
 					img.rcolor = COL_RED;
 				} //(highest_axle_load * 100) / weight_limit > 110)
-				if(depot_frame && 
+				if(way && 
 					(welt->get_settings().get_enforce_weight_limits() == 2
 						&& i.key->get_axle_load() > welt->lookup(depot_frame->get_depot()->get_pos())->get_weg(depot_frame->get_depot()->get_waytype())->get_max_axle_load())
 					|| (welt->get_settings().get_enforce_weight_limits() == 3
-						&& (i.key->get_axle_load() * 100) / welt->lookup(depot_frame->get_depot()->get_pos())->get_weg(depot_frame->get_depot()->get_waytype())->get_max_axle_load() < 110))
+						&& (i.key->get_axle_load() * 100) / way->get_max_axle_load() < 110))
 					
 				{
 					// Indicate if vehicles are too heavy
