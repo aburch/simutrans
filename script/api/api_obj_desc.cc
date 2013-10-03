@@ -38,6 +38,12 @@ SQInteger get_ware_besch_index(HSQUIRRELVM vm)
 }
 
 
+bool are_equal(const obj_besch_std_name_t* a, const obj_besch_std_name_t* b)
+{
+	return (a==b);
+}
+
+
 sint64 get_scaled_maintenance(const obj_besch_transport_related_t* besch)
 {
 	return besch ? welt->scale_with_month_length(besch->get_maintenance()) : 0;
@@ -80,7 +86,12 @@ void export_goods_desc(HSQUIRRELVM vm)
 	 * @typemask string()
 	 */
 	register_method(vm, &obj_besch_std_name_t::get_name, "get_name");
-
+	/**
+	 * Checks if two object descriptor are equal.
+	 * @param other
+	 * @return true if this==other
+	 */
+	register_method(vm, &are_equal, "is_equal", true);
 	end_class(vm);
 
 	/**

@@ -57,6 +57,7 @@ BEGIN {
 	export_types["factory_production_x::get_delivered"] = "array<integer>()"
 	export_types["factory_production_x::get_produced"] = "array<integer>()"
 	export_types["obj_desc_x::get_name"] = "string()"
+	export_types["obj_desc_x::is_equal"] = "bool(obj_desc_x)"
 	export_types["obj_desc_time_x::get_intro_date"] = "time_x()"
 	export_types["obj_desc_time_x::get_retire_date"] = "time_x()"
 	export_types["obj_desc_time_x::is_future"] = "bool(time_x)"
