@@ -5695,9 +5695,6 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 				calc_climate( koord( x, y ), false );
 			}
 		}
-
-		// set transitions
-		world_xy_loop(&karte_t::recalc_transitions_loop, 0);
 	}
 
 	// Reliefkarte an neue welt anpassen
@@ -5832,6 +5829,12 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 	ls.set_progress( (get_size().y*3)/2+256 );
 
 	world_xy_loop(&karte_t::plans_laden_abschliessen, SYNCX_FLAG);
+
+	if(  file->get_version() < 112007  ) {
+		// set transitions - has to be done after plans_laden_abschliessen
+		world_xy_loop(&karte_t::recalc_transitions_loop, 0);
+	}
+
 	ls.set_progress( (get_size().y*3)/2+256+get_size().y/8 );
 
 DBG_MESSAGE("karte_t::laden()", "laden_abschliesen for tiles finished" );
