@@ -78,9 +78,9 @@ SQInteger exp_obj_pos_constructor(HSQUIRRELVM vm)
 	sint16 y = param<sint16>::get(vm, 3);
 	sint8  z = param<sint16>::get(vm, 4);
 	// set coordinates
-	sq_pushstring(vm, "x", -1); param<sint16>::push(vm, x); sq_set(vm, 1);
-	sq_pushstring(vm, "y", -1); param<sint16>::push(vm, y); sq_set(vm, 1);
-	sq_pushstring(vm, "z", -1); param<sint8 >::push(vm, z); sq_set(vm, 1);
+	set_slot(vm, "x", x, 1);
+	set_slot(vm, "y", y, 1);
+	set_slot(vm, "z", z, 1);
 	return SQ_OK;
 }
 

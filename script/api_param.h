@@ -88,8 +88,29 @@ namespace script_api {
 	{
 		sq_pushstring(vm, name, -1);
 		if (SQ_SUCCEEDED(param<T>::push(vm, value))) {
-			sq_newslot(vm, -3, static_);
-			return SQ_OK;
+			return sq_newslot(vm, -3, static_);
+		}
+		else {
+			sq_pop(vm, 1); /* pop name */
+			return SQ_ERROR;
+		}
+	}
+
+	/**
+	 * Sets value to existing variable in table, instance etc at index @p index.
+	 * @tparam type of the new value
+	 * @param name name of the slot to be created
+	 * @param value value to be set
+	 * @param index of table/instance/etc on the stack
+	 * @returns positive value on success, negative on failure
+	 */
+	template<class T>
+	SQInteger set_slot(HSQUIRRELVM vm, const char* name, T const& value, SQInteger index = -1)
+	{
+		sq_pushstring(vm, name, -1);
+		if (SQ_SUCCEEDED(param<T>::push(vm, value))) {
+			SQInteger new_index = index > 0 ? index : index-2;
+			return sq_set(vm, new_index);
 		}
 		else {
 			sq_pop(vm, 1); /* pop name */

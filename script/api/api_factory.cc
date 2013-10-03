@@ -15,12 +15,8 @@ SQInteger exp_factory_constructor(HSQUIRRELVM vm)
 	sint16 x = param<sint16>::get(vm, 2);
 	sint16 y = param<sint16>::get(vm, 3);
 	// set coordinates
-	sq_pushstring(vm, "x", -1);
-	sq_pushinteger(vm, x);
-	sq_set(vm, 1);
-	sq_pushstring(vm, "y", -1);
-	sq_pushinteger(vm, y);
-	sq_set(vm, 1);
+	set_slot(vm, "x", x, 1);
+	set_slot(vm, "y", y, 1);
 	// transform coordinates
 	koord pos(x,y);
 	welt->get_scenario()->koord_sq2w(pos);
@@ -45,9 +41,7 @@ SQInteger exp_factory_constructor(HSQUIRRELVM vm)
 				sq_newtable(vm);
 			}
 			// set max value
-			sq_pushstring(vm, "max_storage", -1);
-			sq_pushinteger(vm, prodslot[p].max >> fabrik_t::precision_bits);
-			sq_set(vm, -3);
+			set_slot(vm, "max_storage", prodslot[p].max >> fabrik_t::precision_bits, -1);
 			// put class into table
 			sq_newslot(vm, -3, false);
 		}
