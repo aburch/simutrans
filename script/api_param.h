@@ -119,6 +119,27 @@ namespace script_api {
 	}
 
 	/**
+	 * Gets value to existing variable in table, instance etc at index @p index.
+	 * @tparam type of the new value
+	 * @param name name of the slot to be created
+	 * @param value will be set upon success
+	 * @param index of table/instance/etc on the stack
+	 * @returns positive value on success, negative on failure
+	 */
+	template<class T>
+	SQInteger get_slot(HSQUIRRELVM vm, const char* name, T& value, SQInteger index = -1)
+	{
+		sq_pushstring(vm, name, -1);
+		SQInteger new_index = index > 0 ? index : index-1;
+		if (SQ_SUCCEEDED(sq_get(vm, new_index))) {
+			value = param<T>::get(vm, -1);
+			sq_pop(vm, 1);
+			return SQ_OK;
+		}
+		return SQ_ERROR;
+	}
+
+	/**
 	 * partial specialization for 'const T*' types
 	 */
 	template<class T> struct param<const T*> {

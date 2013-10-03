@@ -212,18 +212,10 @@ namespace script_api {
 // coordinates
 	koord param<koord>::get(HSQUIRRELVM vm, SQInteger index)
 	{
-		koord k(koord::invalid);
-		SQInteger new_index = index > 0 ? index : index-1;
-		sq_pushstring(vm, "x", -1);
-		if (SQ_SUCCEEDED(sq_get(vm, new_index))) {
-			k.x = param<sint16>::get(vm, -1);
-			sq_pop(vm, 1);
-		}
-		sq_pushstring(vm, "y", -1);
-		if (SQ_SUCCEEDED(sq_get(vm, new_index))) {
-			k.y = param<sint16>::get(vm, -1);
-			sq_pop(vm, 1);
-		}
+		sint16 x=-1, y=-1;
+		get_slot(vm, "x", x, index);
+		get_slot(vm, "y", y, index);
+		koord k(x,y);
 		if (k.x != -1  &&  k.y != -1) {
 			// transform coordinates
 			welt->get_scenario()->koord_sq2w(k);
@@ -250,13 +242,7 @@ namespace script_api {
 	koord3d param<koord3d>::get(HSQUIRRELVM vm, SQInteger index)
 	{
 		sint8 z = -1;
-		SQInteger new_index = index > 0 ? index : index-1;
-		sq_pushstring(vm, "z", -1);
-		if (SQ_SUCCEEDED(sq_get(vm, new_index))) {
-			z = param<sint8>::get(vm, -1);
-			sq_pop(vm, 1);
-		}
-		else {
+		if (!SQ_SUCCEEDED(get_slot(vm, "z", z, index))) {
 			return koord3d::invalid;
 		}
 		koord k = param<koord>::get(vm, index);
@@ -275,12 +261,7 @@ namespace script_api {
 	convoi_t* param<convoi_t*>::get(HSQUIRRELVM vm, SQInteger index)
 	{
 		uint16 id = 0;
-		SQInteger new_index = index > 0 ? index : index-1;
-		sq_pushstring(vm, "id", -1);
-		if (SQ_SUCCEEDED(sq_get(vm, new_index))) {
-			id = param<uint16>::get(vm, -1);
-			sq_pop(vm, 1);
-		}
+		get_slot(vm, "id", id, index);
 		convoihandle_t cnv;
 		cnv.set_id(id);
 		if (!cnv.is_bound()) {
@@ -318,10 +299,8 @@ namespace script_api {
 			return NULL;
 		}
 		// obtain index into wareproduction_t arrays
-		SQInteger new_index = index > 0 ? index : index-1;
-		sq_pushstring(vm, "index", -1);
 		SQInteger i = -1;
-		if (SQ_SUCCEEDED(sq_get(vm, new_index))) {
+		if (SQ_SUCCEEDED(get_slot(vm, "index", i, index))) {
 			i = param<sint16>::get(vm, -1);
 			sq_pop(vm, 1);
 			if (i>=0) {
@@ -343,12 +322,7 @@ namespace script_api {
 	spieler_t* param<spieler_t*>::get(HSQUIRRELVM vm, SQInteger index)
 	{
 		uint16 plnr = 0;
-		SQInteger new_index = index > 0 ? index : index-1;
-		sq_pushstring(vm, "nr", -1);
-		if (SQ_SUCCEEDED(sq_get(vm, new_index))) {
-			plnr = param<uint16>::get(vm, -1);
-			sq_pop(vm, 1);
-		}
+		get_slot(vm, "nr", plnr, index);
 		if (plnr < 15) {
 			return welt->get_spieler(plnr);
 		}
@@ -368,12 +342,7 @@ namespace script_api {
 	halthandle_t param<halthandle_t>::get(HSQUIRRELVM vm, SQInteger index)
 	{
 		uint16 id = 0;
-		SQInteger new_index = index > 0 ? index : index-1;
-		sq_pushstring(vm, "id", -1);
-		if (SQ_SUCCEEDED(sq_get(vm, new_index))) {
-			id = param<uint16>::get(vm, -1);
-			sq_pop(vm, 1);
-		}
+		get_slot(vm, "id", id, index);
 		halthandle_t halt;
 		halt.set_id(id);
 		if (!halt.is_bound()) {

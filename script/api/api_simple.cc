@@ -47,12 +47,7 @@ mytime_t param<mytime_t>::get(HSQUIRRELVM vm, SQInteger index)
 	// 0 has special meaning of 'no-timeline'
 	SQInteger i=1;
 	if (!SQ_SUCCEEDED(sq_getinteger(vm, index, &i))) {
-		SQInteger new_index = index > 0 ? index : index-1;
-		sq_pushstring(vm, "raw", -1);
-		if (SQ_SUCCEEDED(sq_get(vm, new_index))) {
-			sq_getinteger(vm, index, &i);
-			sq_pop(vm, 1);
-		}
+		get_slot(vm, "raw", i, index);
 	}
 	return (uint16) (i >= 0 ? i : 1);
 }
