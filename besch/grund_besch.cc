@@ -349,7 +349,8 @@ static bild_besch_t* create_alpha_tile(const bild_besch_t* bild_lightmap, hang_t
 				else {
 					// left quadrant calulation: mirror of right quadrat
 					sint16 x = tile_x;
-					if(  x >= x_y / 2  ) {
+					// put condition this way, testing (x >= x_y) breaks if x_y == 1.
+					if(  2*x >= x_y ) {
 						x = x_y - tile_x;
 					}
 					// we are in the front tile => calculate border y
