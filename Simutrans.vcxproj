@@ -138,6 +138,7 @@
     <ClCompile Include="script\api\api_city.cc" />
     <ClCompile Include="script\api\api_gui.cc" />
     <ClCompile Include="script\api\api_map_objects.cc" />
+    <ClCompile Include="script\api\api_obj_desc.cc" />
     <ClCompile Include="script\api\api_obj_desc_base.cc" />
     <ClCompile Include="script\api\api_schedule.cc" />
     <ClCompile Include="script\api\api_simple.cc" />
@@ -146,7 +147,6 @@
     <ClCompile Include="script\api\api_convoy.cc" />
     <ClCompile Include="script\api\api_factory.cc" />
     <ClCompile Include="script\api_function.cc" />
-    <ClCompile Include="script\api\api_goods_desc.cc" />
     <ClCompile Include="script\api\api_halt.cc" />
     <ClCompile Include="script\api_param.cc" />
     <ClCompile Include="script\api\api_player.cc" />

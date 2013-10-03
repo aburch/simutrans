@@ -4,6 +4,7 @@
  *
  * @section api-trunk Current trunk
  *
+ * - Added obj_desc_time_x, obj_desc_transport_x, building_desc_x, tree_desc_x, way_desc_x
  * - Added time_x
  * - Added @ref way_system_types
  * - Added square_x::get_player_halt

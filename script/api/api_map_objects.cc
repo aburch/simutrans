@@ -2,6 +2,7 @@
 
 /** @file api_map_objects.cc exports all map-objects. */
 
+#include "api_obj_desc_base.h"
 #include "api_simple.h"
 #include "../api_class.h"
 #include "../api_function.h"
@@ -169,7 +170,7 @@ void export_map_objects(HSQUIRRELVM vm)
 	 * Class to access objects on the map
 	 * These classes cannot modify anything.
 	 */
-	begin_class(vm, "map_object_x", "extend_get,coord");
+	begin_class(vm, "map_object_x", "extend_get,coord3d");
 	sq_settypetag(vm, -1, obj_t_tag + bind_code<obj_t>::objtype);
 	/**
 	 * @returns owner of the object.
@@ -209,6 +210,10 @@ void export_map_objects(HSQUIRRELVM vm)
 	 * @returns age of tree in months.
 	 */
 	register_method(vm, &baum_t::get_age, "get_age");
+	/**
+	 * @returns object descriptor.
+	 */
+	register_method(vm, &baum_t::get_besch, "get_desc");
 
 	end_class(vm);
 
@@ -249,6 +254,10 @@ void export_map_objects(HSQUIRRELVM vm)
 	 * @returns mail level
 	 */
 	register_method(vm, &gebaeude_t::get_post_level, "get_mail_level");
+	/**
+	 * @returns object descriptor.
+	 */
+	register_method(vm, &gebaeude_t::get_tile, "get_desc");
 
 	end_class(vm);
 
@@ -295,6 +304,11 @@ void export_map_objects(HSQUIRRELVM vm)
 	 * @typemask dir()
 	 */
 	register_function_fv(vm, &get_way_ribi, "get_dirs_masked", 1, "x", freevariable<bool>(true) );
+	/**
+	 * @returns object descriptor.
+	 */
+	register_method(vm, &weg_t::get_besch, "get_desc");
+
 
 	end_class(vm);
 }

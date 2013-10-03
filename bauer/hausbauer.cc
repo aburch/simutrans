@@ -682,6 +682,11 @@ const haus_tile_besch_t *hausbauer_t::find_tile(const char *name, int org_idx)
 }
 
 
+const haus_besch_t* hausbauer_t::get_besch(const char *name)
+{
+	return besch_names.get(name);
+}
+
 
 const haus_besch_t* hausbauer_t::get_random_station(const haus_besch_t::utyp utype, const waytype_t wt, const uint16 time, const uint8 enables)
 {

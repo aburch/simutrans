@@ -461,4 +461,9 @@ namespace script_api {
 		return welt;
 	}
 
+	SQInteger param<karte_t*>::push(HSQUIRRELVM vm, karte_t* const&)
+	{
+		sq_pushnull(vm); return 1;
+	}
+
 };

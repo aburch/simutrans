@@ -62,6 +62,8 @@ public:
 
 	static const haus_tile_besch_t* find_tile(const char* name, int idx);
 
+	static const haus_besch_t* get_besch(const char *name);
+
 	static bool register_besch(haus_besch_t *besch);
 	static bool alles_geladen();
 

@@ -8,7 +8,12 @@
 
 class obj_besch_std_name_t;
 class obj_besch_timelined_t;
+class obj_besch_transport_related_t;
+class baum_besch_t;
+class haus_besch_t;
+class haus_tile_besch_t;
 class ware_besch_t;
+class weg_besch_t;
 
 namespace script_api {
 
@@ -47,7 +52,12 @@ namespace script_api {
 	} \
 	SQInteger param<const T*>::push(HSQUIRRELVM vm, const T* b) \
 	{ \
-		return push_instance(vm, sqtype, b->get_name()); \
+		if (b) { \
+			return push_instance(vm, sqtype, b->get_name()); \
+		} \
+		else { \
+			sq_pushnull(vm); return 1; \
+		} \
 	}
 
 	declare_specialized_param(const obj_besch_std_name_t*, "t|x|y", "obj_desc_x");
@@ -56,7 +66,16 @@ namespace script_api {
 	declare_specialized_param(const obj_besch_timelined_t*, "t|x|y", "obj_desc_time_x");
 	declare_param_mask(obj_besch_timelined_t*, "t|x|y", "obj_desc_time_x");
 
+	declare_specialized_param(const obj_besch_transport_related_t*, "t|x|y", "obj_desc_transport_x");
+	declare_param_mask(obj_besch_transport_related_t*, "t|x|y", "obj_desc_transport_x");
+
+	declare_besch_param(baum_besch_t, "tree_desc_x");
 	declare_besch_param(ware_besch_t, "good_desc_x");
+	declare_besch_param(haus_besch_t, "building_desc_x");
+	declare_besch_param(weg_besch_t, "way_desc_x");
+
+	// only push the haus_besch_t-pointer
+	declare_besch_param(haus_tile_besch_t, "building_desc_x");
 };
 
 #endif
