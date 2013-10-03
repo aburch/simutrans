@@ -71,19 +71,31 @@ namespace script_api {
 
 		/// squirrel_type corresponding to the c++ type/class
 		static const char* squirrel_type() { return "any_x"; }
-
-		/**
-		 * Creates slot in table at top of the stack:
-		 * it has the same effect as 'table.name <- value'.
-		 * @pre there needs to be a table on the top of the stack
-		 * @param name name of the slot to be created
-		 * @param value value to be set
-		 * @returns positive value on success, negative on failure
-		 */
-#ifdef DOXYGEN
-		SQInteger create_slot(HSQUIRRELVM vm, const char* name, T value);
-#endif
 	};
+
+	/**
+	 * Create slots in table/class of the stack:
+	 * it has the same effect as 'table.name <- value'.
+	 * @pre there needs to be a table on the top of the stack
+	 * @tparam type of the new value
+	 * @param name name of the slot to be created
+	 * @param value value to be set
+	 * @param static_ true if this should be a static class member
+	 * @returns positive value on success, negative on failure
+	 */
+	template<class T>
+	SQInteger create_slot(HSQUIRRELVM vm, const char* name, T const& value, bool static_ = false)
+	{
+		sq_pushstring(vm, name, -1);
+		if (SQ_SUCCEEDED(param<T>::push(vm, value))) {
+			sq_newslot(vm, -3, static_);
+			return SQ_OK;
+		}
+		else {
+			sq_pop(vm, 1); /* pop name */
+			return SQ_ERROR;
+		}
+	}
 
 	/**
 	 * partial specialization for 'const T*' types
@@ -212,26 +224,12 @@ namespace script_api {
 		return sqtype; \
 	}
 
-#define declare_create_slot(T)\
-	static SQInteger create_slot(HSQUIRRELVM vm, const char* name, T const& value){ \
-		sq_pushstring(vm, name, -1); \
-		if (SQ_SUCCEEDED(param<T>::push(vm, value))) { \
-			sq_newslot(vm, -3, false); \
-			return SQ_OK; \
-		} \
-		else { \
-			sq_pop(vm, 1); /* pop name */ \
-			return SQ_ERROR; \
-		} \
-	}
-
 	/// macro to declare specialized param template
 #define declare_specialized_param(T, mask, sqtype) \
 	template<> struct param<T> { \
 		static T get(HSQUIRRELVM vm, SQInteger index); \
 		static SQInteger push(HSQUIRRELVM vm, T const& v);\
 		static void* tag(); \
-		declare_create_slot(T); \
 		declare_types(mask, sqtype); \
 	};
 	/// macro to only define typemask for specialized param template

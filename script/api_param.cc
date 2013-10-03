@@ -242,8 +242,8 @@ namespace script_api {
 		// transform coordinates
 		welt->get_scenario()->koord_w2sq(k);
 		sq_newtable(vm);
-		param<sint16>::create_slot(vm, "x", k.x);
-		param<sint16>::create_slot(vm, "y", k.y);
+		create_slot<sint16>(vm, "x", k.x);
+		create_slot<sint16>(vm, "y", k.y);
 		return 1;
 	}
 
@@ -267,7 +267,7 @@ namespace script_api {
 	SQInteger param<koord3d>::push(HSQUIRRELVM vm, koord3d const& v)
 	{
 		param<koord>::push(vm, v.get_2d());
-		param<sint8>::create_slot(vm, "z", v.z);
+		create_slot<sint8>(vm, "z", v.z);
 		return 1;
 	}
 

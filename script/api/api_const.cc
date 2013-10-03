@@ -10,7 +10,7 @@ using namespace script_api;
 
 #define begin_enum(name) sq_pushconsttable(vm);
 #define end_enum() sq_setconsttable(vm);
-#define enum_slot param<SQInteger>::create_slot
+#define enum_slot create_slot<SQInteger>
 
 void export_global_constants(HSQUIRRELVM vm)
 {

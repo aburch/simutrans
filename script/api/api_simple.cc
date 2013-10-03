@@ -36,9 +36,9 @@ public:
 SQInteger param<mytime_t>::push(HSQUIRRELVM vm, mytime_t const& v)
 {
 	sq_newtableex(vm, 3);
-	param<uint32>::create_slot(vm, "raw",   v.raw);
-	param<uint32>::create_slot(vm, "year",  v.raw/12);
-	param<uint32>::create_slot(vm, "month", v.raw%12);
+	create_slot<uint32>(vm, "raw",   v.raw);
+	create_slot<uint32>(vm, "year",  v.raw/12);
+	create_slot<uint32>(vm, "month", v.raw%12);
 	return 1;
 }
 

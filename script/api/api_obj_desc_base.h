@@ -22,8 +22,6 @@ namespace script_api {
 		\
 		declare_types("t|x|y", sqtype); \
 		\
-		declare_create_slot(const T*); \
-		\
 		static void* tag() \
 		{ \
 			return (void*)(getfunc()); \
