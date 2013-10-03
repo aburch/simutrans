@@ -223,7 +223,7 @@ void message_t::rdwr( loadsave_t *file )
 			msg_count = 0;
 			FOR(slist_tpl<node*>, const i, list) {
 				if (!(i->type & local_flag)) {
-					if (++msg_count == 2000) break;
+					++msg_count;
 				}
 			}
 			file->rdwr_short( msg_count );
@@ -237,7 +237,7 @@ void message_t::rdwr( loadsave_t *file )
 			assert( msg_count == 0 );
 		}
 		else {
-			msg_count = min( 2000u, list.get_count() );
+			msg_count = min( 32760u, list.get_count() );
 			file->rdwr_short( msg_count );
 			FOR(slist_tpl<node*>, const i, list) {
 				i->rdwr(file);
