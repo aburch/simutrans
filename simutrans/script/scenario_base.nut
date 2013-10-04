@@ -167,6 +167,11 @@ function recursive_save(table, indent, table_stack)
 						table_stack.pop()
 				}
 				break
+			case "instance":
+				if ("_save" in val) {
+					str += val._save()
+					break
+				}
 			default:
 				str += "\"unknown\""
 		}
