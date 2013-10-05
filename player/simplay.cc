@@ -787,6 +787,8 @@ void spieler_t::laden_abschliessen()
 	display_set_player_color_scheme( player_nr, kennfarbe1, kennfarbe2 );
 	// recalculate vehicle value
 	calc_assets();
+
+	finance->calc_finance_history();
 }
 
 
