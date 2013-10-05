@@ -296,7 +296,7 @@ namespace script_api {
 	declare_specialized_param(waytype_t, "i", "way_types");
 	declare_specialized_param(obj_t::typ, "i", "map_objects");
 
-	declare_specialized_param(double, "f", "float");
+	declare_specialized_param(double, "i|f", "float");
 
 	declare_specialized_param(const char*, ".", "string");
 	// no string typemask, as we call to_string
