@@ -934,7 +934,9 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 					}
 					const uint8 shifter = 1 << info->get_engine_type();
 					const bool correct_traction_type = !depot_frame || (shifter & depot_frame->get_depot()->get_tile()->get_besch()->get_enabled());
-					if(!correct_traction_type && (info->get_leistung() > 0 || (veh_action == va_insert && info->get_vorgaenger_count() == 1 && info->get_vorgaenger(0)->get_leistung() > 0)))
+					const weg_t* way = depot_frame ? welt->lookup(depot_frame->get_depot()->get_pos())->get_weg(depot_frame->get_depot()->get_waytype()) : NULL;
+					const bool correct_way_constraint = !way || missing_way_constraints_t(info->get_way_constraints(), way->get_way_constraints()).ist_befahrbar();
+					if(!correct_way_constraint || (!correct_traction_type && (info->get_leistung() > 0 || (veh_action == va_insert && info->get_vorgaenger_count() == 1 && info->get_vorgaenger(0)->get_leistung() > 0))))
 					{
 						append = false;
 					}
@@ -1139,6 +1141,8 @@ void gui_convoy_assembler_t::image_from_storage_list(gui_image_list_t::image_dat
 		depot_t *depot = depot_frame->get_depot();
 		if(bild_data->lcolor != COL_RED &&
 			bild_data->rcolor != COL_RED &&
+			bild_data->rcolor != COL_GREY3 &&
+			bild_data->lcolor != COL_GREY3 &&
 			bild_data->rcolor != COL_DARK_PURPLE &&
 			bild_data->lcolor != COL_DARK_PURPLE &&
 			bild_data->rcolor != COL_PURPLE &&
@@ -1149,6 +1153,7 @@ void gui_convoy_assembler_t::image_from_storage_list(gui_image_list_t::image_dat
 		{
 			// Dark orange = too expensive
 			// Purple = available only as upgrade
+			// Grey = too heavy
 
 			if(veh_action == va_sell)
 			{
@@ -1168,6 +1173,8 @@ void gui_convoy_assembler_t::image_from_storage_list(gui_image_list_t::image_dat
 	{
 		if(bild_data->lcolor != COL_RED &&
 			bild_data->rcolor != COL_RED &&
+			bild_data->rcolor != COL_GREY3 &&
+			bild_data->lcolor != COL_GREY3 &&
 			bild_data->rcolor != COL_DARK_PURPLE &&
 			bild_data->lcolor != COL_DARK_PURPLE &&
 			bild_data->rcolor != COL_PURPLE &&
@@ -1382,11 +1389,11 @@ void gui_convoy_assembler_t::update_data()
 		}
 		if (veh_action != va_sell)
 		{
-			//Check whether too expensive
-			//@author: jamespetts
+			// Check whether too expensive
+			// @author: jamespetts
 			if(img.lcolor == ok_color || img.lcolor == COL_YELLOW)
 			{
-				//Only flag as too expensive that which could be purchased anyway.
+				// Only flag as too expensive that which could be purchased but for its price.
 				if(upgrade == u_buy)
 				{
 					if(!sp->can_afford(info->get_preis()))
@@ -1413,6 +1420,24 @@ void gui_convoy_assembler_t::update_data()
 						img.lcolor = COL_RED;
 						img.rcolor = COL_RED;
 					}
+				}
+				const weg_t* way = depot_frame ? welt->lookup(depot_frame->get_depot()->get_pos())->get_weg(depot_frame->get_depot()->get_waytype()) : NULL;
+				if(way && !missing_way_constraints_t(i.key->get_way_constraints(), way->get_way_constraints()).ist_befahrbar())
+				{
+					// Do not allow purchasing of vehicle if depot is on an incompatible way.
+					img.lcolor = COL_RED;
+					img.rcolor = COL_RED;
+				} //(highest_axle_load * 100) / weight_limit > 110)
+				if(way && 
+					(welt->get_settings().get_enforce_weight_limits() == 2
+						&& i.key->get_axle_load() > welt->lookup(depot_frame->get_depot()->get_pos())->get_weg(depot_frame->get_depot()->get_waytype())->get_max_axle_load())
+					|| (welt->get_settings().get_enforce_weight_limits() == 3
+						&& (i.key->get_axle_load() * 100) / way->get_max_axle_load() < 110))
+					
+				{
+					// Indicate if vehicles are too heavy
+					img.lcolor = COL_GREY3;
+					img.rcolor = COL_GREY3;
 				}
 			}
 		}
