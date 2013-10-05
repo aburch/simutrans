@@ -1685,6 +1685,8 @@ stadt_t::~stadt_t()
 			}
 		}
 	}
+
+	check_city_tiles(true);
 }
 
 
