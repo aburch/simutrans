@@ -1661,7 +1661,7 @@ public:
 	 * Returns the maximum allowed world height.
 	 * @author Hj. Malthaner
 	 */
-	sint8 get_maximumheight() const { return 14; }
+	sint8 get_maximumheight() const { return 32; }
 
 	/**
 	 * Returns the current snowline height.

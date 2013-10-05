@@ -138,7 +138,7 @@ max_hops = 2000
 # performance is too slow; use higher settings if passengers or goods are not
 # finding routes where they ought to be.
 #
-max_transfers = 9
+max_transfers = 13
 
 # way builder internal weights (defaults)
 # a higher weight make it more unlikely

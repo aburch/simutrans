@@ -985,17 +985,20 @@ const char *wkz_raise_t::check_pos( karte_t *welt, spieler_t *sp, koord3d k )
 	if (h > grund_t::underground_level) {
 			return "Terraforming not possible\nhere in underground view";
 	}
-	if(welt->lookup_hgt(k.get_2d()) < welt->get_grundwasser() - 1)
+	if(!sp->is_public_service())
 	{
-		return "Cannot terraform in deep water";
-	}
-	for(int n = 0; n < 16; n ++)
-	{
-		const koord pos = k.get_2d().second_neighbours[n] + k.get_2d();
-		const sint8 height = welt->lookup_hgt(pos);
-		if(height < (welt->get_grundwasser()))
+		if(welt->lookup_hgt(k.get_2d()) < welt->get_grundwasser() - 1)
 		{
 			return "Cannot terraform in deep water";
+		}
+		for(int n = 0; n < 16; n ++)
+		{
+			const koord pos = k.get_2d().second_neighbours[n] + k.get_2d();
+			const sint8 height = welt->lookup_hgt(pos);
+			if(height < (welt->get_grundwasser()))
+			{
+				return "Cannot terraform in deep water";
+			}
 		}
 	}
 	const sint64 cost = welt->get_settings().cst_alter_land;
