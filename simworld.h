@@ -210,8 +210,6 @@ private:
 	 * @author Hj. Malthaner
 	 * @{
 	 */
-	sint32 mi; //!< Mouse position, i coordinate.
-	sint32 mj; //!< Mouse position, j coordinate.
 
 	/**
 	 * @brief Map mouse cursor tool.
@@ -484,11 +482,9 @@ private:
 	 * Searches for the ground_t that's under the requested screen position.
 	 * @param screen_pos Screen coordinates to check for.
 	 * @param intersect_grid Special case for the lower/raise tool, will return a limit border tile if we are on the south/east border of screen.
-	 * @param found_i If we have a match, it will be set to the i coordinate of the found tile. Undefined otherwise.
-	 * @param found_j If we have a match, it will be set to the j coordinate of the found tile. Undefined otherwise.
 	 * @return the grund_t that's under the desired screen coordinate. NULL if we are outside map or we can't find it.
 	 */
-	grund_t* get_ground_on_screen_coordinate(koord screen_pos, sint32 &found_i, sint32 &found_j, const bool intersect_grid=false) const;
+	grund_t* get_ground_on_screen_coordinate(koord screen_pos, const bool intersect_grid=false) const;
 
 	/**
 	 * Processes a user event on the map, like a keyclick, or a mouse event.

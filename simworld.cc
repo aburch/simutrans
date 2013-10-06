@@ -5811,15 +5811,11 @@ DBG_MESSAGE("karte_t::laden()", "messages loaded");
 	old_blockmanager_t::laden_abschliessen(this);
 	DBG_MESSAGE("karte_t::laden()", "blocks loaded");
 
+	sint32 mi,mj;
 	file->rdwr_long(mi);
 	file->rdwr_long(mj);
 	DBG_MESSAGE("karte_t::laden()", "Setting view to %d,%d", mi,mj);
-	if(is_within_limits(mi,mj)) {
-		change_world_position( koord3d(mi,mj,min_hgt_nocheck(koord(mi,mj))) );
-	}
-	else {
-		change_world_position( koord3d(mi,mj,0) );
-	}
+	change_world_position( koord3d(mi,mj,0) );
 
 	// right season for recalculations
 	recalc_snowline();
@@ -6452,7 +6448,7 @@ koord karte_t::get_closest_coordinate(koord outside_pos)
 }
 
 
-grund_t* karte_t::get_ground_on_screen_coordinate(koord screen_pos, sint32 &found_i, sint32 &found_j, const bool intersect_grid) const
+grund_t* karte_t::get_ground_on_screen_coordinate(koord screen_pos, const bool intersect_grid) const
 {
 	const int rw1 = get_tile_raster_width();
 	const int rw2 = rw1/2;
@@ -6495,8 +6491,8 @@ grund_t* karte_t::get_ground_on_screen_coordinate(koord screen_pos, sint32 &foun
 		const int base_i = (screen_pos.x/2 + screen_pos.y   + tile_raster_scale_y((hgt*TILE_HEIGHT_STEP),rw1))/2;
 		const int base_j = (screen_pos.y   - screen_pos.x/2 + tile_raster_scale_y((hgt*TILE_HEIGHT_STEP),rw1))/2;
 
-		found_i = ((int)floor(base_i/(double)rw4)) + i_off;
-		found_j = ((int)floor(base_j/(double)rw4)) + j_off;
+		sint32 found_i = ((int)floor(base_i/(double)rw4)) + i_off;
+		sint32 found_j = ((int)floor(base_j/(double)rw4)) + j_off;
 
 		gr = lookup(koord3d(found_i,found_j,hgt));
 		if(gr != NULL) {
@@ -6551,12 +6547,7 @@ grund_t* karte_t::get_ground_on_screen_coordinate(koord screen_pos, sint32 &foun
 		return gr;
 	}
 	else {
-		if(bd!=NULL){
-			found_i = bd->get_pos().x;
-			found_j = bd->get_pos().y;
-			return bd;
-		}
-		return NULL;
+		return bd;
 	}
 }
 
@@ -6574,7 +6565,7 @@ koord3d karte_t::get_new_cursor_position(const event_t *ev ,bool grid_coordinate
 		offset_y += rw4;
 	}
 
-	const grund_t *bd = get_ground_on_screen_coordinate(koord(ev->mx, ev->my + offset_y), mi, mj, grid_coordinates);
+	const grund_t *bd = get_ground_on_screen_coordinate(koord(ev->mx, ev->my + offset_y), grid_coordinates);
 
 	// no suitable location found (outside map, ...)
 	if (!bd) {
@@ -6585,14 +6576,14 @@ koord3d karte_t::get_new_cursor_position(const event_t *ev ,bool grid_coordinate
 	sint8 groff;
 
 	if( bd->is_visible() ) {
-		groff = bd->get_hoehe(get_corner_to_operate(koord(mi, mj))) - bd->get_hoehe();
+		groff = bd->get_hoehe(get_corner_to_operate(bd->get_pos().get_2d())) - bd->get_hoehe();
 	}
 	else {
 		groff = 0;
 	}
 
 	// the new position - extra logic for raise / lower tool
-	return koord3d(mi,mj, bd->get_disp_height() + (zeiger->get_yoff()==Z_GRID ? groff : 0));
+	return koord3d(bd->get_pos().get_2d(), bd->get_disp_height() + (zeiger->get_yoff()==Z_GRID ? groff : 0));
 }
 
 
@@ -6661,13 +6652,10 @@ void karte_t::move_cursor(const event_t *ev)
 
 bool karte_t::is_background_visible() const
 {
-
-	sint32 i,j;
-
-	if ( get_ground_on_screen_coordinate(koord(0,0),i,j)  &&  \
-		 get_ground_on_screen_coordinate(koord(display_get_width()-1,0),i,j)  &&  \
-		 get_ground_on_screen_coordinate(koord(0,display_get_height()-1),i,j)  &&  \
-		 get_ground_on_screen_coordinate(koord(display_get_width()-1,display_get_height()-1),i,j)  ) {
+	if ( get_ground_on_screen_coordinate(koord(0,0))  &&
+		 get_ground_on_screen_coordinate(koord(display_get_width()-1,0))  &&
+		 get_ground_on_screen_coordinate(koord(0,display_get_height()-1))  &&
+		 get_ground_on_screen_coordinate(koord(display_get_width()-1,display_get_height()-1))  ) {
 		return false;
 	}
 
