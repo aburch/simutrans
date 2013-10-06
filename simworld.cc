@@ -6452,9 +6452,10 @@ koord karte_t::get_closest_coordinate(koord outside_pos)
 }
 
 
-grund_t* karte_t::get_ground_on_screen_coordinate(const koord screen_pos, sint32 &found_i, sint32 &found_j, const bool intersect_grid) const
+grund_t* karte_t::get_ground_on_screen_coordinate(koord screen_pos, sint32 &found_i, sint32 &found_j, const bool intersect_grid) const
 {
 	const int rw1 = get_tile_raster_width();
+	const int rw2 = rw1/2;
 	const int rw4 = rw1/4;
 
 	/*
@@ -6469,6 +6470,9 @@ grund_t* karte_t::get_ground_on_screen_coordinate(const koord screen_pos, sint32
 	int raster_base_j = (int)floor(base_j / 16.0);
 
 	*/
+
+	screen_pos.y += - y_off - rw2 - ((display_get_width()/rw1)&1)*rw4;
+	screen_pos.x += - x_off - rw2;
 
 	const int i_off = ij_off.x+get_view_ij_offset().x;
 	const int j_off = ij_off.y+get_view_ij_offset().y;
@@ -6488,8 +6492,8 @@ grund_t* karte_t::get_ground_on_screen_coordinate(const koord screen_pos, sint32
 	// find matching and visible grund
 	for(sint8 hgt = hmax; hgt>=hmin; hgt--) {
 
-		const int base_i = (screen_pos.x+screen_pos.y + tile_raster_scale_y((hgt*TILE_HEIGHT_STEP),rw1))/2;
-		const int base_j = (screen_pos.y-screen_pos.x + tile_raster_scale_y((hgt*TILE_HEIGHT_STEP),rw1))/2;
+		const int base_i = (screen_pos.x/2 + screen_pos.y   + tile_raster_scale_y((hgt*TILE_HEIGHT_STEP),rw1))/2;
+		const int base_j = (screen_pos.y   - screen_pos.x/2 + tile_raster_scale_y((hgt*TILE_HEIGHT_STEP),rw1))/2;
 
 		found_i = ((int)floor(base_i/(double)rw4)) + i_off;
 		found_j = ((int)floor(base_j/(double)rw4)) + j_off;
@@ -6557,23 +6561,20 @@ grund_t* karte_t::get_ground_on_screen_coordinate(const koord screen_pos, sint32
 }
 
 
-koord3d karte_t::get_new_cursor_position(const event_t *ev ,bool grid_coordinates){
-	const int rw1 = get_tile_raster_width();
-	const int rw2 = rw1/2;
-	const int rw4 = rw1/4;
+koord3d karte_t::get_new_cursor_position(const event_t *ev ,bool grid_coordinates)
+{
+	const int rw4 = get_tile_raster_width()/4;
 
-	int screen_y = ev->my - y_off - rw2 - ((display_get_width()/rw1)&1)*rw4;
-	int screen_x = (ev->mx - x_off - rw2)/2;
-
+	int offset_y = 0;
 	if(zeiger->get_yoff() == Z_PLAN) {
 		// already ok
 	}
 	else {
 		// shifted by a quarter tile
-		screen_y += rw4;
+		offset_y += rw4;
 	}
 
-	const grund_t *bd = get_ground_on_screen_coordinate(koord(screen_x, screen_y), mi, mj, grid_coordinates);
+	const grund_t *bd = get_ground_on_screen_coordinate(koord(ev->mx, ev->my + offset_y), mi, mj, grid_coordinates);
 
 	// no suitable location found (outside map, ...)
 	if (!bd) {
@@ -6592,8 +6593,6 @@ koord3d karte_t::get_new_cursor_position(const event_t *ev ,bool grid_coordinate
 
 	// the new position - extra logic for raise / lower tool
 	return koord3d(mi,mj, bd->get_disp_height() + (zeiger->get_yoff()==Z_GRID ? groff : 0));
-
-
 }
 
 
