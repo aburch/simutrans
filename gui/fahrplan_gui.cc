@@ -596,10 +596,10 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 		fpl->add_return_way();
 	}
 	else if(komp == &line_selector) {
-		int selection = p.i - !new_line.is_bound();
+		uint32 selection = p.i - !new_line.is_bound();
 //DBG_MESSAGE("fahrplan_gui_t::action_triggered()","line selection=%i",selection);
-		if(  (uint32)(selection-1)<(uint32)line_selector.count_elements()  ) {
-			new_line = lines[selection - 1];
+		if(  selection<(uint32)line_selector.count_elements()  ) {
+			new_line = lines[selection];
 			stats.highlight_schedule( fpl, false );
 			fpl->copy_from( new_line->get_schedule() );
 			fpl->eingabe_beginnen();
