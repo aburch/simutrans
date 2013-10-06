@@ -236,8 +236,10 @@ void karte_ansicht_t::display(bool force_dirty)
 #endif
 
 	// and finally overlays (station coverage and signs)
-	for(sint16 y=y_min; y<dpy_height+4*4; y++) {
+	bool plotted = false; // display overlays even on very large mountains
+	for(sint16 y=y_min; y<dpy_height+4*4  ||  plotted; y++) {
 		const sint16 ypos = y*(IMG_SIZE/4) + const_y_off;
+		plotted = false;
 
 		for(sint16 x=-2-((y+dpy_width) & 1); (x*(IMG_SIZE/2) + const_x_off)<disp_width; x+=2) {
 			const int i = ((y+x) >> 1) + i_off;
@@ -251,6 +253,7 @@ void karte_ansicht_t::display(bool force_dirty)
 					sint16 yypos = ypos - tile_raster_scale_y( min(gr->get_hoehe(),hmax_ground)*TILE_HEIGHT_STEP, IMG_SIZE);
 					if(  yypos-IMG_SIZE<disp_real_height  &&  yypos+IMG_SIZE>=menu_height  ) {
 						plan->display_overlay( xpos, yypos );
+						plotted = true;
 					}
 				}
 			}
@@ -312,9 +315,9 @@ void karte_ansicht_t::display(bool force_dirty)
 
 
 #ifdef MULTI_THREAD
-void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const sint16 y_max, bool /*force_dirty*/, bool threaded, const sint8 clip_num )
+void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, sint16 y_max, bool /*force_dirty*/, bool threaded, const sint8 clip_num )
 #else
-void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const sint16 y_max, bool /*force_dirty*/ )
+void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, sint16 y_max, bool /*force_dirty*/ )
 #endif
 {
 	const sint16 IMG_SIZE = get_tile_raster_width();
@@ -335,8 +338,8 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 
 	for(  int y = y_min;  y < y_max;  y++  ) {
 		const sint16 ypos = y * (IMG_SIZE / 4) + const_y_off;
-		// plotted = we plotted something for y=lower bound
-		bool plotted = y > y_min;
+		// plotted = we plotted something
+		bool plotted = false;
 
 		for(  sint16 x = -2 - ((y  +dpy_width) & 1);  (x * (IMG_SIZE / 2) + const_x_off) < (lt.x + wh.x);  x += 2  ) {
 			const sint16 i = ((y + x) >> 1) + i_off;
@@ -398,7 +401,15 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 		}
 		// increase lower bound if nothing is visible
 		if(  !plotted  ) {
-			y_min++;
+			if (y == y_min) {
+				y_min++;
+			}
+		}
+		// increase upper bound if something is visible
+		else {
+			if (y == y_max-1) {
+				y_max++;
+			}
 		}
 	}
 
