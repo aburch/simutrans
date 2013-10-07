@@ -481,8 +481,8 @@ void button_t::zeichnen(koord offset)
 					display_proportional_clip( bx+bw/2, by+y_text_offset, translated_text, ALIGN_CENTER_H, b_enabled ? foreground : SYSCOL_DISABLED_TEXT, true);
 				}
 				else {
-					scr_coord_val w = display_text_proportional_len_clip( bx+1, by+y_text_offset, translated_text, ALIGN_LEFT | DT_DIRTY | DT_CLIP, b_enabled ? foreground : SYSCOL_DISABLED_BUTTON_TEXT, idx );
-					display_proportional_clip( bx+1+w, by+y_text_offset, translator::translate("..."), ALIGN_LEFT | DT_DIRTY | DT_CLIP, b_enabled ? foreground : SYSCOL_DISABLED_BUTTON_TEXT, true );
+					scr_coord_val w = display_text_proportional_len_clip( bx+1, by+y_text_offset, translated_text, ALIGN_LEFT, b_enabled ? foreground : SYSCOL_DISABLED_BUTTON_TEXT, true, idx );
+					display_proportional_clip( bx+1+w, by+y_text_offset, translator::translate("..."), ALIGN_LEFT | DT_CLIP, b_enabled ? foreground : SYSCOL_DISABLED_BUTTON_TEXT, true );
 				}
 
 				if(  win_get_focus()==this  ) {
@@ -500,8 +500,8 @@ void button_t::zeichnen(koord offset)
 					display_proportional_clip( bx+bw/2, by+y_text_offset, translated_text, ALIGN_CENTER_H, b_enabled ? foreground : SYSCOL_DISABLED_BUTTON_TEXT, true);
 				}
 				else {
-					scr_coord_val w = display_text_proportional_len_clip( bx+1, by+y_text_offset, translated_text, ALIGN_LEFT | DT_DIRTY | DT_CLIP, b_enabled ? foreground : SYSCOL_DISABLED_BUTTON_TEXT, idx );
-					display_proportional_clip( bx+1+w, by+y_text_offset, translator::translate("..."), ALIGN_LEFT | DT_DIRTY | DT_CLIP, b_enabled ? foreground : SYSCOL_DISABLED_BUTTON_TEXT, true );
+					scr_coord_val w = display_text_proportional_len_clip( bx+1, by+y_text_offset, translated_text, ALIGN_LEFT | DT_CLIP, b_enabled ? foreground : SYSCOL_DISABLED_BUTTON_TEXT, true, idx );
+					display_proportional_clip( bx+1+w, by+y_text_offset, translator::translate("..."), ALIGN_LEFT | DT_CLIP, b_enabled ? foreground : SYSCOL_DISABLED_BUTTON_TEXT, true );
 				}
 
 				if(  win_get_focus()==this  ) {
@@ -532,8 +532,8 @@ void button_t::zeichnen(koord offset)
 						display_proportional_clip( bx+gui_theme_t::gui_checkbox_size.x+D_H_SPACE, by+y_text_offset, translated_text, ALIGN_LEFT, b_enabled ? foreground : SYSCOL_DISABLED_TEXT, true);
 					}
 					else {
-						scr_coord_val w = display_text_proportional_len_clip( bx+gui_theme_t::gui_checkbox_size.x+D_H_SPACE, by+y_text_offset, translated_text, ALIGN_LEFT | DT_DIRTY | DT_CLIP, b_enabled ? foreground : SYSCOL_DISABLED_TEXT, idx );
-						display_proportional_clip( bx+gui_theme_t::gui_checkbox_size.x+D_H_SPACE+w, by+y_text_offset, translator::translate("..."), ALIGN_LEFT | DT_DIRTY | DT_CLIP, b_enabled ? foreground : SYSCOL_DISABLED_TEXT, true );
+						scr_coord_val w = display_text_proportional_len_clip( bx+gui_theme_t::gui_checkbox_size.x+D_H_SPACE, by+y_text_offset, translated_text, ALIGN_LEFT | DT_CLIP, b_enabled ? foreground : SYSCOL_DISABLED_TEXT, true, idx );
+						display_proportional_clip( bx+gui_theme_t::gui_checkbox_size.x+D_H_SPACE+w, by+y_text_offset, translator::translate("..."), ALIGN_LEFT | DT_CLIP, b_enabled ? foreground : SYSCOL_DISABLED_TEXT, true );
 					}
 				}
 

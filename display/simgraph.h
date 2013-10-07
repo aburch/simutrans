@@ -14,13 +14,14 @@
 #ifndef simgraph_h
 #define simgraph_h
 
-extern int large_font_ascent;
-extern int large_font_total_height;
-
 #include "../simcolor.h"
 #include "../unicode.h"
 #include "../simtypes.h"
 #include "scr_coord.h"
+
+
+extern int large_font_ascent;
+extern int large_font_total_height;
 
 #define LINEASCENT (large_font_ascent)
 #define LINESPACE (large_font_total_height)
@@ -51,7 +52,7 @@ enum control_alignments_t {
 	// These flags does not belong in here but
 	// are defined here until we sorted this out.
 	// They are inly used in display_text_proportional_len_clip()
-	DT_DIRTY         = 0x8000,
+//	DT_DIRTY         = 0x8000,
 	DT_CLIP          = 0x4000
 };
 typedef uint16 control_alignment_t;
@@ -76,6 +77,22 @@ display_set_clip_wh(x, y, w, h);
 #define POP_CLIP() \
 display_set_clip_wh(p_cr.x, p_cr.y, p_cr.w, p_cr.h); \
 }
+
+/*
+ * pixels stored as RGB 1555
+ * @author Hajo
+ */
+typedef uint16 PIXVAL;
+
+/*
+ * Hajo: mapping table for special-colors (AI player colors)
+ * to actual output format - all day mode
+ * 16 sets of 16 colors
+ */
+extern PIXVAL specialcolormap_all_day[256];
+
+#define color_idx_to_rgb(idx) (specialcolormap_all_day[(idx)&0x00FF])
+#define color_rbg_to_idx(rgb) display_get_index_from_rgb(rgb)
 
 /**
  * Helper functions for clipping along tile borders.
@@ -160,13 +177,6 @@ KOORD_VAL display_get_width(void);
 KOORD_VAL display_get_height(void);
 void      display_set_height(KOORD_VAL);
 void      display_set_actual_width(KOORD_VAL);
-
-
-/*
- * pixels stored as RGB 1555
- * @author Hajo
- */
-typedef uint16 PIXVAL;
 
 
 int display_get_light(void);
@@ -302,22 +312,31 @@ extern signed short current_tile_raster_width;
 #endif
 
 // blends a rectangular region
-void display_blend_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, int color, int percent_blend );
+void display_blend_wh_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, int percent_blend );
+#define display_blend_wh(xp,yp,w,h,color,percent_blend) display_blend_wh_rgb( xp,yp,w,h,specialcolormap_all_day[(color)&0xFF],percent_blend )
 
-void display_fillbox_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, bool dirty);
+void display_fillbox_wh_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, bool dirty);
+#define display_fillbox_wh(xp,yp,w,h,color,dirty) display_fillbox_wh_rgb( xp,yp,w,h,specialcolormap_all_day[(color)&0xFF],dirty)
 #ifdef MULTI_THREAD
-void display_fillbox_wh_clip_cl(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, bool dirty, const sint8 clip_num);
-#define display_fillbox_wh_clip( x, y, w, h, c, d ) display_fillbox_wh_clip_cl( (x), (y), (w), (h), (c), (d), 0 )
+void display_fillbox_wh_clip_cl_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, bool dirty, const sint8 clip_num);
+#define display_fillbox_wh_clip_rgb( x, y, w, h, c, d ) display_fillbox_wh_clip_cl_rgb( (x), (y), (w), (h), (c), (d), 0 )
+#define display_fillbox_wh_clip_cl( x, y, w, h, c, d, num ) display_fillbox_wh_clip_cl( (x), (y), (w), (h), specialcolormap_all_day[(color)&0xFF], (d), num )
+#define display_fillbox_wh_clip( x, y, w, h, c, d ) display_fillbox_wh_clip_cl_rgb( (x), (y), (w), (h), specialcolormap_all_day[(c)&0xFF], (d), 0 )
 #else
-void display_fillbox_wh_clip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, bool dirty);
+void display_fillbox_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, bool dirty);
+#define display_fillbox_wh_clip(xp,yp,w,h,color,dirty) display_fillbox_wh_clip_rgb( xp,yp,w,h,specialcolormap_all_day[(color)&0xFF],dirty)
 #endif
 
-void display_vline_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, PLAYER_COLOR_VAL color, bool dirty);
+void display_vline_wh_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, PIXVAL color, bool dirty);
+#define display_vline_wh(xp,yp,h,color,dirty) display_vline_wh_rgb( xp,yp,h,specialcolormap_all_day[(color)&0xFF],dirty)
 #ifdef MULTI_THREAD
-void display_vline_wh_clip_cl(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, PLAYER_COLOR_VAL c, bool dirty, const sint8 clip_num);
-#define display_vline_wh_clip( x, y, h, c, d ) display_vline_wh_clip_cl( (x), (y), (h), (c), (d), 0 )
+void display_vline_wh_clip_cl_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, PIXVAL c, bool dirty, const sint8 clip_num);
+#define display_vline_wh_clip_rgb( x, y, h, c, d ) display_vline_wh_clip_cl_rgb( (x), (y), (h), (c), (d), 0 )
+#define display_vline_wh_clip_cl( x, y, h, c, d, num ) display_vline_wh_clip_cl_rgb( (x), (y), (h), specialcolormap_all_day[(color)&0xFF], (d), num )
+#define display_vline_wh_clip( x, y, h, c, d ) display_vline_wh_clip_cl_rgb( (x), (y), (h), specialcolormap_all_day[(c)&0xFF], (d), 0 )
 #else
-void display_vline_wh_clip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, PLAYER_COLOR_VAL c, bool dirty);
+void display_vline_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, PIXVAL c, bool dirty);
+#define display_vline_wh_clip( x, y, h, c, d ) display_vline_wh_clip_rgb( (x), (y), (h), specialcolormap_all_day[(c)&0xFF], (d) )
 #endif
 
 void display_clear(void);
@@ -333,10 +352,15 @@ void display_show_load_pointer(int loading);
 void display_array_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, const COLOR_VAL *arr);
 
 // compound painting routines
-void display_outline_proportional(KOORD_VAL xpos, KOORD_VAL ypos, PLAYER_COLOR_VAL text_color, PLAYER_COLOR_VAL shadow_color, const char *text, int dirty);
-void display_shadow_proportional(KOORD_VAL xpos, KOORD_VAL ypos, PLAYER_COLOR_VAL text_color, PLAYER_COLOR_VAL shadow_color, const char *text, int dirty);
-void display_ddd_box(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL tl_color, PLAYER_COLOR_VAL rd_color, bool dirty);
-void display_ddd_box_clip(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL tl_color, PLAYER_COLOR_VAL rd_color);
+void display_outline_proportional_rgb(KOORD_VAL xpos, KOORD_VAL ypos, PIXVAL text_color, PIXVAL shadow_color, const char *text, int dirty);
+void display_shadow_proportional_rgb(KOORD_VAL xpos, KOORD_VAL ypos, PIXVAL text_color, PIXVAL shadow_color, const char *text, int dirty);
+void display_ddd_box_rgb(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PIXVAL tl_color, PIXVAL rd_color, bool dirty);
+void display_ddd_box_clip_rgb(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PIXVAL tl_color, PIXVAL rd_color);
+
+#define display_outline_proportional( x, y, text_col, shadow_col, text, dirty ) display_outline_proportional_rgb( x, y, specialcolormap_all_day[(text_col)&0xFF], specialcolormap_all_day[(shadow_col)&0xFF], text, dirty )
+#define display_shadow_proportional( x, y, text_col, shadow_col, text, dirty ) display_shadow_proportional_rgb( x, y, specialcolormap_all_day[(text_col)&0xFF], specialcolormap_all_day[(shadow_col)&0xFF], text, dirty )
+#define display_ddd_box( x, y, w, h, box_col, shadow_col, dirty ) display_ddd_box_rgb( x, y, w, h, specialcolormap_all_day[(box_col)&0xFF], specialcolormap_all_day[(shadow_col)&0xFF], dirty )
+#define display_ddd_box_clip( x, y, w, h, box_col, shadow_col ) display_ddd_box_clip_rgb( x, y, w, h, specialcolormap_all_day[(box_col)&0xFF], specialcolormap_all_day[(shadow_col)&0xFF] )
 
 
 // unicode save moving in strings
@@ -392,16 +416,25 @@ int display_calc_proportional_string_len_width(const char* text, size_t len);
  */
 
 #ifdef MULTI_THREAD
-int display_text_proportional_len_clip_cl(KOORD_VAL x, KOORD_VAL y, const char* txt, control_alignment_t flags, const PLAYER_COLOR_VAL color_index, long len, const sint8 clip_num);
+int display_text_proportional_len_clip_cl_rgb(KOORD_VAL x, KOORD_VAL y, const char* txt, control_alignment_t flags, const PIXVAL color, bool dirty, long len, const sint8 clip_num);
 /* macro are for compatibility */
-#define display_proportional(     x,  y, txt, align, color, dirty) display_text_proportional_len_clip_cl(x, y, txt, align | (dirty ? DT_DIRTY : 0),           color,  -1, 0)
-#define display_proportional_clip(x,  y, txt, align, color, dirty) display_text_proportional_len_clip_cl(x, y, txt, align | (dirty ? DT_DIRTY : 0) | DT_CLIP, color,  -1, 0)
-#define display_text_proportional_len_clip( x, y, txt, align, color, len ) display_text_proportional_len_clip_cl( (x), (y), (txt), (align), (color), (len), 0 )
+#define display_proportional(     x,  y, txt, align, c, dirty) display_text_proportional_len_clip_cl_rgb(x, y, txt, align,           specialcolormap_all_day[(c)&0xFF], dirty, -1, 0)
+#define display_proportional_clip(x,  y, txt, align, c, dirty) display_text_proportional_len_clip_cl_rgb(x, y, txt, align | DT_CLIP, specialcolormap_all_day[(c)&0xFF], dirty, -1, 0)
+#define display_text_proportional_len_clip( x, y, txt, align, c, dirty, len ) display_text_proportional_len_clip_cl_rgb( (x), (y), (txt), (align), specialcolormap_all_day[(c)&0xFF], (dirty), (len), 0 )
+#define display_text_proportional_len_clip_cl( x, y, txt, align, c, dirty, len, num ) display_text_proportional_len_clip_cl_rgb( (x), (y), (txt), (align), specialcolormap_all_day[(c)&0xFF], (dirty), (len), (num) )
+/* macro are for compatibility */
+#define display_proportional_rgb(     x,  y, txt, align, color, dirty) display_text_proportional_len_clip_cl_rgb(x, y, txt, align,           color, dirty, -1, 0)
+#define display_proportional_clip_rgb(x,  y, txt, align, color, dirty) display_text_proportional_len_clip_cl_rgb(x, y, txt, align | DT_CLIP, color, dirty, -1, 0)
+#define display_text_proportional_len_clip_rgb( x, y, txt, align, color, dirty, len ) display_text_proportional_len_clip_cl_rgb( (x), (y), (txt), (align), (color), (dirty), (len), 0 )
 #else
-int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt, control_alignment_t flags, const PLAYER_COLOR_VAL color_index, long len);
+int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char* txt, control_alignment_t flags, const PIXVAL color_index, bool dirty, long len );
 /* macro are for compatibility */
-#define display_proportional(     x,  y, txt, align, color, dirty) display_text_proportional_len_clip(x, y, txt, align | (dirty ? DT_DIRTY : 0),           color,  -1)
-#define display_proportional_clip(x,  y, txt, align, color, dirty) display_text_proportional_len_clip(x, y, txt, align | (dirty ? DT_DIRTY : 0) | DT_CLIP, color,  -1)
+#define display_proportional(     x,  y, txt, align, c, dirty) display_text_proportional_len_clip_rgb(x, y, txt, align,           specialcolormap_all_day[(c)&0xFF], dirty,  -1)
+#define display_proportional_clip(x,  y, txt, align, c, dirty) display_text_proportional_len_clip_rgb(x, y, txt, align | DT_CLIP, specialcolormap_all_day[(c)&0xFF], dirty,  -1)
+#define display_text_proportional_len_clip(x,  y, txt, align, c, dirty, len ) display_text_proportional_len_clip_rgb(x, y, txt, align | DT_CLIP, specialcolormap_all_day[(c)&0xFF], dirty, (len) )
+/* macro are for compatibility */
+#define display_proportional_rgb(     x,  y, txt, align, color, dirty) display_text_proportional_len_clip_rgb(x, y, txt, align,           color, dirty, -1)
+#define display_proportional_clip_rgb(x,  y, txt, align, color, dirty) display_text_proportional_len_clip_rgb(x, y, txt, align | DT_CLIP, color, dirty, -1)
 #endif
 
 void display_ddd_proportional(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, KOORD_VAL hgt,PLAYER_COLOR_VAL ddd_farbe, PLAYER_COLOR_VAL text_farbe,const char *text, int dirty);
@@ -412,13 +445,20 @@ void display_ddd_proportional_clip_cl(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL 
 void display_ddd_proportional_clip(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, KOORD_VAL hgt,PLAYER_COLOR_VAL ddd_farbe, PLAYER_COLOR_VAL text_farbe, const char *text, int dirty);
 #endif
 
-int display_multiline_text(KOORD_VAL x, KOORD_VAL y, const char *inbuf, PLAYER_COLOR_VAL color);
+int display_multiline_text_rgb(KOORD_VAL x, KOORD_VAL y, const char *inbuf, PIXVAL color);
+#define display_multiline_text( x, y, buf, c ) display_multiline_text_rgb( (x), (y), (buf), specialcolormap_all_day[(c)&0xFF] )
 
-void display_direct_line(const KOORD_VAL x, const KOORD_VAL y, const KOORD_VAL xx, const KOORD_VAL yy, const PLAYER_COLOR_VAL color);
-void display_direct_line_dotted(const KOORD_VAL x, const KOORD_VAL y, const KOORD_VAL xx, const KOORD_VAL yy, const KOORD_VAL draw, const KOORD_VAL dontDraw, const PLAYER_COLOR_VAL color);
-void display_circle( KOORD_VAL x0, KOORD_VAL  y0, int radius, const PLAYER_COLOR_VAL color );
-void display_filled_circle( KOORD_VAL x0, KOORD_VAL  y0, int radius, const PLAYER_COLOR_VAL color );
-void draw_bezier(KOORD_VAL Ax, KOORD_VAL Ay, KOORD_VAL Bx, KOORD_VAL By, KOORD_VAL ADx, KOORD_VAL ADy, KOORD_VAL BDx, KOORD_VAL BDy, const PLAYER_COLOR_VAL colore, KOORD_VAL draw, KOORD_VAL dontDraw);
+// line drawing primitives
+void display_direct_line_rgb(const KOORD_VAL x, const KOORD_VAL y, const KOORD_VAL xx, const KOORD_VAL yy, const PIXVAL color);
+#define display_direct_line(xp,yp,xd,yd,color) display_direct_line_rgb( xp,yp,xd,yd,specialcolormap_all_day[(color)&0xFF] )
+void display_direct_line_dotted_rgb(const KOORD_VAL x, const KOORD_VAL y, const KOORD_VAL xx, const KOORD_VAL yy, const KOORD_VAL draw, const KOORD_VAL dontDraw, const PIXVAL color);
+#define display_direct_line_dotted(xp,yp,xd,yd,draw,dont_draw,color) display_direct_line_dotted_rgb( xp,yp,xd,yd,draw,dont_draw,specialcolormap_all_day[(color)&0xFF] )
+void display_circle_rgb( KOORD_VAL x0, KOORD_VAL  y0, int radius, const PIXVAL color );
+#define display_circle(xp,yp,radius,color) display_circle_rgb( xp,yp,radius,specialcolormap_all_day[(color)&0xFF] )
+void display_filled_circle_rgb( KOORD_VAL x0, KOORD_VAL  y0, int radius, const PIXVAL color );
+#define display_filled_circle(xp,yp,radius,color) display_filled_circle_rgb( xp,yp,radius,specialcolormap_all_day[(color)&0xFF] )
+void draw_bezier_rgb(KOORD_VAL Ax, KOORD_VAL Ay, KOORD_VAL Bx, KOORD_VAL By, KOORD_VAL ADx, KOORD_VAL ADy, KOORD_VAL BDx, KOORD_VAL BDy, const PIXVAL colore, KOORD_VAL draw, KOORD_VAL dontDraw);
+#define draw_bezier(xp,yp,xd,yd,ADx,ADy,BDx,BDy,color,draw,dont_draw) draw_bezier_rgb( xp,yp,xd,yd,ADx,ADy,BDx,BDy,specialcolormap_all_day[(color)&0xFF],draw,dont_draw )
 
 #ifdef MULTI_THREAD
 void display_set_clip_wh_cl(KOORD_VAL x, KOORD_VAL y, KOORD_VAL w, KOORD_VAL h, const sint8 clip_num);

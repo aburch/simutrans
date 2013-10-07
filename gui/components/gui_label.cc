@@ -58,9 +58,9 @@ void gui_label_t::zeichnen(koord offset)
 			}
 
 			if(seperator) {
-				display_proportional_clip(pos.x+offset.x, pos.y+offset.y, seperator, DT_DIRTY|ALIGN_LEFT, color, true);
+				display_proportional_clip(pos.x+offset.x, pos.y+offset.y, seperator, ALIGN_LEFT, color, true);
 				if(  seperator!=text  ) {
-					display_text_proportional_len_clip(pos.x+offset.x, pos.y+offset.y, text, DT_DIRTY|ALIGN_RIGHT, color, seperator-text );
+					display_text_proportional_len_clip(pos.x+offset.x, pos.y+offset.y, text, ALIGN_RIGHT, color, true, seperator-text );
 				}
 			}
 			else {
@@ -95,8 +95,8 @@ void gui_label_t::zeichnen(koord offset)
 			display_proportional_clip(pos.x + offset.x + align_offset_x, pos.y + offset.y + align_offset_y, text, al, color, true);
 		}
 		else {
-			scr_coord_val w = display_text_proportional_len_clip( pos.x+offset.x+align_offset_x, pos.y+offset.y, text, al | DT_DIRTY | DT_CLIP, color, idx );
-			display_proportional_clip( pos.x + offset.x + align_offset_x + w, pos.y + offset.y + align_offset_y, translator::translate("..."), al | DT_DIRTY | DT_CLIP, color, false );
+			scr_coord_val w = display_text_proportional_len_clip( pos.x+offset.x+align_offset_x, pos.y+offset.y, text, al | DT_CLIP, color, true, idx );
+			display_proportional_clip( pos.x + offset.x + align_offset_x + w, pos.y + offset.y + align_offset_y, translator::translate("..."), al | DT_CLIP, color, true );
 		}
 
 	}

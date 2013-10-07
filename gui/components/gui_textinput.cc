@@ -476,7 +476,7 @@ void gui_textinput_t::display_with_cursor(koord offset, bool cursor_active, bool
 				const KOORD_VAL start_offset = proportional_string_len_width(text, start_pos);
 				const KOORD_VAL highlight_width = proportional_string_len_width(text+start_pos, end_pos-start_pos);
 				display_fillbox_wh_clip(pos.x+offset.x+2-scroll_offset+start_offset, pos.y+offset.y+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,groesse.y), highlight_width, 11, COL_GREY2, true);
-				display_text_proportional_len_clip(pos.x+offset.x+2-scroll_offset+start_offset, pos.y+offset.y+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,groesse.y), text+start_pos, ALIGN_LEFT|DT_DIRTY|DT_CLIP, COL_GREY5, end_pos-start_pos);
+				display_text_proportional_len_clip(pos.x+offset.x+2-scroll_offset+start_offset, pos.y+offset.y+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,groesse.y), text+start_pos, ALIGN_LEFT|DT_CLIP, COL_GREY5, false, end_pos-start_pos);
 			}
 
 			// display blinking cursor

@@ -316,7 +316,7 @@ static PIXVAL specialcolormap_day_night[256];
  * to actual output format - all day mode
  * 16 sets of 16 colors
  */
-static PIXVAL specialcolormap_all_day[256];
+PIXVAL specialcolormap_all_day[256];
 
 
 // offsets of first and second company color
@@ -2934,16 +2934,16 @@ static blend_proc outline[3];
 
 
 /**
- * blends a rectangular region with a color
+ * Blends a rectangular region with a color
  */
-void display_blend_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, int color, int percent_blend )
+void display_blend_wh_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL colval, int percent_blend )
 {
+
 #ifdef MULTI_THREAD
 	if(  clip_lr( &xp, &w, clips[0].clip_rect.x, clips[0].clip_rect.xx )  &&  clip_lr( &yp, &h, clips[0].clip_rect.y, clips[0].clip_rect.yy )  ) {
 #else
 	if(  clip_lr( &xp, &w, clip_rect.x, clip_rect.xx )  &&  clip_lr( &yp, &h, clip_rect.y, clip_rect.yy )  ) {
 #endif
-		const PIXVAL colval = specialcolormap_all_day[color & 0xFF];
 		const PIXVAL alpha = (percent_blend*64)/100;
 
 		switch( alpha ) {
@@ -2965,7 +2965,7 @@ void display_blend_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, int 
 
 			case 64:
 				// opaque ...
-				display_fillbox_wh( xp, yp, w, h, color, false );
+				display_fillbox_wh_rgb( xp, yp, w, h, colval, false );
 				break;
 
 			default:
@@ -3775,12 +3775,11 @@ static void display_pixel(KOORD_VAL x, KOORD_VAL y, PIXVAL color)
 /**
  * Draw filled rectangle
  */
-static void display_fb_internal(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, int color, bool dirty, KOORD_VAL cL, KOORD_VAL cR, KOORD_VAL cT, KOORD_VAL cB)
+static void display_fb_internal(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL colval, bool dirty, KOORD_VAL cL, KOORD_VAL cR, KOORD_VAL cT, KOORD_VAL cB)
 {
 	if (clip_lr(&xp, &w, cL, cR) && clip_lr(&yp, &h, cT, cB)) {
 		PIXVAL *p = textur + xp + yp * disp_width;
 		int dx = disp_width - w;
-		const PIXVAL colval = specialcolormap_all_day[color & 0xFF];
 #if !defined( USE_C )  ||  !defined( ALIGN_COPY )
 		const uint32 longcolval = (colval << 16) | colval;
 #endif
@@ -3833,19 +3832,19 @@ static void display_fb_internal(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_V
 }
 
 
-void display_fillbox_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, bool dirty)
+void display_fillbox_wh_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, bool dirty)
 {
 	display_fb_internal(xp, yp, w, h, color, dirty, 0, disp_width, 0, disp_height);
 }
 
 
 #ifdef MULTI_THREAD
-void display_fillbox_wh_clip_cl(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, bool dirty, const sint8 clip_num)
+void display_fillbox_wh_clip_cl_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, bool dirty, const sint8 clip_num)
 {
 	display_fb_internal( xp, yp, w, h, color, dirty, clips[clip_num].clip_rect.x, clips[clip_num].clip_rect.xx, clips[clip_num].clip_rect.y, clips[clip_num].clip_rect.yy );
 }
 #else
-void display_fillbox_wh_clip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, bool dirty)
+void display_fillbox_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, bool dirty)
 {
 	display_fb_internal( xp, yp, w, h, color, dirty, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy );
 }
@@ -3856,11 +3855,10 @@ void display_fillbox_wh_clip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL 
  * Draw vertical line
  * @author Hj. Malthaner
  */
-static void display_vl_internal(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PLAYER_COLOR_VAL color, int dirty, KOORD_VAL cL, KOORD_VAL cR, KOORD_VAL cT, KOORD_VAL cB)
+static void display_vl_internal(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PIXVAL colval, int dirty, KOORD_VAL cL, KOORD_VAL cR, KOORD_VAL cT, KOORD_VAL cB)
 {
 	if (xp >= cL && xp < cR && clip_lr(&yp, &h, cT, cB)) {
 		PIXVAL *p = textur + xp + yp * disp_width;
-		const PIXVAL colval =specialcolormap_all_day[color & 0xFF];
 
 		if (dirty) mark_rect_dirty_nc(xp, yp, xp, yp + h - 1);
 
@@ -3872,19 +3870,19 @@ static void display_vl_internal(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, c
 }
 
 
-void display_vline_wh(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PLAYER_COLOR_VAL color, bool dirty)
+void display_vline_wh_rgb(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PIXVAL color, bool dirty)
 {
 	display_vl_internal(xp, yp, h, color, dirty, 0, disp_width, 0, disp_height);
 }
 
 
 #ifdef MULTI_THREAD
-void display_vline_wh_clip_cl(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PLAYER_COLOR_VAL color, bool dirty, const sint8 clip_num)
+void display_vline_wh_clip_cl_rgb(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PIXVAL color, bool dirty, const sint8 clip_num)
 {
 	display_vl_internal( xp, yp, h, color, dirty, clips[clip_num].clip_rect.x, clips[clip_num].clip_rect.xx, clips[clip_num].clip_rect.y, clips[clip_num].clip_rect.yy );
 }
 #else
-void display_vline_wh_clip(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PLAYER_COLOR_VAL color, bool dirty)
+void display_vline_wh_clip_rgb(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PIXVAL color, bool dirty)
 {
 	display_vl_internal( xp, yp, h, color, dirty, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy );
 }
@@ -4202,9 +4200,9 @@ static unsigned char get_h_mask(const int xL, const int xR, const int cL, const 
  * @date  15.06.2003, 2.1.2005
  */
 #ifdef MULTI_THREAD
-int display_text_proportional_len_clip_cl(KOORD_VAL x, KOORD_VAL y, const char* txt, control_alignment_t flags, const PLAYER_COLOR_VAL color_index, long len, const sint8 clip_num)
+int display_text_proportional_len_clip_cl_rgb(KOORD_VAL x, KOORD_VAL y, const char* txt, control_alignment_t flags, const PIXVAL color, bool dirty, long len, const sint8 clip_num)
 #else
-int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt, control_alignment_t flags, const PLAYER_COLOR_VAL color_index, long len)
+int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char* txt, control_alignment_t flags, const PIXVAL color, bool dirty, long len)
 #endif
 {
 	const font_type* const fnt = &large_font;
@@ -4219,7 +4217,6 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
 	KOORD_VAL x0;	// store the initial x (for dirty marking)
 	KOORD_VAL y_offset, char_height;	// real y for display with clipping
 	unsigned char mask1, mask2;	// for horizontal clipping
-	const PIXVAL color = specialcolormap_all_day[color_index & 0xFF];
 #ifndef USE_C
 	// faster drawing with assembler
 	const uint32 color2 = (color << 16) | color;
@@ -4381,7 +4378,7 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
 		x += char_width_2;
 	}
 
-	if(  flags & DT_DIRTY  ) {
+	if(  dirty  ) {
 		// here, because only now we know the length also for ALIGN_LEFT text
 #ifdef MULTI_THREAD
 		mark_rect_dirty_clip( x0, y, x - 1, y + 10 - 1, clip_num );
@@ -4395,51 +4392,49 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
 
 
 /**
- * Draw shaded rectangle
- * @author Hj. Malthaner
+ * Draw shaded rectangle using direct color values
  */
-void display_ddd_box(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL tl_color, PLAYER_COLOR_VAL rd_color, bool dirty)
+void display_ddd_box_rgb(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PIXVAL tl_color, PIXVAL rd_color, bool dirty)
 {
-	display_fillbox_wh(x1, y1,         w, 1, tl_color, dirty);
-	display_fillbox_wh(x1, y1 + h - 1, w, 1, rd_color, dirty);
+	display_fillbox_wh_rgb(x1, y1,         w, 1, tl_color, dirty);
+	display_fillbox_wh_rgb(x1, y1 + h - 1, w, 1, rd_color, dirty);
 
 	h -= 2;
 
-	display_vline_wh(x1,         y1 + 1, h, tl_color, dirty);
-	display_vline_wh(x1 + w - 1, y1 + 1, h, rd_color, dirty);
+	display_vline_wh_rgb(x1,         y1 + 1, h, tl_color, dirty);
+	display_vline_wh_rgb(x1 + w - 1, y1 + 1, h, rd_color, dirty);
 }
 
 
-void display_outline_proportional(KOORD_VAL xpos, KOORD_VAL ypos, PLAYER_COLOR_VAL text_color, PLAYER_COLOR_VAL shadow_color, const char *text, int dirty)
+void display_outline_proportional_rgb(KOORD_VAL xpos, KOORD_VAL ypos, PIXVAL text_color, PIXVAL shadow_color, const char *text, int dirty)
 {
-	const int flags = ALIGN_LEFT | DT_CLIP | (dirty ? DT_DIRTY : 0);
-	display_text_proportional_len_clip(xpos - 1, ypos - 1 + (12 - large_font_total_height) / 2, text, flags, shadow_color, -1);
-	display_text_proportional_len_clip(xpos + 1, ypos + 1 + (12 - large_font_total_height) / 2, text, flags, shadow_color, -1);
-	display_text_proportional_len_clip(xpos, ypos + (12 - large_font_total_height) / 2, text, flags, text_color, -1);
+	const int flags = ALIGN_LEFT | DT_CLIP;
+	display_text_proportional_len_clip_rgb(xpos - 1, ypos - 1 + (12 - large_font_total_height) / 2, text, flags, shadow_color, dirty, -1);
+	display_text_proportional_len_clip_rgb(xpos + 1, ypos + 1 + (12 - large_font_total_height) / 2, text, flags, shadow_color, dirty, -1);
+	display_text_proportional_len_clip_rgb(xpos, ypos + (12 - large_font_total_height) / 2, text, flags, text_color, dirty, -1);
 }
 
 
-void display_shadow_proportional(KOORD_VAL xpos, KOORD_VAL ypos, PLAYER_COLOR_VAL text_color, PLAYER_COLOR_VAL shadow_color, const char *text, int dirty)
+void display_shadow_proportional_rgb(KOORD_VAL xpos, KOORD_VAL ypos, PIXVAL text_color, PIXVAL shadow_color, const char *text, int dirty)
 {
-	const int flags = ALIGN_LEFT | DT_CLIP | (dirty ? DT_DIRTY : 0);
-	display_text_proportional_len_clip(xpos + 1, ypos + 1 + (12 - large_font_total_height) / 2, text, flags, shadow_color, -1);
-	display_text_proportional_len_clip(xpos, ypos + (12 - large_font_total_height) / 2, text, flags, text_color, -1);
+	const int flags = ALIGN_LEFT | DT_CLIP;
+	display_text_proportional_len_clip_rgb(xpos + 1, ypos + 1 + (12 - large_font_total_height) / 2, text, flags, shadow_color, dirty, -1);
+	display_text_proportional_len_clip_rgb(xpos, ypos + (12 - large_font_total_height) / 2, text, flags, text_color, dirty, -1);
 }
 
 
 /**
- * Draw shaded rectangle
- * @author Hj. Malthaner
+ * Draw shaded rectangle using direct color values
  */
-void display_ddd_box_clip(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL tl_color, PLAYER_COLOR_VAL rd_color)
+void display_ddd_box_clip_rgb(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PIXVAL tl_color, PIXVAL rd_color)
 {
-	display_fillbox_wh_clip(x1, y1,         w, 1, tl_color, true);
-	display_fillbox_wh_clip(x1, y1 + h - 1, w, 1, rd_color, true);
+	display_fillbox_wh_clip_rgb(x1, y1,         w, 1, tl_color, true);
+	display_fillbox_wh_clip_rgb(x1, y1 + h - 1, w, 1, rd_color, true);
 
 	h -= 2;
 
-	display_vline_wh_clip(x1,         y1 + 1, h, tl_color, true);
-	display_vline_wh_clip(x1 + w - 1, y1 + 1, h, rd_color, true);
+	display_vline_wh_clip_rgb(x1,         y1 + 1, h, tl_color, true);
+	display_vline_wh_clip_rgb(x1 + w - 1, y1 + 1, h, rd_color, true);
 }
 
 
@@ -4455,7 +4450,7 @@ void display_ddd_proportional(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, K
 	display_vline_wh(xpos - 2,         ypos - halfheight - hgt - 1, halfheight * 2 + 1, ddd_farbe + 1, dirty);
 	display_vline_wh(xpos + width - 3, ypos - halfheight - hgt - 1, halfheight * 2 + 1, ddd_farbe - 1, dirty);
 
-	display_text_proportional_len_clip(xpos + 2, ypos - halfheight + 1, text, ALIGN_LEFT, text_farbe, -1);
+	display_text_proportional_len_clip(xpos + 2, ypos - halfheight + 1, text, ALIGN_LEFT, text_farbe, dirty, -1);
 }
 
 
@@ -4468,28 +4463,28 @@ void display_ddd_proportional_clip_cl(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL 
 {
 	int halfheight = large_font_total_height / 2 + 1;
 
-	display_fillbox_wh_clip_cl( xpos - 2, ypos - halfheight - 1 - hgt, width, 1,              ddd_farbe + 1, dirty, clip_num );
-	display_fillbox_wh_clip_cl( xpos - 2, ypos - halfheight - hgt,     width, halfheight * 2, ddd_farbe,     dirty, clip_num );
-	display_fillbox_wh_clip_cl( xpos - 2, ypos + halfheight - hgt,     width, 1,              ddd_farbe - 1, dirty, clip_num );
+	display_fillbox_wh_clip_cl_rgb( xpos - 2, ypos - halfheight - 1 - hgt, width, 1,              color_idx_to_rgb(ddd_farbe + 1), dirty, clip_num );
+	display_fillbox_wh_clip_cl_rgb( xpos - 2, ypos - halfheight - hgt,     width, halfheight * 2, color_idx_to_rgb(ddd_farbe),     dirty, clip_num );
+	display_fillbox_wh_clip_cl_rgb( xpos - 2, ypos + halfheight - hgt,     width, 1,              color_idx_to_rgb(ddd_farbe - 1), dirty, clip_num );
 
-	display_vline_wh_clip_cl( xpos - 2,         ypos - halfheight - 1 - hgt, halfheight * 2 + 1, ddd_farbe + 1, dirty, clip_num );
-	display_vline_wh_clip_cl( xpos + width - 3, ypos - halfheight - 1 - hgt, halfheight * 2 + 1, ddd_farbe - 1, dirty, clip_num );
+	display_vline_wh_clip_cl_rgb( xpos - 2,         ypos - halfheight - 1 - hgt, halfheight * 2 + 1, color_idx_to_rgb(ddd_farbe + 1), dirty, clip_num );
+	display_vline_wh_clip_cl_rgb( xpos + width - 3, ypos - halfheight - 1 - hgt, halfheight * 2 + 1, color_idx_to_rgb(ddd_farbe - 1), dirty, clip_num );
 
-	display_text_proportional_len_clip_cl( xpos + 2, ypos - 5 + (12 - large_font_total_height) / 2, text, ALIGN_LEFT | DT_CLIP, text_farbe, -1, clip_num );
+	display_text_proportional_len_clip_cl( xpos + 2, ypos - 5 + (12 - large_font_total_height) / 2, text, ALIGN_LEFT | DT_CLIP, text_farbe, dirty, -1, clip_num );
 }
 #else
 void display_ddd_proportional_clip(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, KOORD_VAL hgt, PLAYER_COLOR_VAL ddd_farbe, PLAYER_COLOR_VAL text_farbe, const char *text, int dirty)
 {
 	int halfheight = large_font_total_height / 2 + 1;
 
-	display_fillbox_wh_clip( xpos - 2, ypos - halfheight - 1 - hgt, width, 1,              ddd_farbe + 1, dirty );
-	display_fillbox_wh_clip( xpos - 2, ypos - halfheight - hgt,     width, halfheight * 2, ddd_farbe,     dirty );
-	display_fillbox_wh_clip( xpos - 2, ypos + halfheight - hgt,     width, 1,              ddd_farbe - 1, dirty );
+	display_fillbox_wh_clip_rgb( xpos - 2, ypos - halfheight - 1 - hgt, width, 1,              color_idx_to_rgb(ddd_farbe + 1), dirty );
+	display_fillbox_wh_clip_rgb( xpos - 2, ypos - halfheight - hgt,     width, halfheight * 2, color_idx_to_rgb(ddd_farbe),     dirty );
+	display_fillbox_wh_clip_rgb( xpos - 2, ypos + halfheight - hgt,     width, 1,              color_idx_to_rgb(ddd_farbe - 1), dirty );
 
-	display_vline_wh_clip( xpos - 2,         ypos - halfheight - 1 - hgt, halfheight * 2 + 1, ddd_farbe + 1, dirty );
-	display_vline_wh_clip( xpos + width - 3, ypos - halfheight - 1 - hgt, halfheight * 2 + 1, ddd_farbe - 1, dirty );
+	display_vline_wh_clip_rgb( xpos - 2,         ypos - halfheight - 1 - hgt, halfheight * 2 + 1, color_idx_to_rgb(ddd_farbe + 1), dirty );
+	display_vline_wh_clip_rgb( xpos + width - 3, ypos - halfheight - 1 - hgt, halfheight * 2 + 1, color_idx_to_rgb(ddd_farbe - 1), dirty );
 
-	display_text_proportional_len_clip( xpos + 2, ypos - 5 + (12 - large_font_total_height) / 2, text, ALIGN_LEFT | DT_CLIP, text_farbe, -1 );
+	display_text_proportional_len_clip( xpos + 2, ypos - 5 + (12 - large_font_total_height) / 2, text, ALIGN_LEFT | DT_CLIP, text_farbe, dirty, -1 );
 }
 #endif
 
@@ -4501,8 +4496,12 @@ void display_ddd_proportional_clip(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL wid
  * Better performance without copying text!
  * @author Volker Meyer
  * @date  15.06.2003
+ *
+ * Allow arbitrary colors.
+ * @author Tor Egil R. Strand
+ * @date 06.10.2013
  */
-int display_multiline_text(KOORD_VAL x, KOORD_VAL y, const char *buf, PLAYER_COLOR_VAL color)
+int display_multiline_text_rgb(KOORD_VAL x, KOORD_VAL y, const char *buf, PIXVAL color)
 {
 	int max_px_len = 0;
 	if (buf != NULL && *buf != '\0') {
@@ -4510,9 +4509,9 @@ int display_multiline_text(KOORD_VAL x, KOORD_VAL y, const char *buf, PLAYER_COL
 
 		do {
 			next = strchr(buf, '\n');
-			const int px_len = display_text_proportional_len_clip(
+			const int px_len = display_text_proportional_len_clip_rgb(
 				x, y, buf,
-				ALIGN_LEFT | DT_DIRTY | DT_CLIP, color,
+				ALIGN_LEFT | DT_CLIP, color, true,
 				next != NULL ? (int)(size_t)(next - buf) : -1
 			);
 			if(  px_len>max_px_len  ) {
@@ -4530,7 +4529,7 @@ int display_multiline_text(KOORD_VAL x, KOORD_VAL y, const char *buf, PLAYER_COL
  * draw line from x,y to xx,yy
  * Hajo
  **/
-void display_direct_line(const KOORD_VAL x, const KOORD_VAL y, const KOORD_VAL xx, const KOORD_VAL yy, const PLAYER_COLOR_VAL color)
+void display_direct_line_rgb(const KOORD_VAL x, const KOORD_VAL y, const KOORD_VAL xx, const KOORD_VAL yy, const PIXVAL colval)
 {
 	int i, steps;
 	int xp, yp;
@@ -4538,7 +4537,6 @@ void display_direct_line(const KOORD_VAL x, const KOORD_VAL y, const KOORD_VAL x
 
 	const int dx = xx - x;
 	const int dy = yy - y;
-	const PIXVAL colval = specialcolormap_all_day[color & 0xFF];
 
 	steps = (abs(dx) > abs(dy) ? abs(dx) : abs(dy));
 	if (steps == 0) {
@@ -4564,7 +4562,7 @@ void display_direct_line(const KOORD_VAL x, const KOORD_VAL y, const KOORD_VAL x
 
 
 //taken from function display_direct_line() above, to draw a dotted line: draw=pixels drawn, dontDraw=pixels skipped
-void display_direct_line_dotted(const KOORD_VAL x, const KOORD_VAL y, const KOORD_VAL xx, const KOORD_VAL yy, const KOORD_VAL draw, const KOORD_VAL dontDraw, const PLAYER_COLOR_VAL color)
+void display_direct_line_dotted_rgb(const KOORD_VAL x, const KOORD_VAL y, const KOORD_VAL xx, const KOORD_VAL yy, const KOORD_VAL draw, const KOORD_VAL dontDraw, const PIXVAL colval)
 {
 	int i, steps;
 	int xp, yp;
@@ -4574,7 +4572,6 @@ void display_direct_line_dotted(const KOORD_VAL x, const KOORD_VAL y, const KOOR
 
 	const int dx = xx - x;
 	const int dy = yy - y;
-	const PIXVAL colval = specialcolormap_all_day[color & 0xFF];
 
 	steps = (abs(dx) > abs(dy) ? abs(dx) : abs(dy));
 	if (steps == 0) {
@@ -4612,9 +4609,8 @@ void display_direct_line_dotted(const KOORD_VAL x, const KOORD_VAL y, const KOOR
 
 
 // bresenham circle (from wikipedia ...)
-void display_circle( KOORD_VAL x0, KOORD_VAL  y0, int radius, const PLAYER_COLOR_VAL color )
+void display_circle_rgb( KOORD_VAL x0, KOORD_VAL  y0, int radius, const PIXVAL colval )
 {
-	const PIXVAL colval = specialcolormap_all_day[color & 0xFF];
 	int f = 1 - radius;
 	int ddF_x = 1;
 	int ddF_y = -2 * radius;
@@ -4624,7 +4620,7 @@ void display_circle( KOORD_VAL x0, KOORD_VAL  y0, int radius, const PLAYER_COLOR
 	display_pixel( x0, y0 + radius, colval );
 	display_pixel( x0, y0 - radius, colval );
 	display_pixel( x0 + radius, y0, colval );
-	display_pixel( x0 - radius, y0, colval);
+	display_pixel( x0 - radius, y0, colval );
 
 	while(x < y) {
 		// ddF_x == 2 * x + 1;
@@ -4653,9 +4649,8 @@ void display_circle( KOORD_VAL x0, KOORD_VAL  y0, int radius, const PLAYER_COLOR
 
 
 // bresenham circle (from wikipedia ...)
-void display_filled_circle( KOORD_VAL x0, KOORD_VAL  y0, int radius, const PLAYER_COLOR_VAL color )
+void display_filled_circle_rgb( KOORD_VAL x0, KOORD_VAL  y0, int radius, const PIXVAL colval )
 {
-	const PIXVAL colval = specialcolormap_all_day[color & 0xFF];
 	int f = 1 - radius;
 	int ddF_x = 1;
 	int ddF_y = -2 * radius;
@@ -4663,9 +4658,9 @@ void display_filled_circle( KOORD_VAL x0, KOORD_VAL  y0, int radius, const PLAYE
 	int y = radius;
 
 #ifdef MULTI_THREAD
-	display_fb_internal( x0-radius, y0, radius+radius+1, 1, color, false, clips[0].clip_rect.x, clips[0].clip_rect.xx, clips[0].clip_rect.y, clips[0].clip_rect.yy );
+	display_fb_internal( x0-radius, y0, radius+radius+1, 1, colval, false, clips[0].clip_rect.x, clips[0].clip_rect.xx, clips[0].clip_rect.y, clips[0].clip_rect.yy );
 #else
-	display_fb_internal( x0-radius, y0, radius+radius+1, 1, color, false, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy );
+	display_fb_internal( x0-radius, y0, radius+radius+1, 1, colval, false, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy );
 #endif
 	display_pixel( x0, y0 + radius, colval );
 	display_pixel( x0, y0 - radius, colval );
@@ -4686,17 +4681,17 @@ void display_filled_circle( KOORD_VAL x0, KOORD_VAL  y0, int radius, const PLAYE
 		ddF_x += 2;
 		f += ddF_x;
 #ifdef MULTI_THREAD
-		display_fb_internal( x0-x, y0+y, x+x, 1, color, false, clips[0].clip_rect.x, clips[0].clip_rect.xx, clips[0].clip_rect.y, clips[0].clip_rect.yy );
-		display_fb_internal( x0-x, y0-y, x+x, 1, color, false, clips[0].clip_rect.x, clips[0].clip_rect.xx, clips[0].clip_rect.y, clips[0].clip_rect.yy );
+		display_fb_internal( x0-x, y0+y, x+x, 1, colval, false, clips[0].clip_rect.x, clips[0].clip_rect.xx, clips[0].clip_rect.y, clips[0].clip_rect.yy );
+		display_fb_internal( x0-x, y0-y, x+x, 1, colval, false, clips[0].clip_rect.x, clips[0].clip_rect.xx, clips[0].clip_rect.y, clips[0].clip_rect.yy );
 
-		display_fb_internal( x0-y, y0+x, y+y, 1, color, false, clips[0].clip_rect.x, clips[0].clip_rect.xx, clips[0].clip_rect.y, clips[0].clip_rect.yy );
-		display_fb_internal( x0-y, y0-x, y+y, 1, color, false, clips[0].clip_rect.x, clips[0].clip_rect.xx, clips[0].clip_rect.y, clips[0].clip_rect.yy );
+		display_fb_internal( x0-y, y0+x, y+y, 1, colval, false, clips[0].clip_rect.x, clips[0].clip_rect.xx, clips[0].clip_rect.y, clips[0].clip_rect.yy );
+		display_fb_internal( x0-y, y0-x, y+y, 1, colval, false, clips[0].clip_rect.x, clips[0].clip_rect.xx, clips[0].clip_rect.y, clips[0].clip_rect.yy );
 #else
-		display_fb_internal( x0-x, y0+y, x+x, 1, color, false, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy );
-		display_fb_internal( x0-x, y0-y, x+x, 1, color, false, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy );
+		display_fb_internal( x0-x, y0+y, x+x, 1, colval, false, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy );
+		display_fb_internal( x0-x, y0-y, x+x, 1, colval, false, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy );
 
-		display_fb_internal( x0-y, y0+x, y+y, 1, color, false, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy );
-		display_fb_internal( x0-y, y0-x, y+y, 1, color, false, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy );
+		display_fb_internal( x0-y, y0+x, y+y, 1, colval, false, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy );
+		display_fb_internal( x0-y, y0-x, y+y, 1, colval, false, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy );
 #endif
 	}
 //	mark_rect_dirty_wc( x0-radius, y0-radius, x0+radius+1, y0+radius+1 );
@@ -4715,7 +4710,7 @@ void display_filled_circle( KOORD_VAL x0, KOORD_VAL  y0, int radius, const PLAYE
  * @draw=for dotted lines, how many pixels to be drawn (leave 0 for solid line)
  * @dontDraw=for dotted lines, how many pixels to not be drawn (leave 0 for solid line)
  */
-void draw_bezier(KOORD_VAL Ax, KOORD_VAL Ay, KOORD_VAL Bx, KOORD_VAL By, KOORD_VAL ADx, KOORD_VAL ADy, KOORD_VAL BDx, KOORD_VAL BDy, const PLAYER_COLOR_VAL colore, KOORD_VAL draw, KOORD_VAL dontDraw)
+void draw_bezier_rgb(KOORD_VAL Ax, KOORD_VAL Ay, KOORD_VAL Bx, KOORD_VAL By, KOORD_VAL ADx, KOORD_VAL ADy, KOORD_VAL BDx, KOORD_VAL BDy, const PIXVAL colore, KOORD_VAL draw, KOORD_VAL dontDraw)
 {
 	KOORD_VAL Cx,Cy,Dx,Dy;
 	Cx = Ax + ADx;
@@ -4754,10 +4749,10 @@ void draw_bezier(KOORD_VAL Ax, KOORD_VAL Ay, KOORD_VAL Bx, KOORD_VAL By, KOORD_V
 		ry = Ay*b*b*b + 3*Cy*b*b*a + 3*Dy*b*a*a + By*a*a*a;
 		//fixed point: due to cycling between 0 and 32 (2<<5), we divide by 32^3=2>>15 because of cubic interpolation
 		if(  !draw  &&  !dontDraw  ) {
-			display_direct_line( rx>>15, ry>>15, oldx>>15, oldy>>15, colore );
+			display_direct_line_rgb( rx>>15, ry>>15, oldx>>15, oldy>>15, colore );
 		}
 		else {
-			display_direct_line_dotted( rx>>15, ry>>15, oldx>>15, oldy>>15, draw, dontDraw, colore );
+			display_direct_line_dotted_rgb( rx>>15, ry>>15, oldx>>15, oldy>>15, draw, dontDraw, colore );
 		}
 	}
 }
