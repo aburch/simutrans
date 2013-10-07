@@ -6448,7 +6448,7 @@ koord karte_t::get_closest_coordinate(koord outside_pos)
 }
 
 
-grund_t* karte_t::get_ground_on_screen_coordinate(koord screen_pos, const bool intersect_grid) const
+grund_t* karte_t::get_ground_on_screen_coordinate(koord screen_pos, sint32 &found_i, sint32 &found_j, const bool intersect_grid) const
 {
 	const int rw1 = get_tile_raster_width();
 	const int rw2 = rw1/2;
@@ -6491,8 +6491,8 @@ grund_t* karte_t::get_ground_on_screen_coordinate(koord screen_pos, const bool i
 		const int base_i = (screen_pos.x/2 + screen_pos.y   + tile_raster_scale_y((hgt*TILE_HEIGHT_STEP),rw1))/2;
 		const int base_j = (screen_pos.y   - screen_pos.x/2 + tile_raster_scale_y((hgt*TILE_HEIGHT_STEP),rw1))/2;
 
-		sint32 found_i = ((int)floor(base_i/(double)rw4)) + i_off;
-		sint32 found_j = ((int)floor(base_j/(double)rw4)) + j_off;
+		found_i = ((int)floor(base_i/(double)rw4)) + i_off;
+		found_j = ((int)floor(base_j/(double)rw4)) + j_off;
 
 		gr = lookup(koord3d(found_i,found_j,hgt));
 		if(gr != NULL) {
@@ -6547,12 +6547,17 @@ grund_t* karte_t::get_ground_on_screen_coordinate(koord screen_pos, const bool i
 		return gr;
 	}
 	else {
-		return bd;
+		if(bd!=NULL){
+			found_i = bd->get_pos().x;
+			found_j = bd->get_pos().y;
+			return bd;
+		}
+		return NULL;
 	}
 }
 
 
-koord3d karte_t::get_new_cursor_position(const event_t *ev ,bool grid_coordinates)
+koord3d karte_t::get_new_cursor_position(const event_t *ev, bool grid_coordinates)
 {
 	const int rw4 = get_tile_raster_width()/4;
 
@@ -6565,7 +6570,8 @@ koord3d karte_t::get_new_cursor_position(const event_t *ev ,bool grid_coordinate
 		offset_y += rw4;
 	}
 
-	const grund_t *bd = get_ground_on_screen_coordinate(koord(ev->mx, ev->my + offset_y), grid_coordinates);
+	sint32 grid_x, grid_y;
+	const grund_t *bd = get_ground_on_screen_coordinate(koord(ev->mx, ev->my + offset_y), grid_x, grid_y, grid_coordinates);
 
 	// no suitable location found (outside map, ...)
 	if (!bd) {
@@ -6573,17 +6579,13 @@ koord3d karte_t::get_new_cursor_position(const event_t *ev ,bool grid_coordinate
 	}
 
 	// offset needed for the raise / lower tool.
-	sint8 groff;
+	sint8 groff = 0;
 
-	if( bd->is_visible() ) {
-		groff = bd->get_hoehe(get_corner_to_operate(bd->get_pos().get_2d())) - bd->get_hoehe();
-	}
-	else {
-		groff = 0;
+	if( bd->is_visible()  &&  grid_coordinates) {
+		groff = bd->get_hoehe(get_corner_to_operate(koord(grid_x, grid_y))) - bd->get_hoehe();
 	}
 
-	// the new position - extra logic for raise / lower tool
-	return koord3d(bd->get_pos().get_2d(), bd->get_disp_height() + (zeiger->get_yoff()==Z_GRID ? groff : 0));
+	return koord3d(grid_x, grid_y, bd->get_disp_height() + groff);
 }
 
 
@@ -6652,10 +6654,13 @@ void karte_t::move_cursor(const event_t *ev)
 
 bool karte_t::is_background_visible() const
 {
-	if ( get_ground_on_screen_coordinate(koord(0,0))  &&
-		 get_ground_on_screen_coordinate(koord(display_get_width()-1,0))  &&
-		 get_ground_on_screen_coordinate(koord(0,display_get_height()-1))  &&
-		 get_ground_on_screen_coordinate(koord(display_get_width()-1,display_get_height()-1))  ) {
+
+	sint32 i,j;
+
+	if ( get_ground_on_screen_coordinate(koord(0,0),i,j)  &&  \
+		 get_ground_on_screen_coordinate(koord(display_get_width()-1,0),i,j)  &&  \
+		 get_ground_on_screen_coordinate(koord(0,display_get_height()-1),i,j)  &&  \
+		 get_ground_on_screen_coordinate(koord(display_get_width()-1,display_get_height()-1),i,j)  ) {
 		return false;
 	}
 

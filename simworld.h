@@ -484,7 +484,7 @@ private:
 	 * @param intersect_grid Special case for the lower/raise tool, will return a limit border tile if we are on the south/east border of screen.
 	 * @return the grund_t that's under the desired screen coordinate. NULL if we are outside map or we can't find it.
 	 */
-	grund_t* get_ground_on_screen_coordinate(koord screen_pos, const bool intersect_grid=false) const;
+	grund_t* get_ground_on_screen_coordinate(koord screen_pos, sint32 &found_i, sint32 &found_j, const bool intersect_grid=false) const;
 
 	/**
 	 * Processes a user event on the map, like a keyclick, or a mouse event.
