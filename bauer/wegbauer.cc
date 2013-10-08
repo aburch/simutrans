@@ -2296,11 +2296,12 @@ void wegbauer_t::baue_schiene()
 
 				// do not touch fences, tram way etc. if there is already same way with different type
 				// keep faster ways or if it is the same way ... (@author prissi)
-				if (weg->get_besch() == besch                                                               ||
+				if (weg->get_besch() == besch																	||
 						(besch->get_styp() == 0 && weg->get_besch()->get_styp() == 7 && gr->has_two_ways())     ||
 						keep_existing_ways                                                                      ||
-						(keep_existing_faster_ways && !(besch->is_at_least_as_good_as(weg->get_besch())) ) ||
-						(gr->get_typ() == grund_t::monorailboden && !(bautyp & elevated_flag)  &&  gr->get_weg_nr(0)->get_waytype()==besch->get_wtyp())) {
+						(keep_existing_faster_ways && !(besch->is_at_least_as_good_as(weg->get_besch())) )		||
+						(gr->get_typ() == grund_t::monorailboden && !(bautyp & elevated_flag)  &&  gr->get_weg_nr(0)->get_waytype()==besch->get_wtyp()))
+				{
 					//nothing to be done
 					change_besch = false;
 				}
