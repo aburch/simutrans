@@ -365,9 +365,15 @@ void fabrikbauer_t::verteile_tourist(karte_t* welt, int max_number)
 		pos = finde_zufallsbauplatz(welt, pos, 20, attraction->get_groesse(rotation),false,attraction,false);	// so far -> land only
 		if(welt->lookup(pos)) {
 			// Platz gefunden ...
-			hausbauer_t::baue(welt, welt->get_spieler(1), pos, rotation, attraction);
+			gebaeude_t* gb = hausbauer_t::baue(welt, welt->get_spieler(1), pos, rotation, attraction);
 			current_number ++;
 			retrys = max_number*4;
+			stadt_t* city = welt->get_city(gb->get_pos());
+			if(city)
+			{
+				city->add_building_to_list(gb); 
+				gb->set_stadt(city);
+			}
 		}
 
 	}

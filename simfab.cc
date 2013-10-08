@@ -752,6 +752,7 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 	if(city != NULL)
 	{
 		city->add_city_factory(this);
+		city->update_city_stats_with_building(get_building(), false);
 	}
 
 	if(fabesch->get_platzierung() == 2 && city && fabesch->get_produkte() == 0)
@@ -2086,11 +2087,13 @@ void fabrik_t::neuer_monat()
 	if(c && !c->get_city_factories().is_contained(this))
 	{
 		c->add_city_factory(this);
+		c->update_city_stats_with_building(get_building(), false);
 	}
 
 	if(c != city && city)
 	{
 		city->remove_city_factory(this);
+		city->update_city_stats_with_building(get_building(), true);
 	}
 
 	if(!c)
@@ -2681,6 +2684,7 @@ void fabrik_t::laden_abschliessen()
 	if(city != NULL)
 	{
 		city->add_city_factory(this);
+		city->update_city_stats_with_building(get_building(), false);
 	}
 	
 	if (welt->get_settings().is_crossconnect_factories()) {

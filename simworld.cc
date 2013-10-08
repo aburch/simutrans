@@ -4433,11 +4433,6 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 	}
 
 	stadt_t* city = gb->get_stadt();
-	fabrik_t* building_factory = gb->get_fabrik();
-	if(building_factory)
-	{
-		city = building_factory->get_city();
-	}
 
 	// We need this for recording statistics for onward journeys in the very original departure point.
 	gebaeude_t* const first_origin = gb;

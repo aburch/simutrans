@@ -276,9 +276,10 @@ private:
 	*/
 	void check_city_tiles(bool del = false);
 
+public:
+
 	void add_building_to_list(gebaeude_t* building, bool ordered = false);
 
-public:
 	/**
 	 * Returns pointer to history for city
 	 * @author hsiegeln
@@ -549,6 +550,11 @@ public:
 	// (called when removed by player, or by town)
 	void remove_gebaeude_from_stadt(gebaeude_t *gb);
 
+	// This is necessary to be separate from add/remove gebaeude_to_stadt
+	// because of the need for the present to retain the existing pattern
+	// of what sorts of buildings are added to the city list.
+	void update_city_stats_with_building(gebaeude_t* building, bool remove);
+
 	/**
 	* This function adds buildings to the city building list; 
 	* ordered for multithreaded loading.
@@ -579,8 +585,10 @@ public:
 	//sint32 get_einwohner() const {return (buildings.get_sum_weight()*6)+((2*bev-arb-won)>>1);}
 	sint32 get_einwohner() const {return ((buildings.get_sum_weight() * welt->get_settings().get_meters_per_tile()) / 31)+((2*bev-arb-won)>>1);}
 	//sint32 get_einwohner() const { return bev; }
-	sint32 get_city_jobs() const { return arb; }
-	sint32 get_city_visitor_demand() const { return 0; } // TODO: Add a real value here.
+
+	sint32 get_city_population() const { return city_history_month[0][HIST_CITICENS]; }
+	sint32 get_city_jobs() const { return city_history_month[0][HIST_JOBS]; }
+	sint32 get_city_visitor_demand() const { return city_history_month[0][HIST_VISITOR_DEMAND]; } // TODO: Add a real value here.
 
 	uint32 get_buildings()  const { return buildings.get_count(); }
 	sint32 get_unemployed() const { return bev - arb; }

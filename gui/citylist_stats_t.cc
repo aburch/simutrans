@@ -136,12 +136,12 @@ void citylist_stats_t::zeichnen(koord offset)
 
 	FORX(vector_tpl<stadt_t*>, const stadt, city_list, offset.y += LINESPACE + 1) {
 
-		sint32 bev = stadt->get_einwohner();
+		sint32 population = stadt->get_einwohner();
 		sint32 growth = stadt->get_wachstum();
 		if(  offset.y + LINESPACE > cl.y  &&  offset.y <= cl.yy  ) {
 			buf.clear();
 			buf.printf( "%s: ", stadt->get_name() );
-			buf.append( bev, 0 );
+			buf.append( population, 0 );
 			buf.append( " (" );
 			buf.append( growth/10.0, 1 );
 			buf.append( ")" );
@@ -155,7 +155,7 @@ void citylist_stats_t::zeichnen(koord offset)
 				display_blend_wh( offset.x, offset.y, groesse.x, LINESPACE, COL_BLACK, 25 );
 			}
 		}
-		total_bev    += bev;
+		total_bev    += population;
 		total_growth += growth;
 	}
 	// some cities there?

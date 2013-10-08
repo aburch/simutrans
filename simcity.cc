@@ -1103,6 +1103,7 @@ void stadt_t::add_gebaeude_to_stadt(gebaeude_t* gb, bool ordered)
 {
 	if (gb != NULL)
 	{
+		
 		const haus_tile_besch_t* tile = gb->get_tile();
 		koord size = tile->get_besch()->get_groesse(tile->get_layout());
 		const koord pos = gb->get_pos().get_2d() - tile->get_offset();
@@ -1132,10 +1133,32 @@ void stadt_t::add_gebaeude_to_stadt(gebaeude_t* gb, bool ordered)
 	}
 }
 
+void stadt_t::update_city_stats_with_building(gebaeude_t* building, bool remove)
+{
+	if(remove)
+	{
+		city_history_month[0][HIST_CITICENS] -= building->get_population();
+		city_history_year[0][HIST_CITICENS]  -= building->get_population();
+		city_history_month[0][HIST_JOBS] -= building->get_jobs();
+		city_history_year[0][HIST_JOBS]  -= building->get_jobs();
+		city_history_month[0][HIST_VISITOR_DEMAND] -= building->get_visitor_demand();
+		city_history_year[0][HIST_VISITOR_DEMAND]  -= building->get_visitor_demand();
+	}
+	else
+	{
+		city_history_month[0][HIST_CITICENS] += building->get_population();
+		city_history_year[0][HIST_CITICENS]  += building->get_population();
+		city_history_month[0][HIST_JOBS] += building->get_jobs();
+		city_history_year[0][HIST_JOBS]  += building->get_jobs();
+		city_history_month[0][HIST_VISITOR_DEMAND] += building->get_visitor_demand();
+		city_history_year[0][HIST_VISITOR_DEMAND]  += building->get_visitor_demand();
+	}
+}
 
 // this function removes houses from the city house list
 void stadt_t::remove_gebaeude_from_stadt(gebaeude_t* gb)
 {
+	update_city_stats_with_building(gb, true);
 	buildings.remove(gb);
 	welt->remove_building_from_world_list(gb);
 	gb->set_stadt(NULL);
@@ -1781,14 +1804,6 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 			city_history_month[month][hist_type] = 0;
 		}
 	}
-	city_history_year[0][HIST_CITICENS]  = get_einwohner();
-	city_history_month[0][HIST_CITICENS] = get_einwohner();
-
-	city_history_year[0][HIST_JOBS]  = get_city_jobs();
-	city_history_month[0][HIST_JOBS] = get_city_jobs();
-
-	city_history_year[0][HIST_VISITOR_DEMAND]  = get_city_visitor_demand();
-	city_history_month[0][HIST_VISITOR_DEMAND] = get_city_visitor_demand();
 
 	outgoing_private_cars = 0;
 	incoming_private_cars = 0;
@@ -1913,14 +1928,6 @@ void stadt_t::rdwr(loadsave_t* file)
 			}
 		}
 		
-		city_history_year[0][HIST_CITICENS] = get_einwohner();
-		city_history_year[0][HIST_CITICENS] = get_einwohner();
-
-		city_history_year[0][HIST_JOBS]  = get_city_jobs();
-		city_history_month[0][HIST_JOBS] = get_city_jobs();
-
-		city_history_year[0][HIST_VISITOR_DEMAND]  = get_city_visitor_demand();
-		city_history_month[0][HIST_VISITOR_DEMAND] = get_city_visitor_demand();
 	}
 	
 	const int adapted_max_city_history = file->get_experimental_version() < 12 ? MAX_CITY_HISTORY + 1 : MAX_CITY_HISTORY;
@@ -2607,16 +2614,7 @@ void stadt_t::step(long delta_t)
 	//	next_step -= step_interval;
 	//}
 
-	// TODO: Add jobs/visitor demand (if/as appropriate)
 	// update history (might be changed due to construction/destroying of houses)
-	city_history_month[0][HIST_CITICENS] = get_einwohner();	// total number
-	city_history_year[0][HIST_CITICENS] = get_einwohner();
-
-	city_history_year[0][HIST_JOBS]  = get_city_jobs();
-	city_history_month[0][HIST_JOBS] = get_city_jobs();
-
-	city_history_year[0][HIST_VISITOR_DEMAND]  = get_city_visitor_demand();
-	city_history_month[0][HIST_VISITOR_DEMAND] = get_city_visitor_demand();
 
 	city_history_month[0][HIST_GROWTH] = city_history_month[0][HIST_CITICENS]-city_history_month[1][HIST_CITICENS];	// growth
 	city_history_year[0][HIST_GROWTH] = city_history_year[0][HIST_CITICENS]-city_history_year[1][HIST_CITICENS];
@@ -2638,12 +2636,10 @@ void stadt_t::roll_history()
 		}
 	}
 	// init this month
-	for (int hist_type = 1; hist_type < MAX_CITY_HISTORY; hist_type++) {
+	for (int hist_type = HIST_GROWTH; hist_type < MAX_CITY_HISTORY; hist_type++) {
 		city_history_month[0][hist_type] = 0;
 	}
-	city_history_month[0][HIST_JOBS] = get_city_jobs();
-	city_history_month[0][HIST_VISITOR_DEMAND] = get_city_visitor_demand();
-	city_history_month[0][HIST_CITICENS] = get_einwohner();
+
 	city_history_month[0][HIST_BUILDING] = buildings.get_count();
 	city_history_month[0][HIST_GOODS_NEEDED] = 0;
 
@@ -2656,7 +2652,7 @@ void stadt_t::roll_history()
 	
 	city_history_year[0][HIST_CONGESTION] = total_congestion / 12;
 
-	//need to roll year too?
+	// need to roll year too?
 	if (welt->get_last_month() == 0) 
 	{
 		for (int i = MAX_CITY_HISTORY_YEARS - 1; i > 0; i--)
@@ -2667,13 +2663,10 @@ void stadt_t::roll_history()
 			}
 		}
 		// init this year
-		for (int hist_type = 1; hist_type < MAX_CITY_HISTORY; hist_type++)
+		for (int hist_type = HIST_GROWTH; hist_type < MAX_CITY_HISTORY; hist_type++)
 		{
 			city_history_year[0][hist_type] = 0;
 		}
-		city_history_year[0][HIST_JOBS]  = get_city_jobs();
-		city_history_year[0][HIST_VISITOR_DEMAND]  = get_city_visitor_demand();
-		city_history_year[0][HIST_CITICENS] = get_einwohner();
 		city_history_year[0][HIST_BUILDING] = buildings.get_count();
 		city_history_year[0][HIST_GOODS_NEEDED] = 0;
 
@@ -2878,7 +2871,6 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 		const sint64 trips_per_hour = (city_history_month[1][HIST_CITYCARS] * 3600l) / seconds_per_month;
 		//const sint64 trips_per_hour = ((city_history_month[1][HIST_CITYCARS] - incoming_private_cars) * 3600l) / seconds_per_month;
 		
-
 		// Third - combine the information, multiplying by a ratio based on 
 		// congestion_density_factor == 141 is the ideal factor based on the 2012 TomTom congestion index for British cities
 		// (Average: range is 70 (London) to 227 (Newcastle/Sunderland).
@@ -5562,6 +5554,8 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 
 void stadt_t::add_building_to_list(gebaeude_t* building, bool ordered)
 {
+	update_city_stats_with_building(building, false);
+	
 	if(ordered) 
 	{
 		buildings.insert_ordered(building, building->get_tile()->get_besch()->get_level(), compare_gebaeude_pos);

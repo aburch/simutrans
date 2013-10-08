@@ -199,7 +199,7 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	fabrik_t* get_fabrik() const { return is_factory ? ptr.fab : NULL; }
-	stadt_t* get_stadt() const { return is_factory ? NULL : ptr.stadt; }
+	stadt_t* get_stadt() const;
 
 #ifdef INLINE_DING_TYPE
 #else

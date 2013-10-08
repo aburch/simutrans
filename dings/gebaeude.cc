@@ -167,7 +167,10 @@ gebaeude_t::gebaeude_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_til
 	check_road_tiles(false);
 }
 
-
+stadt_t* gebaeude_t::get_stadt() const
+{ 
+	return is_factory ? ptr.fab->get_city() : ptr.stadt; 
+}
 
 /**
  * Destructor. Removes this from the list of sync objects if neccesary.
