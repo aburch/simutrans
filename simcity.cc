@@ -1784,6 +1784,12 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 	city_history_year[0][HIST_CITICENS]  = get_einwohner();
 	city_history_month[0][HIST_CITICENS] = get_einwohner();
 
+	city_history_year[0][HIST_JOBS]  = get_city_jobs();
+	city_history_month[0][HIST_JOBS] = get_city_jobs();
+
+	city_history_year[0][HIST_VISITOR_DEMAND]  = get_city_visitor_demand();
+	city_history_month[0][HIST_VISITOR_DEMAND] = get_city_visitor_demand();
+
 	outgoing_private_cars = 0;
 	incoming_private_cars = 0;
 
@@ -1906,9 +1912,15 @@ void stadt_t::rdwr(loadsave_t* file)
 				city_history_month[month][hist_type] = 0;
 			}
 		}
-		// TODO: Add jobs and visitor demand
+		
 		city_history_year[0][HIST_CITICENS] = get_einwohner();
 		city_history_year[0][HIST_CITICENS] = get_einwohner();
+
+		city_history_year[0][HIST_JOBS]  = get_city_jobs();
+		city_history_month[0][HIST_JOBS] = get_city_jobs();
+
+		city_history_year[0][HIST_VISITOR_DEMAND]  = get_city_visitor_demand();
+		city_history_month[0][HIST_VISITOR_DEMAND] = get_city_visitor_demand();
 	}
 	
 	const int adapted_max_city_history = file->get_experimental_version() < 12 ? MAX_CITY_HISTORY + 1 : MAX_CITY_HISTORY;
@@ -2600,6 +2612,12 @@ void stadt_t::step(long delta_t)
 	city_history_month[0][HIST_CITICENS] = get_einwohner();	// total number
 	city_history_year[0][HIST_CITICENS] = get_einwohner();
 
+	city_history_year[0][HIST_JOBS]  = get_city_jobs();
+	city_history_month[0][HIST_JOBS] = get_city_jobs();
+
+	city_history_year[0][HIST_VISITOR_DEMAND]  = get_city_visitor_demand();
+	city_history_month[0][HIST_VISITOR_DEMAND] = get_city_visitor_demand();
+
 	city_history_month[0][HIST_GROWTH] = city_history_month[0][HIST_CITICENS]-city_history_month[1][HIST_CITICENS];	// growth
 	city_history_year[0][HIST_GROWTH] = city_history_year[0][HIST_CITICENS]-city_history_year[1][HIST_CITICENS];
 
@@ -2623,7 +2641,8 @@ void stadt_t::roll_history()
 	for (int hist_type = 1; hist_type < MAX_CITY_HISTORY; hist_type++) {
 		city_history_month[0][hist_type] = 0;
 	}
-	// TODO: Update to account for jobs/visitor demand
+	city_history_month[0][HIST_JOBS] = get_city_jobs();
+	city_history_month[0][HIST_VISITOR_DEMAND] = get_city_visitor_demand();
 	city_history_month[0][HIST_CITICENS] = get_einwohner();
 	city_history_month[0][HIST_BUILDING] = buildings.get_count();
 	city_history_month[0][HIST_GOODS_NEEDED] = 0;
@@ -2652,7 +2671,8 @@ void stadt_t::roll_history()
 		{
 			city_history_year[0][hist_type] = 0;
 		}
-		// TODO: Update for jobs/visitor demand
+		city_history_year[0][HIST_JOBS]  = get_city_jobs();
+		city_history_year[0][HIST_VISITOR_DEMAND]  = get_city_visitor_demand();
 		city_history_year[0][HIST_CITICENS] = get_einwohner();
 		city_history_year[0][HIST_BUILDING] = buildings.get_count();
 		city_history_year[0][HIST_GOODS_NEEDED] = 0;
@@ -3050,7 +3070,7 @@ void stadt_t::step_grow_city()
 	// Hajo: let city grow in steps of 1
 	// @author prissi: No growth without development
 	for (int n = 0; n < growth_step; n++) {
-		bev++; // Hajo: bevoelkerung wachsen lassen ("densely populated grow" - Google)
+		bev++; // Hajo: bevoelkerung wachsen lassen ("grow population" - Google)
 
 		for (int i = 0; i < 30 && bev * 2 > won + arb + 100; i++) {
 			baue(false);
@@ -5272,7 +5292,7 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 	if (h == NULL  &&  sum_industrial > sum_residential  &&  sum_industrial > sum_residential) {
 		h = hausbauer_t::get_industrial(0, current_month, cl, new_town, neighbor_building_clusters);
 		if (h != NULL) {
-			arb += (h->get_level()) * 20;
+			arb +=  h->get_level() * 20;
 		}
 	}
 
@@ -5348,8 +5368,8 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 
 		switch(want_to_have) {
 			case gebaeude_t::wohnung:   won += h->get_level() * 10; break;
-			case gebaeude_t::gewerbe:   arb += h->get_level() * 20; break;
-			case gebaeude_t::industrie: arb += h->get_level() * 20; break;
+			case gebaeude_t::gewerbe:   arb +=  h->get_level() * 20; break;
+			case gebaeude_t::industrie: arb +=  h->get_level() * 20; break;
 			default: break;
 		}
 
@@ -5511,9 +5531,9 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 		}
 
 		switch(alt_typ) {
-			case gebaeude_t::wohnung:   won -= level * 10; break;
-			case gebaeude_t::gewerbe:   arb -= level * 20; break;
-			case gebaeude_t::industrie: arb -= level * 20; break;
+			case gebaeude_t::wohnung:   won -= h->get_level() * 10; break;
+			case gebaeude_t::gewerbe:   arb -=  h->get_level() * 20; break;
+			case gebaeude_t::industrie: arb -=  h->get_level() * 20; break;
 			default: break;
 		}
 
@@ -5531,8 +5551,8 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 		add_building_to_list(new_gb);
 		switch(want_to_have) {
 			case gebaeude_t::wohnung:   won += h->get_level() * 10; break;
-			case gebaeude_t::gewerbe:   arb += h->get_level() * 20; break;
-			case gebaeude_t::industrie: arb += h->get_level() * 20; break;
+			case gebaeude_t::gewerbe:   arb +=  h->get_level() * 20; break;
+			case gebaeude_t::industrie: arb +=  h->get_level() * 20; break;
 			default: break;
 		}
 		return true;

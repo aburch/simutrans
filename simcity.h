@@ -578,6 +578,9 @@ public:
 	 */
 	//sint32 get_einwohner() const {return (buildings.get_sum_weight()*6)+((2*bev-arb-won)>>1);}
 	sint32 get_einwohner() const {return ((buildings.get_sum_weight() * welt->get_settings().get_meters_per_tile()) / 31)+((2*bev-arb-won)>>1);}
+	//sint32 get_einwohner() const { return bev; }
+	sint32 get_city_jobs() const { return arb; }
+	sint32 get_city_visitor_demand() const { return 0; } // TODO: Add a real value here.
 
 	uint32 get_buildings()  const { return buildings.get_count(); }
 	sint32 get_unemployed() const { return bev - arb; }
