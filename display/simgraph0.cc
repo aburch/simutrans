@@ -17,6 +17,14 @@ KOORD_VAL tile_raster_width = 16; // zoomed
 KOORD_VAL base_tile_raster_width = 16; // original
 
 
+/*
+ * Hajo: mapping table for special-colors (AI player colors)
+ * to actual output format - all day mode
+ * 16 sets of 16 colors
+ */
+PIXVAL specialcolormap_all_day[256];
+
+
 KOORD_VAL display_set_base_raster_width(KOORD_VAL)
 {
 	return 0;
