@@ -978,10 +978,10 @@ public:
 	void set_scroll_lock(bool yesno);
 
 	/**
-	 * Gets a new world position to put the cursor, under the mouse position.
-	 * @param ev system event, we take the mouse position from here. Input parameter.
+	 * Gets a new world position, under the requested screen coordinates. Used to move the cursor.
+	 * @param screen_pos Screen position to check. Input parameter.
 	 * @param grid_coordinates indicates if this function is to check against the map tiles, or the grid of heights. Input parameter.
-	 * @return koord3d::invalid if no position exists under the mouse pointer, a 3d koord directly under the mouse otherwise.
+	 * @return koord3d::invalid if no position exists under the requested coordinate, a 3d koord directly under it otherwise.
 	 */
 	koord3d get_new_cursor_position(const koord screen_pos, bool grid_coordinates);
 
