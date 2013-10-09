@@ -869,12 +869,6 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 			buf.printf(translator::translate("Town: %s\n"), ptr.stadt->get_name());
 		}
 
-		// TODO: Remove this deprecated code entirely.
-		//if(  get_tile()->get_besch()->get_utyp() < haus_besch_t::bahnhof  ) {
-		//	buf.printf("%s: %d\n", translator::translate("Passagierrate"), people.population); // TODO: Consider updating the names for this.
-		//	buf.printf("%s: %d\n", translator::translate("Postrate"),      mail_demand);
-		//}
-
 		const sint32 remaining_jobs_adjusted = check_remaining_available_jobs();
 		const sint32 deadjusted_remaining_jobs = (remaining_jobs_adjusted * get_jobs()) / (get_adjusted_jobs() > 0 ? get_adjusted_jobs() : 1); 
 
@@ -890,9 +884,6 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 			buf.printf("%s%u", translator::translate("\nBauzeit bis"), h.get_retire_year_month() / 12);
 		}
 
-		// TODO: Remove this deprecated code entirely.
-		//buf.printf("\nTEST total jobs: %i; remaining jobs: %i", get_adjusted_jobs(), check_remaining_available_jobs());
-		
 		buf.append("\n");
 		if(get_besitzer()==NULL) {
 			buf.append("\n");
@@ -1392,7 +1383,7 @@ uint16 gebaeude_t::get_visitor_demand() const
 		return people.visitor_demand;
 	}
 
-	uint16 reduced_demand = people.population / 5;
+	uint16 reduced_demand = people.population / 10;
 	return reduced_demand > 0 ? reduced_demand : 1;
 }
 
