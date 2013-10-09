@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hj. Malthaner
+ * Copyright (c) 2013 Markohs
  *
  * This file is part of the Simutrans project under the artistic license.
  * (see license.txt)
@@ -318,10 +318,12 @@ bool interaction_t::process_event( event_t &ev )
 	if(IS_RIGHTCLICK(&ev)) {
 		display_show_pointer(false);
 		cursor_hidden = true;
-	} else if(IS_RIGHTRELEASE(&ev)) {
+	}
+	else if(IS_RIGHTRELEASE(&ev)) {
 		display_show_pointer(true);
 		cursor_hidden = false;
-	} else if(IS_RIGHTDRAG(&ev)) {
+	}
+	else if(IS_RIGHTDRAG(&ev)) {
 		// unset following
 		world->set_follow_convoi( convoihandle_t() );
 		move_view(ev);
