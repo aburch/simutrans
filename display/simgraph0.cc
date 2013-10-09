@@ -338,7 +338,7 @@ int display_calc_proportional_string_len_width(const char*, size_t)
 #ifdef MULTI_THREAD
 int display_text_proportional_len_clip_cl_rgb(KOORD_VAL, KOORD_VAL, const char*, control_alignment_t , const PIXVAL, bool, long, const sint8)
 #else
-int display_text_proportional_len_clip_cl_rgb(KOORD_VAL, KOORD_VAL, const char*, control_alignment_t , const PIXVAL, bool, long )
+int display_text_proportional_len_clip_rgb(KOORD_VAL, KOORD_VAL, const char*, control_alignment_t , const PIXVAL, bool, long )
 #endif
 {
 	return 0;
