@@ -43,6 +43,7 @@
 #include "simwerkz.h"
 #include "gui/simwin.h"
 #include "simworld.h"
+#include "siminteraction.h"
 
 
 #include "tpl/vector_tpl.h"
@@ -111,7 +112,6 @@
 #define FF_PPS (10)
 
 
-static bool is_dragging = false;
 static uint32 last_clients = -1;
 static uint8 last_active_player_nr = 0;
 static std::string last_network_game;
@@ -1473,7 +1473,6 @@ void karte_t::init(settings_t* const sets, sint8 const* const h_field)
 	set_ticks_per_world_month_shift(settings.get_bits_per_month());
 	next_month_ticks =  karte_t::ticks_per_world_month;
 	season=(2+last_month/3)&3; // summer always zero
-	is_dragging = false;
 	steps = 0;
 	network_frame_count = 0;
 	sync_steps = 0;
@@ -4705,30 +4704,6 @@ void karte_t::change_world_position( koord new_ij, sint16 new_xoff, sint16 new_y
 }
 
 
-void karte_t::move_view(event_t *ev)
-{
-	if(!scroll_lock) {
-		koord new_ij = ij_off;
-
-		sint16 new_xoff = x_off - (ev->mx - ev->cx) * env_t::scroll_multi;
-		sint16 new_yoff = y_off - (ev->my-ev->cy) * env_t::scroll_multi;
-
-		// this sets the new position and mark screen dirty
-		// => with next refresh we will be at a new location
-		change_world_position( new_ij, new_xoff, new_yoff );
-
-		// move the mouse pointer back to starting location => infinite mouse movement
-		if ((ev->mx - ev->cx)!=0  ||  (ev->my-ev->cy)!=0) {
-#ifdef __BEOS__
-			change_drag_start(ev->mx - ev->cx, ev->my - ev->cy);
-#else
-			display_move_pointer(ev->cx, ev->cy);
-#endif
-		}
-	}
-}
-
-
 static sint8 median( sint8 a, sint8 b, sint8 c )
 {
 #if 0
@@ -6557,7 +6532,7 @@ grund_t* karte_t::get_ground_on_screen_coordinate(koord screen_pos, sint32 &foun
 }
 
 
-koord3d karte_t::get_new_cursor_position(const event_t *ev, bool grid_coordinates)
+koord3d karte_t::get_new_cursor_position(const koord screen_pos, bool grid_coordinates)
 {
 	const int rw4 = get_tile_raster_width()/4;
 
@@ -6571,7 +6546,7 @@ koord3d karte_t::get_new_cursor_position(const event_t *ev, bool grid_coordinate
 	}
 
 	sint32 grid_x, grid_y;
-	const grund_t *bd = get_ground_on_screen_coordinate(koord(ev->mx, ev->my + offset_y), grid_x, grid_y, grid_coordinates);
+	const grund_t *bd = get_ground_on_screen_coordinate(koord(screen_pos.x, screen_pos.y + offset_y), grid_x, grid_y, grid_coordinates);
 
 	// no suitable location found (outside map, ...)
 	if (!bd) {
@@ -6586,69 +6561,6 @@ koord3d karte_t::get_new_cursor_position(const event_t *ev, bool grid_coordinate
 	}
 
 	return koord3d(grid_x, grid_y, bd->get_disp_height() + groff);
-}
-
-
-void karte_t::move_cursor(const event_t *ev)
-{
-	if(!zeiger) {
-		// No cursor to move, exit
-		return;
-	}
-
-	static int mb_alt=0;
-
-	werkzeug_t *wkz = werkzeug[get_active_player_nr()];
-
-	const koord3d pos = get_new_cursor_position(ev, wkz->is_grid_tool());
-
-	if( pos == koord3d::invalid ) {
-		zeiger->change_pos(pos);
-		return;
-	}
-
-
-	// move cursor
-	const koord3d prev_pos = zeiger->get_pos();
-	if(  (prev_pos != pos ||  ev->button_state != mb_alt)  ) {
-
-		mb_alt = ev->button_state;
-
-		zeiger->change_pos(pos);
-
-		if(  !env_t::networkmode  ||  wkz->is_move_network_save(get_active_player())) {
-			wkz->flags = event_get_last_control_shift() | werkzeug_t::WFL_LOCAL;
-			if(wkz->check_pos( this, get_active_player(), zeiger->get_pos() )==NULL) {
-				if(  ev->button_state == 0  ) {
-					is_dragging = false;
-				}
-				else if(ev->ev_class==EVENT_DRAG) {
-					if(!is_dragging  &&  wkz->check_pos( this, get_active_player(), prev_pos )==NULL) {
-						const char* err = get_scenario()->is_work_allowed_here(get_active_player(), wkz->get_id(), wkz->get_waytype(), prev_pos);
-						if (err == NULL) {
-							is_dragging = true;
-						}
-						else {
-							is_dragging = false;
-						}
-					}
-				}
-				if (is_dragging) {
-					const char* err = get_scenario()->is_work_allowed_here(get_active_player(), wkz->get_id(), wkz->get_waytype(), pos);
-					if (err == NULL) {
-						wkz->move( this, get_active_player(), is_dragging, pos );
-					}
-				}
-			}
-			wkz->flags = 0;
-		}
-
-		if(  (ev->button_state&7)==0  ) {
-			// time, since mouse got here
-			mouse_rest_time = dr_time();
-			sound_wait_time = AMBIENT_SOUND_INTERVALL;	// 13s no movement: play sound
-		}
-	}
 }
 
 
@@ -6752,182 +6664,6 @@ void karte_t::switch_active_player(uint8 new_player, bool silent)
 	werkzeug[active_player_nr]->init_cursor(zeiger);
 	// set position / mark area
 	zeiger->change_pos( old_zeiger_pos );
-}
-
-
-void karte_t::interactive_event(event_t &ev)
-{
-	if(ev.ev_class == EVENT_KEYBOARD) {
-		DBG_MESSAGE("karte_t::interactive_event()","Keyboard event with code %d '%c'", ev.ev_code, (ev.ev_code>=32  &&  ev.ev_code<=126) ? ev.ev_code : '?' );
-
-		switch(ev.ev_code) {
-
-			// cursor movements
-			case '9':
-				ij_off += koord::nord;
-				dirty = true;
-				break;
-			case '1':
-				ij_off += koord::sued;
-				dirty = true;
-				break;
-			case '7':
-				ij_off += koord::west;
-				dirty = true;
-				break;
-			case '3':
-				ij_off += koord::ost;
-				dirty = true;
-				break;
-			case '6':
-			case SIM_KEY_RIGHT:
-				ij_off += koord(+1,-1);
-				dirty = true;
-				break;
-			case '2':
-			case SIM_KEY_DOWN:
-				ij_off += koord(+1,+1);
-				dirty = true;
-				break;
-			case '8':
-			case SIM_KEY_UP:
-				ij_off += koord(-1,-1);
-				dirty = true;
-				break;
-			case '4':
-			case SIM_KEY_LEFT:
-				ij_off += koord(-1,+1);
-				dirty = true;
-				break;
-
-			// closing windows
-			case 27:
-			case 127:
-				// close topmost win
-				destroy_win( win_get_top() );
-				break;
-
-			case SIM_KEY_F1:
-				if(  gui_frame_t *win = win_get_top()  ) {
-					if(  const char *helpfile = win->get_hilfe_datei()  ) {
-						help_frame_t::open_help_on( helpfile );
-						break;
-					}
-				}
-				set_werkzeug( werkzeug_t::dialog_tool[WKZ_HELP], get_active_player() );
-				break;
-
-			// just ignore the key
-			case 0:
-				break;
-
-			// distinguish between backspace and ctrl-H (both keycode==8), and enter and ctrl-M (both keycode==13)
-			case 8:
-			case 13:
-				if(  !IS_CONTROL_PRESSED(&ev)  ) {
-					// Control is _not_ pressed => Backspace or Enter pressed.
-					if(  ev.ev_code == 8  ) {
-						// Backspace
-						sound_play(SFX_SELECT);
-						destroy_all_win(false);
-					}
-					// Ignore Enter and Backspace but not Ctrl-H and Ctrl-M
-					break;
-				}
-
-			default:
-				{
-					bool ok=false;
-					FOR(vector_tpl<werkzeug_t*>, const i, werkzeug_t::char_to_tool) {
-						if (i->command_key == ev.ev_code) {
-							set_werkzeug(i, get_active_player());
-							ok = true;
-							break;
-						}
-					}
-					if(!ok) {
-						help_frame_t::open_help_on( "keys.txt" );
-					}
-				}
-				break;
-		}
-	}
-
-	if(  IS_LEFTRELEASE(&ev)  &&  ev.my < display_get_height() - 32 + (16*ticker::empty())  ) {
-
-		DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "calling a tool");
-
-		if(is_within_grid_limits(zeiger->get_pos().get_2d())) {
-			const char *err = NULL;
-			bool result = true;
-			werkzeug_t *wkz = werkzeug[get_active_player_nr()];
-			// first check for visibility etc
-			err = wkz->check_pos( this, get_active_player(), zeiger->get_pos() );
-			if (err==NULL) {
-				wkz->flags = event_get_last_control_shift();
-				if (!env_t::networkmode  ||  wkz->is_work_network_save()  ||  wkz->is_work_here_network_save( this, get_active_player(), zeiger->get_pos() ) ) {
-					// do the work
-					wkz->flags |= werkzeug_t::WFL_LOCAL;
-					// check allowance by scenario
-					koord3d const& pos = zeiger->get_pos();
-					if (get_scenario()->is_scripted()) {
-						if (!get_scenario()->is_tool_allowed(get_active_player(), wkz->get_id(), wkz->get_waytype()) ) {
-							err = "";
-						}
-						else {
-							err = get_scenario()->is_work_allowed_here(get_active_player(), wkz->get_id(), wkz->get_waytype(), pos);
-						}
-					}
-					if (err == NULL) {
-						err = wkz->work(this, get_active_player(), zeiger->get_pos());
-						if( err == NULL ) {
-							// Check if we need to update pointer(zeiger) position.
-							if ( wkz->update_pos_after_use() ) {
-								// Cursor might need movement (screen has changed, we get a new one under the mouse pointer)
-								const koord3d pos_new = get_new_cursor_position(&ev ,wkz->is_grid_tool());
-								zeiger->set_pos(pos_new);
-							}
-						}
-					}
-				}
-				else {
-					// queue tool for network
-					nwc_tool_t *nwc = new nwc_tool_t(get_active_player(), wkz, zeiger->get_pos(), steps, map_counter, false);
-					network_send_server(nwc);
-					result = false;
-					// reset tool
-					wkz->init(this, get_active_player());
-				}
-			}
-			if (result) {
-				// play sound / error message
-				get_active_player()->tell_tool_result(wkz, zeiger->get_pos(), err, true);
-			}
-			wkz->flags = 0;
-		}
-	}
-
-	// mouse wheel scrolled -> rezoom
-	if (ev.ev_class == EVENT_CLICK) {
-		const sint16 org_raster_width = get_tile_raster_width();
-		if(ev.ev_code==MOUSE_WHEELUP) {
-			if(win_change_zoom_factor(true)) {
-				set_dirty();
-			}
-		}
-		else if(ev.ev_code==MOUSE_WHEELDOWN) {
-			if(win_change_zoom_factor(false)) {
-				set_dirty();
-			}
-		}
-		const sint16 new_raster_width = get_tile_raster_width();
-		if (org_raster_width != new_raster_width) {
-			// scale the fine offsets for displaying
-			x_off = (x_off * new_raster_width) / org_raster_width;
-			y_off = (y_off * new_raster_width) / org_raster_width;
-		}
-	}
-	INT_CHECK("simworld 2117");
 }
 
 
@@ -7175,12 +6911,11 @@ sint16 karte_t::get_sound_id(grund_t *gr)
 	return NO_SOUND;
 }
 
+
 bool karte_t::interactive(uint32 quit_month)
 {
-	event_t ev;
+
 	finish_loop = false;
-	bool swallowed = false;
-	bool cursor_hidden = false;
 	sync_steps = 0;
 
 	network_frame_count = 0;
@@ -7232,57 +6967,11 @@ bool karte_t::interactive(uint32 quit_month)
 			DBG_DEBUG4("karte_t::interactive", "end of sound");
 		}
 
-		// get an event
-		DBG_DEBUG4("karte_t::interactive", "calling win_poll_event");
-		win_poll_event(&ev);
+		// check events queued since our last iteration
+		eventmanager->check_events();
 
-		if(  ev.ev_class == EVENT_SYSTEM  &&  ev.ev_code == SYSTEM_QUIT  ) {
-			// quit the program if this windows is closed
-			destroy_all_win(true);
-			env_t::quit_simutrans = true;
+		if (env_t::quit_simutrans){
 			break;
-		}
-
-		if(  ev.ev_class != EVENT_NONE &&  ev.ev_class != IGNORE_EVENT  ) {
-
-			if(  env_t::networkmode  ) {
-				set_random_mode( INTERACTIVE_RANDOM );
-			}
-
-			DBG_DEBUG4("karte_t::interactive", "calling check_pos_win");
-			swallowed = check_pos_win(&ev);
-
-			if(  !swallowed  ) {
-				if(IS_RIGHTCLICK(&ev)) {
-					display_show_pointer(false);
-					cursor_hidden = true;
-				}
-				else if(IS_RIGHTRELEASE(&ev)) {
-					display_show_pointer(true);
-					cursor_hidden = false;
-				}
-				else if(IS_RIGHTDRAG(&ev)) {
-					// unset following
-					follow_convoi = convoihandle_t();
-					move_view(&ev);
-				}
-				else {
-					if(cursor_hidden) {
-						display_show_pointer(true);
-						cursor_hidden = false;
-					}
-				}
-			}
-
-			DBG_DEBUG4("karte_t::interactive", "after check_pos_win");
-			if((!swallowed  &&  (ev.ev_class==EVENT_DRAG  &&  ev.ev_code==MOUSE_LEFTBUTTON))  ||  (ev.button_state==0  &&  ev.ev_class==EVENT_MOVE)  ||  ev.ev_class==EVENT_RELEASE) {
-				move_cursor(&ev);
-			}
-
-			if(  env_t::networkmode  ) {
-				clear_random_mode( INTERACTIVE_RANDOM );
-			}
-			DBG_DEBUG4("karte_t::interactive", "end of event handling");
 		}
 
 		if(  env_t::networkmode  ) {
@@ -7377,11 +7066,6 @@ bool karte_t::interactive(uint32 quit_month)
 		if (  env_t::server_announce  &&  env_t::server_announce_interval > 0  &&
 			dr_time() >= server_last_announce_time + (uint32)env_t::server_announce_interval * 1000  ) {
 			announce_server( 1 );
-		}
-
-		if (!swallowed) {
-			DBG_DEBUG4("karte_t::interactive", "calling interactive_event");
-			interactive_event(ev);
 		}
 
 		DBG_DEBUG4("karte_t::interactive", "point of loop return");

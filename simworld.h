@@ -43,6 +43,7 @@ class zeiger_t;
 class grund_t;
 class planquadrat_t;
 class karte_ansicht_t;
+class interaction_t;
 class sync_steppable;
 class werkzeug_t;
 class scenario_t;
@@ -392,6 +393,11 @@ private:
 	karte_ansicht_t *view;
 
 	/**
+	 * Event manager of this world.
+	 */
+	interaction_t *eventmanager;
+
+	/**
 	 * Checks whether the heights of the corners of the tile at (@p x, @p y) can be raised.
 	 * If the desired height of a corner is lower than its current height, this corner is ignored.
 	 * @param sp player who wants to lower
@@ -460,36 +466,12 @@ private:
 	void cleanup_karte( int xoff, int yoff );
 
 	/**
-	 * Processes a mouse event that's moving the camera.
-	 */
-	void move_view(event_t *ev);
-
-	/**
-	 * Gets a new world position to put the cursor, under the mouse position.
-	 * @param ev system event, we take the mouse position from here. Input parameter.
-	 * @param grid_coordinates indicates if this function is to check against the map tiles, or the grid of heights. Input parameter.
-	 * @return koord3d::invalid if no position exists under the mouse pointer, a 3d koord directly under the mouse otherwise.
-	 */
-	koord3d get_new_cursor_position(const event_t *ev, bool grid_coordinates);
-
-	/**
-	 * Processes a cursor movement event, related to the tool pointer in-map.
-	 * @see zeiger_t
-	 */
-	void move_cursor(const event_t *ev);
-
-	/**
 	 * Searches for the ground_t that's under the requested screen position.
 	 * @param screen_pos Screen coordinates to check for.
 	 * @param intersect_grid Special case for the lower/raise tool, will return a limit border tile if we are on the south/east border of screen.
 	 * @return the grund_t that's under the desired screen coordinate. NULL if we are outside map or we can't find it.
 	 */
 	grund_t* get_ground_on_screen_coordinate(koord screen_pos, sint32 &found_i, sint32 &found_j, const bool intersect_grid=false) const;
-
-	/**
-	 * Processes a user event on the map, like a keyclick, or a mouse event.
-	 */
-	void interactive_event(event_t &ev);
 
 	/**
 	 * @name Map data structures
@@ -931,6 +913,11 @@ public:
 	void set_view(karte_ansicht_t *v) { view = v; }
 
 	/**
+	 * Sets the world event manager.
+	 */
+	void set_eventmanager(interaction_t *em) { eventmanager = em; }
+
+	/**
 	 * Viewpoint in tile coordinates.
 	 * @author Hj. Malthaner
 	 */
@@ -944,7 +931,17 @@ public:
 	/**
 	 * Fine offset within the viewport tile.
 	 */
+	void set_x_off(sint16 value) {x_off = value;}
+
+	/**
+	 * Fine offset within the viewport tile.
+	 */
 	int get_y_off() const {return y_off;}
+
+	/**
+	 * Fine offset within the viewport tile.
+	 */
+	void set_y_off(sint16 value) {y_off = value;}
 
 	/**
 	 * Set center viewport position.
@@ -979,6 +976,19 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	void set_scroll_lock(bool yesno);
+
+	/**
+	 * Gets a new world position to put the cursor, under the mouse position.
+	 * @param ev system event, we take the mouse position from here. Input parameter.
+	 * @param grid_coordinates indicates if this function is to check against the map tiles, or the grid of heights. Input parameter.
+	 * @return koord3d::invalid if no position exists under the mouse pointer, a 3d koord directly under the mouse otherwise.
+	 */
+	koord3d get_new_cursor_position(const koord screen_pos, bool grid_coordinates);
+
+	/**
+	 * @return true if the map it's locked for right-drag.
+	 */
+	bool get_scroll_lock() const { return scroll_lock; }
 
 	/**
 	 * Function for following a convoi on the map give an unbound handle to unset.
@@ -1271,6 +1281,9 @@ public:
 			}
 		}
 	}
+
+	void set_mouse_rest_time(uint32 new_val) { mouse_rest_time = new_val; };
+	void set_sound_wait_time(uint32 new_val) { sound_wait_time = new_val; };
 
 private:
 	/**

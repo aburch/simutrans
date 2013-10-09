@@ -30,6 +30,7 @@
 #include "simticker.h"
 #include "simmesg.h"
 #include "simwerkz.h"
+#include "siminteraction.h"
 
 #include "simsys.h"
 #include "display/simgraph.h"
@@ -1070,7 +1071,10 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 	karte_t *welt = new karte_t();
 	karte_ansicht_t *view = new karte_ansicht_t(welt);
+	interaction_t *eventmanager = new interaction_t(welt);
+
 	welt->set_view( view );
+	welt->set_eventmanager( eventmanager );
 
 	// some messages about old vehicle may appear ...
 	welt->get_message()->set_message_flags(0, 0, 0, 0);
@@ -1256,6 +1260,9 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 	delete view;
 	view = 0;
+
+	delete eventmanager;
+	eventmanager = 0;
 
 	network_core_shutdown();
 

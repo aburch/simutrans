@@ -410,6 +410,7 @@ SOURCES += simobj.cc
 SOURCES += simevent.cc
 SOURCES += simfab.cc
 SOURCES += simhalt.cc
+SOURCES += siminteraction.cc
 SOURCES += simintr.cc
 SOURCES += simio.cc
 SOURCES += simline.cc
