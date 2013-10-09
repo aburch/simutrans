@@ -465,7 +465,8 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int org
 			grund_t *gr = welt->lookup_kartenboden(pos.get_2d() + k);
 			if(gr->ist_wasser()) {
 				gr->obj_add(gb);
-			} else if (besch->get_utyp() == haus_besch_t::hafen) {
+			}
+			else if (besch->get_utyp() == haus_besch_t::hafen) {
 				// its a dock!
 				gr->obj_add(gb);
 			}
@@ -484,7 +485,11 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int org
 				welt->access(gr->get_pos().get_2d())->boden_ersetzen(gr, gr2);
 				gr = gr2;
 //DBG_DEBUG("hausbauer_t::baue()","ground count now %i",gr->obj_count());
-				welt->calc_climate( gr->get_pos().get_2d(), true );
+#if 0
+The climate shoudl nto matter, as this is the same ground than before
+but tunnels or bridges may not have a besch during loading or the map yet!
+//				welt->calc_climate( gr->get_pos().get_2d(), true );
+#endif
 				gr->obj_add( gb );
 				if(lt) {
 					gr->obj_add( lt );

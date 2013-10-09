@@ -62,7 +62,7 @@ void tunnel_t::calc_bild()
 	pthread_mutex_lock( &tunnel_calc_bild_mutex );
 #endif
 	const grund_t *gr = welt->lookup(get_pos());
-	if(  gr->ist_karten_boden()  ) {
+	if(  gr->ist_karten_boden()  &&  besch  ) {
 		hang_t::typ hang = gr->get_grund_hang();
 
 		broad_type = 0;
@@ -148,6 +148,10 @@ void tunnel_t::laden_abschliessen()
 		}
 		else {
 			besch = tunnelbauer_t::find_tunnel(gr->get_weg_nr(0)->get_besch()->get_wtyp(), 450, 0);
+			if(  besch == NULL  ) {
+				dbg->error( "tunnel_t::laden_abschliessen()", "Completely unknown tunnel for this waytype: Lets use a rail tunnel!" );
+				besch = tunnelbauer_t::find_tunnel(track_wt, 1, 0);
+			}
 		}
 	}
 
