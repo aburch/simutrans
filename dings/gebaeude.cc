@@ -864,14 +864,25 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 		buf.append("\n\n");
 
 		// belongs to which city?
-		if (!is_factory && ptr.stadt != NULL) {
+		if(get_stadt() != NULL)
+		{
 			buf.printf(translator::translate("Town: %s\n"), ptr.stadt->get_name());
 		}
 
-		if(  get_tile()->get_besch()->get_utyp() < haus_besch_t::bahnhof  ) {
-			buf.printf("%s: %d\n", translator::translate("Passagierrate"), people.population); // TODO: Consider updating the names for this.
-			buf.printf("%s: %d\n", translator::translate("Postrate"),      mail_demand);
-		}
+		// TODO: Remove this deprecated code entirely.
+		//if(  get_tile()->get_besch()->get_utyp() < haus_besch_t::bahnhof  ) {
+		//	buf.printf("%s: %d\n", translator::translate("Passagierrate"), people.population); // TODO: Consider updating the names for this.
+		//	buf.printf("%s: %d\n", translator::translate("Postrate"),      mail_demand);
+		//}
+
+		const sint32 remaining_jobs_adjusted = check_remaining_available_jobs();
+		const sint32 deadjusted_remaining_jobs = (remaining_jobs_adjusted * get_jobs()) / (get_adjusted_jobs() > 0 ? get_adjusted_jobs() : 1); 
+
+		// TODO: Make up translator .dat file entries for these texts.
+		buf.printf("\n%s: %d\n", translator::translate("Population"), get_population());
+		buf.printf("%s: %d\n", translator::translate("Visitor demand"), get_visitor_demand());
+		buf.printf("%s (%s): %d (%d)\n", translator::translate("Jobs"), translator::translate("available"), get_jobs(), deadjusted_remaining_jobs);
+		buf.printf("%s: %d\n", translator::translate("Mail demand/output"), get_mail_demand());
 
 		haus_besch_t const& h = *tile->get_besch();
 		buf.printf("%s%u", translator::translate("\nBauzeit von"), h.get_intro_year_month() / 12);
@@ -879,7 +890,8 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 			buf.printf("%s%u", translator::translate("\nBauzeit bis"), h.get_retire_year_month() / 12);
 		}
 
-		buf.printf("\nTEST total jobs: %i; remaining jobs: %i", get_adjusted_jobs(), check_remaining_available_jobs());
+		// TODO: Remove this deprecated code entirely.
+		//buf.printf("\nTEST total jobs: %i; remaining jobs: %i", get_adjusted_jobs(), check_remaining_available_jobs());
 		
 		buf.append("\n");
 		if(get_besitzer()==NULL) {
