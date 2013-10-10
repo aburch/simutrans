@@ -306,7 +306,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 
 	// Align all values with labels
 	scr_rect bounds = label_container.get_min_boundaries();
-	label_container.set_groesse( koord( bounds.get_width(), bounds.get_height() ) );
+	label_container.set_groesse( bounds.get_size() );
 	value_container.set_pos( label_container.get_pos() + koord( bounds.get_width()+D_H_SPACE, 0 ) );
 //	value_container.align_to( &label_container, ALIGN_EXTERIOR_H | ALIGN_LEFT | ALIGN_TOP, koord( D_H_SPACE, 0 ) );
 	value_container.set_groesse( koord( L_DIALOG_WIDTH - D_MARGINS_X - label_container.get_groesse().x - D_H_SPACE, bounds.get_height() ) );

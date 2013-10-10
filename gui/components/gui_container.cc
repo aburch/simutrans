@@ -34,7 +34,7 @@ scr_rect gui_container_t::get_min_boundaries(void) const
 	scr_rect client_bound;
 
 	FOR( slist_tpl<gui_komponente_t*>, const c, komponenten ) {
-		client_bound.merge( scr_rect( c->get_pos(), c->get_groesse().x, c->get_groesse().y ) );
+		client_bound.outer_bounds( scr_rect( c->get_pos(), c->get_groesse().x, c->get_groesse().y ) );
 	}
 	return client_bound;
 }
