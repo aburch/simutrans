@@ -776,7 +776,7 @@ const char *wkz_raise_lower_base_t::move( karte_t *welt, spieler_t *sp, uint16 b
 
 const char* wkz_raise_lower_base_t::drag(karte_t *welt, spieler_t *sp, koord k, sint16 height, int &n)
 {
-	if(  !welt->is_within_limits(k)  ) {
+	if(  !welt->is_within_grid_limits(k)  ) {
 		return "";
 	}
 	const char* err = NULL;

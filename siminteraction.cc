@@ -243,7 +243,7 @@ void interaction_t::interactive_event( const event_t &ev )
 							// Check if we need to update pointer(zeiger) position.
 							if ( wkz->update_pos_after_use() ) {
 								// Cursor might need movement (screen has changed, we get a new one under the mouse pointer)
-								const koord3d pos_new = world->get_new_cursor_position(koord(ev.cx,ev.cy),wkz->is_grid_tool());
+								const koord3d pos_new = world->get_new_cursor_position(koord(ev.mx,ev.my),wkz->is_grid_tool());
 								world->get_zeiger()->set_pos(pos_new);
 							}
 						}
