@@ -1135,6 +1135,10 @@ void stadt_t::add_gebaeude_to_stadt(gebaeude_t* gb, bool ordered)
 
 void stadt_t::update_city_stats_with_building(gebaeude_t* building, bool remove)
 {
+	if(!building)
+	{
+		return;
+	}
 	if(remove)
 	{
 		city_history_month[0][HIST_CITICENS] -= building->get_population();
