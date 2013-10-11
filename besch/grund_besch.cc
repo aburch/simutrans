@@ -496,7 +496,7 @@ bool grund_besch_t::register_besch(const grund_besch_t *besch)
 			water_depth_levels = 0;
 		}
 	}
-	return 	::register_besch(grounds, besch);
+	return ::register_besch(grounds, besch);
 }
 
 
@@ -545,13 +545,23 @@ void grund_besch_t::init_ground_textures(karte_t *w)
 
 	bild_besch_t *final_tile;
 
+	bool full_climate = true;
 	// check if there are double slopes available
-	for(  int imgindex = 4;  imgindex < 15;  imgindex++  ) {
-		if(  transition_slope_texture->get_bild_ptr(imgindex) == NULL  ) {
+	for(  int imgindex = 16;  imgindex < totalslopes;  imgindex++  ) {
+		if(  light_map->get_bild_ptr(imgindex) == NULL  ) {
 			double_grounds = false;
 			break;
 		}
 	}
+	for(  int imgindex = 4;  imgindex < 15;  imgindex++  ) {
+		if(  transition_slope_texture->get_bild_ptr(imgindex) == NULL   ||
+			(imgindex<=11  &&  transition_water_texture->get_bild_ptr(imgindex) == NULL) ) {
+			full_climate = false;
+			break;
+		}
+	}
+	// double slope needs full climates
+	assert(!double_grounds  ||  full_climate);
 
 	// calculate the matching slopes ...
 	for(  int slope = 1;  slope < totalslopes;  slope++  ) {
@@ -641,7 +651,7 @@ void grund_besch_t::init_ground_textures(karte_t *w)
 				break;
 			}
 			default: {
-				if(  double_grounds  ) {
+				if(  full_climate  ) {
 					switch(  slope  ) {
 						case hang_t::nord * 2: {
 							all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(4)->copy_rotate(180);
