@@ -186,7 +186,7 @@ public:
 	// and the other two with the size
 	const scr_size get_size(void) const { return scr_size( w, h ); }
 
-	const scr_size set_size( const scr_size &sz ) {
+	void set_size( const scr_size &sz ) {
 		w = sz.w;
 		h = sz.h;
 	}
