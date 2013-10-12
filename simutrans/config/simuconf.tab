@@ -403,6 +403,20 @@ visitor_demand_per_level = 3
 jobs_per_level = 2
 mail_per_level = 1
 
+# The following settings determine how many trips are generated for each
+# unit of population and mail generation/demand. The numbers are in 100ths.
+# That means that, for each calibrated game month (the equivalent of 24 hours
+# by default even if the length of a month in game is shorter), 1/100th of
+# the values below multiplied by the global total population or mail 
+# production/demand (as applicable) will be produced. For example, if
+# the global population is 100,000, the calibrated month length is 24
+# hours and the passenger_trips_per_month_hundredths is 200, a total
+# of 200,000 passengers will be generated in the whole game world
+# per 24 game hours, or 8333 passengers per game hour.
+
+passenger_trips_per_month_hundredths = 200
+mail_packets_per_month_hundredths = 10
+
 
 #################################### Passenger settings ##################################
 #
