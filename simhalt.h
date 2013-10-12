@@ -88,13 +88,11 @@ private:
 	static stringhashtable_tpl<halthandle_t> all_names;
 
 	/**
-	 * finds a stop by koord
+	 * Finds a stop by coordinate.
+	 * only used during loading.
 	 * @author prissi
 	 */
-	static inthashtable_tpl<sint32,halthandle_t> all_koords;
-
-	// since size_x*size_y < 0x1000000, we have just to shift the high bits
-	#define get_halt_key(k,width) ( ((k).x*(width)+(k).y) /*+ ((k).z << 25)*/ )
+	static inthashtable_tpl<sint32,halthandle_t> *all_koords;
 
 	/*
 	 * struct holds new financial history for line
@@ -165,8 +163,9 @@ public:
 	 * Returns an index to a halt at koord k
    	 * optionally limit to that owned by player sp
    	 * by default create a new halt if none found
+	 * Only used during loading.
 	 */
-	static halthandle_t get_halt_koord_index(koord k, spieler_t *sp=NULL, bool create_halt=true);
+	static halthandle_t get_halt_koord_index(karte_t *welt, koord k);
 
 	/*
 	 * this will only return something if this stop belongs to same player or is public, or is a dock (when on water)
@@ -703,6 +702,20 @@ public:
 	void rdwr(loadsave_t *file);
 
 	void laden_abschliessen();
+
+	/**
+	 * Called before savegame will be loaded.
+	 * Creates all_koords table.
+	 */
+	static void start_load_game();
+
+	/**
+	 * Called after loading of savegame almost finished,
+	 * i.e. after laden_abschliessen is finished.
+	 * Deletes all_koords table.
+	 */
+	static void end_load_game();
+
 
 	/*
 	 * called, if a line serves this stop

@@ -708,7 +708,7 @@ void vehikel_t::set_convoi(convoi_t *c)
 		}
 		// just correct freight destinations
 		FOR(slist_tpl<ware_t>, & c, fracht) {
-			c.laden_abschliessen(welt, get_besitzer());
+			c.laden_abschliessen(welt);
 		}
 	}
 }

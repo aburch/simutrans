@@ -5709,6 +5709,7 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 	// now load the stops
 	// (the players will be load later and overwrite some values,
 	//  like the total number of stops build (for the numbered station feature)
+	haltestelle_t::start_load_game();
 	if(file->get_version()>=99008) {
 		sint32 halt_count;
 		file->rdwr_long(halt_count);
@@ -5852,6 +5853,7 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 			i->laden_abschliessen();
 		}
 	}
+	haltestelle_t::end_load_game();
 
 	// ... before removing dummy stops
 	for(  slist_tpl<halthandle_t>::const_iterator i=haltestelle_t::get_alle_haltestellen().begin(); i!=haltestelle_t::get_alle_haltestellen().end();  ) {

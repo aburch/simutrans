@@ -125,10 +125,10 @@ void ware_t::rdwr(karte_t *welt,loadsave_t *file)
 		else {
 			koord ziel_koord;
 			ziel_koord.rdwr(file);
-			ziel = haltestelle_t::get_halt_koord_index(ziel_koord);
+			ziel = haltestelle_t::get_halt_koord_index(welt, ziel_koord);
 			koord zwischen_ziel_koord;
 			zwischen_ziel_koord.rdwr(file);
-			zwischenziel = haltestelle_t::get_halt_koord_index(zwischen_ziel_koord);
+			zwischenziel = haltestelle_t::get_halt_koord_index(welt, zwischen_ziel_koord);
 		}
 	}
 	zielpos.rdwr(file);
@@ -142,16 +142,16 @@ void ware_t::rdwr(karte_t *welt,loadsave_t *file)
 
 
 
-void ware_t::laden_abschliessen(karte_t *welt,spieler_t * /*sp*/)
+void ware_t::laden_abschliessen(karte_t *welt)
 {
 	if(  welt->load_version<=111005  ) {
 		// since some halt was referred by with several koordinates
 		// this routine will correct it
 		if(ziel.is_bound()) {
-			ziel = haltestelle_t::get_halt_koord_index(ziel->get_init_pos());
+			ziel = haltestelle_t::get_halt_koord_index(welt, ziel->get_init_pos());
 		}
 		if(zwischenziel.is_bound()) {
-			zwischenziel = haltestelle_t::get_halt_koord_index(zwischenziel->get_init_pos());
+			zwischenziel = haltestelle_t::get_halt_koord_index(welt, zwischenziel->get_init_pos());
 		}
 	}
 	update_factory_target(welt);

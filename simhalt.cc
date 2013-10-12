@@ -67,7 +67,10 @@ slist_tpl<halthandle_t> haltestelle_t::alle_haltestellen;
 
 stringhashtable_tpl<halthandle_t> haltestelle_t::all_names;
 
-inthashtable_tpl<sint32,halthandle_t> haltestelle_t::all_koords;
+// hash table only used during loading
+inthashtable_tpl<sint32,halthandle_t> *haltestelle_t::all_koords = NULL;
+// since size_x*size_y < 0x1000000, we have just to shift the high bits
+#define get_halt_key(k,width) ( ((k).x*(width)+(k).y) /*+ ((k).z << 25)*/ )
 
 uint8 haltestelle_t::status_step = 0;
 uint8 haltestelle_t::reconnect_counter = 0;
@@ -136,23 +139,37 @@ void haltestelle_t::step_all()
 }
 
 
+void haltestelle_t::start_load_game()
+{
+	all_koords = new inthashtable_tpl<sint32,halthandle_t>;
+}
+
+
+void haltestelle_t::end_load_game()
+{
+	delete all_koords;
+	all_koords = NULL;
+}
+
 /**
  * return an index to a halt; it is only used for old games
  * by default create a new halt if none found
  */
-halthandle_t haltestelle_t::get_halt_koord_index(koord k, spieler_t */*sp*/, bool create_halt)
+halthandle_t haltestelle_t::get_halt_koord_index(karte_t *welt, koord k)
 {
-	if(!spieler_t::get_welt()->is_within_limits(k)) {
+	if(!welt->is_within_limits(k)) {
 		return halthandle_t();
 	}
 	// check in hashtable
-	const uint32 n = get_halt_key(koord3d(k,-128),spieler_t::get_welt()->get_size().y);
-	halthandle_t h = all_koords.get( n );
+	halthandle_t h;
+	const sint32 n = get_halt_key(koord3d(k,-128), welt->get_size().y);
+	assert(all_koords);
+	h = all_koords->get( n );
 
-	if(  !h.is_bound()  &&  create_halt  ) {
+	if(  !h.is_bound()  ) {
 		// No halts found => create one
-		h = haltestelle_t::create( spieler_t::get_welt(), k, NULL );
-		all_koords.set( n,  h );
+		h = haltestelle_t::create( welt, k, NULL );
+		all_koords->set( n,  h );
 	}
 	return h;
 }
@@ -311,8 +328,10 @@ void haltestelle_t::destroy_all(karte_t *welt)
 		halthandle_t halt = alle_haltestellen.front();
 		destroy(halt);
 	}
-	assert( all_koords.empty() );
-	all_koords.clear();
+	if (all_koords) {
+		delete all_koords;
+		all_koords = NULL;
+	}
 	status_step = 0;
 }
 
@@ -381,12 +400,6 @@ haltestelle_t::~haltestelle_t()
 {
 	assert(self.is_bound());
 
-	// remove from hashtable
-	const uint32 n = get_halt_key(init_pos,welt->get_size().y);
-	if(  all_koords.get(n)==self  ) {
-		all_koords.remove( n );
-	}
-
 	// first: remove halt from all lists
 	int i=0;
 	while(alle_haltestellen.is_contained(self)) {
@@ -407,10 +420,6 @@ haltestelle_t::~haltestelle_t()
 		grund_t *gr = tiles.remove_first().grund;
 		koord pos = gr->get_pos().get_2d();
 		gr->set_halt( halthandle_t() );
-		const uint32 n = get_halt_key(pos,welt->get_size().y);
-		if(  all_koords.get(n)==self  ) {
-			all_koords.remove( n );
-		}
 		// bounding box for adjustments
 		if(ul.x>pos.x ) ul.x = pos.x;
 		if(ul.y>pos.y ) ul.y = pos.y;
@@ -2671,7 +2680,7 @@ void haltestelle_t::laden_abschliessen()
 		if(waren[i]) {
 			vector_tpl<ware_t> * warray = waren[i];
 			FOR(vector_tpl<ware_t>, & j, *warray) {
-				j.laden_abschliessen(welt, besitzer_p);
+				j.laden_abschliessen(welt);
 			}
 			// merge identical entries (should only happen with old games)
 			for(unsigned j=0; j<warray->get_count(); j++) {
@@ -2939,8 +2948,10 @@ bool haltestelle_t::add_grund(grund_t *gr)
 	tiles.append( gr );
 
 	// add to hashtable
-	sint32 n = get_halt_key( gr->get_pos(), welt->get_size().y );
-	all_koords.set( n, self );
+	if (all_koords) {
+		sint32 n = get_halt_key( gr->get_pos(), welt->get_size().y );
+		all_koords->set( n, self );
+	}
 
 	// appends this to the ground
 	// after that, the surrounding ground will know of this station
@@ -3034,10 +3045,6 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 		dbg->error("haltestelle_t::rem_grund()","removed illegal ground from halt");
 		return false;
 	}
-
-	// remove from hashtable
-	sint32 n = get_halt_key( gr->get_pos(), welt->get_size().y );
-	all_koords.remove( n );
 
 	// first tile => remove name from this tile ...
 	char buf[256];
