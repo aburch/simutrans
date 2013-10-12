@@ -808,7 +808,8 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 		int rotate = simrand(hersteller->get_haus()->get_all_layouts()-1, "fabrikbauer_t::baue_hierarchie");
 		koord3d parent_pos = our_fab->get_pos();
 		// ignore climates, when already 40 retrys occurred ...
-		koord3d k = finde_zufallsbauplatz(welt, our_fab->get_pos()+(retry_koord[retry%25]*DISTANCE*2), DISTANCE, hersteller->get_haus()->get_groesse(rotate),hersteller->get_platzierung()==fabrik_besch_t::Wasser,hersteller->get_haus(),j>40);
+		koord3d k = finde_zufallsbauplatz(welt, our_fab->get_pos()+(retry_koord[retry%25]*DISTANCE*2), DISTANCE, 
+			hersteller->get_haus()->get_groesse(rotate),hersteller->get_platzierung()==fabrik_besch_t::Wasser,hersteller->get_haus(),j>40);
 
 		INT_CHECK("fabrikbauer 697");
 
