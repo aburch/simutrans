@@ -621,8 +621,8 @@ void grund_t::info(cbuffer_t& buf) const
 	buf.printf("\nflags $%0X", flags );
 	buf.printf("\n\npos: (%s)",pos.get_str());
 	buf.printf("\nslope: %i",get_grund_hang());
-	buf.printf("\nback0: %i",get_back_bild(0)-grund_besch_t::slopes->get_bild(0));
-	buf.printf("\nback1: %i",get_back_bild(1)-grund_besch_t::slopes->get_bild(0));
+	buf.printf("\nback0: %i",abs(back_bild_nr)%11);
+	buf.printf("\nback1: %i",(abs(back_bild_nr)/11)+11);
 	if(  get_weg_nr(0)  ) {
 		buf.printf("\nway slope %i", (int)get_weg_hang() );
 	}
@@ -806,15 +806,17 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 					fence[i] = corner_a==corner_b;
 				}
 				else if ( !isvisible && gr->is_visible()){
-					diff_from_ground_1 = 1;
-					diff_from_ground_2 = 1;
+					diff_from_ground_1 = max(diff_from_ground_1, 1);
+					diff_from_ground_2 = max(diff_from_ground_2, 1);
 				}
 				// avoid walls that cover the tunnel mounds
-				if ( gr->is_visible() && (gr->get_typ()==grund_t::tunnelboden) && ist_karten_boden() && gr->get_pos().z==underground_level && gr->get_grund_hang()==(i==0?hang_t::west:hang_t::nord)) {
+				if ( gr->is_visible() && (gr->get_typ()==grund_t::tunnelboden) && ist_karten_boden() && gr->get_pos().z==underground_level
+				     && gr->get_vmove(i==0 ? ribi_t::ost : ribi_t::sued) ) {
 					diff_from_ground_1 = 0;
 					diff_from_ground_2 = 0;
 				}
-				if ( is_visible() && (get_typ()==grund_t::tunnelboden) && ist_karten_boden() && pos.z==underground_level && get_grund_hang()==(i==0?hang_t::ost:hang_t::west)) {
+				if ( is_visible() && (get_typ()==grund_t::tunnelboden) && ist_karten_boden() && pos.z==underground_level
+					&& gr->get_vmove(i==0 ? ribi_t::west : ribi_t::nord) ) {
 					diff_from_ground_1 = 0;
 					diff_from_ground_2 = 0;
 				}
@@ -890,7 +892,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 	const bool visible = !ist_karten_boden()  ||  is_karten_boden_visible();
 
 	// walls, fences, foundations etc
-	if(back_bild_nr!=0 && visible) {
+	if(back_bild_nr!=0) {
 		const uint8 abs_back_bild_nr = abs(back_bild_nr);
 		const bool artificial = back_bild_nr < 0;
 		if(abs_back_bild_nr>121) {
@@ -909,14 +911,25 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 			// first draw left, then back slopes
 			for(  int i=0;  i<2;  i++  ) {
 				const uint8 back_height = min(i==0?corner1(slope):corner3(slope),corner4(slope));
+
+				if (back_height + get_disp_height() > underground_level) {
+					continue;
+				}
+
 				yoff[i] = tile_raster_scale_y( -TILE_HEIGHT_STEP*back_height, raster_tile_width );
 				if(  back_bild[i]  ) {
 					grund_t *gr = welt->lookup_kartenboden( k + koord::nsow[(i-1)&3] );
 					if(  gr  ) {
 						// for left we test corners 2 and 3 (east), for back we use 1 and 2 (south)
 						const sint8 gr_slope = gr->get_disp_slope();
-						const uint8 corner_a = corner2(gr_slope);
-						const uint8 corner_b = i==0?corner3(gr_slope):corner1(gr_slope);
+						uint8 corner_a = corner2(gr_slope);
+						uint8 corner_b = i==0?corner3(gr_slope):corner1(gr_slope);
+
+						// at least one level of solid wall between invisible and visible tiles
+						if (!visible  &&  gr->is_visible()) {
+							corner_a = max(1, corner_a);
+							corner_b = max(1, corner_b);
+						}
 
 						sint16 hgt_diff = gr->get_disp_height() - get_disp_height() + min( corner_a, corner_b ) - back_height;
 						while(  hgt_diff > 2  ||  (hgt_diff > 0  &&  corner_a != corner_b)  ) {
