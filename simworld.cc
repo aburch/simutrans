@@ -4486,8 +4486,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 	const uint16 min_visiting_tolerance = settings.get_min_local_tolerance();
 	const uint16 range_visiting_tolerance = max(0, settings.get_max_midrange_tolerance() - min_visiting_tolerance);
 
-	// TODO: Set this in simuconf.tab
-	const uint16 max_onward_trips = 3;
+	const uint16 max_onward_trips = settings.get_max_onward_trips();
 
 	trip_type trip;
 	koord destination_pos;

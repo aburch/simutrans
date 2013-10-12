@@ -394,6 +394,9 @@ private:
 	// The number of packets of mail generated per month per unit of population (adjusted based on the adjusted monthly figure)
 	uint32 mail_packets_per_month_hundredths;
 
+	// The maximum number of onward trips permissible.
+	uint16 max_onward_trips;
+
 public:
 	// @author: neroden
 	// Linear interpolation tables for various things
@@ -1048,7 +1051,6 @@ public:
 	uint16 get_remove_dummy_player_months() const { return remove_dummy_player_months; }
 	uint16 get_unprotect_abondoned_player_months() const { return unprotect_abondoned_player_months; }
 
-	// TODO: Add GUI setting to change these in advanced settings window. This will need setters here.
 	uint16 get_population_per_level() const { return population_per_level; }
 	uint16 get_visitor_demand_per_level() const { return visitor_demand_per_level; }
 	uint16 get_jobs_per_level() const { return jobs_per_level; }
@@ -1056,6 +1058,8 @@ public:
 
 	uint32 get_passenger_trips_per_month_hundredths() const { return passenger_trips_per_month_hundredths; }
 	uint32 get_mail_packets_per_month_hundredths() const { return mail_packets_per_month_hundredths; }
+
+	uint32 get_max_onward_trips() const { return max_onward_trips; }
 };
 
 #endif 
