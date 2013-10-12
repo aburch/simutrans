@@ -4506,14 +4506,11 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 		* the last packet might have less then 7 pax
 		* Number now not fixed at 7, but set in simuconf.tab (@author: jamespetts)
 		*/
-
+		
 		pax_left_to_do = min(max_packet_size, num_pax - pax_routed);
 
-		// TODO: Set these percentages in simuconf.tab
-		// (1) Percentage chance of (not) having any onward journeys at all.
-		// (2) If so, number of onward journeys.
 		// Mail does not make onward journeys.
-		const uint16 onward_trips = simrand(100, "void stadt_t::step_passagiere() (any onward trips?)") >= 75 && wtyp == warenbauer_t::passagiere ? simrand(max_onward_trips, "void stadt_t::step_passagiere() (how many onward trips?)") + 1 : 1;
+		const uint16 onward_trips = simrand(100, "void stadt_t::step_passagiere() (any onward trips?)") < settings.get_onward_trip_chance_percent() && wtyp == warenbauer_t::passagiere ? simrand(max_onward_trips, "void stadt_t::step_passagiere() (how many onward trips?)") + 1 : 1;
 
 		route_status = initialising;
 

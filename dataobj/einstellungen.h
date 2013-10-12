@@ -394,8 +394,11 @@ private:
 	// The number of packets of mail generated per month per unit of population (adjusted based on the adjusted monthly figure)
 	uint32 mail_packets_per_month_hundredths;
 
-	// The maximum number of onward trips permissible.
+	// The maximum number of onward trips permissible for passengers that do make an onward trip.
 	uint16 max_onward_trips;
+
+	// The chance (in %) that any given packet of passengers will make at least one onward trip.
+	uint16 onward_trip_chance_percent;
 
 public:
 	// @author: neroden
@@ -1060,6 +1063,8 @@ public:
 	uint32 get_mail_packets_per_month_hundredths() const { return mail_packets_per_month_hundredths; }
 
 	uint32 get_max_onward_trips() const { return max_onward_trips; }
+
+	uint32 get_onward_trip_chance_percent() const { return onward_trip_chance_percent; }
 };
 
 #endif 

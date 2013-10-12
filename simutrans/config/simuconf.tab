@@ -270,10 +270,16 @@ passenger_routing_packet_size = 18
 # Passengers can make onward as well as return trips. This means that, when they reach
 # their destination, they will make a further trip from that destination to another
 # destination. This is significant because passengers are now generated initially
-# only in residential areas. The max_onward_trips setting determines the maximum
-# number of these onward trips that each packet of passengers can make. The actual
-# numbers are randomised between zero and this maximum number. 
+# only in residential areas. 
+#
+# The onward_trip_chance_percent setting is the percentage chance that a packet
+# of passengers will make any onward trip at all.
+#
+# The max_onward_trips setting determines the maximum number of these onward trips
+# that each packet of passengers can make, assuming that it makes any onward
+# trip at all. The actual numbers are randomised between zero and this maximum number. 
 
+onward_trip_chance_percent = 25
 max_onward_trips = 3
 
 # This setting determines the relationship between the number of private car trips

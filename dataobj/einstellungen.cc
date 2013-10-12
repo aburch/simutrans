@@ -504,6 +504,7 @@ settings_t::settings_t() :
 	passenger_trips_per_month_hundredths = 200;
 	mail_packets_per_month_hundredths = 10;
 	max_onward_trips = 3;
+	onward_trip_chance_percent = 25;
 }
 
 void settings_t::set_default_climates()
@@ -1510,6 +1511,7 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_long(passenger_trips_per_month_hundredths);
 			file->rdwr_long(mail_packets_per_month_hundredths);
 			file->rdwr_short(max_onward_trips);
+			file->rdwr_short(onward_trip_chance_percent);
 		}
 		else
 		{
@@ -2359,6 +2361,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	mail_packets_per_month_hundredths = contents.get_int("mail_packets_per_month_hundredths", mail_packets_per_month_hundredths);
 
 	max_onward_trips = contents.get_int("max_onward_trips", max_onward_trips);
+	onward_trip_chance_percent = contents.get_int("onward_trip_chance_percent", onward_trip_chance_percent);
 
 	// OK, this is a bit complex.  We are at risk of loading the same livery schemes repeatedly, which
 	// gives duplicate livery schemes and utter confusion.
