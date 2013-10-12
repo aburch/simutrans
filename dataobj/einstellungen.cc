@@ -679,6 +679,7 @@ void settings_t::rdwr(loadsave_t *file)
 			// since vehicle will need realignment afterwards!
 		}
 
+		// 16 was the default value of this setting.
 		uint32 old_passenger_factor = 16;
 
 		if(file->get_version()>=101000) {
@@ -1511,8 +1512,8 @@ void settings_t::rdwr(loadsave_t *file)
 		else
 		{
 			// Calibrate old saved games with reference to their original passenger factor.
-			passenger_trips_per_month_hundredths = (200 * 16) / old_passenger_factor;
-			mail_packets_per_month_hundredths = (10 * 16) / old_passenger_factor;
+			passenger_trips_per_month_hundredths = (passenger_trips_per_month_hundredths * 16) / old_passenger_factor;
+			mail_packets_per_month_hundredths = (mail_packets_per_month_hundredths * 16) / old_passenger_factor;
 		}
 	}
 
