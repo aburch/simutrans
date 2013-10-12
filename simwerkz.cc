@@ -989,7 +989,9 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 		}
 		else {
 			switch(  new_slope  ) {
+				case ALL_UP_SLOPE:
 				case ALL_UP_SLOPE_SINGLE:   new_slope = ALL_UP_SLOPE;   break;
+				case ALL_DOWN_SLOPE:
 				case ALL_DOWN_SLOPE_SINGLE: new_slope = ALL_DOWN_SLOPE; break;
 				case RESTORE_SLOPE:
 				case RESTORE_SLOPE_SINGLE:  new_slope = RESTORE_SLOPE;  break;
