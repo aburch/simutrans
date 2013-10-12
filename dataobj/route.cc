@@ -640,10 +640,12 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 				{
 						continue;
 				}
-				if(enforce_weight_limits > 1 && w != NULL)
+
+				int is_overweight = not_overweight;
+
+				if(enforce_weight_limits > 0 && w != NULL)
 				{
 					// Bernd Gabriel, Mar 10, 2010: way limit info
-					bool is_overweight = false;
 					if(to->ist_bruecke() || w->get_besch()->get_styp() == weg_t::type_elevated || w->get_waytype() == air_wt || w->get_waytype() == water_wt)
 					{
 						// Bridges care about convoy weight, whereas other types of way
@@ -670,14 +672,23 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 						const uint32 min_weight = min(adjusted_convoy_weight, convoy_weight);
 						if(min_weight > way_max_convoy_weight)
 						{
-							if(enforce_weight_limits == 3)
+							switch(enforce_weight_limits)
 							{
-								is_overweight = way_max_convoy_weight == 0 || (min_weight * 100) / way_max_convoy_weight > 110;
-							}
+							case 1:
+							default:
+
+								is_overweight = slowly_only;
+								break;
+
+							case 2:
+
+								is_overweight = cannot_route;
+								break;
 							
-							else
-							{
-								is_overweight = true;
+							case 3:
+
+								is_overweight = way_max_convoy_weight == 0 || (min_weight * 100) / way_max_convoy_weight > 110 ? cannot_route : slowly_only;
+								break;
 							}
 						}
 					}
@@ -688,19 +699,28 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 						max_axle_load = min(max_axle_load, way_max_axle_load);
 						if(axle_load > way_max_axle_load)
 						{
-							if(enforce_weight_limits == 3)
+							switch(enforce_weight_limits)
 							{
-								is_overweight = way_max_axle_load == 0 || (axle_load * 100) / way_max_axle_load > 110;
-							}
+							case 1:
+							default:
+
+								is_overweight = slowly_only;
+								break;
+
+							case 2:
+
+								is_overweight = cannot_route;
+								break;
 							
-							else
-							{
-								is_overweight = true;
+							case 3:
+
+								is_overweight = way_max_axle_load == 0 || (axle_load * 100) / way_max_axle_load > 110 ? cannot_route : slowly_only;
+								break;
 							}
 						}
 					}
 
-					if(is_overweight)
+					if(is_overweight == cannot_route)
 					{
 						// Avoid routing over ways for which the convoy is overweight.
 						continue;
@@ -709,7 +729,8 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 				}
 
 				// new values for cost g (without way it is either in the air or in water => no costs)
-				uint32 new_g = tmp->g + (w ? fahr->get_kosten(to, max_speed, tmp->gr->get_pos().get_2d()) : 1);
+				const int way_cost = fahr->get_kosten(to, max_speed, tmp->gr->get_pos().get_2d()) + (is_overweight == slowly_only ? 40 : 0);
+				uint32 new_g = tmp->g + (w ? way_cost : 1);
 
 				// check for curves (usually, one would need the lastlast and the last;
 				// if not there, then we could just take the last

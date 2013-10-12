@@ -27,6 +27,9 @@ class grund_t;
 class route_t
 {
 private:
+
+	enum overweight_type { not_overweight, cannot_route, slowly_only };
+
 	/**
 	 * Die eigentliche Routensuche
 	 * @author Hj. Malthaner
