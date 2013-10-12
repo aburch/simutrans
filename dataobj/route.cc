@@ -160,6 +160,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 	tmp->parent = NULL;
 	tmp->gr = g;
 	tmp->count = 0;
+	tmp->f = 0;
 	tmp->g = 0;
 
 	// nothing in lists
@@ -214,6 +215,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 				k->parent = tmp;
 				k->gr = to;
 				k->count = tmp->count+1;
+				k->f = 0;
 				k->g = tmp->g + fahr->get_kosten(to, max_khm, gr->get_pos().get_2d());
 
 //DBG_DEBUG("insert to open","%i,%i,%i",to->get_pos().x,to->get_pos().y,to->get_pos().z);
