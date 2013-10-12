@@ -903,7 +903,6 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 		else {
 			// artificial slope
 			const int back_bild[2] = {abs_back_bild_nr%11, (abs_back_bild_nr/11)+11};
-			sint8 yoff[2];
 
 			// choose foundation or natural slopes
 			const grund_besch_t *sl_draw = artificial ? grund_besch_t::fundament : grund_besch_t::slopes;
@@ -916,7 +915,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 					continue;
 				}
 
-				yoff[i] = tile_raster_scale_y( -TILE_HEIGHT_STEP*back_height, raster_tile_width );
+				sint8 yoff = tile_raster_scale_y( -TILE_HEIGHT_STEP*back_height, raster_tile_width );
 				if(  back_bild[i]  ) {
 					grund_t *gr = welt->lookup_kartenboden( k + koord::nsow[(i-1)&3] );
 					if(  gr  ) {
@@ -933,12 +932,12 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 
 						sint16 hgt_diff = gr->get_disp_height() - get_disp_height() + min( corner_a, corner_b ) - back_height;
 						while(  hgt_diff > 2  ||  (hgt_diff > 0  &&  corner_a != corner_b)  ) {
-							display_normal( sl_draw->get_bild( 4+4*(hgt_diff>1)+11*i ), xpos, ypos + yoff[i], 0, true, dirty CLIP_NUM_PAR );
-							yoff[i] -= tile_raster_scale_y( TILE_HEIGHT_STEP * (hgt_diff > 1 ? 2 : 1), raster_tile_width );
+							display_normal( sl_draw->get_bild( 4+4*(hgt_diff>1)+11*i ), xpos, ypos + yoff, 0, true, dirty CLIP_NUM_PAR );
+							yoff     -= tile_raster_scale_y( TILE_HEIGHT_STEP * (hgt_diff > 1 ? 2 : 1), raster_tile_width );
 							hgt_diff -= 2;
 						}
 					}
-					display_normal( sl_draw->get_bild( back_bild[i] ), xpos, ypos + yoff[i], 0, true, dirty CLIP_NUM_PAR );
+					display_normal( sl_draw->get_bild( back_bild[i] ), xpos, ypos + yoff, 0, true, dirty CLIP_NUM_PAR );
 				}
 			}
 		}
