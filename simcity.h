@@ -65,16 +65,6 @@ enum city_cost {
 
 #define LEGACY_HIST_CAR_OWNERSHIP (16)
 
-// TODO: Remove this deprecated code when ready to remove old passenger generation code.
-enum route_status_type
-{
-	no_route = 0,
-	too_slow = 1,
-	public_transport = 2,
-	private_car = 3,
-	on_foot = 4
-};
-
 class private_car_destination_finder_t : public fahrer_t
 {
 private:
@@ -335,77 +325,12 @@ private:
 	best_t best_strasse;
 
 public:
-	// TODO: Remove this deprecated code completely.
-	/**
-	 * Classes for storing and manipulating target factories and their data
-	 * @author Knightly
-	 */
-	struct factory_entry_t
-	{
-		union
-		{
-			fabrik_t *factory;
-			struct
-			{
-				sint16 factory_pos_x;
-				sint16 factory_pos_y;
-			};
-		};
-		sint32 demand;		// amount demanded by the factory; shifted by DEMAND_BITS
-		sint32 supply;		// amount that the city can supply
-		sint32 remaining;	// portion of supply which has not realised yet; remaining <= supply
-
-		factory_entry_t() : factory(NULL), demand(0), supply(0), remaining(0) { }
-		factory_entry_t(fabrik_t *_factory) : factory(_factory), demand(0), supply(0), remaining(0) { }
-		factory_entry_t(fabrik_t *_factory, sint32 _demand) : factory(_factory), demand(_demand), supply(0), remaining(0) { }
-
-		bool operator == (const factory_entry_t &other) const { return ( this->factory==other.factory ); }
-		void new_month() { supply = 0; remaining = 0; }
-		void rdwr(loadsave_t *file);
-		void resolve_factory();
-	};
-	#define RATIO_BITS (25)
-	struct factory_set_t
-	{
-		vector_tpl<factory_entry_t> entries;
-		sint32 total_demand;		// shifted by DEMAND_BITS
-		sint32 total_remaining;
-		sint32 total_generated;
-		uint32 generation_ratio;
-		bool ratio_stale;
-
-		factory_set_t() : total_demand(0), total_remaining(0), total_generated(0), generation_ratio(0), ratio_stale(true) { }
-
-		const vector_tpl<factory_entry_t>& get_entries() const { return entries; }
-		const factory_entry_t* get_entry(const fabrik_t *const factory) const;
-		factory_entry_t* get_random_entry();
-		void update_factory(fabrik_t *const factory, const sint32 demand);
-		void remove_factory(fabrik_t *const factory);
-		void recalc_generation_ratio(const sint32 default_percent, const sint64 *city_stats, const int stats_count, const int stat_type);
-		void new_month();
-		void rdwr(loadsave_t *file);
-		void resolve_factories();
-	};
-
-public:
 	/**
  	 * recalcs city borders (after loading old files, after house deletion, after house construction)
 	 */
 	void reset_city_borders();
 
 private:
-	/**
-	 * Data of target factories for pax/mail
-	 * @author Knightly
-	 */
-	factory_set_t target_factories_pax;
-	factory_set_t target_factories_mail;
-
-	/**
-	 * Initialization of pax_destinations_old/new
-	 * @author Hj. Malthaner
-	 */
-	void init_pax_destinations();
 
 	/**
 	 * Enlarges city borders (after being unable to build a building, before trying again)
@@ -428,13 +353,6 @@ private:
 	void step_grow_city();
 
 	enum pax_return_type { no_return, factory_return, tourist_return, city_return };
-
-	/**
-	 * verteilt die Passagiere auf die Haltestellen
-	 * @author Hj. Malthaner
-	 */
-	// TODO: Remove this deprecated code entirely.
-	//void step_passagiere();
 
 	/**
 	 * baut Spezialgebaeude, z.B Stadion
@@ -514,37 +432,18 @@ private:
 	void bewerte_strasse(koord pos, sint32 rd, const rule_t &regel);
 	void bewerte_haus(koord pos, sint32 rd, const rule_t &regel);
 
-	void calc_internal_passengers();
 
 	uint16 adjusted_passenger_routing_local_chance;
 
 	bool check_road_connexions;
 
-	inline void register_factory_passenger_generation(int* pax_left_to_do, const ware_besch_t *const wtyp, factory_set_t &target_factories, factory_entry_t* &factory_entry);
-
 public:
-	/**
-	 * sucht arbeitsplätze für die Einwohner
-	 * "looking jobs for residents" (Google)
-	 * @author Hj. Malthaner
-	 */
-	// TODO: Remove this deprecated code entirely.
-	// void verbinde_fabriken();
 
 	/**
 	 * ein Passagierziel in die Zielkarte eintragen
 	 * @author Hj. Malthaner
 	 */
 	void merke_passagier_ziel(koord ziel, uint8 color);
-
-	/**
-	 * Returns the data set associated with the pax/mail target factories
-	 * @author: prissi
-	 */
-	const factory_set_t& get_target_factories_for_pax() const { return target_factories_pax; }
-	const factory_set_t& get_target_factories_for_mail() const { return target_factories_mail; }
-	factory_set_t& access_target_factories_for_pax() { return target_factories_pax; }
-	factory_set_t& access_target_factories_for_mail() { return target_factories_mail; }
 
 	// this function removes houses from the city house list
 	// (called when removed by player, or by town)
@@ -687,25 +586,6 @@ public:
 
 	void neuer_monat(bool check);
 
-	// TODO: Remove this when the new code is finished.
-	//@author: jamespetts
-	union destination_object
-	{
-		stadt_t* town;
-		const fabrik_t* industry;
-		const gebaeude_t* attraction;
-	};
-
-	// TODO: Remove this when the new code is finished.
-	struct destination
-	{
-		koord location;
-		uint16 type; //1 = town; others as #define above.
-		destination_object object; 
-		factory_entry_t* factory_entry;
-		destination() { factory_entry = NULL; }
-	};
-
 	void add_road_connexion(uint16 journey_time_per_tile, const stadt_t* city);
 	void add_road_connexion(uint16 journey_time_per_tile, const fabrik_t* industry);
 	void add_road_connexion(uint16 journey_time_per_tile, const gebaeude_t* attraction);
@@ -746,51 +626,8 @@ private:
 		static bool less_than(const target_city_t &a, const target_city_t &b) { return a.distance < b.distance; }
 	};
 
-	/**
-	 * List of target cities weighted by both city size and distance
-	 * @author Knightly
-	 */
-	//weighted_vector_tpl<target_city_t> target_cities;
-
-	/**
-	 * List of target attractions weighted by both passenger level and distance
-	 * @author Knightly
-	 */
-	// TODO: Remove this deprecated code entirely
-	//weighted_vector_tpl<gebaeude_t *> target_attractions;
 
 public:
-
-	/**
-	 * Functions for manipulating the list of target cities
-	 * @author Knightly
-	 */
-	/*void add_target_city(stadt_t *const city);
-	void remove_target_city(stadt_t *const city) { target_cities.remove( target_city_t(city, 0) ); }
-	void update_target_city(stadt_t *const city);
-	void update_target_cities();
-	void recalc_target_cities();*/
-
-	/**
-	 * Functions for manipulating the list of target attractions
-	 * @author Knightly
-	 */
-	// TODO: Remove this deprecated code entirely
-	/*void add_target_attraction(gebaeude_t *const attraction);
-	void remove_target_attraction(gebaeude_t *const attraction) { target_attractions.remove(attraction); }
-	void recalc_target_attractions();*/
-
-	/**
-	 * such ein (zufälliges) ziel für einen Passagier
-	 * @author Hj. Malthaner
-	 */
-
-	destination find_destination(factory_set_t &target_factories, 
-		const sint64 generated, 
-		pax_return_type* will_return, 
-		uint32 min_distance = 0, 
-		uint32 max_distance = 16384,
-		koord origin = koord::invalid);
 
 	/**
 	 * Gibt die Gruendungsposition der Stadt zurueck.

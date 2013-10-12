@@ -263,14 +263,6 @@ public:
 	 */
 	bool sync_step(long delta_t);
 
-	/**
-	 * @return Den level (die Ausbaustufe) des Gebaudes
-	 * @author Hj. Malthaner
-	 */
-	int get_passagier_level() const;
-
-	int get_post_level() const; 
-
 	void set_tile( const haus_tile_besch_t *t, bool start_with_construction );
 
 	const haus_tile_besch_t *get_tile() const { return tile; }

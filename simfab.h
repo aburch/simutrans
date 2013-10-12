@@ -341,13 +341,6 @@ private:
 	void update_prodfactor_mail();
 
 	/**
-	 * Re-calculate the pax/mail demands of factory at target cities
-	 * @author Knightly
-	 */
-	// TODO: Remove this deprecated code entirely
-	//void recalc_demands_at_target_cities();
-
-	/**
 	 * Recalculate storage capacities based on prodbase or capacities contributed by fields
 	 * @author Knightly
 	 */

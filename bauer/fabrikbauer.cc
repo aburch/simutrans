@@ -474,26 +474,6 @@ fabrik_t* fabrikbauer_t::baue_fabrik(karte_t* welt, koord3d* parent, const fabri
 		// Must recalc nearby halts after the halt is set up
 		fab->recalc_nearby_halts();
 	}
-
-	// add passenger to pax>0, (so no sucide diver at the fishery)
-	/*if(info->get_pax_level()>0) {
-		const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
-		vector_tpl<stadt_t *>distance_stadt( staedte.get_count() );
-
-		FOR(weighted_vector_tpl<stadt_t*>, const i, staedte) {
-			distance_stadt.insert_ordered(i, RelativeDistanceOrdering(fab->get_pos().get_2d()));
-		}
-		settings_t const& s = welt->get_settings();*/
-		//TODO: Remove this deprecated code entirely.
-		/*FOR(vector_tpl<stadt_t*>, const i, distance_stadt) {
-			uint32 const ntgt = fab->get_target_cities().get_count();
-			if (ntgt >= s.get_factory_worker_maximum_towns()) break;
-			if (ntgt < s.get_factory_worker_minimum_towns() ||
-					koord_distance(fab->get_pos(), i->get_pos()) < s.get_factory_worker_radius()) {
-				fab->add_target_city(i);
-			}
-		}*/
-	//}
 	return fab;
 }
 

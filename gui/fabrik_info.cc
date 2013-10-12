@@ -336,37 +336,6 @@ void gui_fabrik_info_t::zeichnen(koord offset)
 		}
 		yoff += LINESPACE;
 	}
-
-	// TODO: Remove this deprecated code completely.
-	/*const vector_tpl<stadt_t *> &target_cities = fab->get_target_cities();
-	if(  !target_cities.empty()  ) {
-		yoff += LINESPACE;
-
-		FOR(vector_tpl<stadt_t*>, const c, target_cities) {
-			stadt_t::factory_entry_t const* const pax_entry  = c->get_target_factories_for_pax().get_entry(fab);
-			stadt_t::factory_entry_t const* const mail_entry = c->get_target_factories_for_mail().get_entry(fab);
-			assert( pax_entry && mail_entry );
-
-			cbuffer_t buf;
-			int w;
-
-			buf.clear();
-			buf.printf("%i", pax_entry->supply);
-			w = proportional_string_width( buf );
-			display_proportional_clip( xoff+18+(w>21?w-21:0), yoff, buf, ALIGN_RIGHT, COL_BLACK, true );
-			display_color_img(skinverwaltung_t::passagiere->get_bild_nr(0), xoff+20+1+(w>21?w-21:0), yoff, 0, false, true);
-
-			buf.clear();
-			buf.printf("%i", mail_entry->supply);
-			w = proportional_string_width( buf );
-			display_proportional_clip( xoff+62+(w>21?w-21:0), yoff, buf, ALIGN_RIGHT, COL_BLACK, true );
-			display_color_img(skinverwaltung_t::post->get_bild_nr(0), xoff+64+1+(w>21?w-21:0), yoff, 0, false, true);
-
-			display_proportional_clip(xoff + 90, yoff, c->get_name(), ALIGN_LEFT, COL_BLACK, true);
-			yoff += LINESPACE;
-		}
-		yoff += 2 * LINESPACE;
-	}*/
 }
 
 

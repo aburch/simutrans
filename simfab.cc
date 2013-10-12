@@ -448,46 +448,6 @@ void fabrik_t::update_prodfactor_mail()
 	set_stat(prodfactor_mail, FAB_BOOST_MAIL);
 }
 
-// TODO: Remove this deprecated code completely.
-//void fabrik_t::recalc_demands_at_target_cities()
-//{
-//	if (!welt->get_settings().get_factory_enforce_demand()) {
-//		// demand not enforced -> no splitting of demands
-//		FOR(vector_tpl<stadt_t*>, const c, target_cities) {
-//			c->access_target_factories_for_pax().update_factory( this, scaled_pax_demand  << DEMAND_BITS);
-//			c->access_target_factories_for_mail().update_factory(this, scaled_mail_demand << DEMAND_BITS);
-//		}
-//		return;
-//	}
-//	if (target_cities.empty()) {
-//		// nothing to do
-//		return;
-//	}
-//	else if(  target_cities.get_count()==1  ) {
-//		// only 1 target city -> no need to apportion pax/mail demand
-//		target_cities[0]->access_target_factories_for_pax().update_factory(this, (scaled_pax_demand << DEMAND_BITS));
-//		target_cities[0]->access_target_factories_for_mail().update_factory(this, (scaled_mail_demand << DEMAND_BITS));
-//	}
-//	else {
-//		// more than 1 target cities -> need to apportion pax/mail demand among the cities
-//		static vector_tpl<uint32> weights(8);
-//		weights.clear();
-//		uint32 sum_of_weights = 0;
-//		// first, calculate the weights
-//		for(  uint32 c=0;  c<target_cities.get_count();  ++c  ) {
-//			weights.append( weight_by_distance( target_cities[c]->get_einwohner(), shortest_distance( get_pos().get_2d(), target_cities[c]->get_pos() ) ) );
-//			sum_of_weights += weights[c];
-//		}
-//		// finally, apportion the pax/mail demand; formula : demand * (city_weight / aggregate_city_weight); (sum_of_weights >> 1) is for rounding
-//		for(  uint32 c=0;  c<target_cities.get_count();  ++c  ) {
-//			const uint32 pax_amount = (uint32)(( (sint64)(scaled_pax_demand << DEMAND_BITS) * (sint64)weights[c] + (sint64)(sum_of_weights >> 1) ) / (sint64)sum_of_weights);
-//			target_cities[c]->access_target_factories_for_pax().update_factory(this, pax_amount);
-//			const uint32 mail_amount = (uint32)(( (sint64)(scaled_mail_demand << DEMAND_BITS) * (sint64)weights[c] + (sint64)(sum_of_weights >> 1) ) / (sint64)sum_of_weights);
-//			target_cities[c]->access_target_factories_for_mail().update_factory(this, mail_amount);
-//		}
-//	}
-//}
-
 
 void fabrik_t::recalc_storage_capacities()
 {
@@ -545,36 +505,6 @@ void fabrik_t::recalc_storage_capacities()
 	}
 }
 
-
-//void fabrik_t::add_target_city(stadt_t *const city)
-//{
-//	if(  target_cities.append_unique(city)  ) {
-//		recalc_demands_at_target_cities();
-//	}
-//}
-
-
-//void fabrik_t::remove_target_city(stadt_t *const city)
-//{
-//	if(  target_cities.is_contained(city)  ) {
-//		target_cities.remove(city);
-//		/*city->access_target_factories_for_pax().remove_factory(this);
-//		city->access_target_factories_for_mail().remove_factory(this);
-//		recalc_demands_at_target_cities();*/
-//	}
-//}
-
-// TODO: Remove this deprecated code completely.
-//void fabrik_t::clear_target_cities()
-//{
-//	FOR(vector_tpl<stadt_t*>, const c, target_cities) {
-//		c->access_target_factories_for_pax().remove_factory(this);
-//		c->access_target_factories_for_mail().remove_factory(this);
-//	}
-//	target_cities.clear();
-//}
-
-
 void fabrik_t::set_base_production(sint32 p)
 {
 	prodbase = p > 0 ? p : 1;
@@ -584,7 +514,6 @@ void fabrik_t::set_base_production(sint32 p)
 	update_scaled_mail_demand();
 	update_prodfactor_pax();
 	update_prodfactor_mail();
-	//recalc_demands_at_target_cities(); //TODO: Remove this deprecated code entirely.
 }
 
 
@@ -2275,7 +2204,6 @@ void fabrik_t::neuer_monat()
 						update_scaled_mail_demand();
 						update_prodfactor_pax();
 						update_prodfactor_mail();
-						//recalc_demands_at_target_cities(); //TODO: Remove this deprecated code entirely.
 						welt->increase_actual_industry_density(100 / new_type->get_gewichtung());
 						sprintf(buf, translator::translate("Industry:\n%s\nhas been upgraded\nto industry:\n%s."), translator::translate(old_name), translator::translate(new_name));
 						welt->get_message()->add_message(buf, pos.get_2d(), message_t::industry, CITY_KI, skinverwaltung_t::neujahrsymbol->get_bild_nr(0));
@@ -2649,18 +2577,6 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 			}
 		}
 	}
-	// TODO: Remove this deprecated code entirely
-	/*if (!target_cities.empty()) {
-		if(  has_previous  ) {
-			buf.append("\n\n");
-		}
-		has_previous = true;
-		buf.append( is_end_consumer() ? translator::translate("Customers live in:") : translator::translate("Arbeiter aus:") );
-
-		for(  uint32 c=0;  c<target_cities.get_count();  ++c  ) {
-			buf.append("\n");
-		}
-	}*/
 
 	// Check *all* tiles for nearby stops... but don't update!
 	if ( !nearby_freight_halts.empty() )

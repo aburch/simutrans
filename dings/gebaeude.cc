@@ -634,24 +634,6 @@ image_id gebaeude_t::get_after_bild() const
 		return tile->get_vordergrund(count, snow);
 	}
 }
-
-
-/*
- * This and the next method once multiplied the level by the size
- *  of the building, but this is no longer relevant as of Experimental 12.0
- */
-// TODO: Remove this deprecated code.
-int gebaeude_t::get_passagier_level() const
-{
-	return tile->get_besch()->get_level();
-}
-
-// TODO: Remove this deprecated code.
-int gebaeude_t::get_post_level() const
-{
-	return tile->get_besch()->get_post_level();	
-}
-
 /**
  * @return eigener Name oder Name der Fabrik falls Teil einer Fabrik
  * @author Hj. Malthaner

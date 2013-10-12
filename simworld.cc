@@ -698,12 +698,6 @@ DBG_MESSAGE("karte_t::destroy()", "convois destroyed");
 DBG_MESSAGE("karte_t::destroy()", "stops destroyed");
 	ls.set_progress( old_progress );
 
-	// remove all target cities (we can skip recalculation anyway)
-	// TODO: Remove this deprecated code completely.
-	/*FOR(vector_tpl<fabrik_t*>, const f, fab_list) {
-		f->clear_target_cities();
-	}*/
-
 	// delete towns first (will also delete all their houses)
 	// for the next game we need to remember the desired number ...
 	sint32 const no_of_cities = settings.get_anzahl_staedte();
@@ -836,14 +830,6 @@ void karte_t::add_stadt(stadt_t *s)
 {
 	settings.set_anzahl_staedte(settings.get_anzahl_staedte() + 1);
 	stadt.append(s, s->get_einwohner());
-
-	// Knightly : add links between this city and other cities as well as attractions#
-	// TODO: Remove this deprecated code entirely.
-	/*FOR(weighted_vector_tpl<stadt_t*>, const c, stadt) {
-		c->add_target_city(s);
-	}
-	s->recalc_target_cities();
-	s->recalc_target_attractions();*/
 }
 
 
@@ -861,19 +847,6 @@ bool karte_t::rem_stadt(stadt_t *s)
 	stadt.remove(s);
 	DBG_DEBUG4("karte_t::rem_stadt()", "reduce city to %i", settings.get_anzahl_staedte() - 1);
 	settings.set_anzahl_staedte(settings.get_anzahl_staedte() - 1);
-
-	// Knightly : remove links between this city and other cities
-	// TODO: Remove this deprecated code entierly.
-	/*FOR(weighted_vector_tpl<stadt_t*>, const c, stadt) {
-		c->remove_target_city(s);
-	}*/
-
-	// remove all links from factories
-	DBG_DEBUG4("karte_t::rem_stadt()", "fab_list %i", fab_list.get_count() );
-	// TODO: Remove this deprecated code entirely
-	/*FOR(vector_tpl<fabrik_t*>, const f, fab_list) {
-		f->remove_target_city(s);
-	}*/
 
 	// ok, we can delete this
 	DBG_MESSAGE("karte_t::rem_stadt()", "delete" );
@@ -3140,12 +3113,6 @@ bool karte_t::rem_fab(fabrik_t *fab)
 				// first remove all the tiles that do not connect
 				// This will only remove if it is no longer connected
 				plan->remove_from_haltlist( this, tmp_list[i].halt );
-				// then reconnect
-				// TODO: Remove this deprecated code entirely.
-				/*if(tmp_list[i].halt.is_bound())
-				{
-					tmp_list[i].halt->verbinde_fabriken();
-				}*/
 			}
 		}
 	}
@@ -3155,9 +3122,6 @@ bool karte_t::rem_fab(fabrik_t *fab)
 	koord pos = fab->get_pos().get_2d();
  	const planquadrat_t* plan = lookup(pos);
 	if (plan) {
-		// remove all links to cities
-		// TODO: Remove this deprecated code completely.
-		//fab->clear_target_cities();
 
 		// finally delete it
 		delete fab;
@@ -3177,12 +3141,6 @@ void karte_t::add_ausflugsziel(gebaeude_t *gb)
 	assert(gb != NULL);
 	ausflugsziele.append(gb, gb->get_adjusted_visitor_demand());
 	add_building_to_world_list(gb);
-
-	// Knightly : add links between this attraction and all cities
-	// TODO: Remove this deprecated code completely
-	/*FOR(weighted_vector_tpl<stadt_t*>, const c, stadt) {
-		c->add_target_attraction(gb);
-	}*/
 }
 
 
@@ -3191,12 +3149,6 @@ void karte_t::remove_ausflugsziel(gebaeude_t *gb)
 	assert(gb != NULL);
 	ausflugsziele.remove(gb);
 	remove_building_from_world_list(gb);
-
-	// Knightly : remove links between this attraction and all cities
-	// TODO: Remove this deprecated code completely
-	/*FOR(weighted_vector_tpl<stadt_t*>, const c, stadt) {
-		c->remove_target_attraction(gb);
-	}*/
 }
 
 
@@ -7128,8 +7080,6 @@ DBG_MESSAGE("karte_t::laden()", "laden_abschliesen for tiles finished" );
 	weighted_vector_tpl<stadt_t*> new_weighted_stadt(stadt.get_count() + 1);
 	FOR(weighted_vector_tpl<stadt_t*>, const s, stadt) {
 		s->laden_abschliessen();
-		// TODO: Remove this deprecated code entirely.
-		//s->recalc_target_cities();
 		// Must add city buildings to the world list here in any network game
 		// to ensure that they are added in identical order.
 		if(umgebung_t::networkmode)
@@ -7160,10 +7110,6 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 		// this needs to avoid the first city to be connected to all town
 		settings.set_factory_worker_minimum_towns(0);
 		settings.set_factory_worker_maximum_towns(stadt.get_count() + 1);
-		// TODO: Remove this deprecated code entirely.
-		/*FOR(weighted_vector_tpl<stadt_t*>, const i, stadt) {
-			i->verbinde_fabriken();
-		}*/
 		settings.set_factory_worker_minimum_towns(temp_min);
 		settings.set_factory_worker_maximum_towns(temp_max);
 	}
