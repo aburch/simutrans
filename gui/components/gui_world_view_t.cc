@@ -135,7 +135,7 @@ void world_view_t::internal_draw(const koord offset, obj_t const* const obj)
 			continue;
 		}
 
-		const sint16 yypos = display_off.y + (off.y + off.x) * 16 * raster / 64 - tile_raster_scale_y(kb->get_hoehe() * TILE_HEIGHT_STEP, raster);
+		const sint16 yypos = display_off.y + (off.y + off.x) * 16 * raster / 64 - tile_raster_scale_y(kb->get_disp_height() * TILE_HEIGHT_STEP, raster);
 		if(  gr.y < yypos  ) {
 			break; // enough with grounds
 		}
@@ -173,7 +173,7 @@ void world_view_t::internal_draw(const koord offset, obj_t const* const obj)
 		// maximum height: 127 for overground, underground level for sliced, ground height-1 for complete underground view
 		const sint8 hmax = grund_t::underground_mode == grund_t::ugm_all ? h - !kb->ist_tunnel() : grund_t::underground_level;
 
-		const sint16 yypos = display_off.y + (off.y + off.x) * 16 * raster / 64 - tile_raster_scale_y(h * TILE_HEIGHT_STEP, raster);
+		const sint16 yypos = display_off.y + (off.y + off.x) * 16 * raster / 64 - tile_raster_scale_y(kb->get_disp_height() * TILE_HEIGHT_STEP, raster);
 		if(  0 <= yypos + raster  &&  yypos - raster * 2 < gr.y  ) {
 #ifdef MULTI_THREAD
 			plan->display_obj( pos.x + off_x, pos.y + yypos, raster, false, hmin, hmax, 0 );
@@ -189,7 +189,7 @@ void world_view_t::internal_draw(const koord offset, obj_t const* const obj)
 	// this should only happen for airplanes: out of image, so we need to extra display them
 	if(  y_offset != 0  ) {
 		const grund_t * const g     = welt->lookup(obj->get_pos());
-		const sint16          yypos = display_off.y - tile_raster_scale_y(2 * y_offset * 16, raster) - tile_raster_scale_y(g->get_hoehe() * TILE_HEIGHT_STEP, raster);
+		const sint16          yypos = display_off.y - tile_raster_scale_y(2 * y_offset * 16, raster) - tile_raster_scale_y(g->get_disp_height() * TILE_HEIGHT_STEP, raster);
 #ifdef MULTI_THREAD
 		g->display_obj_all( pos.x + display_off.x, pos.y + yypos, raster, false, 0 );
 #else
