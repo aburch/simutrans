@@ -282,6 +282,14 @@ passenger_routing_packet_size = 18
 onward_trip_chance_percent = 25
 max_onward_trips = 3
 
+# Passenger trips can be either visiting trips or commuting trips. Commuting trips
+# are always to workplaces such as factories or commercial buildings, and can only
+# be to buildings with jobs currently available. Visiting trips are to any buildings
+# with a visitor demand. commuting_trip_chance_percent sets the percentage chance
+# that any given trip will be a commuting trip rather than a visiting trip.
+
+commuting_trip_chance_percent = 66
+
 # This setting determines the relationship between the number of private car trips
 # generated and (1) the congestion recorded in the cities; and (2) the number of
 # private car graphics that appear in the game. This is intended to simulate

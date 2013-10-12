@@ -4510,24 +4510,23 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 		pax_left_to_do = min(max_packet_size, num_pax - pax_routed);
 
 		// Mail does not make onward journeys.
-		const uint16 onward_trips = simrand(100, "void stadt_t::step_passagiere() (any onward trips?)") < settings.get_onward_trip_chance_percent() && wtyp == warenbauer_t::passagiere ? simrand(max_onward_trips, "void stadt_t::step_passagiere() (how many onward trips?)") + 1 : 1;
+		const uint16 onward_trips = simrand(100, "void stadt_t::step_passagiere() (any onward trips?)") < settings.get_onward_trip_chance_percent() &&
+			wtyp == warenbauer_t::passagiere ? simrand(max_onward_trips, "void stadt_t::step_passagiere() (how many onward trips?)") + 1 : 1;
 
 		route_status = initialising;
 
 		for(int trip_count = 0; trip_count < onward_trips && route_status != no_route && route_status != too_slow && route_status != overcrowded && route_status != destination_unavailable; trip_count ++)
 		{
 			// Permit onward journeys - but only for successful journeys
-
 			const int destination_count = simrand(max_destinations, "void stadt_t::step_passagiere() (number of destinations?)") + 1;
 
 			// Split passengers between commuting trips and other trips.
-			// TODO: Have the proportion of commuting trips (currently fixed at 2/3rds) customisable in simuconf.tab.
 			if(trip_count == 0)
 			{
 				// First trip - set the trip type.
 				trip =
 				(wtyp == warenbauer_t::passagiere) ?
-					simrand(300, "karte_t::step_passengers_and_mail() (commuting or visiting trip?)") <= 200 ?
+					simrand(100, "karte_t::step_passengers_and_mail() (commuting or visiting trip?)") < settings.get_commuting_trip_chance_percent() ?
 					commuting_trip : visiting_trip :
 					mail_trip;
 

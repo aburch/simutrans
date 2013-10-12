@@ -400,6 +400,9 @@ private:
 	// The chance (in %) that any given packet of passengers will make at least one onward trip.
 	uint16 onward_trip_chance_percent;
 
+	// The chance (in %) that any given packet of passengers will be making a commuting, rather than visiting, trip.
+	uint16 commuting_trip_chance_percent;
+
 public:
 	// @author: neroden
 	// Linear interpolation tables for various things
@@ -1064,7 +1067,8 @@ public:
 
 	uint32 get_max_onward_trips() const { return max_onward_trips; }
 
-	uint32 get_onward_trip_chance_percent() const { return onward_trip_chance_percent; }
+	uint16 get_onward_trip_chance_percent() const { return onward_trip_chance_percent; }
+	uint16 get_commuting_trip_chance_percent() const { return commuting_trip_chance_percent; }
 };
 
 #endif 
