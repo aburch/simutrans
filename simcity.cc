@@ -1560,24 +1560,14 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 	allow_citygrowth = true;
 	change_size( citizens );
 
-	// fill with start citizen ...
-	// TODO: Add jobs and visitor demand
-	sint64 bew = get_einwohner();
-	for (uint year = 0; year < MAX_CITY_HISTORY_YEARS; year++) {
-		city_history_year[year][HIST_CITICENS] = bew;
-	}
-	for (uint month = 0; month < MAX_CITY_HISTORY_MONTHS; month++) {
-		city_history_month[month][HIST_CITICENS] = bew;
-	}
-
 	// initialize history array
 	for (uint year = 0; year < MAX_CITY_HISTORY_YEARS; year++) {
-		for (uint hist_type = 1; hist_type < MAX_CITY_HISTORY; hist_type++) {
+		for (uint hist_type = 0; hist_type < MAX_CITY_HISTORY; hist_type++) {
 			city_history_year[year][hist_type] = 0;
 		}
 	}
 	for (uint month = 0; month < MAX_CITY_HISTORY_YEARS; month++) {
-		for (uint hist_type = 1; hist_type < MAX_CITY_HISTORY; hist_type++) {
+		for (uint hist_type = 0; hist_type < MAX_CITY_HISTORY; hist_type++) {
 			city_history_month[month][hist_type] = 0;
 		}
 	}
