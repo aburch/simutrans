@@ -1516,10 +1516,7 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 		renovation_percentage /= 3;
 	}
 
-	step_count = 0;
 	pax_destinations_new_change = 0;
-	next_step = 0;
-	step_interval = 1;
 	next_growth_step = 0;
 
 	stadtinfo_options = 3;	// citizen and growth
@@ -1594,9 +1591,6 @@ stadt_t::stadt_t(karte_t* wl, loadsave_t* file) :
 		renovation_percentage /= 3;
 	}
 
-	step_count = 0;
-	next_step = 0;
-	step_interval = 1;
 	next_growth_step = 0;
 
 	wachstum = 0;
@@ -2046,8 +2040,6 @@ void stadt_t::rdwr(loadsave_t* file)
  */
 void stadt_t::laden_abschliessen()
 {
-	step_count = 0;
-	next_step = 0;
 	next_growth_step = 0;
 
 	// there might be broken savegames
@@ -2062,12 +2054,6 @@ void stadt_t::laden_abschliessen()
 
 	// clear the minimaps
 	//init_pax_destinations();
-
-	// init step counter with meaningful value
-	step_interval = (2 << 18u) / (buildings.get_count() * 4 + 1);
-	if (step_interval < 1) {
-		step_interval = 1;
-	}
 
 	if(townhall_road==koord::invalid) {
 		// guess road tile based on current orientation
@@ -2093,7 +2079,6 @@ void stadt_t::laden_abschliessen()
 	}
 	reset_city_borders();
 
-	next_step = 0;
 	next_growth_step = 0;
 
 	// resolve target factories
@@ -2291,14 +2276,7 @@ void stadt_t::step(long delta_t)
 	settings_t const& s = welt->get_settings();
 
 	// is it time for the next step?
-	next_step += delta_t;
 	next_growth_step += delta_t;
-
-	// Was (1 << 21U) - replaced with below to multiply by (slightly more than) 8 to recalibrate passenger factor.
-	step_interval = 18057457 / (buildings.get_count() * s.get_passenger_factor() + 1);
-	if (step_interval < 1) {
-		step_interval = 1;
-	}
 
 	// update history (might be changed due to construction/destroying of houses)
 

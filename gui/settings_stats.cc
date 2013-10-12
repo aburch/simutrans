@@ -722,7 +722,8 @@ void settings_economy_stats_t::init(settings_t const* const sets)
 	INIT_BOOL( "allow_underground_transformers", sets->get_allow_underground_transformers() );
 	SEPERATOR
 
-	INIT_NUM( "passenger_factor",  sets->get_passenger_factor(), 0, 64, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "passenger_trips_per_month_hundredths", sets->get_passenger_trips_per_month_hundredths(), 0, 4096, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "mail_packets_per_month_hundredths", sets->get_mail_packets_per_month_hundredths(), 0, 4096, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "city_isolation_factor", sets->get_city_isolation_factor(), 1, 20000, 1, false );
 	INIT_NUM( "special_building_distance", sets->get_special_building_distance(), 1, 150, 1, false );
 	INIT_NUM( "factory_worker_radius", sets->get_factory_worker_radius(), 0, 32767, gui_numberinput_t::AUTOLINEAR, false );
@@ -781,7 +782,8 @@ void settings_economy_stats_t::read(settings_t* const sets)
 	READ_NUM_VALUE( sets->electric_promille );
 	READ_BOOL_VALUE( sets->allow_underground_transformers );
 
-	READ_NUM_VALUE( sets->passenger_factor );
+	READ_NUM_VALUE( sets->passenger_trips_per_month_hundredths );
+	READ_NUM_VALUE( sets->mail_packets_per_month_hundredths );
 	READ_NUM_VALUE( sets->city_isolation_factor );
 	READ_NUM_VALUE( sets->special_building_distance );
 	READ_NUM_VALUE( sets->factory_worker_radius );

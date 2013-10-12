@@ -193,8 +193,6 @@ private:
 
 	sint16 origin_x, origin_y;
 
-	sint32 passenger_factor;
-
 	sint16 min_factory_spacing;
 	sint16 max_factory_spacing;
 	sint16 max_factory_spacing_percentage;
@@ -917,8 +915,6 @@ public:
 	void set_min_longdistance_tolerance(uint16 value){ min_longdistance_tolerance = value; }
 	uint16 get_max_longdistance_tolerance() const { return max_longdistance_tolerance; }
 	void set_max_longdistance_tolerance(uint16 value) { max_longdistance_tolerance = value; }
-
-	sint32 get_passenger_factor() const { return passenger_factor; }
 
 	// town growth stuff
 	sint32 get_passenger_multiplier() const { return passenger_multiplier; }

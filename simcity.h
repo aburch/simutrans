@@ -171,28 +171,6 @@ private:
 
 	bool allow_citygrowth;	// Whether growth is permitted (true by default)
 
-	// this counter indicates which building will be processed next
-	uint32 step_count;
-
-	/**
-	 * step so every house is asked once per month, 
-	 * assuming 21 bits per month and a passenger factor of 8
-	 * i.e. 2097152/(number of houses * passenger factor + 1) per step
-	 * 2097152 = 21 bit max.
-	 * So, for a bits per month of 18 and a passenger factor of 8,
-	 * all buildings in a city are stepped once per month. For
-	 * a passenger factor of 10 and bits per month of 21, all
-	 * buildings are steped 10x per month.
-	 * @author Hj. Malthaner
-	 */
-	uint32 step_interval;
-
-	/**
-	 * next passenger generation timer
-	 * @author Hj. Malthaner
-	 */
-	uint32 next_step;
-
 	/**
 	 * in this fixed interval, construction will happen
 	 */

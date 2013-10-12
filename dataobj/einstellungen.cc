@@ -103,9 +103,6 @@ settings_t::settings_t() :
 
 	origin_x = origin_y = 0;
 
-	// The amount of passenger generation. This is recalibrated.
-	passenger_factor = 16;
-
 	electric_promille = 1000;
 
 	// town growth factors
@@ -682,12 +679,18 @@ void settings_t::rdwr(loadsave_t *file)
 			// since vehicle will need realignment afterwards!
 		}
 
+		uint32 old_passenger_factor = 16;
+
 		if(file->get_version()>=101000) {
 			// game mechanics
 			file->rdwr_short(origin_x );
 			file->rdwr_short(origin_y );
 
-			file->rdwr_long(passenger_factor);
+			if(file->get_experimental_version() < 12)
+			{
+				// Was passenger factor.
+				file->rdwr_long(old_passenger_factor);
+			}
 
 			// town growth stuff
 			if(file->get_version()>102001) {
@@ -1505,6 +1508,12 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_long(passenger_trips_per_month_hundredths);
 			file->rdwr_long(mail_packets_per_month_hundredths);
 		}
+		else
+		{
+			// Calibrate old saved games with reference to their original passenger factor.
+			passenger_trips_per_month_hundredths = (200 * 16) / old_passenger_factor;
+			mail_packets_per_month_hundredths = (10 * 16) / old_passenger_factor;
+		}
 	}
 
 #ifdef DEBUG_SIMRAND_CALLS
@@ -1833,7 +1842,6 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	special_building_distance = contents.get_int("special_building_distance", special_building_distance );
 	industry_increase = contents.get_int("industry_increase_every", industry_increase );
 	city_isolation_factor = contents.get_int("city_isolation_factor", city_isolation_factor );
-	passenger_factor = contents.get_int("passenger_factor", passenger_factor ); /* this can manipulate the passenger generation */
 	factory_worker_percentage = contents.get_int("factory_worker_percentage", factory_worker_percentage );
 	factory_worker_radius = contents.get_int("factory_worker_radius", factory_worker_radius );
 	factory_worker_minimum_towns = contents.get_int("factory_worker_minimum_towns", factory_worker_minimum_towns );
