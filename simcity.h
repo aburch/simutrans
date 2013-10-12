@@ -487,7 +487,7 @@ public:
 
 	sint32 get_city_population() const { return city_history_month[0][HIST_CITICENS]; }
 	sint32 get_city_jobs() const { return city_history_month[0][HIST_JOBS]; }
-	sint32 get_city_visitor_demand() const { return city_history_month[0][HIST_VISITOR_DEMAND]; } // TODO: Add a real value here.
+	sint32 get_city_visitor_demand() const { return city_history_month[0][HIST_VISITOR_DEMAND]; }
 
 	uint32 get_buildings()  const { return buildings.get_count(); }
 	sint32 get_unemployed() const { return bev - arb; }

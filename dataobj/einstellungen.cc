@@ -503,6 +503,9 @@ settings_t::settings_t() :
 	visitor_demand_per_level = 3;
 	jobs_per_level = 2;
 	mail_per_level = 1;
+
+	passenger_trips_per_month_hundredths = 200;
+	mail_packets_per_month_hundredths = 10;
 }
 
 void settings_t::set_default_climates()
@@ -1499,6 +1502,8 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_short(visitor_demand_per_level);
 			file->rdwr_short(jobs_per_level);
 			file->rdwr_short(mail_per_level);
+			file->rdwr_long(passenger_trips_per_month_hundredths);
+			file->rdwr_long(mail_packets_per_month_hundredths);
 		}
 	}
 
@@ -2338,6 +2343,9 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	visitor_demand_per_level = contents.get_int("visitor_demand_per_level", visitor_demand_per_level);
 	jobs_per_level = contents.get_int("jobs_per_level", jobs_per_level);
 	mail_per_level = contents.get_int("mail_per_level", mail_per_level);
+
+	passenger_trips_per_month_hundredths = contents.get_int("passenger_trips_per_month_hundredths", passenger_trips_per_month_hundredths);
+	mail_packets_per_month_hundredths = contents.get_int("mail_packets_per_month_hundredths", mail_packets_per_month_hundredths);
 
 	// OK, this is a bit complex.  We are at risk of loading the same livery schemes repeatedly, which
 	// gives duplicate livery schemes and utter confusion.

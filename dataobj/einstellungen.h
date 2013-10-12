@@ -391,6 +391,11 @@ private:
 	uint16 tpo_min_minutes;
 	uint16 tpo_revenue;
 
+	// The number of passenger trips per game month per unit of population (adjusted based on the adjusted monthly figure)
+	uint32 passenger_trips_per_month_hundredths;
+	// The number of packets of mail generated per month per unit of population (adjusted based on the adjusted monthly figure)
+	uint32 mail_packets_per_month_hundredths;
+
 public:
 	// @author: neroden
 	// Linear interpolation tables for various things
@@ -1052,6 +1057,9 @@ public:
 	uint16 get_visitor_demand_per_level() const { return visitor_demand_per_level; }
 	uint16 get_jobs_per_level() const { return jobs_per_level; }
 	uint16 get_mail_per_level() const { return mail_per_level; }
+
+	uint32 get_passenger_trips_per_month_hundredths() const { return passenger_trips_per_month_hundredths; }
+	uint32 get_mail_packets_per_month_hundredths() const { return mail_packets_per_month_hundredths; }
 };
 
 #endif 

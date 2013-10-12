@@ -355,10 +355,6 @@ toll_free_public_roads = 1
 # cars may use those roads. They will pay a toll to do so for every tile.
 # This is the amount (in simucents: 100 = 1 simucredit; 1 = 1 simucent)
 # that the player who owns the road will receive. 
-#
-# NOTE: This value will not be saved with the saved game until the 
-# major version is incremented to 11. In a network game, this value
-# will default to 1.
 
 private_car_toll_per_km = 1
 
@@ -368,10 +364,6 @@ private_car_toll_per_km = 1
 # of the way, and cannot prevent other players from upgrading/
 # downgrading/removing it. Setting it to 0 will disable this 
 # feature.
-#
-# NOTE: This value will not be saved with the saved game until the 
-# major version is incremented to 11. In a network game, this value
-# will default to 1.
 
 towns_adopt_player_roads = 1
 
@@ -395,6 +387,21 @@ max_elevated_way_building_level = 2
 # as such.
 
 allow_airports_without_control_towers = 1
+
+# The following settings are used to calibrate the passenger and mail
+# generation amounts for paksets where not all buildings have specific
+# values for population, visitor demand, jobs and mail production/demand
+# by using the building's "level" value and multiplying it by the
+# following numbers; for example, a building with no specified population
+# and a level of 2 would, at a value of population_per_level of 3, have
+# a population of 6. These settings have no effect where the population,
+# visitor demand, jobs and mail production/demand are set individually
+# in the building's .dat file.
+
+population_per_level = 3
+visitor_demand_per_level = 3
+jobs_per_level = 2
+mail_per_level = 1
 
 
 #################################### Passenger settings ##################################
