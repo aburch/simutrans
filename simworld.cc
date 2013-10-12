@@ -2238,6 +2238,7 @@ karte_t::karte_t() :
 	time_multiplier = 16;
 	next_step_time = last_step_time = 0;
 	fix_ratio_frame_time = 200;
+	idle_time = 0;
 	network_frame_count = 0;
 	sync_steps = 0;
 
