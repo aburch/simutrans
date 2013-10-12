@@ -1655,11 +1655,27 @@ void reliefkarte_t::zeichnen(koord pos)
 	koord ij = welt->get_world_position();
 	const koord diff = koord( display_get_width()/(2*raster), display_get_height()/raster );
 
-	koord view[4];
+	koord view[4], test[4];
+	// default coordinates - may be off if screen shows high mountains
 	view[0] = ij + koord( -diff.y+diff.x, -diff.y-diff.x );
 	view[1] = ij + koord( -diff.y-diff.x, -diff.y+diff.x );
 	view[2] = ij + koord( diff.y-diff.x, diff.y+diff.x );
 	view[3] = ij + koord( diff.y+diff.x, diff.y-diff.x );
+
+	// try to find tile under the four corners of the screen
+	test[0] = koord(display_get_width(),0);
+	test[1] = koord(0,0);
+	test[2] = koord(0,display_get_height());
+	test[3] = koord(display_get_width(),display_get_height());
+
+	for(int i=0; i<4; i++) {
+		sint32 dummy1, dummy2;
+		if (grund_t *gr = welt->get_ground_on_screen_coordinate( test[i], dummy1, dummy2 ) ) {
+			view[i] = gr->get_pos().get_2d();
+		}
+	}
+
+	// translate to coordinates in the minimap
 	for(  int i=0;  i<4;  i++  ) {
 		karte_to_screen( view[i] );
 		view[i] += pos;

@@ -465,6 +465,7 @@ private:
 	 */
 	void cleanup_karte( int xoff, int yoff );
 
+public:
 	/**
 	 * Searches for the ground_t that's under the requested screen position.
 	 * @param screen_pos Screen coordinates to check for.
@@ -473,6 +474,7 @@ private:
 	 */
 	grund_t* get_ground_on_screen_coordinate(koord screen_pos, sint32 &found_i, sint32 &found_j, const bool intersect_grid=false) const;
 
+private:
 	/**
 	 * @name Map data structures
 	 *       This variables represent the simulated map.
