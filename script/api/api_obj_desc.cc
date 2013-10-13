@@ -74,6 +74,17 @@ bool is_obsolete_future(const obj_besch_timelined_t* besch, mytime_t time, bool 
 }
 
 
+// export of haus_besch_t::utyp only here
+namespace script_api {
+	declare_specialized_param(haus_besch_t::utyp, "i", "building_desc_x::building_type");
+
+	SQInteger param<haus_besch_t::utyp>::push(HSQUIRRELVM vm, const haus_besch_t::utyp & u)
+	{
+		return param<uint16>::push(vm, u);
+	}
+};
+
+
 void export_goods_desc(HSQUIRRELVM vm)
 {
 	/**
@@ -217,6 +228,11 @@ void export_goods_desc(HSQUIRRELVM vm)
 	/// station extension
 	enum_slot(vm, "station_extension", (uint8)haus_besch_t::generic_extension, true);
 	end_enum();
+	/**
+	 * @returns building type
+	 */
+	register_method(vm, &haus_besch_t::get_utyp, "get_type");
+
 	/**
 	 * @returns way type, can be @ref wt_invalid.
 	 */

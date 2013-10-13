@@ -139,6 +139,10 @@ void export_convoy(HSQUIRRELVM vm)
 	 * @returns array, index [0] corresponds to current month
 	 */
 	register_method_fv(vm, &get_convoy_stat, "get_traveled_distance",freevariable<sint32>(convoi_t::CONVOI_DISTANCE), true );
+	/**
+	 * @returns lifetime traveled distance of this convoy
+	 */
+	register_method(vm, &convoi_t::get_total_distance_traveled, "get_distance_traveled_total");
 
 	end_class(vm);
 }
