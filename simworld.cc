@@ -4641,15 +4641,14 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 			first_destination = find_destination(trip);
 			current_destination = first_destination;
 
-			// TODO: Change these variable names to something more fitting for this new system.
 			if(trip == commuting_trip)
 			{
-				first_origin->add_passengers_generated_local(pax_left_to_do);
+				first_origin->add_passengers_generated_commuting(pax_left_to_do);
 			}
 			
 			else if(trip == visiting_trip)
 			{
-				first_origin->add_passengers_generated_non_local(pax_left_to_do);
+				first_origin->add_passengers_generated_visiting(pax_left_to_do);
 			}
 
 			// Do nothing if trip == mail_trip
@@ -5064,15 +5063,14 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 					haltestelle_t::erzeuge_fussgaenger(this, origin_pos_3d, pax_left_to_do);
 				}
 				// We cannot do this on arrival, as the ware packets do not remember their origin building.
-				// TODO: Change the names of these from "local" and "non-local" to "commuting" and "visiting".
 					
 				if(trip == commuting_trip && gb)
 				{
-					gb->add_passengers_succeeded_local(pax_left_to_do);
+					gb->add_passengers_succeeded_commuting(pax_left_to_do);
 				}
 				else if(trip == visiting_trip && gb)
 				{
-					gb->add_passengers_succeeded_non_local(pax_left_to_do);
+					gb->add_passengers_succeeded_visiting(pax_left_to_do);
 				}
 				// Do nothing if trip == mail.
 				break;
@@ -5095,7 +5093,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 				// TODO: Change the names of these from "local" and "non-local" to "commuting" and "visiting".
 				if(trip == commuting_trip)
 				{
-					gb->add_passengers_succeeded_local(pax_left_to_do);
+					gb->add_passengers_succeeded_commuting(pax_left_to_do);
 					if(current_destination.type == factory)
 					{
 						// Only add commuting passengers at a factory.
@@ -5106,7 +5104,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 				}
 				else if(trip == visiting_trip)
 				{
-					gb->add_passengers_succeeded_non_local(pax_left_to_do);
+					gb->add_passengers_succeeded_visiting(pax_left_to_do);
 				}
 				// Do nothing if trip == mail.
 				break;
@@ -5136,7 +5134,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 				// TODO: Change the names of these from "local" and "non-local" to "commuting" and "visiting".
 				if(trip == commuting_trip)
 				{
-					first_origin->add_passengers_succeeded_local(pax_left_to_do);
+					first_origin->add_passengers_succeeded_commuting(pax_left_to_do);
 					if(current_destination.type == factory)
 					{
 						// Only add commuting passengers at a factory.
@@ -5148,7 +5146,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 				}
 				else if(trip == visiting_trip)
 				{
-					first_origin->add_passengers_succeeded_non_local(pax_left_to_do);
+					first_origin->add_passengers_succeeded_visiting(pax_left_to_do);
 				}
 				// Do nothing if trip == mail.
 				break;

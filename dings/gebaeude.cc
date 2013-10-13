@@ -66,12 +66,12 @@ void gebaeude_t::init()
 	zeige_baugrube = false;
 	snow = false;
 	remove_ground = true;
-	passengers_generated_local = 0;
-	passengers_succeeded_local = 0;
-	passenger_success_percent_last_year_local = 0;
-	passengers_generated_non_local = 0;
-	passengers_succeeded_non_local = 0;
-	passenger_success_percent_last_year_non_local = 0;
+	passengers_generated_commuting = 0;
+	passengers_succeeded_commuting = 0;
+	passenger_success_percent_last_year_commuting = 0;
+	passengers_generated_visiting = 0;
+	eded_visiting = 0;
+	passenger_success_percent_last_year_visiting = 0;
 	available_jobs_by_time = -9223372036854775808ll;
 }
 
@@ -942,19 +942,19 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 			buf.append(translator::translate("\nNo postboxes within walking distance"));
 		}
 		
-		buf.printf("\n\n%s %i%%\n", translator::translate("Passenger success rate this year (local):"), get_passenger_success_percent_this_year_local());
-		buf.printf("%s %i%%\n", translator::translate("Passenger success rate last year (local):"), get_passenger_success_percent_last_year_local());
-		buf.printf("%s %i%%\n", translator::translate("Passenger success rate this year (non-local):"), get_passenger_success_percent_this_year_non_local());
-		buf.printf("%s %i%%\n", translator::translate("Passenger success rate last year (non-local):"), get_passenger_success_percent_last_year_non_local());
+		buf.printf("\n\n%s %i%%\n", translator::translate("Passenger success rate this year (local):"), get_passenger_success_percent_this_year_commuting());
+		buf.printf("%s %i%%\n", translator::translate("Passenger success rate last year (local):"), get_passenger_success_percent_last_year_commuting());
+		buf.printf("%s %i%%\n", translator::translate("Passenger success rate this year (non-local):"), get_passenger_success_percent_this_year_visiting());
+		buf.printf("%s %i%%\n", translator::translate("Passenger success rate last year (non-local):"), get_passenger_success_percent_last_year_visiting());
 	}
 }
 
 void gebaeude_t::new_year()
 { 
-		passenger_success_percent_last_year_local = get_passenger_success_percent_this_year_local();
-		passenger_success_percent_last_year_non_local = get_passenger_success_percent_this_year_non_local(); 
+		passenger_success_percent_last_year_commuting = get_passenger_success_percent_this_year_commuting();
+		passenger_success_percent_last_year_visiting = get_passenger_success_percent_this_year_visiting(); 
 
-		passengers_succeeded_local = passengers_generated_local = passengers_succeeded_non_local = passengers_generated_non_local = 0; 
+		passengers_succeeded_commuting = passengers_generated_commuting = eded_visiting = passengers_generated_visiting = 0; 
 }
 
 
@@ -1139,13 +1139,13 @@ void gebaeude_t::rdwr(loadsave_t *file)
 
 	if(file->get_experimental_version() >= 11)
 	{
-		file->rdwr_short(passengers_generated_local);
-		file->rdwr_short(passengers_succeeded_local);
-		file->rdwr_byte(passenger_success_percent_last_year_local);
+		file->rdwr_short(passengers_generated_commuting);
+		file->rdwr_short(passengers_succeeded_commuting);
+		file->rdwr_byte(passenger_success_percent_last_year_commuting);
 
-		file->rdwr_short(passengers_generated_non_local);
-		file->rdwr_short(passengers_succeeded_non_local);
-		file->rdwr_byte(passenger_success_percent_last_year_non_local);
+		file->rdwr_short(passengers_generated_visiting);
+		file->rdwr_short(eded_visiting);
+		file->rdwr_byte(passenger_success_percent_last_year_visiting);
 	}
 
 	if(file->get_experimental_version() >= 12)
