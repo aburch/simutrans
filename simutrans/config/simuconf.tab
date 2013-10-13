@@ -195,6 +195,28 @@ reroute_check_interval_steps = 8192
 
 meters_per_tile = 250
 
+# These settings further refine and calibrate the meters_per_tile setting. Because the
+# meters_per_tile setting determines how quickly that time passes in the game (because
+# the speed of the vehicles does not change in real time for any change in the
+# meters_per_tile setting, the relationship between real time and game time must change
+# instead), it is useful to be able to calibrate the starting point for the relationship
+# between game time and real time. This is important, as the values specified here determine
+# how the values in the .dat/.pak files are interpreted: for any value that is adjusted per
+# month, it is assumed to be specified for the length of the month that would prevail if
+# the "base_bits_per_month" and "base_meters_per_tile" settings below were the actual
+# bits_per_month and meters_per_tile settings in the game. 
+#
+# Using values of 7500 for the base_meters_per_tile and 18 for the base_bits_per_month 
+# gives a month length of approximately 24 hours. This is the default for Simutrans-Experimetnal
+# paksets, as it is useful to be able to calibrate values by whole days. 
+#
+# Using values of 1000 for base_meters_per_tile and 18 for base_bits_per_month is useful
+# for importing Simutrans-Standard games or using Simutrans-Standard paksets, which are
+# likely to be calibrated with these settings in mind. 
+
+base_meters_per_tile = 7500
+base_bits_per_month = 18
+
 # Town growth multiplier factors. 
 # A higher factor mean faster growth. 
 # These are percentage figures.

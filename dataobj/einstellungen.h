@@ -353,6 +353,10 @@ protected:
 public:
 
 	uint16 meters_per_tile;
+	
+	uint32 base_meters_per_tile;
+	uint32 base_bits_per_month;
+
 	// We need it often(every vehikel_basis_t::fahre_basis call), so we cache it.
 	uint32 steps_per_km;
 
@@ -783,7 +787,9 @@ public:
 	uint16 get_meters_per_tile() const { return meters_per_tile; }
 	void   set_meters_per_tile(uint16 value);
 	uint32 get_steps_per_km() const { return steps_per_km; }
-//	void   set_distance_per_tile_percent(uint16 value) { meters_per_tile = value * 10; }
+	
+	uint32 get_base_meters_per_tile() const { return base_meters_per_tile; }
+	uint32 get_base_bits_per_month() const { return base_bits_per_month; }
 
 	uint8  get_tolerable_comfort_short() const { return tolerable_comfort_short; }
 	uint16 get_tolerable_comfort_short_minutes() const { return tolerable_comfort_short_minutes; }

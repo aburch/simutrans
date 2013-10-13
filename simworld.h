@@ -1427,15 +1427,11 @@ public:
 	uint32 calc_adjusted_monthly_figure(uint32 nominal_monthly_figure)
 	{
 		// Adjust for meters per tile
-
-		// TODO: Have the below figure set from simuconf.tab. Base is 1,000 for Standard games; 7,500 calibrates for input values from .dat files being 1 month = 1 day.
-		const uint32 base_meters_per_tile = 7500; 
-		// TODO: Have the below set from simuconf.tab. The default base, as from Standard, is 18.
-		const uint32 base_bits_per_month = 18u;
+		const uint32 base_meters_per_tile = get_settings().get_base_meters_per_tile(); 
+		const uint32 base_bits_per_month =  get_settings().get_base_bits_per_month();
 		const uint32 adjustment_factor = base_meters_per_tile / (uint32)get_settings().get_meters_per_tile();
 		
 		// Adjust for bits per month
-
 		if(ticks_per_world_month_shift >= base_bits_per_month)
 		{
 			const uint32 adjusted_monthly_figure = (uint32)(nominal_monthly_figure << (ticks_per_world_month_shift - base_bits_per_month)); 

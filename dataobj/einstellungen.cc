@@ -95,6 +95,8 @@ settings_t::settings_t() :
 	starting_year = 1930;
 	starting_month = 0;
 	bits_per_month = 20;
+	base_meters_per_tile = 1000;
+	base_bits_per_month = 18;
 
 	beginner_mode = false;
 	beginner_price_factor = 1500;
@@ -624,9 +626,9 @@ void settings_t::rdwr(loadsave_t *file)
 
 		if(file->get_version() >= 86011) {
 			// some more settings
-			file->rdwr_byte(allow_player_change );
-			file->rdwr_byte(use_timeline );
-			file->rdwr_short(starting_year );
+			file->rdwr_byte(allow_player_change);
+			file->rdwr_byte(use_timeline);
+			file->rdwr_short(starting_year);
 		}
 		else {
 			allow_player_change = 1;
@@ -635,24 +637,24 @@ void settings_t::rdwr(loadsave_t *file)
 		}
 
 		if(file->get_version()>=88005) {
-			file->rdwr_short(bits_per_month );
+			file->rdwr_short(bits_per_month);
 		}
 		else {
 			bits_per_month = 18;
 		}
 
 		if(file->get_version()>=89003) {
-			file->rdwr_bool(beginner_mode );
+			file->rdwr_bool(beginner_mode);
 		}
 		else {
 			beginner_mode = false;
 		}
 		if(file->get_version()>=89004) {
-			file->rdwr_bool(just_in_time );
+			file->rdwr_bool(just_in_time);
 		}
 		// rotation of the map with respect to the original value
 		if(file->get_version()>=99015) {
-			file->rdwr_byte(rotation );
+			file->rdwr_byte(rotation);
 		}
 		else {
 			rotation = 0;
@@ -1514,6 +1516,8 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_short(max_onward_trips);
 			file->rdwr_short(onward_trip_chance_percent);
 			file->rdwr_short(commuting_trip_chance_percent);
+			file->rdwr_long(base_meters_per_tile);
+			file->rdwr_long(base_bits_per_month);
 		}
 		else
 		{
@@ -1584,6 +1588,9 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 		// Don't set it, leave it at the previous setting from a previous simuconf.tab, save file, etc
 	}
 	float32e8_t distance_per_tile(meters_per_tile, 1000);
+
+	base_meters_per_tile = contents.get_int("base_meters_per_tile", base_meters_per_tile);
+	base_bits_per_month = contents.get_int("base_bits_per_month", base_bits_per_month); 
 
 		// special day/night colors
 #if COLOUR_DEPTH != 0
