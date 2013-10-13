@@ -119,15 +119,6 @@ private:
 	uint32 industry_increase;
 	uint32 city_isolation_factor;
 
-	// percentage of routing
-	sint16 factory_worker_percentage;
-	sint16 tourist_percentage;
-
-	// radius for city trips of different distance ranges
-	sint16 factory_worker_radius;
-	sint32 factory_worker_minimum_towns;
-	sint32 factory_worker_maximum_towns;
-
 	// Knightly : number of periods for averaging the amount of arrived pax/mail at factories
 	uint16 factory_arrival_periods;
 
@@ -437,17 +428,6 @@ public:
 	uint16 obsolete_running_cost_increase_percent;
 	uint16 obsolete_running_cost_increase_phase_years;
 
-	//@author: jamespetts
-	// Passenger destination ranges
-	// Use to set the extent to which passengers prefer local, medium, or long-range destinations.
-	// The distances can (and probably should) overlap.
-	uint32 local_passengers_min_distance;
-	uint32 local_passengers_max_distance;
-	uint32 midrange_passengers_min_distance;
-	uint32 midrange_passengers_max_distance;
-	uint32 longdistance_passengers_min_distance;
-	uint32 longdistance_passengers_max_distance;
-
 	// @author: jamespetts
 	// Private car settings
 	uint8 always_prefer_car_percent;
@@ -457,8 +437,6 @@ public:
 	// Passenger routing settings
 	uint8 passenger_routing_packet_size;
 	uint16 max_alternative_destinations;
-	uint8 passenger_routing_local_chance;
-	uint8 passenger_routing_midrange_chance;
 
 	//@author: jamespetts
 	// Factory retirement settings
@@ -513,12 +491,10 @@ public:
 
 	// The ranges for the journey time tolerance for passengers.
 	// @author: jamespetts
-	uint16 min_local_tolerance;
-	uint16 max_local_tolerance;
-	uint16 min_midrange_tolerance;
-	uint16 max_midrange_tolerance;
-	uint16 min_longdistance_tolerance;
-	uint16 max_longdistance_tolerance;
+	uint16 range_commuting_tolerance;
+	uint16 min_commuting_tolerance;
+	uint16 min_visiting_tolerance;
+	uint16 range_visiting_tolerance;
 	
 private:
 
@@ -842,25 +818,10 @@ public:
 	uint16 get_obsolete_running_cost_increase_phase_years() const { return obsolete_running_cost_increase_phase_years; }
 	void   set_obsolete_running_cost_increase_phase_years(uint16 value) { obsolete_running_cost_increase_phase_years = value; }
 
-	uint32 get_local_passengers_min_distance() const { return local_passengers_min_distance; }
-	uint32 get_local_passengers_max_distance() const { return local_passengers_max_distance; }
-	void   set_local_passengers_max_distance(uint16 value) { local_passengers_max_distance = value; }
-	uint32 get_midrange_passengers_min_distance() const { return midrange_passengers_min_distance; }
-	void   set_midrange_passengers_min_distance(uint16 value) { midrange_passengers_min_distance = value; }
-	uint32 get_midrange_passengers_max_distance() const { return midrange_passengers_max_distance; }
-	void   set_midrange_passengers_max_distance(uint16 value) { midrange_passengers_max_distance = value; }
-	uint32 get_longdistance_passengers_min_distance() const { return longdistance_passengers_min_distance; }
-	void   set_longdistance_passengers_min_distance(uint16 value) { longdistance_passengers_min_distance = value; }
-	uint32 get_longdistance_passengers_max_distance() const { return longdistance_passengers_max_distance; }
-
 	uint8 get_passenger_routing_packet_size() const { return passenger_routing_packet_size; }
 	void  set_passenger_routing_packet_size(uint8 value) { passenger_routing_packet_size = value; }
 	uint16 get_max_alternative_destinations() const { return max_alternative_destinations; }
 	void  set_max_alternative_destinations(uint16 value) { max_alternative_destinations = value; }
-	uint8 get_passenger_routing_local_chance() const { return passenger_routing_local_chance; }
-	void  set_passenger_routing_local_chance(uint8 value) { passenger_routing_local_chance = value; }
-	uint8 get_passenger_routing_midrange_chance() const { return passenger_routing_midrange_chance; }
-	void  set_passenger_routing_midrange_chance(uint8 value) { passenger_routing_midrange_chance = value; }
 
 	uint8 get_always_prefer_car_percent() const { return always_prefer_car_percent; }
 	uint8 get_congestion_density_factor () const { return congestion_density_factor; }
@@ -918,18 +879,14 @@ public:
 	bool get_with_private_paks() const { return with_private_paks; }
 
 	// @author: jamespetts
-	uint16 get_min_local_tolerance() const { return min_local_tolerance; }
-	void set_min_local_tolerance(uint16 value) { min_local_tolerance = value; }
-	uint16 get_max_local_tolerance() const { return max_local_tolerance; }
-	void set_max_local_tolerance(uint16 value) { max_local_tolerance = value; }
-	uint16 get_min_midrange_tolerance() const { return min_midrange_tolerance; }
-	void set_min_midrange_tolerance(uint16 value) { min_midrange_tolerance = value; }
-	uint16 get_max_midrange_tolerance() const { return max_midrange_tolerance; }
-	void set_max_midrange_tolerance(uint16 value) { max_midrange_tolerance = value; }
-	uint16 get_min_longdistance_tolerance() const { return min_longdistance_tolerance; }
-	void set_min_longdistance_tolerance(uint16 value){ min_longdistance_tolerance = value; }
-	uint16 get_max_longdistance_tolerance() const { return max_longdistance_tolerance; }
-	void set_max_longdistance_tolerance(uint16 value) { max_longdistance_tolerance = value; }
+	uint16 get_min_visiting_tolerance() const { return min_visiting_tolerance; }
+	void set_min_visiting_tolerance(uint16 value) { min_visiting_tolerance = value; }
+	uint16 get_range_commuting_tolerance() const { return range_commuting_tolerance; }
+	void set_range_commuting_tolerance(uint16 value) { range_commuting_tolerance = value; }
+	uint16 get_min_commuting_tolerance() const { return min_commuting_tolerance; }
+	void set_min_commuting_tolerance(uint16 value) { min_commuting_tolerance = value; }
+	uint16 get_range_visiting_tolerance() const { return range_visiting_tolerance; }
+	void set_range_visiting_tolerance(uint16 value) { range_visiting_tolerance = value; }
 
 	// town growth stuff
 	sint32 get_passenger_multiplier() const { return passenger_multiplier; }
@@ -942,21 +899,6 @@ public:
 	sint32 get_growthfactor_medium() const { return growthfactor_medium; }
 	sint32 get_growthfactor_large() const { return growthfactor_large; }
 
-	// percentage of passengers for different kinds of trips
-	sint16 get_factory_worker_percentage() const { return factory_worker_percentage; }
-	sint16 get_tourist_percentage() const { return tourist_percentage; }
-
-	// radius from factories to get workers from towns (usually set to 77 but 1/8 of map size may be meaningful too)
-	uint16 get_factory_worker_radius() const { return factory_worker_radius; }
-
-	// any factory will be connected to at least this number of next cities
-	uint32 get_factory_worker_minimum_towns() const { return factory_worker_minimum_towns; }
-	void set_factory_worker_minimum_towns(uint32 n) { factory_worker_minimum_towns = n; }
-
-	// any factory will be connected to not more than this number of next cities
-	uint32 get_factory_worker_maximum_towns() const { return factory_worker_maximum_towns; }
-	void set_factory_worker_maximum_towns(uint32 n) { factory_worker_maximum_towns = n; }
-
 	// Knightly : number of periods for averaging the amount of arrived pax/mail at factories
 	uint16 get_factory_arrival_periods() const { return factory_arrival_periods; }
 
@@ -964,8 +906,6 @@ public:
 	bool get_factory_enforce_demand() const { return factory_enforce_demand; }
 
 	uint16 get_factory_maximum_intransit_percentage() const { return factory_maximum_intransit_percentage; }
-
-	uint32 get_locality_factor(sint16 year) const;
 
 	// disallow using obsolete vehicles in depot
 	bool get_allow_buying_obsolete_vehicles() const { return allow_buying_obsolete_vehicles; }

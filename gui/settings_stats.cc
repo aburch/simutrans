@@ -302,31 +302,20 @@ void settings_experimental_revenue_stats_t::init( settings_t *sets )
 		gui_component_table_t &tbl = new_table(koord(0, ypos), 6, 4);
 		int row = 0;
 		set_cell_component(tbl, new_textarea(koord(2, 0), translator::translate("passenger\ndistribution")), 0, 0);
-		set_cell_component(tbl, new_textarea(koord(2, 0), translator::translate("min dist.\ntiles")), 1, 0);
-		set_cell_component(tbl, new_textarea(koord(2, 0), translator::translate("max dist.\ntiles")), 2, 0);
-		set_cell_component(tbl, new_textarea(koord(2, 0), translator::translate("chance\npercent")), 3, 0);
+		// Note: "Waiting" here should be "journey time": these are translated in en.tab, but should be correct in other translations, too.
 		set_cell_component(tbl, new_textarea(koord(2, 0), translator::translate("waiting\ntolerance\nmin. min")), 4, 0);
 		set_cell_component(tbl, new_textarea(koord(2, 0), translator::translate("waiting\ntolerance\nmax. min")), 5, 0);
 		row++;
-		set_cell_component(tbl, new_label(koord(2, 3), "local"), 0, row);
-		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_local_passengers_max_distance(), 0, 8192, 1), 2, row);
-		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_passenger_routing_local_chance(), 0, 100, 1), 3, row);
-		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_min_local_tolerance() / 10, 2, 9600, 1), 4, row);
-		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_max_local_tolerance() / 10, 2, 9600, 1), 5, row);
-		row++;
-		set_cell_component(tbl, new_label(koord(2, 0), "mid range"), 0, row);
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_midrange_passengers_min_distance(), 0, 8192, 1), 1, row);
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_midrange_passengers_max_distance(), 0, 16384, 1), 2, row);
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_passenger_routing_midrange_chance(), 0, 100, 1), 3, row);
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_min_midrange_tolerance() / 10, 2, 9600, 1), 4, row);
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_max_midrange_tolerance() / 10, 2, 9600, 1), 5, row);
-		row++;
-		set_cell_component(tbl, new_label(koord(2, 0), "long dist."), 0, row);
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_longdistance_passengers_min_distance(), 0, 8192, 1), 1, row);
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_min_longdistance_tolerance() / 10, 2, 9600, 1), 4, row);
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_max_longdistance_tolerance() / 10, 2, 9600, 1), 5, row);
+		set_cell_component(tbl, new_label(koord(2, 3), "commuting"), 0, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_min_commuting_tolerance() / 10, 2, 9600, 1), 4, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_range_commuting_tolerance() / 10, 2, 9600, 1), 5, row);
+		row++; 
+		set_cell_component(tbl, new_label(koord(2, 0), "visiting"), 0, row);
+		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_min_visiting_tolerance() / 10, 2, 9600, 1), 4, row);
+		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_range_visiting_tolerance() / 10, 2, 9600, 1), 5, row);
 		INIT_TABLE_END(tbl);
 	}
+	SEPERATOR;
 	{
 		gui_component_table_t &tbl = new_table(koord(0, ypos), 3, 6);
 		int row = 0;
@@ -355,6 +344,7 @@ void settings_experimental_revenue_stats_t::init( settings_t *sets )
 		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_tolerable_comfort_long(), 0, 255, 1), 2, row);
 		INIT_TABLE_END(tbl);
 	}
+	SEPERATOR;
 	{
 		gui_component_table_t &tbl = new_table(koord(0, ypos), 3, 3);
 		int row = 0;
@@ -371,6 +361,7 @@ void settings_experimental_revenue_stats_t::init( settings_t *sets )
 		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_max_discomfort_penalty_percent(), 0, 1000, 1), 2, row);
 		INIT_TABLE_END(tbl);
 	}
+	SEPERATOR;
 	{
 		gui_component_table_t &tbl = new_table(koord(0, ypos), 3, 8);
 		int row = 0;
@@ -418,18 +409,10 @@ void settings_experimental_revenue_stats_t::read(settings_t *sets)
 	READ_NUM_VALUE( sets->passenger_max_wait );
 	READ_NUM_VALUE( sets->min_wait_airport );
 
-	READ_NUM_VALUE( sets->local_passengers_max_distance );
-	READ_NUM_VALUE( sets->passenger_routing_local_chance );
-	READ_NUM_VALUE_TENTHS( (sets->min_local_tolerance) );
-	READ_NUM_VALUE_TENTHS( sets->max_local_tolerance);
-	READ_NUM_VALUE( sets->midrange_passengers_min_distance );
-	READ_NUM_VALUE( sets->midrange_passengers_max_distance );
-	READ_NUM_VALUE( sets->passenger_routing_midrange_chance );
-	READ_NUM_VALUE_TENTHS( sets->min_midrange_tolerance );
-	READ_NUM_VALUE_TENTHS( sets->max_midrange_tolerance );
-	READ_NUM_VALUE( sets->longdistance_passengers_min_distance );
-	READ_NUM_VALUE_TENTHS( sets->min_longdistance_tolerance );
-	READ_NUM_VALUE_TENTHS( sets->max_longdistance_tolerance);
+	READ_NUM_VALUE_TENTHS( (sets->min_visiting_tolerance) );
+	READ_NUM_VALUE_TENTHS( sets->range_commuting_tolerance);
+	READ_NUM_VALUE_TENTHS( sets->min_commuting_tolerance );
+	READ_NUM_VALUE_TENTHS( sets->range_visiting_tolerance );
 	READ_NUM_VALUE( sets->tolerable_comfort_short_minutes );
 	READ_NUM_VALUE( sets->tolerable_comfort_short );
 	READ_NUM_VALUE( sets->tolerable_comfort_median_short_minutes );
@@ -743,13 +726,8 @@ void settings_economy_stats_t::init(settings_t const* const sets)
 	INIT_NUM( "mail_packets_per_month_hundredths", sets->get_mail_packets_per_month_hundredths(), 0, 4096, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "city_isolation_factor", sets->get_city_isolation_factor(), 1, 20000, 1, false );
 	INIT_NUM( "special_building_distance", sets->get_special_building_distance(), 1, 150, 1, false );
-	INIT_NUM( "factory_worker_radius", sets->get_factory_worker_radius(), 0, 32767, gui_numberinput_t::AUTOLINEAR, false );
-	INIT_NUM( "factory_worker_minimum_towns", sets->get_factory_worker_minimum_towns(), 0, 32767, gui_numberinput_t::AUTOLINEAR, false );
-	INIT_NUM( "factory_worker_maximum_towns", sets->get_factory_worker_maximum_towns(), 0, 32767, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "factory_arrival_periods", sets->get_factory_arrival_periods(), 1, 16, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_BOOL( "factory_enforce_demand", sets->get_factory_enforce_demand() );
-	INIT_NUM( "factory_worker_percentage", sets->get_factory_worker_percentage(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
-	INIT_NUM( "tourist_percentage", sets->get_tourist_percentage(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR
 	INIT_NUM( "passenger_multiplier", sets->get_passenger_multiplier(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "mail_multiplier", sets->get_mail_multiplier(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
@@ -803,13 +781,8 @@ void settings_economy_stats_t::read(settings_t* const sets)
 	READ_NUM_VALUE( sets->mail_packets_per_month_hundredths );
 	READ_NUM_VALUE( sets->city_isolation_factor );
 	READ_NUM_VALUE( sets->special_building_distance );
-	READ_NUM_VALUE( sets->factory_worker_radius );
-	READ_NUM_VALUE( sets->factory_worker_minimum_towns );
-	READ_NUM_VALUE( sets->factory_worker_maximum_towns );
 	READ_NUM_VALUE( sets->factory_arrival_periods );
 	READ_BOOL_VALUE( sets->factory_enforce_demand );
-	READ_NUM_VALUE( sets->factory_worker_percentage );
-	READ_NUM_VALUE( sets->tourist_percentage );
 	READ_NUM_VALUE( sets->passenger_multiplier );
 	READ_NUM_VALUE( sets->mail_multiplier );
 	READ_NUM_VALUE( sets->goods_multiplier );

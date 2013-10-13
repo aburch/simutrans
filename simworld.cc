@@ -4479,11 +4479,11 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 	bool overcrowded_already_set;
 
 	// TODO: Set these from new, bespoke simuconf.tab settings.
-	const uint16 min_commuting_tolerance = settings.get_min_midrange_tolerance();
-	const uint16 range_commuting_tolerance = max(0, settings.get_max_local_tolerance() - min_commuting_tolerance);
+	const uint16 min_commuting_tolerance = settings.get_min_commuting_tolerance();
+	const uint16 range_commuting_tolerance = max(0, settings.get_range_commuting_tolerance() - min_commuting_tolerance);
 
-	const uint16 min_visiting_tolerance = settings.get_min_local_tolerance();
-	const uint16 range_visiting_tolerance = max(0, settings.get_max_midrange_tolerance() - min_visiting_tolerance);
+	const uint16 min_visiting_tolerance = settings.get_min_visiting_tolerance();
+	const uint16 range_visiting_tolerance = max(0, settings.get_range_visiting_tolerance() - min_visiting_tolerance);
 
 	const uint16 max_onward_trips = settings.get_max_onward_trips();
 
@@ -7090,16 +7090,6 @@ DBG_MESSAGE("karte_t::laden()", "laden_abschliesen for tiles finished" );
 
 DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 
-	// old versions did not save factory connections
-	if(file->get_version()<99014) {
-		sint32 const temp_min = settings.get_factory_worker_minimum_towns();
-		sint32 const temp_max = settings.get_factory_worker_maximum_towns();
-		// this needs to avoid the first city to be connected to all town
-		settings.set_factory_worker_minimum_towns(0);
-		settings.set_factory_worker_maximum_towns(stadt.get_count() + 1);
-		settings.set_factory_worker_minimum_towns(temp_min);
-		settings.set_factory_worker_maximum_towns(temp_max);
-	}
 	ls.set_progress( (get_size().y*3)/2+256+get_size().y/3 );
 
 	// resolve dummy stops into real stops first ...
@@ -8753,7 +8743,7 @@ void karte_t::calc_max_road_check_depth()
 	}
 
 	// unit of max_road_check_depth: (min/10 * 100) / (m/tile * 6) * km/h  --> tile * 1000 / 36
-	max_road_check_depth = ((uint32)settings.get_max_longdistance_tolerance() * 100) / (settings.get_meters_per_tile() * 6) * min(citycar_speed_average, max_road_speed);
+	max_road_check_depth = ((uint32)settings.get_range_visiting_tolerance() * 100) / (settings.get_meters_per_tile() * 6) * min(citycar_speed_average, max_road_speed);
 }
 
 static bool sort_ware_by_name(const ware_besch_t* a, const ware_besch_t* b)

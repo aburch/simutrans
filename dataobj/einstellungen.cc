@@ -123,15 +123,6 @@ settings_t::settings_t() :
 
 	special_building_distance = 3;
 
-	factory_worker_percentage = 33;
-	tourist_percentage = 16;
-
-	factory_worker_radius = 77;
-	// try to have at least a single town connected to a factory
-	factory_worker_minimum_towns = 1;
-	// not more than four towns should supply to a factory
-	factory_worker_maximum_towns = 4;
-
 	factory_arrival_periods = 4;
 
 	factory_enforce_demand = true;
@@ -377,15 +368,6 @@ settings_t::settings_t() :
 	obsolete_running_cost_increase_percent = 400; //Running costs will be this % of normal costs after vehicle has been obsolete
 	obsolete_running_cost_increase_phase_years = 20; //for this number of years.
 
-	// Passenger destination ranges
-
-	local_passengers_min_distance = 0;
-	local_passengers_max_distance = 16;
-	midrange_passengers_min_distance = 0;
-	midrange_passengers_max_distance = 96;
-	longdistance_passengers_min_distance = 0;
-	longdistance_passengers_max_distance = 4096;
-
 	// Passenger routing settings
 	passenger_routing_packet_size = 7;
 	max_alternative_destinations = 3;
@@ -440,14 +422,12 @@ settings_t::settings_t() :
 	// Applies to passengers (and hand delivery of mail) only.
 	// @author: jamespetts
 
-	min_local_tolerance = 45 * 10; // 3/4 of an hour.
-	max_local_tolerance = 60 * 10; // One hour
+	min_visiting_tolerance = 10 * 10; // 10 minutes
+	range_visiting_tolerance = 360 * 10; //: Six hours
+	
+	min_commuting_tolerance = 30 * 10; // Half an hour
+	range_commuting_tolerance = 120 * 10; // Two hours
 
-	min_midrange_tolerance = 60 * 10;
-	max_midrange_tolerance = 180 * 10; //: Three hours
-
-	min_longdistance_tolerance = 180 * 10;
-	max_longdistance_tolerance = 330 * 10; // Five and a half hours
 
 	used_vehicle_reduction = 0;
 
@@ -707,9 +687,14 @@ void settings_t::rdwr(loadsave_t *file)
 				file->rdwr_long(growthfactor_small );
 				file->rdwr_long(growthfactor_medium );
 				file->rdwr_long(growthfactor_large );
-				file->rdwr_short(factory_worker_percentage );
-				file->rdwr_short(tourist_percentage );
-				file->rdwr_short(factory_worker_radius );
+				if(file->get_experimental_version() < 12)
+				{
+					// Was factory_worker_percentage, tourist_percentage and factory_worker_radius.
+					uint16 dummy;
+					file->rdwr_short(dummy);
+					file->rdwr_short(dummy);
+					file->rdwr_short(dummy);
+				}
 			}
 
 			file->rdwr_long(electric_promille);
@@ -919,10 +904,12 @@ void settings_t::rdwr(loadsave_t *file)
 				frames_per_step = umgebung_t::network_frames_per_step;
 			}
 			file->rdwr_bool( allow_buying_obsolete_vehicles);
-			if(file->get_experimental_version() >= 8 || file->get_experimental_version() == 0)
+			if(file->get_experimental_version() < 12 && (file->get_experimental_version() >= 8 || file->get_experimental_version() == 0))
 			{
-				file->rdwr_long( factory_worker_minimum_towns);
-				file->rdwr_long( factory_worker_maximum_towns);
+				// Was factory_worker_minimum_towns and factory_worker_maximum_towns
+				uint32 dummy;
+				file->rdwr_long(dummy);
+				file->rdwr_long(dummy);
 			}
 			if(file->get_experimental_version() >= 9 || file->get_experimental_version() == 0)
 			{
@@ -1082,45 +1069,16 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_short(obsolete_running_cost_increase_percent);
 			file->rdwr_short(obsolete_running_cost_increase_phase_years);
 
-			if(file->get_experimental_version() >= 9)
+			if(file->get_experimental_version() >= 9 && file->get_experimental_version() < 12)
 			{
-				file->rdwr_long(local_passengers_min_distance);
-				file->rdwr_long(local_passengers_max_distance);
-				file->rdwr_long(midrange_passengers_min_distance);
-				file->rdwr_long(midrange_passengers_max_distance);
-				file->rdwr_long(longdistance_passengers_min_distance);
-				file->rdwr_long(longdistance_passengers_max_distance);
-			}
-			else
-			{
-				uint16 old_local_passengers_min_distance = (uint16) local_passengers_min_distance;
-				file->rdwr_short(old_local_passengers_min_distance);
-				local_passengers_min_distance = (uint32)old_local_passengers_min_distance;
-
-				uint16 old_local_passengers_max_distance = (uint16)local_passengers_max_distance;
-				file->rdwr_short(old_local_passengers_max_distance);
-				local_passengers_max_distance = (uint32)old_local_passengers_max_distance;
-
-				uint16 old_midrange_passengers_min_distance = (uint16)midrange_passengers_min_distance;	
-				file->rdwr_short(old_midrange_passengers_min_distance);
-				midrange_passengers_min_distance = (uint32)old_midrange_passengers_min_distance;
-
-				uint16 old_midrange_passengers_max_distance = (uint16)midrange_passengers_max_distance;
-				file->rdwr_short(old_midrange_passengers_max_distance);
-				midrange_passengers_max_distance = (uint32)old_midrange_passengers_max_distance;
-
-				uint16 old_longdistance_passengers_min_distance = (uint16)longdistance_passengers_min_distance;
-				file->rdwr_short(old_longdistance_passengers_min_distance);
-				longdistance_passengers_min_distance = (uint32)old_longdistance_passengers_min_distance;
-
-				uint16 old_longdistance_passengers_max_distance = (uint16)longdistance_passengers_max_distance;
-				file->rdwr_short(old_longdistance_passengers_max_distance);
-				longdistance_passengers_max_distance = (uint32)old_longdistance_passengers_max_distance;
-				if(longdistance_passengers_max_distance == 0)
-				{
-					// Often, with high numbers specified, this value would be set incorrectly to zero. Correct this.
-					longdistance_passengers_max_distance = 65535;
-				}
+				// Was formerly passenger distance ranges, now deprecated.
+				uint32 dummy;
+				file->rdwr_long(dummy);
+				file->rdwr_long(dummy);
+				file->rdwr_long(dummy);
+				file->rdwr_long(dummy);
+				file->rdwr_long(dummy);
+				file->rdwr_long(dummy);
 			}
 
 			file->rdwr_byte(passenger_routing_packet_size);
@@ -1137,9 +1095,13 @@ void settings_t::rdwr(loadsave_t *file)
 					max_alternative_destinations = (uint16)eight_bit_alternative_destinations;
 				}
 			}
-
-			file->rdwr_byte(passenger_routing_local_chance);
-			file->rdwr_byte(passenger_routing_midrange_chance);
+			if(file->get_experimental_version() < 12)
+			{
+				// Was passenger_routing_local_chance and passenger_routing_midrange_chance
+				uint8 dummy;
+				file->rdwr_byte(dummy);
+				file->rdwr_byte(dummy);
+			}
 			if(file->get_experimental_version() < 11)
 			{
 				// Was base_car_preference_percent
@@ -1148,22 +1110,6 @@ void settings_t::rdwr(loadsave_t *file)
 			}
 			file->rdwr_byte(always_prefer_car_percent);
 			file->rdwr_byte(congestion_density_factor);
-
-			if(file->get_experimental_version() < 4)
-			{
-				if(passenger_routing_packet_size < 1)
-				{
-					passenger_routing_packet_size = 7;
-				}
-				if(passenger_routing_local_chance < 1 || passenger_routing_local_chance > 99)
-				{
-					passenger_routing_local_chance = 33;
-				}
-				if(passenger_routing_midrange_chance < 1 || passenger_routing_midrange_chance > 99)
-				{
-					passenger_routing_midrange_chance = 33;
-				}
-			}
 
 			waytype_t wt = road_wt;
 			for(int n = 1; n < 7; n ++)
@@ -1309,12 +1255,17 @@ void settings_t::rdwr(loadsave_t *file)
 
 		if(file->get_experimental_version() >= 5)
 		{
-			file->rdwr_short(min_local_tolerance);
-			file->rdwr_short(max_local_tolerance);
-			file->rdwr_short(min_midrange_tolerance);
-			file->rdwr_short(max_midrange_tolerance);
-			file->rdwr_short(min_longdistance_tolerance);
-			file->rdwr_short(max_longdistance_tolerance);
+			file->rdwr_short(min_visiting_tolerance);
+			file->rdwr_short(range_commuting_tolerance);
+			file->rdwr_short(min_commuting_tolerance);
+			file->rdwr_short(range_visiting_tolerance);
+			if(file->get_experimental_version() < 12)
+			{
+				// Was min_longdistance_tolerance and max_longdistance_tolerance
+				uint16 dummy;
+				file->rdwr_short(dummy);
+				file->rdwr_short(dummy);
+			}
 		}
 
 		if(  file->get_version()>=110000  ) {
@@ -1843,12 +1794,6 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	umgebung_t::autosave = (contents.get_int("autosave", umgebung_t::autosave) );
 
-	// routing stuff
-	uint16 city_short_range_percentage = passenger_routing_local_chance;
-	uint16 city_medium_range_percentage = passenger_routing_midrange_chance;
-	uint32 city_short_range_radius = local_passengers_max_distance;
-	uint32 city_medium_range_radius = midrange_passengers_max_distance;
-
 	max_route_steps = contents.get_int("max_route_steps", max_route_steps );
 	max_hops = contents.get_int("max_hops", max_hops );
 	max_transfers = contents.get_int("max_transfers", max_transfers );
@@ -1856,19 +1801,10 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	special_building_distance = contents.get_int("special_building_distance", special_building_distance );
 	industry_increase = contents.get_int("industry_increase_every", industry_increase );
 	city_isolation_factor = contents.get_int("city_isolation_factor", city_isolation_factor );
-	factory_worker_percentage = contents.get_int("factory_worker_percentage", factory_worker_percentage );
-	factory_worker_radius = contents.get_int("factory_worker_radius", factory_worker_radius );
-	factory_worker_minimum_towns = contents.get_int("factory_worker_minimum_towns", factory_worker_minimum_towns );
-	factory_worker_maximum_towns = contents.get_int("factory_worker_maximum_towns", factory_worker_maximum_towns );
 	factory_arrival_periods = clamp( contents.get_int("factory_arrival_periods", factory_arrival_periods), 1, 16 );
 	factory_enforce_demand = contents.get_int("factory_enforce_demand", factory_enforce_demand) != 0;
 	factory_maximum_intransit_percentage  = contents.get_int("maximum_intransit_percentage", factory_maximum_intransit_percentage);
 
-	tourist_percentage = contents.get_int("tourist_percentage", tourist_percentage );
-	city_short_range_percentage = contents.get_int("city_short_range_percentage", city_short_range_percentage);
-	city_medium_range_percentage = contents.get_int("city_medium_range_percentage", city_medium_range_percentage);
-	city_short_range_radius = contents.get_int("city_short_range_radius", city_short_range_radius);
-	city_medium_range_radius = contents.get_int("city_medium_range_radius", city_medium_range_radius);
 	seperate_halt_capacities = contents.get_int("seperate_halt_capacities", seperate_halt_capacities ) != 0;
 	avoid_overcrowding = contents.get_int("avoid_overcrowding", avoid_overcrowding )!=0;
 	passenger_max_wait = contents.get_int("passenger_max_wait", passenger_max_wait); 
@@ -2147,37 +2083,6 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	obsolete_running_cost_increase_percent = contents.get_int("obsolete_running_cost_increase_percent", obsolete_running_cost_increase_percent);
 	obsolete_running_cost_increase_phase_years = contents.get_int("obsolete_running_cost_increase_phase_years", obsolete_running_cost_increase_phase_years);
 
-	// Passenger destination ranges
-
-	sint64 new_local_passengers_min_distance = contents.get_int64("local_passengers_min_distance", -1);
-	if (new_local_passengers_min_distance > 0) {
-		local_passengers_min_distance = new_local_passengers_min_distance / distance_per_tile;
-	}
-	sint64 new_local_passengers_max_distance = contents.get_int64("local_passengers_max_distance", -1);
-	if (new_local_passengers_max_distance > 0) {
-		local_passengers_max_distance = new_local_passengers_max_distance / distance_per_tile;
-	} else if (city_short_range_radius) {
-		local_passengers_max_distance = city_short_range_radius;
-	}
-	sint64 new_midrange_passengers_min_distance = contents.get_int64("midrange_passengers_min_distance", -1);
-	if (new_midrange_passengers_min_distance > 0) {
-		midrange_passengers_min_distance = new_midrange_passengers_min_distance / distance_per_tile;
-	}
-	sint64 new_midrange_passengers_max_distance = contents.get_int64("midrange_passengers_max_distance", -1);
-	if (new_midrange_passengers_max_distance > 0) {
-		midrange_passengers_max_distance = new_midrange_passengers_max_distance / distance_per_tile;
-	} else if (city_medium_range_radius) {
-		midrange_passengers_max_distance = city_medium_range_radius;
-	}
-	sint64 new_longdistance_passengers_min_distance = contents.get_int64("longdistance_passengers_min_distance", -1);
-	if (new_longdistance_passengers_min_distance > 0) {
-		longdistance_passengers_min_distance = new_longdistance_passengers_min_distance / distance_per_tile;
-	}
-	sint64 new_longdistance_passengers_max_distance = contents.get_int64("longdistance_passengers_max_distance", -1);
-	if (new_longdistance_passengers_max_distance > 0) {
-		longdistance_passengers_max_distance = new_longdistance_passengers_max_distance / distance_per_tile;
-	}
-
 	// Passenger routing settings
 	passenger_routing_packet_size = contents.get_int("passenger_routing_packet_size", passenger_routing_packet_size);
 	if(passenger_routing_packet_size < 1)
@@ -2185,16 +2090,6 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 		passenger_routing_packet_size = 7;
 	}
 	max_alternative_destinations = contents.get_int("max_alternative_destinations", max_alternative_destinations);
-	passenger_routing_local_chance  = contents.get_int("passenger_routing_local_chance", city_short_range_percentage);
-	if(passenger_routing_local_chance < 1 || passenger_routing_local_chance > 99)
-	{
-		passenger_routing_local_chance = 33;
-	}
-	passenger_routing_midrange_chance = contents.get_int("passenger_routing_midrange_chance", city_medium_range_percentage);
-	if(passenger_routing_midrange_chance < 1 || passenger_routing_midrange_chance > 99)
-	{
-		passenger_routing_midrange_chance = 33;
-	}
 	always_prefer_car_percent = contents.get_int("always_prefer_car_percent", always_prefer_car_percent);
 	congestion_density_factor = contents.get_int("congestion_density_factor", congestion_density_factor);
 
@@ -2284,18 +2179,14 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	// Multiply by 10 because journey times are measured in tenths of minutes.
 	//@author: jamespetts
-	const uint16 min_local_tolerance_minutes = contents.get_int("min_local_tolerance", (min_local_tolerance / 10));
-	min_local_tolerance = min_local_tolerance_minutes * 10;
-	const uint16 max_local_tolerance_minutes = contents.get_int("max_local_tolerance", (max_local_tolerance / 10));
-	max_local_tolerance = max_local_tolerance_minutes * 10;
-	const uint16 min_midrange_tolerance_minutes = contents.get_int("min_midrange_tolerance", (min_midrange_tolerance/ 10));
-	min_midrange_tolerance = min_midrange_tolerance_minutes * 10;
-	const uint16 max_midrange_tolerance_minutes = contents.get_int("max_midrange_tolerance", (max_midrange_tolerance / 10));
-	max_midrange_tolerance = max_midrange_tolerance_minutes * 10;
-	const uint16 min_longdistance_tolerance_minutes = contents.get_int("min_longdistance_tolerance", (min_longdistance_tolerance / 10));
-	min_longdistance_tolerance = min_longdistance_tolerance_minutes * 10;
-	const uint16 max_longdistance_tolerance_minutes = contents.get_int("max_longdistance_tolerance", (max_longdistance_tolerance / 10));
-	max_longdistance_tolerance = max_longdistance_tolerance_minutes * 10;
+	const uint16 min_visiting_tolerance_minutes = contents.get_int("min_visiting_tolerance", (min_visiting_tolerance / 10));
+	min_visiting_tolerance = min_visiting_tolerance_minutes * 10;
+	const uint16 range_commuting_tolerance_minutes = contents.get_int("range_commuting_tolerance", (range_commuting_tolerance / 10));
+	range_commuting_tolerance = range_commuting_tolerance_minutes * 10;
+	const uint16 min_commuting_tolerance_minutes = contents.get_int("min_commuting_tolerance", (min_commuting_tolerance/ 10));
+	min_commuting_tolerance = min_commuting_tolerance_minutes * 10;
+	const uint16 range_visiting_tolerance_minutes = contents.get_int("range_visiting_tolerance", (range_visiting_tolerance / 10));
+	range_visiting_tolerance = range_visiting_tolerance_minutes * 10;
 
 	quick_city_growth = (bool)(contents.get_int("quick_city_growth", quick_city_growth));
 

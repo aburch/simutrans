@@ -254,23 +254,6 @@ growthfactor_capitals = 100
 max_city_size = 16000
 max_small_city_size = 3000
 
-# amount of passengers that travel from/to factories or attractions
-# the remaining percentage is intercity and intracity travel
-factory_worker_percentage = 15
-tourist_percentage = 7
-
-# Note that locality_factor from simutrans-standard is not present in experimental
-
-# A factory will be added as worker's destination to a town, if it has either
-# is within factory_worker_radius
-# or has less than factory_worker_minimum_towns next cities added
-# and has not more than factory_worker_maximum_towns added
-# The default settings connect to maximum four cities with 77 tiles radius; or at least to the closest one
-# Setting factory_worker_maximum_towns to zero will not connect factories to towns
-factory_worker_radius = 77
-factory_worker_minimum_towns = 1
-factory_worker_maximum_towns = 4
-
 # if enabled (default = 0 off) stops may have different capacities for passengers, mail, and  freight
 # If this setting is set to 1, halts will have different capacities for each type of goods.
 seperate_halt_capacities = 1
@@ -460,36 +443,7 @@ mail_packets_per_month_hundredths = 10
 #
 # Here, Experimental uses an entirely different trip generation system
 # from Standard.
-
-# The program will generate three groups of passengers: (1) local;
-# (2) midrange; and (3) long distance. The program will look for a town within
-# the specified distance ranges for each class of passenger. If it cannot
-# find such a town within a certain number of tries, it will pick a random town.
-# The ranges *may* overlap. These values are in kilometres. 
-
-
-local_passengers_min_distance = 0
-local_passengers_max_distance = 16
-midrange_passengers_min_distance = 16
-midrange_passengers_max_distance = 80
-longdistance_passengers_min_distance = 55
-longdistance_passengers_max_distance = 16384
-
-# The following are percentage chances. They represent the chances that
-# any passengers generated will try to find a town within each of the three
-# ranges, respectively. 
-#
-# 84% of journeys are 10 miles (16km) or under
-# 14% of journeys are 10 - 50  miles (16-80km)
-# 2% of journeys are >50 miles (80km)
-# See: http://www.sustrans.org.uk/assets/files/connect2/guidelines%2016.pdf
-# Allow for some overlap, however, between midrange and long distance.
-
-passenger_routing_local_chance = 84
-passenger_routing_midrange_chance = 12
-# (Longdistance by inference = 4)
-# passenger_routing_longdistance_chance is 100 minus the sum of the two above values,
-# but not stipulated individually. 
+# TODO: Consolidate the new passenger generation settings here.
 
 # Some passengers who are not able to find a route will be content
 # to go to an alternative destination. Set the maximum number here.
@@ -502,21 +456,18 @@ passenger_routing_midrange_chance = 12
 max_alternative_destinations = 4
 
 # Passengers have a maximum tolerance level for how long that they will
-# spend travelling. The further that the passengers want to go, the more
-# time that they will be prepared to spend travelling. The number is 
+# spend travelling. These tolerance ranges are different for commuting
+# passengers than they are for visiting passengers. The number is 
 # expressed in minutes. For each packet of passengers, the number of 
 # minutes travelling time (including waiting time) that they are prepared
 # to tolerate is randomised between the minimum and maximum amount using a
 # normal distribution, meaning that the numbers are more likely to be in
-# the middle of the range than at either end. The local, mid-range and
-# long-distance passenger groups correspond to those above. 
+# the middle of the range than at either end.  
 
-min_local_tolerance = 2
-max_local_tolerance = 75
-min_midrange_tolerance = 5
-max_midrange_tolerance = 240
-min_longdistance_tolerance = 30
-max_longdistance_tolerance = 4320
+min_visiting_tolerance = 2
+range_commuting_tolerance = 75
+min_commuting_tolerance = 5
+range_visiting_tolerance = 240
 
 # The following setting determines the walking speed of passengers in km/h.
 # See: http://en.wikipedia.org/wiki/Walking , which suggests that this should

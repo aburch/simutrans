@@ -217,8 +217,6 @@ private:
 	// Needed for power consumption of such factories.
 	vector_tpl<fabrik_t *> city_factories;
 
-	enum journey_distance_type { local, midrange, longdistance };
-
 	// Hashtable of all cities/attractions/industries connected by road from this city.
 	// Key: city (etc.) location
 	// Value: journey time per tile (equiv. straight line distance)
@@ -406,9 +404,6 @@ private:
 
 	void bewerte_strasse(koord pos, sint32 rd, const rule_t &regel);
 	void bewerte_haus(koord pos, sint32 rd, const rule_t &regel);
-
-
-	uint16 adjusted_passenger_routing_local_chance;
 
 	bool check_road_connexions;
 
