@@ -617,16 +617,18 @@ bool network_check_server_connection()
 			return false;
 		}
 
-		fd_set fds;
+		fd_set fds_read, fds_write;
 		struct timeval tv;
 		tv.tv_sec = 0;
 		tv.tv_usec = 0;
-		FD_ZERO(&fds);
-		socket_list_t::fill_set(&fds);
+		FD_ZERO(&fds_read);
+		socket_list_t::fill_set(&fds_read);
+		FD_ZERO(&fds_write);
+		socket_list_t::fill_set(&fds_write);
 
-		int action = select( FD_SETSIZE, NULL, &fds, NULL, &tv );
-		if(  action<=0  ) {
-			// timeout
+		int action = select( FD_SETSIZE, &fds_read, &fds_write, NULL, &tv );
+		if(  action < 0  ) {
+			// error - connection lost
 			return false;
 		}
 	}
