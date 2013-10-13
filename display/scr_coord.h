@@ -253,14 +253,15 @@ public:
 		return RECT_RELATION_OUTSIDE;
 	}
 
-	/* gets the overlapping area; in case of no overlap the area the size is negative
-	 * imho this should rather return a nwe rect
+	/* reduces the current rect to the overlapping area of two rect
+	 * in case of no overlap the new size is negative
+	 * (prissi: imho this could rather return a new rect)
 	 */
-	void reduce_to_overlap( const scr_rect rect ) {
-		x = max(x, rect.x);
-		set_right( min(x+w, rect.x+rect.w) );
-		y = max(y, rect.y);
-		set_bottom( min(y+h, rect.y+rect.h) );
+	void clip( const scr_rect clip_rect ) {
+		x = max(x, clip_rect.x);
+		set_right( min(x+w, clip_rect.x+clip_rect.w) );
+		y = max(y, clip_rect.y);
+		set_bottom( min(y+h, clip_rect.y+clip_rect.h) );
 	}
 
 	bool operator ==(const scr_rect& rect) const {
