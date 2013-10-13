@@ -1786,7 +1786,7 @@ long ms=dr_time();
 		else {
 			intern_calc_route( ziel, start );
 		}
-		while (!route.empty() && welt->lookup(route[0])->get_grund_hang() == hang_t::flach && welt->lookup(route[1])->ist_wasser()) {
+		while (route.get_count()>1  &&  welt->lookup(route[0])->get_grund_hang() == hang_t::flach  &&  welt->lookup(route[1])->ist_wasser()) {
 			// remove leading water ...
 			route.remove_at(0);
 		}
