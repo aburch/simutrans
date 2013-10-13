@@ -950,7 +950,7 @@ int simu_main(int argc, char** argv)
 	vehikelbauer_t::speedbonus_init(umgebung_t::objfilename);
 
 	dbg->important("Reading private car ownership configuration ...");
-	stadt_t::privatecar_init(umgebung_t::objfilename);
+	karte_t::privatecar_init(umgebung_t::objfilename);
 
 	dbg->important("Reading electricity consumption configuration ...");
 	stadt_t::electricity_consumption_init(umgebung_t::objfilename);

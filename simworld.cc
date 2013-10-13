@@ -4467,8 +4467,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 	// Check whether this batch of passengers has access to a private car each.
 	// Check run in batches to save computational effort.
 		
-	const stadt_t* check_city = stadt.at_weight(0); // Necessary becasue "city" might be NULL if this is a rural mail generator. TODO: Change this to being stored in the world.
-	const sint16 private_car_percent = wtyp == warenbauer_t::passagiere ? check_city->get_private_car_ownership(get_timeline_year_month()) : 0; 
+	const sint16 private_car_percent = wtyp == warenbauer_t::passagiere ? get_private_car_ownership(get_timeline_year_month()) : 0; 
 	// Only passengers have private cars
 	bool has_private_car = private_car_percent > 0 ? simrand(100, "karte_t::step_passengers_and_mail() (has private car?)") <= (uint16)private_car_percent : false;
 	
@@ -5090,14 +5089,12 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 #endif
 				set_return_trip = true;
 				// We cannot do this on arrival, as the ware packets do not remember their origin building.
-				// TODO: Change the names of these from "local" and "non-local" to "commuting" and "visiting".
 				if(trip == commuting_trip)
 				{
 					gb->add_passengers_succeeded_commuting(pax_left_to_do);
 					if(current_destination.type == factory)
 					{
 						// Only add commuting passengers at a factory.
-						// TODO: Separate commuting/visiting trips for factories.
 						current_destination.building->get_fabrik()->liefere_an(wtyp, pax_left_to_do);
 					}
 					current_destination.building->set_commute_trip(pax_left_to_do);
@@ -5131,14 +5128,12 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 				set_return_trip = true;
 
 				// We cannot do this on arrival, as the ware packets do not remember their origin building.
-				// TODO: Change the names of these from "local" and "non-local" to "commuting" and "visiting".
 				if(trip == commuting_trip)
 				{
 					first_origin->add_passengers_succeeded_commuting(pax_left_to_do);
 					if(current_destination.type == factory)
 					{
 						// Only add commuting passengers at a factory.
-						// TODO: Separate commuting/visiting trips for factories.
 						current_destination.building->get_fabrik()->liefere_an(wtyp, pax_left_to_do);
 					}
 
@@ -5559,7 +5554,6 @@ void karte_t::update_history()
 	sint64 total_pas_year = 1, trans_pas_year = 0;
 	sint64 total_mail_year = 1, trans_mail_year = 0;
 	sint64 total_goods_year = 1, supplied_goods_year = 0;
-	const stadt_t* generic_city = NULL;
 	FOR(weighted_vector_tpl<stadt_t*>, const i, stadt) {
 		trans_pas					+= i->get_finance_history_month(0, HIST_PAS_TRANSPORTED);
 		total_pas					+= i->get_finance_history_month(0, HIST_PAS_GENERATED);
@@ -5573,7 +5567,6 @@ void karte_t::update_history()
 		total_mail_year				+= i->get_finance_history_year( 0, HIST_MAIL_GENERATED);
 		supplied_goods_year			+= i->get_finance_history_year( 0, HIST_GOODS_RECIEVED);
 		total_goods_year			+= i->get_finance_history_year( 0, HIST_GOODS_NEEDED);
-		generic_city = i;
 	}
 
 	finance_history_month[0][WORLD_GROWTH] = bev - last_month_bev;
@@ -5612,7 +5605,7 @@ void karte_t::update_history()
 	finance_history_month[0][WORLD_TRANSPORTED_GOODS] = transported;
 	finance_history_year[0][WORLD_TRANSPORTED_GOODS] = transported_year;
 
-	finance_history_month[0][WORLD_CAR_OWNERSHIP] = generic_city->get_private_car_ownership(get_timeline_year_month());
+	finance_history_month[0][WORLD_CAR_OWNERSHIP] = get_private_car_ownership(get_timeline_year_month());
 
 	// Average the annual figure
 	sint64 car_ownership_sum = 0;
@@ -6107,7 +6100,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 			if(file->get_experimental_version() >= 9)
 			{
 				stadt_t::cityrules_rdwr(file);
-				stadt_t::privatecar_rdwr(file);
+				privatecar_rdwr(file);
 			}
 			stadt_t::electricity_consumption_rdwr(file);
 			if(file->get_version()>102003 && (file->get_experimental_version() == 0 || file->get_experimental_version() >= 9)) 
@@ -6791,7 +6784,7 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 	if(file->get_version() > 102002 && (file->get_experimental_version() == 0 || file->get_experimental_version() >= 9)) {
 		bool do_rdwr = umgebung_t::networkmode;
 		file->rdwr_bool(do_rdwr);
-		if (do_rdwr) 
+		if(do_rdwr) 
 		{
 			// This stuff should not be in a saved game.  Unfortunately, due to the vagaries
 			// of the poorly-designed network interface, it is.  Because it is, we need to override
@@ -6812,16 +6805,18 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 			// Next privatecar and electricity
 			if(file->get_experimental_version() >= 9)
 			{
-				stadt_t::privatecar_rdwr(file);
+				privatecar_rdwr(file);
 				stadt_t::electricity_consumption_rdwr(file);
-				if (  !umgebung_t::networkmode || umgebung_t::server  ) {
-					if (pak_overrides) {
-						chdir( umgebung_t::program_dir );
-						printf("stadt_t::privatecar_init in pak dir (%s) for override of save file: ", umgebung_t::objfilename.c_str() );
-						stadt_t::privatecar_init( umgebung_t::objfilename );
-						printf("stadt_t::electricity_consumption_init in pak dir (%s) for override of save file: ", umgebung_t::objfilename.c_str() );
-						stadt_t::electricity_consumption_init( umgebung_t::objfilename );
-						chdir( umgebung_t::user_dir );
+				if(!umgebung_t::networkmode || umgebung_t::server) 
+				{
+					if(pak_overrides) 
+					{
+						chdir(umgebung_t::program_dir);
+						printf("stadt_t::privatecar_init in pak dir (%s) for override of save file: ", umgebung_t::objfilename.c_str());
+						privatecar_init(umgebung_t::objfilename);
+						printf("stadt_t::electricity_consumption_init in pak dir (%s) for override of save file: ", umgebung_t::objfilename.c_str());
+						stadt_t::electricity_consumption_init(umgebung_t::objfilename);
+						chdir(umgebung_t::user_dir);
 					}
 				}
 			}
@@ -8843,5 +8838,121 @@ void karte_t::update_weight_of_building_in_world_list(gebaeude_t *gb)
 	if(mail_origins_and_targets.is_contained(gb))
 	{
 		mail_origins_and_targets.update_at(mail_origins_and_targets.index_of(gb), gb->get_adjusted_mail_demand());
+	}
+}
+
+vector_tpl<car_ownership_record_t> karte_t::car_ownership;
+
+sint16 karte_t::get_private_car_ownership(sint32 monthyear) const
+{
+
+	if(monthyear == 0) 
+	{
+		return default_car_ownership_percent;
+	}
+
+	// ok, now lets see if we have data for this
+	if(car_ownership.get_count()) 
+	{
+		uint i=0;
+		while(i < car_ownership.get_count() && monthyear >= car_ownership[i].year)
+		{
+			i++;
+		}
+		if(i == car_ownership.get_count()) 
+		{
+			// maxspeed already?
+			return car_ownership[i-1].ownership_percent;
+		}
+		else if(i == 0) 
+		{
+			// minspeed below
+			return car_ownership[0].ownership_percent;
+		}
+		else 
+		{
+			// interpolate linear
+			const sint32 delta_ownership_percent = car_ownership[i].ownership_percent - car_ownership[i-1].ownership_percent;
+			const sint64 delta_years = car_ownership[i].year - car_ownership[i-1].year;
+			return ((delta_ownership_percent * (monthyear-car_ownership[i-1].year)) / delta_years ) + car_ownership[i-1].ownership_percent;
+		}
+	}
+	else
+	{
+		return default_car_ownership_percent;
+	}
+}
+
+void karte_t::privatecar_init(const std::string &objfilename)
+{
+	tabfile_t ownership_file;
+	// first take user data, then user global data
+	if(!ownership_file.open((objfilename+"config/privatecar.tab").c_str()))
+	{
+		dbg->message("stadt_t::privatecar_init()", "Error opening config/privatecar.tab.\nWill use default value." );
+		return;
+	}
+
+	tabfileobj_t contents;
+	ownership_file.read(contents);
+
+	/* init the values from line with the form year, proportion, year, proportion
+	 * must be increasing order!
+	 */
+	int *tracks = contents.get_ints("car_ownership");
+	if((tracks[0]&1) == 1) 
+	{
+		dbg->message("stadt_t::privatecar_init()", "Ill formed line in config/privatecar.tab.\nWill use default value. Format is year,ownership percentage[ year,ownership percentage]!" );
+		car_ownership.clear();
+		return;
+	}
+	car_ownership.resize(tracks[0] / 2);
+	for(int i = 1; i < tracks[0]; i += 2) 
+	{
+		car_ownership_record_t c(tracks[i], tracks[i+1]);
+		car_ownership.append(c);
+	}
+	delete [] tracks;
+}
+
+/**
+* Reads/writes private car ownership data from/to a savegame
+* called from karte_t::speichern and karte_t::laden
+* only written for networkgames
+* @author jamespetts
+*/
+void karte_t::privatecar_rdwr(loadsave_t *file)
+{
+	if(file->get_experimental_version() < 9)
+	{
+		 return;
+	}
+
+	if(file->is_saving())
+	{
+		uint32 count = car_ownership.get_count();
+		file->rdwr_long(count);
+		ITERATE(car_ownership, i)
+		{
+			
+			file->rdwr_longlong(car_ownership.get_element(i).year);
+			file->rdwr_short(car_ownership.get_element(i).ownership_percent);
+		}	
+	}
+
+	else
+	{
+		car_ownership.clear();
+		uint32 counter;
+		file->rdwr_long(counter);
+		sint64 year = 0;
+		uint16 ownership_percent = 0;
+		for(uint32 c = 0; c < counter; c ++)
+		{
+			file->rdwr_longlong(year);
+			file->rdwr_short(ownership_percent);
+			car_ownership_record_t cow(year / 12, ownership_percent);
+			car_ownership.append(cow);
+		}
 	}
 }

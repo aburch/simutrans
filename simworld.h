@@ -89,6 +89,22 @@ struct checklist_t
 	int print(char *buffer, const char *entity) const;
 };
 
+// Private car ownership information.
+// @author: jamespetts
+// (But much of this code is adapted from the speed bonus code,
+// written by Prissi). 
+
+class car_ownership_record_t 
+{
+public:
+	sint64 year;
+	sint16 ownership_percent;
+	car_ownership_record_t( sint64 y = 0, sint16 ownership = 0 ) 
+	{
+		year = y * 12;
+		ownership_percent = ownership;
+	};
+};
 
 /**
  * Threaded function caller.
@@ -958,6 +974,20 @@ private:
 	destination find_destination(trip_type trip);
 
 public:
+
+	static void privatecar_init(const std::string &objfilename);
+
+private:
+
+	static const sint16 default_car_ownership_percent = 25;
+
+	static vector_tpl<car_ownership_record_t> car_ownership;
+
+	sint16 get_private_car_ownership(sint32 monthyear) const;
+	void privatecar_rdwr(loadsave_t *file);
+
+public:
+
 	/**
 	 * Announce server and current state to listserver.
 	 * @param status Specifies what information should be announced
@@ -1337,8 +1367,6 @@ public:
 	 *
 	 * @author: Bernd Gabriel, 14.06.2009
 	 */
-
-	// TODO: Deploy this method more universally instead of bespoke bits per month algorithms distributed throughout the code.
 	
 	// At all defaults, 1,000 meters per tile and 18 bits per month, we get 3.2 hours
 	// (that is, 3:12h) in a month, or 1/7.5th of a day. If we want to have raw numbers based on

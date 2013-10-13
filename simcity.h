@@ -131,8 +131,6 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	static bool cityrules_init(const std::string &objpathname);
-	static void privatecar_init(const std::string &objfilename);
-	sint16 get_private_car_ownership(sint32 monthyear) const;
 	uint16 get_electricity_consumption(sint32 monthyear) const;
 	static void electricity_consumption_init(const std::string &objfilename);
 
@@ -143,7 +141,6 @@ public:
 	 * @author Dwachs
 	 */
 	static void cityrules_rdwr(loadsave_t *file);
-	static void privatecar_rdwr(loadsave_t *file);
 	static void electricity_consumption_rdwr(loadsave_t *file);
 	void set_check_road_connexions(bool value) { check_road_connexions = value; }
 
