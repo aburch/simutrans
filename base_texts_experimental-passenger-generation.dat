@@ -29,6 +29,10 @@ name=Visitor demand
 note=Name for visitor demand graph in the world chart
 -
 obj=program_text
+name=Mail demand/output
+note=Label for the mail demand and output shown in the statistics for individual buildings.
+-
+obj=program_text
 name=The number of jobs in the region
 note=Tooltip for total jobs figure in the world chart
 -
@@ -36,3 +40,7 @@ obj=program_text
 name=The number of visitors demanded in the region
 note=Tooltip for visitor demand figure in the world chart
 -
+obj=program_text
+name=available
+note=Shown in the information windows for buildings to display the number of jobs available.-
+

@@ -70,7 +70,7 @@ void gebaeude_t::init()
 	passengers_succeeded_commuting = 0;
 	passenger_success_percent_last_year_commuting = 0;
 	passengers_generated_visiting = 0;
-	eded_visiting = 0;
+	passengers_succeeded_visiting = 0;
 	passenger_success_percent_last_year_visiting = 0;
 	available_jobs_by_time = -9223372036854775808ll;
 }
@@ -858,8 +858,7 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 		const sint32 remaining_jobs_adjusted = check_remaining_available_jobs();
 		const sint32 deadjusted_remaining_jobs = (remaining_jobs_adjusted * get_jobs()) / (get_adjusted_jobs() > 0 ? get_adjusted_jobs() : 1); 
 
-		// TODO: Make up translator .dat file entries for these texts.
-		buf.printf("\n%s: %d\n", translator::translate("Population"), get_population());
+		buf.printf("\n%s: %d\n", translator::translate("citicens"), get_population());
 		buf.printf("%s: %d\n", translator::translate("Visitor demand"), get_visitor_demand());
 		buf.printf("%s (%s): %d (%d)\n", translator::translate("Jobs"), translator::translate("available"), get_jobs(), deadjusted_remaining_jobs);
 		buf.printf("%s: %d\n", translator::translate("Mail demand/output"), get_mail_demand());
@@ -941,20 +940,48 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 		{
 			buf.append(translator::translate("\nNo postboxes within walking distance"));
 		}
-		
-		buf.printf("\n\n%s %i%%\n", translator::translate("Passenger success rate this year (local):"), get_passenger_success_percent_this_year_commuting());
-		buf.printf("%s %i%%\n", translator::translate("Passenger success rate last year (local):"), get_passenger_success_percent_last_year_commuting());
-		buf.printf("%s %i%%\n", translator::translate("Passenger success rate this year (non-local):"), get_passenger_success_percent_this_year_visiting());
-		buf.printf("%s %i%%\n", translator::translate("Passenger success rate last year (non-local):"), get_passenger_success_percent_last_year_visiting());
+		if(get_tile()->get_besch()->get_typ() == gebaeude_t::wohnung)
+		{
+			buf.printf("\n\n%s %i%%\n", translator::translate("Passenger success rate this year (local):"), get_passenger_success_percent_this_year_commuting());
+			buf.printf("%s %i%%\n", translator::translate("Passenger success rate last year (local):"), get_passenger_success_percent_last_year_commuting());
+			buf.printf("%s %i%%\n", translator::translate("Passenger success rate this year (non-local):"), get_passenger_success_percent_this_year_visiting());
+			buf.printf("%s %i%%\n", translator::translate("Passenger success rate last year (non-local):"), get_passenger_success_percent_last_year_visiting());
+		}
+		else
+		{
+			const sint32 deadjusted_passengers_succeeded_visiting = (passengers_succeeded_visiting * get_jobs()) / (get_adjusted_jobs() > 0 ? get_adjusted_jobs() : 1);
+			const sint32 deadjusted_passengers_succeeded_commuting = (passengers_succeeded_commuting * get_jobs()) / (get_adjusted_jobs() > 0 ? get_adjusted_jobs() : 1);
+			const sint32 deadjusted_passenger_success_percent_last_year_commuting = (passenger_success_percent_last_year_commuting * get_jobs()) / (get_adjusted_jobs() > 0 ? get_adjusted_jobs() : 1);
+			const sint32 deadjusted_passenger_success_percent_last_year_visiting = (passenger_success_percent_last_year_visiting * get_jobs()) / (get_adjusted_jobs() > 0 ? get_adjusted_jobs() : 1);
+
+			buf.printf("\n\n%s %i [%i]\n", translator::translate("Visitors this year:"), passengers_succeeded_visiting, deadjusted_passengers_succeeded_visiting);
+			buf.printf("%s %i [%i]\n", translator::translate("Commuters this year:"), passengers_succeeded_commuting, deadjusted_passengers_succeeded_commuting);
+
+			buf.printf("\n%s %i [%i]\n", translator::translate("Visitors last year:"), passenger_success_percent_last_year_commuting, deadjusted_passenger_success_percent_last_year_commuting);
+			buf.printf("%s %i [%i]\n", translator::translate("Commuters last year:"), passenger_success_percent_last_year_visiting, deadjusted_passenger_success_percent_last_year_visiting);
+		}
 	}
 }
 
 void gebaeude_t::new_year()
 { 
+	if(get_tile()->get_besch()->get_typ() == gebaeude_t::wohnung)
+	{
 		passenger_success_percent_last_year_commuting = get_passenger_success_percent_this_year_commuting();
 		passenger_success_percent_last_year_visiting = get_passenger_success_percent_this_year_visiting(); 
 
-		passengers_succeeded_commuting = passengers_generated_commuting = eded_visiting = passengers_generated_visiting = 0; 
+	}
+	else
+	{
+		// For non-residential buildings, these numbers are used to record only absolute numbers of visitors/commuters.
+		// Accordingly, we do not make use of "generated" numbers, and the "succeeded" figures are actually records of
+		// absolute numbers of visitors/commuters. Accordingly, the last year percent figures must also store the
+		// absolute number of visitors/commuters rather than a percentage.
+		passenger_success_percent_last_year_commuting = passengers_succeeded_commuting;
+		passenger_success_percent_last_year_visiting = passengers_succeeded_visiting;
+	}
+
+	passengers_succeeded_commuting = passengers_generated_commuting = passengers_succeeded_visiting = passengers_generated_visiting = 0; 
 }
 
 
@@ -1141,11 +1168,29 @@ void gebaeude_t::rdwr(loadsave_t *file)
 	{
 		file->rdwr_short(passengers_generated_commuting);
 		file->rdwr_short(passengers_succeeded_commuting);
-		file->rdwr_byte(passenger_success_percent_last_year_commuting);
+		if(file->get_experimental_version() < 12)
+		{
+			uint8 old_success_percent_commuting = passenger_success_percent_last_year_commuting;
+			file->rdwr_byte(old_success_percent_commuting);
+			passenger_success_percent_last_year_commuting = old_success_percent_commuting;
+		}
+		else
+		{
+			file->rdwr_short(passenger_success_percent_last_year_commuting);
+		}
 
 		file->rdwr_short(passengers_generated_visiting);
-		file->rdwr_short(eded_visiting);
-		file->rdwr_byte(passenger_success_percent_last_year_visiting);
+		file->rdwr_short(passengers_succeeded_visiting);
+		if(file->get_experimental_version() < 12)
+		{
+			uint8 old_success_percent_visiting = passenger_success_percent_last_year_visiting;
+			file->rdwr_byte(old_success_percent_visiting);
+			passenger_success_percent_last_year_visiting = old_success_percent_visiting;
+		}
+		else
+		{
+			file->rdwr_short(passenger_success_percent_last_year_visiting);
+		}
 	}
 
 	if(file->get_experimental_version() >= 12)
@@ -1354,6 +1399,7 @@ void gebaeude_t::set_commute_trip(uint16 number)
 	const sint64 job_ticks = ((sint64)number * welt->ticks_per_world_month) / (total_jobs < 1 ? 1 : total_jobs);
 	const sint64 new_jobs_by_time = calc_available_jobs_by_time();
 	available_jobs_by_time = max(new_jobs_by_time + job_ticks, available_jobs_by_time + job_ticks);
+	add_passengers_succeeded_commuting(number);
 }
 
 uint16 gebaeude_t::get_population() const

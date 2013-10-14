@@ -2311,15 +2311,18 @@ uint32 haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 		if(ware.get_besch() != warenbauer_t::passagiere || ware.is_commuting_trip)
 		{
 			// Only book arriving passengers for commuting trips.
-			// TODO: Have a proper system for recording jobs/visitors separately.
 			liefere_an_fabrik(ware);
 		}
 		if(ware.get_besch() == warenbauer_t::passagiere)
 		{
+			gebaeude_t* building = welt->lookup(fab->get_pos())->find<gebaeude_t>();
 			if(ware.is_commuting_trip)
 			{
-				gebaeude_t* gb = welt->lookup(fab->get_pos())->find<gebaeude_t>();
-				gb->set_commute_trip(ware.menge);
+				building->set_commute_trip(ware.menge);
+			}
+			else
+			{
+				building->add_passengers_succeeded_visiting(ware.menge);
 			}
 			// Arriving passengers may create pedestrians
 			if(welt->get_settings().get_show_pax()) 
@@ -2347,16 +2350,20 @@ uint32 haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 		// Yes, we have.  Passengers & mail vanish mysteriously upon arrival.
 		// FIXME: walking time delay should be implemented right here!
 		if(ware.get_besch() == warenbauer_t::passagiere)
-		{
-			if(ware.is_commuting_trip)
+		{	
+			const grund_t* gr = welt->lookup_kartenboden(ware.get_zielpos());
+			if(gr)
 			{
-				const grund_t* gr = welt->lookup_kartenboden(ware.get_zielpos());
-				if(gr)
+				gebaeude_t* gb_dest = gr->find<gebaeude_t>();
+				if(gb_dest)
 				{
-					gebaeude_t* gb_dest = gr->find<gebaeude_t>();
-					if(gb_dest)
+					if(ware.is_commuting_trip)
 					{
 						gb_dest->set_commute_trip(ware.menge);
+					}
+					else
+					{
+						gb_dest->add_passengers_succeeded_commuting(ware.menge);
 					}
 				}
 			}

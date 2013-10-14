@@ -137,11 +137,11 @@ private:
 	 */
 	uint16 passengers_generated_commuting;
 	uint16 passengers_succeeded_commuting;
-	uint8 passenger_success_percent_last_year_commuting;
+	uint16 passenger_success_percent_last_year_commuting;
 
 	uint16 passengers_generated_visiting;
-	uint16 eded_visiting;
-	uint8 passenger_success_percent_last_year_visiting;
+	uint16 passengers_succeeded_visiting;
+	uint16 passenger_success_percent_last_year_visiting;
 
 	/**
 	* This is the number of jobs supplied by this building
@@ -286,9 +286,9 @@ public:
 	uint16 get_average_passenger_success_percent_commutingl() const { return (get_passenger_success_percent_this_year_commuting() + passenger_success_percent_last_year_commuting) / 2; }
 
 	void add_passengers_generated_visiting(uint16 number) { passengers_generated_visiting += number; }
-	void add_passengers_succeeded_visiting(uint16 number) { eded_visiting += number; }
+	void add_passengers_succeeded_visiting(uint16 number) { passengers_succeeded_visiting += number; }
 
-	uint16 get_passenger_success_percent_this_year_visiting() const { return passengers_generated_visiting > 0 ? (eded_visiting * 100) / passengers_generated_visiting : 0; }
+	uint16 get_passenger_success_percent_this_year_visiting() const { return passengers_generated_visiting > 0 ? (passengers_succeeded_visiting * 100) / passengers_generated_visiting : 0; }
 	uint16 get_passenger_success_percent_last_year_visiting() const { return passenger_success_percent_last_year_visiting; }
 	uint16 get_average_passenger_success_percent_visiting() const { return (get_passenger_success_percent_this_year_visiting() + passenger_success_percent_last_year_visiting) / 2; }
 
@@ -306,6 +306,7 @@ public:
 	* @author: jamespetts, August 2013
 	*/
 	void set_commute_trip(uint16 number);
+
 
 	uint16 get_population() const;
 	uint16 get_adjusted_population() const;

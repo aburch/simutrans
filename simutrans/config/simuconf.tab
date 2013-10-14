@@ -409,6 +409,11 @@ max_elevated_way_building_level = 2
 
 allow_airports_without_control_towers = 1
 
+#################################### Passenger settings ##################################
+#
+# Here, Experimental uses an entirely different trip generation system
+# from Standard.
+
 # The following settings are used to calibrate the passenger and mail
 # generation amounts for paksets where not all buildings have specific
 # values for population, visitor demand, jobs and mail production/demand
@@ -437,13 +442,6 @@ mail_per_level = 1
 
 passenger_trips_per_month_hundredths = 200
 mail_packets_per_month_hundredths = 10
-
-
-#################################### Passenger settings ##################################
-#
-# Here, Experimental uses an entirely different trip generation system
-# from Standard.
-# TODO: Consolidate the new passenger generation settings here.
 
 # Some passengers who are not able to find a route will be content
 # to go to an alternative destination. Set the maximum number here.

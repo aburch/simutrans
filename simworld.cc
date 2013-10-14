@@ -4478,7 +4478,6 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 	bool too_slow_already_set;
 	bool overcrowded_already_set;
 
-	// TODO: Set these from new, bespoke simuconf.tab settings.
 	const uint16 min_commuting_tolerance = settings.get_min_commuting_tolerance();
 	const uint16 range_commuting_tolerance = max(0, settings.get_range_commuting_tolerance() - min_commuting_tolerance);
 
@@ -5070,6 +5069,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 				else if(trip == visiting_trip && gb)
 				{
 					gb->add_passengers_succeeded_visiting(pax_left_to_do);
+					current_destination.building->add_passengers_succeeded_visiting(pax_left_to_do);
 				}
 				// Do nothing if trip == mail.
 				break;
@@ -5102,6 +5102,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 				else if(trip == visiting_trip)
 				{
 					gb->add_passengers_succeeded_visiting(pax_left_to_do);
+					current_destination.building->add_passengers_succeeded_visiting(pax_left_to_do);
 				}
 				// Do nothing if trip == mail.
 				break;
@@ -5142,6 +5143,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 				else if(trip == visiting_trip)
 				{
 					first_origin->add_passengers_succeeded_visiting(pax_left_to_do);
+					current_destination.building->add_passengers_succeeded_visiting(pax_left_to_do);
 				}
 				// Do nothing if trip == mail.
 				break;
