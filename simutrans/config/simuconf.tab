@@ -471,7 +471,15 @@ max_alternative_destinations_commuting = 12
 #
 # NOTE: These settings over-ride the above settings if they are used.
 
-# TODO: Calibrate these settings.
+# TODO: Calibrate the below settings.
+# Note: The combined average of hits for the BB server game in 2010 was
+# 19 per destination to get within the requisite distance ranges. This
+# was with 6 alternative destinations (7 total), making an average count
+# of 133 (max.) per packet. The actual number would have to be higher,
+# as this is part average, part maximum. The population/jobs/visitor
+# demand will have to be calibrated before this can be calibrated,
+# however.
+
 # max_alternative_destinations_per_job_millionths = 0
 # max_alternative_destinations_per_visitor_demand_millionths = 0
 
