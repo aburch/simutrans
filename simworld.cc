@@ -4363,8 +4363,6 @@ void karte_t::step_passengers_and_mail(long delta_t)
 
 void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 {
-	// Add 1 because the simuconf.tab setting is for maximum *alternative* destinations, whereas we need maximum *actual* desintations 
-	const uint16 max_destinations = settings.get_max_alternative_destinations() + 1;
 	const city_cost history_type = (wtyp == warenbauer_t::passagiere) ? HIST_PAS_TRANSPORTED : HIST_MAIL_TRANSPORTED;
 	const uint8 max_packet_size = simrand(settings.get_passenger_routing_packet_size(), "void karte_t::step_passengers_and_mail(long delta_t) passenger packet size") + 1;
 
@@ -4486,7 +4484,13 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 
 	const uint16 max_onward_trips = settings.get_max_onward_trips();
 
-	trip_type trip;
+	trip_type trip = (wtyp == warenbauer_t::passagiere) ?
+			simrand(100, "karte_t::step_passengers_and_mail() (commuting or visiting trip?)") < settings.get_commuting_trip_chance_percent() ?
+			commuting_trip : visiting_trip : mail_trip;
+	// Add 1 because the simuconf.tab setting is for maximum *alternative* destinations, whereas we need maximum *actual* desintations 
+	// Mail does not have alternative destinations: people do not send mail to one place because they cannot reach another. Mail has specific desinations.
+	const uint32 max_destinations = trip == commuting_trip ? settings.get_max_alternative_destinations_commuting(commuter_targets.get_sum_weight()) + 1 : 
+									trip == visiting_trip ? settings.get_max_alternative_destinations_visiting(visitor_targets.get_sum_weight()) + 1 : 1;
 	koord destination_pos;
 	route_status_type route_status;
 	destination current_destination;
@@ -4521,13 +4525,6 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 			// Split passengers between commuting trips and other trips.
 			if(trip_count == 0)
 			{
-				// First trip - set the trip type.
-				trip =
-				(wtyp == warenbauer_t::passagiere) ?
-					simrand(100, "karte_t::step_passengers_and_mail() (commuting or visiting trip?)") < settings.get_commuting_trip_chance_percent() ?
-					commuting_trip : visiting_trip :
-					mail_trip;
-
 					// Set here because we deduct the previous journey time from the tolerance for onward trips.
 
 					tolerance = 

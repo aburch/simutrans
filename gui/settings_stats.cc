@@ -295,7 +295,10 @@ void settings_experimental_revenue_stats_t::init( settings_t *sets )
 	INIT_NUM("max_onward_trips", sets->get_max_onward_trips(), 0, 32, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM("onward_trip_chance_percent", sets->get_onward_trip_chance_percent(), 0, 100, gui_numberinput_t::PROGRESS, false );
 	INIT_NUM("commuting_trip_chance_percent", sets->get_commuting_trip_chance_percent(), 0, 100, gui_numberinput_t::PROGRESS, false );
-	INIT_NUM( "max_alternative_destinations", sets->get_max_alternative_destinations(), 0, 65534, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "max_alternative_destinations_visiting", sets->get_max_alternative_destinations_visiting(), 0, 65534, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "max_alternative_destinations_commuting", sets->get_max_alternative_destinations_commuting(), 0, 65534, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "max_alternative_destinations_per_visitor_demand_millionths", sets->get_max_alternative_destinations_per_visitor_demand_millionths(), 0, 65534, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "max_alternative_destinations_per_job_millionths", sets->get_max_alternative_destinations_per_job_millionths(), 0, 65534, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM("passenger_max_wait", sets->get_passenger_max_wait(), 0, 311040, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM("min_wait_airport", sets->get_min_wait_airport(), 0, 311040, gui_numberinput_t::AUTOLINEAR, false );
 	{
@@ -405,7 +408,10 @@ void settings_experimental_revenue_stats_t::read(settings_t *sets)
 	READ_NUM_VALUE( sets->max_onward_trips );
 	READ_NUM_VALUE( sets->onward_trip_chance_percent );
 	READ_NUM_VALUE( sets->commuting_trip_chance_percent );
-	READ_NUM_VALUE( sets->max_alternative_destinations );
+	READ_NUM_VALUE( sets->max_alternative_destinations_visiting );
+	READ_NUM_VALUE( sets->max_alternative_destinations_commuting );
+	READ_NUM_VALUE( sets->max_alternative_destinations_per_visitor_demand_millionths );
+	READ_NUM_VALUE( sets->max_alternative_destinations_per_job_millionths );
 	READ_NUM_VALUE( sets->passenger_max_wait );
 	READ_NUM_VALUE( sets->min_wait_airport );
 

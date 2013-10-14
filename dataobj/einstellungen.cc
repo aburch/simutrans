@@ -370,7 +370,11 @@ settings_t::settings_t() :
 
 	// Passenger routing settings
 	passenger_routing_packet_size = 7;
-	max_alternative_destinations = 3;
+	max_alternative_destinations_commuting = 3;
+	max_alternative_destinations_visiting = 5;
+	// With a default value of zero, the absolute number of "max_alternative_destinations" will be used.
+	max_alternative_destinations_per_job_millionths = 0;
+	max_alternative_destinations_per_visitor_demand_millionths = 0;
 
 	always_prefer_car_percent = 10;
 	congestion_density_factor = 12;
@@ -1084,15 +1088,18 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_byte(passenger_routing_packet_size);
 			if(file->get_experimental_version() >= 12)
 			{
-				file->rdwr_short(max_alternative_destinations);
+				file->rdwr_short(max_alternative_destinations_commuting);
+				file->rdwr_short(max_alternative_destinations_visiting);
+				file->rdwr_long(max_alternative_destinations_per_job_millionths);
+				file->rdwr_long(max_alternative_destinations_per_visitor_demand_millionths);
 			}
 			else
 			{
-				uint8 eight_bit_alternative_destinations = max_alternative_destinations > 255 ? 255 : max_alternative_destinations;
+				uint8 eight_bit_alternative_destinations = max_alternative_destinations_visiting > 255 ? 255 : max_alternative_destinations_visiting;
 				file->rdwr_byte(eight_bit_alternative_destinations);
 				if(file->is_loading())
 				{
-					max_alternative_destinations = (uint16)eight_bit_alternative_destinations;
+					max_alternative_destinations_visiting = max_alternative_destinations_commuting = (uint16)eight_bit_alternative_destinations;
 				}
 			}
 			if(file->get_experimental_version() < 12)
@@ -2089,7 +2096,12 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	{
 		passenger_routing_packet_size = 7;
 	}
-	max_alternative_destinations = contents.get_int("max_alternative_destinations", max_alternative_destinations);
+	const uint16 old_max_alternative_destinations = contents.get_int("max_alternative_destinations", max_alternative_destinations_visiting);
+	max_alternative_destinations_visiting = contents.get_int("max_alternative_destinations_visiting", old_max_alternative_destinations);
+	max_alternative_destinations_commuting = contents.get_int("max_alternative_destinations_commuting", max_alternative_destinations_commuting);
+	max_alternative_destinations_per_job_millionths = contents.get_int("max_alternative_destinations_per_job_millionths", max_alternative_destinations_per_job_millionths); 
+	max_alternative_destinations_per_visitor_demand_millionths = contents.get_int("max_alternative_destinations_per_visitor_demand_millionths", max_alternative_destinations_per_visitor_demand_millionths); 
+
 	always_prefer_car_percent = contents.get_int("always_prefer_car_percent", always_prefer_car_percent);
 	congestion_density_factor = contents.get_int("congestion_density_factor", congestion_density_factor);
 

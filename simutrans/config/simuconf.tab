@@ -443,15 +443,37 @@ mail_per_level = 1
 passenger_trips_per_month_hundredths = 200
 mail_packets_per_month_hundredths = 10
 
-# Some passengers who are not able to find a route will be content
-# to go to an alternative destination. Set the maximum number here.
-# (Note: whether any given passenger is content to go to an alternative
-# destination, and, if so, the number, will be random. For each 
-# possible number of alternative destinations, the chances will be even.
-# For example, if the number is set at 2, there will be an equal chance
-# of passengers having 0, 1 or 2 alternative destinations).
+# Passengers (but not mail) have a number of alternative destinations to which
+# they are willing to travel, in order of priority. If they cannot reach their
+# first choice destination either at all or within their journey time tolerance,
+# they go to the next destination, and so on down the list until either they can
+# reach a destination, or they run out of destinations.
+#
+# The number of alternative destinations can be set differently for visiting and
+# commuting passengers. It is recommended to have a higher number for visiting 
+# passengers, as people generally have a greater choice of leisure/shopping/misc.
+# destinations than they do of work places. 
+#
+# The number specified here is the maximum number. The actual number of alternative
+# destinations that any packet of passengers has is randomised between zero and
+# the number specified below.
 
-max_alternative_destinations = 4
+max_alternative_destinations_visiting = 20
+max_alternative_destinations_commuting = 12
+
+# Alternatively, the number of alternative passenger destinations can be set
+# relative to the total number of jobs and amount of visitor demand according
+# to the settings below. These are in millionths: in other words, for every
+# 1 job or visitor demand unit, each increase of the numbers below will increase
+# the alternative destinations by 1/1,000,000. For a world with a total of
+# 100,000 jobs, for example, to get 20 alternative commuting destinations, 
+# use the number 2 below. 
+#
+# NOTE: These settings over-ride the above settings if they are used.
+
+# TODO: Calibrate these settings.
+# max_alternative_destinations_per_job_millionths = 0
+# max_alternative_destinations_per_visitor_demand_millionths = 0
 
 # Passengers have a maximum tolerance level for how long that they will
 # spend travelling. These tolerance ranges are different for commuting

@@ -436,7 +436,10 @@ public:
 	//@author: jamespetts
 	// Passenger routing settings
 	uint8 passenger_routing_packet_size;
-	uint16 max_alternative_destinations;
+	uint16 max_alternative_destinations_visiting;
+	uint16 max_alternative_destinations_commuting;
+	uint32 max_alternative_destinations_per_job_millionths;
+	uint32 max_alternative_destinations_per_visitor_demand_millionths;
 
 	//@author: jamespetts
 	// Factory retirement settings
@@ -819,9 +822,12 @@ public:
 	void   set_obsolete_running_cost_increase_phase_years(uint16 value) { obsolete_running_cost_increase_phase_years = value; }
 
 	uint8 get_passenger_routing_packet_size() const { return passenger_routing_packet_size; }
-	void  set_passenger_routing_packet_size(uint8 value) { passenger_routing_packet_size = value; }
-	uint16 get_max_alternative_destinations() const { return max_alternative_destinations; }
-	void  set_max_alternative_destinations(uint16 value) { max_alternative_destinations = value; }
+	uint16 get_max_alternative_destinations_visiting() const { return max_alternative_destinations_visiting; }
+	uint32 get_max_alternative_destinations_visiting(uint32 global_visitor_demand) const { return max_alternative_destinations_per_visitor_demand_millionths > 0 ? (max_alternative_destinations_per_visitor_demand_millionths * global_visitor_demand) / 1000000 : max_alternative_destinations_commuting; }
+	uint16 get_max_alternative_destinations_commuting() const { return max_alternative_destinations_commuting; }
+	uint32 get_max_alternative_destinations_commuting(uint32 global_jobs) const { return max_alternative_destinations_per_job_millionths > 0 ? (max_alternative_destinations_per_job_millionths * global_jobs) / 1000000 : max_alternative_destinations_commuting; }
+	uint32 get_max_alternative_destinations_per_job_millionths() const { return max_alternative_destinations_per_job_millionths; }
+	uint32 get_max_alternative_destinations_per_visitor_demand_millionths() const { return max_alternative_destinations_per_visitor_demand_millionths; }
 
 	uint8 get_always_prefer_car_percent() const { return always_prefer_car_percent; }
 	uint8 get_congestion_density_factor () const { return congestion_density_factor; }
