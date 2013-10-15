@@ -1662,6 +1662,9 @@ DBG_DEBUG("karte_t::init()","built timeline");
 	}
 	// The population is not counted at this point, so cannot set this here.
 	industry_density_proportion = 0;
+
+	settings.update_max_alternative_destinations_commuting(commuter_targets.get_sum_weight());
+	settings.update_max_alternative_destinations_visiting(visitor_targets.get_sum_weight());
 }
 
 void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
@@ -3860,6 +3863,9 @@ void karte_t::new_month()
 		save( buf, loadsave_t::autosave_mode, umgebung_t::savegame_version_str, umgebung_t::savegame_ex_version_str, true );
 	}
 
+	settings.update_max_alternative_destinations_commuting(commuter_targets.get_sum_weight());
+	settings.update_max_alternative_destinations_visiting(visitor_targets.get_sum_weight());
+
 	set_citycar_speed_average();
 	calc_generic_road_time_per_tile_city();
 	calc_generic_road_time_per_tile_intercity();
@@ -4489,8 +4495,8 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 			commuting_trip : visiting_trip : mail_trip;
 	// Add 1 because the simuconf.tab setting is for maximum *alternative* destinations, whereas we need maximum *actual* desintations 
 	// Mail does not have alternative destinations: people do not send mail to one place because they cannot reach another. Mail has specific desinations.
-	const uint32 max_destinations = trip == commuting_trip ? settings.get_max_alternative_destinations_commuting(commuter_targets.get_sum_weight()) + 1 : 
-									trip == visiting_trip ? settings.get_max_alternative_destinations_visiting(visitor_targets.get_sum_weight()) + 1 : 1;
+	const uint32 max_destinations = trip == commuting_trip ? settings.get_max_alternative_destinations_commuting() + 1 : 
+									trip == visiting_trip ? settings.get_max_alternative_destinations_visiting() + 1 : 1;
 	koord destination_pos;
 	route_status_type route_status;
 	destination current_destination;
