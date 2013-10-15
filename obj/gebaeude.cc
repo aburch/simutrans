@@ -103,9 +103,10 @@ gebaeude_t::gebaeude_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_til
 		spieler_t::add_maintenance(get_besitzer(), tile->get_besch()->get_maintenance(welt), tile->get_besch()->get_finance_waytype() );
 	}
 
+	// get correct y offset for bridges
 	grund_t *gr=welt->lookup(pos);
 	if(gr  &&  gr->get_weg_hang()!=gr->get_grund_hang()) {
-		set_yoff(-TILE_HEIGHT_STEP);
+		set_yoff( -gr->get_weg_yoff() );
 	}
 }
 
