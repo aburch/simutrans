@@ -454,8 +454,12 @@ bool map_frame_t::infowin_event(const event_t *ev)
 
 		scrolly.set_scroll_position(  max(0, x),  max(0, y) );
 
-		// Hajo: re-center mouse pointer
-		display_move_pointer(screenpos.x+ev->cx, screenpos.y+ev->cy);
+		// Move the mouse pointer back to starting location
+		// To prevent a infinite mouse event loop, we just do it when needed.
+		if ((ev->mx - ev->cx)!=0  ||  (ev->my-ev->cy)!=0) {
+			display_move_pointer(screenpos.x + ev->cx, screenpos.y+ev->cy);
+		}
+
 		return true;
 	}
 	else if(  IS_LEFTDBLCLK(ev)  &&  reliefkarte_t::get_karte()->getroffen(ev2.mx,ev2.my)  ) {
