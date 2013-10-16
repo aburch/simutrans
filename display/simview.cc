@@ -287,7 +287,7 @@ void karte_ansicht_t::display(bool force_dirty)
 			}
 		}
 #ifdef MULTI_THREAD
-		zeiger->display( x + tile_raster_scale_x( zeiger->get_xoff(), IMG_SIZE ), y + tile_raster_scale_y( zeiger->get_yoff(), IMG_SIZE ), 0 );
+		zeiger->display( pointer_pos.x , pointer_pos.y, 0 );
 #else
 		zeiger->display( pointer_pos.x , pointer_pos.y );
 #endif
