@@ -25,6 +25,7 @@
 #include "../simcolor.h"
 #include "../simevent.h"
 #include "../display/simgraph.h"
+#include "../display/viewport.h"
 #include "../simmenu.h"
 #include "../simskin.h"
 #include "../simsys.h"
@@ -1261,7 +1262,7 @@ bool check_pos_win(event_t *ev)
 			// goto infowin koordinate, if ticker is active
 			koord p = ticker::get_welt_pos();
 			if(wl->is_within_limits(p)) {
-				wl->change_world_position(koord3d(p,wl->min_hgt(p)));
+				wl->get_viewport()->change_world_position(koord3d(p,wl->min_hgt(p)));
 			}
 		}
 		// swallow event
@@ -1340,7 +1341,7 @@ bool check_pos_win(event_t *ev)
 							// change position on map (or follow)
 							koord3d k = wins[i].gui->get_weltpos(true);
 							if(  k!=koord3d::invalid  ) {
-								spieler_t::get_welt()->change_world_position( k );
+								spieler_t::get_welt()->get_viewport()->change_world_position( k );
 							}
 						}
 						break;
@@ -1427,6 +1428,7 @@ void win_poll_event(event_t* const ev)
 		simgraph_resize( ev->mx, ev->my );
 		ticker::redraw_ticker();
 		wl->set_dirty();
+		wl->get_viewport()->metrics_updated();
 		ev->ev_class = EVENT_NONE;
 	}
 	// save and reload all windows (currently only used when a new theme is applied)
@@ -1660,7 +1662,11 @@ void win_redraw_world()
 
 bool win_change_zoom_factor(bool magnify)
 {
-	return magnify ? zoom_factor_up() : zoom_factor_down();
+	const bool result = magnify ? zoom_factor_up() : zoom_factor_down();
+
+	wl->get_viewport()->metrics_updated();
+
+	return result;
 }
 
 

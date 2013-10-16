@@ -13,6 +13,7 @@
 #include "curiositylist_stats_t.h"
 
 #include "../display/simgraph.h"
+#include "../display/viewport.h"
 #include "../simtypes.h"
 #include "../simcolor.h"
 #include "../simworld.h"
@@ -122,14 +123,14 @@ bool curiositylist_stats_t::infowin_event(const event_t * ev)
 
 	if (IS_LEFTRELEASE(ev)) {
 		if(  ev->cx>0  &&  ev->cx<15  ) {
-			welt->change_world_position(geb->get_pos());
+			welt->get_viewport()->change_world_position(geb->get_pos());
 		}
 		else {
 			geb->zeige_info();
 		}
 	}
 	else if (IS_RIGHTRELEASE(ev)) {
-		welt->change_world_position(geb->get_pos());
+		welt->get_viewport()->change_world_position(geb->get_pos());
 	}
 	return false;
 } // end of function curiositylist_stats_t::infowin_event(const event_t * ev)

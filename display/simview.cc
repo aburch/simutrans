@@ -9,6 +9,7 @@
 #include "../simworld.h"
 #include "simview.h"
 #include "simgraph.h"
+#include "viewport.h"
 
 #include "../simticker.h"
 #include "../simdebug.h"
@@ -28,6 +29,8 @@ karte_ansicht_t::karte_ansicht_t(karte_t *welt)
 {
 	this->welt = welt;
 	outside_visible = true;
+	viewport = welt->get_viewport();
+	assert(welt  &&  viewport);
 }
 
 static const sint8 hours2night[] =
@@ -114,16 +117,10 @@ void karte_ansicht_t::display(bool force_dirty)
 	const int dpy_width = disp_width/IMG_SIZE + 2;
 	const int dpy_height = (disp_real_height*4)/IMG_SIZE;
 
-	// these are the values needed to go directly from a tile to the display
-	welt->set_view_ij_offset(
-		koord( - disp_width/(2*IMG_SIZE) - disp_real_height/IMG_SIZE,
-					disp_width/(2*IMG_SIZE) - disp_real_height/IMG_SIZE	)
-	);
-
-	const int i_off = welt->get_world_position().x - disp_width/(2*IMG_SIZE) - disp_real_height/IMG_SIZE;
-	const int j_off = welt->get_world_position().y + disp_width/(2*IMG_SIZE) - disp_real_height/IMG_SIZE;
-	const int const_x_off = welt->get_x_off();
-	const int const_y_off = welt->get_y_off();
+	const int i_off = viewport->get_world_position().x - disp_width/(2*IMG_SIZE) - disp_real_height/IMG_SIZE;
+	const int j_off = viewport->get_world_position().y + disp_width/(2*IMG_SIZE) - disp_real_height/IMG_SIZE;
+	const int const_x_off = viewport->get_x_off();
+	const int const_y_off = viewport->get_y_off();
 
 	// change to night mode?
 	// images will be recalculated only, when there has been a change, so we set always
@@ -264,10 +261,10 @@ void karte_ansicht_t::display(bool force_dirty)
 	DBG_DEBUG4("karte_ansicht_t::display", "display pointer");
 	if( zeiger  &&  zeiger->get_pos() != koord3d::invalid ) {
 		bool dirty = zeiger->get_flag(obj_t::dirty);
-		// better not try to twist your brain to follow the re-transformation ...
-		const koord diff = zeiger->get_pos().get_2d()-welt->get_world_position()-welt->get_view_ij_offset();
-		const sint16 x = (diff.x-diff.y)*(IMG_SIZE/2) + const_x_off;
-		const sint16 y = (diff.x+diff.y)*(IMG_SIZE/4) - tile_raster_scale_y( zeiger->get_pos().z*TILE_HEIGHT_STEP, IMG_SIZE) + ((display_get_width()/IMG_SIZE)&1)*(IMG_SIZE/4) + const_y_off;
+
+		scr_coord background_pos = viewport->get_screen_coord(zeiger->get_pos());
+		scr_coord pointer_pos = background_pos + viewport->scale_offset(koord(zeiger->get_xoff(),zeiger->get_yoff()));
+
 		// mark the cursor position for all tools (except lower/raise)
 		if(zeiger->get_yoff()==Z_PLAN) {
 			grund_t *gr = welt->lookup( zeiger->get_pos() );
@@ -275,24 +272,24 @@ void karte_ansicht_t::display(bool force_dirty)
 				const PLAYER_COLOR_VAL transparent = TRANSPARENT25_FLAG|OUTLINE_FLAG| env_t::cursor_overlay_color;
 				if(  gr->get_bild()==IMG_LEER  ) {
 					if(  gr->hat_wege()  ) {
-						display_img_blend( gr->obj_bei(0)->get_bild(), x, y, transparent, 0, dirty );
+						display_img_blend( gr->obj_bei(0)->get_bild(), background_pos.x, background_pos.y, transparent, 0, dirty );
 					}
 					else {
-						display_img_blend( grund_besch_t::get_ground_tile(gr), x, y, transparent, 0, dirty );
+						display_img_blend( grund_besch_t::get_ground_tile(gr), background_pos.x, background_pos.y, transparent, 0, dirty );
 					}
 				}
 				else if(  gr->get_typ()==grund_t::wasser  ) {
-					display_img_blend( grund_besch_t::sea->get_bild(gr->get_bild(),wasser_t::stage), x, y, transparent, 0, dirty );
+					display_img_blend( grund_besch_t::sea->get_bild(gr->get_bild(),wasser_t::stage), background_pos.x, background_pos.y, transparent, 0, dirty );
 				}
 				else {
-					display_img_blend( gr->get_bild(), x, y, transparent, 0, dirty );
+					display_img_blend( gr->get_bild(), background_pos.x, background_pos.y, transparent, 0, dirty );
 				}
 			}
 		}
 #ifdef MULTI_THREAD
 		zeiger->display( x + tile_raster_scale_x( zeiger->get_xoff(), IMG_SIZE ), y + tile_raster_scale_y( zeiger->get_yoff(), IMG_SIZE ), 0 );
 #else
-		zeiger->display( x + tile_raster_scale_x( zeiger->get_xoff(), IMG_SIZE ), y + tile_raster_scale_y( zeiger->get_yoff(), IMG_SIZE ) );
+		zeiger->display( pointer_pos.x , pointer_pos.y );
 #endif
 		zeiger->clear_flag( obj_t::dirty );
 	}
@@ -322,10 +319,10 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, sint16 y
 {
 	const sint16 IMG_SIZE = get_tile_raster_width();
 
-	const int i_off = welt->get_world_position().x - display_get_width() / (2 * IMG_SIZE) - display_get_height() / IMG_SIZE;
-	const int j_off = welt->get_world_position().y + display_get_width() / (2 * IMG_SIZE) - display_get_height() / IMG_SIZE;
-	const int const_x_off = welt->get_x_off();
-	const int const_y_off = welt->get_y_off();
+	const int i_off = viewport->get_world_position().x - display_get_width() / (2 * IMG_SIZE) - display_get_height() / IMG_SIZE;
+	const int j_off = viewport->get_world_position().y + display_get_width() / (2 * IMG_SIZE) - display_get_height() / IMG_SIZE;
+	const int const_x_off = viewport->get_x_off();
+	const int const_y_off = viewport->get_y_off();
 
 	const int dpy_width = display_get_width() / IMG_SIZE + 2;
 

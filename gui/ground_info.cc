@@ -14,6 +14,7 @@
 
 #include "../simcolor.h"
 #include "../display/simgraph.h"
+#include "../display/viewport.h"
 #include "../simworld.h"
 #include "../dataobj/translator.h"
 #include "../utils/simstring.h"
@@ -87,9 +88,7 @@ koord3d grund_info_t::get_weltpos(bool)
 
 bool grund_info_t::is_weltpos()
 {
-	karte_t *welt = gr->get_welt();
-	return ( welt->get_x_off() | welt->get_y_off()) == 0  &&
-		welt->get_world_position() == welt->calculate_world_position( gr->get_pos() );
+	return ( gr->get_welt()->get_viewport()->is_on_center( gr->get_pos() ) );
 }
 
 

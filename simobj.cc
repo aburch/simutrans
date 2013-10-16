@@ -19,6 +19,7 @@
 #include "display/simimg.h"
 #include "simcolor.h"
 #include "display/simgraph.h"
+#include "display/viewport.h"
 #include "gui/simwin.h"
 #include "player/simplay.h"
 #include "simobj.h"
@@ -370,12 +371,12 @@ void obj_t::mark_image_dirty(image_id bild, sint16 yoff) const
 			// vehicles need finer steps to appear smoother
 			v->get_screen_offset( xpos, ypos, get_tile_raster_width() );
 		}
-		// better not try to twist your brain to follow the retransformation ...
-		const koord diff = get_pos().get_2d()-welt->get_world_position()-welt->get_view_ij_offset();
-		const sint16 x = (diff.x-diff.y)*(rasterweite/2) + tile_raster_scale_x(get_xoff(), rasterweite) + xpos + welt->get_x_off();
-		const sint16 y = (diff.x+diff.y)*(rasterweite/4) + tile_raster_scale_y( yoff+get_yoff()-get_pos().z*TILE_HEIGHT_STEP, rasterweite) + ((display_get_width()/rasterweite)&1)*(rasterweite/4) + ypos + welt->get_y_off();
+
+		viewport_t *vp = welt->get_viewport();
+		scr_coord scr_pos = vp->get_screen_coord(get_pos(),koord(xpos,ypos+yoff));
+
 		// mark the region after the image as dirty
-		display_mark_img_dirty( bild, x, y );
+		display_mark_img_dirty( bild, scr_pos.x, scr_pos.y );
 
 		// too close to border => set dirty to be sure (smoke, skyscrapes, birds, or the like)
 		KOORD_VAL xbild, ybild, wbild, hbild;
@@ -383,7 +384,7 @@ void obj_t::mark_image_dirty(image_id bild, sint16 yoff) const
 		const sint16 distance_to_border = 3 - (yoff+get_yoff()+ybild)/(rasterweite/4);
 		if(  pos.x <= distance_to_border  ||  pos.y <= distance_to_border  ) {
 			// but only if the image is actually visible ...
-			if(  x+xbild+wbild >= 0  &&  xpos <= display_get_width()  &&  y+ybild+hbild >= 0  &&  ypos+ybild < display_get_height()  ) {
+			if(   scr_pos.x+xbild+wbild >= 0  &&  xpos <= display_get_width()  &&   scr_pos.y+ybild+hbild >= 0  &&  ypos+ybild < display_get_height()  ) {
 				welt->set_background_dirty();
 			}
 		}

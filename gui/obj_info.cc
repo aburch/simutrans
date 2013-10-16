@@ -12,6 +12,7 @@
 
 #include "../simcolor.h"
 #include "../display/simgraph.h"
+#include "../display/viewport.h"
 #include "../simworld.h"
 #include "../dataobj/translator.h"
 #include "../utils/simstring.h"
@@ -64,7 +65,5 @@ void obj_infowin_t::zeichnen(koord pos, koord gr)
 
 bool obj_infowin_t::is_weltpos()
 {
-	karte_t *welt = get_obj()->get_welt();
-	return ( welt->get_x_off() | welt->get_y_off()) == 0  &&
-		welt->get_world_position() == welt->calculate_world_position( get_obj()->get_pos() );
+	return ( get_obj()->get_welt()->get_viewport()->is_on_center(get_obj()->get_pos()));
 }

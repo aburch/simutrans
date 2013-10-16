@@ -13,6 +13,7 @@
 #include "messagebox.h"
 
 #include "../display/simgraph.h"
+#include "../display/viewport.h"
 #include "../gui/simwin.h"
 #include "../simworld.h"
 
@@ -76,7 +77,7 @@ bool message_stats_t::infowin_event(const event_t * ev)
 		if(  (uint32)line<message_list->get_count()  ) {
 			message_t::node &n = *(message_list->at(line));
 			if(  ev->cx>=2  &&  ev->cx<=12  &&  welt->is_within_limits(n.pos)  ) {
-				welt->change_world_position( koord3d(n.pos, welt->min_hgt(n.pos)) );
+				welt->get_viewport()->change_world_position( koord3d(n.pos, welt->min_hgt(n.pos)) );
 			}
 			else {
 				// show message window again
@@ -97,7 +98,7 @@ bool message_stats_t::infowin_event(const event_t * ev)
 		if(  (uint32)line<message_list->get_count()  ) {
 			message_t::node &n = *(message_list->at(line));
 			if(  welt->is_within_limits(n.pos)  ) {
-				welt->change_world_position( koord3d(n.pos, welt->min_hgt(n.pos)) );
+				welt->get_viewport()->change_world_position( koord3d(n.pos, welt->min_hgt(n.pos)) );
 			}
 		}
 	}

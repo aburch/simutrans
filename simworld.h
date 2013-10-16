@@ -52,7 +52,7 @@ class weg_besch_t;
 class network_world_command_t;
 class ware_besch_t;
 class memory_rw_t;
-
+class viewport_t;
 
 struct checklist_t
 {
@@ -190,21 +190,9 @@ private:
 	uint8 loaded_rotation;
 
 	/**
-	 * @name Camera position
-	 *       This variables are related to the view camera position.
-	 * @{
+	 * The one and only camera looking at our world.
 	 */
-
-	sint16 x_off; //!< Fine scrolling x offset.
-	sint16 y_off; //!< Fine scrolling y offset.
-
-	koord ij_off; //!< Current view position.
-
-	koord view_ij_off; //!< This is the current offset for getting from tile to screen.
-
-	/**
-	 * @}
-	 */
+	viewport_t *viewport;
 
 	/**
 	 * @name Mouse pointer and cursor management
@@ -248,12 +236,6 @@ private:
 	 */
 	bool nosave;
 	bool nosave_warning;
-
-	/*
-	 * The current convoi to follow.
-	 * @author prissi
-	 */
-	convoihandle_t follow_convoi;
 
 	/**
 	 * Water level height.
@@ -466,15 +448,6 @@ private:
 	void cleanup_karte( int xoff, int yoff );
 
 public:
-	/**
-	 * Searches for the ground_t that's under the requested screen position.
-	 * @param screen_pos Screen coordinates to check for.
-	 * @param intersect_grid Special case for the lower/raise tool, will return a limit border tile if we are on the south/east border of screen.
-	 * @return the grund_t that's under the desired screen coordinate. NULL if we are outside map or we can't find it.
-	 */
-	grund_t* get_ground_on_screen_coordinate(koord screen_pos, sint32 &found_i, sint32 &found_j, const bool intersect_grid=false) const;
-
-private:
 	/**
 	 * @name Map data structures
 	 *       This variables represent the simulated map.
@@ -861,11 +834,6 @@ public:
 	 */
 	void unset_background_dirty() { background_dirty = false; }
 
-	/**
-	 * @return true if the current viewport contains regions outside the world.
-	 */
-	bool is_background_visible() const;
-
 	// do the internal accounting
 	void buche(sint64 betrag, player_cost type);
 
@@ -910,6 +878,11 @@ public:
 	karte_ansicht_t *get_view() const { return view; }
 
 	/**
+	 * Gets the world viewport.
+	 */
+	viewport_t *get_viewport() const { return viewport; }
+
+	/**
 	 * Sets the world view.
 	 */
 	void set_view(karte_ansicht_t *v) { view = v; }
@@ -920,87 +893,15 @@ public:
 	void set_eventmanager(interaction_t *em) { eventmanager = em; }
 
 	/**
-	 * Viewpoint in tile coordinates.
-	 * @author Hj. Malthaner
-	 */
-	koord get_world_position() const { return ij_off; }
-
-	/**
-	 * Fine offset within the viewport tile.
-	 */
-	int get_x_off() const {return x_off;}
-
-	/**
-	 * Fine offset within the viewport tile.
-	 */
-	void set_x_off(sint16 value) {x_off = value;}
-
-	/**
-	 * Fine offset within the viewport tile.
-	 */
-	int get_y_off() const {return y_off;}
-
-	/**
-	 * Fine offset within the viewport tile.
-	 */
-	void set_y_off(sint16 value) {y_off = value;}
-
-	/**
-	 * Set center viewport position.
-	 * @author prissi
-	 */
-	void change_world_position( koord ij, sint16 x=0, sint16 y=0 );
-
-	/**
-	 * Set center viewport position, taking height into account
-	 */
-	void change_world_position( koord3d ij );
-
-	/**
-	 * Converts 3D coord to 2D actually used for main view.
-	 */
-	koord calculate_world_position( koord3d ) const;
-
-	/**
-	 * the koordinates between the screen and a tile may have several offset
-	 * this routine caches them
-	 */
-	void set_view_ij_offset( koord k ) { view_ij_off=k; }
-
-	/**
-	 * the koordinates between the screen and a tile may have several offset
-	 * this routine caches them
-	 */
-	koord get_view_ij_offset() const { return view_ij_off; }
-
-	/**
 	 * If this is true, the map will not be scrolled on right-drag.
 	 * @author Hj. Malthaner
 	 */
 	void set_scroll_lock(bool yesno);
 
 	/**
-	 * Gets a new world position, under the requested screen coordinates. Used to move the cursor.
-	 * @param screen_pos Screen position to check. Input parameter.
-	 * @param grid_coordinates indicates if this function is to check against the map tiles, or the grid of heights. Input parameter.
-	 * @return koord3d::invalid if no position exists under the requested coordinate, a 3d koord directly under it otherwise.
-	 */
-	koord3d get_new_cursor_position(const koord screen_pos, bool grid_coordinates);
-
-	/**
 	 * @return true if the map it's locked for right-drag.
 	 */
 	bool get_scroll_lock() const { return scroll_lock; }
-
-	/**
-	 * Function for following a convoi on the map give an unbound handle to unset.
-	 */
-	void set_follow_convoi(convoihandle_t cnv) { follow_convoi = cnv; }
-
-	/**
-	 * ??
-	 */
-	convoihandle_t get_follow_convoi() const { return follow_convoi; }
 
 	settings_t const& get_settings() const { return settings; }
 	settings_t&       get_settings()       { return settings; }

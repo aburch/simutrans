@@ -20,6 +20,7 @@
 #include "../gui/player_frame_t.h"
 #include "../utils/cbuffer_t.h"
 #include "../utils/csv.h"
+#include "../display/viewport.h"
 
 
 network_command_t* network_command_t::read_from_packet(packet_t *p)
@@ -659,9 +660,9 @@ void nwc_sync_t::do_command(karte_t *welt)
 {
 	dbg->warning("nwc_sync_t::do_command", "sync_steps %d", get_sync_step());
 	// save screen coordinates & offsets
-	const koord ij = welt->get_world_position();
-	const sint16 xoff = welt->get_x_off();
-	const sint16 yoff = welt->get_y_off();
+	const koord ij = welt->get_viewport()->get_world_position();
+	const sint16 xoff = welt->get_viewport()->get_x_off();
+	const sint16 yoff = welt->get_viewport()->get_y_off();
 	// save active player
 	const uint8 active_player = welt->get_active_player_nr();
 	// save lock state
@@ -769,7 +770,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 		nwc_join_t::pending_join_client = INVALID_SOCKET;
 	}
 	// restore screen coordinates & offsets
-	welt->change_world_position(ij, xoff, yoff);
+	welt->get_viewport()->change_world_position(ij, xoff, yoff);
 	welt->switch_active_player(active_player,true);
 	// restore lock state
 	for(uint8 i=0; i<PLAYER_UNOWNED; i++) {

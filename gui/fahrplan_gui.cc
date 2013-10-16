@@ -13,6 +13,7 @@
 #include "../simworld.h"
 #include "../simmenu.h"
 #include "../display/simgraph.h"
+#include "../display/viewport.h"
 
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
@@ -460,7 +461,7 @@ bool fahrplan_gui_t::infowin_event(const event_t *ev)
 			if(  line >= 0 && line < fpl->get_count()  ) {
 				if(  IS_RIGHTCLICK(ev)  ||  ev->mx<16  ) {
 					// just center on it
-					sp->get_welt()->change_world_position( fpl->eintrag[line].pos );
+					sp->get_welt()->get_viewport()->change_world_position( fpl->eintrag[line].pos );
 				}
 				else if(  ev->mx<scrolly.get_groesse().x-11  ) {
 					fpl->set_aktuell( line );

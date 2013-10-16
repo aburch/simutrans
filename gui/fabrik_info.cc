@@ -19,6 +19,7 @@
 #include "../simfab.h"
 #include "../simcolor.h"
 #include "../display/simgraph.h"
+#include "../display/viewport.h"
 #include "../simcity.h"
 #include "../gui/simwin.h"
 #include "../simmenu.h"
@@ -207,8 +208,7 @@ void fabrik_info_t::zeichnen(koord pos, koord gr)
 
 bool fabrik_info_t::is_weltpos()
 {
-	return ( welt->get_x_off() | welt->get_y_off()) == 0  &&
-		welt->get_world_position() == welt->calculate_world_position( get_weltpos(false) );
+	return ( welt->get_viewport()->is_on_center( get_weltpos(false) ) );
 }
 
 
@@ -250,7 +250,7 @@ bool fabrik_info_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	else if(v.i&~1) {
 		koord k = *(const koord *)v.p;
 		karte_t* const welt = fab->get_besitzer()->get_welt();
-		welt->change_world_position( koord3d(k,welt->max_hgt(k)) );
+		welt->get_viewport()->change_world_position( koord3d(k,welt->max_hgt(k)) );
 	}
 
 	return true;

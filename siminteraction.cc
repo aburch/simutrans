@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Markohs
+ * Copyright (c) 2013 The Simutrans Community
  *
  * This file is part of the Simutrans project under the artistic license.
  * (see license.txt)
@@ -23,19 +23,20 @@
 #include "simworld.h"
 #include "besch/sound_besch.h"
 #include "obj/zeiger.h"
+#include "display/viewport.h"
 
 
 void interaction_t::move_view( const event_t &ev )
 {
 	if(!world->get_scroll_lock()) {
-		koord new_ij = world->get_world_position();
+		koord new_ij = viewport->get_world_position();
 
-		sint16 new_xoff = world->get_x_off() - (ev.mx - ev.cx) * env_t::scroll_multi;
-		sint16 new_yoff = world->get_y_off() - (ev.my-ev.cy) * env_t::scroll_multi;
+		sint16 new_xoff = viewport->get_x_off() - (ev.mx - ev.cx) * env_t::scroll_multi;
+		sint16 new_yoff = viewport->get_y_off() - (ev.my-ev.cy) * env_t::scroll_multi;
 
 		// this sets the new position and mark screen dirty
 		// => with next refresh we will be at a new location
-		world->change_world_position( new_ij, new_xoff, new_yoff );
+		viewport->change_world_position( new_ij, new_xoff, new_yoff );
 
 		// move the mouse pointer back to starting location => infinite mouse movement
 		if ((ev.mx - ev.cx)!=0  ||  (ev.my-ev.cy)!=0) {
@@ -62,7 +63,7 @@ void interaction_t::move_cursor( const event_t &ev )
 
 	werkzeug_t *wkz = world->get_werkzeug(world->get_active_player_nr());
 
-	const koord3d pos = world->get_new_cursor_position(koord(ev.mx,ev.my), wkz->is_grid_tool());
+	const koord3d pos = viewport->get_new_cursor_position(scr_coord(ev.mx,ev.my), wkz->is_grid_tool());
 
 	if( pos == koord3d::invalid ) {
 		zeiger->change_pos(pos);
@@ -123,39 +124,39 @@ void interaction_t::interactive_event( const event_t &ev )
 
 			// cursor movements
 			case '9':
-				world->change_world_position(world->get_world_position() + koord::nord);
+				viewport->change_world_position(viewport->get_world_position() + koord::nord);
 				world->set_dirty();
 				break;
 			case '1':
-				world->change_world_position(world->get_world_position() + koord::sued);
+				viewport->change_world_position(viewport->get_world_position() + koord::sued);
 				world->set_dirty();
 				break;
 			case '7':
-				world->change_world_position(world->get_world_position() + koord::west);
+				viewport->change_world_position(viewport->get_world_position() + koord::west);
 				world->set_dirty();
 				break;
 			case '3':
-				world->change_world_position(world->get_world_position() + koord::ost);
+				viewport->change_world_position(viewport->get_world_position() + koord::ost);
 				world->set_dirty();
 				break;
 			case '6':
 			case SIM_KEY_RIGHT:
-				world->change_world_position(world->get_world_position() + koord(+1,-1));
+				viewport->change_world_position(viewport->get_world_position() + koord(+1,-1));
 				world->set_dirty();
 				break;
 			case '2':
 			case SIM_KEY_DOWN:
-				world->change_world_position(world->get_world_position() + koord(+1,+1));
+				viewport->change_world_position(viewport->get_world_position() + koord(+1,+1));
 				world->set_dirty();
 				break;
 			case '8':
 			case SIM_KEY_UP:
-				world->change_world_position(world->get_world_position() + koord(-1,-1));
+				viewport->change_world_position(viewport->get_world_position() + koord(-1,-1));
 				world->set_dirty();
 				break;
 			case '4':
 			case SIM_KEY_LEFT:
-				world->change_world_position(world->get_world_position() + koord(-1,+1));
+				viewport->change_world_position(viewport->get_world_position() + koord(-1,+1));
 				world->set_dirty();
 				break;
 
@@ -243,7 +244,7 @@ void interaction_t::interactive_event( const event_t &ev )
 							// Check if we need to update pointer(zeiger) position.
 							if ( wkz->update_pos_after_use() ) {
 								// Cursor might need movement (screen has changed, we get a new one under the mouse pointer)
-								const koord3d pos_new = world->get_new_cursor_position(koord(ev.mx,ev.my),wkz->is_grid_tool());
+								const koord3d pos_new = viewport->get_new_cursor_position(scr_coord(ev.mx,ev.my),wkz->is_grid_tool());
 								world->get_zeiger()->set_pos(pos_new);
 							}
 						}
@@ -282,8 +283,8 @@ void interaction_t::interactive_event( const event_t &ev )
 		const sint16 new_raster_width = get_tile_raster_width();
 		if (org_raster_width != new_raster_width) {
 			// scale the fine offsets for displaying
-			world->set_x_off( (world->get_x_off() * new_raster_width) / org_raster_width );
-			world->set_y_off( (world->get_y_off() * new_raster_width) / org_raster_width );
+			viewport->set_x_off( (viewport->get_x_off() * new_raster_width) / org_raster_width );
+			viewport->set_y_off( (viewport->get_y_off() * new_raster_width) / org_raster_width );
 		}
 	}
 }
@@ -325,7 +326,7 @@ bool interaction_t::process_event( event_t &ev )
 	}
 	else if(IS_RIGHTDRAG(&ev)) {
 		// unset following
-		world->set_follow_convoi( convoihandle_t() );
+		world->get_viewport()->set_follow_convoi( convoihandle_t() );
 		move_view(ev);
 	}
 	else {
@@ -380,8 +381,13 @@ void interaction_t::check_events()
 }
 
 
-interaction_t::interaction_t(karte_t *welt)
+interaction_t::interaction_t(karte_t *world)
 {
-	world = welt;
+	this->world = world;
+	viewport = world->get_viewport();
 	is_dragging = false;
+
+
+	// Requires a world with a view already attached!
+	assert(viewport);
 }

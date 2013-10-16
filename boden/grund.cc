@@ -10,6 +10,7 @@
 #include "../simdebug.h"
 #include "../simdepot.h"
 #include "../display/simgraph.h"
+#include "../display/viewport.h"
 #include "../simhalt.h"
 #include "../display/simimg.h"
 #include "../player/simplay.h"
@@ -737,13 +738,8 @@ void grund_t::mark_image_dirty()
 {
 	// see obj_t::mark_image_dirty
 	if(bild_nr!=IMG_LEER) {
-		// better not try to twist your brain to follow the retransformation ...
-		const sint16 rasterweite=get_tile_raster_width();
-		const koord diff = pos.get_2d()-welt->get_world_position()-welt->get_view_ij_offset();
-		const sint16 x = (diff.x-diff.y)*(rasterweite/2);
-		const sint16 y = (diff.x+diff.y)*(rasterweite/4) + tile_raster_scale_y( -get_disp_height()*TILE_HEIGHT_STEP, rasterweite) + ((display_get_width()/rasterweite)&1)*(rasterweite/4);
-		// mark the region after the image as dirty
-		display_mark_img_dirty( bild_nr, x+welt->get_x_off(), y+welt->get_y_off() );
+		const scr_coord scr_pos = welt->get_viewport()->get_screen_coord(koord3d(pos.get_2d(),get_disp_height()));
+		display_mark_img_dirty( bild_nr, scr_pos.x, scr_pos.y );
 	}
 }
 

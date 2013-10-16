@@ -24,6 +24,7 @@
 #include "../simwerkz.h"
 #include "../gui/simwin.h"
 #include "../simworld.h"
+#include "../display/viewport.h"
 
 #include "../bauer/brueckenbauer.h"
 #include "../bauer/hausbauer.h"
@@ -131,7 +132,7 @@ sint32 spieler_t::add_maintenance(sint32 change, waytype_t const wt)
 void spieler_t::add_money_message(const sint64 amount, const koord pos)
 {
 	if(amount != 0  &&  player_nr != 1) {
-		if(  koord_distance(welt->get_world_position(),pos)<2*(uint32)(display_get_width()/get_tile_raster_width())+3  ) {
+		if(  koord_distance(welt->get_viewport()->get_world_position(),pos)<2*(uint32)(display_get_width()/get_tile_raster_width())+3  ) {
 			// only display, if near the screen ...
 			add_message(amount, pos);
 
@@ -235,16 +236,17 @@ void spieler_t::income_message_t::operator delete(void *p)
  */
 void spieler_t::display_messages()
 {
+	const viewport_t *vp = welt->get_viewport();
 	const sint16 raster = get_tile_raster_width();
-	const sint16 yoffset = welt->get_y_off()+((display_get_width()/raster)&1)*(raster/4);
+	const sint16 yoffset = vp->get_y_off()+((display_get_width()/raster)&1)*(raster/4);
 
 	FOR(slist_tpl<income_message_t*>, const m, messages) {
-		const koord ij = m->pos - welt->get_world_position()-welt->get_view_ij_offset();
-		const sint16 x = (ij.x-ij.y)*(raster/2) + welt->get_x_off();
-		const sint16 y = (ij.x+ij.y)*(raster/4) + (m->alter >> 4) - tile_raster_scale_y( welt->lookup_hgt(m->pos)*TILE_HEIGHT_STEP, raster) + yoffset;
-		display_shadow_proportional( x, y, PLAYER_FLAG|(kennfarbe1+3), COL_BLACK, m->str, true);
+
+		const scr_coord scr_pos = vp->get_screen_coord(koord3d(m->pos,welt->lookup_hgt(m->pos)),koord(0,m->alter));
+
+		display_shadow_proportional( scr_pos.x, scr_pos.y, PLAYER_FLAG|(kennfarbe1+3), COL_BLACK, m->str, true);
 		if(  m->pos.x < 3  ||  m->pos.y < 3  ) {
-			// very close to border => renew vackground
+			// very close to border => renew background
 			welt->set_background_dirty();
 		}
 	}

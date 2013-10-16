@@ -12,6 +12,7 @@
 #include "factorylist_stats_t.h"
 
 #include "../display/simgraph.h"
+#include "../display/viewport.h"
 #include "../simskin.h"
 #include "../simcolor.h"
 #include "../simfab.h"
@@ -149,7 +150,7 @@ bool factorylist_stats_t::infowin_event(const event_t * ev)
 	if (IS_LEFTRELEASE(ev)) {
 		if(ev->cx>0  &&  ev->cx<15) {
 			const koord3d pos = fab->get_pos();
-			welt->change_world_position(pos);
+			welt->get_viewport()->change_world_position(pos);
 		}
 		else {
 			fab->zeige_info();
@@ -157,7 +158,7 @@ bool factorylist_stats_t::infowin_event(const event_t * ev)
 	}
 	else if (IS_RIGHTRELEASE(ev)) {
 		const koord3d pos = fab->get_pos();
-		welt->change_world_position(pos);
+		welt->get_viewport()->change_world_position(pos);
 	}
 	return false;
 } // end of function factorylist_stats_t::infowin_event(const event_t * ev)

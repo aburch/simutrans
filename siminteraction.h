@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hj. Malthaner
+ * Copyright (c) 2013 The Simutrans Community
  *
  * This file is part of the Simutrans project under the artistic license.
  * (see license.txt)
@@ -9,6 +9,7 @@
 #define siminteraction_h
 
 class karte_t;
+class viewport_t;
 struct event_t;
 
 /**
@@ -19,7 +20,17 @@ struct event_t;
 class interaction_t
 {
 private:
+	/**
+	 * World associated with this manager.
+	 */
+
 	karte_t *world;
+
+	/**
+	 * Associated view of the world, this is a cached value.
+	 * @note Since a world in our project just has one view, we cache its value.
+	 */
+	viewport_t *viewport;
 
 	/**
 	 * Processes a mouse event that's moving the camera.
@@ -52,6 +63,9 @@ public:
 	 */
 	void check_events();
 
+	/**
+	 * @note Requires a world with it's view already attached!
+	 */
 	interaction_t(karte_t *welt);
 };
 

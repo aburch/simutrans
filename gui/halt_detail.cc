@@ -7,6 +7,7 @@
 
 #include "../simworld.h"
 #include "../display/simimg.h"
+#include "../display/viewport.h"
 #include "../simware.h"
 #include "../simfab.h"
 #include "../simhalt.h"
@@ -327,7 +328,7 @@ bool halt_detail_t::action_triggered( gui_action_creator_t *, value_t extra)
 		koord k = *(const koord *)extra.p;
 		if(  k.x>=0  ) {
 			// goto button pressed
-			halt->get_welt()->change_world_position( koord3d(k,halt->get_welt()->max_hgt(k)) );
+			halt->get_welt()->get_viewport()->change_world_position( koord3d(k,halt->get_welt()->max_hgt(k)) );
 		}
 		else if(  k.x==-1  ) {
 			// Line button pressed.

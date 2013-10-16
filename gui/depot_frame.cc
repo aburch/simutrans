@@ -20,6 +20,7 @@
 #include "../simcolor.h"
 #include "../simdebug.h"
 #include "../display/simgraph.h"
+#include "../display/viewport.h"
 #include "../simline.h"
 #include "../simlinemgmt.h"
 #include "../simmenu.h"
@@ -1187,11 +1188,11 @@ bool depot_frame_t::infowin_event(const event_t *ev)
 
 			next_dep->zeige_info();
 			win_set_pos(win_get_magic((ptrdiff_t)next_dep), pos.x, pos.y);
-			spieler_t::get_welt()->change_world_position(next_dep->get_pos());
+			spieler_t::get_welt()->get_viewport()->change_world_position(next_dep->get_pos());
 		}
 		else {
 			// recenter on current depot
-			spieler_t::get_welt()->change_world_position(depot->get_pos());
+			spieler_t::get_welt()->get_viewport()->change_world_position(depot->get_pos());
 		}
 
 		return true;

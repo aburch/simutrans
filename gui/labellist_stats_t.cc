@@ -8,6 +8,7 @@
 #include "labellist_stats_t.h"
 
 #include "../display/simgraph.h"
+#include "../display/viewport.h"
 #include "../simtypes.h"
 #include "../simworld.h"
 #include "../player/simplay.h"
@@ -132,7 +133,7 @@ bool labellist_stats_t::infowin_event(const event_t * ev)
 
 	if (IS_LEFTRELEASE(ev)) {
 		if(  ev->cx>0  &&  ev->cx<15  ) {
-			welt->change_world_position(pos);
+			welt->get_viewport()->change_world_position(pos);
 		}
 		else if(welt->lookup_kartenboden(pos)->find<label_t>()) {
 			// avoid crash
@@ -140,7 +141,7 @@ bool labellist_stats_t::infowin_event(const event_t * ev)
 		}
 	}
 	else if (IS_RIGHTRELEASE(ev)) {
-		welt->change_world_position(pos);
+		welt->get_viewport()->change_world_position(pos);
 	}
 	return false;
 } // end of function labellist_stats_t::infowin_event(const event_t * ev)

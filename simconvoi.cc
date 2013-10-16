@@ -42,6 +42,8 @@
 #include "dataobj/translator.h"
 #include "dataobj/environment.h"
 
+#include "display/viewport.h"
+
 #include "obj/crossing.h"
 #include "obj/roadsign.h"
 #include "obj/wayobj.h"
@@ -201,8 +203,8 @@ convoi_t::~convoi_t()
 
 DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 	// stop following
-	if(welt->get_follow_convoi()==self) {
-		welt->set_follow_convoi( convoihandle_t() );
+	if(welt->get_viewport()->get_follow_convoi()==self) {
+		welt->get_viewport()->set_follow_convoi( convoihandle_t() );
 	}
 
 	welt->sync_remove( this );

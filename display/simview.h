@@ -8,6 +8,7 @@
 #define simview_h
 
 class karte_t;
+class viewport_t;
 
 /**
  * World view class, it contains the routines that handle world display to the pixel buffer.
@@ -19,6 +20,9 @@ class karte_ansicht_t
 private:
 	/// The simulated world this view is associated to.
 	karte_t *welt;
+	/// We cache the camera here, it's the camera what we are supposed to render, not the whole world.
+	viewport_t *viewport;
+
 	/// Cached value from last display run to determine if the background was visible, we'll save redraws if it was not.
 	bool outside_visible;
 

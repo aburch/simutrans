@@ -21,7 +21,9 @@
 #include "../boden/wege/schiene.h"
 #include "../obj/leitung2.h"
 #include "../utils/cbuffer_t.h"
+#include "../display/scr_coord.h"
 #include "../display/simgraph.h"
+#include "../display/viewport.h"
 #include "../simtools.h"
 #include "../player/simplay.h"
 
@@ -1029,12 +1031,12 @@ bool reliefkarte_t::infowin_event(const event_t *ev)
 
 	// recenter
 	if(IS_LEFTCLICK(ev) || IS_LEFTDRAG(ev)) {
-		welt->set_follow_convoi( convoihandle_t() );
+		welt->get_viewport()->set_follow_convoi( convoihandle_t() );
 		int z = 0;
 		if(welt->is_within_limits(k)) {
 			z = welt->min_hgt(k);
 		}
-		welt->change_world_position(koord3d(k,z));
+		welt->get_viewport()->change_world_position(koord3d(k,z));
 		return true;
 	}
 
@@ -1652,10 +1654,11 @@ void reliefkarte_t::zeichnen(koord pos)
 	const sint16 raster=get_tile_raster_width();
 
 	// calculate and draw the rotated coordinates
-	koord ij = welt->get_world_position();
+	koord ij = welt->get_viewport()->get_world_position();
 	const koord diff = koord( display_get_width()/(2*raster), display_get_height()/raster );
 
-	koord view[4], test[4];
+	koord view[4];
+	scr_coord test[4];
 	// default coordinates - may be off if screen shows high mountains
 	view[0] = ij + koord( -diff.y+diff.x, -diff.y-diff.x );
 	view[1] = ij + koord( -diff.y-diff.x, -diff.y+diff.x );
@@ -1663,14 +1666,14 @@ void reliefkarte_t::zeichnen(koord pos)
 	view[3] = ij + koord( diff.y+diff.x, diff.y-diff.x );
 
 	// try to find tile under the four corners of the screen
-	test[0] = koord(display_get_width(),0);
-	test[1] = koord(0,0);
-	test[2] = koord(0,display_get_height());
-	test[3] = koord(display_get_width(),display_get_height());
+	test[0] = scr_coord(display_get_width(),0);
+	test[1] = scr_coord(0,0);
+	test[2] = scr_coord(0,display_get_height());
+	test[3] = scr_coord(display_get_width(),display_get_height());
 
 	for(int i=0; i<4; i++) {
 		sint32 dummy1, dummy2;
-		if (grund_t *gr = welt->get_ground_on_screen_coordinate( test[i], dummy1, dummy2 ) ) {
+		if (grund_t *gr = welt->get_viewport()->get_ground_on_screen_coordinate( test[i], dummy1, dummy2 ) ) {
 			view[i] = gr->get_pos().get_2d();
 		}
 	}

@@ -11,6 +11,7 @@
 #include "../simskin.h"
 #include "../simcolor.h"
 #include "../display/simgraph.h"
+#include "../display/viewport.h"
 #include "../player/simplay.h"
 #include "../simworld.h"
 #include "../display/simimg.h"
@@ -40,7 +41,7 @@ bool halt_list_stats_t::infowin_event(const event_t *ev)
 			return true;
 		}
 		if(IS_RIGHTRELEASE(ev)) {
-			halt->get_welt()->change_world_position(halt->get_basis_pos3d());
+			halt->get_welt()->get_viewport()->change_world_position(halt->get_basis_pos3d());
 			return true;
 		}
 	}

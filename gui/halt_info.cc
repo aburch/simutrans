@@ -18,6 +18,7 @@
 #include "../simconvoi.h"
 #include "../simintr.h"
 #include "../display/simgraph.h"
+#include "../display/viewport.h"
 #include "../simmenu.h"
 #include "../simskin.h"
 #include "../simline.h"
@@ -190,8 +191,7 @@ koord3d halt_info_t::get_weltpos(bool)
 
 bool halt_info_t::is_weltpos()
 {
-	return ( welt->get_x_off() | welt->get_y_off()) == 0  &&
-		welt->get_world_position() == welt->calculate_world_position( get_weltpos(false) );
+	return ( welt->get_viewport()->is_on_center(get_weltpos(false)));
 }
 
 

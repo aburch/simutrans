@@ -12,6 +12,7 @@
 #include "../simcolor.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/environment.h"
+#include "../display/viewport.h"
 #include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"
 
@@ -183,9 +184,7 @@ koord3d stadt_info_t::get_weltpos(bool)
 
 bool stadt_info_t::is_weltpos()
 {
-	karte_t *welt = stadt_t::get_welt();
-	return ( welt->get_x_off() | welt->get_y_off()) == 0  &&
-		welt->get_world_position() == welt->calculate_world_position( get_weltpos(false) );
+	return (stadt_t::get_welt()->get_viewport()->is_on_center( get_weltpos(false)));
 }
 
 
@@ -387,7 +386,7 @@ bool stadt_info_t::infowin_event(const event_t *ev)
 			const koord p = koord(
 				(mx * stadt->get_welt()->get_size().x) / (minimaps_size.x),
 				(my * stadt->get_welt()->get_size().y) / (minimaps_size.y));
-			stadt->get_welt()->change_world_position( p );
+			stadt->get_welt()->get_viewport()->change_world_position( p );
 		}
 	}
 

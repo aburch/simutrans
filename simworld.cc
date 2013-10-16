@@ -24,8 +24,10 @@
 #include "simdepot.h"
 #include "simfab.h"
 #include "display/simgraph.h"
+#include "display/viewport.h"
 #include "simhalt.h"
 #include "display/simimg.h"
+#include "siminteraction.h"
 #include "simintr.h"
 #include "simio.h"
 #include "simlinemgmt.h"
@@ -43,8 +45,6 @@
 #include "simwerkz.h"
 #include "gui/simwin.h"
 #include "simworld.h"
-#include "siminteraction.h"
-
 
 #include "tpl/vector_tpl.h"
 #include "tpl/binary_heap_tpl.h"
@@ -1066,7 +1066,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 
 		// Ansicht auf erste Stadt zentrieren
 		if(  old_x+old_y == 0  ) {
-			change_world_position( koord3d((*pos)[0], min_hgt((*pos)[0])) );
+			viewport->change_world_position( koord3d((*pos)[0], min_hgt((*pos)[0])) );
 		}
 		loadingscreen_t ls( translator::translate( "distributing cities" ), 16 + 2 * (old_anzahl_staedte + new_anzahl_staedte) + 2 * new_anzahl_staedte + (old_x == 0 ? settings.get_factory_count() : 0), true, true );
 
@@ -1453,14 +1453,15 @@ void karte_t::init(settings_t* const sets, sint8 const* const h_field)
 	if(is_display_init()) {
 		display_show_pointer(false);
 	}
-	change_world_position( koord(0,0), 0, 0 );
+	viewport->change_world_position( koord(0,0), 0, 0 );
 
 	settings = *sets;
 	// names during creation time
 	settings.set_name_language_iso(env_t::language_iso);
 	settings.set_use_timeline(settings.get_use_timeline() & 1);
 
-	x_off = y_off = 0;
+	viewport->set_x_off(0);
+	viewport->set_y_off(0);
 
 	ticks = 0;
 	last_step_ticks = ticks;
@@ -2246,7 +2247,8 @@ karte_t::karte_t() :
 		werkzeug[i] = werkzeug_t::general_tool[WKZ_ABFRAGE];
 	}
 
-	follow_convoi = convoihandle_t();
+	viewport = new viewport_t(this);
+
 	set_dirty();
 	set_scroll_lock(false);
 
@@ -2258,9 +2260,7 @@ karte_t::karte_t() :
 
 	zeiger = 0;
 	plan = 0;
-	ij_off = koord::invalid;
-	x_off = 0;
-	y_off = 0;
+
 	grid_hgts = 0;
 	water_hgts = 0;
 	schedule_counter = 0;
@@ -2298,6 +2298,7 @@ karte_t::~karte_t()
 	destroy();
 
 	// not deleting the werkzeuge of this map ...
+	delete viewport;
 	delete msg;
 	delete records;
 }
@@ -3129,7 +3130,7 @@ bool karte_t::change_player_tool(uint8 cmd, uint8 player_nr, uint16 param, bool 
 				return false;
 			}
 			if (exec) {
-				new_spieler( player_nr, param );
+				new_spieler( player_nr, (uint8) param );
 				// activate/deactivate AI immediately
 				spieler_t *sp = get_spieler(player_nr);
 				if (param != spieler_t::HUMAN  &&  sp) {
@@ -3456,7 +3457,8 @@ DBG_MESSAGE( "karte_t::rotate90()", "called" );
 	}
 
 	// rotate view
-	ij_off.rotate90( cached_size.x );
+
+	viewport->rotate90( cached_size.x );
 
 	// rotate messages
 	msg->rotate90( cached_size.x );
@@ -3588,7 +3590,7 @@ stadt_t *karte_t::suche_naechste_stadt(const koord k) const
 					best = s;
 					min_dist = dist;
 				}
-				else if(  dist < min_dist  ) {
+				else if(  (unsigned) dist < min_dist  ) {
 					best = s;
 					min_dist = dist;
 				}
@@ -3734,7 +3736,7 @@ void karte_t::sync_way_eyecandy_step(long delta_t)
 	}
 #else
 	static vector_tpl<sync_steppable *> sync_way_eyecandy_list_copy;
-	sync_way_eyecandy_list_copy.resize( sync_way_eyecandy_list.get_count()*1.1 );
+	sync_way_eyecandy_list_copy.resize( (uint32) sync_way_eyecandy_list.get_count()*1.1 );
 	FOR(vector_tpl<sync_steppable*>, const ss, sync_way_eyecandy_list) {
 		// if false, then remove
 		if(!ss->sync_step(delta_t)) {
@@ -3884,6 +3886,8 @@ void karte_t::sync_step(long delta_t, bool sync, bool display )
 			}
 		}
 
+		convoihandle_t follow_convoi = viewport->get_follow_convoi();
+
 		// change view due to following a convoi?
 		if(follow_convoi.is_bound()  &&  follow_convoi->get_vehikel_anzahl()>0) {
 			vehikel_t const& v       = *follow_convoi->front();
@@ -3895,7 +3899,7 @@ void karte_t::sync_step(long delta_t, bool sync, bool display )
 				v.get_screen_offset( new_xoff, new_yoff, get_tile_raster_width() );
 				new_xoff -= tile_raster_scale_x(-v.get_xoff(), rw);
 				new_yoff -= tile_raster_scale_y(-v.get_yoff(), rw) + tile_raster_scale_y(new_pos.z * TILE_HEIGHT_STEP, rw);
-				change_world_position( new_pos.get_2d(), -new_xoff, -new_yoff );
+				viewport->change_world_position( new_pos.get_2d(), -new_xoff, -new_yoff );
 			}
 		}
 
@@ -4645,62 +4649,7 @@ void karte_t::set_scroll_lock(bool yesno)
 {
 	scroll_lock = yesno;
 	if (yesno) {
-		follow_convoi = convoihandle_t();
-	}
-}
-
-
-koord karte_t::calculate_world_position( koord3d viewpos ) const
-{
-	// just calculate the offset from the z-position
-	const sint16 raster = get_tile_raster_width();
-	const sint16 new_yoff = tile_raster_scale_y(viewpos.z*TILE_HEIGHT_STEP,raster);
-	sint16 lines = 0;
-	if(new_yoff>0) {
-		lines = (new_yoff + (raster/4))/(raster/2);
-	}
-	else {
-		lines = (new_yoff - (raster/4))/(raster/2);
-	}
-	return viewpos.get_2d() - koord( lines, lines );
-}
-
-
-// change the center viewport position for a certain ground tile
-// any possible convoi to follow will be disabled
-void karte_t::change_world_position( koord3d new_ij )
-{
-	follow_convoi = convoihandle_t();
-	change_world_position( calculate_world_position( new_ij ) );
-}
-
-
-// change the center viewport position
-void karte_t::change_world_position( koord new_ij, sint16 new_xoff, sint16 new_yoff )
-{
-	const sint16 raster = get_tile_raster_width();
-	// truncate new_xoff, modify new_ij.x
-	new_ij.x -= new_xoff/raster;
-	new_ij.y += new_xoff/raster;
-	new_xoff %= raster;
-
-	// truncate new_yoff, modify new_ij.y
-	int lines = 0;
-	if(new_yoff>0) {
-		lines = (new_yoff + (raster/4))/(raster/2);
-	}
-	else {
-		lines = (new_yoff - (raster/4))/(raster/2);
-	}
-	new_ij -= koord( lines, lines );
-	new_yoff -= (raster/2)*lines;
-
-	//position changed? => update and mark dirty
-	if(new_ij!=ij_off  ||  new_xoff!=x_off  ||  new_yoff!=y_off) {
-		ij_off = new_ij;
-		x_off = new_xoff;
-		y_off = new_yoff;
-		set_dirty();
+		viewport->set_follow_convoi(convoihandle_t());
 	}
 }
 
@@ -5162,9 +5111,9 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved players");
 DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved messages");
 
 	// centered on what?
-	sint32 dummy = ij_off.x;
+	sint32 dummy = viewport->get_viewport_ij_offset().x;
 	file->rdwr_long(dummy);
-	dummy = ij_off.y;
+	dummy = viewport->get_viewport_ij_offset().y;
 	file->rdwr_long(dummy);
 
 	if(file->get_version()>=99018) {
@@ -5225,7 +5174,7 @@ bool karte_t::load(const char *filename)
 	DBG_MESSAGE("karte_t::laden", "loading game from '%s'", filename);
 
 	// reloading same game? Remeber pos
-	const koord oldpos = settings.get_filename()[0]>0  &&  strncmp(filename,settings.get_filename(),strlen(settings.get_filename()))==0 ? ij_off : koord::invalid;
+	const koord oldpos = settings.get_filename()[0]>0  &&  strncmp(filename,settings.get_filename(),strlen(settings.get_filename()))==0 ? viewport->get_viewport_ij_offset() : koord::invalid;
 
 	if(  strstart(filename, "net:")  ) {
 		// probably finish network mode?
@@ -5333,7 +5282,7 @@ DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 			switch_active_player( last_active_player_nr, true );
 			if(  is_within_limits(oldpos)  ) {
 				// go to position when last disconnected
-				change_world_position( oldpos );
+				viewport->change_world_position( oldpos );
 			}
 		}
 		else {
@@ -5519,7 +5468,8 @@ void karte_t::load(loadsave_t *file)
 	cached_size_max = max(cached_grid_size.x,cached_grid_size.y);
 	cached_size.x = cached_grid_size.x-1;
 	cached_size.y = cached_grid_size.y-1;
-	x_off = y_off = 0;
+	viewport->set_x_off(0);
+	viewport->set_y_off(0);
 
 	// Reliefkarte an neue welt anpassen
 	reliefkarte_t::get_karte()->set_welt(this);
@@ -5792,7 +5742,7 @@ DBG_MESSAGE("karte_t::laden()", "messages loaded");
 	file->rdwr_long(mi);
 	file->rdwr_long(mj);
 	DBG_MESSAGE("karte_t::laden()", "Setting view to %d,%d", mi,mj);
-	change_world_position( koord3d(mi,mj,0) );
+	viewport->change_world_position( koord3d(mi,mj,0) );
 
 	// right season for recalculations
 	recalc_snowline();
@@ -6423,163 +6373,6 @@ koord karte_t::get_closest_coordinate(koord outside_pos)
 		outside_pos.y = get_size().y-1;
 	}
 	return outside_pos;
-}
-
-
-grund_t* karte_t::get_ground_on_screen_coordinate(koord screen_pos, sint32 &found_i, sint32 &found_j, const bool intersect_grid) const
-{
-	const int rw1 = get_tile_raster_width();
-	const int rw2 = rw1/2;
-	const int rw4 = rw1/4;
-
-	/*
-	* berechnung der basis feldkoordinaten in i und j
-	* this would calculate raster i,j koordinates if there was no height
-	*  die formeln stehen hier zur erinnerung wie sie in der urform aussehen
-
-	int base_i = (screen_x+screen_y)/2;
-	int base_j = (screen_y-screen_x)/2;
-
-	int raster_base_i = (int)floor(base_i / 16.0);
-	int raster_base_j = (int)floor(base_j / 16.0);
-
-	*/
-
-	screen_pos.y += - y_off - rw2 - ((display_get_width()/rw1)&1)*rw4;
-	screen_pos.x += - x_off - rw2;
-
-	const int i_off = ij_off.x+get_view_ij_offset().x;
-	const int j_off = ij_off.y+get_view_ij_offset().y;
-
-	bool found = false;
-	// uncomment to: ctrl-key selects ground
-	//bool select_karten_boden = event_get_last_control_shift()==2;
-
-	// fallback: take kartenboden if nothing else found
-	grund_t *bd = NULL;
-	grund_t *gr = NULL;
-	// for the calculation of hmin/hmax see simview.cc
-	// for the definition of underground_level see grund_t::set_underground_mode
-	const sint8 hmin = grund_t::underground_mode != grund_t::ugm_all ? min( grundwasser - 4, grund_t::underground_level ) : get_minimumheight();
-	const sint8 hmax = grund_t::underground_mode == grund_t::ugm_all ? get_maximumheight() : min( grund_t::underground_level, get_maximumheight() );
-
-	// find matching and visible grund
-	for(sint8 hgt = hmax; hgt>=hmin; hgt--) {
-
-		const int base_i = (screen_pos.x/2 + screen_pos.y   + tile_raster_scale_y((hgt*TILE_HEIGHT_STEP),rw1))/2;
-		const int base_j = (screen_pos.y   - screen_pos.x/2 + tile_raster_scale_y((hgt*TILE_HEIGHT_STEP),rw1))/2;
-
-		found_i = ((int)floor(base_i/(double)rw4)) + i_off;
-		found_j = ((int)floor(base_j/(double)rw4)) + j_off;
-
-		gr = lookup(koord3d(found_i,found_j,hgt));
-		if(gr != NULL) {
-			found = /*select_karten_boden ? gr->ist_karten_boden() :*/ gr->is_visible();
-			if( ( gr->get_typ() == grund_t::tunnelboden || gr->get_typ() == grund_t::monorailboden ) && gr->get_weg_nr(0) == NULL && !gr->get_leitung()  &&  gr->find<zeiger_t>()) {
-				// This is only a dummy ground placed by wkz_tunnelbau_t or wkz_wegebau_t as a preview.
-				found = false;
-			}
-			if (found) {
-				break;
-			}
-
-			if (bd==NULL && gr->ist_karten_boden()) {
-				bd = gr;
-			}
-		}
-		if (grund_t::underground_mode==grund_t::ugm_level && hgt==hmax) {
-			// fallback in sliced mode, if no ground is under cursor
-			bd = lookup_kartenboden(found_i,found_j);
-		}
-		else if (intersect_grid){
-			// We try to intersect with virtual nonexistent border tiles in south and east.
-			if(  (gr = lookup_gridcoords( koord3d( found_i, found_j, hgt ) ))  ){
-				found = true;
-				break;
-			}
-		}
-
-		// Last resort, try to intersect with the same tile +1 height, seems to be necessary on steep slopes
-		// *NOTE* Don't do it on border tiles, since it will extend the range in which the cursor will be considered to be
-		// inside world limits.
-		if( found_i==(get_size().x-1)  ||  found_j == (get_size().y-1) ) {
-			continue;
-		}
-		gr = lookup(koord3d(found_i,found_j,hgt+1));
-		if(gr != NULL) {
-			found = /*select_karten_boden ? gr->ist_karten_boden() :*/ gr->is_visible();
-			if( ( gr->get_typ() == grund_t::tunnelboden || gr->get_typ() == grund_t::monorailboden ) && gr->get_weg_nr(0) == NULL && !gr->get_leitung()  &&  gr->find<zeiger_t>()) {
-				// This is only a dummy ground placed by wkz_tunnelbau_t or wkz_wegebau_t as a preview.
-				found = false;
-			}
-			if (found) {
-				break;
-			}
-			if (bd==NULL && gr->ist_karten_boden()) {
-				bd = gr;
-			}
-		}
-	}
-
-	if(found) {
-		return gr;
-	}
-	else {
-		if(bd!=NULL){
-			found_i = bd->get_pos().x;
-			found_j = bd->get_pos().y;
-			return bd;
-		}
-		return NULL;
-	}
-}
-
-
-koord3d karte_t::get_new_cursor_position(const koord screen_pos, bool grid_coordinates)
-{
-	const int rw4 = get_tile_raster_width()/4;
-
-	int offset_y = 0;
-	if(zeiger->get_yoff() == Z_PLAN) {
-		// already ok
-	}
-	else {
-		// shifted by a quarter tile
-		offset_y += rw4;
-	}
-
-	sint32 grid_x, grid_y;
-	const grund_t *bd = get_ground_on_screen_coordinate(koord(screen_pos.x, screen_pos.y + offset_y), grid_x, grid_y, grid_coordinates);
-
-	// no suitable location found (outside map, ...)
-	if (!bd) {
-		return koord3d::invalid;
-	}
-
-	// offset needed for the raise / lower tool.
-	sint8 groff = 0;
-
-	if( bd->is_visible()  &&  grid_coordinates) {
-		groff = bd->get_hoehe(get_corner_to_operate(koord(grid_x, grid_y))) - bd->get_hoehe();
-	}
-
-	return koord3d(grid_x, grid_y, bd->get_disp_height() + groff);
-}
-
-
-bool karte_t::is_background_visible() const
-{
-
-	sint32 i,j;
-
-	if ( get_ground_on_screen_coordinate(koord(0,0),i,j)  &&  \
-		 get_ground_on_screen_coordinate(koord(display_get_width()-1,0),i,j)  &&  \
-		 get_ground_on_screen_coordinate(koord(0,display_get_height()-1),i,j)  &&  \
-		 get_ground_on_screen_coordinate(koord(display_get_width()-1,display_get_height()-1),i,j)  ) {
-		return false;
-	}
-
-	return true;
 }
 
 

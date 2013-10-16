@@ -11,6 +11,7 @@
 
 #include "../simdebug.h"
 #include "../simworld.h"
+#include "../display/viewport.h"
 #include "jump_frame.h"
 #include "components/gui_button.h"
 
@@ -23,7 +24,7 @@ jump_frame_t::jump_frame_t(karte_t *welt) :
 	this->welt = welt;
 
 	// Input box for new name
-	sprintf(buf, "%i,%i", welt->get_world_position().x, welt->get_world_position().y );
+	sprintf(buf, "%i,%i", welt->get_viewport()->get_world_position().x, welt->get_viewport()->get_world_position().y );
 	input.set_text(buf, 62);
 	input.add_listener(this);
 	input.set_pos(koord(10,4));
@@ -56,7 +57,7 @@ bool jump_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 		koord my_pos;
 		sscanf(buf, "%hd,%hd", &my_pos.x, &my_pos.y);
 		if(welt->is_within_limits(my_pos)) {
-			welt->change_world_position(koord3d(my_pos,welt->min_hgt(my_pos)));
+			welt->get_viewport()->change_world_position(koord3d(my_pos,welt->min_hgt(my_pos)));
 		}
 	}
 	return true;

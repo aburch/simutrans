@@ -4,6 +4,7 @@
  */
 #include "scenario_info.h"
 #include "../simworld.h"
+#include "../display/viewport.h"
 #include "../dataobj/scenario.h"
 #include "../dataobj/translator.h"
 
@@ -133,7 +134,7 @@ bool scenario_info_t::action_triggered( gui_action_creator_t *komp, value_t v)
 					koord k(x,y);
 					welt->get_scenario()->koord_sq2w( k );
 					if (welt->is_within_limits(k)) {
-						welt->change_world_position( k  );
+						welt->get_viewport()->change_world_position( k  );
 					}
 				}
 			}

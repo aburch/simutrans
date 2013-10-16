@@ -15,6 +15,7 @@
 #include "../../simconvoi.h"
 #include "../../simcolor.h"
 #include "../../display/simgraph.h"
+#include "../../display/viewport.h"
 #include "../../player/simplay.h"
 #include "../../simline.h"
 
@@ -46,7 +47,7 @@ bool gui_convoiinfo_t::infowin_event(const event_t *ev)
 			return true;
 		}
 		else if(IS_RIGHTRELEASE(ev)) {
-			cnv->get_welt()->change_world_position(cnv->get_pos());
+			cnv->get_welt()->get_viewport()->change_world_position(cnv->get_pos());
 			return true;
 		}
 	}

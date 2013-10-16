@@ -18,6 +18,7 @@
 #include "../vehicle/simvehikel.h"
 #include "../simcolor.h"
 #include "../display/simgraph.h"
+#include "../display/viewport.h"
 #include "../simworld.h"
 #include "../simmenu.h"
 #include "../gui/simwin.h"
@@ -258,7 +259,7 @@ enable_home:
 			go_home_button.disable();
 			no_load_button.disable();
 		}
-		follow_button.pressed = (cnv->get_welt()->get_follow_convoi()==cnv);
+		follow_button.pressed = (cnv->get_welt()->get_viewport()->get_follow_convoi()==cnv);
 
 		// buffer update now only when needed by convoi itself => dedicated buffer for this
 		const int old_len=freight_info.len();
@@ -340,7 +341,7 @@ enable_home:
 
 bool convoi_info_t::is_weltpos()
 {
-	return (cnv->get_welt()->get_follow_convoi()==cnv);
+	return (cnv->get_welt()->get_viewport()->get_follow_convoi()==cnv);
 }
 
 
@@ -348,10 +349,10 @@ koord3d convoi_info_t::get_weltpos( bool set )
 {
 	if(  set  ) {
 		if(  !is_weltpos()  )  {
-			cnv->get_welt()->set_follow_convoi( cnv );
+			cnv->get_welt()->get_viewport()->set_follow_convoi( cnv );
 		}
 		else {
-			cnv->get_welt()->set_follow_convoi( convoihandle_t() );
+			cnv->get_welt()->get_viewport()->set_follow_convoi( convoihandle_t() );
 		}
 		return koord3d::invalid;
 	}
@@ -385,12 +386,12 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 {
 	// follow convoi on map?
 	if(komp == &follow_button) {
-		if(cnv->get_welt()->get_follow_convoi()==cnv) {
+		if(cnv->get_welt()->get_viewport()->get_follow_convoi()==cnv) {
 			// stop following
-			cnv->get_welt()->set_follow_convoi( convoihandle_t() );
+			cnv->get_welt()->get_viewport()->set_follow_convoi( convoihandle_t() );
 		}
 		else {
-			cnv->get_welt()->set_follow_convoi(cnv);
+			cnv->get_welt()->get_viewport()->set_follow_convoi(cnv);
 		}
 		return true;
 	}

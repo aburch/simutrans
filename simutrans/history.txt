@@ -1,4 +1,4 @@
-	CHG: system events management rearranged, simutrans should more reponsive to user events, on low framerates
+	CHG: system events management rearranged, simutrans should more responsive to user events, specially on low framerates
 	ADD: second_open_closes_win =1 in simuconf.tab will close open window instead top them on secod call/click
 	ADD: remember_window_positions=1 (default) will remeber last window positions
 	FIX: (S_N_C) net wealth was not consistent after buying vehicles

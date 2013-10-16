@@ -20,6 +20,7 @@
 #include "../simworld.h"
 #include "../gui/simwin.h"
 #include "../display/simgraph.h"
+#include "../display/viewport.h"
 #include "../simcolor.h"
 #include "../bauer/fabrikbauer.h"
 #include "../dataobj/environment.h"
@@ -120,7 +121,7 @@ map_frame_t::map_frame_t(karte_t *world) :
 
 	const koord gr = karte->get_groesse();
 	const koord s_gr=scrolly.get_groesse();
-	const koord ij = welt->get_world_position();
+	const koord ij = welt->get_viewport()->get_world_position();
 	const koord win_size = gr-s_gr; // this is the visible area
 	karte->set_mode( (reliefkarte_t::MAP_MODES)env_t::default_mapmode );
 	scrolly.set_scroll_position(  max(0,min(ij.x-win_size.x/2,gr.x)), max(0, min(ij.y-win_size.y/2,gr.y)) );
@@ -464,7 +465,7 @@ bool map_frame_t::infowin_event(const event_t *ev)
 	}
 	else if(  IS_LEFTDBLCLK(ev)  &&  reliefkarte_t::get_karte()->getroffen(ev2.mx,ev2.my)  ) {
 		// re-center cursor by scrolling
-		koord ij = reliefkarte_t::get_karte()->get_welt()->get_world_position();
+		koord ij = reliefkarte_t::get_karte()->get_welt()->get_viewport()->get_world_position();
 		reliefkarte_t::get_karte()->karte_to_screen(ij);
 		const koord s_gr = scrolly.get_groesse();
 
@@ -600,7 +601,7 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 
 	// first: check if cursor within map screen size
 	karte_t *welt=reliefkarte_t::get_karte()->get_welt();
-	koord ij = welt->get_world_position();
+	koord ij = welt->get_viewport()->get_world_position();
 	if(welt->is_within_limits(ij)) {
 		reliefkarte_t::get_karte()->karte_to_screen(ij);
 		// only re-center if zoomed or world position has changed and its outside visible area

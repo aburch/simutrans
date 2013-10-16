@@ -15,6 +15,7 @@
 #include "../simcity.h"
 #include "../simcolor.h"
 #include "../display/simgraph.h"
+#include "../display/viewport.h"
 #include "../gui/simwin.h"
 #include "../simworld.h"
 
@@ -98,14 +99,14 @@ bool citylist_stats_t::infowin_event(const event_t * ev)
 	if (IS_LEFTRELEASE(ev) && ev->cy>0) {
 		if(ev->cx>0  &&  ev->cx<15) {
 			const koord pos = stadt->get_pos();
-			welt->change_world_position( koord3d(pos, welt->min_hgt(pos)) );
+			welt->get_viewport()->change_world_position( koord3d(pos, welt->min_hgt(pos)) );
 		}
 		else {
 			stadt->zeige_info();
 		}
 	} else if (IS_RIGHTRELEASE(ev) && ev->cy > 0) {
 		const koord pos = stadt->get_pos();
-		welt->change_world_position( koord3d(pos, welt->min_hgt(pos)) );
+		welt->get_viewport()->change_world_position( koord3d(pos, welt->min_hgt(pos)) );
 	}
 	return false;
 }
