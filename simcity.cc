@@ -173,16 +173,16 @@ uint16 stadt_t::get_electricity_consumption(sint32 monthyear) const
 	if(electricity_consumption->get_count()) 
 	{
 		uint i=0;
-		while(  i<electricity_consumption->get_count()  &&  monthyear>=electricity_consumption[0][i].year  ) 
+		while(i < electricity_consumption->get_count() && monthyear >= electricity_consumption[0][i].year) 
 		{
 			i++;
 		}
-		if(  i==electricity_consumption->get_count()  ) 
+		if(i == electricity_consumption->get_count()) 
 		{
 			// past final year
 			return electricity_consumption[0][i-1].consumption_percent;
 		}
-		else if(i==0) 
+		else if(i == 0) 
 		{
 			// before first year
 			return electricity_consumption[0][0].consumption_percent;
@@ -4821,13 +4821,12 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sin
 
 uint32 stadt_t::get_power_demand() const
 {
-	// The 'magic number' in here is the actual amount of electricity consumed per citizen per month at '100%' in electricity.tab
-	//uint16 electricity_per_citizen = 0.02F * get_electricity_consumption(welt->get_timeline_year_month(); 
-	const uint16 electricity_per_citizen = (get_electricity_consumption(welt->get_timeline_year_month()) * 100) / 5; 
+	// Assumed 1kW for every 1 unit of population + 1 job + 4 visitor demand units at '100%' in electricity.tab
+	const uint32 electricity_per_unit = (uint32)get_electricity_consumption(welt->get_timeline_year_month()); 
 	// The weird order of operations is designed for greater precision.
 	// Really, POWER_TO_MW should come last.
 	
-	return ((city_history_month[0][HIST_CITICENS] << POWER_TO_MW) * electricity_per_citizen) / 100000;
+	return (((city_history_month[0][HIST_CITICENS] + city_history_month[0][HIST_JOBS] + (city_history_month[0][HIST_VISITOR_DEMAND] / 4)) << POWER_TO_MW) * electricity_per_unit) / 100000;
 }
 
 void stadt_t::add_substation(senke_t* substation)
