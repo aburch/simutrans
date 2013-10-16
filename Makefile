@@ -240,6 +240,7 @@ SOURCES += obj/zeiger.cc
 SOURCES += display/font.cc
 SOURCES += display/simgraph$(COLOUR_DEPTH).cc
 SOURCES += display/simview.cc
+SOURCES += display/viewport.cc
 SOURCES += freight_list_sorter.cc
 SOURCES += gui/ai_option_t.cc
 SOURCES += gui/banner.cc
