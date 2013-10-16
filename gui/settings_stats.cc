@@ -291,6 +291,8 @@ void settings_experimental_general_stats_t::read(settings_t *sets)
 void settings_experimental_revenue_stats_t::init( settings_t *sets )
 {
 	INIT_INIT;
+	INIT_NUM( "passenger_trips_per_month_hundredths", sets->get_passenger_trips_per_month_hundredths(), 0, 4096, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "mail_packets_per_month_hundredths", sets->get_mail_packets_per_month_hundredths(), 0, 4096, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "passenger_routing_packet_size", sets->get_passenger_routing_packet_size(), 1, 64, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM("max_onward_trips", sets->get_max_onward_trips(), 0, 32, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM("onward_trip_chance_percent", sets->get_onward_trip_chance_percent(), 0, 100, gui_numberinput_t::PROGRESS, false );
@@ -404,6 +406,8 @@ void settings_experimental_revenue_stats_t::init( settings_t *sets )
 void settings_experimental_revenue_stats_t::read(settings_t *sets)
 {
 	READ_INIT
+	READ_NUM_VALUE( sets->passenger_trips_per_month_hundredths );
+	READ_NUM_VALUE( sets->mail_packets_per_month_hundredths );
 	READ_NUM_VALUE( sets->passenger_routing_packet_size );
 	READ_NUM_VALUE( sets->max_onward_trips );
 	READ_NUM_VALUE( sets->onward_trip_chance_percent );
@@ -728,8 +732,6 @@ void settings_economy_stats_t::init(settings_t const* const sets)
 	INIT_BOOL( "allow_underground_transformers", sets->get_allow_underground_transformers() );
 	SEPERATOR
 
-	INIT_NUM( "passenger_trips_per_month_hundredths", sets->get_passenger_trips_per_month_hundredths(), 0, 4096, gui_numberinput_t::AUTOLINEAR, false );
-	INIT_NUM( "mail_packets_per_month_hundredths", sets->get_mail_packets_per_month_hundredths(), 0, 4096, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "city_isolation_factor", sets->get_city_isolation_factor(), 1, 20000, 1, false );
 	INIT_NUM( "special_building_distance", sets->get_special_building_distance(), 1, 150, 1, false );
 	INIT_NUM( "factory_arrival_periods", sets->get_factory_arrival_periods(), 1, 16, gui_numberinput_t::AUTOLINEAR, false );
@@ -783,8 +785,6 @@ void settings_economy_stats_t::read(settings_t* const sets)
 	READ_NUM_VALUE( sets->electric_promille );
 	READ_BOOL_VALUE( sets->allow_underground_transformers );
 
-	READ_NUM_VALUE( sets->passenger_trips_per_month_hundredths );
-	READ_NUM_VALUE( sets->mail_packets_per_month_hundredths );
 	READ_NUM_VALUE( sets->city_isolation_factor );
 	READ_NUM_VALUE( sets->special_building_distance );
 	READ_NUM_VALUE( sets->factory_arrival_periods );
