@@ -387,7 +387,6 @@ interaction_t::interaction_t(karte_t *world)
 	viewport = world->get_viewport();
 	is_dragging = false;
 
-
 	// Requires a world with a view already attached!
 	assert(viewport);
 }

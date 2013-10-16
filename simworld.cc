@@ -1460,9 +1460,6 @@ void karte_t::init(settings_t* const sets, sint8 const* const h_field)
 	settings.set_name_language_iso(env_t::language_iso);
 	settings.set_use_timeline(settings.get_use_timeline() & 1);
 
-	viewport->set_x_off(0);
-	viewport->set_y_off(0);
-
 	ticks = 0;
 	last_step_ticks = ticks;
 	schedule_counter = 0;
@@ -3457,13 +3454,12 @@ DBG_MESSAGE( "karte_t::rotate90()", "called" );
 	}
 
 	// rotate view
-
 	viewport->rotate90( cached_size.x );
 
 	// rotate messages
 	msg->rotate90( cached_size.x );
 
-	// rotate view in dialoge windows
+	// rotate view in dialog windows
 	win_rotate90( cached_size.x );
 
 	if( cached_grid_size.x != cached_grid_size.y ) {
@@ -3886,9 +3882,8 @@ void karte_t::sync_step(long delta_t, bool sync, bool display )
 			}
 		}
 
-		convoihandle_t follow_convoi = viewport->get_follow_convoi();
-
 		// change view due to following a convoi?
+		convoihandle_t follow_convoi = viewport->get_follow_convoi();
 		if(follow_convoi.is_bound()  &&  follow_convoi->get_vehikel_anzahl()>0) {
 			vehikel_t const& v       = *follow_convoi->front();
 			koord3d   const  new_pos = v.get_pos();

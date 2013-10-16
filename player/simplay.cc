@@ -237,12 +237,10 @@ void spieler_t::income_message_t::operator delete(void *p)
 void spieler_t::display_messages()
 {
 	const viewport_t *vp = welt->get_viewport();
-	const sint16 raster = get_tile_raster_width();
-	const sint16 yoffset = vp->get_y_off()+((display_get_width()/raster)&1)*(raster/4);
 
 	FOR(slist_tpl<income_message_t*>, const m, messages) {
 
-		const scr_coord scr_pos = vp->get_screen_coord(koord3d(m->pos,welt->lookup_hgt(m->pos)),koord(0,m->alter));
+		const scr_coord scr_pos = vp->get_screen_coord(koord3d(m->pos,welt->lookup_hgt(m->pos)),koord(0,m->alter >> 4));
 
 		display_shadow_proportional( scr_pos.x, scr_pos.y, PLAYER_FLAG|(kennfarbe1+3), COL_BLACK, m->str, true);
 		if(  m->pos.x < 3  ||  m->pos.y < 3  ) {

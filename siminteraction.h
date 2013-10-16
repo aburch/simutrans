@@ -27,8 +27,8 @@ private:
 	karte_t *world;
 
 	/**
-	 * Associated view of the world, this is a cached value.
-	 * @note Since a world in our project just has one view, we cache its value.
+	 * Associated viewport of the world, this is a cached value.
+	 * @note Since a world in our project just has one viewport, we cache its value.
 	 */
 	viewport_t *viewport;
 
@@ -64,7 +64,7 @@ public:
 	void check_events();
 
 	/**
-	 * @note Requires a world with it's view already attached!
+	 * @note Requires a world with it's viewport already attached!
 	 */
 	interaction_t(karte_t *welt);
 };

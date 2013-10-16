@@ -447,7 +447,6 @@ private:
 	 */
 	void cleanup_karte( int xoff, int yoff );
 
-public:
 	/**
 	 * @name Map data structures
 	 *       This variables represent the simulated map.

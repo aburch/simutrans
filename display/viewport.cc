@@ -94,9 +94,8 @@ void viewport_t::change_world_position( koord new_ij, sint16 new_xoff, sint16 ne
 		x_off = new_xoff;
 		y_off = new_yoff;
 		world->set_dirty();
+		update_cached_values();
 	}
-
-	update_cached_values();
 }
 
 
