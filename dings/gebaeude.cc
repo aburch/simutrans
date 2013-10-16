@@ -173,7 +173,7 @@ gebaeude_t::gebaeude_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_til
 
 stadt_t* gebaeude_t::get_stadt() const
 { 
-	return is_factory ? ptr.fab->get_city() : ptr.stadt; 
+	return ptr.fab != NULL ? is_factory ? ptr.fab->get_city() : ptr.stadt : NULL;
 }
 
 /**

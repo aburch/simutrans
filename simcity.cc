@@ -4821,7 +4821,7 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sin
 
 uint32 stadt_t::get_power_demand() const
 {
-	// Assumed 1kW for every 1 unit of population + 1 job + 4 visitor demand units at '100%' in electricity.tab
+	// Assumed 1kW for every 1 unit of population + 1 job + 4 visitor demand units at 100% in electricity.tab
 	const uint32 electricity_per_unit = (uint32)get_electricity_consumption(welt->get_timeline_year_month()); 
 	// The weird order of operations is designed for greater precision.
 	// Really, POWER_TO_MW should come last.
