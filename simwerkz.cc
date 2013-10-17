@@ -1784,6 +1784,11 @@ const char *wkz_change_water_height_t::work( karte_t *welt, spieler_t *, koord3d
 	grund_t *gr = welt->lookup_kartenboden(k);
 
 	if(  gr->ist_wasser()  ) {
+		// lower + control removes shallow water only. If this tile is deep water this will fail
+		if(  !raising  &&  is_ctrl_pressed()  &&  welt->min_hgt(k)!=gr->get_hoehe()  ) {
+			return "Cannot alter water";
+		}
+
 		// if currently water, raise = +1, lower = -1
 		new_water_height = gr->get_hoehe() + (raising ? 1 : -1);
 	}
@@ -1835,7 +1840,17 @@ const char *wkz_change_water_height_t::work( karte_t *welt, spieler_t *, koord3d
 				sint8 neighbour_height = gr2->get_hoehe();
 
 				// move onto this tile if it hasn't been processed yet
-				bool ok = stage[array_koord(k_neighbour.x, k_neighbour.y)] == -1  &&  neighbour_height <= test_height;
+				bool ok = stage[array_koord(k_neighbour.x, k_neighbour.y)] == -1;
+
+				if(  is_ctrl_pressed()  &&  raising  ) {
+					ok = ok  &&  neighbour_height < test_height;
+				}
+				else if(  is_ctrl_pressed()  ) {
+					ok = ok  &&  welt->min_hgt(k_neighbour) == test_height;
+				}
+				else {
+					ok = ok  &&  neighbour_height <= test_height;
+				}
 
 				if(  raising  ) {
 					// move onto this tile unless it already has water at new level, or the land level is above new level
@@ -1857,10 +1872,13 @@ const char *wkz_change_water_height_t::work( karte_t *welt, spieler_t *, koord3d
 			}
 			//return back to previous tile
 			if(  i==7  ) {
-				k = k - koord::neighbours[from_dir[array_koord(k.x,k.y)]];
+				stage[array_koord(k.x,k.y)] = 8;
+				if(  from_dir[array_koord(k.x,k.y)] != -1  ) {
+					k = k - koord::neighbours[from_dir[array_koord(k.x,k.y)]];
+				}
 			}
 		}
-	} while(  from_dir[array_koord(k.x,k.y)] != -1  );
+	} while(  from_dir[array_koord(k.x,k.y)] != -1  ||  stage[array_koord(k.x,k.y)] < 7  );
 
 	delete [] from_dir;
 
