@@ -293,8 +293,9 @@ bool server_frame_t::update_serverlist ()
 	const char* pakset = NULL;
 
 	if (  !show_mismatched.pressed  ) {
-		revision = gi.get_game_engine_revision();
-		pakset = gi.get_pak_name();
+		gameinfo_t current( welt );
+		revision = current.get_game_engine_revision();
+		pakset   = current.get_pak_name();
 	}
 
 	// Download game listing from listings server into memory
