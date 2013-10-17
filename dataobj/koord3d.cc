@@ -65,7 +65,7 @@ koord3d::koord3d(loadsave_t *file)
 }
 
 
-// für debugmeldungen ...
+// for debug messages...
 const char *koord3d::get_str() const
 {
 	static char pos_str[32];
@@ -77,7 +77,7 @@ const char *koord3d::get_str() const
 }
 
 
-// für debugmeldungen ...
+// for debug messages...
 const char *koord3d::get_fullstr() const
 {
 	static char pos_str[32];

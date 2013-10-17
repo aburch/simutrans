@@ -68,7 +68,7 @@ const tunnel_besch_t *tunnelbauer_t::get_besch(const char *name)
 
 
 /**
- * Find a matchin tunnel
+ * Find a matching tunnel
  * @author Hj. Malthaner
  */
 const tunnel_besch_t *tunnelbauer_t::find_tunnel(const waytype_t wtyp, const sint32 min_speed, const uint16 time)
@@ -191,8 +191,8 @@ koord3d tunnelbauer_t::finde_ende(karte_t *welt, spieler_t *sp, koord3d pos, koo
 				return pos;
 			}
 			if(  !ribi  ) {
-				// Ende am Hang - Endschiene fehlt oder hat keine ribis
-				// Wir prüfen noch, ob uns dort ein anderer Weg stört
+				// End of the slope - Missing end rail or has no ribis
+				// we still consider if we interfere with a way (original: prüfen noch, ob uns dort ein anderer Weg stört)
 				if(wegtyp != powerline_wt) {
 					if(  !gr->hat_wege()  ||  gr->hat_weg(wegtyp)  ) {
 						return pos;
@@ -205,7 +205,7 @@ koord3d tunnelbauer_t::finde_ende(karte_t *welt, spieler_t *sp, koord3d pos, koo
 					}
 				}
 			}
-			return koord3d::invalid;  // Was im Weg (schräger Hang oder so)
+			return koord3d::invalid;  // Was im Weg (slope hillside or so)
 		}
 
 		if(  env_t::pak_height_conversion_factor == 2  ) {
@@ -221,7 +221,7 @@ koord3d tunnelbauer_t::finde_ende(karte_t *welt, spieler_t *sp, koord3d pos, koo
 			return koord3d::invalid;
 		}
 
-		// Alles frei - weitersuchen
+		// All free - keep looking
 	}
 }
 
@@ -273,7 +273,7 @@ const char *tunnelbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, const 
 	}
 	zv = koord(slope);
 
-	// Tunnelende suchen
+	// Search tunnel end
 	koord3d end = koord3d::invalid;
 	if(full_tunnel) {
 		const char *err = NULL;
@@ -303,7 +303,7 @@ const char *tunnelbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, const 
 		}
 	}
 
-	// Anfang und ende sind geprueft, wir konnen endlich bauen
+	// Begging and end founds we can build
 	if(!baue_tunnel(welt, sp, gr->get_pos(), end, zv, besch)) {
 		return "Ways not connected";
 	}
@@ -639,7 +639,7 @@ const char *tunnelbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d start, w
 			// corrects the ways
 			weg_t *weg=gr->get_weg_nr(0);
 			if(weg) {
-				// fails if it was preivously the last ribi
+				// fails if it was previously the last ribi
 				weg->set_besch(weg->get_besch());
 				weg->set_ribi( ribi );
 				if(gr->get_weg_nr(1)) {

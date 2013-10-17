@@ -8,7 +8,7 @@
 
 
 /**
- * 3d Koordinaten
+ * 3D Coordinates
  */
 class koord3d
 {

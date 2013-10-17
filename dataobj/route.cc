@@ -531,7 +531,7 @@ DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x
 
 				while(  max_len>0  &&  gr->get_neighbour(gr,wegtyp,ribi)  &&  gr->get_halt()==halt  &&   fahr->ist_befahrbar(gr)   &&  (fahr->get_ribi(gr)&&ribi)!=0  ) {
 					// Do not go on a tile, where a oneway sign forbids going.
-					// This saves time and fixed the bug, that a oneway sign on the finaly tile was ignored.
+					// This saves time and fixed the bug, that a oneway sign on the final tile was ignored.
 					ribi_t::ribi go_dir=gr->get_weg(wegtyp)->get_ribi_maske();
 					if(  (ribi&go_dir)!=0  ) {
 						break;

@@ -85,7 +85,7 @@ const koord &tabfileobj_t::get_koord(const char *key, koord def)
 	if(!value || !*value) {
 		return ret;
 	}
-	// 2. Wert bestimmen
+	// 2. Determine value
 	for(tmp = value; *tmp != ','; tmp++) {
 		if(!*tmp) {
 			return ret;
@@ -172,13 +172,13 @@ int *tabfileobj_t::get_ints(const char *key)
 		result[0] = 0;
 		return result;
 	}
-	// Anzahl bestimmen
+	// Determine number
 	for(tmp = value; *tmp; tmp++) {
 		if(*tmp == ',') {
 			count++;
 		}
 	}
-	// Ergebnisvektor erstellen und füllen
+	// Create result vector and fill
 	result = new int[count + 1];
 
 	result[0] = count;
@@ -210,13 +210,13 @@ sint64 *tabfileobj_t::get_sint64s(const char *key)
 		result[0] = 0;
 		return result;
 	}
-	// Anzahl bestimmen
+	// Determine number
 	for(tmp = value; *tmp; tmp++) {
 		if(*tmp == ',') {
 			count++;
 		}
 	}
-	// Ergebnisvektor erstellen und füllen
+	// Create result vector and fill
 	result = new sint64[count + 1];
 
 	result[0] = count;

@@ -160,7 +160,7 @@ public:
 
 
 
-// this produced semicautomatic hierachies
+// this produced semicautomatic hierarchies
 class xml_tag_t {
 private:
 	loadsave_t *file;

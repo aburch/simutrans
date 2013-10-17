@@ -29,8 +29,8 @@ struct road_timeline_t
 
 class settings_t
 {
-	// these are the only classes, that are allowed to modfy elements from settings_t
-	// for all remaing special cases there are the set_...() routines
+	// these are the only classes, that are allowed to modify elements from settings_t
+	// for all remaining special cases there are the set_...() routines
 	friend class settings_general_stats_t;
 	friend class settings_routing_stats_t;
 	friend class settings_economy_stats_t;
@@ -60,7 +60,7 @@ private:
 	sint32 goods_multiplier;
 	sint32 electricity_multiplier;
 
-	// Also there are size dependen factors (0=no growth)
+	// Also there are size dependent factors (0=no growth)
 	sint32 growthfactor_small;
 	sint32 growthfactor_medium;
 	sint32 growthfactor_large;
@@ -95,12 +95,12 @@ private:
 	uint16 station_coverage_size;
 
 	/**
-	 * ab welchem level erzeugen gebaeude verkehr ?
+	 * At which level buildings generate traffic?
 	 */
 	sint32 verkehr_level;
 
 	/**
-	 * sollen Fussgaenger angezeigt werden ?
+	 * Should pedestrians be displayed?
 	 */
 	sint32 show_pax;
 
@@ -167,7 +167,7 @@ private:
 	sint16 crossconnect_factor;
 
 	/**
-	* Zufällig Fussgänger in den Städten erzeugen?
+	* Generate random pedestrians in the cities?
 	*
 	* @author Hj. Malthaner
 	*/
@@ -217,7 +217,7 @@ private:
 	// names of the stations ...
 	char language_code_names[4];
 
-	// true, if the different caacities (passengers/mail/freight) are counted separately
+	// true, if the different capacities (passengers/mail/freight) are counted separately
 	bool separate_halt_capacities;
 
 	/**
@@ -233,7 +233,7 @@ private:
 	/* if set, goods will avoid being routed over overcrowded stops */
 	bool avoid_overcrowding;
 
-	/* if set, goods will not routed over overcroded stations but rather try detours (if possible) */
+	/* if set, goods will not routed over overcrowded stations but rather try detours (if possible) */
 	bool no_routing_over_overcrowding;
 
 	// lowest possible income with speedbonus (1000=1) default 125
@@ -302,7 +302,7 @@ public:
 
 	// true if active
 	bool automaten[MAX_PLAYER_COUNT];
-	// 0 = emtpy, otherwise some vaule from simplay
+	// 0 = empty, otherwise some value from simplay
 	uint8 spieler_type[MAX_PLAYER_COUNT];
 
 	// player color suggestions for new games
@@ -475,7 +475,7 @@ public:
 	sint32 get_goods_multiplier() const { return goods_multiplier; }
 	sint32 get_electricity_multiplier() const { return electricity_multiplier; }
 
-	// Also there are size dependen factors (0=no growth)
+	// Also there are size dependent factors (0=no growth)
 	sint32 get_growthfactor_small() const { return growthfactor_small; }
 	sint32 get_growthfactor_medium() const { return growthfactor_medium; }
 	sint32 get_growthfactor_large() const { return growthfactor_large; }

@@ -213,7 +213,7 @@ void crossing_logic_t::register_besch(kreuzung_besch_t *besch)
 		// max index = 7*9 + 8 - 9*4 = 71-36 = 35
 		// .. overwrite double entries
 		minivec_tpl<const kreuzung_besch_t *> &vec = can_cross_array[index];
-		// first check for existing crossign with the same name
+		// first check for existing crossing with the same name
 		for(uint8 i=0; i<vec.get_count(); i++) {
 			if (strcmp(vec[i]->get_name(), besch->get_name())==0) {
 				vec.remove_at(i);
@@ -286,7 +286,7 @@ void crossing_logic_t::add( karte_t *w, crossing_t *start_cr, crossing_state_t z
 	if (crossing_logic_t *start_logic = start_cr->get_logic() ) {
 		crossings_logics.append(start_logic);
 	}
-	// go nord/west
+	// go north/west
 	while(1) {
 		pos += zv;
 		grund_t *gr = welt->lookup( pos );

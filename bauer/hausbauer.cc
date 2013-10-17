@@ -60,7 +60,7 @@ const haus_besch_t *hausbauer_t::elevated_foundation_besch = NULL;
 // all buildings with rails or connected to stops
 vector_tpl<const haus_besch_t *> hausbauer_t::station_building;
 
-// all headquarter (sorted by hq-level)
+// all headquarters (sorted by hq-level)
 vector_tpl<const haus_besch_t *> hausbauer_t::headquarter;
 
 static spezial_obj_tpl<haus_besch_t> spezial_objekte[] = {
@@ -82,7 +82,7 @@ static bool compare_haus_besch(const haus_besch_t* a, const haus_besch_t* b)
 
 static bool compare_hq_besch(const haus_besch_t* a, const haus_besch_t* b)
 {
-	// the headquarter level is in the extra-variable
+	// the headquarters level is in the extra-variable
 	int diff = a->get_extra() - b->get_extra();
 	if (diff == 0) {
 		diff = a->get_level() - b->get_level();
@@ -165,7 +165,7 @@ bool hausbauer_t::alles_geladen()
 						break;
 					}
 				default:
-					// obsolete object, usually such pak set will not load properly anyway (old objects should be catched before!)
+					// obsolete object, usually such pak set will not load properly anyway (old objects should be caught before!)
 					dbg->error("hausbauer_t::alles_geladen()","unknown subtype %i of \"%s\" ignored",besch->get_utyp(),besch->get_name());
 			}
 		}
@@ -214,8 +214,8 @@ bool hausbauer_t::register_besch(haus_besch_t *besch)
 	}
 	besch_names.put(besch->get_name(), besch);
 
-	/* supply the tiles with a pointer back to the matchin description
-	 * this is needed, since each building is build of seperate tiles,
+	/* supply the tiles with a pointer back to the matching description
+	 * this is needed, since each building is build of separate tiles,
 	 * even if it is part of the same description (haus_besch_t)
 	 */
 	const int max_index = besch->get_all_layouts()*besch->get_groesse().x*besch->get_groesse().y;
@@ -856,7 +856,7 @@ const haus_besch_t* hausbauer_t::get_headquarter(int level, uint16 time)
 const haus_besch_t *hausbauer_t::waehle_aus_liste(vector_tpl<const haus_besch_t *> &liste, uint16 time, bool ignore_retire, climate cl)
 {
 	if (!liste.empty()) {
-		// previously just returned a random object; however, now we do als look at the chance entry
+		// previously just returned a random object; however, now we look at the chance entry
 		weighted_vector_tpl<const haus_besch_t *> auswahl(16);
 		FOR(vector_tpl<haus_besch_t const*>, const besch, liste) {
 			if((cl==MAX_CLIMATES  ||  besch->is_allowed_climate(cl))  &&  besch->get_chance()>0  &&  (time==0  ||  (besch->get_intro_year_month()<=time  &&  (ignore_retire  ||  besch->get_retire_year_month()>time)  )  )  ) {

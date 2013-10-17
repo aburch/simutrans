@@ -1982,7 +1982,7 @@ void register_image(struct bild_t* bild)
 		// decode line
 		runlen = *src++;
 		do {
-			// clear run .. nothign to do
+			// clear run .. nothing to do
 			runlen = *src++;
 			// no this many color pixel
 			while(  runlen--  ) {
@@ -2013,7 +2013,7 @@ void register_image(struct bild_t* bild)
 	// since we do not recode them, we can work with the original data
 	image->base_data = bild->data;
 
-	// now find out, it it containsplayer colors
+	// now find out, it contains player colors
 
 }
 

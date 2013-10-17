@@ -66,8 +66,8 @@
 static uint8 type_to_pri[256]=
 {
 	255, //
-	baum_pri, // baum
-	254, // zeiger
+	baum_pri, // tree
+	254, // cursor/pointers
 	200, 200, 200,	// wolke
 	3, 3, // buildings
 	6, // signal
@@ -92,7 +92,7 @@ static uint8 type_to_pri[256]=
 	255, 255, 255, 255, 255, 255, 255, 255,
 	moving_obj_pri,	// pedestrians
 	moving_obj_pri,	// city cars
-	moving_obj_pri,	// road vehilce
+	moving_obj_pri,	// road vehicle
 	moving_obj_pri,	// rail vehicle
 	moving_obj_pri,	// monorail
 	moving_obj_pri,	// maglev
@@ -255,7 +255,7 @@ bool objlist_t::grow_capacity()
 
 void objlist_t::shrink_capacity(uint8 o_top)
 {
-	// strategy: avoid free'ing mem if not neccesary. Only if we hold lots of memory then free it.
+	// strategy: avoid freeing mem if not needed. Only if we hold lots of memory then free it.
 	// this is almost only called when deleting ways in practice
 	if(  capacity > 16  &&  o_top <= 4  ) {
 		set_capacity(o_top);
@@ -310,7 +310,7 @@ bool objlist_t::intern_add_moving(obj_t* new_obj)
 		if(new_obj->get_welt()->get_settings().is_drive_left()) {
 
 			// driving on left side
-			if(fahrtrichtung<4) {	// nord, nordwest
+			if(fahrtrichtung<4) {	// north, northwest
 
 				if((fahrtrichtung&(~ribi_t::suedost))==0) {
 					// if we are going east we must be drawn as the first in east direction
@@ -334,7 +334,7 @@ bool objlist_t::intern_add_moving(obj_t* new_obj)
 			else {
 				// going south, west or the rest
 				if((fahrtrichtung&(~ribi_t::suedost))==0) {
-					// if we are going south or southeast we must be drawn as the first in east direction (after nord and nordeast)
+					// if we are going south or southeast we must be drawn as the first in east direction (after north and northeast)
 					for(uint8 i=start;  i<end;  i++  ) {
 						if (obj_t const* const dt = obj.some[i]) {
 							if (vehikel_basis_t const* const v = obj_cast<vehikel_basis_t>(dt)) {
@@ -353,11 +353,11 @@ bool objlist_t::intern_add_moving(obj_t* new_obj)
 		}
 		else {
 			// driving on right side
-			if(fahrtrichtung<4) {	// nord, ost, nordost
+			if(fahrtrichtung<4) {	// north, east, northeast
 
 				if((fahrtrichtung&(~ribi_t::suedost))==0) {
 
-					// if we are going east we must be drawn as the first in east direction (after nord and nordeast)
+					// if we are going east we must be drawn as the first in east direction (after north and northeast)
 					for(uint8 i=start;  i<end;  i++  ) {
 						if( (((const vehikel_t*)obj.some[i])->get_fahrtrichtung()&ribi_t::nordost)!=0) {
 							intern_insert_at(new_obj, i);
@@ -387,7 +387,7 @@ bool objlist_t::intern_add_moving(obj_t* new_obj)
 							return true;
 						}
 					}
-					// nothing going to nordeast
+					// nothing going to northeast
 					intern_insert_at(new_obj, end);
 					return true;
 				}
@@ -513,7 +513,7 @@ bool objlist_t::add(obj_t* new_obj)
 
 
 // take the thing out from the list
-// use this only for temperary removing
+// use this only for temporary removing
 // since it does not shrink list or checks for ownership
 obj_t *objlist_t::remove_last()
 {
@@ -881,7 +881,7 @@ void objlist_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 
 				case obj_t::bahndepot:
 				{
-					// for compatibilty reasons we may have to convert them to tram and monorail depots
+					// for compatibility reasons we may have to convert them to tram and monorail depots
 					bahndepot_t*                   bd;
 					gebaeude_t                     gb(welt, file);
 					haus_tile_besch_t const* const tile = gb.get_tile();
@@ -1008,7 +1008,7 @@ void objlist_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				// only factories can smoke; but then, the smoker is reinstated after loading
 				case obj_t::raucher: { raucher_t(welt, file); break; }
 
-				// wolke is not saved anymore
+				// wolke is not saved any more
 				case obj_t::sync_wolke: { wolke_t(welt, file); break; }
 				case obj_t::async_wolke: { async_wolke_t(welt, file); break; }
 
@@ -1037,7 +1037,7 @@ void objlist_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 	}
 	else {
 		/* here is the saving part ...
-		 * first: construct a list of stuff really neded to save
+		 * first: construct a list of stuff really needed to save
 		 */
 		obj_t *save[256];
 		sint32 max_object_index = 0;
@@ -1144,7 +1144,7 @@ void objlist_t::display_obj_quick_and_dirty( const sint16 xpos, const sint16 ypo
 	}
 
 	for(  uint8 n = start_offset;  n < top;  n++  ) {
-		// ist dort ein objekt ?
+		// is there an object ?
 #ifdef MULTI_THREAD
 		obj.some[n]->display( xpos, ypos, clip_num );
 #else
@@ -1386,7 +1386,7 @@ void objlist_t::display_obj_overlay(const sint16 xpos, const sint16 ypos) const
 #endif
 
 
-// start next month (good for toogling a seasons)
+// start next month (good for toggling seasons)
 void objlist_t::check_season(const long month)
 {
 	if(  0 == top  ) {
@@ -1404,7 +1404,7 @@ void objlist_t::check_season(const long month)
 		}
 	}
 	else {
-		// only here loeschen list is needed!
+		// only here delete list is needed!
 		slist_tpl<obj_t *>to_remove;
 
 		for(  uint8 i=0;  i<top;  i++  ) {
@@ -1414,7 +1414,7 @@ void objlist_t::check_season(const long month)
 			}
 		}
 
-		// delete all objects, which do not want to step anymore
+		// delete all objects, which do not want to step any more
 		while(  !to_remove.empty()  ) {
 			delete to_remove.remove_first();
 		}

@@ -56,7 +56,7 @@ private:
 	 */
 	bool load_script(const char* filename);
 
-	/// is set, if an error occured during loading of savegame
+	/// is set, if an error occurred during loading of savegame
 	/// e.g. re-starting of scenario failed due to script error
 	bool rdwr_error;
 

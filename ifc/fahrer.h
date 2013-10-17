@@ -1,5 +1,5 @@
 /*
- * Interface für Verbindung von Fahrzeugen mit der Route
+ * Interface to connect the vehicle with its route
  *
  * 15.01.00, Hj. Malthaner
  */
@@ -11,7 +11,7 @@
 class grund_t;
 
 /**
- * Interface für Verbindung von Fahrzeugen mit der Route.
+ * Interface to connect the vehicle with its route
  *
  * @author Hj. Malthaner, 15.01.00
  */
@@ -23,8 +23,8 @@ public:
 	virtual bool ist_befahrbar(const grund_t* ) const = 0;
 
 	/**
-	 * Ermittelt die für das Fahrzeug geltenden Richtungsbits,
-	 * abhängig vom Untergrund.
+	 * Determine the direction bits (ribi) for the applicable vehicle,
+	 * Depends of the ground type.
 	 *
 	 * @author Hj. Malthaner, 03.01.01
 	 */

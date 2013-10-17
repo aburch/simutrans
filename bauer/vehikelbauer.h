@@ -42,7 +42,7 @@ public:
 	static const vehikel_besch_t * get_info(const char *name);
 	static slist_tpl<vehikel_besch_t const*>& get_info(waytype_t);
 
-	/* extended sreach for vehicles for KI
+	/* extended search for vehicles for KI
 	* @author prissi
 	*/
 	static const vehikel_besch_t *vehikel_search(waytype_t typ,const uint16 month_now,const uint32 target_power,const sint32 target_speed, const ware_besch_t * target_freight, bool include_electric, bool not_obsolete );

@@ -231,7 +231,7 @@ public:
 	}
 
 	// Now rect/rect functions: First check if rect is completely surrounded by this
-	// maybe surrounds woudl be a better name, but contains seems more consitent
+	// maybe surrounds would be a better name, but contains seems more consistent
 	bool contains( const scr_rect& rect ) const {
 		return (  x <= rect.x  &&  x+w >= rect.x+rect.w  &&  y <= rect.y  &&  y+h >= rect.y+rect.h  );
 	}
@@ -255,7 +255,7 @@ public:
 
 	/* reduces the current rect to the overlapping area of two rect
 	 * in case of no overlap the new size is negative
-	 * (prissi: imho this could rather return a new rect)
+	 * (prissi: in my humble opinion this could rather return a new rect)
 	 */
 	void clip( const scr_rect clip_rect ) {
 		x = max(x, clip_rect.x);

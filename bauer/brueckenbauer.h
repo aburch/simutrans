@@ -41,7 +41,7 @@ public:
 	 * @param pos  the position of the start of the bridge
 	 * @param zv   desired direction of the bridge
 	 * @param besch the description of the bridge
-	 * @param error_msg an error mesage when the search fails.
+	 * @param error_msg an error message when the search fails.
 	 * @param ai_bridge if this bridge is being built by an AI
 	 * @param min_length the minimum length of the bridge.
 	 * @return the position of the other end of the bridge or koord3d::invalid if no possible end is found
@@ -102,7 +102,7 @@ public:
 	 * This is the main construction routine.
 	 *
 	 * @param welt the current world
-	 * @param sp The player wantig to build the bridge.
+	 * @param sp The player wanting to build the bridge.
 	 * @param pos the start of the bridge.
 	 * @param besch Description of the bridge to build
 	 * @return NULL on success or error message otherwise

@@ -69,13 +69,13 @@ bool schedule_t::ist_halt_erlaubt(const grund_t *gr) const
 			ok = true;
 		}
 		else if(  my_waytype==tram_wt  ) {
-			// tram rails are track iternally
+			// tram rails are track internally
 			ok = gr->hat_weg(track_wt);
 		}
 	}
 
 	if(  ok  ) {
-		// ok, we can go here; but we must also check, that we are not entring a foreign depot
+		// ok, we can go here; but we must also check, that we are not entering a foreign depot
 		depot_t *dp = gr->get_depot();
 		ok &= (dp==NULL  ||  (int)dp->get_tile()->get_besch()->get_extra()==my_waytype);
 	}
@@ -123,7 +123,7 @@ halthandle_t schedule_t::get_prev_halt( spieler_t *sp ) const
 
 bool schedule_t::insert(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_shift )
 {
-	// stored in minivec, so wie have to avoid adding too many
+	// stored in minivec, so we have to avoid adding too many
 	if(  eintrag.get_count()>=254  ) {
 		create_win( new news_img("Maximum 254 stops\nin a schedule!\n"), w_time_delete, magic_none);
 		return false;
@@ -145,7 +145,7 @@ bool schedule_t::insert(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_sh
 
 bool schedule_t::append(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_shift)
 {
-	// stored in minivec, so wie have to avoid adding too many
+	// stored in minivec, so we have to avoid adding too many
 	if(eintrag.get_count()>=254) {
 		create_win( new news_img("Maximum 254 stops\nin a schedule!\n"), w_time_delete, magic_none);
 		return false;
@@ -177,14 +177,14 @@ void schedule_t::cleanup()
 	// now we have to check all entries ...
 	for(  uint8 i=0;  i<eintrag.get_count();  i++  ) {
 		if(  eintrag[i].pos == lastpos  ) {
-			// ingore double entries just one after the other
+			// ignore double entries just one after the other
 			eintrag.remove_at(i);
 			if(  i<aktuell  ) {
 				aktuell --;
 			}
 			i--;
 		} else if(  eintrag[i].pos == koord3d::invalid  ) {
-			// ingore double entries just one after the other
+			// ignore double entries just one after the other
 			eintrag.remove_at(i);
 		}
 		else {
@@ -280,7 +280,7 @@ void schedule_t::rotate90( sint16 y_size )
 
 
 /*
- * compare this fahrplan with another, passed in fahrplan
+ * compare this schedule (fahrplan) with another, passed in fahrplan
  * @author hsiegeln
  */
 bool schedule_t::matches(karte_t *welt, const schedule_t *fpl)
@@ -347,7 +347,7 @@ public:
 
 
 /*
- * compare this fahrplan with another, ignoring order and exact positions and waypoints
+ * compare this schedule (fahrplan) with another, ignoring order and exact positions and waypoints
  * @author prissi
  */
 bool schedule_t::similar( karte_t *welt, const schedule_t *fpl, const spieler_t *sp )

@@ -79,7 +79,7 @@ void *display_region_thread( void *ptr )
 /* The following mutex is only needed for smart cursor */
 // mutex for changing settings on hiding buildings/trees
 static pthread_mutex_t hide_mutex = PTHREAD_MUTEX_INITIALIZER;
-static bool threads_req_pause = false;  // set true to pause all threads to display smartcursor reqion single threaded
+static bool threads_req_pause = false;  // set true to pause all threads to display smartcursor region single threaded
 static uint8 num_threads_paused = 0; // number of threads in the paused state
 static pthread_cond_t hiding_cond = PTHREAD_COND_INITIALIZER;
 static pthread_cond_t waiting_cond = PTHREAD_COND_INITIALIZER;

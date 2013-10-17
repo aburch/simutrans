@@ -46,7 +46,7 @@ bool env_t::pause_server_no_clients = false;
 
 std::string env_t::nickname = "";
 
-// this is explicitely and interactively set by user => we do not touch it in init
+// this is explicitly and interactively set by user => we do not touch it in init
 const char *env_t::language_iso = "en";
 sint16 env_t::scroll_multi = 1;
 sint16 env_t::global_volume = 127;
@@ -123,7 +123,7 @@ uint8 env_t::bottom_window_bar_color;
 uint8 env_t::bottom_window_text_color;
 
 
-// Hajo: hier Standardwerte belegen.
+// Hajo: Define default settings.
 void env_t::init()
 {
 	// settings for messages
@@ -163,7 +163,7 @@ void env_t::init()
 	second_open_closes_win = false;
 	remember_window_positions = true;
 
-	// debug level (0: only fatal, 1: error, 2: warning, 3: alles
+	// debug level (0: only fatal, 1: error, 2: warning, 3: all
 	verbose_debug = 0;
 
 	default_sortmode = 1;	// sort by amount

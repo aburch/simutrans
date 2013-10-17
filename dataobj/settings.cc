@@ -57,7 +57,7 @@ settings_t::settings_t() :
 
 	// default climate zones
 	set_default_climates( );
-	winter_snowline = 7;	// not mediterran
+	winter_snowline = 7;	// not mediterranean
 	grundwasser = -2;            //25-Nov-01        Markus Weber    Added
 
 	max_mountain_height = 160;                  //can be 0-160.0  01-Dec-01        Markus Weber    Added
@@ -75,7 +75,7 @@ settings_t::settings_t() :
 	forest_base_size = 36; 	// Base forest size - minimal size of forest - map independent
 	forest_map_size_divisor = 38;	// Map size divisor - smaller it is the larger are individual forests
 	forest_count_divisor = 16;	// Forest count divisor - smaller it is, the more forest are generated
-	forest_inverse_spare_tree_density = 5;	// Determins how often are spare trees going to be planted (works inversly)
+	forest_inverse_spare_tree_density = 5;	// Determines how often are spare trees going to be planted (works inversely)
 	max_no_of_trees_on_square = 3;	// Number of trees on square 2 - minimal usable, 3 good, 5 very nice looking
 	tree_climates = 0;	// bit set, if this climate is to be covered with trees entirely
 	no_tree_climates = 0;	// bit set, if this climate is to be void of random trees
@@ -83,7 +83,7 @@ settings_t::settings_t() :
 
 	lake = true;	// if set lakes will be added to map
 
-	// some settigns more
+	// some settings more
 	allow_player_change = true;
 	use_timeline = 2;
 	starting_year = 1930;
@@ -106,7 +106,7 @@ settings_t::settings_t() :
 	goods_multiplier = 20;
 	electricity_multiplier = 0;
 
-	// Also there are size dependen factors (0 causes crash !)
+	// Also there are size dependent factors (0 causes crash !)
 	growthfactor_small = 400;
 	growthfactor_medium = 200;
 	growthfactor_large = 100;
@@ -213,7 +213,7 @@ settings_t::settings_t() :
 		startingmoneyperyear[i].interpol = 0;
 	}
 
-	// six month time frame for starting first conovi
+	// six month time frame for starting first convoi
 	remove_dummy_player_months = 6;
 
 	// off
@@ -260,7 +260,7 @@ settings_t::settings_t() :
 	way_max_bridge_len=15;
 	way_count_leaving_road=25;
 
-	// defualt: joined capacities
+	// default: joined capacities
 	separate_halt_capacities = false;
 
 	// this will pay for distance to next change station
@@ -322,7 +322,7 @@ void settings_t::rdwr(loadsave_t *file)
 		anzahl_staedte = dummy;
 
 		// rest
-		file->rdwr_long(dummy );	// scroll ingnored
+		file->rdwr_long(dummy );	// scroll ignored
 		file->rdwr_long(verkehr_level );
 		file->rdwr_long(show_pax );
 		dummy = grundwasser;
@@ -428,7 +428,7 @@ void settings_t::rdwr(loadsave_t *file)
 			filename = "";
 		}
 
-		// climate corders
+		// climate borders
 		if(file->get_version()>=91000) {
 			for(  int i=0;  i<8;  i++ ) {
 				file->rdwr_short(climate_borders[i] );
@@ -1136,7 +1136,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 		// two arguments, and then factor natural number
 		if(  test[0]==2  ) {
 			if(  test[2]<=0  ) {
-				dbg->error("Parmeter in simuconf.tab wrong!","locality_factor second value must be larger than zero!" );
+				dbg->error("Parameter in simuconf.tab wrong!","locality_factor second value must be larger than zero!" );
 			}
 			else {
 				// insert sorted by years
@@ -1213,7 +1213,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	no_tree_climates = contents.get_int("no_tree_climates", no_tree_climates );
 	no_trees	= contents.get_int("no_trees", no_trees );
 
-	// these are pak specific; the diagonal length affect traveling time (is game critical)
+	// these are pak specific; the diagonal length affect travelling time (is game critical)
 	pak_diagonal_multiplier = contents.get_int("diagonal_multiplier", pak_diagonal_multiplier );
 	// the height in z-direction will only cause pixel errors but not a different behaviour
 	env_t::pak_tile_height_step = contents.get_int("tile_height", env_t::pak_tile_height_step );

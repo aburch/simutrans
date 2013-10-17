@@ -41,7 +41,7 @@ public:
 	 */
 	static const haus_besch_t* elevated_foundation_besch;
 
-	// to allow for an arbitary number, we use lists
+	// to allow for an arbitrary number, we use lists
 	static vector_tpl<const haus_besch_t*> station_building;
 private:
 	static vector_tpl<const haus_besch_t*> headquarter;
@@ -95,7 +95,7 @@ public:
 	static const haus_besch_t* get_residential(int level, uint16 time, climate cl, uint32 clusters = 0);
 
 	/**
-	 * Returns Headquarter with Level level
+	 * Returns Headquarters with Level level
 	 * (takes the first matching one)
 	 * @author Dwachs
 	 */
@@ -144,7 +144,7 @@ public:
 	 */
 	static const haus_besch_t* get_special(uint32 bev, haus_besch_t::utyp utype, uint16 time, bool ignore_retire, climate cl);
 
-	/* use this to remove an arbitary building
+	/* use this to remove an arbitrary building
 	 * it will also take care of factories and foundations
 	 */
 	static void remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb );

@@ -122,7 +122,7 @@ private:
 
 	/**
 	 * If a way is built on top of another way, should the type
-	 * of the former way be kept or replced (true == keep)
+	 * of the former way be kept or replaced (true == keep)
 	 * @author Hj. Malthaner
 	 */
 	bool keep_existing_ways;
@@ -182,7 +182,7 @@ public:
 
 	/**
 	 * If a way is built on top of another way, should the type
-	 * of the former way be kept or replced (true == keep)
+	 * of the former way be kept or replaced (true == keep)
 	 * @author Hj. Malthaner
 	 */
 	void set_keep_existing_ways(bool yesno);

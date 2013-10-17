@@ -50,7 +50,7 @@ public:
 	obj_t * get_leitung() const;
 	obj_t * get_convoi_vehicle() const;
 
-	// show all info about the current liste and its objects
+	// show all info about the current list and its objects
 	void dump() const;
 
 	/**
@@ -87,12 +87,12 @@ public:
 	void sort_trees(uint8 index, uint8 count);
 
 	/**
-	* @return NULL wenn OK, oder Meldung, warum nicht
+	* @return NULL when OK, or message, why not?
 	* @author Hj. Malthaner
 	*/
 	const char * kann_alle_entfernen(const spieler_t *, uint8 ) const;
 
-	/* recalcs all objects onthis tile
+	/* recalcs all objects on this tile
 	* @author prissi
 	*/
 	void calc_bild();
@@ -121,7 +121,7 @@ public:
 	void display_obj_fg(const sint16 xpos, const sint16 ypos, const uint8 start_offset, const bool is_global ) const;
 #endif
 
-	// start next month (good for toogling a seasons)
+	// start next month (good for toggling seasons)
 	void check_season(const long month);
 } GCC_PACKED;
 

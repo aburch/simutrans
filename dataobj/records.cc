@@ -73,7 +73,7 @@ void records_t::notify_record( convoihandle_t cnv, sint32 max_speed, koord k, ui
 
 		// same convoi and same position
 		if(sr->besitzer==NULL  &&  current_month!=sr->year_month) {
-			// notfiy the world of this new record
+			// notify the world of this new record
 			sr->speed = max_speed-1;
 			sr->besitzer = cnv->get_besitzer();
 			const char* text;

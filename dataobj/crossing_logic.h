@@ -29,7 +29,7 @@ public:
 protected:
 	static karte_t *welt;
 
-	// the last vehikel, taht request a closing
+	// the last vehikel, that request a closing
 	const vehikel_basis_t *request_close;
 
 	crossing_state_t zustand;
@@ -47,7 +47,7 @@ public:
 	crossing_logic_t( const kreuzung_besch_t *besch );
 
 	/**
-	 * @return string (only used for debugg at the moment)
+	 * @return string (only used for debug at the moment)
 	 * @author prissi
 	 */
 	void info(cbuffer_t & buf) const;

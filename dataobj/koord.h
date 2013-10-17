@@ -10,7 +10,7 @@ class loadsave_t;
 class scr_coord;
 
 /**
- * 2d Koordinaten
+ * 2D Coordinates
  */
 class koord
 {
@@ -73,7 +73,7 @@ public:
 	static const koord sued;
 	static const koord ost;
 	static const koord west;
-	// die 4 Grundrichtungen als Array
+	// the 4 basic directions as an Array
 	static const koord nsow[4];
 	// 8 next neighbours
 	static const koord neighbours[8];

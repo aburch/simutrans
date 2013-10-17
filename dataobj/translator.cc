@@ -88,7 +88,7 @@ static void dump_hashtable(stringhashtable_tpl<const char*>* tbl)
 }
 #endif
 
-/* first two file fuctions needed in connection with utf */
+/* first two file functions needed in connection with utf */
 
 /* checks, if we need a unicode translation (during load only done for identifying strings like "Auflösen")
  * @date 2.1.2005
@@ -197,7 +197,7 @@ void translator::load_custom_list( int lang, vector_tpl<char *>&name_list, const
 {
 	FILE *file;
 
-	// alle namen aufräumen
+	// Clean up all names
 	FOR(vector_tpl<char*>, const i, name_list) {
 		free(i);
 	}
@@ -451,7 +451,7 @@ bool translator::load(const string &path_to_pakset)
 	// now we try to read the compatibility stuff
 	if (FILE* const file = fopen((path_to_pakset + "compat.tab").c_str(), "rb")) {
 		load_language_file_body(file, &compatibility, false, false);
-		DBG_MESSAGE("translator::load()", "pakset compatibilty texts loaded.");
+		DBG_MESSAGE("translator::load()", "pakset compatibility texts loaded.");
 		fclose(file);
 	}
 	else {

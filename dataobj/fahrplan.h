@@ -54,7 +54,7 @@ public:
 	virtual waytype_t get_waytype() const = 0;
 
 	/**
-	* get current stop of fahrplan
+	* get current stop of the schedule (fahrplan)
 	* @author hsiegeln
 	*/
 	uint8 get_aktuell() const { return aktuell; }
@@ -79,7 +79,7 @@ private:
 
 public:
 	/**
-	 * set the current stop of the fahrplan
+	 * set the current stop of the schedule (fahrplan)
 	 * if new value is bigger than stops available, the max stop will be used
 	 * @author hsiegeln
 	 */

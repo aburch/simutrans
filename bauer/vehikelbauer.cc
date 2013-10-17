@@ -45,7 +45,7 @@ public:
 	}
 };
 
-// speed boni
+// speed bonus
 static vector_tpl<bonus_record_t>speedbonus[8];
 
 static sint32 default_speedbonus[8] =
@@ -188,7 +188,7 @@ vehikel_t* vehikelbauer_t::baue(koord3d k, spieler_t* sp, convoi_t* cnv, const v
 
 bool vehikelbauer_t::register_besch(const vehikel_besch_t *besch)
 {
-	// register waytype liste
+	// register waytype list
 	const int idx = GET_WAYTYPE_INDEX( besch->get_waytype() );
 
 	const vehikel_besch_t *old_besch = name_fahrzeuge.get( besch->get_name() );
@@ -286,8 +286,8 @@ slist_tpl<vehikel_besch_t const*>& vehikelbauer_t::get_info(waytype_t const typ)
 }
 
 
-/* extended sreach for vehicles for KI *
- * checks also timeline and contraits
+/* extended search for vehicles for KI *
+ * checks also timeline and constraints
  * tries to get best with but adds a little random action
  * @author prissi
  */
@@ -297,7 +297,7 @@ const vehikel_besch_t *vehikelbauer_t::vehikel_search( waytype_t wt, const uint1
 	long besch_index=-100000;
 
 	if(  target_freight==NULL  &&  target_weight==0  ) {
-		// no power, no freight => no vehikel to search
+		// no power, no freight => no vehicle to search
 		return NULL;
 	}
 
@@ -318,7 +318,7 @@ const vehikel_besch_t *vehikelbauer_t::vehikel_search( waytype_t wt, const uint1
 			}
 		}
 
-		// check for wegetype/too new
+		// check for waytype too
 		if(test_besch->get_waytype()!=wt  ||  test_besch->is_future(month_now)  ) {
 			continue;
 		}
@@ -336,17 +336,17 @@ const vehikel_besch_t *vehikelbauer_t::vehikel_search( waytype_t wt, const uint1
 			}
 
 			sint32 difference=0;	// smaller is better
-			// assign this vehicle, if we have none found one yet, or we found only a too week one
+			// assign this vehicle if we have not found one yet, or we only found one too weak
 			if(  besch!=NULL  ) {
-				// it is cheaper to run? (this is most important)
+				// is it cheaper to run? (this is most important)
 				difference += (besch->get_zuladung()*1000)/(1+besch->get_betriebskosten()) < (test_besch->get_zuladung()*1000)/(1+test_besch->get_betriebskosten()) ? -20 : 20;
 				if(  target_weight>0  ) {
-					// it is strongerer?
+					// is it stronger?
 					difference += (besch->get_leistung()*besch->get_gear())/64 < power ? -10 : 10;
 				}
-				// it is faster? (although we support only up to 120km/h for goods)
+				// is it faster? (although we support only up to 120km/h for goods)
 				difference += (besch->get_geschw() < test_besch->get_geschw())? -10 : 10;
-				// it is cheaper? (not so important)
+				// is it cheaper? (not so important)
 				difference += (besch->get_preis() > test_besch->get_preis())? -5 : 5;
 				// add some malus for obsolete vehicles
 				if(test_besch->is_retired(month_now)) {
@@ -376,7 +376,7 @@ const vehikel_besch_t *vehikelbauer_t::vehikel_search( waytype_t wt, const uint1
 			if(speed < target_speed) {
 				current_index -= 250;
 			}
-			// too weak to to reach full speed?
+			// too weak to reach full speed?
 			if(  max_weight < target_weight+test_besch->get_gewicht()/1000  ) {
 				current_index += max_weight - (sint32)(target_weight+test_besch->get_gewicht()/1000);
 			}
@@ -428,7 +428,7 @@ const vehikel_besch_t *vehikelbauer_t::get_best_matching( waytype_t wt, const ui
 			continue;
 		}
 
-		// check for wegetype/too new
+		// check for waytype too
 		if(test_besch->get_waytype()!=wt  ||  test_besch->is_future(month_now)  ) {
 			continue;
 		}
@@ -458,17 +458,17 @@ const vehikel_besch_t *vehikelbauer_t::get_best_matching( waytype_t wt, const ui
 			}
 
 			sint32 difference=0;	// smaller is better
-			// assign this vehicle, if we have none found one yet, or we found only a too week one
+			// assign this vehicle if we have not found one yet, or we only found one too weak
 			if(  besch!=NULL  ) {
-				// it is cheaper to run? (this is most important)
+				// is it cheaper to run? (this is most important)
 				difference += (besch->get_zuladung()*1000)/(1+besch->get_betriebskosten()) < (test_besch->get_zuladung()*1000)/(1+test_besch->get_betriebskosten()) ? -20 : 20;
 				if(  target_weight>0  ) {
-					// it is strongerer?
+					// is it stronger?
 					difference += (besch->get_leistung()*besch->get_gear())/64 < power ? -10 : 10;
 				}
-				// it is faster? (although we support only up to 120km/h for goods)
+				// is it faster? (although we support only up to 120km/h for goods)
 				difference += (besch->get_geschw() < test_besch->get_geschw())? -10 : 10;
-				// it is cheaper? (not so important)
+				// is it cheaper? (not so important)
 				difference += (besch->get_preis() > test_besch->get_preis())? -5 : 5;
 				// add some malus for obsolete vehicles
 				if(test_besch->is_retired(month_now)) {
@@ -493,7 +493,7 @@ const vehikel_besch_t *vehikelbauer_t::get_best_matching( waytype_t wt, const ui
 			if(speed < target_speed) {
 				current_index -= 250;
 			}
-			// too weak to to reach full speed?
+			// too weak to reach full speed?
 			if(  max_weight < target_weight+test_besch->get_gewicht()/1000  ) {
 				current_index += max_weight - (sint32)(target_weight+test_besch->get_gewicht()/1000);
 			}

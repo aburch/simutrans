@@ -4,7 +4,7 @@
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
  *
- * Strassen- und Schienenbau
+ * Ways (Roads, Railways, etc.)
  *
  * Hj. Malthaner
  */
@@ -162,7 +162,7 @@ bool wegbauer_t::register_besch(weg_besch_t *besch)
 const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const sint32 speed_limit, const uint16 time, const weg_t::system_type system_type)
 {
 	const weg_besch_t* best = NULL;
-	bool best_allowed = false; // Does the best way fulfill the timeline?
+	bool best_allowed = false; // Does the best way fulfil the timeline?
 	FOR(stringhashtable_tpl<weg_besch_t const*>, const& i, alle_wegtypen) {
 		weg_besch_t const* const test = i.value;
 		if(  ((test->get_wtyp()==wtyp  &&
@@ -566,7 +566,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 			// building above houses is expensive ... avoid it!
 			*costs += 4;
 		}
-		// up to now 'to' and 'from' refered to the ground one height step below the elevated way
+		// up to now 'to' and 'from' referred to the ground one height step below the elevated way
 		// now get the grounds at the right height
 		koord3d pos = to->get_pos() + koord3d( 0, 0, env_t::pak_height_conversion_factor );
 		grund_t *to2 = welt->lookup(pos);
@@ -1150,7 +1150,7 @@ wegbauer_t::wegbauer_t(karte_t* wl, spieler_t* spl) : next_gr(32)
 
 /**
  * If a way is built on top of another way, should the type
- * of the former way be kept or replced (true == keep)
+ * of the former way be kept or replaced (true == keep)
  * @author Hj. Malthaner
  */
 void wegbauer_t::set_keep_existing_ways(bool yesno)
@@ -1779,7 +1779,7 @@ long ms=dr_time();
 	}
 	else if(bautyp==river) {
 		assert( start.get_count() == 1  &&  ziel.get_count() == 1 );
-		// river only go downards => start and end are clear ...
+		// river only go downwards => start and end are clear ...
 		if(  start[0].z > ziel[0].z  ) {
 			intern_calc_route( start, ziel );
 		}
@@ -1797,7 +1797,7 @@ long ms=dr_time();
 		INT_CHECK("wegbauer 1165");
 
 		if(cost2<0) {
-			// not sucessful: try backwards
+			// not successful: try backwards
 			intern_calc_route(ziel,start);
 			return;
 		}
@@ -2186,7 +2186,7 @@ void wegbauer_t::baue_strasse()
 				// we take ownership => we take care to maintain the roads completely ...
 				spieler_t *s = weg->get_besitzer();
 				spieler_t::add_maintenance(s, -weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype());
-				// cost is the more expensive one, so downgrading is between removing and new buidling
+				// cost is the more expensive one, so downgrading is between removing and new building
 				cost -= max( weg->get_besch()->get_preis(), besch->get_preis() );
 				weg->set_besch(besch);
 				// respect max speed of catenary
@@ -2207,9 +2207,9 @@ void wegbauer_t::baue_strasse()
 			str->set_gehweg(add_sidewalk);
 			cost = -gr->neuen_weg_bauen(str, route.get_short_ribi(i), sp)-besch->get_preis();
 
-			// prissi: into UNDO-list, so wie can remove it later
+			// prissi: into UNDO-list, so we can remove it later
 			if(sp!=NULL) {
-				// intercity raods have no owner, so we must check for an owner
+				// intercity roads have no owner, so we must check for an owner
 				sp->add_undo( route[i] );
 			}
 		}
@@ -2307,7 +2307,7 @@ void wegbauer_t::baue_schiene()
 					}
 				}
 
-				// prissi: into UNDO-list, so wie can remove it later
+				// prissi: into UNDO-list, so we can remove it later
 				sp->add_undo( route[i] );
 			}
 
@@ -2348,7 +2348,7 @@ void wegbauer_t::baue_leitung()
 			lt = new leitung_t( welt, route[i], sp );
 			gr->obj_add(lt);
 
-			// prissi: into UNDO-list, so wie can remove it later
+			// prissi: into UNDO-list, so we can remove it later
 			sp->add_undo( route[i] );
 			build_powerline = true;
 		}
@@ -2389,7 +2389,7 @@ class fluss_fahrer_t : public fahrer_t
 // make a river
 void wegbauer_t::baue_fluss()
 {
-	/* since the contraints of the wayfinder ensures that a river flows always downwards
+	/* since the constraints of the wayfinder ensures that a river flows always downwards
 	 * we can assume that the first tiles are the ocean.
 	 * Usually the wayfinder would find either direction!
 	 * route.front() tile at the ocean, route.back() the spring of the river
@@ -2403,7 +2403,7 @@ void wegbauer_t::baue_fluss()
 		}
 	}
 	if(  start_n == get_count()-1  ) {
-		// completly joined another river => nothing to do
+		// completely joined another river => nothing to do
 		return;
 	}
 
@@ -2466,7 +2466,7 @@ void wegbauer_t::baue_fluss()
 				if (weg_t* const w = welt->lookup(i)->get_weg(water_wt)) {
 					int type;
 					for(  type=env_t::river_types-1;  type>0;  type--  ) {
-						// llokup type
+						// lookup type
 						if(  w->get_besch()==alle_wegtypen.get(env_t::river_type[type])  ) {
 							break;
 						}
@@ -2502,7 +2502,7 @@ long ms=dr_time();
 		// do the terraforming
 		do_terraforming();
 	}
-	// first add all new underground tiles ... (and finished if sucessful)
+	// first add all new underground tiles ... (and finished if successful)
 	if(bautyp&tunnel_flag) {
 		baue_tunnelboden();
 		return;

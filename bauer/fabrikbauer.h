@@ -28,7 +28,7 @@ class fabrikbauer_t
 {
 private:
 
-	// nedded for crossconnections checks
+	// needed for cross-connections checks
 	class fabs_to_crossconnect_t {
 	public:
 		fabrik_t *fab;
@@ -56,7 +56,7 @@ public:
 	 */
 	static void neue_karte( karte_t * );
 
-	/* Create a certain numer of tourist attractions
+	/* Create a certain number of tourist attractions
 	 * @author prissi
 	 */
 	static void verteile_tourist(karte_t* welt, int max_number);
@@ -89,7 +89,7 @@ public:
 	static int baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, sint32 initial_prod_base, int rotate, koord3d* pos, spieler_t* sp, int number_of_chains );
 
 	/**
-	 * Helper function for baue_hierachie(): builts the connections (chain) for one single product)
+	 * Helper function for baue_hierachie(): builds the connections (chain) for one single product)
 	 * @return: Anzahl gebauter Fabriken
 	 */
 	static int baue_link_hierarchie(const fabrik_t* our_fab, const fabrik_besch_t* info, int lieferant_nr, spieler_t* sp);
@@ -104,7 +104,7 @@ public:
 
 
 private:
-	// bauhilfen
+	// find random space to place factory
 	static koord3d finde_zufallsbauplatz(karte_t *welt, koord3d pos, int radius, koord groesse,bool on_water, const haus_besch_t *besch, bool ignore_climates);
 
 	// check, if we have to rotate the factories before building this tree

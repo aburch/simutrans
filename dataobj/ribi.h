@@ -30,7 +30,7 @@ public:
 	 * Bit 2 is set if northeast corner is raised
 	 * Bit 3 is set if northwest corner is raised
 	 *
-	 * Dont get confused - the southern/southward slope has its northern corners raised
+	 * Don't get confused - the southern/southward slope has its northern corners raised
 	 */
 	typedef sint8 typ;
 	/*
@@ -55,18 +55,18 @@ public:
 
 	enum _typ {
 		flach=0,
-		nord = 3+1, 	    // Nordhang
-		west = 9+3, 	    // Westhang
-		ost = 27+1,	    // Osthang
-		sued = 27+9,	    // Suedhang
+		nord = 3+1, 	    // North slope
+		west = 9+3, 	    // West slope
+		ost = 27+1,	    // East slope
+		sued = 27+9,	    // South slope
 		nordwest = 27,
 		nordost = 9,
 		suedost = 3,
 		suedwest = 1,
-		erhoben = 80	    // Speziell für Brückenanfänge  (prissi: unsued, I think)
+		erhoben = 80	    // Special for bridge entrances (prissi: unused, I think)
 	};
 
-	// Ein bischen tricky implementiert:
+	// A little tricky implementation:
 	//static bool ist_gegenueber(typ x, typ y) { return ist_einfach(x) && ist_einfach(y) && x + y == 40; }	// unused at present need to extend to cope with double heights
 	static typ gegenueber(typ x) { return ist_einfach(x) ? (x & 7 ? (40 - x) : (80 - x * 2)) : flach; }
 	static typ rotate90(typ x) { return ( ( (x % 3) * 27 ) + ( ( x - (x % 3) ) / 3 ) ); }
@@ -109,7 +109,7 @@ class ribi_t {
 public:
 	/* das enum richtung ist eine verallgemeinerung der richtungsbits auf
 	 * benannte Konstanten; die Werte sind wie folgt zugeordnet
-	 * 1=Nord, 2=Ost, 4=Sued, 8=West
+	 * 1=North, 2=East, 4=South, 8=West
 	 *
 	 * richtungsbits (ribi) koennen 16 Komb. darstellen.
 	 */

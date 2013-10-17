@@ -20,7 +20,7 @@
 
 #define INVALID_RDWR_ID (-1)
 
-// buffer size for read/write - bzip2 gains upto 8M for non-threaded, 1M for threaded. binary, zipped ok with 256K or smaller.
+// buffer size for read/write - bzip2 gains up to 8M for non-threaded, 1M for threaded. binary, zipped ok with 256K or smaller.
 #define LS_BUF_SIZE (1024*1024)
 
 #ifdef MULTI_THREAD
@@ -319,7 +319,7 @@ bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extensi
 	}
 	assert(start<end);
 	tstrncpy(this->pak_extension, start, lengthof(this->pak_extension));
-	// delete trailing path seperator
+	// delete trailing path separator
 	this->pak_extension[strlen(this->pak_extension)-1] = 0;
 
 	version = int_version( savegame_version, NULL, NULL );
@@ -603,7 +603,7 @@ int loadsave_t::fill_buffer(int buf_num)
 		if(  bse==BZ_OK  ) {
 			r = BZ2_bzRead( &bse, fd->bzfp, ls_buf[buf_num], LS_BUF_SIZE);
 			if (  bse != BZ_OK  &&  bse != BZ_STREAM_END  ) {
-				r = -1; // an error occured
+				r = -1; // an error occurred
 			}
 		}
 		else {

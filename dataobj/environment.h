@@ -288,7 +288,7 @@ public:
 	/// if tile-size is less than this value (set by simuconf.tab)
 	static sint16 simple_drawing_default;
 
-	/// always use fast drwing in fast forward
+	/// always use fast drawing in fast forward
 	static bool simple_drawing_fast_forward;
 
 	/// format in which date is shown
