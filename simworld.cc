@@ -4339,8 +4339,8 @@ void karte_t::step_passengers_and_mail(long delta_t)
 
 	// These represent the number of passenger trips and units/packets/bundles of mail posted per unit
 	// of population or mail demand per month, divided by 100. NOTE: This excludes return and onward journeys.
-	const uint32 passenger_trips_per_month_hundredths = calc_adjusted_monthly_figure(200u); 
-	const uint32 mail_packets_per_month_hundredths = calc_adjusted_monthly_figure(10u);
+	const uint32 passenger_trips_per_month_hundredths = calc_adjusted_monthly_figure(settings.get_passenger_trips_per_month_hundredths()); 
+	const uint32 mail_packets_per_month_hundredths = calc_adjusted_monthly_figure(settings.get_mail_packets_per_month_hundredths());
 
 	const uint32 passenger_trips_per_month = max((passenger_origins_weight * passenger_trips_per_month_hundredths) / 100u, 1u);
 	const uint32 mail_packets_per_month = max((mail_weight * mail_packets_per_month_hundredths) / 100u, 1);
