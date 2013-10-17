@@ -7,6 +7,8 @@
 #ifndef simviewport_h
 #define simviewport_h
 
+#include <math.h>
+
 #include "../simtypes.h"
 #include "scr_coord.h"
 #include "../dataobj/koord.h"

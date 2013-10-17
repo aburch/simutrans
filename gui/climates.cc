@@ -96,7 +96,7 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 	cursor.y += LINESPACE+D_V_SPACE;
 
 	// Winter snowline
-	snowline_winter.init( sets->get_winter_snowline(), -10, 24, gui_numberinput_t::AUTOLINEAR, false );
+	snowline_winter.init( sets->get_winter_snowline(), 0-10*grund_besch_t::double_grounds, 32, gui_numberinput_t::AUTOLINEAR, false );
 	snowline_winter.set_pos( koord(L_COLUMN_EDIT, cursor.y) );
 	snowline_winter.set_groesse( koord(edit_width, D_EDIT_HEIGHT) );
 	snowline_winter.add_listener( this );
@@ -112,7 +112,7 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 	sint16 arctic = 0;
 	for(  int i=desert_climate-1;  i<=rocky_climate-1;  i++  ) {
 
-		climate_borders_ui[i].init( sets->get_climate_borders()[i+1], 0-10*grund_besch_t::double_grounds, 24, gui_numberinput_t::AUTOLINEAR, false );
+		climate_borders_ui[i].init( sets->get_climate_borders()[i+1], 0-10*grund_besch_t::double_grounds, 32, gui_numberinput_t::AUTOLINEAR, false );
 		climate_borders_ui[i].set_pos( koord(L_COLUMN_EDIT, cursor.y) );
 		climate_borders_ui[i].set_groesse( koord(edit_width, D_EDIT_HEIGHT) );
 		climate_borders_ui[i].add_listener( this );
