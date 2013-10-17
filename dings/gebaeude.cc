@@ -146,6 +146,10 @@ gebaeude_t::gebaeude_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_til
 	{
 		people.population = tile->get_besch()->get_population_and_visitor_demand_capacity() == 65535 ? tile->get_besch()->get_level() * welt->get_settings().get_population_per_level() : tile->get_besch()->get_population_and_visitor_demand_capacity();
 		adjusted_people.population = welt->calc_adjusted_monthly_figure(people.population);
+		if(people.population > 0 && adjusted_people.population == 0)
+		{
+			adjusted_people.population = 1;
+		}
 	}
 	else if(tile->get_besch()->get_typ() == industrie)
 	{
@@ -155,13 +159,26 @@ gebaeude_t::gebaeude_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_til
 	{
 		people.visitor_demand = tile->get_besch()->get_population_and_visitor_demand_capacity() == 65535 ? tile->get_besch()->get_level() * welt->get_settings().get_visitor_demand_per_level() : tile->get_besch()->get_population_and_visitor_demand_capacity();
 		adjusted_people.visitor_demand = welt->calc_adjusted_monthly_figure(people.visitor_demand);
+		if(people.visitor_demand > 0 && adjusted_people.visitor_demand == 0)
+		{
+			adjusted_people.visitor_demand = 1;
+		}
 	}
 	
 	jobs = tile->get_besch()->get_employment_capacity() == 65535 ? (is_monument() || tile->get_besch()->get_typ() == wohnung) ? 0 : tile->get_besch()->get_level() * welt->get_settings().get_jobs_per_level() : tile->get_besch()->get_employment_capacity();
 	mail_demand = tile->get_besch()->get_mail_demand_and_production_capacity() == 65535 ? is_monument() ? 0 : tile->get_besch()->get_level() * welt->get_settings().get_mail_per_level() : tile->get_besch()->get_mail_demand_and_production_capacity();
 
 	adjusted_jobs = welt->calc_adjusted_monthly_figure(jobs);
+	if(jobs > 0 && adjusted_jobs == 0)
+	{
+		adjusted_jobs = 1;
+	}
+
 	adjusted_mail_demand = welt->calc_adjusted_monthly_figure(mail_demand);
+	if(mail_demand > 0 && adjusted_mail_demand == 0)
+	{
+		adjusted_mail_demand = 1;
+	}
 
 	grund_t *gr=welt->lookup(get_pos());
 	if(gr  &&  gr->get_weg_hang()!=gr->get_grund_hang()) {
@@ -1207,25 +1224,42 @@ void gebaeude_t::rdwr(loadsave_t *file)
 		sync = false;
 
 		if(tile->get_besch()->get_typ() == wohnung)
+	{
+		people.population = tile->get_besch()->get_population_and_visitor_demand_capacity() == 65535 ? tile->get_besch()->get_level() * welt->get_settings().get_population_per_level() : tile->get_besch()->get_population_and_visitor_demand_capacity();
+		adjusted_people.population = welt->calc_adjusted_monthly_figure(people.population);
+		if(people.population > 0 && adjusted_people.population == 0)
 		{
-			people.population = tile->get_besch()->get_population_and_visitor_demand_capacity() == 65535 ? tile->get_besch()->get_level() * welt->get_settings().get_population_per_level() : tile->get_besch()->get_population_and_visitor_demand_capacity();
-			adjusted_people.population = welt->calc_adjusted_monthly_figure(people.population);
+			adjusted_people.population = 1;
 		}
-		else if(tile->get_besch()->get_typ() == industrie)
+	}
+	else if(tile->get_besch()->get_typ() == industrie)
+	{
+		people.visitor_demand = adjusted_people.visitor_demand = 0;
+	}
+	else
+	{
+		people.visitor_demand = tile->get_besch()->get_population_and_visitor_demand_capacity() == 65535 ? tile->get_besch()->get_level() * welt->get_settings().get_visitor_demand_per_level() : tile->get_besch()->get_population_and_visitor_demand_capacity();
+		adjusted_people.visitor_demand = welt->calc_adjusted_monthly_figure(people.visitor_demand);
+		if(people.visitor_demand > 0 && adjusted_people.visitor_demand == 0)
 		{
-			people.visitor_demand = adjusted_people.visitor_demand = 0;
+			adjusted_people.visitor_demand = 1;
 		}
-		else
-		{
-			people.visitor_demand = tile->get_besch()->get_population_and_visitor_demand_capacity() == 65535 ? tile->get_besch()->get_level() * welt->get_settings().get_visitor_demand_per_level() : tile->get_besch()->get_population_and_visitor_demand_capacity();
-			adjusted_people.visitor_demand = welt->calc_adjusted_monthly_figure(people.visitor_demand);
-		}
+	}
 	
-		jobs = tile->get_besch()->get_employment_capacity() == 65535 ? (is_monument() || tile->get_besch()->get_typ() == wohnung) ? 0 : tile->get_besch()->get_level() * welt->get_settings().get_jobs_per_level() : tile->get_besch()->get_employment_capacity();
-		mail_demand = tile->get_besch()->get_mail_demand_and_production_capacity() == 65535 ? is_monument() ? 0 : tile->get_besch()->get_level() * welt->get_settings().get_mail_per_level() : tile->get_besch()->get_mail_demand_and_production_capacity();
+	jobs = tile->get_besch()->get_employment_capacity() == 65535 ? (is_monument() || tile->get_besch()->get_typ() == wohnung) ? 0 : tile->get_besch()->get_level() * welt->get_settings().get_jobs_per_level() : tile->get_besch()->get_employment_capacity();
+	mail_demand = tile->get_besch()->get_mail_demand_and_production_capacity() == 65535 ? is_monument() ? 0 : tile->get_besch()->get_level() * welt->get_settings().get_mail_per_level() : tile->get_besch()->get_mail_demand_and_production_capacity();
 
-		adjusted_jobs = welt->calc_adjusted_monthly_figure(jobs);
-		adjusted_mail_demand = welt->calc_adjusted_monthly_figure(mail_demand);
+	adjusted_jobs = welt->calc_adjusted_monthly_figure(jobs);
+	if(jobs > 0 && adjusted_jobs == 0)
+	{
+		adjusted_jobs = 1;
+	}
+
+	adjusted_mail_demand = welt->calc_adjusted_monthly_figure(mail_demand);
+	if(mail_demand > 0 && adjusted_mail_demand == 0)
+	{
+		adjusted_mail_demand = 1;
+	}
 
 		// Hajo: rebuild tourist attraction list
 		if(tile && tile->get_besch()->ist_ausflugsziel()) 

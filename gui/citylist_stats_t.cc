@@ -136,8 +136,8 @@ void citylist_stats_t::zeichnen(koord offset)
 
 	FORX(vector_tpl<stadt_t*>, const stadt, city_list, offset.y += LINESPACE + 1) {
 
-		sint32 population = stadt->get_einwohner();
-		sint32 growth = stadt->get_wachstum();
+		sint32 population = stadt->get_finance_history_month(0, HIST_CITICENS);
+		sint32 growth = stadt->get_finance_history_month(0, HIST_GROWTH);
 		if(  offset.y + LINESPACE > cl.y  &&  offset.y <= cl.yy  ) {
 			buf.clear();
 			buf.printf( "%s: ", stadt->get_name() );
@@ -161,7 +161,7 @@ void citylist_stats_t::zeichnen(koord offset)
 	// some cities there?
 	if(  total_bev > 0  ) {
 		buf.clear();
-		buf.printf( "%s%u", total_bev_translation, total_bev );
+		buf.printf( "%s %u", total_bev_translation, total_bev);
 		buf.append( " (" );
 		buf.append( total_growth/10.0, 1 );
 		buf.append( ")" );

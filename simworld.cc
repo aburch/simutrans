@@ -4343,7 +4343,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 	const uint32 mail_packets_per_month_hundredths = calc_adjusted_monthly_figure(settings.get_mail_packets_per_month_hundredths());
 
 	const uint32 passenger_trips_per_month = max((passenger_origins_weight * passenger_trips_per_month_hundredths) / 100u, 1u);
-	const uint32 mail_packets_per_month = max((mail_weight * mail_packets_per_month_hundredths) / 100u, 1);
+	const uint32 mail_packets_per_month = max((mail_weight * mail_packets_per_month_hundredths) / 100u, 1u);
 
 	passenger_step_interval = ticks_per_world_month / passenger_trips_per_month;
 	mail_step_interval = ticks_per_world_month / mail_packets_per_month;
@@ -5457,7 +5457,7 @@ void karte_t::restore_history()
 {
 	last_month_bev = -1;
 	for(  int m=12-1;  m>0;  m--  ) {
-		// now step all towns (to generate passengers)
+		// now step all towns
 		sint64 bev=0;
 		sint64 total_pas = 1, trans_pas = 0;
 		sint64 total_mail = 1, trans_mail = 0;

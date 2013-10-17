@@ -1008,8 +1008,10 @@ void stadt_t::update_city_stats_with_building(gebaeude_t* building, bool remove)
 	{
 		city_history_month[0][HIST_CITICENS] -= building->get_population();
 		city_history_year[0][HIST_CITICENS]  -= building->get_population();
+
 		city_history_month[0][HIST_JOBS] -= building->get_jobs();
 		city_history_year[0][HIST_JOBS]  -= building->get_jobs();
+
 		city_history_month[0][HIST_VISITOR_DEMAND] -= building->get_visitor_demand();
 		city_history_year[0][HIST_VISITOR_DEMAND]  -= building->get_visitor_demand();
 	}
@@ -1017,8 +1019,10 @@ void stadt_t::update_city_stats_with_building(gebaeude_t* building, bool remove)
 	{
 		city_history_month[0][HIST_CITICENS] += building->get_population();
 		city_history_year[0][HIST_CITICENS]  += building->get_population();
+
 		city_history_month[0][HIST_JOBS] += building->get_jobs();
 		city_history_year[0][HIST_JOBS]  += building->get_jobs();
+
 		city_history_month[0][HIST_VISITOR_DEMAND] += building->get_visitor_demand();
 		city_history_year[0][HIST_VISITOR_DEMAND]  += building->get_visitor_demand();
 	}
@@ -1722,6 +1726,10 @@ void stadt_t::rdwr(loadsave_t* file)
 		file->rdwr_long(stadtinfo_options);
 	}
 
+	// These will be set later when buildings are added.
+	city_history_month[0][HIST_CITICENS] = 0;
+	city_history_year[0][HIST_CITICENS] = 0;
+
 	if(file->get_version()>99014  &&  file->get_version()<99016) {
 		sint32 dummy = 0;
 		file->rdwr_long(dummy);
@@ -2152,8 +2160,8 @@ void stadt_t::step(long delta_t)
 
 	// update history (might be changed due to construction/destroying of houses)
 
-	city_history_month[0][HIST_GROWTH] = city_history_month[0][HIST_CITICENS]-city_history_month[1][HIST_CITICENS];	// growth
-	city_history_year[0][HIST_GROWTH] = city_history_year[0][HIST_CITICENS]-city_history_year[1][HIST_CITICENS];
+	city_history_month[0][HIST_GROWTH] = city_history_month[0][HIST_CITICENS] - city_history_month[1][HIST_CITICENS];	// growth
+	city_history_year[0][HIST_GROWTH] = city_history_year[0][HIST_CITICENS] - city_history_year[1][HIST_CITICENS];
 
 	city_history_month[0][HIST_BUILDING] = buildings.get_count();
 	city_history_year[0][HIST_BUILDING] = buildings.get_count();
