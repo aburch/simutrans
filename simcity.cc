@@ -1726,9 +1726,12 @@ void stadt_t::rdwr(loadsave_t* file)
 		file->rdwr_long(stadtinfo_options);
 	}
 
-	// These will be set later when buildings are added.
-	city_history_month[0][HIST_CITICENS] = 0;
-	city_history_year[0][HIST_CITICENS] = 0;
+	if(file->is_loading())
+	{
+		// These will be set later when buildings are added.
+		city_history_month[0][HIST_CITICENS] = 0;
+		city_history_year[0][HIST_CITICENS] = 0;
+	}
 
 	if(file->get_version()>99014  &&  file->get_version()<99016) {
 		sint32 dummy = 0;
