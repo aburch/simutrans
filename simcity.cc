@@ -2143,6 +2143,13 @@ void stadt_t::step(long delta_t)
 	// is it time for the next step?
 	next_growth_step += delta_t;
 
+	while(stadt_t::city_growth_step < next_growth_step)
+	{
+        calc_growth();
+        step_grow_city();
+        next_growth_step -= stadt_t::city_growth_step;
+	}
+
 	// update history (might be changed due to construction/destroying of houses)
 
 	city_history_month[0][HIST_GROWTH] = city_history_month[0][HIST_CITICENS]-city_history_month[1][HIST_CITICENS];	// growth
@@ -2585,7 +2592,7 @@ void stadt_t::step_grow_city()
 	// Hajo: let city grow in steps of 1
 	// @author prissi: No growth without development
 	for (int n = 0; n < growth_step; n++) {
-		bev++; // Hajo: bevoelkerung wachsen lassen ("grow population" - Google)
+		bev ++; // Hajo: bevoelkerung wachsen lassen ("grow population" - Google)
 
 		for (int i = 0; i < 30 && bev * 2 > won + arb + 100; i++) {
 			baue(false);
