@@ -1179,9 +1179,23 @@ void karte_t::distribute_cities( settings_t const * const sets, sint16 old_x, si
 		}
 
 		finance_history_year[0][WORLD_TOWNS] = finance_history_month[0][WORLD_TOWNS] = stadt.get_count();
-		finance_history_year[0][WORLD_CITICENS] = finance_history_month[0][WORLD_CITICENS] = passenger_origins.get_sum_weight();
-		finance_history_year[0][WORLD_JOBS] = finance_history_month[0][WORLD_JOBS] = commuter_targets.get_sum_weight();
-		finance_history_year[0][WORLD_VISITOR_DEMAND] = finance_history_month[0][WORLD_VISITOR_DEMAND] = visitor_targets.get_sum_weight();
+		finance_history_year[0][WORLD_CITICENS] = finance_history_month[0][WORLD_CITICENS] = 0;
+		finance_history_year[0][WORLD_JOBS] = finance_history_month[0][WORLD_JOBS] = 0;
+		finance_history_year[0][WORLD_VISITOR_DEMAND] = finance_history_month[0][WORLD_VISITOR_DEMAND] = 0;
+
+		FOR(weighted_vector_tpl<stadt_t*>, const city, stadt) 
+		{
+			finance_history_year[0][WORLD_CITICENS] += city->get_finance_history_month(0, HIST_CITICENS);  
+			finance_history_month[0][WORLD_CITICENS] += city->get_finance_history_year(0, HIST_CITICENS);
+
+			finance_history_month[0][WORLD_JOBS] += city->get_finance_history_month(0, HIST_JOBS);
+			finance_history_year[0][WORLD_JOBS] += city->get_finance_history_year(0, HIST_JOBS);
+
+			finance_history_month[0][WORLD_VISITOR_DEMAND] += city->get_finance_history_month(0, HIST_VISITOR_DEMAND);
+			finance_history_year[0][WORLD_VISITOR_DEMAND] += city->get_finance_history_year(0, HIST_VISITOR_DEMAND);
+		}
+
+		
 
 		// Hajo: connect some cities with roads
 		ls.set_what(translator::translate("Connecting cities ..."));
@@ -4217,7 +4231,7 @@ void karte_t::step()
 	}
 
 
-	// now step all towns (to generate passengers)
+	// now step all towns 
 	DBG_DEBUG4("karte_t::step 6", "step cities");
 	FOR(weighted_vector_tpl<stadt_t*>, const i, stadt) {
 		i->step(delta_t);
@@ -4225,9 +4239,21 @@ void karte_t::step()
 	step_passengers_and_mail(delta_t);
 
 	// the inhabitants stuff
-	finance_history_month[0][WORLD_CITICENS] = passenger_origins.get_sum_weight();
-	finance_history_month[0][WORLD_JOBS] = commuter_targets.get_sum_weight();
-	finance_history_month[0][WORLD_VISITOR_DEMAND] = visitor_targets.get_sum_weight();
+	finance_history_year[0][WORLD_CITICENS] = finance_history_month[0][WORLD_CITICENS] = 0;
+	finance_history_year[0][WORLD_JOBS] = finance_history_month[0][WORLD_JOBS] = 0;
+	finance_history_year[0][WORLD_VISITOR_DEMAND] = finance_history_month[0][WORLD_VISITOR_DEMAND] = 0;
+
+	FOR(weighted_vector_tpl<stadt_t*>, const city, stadt) 
+	{
+		finance_history_year[0][WORLD_CITICENS] += city->get_finance_history_month(0, HIST_CITICENS);
+		finance_history_month[0][WORLD_CITICENS] += city->get_finance_history_year(0, HIST_CITICENS);
+
+		finance_history_month[0][WORLD_JOBS] += city->get_finance_history_month(0, HIST_JOBS);
+		finance_history_year[0][WORLD_JOBS] += city->get_finance_history_year(0, HIST_JOBS);
+
+		finance_history_month[0][WORLD_VISITOR_DEMAND] += city->get_finance_history_month(0, HIST_VISITOR_DEMAND);
+		finance_history_year[0][WORLD_VISITOR_DEMAND] += city->get_finance_history_year(0, HIST_VISITOR_DEMAND);
+	}
 
 	DBG_DEBUG4("karte_t::step", "step factories");
 	FOR(vector_tpl<fabrik_t*>, const f, fab_list) {
@@ -5552,7 +5578,9 @@ void karte_t::update_history()
 	finance_history_year[0][WORLD_FACTORIES] = finance_history_month[0][WORLD_FACTORIES] = fab_list.get_count();
 
 	// now step all towns (to generate passengers)
-	const sint64 bev = passenger_origins.get_sum_weight();
+	sint64 bev = 0;
+	sint64 jobs = 0;
+	sint64 visitor_demand = 0;
 	sint64 total_pas = 1, trans_pas = 0;
 	sint64 total_mail = 1, trans_mail = 0;
 	sint64 total_goods = 1, supplied_goods = 0;
@@ -5560,6 +5588,9 @@ void karte_t::update_history()
 	sint64 total_mail_year = 1, trans_mail_year = 0;
 	sint64 total_goods_year = 1, supplied_goods_year = 0;
 	FOR(weighted_vector_tpl<stadt_t*>, const i, stadt) {
+		bev							+= i->get_finance_history_month(0, HIST_CITICENS);
+		jobs						+= i->get_finance_history_month(0, HIST_JOBS);
+		visitor_demand				+= i->get_finance_history_month(0, HIST_VISITOR_DEMAND);
 		trans_pas					+= i->get_finance_history_month(0, HIST_PAS_TRANSPORTED);
 		total_pas					+= i->get_finance_history_month(0, HIST_PAS_GENERATED);
 		trans_mail					+= i->get_finance_history_month(0, HIST_MAIL_TRANSPORTED);
@@ -5580,10 +5611,10 @@ void karte_t::update_history()
 	// the inhabitants stuff
 	finance_history_year[0][WORLD_TOWNS] = finance_history_month[0][WORLD_TOWNS] = stadt.get_count();
 	finance_history_year[0][WORLD_CITICENS] = finance_history_month[0][WORLD_CITICENS] = bev;
-	finance_history_year[0][WORLD_JOBS] = finance_history_month[0][WORLD_JOBS] = commuter_targets.get_sum_weight();
-	finance_history_year[0][WORLD_VISITOR_DEMAND] = finance_history_month[0][WORLD_VISITOR_DEMAND] = visitor_targets.get_sum_weight();
+	finance_history_year[0][WORLD_JOBS] = finance_history_month[0][WORLD_JOBS] = jobs;
+	finance_history_year[0][WORLD_VISITOR_DEMAND] = finance_history_month[0][WORLD_VISITOR_DEMAND] = visitor_demand;
 	finance_history_month[0][WORLD_GROWTH] = bev - last_month_bev;
-	finance_history_year[0][WORLD_GROWTH] = bev - (finance_history_year[1][WORLD_CITICENS]==0 ? finance_history_month[0][WORLD_CITICENS] : finance_history_year[1][WORLD_CITICENS]);
+	finance_history_year[0][WORLD_GROWTH] = bev - (finance_history_year[1][WORLD_CITICENS] == 0 ? finance_history_month[0][WORLD_CITICENS] : finance_history_year[1][WORLD_CITICENS]);
 
 	// transportation ratio and total number
 	finance_history_month[0][WORLD_PAS_RATIO] = (10000*trans_pas)/total_pas;
