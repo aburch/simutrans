@@ -38,8 +38,8 @@ private:
 	vector_tpl<std::string> paths;     //@< Paths in which this dialog will search for
 
 	const char *suffix;                //@< Extension of the files this dialog will use, can be NULL Can include or not the "." at start, will work on both cases
-	char        ibuf[_MAX_PATH];       //@< Input buffer for the text input component
-	char        searchpath[_MAX_PATH]; //@< Default search path
+	char        ibuf[PATH_MAX];       //@< Input buffer for the text input component
+	char        searchpath[PATH_MAX]; //@< Default search path
 	bool        in_action;             //@< To avoid double mouse action
 	bool        only_directories;      //@< Search for directories (used in pak_selector)
 	bool        searchpath_defined;    //@< Is default path defined?
