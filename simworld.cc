@@ -5798,7 +5798,6 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 			i->laden_abschliessen();
 		}
 	}
-	haltestelle_t::end_load_game();
 
 	// ... before removing dummy stops
 	for(  slist_tpl<halthandle_t>::const_iterator i=haltestelle_t::get_alle_haltestellen().begin(); i!=haltestelle_t::get_alle_haltestellen().end();  ) {
@@ -5821,6 +5820,7 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 			i--;
 		}
 	}
+	haltestelle_t::end_load_game();
 
 	// register all line stops and change line types, if needed
 	for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
