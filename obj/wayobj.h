@@ -38,7 +38,7 @@ private:
 	// direction of this wayobj
 	ribi_t::ribi dir;
 
-	ribi_t::ribi find_next_ribi(const grund_t *start, const koord dir, const waytype_t wt) const;
+	ribi_t::ribi find_next_ribi(const grund_t *start, const ribi_t::ribi dir, const waytype_t wt) const;
 
 
 public:

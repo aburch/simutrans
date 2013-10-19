@@ -232,11 +232,11 @@ void wayobj_t::rotate90()
 
 
 // helper function: gets the ribi on next tile
-ribi_t::ribi wayobj_t::find_next_ribi(const grund_t *start, const koord dir, const waytype_t wt) const
+ribi_t::ribi wayobj_t::find_next_ribi(const grund_t *start, ribi_t::ribi const dir, const waytype_t wt) const
 {
 	grund_t *to;
 	ribi_t::ribi r1 = ribi_t::keine;
-	if(start->get_neighbour(to,wt,ribi_typ(dir))) {
+	if(start->get_neighbour(to,wt,dir)) {
 		const wayobj_t* wo = to->get_wayobj( wt );
 		if(wo) {
 			r1 = wo->get_dir();
@@ -284,43 +284,13 @@ void wayobj_t::calc_bild()
 		if(ribi_t::ist_kurve(dir)  &&  besch->has_diagonal_bild()) {
 			ribi_t::ribi r1 = ribi_t::keine, r2 = ribi_t::keine;
 
-			switch(dir) {
-				case ribi_t::nordost:
-					r1 = find_next_ribi( gr, koord::ost, wt );
-					r2 = find_next_ribi( gr, koord::nord, wt );
-					diagonal =
-						(r1 == ribi_t::suedwest || r2 == ribi_t::suedwest) &&
-						r1 != ribi_t::nordwest &&
-						r2 != ribi_t::suedost;
-				break;
+			// get the ribis of the ways that connect to us
+			// r1 will be 45 degree clockwise ribi (eg nordost->ost), r2 will be anticlockwise ribi (eg nordost->nord)
+			r1 = find_next_ribi( gr, ribi_t::rotate45(dir), wt );
+			r2 = find_next_ribi( gr, ribi_t::rotate45l(dir), wt );
 
-				case ribi_t::suedwest:
-					r1 = find_next_ribi( gr, koord::west, wt );
-					r2 = find_next_ribi( gr, koord::sued, wt );
-					diagonal =
-						(r1 == ribi_t::nordost || r2 == ribi_t::nordost) &&
-						r1 != ribi_t::suedost &&
-						r2 != ribi_t::nordwest;
-					break;
-
-				case ribi_t::nordwest:
-					r1 = find_next_ribi( gr, koord::west, wt );
-					r2 = find_next_ribi( gr, koord::nord, wt );
-					diagonal =
-						(r1 == ribi_t::suedost || r2 == ribi_t::suedost) &&
-						r1 != ribi_t::nordost &&
-						r2 != ribi_t::suedwest;
-				break;
-
-				case ribi_t::suedost:
-					r1 = find_next_ribi( gr, koord::ost, wt );
-					r2 = find_next_ribi( gr, koord::sued, wt );
-					diagonal =
-						(r1 == ribi_t::nordwest || r2 == ribi_t::nordwest) &&
-						r1 != ribi_t::suedwest &&
-						r2 != ribi_t::nordost;
-				break;
-			}
+			// diagonal if r1 or r2 are our reverse and neither one is 90 degree rotation of us
+			diagonal = (r1 == ribi_t::rueckwaerts(dir) || r2 == ribi_t::rueckwaerts(dir)) && r1 != ribi_t::rotate90l(dir) && r2 != ribi_t::rotate90(dir);
 
 			if(diagonal) {
 				// with this, we avoid calling us endlessly
