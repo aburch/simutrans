@@ -24,14 +24,14 @@ void viewport_t::set_viewport_ij_offset( const koord &k )
 koord viewport_t::get_map2d_coord( const koord3d &viewpos ) const
 {
 	// just calculate the offset from the z-position
-	const sint16 raster = get_tile_raster_width();
-	const sint16 new_yoff = tile_raster_scale_y(viewpos.z*TILE_HEIGHT_STEP,raster);
+
+	const sint16 new_yoff = tile_raster_scale_y(viewpos.z*TILE_HEIGHT_STEP,cached_img_size);
 	sint16 lines = 0;
 	if(new_yoff>0) {
-		lines = (new_yoff + (raster/4))/(raster/2);
+		lines = (new_yoff + (cached_img_size/4))/(cached_img_size/2);
 	}
 	else {
-		lines = (new_yoff - (raster/4))/(raster/2);
+		lines = (new_yoff - (cached_img_size/4))/(cached_img_size/2);
 	}
 	return viewpos.get_2d() - koord( lines, lines );
 }
@@ -45,7 +45,7 @@ koord viewport_t::get_viewport_coord( const koord& coord ) const
 
 scr_coord viewport_t::get_screen_coord( const koord3d& pos, const koord& off) const
 {
-	// Historic demotivational comment to be preserved:
+	// Historic disheartening comment to be preserved:
 	// better not try to twist your brain to follow the retransformation ...
 
 	koord scr_pos_2d = get_viewport_coord(pos.get_2d());
@@ -55,7 +55,7 @@ scr_coord viewport_t::get_screen_coord( const koord3d& pos, const koord& off) co
 		+ x_off;
 	const sint16 y = (scr_pos_2d.x+scr_pos_2d.y)*(cached_img_size/4)
 		+ tile_raster_scale_y(off.y-pos.z*TILE_HEIGHT_STEP, cached_img_size)
-		+ ((display_get_width()/cached_img_size)&1)*(cached_img_size/4)
+		+ ((cached_disp_width/cached_img_size)&1)*(cached_img_size/4)
 		+ y_off;
 
 	return scr_coord(x,y);
@@ -71,22 +71,21 @@ scr_coord viewport_t::scale_offset( const koord &value )
 // change the center viewport position
 void viewport_t::change_world_position( koord new_ij, sint16 new_xoff, sint16 new_yoff )
 {
-	const sint16 raster = get_tile_raster_width();
 	// truncate new_xoff, modify new_ij.x
-	new_ij.x -= new_xoff/raster;
-	new_ij.y += new_xoff/raster;
-	new_xoff %= raster;
+	new_ij.x -= new_xoff/cached_img_size;
+	new_ij.y += new_xoff/cached_img_size;
+	new_xoff %= cached_img_size;
 
 	// truncate new_yoff, modify new_ij.y
 	int lines = 0;
 	if(new_yoff>0) {
-		lines = (new_yoff + (raster/4))/(raster/2);
+		lines = (new_yoff + (cached_img_size/4))/(cached_img_size/2);
 	}
 	else {
-		lines = (new_yoff - (raster/4))/(raster/2);
+		lines = (new_yoff - (cached_img_size/4))/(cached_img_size/2);
 	}
 	new_ij -= koord( lines, lines );
-	new_yoff -= (raster/2)*lines;
+	new_yoff -= (cached_img_size/2)*lines;
 
 	//position changed? => update and mark dirty
 	if(new_ij!=ij_off  ||  new_xoff!=x_off  ||  new_yoff!=y_off) {
