@@ -89,11 +89,10 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	update_info();
 
 	scrolly.set_pos(koord(0, offset_below_viewport+D_BUTTON_HEIGHT+D_V_SPACE+6));
-	scrolly.set_bottom_margin(true);
 	add_komponente(&scrolly);
 
-	set_min_windowsize(koord(total_width, D_TITLEBAR_HEIGHT+scrolly.get_pos().y+LINESPACE*5+D_MARGIN_BOTTOM));
-	KOORD_VAL y = min( D_TITLEBAR_HEIGHT+scrolly.get_pos().y+fab_info.get_groesse().y+D_MARGIN_BOTTOM,  display_get_height() - env_t::iconsize.y - 16);
+	set_min_windowsize(koord(total_width, D_TITLEBAR_HEIGHT+scrolly.get_pos().y+LINESPACE*5+D_MARGINS_Y));
+	KOORD_VAL y = min( D_TITLEBAR_HEIGHT+scrolly.get_pos().y+fab_info.get_groesse().y+D_MARGINS_Y,  display_get_height() - env_t::iconsize.y - 16);
 	set_fenstergroesse(koord(D_DEFAULT_WIDTH, y ));
 
 	set_resizemode(diagonal_resize);
@@ -139,7 +138,7 @@ void fabrik_info_t::set_fenstergroesse(koord groesse)
 	input.set_groesse(koord(get_fenstergroesse().x-D_MARGIN_LEFT-D_MARGIN_RIGHT, D_BUTTON_HEIGHT));
 	view.set_pos(koord(get_fenstergroesse().x - view.get_groesse().x - D_MARGIN_RIGHT , D_MARGIN_TOP+D_BUTTON_HEIGHT+D_V_SPACE ));
 
-	scrolly.set_groesse(get_client_windowsize()-scrolly.get_pos()-koord(0,D_MARGIN_BOTTOM));
+	scrolly.set_groesse(get_client_windowsize()-scrolly.get_pos());
 }
 
 
@@ -169,8 +168,8 @@ void fabrik_info_t::zeichnen(koord pos, koord gr)
 	prod_buf.append( translator::translate("units/day") );
 
 	unsigned indikatorfarbe = fabrik_t::status_to_color[fab->get_status()];
-	display_ddd_box_clip(pos.x + view.get_pos().x, pos.y + view.get_pos().y + view.get_groesse().y + D_TITLEBAR_HEIGHT, view.get_groesse().x, 8, MN_GREY0, MN_GREY4);
-	display_fillbox_wh_clip(pos.x + view.get_pos().x + 1, pos.y + view.get_pos().y + view.get_groesse().y + D_TITLEBAR_HEIGHT+1, view.get_groesse().x - 2, 6, indikatorfarbe, true);
+	display_ddd_box_clip(pos.x + view.get_pos().x, pos.y + view.get_pos().y + view.get_groesse().y + D_TITLEBAR_HEIGHT, view.get_groesse().x, D_INDICATOR_HEIGHT, MN_GREY0, MN_GREY4);
+	display_fillbox_wh_clip(pos.x + view.get_pos().x + 1, pos.y + view.get_pos().y + view.get_groesse().y + D_TITLEBAR_HEIGHT+1, view.get_groesse().x - 2, D_INDICATOR_HEIGHT-2, indikatorfarbe, true);
 	KOORD_VAL x_view_pos = D_MARGIN_LEFT;
 	KOORD_VAL x_prod_pos = D_MARGIN_LEFT+proportional_string_width(prod_buf)+10;
 	if(  skinverwaltung_t::electricity->get_bild_nr(0)!=IMG_LEER  ) {
@@ -399,7 +398,6 @@ fabrik_info_t::fabrik_info_t(karte_t *w) :
 	chart_button.add_listener(this);
 	add_komponente(&chart_button);
 
-	scrolly.set_bottom_margin(true);
 	add_komponente(&scrolly);
 
 	const sint16 total_width = D_MARGIN_LEFT + 3*(D_BUTTON_WIDTH + D_H_SPACE) + max( D_BUTTON_WIDTH, view.get_groesse().x ) + D_MARGIN_RIGHT;

@@ -326,8 +326,8 @@ bool gui_numberinput_t::infowin_event(const event_t *ev)
 void gui_numberinput_t::zeichnen(koord offset)
 {
 	koord new_offset = pos+offset;
-	bt_left.zeichnen(new_offset);
 
+	bt_left.zeichnen(new_offset);
 	textinp.display_with_focus( new_offset, (win_get_focus()==this) );
 	bt_right.zeichnen(new_offset);
 

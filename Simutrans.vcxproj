@@ -54,7 +54,7 @@
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NOMINMAX=1;ZLIB_WINAPI;REVISION_FROM_FILE;LITTLE_ENDIAN;DEBUG=3;COLOUR_DEPTH=16;MULTI_TREAD=2;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX=1;ZLIB_WINAPI;REVISION_FROM_FILE;LITTLE_ENDIAN;DEBUG=3;COLOUR_DEPTH=16;MULTI_THREAD=2;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -122,6 +122,7 @@
     <ClCompile Include="display\font.cc" />
     <ClCompile Include="display\simgraph16.cc" />
     <ClCompile Include="display\simview.cc" />
+    <ClCompile Include="display\viewport.cc" />
     <ClCompile Include="gui\components\gui_container.cc" />
     <ClCompile Include="gui\components\gui_convoiinfo.cc" />
     <ClCompile Include="gui\components\gui_image.cc" />
@@ -426,6 +427,7 @@
     <ClInclude Include="display\simgraph.h" />
     <ClInclude Include="display\simimg.h" />
     <ClInclude Include="display\simview.h" />
+    <ClInclude Include="display\viewport.h" />
     <ClInclude Include="gui\components\action_listener.h" />
     <ClInclude Include="gui\components\gui_container.h" />
     <ClInclude Include="gui\components\gui_convoiinfo.h" />

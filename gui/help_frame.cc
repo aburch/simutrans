@@ -480,7 +480,7 @@ void help_frame_t::resize(const koord delta)
 		generalwidth = min( display_get_width()/3, generaltext.get_preferred_size().x ) + D_SCROLLBAR_WIDTH + D_MARGIN_LEFT;
 		scrolly_generaltext.set_groesse( koord( generalwidth, get_fenstergroesse().y-D_TITLEBAR_HEIGHT ) );
 
-		koord general_gr = scrolly_generaltext.get_groesse() - gui_theme_t::gui_scrollbar_size - koord(D_MARGIN_LEFT,D_MARGIN_TOP);
+		koord general_gr = scrolly_generaltext.get_groesse() - D_SCROLLBAR_SIZE - koord(D_MARGIN_LEFT,D_MARGIN_TOP);
 		generaltext.set_groesse( general_gr );
 		generaltext.set_groesse( generaltext.get_text_size() );
 
@@ -490,7 +490,7 @@ void help_frame_t::resize(const koord delta)
 
 	scrolly_helptext.set_groesse( get_fenstergroesse() - koord( generalwidth, D_TITLEBAR_HEIGHT ) );
 
-	koord helptext_gr =  scrolly_helptext.get_groesse() - helptext.get_pos() - gui_theme_t::gui_scrollbar_size - koord(D_MARGIN_LEFT,D_MARGIN_TOP);
+	koord helptext_gr =  scrolly_helptext.get_groesse() - helptext.get_pos() - D_SCROLLBAR_SIZE - koord(D_MARGIN_LEFT,D_MARGIN_TOP);
 
 	helptext.set_groesse( helptext_gr );
 	helptext.set_groesse( helptext.get_text_size() );

@@ -18,6 +18,7 @@
 #include "../simdebug.h"
 #include "../besch/bild_besch.h"
 #include "../dataobj/environment.h"
+#include "../dataobj/translator.h"
 #include "../unicode.h"
 #include "../simticker.h"
 #include "simgraph.h"
@@ -55,6 +56,14 @@
 static pthread_mutex_t rezoom_img_mutex[MAX_THREADS];
 static pthread_mutex_t recode_img_mutex;
 #endif
+
+// to pass the extra clipnum when not needed use this
+#ifdef MULTI_THREAD
+#define CLIPNUM_IGNORE , 0
+#else
+#define CLIPNUM_IGNORE
+#endif
+
 
 #include "simgraph.h"
 
@@ -3364,11 +3373,13 @@ void display_rezoomed_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, co
 				}
 #ifdef MULTI_THREAD
 				display_img_blend_wc( h, xp, yp, sp, color, pix_blend, clip_num );
-			} else if(  xp < clips[clip_num].clip_rect.xx  &&  xp + w > clips[clip_num].clip_rect.x  ) {
+			}
+			else if(  xp < clips[clip_num].clip_rect.xx  &&  xp + w > clips[clip_num].clip_rect.x  ) {
 				display_img_blend_wc( h, xp, yp, sp, color, pix_blend, clip_num );
 #else
 				display_img_blend_wc( h, xp, yp, sp, color, pix_blend );
-			} else if(  xp < clip_rect.xx  &&  xp + w > clip_rect.x  ) {
+			}
+			else if(  xp < clip_rect.xx  &&  xp + w > clip_rect.x  ) {
 				display_img_blend_wc( h, xp, yp, sp, color, pix_blend );
 #endif
 				// since height may be reduced, start marking here

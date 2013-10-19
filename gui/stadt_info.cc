@@ -96,7 +96,7 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 	// add filter buttons          skip electricity
 	for(  int hist=0;  hist<MAX_CITY_HISTORY-1;  hist++  ) {
 		filterButtons[hist].init(button_t::box_state, hist_type[hist], koord(0,0), koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
-		filterButtons[hist].background = hist_type_color[hist];
+		filterButtons[hist].background_color = hist_type_color[hist];
 		filterButtons[hist].pressed = (stadt->stadtinfo_options & (1<<hist))!=0;
 		filterButtons[hist].add_listener(this);
 		add_komponente(filterButtons + hist);
@@ -443,7 +443,7 @@ stadt_info_t::stadt_info_t(karte_t*) :
 	// add filter buttons          skip electricity
 	for(  int hist=0;  hist<MAX_CITY_HISTORY-1;  hist++  ) {
 		filterButtons[hist].init(button_t::box_state, hist_type[hist], koord(0,0), koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
-		filterButtons[hist].background = hist_type_color[hist];
+		filterButtons[hist].background_color = hist_type_color[hist];
 		filterButtons[hist].add_listener(this);
 		add_komponente(filterButtons + hist);
 	}

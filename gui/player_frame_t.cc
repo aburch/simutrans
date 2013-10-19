@@ -73,7 +73,7 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 				add_komponente( player_active+i-2 );
 			}
 		}
-		cursor.x += D_BUTTON_SQUARE + D_H_SPACE;
+		cursor.x += D_CHECKBOX_HEIGHT + D_H_SPACE;
 
 		// Player select button (arrow)
 		player_change_to[i].init(button_t::arrowright_state, "", cursor);
@@ -83,11 +83,11 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 		if (sp  &&  player_change_allowed) {
 			add_komponente(player_change_to+i);
 		}
-		cursor.x += gui_theme_t::gui_arrow_right_size.x + D_H_SPACE;
+		cursor.x += D_ARROW_RIGHT_WIDTH + D_H_SPACE;
 
 		// Prepare finances button
 		player_get_finances[i].init( button_t::box, "", cursor, koord( L_FINANCE_WIDTH, D_EDIT_HEIGHT ) );
-		player_get_finances[i].background = PLAYER_FLAG | ((sp ? sp->get_player_color1():i*8)+4);
+		player_get_finances[i].background_color = PLAYER_FLAG | ((sp ? sp->get_player_color1():i*8)+4);
 		player_get_finances[i].add_listener(this);
 
 		// Player type selector, Combobox
@@ -123,7 +123,7 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 
 		// password/locked button
 		player_lock[i].init(button_t::box, "", cursor, koord(D_EDIT_HEIGHT,D_EDIT_HEIGHT));
-		player_lock[i].background = (sp && sp->is_locked()) ? (sp->is_unlock_pending() ? COL_YELLOW : COL_RED) : COL_GREEN;
+		player_lock[i].background_color = (sp && sp->is_locked()) ? (sp->is_unlock_pending() ? COL_YELLOW : COL_RED) : COL_GREEN;
 		player_lock[i].enable( welt->get_spieler(i) );
 		player_lock[i].add_listener(this);
 		if (player_tools_allowed) {
@@ -154,7 +154,7 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 	}
 	freeplay.pressed = welt->get_settings().is_freeplay();
 	add_komponente( &freeplay );
-	cursor.y += D_BUTTON_SQUARE;
+	cursor.y += D_CHECKBOX_HEIGHT;
 
 	set_fenstergroesse( koord( L_DIALOG_WIDTH, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM ) );
 	update_data();
@@ -264,8 +264,8 @@ void ki_kontroll_t::update_data()
 			}
 
 			// always update locking status
-			player_get_finances[i].background = PLAYER_FLAG | (sp->get_player_color1()+4);
-			player_lock[i].background = sp->is_locked() ? (sp->is_unlock_pending() ? COL_YELLOW : COL_RED) : COL_GREEN;
+			player_get_finances[i].background_color = PLAYER_FLAG | (sp->get_player_color1()+4);
+			player_lock[i].background_color = sp->is_locked() ? (sp->is_unlock_pending() ? COL_YELLOW : COL_RED) : COL_GREEN;
 
 			// human players cannot be deactivated
 			if (i>1) {
@@ -340,7 +340,7 @@ void ki_kontroll_t::zeichnen(koord pos, koord gr)
 		}
 
 		spieler_t *sp = welt->get_spieler(i);
-		player_lock[i].background = sp  &&  sp->is_locked() ? (sp->is_unlock_pending() ? COL_YELLOW : COL_RED) : COL_GREEN;
+		player_lock[i].background_color = sp  &&  sp->is_locked() ? (sp->is_unlock_pending() ? COL_YELLOW : COL_RED) : COL_GREEN;
 
 		if(  sp != NULL  ) {
 			if (i != 1 && !welt->get_settings().is_freeplay() && sp->get_finance()->get_history_com_year(0, ATC_NETWEALTH) < 0) {

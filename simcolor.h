@@ -119,5 +119,5 @@ typedef unsigned char COLOR_VAL;
 #define SYSCOL_SELECTED_BACGROUND gui_theme_t::theme_color_selected_background
 #define SYSCOL_STATIC_TEXT        gui_theme_t::theme_color_static_text
 #define SYSCOL_DISABLED_TEXT      gui_theme_t::theme_color_disabled_text
-
+#define SYSCOL_WORKAREA           (MN_GREY1)
 #endif

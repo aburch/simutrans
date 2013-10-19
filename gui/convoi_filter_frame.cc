@@ -107,7 +107,7 @@ convoi_filter_frame_t::convoi_filter_frame_t(spieler_t *sp, convoi_frame_t *m, u
 		filter_buttons[i].add_listener(this);
 		add_komponente(filter_buttons + i);
 		if(filter_buttons_types[i] < sub_filter) {
-			filter_buttons[i].foreground = COL_WHITE;
+			filter_buttons[i].background_color = COL_WHITE;
 		}
 		filter_buttons[i].pressed = get_filter(filter_buttons_types[i]);
 	}

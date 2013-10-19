@@ -1,5 +1,5 @@
 
-
+#include <string>
 #include <png.h>
 #include <setjmp.h>
 #include <stdlib.h>
@@ -7,6 +7,7 @@
 #include "../simmem.h"
 #include "dr_rdpng.h"
 
+static std::string filename_;
 
 static void read_png(unsigned char** block, unsigned* width, unsigned* height, FILE* file, const int base_img_size)
 {
@@ -56,7 +57,7 @@ static void read_png(unsigned char** block, unsigned* width, unsigned* height, F
 	*height = heightpu32;
 
 	if (*height % base_img_size != 0 || *width % base_img_size != 0) {
-		printf("read_png: Invalid image size.\n");
+		printf("read_png: Invalid image size in %s.\n",filename_.c_str());
 		exit(1);
 	}
 
@@ -75,7 +76,7 @@ static void read_png(unsigned char** block, unsigned* width, unsigned* height, F
 	png_set_strip_alpha(png_ptr);
 
 	if(  (color_type & PNG_COLOR_MASK_ALPHA) == PNG_COLOR_MASK_ALPHA  ) {
-		printf("WARNING: ignoring alpha channel\n");
+		printf("WARNING: ignoring alpha channel for %s\n",filename_.c_str());
 		// author note: It might be that this won't catch files with format
 		// palette + transparency, which is a really rare but possible combination.
 	}
@@ -125,6 +126,9 @@ static void read_png(unsigned char** block, unsigned* width, unsigned* height, F
 
 bool load_block(unsigned char** block, unsigned* width, unsigned* height, const char* fname, const int base_img_size)
 {
+	// remember the file name for better error messages.
+	filename_ = fname;
+
 	if (FILE* const file = fopen(fname, "rb")) {
 		read_png(block, width, height, file, base_img_size);
 		fclose(file);
@@ -139,6 +143,9 @@ bool load_block(unsigned char** block, unsigned* width, unsigned* height, const 
 // output either a 32 or 16 or 15 bitmap
 int write_png( const char *file_name, unsigned char *data, int width, int height, int bit_depth )
 {
+	// remember the file name for better error messages.
+	filename_ = file_name;
+
 	png_structp png_ptr = NULL;
 	png_infop info_ptr = NULL;
 	FILE *fp = fopen(file_name, "wb");

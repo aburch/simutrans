@@ -165,7 +165,7 @@ sprachengui_t::sprachengui_t() :
 	{
 		const bool right = (2*i >= count);
 		const scr_coord_val x = cursor.x + (right ? width + D_H_SPACE : 0);
-		const scr_coord_val y = cursor.y + (D_BUTTON_SQUARE + D_V_SPACE) * (right ? i - (count + 1) / 2: i);
+		const scr_coord_val y = cursor.y + (D_CHECKBOX_HEIGHT + D_V_SPACE) * (right ? i - (count + 1) / 2: i);
 		buttons[i].button->set_pos( koord( x, y + D_V_SPACE ) );
 		buttons[i].button->set_width( width );
 		add_komponente( buttons[i].button );
@@ -173,7 +173,7 @@ sprachengui_t::sprachengui_t() :
 
 	chdir(env_t::user_dir);
 
-	set_fenstergroesse( koord(DIALOG_WIDTH, D_TITLEBAR_HEIGHT + cursor.y + ((count+1)>>1)*(D_BUTTON_SQUARE+D_V_SPACE) + D_MARGIN_BOTTOM ) );
+	set_fenstergroesse( koord(DIALOG_WIDTH, D_TITLEBAR_HEIGHT + cursor.y + ((count+1)>>1)*(D_CHECKBOX_HEIGHT+D_V_SPACE) + D_MARGIN_BOTTOM ) );
 }
 
 

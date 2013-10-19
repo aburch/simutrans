@@ -44,7 +44,7 @@ scenario_frame_t::scenario_frame_t(karte_t *welt) : savegame_frame_t(NULL, true,
  * Action, started after button pressing.
  * @author Hansjörg Malthaner
  */
-void scenario_frame_t::action(const char *fullpath)
+bool scenario_frame_t::item_action(const char *fullpath)
 {
 	scenario_t *scn = new scenario_t(welt);
 	const char* err = scn->init(this->get_basename(fullpath).c_str(), this->get_filename(fullpath).c_str(), welt );
@@ -59,6 +59,8 @@ void scenario_frame_t::action(const char *fullpath)
 		create_win(new news_img(err), w_info, magic_none);
 		delete scn;
 	}
+
+	return true;
 }
 
 

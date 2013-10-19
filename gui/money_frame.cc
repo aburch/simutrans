@@ -243,7 +243,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	// left column
 	tylabel.set_pos(koord(left+120,top-1*BUTTONSPACE));
 	tylabel.set_width(tyl_x-left-120+25);
-	lylabel.align_to(&tylabel,ALIGN_EXTERIOR_H | ALIGN_LEFT | ALIGN_TOP);
+	lylabel.align_to(&tylabel, ALIGN_LEFT | ALIGN_EXTERIOR_H | ALIGN_TOP);
 	lylabel.set_width(lyl_x+25-lylabel.get_pos().x);
 
 	//transport.set_pos(koord(tyl_x+19, top+0*BUTTONSPACE));
@@ -398,13 +398,13 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	for(int ibutton=0;  ibutton<9;  ibutton++) {
 		filterButtons[ibutton].init(button_t::box, cost_type_name[ibutton], koord(left, top+ibutton*BUTTONSPACE-2), koord(120, BUTTONSPACE));
 		filterButtons[ibutton].add_listener(this);
-		filterButtons[ibutton].background = cost_type_color[ibutton];
+		filterButtons[ibutton].background_color = cost_type_color[ibutton];
 		add_komponente(filterButtons + ibutton);
 	}
 	for(int ibutton=9;  ibutton<MAX_PLAYER_COST_BUTTON;  ibutton++) {
 		filterButtons[ibutton].init(button_t::box, cost_type_name[ibutton], koord(left+335, top+(ibutton-4)*BUTTONSPACE-2), koord(120, BUTTONSPACE));
 		filterButtons[ibutton].add_listener(this);
-		filterButtons[ibutton].background = cost_type_color[ibutton];
+		filterButtons[ibutton].background_color = cost_type_color[ibutton];
 		add_komponente(filterButtons + ibutton);
 	}
 

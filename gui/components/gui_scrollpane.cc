@@ -29,7 +29,6 @@ gui_scrollpane_t::gui_scrollpane_t(gui_komponente_t *komp) :
 	set_scroll_discrete_x(false);
 	b_show_scroll_y = true;
 	b_has_size_corner = true;
-	b_has_bottom_margin = false;
 
 	old_komp_groesse = koord::invalid;
 }
@@ -41,28 +40,33 @@ gui_scrollpane_t::gui_scrollpane_t(gui_komponente_t *komp) :
  */
 void gui_scrollpane_t::recalc_sliders(koord groesse)
 {
-	scroll_x.set_pos(koord(0, groesse.y-D_SCROLLBAR_HEIGHT));
-	scroll_x.set_groesse(groesse-gui_theme_t::gui_scrollbar_size);
-	scroll_x.set_knob(groesse.x-D_SCROLLBAR_WIDTH, komp->get_groesse().x + komp->get_pos().x);	// set client/komp area
+	scroll_x.set_pos( koord(0, groesse.y-D_SCROLLBAR_HEIGHT) );
+	scroll_y.set_pos( koord(groesse.x-D_SCROLLBAR_WIDTH, 0) );
 
-	scroll_y.set_pos(koord(groesse.x-D_SCROLLBAR_WIDTH, 0));
-	if(  b_show_scroll_x  ) {
-		scroll_y.set_groesse(groesse-gui_theme_t::gui_scrollbar_size);
-	}
-	else if(  b_has_bottom_margin  ) {
-		scroll_y.set_groesse(groesse-koord(D_SCROLLBAR_WIDTH,D_SCROLLBAR_HEIGHT-D_MARGIN_BOTTOM));
+	if(  b_show_scroll_y  &&  scroll_y.is_visible()  ) {
+		scroll_x.set_groesse( groesse-D_SCROLLBAR_SIZE );
+		scroll_x.set_knob( groesse.x-D_SCROLLBAR_WIDTH, komp->get_groesse().x + komp->get_pos().x );
 	}
 	else if(  b_has_size_corner  ) {
-		scroll_y.set_groesse(groesse-gui_theme_t::gui_scrollbar_size);
+		scroll_x.set_groesse( groesse-D_SCROLLBAR_SIZE );
+		scroll_x.set_knob( groesse.x, komp->get_groesse().x + komp->get_pos().x );
 	}
 	else {
-		scroll_y.set_groesse(groesse);
+		scroll_x.set_groesse( groesse-D_SCROLLBAR_SIZE );
+		scroll_x.set_knob( groesse.x, komp->get_groesse().x + komp->get_pos().x );
 	}
-	if(  b_show_scroll_x  ) {
-		scroll_y.set_knob(groesse.y-D_SCROLLBAR_HEIGHT, komp->get_groesse().y + komp->get_pos().y);
+
+	if(  b_show_scroll_x  &&  scroll_x.is_visible()  ) {
+		scroll_y.set_groesse( groesse-D_SCROLLBAR_SIZE );
+		scroll_y.set_knob( groesse.y-D_SCROLLBAR_HEIGHT, komp->get_groesse().y + komp->get_pos().y );
+	}
+	else if(  b_has_size_corner  ) {
+		scroll_y.set_groesse( groesse-D_SCROLLBAR_SIZE );
+		scroll_y.set_knob( groesse.y, komp->get_groesse().y + komp->get_pos().y );
 	}
 	else {
-		scroll_y.set_knob(groesse.y, komp->get_groesse().y + komp->get_pos().y);
+		scroll_y.set_groesse( groesse-koord(D_SCROLLBAR_WIDTH,0) );
+		scroll_y.set_knob( groesse.y, komp->get_groesse().y + komp->get_pos().y );
 	}
 
 	old_komp_groesse = komp->get_groesse()+komp->get_pos();
@@ -76,6 +80,11 @@ void gui_scrollpane_t::recalc_sliders(koord groesse)
 void gui_scrollpane_t::set_groesse(koord groesse)
 {
 	gui_komponente_t::set_groesse(groesse);
+	// automatically increase/decrease slider area
+	koord k = komp->get_groesse()+komp->get_pos();
+	scroll_x.set_visible( (k.x <= groesse.x)  &&  b_show_scroll_x  );
+	scroll_y.set_visible(  (k.y <= groesse.y)  &&  b_show_scroll_y  );
+	// and then resize slider
 	recalc_sliders(groesse);
 }
 
@@ -174,29 +183,46 @@ int gui_scrollpane_t::get_scroll_y() const
 }
 
 
+scr_rect gui_scrollpane_t::get_client( void )
+{
+	scr_rect client( pos, groesse );
+	if(  b_show_scroll_x  &&  scroll_x.is_visible()  ) {
+		client.h -= D_SCROLLBAR_HEIGHT;
+	}
+	if(  b_show_scroll_y  &&  scroll_y.is_visible()  ) {
+		client.w -= D_SCROLLBAR_WIDTH;
+	}
+	return client;
+}
+
+
 /**
  * Draw the component
  * @author Hj. Malthaner
  */
 void gui_scrollpane_t::zeichnen(koord pos)
 {
-	pos += this->pos;
-
-	PUSH_CLIP(pos.x, pos.y, groesse.x-D_SCROLLBAR_WIDTH*b_show_scroll_y, groesse.y-D_SCROLLBAR_HEIGHT*b_show_scroll_x );
-	komp->zeichnen(pos - koord(scroll_x.get_knob_offset(), scroll_y.get_knob_offset()) + komp->get_pos() );
-	POP_CLIP();
+	scr_rect client;
 
 	// check, if we need to recalc slider size
-	if(old_komp_groesse!=komp->get_groesse()) {
-		recalc_sliders(get_groesse());
+	if(  old_komp_groesse  !=  komp->get_groesse()  ) {
+		recalc_sliders( groesse );
 	}
 
-	// sliding bar background color is now handled by scrollbar!
-	if (b_show_scroll_x) {
-		scroll_x.zeichnen(pos);
+	// get client area (scroll panel - scrollbars)
+	client = get_client() + scr_coord(pos);
+
+	PUSH_CLIP( client.x, client.y, client.w, client.h )
+		komp->zeichnen( client.get_pos()-koord(scroll_x.get_knob_offset(), scroll_y.get_knob_offset()) );
+	POP_CLIP()
+
+	// sliding bar background color is now handled by the scrollbar!
+	if(  b_show_scroll_x  &&  scroll_x.is_visible()  ) {
+		scroll_x.zeichnen( pos+get_pos() );
 	}
 
-	if (b_show_scroll_y) {
-		scroll_y.zeichnen(pos);
+	if(  b_show_scroll_y  &&  scroll_y.is_visible()  ) {
+		scroll_y.zeichnen( pos+get_pos() );
 	}
+
 }

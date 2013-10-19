@@ -117,13 +117,13 @@ void gui_frame_t::resize(const koord delta)
 	koord new_size = groesse + delta;
 
 	// resize window to the minimal width
-	if (new_size.x < min_windowsize.x) {
+	if(  new_size.x < min_windowsize.x  ) {
 		size_change.x = min_windowsize.x - groesse.x;
 		new_size.x = min_windowsize.x;
 	}
 
 	// resize window to the minimal height
-	if (new_size.y < min_windowsize.y) {
+	if(  new_size.y < min_windowsize.y  ) {
 		size_change.y = min_windowsize.y - groesse.y;
 		new_size.y = min_windowsize.y;
 	}
@@ -194,7 +194,7 @@ void gui_frame_t::zeichnen(koord pos, koord gr)
 
 	POP_CLIP();
 
-// for shadows
+// for shadows (should be themed too ...)
 //	display_blend_wh( pos.x+gr.x, pos.y+1, 2, gr.y, COL_BLACK, 50 );
 //	display_blend_wh( pos.x+1, pos.y+gr.y, gr.x, 2, COL_BLACK, 50 );
 }

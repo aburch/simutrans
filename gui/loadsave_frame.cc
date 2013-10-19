@@ -53,11 +53,12 @@ void sve_info_t::rdwr(loadsave_t *file)
 }
 
 
+
 /**
  * Action that's started with a button click
  * @author Hansjörg Malthaner
  */
-void loadsave_frame_t::action(const char *filename)
+bool loadsave_frame_t::item_action(const char *filename)
 {
 	if(do_load) {
 		welt->load(filename);
@@ -67,7 +68,17 @@ void loadsave_frame_t::action(const char *filename)
 		welt->set_dirty();
 		welt->reset_timer();
 	}
+
+	return true;
 }
+
+
+
+bool loadsave_frame_t::ok_action(const char *filename)
+{
+	return item_action(filename);
+}
+
 
 
 loadsave_frame_t::loadsave_frame_t(karte_t *welt, bool do_load) : savegame_frame_t(".sve",false,"save/")

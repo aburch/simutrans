@@ -18,9 +18,11 @@
  * Action, started on button pressing
  * @author Hansjörg Malthaner
  */
-void load_relief_frame_t::action(const char *fullpath)
+bool load_relief_frame_t::item_action(const char *fullpath)
 {
 	sets->heightfield = fullpath;
+
+	return false;
 }
 
 

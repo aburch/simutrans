@@ -12,6 +12,24 @@
 #include "../simcolor.h"
 #include "../display/simgraph.h"
 
+// as cluster, so only here confiects ... */
+#define D_BUTTON_SIZE (gui_theme_t::gui_button_size)
+#define D_ARROW_LEFT_WIDTH D_INDICATOR_BOX_WIDTH
+#define D_ARROW_LEFT_HEIGHT D_INDICATOR_BOX_HEIGHT
+#define D_ARROW_RIGHT_WIDTH D_INDICATOR_BOX_WIDTH
+#define D_ARROW_RIGHT_HEIGHT D_INDICATOR_BOX_HEIGHT
+#define D_CHECKBOX_WIDTH D_INDICATOR_BOX_WIDTH
+#define D_CHECKBOX_HEIGHT D_INDICATOR_BOX_HEIGHT
+#define D_GADGET_HEIGHT (D_TITLEBAR_HEIGHT)
+#define D_GADGET_WIDTH (14)
+#define D_LABEL_HEIGHT (LINESPACE)
+#define D_SCROLLBAR_SIZE (gui_theme_t::gui_scrollbar_size)
+#define D_SCROLL_MIN_HEIGHT (6)
+#define D_SCROLL_MIN_WIDTH (6)
+#define D_FOCUS_OFFSET_H (0)
+#define D_FOCUS_OFFSET_V (0)
+
+
 /*
  * The following gives positioning aids for elements in dialogues
  * Only those, LINESPACE, and dimensions of elements itself must be

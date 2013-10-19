@@ -90,7 +90,7 @@ halt_list_filter_frame_t::halt_list_filter_frame_t(spieler_t *sp, halt_list_fram
 		filter_buttons[i].add_listener(this);
 		add_komponente(filter_buttons + i);
 		if(  filter_buttons_types[i] < halt_list_frame_t::sub_filter  ) {
-			filter_buttons[i].foreground = COL_WHITE;
+			filter_buttons[i].background_color = COL_WHITE;
 		}
 	}
 	name_filter_input.set_text(main_frame->access_name_filter(), 30);

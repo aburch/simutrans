@@ -78,11 +78,11 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 
 	change_speed_label.set_text(speed_bonus);
 	change_speed_label.set_width(display_get_char_max_width("-0123456789")*4);
-	change_speed_label.align_to(&speed_down,ALIGN_EXTERIOR_H | ALIGN_LEFT | ALIGN_CENTER_V,koord(D_V_SPACE,0));
+	change_speed_label.align_to(&speed_down, ALIGN_LEFT | ALIGN_EXTERIOR_H | ALIGN_CENTER_V,koord(D_V_SPACE,0));
 	add_komponente(&change_speed_label);
 
 	speed_up.init(button_t::repeatarrowright, "",speed_down.get_pos());
-	speed_up.align_to(&change_speed_label,ALIGN_EXTERIOR_H | ALIGN_LEFT, koord(D_V_SPACE,0));
+	speed_up.align_to(&change_speed_label, ALIGN_LEFT | ALIGN_EXTERIOR_H, koord(D_V_SPACE,0));
 	speed_up.add_listener(this);
 	add_komponente(&speed_up);
 	y=D_BUTTON_HEIGHT+4+5*LINESPACE;

@@ -315,7 +315,7 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 		sprintf( str_parts_month, "1/%d",  1<<(16-fpl->get_current_eintrag().waiting_time_shift) );
 	}
 	lb_waitlevel.set_text_pointer( str_parts_month );
-	lb_waitlevel.set_groesse( numimp_load.get_groesse() - koord( gui_theme_t::gui_arrow_left_size.x + gui_theme_t::gui_arrow_right_size.x , 0 ) );
+	lb_waitlevel.set_groesse( numimp_load.get_groesse() - koord( D_ARROW_LEFT_WIDTH + D_ARROW_RIGHT_WIDTH , 0 ) );
 	lb_waitlevel.align_to( &numimp_load, ALIGN_EXTERIOR_V | ALIGN_TOP | ALIGN_LEFT, koord( gui_theme_t::gui_arrow_left_size.x, 0 ) );
 	add_komponente(&lb_waitlevel);
 

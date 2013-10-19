@@ -18,7 +18,7 @@
 gui_label_t::gui_label_t(const char* text, COLOR_VAL color_, align_t align_) :
 	tooltip(NULL)
 {
-	set_groesse( koord( D_BUTTON_WIDTH, LINESPACE ) );
+	set_groesse( koord( D_BUTTON_WIDTH, D_LABEL_HEIGHT ) );
 	init( text, koord (0,0), color_, align_);
 }
 
@@ -39,7 +39,7 @@ void gui_label_t::set_text_pointer(const char *text_par, bool autosize)
 	text = text_par;
 
 	if (autosize && text && *text != '\0') {
-		set_groesse( koord( display_calc_proportional_string_len_width(text,strlen(text)),LINESPACE ) );
+		set_groesse( koord( display_calc_proportional_string_len_width(text,strlen(text)),groesse.y ) );
 	}
 }
 
@@ -90,7 +90,7 @@ void gui_label_t::zeichnen(koord offset)
 				al = ALIGN_LEFT;
 		}
 
-		size_t idx = display_fit_proportional( text, groesse.x+1, translator::get_lang()->eclipse_width );
+		size_t idx = display_fit_proportional( text, groesse.x+1, -1 );
 		if(  text[idx]==0  ) {
 			display_proportional_clip(pos.x + offset.x + align_offset_x, pos.y + offset.y + align_offset_y, text, al, color, true);
 		}
@@ -107,6 +107,9 @@ void gui_label_t::zeichnen(koord offset)
 
 		win_set_tooltip(get_maus_x() + TOOLTIP_MOUSE_OFFSET_X, by + bh + TOOLTIP_MOUSE_OFFSET_Y, tooltip, this);
 	}
+
+	// DEBUG
+	//display_ddd_box_clip(offset.x+pos.x,offset.y+pos.y,groesse.x,groesse.y,SYSCOL_HIGHLIGHT,SYSCOL_HIGHLIGHT);
 }
 
 void gui_label_t::set_tooltip(const char * t)

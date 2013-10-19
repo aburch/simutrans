@@ -1,13 +1,13 @@
 #include "gui_komponente.h"
 #include "../../dataobj/koord.h"
 
-void gui_komponente_t::align_to( gui_komponente_t* component_par, control_alignment_t alignment_par, koord offset_par ) {
-
+void gui_komponente_t::align_to( gui_komponente_t* component_par, control_alignment_t alignment_par, koord offset_par )
+{
 	// Don't process NULL components and complete NONE alignment (both vert and horiz)
-	if( component_par && alignment_par != ALIGN_NONE ) {
+	if(  component_par  &&  alignment_par != ALIGN_NONE  ) {
 
 		koord new_pos     = get_pos();
-		koord this_size   = get_groesse();
+		koord new_size    = get_groesse();
 		koord target_pos  = component_par->get_pos();
 		koord target_size = component_par->get_groesse();
 
@@ -22,11 +22,11 @@ void gui_komponente_t::align_to( gui_komponente_t* component_par, control_alignm
 			// Interior and Exterior center alignment are the same
 			case ALIGN_CENTER_V:
 			case ALIGN_EXTERIOR_V|ALIGN_CENTER_V:
-				new_pos.y = target_pos.y + offset_par.y + (target_size.y - this_size.y) / 2;
+				new_pos.y = target_pos.y + offset_par.y + (target_size.y - new_size.y) / 2;
 				break;
 
 			case ALIGN_BOTTOM:
-				new_pos.y = target_pos.y + offset_par.y + target_size.y - this_size.y;
+				new_pos.y = target_pos.y + offset_par.y + target_size.y - new_size.y;
 				break;
 
 			// Exterior alignment
@@ -35,7 +35,7 @@ void gui_komponente_t::align_to( gui_komponente_t* component_par, control_alignm
 				break;
 
 			case ALIGN_EXTERIOR_V|ALIGN_BOTTOM:
-				new_pos.y = target_pos.y - this_size.y - offset_par.y;
+				new_pos.y = target_pos.y - new_size.y - offset_par.y;
 				break;
 
 			// if one of the alignments is NONE but offseted,
@@ -58,11 +58,11 @@ void gui_komponente_t::align_to( gui_komponente_t* component_par, control_alignm
 			// Interior and Exterior center alignment are the same
 			case ALIGN_CENTER_H:
 			case ALIGN_EXTERIOR_H|ALIGN_CENTER_H:
-				new_pos.x = target_pos.x + offset_par.x + (target_size.x - this_size.x) / 2;
+				new_pos.x = target_pos.x + offset_par.x + (target_size.x - new_size.x) / 2;
 				break;
 
 			case ALIGN_RIGHT:
-				new_pos.x = target_pos.x + target_size.x - this_size.x - offset_par.x;
+				new_pos.x = target_pos.x + target_size.x - new_size.x - offset_par.x;
 				break;
 
 			// Exterior alignment
@@ -71,7 +71,7 @@ void gui_komponente_t::align_to( gui_komponente_t* component_par, control_alignm
 				break;
 
 			case ALIGN_EXTERIOR_H|ALIGN_RIGHT:
-				new_pos.x = target_pos.x - this_size.x - offset_par.x;
+				new_pos.x = target_pos.x - new_size.x - offset_par.x;
 				break;
 
 			// if one of the alignments is NONE but offseted,
@@ -84,7 +84,9 @@ void gui_komponente_t::align_to( gui_komponente_t* component_par, control_alignm
 
 		}
 
+		// apply new position and size
 		set_pos(new_pos);
+		set_groesse(new_size);
 	}
 
 }

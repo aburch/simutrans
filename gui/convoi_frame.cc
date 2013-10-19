@@ -324,7 +324,7 @@ void convoi_frame_t::resize(const koord size_change)                          //
 		add_komponente(&vscroll);
 		vscroll.set_visible(true);
 		vscroll.set_pos(koord(groesse.x-D_SCROLLBAR_WIDTH, 47-16-1));
-		vscroll.set_groesse(groesse-gui_theme_t::gui_scrollbar_size);
+		vscroll.set_groesse(groesse-D_SCROLLBAR_SIZE);
 		vscroll.set_scroll_amount( 1 );
 	}
 }

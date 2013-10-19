@@ -74,7 +74,7 @@ welt_gui_t::welt_gui_t(karte_t* const world_par, settings_t* const sets_par) :
 {
 	// Coordinates are relative to parent (TITLEHEIGHT already subtracted)
 	koord cursor(D_MARGIN_LEFT,D_MARGIN_TOP);
-	scr_coord_val edit_Width = display_get_char_max_width("0123456789")*5 + gui_theme_t::gui_arrow_left_size.x + gui_theme_t::gui_arrow_right_size.x;
+	scr_coord_val edit_Width = display_get_char_max_width("0123456789")*5 + D_ARROW_LEFT_WIDTH + D_ARROW_RIGHT_WIDTH;
 	scr_coord_val label_width = L_COLUMN1_X - D_MARGIN_LEFT - D_H_SPACE;
 
 	world = world_par;
@@ -282,7 +282,7 @@ welt_gui_t::welt_gui_t(karte_t* const world_par, settings_t* const sets_par) :
 	use_beginner_mode.pressed = sets->get_beginner_mode();
 	use_beginner_mode.add_listener( this );
 	add_komponente( &use_beginner_mode );
-	cursor.y += D_BUTTON_SQUARE;
+	cursor.y += D_CHECKBOX_HEIGHT;
 
 	// divider 2
 	divider_2.init(cursor,L_DIALOG_WIDTH-D_MARGIN_LEFT-D_MARGIN_RIGHT);

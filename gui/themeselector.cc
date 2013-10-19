@@ -5,44 +5,73 @@
 #include <string>
 
 #include "themeselector.h"
+#include "simwin.h"
+#include "../simsys.h"
+#include "../simevent.h"
+#include "gui_theme.h"
+#include "../utils/simstring.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/environment.h"
 #include "../dataobj/tabfile.h"
-#include "../simsys.h"
-#include "../simevent.h"
-#include "simwin.h"
 
 #define L_ADDON_WIDTH (150)
 
+std::string themeselector_t::undo = "";
 
 themeselector_t::themeselector_t() :
 	savegame_frame_t( ".tab" )//, false, NULL, false )
 {
 	// remove unnecessary buttons
 	remove_komponente( &input );
-	remove_komponente( &savebutton );
-	remove_komponente( &cancelbutton );
-	remove_komponente( &fnlabel );
+	delete_enabled = false;
+	label_enabled  = false;
 
-	set_name( translator::translate( "Select a theme for display" ) );
+	set_name( translator::translate( "Theme selector" ) );
+	fnlabel.set_text_pointer( translator::translate( "Select a theme for display" ) );
+	if( undo.empty() ) {
+		undo = gui_theme_t::get_current_theme();
+		set_fenstergroesse(get_min_windowsize());
+	}
+}
+
+bool themeselector_t::check_file(const char *filename, const char *suffix)
+{
+	return savegame_frame_t::check_file(filename,suffix);
 }
 
 
-void themeselector_t::action(const char *fullpath)
+
+// A theme button was pressed
+bool themeselector_t::item_action(const char *fullpath)
 {
 	gui_theme_t::themes_init(fullpath);
-}
 
-
-bool themeselector_t::del_action(const char *fullpath)
-{
-	gui_theme_t::themes_init(fullpath);
 	event_t *ev = new event_t();
 	ev->ev_class = EVENT_SYSTEM;
 	ev->ev_code = SYSTEM_RELOAD_WINDOWS;
 	queue_event( ev );
+
 	return false;
+}
+
+
+
+// Ok button was pressed
+bool themeselector_t::ok_action(const char *fullpath)
+{
+	undo = "";
+	return true;
+}
+
+
+
+// Cancel button was pressed
+bool themeselector_t::cancel_action(const char *fullpath)
+{
+	item_action(undo.c_str());
+	undo = "";
+	return true;
 }
 
 
@@ -53,10 +82,12 @@ const char *themeselector_t::get_info(const char *fn )
 	tabfile_t themesconf;
 
 	if(  themesconf.open(fn)  ) {
-		// show the name
 		tabfileobj_t contents;
+
+		// get trimmed theme name
 		themesconf.read(contents);
-		info = strdup( contents.get( "name" ) );
+		info = strdup( trim( std::string( contents.get( "name" ) ) ).c_str() );
+
 	}
 	themesconf.close();
 	return info;
@@ -65,12 +96,8 @@ const char *themeselector_t::get_info(const char *fn )
 
 void themeselector_t::fill_list()
 {
-	KOORD_VAL y = 0;
-
 	add_path( ((std::string)env_t::program_dir+"themes/").c_str() );
-	if(  strcmp( env_t::program_dir, env_t::user_dir ) != 0  ) {
-		add_path( ((std::string)env_t::user_dir+"themes/").c_str() );
-	}
+	add_path( ((std::string)env_t::user_dir+"themes/").c_str() );
 
 	// do the search ...
 	savegame_frame_t::fill_list();
@@ -81,20 +108,23 @@ void themeselector_t::fill_list()
 			continue;
 		}
 
-		i.del->set_typ( button_t::roundbox_state );
-		i.del->set_visible(true);	// show delete button
-		i.del->set_text( i.button->get_text() );
-		i.del->set_tooltip( NULL );
-		i.del->set_groesse( i.button->get_pos()-i.del->get_pos()+i.button->get_groesse() ); // make it as wide as original button and delete together
-		i.del->pressed = !strcmp( gui_theme_t::get_current_theme(), i.label->get_text_pointer() ); // mark current theme
-		i.button->set_visible( false );	// hide normal button (to be able to instantaniously apply themes)
+		delete[] i.button->get_text(); // free up default allocation.
+		i.button->set_typ(button_t::roundbox_state);
+		i.button->set_text(i.label->get_text_pointer());
+		i.button->pressed = !strcmp( gui_theme_t::get_current_theme(), i.label->get_text_pointer() ); // mark current theme
+		i.label->set_text_pointer( NULL ); // remove reference to prevent conflicts at delete[]
 
-		y += D_BUTTON_HEIGHT;
+		// Get a new label buffer since the original is now owned by i.button.
+		// i.label->set_text_pointer( strdup( get_filename(i.info).c_str() ) );
+
 	}
 
 	if(entries.get_count() <= this->num_sections+1) {
 		// less than two themes exist => we coudl close now ...
 	}
+
+	// force new resize after we have rearranged the gui
+	resize(koord(0,0));
 }
 
 

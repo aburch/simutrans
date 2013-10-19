@@ -27,13 +27,13 @@ protected:
 	 * Action that's started by the press of a button.
 	 * @author Hansjörg Malthaner
 	 */
-	virtual void action(const char *fullpath);
+	virtual bool item_action(const char *fullpath);
 
 	/**
 	 * Action, started after X-Button pressing
 	 * @author V. Meyer
 	 */
-	virtual bool del_action(const char *f) { action(f); return true; }
+	virtual bool del_action(const char *f) { return item_action(f); }
 
 	// returns extra file info
 	virtual const char *get_info(const char *fname);

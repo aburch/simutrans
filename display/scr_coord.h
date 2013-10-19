@@ -96,31 +96,32 @@ public:
 // Rectangle type
 class scr_rect
 {
-protected:
-	void init( scr_coord_val x_par, scr_coord_val y_par, scr_coord_val w_par, scr_coord_val h_par ) {
-		x = x_par;
-		y = y_par;
-		w = w_par;
-		h = h_par;
-	}
-
 public:
 	scr_coord_val x;
 	scr_coord_val y;
 	scr_coord_val w;
 	scr_coord_val h;
 
+	// to set it in one line ...
+	void set( scr_coord_val x_par, scr_coord_val y_par, scr_coord_val w_par, scr_coord_val h_par ) {
+		x = x_par;
+		y = y_par;
+		w = w_par;
+		h = h_par;
+	}
+
 	// Constructors
-	scr_rect(  ) { init(0,0,0,0); }
-	scr_rect( const scr_coord& pt ) { init( pt.x, pt.y, 0, 0 ); }
-	scr_rect( const scr_coord& pt, scr_coord_val w, scr_coord_val h ) { init( pt.x, pt.y, w, h ); }
-	scr_rect( scr_coord_val x, scr_coord_val y, scr_coord_val w, scr_coord_val h ) { init( x, y, w, h ); }
+	scr_rect() { set(0,0,0,0); }
+	scr_rect( const scr_coord& pt ) { set( pt.x, pt.y, 0, 0 ); }
+	scr_rect( const scr_coord& pt, scr_coord_val w, scr_coord_val h ) { set( pt.x, pt.y, w, h ); }
+	scr_rect( scr_coord_val x, scr_coord_val y, scr_coord_val w, scr_coord_val h ) { set( x, y, w, h ); }
 	scr_rect( scr_size size ) { w = size.w; h=size.h; }
-	scr_rect( const scr_coord& point1, const scr_coord& point2 ) { init( point1.x, point1.y, point2.x-point1.x, point2.y-point1.y ); }
+	scr_rect( const scr_coord& point1, const scr_coord& point2 ) { set( point1.x, point1.y, point2.x-point1.x, point2.y-point1.y ); }
 
 	// Type cast operators
 	operator scr_size()   { return scr_size (w,h); }
 	operator scr_coord()  { return scr_coord(x,y); }
+	operator koord() const { return koord(w,h); }
 
 	// Unary operators
 	const scr_rect operator +(const scr_coord& other ) const { scr_rect rect(x + other.x, y + other.y, w, h ); return rect; }
@@ -128,20 +129,20 @@ public:
 
 	// for now still accepted, will be removed
 	// when we convert all relevant koord to scr_coord.
-	scr_rect( const koord& pt ) { init( pt.x, pt.y, 0, 0 ); }
-	scr_rect( const koord& pt, const koord& size ) { init( pt.x, pt.y, size.x, size.y ); }
-	scr_rect( const koord& pt, scr_coord_val w, scr_coord_val h ) { init( pt.x, pt.y, w, h ); }
+	scr_rect( const koord& pt ) { set( pt.x, pt.y, 0, 0 ); }
+	scr_rect( const koord& pt, const koord& size ) { set( pt.x, pt.y, size.x, size.y ); }
+	scr_rect( const koord& pt, scr_coord_val w, scr_coord_val h ) { set( pt.x, pt.y, w, h ); }
 
 	// Validation functions
 	bool is_empty() const { return (w|h) == 0;  }
 	bool is_valid() const { return !is_empty(); }
 
 	// Helper functions
-	const scr_coord get_pos() const {
+	scr_coord get_pos() const {
 		return scr_coord( x, y );
 	}
 
-	void set_pos( const scr_coord& point ) {
+	void set_pos( const scr_coord point ) {
 		w = (x+w) - point.x;
 		h = (y+h) - point.y;
 		x = point.x;

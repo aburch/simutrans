@@ -34,7 +34,7 @@
 climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 	gui_frame_t( translator::translate("Climate Control") )
 {
-	const scr_coord_val edit_width = display_get_char_max_width("-0123456789")*4 + gui_theme_t::gui_arrow_left_size.x + gui_theme_t::gui_arrow_right_size.x + 4;
+	const scr_coord_val edit_width = display_get_char_max_width("-0123456789")*4 + D_ARROW_LEFT_WIDTH + D_ARROW_RIGHT_WIDTH + 4;
 	const scr_coord_val label_width = L_COLUMN_EDIT - D_MARGIN_LEFT-D_H_SPACE;
 	koord cursor(D_MARGIN_LEFT,D_MARGIN_TOP);
 	sint16 labelnr=0;
@@ -91,7 +91,7 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 	labelnr++;
 	sprintf( snowline_txt ,"%d", sets->get_climate_borders()[arctic_climate] );
 	summer_snowline.init( snowline_txt, cursor, SYSCOL_TEXT_HIGHLIGHT);
-	summer_snowline.align_to(&mountain_roughness,ALIGN_RIGHT,koord(gui_theme_t::gui_arrow_right_size.x,0));
+	summer_snowline.align_to(&mountain_roughness,ALIGN_RIGHT,koord(D_ARROW_RIGHT_WIDTH,0));
 	add_komponente( &summer_snowline );
 	cursor.y += LINESPACE+D_V_SPACE;
 
@@ -136,14 +136,14 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 	no_tree.pressed = sets->get_no_trees();
 	no_tree.add_listener( this );
 	add_komponente( &no_tree );
-	cursor.y += D_BUTTON_SQUARE + D_V_SPACE;
+	cursor.y += D_CHECKBOX_HEIGHT + D_V_SPACE;
 
 	lake.init( button_t::square_state, "lake", cursor );
 	lake.set_width(DIALOG_WIDTH-D_MARGINS_X);
 	lake.pressed = sets->get_lake();
 	lake.add_listener( this );
 	add_komponente( &lake );
-	cursor.y += D_BUTTON_SQUARE + D_V_SPACE;
+	cursor.y += D_CHECKBOX_HEIGHT + D_V_SPACE;
 
 	river_n.init( sets->get_river_number(), 0, 1024, gui_numberinput_t::POWER2, false );
 	river_n.set_pos( koord(L_COLUMN_EDIT, cursor.y) );

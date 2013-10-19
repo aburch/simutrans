@@ -22,84 +22,80 @@ class scrollbar_t :
 	public gui_komponente_t
 {
 
-	public:
-		enum type_t {
-			vertical,  //@< Vertical scrollbar
-			horizontal //@< Horizontal scrollbar
-		};
+public:
+	enum type_t {
+		vertical,  //@< Vertical scrollbar
+		horizontal //@< Horizontal scrollbar
+	};
 
-		enum visible_mode_t {
-			show_never,  //@< Never show the scrollbar
-			show_always, //@< Always show the scrollbar, even at maximum
-			show_auto    //@< Hide scrollbar at maximum value, else show
-		};
+	enum visible_mode_t {
+		show_never,    //@< Never show the scrollbar
+		show_always,   //@< Always show the scrollbar, even at maximum
+		show_disabled, //@< Disable scrollbar at maximum value
+		show_auto      //@< Hide scrollbar at maximum value, else show
+	};
 
-	private:
+private:
 
-		// private button indexes
-		enum button_element_index {
-			left_top_arrow_index,
-			right_bottom_arrow_index,
-			knob_index,
-			background_index
-		};
+	// private button indexes
+	enum button_element_index {
+		left_top_arrow_index,
+		right_bottom_arrow_index,
+		back_button_index,
+		sclider_buttun_index
+	};
 
-		type_t         type;
-		visible_mode_t visible_mode;
-		bool           full;
+	type_t         type;
+	visible_mode_t visible_mode; // Show, hide or auto hide
+	bool           full;         // Scrollbar is full
+	bool dragging;	// to handle event even when outside the knob ...
 
-		// the following three values are from host (e.g. list), NOT actual size.
-		scr_coord_val knob_offset; // offset from top-left
-		scr_coord_val knob_size;   // size of scrollbar knob
-		scr_coord_val knob_area;   // size of area where knob moves in
+	// the following three values are from host (e.g. list), NOT actual size.
+	sint32 knob_offset; // offset from top-left
+	sint32 knob_size;
+	sint32 total_size;
 
-		/**
-		 * number of pixels to scroll with arrow button press. default: 11 pixels
-		 */
-		scr_coord_val knob_scroll_amount;
-		bool          knob_scroll_discrete;  // if true, knob_offset forced to be integer multiples of knob_scroll_amount
+	/**
+		* number of elements to scroll with arrow button press. default: 11
+		*/
+	sint32 knob_scroll_amount;
+	bool   knob_scroll_discrete;  // if true, knob_offset forced to be integer multiples of knob_scroll_amount
 
-		button_t button_def[4];
+	// arrow buttons
+	button_t button_def[4];
+	// size of button area
+	scr_rect knobarea, sliderarea;
 
-		void reposition_buttons();
-		void button_press(sint32 number); // arrow button
-		void space_press(sint32 updown); // space in slidebar hit
-		sint32 slider_drag(sint32 amount); // drags slider. returns dragged amount.
+	void reposition_buttons();
+	void scroll( sint32 amout_to_scroll );
 
-		/**
-		 * real position of knob in pixels, counting from zero
-		 */
-		int real_knob_position() {
-			if (type == vertical) {
-				return button_def[knob_index].get_pos().y-D_SCROLLBAR_HEIGHT;
-			}
-			else /* horizontal */ {
-				return button_def[knob_index].get_pos().x-D_SCROLLBAR_WIDTH;
-			}
-		}
+public:
+	// type is either scrollbar_t::horizontal or scrollbar_t::vertical
+	scrollbar_t(type_t type);
 
-	public:
-		// type is either scrollbar_t::horizontal or scrollbar_t::vertical
-		scrollbar_t(type_t type);
+	void set_groesse(koord groesse) OVERRIDE;
 
-		void set_groesse(koord groesse) OVERRIDE;
+	void set_scroll_amount(sint32 sa) { knob_scroll_amount = sa; }
+	void set_scroll_discrete(const bool sd) { knob_scroll_discrete = sd; }
 
-		void set_scroll_amount(const scr_coord_val sa) { knob_scroll_amount = sa; }
-		void set_scroll_discrete(const bool sd) { knob_scroll_discrete = sd; }
+	/**
+		* knob_size is visible size, total_size is total size (of whatever unit)
+		* Scroolbars are not directly related to pixels!
+		*/
+	void set_knob(sint32 knob_size, sint32 total_size);
+	sint32 get_knob_offset() const {
+		// return clamped offset if really desired
+		return knob_offset - (knob_scroll_discrete  &&  total_size!=knob_offset+knob_size  ?  (knob_offset % knob_scroll_amount) : 0);
+	}
 
-		/**
-		 * size is visible size, area is total size in pixels of _parent_.
-		 */
-		void set_knob(scr_coord_val knob_size, scr_coord_val knob_area);
-		scr_coord_val get_knob_offset() const {return knob_offset;}
-		void set_knob_offset(scr_coord_val v) { knob_offset = v; reposition_buttons(); }
+	void set_knob_offset(sint32 v) { knob_offset = v; reposition_buttons(); }
 
-		void set_visible_mode(visible_mode_t vm) { visible_mode = vm; }
-		visible_mode_t get_visible_mode() { return visible_mode; }
+	void set_visible_mode(visible_mode_t vm) { visible_mode = vm; }
+	visible_mode_t get_visible_mode() { return visible_mode; }
 
-		bool infowin_event(event_t const*) OVERRIDE;
+	bool infowin_event(event_t const*) OVERRIDE;
 
-		void zeichnen(koord pos);
+	void zeichnen(koord pos);
 };
 
 #endif

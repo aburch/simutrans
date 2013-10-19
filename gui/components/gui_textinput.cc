@@ -411,8 +411,8 @@ void gui_textinput_t::display_with_focus(koord offset, bool has_focus)
 
 void gui_textinput_t::display_with_cursor(koord offset, bool cursor_active, bool cursor_visible)
 {
-	display_fillbox_wh_clip(pos.x+offset.x+1, pos.y+offset.y+1,groesse.x-2, groesse.y-2, MN_GREY1, true);
-	display_ddd_box_clip(pos.x+offset.x, pos.y+offset.y,groesse.x, groesse.y,MN_GREY0, MN_GREY4);
+	display_fillbox_wh_clip(pos.x+offset.x+1, pos.y+offset.y+1,groesse.x-2, groesse.y-2, SYSCOL_WORKAREA, true);
+	display_ddd_box_clip( pos.x + offset.x, pos.y + offset.y, groesse.x, groesse.y, SYSCOL_SHADOW, SYSCOL_HIGHLIGHT );
 
 	if(  text  ) {
 		// Knightly : recalculate scroll offset
@@ -465,7 +465,6 @@ void gui_textinput_t::display_with_cursor(koord offset, bool cursor_active, bool
 		display_set_clip_wh( clip_x, clip_y, min(old_clip.xx, text_clip_x+text_clip_w)-clip_x, min(old_clip.yy, text_clip_y+text_clip_h)-clip_y );
 
 		// display text
-		//offset.x += D_GET_CENTER_ALIGN_OFFSET(LINESPACE,groesse.y);
 		display_proportional_clip(pos.x+offset.x+2-scroll_offset, pos.y+offset.y+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,groesse.y), text, ALIGN_LEFT, textcol, true);
 
 		if(  cursor_active  ) {

@@ -140,7 +140,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 			koord(BUTTON1_X+(D_BUTTON_WIDTH+D_H_SPACE)*(cost%4), view.get_groesse().y+164+(D_BUTTON_HEIGHT+2)*(cost/4)),
 			koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 		filterButtons[cost].add_listener(this);
-		filterButtons[cost].background = cost_type_color[cost];
+		filterButtons[cost].background_color = cost_type_color[cost];
 		filterButtons[cost].set_visible(false);
 		filterButtons[cost].pressed = false;
 		add_komponente(filterButtons + cost);

@@ -180,14 +180,14 @@ static int display_gadget_box(sint8 code,
 	}
 
 	if(pushed) {
-		display_fillbox_wh_clip(x+1, y+1, D_GADGET_SIZE-2, D_GADGET_SIZE-2, (color & 0xF8) + max(7, (color&0x07)+2), false);
+		display_fillbox_wh_clip(x+1, y+1, D_GADGET_WIDTH-2, D_GADGET_HEIGHT-2, (color & 0xF8) + max(7, (color&0x07)+2), false);
 	}
 
 	// Do we have a gadget image?
 	if(  img != NULL  ) {
 
 		// Max Kielland: This center the gadget image and compensates for any left/top margins within the image to be backward compatible with older PAK sets.
-		display_color_img(img->bild_nr, x + D_GET_CENTER_ALIGN_OFFSET(img->w,D_GADGET_SIZE)-img->x, y + D_GET_CENTER_ALIGN_OFFSET(img->h,D_GADGET_SIZE)-img->y, 0, false, false);
+		display_color_img(img->bild_nr, x + D_GET_CENTER_ALIGN_OFFSET(img->w,D_GADGET_WIDTH)-img->x, y + D_GET_CENTER_ALIGN_OFFSET(img->h,D_GADGET_HEIGHT)-img->y, 0, false, false);
 
 	}
 	else {
@@ -210,11 +210,11 @@ static int display_gadget_box(sint8 code,
 	}
 
 	display_vline_wh_clip(x,                 y,   D_TITLEBAR_HEIGHT,   color+1,   false);
-	display_vline_wh_clip(x+D_GADGET_SIZE-1, y+1, D_TITLEBAR_HEIGHT-2, COL_BLACK, false);
-	display_vline_wh_clip(x+D_GADGET_SIZE,   y+1, D_TITLEBAR_HEIGHT-2, color+1,   false);
+	display_vline_wh_clip(x+D_GADGET_WIDTH-1, y+1, D_TITLEBAR_HEIGHT-2, COL_BLACK, false);
+	display_vline_wh_clip(x+D_GADGET_WIDTH,   y+1, D_TITLEBAR_HEIGHT-2, color+1,   false);
 
 	// Hajo: return width of gadget
-	return D_GADGET_SIZE;
+	return D_GADGET_WIDTH;
 }
 
 
@@ -264,52 +264,52 @@ static sint8 decode_gadget_boxes(
                int const px
 ) {
 	int offset = px-x;
-	const int w=(REVERSE_GADGETS?-D_GADGET_SIZE:D_GADGET_SIZE);
+	const int w=(REVERSE_GADGETS?-D_GADGET_WIDTH:D_GADGET_WIDTH);
 
 //DBG_MESSAGE("simwin_gadget_et decode_gadget_boxes()","offset=%i, w=%i",offset, w );
 
 	// Only the close gadget can be pushed.
 	if( flags->close ) {
-		if( offset >= 0  &&  offset<D_GADGET_SIZE  ) {
+		if( offset >= 0  &&  offset<D_GADGET_WIDTH  ) {
 //DBG_MESSAGE("simwin_gadget_et decode_gadget_boxes()","close" );
 			return SKIN_GADGET_CLOSE;
 		}
 		offset += w;
 	}
 	if( flags->size ) {
-		if( offset >= 0  &&  offset<D_GADGET_SIZE  ) {
+		if( offset >= 0  &&  offset<D_GADGET_WIDTH  ) {
 //DBG_MESSAGE("simwin_gadget_et decode_gadget_boxes()","size" );
 			return SKIN_GADGET_MINIMIZE;
 		}
 		offset += w;
 	}
 	if( flags->help ) {
-		if( offset >= 0  &&  offset<D_GADGET_SIZE  ) {
+		if( offset >= 0  &&  offset<D_GADGET_WIDTH  ) {
 //DBG_MESSAGE("simwin_gadget_et decode_gadget_boxes()","help" );
 			return SKIN_GADGET_HELP;
 		}
 		offset += w;
 	}
 	if( flags->prev ) {
-		if( offset >= 0  &&  offset<D_GADGET_SIZE  ) {
+		if( offset >= 0  &&  offset<D_GADGET_WIDTH  ) {
 			return SKIN_BUTTON_PREVIOUS;
 		}
 		offset += w;
 	}
 	if( flags->next ) {
-		if( offset >= 0  &&  offset<D_GADGET_SIZE  ) {
+		if( offset >= 0  &&  offset<D_GADGET_WIDTH  ) {
 			return SKIN_BUTTON_NEXT;
 		}
 		offset += w;
 	}
 	if( flags->gotopos ) {
-		if( offset >= 0  &&  offset<D_GADGET_SIZE  ) {
+		if( offset >= 0  &&  offset<D_GADGET_WIDTH  ) {
 			return SKIN_GADGET_GOTOPOS;
 		}
 		offset += w;
 	}
 	if( flags->sticky ) {
-		if( offset >= 0  &&  offset<D_GADGET_SIZE  ) {
+		if( offset >= 0  &&  offset<D_GADGET_WIDTH  ) {
 			return SKIN_GADGET_NOTPINNED;
 		}
 		offset += w;
@@ -337,7 +337,7 @@ static void win_draw_window_title(const koord pos, const koord gr,
 
 	// Draw the gadgets and then move left and draw text.
 	flags.gotopos = (welt_pos != koord3d::invalid);
-	int width = display_gadget_boxes( &flags, pos.x+(REVERSE_GADGETS?0:gr.x-D_GADGET_SIZE-4), pos.y, titel_farbe, closing, sticky, goto_pushed );
+	int width = display_gadget_boxes( &flags, pos.x+(REVERSE_GADGETS?0:gr.x-D_GADGET_WIDTH-4), pos.y, titel_farbe, closing, sticky, goto_pushed );
 	int titlewidth = display_proportional_clip( pos.x + (REVERSE_GADGETS?width+4:4), pos.y+(D_TITLEBAR_HEIGHT-LINEASCENT)/2, text, ALIGN_LEFT, text_farbe, false );
 	if(  flags.gotopos  ) {
 		display_proportional_clip( pos.x + (REVERSE_GADGETS?width+4:4)+titlewidth+8, pos.y+(D_TITLEBAR_HEIGHT-LINEASCENT)/2, welt_pos.get_2d().get_fullstr(), ALIGN_LEFT, text_farbe, false );
@@ -1294,7 +1294,7 @@ bool check_pos_win(event_t *ev)
 				wins[i].flags.help = ( wins[i].gui->get_hilfe_datei() != NULL );
 
 				// Where Was It ?
-				sint8 code = decode_gadget_boxes( ( & wins[i].flags ), wins[i].pos.x + (REVERSE_GADGETS?0:wins[i].gui->get_fenstergroesse().x-D_GADGET_SIZE-4), x );
+				sint8 code = decode_gadget_boxes( ( & wins[i].flags ), wins[i].pos.x + (REVERSE_GADGETS?0:wins[i].gui->get_fenstergroesse().x-D_GADGET_WIDTH-4), x );
 
 				switch( code ) {
 					case SKIN_GADGET_CLOSE :
@@ -1302,7 +1302,7 @@ bool check_pos_win(event_t *ev)
 							wins[i].closing = true;
 						}
 						else if  (IS_LEFTRELEASE(ev)) {
-							if (  ev->my>=wins[i].pos.y  &&  ev->my<wins[i].pos.y+D_GADGET_SIZE  &&  decode_gadget_boxes( ( & wins[i].flags ), wins[i].pos.x + (REVERSE_GADGETS?0:wins[i].gui->get_fenstergroesse().x-D_GADGET_SIZE-4), ev->mx )==SKIN_GADGET_CLOSE) {
+							if (  ev->my>=wins[i].pos.y  &&  ev->my<wins[i].pos.y+D_GADGET_WIDTH  &&  decode_gadget_boxes( ( & wins[i].flags ), wins[i].pos.x + (REVERSE_GADGETS?0:wins[i].gui->get_fenstergroesse().x-D_GADGET_WIDTH-4), ev->mx )==SKIN_GADGET_CLOSE) {
 								destroy_win(wins[i].gui);
 							}
 							else {

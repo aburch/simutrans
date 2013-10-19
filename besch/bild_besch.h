@@ -20,14 +20,14 @@
 
 
 struct bild_t {
-	uint32 len;
-	sint16 x;
-	sint16 y;
-	sint16 w;
-	sint16 h;
-	image_id bild_nr;	// Speichern wir erstmal als Dummy mit, wird von register_image() ersetzt
-	uint8 zoomable; // some image may not be zoomed i.e. icons
-	uint16 data[];
+	size_t len;       // length of data[] in PIXVAL units
+	scr_coord_val x;  // x offset of data[] image
+	scr_coord_val y;  // y offset of data[] image
+	scr_coord_val w;  // width of data[] image
+	scr_coord_val h;  // height of data[] image
+	image_id bild_nr; // set by register_image()
+	uint8 zoomable;   // some image may not be zoomed i.e. icons
+	PIXVAL data[];    // RLE encoded image data
 };
 
 /*

@@ -242,9 +242,17 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	// Bolt image for electrified depots:
 	add_komponente(&img_bolt);
 
+	scrolly_pas.set_scrollbar_mode       ( scrollbar_t::show_disabled );
+	scrolly_pas.set_size_corner(false);
+	scrolly_electrics.set_scrollbar_mode ( scrollbar_t::show_disabled );
+	scrolly_electrics.set_size_corner(false);
+	scrolly_loks.set_scrollbar_mode      ( scrollbar_t::show_disabled );
+	scrolly_loks.set_size_corner(false);
+	scrolly_waggons.set_scrollbar_mode   ( scrollbar_t::show_disabled );
+	scrolly_waggons.set_size_corner(false);
+
 	layout(&gr);
 	gui_frame_t::set_fenstergroesse(gr);
-
 	set_resizemode( diagonal_resize );
 
 	depot->clear_command_pending();
@@ -524,7 +532,7 @@ void depot_frame_t::layout(koord *gr)
 	bt_veh_action.set_pos(koord(D_MARGIN_LEFT + (DEPOT_FRAME_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT) * 3 / 4 + 3, INFO_VSTART));
 	bt_veh_action.set_groesse(koord((DEPOT_FRAME_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT) - (DEPOT_FRAME_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT) * 3 / 4 - 3, D_BUTTON_HEIGHT));
 
-	lb_veh_action.align_to(&bt_veh_action,ALIGN_EXTERIOR_H | ALIGN_RIGHT | ALIGN_CENTER_V, koord(D_V_SPACE,0));
+	lb_veh_action.align_to(&bt_veh_action, ALIGN_RIGHT | ALIGN_EXTERIOR_H | ALIGN_CENTER_V, koord(D_V_SPACE,0));
 
 	bt_show_all.set_pos(koord(D_MARGIN_LEFT, INFO_VSTART + D_BUTTON_HEIGHT + 1));
 	bt_show_all.pressed = show_all;
@@ -537,7 +545,7 @@ void depot_frame_t::layout(koord *gr)
 	vehicle_filter.set_groesse(koord((DEPOT_FRAME_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT) - (DEPOT_FRAME_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT) * 3 / 4 - 3, D_BUTTON_HEIGHT));
 	vehicle_filter.set_max_size(koord(D_BUTTON_WIDTH + 60, LINESPACE * 7));
 
-	lb_vehicle_filter.align_to(&vehicle_filter,ALIGN_EXTERIOR_H | ALIGN_RIGHT | ALIGN_TOP, koord(D_V_SPACE,D_GET_CENTER_ALIGN_OFFSET(LINESPACE,D_EDIT_HEIGHT)));
+	lb_vehicle_filter.align_to(&vehicle_filter, ALIGN_RIGHT | ALIGN_EXTERIOR_H | ALIGN_TOP, koord(D_V_SPACE,D_GET_CENTER_ALIGN_OFFSET(LINESPACE,D_EDIT_HEIGHT)));
 
 	const scr_coord_val margin = 4;
 	img_bolt.set_pos(koord(get_fenstergroesse().x - skinverwaltung_t::electricity->get_bild(0)->get_pic()->w - margin, margin));

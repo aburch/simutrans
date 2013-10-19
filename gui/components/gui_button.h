@@ -139,15 +139,15 @@ private:
 	void draw_focus_rect(koord xy, koord wh, scr_coord_val offset = 1);
 
 	// scrollbar either skinned or simple
-	void draw_scrollbar(scr_coord_val x, scr_coord_val y, scr_coord_val w, scr_coord_val h, bool horizontal, bool slider);
+	static void draw_scrollbar( scr_coord pos, scr_size sz, bool horizontal, bool slider);
 
 	// Hide these
 	button_t(const button_t&);        // forbidden
 	void operator =(const button_t&); // forbidden
 
 public:
-	COLOR_VAL background; //@author hsiegeln
-	COLOR_VAL foreground;
+	COLOR_VAL background_color; //@author hsiegeln
+	COLOR_VAL text_color;
 
 	bool pressed;
 

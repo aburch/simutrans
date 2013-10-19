@@ -91,7 +91,7 @@ citybuilding_edit_frame_t::citybuilding_edit_frame_t(spieler_t* sp_, karte_t* we
 
 	//lb_rotation.set_pos( koord( get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2+44, offset_of_comp-4 ) );
 	lb_rotation.set_width( bt_right_rotate.get_pos().x - bt_left_rotate.get_pos().x - bt_left_rotate.get_groesse().x );
-	lb_rotation.align_to(&bt_left_rotate,ALIGN_EXTERIOR_H | ALIGN_LEFT | ALIGN_CENTER_V);
+	lb_rotation.align_to(&bt_left_rotate, ALIGN_LEFT | ALIGN_EXTERIOR_H | ALIGN_CENTER_V);
 	add_komponente(&lb_rotation);
 	offset_of_comp += D_BUTTON_HEIGHT;
 

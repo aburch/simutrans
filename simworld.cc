@@ -3119,14 +3119,14 @@ bool karte_t::change_player_tool(uint8 cmd, uint8 player_nr, uint16 param, bool 
 	switch(cmd) {
 		case new_player: {
 			// only public player can start AI
-			if ( (param != spieler_t::HUMAN  &&  !public_player_unlocked)  ||  param >= spieler_t::MAX_AI) {
+			if(  (param != spieler_t::HUMAN  &&  !public_player_unlocked)  ||  param >= spieler_t::MAX_AI  ) {
 				return false;
 			}
 			// range check, player already existent?
-			if ( player_nr >= PLAYER_UNOWNED  ||   get_spieler(player_nr) ) {
+			if(  player_nr >= PLAYER_UNOWNED  ||   get_spieler(player_nr)  ) {
 				return false;
 			}
-			if (exec) {
+			if(exec) {
 				new_spieler( player_nr, (uint8) param );
 				// activate/deactivate AI immediately
 				spieler_t *sp = get_spieler(player_nr);

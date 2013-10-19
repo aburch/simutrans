@@ -148,13 +148,15 @@ void gui_tab_panel_t::zeichnen(koord parent_pos)
 	if(  required_groesse.x>groesse.x  ||  offset_tab > 0) {
 		left.zeichnen( parent_pos+pos );
 		right.zeichnen( parent_pos+pos );
-		display_fillbox_wh_clip(xpos, ypos+TAB_HEADER_V_SIZE-1, 10, 1, SYSCOL_TEXT_HIGHLIGHT, true);
+		//display_fillbox_wh_clip(xpos, ypos+TAB_HEADER_V_SIZE-1, 10, 1, SYSCOL_TEXT_HIGHLIGHT, true);
+		display_fillbox_wh_clip(xpos, ypos+TAB_HEADER_V_SIZE-1, 10, 1, SYSCOL_HIGHLIGHT, true);
 		xpos += 10;
 	}
 
 	int text_x = xpos+8;
 
-	display_fillbox_wh_clip(xpos, ypos+TAB_HEADER_V_SIZE-1, 4, 1, COL_WHITE, true);
+	//display_fillbox_wh_clip(xpos, ypos+TAB_HEADER_V_SIZE-1, 4, 1, COL_WHITE, true);
+	display_fillbox_wh_clip(xpos, ypos+TAB_HEADER_V_SIZE-1, 4, 1, SYSCOL_HIGHLIGHT, true);
 
 	// do not draw under right button
 	int xx = required_groesse.x>get_groesse().x ? get_groesse().x-22 : get_groesse().x;
@@ -173,14 +175,15 @@ void gui_tab_panel_t::zeichnen(koord parent_pos)
 			const int width = text ? proportional_string_width( text ) : IMG_WIDTH;
 
 			if (i != active_tab) {
-				display_fillbox_wh_clip(text_x-4, ypos+TAB_HEADER_V_SIZE-1, width+8, 1, MN_GREY4, true);
-				display_fillbox_wh_clip(text_x-3, ypos+4, width+5, 1, MN_GREY4, true);
+				// None active tabs
+				display_fillbox_wh_clip(text_x-4, ypos+TAB_HEADER_V_SIZE-1, width+8, 1, SYSCOL_HIGHLIGHT, true);
+				display_fillbox_wh_clip(text_x-3, ypos+4, width+6, 1, SYSCOL_HIGHLIGHT, true);
 
-				display_vline_wh_clip(text_x-4, ypos+5, TAB_HEADER_V_SIZE-6, MN_GREY4, true);
-				display_vline_wh_clip(text_x+width+3, ypos+5, TAB_HEADER_V_SIZE-6, MN_GREY0, true);
+				display_vline_wh_clip(text_x-4, ypos+5, TAB_HEADER_V_SIZE-6, SYSCOL_HIGHLIGHT, true);
+				display_vline_wh_clip(text_x+width+3, ypos+5, TAB_HEADER_V_SIZE-6, SYSCOL_SHADOW, true);
 
 				if(text) {
-					display_proportional_clip(text_x, ypos+7, text, ALIGN_LEFT, SYSCOL_TEXT_HIGHLIGHT, true);
+					display_proportional_clip(text_x, ypos+7, text, ALIGN_LEFT, SYSCOL_TEXT, true);
 				}
 				else {
 					KOORD_VAL const y = ypos   - iter.img->get_pic()->y + 10            - iter.img->get_pic()->h / 2;
@@ -189,13 +192,14 @@ void gui_tab_panel_t::zeichnen(koord parent_pos)
 				}
 			}
 			else {
-				display_fillbox_wh_clip(text_x-3, ypos+3, width+5, 1, MN_GREY4, true);
+				// Active tab
+				display_fillbox_wh_clip(text_x-3, ypos+3, width+6, 1, SYSCOL_HIGHLIGHT, true);
 
-				display_vline_wh_clip(text_x-4, ypos+4, 13, MN_GREY4, true);
-				display_vline_wh_clip(text_x+width+3, ypos+4, 13, MN_GREY0, true);
+				display_vline_wh_clip(text_x-4, ypos+4, 13, SYSCOL_HIGHLIGHT, true);
+				display_vline_wh_clip(text_x+width+3, ypos+4, 13, SYSCOL_SHADOW, true);
 
 				if(text) {
-					display_proportional_clip(text_x, ypos+7, text, ALIGN_LEFT, COL_BLACK, true);
+					display_proportional_clip(text_x, ypos+7, text, ALIGN_LEFT, SYSCOL_TEXT_HIGHLIGHT, true);
 				}
 				else {
 					KOORD_VAL const y = ypos   - iter.img->get_pic()->y + 10            - iter.img->get_pic()->h / 2;
@@ -208,7 +212,7 @@ void gui_tab_panel_t::zeichnen(koord parent_pos)
 			POP_CLIP();
 		}
 	}
-	display_fillbox_wh_clip(text_x-4, ypos+TAB_HEADER_V_SIZE-1, xpos+groesse.x-(text_x-4), 1, MN_GREY4, true);
+	display_fillbox_wh_clip(text_x-4, ypos+TAB_HEADER_V_SIZE-1, xpos+groesse.x-(text_x-4), 1, SYSCOL_HIGHLIGHT, true);
 
 	// now for tooltips ...
 	int my = get_maus_y()-parent_pos.y-pos.y-6;

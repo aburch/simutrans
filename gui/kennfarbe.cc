@@ -60,7 +60,7 @@ farbengui_t::farbengui_t(spieler_t *sp) :
 	// Primary color buttons
 	for(unsigned i=0;  i<28;  i++) {
 		player_color_1[i].init( button_t::box_state, (used_colors1 & (1<<(i+1)) ? "X" : ""), koord( cursor.x+(i%14)*(D_BUTTON_HEIGHT+D_H_SPACE), cursor.y+(i/14)*(D_BUTTON_HEIGHT+D_V_SPACE) ) , koord(D_BUTTON_HEIGHT,D_BUTTON_HEIGHT) );
-		player_color_1[i].background = i*8+4;
+		player_color_1[i].background_color = i*8+4;
 		player_color_1[i].add_listener(this);
 		add_komponente( player_color_1+i );
 	}
@@ -75,7 +75,7 @@ farbengui_t::farbengui_t(spieler_t *sp) :
 	// Secondary color buttons
 	for(unsigned i=0;  i<28;  i++) {
 		player_color_2[i].init( button_t::box_state, (used_colors2 & (1<<(i+1)) ? "X" : ""), koord( cursor.x+(i%14)*(D_BUTTON_HEIGHT+D_H_SPACE), cursor.y+(i/14)*(D_BUTTON_HEIGHT+D_V_SPACE) ), koord(D_BUTTON_HEIGHT,D_BUTTON_HEIGHT) );
-		player_color_2[i].background = i*8+4;
+		player_color_2[i].background_color = i*8+4;
 		player_color_2[i].add_listener(this);
 		add_komponente( player_color_2+i );
 	}

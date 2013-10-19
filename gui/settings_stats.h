@@ -98,7 +98,7 @@ class settings_t;
 	bt->pressed = (a);\
 	button.append( bt );\
 	add_komponente( bt );\
-	ypos += D_BUTTON_SQUARE;\
+	ypos += D_CHECKBOX_HEIGHT;\
 }\
 
 #define INIT_BOOL_NEW(t,a) if(  new_world  ) INIT_BOOL( (t), (a) )

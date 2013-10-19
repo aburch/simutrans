@@ -420,7 +420,8 @@ PLAYER_COLOR_VAL gebaeude_t::get_outline_colour() const
 	if(env_t::hide_buildings!=env_t::NOT_HIDE) {
 		if(get_haustyp()!=unbekannt) {
 			disp_colour = colours[0] | TRANSPARENT50_FLAG | OUTLINE_FLAG;
-		} else if (env_t::hide_buildings == env_t::ALL_HIDDEN_BUILDING && tile->get_besch()->get_utyp() < haus_besch_t::weitere) {
+		}
+		else if (env_t::hide_buildings == env_t::ALL_HIDDEN_BUILDING && tile->get_besch()->get_utyp() < haus_besch_t::weitere) {
 			// special bilding
 			disp_colour = colours[tile->get_besch()->get_utyp()] | TRANSPARENT50_FLAG | OUTLINE_FLAG;
 		}

@@ -214,16 +214,20 @@ void gui_scrolled_list_t::adjust_scrollbar()
 {
 	sb.set_pos(koord(groesse.x-D_SCROLLBAR_WIDTH,0));
 
-	int vz = total_vertical_size();
+	// Max Kielland
+	// The scrollbar manages itself, just set the size...
+
+	//int vz = total_vertical_size();
 	// need scrollbar?
-	if ( groesse.y-border < vz) {
-		sb.set_visible(true);
-		sb.set_groesse(koord(D_SCROLLBAR_WIDTH, (int)groesse.y+border-1));
-		sb.set_knob(groesse.y-border, vz);
-	}
-	else {
-		sb.set_visible(false);
-	}
+	//if ( groesse.y-border < vz) {
+	//	sb.set_visible(true);
+		sb.set_groesse( koord( D_SCROLLBAR_WIDTH, (int)groesse.y + border - 1) );
+		//sb.set_knob(groesse.y-border, vz);
+		sb.set_knob( groesse.y - border, total_vertical_size() );
+	//}
+	//else {
+	//	sb.set_visible(false);
+	//}
 }
 
 
@@ -330,7 +334,5 @@ void gui_scrolled_list_t::zeichnen(koord pos)
 	}
 	POP_CLIP();
 
-	if (sb.is_visible()) {
-		sb.zeichnen(pos);
-	}
+	sb.zeichnen(pos);
 }

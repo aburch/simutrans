@@ -288,6 +288,32 @@ const char * ltrim(const char *p)
 }
 
 
+/**
+ * Trims a std::string by removing any beginning and ending space/tab characters.
+ * (Move to simstring?)
+ * @author  Max Kielland
+ *
+ * @retval std::string  The trimmed string.
+ */
+std::string trim(std::string &str)
+{
+	int pos;
+
+	// left trim
+	pos = str.find_first_not_of(" \t");
+	if( pos && pos  !=  std::string::npos ) {
+		str = str.substr(pos);
+	}
+
+	// right trim
+	pos = str.find_last_not_of(" \t");
+	if( pos != str.length()-1 && pos  !=  std::string::npos ) {
+		str = str.erase(pos+1);
+	}
+
+	return str;
+}
+
 char const* strstart(char const* str, char const* start)
 {
 	while (*start != '\0') {

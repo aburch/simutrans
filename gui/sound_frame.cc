@@ -62,7 +62,7 @@ sound_frame_t::sound_frame_t()
 	sound_mute_button.pressed = sound_get_mute();
 	add_komponente(&sound_mute_button);
 	sound_mute_button.add_listener( this );
-	cursor.y += D_BUTTON_SQUARE + D_V_SPACE*2;
+	cursor.y += D_CHECKBOX_HEIGHT + D_V_SPACE*2;
 
 	// Music
 	music_volume_label.set_pos( cursor );

@@ -33,7 +33,6 @@ private:
 	bool b_show_scroll_x:1;
 	bool b_show_scroll_y:1;
 	bool b_has_size_corner:1;
-	bool b_has_bottom_margin:1; // set true when D_MARGIN_BOTTOM is below scrolly and scroll_x is hidden and has_size_corner to enlarge scroll_y
 
 	void recalc_sliders(koord groesse);
 
@@ -56,6 +55,8 @@ public:
 	 */
 	void set_scroll_position(int x, int y);
 
+	scr_rect get_client( void );
+
 	int get_scroll_x() const;
 	int get_scroll_y() const;
 
@@ -77,9 +78,9 @@ public:
 
 	void set_show_scroll_y(bool yesno) { b_show_scroll_y = yesno; }
 
-	void set_size_corner(bool yesno) { b_has_size_corner = yesno; }
+	void set_scrollbar_mode(scrollbar_t::visible_mode_t mode) { scroll_x.set_visible_mode(mode); scroll_y.set_visible_mode(mode); }
 
-	void set_bottom_margin(bool yesno) { b_has_bottom_margin = yesno; }
+	void set_size_corner(bool yesno) { b_has_size_corner = yesno; }
 
 	/**
 	 * Returns true if the hosted component is focusable

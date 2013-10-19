@@ -59,14 +59,14 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[17].set_typ(button_t::square_state);
 	buttons[17].set_text("show grid");
 	buttons[17].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
-	cursor.y += D_BUTTON_SQUARE + D_V_SPACE;
+	cursor.y += D_CHECKBOX_HEIGHT + D_V_SPACE;
 
 	// Underground view checkbox
 	buttons[16].set_pos( cursor );
 	buttons[16].set_typ(button_t::square_state);
 	buttons[16].set_text("underground mode");
 	buttons[16].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
-	cursor.y += D_BUTTON_SQUARE + D_V_SPACE;
+	cursor.y += D_CHECKBOX_HEIGHT + D_V_SPACE;
 
 	// Show slice map view checkbox
 	buttons[20].set_pos( cursor );
@@ -81,7 +81,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	inp_underground_level.set_value( grund_t::underground_mode==grund_t::ugm_level ? grund_t::underground_level : welt->get_zeiger()->get_pos().z);
 	inp_underground_level.set_limits(welt->get_grundwasser()-10, 32);
 	inp_underground_level.add_listener(this);
-	cursor.y += D_BUTTON_SQUARE + D_V_SPACE;
+	cursor.y += D_CHECKBOX_HEIGHT + D_V_SPACE;
 
 	// Day/night change checkbox
 	buttons[9].set_pos( cursor );
@@ -89,7 +89,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[9].set_text("8WORLD_CHOOSE");
 	buttons[9].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
 	buttons[9].pressed = env_t::night_shift;
-	cursor.y += D_BUTTON_SQUARE + D_V_SPACE;
+	cursor.y += D_CHECKBOX_HEIGHT + D_V_SPACE;
 
 	// Brightness label
 	brightness_label.init("1LIGHT_CHOOSE",cursor);
@@ -111,7 +111,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[6].set_text("4LIGHT_CHOOSE");
 	buttons[6].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
 	buttons[6].pressed = env_t::scroll_multi < 0;
-	cursor.y += D_BUTTON_SQUARE + D_V_SPACE;
+	cursor.y += D_CHECKBOX_HEIGHT + D_V_SPACE;
 
 	// Scroll speed label
 	scrollspeed_label.init("3LIGHT_CHOOSE",cursor);
@@ -138,14 +138,14 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[10].set_text("hide transparent");
 	buttons[10].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
 	buttons[10].pressed = env_t::hide_with_transparency;
-	cursor.y += D_BUTTON_SQUARE + D_V_SPACE;
+	cursor.y += D_CHECKBOX_HEIGHT + D_V_SPACE;
 
 	// Hide trees checkbox
 	buttons[11].set_pos( cursor );
 	buttons[11].set_typ(button_t::square_state);
 	buttons[11].set_text("hide trees");
 	buttons[11].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
-	cursor.y += D_BUTTON_SQUARE + D_V_SPACE;
+	cursor.y += D_CHECKBOX_HEIGHT + D_V_SPACE;
 
 	// Hide buildings arrows
 	buttons[12].set_pos( cursor );
@@ -173,7 +173,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	cursor_hide_range.set_value(env_t::cursor_hide_range);
 	cursor_hide_range.set_limits( 0, 10 );
 	cursor_hide_range.add_listener(this);
-	cursor.y += D_BUTTON_SQUARE;
+	cursor.y += D_CHECKBOX_HEIGHT;
 
 	// Divider 2
 	divider2.set_pos( cursor );
@@ -186,14 +186,14 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[14].set_text("transparent station coverage");
 	buttons[14].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
 	buttons[14].pressed = env_t::use_transparency_station_coverage;
-	cursor.y += D_BUTTON_SQUARE + D_V_SPACE;
+	cursor.y += D_CHECKBOX_HEIGHT + D_V_SPACE;
 
 	// Show station coverage
 	buttons[15].set_pos( cursor );
 	buttons[15].set_typ(button_t::square_state);
 	buttons[15].set_text("show station coverage");
 	buttons[15].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
-	cursor.y += D_BUTTON_SQUARE + D_V_SPACE;
+	cursor.y += D_CHECKBOX_HEIGHT + D_V_SPACE;
 
 	// Show station names arrow
 	buttons[18].set_pos( cursor );
@@ -207,7 +207,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[19].set_text("show waiting bars");
 	buttons[19].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
 	buttons[19].pressed = env_t::show_names&2;
-	cursor.y += D_BUTTON_SQUARE;
+	cursor.y += D_CHECKBOX_HEIGHT;
 
 	// Divider 3
 	divider3.set_pos( cursor );
@@ -220,7 +220,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[8].set_text("6LIGHT_CHOOSE");
 	buttons[8].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
 	buttons[8].pressed = welt->get_settings().get_random_pedestrians();
-	cursor.y += D_BUTTON_SQUARE + D_V_SPACE;
+	cursor.y += D_CHECKBOX_HEIGHT + D_V_SPACE;
 
 	// Pedestrians at stops checkbox
 	buttons[7].set_pos( cursor );
@@ -228,7 +228,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[7].set_text("5LIGHT_CHOOSE");
 	buttons[7].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
 	buttons[7].pressed = welt->get_settings().get_show_pax();
-	cursor.y += D_BUTTON_SQUARE + D_V_SPACE;
+	cursor.y += D_CHECKBOX_HEIGHT + D_V_SPACE;
 
 	// Traffic density label
 	traffic_density_label.init("6WORLD_CHOOSE",cursor);
@@ -242,7 +242,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	traffic_density.set_value(welt->get_settings().get_verkehr_level());
 	traffic_density.set_limits( 0, 16 );
 	traffic_density.add_listener(this);
-	cursor.y += D_BUTTON_SQUARE + D_V_SPACE;
+	cursor.y += D_CHECKBOX_HEIGHT + D_V_SPACE;
 
 	// Convoy tooltip left/right arrows
 	buttons[0].set_pos( cursor );
@@ -261,7 +261,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[22].set_typ( button_t::square_state );
 	buttons[22].set_text( "Highlite schedule" );
 	buttons[22].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
-	cursor.y += D_BUTTON_SQUARE;
+	cursor.y += D_CHECKBOX_HEIGHT;
 
 	// Divider 4
 	divider4.set_pos( cursor );
@@ -379,7 +379,7 @@ void color_gui_t::set_fenstergroesse(koord groesse)
 	traffic_density.set_pos       ( koord( column, traffic_density.get_pos().y       ) );
 	cursor_hide_range.set_pos     ( koord( column, cursor_hide_range.get_pos().y     ) );
 
-	column = groesse.x - D_MARGIN_RIGHT - gui_theme_t::gui_arrow_right_size.x;
+	column = groesse.x - D_MARGIN_RIGHT - D_ARROW_RIGHT_WIDTH;
 	buttons[1].set_pos            ( koord( column, buttons[1].get_pos().y            ) );
 	buttons[13].set_pos           ( koord( column, buttons[13].get_pos().y           ) );
 

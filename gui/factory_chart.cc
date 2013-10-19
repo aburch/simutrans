@@ -179,7 +179,7 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 			for(  int s=0;  s<MAX_FAB_GOODS_STAT;  ++s  ) {
 				goods_chart.add_curve( goods_color[goods_label_count%MAX_GOODS_COLOR]+2+(s*3)/2, input[g].get_stats(), MAX_FAB_GOODS_STAT, s, MAX_MONTH, false, false, true, 0, goods_convert[s] );
 				goods_buttons[goods_button_count].init(button_t::box_state, input_type[s], koord( D_MARGIN_LEFT+(D_H_SPACE+D_BUTTON_WIDTH)*(s%2+1), offset_below_chart+(D_H_SPACE+D_BUTTON_HEIGHT)*(goods_label_row+s/2) ));
-				goods_buttons[goods_button_count].background = goods_color[goods_label_count%MAX_GOODS_COLOR]+2+(s*3)/2;
+				goods_buttons[goods_button_count].background_color = goods_color[goods_label_count%MAX_GOODS_COLOR]+2+(s*3)/2;
 				goods_buttons[goods_button_count].pressed = false;
 				goods_buttons[goods_button_count].add_listener(this);
 				goods_cont.add_komponente( goods_buttons + goods_button_count );
@@ -205,7 +205,7 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 			for(  int s=0;  s<3;  ++s  ) {
 				goods_chart.add_curve( goods_color[goods_label_count%MAX_GOODS_COLOR]+2+s*2, output[g].get_stats(), MAX_FAB_GOODS_STAT, s, MAX_MONTH, false, false, true, 0, goods_convert[s] );
 				goods_buttons[goods_button_count].init(button_t::box_state, output_type[s], koord( D_MARGIN_LEFT+(D_H_SPACE+D_BUTTON_WIDTH)*(s+1), offset_below_chart+(D_H_SPACE+D_BUTTON_HEIGHT)*goods_label_row ));
-				goods_buttons[goods_button_count].background = goods_color[goods_label_count%MAX_GOODS_COLOR]+2+s*2;
+				goods_buttons[goods_button_count].background_color = goods_color[goods_label_count%MAX_GOODS_COLOR]+2+s*2;
 				goods_buttons[goods_button_count].pressed = false;
 				goods_buttons[goods_button_count].add_listener(this);
 				goods_cont.add_komponente( goods_buttons + goods_button_count );
@@ -226,7 +226,7 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 	for(  int s=0;  s<MAX_FAB_STAT;  ++s  ) {
 		prod_chart.add_curve( prod_color[s], factory->get_stats(), MAX_FAB_STAT, s, MAX_MONTH, false, false, true, 0, prod_convert[s] );
 		prod_buttons[s].init(button_t::box_state, prod_type[s], koord( D_MARGIN_LEFT+(D_H_SPACE+D_BUTTON_WIDTH)*button_pos[s].x, offset_below_chart+(D_H_SPACE+D_BUTTON_HEIGHT)*button_pos[s].y));
-		prod_buttons[s].background = prod_color[s];
+		prod_buttons[s].background_color = prod_color[s];
 		prod_buttons[s].pressed = false;
 		// only show buttons, if the is something to do ...
 		if(
@@ -245,7 +245,7 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 			for(  int r=0;  r<MAX_FAB_REF_LINE;  ++r  ) {
 				prod_chart.add_line( ref_color[r], prod_ref_line_data + r, MAX_MONTH, false, true, 0, ref_convert[r] );
 				prod_ref_line_buttons[r].init(button_t::box_state, prod_type[2+(r%3)], koord( D_MARGIN_LEFT+(D_H_SPACE+D_BUTTON_WIDTH)*(1+r%3), offset_below_chart+(D_H_SPACE+D_BUTTON_HEIGHT)*(2+(r/3))));
-				prod_ref_line_buttons[r].background = ref_color[r];
+				prod_ref_line_buttons[r].background_color = ref_color[r];
 				prod_ref_line_buttons[r].pressed = false;
 				if(
 					(r==FAB_REF_MAX_BOOST_ELECTRIC  &&  (factory->get_besch()->is_electricity_producer()  ||  factory->get_besch()->get_electric_boost()==0))  ||

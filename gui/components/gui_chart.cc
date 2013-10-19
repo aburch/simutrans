@@ -7,11 +7,12 @@
 #include <cmath>
 
 #include "gui_chart.h"
-#include "../../dataobj/environment.h"
-#include "../../utils/simstring.h"
-#include "../../display/simgraph.h"
-#include "../../simcolor.h"
+#include "../gui_frame.h"
 #include "../simwin.h"
+#include "../../simcolor.h"
+#include "../../utils/simstring.h"
+#include "../../dataobj/environment.h"
+#include "../../display/simgraph.h"
 #include "../gui_theme.h"
 
 static char tooltip[64];
@@ -152,7 +153,7 @@ void gui_chart_t::zeichnen(koord offset)
 	}
 
 	// draw chart frame
-	display_ddd_box_clip(offset.x, offset.y, groesse.x, groesse.y, COL_GREY1, COL_WHITE);
+	display_ddd_box_clip(offset.x, offset.y, groesse.x, groesse.y, SYSCOL_SHADOW, SYSCOL_HIGHLIGHT);
 
 	// draw chart lines
 	KOORD_VAL x_last = 0;  // remember last digit position to avoid overwriting by next label
@@ -164,7 +165,7 @@ void gui_chart_t::zeichnen(koord offset)
 			sprintf( digit, "%i", abs(seed - j) );
 			KOORD_VAL x =  x0 - (seed != j ? (int)(2 * log( (double)abs(seed - j) )) : 0);
 			if(  x > x_last  ) {
-				x_last = x + display_proportional_clip( x, offset.y + groesse.y + 6, digit, ALIGN_LEFT, MN_GREY4, true );
+				x_last = x + display_proportional_clip( x, offset.y + groesse.y + 6, digit, ALIGN_LEFT, SYSCOL_TEXT_HIGHLIGHT, true );
 			}
 		}
 		// year's vertical lines

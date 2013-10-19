@@ -203,6 +203,15 @@ public:
 	 */
 	void align_to(gui_komponente_t* component_par, control_alignment_t alignment_par, koord offset_par = koord(0,0) );
 
+	/**
+	 * Align this component against a target component
+	 * @param component_par the component to align against
+	 * @param alignment_par the requested alignment
+	 * @param offset_par Offset added to final alignment
+	 * @author Max Kielland
+	 */
+	virtual scr_rect get_client( void ) { return scr_rect( pos, groesse ); }
+
 };
 
 #endif

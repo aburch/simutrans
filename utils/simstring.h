@@ -2,6 +2,7 @@
 #define _simstring_h
 
 #include <stddef.h>
+#include <string>
 
 
 #ifndef STRICMP
@@ -99,6 +100,12 @@ void rtrim(char *);
 const char * ltrim(const char *);
 
 /**
+ * Trim function for std::strings
+ * @author Max Kielland
+ */
+std::string trim ( std::string &str );
+
+/**
  * Returns a pointer to the rest of str if str starts with start.
  */
 char const* strstart(char const* str, char const* start);
@@ -107,5 +114,6 @@ char const* strstart(char const* str, char const* start);
  * Returns whether s is a null pointer or the empty string.
  */
 static inline bool strempty(char const* const s) { return !s || s[0] == '\0'; }
+
 
 #endif

@@ -42,6 +42,16 @@
 
 #define L_DIALOG_WIDTH (D_MARGIN_LEFT + 3*D_BUTTON_WIDTH + 2*D_H_SPACE + D_MARGIN_RIGHT)
 
+#ifdef _OPTIMIZED
+	#define L_DEBUG_TEXT " (optimized)"
+#else
+	#ifdef DEBUG
+		#define L_DEBUG_TEXT " (debug)"
+	#else
+		#define L_DEBUG_TEXT
+	#endif // debug
+#endif // optimized
+
 // colors
 #define COL_PT (5)
 #define COLOR_RAMP_SIZE ( 5 ) // Number or fade colors + normal color at index 0
@@ -57,46 +67,59 @@ banner_t::banner_t( karte_t *w) : gui_frame_t(""),
 {
 	// Pass the upper part drawn by zeichnen()
 	koord cursor = koord( D_MARGIN_LEFT, D_MARGIN_TOP + 5*L_LINESPACE_EXTRA_2 + 3*L_LINESPACE_EXTRA_5 + 3*L_LINESPACE_EXTRA_7 + L_BANNER_HEIGHT + D_V_SPACE);
+	scr_coord_val width;
+	scr_coord button_size;
 
 	last_ms = dr_time();
 	line = 0;
 
+	// Calculate dialogue width based on a few assumptions.
+	// When we have GUI controls for shadow text this will be much simpler...
+#ifdef REVISION
+	width = max( L_DIALOG_WIDTH, D_MARGINS_X + display_calc_proportional_string_len_width( "Version " VERSION_NUMBER " " VERSION_DATE " r" QUOTEME(REVISION) L_DEBUG_TEXT, -1 ) );
+#else
+	width = max( L_DIALOG_WIDTH, D_MARGINS_X + display_calc_proportional_string_len_width( "Version " VERSION_NUMBER " " VERSION_DATE L_DEBUG_TEXT, -1 ) );
+#endif
+
+	width = max( width, D_MARGINS_X + L_TEXT_INDENT + display_calc_proportional_string_len_width( "Selling of the program is forbidden.", -1) + skinverwaltung_t::logosymbol->get_bild(0)->get_pic()->w + D_H_SPACE);
+	button_size = scr_coord( (width - D_MARGIN_LEFT - (D_H_SPACE<<1) - D_MARGIN_RIGHT) / 3,D_BUTTON_HEIGHT );
+
 	// Position logo in relation to text drawn by zeichnen()
-	logo.set_pos( koord(L_DIALOG_WIDTH - D_MARGIN_RIGHT - skinverwaltung_t::logosymbol->get_bild(0)->get_pic()->w, D_MARGIN_TOP + L_LINESPACE_EXTRA_5 + L_LINESPACE_EXTRA_7 ) );
+	logo.set_pos( koord(width - D_MARGIN_RIGHT - skinverwaltung_t::logosymbol->get_bild(0)->get_pic()->w, D_MARGIN_TOP + L_LINESPACE_EXTRA_5 + L_LINESPACE_EXTRA_7 ) );
 	add_komponente( &logo );
 
 	// New game button
-	new_map.init( button_t::roundbox, "Neue Karte", cursor );
+	new_map.init( button_t::roundbox, "Neue Karte", cursor, button_size );
 	new_map.add_listener( this );
 	add_komponente( &new_map );
-	cursor.x += D_BUTTON_WIDTH + D_H_SPACE;
+	cursor.x += button_size.x + D_H_SPACE;
 
 	// Load game button
-	load_map.init( button_t::roundbox, "Load game", cursor );
+	load_map.init( button_t::roundbox, "Load game", cursor, button_size );
 	load_map.add_listener( this );
 	add_komponente( &load_map );
-	cursor.x += D_BUTTON_WIDTH + D_H_SPACE;
+	cursor.x += button_size.x + D_H_SPACE;
 
 	// Load scenario button
-	load_scenario.init( button_t::roundbox, "Load scenario", cursor );
+	load_scenario.init( button_t::roundbox, "Load scenario", cursor, button_size );
 	load_scenario.add_listener( this );
 	add_komponente( &load_scenario );
 	cursor.y += D_BUTTON_HEIGHT + D_V_SPACE;
-	cursor.x  = D_MARGIN_LEFT + D_BUTTON_WIDTH + D_H_SPACE;
+	cursor.x  = D_MARGIN_LEFT + button_size.x + D_H_SPACE;
 
 	// Play online button
-	join_map.init( button_t::roundbox, "join game", cursor );
+	join_map.init( button_t::roundbox, "join game", cursor, button_size );
 	join_map.add_listener( this );
 	add_komponente( &join_map );
-	cursor.x += D_BUTTON_WIDTH + D_H_SPACE;
+	cursor.x += button_size.x + D_H_SPACE;
 
 	// Quit button
-	quit.init( button_t::roundbox, "Beenden", cursor );
+	quit.init( button_t::roundbox, "Beenden", cursor, button_size );
 	quit.add_listener( this );
 	add_komponente( &quit );
-	cursor += gui_theme_t::gui_button_size;
+	cursor += D_BUTTON_SIZE;
 
-	set_fenstergroesse( koord( L_DIALOG_WIDTH, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM ) );
+	set_fenstergroesse( koord( width, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM ) );
 }
 
 
@@ -143,13 +166,13 @@ void banner_t::zeichnen(koord pos, koord gr )
 	display_fillbox_wh(pos.x, pos.y + D_TITLEBAR_HEIGHT, gr.x, 1, COL_GREY6, false);
 
 	// Max Kielland: Add shadow as property to label_t so we can use the label_t class instead...
-	display_shadow_proportional( cursor.x, cursor.y, COL_PT, COL_BLACK, "This is Simutrans" SIM_VERSION_BUILD_STRING , true );
+	display_shadow_proportional( cursor.x, cursor.y, COL_PT, COL_BLACK, "This is Simutrans" SIM_VERSION_BUILD_STRING, true );
 	cursor.y += L_LINESPACE_EXTRA_5;
 
 #ifdef REVISION
-	display_shadow_proportional( cursor.x, cursor.y, SYSCOL_TEXT_HIGHLIGHT, COL_BLACK, "Version " VERSION_NUMBER " " VERSION_DATE " r" QUOTEME(REVISION), true );
+	display_shadow_proportional( cursor.x, cursor.y, SYSCOL_TEXT_HIGHLIGHT, COL_BLACK, "Version " VERSION_NUMBER " " VERSION_DATE " r" QUOTEME(REVISION) L_DEBUG_TEXT, true );
 #else
-	display_shadow_proportional( cursor.x, cursor.y, SYSCOL_TEXT_HIGHLIGHT, COL_BLACK, "Version " VERSION_NUMBER " " VERSION_DATE, true );
+	display_shadow_proportional( cursor.x, cursor.y, SYSCOL_TEXT_HIGHLIGHT, COL_BLACK, "Version " VERSION_NUMBER " " VERSION_DATE L_DEBUG_TEXT, true );
 #endif
 	cursor.y += L_LINESPACE_EXTRA_7;
 
@@ -234,4 +257,5 @@ void banner_t::zeichnen(koord pos, koord gr )
 	if (scrolltext[text_line + (L_BANNER_ROWS+1)*2] == 0) {
 		line = 0;
 	}
+
 }

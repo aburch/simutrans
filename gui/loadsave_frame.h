@@ -40,7 +40,8 @@ protected:
 	 * Action that's started with a button click
 	 * @author Hansjörg Malthaner
 	 */
-	virtual void action(const char *filename);
+	virtual bool item_action (const char *filename);
+	virtual bool ok_action   (const char *fullpath);
 
 	// returns extra file info
 	virtual const char *get_info(const char *fname);
