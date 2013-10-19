@@ -35,7 +35,7 @@ static void init_genrand(uint32 s)
 
 
 /* generate N words at one time */
-static void MTgenerate(void)
+static void MTgenerate()
 {
 	static uint32 mag01[2]={0x0UL, MATRIX_A};
 	uint32 y;
@@ -71,7 +71,7 @@ uint32 get_random_seed()
 
 
 /* generates a random number on [0,0xffffffff]-interval */
-uint32 simrand_plain(void)
+uint32 simrand_plain()
 {
 	uint32 y;
 

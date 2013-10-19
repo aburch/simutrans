@@ -194,7 +194,7 @@ void spieler_t::book_delivered(const sint64 amount, const waytype_t wt, int inde
 /* returns the name of the player; "player -1" sits in front of the screen
  * @author prissi
  */
-const char* spieler_t::get_name(void) const
+const char* spieler_t::get_name() const
 {
 	return translator::translate(spieler_name_buf);
 }

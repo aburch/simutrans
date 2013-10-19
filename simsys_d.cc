@@ -17,7 +17,7 @@
 #include <allegro.h>
 
 
-static void simtimer_init(void);
+static void simtimer_init();
 
 static int width  = 800;
 static int height = 600;
@@ -166,7 +166,7 @@ END_OF_FUNCTION(my_keyboard_callback)
 
 
 
-void my_close_button_callback(void)
+void my_close_button_callback()
 {
 	INSERT_EVENT(SIM_SYSTEM, SIM_SYSTEM_QUIT)
 }
@@ -261,7 +261,7 @@ void dr_os_close()
 
 static BITMAP* texture_map;
 
-unsigned short* dr_textur_init(void)
+unsigned short* dr_textur_init()
 {
 	texture_map = create_bitmap(width, height);
 	if (texture_map == NULL) {
@@ -310,7 +310,7 @@ void dr_prepare_flush()
 
 
 
-void dr_flush(void)
+void dr_flush()
 {
 	display_flush_buffer();
 }
@@ -346,7 +346,7 @@ void set_pointer(int loading)
 }
 
 
-static inline int recalc_keys(void)
+static inline int recalc_keys()
 {
 	int mod = key_shifts;
 
@@ -357,7 +357,7 @@ static inline int recalc_keys(void)
 
 
 
-static void internalGetEvents(void)
+static void internalGetEvents()
 {
 	if (event_top_mark != event_bot_mark) {
 		sys_event.type    = event_queue[event_bot_mark++];
@@ -381,7 +381,7 @@ static void internalGetEvents(void)
 }
 
 
-void GetEvents(void)
+void GetEvents()
 {
 	while (event_top_mark == event_bot_mark) {
 		// try to be nice where possible
@@ -394,7 +394,7 @@ void GetEvents(void)
 }
 
 
-void GetEventsNoWait(void)
+void GetEventsNoWait()
 {
 	if (event_top_mark != event_bot_mark) {
 		do {
@@ -415,7 +415,7 @@ void show_pointer(int yesno)
 }
 
 
-void ex_ord_update_mx_my(void)
+void ex_ord_update_mx_my()
 {
 	sys_event.mx = mouse_x;
 	sys_event.my = mouse_y;
@@ -425,13 +425,13 @@ void ex_ord_update_mx_my(void)
 
 static volatile long milli_counter;
 
-void timer_callback(void)
+void timer_callback()
 {
 	milli_counter += 5;
 }
 END_OF_FUNCTION(timer_callback)
 
-static void simtimer_init(void)
+static void simtimer_init()
 {
 	printf("Installing timer...\n");
 
@@ -454,7 +454,7 @@ static void simtimer_init(void)
 }
 
 
-unsigned long dr_time(void)
+unsigned long dr_time()
 {
 	return milli_counter;
 }

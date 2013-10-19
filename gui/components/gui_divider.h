@@ -35,7 +35,7 @@ public:
 		DIVIDER_LOWERED = 2  //@< 2px divider lowered etched
 	};
 
-	gui_divider_t(void) { groesse.y = DIVIDER_LOWERED; }
+	gui_divider_t() { groesse.y = DIVIDER_LOWERED; }
 
 	void init( koord xy, KOORD_VAL width, KOORD_VAL height = DIVIDER_LOWERED ) {
 		set_pos( xy );

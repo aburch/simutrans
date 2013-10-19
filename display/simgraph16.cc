@@ -720,7 +720,7 @@ KOORD_VAL display_set_base_raster_width(KOORD_VAL new_raster)
 // ----------------------------------- clipping routines ------------------------------------------
 
 
-sint16 display_get_width(void)
+sint16 display_get_width()
 {
 	return disp_actual_width;
 }
@@ -733,7 +733,7 @@ void display_set_actual_width(KOORD_VAL w)
 }
 
 
-sint16 display_get_height(void)
+sint16 display_get_height()
 {
 	return disp_height;
 }
@@ -1127,7 +1127,7 @@ void display_mark_img_dirty(unsigned bild, KOORD_VAL xp, KOORD_VAL yp)
  * Flag all images for rezoom on next draw
  * @author Hj. Malthaner
  */
-static void rezoom(void)
+static void rezoom()
 {
 	for(  uint16 n = 0;  n < anz_images;  n++  ) {
 		if(  (images[n].recode_flags & FLAG_ZOOMABLE) != 0  &&  images[n].base_h > 0  ) {
@@ -1205,7 +1205,7 @@ static void activate_player_color(sint8 player_nr, bool daynight)
  * Flag all images to recode colors on next draw
  * @author Hj. Malthaner
  */
-static void recode(void)
+static void recode()
 {
 	for(  uint16 n = 0;  n < anz_images;  n++  ) {
 		images[n].player_flags = 0xFFFF;  // recode all player colors
@@ -1790,7 +1790,7 @@ static void rezoom_img(const image_id n)
  * Retrieve brightness setting
  * @author Hj. Malthaner
  */
-int display_get_light(void)
+int display_get_light()
 {
 	return light_level;
 }
@@ -4765,7 +4765,7 @@ void draw_bezier_rgb(KOORD_VAL Ax, KOORD_VAL Ay, KOORD_VAL Bx, KOORD_VAL By, KOO
  * copies only the changed areas to the screen using the "tile dirty buffer"
  * To get large changes, actually the current and the previous one is used.
  */
-void display_flush_buffer(void)
+void display_flush_buffer()
 {
 	static const uint8 MultiplyDeBruijnBitPosition[32] =
 	{
@@ -4949,7 +4949,7 @@ void display_show_load_pointer(int loading)
  * Get Mouse X-Position
  * @author Hj. Malthaner
  */
-int get_maus_x(void)
+int get_maus_x()
 {
 	return sys_event.mx;
 }
@@ -4959,7 +4959,7 @@ int get_maus_x(void)
  * Get Mouse y-Position
  * @author Hj. Malthaner
  */
-int get_maus_y(void)
+int get_maus_y()
 {
 	return sys_event.my;
 }
@@ -5077,7 +5077,7 @@ void simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
  * Check if the graphic module already was initialized.
  * @author Hj. Malthaner
  */
-int is_display_init(void)
+int is_display_init()
 {
 	return textur != NULL  &&  large_font.num_chars>0;
 }

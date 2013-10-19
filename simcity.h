@@ -169,7 +169,7 @@ private:
 	/* updates the city history
 	* @author prissi
 	*/
-	void roll_history(void);
+	void roll_history();
 
 public:
 	/**
@@ -546,7 +546,7 @@ public:
 	static vector_tpl<koord> *random_place(const karte_t *wl, sint32 anzahl, sint16 old_x, sint16 old_y);
 	// geeigneten platz zur Stadtgruendung durch Zufall ermitteln
 
-	void zeige_info(void);
+	void zeige_info();
 };
 
 #endif

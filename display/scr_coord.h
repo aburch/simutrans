@@ -21,7 +21,7 @@ public:
 	scr_coord_val y;
 
 	// Constructors
-	scr_coord( void ) { x = y = 0; }
+	scr_coord(  ) { x = y = 0; }
 	scr_coord( scr_coord_val x_, scr_coord_val y_ ) { x = x_; y=y_; }
 	scr_coord( const koord pos_par) { x = pos_par.x; y = pos_par.y; }
 
@@ -66,7 +66,7 @@ public:
 	scr_coord_val h;
 
 	// Constructors
-	scr_size( void ) { w = h = 0; }
+	scr_size(  ) { w = h = 0; }
 	scr_size( scr_coord_val w_par, scr_coord_val h_par) { w = w_par; h = h_par; }
 	scr_size( const scr_size& size ) { w = size.w; h=size.h; }
 
@@ -111,7 +111,7 @@ public:
 	scr_coord_val h;
 
 	// Constructors
-	scr_rect( void ) { init(0,0,0,0); }
+	scr_rect(  ) { init(0,0,0,0); }
 	scr_rect( const scr_coord& pt ) { init( pt.x, pt.y, 0, 0 ); }
 	scr_rect( const scr_coord& pt, scr_coord_val w, scr_coord_val h ) { init( pt.x, pt.y, w, h ); }
 	scr_rect( scr_coord_val x, scr_coord_val y, scr_coord_val w, scr_coord_val h ) { init( x, y, w, h ); }
@@ -133,8 +133,8 @@ public:
 	scr_rect( const koord& pt, scr_coord_val w, scr_coord_val h ) { init( pt.x, pt.y, w, h ); }
 
 	// Validation functions
-	bool is_empty(void) const { return (w|h) == 0;  }
-	bool is_valid(void) const { return !is_empty(); }
+	bool is_empty() const { return (w|h) == 0;  }
+	bool is_valid() const { return !is_empty(); }
 
 	// Helper functions
 	const scr_coord get_pos() const {
@@ -184,7 +184,7 @@ public:
 	}
 
 	// and the other two with the size
-	const scr_size get_size(void) const { return scr_size( w, h ); }
+	const scr_size get_size() const { return scr_size( w, h ); }
 
 	void set_size( const scr_size &sz ) {
 		w = sz.w;

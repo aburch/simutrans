@@ -91,7 +91,7 @@ void dr_mkdir(char const* path);
 /* query home directory */
 char const* dr_query_homedir();
 
-unsigned short* dr_textur_init(void);
+unsigned short* dr_textur_init();
 
 
 void dr_textur(int xp, int yp, int w, int h);
@@ -101,7 +101,7 @@ int dr_textur_resize(unsigned short** textur, int w, int h);
 
 // needed for screen update
 void dr_prepare_flush();	// waits, if previous update not yet finished
-void dr_flush(void);	// copy to screen (eventuall multithreaded)
+void dr_flush();	// copy to screen (eventuall multithreaded)
 
 /**
  * Transform a 24 bit RGB color into the system format.
@@ -116,12 +116,12 @@ void set_pointer(int loading);
 
 void move_pointer(int x, int y);
 
-void ex_ord_update_mx_my(void);
+void ex_ord_update_mx_my();
 
-void GetEvents(void);
-void GetEventsNoWait(void);
+void GetEvents();
+void GetEventsNoWait();
 
-unsigned long dr_time(void);
+unsigned long dr_time();
 void dr_sleep(uint32 millisec);
 
 // error message in case of fatal events

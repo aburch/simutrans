@@ -74,12 +74,12 @@ bool display_load_font(const char*)
 	return true;
 }
 
-sint16 display_get_width(void)
+sint16 display_get_width()
 {
 	return 0;
 }
 
-sint16 display_get_height(void)
+sint16 display_get_height()
 {
 	return 0;
 }
@@ -92,7 +92,7 @@ void display_set_actual_width(KOORD_VAL)
 {
 }
 
-int display_get_light(void)
+int display_get_light()
 {
 	return 0;
 }
@@ -149,12 +149,12 @@ void display_set_base_image_offset(unsigned, KOORD_VAL, KOORD_VAL)
 {
 }
 
-int get_maus_x(void)
+int get_maus_x()
 {
 	return sys_event.mx;
 }
 
-int get_maus_y(void)
+int get_maus_y()
 {
 	return sys_event.my;
 }
@@ -377,7 +377,7 @@ int display_multiline_text_rgb(KOORD_VAL, KOORD_VAL, const char *, PLAYER_COLOR_
 	return 0;
 }
 
-void display_flush_buffer(void)
+void display_flush_buffer()
 {
 }
 
@@ -401,7 +401,7 @@ void simgraph_init(KOORD_VAL, KOORD_VAL, int)
 {
 }
 
-int is_display_init(void)
+int is_display_init()
 {
 	return false;
 }

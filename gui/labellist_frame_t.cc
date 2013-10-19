@@ -115,7 +115,7 @@ void labellist_frame_t::resize(const koord delta)
 * This function refreshes the label list
 * @author Markus Weber/Volker Meyer
 */
-void labellist_frame_t::display_list(void)
+void labellist_frame_t::display_list()
 {
 	sortedby.set_text(sort_text[get_sortierung()]);
 	sorteddir.set_text(get_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc");

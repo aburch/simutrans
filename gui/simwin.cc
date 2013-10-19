@@ -86,7 +86,7 @@ class inthashtable_tpl<ptrdiff_t,koord> old_win_pos;
 class simwin_gadget_flags_t
 {
 public:
-	simwin_gadget_flags_t( void ) : title(true), close( false ), help( false ), prev( false ), size( false ), next( false ), sticky( false ), gotopos( false ) { }
+	simwin_gadget_flags_t(  ) : title(true), close( false ), help( false ), prev( false ), size( false ), next( false ), sticky( false ), gotopos( false ) { }
 
 	bool title:1;
 	bool close:1;

@@ -385,8 +385,8 @@ public:
 		headquarter_level = hq_level;
 		headquarter_pos = hq_pos;
 	}
-	koord get_headquarter_pos(void) const { return headquarter_pos; }
-	short get_headquarter_level(void) const { return headquarter_level; }
+	koord get_headquarter_pos() const { return headquarter_pos; }
+	short get_headquarter_level() const { return headquarter_level; }
 
 	void ai_bankrupt();
 };

@@ -333,7 +333,7 @@ void dr_prepare_flush()
 }
 
 
-void dr_flush(void)
+void dr_flush()
 {
 	display_flush_buffer();
 	if(  !use_dirty_tiles  ) {
@@ -394,7 +394,7 @@ int dr_screenshot(const char *filename, int x, int y, int w, int h)
  */
 
 
-static inline unsigned int ModifierKeys(void)
+static inline unsigned int ModifierKeys()
 {
 	SDL_Keymod mod = SDL_GetModState();
 
@@ -607,13 +607,13 @@ static void internal_GetEvents(bool const wait)
 }
 
 
-void GetEvents(void)
+void GetEvents()
 {
 	internal_GetEvents( true );
 }
 
 
-void GetEventsNoWait(void)
+void GetEventsNoWait()
 {
 	sys_event.type = SIM_NOEVENT;
 	sys_event.code = 0;
@@ -634,7 +634,7 @@ void ex_ord_update_mx_my()
 }
 
 
-unsigned long dr_time(void)
+unsigned long dr_time()
 {
 	return SDL_GetTicks();
 }

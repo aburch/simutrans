@@ -66,12 +66,12 @@ void set_fraction_sep(char c)
 }
 
 
-char get_fraction_sep(void)
+char get_fraction_sep()
 {
 	return fraction_sep;
 }
 
-const char *get_large_money_string(void)
+const char *get_large_money_string()
 {
 	return large_number_string;
 }

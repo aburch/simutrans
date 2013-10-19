@@ -198,7 +198,7 @@ void display_poll_event(event_t*);
 void display_get_event(event_t*);
 void change_drag_start(int x, int y);
 
-int event_get_last_control_shift(void);
+int event_get_last_control_shift();
 unsigned int last_meta_event_get_class();
 
 /**

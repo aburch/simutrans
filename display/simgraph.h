@@ -122,8 +122,8 @@ extern KOORD_VAL base_tile_raster_width;
 KOORD_VAL display_set_base_raster_width(KOORD_VAL new_raster);
 
 
-int zoom_factor_up(void);
-int zoom_factor_down(void);
+int zoom_factor_up();
+int zoom_factor_down();
 
 
 /**
@@ -131,7 +131,7 @@ int zoom_factor_down(void);
  * @author Hj. Malthaner
  */
 void simgraph_init(KOORD_VAL width, KOORD_VAL height, int fullscreen);
-int is_display_init(void);
+int is_display_init();
 void simgraph_exit();
 void simgraph_resize(KOORD_VAL w, KOORD_VAL h);
 void reset_textur(void *new_textur);
@@ -161,8 +161,8 @@ void display_get_image_offset( unsigned bild, KOORD_VAL *xoff, KOORD_VAL *yoff, 
 void display_get_base_image_offset( unsigned bild, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw );
 void display_mark_img_dirty( unsigned bild, KOORD_VAL x, KOORD_VAL y );
 
-int get_maus_x(void);
-int get_maus_y(void);
+int get_maus_x();
+int get_maus_y();
 
 
 void mark_rect_dirty_wc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2); // clips to screen only
@@ -173,13 +173,13 @@ void mark_rect_dirty_clip(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2
 #endif
 void mark_screen_dirty();
 
-KOORD_VAL display_get_width(void);
-KOORD_VAL display_get_height(void);
+KOORD_VAL display_get_width();
+KOORD_VAL display_get_height();
 void      display_set_height(KOORD_VAL);
 void      display_set_actual_width(KOORD_VAL);
 
 
-int display_get_light(void);
+int display_get_light();
 void display_set_light(int new_light_level);
 
 void display_day_night_shift(int night);
@@ -339,9 +339,9 @@ void display_vline_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, PIXVAL c
 #define display_vline_wh_clip( x, y, h, c, d ) display_vline_wh_clip_rgb( (x), (y), (h), specialcolormap_all_day[(c)&0xFF], (d) )
 #endif
 
-void display_clear(void);
+void display_clear();
 
-void display_flush_buffer(void);
+void display_flush_buffer();
 
 void display_move_pointer(KOORD_VAL dx, KOORD_VAL dy);
 void display_show_pointer(int yesno);

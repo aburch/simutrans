@@ -95,7 +95,7 @@ class scrollbar_t :
 		void set_knob_offset(scr_coord_val v) { knob_offset = v; reposition_buttons(); }
 
 		void set_visible_mode(visible_mode_t vm) { visible_mode = vm; }
-		visible_mode_t get_visible_mode(void) { return visible_mode; }
+		visible_mode_t get_visible_mode() { return visible_mode; }
 
 		bool infowin_event(event_t const*) OVERRIDE;
 

@@ -94,7 +94,7 @@ public:
 	*/
 	void info(cbuffer_t & buf) const;
 
-	ribi_t::ribi get_ribi(void) const { return ribi; }
+	ribi_t::ribi get_ribi() const { return ribi; }
 
 	inline void set_bild( image_id b ) { bild = b; }
 	image_id get_bild() const {return is_crossing ? IMG_LEER : bild;}

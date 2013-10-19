@@ -668,7 +668,7 @@ void ex_ord_update_mx_my()
 
 
 
-unsigned long dr_time(void)
+unsigned long dr_time()
 {
 	return timeGetTime();
 }

@@ -103,7 +103,7 @@ koord ticker::get_welt_pos()
 }
 
 
-void ticker::zeichnen(void)
+void ticker::zeichnen()
 {
 	if (!list.empty()) {
 		const int start_y=display_get_height()-TICKER_YPOS_BOTTOM;

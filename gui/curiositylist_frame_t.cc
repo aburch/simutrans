@@ -110,7 +110,7 @@ void curiositylist_frame_t::resize(const koord delta)
 * This function refreshes the station-list
 * @author Markus Weber/Volker Meyer
 */
-void curiositylist_frame_t::display_list(void)
+void curiositylist_frame_t::display_list()
 {
 	sortedby.set_text(sort_text[get_sortierung()]);
 	sorteddir.set_text(get_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc");

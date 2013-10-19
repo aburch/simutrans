@@ -295,7 +295,7 @@ halt_list_frame_t::~halt_list_frame_t()
 * This function refreshes the station-list
 * @author Markus Weber/Volker Meyer
 */
-void halt_list_frame_t::display_list(void)
+void halt_list_frame_t::display_list()
 {
 	last_world_stops = haltestelle_t::get_alle_haltestellen().get_count();				// count of stations
 

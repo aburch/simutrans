@@ -223,7 +223,7 @@ public:
 	 * @author Markus Weber
 	 * @date   25-May-2002
 	 */
-	resize_modes get_resizemode(void) { return resize_mode; }
+	resize_modes get_resizemode() { return resize_mode; }
 
 	/**
 	 * Returns true, if inside window area.

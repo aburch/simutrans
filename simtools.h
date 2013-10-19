@@ -19,7 +19,7 @@ uint32 sim_async_rand(const uint32 max);
 uint32 simrand(const uint32 max);
 
 /* generates a random number on [0,0xFFFFFFFFu]-interval */
-uint32 simrand_plain(void);
+uint32 simrand_plain();
 
 double perlin_noise_2D(const double x, const double y, const double persistence);
 

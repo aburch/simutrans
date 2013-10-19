@@ -29,7 +29,7 @@ gui_container_t::gui_container_t() : gui_komponente_t(), komp_focus(NULL)
  * Returns the minimum rectangle which encloses all children
  * @author Max Kielland
  */
-scr_rect gui_container_t::get_min_boundaries(void) const
+scr_rect gui_container_t::get_min_boundaries() const
 {
 	scr_rect client_bound;
 

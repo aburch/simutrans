@@ -35,8 +35,8 @@ void set_thousand_sep(char c);
  */
 void set_fraction_sep(char c);
 
-char get_fraction_sep(void);
-const char *get_large_money_string(void);
+char get_fraction_sep();
+const char *get_large_money_string();
 
 /**
  * Set thousand exponent (3=1000, 4=10000), used in money_to_string and

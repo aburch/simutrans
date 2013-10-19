@@ -109,7 +109,7 @@ void dr_play_midi(int key)
  * Stops playing MIDI file
  * By Owen Rudge
  */
-void dr_stop_midi(void)
+void dr_stop_midi()
 {
 	//   stop_midi();
 	char retstr[200];
@@ -123,7 +123,7 @@ void dr_stop_midi(void)
  * Returns the midi_pos variable
  * By Owen Rudge
  */
-long dr_midi_pos(void)
+long dr_midi_pos()
 {
 	char retstr[200];
 	long length;
@@ -151,7 +151,7 @@ long dr_midi_pos(void)
  * Midi shutdown/cleanup
  * By Owen Rudge
  */
-void dr_destroy_midi(void)
+void dr_destroy_midi()
 {
 	__win32_set_midi_volume(__MIDI_VOL_WIN32, OldMIDIVol[0], OldMIDIVol[1]);
 	midi_number = -1;
@@ -162,7 +162,7 @@ void dr_destroy_midi(void)
  * MIDI initialisation routines
  * @author Owen Rudge
  */
-bool dr_init_midi(void)
+bool dr_init_midi()
 {
  #ifdef MIXER_VOLUME
 	UINT nMIDIDevices;

@@ -15,7 +15,7 @@ static event_t meta_event(EVENT_NONE);	// Knightly : for storing meta-events lik
 static unsigned int last_meta_class = EVENT_NONE;
 static slist_tpl<event_t *> queued_events;
 
-int event_get_last_control_shift(void)
+int event_get_last_control_shift()
 {
 	// shift = 1
 	// ctrl  = 2
