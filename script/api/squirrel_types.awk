@@ -63,6 +63,7 @@ BEGIN {
 	export_types["obj_desc_time_x::get_retire_date"] = "time_x()"
 	export_types["obj_desc_time_x::is_future"] = "bool(time_x)"
 	export_types["obj_desc_time_x::is_retired"] = "bool(time_x)"
+	export_types["obj_desc_time_x::is_available"] = "bool(time_x)"
 	export_types["obj_desc_transport_x::get_maintenance"] = "integer()"
 	export_types["obj_desc_transport_x::get_cost"] = "integer()"
 	export_types["obj_desc_transport_x::get_waytype"] = "way_types()"

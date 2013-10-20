@@ -1,6 +1,6 @@
 #include "api.h"
 
-/** @file api_desc.cc exports goods descriptors - ware_besch_t. */
+/** @file api_desc.cc exports goods descriptors - *_besch_t. */
 
 #include "api_obj_desc_base.h"
 #include "api_simple.h"
@@ -68,9 +68,17 @@ mytime_t get_intro_retire(const obj_besch_timelined_t* besch, bool intro)
 }
 
 
-bool is_obsolete_future(const obj_besch_timelined_t* besch, mytime_t time, bool future)
+bool is_obsolete_future(const obj_besch_timelined_t* besch, mytime_t time, uint8 what)
 {
-	return besch ? ( future ? besch->is_future(time.raw) : besch->is_retired(time.raw) ) : false;
+	if (besch) {
+		switch(what) {
+			case 0: return besch->is_future(time.raw);
+			case 1: return besch->is_retired(time.raw);
+			case 2: return besch->is_available(time.raw);
+			default: ;
+		}
+	}
+	return false;
 }
 
 
@@ -122,12 +130,17 @@ void export_goods_desc(HSQUIRRELVM vm)
 	 * @param time to test (0 means no timeline game)
 	 * @return true if not available as intro date is in future
 	 */
-	register_method_fv(vm, &is_obsolete_future, "is_future", freevariable<bool>(true), true);
+	register_method_fv(vm, &is_obsolete_future, "is_future", freevariable<uint8>(0), true);
 	/**
 	 * @param time to test (0 means no timeline game)
 	 * @return true if not available as retirement date already passed
 	 */
-	register_method_fv(vm, &is_obsolete_future, "is_retired", freevariable<bool>(false), true);
+	register_method_fv(vm, &is_obsolete_future, "is_retired", freevariable<uint8>(1), true);
+	/**
+	 * @param time to test (0 means no timeline game)
+	 * @return true if available: introduction and retirement date checked
+	 */
+	register_method_fv(vm, &is_obsolete_future, "is_available", freevariable<uint8>(2), true);
 	end_class(vm);
 
 	/**
