@@ -86,10 +86,11 @@ void tunnelboden_t::rdwr(loadsave_t *file)
 
 	grund_t::rdwr(file);
 
-	if(file->get_version()<88009) {
-		uint32 int_hang = slope;
-		file->rdwr_long(int_hang);
-		slope = int_hang;
+	if(  file->get_version()<88009  ) {
+		uint32 sl = slope;
+		file->rdwr_long(sl);
+		// convert slopes from old single height saved game
+		slope = (scorner1(sl) + scorner2(sl) * 3 + scorner3(sl) * 9 + scorner4(sl) * 27) * env_t::pak_height_conversion_factor;
 	}
 
 	// only 99.03 version save the tunnel here

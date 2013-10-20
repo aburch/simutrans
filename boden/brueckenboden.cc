@@ -66,7 +66,14 @@ void brueckenboden_t::rdwr(loadsave_t *file)
 		file->rdwr_byte(sl);
 		slope = sl;
 	}
-	file->rdwr_byte(weg_hang);
+	if(  file->is_saving()  &&  file->get_version() < 112007  ) {
+		// truncate double weg_hang to single weg_hang, better than nothing
+		uint8 sl = min( corner1(weg_hang), 1 ) + min( corner2(weg_hang), 1 ) * 2 + min( corner3(weg_hang), 1 ) * 4 + min( corner4(weg_hang), 1 ) * 8;
+		file->rdwr_byte(sl);
+	}
+	else {
+		file->rdwr_byte(weg_hang);
+	}
 
 	if(  file->is_loading()  &&  file->get_version() < 112007  ) {
 		// convert slopes from old single height saved game

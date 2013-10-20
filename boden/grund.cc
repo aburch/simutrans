@@ -255,21 +255,29 @@ void grund_t::rdwr(loadsave_t *file)
 
 	if(file->get_version()>=88009) {
 		uint8 sl = slope;
+		if(  file->get_version() < 112007  &&  file->is_saving()  ) {
+			// truncate double slopes to single slopes, better than nothing
+			sl = min( corner1(slope), 1 ) + min( corner2(slope), 1 ) * 2 + min( corner3(slope), 1 ) * 4 + min( corner4(slope), 1 ) * 8;
+		}
 		file->rdwr_byte(sl);
-		slope = sl;
+		if(  file->is_loading()  ) {
+			slope = sl;
+		}
 	}
 	else {
 		// safe init for old version
 		slope = 0;
 	}
 
-	if(  file->is_loading()  &&  file->get_version() < 112007  ) {
-		// convert slopes from old single height saved game
-		slope = (scorner1(slope) + scorner2(slope) * 3 + scorner3(slope) * 9 + scorner4(slope) * 27) * env_t::pak_height_conversion_factor;
-	}
-	if(  file->is_loading()  &&  !grund_besch_t::double_grounds  ) {
-		// truncate double slopes to single slopes
-		slope = min( corner1(slope), 1 ) + min( corner2(slope), 1 ) * 3 + min( corner3(slope), 1 ) * 9 + min( corner4(slope), 1 ) * 27;
+	if(  file->is_loading()  ) {
+		if(  file->get_version() < 112007  ) {
+			// convert slopes from old single height saved game
+			slope = (scorner1(slope) + scorner2(slope) * 3 + scorner3(slope) * 9 + scorner4(slope) * 27) * env_t::pak_height_conversion_factor;
+		}
+		if(  !grund_besch_t::double_grounds  ) {
+			// truncate double slopes to single slopes
+			slope = min( corner1(slope), 1 ) + min( corner2(slope), 1 ) * 3 + min( corner3(slope), 1 ) * 9 + min( corner4(slope), 1 ) * 27;
+		}
 	}
 
 	// restore grid

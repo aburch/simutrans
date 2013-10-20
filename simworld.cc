@@ -5576,6 +5576,8 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 			for (int x = 0; x < get_size().x; x++) {
 				sint8 slope;
 				file->rdwr_byte(slope);
+				// convert slopes from old single height saved game
+				slope = (scorner1(slope) + scorner2(slope) * 3 + scorner3(slope) * 9 + scorner4(slope) * 27) * env_t::pak_height_conversion_factor;
 				access_nocheck(x, y)->get_kartenboden()->set_grund_hang(slope);
 			}
 		}
