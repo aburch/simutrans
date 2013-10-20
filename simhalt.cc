@@ -421,10 +421,8 @@ haltestelle_t::~haltestelle_t()
 		koord pos = gr->get_pos().get_2d();
 		gr->set_halt( halthandle_t() );
 		// bounding box for adjustments
-		if(ul.x>pos.x ) ul.x = pos.x;
-		if(ul.y>pos.y ) ul.y = pos.y;
-		if(lr.x<pos.x ) lr.x = pos.x;
-		if(lr.y<pos.y ) lr.y = pos.y;
+		ul.clip_max(pos);
+		lr.clip_min(pos);
 	}
 
 	// remove from all haltlists

@@ -6355,18 +6355,9 @@ void karte_t::set_fast_forward(bool ff)
 
 koord karte_t::get_closest_coordinate(koord outside_pos)
 {
-	if(  outside_pos.x < 0  ) {
-		outside_pos.x = 0;
-	}
-	if(  outside_pos.y < 0  ) {
-		outside_pos.y = 0;
-	}
-	if(  outside_pos.x >= get_size().x  ) {
-		outside_pos.x = get_size().x-1;
-	}
-	if(  outside_pos.y >= get_size().y  ) {
-		outside_pos.y = get_size().y-1;
-	}
+	outside_pos.clip_min(koord(0,0));
+	outside_pos.clip_max(koord(get_size().x-1,get_size().y-1));
+
 	return outside_pos;
 }
 

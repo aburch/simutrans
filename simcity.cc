@@ -662,49 +662,17 @@ void stadt_t::pruefe_grenzen(koord k)
 	}
 	// now just add single coordinates
 	if(  has_low_density  ) {
-		if (k.x < lo.x+2) {
-			lo.x = k.x - 2;
-		}
-		if (k.y < lo.y+2) {
-			lo.y = k.y - 2;
-		}
-
-		if (k.x > ur.x-2) {
-			ur.x = k.x + 2;
-		}
-		if (k.y > ur.y-2) {
-			ur.y = k.y + 2;
-		}
+		lo.clip_max(k-koord(2,2));
+		ur.clip_min(k+koord(2,2));
 	}
 	else {
 		// first grow within ...
-		if (k.x < lo.x) {
-			lo.x = k.x;
-		}
-		if (k.y < lo.y) {
-			lo.y = k.y;
-		}
-
-		if (k.x > ur.x) {
-			ur.x = k.x;
-		}
-		if (k.y > ur.y) {
-			ur.y = k.y;
-		}
+		lo.clip_max(k);
+		ur.clip_min(k);
 	}
 
-	if (lo.x < 0) {
-		lo.x = 0;
-	}
-	if (lo.y < 0) {
-		lo.y = 0;
-	}
-	if ( ur.x >= welt->get_size().x ) {
-		ur.x = welt->get_size().x-1;
-	}
-	if ( ur.y >= welt->get_size().y ) {
-		ur.y = welt->get_size().y-1;
-	}
+	lo.clip_min(koord(0,0));
+	ur.clip_max(koord(welt->get_size().x-1,welt->get_size().y-1));
 }
 
 
@@ -717,42 +685,20 @@ void stadt_t::recalc_city_size()
 	FOR(weighted_vector_tpl<gebaeude_t*>, const i, buildings) {
 		if (i->get_tile()->get_besch()->get_utyp() != haus_besch_t::firmensitz) {
 			koord const& gb_pos = i->get_pos().get_2d();
-			if (lo.x > gb_pos.x) {
-				lo.x = gb_pos.x;
-			}
-			if (lo.y > gb_pos.y) {
-				lo.y = gb_pos.y;
-			}
-			if (ur.x < gb_pos.x) {
-				ur.x = gb_pos.x;
-			}
-			if (ur.y < gb_pos.y) {
-				ur.y = gb_pos.y;
-			}
+			lo.clip_max(gb_pos);
+			ur.clip_min(gb_pos);
 		}
 	}
 
 	has_low_density = (buildings.get_count()<10  ||  (buildings.get_count()*100l)/((ur.x-lo.x)*(ur.y-lo.y)+1) > min_building_density);
 	if(  has_low_density  ) {
 		// wider borders for faster growth of sparse small towns
-		lo.x -= 2;
-		lo.y -= 2;
-		ur.x += 2;
-		ur.y += 2;
+		lo -= koord(2,2);
+		ur += koord(2,2);
 	}
 
-	if (lo.x < 0) {
-		lo.x = 0;
-	}
-	if (lo.y < 0) {
-		lo.y = 0;
-	}
-	if (ur.x >= welt->get_size().x) {
-		ur.x = welt->get_size().x-1;
-	}
-	if (ur.y >= welt->get_size().y) {
-		ur.y = welt->get_size().y-1;
-	}
+	lo.clip_min(koord(0,0));
+	ur.clip_max(koord(welt->get_size().x-1,welt->get_size().y-1));
 }
 
 

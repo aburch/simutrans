@@ -68,6 +68,26 @@ public:
 		x = new_x;
 	}
 
+	inline void clip_min( koord k_min )
+	{
+		if (x < k_min.x) {
+			x = k_min.x;
+		}
+		if (y < k_min.y) {
+			y = k_min.y;
+		}
+	}
+
+	inline void clip_max( koord k_max )
+	{
+		if (x > k_max.x) {
+			x = k_max.x;
+		}
+		if (y > k_max.y) {
+			y = k_max.y;
+		}
+	}
+
 	static const koord invalid;
 	static const koord nord;
 	static const koord sued;
