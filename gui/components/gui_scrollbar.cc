@@ -81,6 +81,8 @@ void scrollbar_t::reposition_buttons()
 		groesse.x-gui_theme_t::gui_arrow_left_size.x-gui_theme_t::gui_arrow_right_size.x);
 		// area will be actual area knob can move in
 
+	knob_offset = clamp( knob_offset, 0, total_size-knob_size );
+
 	double size_ratio = (double)knob_size / (double)total_size;
 	scr_coord_val size = min( area, (scr_coord_val)( area*size_ratio+0.5) );
 	if(  type == vertical  ) {
