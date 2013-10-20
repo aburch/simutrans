@@ -173,11 +173,11 @@ const fabrik_besch_t *fabrikbauer_t::get_random_consumer(bool electric, climate_
 	FOR(stringhashtable_tpl<fabrik_besch_t const*>, const& i, table) {
 		fabrik_besch_t const* const current = i.value;
 		// nur endverbraucher eintragen
-		if (current->is_consumer_only()                    &&
-			current->get_haus()->is_allowed_climate_bits(cl) &&
+		if (  current->is_consumer_only()  &&
+			current->get_haus()->is_allowed_climate_bits(cl)  &&
 			(electric ^ !current->is_electricity_producer())  &&
-			(timeline==0  ||  (current->get_haus()->get_intro_year_month() <= timeline  &&  current->get_haus()->get_retire_year_month() > timeline))  ) {
-			consumer.insert_unique_ordered(current, current->get_gewichtung(), compare_fabrik_besch);
+			current->get_haus()->is_available(timeline)  ) {
+				consumer.insert_unique_ordered(current, current->get_gewichtung(), compare_fabrik_besch);
 		}
 	}
 	// no consumer installed?
@@ -240,8 +240,8 @@ int fabrikbauer_t::finde_anzahl_hersteller(const ware_besch_t *ware, uint16 time
 		fabrik_besch_t const* const tmp = t.value;
 		for (uint i = 0; i < tmp->get_produkte(); i++) {
 			const fabrik_produkt_besch_t *produkt = tmp->get_produkt(i);
-			if(produkt->get_ware()==ware  &&  tmp->get_gewichtung()>0  &&  (timeline==0  ||  (tmp->get_haus()->get_intro_year_month() <= timeline  &&  tmp->get_haus()->get_retire_year_month() > timeline))  ) {
-				anzahl ++;
+			if(  produkt->get_ware()==ware  &&  tmp->get_gewichtung()>0  &&  tmp->get_haus()->is_available(timeline)  ) {
+				anzahl++;
 			}
 		}
 	}
@@ -260,10 +260,10 @@ const fabrik_besch_t *fabrikbauer_t::finde_hersteller(const ware_besch_t *ware, 
 
 	FOR(stringhashtable_tpl<fabrik_besch_t const*>, const& t, table) {
 		fabrik_besch_t const* const tmp = t.value;
-		if (tmp->get_gewichtung()>0  &&  (timeline==0  ||  (tmp->get_haus()->get_intro_year_month() <= timeline  &&  tmp->get_haus()->get_retire_year_month() > timeline))) {
-			for (uint i = 0; i < tmp->get_produkte(); i++) {
+		if (  tmp->get_gewichtung()>0  &&  tmp->get_haus()->is_available(timeline)  ) {
+			for(  uint i=0; i<tmp->get_produkte();  i++  ) {
 				const fabrik_produkt_besch_t *produkt = tmp->get_produkt(i);
-				if(produkt->get_ware()==ware) {
+				if(  produkt->get_ware()==ware  ) {
 					producer.insert_unique_ordered(tmp, tmp->get_gewichtung(), compare_fabrik_besch);
 					break;
 				}
@@ -276,7 +276,7 @@ const fabrik_besch_t *fabrikbauer_t::finde_hersteller(const ware_besch_t *ware, 
 		dbg->error("fabrikbauer_t::finde_hersteller()","no producer for good '%s' was found", translator::translate(ware->get_name()));
 		return NULL;
 	}
-	// now find a random one
+
 	// now find a random one
 	fabrik_besch_t const* const besch = pick_any_weighted(producer);
 	DBG_MESSAGE("fabrikbauer_t::finde_hersteller()","producer for good '%s' was found %s", translator::translate(ware->get_name()),besch->get_name());

@@ -798,9 +798,9 @@ void depot_frame_t::update_data()
 			convoi_pics[i - 1]->rcolor = cnv->get_vehikel(i-1)->get_besch()->can_lead(NULL) ? COL_GREEN : COL_YELLOW;
 		}
 
-		// change green into blue for retired vehicles
+		// change green into blue for vehicles that are not available
 		for(  unsigned i = 0;  i < cnv->get_vehikel_anzahl();  i++  ) {
-			if(  cnv->get_vehikel(i)->get_besch()->is_future(month_now)  ||  cnv->get_vehikel(i)->get_besch()->is_retired(month_now)  ) {
+			if(  !cnv->get_vehikel(i)->get_besch()->is_available(month_now)  ) {
 				if(  convoi_pics[i]->lcolor == COL_GREEN  ) {
 					convoi_pics[i]->lcolor = COL_BLUE;
 				}
@@ -816,7 +816,7 @@ void depot_frame_t::update_data()
 	FOR(vehicle_image_map, const& i, vehicle_map) {
 		vehikel_besch_t const* const    info = i.key;
 		gui_image_list_t::image_data_t& img  = *i.value;
-		const uint8 ok_color = info->is_future(month_now) || info->is_retired(month_now) ? COL_BLUE: COL_GREEN;
+		const uint8 ok_color = info->is_available(month_now) ? COL_GREEN : COL_BLUE;
 
 		img.count = 0;
 		img.lcolor = ok_color;

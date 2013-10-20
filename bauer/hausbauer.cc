@@ -252,7 +252,7 @@ DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.get_count());
 	FOR(  vector_tpl<haus_besch_t const*>,  const besch,  station_building  ) {
 //		DBG_DEBUG("hausbauer_t::fill_menu()", "try to add %s (%p)", besch->get_name(), besch);
 		if(  besch->get_utyp()==utyp  &&  besch->get_builder()  &&  (utyp==haus_besch_t::firmensitz  ||  besch->get_extra()==(uint16)wt)  ) {
-			if(  time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)  ) {
+			if(  besch->is_available(time)  ) {
 				wzw->add_werkzeug( besch->get_builder() );
 			}
 		}
@@ -335,17 +335,17 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb )
 				}
 				if (gr) {
 					senke_t *sk = gr->find<senke_t>();
-					if (sk  &&  sk->get_factory() == fab) {
+					if (  sk  &&  sk->get_factory()==fab  ) {
 						sk->mark_image_dirty(sk->get_bild(), 0);
 						delete sk;
 					}
 					pumpe_t* pp = gr->find<pumpe_t>();
-					if (pp  &&  pp->get_factory() == fab) {
+					if (  pp  &&  pp->get_factory()==fab  ) {
 						pp->mark_image_dirty(pp->get_bild(), 0);
 						delete pp;
 					}
 					// remove tunnel
-					if( (sk!=NULL ||  pp!=NULL)  &&  gr->ist_im_tunnel()  &&  gr->get_top()<=1  ) {
+					if(  (sk!=NULL ||  pp!=NULL)  &&  gr->ist_im_tunnel()  &&  gr->get_top()<=1  ) {
 						if (tunnel_t *t = gr->find<tunnel_t>()) {
 							t->entferne( t->get_besitzer() );
 							delete t;
@@ -370,7 +370,7 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb )
 			if(gr) {
 				gebaeude_t *gb_part = gr->find<gebaeude_t>();
 				// there may be buildings with holes, so we only remove our!
-				if(gb_part  &&  gb_part->get_tile() == hb->get_tile(layout, k.x, k.y)) {
+				if(  gb_part  &&  gb_part->get_tile()==hb->get_tile(layout, k.x, k.y)  ) {
 					// ok, now we can go on with deletion
 					gb_part->entferne( sp );
 					delete gb_part;
@@ -385,12 +385,12 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb )
 						const uint8 new_slope = welt->recalc_natural_slope(newk,new_hgt);
 						// test for ground at new height
 						const grund_t *gr2 = welt->lookup(koord3d(newk,new_hgt));
-						if((gr2 == NULL  ||  gr2 == gr) &&  new_slope!=hang_t::flach) {
+						if(  (gr2==NULL  ||  gr2==gr) &&  new_slope!=hang_t::flach  ) {
 							// and for ground above new sloped tile
 							gr2 = welt->lookup(koord3d(newk, new_hgt+1));
 						}
 						bool ground_recalc = true;
-						if(gr2  &&  gr2!=gr) {
+						if(  gr2  &&  gr2!=gr  ) {
 							// there is another ground below or above
 							// => do not change height, keep foundation
 							welt->access(newk)->kartenboden_setzen( new boden_t( welt, gr->get_pos(), hang_t::flach ) );
@@ -560,7 +560,7 @@ gebaeude_t *hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d po
 				}
 				gb = gr->find<gebaeude_t>();
 			}
-			if(gb  &&  gb->get_tile()->get_besch()->get_utyp()>=8) {
+			if(  gb  &&  gb->get_tile()->get_besch()->get_utyp()>=8  ) {
 				corner_layout &= ~2; // clear near bit
 				if(gb->get_tile()->get_besch()->get_all_layouts()>4) {
 					koord xy = gb->get_tile()->get_offset();
@@ -697,17 +697,17 @@ const haus_besch_t* hausbauer_t::get_random_station(const haus_besch_t::utyp uty
 {
 	weighted_vector_tpl<const haus_besch_t*> stops;
 
-	if (wt < 0) {
+	if(  wt < 0  ) {
 		return NULL;
 	}
 
 	FOR(vector_tpl<haus_besch_t const*>, const besch, station_building) {
-		if(besch->get_utyp()==utype  &&  besch->get_extra()==(uint32)wt  &&  (enables==0  ||  (besch->get_enabled()&enables)!=0)) {
+		if(  besch->get_utyp()==utype  &&  besch->get_extra()==(uint32)wt  &&  (enables==0  ||  (besch->get_enabled()&enables)!=0)  ) {
 			if( !besch->can_be_built_aboveground()) {
 				continue;
 			}
 			// ok, now check timeline
-			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
+			if(  besch->is_available(time)  ) {
 				stops.append(besch,max(1,16-besch->get_level()*besch->get_b()*besch->get_h()));
 			}
 		}
@@ -734,10 +734,10 @@ const haus_besch_t* hausbauer_t::get_special(uint32 bev, haus_besch_t::utyp utyp
 	}
 	FOR(vector_tpl<haus_besch_t const*>, const besch, *list) {
 		// extra data contains number of inhabitants for building
-		if(besch->get_extra()==bev) {
-			if(cl==MAX_CLIMATES  ||  besch->is_allowed_climate(cl)) {
+		if(  besch->get_extra()==bev  ) {
+			if(  cl==MAX_CLIMATES  ||  besch->is_allowed_climate(cl)  ) {
 				// ok, now check timeline
-				if(time==0  ||  (besch->get_intro_year_month()<=time  &&  (ignore_retire  ||  besch->get_retire_year_month() > time)  )  ) {
+				if(  time==0  ||  (besch->get_intro_year_month()<=time  &&  (ignore_retire  ||  besch->get_retire_year_month() > time)  )  ) {
 					auswahl.append(besch, besch->get_chance());
 				}
 			}
@@ -767,10 +767,8 @@ static const haus_besch_t* get_city_building_from_list(const vector_tpl<const ha
 //	DBG_MESSAGE("hausbauer_t::get_aus_liste()","target level %i", level );
 	const haus_besch_t *besch_at_least=NULL;
 	FOR(vector_tpl<haus_besch_t const*>, const besch, liste) {
-		if(	besch->is_allowed_climate(cl)  &&
-			besch->get_chance()>0  &&
-			(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time))) {
-			besch_at_least = besch;
+		if(  besch->is_allowed_climate(cl)  &&  besch->get_chance()>0  &&  besch->is_available(time)  ) {
+				besch_at_least = besch;
 		}
 
 		const int thislevel = besch->get_level();
@@ -787,7 +785,7 @@ static const haus_besch_t* get_city_building_from_list(const vector_tpl<const ha
 
 		if(  thislevel == level  &&  besch->get_chance() > 0  ) {
 			if(  cl==MAX_CLIMATES  ||  besch->is_allowed_climate(cl)  ) {
-				if(  time == 0  ||  (besch->get_intro_year_month() <= time  &&  besch->get_retire_year_month() > time)  ) {
+				if(  besch->is_available(time)  ) {
 //					DBG_MESSAGE("hausbauer_t::get_city_building_from_list()","appended %s at %i", besch->get_name(), thislevel );
 					/* Level, time period, and climate are all OK.
 					 * Now modify the chance rating by a factor based on the clusters.
@@ -840,11 +838,11 @@ const haus_besch_t* hausbauer_t::get_residential(int level, uint16 time, climate
 
 const haus_besch_t* hausbauer_t::get_headquarter(int level, uint16 time)
 {
-	if (level < 0) {
+	if(  level<0  ) {
 		return NULL;
 	}
 	FOR(vector_tpl<haus_besch_t const*>, const besch, hausbauer_t::headquarter) {
-		if (besch->get_extra() == (uint32)level  &&  !besch->is_future(time)  &&  !besch->is_retired(time)) {
+		if(  besch->get_extra()==(uint32)level  &&  besch->is_available(time)  ) {
 			return besch;
 		}
 	}

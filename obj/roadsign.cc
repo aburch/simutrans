@@ -126,10 +126,10 @@ void roadsign_t::set_dir(ribi_t::ribi dir)
 {
 	this->dir = dir;
 	weg_t *weg = welt->lookup(get_pos())->get_weg(besch->get_wtyp()!=tram_wt ? besch->get_wtyp() : track_wt);
-	if(besch->get_wtyp()!=track_wt  &&   besch->get_wtyp()!=monorail_wt&&   besch->get_wtyp()!=maglev_wt&&   besch->get_wtyp()!=narrowgauge_wt) {
+	if(  besch->get_wtyp()!=track_wt  &&  besch->get_wtyp()!=monorail_wt  &&  besch->get_wtyp()!=maglev_wt  &&  besch->get_wtyp()!=narrowgauge_wt  ) {
 		weg->count_sign();
 	}
-	if(besch->is_single_way()  ||  besch->is_signal()  ||  besch->is_pre_signal()  ||  besch->is_longblock_signal()) {
+	if(  besch->is_single_way()  ||  besch->is_signal()  ||  besch->is_pre_signal()  ||  besch->is_longblock_signal()  ) {
 		// set mask, if it is a single way ...
 		weg->count_sign();
 		if(ribi_t::ist_einfach(dir)) {
@@ -601,7 +601,7 @@ void roadsign_t::entferne(spieler_t *sp)
 void roadsign_t::laden_abschliessen()
 {
 	grund_t *gr=welt->lookup(get_pos());
-	if(gr==NULL  ||  !gr->hat_weg(besch->get_wtyp()!=tram_wt ? besch->get_wtyp() : track_wt)) {
+	if(  gr==NULL  ||  !gr->hat_weg(besch->get_wtyp()!=tram_wt ? besch->get_wtyp() : track_wt)  ) {
 		dbg->error("roadsign_t::laden_abschliessen","roadsing: way/ground missing at %i,%i => ignore", get_pos().x, get_pos().y );
 	}
 	else {
@@ -670,7 +670,7 @@ bool roadsign_t::register_besch(roadsign_besch_t *besch)
 
 	roadsign_t::table.put(besch->get_name(), besch);
 
-	if(besch->get_wtyp()==track_wt  &&  besch->get_flags()==roadsign_besch_t::SIGN_SIGNAL) {
+	if(  besch->get_wtyp()==track_wt  &&  besch->get_flags()==roadsign_besch_t::SIGN_SIGNAL  ) {
 		default_signal = besch;
 	}
 
@@ -695,12 +695,9 @@ void roadsign_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 /*sou
 
 	FOR(stringhashtable_tpl<roadsign_besch_t const*>, const& i, table) {
 		roadsign_besch_t const* const besch = i.value;
-		if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
-
-			if(besch->get_builder()  &&  wtyp==besch->get_wtyp()) {
-				// only add items with a cursor
-				matching.insert_ordered( besch, compare_roadsign_besch );
-			}
+		if(  besch->is_available(time)  &&  besch->get_wtyp()==wtyp  &&  besch->get_builder()  ) {
+			// only add items with a cursor
+			matching.insert_ordered( besch, compare_roadsign_besch );
 		}
 	}
 	FOR(vector_tpl<roadsign_besch_t const*>, const i, matching) {
@@ -710,16 +707,15 @@ void roadsign_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 /*sou
 
 
 /**
- * Finds a matching roadsing
+ * Finds a matching roadsign
  * @author prissi
  */
 const roadsign_besch_t *roadsign_t::roadsign_search(roadsign_besch_t::types const flag, waytype_t const wt, uint16 const time)
 {
 	FOR(stringhashtable_tpl<roadsign_besch_t const*>, const& i, table) {
 		roadsign_besch_t const* const besch = i.value;
-		if((time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time))
-			&&  besch->get_wtyp()==wt  &&  besch->get_flags()==flag) {
-				return besch;
+		if(  besch->is_available(time)  &&  besch->get_wtyp()==wt  &&  besch->get_flags()==flag  ) {
+			return besch;
 		}
 	}
 	return NULL;

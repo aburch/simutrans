@@ -77,14 +77,12 @@ const bruecke_besch_t *brueckenbauer_t::find_bridge(const waytype_t wtyp, const 
 
 	FOR(stringhashtable_tpl<bruecke_besch_t const*>, const& i, bruecken_by_name) {
 		bruecke_besch_t const* const besch = i.value;
-		if(besch->get_waytype() == wtyp) {
-			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
-				if(find_besch==NULL  ||
-					(find_besch->get_topspeed()<min_speed  &&  find_besch->get_topspeed()<besch->get_topspeed())  ||
-					(besch->get_topspeed()>=min_speed  &&  besch->get_wartung()<find_besch->get_wartung())
-				) {
-					find_besch = besch;
-				}
+		if(  besch->get_waytype()==wtyp  &&  besch->is_available(time)  ) {
+			if(  find_besch==NULL  ||
+				(find_besch->get_topspeed()<min_speed  &&  find_besch->get_topspeed()<besch->get_topspeed())  ||
+				(besch->get_topspeed()>=min_speed  &&  besch->get_wartung()<find_besch->get_wartung())
+			) {
+				find_besch = besch;
 			}
 		}
 	}
@@ -117,10 +115,7 @@ void brueckenbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, s
 	// list of matching types (sorted by speed)
 	FOR(stringhashtable_tpl<bruecke_besch_t const*>, const& i, bruecken_by_name) {
 		bruecke_besch_t const* const b = i.value;
-		if (b->get_waytype() == wtyp && (
-					time == 0 ||
-					(b->get_intro_year_month() <= time && time < b->get_retire_year_month())
-				)) {
+		if (  b->get_waytype()==wtyp  &&  b->is_available(time)  ) {
 			matching.insert_ordered( b, compare_bridges);
 		}
 	}

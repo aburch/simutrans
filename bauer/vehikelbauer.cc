@@ -128,7 +128,7 @@ sint32 vehikelbauer_t::get_speedbonus( sint32 monthyear, waytype_t wt )
 		sint32 num_averages = 0;
 		// needs to do it the old way => iterate over all vehicles with this type ...
 		FOR(slist_tpl<vehikel_besch_t const*>, const info, typ_fahrzeuge[GET_WAYTYPE_INDEX(wt)]) {
-			if(  info->get_leistung()>0  &&  !info->is_future(monthyear)  &&  !info->is_retired(monthyear)  ) {
+			if(  info->get_leistung()>0  &&  info->is_available(monthyear)  ) {
 				speed_sum += info->get_geschw();
 				num_averages ++;
 			}

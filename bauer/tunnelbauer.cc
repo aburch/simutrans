@@ -73,13 +73,13 @@ const tunnel_besch_t *tunnelbauer_t::get_besch(const char *name)
  */
 const tunnel_besch_t *tunnelbauer_t::find_tunnel(const waytype_t wtyp, const sint32 min_speed, const uint16 time)
 {
-	const tunnel_besch_t *find_besch=NULL;
+	const tunnel_besch_t *find_besch = NULL;
 
 	FOR(stringhashtable_tpl<tunnel_besch_t*>, const& i, tunnel_by_name) {
 		tunnel_besch_t* const besch = i.value;
-		if(besch->get_waytype() == wtyp) {
-			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
-				if(find_besch==NULL  ||
+		if(  besch->get_waytype()==wtyp  ) {
+			if(  besch->is_available(time)  ) {
+				if(  find_besch==NULL  ||
 					(find_besch->get_topspeed()<min_speed  &&  find_besch->get_topspeed()<besch->get_topspeed())  ||
 					(besch->get_topspeed()>=min_speed  &&  besch->get_wartung()<find_besch->get_wartung())
 				) {
@@ -121,10 +121,7 @@ void tunnelbauer_t::fill_menu(werkzeug_waehler_t* wzw, const waytype_t wtyp, sin
 
 	FOR(stringhashtable_tpl<tunnel_besch_t*>, const& i, tunnel_by_name) {
 		tunnel_besch_t* const besch = i.value;
-		if (besch->get_waytype() == wtyp && (
-					time == 0 ||
-					(besch->get_intro_year_month() <= time && time < besch->get_retire_year_month())
-				)) {
+		if(  besch->get_waytype()==wtyp  &&  besch->is_available(time)  ) {
 			matching.insert_ordered(besch, compare_tunnels);
 		}
 	}

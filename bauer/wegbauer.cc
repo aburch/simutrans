@@ -231,11 +231,11 @@ bool wegbauer_t::waytype_available( const waytype_t wtyp, uint16 time )
 
 
 
-const weg_besch_t * wegbauer_t::get_besch(const char * way_name,const uint16 time)
+const weg_besch_t * wegbauer_t::get_besch(const char * way_name, const uint16 time)
 {
 //DBG_MESSAGE("wegbauer_t::get_besch","return besch for %s in (%i)",way_name, time/12);
 	const weg_besch_t *besch = alle_wegtypen.get(way_name);
-	if(besch  &&  (time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time))  ) {
+	if(  besch  &&  besch->is_available(time)  ) {
 		return besch;
 	}
 	return NULL;
@@ -303,13 +303,8 @@ void wegbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const 
 
 	FOR(stringhashtable_tpl<weg_besch_t const*>, const& i, alle_wegtypen) {
 		weg_besch_t const* const besch = i.value;
-		if (besch->get_styp() == styp &&
-				besch->get_wtyp() == wtyp &&
-				besch->get_builder() && (
-					time == 0 ||
-					(besch->get_intro_year_month() <= time && time < besch->get_retire_year_month())
-				)) {
-			matching.append(besch);
+		if (  besch->get_styp()==styp &&  besch->get_wtyp()==wtyp  &&  besch->get_builder()  &&  besch->is_available(time)  ) {
+				matching.append(besch);
 		}
 	}
 	std::sort(matching.begin(), matching.end(), compare_ways);

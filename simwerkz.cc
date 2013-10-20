@@ -2145,11 +2145,9 @@ bool wkz_wegebau_t::init( karte_t *welt, spieler_t *sp )
 	if(  besch  &&  besch->get_cursor()->get_bild_nr(0) != IMG_LEER  ) {
 		cursor = besch->get_cursor()->get_bild_nr(0);
 	}
-	if(  besch  &&  welt->get_timeline_year_month()  &&  sp!=NULL  &&  sp!=welt->get_spieler(1)  ) {
-		if(  welt->get_timeline_year_month() < besch->get_intro_year_month()  ||  welt->get_timeline_year_month() >= besch->get_retire_year_month()  ) {
-			// non available way => fail
-			return false;
-		}
+	if(  besch  &&  !besch->is_available(welt->get_timeline_year_month())  &&  sp!=NULL  &&  sp!=welt->get_spieler(1)  ) {
+		// non available way => fail
+		return false;
 	}
 	return besch!=NULL;
 }
@@ -2158,7 +2156,7 @@ waytype_t wkz_wegebau_t::get_waytype() const
 {
 	const weg_besch_t *besch = get_besch( spieler_t::get_welt()->get_timeline_year_month(), false );
 	waytype_t wt = besch ? besch->get_wtyp() : invalid_wt;
-	if (wt == track_wt  &&  besch->get_styp()==7) {
+	if (  wt==track_wt  &&  besch->get_styp()==7  ) {
 		wt = tram_wt;
 	}
 	return wt;
@@ -2168,7 +2166,7 @@ uint8 wkz_wegebau_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord3d &
 {
 	error = NULL;
 	grund_t *gr=welt->lookup(pos);
-	if(gr  &&  hang_t::ist_wegbar(gr->get_weg_hang())) {
+	if(  gr  &&  hang_t::ist_wegbar(gr->get_weg_hang())  ) {
 		// ignore tunnel tiles (except road tunnel for tram track building ..)
 		if(  gr->get_typ() == grund_t::tunnelboden  &&  !gr->ist_karten_boden()  && !(besch->get_wtyp()==track_wt  &&  besch->get_styp()==7  && gr->hat_weg(road_wt)) ) {
 			return 0;
@@ -4619,7 +4617,7 @@ image_id wkz_depot_t::get_icon(spieler_t *sp) const
 	if(  sp  &&  sp->get_player_nr()!=1  ) {
 		const haus_besch_t *besch = hausbauer_t::find_tile(default_param,0)->get_besch();
 		const uint16 time = sp->get_welt()->get_timeline_year_month();
-		if(  time==0  ||  (besch->get_intro_year_month() <= time  &&  time < besch->get_retire_year_month())  ) {
+		if(  besch->is_available(time)  ) {
 			return besch->get_cursor()->get_bild_nr(1);
 		}
 	}
@@ -6524,7 +6522,7 @@ bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 					else {
 						// now check if we are allowed to buy this (we test only leading vehicle, so one can still buy hidden stuff)
 						info = new_vehicle_info.front();
-						if(  welt->get_timeline_year_month()  &&  (info->is_future(welt->get_timeline_year_month())  ||  info->is_retired(welt->get_timeline_year_month()))  &&  !welt->get_settings().get_allow_buying_obsolete_vehicles()  ) {
+						if(  !info->is_available(welt->get_timeline_year_month())  &&  !welt->get_settings().get_allow_buying_obsolete_vehicles()  ) {
 							// only allow append/insert, if in depot do not create new obsolte vehicles
 							if(  !depot->find_oldest_newest(info, true)  ) {
 								// just fail silent

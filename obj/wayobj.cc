@@ -466,10 +466,10 @@ void wayobj_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 /*sound
 
 	FOR(stringhashtable_tpl<way_obj_besch_t const*>, const& i, table) {
 		way_obj_besch_t const* const besch = i.value;
-		if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
+		if(  besch->is_available(time)  ) {
 
 			DBG_DEBUG("wayobj_t::fill_menu()", "try to add %s(%p)", besch->get_name(), besch);
-			if(besch->get_builder()  &&  wtyp==besch->get_wtyp()) {
+			if(  besch->get_builder()  &&  wtyp==besch->get_wtyp()  ) {
 				// only add items with a cursor
 				matching.append(besch);
 			}
@@ -483,13 +483,12 @@ void wayobj_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 /*sound
 }
 
 
-const way_obj_besch_t *wayobj_t::wayobj_search(waytype_t wt,waytype_t own,uint16 time)
+const way_obj_besch_t *wayobj_t::wayobj_search(waytype_t wt, waytype_t own, uint16 time)
 {
 	FOR(stringhashtable_tpl<way_obj_besch_t const*>, const& i, table) {
 		way_obj_besch_t const* const besch = i.value;
-		if((time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time))
-			&&  besch->get_wtyp()==wt  &&  besch->get_own_wtyp()==own) {
-				return besch;
+		if(  besch->is_available(time)  &&  besch->get_wtyp()==wt  &&  besch->get_own_wtyp()==own  ) {
+			return besch;
 		}
 	}
 	return NULL;

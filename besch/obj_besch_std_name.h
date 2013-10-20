@@ -43,15 +43,20 @@ public:
 
 	uint16 get_retire_year_month() const { return obsolete_date; }
 
+	/// @return true if this object is available with timeline.
+	bool is_available(const uint16 month_now) const
+	{
+		return month_now==0  ||  (intro_date<=month_now  &&  obsolete_date>month_now);
+	}
 
 	/// @return true if this is still not available
-	bool is_future (const uint16 month_now) const
+	bool is_future(const uint16 month_now) const
 	{
 		return month_now  &&  (intro_date > month_now);
 	}
 
 	/// @return true if this is obsolete
-	bool is_retired (const uint16 month_now) const
+	bool is_retired(const uint16 month_now) const
 	{
 		return month_now  &&  (obsolete_date <= month_now);
 	}

@@ -25,7 +25,7 @@ class checksum_t;
  *	1   Copyright
  *	2   Bild
  */
-class kreuzung_besch_t : public obj_besch_std_name_t {
+class kreuzung_besch_t : public obj_besch_timelined_t {
     friend class crossing_reader_t;
 
 private:
@@ -80,24 +80,6 @@ public:
 	uint32 get_animation_time(bool open) const { return open ? open_animation_time : closed_animation_time; }
 
 	sint8 get_sound() const { return sound; }
-
-	/**
-	* @return introduction year
-	*/
-	uint16 get_intro_year_month() const { return intro_date; }
-
-	/**
-	* @return time when obsolete
-	*/
-	uint16 get_retire_year_month() const { return obsolete_date; }
-
-	/**
-	* @return true if the crossing is available
-	*/
-	bool is_available(const uint16 month_now) const
-	{
-		return month_now==0  ||  (intro_date <= month_now  &&  month_now < obsolete_date);
-	}
 
 	void calc_checksum(checksum_t *chk) const
 	{
