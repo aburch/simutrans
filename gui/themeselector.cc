@@ -86,7 +86,8 @@ const char *themeselector_t::get_info(const char *fn )
 
 		// get trimmed theme name
 		themesconf.read(contents);
-		info = strdup( trim( std::string( contents.get( "name" ) ) ).c_str() );
+		std::string name( contents.get( "name" ) );
+		info = strdup( trim( name ).c_str() );
 
 	}
 	themesconf.close();

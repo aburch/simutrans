@@ -26,7 +26,7 @@ public:
 	scr_coord( const koord pos_par) { x = pos_par.x; y = pos_par.y; }
 
 	// temporary until koord has been replaced by scr_coord.
-	operator koord() { return koord(x,y); }
+	operator koord() const { return koord(x,y); }
 
 	bool operator ==(const scr_coord& other) const { return ((x-other.x) | (y-other.y)) == 0; }
 	bool operator !=(const scr_coord& other) const { return !(other == *this ); }

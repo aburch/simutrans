@@ -202,18 +202,16 @@ scr_rect gui_scrollpane_t::get_client( void )
  */
 void gui_scrollpane_t::zeichnen(koord pos)
 {
-	scr_rect client;
-
 	// check, if we need to recalc slider size
 	if(  old_komp_groesse  !=  komp->get_groesse()  ) {
 		recalc_sliders( groesse );
 	}
 
 	// get client area (scroll panel - scrollbars)
-	client = get_client() + scr_coord(pos);
+	scr_rect client = get_client() + scr_coord(pos);
 
 	PUSH_CLIP( client.x, client.y, client.w, client.h )
-		komp->zeichnen( client.get_pos()-koord(scroll_x.get_knob_offset(), scroll_y.get_knob_offset()) );
+		komp->zeichnen( client.get_pos()-scr_coord(scroll_x.get_knob_offset(), scroll_y.get_knob_offset()) );
 	POP_CLIP()
 
 	// sliding bar background color is now handled by the scrollbar!
