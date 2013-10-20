@@ -129,7 +129,6 @@ bool scrollbar_t::infowin_event(const event_t *ev)
 	const int x = ev->cx;
 	const int y = ev->cy;
 	int i;
-	bool b_button_hit = false;
 
 	// 2003-11-04 hsiegeln added wheel support
 	// prissi: repaired it, was never doing something ...

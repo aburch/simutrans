@@ -47,15 +47,15 @@
  *                          This is an optional parameter with a default value of true;
  */
 savegame_frame_t::savegame_frame_t(const char *suffix, bool only_directories, const char *path, const bool delete_enabled) : gui_frame_t( translator::translate("Load/Save") ),
-	in_action(false),
-	searchpath_defined(false),
 	suffix(suffix),
+	in_action(false),
 	only_directories(only_directories),
-	delete_enabled(delete_enabled),
+	searchpath_defined(false),
 	input(),
 	fnlabel("Filename"),
 	scrolly(&button_frame),
-	num_sections(0)
+	num_sections(0),
+	delete_enabled(delete_enabled)
 {
 	koord cursor = koord(D_MARGIN_LEFT,D_MARGIN_TOP);
 

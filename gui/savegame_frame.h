@@ -67,8 +67,8 @@ protected:
 	struct dir_entry_t
 	{
 		dir_entry_t(button_t* button_, button_t* del_, gui_label_t* label_, dirlist_item_t type_ = LI_ENTRY, const char *info_=NULL) :
-			button(button_),
 			del(del_),
+			button(button_),
 			label(label_),
 			type(type_),
 			info(info_)
@@ -106,9 +106,9 @@ protected:
 	void        list_filled  ( void );
 
 	 // Virtual callback function that will be executed when the user clicks ok,
-	virtual bool cancel_action ( const char *fullpath ) { return true; } // Callback for cancel button click
-	virtual bool del_action    ( const char *fullpath );                 // Callback for delete button click
-	virtual bool ok_action     ( const char *fullpath ) { return true; } // Callback for ok button click
+	virtual bool cancel_action ( const char * /*fullpath*/ ) { return true; } // Callback for cancel button click
+	virtual bool del_action    ( const char *   fullpath   );                 // Callback for delete button click
+	virtual bool ok_action     ( const char * /*fullpath*/ ) { return true; } // Callback for ok button click
 
 	virtual void set_fenstergroesse ( koord groesse );
 	virtual bool check_file         ( const char *filename, const char *suffix );
