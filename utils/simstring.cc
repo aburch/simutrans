@@ -300,7 +300,7 @@ std::string trim(const std::string &str_)
 	std::string str(str_);
 
 	// left trim
-	int pos = str.find_first_not_of(" \t");
+	std::string::size_type pos = str.find_first_not_of(" \t");
 	if( pos && pos  !=  std::string::npos ) {
 		str = str.substr(pos);
 	}
