@@ -2247,7 +2247,6 @@ karte_t::karte_t() :
 	viewport = new viewport_t(this);
 
 	set_dirty();
-	set_scroll_lock(false);
 
 	// for new world just set load version to current savegame version
 	load_version = loadsave_t::int_version( env_t::savegame_version_str, NULL, NULL );;
@@ -4637,15 +4636,6 @@ void karte_t::update_history()
 	}
 	finance_history_month[0][WORLD_TRANSPORTED_GOODS] = transported;
 	finance_history_year[0][WORLD_TRANSPORTED_GOODS] = transported_year;
-}
-
-
-void karte_t::set_scroll_lock(bool yesno)
-{
-	scroll_lock = yesno;
-	if (yesno) {
-		viewport->set_follow_convoi(convoihandle_t());
-	}
 }
 
 

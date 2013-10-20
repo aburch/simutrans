@@ -28,7 +28,6 @@
 
 void interaction_t::move_view( const event_t &ev )
 {
-	if(!world->get_scroll_lock()) {
 		koord new_ij = viewport->get_world_position();
 
 		sint16 new_xoff = viewport->get_x_off() - (ev.mx - ev.cx) * env_t::scroll_multi;
@@ -46,7 +45,6 @@ void interaction_t::move_view( const event_t &ev )
 			display_move_pointer(ev.cx, ev.cy);
 #endif
 		}
-	}
 }
 
 

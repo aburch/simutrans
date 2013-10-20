@@ -226,12 +226,6 @@ private:
 	sint16 get_sound_id(grund_t *gr);
 
 	/**
-	 * If this is true, the map will not be scrolled on right-drag.
-	 * @author Hj. Malthaner
-	 */
-	bool scroll_lock;
-
-	/**
 	 * If true, this map cannot be saved.
 	 */
 	bool nosave;
@@ -890,17 +884,6 @@ public:
 	 * Sets the world event manager.
 	 */
 	void set_eventmanager(interaction_t *em) { eventmanager = em; }
-
-	/**
-	 * If this is true, the map will not be scrolled on right-drag.
-	 * @author Hj. Malthaner
-	 */
-	void set_scroll_lock(bool yesno);
-
-	/**
-	 * @return true if the map it's locked for right-drag.
-	 */
-	bool get_scroll_lock() const { return scroll_lock; }
 
 	settings_t const& get_settings() const { return settings; }
 	settings_t&       get_settings()       { return settings; }

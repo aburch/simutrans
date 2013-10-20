@@ -430,7 +430,6 @@ bool map_frame_t::infowin_event(const event_t *ev)
 		is_dragging = false;
 		display_show_pointer(false);
 		is_cursor_hidden = true;
-		reliefkarte_t::get_karte()->get_welt()->set_scroll_lock(false);
 		return true;
 	}
 	else if(  IS_RIGHTRELEASE(ev)  ) {
@@ -440,7 +439,6 @@ bool map_frame_t::infowin_event(const event_t *ev)
 		is_dragging = false;
 		display_show_pointer(true);
 		is_cursor_hidden = false;
-		reliefkarte_t::get_karte()->get_welt()->set_scroll_lock(false);
 		return true;
 	}
 	else if(  IS_RIGHTDRAG(ev)  &&  reliefkarte_t::get_karte()->getroffen(ev2.mx,ev2.my)  &&  reliefkarte_t::get_karte()->getroffen(ev2.cx,ev2.cy)  ) {
@@ -452,7 +450,6 @@ bool map_frame_t::infowin_event(const event_t *ev)
 		y += (ev->my - ev->cy)*scroll_direction*2;
 
 		is_dragging = true;
-		reliefkarte_t::get_karte()->get_welt()->set_scroll_lock(true);
 
 		scrolly.set_scroll_position(  max(0, x),  max(0, y) );
 
