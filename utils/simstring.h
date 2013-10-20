@@ -103,7 +103,7 @@ const char * ltrim(const char *);
  * Trim function for std::strings
  * @author Max Kielland
  */
-std::string trim ( std::string &str );
+std::string trim (const std::string &str );
 
 /**
  * Returns a pointer to the rest of str if str starts with start.

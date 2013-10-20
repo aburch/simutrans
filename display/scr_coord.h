@@ -119,9 +119,9 @@ public:
 	scr_rect( const scr_coord& point1, const scr_coord& point2 ) { set( point1.x, point1.y, point2.x-point1.x, point2.y-point1.y ); }
 
 	// Type cast operators
-	operator scr_size()   { return scr_size (w,h); }
-	operator scr_coord()  { return scr_coord(x,y); }
-	operator koord() const { return koord(w,h); }
+	operator scr_size()  const { return scr_size (w,h); }
+	operator scr_coord() const { return scr_coord(x,y); }
+	operator koord()     const { return koord(w,h); }
 
 	// Unary operators
 	const scr_rect operator +(const scr_coord& other ) const { scr_rect rect(x + other.x, y + other.y, w, h ); return rect; }
@@ -244,7 +244,7 @@ public:
 		(rect.get_bottomright().y < y) );
 	}
 
-	rect_relation_t relation( const scr_rect& rect ) {
+	rect_relation_t relation( const scr_rect& rect ) const {
 		if( contains(rect) ) {
 			return RECT_RELATION_INSIDE;
 		}

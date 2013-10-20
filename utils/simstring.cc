@@ -295,12 +295,12 @@ const char * ltrim(const char *p)
  *
  * @retval std::string  The trimmed string.
  */
-std::string trim(std::string &str)
+std::string trim(const std::string &str_)
 {
-	int pos;
+	std::string str(str_);
 
 	// left trim
-	pos = str.find_first_not_of(" \t");
+	int pos = str.find_first_not_of(" \t");
 	if( pos && pos  !=  std::string::npos ) {
 		str = str.substr(pos);
 	}
@@ -313,6 +313,7 @@ std::string trim(std::string &str)
 
 	return str;
 }
+
 
 char const* strstart(char const* str, char const* start)
 {
