@@ -82,8 +82,8 @@ void gui_scrollpane_t::set_groesse(koord groesse)
 	gui_komponente_t::set_groesse(groesse);
 	// automatically increase/decrease slider area
 	koord k = komp->get_groesse()+komp->get_pos();
-	scroll_x.set_visible( (k.x <= groesse.x)  &&  b_show_scroll_x  );
-	scroll_y.set_visible(  (k.y <= groesse.y)  &&  b_show_scroll_y  );
+	scroll_x.set_visible( (k.x > groesse.x)  &&  b_show_scroll_x  );
+	scroll_y.set_visible(  (k.y > groesse.y)  &&  b_show_scroll_y  );
 	// and then resize slider
 	recalc_sliders(groesse);
 }
