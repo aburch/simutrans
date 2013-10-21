@@ -5096,9 +5096,9 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved players");
 DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved messages");
 
 	// centered on what?
-	sint32 dummy = viewport->get_viewport_ij_offset().x;
+	sint32 dummy = viewport->get_world_position().x;
 	file->rdwr_long(dummy);
-	dummy = viewport->get_viewport_ij_offset().y;
+	dummy = viewport->get_world_position().y;
 	file->rdwr_long(dummy);
 
 	if(file->get_version()>=99018) {
@@ -5159,7 +5159,7 @@ bool karte_t::load(const char *filename)
 	DBG_MESSAGE("karte_t::laden", "loading game from '%s'", filename);
 
 	// reloading same game? Remeber pos
-	const koord oldpos = settings.get_filename()[0]>0  &&  strncmp(filename,settings.get_filename(),strlen(settings.get_filename()))==0 ? viewport->get_viewport_ij_offset() : koord::invalid;
+	const koord oldpos = settings.get_filename()[0]>0  &&  strncmp(filename,settings.get_filename(),strlen(settings.get_filename()))==0 ? viewport->get_world_position() : koord::invalid;
 
 	if(  strstart(filename, "net:")  ) {
 		// probably finish network mode?

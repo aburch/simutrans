@@ -78,6 +78,11 @@ private:
 	sint16 cached_img_size;		//!< Cached base raster image size
 
 	/**
+	 * Gets current ij offsets of this viewport, depends of its proportions and the zoom level.
+	 */
+	koord get_viewport_ij_offset() const { return view_ij_off; }
+
+	/**
 	 * Sets current ij offsets of this viewport, depends of its proportions and the zoom level.
 	 */
 	void set_viewport_ij_offset( const koord &k );
@@ -180,11 +185,6 @@ public:
 	 * Fine offset within the viewport tile.
 	 */
 	void set_y_off(sint16 value) {y_off = value;}
-
-	/**
-	 * Gets current ij offsets of this viewport, depends of its proportions and the zoom level.
-	 */
-	koord get_viewport_ij_offset() const { return view_ij_off; }
 
 	/**
 	 * @}
