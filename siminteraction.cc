@@ -28,23 +28,23 @@
 
 void interaction_t::move_view( const event_t &ev )
 {
-		koord new_ij = viewport->get_world_position();
+	koord new_ij = viewport->get_world_position();
 
-		sint16 new_xoff = viewport->get_x_off() - (ev.mx - ev.cx) * env_t::scroll_multi;
-		sint16 new_yoff = viewport->get_y_off() - (ev.my-ev.cy) * env_t::scroll_multi;
+	sint16 new_xoff = viewport->get_x_off() - (ev.mx - ev.cx) * env_t::scroll_multi;
+	sint16 new_yoff = viewport->get_y_off() - (ev.my-ev.cy) * env_t::scroll_multi;
 
-		// this sets the new position and mark screen dirty
-		// => with next refresh we will be at a new location
-		viewport->change_world_position( new_ij, new_xoff, new_yoff );
+	// this sets the new position and mark screen dirty
+	// => with next refresh we will be at a new location
+	viewport->change_world_position( new_ij, new_xoff, new_yoff );
 
-		// move the mouse pointer back to starting location => infinite mouse movement
-		if ((ev.mx - ev.cx)!=0  ||  (ev.my-ev.cy)!=0) {
+	// move the mouse pointer back to starting location => infinite mouse movement
+	if ((ev.mx - ev.cx)!=0  ||  (ev.my-ev.cy)!=0) {
 #ifdef __BEOS__
-			change_drag_start(ev.mx - ev.cx, ev.my - ev.cy);
+		change_drag_start(ev.mx - ev.cx, ev.my - ev.cy);
 #else
-			display_move_pointer(ev.cx, ev.cy);
+		display_move_pointer(ev.cx, ev.cy);
 #endif
-		}
+	}
 }
 
 
