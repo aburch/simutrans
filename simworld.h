@@ -272,7 +272,7 @@ private:
 	 */
 	slist_tpl<sync_steppable *> sync_add_list;
 
-   /**
+	/**
 	 * These objects will be removed from the sync_list (but before next sync step, so they do not interfere!)
 	 */
 	slist_tpl<sync_steppable *> sync_remove_list;
@@ -287,7 +287,7 @@ private:
 	vector_tpl<sync_steppable *> sync_list;
 #endif
 
-   /**
+	/**
 	 * These objects will be added to the eyecandy sync_list (but before next sync step, so they do not interfere!)
 	 */
 	slist_tpl<sync_steppable *> sync_eyecandy_add_list;
