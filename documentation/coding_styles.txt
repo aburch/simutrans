@@ -246,6 +246,13 @@ Use spaces in parameters list. For example:
 
 call(x, y, count); instead of call(x,y,count);
 
+If a function accepts no parameters, on its delaration, and using C++ notation we'll use:
+
+int function()
+
+This C-style declaration is *not* conformant to our standards:
+
+int function(void)
 
 Also a space between type and pointer mark is preferred:
 use char *bla_t::get_text() instead char* bla_t::get_text()

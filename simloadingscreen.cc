@@ -116,11 +116,16 @@ void loadingscreen_t::set_progress( uint32 progress )
 			simgraph_resize( ev->mx, ev->my );
 			display_fillbox_wh( 0, 0, ev->mx, ev->my, COL_BLACK, true );
 			display_logo();
+			// queue the event anyway, so the viewport is correctly updated on world resume (screen will be resized again).
+			queued_events.append(ev);
 		}
 		else if(  ev->ev_code == SYSTEM_QUIT  ) {
 			env_t::quit_simutrans = true;
+			delete ev;
 		}
-		delete ev;
+		else {
+			delete ev;
+		}
 	}
 	else {
 		if(  ev->ev_class == EVENT_KEYBOARD  ) {
