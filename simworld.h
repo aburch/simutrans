@@ -1057,7 +1057,7 @@ public:
 	uint8 get_season() const { return season; }
 
 	/**
-	 * Zeit seit Kartenerzeugung/dem letzen laden in ms
+	 * Time since map creation or the last load in ms.
 	 * @author Hj. Malthaner
 	 */
 	uint32 get_zeit_ms() const { return ticks; }
@@ -1075,7 +1075,7 @@ public:
 	const weg_besch_t* get_city_road() const { return city_road; }
 
 	/**
-	 * Anzahl steps seit Kartenerzeugung
+	 * Number of steps elapsed since the map was generated.
 	 * @author Hj. Malthaner
 	 */
 	long get_steps() const { return steps; }
@@ -1087,13 +1087,13 @@ public:
 	uint32 get_schlaf_zeit() const { return idle_time; }
 
 	/**
-	 * Anzahl frames in der letzten Sekunde Realzeit
+	 * Number of frames displayed in the last real time second.
 	 * @author prissi
 	 */
 	uint32 get_realFPS() const { return realFPS; }
 
 	/**
-	 * Anzahl Simulationsloops in der letzten Sekunde. Kann sehr ungenau sein!
+	 * Number of simulation loops in the last second. Can be very inaccurate!
 	 * @author Hj. Malthaner
 	 */
 	uint32 get_simloops() const { return simloops; }
