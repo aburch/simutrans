@@ -292,8 +292,6 @@ grund_t* vehikel_basis_t::betrete_feld()
  */
 uint32 vehikel_basis_t::fahre_basis(uint32 distance)
 {
-	koord3d pos_prev;
-	uint32 distance_travelled; // Return value
 
 	uint32 steps_to_do = distance >> YARDS_PER_VEHICLE_STEP_SHIFT;
 
@@ -310,6 +308,9 @@ uint32 vehikel_basis_t::fahre_basis(uint32 distance)
 	grund_t *gr = NULL; // if hopped, then this is new position
 
 	uint32 steps_target = steps_to_do + steps;
+	sint32 steps_done   = steps_to_do;
+
+	uint32 distance_travelled; // Return value
 
 	if(  steps_target > steps_next  ) {
 		// We are going far enough to hop.
@@ -317,38 +318,18 @@ uint32 vehikel_basis_t::fahre_basis(uint32 distance)
 		// We'll be adding steps_next+1 for each hop, as if we
 		// started at the beginning of this tile, so for an accurate
 		// count of steps done we must subtract the location we started with.
-		sint32 steps_done = -steps;
-		bool has_hopped = false;
+		steps_done = -steps;
 
 		// Hop as many times as possible.
 		while(  steps_target > steps_next  &&  hop_check()  ) {
+			// now do the update for hopping
 			steps_target -= steps_next+1;
 			steps_done += steps_next+1;
-			pos_prev = get_pos();
+			koord pos_prev(get_pos().get_2d());
 			gr = hop();
 			use_calc_height = true;
-			has_hopped = true;
-		}
 
-		if(  steps_next == 0  ) {
-			// only needed for aircrafts, which can turn on the same tile
-			// the indicate the turn with this here
-			steps_next = VEHICLE_STEPS_PER_TILE - 1;
-			steps_target = VEHICLE_STEPS_PER_TILE - 1;
-			steps_done -= VEHICLE_STEPS_PER_TILE - 1;
-		}
-
-		if(  steps_target > steps_next  ) {
-			// could not go as far as we wanted (hop_check failed) => stop at end of tile
-			steps_target = steps_next;
-		}
-		// Update internal status, how far we got within the tile.
-		steps = steps_target;
-
-		steps_done += steps;
-		distance_travelled = steps_done << YARDS_PER_VEHICLE_STEP_SHIFT;
-
-		if(  has_hopped  ) {
+			// set offsets
 			set_xoff( (dx<0) ? OBJECT_OFFSET_STEPS : -OBJECT_OFFSET_STEPS );
 			set_yoff( (dy<0) ? OBJECT_OFFSET_STEPS/2 : -OBJECT_OFFSET_STEPS/2 );
 			if(dx*dy==0) {
@@ -370,6 +351,27 @@ uint32 vehikel_basis_t::fahre_basis(uint32 distance)
 				}
 			}
 		}
+
+		if(  steps_next == 0  ) {
+			// only needed for aircrafts, which can turn on the same tile
+			// the indicate the turn with this here
+			steps_next = VEHICLE_STEPS_PER_TILE - 1;
+			steps_target = VEHICLE_STEPS_PER_TILE - 1;
+			steps_done -= VEHICLE_STEPS_PER_TILE - 1;
+		}
+
+		// Update internal status, how far we got within the tile.
+		if(  steps_target <= steps_next  ) {
+			steps = steps_target;
+		}
+		else {
+			// could not go as far as we wanted (hop_check failed) => stop at end of tile
+			steps = steps_next;
+		}
+
+		steps_done += steps;
+		distance_travelled = steps_done << YARDS_PER_VEHICLE_STEP_SHIFT;
+
 	}
 	else {
 		// Just travel to target, it's on same tile
