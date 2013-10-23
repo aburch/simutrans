@@ -254,7 +254,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 
 
 
-ribi_t::ribi *get_next_dirs(const koord gr_pos, const koord ziel)
+ribi_t::ribi *get_next_dirs(const koord3d& gr_pos, const koord3d& ziel)
 {
 	static ribi_t::ribi next_ribi[4];
 	if( abs(gr_pos.x-ziel.x)>abs(gr_pos.y-ziel.y) ) {
@@ -366,7 +366,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 		// mask direction we came from
 		const ribi_t::ribi ribi =  fahr->get_ribi(gr)  &  ( ~ribi_t::rueckwaerts(tmp->ribi_from) );
 
-		const ribi_t::ribi *next_ribi = get_next_dirs(gr->get_pos().get_2d(),ziel.get_2d());
+		const ribi_t::ribi *next_ribi = get_next_dirs(gr->get_pos(), ziel);
 		for(int r=0; r<4; r++) {
 
 			// a way in our direction?
@@ -376,10 +376,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 
 			to = NULL;
 			if(is_airplane) {
-				const planquadrat_t *pl=welt->access(gr->get_pos().get_2d()+koord(next_ribi[r]));
-				if(pl) {
-					to = pl->get_kartenboden();
-				}
+				to = welt->lookup_kartenboden(gr->get_pos().get_2d()+koord(next_ribi[r]));
 			}
 
 			// a way goes here, and it is not marked (i.e. in the closed list)

@@ -1275,7 +1275,7 @@ public:
 	 */
 	inline grund_t *lookup(const koord3d &pos) const
 	{
-		const planquadrat_t *plan = access(pos.get_2d());
+		const planquadrat_t *plan = access(pos.x, pos.y);
 		return plan ? plan->get_boden_in_hoehe(pos.z) : NULL;
 	}
 
