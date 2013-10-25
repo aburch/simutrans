@@ -4728,6 +4728,9 @@ bool wkz_build_haus_t::init( karte_t *, spieler_t * )
 	return true;
 }
 
+// TODO: merge this into building_layout defined in simcity.cc
+static int building_layout[] = {0,0,1,4,2,0,5,1,3,7,1,0,6,3,2,0};
+
 const char *wkz_build_haus_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 {
 	koord k(pos.get_2d());
@@ -4753,14 +4756,43 @@ const char *wkz_build_haus_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 	if(besch==NULL) {
 		return "";
 	}
-	int rotation = (default_param  &&  default_param[1]!='#') ? (default_param[1]-'0') % besch->get_all_layouts() : simrand(besch->get_all_layouts());
+	int rotation;
+	if(  !default_param || default_param[1]=='#'  ) {
+		rotation = simrand(besch->get_all_layouts());
+	}
+	else if(  default_param[1]=='A'  ) {
+		if(  besch->get_utyp()!=haus_besch_t::attraction_land  &&  besch->get_utyp()!=haus_besch_t::attraction_city  ) {
+			// auto rotation only valid for city buildings
+			int streetdir = 0;
+			for(  int i = 1;  i < 8;  i+=2  ) {
+				grund_t *gr2 = welt->lookup_kartenboden(k + koord::neighbours[i]);
+				if(  gr2  &&  gr2->get_weg_hang() == gr2->get_grund_hang()  &&  gr2->get_weg(road_wt) != NULL  ) {
+					// update directions - note this is SENW, conversion from neighbours to SENW is
+					// neighbours SENW
+					// 3          0
+					// 5          1
+					// 7          2
+					// 1          3
+					streetdir += (1 << (((i-3)/2)&3));
+				}
+			}
+			rotation = building_layout[streetdir];
+		}
+		else {
+			rotation = simrand(besch->get_all_layouts());
+		}
+	}
+	else {
+		rotation = (default_param[1]-'0') % besch->get_all_layouts();
+	}
+
 	koord size = besch->get_groesse(rotation);
 
 	// process ignore climates switch
 	climate_bits cl = (default_param  &&  default_param[0]=='1') ? ALL_CLIMATES : besch->get_allowed_climate_bits();
 
 	bool hat_platz = welt->square_is_free( k, besch->get_b(rotation), besch->get_h(rotation), NULL, cl );
-	if(!hat_platz  &&  size.y!=size.x  &&  besch->get_all_layouts()>1  &&  (default_param==NULL  ||  default_param[1]=='#')) {
+	if(!hat_platz  &&  size.y!=size.x  &&  besch->get_all_layouts()>1  &&  (default_param==NULL  ||  default_param[1]=='#'  ||  default_param[1]=='A')) {
 		// try other rotation too ...
 		rotation = (rotation+1) % besch->get_all_layouts();
 		hat_platz = welt->square_is_free( k, besch->get_b(rotation), besch->get_h(rotation), NULL, cl );

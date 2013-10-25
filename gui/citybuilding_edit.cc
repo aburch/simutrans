@@ -177,7 +177,7 @@ bool citybuilding_edit_frame_t::action_triggered( gui_action_creator_t *komp,val
 		fill_list( is_show_trans_name );
 	}
 	else if(besch) {
-		if(  komp==&bt_left_rotate  &&  rotation!=255) {
+		if(  komp==&bt_left_rotate  &&  rotation!=254) {
 			if(rotation==0) {
 				rotation = 255;
 			}
@@ -235,7 +235,7 @@ void citybuilding_edit_frame_t::change_item_info(sint32 entry)
 			info_text.recalc_size();
 			cont.set_groesse( info_text.get_groesse() + koord(0, 20) );
 
-			// orientation (255=random)
+			// orientation (254=auto, 255=random)
 			if(besch->get_all_layouts()>1) {
 				rotation = 255; // no definition yet
 			}
@@ -248,6 +248,9 @@ void citybuilding_edit_frame_t::change_item_info(sint32 entry)
 		if(rotation == 255) {
 			tstrncpy(rot_str, translator::translate("random"), lengthof(rot_str));
 		}
+		else if(rotation == 254) {
+			tstrncpy(rot_str, translator::translate("auto"), lengthof(rot_str));
+		}
 		else {
 			sprintf( rot_str, "%i", rotation );
 		}
@@ -258,11 +261,11 @@ void citybuilding_edit_frame_t::change_item_info(sint32 entry)
 			img[i].set_image( IMG_LEER );
 		}
 
-		uint8 rot = (rotation==255) ? 0 : rotation;
+		uint8 rot = (rotation>253) ? 0 : rotation;
 		img[3].set_image( besch->get_tile(rot,0,0)->get_hintergrund(0,0,0) );
 
 		// the tools will be always updated, even though the data up there might be still current
-		sprintf( param_str, "%i%c%s", bt_climates.pressed, rotation==255 ? '#' : '0'+rotation, besch->get_name() );
+		sprintf( param_str, "%i%c%s", bt_climates.pressed, rotation>253 ? (rotation==254 ? 'A' : '#') : '0'+rotation, besch->get_name() );
 		haus_tool.set_default_param(param_str);
 		welt->set_werkzeug( &haus_tool, sp );
 	}
