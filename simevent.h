@@ -167,8 +167,11 @@ struct event_t {
 	 */
 	unsigned int ev_key_mod;
 
-	event_t() { }
-	event_t(unsigned int event_class) : ev_class(event_class) { }
+	event_t(unsigned int event_class = EVENT_NONE) : ev_class(event_class),
+		ev_code(0),
+		mx(0), my(0), cx(0), cy(0),
+		button_state(0), ev_key_mod(0)
+		{ }
 };
 
 #ifdef __cplusplus
