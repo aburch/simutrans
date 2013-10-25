@@ -2191,7 +2191,7 @@ bool haltestelle_t::vereinige_waren(const ware_t &ware) //"unite were" (Google)
 // take care of all allocation neccessary
 void haltestelle_t::add_ware_to_halt(ware_t ware, bool from_saved)
 {
-	//@author: jamespetts
+	// @author: jamespetts
 	if(!from_saved)
 	{
 		ware.arrival_time = welt->get_zeit_ms();
@@ -2208,7 +2208,7 @@ void haltestelle_t::add_ware_to_halt(ware_t ware, bool from_saved)
 		waren[ware.get_besch()->get_catg_index()] = warray;
 	}
 	resort_freight_info = true;
-	if (!from_saved)
+	if(!from_saved)
 	{
 		// the ware will be put into the first entry with menge==0
 		FOR(vector_tpl<ware_t>, & i, *warray) {
@@ -2220,6 +2220,7 @@ void haltestelle_t::add_ware_to_halt(ware_t ware, bool from_saved)
 		// here, if no free entries found
 	}
 	warray->append(ware);
+
 }
 
 

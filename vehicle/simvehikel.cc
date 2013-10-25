@@ -1068,7 +1068,7 @@ bool vehikel_t::load_freight(halthandle_t halt, bool overcrowd)
 		}
 		DBG_DEBUG4("vehikel_t::load_freight", "total_freight %d of %d loaded.", total_freight, total_capacity);
 	}
-	return true;
+	return ok;
 }
 
 
@@ -1946,7 +1946,7 @@ uint16 vehikel_t::beladen(halthandle_t halt, bool overcrowd)
 	{
 		ok = load_freight(halt, overcrowd);
 	}
-	sum_weight =  get_fracht_gewicht() + besch->get_gewicht();
+	sum_weight = get_fracht_gewicht() + besch->get_gewicht();
 	calc_bild();
 	if(ok)
 	{
@@ -3890,10 +3890,10 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 		// reserve first block at the start until the next signal
 		grund_t *gr = welt->lookup( get_pos() );
 		weg_t *w = gr ? gr->get_weg(get_waytype()) : NULL;
-		if(w==NULL || !((w->has_signal() || w->is_crossing()) && !starting_from_stand))
+		if(w==NULL || !((w->has_signal() || w->is_crossing()) && starting_from_stand))
 		{
 			// free track => reserve up to next signal
-			if(!block_reserver(cnv->get_route(), max(route_index,1)-1, next_signal, next_crossing, 0, true, false )) 
+			if(!block_reserver(cnv->get_route(), max(route_index,1)-1, next_signal, next_crossing, 0, true, false)) 
 			{
 				restart_speed = 0;
 				return false;
