@@ -1273,7 +1273,8 @@ void convoi_t::suche_neue_route()
  */
 void convoi_t::step()
 {	
-	if(wait_lock!=0) {
+	if(wait_lock !=0)
+	{
 		return;
 	}
 
@@ -1284,6 +1285,8 @@ void convoi_t::step()
 	}
 	
 	bool autostart = false;
+	uint8 position;
+	bool rev;
 
 	switch(state) {
 
@@ -1466,16 +1469,24 @@ end_loop:
 		case DUMMY5:
 		break;
 
-		case REVERSING:
+		case REVERSING:		
 			if(wait_lock == 0)
 			{
+				position = fpl ? fpl->get_aktuell() : 0;
+				rev = !reverse_schedule;
+				fpl->increment_index(&position, &rev);
+				if(haltestelle_t::get_halt(welt, fahr[0]->get_pos(), besitzer_p) == haltestelle_t::get_halt(welt, fpl->eintrag[position].pos, besitzer_p))
+				{
+					// Load any newly arrived passengers/mail bundles/goods before setting off.
+					laden();
+				}
 				state = CAN_START;
 				if(fahr[0]->last_stop_pos == fahr[0]->get_pos().get_2d())
 				{
 					book_waiting_times();
 				}
 			}
-			
+
 			break;
 
 		case FAHRPLANEINGABE:

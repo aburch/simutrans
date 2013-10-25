@@ -1068,7 +1068,7 @@ bool vehikel_t::load_freight(halthandle_t halt, bool overcrowd)
 		}
 		DBG_DEBUG4("vehikel_t::load_freight", "total_freight %d of %d loaded.", total_freight, total_capacity);
 	}
-	return true;
+	return ok;
 }
 
 
@@ -1946,7 +1946,7 @@ uint16 vehikel_t::beladen(halthandle_t halt, bool overcrowd)
 	{
 		ok = load_freight(halt, overcrowd);
 	}
-	sum_weight =  get_fracht_gewicht() + besch->get_gewicht();
+	sum_weight = get_fracht_gewicht() + besch->get_gewicht();
 	calc_bild();
 	if(ok)
 	{
