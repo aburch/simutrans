@@ -744,7 +744,7 @@ senke_t::~senke_t()
 		{
 			fab->set_transformer_connected( NULL );
 		}
-		if(city)
+		if(city && !welt->get_is_shutting_down())
 		{
 			city->remove_substation(this);
 			const vector_tpl<fabrik_t*>& city_factories = city->get_city_factories();

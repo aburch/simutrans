@@ -780,7 +780,7 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 		if(w->get_waytype() == road_wt)
 		{
 			const koord pos = gr->get_pos().get_2d();
-			if(welt->get_city(pos) && welt->get_active_player_nr() != 1)
+			if(welt->get_city(pos) && !sp->is_public_service())
 			{
 				// Players other than the public player cannot delete a road leaving no access to any city building.
 				for(int n = 0; n < 8; n ++)
@@ -2962,7 +2962,7 @@ const char *wkz_wayremover_t::do_work( karte_t *welt, spieler_t *sp, const koord
 			if(wt == road_wt)
 			{
 				const koord pos = gr->get_pos().get_2d();
-				if(welt->get_city(pos) && welt->get_active_player_nr() != 1)
+				if(welt->get_city(pos) && !sp->is_public_service())
 				{
 					// Players other than the public player cannot delete a road leaving no access to any city building.
 					for(int n = 0; n < 8; n ++)

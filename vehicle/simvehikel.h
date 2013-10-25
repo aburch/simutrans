@@ -239,13 +239,6 @@ private:
 	 */
 	uint16 unload_freight(halthandle_t halt, sint64 & revenue_from_unloading, array_tpl<sint64> & apportioned_revenues );
 
-	/**
-	 * Load freight from halt
-	 * @return loading successful?
-	 * @author Hj. Malthaner
-	 */
-	bool load_freight(halthandle_t halt) { return load_freight(halt, false); }
-
 	bool load_freight(halthandle_t halt, bool overcrowd);
 
 	// @author: jamespetts
