@@ -4825,13 +4825,11 @@ bool karte_t::square_is_free(koord k, sint16 w, sint16 h, int *last_y, climate_b
 			climate test_climate = get_climate(k_check);
 			if(  cl & (1 << water_climate)  &&  test_climate != water_climate  ) {
 				bool neighbour_water = false;
-				int i = 0;
-				do {
-					if(  get_climate( k_check + koord::neighbours[i] ) == water_climate  ) {
+				for(int i=0; i<8  &&  !neighbour_water; i++) {
+					if(  is_within_limits(k_check + koord::neighbours[i])  &&  get_climate( k_check + koord::neighbours[i] ) == water_climate  ) {
 						neighbour_water = true;
 					}
-					i++;
-				} while(  i < 8  &&  !neighbour_water  );
+				}
 				if(  neighbour_water  ) {
 					test_climate = water_climate;
 				}
