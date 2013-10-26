@@ -478,8 +478,11 @@ void weg_t::calc_bild()
 					if(recursion == 0) {
 						recursion++;
 						for(int r = 0; r < 4; r++) {
-							if(from->get_neighbour(to, get_waytype(), ribi_t::nsow[r])) {
-								to->get_weg(get_waytype())->calc_bild();
+							if(  from->get_neighbour(to, get_waytype(), ribi_t::nsow[r])  ) {
+								// can fail on water tiles
+								if(  weg_t *w=to->get_weg(get_waytype())  )  {
+									w->calc_bild();
+								}
 							}
 						}
 						recursion--;
