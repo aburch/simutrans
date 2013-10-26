@@ -444,6 +444,9 @@ int simu_main(int argc, char** argv)
 #endif
 			" -startyear N        start in year N\n"
 			" -theme N            user directory containing theme files\n"
+#ifdef MULTI_THREAD
+			" -threads N          use N threads if possible\n"
+#endif
 			" -timeline           enables timeline\n"
 #if defined DEBUG || defined PROFILE
 			" -times              does some simple profiling\n"
@@ -885,7 +888,13 @@ int simu_main(int argc, char** argv)
 	linehandle_t::init( 1024 );
 	halthandle_t::init( 1024 );
 
-#ifndef MULTI_THREAD
+#ifdef MULTI_THREAD
+	// set number of threads
+	if(  const char *ref_str = gimme_arg(argc, argv, "-threads", 1)  ) {
+		int want_threads = atoi(ref_str);
+		env_t::num_threads = clamp(want_threads, 1, MAX_THREADS);
+	}
+#else
 	if(  env_t::num_threads > 1  ) {
 		env_t::num_threads = 1;
 		dbg->important("Multithreading not enabled: threads = %d ignored.", env_t::num_threads );
