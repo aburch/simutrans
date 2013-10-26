@@ -155,7 +155,6 @@ Function componentsPre
   Call EnableSectionIfThere
 FunctionEnd
 
-
 ; Some packs have not opene source license, so we have to show additional licences
 Function CheckForClosedSource
 
