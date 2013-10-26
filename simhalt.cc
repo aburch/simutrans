@@ -1213,6 +1213,8 @@ void haltestelle_t::fill_connected_component(uint8 catg_idx, uint16 comp)
 
 	FOR(vector_tpl<connection_t>, &c, all_links[catg_idx].connections) {
 		c.halt->fill_connected_component(catg_idx, comp);
+		// cache the is_transfer value
+		c.is_transfer = c.halt->is_transfer(catg_idx);
 	}
 }
 
@@ -1421,7 +1423,7 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 					if (t > 1) {
 						break;
 					}
-					t += i.halt.is_bound() && i.halt->is_transfer(ware_catg_idx);
+					t += i.halt.is_bound() && i.is_transfer;
 				}
 				return_ware->set_zwischenziel(  t<=1  ?  current_halt_data.transfer  : halthandle_t());
 			}
@@ -1470,7 +1472,7 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 				// indicate that this halt has been processed
 				markers[ reachable_halt_id ] = current_marker;
 
-				if(  current_conn.halt.is_bound()  &&  current_conn.halt->is_transfer(ware_catg_idx)  &&  allocation_pointer<max_hops  ) {
+				if(  current_conn.halt.is_bound()  &&  current_conn.is_transfer  &&  allocation_pointer<max_hops  ) {
 					// Case : transfer halt
 					const uint16 total_weight = current_halt_data.best_weight + current_conn.weight;
 
@@ -1723,7 +1725,7 @@ void haltestelle_t::search_route_resumable(  ware_t &ware   )
 				halt_data[ reachable_halt_id ].depth       = current_halt_data.depth + 1u;
 				halt_data[ reachable_halt_id ].transfer    = current_halt_data.transfer.get_id() ? current_halt_data.transfer : current_conn.halt;
 
-				if(  current_conn.halt->is_transfer(ware_catg_idx)  &&  allocation_pointer<max_hops  ) {
+				if(  current_conn.is_transfer  &&  allocation_pointer<max_hops  ) {
 					// Case : transfer halt
 					allocation_pointer++;
 					open_list.insert( route_node_t(current_conn.halt, total_weight) );
@@ -1739,7 +1741,7 @@ void haltestelle_t::search_route_resumable(  ware_t &ware   )
 					halt_data[ reachable_halt_id ].transfer    = current_halt_data.transfer.get_id() ? current_halt_data.transfer : current_conn.halt;
 
 					// for transfer/destination nodes create new node
-					if ( (halt_data[ reachable_halt_id ].destination  ||  current_conn.halt->is_transfer(ware_catg_idx) )  &&  allocation_pointer<max_hops ) {
+					if ( (halt_data[ reachable_halt_id ].destination  ||  current_conn.is_transfer )  &&  allocation_pointer<max_hops ) {
 						halt_data[ reachable_halt_id ].depth = current_halt_data.depth + 1u;
 						allocation_pointer++;
 						open_list.insert( route_node_t(current_conn.halt, total_weight) );

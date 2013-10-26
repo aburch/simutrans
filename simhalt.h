@@ -230,10 +230,12 @@ public:
 		/// directly reachable halt
 		halthandle_t halt;
 		/// best connection weight to reach this destination
-		uint16 weight;
+		uint16 weight:15;
+		/// is halt a transfer halt
+		bool is_transfer:1;
 
-		connection_t() : weight(0) { }
-		connection_t(halthandle_t _halt, uint16 _weight=0) : halt(_halt), weight(_weight) { }
+		connection_t() : weight(0), is_transfer(false) { }
+		connection_t(halthandle_t _halt, uint16 _weight=0) : halt(_halt), weight(_weight), is_transfer(false) { }
 
 		bool operator == (const connection_t &other) const { return halt == other.halt; }
 		bool operator != (const connection_t &other) const { return halt != other.halt; }
@@ -297,6 +299,7 @@ private:
 	/**
 	 * Helper method: This halt (and all its connected neighbors) belong
 	 * to the same component.
+	 * Also sets connection_t::is_transfer.
 	 * @param catg category of cargo network
 	 * @param comp number of component
 	 */
