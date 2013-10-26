@@ -1840,10 +1840,11 @@ private:
 	uint32 get_next_command_step();
 };
 
+
 /**
  * Returns pointer to single instance of the world.
  */
-inline karte_t* world()
+inline karte_t *world()
 {
 	return karte_t::world;
 }
@@ -1853,8 +1854,9 @@ inline karte_t* world()
  * Class to access the pointer to the world.
  * No need to initialize it.
  */
-struct karte_ptr_t {
-
+class karte_ptr_t
+{
+public:
 	/// dereference operator: karte_ptr_t can be used as it would be karte_t*
 	karte_t& operator*() { return *karte_t::world; }
 	const karte_t& operator*() const { return *karte_t::world; }
