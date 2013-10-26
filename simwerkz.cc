@@ -783,7 +783,7 @@ const char* wkz_raise_lower_base_t::drag(karte_t *welt, spieler_t *sp, koord k, 
 	const char* err = NULL;
 
 	// dragging may be going up or down!
-	while(  welt->lookup_hgt(k) < height &&  height <= welt->get_maximumheight()  ) {
+	while(  welt->lookup_hgt(k) < height  &&  height <= welt->get_maximumheight()  ) {
 		int diff = welt->grid_raise( sp, k, err );
 		if(  diff == 0  ) {
 			break;

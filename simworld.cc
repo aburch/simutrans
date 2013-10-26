@@ -2496,7 +2496,9 @@ const char* karte_t::terraformer_t::can_lower_all(const spieler_t *sp) const
 	const char* err = NULL;
 	FOR(vector_tpl<node_t>, const &i, list) {
 		err = welt->can_lower_to(sp, i.x, i.y, i.h[0], i.h[1], i.h[2], i.h[3]);
-		if (err) return err;
+		if (err) {
+			return err;
+		}
 	}
 	return NULL;
 }
@@ -3013,13 +3015,14 @@ int karte_t::grid_lower(const spieler_t *sp, koord k, const char*&err)
 		const sint8 hne = hgt + o - scorner3( corner_to_lower ) * f;
 		const sint8 hnw = hgt + o - scorner4( corner_to_lower ) * f;
 
-
 		terraformer_t digger(this);
 		digger.add_lower_node(x, y, hsw, hse, hne, hnw);
 		digger.iterate(false);
 
 		err = digger.can_lower_all(sp);
-		if (err) return 0;
+		if (err) {
+			return 0;
+		}
 
 		n = digger.lower_all();
 		err = NULL;
