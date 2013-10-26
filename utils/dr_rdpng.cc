@@ -84,10 +84,6 @@ static void read_png(unsigned char** block, unsigned* width, unsigned* height, F
 	// update info - png_get_rowbytes might return incorrect values
 	png_read_update_info( png_ptr,  info_ptr);
 
-	png_start_read_image(png_ptr);
-
-	/* The easiest way to read the image: */
-
 	rowbytes = png_get_rowbytes(png_ptr, info_ptr);
 	row_pointers = MALLOCN(png_byte*, *height);
 
