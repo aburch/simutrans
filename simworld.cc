@@ -547,6 +547,9 @@ void karte_t::perlin_hoehe_loop( sint16 x_min, sint16 x_max, sint16 y_min, sint1
 			koord k(x,y);
 			sint16 const h = perlin_hoehe(&settings, k, koord(0, 0));
 			set_grid_hgt( k, (sint8) h);
+			if(  h>get_water_hgt(k)  ) {
+				set_water_hgt(k, grundwasser-4);
+			}
 		}
 	}
 }
@@ -2013,6 +2016,9 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 					koord k(x,y);
 					sint16 const h = perlin_hoehe(&settings, k, koord(old_x, old_y));
 					set_grid_hgt( k, (sint8) h);
+					if(  h>get_water_hgt(k)  ) {
+						set_water_hgt(k, grundwasser-4);
+					}
 				}
 				ls.set_progress( (y*16)/new_groesse_y );
 			}
@@ -2650,6 +2656,7 @@ int karte_t::raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 		gr->set_pos( koord3d( x, y, disp_hneu ) );
 		gr->set_grund_hang( (hang_t::typ)sneu );
 		access_nocheck(x,y)->angehoben(this);
+		set_water_hgt(x, y, grundwasser-4);
 	}
 
 	// update north point in grid
@@ -2806,7 +2813,7 @@ const char* karte_t::can_lower_to(const spieler_t* sp, sint16 x, sint16 y, sint8
 	for(  sint16 i = 0 ;  i < 8 ;  i++  ) {
 		const koord neighbour = koord( x, y ) + koord::neighbours[i];
 		if(  is_within_grid_limits(neighbour)  &&  get_water_hgt_nocheck(neighbour) > hneu  ) {
-			if (!is_plan_height_changeable( x + koord::neighbours[i].x, y + koord::neighbours[i].y )) {
+			if (!is_plan_height_changeable( neighbour.x, neighbour.y )) {
 				return "";
 			}
 		}

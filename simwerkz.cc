@@ -1252,6 +1252,7 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 				gr1->obj_loesche_alle(sp);
 				welt->access(k)->kartenboden_setzen( new boden_t(welt,new_pos,new_slope) );
 				gr1 = welt->lookup_kartenboden(k);
+				welt->set_water_hgt(k, welt->get_grundwasser()-4);
 			}
 			else {
 				gr1->set_grund_hang(new_slope);
