@@ -207,7 +207,7 @@ private:
 	vector_tpl<stadt_t *> target_cities;
 
 	spieler_t *besitzer_p;
-	static karte_t *welt;
+	static karte_ptr_t welt;
 
 	const fabrik_besch_t *besch;
 

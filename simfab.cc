@@ -59,7 +59,7 @@
 
 static const int FAB_MAX_INPUT = 15000;
 
-karte_t *fabrik_t::welt = NULL;
+karte_ptr_t fabrik_t::welt;
 
 
 /**
@@ -606,10 +606,8 @@ void fabrik_t::rem_lieferziel(koord ziel)
 }
 
 
-fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
+fabrik_t::fabrik_t(karte_t*, loadsave_t* file)
 {
-	welt = wl;
-
 	besitzer_p = NULL;
 	power = 0;
 	power_demand = 0;
@@ -654,7 +652,6 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 	besch(fabesch),
 	pos(pos_)
 {
-	welt = spieler->get_welt();
 	this->pos.z = welt->max_hgt(pos.get_2d());
 	pos_origin = pos;
 

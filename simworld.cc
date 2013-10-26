@@ -116,6 +116,8 @@ static uint32 last_clients = -1;
 static uint8 last_active_player_nr = 0;
 static std::string last_network_game;
 
+karte_t* karte_t::world = NULL;
+
 stringhashtable_tpl<karte_t::missing_level_t>missing_pak_names;
 
 #ifdef MULTI_THREAD
@@ -2284,6 +2286,9 @@ karte_t::karte_t() :
 
 	// generate ground textures once
 	grund_besch_t::init_ground_textures(this);
+
+	// set single instance
+	world = this;
 }
 
 
@@ -2297,6 +2302,11 @@ karte_t::~karte_t()
 	delete viewport;
 	delete msg;
 	delete records;
+
+	// unset single instance
+	if (world == this) {
+		world = NULL;
+	}
 }
 
 const char* karte_t::can_lower_plan_to(const spieler_t *sp, sint16 x, sint16 y, sint8 h) const

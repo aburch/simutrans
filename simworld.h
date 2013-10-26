@@ -89,6 +89,11 @@ typedef void (karte_t::*xy_loop_func)(sint16, sint16, sint16, sint16);
  */
 class karte_t
 {
+	friend karte_t* world();  // to access the single instance
+	friend class karte_ptr_t; // to access the single instance
+
+	static karte_t* world; ///< static single instance
+
 public:
 	/**
 	 * Height of a point of the map with "perlin noise"
@@ -1833,6 +1838,33 @@ private:
 	void process_network_commands(sint32* ms_difference);
 	void do_network_world_command(network_world_command_t *nwc);
 	uint32 get_next_command_step();
+};
+
+/**
+ * Returns pointer to single instance of the world.
+ */
+inline karte_t* world()
+{
+	return karte_t::world;
+}
+
+
+/**
+ * Class to access the pointer to the world.
+ * No need to initialize it.
+ */
+struct karte_ptr_t {
+
+	/// dereference operator: karte_ptr_t can be used as it would be karte_t*
+	karte_t& operator*() { return *karte_t::world; }
+	const karte_t& operator*() const { return *karte_t::world; }
+
+	/// dereference operator: karte_ptr_t can be used as it would be karte_t*
+	karte_t* operator->() { return karte_t::world; }
+	const karte_t* operator->() const { return karte_t::world; }
+
+	/// cast to karte_t*
+	operator karte_t* () const { return karte_t::world; }
 };
 
 #endif
