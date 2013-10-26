@@ -872,31 +872,6 @@ void fabrik_t::remove_field_at(koord pos)
 }
 
 
-bool fabrik_t::ist_bauplatz(karte_t *welt, koord pos, koord groesse,bool wasser,climate_bits cl)
-{
-	if(pos.x > 0 && pos.y > 0 &&
-		pos.x+groesse.x < welt->get_size().x && pos.y+groesse.y < welt->get_size().y &&
-		( wasser  ||  welt->square_is_free(pos, groesse.x, groesse.y, NULL, cl) )&&
-		!ist_da_eine(welt,pos-koord(5,5),pos+groesse+koord(3,3))) {
-
-		// check for water (no shore in sight!)
-		if(wasser) {
-			for(int y=0;y<groesse.y;y++) {
-				for(int x=0;x<groesse.x;x++) {
-					const grund_t *gr=welt->lookup_kartenboden(pos+koord(x,y));
-					if(!gr->ist_wasser()  ||  gr->get_grund_hang()!=hang_t::flach) {
-						return false;
-					}
-				}
-			}
-		}
-
-		return true;
-	}
-	return false;
-}
-
-
 vector_tpl<fabrik_t *> &fabrik_t::sind_da_welche(karte_t *welt, koord min_pos, koord max_pos)
 {
 	static vector_tpl <fabrik_t*> fablist(16);
@@ -913,19 +888,6 @@ vector_tpl<fabrik_t *> &fabrik_t::sind_da_welche(karte_t *welt, koord min_pos, k
 		}
 	}
 	return fablist;
-}
-
-
-bool fabrik_t::ist_da_eine(karte_t *welt, koord min_pos, koord max_pos )
-{
-	for(int y=min_pos.y; y<=max_pos.y; y++) {
-		for(int x=min_pos.x; x<=max_pos.x; x++) {
-			if(get_fab(welt,koord(x,y))) {
-				return true;
-			}
-		}
-	}
-	return false;
 }
 
 

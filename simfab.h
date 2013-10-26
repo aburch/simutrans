@@ -528,13 +528,6 @@ public:
 	 */
 	static vector_tpl<fabrik_t *> & sind_da_welche(karte_t *welt, koord min, koord max);
 
-	/**
-	 * gibt true zurueck wenn sich ein fabrik im feld befindet
-	 *
-	 * @author Hj. Malthaner
-	 */
-	static bool ist_da_eine(karte_t *welt, koord min, koord max);
-	static bool ist_bauplatz(karte_t *welt, koord pos, koord groesse, bool water, climate_bits cl);
 
 	// hier die methoden zum parametrisieren der Fabrik
 

@@ -284,6 +284,39 @@ const fabrik_besch_t *fabrikbauer_t::finde_hersteller(const ware_besch_t *ware, 
 }
 
 
+bool fabrikbauer_t::ist_bauplatz(karte_t *welt, koord pos, koord groesse, bool water, bool is_fabrik, climate_bits cl)
+{
+	// check for water (no shore in sight!)
+	if(water) {
+		for(int x=0;x<groesse.x;x++) {
+			for(int y=0;y<groesse.y;y++) {
+				const grund_t *gr=welt->lookup_kartenboden(pos+koord(x,y));
+				if(gr==NULL  ||  !gr->ist_wasser()  ||  gr->get_grund_hang()!=hang_t::flach) {
+					return false;
+				}
+			}
+		}
+	}
+	else {
+		// check on land
+		if (!welt->square_is_free(pos, groesse.x, groesse.y, NULL, cl)) {
+			return false;
+		}
+	}
+	// check for existing factories
+	if (is_fabrik) {
+		for(int x=0;x<groesse.x;x++) {
+			for(int y=0;y<groesse.y;y++) {
+				if (is_factory_at(pos.x + x, pos.y + y)){
+					return false;
+				}
+			}
+		}
+	}
+	return true;
+}
+
+
 koord3d fabrikbauer_t::finde_zufallsbauplatz(karte_t *welt, const koord3d pos, const int radius, koord groesse, bool wasser, const haus_besch_t *besch, bool ignore_climates)
 {
 	bool is_fabrik = besch->get_utyp()==haus_besch_t::fabrik;
@@ -303,15 +336,8 @@ koord3d fabrikbauer_t::finde_zufallsbauplatz(karte_t *welt, const koord3d pos, c
 		// as offset % size == 1, we are guaranteed that the iteration hits all tiles and does not repeat itself
 		k = koord( pos.x-radius + (index / diam), pos.y-radius + (index % diam));
 
-		if (!welt->is_within_limits(k)) {
-			continue;
-		}
-		// to close to existing factory
-		if(  is_fabrik  &&  is_factory_at(k.x,k.y)  ) {
-			continue;
-		}
-		// climate check
-		if(  fabrik_t::ist_bauplatz(welt, k, groesse,wasser,climates)  ) {
+		// check place
+		if(  fabrikbauer_t::ist_bauplatz(welt, k, groesse, wasser, is_fabrik, climates)  ) {
 			// we accept first hit
 			goto finish;
 		}

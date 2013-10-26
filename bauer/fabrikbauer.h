@@ -104,6 +104,7 @@ public:
 
 
 private:
+	static bool ist_bauplatz(karte_t *welt, koord pos, koord groesse, bool water, bool is_fabrik, climate_bits cl);
 	// find random space to place factory
 	static koord3d finde_zufallsbauplatz(karte_t *welt, koord3d pos, int radius, koord groesse,bool on_water, const haus_besch_t *besch, bool ignore_climates);
 
