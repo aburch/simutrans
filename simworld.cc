@@ -4820,9 +4820,6 @@ bool karte_t::square_is_free(koord k, sint16 w, sint16 h, int *last_y, climate_b
 			const grund_t *gr = lookup_kartenboden(k_check);
 
 			// we can built, if: max height all the same, everything removable and no buildings there
-			// since this is called very often, we us a trick:
-			// if get_grund_hang()!=0 (non flat) then we add 127 (bigger than any slope) and substract it
-			// will break with double slopes!
 			hang_t::typ slope = gr->get_grund_hang();
 			sint8 max_height = gr->get_hoehe() + hang_t::height(slope);
 			climate test_climate = get_climate(k_check);
