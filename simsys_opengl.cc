@@ -964,16 +964,10 @@ static void internal_GetEvents(bool const wait)
 	switch (event.type) {
 		case SDL_VIDEORESIZE:
 			sys_event.type = SIM_SYSTEM;
-			sys_event.code = SIM_SYSTEM_RESIZE;
+			sys_event.code = SYSTEM_RESIZE;
 			sys_event.mx   = event.resize.w;
 			sys_event.my   = event.resize.h;
 			printf("expose: x=%i, y=%i\n", sys_event.mx, sys_event.my);
-			break;
-
-		case SDL_VIDEOEXPOSE:
-			// will be ignored ...
-			sys_event.type = SIM_SYSTEM;
-			sys_event.code = SIM_SYSTEM_UPDATE;
 			break;
 
 		case SDL_MOUSEBUTTONDOWN:
@@ -1106,7 +1100,7 @@ static void internal_GetEvents(bool const wait)
 
 		case SDL_QUIT:
 			sys_event.type = SIM_SYSTEM;
-			sys_event.code = SIM_SYSTEM_QUIT;
+			sys_event.code = SYSTEM_QUIT;
 			break;
 
 		default:

@@ -49,7 +49,6 @@
 #define NEXT_WINDOW                   1
 #define PREV_WINDOW                   2
 
-// Hajo: System event codes must match those from simsys.h !!!
 #define SYSTEM_QUIT                   1
 #define SYSTEM_RESIZE                 2
 #define SYSTEM_RELOAD_WINDOWS         3

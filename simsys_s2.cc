@@ -453,21 +453,11 @@ static void internal_GetEvents(bool const wait)
 		case SDL_WINDOWEVENT: {
 			if(  event.window.event == SDL_WINDOWEVENT_RESIZED  ) {
 				sys_event.type = SIM_SYSTEM;
-				sys_event.code = SIM_SYSTEM_RESIZE;
+				sys_event.code = SYSTEM_RESIZE;
 				sys_event.mx   = event.window.data1;
 				sys_event.my   = event.window.data2;
 			}
-			else {
-				// will be ignored ...
-				sys_event.type = SIM_SYSTEM;
-				sys_event.code = SIM_SYSTEM_UPDATE;
-			}
-			break;
-		}
-		case SDL_SYSWMEVENT: {
-			// will be ignored ...
-			sys_event.type = SIM_SYSTEM;
-			sys_event.code = SIM_SYSTEM_UPDATE;
+			// Ignore other window events.
 			break;
 		}
 		case SDL_MOUSEBUTTONDOWN: {
@@ -595,7 +585,7 @@ static void internal_GetEvents(bool const wait)
 		}
 		case SDL_QUIT: {
 			sys_event.type = SIM_SYSTEM;
-			sys_event.code = SIM_SYSTEM_QUIT;
+			sys_event.code = SYSTEM_QUIT;
 			break;
 		}
 		default: {

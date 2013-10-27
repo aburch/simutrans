@@ -515,7 +515,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 		case WM_SIZE: // resize client area
 			if(lParam!=0) {
 				sys_event.type = SIM_SYSTEM;
-				sys_event.code = SIM_SYSTEM_RESIZE;
+				sys_event.code = SYSTEM_RESIZE;
 
 				sys_event.mx = LOWORD(lParam) + 1;
 				if (sys_event.mx <= 0) {
@@ -600,14 +600,14 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 		case WM_CLOSE:
 			if (AllDibData != NULL) {
 				sys_event.type = SIM_SYSTEM;
-				sys_event.code = SIM_SYSTEM_QUIT;
+				sys_event.code = SYSTEM_QUIT;
 			}
 			break;
 
 		case WM_DESTROY:
 			if(  hwnd==this_hwnd  ||  AllDibData == NULL  ) {
 				sys_event.type = SIM_SYSTEM;
-				sys_event.code = SIM_SYSTEM_QUIT;
+				sys_event.code = SYSTEM_QUIT;
 				if(  AllDibData == NULL  ) {
 					PostQuitMessage(0);
 					hwnd = NULL;

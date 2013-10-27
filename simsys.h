@@ -43,10 +43,6 @@
 #define SIM_MOUSE_WHEELUP           8 //2003-11-04 hsiegeln added
 #define SIM_MOUSE_WHEELDOWN         9 //2003-11-04 hsiegeln added
 
-#define SIM_SYSTEM_QUIT             1
-#define SIM_SYSTEM_RESIZE             2
-#define SIM_SYSTEM_UPDATE           3
-
 /* Globale Variablen zur Messagebearbeitung */
 
 struct sys_event

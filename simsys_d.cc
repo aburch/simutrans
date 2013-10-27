@@ -168,7 +168,7 @@ END_OF_FUNCTION(my_keyboard_callback)
 
 void my_close_button_callback()
 {
-	INSERT_EVENT(SIM_SYSTEM, SIM_SYSTEM_QUIT)
+	INSERT_EVENT(SIM_SYSTEM, SYSTEM_QUIT)
 }
 END_OF_FUNCTION(my_close_button_callback)
 
