@@ -209,8 +209,9 @@ void fabrikbauer_t::register_besch(fabrik_besch_t *besch)
 		besch->set_produktivitaet( (p&0x7FFF)*k.x*k.y );
 DBG_DEBUG("fabrikbauer_t::register_besch()","Correction for old factory: Increase production from %i by %i",p&0x7FFF,k.x*k.y);
 	}
-	if(  table.remove(besch->get_name())  ) {
+	if(  const fabrik_besch_t *old_besch = table.remove(besch->get_name())  ) {
 		dbg->warning( "fabrikbauer_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
+		delete old_besch;
 	}
 	table.put(besch->get_name(), besch);
 }
@@ -969,21 +970,22 @@ next_ware_check:
 	int    no_electric = promille > welt->get_settings().get_electric_promille();
 	DBG_MESSAGE( "fabrikbauer_t::increase_industry_density()", "production of electricity/total production is %i/%i (%i o/oo)", electric_supply, electric_demand, promille );
 
-	bool not_yet_too_desperate_to_ignore_climates = false;
 	while(  no_electric<2  ) {
-		for(int retrys=20;  retrys>0;  retrys--  ) {
+		bool ignore_climates = false;
+
+		for(int retries=20;  retries>0;  retries--  ) {
 			const fabrik_besch_t *fab=get_random_consumer( no_electric==0, ALL_CLIMATES, welt->get_timeline_year_month() );
 			if(fab) {
 				const bool in_city = fab->get_platzierung() == fabrik_besch_t::Stadt;
 				if (in_city && welt->get_staedte().empty()) {
-					// we cannot built this factory here
+					// we cannot build this factory here
 					continue;
 				}
 				koord   testpos = in_city ? pick_any_weighted(welt->get_staedte())->get_pos() : koord::koord_random(welt->get_size().x, welt->get_size().y);
 				koord3d pos =  welt->lookup_kartenboden( testpos )->get_pos();
 				int     rotation=simrand(fab->get_haus()->get_all_layouts()-1);
 				if(!in_city) {
-					pos = finde_zufallsbauplatz(welt, pos, 20, fab->get_haus()->get_groesse(rotation),fab->get_platzierung()==fabrik_besch_t::Wasser,fab->get_haus(),not_yet_too_desperate_to_ignore_climates);
+					pos = finde_zufallsbauplatz(welt, pos, 20, fab->get_haus()->get_groesse(rotation),fab->get_platzierung()==fabrik_besch_t::Wasser,fab->get_haus(),ignore_climates);
 				}
 				if(welt->lookup(pos)) {
 					// Space found...
@@ -1002,10 +1004,10 @@ next_ware_check:
 						return nr;
 					}
 				}
-				else if(  retrys==1  &&  not_yet_too_desperate_to_ignore_climates  ) {
-					// from now one, we will ignore climates to avoid broken chains
-					not_yet_too_desperate_to_ignore_climates = true;
-					retrys = 20;
+				else if(  retries==1  &&  !ignore_climates  ) {
+					// from now on, we will ignore climates to avoid broken chains
+					ignore_climates = true;
+					retries = 20;
 				}
 			}
 		}
