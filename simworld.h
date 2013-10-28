@@ -1883,6 +1883,8 @@ public:
 private:
 	karte_ptr_t(const karte_ptr_t&);
 	karte_ptr_t& operator=(const karte_ptr_t&);
+	// no cast to bool please
+	operator bool () const;
 };
 
 #endif

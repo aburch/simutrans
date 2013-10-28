@@ -993,13 +993,11 @@ void reliefkarte_t::init()
 	needs_redraw = true;
 	is_visible = false;
 
-	if(welt) {
-		calc_map_groesse();
-		max_building_level = max_cargo = max_passed = 0;
-		max_tourist_ziele = max_waiting = max_origin = max_transfer = max_service = 1;
-		last_schedule_counter = welt->get_schedule_counter()-1;
-		set_current_cnv(convoihandle_t());
-	}
+	calc_map_groesse();
+	max_building_level = max_cargo = max_passed = 0;
+	max_tourist_ziele = max_waiting = max_origin = max_transfer = max_service = 1;
+	last_schedule_counter = welt->get_schedule_counter()-1;
+	set_current_cnv(convoihandle_t());
 }
 
 
