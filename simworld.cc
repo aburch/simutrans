@@ -547,7 +547,7 @@ void karte_t::perlin_hoehe_loop( sint16 x_min, sint16 x_max, sint16 y_min, sint1
 			koord k(x,y);
 			sint16 const h = perlin_hoehe(&settings, k, koord(0, 0));
 			set_grid_hgt( k, (sint8) h);
-			if(  h>get_water_hgt(k)  ) {
+			if(  is_within_limits(k)  &&  h > get_water_hgt(k)  ) {
 				set_water_hgt(k, grundwasser-4);
 			}
 		}
@@ -1984,11 +1984,11 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 		if (  old_x > 0  &&  old_y > 0  ) {
 			// loop only new tiles:
 			for(  sint16 y = 0;  y<=new_groesse_y;  y++  ) {
-				for(  sint16 x = (y>old_y)?0:old_x+1;  x<=new_groesse_x;  x++  ) {
+				for(  sint16 x = (y>old_y) ? 0 : old_x+1;  x<=new_groesse_x;  x++  ) {
 					koord k(x,y);
 					sint16 const h = perlin_hoehe(&settings, k, koord(old_x, old_y));
 					set_grid_hgt( k, (sint8) h);
-					if(  h>get_water_hgt(k)  ) {
+					if(  is_within_limits(k)  &&  h>get_water_hgt(k)  ) {
 						set_water_hgt(k, grundwasser-4);
 					}
 				}
