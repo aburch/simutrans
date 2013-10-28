@@ -547,7 +547,7 @@ void karte_t::perlin_hoehe_loop( sint16 x_min, sint16 x_max, sint16 y_min, sint1
 			koord k(x,y);
 			sint16 const h = perlin_hoehe(&settings, k, koord(0, 0));
 			set_grid_hgt( k, (sint8) h);
-			if(  is_within_limits(x,y)  &&  h>get_water_hgt(k)  ) {
+			if(  h>get_water_hgt(k)  ) {
 				set_water_hgt(k, grundwasser-4);
 			}
 		}
@@ -606,14 +606,14 @@ void karte_t::cleanup_grounds_loop( sint16 x_min, sint16 x_max, sint16 y_min, si
 				}
 			}
 
-			gr->set_pos( koord3d( k ,max( height, water_hgt ) ) );
+			gr->set_pos( koord3d( k, max( height, water_hgt ) ) );
 			if(  gr->get_typ() != grund_t::wasser  &&  max_hgt_nocheck(k) <= water_hgt  ) {
 				// below water but ground => convert
-				pl->kartenboden_setzen(new wasser_t(this, gr->get_pos()) );
+				pl->kartenboden_setzen( new wasser_t(this, gr->get_pos()) );
 			}
 			else if(  gr->get_typ() == grund_t::wasser  &&  max_hgt_nocheck(k) > water_hgt  ) {
 				// water above ground => to ground
-				pl->kartenboden_setzen(new boden_t(this, gr->get_pos(), slope ) );
+				pl->kartenboden_setzen( new boden_t(this, gr->get_pos(), slope ) );
 			}
 			else {
 				gr->set_grund_hang( slope );
@@ -1591,10 +1591,9 @@ DBG_DEBUG("karte_t::init()","built timeline");
  * To start with every tile in the map is checked - but when we fail for
  * a tile then it is excluded from subsequent checks
  */
-
 void karte_t::create_lakes(  int xoff, int yoff  )
 {
-	if(  xoff > 0 || yoff > 0 ) {
+	if(  xoff > 0  ||  yoff > 0  ) {
 		// too complicated to add lakes to an already existing world...
 		return;
 	}
@@ -1610,18 +1609,13 @@ void karte_t::create_lakes(  int xoff, int yoff  )
 	sint8 *new_stage = new sint8[size_x * size_y];
 	sint8 *local_stage = new sint8[size_x * size_y];
 
-//	int tiles_checked = 0, tiles_flood_check=0, tiles_flooded=0;
-
-
-//	int time_in_flood_check = 0, time_in_flooding = 0;
 	for(  sint8 h = grundwasser+1; h<max_lake_height; h++  ) {
 		bool need_to_flood = false;
 		memset( stage, -1, sizeof(sint8) * size_x * size_y );
 		for(  uint16 y = 1;  y < size_y-1;  y++  ) {
 			for(  uint16 x = 1;  x < size_x-1;  x++  ) {
 				uint32 offset = array_koord(x,y);
-				if(  max_water_hgt[offset]==1  && stage[offset]==-1  ) {
-//					tiles_checked++;
+				if(  max_water_hgt[offset]==1  &&  stage[offset]==-1  ) {
 
 					sint8 hgt = lookup_hgt_nocheck( x, y );
 					const sint8 water_hgt = water_hgts[offset]; // optimised <- get_water_hgt_nocheck(x, y);
@@ -1630,8 +1624,6 @@ void karte_t::create_lakes(  int xoff, int yoff  )
 						max_water_hgt[offset] = 0;
 					}
 					else if(  h>new_water_hgt  ) {
-//						tiles_flood_check++;
-//						int time_before = dr_time();
 						koord k(x,y);
 						memcpy( new_stage, stage, sizeof(sint8) * size_x * size_y );
 						if(can_flood_to_depth(  k, h, new_stage, local_stage )) {
@@ -1639,11 +1631,8 @@ void karte_t::create_lakes(  int xoff, int yoff  )
 							new_stage = stage;
 							stage = tmp_stage;
 							need_to_flood = true;
-//							time_in_flood_check+=dr_time()-time_before;
-//							tiles_flooded++;
 						}
 						else {
-//							time_in_flood_check+=dr_time()-time_before;
 							for(  uint16 iy = 1;  iy<size_y - 1;  iy++  ) {
 								uint32 offset_end = array_koord(size_x - 1,iy);
 								for(  uint32 local_offset = array_koord(0,iy);  local_offset<offset_end;  local_offset++  ) {
@@ -1658,33 +1647,23 @@ void karte_t::create_lakes(  int xoff, int yoff  )
 			}
 		}
 		if(need_to_flood) {
-//			int time_before = dr_time();
 			flood_to_depth(  h, stage  );
-//			time_in_flooding+=dr_time()-time_before;
 		}
 		else {
 			break;
 		}
 	}
-//	printf("tiles checked %d, tiles flood checked %d, tiles flooded %d\n", tiles_checked, tiles_flood_check, tiles_flooded);
-//	printf("time flood checking %d, time flooding %d\n", time_in_flood_check, time_in_flooding);
 
 	delete [] max_water_hgt;
 	delete [] stage;
 	delete [] new_stage;
 	delete [] local_stage;
 
-//printf("%d: creating lakes - correcting grounds\n",dr_time());
-	// correct grounds after lakes added
-/*	for(  uint16 y = 0;  y < size_y;  y++  ) {
-		for(  sint16 x = 0;  x < size_x;  x++  ) {
-			access_nocheck(x,y)->correct_water(this);
-		}
-	}*/
 	for (planquadrat_t *pl = plan; pl < (plan + size_x * size_y); pl++) {
 		pl->correct_water(this);
 	}
 }
+
 
 bool karte_t::can_flood_to_depth(  koord k, sint8 new_water_height, sint8 *stage, sint8 *our_stage  ) const
 {
@@ -1764,22 +1743,16 @@ bool karte_t::can_flood_to_depth(  koord k, sint8 new_water_height, sint8 *stage
 }
 
 
-void karte_t::flood_to_depth(  sint8 new_water_height, sint8 *stage  )
+void karte_t::flood_to_depth( sint8 new_water_height, sint8 *stage )
 {
 	const uint16 size_x = get_size().x;
 	const uint16 size_y = get_size().y;
 
-/*	// loop over map to find marked tiles
-	for(  int y = 0;  y<size_y;  y++  ) {
-		for(  int x = 0;  x<size_x;  x++  ) {
-			if(  stage[array_koord(x,y)] > -1  ) {
-				set_water_hgt(x, y, new_water_height );
-			}
-		}
-	}*/
 	uint32 offset_max = size_x*size_y;
 	for(  uint32 offset = 0;  offset < offset_max;  offset++  ) {
-		if(  stage[offset] == -1  ) continue;
+		if(  stage[offset] == -1  ) {
+			continue;
+		}
 		water_hgts[offset] = new_water_height;
 	}
 }
@@ -1991,7 +1964,6 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	clear_random_mode( 0xFFFF );
 	set_random_mode( MAP_CREATE_RANDOM );
 
-//printf("%d: setting initial grid heights\n",dr_time());
 	if(  old_x == 0  &&  !settings.heightfield.empty()  ) {
 		// init from file
 		for(int y=0; y<cached_grid_size.y; y++) {
@@ -2016,8 +1988,7 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 					koord k(x,y);
 					sint16 const h = perlin_hoehe(&settings, k, koord(old_x, old_y));
 					set_grid_hgt( k, (sint8) h);
-					// beware water_hgts is smaller than grid_hgts!
-					if(  is_within_limits(k)  &&  h>get_water_hgt(k)  )   {
+					if(  h>get_water_hgt(k)  ) {
 						set_water_hgt(k, grundwasser-4);
 					}
 				}
@@ -2069,7 +2040,6 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 		lower_grid_to(old_x+1, old_y+1, h);
 	}
 
-//printf("%d: creating grounds\n",dr_time());
 	if (  old_x > 0  &&  old_y > 0  ) {
 		// create grounds on new part
 		for (sint16 iy = 0; iy<new_groesse_y; iy++) {
@@ -2084,7 +2054,6 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 		ls.set_progress(3);
 	}
 
-//printf("%d: cleaning map\n",dr_time());
 	// smooth the new part, reassign slopes on new part
 	cleanup_karte( old_x, old_y );
 	if (  old_x == 0  &&  old_y == 0  ) {
@@ -2092,7 +2061,6 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	}
 
 	if(  sets->get_lake()  ) {
-//printf("%d: creating lakes\n",dr_time());
 		create_lakes( old_x, old_y );
 	}
 
@@ -2100,7 +2068,6 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 		ls.set_progress(13);
 	}
 
-//printf("%d: calculating climates\n",dr_time());
 	// set climates in new area and old map near seam
 	for(  sint16 iy = 0;  iy < new_groesse_y;  iy++  ) {
 		for(  sint16 ix = (iy >= old_y - 19) ? 0 : max( old_x - 19, 0 );  ix < new_groesse_x;  ix++  ) {
@@ -2116,7 +2083,6 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 		ls.set_progress(15);
 	}
 
-//printf("%d: calculating transitions\n",dr_time());
 	if (  old_x > 0  &&  old_y > 0  ) {
 		// and calculate transitions in a 1 tile larger area
 		for(  sint16 iy = 0;  iy < new_groesse_y;  iy++  ) {
@@ -2132,7 +2098,6 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 		ls.set_progress(16);
 	}
 
-//printf("%d: recalculating seam images\n",dr_time());
 	// now recalc the images of the old map near the seam ...
 	for(  sint16 y = 0;  y < old_y - 20;  y++  ) {
 		for(  sint16 x = max( old_x - 20, 0 );  x < old_x;  x++  ) {
@@ -2144,7 +2109,6 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 			lookup_kartenboden_nocheck(x,y)->calc_bild();
 		}
 	}
-//printf("%d: done with landscape\n",dr_time());
 
 	// eventual update origin
 	switch(  settings.get_rotation()  ) {
@@ -2224,7 +2188,6 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	}
 	// update main menue
 	werkzeug_t::update_toolbars(this);
-//printf("%d: finished enlarging map\n",dr_time());
 }
 
 
