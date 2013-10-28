@@ -33,7 +33,7 @@
 
 static koord old_ij=koord::invalid;
 
-karte_t *map_frame_t::welt;
+karte_ptr_t map_frame_t::welt;
 
 koord map_frame_t::window_size;
 bool  map_frame_t::legend_visible=false;
@@ -100,7 +100,7 @@ map_button_t button_init[MAP_MAX_BUTTONS] = {
 };
 
 
-map_frame_t::map_frame_t(karte_t *world) :
+map_frame_t::map_frame_t() :
 	gui_frame_t( translator::translate("Reliefkarte") ),
 	scrolly(reliefkarte_t::get_karte()),
 	zoom_label("map zoom"),
@@ -110,14 +110,13 @@ map_frame_t::map_frame_t(karte_t *world) :
 	koord cursor( D_MARGIN_LEFT,D_MARGIN_TOP );
 	scr_coord_val zoom_label_width = display_get_char_max_width("0123456789") * 4 + display_get_char_width(':');
 
-	welt = world;
 	old_ij = koord::invalid;
 	is_dragging = false;
 	zoomed = false;
 
 	// init map
 	reliefkarte_t *karte = reliefkarte_t::get_karte();
-	karte->set_welt( welt );
+	karte->init();
 
 	const koord gr = karte->get_groesse();
 	const koord s_gr=scrolly.get_groesse();
@@ -463,7 +462,7 @@ bool map_frame_t::infowin_event(const event_t *ev)
 	}
 	else if(  IS_LEFTDBLCLK(ev)  &&  reliefkarte_t::get_karte()->getroffen(ev2.mx,ev2.my)  ) {
 		// re-center cursor by scrolling
-		koord ij = reliefkarte_t::get_karte()->get_welt()->get_viewport()->get_world_position();
+		koord ij = welt->get_viewport()->get_world_position();
 		reliefkarte_t::get_karte()->karte_to_screen(ij);
 		const koord s_gr = scrolly.get_groesse();
 
@@ -597,7 +596,6 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 	reliefkarte_t::get_karte()->set_xy_offset_size( koord(scrolly.get_scroll_x(), scrolly.get_scroll_y()), (koord)scrolly.get_client().get_size() );
 
 	// first: check if cursor within map screen size
-	karte_t *welt=reliefkarte_t::get_karte()->get_welt();
 	koord ij = welt->get_viewport()->get_world_position();
 	if(welt->is_within_limits(ij)) {
 		reliefkarte_t::get_karte()->karte_to_screen(ij);

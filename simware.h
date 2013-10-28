@@ -53,7 +53,7 @@ private:
 	/**
 	 * Update target (zielpos) for factory-going goods (after loading or rotating)
 	 */
-	void update_factory_target(karte_t *welt);
+	void update_factory_target();
 
 public:
 	const halthandle_t &get_ziel() const { return ziel; }
@@ -113,7 +113,7 @@ public:
 	 * Adjust target coordinates.
 	 * Must be called after factories have been rotated!
 	 */
-	void rotate90( karte_t *welt, sint16 y_size );
+	void rotate90( sint16 y_size );
 };
 
 #endif

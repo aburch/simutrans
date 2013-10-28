@@ -715,7 +715,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 						const vector_tpl <koord> & lieferziele = fab->get_lieferziele();
 						FOR(vector_tpl<koord>, const& i, lieferziele) {
 							if (production_left <= 0) break;
-							fabrik_t* const zfab = fabrik_t::get_fab(welt, i);
+							fabrik_t* const zfab = fabrik_t::get_fab(i);
 							for(int zz=0;  zz<zfab->get_besch()->get_lieferanten();  zz++) {
 								if(zfab->get_besch()->get_lieferant(zz)->get_ware()==ware) {
 									production_left -= zfab->get_base_production()*zfab->get_besch()->get_lieferant(zz)->get_verbrauch();
@@ -736,7 +736,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 								 * from whose factories from how many we stole */
 								crossconnected_supplier.append(fab);
 								FOR(vector_tpl<koord>, const& t, lieferziele) {
-									fabrik_t* zfab = fabrik_t::get_fab(welt, t);
+									fabrik_t* zfab = fabrik_t::get_fab(t);
 									slist_tpl<fabs_to_crossconnect_t>::iterator i = std::find(factories_to_correct.begin(), factories_to_correct.end(), fabs_to_crossconnect_t(zfab, 0));
 									if (i == factories_to_correct.end()) {
 										factories_to_correct.append(fabs_to_crossconnect_t(zfab, 1));
@@ -814,7 +814,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Try to built lieferant %s at (%i,%
 			INT_CHECK( "fabrikbauer 702" );
 
 			// now subtract current supplier
-			fabrik_t *fab = fabrik_t::get_fab(welt, k.get_2d() );
+			fabrik_t *fab = fabrik_t::get_fab(k.get_2d() );
 			if(fab==NULL) {
 				continue;
 			}
@@ -893,7 +893,7 @@ int fabrikbauer_t::increase_industry_density( karte_t *welt, bool tell_me )
 			for(  int i=0;  i < last_built_consumer->get_besch()->get_lieferanten();  i++  ) {
 				ware_besch_t const* const w = last_built_consumer->get_besch()->get_lieferant(i)->get_ware();
 				FOR(vector_tpl<koord>, const& j, last_built_consumer->get_suppliers()) {
-					fabrik_besch_t const* const fb = fabrik_t::get_fab(welt, j)->get_besch();
+					fabrik_besch_t const* const fb = fabrik_t::get_fab(j)->get_besch();
 					for (uint32 k = 0; k < fb->get_produkte(); k++) {
 						if (fb->get_produkt(k)->get_ware() == w) {
 							last_built_consumer_ware = i+1;
@@ -991,7 +991,7 @@ next_ware_check:
 					// Space found...
 					nr += baue_hierarchie(NULL, fab, -1 /*random prodbase */, rotation, &pos, welt->get_spieler(1), 1 );
 					if(nr>0) {
-						fabrik_t *our_fab = fabrik_t::get_fab( welt, pos.get_2d() );
+						fabrik_t *our_fab = fabrik_t::get_fab( pos.get_2d() );
 						reliefkarte_t::get_karte()->calc_map_groesse();
 						// tell the player
 						if(tell_me) {

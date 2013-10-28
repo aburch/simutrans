@@ -243,7 +243,7 @@ void fabrik_t::update_transit( const ware_t *ware, bool add )
 {
 	if(  ware->index > warenbauer_t::INDEX_NONE  ) {
 		// only for freights
-		fabrik_t *fab = get_fab( welt, ware->get_zielpos() );
+		fabrik_t *fab = get_fab( ware->get_zielpos() );
 		if(  fab  ) {
 			fab->update_transit_intern( ware, add );
 		}
@@ -559,7 +559,7 @@ void fabrik_t::set_base_production(sint32 p)
 }
 
 
-fabrik_t *fabrik_t::get_fab(const karte_t *welt, const koord &pos)
+fabrik_t *fabrik_t::get_fab(const koord &pos)
 {
 	const grund_t *gr = welt->lookup_kartenboden(pos);
 	if(gr) {
@@ -592,7 +592,7 @@ void fabrik_t::add_lieferziel(koord ziel)
 	if(  !lieferziele.is_contained(ziel)  ) {
 		lieferziele.insert_ordered( ziel, RelativeDistanceOrdering(pos.get_2d()) );
 		// now tell factory too
-		fabrik_t * fab = fabrik_t::get_fab(welt, ziel);
+		fabrik_t * fab = fabrik_t::get_fab(ziel);
 		if (fab) {
 			fab->add_supplier(get_pos().get_2d());
 		}
@@ -606,7 +606,7 @@ void fabrik_t::rem_lieferziel(koord ziel)
 }
 
 
-fabrik_t::fabrik_t(karte_t*, loadsave_t* file)
+fabrik_t::fabrik_t(loadsave_t* file)
 {
 	besitzer_p = NULL;
 	power = 0;
@@ -872,14 +872,14 @@ void fabrik_t::remove_field_at(koord pos)
 }
 
 
-vector_tpl<fabrik_t *> &fabrik_t::sind_da_welche(karte_t *welt, koord min_pos, koord max_pos)
+vector_tpl<fabrik_t *> &fabrik_t::sind_da_welche(koord min_pos, koord max_pos)
 {
 	static vector_tpl <fabrik_t*> fablist(16);
 	fablist.clear();
 
 	for(int y=min_pos.y; y<=max_pos.y; y++) {
 		for(int x=min_pos.x; x<=max_pos.x; x++) {
-			fabrik_t *fab=get_fab(welt,koord(x,y));
+			fabrik_t *fab=get_fab(koord(x,y));
 			if(fab) {
 				if (fablist.append_unique(fab)) {
 //DBG_MESSAGE("fabrik_t::sind_da_welche()","appended factory %s at (%i,%i)",gr->first_obj()->get_fabrik()->get_besch()->get_name(),x,y);
@@ -1623,7 +1623,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 		for(  uint32 n=0;  n<lieferziele.get_count();  n++  ) {
 			// prissi: this way, the halt, that is tried first, will change. As a result, if all destinations are empty, it will be spread evenly
 			const koord lieferziel = lieferziele[(n + ausgang[produkt].index_offset) % lieferziele.get_count()];
-			fabrik_t * ziel_fab = get_fab(welt, lieferziel);
+			fabrik_t * ziel_fab = get_fab(lieferziel);
 
 			if(  ziel_fab  ) {
 				const sint8 needed = ziel_fab->is_needed(ausgang[produkt].get_typ());
@@ -1985,7 +1985,7 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 		buf.append(translator::translate("Abnehmer"));
 
 		FOR(vector_tpl<koord>, const& lieferziel, lieferziele) {
-			fabrik_t *fab = get_fab( welt, lieferziel );
+			fabrik_t *fab = get_fab( lieferziel );
 			if(fab) {
 				if(  is_active_lieferziel(lieferziel)  ) {
 					buf.printf("\n      %s (%d,%d)", translator::translate(fab->get_name()), lieferziel.x, lieferziel.y);
@@ -2005,7 +2005,7 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 		buf.append(translator::translate("Suppliers"));
 
 		FOR(vector_tpl<koord>, const& supplier, suppliers) {
-			if(  fabrik_t *src = get_fab( welt, supplier )  ) {
+			if(  fabrik_t *src = get_fab( supplier )  ) {
 				if(  src->is_active_lieferziel(get_pos().get_2d())  ) {
 					buf.printf("\n      %s (%d,%d)", translator::translate(src->get_name()), supplier.x, supplier.y);
 				}
@@ -2050,7 +2050,7 @@ void fabrik_t::laden_abschliessen()
 	}
 	else {
 		for(uint32 i=0; i<lieferziele.get_count(); i++) {
-			fabrik_t * fab2 = fabrik_t::get_fab(welt, lieferziele[i]);
+			fabrik_t * fab2 = fabrik_t::get_fab(lieferziele[i]);
 			if (fab2) {
 				fab2->add_supplier(pos.get_2d());
 				lieferziele[i] = fab2->get_pos().get_2d();
@@ -2161,7 +2161,7 @@ void fabrik_t::get_tile_list( vector_tpl<koord> &tile_list ) const
 	// Which tiles belong to the fab?
 	for( test.x = 0; test.x < size.x; test.x++ ) {
 		for( test.y = 0; test.y < size.y; test.y++ ) {
-			if( fabrik_t::get_fab( welt, pos_2d+test ) == this ) {
+			if( fabrik_t::get_fab( pos_2d+test ) == this ) {
 				tile_list.append( pos_2d+test );
 			}
 		}

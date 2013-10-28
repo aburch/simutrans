@@ -21,7 +21,7 @@
 #include "../besch/fabrik_besch.h"
 #include "../tpl/stringhashtable_tpl.h"
 
-class karte_t;
+class karte_ptr_t;
 
 #define MAP_MAX_BUTTONS (22)
 
@@ -36,7 +36,7 @@ class map_frame_t :
 	public action_listener_t
 {
 private:
-	static karte_t *welt;
+	static karte_ptr_t welt;
 
 	/**
 	 * This is kind of hack: we know there can only be one map frame
@@ -119,7 +119,7 @@ public:
 	 * Constructor. Adds all necessary Subcomponents.
 	 * @author Hj. Malthaner
 	 */
-	map_frame_t( karte_t *welt );
+	map_frame_t();
 
 	void rdwr( loadsave_t *file );
 

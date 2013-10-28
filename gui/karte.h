@@ -9,8 +9,7 @@
 #include "../tpl/vector_tpl.h"
 
 
-
-class karte_t;
+class karte_ptr_t;
 class fabrik_t;
 class grund_t;
 class stadt_t;
@@ -63,7 +62,7 @@ public:
 	};
 
 private:
-	static karte_t *welt;
+	static karte_ptr_t welt;
 
 	reliefkarte_t();
 
@@ -213,9 +212,7 @@ public:
 
 	~reliefkarte_t();
 
-	karte_t * get_welt() const {return welt;}
-
-	void set_welt(karte_t *welt);
+	void init();
 
 	void set_mode(MAP_MODES new_mode);
 

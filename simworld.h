@@ -1867,6 +1867,7 @@ public:
 		return *karte_t::world;
 	}
 
+	karte_ptr_t() {}
 	/// dereference operator: karte_ptr_t can be used as it would be karte_t*
 	karte_t* operator->() {
 		assert( karte_t::world );
@@ -1879,6 +1880,9 @@ public:
 
 	/// cast to karte_t*
 	operator karte_t* () const { return karte_t::world; }
+private:
+	karte_ptr_t(const karte_ptr_t&);
+	karte_ptr_t& operator=(const karte_ptr_t&);
 };
 
 #endif

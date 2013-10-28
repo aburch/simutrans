@@ -1437,7 +1437,7 @@ void ai_passenger_t::rdwr(loadsave_t *file)
 		k3d.rdwr(file);
 		end_ausflugsziel = welt->lookup(k3d) ? welt->lookup(k3d)->find<gebaeude_t>() : NULL;
 		k3d.rdwr(file);
-		ziel = fabrik_t::get_fab( welt, k3d.get_2d() );
+		ziel = fabrik_t::get_fab(k3d.get_2d() );
 	}
 }
 

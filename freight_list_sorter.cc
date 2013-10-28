@@ -70,8 +70,8 @@ bool freight_list_sorter_t::compare_ware(ware_t const& w1, ware_t const& w2)
 			halthandle_t const d2 = w2.get_ziel();
 			if(  d1.is_bound()  &&  d2.is_bound()  ) {
 				const fabrik_t *fab = NULL;
-				const char *const name1 = ( w1.to_factory ? ( (fab=fabrik_t::get_fab(welt,w1.get_zielpos())) ? fab->get_name() : "Invalid Factory" ) : d1->get_name() );
-				const char *const name2 = ( w2.to_factory ? ( (fab=fabrik_t::get_fab(welt,w2.get_zielpos())) ? fab->get_name() : "Invalid Factory" ) : d2->get_name() );
+				const char *const name1 = ( w1.to_factory ? ( (fab=fabrik_t::get_fab(w1.get_zielpos())) ? fab->get_name() : "Invalid Factory" ) : d1->get_name() );
+				const char *const name2 = ( w2.to_factory ? ( (fab=fabrik_t::get_fab(w2.get_zielpos())) ? fab->get_name() : "Invalid Factory" ) : d2->get_name() );
 				return strcmp(name1, name2) < 0;
 			}
 			else if(  d1.is_bound()  ) {
@@ -217,7 +217,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			const bool is_factory_going = ( sortby!=by_via_sum  &&  ware.to_factory );	// exclude merged packets
 			if(  sortby!=by_via_sum  ||  via_halt==halt  ) {
 				if(  is_factory_going  ) {
-					const fabrik_t *const factory = fabrik_t::get_fab( world, ware.get_zielpos() );
+					const fabrik_t *const factory = fabrik_t::get_fab( ware.get_zielpos() );
 					buf.printf("%s <%i,%i>", (factory ? factory->get_name() : "Invalid Factory"), ware.get_zielpos().x, ware.get_zielpos().y);
 				}
 				else {

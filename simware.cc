@@ -134,7 +134,7 @@ void ware_t::rdwr(karte_t *welt,loadsave_t *file)
 	zielpos.rdwr(file);
 	// restore factory-flag
 	if(  file->get_version()<110005  &&  file->is_loading()  ) {
-		if (fabrik_t::get_fab(welt, zielpos)) {
+		if (fabrik_t::get_fab(zielpos)) {
 			to_factory = 1;
 		}
 	}
@@ -154,23 +154,23 @@ void ware_t::laden_abschliessen(karte_t *welt)
 			zwischenziel = haltestelle_t::get_halt_koord_index(welt, zwischenziel->get_init_pos());
 		}
 	}
-	update_factory_target(welt);
+	update_factory_target();
 }
 
 
-void ware_t::rotate90( karte_t *welt, sint16 y_size )
+void ware_t::rotate90(sint16 y_size )
 {
 	zielpos.rotate90( y_size );
-	update_factory_target(welt);
+	update_factory_target();
 }
 
 
-void ware_t::update_factory_target(karte_t *welt)
+void ware_t::update_factory_target()
 {
 	if (to_factory) {
 		// assert that target coordinates are unique for cargo going to the same factory
 		// as new cargo will be generated with possibly new factory coordinates
-		fabrik_t *fab = fabrik_t::get_fab( welt, zielpos );
+		fabrik_t *fab = fabrik_t::get_fab(zielpos );
 		if (fab) {
 			zielpos = fab->get_pos().get_2d();
 		}

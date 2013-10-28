@@ -893,7 +893,7 @@ void karte_t::init_felder()
 	MEMZERON(water_hgts, x * y);
 
 	win_set_world( this );
-	reliefkarte_t::get_karte()->set_welt(this);
+	reliefkarte_t::get_karte()->init();
 
 	for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
 		// old default: AI 3 passenger, other goods
@@ -2215,7 +2215,7 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 		mute_sound(false);
 
 		reliefkarte_t::is_visible = reliefkarte;
-		reliefkarte_t::get_karte()->set_welt( this );
+		reliefkarte_t::get_karte()->init();
 		reliefkarte_t::get_karte()->calc_map();
 		reliefkarte_t::get_karte()->set_mode( reliefkarte_t::get_karte()->get_mode() );
 
@@ -3484,7 +3484,7 @@ DBG_MESSAGE( "karte_t::rotate90()", "called" );
 
 	if( cached_grid_size.x != cached_grid_size.y ) {
 		// the map must be reinit
-		reliefkarte_t::get_karte()->set_welt( this );
+		reliefkarte_t::get_karte()->init();
 	}
 
 	//  rotate map search array
@@ -5473,7 +5473,7 @@ void karte_t::load(loadsave_t *file)
 	viewport->set_y_off(0);
 
 	// Reliefkarte an neue welt anpassen
-	reliefkarte_t::get_karte()->set_welt(this);
+	reliefkarte_t::get_karte()->init();
 
 	ls.set_max( get_size().y*2+256 );
 	init_felder();
@@ -5629,7 +5629,7 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 	// Reliefkarte an neue welt anpassen
 	DBG_MESSAGE("karte_t::laden()", "init relief");
 	win_set_world( this );
-	reliefkarte_t::get_karte()->set_welt(this);
+	reliefkarte_t::get_karte()->init();
 
 	sint32 fabs;
 	file->rdwr_long(fabs);
@@ -5637,7 +5637,7 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 
 	for(sint32 i = 0; i < fabs; i++) {
 		// liste in gleicher reihenfolge wie vor dem speichern wieder aufbauen
-		fabrik_t *fab = new fabrik_t(this, file);
+		fabrik_t *fab = new fabrik_t(file);
 		if(fab->get_besch()) {
 			fab_list.append( fab );
 		}

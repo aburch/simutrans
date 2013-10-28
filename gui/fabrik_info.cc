@@ -41,7 +41,6 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	txt(&info_buf)
 {
 	lieferbuttons = supplierbuttons = stadtbuttons = NULL;
-	welt = fab->get_besitzer()->get_welt();
 
 	tstrncpy( fabname, fab->get_name(), lengthof(fabname) );
 	gui_frame_t::set_name( fabname );
@@ -326,7 +325,7 @@ void gui_fabrik_info_t::zeichnen(koord offset)
 	if(  fab->get_suppliers().get_count()  ) {
 		yoff += LINESPACE;
 		FOR(  const vector_tpl<koord>, k, fab->get_suppliers() ) {
-			if(  const fabrik_t *src = fabrik_t::get_fab(fab->get_besitzer()->get_welt(),k)  ) {
+			if(  const fabrik_t *src = fabrik_t::get_fab(k)  ) {
 				if(  src->is_active_lieferziel(fab->get_pos().get_2d())  ) {
 					display_color_img(skinverwaltung_t::waren->get_bild_nr(0), xoff, yoff, 0, false, true);
 				}
@@ -381,7 +380,6 @@ fabrik_info_t::fabrik_info_t(karte_t *w) :
 	txt(&info_buf)
 {
 	lieferbuttons = supplierbuttons = stadtbuttons = NULL;
-	welt = w;
 
 	input.set_pos(koord(D_MARGIN_LEFT,D_MARGIN_TOP));
 	input.set_text( fabname, lengthof(fabname) );
@@ -432,7 +430,7 @@ void fabrik_info_t::rdwr( loadsave_t *file )
 	file->rdwr_bool( chart_button.pressed );
 
 	if(  file->is_loading()  ) {
-		fab = fabrik_t::get_fab( welt, fabpos );
+		fab = fabrik_t::get_fab(fabpos );
 
 		// will fail on factories with no ground or no building at (0,0)
 		view.set_obj( welt->lookup_kartenboden( fabpos )->find<gebaeude_t>() );

@@ -142,7 +142,7 @@ bool ai_goods_t::get_factory_tree_lowest_missing( fabrik_t *fab )
 		}
 
 		FOR(vector_tpl<koord>, const& q, fab->get_suppliers()) {
-			fabrik_t* const qfab = fabrik_t::get_fab(welt, q);
+			fabrik_t* const qfab = fabrik_t::get_fab(q);
 			const fabrik_besch_t* const fb = qfab->get_besch();
 			for(  uint qq = 0;  qq < fb->get_produkte();  qq++  ) {
 				if(  fb->get_produkt(qq)->get_ware() == ware  &&
@@ -193,7 +193,7 @@ int ai_goods_t::get_factory_tree_missing_count( fabrik_t *fab )
 
 		bool complete = false;	// found at least one factory
 		FOR(vector_tpl<koord>, const& q, fab->get_suppliers()) {
-			fabrik_t* const qfab = fabrik_t::get_fab(welt, q);
+			fabrik_t* const qfab = fabrik_t::get_fab(q);
 			if(!qfab) {
 				dbg->error("fabrik_t::get_fab()","fab %s at %s does not find supplier at %s.", fab->get_name(), fab->get_pos().get_str(), q.get_str());
 				continue;
@@ -1399,11 +1399,11 @@ void ai_goods_t::rdwr(loadsave_t *file)
 		// reinit current pointers
 		koord3d k3d;
 		k3d.rdwr(file);
-		root = fabrik_t::get_fab( welt, k3d.get_2d() );
+		root = fabrik_t::get_fab( k3d.get_2d() );
 		k3d.rdwr(file);
-		start = fabrik_t::get_fab( welt, k3d.get_2d() );
+		start = fabrik_t::get_fab( k3d.get_2d() );
 		k3d.rdwr(file);
-		ziel = fabrik_t::get_fab( welt, k3d.get_2d() );
+		ziel = fabrik_t::get_fab( k3d.get_2d() );
 		// freight?
 		const char *temp=NULL;
 		file->rdwr_str( temp );
@@ -1478,9 +1478,9 @@ void ai_goods_t::fabconnection_t::rdwr(loadsave_t *file)
 	}
 	else {
 		k3d.rdwr(file);
-		fab1 = fabrik_t::get_fab( welt, k3d.get_2d() );
+		fab1 = fabrik_t::get_fab( k3d.get_2d() );
 		k3d.rdwr(file);
-		fab2 = fabrik_t::get_fab( welt, k3d.get_2d() );
+		fab2 = fabrik_t::get_fab( k3d.get_2d() );
 		const char *temp=NULL;
 		file->rdwr_str( temp );
 		ware = warenbauer_t::get_info(temp);

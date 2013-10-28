@@ -274,7 +274,7 @@ namespace script_api {
 	fabrik_t* param<fabrik_t*>::get(HSQUIRRELVM vm, SQInteger index)
 	{
 		koord pos = param<koord>::get(vm, index);
-		fabrik_t* fab = fabrik_t::get_fab(welt, pos);
+		fabrik_t* fab = fabrik_t::get_fab(pos);
 		if (fab==NULL) {
 			sq_raise_error(vm, "no factory at position (%s)", pos.get_str());
 		}

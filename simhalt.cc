@@ -476,7 +476,7 @@ void haltestelle_t::rotate90( const sint16 y_size )
 			for (size_t j = warray.get_count(); j-- != 0;) {
 				ware_t& ware = warray[j];
 				if(ware.menge>0) {
-					ware.rotate90(welt, y_size);
+					ware.rotate90(y_size);
 				}
 				else {
 					// empty => remove
@@ -645,7 +645,7 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 			else {
 				// since the distance are presorted, we can just append for a good choice ...
 				for(  int test=0;  test<24;  test++  ) {
-					fabrik_t *fab = fabrik_t::get_fab(welt,k+next_building[test]);
+					fabrik_t *fab = fabrik_t::get_fab(k+next_building[test]);
 					if(fab  &&  fabs.is_contained(fab)) {
 						fabs.append(fab);
 					}
@@ -1017,7 +1017,7 @@ void haltestelle_t::verbinde_fabriken()
 		koord const p = i.grund->get_pos().get_2d();
 
 		int const cov = welt->get_settings().get_station_coverage();
-		FOR(vector_tpl<fabrik_t*>, const fab, fabrik_t::sind_da_welche(welt, p - koord(cov, cov), p + koord(cov, cov))) {
+		FOR(vector_tpl<fabrik_t*>, const fab, fabrik_t::sind_da_welche(p - koord(cov, cov), p + koord(cov, cov))) {
 			if(!fab_list.is_contained(fab)) {
 				// water factories can only connect to docks
 				if(  fab->get_besch()->get_platzierung() != fabrik_besch_t::Wasser  ||  (station_type & dock) > 0  ) {
@@ -1807,7 +1807,7 @@ void haltestelle_t::add_pax_no_route(int n)
 
 void haltestelle_t::liefere_an_fabrik(const ware_t& ware) const
 {
-	fabrik_t *const factory = fabrik_t::get_fab( welt, ware.get_zielpos() );
+	fabrik_t *const factory = fabrik_t::get_fab(ware.get_zielpos() );
 	if(  factory  ) {
 		factory->liefere_an(ware.get_besch(), ware.menge);
 	}
@@ -2719,7 +2719,7 @@ void haltestelle_t::laden_abschliessen()
 	}
 	else {
 		const char *current_name = bd->get_text();
-		if(  all_names.get(current_name).is_bound()  &&  fabrik_t::get_fab(welt, get_basis_pos())==NULL  ) {
+		if(  all_names.get(current_name).is_bound()  &&  fabrik_t::get_fab(get_basis_pos())==NULL  ) {
 			// try to get a new name ...
 			const char *new_name;
 			if(  station_type & airstop  ) {

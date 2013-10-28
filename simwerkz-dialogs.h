@@ -88,8 +88,8 @@ public:
 	wkz_minimap_t() : werkzeug_t(WKZ_MINIMAP | DIALOGE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("Reliefkarte"); }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_reliefmap); }
-	bool init(karte_t* welt, spieler_t*) OVERRIDE {
-		create_win( new map_frame_t(welt), w_info, magic_reliefmap);
+	bool init(karte_t*, spieler_t*) OVERRIDE {
+		create_win( new map_frame_t(), w_info, magic_reliefmap);
 		return false;
 	}
 	bool exit(karte_t*, spieler_t*) OVERRIDE { destroy_win(magic_reliefmap); return false; }

@@ -661,7 +661,7 @@ void vehikel_t::rotate90_freight_destinations(const sint16 y_size)
 {
 	// now rotate the freight
 	FOR(slist_tpl<ware_t>, & tmp, fracht) {
-		tmp.rotate90(welt, y_size );
+		tmp.rotate90(y_size );
 	}
 }
 
@@ -897,7 +897,7 @@ void vehikel_t::remove_stale_freight()
 			else {
 				// since we need to point at factory (0,0), we recheck this too
 				koord k = tmp.get_zielpos();
-				fabrik_t *fab = fabrik_t::get_fab( welt, k );
+				fabrik_t *fab = fabrik_t::get_fab( k );
 				tmp.set_zielpos( fab ? fab->get_pos().get_2d() : k );
 
 				total_freight += tmp.menge;

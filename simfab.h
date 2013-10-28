@@ -374,7 +374,7 @@ private:
 	uint32 scale_output_production(const uint32 product, uint32 menge) const;
 
 public:
-	fabrik_t(karte_t *welt, loadsave_t *file);
+	fabrik_t(loadsave_t *file);
 	fabrik_t(koord3d pos, spieler_t* sp, const fabrik_besch_t* fabesch, sint32 initial_prod_base);
 	~fabrik_t();
 
@@ -409,7 +409,7 @@ public:
 		return value;
 	}
 
-	static fabrik_t * get_fab(const karte_t *welt, const koord &pos);
+	static fabrik_t * get_fab(const koord &pos);
 
 	/**
 	 * @return vehicle description object
@@ -526,7 +526,7 @@ public:
 	 *
 	 * @author Hj. Malthaner
 	 */
-	static vector_tpl<fabrik_t *> & sind_da_welche(karte_t *welt, koord min, koord max);
+	static vector_tpl<fabrik_t *> & sind_da_welche(koord min, koord max);
 
 
 	// hier die methoden zum parametrisieren der Fabrik

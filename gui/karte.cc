@@ -46,7 +46,7 @@ static sint32 max_service = 1;
 static sint32 max_building_level = 0;
 
 reliefkarte_t * reliefkarte_t::single_instance = NULL;
-karte_t * reliefkarte_t::welt = NULL;
+karte_ptr_t reliefkarte_t::welt;
 reliefkarte_t::MAP_MODES reliefkarte_t::mode = MAP_TOWN;
 reliefkarte_t::MAP_MODES reliefkarte_t::last_mode = MAP_TOWN;
 bool reliefkarte_t::is_visible = false;
@@ -477,7 +477,7 @@ bool reliefkarte_t::change_zoom_factor(bool magnify)
 		else {
 			// check here for maximum zoom-out, otherwise there will be integer overflows
 			// with large maps as we calculate with sint16 coordinates ...
-			int max_zoom_in = min( 32767 / (2*get_welt()->get_size_max()), 16);
+			int max_zoom_in = min( 32767 / (2*welt->get_size_max()), 16);
 			if(  zoom_in < max_zoom_in  ) {
 				zoom_in++;
 				zoomed = true;
@@ -984,9 +984,8 @@ reliefkarte_t *reliefkarte_t::get_karte()
 }
 
 
-void reliefkarte_t::set_welt(karte_t *welt)
+void reliefkarte_t::init()
 {
-	this->welt = welt;
 	if(relief) {
 		delete relief;
 		relief = NULL;
@@ -1047,13 +1046,13 @@ bool reliefkarte_t::infowin_event(const event_t *ev)
 // helper function for finding nearby factory
 const fabrik_t* reliefkarte_t::get_fab( const koord, bool enlarge ) const
 {
-	const fabrik_t *fab = fabrik_t::get_fab(welt, last_world_pos);
+	const fabrik_t *fab = fabrik_t::get_fab(last_world_pos);
 	for(  int i=0;  i<4  && fab==NULL;  i++  ) {
-		fab = fabrik_t::get_fab( welt, last_world_pos+koord::nsow[i] );
+		fab = fabrik_t::get_fab( last_world_pos+koord::nsow[i] );
 	}
 	if(  enlarge  ) {
 		for(  int i=0;  i<4  && fab==NULL;  i++  ) {
-			fab = fabrik_t::get_fab( welt, last_world_pos+koord::nsow[i]*2 );
+			fab = fabrik_t::get_fab( last_world_pos+koord::nsow[i]*2 );
 		}
 	}
 	return fab;
@@ -1070,7 +1069,7 @@ const fabrik_t* reliefkarte_t::draw_fab_connections(const uint8 colour, const ko
 		fabpos += pos;
 		const vector_tpl<koord>& lieferziele = event_get_last_control_shift() & 1 ? fab->get_suppliers() : fab->get_lieferziele();
 		FOR(vector_tpl<koord>, lieferziel, lieferziele) {
-			const fabrik_t * fab2 = fabrik_t::get_fab(welt, lieferziel);
+			const fabrik_t * fab2 = fabrik_t::get_fab(lieferziel);
 			if (fab2) {
 				karte_to_screen( lieferziel );
 				const koord end = lieferziel+pos;

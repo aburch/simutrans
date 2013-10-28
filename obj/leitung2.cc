@@ -87,7 +87,7 @@ int leitung_t::gimme_neighbours(leitung_t **conn)
 fabrik_t *leitung_t::suche_fab_4(const koord pos)
 {
 	for(int k=0; k<4; k++) {
-		fabrik_t *fab = fabrik_t::get_fab( welt, pos+koord::nsow[k] );
+		fabrik_t *fab = fabrik_t::get_fab( pos+koord::nsow[k] );
 		if(fab) {
 			return fab;
 		}
@@ -522,7 +522,7 @@ void pumpe_t::laden_abschliessen()
 		}
 		else {
 			// underground, check directly above
-			fab = fabrik_t::get_fab(welt, get_pos().get_2d());
+			fab = fabrik_t::get_fab(get_pos().get_2d());
 		}
 		if(  fab  ) {
 			// only add when factory there
@@ -730,7 +730,7 @@ void senke_t::laden_abschliessen()
 		}
 		else {
 			// underground, check directly above
-			fab = fabrik_t::get_fab(welt, get_pos().get_2d());
+			fab = fabrik_t::get_fab(get_pos().get_2d());
 		}
 		if(  fab  ) {
 			fab->set_transformer_connected( true );

@@ -732,7 +732,7 @@ void stadt_t::factory_entry_t::rdwr(loadsave_t *file)
 
 void stadt_t::factory_entry_t::resolve_factory()
 {
-	factory = fabrik_t::get_fab( welt, koord(factory_pos_x, factory_pos_y) );
+	factory = fabrik_t::get_fab( koord(factory_pos_x, factory_pos_y) );
 }
 
 

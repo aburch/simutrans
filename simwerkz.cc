@@ -510,7 +510,7 @@ DBG_MESSAGE("wkz_remover()",  "removing roadsign at (%s)", pos.get_str());
 	// check stations
 	halthandle_t halt = gr->get_halt();
 DBG_MESSAGE("wkz_remover()", "bound=%i",halt.is_bound());
-	if (gr->is_halt()  &&  halt.is_bound()  &&  fabrik_t::get_fab(welt,k)==NULL) {
+	if (gr->is_halt()  &&  halt.is_bound()  &&  fabrik_t::get_fab(k)==NULL) {
 		// halt and not a factory (oil rig etc.)
 		const spieler_t* owner = halt->get_besitzer();
 		if(  spieler_t::check_owner( owner, sp )  ) {
@@ -1462,7 +1462,7 @@ const char *wkz_transformer_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 		fab = leitung_t::suche_fab_4(k);
 	}
 	else if (gr->get_pos().z == pos.z+1) {
-		fab = fabrik_t::get_fab(welt, k);
+		fab = fabrik_t::get_fab( k);
 		underground = true;
 	}
 
@@ -5090,9 +5090,9 @@ image_id wkz_link_factory_t::get_marker_image()
 }
 
 
-uint8 wkz_link_factory_t::is_valid_pos( karte_t *welt, spieler_t *, const koord3d &pos, const char *&error, const koord3d & )
+uint8 wkz_link_factory_t::is_valid_pos( karte_t *, spieler_t *, const koord3d &pos, const char *&error, const koord3d & )
 {
-	fabrik_t *fab = fabrik_t::get_fab( welt, pos.get_2d() );
+	fabrik_t *fab = fabrik_t::get_fab( pos.get_2d() );
 	if (fab == NULL) {
 		error = "";
 		return 0;
@@ -5101,10 +5101,10 @@ uint8 wkz_link_factory_t::is_valid_pos( karte_t *welt, spieler_t *, const koord3
 }
 
 
-const char *wkz_link_factory_t::do_work( karte_t *welt, spieler_t *, const koord3d &start, const koord3d &pos )
+const char *wkz_link_factory_t::do_work( karte_t *, spieler_t *, const koord3d &start, const koord3d &pos )
 {
-	fabrik_t *last_fab = fabrik_t::get_fab( welt, start.get_2d() );
-	fabrik_t *fab = fabrik_t::get_fab( welt, pos.get_2d() );
+	fabrik_t *last_fab = fabrik_t::get_fab( start.get_2d() );
+	fabrik_t *fab = fabrik_t::get_fab( pos.get_2d() );
 
 	if(fab!=NULL  &&  last_fab!=NULL  &&  last_fab!=fab) {
 		// It's a factory
