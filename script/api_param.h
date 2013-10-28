@@ -14,7 +14,7 @@ class convoi_t;
 class fabrik_t;
 class gebaeude_t;
 class grund_t;
-class karte_t;
+class karte_ptr_t;
 class koord;
 class koord3d;
 struct linieneintrag_t;
@@ -36,7 +36,7 @@ class weg_t;
  */
 namespace script_api {
 	/// pointer to the world
-	extern karte_t *welt;
+	extern karte_ptr_t welt;
 
 	// forward declaration
 	struct mytime_t;

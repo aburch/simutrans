@@ -6,6 +6,7 @@
 #include "../api_function.h"
 #include "../../dataobj/fahrplan.h"
 #include "../../simhalt.h"
+#include "../../simworld.h"
 
 using namespace script_api;
 
