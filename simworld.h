@@ -1670,7 +1670,7 @@ public:
 	 * Sets water height.
 	 * @author Kieron Green
 	 */
-	void set_water_hgt(sint16 x, sint16 y, sint8 hgt) { water_hgts[x + y * (uint32)(cached_grid_size.x)] = (hgt); }
+	void set_water_hgt(sint16 x, sint16 y, sint8 hgt) { water_hgts[x + y * (cached_grid_size.x)] = (hgt); }
 
 	inline void set_water_hgt(koord k, sint8 hgt) {  set_water_hgt(k.x, k.y, hgt); }
 
@@ -1858,12 +1858,24 @@ class karte_ptr_t
 {
 public:
 	/// dereference operator: karte_ptr_t can be used as it would be karte_t*
-	karte_t& operator*() { return *karte_t::world; }
-	const karte_t& operator*() const { return *karte_t::world; }
+	karte_t& operator*() {
+		assert( karte_t::world );
+		return *karte_t::world;
+	}
+	const karte_t& operator*() const {
+		assert( karte_t::world );
+		return *karte_t::world;
+	}
 
 	/// dereference operator: karte_ptr_t can be used as it would be karte_t*
-	karte_t* operator->() { return karte_t::world; }
-	const karte_t* operator->() const { return karte_t::world; }
+	karte_t* operator->() {
+		assert( karte_t::world );
+		return karte_t::world;
+	}
+	const karte_t* operator->() const {
+		assert( karte_t::world );
+		return karte_t::world;
+	}
 
 	/// cast to karte_t*
 	operator karte_t* () const { return karte_t::world; }

@@ -169,6 +169,7 @@ static sint32 map_w=0;
 void init_perlin_map( sint32 w, sint32 h )
 {
 	map_w = w+2;
+	return;
 	map = new float[map_w*(h+2)];
 	for(  sint32 y=0;  y<h+2;  y++ ) {
 		for(  sint32 x=0;  x<map_w;  x++ ) {
@@ -186,7 +187,7 @@ void exit_perlin_map()
 }
 
 
-#define map_noise(x,y) (map[(x)+1+((y)+1)*map_w])
+#define map_noise(x,y) (0+map[(x)+1+((y)+1)*map_w])
 
 
 static double smoothed_noise(const int x, const int y)

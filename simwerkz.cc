@@ -1708,8 +1708,7 @@ const char *wkz_set_climate_t::do_work( karte_t *welt, spieler_t *sp, const koor
 	koord k;
 	for(  k.x = k1.x;  k.x <= k2.x;  k.x++  ) {
 		for(  k.y = k1.y;  k.y <= k2.y;  k.y++  ) {
-			grund_t *gr=welt->lookup_kartenboden(k);
-			if(  gr  ) {
+			if(  grund_t *gr=welt->lookup_kartenboden(k)  ) {
 				if(  cl != water_climate  ) {
 					bool ok = true;
 					if(  gr->ist_wasser()  ) {
