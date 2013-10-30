@@ -30,7 +30,7 @@ void interaction_t::move_view( const event_t &ev )
 {
 	koord new_ij = viewport->get_world_position();
 
-	sint16 new_xoff = viewport->get_x_off() - (ev.mx - ev.cx) * env_t::scroll_multi;
+	sint16 new_xoff = viewport->get_x_off() - (ev.mx-ev.cx) * env_t::scroll_multi;
 	sint16 new_yoff = viewport->get_y_off() - (ev.my-ev.cy) * env_t::scroll_multi;
 
 	// this sets the new position and mark screen dirty
@@ -38,7 +38,7 @@ void interaction_t::move_view( const event_t &ev )
 	viewport->change_world_position( new_ij, new_xoff, new_yoff );
 
 	// move the mouse pointer back to starting location => infinite mouse movement
-	if ((ev.mx - ev.cx)!=0  ||  (ev.my-ev.cy)!=0) {
+	if(  (ev.mx - ev.cx) != 0  ||  (ev.my-ev.cy) !=0  ) {
 #ifdef __BEOS__
 		change_drag_start(ev.mx - ev.cx, ev.my - ev.cy);
 #else
@@ -67,7 +67,6 @@ void interaction_t::move_cursor( const event_t &ev )
 		zeiger->change_pos(pos);
 		return;
 	}
-
 
 	// move cursor
 	const koord3d prev_pos = zeiger->get_pos();
@@ -313,6 +312,7 @@ bool interaction_t::process_event( event_t &ev )
 	// Handle map drag with right-click
 
 	bool cursor_hidden = false;
+	static bool left_drag = false;
 
 	if(IS_RIGHTCLICK(&ev)) {
 		display_show_pointer(false);
@@ -327,12 +327,33 @@ bool interaction_t::process_event( event_t &ev )
 		world->get_viewport()->set_follow_convoi( convoihandle_t() );
 		move_view(ev);
 	}
+	else if(  (left_drag  ||  world->get_werkzeug(world->get_active_player_nr())->get_id() == (WKZ_ABFRAGE | GENERAL_TOOL))  &&  IS_LEFTDRAG(&ev)  ) {
+		/* ok, we have the query tool selected, and we have a left drag or left release event with an actual different
+		 * => move the map */
+		if(  !left_drag  ) {
+			display_show_pointer(false);
+			cursor_hidden = true;
+			left_drag = true;
+		}
+		world->get_viewport()->set_follow_convoi( convoihandle_t() );
+		move_view(ev);
+		ev.ev_code = EVENT_NONE;
+	}
 	else {
 		if(cursor_hidden) {
 			display_show_pointer(true);
 			cursor_hidden = false;
 		}
 	}
+
+	if(  IS_LEFTRELEASE(&ev)  &&  left_drag  ) {
+		// show then mouse and swallow this event if we were dragging before
+		ev.ev_code = EVENT_NONE;
+		display_show_pointer(true);
+		cursor_hidden = false;
+		left_drag = false;
+	}
+
 
 	DBG_DEBUG4("interaction_t::process_event", "check if cursor needs movement");
 

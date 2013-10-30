@@ -141,7 +141,8 @@ static void fill_event(event_t* const ev)
 			if (sys_event.mb) { // drag
 				ev->ev_class = EVENT_DRAG;
 				ev->ev_code  = sys_event.mb;
-			} else { // move
+			}
+			else { // move
 				ev->ev_class = EVENT_MOVE;
 				ev->ev_code  = 0;
 			}
