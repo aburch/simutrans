@@ -599,8 +599,8 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 	else if(komp == &line_selector) {
 		uint32 selection = p.i - !new_line.is_bound();
 //DBG_MESSAGE("fahrplan_gui_t::action_triggered()","line selection=%i",selection);
-		if(  selection<(uint32)line_selector.count_elements()  ) {
-			new_line = lines[selection];
+		if(  line_scrollitem_t *li = dynamic_cast<line_scrollitem_t*>(line_selector.get_element(selection))  ) {
+			new_line = li->get_line();
 			stats.highlight_schedule( fpl, false );
 			fpl->copy_from( new_line->get_schedule() );
 			fpl->eingabe_beginnen();
@@ -643,6 +643,8 @@ void fahrplan_gui_t::init_line_selector()
 {
 	line_selector.clear_elements();
 	int selection = 0;
+	vector_tpl<linehandle_t> lines;
+
 	sp->simlinemgmt.get_lines(fpl->get_type(), &lines);
 
 	// keep assignment with identical schedules

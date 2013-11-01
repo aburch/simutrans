@@ -78,8 +78,6 @@ public:
 private:
 	enum mode_t {adding, inserting, removing, undefined_mode};
 
-	vector_tpl<linehandle_t> lines;
-
 	mode_t mode;
 
 	// only active with lines
