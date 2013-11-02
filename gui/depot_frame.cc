@@ -1357,8 +1357,14 @@ void depot_frame_t::zeichnen(koord pos, koord groesse)
 				txt_convoi_value.printf("%s %8s", translator::translate("Restwert:"), buf );
 
 				txt_convoi_cost.clear();
-				money_to_string(  buf, cnv->get_purchase_cost() / 100.0, false );
-				txt_convoi_cost.printf( translator::translate("Cost: %8s (%.2f$/km)\n"), buf, (double)cnv->get_running_cost() / 100.0 );
+				if(  sint32 fix_cost = cnv->get_fix_cost()  ) {
+					money_to_string(  buf, cnv->get_purchase_cost() / 100.0, false );
+					txt_convoi_cost.printf( translator::translate("Cost: %8s (%.2f$/km %.f$/m)\n"), buf, (double)cnv->get_running_cost()/100.0, (double)fix_cost/100.0 );
+				}
+				else {
+					money_to_string(  buf, cnv->get_purchase_cost() / 100.0, false );
+					txt_convoi_cost.printf( translator::translate("Cost: %8s (%.2f$/km)\n"), buf, (double)cnv->get_running_cost() / 100.0 );
+				}
 			}
 
 			txt_convoi_power.clear();
@@ -1469,7 +1475,7 @@ void depot_frame_t::fahrplaneingabe()
 
 void depot_frame_t::draw_vehicle_info_text(koord pos)
 {
-	char buf[1024];
+	cbuffer_t buf;
 	const koord size = get_fenstergroesse();
 	PUSH_CLIP(pos.x, pos.y, size.x-1, size.y-1);
 
@@ -1522,7 +1528,7 @@ void depot_frame_t::draw_vehicle_info_text(koord pos)
 				break;
 			}
 			default: {
-				sprintf( buf, translator::translate("%d Einzelfahrzeuge im Depot"), count );
+				buf.printf( translator::translate("%d Einzelfahrzeuge im Depot"), count );
 				c = buf;
 				break;
 			}
@@ -1531,79 +1537,87 @@ void depot_frame_t::draw_vehicle_info_text(koord pos)
 	}
 
 	if(  veh_type  ) {
+
 		// column 1
-		int n = sprintf( buf, "%s", translator::translate( veh_type->get_name(), spieler_t::get_welt()->get_settings().get_name_language_id() ) );
+		buf.clear();
+		buf.printf( "%s", translator::translate( veh_type->get_name(), spieler_t::get_welt()->get_settings().get_name_language_id() ) );
 
 		if(  veh_type->get_leistung() > 0  ) { // LOCO
-			n += sprintf( buf + n, " (%s)\n", translator::translate( engine_type_names[veh_type->get_engine_type()+1] ) );
+			buf.printf( " (%s)\n", translator::translate( engine_type_names[veh_type->get_engine_type()+1] ) );
 		}
 		else {
-			n += sprintf( buf + n, "\n");
+			buf.append( "\n" );
 		}
 
-		{
+		if(  sint32 fix_cost = veh_type->get_maintenance()  ) {
 			char tmp[128];
 			money_to_string( tmp, veh_type->get_preis() / 100.0, false );
-			n += sprintf( buf + n, translator::translate("Cost: %8s (%.2f$/km)\n"), tmp, veh_type->get_betriebskosten() / 100.0 );
+			buf.printf( translator::translate("Cost: %8s (%.2f$/km %.f$/m)\n"), tmp, veh_type->get_betriebskosten()/100.0, fix_cost/100.0 );
+		}
+		else {
+			char tmp[128];
+			money_to_string(  tmp, veh_type->get_preis() / 100.0, false );
+			buf.printf( translator::translate("Cost: %8s (%.2f$/km)\n"), tmp, veh_type->get_betriebskosten()/100.0 );
 		}
 
 		if(  veh_type->get_zuladung() > 0  ) { // must translate as "Capacity: %3d%s %s\n"
-			n += sprintf( buf + n, translator::translate("Capacity: %d%s %s\n"),
+			buf.printf( translator::translate("Capacity: %d%s %s\n"),
 				veh_type->get_zuladung(),
 				translator::translate( veh_type->get_ware()->get_mass() ),
 				veh_type->get_ware()->get_catg()==0 ? translator::translate( veh_type->get_ware()->get_name() ) : translator::translate( veh_type->get_ware()->get_catg_name() )
 				);
 		}
 		else {
-			n += sprintf( buf + n, "\n");
+			buf.append( "\n" );
 		}
 
 		if(  veh_type->get_leistung() > 0  ) { // LOCO
-			n += sprintf( buf + n, translator::translate("Power: %4d kW\n"), veh_type->get_leistung() );
+			buf.printf( translator::translate("Power: %4d kW\n"), veh_type->get_leistung() );
 		}
 		else {
-			n += sprintf( buf + n, "\n");
+			buf.append( "\n" );
 		}
 
-		n += sprintf( buf + n, "%s %4.1ft\n", translator::translate("Weight:"), veh_type->get_gewicht() / 1000.0 );
-		sprintf( buf + n, "%s %3d km/h", translator::translate("Max. speed:"), veh_type->get_geschw() );
+		buf.printf( "%s %4.1ft\n", translator::translate("Weight:"), veh_type->get_gewicht() / 1000.0 );
+		buf.printf( "%s %3d km/h", translator::translate("Max. speed:"), veh_type->get_geschw() );
 
 		display_multiline_text( pos.x + D_MARGIN_LEFT, pos.y + D_TITLEBAR_HEIGHT + bt_show_all.get_pos().y + bt_show_all.get_groesse().y + D_V_SPACE, buf, SYSCOL_STATIC_TEXT);
 
 		// column 2
-		n = sprintf( buf, "%s %s %04d\n",
+		buf.clear();
+		buf.printf( "%s %s %04d\n",
 			translator::translate("Intro. date:"),
 			translator::get_month_name( veh_type->get_intro_year_month() % 12 ),
 			veh_type->get_intro_year_month() / 12
 			);
 
 		if(  veh_type->get_retire_year_month() != DEFAULT_RETIRE_DATE * 12  ) {
-			n += sprintf( buf + n, "%s %s %04d\n",
+			buf.printf( "%s %s %04d\n",
 				translator::translate("Retire. date:"),
 				translator::get_month_name( veh_type->get_retire_year_month() % 12 ),
 				veh_type->get_retire_year_month() / 12
 				);
 		}
 		else {
-			n += sprintf( buf + n, "\n");
+			buf.append( "\n" );
 		}
 
 		if(  veh_type->get_leistung() > 0  &&  veh_type->get_gear() != 64  ) {
-			n += sprintf( buf + n, "%s %0.2f : 1\n", translator::translate("Gear:"), veh_type->get_gear() / 64.0 );
+			buf.printf( "%s %0.2f : 1\n", translator::translate("Gear:"), veh_type->get_gear() / 64.0 );
 		}
 		else {
-			n += sprintf( buf + n, "\n");
+			buf.append( "\n" );
 		}
 
 		if(  char const* const copyright = veh_type->get_copyright()  ) {
-			n += sprintf( buf + n, translator::translate("Constructed by %s"), copyright );
+			buf.printf( translator::translate("Constructed by %s"), copyright );
 		}
-		n += sprintf( buf +  n, "\n");
+		buf.append( "\n" );
 
 		if(  resale_value != -1.0  ) {
 			char tmp[128];
 			money_to_string(  tmp, resale_value / 100.0, false );
-			sprintf( buf + n, "%s %8s", translator::translate("Restwert:"), tmp );
+			buf.printf( "%s %8s", translator::translate("Restwert:"), tmp );
 		}
 
 		display_multiline_text( pos.x + second_column_x, pos.y + D_TITLEBAR_HEIGHT + bt_show_all.get_pos().y + bt_show_all.get_groesse().y + D_V_SPACE + LINESPACE, buf, SYSCOL_STATIC_TEXT);

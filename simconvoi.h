@@ -477,6 +477,11 @@ public:
 	const sint64 & get_total_distance_traveled() const { return total_distance_traveled; }
 
 	/**
+	 * @return the total monthly fix cost for all vehicles in convoi
+	 */
+	sint32 get_fix_cost() const;
+
+	/**
 	 * returns the total running cost for all vehicles in convoi
 	 * @author hsiegeln
 	 */

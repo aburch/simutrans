@@ -68,14 +68,14 @@ void cbuffer_t::free ()
 
 void cbuffer_t::append(const char * text)
 {
-	size_t const n = strlen(text);
-	extend(n);
-	memcpy(buf + size, text, n + 1);
+	size_t const n = strlen( text );
+	extend( n );
+	memcpy( buf + size, text, n + 1);
 	size += n;
 }
 
 
-void cbuffer_t::append (const char* text, size_t maxchars)
+void cbuffer_t::append(const char* text, size_t maxchars)
 {
 	size_t const n = min( strlen( text ), maxchars );
 	extend( n );
@@ -93,7 +93,7 @@ void cbuffer_t::append(double n,int decimals)
 }
 
 
-const char* cbuffer_t::get_str () const
+const char* cbuffer_t::get_str() const
 {
 	return buf;
 }
@@ -182,6 +182,7 @@ static void get_format_mask(const char* format, char *typemask, int max_params, 
 err_mix_pos_nopos:
 	error.append("Either all or no parameters have to be positional.");
 }
+
 
 /**
  * Check whether the format specifiers in @p translated match those in @p master.
@@ -342,10 +343,10 @@ void cbuffer_t::printf(const char* fmt, ...)
 }
 
 
-void cbuffer_t::vprintf(const char *fmt,  va_list ap )
+void cbuffer_t::vprintf(const char *fmt, va_list ap )
 {
 	for (;;) {
-		size_t const n     = capacity - size;
+		size_t const n = capacity - size;
 		size_t inc;
 
 		va_list args;
@@ -355,8 +356,8 @@ void cbuffer_t::vprintf(const char *fmt,  va_list ap )
 		// HACK: this is undefined behavior but should work ... hopefully ...
 		args = ap;
 #endif
-		int    const count = my_vsnprintf(buf + size, n, fmt, args );
-		if (count < 0) {
+		const int count = my_vsnprintf( buf+size, n, fmt, args );
+		if(  count < 0  ) {
 #ifdef _WIN32
 			inc = capacity;
 #else
@@ -364,10 +365,12 @@ void cbuffer_t::vprintf(const char *fmt,  va_list ap )
 			buf[size] = '\0';
 			break;
 #endif
-		} else if ((size_t)count < n) {
+		}
+		else if(  (size_t)count < n  ) {
 			size += count;
 			break;
-		} else {
+		}
+		else {
 			// Make room for the string.
 			inc = (size_t)count;
 		}
@@ -378,12 +381,14 @@ void cbuffer_t::vprintf(const char *fmt,  va_list ap )
 
 void cbuffer_t::extend(unsigned int min_free_space)
 {
-	if (min_free_space >= capacity - size) {
+	if(  min_free_space >= capacity - size  ) {
+
 		unsigned int by_amount = min_free_space + 1 - (capacity - size);
-		if (by_amount < capacity) {
+		if(  by_amount < capacity  ) {
 			// At least double the size of the buffer.
 			by_amount = capacity;
 		}
+
 		unsigned int new_capacity = capacity + by_amount;
 		char *new_buf = new char [new_capacity];
 		memcpy( new_buf, buf, capacity );

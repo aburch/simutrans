@@ -2959,6 +2959,16 @@ void convoi_t::init_financial_history()
 }
 
 
+sint32 convoi_t::get_fix_cost() const
+{
+	sint32 running_cost = 0;
+	for(  unsigned i = 0;  i < get_vehikel_anzahl();  i++  ) {
+		running_cost += fahr[i]->get_besch()->get_maintenance();
+	}
+	return running_cost;
+}
+
+
 sint32 convoi_t::get_running_cost() const
 {
 	sint32 running_cost = 0;
