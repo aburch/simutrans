@@ -774,18 +774,18 @@ grund_t* stadtauto_t::hop()
 
 	if(pos_next_next==get_pos()) {
 		fahrtrichtung = calc_set_richtung( pos_next.get_2d(), pos_next_next.get_2d() );
-		current_speed = 48;
 		steps_next = 0;	// mark for starting at end of tile!
 	}
 	else {
 		fahrtrichtung = calc_set_richtung( get_pos().get_2d(), pos_next_next.get_2d() );
-		calc_current_speed();
 	}
 	calc_bild();
 
 	// and add to next tile
 	set_pos(pos_next);
 	grund_t *to = betrete_feld();
+
+	calc_current_speed(to);
 
 	update_tiles_overtaking();
 	if(to->ist_uebergang()) {
@@ -807,9 +807,9 @@ void stadtauto_t::calc_bild()
 
 
 
-void stadtauto_t::calc_current_speed()
+void stadtauto_t::calc_current_speed(grund_t* gr)
 {
-	const weg_t * weg = welt->lookup(get_pos())->get_weg(road_wt);
+	const weg_t * weg = gr->get_weg(road_wt);
 	const sint32 max_speed = besch->get_geschw();
 	const sint32 speed_limit = weg ? kmh_to_speed(weg->get_max_speed()) : max_speed;
 	current_speed += max_speed>>2;

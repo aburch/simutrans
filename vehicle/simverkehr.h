@@ -111,7 +111,7 @@ public:
 
 	grund_t* betrete_feld();
 
-	void calc_current_speed();
+	void calc_current_speed(grund_t*);
 	uint16 get_current_speed() const {return current_speed;}
 
 	const char *get_name() const {return "Verkehrsteilnehmer";}
