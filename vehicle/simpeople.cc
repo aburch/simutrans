@@ -206,7 +206,7 @@ grund_t* fussgaenger_t::hop()
 
 	if (to) {
 		pos_next = to->get_pos();
-		fahrtrichtung = calc_set_richtung(get_pos().get_2d(), pos_next.get_2d());
+		fahrtrichtung = calc_set_richtung(get_pos(), pos_next);
 	}
 	else {
 		// turn around

@@ -410,7 +410,7 @@ void vehikel_basis_t::get_screen_offset( int &xoff, int &yoff, const sint16 rast
 
 
 // calcs new direction and applies it to the vehicles
-ribi_t::ribi vehikel_basis_t::calc_set_richtung(koord start, koord ende)
+ribi_t::ribi vehikel_basis_t::calc_set_richtung(const koord3d& start, const koord3d& ende)
 {
 	ribi_t::ribi richtung = ribi_t::keine;
 
@@ -953,7 +953,7 @@ void vehikel_t::neue_fahrt(uint16 start_route_index, bool recalc)
 		set_pos(r.position_bei(start_route_index));
 
 		alte_fahrtrichtung = fahrtrichtung;
-		fahrtrichtung = calc_set_richtung( get_pos().get_2d(), pos_next.get_2d() );
+		fahrtrichtung = calc_set_richtung( get_pos(), pos_next );
 		hoff = 0;
 		steps = 0;
 
@@ -1125,17 +1125,17 @@ grund_t* vehikel_t::hop()
 
 	// this is a required hack for aircrafts! Aircrafts can turn on a single square, and this confuses the previous calculation!
 	// author: hsiegeln
-	if(!check_for_finish  &&  pos_prev.get_2d()==pos_next.get_2d()) {
-		fahrtrichtung = calc_set_richtung( get_pos().get_2d(), pos_next.get_2d() );
+	if(!check_for_finish  &&  pos_prev==pos_next) {
+		fahrtrichtung = calc_set_richtung( get_pos(), pos_next);
 		steps_next = 0;
 	}
 	else {
 		if(pos_next!=get_pos()) {
-			fahrtrichtung = calc_set_richtung( pos_prev.get_2d(), pos_next.get_2d() );
+			fahrtrichtung = calc_set_richtung( pos_prev, pos_next );
 		}
 		else if(  (  check_for_finish  &&  welt->lookup(pos_next)  &&  ribi_t::ist_gerade(welt->lookup(pos_next)->get_weg_ribi_unmasked(get_waytype()))  )  ||  welt->lookup(pos_next)->is_halt()) {
 			// allow diagonal stops at waypoints on diagonal tracks but avoid them on halts and at straight tracks...
-			fahrtrichtung = calc_set_richtung( pos_prev.get_2d(), pos_next.get_2d() );
+			fahrtrichtung = calc_set_richtung( pos_prev, pos_next );
 		}
 	}
 	calc_bild();

@@ -773,11 +773,11 @@ grund_t* stadtauto_t::hop()
 	verlasse_feld();
 
 	if(pos_next_next==get_pos()) {
-		fahrtrichtung = calc_set_richtung( pos_next.get_2d(), pos_next_next.get_2d() );
+		fahrtrichtung = calc_set_richtung( pos_next, pos_next_next );
 		steps_next = 0;	// mark for starting at end of tile!
 	}
 	else {
-		fahrtrichtung = calc_set_richtung( get_pos().get_2d(), pos_next_next.get_2d() );
+		fahrtrichtung = calc_set_richtung( get_pos(), pos_next_next );
 	}
 	calc_bild();
 

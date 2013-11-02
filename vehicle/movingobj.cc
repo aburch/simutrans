@@ -165,7 +165,7 @@ movingobj_t::movingobj_t(karte_t *welt, koord3d pos, const groundobj_besch_t *b 
 	movingobjtype = movingobj_typen.index_of(b);
 	weg_next = 0;
 	timetochange = 0;	// will do random direct change anyway during next step
-	fahrtrichtung = calc_set_richtung( koord(0,0), koord::west );
+	fahrtrichtung = calc_set_richtung( koord3d(0,0,0), koord3d(koord::west,0) );
 	calc_bild();
 	welt->sync_add( this );
 }
@@ -400,7 +400,7 @@ grund_t* movingobj_t::hop()
 	}
 	else {
 		ribi_t::ribi old_dir = fahrtrichtung;
-		fahrtrichtung = calc_set_richtung( get_pos().get_2d(), pos_next_next );
+		fahrtrichtung = calc_set_richtung( get_pos(), koord3d(pos_next_next,0) );
 		if(old_dir!=fahrtrichtung) {
 			calc_bild();
 		}

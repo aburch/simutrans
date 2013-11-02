@@ -204,7 +204,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 			// a way goes here, and it is not marked (i.e. in the closed list)
 			grund_t* to;
 			if(  (ribi & ribi_t::nsow[r] & start_dir)!=0  // allowed dir (we can restrict the first step by start_dir)
-				&& koord_distance(start.get_2d(),gr->get_pos().get_2d()+koord::nsow[r])<max_depth	// not too far away
+				&& koord_distance(start, gr->get_pos() + koord::nsow[r])<max_depth	// not too far away
 				&& gr->get_neighbour(to, wegtyp, ribi_t::nsow[r])  // is connected
 				&& !marker.is_marked(to) // not already tested
 				&& fahr->ist_befahrbar(to)	// can be driven on
@@ -398,7 +398,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 				// if not there, then we could just take the last
 				uint8 current_dir;
 				if(tmp->parent!=NULL) {
-					current_dir = ribi_typ( tmp->parent->gr->get_pos().get_2d(), to->get_pos().get_2d() );
+					current_dir = ribi_typ( tmp->parent->gr->get_pos(), to->get_pos() );
 					if(tmp->dir!=current_dir) {
 						new_g += 3;
 						if(tmp->parent->dir!=tmp->dir  &&  tmp->parent->parent!=NULL) {
@@ -413,7 +413,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 
 				}
 				else {
-					current_dir = ribi_typ( gr->get_pos().get_2d(), to->get_pos().get_2d() );
+					current_dir = ribi_typ( gr->get_pos(), to->get_pos());
 				}
 
 				const uint32 new_f = new_g + calc_distance( to->get_pos(), ziel );
@@ -520,8 +520,8 @@ DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x
 			if(  max_len>0  ) {
 
 				const uint32 max_n = route.get_count()-1;
-				const koord zv = route[max_n].get_2d() - route[max_n - 1].get_2d();
-				const int ribi = ribi_typ(zv);//fahr->get_ribi(welt->lookup(start));
+				const koord3d zv = route[max_n] - route[max_n - 1];
+				const int ribi = ribi_typ(zv);
 
 				grund_t *gr = welt->lookup(start);
 				const waytype_t wegtyp=fahr->get_waytype();

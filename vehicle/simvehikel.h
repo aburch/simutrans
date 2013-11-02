@@ -136,7 +136,7 @@ public:
 	virtual void rotate90();
 
 	static ribi_t::ribi calc_richtung(koord start, koord ende);
-	ribi_t::ribi calc_set_richtung(koord start, koord ende);
+	ribi_t::ribi calc_set_richtung(const koord3d& start, const koord3d& ende);
 
 	ribi_t::ribi get_fahrtrichtung() const {return fahrtrichtung;}
 
