@@ -117,7 +117,6 @@ void convoi_detail_t::zeichnen(koord pos, koord gr)
 		display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, MONEY_PLUS, true );
 		offset_y += LINESPACE;
 
-		money_to_string( number, cnv->calc_restwert() / 100.0 );
 		buf.clear();
 		buf.printf(translator::translate("Bonusspeed: %i km/h"), cnv->get_speedbonus_kmh() );
 		display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, COL_BLACK, true );
@@ -303,6 +302,13 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 				display_proportional_clip( pos.x+w+offset.x+len, pos.y+offset.y+total_height+extra_y, number, ALIGN_LEFT, price>0?MONEY_PLUS:MONEY_MINUS, true );
 				extra_y += LINESPACE;
 
+				if(  int cost = v->get_besch()->get_maintenance()  ) {
+					len = 5+display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, translator::translate("Maintenance"), ALIGN_LEFT, COL_BLACK, true );
+					money_to_string( number, cost/(100.0) );
+					display_proportional_clip( pos.x+w+offset.x+len, pos.y+offset.y+total_height+extra_y, number, ALIGN_LEFT, MONEY_MINUS, true );
+					extra_y += LINESPACE;
+				}
+
 				ware_besch_t const& g    = *v->get_fracht_typ();
 				char const*  const  name = translator::translate(g.get_catg() == 0 ? g.get_name() : g.get_catg_name());
 				freight_info.printf("%u/%u%s %s\n", v->get_fracht_menge(), v->get_fracht_max(), translator::translate(v->get_fracht_mass()), name);
@@ -323,13 +329,22 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 				extra_y += returns*LINESPACE;
 			}
 			else {
-				// bonus stuff
-				int len = 5+display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, translator::translate("Max income:"), ALIGN_LEFT, COL_BLACK, true );
-				money_to_string( number, v->get_betriebskosten()/(-100.0) );
-				display_proportional_clip( pos.x+w+offset.x+len, pos.y+offset.y+total_height+extra_y, number, ALIGN_LEFT, v->get_betriebskosten()<=0?MONEY_PLUS:MONEY_MINUS, true );
+				// Non-freight (engine)
+				int cost = -v->get_betriebskosten();
+				int len = display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, translator::translate("Max income:"), ALIGN_LEFT, COL_BLACK, true );
+				money_to_string( number, cost/(100.0) );
+				display_proportional_clip( pos.x+w+offset.x+len, pos.y+offset.y+total_height+extra_y, number, ALIGN_LEFT, cost>=0?MONEY_PLUS:MONEY_MINUS, true );
 				extra_y += LINESPACE;
+				// Fixed costs
+				if(  int cost = v->get_besch()->get_maintenance()  ) {
+					len = 5+display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, translator::translate("Maintenance"), ALIGN_LEFT, COL_BLACK, true );
+					money_to_string( number, cost/(100.0) );
+					display_proportional_clip( pos.x+w+offset.x+len, pos.y+offset.y+total_height+extra_y, number, ALIGN_LEFT, MONEY_MINUS, true );
+					extra_y += LINESPACE;
+				}
 
 			}
+
 			//skip at least five lines
 			total_height += max(extra_y+LINESPACE,5*LINESPACE);
 		}
