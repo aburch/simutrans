@@ -724,9 +724,12 @@ void vehikel_t::set_convoi(convoi_t *c)
 uint16 vehikel_t::unload_freight(halthandle_t halt)
 {
 	uint16 sum_menge = 0, sum_delivered = 0, index = 0;
+	if(  !halt.is_bound()  ) {
+		return 0;
+	}
 
-	if(halt->is_enabled( get_fracht_typ() )) {
-		if (!fracht.empty()) {
+	if(  halt->is_enabled( get_fracht_typ() )  ) {
+		if(  !fracht.empty()  ) {
 
 			for(  slist_tpl<ware_t>::iterator i = fracht.begin(), end = fracht.end();  i != end;  ) {
 				const ware_t& tmp = *i;
@@ -735,12 +738,13 @@ uint16 vehikel_t::unload_freight(halthandle_t halt)
 				halthandle_t via_halt = tmp.get_zwischenziel();
 
 				// check if destination or transfer is still valid
-				if(!end_halt.is_bound() || !via_halt.is_bound()) {
+				if(  !end_halt.is_bound() || !via_halt.is_bound()  ) {
 					DBG_MESSAGE("vehikel_t::unload_freight()", "destination of %d %s is no longer reachable",tmp.menge,translator::translate(tmp.get_name()));
 					total_freight -= tmp.menge;
+					sum_weight -= tmp.menge * tmp.get_besch()->get_weight_per_unit();
 					i = fracht.erase( i );
 				}
-				else if(end_halt==halt || via_halt==halt) {
+				else if(  end_halt == halt || via_halt == halt  ) {
 
 					//		    printf("Liefere %d %s nach %s via %s an %s\n",
 					//                           tmp->menge,
@@ -753,6 +757,7 @@ uint16 vehikel_t::unload_freight(halthandle_t halt)
 					int menge = halt->liefere_an(tmp);
 					sum_menge += menge;
 					total_freight -= menge;
+					sum_weight -= tmp.menge * tmp.get_besch()->get_weight_per_unit();
 
 					index = tmp.get_index();
 
@@ -767,54 +772,61 @@ uint16 vehikel_t::unload_freight(halthandle_t halt)
 				}
 			}
 		}
-		INT_CHECK("vehikel_t::unload_freight");
 	}
 
-	if (sum_menge) {
+	if(  sum_menge  ) {
 		// book transported goods
 		get_besitzer()->book_transported( sum_menge, get_besch()->get_waytype(), index );
 
-		if (sum_delivered) {
+		if(  sum_delivered  ) {
 			// book delivered goods to destination
 			get_besitzer()->book_delivered( sum_delivered, get_besch()->get_waytype(), index );
 		}
-	}
 
+		// add delivered goods to statistics
+		cnv->book( sum_menge, convoi_t::CONVOI_TRANSPORTED_GOODS );
+
+		// add delivered goods to halt's statistics
+		halt->book( sum_menge, HALT_ARRIVED );
+	}
 	return sum_menge;
 }
 
 
 /**
  * Load freight from halt
- * @return loading successful?
+ * @return amount loaded
  * @author Hj. Malthaner
  */
-bool vehikel_t::load_freight(halthandle_t halt)
+uint16 vehikel_t::load_freight(halthandle_t halt)
 {
-	if (!halt->gibt_ab(besch->get_ware()))
-		return false;
+	if(  !halt.is_bound()  ||  !halt->gibt_ab(besch->get_ware())  ) {
+		return 0;
+	}
 
+	uint32 loaded_started_at = 0;
 	if (total_freight < besch->get_zuladung()) {
 		const uint16 hinein = besch->get_zuladung() - total_freight;
 
 		slist_tpl<ware_t> zuladung;
-		halt->hole_ab(zuladung, besch->get_ware(), hinein, cnv->get_schedule(), cnv->get_besitzer());
+		halt->hole_ab( zuladung, besch->get_ware(), hinein, cnv->get_schedule(), cnv->get_besitzer() );
 
-		if(zuladung.empty()) {
+		if(  zuladung.empty()  ) {
 			// now empty, but usually, we can get it here ...
-			return true;
+			return 0;
 		}
 
-		for (slist_tpl<ware_t>::iterator iter_z = zuladung.begin(); iter_z != zuladung.end();) {
+		for(  slist_tpl<ware_t>::iterator iter_z = zuladung.begin();  iter_z != zuladung.end();  ) {
 			ware_t &ware = *iter_z;
 
 			total_freight += ware.menge;
+			sum_weight += ware.menge * ware.get_besch()->get_weight_per_unit();
 
 			// could this be joined with existing freight?
-			FOR(slist_tpl<ware_t>, & tmp, fracht) {
+			FOR( slist_tpl<ware_t>, & tmp, fracht ) {
 				// for pax: join according next stop
 				// for all others we *must* use target coordinates
-				if(ware.same_destination(tmp)) {
+				if(  ware.same_destination(tmp)  ) {
 					tmp.menge += ware.menge;
 					ware.menge = 0;
 					break;
@@ -822,7 +834,7 @@ bool vehikel_t::load_freight(halthandle_t halt)
 			}
 
 			// if != 0 we could not join it to existing => load it
-			if(ware.menge != 0) {
+			if(  ware.menge != 0  ) {
 				++iter_z;
 				// we add list directly
 			}
@@ -831,13 +843,11 @@ bool vehikel_t::load_freight(halthandle_t halt)
 			}
 		}
 
-		if(!zuladung.empty()) {
+		if(  !zuladung.empty()  ) {
 			fracht.append_list(zuladung);
 		}
-
-		INT_CHECK("simvehikel 876");
 	}
-	return true;
+	return total_freight-loaded_started_at;
 }
 
 
@@ -1370,39 +1380,6 @@ void vehikel_t::loesche_fracht()
 
 
 /**
- * load vehicle at stop
- */
-bool vehikel_t::beladen(halthandle_t halt)
-{
-	bool ok = true;
-	if(halt.is_bound()) {
-		ok = load_freight(halt);
-	}
-	sum_weight =  get_fracht_gewicht() + besch->get_gewicht();
-	calc_bild();
-	return ok;
-}
-
-
-/**
- * unload vehicles in stops
- * @author Hj. Malthaner
- */
-bool vehikel_t::entladen(halthandle_t halt)
-{
-	uint16 menge = unload_freight(halt);
-	if(menge>0) {
-		// add delivered goods to statistics
-		cnv->book(menge, convoi_t::CONVOI_TRANSPORTED_GOODS);
-		// add delivered goods to halt's statistics
-		halt->book(menge, HALT_ARRIVED);
-		return true;
-	}
-	return false;
-}
-
-
-/**
  * Determine travel direction
  * @author Hj. Malthaner
  */
@@ -1645,6 +1622,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 		ist_erstes = ist_letztes = false;	// dummy, will be set by convoi afterwards
 		if(besch) {
 			calc_bild();
+
 			// full weight after loading
 			sum_weight =  get_fracht_gewicht() + besch->get_gewicht();
 		}

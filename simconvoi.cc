@@ -653,7 +653,7 @@ void convoi_t::add_running_cost( const weg_t *weg )
 void convoi_t::calc_acceleration(long delta_t)
 {
 	// Dwachs: only compute this if a vehicle in the convoi hopped
-	if (recalc_data) {
+	if(  recalc_data  ) {
 		// calculate total friction and lowest speed limit
 		speed_limit = min( min_top_speed, front()->get_speed_limit() );
 		sum_gesamtgewicht = front()->get_gesamtgewicht();
@@ -768,12 +768,10 @@ bool convoi_t::sync_step(long delta_t)
 {
 	// still have to wait before next action?
 	wait_lock -= delta_t;
-	if(wait_lock <= 0) {
-		wait_lock = 0;
-	}
-	else {
+	if(wait_lock > 0) {
 		return true;
 	}
+	wait_lock = 0;
 
 	switch(state) {
 		case INITIAL:
@@ -947,7 +945,7 @@ void convoi_t::suche_neue_route()
  */
 void convoi_t::step()
 {
-	if(wait_lock!=0) {
+	if(  wait_lock > 0  ) {
 		return;
 	}
 
@@ -1128,14 +1126,14 @@ void convoi_t::step()
 		case INITIAL:
 		case FAHRPLANEINGABE:
 		case NO_ROUTE:
-			wait_lock = 25000;
+			wait_lock = max( wait_lock, 25000 );
 			break;
 
 		// action soon needed
 		case ROUTING_1:
 		case CAN_START:
 		case WAITING_FOR_CLEARANCE:
-			wait_lock = 500;
+			wait_lock = max( wait_lock, 500 );
 			break;
 
 		// waiting for free way, not too heavy, not to slow
@@ -1300,7 +1298,7 @@ void convoi_t::start()
 			fahr[i]->set_driven();
 			restwert_delta += fahr[i]->calc_restwert();
 			fahr[i]->clear_flag( obj_t::not_on_map );
-			fahr[i]->beladen( halthandle_t() );
+			fahr[i]->load_freight( halthandle_t() );
 		}
 		fahr[0]->set_erstes( true );
 		fahr[anz_vehikel-1]->set_letztes( true );
@@ -2544,26 +2542,26 @@ bool convoi_t::pruefe_alle()
  */
 void convoi_t::laden()
 {
-	if(state == FAHRPLANEINGABE) {
+	if(  state == FAHRPLANEINGABE  ) {
 		return;
 	}
 
-	if(go_on_ticks==WAIT_INFINITE  &&  fpl->get_current_eintrag().waiting_time_shift>0) {
+	if(  go_on_ticks == WAIT_INFINITE  &&  fpl->get_current_eintrag().waiting_time_shift > 0  ) {
 		go_on_ticks = welt->get_zeit_ms() + (welt->ticks_per_world_month >> (16-fpl->get_current_eintrag().waiting_time_shift));
 	}
 
+	// just wait a little longer if this is a non-bound halt
+	wait_lock = (WTT_LOADING*2)+(self.get_id())%1024;
+
 	halthandle_t halt = haltestelle_t::get_halt(welt, fpl->get_current_eintrag().pos,besitzer_p);
 	// eigene haltestelle ?
-	if (halt.is_bound()) {
+	if(  halt.is_bound()  ) {
 		const spieler_t* owner = halt->get_besitzer();
 		if(  owner == get_besitzer()  ||  owner == welt->get_spieler(1)  ) {
 			// loading/unloading ...
 			halt->request_loading( self );
 		}
 	}
-
-	// just wait a little longer to get maximum load ...
-	wait_lock = (WTT_LOADING*2)+(self.get_id())%1024;
 }
 
 
@@ -2645,7 +2643,8 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 
 	// only load vehicles in station
 	// don't load when vehicle is being withdrawn
-	bool changed_loading_level = false;
+	bool changed_loading_level = false, total_loading_changed = false;
+	uint32 time = 0;	// time for loading/unloading
 	for(unsigned i=0; i<anz_vehikel; i++) {
 		vehikel_t* v = fahr[i];
 
@@ -2663,24 +2662,26 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 			v->last_stop_pos = v->get_pos();
 		}
 
-		changed_loading_level |= v->entladen(halt);
-		if(!no_load) {
+		uint16 amount = v->unload_freight(halt);
+		if(  !no_load  ) {
 			// load
-			changed_loading_level |= v->beladen(halt);
+			amount += v->load_freight(halt);
 		}
-		else {
-			// do not load anymore - but call beladen() to recalculate vehikel weight
-			v->beladen(halthandle_t());
+		if(  amount  ) {
+			time += (amount*v->get_besch()->get_loading_time())/v->get_fracht_max();
+			v->calc_bild();
+			changed_loading_level = true;
 		}
-
 	}
 	freight_info_resort |= changed_loading_level;
 	if(  changed_loading_level  ) {
 		halt->recalc_status();
 	}
 
-	// any loading went on?
-	calc_loading();
+	// any unloading/loading went on?
+	if(  changed_loading_level  ) {
+		calc_loading();
+	}
 	loading_limit = fpl->get_current_eintrag().ladegrad;
 
 	// update statistics of average speed
@@ -2721,8 +2722,10 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 		state = ROUTING_1;
 	}
 
+	INT_CHECK( "convoi_t::hat_gehalten" );
+
 	// at least wait the minimum time for loading
-	wait_lock = WTT_LOADING;
+	wait_lock = max( WTT_LOADING, time );
 }
 
 

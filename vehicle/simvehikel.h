@@ -202,20 +202,6 @@ private:
 	 */
 	virtual void calc_friction(const grund_t *gr);
 
-	/**
-	 * Unload freight to halt
-	 * @return sum of unloaded goods
-	 * @author Hj. Malthaner
-	 */
-	uint16 unload_freight(halthandle_t halt);
-
-	/**
-	 * Load freight from halt
-	 * @return loading successful?
-	 * @author Hj. Malthaner
-	 */
-	bool load_freight(halthandle_t halt);
-
 protected:
 	virtual grund_t* hop();
 
@@ -257,11 +243,11 @@ protected:
 	bool check_for_finish:1;		// true, if on the last tile
 	bool has_driven:1;
 
-	virtual void calc_bild();
-
 	virtual bool ist_befahrbar(const grund_t* ) const {return false;}
 
 public:
+	virtual void calc_bild();
+
 	// the coordinates, where the vehicle was loaded the last time
 	koord3d last_stop_pos;
 
@@ -408,17 +394,6 @@ public:
 	*/
 	sint64  calc_gewinn(koord start, koord end) const;
 
-	/**
-	* unload vehicles in stops
-	* @author Hj. Malthaner
-	*/
-	bool entladen(halthandle_t halt);
-
-	/**
-	* load vehicle at stop
-	*/
-	bool beladen(halthandle_t halt);
-
 	// sets or query begin and end of convois
 	void set_erstes(bool janein) {ist_erstes = janein;}
 	bool is_first() {return ist_erstes;}
@@ -432,6 +407,18 @@ public:
 	virtual void set_convoi(convoi_t *c);
 
 	/**
+	 * Unload freight to halt
+	 * @return sum of unloaded goods
+	 */
+	uint16 unload_freight(halthandle_t halt);
+
+	/**
+	 * Load freight from halt
+	 * @return amount loaded
+	 */
+	uint16 load_freight(halthandle_t halt);
+
+	/**
 	* Remove freight that no longer can reach it's destination
 	* i.e. because of a changed schedule
 	* @author Hj. Malthaner
@@ -442,9 +429,9 @@ public:
 	* Generate a matching schedule for the vehicle type
 	* @author Hj. Malthaner
 	*/
-	virtual schedule_t * erzeuge_neuen_fahrplan() const = 0;
+	virtual schedule_t *erzeuge_neuen_fahrplan() const = 0;
 
-	const char * ist_entfernbar(const spieler_t *sp);
+	const char *ist_entfernbar(const spieler_t *sp);
 
 	void rdwr(loadsave_t *file);
 	virtual void rdwr_from_convoi(loadsave_t *file);
