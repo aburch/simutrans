@@ -11,6 +11,8 @@
 	ADD: faster creating of hill
 	ADD: matching pak is loaded automatically when no -objects is given with -load on commandline
 	ADD: dragging map also with left mousebutton when the query tool is selected
+	ADD: display also fixed cost in convoi details
+	ADD: enforce loading time (time will be added per full vehciles, default 1s)
 
 
 Release of 112.3: (r6520 on 17-May-2013):
