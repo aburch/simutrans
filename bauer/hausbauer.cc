@@ -398,15 +398,14 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb )
 						}
 						else if(  new_hgt <= welt->get_water_hgt(newk)  &&  new_slope == hang_t::flach  ) {
 							welt->access(newk)->kartenboden_setzen( new wasser_t( welt, koord3d( newk, new_hgt ) ) );
-							welt->calc_climate( gr->get_pos().get_2d(), true );
+							welt->calc_climate( newk, true );
 						}
 						else {
 							if(  gr->get_grund_hang() == new_slope  ) {
 								ground_recalc = false;
 							}
 							welt->access(newk)->kartenboden_setzen( new boden_t( welt, koord3d( newk, new_hgt ), new_slope ) );
-							welt->calc_climate( gr->get_pos().get_2d(), true );
-
+							welt->calc_climate( newk, true );
 						}
 						// there might be walls from foundations left => thus some tiles may needs to be redraw
 						if(ground_recalc) {
