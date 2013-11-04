@@ -149,9 +149,9 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	uint16 const produktivitaet = obj.get_int("productivity",        10);
 	uint16 const bereich        = obj.get_int("range",               10);
 	uint16 const gewichtung     = obj.get_int("distributionweight",   1);
-	uint8  const kennfarbe      = obj.get_int("mapcolor",           255);
+	uint8  const kennfarbe      = obj.get_color("mapcolor", 255);
 	if (kennfarbe == 255) {
-		fprintf( stderr, "ERROR:\nmissing an indentification color!\n");
+		dbg->fatal( "Factory", "Missing an indentification color! (mapcolor)");
 		exit(1);
 	}
 	uint16 const pax_level = obj.get_int("pax_level", 12);
@@ -176,7 +176,8 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	building_writer_t::instance()->write_obj(fp, node, obj);
 	if (*obj.get("smoke")) {
 		factory_smoke_writer_t::instance()->write_obj(fp, node, obj);
-	} else {
+	}
+	else {
 		xref_writer_t::instance()->write_obj(fp, node, obj_smoke, "", false);
 	}
 

@@ -13,13 +13,15 @@
 #include <syslog.h>
 #endif //SYSLOG
 
+#define NO_LOG_EXTERNALS
+
 #include "log.h"
 #include "../simdebug.h"
 #include "../simsys.h"
 
 
 #ifdef MAKEOBJ
-#define debuglevel (3)
+//debuglevel is global variable
 #else
 #ifdef NETTOOL
 #define debuglevel (0)
@@ -263,19 +265,19 @@ void log_t::fatal(const char *who, const char *format, ...)
 	va_start(argptr, format);
 
 	static char formatbuffer[512];
-	sprintf( formatbuffer, "FATAL ERROR: %s - %s\nAborting program execution ...\n\nFor help with this error or to file a bug report please see the Simutrans forum:\nhttp://forum.simutrans.com\n", who, format );
+	sprintf( formatbuffer, "FATAL ERROR: %s - %s\nAborting program execution ...\n\nFor help with this error or to file a bug report please see the Simutrans forum at\nhttp://forum.simutrans.com\n", who, format );
 
 	static char buffer[8192];
 	int n = vsprintf( buffer, formatbuffer, argptr );
 
-	if (  log  ) {
+	if(  log  ) {
 		fputs( buffer, log );
 		if (  force_flush  ) {
 			fflush( log );
 		}
 	}
 
-	if (  tee  ) {
+	if(  tee  &&  log!=tee  ) {
 		fputs( buffer, tee );
 	}
 
@@ -291,7 +293,9 @@ void log_t::fatal(const char *who, const char *format, ...)
 
 	va_end(argptr);
 
-#if defined MAKEOBJ  ||  defined NETTOOL
+#if defined MAKEOBJ
+	exit(1);
+#elif defined NETTOOL
 	// no display available
 	puts( buffer );
 #else
@@ -340,7 +344,6 @@ void log_t::fatal(const char *who, const char *format, ...)
 	}
 #endif
 #endif
-
 	abort();
 }
 

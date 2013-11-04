@@ -1,15 +1,15 @@
-#include <string>
-#include <string.h>
 #include <stdlib.h>
-#include "../../utils/dr_rdpng.h"
-#include "../bild_besch.h"
-#include "obj_node.h"
-#include "root_writer.h"
-#include "obj_pak_exception.h"
-#include "image_writer.h"
-#include "../../macros.h"
-
 #include <stdio.h>
+#include <string>
+#include "image_writer.h"
+#include "root_writer.h"
+#include "obj_node.h"
+#include "obj_pak_exception.h"
+#include "../bild_besch.h"
+#include "../../macros.h"
+#include "../../utils/dr_rdpng.h"
+#include "../../utils/simstring.h"
+#include "../../simdebug.h"
 
 using std::string;
 
@@ -30,7 +30,6 @@ unsigned image_writer_t::width;
 unsigned image_writer_t::height;
 unsigned char* image_writer_t::block = NULL;
 int image_writer_t::img_size = 64;
-
 
 
 void image_writer_t::dump_special_histogramm()
@@ -196,25 +195,24 @@ bool image_writer_t::block_laden(const char* fname)
 /* the syntax for image the string is
  *   "-" empty image
  * [> ]imagefilename_without_extension[[[[.row].col],xoffset],yoffset]
- *  leading "> " maen an unzoomable image
- *  after the dots also spaces are allowed
+ *  leading "> " set teh flag for an unzoomable image
+ *  after the dots also spaces and comments are allowed
  */
-void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, string an_imagekey)
+void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, string an_imagekey, uint32 index)
 {
 	bild_t bild;
 	dimension dim;
 	uint16 *pixdata = NULL;
-	string imagekey;
+	string imagekey = trim(an_imagekey); // // Max Kielland trim the key
 
 	MEMZERO(bild);
 
 	// Hajo: if first char is a '>' then this image is not zoomeable
-	if(  an_imagekey.size() > 2  &&  an_imagekey[0] == '>'  ) {
-		imagekey = an_imagekey.substr(2, std::string::npos);
+	if(  imagekey[0] == '>'  ) {
+		imagekey = trim(imagekey.substr(1));
 		bild.zoomable = false;
 	}
 	else {
-		imagekey = an_imagekey;
 		bild.zoomable = true;
 	}
 
@@ -299,6 +297,11 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, string an_imagek
 			pixdata = encode_image(col, row, &dim, &len);
 			bild.len = len;
 		}
+
+		dbg->message( "", "image[%3u] =%-30s %-20s %5u %5u %5u %5u %5u %6u %4s", index, an_imagekey.c_str(), imagekey.c_str(), col, row, bild.x, bild.y, bild.w, bild.h, (bild.zoomable) ? "yes" : "no" );
+	}
+	else {
+		dbg->message( "", "image[%3u] =%-30s %-20s %5u %5u %5u %5u %5u %6u %4s", index, an_imagekey.c_str(), imagekey.c_str(), 0, 0, bild.x, bild.y, bild.w, bild.h, (bild.zoomable) ? "yes" : "no" );
 	}
 
 #ifdef IMG_VERSION0

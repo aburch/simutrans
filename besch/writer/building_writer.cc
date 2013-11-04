@@ -300,11 +300,11 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 									fflush(NULL);
 #endif
 									break;
-								} else {
+								}
+								else {
 									// no higher front images
 									if (h > 0 && pos == 0) {
-										printf("WARNING: frontimage height MUST be one tile only!\n");
-										fflush(NULL);
+										dbg->error( "Writing building",  "Frontimage height MUST be one tile only!");
 										break;
 									}
 								}

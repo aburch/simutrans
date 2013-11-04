@@ -23,9 +23,9 @@ class obj_writer_t {
 		obj_writer_t() { /* Beware: Cannot register here! */ }
 
 		void register_writer(bool main_obj);
-		void dump_nodes(FILE* infp, int level);
+		void dump_nodes(FILE* infp, int level, uint16 index = 0);
 		void list_nodes(FILE* infp);
-		void skip_nodes(FILE* fp);
+		size_t skip_nodes(FILE* fp);
 		void show_capabilites();
 
 		std::string name_from_next_node(FILE* fp) const;

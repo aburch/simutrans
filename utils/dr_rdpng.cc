@@ -5,6 +5,7 @@
 #include <stdlib.h>
 
 #include "../simmem.h"
+#include "../simdebug.h"
 #include "dr_rdpng.h"
 
 static std::string filename_;
@@ -24,20 +25,20 @@ static void read_png(unsigned char** block, unsigned* width, unsigned* height, F
 
 	png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING,NULL,NULL,NULL);
 	if (png_ptr == NULL) {
-		printf("read_png: Could not create read struct.\n");
+		dbg->error( "while loading PNG", "Could not create read struct in %s.", filename_.c_str() );
 		exit(1);
 	}
 
 	info_ptr = png_create_info_struct(png_ptr);
 	if (info_ptr == NULL) {
-		printf("read_png: Could not create info struct.\n");
+		dbg->error( "while loading PNG", "Could not create info struct in %s.", filename_.c_str() );
 		png_destroy_read_struct(&png_ptr, (png_infopp)NULL, (png_infopp)NULL);
 		exit(1);
 	}
 
 #ifdef PNG_SETJMP_SUPPORTED
 	if(  setjmp(png_jmpbuf(png_ptr)  )) {
-		printf("read_png: fatal error.\n");
+		dbg->error( "while loading PNG", "Fatal error in %s.", filename_.c_str() );
 		png_destroy_read_struct(&png_ptr, &info_ptr, (png_info**)0);
 		exit(1);
 	}
@@ -57,7 +58,7 @@ static void read_png(unsigned char** block, unsigned* width, unsigned* height, F
 	*height = heightpu32;
 
 	if (*height % base_img_size != 0 || *width % base_img_size != 0) {
-		printf("read_png: Invalid image size in %s.\n",filename_.c_str());
+		dbg->fatal( "while loading PNG", "Invalid image size in %s.", filename_.c_str() );
 		exit(1);
 	}
 
@@ -76,7 +77,7 @@ static void read_png(unsigned char** block, unsigned* width, unsigned* height, F
 	png_set_strip_alpha(png_ptr);
 
 	if(  (color_type & PNG_COLOR_MASK_ALPHA) == PNG_COLOR_MASK_ALPHA  ) {
-		printf("WARNING: ignoring alpha channel for %s\n",filename_.c_str());
+		dbg->warning( "while loading PNG", "ignoring alpha channel for %s", filename_.c_str() );
 		// author note: It might be that this won't catch files with format
 		// palette + transparency, which is a really rare but possible combination.
 	}
@@ -129,8 +130,9 @@ bool load_block(unsigned char** block, unsigned* width, unsigned* height, const 
 		read_png(block, width, height, file, base_img_size);
 		fclose(file);
 		return true;
-	} else {
-		perror("Error:");
+	}
+	else {
+		dbg->warning( "while loading PNG", "%s: %s", fname, strerror(errno) );
 		return false;
 	}
 }
@@ -165,7 +167,7 @@ int write_png( const char *file_name, unsigned char *data, int width, int height
 
 #ifdef PNG_SETJMP_SUPPORTED
 	if(  setjmp( png_jmpbuf(png_ptr) )  ) {
-		printf("write_png: fatal error.\n");
+		dbg->error( "write_png", "fatal error");
 		png_destroy_write_struct(&png_ptr, &info_ptr);
 		exit(1);
 	}
@@ -193,7 +195,7 @@ int write_png( const char *file_name, unsigned char *data, int width, int height
 		}
 	}
 	else {
-		puts("No implemented yet!\n");
+		dbg->fatal( "write_png", "32 bit not supported!" );
 		exit(0);
 	}
 

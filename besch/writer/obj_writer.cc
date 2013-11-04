@@ -1,3 +1,4 @@
+#include <locale.h>
 #include <string>
 #include "../../utils/simstring.h"
 #include "../../dataobj/tabfile.h"
@@ -50,22 +51,23 @@ void obj_writer_t::write_head(FILE* fp, obj_node_t& node, tabfileobj_t& obj)
 }
 
 
-void obj_writer_t::dump_nodes(FILE* infp, int level)
+void obj_writer_t::dump_nodes(FILE* infp, int level, uint16 index)
 {
 	obj_node_info_t node;
+	uint16 child = 0;
 
 	obj_node_t::read_node( infp, node );
 	long next_pos = ftell(infp) + node.size;
 
 	obj_writer_t* writer = writer_by_type->get((obj_type)node.type);
 	if (writer) {
-		printf("%*s%4.4s-node (%s)", 3 * level, " ", (const char*)&node.type, writer->get_type_name());
+		printf("%*s%03u %4.4s-node (%s)", 3 * level, " ", index, (const char*)&node.type, writer->get_type_name());
 		writer->dump_node(infp, node);
 		printf("\n");
 	}
 	fseek(infp, next_pos, SEEK_SET);
 	for (int i = 0; i < node.children; i++) {
-		dump_nodes(infp, level + 1);
+		dump_nodes(infp, level + 1, child++);
 	}
 }
 
@@ -73,6 +75,7 @@ void obj_writer_t::dump_nodes(FILE* infp, int level)
 void obj_writer_t::list_nodes(FILE* infp)
 {
 	obj_node_info_t node;
+	size_t          size = 0;
 
 	obj_node_t::read_node( infp, node );
 	long next_pos = ftell(infp) + node.size;
@@ -80,14 +83,16 @@ void obj_writer_t::list_nodes(FILE* infp)
 	obj_writer_t* writer = writer_by_type->get((obj_type)node.type);
 	if (writer) {
 		fseek(infp, node.size, SEEK_CUR);
-		printf("%-16s %s\n", writer->get_type_name(), (writer->get_node_name(infp)).c_str());
-	} else {
-		printf("(unknown %4.4s)\n", (const char*)&node.type);
+		printf("%-16s  %-30s  %5u  ", writer->get_type_name(), (writer->get_node_name(infp)).c_str(), node.children);
+	}
+	else {
+		printf("(unknown %4.4s)    %30.30s  %5.5s  ", (const char*)&node.type, " ", " ");
 	}
 	fseek(infp, next_pos, SEEK_SET);
 	for (int i = 0; i < node.children; i++) {
-		skip_nodes(infp);
+		size += skip_nodes(infp);
 	}
+	printf("%10lu\n",size);
 }
 
 
@@ -131,21 +136,23 @@ string obj_writer_t::name_from_next_node(FILE* fp) const
 }
 
 
-void obj_writer_t::skip_nodes(FILE* fp)
+size_t obj_writer_t::skip_nodes(FILE* fp)
 {
+	size_t          size = 0;
 	obj_node_info_t node;
 
 	obj_node_t::read_node( fp, node );
 	fseek(fp, node.size, SEEK_CUR);
 	for (int i = 0; i < node.children; i++) {
-		skip_nodes(fp);
+		size += skip_nodes(fp);
 	}
+	return size+node.size;
 }
 
 
 void obj_writer_t::dump_node(FILE* /*infp*/, const obj_node_info_t& node)
 {
-	printf(" %d bytes", node.size);
+	printf(" %5lu bytes", node.size);
 }
 
 
