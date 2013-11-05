@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <string>
 #include "image_writer.h"
 #include "root_writer.h"
@@ -11,7 +12,6 @@
 #include "../../utils/simstring.h"
 #include "../../simdebug.h"
 
-using std::string;
 
 struct dimension
 {
@@ -24,7 +24,7 @@ struct dimension
 static int special_hist[SPECIAL];
 
 
-string image_writer_t::last_img_file;
+std::string image_writer_t::last_img_file;
 
 unsigned image_writer_t::width;
 unsigned image_writer_t::height;
@@ -198,28 +198,29 @@ bool image_writer_t::block_laden(const char* fname)
  *  leading "> " set teh flag for an unzoomable image
  *  after the dots also spaces and comments are allowed
  */
-void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, string an_imagekey, uint32 index)
+void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, std::string an_imagekey, uint32 index)
 {
 	bild_t bild;
 	dimension dim;
 	uint16 *pixdata = NULL;
-	string imagekey = trim(an_imagekey); // // Max Kielland trim the key
-
-	MEMZERO(bild);
 
 	// Hajo: if first char is a '>' then this image is not zoomeable
-	if(  imagekey[0] == '>'  ) {
-		imagekey = trim(imagekey.substr(1));
+	if(  an_imagekey[0] == '>'  ) {
+		an_imagekey = an_imagekey.substr(1);
 		bild.zoomable = false;
 	}
 	else {
 		bild.zoomable = true;
 	}
+	std::string imagekey = trim(an_imagekey);
+
+	MEMZERO(bild);
 
 	if(  imagekey != "-"  &&  imagekey != ""  ) {
+
 		// divide key in filename and image number
 		int row = -1, col = -1;
-		string numkey;
+		std::string numkey;
 
 		int j = imagekey.rfind('/');
 		if(  j == -1  ) {
