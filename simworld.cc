@@ -2749,7 +2749,7 @@ void karte_t::prepare_lower(terraformer_t& digger, sint16 x, sint16 y, sint8 hsw
 		digger.add_lower_node( x + 1, y - 1, hne, hne + max_hdiff, hne + max_hdiff, hne + max_hdiff);
 	}
 	// n
-	if (h0_nw > hnw) {
+	if (h0_nw > hnw  ||  h0_ne > hne) {
 		const sint8 hn = min( hnw, hne ) + max_hdiff;
 		digger.add_lower_node( x, y - 1, hnw, hne, hn, hn);
 	}
