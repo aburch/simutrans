@@ -361,18 +361,20 @@ void planquadrat_t::abgesenkt(karte_t *welt)
 		gr->obj_loesche_alle(NULL);
 		sint8 max_hgt = gr->get_hoehe() + (slope != 0 ? (slope & 7 ? 1 : 2) : 0);
 
-		if(  max_hgt <= welt->get_water_hgt( gr->get_pos().get_2d() )  &&  gr->get_typ() != grund_t::wasser  ) {
-			kartenboden_setzen(new wasser_t(welt, gr->get_pos()) );
+		koord k(gr->get_pos().get_2d());
+		if(  max_hgt <= welt->get_water_hgt( k )  &&  gr->get_typ() != grund_t::wasser  ) {
+			gr = new wasser_t(welt, gr->get_pos());
+			kartenboden_setzen( gr );
 			// recalc water ribis of neighbors
 			for(int r=0; r<4; r++) {
-				grund_t *gr2 = welt->lookup_kartenboden(gr->get_pos().get_2d() + koord::nsow[r]);
+				grund_t *gr2 = welt->lookup_kartenboden(k + koord::nsow[r]);
 				if (gr2  &&  gr2->ist_wasser()) {
 					gr2->calc_bild();
 				}
 			}
 		}
 		else {
-			reliefkarte_t::get_karte()->calc_map_pixel(gr->get_pos().get_2d());
+			reliefkarte_t::get_karte()->calc_map_pixel(k);
 		}
 		gr->set_grund_hang( slope );
 	}
@@ -388,18 +390,20 @@ void planquadrat_t::angehoben(karte_t *welt)
 		gr->obj_loesche_alle(NULL);
 		sint8 max_hgt = gr->get_hoehe() + (slope != 0 ? (slope & 7 ? 1 : 2) : 0);
 
-		if(  max_hgt > welt->get_water_hgt( gr->get_pos().get_2d() )  &&  gr->get_typ() == grund_t::wasser  ) {
-			kartenboden_setzen(new boden_t(welt, gr->get_pos(), slope ) );
+		koord k(gr->get_pos().get_2d());
+		if(  max_hgt > welt->get_water_hgt( k )  &&  gr->get_typ() == grund_t::wasser  ) {
+			gr = new boden_t(welt, gr->get_pos(), slope );
+			kartenboden_setzen( gr );
 			// recalc water ribis
 			for(int r=0; r<4; r++) {
-				grund_t *gr2 = welt->lookup_kartenboden(gr->get_pos().get_2d() + koord::nsow[r]);
+				grund_t *gr2 = welt->lookup_kartenboden(k + koord::nsow[r]);
 				if (gr2  &&  gr2->ist_wasser()) {
 					gr2->calc_bild();
 				}
 			}
 		}
 		else {
-			reliefkarte_t::get_karte()->calc_map_pixel(gr->get_pos().get_2d());
+			reliefkarte_t::get_karte()->calc_map_pixel(k);
 		}
 	}
 }
