@@ -2776,7 +2776,7 @@ const char* karte_t::can_lower_to(const spieler_t* sp, sint16 x, sint16 y, sint8
 	// check if need to lower water height for higher neighbouring tiles
 	for(  sint16 i = 0 ;  i < 8 ;  i++  ) {
 		const koord neighbour = koord( x, y ) + koord::neighbours[i];
-		if(  is_within_grid_limits(neighbour)  &&  get_water_hgt_nocheck(neighbour) > hneu  ) {
+		if(  is_within_limits(neighbour)  &&  get_water_hgt_nocheck(neighbour) > hneu  ) {
 			if (!is_plan_height_changeable( neighbour.x, neighbour.y )) {
 				return "";
 			}
