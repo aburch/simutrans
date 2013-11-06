@@ -3,6 +3,7 @@
 #include <png.h>
 #include <setjmp.h>
 #include <stdlib.h>
+#include <errno.h>
 
 #include "../simmem.h"
 #include "../simdebug.h"
