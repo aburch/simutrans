@@ -239,22 +239,30 @@ const kreuzung_besch_t *crossing_logic_t::get_crossing(const waytype_t ns, const
 	const waytype_t way0 = ns <  ow ? ns : ow;
 	const waytype_t way1 = ns >= ow ? ns : ow;
 	const kreuzung_besch_t *best = NULL;
-	if(way0<8  &&  way1<9  &&  way0!=way1) {
-		uint8 index = way0 * 9 + way1 - ((way0+2)*(way0+1))/2;
-		FOR(minivec_tpl<kreuzung_besch_t const*>, const i, can_cross_array[index]) {
-			if (!i->is_available(timeline_year_month)) continue;
+	// index 8 is narrowgauge, only air_wt and powerline_wt have higher indexes
+	if(  way0 <= 8  &&  way1 <= 8  &&  way0 != way1  ) {
+
+		const uint8 index = way0 * 9 + way1 - ((way0+2)*(way0+1))/2;
+		FOR(  minivec_tpl<kreuzung_besch_t const*>,  const i,  can_cross_array[index]  ) {
+			if(  !i->is_available(timeline_year_month)  ) {
+				continue;
+			}
 			// better matching speed => take this
-			if (best) {
+			if(  best  ) {
 				// match maxspeed of first way
-				uint8  const way0_nr = way0 == ow;
+				uint8  const way0_nr = (way0 == ow);
 				sint32 const imax0   =    i->get_maxspeed(way0_nr);
 				sint32 const bmax0   = best->get_maxspeed(way0_nr);
-				if ((imax0 < way_0_speed || bmax0 < imax0) && (way_0_speed < bmax0 || imax0 < bmax0)) continue;
+				if(  (imax0 < way_0_speed || bmax0 < imax0)  &&  (way_0_speed < bmax0  ||  imax0 < bmax0)  ) {
+					continue;
+				}
 				// match maxspeed of second way
-				uint8  const way1_nr = way1 == ow;
+				uint8  const way1_nr = (way1 == ow);
 				sint32 const imax1   =    i->get_maxspeed(way1_nr);
 				sint32 const bmax1   = best->get_maxspeed(way1_nr);
-				if ((imax1 < way_1_speed || bmax1 < imax1) && (way_1_speed < bmax1 || imax1 < bmax1)) continue;
+				if(  (imax1 < way_1_speed  ||  bmax1 < imax1)  &&  (way_1_speed < bmax1  ||  imax1 < bmax1)  ) {
+					continue;
+				}
 			}
 			best = i;
 		}
@@ -268,7 +276,7 @@ const kreuzung_besch_t *crossing_logic_t::get_crossing(const waytype_t ns, const
  */
 bool have_crossings_same_wt(const kreuzung_besch_t *c0, const kreuzung_besch_t *c1)
 {
-	return c0->get_waytype(0)==c1->get_waytype(0)  &&  c0->get_waytype(1)==c1->get_waytype(1);
+	return c0->get_waytype(0) == c1->get_waytype(0)  &&  c0->get_waytype(1) == c1->get_waytype(1);
 }
 
 

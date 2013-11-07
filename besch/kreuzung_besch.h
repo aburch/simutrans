@@ -40,12 +40,6 @@ private:
 	sint32 topspeed1;	// the topspeed depeds strongly on the crossing ...
 	sint32 topspeed2;
 
-	/**
-	 * Introduction/Retire date
-	 */
-	uint16 intro_date;
-	uint16 obsolete_date;
-
 public:
 	/* the imagelists are:
 	 * open_ns
