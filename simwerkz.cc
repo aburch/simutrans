@@ -3344,8 +3344,8 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 											}
 										}
 
-										// east
-										if(  x==testsize.x  ) {
+										// west
+										if(  x==-1  ) {
 											neighbour_halts[1] ++;
 											if(  best  ) {
 												best_halts[1] ++;
@@ -3360,8 +3360,8 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 											}
 										}
 
-										// west
-										if(  x==-1  ) {
+										// east
+										if(  x==testsize.x  ) {
 											neighbour_halts[3] ++;
 											if(  best  ) {
 												best_halts[3] ++;
