@@ -101,6 +101,7 @@ uint8 tabfileobj_t::get_color(const char *key, uint8 def)
 #ifdef MAKEOBJ
 	// don't have access to colour conversion code so just return default
 	return def;
+	(void)key;
 #else
 	const char *value = get(key);
 

@@ -152,7 +152,7 @@ size_t obj_writer_t::skip_nodes(FILE* fp)
 
 void obj_writer_t::dump_node(FILE* /*infp*/, const obj_node_info_t& node)
 {
-	printf(" %5lu bytes", node.size);
+	printf(" %5u bytes", node.size);
 }
 
 

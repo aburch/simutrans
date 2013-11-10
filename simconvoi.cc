@@ -2643,7 +2643,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 
 	// only load vehicles in station
 	// don't load when vehicle is being withdrawn
-	bool changed_loading_level = false, total_loading_changed = false;
+	bool changed_loading_level = false;
 	uint32 time = 0;	// time for loading/unloading
 	for(unsigned i=0; i<anz_vehikel; i++) {
 		vehikel_t* v = fahr[i];

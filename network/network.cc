@@ -184,11 +184,11 @@ SOCKET network_open_address(char const* cp, char const*& err)
 		}
 		if (  cp1  ) {
 			// IPv6 addresse net:[....]:port
-			tstrncpy( address, cp + 1, (size_t)(cp1 - cp) >= sizeof(address) ? sizeof(address) : cp1 - cp);
+			tstrncpy( address, cp + 1, cp1 - cp >= ptrdiff_t(sizeof(address)) ? sizeof(address) : cp1 - cp);
 		}
 		else {
 			// Copy the address part
-			tstrncpy( address, cp, cp2 - cp >= sizeof(address) ? sizeof(address) : cp2 - cp + 1 );
+			tstrncpy( address, cp, cp2 - cp >= ptrdiff_t(sizeof(address)) ? sizeof(address) : cp2 - cp + 1 );
 		}
 		cp = address;
 	}

@@ -58,7 +58,7 @@ bool themeselector_t::item_action(const char *fullpath)
 
 
 // Ok button was pressed
-bool themeselector_t::ok_action(const char *fullpath)
+bool themeselector_t::ok_action(const char *)
 {
 	undo = "";
 	return true;
@@ -67,7 +67,7 @@ bool themeselector_t::ok_action(const char *fullpath)
 
 
 // Cancel button was pressed
-bool themeselector_t::cancel_action(const char *fullpath)
+bool themeselector_t::cancel_action(const char *)
 {
 	item_action(undo.c_str());
 	undo = "";
