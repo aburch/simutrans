@@ -68,6 +68,7 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(karte_t *w, waytype_t wt, signed 
 	lb_vehicle_count(NULL, COL_BLACK, gui_label_t::right),
 	lb_veh_action("Fahrzeuge:", COL_BLACK, gui_label_t::left),
 	lb_livery_selector("Livery scheme:", COL_BLACK, gui_label_t::left),
+	lb_too_heavy_notice("too heavy", COL_BLACK, gui_label_t::left),
 	convoi_pics(depot_t::get_max_convoy_length(wt)),
 	convoi(&convoi_pics),
 	pas(&pas_vec),
@@ -194,9 +195,12 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(karte_t *w, waytype_t wt, signed 
 	waggons.set_player_nr(player_nr);
 	waggons.add_listener(this);
 
+	lb_too_heavy_notice.set_visible(false);
+
 	add_komponente(&tabs);
 	add_komponente(&div_tabbottom);
 	add_komponente(&lb_veh_action);
+	add_komponente(&lb_too_heavy_notice);
 	add_komponente(&lb_livery_selector);
 	add_komponente(&lb_vehicle_filter);
 
@@ -484,6 +488,7 @@ void gui_convoy_assembler_t::layout()
 
 	// header row
 
+	lb_too_heavy_notice.set_pos(koord(column1_x, y));
 	lb_livery_selector.set_pos(koord(column2_x, y));
 	lb_vehicle_filter.set_pos(koord(column3_x, y));
 	lb_veh_action.set_pos(koord(column4_x, y));
@@ -714,7 +719,7 @@ void gui_convoy_assembler_t::zeichnen(koord parent_pos)
 			{
 				if (max_speed == allowed_speed)
 				{
-					// show max weight, that can be pulled with max allowed speed
+					// Show max. weight that can be pulled with max. allowed speed
 					min_weight = convoy.calc_max_weight(friction);
 				}
 			}
@@ -1741,6 +1746,14 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 		if (depot_frame && vec[sel_index]->count > 0) {
 			resale_value = depot_frame->calc_restwert(veh_type);
 		}
+		if(vec[sel_index]->lcolor == COL_GREY3)
+		{
+			lb_too_heavy_notice.set_visible(true);
+		}
+		else
+		{
+			lb_too_heavy_notice.set_visible(false);
+		}
 	}
 	else {
 		// cursor over a vehicle in the convoi
@@ -1779,10 +1792,6 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 				break;
 		}
 	}
-
-	//display_proportional( pos.x + D_MARGIN_LEFT, pos.y + tabs.get_pos().y + tabs.get_groesse().y + 4, c, ALIGN_LEFT, COL_BLACK, true );
-	//display_proportional( pos.x + groesse.x - D_MARGIN_RIGHT, pos.y + tabs.get_pos().y - LINESPACE + 1, c, ALIGN_RIGHT, COL_BLACK, true );
-	//lb_vehicle_count.set_text_pointer(txt_vehicle_count);
 
 	buf[0]='\0';
 	if(veh_type) {

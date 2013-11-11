@@ -130,6 +130,8 @@ class gui_convoy_assembler_t :
 	//gui_label_t lb_upgrade;
 	gui_combobox_t upgrade_selector;
 
+	gui_label_t lb_too_heavy_notice;
+	
 	gui_label_t lb_livery_selector;
 	gui_combobox_t livery_selector;
 
