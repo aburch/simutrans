@@ -299,10 +299,10 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, std::string an_i
 			bild.len = len;
 		}
 
-		dbg->message( "", "image[%3u] =%-30s %-20s %5u %5u %5u %5u %5u %6u %4s", index, an_imagekey.c_str(), imagekey.c_str(), col, row, bild.x, bild.y, bild.w, bild.h, (bild.zoomable) ? "yes" : "no" );
+		dbg->debug( "", "image[%3u] =%-30s %-20s %5u %5u %5u %5u %5u %6u %4s", index, an_imagekey.c_str(), imagekey.c_str(), col, row, bild.x, bild.y, bild.w, bild.h, (bild.zoomable) ? "yes" : "no" );
 	}
 	else {
-		dbg->message( "", "image[%3u] =%-30s %-20s %5u %5u %5u %5u %5u %6u %4s", index, an_imagekey.c_str(), imagekey.c_str(), 0, 0, bild.x, bild.y, bild.w, bild.h, (bild.zoomable) ? "yes" : "no" );
+		dbg->debug( "", "image[%3u] =%-30s %-20s %5u %5u %5u %5u %5u %6u %4s", index, an_imagekey.c_str(), imagekey.c_str(), 0, 0, bild.x, bild.y, bild.w, bild.h, (bild.zoomable) ? "yes" : "no" );
 	}
 
 #ifdef IMG_VERSION0

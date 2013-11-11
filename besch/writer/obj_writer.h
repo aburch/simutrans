@@ -15,35 +15,38 @@ template<class key, class X> class inthashtable_tpl;
 
 
 class obj_writer_t {
-	private:
-		static stringhashtable_tpl<obj_writer_t*>* writer_by_name;
-		static inthashtable_tpl<obj_type, obj_writer_t*>* writer_by_type;
+private:
+	static stringhashtable_tpl<obj_writer_t*>* writer_by_name;
+	static inthashtable_tpl<obj_type, obj_writer_t*>* writer_by_type;
 
-	protected:
-		obj_writer_t() { /* Beware: Cannot register here! */ }
+protected:
+	obj_writer_t() { /* Beware: Cannot register here! */ }
 
-		void register_writer(bool main_obj);
-		void dump_nodes(FILE* infp, int level, uint16 index = 0);
-		void list_nodes(FILE* infp);
-		size_t skip_nodes(FILE* fp);
-		void show_capabilites();
+	void register_writer(bool main_obj);
+	void dump_nodes(FILE* infp, int level, uint16 index = 0);
+	void list_nodes(FILE* infp);
+	size_t skip_nodes(FILE* fp);
+	void show_capabilites();
 
-		std::string name_from_next_node(FILE* fp) const;
-		const char* node_writer_name(FILE* infp) const;
+	std::string name_from_next_node(FILE* fp) const;
+	const char* node_writer_name(FILE* infp) const;
 
-		virtual std::string get_node_name(FILE* /*fp*/) const { return ""; }
+	virtual std::string get_node_name(FILE* /*fp*/) const { return ""; }
 
-		virtual void dump_node(FILE* infp, const obj_node_info_t& node);
-		virtual void write_obj(FILE* /*fp*/, obj_node_t& /*parent*/, tabfileobj_t& /*obj*/) {}
-		void write_head(FILE* fp, obj_node_t& node, tabfileobj_t& obj);
+	virtual void dump_node(FILE* infp, const obj_node_info_t& node);
+	virtual void write_obj(FILE* /*fp*/, obj_node_t& /*parent*/, tabfileobj_t& /*obj*/) {}
+	void write_head(FILE* fp, obj_node_t& node, tabfileobj_t& obj);
 
-	public:
-		virtual ~obj_writer_t() {}
+public:
+	// contains the name of the last obj/name header
+	static const char *last_name;
 
-		virtual obj_type get_type() const = 0;
-		virtual const char* get_type_name() const = 0;
+	virtual ~obj_writer_t() {}
 
-		static void write(FILE* fp, obj_node_t& parent, tabfileobj_t& obj);
+	virtual obj_type get_type() const = 0;
+	virtual const char* get_type_name() const = 0;
+
+	static void write(FILE* fp, obj_node_t& parent, tabfileobj_t& obj);
 };
 
 #endif

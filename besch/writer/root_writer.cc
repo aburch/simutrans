@@ -37,7 +37,8 @@ void root_writer_t::write(const char* filename, int argc, char* argv[])
 	if (file[file.size()-1] == '/') {
 		printf("writing invidual files to %s\n", filename);
 		separate = true;
-	} else {
+	}
+	else {
 		outfp = fopen(file.c_str(), "wb");
 
 		if (!outfp) {
@@ -89,6 +90,7 @@ void root_writer_t::write(const char* filename, int argc, char* argv[])
 						node = new obj_node_t(this, 0, NULL);
 					}
 					obj_writer_t::write(outfp, *node, obj);
+					obj.unused( "#;-/" );
 
 					if(separate) {
 						node->write(outfp);

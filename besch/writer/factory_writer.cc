@@ -151,7 +151,7 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	uint16 const gewichtung     = obj.get_int("distributionweight",   1);
 	uint8  const kennfarbe      = obj.get_color("mapcolor", 255);
 	if (kennfarbe == 255) {
-		dbg->fatal( "Factory", "Missing an indentification color! (mapcolor)");
+		dbg->fatal( "Factory", "%s missing an indentification color! (mapcolor)", obj_writer_t::last_name );
 		exit(1);
 	}
 	uint16 const pax_level = obj.get_int("pax_level", 12);

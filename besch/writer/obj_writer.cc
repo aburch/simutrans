@@ -9,7 +9,9 @@
 #include "text_writer.h"
 #include "xref_writer.h"
 
-using std::string;
+
+const char *obj_writer_t::last_name = "";
+
 
 void obj_writer_t::register_writer(bool main_obj)
 {
@@ -28,15 +30,16 @@ void obj_writer_t::register_writer(bool main_obj)
 
 void obj_writer_t::write(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	string type = obj.get("obj");
-	string name = obj.get("name");
+	const char *type = obj.get("obj");
+	const char *name = obj.get("name");
 
-	obj_writer_t *writer = writer_by_name->get(type.c_str());
+	obj_writer_t *writer = writer_by_name->get(type);
 	if (!writer) {
-		printf("skipping unknown %s object %s\n", type.c_str(), name.c_str());
+		printf("skipping unknown %s object %s\n", type, name);
 		return;
 	}
-	printf("      packing %s.%s\n", type.c_str(), name.c_str());
+	last_name = name;
+	printf("      packing %s.%s\n", type, name);
 	writer->write_obj(fp, parent, obj);
 }
 
@@ -46,6 +49,7 @@ void obj_writer_t::write_head(FILE* fp, obj_node_t& node, tabfileobj_t& obj)
 	const char* name = obj.get("name");
 	const char* msg = obj.get("copyright");
 
+	last_name = name;
 	text_writer_t::instance()->write_obj(fp, node, name);
 	text_writer_t::instance()->write_obj(fp, node, msg);
 }
@@ -99,25 +103,27 @@ void obj_writer_t::list_nodes(FILE* infp)
 void obj_writer_t::show_capabilites()
 {
 	slist_tpl<obj_writer_t*> liste;
-	string min_s;
+	const char *min_s="A";
 
 	while (true) {
-		string max_s = "zzz";
+		const char *max_s = "zzz";
 		FOR(stringhashtable_tpl<obj_writer_t*>, const& i, *writer_by_name) {
-			if (STRICMP(i.key, min_s.c_str()) > 0 && STRICMP(i.key, max_s.c_str()) < 0) {
+			if(  STRICMP(i.key, min_s) > 0  &&  STRICMP(i.key, max_s) < 0   ) {
 				max_s = i.key;
 			}
 		}
-		if (max_s == "zzz") break;
-		printf("   %s\n", max_s.c_str());
+		if(  strcmp(max_s,"zzz")==0  ) {
+			break;
+		}
+		printf("   %s\n", max_s);
 		min_s = max_s;
 	}
 }
 
 
-string obj_writer_t::name_from_next_node(FILE* fp) const
+std::string obj_writer_t::name_from_next_node(FILE* fp) const
 {
-	string ret;
+	std::string ret;
 	char* buf;
 	obj_node_info_t node;
 

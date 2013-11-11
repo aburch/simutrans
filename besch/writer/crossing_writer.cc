@@ -15,13 +15,15 @@
 
 using std::string;
 
-static void make_list(tabfileobj_t const& obj, slist_tpl<string>& list, char const* const key)
+static void make_list(tabfileobj_t &obj, slist_tpl<string>& list, char const* const key)
 {
 	for (int i = 0;; ++i) {
 		char buf[40];
 		sprintf(buf, "%s[%i]", key, i);
 		string str(obj.get(buf));
-		if (str.empty()) break;
+		if (str.empty()) {
+			break;
+		}
 		// We have this direction
 		list.append(str);
 	}
