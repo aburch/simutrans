@@ -31,11 +31,12 @@ class depot_convoi_capacity_t : public gui_container_t
 {
 private:
 	uint32 total_pax;
+	uint32 total_standing_pax;
 	uint32 total_mail;
 	uint32 total_goods;
 public:
 	depot_convoi_capacity_t();
-	void set_totals(uint32 pax, uint32 mail, uint32 goods);
+	void set_totals(uint32 pax, uint32 standing_pax, uint32 mail, uint32 goods);
 	void zeichnen(koord offset);
 };
 
@@ -103,6 +104,8 @@ class gui_convoy_assembler_t :
 	gui_label_t lb_convoi_value;
 	gui_label_t lb_convoi_power;
 	gui_label_t lb_convoi_weight;
+	gui_label_t lb_convoi_brake_force;
+	gui_label_t lb_convoi_rolling_resistance;
 	gui_label_t lb_convoi_line;
 	// Specifies the traction types handled by
 	// this depot.
@@ -160,6 +163,8 @@ class gui_convoy_assembler_t :
 	cbuffer_t txt_convoi_cost;
 	cbuffer_t txt_convoi_power;
 	cbuffer_t txt_convoi_weight;
+	cbuffer_t txt_convoi_brake_force;
+	cbuffer_t txt_convoi_rolling_resistance;
 	cbuffer_t txt_traction_types;
 	cbuffer_t txt_vehicle_count;
 

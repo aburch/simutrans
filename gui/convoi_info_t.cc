@@ -478,7 +478,7 @@ enable_home:
 			// next stop
 			char tmp[256];
 			// Bernd Gabriel, 01.07.2009: inconsistent adding of ':'. Sometimes in code, sometimes in translation. Consistently moved to code.
-			sprintf(tmp, caption, translator::translate("Fahrtziel"));
+			sprintf(tmp, caption, translator::translate("Fahrtziel")); // "Destination"
 			int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, COL_BLACK, true ) + 5;
 			info_buf.clear();
 			const schedule_t *fpl = cnv->get_schedule();
