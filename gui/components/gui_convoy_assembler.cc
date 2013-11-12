@@ -68,7 +68,7 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(karte_t *w, waytype_t wt, signed 
 	lb_vehicle_count(NULL, COL_BLACK, gui_label_t::right),
 	lb_veh_action("Fahrzeuge:", COL_BLACK, gui_label_t::left),
 	lb_livery_selector("Livery scheme:", COL_BLACK, gui_label_t::left),
-	lb_too_heavy_notice("too heavy", COL_BLACK, gui_label_t::left),
+	lb_too_heavy_notice("too heavy", COL_RED, gui_label_t::left),
 	convoi_pics(depot_t::get_max_convoy_length(wt)),
 	convoi(&convoi_pics),
 	pas(&pas_vec),
