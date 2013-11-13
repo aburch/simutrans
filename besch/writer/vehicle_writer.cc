@@ -330,13 +330,13 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		if (i == freight_max) {
 			// check for supoerflous definitions
 			if (str.size() > 0) {
-				dbg->warning( "Vehicle", "More freightimagetype (%i) than freight_images (%i)!", i, freight_max);
+				dbg->warning( obj_writer_t::last_name, "More freightimagetype (%i) than freight_images (%i)!", i, freight_max);
 				fflush(NULL);
 			}
 			break;
 		}
 		if (str.size() == 0) {
-			dbg->fatal( "Vehicle", "Missing freightimagetype[%i] for %i freight_images!", i, freight_max + 1);
+			dbg->fatal( obj_writer_t::last_name, "Missing freightimagetype[%i] for %i freight_images!", i, freight_max + 1);
 			exit(1);
 		}
 		xref_writer_t::instance()->write_obj(fp, node, obj_good, str.c_str(), false);

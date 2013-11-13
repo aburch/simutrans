@@ -65,7 +65,7 @@ void write_bridge_images(FILE* outfp, obj_node_t& node, tabfileobj_t& obj, int s
 			frontkeys.append( value );
 			//intf("FRNT: %s -> %s\n", keybuf, value.chars());
 			if(  value.size() <= 2  ) {
-				dbg->warning( "write_bridge_images", "No %s specified (but might be still working)", keybuf );
+				dbg->warning( obj_writer_t::last_name, "No %s specified (might still work)", keybuf );
 			}
 
 			keyindex = *ptr++;

@@ -22,7 +22,7 @@ void groundobj_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& o
 		allowed_climates = get_climate_bits(climate_str);
 	}
 	else {
-		dbg->warning( "groundobj_writer", "No climates (using default)!");
+		dbg->warning( obj_writer_t::last_name, "No climates (using default)!");
 		allowed_climates = all_but_arctic_climate;
 	}
 	// seasons = 1: no seasons

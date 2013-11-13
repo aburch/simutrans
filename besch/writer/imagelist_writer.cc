@@ -21,7 +21,7 @@ void imagelist_writer_t::write_obj(FILE* fp, obj_node_t& parent, const slist_tpl
 		count ++;
 	}
 	if (count < keys.get_count()) {
-		dbg->warning( "imagelist_writer_t", "Expected %i images, but found only %i (but might be still correct)!\n", keys.get_count(), count);
+		dbg->warning( obj_writer_t::last_name, "Expected %i but found %i images (might be correct)!\n", keys.get_count(), count);
 	}
 
 	node.write_uint16(fp, count, 0);
