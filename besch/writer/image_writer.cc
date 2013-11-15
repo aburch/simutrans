@@ -204,6 +204,8 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, std::string an_i
 	dimension dim;
 	uint16 *pixdata = NULL;
 
+	MEMZERO(bild);
+
 	// Hajo: if first char is a '>' then this image is not zoomeable
 	if(  an_imagekey[0] == '>'  ) {
 		an_imagekey = an_imagekey.substr(1);
@@ -213,8 +215,6 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, std::string an_i
 		bild.zoomable = true;
 	}
 	std::string imagekey = trim(an_imagekey);
-
-	MEMZERO(bild);
 
 	if(  imagekey != "-"  &&  imagekey != ""  ) {
 
