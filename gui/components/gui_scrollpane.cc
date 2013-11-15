@@ -96,17 +96,17 @@ void gui_scrollpane_t::set_groesse(koord groesse)
  */
 bool gui_scrollpane_t::infowin_event(const event_t *ev)
 {
-	if(b_show_scroll_y  &&  ev->ev_class!=EVENT_KEYBOARD  &&  (scroll_y.getroffen(ev->mx, ev->my) || scroll_y.getroffen(ev->cx, ev->cy)) ) {
+	if(   (b_show_scroll_y  &&  scroll_y.is_visible())  &&  ev->ev_class!=EVENT_KEYBOARD  &&  (scroll_y.getroffen(ev->mx, ev->my) || scroll_y.getroffen(ev->cx, ev->cy)) ) {
 		event_t ev2 = *ev;
 		translate_event(&ev2, -scroll_y.get_pos().x, -scroll_y.get_pos().y);
 		return scroll_y.infowin_event(&ev2);
 	}
-	else if(b_show_scroll_x  &&  ev->ev_class!=EVENT_KEYBOARD  &&  (scroll_x.getroffen(ev->mx, ev->my) || scroll_x.getroffen(ev->cx, ev->cy))) {
+	else if(  (b_show_scroll_x  &&  scroll_x.is_visible())  &&  ev->ev_class!=EVENT_KEYBOARD  &&  (scroll_x.getroffen(ev->mx, ev->my) || scroll_x.getroffen(ev->cx, ev->cy))) {
 		event_t ev2 = *ev;
 		translate_event(&ev2, -scroll_x.get_pos().x, -scroll_x.get_pos().y);
 		return scroll_x.infowin_event(&ev2);
 	}
-	else if((IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev))  &&  ((b_show_scroll_y  &&  !IS_SHIFT_PRESSED(ev))  ||  (b_show_scroll_x  &&  IS_SHIFT_PRESSED(ev)))) {
+	else if((IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev))  &&  (((b_show_scroll_y  &&  scroll_y.is_visible())  &&  !IS_SHIFT_PRESSED(ev))  ||  ((b_show_scroll_x  &&  scroll_x.is_visible())  &&  IS_SHIFT_PRESSED(ev)))) {
 		// otherwise these events are only registered where directly over the scroll region
 		// (and sometime even not then ... )
 		return IS_SHIFT_PRESSED(ev) ? scroll_x.infowin_event(ev) : scroll_y.infowin_event(ev);
