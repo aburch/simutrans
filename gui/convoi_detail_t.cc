@@ -62,9 +62,7 @@ convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
 	add_komponente(&retire_button);
 	retire_button.add_listener(this);
 
-	// From new Standard (111.1) - probably associated with new features logged for convoys not used in Standard.
-	//scrolly.set_pos(koord(0, 2+16+5*LINESPACE));
-	scrolly.set_pos(koord(0, 50));
+	scrolly.set_pos(koord(0, 2+16+5*LINESPACE));
 	scrolly.set_show_scroll_x(true);
 	add_komponente(&scrolly);
 
@@ -104,7 +102,13 @@ void convoi_detail_t::zeichnen(koord pos, koord gr)
 		cbuffer_t buf;
 
 		// current power
-		buf.printf( translator::translate("Leistung: %d kW"), cnv->get_sum_leistung() / 1000 );
+		buf.printf(translator::translate("Leistung: %d kW"), cnv->get_sum_leistung() / 1000);
+		display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, COL_BLACK, true );
+		offset_y += LINESPACE;
+
+		// current tractive effort
+		buf.clear();
+		buf.printf("%s %d kN", translator::translate("Tractive Force:"), cnv->get_starting_force().to_sint32() / 1000);
 		display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, COL_BLACK, true );
 		offset_y += LINESPACE;
 
