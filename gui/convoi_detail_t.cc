@@ -108,7 +108,13 @@ void convoi_detail_t::zeichnen(koord pos, koord gr)
 
 		// current tractive effort
 		buf.clear();
-		buf.printf("%s %d kN", translator::translate("Tractive Force:"), cnv->get_starting_force().to_sint32() / 1000);
+		buf.printf("%s %i kN", translator::translate("Tractive Force:"), cnv->get_starting_force().to_sint32() / 1000);
+		display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, COL_BLACK, true );
+		offset_y += LINESPACE;
+
+		// current tractive effort
+		buf.clear();
+		buf.printf("%s %.2f kN", translator::translate("Max. brake force:"), cnv->get_braking_force().to_double() / 1000.0);
 		display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, COL_BLACK, true );
 		offset_y += LINESPACE;
 
