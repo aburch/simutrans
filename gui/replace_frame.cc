@@ -262,7 +262,7 @@ void replace_frame_t::layout(koord *gr)
 	convoy_assembler.set_groesse(koord(fgr.x,convoy_assembler.get_height()));
 	convoy_assembler.layout();
 
-	uint32 buttons_y=current_y+convoy_assembler.get_convoy_height()-2*LINESPACE+8;
+	uint32 buttons_y = current_y + convoy_assembler.get_convoy_height() - LINESPACE + 24;
 	uint32 buttons_width=(fgr.x-2*margin)/4;
 	bt_autostart.set_groesse(koord(buttons_width, a_D_BUTTON_HEIGHT));
 	bt_depot.set_groesse(koord(buttons_width, a_D_BUTTON_HEIGHT));
@@ -274,26 +274,27 @@ void replace_frame_t::layout(koord *gr)
 	bt_clear.set_pos(koord(margin+(buttons_width*3),buttons_y));
 	
 	current_y=buttons_y+a_D_BUTTON_HEIGHT+margin;
-	lb_money.set_pos(koord(110,current_y));
+	lb_money.set_pos(koord(margin + (203 *2),current_y));
 	lb_replace_cycle.set_pos(koord(fgr.x-170,current_y));
 	lb_replace.set_pos(koord(fgr.x-166,current_y));
 
 	numinp[state_replace].set_pos( koord( fgr.x-110, current_y ) );
 	numinp[state_replace].set_groesse( koord( 50, a_D_BUTTON_HEIGHT ) );
 	lb_n_replace.set_pos( koord( fgr.x-50, current_y ) );
-	current_y+=LINESPACE+2;
 
 	bt_replace_line.set_pos(koord(margin,current_y));
 	bt_retain_in_depot.set_pos(koord(margin + 162,current_y));
+	
+	current_y+=LINESPACE+2;
+
 	bt_allow_using_existing_vehicles.set_pos(koord(margin + (162 *2),current_y));
-	lb_sell.set_pos(koord(fgr.x-166,current_y));
+	bt_replace_all.set_pos(koord(margin,current_y));
+	bt_use_home_depot.set_pos(koord(margin + 162,current_y));
 	numinp[state_sell].set_pos( koord( fgr.x-110, current_y ) );
 	numinp[state_sell].set_groesse( koord( 50, a_D_BUTTON_HEIGHT ) );
 	lb_n_sell.set_pos( koord( fgr.x-50, current_y ) );
+	lb_sell.set_pos(koord(fgr.x-166,current_y));
 	current_y+=LINESPACE+2;
-
-	bt_replace_all.set_pos(koord(margin,current_y));
-	bt_use_home_depot.set_pos(koord(margin + 162,current_y));
 	lb_skip.set_pos(koord(fgr.x-166,current_y));
 	numinp[state_skip].set_pos( koord( fgr.x-110, current_y ) );
 	numinp[state_skip].set_groesse( koord( 50, a_D_BUTTON_HEIGHT ) );

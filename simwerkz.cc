@@ -1657,16 +1657,16 @@ const char *wkz_transformer_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 	// @author: jamespetts	
 	stadt_t* city = welt->get_city(k.get_2d());
 
-	if( fab != NULL )
+	if(fab != NULL)
 	{
-		if( fab->is_transformer_connected() ) 
+		if(fab->is_transformer_connected() && city == NULL) 
 		{
 			return "Only one transformer per factory!";
 		}
 	}
 	else
 	{
-		if( city == NULL )
+		if(city == NULL)
 		{
 			return "Transformer only next to factory or in city!";
 		}
@@ -1710,20 +1710,24 @@ const char *wkz_transformer_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 
 	// build source or drain depending on factory type
 	leitung_t* check = NULL;
-	if(fab != NULL && fab->get_besch()->is_electricity_producer()) {
+	if(fab != NULL && fab->get_besch()->is_electricity_producer())
+	{
 		pumpe_t *p = new pumpe_t(welt, gr->get_pos(), sp);
 		gr->obj_add( p );
 		p->laden_abschliessen();
 		check = (leitung_t*)p;
 	}
-	else {
+	else
+	{
 		senke_t *s = new senke_t(welt, gr->get_pos(), sp, city);
 		gr->obj_add(s);
 		s->laden_abschliessen();
 		check = (leitung_t*)s;
 	}
-	if (fab != NULL) {
-		fab->set_transformer_connected( check );
+	if (fab != NULL && (city == NULL) || (fab && fab->get_besch()->is_electricity_producer()))
+	{
+		// Do not connect directly to factories that are in cities, except for power stations.
+		fab->set_transformer_connected(check);
 	}
 
 	return NULL;	// ok
