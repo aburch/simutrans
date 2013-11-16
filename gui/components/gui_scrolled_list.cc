@@ -164,6 +164,7 @@ void gui_scrolled_list_t::sort( int offset, void *sort_param )
 			for(  uint32 i=offset;  i<item_list.get_count();  i++  ) {
 				if(  item_list[i] == sel  ) {
 					selection = i;
+					show_selection(selection);
 					return;
 				}
 			}

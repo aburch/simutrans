@@ -119,7 +119,13 @@ public:
 	void insert_element( scrollitem_t *item );
 	scrollitem_t *get_element(sint32 i) const { return ((uint32)i<item_list.get_count()) ? item_list[i] : NULL; }
 
-	// sort the list
+	/**
+	 * Sorts the list.
+	 * Calls the virtual method scrollitem_t::sort of element at position @p offset.
+	 * Adjusts scrollbar.
+	 * @param offset sort list from element offset to end
+	 * @param sort_param will be used in call to scrollitem_t::sort
+	 */
 	void sort( int offset, void *sort_param );
 
 	// set the first element to be shown in the list
