@@ -459,7 +459,7 @@
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug (command-line server)|Win32'">$(ProjectName)-Debug</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug (command-line server)|x64'">$(ProjectName)-Debug</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|Win32'">$(ProjectName)-command-line-server</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|x64'">$(ProjectName)-command-line-server</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|x64'">$(ProjectName)-command-line-server-x64</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release (IP v. 4 only)|Win32'">$(ProjectName)-ipv4</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release (IP v. 4 only)|x64'">$(ProjectName)-ipv4</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Dr. Memory|Win32'">$(ProjectName)-DrMemory</TargetName>
