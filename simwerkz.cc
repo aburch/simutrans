@@ -5318,7 +5318,7 @@ const char *wkz_add_citycar_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 
 	if(  gr != NULL  &&  ribi_t::is_twoway(gr->get_weg_ribi_unmasked(road_wt))  &&  gr->find<stadtauto_t>() == NULL) {
 		// add citycar
-		stadtauto_t* vt = new stadtauto_t(welt, gr->get_pos(), koord::invalid);
+		stadtauto_t* vt = new stadtauto_t(welt, gr, koord::invalid);
 		gr->obj_add(vt);
 		welt->sync_add(vt);
 		return NULL;

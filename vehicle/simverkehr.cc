@@ -64,12 +64,10 @@ verkehrsteilnehmer_t::~verkehrsteilnehmer_t()
 }
 
 
-verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt, koord3d pos, uint16 random) :
-	vehikel_basis_t(welt, pos)
+verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt, grund_t* bd, uint16 random) :
+	vehikel_basis_t(welt, bd ? bd->get_pos() : koord3d::invalid)
 {
-	grund_t *from = welt->lookup(pos);
-
-	ribi_t::ribi road_ribi = from->get_weg_ribi(road_wt);
+	ribi_t::ribi road_ribi = bd->get_weg_ribi(road_wt);
 
 	weg_next = random;
 
@@ -80,7 +78,7 @@ verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt, koord3d pos, uint16 ra
 	grund_t *to = NULL;
 	for(uint8 r = 0; r < 4; r++) {
 		ribi_t::ribi ribi = ribi_t::nsow[ (r + offset) &3];
-		if( (ribi & road_ribi)!=0  &&  from->get_neighbour(to, road_wt, ribi)) {
+		if( (ribi & road_ribi)!=0  &&  bd->get_neighbour(to, road_wt, ribi)) {
 			fahrtrichtung = ribi;
 			break;
 		}
@@ -110,7 +108,7 @@ verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt, koord3d pos, uint16 ra
 		pos_next = to->get_pos();
 	}
 	else {
-		pos_next = welt->lookup_kartenboden(pos.get_2d() + koord(fahrtrichtung))->get_pos();
+		pos_next = welt->lookup_kartenboden(get_pos().get_2d() + koord(fahrtrichtung))->get_pos();
 	}
 	set_besitzer( welt->get_spieler(1) );
 }
@@ -323,8 +321,8 @@ stadtauto_t::stadtauto_t(karte_t *welt, loadsave_t *file) :
 }
 
 
-stadtauto_t::stadtauto_t(karte_t* const welt, koord3d const pos, koord const target) :
-	verkehrsteilnehmer_t(welt, pos, simrand(65535)),
+stadtauto_t::stadtauto_t(karte_t* const welt, grund_t* gr, koord const target) :
+	verkehrsteilnehmer_t(welt, gr, simrand(65535)),
 	besch(liste_timeline.empty() ? 0 : pick_any_weighted(liste_timeline))
 {
 	pos_next_next = koord3d::invalid;

@@ -71,8 +71,8 @@ fussgaenger_t::fussgaenger_t(karte_t *welt, loadsave_t *file)
 }
 
 
-fussgaenger_t::fussgaenger_t(karte_t* const welt, koord3d const pos) :
-	verkehrsteilnehmer_t(welt, pos, simrand(65535)),
+fussgaenger_t::fussgaenger_t(karte_t* const welt, grund_t *gr) :
+	verkehrsteilnehmer_t(welt, gr, simrand(65535)),
 	besch(pick_any_weighted(liste))
 {
 	time_to_life = pick_any(strecke);
@@ -129,7 +129,7 @@ void fussgaenger_t::erzeuge_fussgaenger_an(karte_t *welt, const koord3d k, int &
 		return;
 	}
 
-	const grund_t* bd = welt->lookup(k);
+	grund_t* bd = welt->lookup(k);
 	if (bd) {
 		const weg_t* weg = bd->get_weg(road_wt);
 
@@ -137,8 +137,8 @@ void fussgaenger_t::erzeuge_fussgaenger_an(karte_t *welt, const koord3d k, int &
 		if (weg && ribi_t::is_twoway(weg->get_ribi_unmasked())) {
 			// we create maximal 4 pedestrians here for performance reasons
 			for (int i = 0; i < 4 && anzahl > 0; i++) {
-				fussgaenger_t* fg = new fussgaenger_t(welt, k);
-				bool ok = welt->lookup(k)->obj_add(fg) != 0;	// 256 limit reached
+				fussgaenger_t* fg = new fussgaenger_t(welt, bd);
+				bool ok = bd->obj_add(fg) != 0;	// 256 limit reached
 				if (ok) {
 					if (i > 0) {
 						// walk a little

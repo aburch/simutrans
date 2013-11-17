@@ -24,7 +24,11 @@ protected:
 
 	void calc_bild();
 
-	fussgaenger_t(karte_t *welt, koord3d pos);
+	/**
+	 * Creates pedestrian at position given by @p gr.
+	 * Does not add pedestrian to the tile!
+	 */
+	fussgaenger_t(karte_t *welt, grund_t *gr);
 
 public:
 	fussgaenger_t(karte_t *welt, loadsave_t *file);
