@@ -2591,7 +2591,6 @@ void stadt_t::step_grow_city()
 			try_nr++;
 			buildings_count = buildings.get_count();
 		}
-		bev = 0;
 	}
 	// since we use internally a finer value ...
 	const int growth_step = (wachstum >> 4);
@@ -3774,7 +3773,7 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 	if (h == NULL  &&  sum_industrial > sum_residential  &&  sum_industrial > sum_residential) {
 		h = hausbauer_t::get_industrial(0, current_month, cl, new_town, neighbor_building_clusters);
 		if (h != NULL) {
-			arb +=  h->get_level() * 20;
+			want_to_have = gebaeude_t::industrie;
 		}
 	}
 

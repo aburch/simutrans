@@ -189,6 +189,8 @@ private:
 	/**
 	 * Modifier for city growth
 	 * transient data, not saved
+	 * Unsupplied city growth needs
+	 * A value of 2^30 means 1 new resident
 	 * @author Hj. Malthaner
 	 */
 	sint32 wachstum;
