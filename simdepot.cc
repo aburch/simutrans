@@ -768,41 +768,6 @@ vehikel_t* depot_t::get_oldest_vehicle(const vehikel_besch_t* besch)
 }
 
 
-//<<<<<<< HEAD
-///**
-// * sets/gets the line that was selected the last time in the depot-dialog
-// */
-//void depot_t::set_selected_line(const linehandle_t sel_line)
-//{
-//	selected_line = sel_line;
-//	depot_frame_t *win = dynamic_cast<depot_frame_t *>(win_get_magic( (ptrdiff_t)this ));
-//	if(  win  ) {
-//		win->layout(NULL);
-//		win->update_data();
-//	}
-//}
-//
-//
-//linehandle_t depot_t::get_selected_line()
-//{
-//	return selected_line;
-//}
-//
-//
-//sint32 depot_t::calc_restwert(const vehikel_besch_t *veh_type)
-//{
-//	sint32 wert = 0;
-//
-//	FOR(slist_tpl<vehikel_t*>, const v, get_vehicle_list()) {
-//		if(v->get_besch() == veh_type) 
-//		{
-//			wert += v->calc_restwert();
-//		}
-//	}
-//	return wert;
-//}
-
-
 // true if already stored here
 bool depot_t::is_contained(const vehikel_besch_t *info)
 {

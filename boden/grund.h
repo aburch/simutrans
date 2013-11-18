@@ -133,13 +133,9 @@ public:
 protected:
 	/**
 	 * List of objects on this tile
+	 * Pointer (changes occasionally) + 8 bits + 8 bits (changes often)
 	 */
 	dingliste_t dinge;
-
-	/**
-	 * Coordinate
-	 */
-	koord3d pos;
 
 	/**
 	 * Flags to indicate existence of halts, ways, to mark dirty
@@ -147,14 +143,24 @@ protected:
 	uint8 flags;
 
 	/**
+	 * Image of the walls
+	 */
+	sint8 back_bild_nr;
+
+	/**
 	 * Image number
 	 */
 	image_id bild_nr;
 
 	/**
-	 * Image of the walls
+ 	 * Handle to halt built on this ground
 	 */
-	sint8 back_bild_nr;
+	halthandle_t this_halt;
+
+	/**
+	 * Coordinate (40 bits)
+	 */
+	koord3d pos;
 
 	/**
 	 * Slope (now saved locally), because different grounds need different slopes

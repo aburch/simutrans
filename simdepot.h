@@ -223,16 +223,6 @@ public:
 	 */
 	vehikel_t* get_oldest_vehicle(const vehikel_besch_t* besch);
 
-//<<<<<<< HEAD
-//	/**
-//	 * Calulate the values of the vehicles of the given type owned by the
-//	 * player in this depot.
-//	 * @author Volker Meyer
-//	 * @date  09.06.2003
-//	 */
-//	sint32 calc_restwert(const vehikel_besch_t *veh_type);
-//
-//=======
 	/**
 	 * Sets/gets the line that was selected the last time in the depot dialog
 	 */

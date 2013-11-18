@@ -101,11 +101,14 @@ void haltestelle_t::step_all()
 halthandle_t haltestelle_t::get_halt(const karte_t *welt, const koord pos, const spieler_t *sp )
 {
 	const planquadrat_t *plan = welt->lookup(pos);
-	if(plan) 
+	if(plan)
 	{
-		if(plan->get_halt().is_bound()  && plan->get_halt()->check_access(sp)) 
-		{
-			return plan->get_halt();
+		for(  uint8 i=0;  i < plan->get_boden_count();  i++  ) {
+			halthandle_t my_halt = plan->get_boden_bei(i)->get_halt();
+			if(  my_halt.is_bound()  &&  my_halt->check_access(sp)  ) {
+				// Stop at first halt found (always prefer ground level)
+				return my_halt;
+			}
 		}
 		// no halt? => we do the water check
 		if(plan->get_kartenboden()->ist_wasser()) 
@@ -484,10 +487,6 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 	sortierung = freight_list_sorter_t::by_name;
 	init_financial_history();
 
-	if(welt->is_within_limits(k)) {
-		welt->access(k)->set_halt(self);
-	}
-
 	check_waiting = 0;
 
 	check_nearby_halts();
@@ -549,7 +548,6 @@ haltestelle_t::~haltestelle_t()
 		koord pos = tiles.remove_first().grund->get_pos().get_2d();
 		planquadrat_t *pl = welt->access(pos);
 		assert(pl);
-		pl->set_halt( halthandle_t() );
 		for( uint8 i=0;  i<pl->get_boden_count();  i++  ) {
 			pl->get_boden_bei(i)->set_halt( halthandle_t() );
 		}
@@ -558,13 +556,6 @@ haltestelle_t::~haltestelle_t()
 		if(ul.y>pos.y ) ul.y = pos.y;
 		if(lr.x<pos.x ) lr.x = pos.x;
 		if(lr.y<pos.y ) lr.y = pos.y;
-	}
-
-	/* remove probably remaining halthandle at init_pos
-	 * (created during loadtime for stops without ground) */
-	planquadrat_t* pl = welt->access(init_pos);
-	if(pl  &&  pl->get_halt()==self) {
-		pl->set_halt( halthandle_t() );
 	}
 
 	// remove from all haltlists
@@ -2243,6 +2234,7 @@ uint32 haltestelle_t::starte_mit_route(ware_t ware)
 		return ware.get_zwischenziel()->liefere_an(ware, 1);
 	}
 
+
 	// add to internal storage
 	add_ware_to_halt(ware);
 #ifdef DEBUG_SIMRAND_CALLS
@@ -2625,12 +2617,23 @@ bool haltestelle_t::make_public_and_join(spieler_t *sp)
 				}
 			}
 			// ok, valid start, now we can join them
+			// First search the same square
+			const planquadrat_t *pl = welt->lookup(gr->get_pos().get_2d());
+			for(  uint8 i=0;  i < pl->get_boden_count();  i++  ) {
+				halthandle_t my_halt = pl->get_boden_bei(i)->get_halt();
+				if(  my_halt.is_bound()  &&  my_halt->get_besitzer()==public_owner  &&  !joining.is_contained(my_halt)  ) {
+					joining.append(my_halt);
+				}
+			}
+			// Now neighboring squares
 			for( uint8 i=0;  i<8;  i++  ) {
 				const planquadrat_t *pl2 = welt->lookup(gr->get_pos().get_2d()+koord::neighbours[i]);
 				if(  pl2  ) {
-					halthandle_t halt = pl2->get_halt();
-					if(  halt.is_bound()  &&  halt->get_besitzer()==public_owner  &&  !joining.is_contained(halt)  ) {
-						joining.append(halt);
+					for(  uint8 i=0;  i < pl2->get_boden_count();  i++  ) {
+						halthandle_t my_halt = pl2->get_boden_bei(i)->get_halt();
+						if(  my_halt.is_bound()  &&  my_halt->get_besitzer()==public_owner  &&  !joining.is_contained(my_halt)  ) {
+							joining.append(my_halt);
+						}
 					}
 				}
 			}
@@ -3283,14 +3286,22 @@ void haltestelle_t::rdwr(loadsave_t *file)
 					}
 					else
 					{
+						// Experimental versions 2-9, loading
 						koord halt_position;
 						halt_position.rdwr(file);
 						const planquadrat_t* plan = welt->lookup(halt_position);
 						if(plan)
 						{
-							id = plan->get_halt().get_id();
+							for(  uint8 i=0;  i < plan->get_boden_count();  i++  ) {
+								halthandle_t my_halt = plan->get_boden_bei(i)->get_halt();
+								if(  my_halt.is_bound()  ) {
+									// Stop at first halt found (always prefer ground level)
+									id = my_halt.get_id();
+									break;
+								}
+							}
 						}
-					}	
+					}
 
 					fixed_list_tpl<uint16, 32> list;
 					uint8 month;
@@ -3720,7 +3731,6 @@ bool haltestelle_t::add_grund(grund_t *gr)
 			}
 		}
 	}
-	welt->access(pos)->set_halt(self);
 
 	// Update our list of factories.
 	verbinde_fabriken();
@@ -3780,7 +3790,21 @@ bool haltestelle_t::add_grund(grund_t *gr)
 		}
 	}
 
-	assert(welt->lookup(pos)->get_halt() == self && gr->is_halt());
+	// This entire loop is just for the assertion below.
+	// Consider deleting the assertion --neroden
+	bool grund_is_where_it_should_be = false;
+	const planquadrat_t* plan = welt->lookup(pos);
+	for(  uint8 i=0;  i < plan->get_boden_count();  i++  ) {
+		const grund_t* found_gr = plan->get_boden_bei(i);
+		if (found_gr == gr) {
+			grund_is_where_it_should_be = true;
+			break;
+		}
+	}
+	assert(grund_is_where_it_should_be);
+	assert(gr->get_halt() == self);
+	assert(gr->is_halt());
+
 	init_pos = tiles.front().grund->get_pos().get_2d();
 	check_nearby_halts();
 	calc_transfer_time();
@@ -3832,7 +3856,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 	bool remove_halt = true;
 	planquadrat_t *pl = welt->access( gr->get_pos().get_2d() );
 	if(pl) {
-		// no longer present on tile
+		// no longer present on this level
 		gr->set_halt(halthandle_t());
 		// still connected elsewhere?
 		for(unsigned i=0;  i<pl->get_boden_count();  i++  ) {
@@ -3847,7 +3871,6 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 	if (remove_halt) {
 		// otherwise remove from plan ...
 		if (pl) {
-			pl->set_halt(halthandle_t());
 			pl->get_kartenboden()->set_flag(grund_t::dirty);
 		}
 

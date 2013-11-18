@@ -556,9 +556,6 @@ public:
 	 * 0 wenn Produktionsstopp,
 	 * -1 wenn Ware nicht verarbeitet wird
 	 */
-//<<<<<<< HEAD
-//	sint32 verbraucht(const ware_besch_t *);             // Nimmt fab das an ?? ("Notes to the fab?")
-//=======
 	sint8 is_needed(const ware_besch_t *) const;
 
 	sint32 liefere_an(const ware_besch_t *, sint32 menge);

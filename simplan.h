@@ -40,9 +40,6 @@ private:
 
 	uint8 ground_size, halt_list_count;
 
-	/* only one station per ground xy tile */
-	halthandle_t this_halt;
-
 	/**
 	 * If this tile belongs to a city, a pointer to that city.
 	 * This saves much lookup time
@@ -156,17 +153,12 @@ public:
 	void angehoben(karte_t *welt);
 
 	/**
-	* since stops may be multilevel, but waren uses pos, we mirror here any halt that is on this square
-	* @author Hj. Malthaner
+	* returns halthandle belonging to player sp
+	* returns a random halt if sp is NULL
+	* @return NULL if no halt present
+	* @author Kieron Green
 	*/
-	void set_halt(halthandle_t halt);
-
-	/**
-	* returns a halthandle, if some ground here has a stop
-	* @return NULL wenn keine Haltestelle, sonst Zeiger auf Haltestelle
-	* @author Hj. Malthaner
-	*/
-	halthandle_t get_halt() const {return this_halt;}
+	halthandle_t get_halt(spieler_t *sp) const;
 
 	stadt_t* get_city() const { return city; }
 	void set_city(stadt_t* value) { city = value; }

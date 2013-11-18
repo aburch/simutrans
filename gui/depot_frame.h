@@ -123,20 +123,6 @@ private:
 	 */
 	bool has_min_sizer() const {return true;}
 
-//<<<<<<< HEAD
-//=======
-//	// true if already stored here
-//	bool is_contained(const vehikel_besch_t *info);
-//
-//	// add a single vehicle (helper function)
-//	void add_to_vehicle_list(const vehikel_besch_t *info);
-//
-//	// for convoi image
-//	void image_from_convoi_list(uint nr, bool to_end);
-//
-//	void image_from_storage_list(gui_image_list_t::image_data_t *bild_data);
-//
-//>>>>>>> aburch/master
 	karte_t* get_welt() { return depot->get_welt(); }
 
 public:

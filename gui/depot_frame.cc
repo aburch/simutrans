@@ -497,30 +497,6 @@ void depot_frame_t::update_data()
 	convoy_assembler.update_data();
 }
 
-//void depot_frame_t::reset_convoy_name(convoihandle_t cnv)
-//{
-//	// reset convoy name only if the convoy is currently selected
-//	if(  cnv.is_bound()  &&  cnv==depot->get_convoi(icnv)  ) {
-//		tstrncpy(txt_old_cnv_name, cnv->get_name(), lengthof(txt_old_cnv_name));
-//		tstrncpy(txt_cnv_name, cnv->get_name(), lengthof(txt_cnv_name));
-//		inp_name.set_text(txt_cnv_name, lengthof(txt_cnv_name));
-//=======
-//
-//	// Update vehicle filter
-//	vehicle_filter.clear_elements();
-//	vehicle_filter.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("All"), COL_BLACK));
-//	vehicle_filter.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("Relevant"), COL_BLACK));
-//
-//	FOR(vector_tpl<ware_besch_t const*>, const i, get_welt()->get_goods_list()) {
-//		vehicle_filter.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(i->get_name()), COL_BLACK));
-//	}
-//
-//	if(  depot->selected_filter > vehicle_filter.count_elements()  ) {
-//		depot->selected_filter = VEHICLE_FILTER_RELEVANT;
-//	}
-//	vehicle_filter.set_selection(depot->selected_filter);
-//}
-
 
 sint64 depot_frame_t::calc_restwert(const vehikel_besch_t *veh_type)
 {
@@ -532,74 +508,6 @@ sint64 depot_frame_t::calc_restwert(const vehikel_besch_t *veh_type)
 	}
 	return wert;
 }
-
-
-//void depot_frame_t::image_from_storage_list(gui_image_list_t::image_data_t *bild_data)
-//{
-//	if(  bild_data->lcolor != COL_RED  &&  bild_data->rcolor != COL_RED  ) {
-//		if(  veh_action == va_sell  ) {
-//			depot->call_depot_tool('s', convoihandle_t(), bild_data->text );
-//		}
-//		else {
-//			convoihandle_t cnv = depot->get_convoi( icnv );
-//			if(  !cnv.is_bound()  &&   !depot->get_besitzer()->is_locked()  ) {
-//				// adding new convoi, block depot actions until command executed
-//				// otherwise in multiplayer it's likely multiple convois get created
-//				// rather than one new convoi with multiple vehicles
-//				depot->set_command_pending();
-//			}
-//			depot->call_depot_tool( veh_action == va_insert ? 'i' : 'a', cnv, bild_data->text );
-//		}
-//>>>>>>> aburch/master
-//	}
-//}
-
-
-//<<<<<<< HEAD
-//void depot_frame_t::rename_convoy(convoihandle_t cnv)
-//{
-//	if(  cnv.is_bound()  ) {
-//		const char *t = inp_name.get_text();
-//		// only change if old name and current name are the same
-//		// otherwise some unintended undo if renaming would occur
-//		if(  t  &&  t[0]  &&  strcmp(t, cnv->get_name())  &&  strcmp(txt_old_cnv_name, cnv->get_name())==0  ) {
-//			// text changed => call tool
-//			cbuffer_t buf;
-//			buf.printf( "c%u,%s", cnv.get_id(), t );
-//			werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
-//			w->set_default_param( buf );
-//			cnv->get_welt()->set_werkzeug( w, cnv->get_besitzer() );
-//			// since init always returns false, it is safe to delete immediately
-//			delete w;
-//			// do not trigger this command again
-//			tstrncpy(txt_old_cnv_name, t, lengthof(txt_old_cnv_name));
-//		}
-//	}
-//}
-
-//void depot_frame_t::image_from_convoi_list(uint nr, bool to_end)
-//{
-//	const convoihandle_t cnv = depot->get_convoi( icnv );
-//	if(  cnv.is_bound()  &&  nr < cnv->get_vehikel_anzahl()  ) {
-//		// we remove all connected vehicles together!
-//		// find start
-//		unsigned start_nr = nr;
-//		while(  start_nr > 0  ) {
-//			start_nr--;
-//			const vehikel_besch_t *info = cnv->get_vehikel(start_nr)->get_besch();
-//			if(  info->get_nachfolger_count() != 1  ) {
-//				start_nr++;
-//				break;
-//			}
-//		}
-//
-//		cbuffer_t start;
-//		start.printf("%u", start_nr);
-//
-//		const char tool = to_end ? 'R' : 'r';
-//		depot->call_depot_tool( tool, cnv, start );
-//	}
-//}
 
 
 bool depot_frame_t::action_triggered( gui_action_creator_t *komp, value_t p)
@@ -707,23 +615,6 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp, value_t p)
 				line_selector.set_focusable( false );
 				return true;
 			}
-//<<<<<<< HEAD
-//				depot->call_depot_tool( 'c', cnv, NULL);
-//				update_convoy();
-//			}
-//			return true;
-//		}
-//		else if(komp == &bt_apply_line) {
-//			apply_line();
-//		} else if(komp == &line_selector) {
-//			int selection = p.i;
-////DBG_MESSAGE("depot_frame_t::action_triggered()","line selection=%i",selection);
-//			if(  (unsigned)(selection-1)<(unsigned)line_selector.count_elements()  ) {
-//				vector_tpl<linehandle_t> lines;
-//				get_line_list(depot, &lines);
-//				selected_line = lines[selection - 1];
-//				depot->set_selected_line(selected_line);
-//=======
 			else if(  selection == 1  ) { // create new line
 				if(  line_selector.is_dropped()  ) { // but not from next/prev buttons
 					// promote existing individual schedule to line
