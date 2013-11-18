@@ -2145,9 +2145,6 @@ void stadt_t::change_size(sint32 delta_citizen)
 
 void stadt_t::step(long delta_t)
 {
-	if(delta_t>20000) {
-		delta_t = 1;
-	}
 
 	settings_t const& s = welt->get_settings();
 
