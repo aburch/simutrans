@@ -296,7 +296,7 @@ void button_t::zeichnen(koord offset)
 					display_proportional_ellipse( area_text, translated_text, ALIGN_LEFT | ALIGN_CENTER_V | DT_CLIP, text_color, true );
 				}
 				if(  win_get_focus() == this  ) {
-					draw_focus_rect( scr_rect( area.get_pos()+scr_coord(0,(area.get_size().h-gui_theme_t::gui_checkbox_size.y)/2), gui_theme_t::gui_checkbox_size ) );
+					draw_focus_rect( scr_rect( (koord)area.get_pos()+koord(0,(area.get_size().h-gui_theme_t::gui_checkbox_size.y)/2), gui_theme_t::gui_checkbox_size ) );
 				}
 			}
 			break;

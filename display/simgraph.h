@@ -81,11 +81,6 @@ display_set_clip_wh(x, y, w, h);
 display_set_clip_wh(p_cr.x, p_cr.y, p_cr.w, p_cr.h); \
 }
 
-#define PUSH_CLIPRECT(r) \
-{\
-clip_dimension const p_cr = display_get_clip_wh(); \
-display_set_clip_wh(r.x, r.y, r.w, r.h);
-
 
 /*
  * pixels stored as RGB 1555
