@@ -127,6 +127,9 @@ public:
 	const scr_rect operator +(const scr_coord& other ) const { scr_rect rect(x + other.x, y + other.y, w, h ); return rect; }
 	const scr_rect operator -(const scr_coord& other ) const { scr_rect rect(x - other.x, y - other.y, w, h ); return rect; }
 
+	const scr_rect operator +(const scr_size& sz ) const { return scr_rect(x,y, w+sz.w, h+sz.h ); }
+	const scr_rect operator -(const scr_size& sz ) const { return scr_rect(x,y, w-sz.w, h-sz.h ); }
+
 	// for now still accepted, will be removed
 	// when we convert all relevant koord to scr_coord.
 	scr_rect( const koord& pt ) { set( pt.x, pt.y, 0, 0 ); }

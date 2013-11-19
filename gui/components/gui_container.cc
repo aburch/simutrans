@@ -18,6 +18,7 @@
  */
 
 #include "gui_container.h"
+#include "../gui_theme.h"
 
 gui_container_t::gui_container_t() : gui_komponente_t(), komp_focus(NULL)
 {

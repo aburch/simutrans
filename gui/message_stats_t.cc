@@ -16,6 +16,7 @@
 #include "../display/viewport.h"
 #include "../gui/simwin.h"
 #include "../simworld.h"
+#include "../simskin.h"
 
 #include "../dataobj/environment.h"
 
@@ -217,7 +218,7 @@ void message_stats_t::zeichnen(koord offset)
 		// goto information
 		if(  n.pos!=koord::invalid  ) {
 			// goto button
-			display_color_img( message_selected!=((y-offset.y)/(LINESPACE+1)) ? button_t::pos_button_normal : button_t::pos_button_pushed, offset.x + 2, y, 0, false, true);
+			display_img_aligned( gui_theme_t::pos_button_img[ message_selected!=((y-offset.y)/(LINESPACE+1)) ], scr_rect( offset.x, y, 14, LINESPACE ), ALIGN_CENTER_V | ALIGN_CENTER_H, true );
 		}
 
 		// correct for player color

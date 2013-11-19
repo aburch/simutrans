@@ -242,8 +242,8 @@ void factorylist_stats_t::zeichnen(koord offset)
 			display_proportional_clip(xoff+D_INDICATOR_WIDTH+6+28,yoff,buf,ALIGN_LEFT,COL_BLACK,true);
 
 			// goto button
-			image_id const img = sel-- != 0 ? button_t::pos_button_normal : button_t::pos_button_pushed;
-			display_color_img(img, xoff-14, yoff, 0, false, true);
+			display_img_aligned( gui_theme_t::pos_button_img[ sel == 0 ], scr_rect( xoff-14, yoff, 14, LINESPACE ), ALIGN_CENTER_V | ALIGN_CENTER_H, true );
+			sel --;
 		}
 	}
 }

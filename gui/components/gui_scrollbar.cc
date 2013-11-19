@@ -233,7 +233,14 @@ void scrollbar_t::zeichnen(koord pos_par)
 	// Draw scrollbar as normal
 	button_def[left_top_arrow_index].zeichnen(pos_par);
 	button_def[right_bottom_arrow_index].zeichnen(pos_par);
-	// now background and slider
-	button_t::draw_scrollbar( sliderarea.get_pos()+(scr_coord)pos_par, sliderarea.get_size(), type != vertical, false );
-	button_t::draw_scrollbar( knobarea.get_pos()+(scr_coord)pos_par, knobarea.get_size(), type != vertical, true );
+
+	// now backgroudn and slider
+	if(  type == vertical  ) {
+		display_img_stretch( gui_theme_t::v_scroll_back_tiles, scr_rect( sliderarea.get_pos()+pos_par, sliderarea.get_size() ) );
+		display_img_stretch( gui_theme_t::v_scroll_knob_tiles, scr_rect( knobarea.get_pos()+pos_par, knobarea.get_size() ) );
+	}
+	else {
+		display_img_stretch( gui_theme_t::h_scroll_back_tiles, scr_rect( sliderarea.get_pos()+pos_par, sliderarea.get_size() ) );
+		display_img_stretch( gui_theme_t::h_scroll_knob_tiles, scr_rect( knobarea.get_pos()+pos_par, knobarea.get_size() ) );
+	}
 }

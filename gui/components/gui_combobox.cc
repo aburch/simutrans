@@ -24,7 +24,7 @@
 
 gui_combobox_t::gui_combobox_t() :
 	gui_komponente_t(true),
-	droplist(gui_scrolled_list_t::select)
+	droplist(gui_scrolled_list_t::listskin)
 {
 	bt_prev.set_typ(button_t::arrowleft);
 	bt_prev.set_pos( koord(0,2) );
@@ -143,7 +143,8 @@ DBG_MESSAGE("gui_combobox_t::infowin_event()","close");
 				}
 			}
 		}
-	} else if(ev->ev_class==INFOWIN  &&  (ev->ev_code==WIN_CLOSE  ||  ev->ev_code==WIN_UNTOP)  ) {
+	}
+	else if(ev->ev_class==INFOWIN  &&  (ev->ev_code==WIN_CLOSE  ||  ev->ev_code==WIN_UNTOP)  ) {
 DBG_MESSAGE("gui_combobox_t::infowin_event()","close");
 		textinp.infowin_event(ev);
 		droplist.set_visible(false);

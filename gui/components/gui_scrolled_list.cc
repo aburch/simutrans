@@ -17,6 +17,8 @@
 
 #include "../../display/simgraph.h"
 #include "../../simcolor.h"
+#include "../../besch/skin_besch.h"
+#include "../../simskin.h"
 #include "../../gui/simwin.h"
 
 
@@ -69,11 +71,12 @@ gui_scrolled_list_t::gui_scrolled_list_t(enum type type) :
 	pos = koord(0,0);
 	offset = 0;
 	border = 0;
-	if (type==select) {
-		border = 2;
+	if(  type==windowskin  ) {
+		border = 1;
 	}
-	else if (type==list) {
-		border = 4;
+	else {
+		assert(  type==listskin  );
+		border = 2;
 	}
 	sb.add_listener(this);
 	sb.set_knob_offset(0);
@@ -241,23 +244,17 @@ bool gui_scrolled_list_t::infowin_event(const event_t *ev)
 	const int w = groesse.x - D_SCROLLBAR_WIDTH+2;
 	const int h = groesse.y;
 	if(x <= w) { // inside list
-		switch(type) {
-			case list:
-				break;
-			case select:
-				if(  IS_LEFTCLICK(ev)  &&  x>=(border/2) && x<(w-border/2) &&  y>=(border/2) && y<(h-border/2)) {
-					int new_selection = (y-(border/2)-2+offset);
-					if(new_selection>=0) {
-						new_selection/=LINESPACE;
-						if((unsigned)new_selection>=item_list.get_count()) {
-							new_selection = -1;
-						}
-						DBG_MESSAGE("gui_scrolled_list_t::infowin_event()","selected %i",selection);
-					}
-					selection = new_selection;
-					call_listeners((long)new_selection);
+		if(  IS_LEFTCLICK(ev)  &&  x>=(border/2) && x<(w-border/2) &&  y>=(border/2) && y<(h-border/2)) {
+			int new_selection = (y-(border/2)-2+offset);
+			if(new_selection>=0) {
+				new_selection/=LINESPACE;
+				if((unsigned)new_selection>=item_list.get_count()) {
+					new_selection = -1;
 				}
-				break;
+				DBG_MESSAGE("gui_scrolled_list_t::infowin_event()","selected %i",selection);
+			}
+			selection = new_selection;
+			call_listeners((long)new_selection);
 		}
 	}
 
@@ -292,21 +289,16 @@ void gui_scrolled_list_t::zeichnen(koord pos)
 	const int h = gr.y;
 
 	switch(type) {
-		case list:
+		case windowskin:
+			display_img_stretch( gui_theme_t::windowback, scr_rect( x, y, w, h ) );
 			break;
-		case select:
-			display_vline_wh(x, y+1, h-1, MN_GREY0, true);
-			display_fillbox_wh(x,y,w,1, MN_GREY0, true);
-			display_vline_wh(x+w-1, y+1, h-2, MN_GREY4, true);
-			display_fillbox_wh(x+1,y+h-1,w-1,1, MN_GREY4, true);
-			display_fillbox_wh(x+1,y+1,w-2,h-2, MN_GREY3, true);
+		case listskin:
+			display_img_stretch( gui_theme_t::listbox, scr_rect( x, y, w, h ) );
 			break;
 	}
 
-	display_fillbox_wh(x,y,w,h, MN_GREY3, true);
-	display_ddd_box(x,y-1,w,h+2, COL_BLACK, COL_WHITE, true);
-
 	PUSH_CLIP(x+1,y+1,w-2,h-2);
+
 	int ycum = y+2-offset; // y cumulative
 	int i=0;
 	const bool focus = win_get_focus()==this;

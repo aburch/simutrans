@@ -11,6 +11,7 @@
 #include "../display/viewport.h"
 #include "../simtypes.h"
 #include "../simworld.h"
+#include "../simskin.h"
 #include "../player/simplay.h"
 
 #include "../obj/gebaeude.h"
@@ -22,6 +23,7 @@
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
 
+#include "gui_theme.h"
 
 
 
@@ -215,8 +217,8 @@ void labellist_stats_t::zeichnen(koord offset)
 		if (yoff < start) continue;
 
 		// goto button
-		image_id const img = sel-- != 0 ? button_t::pos_button_normal : button_t::pos_button_pushed;
-		display_color_img(img, offset.x + 2, yoff, 0, false, true);
+		display_img_aligned( gui_theme_t::pos_button_img[ sel == 0 ], scr_rect( offset.x, yoff, 14, LINESPACE ), ALIGN_CENTER_V | ALIGN_CENTER_H, true );
+		sel --;
 
 		buf.clear();
 

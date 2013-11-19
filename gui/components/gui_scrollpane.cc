@@ -42,7 +42,6 @@ void gui_scrollpane_t::recalc_sliders(koord groesse)
 {
 	scroll_x.set_pos( koord(0, groesse.y-D_SCROLLBAR_HEIGHT) );
 	scroll_y.set_pos( koord(groesse.x-D_SCROLLBAR_WIDTH, 0) );
-
 	if(  b_show_scroll_y  &&  scroll_y.is_visible()  ) {
 		scroll_x.set_groesse( groesse-D_SCROLLBAR_SIZE );
 		scroll_x.set_knob( groesse.x-D_SCROLLBAR_WIDTH, komp->get_groesse().x + komp->get_pos().x );
@@ -218,9 +217,7 @@ void gui_scrollpane_t::zeichnen(koord pos)
 	if(  b_show_scroll_x  &&  scroll_x.is_visible()  ) {
 		scroll_x.zeichnen( pos+get_pos() );
 	}
-
 	if(  b_show_scroll_y  &&  scroll_y.is_visible()  ) {
 		scroll_y.zeichnen( pos+get_pos() );
 	}
-
 }

@@ -1052,8 +1052,8 @@ void karte_t::create_rivers( sint16 number )
 void karte_t::distribute_groundobjs_cities(int new_anzahl_staedte, sint32 new_mittlere_einwohnerzahl, sint16 old_x, sint16 old_y )
 {
 DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing rivers");
-	if (env_t::river_types > 0 && settings.get_river_number() > 0) {
-		create_rivers(settings.get_river_number());
+	if(  env_t::river_types > 0  &&  settings.get_river_number() > 0  ) {
+		create_rivers( settings.get_river_number() );
 	}
 
 dbg->important("Creating cities ...");

@@ -11,6 +11,16 @@ void gui_komponente_t::align_to( gui_komponente_t* component_par, control_alignm
 		koord target_pos  = component_par->get_pos();
 		koord target_size = component_par->get_groesse();
 
+		// Do vertical streching
+		if(  alignment_par & ALIGN_STRETCH_V  ) {
+			new_size.y = target_size.y;
+		}
+
+		// Do horizontal streching
+		if(  alignment_par & ALIGN_STRETCH_H  ) {
+			new_size.x = target_size.x;
+		}
+
 		// Do vertical alignment
 		switch(alignment_par & ( ALIGN_TOP | ALIGN_CENTER_V | ALIGN_BOTTOM | ALIGN_INTERIOR_V | ALIGN_EXTERIOR_V ) ) {
 

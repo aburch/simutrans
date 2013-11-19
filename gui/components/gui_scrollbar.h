@@ -40,9 +40,7 @@ private:
 	// private button indexes
 	enum button_element_index {
 		left_top_arrow_index,
-		right_bottom_arrow_index,
-		back_button_index,
-		sclider_buttun_index
+		right_bottom_arrow_index
 	};
 
 	type_t         type;
@@ -62,7 +60,7 @@ private:
 	bool   knob_scroll_discrete;  // if true, knob_offset forced to be integer multiples of knob_scroll_amount
 
 	// arrow buttons
-	button_t button_def[4];
+	button_t button_def[2];
 	// size of button area
 	scr_rect knobarea, sliderarea;
 
@@ -87,7 +85,6 @@ public:
 		// return clamped offset if really desired
 		return knob_offset - (knob_scroll_discrete  &&  total_size!=knob_offset+knob_size  ?  (knob_offset % knob_scroll_amount) : 0);
 	}
-
 	void set_knob_offset(sint32 v) { knob_offset = v; reposition_buttons(); }
 
 	void set_visible_mode(visible_mode_t vm) { visible_mode = vm; }

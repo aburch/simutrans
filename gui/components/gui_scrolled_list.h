@@ -26,7 +26,7 @@ class gui_scrolled_list_t :
 	public gui_komponente_t
 {
 public:
-	enum type { list, select };
+	enum type { windowskin, listskin };
 
 	/**
 	 * Container for list entries - consisting of text and color

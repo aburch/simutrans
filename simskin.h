@@ -39,10 +39,14 @@ public:
 	 * @author prissi
 	 */
 	static const skin_besch_t* button;
-	static const skin_besch_t* squarebutton;
+	static const skin_besch_t* round_button;
+	static const skin_besch_t* check_button;
 	static const skin_besch_t* posbutton;
 	static const skin_besch_t* back;
 	static const skin_besch_t* scrollbar;
+	static const skin_besch_t* divider;
+	static const skin_besch_t* editfield;
+	static const skin_besch_t* listbox;
 	static const skin_besch_t* gadget;
 
 	/// @name pictures used in the GUI

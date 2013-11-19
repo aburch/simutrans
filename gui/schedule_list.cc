@@ -104,7 +104,7 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t *sp_) :
 	sp(sp_),
 	scrolly_convois(&cont),
 	scrolly_haltestellen(&cont_haltestellen),
-	scl(gui_scrolled_list_t::select),
+	scl(gui_scrolled_list_t::listskin),
 	lbl_filter("Line Filter")
 {
 	capacity = load = 0;

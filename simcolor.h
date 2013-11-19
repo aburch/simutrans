@@ -108,16 +108,18 @@ typedef unsigned char COLOR_VAL;
 #define COL_ARRIVED         COL_DARK_ORANGE
 #define COL_DEPARTED        COL_DARK_YELLOW
 
-#define SYSCOL_HIGHLIGHT          gui_theme_t::theme_color_highlight
-#define SYSCOL_SHADOW             gui_theme_t::theme_color_shadow
-#define SYSCOL_FACE               gui_theme_t::theme_color_face
-#define SYSCOL_BUTTON_TEXT        gui_theme_t::button_color_text
-#define SYSCOL_DISABLED_BUTTON_TEXT        gui_theme_t::button_color_disabled_text
-#define SYSCOL_TEXT               gui_theme_t::theme_color_text
-#define SYSCOL_TEXT_HIGHLIGHT     gui_theme_t::theme_color_text_highlight
-#define SYSCOL_SELECTED_TEXT      gui_theme_t::theme_color_selected_text
-#define SYSCOL_SELECTED_BACGROUND gui_theme_t::theme_color_selected_background
-#define SYSCOL_STATIC_TEXT        gui_theme_t::theme_color_static_text
-#define SYSCOL_DISABLED_TEXT      gui_theme_t::theme_color_disabled_text
-#define SYSCOL_WORKAREA           (MN_GREY1)
+#define SYSCOL_HIGHLIGHT            gui_theme_t::gui_color_highlight
+#define SYSCOL_SHADOW               gui_theme_t::gui_color_shadow
+#define SYSCOL_FACE                 gui_theme_t::gui_color_face
+#define SYSCOL_BUTTON_TEXT          gui_theme_t::button_color_text
+#define SYSCOL_DISABLED_BUTTON_TEXT gui_theme_t::button_color_disabled_text
+#define SYSCOL_TEXT                 gui_theme_t::gui_color_text
+#define SYSCOL_TEXT_HIGHLIGHT       gui_theme_t::gui_color_text_highlight
+#define SYSCOL_SELECTED_TEXT        gui_theme_t::gui_color_selected_text
+#define SYSCOL_SELECTED_BACGROUND   gui_theme_t::gui_color_selected_background
+#define SYSCOL_STATIC_TEXT          gui_theme_t::gui_color_static_text
+#define SYSCOL_DISABLED_TEXT        gui_theme_t::gui_color_disabled_text
+#define SYSCOL_FOCUS                gui_theme_t::button_color_focus
+#define SYSCOL_WORKAREA             gui_theme_t::gui_color_workarea
+#define SYSCOL_CURSOR               gui_theme_t::gui_color_cursor
 #endif

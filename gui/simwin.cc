@@ -187,7 +187,7 @@ static int display_gadget_box(sint8 code,
 	if(  img != NULL  ) {
 
 		// Max Kielland: This center the gadget image and compensates for any left/top margins within the image to be backward compatible with older PAK sets.
-		display_color_img(img->bild_nr, x + D_GET_CENTER_ALIGN_OFFSET(img->w,D_GADGET_WIDTH)-img->x, y + D_GET_CENTER_ALIGN_OFFSET(img->h,D_GADGET_HEIGHT)-img->y, 0, false, false);
+		display_color_img(img->bild_nr, x-img->x + D_GET_CENTER_ALIGN_OFFSET(img->w,D_GADGET_WIDTH), y, 0, false, false);
 
 	}
 	else {

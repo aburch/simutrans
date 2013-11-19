@@ -77,7 +77,7 @@ settings_frame_t::settings_frame_t(settings_t* const s) :
 void settings_frame_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta);
-	koord groesse = get_fenstergroesse()-koord(D_MARGIN_LEFT,D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT+D_MARGIN_BOTTOM);
+	koord groesse = get_fenstergroesse()-koord(D_MARGIN_LEFT,D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT/*+D_MARGIN_BOTTOM*/);
 	tabs.set_groesse(groesse);
 }
 

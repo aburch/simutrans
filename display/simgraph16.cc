@@ -2355,6 +2355,37 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 }
 
 
+// only used for GUI
+void display_img_aligned( const unsigned n, scr_rect area, int align, const int dirty)
+{
+	if(  n < anz_images  ) {
+		scr_coord_val x,y;
+
+		// either the image is not touced or moved to middle or right of the rect
+		x = area.x;
+		if(  align & ALIGN_CENTER_H  ) {
+			x -= images[n].x;
+			x += (area.w-images[n].w)/2;
+		}
+		else if(  align & ALIGN_RIGHT  ) {
+			x = area.get_right() - images[n].x - images[n].w;
+		}
+
+		// either the image is not touced or moved to middle or bottom of the rect
+		y = area.y;
+		if(  align & ALIGN_CENTER_V  ) {
+			y -= images[n].y;
+			y += (area.h-images[n].h)/2;
+		}
+		else if(  align & ALIGN_BOTTOM  ) {
+			y = area.get_bottom() - images[n].y - images[n].h;
+		}
+
+		display_color_img( n, x, y, 0, false, dirty );
+	}
+}
+
+
 /**
  * Draw image with vertical clipping (quickly) and horizontal (slowly)
  * @author prissi
@@ -2492,6 +2523,178 @@ void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 p
 					}
 				}
 			}
+		}
+	}
+}
+
+
+// local helper function for tiles buttons
+static void display_three_image_row( image_id i1, image_id i2, image_id i3, scr_rect row )
+{
+	if(  i1!=IMG_LEER  ) {
+		scr_coord_val w = images[i1].w;
+		display_color_img( i1, row.x, row.y, 0, false, true );
+		row.x += w;
+		row.w -= w;
+	}
+	// right
+	if(  i3!=IMG_LEER  ) {
+		scr_coord_val w = images[i3].w;
+		display_color_img( i3, row.get_right()-w, row.y, 0, false, true );
+		row.w -= w;
+	}
+	// middle
+	if(  i2!=IMG_LEER  ) {
+		scr_coord_val w = images[i2].w;
+		// tile it wide
+		while(  w <= row.w  ) {
+			display_color_img( i2, row.x, row.y, 0, false, true );
+			row.x += w;
+			row.w -= w;
+		}
+		// for the rest we have to clip the retange
+		if(  row.w > 0  ) {
+			clip_dimension const cl = display_get_clip_wh();
+			display_set_clip_wh( cl.x, cl.y, max(0,min(row.get_right(),cl.xx)-cl.x), cl.h );
+			display_color_img( i2, row.x, row.y, 0, false, true );
+			display_set_clip_wh(cl.x, cl.y, cl.w, cl.h );
+		}
+	}
+}
+
+
+// this displays a 3x3 array of images to fit the scr_rect
+void display_img_stretch( const stretch_map_t &imag, scr_rect area )
+{
+	scr_coord_val h_top = 0, h_bottom = 0;
+	if(  imag[0][0]!=IMG_LEER  ) {
+		h_top = images[ imag[0][0] ].h;
+	}
+	if(  imag[0][2]!=IMG_LEER  ) {
+		h_bottom = images[ imag[0][2] ].h;
+	}
+
+	// center vertically?
+	if(  imag[0][1] == IMG_LEER  ) {
+		scr_coord_val h = h_top;
+		if(  imag[1][0]!=IMG_LEER  ) {
+			h = max( h, images[ imag[1][0] ].h );
+		}
+		// center vertically
+		area.y += (area.h-h)/2;
+	}
+
+	// bottom
+	display_three_image_row( imag[0][0], imag[1][0], imag[2][0], area );
+
+	// top row (assuming same height for all!)
+	if(  imag[0][2]!=IMG_LEER  ) {
+		scr_rect row( area.x, area.y+area.h-h_bottom, area.w, h_bottom );
+		display_three_image_row( imag[0][2], imag[1][2], imag[2][2], row );
+	}
+
+	// now stretch the middle
+	if(  imag[0][1]!=IMG_LEER  ) {
+		scr_rect row( area.x, area.y+h_top, area.w, area.h-h_top-h_bottom );
+		// tile it wide
+		scr_coord_val h = images[imag[0][1]].h;
+		while(  h <= row.h  ) {
+			display_three_image_row( imag[0][1], imag[1][1], imag[2][1], row );
+			row.y += h;
+			row.h -= h;
+		}
+		// for the rest we have to clip the retangle
+		if(  row.h > 0  ) {
+			clip_dimension const cl = display_get_clip_wh();
+			display_set_clip_wh( cl.x, cl.y, cl.w, max(0,min(row.get_bottom(),cl.yy)-cl.y) );
+			display_three_image_row( imag[0][1], imag[1][1], imag[2][1], row );
+			display_set_clip_wh(cl.x, cl.y, cl.w, cl.h );
+		}
+	}
+}
+
+
+// local helper function for tiles buttons
+static void display_three_blend_row( image_id i1, image_id i2, image_id i3, scr_rect row, PLAYER_COLOR_VAL color )
+{
+	if(  i1!=IMG_LEER  ) {
+		scr_coord_val w = images[i1].w;
+		display_rezoomed_img_blend( i1, row.x, row.y, 0, color, false, true CLIPNUM_IGNORE );
+		row.x += w;
+		row.w -= w;
+	}
+	// right
+	if(  i3!=IMG_LEER  ) {
+		scr_coord_val w = images[i3].w;
+		display_rezoomed_img_blend( i3, row.get_right()-w, row.y, 0, color, false, true CLIPNUM_IGNORE );
+		row.w -= w;
+	}
+	// middle
+	if(  i2!=IMG_LEER  ) {
+		scr_coord_val w = images[i2].w;
+		// tile it wide
+		while(  w <= row.w  ) {
+			display_rezoomed_img_blend( i2, row.x, row.y, 0, color, false, true CLIPNUM_IGNORE );
+			row.x += w;
+			row.w -= w;
+		}
+		// for the rest we have to clip the retange
+		if(  row.w > 0  ) {
+			clip_dimension const cl = display_get_clip_wh();
+			display_set_clip_wh( cl.x, cl.y, max(0,min(row.get_right(),cl.xx)-cl.x), cl.h );
+			display_rezoomed_img_blend( i2, row.x, row.y, 0, color, false, true CLIPNUM_IGNORE );
+			display_set_clip_wh(cl.x, cl.y, cl.w, cl.h );
+		}
+	}
+}
+
+
+// this displays a 3x3 array of images to fit the scr_rect like above, but blend the color
+void display_img_stretch_blend( const stretch_map_t &imag, scr_rect area, PLAYER_COLOR_VAL color )
+{
+	scr_coord_val h_top = 0, h_bottom = 0;
+	if(  imag[0][0]!=IMG_LEER  ) {
+		h_top = images[ imag[0][0] ].h;
+	}
+	if(  imag[0][2]!=IMG_LEER  ) {
+		h_bottom = images[ imag[0][2] ].h;
+	}
+
+	// center vertically?
+	if(  imag[0][1] == IMG_LEER  ) {
+		scr_coord_val h = h_top;
+		if(  imag[1][0]!=IMG_LEER  ) {
+			h = max( h, images[ imag[1][0] ].h );
+		}
+		// center vertically
+		area.y += (area.h-h)/2;
+	}
+
+	// bottom
+	display_three_blend_row( imag[0][0], imag[1][0], imag[2][0], area, color );
+
+	// top row (assuming same height for all!)
+	if(  imag[0][2]!=IMG_LEER  ) {
+		scr_rect row( area.x, area.y+area.h-h_bottom, area.w, h_bottom );
+		display_three_blend_row( imag[0][2], imag[1][2], imag[2][2], row, color );
+	}
+
+	// now stretch the middle
+	if(  imag[0][1]!=IMG_LEER  ) {
+		scr_rect row( area.x, area.y+h_top, area.w, area.h-h_top-h_bottom );
+		// tile it wide
+		scr_coord_val h = images[imag[0][1]].h;
+		while(  h <= row.h  ) {
+			display_three_blend_row( imag[0][1], imag[1][1], imag[2][1], row, color );
+			row.y += h;
+			row.h -= h;
+		}
+		// for the rest we have to clip the retangle
+		if(  row.h > 0  ) {
+			clip_dimension const cl = display_get_clip_wh();
+			display_set_clip_wh( cl.x, cl.y, cl.w, max(0,min(row.get_bottom(),cl.yy)-cl.y) );
+			display_three_blend_row( imag[0][1], imag[1][1], imag[2][1], row, color );
+			display_set_clip_wh(cl.x, cl.y, cl.w, cl.h );
 		}
 	}
 }
@@ -4046,45 +4249,6 @@ unsigned short get_next_char_with_metrics(const char* &text, unsigned char &byte
 }
 
 
-/**
- * For the previous logical character in the text, returns the character code
- * as well as retrieves the char byte count and the screen pixel width
- * CAUTION : The text pointer recedes to point to the previous logical character
- * @author Knightly
- */
-unsigned short get_prev_char_with_metrics(const char* &text, const char *const text_start, unsigned char &byte_length, unsigned char &pixel_width)
-{
-	if(  text<=text_start  ) {
-		// case : start of text reached or passed -> do not move the pointer backwards
-		byte_length = 0;
-		pixel_width = 0;
-		return 0;
-	}
-
-	unsigned short char_code;
-	if(  has_unicode  ) {
-		// determine the start of the previous logical character
-		do {
-			--text;
-		} while (  text>text_start  &&  (*text & 0xC0)==0x80  );
-
-		size_t len = 0;
-		char_code = utf8_to_utf16((const utf8 *)text, &len);
-		byte_length = len;
-	}
-	else {
-		--text;
-		char_code = (unsigned char)(*text);
-		byte_length = 1;
-	}
-	if(  char_code>=large_font.num_chars  ||  (pixel_width=large_font.screen_width[char_code])==0  ) {
-		// default width for missing characters
-		pixel_width = large_font.screen_width[0];
-	}
-	return char_code;
-}
-
-
 /*
  * returns the index of the last character that would fit within the width
  * If an eclipse len is given, it will only return the last character up to this len if the full length cannot be fitted
@@ -4121,6 +4285,45 @@ size_t display_fit_proportional( const char *text, scr_coord_val max_width, scr_
 		}
 	}
 	return eclipse_idx;
+}
+
+
+/**
+ * For the previous logical character in the text, returns the character code
+ * as well as retrieves the char byte count and the screen pixel width
+ * CAUTION : The text pointer recedes to point to the previous logical character
+ * @author Knightly
+ */
+unsigned short get_prev_char_with_metrics(const char* &text, const char *const text_start, unsigned char &byte_length, unsigned char &pixel_width)
+{
+	if(  text<=text_start  ) {
+		// case : start of text reached or passed -> do not move the pointer backwards
+		byte_length = 0;
+		pixel_width = 0;
+		return 0;
+	}
+
+	unsigned short char_code;
+	if(  has_unicode  ) {
+		// determine the start of the previous logical character
+		do {
+			--text;
+		} while (  text>text_start  &&  (*text & 0xC0)==0x80  );
+
+		size_t len = 0;
+		char_code = utf8_to_utf16((const utf8 *)text, &len);
+		byte_length = len;
+	}
+	else {
+		--text;
+		char_code = (unsigned char)(*text);
+		byte_length = 1;
+	}
+	if(  char_code>=large_font.num_chars  ||  (pixel_width=large_font.screen_width[char_code])==0  ) {
+		// default width for missing characters
+		pixel_width = large_font.screen_width[0];
+	}
+	return char_code;
 }
 
 
@@ -4399,6 +4602,63 @@ int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char*
 	}
 	// warning: actual len might be longer, due to clipping!
 	return x - x0;
+}
+
+
+/*
+ * Display a string that if abreviated by the (language specific) ellipse character if too wide
+ * If enoguh space is given, it just display the full string
+ * @returns screen_width
+ */
+KOORD_VAL display_proportional_ellipse_rgb( scr_rect r, const char *text, int align, const PIXVAL color, const bool dirty )
+{
+	const scr_coord_val eclipse_width = translator::get_lang()->eclipse_width;
+	const scr_coord_val max_screen_width = r.w;
+	size_t max_idx = 0;
+
+	uint8 byte_length = 0;
+	uint8 pixel_width = 0;
+	scr_coord_val current_offset = 0;
+
+	if(  align & ALIGN_CENTER_V  ) {
+		r.y += (r.h - LINESPACE)/2;
+		align &= ~ALIGN_CENTER_V;
+	}
+
+	const char *tmp_text = text;
+	while(  get_next_char_with_metrics(tmp_text, byte_length, pixel_width)  &&  max_screen_width > (current_offset+eclipse_width+pixel_width)  ) {
+		current_offset += pixel_width;
+		max_idx += byte_length;
+	}
+	size_t eclipse_idx = max_idx;
+
+	// now check if the text would fit completely
+	if(  eclipse_width  &&  pixel_width > 0  ) {
+		// only when while above failed because of exceeding length
+		current_offset += pixel_width;
+		max_idx += byte_length;
+		// check the rest ...
+		while(  get_next_char_with_metrics(tmp_text, byte_length, pixel_width)  &&  max_screen_width > (current_offset+pixel_width)  ) {
+			current_offset += pixel_width;
+			max_idx += byte_length;
+		}
+		if(  max_screen_width <= (current_offset+pixel_width)  ) {
+			// this fits not!
+			KOORD_VAL w = display_text_proportional_len_clip_rgb( r.x, r.y, text, ALIGN_LEFT | DT_CLIP, color, dirty, max_idx );
+			w += display_text_proportional_len_clip_rgb( r.x+w, r.y, translator::translate("..."), ALIGN_LEFT | DT_CLIP, color, dirty, max_idx );
+			return w;
+		}
+		else {
+			// if this fits, end of string
+			max_idx += byte_length;
+			current_offset += pixel_width;
+		}
+	}
+	if(  align & ALIGN_CENTER_H  ) {
+		r.x += (max_screen_width - current_offset)/2;
+		align &= ~ALIGN_CENTER_H;
+	}
+	return display_text_proportional_len_clip_rgb( r.x, r.y, text, align, color, dirty, -1 );
 }
 
 

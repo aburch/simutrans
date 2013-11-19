@@ -11,19 +11,44 @@ Obj=menu
 name=Button
 # unpressed left, middle, right
 Image[0]=> button.0.0
-Image[1]=> button.0.1
-Image[2]=> button.0.2
+Image[1]=> button.0.2
+Image[2]=> button.0.1
 # pressed left, middle, right
 Image[3]=> button.1.0
-Image[4]=> button.1.1
-Image[5]=> button.1.2
+Image[4]=> button.1.2
+Image[5]=> button.1.1
+# disabled left, middle, right
+Image[6]=> button.2.0
+Image[7]=> button.2.2
+Image[8]=> button.2.1
+# color mask left, middle, right
+Image[9]=> button.3.0
+Image[10]=> button.3.2
+Image[11]=> button.3.1
 --
 Obj=menu
-name=Squarebutton
+name=Roundbutton
+# unpressed left, middle, right
+Image[0]=> roundbutton.0.0
+Image[1]=> roundbutton.0.2
+Image[2]=> roundbutton.0.1
+# pressed left, middle, right
+Image[3]=> roundbutton.1.0
+Image[4]=> roundbutton.1.2
+Image[5]=> roundbutton.1.1
+# disabled left, middle, right
+Image[6]=> roundbutton.2.0
+Image[7]=> roundbutton.2.2
+Image[8]=> roundbutton.2.1
+--
+Obj=menu
+name=Checkbutton
 # unpressed
-Image[0]=> squarebutton.0.0
+Image[0]=> checkbutton.0.0
 # pressed
-Image[1]=> squarebutton.0.1
+Image[1]=> checkbutton.0.1
+# disabled
+Image[2]=> checkbutton.0.2
 --
 Obj=menu
 name=Posbutton
@@ -31,35 +56,42 @@ name=Posbutton
 Image[0]=> posbutton.0.0
 # pressed
 Image[1]=> posbutton.0.1
+# disabled
+Image[2]=> posbutton.0.2
 --
 Obj=menu
 name=Scrollbar
-# unpressed pressed left and right
+# unpressed pressed disabled left and right
 Image[0]=> scrollbar.0.0
 Image[1]=> scrollbar.0.1
 Image[2]=> scrollbar.0.2
 Image[3]=> scrollbar.0.3
-# scrollbar back left right center
-Image[4]=> scrollbar.1.0
-Image[5]=> scrollbar.1.1
-Image[6]=> scrollbar.1.2
-# scrollbar knob left right center
-Image[7]=> scrollbar.1.3
-Image[8]=> scrollbar.1.4
-Image[9]=> scrollbar.1.5
-# unpressed pressed up and down
-Image[10]=> scrollbar.2.0
-Image[11]=> scrollbar.2.1
-Image[12]=> scrollbar.2.2
-Image[13]=> scrollbar.2.3
-# scrollbar back up down center
-Image[14]=> scrollbar.3.0
-Image[15]=> scrollbar.3.1
-Image[16]=> scrollbar.3.2
-# scrollbar knob up down center
-Image[17]=> scrollbar.3.3
-Image[18]=> scrollbar.3.4
-Image[19]=> scrollbar.3.5
+Image[4]=> scrollbar.0.4
+Image[5]=> scrollbar.0.5
+# scrollbar back left center right
+Image[6]=> scrollbar.1.0
+Image[7]=> scrollbar.1.2
+Image[8]=> scrollbar.1.1
+# scrollbar knob left center right
+Image[9]=> scrollbar.1.3
+Image[10]=> scrollbar.1.5
+Image[11]=> scrollbar.1.4
+# back up and down
+Image[12]=> scrollbar.2.0
+Image[13]=> scrollbar.2.2
+Image[14]=> scrollbar.2.1
+# knob up and down
+Image[15]=> scrollbar.2.3
+Image[16]=> scrollbar.2.5
+Image[17]=> scrollbar.2.4
+# scrollbar back up center down
+Image[18]=> scrollbar.3.0
+Image[19]=> scrollbar.3.2
+Image[20]=> scrollbar.3.1
+# scrollbar knob up center down
+Image[21]=> scrollbar.3.3
+Image[22]=> scrollbar.3.5
+Image[23]=> scrollbar.3.4
 --
 # window background
 Obj=menu

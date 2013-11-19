@@ -213,6 +213,14 @@ void display_base_img(const unsigned, KOORD_VAL, KOORD_VAL, const signed char, c
 {
 }
 
+void display_img_stretch( const stretch_map_t &imag, scr_rect area )
+{
+}
+
+void display_img_stretch_blend( const stretch_map_t &imag, scr_rect area, PLAYER_COLOR_VAL color )
+{
+}
+
 #ifdef MULTI_THREAD
 void display_rezoomed_img_blend(const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int, const sint8)
 #else
@@ -342,6 +350,10 @@ int display_text_proportional_len_clip_rgb(KOORD_VAL, KOORD_VAL, const char*, co
 #endif
 {
 	return 0;
+}
+
+KOORD_VAL display_proportional_ellipse_rgb( KOORD_VAL, KOORD_VAL, const char *, int, scr_coord_val, const PIXVAL, const bool )
+{
 }
 
 void display_outline_proportional_rgb(KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, PLAYER_COLOR_VAL, const char *, int)

@@ -17,6 +17,7 @@
 #include "../simcolor.h"
 #include "../unicode.h"
 #include "../simtypes.h"
+#include "simimg.h"
 #include "scr_coord.h"
 
 
@@ -42,12 +43,14 @@ enum control_alignments_t {
 	ALIGN_BOTTOM     = 0x03,
 	ALIGN_INTERIOR_V = 0x00,
 	ALIGN_EXTERIOR_V = 0x10,
+	ALIGN_STRETCH_V  = 0x20,
 
 	ALIGN_LEFT       = 0x04,
 	ALIGN_CENTER_H   = 0x08,
 	ALIGN_RIGHT      = 0x0C,
 	ALIGN_INTERIOR_H = 0x00,
-	ALIGN_EXTERIOR_H = 0x20,
+	ALIGN_EXTERIOR_H = 0x40,
+	ALIGN_STRETCH_H  = 0x80,
 
 	// These flags does not belong in here but
 	// are defined here until we sorted this out.
@@ -77,6 +80,12 @@ display_set_clip_wh(x, y, w, h);
 #define POP_CLIP() \
 display_set_clip_wh(p_cr.x, p_cr.y, p_cr.w, p_cr.h); \
 }
+
+#define PUSH_CLIPRECT(r) \
+{\
+clip_dimension const p_cr = display_get_clip_wh(); \
+display_set_clip_wh(r.x, r.y, r.w, r.h);
+
 
 /*
  * pixels stored as RGB 1555
@@ -193,6 +202,9 @@ void display_scroll_band( const KOORD_VAL start_y, const KOORD_VAL x_offset, con
 // set first and second company color for player
 void display_set_player_color_scheme(const int player, const COLOR_VAL col1, const COLOR_VAL col2 );
 
+// only used for GUI, display image inside a rect
+void display_img_aligned( const unsigned n, scr_rect area, int align, const int dirty);
+
 // display image with day and night change
 #ifdef MULTI_THREAD
 void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty, const sint8 clip_num);
@@ -241,6 +253,14 @@ void display_base_img_cl(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sig
 #else
 void display_base_img(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty);
 #endif
+
+typedef image_id stretch_map_t[3][3];
+
+// this displays a 3x3 array of images to fit the scr_rect
+void display_img_stretch( const stretch_map_t &imag, scr_rect area );
+
+// this displays a 3x3 array of images to fit the scr_rect like above, but blend the color
+void display_img_stretch_blend( const stretch_map_t &imag, scr_rect area, PLAYER_COLOR_VAL color );
 
 // Knightly : display unzoomed image with alpha, either blended or as outline
 #ifdef MULTI_THREAD
@@ -394,13 +414,12 @@ unsigned short get_next_char_with_metrics(const char* &text, unsigned char &byte
  */
 unsigned short get_prev_char_with_metrics(const char* &text, const char *const text_start, unsigned char &byte_length, unsigned char &pixel_width);
 
-
 /*
+ * returns the index of the last character that would fit within the width
  * If an eclipse len is given, it will only return the last character up to this len if the full length cannot be fitted
  * @returns index of next character. if text[index]==0 the whole string fits
  */
-size_t display_fit_proportional( const char* text, scr_coord_val max_width, scr_coord_val eclipse_width=0 );
-
+size_t display_fit_proportional( const char *text, scr_coord_val max_width, scr_coord_val eclipse_width=0 );
 
 /* routines for string len (macros for compatibility with old calls) */
 #define proportional_string_width(text)          display_calc_proportional_string_len_width(text, 0x7FFF)
@@ -436,6 +455,14 @@ int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char*
 #define display_proportional_rgb(     x,  y, txt, align, color, dirty) display_text_proportional_len_clip_rgb(x, y, txt, align,           color, dirty, -1)
 #define display_proportional_clip_rgb(x,  y, txt, align, color, dirty) display_text_proportional_len_clip_rgb(x, y, txt, align | DT_CLIP, color, dirty, -1)
 #endif
+
+/*
+ * Display a string that if abreviated by the (language specific) ellipse character if too wide
+ * If enough space is given, it just display the full string
+ * @returns screen_width
+ */
+KOORD_VAL display_proportional_ellipse_rgb( scr_rect r, const char *text, int align, const PIXVAL color, const bool dirty );
+#define display_proportional_ellipse( r, txt, align, c, dirty) display_proportional_ellipse_rgb( r, txt, align, specialcolormap_all_day[(c)&0xFF], dirty )
 
 void display_ddd_proportional(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, KOORD_VAL hgt,PLAYER_COLOR_VAL ddd_farbe, PLAYER_COLOR_VAL text_farbe,const char *text, int dirty);
 #ifdef MULTI_THREAD

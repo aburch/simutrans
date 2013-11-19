@@ -38,7 +38,7 @@ server_frame_t::server_frame_t(karte_t* w) :
 	gui_frame_t( translator::translate("Game info") ),
 	welt(w),
 	gi(welt),
-	serverlist( gui_scrolled_list_t::select )
+	serverlist( gui_scrolled_list_t::listskin )
 {
 	update_info();
 	display_map = true;

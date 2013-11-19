@@ -164,16 +164,20 @@ void curiositylist_stats_t::zeichnen(koord offset)
 
 	uint32 sel = line_selected;
 	FORX(vector_tpl<gebaeude_t*>, const geb, attractions, yoff += LINESPACE + 1) {
-		if (yoff >= end) break;
+		if (yoff >= end) {
+			break;
+		}
 
 		int xoff = offset.x+10;
 
 		// skip invisible lines
-		if (yoff < start) continue;
+		if (yoff < start) {
+			continue;
+		}
 
 		// goto button
-		image_id const img = sel-- != 0 ? button_t::pos_button_normal : button_t::pos_button_pushed;
-		display_color_img(img, xoff - 8, yoff, 0, false, true);
+		display_img_aligned( gui_theme_t::pos_button_img[ sel == 0 ], scr_rect( xoff-8, yoff, 14, LINESPACE ), ALIGN_CENTER_V | ALIGN_CENTER_H, true );
+		sel --;
 
 		buf.clear();
 

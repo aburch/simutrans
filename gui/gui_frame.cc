@@ -20,8 +20,8 @@
 #include "../player/simplay.h"
 
 #include "../besch/reader/obj_reader.h"
-#include "../simskin.h"
 #include "../besch/skin_besch.h"
+#include "../simskin.h"
 
 
 // Insert the container
@@ -152,49 +152,20 @@ void gui_frame_t::zeichnen(koord pos, koord gr)
 	}
 
 	// draw background
-	PUSH_CLIP(pos.x+1,pos.y+D_TITLEBAR_HEIGHT,gr.x-2,gr.y-D_TITLEBAR_HEIGHT);
-
 	if(  opaque  ) {
-		// Hajo: skinned windows code
-		if(skinverwaltung_t::back!=NULL) {
-			const int img = skinverwaltung_t::back->get_bild_nr(0);
-
-			if (img != IMG_LEER) {
-				for(int j=0; j<gr.y; j+=64) {
-					for(int i=0; i<gr.x; i+=64) {
-						// the background will not trigger a redraw!
-						display_color_img( img, pos.x+1 + i, pos.y+D_TITLEBAR_HEIGHT + j, 0, false, false );
-					}
-				}
-			}
-			else {
-				// No image found
-				display_fillbox_wh( pos.x+1, pos.y+D_TITLEBAR_HEIGHT, gr.x-2, gr.y-D_TITLEBAR_HEIGHT, MN_GREY1, false );
-			}
-		}
-		else {
-			// No skin found
-			display_fillbox_wh( pos.x+1, pos.y+D_TITLEBAR_HEIGHT, gr.x-2, gr.y-D_TITLEBAR_HEIGHT, MN_GREY1, false );
-		}
+		display_img_stretch( gui_theme_t::windowback, scr_rect( pos+koord(0,D_TITLEBAR_HEIGHT), gr-koord(0,D_TITLEBAR_HEIGHT) ) );
 	}
 	else {
 		display_blend_wh( pos.x+1, pos.y+D_TITLEBAR_HEIGHT, gr.x-2, gr.y-D_TITLEBAR_HEIGHT, color_transparent, percent_transparent );
 	}
 
-	// Hajo: left, right
-	display_vline_wh( pos.x, pos.y+D_TITLEBAR_HEIGHT, gr.y-D_TITLEBAR_HEIGHT, MN_GREY4, false );
-	display_vline_wh( pos.x+gr.x-1, pos.y+D_TITLEBAR_HEIGHT, gr.y-D_TITLEBAR_HEIGHT, MN_GREY0, false );
-
-	// Hajo: bottom line
-	display_fillbox_wh( pos.x, pos.y+gr.y-1, gr.x, 1, MN_GREY0, false );
-
-	// shadows
-
+	PUSH_CLIP(pos.x+1,pos.y+D_TITLEBAR_HEIGHT,gr.x-2,gr.y-D_TITLEBAR_HEIGHT);
 	container.zeichnen(pos);
-
 	POP_CLIP();
 
-// for shadows (should be themed too ...)
-//	display_blend_wh( pos.x+gr.x, pos.y+1, 2, gr.y, COL_BLACK, 50 );
-//	display_blend_wh( pos.x+1, pos.y+gr.y, gr.x, 2, COL_BLACK, 50 );
+	// for shadows of the windows
+	if(  gui_theme_t::gui_drop_shadows  ) {
+		display_blend_wh( pos.x+gr.x, pos.y+1, 2, gr.y, COL_BLACK, 50 );
+		display_blend_wh( pos.x+1, pos.y+gr.y, gr.x, 2, COL_BLACK, 50 );
+	}
 }

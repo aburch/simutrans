@@ -191,8 +191,7 @@ void fahrplan_gui_stats_t::zeichnen(koord offset)
 			}
 
 			// the goto button (right arrow)
-			image_id const img = sel == 0 ? button_t::pos_button_pushed : button_t::pos_button_normal;
-			display_color_img(img, offset.x + 2, offset.y, 0, false, true);
+			display_img_aligned( gui_theme_t::pos_button_img[ sel == 0 ], scr_rect( offset.x, offset.y, 14, LINESPACE ), ALIGN_CENTER_V | ALIGN_CENTER_H, true );
 		}
 		set_groesse(koord(width + 16, fpl->get_count() * (LINESPACE + 1)));
 		highlight_schedule(fpl, true);

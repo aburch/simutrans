@@ -71,4 +71,4 @@ toolbar_max_height = 0
 ##################################pakstuff##################################
 
 # pak with the images for this theme
-themeimages=menu.standardtheme.pak
+themeimages=menu.standard.pak

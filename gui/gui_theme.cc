@@ -18,191 +18,277 @@
 #include "../besch/skin_besch.h"
 #include "../besch/reader/obj_reader.h"
 
- // colours
-COLOR_VAL gui_theme_t::theme_color_highlight           = MN_GREY4;
-COLOR_VAL gui_theme_t::theme_color_shadow              = MN_GREY0;
-COLOR_VAL gui_theme_t::theme_color_face                = MN_GREY2;
-COLOR_VAL gui_theme_t::theme_color_button_text         = COL_BLACK;
-COLOR_VAL gui_theme_t::theme_color_text                = COL_BLACK;
-COLOR_VAL gui_theme_t::theme_color_text_highlight      = COL_WHITE;
-COLOR_VAL gui_theme_t::theme_color_selected_text       = COL_WHITE;
-COLOR_VAL gui_theme_t::theme_color_selected_background = COL_BLUE;
-COLOR_VAL gui_theme_t::theme_color_static_text         = COL_BLACK;
-COLOR_VAL gui_theme_t::theme_color_disabled_text       = MN_GREY4;
-
-COLOR_VAL gui_theme_t::button_color_text = COL_BLACK;
-COLOR_VAL gui_theme_t::button_color_disabled_text = MN_GREY0;
+/**
+ * Colours
+ */
+COLOR_VAL gui_theme_t::gui_color_highlight;
+COLOR_VAL gui_theme_t::gui_color_shadow;
+COLOR_VAL gui_theme_t::gui_color_face;
+COLOR_VAL gui_theme_t::gui_color_button_text;
+COLOR_VAL gui_theme_t::gui_color_text;
+COLOR_VAL gui_theme_t::gui_color_text_highlight;
+COLOR_VAL gui_theme_t::gui_color_selected_text;
+COLOR_VAL gui_theme_t::gui_color_selected_background;
+COLOR_VAL gui_theme_t::gui_color_static_text;
+COLOR_VAL gui_theme_t::gui_color_disabled_text;
+COLOR_VAL gui_theme_t::gui_color_workarea;
+COLOR_VAL gui_theme_t::gui_color_cursor;
+COLOR_VAL gui_theme_t::button_color_text;
+COLOR_VAL gui_theme_t::button_color_disabled_text;
+COLOR_VAL gui_theme_t::button_color_focus;
 
 /**
  * Max Kielland
  * These are the built in default theme element sizes and
  * are overridden by the PAK file if a new image is defined.
  */
-koord gui_theme_t::gui_button_size        = koord(92,14);
-koord gui_theme_t::gui_checkbox_size      = koord(10,10);
-koord gui_theme_t::gui_posbutton_size     = koord(14,14);
-koord gui_theme_t::gui_arrow_left_size    = koord(14,14);
-koord gui_theme_t::gui_arrow_right_size   = koord(14,14);
-koord gui_theme_t::gui_arrow_up_size      = koord(14,14);
-koord gui_theme_t::gui_arrow_down_size    = koord(14,14);
-koord gui_theme_t::gui_scrollbar_size     = koord(14,14);
-koord gui_theme_t::gui_scrollknob_size    = koord(14,14);
-koord gui_theme_t::gui_indicator_box_size = koord(10, 6);
+koord gui_theme_t::gui_button_size;
+koord gui_theme_t::gui_button_text_offset;
+koord gui_theme_t::gui_color_button_size;
+koord gui_theme_t::gui_divider_size;
+koord gui_theme_t::gui_checkbox_size;
+koord gui_theme_t::gui_pos_button_size;
+koord gui_theme_t::gui_arrow_left_size;
+koord gui_theme_t::gui_arrow_right_size;
+koord gui_theme_t::gui_arrow_up_size;
+koord gui_theme_t::gui_arrow_down_size;
+koord gui_theme_t::gui_scrollbar_size;
+koord gui_theme_t::gui_min_scrollbar_size;
+koord gui_theme_t::gui_label_size;
+koord gui_theme_t::gui_edit_size;
+koord gui_theme_t::gui_gadget_size;
+koord gui_theme_t::gui_indicator_size;
+koord gui_theme_t::gui_focus_offset;
 
-// default titlebar height
-KOORD_VAL gui_theme_t::gui_titlebar_height = 16;
+KOORD_VAL gui_theme_t::gui_titlebar_height;
+KOORD_VAL gui_theme_t::gui_frame_left;
+KOORD_VAL gui_theme_t::gui_frame_top;
+KOORD_VAL gui_theme_t::gui_frame_right;
+KOORD_VAL gui_theme_t::gui_frame_bottom;
+KOORD_VAL gui_theme_t::gui_hspace;
+KOORD_VAL gui_theme_t::gui_vspace;
 
-// Max Kielland: default gadget size
-KOORD_VAL gui_theme_t::gui_gadget_size = 16;
+scr_coord_val gui_theme_t::gui_color_button_text_offset;
 
-// dialog borders
-KOORD_VAL gui_theme_t::gui_frame_left = 10;
-KOORD_VAL gui_theme_t::gui_frame_top = 10;
-KOORD_VAL gui_theme_t::gui_frame_right = 10;
-KOORD_VAL gui_theme_t::gui_frame_bottom = 10;
+/* those are the 3x3 images which are used for stretching
+ * also 1x3 and 3x1 subsets are possible
+ * first entry is the normal state
+ * second entry is the selected state
+ * third entry is disabled state
+ * button has a fourth one, which is the mask for the background color blending
+ */
+stretch_map_t gui_theme_t::button_tiles[3];
+stretch_map_t gui_theme_t::button_color_tiles[2];
+stretch_map_t gui_theme_t::round_button_tiles[3];
+stretch_map_t gui_theme_t::h_scroll_back_tiles;
+stretch_map_t gui_theme_t::h_scroll_knob_tiles;
+stretch_map_t gui_theme_t::v_scroll_back_tiles;
+stretch_map_t gui_theme_t::v_scroll_knob_tiles;
+stretch_map_t gui_theme_t::divider;
+stretch_map_t gui_theme_t::editfield;
+stretch_map_t gui_theme_t::listbox;
+stretch_map_t gui_theme_t::windowback;
 
-// space between two elements
-KOORD_VAL gui_theme_t::gui_hspace = 4;
-KOORD_VAL gui_theme_t::gui_vspace = 4;
+// and the simple buttons
+image_id gui_theme_t::arrow_button_left_img[3];
+image_id gui_theme_t::arrow_button_right_img[3];
+image_id gui_theme_t::arrow_button_up_img[3];
+image_id gui_theme_t::arrow_button_down_img[3];
+image_id gui_theme_t::check_button_img[3];
+image_id gui_theme_t::pos_button_img[3];
 
-// size of status indicator elements (colored boxes in factories, station and others)
-KOORD_VAL gui_theme_t::gui_indicator_width = 20;
-KOORD_VAL gui_theme_t::gui_indicator_height = 4;
+bool gui_theme_t::gui_drop_shadows;
 
-KOORD_VAL gui_theme_t::gui_divider_height = D_V_SPACE*2;
+/**
+ * Initializes theme related parameters to hard coded default values.
+ * @author  Max Kielland
+ */
+void gui_theme_t::init_gui_defaults()
+{
+	gui_color_highlight           = MN_GREY4;
+	gui_color_shadow              = MN_GREY0;
+	gui_color_face                = MN_GREY2;
+	gui_color_button_text         = COL_BLACK;
+	gui_color_text                = COL_WHITE;
+	gui_color_text_highlight      = COL_WHITE;
+	gui_color_selected_text       = COL_GREY5;
+	gui_color_selected_background = COL_GREY2;
+	gui_color_static_text         = COL_BLACK;
+	gui_color_disabled_text       = MN_GREY4;
+	gui_color_workarea            = MN_GREY1;
+	gui_color_cursor              = COL_WHITE;
+	button_color_text             = COL_BLACK;
+	button_color_disabled_text    = MN_GREY0;
+	button_color_focus            = COL_WHITE;
 
+	gui_button_size        = koord(92,14);
+	gui_color_button_size  = koord(92,16);
+	gui_button_text_offset = koord(0,0);
+	gui_divider_size       = koord(92,2+D_V_SPACE*2);
+	gui_checkbox_size      = koord(10,10);
+	gui_pos_button_size    = koord(14,LINESPACE);
+	gui_arrow_left_size    = koord(14,14);
+	gui_arrow_right_size   = koord(14,14);
+	gui_arrow_up_size      = koord(14,14);
+	gui_arrow_down_size    = koord(14,14);
+	gui_scrollbar_size     = koord(14,14);
+	gui_min_scrollbar_size = koord(3,3);
+	gui_label_size         = koord(92,LINESPACE);
+	gui_edit_size          = koord(92,max(LINESPACE+2, max(D_ARROW_LEFT_HEIGHT, D_ARROW_RIGHT_HEIGHT) ));
+	gui_gadget_size        = koord(16,16);
+	gui_indicator_size     = koord(20,4);
+	gui_focus_offset       = koord(1,1);
+
+	gui_color_button_text_offset = 0;
+	gui_titlebar_height  = 16;
+	gui_frame_left       = 10;
+	gui_frame_top        = 10;
+	gui_frame_right      = 10;
+	gui_frame_bottom     = 10;
+	gui_hspace           = 4;
+	gui_vspace           = 4;
+	gui_divider_size.y   = D_V_SPACE*2;
+
+	gui_drop_shadows     = false;
+}
+
+
+// helper for easier init
+void gui_theme_t::init_size_from_bild( const bild_besch_t *pic, koord &k )
+{
+	if(  pic  ) {
+		const bild_t *image = pic->get_pic();
+		k = koord(image->x+image->w,image->y+image->h);
+	}
+}
 
 
 /**
  * Lazy button image number init
- * @author Hj. Malthaner
  */
-void gui_theme_t::init_gui_images()
+void gui_theme_t::init_gui_from_images()
 {
-	const bild_t *image;
-
-	if(  skinverwaltung_t::squarebutton  ) {
-		// Calculate checkbox size
-		button_t::square_button_normal    = skinverwaltung_t::squarebutton->get_bild_nr( SKIN_BUTTON_CHECKBOX );
-		button_t::square_button_pushed    = skinverwaltung_t::squarebutton->get_bild_nr( SKIN_BUTTON_CHECKBOX_PRESSED );
-		image = skinverwaltung_t::squarebutton->get_bild( SKIN_BUTTON_CHECKBOX )->get_pic();
-		gui_checkbox_size = koord(image->w,image->h);
+	// Calculate posbutton size
+	if(  skinverwaltung_t::posbutton == NULL  ) {
+		// usualy there should be a default theme which would provided missing images even for outdated themes
+		dbg->fatal( "gui_theme_t::init_gui_themes", "Wrong theme loaded" );
 	}
 
-	if(  skinverwaltung_t::posbutton  ) {
-		// Calculate posbutton size
-		button_t::pos_button_normal    = skinverwaltung_t::posbutton->get_bild_nr( SKIN_BUTTON_POS );
-		button_t::pos_button_pushed    = skinverwaltung_t::posbutton->get_bild_nr( SKIN_BUTTON_POS_PRESSED );
-		image = skinverwaltung_t::posbutton->get_bild( SKIN_BUTTON_CHECKBOX )->get_pic();
-		gui_posbutton_size = koord(image->w,image->h);
+	init_size_from_bild( skinverwaltung_t::posbutton->get_bild( SKIN_BUTTON_POS ), gui_pos_button_size );
+	init_size_from_bild( skinverwaltung_t::check_button->get_bild( SKIN_BUTTON_CHECKBOX ), gui_checkbox_size );
+	for(  int i=0;  i<3;  i++  ) {
+		pos_button_img[i] = skinverwaltung_t::posbutton->get_bild_nr( SKIN_BUTTON_POS+i );
+		check_button_img[i] = skinverwaltung_t::check_button->get_bild_nr( SKIN_BUTTON_CHECKBOX+i );
 	}
 
-	if(  skinverwaltung_t::button  ) {
-		// Normal buttons
-		button_t::b_cap_left              = skinverwaltung_t::button->get_bild_nr( SKIN_BUTTON_SIDE_LEFT  );
-		button_t::b_cap_right             = skinverwaltung_t::button->get_bild_nr( SKIN_BUTTON_SIDE_RIGHT );
-		button_t::b_body                  = skinverwaltung_t::button->get_bild_nr( SKIN_BUTTON_BODY       );
-		button_t::b_cap_left_p            = skinverwaltung_t::button->get_bild_nr( SKIN_BUTTON_SIDE_LEFT_PRESSED  );
-		button_t::b_cap_right_p           = skinverwaltung_t::button->get_bild_nr( SKIN_BUTTON_SIDE_RIGHT_PRESSED );
-		button_t::b_body_p                = skinverwaltung_t::button->get_bild_nr( SKIN_BUTTON_BODY_PRESSED       );
-		// Calculate round button size
-		if(  (button_t::b_cap_left != IMG_LEER)  &&  (button_t::b_cap_right != IMG_LEER)  &&  (button_t::b_body != IMG_LEER)  ) {
-
-			// calculate button width
-			scr_coord_val button_width = skinverwaltung_t::button->get_bild( SKIN_BUTTON_SIDE_LEFT  )->get_pic()->w +
-											skinverwaltung_t::button->get_bild( SKIN_BUTTON_SIDE_RIGHT )->get_pic()->w +
-											skinverwaltung_t::button->get_bild( SKIN_BUTTON_BODY       )->get_pic()->w;
-			gui_button_size.x = max(gui_button_size.x,button_width);
-
-			// calculate button height
-			// gui_button_size.y = max(gui_button_size.y, skinverwaltung_t::window_skin->get_bild(SKIN_BUTTON_BODY)->get_pic()->h);
-			gui_button_size.y = max(gui_button_size.y, skinverwaltung_t::button->get_bild(SKIN_BUTTON_BODY)->get_pic()->h);
+	// Normal buttons (colorful ones)
+	scr_coord_val y = gui_button_size.y;
+	koord k;
+	init_size_from_bild( skinverwaltung_t::button->get_bild( SKIN_BUTTON_SIDE_LEFT ), k );
+	y = max( y, k.y );
+	init_size_from_bild( skinverwaltung_t::button->get_bild( SKIN_BUTTON_SIDE_RIGHT ), k );
+	y = max( y, k.y );
+	init_size_from_bild( skinverwaltung_t::button->get_bild( SKIN_BUTTON_BODY ), k );
+	y = max( y, k.y );
+	for(  int i=0;  i<3;  i++  ) {
+		for(  int j=0;  j<9;  j++  ) {
+			button_tiles[i][j%3][j/3] = skinverwaltung_t::button->get_bild_nr( i*9+j );
+		}
+	}
+	image_id has_second_mask;
+	for(  int i=0;  i<2;  i++  ) {
+		has_second_mask = 0xFFFF;
+		for(  int j=0;  j<9;  j++  ) {
+			button_color_tiles[i][j%3][j/3] = skinverwaltung_t::button->get_bild_nr( i*9+j+27 );
+			has_second_mask &= button_color_tiles[i][j%3][j/3];
+		}
+	}
+	if(  has_second_mask == 0xFFFF  ) {
+		// has no second mask => copy first
+		for(  int j=0;  j<9;  j++  ) {
+			button_color_tiles[1][j%3][j/3] = button_color_tiles[0][j%3][j/3];
 		}
 	}
 
-	if(  skinverwaltung_t::scrollbar  ) {
-		// scrollbars
-		button_t::arrow_left_normal       = skinverwaltung_t::scrollbar->get_bild_nr( SKIN_BUTTON_ARROW_LEFT             );
-		button_t::arrow_left_pushed       = skinverwaltung_t::scrollbar->get_bild_nr( SKIN_BUTTON_ARROW_LEFT_PRESSED     );
-		button_t::arrow_right_normal      = skinverwaltung_t::scrollbar->get_bild_nr( SKIN_BUTTON_ARROW_RIGHT            );
-		button_t::arrow_right_pushed      = skinverwaltung_t::scrollbar->get_bild_nr( SKIN_BUTTON_ARROW_RIGHT_PRESSED    );
-		button_t::scrollbar_left          = skinverwaltung_t::scrollbar->get_bild_nr( SKIN_SCROLLBAR_H_BACKGROUND_LEFT   );
-		button_t::scrollbar_right         = skinverwaltung_t::scrollbar->get_bild_nr( SKIN_SCROLLBAR_H_BACKGROUND_RIGHT  );
-		button_t::scrollbar_middle        = skinverwaltung_t::scrollbar->get_bild_nr( SKIN_SCROLLBAR_H_BACKGROUND        );
-		button_t::scrollbar_slider_left   = skinverwaltung_t::scrollbar->get_bild_nr( SKIN_SCROLLBAR_H_KNOB_LEFT         );
-		button_t::scrollbar_slider_right  = skinverwaltung_t::scrollbar->get_bild_nr( SKIN_SCROLLBAR_H_KNOB_RIGHT        );
-		button_t::scrollbar_slider_middle = skinverwaltung_t::scrollbar->get_bild_nr( SKIN_SCROLLBAR_H_KNOB_BODY         );
-		button_t::arrow_up_normal         = skinverwaltung_t::scrollbar->get_bild_nr( SKIN_BUTTON_ARROW_UP               );
-		button_t::arrow_up_pushed         = skinverwaltung_t::scrollbar->get_bild_nr( SKIN_BUTTON_ARROW_UP_PRESSED       );
-		button_t::arrow_down_normal       = skinverwaltung_t::scrollbar->get_bild_nr( SKIN_BUTTON_ARROW_DOWN             );
-		button_t::arrow_down_pushed       = skinverwaltung_t::scrollbar->get_bild_nr( SKIN_BUTTON_ARROW_DOWN_PRESSED     );
-		button_t::scrollbar_top           = skinverwaltung_t::scrollbar->get_bild_nr( SKIN_SCROLLBAR_V_BACKGROUND_TOP    );
-		button_t::scrollbar_bottom        = skinverwaltung_t::scrollbar->get_bild_nr( SKIN_SCROLLBAR_V_BACKGROUND_BOTTOM );
-		button_t::scrollbar_center        = skinverwaltung_t::scrollbar->get_bild_nr( SKIN_SCROLLBAR_V_BACKGROUND        );
-		button_t::scrollbar_slider_top    = skinverwaltung_t::scrollbar->get_bild_nr( SKIN_SCROLLBAR_V_KNOB_TOP          );
-		button_t::scrollbar_slider_bottom = skinverwaltung_t::scrollbar->get_bild_nr( SKIN_SCROLLBAR_V_KNOB_BOTTOM       );
-		button_t::scrollbar_slider_center = skinverwaltung_t::scrollbar->get_bild_nr( SKIN_SCROLLBAR_V_KNOB_BODY         );
+	// Round buttons
+	for(  int i=0;  i<3;  i++  ) {
+		for(  int j=0;  j<9;  j++  ) {
+			round_button_tiles[i][j%3][j/3] = skinverwaltung_t::round_button->get_bild_nr( i*9+j );
+		}
+	}
 
-		// Calculate arrow left size
-		if(  button_t::arrow_left_normal != IMG_LEER  ) {
-			image = skinverwaltung_t::scrollbar->get_bild( SKIN_BUTTON_ARROW_LEFT )->get_pic();
-			gui_arrow_left_size = koord(image->w,image->h);
-		}
+	// background for editfields, listbuttons, and windows
+	for(  int j=0;  j<9;  j++  ) {
+		editfield[j%3][j/3] = skinverwaltung_t::editfield->get_bild_nr( j );
+		listbox[j%3][j/3] = skinverwaltung_t::listbox->get_bild_nr( j );
+		windowback[j%3][j/3] = skinverwaltung_t::back->get_bild_nr( j );
+	}
 
-		// Calculate arrow right size
-		if(  button_t::pos_button_normal != IMG_LEER  ) {
-			image = skinverwaltung_t::scrollbar->get_bild( SKIN_BUTTON_ARROW_RIGHT )->get_pic();
-			gui_arrow_right_size = koord(image->w,image->h);
-		}
+	// Divider (vspace will be added later on
+	init_size_from_bild( skinverwaltung_t::divider->get_bild(1), gui_divider_size );
+	for(  int i=0;  i<3;  i++  ) {
+		divider[i][0] = skinverwaltung_t::divider->get_bild_nr( i );
+		divider[i][1] = IMG_LEER;
+		divider[i][2] = IMG_LEER;
+	}
 
-		// Calculate arrow up size
-		if(  button_t::arrow_up_normal != IMG_LEER  ) {
-			image = skinverwaltung_t::scrollbar->get_bild( SKIN_BUTTON_ARROW_UP )->get_pic();
-			gui_arrow_up_size = koord(image->w,image->h);
-		}
+	// Calculate arrow size
+	init_size_from_bild( skinverwaltung_t::scrollbar->get_bild( SKIN_BUTTON_ARROW_LEFT ), gui_arrow_left_size );
+	init_size_from_bild( skinverwaltung_t::scrollbar->get_bild( SKIN_BUTTON_ARROW_RIGHT ), gui_arrow_right_size );
+	init_size_from_bild( skinverwaltung_t::scrollbar->get_bild( SKIN_BUTTON_ARROW_UP ), gui_arrow_up_size );
+	init_size_from_bild( skinverwaltung_t::scrollbar->get_bild( SKIN_BUTTON_ARROW_DOWN ), gui_arrow_down_size );
+	for(  int i=0;  i<3;  i++  ) {
+		arrow_button_left_img[i] = skinverwaltung_t::scrollbar->get_bild_nr( SKIN_BUTTON_ARROW_LEFT+i );
+		arrow_button_right_img[i] = skinverwaltung_t::scrollbar->get_bild_nr( SKIN_BUTTON_ARROW_RIGHT+i );
+		arrow_button_up_img[i] = skinverwaltung_t::scrollbar->get_bild_nr( SKIN_BUTTON_ARROW_UP+i );
+		arrow_button_down_img[i] = skinverwaltung_t::scrollbar->get_bild_nr( SKIN_BUTTON_ARROW_DOWN+i );
+	}
 
-		// Calculate arrow down size
-		if(  button_t::arrow_down_normal != IMG_LEER  ) {
-			image = skinverwaltung_t::scrollbar->get_bild( SKIN_BUTTON_ARROW_DOWN )->get_pic();
-			gui_arrow_down_size = koord(image->w,image->h);
-		}
+	// init horizontal scrollbar buttons
+	for(  int i=0;  i<3;  i++  ) {
+		h_scroll_back_tiles[i][0] = skinverwaltung_t::scrollbar->get_bild_nr( SKIN_SCROLLBAR_H_BACKGROUND_LEFT+i );
+		h_scroll_back_tiles[i][1] = IMG_LEER;
+		h_scroll_back_tiles[i][2] = IMG_LEER;
+		h_scroll_knob_tiles[i][0] = skinverwaltung_t::scrollbar->get_bild_nr( SKIN_SCROLLBAR_H_KNOB_LEFT+i );
+		h_scroll_knob_tiles[i][1] = IMG_LEER;
+		h_scroll_knob_tiles[i][2] = IMG_LEER;
+	}
 
-		// Calculate V scrollbar size
-		image = NULL;
-		if(  button_t::scrollbar_center != IMG_LEER  ) {
-			image = skinverwaltung_t::scrollbar->get_bild( SKIN_SCROLLBAR_V_BACKGROUND )->get_pic();
-		}
-		else if(  button_t::scrollbar_slider_center != IMG_LEER  ) {
-			image = skinverwaltung_t::scrollbar->get_bild( SKIN_SCROLLBAR_V_KNOB_BODY )->get_pic();
-		}
-		gui_scrollbar_size.x = (image) ? image->w : gui_arrow_up_size.x;
+	// init vertical scrollbar buttons
+	for(  int i=0;  i<3;  i++  ) {
+		v_scroll_back_tiles[0][i] = skinverwaltung_t::scrollbar->get_bild_nr( SKIN_SCROLLBAR_V_BACKGROUND_TOP+i );
+		v_scroll_back_tiles[1][i] = IMG_LEER;
+		v_scroll_back_tiles[2][i] = IMG_LEER;
+		v_scroll_knob_tiles[0][i] = skinverwaltung_t::scrollbar->get_bild_nr( SKIN_SCROLLBAR_V_KNOB_TOP+i );
+		v_scroll_knob_tiles[1][i] = IMG_LEER;
+		v_scroll_knob_tiles[2][i] = IMG_LEER;
+	}
 
-		if(  button_t::scrollbar_slider_center != IMG_LEER  ) {
-			image = skinverwaltung_t::scrollbar->get_bild( SKIN_SCROLLBAR_V_KNOB_BODY )->get_pic();
-			gui_scrollknob_size.x = image->w;
-		}
-		else {
-			gui_scrollknob_size.x = gui_scrollbar_size.x;
-		}
+	// Calculate V scrollbar size
+	{
+		koord back, front;
+		init_size_from_bild( skinverwaltung_t::scrollbar->get_bild( SKIN_SCROLLBAR_V_BACKGROUND ), back );
+		init_size_from_bild( skinverwaltung_t::scrollbar->get_bild( SKIN_SCROLLBAR_V_KNOB_BODY ), front );
+		gui_scrollbar_size.x = max(front.x,back.x);
 
 		// Calculate H scrollbar size
-		image = NULL;
-		if(  button_t::scrollbar_middle != IMG_LEER  ) {
-			image = skinverwaltung_t::scrollbar->get_bild( SKIN_SCROLLBAR_H_BACKGROUND )->get_pic();
-		}
-		else if(  button_t::scrollbar_slider_middle != IMG_LEER  ) {
-			image = skinverwaltung_t::scrollbar->get_bild( SKIN_SCROLLBAR_H_KNOB_BODY )->get_pic();
-		}
-		gui_scrollbar_size.y = (image) ? image->h : gui_arrow_left_size.y;
+		init_size_from_bild( skinverwaltung_t::scrollbar->get_bild( SKIN_SCROLLBAR_H_BACKGROUND ), back );
+		init_size_from_bild( skinverwaltung_t::scrollbar->get_bild( SKIN_SCROLLBAR_H_KNOB_BODY ), front );
+		gui_scrollbar_size.x = max(front.y,back.y);
 
-		if ( button_t::scrollbar_slider_middle != IMG_LEER ) {
-			image = skinverwaltung_t::scrollbar->get_bild( SKIN_SCROLLBAR_H_KNOB_BODY )->get_pic();
-			gui_scrollknob_size.y = image->h;
-		}
-		else {
-			gui_scrollknob_size.y = gui_scrollbar_size.y;
-		}
+		// calculate minimum width
+		init_size_from_bild( skinverwaltung_t::scrollbar->get_bild( SKIN_SCROLLBAR_H_KNOB_LEFT ), back );
+		init_size_from_bild( skinverwaltung_t::scrollbar->get_bild( SKIN_SCROLLBAR_H_KNOB_RIGHT ), front );
+		gui_min_scrollbar_size.x = back.x + front.x;
+
+		// calculate minimum height
+		init_size_from_bild( skinverwaltung_t::scrollbar->get_bild( SKIN_SCROLLBAR_V_KNOB_TOP ), back );
+		init_size_from_bild( skinverwaltung_t::scrollbar->get_bild( SKIN_SCROLLBAR_V_KNOB_BOTTOM ), front );
+		gui_min_scrollbar_size.y = back.y + front.y;
 	}
+
+	// gadgets
+	init_size_from_bild( skinverwaltung_t::gadget->get_bild( SKIN_GADGET_CLOSE ), gui_gadget_size );
 }
 
 
@@ -235,11 +321,31 @@ bool gui_theme_t::themes_init(const char *file_name)
 		return false;
 	}
 
+	// define a default even when stuff is missing from the table
+	init_gui_defaults();
+
 	tabfileobj_t contents;
 	themesconf.read(contents);
 
 	// theme name to find out current theme
 	theme_name = contents.get( "name" );
+
+	// first get the images ( to be able to overload default sizes)
+	const std::string buttonpak = contents.get("themeimages");
+	if(  buttonpak.length()>0  ) {
+		std::string path;
+		char *pathname = strdup(file_name);
+		if(  char *s = strrchr( pathname, '/' )  ) {
+			*s = 0;
+		}
+		else if(  char *s = strrchr( pathname, '\\' )  ) {
+			*s = 0;
+		}
+		chdir( pathname );
+		obj_reader_t::read_file(buttonpak.c_str());
+		gui_theme_t::init_gui_from_images();
+		free(pathname);
+	}
 
 	// first the stuff for the dialogues
 	gui_theme_t::gui_titlebar_height = (uint32)contents.get_int("gui_titlebar_height", gui_theme_t::gui_titlebar_height );
@@ -250,31 +356,32 @@ bool gui_theme_t::themes_init(const char *file_name)
 	gui_theme_t::gui_hspace =          (uint32)contents.get_int("gui_hspace",          gui_theme_t::gui_hspace );
 	gui_theme_t::gui_vspace =          (uint32)contents.get_int("gui_vspace",          gui_theme_t::gui_vspace );
 
+	// the divider needs the vspace added to it for know
+	gui_divider_size.y += gui_vspace*2;
+	gui_theme_t::gui_divider_size.y = contents.get_int("gui_divider_vsize",  gui_theme_t::gui_divider_size.y );
+
 	// those two will be anyway set whenever the buttons are reinitialized
 	// Max Kielland: This has been moved to button_t
 	gui_theme_t::gui_button_size.x = (uint32)contents.get_int("gui_button_width",  gui_theme_t::gui_button_size.x );
 	gui_theme_t::gui_button_size.y = (uint32)contents.get_int("gui_button_height", gui_theme_t::gui_button_size.y );
 
-	gui_theme_t::button_color_text = (uint32)contents.get_color("button_color_text", gui_theme_t::button_color_text );
-	gui_theme_t::button_color_disabled_text = (uint32)contents.get_color("button_color_disabled_text", gui_theme_t::button_color_disabled_text );
+	gui_theme_t::button_color_text = (uint32)contents.get_color("gui_button_color_text", gui_theme_t::button_color_text );
+	gui_theme_t::button_color_disabled_text = (uint32)contents.get_color("gui_button_color_disabled_text", gui_theme_t::button_color_disabled_text );
+	gui_theme_t::gui_button_text_offset = contents.get_koord("gui_button_text_offset",  gui_theme_t::gui_button_text_offset );
 
 	// maybe not the best place, rather use simwin for the static defines?
-	gui_theme_t::theme_color_text =          (COLOR_VAL)contents.get_color("gui_text_color",          SYSCOL_TEXT);
-	gui_theme_t::theme_color_text_highlight =(COLOR_VAL)contents.get_color("gui_text_highlight",      SYSCOL_TEXT_HIGHLIGHT);
-	gui_theme_t::theme_color_static_text =   (COLOR_VAL)contents.get_color("gui_static_text_color",   SYSCOL_STATIC_TEXT);
-	gui_theme_t::theme_color_disabled_text = (COLOR_VAL)contents.get_color("gui_disabled_text_color", SYSCOL_DISABLED_TEXT);
-	gui_theme_t::theme_color_highlight =     (COLOR_VAL)contents.get_color("gui_highlight_color",     SYSCOL_HIGHLIGHT);
-	gui_theme_t::theme_color_shadow =        (COLOR_VAL)contents.get_color("gui_shadow_color",        SYSCOL_SHADOW);
-	gui_theme_t::theme_color_face =          (COLOR_VAL)contents.get_color("gui_face_color",          SYSCOL_FACE);
-	gui_theme_t::theme_color_button_text =   (COLOR_VAL)contents.get_color("gui_button_text_color",   SYSCOL_BUTTON_TEXT);
+	gui_theme_t::gui_color_text =          (COLOR_VAL)contents.get_color("gui_text_color",          SYSCOL_TEXT);
+	gui_theme_t::gui_color_text_highlight =(COLOR_VAL)contents.get_color("gui_text_highlight",      SYSCOL_TEXT_HIGHLIGHT);
+	gui_theme_t::gui_color_static_text =   (COLOR_VAL)contents.get_color("gui_static_text_color",   SYSCOL_STATIC_TEXT);
+	gui_theme_t::gui_color_disabled_text = (COLOR_VAL)contents.get_color("gui_disabled_text_color", SYSCOL_DISABLED_TEXT);
+	gui_theme_t::gui_color_highlight =     (COLOR_VAL)contents.get_color("gui_highlight_color",     SYSCOL_HIGHLIGHT);
+	gui_theme_t::gui_color_shadow =        (COLOR_VAL)contents.get_color("gui_shadow_color",        SYSCOL_SHADOW);
+	gui_theme_t::gui_color_face =          (COLOR_VAL)contents.get_color("gui_face_color",          SYSCOL_FACE);
+	gui_theme_t::gui_color_button_text =   (COLOR_VAL)contents.get_color("gui_button_text_color",   SYSCOL_BUTTON_TEXT);
 
 	// those two may be rather an own control later on?
-	gui_theme_t::gui_indicator_width =  (uint32)contents.get_int("gui_indicator_width",  gui_theme_t::gui_indicator_width );
-	gui_theme_t::gui_indicator_height = (uint32)contents.get_int("gui_indicator_height", gui_theme_t::gui_indicator_height );
+	gui_theme_t::gui_indicator_size = contents.get_koord("gui_indicator_size",  gui_theme_t::gui_indicator_size );
 
-	// other gui parameter
-	// Max Kielland: Scrollbar size is set by the arrow size in button_t
-	//scrollbar_t::BAR_SIZE = (uint32)contents.get_int("gui_scrollbar_width", scrollbar_t::BAR_SIZE );
 	gui_tab_panel_t::header_vsize = (uint32)contents.get_int("gui_tab_header_vsize", gui_tab_panel_t::header_vsize );
 
 	// stuff in env_t but rather GUI
@@ -283,7 +390,8 @@ bool gui_theme_t::themes_init(const char *file_name)
 	env_t::window_frame_active =       contents.get_int("window_frame_active",       env_t::window_frame_active );
 	env_t::second_open_closes_win =    contents.get_int("second_open_closes_win",    env_t::second_open_closes_win );
 	env_t::remember_window_positions = contents.get_int("remember_window_positions", env_t::remember_window_positions );
-	env_t::window_snap_distance = contents.get_int("window_snap_distance", env_t::window_snap_distance );
+	env_t::window_snap_distance =      contents.get_int("window_snap_distance",      env_t::window_snap_distance );
+	gui_theme_t::gui_drop_shadows =    contents.get_int("gui_drop_shadows",          gui_theme_t::gui_drop_shadows );
 
 	env_t::front_window_bar_color =   contents.get_color("front_window_bar_color",   env_t::front_window_bar_color );
 	env_t::front_window_text_color =  contents.get_color("front_window_text_color",  env_t::front_window_text_color );
@@ -298,22 +406,6 @@ bool gui_theme_t::themes_init(const char *file_name)
 	env_t::toolbar_max_width =    contents.get_int("toolbar_max_width",          env_t::toolbar_max_width );
 	env_t::toolbar_max_height =   contents.get_int("toolbar_max_height",         env_t::toolbar_max_height );
 	env_t::cursor_overlay_color = contents.get_color("cursor_overlay_color",     env_t::cursor_overlay_color );
-
-	const std::string buttonpak = contents.get("themeimages");
-	if(  buttonpak.length()>0  ) {
-		std::string path;
-		char *pathname = strdup(file_name);
-		if(  char *s = strrchr( pathname, '/' )  ) {
-			*s = 0;
-		}
-		else if(  char *s = strrchr( pathname, '\\' )  ) {
-			*s = 0;
-		}
-		chdir( pathname );
-		obj_reader_t::read_file(buttonpak.c_str());
-		gui_theme_t::init_gui_images();
-		free(pathname);
-	}
 
 	// parsing buttons still needs to be done after agreement what to load
 	return false; //hence we return false for now ...

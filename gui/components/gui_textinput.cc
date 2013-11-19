@@ -411,8 +411,9 @@ void gui_textinput_t::display_with_focus(koord offset, bool has_focus)
 
 void gui_textinput_t::display_with_cursor(koord offset, bool cursor_active, bool cursor_visible)
 {
-	display_fillbox_wh_clip(pos.x+offset.x+1, pos.y+offset.y+1,groesse.x-2, groesse.y-2, SYSCOL_WORKAREA, true);
-	display_ddd_box_clip( pos.x + offset.x, pos.y + offset.y, groesse.x, groesse.y, SYSCOL_SHADOW, SYSCOL_HIGHLIGHT );
+	display_img_stretch( gui_theme_t::editfield, scr_rect( pos+offset, groesse ) );
+//	display_fillbox_wh_clip(pos.x+offset.x+1, pos.y+offset.y+1,groesse.x-2, groesse.y-2, SYSCOL_WORKAREA, true);
+//	display_ddd_box_clip( pos.x + offset.x, pos.y + offset.y, groesse.x, groesse.y, SYSCOL_SHADOW, SYSCOL_HIGHLIGHT );
 
 	if(  text  ) {
 		// Knightly : recalculate scroll offset
