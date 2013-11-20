@@ -20,7 +20,8 @@ class koord3d;
 class hang_t {
 	static const int flags[81];
 
-	enum { wegbar_ns = 1, wegbar_ow = 2, einfach = 4 };
+	// wegbar: flat enough for ways, infach=only one ew/ns direction, doppel=two height difference, all_up=unused slope (equals a slope starting on z-level up)
+	enum { doppel = 1, wegbar_ns = 2, wegbar_ow = 4, einfach = 8, all_up = 16 };
 
 public:
 	/*
@@ -70,7 +71,7 @@ public:
 	//static bool ist_gegenueber(typ x, typ y) { return ist_einfach(x) && ist_einfach(y) && x + y == 40; }	// unused at present need to extend to cope with double heights
 	static typ gegenueber(typ x) { return ist_einfach(x) ? (x & 7 ? (40 - x) : (80 - x * 2)) : flach; }
 	static typ rotate90(typ x) { return ( ( (x % 3) * 27 ) + ( ( x - (x % 3) ) / 3 ) ); }
-	static uint8 height(typ x) { return max( max( corner1(x), corner2(x) ), max( corner3(x), corner4(x) ) ); }
+	static uint8 height(typ x) { return ((sint8)x!=0)+(flags[x]&1); }
 	static bool ist_doppelt(typ x) { return (flags[x] == einfach); }
 
 	static sint8 diff(typ high, typ low) { return min( min( corner1(high) - corner1(low), corner2(high)-corner2(low) ), min( corner3(high) - corner3(low), corner4(high) - corner4(low) ) ); }

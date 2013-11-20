@@ -192,85 +192,85 @@ static const ribi_t::ribi from_hang[81] = {
 const int hang_t::flags[81] = {
 	wegbar_ns | wegbar_ow, // 0:flat
 	0,
-	0,
+	doppel,
 	0,
 	wegbar_ns | einfach,   // 4:north single height slope
+	doppel,
+	doppel,
+	doppel,
+	wegbar_ns | einfach | doppel,   // 8:north double height slope
 	0,
 	0,
-	0,
-	wegbar_ns | einfach,   // 8:north double height slope
-	0,
-	0,
-	0,
+	doppel,
 	wegbar_ow | einfach,   // 12:west single height slope
 	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	wegbar_ow | einfach,   // 24:west double height slope
-	0,
-	0,
+	doppel,
+	doppel,
+	doppel,
+	doppel,
+	doppel,
+	doppel,
+	doppel,
+	doppel,
+	doppel,
+	doppel,
+	wegbar_ow | einfach | doppel,   // 24:west double height slope
+	doppel,
+	doppel,
 	0,
 	wegbar_ow | einfach,   // 28:east single height slope
+	doppel,
 	0,
 	0,
+	doppel,
 	0,
 	0,
-	0,
-	0,
-	0,
+	doppel,
 	wegbar_ns | einfach,   // 36:south single height slope
 	0,
+	doppel,
 	0,
-	0,
-	wegbar_ns | wegbar_ow, // 40:all 1 tile high
-	0,
-	0,
-	0,
-	wegbar_ns | einfach,   // 44 north slope 2
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	wegbar_ow | einfach,   // 52 west slope 2
-	0,
-	0,
-	0,
-	wegbar_ow | einfach,   // 56:east double height slope
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	wegbar_ow | einfach,   // 68:east slope 2
-	0,
-	0,
-	0,
-	wegbar_ns | einfach,   // 72:south double height slope
-	0,
-	0,
-	0,
-	wegbar_ns | einfach,   // 76:south slope 2
-	0,
-	0,
-	0,
-	wegbar_ns | wegbar_ow  // 80:all 2 tile high
+	wegbar_ns | wegbar_ow | all_up, // 40:all 1 tile high
+	doppel | all_up,
+	doppel | all_up,
+	doppel,
+	wegbar_ns | einfach | doppel | all_up,   // 44 north slope 2
+	doppel | all_up,
+	doppel,
+	doppel,
+	doppel,
+	doppel,
+	doppel | all_up,
+	doppel,
+	wegbar_ow | einfach | doppel | all_up,   // 52 west slope 2
+	doppel | all_up,
+	doppel,
+	doppel,
+	wegbar_ow | einfach | doppel,   // 56:east double height slope
+	doppel,
+	doppel,
+	doppel,
+	doppel,
+	doppel,
+	doppel,
+	doppel,
+	doppel,
+	doppel,
+	doppel,
+	doppel | all_up,
+	wegbar_ow | einfach | doppel | all_up,   // 68:east slope 2
+	doppel,
+	doppel | all_up,
+	doppel | all_up,
+	wegbar_ns | einfach | doppel,   // 72:south double height slope
+	doppel,
+	doppel,
+	doppel,
+	wegbar_ns | einfach | doppel | all_up,   // 76:south slope 2
+	doppel | all_up,
+	doppel,
+	doppel | all_up,
+	wegbar_ns | wegbar_ow | all_up  // 80:all 2 tile high
 };
 
 

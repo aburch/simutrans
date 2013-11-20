@@ -129,6 +129,11 @@ bool bruecke_besch_t::has_double_ramp() const
 	return (get_hintergrund(bruecke_besch_t::N_Rampe2, 0)!=IMG_LEER || get_vordergrund(bruecke_besch_t::N_Rampe2, 0)!=IMG_LEER);
 }
 
+bool bruecke_besch_t::has_double_start() const
+{
+	return (get_hintergrund(bruecke_besch_t::N_Start2, 0) != IMG_LEER  ||  get_vordergrund(bruecke_besch_t::N_Start2, 0) != IMG_LEER);
+}
+
 
 void bruecke_besch_t::calc_checksum(checksum_t *chk) const
 {

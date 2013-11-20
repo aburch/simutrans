@@ -88,7 +88,15 @@ public:
 	img_t get_rampe(hang_t::typ slope) const;
 	static img_t get_pillar(ribi_t::ribi ribi);
 
+	/**
+	 * @return true if this bridge can raise two level from flat terrain
+	 */
 	bool has_double_ramp() const;
+
+	/**
+	 * @return true if this bridge can start or end onm a double slope
+	 */
+	bool has_double_start() const;
 
 	img_t get_end(hang_t::typ test_slope, hang_t::typ ground_slope, hang_t::typ way_slope) const;
 
