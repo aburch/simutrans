@@ -1,24 +1,24 @@
 #include "gui_komponente.h"
-#include "../../dataobj/koord.h"
+#include "../../display/scr_coord.h"
 
-void gui_komponente_t::align_to( gui_komponente_t* component_par, control_alignment_t alignment_par, koord offset_par )
+void gui_komponente_t::align_to( gui_komponente_t* component_par, control_alignment_t alignment_par, scr_coord offset_par )
 {
 	// Don't process NULL components and complete NONE alignment (both vert and horiz)
 	if(  component_par  &&  alignment_par != ALIGN_NONE  ) {
 
-		koord new_pos     = get_pos();
-		koord new_size    = get_groesse();
-		koord target_pos  = component_par->get_pos();
-		koord target_size = component_par->get_groesse();
+		scr_coord new_pos    = get_pos();
+		scr_size new_size    = get_size();
+		scr_coord target_pos = component_par->get_pos();
+		scr_size target_size = component_par->get_size();
 
 		// Do vertical streching
 		if(  alignment_par & ALIGN_STRETCH_V  ) {
-			new_size.y = target_size.y;
+			new_size.h = target_size.h;
 		}
 
 		// Do horizontal streching
 		if(  alignment_par & ALIGN_STRETCH_H  ) {
-			new_size.x = target_size.x;
+			new_size.w = target_size.w;
 		}
 
 		// Do vertical alignment
@@ -32,20 +32,20 @@ void gui_komponente_t::align_to( gui_komponente_t* component_par, control_alignm
 			// Interior and Exterior center alignment are the same
 			case ALIGN_CENTER_V:
 			case ALIGN_EXTERIOR_V|ALIGN_CENTER_V:
-				new_pos.y = target_pos.y + offset_par.y + (target_size.y - new_size.y) / 2;
+				new_pos.y = target_pos.y + offset_par.y + (target_size.h - new_size.h) / 2;
 				break;
 
 			case ALIGN_BOTTOM:
-				new_pos.y = target_pos.y + offset_par.y + target_size.y - new_size.y;
+				new_pos.y = target_pos.y + offset_par.y + target_size.h - new_size.h;
 				break;
 
 			// Exterior alignment
 			case ALIGN_EXTERIOR_V|ALIGN_TOP:
-				new_pos.y = target_pos.y + target_size.y + offset_par.y;
+				new_pos.y = target_pos.y + target_size.h + offset_par.y;
 				break;
 
 			case ALIGN_EXTERIOR_V|ALIGN_BOTTOM:
-				new_pos.y = target_pos.y - new_size.y - offset_par.y;
+				new_pos.y = target_pos.y - new_size.h - offset_par.y;
 				break;
 
 			// if one of the alignments is NONE but offseted,
@@ -68,20 +68,20 @@ void gui_komponente_t::align_to( gui_komponente_t* component_par, control_alignm
 			// Interior and Exterior center alignment are the same
 			case ALIGN_CENTER_H:
 			case ALIGN_EXTERIOR_H|ALIGN_CENTER_H:
-				new_pos.x = target_pos.x + offset_par.x + (target_size.x - new_size.x) / 2;
+				new_pos.x = target_pos.x + offset_par.x + (target_size.w - new_size.w) / 2;
 				break;
 
 			case ALIGN_RIGHT:
-				new_pos.x = target_pos.x + target_size.x - new_size.x - offset_par.x;
+				new_pos.x = target_pos.x + target_size.w - new_size.w - offset_par.x;
 				break;
 
 			// Exterior alignment
 			case ALIGN_EXTERIOR_H|ALIGN_LEFT:
-				new_pos.x = target_pos.x + target_size.x + offset_par.x;
+				new_pos.x = target_pos.x + target_size.w + offset_par.x;
 				break;
 
 			case ALIGN_EXTERIOR_H|ALIGN_RIGHT:
-				new_pos.x = target_pos.x - new_size.x - offset_par.x;
+				new_pos.x = target_pos.x - new_size.w - offset_par.x;
 				break;
 
 			// if one of the alignments is NONE but offseted,
@@ -96,7 +96,7 @@ void gui_komponente_t::align_to( gui_komponente_t* component_par, control_alignm
 
 		// apply new position and size
 		set_pos(new_pos);
-		set_groesse(new_size);
+		set_size(new_size);
 	}
 
 }

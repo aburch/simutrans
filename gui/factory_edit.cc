@@ -57,38 +57,38 @@ factory_edit_frame_t::factory_edit_frame_t(spieler_t* sp_, karte_t* welt) :
 
 	fab_besch = NULL;
 
-	bt_city_chain.init( button_t::square_state, "Only city chains", koord(get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
+	bt_city_chain.init( button_t::square_state, "Only city chains", scr_coord(get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
 	bt_city_chain.add_listener(this);
 	add_komponente(&bt_city_chain);
 	offset_of_comp += D_BUTTON_HEIGHT;
 
-	bt_land_chain.init( button_t::square_state, "Only land chains", koord(get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
+	bt_land_chain.init( button_t::square_state, "Only land chains", scr_coord(get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
 	bt_land_chain.add_listener(this);
 	add_komponente(&bt_land_chain);
 	offset_of_comp += D_BUTTON_HEIGHT;
 
-	lb_rotation_info.set_pos( koord( get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
+	lb_rotation_info.set_pos( scr_coord( get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
 	add_komponente(&lb_rotation_info);
 
-	bt_left_rotate.init( button_t::repeatarrowleft, NULL, koord(get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2-16,	offset_of_comp-4 ) );
+	bt_left_rotate.init( button_t::repeatarrowleft, NULL, scr_coord(get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2-16,	offset_of_comp-4 ) );
 	bt_left_rotate.add_listener(this);
 	add_komponente(&bt_left_rotate);
 
-	bt_right_rotate.init( button_t::repeatarrowright, NULL, koord(get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2+50-2, offset_of_comp-4 ) );
+	bt_right_rotate.init( button_t::repeatarrowright, NULL, scr_coord(get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2+50-2, offset_of_comp-4 ) );
 	bt_right_rotate.add_listener(this);
 	add_komponente(&bt_right_rotate);
 
-	//lb_rotation.set_pos( koord( get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2+44, offset_of_comp-4 ) );
-	lb_rotation.set_width( bt_right_rotate.get_pos().x - bt_left_rotate.get_pos().x - bt_left_rotate.get_groesse().x );
+	//lb_rotation.set_pos( scr_coord( get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2+44, offset_of_comp-4 ) );
+	lb_rotation.set_width( bt_right_rotate.get_pos().x - bt_left_rotate.get_pos().x - bt_left_rotate.get_size().w );
 	lb_rotation.align_to(&bt_left_rotate,ALIGN_EXTERIOR_H | ALIGN_LEFT | ALIGN_CENTER_V);
 	add_komponente(&lb_rotation);
 	offset_of_comp += D_BUTTON_HEIGHT;
 
-	lb_production_info.set_pos( koord( get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
+	lb_production_info.set_pos( scr_coord( get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
 	add_komponente(&lb_production_info);
 
-	inp_production.set_pos(koord(get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2-16,	offset_of_comp-4-2 ));
-	inp_production.set_groesse(koord( 76, 12 ));
+	inp_production.set_pos(scr_coord(get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2-16,	offset_of_comp-4-2 ));
+	inp_production.set_size(scr_size( 76, 12 ));
 	inp_production.set_limits(0,9999);
 	inp_production.add_listener( this );
 	add_komponente(&inp_production);
@@ -97,7 +97,7 @@ factory_edit_frame_t::factory_edit_frame_t(spieler_t* sp_, karte_t* welt) :
 
 	fill_list( is_show_trans_name );
 
-	resize(koord(0,0));
+	resize(scr_coord(0,0));
 }
 
 
@@ -289,7 +289,7 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 			}
 			buf.append("\n");
 			info_text.recalc_size();
-			cont.set_groesse( info_text.get_groesse() + koord(0, 20) );
+			cont.set_size( info_text.get_size() + scr_size(0, 20) );
 
 			// orientation (255=random)
 			if(besch->get_all_layouts()>1) {

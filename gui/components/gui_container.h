@@ -65,7 +65,7 @@ public:
 	* Draw the component
 	* @author Hj. Malthaner
 	*/
-	virtual void zeichnen(koord offset);
+	virtual void draw(scr_coord offset);
 
 	/**
 	* Removes all Components in the Container.
@@ -99,7 +99,7 @@ public:
 	 * Used for auto-scrolling inside a scroll pane.
 	 * @author Knightly
 	 */
-	virtual koord get_focus_pos() { return komp_focus ? pos+komp_focus->get_focus_pos() : koord::invalid; }
+	virtual scr_coord get_focus_pos() { return komp_focus ? pos+komp_focus->get_focus_pos() : scr_coord::invalid; }
 };
 
 #endif

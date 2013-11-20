@@ -27,25 +27,25 @@ private:
 	cbuffer_t* buf;
 
 	// reserved area in the upper right corner
-	koord reserved_area;
+	scr_size reserved_area;
 
 	// for calculating text height and/or displaying the text
 	// borrowed from ding_infowin_t::calc_draw_info() with adaptation
-	void calc_display_text(const koord offset, const bool draw);
+	void calc_display_text(const scr_coord offset, const bool draw);
 
 public:
-	gui_fixedwidth_textarea_t(cbuffer_t* buf, const sint16 width, const koord reserved_area = koord(0,0));
+	gui_fixedwidth_textarea_t(cbuffer_t* buf, const sint16 width, const scr_size reserved_area = scr_size(0,0));
 
 	void recalc_size();
 
 	// after using any of these setter functions, remember to call recalc_size() to recalculate textarea height
 	void set_width(const sint16 width);
-	void set_reserved_area(const koord area);
+	void set_reserved_area(const scr_size area);
 
-	// it will deliberately ignore the y-component (height) of the size (groesse)
-	void set_groesse(koord groesse) OVERRIDE;
+	// it will deliberately ignore the y-component (height) of the size
+	void set_size(scr_size size) OVERRIDE;
 
-	virtual void zeichnen(koord offset);
+	virtual void draw(scr_coord offset);
 };
 
 #endif

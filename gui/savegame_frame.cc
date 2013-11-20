@@ -57,7 +57,7 @@ savegame_frame_t::savegame_frame_t(const char *suffix, bool only_directories, co
 	num_sections(0),
 	delete_enabled(delete_enabled)
 {
-	koord cursor = koord(D_MARGIN_LEFT,D_MARGIN_TOP);
+	scr_coord cursor = scr_coord(D_MARGIN_LEFT,D_MARGIN_TOP);
 
 	label_enabled = true;
 
@@ -66,22 +66,22 @@ savegame_frame_t::savegame_frame_t(const char *suffix, bool only_directories, co
 
 	// Input box for game name
 	tstrncpy(ibuf, "", lengthof(ibuf));
-	input.set_pos( koord ( fnlabel.get_pos().x + fnlabel.get_groesse().x + D_H_SPACE, cursor.y ) );
-	input.set_groesse( koord ( D_BUTTON_WIDTH, D_EDIT_HEIGHT ) );
+	input.set_pos( scr_coord ( fnlabel.get_pos().x + fnlabel.get_size().w + D_H_SPACE, cursor.y ) );
+	input.set_size( scr_size ( D_BUTTON_WIDTH, D_EDIT_HEIGHT ) );
 	input.set_text(ibuf, 128);
 	fnlabel.align_to(&input,ALIGN_CENTER_V);
 	add_komponente(&input);
 	cursor.y += D_EDIT_HEIGHT;
 	cursor.y += D_V_SPACE;
 
-	// Needs to be scrollable, size is adjusted in set_fenstergroesse()
+	// Needs to be scrollable, size is adjusted in set_windowsize()
 	scrolly.set_pos( cursor );
 	scrolly.set_scroll_amount_y(D_BUTTON_HEIGHT + D_FOCUS_OFFSET_V);
 	scrolly.set_size_corner(false);
 	scrolly.set_scrollbar_mode( scrollbar_t::show_auto );
 	add_komponente(&scrolly);
 
-	// Controls below will be sized and positioned in set_fenstergroesse()
+	// Controls below will be sized and positioned in set_windowsize()
 	add_komponente(&divider1);
 
 	savebutton.init( button_t::roundbox, "Ok" );
@@ -94,8 +94,8 @@ savegame_frame_t::savegame_frame_t(const char *suffix, bool only_directories, co
 
 	set_focus( &input );
 
-	set_min_windowsize( koord ( cursor.x + (D_BUTTON_WIDTH<<1) + D_H_SPACE + D_MARGIN_RIGHT, L_FIXED_DIALOG_HEIGHT + (L_MIN_ROWS * D_BUTTON_HEIGHT) ) );
-	set_fenstergroesse( koord (L_DIALOG_WIDTH, L_FIXED_DIALOG_HEIGHT + (L_DEFAULT_ROWS * D_BUTTON_HEIGHT) ) );
+	set_min_windowsize( scr_size ( cursor.x + (D_BUTTON_WIDTH<<1) + D_H_SPACE + D_MARGIN_RIGHT, L_FIXED_DIALOG_HEIGHT + (L_MIN_ROWS * D_BUTTON_HEIGHT) ) );
+	set_windowsize( scr_size (L_DIALOG_WIDTH, L_FIXED_DIALOG_HEIGHT + (L_DEFAULT_ROWS * D_BUTTON_HEIGHT) ) );
 
 	set_resizemode(diagonal_resize);
 
@@ -109,7 +109,7 @@ savegame_frame_t::savegame_frame_t(const char *suffix, bool only_directories, co
 		dr_mkdir(path);
 	}
 
-	resize(koord(0, 0));
+	resize(scr_coord(0, 0));
 }
 
 
@@ -274,7 +274,7 @@ void savegame_frame_t::fill_list( void )
 	list_filled();
 
 	// force position and size calculation of list elements
-	resize(koord(0, 0));
+	resize(scr_coord(0, 0));
 }
 
 
@@ -309,7 +309,7 @@ void savegame_frame_t::list_filled( void )
 			height += row_height + 1;
 		}
 		else {
-			delete_button->set_groesse(koord(D_BUTTON_HEIGHT, D_BUTTON_HEIGHT));
+			delete_button->set_size(scr_size(D_BUTTON_HEIGHT, D_BUTTON_HEIGHT));
 			delete_button->set_text("X");
 
 #ifdef SIM_SYSTEM_TRASHBINAVAILABLE
@@ -543,10 +543,10 @@ bool savegame_frame_t::action_triggered(gui_action_creator_t *component, value_t
 						i.button->set_visible(false);
 						i.del->set_visible(false);
 						i.label->set_visible(false);
-						i.button->set_groesse(koord(0, 0));
-						i.del->set_groesse(koord(0, 0));
+						i.button->set_size(scr_size(0, 0));
+						i.del->set_size(scr_size(0, 0));
 
-						resize(koord(0, 0));
+						resize(scr_coord(0, 0));
 						in_action = false;
 					}
 				}
@@ -594,7 +594,7 @@ bool savegame_frame_t::del_action(const char * fullpath)
 
 
 /**
- * SET FENSTER GROESSE
+ * SET WINDOW SIZE
  * Position and resize components when teh dialog size changes.
  * The delete button is untouched regarding x position and width.
  * Action button and label are sharing the space where the button width
@@ -605,34 +605,26 @@ bool savegame_frame_t::del_action(const char * fullpath)
  * @author Mathew Hounsell
  * @author Max Kielland
  *
- * @param groesse  The new dialogue size.
+ * @param size  The new dialogue size.
  */
-void savegame_frame_t::set_fenstergroesse(koord groesse)
+void savegame_frame_t::set_windowsize(scr_size size)
 {
 	//const scr_coord_val label_y_offset = D_GET_CENTER_ALIGN_OFFSET(D_LABEL_HEIGHT,D_BUTTON_HEIGHT);
 	const scr_coord_val row_height     = D_FOCUS_OFFSET_V + max( D_LABEL_HEIGHT, D_BUTTON_HEIGHT );
-	const scr_coord_val width          = groesse.x - D_MARGIN_RIGHT;
+	const scr_coord_val width          = size.w - D_MARGIN_RIGHT;
 	      scr_coord_val y              = D_FOCUS_OFFSET_V; // leave room for focus frame
 	      sint16        curr_section   = 0;
 
-	if(groesse.y > display_get_height()-env_t::iconsize.y-D_STATUSBAR_HEIGHT) {
-		// too high ...
-		groesse.y = L_FIXED_DIALOG_HEIGHT + D_BUTTON_HEIGHT * ((display_get_height() - env_t::iconsize.y - D_STATUSBAR_HEIGHT - L_FIXED_DIALOG_HEIGHT) / D_BUTTON_HEIGHT);
-	}
+	size.clip_rightbottom( scr_coord( display_get_width(), display_get_height()-env_t::iconsize.h-D_STATUSBAR_HEIGHT ) );
 
-	if(groesse.x > display_get_width()) {
-		// too wide ...
-		groesse.x = display_get_width();
-	}
-
-	gui_frame_t::set_fenstergroesse(groesse);
-	groesse = get_fenstergroesse();
+	gui_frame_t::set_windowsize(size);
+	size = get_windowsize();
 
 	// Adjust filename edit box
-	input.set_groesse  ( koord( width - input.get_pos().x, D_EDIT_HEIGHT ) );
-	scrolly.set_groesse( koord( groesse.x - D_MARGINS_X, groesse.y - L_FIXED_DIALOG_HEIGHT ) );
+	input.set_size  ( scr_size( width - input.get_pos().x, D_EDIT_HEIGHT ) );
+	scrolly.set_size( scr_size( size.w - D_MARGINS_X, size.h - L_FIXED_DIALOG_HEIGHT ) );
 
-	const scr_coord_val button_width = (scr_coord_val) ((groesse.x - D_MARGINS_X - (delete_enabled * (D_BUTTON_HEIGHT + D_H_SPACE)) - D_H_SPACE) * L_BUTTON_COL_PERCENT );
+	const scr_coord_val button_width = (scr_coord_val) ((size.w - D_MARGINS_X - (delete_enabled * (D_BUTTON_HEIGHT + D_H_SPACE)) - D_H_SPACE) * L_BUTTON_COL_PERCENT );
 	const scr_coord_val label_width =  (scr_coord_val) ( scrolly.get_client().w -  (delete_enabled * (D_BUTTON_HEIGHT + D_H_SPACE)) - button_width - D_H_SPACE);
 
 	// Arrange list elements (file names)
@@ -641,7 +633,7 @@ void savegame_frame_t::set_fenstergroesse(koord groesse)
 		// resize all but delete button
 		// header entry, it's only shown if we have more than one
 		if(  i.type == LI_HEADER  &&  num_sections > 1  ) {
-			i.label->set_pos(koord(0, y + 2));
+			i.label->set_pos(scr_coord(0, y + 2));
 			y += row_height;
 			curr_section++;
 			continue;
@@ -662,13 +654,13 @@ void savegame_frame_t::set_fenstergroesse(koord groesse)
 				delete_button->set_visible(false);
 			}
 			else {
-				delete_button->set_pos(koord(D_FOCUS_OFFSET_H, y));
+				delete_button->set_pos(scr_coord(D_FOCUS_OFFSET_H, y));
 			}
 
-			action_button->set_pos( koord( D_FOCUS_OFFSET_H + delete_enabled * ( D_BUTTON_HEIGHT + D_H_SPACE ), y ) );
+			action_button->set_pos( scr_coord( D_FOCUS_OFFSET_H + delete_enabled * ( D_BUTTON_HEIGHT + D_H_SPACE ), y ) );
 			if (label_enabled) {
 				action_button->set_width(button_width);
-				i.label->align_to( action_button, ALIGN_LEFT | ALIGN_EXTERIOR_H | ALIGN_CENTER_V, koord( D_H_SPACE, 0 ) );
+				i.label->align_to( action_button, ALIGN_LEFT | ALIGN_EXTERIOR_H | ALIGN_CENTER_V, scr_coord( D_H_SPACE, 0 ) );
 				i.label->set_width( label_width - (D_FOCUS_OFFSET_H<<1) );
 			}
 			else {
@@ -680,11 +672,11 @@ void savegame_frame_t::set_fenstergroesse(koord groesse)
 		}
 	}
 
-	button_frame.set_groesse( koord(scrolly.get_client().x, button_frame.get_min_boundaries().h) );
-	divider1.set_width(groesse.x-D_MARGINS_X);
+	button_frame.set_size( scr_size(scrolly.get_client().x, button_frame.get_min_boundaries().h) );
+	divider1.set_width(size.w-D_MARGINS_X);
 	divider1.align_to(&scrolly,ALIGN_TOP | ALIGN_EXTERIOR_V | ALIGN_LEFT);
 	cancelbutton.align_to(&divider1, ALIGN_RIGHT | ALIGN_TOP | ALIGN_EXTERIOR_V );
-	savebutton.align_to(&cancelbutton, ALIGN_RIGHT | ALIGN_EXTERIOR_H | ALIGN_TOP, koord( D_H_SPACE, 0 ) );
+	savebutton.align_to(&cancelbutton, ALIGN_RIGHT | ALIGN_EXTERIOR_H | ALIGN_TOP, scr_coord( D_H_SPACE, 0 ) );
 }
 
 

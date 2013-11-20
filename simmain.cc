@@ -209,7 +209,7 @@ void modal_dialogue( gui_frame_t *gui, ptrdiff_t magic, karte_t *welt, bool (*qu
 	}
 
 	event_t ev;
-	create_win( (display_get_width()-gui->get_fenstergroesse().x)/2, (display_get_height()-gui->get_fenstergroesse().y)/2, gui, w_info, magic );
+	create_win( (display_get_width()-gui->get_windowsize().w)/2, (display_get_height()-gui->get_windowsize().h)/2, gui, w_info, magic );
 
 	if(  welt  ) {
 		welt->set_pause( false );
@@ -224,11 +224,11 @@ void modal_dialogue( gui_frame_t *gui, ptrdiff_t magic, karte_t *welt, bool (*qu
 				DBG_DEBUG4("zeige_banner", "calling win_poll_event");
 				win_poll_event(&ev);
 				// no toolbar events
-				if(  ev.my < werkzeug_t::toolbar_tool[0]->iconsize.y  ) {
-					ev.my = werkzeug_t::toolbar_tool[0]->iconsize.y;
+				if(  ev.my < werkzeug_t::toolbar_tool[0]->iconsize.h  ) {
+					ev.my = werkzeug_t::toolbar_tool[0]->iconsize.h;
 				}
-				if(  ev.cy < werkzeug_t::toolbar_tool[0]->iconsize.y  ) {
-					ev.cy = werkzeug_t::toolbar_tool[0]->iconsize.y;
+				if(  ev.cy < werkzeug_t::toolbar_tool[0]->iconsize.h  ) {
+					ev.cy = werkzeug_t::toolbar_tool[0]->iconsize.h;
 				}
 				if(  ev.ev_class == EVENT_KEYBOARD  &&  ev.ev_code == SIM_KEY_F1  ) {
 					if(  gui_frame_t *win = win_get_top()  ) {
@@ -265,7 +265,7 @@ void modal_dialogue( gui_frame_t *gui, ptrdiff_t magic, karte_t *welt, bool (*qu
 			// do not move, do not close it!
 			dr_sleep(50);
 			dr_prepare_flush();
-			gui->zeichnen(win_get_pos(gui), gui->get_fenstergroesse());
+			gui->draw(win_get_pos(gui), gui->get_windowsize());
 			dr_flush();
 
 			display_poll_event(&ev);

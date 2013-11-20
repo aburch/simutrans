@@ -431,7 +431,7 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 	// now the toolbar tools
 	DBG_MESSAGE( "werkzeug_t::read_menu()", "Reading toolbars" );
 	// default size
-	env_t::iconsize = koord( contents.get_int("icon_width",32), contents.get_int("icon_height",32) );
+	env_t::iconsize = scr_size( contents.get_int("icon_width",32), contents.get_int("icon_height",32) );
 	// first: add main menu
 	toolbar_tool.resize( skinverwaltung_t::werkzeuge_toolbars->get_bild_anzahl() );
 	toolbar_tool.append(new toolbar_t(TOOLBAR_TOOL, "", "", env_t::iconsize));
@@ -641,7 +641,7 @@ void werkzeug_t::update_toolbars(karte_t *welt)
 }
 
 
-void werkzeug_t::draw_after(karte_t *welt, koord pos, bool dirty) const
+void werkzeug_t::draw_after(karte_t *welt, scr_coord pos, bool dirty) const
 {
 	// default action: grey corner if selected
 	image_id id = get_icon( welt->get_active_player() );

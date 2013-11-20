@@ -13,7 +13,7 @@
 #ifndef gui_gui_frame_h
 #define gui_gui_frame_h
 
-#include "../dataobj/koord.h"
+#include "../display/scr_coord.h"
 #include "../display/simgraph.h"
 #include "../simcolor.h"
 #include "../dataobj/koord3d.h"
@@ -49,14 +49,14 @@ private:
 	gui_container_t container;
 
 	const char *name;
-	koord groesse;
+	scr_size size;
 
 	/**
 	 * Min. size of the window
 	 * @author Markus Weber
 	 * @date   11-May-2002
 	 */
-	koord min_windowsize;
+	scr_size min_windowsize;
 
 	resize_modes resize_mode; // 25-may-02  markus weber added
 	const spieler_t *owner;
@@ -78,7 +78,7 @@ protected:
 	 * @author Markus Weber, Hj. Malthaner
 	 * @date   11-May-2002
 	 */
-	virtual void resize(const koord delta);
+	virtual void resize(const scr_coord delta);
 
 	void set_owner( const spieler_t *sp ) { owner = sp; }
 
@@ -137,27 +137,27 @@ public:
 	 * @return gets the window sizes
 	 * @author Hj. Malthaner
 	 */
-	koord get_fenstergroesse() const { return groesse; }
+	scr_size get_windowsize() const { return size; }
 
 	/**
 	 * Sets the window sizes
 	 * @author Hj. Malthaner
 	 */
-	virtual void set_fenstergroesse(koord groesse);
+	virtual void set_windowsize(scr_size size);
 
 	/**
 	 * Set minimum size of the window
 	 * @author Markus Weber
 	 * @date   11-May-2002
 	 */
-	void set_min_windowsize(koord size) { min_windowsize = size; }
+	void set_min_windowsize(scr_size size) { min_windowsize = size; }
 
 	/**
 	 * Set minimum size of the window
 	 * @author Markus Weber
 	 * @date   11-May-2002
 	 */
-	koord get_min_windowsize() { return min_windowsize; }
+	scr_size get_min_windowsize() { return min_windowsize; }
 
 	/**
 	 * Max Kielland 2013: Client size auto calculation with title bar and margins.
@@ -165,8 +165,8 @@ public:
 	 * @author Markus Weber
 	 * @date   11-May-2002
 	*/
-	koord get_client_windowsize() const {
-		return groesse - koord(0, ( has_title()*D_TITLEBAR_HEIGHT ) );
+	scr_size get_client_windowsize() const {
+		return size - scr_size(0, ( has_title()*D_TITLEBAR_HEIGHT ) );
 	}
 
 	/**
@@ -230,8 +230,8 @@ public:
 	 */
 	virtual bool getroffen(int x, int y)
 	{
-		koord groesse = get_fenstergroesse();
-		return (  x>=0  &&  y>=0  &&  x<groesse.x  &&  y<groesse.y  );
+		scr_size size = get_windowsize();
+		return (  x>=0  &&  y>=0  &&  x<size.w  &&  y<size.h  );
 	}
 
 	/**
@@ -247,7 +247,7 @@ public:
 	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
-	virtual void zeichnen(koord pos, koord gr);
+	virtual void draw(scr_coord pos, scr_size size);
 
 	// called, when the map is rotated
 	virtual void map_rotate90( sint16 /*new_ysize*/ ) { }

@@ -114,12 +114,12 @@ bool citylist_stats_t::infowin_event(const event_t * ev)
 
 void citylist_stats_t::recalc_size()
 {
-	// show_scroll_x==false ->> groesse.x not important ->> no need to calc text pixel length
-	set_groesse( koord(210, welt->get_staedte().get_count() * (LINESPACE+1) ) );
+	// show_scroll_x==false ->> size.w not important ->> no need to calc text pixel length
+	set_size( scr_size(210, welt->get_staedte().get_count() * (LINESPACE+1) ) );
 }
 
 
-void citylist_stats_t::zeichnen(koord offset)
+void citylist_stats_t::draw(scr_coord offset)
 {
 	cbuffer_t buf;
 
@@ -152,7 +152,7 @@ void citylist_stats_t::zeichnen(koord offset)
 			display_img_aligned( gui_theme_t::pos_button_img[ sel == 0 ], scr_rect( offset.x, offset.y, 14, LINESPACE ), ALIGN_CENTER_V | ALIGN_CENTER_H, true );
 
 			if(  win_get_magic( (ptrdiff_t)stadt )  ) {
-				display_blend_wh( offset.x, offset.y, groesse.x, LINESPACE, COL_BLACK, 25 );
+				display_blend_wh( offset.x, offset.y, size.w, LINESPACE, COL_BLACK, 25 );
 			}
 		}
 		total_bev    += bev;

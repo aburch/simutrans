@@ -34,8 +34,8 @@ public:
 	class scrollitem_t {
 	public:
 		virtual ~scrollitem_t() {}
-		virtual KOORD_VAL get_h() const = 0;	// largest object in this list
-		virtual KOORD_VAL zeichnen( koord pos, KOORD_VAL width, bool is_selected, bool has_focus ) = 0;
+		virtual scr_coord_val get_h() const = 0;	// largest object in this list
+		virtual scr_coord_val draw( scr_coord pos, scr_coord_val width, bool is_selected, bool has_focus ) = 0;
 		virtual char const* get_text() const = 0;
 		virtual bool is_valid() { return true; }	//  can be used to indicate invalid entries
 		virtual bool is_editable() { return false; }
@@ -51,8 +51,8 @@ public:
 	public:
 		const_text_scrollitem_t(char const* const t, uint8 const col) : consttext(t), color(col) {}
 
-		virtual KOORD_VAL zeichnen( koord pos, KOORD_VAL width, bool is_selected, bool has_focus );
-		virtual KOORD_VAL get_h() const { return LINESPACE; }
+		virtual scr_coord_val draw( scr_coord pos, scr_coord_val width, bool is_selected, bool has_focus );
+		virtual scr_coord_val get_h() const { return LINESPACE; }
 
 		virtual uint8 get_color() { return color; }
 		virtual void set_color(uint8 col) { color = col; }
@@ -81,7 +81,7 @@ public:
 private:
 	enum type type;
 	sint32 selection; // only used when type is 'select'.
-	int border; // must be subtracted from groesse.y to get net size
+	int border; // must be subtracted from size.h to get net size
 	int offset; // vertical offset of top left position.
 
 	/**
@@ -137,16 +137,16 @@ public:
 	/**
 	 * request other pane-size. returns realized size.
 	 * use this for flexible sized lists
-	 * for fixed sized used only set_groesse()
+	 * for fixed sized used only set_size()
 	 * @return value can be in between full-size wanted.
 	 */
-	koord request_groesse(koord request);
+	scr_size request_size(scr_size size);
 
-	void set_groesse(koord groesse) OVERRIDE;
+	void set_size(scr_size size) OVERRIDE;
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
-	void zeichnen(koord pos);
+	void draw(scr_coord pos);
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };

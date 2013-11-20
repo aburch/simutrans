@@ -82,7 +82,7 @@ void line_management_gui_t::rdwr(loadsave_t *file)
 	// this handles only schedules of bound convois
 	// lines are handled by line_management_gui_t
 	uint8 player_nr;
-	koord gr = get_fenstergroesse();
+	scr_size size = get_windowsize();
 	if(  file->is_saving()  ) {
 		player_nr = line->get_besitzer()->get_player_nr();
 	}
@@ -91,7 +91,7 @@ void line_management_gui_t::rdwr(loadsave_t *file)
 		old_fpl = new autofahrplan_t();
 		fpl = new autofahrplan_t();
 	}
-	gr.rdwr( file );
+	size.rdwr( file );
 	file->rdwr_byte( player_nr );
 	simline_t::rdwr_linehandle_t(file, line);
 	old_fpl->rdwr(file);
@@ -102,10 +102,10 @@ void line_management_gui_t::rdwr(loadsave_t *file)
 
 		if(  line.is_bound()  &&  old_fpl->matches( welt, line->get_schedule() )  ) {
 			// now we can open the window ...
-			koord const& pos = win_get_pos(this);
+			scr_coord const& pos = win_get_pos(this);
 			line_management_gui_t *w = new line_management_gui_t( line, sp );
 			create_win(pos.x, pos.y, w, w_info, (ptrdiff_t)line.get_rep());
-			w->set_fenstergroesse( gr );
+			w->set_windowsize( size );
 			w->fpl->copy_from( fpl );
 		}
 		else {

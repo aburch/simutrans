@@ -138,8 +138,8 @@ bool curiositylist_stats_t::infowin_event(const event_t * ev)
 
 void curiositylist_stats_t::recalc_size()
 {
-	// show_scroll_x==false ->> groesse.x not important ->> no need to calc text pixel length
-	set_groesse( koord(210, attractions.get_count() * (LINESPACE+1) ) );
+	// show_scroll_x==false ->> size.w not important ->> no need to calc text pixel length
+	set_size( scr_size(210, attractions.get_count() * (LINESPACE+1) ) );
 }
 
 
@@ -147,7 +147,7 @@ void curiositylist_stats_t::recalc_size()
  * Draw the component
  * @author Hj. Malthaner
  */
-void curiositylist_stats_t::zeichnen(koord offset)
+void curiositylist_stats_t::draw(scr_coord offset)
 {
 	clip_dimension const cd = display_get_clip_wh();
 	const int start = cd.y-LINESPACE+1;

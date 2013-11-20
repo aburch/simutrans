@@ -41,7 +41,7 @@ public:
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**
-	 * Recalc the size required to display everything and set size (groesse).
+	 * Recalc the size required to display everything and set size.
 	 */
 	void recalc_size();
 
@@ -49,7 +49,7 @@ public:
 	* Draw the component
 	* @author Hj. Malthaner
 	*/
-	void zeichnen(koord offset);
+	void draw(scr_coord offset);
 };
 
 #endif

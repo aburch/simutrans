@@ -18,8 +18,8 @@
 gui_label_t::gui_label_t(const char* text, COLOR_VAL color_, align_t align_) :
 	tooltip(NULL)
 {
-	set_groesse( koord( D_BUTTON_WIDTH, D_LABEL_HEIGHT ) );
-	init( text, koord (0,0), color_, align_);
+	set_size( scr_size( D_BUTTON_WIDTH, D_LABEL_HEIGHT ) );
+	init( text, scr_coord (0,0), color_, align_);
 }
 
 
@@ -39,12 +39,12 @@ void gui_label_t::set_text_pointer(const char *text_par, bool autosize)
 	text = text_par;
 
 	if (autosize && text && *text != '\0') {
-		set_groesse( koord( display_calc_proportional_string_len_width(text,strlen(text)),groesse.y ) );
+		set_size( scr_size( display_calc_proportional_string_len_width(text,strlen(text)),size.h ) );
 	}
 }
 
 
-void gui_label_t::zeichnen(koord offset)
+void gui_label_t::draw(scr_coord offset)
 {
 	if(  align == money  ) {
 		if(text) {
@@ -72,7 +72,7 @@ void gui_label_t::zeichnen(koord offset)
 	else if(text) {
 		int al;
 		scr_coord_val align_offset_x = 0;
-		scr_coord_val align_offset_y = D_GET_CENTER_ALIGN_OFFSET( LINESPACE, groesse.y );
+		scr_coord_val align_offset_y = D_GET_CENTER_ALIGN_OFFSET( LINESPACE, size.h );
 
 		switch(align) {
 			case left:
@@ -80,17 +80,17 @@ void gui_label_t::zeichnen(koord offset)
 				break;
 			case centered:
 				al = ALIGN_CENTER_H;
-				align_offset_x = (groesse.x>>1);
+				align_offset_x = (size.w>>1);
 				break;
 			case right:
 				al = ALIGN_RIGHT;
-				align_offset_x = groesse.x;
+				align_offset_x = size.w;
 				break;
 			default:
 				al = ALIGN_LEFT;
 		}
 
-		size_t idx = display_fit_proportional( text, groesse.x+1, -1 );
+		size_t idx = display_fit_proportional( text, size.w+1, -1 );
 		if(  text[idx]==0  ) {
 			display_proportional_clip(pos.x + offset.x + align_offset_x, pos.y + offset.y + align_offset_y, text, al, color, true);
 		}
@@ -103,13 +103,13 @@ void gui_label_t::zeichnen(koord offset)
 
 	if ( tooltip  &&  getroffen(get_maus_x()-offset.x, get_maus_y()-offset.y) ) {
 		const scr_coord_val by = offset.y + pos.y;
-		const scr_coord_val bh = groesse.y;
+		const scr_coord_val bh = size.h;
 
 		win_set_tooltip(get_maus_x() + TOOLTIP_MOUSE_OFFSET_X, by + bh + TOOLTIP_MOUSE_OFFSET_Y, tooltip, this);
 	}
 
 	// DEBUG
-	//display_ddd_box_clip(offset.x+pos.x,offset.y+pos.y,groesse.x,groesse.y,SYSCOL_HIGHLIGHT,SYSCOL_HIGHLIGHT);
+	//display_ddd_box_clip(offset.x+pos.x,offset.y+pos.y,size.w,size.h,SYSCOL_HIGHLIGHT,SYSCOL_HIGHLIGHT);
 }
 
 void gui_label_t::set_tooltip(const char * t)

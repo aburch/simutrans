@@ -29,7 +29,7 @@ gui_image_list_t::gui_image_list_t(vector_tpl<image_data_t*> *images) :
  */
 bool gui_image_list_t::infowin_event(const event_t *ev)
 {
-	int sel_index = index_at(-pos, ev->mx, ev->my);
+	int sel_index = index_at(scr_coord(0,0)-pos, ev->mx, ev->my);
 	if(  sel_index != -1  &&  (IS_LEFTCLICK(ev)  ||  IS_LEFTDBLCLK(ev))  ) {
 		value_t p;
 		p.i = sel_index;
@@ -41,14 +41,14 @@ bool gui_image_list_t::infowin_event(const event_t *ev)
 
 
 
-int gui_image_list_t::index_at(koord parent_pos, int xpos, int ypos) const
+int gui_image_list_t::index_at(scr_coord parent_pos, int xpos, int ypos) const
 {
 	xpos -= parent_pos.x + pos.x + BORDER;
 	ypos -= parent_pos.y + pos.y + BORDER;
 
-	if(xpos>=0  &&  ypos>=0  &&  xpos<groesse.x-2*BORDER  &&  ypos < groesse.y-2*BORDER) {
-		const int rows = (groesse.y - 2 * BORDER) / grid.y;
-		const int columns = (groesse.x - 2 * BORDER) / grid.x;
+	if(xpos>=0  &&  ypos>=0  &&  xpos<size.w-2*BORDER  &&  ypos < size.h-2*BORDER) {
+		const int rows = (size.h - 2 * BORDER) / grid.y;
+		const int columns = (size.w - 2 * BORDER) / grid.x;
 
 		const int column = xpos / grid.x;
 		const int row = ypos / grid.y;
@@ -67,10 +67,10 @@ int gui_image_list_t::index_at(koord parent_pos, int xpos, int ypos) const
 
 
 
-void gui_image_list_t::zeichnen(koord parent_pos)
+void gui_image_list_t::draw(scr_coord parent_pos)
 {
-	const int rows = (groesse.y - 2 * BORDER) / grid.y;
-	const int columns = (groesse.x - 2 * BORDER) / grid.x;
+	const int rows = (size.h - 2 * BORDER) / grid.y;
+	const int columns = (size.w - 2 * BORDER) / grid.x;
 
 	// sel_index should come from infowin_event, but it is not sure?
 	int sel_index = index_at(parent_pos, get_maus_x(), get_maus_y());
@@ -146,10 +146,10 @@ void gui_image_list_t::zeichnen(koord parent_pos)
 
 void gui_image_list_t::recalc_size()
 {
-	const int columns = (groesse.x - 2 * BORDER) / grid.x;
+	const int columns = (size.w - 2 * BORDER) / grid.x;
 	int rows = (images->get_count() + columns-1) / columns;
 	if(rows== 0) {
 		rows = 1;
 	}
-	set_groesse(koord(groesse.x, rows * grid.y + 2*BORDER));
+	set_size(scr_size(size.w, rows * grid.y + 2*BORDER));
 }

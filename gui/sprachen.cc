@@ -90,23 +90,23 @@ sprachengui_t::sprachengui_t() :
 	buttons(translator::get_language_count())
 {
 	// Coordinates are relative to parent (TITLEHEIGHT already subtracted)
-	koord cursor = koord(D_MARGIN_LEFT,D_MARGIN_TOP);
+	scr_coord cursor = scr_coord(D_MARGIN_LEFT,D_MARGIN_TOP);
 
 	flags.enable_offset_removal(true);
-	flags.set_pos( koord(DIALOG_WIDTH-D_MARGIN_RIGHT-flags.get_groesse().x, cursor.y) );
+	flags.set_pos( scr_coord(DIALOG_WIDTH-D_MARGIN_RIGHT-flags.get_size().w, cursor.y) );
 	add_komponente( &flags);
 
 	buf.clear();
 	buf.append(translator::translate("LANG_CHOOSE\n"));
 	text_label.set_pos( cursor );
-	text_label.set_buf(&buf); // force recalculation of size (groesse)
+	text_label.set_buf(&buf); // force recalculation of size (size)
 	add_komponente( &text_label );
-	cursor.y += text_label.get_groesse().y;
+	cursor.y += text_label.get_size().h;
 
 	seperator.set_pos( cursor );
-	seperator.set_width( DIALOG_WIDTH-D_MARGIN_LEFT-D_H_SPACE-flags.get_groesse().x-D_MARGIN_RIGHT );
+	seperator.set_width( DIALOG_WIDTH-D_MARGIN_LEFT-D_H_SPACE-flags.get_size().w-D_MARGIN_RIGHT );
 	add_komponente( &seperator );
-	cursor.y = max( seperator.get_pos().y + D_DIVIDER_HEIGHT, flags.get_pos().y + flags.get_groesse().y);
+	cursor.y = max( seperator.get_pos().y + D_DIVIDER_HEIGHT, flags.get_pos().y + flags.get_size().h);
 
 	const translator::lang_info* lang = translator::get_langs();
 	for (int i = 0; i < translator::get_language_count(); ++i, ++lang) {
@@ -166,14 +166,14 @@ sprachengui_t::sprachengui_t() :
 		const bool right = (2*i >= count);
 		const scr_coord_val x = cursor.x + (right ? width + D_H_SPACE : 0);
 		const scr_coord_val y = cursor.y + (D_CHECKBOX_HEIGHT + D_V_SPACE) * (right ? i - (count + 1) / 2: i);
-		buttons[i].button->set_pos( koord( x, y + D_V_SPACE ) );
+		buttons[i].button->set_pos( scr_coord( x, y + D_V_SPACE ) );
 		buttons[i].button->set_width( width );
 		add_komponente( buttons[i].button );
 	}
 
 	chdir(env_t::user_dir);
 
-	set_fenstergroesse( koord(DIALOG_WIDTH, D_TITLEBAR_HEIGHT + cursor.y + ((count+1)>>1)*(D_CHECKBOX_HEIGHT+D_V_SPACE) + D_MARGIN_BOTTOM ) );
+	set_windowsize( scr_size(DIALOG_WIDTH, D_TITLEBAR_HEIGHT + cursor.y + ((count+1)>>1)*(D_CHECKBOX_HEIGHT+D_V_SPACE) + D_MARGIN_BOTTOM ) );
 }
 
 

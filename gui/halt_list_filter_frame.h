@@ -47,14 +47,14 @@ private:
 			}
 			return button_t::infowin_event(ev);
 		}
-		virtual void zeichnen(koord offset) {
+		virtual void draw(scr_coord offset) {
 			if(ware_ab) {
 				pressed = parent->get_ware_filter_ab(ware_ab);
 			}
 			if(ware_an) {
 				pressed = parent->get_ware_filter_an(ware_an);
 			}
-			button_t::zeichnen(offset);
+			button_t::draw(offset);
 		}
 	};
 
@@ -64,7 +64,7 @@ private:
 	 */
 	enum { FILTER_BUTTONS=16 };
 
-	static koord filter_buttons_pos[FILTER_BUTTONS];
+	static scr_coord filter_buttons_pos[FILTER_BUTTONS];
 	static halt_list_frame_t::filter_flag_t filter_buttons_types[FILTER_BUTTONS];
 	static const char *filter_buttons_text[FILTER_BUTTONS];
 
@@ -125,12 +125,12 @@ public:
 	 * component is displayed.
 	 * @author V. Meyer
 	 */
-	void zeichnen(koord pos, koord gr);
+	void draw(scr_coord pos, scr_size size);
 
     /**
      * resize window in response to a resize event
      */
-	void resize(const koord delta);
+	void resize(const scr_coord delta);
 
 	/**
 	 * Set the window associated helptext

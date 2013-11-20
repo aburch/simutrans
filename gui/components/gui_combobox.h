@@ -53,7 +53,7 @@ private:
 	 * the max size this component can have
 	 * @author hsiegeln
 	 */
-	koord max_size;
+	scr_size max_size;
 
 	/**
 	 * renames the selected item if necessary
@@ -78,7 +78,7 @@ public:
 	 * Draw the component
 	 * @author Hj. Malthaner
 	 */
-	void zeichnen(koord offset);
+	void draw(scr_coord offset);
 
 	/**
 	 * add element to droplist
@@ -120,7 +120,7 @@ public:
 	 * set maximum size for control
 	 * @author hsiegeln
 	 */
-	void set_max_size(koord max);
+	void set_max_size(scr_size max);
 
 	/**
 	 * returns the selection id
@@ -138,9 +138,9 @@ public:
 	* Set this component's position.
 	* @author Hj. Malthaner
 	*/
-	virtual void set_pos(koord pos_par);
+	virtual void set_pos(scr_coord pos_par);
 
-	void set_groesse(koord groesse) OVERRIDE;
+	void set_size(scr_size size) OVERRIDE;
 
 	/**
 	 * called when the focus should be released

@@ -21,6 +21,7 @@
 template<class T> class vector_tpl;
 template<class T> class slist_tpl;
 
+class scr_coord;
 class werkzeug_waehler_t;
 class spieler_t;
 class toolbar_t;
@@ -257,7 +258,7 @@ public:
 	virtual bool is_work_here_network_save(karte_t *, spieler_t *, koord3d) { return false; }
 
 	// will draw a dark frame, if selected
-	virtual void draw_after(karte_t *w, koord pos, bool dirty) const;
+	virtual void draw_after(karte_t *w, scr_coord pos, bool dirty) const;
 
 	virtual const char *get_tooltip(const spieler_t *) const { return NULL; }
 
@@ -386,13 +387,13 @@ protected:
 class toolbar_t : public werkzeug_t {
 public:
 	// size of icons
-	koord iconsize;
+	scr_size iconsize;
 private:
 	const char *helpfile;
 	werkzeug_waehler_t *wzw;
 	slist_tpl<werkzeug_t *>tools;
 public:
-	toolbar_t(uint16 const id, char const* const t, char const* const h, koord const size) : werkzeug_t(id)
+	toolbar_t(uint16 const id, char const* const t, char const* const h, scr_size const size) : werkzeug_t(id)
 	{
 		default_param = t;
 		helpfile = h;

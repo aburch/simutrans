@@ -34,7 +34,7 @@ private:
 
 	karte_t* welt;
 
-	void update_dynamic_texts(gui_flowtext_t &flow, dynamic_string &text, koord gr, bool init);
+	void update_dynamic_texts(gui_flowtext_t &flow, dynamic_string &text, scr_size size, bool init);
 
 
 public:
@@ -54,9 +54,9 @@ public:
 	 * resize window in response to a resize event
 	 * @author Hj. Malthaner
 	 */
-	void resize(const koord delta);
+	void resize(const scr_coord delta);
 
-	void zeichnen(koord pos, koord gr);
+	void draw(scr_coord pos, scr_size size);
 
 	void update_scenario_texts(bool init);
 

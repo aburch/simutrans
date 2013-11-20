@@ -41,7 +41,7 @@ public:
 
 	gui_fabrik_info_t() {}
 
-	void zeichnen(koord offset);
+	void draw(scr_coord offset);
 };
 
 
@@ -97,7 +97,7 @@ public:
 
 	virtual bool is_weltpos();
 
-	virtual void set_fenstergroesse(koord groesse);
+	virtual void set_windowsize(scr_size size);
 
 	/**
 	* Draw new component. The values to be passed refer to the window
@@ -105,7 +105,7 @@ public:
 	* component is displayed.
 	* @author Hj. Malthaner
 	*/
-	virtual void zeichnen(koord pos, koord gr);
+	virtual void draw(scr_coord pos, scr_size size);
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 

@@ -42,7 +42,7 @@ sound_frame_t::sound_frame_t()
     current_playing_label("Currently playing:")
 {
 
-	koord cursor = koord(D_MARGIN_LEFT,D_MARGIN_TOP);
+	scr_coord cursor = scr_coord(D_MARGIN_LEFT,D_MARGIN_TOP);
 
 	// Sound volume label
 	sound_volume_label.set_pos(cursor);
@@ -50,7 +50,7 @@ sound_frame_t::sound_frame_t()
 	cursor.y += LINESPACE + D_V_SPACE;
 
 	sound_volume_scrollbar.set_pos(cursor);
-	sound_volume_scrollbar.set_groesse(koord(DIALOG_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT, D_SCROLLBAR_HEIGHT));
+	sound_volume_scrollbar.set_size(scr_size(DIALOG_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT, D_SCROLLBAR_HEIGHT));
 	sound_volume_scrollbar.set_knob(L_KNOB_SIZE, 255+L_KNOB_SIZE);
 	sound_volume_scrollbar.set_knob_offset(sound_get_global_volume());
 	sound_volume_scrollbar.set_scroll_discrete(false);
@@ -70,7 +70,7 @@ sound_frame_t::sound_frame_t()
 	cursor.y += LINESPACE + D_V_SPACE;
 
 	music_volume_scrollbar.set_pos( cursor );
-	music_volume_scrollbar.set_groesse(koord(DIALOG_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT, D_SCROLLBAR_HEIGHT));
+	music_volume_scrollbar.set_size(scr_size(DIALOG_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT, D_SCROLLBAR_HEIGHT));
 	music_volume_scrollbar.set_knob(L_KNOB_SIZE, 255+L_KNOB_SIZE);
 	music_volume_scrollbar.set_knob_offset(sound_get_midi_volume());
 	music_volume_scrollbar.set_scroll_discrete(false);
@@ -93,13 +93,13 @@ sound_frame_t::sound_frame_t()
 	//previous_song_button.set_typ(button_t::arrowleft);
 	previous_song_button.add_listener(this);
 	add_komponente(&previous_song_button);
-	cursor.x += previous_song_button.get_groesse().x + D_H_SPACE;
+	cursor.x += previous_song_button.get_size().w + D_H_SPACE;
 
 	next_song_button.init(button_t::arrowright, "", cursor);
 	//next_song_button.set_typ(button_t::arrowright);
 	next_song_button.add_listener(this);
 	add_komponente(&next_song_button);
-	cursor.x += next_song_button.get_groesse().x + D_H_SPACE;
+	cursor.x += next_song_button.get_size().w + D_H_SPACE;
 
 	song_name_label.set_pos(cursor); // "Jazz"
 	add_komponente(&song_name_label);
@@ -115,7 +115,7 @@ sound_frame_t::sound_frame_t()
 	add_komponente(&shuffle_song_button);
 	cursor.y += LINESPACE;
 
-	set_fenstergroesse(koord(DIALOG_WIDTH, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM));
+	set_windowsize(scr_size(DIALOG_WIDTH, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM));
 }
 
 
@@ -162,9 +162,9 @@ bool sound_frame_t::action_triggered( gui_action_creator_t *komp, value_t p)
  * component is displayed.
  * @author Hj. Malthaner
  */
-void sound_frame_t::zeichnen(koord pos, koord gr)
+void sound_frame_t::draw(scr_coord pos, scr_size size)
 {
 	// update song name label
 	song_name_label.set_text(make_song_name());
-	gui_frame_t::zeichnen(pos, gr);
+	gui_frame_t::draw(pos, size);
 }

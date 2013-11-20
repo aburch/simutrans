@@ -109,7 +109,7 @@ public:
 	 * This method is called if the size of the window should be changed
 	 * @author Markus Weber
 	 */
-	void resize(const koord size_change);
+	void resize(const scr_coord size_change);
 
 	/**
 	 * Draw new component. The values to be passed refer to the window
@@ -117,7 +117,7 @@ public:
 	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
-	void zeichnen(koord pos, koord gr);
+	void draw(scr_coord pos, scr_size size);
 
 	/**
 	 * This function refreshes the station-list

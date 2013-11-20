@@ -58,7 +58,7 @@ baum_edit_frame_t::baum_edit_frame_t(spieler_t* sp_, karte_t* welt) :
 
 	fill_list( is_show_trans_name );
 
-	resize( koord(0,0) );
+	resize( scr_coord(0,0) );
 }
 
 
@@ -128,7 +128,7 @@ void baum_edit_frame_t::change_item_info(sint32 entry)
 		}
 
 		info_text.recalc_size();
-		cont.set_groesse( info_text.get_groesse() + koord(0, 20) );
+		cont.set_size( info_text.get_size() + scr_size(0, 20) );
 
 		img[3].set_image( besch->get_bild_nr( 0, 3 ) );
 

@@ -84,7 +84,7 @@ private:
 public:
 	server_frame_t( karte_t *welt );
 
-	void zeichnen(koord pos, koord gr);
+	void draw(scr_coord pos, scr_size size);
 
 	/**
 	 * Return name of file which contains associated help text for this window

@@ -9,6 +9,10 @@
 uint32 koord::locality_factor = 10000;
 
 
+const scr_coord scr_coord::invalid(-1, -1);
+
+const scr_size scr_size::invalid(-1, -1);
+
 const koord koord::invalid(-1, -1);
 const koord koord::nord(    0, -1);
 const koord koord::ost(     1,  0);
@@ -134,15 +138,6 @@ const koord koord::from_hang[] = {
 	koord( 0,  0), // 79:
 	koord( 0,  0)  // 80:
 };
-
-/**
-	* type conversion from koord to the new scr_coord
-	* @author Max Kielland
-	*/
-koord::operator scr_coord()
-{
-	return scr_coord( x, y );
-}
 
 
 void koord::rdwr(loadsave_t *file)

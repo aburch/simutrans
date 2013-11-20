@@ -35,8 +35,8 @@ gameinfo_t::gameinfo_t(karte_t *welt) :
 	file_name(""),
 	pak_name("")
 {
-	groesse_x = welt->get_size().x;
-	groesse_y = welt->get_size().y;
+	size_x = welt->get_size().x;
+	size_y = welt->get_size().y;
 
 	// create a minimap
 
@@ -126,8 +126,8 @@ void gameinfo_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t e( file, "gameinfo_t" );
 
-	file->rdwr_long( groesse_x );
-	file->rdwr_long( groesse_y );
+	file->rdwr_long( size_x );
+	file->rdwr_long( size_y );
 	for( int y=0;  y<MINIMAP_SIZE;  y++  ) {
 		for( int x=0;  x<MINIMAP_SIZE;  x++  ) {
 			file->rdwr_byte( map.at(x,y) );

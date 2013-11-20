@@ -225,7 +225,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		warn("", COL_YELLOW, gui_label_t::left),
 		scenario("", COL_BLACK, gui_label_t::left),
 		transport_type_option(0),
-		headquarter_view(sp->get_welt(), koord3d::invalid, koord(120, 64))
+		headquarter_view(sp->get_welt(), koord3d::invalid, scr_size(120, 64))
 {
 	if(sp->get_welt()->get_spieler(0)!=sp) {
 		sprintf(money_frame_title,translator::translate("Finances of %s"),translator::translate(sp->get_name()) );
@@ -241,66 +241,66 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	const scr_coord_val lyl_x = left+240+55;
 
 	// left column
-	tylabel.set_pos(koord(left+120,top-1*BUTTONSPACE));
+	tylabel.set_pos(scr_coord(left+120,top-1*BUTTONSPACE));
 	tylabel.set_width(tyl_x-left-120+25);
 	lylabel.align_to(&tylabel, ALIGN_LEFT | ALIGN_EXTERIOR_H | ALIGN_TOP);
 	lylabel.set_width(lyl_x+25-lylabel.get_pos().x);
 
-	//transport.set_pos(koord(tyl_x+19, top+0*BUTTONSPACE));
-	transport.align_to(&tylabel,ALIGN_LEFT,koord(0,top));
-	transport.set_width(tylabel.get_groesse().x);
+	//transport.set_pos(scr_coord(tyl_x+19, top+0*BUTTONSPACE));
+	transport.align_to(&tylabel,ALIGN_LEFT,scr_coord(0,top));
+	transport.set_width(tylabel.get_size().w);
 
-	//old_transport.set_pos(koord(lyl_x+19, top+0*BUTTONSPACE));
-	old_transport.align_to(&lylabel,ALIGN_LEFT,koord(0,top));
-	old_transport.set_width(lylabel.get_groesse().x);
+	//old_transport.set_pos(scr_coord(lyl_x+19, top+0*BUTTONSPACE));
+	old_transport.align_to(&lylabel,ALIGN_LEFT,scr_coord(0,top));
+	old_transport.set_width(lylabel.get_size().w);
 
-	imoney.set_pos(koord(tyl_x,top+1*BUTTONSPACE));
-	old_imoney.set_pos(koord(lyl_x,top+1*BUTTONSPACE));
-	vrmoney.set_pos(koord(tyl_x,top+2*BUTTONSPACE));
-	old_vrmoney.set_pos(koord(lyl_x,top+2*BUTTONSPACE));
-	mmoney.set_pos(koord(tyl_x,top+3*BUTTONSPACE));
-	old_mmoney.set_pos(koord(lyl_x,top+3*BUTTONSPACE));
-	toll.set_pos(koord(tyl_x,top+4*BUTTONSPACE));
-	old_toll.set_pos(koord(lyl_x,top+4*BUTTONSPACE));
-	omoney.set_pos(koord(tyl_x,top+5*BUTTONSPACE));
-	old_omoney.set_pos(koord(lyl_x,top+5*BUTTONSPACE));
-	nvmoney.set_pos(koord(tyl_x,top+6*BUTTONSPACE));
-	old_nvmoney.set_pos(koord(lyl_x,top+6*BUTTONSPACE));
-	conmoney.set_pos(koord(tyl_x,top+7*BUTTONSPACE));
-	old_conmoney.set_pos(koord(lyl_x,top+7*BUTTONSPACE));
-	tmoney.set_pos(koord(tyl_x,top+8*BUTTONSPACE));
-	old_tmoney.set_pos(koord(lyl_x,top+8*BUTTONSPACE));
+	imoney.set_pos(scr_coord(tyl_x,top+1*BUTTONSPACE));
+	old_imoney.set_pos(scr_coord(lyl_x,top+1*BUTTONSPACE));
+	vrmoney.set_pos(scr_coord(tyl_x,top+2*BUTTONSPACE));
+	old_vrmoney.set_pos(scr_coord(lyl_x,top+2*BUTTONSPACE));
+	mmoney.set_pos(scr_coord(tyl_x,top+3*BUTTONSPACE));
+	old_mmoney.set_pos(scr_coord(lyl_x,top+3*BUTTONSPACE));
+	toll.set_pos(scr_coord(tyl_x,top+4*BUTTONSPACE));
+	old_toll.set_pos(scr_coord(lyl_x,top+4*BUTTONSPACE));
+	omoney.set_pos(scr_coord(tyl_x,top+5*BUTTONSPACE));
+	old_omoney.set_pos(scr_coord(lyl_x,top+5*BUTTONSPACE));
+	nvmoney.set_pos(scr_coord(tyl_x,top+6*BUTTONSPACE));
+	old_nvmoney.set_pos(scr_coord(lyl_x,top+6*BUTTONSPACE));
+	conmoney.set_pos(scr_coord(tyl_x,top+7*BUTTONSPACE));
+	old_conmoney.set_pos(scr_coord(lyl_x,top+7*BUTTONSPACE));
+	tmoney.set_pos(scr_coord(tyl_x,top+8*BUTTONSPACE));
+	old_tmoney.set_pos(scr_coord(lyl_x,top+8*BUTTONSPACE));
 
 	// right column
-	maintenance_label.set_pos(koord(left+340+80-maintenance_label.get_groesse().x, top+2*BUTTONSPACE-2));
-	maintenance_money.set_pos(koord(left+340+55, top+3*BUTTONSPACE));
+	maintenance_label.set_pos(scr_coord(left+340+80-maintenance_label.get_size().w, top+2*BUTTONSPACE-2));
+	maintenance_money.set_pos(scr_coord(left+340+55, top+3*BUTTONSPACE));
 
-	tylabel2.set_pos(koord(left+140+80+335-tylabel2.get_groesse().x,top+4*BUTTONSPACE-2));
-	gtmoney.set_pos(koord(left+140+335+55, top+5*BUTTONSPACE));
-	vtmoney.set_pos(koord(left+140+335+55, top+6*BUTTONSPACE));
-	margin.set_pos(koord(left+140+335+55, top+7*BUTTONSPACE));
-	money.set_pos(koord(left+140+335+55, top+8*BUTTONSPACE));
+	tylabel2.set_pos(scr_coord(left+140+80+335-tylabel2.get_size().w,top+4*BUTTONSPACE-2));
+	gtmoney.set_pos(scr_coord(left+140+335+55, top+5*BUTTONSPACE));
+	vtmoney.set_pos(scr_coord(left+140+335+55, top+6*BUTTONSPACE));
+	margin.set_pos(scr_coord(left+140+335+55, top+7*BUTTONSPACE));
+	money.set_pos(scr_coord(left+140+335+55, top+8*BUTTONSPACE));
 
 	// return money or else stuff ...
-	warn.set_pos(koord(left+335, top+9*BUTTONSPACE));
+	warn.set_pos(scr_coord(left+335, top+9*BUTTONSPACE));
 	if(sp->get_player_nr()!=1  &&  sp->get_welt()->get_scenario()->active()) {
-		scenario.set_pos( koord( 10,1 ) );
+		scenario.set_pos( scr_coord( 10,1 ) );
 		sp->get_welt()->get_scenario()->update_scenario_texts();
 		scenario.set_text( sp->get_welt()->get_scenario()->description_text );
 		add_komponente(&scenario);
 	}
 
 	//CHART YEAR
-	chart.set_pos(koord(104,top+10*BUTTONSPACE+11));
-	chart.set_groesse(koord(457,120));
+	chart.set_pos(scr_coord(104,top+10*BUTTONSPACE+11));
+	chart.set_size(scr_size(457,120));
 	chart.set_dimension(MAX_PLAYER_HISTORY_YEARS, 10000);
 	chart.set_seed(sp->get_welt()->get_last_year());
 	chart.set_background(MN_GREY1);
 	//CHART YEAR END
 
 	//CHART MONTH
-	mchart.set_pos(koord(104,top+10*BUTTONSPACE+11));
-	mchart.set_groesse(koord(457,120));
+	mchart.set_pos(scr_coord(104,top+10*BUTTONSPACE+11));
+	mchart.set_size(scr_size(457,120));
 	mchart.set_dimension(MAX_PLAYER_HISTORY_MONTHS, 10000);
 	mchart.set_seed(0);
 	mchart.set_background(MN_GREY1);
@@ -317,8 +317,8 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	// tab (month/year)
 	year_month_tabs.add_tab( &year_dummy, translator::translate("Years"));
 	year_month_tabs.add_tab( &month_dummy, translator::translate("Months"));
-	year_month_tabs.set_pos(koord(0, LINESPACE-2));
-	year_month_tabs.set_groesse(koord(lyl_x+25, TAB_HEADER_V_SIZE));
+	year_month_tabs.set_pos(scr_coord(0, LINESPACE-2));
+	year_month_tabs.set_size(scr_size(lyl_x+25, TAB_HEADER_V_SIZE));
 	add_komponente(&year_month_tabs);
 
 	add_komponente(&conmoney);
@@ -365,14 +365,14 @@ money_frame_t::money_frame_t(spieler_t *sp)
 
 	if(  sp->get_ai_id()!=spieler_t::HUMAN  ) {
 		// misuse headquarter button for AI configure
-		headquarter.init(button_t::box, "Configure AI", koord(582-12-120, 0), koord(120, BUTTONSPACE));
+		headquarter.init(button_t::box, "Configure AI", scr_coord(582-12-120, 0), scr_size(120, BUTTONSPACE));
 		headquarter.add_listener(this);
 		add_komponente(&headquarter);
 		headquarter.set_tooltip( "Configure AI setttings" );
 	}
 	else if(old_level > 0  ||  hausbauer_t::get_headquarter(0,sp->get_welt()->get_timeline_year_month())!=NULL) {
 
-		headquarter.init(button_t::box, old_pos!=koord::invalid ? "upgrade HQ" : "build HQ", koord(582-12-120, 0), koord(120, BUTTONSPACE));
+		headquarter.init(button_t::box, old_pos!=koord::invalid ? "upgrade HQ" : "build HQ", scr_coord(582-12-120, 0), scr_size(120, BUTTONSPACE));
 		headquarter.add_listener(this);
 		add_komponente(&headquarter);
 		headquarter.set_tooltip( NULL );
@@ -391,18 +391,18 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	if(old_pos!=koord::invalid) {
 		headquarter_view.set_location( sp->get_welt()->lookup_kartenboden( sp->get_headquarter_pos() )->get_pos() );
 	}
-	headquarter_view.set_pos( koord(582-12-120, BUTTONSPACE) );
+	headquarter_view.set_pos( scr_coord(582-12-120, BUTTONSPACE) );
 	add_komponente(&headquarter_view);
 
 	// add filter buttons
 	for(int ibutton=0;  ibutton<9;  ibutton++) {
-		filterButtons[ibutton].init(button_t::box, cost_type_name[ibutton], koord(left, top+ibutton*BUTTONSPACE-2), koord(120, BUTTONSPACE));
+		filterButtons[ibutton].init(button_t::box, cost_type_name[ibutton], scr_coord(left, top+ibutton*BUTTONSPACE-2), scr_size(120, BUTTONSPACE));
 		filterButtons[ibutton].add_listener(this);
 		filterButtons[ibutton].background_color = cost_type_color[ibutton];
 		add_komponente(filterButtons + ibutton);
 	}
 	for(int ibutton=9;  ibutton<MAX_PLAYER_COST_BUTTON;  ibutton++) {
-		filterButtons[ibutton].init(button_t::box, cost_type_name[ibutton], koord(left+335, top+(ibutton-4)*BUTTONSPACE-2), koord(120, BUTTONSPACE));
+		filterButtons[ibutton].init(button_t::box, cost_type_name[ibutton], scr_coord(left+335, top+(ibutton-4)*BUTTONSPACE-2), scr_size(120, BUTTONSPACE));
 		filterButtons[ibutton].add_listener(this);
 		filterButtons[ibutton].background_color = cost_type_color[ibutton];
 		add_komponente(filterButtons + ibutton);
@@ -420,9 +420,9 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		}
 	}
 
-	transport_type_c.set_pos(koord(koord(left+335-12-2, 0)));
-	transport_type_c.set_groesse( koord(116,D_BUTTON_HEIGHT) );
-	transport_type_c.set_max_size( koord( 116, 1*BUTTONSPACE ) );
+	transport_type_c.set_pos( scr_coord(left+335-12-2, 0) );
+	transport_type_c.set_size( scr_size(116,D_BUTTON_HEIGHT) );
+	transport_type_c.set_max_size( scr_size( 116, 1*BUTTONSPACE ) );
 	for(int i=0, count=0; i<TT_MAX; ++i) {
 		if (!is_chart_table_zero(i)) {
 			transport_type_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(transport_type_values[i]), COL_BLACK));
@@ -435,11 +435,11 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	transport_type_c.add_listener( this );
 
 
-	set_fenstergroesse(koord(582, 340));
+	set_windowsize(scr_size(582, 340));
 }
 
 
-void money_frame_t::zeichnen(koord pos, koord gr)
+void money_frame_t::draw(scr_coord pos, scr_size size)
 {
 	// Hajo: each label needs its own buffer
 	static char str_buf[26][64];
@@ -580,7 +580,7 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	// Hajo: update chart seed
 	chart.set_seed(sp->get_welt()->get_last_year());
 
-	gui_frame_t::zeichnen(pos, gr);
+	gui_frame_t::draw(pos, size);
 }
 
 

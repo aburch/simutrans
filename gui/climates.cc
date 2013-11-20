@@ -36,15 +36,15 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 {
 	const scr_coord_val edit_width = display_get_char_max_width("-0123456789")*4 + D_ARROW_LEFT_WIDTH + D_ARROW_RIGHT_WIDTH + 4;
 	const scr_coord_val label_width = L_COLUMN_EDIT - D_MARGIN_LEFT-D_H_SPACE;
-	koord cursor(D_MARGIN_LEFT,D_MARGIN_TOP);
+	scr_coord cursor(D_MARGIN_LEFT,D_MARGIN_TOP);
 	sint16 labelnr=0;
 
 	sets = sets_par;
 
 	// Water level
 	water_level.init( sets->get_grundwasser(), -10*(grund_besch_t::double_grounds?2:1), 0, gui_numberinput_t::AUTOLINEAR, false );
-	water_level.set_pos( koord(L_COLUMN_EDIT,cursor.y) );
-	water_level.set_groesse( koord(edit_width, D_EDIT_HEIGHT) );
+	water_level.set_pos( scr_coord(L_COLUMN_EDIT,cursor.y) );
+	water_level.set_size( scr_size(edit_width, D_EDIT_HEIGHT) );
 	water_level.add_listener( this );
 	add_komponente( &water_level );
 	numberinput_lbl[labelnr].init( "Water level", cursor );
@@ -60,8 +60,8 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 
 	// Mountain height
 	mountain_height.init( mountain_height_start, 0, min(1000,100*(11-mountain_roughness_start)), 10, false );
-	mountain_height.set_pos( koord(L_COLUMN_EDIT,cursor.y) );
-	mountain_height.set_groesse( koord(edit_width, D_EDIT_HEIGHT) );
+	mountain_height.set_pos( scr_coord(L_COLUMN_EDIT,cursor.y) );
+	mountain_height.set_size( scr_size(edit_width, D_EDIT_HEIGHT) );
 	mountain_height.add_listener( this );
 	add_komponente( &mountain_height );
 	numberinput_lbl[labelnr].init( "Mountain height", cursor );
@@ -73,8 +73,8 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 
 	// Mountain roughness
 	mountain_roughness.init( mountain_roughness_start, 0, min(10, 11-((mountain_height_start+99)/100)), gui_numberinput_t::AUTOLINEAR, false );
-	mountain_roughness.set_pos( koord(L_COLUMN_EDIT,cursor.y) );
-	mountain_roughness.set_groesse( koord(edit_width, D_EDIT_HEIGHT) );
+	mountain_roughness.set_pos( scr_coord(L_COLUMN_EDIT,cursor.y) );
+	mountain_roughness.set_size( scr_size(edit_width, D_EDIT_HEIGHT) );
 	mountain_roughness.add_listener( this );
 	add_komponente( &mountain_roughness );
 	numberinput_lbl[labelnr].init( "Map roughness", cursor );
@@ -91,14 +91,14 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 	labelnr++;
 	sprintf( snowline_txt ,"%d", sets->get_climate_borders()[arctic_climate] );
 	summer_snowline.init( snowline_txt, cursor, SYSCOL_TEXT_HIGHLIGHT);
-	summer_snowline.align_to(&mountain_roughness,ALIGN_RIGHT,koord(D_ARROW_RIGHT_WIDTH,0));
+	summer_snowline.align_to(&mountain_roughness,ALIGN_RIGHT,scr_coord(D_ARROW_RIGHT_WIDTH,0));
 	add_komponente( &summer_snowline );
 	cursor.y += LINESPACE+D_V_SPACE;
 
 	// Winter snowline
 	snowline_winter.init( sets->get_winter_snowline(), -5, 32 - sets->get_grundwasser(), gui_numberinput_t::AUTOLINEAR, false );
-	snowline_winter.set_pos( koord(L_COLUMN_EDIT, cursor.y) );
-	snowline_winter.set_groesse( koord(edit_width, D_EDIT_HEIGHT) );
+	snowline_winter.set_pos( scr_coord(L_COLUMN_EDIT, cursor.y) );
+	snowline_winter.set_size( scr_size(edit_width, D_EDIT_HEIGHT) );
 	snowline_winter.add_listener( this );
 	add_komponente( &snowline_winter );
 	numberinput_lbl[labelnr].init( "Winter snowline", cursor );
@@ -113,8 +113,8 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 	for(  int i=desert_climate-1;  i<=rocky_climate-1;  i++  ) {
 
 		climate_borders_ui[i].init( sets->get_climate_borders()[i+1], -5, 32 - sets->get_grundwasser(), gui_numberinput_t::AUTOLINEAR, false );
-		climate_borders_ui[i].set_pos( koord(L_COLUMN_EDIT, cursor.y) );
-		climate_borders_ui[i].set_groesse( koord(edit_width, D_EDIT_HEIGHT) );
+		climate_borders_ui[i].set_pos( scr_coord(L_COLUMN_EDIT, cursor.y) );
+		climate_borders_ui[i].set_size( scr_size(edit_width, D_EDIT_HEIGHT) );
 		climate_borders_ui[i].add_listener( this );
 		add_komponente( climate_borders_ui+i );
 		if(sets->get_climate_borders()[i]>arctic) {
@@ -146,8 +146,8 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 	cursor.y += D_CHECKBOX_HEIGHT + D_V_SPACE;
 
 	river_n.init( sets->get_river_number(), 0, 1024, gui_numberinput_t::POWER2, false );
-	river_n.set_pos( koord(L_COLUMN_EDIT, cursor.y) );
-	river_n.set_groesse( koord(edit_width, D_EDIT_HEIGHT) );
+	river_n.set_pos( scr_coord(L_COLUMN_EDIT, cursor.y) );
+	river_n.set_size( scr_size(edit_width, D_EDIT_HEIGHT) );
 	river_n.add_listener(this);
 	add_komponente( &river_n );
 	numberinput_lbl[labelnr].init( "Number of rivers", cursor );
@@ -158,8 +158,8 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 	cursor.y += D_EDIT_HEIGHT;
 
 	river_min.init( sets->get_min_river_length(), 0, max(16,sets->get_max_river_length())-16, gui_numberinput_t::AUTOLINEAR, false );
-	river_min.set_pos( koord(L_COLUMN_EDIT, cursor.y) );
-	river_min.set_groesse( koord(edit_width, D_EDIT_HEIGHT) );
+	river_min.set_pos( scr_coord(L_COLUMN_EDIT, cursor.y) );
+	river_min.set_size( scr_size(edit_width, D_EDIT_HEIGHT) );
 	river_min.add_listener(this);
 	add_komponente( &river_min );
 	numberinput_lbl[labelnr].init( "minimum length of rivers", cursor );
@@ -170,8 +170,8 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 	cursor.y += D_EDIT_HEIGHT;
 
 	river_max.init( sets->get_max_river_length(), sets->get_min_river_length()+16, 1024, gui_numberinput_t::AUTOLINEAR, false );
-	river_max.set_pos( koord(L_COLUMN_EDIT, cursor.y) );
-	river_max.set_groesse( koord(edit_width, D_EDIT_HEIGHT) );
+	river_max.set_pos( scr_coord(L_COLUMN_EDIT, cursor.y) );
+	river_max.set_size( scr_size(edit_width, D_EDIT_HEIGHT) );
 	river_max.add_listener(this);
 	add_komponente( &river_max );
 	numberinput_lbl[labelnr].init( "maximum length of rivers", cursor );
@@ -181,7 +181,7 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 	labelnr++;
 	cursor.y += D_EDIT_HEIGHT;
 
-	set_fenstergroesse( koord(DIALOG_WIDTH, D_TITLEBAR_HEIGHT+cursor.y+D_MARGIN_BOTTOM) );
+	set_windowsize( scr_size(DIALOG_WIDTH, D_TITLEBAR_HEIGHT+cursor.y+D_MARGIN_BOTTOM) );
 }
 
 

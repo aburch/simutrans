@@ -44,7 +44,7 @@ public:
 	* Draw the component
 	* @author Hj. Malthaner
 	*/
-	virtual void zeichnen(koord offset);
+	virtual void draw(scr_coord offset);
 };
 
 #endif

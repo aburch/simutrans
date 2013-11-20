@@ -51,12 +51,6 @@ public:
 		return *this;
 	}
 
-	/**
-	 * type conversion from koord to the new scr_coord
-	 * @author Max Kielland
-	 */
-	operator scr_coord();
-
 	void rotate90( sint16 y_size )
 	{
 		if(  (x&y)<0  ) {

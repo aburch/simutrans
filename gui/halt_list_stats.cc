@@ -53,7 +53,7 @@ bool halt_list_stats_t::infowin_event(const event_t *ev)
  * Draw the component
  * @author Markus Weber
  */
-void halt_list_stats_t::zeichnen(koord offset)
+void halt_list_stats_t::draw(scr_coord offset)
 {
 	clip_dimension clip = display_get_clip_wh();
 

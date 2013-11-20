@@ -66,7 +66,7 @@ optionen_gui_t::optionen_gui_t(karte_t *welt) :
 	assert(  lengthof(option_buttons)==lengthof(option_buttons_text)  );
 	assert(  lengthof(option_buttons)==BUTTON_QUIT+1  );
 
-	koord cursor = koord( D_MARGIN_LEFT, D_MARGIN_TOP );
+	scr_coord cursor = scr_coord( D_MARGIN_LEFT, D_MARGIN_TOP );
 
 	this->welt = welt;
 
@@ -83,27 +83,27 @@ optionen_gui_t::optionen_gui_t(karte_t *welt) :
 
 			// Move cursor to the second column
 			case BUTTON_NEW_GAME:
-				cursor = koord ( cursor.x+D_BUTTON_WIDTH+D_H_SPACE,D_MARGIN_TOP);
+				cursor = scr_coord ( cursor.x+D_BUTTON_WIDTH+D_H_SPACE,D_MARGIN_TOP);
 				break;
 
 			// Squeeze in divider
 			case BUTTON_QUIT:
 				cursor.y -= D_V_SPACE;
-				divider.init( koord(D_MARGIN_LEFT, cursor.y), cursor.x - D_MARGIN_LEFT + D_BUTTON_WIDTH );
+				divider.init( scr_coord(D_MARGIN_LEFT, cursor.y), cursor.x - D_MARGIN_LEFT + D_BUTTON_WIDTH );
 				add_komponente( &divider );
-				cursor.y += divider.get_groesse().y; //+D_V_SPACE;
+				cursor.y += divider.get_size().h; //+D_V_SPACE;
 				break;
 
 		}
 
 		// Add button at cursor
-		option_buttons[i].init( button_t::roundbox, option_buttons_text[i], cursor, koord( D_BUTTON_WIDTH, D_BUTTON_HEIGHT ) );
+		option_buttons[i].init( button_t::roundbox, option_buttons_text[i], cursor, scr_size( D_BUTTON_WIDTH, D_BUTTON_HEIGHT ) );
 		option_buttons[i].add_listener(this);
 		add_komponente( option_buttons+i );
 		cursor.y += D_BUTTON_HEIGHT + D_V_SPACE;
 	}
 
-	set_fenstergroesse( cursor + koord( D_BUTTON_WIDTH + D_MARGIN_RIGHT, D_TITLEBAR_HEIGHT + D_MARGIN_BOTTOM - D_V_SPACE ) );
+	set_windowsize( scr_size( D_BUTTON_WIDTH + D_MARGIN_RIGHT, D_TITLEBAR_HEIGHT + D_MARGIN_BOTTOM - D_V_SPACE ) + cursor );
 }
 
 

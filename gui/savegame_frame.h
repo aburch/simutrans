@@ -110,7 +110,7 @@ protected:
 	virtual bool del_action    ( const char *   fullpath   );                 // Callback for delete button click
 	virtual bool ok_action     ( const char * /*fullpath*/ ) { return true; } // Callback for ok button click
 
-	virtual void set_fenstergroesse ( koord groesse );
+	virtual void set_windowsize     ( scr_size size );
 	virtual bool check_file         ( const char *filename, const char *suffix );
 
 	// Pure virtual functions

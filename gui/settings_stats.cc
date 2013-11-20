@@ -75,8 +75,8 @@ void settings_general_stats_t::init(settings_t const* const sets)
 	INIT_INIT
 
 	// combobox for savegame version
-	savegame.set_pos( koord(0, ypos) );
-	savegame.set_groesse( koord(70, D_BUTTON_HEIGHT) );
+	savegame.set_pos( scr_coord(0, ypos) );
+	savegame.set_size( scr_size(70, D_BUTTON_HEIGHT) );
 	for(  uint32 i=0;  i<lengthof(version);  i++  ) {
 		savegame.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( version[i]+2, COL_BLACK ) );
 		if(  strcmp(version[i],env_t::savegame_version_str)==0  ) {
@@ -87,7 +87,7 @@ void settings_general_stats_t::init(settings_t const* const sets)
 	add_komponente( &savegame );
 	savegame.add_listener( this );
 	INIT_LB( "savegame version" );
-	label.back()->set_pos( koord( 70 + 6, label.back()->get_pos().y + 2 ) );
+	label.back()->set_pos( scr_coord( 70 + 6, label.back()->get_pos().y + 2 ) );
 	SEPERATOR
 	INIT_BOOL( "drive_left", sets->is_drive_left() );
 	INIT_BOOL( "signals_on_left", sets->is_signals_left() );
@@ -115,7 +115,7 @@ void settings_general_stats_t::init(settings_t const* const sets)
 
 	clear_dirty();
 	height = ypos;
-	set_groesse( settings_stats_t::get_groesse() );
+	set_size( settings_stats_t::get_size() );
 }
 
 void settings_general_stats_t::read(settings_t* const sets)
@@ -179,7 +179,7 @@ void settings_display_stats_t::init(settings_t const* const)
 
 	clear_dirty();
 	height = ypos;
-	set_groesse( settings_stats_t::get_groesse() );
+	set_size( settings_stats_t::get_size() );
 }
 
 void settings_display_stats_t::read(settings_t* const)
@@ -231,7 +231,7 @@ void settings_routing_stats_t::init(settings_t const* const sets)
 
 	clear_dirty();
 	height = ypos;
-	set_groesse( settings_stats_t::get_groesse() );
+	set_size( settings_stats_t::get_size() );
 }
 
 void settings_routing_stats_t::read(settings_t* const sets)
@@ -334,7 +334,7 @@ void settings_economy_stats_t::init(settings_t const* const sets)
 
 	clear_dirty();
 	height = ypos;
-	set_groesse( settings_stats_t::get_groesse() );
+	set_size( settings_stats_t::get_size() );
 }
 
 void settings_economy_stats_t::read(settings_t* const sets)
@@ -423,7 +423,7 @@ void settings_costs_stats_t::init(settings_t const* const sets)
 	INIT_COST( "cost_maintain_transformer", -sets->cst_maintain_transformer, 1, 100000000, 10, false );
 
 	height = ypos;
-	set_groesse( settings_stats_t::get_groesse() );
+	set_size( settings_stats_t::get_size() );
 }
 
 
@@ -455,7 +455,7 @@ void settings_costs_stats_t::read(settings_t* const sets)
 	READ_COST_VALUE( sets->cst_maintain_transformer )*(-1);
 
 	clear_dirty();
-	set_groesse( settings_stats_t::get_groesse() );
+	set_size( settings_stats_t::get_size() );
 }
 
 
@@ -510,7 +510,7 @@ void settings_climates_stats_t::init(settings_t* const sets)
 
 	clear_dirty();
 	height = ypos;
-	set_groesse( settings_stats_t::get_groesse() );
+	set_size( settings_stats_t::get_size() );
 }
 
 

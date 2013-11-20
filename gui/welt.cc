@@ -73,7 +73,7 @@ welt_gui_t::welt_gui_t(karte_t* const world_par, settings_t* const sets_par) :
 	map(0,0)
 {
 	// Coordinates are relative to parent (TITLEHEIGHT already subtracted)
-	koord cursor(D_MARGIN_LEFT,D_MARGIN_TOP);
+	scr_coord cursor(D_MARGIN_LEFT,D_MARGIN_TOP);
 	scr_coord_val edit_Width = display_get_char_max_width("0123456789")*5 + D_ARROW_LEFT_WIDTH + D_ARROW_RIGHT_WIDTH;
 	scr_coord_val label_width = L_COLUMN1_X - D_MARGIN_LEFT - D_H_SPACE;
 
@@ -113,7 +113,7 @@ welt_gui_t::welt_gui_t(karte_t* const world_par, settings_t* const sets_par) :
 	//******************************************************************
 	// Component creation
 	// Map preview
-	map_preview.init(koord(L_COLUMN1_X+edit_Width+D_H_SPACE, cursor.y));
+	map_preview.init(scr_coord(L_COLUMN1_X+edit_Width+D_H_SPACE, cursor.y));
 	add_komponente( &map_preview );
 
 	// World setting label
@@ -129,8 +129,8 @@ welt_gui_t::welt_gui_t(karte_t* const world_par, settings_t* const sets_par) :
 
 	// Map number edit
 	inp_map_number.init( abs(sets->get_karte_nummer()), 0, 0x7FFFFFFF, 1, true );
-	inp_map_number.set_pos(koord(L_COLUMN1_X, cursor.y));
-	inp_map_number.set_groesse(koord(edit_Width, D_EDIT_HEIGHT));
+	inp_map_number.set_pos(scr_coord(L_COLUMN1_X, cursor.y));
+	inp_map_number.set_size(scr_size(edit_Width, D_EDIT_HEIGHT));
 	inp_map_number.add_listener( this );
 	add_komponente( &inp_map_number );
 
@@ -149,29 +149,29 @@ welt_gui_t::welt_gui_t(karte_t* const world_par, settings_t* const sets_par) :
 
 	// Map X size edit
 	inp_x_size.init( sets->get_groesse_x(), 8, min(32000,min(32000,16777216/sets->get_groesse_y())), sets->get_groesse_x()>=512 ? 128 : 64, false );
-	inp_x_size.set_pos( koord(L_COLUMN1_X,cursor.y) );
-	inp_x_size.set_groesse(koord(edit_Width, D_EDIT_HEIGHT));
+	inp_x_size.set_pos( scr_coord(L_COLUMN1_X,cursor.y) );
+	inp_x_size.set_size(scr_size(edit_Width, D_EDIT_HEIGHT));
 	inp_x_size.add_listener(this);
 	add_komponente( &inp_x_size );
 	cursor.y += D_EDIT_HEIGHT;
 
 	// Map size Y edit
 	inp_y_size.init( sets->get_groesse_y(), 8, min(32000,16777216/sets->get_groesse_x()), sets->get_groesse_y()>=512 ? 128 : 64, false );
-	inp_y_size.set_pos(koord(L_COLUMN1_X,cursor.y) );
-	inp_y_size.set_groesse(koord(edit_Width, D_EDIT_HEIGHT));
+	inp_y_size.set_pos(scr_coord(L_COLUMN1_X,cursor.y) );
+	inp_y_size.set_size(scr_size(edit_Width, D_EDIT_HEIGHT));
 	inp_y_size.add_listener(this);
 	add_komponente( &inp_y_size );
 	cursor.y += D_EDIT_HEIGHT;
 	cursor.y += D_V_SPACE;
 
 	// Random map button
-	random_map.init(button_t::roundbox,"Random map",cursor,koord(L_BUTTON_EXTRA_WIDE, D_BUTTON_HEIGHT));
+	random_map.init(button_t::roundbox,"Random map",cursor,scr_size(L_BUTTON_EXTRA_WIDE, D_BUTTON_HEIGHT));
 	random_map.set_tooltip("chooses a random map");
 	random_map.add_listener( this );
 	add_komponente( &random_map );
 
 	// Load height map button
-	load_map.init(button_t::roundbox,"Lade Relief",koord(L_BUTTON_COLUMN_2, cursor.y),koord(L_BUTTON_EXTRA_WIDE, D_BUTTON_HEIGHT));
+	load_map.init(button_t::roundbox,"Lade Relief",scr_coord(L_BUTTON_COLUMN_2, cursor.y),scr_size(L_BUTTON_EXTRA_WIDE, D_BUTTON_HEIGHT));
 	load_map.set_tooltip("load height data from file");
 	load_map.add_listener( this );
 	add_komponente( &load_map );
@@ -180,8 +180,8 @@ welt_gui_t::welt_gui_t(karte_t* const world_par, settings_t* const sets_par) :
 	label_width = L_COLUMN2_X - D_MARGIN_LEFT - D_H_SPACE;
 
 	// Number of towns edit
-	inp_number_of_towns.set_pos(koord(L_COLUMN2_X,cursor.y) );
-	inp_number_of_towns.set_groesse(koord(edit_Width, D_EDIT_HEIGHT));
+	inp_number_of_towns.set_pos(scr_coord(L_COLUMN2_X,cursor.y) );
+	inp_number_of_towns.set_size(scr_size(edit_Width, D_EDIT_HEIGHT));
 	inp_number_of_towns.add_listener(this);
 	inp_number_of_towns.set_limits(0,999);
 	inp_number_of_towns.set_value(abs(sets->get_anzahl_staedte()) );
@@ -195,8 +195,8 @@ welt_gui_t::welt_gui_t(karte_t* const world_par, settings_t* const sets_par) :
 	cursor.y += D_EDIT_HEIGHT;
 
 	// Town size edit
-	inp_town_size.set_pos(koord(L_COLUMN2_X,cursor.y) );
-	inp_town_size.set_groesse(koord(edit_Width, D_EDIT_HEIGHT));
+	inp_town_size.set_pos(scr_coord(L_COLUMN2_X,cursor.y) );
+	inp_town_size.set_size(scr_size(edit_Width, D_EDIT_HEIGHT));
 	inp_town_size.add_listener(this);
 	inp_town_size.set_limits(0,999999);
 	inp_town_size.set_increment_mode(50);
@@ -211,8 +211,8 @@ welt_gui_t::welt_gui_t(karte_t* const world_par, settings_t* const sets_par) :
 	cursor.y += D_EDIT_HEIGHT;
 
 	// Intercity road length edit
-	inp_intercity_road_len.set_pos(koord(L_COLUMN2_X,cursor.y) );
-	inp_intercity_road_len.set_groesse(koord(edit_Width, D_EDIT_HEIGHT));
+	inp_intercity_road_len.set_pos(scr_coord(L_COLUMN2_X,cursor.y) );
+	inp_intercity_road_len.set_size(scr_size(edit_Width, D_EDIT_HEIGHT));
 	inp_intercity_road_len.add_listener(this);
 	inp_intercity_road_len.set_limits(0,9999);
 	inp_intercity_road_len.set_value( env_t::intercity_road_length );
@@ -227,8 +227,8 @@ welt_gui_t::welt_gui_t(karte_t* const world_par, settings_t* const sets_par) :
 	cursor.y += D_EDIT_HEIGHT;
 
 	// Factories edit
-	inp_other_industries.set_pos(koord(L_COLUMN2_X,cursor.y) );
-	inp_other_industries.set_groesse(koord(edit_Width, D_EDIT_HEIGHT));
+	inp_other_industries.set_pos(scr_coord(L_COLUMN2_X,cursor.y) );
+	inp_other_industries.set_size(scr_size(edit_Width, D_EDIT_HEIGHT));
 	inp_other_industries.add_listener(this);
 	inp_other_industries.set_limits(0,999);
 	inp_other_industries.set_value(abs(sets->get_factory_count()) );
@@ -242,8 +242,8 @@ welt_gui_t::welt_gui_t(karte_t* const world_par, settings_t* const sets_par) :
 	cursor.y += D_EDIT_HEIGHT;
 
 	// Tourist attr. edit
-	inp_tourist_attractions.set_pos(koord(L_COLUMN2_X,cursor.y) );
-	inp_tourist_attractions.set_groesse(koord(edit_Width, D_EDIT_HEIGHT));
+	inp_tourist_attractions.set_pos(scr_coord(L_COLUMN2_X,cursor.y) );
+	inp_tourist_attractions.set_size(scr_size(edit_Width, D_EDIT_HEIGHT));
 	inp_tourist_attractions.add_listener(this);
 	inp_tourist_attractions.set_limits(0,999);
 	inp_tourist_attractions.set_value(abs(sets->get_tourist_attractions()) );
@@ -258,8 +258,8 @@ welt_gui_t::welt_gui_t(karte_t* const world_par, settings_t* const sets_par) :
 	cursor.y += D_V_SPACE;
 
 	// Timeline year edit
-	inp_intro_date.set_pos(koord(L_COLUMN2_X,cursor.y) );
-	inp_intro_date.set_groesse(koord(edit_Width, D_EDIT_HEIGHT));
+	inp_intro_date.set_pos(scr_coord(L_COLUMN2_X,cursor.y) );
+	inp_intro_date.set_size(scr_size(edit_Width, D_EDIT_HEIGHT));
 	inp_intro_date.add_listener(this);
 	inp_intro_date.set_limits(game_start,game_ends);
 	inp_intro_date.set_increment_mode(10);
@@ -290,13 +290,13 @@ welt_gui_t::welt_gui_t(karte_t* const world_par, settings_t* const sets_par) :
 	cursor.y += D_DIVIDER_HEIGHT;
 
 	// Map settings button
-	open_setting_gui.init(button_t::roundbox, "Setting", cursor, koord(L_BUTTON_EXTRA_WIDE, D_BUTTON_HEIGHT));
+	open_setting_gui.init(button_t::roundbox, "Setting", cursor, scr_size(L_BUTTON_EXTRA_WIDE, D_BUTTON_HEIGHT));
 	open_setting_gui.pressed = win_get_magic( magic_settings_frame_t );
 	open_setting_gui.add_listener( this );
 	add_komponente( &open_setting_gui );
 
 	// Landscape settings button
-	open_climate_gui.init(button_t::roundbox,"Climate Control", koord(L_BUTTON_COLUMN_2,cursor.y), koord(L_BUTTON_EXTRA_WIDE, D_BUTTON_HEIGHT));
+	open_climate_gui.init(button_t::roundbox,"Climate Control", scr_coord(L_BUTTON_COLUMN_2,cursor.y), scr_size(L_BUTTON_EXTRA_WIDE, D_BUTTON_HEIGHT));
 	open_climate_gui.pressed = win_get_magic( magic_climate );
 	open_climate_gui.add_listener( this );
 	add_komponente( &open_climate_gui );
@@ -308,30 +308,30 @@ welt_gui_t::welt_gui_t(karte_t* const world_par, settings_t* const sets_par) :
 	cursor.y += D_DIVIDER_HEIGHT;
 
 	// load game
-	load_game.init(button_t::roundbox, "Load game", cursor, koord(L_BUTTON_EXTRA_WIDE, D_BUTTON_HEIGHT));
+	load_game.init(button_t::roundbox, "Load game", cursor, scr_size(L_BUTTON_EXTRA_WIDE, D_BUTTON_HEIGHT));
 	load_game.add_listener( this );
 	add_komponente( &load_game );
 
 	// load scenario
-	load_scenario.init(button_t::roundbox,"Load scenario", koord(L_BUTTON_COLUMN_2,cursor.y), koord(L_BUTTON_EXTRA_WIDE, D_BUTTON_HEIGHT));
+	load_scenario.init(button_t::roundbox,"Load scenario", scr_coord(L_BUTTON_COLUMN_2,cursor.y), scr_size(L_BUTTON_EXTRA_WIDE, D_BUTTON_HEIGHT));
 	load_scenario.add_listener( this );
 	add_komponente( &load_scenario );
 	cursor.y += D_BUTTON_HEIGHT;
 	cursor.y += D_V_SPACE;
 
 	// start game
-	start_game.init(button_t::roundbox, "Starte Spiel", cursor, koord(L_BUTTON_EXTRA_WIDE, D_BUTTON_HEIGHT));
+	start_game.init(button_t::roundbox, "Starte Spiel", cursor, scr_size(L_BUTTON_EXTRA_WIDE, D_BUTTON_HEIGHT));
 	start_game.add_listener( this );
 	add_komponente( &start_game );
 
 	// quit game
-	quit_game.init(button_t::roundbox,"Beenden", koord(L_BUTTON_COLUMN_2,cursor.y), koord(L_BUTTON_EXTRA_WIDE, D_BUTTON_HEIGHT));
+	quit_game.init(button_t::roundbox,"Beenden", scr_coord(L_BUTTON_COLUMN_2,cursor.y), scr_size(L_BUTTON_EXTRA_WIDE, D_BUTTON_HEIGHT));
 	quit_game.add_listener( this );
 	add_komponente( &quit_game );
 	cursor.y += D_BUTTON_HEIGHT;
 
-	set_fenstergroesse( koord(L_DIALOG_WIDTH, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM) );
-	resize(koord(0,0));
+	set_windowsize( scr_size(L_DIALOG_WIDTH, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM) );
+	resize(scr_coord(0,0));
 
 	update_preview();
 }
@@ -358,10 +358,10 @@ bool welt_gui_t::update_from_heightfield(const char *filename)
 
 		resize_preview();
 
-		const int mx = sets->get_groesse_x()/map_size.x;
-		const int my = sets->get_groesse_y()/map_size.y;
-		for(  int y=0;  y<map_size.y;  y++  ) {
-			for(  int x=0;  x<map_size.x;  x++  ) {
+		const int mx = sets->get_groesse_x()/map_size.w;
+		const int my = sets->get_groesse_y()/map_size.h;
+		for(  int y=0;  y<map_size.h;  y++  ) {
+			for(  int x=0;  x<map_size.w;  x++  ) {
 				map.at(x,y) = reliefkarte_t::calc_hoehe_farbe( h_field[x*mx+y*my*w], sets->get_grundwasser()-1 );
 			}
 		}
@@ -410,10 +410,10 @@ void welt_gui_t::update_preview()
 
 		setsimrand( 0xFFFFFFFF, sets->get_karte_nummer() );
 
-		const int mx = sets->get_groesse_x()/map_size.x;
-		const int my = sets->get_groesse_y()/map_size.y;
-		for(  int y=0;  y<map_size.y;  y++  ) {
-			for(  int x=0;  x<map_size.x;  x++  ) {
+		const int mx = sets->get_groesse_x()/map_size.w;
+		const int my = sets->get_groesse_y()/map_size.h;
+		for(  int y=0;  y<map_size.h;  y++  ) {
+			for(  int x=0;  x<map_size.w;  x++  ) {
 				map.at(x,y) = reliefkarte_t::calc_hoehe_farbe(karte_t::perlin_hoehe( sets, koord(x*mx,y*my), koord::invalid ), sets->get_grundwasser());
 			}
 		}
@@ -428,14 +428,14 @@ void welt_gui_t::resize_preview()
 	const float world_aspect = (float)sets->get_groesse_x() / (float)sets->get_groesse_y();
 
 	if(  world_aspect > 1.0  ) {
-		map_size.x = MAP_PREVIEW_SIZE_X-2;
-		map_size.y = (sint16) max( (const int)((float)map_size.x / world_aspect), L_PREVIEW_SIZE_MIN-2);
+		map_size.w = MAP_PREVIEW_SIZE_X-2;
+		map_size.h = (sint16) max( (const int)((float)map_size.w / world_aspect), L_PREVIEW_SIZE_MIN-2);
 	}
 	else {
-		map_size.y = MAP_PREVIEW_SIZE_Y-2;
-		map_size.x = (sint16) max( (const int)((float)map_size.y * world_aspect), L_PREVIEW_SIZE_MIN-2);
+		map_size.h = MAP_PREVIEW_SIZE_Y-2;
+		map_size.w = (sint16) max( (const int)((float)map_size.h * world_aspect), L_PREVIEW_SIZE_MIN-2);
 	}
-	map.resize( map_size.x, map_size.y );
+	map.resize( map_size.w, map_size.h );
 }
 
 
@@ -542,7 +542,7 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		}
 		else {
 			climate_gui_t *cg = new climate_gui_t(sets);
-			create_win((display_get_width() - cg->get_fenstergroesse().x-10), 40, cg, w_info, magic_climate );
+			create_win((display_get_width() - cg->get_windowsize().w-10), 40, cg, w_info, magic_climate );
 			open_climate_gui.pressed = true;
 		}
 	}
@@ -604,7 +604,7 @@ bool  welt_gui_t::infowin_event(const event_t *ev)
 }
 
 
-void welt_gui_t::zeichnen(koord pos, koord gr)
+void welt_gui_t::draw(scr_coord pos, scr_size size)
 {
 	// Coordinates are relative to parent (TITLEHEIGHT **NOT** subtracted)
 	cbuffer_t buf;
@@ -656,5 +656,5 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 	size_label.set_text(buf);
 
 	// draw child controls
-	gui_frame_t::zeichnen(pos, gr);
+	gui_frame_t::draw(pos, size);
 }

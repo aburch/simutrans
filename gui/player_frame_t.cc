@@ -44,7 +44,7 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 	gui_frame_t( translator::translate("Spielerliste") )
 {
 
-	koord cursor = koord ( D_MARGIN_LEFT, D_MARGIN_TOP );
+	scr_coord cursor = scr_coord ( D_MARGIN_LEFT, D_MARGIN_TOP );
 	this->welt = wl;
 
 	// switching active player allowed?
@@ -86,13 +86,13 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 		cursor.x += D_ARROW_RIGHT_WIDTH + D_H_SPACE;
 
 		// Prepare finances button
-		player_get_finances[i].init( button_t::box, "", cursor, koord( L_FINANCE_WIDTH, D_EDIT_HEIGHT ) );
+		player_get_finances[i].init( button_t::box, "", cursor, scr_size( L_FINANCE_WIDTH, D_EDIT_HEIGHT ) );
 		player_get_finances[i].background_color = PLAYER_FLAG | ((sp ? sp->get_player_color1():i*8)+4);
 		player_get_finances[i].add_listener(this);
 
 		// Player type selector, Combobox
 		player_select[i].set_pos( cursor );
-		player_select[i].set_groesse( koord( L_FINANCE_WIDTH, D_EDIT_HEIGHT ) );
+		player_select[i].set_size( scr_size( L_FINANCE_WIDTH, D_EDIT_HEIGHT ) );
 		player_select[i].set_focusable( false );
 
 		// Create combobox list data
@@ -122,7 +122,7 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 		cursor.x += L_FINANCE_WIDTH + D_H_SPACE;
 
 		// password/locked button
-		player_lock[i].init(button_t::box, "", cursor, koord(D_EDIT_HEIGHT,D_EDIT_HEIGHT));
+		player_lock[i].init(button_t::box, "", cursor, scr_size(D_EDIT_HEIGHT,D_EDIT_HEIGHT));
 		player_lock[i].background_color = (sp && sp->is_locked()) ? (sp->is_unlock_pending() ? COL_YELLOW : COL_RED) : COL_GREEN;
 		player_lock[i].enable( welt->get_spieler(i) );
 		player_lock[i].add_listener(this);
@@ -156,7 +156,7 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 	add_komponente( &freeplay );
 	cursor.y += D_CHECKBOX_HEIGHT;
 
-	set_fenstergroesse( koord( L_DIALOG_WIDTH, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM ) );
+	set_windowsize( scr_size( L_DIALOG_WIDTH, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM ) );
 	update_data();
 }
 
@@ -320,7 +320,7 @@ void ki_kontroll_t::update_data()
  * Draw the component
  * @author Hj. Malthaner
  */
-void ki_kontroll_t::zeichnen(koord pos, koord gr)
+void ki_kontroll_t::draw(scr_coord pos, scr_size size)
 {
 	// Update free play
 	freeplay.pressed = welt->get_settings().is_freeplay();
@@ -352,7 +352,7 @@ void ki_kontroll_t::zeichnen(koord pos, koord gr)
 				money_to_string(account_str[i], account );
 				ai_income[i]->set_color( account>=0.0 ? MONEY_PLUS : MONEY_MINUS );
 			}
-			ai_income[i]->set_pos( koord( gr.x-D_MARGIN_RIGHT-L_FRACTION_WIDTH, ai_income[i]->get_pos().y ) );
+			ai_income[i]->set_pos( scr_coord( size.w-D_MARGIN_RIGHT-L_FRACTION_WIDTH, ai_income[i]->get_pos().y ) );
 		}
 		else {
 			account_str[i][0] = 0;
@@ -362,5 +362,5 @@ void ki_kontroll_t::zeichnen(koord pos, koord gr)
 	player_change_to[welt->get_active_player_nr()].pressed = true;
 
 	// All controls updated, draw them...
-	gui_frame_t::zeichnen(pos, gr);
+	gui_frame_t::draw(pos, size);
 }

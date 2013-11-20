@@ -27,8 +27,8 @@ cbuffer_t grund_info_t::gr_info;
 grund_info_t::grund_info_t(const grund_t* gr_) :
 	gui_frame_t( translator::translate(gr_->get_name()), NULL),
 	gr(gr_),
-	view(gr_->get_welt(), gr_->get_pos(), koord( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width()*7)/8) )),
-	textarea(&gr_info, 170 + view.get_groesse().x, view.get_groesse() + koord(D_H_SPACE, D_V_SPACE))
+	view(gr_->get_welt(), gr_->get_pos(), scr_size( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width()*7)/8) )),
+	textarea(&gr_info, 170 + view.get_size().w, view.get_size() + scr_size(D_H_SPACE, D_V_SPACE))
 {
 	const obj_t *const d = gr->obj_bei(0);
 	if (  d!=NULL  ) {
@@ -39,16 +39,16 @@ grund_info_t::grund_info_t(const grund_t* gr_) :
 	gr->info(gr_info);
 	textarea.recalc_size();
 
-	KOORD_VAL width  = textarea.get_groesse().x + D_MARGIN_LEFT + D_MARGIN_RIGHT;
-	KOORD_VAL height = D_TITLEBAR_HEIGHT + D_MARGIN_TOP + max( textarea.get_groesse().y, view.get_groesse().y ) + D_MARGIN_BOTTOM;
+	scr_coord_val width  = textarea.get_size().w + D_MARGIN_LEFT + D_MARGIN_RIGHT;
+	scr_coord_val height = D_TITLEBAR_HEIGHT + D_MARGIN_TOP + max( textarea.get_size().h, view.get_size().h ) + D_MARGIN_BOTTOM;
 
-	view.set_pos( koord(width - view.get_groesse().x - D_MARGIN_RIGHT, D_MARGIN_TOP) );
+	view.set_pos( scr_coord(width - view.get_size().w - D_MARGIN_RIGHT, D_MARGIN_TOP) );
 	add_komponente( &view );
 
-	textarea.set_pos( koord(D_MARGIN_LEFT, D_MARGIN_TOP) );
+	textarea.set_pos( scr_coord(D_MARGIN_LEFT, D_MARGIN_TOP) );
 	add_komponente( &textarea );
 
-	set_fenstergroesse( koord(width, height) );
+	set_windowsize( scr_size(width, height) );
 }
 
 
@@ -57,7 +57,7 @@ grund_info_t::grund_info_t(const grund_t* gr_) :
  * i.e. It's the screen coordinates of the window where the
  * component is displayed.
  */
-void grund_info_t::zeichnen(koord pos, koord groesse)
+void grund_info_t::draw(scr_coord pos, scr_size size)
 {
 	set_dirty();
 	const obj_t *const d = gr->obj_bei(0);
@@ -70,12 +70,12 @@ void grund_info_t::zeichnen(koord pos, koord groesse)
 	gr->info(gr_info);
 	textarea.recalc_size();
 
-	gui_frame_t::zeichnen(pos, groesse);
+	gui_frame_t::draw(pos, size);
 
 	// Knightly : text may be changed and need more vertical space to display
-	const sint16 current_height =  D_TITLEBAR_HEIGHT + D_MARGIN_TOP + max( textarea.get_groesse().y, view.get_groesse().y ) + D_MARGIN_BOTTOM;
-	if(  current_height != get_fenstergroesse().y  ) {
-		set_fenstergroesse( koord(get_fenstergroesse().x, current_height) );
+	const sint16 current_height =  D_TITLEBAR_HEIGHT + D_MARGIN_TOP + max( textarea.get_size().h, view.get_size().h ) + D_MARGIN_BOTTOM;
+	if(  current_height != get_windowsize().h  ) {
+		set_windowsize( scr_size(get_windowsize().w, current_height) );
 	}
 }
 

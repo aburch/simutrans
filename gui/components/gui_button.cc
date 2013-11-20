@@ -59,7 +59,7 @@ button_t::button_t() :
 }
 
 
-void button_t::init(enum type type_par, const char *text_par, koord pos_par, koord size_par)
+void button_t::init(enum type type_par, const char *text_par, scr_coord pos_par, scr_size size_par)
 {
 	translated_tooltip = NULL;
 	tooltip = NULL;
@@ -68,8 +68,8 @@ void button_t::init(enum type type_par, const char *text_par, koord pos_par, koo
 	set_typ(type_par);
 	set_text(text_par);
 	set_pos(pos_par);
-	if(  size_par != koord::invalid  ) {
-		set_groesse(size_par);
+	if(  size_par != scr_size::invalid  ) {
+		set_size(size_par);
 	}
 }
 
@@ -85,16 +85,16 @@ void button_t::set_typ(enum type t)
 			text_color = SYSCOL_BUTTON_TEXT;
 			if(  !strempty(translated_text)  ) {
 				set_text(translated_text);
-				set_groesse ( koord( gui_theme_t::gui_checkbox_size.x + D_H_SPACE + proportional_string_width( translated_text ), max(gui_theme_t::gui_checkbox_size.y,LINESPACE)) );
+				set_size( scr_size( gui_theme_t::gui_checkbox_size.w + D_H_SPACE + proportional_string_width( translated_text ), max(gui_theme_t::gui_checkbox_size.h,LINESPACE)) );
 			}
 			else {
-				set_groesse( koord( gui_theme_t::gui_checkbox_size.x, max(gui_theme_t::gui_checkbox_size.y,LINESPACE)) );
+				set_size( scr_size( gui_theme_t::gui_checkbox_size.w, max(gui_theme_t::gui_checkbox_size.h,LINESPACE)) );
 			}
 			break;
 
 		case arrowleft:
 		case repeatarrowleft:
-			set_groesse( gui_theme_t::gui_arrow_left_size );
+			set_size( gui_theme_t::gui_arrow_left_size );
 			break;
 
 		case posbutton:
@@ -102,20 +102,20 @@ void button_t::set_typ(enum type t)
 			// fallthrough
 		case arrowright:
 		case repeatarrowright:
-			set_groesse( gui_theme_t::gui_arrow_right_size );
+			set_size( gui_theme_t::gui_arrow_right_size );
 			break;
 
 		case arrowup:
-			set_groesse( gui_theme_t::gui_arrow_up_size );
+			set_size( gui_theme_t::gui_arrow_up_size );
 			break;
 
 		case arrowdown:
-			set_groesse( gui_theme_t::gui_arrow_down_size );
+			set_size( gui_theme_t::gui_arrow_down_size );
 			break;
 
 		case roundbox:
 		case box:
-			set_groesse( koord (gui_theme_t::gui_button_size.x, max(D_BUTTON_HEIGHT,LINESPACE)) );
+			set_size( scr_size(gui_theme_t::gui_button_size.w, max(D_BUTTON_HEIGHT,LINESPACE)) );
 			break;
 
 		default:
@@ -135,7 +135,7 @@ void button_t::set_text(const char * text)
 	translated_text = b_no_translate ? text : translator::translate(text);
 
 	if(  (type & STATE_MASK) == square  &&  !strempty(translated_text)  ) {
-		set_groesse( koord( gui_theme_t::gui_checkbox_size.x + D_H_SPACE + proportional_string_width( translated_text ), max(gui_theme_t::gui_checkbox_size.y,LINESPACE)) );
+		set_size( scr_size( gui_theme_t::gui_checkbox_size.w + D_H_SPACE + proportional_string_width( translated_text ), max(gui_theme_t::gui_checkbox_size.h, LINESPACE)) );
 	}
 }
 
@@ -198,8 +198,8 @@ bool button_t::infowin_event(const event_t *ev)
 	}
 
 	// Knightly : check if the initial click and the current mouse positions are within the button's boundary
-	bool const cxy_within_boundary = 0 <= ev->cx && ev->cx < get_groesse().x && 0 <= ev->cy && ev->cy < get_groesse().y;
-	bool const mxy_within_boundary = 0 <= ev->mx && ev->mx < get_groesse().x && 0 <= ev->my && ev->my < get_groesse().y;
+	bool const cxy_within_boundary = 0 <= ev->cx && ev->cx < get_size().w && 0 <= ev->cy && ev->cy < get_size().h;
+	bool const mxy_within_boundary = 0 <= ev->mx && ev->mx < get_size().w && 0 <= ev->my && ev->my < get_size().h;
 
 	// Knightly : update the button pressed state only when mouse positions are within boundary or when it is mouse release
 	if(  type<=STATE_MASK  &&  cxy_within_boundary  &&  (  mxy_within_boundary  ||  IS_LEFTRELEASE(ev)  )  ) {
@@ -218,7 +218,6 @@ bool button_t::infowin_event(const event_t *ev)
 
 	if(IS_LEFTRELEASE(ev)) {
 		if(  type==posbutton  ) {
-			// is in reality a point to koord
 			koord k(targetpos.x,targetpos.y);
 			call_listeners( &k );
 		}
@@ -248,13 +247,13 @@ void button_t::draw_focus_rect( scr_rect r, scr_coord_val offset) {
 
 
 // draw button. x,y is top left of window.
-void button_t::zeichnen(koord offset)
+void button_t::draw(scr_coord offset)
 {
 	if(  !is_visible()  ) {
 		return;
 	}
 
-	const scr_rect area( offset+pos, groesse );
+	const scr_rect area( offset+pos, size );
 	const COLOR_VAL text_color = b_enabled ? this->text_color : SYSCOL_DISABLED_BUTTON_TEXT;
 
 	switch (type&STATE_MASK) {
@@ -292,11 +291,11 @@ void button_t::zeichnen(koord offset)
 				display_img_aligned( gui_theme_t::check_button_img[ get_state_offset() ], area, ALIGN_CENTER_V, true );
 				if(  text  ) {
 					scr_rect area_text = area;
-					area_text.x += gui_theme_t::gui_checkbox_size.x+D_H_SPACE;
+					area_text.x += gui_theme_t::gui_checkbox_size.w + D_H_SPACE;
 					display_proportional_ellipse( area_text, translated_text, ALIGN_LEFT | ALIGN_CENTER_V | DT_CLIP, text_color, true );
 				}
 				if(  win_get_focus() == this  ) {
-					draw_focus_rect( scr_rect( (koord)area.get_pos()+koord(0,(area.get_size().h-gui_theme_t::gui_checkbox_size.y)/2), gui_theme_t::gui_checkbox_size ) );
+					draw_focus_rect( scr_rect( area.get_pos()+scr_coord(0,(area.get_size().h-gui_theme_t::gui_checkbox_size.w)/2), gui_theme_t::gui_checkbox_size ) );
 				}
 			}
 			break;

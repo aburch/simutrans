@@ -31,7 +31,7 @@ themeselector_t::themeselector_t() :
 	fnlabel.set_text_pointer( translator::translate( "Select a theme for display" ) );
 	if( undo.empty() ) {
 		undo = gui_theme_t::get_current_theme();
-		set_fenstergroesse(get_min_windowsize());
+		set_windowsize(get_min_windowsize());
 	}
 }
 
@@ -125,16 +125,16 @@ void themeselector_t::fill_list()
 	}
 
 	// force new resize after we have rearranged the gui
-	resize(koord(0,0));
+	resize(scr_coord(0,0));
 }
 
 
 void themeselector_t::rdwr( loadsave_t *file )
 {
-	koord gr = get_fenstergroesse();
-	gr.rdwr( file );
+	scr_size size = get_windowsize();
+	size.rdwr( file );
 	if(  file->is_loading()  ) {
-		set_fenstergroesse( gr );
-		resize( koord(0,0) );
+		set_windowsize( size );
+		resize( scr_coord(0,0) );
 	}
 }

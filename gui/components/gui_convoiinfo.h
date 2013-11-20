@@ -12,7 +12,7 @@
 #ifndef gui_convoiinfo_h
 #define gui_convoiinfo_h
 
-#include "../../dataobj/koord.h"
+#include "../../display/scr_coord.h"
 #include "gui_container.h"
 #include "gui_speedbar.h"
 #include "../../convoihandle_t.h"
@@ -47,7 +47,7 @@ public:
 	* Draw the component
 	* @author Hj. Malthaner
 	*/
-	void zeichnen(koord offset);
+	void draw(scr_coord offset);
 };
 
 #endif

@@ -33,7 +33,7 @@ karte_t *goods_stats_t::welt = NULL;
 goods_stats_t::goods_stats_t( karte_t *wl )
 {
 	welt = wl;
-	set_groesse( koord(BUTTON4_X + D_BUTTON_WIDTH + 2, warenbauer_t::get_waren_anzahl() * (LINESPACE+1) ) );
+	set_size( scr_size(BUTTON4_X + D_BUTTON_WIDTH + 2, warenbauer_t::get_waren_anzahl() * (LINESPACE+1) ) );
 }
 
 
@@ -42,7 +42,7 @@ void goods_stats_t::update_goodslist( uint16 *g, int b, int l )
 	goodslist = g;
 	bonus = b;
 	listed_goods = l;
-	set_groesse( koord(BUTTON4_X + D_BUTTON_WIDTH + 2, listed_goods * (LINESPACE+1) ) );
+	set_size( scr_size(BUTTON4_X + D_BUTTON_WIDTH + 2, listed_goods * (LINESPACE+1) ) );
 }
 
 
@@ -50,7 +50,7 @@ void goods_stats_t::update_goodslist( uint16 *g, int b, int l )
  * Draw the component
  * @author Hj. Malthaner
  */
-void goods_stats_t::zeichnen(koord offset)
+void goods_stats_t::draw(scr_coord offset)
 {
 	scr_coord_val yoff = offset.y;
 	char money_buf[256];

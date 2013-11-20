@@ -35,17 +35,17 @@ halt_detail_t::halt_detail_t(halthandle_t halt_) :
 
 	// fill buffer with halt detail
 	halt_detail_info();
-	txt_info.set_pos(koord(D_MARGIN_LEFT,D_MARGIN_TOP));
+	txt_info.set_pos(scr_coord(D_MARGIN_LEFT,D_MARGIN_TOP));
 
-	scrolly.set_pos(koord(0, 0));
+	scrolly.set_pos(scr_coord(0, 0));
 	scrolly.set_show_scroll_x(true);
 	add_komponente(&scrolly);
 
-	set_fenstergroesse(koord(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+4+22*(LINESPACE)+D_SCROLLBAR_HEIGHT+2));
-	set_min_windowsize(koord(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+4+3*(LINESPACE)+D_SCROLLBAR_HEIGHT+2));
+	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+4+22*(LINESPACE)+D_SCROLLBAR_HEIGHT+2));
+	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+4+3*(LINESPACE)+D_SCROLLBAR_HEIGHT+2));
 
 	set_resizemode(diagonal_resize);
-	resize(koord(0,0));
+	resize(scr_coord(0,0));
 
 	cached_active_player=NULL;
 }
@@ -136,7 +136,7 @@ void halt_detail_t::halt_detail_info()
 
 			// target button ...
 			button_t *pb = new button_t();
-			pb->init( button_t::posbutton, NULL, koord(D_MARGIN_LEFT, offset_y) );
+			pb->init( button_t::posbutton, NULL, scr_coord(D_MARGIN_LEFT, offset_y) );
 			pb->set_targetpos( pos );
 			pb->add_listener( this );
 			posbuttons.append( pb );
@@ -199,7 +199,7 @@ void halt_detail_t::halt_detail_info()
 			// Line buttons only if owner ...
 			if (halt->get_welt()->get_active_player()==halt->registered_lines[i]->get_besitzer()) {
 				button_t *b = new button_t();
-				b->init( button_t::posbutton, NULL, koord(D_MARGIN_LEFT, offset_y) );
+				b->init( button_t::posbutton, NULL, scr_coord(D_MARGIN_LEFT, offset_y) );
 				b->set_targetpos( koord(-1,i) );
 				b->add_listener( this );
 				linebuttons.append( b );
@@ -209,7 +209,7 @@ void halt_detail_t::halt_detail_info()
 			// Line labels with color of player
 			label_names.append( strdup(halt->registered_lines[i]->get_name()) );
 			gui_label_t *l = new gui_label_t( label_names.back(), PLAYER_FLAG|(halt->registered_lines[i]->get_besitzer()->get_player_color1()+0) );
-			l->set_pos( koord(D_MARGIN_LEFT+D_BUTTON_HEIGHT+D_H_SPACE, offset_y) );
+			l->set_pos( scr_coord(D_MARGIN_LEFT+D_BUTTON_HEIGHT+D_H_SPACE, offset_y) );
 			linelabels.append( l );
 			cont.add_komponente( l );
 			buf.append("\n");
@@ -235,7 +235,7 @@ void halt_detail_t::halt_detail_info()
 		for(  uint32 i=0;  i<halt->registered_convoys.get_count();  ++i  ) {
 			// Convoy buttons
 			button_t *b = new button_t();
-			b->init( button_t::posbutton, NULL, koord(D_MARGIN_LEFT, offset_y) );
+			b->init( button_t::posbutton, NULL, scr_coord(D_MARGIN_LEFT, offset_y) );
 			b->set_targetpos( koord(-2, i) );
 			b->add_listener( this );
 			convoybuttons.append( b );
@@ -244,7 +244,7 @@ void halt_detail_t::halt_detail_info()
 			// Line labels with color of player
 			label_names.append( strdup(halt->registered_convoys[i]->get_name()) );
 			gui_label_t *l = new gui_label_t( label_names.back(), PLAYER_FLAG|(halt->registered_convoys[i]->get_besitzer()->get_player_color1()+0) );
-			l->set_pos( koord(D_MARGIN_LEFT+D_BUTTON_HEIGHT+D_H_SPACE, offset_y) );
+			l->set_pos( scr_coord(D_MARGIN_LEFT+D_BUTTON_HEIGHT+D_H_SPACE, offset_y) );
 			convoylabels.append( l );
 			cont.add_komponente( l );
 			buf.append("\n");
@@ -294,7 +294,7 @@ void halt_detail_t::halt_detail_info()
 
 					// target button ...
 					button_t *pb = new button_t();
-					pb->init( button_t::posbutton, NULL, koord(D_MARGIN_LEFT, offset_y) );
+					pb->init( button_t::posbutton, NULL, scr_coord(D_MARGIN_LEFT, offset_y) );
 					pb->set_targetpos( conn.halt->get_basis_pos() );
 					pb->add_listener( this );
 					posbuttons.append( pb );
@@ -312,7 +312,7 @@ void halt_detail_t::halt_detail_info()
 	}
 
 	txt_info.recalc_size();
-	cont.set_groesse( txt_info.get_groesse() );
+	cont.set_size( txt_info.get_size() );
 
 	// ok, we have now this counter for pending updates
 	destination_counter = halt->get_reconnect_counter();
@@ -358,7 +358,7 @@ bool halt_detail_t::action_triggered( gui_action_creator_t *, value_t extra)
 
 
 
-void halt_detail_t::zeichnen(koord pos, koord gr)
+void halt_detail_t::draw(scr_coord pos, scr_size size)
 {
 	if(halt.is_bound()) {
 		if(  halt->get_reconnect_counter()!=destination_counter  ||  cached_active_player!=halt->get_welt()->get_active_player()
@@ -368,15 +368,15 @@ void halt_detail_t::zeichnen(koord pos, koord gr)
 			cached_active_player=halt->get_welt()->get_active_player();
 		}
 	}
-	gui_frame_t::zeichnen( pos, gr );
+	gui_frame_t::draw( pos, size );
 }
 
 
 
-void halt_detail_t::set_fenstergroesse(koord groesse)
+void halt_detail_t::set_windowsize(scr_size size)
 {
-	gui_frame_t::set_fenstergroesse(groesse);
-	scrolly.set_groesse(get_client_windowsize()-scrolly.get_pos());
+	gui_frame_t::set_windowsize(size);
+	scrolly.set_size(get_client_windowsize()-scrolly.get_pos());
 }
 
 
@@ -394,23 +394,23 @@ halt_detail_t::halt_detail_t(karte_t *):
 void halt_detail_t::rdwr(loadsave_t *file)
 {
 	koord3d halt_pos;
-	koord gr = get_fenstergroesse();
+	scr_size size = get_windowsize();
 	sint32 xoff = scrolly.get_scroll_x();
 	sint32 yoff = scrolly.get_scroll_y();
 	if(  file->is_saving()  ) {
 		halt_pos = halt->get_basis_pos3d();
 	}
 	halt_pos.rdwr( file );
-	gr.rdwr( file );
+	size.rdwr( file );
 	file->rdwr_long( xoff );
 	file->rdwr_long( yoff );
 	if(  file->is_loading()  ) {
 		halt = haltestelle_t::get_welt()->lookup( halt_pos )->get_halt();
 		// now we can open the window ...
-		koord const& pos = win_get_pos(this);
+		scr_coord const& pos = win_get_pos(this);
 		halt_detail_t *w = new halt_detail_t(halt);
 		create_win(pos.x, pos.y, w, w_info, magic_halt_detail + halt.get_id());
-		w->set_fenstergroesse( gr );
+		w->set_windowsize( size );
 		w->scrolly.set_scroll_position( xoff, yoff );
 		destroy_win( this );
 	}

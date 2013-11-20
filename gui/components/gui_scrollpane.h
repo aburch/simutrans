@@ -22,7 +22,7 @@ private:
 	 * @author Hj. Malthaner
 	 */
 	gui_komponente_t *komp;
-	koord old_komp_groesse;
+	scr_size old_komp_size;
 
 	/**
 	 * Scrollbar X/Y
@@ -34,7 +34,7 @@ private:
 	bool b_show_scroll_y:1;
 	bool b_has_size_corner:1;
 
-	void recalc_sliders(koord groesse);
+	void recalc_sliders(scr_size size);
 
 public:
 	/**
@@ -47,7 +47,7 @@ public:
 	 * This method MUST be used to set the size of scrollpanes.
 	 * @author Hj. Malthaner
 	 */
-	void set_groesse(koord groesse) OVERRIDE;
+	void set_size(scr_size size) OVERRIDE;
 
 	/**
 	 * Set the position of the Scrollbars
@@ -72,7 +72,7 @@ public:
 	 * Draw the component
 	 * @author Hj. Malthaner
 	 */
-	void zeichnen(koord offset);
+	void draw(scr_coord offset);
 
 	void set_show_scroll_x(bool yesno) { b_show_scroll_x = yesno; }
 
@@ -98,7 +98,7 @@ public:
 	 * Used for auto-scrolling inside a scroll pane.
 	 * @author Knightly
 	 */
-	virtual koord get_focus_pos() { return pos + ( komp->get_focus_pos() - koord( scroll_x.get_knob_offset(), scroll_y.get_knob_offset() ) ); }
+	virtual scr_coord get_focus_pos() { return pos + ( komp->get_focus_pos() - scr_coord( scroll_x.get_knob_offset(), scroll_y.get_knob_offset() ) ); }
 };
 
 #endif

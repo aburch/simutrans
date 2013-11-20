@@ -76,11 +76,11 @@ public:
 	 */
 	const char * get_hilfe_datei() const { return "display.txt"; }
 
-	void zeichnen(koord pos, koord gr);
+	void draw(scr_coord pos, scr_size size);
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
-	virtual void set_fenstergroesse(koord groesse);
+	virtual void set_windowsize(scr_size size);
 };
 
 #endif

@@ -154,7 +154,7 @@ void labellist_stats_t::recalc_size()
 	sint16 x_size = 0;
 	sint16 y_size = 0;
 
-	// loop copied from ::zeichnen(), trimmed to minimum for x_size calculation
+	// loop copied from ::draw(), trimmed to minimum for x_size calculation
 
 	static cbuffer_t buf;
 
@@ -181,7 +181,7 @@ void labellist_stats_t::recalc_size()
 		y_size +=LINESPACE+1;
 	}
 
-	set_groesse(koord(x_size+10+4,y_size));
+	set_size(scr_size(x_size+10+4,y_size));
 }
 
 
@@ -189,7 +189,7 @@ void labellist_stats_t::recalc_size()
  * Draw the component
  * @author Hj. Malthaner
  */
-void labellist_stats_t::zeichnen(koord offset)
+void labellist_stats_t::draw(scr_coord offset)
 {
 	if(  last_world_labels!=welt->get_label_list().get_count()  ) {
 		// some deleted/ added => resort
@@ -198,7 +198,7 @@ void labellist_stats_t::zeichnen(koord offset)
 	}
 
 	// keep previous maximum width
-	int x_size = get_groesse().x-10-4;
+	int x_size = get_size().w-10-4;
 
 	clip_dimension const cd = display_get_clip_wh();
 	const int start = cd.y-LINESPACE+1;
@@ -240,8 +240,8 @@ void labellist_stats_t::zeichnen(koord offset)
 		}
 	}
 
-	const koord gr(max(x_size+10+4,get_groesse().x),labels.get_count()*(LINESPACE+1));
-	if(  gr!=get_groesse()  ) {
-		set_groesse(gr);
+	const scr_size size(max(x_size+10+4,get_size().w),labels.get_count()*(LINESPACE+1));
+	if(  size!=get_size()  ) {
+		set_size(size);
 	}
 }

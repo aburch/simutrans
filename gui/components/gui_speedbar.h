@@ -43,7 +43,7 @@ public:
 	/**
 	 * Draw the component
 	 */
-	void zeichnen(koord offset);
+	void draw(scr_coord offset);
 };
 
 #endif

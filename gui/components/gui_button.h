@@ -97,7 +97,7 @@ public:
 
 	button_t();
 
-	void init(enum type typ, const char *text, koord pos=koord(0,0), koord size = koord::invalid);
+	void init(enum type typ, const char *text, scr_coord pos=scr_coord(0,0), scr_size size = scr_size::invalid);
 
 	void set_typ(enum type typ);
 	enum type get_type() const { return this->type; }
@@ -141,7 +141,7 @@ public:
 	 * Draw the component
 	 * @author Hj. Malthaner
 	 */
-	void zeichnen(koord offset);
+	void draw(scr_coord offset);
 
 	void enable(bool true_false_par = true) { b_enabled = true_false_par; }
 

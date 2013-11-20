@@ -39,7 +39,7 @@ class curiositylist_frame_t : public gui_frame_t, private action_listener_t
 	 * resize window in response to a resize event
 	 * @author Hj. Malthaner
 	 */
-	void resize(const koord delta);
+	void resize(const scr_coord delta);
 
 	/**
 	 * Set the window associated helptext

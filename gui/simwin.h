@@ -18,7 +18,7 @@
 #include "../simconst.h"
 
 class karte_t;
-class koord;
+class scr_coord;
 class loadsave_t;
 class gui_frame_t;
 class gui_komponente_t;
@@ -121,7 +121,7 @@ int create_win(int x, int y, gui_frame_t*, wintype, ptrdiff_t magic);
 bool check_pos_win(event_t*);
 
 bool win_is_open(gui_frame_t *ig );
-koord const& win_get_pos(gui_frame_t const*);
+scr_coord const& win_get_pos(gui_frame_t const*);
 void win_set_pos(gui_frame_t *ig, int x, int y);
 
 gui_frame_t *win_get_top();

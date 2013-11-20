@@ -3,8 +3,8 @@
 
 #include <assert.h>
 #include "../dataobj/koord.h"
+#include "../dataobj/loadsave.h"
 #include "../simtypes.h"
-
 
 
 // Screen coordinate type
@@ -23,15 +23,18 @@ public:
 	// Constructors
 	scr_coord(  ) { x = y = 0; }
 	scr_coord( scr_coord_val x_, scr_coord_val y_ ) { x = x_; y=y_; }
-	scr_coord( const koord pos_par) { x = pos_par.x; y = pos_par.y; }
-
-	// temporary until koord has been replaced by scr_coord.
-	operator koord() const { return koord(x,y); }
 
 	bool operator ==(const scr_coord& other) const { return ((x-other.x) | (y-other.y)) == 0; }
 	bool operator !=(const scr_coord& other) const { return !(other == *this ); }
 	const scr_coord operator +(const scr_coord& other ) const { return scr_coord( other.x + x, other.y + y); }
 	const scr_coord operator -(const scr_coord& other ) const { return scr_coord( x - other.x, y - other.y ); }
+
+	void rdwr(loadsave_t *file)
+	{
+		xml_tag_t k( file, "koord" );
+		file->rdwr_short(x);
+		file->rdwr_short(y);
+	}
 
 	const scr_coord& operator +=(const scr_coord& other ) {
 		x += other.x;
@@ -40,8 +43,8 @@ public:
 	}
 
 	const scr_coord& operator -=(const scr_coord& other ) {
-		x += other.x;
-		y += other.y;
+		x -= other.x;
+		y -= other.y;
 		return *this;
 	}
 
@@ -54,8 +57,46 @@ public:
 		x = x_par;
 		y = y_par;
 	}
+
+	inline void clip_lefttop( scr_coord scr_lefttop )
+	{
+		if (x < scr_lefttop.x) {
+			x = scr_lefttop.x;
+		}
+		if (y < scr_lefttop.y) {
+			y = scr_lefttop.y;
+		}
+	}
+
+	inline void clip_rightbottom( scr_coord scr_rightbottom )
+	{
+		if (x > scr_rightbottom.x) {
+			x = scr_rightbottom.x;
+		}
+		if (y > scr_rightbottom.y) {
+			y = scr_rightbottom.y;
+		}
+	}
+
+	static const scr_coord invalid;
+
+private:
+	// conversions to/from koord not allowed anymore
+	scr_coord( const koord pos_par) { x = pos_par.x; y = pos_par.y; }
+	operator koord() const { return koord(x,y); }
 };
 
+
+static inline scr_coord operator * (const scr_coord &k, const sint16 m)
+{
+	return scr_coord(k.x * m, k.y * m);
+}
+
+
+static inline scr_coord operator / (const scr_coord &k, const sint16 m)
+{
+	return scr_coord(k.x / m, k.y / m);
+}
 
 
 // Very simple scr_size struct.
@@ -70,13 +111,41 @@ public:
 	scr_size( scr_coord_val w_par, scr_coord_val h_par) { w = w_par; h = h_par; }
 	scr_size( const scr_size& size ) { w = size.w; h=size.h; }
 
-	operator koord() const { return koord(w,h); }
 	operator scr_coord() const { return scr_coord(w,h); }
 
 	bool operator ==(const scr_size& other) const { return ((w-other.w) | (h-other.h)) == 0; }
 	bool operator !=(const scr_size& other) const { return !(other == *this ); }
 	const scr_size operator +(const scr_size& other ) const { return scr_size( other.w + w, other.h + h); }
 	const scr_size operator -(const scr_size& other ) const { return scr_size( w - other.w, h - other.h ); }
+	const scr_size operator +(const scr_coord& other ) const { return scr_size( other.x + w, other.y + h); }
+	const scr_size operator -(const scr_coord& other ) const { return scr_size( w - other.x, h - other.y ); }
+
+	void rdwr(loadsave_t *file)
+	{
+		xml_tag_t k( file, "koord" );
+		file->rdwr_short(w);
+		file->rdwr_short(h);
+	}
+
+	inline void clip_lefttop( scr_coord scr_lefttop )
+	{
+		if (w < scr_lefttop.x) {
+			w = scr_lefttop.x;
+		}
+		if (h < scr_lefttop.y) {
+			h = scr_lefttop.y;
+		}
+	}
+
+	inline void clip_rightbottom( scr_coord scr_rightbottom )
+	{
+		if (w > scr_rightbottom.x) {
+			w = scr_rightbottom.x;
+		}
+		if (h > scr_rightbottom.y) {
+			h = scr_rightbottom.y;
+		}
+	}
 
 	const scr_size& operator +=(const scr_size& other ) {
 		w += other.w;
@@ -90,6 +159,23 @@ public:
 		return *this;
 	}
 
+	const scr_size& operator +=(const scr_coord& other ) {
+		w += other.x;
+		h += other.y;
+		return *this;
+	}
+
+	const scr_size& operator -=(const scr_coord& other ) {
+		w += other.x;
+		h += other.y;
+		return *this;
+	}
+
+	static const scr_size invalid;
+
+private:
+	// conversions to/from koord not allowed anymore
+	operator koord() const { return koord(w,h); }
 };
 
 
@@ -114,6 +200,7 @@ public:
 	scr_rect() { set(0,0,0,0); }
 	scr_rect( const scr_coord& pt ) { set( pt.x, pt.y, 0, 0 ); }
 	scr_rect( const scr_coord& pt, scr_coord_val w, scr_coord_val h ) { set( pt.x, pt.y, w, h ); }
+	scr_rect( const scr_coord& pt, const scr_size& sz ) { set( pt.x, pt.y, sz.w, sz.h ); }
 	scr_rect( scr_coord_val x, scr_coord_val y, scr_coord_val w, scr_coord_val h ) { set( x, y, w, h ); }
 	scr_rect( scr_size size ) { w = size.w; h=size.h; }
 	scr_rect( const scr_coord& point1, const scr_coord& point2 ) { set( point1.x, point1.y, point2.x-point1.x, point2.y-point1.y ); }
@@ -121,7 +208,6 @@ public:
 	// Type cast operators
 	operator scr_size()  const { return scr_size (w,h); }
 	operator scr_coord() const { return scr_coord(x,y); }
-	operator koord()     const { return koord(w,h); }
 
 	// Unary operators
 	const scr_rect operator +(const scr_coord& other ) const { scr_rect rect(x + other.x, y + other.y, w, h ); return rect; }
@@ -129,12 +215,6 @@ public:
 
 	const scr_rect operator +(const scr_size& sz ) const { return scr_rect(x,y, w+sz.w, h+sz.h ); }
 	const scr_rect operator -(const scr_size& sz ) const { return scr_rect(x,y, w-sz.w, h-sz.h ); }
-
-	// for now still accepted, will be removed
-	// when we convert all relevant koord to scr_coord.
-	scr_rect( const koord& pt ) { set( pt.x, pt.y, 0, 0 ); }
-	scr_rect( const koord& pt, const koord& size ) { set( pt.x, pt.y, size.x, size.y ); }
-	scr_rect( const koord& pt, scr_coord_val w, scr_coord_val h ) { set( pt.x, pt.y, w, h ); }
 
 	// Validation functions
 	bool is_empty() const { return (w|h) == 0;  }
@@ -275,5 +355,11 @@ public:
 	bool operator !=(const scr_rect& rect_par) const {
 		return !(rect_par==*this);
 	}
+private:
+	// conversions to/from koord not allowed anymore
+	scr_rect( const koord& pt ) { set( pt.x, pt.y, 0, 0 ); }
+	scr_rect( const koord& pt, const koord& size ) { set( pt.x, pt.y, size.x, size.y ); }
+	scr_rect( const koord& pt, scr_coord_val w, scr_coord_val h ) { set( pt.x, pt.y, w, h ); }
+	operator koord()     const { return koord(w,h); }
 };
 #endif

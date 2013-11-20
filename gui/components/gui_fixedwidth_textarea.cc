@@ -13,7 +13,7 @@
 
 
 
-gui_fixedwidth_textarea_t::gui_fixedwidth_textarea_t(cbuffer_t* buf_, const sint16 width, const koord reserved_area_)
+gui_fixedwidth_textarea_t::gui_fixedwidth_textarea_t(cbuffer_t* buf_, const sint16 width, const scr_size reserved_area_)
 {
 	buf = buf_;
 	set_width(width);
@@ -24,7 +24,7 @@ gui_fixedwidth_textarea_t::gui_fixedwidth_textarea_t(cbuffer_t* buf_, const sint
 
 void gui_fixedwidth_textarea_t::recalc_size()
 {
-	calc_display_text(koord::invalid, false);
+	calc_display_text(scr_coord::invalid, false);
 }
 
 
@@ -33,25 +33,25 @@ void gui_fixedwidth_textarea_t::set_width(const sint16 width)
 {
 	if(  width>0  ) {
 		// height is simply reset to 0 as it requires recalculation anyway
-		gui_komponente_t::set_groesse( koord(width, 0) );
+		gui_komponente_t::set_size( scr_size(width, 0) );
 	}
 }
 
 
 
-void gui_fixedwidth_textarea_t::set_reserved_area(const koord area)
+void gui_fixedwidth_textarea_t::set_reserved_area(const scr_size area)
 {
-	if(  area.x>=0  &&  area.y>=0  ) {
+	if(  area.w>=0  &&  area.h>=0  ) {
 		reserved_area = area;
 	}
 }
 
 
 
-void gui_fixedwidth_textarea_t::set_groesse(koord groesse)
+void gui_fixedwidth_textarea_t::set_size(scr_size size)
 {
-	// y-component (height) in size (groesse) is deliberately ignored
-	set_width(groesse.x);
+	// y-component (height) in size is deliberately ignored
+	set_width(size.w);
 }
 
 
@@ -60,10 +60,10 @@ void gui_fixedwidth_textarea_t::set_groesse(koord groesse)
  * if draw is true, it will also draw the text
  * borrowed from ding_infowin_t::calc_draw_info() with adaptation
  */
-void gui_fixedwidth_textarea_t::calc_display_text(const koord offset, const bool draw)
+void gui_fixedwidth_textarea_t::calc_display_text(const scr_coord offset, const bool draw)
 {
 	const bool unicode = translator::get_lang()->utf_encoded;
-	KOORD_VAL x=0, word_x=0, y = 0;
+	scr_coord_val x=0, word_x=0, y = 0;
 
 	const char* text(*buf);
 	const utf8 *p = (const utf8 *)text;
@@ -75,7 +75,7 @@ void gui_fixedwidth_textarea_t::calc_display_text(const koord offset, const bool
 	while(*p!=0  ||  p!=line_end) {
 
 		// force at end of text or newline
-		const KOORD_VAL max_width = ( y<reserved_area.y ) ? get_groesse().x-reserved_area.x : get_groesse().x;
+		const scr_coord_val max_width = ( y<reserved_area.h ) ? get_size().w-reserved_area.w : get_size().w;
 
 		// smaller than the allowed width?
 		do {
@@ -98,7 +98,7 @@ void gui_fixedwidth_textarea_t::calc_display_text(const koord offset, const bool
 			else if(  next_char==' '  ||  (next_char >= 0x3000  &&   next_char<0xFE70)  ) {
 				// ignore space at start of line
 				if(next_char!=' '  ||  x>0) {
-					x += (KOORD_VAL)display_get_char_width( next_char );
+					x += (scr_coord_val)display_get_char_width( next_char );
 				}
 				word_start = p;
 				word_x = 0;
@@ -134,14 +134,14 @@ void gui_fixedwidth_textarea_t::calc_display_text(const koord offset, const bool
 	}
 
 	// reset component height where necessary
-	if(  y!=get_groesse().y  ) {
-		gui_komponente_t::set_groesse( koord(get_groesse().x, y) );
+	if(  y!=get_size().h  ) {
+		gui_komponente_t::set_size( scr_size(get_size().w, y) );
 	}
 }
 
 
 
-void gui_fixedwidth_textarea_t::zeichnen(koord offset)
+void gui_fixedwidth_textarea_t::draw(scr_coord offset)
 {
 	calc_display_text(offset + get_pos(), true);
 }

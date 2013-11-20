@@ -55,7 +55,7 @@ public:
 	void highlight_schedule( schedule_t *markfpl, bool marking );
 
 	// Draw the component
-	void zeichnen(koord offset);
+	void draw(scr_coord offset);
 };
 
 
@@ -135,13 +135,13 @@ public:
 	 * Draw the Frame
 	 * @author Hansjörg Malthaner
 	 */
-	void zeichnen(koord pos, koord gr);
+	void draw(scr_coord pos, scr_size size);
 
 	/**
 	 * Set window size and adjust component sizes and/or positions accordingly
 	 * @author Hj. Malthaner
 	 */
-	virtual void set_fenstergroesse(koord groesse);
+	virtual void set_windowsize(scr_size size);
 
 	/**
 	 * show or hide the line selector combobox and its associated label

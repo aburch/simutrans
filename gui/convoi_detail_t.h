@@ -21,7 +21,7 @@
 #include "../convoihandle_t.h"
 #include "../gui/simwin.h"
 
-class koord;
+class scr_coord;
 
 /**
  * One element of the vehicle list display
@@ -49,7 +49,7 @@ public:
 	 * Draw the component
 	 * @author Hj. Malthaner
 	 */
-	void zeichnen(koord offset);
+	void draw(scr_coord offset);
 };
 
 
@@ -83,7 +83,7 @@ public:
 	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
-	void zeichnen(koord pos, koord gr);
+	void draw(scr_coord pos, scr_size size);
 
 	/**
 	 * Set the window associated helptext
@@ -96,7 +96,7 @@ public:
 	 * Set window size and adjust component sizes and/or positions accordingly
 	 * @author Hj. Malthaner
 	 */
-	virtual void set_fenstergroesse(koord groesse);
+	virtual void set_windowsize(scr_size size);
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 

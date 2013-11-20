@@ -54,7 +54,7 @@ protected:
 public:
 	gui_label_t(const char* text=NULL, COLOR_VAL color=SYSCOL_STATIC_TEXT, align_t align=left);
 
-	void init( const char* text_par, koord pos_par, COLOR_VAL color_par=SYSCOL_STATIC_TEXT, align_t align_par=left) {
+	void init( const char* text_par, scr_coord pos_par, COLOR_VAL color_par=SYSCOL_STATIC_TEXT, align_t align_par=left) {
 		set_pos  ( pos_par   );
 		set_text ( text_par  );
 		set_color( color_par );
@@ -88,7 +88,7 @@ public:
 	 * Draws the component.
 	 * @author Hj. Malthaner
 	 */
-	void zeichnen(koord offset);
+	void draw(scr_coord offset);
 
 	/**
 	 * Sets the colour of the label

@@ -54,7 +54,7 @@ public:
 	* i.e. It's the screen coordinates of the window where the
 	* component is displayed.
 	*/
-	virtual void zeichnen(koord pos, koord gr);
+	virtual void draw(scr_coord pos, scr_size size);
 };
 
 

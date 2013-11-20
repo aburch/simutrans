@@ -72,44 +72,44 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	int y=D_BUTTON_HEIGHT+4-D_TITLEBAR_HEIGHT;
 
 	speed_bonus[0] = 0;
-	speed_down.init(button_t::repeatarrowleft, "", koord(BUTTON4_X-20, y), koord(10,D_BUTTON_HEIGHT));
+	speed_down.init(button_t::repeatarrowleft, "", scr_coord(BUTTON4_X-20, y), scr_size(10,D_BUTTON_HEIGHT));
 	speed_down.add_listener(this);
 	add_komponente(&speed_down);
 
 	change_speed_label.set_text(speed_bonus);
 	change_speed_label.set_width(display_get_char_max_width("-0123456789")*4);
-	change_speed_label.align_to(&speed_down, ALIGN_LEFT | ALIGN_EXTERIOR_H | ALIGN_CENTER_V,koord(D_V_SPACE,0));
+	change_speed_label.align_to(&speed_down, ALIGN_LEFT | ALIGN_EXTERIOR_H | ALIGN_CENTER_V,scr_coord(D_V_SPACE,0));
 	add_komponente(&change_speed_label);
 
 	speed_up.init(button_t::repeatarrowright, "",speed_down.get_pos());
-	speed_up.align_to(&change_speed_label, ALIGN_LEFT | ALIGN_EXTERIOR_H, koord(D_V_SPACE,0));
+	speed_up.align_to(&change_speed_label, ALIGN_LEFT | ALIGN_EXTERIOR_H, scr_coord(D_V_SPACE,0));
 	speed_up.add_listener(this);
 	add_komponente(&speed_up);
 	y=D_BUTTON_HEIGHT+4+5*LINESPACE;
 
-	filter_goods_toggle.init(button_t::square_state, "Show only used", koord(BUTTON1_X, y));
+	filter_goods_toggle.init(button_t::square_state, "Show only used", scr_coord(BUTTON1_X, y));
 	filter_goods_toggle.set_tooltip(translator::translate("Only show goods which are currently handled by factories"));
 	filter_goods_toggle.add_listener(this);
 	filter_goods_toggle.pressed = filter_goods;
 	add_komponente(&filter_goods_toggle);
 	y += LINESPACE+2;
 
-	sort_label.set_pos(koord(BUTTON1_X, y));
+	sort_label.set_pos(scr_coord(BUTTON1_X, y));
 	add_komponente(&sort_label);
 
 	y += LINESPACE+1;
 
-	sortedby.init(button_t::roundbox, "", koord(BUTTON1_X, y), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+	sortedby.init(button_t::roundbox, "", scr_coord(BUTTON1_X, y), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	sortedby.add_listener(this);
 	add_komponente(&sortedby);
 
-	sorteddir.init(button_t::roundbox, "", koord(BUTTON2_X, y), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+	sorteddir.init(button_t::roundbox, "", scr_coord(BUTTON2_X, y), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	sorteddir.add_listener(this);
 	add_komponente(&sorteddir);
 
 	y += D_BUTTON_HEIGHT+2;
 
-	scrolly.set_pos(koord(1, y));
+	scrolly.set_pos(scr_coord(1, y));
 	scrolly.set_scroll_amount_y(LINESPACE+1);
 	add_komponente(&scrolly);
 
@@ -119,11 +119,11 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	if(h>450) {
 		h = y+27*(LINESPACE+1)+D_TITLEBAR_HEIGHT+1;
 	}
-	set_fenstergroesse(koord(D_DEFAULT_WIDTH, h));
-	set_min_windowsize(koord(D_DEFAULT_WIDTH,3*(LINESPACE+1)+D_TITLEBAR_HEIGHT+y+1));
+	set_windowsize(scr_size(D_DEFAULT_WIDTH, h));
+	set_min_windowsize(scr_size(D_DEFAULT_WIDTH,3*(LINESPACE+1)+D_TITLEBAR_HEIGHT+y+1));
 
 	set_resizemode(vertical_resize);
-	resize (koord(0,0));
+	resize (scr_coord(0,0));
 }
 
 
@@ -196,11 +196,11 @@ void goods_frame_t::sort_list()
  * @author Hj. Malthaner
  * @date   16-Oct-2003
  */
-void goods_frame_t::resize(const koord delta)
+void goods_frame_t::resize(const scr_coord delta)
 {
 	gui_frame_t::resize(delta);
-	koord groesse = get_fenstergroesse()-scrolly.get_pos()-koord(0,D_TITLEBAR_HEIGHT);
-	scrolly.set_groesse(groesse);
+	scr_size size = get_windowsize()-scrolly.get_pos()-scr_size(0,D_TITLEBAR_HEIGHT);
+	scrolly.set_size(size);
 }
 
 
@@ -244,9 +244,9 @@ bool goods_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
  * Draw the component
  * @author Hj. Malthaner
  */
-void goods_frame_t::zeichnen(koord pos, koord gr)
+void goods_frame_t::draw(scr_coord pos, scr_size size)
 {
-	gui_frame_t::zeichnen(pos, gr);
+	gui_frame_t::draw(pos, size);
 
 	sprintf(speed_bonus,"%i",relative_speed_change-100);
 

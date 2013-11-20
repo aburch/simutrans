@@ -149,11 +149,11 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 
 	const scr_coord_val offset_below_chart = 10 + CHART_HEIGHT + 20;
 	const scr_coord_val label_offset = D_GET_CENTER_ALIGN_OFFSET(LINESPACE,D_BUTTON_HEIGHT);
-	tab_panel.set_pos( koord(0, 0) );
+	tab_panel.set_pos( scr_coord(0, 0) );
 
 	// GUI components for goods input/output statistics
-	goods_chart.set_pos( koord(10 + 80, 10) );
-	goods_chart.set_groesse( koord( CHART_WIDTH, CHART_HEIGHT ) );
+	goods_chart.set_pos( scr_coord(10 + 80, 10) );
+	goods_chart.set_size( scr_size( CHART_WIDTH, CHART_HEIGHT ) );
 	goods_chart.set_dimension(12, 10000);
 	goods_chart.set_background(MN_GREY1);
 	const uint32 input_count = factory->get_eingang().get_count();
@@ -165,7 +165,7 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 	sint16 goods_label_row = 0;
 	if(  input_count>0  ) {
 		goods_labels[goods_label_count].set_text( "Verbrauch" );
-		goods_labels[goods_label_count].set_pos( koord( D_MARGIN_LEFT, offset_below_chart + label_offset + (D_H_SPACE+D_BUTTON_HEIGHT)*goods_label_row) );
+		goods_labels[goods_label_count].set_pos( scr_coord( D_MARGIN_LEFT, offset_below_chart + label_offset + (D_H_SPACE+D_BUTTON_HEIGHT)*goods_label_row) );
 		goods_labels[goods_label_count].set_width(D_BUTTON_WIDTH);
 		goods_cont.add_komponente( goods_labels + goods_label_count );
 		goods_label_count ++;
@@ -173,12 +173,12 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 		const array_tpl<ware_production_t> &input = factory->get_eingang();
 		for(  uint32 g=0;  g<input_count;  ++g  ) {
 			goods_labels[goods_label_count].set_text( input[g].get_typ()->get_name() );
-			goods_labels[goods_label_count].set_pos( koord( D_MARGIN_LEFT+(D_H_SPACE<<1), offset_below_chart + label_offset + (D_H_SPACE+D_BUTTON_HEIGHT)*goods_label_row ) );
+			goods_labels[goods_label_count].set_pos( scr_coord( D_MARGIN_LEFT+(D_H_SPACE<<1), offset_below_chart + label_offset + (D_H_SPACE+D_BUTTON_HEIGHT)*goods_label_row ) );
 			goods_labels[goods_label_count].set_width(D_BUTTON_WIDTH-(D_H_SPACE<<1));
 			goods_cont.add_komponente( goods_labels + goods_label_count );
 			for(  int s=0;  s<MAX_FAB_GOODS_STAT;  ++s  ) {
 				goods_chart.add_curve( goods_color[goods_label_count%MAX_GOODS_COLOR]+2+(s*3)/2, input[g].get_stats(), MAX_FAB_GOODS_STAT, s, MAX_MONTH, false, false, true, 0, goods_convert[s] );
-				goods_buttons[goods_button_count].init(button_t::box_state, input_type[s], koord( D_MARGIN_LEFT+(D_H_SPACE+D_BUTTON_WIDTH)*(s%2+1), offset_below_chart+(D_H_SPACE+D_BUTTON_HEIGHT)*(goods_label_row+s/2) ));
+				goods_buttons[goods_button_count].init(button_t::box_state, input_type[s], scr_coord( D_MARGIN_LEFT+(D_H_SPACE+D_BUTTON_WIDTH)*(s%2+1), offset_below_chart+(D_H_SPACE+D_BUTTON_HEIGHT)*(goods_label_row+s/2) ));
 				goods_buttons[goods_button_count].background_color = goods_color[goods_label_count%MAX_GOODS_COLOR]+2+(s*3)/2;
 				goods_buttons[goods_button_count].pressed = false;
 				goods_buttons[goods_button_count].add_listener(this);
@@ -191,7 +191,7 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 	}
 	if(  output_count>0  ) {
 		goods_labels[goods_label_count].set_text( "Produktion" );
-		goods_labels[goods_label_count].set_pos( koord( D_MARGIN_LEFT, offset_below_chart + label_offset + (D_H_SPACE+D_BUTTON_HEIGHT)*goods_label_row ) );
+		goods_labels[goods_label_count].set_pos( scr_coord( D_MARGIN_LEFT, offset_below_chart + label_offset + (D_H_SPACE+D_BUTTON_HEIGHT)*goods_label_row ) );
 		goods_labels[goods_label_count].set_width( D_BUTTON_WIDTH );
 		goods_cont.add_komponente( goods_labels + goods_label_count );
 		goods_label_count ++;
@@ -199,12 +199,12 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 		const array_tpl<ware_production_t> &output = factory->get_ausgang();
 		for(  uint32 g=0;  g<output_count;  ++g  ) {
 			goods_labels[goods_label_count].set_text( output[g].get_typ()->get_name() );
-			goods_labels[goods_label_count].set_pos( koord( D_MARGIN_LEFT+(D_H_SPACE<<1), offset_below_chart + label_offset + (D_H_SPACE+D_BUTTON_HEIGHT)*goods_label_row ) );
+			goods_labels[goods_label_count].set_pos( scr_coord( D_MARGIN_LEFT+(D_H_SPACE<<1), offset_below_chart + label_offset + (D_H_SPACE+D_BUTTON_HEIGHT)*goods_label_row ) );
 			goods_labels[goods_label_count].set_width( D_BUTTON_WIDTH );
 			goods_cont.add_komponente( goods_labels + goods_label_count );
 			for(  int s=0;  s<3;  ++s  ) {
 				goods_chart.add_curve( goods_color[goods_label_count%MAX_GOODS_COLOR]+2+s*2, output[g].get_stats(), MAX_FAB_GOODS_STAT, s, MAX_MONTH, false, false, true, 0, goods_convert[s] );
-				goods_buttons[goods_button_count].init(button_t::box_state, output_type[s], koord( D_MARGIN_LEFT+(D_H_SPACE+D_BUTTON_WIDTH)*(s+1), offset_below_chart+(D_H_SPACE+D_BUTTON_HEIGHT)*goods_label_row ));
+				goods_buttons[goods_button_count].init(button_t::box_state, output_type[s], scr_coord( D_MARGIN_LEFT+(D_H_SPACE+D_BUTTON_WIDTH)*(s+1), offset_below_chart+(D_H_SPACE+D_BUTTON_HEIGHT)*goods_label_row ));
 				goods_buttons[goods_button_count].background_color = goods_color[goods_label_count%MAX_GOODS_COLOR]+2+s*2;
 				goods_buttons[goods_button_count].pressed = false;
 				goods_buttons[goods_button_count].add_listener(this);
@@ -219,13 +219,13 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 	tab_panel.add_tab( &goods_cont, translator::translate("Goods") );
 
 	// GUI components for other production-related statistics
-	prod_chart.set_pos( koord(10 + 80, 10) );
-	prod_chart.set_groesse( koord( CHART_WIDTH, CHART_HEIGHT ) );
+	prod_chart.set_pos( scr_coord(10 + 80, 10) );
+	prod_chart.set_size( scr_size( CHART_WIDTH, CHART_HEIGHT ) );
 	prod_chart.set_dimension(12, 10000);
 	prod_chart.set_background(MN_GREY1);
 	for(  int s=0;  s<MAX_FAB_STAT;  ++s  ) {
 		prod_chart.add_curve( prod_color[s], factory->get_stats(), MAX_FAB_STAT, s, MAX_MONTH, false, false, true, 0, prod_convert[s] );
-		prod_buttons[s].init(button_t::box_state, prod_type[s], koord( D_MARGIN_LEFT+(D_H_SPACE+D_BUTTON_WIDTH)*button_pos[s].x, offset_below_chart+(D_H_SPACE+D_BUTTON_HEIGHT)*button_pos[s].y));
+		prod_buttons[s].init(button_t::box_state, prod_type[s], scr_coord( D_MARGIN_LEFT+(D_H_SPACE+D_BUTTON_WIDTH)*button_pos[s].x, offset_below_chart+(D_H_SPACE+D_BUTTON_HEIGHT)*button_pos[s].y));
 		prod_buttons[s].background_color = prod_color[s];
 		prod_buttons[s].pressed = false;
 		// only show buttons, if the is something to do ...
@@ -244,7 +244,7 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 			// insert the reference line buttons here to ensure correct tab order
 			for(  int r=0;  r<MAX_FAB_REF_LINE;  ++r  ) {
 				prod_chart.add_line( ref_color[r], prod_ref_line_data + r, MAX_MONTH, false, true, 0, ref_convert[r] );
-				prod_ref_line_buttons[r].init(button_t::box_state, prod_type[2+(r%3)], koord( D_MARGIN_LEFT+(D_H_SPACE+D_BUTTON_WIDTH)*(1+r%3), offset_below_chart+(D_H_SPACE+D_BUTTON_HEIGHT)*(2+(r/3))));
+				prod_ref_line_buttons[r].init(button_t::box_state, prod_type[2+(r%3)], scr_coord( D_MARGIN_LEFT+(D_H_SPACE+D_BUTTON_WIDTH)*(1+r%3), offset_below_chart+(D_H_SPACE+D_BUTTON_HEIGHT)*(2+(r/3))));
 				prod_ref_line_buttons[r].background_color = ref_color[r];
 				prod_ref_line_buttons[r].pressed = false;
 				if(
@@ -266,7 +266,7 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 	}
 	for(  int i=0;  i<MAX_PROD_LABEL;  ++i  ) {
 		prod_labels[i].set_text( label_text[i] );
-		prod_labels[i].set_pos( koord( D_MARGIN_LEFT+label_pos[i].x*(D_BUTTON_WIDTH+D_H_SPACE), offset_below_chart + label_offset + (D_H_SPACE+D_BUTTON_HEIGHT) * label_pos[i].y ) );
+		prod_labels[i].set_pos( scr_coord( D_MARGIN_LEFT+label_pos[i].x*(D_BUTTON_WIDTH+D_H_SPACE), offset_below_chart + label_offset + (D_H_SPACE+D_BUTTON_HEIGHT) * label_pos[i].y ) );
 		prod_labels[i].set_width( D_BUTTON_WIDTH );
 		prod_cont.add_komponente( prod_labels + i );
 	}
@@ -275,9 +275,9 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 
 	add_komponente( &tab_panel );
 	const int max_rows = max( goods_label_row, button_pos[MAX_FAB_STAT-1].y+1 );
-	const koord size( 20+80+CHART_WIDTH+(input_count > 0 ? D_H_SPACE+D_BUTTON_WIDTH : 0 ), TAB_HEADER_V_SIZE+CHART_HEIGHT+20+max_rows*D_BUTTON_HEIGHT+(max_rows-1)*D_H_SPACE+16 );
-	set_groesse( size );
-	tab_panel.set_groesse( size );
+	const scr_size size( 20+80+CHART_WIDTH+(input_count > 0 ? D_H_SPACE+D_BUTTON_WIDTH : 0 ), TAB_HEADER_V_SIZE+CHART_HEIGHT+20+max_rows*D_BUTTON_HEIGHT+(max_rows-1)*D_H_SPACE+16 );
+	set_size( size );
+	tab_panel.set_size( size );
 
 	// initialize reference lines' data (these do not change over time)
 	prod_ref_line_data[FAB_REF_MAX_BOOST_ELECTRIC] = factory->get_besch()->get_electric_boost();
@@ -342,14 +342,14 @@ bool factory_chart_t::action_triggered(gui_action_creator_t *komp, value_t)
 }
 
 
-void factory_chart_t::zeichnen(koord pos)
+void factory_chart_t::draw(scr_coord pos)
 {
 	// update reference lines' data (these might change over time)
 	prod_ref_line_data[FAB_REF_DEMAND_ELECTRIC] = ( factory->get_besch()->is_electricity_producer() ? 0 : factory->get_scaled_electric_amount() );
 	prod_ref_line_data[FAB_REF_DEMAND_PAX] = factory->get_scaled_pax_demand();
 	prod_ref_line_data[FAB_REF_DEMAND_MAIL] = factory->get_scaled_mail_demand();
 
-	gui_container_t::zeichnen( pos );
+	gui_container_t::draw( pos );
 }
 
 

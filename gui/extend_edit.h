@@ -67,7 +67,7 @@ protected:
 
 	bool is_show_trans_name;
 
-	void resize(const koord delta);
+	void resize(const scr_coord delta);
 
 	virtual void fill_list( bool /* translate */ ) {}
 

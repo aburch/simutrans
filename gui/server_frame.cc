@@ -49,7 +49,7 @@ server_frame_t::server_frame_t(karte_t* w) :
 	// When in network mode, display only local map info (and nickname changer)
 	// When not in network mode, display server picker
 	if (  !env_t::networkmode  ) {
-		info_list.set_pos( koord( D_MARGIN_LEFT, pos_y ) );
+		info_list.set_pos( scr_coord( D_MARGIN_LEFT, pos_y ) );
 		info_list.set_text( "Select a server to join:" );
 		add_komponente( &info_list );
 		pos_y += LINESPACE;
@@ -57,8 +57,8 @@ server_frame_t::server_frame_t(karte_t* w) :
 
 		// Server listing
 		const int serverlist_height = D_BUTTON_HEIGHT * 6;
-		serverlist.set_pos( koord( D_MARGIN_LEFT, pos_y ) );
-		serverlist.set_groesse( koord( ww - D_MARGIN_LEFT - D_MARGIN_RIGHT, serverlist_height ) );
+		serverlist.set_pos( scr_coord( D_MARGIN_LEFT, pos_y ) );
+		serverlist.set_size( scr_size( ww - D_MARGIN_LEFT - D_MARGIN_RIGHT, serverlist_height ) );
 		serverlist.add_listener( this );
 		serverlist.set_selection( 0 );
 		serverlist.set_highlight_color( 0 );
@@ -71,7 +71,7 @@ server_frame_t::server_frame_t(karte_t* w) :
 
 		// Show mismatched checkbox
 		if (  !show_mismatched.pressed  ) {
-			show_mismatched.init( button_t::square_state, "Show mismatched", koord( D_MARGIN_LEFT, pos_y ), koord( (ww - D_MARGIN_LEFT - D_H_SPACE - D_MARGIN_RIGHT) / 2, D_BUTTON_HEIGHT) );
+			show_mismatched.init( button_t::square_state, "Show mismatched", scr_coord( D_MARGIN_LEFT, pos_y ), scr_size( (ww - D_MARGIN_LEFT - D_H_SPACE - D_MARGIN_RIGHT) / 2, D_BUTTON_HEIGHT) );
 			show_mismatched.set_tooltip( "Show servers where game version or pakset does not match your client" );
 			show_mismatched.add_listener( this );
 			add_komponente( &show_mismatched );
@@ -79,7 +79,7 @@ server_frame_t::server_frame_t(karte_t* w) :
 
 		// Show offline checkbox
 		if (  !show_offline.pressed  ) {
-			show_offline.init( button_t::square_state, "Show offline", koord( D_MARGIN_LEFT + (ww - D_MARGIN_LEFT - D_H_SPACE - D_MARGIN_RIGHT) / 2 + D_H_SPACE, pos_y ), koord( (ww - D_MARGIN_LEFT - D_H_SPACE - D_MARGIN_RIGHT) / 2, D_BUTTON_HEIGHT) );
+			show_offline.init( button_t::square_state, "Show offline", scr_coord( D_MARGIN_LEFT + (ww - D_MARGIN_LEFT - D_H_SPACE - D_MARGIN_RIGHT) / 2 + D_H_SPACE, pos_y ), scr_size( (ww - D_MARGIN_LEFT - D_H_SPACE - D_MARGIN_RIGHT) / 2, D_BUTTON_HEIGHT) );
 			show_offline.set_tooltip( "Show servers that are offline" );
 			show_offline.add_listener( this );
 			add_komponente( &show_offline );
@@ -88,20 +88,20 @@ server_frame_t::server_frame_t(karte_t* w) :
 		pos_y += D_BUTTON_HEIGHT;
 		pos_y += D_V_SPACE * 2;                // GUI line goes here
 
-		info_manual.set_pos( koord( D_MARGIN_LEFT, pos_y ) );
+		info_manual.set_pos( scr_coord( D_MARGIN_LEFT, pos_y ) );
 		info_manual.set_text( "Or enter a server manually:" );
 		add_komponente( &info_manual );
 		pos_y += LINESPACE;
 		pos_y += D_V_SPACE;	// TODO less?
 
 		// Add server input/button
-		addinput.set_pos( koord( D_MARGIN_LEFT, pos_y ) );
+		addinput.set_pos( scr_coord( D_MARGIN_LEFT, pos_y ) );
 		addinput.set_text( newserver_name, sizeof( newserver_name ) );
-		addinput.set_groesse( koord( ww - D_MARGIN_LEFT - D_MARGIN_RIGHT - D_BUTTON_WIDTH - D_H_SPACE, D_BUTTON_HEIGHT ) );
+		addinput.set_size( scr_size( ww - D_MARGIN_LEFT - D_MARGIN_RIGHT - D_BUTTON_WIDTH - D_H_SPACE, D_BUTTON_HEIGHT ) );
 		addinput.add_listener( this );
 		add_komponente( &addinput );
 
-		add.init( button_t::roundbox, "Query server", koord( ww - D_BUTTON_WIDTH - D_MARGIN_RIGHT, pos_y ), koord( D_BUTTON_WIDTH, D_BUTTON_HEIGHT) );
+		add.init( button_t::roundbox, "Query server", scr_coord( ww - D_BUTTON_WIDTH - D_MARGIN_RIGHT, pos_y ), scr_size( D_BUTTON_WIDTH, D_BUTTON_HEIGHT) );
 		add.add_listener( this );
 
 		pos_y += D_BUTTON_HEIGHT;
@@ -109,25 +109,25 @@ server_frame_t::server_frame_t(karte_t* w) :
 
 	}
 
-	revision.set_pos( koord( D_MARGIN_LEFT, pos_y ) );
+	revision.set_pos( scr_coord( D_MARGIN_LEFT, pos_y ) );
 	add_komponente( &revision );
 	show_mismatched.pressed = gi.get_game_engine_revision() == 0;
 
 	pos_y += LINESPACE;
 
-	pak_version.set_pos( koord( D_MARGIN_LEFT, pos_y ) );
+	pak_version.set_pos( scr_coord( D_MARGIN_LEFT, pos_y ) );
 	add_komponente( &pak_version );
 
 #if DEBUG>=4
 	pos_y += LINESPACE;
-	pakset_checksum.set_pos( koord( D_MARGIN_LEFT, pos_y ) );
+	pakset_checksum.set_pos( scr_coord( D_MARGIN_LEFT, pos_y ) );
 	add_komponente( &pakset_checksum );
 #endif
 
 	pos_y += LINESPACE;
 	pos_y += D_V_SPACE * 2;        // GUI line goes here
 
-	date.set_pos( koord( ww - D_MARGIN_LEFT - date.get_groesse().x, pos_y ) );
+	date.set_pos( scr_coord( ww - D_MARGIN_LEFT - date.get_size().w, pos_y ) );
 	//date.set_align( gui_label_t::right );
 	add_komponente( &date );
 
@@ -137,14 +137,14 @@ server_frame_t::server_frame_t(karte_t* w) :
 	pos_y += D_V_SPACE * 2;        // GUI line goes here
 
 	const int nick_width = 80;
-	nick_label.set_pos( koord( D_MARGIN_LEFT, pos_y + D_GET_CENTER_ALIGN_OFFSET(LINESPACE,D_BUTTON_HEIGHT) ) );
+	nick_label.set_pos( scr_coord( D_MARGIN_LEFT, pos_y + D_GET_CENTER_ALIGN_OFFSET(LINESPACE,D_BUTTON_HEIGHT) ) );
 	nick_label.set_text( "Nickname:" );
 	add_komponente( &nick_label );
 
-	nick.set_pos( koord( D_MARGIN_LEFT + D_H_SPACE + nick_width, pos_y ) );
+	nick.set_pos( scr_coord( D_MARGIN_LEFT + D_H_SPACE + nick_width, pos_y ) );
 	nick.add_listener(this);
 	nick.set_text( nick_buf, lengthof( nick_buf ) );
-	nick.set_groesse( koord( ww - D_MARGIN_LEFT - D_H_SPACE - D_MARGIN_RIGHT - nick_width, D_BUTTON_HEIGHT ) );
+	nick.set_size( scr_size( ww - D_MARGIN_LEFT - D_H_SPACE - D_MARGIN_RIGHT - nick_width, D_BUTTON_HEIGHT ) );
 	tstrncpy( nick_buf, env_t::nickname.c_str(), min( lengthof( nick_buf ), env_t::nickname.length() + 1 ) );
 	add_komponente( &nick );
 
@@ -155,11 +155,11 @@ server_frame_t::server_frame_t(karte_t* w) :
 
 		const int button_width = 112;
 
-		find_mismatch.init( button_t::roundbox, "find mismatch", koord( ww - D_MARGIN_RIGHT - D_H_SPACE - button_width * 2, pos_y ), koord( button_width, D_BUTTON_HEIGHT) );
+		find_mismatch.init( button_t::roundbox, "find mismatch", scr_coord( ww - D_MARGIN_RIGHT - D_H_SPACE - button_width * 2, pos_y ), scr_size( button_width, D_BUTTON_HEIGHT) );
 		find_mismatch.add_listener( this );
 		add_komponente( &find_mismatch );
 
-		join.init( button_t::roundbox, "join game", koord( ww - D_MARGIN_RIGHT - button_width, pos_y ), koord( button_width, D_BUTTON_HEIGHT) );
+		join.init( button_t::roundbox, "join game", scr_coord( ww - D_MARGIN_RIGHT - button_width, pos_y ), scr_size( button_width, D_BUTTON_HEIGHT) );
 		join.disable();
 		join.add_listener( this );
 		add_komponente( &join );
@@ -174,8 +174,8 @@ server_frame_t::server_frame_t(karte_t* w) :
 	pos_y += D_MARGIN_BOTTOM;
 	pos_y += D_TITLEBAR_HEIGHT;
 
-	set_fenstergroesse( koord( ww, pos_y ) );
-	set_min_windowsize( koord( ww, pos_y ) );
+	set_windowsize( scr_size( ww, pos_y ) );
+	set_min_windowsize( scr_size( ww, pos_y ) );
 	set_resizemode( no_resize );
 }
 
@@ -185,7 +185,7 @@ void server_frame_t::update_error (const char* errortext)
 	buf.clear();
 	display_map = false;
 	date.set_text( errortext );
-	date.set_pos( koord( get_fenstergroesse().x - D_MARGIN_RIGHT - date.get_groesse().x, date.get_pos().y ) );
+	date.set_pos( scr_coord( get_windowsize().w - D_MARGIN_RIGHT - date.get_size().w, date.get_pos().y ) );
 	revision.set_text( "" );
 	pak_version.set_text( "" );
 	join.disable();
@@ -227,7 +227,7 @@ void server_frame_t::update_info ()
 	// Update all text fields
 	char temp[32];
 	buf.clear();
-	buf.printf( "%ux%u\n", gi.get_groesse_x(), gi.get_groesse_y() );
+	buf.printf( "%ux%u\n", gi.get_size_x(), gi.get_size_y() );
 	if (  gi.get_clients() != 255  ) {
 		uint8 player = 0, locked = 0;
 		for (  uint8 i = 0;  i < MAX_PLAYER_COUNT;  i++  ) {
@@ -281,7 +281,7 @@ void server_frame_t::update_info ()
 			break;
 	}
 	date.set_text( time );
-	date.set_pos( koord( get_fenstergroesse().x - D_MARGIN_RIGHT - date.get_groesse().x, date.get_pos().y ) );
+	date.set_pos( scr_coord( get_windowsize().w - D_MARGIN_RIGHT - date.get_size().w, date.get_pos().y ) );
 	set_dirty();
 }
 
@@ -514,14 +514,14 @@ bool server_frame_t::action_triggered (gui_action_creator_t *komp, value_t p)
 }
 
 
-void server_frame_t::zeichnen (koord pos, koord gr)
+void server_frame_t::draw (scr_coord pos, scr_size size)
 {
 	// update nickname if necessary
 	if (  get_focus() != &nick  &&  env_t::nickname != nick_buf  ) {
 		tstrncpy( nick_buf, env_t::nickname.c_str(), min( lengthof( nick_buf ), env_t::nickname.length() + 1 ) );
 	}
 
-	gui_frame_t::zeichnen( pos, gr );
+	gui_frame_t::draw( pos, size );
 
 	sint16 pos_y = pos.y + D_TITLEBAR_HEIGHT;
 	pos_y += D_MARGIN_TOP;
@@ -533,13 +533,13 @@ void server_frame_t::zeichnen (koord pos, koord gr)
 		pos_y += D_V_SPACE;             // padding
 		pos_y += D_BUTTON_HEIGHT;       // show_mismatched + show_offline
 		pos_y += D_V_SPACE;             // padding
-		display_ddd_box_clip( pos.x + D_MARGIN_LEFT, pos_y, gr.x - D_MARGIN_LEFT - D_MARGIN_RIGHT, 0, MN_GREY0, MN_GREY4 );
+		display_ddd_box_clip( pos.x + D_MARGIN_LEFT, pos_y, size.w - D_MARGIN_LEFT - D_MARGIN_RIGHT, 0, MN_GREY0, MN_GREY4 );
 		pos_y += D_V_SPACE;             // padding
 		pos_y += LINESPACE;             // Manual connect info text
 		pos_y += D_V_SPACE;             // padding
 		pos_y += D_BUTTON_HEIGHT;       // add server button/textinput
 		pos_y += D_V_SPACE;             // padding
-		display_ddd_box_clip( pos.x + D_MARGIN_LEFT, pos_y, gr.x - D_MARGIN_LEFT - D_MARGIN_RIGHT, 0, MN_GREY0, MN_GREY4 );
+		display_ddd_box_clip( pos.x + D_MARGIN_LEFT, pos_y, size.w - D_MARGIN_LEFT - D_MARGIN_RIGHT, 0, MN_GREY0, MN_GREY4 );
 		pos_y += D_V_SPACE;             // padding
 	}
 
@@ -551,36 +551,36 @@ void server_frame_t::zeichnen (koord pos, koord gr)
 #endif
 
 	pos_y += D_V_SPACE;     // padding
-	display_ddd_box_clip( pos.x + D_MARGIN_LEFT, pos_y, gr.x - D_MARGIN_LEFT - D_MARGIN_RIGHT, 0, MN_GREY0, MN_GREY4 );
+	display_ddd_box_clip( pos.x + D_MARGIN_LEFT, pos_y, size.w - D_MARGIN_LEFT - D_MARGIN_RIGHT, 0, MN_GREY0, MN_GREY4 );
 	pos_y += D_V_SPACE;     // padding
 
-	const koord mapsize( gi.get_map()->get_width(), gi.get_map()->get_height() );
+	const scr_size mapsize( gi.get_map()->get_width(), gi.get_map()->get_height() );
 
 	// Map graphic (offset in 3D border by 1px)
 	if (  display_map  ) {
 		// 3D border around the map graphic
-		display_ddd_box_clip( pos.x + D_MARGIN_LEFT, pos_y, mapsize.x + 2, mapsize.y + 2, MN_GREY0, MN_GREY4 );
-		display_array_wh( pos.x + D_MARGIN_LEFT + 1, pos_y + 1, mapsize.x, mapsize.y, gi.get_map()->to_array() );
+		display_ddd_box_clip( pos.x + D_MARGIN_LEFT, pos_y, mapsize.w + 2, mapsize.h + 2, MN_GREY0, MN_GREY4 );
+		display_array_wh( pos.x + D_MARGIN_LEFT + 1, pos_y + 1, mapsize.w, mapsize.h, gi.get_map()->to_array() );
 	}
 
 	// Descriptive server text
-	display_multiline_text( pos.x + D_MARGIN_LEFT + 1 + mapsize.x + 2 + D_H_SPACE, pos_y, buf, COL_BLACK );
+	display_multiline_text( pos.x + D_MARGIN_LEFT + 1 + mapsize.w + 2 + D_H_SPACE, pos_y, buf, COL_BLACK );
 
 	pos_y += LINESPACE * 8;   // Spacing for the multiline_text above
 
 	pos_y += D_V_SPACE;
-	display_ddd_box_clip( pos.x + D_MARGIN_LEFT, pos_y, gr.x - D_MARGIN_LEFT - D_MARGIN_RIGHT, 0, MN_GREY0, MN_GREY4 );
+	display_ddd_box_clip( pos.x + D_MARGIN_LEFT, pos_y, size.w - D_MARGIN_LEFT - D_MARGIN_RIGHT, 0, MN_GREY0, MN_GREY4 );
 	pos_y += D_V_SPACE;
 	pos_y += D_BUTTON_HEIGHT; // Nick entry
 
 	// Buttons at bottom of dialog
 	if (  !env_t::networkmode  ) {
 		pos_y += D_V_SPACE;
-		display_ddd_box_clip( pos.x + D_MARGIN_LEFT, pos_y, gr.x - D_MARGIN_LEFT - D_MARGIN_RIGHT, 0, MN_GREY0, MN_GREY4 );
+		display_ddd_box_clip( pos.x + D_MARGIN_LEFT, pos_y, size.w - D_MARGIN_LEFT - D_MARGIN_RIGHT, 0, MN_GREY0, MN_GREY4 );
 		pos_y += D_V_SPACE;
 
 		// drawing twice, but otherwise it will not overlay image
 		// Overlay what image? It draws fine the first time, this second redraw paints it in the wrong place anyway...
-		// serverlist.zeichnen( pos + koord( 0, 16 ) );
+		// serverlist.draw( pos + scr_coord( 0, 16 ) );
 	}
 }

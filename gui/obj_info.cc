@@ -22,23 +22,23 @@
 
 obj_infowin_t::obj_infowin_t(const obj_t* obj) :
 	gui_frame_t(translator::translate( obj->get_name() ), obj->get_besitzer()),
-	view(obj, koord( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width()*7)/8) )),
-	textarea(&buf, 170 + view.get_groesse().x, view.get_groesse() + koord(10, 10))
+	view(obj, scr_size( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width()*7)/8) )),
+	textarea(&buf, 170 + view.get_size().w, view.get_size() + scr_size(10, 10))
 {
 	buf.clear();
 	info(buf);
 	textarea.recalc_size();
 
-	KOORD_VAL width  = textarea.get_groesse().x + 20;
-	KOORD_VAL height = max( textarea.get_groesse().y, view.get_groesse().y ) + 36;
+	scr_coord_val width  = textarea.get_size().w + 20;
+	scr_coord_val height = max( textarea.get_size().h, view.get_size().h ) + 36;
 
-	view.set_pos( koord(width - view.get_groesse().x - 10, 10) );
+	view.set_pos( scr_coord(width - view.get_size().w - 10, 10) );
 	add_komponente( &view );
 
-	textarea.set_pos( koord(10, 10) );
+	textarea.set_pos( scr_coord(10, 10) );
 	add_komponente( &textarea );
 
-	set_fenstergroesse(koord(width, height));
+	set_windowsize(scr_size(width, height));
 }
 
 
@@ -47,18 +47,18 @@ obj_infowin_t::obj_infowin_t(const obj_t* obj) :
  * i.e. It's the screen coordinates of the window where the
  * component is displayed.
  */
-void obj_infowin_t::zeichnen(koord pos, koord gr)
+void obj_infowin_t::draw(scr_coord pos, scr_size size)
 {
 	buf.clear();
 	info(buf);
 	textarea.recalc_size();
 
-	gui_frame_t::zeichnen( pos, gr );
+	gui_frame_t::draw( pos, size );
 
 	// Knightly : text may be changed and need more vertical space to display
-	const sint16 current_height = max( textarea.get_groesse().y, view.get_groesse().y ) + 36;
-	if(  current_height != get_fenstergroesse().y  ) {
-		set_fenstergroesse( koord(get_fenstergroesse().x, current_height) );
+	const sint16 current_height = max( textarea.get_size().h, view.get_size().h ) + 36;
+	if(  current_height != get_windowsize().h  ) {
+		set_windowsize( scr_size(get_windowsize().w, current_height) );
 	}
 }
 

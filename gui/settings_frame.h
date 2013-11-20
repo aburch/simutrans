@@ -59,7 +59,7 @@ public:
 	* resize window in response to a resize event
 	* @author Hj. Malthaner
 	*/
-	void resize(const koord delta);
+	void resize(const scr_coord delta);
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 

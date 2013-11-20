@@ -41,14 +41,14 @@ gui_numberinput_t::gui_numberinput_t() :
 	wrap_mode( true );
 	b_enabled = true;
 
-	set_groesse( koord( D_BUTTON_WIDTH, D_EDIT_HEIGHT ) );
+	set_size( scr_size( D_BUTTON_WIDTH, D_EDIT_HEIGHT ) );
 }
 
-void gui_numberinput_t::set_groesse(koord size_par) {
+void gui_numberinput_t::set_size(scr_size size_par) {
 
-	gui_komponente_t::set_groesse(size_par);
+	gui_komponente_t::set_size(size_par);
 
-	textinp.set_groesse( koord( size_par.x - bt_left.get_groesse().x - bt_right.get_groesse().x, size_par.y) );
+	textinp.set_size( scr_size( size_par.w - bt_left.get_size().w - bt_right.get_size().w, size_par.h) );
 	bt_left.align_to(&textinp, ALIGN_CENTER_V);
 	textinp.align_to(&bt_left, ALIGN_EXTERIOR_H | ALIGN_LEFT);
 	bt_right.align_to(&textinp, ALIGN_CENTER_V | ALIGN_EXTERIOR_H | ALIGN_LEFT);
@@ -323,16 +323,16 @@ bool gui_numberinput_t::infowin_event(const event_t *ev)
  * Draw the component
  * @author Dwachs
  */
-void gui_numberinput_t::zeichnen(koord offset)
+void gui_numberinput_t::draw(scr_coord offset)
 {
-	koord new_offset = pos+offset;
+	scr_coord new_offset = pos+offset;
 
-	bt_left.zeichnen(new_offset);
+	bt_left.draw(new_offset);
 	textinp.display_with_focus( new_offset, (win_get_focus()==this) );
-	bt_right.zeichnen(new_offset);
+	bt_right.draw(new_offset);
 
 	if(getroffen( get_maus_x()-offset.x, get_maus_y()-offset.y )) {
 		sprintf( tooltip, translator::translate("enter a value between %i and %i"), min_value, max_value );
-		win_set_tooltip(get_maus_x() + TOOLTIP_MOUSE_OFFSET_X, new_offset.y + groesse.y + TOOLTIP_MOUSE_OFFSET_Y, tooltip, this);
+		win_set_tooltip(get_maus_x() + TOOLTIP_MOUSE_OFFSET_X, new_offset.y + size.h + TOOLTIP_MOUSE_OFFSET_Y, tooltip, this);
 	}
 }

@@ -58,7 +58,7 @@ private:
 	// checks if possible / necessary
 	void rename_line();
 
-	void display(koord pos);
+	void display(scr_coord pos);
 
 	void update_lineinfo(linehandle_t new_line);
 
@@ -98,13 +98,13 @@ public:
 	* component is displayed.
 	* @author Hj. Malthaner
 	*/
-	void zeichnen(koord pos, koord gr);
+	void draw(scr_coord pos, scr_size size);
 
 	/**
 	* Set window size and adjust component sizes and/or positions accordingly
 	* @author Hj. Malthaner
 	*/
-	virtual void set_fenstergroesse(koord groesse);
+	virtual void set_windowsize(scr_size size);
 
 	bool infowin_event(event_t const*) OVERRIDE;
 

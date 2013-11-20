@@ -63,7 +63,7 @@ message_frame_t::message_frame_t(karte_t *welt) :
 	scrolly.set_scroll_amount_y(LINESPACE+1);
 
 	// Knightly : add tabs for classifying messages
-	tabs.set_pos( koord(0, D_BUTTON_HEIGHT) );
+	tabs.set_pos( scr_coord(0, D_BUTTON_HEIGHT) );
 	tabs.add_tab( &scrolly, translator::translate("All") );
 	tab_categories.append( -1 );
 
@@ -82,25 +82,25 @@ message_frame_t::message_frame_t(karte_t *welt) :
 	tabs.add_listener(this);
 	add_komponente(&tabs);
 
-	option_bt.init(button_t::roundbox, translator::translate("Optionen"), koord(BUTTON1_X,0), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+	option_bt.init(button_t::roundbox, translator::translate("Optionen"), scr_coord(BUTTON1_X,0), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	option_bt.add_listener(this);
 	add_komponente(&option_bt);
 
 	ibuf[0] = 0;
 	input.set_text(ibuf, lengthof(ibuf) );
 	input.add_listener(this);
-	input.set_pos(koord(BUTTON2_X,0));
+	input.set_pos(scr_coord(BUTTON2_X,0));
 	if(  env_t::networkmode  ) {
 		set_transparent( env_t::chat_window_transparency, COL_WHITE );
 		add_komponente(&input);
 		set_focus( &input );
 	}
 
-	set_fenstergroesse(koord(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT+TAB_HEADER_V_SIZE+2+16*(LINESPACE+1)+D_SCROLLBAR_HEIGHT));
-	set_min_windowsize(koord(BUTTON3_X, D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT+TAB_HEADER_V_SIZE+2+3*(LINESPACE+1)+D_SCROLLBAR_HEIGHT));
+	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT+TAB_HEADER_V_SIZE+2+16*(LINESPACE+1)+D_SCROLLBAR_HEIGHT));
+	set_min_windowsize(scr_size(BUTTON3_X, D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT+TAB_HEADER_V_SIZE+2+3*(LINESPACE+1)+D_SCROLLBAR_HEIGHT));
 
 	set_resizemode(diagonal_resize);
-	resize(koord(0,0));
+	resize(scr_coord(0,0));
 }
 
 
@@ -110,13 +110,13 @@ message_frame_t::message_frame_t(karte_t *welt) :
  * @author Hj. Malthaner
  * @date   16-Oct-2003
  */
-void message_frame_t::resize(const koord delta)
+void message_frame_t::resize(const scr_coord delta)
 {
 	gui_frame_t::resize(delta);
-	koord groesse = get_fenstergroesse()-koord(0,D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT);
-	input.set_groesse(koord(groesse.x-D_SCROLLBAR_WIDTH-BUTTON2_X, D_BUTTON_HEIGHT));
-	tabs.set_groesse(groesse);
-	scrolly.set_groesse(groesse-koord(0,D_BUTTON_HEIGHT+4+1));
+	scr_size size = get_windowsize()-scr_size(0,D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT);
+	input.set_size(scr_size(size.w-D_SCROLLBAR_WIDTH-BUTTON2_X, D_BUTTON_HEIGHT));
+	tabs.set_size(size);
+	scrolly.set_size(size-scr_size(0,D_BUTTON_HEIGHT+4+1));
 }
 
 
@@ -145,12 +145,12 @@ bool message_frame_t::action_triggered( gui_action_creator_t *komp, value_t v )
 
 void message_frame_t::rdwr(loadsave_t *file)
 {
-	koord gr = get_fenstergroesse();
+	scr_size size = get_windowsize();
 	sint32 scroll_x = scrolly.get_scroll_x();
 	sint32 scroll_y = scrolly.get_scroll_y();
 	sint16 tabstate = tabs.get_active_tab_index();
 
-	gr.rdwr( file );
+	size.rdwr( file );
 	file->rdwr_str( ibuf, lengthof(ibuf) );
 	file->rdwr_short( tabstate );
 	file->rdwr_long( scroll_x );
@@ -161,8 +161,8 @@ void message_frame_t::rdwr(loadsave_t *file)
 			tabs.set_active_tab_index( tabstate );
 			stats.filter_messages( tab_categories[tabstate] );
 		}
-		set_fenstergroesse( gr );
-		resize( koord(0,0) );
+		set_windowsize( size );
+		resize( scr_coord(0,0) );
 		scrolly.set_scroll_position( scroll_x, scroll_y );
 	}
 }

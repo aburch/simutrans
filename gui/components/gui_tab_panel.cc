@@ -21,17 +21,17 @@
 
 #define IMG_WIDTH 20
 
-KOORD_VAL gui_tab_panel_t::header_vsize = 18;
+scr_coord_val gui_tab_panel_t::header_vsize = 18;
 
 
 gui_tab_panel_t::gui_tab_panel_t() :
-	required_groesse( 8, TAB_HEADER_V_SIZE )
+	required_size( 8, TAB_HEADER_V_SIZE )
 {
 	active_tab = 0;
 	offset_tab = 0;
-	left.init( button_t::arrowleft, NULL, koord(0,0) );
+	left.init( button_t::arrowleft, NULL, scr_coord(0,0) );
 	left.add_listener( this );
-	right.init( button_t::arrowright, NULL, koord(0,0) );
+	right.init( button_t::arrowright, NULL, scr_coord(0,0) );
 	right.add_listener( this );
 }
 
@@ -40,28 +40,28 @@ gui_tab_panel_t::gui_tab_panel_t() :
 void gui_tab_panel_t::add_tab(gui_komponente_t *c, const char *name, const skin_besch_t *besch, const char *tooltip )
 {
 	tabs.append( tab(c, besch?NULL:name, besch?besch->get_bild(0):NULL, tooltip) );
-	set_groesse( get_groesse() );
+	set_size( get_size() );
 }
 
 
 
 
-void gui_tab_panel_t::set_groesse(koord gr)
+void gui_tab_panel_t::set_size(scr_size size)
 {
-	gui_komponente_t::set_groesse(gr);
+	gui_komponente_t::set_size(size);
 
-	required_groesse = koord( 8, TAB_HEADER_V_SIZE );
+	required_size = scr_size( 8, TAB_HEADER_V_SIZE );
 	FOR(slist_tpl<tab>, & i, tabs) {
-		i.x_offset          = required_groesse.x - 4;
+		i.x_offset          = required_size.w - 4;
 		i.width             = 8 + (i.title ? proportional_string_width(i.title) : IMG_WIDTH);
-		required_groesse.x += i.width;
-		i.component->set_pos(koord(0, TAB_HEADER_V_SIZE));
-		i.component->set_groesse(get_groesse() - koord(0, TAB_HEADER_V_SIZE));
+		required_size.w += i.width;
+		i.component->set_pos(scr_coord(0, TAB_HEADER_V_SIZE));
+		i.component->set_size(get_size() - scr_size(0, TAB_HEADER_V_SIZE));
 	}
 
-	if(  required_groesse.x>gr.x  ||  offset_tab > 0) {
-		left.set_pos( koord( 2, 5 ) );
-		right.set_pos( koord( gr.x-10, 5 ) );
+	if(  required_size.w>size.w  ||  offset_tab > 0) {
+		left.set_pos( scr_coord( 2, 5 ) );
+		right.set_pos( scr_coord( size.w-10, 5 ) );
 	}
 }
 
@@ -80,7 +80,7 @@ bool gui_tab_panel_t::action_triggered(gui_action_creator_t *komp, value_t)
 
 bool gui_tab_panel_t::infowin_event(const event_t *ev)
 {
-	if(  (required_groesse.x>groesse.x  ||  offset_tab > 0)  &&  ev->ev_class!=EVENT_KEYBOARD  &&  ev->ev_code==MOUSE_LEFTBUTTON  ) {
+	if(  (required_size.w>size.w  ||  offset_tab > 0)  &&  ev->ev_class!=EVENT_KEYBOARD  &&  ev->ev_code==MOUSE_LEFTBUTTON  ) {
 		// buttons pressed
 		if(  left.getroffen(ev->cx, ev->cy)  ) {
 			event_t ev2 = *ev;
@@ -96,7 +96,7 @@ bool gui_tab_panel_t::infowin_event(const event_t *ev)
 
 	if(  IS_LEFTRELEASE(ev)  &&  (ev->my > 0  &&  ev->my < TAB_HEADER_V_SIZE-1)  )  {
 		// tab selector was hit
-		int text_x = required_groesse.x>groesse.x ? 14 : 4;
+		int text_x = required_size.w>size.w ? 14 : 4;
 		int k=0;
 		FORX(slist_tpl<tab>, const& i, tabs, ++k) {
 			if(  k>=offset_tab  ) {
@@ -139,15 +139,15 @@ bool gui_tab_panel_t::infowin_event(const event_t *ev)
 
 
 
-void gui_tab_panel_t::zeichnen(koord parent_pos)
+void gui_tab_panel_t::draw(scr_coord parent_pos)
 {
 	// Position in screen/window
 	int xpos = parent_pos.x + pos.x;
 	const int ypos = parent_pos.y + pos.y;
 
-	if(  required_groesse.x>groesse.x  ||  offset_tab > 0) {
-		left.zeichnen( parent_pos+pos );
-		right.zeichnen( parent_pos+pos );
+	if(  required_size.w>size.w  ||  offset_tab > 0) {
+		left.draw( parent_pos+pos );
+		right.draw( parent_pos+pos );
 		//display_fillbox_wh_clip(xpos, ypos+TAB_HEADER_V_SIZE-1, 10, 1, SYSCOL_TEXT_HIGHLIGHT, true);
 		display_fillbox_wh_clip(xpos, ypos+TAB_HEADER_V_SIZE-1, 10, 1, SYSCOL_HIGHLIGHT, true);
 		xpos += 10;
@@ -159,13 +159,13 @@ void gui_tab_panel_t::zeichnen(koord parent_pos)
 	display_fillbox_wh_clip(xpos, ypos+TAB_HEADER_V_SIZE-1, 4, 1, SYSCOL_HIGHLIGHT, true);
 
 	// do not draw under right button
-	int xx = required_groesse.x>get_groesse().x ? get_groesse().x-22 : get_groesse().x;
+	int xx = required_size.w>get_size().w ? get_size().w-22 : get_size().w;
 
 	int i=0;
 	FORX(slist_tpl<tab>, const& iter, tabs, ++i) {
 		// just draw component, if here ...
 		if (i == active_tab) {
-			iter.component->zeichnen(parent_pos + pos);
+			iter.component->draw(parent_pos + pos);
 		}
 		if(i>=offset_tab) {
 			// set clipping
@@ -186,8 +186,8 @@ void gui_tab_panel_t::zeichnen(koord parent_pos)
 					display_proportional_clip(text_x, ypos+7, text, ALIGN_LEFT, SYSCOL_TEXT, true);
 				}
 				else {
-					KOORD_VAL const y = ypos   - iter.img->get_pic()->y + 10            - iter.img->get_pic()->h / 2;
-					KOORD_VAL const x = text_x - iter.img->get_pic()->x + IMG_WIDTH / 2 - iter.img->get_pic()->w / 2;
+					scr_coord_val const y = ypos   - iter.img->get_pic()->y + 10            - iter.img->get_pic()->h / 2;
+					scr_coord_val const x = text_x - iter.img->get_pic()->x + IMG_WIDTH / 2 - iter.img->get_pic()->w / 2;
 					display_img_blend(iter.img->get_nummer(), x, y, TRANSPARENT50_FLAG, false, true);
 				}
 			}
@@ -202,8 +202,8 @@ void gui_tab_panel_t::zeichnen(koord parent_pos)
 					display_proportional_clip(text_x, ypos+7, text, ALIGN_LEFT, SYSCOL_TEXT_HIGHLIGHT, true);
 				}
 				else {
-					KOORD_VAL const y = ypos   - iter.img->get_pic()->y + 10            - iter.img->get_pic()->h / 2;
-					KOORD_VAL const x = text_x - iter.img->get_pic()->x + IMG_WIDTH / 2 - iter.img->get_pic()->w / 2;
+					scr_coord_val const y = ypos   - iter.img->get_pic()->y + 10            - iter.img->get_pic()->h / 2;
+					scr_coord_val const x = text_x - iter.img->get_pic()->x + IMG_WIDTH / 2 - iter.img->get_pic()->w / 2;
 					display_color_img(iter.img->get_nummer(), x, y, 0, false, true);
 				}
 			}
@@ -212,7 +212,7 @@ void gui_tab_panel_t::zeichnen(koord parent_pos)
 			POP_CLIP();
 		}
 	}
-	display_fillbox_wh_clip(text_x-4, ypos+TAB_HEADER_V_SIZE-1, xpos+groesse.x-(text_x-4), 1, SYSCOL_HIGHLIGHT, true);
+	display_fillbox_wh_clip(text_x-4, ypos+TAB_HEADER_V_SIZE-1, xpos+size.w-(text_x-4), 1, SYSCOL_HIGHLIGHT, true);
 
 	// now for tooltips ...
 	int my = get_maus_y()-parent_pos.y-pos.y-6;
@@ -226,7 +226,7 @@ void gui_tab_panel_t::zeichnen(koord parent_pos)
 				char const* const text = iter.title;
 				const int width = text ? proportional_string_width( text ) : IMG_WIDTH;
 
-				if(text_x < mx && text_x+width+8 > mx  && (required_groesse.x<=get_groesse().x || mx < right.get_pos().x-12)) {
+				if(text_x < mx && text_x+width+8 > mx  && (required_size.w<=get_size().w || mx < right.get_pos().x-12)) {
 					// tooltip or change
 					win_set_tooltip(get_maus_x() + 16, ypos + TAB_HEADER_V_SIZE + 12, iter.tooltip, &iter, this);
 					break;

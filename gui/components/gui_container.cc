@@ -35,7 +35,7 @@ scr_rect gui_container_t::get_min_boundaries() const
 	scr_rect client_bound;
 
 	FOR( slist_tpl<gui_komponente_t*>, const c, komponenten ) {
-		client_bound.outer_bounds( scr_rect( c->get_pos(), c->get_groesse().x, c->get_groesse().y ) );
+		client_bound.outer_bounds( scr_rect( c->get_pos(), c->get_size().w, c->get_size().h ) );
 	}
 	return client_bound;
 }
@@ -239,17 +239,17 @@ bool gui_container_t::infowin_event(const event_t *ev)
 /* Draw the component
  * @author Hj. Malthaner
  */
-void gui_container_t::zeichnen(koord offset)
+void gui_container_t::draw(scr_coord offset)
 {
-	const koord screen_pos = pos + offset;
+	const scr_coord screen_pos = pos + offset;
 
 	// For debug purpose, draw the container's boundary
-	//display_ddd_box(screen_pos.x,screen_pos.y,get_groesse().x, get_groesse().y,COL_GREY4,COL_GREY6,true);
+	// display_ddd_box(screen_pos.x,screen_pos.y,get_size().w, get_size().h, COL_RED, COL_RED, true);
 
 	FOR(slist_tpl<gui_komponente_t*>, const c, komponenten) {
 		if (c->is_visible()) {
 			// @author hsiegeln; check if component is hidden or displayed
-			c->zeichnen(screen_pos);
+			c->draw(screen_pos);
 		}
 	}
 }

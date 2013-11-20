@@ -132,7 +132,7 @@ private:
 	static MAP_MODES last_mode;
 	static const uint8 severity_color[MAX_SEVERITY_COLORS];
 
-	inline void screen_to_karte(koord &) const;
+	koord screen_to_karte(const scr_coord&) const;
 
 	// for passenger destination display
 	const stadt_t *city;
@@ -141,15 +141,15 @@ private:
 	koord last_world_pos;
 
 	// current and new offset and size (to avoid drawing invisible parts)
-	koord cur_off, cur_size;
-	koord new_off, new_size;
+	scr_coord cur_off, new_off;
+	scr_size cur_size, new_size;
 
 	// true, if full redraw is needed
 	bool needs_redraw;
 
 	const fabrik_t* get_fab(koord pos, bool large_area) const;
 
-	const fabrik_t* draw_fab_connections(uint8 colour, koord pos) const;
+	const fabrik_t* draw_fab_connections(uint8 colour, scr_coord pos) const;
 
 	static sint32 max_cargo;
 	static sint32 max_passed;
@@ -158,7 +158,7 @@ private:
 	sint16 zoom_out, zoom_in;
 
 public:
-	void karte_to_screen(koord &) const;
+	scr_coord karte_to_screen(const koord &k) const;
 
 	static bool is_visible;
 
@@ -195,12 +195,12 @@ public:
 	static reliefkarte_t *get_karte();
 
 	// HACK! since we cannot get cleanly the current offset/size, we use this helper function
-	void set_xy_offset_size( koord off, koord size ) {
+	void set_xy_offset_size( scr_coord off, scr_size size ) {
 		new_off = off;
 		new_size = size;
 	}
 
-	koord get_offset() const { return cur_off; };
+	scr_coord get_offset() const { return cur_off; };
 
 	// update color with render mode (but few are ignored ... )
 	void calc_map_pixel(const koord k);
@@ -208,7 +208,7 @@ public:
 	void calc_map();
 
 	// calculates the current size of the map (but do not change anything else)
-	void calc_map_groesse();
+	void calc_map_size();
 
 	~reliefkarte_t();
 
@@ -223,7 +223,7 @@ public:
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
-	void zeichnen(koord pos);
+	void draw(scr_coord pos);
 
 	void set_current_cnv( convoihandle_t c );
 

@@ -24,11 +24,11 @@
 karte_t *world_view_t::welt = NULL;
 
 
-world_view_t::world_view_t(karte_t* w, koord size ) :
+world_view_t::world_view_t(karte_t* w, scr_size size ) :
 		raster(get_base_tile_raster_width())
 {
 	welt = w;
-	set_groesse( size );
+	set_size( size );
 }
 
 
@@ -56,22 +56,22 @@ bool world_view_t::infowin_event(const event_t* ev)
 }
 
 
-void world_view_t::internal_draw(const koord offset, obj_t const* const obj)
+void world_view_t::internal_draw(const scr_coord offset, obj_t const* const obj)
 {
 	display_set_image_proc(false);
 
 	const koord3d here3d    = get_location();
 	const koord   here      = here3d.get_2d();
-	koord         fine_here = koord(0, 0);
+	scr_coord     fine_here = scr_coord(0, 0);
 	sint16        y_offset  = 0;
 	if(obj) { // offsets?
-		fine_here = koord(tile_raster_scale_x(-obj->get_xoff(), raster), tile_raster_scale_y(-obj->get_yoff() % (OBJECT_OFFSET_STEPS * 2), raster));
+		fine_here = scr_coord(tile_raster_scale_x(-obj->get_xoff(), raster), tile_raster_scale_y(-obj->get_yoff() % (OBJECT_OFFSET_STEPS * 2), raster));
 		y_offset  = obj->get_yoff() / (OBJECT_OFFSET_STEPS * 2);
 		if(vehikel_basis_t const* const v = obj_cast<vehikel_basis_t>(obj)) {
 			int x = 0;
 			int y = 0;
 			v->get_screen_offset(x, y, raster);
-			fine_here -= koord(x, y);
+			fine_here -= scr_coord(x, y);
 		}
 	}
 
@@ -88,46 +88,46 @@ void world_view_t::internal_draw(const koord offset, obj_t const* const obj)
 		}
 	}
 
-	const koord pos = get_pos() + offset + koord(1, 1);
+	const scr_coord pos = get_pos() + offset + scr_coord(1, 1);
 
 	// do not draw outside (may happen with scroll bars)
 	const clip_dimension old_clip = display_get_clip_wh();
 
 	// something to draw?
-	const koord gr = get_groesse() - koord(2, 2);
-	if(  old_clip.xx <= pos.x  ||  pos.x + gr.x <= old_clip.x  ||  gr.x <= 0  ) {
+	const scr_size size = get_size() - scr_size(2, 2);
+	if(  old_clip.xx <= pos.x  ||  pos.x + size.w <= old_clip.x  ||  size.w <= 0  ) {
 		return;
 	}
-	if(  old_clip.yy <= pos.y  ||  pos.y + gr.y <= old_clip.y  ||  gr.y <= 0  ) {
+	if(  old_clip.yy <= pos.y  ||  pos.y + size.h <= old_clip.y  ||  size.h <= 0  ) {
 		return;
 	}
 
 	const int clip_x = max(old_clip.x, pos.x);
 	const int clip_y = max(old_clip.y, pos.y);
-	display_set_clip_wh(clip_x, clip_y, min(old_clip.xx, pos.x + gr.x) - clip_x, min(old_clip.yy, pos.y + gr.y) - clip_y);
+	display_set_clip_wh(clip_x, clip_y, min(old_clip.xx, pos.x + size.w) - clip_x, min(old_clip.yy, pos.y + size.h) - clip_y);
 
-	mark_rect_dirty_wc(pos.x, pos.y, pos.x + gr.x, pos.y + gr.y);
+	mark_rect_dirty_wc(pos.x, pos.y, pos.x + size.w, pos.y + size.h);
 
 	/* Not very elegant, but works: Fill everything with black for underground
 	 * mode. */
 	if(  grund_t::underground_mode  ) {
-		display_fillbox_wh(pos.x, pos.y, gr.x, gr.y, COL_BLACK, true);
+		display_fillbox_wh(pos.x, pos.y, size.w, size.h, COL_BLACK, true);
 	}
 	else {
-		welt->get_view()->display_background(pos.x, pos.y, gr.x, gr.y, true);
+		welt->get_view()->display_background(pos.x, pos.y, size.w, size.h, true);
 	}
 
 	const sint16 yoff = obj && obj->is_moving() ?
-		gr.y / 2 - raster * 3 / 4 : // align 1/4 raster from the bottom of the image
-		gr.y     - raster;          // align the bottom of the image
-	const koord display_off = koord((gr.x - raster) / 2, hgt + yoff) + fine_here;
+		size.h / 2 - raster * 3 / 4 : // align 1/4 raster from the bottom of the image
+		size.h     - raster;          // align the bottom of the image
+	const scr_coord display_off = scr_coord((size.w - raster) / 2, hgt + yoff) + fine_here;
 
 	// display grounds
 	FOR(vector_tpl<koord>, const& off, offsets) {
 		const koord   k     = here + off + koord(y_offset, y_offset);
 		const sint16  off_x = (off.x - off.y) * 32 * raster / 64 + display_off.x;
 
-		if(  off_x + raster < 0  ||  gr.x < off_x  ||  k.x < 0  ||  k.y < 0  ) {
+		if(  off_x + raster < 0  ||  size.w < off_x  ||  k.x < 0  ||  k.y < 0  ) {
 			continue;
 		}
 
@@ -137,7 +137,7 @@ void world_view_t::internal_draw(const koord offset, obj_t const* const obj)
 		}
 
 		const sint16 yypos = display_off.y + (off.y + off.x) * 16 * raster / 64 - tile_raster_scale_y(kb->get_disp_height() * TILE_HEIGHT_STEP, raster);
-		if(  gr.y < yypos  ) {
+		if(  size.h < yypos  ) {
 			break; // enough with grounds
 		}
 		else if(  0 <= yypos + raster  ) {
@@ -153,7 +153,7 @@ void world_view_t::internal_draw(const koord offset, obj_t const* const obj)
 	FOR(vector_tpl<koord>, const& off, offsets) {
 		const koord   k     = here + off + koord(y_offset, y_offset);
 		const sint16  off_x = (off.x - off.y) * 32 * raster / 64 + display_off.x;
-		if(  off_x + raster < 0  ||  gr.x < off_x  ||  k.x < 0  ||  k.y < 0  ) {
+		if(  off_x + raster < 0  ||  size.w < off_x  ||  k.x < 0  ||  k.y < 0  ) {
 			continue;
 		}
 
@@ -175,14 +175,14 @@ void world_view_t::internal_draw(const koord offset, obj_t const* const obj)
 		const sint8 hmax = grund_t::underground_mode == grund_t::ugm_all ? h - !kb->ist_tunnel() : grund_t::underground_level;
 
 		const sint16 yypos = display_off.y + (off.y + off.x) * 16 * raster / 64 - tile_raster_scale_y(kb->get_disp_height() * TILE_HEIGHT_STEP, raster);
-		if(  0 <= yypos + raster  &&  yypos - raster * 2 < gr.y  ) {
+		if(  0 <= yypos + raster  &&  yypos - raster * 2 < size.h  ) {
 #ifdef MULTI_THREAD
 			plan->display_obj( pos.x + off_x, pos.y + yypos, raster, false, hmin, hmax, 0 );
 #else
 			plan->display_obj( pos.x + off_x, pos.y + yypos, raster, false, hmin, hmax );
 #endif
 		}
-		else if(  yypos > gr.y  ) {
+		else if(  yypos > size.h  ) {
 			break; // now we can finish
 		}
 	}
@@ -199,7 +199,7 @@ void world_view_t::internal_draw(const koord offset, obj_t const* const obj)
 	}
 
 	display_set_clip_wh(old_clip.x, old_clip.y, old_clip.w, old_clip.h);
-	display_ddd_box_clip(pos.x - 1, pos.y - 1, gr.x + 2, gr.y + 2, MN_GREY0, MN_GREY4);
+	display_ddd_box_clip(pos.x - 1, pos.y - 1, size.w + 2, size.h + 2, MN_GREY0, MN_GREY4);
 }
 
 
@@ -207,9 +207,9 @@ void world_view_t::internal_draw(const koord offset, obj_t const* const obj)
  * Resize the contents of the window
  * @author prissi
  */
-void world_view_t::set_groesse(koord size)
+void world_view_t::set_size(scr_size size)
 {
-	gui_komponente_t::set_groesse(size);
+	gui_komponente_t::set_size(size);
 	calc_offsets(size, 5);
 }
 
@@ -217,10 +217,10 @@ void world_view_t::set_groesse(koord size)
 /**
  * Recalculates the number of tiles needed
  */
-void world_view_t::calc_offsets(koord size, sint16 dy_off)
+void world_view_t::calc_offsets(scr_size size, sint16 dy_off)
 {
-	const sint16 max_dx = size.x/(raster/2) + 2;
-	const sint16 max_dy = (size.y/(raster/2) + dy_off)&0x0FFE;
+	const sint16 max_dx = size.w/(raster/2) + 2;
+	const sint16 max_dy = (size.h/(raster/2) + dy_off)&0x0FFE;
 
 	offsets.clear();
 	for(  sint16 dy = -max_dy;  dy <= 5;  ) {

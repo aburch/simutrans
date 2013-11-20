@@ -24,18 +24,21 @@ class skinverwaltung_t;
 class gui_divider_t : public gui_komponente_t
 {
 public:
-	gui_divider_t() { groesse.y = D_DIVIDER_HEIGHT; }
+	gui_divider_t() { size.h = D_DIVIDER_HEIGHT; }
 
-	void init( koord xy, KOORD_VAL width, KOORD_VAL height = D_DIVIDER_HEIGHT ) {
+	void init( scr_coord xy, scr_coord_val width, scr_coord_val height = D_DIVIDER_HEIGHT ) {
 		set_pos( xy );
-		set_groesse( koord( width, height ) );
+		set_size( scr_size( width, height ) );
 	};
 
-	void set_width(KOORD_VAL width) { set_groesse(koord(width,groesse.y)); }
+	void set_width(scr_coord_val width) { set_size(scr_size(width, size.h)); }
 
-	virtual koord get_groesse() const { return koord(groesse.x,max(groesse.y,D_DIVIDER_HEIGHT)); }
+	scr_size get_size() const { return scr_size(size.w,max(size.h, D_DIVIDER_HEIGHT)); }
 
-	void zeichnen(koord offset) { display_img_stretch( gui_theme_t::divider, scr_rect( get_pos()+offset, get_groesse() ) ); }
+	void draw(scr_coord offset)
+	{
+		display_img_stretch( gui_theme_t::divider, scr_rect( get_pos()+offset, get_size() ) );
+	}
 };
 
 #endif

@@ -32,7 +32,7 @@ class pakselector_t : public savegame_frame_t
 		      void  fill_list       ( void );
 
 		// since we only want to see the frame...
-		void set_fenstergroesse(koord groesse);
+		void set_windowsize(scr_size size);
 };
 
 #endif

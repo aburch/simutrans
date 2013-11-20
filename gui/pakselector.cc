@@ -34,7 +34,7 @@ pakselector_t::pakselector_t() :
 
 	addon_button_width = 2*D_H_SPACE + proportional_string_width( translator::translate("Load with addons") );
 
-	resize(koord(0,0));
+	resize(scr_coord(0,0));
 }
 
 
@@ -122,8 +122,8 @@ void pakselector_t::fill_list()
 		// look for addon directory
 		path.clear();
 		path.printf("%saddons/%s", env_t::user_dir, i.button->get_text());
-		i.del->set_pos(koord(D_FOCUS_OFFSET_H,y));
-		i.del->set_groesse( koord(addon_button_width,D_BUTTON_HEIGHT) );
+		i.del->set_pos(scr_coord(D_FOCUS_OFFSET_H,y));
+		i.del->set_size( scr_size(addon_button_width,D_BUTTON_HEIGHT) );
 		i.del->set_text("Load with addons");
 
 		// if we can't change directory to /addon
@@ -138,7 +138,7 @@ void pakselector_t::fill_list()
 			env_t::objfilename = (std::string)i.button->get_text() + "/";
 		}
 
-		i.button->align_to(i.del, ALIGN_LEFT | ALIGN_EXTERIOR_H | ALIGN_TOP, koord(D_H_SPACE,0) );
+		i.button->align_to(i.del, ALIGN_LEFT | ALIGN_EXTERIOR_H | ALIGN_TOP, scr_coord(D_H_SPACE,0) );
 		action_button_width = max( action_button_width, proportional_string_width( i.button->get_text() ) );
 		y += D_BUTTON_HEIGHT+D_FOCUS_OFFSET_V;
 	}
@@ -150,38 +150,32 @@ void pakselector_t::fill_list()
 		env_t::objfilename = "";
 	}
 
-	button_frame.set_groesse ( koord (addon_button_width + D_H_SPACE + action_button_width + D_H_SPACE + D_SCROLLBAR_WIDTH, y) );
-	set_fenstergroesse( koord(
+	button_frame.set_size ( scr_size (addon_button_width + D_H_SPACE + action_button_width + D_H_SPACE + D_SCROLLBAR_WIDTH, y) );
+	set_windowsize( scr_size(
 		D_MARGINS_X + addon_button_width + D_H_SPACE + action_button_width + D_H_SPACE + D_SCROLLBAR_WIDTH,
-		D_TITLEBAR_HEIGHT + D_MARGINS_Y + D_EDIT_HEIGHT + D_V_SPACE + y + D_DIVIDER_HEIGHT + notice_label.get_groesse().y
+		D_TITLEBAR_HEIGHT + D_MARGINS_Y + D_EDIT_HEIGHT + D_V_SPACE + y + D_DIVIDER_HEIGHT + notice_label.get_size().h
 	));
 
-	resize( koord(0,0));
+	resize( scr_coord(0,0));
 }
 
 
-void pakselector_t::set_fenstergroesse(koord groesse)
+void pakselector_t::set_windowsize(scr_size size)
 {
 	scr_coord_val y = D_FOCUS_OFFSET_V;
 
 	// Adjust max window size
-	groesse.x = max(groesse.x,D_MARGINS_X + notice_label.get_groesse().x);
+	size.w = max(size.w,D_MARGINS_X + notice_label.get_size().w);
 
-	if(groesse.y > display_get_height()-env_t::iconsize.y-D_STATUSBAR_HEIGHT) {
-		groesse.y = display_get_height()-env_t::iconsize.y-D_STATUSBAR_HEIGHT;
-	}
+	size.clip_rightbottom( scr_coord( display_get_width(), display_get_height()-env_t::iconsize.h-D_STATUSBAR_HEIGHT ) );
 
-	if(groesse.x > display_get_width()) {
-		groesse.x = display_get_width();
-	}
-
-	gui_frame_t::set_fenstergroesse(groesse);
-	groesse = get_fenstergroesse();
+	gui_frame_t::set_windowsize(size);
+	size = get_windowsize();
 
 	// Adjust scrolly
-	scrolly.set_groesse( koord(
-		groesse.x - D_MARGINS_X,
-		groesse.y - scrolly.get_pos().y - D_TITLEBAR_HEIGHT - D_DIVIDER_HEIGHT - notice_label.get_groesse().y - D_MARGIN_BOTTOM
+	scrolly.set_size( scr_size(
+		size.w - D_MARGINS_X,
+		size.h - scrolly.get_pos().y - D_TITLEBAR_HEIGHT - D_DIVIDER_HEIGHT - notice_label.get_size().h - D_MARGIN_BOTTOM
 	));
 	action_button_width = scrolly.get_client().w - addon_button_width - D_H_SPACE - (D_FOCUS_OFFSET_H<<2);
 
@@ -198,13 +192,13 @@ void pakselector_t::set_fenstergroesse(koord groesse)
 
 		if (i.button->is_visible()) {
 			// filename button is the only one resizing
-			i.button->set_groesse( koord( action_button_width, D_BUTTON_HEIGHT ) );
+			i.button->set_size( scr_size( action_button_width, D_BUTTON_HEIGHT ) );
 			y += D_BUTTON_HEIGHT + D_FOCUS_OFFSET_V;
 		}
 	}
 
 	// Adjust notice text
 	divider1.align_to(&scrolly, ALIGN_TOP | ALIGN_EXTERIOR_V | ALIGN_LEFT);
-	divider1.set_width(groesse.x-D_MARGIN_LEFT-D_MARGIN_RIGHT);
+	divider1.set_width(size.w-D_MARGIN_LEFT-D_MARGIN_RIGHT);
 	notice_label.align_to(&divider1, ALIGN_TOP | ALIGN_EXTERIOR_V | ALIGN_LEFT );
 }

@@ -18,7 +18,7 @@ public:
 	virtual PLAYER_COLOR_VAL get_titelcolor() const { return color; }
 
 	// Knightly : to extend the window with an extra component in the upper right corner
-	void extend_window_with_component(gui_komponente_t *const component, const koord size, const koord offset = koord(0,0));
+	void extend_window_with_component(gui_komponente_t *const component, const scr_size size, const scr_coord offset = scr_coord(0,0));
 
 protected:
 	news_window(const char* text, PLAYER_COLOR_VAL color);

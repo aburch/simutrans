@@ -20,6 +20,7 @@
 
 scrollbar_t::scrollbar_t(type_t type) :
 	type(type),
+	dragging(false),
 	knob_offset(0),
 	knob_size(10),
 	total_size(20),
@@ -29,30 +30,30 @@ scrollbar_t::scrollbar_t(type_t type) :
 	visible_mode = show_auto;
 
 	if (type == vertical) {
-		groesse = koord(D_SCROLLBAR_WIDTH,40); // 40 = default scrollbar height
+		size = scr_size(D_SCROLLBAR_WIDTH,40); // 40 = default scrollbar height
 		button_def[left_top_arrow_index].set_typ(button_t::arrowup);
 		button_def[right_bottom_arrow_index].set_typ(button_t::arrowdown);
 	}
 	else { // horizontal
-		groesse = koord(40,D_SCROLLBAR_HEIGHT); // 40 = default scrollbar length
+		size = scr_size(40,D_SCROLLBAR_HEIGHT); // 40 = default scrollbar length
 		button_def[left_top_arrow_index].set_typ(button_t::arrowleft);
 		button_def[right_bottom_arrow_index].set_typ(button_t::arrowright);
 	}
 
-	button_def[left_top_arrow_index].set_pos(koord(0,0));
-	button_def[right_bottom_arrow_index].set_pos(koord(0,0));
+	button_def[left_top_arrow_index].set_pos(scr_coord(0,0));
+	button_def[right_bottom_arrow_index].set_pos(scr_coord(0,0));
 
 	reposition_buttons();
 }
 
 
-void scrollbar_t::set_groesse(koord groesse)
+void scrollbar_t::set_size(scr_size size)
 {
 	if (type == vertical) {
-		this->groesse.y = groesse.y;
+		this->size.h = size.h;
 	}
 	else {
-		this->groesse.x = groesse.x;
+		this->size.w = size.w;
 	}
 	reposition_buttons();
 }
@@ -77,36 +78,36 @@ void scrollbar_t::set_knob(sint32 new_visible_size, sint32 new_total_size)
 void scrollbar_t::reposition_buttons()
 {
 	const sint32 area = (type == vertical ?
-		groesse.y-gui_theme_t::gui_arrow_up_size.y-gui_theme_t::gui_arrow_down_size.y :
-		groesse.x-gui_theme_t::gui_arrow_left_size.x-gui_theme_t::gui_arrow_right_size.x);
+		size.h-gui_theme_t::gui_arrow_up_size.h-gui_theme_t::gui_arrow_down_size.h :
+		size.w-gui_theme_t::gui_arrow_left_size.w-gui_theme_t::gui_arrow_right_size.w);
 		// area will be actual area knob can move in
 
 	knob_offset = clamp( knob_offset, 0, total_size-knob_size );
 
 	double size_ratio = (double)knob_size / (double)total_size;
-	scr_coord_val size = min( area, (scr_coord_val)( area*size_ratio+0.5) );
+	scr_coord_val length = min( area, (scr_coord_val)( area*size_ratio+0.5) );
 	if(  type == vertical  ) {
-		size = max( size, D_SCROLL_MIN_HEIGHT );
+		length = max( length, D_SCROLL_MIN_HEIGHT );
 	}
 	else {
-		size = max( size, D_SCROLL_MIN_WIDTH );
+		length = max( length, D_SCROLL_MIN_WIDTH );
 	}
 
 	double offset_ratio = (double)knob_offset / (double)total_size;
 	int offset = (int)( offset_ratio*area+0.5 );
-	offset = clamp( offset, 0, area-size );
+	offset = clamp( offset, 0, area-length );
 
 	if(type == vertical) {
-		button_def[left_top_arrow_index].set_pos( koord( (D_SCROLLBAR_WIDTH-gui_theme_t::gui_arrow_up_size.x)/2, 0) );
-		button_def[right_bottom_arrow_index].set_pos( koord( (D_SCROLLBAR_WIDTH-gui_theme_t::gui_arrow_down_size.x)/2, groesse.y-gui_theme_t::gui_arrow_down_size.y) );
-		sliderarea.set( 0, gui_theme_t::gui_arrow_up_size.y, D_SCROLLBAR_WIDTH, area );
-		knobarea.set( 0, gui_theme_t::gui_arrow_up_size.y+offset, D_SCROLLBAR_WIDTH, size );
+		button_def[left_top_arrow_index].set_pos( scr_coord( (D_SCROLLBAR_WIDTH-gui_theme_t::gui_arrow_up_size.w)/2, 0) );
+		button_def[right_bottom_arrow_index].set_pos( scr_coord( (D_SCROLLBAR_WIDTH-gui_theme_t::gui_arrow_down_size.w)/2, size.h-gui_theme_t::gui_arrow_down_size.h) );
+		sliderarea.set( 0, gui_theme_t::gui_arrow_up_size.h, D_SCROLLBAR_WIDTH, area );
+		knobarea.set( 0, gui_theme_t::gui_arrow_up_size.h+offset, D_SCROLLBAR_WIDTH, length );
 	}
 	else { // horizontal
-		button_def[left_top_arrow_index].set_pos( koord(0,(D_SCROLLBAR_HEIGHT-gui_theme_t::gui_arrow_left_size.y)/2) );
-		button_def[right_bottom_arrow_index].set_pos( koord(groesse.x-gui_theme_t::gui_arrow_right_size.x,(D_SCROLLBAR_HEIGHT-gui_theme_t::gui_arrow_right_size.y)/2) );
-		sliderarea.set( gui_theme_t::gui_arrow_up_size.x, 0, area, D_SCROLLBAR_HEIGHT );
-		knobarea.set( gui_theme_t::gui_arrow_up_size.x+offset, 0, size, D_SCROLLBAR_HEIGHT );
+		button_def[left_top_arrow_index].set_pos( scr_coord(0,(D_SCROLLBAR_HEIGHT-gui_theme_t::gui_arrow_left_size.h)/2) );
+		button_def[right_bottom_arrow_index].set_pos( scr_coord(size.w-gui_theme_t::gui_arrow_right_size.w,(D_SCROLLBAR_HEIGHT-gui_theme_t::gui_arrow_right_size.h)/2) );
+		sliderarea.set( gui_theme_t::gui_arrow_up_size.w, 0, area, D_SCROLLBAR_HEIGHT );
+		knobarea.set( gui_theme_t::gui_arrow_up_size.w+offset, 0, length, D_SCROLLBAR_HEIGHT );
 	}
 
 	full = knobarea.contains( sliderarea );
@@ -214,7 +215,7 @@ bool scrollbar_t::infowin_event(const event_t *ev)
 
 
 
-void scrollbar_t::zeichnen(koord pos_par)
+void scrollbar_t::draw(scr_coord pos_par)
 {
 	// Don't draw control if not visible
 	if( (visible_mode != show_auto)  &&  (!is_visible()  ||  (visible_mode == show_never) ) ) {
@@ -225,14 +226,14 @@ void scrollbar_t::zeichnen(koord pos_par)
 	// Draw place holder if scrollbar is full in auto mode
 	if ( visible_mode == show_auto  &&  full  ) {
 		// Draw place holder, might be themed...
-		display_fillbox_wh(pos_par.x+2,pos_par.y+2,groesse.x-4,groesse.y-4,SYSCOL_FACE,false);
-		display_ddd_box(pos_par.x+1, pos_par.y+1,groesse.x-2,groesse.y-2,SYSCOL_DISABLED_TEXT,SYSCOL_DISABLED_TEXT,false);
+		display_fillbox_wh(pos_par.x+2, pos_par.y+2, size.w-4, size.h-4, SYSCOL_FACE,false);
+		display_ddd_box(pos_par.x+1, pos_par.y+1, size.w-2, size.h-2, SYSCOL_DISABLED_TEXT,SYSCOL_DISABLED_TEXT,false);
 		return;
 	}
 
 	// Draw scrollbar as normal
-	button_def[left_top_arrow_index].zeichnen(pos_par);
-	button_def[right_bottom_arrow_index].zeichnen(pos_par);
+	button_def[left_top_arrow_index].draw(pos_par);
+	button_def[right_bottom_arrow_index].draw(pos_par);
 
 	// now backgroudn and slider
 	if(  type == vertical  ) {

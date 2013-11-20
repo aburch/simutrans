@@ -53,7 +53,7 @@ public:
 	* Draw the component
 	* @author Hj. Malthaner
 	*/
-	void zeichnen(koord offset);
+	void draw(scr_coord offset);
 };
 
 #endif

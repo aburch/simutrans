@@ -35,14 +35,14 @@ help_frame_t::help_frame_t() :
 
 	set_text("<title>Unnamed</title><p>No text set</p>");
 
-	helptext.set_pos( koord(D_MARGIN_LEFT,D_MARGIN_TOP) );
+	helptext.set_pos( scr_coord(D_MARGIN_LEFT,D_MARGIN_TOP) );
 	helptext.add_listener(this);
 
 	scrolly_helptext.set_show_scroll_x(true);
 	add_komponente(&scrolly_helptext);
 
 	set_resizemode(diagonal_resize);
-	set_min_windowsize( koord( D_MARGIN_LEFT + (D_SCROLLBAR_WIDTH<<1) + DIALOG_MIN_WIDTH + D_MARGIN_RIGHT, D_TITLEBAR_HEIGHT + D_MARGIN_TOP + (D_SCROLLBAR_HEIGHT<<1) + D_MARGIN_BOTTOM) );
+	set_min_windowsize( scr_size( D_MARGIN_LEFT + (D_SCROLLBAR_WIDTH<<1) + DIALOG_MIN_WIDTH + D_MARGIN_RIGHT, D_TITLEBAR_HEIGHT + D_MARGIN_TOP + (D_SCROLLBAR_HEIGHT<<1) + D_MARGIN_BOTTOM) );
 }
 
 
@@ -61,13 +61,13 @@ help_frame_t::help_frame_t(char const* const filename) :
 	cbuffer_t how_to_play;
 	cbuffer_t others;
 
-	helptext.set_pos( koord(D_MARGIN_LEFT,D_MARGIN_TOP) );
+	helptext.set_pos( scr_coord(D_MARGIN_LEFT,D_MARGIN_TOP) );
 	scrolly_helptext.set_show_scroll_x(true);
 	add_komponente(&scrolly_helptext);
 	helptext.add_listener(this);
 
-	generaltext.set_pos( koord(D_MARGIN_LEFT,D_MARGIN_TOP) );
-	scrolly_generaltext.set_pos( koord( 0, 0) );
+	generaltext.set_pos( scr_coord(D_MARGIN_LEFT,D_MARGIN_TOP) );
+	scrolly_generaltext.set_pos( scr_coord( 0, 0) );
 	scrolly_generaltext.set_show_scroll_x(true);
 	scrolly_generaltext.set_visible( true );
 	add_komponente(&scrolly_generaltext);
@@ -168,7 +168,7 @@ help_frame_t::help_frame_t(char const* const filename) :
 	//add_komponente(&scrolly_helptext);
 
 	set_resizemode(diagonal_resize);
-	set_min_windowsize(koord(200, D_TITLEBAR_HEIGHT + D_MARGIN_TOP + (D_SCROLLBAR_HEIGHT) + D_MARGIN_BOTTOM));
+	set_min_windowsize(scr_size(200, D_TITLEBAR_HEIGHT + D_MARGIN_TOP + (D_SCROLLBAR_HEIGHT) + D_MARGIN_BOTTOM));
 }
 
 
@@ -224,43 +224,43 @@ static const char *load_text(char const* const filename )
 void help_frame_t::set_text(const char * buf, bool resize_frame )
 {
 	helptext.set_text(buf);
-	helptext.set_pos( koord(D_MARGIN_LEFT,D_MARGIN_TOP) );
+	helptext.set_pos( scr_coord(D_MARGIN_LEFT,D_MARGIN_TOP) );
 
 	if(  resize_frame  ) {
 
 		// try to get the following sizes
 		// y<400 or, if not possible, x<620
-		helptext.set_groesse(koord(220, 0));
+		helptext.set_size(scr_size(220, 0));
 		int last_y = 0;
-		koord curr = helptext.get_preferred_size();
+		scr_coord curr = helptext.get_preferred_size();
 		for(  int i = 0;  i<10  &&  curr.y>400  &&  curr.y!=last_y;  i++  ) {
-			helptext.set_groesse(koord(260+i*40, 0));
+			helptext.set_size(scr_size(260+i*40, 0));
 			last_y = curr.y;
 			curr = helptext.get_preferred_size();
 		}
 
 		// the second line isn't redundant!!!
-		helptext.set_groesse(helptext.get_preferred_size());
-		helptext.set_groesse(helptext.get_preferred_size());
+		helptext.set_size(helptext.get_preferred_size());
+		helptext.set_size(helptext.get_preferred_size());
 
 		if(  scrolly_generaltext.is_visible()  ) {
-			generaltext.set_pos( koord(D_MARGIN_LEFT, D_MARGIN_TOP) );
-			generaltext.set_groesse( koord( min(180,display_get_width()/3), 0 ) );
-			int generalwidth = min( display_get_width()/3, generaltext.get_preferred_size().x );
-			generaltext.set_groesse( koord( generalwidth, helptext.get_groesse().y ) );
-			generaltext.set_groesse( generaltext.get_preferred_size() );
-			generaltext.set_groesse( generaltext.get_preferred_size() );
-			generaltext.set_groesse( generaltext.get_text_size() );
+			generaltext.set_pos( scr_coord(D_MARGIN_LEFT, D_MARGIN_TOP) );
+			generaltext.set_size( scr_size( min(180,display_get_width()/3), 0 ) );
+			int generalwidth = min( display_get_width()/3, generaltext.get_preferred_size().w );
+			generaltext.set_size( scr_size( generalwidth, helptext.get_size().h ) );
+			generaltext.set_size( generaltext.get_preferred_size() );
+			generaltext.set_size( generaltext.get_preferred_size() );
+			generaltext.set_size( generaltext.get_text_size() );
 		}
 		else {
-			generaltext.set_groesse( koord(D_MARGIN_LEFT, D_MARGIN_TOP) );
+			generaltext.set_size( scr_size(D_MARGIN_LEFT, D_MARGIN_TOP) );
 		}
 
 		// calculate sizes (might not a help but info window, which do not have general text)
-		KOORD_VAL size_x = helptext.get_groesse().x + D_MARGIN_LEFT + D_MARGIN_RIGHT + D_SCROLLBAR_WIDTH;
-		KOORD_VAL size_y = helptext.get_groesse().y + D_TITLEBAR_HEIGHT + D_MARGIN_TOP  + D_MARGIN_BOTTOM + D_SCROLLBAR_HEIGHT;
+		scr_coord_val size_x = helptext.get_size().w + D_MARGIN_LEFT + D_MARGIN_RIGHT + D_SCROLLBAR_WIDTH;
+		scr_coord_val size_y = helptext.get_size().h + D_TITLEBAR_HEIGHT + D_MARGIN_TOP  + D_MARGIN_BOTTOM + D_SCROLLBAR_HEIGHT;
 		if(  scrolly_generaltext.is_visible()  ) {
-			size_x += generaltext.get_groesse().x + D_SCROLLBAR_WIDTH + D_H_SPACE;
+			size_x += generaltext.get_size().w + D_SCROLLBAR_WIDTH + D_H_SPACE;
 		}
 		// set window size
 		if(  size_x > display_get_width()-32  ) {
@@ -270,7 +270,7 @@ void help_frame_t::set_text(const char * buf, bool resize_frame )
 		if(  size_y>display_get_height()-64) {
 			size_y = display_get_height()-64;
 		}
-		set_fenstergroesse( koord( size_x, size_y ) );
+		set_windowsize( scr_size( size_x, size_y ) );
 	}
 
 	// generate title
@@ -282,7 +282,7 @@ void help_frame_t::set_text(const char * buf, bool resize_frame )
 	title += helptext.get_title();
 	set_name( title.c_str() );
 
-	resize( koord(0,0) );
+	resize( scr_coord(0,0) );
 	set_dirty();
 }
 
@@ -470,28 +470,28 @@ bool help_frame_t::action_triggered( gui_action_creator_t *, value_t extra)
 }
 
 
-void help_frame_t::resize(const koord delta)
+void help_frame_t::resize(const scr_coord delta)
 {
 	gui_frame_t::resize(delta);
 
 	scr_coord_val generalwidth = 0;
 	if(  scrolly_generaltext.is_visible()  ) {
 		// do not use more than 1/3 for the general infomations
-		generalwidth = min( display_get_width()/3, generaltext.get_preferred_size().x ) + D_SCROLLBAR_WIDTH + D_MARGIN_LEFT;
-		scrolly_generaltext.set_groesse( koord( generalwidth, get_fenstergroesse().y-D_TITLEBAR_HEIGHT ) );
+		generalwidth = min( display_get_width()/3, generaltext.get_preferred_size().w ) + D_SCROLLBAR_WIDTH + D_MARGIN_LEFT;
+		scrolly_generaltext.set_size( scr_size( generalwidth, get_windowsize().h-D_TITLEBAR_HEIGHT ) );
 
-		koord general_gr = scrolly_generaltext.get_groesse() - D_SCROLLBAR_SIZE - koord(D_MARGIN_LEFT,D_MARGIN_TOP);
-		generaltext.set_groesse( general_gr );
-		generaltext.set_groesse( generaltext.get_text_size() );
+		scr_size general_size = scrolly_generaltext.get_size() - D_SCROLLBAR_SIZE - scr_size(D_MARGIN_LEFT,D_MARGIN_TOP);
+		generaltext.set_size( general_size );
+		generaltext.set_size( generaltext.get_text_size() );
 
 		generalwidth += D_H_SPACE;
-		scrolly_helptext.set_pos( koord( generalwidth, 0 ) );
+		scrolly_helptext.set_pos( scr_size( generalwidth, 0 ) );
 	}
 
-	scrolly_helptext.set_groesse( get_fenstergroesse() - koord( generalwidth, D_TITLEBAR_HEIGHT ) );
+	scrolly_helptext.set_size( get_windowsize() - scr_size( generalwidth, D_TITLEBAR_HEIGHT ) );
 
-	koord helptext_gr =  scrolly_helptext.get_groesse() - helptext.get_pos() - D_SCROLLBAR_SIZE - koord(D_MARGIN_LEFT,D_MARGIN_TOP);
+	scr_size helptext_size =  scrolly_helptext.get_size() - helptext.get_pos() - D_SCROLLBAR_SIZE - scr_size(D_MARGIN_LEFT,D_MARGIN_TOP);
 
-	helptext.set_groesse( helptext_gr );
-	helptext.set_groesse( helptext.get_text_size() );
+	helptext.set_size( helptext_size );
+	helptext.set_size( helptext.get_text_size() );
 }

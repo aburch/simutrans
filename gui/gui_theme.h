@@ -27,71 +27,71 @@ class bild_besch_t;
  */
 
 #define D_BUTTON_SIZE          (gui_theme_t::gui_button_size  )
-#define D_BUTTON_WIDTH         (gui_theme_t::gui_button_size.x)
-#define D_BUTTON_HEIGHT        (gui_theme_t::gui_button_size.y)
+#define D_BUTTON_WIDTH         (gui_theme_t::gui_button_size.w)
+#define D_BUTTON_HEIGHT        (gui_theme_t::gui_button_size.h)
 
 #define D_FILTER_BUTTON_SIZE   (gui_theme_t::gui_color_button_size  )
-#define D_FILTER_BUTTON_WIDTH  (gui_theme_t::gui_color_button_size.x)
-#define D_FILTER_BUTTON_HEIGHT (gui_theme_t::gui_color_button_size.y)
+#define D_FILTER_BUTTON_WIDTH  (gui_theme_t::gui_color_button_size.w)
+#define D_FILTER_BUTTON_HEIGHT (gui_theme_t::gui_color_button_size.h)
 
 #define D_CHECKBOX_SIZE        (gui_theme_t::gui_checkbox_size  )
-#define D_CHECKBOX_WIDTH       (gui_theme_t::gui_checkbox_size.x)
-#define D_CHECKBOX_HEIGHT      (gui_theme_t::gui_checkbox_size.y)
+#define D_CHECKBOX_WIDTH       (gui_theme_t::gui_checkbox_size.w)
+#define D_CHECKBOX_HEIGHT      (gui_theme_t::gui_checkbox_size.h)
 
 #define D_POS_BUTTON_SIZE      (gui_theme_t::gui_pos_button_size  )
-#define D_POS_BUTTON_WIDTH     (gui_theme_t::gui_pos_button_size.x)
-#define D_POS_BUTTON_HEIGHT    (gui_theme_t::gui_pos_button_size.y)
+#define D_POS_BUTTON_WIDTH     (gui_theme_t::gui_pos_button_size.w)
+#define D_POS_BUTTON_HEIGHT    (gui_theme_t::gui_pos_button_size.h)
 
 #define D_ARROW_LEFT_SIZE      (gui_theme_t::gui_arrow_left_size  )
-#define D_ARROW_LEFT_WIDTH     (gui_theme_t::gui_arrow_left_size.x)
-#define D_ARROW_LEFT_HEIGHT    (gui_theme_t::gui_arrow_left_size.y)
+#define D_ARROW_LEFT_WIDTH     (gui_theme_t::gui_arrow_left_size.w)
+#define D_ARROW_LEFT_HEIGHT    (gui_theme_t::gui_arrow_left_size.h)
 
 #define D_ARROW_RIGHT_SIZE     (gui_theme_t::gui_arrow_right_size  )
-#define D_ARROW_RIGHT_WIDTH    (gui_theme_t::gui_arrow_right_size.x)
-#define D_ARROW_RIGHT_HEIGHT   (gui_theme_t::gui_arrow_right_size.y)
+#define D_ARROW_RIGHT_WIDTH    (gui_theme_t::gui_arrow_right_size.w)
+#define D_ARROW_RIGHT_HEIGHT   (gui_theme_t::gui_arrow_right_size.h)
 
 #define D_ARROW_UP_SIZE        (gui_theme_t::gui_arrow_up_size  )
-#define D_ARROW_UP_WIDTH       (gui_theme_t::gui_arrow_up_size.x)
-#define D_ARROW_UP_HEIGHT      (gui_theme_t::gui_arrow_up_size.y)
+#define D_ARROW_UP_WIDTH       (gui_theme_t::gui_arrow_up_size.w)
+#define D_ARROW_UP_HEIGHT      (gui_theme_t::gui_arrow_up_size.h)
 
 #define D_ARROW_DOWN_SIZE      (gui_theme_t::gui_arrow_down_size  )
-#define D_ARROW_DOWN_WIDTH     (gui_theme_t::gui_arrow_down_size.x)
-#define D_ARROW_DOWN_HEIGHT    (gui_theme_t::gui_arrow_down_size.y)
+#define D_ARROW_DOWN_WIDTH     (gui_theme_t::gui_arrow_down_size.w)
+#define D_ARROW_DOWN_HEIGHT    (gui_theme_t::gui_arrow_down_size.h)
 
 #define D_SCROLLBAR_SIZE       (gui_theme_t::gui_scrollbar_size  )
-#define D_SCROLLBAR_HEIGHT     (gui_theme_t::gui_scrollbar_size.y)
-#define D_SCROLLBAR_WIDTH      (gui_theme_t::gui_scrollbar_size.x)
+#define D_SCROLLBAR_HEIGHT     (gui_theme_t::gui_scrollbar_size.h)
+#define D_SCROLLBAR_WIDTH      (gui_theme_t::gui_scrollbar_size.w)
 
 #define D_SCROLL_MIN_SIZE      (gui_theme_t::gui_min_scrollbar_size  )
-#define D_SCROLL_MIN_WIDTH     (gui_theme_t::gui_min_scrollbar_size.x)
-#define D_SCROLL_MIN_HEIGHT    (gui_theme_t::gui_min_scrollbar_size.y)
+#define D_SCROLL_MIN_WIDTH     (gui_theme_t::gui_min_scrollbar_size.w)
+#define D_SCROLL_MIN_HEIGHT    (gui_theme_t::gui_min_scrollbar_size.h)
 
 #define D_GADGET_SIZE          (gui_theme_t::gui_gadget_size  )
-#define D_GADGET_WIDTH         (gui_theme_t::gui_gadget_size.x)
-#define D_GADGET_HEIGHT        (gui_theme_t::gui_gadget_size.y)
+#define D_GADGET_WIDTH         (gui_theme_t::gui_gadget_size.w)
+#define D_GADGET_HEIGHT        (gui_theme_t::gui_gadget_size.h)
 
 #define D_INDICATOR_BOX_SIZE   (gui_theme_t::gui_indicator_size  )
-#define D_INDICATOR_BOX_HEIGHT (gui_theme_t::gui_indicator_size.y)
-#define D_INDICATOR_BOX_WIDTH  (gui_theme_t::gui_indicator_size.x)
+#define D_INDICATOR_BOX_HEIGHT (gui_theme_t::gui_indicator_size.h)
+#define D_INDICATOR_BOX_WIDTH  (gui_theme_t::gui_indicator_size.w)
 
 #define D_INDICATOR_SIZE       (gui_theme_t::gui_indicator_size  )
-#define D_INDICATOR_WIDTH      (gui_theme_t::gui_indicator_size.x)
-#define D_INDICATOR_HEIGHT     (gui_theme_t::gui_indicator_size.y)
+#define D_INDICATOR_WIDTH      (gui_theme_t::gui_indicator_size.w)
+#define D_INDICATOR_HEIGHT     (gui_theme_t::gui_indicator_size.h)
 
 #define D_LABEL_SIZE           (gui_theme_t::gui_label_size  )
-#define D_LABEL_WIDTH          (gui_theme_t::gui_label_size.x)
-#define D_LABEL_HEIGHT         (gui_theme_t::gui_label_size.y)
+#define D_LABEL_WIDTH          (gui_theme_t::gui_label_size.w)
+#define D_LABEL_HEIGHT         (gui_theme_t::gui_label_size.h)
 
 #define D_EDIT_SIZE            (gui_theme_t::gui_edit_size  )
-#define D_EDIT_WIDTH           (gui_theme_t::gui_edit_size.x)
-#define D_EDIT_HEIGHT          (gui_theme_t::gui_edit_size.y)
+#define D_EDIT_WIDTH           (gui_theme_t::gui_edit_size.w)
+#define D_EDIT_HEIGHT          (gui_theme_t::gui_edit_size.h)
 
 #define D_FOCUS_OFFSET         (gui_theme_t::gui_focus_offset  )
 #define D_FOCUS_OFFSET_H       (gui_theme_t::gui_focus_offset.x)
 #define D_FOCUS_OFFSET_V       (gui_theme_t::gui_focus_offset.y)
 
 #define D_TITLEBAR_HEIGHT      (gui_theme_t::gui_titlebar_height)
-#define D_DIVIDER_HEIGHT       (gui_theme_t::gui_divider_size.y)
+#define D_DIVIDER_HEIGHT       (gui_theme_t::gui_divider_size.h)
 #define D_STATUSBAR_HEIGHT     (max(16,LINESPACE))                    // statusbar bottom of screen
 #define TAB_HEADER_V_SIZE      (gui_tab_panel_t::header_vsize)        // Tab page params (replace with real values from the skin images)
 
@@ -220,23 +220,23 @@ public:
 
 	/// @name GUI element sizes used by gui components
 	/// @{
-	static koord gui_divider_size;
-	static koord gui_button_size;
-	static koord gui_button_text_offset;	// extra offset for the text (in case of asymmetric or buttons with color on the left)
-	static koord gui_color_button_size;
-	static koord gui_checkbox_size;
-	static koord gui_pos_button_size;
-	static koord gui_arrow_left_size;
-	static koord gui_arrow_right_size;
-	static koord gui_arrow_up_size;
-	static koord gui_arrow_down_size;
-	static koord gui_scrollbar_size;
-	static koord gui_min_scrollbar_size;	// minimum width and height of a scrollbar slider
-	static koord gui_label_size;
-	static koord gui_edit_size;
-	static koord gui_indicator_size;
-	static koord gui_gadget_size;
-	static koord gui_focus_offset;
+	static scr_size gui_divider_size;
+	static scr_size gui_button_size;
+	static scr_coord gui_button_text_offset;	// extra offset for the text (in case of asymmetric or buttons with color on the left)
+	static scr_size gui_color_button_size;
+	static scr_size gui_checkbox_size;
+	static scr_size gui_pos_button_size;
+	static scr_size gui_arrow_left_size;
+	static scr_size gui_arrow_right_size;
+	static scr_size gui_arrow_up_size;
+	static scr_size gui_arrow_down_size;
+	static scr_size gui_scrollbar_size;
+	static scr_size gui_min_scrollbar_size;	// minimum width and height of a scrollbar slider
+	static scr_size gui_label_size;
+	static scr_size gui_edit_size;
+	static scr_size gui_indicator_size;
+	static scr_size gui_gadget_size;
+	static scr_coord gui_focus_offset;
 
 	static KOORD_VAL gui_titlebar_height;
 	static KOORD_VAL gui_frame_left;
@@ -277,7 +277,7 @@ public:
 	static void init_gui_defaults();
 
 	// assings k with the dimension of this image
-	static void init_size_from_bild( const bild_besch_t *pic, koord &k );
+	static void init_size_from_bild( const bild_besch_t *pic, scr_size &k );
 
 	// init the skin dimensions form file
 	static void init_gui_from_images();

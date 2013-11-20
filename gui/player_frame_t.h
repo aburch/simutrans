@@ -57,7 +57,7 @@ class ki_kontroll_t : public gui_frame_t, private action_listener_t
 		 * component is displayed.
 		 * @author Hj. Malthaner
 		 */
-		void zeichnen(koord pos, koord gr);
+		void draw(scr_coord pos, scr_size size);
 
 		bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 

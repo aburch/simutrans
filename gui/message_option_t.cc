@@ -27,45 +27,45 @@ message_option_t::message_option_t(karte_t *welt_) :
 	text_label(&buf),
 	legend( skinverwaltung_t::message_options->get_bild_nr(0) )
 {
-	scr_coord_val button_row = get_fenstergroesse().x - legend.get_groesse().x - D_MARGIN_RIGHT;
+	scr_coord_val button_row = get_windowsize().w - legend.get_size().w - D_MARGIN_RIGHT;
 
 	welt = welt_;
 	buf.clear();
 	buf.append(translator::translate("MessageOptionsText"));
-	text_label.set_pos( koord( D_MARGIN_LEFT + D_CHECKBOX_WIDTH + D_H_SPACE, D_MARGIN_TOP ));
+	text_label.set_pos( scr_coord( D_MARGIN_LEFT + D_CHECKBOX_WIDTH + D_H_SPACE, D_MARGIN_TOP ));
 	add_komponente( &text_label );
 
-	legend.set_pos( koord(button_row,0) );
+	legend.set_pos( scr_coord(button_row,0) );
 	add_komponente( &legend );
 
 	welt->get_message()->get_message_flags( &ticker_msg, &window_msg, &auto_msg, &ignore_msg );
 
 	for(  int i=0;  i<message_t::MAX_MESSAGE_TYPE;  i++  ) {
-		buttons[i*4].set_pos( koord(D_MARGIN_LEFT,D_MARGIN_TOP+(i*2+1)*LINESPACE) );
+		buttons[i*4].set_pos( scr_coord(D_MARGIN_LEFT,D_MARGIN_TOP+(i*2+1)*LINESPACE) );
 		buttons[i*4].set_typ(button_t::square_state);
 		buttons[i*4].pressed = ((ignore_msg>>i)&1)==0;
 		buttons[i*4].add_listener(this);
 		add_komponente( buttons+i*4 );
 
-		buttons[i*4+1].set_pos( koord(button_row+10,D_MARGIN_TOP+(i*2+1)*LINESPACE) );
+		buttons[i*4+1].set_pos( scr_coord(button_row+10,D_MARGIN_TOP+(i*2+1)*LINESPACE) );
 		buttons[i*4+1].set_typ(button_t::square_state);
 		buttons[i*4+1].pressed = (ticker_msg>>i)&1;
 		buttons[i*4+1].add_listener(this);
 		add_komponente( buttons+i*4+1 );
 
-		buttons[i*4+2].set_pos( koord(button_row+30,D_MARGIN_TOP+(i*2+1)*LINESPACE) );
+		buttons[i*4+2].set_pos( scr_coord(button_row+30,D_MARGIN_TOP+(i*2+1)*LINESPACE) );
 		buttons[i*4+2].set_typ(button_t::square_state);
 		buttons[i*4+2].pressed = (auto_msg>>i)&1;
 		buttons[i*4+2].add_listener(this);
 		add_komponente( buttons+i*4+2 );
 
-		buttons[i*4+3].set_pos( koord(button_row+50,D_MARGIN_TOP+(i*2+1)*LINESPACE) );
+		buttons[i*4+3].set_pos( scr_coord(button_row+50,D_MARGIN_TOP+(i*2+1)*LINESPACE) );
 		buttons[i*4+3].set_typ(button_t::square_state);
 		buttons[i*4+3].pressed = (window_msg>>i)&1;
 		buttons[i*4+3].add_listener(this);
 		add_komponente( buttons+i*4+3 );
 	}
-	set_fenstergroesse( koord(button_row+70, D_TITLEBAR_HEIGHT+D_MARGIN_TOP+(message_t::MAX_MESSAGE_TYPE-1)*(LINESPACE<<1) + D_MARGIN_BOTTOM ) );
+	set_windowsize( scr_size(button_row+70, D_TITLEBAR_HEIGHT+D_MARGIN_TOP+(message_t::MAX_MESSAGE_TYPE-1)*(LINESPACE<<1) + D_MARGIN_BOTTOM ) );
 }
 
 

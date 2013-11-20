@@ -28,10 +28,10 @@
 gui_frame_t::gui_frame_t(char const* const name, spieler_t const* const sp)
 {
 	this->name = name;
-	groesse = koord(200, 100);
-	min_windowsize = koord(0,0);
+	size = scr_size(200, 100);
+	min_windowsize = scr_size(0,0);
 	owner = sp;
-	container.set_pos(koord(0,D_TITLEBAR_HEIGHT));
+	container.set_pos(scr_coord(0,D_TITLEBAR_HEIGHT));
 	set_resizemode(no_resize);  //25-may-02  markus weber  added
 	opaque = true;
 	dirty = true;
@@ -42,24 +42,17 @@ gui_frame_t::gui_frame_t(char const* const name, spieler_t const* const sp)
  * Set the window size
  * @author Hj. Malthaner
  */
-void gui_frame_t::set_fenstergroesse(koord groesse)
+void gui_frame_t::set_windowsize(scr_size size)
 {
-	if(  groesse != this->groesse  ) {
+	if(  size != this->size  ) {
 		// mark old size dirty
-		koord const& pos = win_get_pos(this);
-		mark_rect_dirty_wc( pos.x, pos.y, pos.x+this->groesse.x, pos.y+this->groesse.y );
+		scr_coord const& pos = win_get_pos(this);
+		mark_rect_dirty_wc( pos.x, pos.y, pos.x+this->size.w, pos.y+this->size.h );
 
-		// minimal width //25-may-02  markus weber  added
-		if(  groesse.x < min_windowsize.x  ) {
-			groesse.x = min_windowsize.x;
-		}
+		// minimum size //25-may-02  markus weber  added
+		size.clip_lefttop(min_windowsize);
 
-		// minimal height //25-may-02  markus weber  added
-		if(  groesse.y < min_windowsize.y  ) {
-			groesse.y = min_windowsize.y;
-		}
-
-		this->groesse = groesse;
+		this->size = size;
 		dirty = true;
 	}
 }
@@ -85,14 +78,14 @@ bool gui_frame_t::infowin_event(const event_t *ev)
 {
 	// %DB0 printf( "\nMessage: gui_frame_t::infowin_event( event_t const * ev ) : Fenster|Window %p : Event is %d", (void*)this, ev->ev_class );
 	if(IS_WINDOW_RESIZE(ev)) {
-		koord delta (  resize_mode & horizonal_resize ? ev->mx - ev->cx : 0,
+		scr_coord delta (  resize_mode & horizonal_resize ? ev->mx - ev->cx : 0,
 		               resize_mode & vertical_resize  ? ev->my - ev->cy : 0);
 		resize(delta);
 		return true;  // don't pass to children!
 	}
 	else if(IS_WINDOW_MAKE_MIN_SIZE(ev)) {
-		set_fenstergroesse( get_min_windowsize() ) ;
-		resize( koord(0,0) ) ;
+		set_windowsize( get_min_windowsize() ) ;
+		resize( scr_coord(0,0) ) ;
 		return true;  // don't pass to children!
 	}
 	else if(ev->ev_class==INFOWIN  &&  (ev->ev_code==WIN_CLOSE  ||  ev->ev_code==WIN_OPEN  ||  ev->ev_code==WIN_TOP)) {
@@ -111,25 +104,17 @@ bool gui_frame_t::infowin_event(const event_t *ev)
  * @author Markus Weber, Hj. Malthaner
  * @date 11-may-02
  */
-void gui_frame_t::resize(const koord delta)
+void gui_frame_t::resize(const scr_coord delta)
 {
-	koord size_change = delta;
-	koord new_size = groesse + delta;
+	scr_size new_size = size + delta;
 
-	// resize window to the minimal width
-	if(  new_size.x < min_windowsize.x  ) {
-		size_change.x = min_windowsize.x - groesse.x;
-		new_size.x = min_windowsize.x;
-	}
+	// resize window to the minimum size
+	new_size.clip_lefttop(min_windowsize);
 
-	// resize window to the minimal height
-	if(  new_size.y < min_windowsize.y  ) {
-		size_change.y = min_windowsize.y - groesse.y;
-		new_size.y = min_windowsize.y;
-	}
+	scr_coord size_change = new_size - size;
 
 	// resize window
-	set_fenstergroesse(new_size);
+	set_windowsize(new_size);
 
 	// change drag start
 	change_drag_start(size_change.x, size_change.y);
@@ -143,29 +128,29 @@ void gui_frame_t::resize(const koord delta)
  *
  * @author Hj. Malthaner
  */
-void gui_frame_t::zeichnen(koord pos, koord gr)
+void gui_frame_t::draw(scr_coord pos, scr_size size)
 {
 	// ok, resized, move or draw for the first time
 	if(dirty) {
-		mark_rect_dirty_wc(pos.x,pos.y,pos.x+gr.x,pos.y+gr.y);
+		mark_rect_dirty_wc(pos.x, pos.y, pos.x + size.w, pos.y + size.h);
 		dirty = false;
 	}
 
 	// draw background
 	if(  opaque  ) {
-		display_img_stretch( gui_theme_t::windowback, scr_rect( pos+koord(0,D_TITLEBAR_HEIGHT), gr-koord(0,D_TITLEBAR_HEIGHT) ) );
+		display_img_stretch( gui_theme_t::windowback, scr_rect( pos + scr_coord(0,D_TITLEBAR_HEIGHT), size - scr_size(0,D_TITLEBAR_HEIGHT) ) );
 	}
 	else {
-		display_blend_wh( pos.x+1, pos.y+D_TITLEBAR_HEIGHT, gr.x-2, gr.y-D_TITLEBAR_HEIGHT, color_transparent, percent_transparent );
+		display_blend_wh( pos.x+1, pos.y+D_TITLEBAR_HEIGHT, size.w-2, size.h-D_TITLEBAR_HEIGHT, color_transparent, percent_transparent );
 	}
 
-	PUSH_CLIP(pos.x+1,pos.y+D_TITLEBAR_HEIGHT,gr.x-2,gr.y-D_TITLEBAR_HEIGHT);
-	container.zeichnen(pos);
+	PUSH_CLIP(pos.x+1, pos.y+D_TITLEBAR_HEIGHT, size.w-2, size.h-D_TITLEBAR_HEIGHT);
+	container.draw(pos);
 	POP_CLIP();
 
 	// for shadows of the windows
 	if(  gui_theme_t::gui_drop_shadows  ) {
-		display_blend_wh( pos.x+gr.x, pos.y+1, 2, gr.y, COL_BLACK, 50 );
-		display_blend_wh( pos.x+1, pos.y+gr.y, gr.x, 2, COL_BLACK, 50 );
+		display_blend_wh( pos.x+size.w, pos.y+1, 2, size.h, COL_BLACK, 50 );
+		display_blend_wh( pos.x+1, pos.y+size.h, size.w, 2, COL_BLACK, 50 );
 	}
 }

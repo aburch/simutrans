@@ -41,7 +41,7 @@ bool  gui_scrolled_list_t::const_text_scrollitem_t::sort( vector_tpl<scrollitem_
 
 
 // draws a single line of text
-KOORD_VAL gui_scrolled_list_t::const_text_scrollitem_t::zeichnen( koord pos, KOORD_VAL w, bool selected, bool focus )
+scr_coord_val gui_scrolled_list_t::const_text_scrollitem_t::draw( scr_coord pos, scr_coord_val w, bool selected, bool focus )
 {
 	if(selected) {
 		// the selection is grey on color
@@ -67,8 +67,8 @@ gui_scrolled_list_t::gui_scrolled_list_t(enum type type) :
 {
 	this->type = type;
 	selection = -1; // nothing
-	groesse = koord(0,0);
-	pos = koord(0,0);
+	size = scr_size(0,0);
+	pos = scr_coord(0,0);
 	offset = 0;
 	border = 0;
 	if(  type==windowskin  ) {
@@ -98,11 +98,11 @@ void gui_scrolled_list_t::show_selection(int s)
 {
 	if((unsigned)s<item_list.get_count()) {
 		selection = s;
-DBG_MESSAGE("gui_scrolled_list_t::show_selection()","sel=%d, offset=%d, groesse.y=%d",s,offset,groesse.y);
+DBG_MESSAGE("gui_scrolled_list_t::show_selection()","sel=%d, offset=%d, size.h=%d",s,offset,size.h);
 		s *= LINESPACE;
-		if(s<offset  ||  (s+LINESPACE)>offset+groesse.y) {
+		if(s<offset  ||  (s+LINESPACE)>offset+size.h) {
 			// outside range => reposition
-			sb.set_knob_offset( max(0,s-(groesse.y/2) ) );
+			sb.set_knob_offset( max(0,s-(size.h/2) ) );
 			offset = sb.get_knob_offset();
 		}
 	}
@@ -182,12 +182,12 @@ void gui_scrolled_list_t::sort( int offset, void *sort_param )
 
 // sets size: if requested is too large, then the size is adjusted
 // use this only for variable sized lists
-koord gui_scrolled_list_t::request_groesse(koord request)
+scr_size gui_scrolled_list_t::request_size(scr_size request)
 {
-	koord groesse = get_groesse();
+	scr_size size = get_size();
 
-	groesse.x = request.x;
-	int y = request.y;
+	size.w = request.w;
+	int y = request.h;
 	int vz = total_vertical_size();
 
 	if (y > vz) {
@@ -198,17 +198,17 @@ koord gui_scrolled_list_t::request_groesse(koord request)
 		y = YMIN;
 	}
 
-	groesse.y = y + border;
+	size.h = y + border;
 
-	set_groesse( groesse );
+	set_size( size );
 
-	return groesse;
+	return size;
 }
 
 
-void gui_scrolled_list_t::set_groesse(koord groesse)
+void gui_scrolled_list_t::set_size(scr_size size)
 {
-	gui_komponente_t::set_groesse(groesse);
+	gui_komponente_t::set_size(size);
 	adjust_scrollbar();
 }
 
@@ -216,18 +216,18 @@ void gui_scrolled_list_t::set_groesse(koord groesse)
 /* resizes scrollbar */
 void gui_scrolled_list_t::adjust_scrollbar()
 {
-	sb.set_pos(koord(groesse.x-D_SCROLLBAR_WIDTH,0));
+	sb.set_pos(scr_coord(size.w-D_SCROLLBAR_WIDTH,0));
 
 	// Max Kielland
 	// The scrollbar manages itself, just set the size...
 
 	//int vz = total_vertical_size();
 	// need scrollbar?
-	//if ( groesse.y-border < vz) {
+	//if ( size.h-border < vz) {
 	//	sb.set_visible(true);
-		sb.set_groesse( koord( D_SCROLLBAR_WIDTH, (int)groesse.y + border - 1) );
-		//sb.set_knob(groesse.y-border, vz);
-		sb.set_knob( groesse.y - border, total_vertical_size() );
+		sb.set_size( scr_size( D_SCROLLBAR_WIDTH, (int)size.h + border - 1) );
+		//sb.set_knob(size.h-border, vz);
+		sb.set_knob( size.h - border, total_vertical_size() );
 	//}
 	//else {
 	//	sb.set_visible(false);
@@ -241,8 +241,8 @@ bool gui_scrolled_list_t::infowin_event(const event_t *ev)
 	const int y = ev->cy;
 
 	// size without scrollbar
-	const int w = groesse.x - D_SCROLLBAR_WIDTH+2;
-	const int h = groesse.y;
+	const int w = size.w - D_SCROLLBAR_WIDTH+2;
+	const int h = size.h;
 	if(x <= w) { // inside list
 		if(  IS_LEFTCLICK(ev)  &&  x>=(border/2) && x<(w-border/2) &&  y>=(border/2) && y<(h-border/2)) {
 			int new_selection = (y-(border/2)-2+offset);
@@ -277,16 +277,16 @@ bool gui_scrolled_list_t::infowin_event(const event_t *ev)
 }
 
 
-void gui_scrolled_list_t::zeichnen(koord pos)
+void gui_scrolled_list_t::draw(scr_coord pos)
 {
 	pos += this->pos;
 
-	const koord gr = get_groesse();
+	const scr_size size = get_size();
 
 	const int x = pos.x;
 	const int y = pos.y;
-	const int w = gr.x-D_SCROLLBAR_WIDTH;
-	const int h = gr.y;
+	const int w = size.w-D_SCROLLBAR_WIDTH;
+	const int h = size.h;
 
 	switch(type) {
 		case windowskin:
@@ -302,7 +302,7 @@ void gui_scrolled_list_t::zeichnen(koord pos)
 	int ycum = y+2-offset; // y cumulative
 	int i=0;
 	const bool focus = win_get_focus()==this;
-	KOORD_VAL max_w = 0;
+	scr_coord_val max_w = 0;
 	for(  vector_tpl<scrollitem_t*>::iterator iter = item_list.begin();  iter != item_list.end();  ) {
 		scrollitem_t* const item = *iter;
 		if(  !item->is_valid()  ) {
@@ -316,7 +316,7 @@ void gui_scrolled_list_t::zeichnen(koord pos)
 			}
 		}
 		else {
-			KOORD_VAL this_w = item->zeichnen( koord( x, ycum), w, i == selection, focus );
+			scr_coord_val this_w = item->draw( scr_coord( x, ycum), w, i == selection, focus );
 			if(  this_w > max_w  ) {
 				max_w = this_w;
 			}
@@ -327,5 +327,5 @@ void gui_scrolled_list_t::zeichnen(koord pos)
 	}
 	POP_CLIP();
 
-	sb.zeichnen(pos);
+	sb.draw(pos);
 }

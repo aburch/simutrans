@@ -4116,7 +4116,7 @@ char const* wkz_roadsign_t::get_tooltip(spieler_t const*) const
 	return NULL;
 }
 
-void wkz_roadsign_t::draw_after(karte_t *welt, koord k, bool dirty) const
+void wkz_roadsign_t::draw_after(karte_t *welt, scr_coord k, bool dirty) const
 {
 	if(  icon!=IMG_LEER  &&  is_selected(welt)  ) {
 		display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|COL_BLACK, false, dirty );
@@ -5968,7 +5968,7 @@ bool wkz_show_underground_t::is_selected(const karte_t *) const
 	return false;
 }
 
-void wkz_show_underground_t::draw_after(karte_t *welt, koord k, bool dirty) const
+void wkz_show_underground_t::draw_after(karte_t *welt, scr_coord k, bool dirty) const
 {
 	if(  icon!=IMG_LEER  &&  is_selected(welt)  ) {
 		display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|COL_BLACK, false, dirty );
@@ -6004,9 +6004,9 @@ bool wkz_screenshot_t::init( karte_t *, spieler_t * )
 {
 	if(  is_ctrl_pressed()  ) {
 		if(  const gui_frame_t * topwin = win_get_top()  ) {
-			const koord k = win_get_pos(topwin);
-			const koord groesse = topwin->get_fenstergroesse();
-			display_snapshot( k.x, k.y, groesse.x, groesse.y );
+			const scr_coord k = win_get_pos(topwin);
+			const scr_size size = topwin->get_windowsize();
+			display_snapshot( k.x, k.y, size.w, size.h );
 		}
 		else {
 			display_snapshot( 0, 0, display_get_width(), display_get_height() );

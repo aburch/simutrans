@@ -42,7 +42,7 @@ public:
 
 	virtual bool is_weltpos();
 
-	void zeichnen(koord pos, koord gr);
+	void draw(scr_coord pos, scr_size size);
 
 	virtual void map_rotate90( sint16 );
 };

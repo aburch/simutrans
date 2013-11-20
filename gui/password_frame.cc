@@ -35,18 +35,18 @@ password_frame_t::password_frame_t( spieler_t *sp ) :
 		tstrncpy( player_name_str, sp->get_name(), lengthof(player_name_str) );
 		player_name.set_text(player_name_str, lengthof(player_name_str));
 		player_name.add_listener(this);
-		player_name.set_pos(koord(10,4));
-		player_name.set_groesse(koord(DIALOG_WIDTH-10-10, D_BUTTON_HEIGHT));
+		player_name.set_pos(scr_coord(10,4));
+		player_name.set_size(scr_size(DIALOG_WIDTH-10-10, D_BUTTON_HEIGHT));
 		add_komponente(&player_name);
 	}
 	else {
 		const_player_name.set_text( sp->get_name() );
-		const_player_name.set_pos(koord(10,4));
+		const_player_name.set_pos(scr_coord(10,4));
 		add_komponente(&const_player_name);
 	}
 
 
-	fnlabel.set_pos (koord(10,4+D_BUTTON_HEIGHT+6));
+	fnlabel.set_pos (scr_coord(10,4+D_BUTTON_HEIGHT+6));
 	fnlabel.set_text( "Password" );
 	add_komponente(&fnlabel);
 
@@ -54,12 +54,12 @@ password_frame_t::password_frame_t( spieler_t *sp ) :
 	ibuf[0] = 0;
 	password.set_text(ibuf, lengthof(ibuf) );
 	password.add_listener(this);
-	password.set_pos(koord(75,4+D_BUTTON_HEIGHT+4));
-	password.set_groesse(koord(DIALOG_WIDTH-75-10, D_BUTTON_HEIGHT));
+	password.set_pos(scr_coord(75,4+D_BUTTON_HEIGHT+4));
+	password.set_size(scr_size(DIALOG_WIDTH-75-10, D_BUTTON_HEIGHT));
 	add_komponente(&password);
 	set_focus( &password );
 
-	set_fenstergroesse(koord(DIALOG_WIDTH, 16+12+2*D_BUTTON_HEIGHT));
+	set_windowsize(scr_size(DIALOG_WIDTH, 16+12+2*D_BUTTON_HEIGHT));
 }
 
 

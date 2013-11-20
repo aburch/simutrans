@@ -48,17 +48,17 @@ station_building_select_t::station_building_select_t(karte_t *welt, const haus_b
 	int x_diff = (width==rw*8) ? 0 : ((D_BUTTON_WIDTH>width) ? min((D_BUTTON_WIDTH-width)/2,rw*2) : rw*2);
 	width = max(D_BUTTON_WIDTH,width);
 	int height = (besch->get_b(0)==1) ? ((besch->get_h(0)==1) ? rw*4 : rw*5) : ((besch->get_h(0)==1) ? rw*5 : rw*6);
-	const koord img_offsets[4]={
-		koord(rw*2-x_diff,0),
-		koord(-x_diff,rw),
-		koord(rw*4-x_diff,rw),
-		koord(rw*2-x_diff,rw*2)
+	const scr_coord img_offsets[4]={
+		scr_coord(rw*2-x_diff,0),
+		scr_coord(-x_diff,rw),
+		scr_coord(rw*4-x_diff,rw),
+		scr_coord(rw*2-x_diff,rw*2)
 	};
-	const koord base_offsets[6]={
-		koord(D_MARGIN_LEFT,D_MARGIN_TOP+LINESPACE),             // 1st image if layout < 2
-		koord(width+D_MARGIN_LEFT+10,D_MARGIN_TOP+LINESPACE),	   // 2nd image if layout < 2
-		koord(D_MARGIN_LEFT,height+D_BUTTON_HEIGHT+10),		   // 3rd image, 1st second row
-		koord(width+D_MARGIN_LEFT+10,height+D_BUTTON_HEIGHT+10), // 4th image, 2nd second row
+	const scr_coord base_offsets[6]={
+		scr_coord(D_MARGIN_LEFT,D_MARGIN_TOP+LINESPACE),             // 1st image if layout < 2
+		scr_coord(width+D_MARGIN_LEFT+10,D_MARGIN_TOP+LINESPACE),	   // 2nd image if layout < 2
+		scr_coord(D_MARGIN_LEFT,height+D_BUTTON_HEIGHT+10),		   // 3rd image, 1st second row
+		scr_coord(width+D_MARGIN_LEFT+10,height+D_BUTTON_HEIGHT+10), // 4th image, 2nd second row
 		base_offsets[1],                                         // 2nd image if layout > 2
 		base_offsets[0],                                         // 1st image if layout > 2
 	};
@@ -66,7 +66,7 @@ station_building_select_t::station_building_select_t(karte_t *welt, const haus_b
 	// image placeholder
 	for( sint16 i=0;  i<layout;  i++ ) {
 		for( sint16 j=0;  j<4;  j++ ) {
-			koord pos = img_offsets[j]+base_offsets[i+row*2];
+			scr_coord pos = img_offsets[j]+base_offsets[i+row*2];
 			if((height==rw*5)  &&  ((i&1  &&  besch->get_h(0)==1)  ||  (!i&1  &&  besch->get_b(0)==1))) {
 				pos.x = pos.x + x_diff;
 			}
@@ -102,16 +102,16 @@ station_building_select_t::station_building_select_t(karte_t *welt, const haus_b
 	// text
 	sprintf(buf, "X=%i, Y=%i", besch->get_b(0), besch->get_h(0) );
 	txt.set_text_pointer(buf);
-	txt.set_pos( koord(D_MARGIN_LEFT, D_MARGIN_TOP) );
+	txt.set_pos( scr_coord(D_MARGIN_LEFT, D_MARGIN_TOP) );
 	add_komponente( &txt );
 
 	// button
 	for(int i=0; i<layout; i++) {
-		actionbutton[i].init( button_t::roundbox, translator::translate(label_text[i]), base_offsets[i+row*2]+koord((width-D_BUTTON_WIDTH)/2, height), koord( D_BUTTON_WIDTH,D_BUTTON_HEIGHT ) );
+		actionbutton[i].init( button_t::roundbox, translator::translate(label_text[i]), base_offsets[i+row*2]+scr_coord((width-D_BUTTON_WIDTH)/2, height), scr_size( D_BUTTON_WIDTH,D_BUTTON_HEIGHT ) );
 		actionbutton[i].add_listener(this);
 		add_komponente(&actionbutton[i]);
 	}
-	set_fenstergroesse(koord(width*2+10+D_MARGIN_LEFT+D_MARGIN_RIGHT, (height+D_BUTTON_HEIGHT)*(row+1)+D_MARGIN_TOP+D_MARGIN_BOTTOM+D_TITLEBAR_HEIGHT+LINESPACE));
+	set_windowsize(scr_size(width*2+10+D_MARGIN_LEFT+D_MARGIN_RIGHT, (height+D_BUTTON_HEIGHT)*(row+1)+D_MARGIN_TOP+D_MARGIN_BOTTOM+D_TITLEBAR_HEIGHT+LINESPACE));
 }
 
 

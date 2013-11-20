@@ -36,12 +36,12 @@
 color_gui_t::color_gui_t(karte_t *welt) :
 gui_frame_t( translator::translate("Helligk. u. Farben") )
 {
-	koord cursor = koord( D_MARGIN_LEFT, D_MARGIN_TOP );
+	scr_coord cursor = scr_coord( D_MARGIN_LEFT, D_MARGIN_TOP );
 	this->welt = welt;
 
 	// Use one of the edit controls to calculate width
 	inp_underground_level.set_width_by_len(3);
-	const scr_coord_val edit_width = inp_underground_level.get_groesse().x;
+	const scr_coord_val edit_width = inp_underground_level.get_size().w;
 	const scr_coord_val label_width = L_DIALOG_WIDTH - D_MARGINS_X - D_H_SPACE - edit_width;
 
 	// Max Kielland: No need to put right aligned controls in place here.
@@ -154,10 +154,10 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[13].set_typ(button_t::arrowright);
 
 	// Hide buildings label
-	hide_buildings_label.set_pos( cursor + koord (buttons[12].get_groesse().x + D_H_SPACE,0));
+	hide_buildings_label.set_pos( cursor + scr_coord (buttons[12].get_size().w + D_H_SPACE,0));
 	hide_buildings_label.align_to(&buttons[12], ALIGN_CENTER_V);
 	add_komponente(&hide_buildings_label);
-	cursor.y += buttons[12].get_groesse().y + D_V_SPACE;
+	cursor.y += buttons[12].get_size().h + D_V_SPACE;
 
 	// Hide buildings and trees under mouse cursor checkbox
 	buttons[21].set_pos( cursor );
@@ -199,7 +199,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[18].set_pos( cursor );
 	buttons[18].set_typ(button_t::arrowright);
 	buttons[18].set_tooltip("show station names");
-	cursor.y += buttons[18].get_groesse().y + D_V_SPACE;
+	cursor.y += buttons[18].get_size().h + D_V_SPACE;
 
 	// Show waiting bars checkbox
 	buttons[19].set_pos( cursor );
@@ -251,10 +251,10 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[1].set_typ(button_t::arrowright);
 
 	// Convoy tooltip label
-	convoy_tooltip_label.init("", cursor + koord (buttons[0].get_groesse().x + D_H_SPACE,0) );
+	convoy_tooltip_label.init("", cursor + scr_coord (buttons[0].get_size().w + D_H_SPACE,0) );
 	convoy_tooltip_label.align_to(&buttons[0], ALIGN_CENTER_V);
 	add_komponente(&convoy_tooltip_label);
-	cursor.y += buttons[0].get_groesse().y + D_V_SPACE;
+	cursor.y += buttons[0].get_size().h + D_V_SPACE;
 
 	// Show schedule's stop checkbox
 	buttons[22].set_pos( cursor );
@@ -270,12 +270,12 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 
 	// add controls to info container
 	label_container.set_pos( cursor );
-	koord label_cursor = koord(0,0);
+	scr_coord label_cursor = scr_coord(0,0);
 
 	// Frame time label
 	frame_time_label.init("Frame time:", label_cursor, COL_BLACK );
 	sprintf(frame_time_buf," ***** ms" );
-	frame_time_value_label.init( frame_time_buf, koord(0, label_cursor.y), SYSCOL_TEXT_HIGHLIGHT );
+	frame_time_value_label.init( frame_time_buf, scr_coord(0, label_cursor.y), SYSCOL_TEXT_HIGHLIGHT );
 	label_container.add_komponente( &frame_time_label );
 	value_container.add_komponente( &frame_time_value_label );
 	label_cursor.y += LINESPACE;
@@ -283,7 +283,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	// Idle time label
 	idle_time_label.init("Idle:", label_cursor, COL_BLACK);
 	sprintf(idle_time_buf," ***** ms" );
-	idle_time_value_label.init( idle_time_buf, koord(0, label_cursor.y), SYSCOL_TEXT_HIGHLIGHT );
+	idle_time_value_label.init( idle_time_buf, scr_coord(0, label_cursor.y), SYSCOL_TEXT_HIGHLIGHT );
 	label_container.add_komponente( &idle_time_label );
 	value_container.add_komponente( &idle_time_value_label );
 	label_cursor.y += LINESPACE;
@@ -291,7 +291,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	// FPS label
 	fps_label.init("FPS:", label_cursor, COL_BLACK );
 	sprintf(fps_buf," *** fps*" );
-	fps_value_label.init( fps_buf, koord(0, label_cursor.y), SYSCOL_TEXT_HIGHLIGHT );
+	fps_value_label.init( fps_buf, scr_coord(0, label_cursor.y), SYSCOL_TEXT_HIGHLIGHT );
 	label_container.add_komponente( &fps_label );
 	value_container.add_komponente( &fps_value_label );
 	label_cursor.y += LINESPACE;
@@ -299,17 +299,17 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	// Simloops label
 	simloops_label.init("Sim:", label_cursor, COL_BLACK );
 	sprintf(simloops_buf," ********" );
-	simloops_value_label.init( simloops_buf, koord(0, label_cursor.y), SYSCOL_TEXT_HIGHLIGHT );
+	simloops_value_label.init( simloops_buf, scr_coord(0, label_cursor.y), SYSCOL_TEXT_HIGHLIGHT );
 	label_container.add_komponente( &simloops_label );
 	value_container.add_komponente( &simloops_value_label );
 	label_cursor.y += LINESPACE;
 
 	// Align all values with labels
 	scr_rect bounds = label_container.get_min_boundaries();
-	label_container.set_groesse( bounds.get_size() );
-	value_container.set_pos( label_container.get_pos() + koord( bounds.get_width()+D_H_SPACE, 0 ) );
-//	value_container.align_to( &label_container, ALIGN_EXTERIOR_H | ALIGN_LEFT | ALIGN_TOP, koord( D_H_SPACE, 0 ) );
-	value_container.set_groesse( koord( L_DIALOG_WIDTH - D_MARGINS_X - label_container.get_groesse().x - D_H_SPACE, bounds.get_height() ) );
+	label_container.set_size( bounds.get_size() );
+	value_container.set_pos( label_container.get_pos() + scr_coord( bounds.get_width()+D_H_SPACE, 0 ) );
+//	value_container.align_to( &label_container, ALIGN_EXTERIOR_H | ALIGN_LEFT | ALIGN_TOP, scr_coord( D_H_SPACE, 0 ) );
+	value_container.set_size( scr_size( L_DIALOG_WIDTH - D_MARGINS_X - label_container.get_size().w - D_H_SPACE, bounds.get_height() ) );
 
 	for(  int i = 0;  i < COLORS_MAX_BUTTONS;  i++  ) {
 		buttons[i].add_listener(this);
@@ -350,40 +350,40 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 
 	add_komponente( &label_container );
 	add_komponente( &value_container );
-	cursor.y += label_container.get_groesse().y;
+	cursor.y += label_container.get_size().h;
 
 	set_resizemode(gui_frame_t::horizonal_resize);
-	set_min_windowsize( koord(L_DIALOG_WIDTH, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM) );
-	set_fenstergroesse( koord(L_DIALOG_WIDTH, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM) );
+	set_min_windowsize( scr_size(L_DIALOG_WIDTH, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM) );
+	set_windowsize( scr_size(L_DIALOG_WIDTH, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM) );
 }
 
 
-void color_gui_t::set_fenstergroesse(koord groesse)
+void color_gui_t::set_windowsize(scr_size size)
 {
 	scr_coord_val column;
-	scr_coord_val delta_w = groesse.x - D_MARGINS_X;
+	scr_coord_val delta_w = size.w - D_MARGINS_X;
 
 	for(  int i=0;  i<COLORS_MAX_BUTTONS;  i++  ) {
 		if(  buttons[i].get_type() == button_t::square_state  ) {
 			// resize buttons too to fix text
-			buttons[i].set_groesse( koord(delta_w,buttons[i].get_groesse().y) );
+			buttons[i].set_size( scr_size(delta_w,buttons[i].get_size().h) );
 		}
 	}
 
-	gui_frame_t::set_fenstergroesse(groesse);
+	gui_frame_t::set_windowsize(size);
 
-	column = groesse.x - D_MARGIN_RIGHT - inp_underground_level.get_groesse().x;
-	inp_underground_level.set_pos ( koord( column, inp_underground_level.get_pos().y ) );
-	brightness.set_pos            ( koord( column, brightness.get_pos().y            ) );
-	scrollspeed.set_pos           ( koord( column, scrollspeed.get_pos().y           ) );
-	traffic_density.set_pos       ( koord( column, traffic_density.get_pos().y       ) );
-	cursor_hide_range.set_pos     ( koord( column, cursor_hide_range.get_pos().y     ) );
+	column = size.w - D_MARGIN_RIGHT - inp_underground_level.get_size().w;
+	inp_underground_level.set_pos ( scr_coord( column, inp_underground_level.get_pos().y ) );
+	brightness.set_pos            ( scr_coord( column, brightness.get_pos().y            ) );
+	scrollspeed.set_pos           ( scr_coord( column, scrollspeed.get_pos().y           ) );
+	traffic_density.set_pos       ( scr_coord( column, traffic_density.get_pos().y       ) );
+	cursor_hide_range.set_pos     ( scr_coord( column, cursor_hide_range.get_pos().y     ) );
 
-	column = groesse.x - D_MARGIN_RIGHT - D_ARROW_RIGHT_WIDTH;
-	buttons[1].set_pos            ( koord( column, buttons[1].get_pos().y            ) );
-	buttons[13].set_pos           ( koord( column, buttons[13].get_pos().y           ) );
+	column = size.w - D_MARGIN_RIGHT - D_ARROW_RIGHT_WIDTH;
+	buttons[1].set_pos            ( scr_coord( column, buttons[1].get_pos().y            ) );
+	buttons[13].set_pos           ( scr_coord( column, buttons[13].get_pos().y           ) );
 
-	column = groesse.x - D_MARGINS_X;
+	column = size.w - D_MARGINS_X;
 	divider1.set_width            ( column );
 	divider2.set_width            ( column );
 	divider3.set_width            ( column );
@@ -583,7 +583,7 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 }
 
 
-void color_gui_t::zeichnen(koord pos, koord gr)
+void color_gui_t::draw(scr_coord pos, scr_size size)
 {
 	const int x = pos.x;
 	const int y = pos.y + D_TITLEBAR_HEIGHT; // compensate for title bar
@@ -634,7 +634,7 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 	sprintf(simloops_buf,  " %d%c%d", loops/10, get_fraction_sep(), loops%10 );
 
 	// All components are updated, now draw them...
-	gui_frame_t::zeichnen(pos, gr);
+	gui_frame_t::draw(pos, size);
 
 	// Draw user defined components (not a component object)
 	if(  env_t::show_names&1  ) {
@@ -644,15 +644,15 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 
 		switch( env_t::show_names >> 2 ) {
 			case 0:
-				display_ddd_proportional_clip( x+buttons[18].get_pos().x+buttons[18].get_groesse().x+D_H_SPACE, y+buttons[18].get_pos().y+buttons[18].get_groesse().y/2, proportional_string_width(text)+7, 0, pc, COL_BLACK, text, 1 );
+				display_ddd_proportional_clip( x+buttons[18].get_pos().x+buttons[18].get_size().w+D_H_SPACE, y+buttons[18].get_pos().y+buttons[18].get_size().h/2, proportional_string_width(text)+7, 0, pc, COL_BLACK, text, 1 );
 				break;
 			case 1:
-				display_outline_proportional( x+buttons[18].get_pos().x+buttons[18].get_groesse().x+D_H_SPACE, y+buttons[18].get_pos().y, pc+1, COL_BLACK, text, 1 );
+				display_outline_proportional( x+buttons[18].get_pos().x+buttons[18].get_size().w+D_H_SPACE, y+buttons[18].get_pos().y, pc+1, COL_BLACK, text, 1 );
 				break;
 			case 2:
-				display_outline_proportional( x+buttons[18].get_pos().x+buttons[18].get_groesse().x+D_H_SPACE+LINESPACE+D_H_SPACE, y+buttons[18].get_pos().y,   COL_YELLOW,  COL_BLACK,   text, 1 );
-				display_ddd_box_clip(         x+buttons[18].get_pos().x+buttons[18].get_groesse().x+D_H_SPACE,                     y+buttons[18].get_pos().y,   LINESPACE,   LINESPACE,   pc-2, pc+2 );
-				display_fillbox_wh(           x+buttons[18].get_pos().x+buttons[18].get_groesse().x+D_H_SPACE+1,                   y+buttons[18].get_pos().y+1, LINESPACE-2, LINESPACE-2, pc,   true);
+				display_outline_proportional( x+buttons[18].get_pos().x+buttons[18].get_size().w+D_H_SPACE+LINESPACE+D_H_SPACE, y+buttons[18].get_pos().y,   COL_YELLOW,  COL_BLACK,   text, 1 );
+				display_ddd_box_clip(         x+buttons[18].get_pos().x+buttons[18].get_size().w+D_H_SPACE,                     y+buttons[18].get_pos().y,   LINESPACE,   LINESPACE,   pc-2, pc+2 );
+				display_fillbox_wh(           x+buttons[18].get_pos().x+buttons[18].get_size().w+D_H_SPACE+1,                   y+buttons[18].get_pos().y+1, LINESPACE-2, LINESPACE-2, pc,   true);
 				break;
 		}
 	}

@@ -71,7 +71,7 @@ public:
 	// type is either scrollbar_t::horizontal or scrollbar_t::vertical
 	scrollbar_t(type_t type);
 
-	void set_groesse(koord groesse) OVERRIDE;
+	void set_size(scr_size size) OVERRIDE;
 
 	void set_scroll_amount(sint32 sa) { knob_scroll_amount = sa; }
 	void set_scroll_discrete(const bool sd) { knob_scroll_discrete = sd; }
@@ -92,7 +92,7 @@ public:
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
-	void zeichnen(koord pos);
+	void draw(scr_coord pos);
 };
 
 #endif

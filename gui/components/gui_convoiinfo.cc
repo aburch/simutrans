@@ -28,8 +28,8 @@ gui_convoiinfo_t::gui_convoiinfo_t(convoihandle_t cnv)
 {
     this->cnv = cnv;
 
-    filled_bar.set_pos(koord(2, 33));
-    filled_bar.set_groesse(koord(100, 4));
+    filled_bar.set_pos(scr_coord(2, 33));
+    filled_bar.set_size(scr_size(100, 4));
     filled_bar.add_color_value(&cnv->get_loading_limit(), COL_YELLOW);
     filled_bar.add_color_value(&cnv->get_loading_level(), COL_GREEN);
 }
@@ -59,7 +59,7 @@ bool gui_convoiinfo_t::infowin_event(const event_t *ev)
  * Draw the component
  * @author Hj. Malthaner
  */
-void gui_convoiinfo_t::zeichnen(koord offset)
+void gui_convoiinfo_t::draw(scr_coord offset)
 {
 	clip_dimension clip = display_get_clip_wh();
 	if(! ((pos.y+offset.y) > clip.yy ||  (pos.y+offset.y) < clip.y-32) &&  cnv.is_bound()) {
@@ -89,7 +89,7 @@ void gui_convoiinfo_t::zeichnen(koord offset)
 		const int xoff = max(190, max_x);
 		int left = pos.x+offset.x+xoff+4;
 		for(unsigned i=0; i<cnv->get_vehikel_anzahl();i++) {
-			KOORD_VAL x, y, w, h;
+			scr_coord_val x, y, w, h;
 			const image_id bild=cnv->get_vehikel(i)->get_basis_bild();
 			display_get_base_image_offset(bild, &x, &y, &w, &h );
 			display_base_img(bild,left-x,pos.y+offset.y+13-y-h/2,cnv->get_besitzer()->get_player_nr(),false,true);
@@ -97,6 +97,6 @@ void gui_convoiinfo_t::zeichnen(koord offset)
 		}
 
 		// since the only remaining object is the loading bar, we can alter its position this way ...
-		filled_bar.zeichnen(pos+offset+koord(xoff,0));
+		filled_bar.draw(pos+offset+scr_coord(xoff,0));
 	}
 }

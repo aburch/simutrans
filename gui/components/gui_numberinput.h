@@ -16,7 +16,7 @@
 #define gui_components_gui_numberinput_h
 
 #include "../../simtypes.h"
-#include "../../dataobj/koord.h"
+#include "../../display/scr_coord.h"
 #include "action_listener.h"
 #include "gui_action_creator.h"
 #include "gui_textinput.h"
@@ -64,7 +64,7 @@ public:
 	gui_numberinput_t();
 	virtual ~gui_numberinput_t() {}
 
-	void set_groesse(koord groesse) OVERRIDE;
+	void set_size(scr_size size) OVERRIDE;
 	void set_width_by_len(size_t width, const char* symbols = NULL) {
 		set_width( display_get_char_max_width( (symbols) ? symbols : "+-/0123456789" ) * width + D_ARROW_LEFT_WIDTH + D_ARROW_RIGHT_WIDTH + 2 ); }
 
@@ -106,7 +106,7 @@ public:
 	 * Draw the component
 	 * @author Dwachs
 	 */
-	void zeichnen(koord offset);
+	void draw(scr_coord offset);
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 

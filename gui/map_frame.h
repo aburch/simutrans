@@ -44,8 +44,8 @@ private:
 	 * so we use a static variable here.
 	 * @author Hj. Malthaner
 	 */
-	static koord window_size;
-	static koord screenpos;
+	static scr_size window_size;
+	static scr_coord screenpos;
 
 	static bool legend_visible;
 	static bool scale_visible;
@@ -132,14 +132,14 @@ public:
 	 * @author (Mathew Hounsell)
 	 * @date   11-Mar-2003
 	 */
-	void set_fenstergroesse(koord groesse);
+	void set_windowsize(scr_size size);
 
 	/**
 	 * resize window in response to a resize event
 	 * @author Hj. Malthaner
 	 * @date   01-Jun-2002
 	 */
-	void resize(const koord delta=koord(0,0));
+	void resize(const scr_coord delta=scr_coord(0,0));
 
 	/**
 	 * Draw new component. The values to be passed refer to the window
@@ -147,7 +147,7 @@ public:
 	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
-	void zeichnen(koord pos, koord gr);
+	void draw(scr_coord pos, scr_size size);
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };

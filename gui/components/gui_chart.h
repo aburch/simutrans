@@ -33,7 +33,7 @@ public:
 	 * paint chart
 	 * @author hsiegeln
 	 */
-	void zeichnen(koord offset);
+	void draw(scr_coord offset);
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
@@ -143,7 +143,7 @@ private:
 
 	int seed;
 
-	koord tooltipkoord;
+	scr_coord tooltipcoord;
 
 	bool show_x_axis, show_y_axis;
 

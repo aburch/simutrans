@@ -31,12 +31,12 @@ private:
 protected:
 	virtual koord3d get_location() = 0;
 
-	void internal_draw(koord offset, obj_t const *);
+	void internal_draw(scr_coord offset, obj_t const *);
 
-	void calc_offsets(koord size, sint16 dy_off);
+	void calc_offsets(scr_size size, sint16 dy_off);
 
 public:
-	world_view_t(karte_t*, koord size);
+	world_view_t(karte_t*, scr_size size);
 
 	world_view_t(karte_t* welt);
 
@@ -49,7 +49,7 @@ public:
 	 * need to recalculate the list of offsets
 	 * @author prissi
 	 */
-	void set_groesse(koord groesse) OVERRIDE;
+	void set_size(scr_size size) OVERRIDE;
 };
 
 #endif

@@ -22,14 +22,14 @@ class werkzeug_t;
 class werkzeug_waehler_t : public gui_frame_t
 {
 private:
-	koord icon;	// size of symbols here
+	scr_size icon;	// size of symbols here
 
 	karte_t *welt;
 
 	struct tool_data_t {
 		tool_data_t(werkzeug_t* t=NULL) : tool(t), selected(false) {}
 		werkzeug_t* tool; ///< pointer to associated tool
-		bool selected;    ///< store whether tool was active during last call to werkzeug_waehler_t::zeichnen
+		bool selected;    ///< store whether tool was active during last call to werkzeug_waehler_t::draw
 	};
 	/// tool definitions
 	vector_tpl<tool_data_t> tools;
@@ -67,7 +67,7 @@ private:
 	bool allow_break;
 
 public:
-	werkzeug_waehler_t(karte_t *welt, const char *titel, const char *helpfile, uint32 toolbar_id, koord size, bool allow_break=true );
+	werkzeug_waehler_t(karte_t *welt, const char *titel, const char *helpfile, uint32 toolbar_id, scr_size size, bool allow_break=true );
 
 	/**
 	 * Add a new tool with values and tooltip text.
@@ -104,7 +104,7 @@ public:
 	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
-	void zeichnen(koord pos, koord gr);
+	void draw(scr_coord pos, scr_size size);
 
 	// since no information are needed to be saved to restore this, returning magic is enough
 	virtual uint32 get_rdwr_id() { return magic_toolbar+toolbar_id; }

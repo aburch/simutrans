@@ -212,7 +212,7 @@ static uint32 number_to_radius( uint32 n )
 }
 
 
-static void display_airport( const KOORD_VAL xx, const KOORD_VAL yy, const PLAYER_COLOR_VAL color )
+static void display_airport( const scr_coord_val xx, const scr_coord_val yy, const PLAYER_COLOR_VAL color )
 {
 	int x = xx + 5;
 	int y = yy - 11;
@@ -244,7 +244,7 @@ static void display_airport( const KOORD_VAL xx, const KOORD_VAL yy, const PLAYE
 	}
 }
 
-static void display_harbor( const KOORD_VAL xx, const KOORD_VAL yy, const PLAYER_COLOR_VAL color )
+static void display_harbor( const scr_coord_val xx, const scr_coord_val yy, const PLAYER_COLOR_VAL color )
 {
 	int x = xx + 5;
 	int y = yy - 11 + 13;	//to not overwrite airline symbol
@@ -278,7 +278,7 @@ static void display_harbor( const KOORD_VAL xx, const KOORD_VAL yy, const PLAYER
 // those will be replaced by pak images later ...!
 
 
-static void display_thick_line( KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2, COLOR_VAL col, bool dotting, short dot_full, short dot_empty, short thickness )
+static void display_thick_line( scr_coord_val x1, scr_coord_val y1, scr_coord_val x2, scr_coord_val y2, COLOR_VAL col, bool dotting, short dot_full, short dot_empty, short thickness )
 {
 	double delta_x = abs( x1 - x2 );
 	double delta_y = abs( y1 - y2 );
@@ -331,7 +331,7 @@ static void display_thick_line( KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_
 }
 
 
-static void line_segment_draw( waytype_t type, koord start, uint8 start_offset, koord end, uint8 end_offset, bool diagonal, COLOR_VAL colore )
+static void line_segment_draw( waytype_t type, scr_coord start, uint8 start_offset, scr_coord end, uint8 end_offset, bool diagonal, COLOR_VAL colore )
 {
 	// airplanes are different, so we must check for them first
 	if(  type ==  air_wt  ) {
@@ -348,7 +348,7 @@ static void line_segment_draw( waytype_t type, koord start, uint8 start_offset, 
 		// due to isometric drawing, order may be swapped
 		if(  start.x > end.x  ) {
 			// but we need start.x <= end.x!
-			koord temp = start;
+			scr_coord temp = start;
 			start = end;
 			end = temp;
 			uint8 temp_offset = start_offset;
@@ -386,7 +386,7 @@ static void line_segment_draw( waytype_t type, koord start, uint8 start_offset, 
 		}
 		else {
 			// two segment
-			koord mid;
+			scr_coord mid;
 			int signum_y = delta_y/abs(delta_y);
 			// diagonal line to right bottom
 			if(  delta_y > 0  ) {
@@ -433,35 +433,32 @@ static void line_segment_draw( waytype_t type, koord start, uint8 start_offset, 
 
 
 // converts map (karte) koordinates to screen koordinates
-void reliefkarte_t::karte_to_screen( koord &k ) const
+scr_coord reliefkarte_t::karte_to_screen(const koord &k) const
 {
-	// must be down before/after, of one would loose bits ...
-	if(  zoom_out==1  ) {
-		k.x = k.x*zoom_in;
-		k.y = k.y*zoom_in;
-	}
+	assert(zoom_in ==1 || zoom_out ==1 );
+	sint32 x = (sint32)k.x * zoom_in;
+	sint32 y = (sint32)k.y * zoom_in;
 	if(isometric) {
 		// 45 rotate view
-		sint32 x = welt->get_size().y*zoom_in + (sint32)(k.x-k.y) - 1;
-		k.y = k.x/2+k.y/2;
-		k.x = x;
+		sint32 xrot = (sint32)welt->get_size().y * zoom_in + x - y - 1;
+		y = ( x + y )/2;
+		x = xrot;
 	}
-	if(  zoom_in==1  ) {
-		k.x = k.x/zoom_out;
-		k.y = k.y/zoom_out;
-	}
+	return scr_coord(x/zoom_out, y/zoom_out);
 }
 
 
 // and re-transform
-inline void reliefkarte_t::screen_to_karte( koord &k ) const
+koord reliefkarte_t::screen_to_karte(const scr_coord &c) const
 {
-	k = koord( (k.x*zoom_out)/zoom_in, (k.y*zoom_out)/zoom_in );
+	sint32 x = ((sint32)c.x*zoom_out)/zoom_in;
+	sint32 y = ((sint32)c.y*zoom_out)/zoom_in;
 	if(isometric) {
-		k.y *= 2;
-		k.x = (sint16)(((sint32)k.x+(sint32)k.y-(sint32)welt->get_size().y)/2);
-		k.y = k.y - k.x;
+		y *= 2;
+		x  = (x + y - welt->get_size().y)/2;
+		y  = y - x;
 	}
+	return koord(x,y);
 }
 
 
@@ -498,7 +495,7 @@ bool reliefkarte_t::change_zoom_factor(bool magnify)
 
 	if(  zoomed  ){
 		// recalc map size
-		calc_map_groesse();
+		calc_map_size();
 	}
 	return zoomed;
 }
@@ -539,34 +536,34 @@ void reliefkarte_t::set_relief_color_clip( sint16 x, sint16 y, uint8 color )
 }
 
 
-void reliefkarte_t::set_relief_farbe(koord k, const int color)
+void reliefkarte_t::set_relief_farbe(koord k_, const int color)
 {
 	// if map is in normal mode, set new color for map
 	// otherwise do nothing
 	// result: convois will not "paint over" special maps
-	if (relief==NULL  ||  !welt->is_within_limits(k)) {
+	if (relief==NULL  ||  !welt->is_within_limits(k_)) {
 		return;
 	}
 
-	karte_to_screen(k);
-	k -= cur_off;
+	scr_coord c = karte_to_screen(k_);
+	c -= cur_off;
 
 	if(  isometric  ) {
 		// since isometric is distorted
 		const sint32 xw = zoom_out>=2 ? 1 : 2*zoom_in;
 		// increase size at zoom_in 2, 5, 9, 11
-		const KOORD_VAL mid_y = ((xw+1) / 5) + (xw / 18);
+		const scr_coord_val mid_y = ((xw+1) / 5) + (xw / 18);
 		// center line
 		for(  int x=0;  x<xw;  x++  ) {
-			set_relief_color_clip( k.x+x, k.y+mid_y, color );
+			set_relief_color_clip( c.x+x, c.y+mid_y, color );
 		}
 		// lines above and below
 		if(  mid_y > 0  ) {
-			KOORD_VAL left = 2, right = xw-2 + ((xw>>1)&1);
-			for(  KOORD_VAL y_offset = 1;  y_offset <= mid_y;  y_offset++  ) {
+			scr_coord_val left = 2, right = xw-2 + ((xw>>1)&1);
+			for(  scr_coord_val y_offset = 1;  y_offset <= mid_y;  y_offset++  ) {
 				for(  int x=left;  x<right;  x++  ) {
-					set_relief_color_clip( k.x+x, k.y+mid_y+y_offset, color );
-					set_relief_color_clip( k.x+x, k.y+mid_y-y_offset, color );
+					set_relief_color_clip( c.x+x, c.y+mid_y+y_offset, color );
+					set_relief_color_clip( c.x+x, c.y+mid_y-y_offset, color );
 				}
 				left += 2;
 				right -= 2;
@@ -574,8 +571,8 @@ void reliefkarte_t::set_relief_farbe(koord k, const int color)
 		}
 	}
 	else {
-		for(  sint32 x = max(0,k.x);  x < zoom_in+k.x  &&  (uint32)x < relief->get_width();  x++  ) {
-			for(  sint32 y = max(0,k.y);  y < zoom_in+k.y  &&  (uint32)y < relief->get_height();  y++  ) {
+		for(  sint32 x = max(0,c.x);  x < zoom_in+c.x  &&  (uint32)x < relief->get_width();  x++  ) {
+			for(  sint32 y = max(0,c.y);  y < zoom_in+c.y  &&  (uint32)y < relief->get_height();  y++  ) {
 				relief->at(x, y) = color;
 			}
 		}
@@ -595,14 +592,14 @@ void reliefkarte_t::set_relief_farbe_area(koord k, int areasize, uint8 color)
 		}
 	}
 	else {
-		karte_to_screen(k);
+		scr_coord c = karte_to_screen(k);
 		areasize *= zoom_in;
-		k -= koord( areasize/2, areasize/2 );
-		k.x = clamp( k.x, 0, get_groesse().x-areasize-1 );
-		k.y = clamp( k.y, 0, get_groesse().y-areasize-1 );
-		k -= cur_off;
-		for(  p.x = max(0,k.x);  (uint16)p.x < areasize+k.x  &&  (uint16)p.x < relief->get_width();  p.x++  ) {
-			for(  p.y = max(0,k.y);  (uint16)p.y < areasize+k.y  &&  (uint16)p.y < relief->get_height();  p.y++  ) {
+		c -= scr_coord( areasize/2, areasize/2 );
+		c.x = clamp( c.x, 0, get_size().w-areasize-1 );
+		c.y = clamp( c.y, 0, get_size().h-areasize-1 );
+		c -= cur_off;
+		for(  p.x = max(0,c.x);  (uint16)p.x < areasize+c.x  &&  (uint16)p.x < relief->get_width();  p.x++  ) {
+			for(  p.y = max(0,c.y);  (uint16)p.y < areasize+c.y  &&  (uint16)p.y < relief->get_height();  p.y++  ) {
 				relief->at(p.x, p.y) = color;
 			}
 		}
@@ -899,17 +896,15 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 }
 
 
-void reliefkarte_t::calc_map_groesse()
+void reliefkarte_t::calc_map_size()
 {
-	koord size( welt->get_size().x, 0 );
-	koord down( welt->get_size().x, welt->get_size().y );
-	karte_to_screen( size );
-	karte_to_screen( down );
+	scr_coord size = karte_to_screen( koord( welt->get_size().x, 0 ) );
+	scr_coord down= karte_to_screen( koord( welt->get_size().x, welt->get_size().y ) );
 	size.y = down.y;
 	if(  isometric  ) {
 		size.x += zoom_in*2;
 	}
-	set_groesse( size ); // of the gui_komponete to adjust scroll bars
+	set_size( scr_size(size.x, size.y) ); // of the gui_komponete to adjust scroll bars
 	needs_redraw = true;
 }
 
@@ -917,11 +912,11 @@ void reliefkarte_t::calc_map_groesse()
 void reliefkarte_t::calc_map()
 {
 	// only use bitmap size like screen size
-	koord relief_size( min( get_groesse().x, new_size.x ), min( get_groesse().y, new_size.y ) );
+	scr_size relief_size( min( get_size().w, new_size.w ), min( get_size().h, new_size.h ) );
 	// actually the following line should reduce new/deletes, but does not work properly
-	if(  relief==NULL  ||  (sint16)relief->get_width()!=relief_size.x  ||  (sint16)relief->get_height()!=relief_size.y  ) {
+	if(  relief==NULL  ||  (sint16)relief->get_width()!=relief_size.w  ||  (sint16)relief->get_height()!=relief_size.h  ) {
 		delete relief;
-		relief = new array2d_tpl<unsigned char> (relief_size.x,relief_size.y);
+		relief = new array2d_tpl<unsigned char> (relief_size.w,relief_size.h);
 	}
 	cur_off = new_off;
 	cur_size = new_size;
@@ -962,7 +957,8 @@ reliefkarte_t::reliefkarte_t()
 	isometric = false;
 	mode = MAP_TOWN;
 	city = NULL;
-	cur_off = new_off = cur_size = new_size = koord(0,0);
+	cur_off = new_off = scr_coord(0,0);
+	cur_size = new_size = scr_size(0,0);
 	needs_redraw = true;
 }
 
@@ -993,7 +989,7 @@ void reliefkarte_t::init()
 	needs_redraw = true;
 	is_visible = false;
 
-	calc_map_groesse();
+	calc_map_size();
 	max_building_level = max_cargo = max_passed = 0;
 	max_tourist_ziele = max_waiting = max_origin = max_transfer = max_service = 1;
 	last_schedule_counter = welt->get_schedule_counter()-1;
@@ -1020,8 +1016,8 @@ void reliefkarte_t::neuer_monat()
 // handle event
 bool reliefkarte_t::infowin_event(const event_t *ev)
 {
-	koord k( ev->mx, ev->my );
-	screen_to_karte( k );
+	scr_coord c( ev->mx, ev->my );
+	koord k = screen_to_karte(c);
 
 	// get factory under mouse cursor
 	last_world_pos = k;
@@ -1058,26 +1054,23 @@ const fabrik_t* reliefkarte_t::get_fab( const koord, bool enlarge ) const
 
 
 // helper function for redraw: factory connections
-const fabrik_t* reliefkarte_t::draw_fab_connections(const uint8 colour, const koord pos) const
+const fabrik_t* reliefkarte_t::draw_fab_connections(const uint8 colour, const scr_coord pos) const
 {
 	const fabrik_t* const fab = get_fab( last_world_pos, true );
 	if(fab) {
-		koord fabpos = fab->get_pos().get_2d();
-		karte_to_screen( fabpos );
-		fabpos += pos;
+		scr_coord fabpos = karte_to_screen( fab->get_pos().get_2d() );
 		const vector_tpl<koord>& lieferziele = event_get_last_control_shift() & 1 ? fab->get_suppliers() : fab->get_lieferziele();
 		FOR(vector_tpl<koord>, lieferziel, lieferziele) {
 			const fabrik_t * fab2 = fabrik_t::get_fab(lieferziel);
 			if (fab2) {
-				karte_to_screen( lieferziel );
-				const koord end = lieferziel+pos;
+				const scr_coord end = karte_to_screen( lieferziel ) + pos;
 				display_direct_line(fabpos.x, fabpos.y, end.x, end.y, colour);
 				display_fillbox_wh_clip(end.x, end.y, 3, 3, ((welt->get_zeit_ms() >> 10) & 1) == 0 ? COL_RED : COL_WHITE, true);
 
-				koord boxpos = end + koord(10, 0);
+				scr_coord boxpos = end + scr_coord(10, 0);
 				const char * name = translator::translate(fab2->get_name());
 				int name_width = proportional_string_width(name)+8;
-				boxpos.x = clamp( boxpos.x, pos.x, pos.x+get_groesse().x-name_width );
+				boxpos.x = clamp( boxpos.x, pos.x, pos.x+get_size().w-name_width );
 				display_ddd_proportional_clip(boxpos.x, boxpos.y, name_width, 0, 5, COL_WHITE, name, true);
 			}
 		}
@@ -1099,13 +1092,13 @@ void reliefkarte_t::set_current_cnv( convoihandle_t c )
 
 
 // draw the map (and the overlays!)
-void reliefkarte_t::zeichnen(koord pos)
+void reliefkarte_t::draw(scr_coord pos)
 {
 	// sanity check, needed for overlarge maps
 	if(  (new_off.x|new_off.y)<0  ) {
 		new_off = cur_off;
 	}
-	if(  (new_size.x|new_size.y)<0  ) {
+	if(  (new_size.w|new_size.h)<0  ) {
 		new_size = cur_size;
 	}
 
@@ -1165,10 +1158,10 @@ void reliefkarte_t::zeichnen(koord pos)
 		pax_destinations_last_change = city->get_pax_destinations_new_change();
 	}
 
-	if(  (uint16)cur_size.x > relief->get_width()  ) {
+	if(  (uint16)cur_size.w > relief->get_width()  ) {
 		display_fillbox_wh_clip( pos.x+new_off.x+relief->get_width(), new_off.y+pos.y, 32767, relief->get_height(), COL_BLACK, true);
 	}
-	if(  (uint16)cur_size.y > relief->get_height()  ) {
+	if(  (uint16)cur_size.h > relief->get_height()  ) {
 		display_fillbox_wh_clip( pos.x+new_off.x, pos.y+new_off.y+relief->get_height(), 32767, 32767, COL_BLACK, true);
 	}
 	display_array_wh( cur_off.x+pos.x, new_off.y+pos.y, relief->get_width(), relief->get_height(), relief->to_array());
@@ -1295,36 +1288,32 @@ void reliefkarte_t::zeichnen(koord pos)
 
 	// since the schedule whitens out the background, we have to draw it first
 	int offset = 1;
-	koord last_start(0,0), last_end(0,0), k1, k2;
+	koord last_start(0,0), last_end(0,0);
 	bool diagonal = false;
 	if(  showing_schedule  ) {
 		// lighten background
 		if(  isometric  ) {
 			// isometric => lighten in three parts
 
-			koord p1( 0, 0 );
-			karte_to_screen( p1 );
-			koord p2( welt->get_size().x, 0 );
-			karte_to_screen( p2 );
-			koord p3( welt->get_size().x, welt->get_size().y );
-			karte_to_screen( p3 );
-			koord p4( 0, welt->get_size().y );
-			karte_to_screen( p4 );
+			scr_coord p1 = karte_to_screen( koord(0,0) );
+			scr_coord p2 = karte_to_screen( koord( welt->get_size().x, 0 ) );
+			scr_coord p3 = karte_to_screen( koord( welt->get_size().x, welt->get_size().y ) );
+			scr_coord p4 = karte_to_screen( koord( 0, welt->get_size().y ) );
 
 			// top and bottom part
 			const int toplines = min( p4.y, p2.y );
-			for( KOORD_VAL y = 0;  y < toplines;  y++  ) {
+			for( scr_coord_val y = 0;  y < toplines;  y++  ) {
 				display_blend_wh( pos.x+p1.x-2*y, pos.y+y, 4*y+4, 1, COL_WHITE, 75 );
 				display_blend_wh( pos.x+p3.x-2*y, pos.y+p3.y-y-1, 4*y+4, 1, COL_WHITE, 75 );
 			}
 			// center area
 			if(  p1.x < p3.x  ) {
-				for( KOORD_VAL y = toplines;  y < p3.y-toplines;  y++  ) {
+				for( scr_coord_val y = toplines;  y < p3.y-toplines;  y++  ) {
 					display_blend_wh( pos.x+(y-toplines)*2, pos.y+y, 4*toplines+4, 1, COL_WHITE, 75 );
 				}
 			}
 			else {
-				for( KOORD_VAL y = toplines;  y < p3.y-toplines;  y++  ) {
+				for( scr_coord_val y = toplines;  y < p3.y-toplines;  y++  ) {
 					display_blend_wh( pos.x+(y-toplines)*2, pos.y+p3.y-y-1, 4*toplines+4, 1, COL_WHITE, 75 );
 				}
 			}
@@ -1334,6 +1323,7 @@ void reliefkarte_t::zeichnen(koord pos)
 			display_blend_wh( cur_off.x+pos.x, cur_off.y+pos.y, relief->get_width(), relief->get_height(), COL_WHITE, 75 );
 		}
 
+		scr_coord k1,k2;
 		// DISPLAY STATIONS AND AIRPORTS: moved here so station spots are not overwritten by lines drawn
 		FOR(  vector_tpl<line_segment_t>, seg, schedule_cache  ) {
 
@@ -1349,11 +1339,11 @@ void reliefkarte_t::zeichnen(koord pos)
 				last_color = color;
 			}
 			if(  seg.start != last_start  ||  seg.end != last_end  ) {
-				last_start = k1 = seg.start;
-				karte_to_screen( k1 );
+				last_start = seg.start;
+				k1 = karte_to_screen( seg.start );
 				k1 += pos;
-				last_end = k2 = seg.end;
-				karte_to_screen( k2 );
+				last_end = seg.end;
+				k2 = karte_to_screen( seg.end );
 				k2 += pos;
 				// use same diagonal for all parallel segments
 				diagonal = seg.start_diagonal;
@@ -1409,9 +1399,8 @@ void reliefkarte_t::zeichnen(koord pos)
 
 		int radius = 0;
 		COLOR_VAL color;
-		koord temp_stop = station->get_basis_pos();
 		int diagonal_dist = 0;
-		karte_to_screen( temp_stop );
+		scr_coord temp_stop = karte_to_screen( station->get_basis_pos() );
 		temp_stop = temp_stop + pos;
 
 		if(  mode & MAP_STATUS  ) {
@@ -1537,8 +1526,7 @@ void reliefkarte_t::zeichnen(koord pos)
 		}
 	}
 	if(  display_station.is_bound()  ) {
-		koord temp_stop = display_station->get_basis_pos();
-		karte_to_screen( temp_stop );
+		scr_coord temp_stop = karte_to_screen( display_station->get_basis_pos() );
 		temp_stop = temp_stop + pos;
 		display_ddd_proportional_clip( temp_stop.x + 10, temp_stop.y + 7, proportional_string_width( display_station->get_name() ) + 8, 0, display_station->get_besitzer()->get_player_color1()+3, COL_WHITE, display_station->get_name(), false );
 	}
@@ -1551,12 +1539,11 @@ void reliefkarte_t::zeichnen(koord pos)
 		const COLOR_VAL col = showing_schedule ? COL_BLACK : COL_WHITE;
 
 		FOR( weighted_vector_tpl<stadt_t*>, const stadt, staedte ) {
-			koord p = stadt->get_pos();
 			const char * name = stadt->get_name();
 
 			int w = proportional_string_width(name);
-			karte_to_screen( p );
-			p.x = clamp( p.x, 0, get_groesse().x-w );
+			scr_coord p = karte_to_screen( stadt->get_pos() );
+			p.x = clamp( p.x, 0, get_size().w-w );
 			p += pos;
 			display_proportional_clip( p.x, p.y, name, ALIGN_LEFT, col, true );
 		}
@@ -1570,31 +1557,23 @@ void reliefkarte_t::zeichnen(koord pos)
 			koord k[4];
 			k[0] = stadt->get_linksoben(); // top left
 			k[2] = stadt->get_rechtsunten(); // bottom right
-
-			// calculate and draw the rotated coordinates
-
 			k[1] =  koord(k[0].x, k[2].y); // bottom left
 			k[3] =  koord(k[2].x, k[0].y); // top right
 
 			k[0] += koord(0, -1); // top left
-			karte_to_screen(k[0]);
-			k[0] = k[0] + pos;
-
-			karte_to_screen(k[1]); // bottom left
-			k[1] = k[1] + pos;
-
-			k[2] += koord(1, 0); // bottom right
-			karte_to_screen(k[2]);
-			k[2] += pos;
-
+			k[2] += koord(1,  0); // bottom right
 			k[3] += koord(1, -1); // top right
-			karte_to_screen(k[3]);
-			k[3] += pos;
 
-			display_direct_line_dotted( k[0].x, k[0].y, k[1].x, k[1].y, 3, 3, COL_ORANGE );
-			display_direct_line_dotted( k[1].x, k[1].y, k[2].x, k[2].y, 3, 3, COL_ORANGE );
-			display_direct_line_dotted( k[2].x, k[2].y, k[3].x, k[3].y, 3, 3, COL_ORANGE );
-			display_direct_line_dotted( k[3].x, k[3].y, k[0].x, k[0].y, 3, 3, COL_ORANGE );
+			// calculate and draw the rotated coordinates
+			scr_coord c[4];
+			for(uint i=0; i<lengthof(c); i++) {
+				c[i] = karte_to_screen(k[i]) + pos;
+			}
+
+			display_direct_line_dotted( c[0].x, c[0].y, c[1].x, c[1].y, 3, 3, COL_ORANGE );
+			display_direct_line_dotted( c[1].x, c[1].y, c[2].x, c[2].y, 3, 3, COL_ORANGE );
+			display_direct_line_dotted( c[2].x, c[2].y, c[3].x, c[3].y, 3, 3, COL_ORANGE );
+			display_direct_line_dotted( c[3].x, c[3].y, c[0].x, c[0].y, 3, 3, COL_ORANGE );
 		}
 	}
 
@@ -1603,8 +1582,7 @@ void reliefkarte_t::zeichnen(koord pos)
 	if(  mode & MAP_TOURIST  ) {
 		FOR(  weighted_vector_tpl<gebaeude_t*>, const gb, welt->get_ausflugsziele()  ) {
 			if(  gb->get_first_tile() == gb  ) {
-				koord gb_pos = gb->get_pos().get_2d();
-				karte_to_screen( gb_pos );
+				scr_coord gb_pos = karte_to_screen( gb->get_pos().get_2d() );
 				gb_pos = gb_pos + pos;
 				int const pax = gb->get_passagier_level();
 				if(  max_tourist_ziele < pax  ) {
@@ -1621,8 +1599,7 @@ void reliefkarte_t::zeichnen(koord pos)
 
 	if(  mode & MAP_FACTORIES) {
 		FOR(  slist_tpl<fabrik_t*>,  const f,  welt->get_fab_list()  ) {
-			koord fab_pos = f->get_pos().get_2d();
-			karte_to_screen( fab_pos );
+			scr_coord fab_pos = karte_to_screen( f->get_pos().get_2d() );
 			fab_pos = fab_pos + pos;
 			koord size = f->get_besch()->get_haus()->get_groesse(f->get_rotate());
 			sint16 x_size = max( 5, size.x*zoom_in );
@@ -1635,8 +1612,7 @@ void reliefkarte_t::zeichnen(koord pos)
 	if(  mode & MAP_DEPOT  ) {
 		FOR(  slist_tpl<depot_t*>,  const d,  depot_t::get_depot_list()  ) {
 			if(  d->get_besitzer() == welt->get_active_player()  ) {
-				koord depot_pos = d->get_pos().get_2d();
-				karte_to_screen( depot_pos );
+				scr_coord depot_pos = karte_to_screen( d->get_pos().get_2d() );
 				depot_pos = depot_pos + pos;
 				// offset of one to avoid
 				static COLOR_VAL depot_typ_to_color[19]={ COL_ORANGE, COL_YELLOW, COL_RED, 0, 0, 0, 0, 0, 0, COL_PURPLE, COL_DARK_RED, COL_DARK_ORANGE, 0, 0, 0, 0, 0, 0, COL_LIGHT_RED };
@@ -1675,13 +1651,13 @@ void reliefkarte_t::zeichnen(koord pos)
 		}
 	}
 
+	scr_coord c[4];
 	// translate to coordinates in the minimap
 	for(  int i=0;  i<4;  i++  ) {
-		karte_to_screen( view[i] );
-		view[i] += pos;
+		c[i] = karte_to_screen( view[i] ) + pos;
 	}
 	for(  int i=0;  i<4;  i++  ) {
-		display_direct_line( view[i].x, view[i].y, view[(i+1)%4].x, view[(i+1)%4].y, COL_YELLOW);
+		display_direct_line( c[i].x, c[i].y, c[(i+1)%4].x, c[(i+1)%4].y, COL_YELLOW);
 	}
 
 	if(  !showing_schedule  ) {
@@ -1692,12 +1668,11 @@ void reliefkarte_t::zeichnen(koord pos)
 			get_fab( last_world_pos, false );
 
 		if(fab) {
-			koord fabpos = fab->get_pos().get_2d();
-			karte_to_screen( fabpos );
-			koord boxpos = fabpos + koord(10, 0);
+			scr_coord fabpos = karte_to_screen( fab->get_pos().get_2d() );
+			scr_coord boxpos = fabpos + scr_coord(10, 0);
 			const char * name = translator::translate(fab->get_name());
 			int name_width = proportional_string_width(name)+8;
-			boxpos.x = clamp( boxpos.x, 0, 0+get_groesse().x-name_width );
+			boxpos.x = clamp( boxpos.x, 0, 0+get_size().w-name_width );
 			boxpos += pos;
 			display_ddd_proportional_clip(boxpos.x, boxpos.y, name_width, 0, 10, COL_WHITE, name, true);
 		}

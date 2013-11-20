@@ -52,8 +52,8 @@ public:
 private:
 	vector_tpl<image_data_t*> *images;
 
-	koord grid;
-	koord placement;
+	scr_coord grid;
+	scr_coord placement;
 
 	/**
 	 * Rows or columns?
@@ -81,14 +81,14 @@ public:
 	 * @author Volker Meyer
 	 * @date  20.06.2003
 	 */
-	void set_grid(koord grid) { this->grid = grid; }
+	void set_grid(scr_coord grid) { this->grid = grid; }
 
 	/**
 	 * This set the offset for the images.
 	 * @author Volker Meyer
 	 * @date  20.06.2003
 	 */
-	void set_placement(koord placement) { this->placement = placement; }
+	void set_placement(scr_coord placement) { this->placement = placement; }
 
 	void set_player_nr(sint8 player_nr) { this->player_nr = player_nr; }
 
@@ -98,7 +98,7 @@ public:
 	 * Draw/record the picture
 	 * @author Hj. Malthaner
 	 */
-	virtual void zeichnen(koord offset);
+	virtual void draw(scr_coord offset);
 
 	/**
 	 * Looks for the image at given position.
@@ -107,7 +107,7 @@ public:
 	 * @author Volker Meyer
 	 * @date  07.06.2003
 	 */
-	int index_at(koord parent_pos, int xpos, int ypos) const;
+	int index_at(scr_coord parent_pos, int xpos, int ypos) const;
 
 	void recalc_size();
 };

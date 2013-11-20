@@ -53,23 +53,23 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 {
 	reset_city_name();
 
-	minimaps_size = koord(PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE); // default minimaps size
-	minimap2_offset = koord(minimaps_size.x + PAX_DEST_MARGIN, 0);
+	minimaps_size = scr_size(PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE); // default minimaps size
+	minimap2_offset = scr_coord(minimaps_size.w + PAX_DEST_MARGIN, 0);
 
-	name_input.set_pos(koord(8, 4));
-	name_input.set_groesse(koord(126, 13));
+	name_input.set_pos(scr_coord(8, 4));
+	name_input.set_size(scr_size(126, 13));
 	name_input.add_listener( this );
 
 	add_komponente(&name_input);
 
-	allow_growth.init( button_t::square_state, "Allow city growth", koord(8, 4 + (D_BUTTON_HEIGHT+2) + 8*LINESPACE) );
+	allow_growth.init( button_t::square_state, "Allow city growth", scr_coord(8, 4 + (D_BUTTON_HEIGHT+2) + 8*LINESPACE) );
 	allow_growth.pressed = stadt->get_citygrowth();
 	allow_growth.add_listener( this );
 	add_komponente(&allow_growth);
 
 	//CHART YEAR
-	chart.set_pos(koord(21,1));
-	chart.set_groesse(koord(340,120));
+	chart.set_pos(scr_coord(21,1));
+	chart.set_size(scr_size(340,120));
 	chart.set_dimension(MAX_CITY_HISTORY_YEARS, 10000);
 	chart.set_seed(stadt->get_welt()->get_last_year());
 	chart.set_background(MN_GREY1);
@@ -78,8 +78,8 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 	}
 
 	//CHART MONTH
-	mchart.set_pos(koord(21,1));
-	mchart.set_groesse(koord(340,120));
+	mchart.set_pos(scr_coord(21,1));
+	mchart.set_size(scr_size(340,120));
 	mchart.set_dimension(MAX_CITY_HISTORY_MONTHS, 10000);
 	mchart.set_seed(0);
 	mchart.set_background(MN_GREY1);
@@ -95,7 +95,7 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 
 	// add filter buttons          skip electricity
 	for(  int hist=0;  hist<MAX_CITY_HISTORY-1;  hist++  ) {
-		filterButtons[hist].init(button_t::box_state, hist_type[hist], koord(0,0), koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+		filterButtons[hist].init(button_t::box_state, hist_type[hist], scr_coord(0,0), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 		filterButtons[hist].background_color = hist_type_color[hist];
 		filterButtons[hist].pressed = (stadt->stadtinfo_options & (1<<hist))!=0;
 		filterButtons[hist].add_listener(this);
@@ -104,51 +104,51 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 
 	pax_destinations_last_change = stadt->get_pax_destinations_new_change();
 
-	set_fenstergroesse(koord(PAX_DEST_X + PAX_DESTINATIONS_SIZE + PAX_DEST_MARGIN*2 + 1, 342));
-	set_min_windowsize(koord(D_DEFAULT_WIDTH, 256));
+	set_windowsize(scr_size(PAX_DEST_X + PAX_DESTINATIONS_SIZE + PAX_DEST_MARGIN*2 + 1, 342));
+	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, 256));
 
 	set_resizemode(diagonal_resize);
-	resize(koord(0,0));
+	resize(scr_coord(0,0));
 }
 
 
-void stadt_info_t::resize(const koord delta)
+void stadt_info_t::resize(const scr_coord delta)
 {
 	gui_frame_t::resize(delta);
 
 	// calculate layout of filter buttons
-	const int col = max( 1, min( (get_fenstergroesse().x-2)/(D_BUTTON_WIDTH+D_H_SPACE), MAX_CITY_HISTORY-1 ) );
+	const int col = max( 1, min( (get_windowsize().w-2)/(D_BUTTON_WIDTH+D_H_SPACE), MAX_CITY_HISTORY-1 ) );
 	const int row = ((MAX_CITY_HISTORY-2)/col)+1;
 
 	// calculate new minimaps size : expand horizontally or vertically ?
 	const karte_t* const welt = stadt_t::get_welt();
 	const float world_aspect = (float)welt->get_size().x / (float)welt->get_size().y;
 
-	const koord space = koord(get_fenstergroesse().x - PAX_DEST_X - PAX_DEST_MARGIN - 1, max( allow_growth.get_pos().y + LINESPACE+1 - 5, get_fenstergroesse().y - 166 - (D_BUTTON_HEIGHT+2)*row ));
+	const scr_coord space = scr_coord(get_windowsize().w - PAX_DEST_X - PAX_DEST_MARGIN - 1, max( allow_growth.get_pos().y + LINESPACE+1 - 5, get_windowsize().h - 166 - (D_BUTTON_HEIGHT+2)*row ));
 	const float space_aspect = (float)space.x / (float)space.y;
 
 	if(  world_aspect / space_aspect > PAX_DEST_VERTICAL  ) { // world wider than space, use vertical minimap layout
-		minimaps_size.y = (space.y - PAX_DEST_MARGIN) / 2;
-		minimaps_size.x = (sint16) ((float)minimaps_size.y * world_aspect);
-		if(  minimaps_size.x  > space.x  ) {
-			minimaps_size.x = space.x;
-			minimaps_size.y = max((int)((float)minimaps_size.x / world_aspect), PAX_DEST_MIN_SIZE);
+		minimaps_size.h = (space.y - PAX_DEST_MARGIN) / 2;
+		minimaps_size.w = (sint16) ((float)minimaps_size.h * world_aspect);
+		if(  minimaps_size.w  > space.x  ) {
+			minimaps_size.w = space.x;
+			minimaps_size.h = max((int)((float)minimaps_size.w / world_aspect), PAX_DEST_MIN_SIZE);
 		}
-		minimap2_offset = koord( 0, minimaps_size.y + PAX_DEST_MARGIN );
+		minimap2_offset = scr_coord( 0, minimaps_size.h + PAX_DEST_MARGIN );
 	}
 	else { // horizontal minimap layout
-		minimaps_size.x = (space.x - PAX_DEST_MARGIN) / 2;
-		minimaps_size.y = (sint16) ((float)minimaps_size.x / world_aspect);
-		if(  minimaps_size.y > space.y  ) {
-			minimaps_size.y = space.y;
-			minimaps_size.x = max((int)((float)minimaps_size.y * world_aspect), PAX_DEST_MIN_SIZE);
+		minimaps_size.w = (space.x - PAX_DEST_MARGIN) / 2;
+		minimaps_size.h = (sint16) ((float)minimaps_size.w / world_aspect);
+		if(  minimaps_size.h > space.y  ) {
+			minimaps_size.h = space.y;
+			minimaps_size.w = max((int)((float)minimaps_size.h * world_aspect), PAX_DEST_MIN_SIZE);
 		}
-		minimap2_offset = koord( minimaps_size.x + PAX_DEST_MARGIN, 0 );
+		minimap2_offset = scr_coord( minimaps_size.w + PAX_DEST_MARGIN, 0 );
 	}
 
 	// resize minimaps
-	pax_dest_old.resize( minimaps_size.x, minimaps_size.y );
-	pax_dest_new.resize( minimaps_size.x, minimaps_size.y );
+	pax_dest_old.resize( minimaps_size.w, minimaps_size.h );
+	pax_dest_new.resize( minimaps_size.w, minimaps_size.h );
 
 	// reinit minimaps data
 	init_pax_dest( pax_dest_old );
@@ -157,12 +157,12 @@ void stadt_info_t::resize(const koord delta)
 	add_pax_dest( pax_dest_new, stadt->get_pax_destinations_new() );
 
 	// move and resize charts
-	year_month_tabs.set_pos(koord(60, max( allow_growth.get_pos().y + LINESPACE, (world_aspect / space_aspect > PAX_DEST_VERTICAL ? minimaps_size.y*2 + PAX_DEST_MARGIN : minimaps_size.y) + PAX_DEST_MARGIN )) );
-	year_month_tabs.set_groesse(koord(get_fenstergroesse().x - 80, get_fenstergroesse().y - D_TITLEBAR_HEIGHT - year_month_tabs.get_pos().y - 4 - (D_BUTTON_HEIGHT+2)*(row+1) - 1 ));
+	year_month_tabs.set_pos(scr_coord(60, max( allow_growth.get_pos().y + LINESPACE, (world_aspect / space_aspect > PAX_DEST_VERTICAL ? minimaps_size.h*2 + PAX_DEST_MARGIN : minimaps_size.h) + PAX_DEST_MARGIN )) );
+	year_month_tabs.set_size(scr_size(get_windowsize().w - 80, get_windowsize().h - D_TITLEBAR_HEIGHT - year_month_tabs.get_pos().y - 4 - (D_BUTTON_HEIGHT+2)*(row+1) - 1 ));
 
 	// move and resize filter buttons
 	for(  int hist=0;  hist<MAX_CITY_HISTORY-1;  hist++  ) {
-		const koord pos = koord(2 + (D_BUTTON_WIDTH+D_H_SPACE)*(hist%col), get_fenstergroesse().y - (D_BUTTON_HEIGHT+2)*(row+1) - 1 + (D_BUTTON_HEIGHT+2)*((int)hist/col) );
+		const scr_coord pos = scr_coord(2 + (D_BUTTON_WIDTH+D_H_SPACE)*(hist%col), get_windowsize().h - (D_BUTTON_HEIGHT+2)*(row+1) - 1 + (D_BUTTON_HEIGHT+2)*((int)hist/col) );
 		filterButtons[hist].set_pos( pos );
 	}
 }
@@ -228,11 +228,11 @@ void stadt_info_t::reset_city_name()
 void stadt_info_t::init_pax_dest( array2d_tpl<uint8> &pax_dest )
 {
 	karte_t *welt = stadt_t::get_welt();
-	const int gr_x = welt->get_size().x;
-	const int gr_y = welt->get_size().y;
-	for(  sint16 y = 0;  y < minimaps_size.y;  y++  ) {
-		for(  sint16 x = 0;  x < minimaps_size.x;  x++  ) {
-			const grund_t *gr = welt->lookup_kartenboden( koord( (x * gr_x) / minimaps_size.x, (y * gr_y) / minimaps_size.y ) );
+	const int size_x = welt->get_size().x;
+	const int size_y = welt->get_size().y;
+	for(  sint16 y = 0;  y < minimaps_size.h;  y++  ) {
+		for(  sint16 x = 0;  x < minimaps_size.w;  x++  ) {
+			const grund_t *gr = welt->lookup_kartenboden( koord( (x * size_x) / minimaps_size.w, (y * size_y) / minimaps_size.h ) );
 			pax_dest.at(x,y) = reliefkarte_t::calc_relief_farbe(gr);
 		}
 	}
@@ -244,18 +244,18 @@ void stadt_info_t::add_pax_dest( array2d_tpl<uint8> &pax_dest, const sparse_tpl<
 	uint8 color;
 	koord pos;
 	// how large the box in the world?
-	const sint16 dd_x = 1+(minimaps_size.x-1)/PAX_DESTINATIONS_SIZE;
-	const sint16 dd_y = 1+(minimaps_size.y-1)/PAX_DESTINATIONS_SIZE;
+	const sint16 dd_x = 1+(minimaps_size.w-1)/PAX_DESTINATIONS_SIZE;
+	const sint16 dd_y = 1+(minimaps_size.h-1)/PAX_DESTINATIONS_SIZE;
 
 	for( uint16 i = 0;  i < city_pax_dest->get_data_count();  i++  ) {
 		city_pax_dest->get_nonzero(i, pos, color);
 
 		// calculate display position according to minimap size
-		const sint16 x0 = (pos.x*minimaps_size.x)/PAX_DESTINATIONS_SIZE;
-		const sint16 y0 = (pos.y*minimaps_size.y)/PAX_DESTINATIONS_SIZE;
+		const sint16 x0 = (pos.x*minimaps_size.w)/PAX_DESTINATIONS_SIZE;
+		const sint16 y0 = (pos.y*minimaps_size.h)/PAX_DESTINATIONS_SIZE;
 
-		for(  sint32 y=0;  y<dd_y  &&  y+y0<minimaps_size.y;  y++  ) {
-			for(  sint32 x=0;  x<dd_x  &&  x+x0<minimaps_size.x;  x++  ) {
+		for(  sint32 y=0;  y<dd_y  &&  y+y0<minimaps_size.h;  y++  ) {
+			for(  sint32 x=0;  x<dd_x  &&  x+x0<minimaps_size.w;  x++  ) {
 				pax_dest.at( x+x0, y+y0 ) = color;
 			}
 		}
@@ -263,14 +263,14 @@ void stadt_info_t::add_pax_dest( array2d_tpl<uint8> &pax_dest, const sparse_tpl<
 }
 
 
-void stadt_info_t::zeichnen(koord pos, koord gr)
+void stadt_info_t::draw(scr_coord pos, scr_size size)
 {
 	stadt_t* const c = stadt;
 
 	// Hajo: update chart seed
 	chart.set_seed(c->get_welt()->get_last_year());
 
-	gui_frame_t::zeichnen(pos, gr);
+	gui_frame_t::draw(pos, size);
 	set_dirty();
 
 	static cbuffer_t buf;
@@ -311,8 +311,8 @@ void stadt_info_t::zeichnen(koord pos, koord gr)
 	}
 	pax_destinations_last_change =  current_pax_destinations;
 
-	display_array_wh(pos.x + PAX_DEST_X, pos.y + PAX_DEST_Y, minimaps_size.x, minimaps_size.y, pax_dest_old.to_array() );
-	display_array_wh(pos.x + PAX_DEST_X + minimap2_offset.x, pos.y + PAX_DEST_Y + minimap2_offset.y, minimaps_size.x, minimaps_size.y, pax_dest_new.to_array() );
+	display_array_wh(pos.x + PAX_DEST_X, pos.y + PAX_DEST_Y, minimaps_size.w, minimaps_size.h, pax_dest_old.to_array() );
+	display_array_wh(pos.x + PAX_DEST_X + minimap2_offset.x, pos.y + PAX_DEST_Y + minimap2_offset.y, minimaps_size.w, minimaps_size.h, pax_dest_new.to_array() );
 }
 
 
@@ -354,7 +354,7 @@ bool stadt_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 
 void stadt_info_t::map_rotate90( sint16 )
 {
-	resize(koord(0,0));
+	resize(scr_coord(0,0));
 	pax_destinations_last_change = stadt->get_pax_destinations_new_change();
 }
 
@@ -367,25 +367,25 @@ bool stadt_info_t::infowin_event(const event_t *ev)
 	}
 
 	uint16 my = ev->my;
-	if(  my > PAX_DEST_Y + minimaps_size.y  &&  minimap2_offset.y > 0  ) {
+	if(  my > PAX_DEST_Y + minimaps_size.h  &&  minimap2_offset.y > 0  ) {
 		// Little trick to handle both maps with the same code: Just remap the y-values of the bottom map.
-		my -= minimaps_size.y + PAX_DEST_MARGIN;
+		my -= minimaps_size.h + PAX_DEST_MARGIN;
 	}
 
-	if(  ev->ev_class!=EVENT_KEYBOARD  &&  ev->ev_code==MOUSE_LEFTBUTTON  &&  PAX_DEST_Y<=my  &&  my<PAX_DEST_Y+minimaps_size.y  ) {
+	if(  ev->ev_class!=EVENT_KEYBOARD  &&  ev->ev_code==MOUSE_LEFTBUTTON  &&  PAX_DEST_Y<=my  &&  my<PAX_DEST_Y+minimaps_size.h  ) {
 		uint16 mx = ev->mx;
-		if(  mx > PAX_DEST_X + minimaps_size.x  &&  minimap2_offset.x > 0  ) {
+		if(  mx > PAX_DEST_X + minimaps_size.w  &&  minimap2_offset.x > 0  ) {
 			// Little trick to handle both maps with the same code: Just remap the x-values of the right map.
-			mx -= minimaps_size.x + PAX_DEST_MARGIN;
+			mx -= minimaps_size.w + PAX_DEST_MARGIN;
 		}
 
-		if(  PAX_DEST_X <= mx && mx < PAX_DEST_X + minimaps_size.x  ) {
+		if(  PAX_DEST_X <= mx && mx < PAX_DEST_X + minimaps_size.w  ) {
 			// Clicked in a minimap.
 			mx -= PAX_DEST_X;
 			my -= PAX_DEST_Y;
 			const koord p = koord(
-				(mx * stadt->get_welt()->get_size().x) / (minimaps_size.x),
-				(my * stadt->get_welt()->get_size().y) / (minimaps_size.y));
+				(mx * stadt->get_welt()->get_size().x) / (minimaps_size.w),
+				(my * stadt->get_welt()->get_size().y) / (minimaps_size.h));
 			stadt->get_welt()->get_viewport()->change_world_position( p );
 		}
 	}
@@ -413,24 +413,24 @@ stadt_info_t::stadt_info_t(karte_t*) :
 	pax_dest_old(0,0),
 	pax_dest_new(0,0)
 {
-	name_input.set_pos(koord(8, 4));
+	name_input.set_pos(scr_coord(8, 4));
 	name_input.add_listener( this );
 	add_komponente(&name_input);
 
-	allow_growth.init( button_t::square_state, "Allow city growth", koord(8, 4 + (D_BUTTON_HEIGHT+2) + 8*LINESPACE) );
+	allow_growth.init( button_t::square_state, "Allow city growth", scr_coord(8, 4 + (D_BUTTON_HEIGHT+2) + 8*LINESPACE) );
 	allow_growth.add_listener( this );
 	add_komponente(&allow_growth);
 
 	//CHART YEAR
-	chart.set_pos(koord(21,1));
-	chart.set_groesse(koord(340,120));
+	chart.set_pos(scr_coord(21,1));
+	chart.set_size(scr_size(340,120));
 	chart.set_dimension(MAX_CITY_HISTORY_YEARS, 10000);
 	chart.set_seed(stadt->get_welt()->get_last_year());
 	chart.set_background(MN_GREY1);
 
 	//CHART MONTH
-	mchart.set_pos(koord(21,1));
-	mchart.set_groesse(koord(340,120));
+	mchart.set_pos(scr_coord(21,1));
+	mchart.set_size(scr_size(340,120));
 	mchart.set_dimension(MAX_CITY_HISTORY_MONTHS, 10000);
 	mchart.set_seed(0);
 	mchart.set_background(MN_GREY1);
@@ -442,19 +442,19 @@ stadt_info_t::stadt_info_t(karte_t*) :
 
 	// add filter buttons          skip electricity
 	for(  int hist=0;  hist<MAX_CITY_HISTORY-1;  hist++  ) {
-		filterButtons[hist].init(button_t::box_state, hist_type[hist], koord(0,0), koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+		filterButtons[hist].init(button_t::box_state, hist_type[hist], scr_coord(0,0), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 		filterButtons[hist].background_color = hist_type_color[hist];
 		filterButtons[hist].add_listener(this);
 		add_komponente(filterButtons + hist);
 	}
-	set_min_windowsize(koord(D_DEFAULT_WIDTH, 256));
+	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, 256));
 	set_resizemode(diagonal_resize);
 }
 
 
 void stadt_info_t::rdwr(loadsave_t *file)
 {
-	koord gr = get_fenstergroesse();
+	scr_size size = get_windowsize();
 	sint16 tabstate;
 	uint32 townindex;
 	uint32 flags = 0;
@@ -467,7 +467,7 @@ void stadt_info_t::rdwr(loadsave_t *file)
 		tabstate = year_month_tabs.get_active_tab_index();
 		townindex = stadt_t::get_welt()->get_staedte().index_of(stadt);
 	}
-	gr.rdwr( file );
+	size.rdwr( file );
 	file->rdwr_long( townindex );
 	file->rdwr_long( flags );
 	file->rdwr_short( tabstate );
@@ -491,9 +491,9 @@ void stadt_info_t::rdwr(loadsave_t *file)
 		}
 		year_month_tabs.set_active_tab_index( tabstate );
 		allow_growth.pressed = stadt->get_citygrowth();
-		set_fenstergroesse( gr );
+		set_windowsize( size );
 		reset_city_name();
 		pax_destinations_last_change = stadt->get_pax_destinations_new_change();
-		resize( koord(0,0) );
+		resize( scr_coord(0,0) );
 	}
 }

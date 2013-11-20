@@ -141,7 +141,7 @@ void message_stats_t::recalc_size()
 			default:
 				time[0] = 0;
 		}
-		KOORD_VAL left = 14;
+		scr_coord_val left = 14;
 		if(  time[0]  ) {
 			left += proportional_string_width(time)+8;
 		}
@@ -163,7 +163,7 @@ void message_stats_t::recalc_size()
 		}
 	}
 
-	set_groesse(koord(x_size+4,y_size));
+	set_size(scr_size(x_size+4,y_size));
 }
 
 
@@ -171,7 +171,7 @@ void message_stats_t::recalc_size()
  * Now draw the list
  * @author prissi
  */
-void message_stats_t::zeichnen(koord offset)
+void message_stats_t::draw(scr_coord offset)
 {
 	// Knightly : update component size and filtered message list where necessary
 	const uint32 new_count = msg->get_list().get_count();
@@ -246,7 +246,7 @@ void message_stats_t::zeichnen(koord offset)
 			default:
 				time[0] = 0;
 		}
-		KOORD_VAL left = 14;
+		scr_coord_val left = 14;
 		if(  time[0]  ) {
 			left += display_proportional_clip(offset.x+left, y, time, ALIGN_LEFT, colorval, true)+8;
 		}

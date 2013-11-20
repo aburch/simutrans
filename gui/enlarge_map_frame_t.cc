@@ -70,11 +70,11 @@ enlarge_map_frame_t::enlarge_map_frame_t(spieler_t *, karte_t *w) :
 	changed_number_of_towns = false;
 	int intTopOfButton = 24;
 
-	memory.set_pos( koord(10,intTopOfButton) );
+	memory.set_pos( scr_coord(10,intTopOfButton) );
 	add_komponente( &memory );
 
-	inp_x_size.set_pos(koord(LEFT_ARROW,intTopOfButton) );
-	inp_x_size.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
+	inp_x_size.set_pos(scr_coord(LEFT_ARROW,intTopOfButton) );
+	inp_x_size.set_size(scr_size(RIGHT_ARROW-LEFT_ARROW+10, 12));
 	inp_x_size.add_listener(this);
 	inp_x_size.set_value( sets->get_groesse_x() );
 	inp_x_size.set_limits( welt->get_size().x, min(32766,4194304/sets->get_groesse_y()) );
@@ -83,8 +83,8 @@ enlarge_map_frame_t::enlarge_map_frame_t(spieler_t *, karte_t *w) :
 	add_komponente( &inp_x_size );
 	intTopOfButton += 12;
 
-	inp_y_size.set_pos(koord(LEFT_ARROW,intTopOfButton) );
-	inp_y_size.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
+	inp_y_size.set_pos(scr_coord(LEFT_ARROW,intTopOfButton) );
+	inp_y_size.set_size(scr_size(RIGHT_ARROW-LEFT_ARROW+10, 12));
 	inp_y_size.add_listener(this);
 	inp_y_size.set_limits( welt->get_size().y, min(32766,4194304/sets->get_groesse_x()) );
 	inp_y_size.set_value( sets->get_groesse_y() );
@@ -94,16 +94,16 @@ enlarge_map_frame_t::enlarge_map_frame_t(spieler_t *, karte_t *w) :
 
 	// city stuff
 	intTopOfButton = 64+10;
-	inp_number_of_towns.set_pos(koord(RIGHT_COLUMN,intTopOfButton) );
-	inp_number_of_towns.set_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
+	inp_number_of_towns.set_pos(scr_coord(RIGHT_COLUMN,intTopOfButton) );
+	inp_number_of_towns.set_size(scr_size(RIGHT_COLUMN_WIDTH, 12));
 	inp_number_of_towns.add_listener(this);
 	inp_number_of_towns.set_limits(0,999);
 	inp_number_of_towns.set_value(abs(sets->get_anzahl_staedte()) );
 	add_komponente( &inp_number_of_towns );
 	intTopOfButton += 12;
 
-	inp_town_size.set_pos(koord(RIGHT_COLUMN,intTopOfButton) );
-	inp_town_size.set_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
+	inp_town_size.set_pos(scr_coord(RIGHT_COLUMN,intTopOfButton) );
+	inp_town_size.set_size(scr_size(RIGHT_COLUMN_WIDTH, 12));
 	inp_town_size.add_listener(this);
 	inp_town_size.set_limits(0,999999);
 	inp_town_size.set_increment_mode(50);
@@ -113,11 +113,11 @@ enlarge_map_frame_t::enlarge_map_frame_t(spieler_t *, karte_t *w) :
 
 	// start game
 	intTopOfButton += 5;
-	start_button.init( button_t::roundbox, "enlarge map", koord(10, intTopOfButton), koord(240, 14) );
+	start_button.init( button_t::roundbox, "enlarge map", scr_coord(10, intTopOfButton), scr_size(240, 14) );
 	start_button.add_listener( this );
 	add_komponente( &start_button );
 
-	set_fenstergroesse( koord(260, intTopOfButton+14+8+16) );
+	set_windowsize( scr_size(260, intTopOfButton+14+8+16) );
 
 	update_preview();
 }
@@ -166,7 +166,7 @@ bool enlarge_map_frame_t::action_triggered( gui_action_creator_t *komp,value_t v
 }
 
 
-void enlarge_map_frame_t::zeichnen(koord pos, koord gr)
+void enlarge_map_frame_t::draw(scr_coord pos, scr_size size)
 {
 	while (welt->get_settings().get_rotation() != sets->get_rotation()) {
 		// map was rotated while we are active ... => rotate too!
@@ -175,7 +175,7 @@ void enlarge_map_frame_t::zeichnen(koord pos, koord gr)
 		update_preview();
 	}
 
-	gui_frame_t::zeichnen(pos, gr);
+	gui_frame_t::draw(pos, size);
 
 	int x = pos.x+10;
 	int y = pos.y+4+16;
