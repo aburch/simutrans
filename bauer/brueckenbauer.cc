@@ -127,7 +127,7 @@ void brueckenbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, s
 }
 
 
-koord3d brueckenbauer_t::finde_ende(karte_t *welt, spieler_t *sp, koord3d pos, koord zv, const bruecke_besch_t *besch, const char *&error_msg, bool ai_bridge, uint32 min_length )
+koord3d brueckenbauer_t::finde_ende(karte_t *welt, spieler_t *sp, koord3d pos, const koord zv, const bruecke_besch_t *besch, const char *&error_msg, bool ai_bridge, uint32 min_length )
 {
 	const grund_t *gr2 = welt->lookup_kartenboden( pos.get_2d() );
 
@@ -194,33 +194,36 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, spieler_t *sp, koord3d pos, k
 		const sint16 hang_height = gr->get_hoehe()+hang_t::height(end_slope);
 
 		// now check for end of bridge conditions
-		if(  hang_height <= max_height  &&  hang_height >= min_height  &&  hang_t::ist_wegbar(end_slope)  &&  gr->get_typ()==grund_t::boden  ) {
+		if(  length >= min_length  &&  hang_height <= max_height  &&  hang_height >= min_height  &&  hang_t::ist_wegbar(end_slope)  &&  gr->get_typ()==grund_t::boden  ) {
 
 			if(  end_slope == hang_t::flach  ) {
-				if(  hang_height == max_height  ) {
-					// always finish at the edge of a cliff!
-					return gr->get_pos();
-				}
-				/* now we have a flat tile below
-				 * we can build a ramp when there is one (or with tram two) way in our direction and no stations/depot etc.
-				 */
-				if(  weg_t *w = gr->get_weg_nr(0)  ) {
-					if(  !spieler_t::check_owner(w->get_besitzer(),sp)  ) {
-						// not our way
-						error_msg = "Das Feld gehoert\neinem anderen Spieler\n";
-						return koord3d::invalid;
+				if(  !ai_bridge  ) {
+					// want a slope
+					if(  hang_height == max_height  ) {
+						// always finish at the edge of a cliff!
+						return gr->get_pos();
 					}
-					if(  !w->get_waytype() == besch->get_waytype()  ||  gr->is_halt()  ||  gr->get_depot()  ) {
-						// not the right kind of way
-						break;
+					/* now we have a flat tile below
+					 * we can build a ramp when there is one (or with tram two) way in our direction and no stations/depot etc.
+					 */
+					if(  weg_t *w = gr->get_weg_nr(0)  ) {
+						if(  !spieler_t::check_owner(w->get_besitzer(),sp)  ) {
+							// not our way
+							error_msg = "Das Feld gehoert\neinem anderen Spieler\n";
+							return koord3d::invalid;
+						}
+						// same waytype, same direction, no stop or depot or any other stuff */
+						if(  w->get_waytype() == besch->get_waytype()  &&  w->get_ribi_unmasked() == ribi_typ(zv)  &&  !gr->is_halt()  &&  !gr->get_depot()  ) {
+							// ok too
+							return gr->get_pos();
+						}
+						// continue
+					}
+					else if(  gr->get_leitung()==NULL  ) {
+						// no way, no powerline => we may finish here
+						return gr->get_pos();
 					}
 				}
-				// minimum length also ok?
-				if(  length >= min_length  ) {
-					// ok, all fine
-					return gr->get_pos();
-				}
-				// continue
 			}
 			else if(  hang_height == max_height  ) {
 				// here is a slope that ends at the bridge height

@@ -46,7 +46,7 @@ public:
 	 * @param min_length the minimum length of the bridge.
 	 * @return the position of the other end of the bridge or koord3d::invalid if no possible end is found
 	 */
-	static koord3d finde_ende(karte_t *welt, spieler_t *sp, koord3d pos, koord zv, const bruecke_besch_t *besch, const char *&error_msg, bool ai_bridge=false, uint32 min_length=0 );
+	static koord3d finde_ende(karte_t *welt, spieler_t *sp, koord3d pos, const koord zv, const bruecke_besch_t *besch, const char *&error_msg, bool ai_bridge=false, uint32 min_length=0 );
 
 	/**
 	 * Checks whether given tile @p gr is suitable for placing bridge ramp.
