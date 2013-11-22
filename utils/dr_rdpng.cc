@@ -4,6 +4,7 @@
 #include <setjmp.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <string.h> // strerror
 
 #include "../simmem.h"
 #include "../simdebug.h"
