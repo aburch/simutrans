@@ -193,23 +193,10 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, spieler_t *sp, koord3d pos, k
 		const hang_t::typ end_slope = gr->get_weg_hang();
 		const sint16 hang_height = gr->get_hoehe()+hang_t::height(end_slope);
 
-		// something in the way ...
-		if(  hang_height > max_height  ) {
-			error_msg = "Cannot connect to the\ncenter of a double slope!";
-			return koord3d::invalid;
-		}
-
 		// now check for end of bridge conditions
-		if(  hang_height <= max_height  &&  hang_height >= min_height  ) {
+		if(  hang_height <= max_height  &&  hang_height >= min_height  &&  hang_t::ist_wegbar(end_slope)  &&  gr->get_typ()==grund_t::boden  ) {
 
-			if(  !hang_t::ist_wegbar(end_slope)  ) {
-				if(  hang_height >= max_height  ) {
-					// we must stop here
-					break;
-				}
-				// ignore this one
-			}
-			else if(  end_slope == hang_t::flach  ) {
+			if(  end_slope == hang_t::flach  ) {
 				if(  hang_height == max_height  ) {
 					// always finish at the edge of a cliff!
 					return gr->get_pos();
@@ -277,7 +264,7 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, spieler_t *sp, koord3d pos, k
 			// slope, which end too low => we can continue
 		}
 
-		// now check for groudn exactly in out height
+		// now check for ground exactly in our height
 		if(  grund_t *gr = welt->lookup( koord3d(pos.get_2d(),max_height) )  ) {
 			if(  gr->get_typ() == grund_t::monorailboden  ) {
 				// now check if our way
@@ -294,6 +281,17 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, spieler_t *sp, koord3d pos, k
 				}
 			}
 			// stop, non way through this ground
+			break;
+		}
+
+		// something in the way ...
+		if(  hang_height > max_height  ) {
+			error_msg = "Cannot connect to the\ncenter of a double slope!";
+			return koord3d::invalid;
+		}
+
+		// sorry, this is in the way
+		if(  hang_height == max_height  ) {
 			break;
 		}
 
