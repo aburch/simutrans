@@ -4630,7 +4630,6 @@ KOORD_VAL display_proportional_ellipse_rgb( scr_rect r, const char *text, int al
 		current_offset += pixel_width;
 		max_idx += byte_length;
 	}
-	size_t eclipse_idx = max_idx;
 
 	// now check if the text would fit completely
 	if(  eclipse_width  &&  pixel_width > 0  ) {
