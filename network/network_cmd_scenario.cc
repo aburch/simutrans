@@ -45,11 +45,8 @@ bool nwc_scenario_t::execute(karte_t *welt)
 	else {
 		switch (what) {
 			case CALL_SCRIPT_ANSWER:
-				// store result
+				// store result, call listening string
 				dynamic_string::record_result(function, result);
-
-				// and tell scenario to check for update
-				scen->update_scenario_texts();
 				break;
 
 			case UPDATE_WON_LOST:
