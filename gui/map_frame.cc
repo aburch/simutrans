@@ -463,10 +463,10 @@ bool map_frame_t::infowin_event(const event_t *ev)
 	else if(  IS_LEFTDBLCLK(ev)  &&  reliefkarte_t::get_karte()->getroffen(ev2.mx,ev2.my)  ) {
 		// re-center cursor by scrolling
 		koord ij = welt->get_viewport()->get_world_position();
-		reliefkarte_t::get_karte()->karte_to_screen(ij);
+		scr_coord center = reliefkarte_t::get_karte()->karte_to_screen(ij);
 		const scr_size s_size = scrolly.get_size();
 
-		scrolly.set_scroll_position(max(0,ij.x-(s_size.w/2)), max(0,ij.y-(s_size.h/2)));
+		scrolly.set_scroll_position(max(0,center.x-(s_size.w/2)), max(0,center.y-(s_size.h/2)));
 		zoomed = false;
 
 		// remember world position, we do not want to have surprises when scrolling later on
@@ -598,14 +598,14 @@ void map_frame_t::draw(scr_coord pos, scr_size size)
 	// first: check if cursor within map screen size
 	koord ij = welt->get_viewport()->get_world_position();
 	if(welt->is_within_limits(ij)) {
-		reliefkarte_t::get_karte()->karte_to_screen(ij);
+		scr_coord center = reliefkarte_t::get_karte()->karte_to_screen(ij);
 		// only re-center if zoomed or world position has changed and its outside visible area
 		const scr_size size = scrolly.get_size();
 		if(zoomed  ||  ( old_ij != ij  &&
-				( scrolly.get_scroll_x()>ij.x  ||  scrolly.get_scroll_x()+size.w<=ij.x  ||
-				  scrolly.get_scroll_y()>ij.y  ||  scrolly.get_scroll_y()+size.h<=ij.y ) ) ) {
+				( scrolly.get_scroll_x()>center.x  ||  scrolly.get_scroll_x()+size.w<=center.x  ||
+				  scrolly.get_scroll_y()>center.y  ||  scrolly.get_scroll_y()+size.h<=center.y ) ) ) {
 				// re-center cursor by scrolling
-				scrolly.set_scroll_position( max(0,ij.x-(size.w/2)), max(0,ij.y-(size.h/2)) );
+				scrolly.set_scroll_position( max(0,center.x-(size.w/2)), max(0,center.y-(size.h/2)) );
 				zoomed = false;
 		}
 		// remember world position, we do not want to have surprises when scrolling later on

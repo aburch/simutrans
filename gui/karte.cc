@@ -1058,7 +1058,7 @@ const fabrik_t* reliefkarte_t::draw_fab_connections(const uint8 colour, const sc
 {
 	const fabrik_t* const fab = get_fab( last_world_pos, true );
 	if(fab) {
-		scr_coord fabpos = karte_to_screen( fab->get_pos().get_2d() );
+		scr_coord fabpos = karte_to_screen( fab->get_pos().get_2d() ) + pos;
 		const vector_tpl<koord>& lieferziele = event_get_last_control_shift() & 1 ? fab->get_suppliers() : fab->get_lieferziele();
 		FOR(vector_tpl<koord>, lieferziel, lieferziele) {
 			const fabrik_t * fab2 = fabrik_t::get_fab(lieferziel);
