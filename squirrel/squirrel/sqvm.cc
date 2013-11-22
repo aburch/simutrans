@@ -711,6 +711,7 @@ exception_restore:
 					_suspended = SQTrue;
 					_suspended_root = ci->_root;
 					_suspended_traps = traps;
+					_suspended_target = -1;
 					return true;
 				}
 			}
