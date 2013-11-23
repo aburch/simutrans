@@ -213,11 +213,11 @@ void display_base_img(const unsigned, KOORD_VAL, KOORD_VAL, const signed char, c
 {
 }
 
-void display_img_stretch( const stretch_map_t &imag, scr_rect area )
+void display_img_stretch( const stretch_map_t &, scr_rect)
 {
 }
 
-void display_img_stretch_blend( const stretch_map_t &imag, scr_rect area, PLAYER_COLOR_VAL color )
+void display_img_stretch_blend( const stretch_map_t &, scr_rect, PLAYER_COLOR_VAL)
 {
 }
 
@@ -352,10 +352,6 @@ int display_text_proportional_len_clip_rgb(KOORD_VAL, KOORD_VAL, const char*, co
 	return 0;
 }
 
-KOORD_VAL display_proportional_ellipse_rgb( KOORD_VAL, KOORD_VAL, const char *, int, scr_coord_val, const PIXVAL, const bool )
-{
-}
-
 void display_outline_proportional_rgb(KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, PLAYER_COLOR_VAL, const char *, int)
 {
 }
@@ -469,6 +465,15 @@ void display_set_progress_text(const char *)
 
 void display_progress(int, int)
 {
+}
+
+void display_img_aligned( const unsigned, scr_rect, int, int )
+{
+}
+
+KOORD_VAL display_proportional_ellipse_rgb( scr_rect, const char *, int, PIXVAL, bool)
+{
+	return 0;
 }
 
 #ifdef MULTI_THREAD
