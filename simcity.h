@@ -325,7 +325,7 @@ private:
 	 * Build new buildings when growing city
 	 * @author Hj. Malthaner
 	 */
-	void step_grow_city();
+	void step_grow_city(bool new_town = false);
 
 	enum pax_return_type { no_return, factory_return, tourist_return, city_return };
 
@@ -548,7 +548,7 @@ public:
 
 	/* change size of city
 	* @author prissi */
-	void change_size( sint32 delta_citizens );
+	void change_size( sint32 delta_citizens, bool new_town = false );
 
 	// when ng is false, no town growth any more
 	void set_citygrowth_yesno( bool ng ) { allow_citygrowth = ng; }

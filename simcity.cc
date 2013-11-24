@@ -2115,12 +2115,12 @@ void stadt_t::zeige_info(void)
 
 /* change size of city
  * @author prissi */
-void stadt_t::change_size(sint32 delta_citizen)
+void stadt_t::change_size(sint32 delta_citizen, bool new_town)
 {
 	DBG_MESSAGE("stadt_t::change_size()", "%i + %i", bev, delta_citizen);
 	if (delta_citizen > 0) {
 		wachstum = delta_citizen<<4;
-		step_grow_city();
+		step_grow_city(new_town);
 	}
 	if (delta_citizen < 0) {
 		wachstum = 0;
@@ -2131,7 +2131,7 @@ void stadt_t::change_size(sint32 delta_citizen)
 //				remove_city();
 			bev = 1;
 		}
-		step_grow_city();
+		step_grow_city(new_town);
 	}
 	if(bev == 0)
 	{
@@ -2572,26 +2572,11 @@ void stadt_t::calc_growth()
 
 
 // does constructions ...
-void stadt_t::step_grow_city()
+void stadt_t::step_grow_city(bool new_town)
 {
-	bool new_town = (bev == 0);
-	if (new_town) {
-		bev = (wachstum >> 4); // "wachstum" = "growth" (Google)
-		bool need_building = true;
-		uint32 buildings_count = buildings.get_count();
-		uint32 try_nr = 0;
-		while (need_building && try_nr < 1000) {
-			baue(false); // it update won
-			if ( buildings_count != buildings.get_count() ) {
-				if(buildings[buildings_count]->get_haustyp() == gebaeude_t::wohnung) {
-					// Stop with the first commercial building.  (Why???)
-					need_building = false;
-				}
-			}
-			try_nr++;
-			buildings_count = buildings.get_count();
-		}
-	}
+	// Try harder to build if this is a new town
+	int num_tries = new_town ? 1000 : 30;
+
 	// since we use internally a finer value ...
 	const int growth_step = (wachstum >> 4);
 	wachstum &= 0x0F;

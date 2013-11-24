@@ -1160,7 +1160,7 @@ void karte_t::distribute_cities( settings_t const * const sets, sint16 old_x, si
 				while(  current_bev < citizens  ) {
 					growth = min( citizens-current_bev, growth*2 );
 					current_bev = stadt[i]->get_einwohner();
-					stadt[i]->change_size( growth );
+					stadt[i]->change_size( growth, true );
 					if(  current_bev > citizens/2  &&  not_updated  ) {
 						ls.set_progress( ++old_progress );
 						not_updated = true;
