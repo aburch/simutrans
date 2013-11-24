@@ -1808,9 +1808,7 @@ void karte_t::create_beaches(  int xoff, int yoff  )
 		for(  uint16 ix = (iy >= yoff - 19) ? 0 : max( xoff - 19, 0 );  ix < size_x;  ix++  ) {
 			koord k( ix, iy );
 			grund_t *gr = lookup_kartenboden_nocheck(k);
-			const sint8 water_hgt = get_water_hgt_nocheck(k);
-			bool beach = !gr->ist_wasser()  &&  gr->get_pos().z <= water_hgt  &&  water_hgt == grundwasser;
-			if(  beach  ) {
+			if(  !gr->ist_wasser()  &&  gr->get_pos().z == grundwasser  ) {
 				uint8 neighbour_water = 0;
 				for(  int i = 0;  i < 8;  i++  ) {
 					grund_t *gr2 = lookup_kartenboden( k + koord::neighbours[i] );
@@ -5929,8 +5927,15 @@ void karte_t::calc_climate(koord k, bool recalc)
 	grund_t *gr = pl->get_kartenboden();
 	if(  gr  ) {
 		if(  !gr->ist_wasser()  ) {
-			const sint8 water_hgt = get_water_hgt_nocheck(k);
-			bool beach = gr->get_pos().z <= water_hgt  &&  water_hgt == grundwasser;
+			bool beach = false;
+			if(  gr->get_pos().z == grundwasser  ) {
+				for(  int i = 0;  i < 8 && !beach;  i++  ) {
+					grund_t *gr2 = lookup_kartenboden( k + koord::neighbours[i] );
+					if(  gr2 && gr2->ist_wasser()  ) {
+						beach = true;
+					}
+				}
+			}
 			pl->set_climate( beach ? desert_climate : get_climate_at_height( max( gr->get_pos().z, grundwasser + 1 ) ) );
 		}
 		else {
