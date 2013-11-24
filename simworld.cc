@@ -1660,7 +1660,7 @@ void karte_t::create_lakes(  int xoff, int yoff  )
 	delete [] local_stage;
 
 	for (planquadrat_t *pl = plan; pl < (plan + size_x * size_y); pl++) {
-		pl->correct_water(this);
+		pl->correct_water();
 	}
 }
 
@@ -1795,7 +1795,7 @@ void karte_t::create_beaches(  int xoff, int yoff  )
 					raise_grid_to( ix + 1, iy, gr->get_hoehe() );
 					raise_grid_to( ix, iy + 1, gr->get_hoehe() );
 					raise_grid_to( ix + 1, iy + 1 , gr->get_hoehe() );
-					access_nocheck(k)->correct_water(this);
+					access_nocheck(k)->correct_water();
 					access_nocheck(k)->set_climate( desert_climate );
 				}
 			}
@@ -2619,7 +2619,7 @@ int karte_t::raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 	if(  !gr->ist_wasser()  ||  (hmaxneu > water_hgt)  ) {
 		gr->set_pos( koord3d( x, y, disp_hneu ) );
 		gr->set_grund_hang( (hang_t::typ)sneu );
-		access_nocheck(x,y)->angehoben(this);
+		access_nocheck(x,y)->angehoben();
 		set_water_hgt(x, y, grundwasser-4);
 	}
 
@@ -2880,7 +2880,7 @@ int karte_t::lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 	if(  !gr->ist_wasser()  ||  (hmaxneu > water_hgt)  ) {
 		gr->set_pos( koord3d( x, y, disp_hneu ) );
 		gr->set_grund_hang( (hang_t::typ)sneu );
-		access_nocheck(x,y)->abgesenkt(this);
+		access_nocheck(x,y)->abgesenkt();
 	}
 	// update north point in grid
 	set_grid_hgt(x, y, hn_nw);
@@ -2911,7 +2911,7 @@ int karte_t::lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 					raise_grid_to( neighbour.x + 1, neighbour.y + 1, water_hgt_neighbour );
 				}
 				set_water_hgt( neighbour, hneu );
-				access_nocheck(neighbour)->correct_water(this);
+				access_nocheck(neighbour)->correct_water();
 			}
 		}
 	}
@@ -3500,7 +3500,7 @@ bool karte_t::rem_fab(fabrik_t *fab)
 		memcpy( list, plan->get_haltlist(), count*sizeof(halthandle_t) );
 		for( uint8 i=0;  i<count;  i++  ) {
 			// first remove all the tiles that do not connect
-			plan->remove_from_haltlist( this, list[i] );
+			plan->remove_from_haltlist( list[i] );
 			// then reconnect
 			list[i]->verbinde_fabriken();
 		}
@@ -4992,7 +4992,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved cities ok");
 
 	for(int j=0; j<get_size().y; j++) {
 		for(int i=0; i<get_size().x; i++) {
-			plan[i+j*cached_grid_size.x].rdwr(this, file, koord(i,j) );
+			plan[i+j*cached_grid_size.x].rdwr(file, koord(i,j) );
 		}
 		if(silent) {
 			INT_CHECK("saving");
@@ -5520,7 +5520,7 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 	DBG_MESSAGE("karte_t::laden()","loading tiles");
 	for (int y = 0; y < get_size().y; y++) {
 		for (int x = 0; x < get_size().x; x++) {
-			plan[x+y*cached_grid_size.x].rdwr(this, file, koord(x,y) );
+			plan[x+y*cached_grid_size.x].rdwr(file, koord(x,y) );
 		}
 		if(file->is_eof()) {
 			dbg->fatal("karte_t::laden()","Savegame file mangled (too short)!");

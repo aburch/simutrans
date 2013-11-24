@@ -431,7 +431,7 @@ haltestelle_t::~haltestelle_t()
 		for(  int x=ul.x;  x<lr.x;  x++  ) {
 			planquadrat_t *plan = welt->access(x,y);
 			if(plan->get_haltlist_count()>0) {
-				plan->remove_from_haltlist( welt, self );
+				plan->remove_from_haltlist(self);
 			}
 		}
 	}
@@ -3091,7 +3091,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 			for (int x = -cov; x <= cov; x++) {
 				planquadrat_t *pl = welt->access( gr->get_pos().get_2d()+koord(x,y) );
 				if(pl) {
-					pl->remove_from_haltlist(welt,self);
+					pl->remove_from_haltlist(self);
 					pl->get_kartenboden()->set_flag(grund_t::dirty);
 				}
 			}

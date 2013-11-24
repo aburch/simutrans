@@ -12,7 +12,7 @@
 #include "boden/grund.h"
 
 
-class karte_t;
+class karte_ptr_t;
 class grund_t;
 class obj_t;
 
@@ -27,6 +27,7 @@ void swap(planquadrat_t& a, planquadrat_t& b);
  */
 class planquadrat_t
 {
+	static karte_ptr_t welt;
 private:
 	/* list of stations that are reaching to this tile (saves lots of time for lookup) */
 	halthandle_t *halt_list;
@@ -182,19 +183,19 @@ public:
 	* converts boden to correct type, land or water
 	* @author Kieron Green
 	*/
-	void correct_water(karte_t *welt);
+	void correct_water();
 
 	/**
 	* konvertiert Land zu Wasser wenn unter Grundwasserniveau abgesenkt
 	* @author Hj. Malthaner
 	*/
-	void abgesenkt(karte_t *welt);
+	void abgesenkt();
 
 	/**
 	* Converts water to land when raised above the ground water level
 	* @author Hj. Malthaner
 	*/
-	void angehoben(karte_t *welt);
+	void angehoben();
 
 	/**
 	* returns halthandle belonging to player sp if present
@@ -220,7 +221,7 @@ public:
 	* however this funtion check, whether there is really no other part still reachable
 	* @author prissi
 	*/
-	void remove_from_haltlist(karte_t *welt, halthandle_t halt);
+	void remove_from_haltlist(halthandle_t halt);
 
 	bool is_connected(halthandle_t halt) const;
 
@@ -231,7 +232,7 @@ public:
 	const halthandle_t *get_haltlist() const { return halt_list; }
 	uint8 get_haltlist_count() const { return halt_list_count; }
 
-	void rdwr(karte_t *welt, loadsave_t *file, koord pos );
+	void rdwr(loadsave_t *file, koord pos );
 
 	// will toggle the seasons ...
 	void check_season(const long month);

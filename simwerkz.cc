@@ -1724,7 +1724,7 @@ const char *wkz_set_climate_t::do_work( spieler_t *sp, const koord3d &start, con
 						if(  ok  ) {
 							gr->obj_loesche_alle( NULL );
 							welt->set_water_hgt( k, hgt - 1 );
-							welt->access(k)->correct_water(welt);
+							welt->access(k)->correct_water();
 						}
 					}
 					if(  ok  ) {
@@ -1744,7 +1744,7 @@ const char *wkz_set_climate_t::do_work( spieler_t *sp, const koord3d &start, con
 					if(  ok  ) {
 						gr->obj_loesche_alle( NULL );
 						welt->set_water_hgt( k, gr->get_pos().z );
-						welt->access(k)->correct_water(welt);
+						welt->access(k)->correct_water();
 						welt->set_climate( k, water_climate, true );
 						reliefkarte_t::get_karte()->calc_map_pixel( k );
 						n ++;
@@ -1940,7 +1940,7 @@ const char *wkz_change_water_height_t::work( spieler_t *, koord3d pos )
 				gr2->set_grund_hang( sneu );
 
 				welt->set_water_hgt(x, y, new_water_height );
-				welt->access(x, y)->correct_water( welt );
+				welt->access(x, y)->correct_water();
 				welt->calc_climate( koord( x, y ), true );
 			}
 		}

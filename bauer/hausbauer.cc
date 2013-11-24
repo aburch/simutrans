@@ -307,7 +307,7 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb )
 							for (size_t i = plan->get_haltlist_count(); i-- != 0;) {
 								halthandle_t halt = plan->get_haltlist()[i];
 								halt->remove_fabriken( fab );
-								plan->remove_from_haltlist( welt, halt );
+								plan->remove_from_haltlist( halt );
 							}
 						}
 					}

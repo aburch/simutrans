@@ -34,6 +34,9 @@
 #include "gui/karte.h"
 
 
+karte_ptr_t planquadrat_t::welt;
+
+
 void swap(planquadrat_t& a, planquadrat_t& b)
 {
 	sim::swap(a.halt_list, b.halt_list);
@@ -230,7 +233,7 @@ void planquadrat_t::boden_ersetzen(grund_t *alt, grund_t *neu)
 }
 
 
-void planquadrat_t::rdwr(karte_t *welt, loadsave_t *file, koord pos )
+void planquadrat_t::rdwr(loadsave_t *file, koord pos )
 {
 	xml_tag_t p( file, "planquadrat_t" );
 
@@ -318,7 +321,7 @@ void planquadrat_t::check_season(const long month)
 }
 
 
-void planquadrat_t::correct_water(karte_t *welt)
+void planquadrat_t::correct_water()
 {
 	grund_t *gr = get_kartenboden();
 	hang_t::typ slope = gr->get_grund_hang();
@@ -352,7 +355,7 @@ void planquadrat_t::correct_water(karte_t *welt)
 }
 
 
-void planquadrat_t::abgesenkt(karte_t *welt)
+void planquadrat_t::abgesenkt()
 {
 	grund_t *gr = get_kartenboden();
 	if(gr) {
@@ -381,7 +384,7 @@ void planquadrat_t::abgesenkt(karte_t *welt)
 }
 
 
-void planquadrat_t::angehoben(karte_t *welt)
+void planquadrat_t::angehoben()
 {
 	grund_t *gr = get_kartenboden();
 	if(gr) {
@@ -725,7 +728,7 @@ void planquadrat_t::add_to_haltlist(halthandle_t halt)
  * however this funtion check, whether there is really no other part still reachable
  * @author prissi, neroden
  */
-void planquadrat_t::remove_from_haltlist(karte_t *welt, halthandle_t halt)
+void planquadrat_t::remove_from_haltlist(halthandle_t halt)
 {
 	halt_list_remove(halt);
 

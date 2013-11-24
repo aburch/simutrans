@@ -582,7 +582,7 @@ void fabrik_t::unlink_halt(halthandle_t halt)
 {
 	planquadrat_t *plan=welt->access(pos.get_2d());
 	if(plan) {
-		plan->remove_from_haltlist(welt,halt);
+		plan->remove_from_haltlist(halt);
 	}
 }
 
