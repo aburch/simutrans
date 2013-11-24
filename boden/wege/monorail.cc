@@ -8,7 +8,7 @@ const weg_besch_t *monorail_t::default_monorail=NULL;
 
 
 
-monorail_t::monorail_t(karte_t *welt, loadsave_t *file) : schiene_t(welt)
+monorail_t::monorail_t(loadsave_t *file) : schiene_t()
 {
 	rdwr(file);
 }

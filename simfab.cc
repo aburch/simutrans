@@ -723,7 +723,7 @@ fabrik_t::~fabrik_t()
 			grund_t *gr = plan->get_kartenboden();
 			if (field_t* f = gr->find<field_t>()) {
 				delete f; // implicitly removes the field from fields
-				plan->boden_ersetzen( gr, new boden_t( welt, gr->get_pos(), hang_t::flach ) );
+				plan->boden_ersetzen( gr, new boden_t(gr->get_pos(), hang_t::flach ) );
 				plan->get_kartenboden()->calc_bild();
 				continue;
 			}
@@ -751,9 +751,9 @@ void fabrik_t::baue(sint32 rotate, bool build_fields, bool force_initial_prodbas
 				grund_t *gr=welt->lookup_kartenboden(k);
 				if(  gr->ist_natur()  ) {
 					// first make foundation below
-					grund_t *gr2 = new fundament_t(welt, gr->get_pos(), gr->get_grund_hang());
+					grund_t *gr2 = new fundament_t(gr->get_pos(), gr->get_grund_hang());
 					welt->access(k)->boden_ersetzen(gr, gr2);
-					gr2->obj_add( new field_t( welt, gr2->get_pos(), besitzer_p, besch->get_field_group()->get_field_class( fields[i].field_class_index ), this ) );
+					gr2->obj_add( new field_t(gr2->get_pos(), besitzer_p, besch->get_field_group()->get_field_class( fields[i].field_class_index ), this ) );
 				}
 				else {
 					// there was already a building at this position => do not restore!
@@ -845,9 +845,9 @@ bool fabrik_t::add_random_field(uint16 probability)
 		new_field.field_class_index = pick_any_weighted(field_class_indices);
 		const field_class_besch_t *const field_class = fb->get_field_class( new_field.field_class_index );
 		fields.append(new_field);
-		grund_t *gr2 = new fundament_t(welt, gr->get_pos(), gr->get_grund_hang());
+		grund_t *gr2 = new fundament_t(gr->get_pos(), gr->get_grund_hang());
 		welt->access(k)->boden_ersetzen(gr, gr2);
-		gr2->obj_add( new field_t( welt, gr2->get_pos(), besitzer_p, field_class, this ) );
+		gr2->obj_add( new field_t(gr2->get_pos(), besitzer_p, field_class, this ) );
 		// Knightly : adjust production base and storage capacities
 		set_base_production( prodbase + field_class->get_field_production() );
 		if(lt) {
@@ -1206,7 +1206,7 @@ void fabrik_t::smoke() const
 		// to get same random order on different compilers
 		const sint8 offsetx =  ((rada->get_xy_off(rot).x+sim_async_rand(7)-3)*OBJECT_OFFSET_STEPS)/16;
 		const sint8 offsety =  ((rada->get_xy_off(rot).y+sim_async_rand(7)-3)*OBJECT_OFFSET_STEPS)/16;
-		wolke_t *smoke =  new wolke_t(welt, gr->get_pos(), offsetx, offsety, rada->get_bilder() );
+		wolke_t *smoke =  new wolke_t(gr->get_pos(), offsetx, offsety, rada->get_bilder() );
 		gr->obj_add(smoke);
 		welt->sync_way_eyecandy_add( smoke );
 	}

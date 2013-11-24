@@ -140,8 +140,8 @@ protected:
 	void set_images(image_type typ, uint8 ribi, bool snow, bool switch_nw=false);
 
 public:
-	weg_t(karte_t* const welt, loadsave_t*) : obj_no_info_t(welt) { init(); }
-	weg_t(karte_t* const welt) : obj_no_info_t(welt) { init(); }
+	weg_t(loadsave_t*) : obj_no_info_t() { init(); }
+	weg_t() : obj_no_info_t() { init(); }
 
 	virtual ~weg_t();
 

@@ -34,8 +34,8 @@ bool wolke_t::register_besch(const skin_besch_t* besch)
 
 
 
-wolke_t::wolke_t(karte_t *welt, koord3d pos, sint8 x_off, sint8 y_off, const skin_besch_t* besch ) :
-	obj_no_info_t(welt, pos)
+wolke_t::wolke_t(koord3d pos, sint8 x_off, sint8 y_off, const skin_besch_t* besch ) :
+	obj_no_info_t(pos)
 {
 	cloud_nr = all_clouds.index_of(besch);
 	base_y_off = clamp( (((sint16)y_off-8)*OBJECT_OFFSET_STEPS)/16, -128, 127 );
@@ -58,7 +58,7 @@ wolke_t::~wolke_t()
 
 
 
-wolke_t::wolke_t(karte_t* const welt, loadsave_t* const file) : obj_no_info_t(welt)
+wolke_t::wolke_t(loadsave_t* const file) : obj_no_info_t()
 {
 	rdwr(file);
 }
@@ -127,7 +127,7 @@ void wolke_t::rotate90()
 
 /***************************** just for compatibility, the old raucher and smoke clouds *********************************/
 
-raucher_t::raucher_t(karte_t *welt, loadsave_t *file) : obj_t(welt)
+raucher_t::raucher_t(loadsave_t *file) : obj_t()
 {
 	assert(file->is_loading());
 	obj_t::rdwr( file );
@@ -140,7 +140,7 @@ raucher_t::raucher_t(karte_t *welt, loadsave_t *file) : obj_t(welt)
 }
 
 
-async_wolke_t::async_wolke_t(karte_t *welt, loadsave_t *file) : obj_t(welt)
+async_wolke_t::async_wolke_t(loadsave_t *file) : obj_t()
 {
 	// not saving clouds!
 	assert(file->is_loading());

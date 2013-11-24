@@ -96,7 +96,7 @@ fabrik_t *leitung_t::suche_fab_4(const koord pos)
 }
 
 
-leitung_t::leitung_t(karte_t *welt, loadsave_t *file) : obj_t(welt)
+leitung_t::leitung_t(loadsave_t *file) : obj_t()
 {
 	bild = IMG_LEER;
 	set_net(NULL);
@@ -105,7 +105,7 @@ leitung_t::leitung_t(karte_t *welt, loadsave_t *file) : obj_t(welt)
 }
 
 
-leitung_t::leitung_t(karte_t *welt, koord3d pos, spieler_t *sp) : obj_t(welt, pos)
+leitung_t::leitung_t(koord3d pos, spieler_t *sp) : obj_t(pos)
 {
 	bild = IMG_LEER;
 	set_net(NULL);
@@ -450,7 +450,7 @@ void pumpe_t::step_all(long delta_t)
 }
 
 
-pumpe_t::pumpe_t(karte_t *welt, loadsave_t *file ) : leitung_t( welt, koord3d::invalid, NULL )
+pumpe_t::pumpe_t(loadsave_t *file ) : leitung_t( koord3d::invalid, NULL )
 {
 	fab = NULL;
 	supply = 0;
@@ -458,7 +458,7 @@ pumpe_t::pumpe_t(karte_t *welt, loadsave_t *file ) : leitung_t( welt, koord3d::i
 }
 
 
-pumpe_t::pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , pos, sp)
+pumpe_t::pumpe_t(koord3d pos, spieler_t *sp) : leitung_t(pos, sp)
 {
 	fab = NULL;
 	supply = 0;
@@ -576,7 +576,7 @@ void senke_t::step_all(long delta_t)
 }
 
 
-senke_t::senke_t(karte_t *welt, loadsave_t *file) : leitung_t( welt, koord3d::invalid, NULL )
+senke_t::senke_t(loadsave_t *file) : leitung_t( koord3d::invalid, NULL )
 {
 	fab = NULL;
 	einkommen = 0;
@@ -590,7 +590,7 @@ senke_t::senke_t(karte_t *welt, loadsave_t *file) : leitung_t( welt, koord3d::in
 }
 
 
-senke_t::senke_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , pos, sp)
+senke_t::senke_t(koord3d pos, spieler_t *sp) : leitung_t(pos, sp)
 {
 	fab = NULL;
 	einkommen = 0;

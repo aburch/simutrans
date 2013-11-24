@@ -47,7 +47,7 @@ const roadsign_besch_t *roadsign_t::default_signal=NULL;
 stringhashtable_tpl<const roadsign_besch_t *> roadsign_t::table;
 
 
-roadsign_t::roadsign_t(karte_t *welt, loadsave_t *file) : obj_t (welt)
+roadsign_t::roadsign_t(loadsave_t *file) : obj_t ()
 {
 	bild = after_bild = IMG_LEER;
 	rdwr(file);
@@ -71,7 +71,7 @@ roadsign_t::roadsign_t(karte_t *welt, loadsave_t *file) : obj_t (welt)
 }
 
 
-roadsign_t::roadsign_t(karte_t *welt, spieler_t *sp, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t *besch) : obj_t(welt, pos)
+roadsign_t::roadsign_t(spieler_t *sp, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t *besch) : obj_t(pos)
 {
 	this->besch = besch;
 	this->dir = dir;
@@ -682,7 +682,7 @@ bool roadsign_t::register_besch(roadsign_besch_t *besch)
  * Fill menu with icons of given signals/roadsings from the list
  * @author Hj. Malthaner
  */
-void roadsign_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 /*sound_ok*/, const karte_t *welt)
+void roadsign_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 /*sound_ok*/)
 {
 	// check if scenario forbids this
 	if (!welt->get_scenario()->is_tool_allowed(welt->get_active_player(), WKZ_ROADSIGN | GENERAL_TOOL, wtyp)) {

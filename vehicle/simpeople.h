@@ -28,10 +28,10 @@ protected:
 	 * Creates pedestrian at position given by @p gr.
 	 * Does not add pedestrian to the tile!
 	 */
-	fussgaenger_t(karte_t *welt, grund_t *gr);
+	fussgaenger_t(grund_t *gr);
 
 public:
-	fussgaenger_t(karte_t *welt, loadsave_t *file);
+	fussgaenger_t(loadsave_t *file);
 
 	virtual ~fussgaenger_t();
 
@@ -51,7 +51,7 @@ public:
 	static bool register_besch(const fussgaenger_besch_t *besch);
 	static bool alles_geladen();
 
-	static void erzeuge_fussgaenger_an(karte_t *welt, koord3d k, int &anzahl);
+	static void erzeuge_fussgaenger_an(koord3d k, int &anzahl);
 };
 
 #endif

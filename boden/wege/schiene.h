@@ -39,9 +39,9 @@ public:
 	* File loading constructor.
 	* @author Hj. Malthaner
 	*/
-	schiene_t(karte_t *welt, loadsave_t *file);
+	schiene_t(loadsave_t *file);
 
-	schiene_t(karte_t *welt);
+	schiene_t();
 
 	virtual waytype_t get_waytype() const {return track_wt;}
 

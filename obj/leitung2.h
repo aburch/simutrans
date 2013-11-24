@@ -68,8 +68,8 @@ public:
 	int gimme_neighbours(leitung_t **conn);
 	static fabrik_t * suche_fab_4(koord pos);
 
-	leitung_t(karte_t *welt, loadsave_t *file);
-	leitung_t(karte_t *welt, koord3d pos, spieler_t *sp);
+	leitung_t(loadsave_t *file);
+	leitung_t(koord3d pos, spieler_t *sp);
 	virtual ~leitung_t();
 
 	// just book the costs for destruction
@@ -143,8 +143,8 @@ private:
 	void step(long delta_t);
 
 public:
-	pumpe_t(karte_t *welt, loadsave_t *file);
-	pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp);
+	pumpe_t(loadsave_t *file);
+	pumpe_t(koord3d pos, spieler_t *sp);
 	~pumpe_t();
 
 	typ get_typ() const { return pumpe; }
@@ -182,8 +182,8 @@ private:
 	void step(long delta_t);
 
 public:
-	senke_t(karte_t *welt, loadsave_t *file);
-	senke_t(karte_t *welt, koord3d pos, spieler_t *sp);
+	senke_t(loadsave_t *file);
+	senke_t(koord3d pos, spieler_t *sp);
 	~senke_t();
 
 	typ get_typ() const { return senke; }

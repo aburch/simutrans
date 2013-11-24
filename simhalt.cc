@@ -2093,7 +2093,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 					if (menge <= 0) {
 						break;
 					}
-					menge = erzeuge_fussgaenger(welt, i.grund->get_pos(), menge);
+					menge = erzeuge_fussgaenger(i.grund->get_pos(), menge);
 				}
 				INT_CHECK("simhalt 938");
 			}
@@ -2490,11 +2490,11 @@ void haltestelle_t::recalc_station_type()
 
 
 
-int haltestelle_t::erzeuge_fussgaenger(karte_t *welt, koord3d pos, int anzahl)
+int haltestelle_t::erzeuge_fussgaenger(koord3d pos, int anzahl)
 {
-	fussgaenger_t::erzeuge_fussgaenger_an(welt, pos, anzahl);
+	fussgaenger_t::erzeuge_fussgaenger_an(pos, anzahl);
 	for(int i=0; i<4 && anzahl>0; i++) {
-		fussgaenger_t::erzeuge_fussgaenger_an(welt, pos+koord::nsow[i], anzahl);
+		fussgaenger_t::erzeuge_fussgaenger_an(pos+koord::nsow[i], anzahl);
 	}
 	return anzahl;
 }

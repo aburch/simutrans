@@ -173,8 +173,8 @@ bool vehikel_basis_t::is_about_to_hop( const sint8 neu_xoff, const sint8 neu_yof
 }
 
 
-vehikel_basis_t::vehikel_basis_t(karte_t *welt):
-	obj_t(welt)
+vehikel_basis_t::vehikel_basis_t():
+	obj_t()
 {
 	bild = IMG_LEER;
 	set_flag( obj_t::is_vehicle );
@@ -188,8 +188,8 @@ vehikel_basis_t::vehikel_basis_t(karte_t *welt):
 }
 
 
-vehikel_basis_t::vehikel_basis_t(karte_t *welt, koord3d pos):
-	obj_t(welt, pos)
+vehikel_basis_t::vehikel_basis_t(koord3d pos):
+	obj_t(pos)
 {
 	bild = IMG_LEER;
 	set_flag( obj_t::is_vehicle );
@@ -981,7 +981,7 @@ void vehikel_t::neue_fahrt(uint16 start_route_index, bool recalc)
 
 
 vehikel_t::vehikel_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp) :
-	vehikel_basis_t(sp->get_welt(), pos)
+	vehikel_basis_t(pos)
 {
 	this->besch = besch;
 
@@ -1010,8 +1010,8 @@ vehikel_t::vehikel_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp) :
 }
 
 
-vehikel_t::vehikel_t(karte_t *welt) :
-	vehikel_basis_t(welt)
+vehikel_t::vehikel_t() :
+	vehikel_basis_t()
 {
 	rauchen = true;
 
@@ -1217,7 +1217,7 @@ void vehikel_t::rauche() const
 		if(  cnv->get_akt_speed() < (sint32)((cnv->get_speed_limit() * 7u) >> 3)  ||  besch->get_engine_type() == vehikel_besch_t::steam  ) {
 			grund_t* const gr = welt->lookup( get_pos() );
 			if(  gr  ) {
-				wolke_t* const abgas =  new wolke_t( welt, get_pos(), get_xoff() + ((dx * (sint16)((uint16)steps * OBJECT_OFFSET_STEPS)) >> 8), get_yoff() + ((dy * (sint16)((uint16)steps * OBJECT_OFFSET_STEPS)) >> 8) + hoff, besch->get_rauch() );
+				wolke_t* const abgas =  new wolke_t( get_pos(), get_xoff() + ((dx * (sint16)((uint16)steps * OBJECT_OFFSET_STEPS)) >> 8), get_yoff() + ((dy * (sint16)((uint16)steps * OBJECT_OFFSET_STEPS)) >> 8) + hoff, besch->get_rauch() );
 				if(  !gr->obj_add( abgas )  ) {
 					abgas->set_flag( obj_t::not_on_map );
 					delete abgas;
@@ -1799,7 +1799,7 @@ automobil_t::automobil_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* s
 }
 
 
-automobil_t::automobil_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last) : vehikel_t(welt)
+automobil_t::automobil_t(loadsave_t *file, bool is_first, bool is_last) : vehikel_t()
 {
 	rdwr_from_convoi(file);
 
@@ -2294,7 +2294,7 @@ void automobil_t::set_convoi(convoi_t *c)
 
 
 /* from now on rail vehicles (and other vehicles using blocks) */
-waggon_t::waggon_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last) : vehikel_t(welt)
+waggon_t::waggon_t(loadsave_t *file, bool is_first, bool is_last) : vehikel_t()
 {
 	vehikel_t::rdwr_from_convoi(file);
 
@@ -3103,7 +3103,7 @@ schiff_t::schiff_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, con
 }
 
 
-schiff_t::schiff_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last) : vehikel_t(welt)
+schiff_t::schiff_t(loadsave_t *file, bool is_first, bool is_last) : vehikel_t()
 {
 	vehikel_t::rdwr_from_convoi(file);
 
@@ -3871,7 +3871,7 @@ grund_t* aircraft_t::betrete_feld()
 }
 
 
-aircraft_t::aircraft_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last) : vehikel_t(welt)
+aircraft_t::aircraft_t(loadsave_t *file, bool is_first, bool is_last) : vehikel_t()
 {
 	rdwr_from_convoi(file);
 	old_x = old_y = -1;

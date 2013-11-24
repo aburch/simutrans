@@ -15,8 +15,8 @@ private:
 	uint8 broad_type; // Is this a broad tunnel mouth?
 
 public:
-	tunnel_t(karte_t *welt, loadsave_t *file);
-	tunnel_t(karte_t *welt, koord3d pos, spieler_t *sp, const tunnel_besch_t *besch);
+	tunnel_t(loadsave_t *file);
+	tunnel_t(koord3d pos, spieler_t *sp, const tunnel_besch_t *besch);
 
 	const char *get_name() const {return "Tunnelmuendung";}
 	typ get_typ() const { return tunnel; }

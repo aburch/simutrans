@@ -20,8 +20,8 @@ private:
 	image_id bild, after_bild;
 
 public:
-	zeiger_t(karte_t *welt, loadsave_t *file);
-	zeiger_t(karte_t *welt, koord3d pos, spieler_t *sp);
+	zeiger_t(loadsave_t *file);
+	zeiger_t(koord3d pos, spieler_t *sp);
 
 	void change_pos(koord3d k);
 

@@ -38,7 +38,7 @@
 
 slist_tpl<depot_t *> depot_t::all_depots;
 
-depot_t::depot_t(karte_t *welt,loadsave_t *file) : gebaeude_t(welt)
+depot_t::depot_t(loadsave_t *file) : gebaeude_t()
 {
 	rdwr(file);
 	if(file->get_version()<88002) {
@@ -51,8 +51,8 @@ depot_t::depot_t(karte_t *welt,loadsave_t *file) : gebaeude_t(welt)
 }
 
 
-depot_t::depot_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_tile_besch_t *t) :
-    gebaeude_t(welt, pos, sp, t)
+depot_t::depot_t(koord3d pos, spieler_t *sp, const haus_tile_besch_t *t) :
+    gebaeude_t(pos, sp, t)
 {
 	all_depots.append(this);
 	selected_filter = VEHICLE_FILTER_RELEVANT;
@@ -512,17 +512,17 @@ void depot_t::rdwr_vehikel(slist_tpl<vehikel_t *> &list, loadsave_t *file)
 
 			switch( typ ) {
 				case old_automobil:
-				case automobil: v = new automobil_t(welt, file, first, last);    break;
+				case automobil: v = new automobil_t(file, first, last);    break;
 				case old_waggon:
-				case waggon:    v = new waggon_t(welt, file, first, last);       break;
+				case waggon:    v = new waggon_t(file, first, last);       break;
 				case old_schiff:
-				case schiff:    v = new schiff_t(welt, file, first, last);       break;
+				case schiff:    v = new schiff_t(file, first, last);       break;
 				case old_aircraft:
-				case aircraft: v = new aircraft_t(welt,file, first, last);  break;
+				case aircraft: v = new aircraft_t(file, first, last);  break;
 				case old_monorailwaggon:
-				case monorailwaggon: v = new monorail_waggon_t(welt,file, first, last);  break;
-				case maglevwaggon:   v = new maglev_waggon_t(welt,file, first, last);  break;
-				case narrowgaugewaggon: v = new narrowgauge_waggon_t(welt,file, first, last);  break;
+				case monorailwaggon: v = new monorail_waggon_t(file, first, last);  break;
+				case maglevwaggon:   v = new maglev_waggon_t(file, first, last);  break;
+				case narrowgaugewaggon: v = new narrowgauge_waggon_t(file, first, last);  break;
 				default:
 					dbg->fatal("depot_t::vehikel_laden()","invalid vehicle type $%X", typ);
 			}

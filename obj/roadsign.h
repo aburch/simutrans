@@ -70,8 +70,8 @@ public:
 	 */
 	waytype_t get_waytype() const { return besch ? besch->get_wtyp() : invalid_wt; }
 
-	roadsign_t(karte_t *welt, loadsave_t *file);
-	roadsign_t(karte_t *welt, spieler_t *sp, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t* besch);
+	roadsign_t(loadsave_t *file);
+	roadsign_t(spieler_t *sp, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t* besch);
 
 	const roadsign_besch_t *get_besch() const {return besch;}
 
@@ -156,7 +156,7 @@ public:
 	 * Fill menu with icons of given stops from the list
 	 * @author Hj. Malthaner
 	 */
-	static void fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 sound_ok, const karte_t *welt);
+	static void fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 sound_ok);
 
 	static const roadsign_besch_t *roadsign_search(roadsign_besch_t::types flag, const waytype_t wt, const uint16 time);
 

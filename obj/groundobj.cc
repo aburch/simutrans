@@ -148,13 +148,13 @@ void groundobj_t::calc_bild()
 }
 
 
-groundobj_t::groundobj_t(karte_t *welt, loadsave_t *file) : obj_t(welt)
+groundobj_t::groundobj_t(loadsave_t *file) : obj_t()
 {
 	rdwr(file);
 }
 
 
-groundobj_t::groundobj_t(karte_t *welt, koord3d pos, const groundobj_besch_t *b ) : obj_t(welt, pos)
+groundobj_t::groundobj_t(koord3d pos, const groundobj_besch_t *b ) : obj_t(pos)
 {
 	groundobjtype = groundobj_typen.index_of(b);
 	calc_bild();

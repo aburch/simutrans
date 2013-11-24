@@ -157,7 +157,7 @@ public:
 	 *
 	 * @author Hj. Malthaner
 	 */
-	static int erzeuge_fussgaenger(karte_t *welt, const koord3d pos, int anzahl);
+	static int erzeuge_fussgaenger(const koord3d pos, int anzahl);
 
 	/**
 	 * Returns an index to a halt at koord k

@@ -43,14 +43,14 @@ protected:
 
 	virtual bool hop_check() {return true;}
 
-	verkehrsteilnehmer_t(karte_t *welt);
+	verkehrsteilnehmer_t();
 
 	/**
 	 * Creates thing at position given by @p gr.
 	 * Does not add it to the tile!
 	 * @param random number to compute initial direction.
 	 */
-	verkehrsteilnehmer_t(karte_t *welt, grund_t* gr, uint16 random);
+	verkehrsteilnehmer_t(grund_t* gr, uint16 random);
 
 public:
 	virtual ~verkehrsteilnehmer_t();
@@ -103,13 +103,13 @@ protected:
 	void calc_bild();
 
 public:
-	stadtauto_t(karte_t *welt, loadsave_t *file);
+	stadtauto_t(loadsave_t *file);
 
 	/**
 	 * Creates citycar at position given by @p gr.
 	 * Does not add car to the tile!
 	 */
-	stadtauto_t(karte_t *welt, grund_t* gr, koord target);
+	stadtauto_t(grund_t* gr, koord target);
 
 	virtual ~stadtauto_t();
 

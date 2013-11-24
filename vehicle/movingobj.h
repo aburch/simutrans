@@ -51,8 +51,8 @@ public:
 
 	static const groundobj_besch_t *random_movingobj_for_climate(climate cl);
 
-	movingobj_t(karte_t *welt, loadsave_t *file);
-	movingobj_t(karte_t *welt, koord3d pos, const groundobj_besch_t *);
+	movingobj_t(loadsave_t *file);
+	movingobj_t(koord3d pos, const groundobj_besch_t *);
 	~movingobj_t();
 
 	bool sync_step(long delta_t);

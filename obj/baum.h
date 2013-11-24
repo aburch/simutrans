@@ -53,17 +53,17 @@ private:
 
 	static uint16 random_tree_for_climate_intern(climate cl);
 
-	static uint8 plant_tree_on_coordinate(karte_t *welt, koord pos, const uint8 maximum_count, const uint8 count);
+	static uint8 plant_tree_on_coordinate(koord pos, const uint8 maximum_count, const uint8 count);
 
 public:
 	/**
 	 * Only the load save constructor should be called outside
 	 * otherwise I suggest use the plant tree function (see below)
 	 */
-	baum_t(karte_t *welt, loadsave_t *file);
-	baum_t(karte_t *welt, koord3d pos);
-	baum_t(karte_t *welt, koord3d pos, uint8 type, sint32 age, uint8 slope );
-	baum_t(karte_t *welt, koord3d pos, const baum_besch_t *besch);
+	baum_t(loadsave_t *file);
+	baum_t(koord3d pos);
+	baum_t(koord3d pos, uint8 type, sint32 age, uint8 slope );
+	baum_t(koord3d pos, const baum_besch_t *besch);
 
 	void rdwr(loadsave_t *file);
 
@@ -115,15 +115,15 @@ public:
 	// static functions to handle trees
 
 	// distributes trees on a map
-	static void distribute_trees(karte_t *welt, int dichte);
+	static void distribute_trees(int dichte);
 
-	static bool plant_tree_on_coordinate(karte_t *welt, koord pos, const baum_besch_t *besch, const bool check_climate, const bool random_age );
+	static bool plant_tree_on_coordinate(koord pos, const baum_besch_t *besch, const bool check_climate, const bool random_age );
 
 	static bool register_besch(baum_besch_t *besch);
 	static bool alles_geladen();
 
-	static uint32 create_forest(karte_t *welt, koord center, koord size );
-	static void fill_trees(karte_t *welt, int dichte);
+	static uint32 create_forest(koord center, koord size );
+	static void fill_trees(int dichte);
 
 	// return list to beschs
 	static vector_tpl<baum_besch_t const*> const& get_all_besch() { return baum_typen; }

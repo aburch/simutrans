@@ -42,7 +42,7 @@ public:
 	objlist_t();
 	~objlist_t();
 
-	void rdwr(karte_t *welt, loadsave_t *file,koord3d current_pos);
+	void rdwr(loadsave_t *file,koord3d current_pos);
 
 	obj_t * suche(obj_t::typ typ,uint8 start) const;
 

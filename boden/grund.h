@@ -20,7 +20,7 @@
 
 class spieler_t;
 class depot_t;
-class karte_t;
+class karte_ptr_t;
 class cbuffer_t;
 
 
@@ -184,7 +184,7 @@ protected:
 	* Change to instance variable once more than one world is available.
 	* @author Hj. Malthaner
 	*/
-	static karte_t *welt;
+	static karte_ptr_t welt;
 
 	// calculates the slope image and sets the draw_as_obj flag correctly
 	void calc_back_bild(const sint8 hgt,const sint8 slope_this);
@@ -195,8 +195,8 @@ protected:
 public:
 	enum typ { boden = 1, wasser, fundament, tunnelboden, brueckenboden, monorailboden };
 
-	grund_t(karte_t *welt, loadsave_t *file);
-	grund_t(karte_t *welt, koord3d pos);
+	grund_t(loadsave_t *file);
+	grund_t(koord3d pos);
 
 private:
 	grund_t(grund_t const&);
@@ -214,8 +214,6 @@ public:
 	 * Sets the undergroundmode & level
 	 */
 	static void set_underground_mode(const uint8 ugm, const sint8 level);
-
-	karte_t *get_welt() const {return welt;}
 
 	/**
 	* Setzt Flags für das neuzeichnen geänderter Untergründe

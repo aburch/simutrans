@@ -15,13 +15,13 @@
 const weg_besch_t *runway_t::default_runway=NULL;
 
 
-runway_t::runway_t(karte_t *welt) : schiene_t(welt)
+runway_t::runway_t() : schiene_t()
 {
 	set_besch(default_runway);
 }
 
 
-runway_t::runway_t(karte_t *welt, loadsave_t *file) : schiene_t(welt)
+runway_t::runway_t(loadsave_t *file) : schiene_t()
 {
 	rdwr(file);
 }

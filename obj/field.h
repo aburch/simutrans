@@ -14,7 +14,7 @@ class field_t : public obj_t
 	const field_class_besch_t *besch;
 
 public:
-	field_t(karte_t *welt, const koord3d pos, spieler_t *sp, const field_class_besch_t *besch, fabrik_t *fab);
+	field_t(const koord3d pos, spieler_t *sp, const field_class_besch_t *besch, fabrik_t *fab);
 	virtual ~field_t();
 
 	const char* get_name() const { return "Field"; }

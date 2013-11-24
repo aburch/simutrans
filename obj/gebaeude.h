@@ -93,11 +93,11 @@ private:
 
 
 protected:
-	gebaeude_t(karte_t *welt);
+	gebaeude_t();
 
 public:
-	gebaeude_t(karte_t *welt, loadsave_t *file);
-	gebaeude_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t);
+	gebaeude_t(loadsave_t *file);
+	gebaeude_t(koord3d pos,spieler_t *sp, const haus_tile_besch_t *t);
 	virtual ~gebaeude_t();
 
 	void rotate90();

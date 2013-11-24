@@ -19,7 +19,7 @@
 
 
 
-boden_t::boden_t(karte_t *welt, loadsave_t *file, koord pos ) : grund_t( welt, koord3d(pos,0) )
+boden_t::boden_t(loadsave_t *file, koord pos ) : grund_t( koord3d(pos,0) )
 {
 	grund_t::rdwr( file );
 
@@ -31,7 +31,7 @@ boden_t::boden_t(karte_t *welt, loadsave_t *file, koord pos ) : grund_t( welt, k
 			file->rdwr_long( age );
 			// check, if we still have this tree ... (if there are not trees, the first index is NULL!)
 			if (id < baum_t::get_anzahl_besch() && baum_t::get_all_besch()[id]) {
-				baum_t *tree = new baum_t( welt, get_pos(), (uint8)id, age, slope );
+				baum_t *tree = new baum_t( get_pos(), (uint8)id, age, slope );
 				objlist.add( tree );
 			}
 			else {
@@ -44,7 +44,7 @@ boden_t::boden_t(karte_t *welt, loadsave_t *file, koord pos ) : grund_t( welt, k
 }
 
 
-boden_t::boden_t(karte_t *welt, koord3d pos, hang_t::typ sl) : grund_t(welt, pos)
+boden_t::boden_t(koord3d pos, hang_t::typ sl) : grund_t(pos)
 {
 	slope = sl;
 }

@@ -15,7 +15,7 @@
 
 
 class cbuffer_t;
-class karte_t;
+class karte_ptr_t;
 class spieler_t;
 
 /**
@@ -77,10 +77,10 @@ private:
 	* -> single source principle
 	* @author Hj. Malthaner
 	*/
-	void init(karte_t *welt);
+	void init();
 
 protected:
-	obj_t(karte_t *welt);
+	obj_t();
 
 	// since we often need access during loading
 	void set_player_nr(uint8 s) { besitzer_n = s; }
@@ -90,7 +90,7 @@ protected:
 	* Change to instance variable once more than one world is available.
 	* @author Hj. Malthaner
 	*/
-	static karte_t *welt;
+	static karte_ptr_t welt;
 
 
 public:
@@ -187,16 +187,14 @@ public:
 	 * Constructor to load object from file
 	 * @author Hj. Malthaner
 	 */
-	obj_t(karte_t *welt, loadsave_t *file);
+	obj_t(loadsave_t *file);
 
 	/**
 	 * Constructor to set position of object
 	 * This does *not* add the object to the tile
 	 * @author Hj. Malthaner
 	 */
-	obj_t(karte_t *welt, koord3d pos);
-
-	karte_t* get_welt() const { return welt; }
+	obj_t(koord3d pos);
 
 	/**
 	 * Destructor: removes object from tile, should close any inspection windows
@@ -378,14 +376,14 @@ template<typename T> static inline T const* obj_cast(obj_t const* const d)
 class obj_no_info_t : public obj_t
 {
 public:
-	obj_no_info_t(karte_t* welt, loadsave_t* file) : obj_t(welt, file) {}
+	obj_no_info_t(loadsave_t* file) : obj_t(file) {}
 
-	obj_no_info_t(karte_t* welt, koord3d pos) : obj_t(welt, pos) {}
+	obj_no_info_t(koord3d pos) : obj_t(pos) {}
 
 	void zeige_info() {}
 
 protected:
-	obj_no_info_t(karte_t* welt) : obj_t(welt) {}
+	obj_no_info_t() : obj_t() {}
 };
 
 #endif

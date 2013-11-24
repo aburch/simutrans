@@ -23,8 +23,8 @@
 class signal_t : public roadsign_t
 {
 public:
-	signal_t(karte_t *welt, loadsave_t *file);
-	signal_t(karte_t *welt, spieler_t *sp, koord3d pos, ribi_t::ribi dir,const roadsign_besch_t *besch) : roadsign_t(welt,sp,pos,dir,besch) { zustand = rot;}
+	signal_t(loadsave_t *file);
+	signal_t(spieler_t *sp, koord3d pos, ribi_t::ribi dir,const roadsign_besch_t *besch) : roadsign_t(sp,pos,dir,besch) { zustand = rot;}
 
 	/**
 	* @return Einen Beschreibungsstring für das Objekt, der z.B. in einem

@@ -39,8 +39,8 @@ public:
 	 */
 	waytype_t get_waytype() const { return invalid_wt; }
 
-	crossing_t(karte_t *welt, loadsave_t *file);
-	crossing_t(karte_t *welt, spieler_t *sp, koord3d pos, const kreuzung_besch_t *besch, uint8 ns = 0);
+	crossing_t(loadsave_t *file);
+	crossing_t(spieler_t *sp, koord3d pos, const kreuzung_besch_t *besch, uint8 ns = 0);
 
 	virtual ~crossing_t();
 

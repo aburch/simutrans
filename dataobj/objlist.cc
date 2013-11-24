@@ -307,7 +307,7 @@ bool objlist_t::intern_add_moving(obj_t* new_obj)
 
 		// this is very complicated:
 		// we may have many objects in two lanes (actually five with tram and pedestrians)
-		if(new_obj->get_welt()->get_settings().is_drive_left()) {
+		if(world()->get_settings().is_drive_left()) {
 
 			// driving on left side
 			if(fahrtrichtung<4) {	// north, northwest
@@ -763,7 +763,7 @@ obj_t *objlist_t::get_convoi_vehicle() const
 
 
 
-void objlist_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
+void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 {
 	if(file->is_loading()) {
 
@@ -792,19 +792,19 @@ void objlist_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 			obj_t *new_obj = NULL;
 
 			switch(typ) {
-				case obj_t::bruecke:	    new_obj = new bruecke_t (welt, file);	        break;
-				case obj_t::tunnel:	    new_obj = new tunnel_t (welt, file);	        break;
-				case obj_t::pumpe:		    new_obj = new pumpe_t (welt, file);	        break;
-				case obj_t::leitung:	    new_obj = new leitung_t (welt, file);	        break;
-				case obj_t::senke:		    new_obj = new senke_t (welt, file);	        break;
-				case obj_t::zeiger:	    new_obj = new zeiger_t (welt, file);	        break;
-				case obj_t::signal:	    new_obj = new signal_t (welt, file);   break;
-				case obj_t::label:			new_obj = new label_t(welt,file); break;
-				case obj_t::crossing:		new_obj = new crossing_t(welt,file); break;
+				case obj_t::bruecke:	    new_obj = new bruecke_t(file);	        break;
+				case obj_t::tunnel:	    new_obj = new tunnel_t(file);	        break;
+				case obj_t::pumpe:		    new_obj = new pumpe_t(file);	        break;
+				case obj_t::leitung:	    new_obj = new leitung_t(file);	        break;
+				case obj_t::senke:		    new_obj = new senke_t(file);	        break;
+				case obj_t::zeiger:	    new_obj = new zeiger_t(file);	        break;
+				case obj_t::signal:	    new_obj = new signal_t(file);   break;
+				case obj_t::label:			new_obj = new label_t(file); break;
+				case obj_t::crossing:		new_obj = new crossing_t(file); break;
 
 				case obj_t::wayobj:
 				{
-					wayobj_t* const wo = new wayobj_t(welt, file);
+					wayobj_t* const wo = new wayobj_t(file);
 					if (wo->get_besch() == NULL) {
 						// ignore missing wayobjs
 						wo->set_flag(obj_t::not_on_map);
@@ -822,7 +822,7 @@ void objlist_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 					typ = obj_t::fussgaenger;
 				case obj_t::fussgaenger:
 				{
-					fussgaenger_t* const pedestrian = new fussgaenger_t(welt, file);
+					fussgaenger_t* const pedestrian = new fussgaenger_t(file);
 					if (pedestrian->get_besch() == NULL) {
 						// no pedestrians ... delete this
 						pedestrian->set_flag(obj_t::not_on_map);
@@ -839,7 +839,7 @@ void objlist_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 					typ = obj_t::verkehr;
 				case obj_t::verkehr:
 				{
-					stadtauto_t* const car = new stadtauto_t(welt, file);
+					stadtauto_t* const car = new stadtauto_t(file);
 					if (car->get_besch() == NULL) {
 						// no citycars ... delete this
 						car->set_flag(obj_t::not_on_map);
@@ -854,46 +854,46 @@ void objlist_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				case obj_t::old_monoraildepot:
 					typ = obj_t::monoraildepot;
 				case obj_t::monoraildepot:
-					new_obj = new monoraildepot_t (welt, file);
+					new_obj = new monoraildepot_t(file);
 					break;
 				case obj_t::old_tramdepot:
 					typ = obj_t::tramdepot;
 				case obj_t::tramdepot:
-					new_obj = new tramdepot_t (welt, file);
+					new_obj = new tramdepot_t(file);
 					break;
 				case obj_t::strassendepot:
-					new_obj = new strassendepot_t (welt, file);
+					new_obj = new strassendepot_t(file);
 					break;
 				case obj_t::schiffdepot:
-					new_obj = new schiffdepot_t (welt, file);
+					new_obj = new schiffdepot_t(file);
 					break;
 				case obj_t::old_airdepot:
 					typ = obj_t::airdepot;
 				case obj_t::airdepot:
-					new_obj = new airdepot_t (welt, file);
+					new_obj = new airdepot_t(file);
 					break;
 				case obj_t::maglevdepot:
-					new_obj = new maglevdepot_t (welt, file);
+					new_obj = new maglevdepot_t(file);
 					break;
 				case obj_t::narrowgaugedepot:
-					new_obj = new narrowgaugedepot_t (welt, file);
+					new_obj = new narrowgaugedepot_t(file);
 					break;
 
 				case obj_t::bahndepot:
 				{
 					// for compatibility reasons we may have to convert them to tram and monorail depots
 					bahndepot_t*                   bd;
-					gebaeude_t                     gb(welt, file);
+					gebaeude_t                     gb(file);
 					haus_tile_besch_t const* const tile = gb.get_tile();
 					if(  tile  ) {
 						switch (tile->get_besch()->get_extra()) {
-							case monorail_wt: bd = new monoraildepot_t(welt, gb.get_pos(), gb.get_besitzer(), tile); break;
-							case tram_wt:     bd = new tramdepot_t(    welt, gb.get_pos(), gb.get_besitzer(), tile); break;
-							default:          bd = new bahndepot_t(    welt, gb.get_pos(), gb.get_besitzer(), tile); break;
+							case monorail_wt: bd = new monoraildepot_t( gb.get_pos(), gb.get_besitzer(), tile); break;
+							case tram_wt:     bd = new tramdepot_t(     gb.get_pos(), gb.get_besitzer(), tile); break;
+							default:          bd = new bahndepot_t(     gb.get_pos(), gb.get_besitzer(), tile); break;
 						}
 					}
 					else {
-						bd = new bahndepot_t( welt, gb.get_pos(), gb.get_besitzer(), NULL );
+						bd = new bahndepot_t( gb.get_pos(), gb.get_besitzer(), NULL );
 					}
 					bd->rdwr_vehicles(file);
 					new_obj   = bd;
@@ -908,7 +908,7 @@ void objlist_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 					typ = obj_t::pillar;
 				case obj_t::pillar:
 				{
-					pillar_t *p = new pillar_t(welt, file);
+					pillar_t *p = new pillar_t(file);
 					if(p->get_besch()!=NULL  &&  p->get_besch()->get_pillar()!=0) {
 						new_obj = p;
 					}
@@ -923,10 +923,10 @@ void objlist_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 
 				case obj_t::baum:
 				{
-					baum_t *b = new baum_t(welt, file);
+					baum_t *b = new baum_t(file);
 					if(  !b->get_besch()  ) {
 						// is there a replacement possible
-						if(  const baum_besch_t *besch = baum_t::random_tree_for_climate( welt->get_climate_at_height(current_pos.z) )  ) {
+						if(  const baum_besch_t *besch = baum_t::random_tree_for_climate( world()->get_climate_at_height(current_pos.z) )  ) {
 							b->set_besch( besch );
 						}
 						else {
@@ -944,7 +944,7 @@ void objlist_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 
 				case obj_t::groundobj:
 				{
-					groundobj_t* const groundobj = new groundobj_t(welt, file);
+					groundobj_t* const groundobj = new groundobj_t(file);
 					if(groundobj->get_besch() == NULL) {
 						// do not remove from this position, since there will be nothing
 						groundobj->set_flag(obj_t::not_on_map);
@@ -959,7 +959,7 @@ void objlist_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 
 				case obj_t::movingobj:
 				{
-					movingobj_t* const movingobj = new movingobj_t(welt, file);
+					movingobj_t* const movingobj = new movingobj_t(file);
 					if (movingobj->get_besch() == NULL) {
 						// no citycars ... delete this
 						movingobj->set_flag(obj_t::not_on_map);
@@ -973,7 +973,7 @@ void objlist_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 
 				case obj_t::gebaeude:
 				{
-					gebaeude_t *gb = new gebaeude_t (welt, file);
+					gebaeude_t *gb = new gebaeude_t(file);
 					if(gb->get_tile()==NULL) {
 						// do not remove from this position, since there will be nothing
 						gb->set_flag(obj_t::not_on_map);
@@ -990,7 +990,7 @@ void objlist_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 					typ = obj_t::roadsign;
 				case obj_t::roadsign:
 				{
-					roadsign_t *rs = new roadsign_t (welt, file);
+					roadsign_t *rs = new roadsign_t(file);
 					if(rs->get_besch()==NULL) {
 						// roadsign_t without description => ignore
 						rs->set_flag(obj_t::not_on_map);
@@ -1003,14 +1003,14 @@ void objlist_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				break;
 
 				// will be ignored, was only used before 86.09
-				case obj_t::old_gebaeudefundament: { dummy_obj_t(welt, file); break; }
+				case obj_t::old_gebaeudefundament: { dummy_obj_t d(file); break; }
 
 				// only factories can smoke; but then, the smoker is reinstated after loading
-				case obj_t::raucher: { raucher_t(welt, file); break; }
+				case obj_t::raucher: { raucher_t r(file); break; }
 
 				// wolke is not saved any more
-				case obj_t::sync_wolke: { wolke_t(welt, file); break; }
-				case obj_t::async_wolke: { async_wolke_t(welt, file); break; }
+				case obj_t::sync_wolke: { wolke_t w(file); break; }
+				case obj_t::async_wolke: { async_wolke_t w(file); break; }
 
 				default:
 					dbg->fatal("objlist_t::laden()", "During loading: Unknown object type '%d'", typ);

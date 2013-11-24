@@ -28,9 +28,9 @@ public:
 	 *
 	 * @author Hj. Malthaner
 	 */
-	runway_t(karte_t *welt, loadsave_t *file);
+	runway_t(loadsave_t *file);
 
-	runway_t(karte_t *welt);
+	runway_t();
 
 	inline waytype_t get_waytype() const {return air_wt;}
 

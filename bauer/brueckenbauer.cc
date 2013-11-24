@@ -456,7 +456,7 @@ void brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, ko
 	pos += koord3d( zv.x, zv.y, max_height );
 
 	while(  pos.get_2d() != end.get_2d()  ) {
-		brueckenboden_t *bruecke = new brueckenboden_t( welt, pos, 0, 0 );
+		brueckenboden_t *bruecke = new brueckenboden_t( pos, 0, 0 );
 		welt->access(pos.get_2d())->boden_hinzufuegen(bruecke);
 		if(besch->get_waytype() != powerline_wt) {
 			weg_t * const weg = weg_t::alloc(besch->get_waytype());
@@ -464,13 +464,13 @@ void brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, ko
 			bruecke->neuen_weg_bauen(weg, ribi_t::doppelt(ribi), sp);
 		}
 		else {
-			leitung_t *lt = new leitung_t(welt, bruecke->get_pos(), sp);
+			leitung_t *lt = new leitung_t(bruecke->get_pos(), sp);
 			bruecke->obj_add( lt );
 			lt->laden_abschliessen();
 		}
 		grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
 		sint16 height = pos.z - gr->get_pos().z;
-		bruecke_t *br = new bruecke_t(welt, bruecke->get_pos(), sp, besch, besch->get_simple(ribi,height-hang_t::height(gr->get_grund_hang())));
+		bruecke_t *br = new bruecke_t(bruecke->get_pos(), sp, besch, besch->get_simple(ribi,height-hang_t::height(gr->get_grund_hang())));
 		bruecke->obj_add(br);
 		bruecke->calc_bild();
 		br->laden_abschliessen();
@@ -482,7 +482,7 @@ void brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, ko
 				while(height-->0) {
 					if( TILE_HEIGHT_STEP*height <= 127) {
 						// eventual more than one part needed, if it is too high ...
-						gr->obj_add( new pillar_t(welt,gr->get_pos(),sp,besch,besch->get_pillar(ribi), TILE_HEIGHT_STEP*height) );
+						gr->obj_add( new pillar_t(gr->get_pos(),sp,besch,besch->get_pillar(ribi), TILE_HEIGHT_STEP*height) );
 					}
 				}
 			}
@@ -527,7 +527,7 @@ void brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, ko
 		else {
 			leitung_t *lt = gr->get_leitung();
 			if(  lt==NULL  ) {
-				lt = new leitung_t( welt, end, sp );
+				lt = new leitung_t(end, sp );
 				spieler_t::book_construction_costs(sp, -weg_besch->get_preis(), gr->get_pos().get_2d(), powerline_wt);
 				gr->obj_add(lt);
 				lt->set_besch(weg_besch);
@@ -546,7 +546,7 @@ void brueckenbauer_t::baue_auffahrt(karte_t* welt, spieler_t* sp, koord3d end, r
 	hang_t::typ grund_hang = alter_boden->get_grund_hang();
 	bruecke_besch_t::img_t img;
 
-	bruecke = new brueckenboden_t(welt, end, grund_hang, weg_hang);
+	bruecke = new brueckenboden_t(end, grund_hang, weg_hang);
 	// add the ramp
 	img = besch->get_end( bruecke->get_grund_hang(), grund_hang, weg_hang );
 
@@ -568,7 +568,7 @@ void brueckenbauer_t::baue_auffahrt(karte_t* welt, spieler_t* sp, koord3d end, r
 	else {
 		leitung_t *lt = bruecke->get_leitung();
 		if(!lt) {
-			lt = new leitung_t(welt, bruecke->get_pos(), sp);
+			lt = new leitung_t(bruecke->get_pos(), sp);
 			bruecke->obj_add( lt );
 		}
 		else {
@@ -578,7 +578,7 @@ void brueckenbauer_t::baue_auffahrt(karte_t* welt, spieler_t* sp, koord3d end, r
 		// connect to neighbor tiles and networks, add maintenance
 		lt->laden_abschliessen();
 	}
-	bruecke_t *br = new bruecke_t(welt, end, sp, besch, img);
+	bruecke_t *br = new bruecke_t(end, sp, besch, img);
 	bruecke->obj_add( br );
 	br->laden_abschliessen();
 	bruecke->calc_bild();
@@ -686,7 +686,7 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 				lt->entferne(old_owner);
 				delete lt;
 				// .. now create powerline to create new powernet
-				lt = new leitung_t(welt, gr->get_pos(), old_owner);
+				lt = new leitung_t(gr->get_pos(), old_owner);
 				lt->laden_abschliessen();
 				gr->obj_add(lt);
 			}
@@ -736,7 +736,7 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 		}
 
 		// then add the new ground, copy everything and replace the old one
-		grund_t *gr_new = new boden_t(welt, pos, gr->get_grund_hang());
+		grund_t *gr_new = new boden_t(pos, gr->get_grund_hang());
 		gr_new->take_obj_from( gr );
 		welt->access(pos.get_2d())->kartenboden_setzen( gr_new );
 

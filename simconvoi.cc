@@ -2035,22 +2035,22 @@ void convoi_t::rdwr(loadsave_t *file)
 			const bool last = (i==anz_vehikel-1u);
 			if(override_monorail) {
 				// ignore type for ancient monorails
-				v = new monorail_waggon_t(welt, file, first, last);
+				v = new monorail_waggon_t(file, first, last);
 			}
 			else {
 				switch(typ) {
 					case obj_t::old_automobil:
-					case obj_t::automobil: v = new automobil_t(welt, file, first, last);  break;
+					case obj_t::automobil: v = new automobil_t(file, first, last);  break;
 					case obj_t::old_waggon:
-					case obj_t::waggon:    v = new waggon_t(welt, file, first, last);     break;
+					case obj_t::waggon:    v = new waggon_t(file, first, last);     break;
 					case obj_t::old_schiff:
-					case obj_t::schiff:    v = new schiff_t(welt, file, first, last);     break;
+					case obj_t::schiff:    v = new schiff_t(file, first, last);     break;
 					case obj_t::old_aircraft:
-					case obj_t::aircraft:    v = new aircraft_t(welt, file, first, last);     break;
+					case obj_t::aircraft:    v = new aircraft_t(file, first, last);     break;
 					case obj_t::old_monorailwaggon:
-					case obj_t::monorailwaggon:    v = new monorail_waggon_t(welt, file, first, last);     break;
-					case obj_t::maglevwaggon:         v = new maglev_waggon_t(welt, file, first, last);     break;
-					case obj_t::narrowgaugewaggon:    v = new narrowgauge_waggon_t(welt, file, first, last);     break;
+					case obj_t::monorailwaggon:    v = new monorail_waggon_t(file, first, last);     break;
+					case obj_t::maglevwaggon:         v = new maglev_waggon_t(file, first, last);     break;
+					case obj_t::narrowgaugewaggon:    v = new narrowgauge_waggon_t(file, first, last);     break;
 					default:
 						dbg->fatal("convoi_t::convoi_t()","Can't load vehicle type %d", typ);
 				}

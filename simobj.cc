@@ -39,14 +39,13 @@
  * Change to instance variable once more than one world is available.
  * @author Hj. Malthaner
  */
-karte_t * obj_t::welt = NULL;
+karte_ptr_t obj_t::welt;
 
 bool obj_t::show_owner = false;
 
 
-void obj_t::init(karte_t *wl)
+void obj_t::init()
 {
-	welt = wl;
 	pos = koord3d::invalid;
 
 	xoff = 0;
@@ -59,22 +58,22 @@ void obj_t::init(karte_t *wl)
 }
 
 
-obj_t::obj_t(karte_t *wl)
+obj_t::obj_t()
 {
-	init(wl);
+	init();
 }
 
 
-obj_t::obj_t(karte_t *wl, loadsave_t *file)
+obj_t::obj_t(loadsave_t *file)
 {
-	init(wl);
+	init();
 	rdwr(file);
 }
 
 
-obj_t::obj_t(karte_t *wl, koord3d pos)
+obj_t::obj_t(koord3d pos)
 {
-	init(wl);
+	init();
 	this->pos = pos;
 }
 

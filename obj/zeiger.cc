@@ -16,7 +16,7 @@
 #include "../dataobj/environment.h"
 #include "zeiger.h"
 
-zeiger_t::zeiger_t(karte_t *welt, loadsave_t *file) : obj_no_info_t(welt)
+zeiger_t::zeiger_t(loadsave_t *file) : obj_no_info_t()
 {
 	bild = IMG_LEER;
 	after_bild = IMG_LEER;
@@ -26,8 +26,8 @@ zeiger_t::zeiger_t(karte_t *welt, loadsave_t *file) : obj_no_info_t(welt)
 }
 
 
-zeiger_t::zeiger_t(karte_t *welt, koord3d pos, spieler_t *sp) :
-    obj_no_info_t(welt, pos)
+zeiger_t::zeiger_t(koord3d pos, spieler_t *sp) :
+    obj_no_info_t(pos)
 {
 	set_besitzer( sp );
 	bild = IMG_LEER;

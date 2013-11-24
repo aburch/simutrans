@@ -31,15 +31,15 @@ static pthread_mutex_t add_label_mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
 
-label_t::label_t(karte_t *welt, loadsave_t *file) :
-	obj_t(welt)
+label_t::label_t(loadsave_t *file) :
+	obj_t()
 {
 	rdwr(file);
 }
 
 
-label_t::label_t(karte_t *welt, koord3d pos, spieler_t *sp, const char *text) :
-	obj_t(welt, pos)
+label_t::label_t(koord3d pos, spieler_t *sp, const char *text) :
+	obj_t(pos)
 {
 	set_besitzer( sp );
 	welt->add_label(pos.get_2d());

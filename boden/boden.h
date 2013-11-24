@@ -24,8 +24,8 @@ protected:
 	virtual void calc_bild_internal();
 
 public:
-	boden_t(karte_t *welt, loadsave_t *file, koord pos );
-	boden_t(karte_t *welt, koord3d pos, hang_t::typ slope);
+	boden_t(loadsave_t *file, koord pos );
+	boden_t(koord3d pos, hang_t::typ slope);
 
 	virtual void rdwr(loadsave_t *file);
 

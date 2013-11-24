@@ -37,8 +37,8 @@ public:
 
 	static const groundobj_besch_t *random_groundobj_for_climate(climate cl, hang_t::typ slope );
 
-	groundobj_t(karte_t *welt, loadsave_t *file);
-	groundobj_t(karte_t *welt, koord3d pos, const groundobj_besch_t *);
+	groundobj_t(loadsave_t *file);
+	groundobj_t(koord3d pos, const groundobj_besch_t *);
 
 	void rdwr(loadsave_t *file);
 

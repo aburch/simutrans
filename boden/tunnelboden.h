@@ -10,8 +10,8 @@ protected:
 	void calc_bild_internal();
 
 public:
-	tunnelboden_t(karte_t *welt, loadsave_t *file, koord pos );
-	tunnelboden_t(karte_t *welt, koord3d pos, hang_t::typ hang_typ) : boden_t(welt, pos, hang_typ) {}
+	tunnelboden_t(loadsave_t *file, koord pos );
+	tunnelboden_t(koord3d pos, hang_t::typ hang_typ) : boden_t(pos, hang_typ) {}
 
 	virtual void rdwr(loadsave_t *file);
 

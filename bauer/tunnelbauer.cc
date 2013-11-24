@@ -344,7 +344,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 	// Now we build the invisible part
 	while(pos!=end) {
 		assert(pos.get_2d()!=end.get_2d());
-		tunnelboden_t *tunnel = new tunnelboden_t(welt, pos, 0);
+		tunnelboden_t *tunnel = new tunnelboden_t( pos, 0);
 		welt->access(pos.get_2d())->boden_hinzufuegen(tunnel);
 		if(wegtyp != powerline_wt) {
 			weg = weg_t::alloc(besch->get_waytype());
@@ -354,13 +354,13 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 			spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype() );
 		}
 		else {
-			lt = new leitung_t(welt, tunnel->get_pos(), sp);
+			lt = new leitung_t(tunnel->get_pos(), sp);
 			lt->set_besch(weg_besch);
 			tunnel->obj_add( lt );
 			lt->laden_abschliessen();
 			spieler_t::add_maintenance( sp, -weg_besch->get_wartung(), powerline_wt );
 		}
-		tunnel->obj_add(new tunnel_t(welt, pos, sp, besch));
+		tunnel->obj_add(new tunnel_t(pos, sp, besch));
 		tunnel->calc_bild();
 		tunnel->set_flag(grund_t::dirty);
 		assert(!tunnel->ist_karten_boden());
@@ -380,7 +380,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 		}
 	}
 	else {
-		tunnelboden_t *tunnel = new tunnelboden_t(welt, pos, 0);
+		tunnelboden_t *tunnel = new tunnelboden_t( pos, 0);
 		welt->access(pos.get_2d())->boden_hinzufuegen(tunnel);
 		if(wegtyp != powerline_wt) {
 			weg = weg_t::alloc(besch->get_waytype());
@@ -390,13 +390,13 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 			spieler_t::add_maintenance( sp,  -weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype() );
 		}
 		else {
-			lt = new leitung_t(welt, tunnel->get_pos(), sp);
+			lt = new leitung_t(tunnel->get_pos(), sp);
 			lt->set_besch(weg_besch);
 			tunnel->obj_add( lt );
 			lt->laden_abschliessen();
 			spieler_t::add_maintenance( sp, -weg_besch->get_wartung(), powerline_wt );
 		}
-		tunnel->obj_add(new tunnel_t(welt, pos, sp, besch));
+		tunnel->obj_add(new tunnel_t(pos, sp, besch));
 		tunnel->calc_bild();
 		tunnel->set_flag(grund_t::dirty);
 		assert(!tunnel->ist_karten_boden());
@@ -417,8 +417,8 @@ void tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, koord3d end, koo
 		ribi = alter_boden->get_weg_ribi_unmasked(besch->get_waytype()) | ribi_typ(zv);
 	}
 
-	tunnelboden_t *tunnel = new tunnelboden_t(welt, end, alter_boden->get_grund_hang());
-	tunnel->obj_add(new tunnel_t(welt, end, sp, besch));
+	tunnelboden_t *tunnel = new tunnelboden_t( end, alter_boden->get_grund_hang());
+	tunnel->obj_add(new tunnel_t(end, sp, besch));
 
 	weg_t *weg = NULL;
 	if(besch->get_waytype()!=powerline_wt) {
@@ -446,7 +446,7 @@ void tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, koord3d end, koo
 	else {
 		leitung_t *lt = tunnel->get_leitung();
 		if(!lt) {
-			lt = new leitung_t(welt, tunnel->get_pos(), sp);
+			lt = new leitung_t(tunnel->get_pos(), sp);
 			lt->set_besch(weg_besch);
 			tunnel->obj_add( lt );
 			spieler_t::add_maintenance( sp, -weg_besch->get_wartung(), powerline_wt );
@@ -646,7 +646,7 @@ const char *tunnelbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d start, w
 		}
 
 		// then add the new ground, copy everything and replace the old one
-		grund_t *gr_new = new boden_t(welt, pos, gr->get_grund_hang());
+		grund_t *gr_new = new boden_t(pos, gr->get_grund_hang());
 		gr_new->take_obj_from( gr );
 		welt->access(pos.get_2d())->kartenboden_setzen(gr_new );
 

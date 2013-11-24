@@ -13,14 +13,14 @@
 #include "fundament.h"
 
 
-fundament_t::fundament_t(karte_t *welt, loadsave_t *file, koord pos ) : grund_t(welt, koord3d(pos,0) )
+fundament_t::fundament_t(loadsave_t *file, koord pos ) : grund_t(koord3d(pos,0) )
 {
 	rdwr(file);
 	slope = (uint8)hang_t::flach;
 }
 
 
-fundament_t::fundament_t(karte_t *welt, koord3d pos, hang_t::typ hang ) : grund_t(welt, pos)
+fundament_t::fundament_t(koord3d pos, hang_t::typ hang ) : grund_t(pos)
 {
 	set_bild( IMG_LEER );
 	if(hang) {

@@ -7,8 +7,8 @@
 class label_t : public obj_t
 {
 public:
-	label_t(karte_t *welt, loadsave_t *file);
-	label_t(karte_t *welt, koord3d pos, spieler_t *sp, const char *text);
+	label_t(loadsave_t *file);
+	label_t(koord3d pos, spieler_t *sp, const char *text);
 	~label_t();
 
 	void laden_abschliessen();

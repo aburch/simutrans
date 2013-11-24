@@ -256,12 +256,12 @@ void planquadrat_t::rdwr(karte_t *welt, loadsave_t *file, koord pos )
 
 			switch(gtyp) {
 				case -1: gr = NULL; break;
-				case grund_t::boden:	    gr = new boden_t(welt, file, pos);                 break;
-				case grund_t::wasser:	    gr = new wasser_t(welt, file, pos);                break;
-				case grund_t::fundament:	    gr = new fundament_t(welt, file, pos);	       break;
-				case grund_t::tunnelboden:	    gr = new tunnelboden_t(welt, file, pos);       break;
-				case grund_t::brueckenboden:    gr = new brueckenboden_t(welt, file, pos);     break;
-				case grund_t::monorailboden:	    gr = new monorailboden_t(welt, file, pos); break;
+				case grund_t::boden:	    gr = new boden_t(file, pos);                 break;
+				case grund_t::wasser:	    gr = new wasser_t(file, pos);                break;
+				case grund_t::fundament:	    gr = new fundament_t(file, pos);	       break;
+				case grund_t::tunnelboden:	    gr = new tunnelboden_t(file, pos);       break;
+				case grund_t::brueckenboden:    gr = new brueckenboden_t(file, pos);     break;
+				case grund_t::monorailboden:	    gr = new monorailboden_t(file, pos); break;
 				default:
 					gr = 0; // Hajo: keep compiler happy, fatal() never returns
 					dbg->fatal("planquadrat_t::rdwr()","Error while loading game: Unknown ground type '%d'",gtyp);
@@ -270,7 +270,7 @@ void planquadrat_t::rdwr(karte_t *welt, loadsave_t *file, koord pos )
 			if (gr  &&  gtyp == grund_t::fundament  &&  gr->find<gebaeude_t>() == NULL) {
 				koord3d pos = gr->get_pos();
 				// show normal ground here
-				grund_t *neu = new boden_t(welt, pos, 0);
+				grund_t *neu = new boden_t(pos, 0);
 				if(gr->get_flag(grund_t::has_text)) {
 					neu->set_flag(grund_t::has_text);
 					gr->clear_flag(grund_t::has_text);
@@ -327,11 +327,11 @@ void planquadrat_t::correct_water(karte_t *welt)
 	sint8 water_hgt = welt->get_water_hgt(k);
 	if(  gr  &&  gr->get_typ() != grund_t::wasser  &&  max_height <= water_hgt  ) {
 		// below water but ground => convert
-		kartenboden_setzen( new wasser_t( welt, koord3d( k, water_hgt ) ) );
+		kartenboden_setzen( new wasser_t(koord3d( k, water_hgt ) ) );
 	}
 	else if(  gr  &&  gr->get_typ() == grund_t::wasser  &&  max_height > water_hgt  ) {
 		// water above ground => to ground
-		kartenboden_setzen( new boden_t( welt, gr->get_pos(), gr->get_disp_slope() ) );
+		kartenboden_setzen( new boden_t(gr->get_pos(), gr->get_disp_slope() ) );
 	}
 	else if(  gr  &&  gr->get_typ() == grund_t::wasser  &&  gr->get_hoehe() != water_hgt  ) {
 		// water at wrong height
@@ -363,7 +363,7 @@ void planquadrat_t::abgesenkt(karte_t *welt)
 
 		koord k(gr->get_pos().get_2d());
 		if(  max_hgt <= welt->get_water_hgt( k )  &&  gr->get_typ() != grund_t::wasser  ) {
-			gr = new wasser_t(welt, gr->get_pos());
+			gr = new wasser_t(gr->get_pos());
 			kartenboden_setzen( gr );
 			// recalc water ribis of neighbors
 			for(int r=0; r<4; r++) {
@@ -392,7 +392,7 @@ void planquadrat_t::angehoben(karte_t *welt)
 
 		koord k(gr->get_pos().get_2d());
 		if(  max_hgt > welt->get_water_hgt( k )  &&  gr->get_typ() == grund_t::wasser  ) {
-			gr = new boden_t(welt, gr->get_pos(), slope );
+			gr = new boden_t(gr->get_pos(), slope );
 			kartenboden_setzen( gr );
 			// recalc water ribis
 			for(int r=0; r<4; r++) {
@@ -559,7 +559,7 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 
 	if( (grund_t::underground_mode == grund_t::ugm_all  ||  (grund_t::underground_mode == grund_t::ugm_level  &&  gr->get_hoehe() == grund_t::underground_level+1) )
 		&&  gr->get_typ()==grund_t::fundament
-		&&  werkzeug_t::general_tool[WKZ_TRANSFORMER]->is_selected(gr->get_welt())) {
+		&&  werkzeug_t::general_tool[WKZ_TRANSFORMER]->is_selected(world())) {
 		gebaeude_t *gb = gr->find<gebaeude_t>();
 		if(gb) {
 			fabrik_t* fab=gb->get_fabrik();

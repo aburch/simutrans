@@ -14,6 +14,7 @@ class convoi_t;
 class fabrik_t;
 class gebaeude_t;
 class grund_t;
+class karte_t;
 class karte_ptr_t;
 class koord;
 class koord3d;

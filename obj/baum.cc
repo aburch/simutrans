@@ -48,7 +48,7 @@ static image_id baumtype_to_bild[256][5*5];
 
 
 // distributes trees on a map
-void baum_t::distribute_trees(karte_t *welt, int dichte)
+void baum_t::distribute_trees(int dichte)
 {
 	// now we can proceed to tree planting routine itself
 	// best forests results are produced if forest size is tied to map size -
@@ -64,10 +64,10 @@ DBG_MESSAGE("verteile_baeume()","creating %i forest",c_forest_count);
 		// to have same execution order for simrand
 		koord const start = koord::koord_random(x, y);
 		koord const size  = koord(t_forest_size,t_forest_size) + koord::koord_random(t_forest_size, t_forest_size);
-		create_forest( welt, start, size );
+		create_forest( start, size );
 	}
 
-	fill_trees(welt, dichte);
+	fill_trees(dichte);
 }
 
 
@@ -98,7 +98,7 @@ int baum_t::get_anzahl_besch(climate cl)
 /**
  * tree planting function - it takes care of checking suitability of area
  */
-uint8 baum_t::plant_tree_on_coordinate(karte_t * welt, koord pos, const uint8 maximum_count, const uint8 count)
+uint8 baum_t::plant_tree_on_coordinate(koord pos, const uint8 maximum_count, const uint8 count)
 {
 	grund_t * gr = welt->lookup_kartenboden(pos);
 	if(  gr  ) {
@@ -125,7 +125,7 @@ uint8 baum_t::plant_tree_on_coordinate(karte_t * welt, koord pos, const uint8 ma
 			}
 			const uint8 count_planted = min( maximum_count - gr->get_top(), count);
 			for (uint8 i=0; i<count_planted; i++) {
-				gr->obj_add( new baum_t(welt, gr->get_pos()) ); //plants the tree(s)
+				gr->obj_add( new baum_t(gr->get_pos()) ); //plants the tree(s)
 			}
 			return count_planted;
 		}
@@ -137,7 +137,7 @@ uint8 baum_t::plant_tree_on_coordinate(karte_t * welt, koord pos, const uint8 ma
 /**
  * tree planting function - it takes care of checking suitability of area
  */
-bool baum_t::plant_tree_on_coordinate(karte_t * welt, koord pos, const baum_besch_t *besch, const bool check_climate, const bool random_age )
+bool baum_t::plant_tree_on_coordinate(koord pos, const baum_besch_t *besch, const bool check_climate, const bool random_age )
 {
 	// none there
 	if(  besch_names.empty()  ) {
@@ -165,7 +165,7 @@ bool baum_t::plant_tree_on_coordinate(karte_t * welt, koord pos, const baum_besc
 						return false;
 				}
 			}
-			baum_t *b = new baum_t(welt, gr->get_pos(), besch); //plants the tree
+			baum_t *b = new baum_t(gr->get_pos(), besch); //plants the tree
 			if(  random_age  ) {
 				b->geburt = welt->get_current_month() - simrand(703);
 				b->calc_off( welt->lookup( b->get_pos() )->get_grund_hang() );
@@ -178,7 +178,7 @@ bool baum_t::plant_tree_on_coordinate(karte_t * welt, koord pos, const baum_besc
 }
 
 
-uint32 baum_t::create_forest(karte_t *welt, koord new_center, koord wh )
+uint32 baum_t::create_forest(koord new_center, koord wh )
 {
 	// none there
 	if(  besch_names.empty()  ) {
@@ -209,14 +209,14 @@ uint32 baum_t::create_forest(karte_t *welt, koord new_center, koord wh )
 				}
 			}
 
-			number_of_new_trees += baum_t::plant_tree_on_coordinate(welt, koord((sint16)(xpos_f + x_tree_pos), (sint16)(ypos_f + y_tree_pos)), welt->get_settings().get_max_no_of_trees_on_square(), number_to_plant);
+			number_of_new_trees += baum_t::plant_tree_on_coordinate(koord((sint16)(xpos_f + x_tree_pos), (sint16)(ypos_f + y_tree_pos)), welt->get_settings().get_max_no_of_trees_on_square(), number_to_plant);
 		}
 	}
 	return number_of_new_trees;
 }
 
 
-void baum_t::fill_trees(karte_t *welt, int dichte)
+void baum_t::fill_trees(int dichte)
 {
 	// none there
 	if(  besch_names.empty()  ) {
@@ -232,7 +232,7 @@ DBG_MESSAGE("verteile_baeume()","distributing single trees");
 				uint16 cl = 1 << welt->get_climate(pos);
 				settings_t const& s = welt->get_settings();
 				if ((cl & s.get_no_tree_climates()) == 0 && ((cl & s.get_tree_climates()) != 0 || simrand(s.get_forest_inverse_spare_tree_density() * dichte) < 100)) {
-					plant_tree_on_coordinate(welt, pos, 1, 1);
+					plant_tree_on_coordinate(pos, 1, 1);
 				}
 			}
 		}
@@ -430,7 +430,7 @@ uint16 baum_t::random_tree_for_climate_intern(climate cl)
 }
 
 
-baum_t::baum_t(karte_t *welt, loadsave_t *file) : obj_t(welt)
+baum_t::baum_t(loadsave_t *file) : obj_t()
 {
 	season = 0;
 	geburt = welt->get_current_month();
@@ -439,7 +439,7 @@ baum_t::baum_t(karte_t *welt, loadsave_t *file) : obj_t(welt)
 }
 
 
-baum_t::baum_t(karte_t *welt, koord3d pos) : obj_t(welt, pos)
+baum_t::baum_t(koord3d pos) : obj_t(pos)
 {
 	// generate aged trees
 	// might underflow
@@ -451,7 +451,7 @@ baum_t::baum_t(karte_t *welt, koord3d pos) : obj_t(welt, pos)
 }
 
 
-baum_t::baum_t(karte_t *welt, koord3d pos, uint8 type, sint32 age, uint8 slope ) : obj_t(welt, pos)
+baum_t::baum_t(koord3d pos, uint8 type, sint32 age, uint8 slope ) : obj_t(pos)
 {
 	geburt = welt->get_current_month()-age; // might underflow
 	baumtype = type;
@@ -461,7 +461,7 @@ baum_t::baum_t(karte_t *welt, koord3d pos, uint8 type, sint32 age, uint8 slope )
 }
 
 
-baum_t::baum_t(karte_t *welt, koord3d pos, const baum_besch_t *besch) : obj_t(welt, pos)
+baum_t::baum_t(koord3d pos, const baum_besch_t *besch) : obj_t(pos)
 {
 	geburt = welt->get_current_month();
 	baumtype = baum_typen.index_of(besch);
@@ -481,7 +481,7 @@ bool baum_t::saee_baum()
 	const sint16 sy = simrand(5)-2;
 	const koord k = get_pos().get_2d() + koord(sx,sy);
 
-	return plant_tree_on_coordinate(welt, k, baum_typen[baumtype], true, false);
+	return plant_tree_on_coordinate(k, baum_typen[baumtype], true, false);
 }
 
 

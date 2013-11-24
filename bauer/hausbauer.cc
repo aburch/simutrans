@@ -393,18 +393,18 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb )
 						if(  gr2  &&  gr2!=gr  ) {
 							// there is another ground below or above
 							// => do not change height, keep foundation
-							welt->access(newk)->kartenboden_setzen( new boden_t( welt, gr->get_pos(), hang_t::flach ) );
+							welt->access(newk)->kartenboden_setzen( new boden_t( gr->get_pos(), hang_t::flach ) );
 							ground_recalc = false;
 						}
 						else if(  new_hgt <= welt->get_water_hgt(newk)  &&  new_slope == hang_t::flach  ) {
-							welt->access(newk)->kartenboden_setzen( new wasser_t( welt, koord3d( newk, new_hgt ) ) );
+							welt->access(newk)->kartenboden_setzen( new wasser_t( koord3d( newk, new_hgt ) ) );
 							welt->calc_climate( newk, true );
 						}
 						else {
 							if(  gr->get_grund_hang() == new_slope  ) {
 								ground_recalc = false;
 							}
-							welt->access(newk)->kartenboden_setzen( new boden_t( welt, koord3d( newk, new_hgt ), new_slope ) );
+							welt->access(newk)->kartenboden_setzen( new boden_t( koord3d( newk, new_hgt ), new_slope ) );
 							welt->calc_climate( newk, true );
 						}
 						// there might be walls from foundations left => thus some tiles may needs to be redraw
@@ -448,7 +448,7 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int org
 						DBG_MESSAGE("hausbauer_t::baue()","get_tile() empty at %i,%i",k.x,k.y);
 				continue;
 			}
-			gebaeude_t *gb = new gebaeude_t(welt, pos + k, sp, tile);
+			gebaeude_t *gb = new gebaeude_t(pos + k, sp, tile);
 			if (first_building == NULL) {
 				first_building = gb;
 			}
@@ -480,7 +480,7 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int org
 					gr->obj_loesche_alle(sp);	// alles weg außer vehikel ...
 				}
 				needs_ground_recalc |= gr->get_grund_hang()!=hang_t::flach;
-				grund_t *gr2 = new fundament_t(welt, gr->get_pos(), gr->get_grund_hang());
+				grund_t *gr2 = new fundament_t(gr->get_pos(), gr->get_grund_hang());
 				welt->access(gr->get_pos().get_2d())->boden_ersetzen(gr, gr2);
 				gr = gr2;
 //DBG_DEBUG("hausbauer_t::baue()","ground count now %i",gr->obj_count());
@@ -607,28 +607,28 @@ gebaeude_t *hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d po
 	if(  besch->get_utyp() == haus_besch_t::depot  ) {
 		switch(  besch->get_extra()  ) {
 			case track_wt:
-				gb = new bahndepot_t(welt, pos, sp, tile);
+				gb = new bahndepot_t(pos, sp, tile);
 				break;
 			case tram_wt:
-				gb = new tramdepot_t(welt, pos, sp, tile);
+				gb = new tramdepot_t(pos, sp, tile);
 				break;
 			case monorail_wt:
-				gb = new monoraildepot_t(welt, pos, sp, tile);
+				gb = new monoraildepot_t(pos, sp, tile);
 				break;
 			case maglev_wt:
-				gb = new maglevdepot_t(welt, pos, sp, tile);
+				gb = new maglevdepot_t(pos, sp, tile);
 				break;
 			case narrowgauge_wt:
-				gb = new narrowgaugedepot_t(welt, pos, sp, tile);
+				gb = new narrowgaugedepot_t(pos, sp, tile);
 				break;
 			case road_wt:
-				gb = new strassendepot_t(welt, pos, sp, tile);
+				gb = new strassendepot_t(pos, sp, tile);
 				break;
 			case water_wt:
-				gb = new schiffdepot_t(welt, pos, sp, tile);
+				gb = new schiffdepot_t(pos, sp, tile);
 				break;
 			case air_wt:
-				gb = new airdepot_t(welt, pos, sp, tile);
+				gb = new airdepot_t(pos, sp, tile);
 				break;
 			default:
 				dbg->fatal("hausbauer_t::neues_gebaeude()","waytpe %i has no depots!", besch->get_extra() );
@@ -636,7 +636,7 @@ gebaeude_t *hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d po
 		}
 	}
 	else {
-		gb = new gebaeude_t(welt, pos, sp, tile);
+		gb = new gebaeude_t(pos, sp, tile);
 	}
 //DBG_MESSAGE("hausbauer_t::neues_gebaeude()","building stop pri=%i",pri);
 

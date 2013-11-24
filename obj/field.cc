@@ -20,7 +20,7 @@
 #include "field.h"
 
 
-field_t::field_t(karte_t *welt, koord3d p, spieler_t *sp, const field_class_besch_t *besch, fabrik_t *fab) : obj_t(welt)
+field_t::field_t(koord3d p, spieler_t *sp, const field_class_besch_t *besch, fabrik_t *fab) : obj_t()
 {
 	this->besch = besch;
 	this->fab = fab;

@@ -21,14 +21,14 @@ const weg_besch_t *kanal_t::default_kanal=NULL;
 
 
 
-kanal_t::kanal_t(karte_t *welt, loadsave_t *file) :  weg_t(welt)
+kanal_t::kanal_t(loadsave_t *file) :  weg_t()
 {
 	rdwr(file);
 }
 
 
 
-kanal_t::kanal_t(karte_t *welt) : weg_t (welt)
+kanal_t::kanal_t() : weg_t()
 {
 	set_besch(default_kanal);
 }

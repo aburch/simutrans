@@ -22,8 +22,8 @@
 #include "signal.h"
 
 
-signal_t::signal_t( karte_t *welt, loadsave_t *file) :
-	roadsign_t(welt,file)
+signal_t::signal_t(loadsave_t *file) :
+	roadsign_t(file)
 {
 	if(besch==NULL) {
 		besch = roadsign_t::default_signal;

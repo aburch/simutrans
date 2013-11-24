@@ -17,13 +17,13 @@ class maglev_t : public schiene_t
 public:
 	static const weg_besch_t *default_maglev;
 
-	maglev_t(karte_t *welt) : schiene_t(welt) { set_besch(default_maglev); }
+	maglev_t() : schiene_t() { set_besch(default_maglev); }
 
 	/**
 	 * File loading constructor.
 	 * @author prissi
 	 */
-	maglev_t(karte_t *welt, loadsave_t *file);
+	maglev_t(loadsave_t *file);
 
 	virtual waytype_t get_waytype() const {return maglev_wt;}
 

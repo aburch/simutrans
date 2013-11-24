@@ -30,7 +30,7 @@ static pthread_mutex_t tunnel_calc_bild_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALI
 #endif
 
 
-tunnel_t::tunnel_t(karte_t* const welt, loadsave_t* const file) : obj_no_info_t(welt)
+tunnel_t::tunnel_t(loadsave_t* const file) : obj_no_info_t()
 {
 	besch = 0;
 	rdwr(file);
@@ -39,8 +39,8 @@ tunnel_t::tunnel_t(karte_t* const welt, loadsave_t* const file) : obj_no_info_t(
 }
 
 
-tunnel_t::tunnel_t(karte_t *welt, koord3d pos, spieler_t *sp, const tunnel_besch_t *besch) :
-	obj_no_info_t(welt, pos)
+tunnel_t::tunnel_t(koord3d pos, spieler_t *sp, const tunnel_besch_t *besch) :
+	obj_no_info_t(pos)
 {
 	assert(besch);
 	this->besch = besch;

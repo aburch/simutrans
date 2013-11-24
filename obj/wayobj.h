@@ -42,9 +42,9 @@ private:
 
 
 public:
-	wayobj_t(karte_t *welt, koord3d pos, spieler_t *besitzer, ribi_t::ribi dir, const way_obj_besch_t *besch);
+	wayobj_t(koord3d pos, spieler_t *besitzer, ribi_t::ribi dir, const way_obj_besch_t *besch);
 
-	wayobj_t(karte_t *welt, loadsave_t *file);
+	wayobj_t(loadsave_t *file);
 
 	virtual ~wayobj_t();
 
@@ -117,7 +117,7 @@ public:
 	static const way_obj_besch_t *default_oberleitung;
 
 	// use this constructor; it will extend a matching existing wayobj
-	static void extend_wayobj_t(karte_t *welt, koord3d pos, spieler_t *besitzer, ribi_t::ribi dir, const way_obj_besch_t *besch);
+	static void extend_wayobj_t(koord3d pos, spieler_t *besitzer, ribi_t::ribi dir, const way_obj_besch_t *besch);
 
 	static bool register_besch(way_obj_besch_t *besch);
 	static bool alles_geladen();
@@ -131,7 +131,7 @@ public:
 	 * Fill menu with icons of given stops from the list
 	 * @author Hj. Malthaner
 	 */
-	static void fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 sound_ok, const karte_t *welt);
+	static void fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 sound_ok);
 };
 
 #endif

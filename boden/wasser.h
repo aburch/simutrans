@@ -16,8 +16,8 @@ protected:
 	ribi_t::ribi ribi;
 
 public:
-	wasser_t(karte_t *welt, loadsave_t *file, koord pos ) : grund_t( welt, koord3d(pos,0) ), ribi(ribi_t::keine) { rdwr(file); }
-	wasser_t(karte_t *welt, koord3d pos) : grund_t(welt, pos), ribi(ribi_t::keine) {}
+	wasser_t(loadsave_t *file, koord pos ) : grund_t(koord3d(pos,0) ), ribi(ribi_t::keine) { rdwr(file); }
+	wasser_t(koord3d pos) : grund_t(pos), ribi(ribi_t::keine) {}
 
 	inline bool ist_wasser() const { return true; }
 

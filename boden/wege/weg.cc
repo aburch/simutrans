@@ -73,25 +73,25 @@ weg_t* weg_t::alloc(waytype_t wt)
 	switch(wt) {
 		case tram_wt:
 		case track_wt:
-			weg = new schiene_t(welt);
+			weg = new schiene_t();
 			break;
 		case monorail_wt:
-			weg = new monorail_t(welt);
+			weg = new monorail_t();
 			break;
 		case maglev_wt:
-			weg = new maglev_t(welt);
+			weg = new maglev_t();
 			break;
 		case narrowgauge_wt:
-			weg = new narrowgauge_t(welt);
+			weg = new narrowgauge_t();
 			break;
 		case road_wt:
-			weg = new strasse_t(welt);
+			weg = new strasse_t();
 			break;
 		case water_wt:
-			weg = new kanal_t(welt);
+			weg = new kanal_t();
 			break;
 		case air_wt:
-			weg = new runway_t(welt);
+			weg = new runway_t();
 			break;
 		default:
 			// keep compiler happy; should never reach here anyway

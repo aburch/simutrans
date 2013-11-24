@@ -24,7 +24,7 @@
 
 
 
-pillar_t::pillar_t(karte_t *welt, loadsave_t *file) : obj_t(welt)
+pillar_t::pillar_t(loadsave_t *file) : obj_t()
 {
 	besch = NULL;
 	asymmetric = false;
@@ -32,7 +32,7 @@ pillar_t::pillar_t(karte_t *welt, loadsave_t *file) : obj_t(welt)
 }
 
 
-pillar_t::pillar_t(karte_t *welt, koord3d pos, spieler_t *sp, const bruecke_besch_t *besch, bruecke_besch_t::img_t img, int hoehe) : obj_t(welt, pos)
+pillar_t::pillar_t(koord3d pos, spieler_t *sp, const bruecke_besch_t *besch, bruecke_besch_t::img_t img, int hoehe) : obj_t(pos)
 {
 	this->besch = besch;
 	this->dir = (uint8)img;

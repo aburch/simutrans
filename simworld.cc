@@ -609,11 +609,11 @@ void karte_t::cleanup_grounds_loop( sint16 x_min, sint16 x_max, sint16 y_min, si
 			gr->set_pos( koord3d( k, max( height, water_hgt ) ) );
 			if(  gr->get_typ() != grund_t::wasser  &&  max_hgt_nocheck(k) <= water_hgt  ) {
 				// below water but ground => convert
-				pl->kartenboden_setzen( new wasser_t(this, gr->get_pos()) );
+				pl->kartenboden_setzen( new wasser_t(gr->get_pos()) );
 			}
 			else if(  gr->get_typ() == grund_t::wasser  &&  max_hgt_nocheck(k) > water_hgt  ) {
 				// water above ground => to ground
-				pl->kartenboden_setzen( new boden_t(this, gr->get_pos(), slope ) );
+				pl->kartenboden_setzen( new boden_t(gr->get_pos(), slope ) );
 			}
 			else {
 				gr->set_grund_hang( slope );
@@ -1396,7 +1396,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing groundobjs");
 						const groundobj_besch_t *besch = groundobj_t::random_groundobj_for_climate( get_climate(k), gr->get_grund_hang() );
 						if(besch) {
 							queried = simrand(env_t::ground_object_probability*2-1);
-							gr->obj_add( new groundobj_t( this, gr->get_pos(), besch ) );
+							gr->obj_add( new groundobj_t( gr->get_pos(), besch ) );
 						}
 					}
 				}
@@ -1422,7 +1422,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing movingobjs");
 						if(  besch  &&  ( besch->get_waytype() != water_wt  ||  gr->get_hoehe() <= get_water_hgt_nocheck(k) )  ) {
 							if(besch->get_speed()!=0) {
 								queried = simrand(env_t::moving_object_probability*2);
-								gr->obj_add( new movingobj_t( this, gr->get_pos(), besch ) );
+								gr->obj_add( new movingobj_t( gr->get_pos(), besch ) );
 							}
 						}
 					}
@@ -1514,7 +1514,7 @@ DBG_DEBUG("karte_t::init()","init_felder");
 
 DBG_DEBUG("karte_t::init()","distributing trees");
 	if (!settings.get_no_trees()) {
-		baum_t::distribute_trees(this,3);
+		baum_t::distribute_trees(3);
 	}
 
 DBG_DEBUG("karte_t::init()","built timeline");
@@ -1550,7 +1550,7 @@ DBG_DEBUG("karte_t::init()","built timeline");
 
 	dbg->important("Preparing startup ...");
 	if(zeiger == 0) {
-		zeiger = new zeiger_t(this, koord3d::invalid, NULL );
+		zeiger = new zeiger_t(koord3d::invalid, NULL );
 	}
 
 	// finishes the line preparation and sets id 0 to invalid ...
@@ -2045,7 +2045,7 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 		for (sint16 iy = 0; iy<new_groesse_y; iy++) {
 			for (sint16 ix = (iy>=old_y)?0:old_x; ix<new_groesse_x; ix++) {
 				koord k(ix,iy);
-				access_nocheck(k)->kartenboden_setzen( new boden_t( this, koord3d( ix, iy, max( min_hgt_nocheck(k), get_water_hgt_nocheck(k) ) ), 0 ) );
+				access_nocheck(k)->kartenboden_setzen( new boden_t( koord3d( ix, iy, max( min_hgt_nocheck(k), get_water_hgt_nocheck(k) ) ), 0 ) );
 			}
 		}
 	}
@@ -5443,7 +5443,7 @@ void karte_t::load(loadsave_t *file)
 
 
 	// reinit pointer with new pointer object and old values
-	zeiger = new zeiger_t(this, koord3d::invalid, NULL );
+	zeiger = new zeiger_t(koord3d::invalid, NULL );
 
 	hausbauer_t::neue_karte();
 	fabrikbauer_t::neue_karte(this);
@@ -6110,7 +6110,7 @@ void karte_t::create_grounds_loop( sint16 x_min, sint16 x_max, sint16 y_min, sin
 	for(  int y = y_min;  y < y_max;  y++  ) {
 		for(  int x = x_min; x < x_max;  x++  ) {
 			koord k(x,y);
-			access_nocheck(k)->kartenboden_setzen( new boden_t( this, koord3d( x, y, max(min_hgt_nocheck(k),get_water_hgt_nocheck(k)) ), 0 ) );
+			access_nocheck(k)->kartenboden_setzen( new boden_t( koord3d( x, y, max(min_hgt_nocheck(k),get_water_hgt_nocheck(k)) ), 0 ) );
 		}
 	}
 }

@@ -69,7 +69,7 @@
  * Change to instance variable once more than one world is available.
  * @author Hj. Malthaner
  */
-karte_t * grund_t::welt = NULL;
+karte_ptr_t grund_t::welt;
 volatile bool grund_t::show_grid = false;
 
 uint8 grund_t::offsets[4]={0,1,2/*illegal!*/,2};
@@ -171,10 +171,8 @@ void grund_t::operator delete(void* p, size_t s)
 }
 
 
-grund_t::grund_t(karte_t *wl, loadsave_t *file)
+grund_t::grund_t(loadsave_t *file)
 {
-	// only used for saving?
-	welt = wl;
 	flags = 0;
 	back_bild_nr = 0;
 	rdwr(file);
@@ -244,7 +242,7 @@ void grund_t::rdwr(loadsave_t *file)
 		bool label;
 		file->rdwr_bool(label);
 		if(label) {
-			objlist.add( new label_t(welt, pos, welt->get_spieler(0), get_text() ) );
+			objlist.add( new label_t(pos, welt->get_spieler(0), get_text() ) );
 		}
 	}
 
@@ -344,27 +342,27 @@ void grund_t::rdwr(loadsave_t *file)
 						break;
 
 					case road_wt:
-						weg = new strasse_t (welt, file);
+						weg = new strasse_t(file);
 						break;
 
 					case monorail_wt:
-						weg = new monorail_t (welt, file);
+						weg = new monorail_t(file);
 						break;
 
 					case maglev_wt:
-						weg = new maglev_t (welt, file);
+						weg = new maglev_t(file);
 						break;
 
 					case narrowgauge_wt:
-						weg = new narrowgauge_t (welt, file);
+						weg = new narrowgauge_t(file);
 						break;
 
 					case track_wt: {
-						schiene_t *sch = new schiene_t (welt, file);
+						schiene_t *sch = new schiene_t(file);
 						if(sch->get_besch()->get_wtyp()==monorail_wt) {
 							dbg->warning("grund_t::rdwr()", "converting railroad to monorail at (%i,%i)",get_pos().x, get_pos().y);
 							// compatibility code: Convert to monorail
-							monorail_t *w= new monorail_t(welt);
+							monorail_t *w= new monorail_t();
 							w->set_besch(sch->get_besch());
 							w->set_max_speed(sch->get_max_speed());
 							w->set_ribi(sch->get_ribi_unmasked());
@@ -377,7 +375,7 @@ void grund_t::rdwr(loadsave_t *file)
 					} break;
 
 					case tram_wt:
-						weg = new schiene_t (welt, file);
+						weg = new schiene_t(file);
 						if(weg->get_besch()->get_styp()!=weg_t::type_tram) {
 							weg->set_besch(wegbauer_t::weg_search(tram_wt,weg->get_max_speed(),0,weg_t::type_tram));
 						}
@@ -386,7 +384,7 @@ void grund_t::rdwr(loadsave_t *file)
 					case water_wt:
 						// ignore old type dock ...
 						if(file->get_version()>=87000) {
-							weg = new kanal_t (welt, file);
+							weg = new kanal_t(file);
 						}
 						else {
 							uint8 d8;
@@ -404,7 +402,7 @@ void grund_t::rdwr(loadsave_t *file)
 						break;
 
 					case air_wt:
-						weg = new runway_t (welt, file);
+						weg = new runway_t(file);
 						break;
 				}
 
@@ -446,7 +444,7 @@ void grund_t::rdwr(loadsave_t *file)
 	}
 
 	// all objects on this tile
-	objlist.rdwr(welt, file, get_pos());
+	objlist.rdwr(file, get_pos());
 
 	// need to add a crossing for old games ...
 	if (file->is_loading()  &&  ist_uebergang()  &&  !find<crossing_t>(2)) {
@@ -454,18 +452,17 @@ void grund_t::rdwr(loadsave_t *file)
 		if(cr_besch==0) {
 			dbg->fatal("crossing_t::crossing_t()","requested for waytypes %i and %i but nothing defined!", ((weg_t *)obj_bei(0))->get_waytype(), ((weg_t *)obj_bei(1))->get_waytype() );
 		}
-		crossing_t *cr = new crossing_t( welt, obj_bei(0)->get_besitzer(), pos, cr_besch, ribi_t::ist_gerade_ns(get_weg(cr_besch->get_waytype(1))->get_ribi_unmasked()) );
+		crossing_t *cr = new crossing_t(obj_bei(0)->get_besitzer(), pos, cr_besch, ribi_t::ist_gerade_ns(get_weg(cr_besch->get_waytype(1))->get_ribi_unmasked()) );
 		objlist.add( cr );
 		crossing_logic_t::add( welt, cr, crossing_logic_t::CROSSING_INVALID );
 	}
 }
 
 
-grund_t::grund_t(karte_t *wl, koord3d pos)
+grund_t::grund_t(koord3d pos)
 {
 	this->pos = pos;
 	flags = 0;
-	welt = wl;
 	set_bild(IMG_LEER);    // setzt   flags = dirty;
 	back_bild_nr = 0;
 }
@@ -1725,7 +1722,7 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 				if(cr_besch==0) {
 					dbg->fatal("crossing_t::crossing_t()","requested for waytypes %i and %i but nothing defined!", weg->get_waytype(), w2 );
 				}
-				crossing_t *cr = new crossing_t( welt, obj_bei(0)->get_besitzer(), pos, cr_besch, ribi_t::ist_gerade_ns(get_weg(cr_besch->get_waytype(1))->get_ribi_unmasked()) );
+				crossing_t *cr = new crossing_t(obj_bei(0)->get_besitzer(), pos, cr_besch, ribi_t::ist_gerade_ns(get_weg(cr_besch->get_waytype(1))->get_ribi_unmasked()) );
 				objlist.add( cr );
 				cr->laden_abschliessen();
 			}
@@ -1986,7 +1983,7 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 					// remove remaining objs
 					obj_loesche_alle( sp );
 					// set to normal ground
-					welt->access(here)->kartenboden_setzen( new boden_t( welt, pos, slope ) );
+					welt->access(here)->kartenboden_setzen( new boden_t( pos, slope ) );
 					// now this is already deleted !
 				}
 			}

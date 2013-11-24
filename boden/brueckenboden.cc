@@ -17,7 +17,7 @@
 #include "wege/weg.h"
 
 
-brueckenboden_t::brueckenboden_t(karte_t *welt, koord3d pos, int grund_hang, int weg_hang) : grund_t(welt, pos)
+brueckenboden_t::brueckenboden_t(koord3d pos, int grund_hang, int weg_hang) : grund_t(pos)
 {
 	slope = grund_hang;
 	this->weg_hang = weg_hang;
@@ -90,7 +90,7 @@ void brueckenboden_t::rdwr(loadsave_t *file)
 			if(  kb && get_pos().z - kb->get_pos().z > 1 ) {
 				height = 2;
 			}
-			bruecke_t *br = new bruecke_t( welt, get_pos(), welt->get_spieler(1), br_besch, ist_karten_boden() ? br_besch->get_end( slope, get_grund_hang(), get_weg_hang() ) : br_besch->get_simple( w->get_ribi_unmasked(), height ) );
+			bruecke_t *br = new bruecke_t( get_pos(), welt->get_spieler(1), br_besch, ist_karten_boden() ? br_besch->get_end( slope, get_grund_hang(), get_weg_hang() ) : br_besch->get_simple( w->get_ribi_unmasked(), height ) );
 			obj_add( br );
 		}
 	}

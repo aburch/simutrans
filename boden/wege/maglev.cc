@@ -12,7 +12,7 @@ const weg_besch_t *maglev_t::default_maglev=NULL;
  * File loading constructor.
  * @author prissi
  */
-maglev_t::maglev_t(karte_t *welt, loadsave_t *file) : schiene_t(welt)
+maglev_t::maglev_t(loadsave_t *file) : schiene_t()
 {
 	rdwr(file);
 }

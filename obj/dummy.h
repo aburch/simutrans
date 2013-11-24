@@ -11,8 +11,8 @@
 class dummy_obj_t : public obj_t
 {
 	public:
-		dummy_obj_t(karte_t* welt, loadsave_t* file) :
-			obj_t(welt)
+		dummy_obj_t(loadsave_t* file) :
+			obj_t()
 		{
 			rdwr(file);
 			// do not remove from this position, since there will be nothing

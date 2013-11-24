@@ -761,10 +761,10 @@ void toolbar_t::update(karte_t *welt, spieler_t *sp)
 					tunnelbauer_t::fill_menu(wzw, way, get_sound(c), welt);
 				} else if (char const* const c = strstart(param, "signs(")) {
 					waytype_t const way = (waytype_t)atoi(c);
-					roadsign_t::fill_menu(wzw, way, get_sound(c), welt);
+					roadsign_t::fill_menu(wzw, way, get_sound(c));
 				} else if (char const* const c = strstart(param, "wayobjs(")) {
 					waytype_t const way = (waytype_t)atoi(c);
-					wayobj_t::fill_menu(wzw, way, get_sound(c), welt);
+					wayobj_t::fill_menu(wzw, way, get_sound(c));
 				} else if (char const* c = strstart(param, "buildings(")) {
 					haus_besch_t::utyp const utype = (haus_besch_t::utyp)atoi(c);
 					while(*c  &&  *c!=','  &&  *c!=')') {
@@ -980,7 +980,7 @@ void two_click_werkzeug_t::start_at( karte_t *welt, koord3d &new_start )
 	start = new_start;
 	if (is_local_execution()) {
 		welt->show_distance = new_start;
-		start_marker = new zeiger_t(welt, start, NULL);
+		start_marker = new zeiger_t(start, NULL);
 		start_marker->set_bild( get_marker_image() );
 		grund_t *gr = welt->lookup( start );
 		if( gr ) {

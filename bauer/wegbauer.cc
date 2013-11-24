@@ -581,7 +581,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		}
 		else {
 			// simulate empty elevated tile
-			static monorailboden_t to_dummy(welt, koord3d::invalid, hang_t::flach);
+			static monorailboden_t to_dummy(koord3d::invalid, hang_t::flach);
 			to_dummy.set_pos(pos);
 			to_dummy.set_grund_hang(to->get_grund_hang());
 			to = &to_dummy;
@@ -594,7 +594,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		}
 		else {
 			// simulate empty elevated tile
-			static monorailboden_t from_dummy(welt, koord3d::invalid, hang_t::flach);
+			static monorailboden_t from_dummy(koord3d::invalid, hang_t::flach);
 			from_dummy.set_pos(pos);
 			from_dummy.set_grund_hang(from->get_grund_hang());
 			from = &from_dummy;
@@ -1561,7 +1561,7 @@ void wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d z
 			bool bd_von_new = false, bd_nach_new = false;
 			grund_t *bd_von = welt->lookup(pos);
 			if(  bd_von == NULL ) {
-				bd_von = new tunnelboden_t(welt, pos, hang_t::flach);
+				bd_von = new tunnelboden_t(pos, hang_t::flach);
 				bd_von_new = true;
 			}
 			// take care of slopes
@@ -1578,7 +1578,7 @@ void wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d z
 				}
 			}
 			if(  bd_nach == NULL  ){
-				bd_nach = new tunnelboden_t(welt, pos + diff, hang_t::flach);
+				bd_nach = new tunnelboden_t(pos + diff, hang_t::flach);
 				bd_nach_new = true;
 			}
 			// check for tunnel and right slope
@@ -2052,18 +2052,18 @@ bool wegbauer_t::baue_tunnelboden()
 
 		if(gr==NULL) {
 			// make new tunnelboden
-			tunnelboden_t* tunnel = new tunnelboden_t(welt, route[i], 0);
+			tunnelboden_t* tunnel = new tunnelboden_t(route[i], 0);
 			welt->access(route[i].get_2d())->boden_hinzufuegen(tunnel);
 			if(tunnel_besch->get_waytype()!=powerline_wt) {
 				weg_t *weg = weg_t::alloc(tunnel_besch->get_waytype());
 				weg->set_besch( wb );
 				tunnel->neuen_weg_bauen(weg, route.get_ribi(i), sp);
-				tunnel->obj_add(new tunnel_t(welt, route[i], sp, tunnel_besch));
+				tunnel->obj_add(new tunnel_t(route[i], sp, tunnel_besch));
 				weg->set_max_speed(tunnel_besch->get_topspeed());
 				spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype());
 			} else {
-				tunnel->obj_add(new tunnel_t(welt, route[i], sp, tunnel_besch));
-				leitung_t *lt = new leitung_t(welt, tunnel->get_pos(), sp);
+				tunnel->obj_add(new tunnel_t(route[i], sp, tunnel_besch));
+				leitung_t *lt = new leitung_t(tunnel->get_pos(), sp);
 				lt->set_besch( wb );
 				tunnel->obj_add( lt );
 				lt->laden_abschliessen();
@@ -2101,7 +2101,7 @@ bool wegbauer_t::baue_tunnelboden()
 			} else {
 				leitung_t *lt = gr->get_leitung();
 				if(!lt) {
-					lt = new leitung_t(welt, gr->get_pos(), sp);
+					lt = new leitung_t(gr->get_pos(), sp);
 					lt->set_besch( wb );
 					gr->obj_add( lt );
 				} else {
@@ -2129,7 +2129,7 @@ void wegbauer_t::baue_elevated()
 		if(gr==NULL) {
 			hang_t::typ hang = gr0 ? gr0->get_grund_hang() : 0;
 			// add new elevated ground
-			monorailboden_t* const monorail = new monorailboden_t(welt, i, hang);
+			monorailboden_t* const monorail = new monorailboden_t(i, hang);
 			plan->boden_hinzufuegen(monorail);
 			monorail->calc_bild();
 		}
@@ -2196,7 +2196,7 @@ void wegbauer_t::baue_strasse()
 		}
 		else {
 			// make new way
-			strasse_t * str = new strasse_t(welt);
+			strasse_t * str = new strasse_t();
 
 			str->set_besch(besch);
 			str->set_gehweg(add_sidewalk);
@@ -2340,7 +2340,7 @@ void wegbauer_t::baue_leitung()
 				sint64 cost = gr->remove_trees();
 				spieler_t::book_construction_costs(sp, -cost, gr->get_pos().get_2d(), powerline_wt);
 			}
-			lt = new leitung_t( welt, route[i], sp );
+			lt = new leitung_t(route[i], sp );
 			gr->obj_add(lt);
 
 			// prissi: into UNDO-list, so we can remove it later

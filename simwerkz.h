@@ -388,7 +388,7 @@ public:
 class wkz_roadsign_t : public two_click_werkzeug_t {
 private:
 	const roadsign_besch_t* besch;
-	const char *place_sign_intern( karte_t *, spieler_t *, grund_t*, const roadsign_besch_t* b = NULL);
+	const char *place_sign_intern( spieler_t *, grund_t*, const roadsign_besch_t* b = NULL);
 
 	struct signal_info {
 		signal_info() : spacing(2), remove_intermediate(true), replace_other(true) {}
@@ -855,9 +855,9 @@ public:
 	wkz_fill_trees_t() : werkzeug_t(WKZ_FILL_TREES | SIMPLE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("Fill trees"); }
 	image_id get_icon(spieler_t *) const { return baum_t::get_anzahl_besch() > 0 ? icon : IMG_LEER; }
-	bool init( karte_t *welt, spieler_t * ) {
+	bool init( karte_t *, spieler_t * ) {
 		if(  baum_t::get_anzahl_besch() > 0  &&  default_param  ) {
-			baum_t::fill_trees( welt, atoi(default_param) );
+			baum_t::fill_trees( atoi(default_param) );
 		}
 		return false;
 	}

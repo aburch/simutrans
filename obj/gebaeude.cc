@@ -70,14 +70,14 @@ void gebaeude_t::init()
 
 
 
-gebaeude_t::gebaeude_t(karte_t *welt) : obj_t(welt)
+gebaeude_t::gebaeude_t() : obj_t()
 {
 	init();
 }
 
 
 
-gebaeude_t::gebaeude_t(karte_t *welt, loadsave_t *file) : obj_t(welt)
+gebaeude_t::gebaeude_t(loadsave_t *file) : obj_t()
 {
 	init();
 	rdwr(file);
@@ -92,8 +92,8 @@ gebaeude_t::gebaeude_t(karte_t *welt, loadsave_t *file) : obj_t(welt)
 
 
 
-gebaeude_t::gebaeude_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_tile_besch_t *t) :
-    obj_t(welt, pos)
+gebaeude_t::gebaeude_t(koord3d pos, spieler_t *sp, const haus_tile_besch_t *t) :
+    obj_t(pos)
 {
 	set_besitzer( sp );
 

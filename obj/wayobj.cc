@@ -51,13 +51,13 @@ const way_obj_besch_t *wayobj_t::default_oberleitung=NULL;
 stringhashtable_tpl<const way_obj_besch_t *> wayobj_t::table;
 
 
-wayobj_t::wayobj_t(karte_t* const welt, loadsave_t* const file) : obj_no_info_t(welt)
+wayobj_t::wayobj_t(loadsave_t* const file) : obj_no_info_t()
 {
 	rdwr(file);
 }
 
 
-wayobj_t::wayobj_t(karte_t* const welt, koord3d const pos, spieler_t* const besitzer, ribi_t::ribi const d, way_obj_besch_t const* const b) : obj_no_info_t(welt, pos)
+wayobj_t::wayobj_t(koord3d const pos, spieler_t* const besitzer, ribi_t::ribi const d, way_obj_besch_t const* const b) : obj_no_info_t(pos)
 {
 	besch = b;
 	dir = d;
@@ -332,7 +332,7 @@ void wayobj_t::calc_bild()
 
 /* better use this constrcutor for new wayobj; it will extend a matching obj or make an new one
  */
-void wayobj_t::extend_wayobj_t(karte_t *welt, koord3d pos, spieler_t *besitzer, ribi_t::ribi dir, const way_obj_besch_t *besch)
+void wayobj_t::extend_wayobj_t(koord3d pos, spieler_t *besitzer, ribi_t::ribi dir, const way_obj_besch_t *besch)
 {
 	grund_t *gr=welt->lookup(pos);
 	if(gr) {
@@ -355,7 +355,7 @@ void wayobj_t::extend_wayobj_t(karte_t *welt, koord3d pos, spieler_t *besitzer, 
 		}
 
 		// nothing found => make a new one
-		wayobj_t *wo = new wayobj_t(welt,pos,besitzer,dir,besch);
+		wayobj_t *wo = new wayobj_t(pos,besitzer,dir,besch);
 		gr->obj_add(wo);
 		wo->laden_abschliessen();
 		wo->calc_bild();
@@ -453,7 +453,7 @@ DBG_DEBUG( "wayobj_t::register_besch()","%s", besch->get_name() );
  * Fill menu with icons of given wayobjects from the list
  * @author Hj. Malthaner
  */
-void wayobj_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 /*sound_ok*/, const karte_t *welt)
+void wayobj_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 /*sound_ok*/)
 {
 	// check if scenario forbids this
 	if (!welt->get_scenario()->is_tool_allowed(welt->get_active_player(), WKZ_WAYOBJ | GENERAL_TOOL, wtyp)) {

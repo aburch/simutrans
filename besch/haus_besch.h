@@ -16,7 +16,9 @@
 
 class haus_besch_t;
 class werkzeug_t;
+class karte_t;
 class checksum_t;
+
 
 /*
  *  Autor:

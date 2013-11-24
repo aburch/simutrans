@@ -446,7 +446,7 @@ DBG_MESSAGE("wkz_remover_intern()","at (%s)", pos.get_str());
 			bruecke_t* br = gr->find<bruecke_t>();
 			if(  br == NULL  ) {
 				// no bridge? most likely transformer on a former bridge tile...
-				grund_t *gr_new = new boden_t(welt, pos, gr->get_grund_hang());
+				grund_t *gr_new = new boden_t(pos, gr->get_grund_hang());
 				gr_new->take_obj_from( gr );
 				welt->access(k)->kartenboden_setzen( gr_new );
 				gr = gr_new;
@@ -560,7 +560,7 @@ DBG_MESSAGE("wkz_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x, 
 			delete f;
 			// fields have foundations ...
 			sint8 dummy;
-			welt->access(k)->boden_ersetzen( gr, new boden_t(welt, gr->get_pos(), welt->recalc_natural_slope(k,dummy) ) );
+			welt->access(k)->boden_ersetzen( gr, new boden_t(gr->get_pos(), welt->recalc_natural_slope(k,dummy) ) );
 			welt->lookup_kartenboden(k)->calc_bild();
 			welt->lookup_kartenboden(k)->set_flag( grund_t::dirty );
 		}
@@ -1241,7 +1241,7 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 			if(  !gr1->ist_wasser()  &&  new_slope == 0  &&  hgt == water_hgt  &&  gr1->get_typ() != grund_t::tunnelboden  ) {
 				// now water
 				gr1->obj_loesche_alle(sp);
-				welt->access(k)->kartenboden_setzen( new wasser_t(welt,new_pos) );
+				welt->access(k)->kartenboden_setzen( new wasser_t(new_pos) );
 				gr1 = welt->lookup_kartenboden(k);
 			}
 			else if(  gr1->ist_wasser()  &&  (new_pos.z > water_hgt  ||  new_slope != 0)  ) {
@@ -1250,7 +1250,7 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 					return "Tile not empty.";
 				}
 				gr1->obj_loesche_alle(sp);
-				welt->access(k)->kartenboden_setzen( new boden_t(welt,new_pos,new_slope) );
+				welt->access(k)->kartenboden_setzen( new boden_t(new_pos,new_slope) );
 				gr1 = welt->lookup_kartenboden(k);
 				welt->set_water_hgt(k, welt->get_grundwasser()-4);
 			}
@@ -1333,7 +1333,7 @@ const char *wkz_marker_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 		if(!gr->get_text()) {
 			const obj_t* thing = gr->obj_bei(0);
 			if(thing == NULL  ||  thing->get_besitzer() == sp  ||  (spieler_t::check_owner(thing->get_besitzer(), sp)  &&  (thing->get_typ() != obj_t::gebaeude))) {
-				gr->obj_add(new label_t(welt, gr->get_pos(), sp, "\0"));
+				gr->obj_add(new label_t(gr->get_pos(), sp, "\0"));
 				if (is_local_execution()) {
 					gr->find<label_t>()->zeige_info();
 				}
@@ -1488,9 +1488,9 @@ const char *wkz_transformer_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 			return "Cannot built this station/building\nin underground mode here.";
 		}
 
-		tunnelboden_t* tunnel = new tunnelboden_t(welt, pos, 0);
+		tunnelboden_t* tunnel = new tunnelboden_t(pos, 0);
 		welt->access(k)->boden_hinzufuegen(tunnel);
-		tunnel->obj_add(new tunnel_t(welt, pos, sp, tunnel_besch));
+		tunnel->obj_add(new tunnel_t(pos, sp, tunnel_besch));
 		spieler_t::add_maintenance( sp, tunnel_besch->get_wartung(), tunnel_besch->get_finance_waytype() );
 		gr = tunnel;
 	}
@@ -1509,12 +1509,12 @@ const char *wkz_transformer_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 
 	// build source or drain depending on factory type
 	if(fab->get_besch()->is_electricity_producer()) {
-		pumpe_t *p = new pumpe_t(welt, gr->get_pos(), sp);
+		pumpe_t *p = new pumpe_t(gr->get_pos(), sp);
 		gr->obj_add( p );
 		p->laden_abschliessen();
 	}
 	else {
-		senke_t *s = new senke_t(welt, gr->get_pos(), sp);
+		senke_t *s = new senke_t(gr->get_pos(), sp);
 		gr->obj_add(s);
 		s->laden_abschliessen();
 	}
@@ -1553,7 +1553,7 @@ const char *wkz_add_city_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 				// always belong to player 1
 
 				int const citizens = (int)(welt->get_settings().get_mittlere_einwohnerzahl() * 0.9);
-				//  stadt_t *stadt = new stadt_t(welt, welt->get_spieler(1), pos,citizens/10+simrand(2*citizens+1));
+				//  stadt_t *stadt = new stadt_t(welt->get_spieler(1), pos,citizens/10+simrand(2*citizens+1));
 
 				// always start with 1/10 citicens
 				stadt_t* stadt = new stadt_t(welt->get_spieler(1), k, citizens / 10);
@@ -1673,7 +1673,7 @@ void wkz_set_climate_t::mark_tiles(karte_t *welt, spieler_t *, const koord3d &st
 		for(  k.y = k1.y;  k.y <= k2.y;  k.y++  ) {
 			grund_t *gr = welt->lookup_kartenboden( k );
 
-			zeiger_t *marker = new zeiger_t( welt, gr->get_pos(), NULL );
+			zeiger_t *marker = new zeiger_t(gr->get_pos(), NULL );
 
 			const uint8 grund_hang = gr->get_grund_hang();
 			const uint8 weg_hang = gr->get_weg_hang();
@@ -1987,7 +1987,7 @@ const char *wkz_plant_tree_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 			random_age = default_param[1]=='1';
 			besch = baum_t::find_tree(default_param+3);
 		}
-		if(besch  &&  baum_t::plant_tree_on_coordinate( welt, k, besch, check_climates, random_age )  ) {
+		if(besch  &&  baum_t::plant_tree_on_coordinate( k, besch, check_climates, random_age )  ) {
 			spieler_t::book_construction_costs(sp, welt->get_settings().cst_remove_tree, k, ignore_wt);
 			return NULL;
 		}
@@ -2275,14 +2275,14 @@ void wkz_wegebau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &sta
 			koord3d pos = bauigel.get_route()[j] + koord3d(0,0,offset);
 			grund_t *gr = welt->lookup( pos );
 			if( !gr ) {
-				gr = new monorailboden_t(welt, pos, 0);
+				gr = new monorailboden_t(pos, 0);
 				// should only be here when elevated/monorail, therefore will be at height offset above ground
 				gr->set_grund_hang( welt->lookup( pos - koord3d( 0, 0, offset ) )->get_grund_hang() );
 				welt->access(pos.get_2d())->boden_hinzufuegen(gr);
 			}
 			ribi_t::ribi zeige = gr->get_weg_ribi_unmasked(besch->get_wtyp()) | bauigel.get_route().get_ribi( j );
 
-			zeiger_t *way = new zeiger_t( welt, pos, NULL );
+			zeiger_t *way = new zeiger_t(pos, NULL );
 			if(gr->get_weg_hang()) {
 				way->set_bild( besch->get_hang_bild_nr(gr->get_weg_hang(),0) );
 			}
@@ -2381,7 +2381,7 @@ void wkz_brueckenbau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d 
 	const hang_t::typ slope = gr->get_grund_hang();
 	const uint8 max_height = slope ? ((slope & 7) ? 1 : 2) : (besch->has_double_ramp()?2:1);
 
-	zeiger_t *way = new zeiger_t( welt, start, sp );
+	zeiger_t *way = new zeiger_t(start, sp );
 	const bruecke_besch_t::img_t img0 = besch->get_end( slope, slope, hang_typ(zv)*max_height );
 
 	gr->obj_add( way );
@@ -2413,11 +2413,11 @@ void wkz_brueckenbau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d 
 	while (pos.get_2d()!=end.get_2d()) {
 		grund_t *gr = welt->lookup( pos );
 		if( !gr ) {
-			gr = new monorailboden_t(welt, pos, 0);
+			gr = new monorailboden_t(pos, 0);
 			gr->set_grund_hang( 0 );
 			welt->access(pos.get_2d())->boden_hinzufuegen(gr);
 		}
-		zeiger_t *way = new zeiger_t( welt, pos, sp );
+		zeiger_t *way = new zeiger_t(pos, sp );
 		gr->obj_add( way );
 		grund_t *kb = welt->lookup_kartenboden(pos.get_2d());
 		sint16 height = pos.z - kb->get_pos().z;
@@ -2439,7 +2439,7 @@ void wkz_brueckenbau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d 
 	const uint8 end_max_height = end_slope ? ((end_slope & 7) ? 1 : 2) : (pos.z-end.z);
 
 	if(  gr->ist_karten_boden()  &&  end.z + end_max_height == start.z + max_height  ) {
-		zeiger_t *way = new zeiger_t( welt, end, sp );
+		zeiger_t *way = new zeiger_t(end, sp );
 		const bruecke_besch_t::img_t img1 = besch->get_end( end_slope, end_slope, end_slope?0:(pos.z-end.z)*hang_typ(-zv) );
 		gr->obj_add( way );
 		way->set_bild(besch->get_hintergrund(img1, 0));
@@ -2708,12 +2708,12 @@ void wkz_tunnelbau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &s
 			grund_t *gr = welt->lookup(pos);
 			if( !gr ) {
 				// We need to create a dummy ground.
-				gr = new tunnelboden_t(welt, pos, 0);
+				gr = new tunnelboden_t(pos, 0);
 				welt->access(pos.get_2d())->boden_hinzufuegen(gr);
 			}
 			ribi_t::ribi zeige = gr->get_weg_ribi_unmasked(wb->get_wtyp()) | bauigel.get_route().get_ribi( j );
 
-			zeiger_t *way = new zeiger_t( welt, pos, sp );
+			zeiger_t *way = new zeiger_t(pos, sp );
 			if(gr->get_weg_hang()) {
 				way->set_bild( wb->get_hang_bild_nr(gr->get_weg_hang(),0) );
 			}
@@ -2808,7 +2808,7 @@ void wkz_wayremover_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &
 	bool can_built = calc_route( verbindung, sp, start, end );
 	if( can_built ) {
 		FOR(vector_tpl<koord3d>, const& pos, verbindung.get_route()) {
-			zeiger_t *marker = new zeiger_t( welt, pos, NULL );
+			zeiger_t *marker = new zeiger_t(pos, NULL );
 			marker->set_bild( cursor );
 			marker->mark_image_dirty( marker->get_bild(), 0 );
 			marked.insert( marker );
@@ -3020,7 +3020,7 @@ const char *wkz_wayremover_t::do_work( karte_t *welt, spieler_t *sp, const koord
 							delete gr;
 						}
 						else {
-							grund_t *gr_new = new boden_t(welt, gr->get_pos(), gr->get_grund_hang());
+							grund_t *gr_new = new boden_t(gr->get_pos(), gr->get_grund_hang());
 							welt->access(gr->get_pos().get_2d())->boden_ersetzen(gr, gr_new);
 							gr_new->calc_bild();
 						}
@@ -3176,7 +3176,7 @@ void wkz_wayobj_t::mark_tiles( karte_t * welt, spieler_t * sp, const koord3d &st
 
 			zeiger_t *way_obj = NULL;
 			if( build ) {
-				way_obj = new zeiger_t( welt, pos, NULL );
+				way_obj = new zeiger_t(pos, NULL );
 				if(  gr->get_weg_hang()  ) {
 					way_obj->set_after_bild( besch->get_front_slope_image_id(gr->get_weg_hang()) );
 					way_obj->set_bild( besch->get_back_slope_image_id(gr->get_weg_hang()) );
@@ -3192,7 +3192,7 @@ void wkz_wayobj_t::mark_tiles( karte_t * welt, spieler_t * sp, const koord3d &st
 			}
 			else {
 				if( gr->get_wayobj( wt ) ) {
-					way_obj = new zeiger_t( welt, pos, NULL );
+					way_obj = new zeiger_t(pos, NULL );
 					way_obj->set_bild( cursor ); //skinverwaltung_t::bauigelsymbol->get_bild_nr(0));
 				}
 			}
@@ -3220,7 +3220,7 @@ const char *wkz_wayobj_t::do_work( karte_t * welt, spieler_t * sp, const koord3d
 	koord3d_vector_t const& r = verbindung.get_route();
 	for(uint32 i=0;  i<verbindung.get_count();  i++  ) {
 		if( build ) {
-			wayobj_t::extend_wayobj_t(welt, r[i], sp, r.get_ribi(i), besch);
+			wayobj_t::extend_wayobj_t(r[i], sp, r.get_ribi(i), besch);
 		}
 		else {
 			if (wayobj_t* const wo = welt->lookup(r[i])->find<wayobj_t>()) {
@@ -4313,10 +4313,10 @@ void wkz_roadsign_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &st
 	// dummy roadsign to get images for preview
 	roadsign_t *dummy_rs;
 	if (besch->is_signal_type()) {
-		dummy_rs = new signal_t(welt, sp, koord3d::invalid, ribi_t::keine, besch);
+		dummy_rs = new signal_t(sp, koord3d::invalid, ribi_t::keine, besch);
 	}
 	else {
-		dummy_rs = new roadsign_t(welt, sp, koord3d::invalid, ribi_t::keine, besch);
+		dummy_rs = new roadsign_t(sp, koord3d::invalid, ribi_t::keine, besch);
 	}
 	dummy_rs->set_flag(obj_t::not_on_map);
 
@@ -4347,7 +4347,7 @@ void wkz_roadsign_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &st
 			// can we place signal here?
 			if (check_pos_intern(welt, sp, route.position_bei(i))==NULL  ||
 					(s.replace_other && rs && !rs->ist_entfernbar(sp))) {
-				zeiger_t* zeiger = new zeiger_t(welt, gr->get_pos(), sp );
+				zeiger_t* zeiger = new zeiger_t(gr->get_pos(), sp );
 				marked.append(zeiger);
 				zeiger->set_bild( skinverwaltung_t::bauigelsymbol->get_bild_nr(0) );
 				gr->obj_add( zeiger );
@@ -4362,7 +4362,7 @@ void wkz_roadsign_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &st
 				cost += rs ? (rs->get_besch()==besch ? 0  : besch->get_preis()+rs->get_besch()->get_preis()) : besch->get_preis();
 			}
 		} else if (s.remove_intermediate && rs && !rs->ist_entfernbar(sp)) {
-				zeiger_t* zeiger = new zeiger_t(welt, gr->get_pos(), sp );
+				zeiger_t* zeiger = new zeiger_t(gr->get_pos(), sp );
 				marked.append(zeiger);
 				zeiger->set_bild( werkzeug_t::general_tool[WKZ_REMOVER]->cursor );
 				gr->obj_add( zeiger );
@@ -4381,7 +4381,7 @@ const char *wkz_roadsign_t::do_work( karte_t *welt, spieler_t *sp, const koord3d
 	// single click ->place signal
 	if( end == koord3d::invalid  ||  start == end ) {
 		grund_t *gr = welt->lookup(start);
-		return place_sign_intern( welt, sp, gr );
+		return place_sign_intern( sp, gr );
 	}
 	// mark tiles to calculate positions of signals
 	mark_tiles(welt, sp, start, end);
@@ -4393,7 +4393,7 @@ const char *wkz_roadsign_t::do_work( karte_t *welt, spieler_t *sp, const koord3d
 		ribi_t::ribi dir = directions[j++];
 		if (dir) {
 			// try to place signal
-			const char* error_text =  place_sign_intern( welt, sp, gr );
+			const char* error_text =  place_sign_intern( sp, gr );
 			if(  error_text  ) {
 				if (signal[sp->get_player_nr()].replace_other) {
 					roadsign_t* rs = gr->find<signal_t>();
@@ -4401,7 +4401,7 @@ const char *wkz_roadsign_t::do_work( karte_t *welt, spieler_t *sp, const koord3d
 					if(  rs != NULL  &&  rs->ist_entfernbar(sp) == NULL  ) {
 						rs->entferne(sp);
 						delete rs;
-						error_text =  place_sign_intern( welt, sp, gr );
+						error_text =  place_sign_intern( sp, gr );
 					}
 				}
 			}
@@ -4451,7 +4451,7 @@ void wkz_roadsign_t::get_values( spieler_t *sp, uint8 &spacing, bool &remove, bo
 }
 
 
-const char *wkz_roadsign_t::place_sign_intern( karte_t *welt, spieler_t *sp, grund_t* gr, const roadsign_besch_t*)
+const char *wkz_roadsign_t::place_sign_intern( spieler_t *sp, grund_t* gr, const roadsign_besch_t*)
 {
 	const char * error = "Hier kann kein\nSignal aufge-\nstellt werden!\n";
 	// search for starting ground
@@ -4501,7 +4501,7 @@ const char *wkz_roadsign_t::place_sign_intern( karte_t *welt, spieler_t *sp, gru
 					rs->set_dir(dir);
 				} else {
 					// add a new signal at position zero!
-					rs = new signal_t(welt, sp, gr->get_pos(), dir, besch);
+					rs = new signal_t(sp, gr->get_pos(), dir, besch);
 					DBG_MESSAGE("wkz_roadsign()", "new signal, dir is %i", dir);
 					goto built_sign;
 				}
@@ -4531,7 +4531,7 @@ const char *wkz_roadsign_t::place_sign_intern( karte_t *welt, spieler_t *sp, gru
 						}
 					}
 					DBG_MESSAGE("wkz_roadsign()", "new roadsign, dir is %i", dir);
-					rs = new roadsign_t(welt, sp, gr->get_pos(), dir, besch);
+					rs = new roadsign_t(sp, gr->get_pos(), dir, besch);
 built_sign:
 					gr->obj_add(rs);
 					rs->laden_abschliessen();	// to make them visible
@@ -5318,7 +5318,7 @@ const char *wkz_add_citycar_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 
 	if(  gr != NULL  &&  ribi_t::is_twoway(gr->get_weg_ribi_unmasked(road_wt))  &&  gr->find<stadtauto_t>() == NULL) {
 		// add citycar
-		stadtauto_t* vt = new stadtauto_t(welt, gr, koord::invalid);
+		stadtauto_t* vt = new stadtauto_t(gr, koord::invalid);
 		gr->obj_add(vt);
 		welt->sync_add(vt);
 		return NULL;
@@ -5346,7 +5346,7 @@ void wkz_forest_t::mark_tiles( karte_t *welt, spieler_t *, const koord3d &start,
 		for(  k.y = k1.y;  k.y <= k2.y;  k.y++  ) {
 			grund_t *gr = welt->lookup_kartenboden( k );
 
-			zeiger_t *marker = new zeiger_t( welt, gr->get_pos(), NULL );
+			zeiger_t *marker = new zeiger_t(gr->get_pos(), NULL );
 
 			const uint8 grund_hang = gr->get_grund_hang();
 			const uint8 weg_hang = gr->get_weg_hang();
@@ -5374,7 +5374,7 @@ const char *wkz_forest_t::do_work( karte_t *welt, spieler_t *sp, const koord3d &
 	nw.x = min(start.x, end.x)+(wh.x/2);
 	nw.y = min(start.y, end.y)+(wh.y/2);
 
-	sint64 costs = baum_t::create_forest( welt, nw, wh );
+	sint64 costs = baum_t::create_forest( nw, wh );
 	spieler_t::book_construction_costs(sp, costs * welt->get_settings().cst_remove_tree, end.get_2d(), ignore_wt);
 
 	return NULL;

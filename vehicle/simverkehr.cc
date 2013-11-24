@@ -44,8 +44,8 @@
 /* Road users (Verkehrsteilnehmer) basis class from here on */
 
 
-verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt) :
-	vehikel_basis_t(welt)
+verkehrsteilnehmer_t::verkehrsteilnehmer_t() :
+	vehikel_basis_t()
 {
 	set_besitzer( welt->get_spieler(1) );
 	time_to_life = 0;
@@ -64,8 +64,8 @@ verkehrsteilnehmer_t::~verkehrsteilnehmer_t()
 }
 
 
-verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt, grund_t* bd, uint16 random) :
-	vehikel_basis_t(welt, bd ? bd->get_pos() : koord3d::invalid)
+verkehrsteilnehmer_t::verkehrsteilnehmer_t(grund_t* bd, uint16 random) :
+	vehikel_basis_t(bd ? bd->get_pos() : koord3d::invalid)
 {
 	ribi_t::ribi road_ribi = bd->get_weg_ribi(road_wt);
 
@@ -309,8 +309,8 @@ stadtauto_t::~stadtauto_t()
 }
 
 
-stadtauto_t::stadtauto_t(karte_t *welt, loadsave_t *file) :
-	verkehrsteilnehmer_t(welt)
+stadtauto_t::stadtauto_t(loadsave_t *file) :
+	verkehrsteilnehmer_t()
 {
 	rdwr(file);
 	ms_traffic_jam = 0;
@@ -321,8 +321,8 @@ stadtauto_t::stadtauto_t(karte_t *welt, loadsave_t *file) :
 }
 
 
-stadtauto_t::stadtauto_t(karte_t* const welt, grund_t* gr, koord const target) :
-	verkehrsteilnehmer_t(welt, gr, simrand(65535)),
+stadtauto_t::stadtauto_t(grund_t* gr, koord const target) :
+	verkehrsteilnehmer_t(gr, simrand(65535)),
 	besch(liste_timeline.empty() ? 0 : pick_any_weighted(liste_timeline))
 {
 	pos_next_next = koord3d::invalid;
