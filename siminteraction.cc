@@ -26,6 +26,9 @@
 #include "display/viewport.h"
 
 
+karte_ptr_t interaction_t::world;
+
+
 void interaction_t::move_view( const event_t &ev )
 {
 	koord new_ij = viewport->get_world_position();
@@ -400,9 +403,8 @@ void interaction_t::check_events()
 }
 
 
-interaction_t::interaction_t(karte_t *world)
+interaction_t::interaction_t()
 {
-	this->world = world;
 	viewport = world->get_viewport();
 	is_dragging = false;
 

@@ -1082,7 +1082,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	karte_ansicht_t *view = new karte_ansicht_t(welt);
 	welt->set_view( view );
 
-	interaction_t *eventmanager = new interaction_t(welt);
+	interaction_t *eventmanager = new interaction_t();
 	welt->set_eventmanager( eventmanager );
 
 	// some messages about old vehicle may appear ...

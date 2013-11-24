@@ -8,7 +8,7 @@
 #ifndef siminteraction_h
 #define siminteraction_h
 
-class karte_t;
+class karte_ptr_t;
 class viewport_t;
 struct event_t;
 
@@ -21,10 +21,9 @@ class interaction_t
 {
 private:
 	/**
-	 * World associated with this manager.
+	 * The associated world.
 	 */
-
-	karte_t *world;
+	static karte_ptr_t world;
 
 	/**
 	 * Associated viewport of the world, this is a cached value.
@@ -64,9 +63,9 @@ public:
 	void check_events();
 
 	/**
-	 * @note Requires a world with it's viewport already attached!
+	 * @note Requires world() with it's viewport already attached!
 	 */
-	interaction_t(karte_t *welt);
+	interaction_t();
 };
 
 #endif
