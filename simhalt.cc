@@ -715,7 +715,6 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 					break;
 				}
 			}
-			printf("Streetnames %d %d %d\n", count, idx, offset);
 			// as count % offset == 0 we are guaranteed to test all street names
 			for(uint32 i=0; i<count; i++) {
 				buf.clear();
