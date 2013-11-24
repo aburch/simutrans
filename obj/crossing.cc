@@ -159,7 +159,7 @@ void crossing_t::rdwr(loadsave_t *file)
 		if(besch==NULL) {
 			dbg->fatal("crossing_t::rdwr()","requested for waytypes %i and %i but nothing defined!", w1, w2 );
 		}
-		crossing_logic_t::add( welt, this, static_cast<crossing_logic_t::crossing_state_t>(zustand) );
+		crossing_logic_t::add( this, static_cast<crossing_logic_t::crossing_state_t>(zustand) );
 	}
 }
 
@@ -191,7 +191,7 @@ void crossing_t::laden_abschliessen()
 #ifdef MULTI_THREAD
 		pthread_mutex_lock( &crossing_logic_mutex );
 #endif
-		crossing_logic_t::add( welt, this, static_cast<crossing_logic_t::crossing_state_t>(zustand) );
+		crossing_logic_t::add( this, static_cast<crossing_logic_t::crossing_state_t>(zustand) );
 		logic->recalc_state();
 #ifdef MULTI_THREAD
 		pthread_mutex_unlock( &crossing_logic_mutex );

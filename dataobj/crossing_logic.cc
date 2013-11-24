@@ -24,7 +24,7 @@
 #include "../obj/crossing.h"
 
 
-karte_t *crossing_logic_t::welt = NULL;
+karte_ptr_t crossing_logic_t::welt;
 
 
 crossing_logic_t::crossing_logic_t( const kreuzung_besch_t *besch )
@@ -282,13 +282,12 @@ bool have_crossings_same_wt(const kreuzung_besch_t *c0, const kreuzung_besch_t *
 
 // returns a new or an existing crossing_logic_t object
 // new, of no matching crossings are next to it
-void crossing_logic_t::add( karte_t *w, crossing_t *start_cr, crossing_state_t zustand )
+void crossing_logic_t::add( crossing_t *start_cr, crossing_state_t zustand )
 {
 	koord3d pos = start_cr->get_pos();
 	const koord zv = start_cr->get_dir() ? koord::west : koord::nord;
 	slist_tpl<crossing_t *>crossings;
 	minivec_tpl<crossing_logic_t *>crossings_logics;
-	welt = w;
 
 	crossings.append_unique( start_cr );
 	if (crossing_logic_t *start_logic = start_cr->get_logic() ) {

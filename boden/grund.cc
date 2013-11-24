@@ -454,7 +454,7 @@ void grund_t::rdwr(loadsave_t *file)
 		}
 		crossing_t *cr = new crossing_t(obj_bei(0)->get_besitzer(), pos, cr_besch, ribi_t::ist_gerade_ns(get_weg(cr_besch->get_waytype(1))->get_ribi_unmasked()) );
 		objlist.add( cr );
-		crossing_logic_t::add( welt, cr, crossing_logic_t::CROSSING_INVALID );
+		crossing_logic_t::add( cr, crossing_logic_t::CROSSING_INVALID );
 	}
 }
 
