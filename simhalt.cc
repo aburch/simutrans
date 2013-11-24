@@ -702,11 +702,22 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 
 		// if there are street names, use them
 		if(  inside  ||  suburb  ) {
-			buf.clear();
-			vector_tpl<char *> street_names( translator::get_street_name_list() );
-			while(  !street_names.empty()  ) {
-				const uint32 idx = simrand(street_names.get_count());
-
+			const vector_tpl<char*>& street_names( translator::get_street_name_list() );
+			// random index
+			const uint32 count = street_names.get_count();
+			uint32 idx = simrand(count ? count : 5 /*to guarantee one random call*/);
+			static const uint32 some_primes[] = { 19, 31, 109, 199, 409, 571, 631, 829, 1489, 1999, 2341, 2971, 3529, 4621, 4789, 7039, 7669, 8779, 9721 };
+			// find prime that does not divide count
+			uint32 offset = 1;
+			for(uint8 i=0; i<lengthof(some_primes); i++) {
+				if (count % some_primes[i]==0) {
+					offset = some_primes[i];
+					break;
+				}
+			}
+			printf("Streetnames %d %d %d\n", count, idx, offset);
+			// as count % offset == 0 we are guaranteed to test all street names
+			for(uint32 i=0; i<count; i++) {
 				buf.clear();
 				if (cbuffer_t::check_format_strings("%s %s", street_names[idx])) {
 					buf.printf( street_names[idx], city_name, stop );
@@ -714,9 +725,7 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 						return strdup(buf);
 					}
 				}
-				// remove this entry
-				street_names[idx] = street_names.back();
-				street_names.pop_back();
+				idx += offset;
 			}
 			buf.clear();
 		}
