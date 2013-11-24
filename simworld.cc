@@ -1568,7 +1568,7 @@ DBG_DEBUG("karte_t::init()","built timeline");
 
 	active_player_nr = 0;
 	active_player = spieler[0];
-	werkzeug_t::update_toolbars(this);
+	werkzeug_t::update_toolbars();
 
 	set_dirty();
 	step_mode = PAUSE_FLAG;
@@ -2187,7 +2187,7 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 		reset_timer();
 	}
 	// update main menue
-	werkzeug_t::update_toolbars(this);
+	werkzeug_t::update_toolbars();
 }
 
 
@@ -3188,7 +3188,7 @@ void karte_t::local_set_werkzeug( werkzeug_t *w, spieler_t * sp )
 		return;
 	}
 	// now call init
-	bool init_result = w->init(this,sp);
+	bool init_result = w->init(sp);
 	// for unsafe tools init() must return false
 	assert(w->is_init_network_save()  ||  !init_result);
 
@@ -3203,7 +3203,7 @@ void karte_t::local_set_werkzeug( werkzeug_t *w, spieler_t * sp )
 
 			// only exit, if it is not the same tool again ...
 			sp_wkz->flags |= werkzeug_t::WFL_LOCAL;
-			sp_wkz->exit(this, sp);
+			sp_wkz->exit(sp);
 			sp_wkz->flags =0;
 		}
 
@@ -3215,7 +3215,7 @@ void karte_t::local_set_werkzeug( werkzeug_t *w, spieler_t * sp )
 			// set new cursor properties
 			w->init_cursor(zeiger);
 			// .. and mark again (if the position is acceptable for the tool)
-			if( w->check_valid_pos(this,zpos.get_2d())) {
+			if( w->check_valid_pos(zpos.get_2d())) {
 				zeiger->change_pos( zpos );
 			}
 			else {
@@ -4125,7 +4125,7 @@ void karte_t::new_month()
 	INT_CHECK("simworld 1921");
 
 	// update toolbars (i.e. new waytypes
-	werkzeug_t::update_toolbars(this);
+	werkzeug_t::update_toolbars();
 
 
 	if( !env_t::networkmode  &&  env_t::autosave>0  &&  last_month%env_t::autosave==0 ) {
@@ -5325,7 +5325,7 @@ DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 		recalc_average_speed();
 		mute_sound(false);
 
-		werkzeug_t::update_toolbars(this);
+		werkzeug_t::update_toolbars();
 		set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], get_active_player() );
 	}
 	settings.set_filename(filename);
@@ -6397,7 +6397,7 @@ void karte_t::switch_active_player(uint8 new_player, bool silent)
 		zeiger->change_pos( koord3d::invalid ); // unmark area
 		// exit active tool to remove pointers (for two_click_tool_t's, stop mover, factory linker)
 		if(werkzeug[active_player_nr]) {
-			werkzeug[active_player_nr]->exit(this, active_player);
+			werkzeug[active_player_nr]->exit(active_player);
 		}
 		active_player_nr = new_player;
 		active_player = spieler[new_player];
@@ -6409,7 +6409,7 @@ void karte_t::switch_active_player(uint8 new_player, bool silent)
 		}
 
 		// update menue entries
-		werkzeug_t::update_toolbars(this);
+		werkzeug_t::update_toolbars();
 		set_dirty();
 	}
 

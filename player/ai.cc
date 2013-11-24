@@ -108,7 +108,7 @@ bool ai_t::init_general_tool( int tool, const char *param )
 {
 	const char *old_param = werkzeug_t::general_tool[tool]->get_default_param();
 	werkzeug_t::general_tool[tool]->set_default_param(param);
-	bool ok = werkzeug_t::general_tool[tool]->init( welt, this );
+	bool ok = werkzeug_t::general_tool[tool]->init( this );
 	werkzeug_t::general_tool[tool]->set_default_param(old_param);
 	return ok;
 }
@@ -122,7 +122,7 @@ bool ai_t::call_general_tool( int tool, koord k, const char *param )
 	koord3d pos = gr ? gr->get_pos() : koord3d::invalid;
 	const char *old_param = werkzeug_t::general_tool[tool]->get_default_param();
 	werkzeug_t::general_tool[tool]->set_default_param(param);
-	const char * err = werkzeug_t::general_tool[tool]->work( welt, this, pos );
+	const char * err = werkzeug_t::general_tool[tool]->work( this, pos );
 	if(err) {
 		if(*err) {
 			dbg->message("ai_t::call_general_tool()","failed for tool %i at (%s) because of \"%s\"", tool, pos.get_str(), err );
@@ -363,7 +363,7 @@ bool ai_t::built_update_headquarter()
 			}
 			const char *err="No suitable ground!";
 			if(  place!=koord::invalid  ) {
-				err = werkzeug_t::general_tool[WKZ_HEADQUARTER]->work( welt, this, welt->lookup_kartenboden(place)->get_pos() );
+				err = werkzeug_t::general_tool[WKZ_HEADQUARTER]->work( this, welt->lookup_kartenboden(place)->get_pos() );
 				// success
 				if(  err==NULL  ) {
 					return true;

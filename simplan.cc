@@ -559,7 +559,7 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 
 	if( (grund_t::underground_mode == grund_t::ugm_all  ||  (grund_t::underground_mode == grund_t::ugm_level  &&  gr->get_hoehe() == grund_t::underground_level+1) )
 		&&  gr->get_typ()==grund_t::fundament
-		&&  werkzeug_t::general_tool[WKZ_TRANSFORMER]->is_selected(world())) {
+		&&  werkzeug_t::general_tool[WKZ_TRANSFORMER]->is_selected()) {
 		gebaeude_t *gb = gr->find<gebaeude_t>();
 		if(gb) {
 			fabrik_t* fab=gb->get_fabrik();

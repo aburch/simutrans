@@ -122,10 +122,10 @@ bool werkzeug_waehler_t::infowin_event(const event_t *ev)
 				}
 				else {
 					// right-click on toolbar icon closes toolbars and dialogues. Resets selectable simple and general tools to the query-tool
-					if (tool  &&  tool->is_selected(welt)  ) {
+					if (tool  &&  tool->is_selected()  ) {
 						// ->exit triggers werkzeug_waehler_t::infowin_event in the closing toolbar,
 						// which resets active tool to query tool
-						if(  tool->exit(welt, welt->get_active_player())  ) {
+						if(  tool->exit(welt->get_active_player())  ) {
 							welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], welt->get_active_player() );
 						}
 					}
@@ -137,7 +137,7 @@ bool werkzeug_waehler_t::infowin_event(const event_t *ev)
 	// this resets to query-tool, when closing toolsbar - but only for selected general tools in the closing toolbar
 	else if(ev->ev_class==INFOWIN &&  ev->ev_code==WIN_CLOSE) {
 		FOR(vector_tpl<tool_data_t>, const i, tools) {
-			if (i.tool->is_selected(welt) && i.tool->get_id() & GENERAL_TOOL) {
+			if (i.tool->is_selected() && i.tool->get_id() & GENERAL_TOOL) {
 				welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], welt->get_active_player() );
 				break;
 			}
@@ -188,11 +188,11 @@ void werkzeug_waehler_t::draw(scr_coord pos, scr_size)
 			display_fillbox_wh(draw_pos.x+icon.w-1, draw_pos.y, 1, icon.h, MN_GREY0, dirty);
 		}
 		else {
-			bool tool_dirty = dirty  ||  tools[i].tool->is_selected(welt) ^ tools[i].selected;
+			bool tool_dirty = dirty  ||  tools[i].tool->is_selected() ^ tools[i].selected;
 			display_color_img(icon_img, draw_pos.x, draw_pos.y, 0, false, tool_dirty);
-			tools[i].tool->draw_after( welt, draw_pos, tool_dirty);
+			tools[i].tool->draw_after( draw_pos, tool_dirty);
 			// store whether tool was selected
-			tools[i].selected = tools[i].tool->is_selected(welt);
+			tools[i].selected = tools[i].tool->is_selected();
 		}
 	}
 	if (dirty  &&  (tool_icon_disp_end-tool_icon_disp_start < tool_icon_width*tool_icon_height) ) {

@@ -503,7 +503,7 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		welt->update_map();
 
 		// renew toolbar
-		werkzeug_t::update_toolbars(welt);
+		werkzeug_t::update_toolbars();
 	} else
 
 	// Show grid checkbox
@@ -543,7 +543,7 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		welt->update_map();
 
 		// renew toolbar
-		werkzeug_t::update_toolbars(welt);
+		werkzeug_t::update_toolbars();
 	} else
 
 	// Hide buildings and trees under mouse cursor checkbox
@@ -554,7 +554,7 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		buttons[21].pressed = env_t::hide_under_cursor;
 
 		// renew toolbar
-		werkzeug_t::update_toolbars(welt);
+		werkzeug_t::update_toolbars();
 	} else
 
 	// Show schedule's stop checkbox

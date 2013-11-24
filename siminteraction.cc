@@ -78,12 +78,12 @@ void interaction_t::move_cursor( const event_t &ev )
 
 		if(  !env_t::networkmode  ||  wkz->is_move_network_save(world->get_active_player())) {
 			wkz->flags = event_get_last_control_shift() | werkzeug_t::WFL_LOCAL;
-			if(wkz->check_pos( world, world->get_active_player(), zeiger->get_pos() )==NULL) {
+			if(wkz->check_pos( world->get_active_player(), zeiger->get_pos() )==NULL) {
 				if(  ev.button_state == 0  ) {
 					is_dragging = false;
 				}
 				else if(ev.ev_class==EVENT_DRAG) {
-					if(!is_dragging  &&  wkz->check_pos( world, world->get_active_player(), prev_pos )==NULL) {
+					if(!is_dragging  &&  wkz->check_pos( world->get_active_player(), prev_pos )==NULL) {
 						const char* err = world->get_scenario()->is_work_allowed_here(world->get_active_player(), wkz->get_id(), wkz->get_waytype(), prev_pos);
 						if (err == NULL) {
 							is_dragging = true;
@@ -96,7 +96,7 @@ void interaction_t::move_cursor( const event_t &ev )
 				if (is_dragging) {
 					const char* err = world->get_scenario()->is_work_allowed_here(world->get_active_player(), wkz->get_id(), wkz->get_waytype(), pos);
 					if (err == NULL) {
-						wkz->move( world, world->get_active_player(), is_dragging, pos );
+						wkz->move( world->get_active_player(), is_dragging, pos );
 					}
 				}
 			}
@@ -219,10 +219,10 @@ void interaction_t::interactive_event( const event_t &ev )
 			bool result = true;
 			werkzeug_t *wkz = world->get_werkzeug(world->get_active_player_nr());
 			// first check for visibility etc
-			err = wkz->check_pos( world, world->get_active_player(), world->get_zeiger()->get_pos() );
+			err = wkz->check_pos( world->get_active_player(), world->get_zeiger()->get_pos() );
 			if (err==NULL) {
 				wkz->flags = event_get_last_control_shift();
-				if (!env_t::networkmode  ||  wkz->is_work_network_save()  ||  wkz->is_work_here_network_save( world, world->get_active_player(), world->get_zeiger()->get_pos() ) ) {
+				if (!env_t::networkmode  ||  wkz->is_work_network_save()  ||  wkz->is_work_here_network_save( world->get_active_player(), world->get_zeiger()->get_pos() ) ) {
 					// do the work
 					wkz->flags |= werkzeug_t::WFL_LOCAL;
 					// check allowance by scenario
@@ -236,7 +236,7 @@ void interaction_t::interactive_event( const event_t &ev )
 						}
 					}
 					if (err == NULL) {
-						err = wkz->work(world, world->get_active_player(), world->get_zeiger()->get_pos());
+						err = wkz->work(world->get_active_player(), world->get_zeiger()->get_pos());
 						if( err == NULL ) {
 							// Check if we need to update pointer(zeiger) position.
 							if ( wkz->update_pos_after_use() ) {
@@ -253,7 +253,7 @@ void interaction_t::interactive_event( const event_t &ev )
 					network_send_server(nwc);
 					result = false;
 					// reset tool
-					wkz->init(world, world->get_active_player());
+					wkz->init(world->get_active_player());
 				}
 			}
 			if (result) {

@@ -1157,15 +1157,15 @@ void nwc_tool_t::tool_node_t::set_tool(werkzeug_t *wkz_) {
 }
 
 
-void nwc_tool_t::tool_node_t::client_set_werkzeug(werkzeug_t* &wkz_new, const char* new_param, karte_t *welt, spieler_t *sp)
+void nwc_tool_t::tool_node_t::client_set_werkzeug(werkzeug_t* &wkz_new, const char* new_param, spieler_t *sp)
 {
 	assert(wkz_new);
 	// call init, before calling work
 	wkz_new->set_default_param(new_param);
-	if (wkz_new->init(welt, sp)) {
+	if (wkz_new->init(sp)) {
 		// exit old tool
 		if (wkz) {
-			wkz->exit(welt, sp);
+			wkz->exit(sp);
 		}
 		// now store tool and default_param
 		set_tool(wkz_new); // will delete old tool here
@@ -1219,7 +1219,7 @@ void nwc_tool_t::do_command(karte_t *welt)
 				// init command was not sent if wkz->is_init_network_safe() returned true
 				wkz->flags = 0;
 				// init tool and set default_param
-				tool_node->client_set_werkzeug(wkz, default_param, welt, sp);
+				tool_node->client_set_werkzeug(wkz, default_param, sp);
 			}
 		}
 
@@ -1238,7 +1238,7 @@ void nwc_tool_t::do_command(karte_t *welt)
 			if(  init  ) {
 				// we should be here only if wkz->init() returns false
 				// no need to change active tool of world
-				tool_node->client_set_werkzeug(wkz, default_param, welt, sp);
+				tool_node->client_set_werkzeug(wkz, default_param, sp);
 			}
 			// call WORK
 			else {
@@ -1247,7 +1247,7 @@ void nwc_tool_t::do_command(karte_t *welt)
 				if(active_wkz  &&  active_wkz->remove_preview_necessary()) {
 					active_wkz->cleanup(true);
 				}
-				const char *err = wkz->work( welt, sp, pos );
+				const char *err = wkz->work( sp, pos );
 				// only local players or AIs get the callback
 				if (local  ||  sp->get_ai_id()!=spieler_t::HUMAN) {
 					sp->tell_tool_result(wkz, pos, err, local);

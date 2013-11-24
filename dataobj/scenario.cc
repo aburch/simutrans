@@ -613,7 +613,7 @@ void scenario_t::step()
 
 	// update toolbars if necessary
 	if (need_toolbar_update) {
-		werkzeug_t::update_toolbars(welt);
+		werkzeug_t::update_toolbars();
 		need_toolbar_update = false;
 	}
 }

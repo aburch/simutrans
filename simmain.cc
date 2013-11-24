@@ -1139,7 +1139,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		//  start in June ...
 		intr_set(welt, view);
 		win_set_world(welt);
-		werkzeug_t::toolbar_tool[0]->init(welt,welt->get_active_player());
+		werkzeug_t::toolbar_tool[0]->init(welt->get_active_player());
 		welt->set_fast_forward(true);
 		welt->sync_step(5000,true,false);
 		welt->step_month(5);
@@ -1155,7 +1155,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		// just init view (world was loaded from file)
 		intr_set(welt, view);
 		win_set_world(welt);
-		werkzeug_t::toolbar_tool[0]->init(welt,welt->get_active_player());
+		werkzeug_t::toolbar_tool[0]->init(welt->get_active_player());
 	}
 
 	welt->set_fast_forward(false);

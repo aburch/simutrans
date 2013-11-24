@@ -165,6 +165,8 @@ private:
 	uint16 id;
 
 protected:
+	static karte_ptr_t welt;
+
 	const char *default_param;
 public:
 	uint16 get_id() const { return id; }
@@ -208,7 +210,7 @@ public:
 	static vector_tpl<werkzeug_t *> dialog_tool;
 	static vector_tpl<toolbar_t *> toolbar_tool;
 
-	static void update_toolbars(karte_t *welt);
+	static void update_toolbars();
 
 	// since only a single toolstr a time can be visible ...
 	static char toolstr[1024];
@@ -245,7 +247,7 @@ public:
 	virtual void rdwr_custom_data(uint8 /* player_nr */, memory_rw_t*) { }
 
 	// this will draw the tool with some indication, if active
-	virtual bool is_selected(const karte_t *welt) const;
+	virtual bool is_selected() const;
 
 	// when true, local execution would do no harm
 	virtual bool is_init_network_save() const { return false; }
@@ -255,10 +257,10 @@ public:
 	// and is_work_here_network_save(...)==false
 	// then work-command is sent over network
 	virtual bool is_work_network_save() const { return false; }
-	virtual bool is_work_here_network_save(karte_t *, spieler_t *, koord3d) { return false; }
+	virtual bool is_work_here_network_save(spieler_t *, koord3d) { return false; }
 
 	// will draw a dark frame, if selected
-	virtual void draw_after(karte_t *w, scr_coord pos, bool dirty) const;
+	virtual void draw_after(scr_coord pos, bool dirty) const;
 
 	virtual const char *get_tooltip(const spieler_t *) const { return NULL; }
 
@@ -271,13 +273,13 @@ public:
 	 * Returning false on init will automatically invoke previous tool.
 	 * Returning true will select tool and will make it possible to call work.
 	 */
-	virtual bool init( karte_t *, spieler_t * ) { return true; }
+	virtual bool init( spieler_t * ) { return true; }
 
 	/// initializes cursor (icon, marked area)
 	void init_cursor( zeiger_t * ) const;
 
 	// returning true on exit will have werkzeug_waehler resets to query-tool on right-click
-	virtual bool exit( karte_t *, spieler_t * ) { return true; }
+	virtual bool exit( spieler_t * ) { return true; }
 
 	/* the return string can have different meanings:
 	 * NULL: ok
@@ -286,9 +288,9 @@ public:
 	 * check: called before work (and move too?) koord3d already valid coordinate, checks visibility
 	 * work / move should depend on undergroundmode for not network safe tools
 	 */
-	virtual const char *check_pos( karte_t *, spieler_t *, koord3d );
-	virtual const char *work( karte_t *, spieler_t *, koord3d ) { return NULL; }
-	virtual const char *move( karte_t *, spieler_t *, uint16 /* buttonstate */, koord3d ) { return ""; }
+	virtual const char *check_pos( spieler_t *, koord3d );
+	virtual const char *work( spieler_t *, koord3d ) { return NULL; }
+	virtual const char *move( spieler_t *, uint16 /* buttonstate */, koord3d ) { return ""; }
 
 	/**
 	 * Returns whether the 2d koordinate passed it's a valid position for this tool to highlight a tile,
@@ -296,7 +298,7 @@ public:
 	 * @see check_pos
 	 * @return true is the coordinate it's found valid, false otherwise.
 	 */
-	bool check_valid_pos( karte_t *w, koord k ) const;
+	bool check_valid_pos(koord k ) const;
 
 	/**
 	 * Specifies if the cursor will need a position update after this tool takes effect (ie: changed the height of the tile)
@@ -315,7 +317,7 @@ class kartenboden_werkzeug_t : public werkzeug_t {
 public:
 	kartenboden_werkzeug_t(uint16 const id) : werkzeug_t(id) {}
 
-	char const* check_pos(karte_t*, spieler_t*, koord3d) OVERRIDE;
+	char const* check_pos(spieler_t*, koord3d) OVERRIDE;
 };
 
 /*
@@ -330,13 +332,13 @@ public:
 	}
 
 	void rdwr_custom_data(uint8 player_nr, memory_rw_t*) OVERRIDE;
-	bool init(karte_t*, spieler_t*) OVERRIDE;
-	bool exit(karte_t* const welt, spieler_t* const sp) OVERRIDE { return init(welt, sp); }
+	bool init(spieler_t*) OVERRIDE;
+	bool exit(spieler_t* const sp) OVERRIDE { return init(sp); }
 
-	char const* work(karte_t*, spieler_t*, koord3d) OVERRIDE;
-	char const* move(karte_t*, spieler_t*, uint16 /* buttonstate */, koord3d) OVERRIDE;
+	char const* work(spieler_t*, koord3d) OVERRIDE;
+	char const* move(spieler_t*, uint16 /* buttonstate */, koord3d) OVERRIDE;
 
-	bool is_work_here_network_save(karte_t*, spieler_t *, koord3d) OVERRIDE;
+	bool is_work_here_network_save(spieler_t *, koord3d) OVERRIDE;
 
 	/**
 	 * @returns true if cleanup() needs to be called before another tool can be executed
@@ -352,14 +354,14 @@ private:
 	/*
 	 * This routine should fill marked_tiles.
 	 */
-	virtual void mark_tiles( karte_t *, spieler_t *, const koord3d &start, const koord3d &end ) = 0;
+	virtual void mark_tiles( spieler_t *, const koord3d &start, const koord3d &end ) = 0;
 
 	/*
 	 * This routine is called, if the real work should be done.
 	 * If the tool supports single clicks, end is sometimes == koord3d::invalid.
 	 * Returned string is passed by work/move.
 	 */
-	virtual const char *do_work( karte_t *, spieler_t *, const koord3d &start, const koord3d &end ) = 0;
+	virtual const char *do_work( spieler_t *, const koord3d &start, const koord3d &end ) = 0;
 
 	/*
 	 * Can the tool start/end on pos? If it is the second click, start is the position of the first click
@@ -369,13 +371,13 @@ private:
 	 * 3 = Both (1 and 2)
 	 * error will contain an error message (if this is != NULL, return value should be 0).
 	 */
-	virtual uint8 is_valid_pos( karte_t *, spieler_t *, const koord3d &pos, const char *&error, const koord3d &start ) = 0;
+	virtual uint8 is_valid_pos( spieler_t *, const koord3d &pos, const char *&error, const koord3d &start ) = 0;
 
 	virtual image_id get_marker_image();
 
 	bool first_click_var;
 	koord3d start;
-	void start_at( karte_t *, koord3d &new_start );
+	void start_at( koord3d &new_start );
 
 	zeiger_t *start_marker;
 
@@ -403,14 +405,14 @@ public:
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate(default_param); }
 	werkzeug_waehler_t *get_werkzeug_waehler() const { return wzw; }
 	image_id get_icon(spieler_t*) const OVERRIDE;
-	bool is_selected(karte_t const*) const OVERRIDE;
+	bool is_selected() const OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
 	bool is_work_network_save() const OVERRIDE { return true; }
 	// show this toolbar
-	bool init(karte_t*, spieler_t*) OVERRIDE;
+	bool init(spieler_t*) OVERRIDE;
 	// close this toolbar
-	bool exit(karte_t*, spieler_t*) OVERRIDE;
-	void update(karte_t *, spieler_t *);	// just refresh content
+	bool exit(spieler_t*) OVERRIDE;
+	void update(spieler_t *);	// just refresh content
 	void append(werkzeug_t *w) { tools.append(w); }
 };
 

@@ -526,10 +526,10 @@ void ai_goods_t::create_rail_transport_vehikel(const koord platz1, const koord p
 		const way_obj_besch_t *e = wayobj_t::wayobj_search(track_wt,overheadlines_wt,welt->get_timeline_year_month());
 		wkz_wayobj_t wkz;
 		wkz.set_default_param(e->get_name());
-		wkz.init( welt, this );
-		wkz.work( welt, this, welt->lookup_kartenboden(platz1)->get_pos() );
-		wkz.work( welt, this, welt->lookup_kartenboden(platz2)->get_pos() );
-		wkz.exit( welt, this );
+		wkz.init( this );
+		wkz.work( this, welt->lookup_kartenboden(platz1)->get_pos() );
+		wkz.work( this, welt->lookup_kartenboden(platz2)->get_pos() );
+		wkz.exit( this );
 	}
 
 	koord3d start_pos = welt->lookup_kartenboden(pos1.get_2d() + (abs(size1.x)>abs(size1.y) ? koord(size1.x,0) : koord(0,size1.y)))->get_pos();
@@ -1086,10 +1086,10 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 					sprintf( param, "%i", track_wt );
 					wkz_wayremover_t wkz;
 					wkz.set_default_param(param);
-					wkz.init( welt, this );
-					wkz.work( welt, this, welt->lookup_kartenboden(platz1)->get_pos() );
-					wkz.work( welt, this, welt->lookup_kartenboden(platz2)->get_pos() );
-					wkz.exit( welt, this );
+					wkz.init( this );
+					wkz.work( this, welt->lookup_kartenboden(platz1)->get_pos() );
+					wkz.work( this, welt->lookup_kartenboden(platz2)->get_pos() );
+					wkz.exit( this );
 					if( (count_road != 255) && suche_platz1_platz2(start, ziel, 0) ) {
 						state = NR_BAUE_STRASSEN_ROUTE;
 					}
@@ -1280,10 +1280,10 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 						sprintf( param, "%i", track_wt );
 						wkz_wayremover_t wkz;
 						wkz.set_default_param(param);
-						wkz.init( welt, this );
-						wkz.work( welt, this, start_pos );
-						wkz.work( welt, this, end_pos );
-						wkz.exit( welt, this );
+						wkz.init( this );
+						wkz.work( this, start_pos );
+						wkz.work( this, end_pos );
+						wkz.exit( this );
 					}
 					else {
 						// last convoi => remove completely<
@@ -1294,17 +1294,17 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 							sprintf( param, "%i", wt );
 							wkz_wayremover_t wkz;
 							wkz.set_default_param(param);
-							wkz.init( welt, this );
-							wkz.work( welt, this, start_pos );
-							if(wkz.work( welt, this, end_pos )!=NULL) {
+							wkz.init( this );
+							wkz.work( this, start_pos );
+							if(wkz.work( this, end_pos )!=NULL) {
 								// cannot remove all => likely some other convois there too
 								// remove loading bays and road on start and end, if we cannot remove the whole way
-								wkz.work( welt, this, start_pos );
-								wkz.work( welt, this, start_pos );
-								wkz.work( welt, this, end_pos );
-								wkz.work( welt, this, end_pos );
+								wkz.work( this, start_pos );
+								wkz.work( this, start_pos );
+								wkz.work( this, end_pos );
+								wkz.work( this, end_pos );
 							}
-							wkz.exit( welt, this );
+							wkz.exit( this );
 						}
 					}
 					break;

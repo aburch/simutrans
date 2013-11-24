@@ -44,6 +44,7 @@
 #include "utils/simstring.h"
 #include "network/memory_rw.h"
 
+karte_ptr_t werkzeug_t::welt;
 
 // for key loockup; is always sorted during the game
 vector_tpl<werkzeug_t *>werkzeug_t::char_to_tool(0);
@@ -63,7 +64,7 @@ class wkz_dummy_t : public werkzeug_t {
 public:
 	wkz_dummy_t() : werkzeug_t(dummy_id) {}
 
-	bool init(karte_t*, spieler_t*) OVERRIDE { return false; }
+	bool init(spieler_t*) OVERRIDE { return false; }
 	bool is_init_network_save() const OVERRIDE { return true; }
 	bool is_work_network_save() const OVERRIDE { return true; }
 	bool is_move_network_save(spieler_t*) const OVERRIDE { return true; }
@@ -622,7 +623,7 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 }
 
 
-void werkzeug_t::update_toolbars(karte_t *welt)
+void werkzeug_t::update_toolbars()
 {
 	// renew toolbar
 	// iterate twice, to get correct icons if a toolbar changes between empty and non-empty
@@ -630,7 +631,7 @@ void werkzeug_t::update_toolbars(karte_t *welt)
 		bool change = false;
 		FOR(vector_tpl<toolbar_t*>, const i, toolbar_tool) {
 			bool old_icon_empty = i->get_icon(welt->get_active_player()) == IMG_LEER;
-			i->update(welt, welt->get_active_player());
+			i->update(welt->get_active_player());
 			change |= old_icon_empty ^ (i->get_icon(welt->get_active_player()) == IMG_LEER);
 		}
 		if (!change) {
@@ -641,32 +642,32 @@ void werkzeug_t::update_toolbars(karte_t *welt)
 }
 
 
-void werkzeug_t::draw_after(karte_t *welt, scr_coord pos, bool dirty) const
+void werkzeug_t::draw_after(scr_coord pos, bool dirty) const
 {
 	// default action: grey corner if selected
 	image_id id = get_icon( welt->get_active_player() );
-	if(  id!=IMG_LEER  &&  is_selected(welt)  ) {
+	if(  id!=IMG_LEER  &&  is_selected()  ) {
 		display_img_blend( id, pos.x, pos.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|COL_BLACK, false, dirty );
 	}
 }
 
-bool werkzeug_t::is_selected(const karte_t *welt) const
+bool werkzeug_t::is_selected() const
 {
 	return welt->get_werkzeug(welt->get_active_player_nr())==this;
 }
 
-const char *werkzeug_t::check_pos( karte_t *welt, spieler_t *, koord3d pos )
+const char *werkzeug_t::check_pos(spieler_t *, koord3d pos )
 {
 	grund_t *gr = welt->lookup(pos);
 	return (gr  &&  !gr->is_visible()) ? "" : NULL;
 }
 
-bool werkzeug_t::check_valid_pos( karte_t *w, koord k ) const
+bool werkzeug_t::check_valid_pos(koord k ) const
 {
 	if(is_grid_tool()) {
-		return w->is_within_grid_limits(k);
+		return welt->is_within_grid_limits(k);
 	}
-	return w->is_within_limits(k);
+	return welt->is_within_limits(k);
 };
 
 /**
@@ -681,7 +682,7 @@ void werkzeug_t::init_cursor( zeiger_t *zeiger) const
 	zeiger->set_area( cursor_area, cursor_centered);
 }
 
-const char *kartenboden_werkzeug_t::check_pos( karte_t *welt, spieler_t *, koord3d pos )
+const char *kartenboden_werkzeug_t::check_pos(spieler_t *, koord3d pos )
 {
 	grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
 	return (gr  &&  !gr->is_visible()) ? "" : NULL;
@@ -705,7 +706,7 @@ image_id toolbar_t::get_icon(spieler_t *sp) const
 
 
 // simply true, if visible
-bool toolbar_t::is_selected(const karte_t *) const
+bool toolbar_t::is_selected() const
 {
 	return win_get_magic(magic_toolbar + toolbar_tool.index_of(const_cast<toolbar_t*>(this)));
 }
@@ -726,7 +727,7 @@ static sint16 get_sound( const char *c )
 
 
 // fills and displays a toolbar
-void toolbar_t::update(karte_t *welt, spieler_t *sp)
+void toolbar_t::update(spieler_t *sp)
 {
 	const bool create = (wzw == NULL);
 	if(create) {
@@ -782,7 +783,7 @@ void toolbar_t::update(karte_t *welt, spieler_t *sp)
 			// get the right city_road
 			if(w->get_id() == (WKZ_CITYROAD | GENERAL_TOOL)) {
 				w->flags = 0;
-				w->init(welt,sp);
+				w->init(sp);
 			}
 			if(  create  ) {
 				DBG_DEBUG( "toolbar_t::update()", "add tool %i (param=%s)", w->get_id(), w->get_default_param() );
@@ -805,9 +806,9 @@ void toolbar_t::update(karte_t *welt, spieler_t *sp)
 
 
 // fills and displays a toolbar
-bool toolbar_t::init(karte_t *welt, spieler_t *sp)
+bool toolbar_t::init(spieler_t *sp)
 {
-	update( welt, sp );
+	update( sp );
 	bool close = (strcmp(this->default_param,"EDITTOOLS")==0  &&  sp!=welt->get_spieler(1));
 
 	// show/create window
@@ -825,7 +826,7 @@ bool toolbar_t::init(karte_t *welt, spieler_t *sp)
 }
 
 
-bool toolbar_t::exit( karte_t *, spieler_t *)
+bool toolbar_t::exit(spieler_t *)
 {
 	if(  win_get_magic(magic_toolbar+toolbar_tool.index_of(this))  ) {
 		destroy_win(wzw);
@@ -834,7 +835,7 @@ bool toolbar_t::exit( karte_t *, spieler_t *)
 }
 
 
-bool two_click_werkzeug_t::init( karte_t *welt, spieler_t *)
+bool two_click_werkzeug_t::init(spieler_t *)
 {
 	first_click_var = true;
 	start = koord3d::invalid;
@@ -861,13 +862,13 @@ bool two_click_werkzeug_t::is_first_click() const
 }
 
 
-bool two_click_werkzeug_t::is_work_here_network_save( karte_t *welt, spieler_t *sp, koord3d pos )
+bool two_click_werkzeug_t::is_work_here_network_save(spieler_t *sp, koord3d pos )
 {
 	if(  !is_first_click()  ) {
 		return false;
 	}
 	const char *error = "";	//default: nosound
-	uint8 value = is_valid_pos( welt, sp, pos, error, koord3d::invalid );
+	uint8 value = is_valid_pos( sp, pos, error, koord3d::invalid );
 	DBG_MESSAGE("two_click_werkzeug_t::is_work_here_network_save", "Position %s valid=%d", pos.get_str(), value );
 	if(  value == 0  ) {
 		return false;
@@ -885,7 +886,7 @@ bool two_click_werkzeug_t::is_work_here_network_save( karte_t *welt, spieler_t *
 }
 
 
-const char *two_click_werkzeug_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
+const char *two_click_werkzeug_t::work(spieler_t *sp, koord3d pos )
 {
 	if(  !is_first_click()  &&  start_marker  ) {
 		start = start_marker->get_pos(); // if map was rotated.
@@ -895,11 +896,11 @@ const char *two_click_werkzeug_t::work( karte_t *welt, spieler_t *sp, koord3d po
 	cleanup( true );
 
 	const char *error = "";	//default: nosound
-	uint8 value = is_valid_pos( welt, sp, pos, error, !is_first_click() ? start : koord3d::invalid );
+	uint8 value = is_valid_pos( sp, pos, error, !is_first_click() ? start : koord3d::invalid );
 	DBG_MESSAGE("two_click_werkzeug_t::work", "Position %s valid=%d", pos.get_str(), value );
 	if(  value == 0  ) {
 		flags &= ~(WFL_SHIFT | WFL_CTRL);
-		init( welt, sp );
+		init( sp );
 		return error;
 	}
 
@@ -908,27 +909,27 @@ const char *two_click_werkzeug_t::work( karte_t *welt, spieler_t *sp, koord3d po
 		if( (value & 1)  &&  !( (value & 2)  &&  is_ctrl_pressed())) {
 			// Work here directly.
 			DBG_MESSAGE("two_click_werkzeug_t::work", "Call tool at %s", pos.get_str() );
-			error = do_work( welt, sp, pos, koord3d::invalid );
+			error = do_work( sp, pos, koord3d::invalid );
 		}
 		else {
 			// set starting position.
 			DBG_MESSAGE("two_click_werkzeug_t::work", "Setting start to %s", pos.get_str() );
-			start_at( welt, pos );
+			start_at( pos );
 		}
 	}
 	else {
 		if( value & 2 ) {
 			DBG_MESSAGE("two_click_werkzeug_t::work", "Setting end to %s", pos.get_str() );
-			error = do_work( welt, sp, start, pos );
+			error = do_work( sp, start, pos );
 		}
 		flags &= ~(WFL_SHIFT | WFL_CTRL);
-		init( welt, sp ); // Do the cleanup stuff after(!) do_work (otherwise start==koord3d::invalid).
+		init( sp ); // Do the cleanup stuff after(!) do_work (otherwise start==koord3d::invalid).
 	}
 	return error;
 }
 
 
-const char *two_click_werkzeug_t::move( karte_t *welt, spieler_t *sp, uint16 buttonstate, koord3d pos )
+const char *two_click_werkzeug_t::move(spieler_t *sp, uint16 buttonstate, koord3d pos )
 {
 	DBG_MESSAGE("two_click_werkzeug_t::move", "Button: %d, Pos: %s", buttonstate, pos.get_str());
 	if(  buttonstate == 0  ) {
@@ -936,7 +937,7 @@ const char *two_click_werkzeug_t::move( karte_t *welt, spieler_t *sp, uint16 but
 	}
 
 	if(  start == pos  ) {
-		init( welt, sp );
+		init( sp );
 	}
 
 	const char *error = NULL;
@@ -945,12 +946,12 @@ const char *two_click_werkzeug_t::move( karte_t *welt, spieler_t *sp, uint16 but
 		// start dragging.
 		cleanup( true );
 
-		uint8 value = is_valid_pos( welt, sp, pos, error, koord3d::invalid );
+		uint8 value = is_valid_pos( sp, pos, error, koord3d::invalid );
 		if( error || value == 0 ) {
 			return error;
 		}
 		if( value & 2 ) {
-			start_at( welt, pos );
+			start_at( pos );
 		}
 	}
 	else {
@@ -960,13 +961,13 @@ const char *two_click_werkzeug_t::move( karte_t *welt, spieler_t *sp, uint16 but
 		if( start_marker ) {
 			start = start_marker->get_pos(); // if map was rotated.
 		}
-		uint8 value = is_valid_pos( welt, sp, pos, error, start );
+		uint8 value = is_valid_pos( sp, pos, error, start );
 		if( error || value == 0 ) {
 			return error;
 		}
 		if( value & 2 ) {
 			display_show_load_pointer( true );
-			mark_tiles( welt, sp, start, pos );
+			mark_tiles( sp, start, pos );
 			display_show_load_pointer( false );
 		}
 	}
@@ -974,7 +975,7 @@ const char *two_click_werkzeug_t::move( karte_t *welt, spieler_t *sp, uint16 but
 }
 
 
-void two_click_werkzeug_t::start_at( karte_t *welt, koord3d &new_start )
+void two_click_werkzeug_t::start_at(koord3d &new_start )
 {
 	first_click_var = false;
 	start = new_start;
@@ -993,7 +994,6 @@ void two_click_werkzeug_t::start_at( karte_t *welt, koord3d &new_start )
 
 void two_click_werkzeug_t::cleanup( bool delete_start_marker )
 {
-	karte_t *welt = spieler_t::get_welt();
 	// delete marker.
 	if(  start_marker!=NULL  &&  delete_start_marker) {
 		start_marker->mark_image_dirty( start_marker->get_bild(), 0 );

@@ -494,7 +494,7 @@ void rdwr_all_win(loadsave_t *file)
 							w = new schedule_list_gui_t( wl->get_spieler(id-magic_line_management_t) );
 						}
 						else if(  id>=magic_toolbar  &&  id<magic_toolbar+256  ) {
-							werkzeug_t::toolbar_tool[id-magic_toolbar]->update(wl,wl->get_active_player());
+							werkzeug_t::toolbar_tool[id-magic_toolbar]->update(wl->get_active_player());
 							w = werkzeug_t::toolbar_tool[id-magic_toolbar]->get_werkzeug_waehler();
 						}
 						else {
