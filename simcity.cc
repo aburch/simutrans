@@ -2548,6 +2548,8 @@ void stadt_t::calc_growth()
 	const sint32 electricity = (sint32) city_history_month[0][HIST_POWER_NEEDED] == 0 ? 0 : (city_history_month[0][HIST_POWER_RECIEVED] * (electricity_proportion<<6)) / (city_history_month[0][HIST_POWER_NEEDED]);
 	const sint32 goods = (sint32) city_history_month[0][HIST_GOODS_NEEDED]==0 ? 0 : (city_history_month[0][HIST_GOODS_RECIEVED] * (s.get_goods_multiplier()<<6)) / (city_history_month[0][HIST_GOODS_NEEDED]);
 
+	const sint32 total_supply_percentage = pas + mail + electricity + goods;
+
 	// smaller towns should growth slower to have villages for a longer time
 	sint32 weight_factor = s.get_growthfactor_large();
 	if(  bev < (sint64)s.get_city_threshold_size()  ) {
@@ -2558,7 +2560,7 @@ void stadt_t::calc_growth()
 	}
 
 	// now give the growth for this step
-	sint32 growth_factor = weight_factor > 0 ? (pas+mail+electricity+goods) / weight_factor : 0;
+	sint32 growth_factor = weight_factor > 0 ? total_supply_percentage / weight_factor : 0;
 	
 	//Congestion adversely impacts on growth. At 100% congestion, there will be no growth. 
 	if(city_history_month[0][HIST_CONGESTION] > 0)
@@ -2567,7 +2569,22 @@ void stadt_t::calc_growth()
 		growth_factor -= (congestion_factor * growth_factor) / 100;
 	}
 	
-	wachstum += growth_factor;
+	sint64 new_wachstum = growth_factor;
+
+	// OK.  Now we must adjust for the steps per month.
+	// Cities were growing way too fast without this adjustment.
+	// The original value was based on 18 bit months.
+	// TO DO: implement a more realistic city growth algorithm (exponential not linear)
+	const sint64 tpm = welt->ticks_per_world_month;
+	const sint64 old_ticks_per_world_month = 1LL < 18;
+	if (tpm > old_ticks_per_world_month) {
+		new_wachstum *= (tpm / old_ticks_per_world_month);
+	}
+	else {
+		new_wachstum /= (old_ticks_per_world_month / tpm);
+	}
+
+	new_wachstum += new_wachstum;
 }
 
 
