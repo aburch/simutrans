@@ -21,21 +21,17 @@
 #include "../../dataobj/koord3d.h"
 
 
-karte_t *world_view_t::welt = NULL;
 
-
-world_view_t::world_view_t(karte_t* w, scr_size size ) :
+world_view_t::world_view_t(scr_size size ) :
 		raster(get_base_tile_raster_width())
 {
-	welt = w;
 	set_size( size );
 }
 
 
-world_view_t::world_view_t(karte_t* w) :
+world_view_t::world_view_t() :
 		raster(get_base_tile_raster_width())
 {
-	welt = w;
 }
 
 

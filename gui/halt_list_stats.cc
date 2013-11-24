@@ -41,7 +41,7 @@ bool halt_list_stats_t::infowin_event(const event_t *ev)
 			return true;
 		}
 		if(IS_RIGHTRELEASE(ev)) {
-			halt->get_welt()->get_viewport()->change_world_position(halt->get_basis_pos3d());
+			welt->get_viewport()->change_world_position(halt->get_basis_pos3d());
 			return true;
 		}
 	}

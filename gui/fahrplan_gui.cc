@@ -39,7 +39,6 @@
 #include "components/gui_button.h"
 #include "karte.h"
 
-karte_t *fahrplan_gui_t::welt = NULL;
 
 
 // shows/deletes highlighting of tiles
@@ -95,7 +94,7 @@ void fahrplan_gui_stats_t::highlight_schedule( schedule_t *markfpl, bool marking
 /**
  * Append description of entry to buf.
  */
-static void gimme_stop_name(cbuffer_t& buf, karte_t* const welt, spieler_t const* const sp, linieneintrag_t const& entry)
+static void gimme_stop_name(cbuffer_t& buf, karte_t* welt, spieler_t const* const sp, linieneintrag_t const& entry)
 {
 	char const* what;
 	halthandle_t const halt = haltestelle_t::get_halt(welt, entry.pos, sp);
@@ -125,7 +124,7 @@ static void gimme_stop_name(cbuffer_t& buf, karte_t* const welt, spieler_t const
 }
 
 
-void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t& buf, karte_t* const welt, spieler_t const* const sp, linieneintrag_t const& entry, int const max_chars)
+void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t& buf, karte_t* welt, spieler_t const* const sp, linieneintrag_t const& entry, int const max_chars)
 {
 	const char *p;
 	halthandle_t halt = haltestelle_t::get_halt(welt, entry.pos, sp);
@@ -156,7 +155,6 @@ void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t& buf, karte_t* const welt, 
 
 
 zeiger_t *fahrplan_gui_stats_t::aktuell_mark = NULL;
-karte_t *fahrplan_gui_stats_t::welt = NULL;
 cbuffer_t fahrplan_gui_stats_t::buf;
 
 void fahrplan_gui_stats_t::draw(scr_coord offset)
@@ -200,9 +198,8 @@ void fahrplan_gui_stats_t::draw(scr_coord offset)
 
 
 
-fahrplan_gui_stats_t::fahrplan_gui_stats_t(karte_t* w, spieler_t *s)
+fahrplan_gui_stats_t::fahrplan_gui_stats_t(spieler_t *s)
 {
-	welt = w;
 	fpl = NULL;
 	sp = s;
 	if(  aktuell_mark==NULL  ) {
@@ -243,13 +240,12 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	lb_wait("month wait time"),
 	lb_waitlevel(NULL, COL_WHITE, gui_label_t::right),
 	lb_load("Full load"),
-	stats(sp_->get_welt(),sp_),
+	stats(sp_),
 	scrolly(&stats),
 	old_fpl(fpl_),
 	sp(sp_),
 	cnv(cnv_)
 {
-	welt = sp->get_welt();
 	old_fpl->eingabe_beginnen();
 	fpl = old_fpl->copy();
 	stats.set_fahrplan(fpl);
@@ -399,11 +395,11 @@ void fahrplan_gui_t::update_werkzeug(bool set)
 		//  .. or set them again
 		if(mode==adding) {
 			werkzeug_t::general_tool[WKZ_FAHRPLAN_ADD]->set_default_param((const char *)fpl);
-			sp->get_welt()->set_werkzeug( werkzeug_t::general_tool[WKZ_FAHRPLAN_ADD], sp );
+			welt->set_werkzeug( werkzeug_t::general_tool[WKZ_FAHRPLAN_ADD], sp );
 		}
 		else if(mode==inserting) {
 			werkzeug_t::general_tool[WKZ_FAHRPLAN_INS]->set_default_param((const char *)fpl);
-			sp->get_welt()->set_werkzeug( werkzeug_t::general_tool[WKZ_FAHRPLAN_INS], sp );
+			welt->set_werkzeug( werkzeug_t::general_tool[WKZ_FAHRPLAN_INS], sp );
 		}
 	}
 }
@@ -420,7 +416,7 @@ void fahrplan_gui_t::update_selection()
 	if(  !fpl->empty()  ) {
 		fpl->set_aktuell( min(fpl->get_count()-1,fpl->get_aktuell()) );
 		const uint8 aktuell = fpl->get_aktuell();
-		if(  haltestelle_t::get_halt(sp->get_welt(), fpl->eintrag[aktuell].pos, sp).is_bound()  ) {
+		if(  haltestelle_t::get_halt(welt, fpl->eintrag[aktuell].pos, sp).is_bound()  ) {
 			lb_load.set_color( COL_BLACK );
 			numimp_load.enable();
 			numimp_load.set_value( fpl->eintrag[aktuell].ladegrad );
@@ -460,7 +456,7 @@ bool fahrplan_gui_t::infowin_event(const event_t *ev)
 			if(  line >= 0 && line < fpl->get_count()  ) {
 				if(  IS_RIGHTCLICK(ev)  ||  ev->mx<16  ) {
 					// just center on it
-					sp->get_welt()->get_viewport()->change_world_position( fpl->eintrag[line].pos );
+					welt->get_viewport()->change_world_position( fpl->eintrag[line].pos );
 				}
 				else if(  ev->mx<scrolly.get_size().w-11  ) {
 					fpl->set_aktuell( line );
@@ -617,19 +613,19 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 		buf.printf( "c,0,%i,%ld,", (int)fpl->get_type(), (long)old_fpl );
 		fpl->sprintf_schedule( buf );
 		w->set_default_param(buf);
-		sp->get_welt()->set_werkzeug( w, sp );
+		welt->set_werkzeug( w, sp );
 		// since init always returns false, it is safe to delete immediately
 		delete w;
 	}
 	// recheck lines
 	if(  cnv.is_bound()  ) {
 		// unequal to line => remove from line ...
-		if(  new_line.is_bound()  &&  !fpl->matches(sp->get_welt(),new_line->get_schedule())  ) {
+		if(  new_line.is_bound()  &&  !fpl->matches(welt,new_line->get_schedule())  ) {
 			new_line = linehandle_t();
 			line_selector.set_selection(0);
 		}
 		// only assign old line, when new_line is not equal
-		if(  !new_line.is_bound()  &&  old_line.is_bound()  &&   fpl->matches(sp->get_welt(),old_line->get_schedule())  ) {
+		if(  !new_line.is_bound()  &&  old_line.is_bound()  &&   fpl->matches(welt,old_line->get_schedule())  ) {
 			new_line = old_line;
 			init_line_selector();
 		}
@@ -647,8 +643,8 @@ void fahrplan_gui_t::init_line_selector()
 	sp->simlinemgmt.get_lines(fpl->get_type(), &lines);
 
 	// keep assignment with identical schedules
-	if(  new_line.is_bound()  &&  !fpl->matches( sp->get_welt(), new_line->get_schedule() )  ) {
-		if(  old_line.is_bound()  &&  fpl->matches( sp->get_welt(), old_line->get_schedule() )  ) {
+	if(  new_line.is_bound()  &&  !fpl->matches( welt, new_line->get_schedule() )  ) {
+		if(  old_line.is_bound()  &&  fpl->matches( welt, old_line->get_schedule() )  ) {
 			new_line = old_line;
 		}
 		else {
@@ -663,7 +659,7 @@ void fahrplan_gui_t::init_line_selector()
 	FOR(  vector_tpl<linehandle_t>,  line,  lines  ) {
 		line_selector.append_element( new line_scrollitem_t(line) );
 		if(  !new_line.is_bound()  ) {
-			if(  fpl->matches( sp->get_welt(), line->get_schedule() )  ) {
+			if(  fpl->matches( welt, line->get_schedule() )  ) {
 				selection = line_selector.count_elements()-1;
 				new_line = line;
 			}
@@ -726,13 +722,13 @@ void fahrplan_gui_t::map_rotate90( sint16 y_size)
 }
 
 
-fahrplan_gui_t::fahrplan_gui_t(karte_t *welt):
+fahrplan_gui_t::fahrplan_gui_t():
 gui_frame_t( translator::translate("Fahrplan"), NULL),
 	lb_line("Serves Line:"),
 	lb_wait("month wait time"),
 	lb_waitlevel(NULL, COL_WHITE, gui_label_t::right),
 	lb_load("Full load"),
-	stats(welt,NULL),
+	stats(NULL),
 	scrolly(&stats),
 	fpl(NULL),
 	old_fpl(NULL),
@@ -740,7 +736,6 @@ gui_frame_t( translator::translate("Fahrplan"), NULL),
 	cnv()
 {
 	// just a dummy
-	this->welt = welt;
 }
 
 

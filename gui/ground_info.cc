@@ -27,7 +27,7 @@ cbuffer_t grund_info_t::gr_info;
 grund_info_t::grund_info_t(const grund_t* gr_) :
 	gui_frame_t( translator::translate(gr_->get_name()), NULL),
 	gr(gr_),
-	view(gr_->get_welt(), gr_->get_pos(), scr_size( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width()*7)/8) )),
+	view(gr_->get_pos(), scr_size( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width()*7)/8) )),
 	textarea(&gr_info, 170 + view.get_size().w, view.get_size() + scr_size(D_H_SPACE, D_V_SPACE))
 {
 	const obj_t *const d = gr->obj_bei(0);
@@ -88,7 +88,7 @@ koord3d grund_info_t::get_weltpos(bool)
 
 bool grund_info_t::is_weltpos()
 {
-	return ( gr->get_welt()->get_viewport()->is_on_center( gr->get_pos() ) );
+	return ( welt->get_viewport()->is_on_center( gr->get_pos() ) );
 }
 
 

@@ -472,19 +472,19 @@ void rdwr_all_win(loadsave_t *file)
 					case magic_none: return;
 
 					// actual dialogues to restore
-					case magic_convoi_info:    w = new convoi_info_t(wl); break;
-					case magic_convoi_detail:  w = new convoi_detail_t(wl); break;
+					case magic_convoi_info:    w = new convoi_info_t(); break;
+					case magic_convoi_detail:  w = new convoi_detail_t(); break;
 					case magic_themes:         w = new themeselector_t(); break;
-					case magic_halt_info:      w = new halt_info_t(wl); break;
-					case magic_halt_detail:    w = new halt_detail_t(wl); break;
+					case magic_halt_info:      w = new halt_info_t(); break;
+					case magic_halt_detail:    w = new halt_detail_t(); break;
 					case magic_reliefmap:      w = new map_frame_t(); break;
-					case magic_ki_kontroll_t:  w = new ki_kontroll_t(wl); break;
-					case magic_schedule_rdwr_dummy: w = new fahrplan_gui_t(wl); break;
-					case magic_line_schedule_rdwr_dummy: w = new line_management_gui_t(wl); break;
-					case magic_city_info_t:    w = new stadt_info_t(wl); break;
-					case magic_messageframe:   w = new message_frame_t(wl); break;
-					case magic_message_options: w = new message_option_t(wl); break;
-					case magic_factory_info:   w = new fabrik_info_t(wl); break;
+					case magic_ki_kontroll_t:  w = new ki_kontroll_t(); break;
+					case magic_schedule_rdwr_dummy: w = new fahrplan_gui_t(); break;
+					case magic_line_schedule_rdwr_dummy: w = new line_management_gui_t(); break;
+					case magic_city_info_t:    w = new stadt_info_t(); break;
+					case magic_messageframe:   w = new message_frame_t(); break;
+					case magic_message_options: w = new message_option_t(); break;
+					case magic_factory_info:   w = new fabrik_info_t(); break;
 
 					default:
 						if(  id>=magic_finances_t  &&  id<magic_finances_t+MAX_PLAYER_COUNT  ) {

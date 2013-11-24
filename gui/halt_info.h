@@ -31,7 +31,6 @@
 class halt_info_t : public gui_frame_t, private action_listener_t
 {
 private:
-	static karte_t *welt;
 
 	/**
 	* Buffer for freight info text string.
@@ -85,7 +84,7 @@ private:
 	void show_hide_departures( bool show );
 
 public:
-	halt_info_t(karte_t *welt, halthandle_t halt);
+	halt_info_t(halthandle_t halt);
 
 	virtual ~halt_info_t();
 
@@ -119,7 +118,7 @@ public:
 	void map_rotate90( sint16 );
 
 	// this constructor is only used during loading
-	halt_info_t(karte_t *welt);
+	halt_info_t();
 
 	void rdwr( loadsave_t *file );
 

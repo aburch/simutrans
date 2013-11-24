@@ -3896,7 +3896,7 @@ bool wkz_station_t::init( karte_t *welt, spieler_t * )
 		if(  is_ctrl_pressed()  &&  rotation==-1  ) {
 			// call station dialog instead
 			destroy_win( magic_station_building_select );
-			create_win( new station_building_select_t(welt, hb), w_info, magic_station_building_select);
+			create_win( new station_building_select_t(hb), w_info, magic_station_building_select);
 			// we do not activate building yet; else uncomment the return statement
 			return false;
 		}

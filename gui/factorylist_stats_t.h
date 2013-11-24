@@ -15,7 +15,6 @@
 #include "../tpl/vector_tpl.h"
 #include "components/gui_komponente.h"
 
-class karte_t;
 class fabrik_t;
 
 
@@ -27,10 +26,9 @@ namespace factorylist {
  * Factory list stats display
  * @author Hj. Malthaner
  */
-class factorylist_stats_t : public gui_komponente_t
+class factorylist_stats_t : public gui_world_component_t
 {
 private:
-	karte_t *welt;
 	vector_tpl<fabrik_t*> fab_list;
 	uint32 line_selected;
 
@@ -38,7 +36,7 @@ private:
 	bool sortreverse;
 
 public:
-	factorylist_stats_t(karte_t* welt, factorylist::sort_mode_t sortby, bool sortreverse);
+	factorylist_stats_t(factorylist::sort_mode_t sortby, bool sortreverse);
 
 	void sort(factorylist::sort_mode_t sortby, bool sortreverse);
 

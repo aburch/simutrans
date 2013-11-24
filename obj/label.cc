@@ -96,5 +96,5 @@ image_id label_t::get_bild() const
 void label_t::zeige_info()
 {
 	label_t* l = this;
-	create_win(new label_info_t(welt, l), w_info, (ptrdiff_t)this );
+	create_win(new label_info_t(l), w_info, (ptrdiff_t)this );
 }

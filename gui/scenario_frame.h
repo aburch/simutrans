@@ -12,13 +12,11 @@
 #include "savegame_frame.h"
 #include "../utils/cbuffer_t.h"
 
-class karte_t;
 
 
 class scenario_frame_t : public savegame_frame_t
 {
 private:
-	karte_t *welt;
 	bool do_load;
 	cbuffer_t path;
 
@@ -48,7 +46,7 @@ public:
 	*/
 	virtual const char * get_hilfe_datei() const { return "scenario.txt"; }
 
-	scenario_frame_t(karte_t *welt);
+	scenario_frame_t();
 };
 
 #endif

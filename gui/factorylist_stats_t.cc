@@ -28,8 +28,7 @@
 #include "../utils/simstring.h"
 
 
-factorylist_stats_t::factorylist_stats_t(karte_t* w, factorylist::sort_mode_t sortby, bool sortreverse) :
-	welt(w)
+factorylist_stats_t::factorylist_stats_t(factorylist::sort_mode_t sortby, bool sortreverse)
 {
 	sort(sortby,sortreverse);
 	recalc_size();

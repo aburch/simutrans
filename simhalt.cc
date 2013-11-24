@@ -2202,7 +2202,7 @@ void haltestelle_t::get_short_freight_info(cbuffer_t & buf) const
 
 void haltestelle_t::zeige_info()
 {
-	create_win( new halt_info_t(welt, self), w_info, magic_halt_info + self.get_id() );
+	create_win( new halt_info_t(self), w_info, magic_halt_info + self.get_id() );
 }
 
 

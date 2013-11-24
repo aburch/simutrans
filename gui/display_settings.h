@@ -15,7 +15,6 @@
 #define COLORS_MAX_BUTTONS (24)
 #define BUF_MAXLEN_MS_FORMAT (10)
 
-class karte_t;
 
 /**
  * Display settings dialog
@@ -24,7 +23,6 @@ class karte_t;
 class color_gui_t : public gui_frame_t, private action_listener_t
 {
 private:
-	karte_t *welt;
 
 	button_t buttons[COLORS_MAX_BUTTONS];
 
@@ -67,7 +65,7 @@ private:
 	char simloops_buf[BUF_MAXLEN_MS_FORMAT];
 
 public:
-	color_gui_t(karte_t *welt);
+	color_gui_t();
 
 	/**
 	 * Some windows have associated help text.

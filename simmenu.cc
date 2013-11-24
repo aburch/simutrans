@@ -731,7 +731,7 @@ void toolbar_t::update(karte_t *welt, spieler_t *sp)
 	const bool create = (wzw == NULL);
 	if(create) {
 		DBG_MESSAGE("toolbar_t::update()","create toolbar %s",default_param);
-		wzw = new werkzeug_waehler_t( welt, default_param, helpfile, toolbar_tool.index_of(this), iconsize, this!=werkzeug_t::toolbar_tool[0] );
+		wzw = new werkzeug_waehler_t( default_param, helpfile, toolbar_tool.index_of(this), iconsize, this!=werkzeug_t::toolbar_tool[0] );
 	}
 	else {
 		DBG_MESSAGE("toolbar_t::update()","update toolbar %s",default_param);

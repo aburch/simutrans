@@ -31,14 +31,12 @@ class schedule_t;
 struct linieneintrag_t;
 class spieler_t;
 class cbuffer_t;
-class karte_t;
 class loadsave_t;
 
 
-class fahrplan_gui_stats_t : public gui_komponente_t
+class fahrplan_gui_stats_t : public gui_world_component_t
 {
 private:
-	static karte_t *welt;
 	static cbuffer_t buf;
 	static zeiger_t *aktuell_mark;
 
@@ -47,7 +45,7 @@ private:
 	spieler_t* sp;
 
 public:
-	fahrplan_gui_stats_t(karte_t* w, spieler_t *s);
+	fahrplan_gui_stats_t(spieler_t *s);
 	~fahrplan_gui_stats_t();
 
 	void set_fahrplan( schedule_t* f ) { fpl = f; }
@@ -111,7 +109,6 @@ private:
 	void update_selection();
 
 protected:
-	static karte_t *welt;
 	schedule_t *fpl;
 	schedule_t* old_fpl;
 	spieler_t *sp;
@@ -160,7 +157,7 @@ public:
 	void map_rotate90( sint16 );
 
 	// this constructor is only used during loading
-	fahrplan_gui_t(karte_t *welt);
+	fahrplan_gui_t();
 
 	virtual void rdwr( loadsave_t *file );
 

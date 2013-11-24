@@ -85,9 +85,9 @@ void news_img::init(image_id id)
 }
 
 
-news_loc::news_loc(karte_t* welt, const char* text, koord k, PLAYER_COLOR_VAL color) :
+news_loc::news_loc(const char* text, koord k, PLAYER_COLOR_VAL color) :
 	news_window(text, color),
-	view(welt, welt->lookup_kartenboden(k)->get_pos(), scr_size( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width()*7)/8) ))
+	view(welt->lookup_kartenboden(k)->get_pos(), scr_size( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width()*7)/8) ))
 {
 	extend_window_with_component(&view, view.get_size());
 }

@@ -26,7 +26,6 @@ class label_t;
 class label_info_t : public gui_frame_t, private action_listener_t
 {
 private:
-	static karte_t *welt;
 	spieler_t *sp;
 	label_t *label;
 
@@ -36,7 +35,7 @@ private:
 	char edit_name[256];
 
 public:
-	label_info_t(karte_t *welt, label_t* l);
+	label_info_t(label_t* l);
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 

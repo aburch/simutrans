@@ -40,10 +40,10 @@ const char *factorylist_frame_t::sort_text[factorylist::SORT_MODES] = {
 	"Power"
 };
 
-factorylist_frame_t::factorylist_frame_t(karte_t * welt) :
+factorylist_frame_t::factorylist_frame_t() :
 	gui_frame_t( translator::translate("fl_title") ),
 	sort_label(translator::translate("hl_txt_sort")),
-	stats(welt,sortby,sortreverse),
+	stats(sortby,sortreverse),
 	scrolly(&stats)
 {
 	sort_label.set_pos(scr_coord(BUTTON1_X, 2));

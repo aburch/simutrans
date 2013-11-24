@@ -4,7 +4,6 @@
 #include "gui_world_view_t.h"
 
 class obj_t;
-class karte_t;
 
 /**
  * Displays a thing on the world
@@ -18,8 +17,8 @@ protected:
 	koord3d get_location();
 
 public:
-	obj_view_t(karte_t *w, scr_size const size) :
-	  world_view_t(w, size), obj(NULL) {}
+	obj_view_t(scr_size const size) :
+	  world_view_t(size), obj(NULL) {}
 
 	obj_view_t(obj_t const *d, scr_size const size);
 

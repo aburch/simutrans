@@ -15,8 +15,7 @@
 #include "components/gui_komponente.h"
 #include "../tpl/vector_tpl.h"
 
-
-class karte_t;
+class karte_ptr_t;
 class stadt_t;
 
 
@@ -26,10 +25,9 @@ namespace citylist {
 
 
 // City list stats display
-class citylist_stats_t : public gui_komponente_t
+class citylist_stats_t : public gui_world_component_t
 {
 private:
-	karte_t *welt;
 	vector_tpl<stadt_t*> city_list;
 	uint32 line_selected;
 
@@ -39,7 +37,7 @@ private:
 public:
 	static char total_bev_string[128];
 
-	citylist_stats_t(karte_t* welt, citylist::sort_mode_t sortby, bool sortreverse);
+	citylist_stats_t(citylist::sort_mode_t sortby, bool sortreverse);
 
 	void sort(citylist::sort_mode_t sortby, bool sortreverse);
 

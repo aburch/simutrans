@@ -247,7 +247,6 @@ bool fabrik_info_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	}
 	else if(v.i&~1) {
 		koord k = *(const koord *)v.p;
-		karte_t* const welt = fab->get_besitzer()->get_welt();
 		welt->get_viewport()->change_world_position( koord3d(k,welt->max_hgt(k)) );
 	}
 
@@ -370,11 +369,11 @@ void gui_fabrik_info_t::draw(scr_coord offset)
 /***************** Saveload stuff from here *****************/
 
 
-fabrik_info_t::fabrik_info_t(karte_t *w) :
-	gui_frame_t("", w->get_spieler(1)),
+fabrik_info_t::fabrik_info_t() :
+	gui_frame_t("", welt->get_spieler(1)),
 	fab(NULL),
 	chart(NULL),
-	view(w, scr_size( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width() * 7) / 8))),
+	view(scr_size( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width() * 7) / 8))),
 	scrolly(&fab_info),
 	prod(&prod_buf),
 	txt(&info_buf)

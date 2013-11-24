@@ -73,8 +73,8 @@ public:
 	wkz_optionen_t() : werkzeug_t(WKZ_OPTIONEN | DIALOGE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("Einstellungen aendern"); }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_optionen_gui_t); }
-	bool init(karte_t* welt, spieler_t*) OVERRIDE {
-		create_win(240, 120, new optionen_gui_t(welt), w_info, magic_optionen_gui_t);
+	bool init(karte_t*, spieler_t*) OVERRIDE {
+		create_win(240, 120, new optionen_gui_t(), w_info, magic_optionen_gui_t);
 		return false;
 	}
 	bool exit(karte_t*, spieler_t*) OVERRIDE { destroy_win(magic_optionen_gui_t); return false; }
@@ -121,8 +121,8 @@ public:
 	wkz_messages_t() : werkzeug_t(WKZ_MESSAGES | DIALOGE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("Mailbox"); }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_messageframe); }
-	bool init(karte_t* welt, spieler_t*) OVERRIDE {
-		create_win( new message_frame_t(welt), w_info, magic_messageframe );
+	bool init(karte_t*, spieler_t*) OVERRIDE {
+		create_win( new message_frame_t(), w_info, magic_messageframe );
 		return false;
 	}
 	bool exit(karte_t*, spieler_t*) OVERRIDE { destroy_win(magic_messageframe); return false; }
@@ -151,8 +151,8 @@ public:
 	wkz_players_t() : werkzeug_t(WKZ_PLAYERS | DIALOGE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("Spielerliste"); }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_ki_kontroll_t); }
-	bool init(karte_t* welt, spieler_t*) OVERRIDE {
-		create_win( 272, 160, new ki_kontroll_t(welt), w_info, magic_ki_kontroll_t);
+	bool init(karte_t*, spieler_t*) OVERRIDE {
+		create_win( 272, 160, new ki_kontroll_t(), w_info, magic_ki_kontroll_t);
 		return false;
 	}
 	bool exit(karte_t*, spieler_t*) OVERRIDE { destroy_win(magic_ki_kontroll_t); return false; }
@@ -166,8 +166,8 @@ public:
 	wkz_displayoptions_t() : werkzeug_t(WKZ_DISPLAYOPTIONS | DIALOGE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("Helligk."); }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_color_gui_t); }
-	bool init(karte_t* welt, spieler_t*) OVERRIDE {
-		create_win(new color_gui_t(welt), w_info, magic_color_gui_t);
+	bool init(karte_t*, spieler_t*) OVERRIDE {
+		create_win(new color_gui_t(), w_info, magic_color_gui_t);
 		return false;
 	}
 	bool exit(karte_t*, spieler_t*) OVERRIDE { destroy_win(magic_color_gui_t); return false; }
@@ -226,8 +226,8 @@ public:
 	wkz_jump_t() : werkzeug_t(WKZ_JUMP | DIALOGE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("Jump to"); }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_jump); }
-	bool init(karte_t* welt, spieler_t*) OVERRIDE {
-		create_win( new jump_frame_t(welt), w_info, magic_jump);
+	bool init(karte_t*, spieler_t*) OVERRIDE {
+		create_win( new jump_frame_t(), w_info, magic_jump);
 		return false;
 	}
 	bool exit(karte_t*, spieler_t*) OVERRIDE { destroy_win(magic_jump); return false; }
@@ -241,9 +241,9 @@ public:
 	wkz_load_t() : werkzeug_t(WKZ_LOAD | DIALOGE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("Laden"); }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_load_t); }
-	bool init(karte_t* welt, spieler_t*) OVERRIDE {
+	bool init(karte_t*, spieler_t*) OVERRIDE {
 		destroy_all_win( true );
-		create_win(new loadsave_frame_t(welt, true), w_info, magic_load_t);
+		create_win(new loadsave_frame_t( true), w_info, magic_load_t);
 		return false;
 	}
 	bool exit(karte_t*, spieler_t*) OVERRIDE { destroy_win(magic_load_t); return false; }
@@ -256,8 +256,8 @@ public:
 	wkz_save_t() : werkzeug_t(WKZ_SAVE | DIALOGE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("Speichern"); }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_save_t); }
-	bool init(karte_t* welt, spieler_t*) OVERRIDE {
-		create_win(new loadsave_frame_t(welt, false), w_info, magic_save_t);
+	bool init(karte_t*, spieler_t*) OVERRIDE {
+		create_win(new loadsave_frame_t( false), w_info, magic_save_t);
 		return false;
 	}
 	bool exit(karte_t*, spieler_t*) OVERRIDE { destroy_win(magic_save_t); return false; }
@@ -300,8 +300,8 @@ public:
 	wkz_list_town_t() : werkzeug_t(WKZ_LIST_TOWN | DIALOGE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("tl_title"); }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_citylist_frame_t); }
-	bool init(karte_t* welt, spieler_t*) OVERRIDE {
-		create_win( new citylist_frame_t(welt), w_info, magic_citylist_frame_t );
+	bool init(karte_t*, spieler_t*) OVERRIDE {
+		create_win( new citylist_frame_t(), w_info, magic_citylist_frame_t );
 		return false;
 	}
 	bool exit(karte_t*, spieler_t*) OVERRIDE { destroy_win(magic_citylist_frame_t); return false; }
@@ -315,8 +315,8 @@ public:
 	wkz_list_goods_t() : werkzeug_t(WKZ_LIST_GOODS | DIALOGE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("gl_title"); }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_goodslist); }
-	bool init(karte_t* welt, spieler_t*) OVERRIDE {
-		create_win( new goods_frame_t(welt), w_info, magic_goodslist );
+	bool init(karte_t*, spieler_t*) OVERRIDE {
+		create_win( new goods_frame_t(), w_info, magic_goodslist );
 		return false;
 	}
 	bool exit(karte_t*, spieler_t*) OVERRIDE { destroy_win(magic_goodslist); return false; }
@@ -330,8 +330,8 @@ public:
 	wkz_list_factory_t() : werkzeug_t(WKZ_LIST_FACTORY | DIALOGE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("fl_title"); }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_factorylist); }
-	bool init(karte_t* welt, spieler_t*) OVERRIDE {
-		create_win( new factorylist_frame_t(welt), w_info, magic_factorylist );
+	bool init(karte_t*, spieler_t*) OVERRIDE {
+		create_win( new factorylist_frame_t(), w_info, magic_factorylist );
 		return false;
 	}
 	bool exit(karte_t*, spieler_t*) OVERRIDE { destroy_win(magic_factorylist); return false; }
@@ -345,8 +345,8 @@ public:
 	wkz_list_curiosity_t() : werkzeug_t(WKZ_LIST_CURIOSITY | DIALOGE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("curlist_title"); }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_curiositylist); }
-	bool init(karte_t* welt, spieler_t*) OVERRIDE {
-		create_win( new curiositylist_frame_t(welt), w_info, magic_curiositylist );
+	bool init(karte_t*, spieler_t*) OVERRIDE {
+		create_win( new curiositylist_frame_t(), w_info, magic_curiositylist );
 		return false;
 	}
 	bool exit(karte_t*, spieler_t*) OVERRIDE { destroy_win(magic_curiositylist); return false; }
@@ -362,7 +362,7 @@ public:
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_edit_factory); }
 	bool init(karte_t* welt, spieler_t* sp) OVERRIDE {
 		if (!is_selected(welt)) {
-			create_win( new factory_edit_frame_t(sp,welt), w_info, magic_edit_factory );
+			create_win( new factory_edit_frame_t(sp), w_info, magic_edit_factory );
 		}
 		return false;
 	}
@@ -379,7 +379,7 @@ public:
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_edit_attraction); }
 	bool init(karte_t* welt, spieler_t* sp) OVERRIDE {
 		if (!is_selected(welt)) {
-			create_win( new curiosity_edit_frame_t(sp,welt), w_info, magic_edit_attraction );
+			create_win( new curiosity_edit_frame_t(sp), w_info, magic_edit_attraction );
 		}
 		return false;
 	}
@@ -396,7 +396,7 @@ public:
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_edit_house); }
 	bool init(karte_t* welt, spieler_t* sp) OVERRIDE {
 		if (!is_selected(welt)) {
-			create_win( new citybuilding_edit_frame_t(sp,welt), w_info, magic_edit_house );
+			create_win( new citybuilding_edit_frame_t(sp), w_info, magic_edit_house );
 		}
 		return false;
 	}
@@ -414,7 +414,7 @@ public:
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_edit_tree); }
 	bool init(karte_t* welt, spieler_t* sp) OVERRIDE {
 		if (baum_t::get_anzahl_besch() > 0  &&  !is_selected(welt)) {
-			create_win( new baum_edit_frame_t(sp,welt), w_info, magic_edit_tree );
+			create_win( new baum_edit_frame_t(sp), w_info, magic_edit_tree );
 		}
 		return false;
 	}
@@ -430,10 +430,10 @@ public:
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return env_t::networkmode ? translator::translate("deactivated in online mode") : translator::translate("enlarge map"); }
 	image_id get_icon(spieler_t *) const { return env_t::networkmode ? IMG_LEER : icon; }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_bigger_map); }
-	bool init(karte_t* welt, spieler_t* sp) OVERRIDE {
+	bool init(karte_t*, spieler_t*) OVERRIDE {
 		if(  !env_t::networkmode  ) {
 			destroy_all_win( true );
-			create_win( new enlarge_map_frame_t(sp,welt), w_info, magic_bigger_map );
+			create_win( new enlarge_map_frame_t(), w_info, magic_bigger_map );
 		}
 		return false;
 	}
@@ -446,8 +446,8 @@ public:
 	wkz_list_label_t() : werkzeug_t(WKZ_LIST_LABEL | DIALOGE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("labellist_title"); }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_labellist); }
-	bool init(karte_t* welt, spieler_t*) OVERRIDE {
-		create_win( new labellist_frame_t(welt), w_info, magic_labellist );
+	bool init(karte_t*, spieler_t*) OVERRIDE {
+		create_win( new labellist_frame_t(), w_info, magic_labellist );
 		return false;
 	}
 	bool exit(karte_t*, spieler_t*) OVERRIDE { destroy_win(magic_labellist); return false; }
@@ -493,8 +493,8 @@ public:
 	wkz_server_t() : werkzeug_t(WKZ_GAMEINFO | DIALOGE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("Game info"); }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_server_frame_t); }
-	bool init(karte_t* welt, spieler_t*) OVERRIDE {
-		create_win( new server_frame_t(welt), w_info, magic_server_frame_t );
+	bool init(karte_t*, spieler_t*) OVERRIDE {
+		create_win( new server_frame_t(), w_info, magic_server_frame_t );
 		return false;
 	}
 	bool exit(karte_t*, spieler_t*) OVERRIDE { destroy_win(magic_server_frame_t); return false; }

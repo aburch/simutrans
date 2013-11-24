@@ -17,17 +17,15 @@
 #include "components/gui_komponente.h"
 #include "components/gui_button.h"
 
-class karte_t;
 class gebaeude_t;
 
 namespace curiositylist {
     enum sort_mode_t { by_name=0, by_paxlevel/*, by_maillevel*/, SORT_MODES };
 };
 
-class curiositylist_stats_t : public gui_komponente_t
+class curiositylist_stats_t : public gui_world_component_t
 {
 private:
-	karte_t * welt;
 	vector_tpl<gebaeude_t*> attractions;
 	uint32 line_selected;
 
@@ -36,7 +34,7 @@ private:
 	bool sortreverse;
 
 public:
-	curiositylist_stats_t(karte_t* welt, curiositylist::sort_mode_t sortby, bool sortreverse);
+	curiositylist_stats_t(curiositylist::sort_mode_t sortby, bool sortreverse);
 
 	void get_unique_attractions(curiositylist::sort_mode_t sortby, bool reverse);
 

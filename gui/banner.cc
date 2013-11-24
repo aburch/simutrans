@@ -61,9 +61,8 @@
 static const PLAYER_COLOR_VAL colors[COLOR_RAMP_SIZE] = { COL_WHITE, COL_GREY3, COL_GREY4, COL_GREY5, COL_GREY6 };
 
 
-banner_t::banner_t( karte_t *w) : gui_frame_t(""),
-	logo( skinverwaltung_t::logosymbol->get_bild_nr(0), 0 ),
-	welt(w)
+banner_t::banner_t() : gui_frame_t(""),
+	logo( skinverwaltung_t::logosymbol->get_bild_nr(0), 0 )
 {
 	// Pass the upper part drawn by draw()
 	scr_coord cursor = scr_coord( D_MARGIN_LEFT, D_MARGIN_TOP + 5*L_LINESPACE_EXTRA_2 + 3*L_LINESPACE_EXTRA_5 + 3*L_LINESPACE_EXTRA_7 + L_BANNER_HEIGHT + D_V_SPACE);
@@ -143,15 +142,15 @@ bool banner_t::action_triggered( gui_action_creator_t *komp, value_t)
 	}
 	else if(  komp == &load_map  ) {
 		destroy_all_win(true);
-		create_win( new loadsave_frame_t(welt, true), w_info, magic_load_t);
+		create_win( new loadsave_frame_t(true), w_info, magic_load_t);
 	}
 	else if(  komp == &load_scenario  ) {
 		destroy_all_win(true);
-		create_win( new scenario_frame_t(welt), w_info, magic_load_t );
+		create_win( new scenario_frame_t(), w_info, magic_load_t );
 	}
 	else if(  komp == &join_map  ) {
 		destroy_all_win(true);
-		create_win( new server_frame_t(welt), w_info, magic_server_frame_t );
+		create_win( new server_frame_t(), w_info, magic_server_frame_t );
 	}
 	return true;
 }

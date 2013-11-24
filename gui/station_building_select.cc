@@ -29,16 +29,14 @@ static const char label_text[4][64] = {
 };
 
 
-karte_t *station_building_select_t::welt = NULL;
 char station_building_select_t::default_str[260];
 wkz_station_t station_building_select_t::wkz=wkz_station_t();
 
 
-station_building_select_t::station_building_select_t(karte_t *welt, const haus_besch_t *besch) :
+station_building_select_t::station_building_select_t(const haus_besch_t *besch) :
 	gui_frame_t( translator::translate("Choose direction") ),
 	txt()
 {
-	this->welt = welt;
 	this->besch = besch;
 
 	int layout = besch->get_all_layouts();

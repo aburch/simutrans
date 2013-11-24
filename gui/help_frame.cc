@@ -294,7 +294,7 @@ void help_frame_t::set_helpfile(const char *filename, bool resize_frame )
 	if (strcmp(filename, "keys.txt") == 0) {
 		cbuffer_t buf;
 		buf.append( translator::translate( "<title>Keyboard Help</title>\n<h1><strong>Keyboard Help</strong></h1><p>\n" ) );
-		spieler_t *sp = spieler_t::get_welt()->get_active_player();
+		spieler_t *sp = welt->get_active_player();
 		const char *trad_str = translator::translate( "<em>%s</em> - %s<br>\n" );
 		FOR(vector_tpl<werkzeug_t*>, const i, werkzeug_t::char_to_tool) {
 			char const* c = NULL;

@@ -22,12 +22,11 @@
 #define MIN_WIDTH (80)
 
 
-werkzeug_waehler_t::werkzeug_waehler_t(karte_t* welt, const char* titel, const char *helpfile, uint32 toolbar_id, scr_size icon, bool allow_break) :
+werkzeug_waehler_t::werkzeug_waehler_t(const char* titel, const char *helpfile, uint32 toolbar_id, scr_size icon, bool allow_break) :
 	gui_frame_t( translator::translate(titel) ), tools(0)
 {
 	this->toolbar_id = toolbar_id;
 	this->allow_break = allow_break;
-	this->welt = welt;
 	this->hilfe_datei = helpfile;
 	this->icon = icon;
 	this->tool_icon_disp_start = 0;

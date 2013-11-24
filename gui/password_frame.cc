@@ -30,7 +30,7 @@ password_frame_t::password_frame_t( spieler_t *sp ) :
 {
 	this->sp = sp;
 
-	if(  !sp->is_locked()  ||  (sp->get_welt()->get_active_player_nr()==1  &&  !sp->get_welt()->get_spieler(1)->is_locked())   ) {
+	if(  !sp->is_locked()  ||  (welt->get_active_player_nr()==1  &&  !welt->get_spieler(1)->is_locked())   ) {
 		// allow to change name name
 		tstrncpy( player_name_str, sp->get_name(), lengthof(player_name_str) );
 		player_name.set_text(player_name_str, lengthof(player_name_str));
@@ -87,7 +87,7 @@ bool password_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 			hash.set(sha1);
 		}
 		// store the hash
-		sp->get_welt()->store_player_password_hash( sp->get_player_nr(), hash );
+		welt->store_player_password_hash( sp->get_player_nr(), hash );
 
 		if(  env_t::networkmode) {
 			sp->unlock(!sp->is_locked(), true);
@@ -99,7 +99,7 @@ bool password_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 			/* if current active player is player 1 and this is unlocked, he may reset passwords
 			 * otherwise you need the valid previous password
 			 */
-			if(  !sp->is_locked()  ||  (sp->get_welt()->get_active_player_nr()==1  &&  !sp->get_welt()->get_spieler(1)->is_locked())   ) {
+			if(  !sp->is_locked()  ||  (welt->get_active_player_nr()==1  &&  !welt->get_spieler(1)->is_locked())   ) {
 				// set password
 				sp->access_password_hash() = hash;
 				sp->unlock(true, false);
@@ -116,7 +116,7 @@ bool password_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 		buf.printf( "p%u,%s", sp->get_player_nr(), player_name.get_text() );
 		werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
 		w->set_default_param( buf );
-		sp->get_welt()->set_werkzeug( w, sp );
+		welt->set_werkzeug( w, sp );
 		// since init always returns false, it is safe to delete immediately
 		delete w;
 	}

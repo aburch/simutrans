@@ -40,10 +40,10 @@ const char *curiositylist_frame_t::sort_text[curiositylist::SORT_MODES] = {
 		     "Postrate"*/
 };
 
-curiositylist_frame_t::curiositylist_frame_t(karte_t * welt) :
+curiositylist_frame_t::curiositylist_frame_t() :
 	gui_frame_t( translator::translate("curlist_title") ),
 	sort_label(translator::translate("hl_txt_sort")),
-	stats(welt,sortby,sortreverse),
+	stats(sortby,sortreverse),
 	scrolly(&stats)
 {
 	sort_label.set_pos(scr_coord(BUTTON1_X, 2));

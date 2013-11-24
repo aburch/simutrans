@@ -71,7 +71,7 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 	chart.set_pos(scr_coord(21,1));
 	chart.set_size(scr_size(340,120));
 	chart.set_dimension(MAX_CITY_HISTORY_YEARS, 10000);
-	chart.set_seed(stadt->get_welt()->get_last_year());
+	chart.set_seed(welt->get_last_year());
 	chart.set_background(MN_GREY1);
 	for(  uint32 i = 0;  i<MAX_CITY_HISTORY;  i++  ) {
 		chart.add_curve( hist_type_color[i], stadt->get_city_history_year(), MAX_CITY_HISTORY, i, 12, STANDARD, (stadt->stadtinfo_options & (1<<i))!=0, true, 0 );
@@ -121,7 +121,6 @@ void stadt_info_t::resize(const scr_coord delta)
 	const int row = ((MAX_CITY_HISTORY-2)/col)+1;
 
 	// calculate new minimaps size : expand horizontally or vertically ?
-	const karte_t* const welt = stadt_t::get_welt();
 	const float world_aspect = (float)welt->get_size().x / (float)welt->get_size().y;
 
 	const scr_coord space = scr_coord(get_windowsize().w - PAX_DEST_X - PAX_DEST_MARGIN - 1, max( allow_growth.get_pos().y + LINESPACE+1 - 5, get_windowsize().h - 166 - (D_BUTTON_HEIGHT+2)*row ));
@@ -178,13 +177,13 @@ stadt_info_t::~stadt_info_t()
 // returns position of depot on the map
 koord3d stadt_info_t::get_weltpos(bool)
 {
-	return stadt->get_welt()->lookup_kartenboden( stadt->get_pos() )->get_pos();
+	return welt->lookup_kartenboden( stadt->get_pos() )->get_pos();
 }
 
 
 bool stadt_info_t::is_weltpos()
 {
-	return (stadt_t::get_welt()->get_viewport()->is_on_center( get_weltpos(false)));
+	return (welt->get_viewport()->is_on_center( get_weltpos(false)));
 }
 
 
@@ -193,17 +192,16 @@ bool stadt_info_t::is_weltpos()
  */
 void stadt_info_t::rename_city()
 {
-	if (stadt->get_welt()->get_staedte().is_contained(stadt)) {
+	if (welt->get_staedte().is_contained(stadt)) {
 		const char *t = name_input.get_text();
 		// only change if old name and current name are the same
 		// otherwise some unintended undo if renaming would occur
 		if(  t  &&  t[0]  &&  strcmp(t, stadt->get_name())  &&  strcmp(old_name, stadt->get_name())==0) {
 			// text changed => call tool
 			cbuffer_t buf;
-			buf.printf( "t%u,%s", stadt->get_welt()->get_staedte().index_of(stadt), name );
+			buf.printf( "t%u,%s", welt->get_staedte().index_of(stadt), name );
 			werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
 			w->set_default_param( buf );
-			karte_t* const welt = stadt->get_welt();
 			welt->set_werkzeug( w, welt->get_spieler(1));
 			// since init always returns false, it is safe to delete immediately
 			delete w;
@@ -217,7 +215,7 @@ void stadt_info_t::rename_city()
 void stadt_info_t::reset_city_name()
 {
 	// change text input
-	if (stadt->get_welt()->get_staedte().is_contained(stadt)) {
+	if (welt->get_staedte().is_contained(stadt)) {
 		tstrncpy(old_name, stadt->get_name(), sizeof(old_name));
 		tstrncpy(name, stadt->get_name(), sizeof(name));
 		name_input.set_text(name, sizeof(name));
@@ -227,7 +225,6 @@ void stadt_info_t::reset_city_name()
 
 void stadt_info_t::init_pax_dest( array2d_tpl<uint8> &pax_dest )
 {
-	karte_t *welt = stadt_t::get_welt();
 	const int size_x = welt->get_size().x;
 	const int size_y = welt->get_size().y;
 	for(  sint16 y = 0;  y < minimaps_size.h;  y++  ) {
@@ -321,7 +318,6 @@ bool stadt_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 	static char param[16];
 	if(  komp==&allow_growth  ) {
 		sprintf(param,"g%hi,%hi,%hi", stadt->get_pos().x, stadt->get_pos().y, !stadt->get_citygrowth() );
-		karte_t *welt = stadt->get_welt();
 		werkzeug_t::simple_tool[WKZ_CHANGE_CITY_TOOL]->set_default_param( param );
 		welt->set_werkzeug( werkzeug_t::simple_tool[WKZ_CHANGE_CITY_TOOL], welt->get_spieler(1));
 		return true;
@@ -384,9 +380,9 @@ bool stadt_info_t::infowin_event(const event_t *ev)
 			mx -= PAX_DEST_X;
 			my -= PAX_DEST_Y;
 			const koord p = koord(
-				(mx * stadt->get_welt()->get_size().x) / (minimaps_size.w),
-				(my * stadt->get_welt()->get_size().y) / (minimaps_size.h));
-			stadt->get_welt()->get_viewport()->change_world_position( p );
+				(mx * welt->get_size().x) / (minimaps_size.w),
+				(my * welt->get_size().y) / (minimaps_size.h));
+			welt->get_viewport()->change_world_position( p );
 		}
 	}
 
@@ -407,7 +403,7 @@ void stadt_info_t::update_data()
 /********** dialog restoring after saving stuff **********/
 
 
-stadt_info_t::stadt_info_t(karte_t*) :
+stadt_info_t::stadt_info_t() :
 	gui_frame_t( name, NULL ),
 	stadt(0),
 	pax_dest_old(0,0),
@@ -425,7 +421,7 @@ stadt_info_t::stadt_info_t(karte_t*) :
 	chart.set_pos(scr_coord(21,1));
 	chart.set_size(scr_size(340,120));
 	chart.set_dimension(MAX_CITY_HISTORY_YEARS, 10000);
-	chart.set_seed(stadt->get_welt()->get_last_year());
+	chart.set_seed(welt->get_last_year());
 	chart.set_background(MN_GREY1);
 
 	//CHART MONTH
@@ -465,14 +461,14 @@ void stadt_info_t::rdwr(loadsave_t *file)
 			}
 		}
 		tabstate = year_month_tabs.get_active_tab_index();
-		townindex = stadt_t::get_welt()->get_staedte().index_of(stadt);
+		townindex = welt->get_staedte().index_of(stadt);
 	}
 	size.rdwr( file );
 	file->rdwr_long( townindex );
 	file->rdwr_long( flags );
 	file->rdwr_short( tabstate );
 	if(  file->is_loading()  ) {
-		stadt = stadt_t::get_welt()->get_staedte()[townindex];
+		stadt = welt->get_staedte()[townindex];
 		stadt->stadtinfo_options = flags;
 		for(  int i = 0;  i<MAX_CITY_HISTORY-1;  i++  ) {
 			chart.add_curve( hist_type_color[i], stadt->get_city_history_year(), MAX_CITY_HISTORY, i, 12, STANDARD, (stadt->stadtinfo_options & (1<<i))!=0, true, 0 );

@@ -21,8 +21,8 @@
 #include "../dataobj/environment.h"
 
 
-message_stats_t::message_stats_t(karte_t *w) :
-	welt(w), msg(w->get_message()), message_type(0), last_count(0), message_selected(-1), message_list(NULL)
+message_stats_t::message_stats_t() :
+	msg(welt->get_message()), message_type(0), last_count(0), message_selected(-1), message_list(NULL)
 {
 	filter_messages(-1);
 }
@@ -87,7 +87,7 @@ bool message_stats_t::infowin_event(const event_t * ev)
 					news = new news_img( n.msg, n.bild, n.get_player_color(welt) );
 				}
 				else {
-					news = new news_loc( welt, n.msg, n.pos, n.get_player_color(welt) );
+					news = new news_loc( n.msg, n.pos, n.get_player_color(welt) );
 				}
 				create_win(-1, -1, news, w_info, magic_none);
 			}

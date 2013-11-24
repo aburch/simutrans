@@ -35,10 +35,10 @@ const char *labellist_frame_t::sort_text[labellist::SORT_MODES] = {
 	"player"
 };
 
-labellist_frame_t::labellist_frame_t(karte_t * welt) :
+labellist_frame_t::labellist_frame_t() :
 	gui_frame_t( translator::translate("labellist_title") ),
 	sort_label(translator::translate("hl_txt_sort")),
-	stats(welt,sortby,sortreverse,filter_state),
+	stats(sortby,sortreverse,filter_state),
 	scrolly(&stats)
 {
 	sort_label.set_pos(scr_coord(BUTTON1_X, 2));

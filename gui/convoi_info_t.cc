@@ -64,7 +64,6 @@ static const bool cost_type_money[convoi_t::MAX_CONVOI_COST] =
 };
 
 
-karte_t *convoi_info_t::welt = NULL;
 
 bool convoi_info_t::route_search_in_progress=false;
 
@@ -93,7 +92,6 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	sort_label(translator::translate("loaded passenger/freight"))
 {
 	this->cnv = cnv;
-	welt = cnv->get_welt();
 	this->mean_convoi_speed = speed_to_kmh(cnv->get_akt_speed()*4);
 	this->max_convoi_speed = speed_to_kmh(cnv->get_min_top_speed()*4);
 
@@ -221,7 +219,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 	}
 	else {
 		// make titlebar dirty to display the correct coordinates
-		if(cnv->get_besitzer()==cnv->get_welt()->get_active_player()) {
+		if(cnv->get_besitzer()==welt->get_active_player()) {
 			if(  line_bound  &&  !cnv->get_line().is_bound()  ) {
 				remove_komponente( &line_button );
 				line_bound = false;
@@ -234,7 +232,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			go_home_button.pressed = route_search_in_progress;
 			details_button.pressed = win_get_magic( magic_convoi_detail+cnv.get_id() );
 			if (!cnv->get_schedule()->empty()) {
-				const grund_t* g = cnv->get_welt()->lookup(cnv->get_schedule()->get_current_eintrag().pos);
+				const grund_t* g = welt->lookup(cnv->get_schedule()->get_current_eintrag().pos);
 				if (g != NULL && g->get_depot()) {
 					go_home_button.disable();
 				}
@@ -259,7 +257,7 @@ enable_home:
 			go_home_button.disable();
 			no_load_button.disable();
 		}
-		follow_button.pressed = (cnv->get_welt()->get_viewport()->get_follow_convoi()==cnv);
+		follow_button.pressed = (welt->get_viewport()->get_follow_convoi()==cnv);
 
 		// buffer update now only when needed by convoi itself => dedicated buffer for this
 		const int old_len=freight_info.len();
@@ -317,7 +315,7 @@ enable_home:
 		const schedule_t * fpl = cnv->get_schedule();
 		info_buf.clear();
 		info_buf.append(translator::translate("Fahrtziel"));
-		fahrplan_gui_t::gimme_short_stop_name(info_buf, cnv->get_welt(), cnv->get_besitzer(), fpl->get_current_eintrag(), 34);
+		fahrplan_gui_t::gimme_short_stop_name(info_buf, welt, cnv->get_besitzer(), fpl->get_current_eintrag(), 34);
 		len = display_proportional_clip( xpos, ypos, info_buf, ALIGN_LEFT, COL_BLACK, true );
 
 		// convoi load indicator
@@ -341,7 +339,7 @@ enable_home:
 
 bool convoi_info_t::is_weltpos()
 {
-	return (cnv->get_welt()->get_viewport()->get_follow_convoi()==cnv);
+	return (welt->get_viewport()->get_follow_convoi()==cnv);
 }
 
 
@@ -349,10 +347,10 @@ koord3d convoi_info_t::get_weltpos( bool set )
 {
 	if(  set  ) {
 		if(  !is_weltpos()  )  {
-			cnv->get_welt()->get_viewport()->set_follow_convoi( cnv );
+			welt->get_viewport()->set_follow_convoi( cnv );
 		}
 		else {
-			cnv->get_welt()->get_viewport()->set_follow_convoi( convoihandle_t() );
+			welt->get_viewport()->set_follow_convoi( convoihandle_t() );
 		}
 		return koord3d::invalid;
 	}
@@ -386,12 +384,12 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 {
 	// follow convoi on map?
 	if(komp == &follow_button) {
-		if(cnv->get_welt()->get_viewport()->get_follow_convoi()==cnv) {
+		if(welt->get_viewport()->get_follow_convoi()==cnv) {
 			// stop following
-			cnv->get_welt()->get_viewport()->set_follow_convoi( convoihandle_t() );
+			welt->get_viewport()->set_follow_convoi( convoihandle_t() );
 		}
 		else {
-			cnv->get_welt()->get_viewport()->set_follow_convoi(cnv);
+			welt->get_viewport()->set_follow_convoi(cnv);
 		}
 		return true;
 	}
@@ -404,7 +402,7 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 
 	if(  komp == &line_button  ) {
 		cnv->get_besitzer()->simlinemgmt.show_lineinfo( cnv->get_besitzer(), cnv->get_line() );
-		cnv->get_welt()->set_dirty();
+		welt->set_dirty();
 	}
 
 	if(  komp == &input  ) {
@@ -421,7 +419,7 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 	}
 
 	// some actions only allowed, when I am the player
-	if(cnv->get_besitzer()==cnv->get_welt()->get_active_player()) {
+	if(cnv->get_besitzer()==welt->get_active_player()) {
 
 		if(komp == &button) {
 			cnv->call_convoi_tool( 'f', NULL );
@@ -471,7 +469,7 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot chang
 			const char *txt;
 			if(!shortest_route->empty()) {
 				schedule_t *fpl = cnv->get_schedule()->copy();
-				fpl->insert(cnv->get_welt()->lookup(home));
+				fpl->insert(welt->lookup(home));
 				fpl->set_aktuell( (fpl->get_aktuell()+fpl->get_count()-1)%fpl->get_count() );
 				cbuffer_t buf;
 				fpl->sprintf_schedule( buf );
@@ -533,7 +531,7 @@ void convoi_info_t::rename_cnv()
 			buf.printf( "c%u,%s", cnv.get_id(), t );
 			werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
 			w->set_default_param( buf );
-			cnv->get_welt()->set_werkzeug( w, cnv->get_besitzer());
+			welt->set_werkzeug( w, cnv->get_besitzer());
 			// since init always returns false, it is safe to delete immediately
 			delete w;
 			// do not trigger this command again
@@ -575,14 +573,13 @@ void convoi_info_t::set_windowsize(scr_size size)
 
 
 
-convoi_info_t::convoi_info_t(karte_t *welt)
+convoi_info_t::convoi_info_t()
 :	gui_frame_t("", NULL),
 	scrolly(&text),
 	text(&freight_info),
-	view( welt, scr_size(64,64)),
+	view(scr_size(64,64)),
 	sort_label(translator::translate("loaded passenger/freight"))
 {
-	this->welt = welt;
 }
 
 

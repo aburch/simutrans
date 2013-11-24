@@ -37,15 +37,13 @@
 #define L_FINANCE_WIDTH  (max( D_BUTTON_WIDTH, 125 ))
 #define L_DIALOG_WIDTH   (300)
 
-karte_t *ki_kontroll_t::welt = NULL;
 
 
-ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
+ki_kontroll_t::ki_kontroll_t() :
 	gui_frame_t( translator::translate("Spielerliste") )
 {
 
 	scr_coord cursor = scr_coord ( D_MARGIN_LEFT, D_MARGIN_TOP );
-	this->welt = wl;
 
 	// switching active player allowed?
 	bool player_change_allowed = welt->get_settings().get_allow_player_change() || !welt->get_spieler(1)->is_locked();

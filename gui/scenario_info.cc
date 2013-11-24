@@ -20,7 +20,7 @@ void scenario_info_t::update_dynamic_texts(gui_flowtext_t &flow, dynamic_string 
 }
 
 
-scenario_info_t::scenario_info_t(karte_t *welt_) :
+scenario_info_t::scenario_info_t() :
 	gui_frame_t( translator::translate("Scenario information") ),
 	scrolly_info(&info),
 	scrolly_goal(&goal),
@@ -39,7 +39,6 @@ scenario_info_t::scenario_info_t(karte_t *welt_) :
 	add_komponente(&tabs);
 	tabs.add_listener(this);
 
-	welt = welt_;
 	// fetch texts
 	update_scenario_texts(true);
 	// fetch possible error message

@@ -13,7 +13,6 @@
 #include "../tpl/stringhashtable_tpl.h"
 #include <string>
 
-class karte_t;
 class loadsave_t;
 
 class sve_info_t {
@@ -31,7 +30,6 @@ public:
 class loadsave_frame_t : public savegame_frame_t
 {
 private:
-	karte_t *welt;
 	bool do_load;
 
 	static stringhashtable_tpl<sve_info_t *> cached_info;
@@ -54,7 +52,7 @@ public:
 	*/
 	virtual const char *get_hilfe_datei() const;
 
-	loadsave_frame_t(karte_t *welt, bool do_load);
+	loadsave_frame_t(bool do_load);
 
 	/**
 	 * save hashtable to xml file

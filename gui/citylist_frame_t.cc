@@ -25,8 +25,6 @@
  */
 bool citylist_frame_t::sortreverse = false;
 
-karte_t *citylist_frame_t::welt = NULL;
-
 /**
  * This variable defines by which column the table is sorted
  * Values: 0 = Station number
@@ -94,14 +92,12 @@ const uint8 citylist_frame_t::hist_type_type[karte_t::MAX_WORLD_COST] =
 #define CHART_HEIGHT (168)
 #define TOTAL_HEIGHT (D_TITLEBAR_HEIGHT+3*(LINESPACE+1)+42+1)
 
-citylist_frame_t::citylist_frame_t(karte_t * welt) :
+citylist_frame_t::citylist_frame_t() :
 	gui_frame_t(translator::translate("City list")),
 	sort_label(translator::translate("hl_txt_sort")),
-	stats(welt,sortby,sortreverse),
+	stats(sortby,sortreverse),
 	scrolly(&stats)
 {
-	this->welt = welt;
-
 	sort_label.set_pos(scr_coord(BUTTON1_X, 40-D_BUTTON_HEIGHT-(LINESPACE+1)));
 	add_komponente(&sort_label);
 

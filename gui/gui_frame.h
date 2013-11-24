@@ -23,6 +23,7 @@
 #include "gui_theme.h"
 
 class loadsave_t;
+class karte_ptr_t;
 class spieler_t;
 
 /**
@@ -84,6 +85,7 @@ protected:
 
 	void set_transparent( uint8 percent, COLOR_VAL col ) { opaque = percent==0; percent_transparent = percent; color_transparent = col; }
 
+	static karte_ptr_t welt;
 public:
 	/**
 	 * @param name, Window title

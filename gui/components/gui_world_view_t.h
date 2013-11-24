@@ -14,19 +14,17 @@
 #include "../../tpl/vector_tpl.h"
 
 class obj_t;
-class karte_t;
 
 
 /**
  * Displays a little piece of the world
  * @author Hj. Malthaner
  */
-class world_view_t : public gui_komponente_t
+class world_view_t : public gui_world_component_t
 {
 private:
 	vector_tpl<koord> offsets; /**< Offsets are stored. */
 	sint16            raster;  /**< For this rastersize. */
-	static karte_t*   welt;    /**< The world to display. */
 
 protected:
 	virtual koord3d get_location() = 0;
@@ -36,9 +34,9 @@ protected:
 	void calc_offsets(scr_size size, sint16 dy_off);
 
 public:
-	world_view_t(karte_t*, scr_size size);
+	world_view_t(scr_size size);
 
-	world_view_t(karte_t* welt);
+	world_view_t();
 
 	virtual ~world_view_t() {}
 

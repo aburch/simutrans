@@ -20,7 +20,6 @@
 #include "goods_stats_t.h"
 #include "../utils/cbuffer_t.h"
 
-class karte_t;
 
 /**
  * Shows statistics. Only goods so far.
@@ -38,7 +37,6 @@ private:
 	static sort_mode_t sortby;
 	static bool filter_goods;
 
-	static karte_t *welt;
 	char	speed_bonus[6];
 	cbuffer_t	speed_message;
 	uint16 good_list[256];
@@ -59,7 +57,7 @@ private:
 	void sort_list();
 
 public:
-	goods_frame_t(karte_t *wl);
+	goods_frame_t();
 
 	/**
 	* resize window in response to a resize event

@@ -1214,7 +1214,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		if(  !env_t::networkmode  &&  new_world  ) {
 			dbg->important( "Show banner ... " );
 			ticker::add_msg("Welcome to Simutrans", koord::invalid, PLAYER_FLAG + 1);
-			modal_dialogue( new banner_t(welt), magic_none, welt, never_quit );
+			modal_dialogue( new banner_t(), magic_none, welt, never_quit );
 			// only show new world, if no other dialoge is active ...
 			new_world = win_get_open_count()==0;
 		}
@@ -1231,7 +1231,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		}
 
 		if(  new_world  ) {
-			modal_dialogue( new welt_gui_t(welt, &env_t::default_settings), magic_welt_gui_t, welt, never_quit );
+			modal_dialogue( new welt_gui_t(&env_t::default_settings), magic_welt_gui_t, welt, never_quit );
 			if(  env_t::quit_simutrans  ) {
 				break;
 			}

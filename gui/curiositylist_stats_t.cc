@@ -33,8 +33,7 @@
 #include "gui_frame.h"
 
 
-curiositylist_stats_t::curiositylist_stats_t(karte_t* w, curiositylist::sort_mode_t sortby, bool sortreverse) :
-	welt(w)
+curiositylist_stats_t::curiositylist_stats_t(curiositylist::sort_mode_t sortby, bool sortreverse)
 {
 	get_unique_attractions(sortby,sortreverse);
 	recalc_size();

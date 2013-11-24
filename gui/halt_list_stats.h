@@ -16,7 +16,7 @@
 /**
  * @author Hj. Malthaner
  */
-class halt_list_stats_t : public gui_komponente_t
+class halt_list_stats_t : public gui_world_component_t
 {
 private:
 	halthandle_t halt;

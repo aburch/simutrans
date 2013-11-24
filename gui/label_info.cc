@@ -19,17 +19,15 @@
 
 
 
-karte_t *label_info_t::welt = NULL;
 
 
 
-label_info_t::label_info_t(karte_t *welt, label_t* l) :
+label_info_t::label_info_t(label_t* l) :
 	gui_frame_t( translator::translate("Marker"), l->get_besitzer()),
 	player_name(""),
-	view(welt, l->get_pos(), scr_size( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width()*7)/8) ))
+	view(l->get_pos(), scr_size( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width()*7)/8) ))
 {
 
-	this->welt = welt;
 	this->sp = sp;
 	label = l;
 

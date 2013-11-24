@@ -176,7 +176,6 @@ bool convoi_frame_t::compare_convois(convoihandle_t const cnv1, convoihandle_t c
 
 void convoi_frame_t::sort_list()
 {
-	const karte_t* welt = owner->get_welt();
 	last_world_convois = welt->convoys().get_count();
 
 	convois.clear();
@@ -342,7 +341,7 @@ void convoi_frame_t::draw(scr_coord pos, scr_size size)
 	uint32 start = vscroll.get_knob_offset();
 	sint16 yoffset = 47;
 
-	if (last_world_convois != owner->get_welt()->convoys().get_count()) {
+	if (last_world_convois != welt->convoys().get_count()) {
 		// some deleted/ added => resort
 		sort_list();
 	}

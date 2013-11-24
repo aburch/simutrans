@@ -37,7 +37,6 @@
 
 
 
-karte_t *convoi_detail_t::welt = NULL;
 
 
 
@@ -47,7 +46,6 @@ convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
   veh_info(cnv)
 {
 	this->cnv = cnv;
-	welt = cnv->get_welt();
 
 	sale_button.init(button_t::roundbox, "Verkauf", scr_coord(BUTTON4_X, 0), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	sale_button.set_tooltip("Remove vehicle from map. Use with care!");
@@ -77,7 +75,7 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 		destroy_win(this);
 	}
 	else {
-		if(cnv->get_besitzer()==cnv->get_welt()->get_active_player()) {
+		if(cnv->get_besitzer()==welt->get_active_player()) {
 			withdraw_button.enable();
 			sale_button.enable();
 		}
@@ -159,12 +157,11 @@ void convoi_detail_t::set_windowsize(scr_size size)
 
 
 // dummy for loading
-convoi_detail_t::convoi_detail_t(karte_t *w)
+convoi_detail_t::convoi_detail_t()
 : gui_frame_t("", NULL ),
   scrolly(&veh_info),
   veh_info(convoihandle_t())
 {
-	welt = w;
 	cnv = convoihandle_t();
 }
 
@@ -230,6 +227,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 {
 	// keep previous maximum width
 	int x_size = get_size().w-51-pos.x;
+	karte_t *welt = cnv->get_welt();
 
 	int total_height = 0;
 	if(cnv.is_bound()) {
@@ -237,7 +235,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 		cbuffer_t buf;
 
 		// for bonus stuff
-		const sint32 ref_kmh = cnv->get_welt()->get_average_speed( cnv->front()->get_waytype() );
+		const sint32 ref_kmh = welt->get_average_speed( cnv->front()->get_waytype() );
 		const sint32 cnv_kmh = (cnv->front()->get_waytype() == air_wt) ? speed_to_kmh(cnv->get_min_top_speed()) : cnv->get_speedbonus_kmh();
 		const sint32 kmh_base = (100 * cnv_kmh) / ref_kmh - 100;
 
@@ -295,14 +293,14 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 
 				// bonus stuff
 				int len = 5+display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, translator::translate("Max income:"), ALIGN_LEFT, COL_BLACK, true );
-				const sint32 grundwert128 = v->get_fracht_typ()->get_preis() * v->get_besitzer()->get_welt()->get_settings().get_bonus_basefactor();	// bonus price will be always at least this
+				const sint32 grundwert128 = v->get_fracht_typ()->get_preis() * welt->get_settings().get_bonus_basefactor();	// bonus price will be always at least this
 				const sint32 grundwert_bonus = v->get_fracht_typ()->get_preis()*(1000l+kmh_base*v->get_fracht_typ()->get_speed_bonus());
 				const sint32 price = (v->get_fracht_max()*(grundwert128>grundwert_bonus ? grundwert128 : grundwert_bonus))/3000 - v->get_betriebskosten();
 				money_to_string( number, price/100.0 );
 				display_proportional_clip( pos.x+w+offset.x+len, pos.y+offset.y+total_height+extra_y, number, ALIGN_LEFT, price>0?MONEY_PLUS:MONEY_MINUS, true );
 				extra_y += LINESPACE;
 
-				if(  int cost = cnv->get_welt()->scale_with_month_length(v->get_besch()->get_maintenance())  ) {
+				if(  int cost = welt->scale_with_month_length(v->get_besch()->get_maintenance())  ) {
 					KOORD_VAL len = display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, translator::translate("Maintenance"), ALIGN_LEFT, COL_BLACK, true );
 					len += display_proportional_clip( pos.x+w+offset.x+len, pos.y+offset.y+total_height+extra_y, ": ", ALIGN_LEFT, COL_BLACK, true );
 					money_to_string( number, cost/(100.0) );
@@ -337,7 +335,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 				display_proportional_clip( pos.x+w+offset.x+len, pos.y+offset.y+total_height+extra_y, number, ALIGN_LEFT, cost>=0?MONEY_PLUS:MONEY_MINUS, true );
 				extra_y += LINESPACE;
 				// Fixed costs
-				if(  int cost = cnv->get_welt()->scale_with_month_length(v->get_besch()->get_maintenance())  ) {
+				if(  int cost = welt->scale_with_month_length(v->get_besch()->get_maintenance())  ) {
 					KOORD_VAL len = display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, translator::translate("Maintenance"), ALIGN_LEFT, COL_BLACK, true );
 					len += display_proportional_clip( pos.x+w+offset.x+len, pos.y+offset.y+total_height+extra_y, ": ", ALIGN_LEFT, COL_BLACK, true );
 					money_to_string( number, cost/(100.0) );

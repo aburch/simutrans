@@ -20,7 +20,7 @@
 
 #include "../utils/cbuffer_t.h"
 
-scenario_frame_t::scenario_frame_t(karte_t *welt) : savegame_frame_t(NULL, true, NULL, false)
+scenario_frame_t::scenario_frame_t() : savegame_frame_t(NULL, true, NULL, false)
 {
 	static cbuffer_t pakset_scenario;
 	static cbuffer_t addons_scenario;
@@ -33,7 +33,6 @@ scenario_frame_t::scenario_frame_t(karte_t *welt) : savegame_frame_t(NULL, true,
 
 	this->add_path(addons_scenario);
 	this->add_path(pakset_scenario);
-	this->welt = welt;
 
 	set_name(translator::translate("Load scenario"));
 	set_focus(NULL);
@@ -53,7 +52,7 @@ bool scenario_frame_t::item_action(const char *fullpath)
 		welt->set_pause(false);
 		// open scenario info window
 		destroy_win(magic_scenario_info);
-		create_win(new scenario_info_t(welt), w_info, magic_scenario_info);
+		create_win(new scenario_info_t(), w_info, magic_scenario_info);
 	}
 	else {
 		create_win(new news_img(err), w_info, magic_none);

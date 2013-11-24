@@ -30,8 +30,7 @@ static const char* total_bev_translation = NULL;
 char citylist_stats_t::total_bev_string[128];
 
 
-citylist_stats_t::citylist_stats_t(karte_t* w, citylist::sort_mode_t sortby, bool sortreverse) :
-	welt(w)
+citylist_stats_t::citylist_stats_t(citylist::sort_mode_t sortby, bool sortreverse)
 {
 	total_bev_translation = translator::translate("Total inhabitants:");
 	sort(sortby, sortreverse);

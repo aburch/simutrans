@@ -15,7 +15,6 @@
 #include "components/action_listener.h"
 
 
-class karte_t;
 
 /**
  * Menu for the player list
@@ -24,7 +23,6 @@ class karte_t;
 class ki_kontroll_t : public gui_frame_t, private action_listener_t
 {
 	private:
-		static karte_t *welt;
 		char account_str[MAX_PLAYER_COUNT-1][32];
 
 		gui_label_t
@@ -41,7 +39,7 @@ class ki_kontroll_t : public gui_frame_t, private action_listener_t
 			player_select[MAX_PLAYER_COUNT-1];
 
 	public:
-		ki_kontroll_t(karte_t *welt);
+		ki_kontroll_t();
 		~ki_kontroll_t();
 
 		/**

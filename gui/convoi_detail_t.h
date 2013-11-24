@@ -65,7 +65,6 @@ public:
 	enum sort_mode_t { by_destination=0, by_via=1, by_amount_via=2, by_amount=3, SORT_MODES=4 };
 
 private:
-	static karte_t *welt;
 
 	gui_scrollpane_t scrolly;
 	gui_vehicleinfo_t veh_info;
@@ -106,7 +105,7 @@ public:
 	void update_data() { set_dirty(); }
 
 	// this constructor is only used during loading
-	convoi_detail_t(karte_t *welt);
+	convoi_detail_t();
 
 	void rdwr( loadsave_t *file );
 

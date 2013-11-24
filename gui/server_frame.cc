@@ -34,9 +34,8 @@
 static char nick_buf[256];
 char server_frame_t::newserver_name[2048] = "";
 
-server_frame_t::server_frame_t(karte_t* w) :
+server_frame_t::server_frame_t() :
 	gui_frame_t( translator::translate("Game info") ),
-	welt(w),
 	gi(welt),
 	serverlist( gui_scrolled_list_t::listskin )
 {

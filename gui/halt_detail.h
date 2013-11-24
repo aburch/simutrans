@@ -71,7 +71,7 @@ public:
 	void draw( scr_coord pos, scr_size size );
 
 	// this constructor is only used during loading
-	halt_detail_t(karte_t *welt);
+	halt_detail_t();
 
 	void rdwr( loadsave_t *file );
 

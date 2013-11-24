@@ -47,7 +47,7 @@ private:
 class news_loc : public news_window
 {
 public:
-	news_loc(karte_t* welt, const char* text, koord k, PLAYER_COLOR_VAL color = WIN_TITEL);
+	news_loc(const char* text, koord k, PLAYER_COLOR_VAL color = WIN_TITEL);
 
 	void map_rotate90( sint16 new_ysize );
 

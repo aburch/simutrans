@@ -16,7 +16,6 @@
 #include "../utils/cbuffer_t.h"
 #include "../simtypes.h"
 
-class karte_t;
 class spieler_t;
 
 #define COLUMN_WIDTH (int)(D_BUTTON_WIDTH*2.25)
@@ -45,7 +44,6 @@ private:
 
 protected:
 	spieler_t *sp;
-	karte_t* welt;
 
 	cbuffer_t buf;
 	gui_fixedwidth_textarea_t info_text;
@@ -74,7 +72,7 @@ protected:
 	virtual void change_item_info( sint32 /*entry, -1= none */ ) {}
 
 public:
-	extend_edit_gui_t(const char *name, spieler_t* sp, karte_t* welt);
+	extend_edit_gui_t(const char *name, spieler_t* sp);
 
 	/**
 	* Does this window need a min size button in the title bar?

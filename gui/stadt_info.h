@@ -95,7 +95,7 @@ public:
 	void resize(const scr_coord delta);
 
 	// this constructor is only used during loading
-	stadt_info_t(karte_t *welt);
+	stadt_info_t();
 
 	void rdwr(loadsave_t *);
 

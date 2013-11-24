@@ -113,7 +113,7 @@ public:
 	void map_rotate90( sint16 ) { update_info(); }
 
 	// this constructor is only used during loading
-	fabrik_info_t(karte_t *welt);
+	fabrik_info_t();
 
 	void rdwr( loadsave_t *file );
 

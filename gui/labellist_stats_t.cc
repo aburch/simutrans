@@ -27,8 +27,7 @@
 
 
 
-labellist_stats_t::labellist_stats_t(karte_t* w, labellist::sort_mode_t sortby, bool sortreverse, bool filter) :
-	welt(w)
+labellist_stats_t::labellist_stats_t(labellist::sort_mode_t sortby, bool sortreverse, bool filter)
 {
 	get_unique_labels(sortby,sortreverse,filter);
 	recalc_size();
@@ -38,11 +37,10 @@ labellist_stats_t::labellist_stats_t(karte_t* w, labellist::sort_mode_t sortby, 
 class compare_labels
 {
 	public:
-		compare_labels(labellist::sort_mode_t sortby_, bool reverse_, bool filter_, karte_t * welt_) :
+		compare_labels(labellist::sort_mode_t sortby_, bool reverse_, bool filter_) :
 			sortby(sortby_),
 			reverse(reverse_),
-			filter(filter_),
-			welt(welt_)
+			filter(filter_)
 		{}
 
 		bool operator ()(const koord a, const koord b)
@@ -85,9 +83,9 @@ class compare_labels
 	private:
 		labellist::sort_mode_t sortby;
 		bool reverse, filter;
-		karte_t * welt;
+		static karte_ptr_t welt;
 };
-
+karte_ptr_t compare_labels::welt;
 
 void labellist_stats_t::get_unique_labels(labellist::sort_mode_t sb, bool sr, bool fi)
 {
@@ -105,7 +103,7 @@ void labellist_stats_t::get_unique_labels(labellist::sort_mode_t sb, bool sr, bo
 		// some old version games don't have label nor name.
 		// Check them to avoid crashes.
 		if(label  &&  name  &&  (!filter  ||  (label  &&  (label->get_besitzer() == welt->get_active_player())))) {
-			labels.insert_ordered( pos, compare_labels(sortby, sortreverse, filter, welt) );
+			labels.insert_ordered( pos, compare_labels(sortby, sortreverse, filter) );
 		}
 	}
 }

@@ -327,7 +327,7 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t 
 		int type = tabs_to_lineindex[tabs.get_active_tab_index()];
 		buf.printf( "c,0,%i,0,0|%i|", type, type );
 		w->set_default_param(buf);
-		sp->get_welt()->set_werkzeug( w, sp );
+		welt->set_werkzeug( w, sp );
 		// since init always returns false, it is safe to delete immediately
 		delete w;
 		depot_t::update_all_win();
@@ -338,7 +338,7 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t 
 			cbuffer_t buf;
 			buf.printf( "d,%i", line.get_id() );
 			w->set_default_param(buf);
-			sp->get_welt()->set_werkzeug( w, sp );
+			welt->set_werkzeug( w, sp );
 			// since init always returns false, it is safe to delete immediately
 			delete w;
 			depot_t::update_all_win();
@@ -351,7 +351,7 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t 
 			cbuffer_t buf;
 			buf.printf( "w,%i,%i", line.get_id(), bt_withdraw_line.pressed );
 			w->set_default_param(buf);
-			sp->get_welt()->set_werkzeug( w, sp );
+			welt->set_werkzeug( w, sp );
 			// since init always returns false, it is safe to delete immediately
 			delete w;
 		}
@@ -433,7 +433,7 @@ void schedule_list_gui_t::rename_line()
 			buf.printf( "l%u,%s", line.get_id(), t );
 			werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
 			w->set_default_param( buf );
-			sp->get_welt()->set_werkzeug( w, line->get_besitzer() );
+			welt->set_werkzeug( w, line->get_besitzer() );
 			// since init always returns false, it is safe to delete immediately
 			delete w;
 			// do not trigger this command again
@@ -457,7 +457,7 @@ void schedule_list_gui_t::draw(scr_coord pos, scr_size size)
 	gui_frame_t::draw(pos, size);
 
 	if(  line.is_bound()  ) {
-		if(  (!line->get_schedule()->empty()  &&  !line->get_schedule()->matches( sp->get_welt(), last_schedule ))  ||  last_vehicle_count != line->count_convoys()  ) {
+		if(  (!line->get_schedule()->empty()  &&  !line->get_schedule()->matches( welt, last_schedule ))  ||  last_vehicle_count != line->count_convoys()  ) {
 			update_lineinfo( line );
 		}
 		PUSH_CLIP( pos.x + 1, pos.y + D_TITLEBAR_HEIGHT, size.w - 2, size.h - D_TITLEBAR_HEIGHT);
@@ -625,7 +625,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		cont_haltestellen.remove_all();
 		ypos = 0;
 		FOR(minivec_tpl<linieneintrag_t>, const& i, new_line->get_schedule()->eintrag) {
-			halthandle_t const halt = haltestelle_t::get_halt(sp->get_welt(), i.pos, sp);
+			halthandle_t const halt = haltestelle_t::get_halt(welt, i.pos, sp);
 			if (halt.is_bound()) {
 				halt_list_stats_t* cinfo = new halt_list_stats_t(halt);
 				cinfo->set_pos(scr_coord(0, ypos));

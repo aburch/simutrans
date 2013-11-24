@@ -36,7 +36,6 @@ public:
 	enum sort_mode_t { by_destination=0, by_via=1, by_amount_via=2, by_amount=3, SORT_MODES=4 };
 
 private:
-	static karte_t *welt;
 
 	/**
 	* Buffer for freight info text string.
@@ -126,7 +125,7 @@ public:
 	void update_data() { reset_cnv_name(); set_dirty(); }
 
 	// this constructor is only used during loading
-	convoi_info_t(karte_t *welt);
+	convoi_info_t();
 
 	void rdwr( loadsave_t *file );
 

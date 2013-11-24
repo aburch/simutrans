@@ -59,16 +59,14 @@ const char *goods_frame_t::sort_text[SORT_MODES] = {
  * @author falconne
  */
 bool goods_frame_t::filter_goods = false;
-karte_t *goods_frame_t::welt = NULL;
 
-goods_frame_t::goods_frame_t(karte_t *wl) :
+goods_frame_t::goods_frame_t() :
 	gui_frame_t( translator::translate("gl_title") ),
 	sort_label(translator::translate("hl_txt_sort")),
 	change_speed_label(NULL,SYSCOL_TEXT_HIGHLIGHT,gui_label_t::right),
-	goods_stats( wl ),
+	goods_stats(),
 	scrolly(&goods_stats)
 {
-	this->welt = wl;
 	int y=D_BUTTON_HEIGHT+4-D_TITLEBAR_HEIGHT;
 
 	speed_bonus[0] = 0;

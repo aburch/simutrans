@@ -38,7 +38,6 @@
 
 
 
-karte_t *halt_info_t::welt = NULL;
 
 
 static const char *sort_text[4] = {
@@ -90,15 +89,14 @@ const int cost_type_color[MAX_HALT_COST] =
 	COL_LILAC
 };
 
-halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt) :
+halt_info_t::halt_info_t(halthandle_t halt) :
 		gui_frame_t( halt->get_name(), halt->get_besitzer() ),
 		scrolly(&text),
 		text(&freight_info),
 		sort_label(translator::translate("Hier warten/lagern:")),
-		view(welt, halt->get_basis_pos3d(), scr_size(max(64, get_base_tile_raster_width()), max(56, get_base_tile_raster_width() * 7 / 8)))
+		view(halt->get_basis_pos3d(), scr_size(max(64, get_base_tile_raster_width()), max(56, get_base_tile_raster_width() * 7 / 8)))
 {
 	this->halt = halt;
-	this->welt = welt;
 	halt->set_sortby( env_t::default_sortmode );
 
 	const sint16 offset_below_viewport = 21 + view.get_size().h;
@@ -176,7 +174,7 @@ halt_info_t::~halt_info_t()
 		buf.printf( "h%u,%s", halt.get_id(), edit_name );
 		werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
 		w->set_default_param( buf );
-		halt->get_welt()->set_werkzeug( w, halt->get_besitzer() );
+		welt->set_werkzeug( w, halt->get_besitzer() );
 		// since init always returns false, it is safe to delete immediately
 		delete w;
 	}
@@ -387,7 +385,6 @@ void halt_info_t::update_departures()
 	if (!halt.is_bound()) {
 		return;
 	}
-	karte_t * welt = halt->get_welt();
 
 	vector_tpl<halt_info_t::dest_info_t> old_origins(origins);
 
@@ -528,7 +525,7 @@ bool halt_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 			buf.printf( "h%u,%s", halt.get_id(), edit_name );
 			werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
 			w->set_default_param( buf );
-			halt->get_welt()->set_werkzeug( w, halt->get_besitzer() );
+			welt->set_werkzeug( w, halt->get_besitzer() );
 			// since init always returns false, it is safe to delete immediately
 			delete w;
 		}
@@ -582,15 +579,14 @@ void halt_info_t::map_rotate90( sint16 new_ysize )
 }
 
 
-halt_info_t::halt_info_t(karte_t *welt):
+halt_info_t::halt_info_t():
 	gui_frame_t("", NULL),
 	scrolly(&text),
 	text(&freight_info),
 	sort_label(NULL),
-	view(welt, koord3d::invalid, scr_size(64, 64))
+	view(koord3d::invalid, scr_size(64, 64))
 {
 	// just a dummy
-	this->welt = welt;
 }
 
 
@@ -623,7 +619,7 @@ void halt_info_t::rdwr(loadsave_t *file)
 		halt = welt->lookup( halt_pos )->get_halt();
 		// now we can open the window ...
 		scr_coord const& pos = win_get_pos(this);
-		halt_info_t *w = new halt_info_t(welt,halt);
+		halt_info_t *w = new halt_info_t(halt);
 		create_win(pos.x, pos.y, w, w_info, magic_halt_info + halt.get_id());
 		if(  stats  ) {
 			size.h -= 170;

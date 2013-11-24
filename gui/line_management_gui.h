@@ -12,7 +12,6 @@
 #include "../linehandle_t.h"
 
 class spieler_t;
-class karte_t;
 class loadsave_t;
 
 class line_management_gui_t : public fahrplan_gui_t
@@ -25,7 +24,7 @@ public:
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	// stuff for UI saving
-	line_management_gui_t(karte_t *welt);
+	line_management_gui_t();
 	virtual void rdwr( loadsave_t *file );
 	virtual uint32 get_rdwr_id() { return magic_line_schedule_rdwr_dummy; }
 

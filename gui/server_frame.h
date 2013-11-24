@@ -24,7 +24,6 @@
 class server_frame_t : public gui_frame_t, private action_listener_t
 {
 private:
-	karte_t *welt;
 	gameinfo_t gi;
 	cbuffer_t buf, time, revision_buf, pakset_checksum_buf;
 
@@ -82,7 +81,7 @@ private:
 	bool update_serverlist ();
 
 public:
-	server_frame_t( karte_t *welt );
+	server_frame_t();
 
 	void draw(scr_coord pos, scr_size size);
 

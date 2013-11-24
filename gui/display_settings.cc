@@ -33,11 +33,10 @@
 #define L_DIALOG_WIDTH (220)
 
 
-color_gui_t::color_gui_t(karte_t *welt) :
+color_gui_t::color_gui_t() :
 gui_frame_t( translator::translate("Helligk. u. Farben") )
 {
 	scr_coord cursor = scr_coord( D_MARGIN_LEFT, D_MARGIN_TOP );
-	this->welt = welt;
 
 	// Use one of the edit controls to calculate width
 	inp_underground_level.set_width_by_len(3);

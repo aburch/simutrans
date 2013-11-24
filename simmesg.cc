@@ -192,7 +192,7 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 		if (pos == koord::invalid) {
 			news = new news_img(p, bild, colorval);
 		} else {
-			news = new news_loc(welt, p, pos, colorval);
+			news = new news_loc(p, pos, colorval);
 		}
 		wintype w_t = art & win_flags ? w_info /* normal window */ : w_time_delete /* autoclose window */;
 

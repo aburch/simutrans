@@ -12,7 +12,6 @@
 #include "components/gui_image.h"
 #include "gui_frame.h"
 
-class karte_t;
 
 /*
  * Class to generates the welcome screen with the scrolling
@@ -34,10 +33,9 @@ private:
 
 	gui_image_t logo;
 
-	karte_t *welt;
 
 public:
-	banner_t( karte_t *w );
+	banner_t();
 
 	bool has_sticky() const { return false; }
 

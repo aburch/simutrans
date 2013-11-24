@@ -24,7 +24,6 @@
 
 #define MAX_MESG_TABS (8)
 
-karte_t *message_frame_t::welt = NULL;
 
 static sint32 categories[MAX_MESG_TABS] =
 {
@@ -52,12 +51,11 @@ static const char *tab_strings[]=
 
 
 
-message_frame_t::message_frame_t(karte_t *welt) :
+message_frame_t::message_frame_t() :
 	gui_frame_t( translator::translate("Mailbox") ),
-	stats(welt),
+	stats(),
 	scrolly(&stats)
 {
-	this->welt = welt;
 
 	scrolly.set_show_scroll_x(true);
 	scrolly.set_scroll_amount_y(LINESPACE+1);
@@ -124,7 +122,7 @@ void message_frame_t::resize(const scr_coord delta)
 bool message_frame_t::action_triggered( gui_action_creator_t *komp, value_t v )
 {
 	if(  komp==&option_bt  ) {
-		create_win(320, 200, new message_option_t(welt), w_info, magic_message_options );
+		create_win(320, 200, new message_option_t(), w_info, magic_message_options );
 	}
 	else if(  komp==&input  &&  ibuf[0]!=0  ) {
 		// Send chat message to server for distribution

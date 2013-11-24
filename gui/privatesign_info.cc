@@ -16,7 +16,6 @@ privatesign_info_t::privatesign_info_t(roadsign_t* s) :
 	obj_infowin_t(s),
 	sign(s)
 {
-	karte_t *welt = sign->get_welt();
 	for(  int i=0;  i<PLAYER_UNOWNED;  i++  ) {
 		if(  welt->get_spieler(i)  ) {
 			players[i].init( button_t::square_state, welt->get_spieler(i)->get_name(), scr_coord(4,get_windowsize().h-25-LINESPACE*(PLAYER_UNOWNED-i)), scr_size(get_windowsize().w-18,D_BUTTON_HEIGHT) );
@@ -42,7 +41,6 @@ privatesign_info_t::privatesign_info_t(roadsign_t* s) :
    */
 bool privatesign_info_t::action_triggered( gui_action_creator_t *komp, value_t /* */)
 {
-	karte_t *welt = sign->get_welt();
 	if(  welt->get_active_player() ==  sign->get_besitzer()  ) {
 		char param[256];
 		for(  int i=0;  i<PLAYER_UNOWNED;  i++  ) {

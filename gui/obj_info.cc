@@ -65,5 +65,5 @@ void obj_infowin_t::draw(scr_coord pos, scr_size size)
 
 bool obj_infowin_t::is_weltpos()
 {
-	return ( get_obj()->get_welt()->get_viewport()->is_on_center(get_obj()->get_pos()));
+	return ( welt->get_viewport()->is_on_center(get_obj()->get_pos()));
 }

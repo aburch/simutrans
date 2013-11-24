@@ -197,7 +197,7 @@ void halt_detail_t::halt_detail_info()
 	if(  !halt->registered_lines.empty()  ) {
 		for (unsigned int i = 0; i<halt->registered_lines.get_count(); i++) {
 			// Line buttons only if owner ...
-			if (halt->get_welt()->get_active_player()==halt->registered_lines[i]->get_besitzer()) {
+			if (welt->get_active_player()==halt->registered_lines[i]->get_besitzer()) {
 				button_t *b = new button_t();
 				b->init( button_t::posbutton, NULL, scr_coord(D_MARGIN_LEFT, offset_y) );
 				b->set_targetpos( koord(-1,i) );
@@ -328,19 +328,19 @@ bool halt_detail_t::action_triggered( gui_action_creator_t *, value_t extra)
 		koord k = *(const koord *)extra.p;
 		if(  k.x>=0  ) {
 			// goto button pressed
-			halt->get_welt()->get_viewport()->change_world_position( koord3d(k,halt->get_welt()->max_hgt(k)) );
+			welt->get_viewport()->change_world_position( koord3d(k,welt->max_hgt(k)) );
 		}
 		else if(  k.x==-1  ) {
 			// Line button pressed.
 			uint16 j=k.y;
 			if(  j < halt->registered_lines.get_count()  ) {
 				linehandle_t line=halt->registered_lines[j];
-				spieler_t *sp=halt->get_welt()->get_active_player();
+				spieler_t *sp=welt->get_active_player();
 				if(  sp==line->get_besitzer()  ) {
 					//TODO:
 					// Change player => change marked lines
 					sp->simlinemgmt.show_lineinfo(sp,line);
-					halt->get_welt()->set_dirty();
+					welt->set_dirty();
 				}
 			}
 		}
@@ -361,11 +361,11 @@ bool halt_detail_t::action_triggered( gui_action_creator_t *, value_t extra)
 void halt_detail_t::draw(scr_coord pos, scr_size size)
 {
 	if(halt.is_bound()) {
-		if(  halt->get_reconnect_counter()!=destination_counter  ||  cached_active_player!=halt->get_welt()->get_active_player()
+		if(  halt->get_reconnect_counter()!=destination_counter  ||  cached_active_player!=welt->get_active_player()
 				||  halt->registered_lines.get_count()!=cached_line_count  ||  halt->registered_convoys.get_count()!=cached_convoy_count  ) {
 			// fill buffer with halt detail
 			halt_detail_info();
-			cached_active_player=halt->get_welt()->get_active_player();
+			cached_active_player=welt->get_active_player();
 		}
 	}
 	gui_frame_t::draw( pos, size );
@@ -381,7 +381,7 @@ void halt_detail_t::set_windowsize(scr_size size)
 
 
 
-halt_detail_t::halt_detail_t(karte_t *):
+halt_detail_t::halt_detail_t():
 	gui_frame_t("", NULL),
 	scrolly(&cont),
 	txt_info(&buf)
@@ -405,7 +405,7 @@ void halt_detail_t::rdwr(loadsave_t *file)
 	file->rdwr_long( xoff );
 	file->rdwr_long( yoff );
 	if(  file->is_loading()  ) {
-		halt = haltestelle_t::get_welt()->lookup( halt_pos )->get_halt();
+		halt = welt->lookup( halt_pos )->get_halt();
 		// now we can open the window ...
 		scr_coord const& pos = win_get_pos(this);
 		halt_detail_t *w = new halt_detail_t(halt);

@@ -19,17 +19,15 @@
 //#define BUTTON_ROW (110+D_MARGIN_LEFT+D_BUTTON_HEIGHT+D_H_SPACE)
 
 
-karte_t *message_option_t::welt = NULL;
 
 
-message_option_t::message_option_t(karte_t *welt_) :
+message_option_t::message_option_t() :
 	gui_frame_t( translator::translate("Mailbox Options") ),
 	text_label(&buf),
 	legend( skinverwaltung_t::message_options->get_bild_nr(0) )
 {
 	scr_coord_val button_row = get_windowsize().w - legend.get_size().w - D_MARGIN_RIGHT;
 
-	welt = welt_;
 	buf.clear();
 	buf.append(translator::translate("MessageOptionsText"));
 	text_label.set_pos( scr_coord( D_MARGIN_LEFT + D_CHECKBOX_WIDTH + D_H_SPACE, D_MARGIN_TOP ));

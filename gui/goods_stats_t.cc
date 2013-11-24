@@ -28,11 +28,9 @@
 #include "../gui/components/gui_button.h"
 
 
-karte_t *goods_stats_t::welt = NULL;
 
-goods_stats_t::goods_stats_t( karte_t *wl )
+goods_stats_t::goods_stats_t()
 {
-	welt = wl;
 	set_size( scr_size(BUTTON4_X + D_BUTTON_WIDTH + 2, warenbauer_t::get_waren_anzahl() * (LINESPACE+1) ) );
 }
 

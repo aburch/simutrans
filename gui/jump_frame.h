@@ -17,7 +17,6 @@
 #include "components/gui_button.h"
 
 
-class karte_t;
 
 class jump_frame_t : public gui_frame_t, action_listener_t
 {
@@ -25,10 +24,9 @@ class jump_frame_t : public gui_frame_t, action_listener_t
 	gui_textinput_t input;
 	gui_divider_t divider1;
 	button_t jumpbutton;
-	karte_t *welt;
 
 public:
-	jump_frame_t(karte_t *welt);
+	jump_frame_t();
 
 	/**
 	* Set the window associated helptext

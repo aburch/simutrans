@@ -51,9 +51,9 @@ farbengui_t::farbengui_t(spieler_t *sp) :
 	uint32 used_colors1 = 0;
 	uint32 used_colors2 = 0;
 	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
-		if(  i!=sp->get_player_nr()  &&  sp->get_welt()->get_spieler(i)  ) {
-			used_colors1 |= 1 << (sp->get_welt()->get_spieler(i)->get_player_color1() / 8);
-			used_colors2 |= 1 << (sp->get_welt()->get_spieler(i)->get_player_color2() / 8);
+		if(  i!=sp->get_player_nr()  &&  welt->get_spieler(i)  ) {
+			used_colors1 |= 1 << (welt->get_spieler(i)->get_player_color1() / 8);
+			used_colors2 |= 1 << (welt->get_spieler(i)->get_player_color2() / 8);
 		}
 	}
 

@@ -23,6 +23,7 @@
 #include "../besch/skin_besch.h"
 #include "../simskin.h"
 
+karte_ptr_t gui_frame_t::welt;
 
 // Insert the container
 gui_frame_t::gui_frame_t(char const* const name, spieler_t const* const sp)

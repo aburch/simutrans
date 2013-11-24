@@ -60,7 +60,7 @@ bool line_management_gui_t::infowin_event(const event_t *ev)
 				buf.printf( "g,%i,", line.get_id() );
 				fpl->sprintf_schedule( buf );
 				w->set_default_param(buf);
-				line->get_besitzer()->get_welt()->set_werkzeug( w, line->get_besitzer() );
+				welt->set_werkzeug( w, line->get_besitzer() );
 				// since init always returns false, it is safe to delete immediately
 				delete w;
 			}
@@ -71,8 +71,8 @@ bool line_management_gui_t::infowin_event(const event_t *ev)
 
 
 
-line_management_gui_t::line_management_gui_t(karte_t *welt) :
-	fahrplan_gui_t( welt )
+line_management_gui_t::line_management_gui_t() :
+	fahrplan_gui_t()
 {
 	show_line_selector(false);
 }

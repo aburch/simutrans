@@ -68,7 +68,7 @@
 #define L_BUTTON_COLUMN_2   (L_DIALOG_WIDTH - L_BUTTON_EXTRA_WIDE - D_MARGIN_RIGHT)
 
 
-welt_gui_t::welt_gui_t(karte_t* const world_par, settings_t* const sets_par) :
+welt_gui_t::welt_gui_t(settings_t* const sets_par) :
 	gui_frame_t( translator::translate("Neue Welt" ) ),
 	map(0,0)
 {
@@ -77,7 +77,6 @@ welt_gui_t::welt_gui_t(karte_t* const world_par, settings_t* const sets_par) :
 	scr_coord_val edit_Width = display_get_char_max_width("0123456789")*5 + D_ARROW_LEFT_WIDTH + D_ARROW_RIGHT_WIDTH;
 	scr_coord_val label_width = L_COLUMN1_X - D_MARGIN_LEFT - D_H_SPACE;
 
-	world = world_par;
 	sets = sets_par;
 	sets->beginner_mode = env_t::default_settings.get_beginner_mode();
 
@@ -547,28 +546,28 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		}
 	}
 	else if(komp==&load_game) {
-		world->get_message()->clear();
-		create_win( new loadsave_frame_t(world, true), w_info, magic_load_t);
+		welt->get_message()->clear();
+		create_win( new loadsave_frame_t(true), w_info, magic_load_t);
 	}
 	else if(komp==&load_scenario) {
 		destroy_all_win(true);
-		world->get_message()->clear();
-		create_win( new scenario_frame_t(world), w_info, magic_load_t );
+		welt->get_message()->clear();
+		create_win( new scenario_frame_t(), w_info, magic_load_t );
 	}
 	else if(komp==&start_game) {
 		destroy_all_win(true);
-		world->get_message()->clear();
+		welt->get_message()->clear();
 		create_win(200, 100, new news_img("Erzeuge neue Karte.\n", skinverwaltung_t::neueweltsymbol->get_bild_nr(0)), w_info, magic_none);
 		if(loaded_heightfield) {
-			world->load_heightfield(&env_t::default_settings);
+			welt->load_heightfield(&env_t::default_settings);
 		}
 		else {
 			env_t::default_settings.heightfield = "";
-			world->init( &env_t::default_settings, 0 );
+			welt->init( &env_t::default_settings, 0 );
 		}
 		destroy_all_win(true);
-		world->step_month( env_t::default_settings.get_starting_month() );
-		world->set_pause(false);
+		welt->step_month( env_t::default_settings.get_starting_month() );
+		welt->set_pause(false);
 		// save setting ...
 		loadsave_t file;
 		if(file.wr_open("default.sve",loadsave_t::binary,"settings only",SAVEGAME_VER_NR)) {

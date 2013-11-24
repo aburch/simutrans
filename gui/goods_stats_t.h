@@ -18,12 +18,10 @@
 #include "components/gui_komponente.h"
 
 
-class karte_t;
 
-class goods_stats_t : public gui_komponente_t
+class goods_stats_t : public gui_world_component_t
 {
 private:
-	static karte_t *welt;
 	uint16 *goodslist;
 	int bonus;
 
@@ -32,7 +30,7 @@ private:
 	int listed_goods;
 
 public:
-	goods_stats_t( karte_t *welt );
+	goods_stats_t();
 
 	// update list and resize
 	void update_goodslist( uint16 *g, int bonus, int listcount );

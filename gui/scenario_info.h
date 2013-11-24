@@ -12,7 +12,6 @@
 #include "components/gui_scrollpane.h"
 
 class dynamic_string;
-class karte_t;
 /**
  * All messages since the start of the program
  * @author prissi
@@ -32,13 +31,12 @@ private:
 	gui_scrollpane_t scrolly_debug;
 	gui_scrollpane_t scrolly_error;
 
-	karte_t* welt;
 
 	void update_dynamic_texts(gui_flowtext_t &flow, dynamic_string &text, scr_size size, bool init);
 
 
 public:
-	scenario_info_t(karte_t *welt);
+	scenario_info_t();
 
 	/**
 	 * This method is called if an action is triggered

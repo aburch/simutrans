@@ -13,6 +13,7 @@
 #include "../../display/simgraph.h"
 
 struct event_t;
+class karte_ptr_t;
 
 /**
  * Base class for all GUI components.
@@ -212,6 +213,16 @@ public:
 	 */
 	virtual scr_rect get_client( void ) { return scr_rect( pos, size ); }
 
+};
+
+
+/**
+ * Base class for all GUI components that need access to the world.
+ */
+class gui_world_component_t: public gui_komponente_t
+{
+protected:
+	static karte_ptr_t welt;
 };
 
 #endif

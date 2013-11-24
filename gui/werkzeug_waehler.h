@@ -15,7 +15,6 @@
 #include "../tpl/vector_tpl.h"
 #include "../gui/simwin.h"
 
-class karte_t;
 class werkzeug_t;
 
 
@@ -24,7 +23,6 @@ class werkzeug_waehler_t : public gui_frame_t
 private:
 	scr_size icon;	// size of symbols here
 
-	karte_t *welt;
 
 	struct tool_data_t {
 		tool_data_t(werkzeug_t* t=NULL) : tool(t), selected(false) {}
@@ -67,7 +65,7 @@ private:
 	bool allow_break;
 
 public:
-	werkzeug_waehler_t(karte_t *welt, const char *titel, const char *helpfile, uint32 toolbar_id, scr_size size, bool allow_break=true );
+	werkzeug_waehler_t(const char *titel, const char *helpfile, uint32 toolbar_id, scr_size size, bool allow_break=true );
 
 	/**
 	 * Add a new tool with values and tooltip text.

@@ -60,7 +60,7 @@ const char *option_buttons_tooltip[6] =
 	"Sprache", "Farbe", "Helligk. u. Farben", "Sound settings", "Spielerliste", "Scenario information"
 };*/
 
-optionen_gui_t::optionen_gui_t(karte_t *welt) :
+optionen_gui_t::optionen_gui_t() :
 	gui_frame_t( translator::translate("Einstellungen aendern"))
 {
 	assert(  lengthof(option_buttons)==lengthof(option_buttons_text)  );
@@ -68,7 +68,6 @@ optionen_gui_t::optionen_gui_t(karte_t *welt) :
 
 	scr_coord cursor = scr_coord( D_MARGIN_LEFT, D_MARGIN_TOP );
 
-	this->welt = welt;
 
 	for(  uint i=0;  i<lengthof(option_buttons);  i++  ) {
 
@@ -120,29 +119,29 @@ bool optionen_gui_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 		create_win(new farbengui_t(welt->get_active_player()), w_info, magic_farbengui_t);
 	}
 	else if(  comp == option_buttons + BUTTON_DISPLAY  ) {
-		create_win(new color_gui_t(welt), w_info, magic_color_gui_t);
+		create_win(new color_gui_t(), w_info, magic_color_gui_t);
 	}
 	else if(  comp == option_buttons + BUTTON_SOUND  ) {
 		create_win(new sound_frame_t(), w_info, magic_sound_kontroll_t);
 	}
 	else if(  comp == option_buttons + BUTTON_PLAYERS  ) {
-		create_win(new ki_kontroll_t(welt), w_info, magic_ki_kontroll_t);
+		create_win(new ki_kontroll_t(), w_info, magic_ki_kontroll_t);
 	}
 	else if(  comp == option_buttons + BUTTON_SCENARIO_INFO  ) {
-		create_win(new scenario_info_t(welt), w_info, magic_scenario_info);
+		create_win(new scenario_info_t(), w_info, magic_scenario_info);
 	}
 	else if(  comp == option_buttons + BUTTON_LOAD_GAME  ) {
 		destroy_win(this);
-		create_win(new loadsave_frame_t(welt, true), w_info, magic_load_t);
+		create_win(new loadsave_frame_t(true), w_info, magic_load_t);
 	}
 	else if(  comp == option_buttons + BUTTON_LOAD_SCENARIO  ) {
 		destroy_win(this);
 		destroy_all_win(true);
-		create_win( new scenario_frame_t(welt), w_info, magic_load_t );
+		create_win( new scenario_frame_t(), w_info, magic_load_t );
 	}
 	else if(  comp == option_buttons + BUTTON_SAVE_GAME  ) {
 		destroy_win(this);
-		create_win(new loadsave_frame_t(welt, false), w_info, magic_save_t);
+		create_win(new loadsave_frame_t(false), w_info, magic_save_t);
 	}
 	else if(  comp == option_buttons + BUTTON_NEW_GAME  ) {
 		destroy_all_win( true );

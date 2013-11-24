@@ -14,8 +14,8 @@ private:
 	koord3d location; /**< The location to display. */
 
 public:
-	location_view_t(karte_t* welt, koord3d const location, scr_size const size) :
-	  world_view_t(welt, size), location(location) {}
+	location_view_t(koord3d const location, scr_size const size) :
+	  world_view_t(size), location(location) {}
 
 	/** Set the location to be displayed. */
 	void set_location(koord3d const l) { location = l; }

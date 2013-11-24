@@ -18,10 +18,9 @@
 #include "../dataobj/translator.h"
 
 
-jump_frame_t::jump_frame_t(karte_t *welt) :
+jump_frame_t::jump_frame_t() :
 	gui_frame_t( translator::translate("Jump to") )
 {
-	this->welt = welt;
 
 	// Input box for new name
 	sprintf(buf, "%i,%i", welt->get_viewport()->get_world_position().x, welt->get_viewport()->get_world_position().y );

@@ -55,7 +55,6 @@ trafficlight_info_t::trafficlight_info_t(roadsign_t* s) :
 bool trafficlight_info_t::action_triggered( gui_action_creator_t *komp, value_t v)
 {
 	char param[256];
-	karte_t *welt = ampel->get_welt();
 	if(komp == &ns) {
 		sprintf( param, "%s,1,%i", ampel->get_pos().get_str(), (int)v.i );
 		werkzeug_t::simple_tool[WKZ_TRAFFIC_LIGHT_TOOL]->set_default_param( param );
