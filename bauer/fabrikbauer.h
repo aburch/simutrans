@@ -15,7 +15,7 @@ class haus_besch_t;
 class ware_besch_t;
 class fabrik_besch_t;
 class stadt_t;
-class karte_t;
+class karte_ptr_t;
 class spieler_t;
 class fabrik_t;
 
@@ -28,6 +28,8 @@ class fabrik_t;
 class fabrikbauer_t
 {
 private:
+	static karte_ptr_t welt;
+
 	/**
 	 * @class fabs_to_crossconnect_t
 	 * Used for cross-connection checks between factories.
@@ -71,10 +73,10 @@ public:
 	 * Tells the factory builder a new map is being loaded or generated.
 	 * In this case the list of all factory positions must be reinitialized.
 	 */
-	static void neue_karte( karte_t * );
+	static void neue_karte();
 
 	/// Creates a certain number of tourist attractions.
-	static void verteile_tourist(karte_t* welt, int max_number);
+	static void verteile_tourist(int max_number);
 
 	/// @returns a factory description for a factory name
 	static const fabrik_besch_t * get_fabesch(const char *fabtype);
@@ -98,7 +100,7 @@ public:
 	 * @param rotate building rotation (0..3)
 	 * @returns The newly constructed factory.
 	 */
-	static fabrik_t* baue_fabrik(karte_t* welt, koord3d* parent, const fabrik_besch_t* info, sint32 initial_prod_base, int rotate, koord3d pos, spieler_t* spieler);
+	static fabrik_t* baue_fabrik(koord3d* parent, const fabrik_besch_t* info, sint32 initial_prod_base, int rotate, koord3d pos, spieler_t* spieler);
 
 	/**
 	 * Builds a new full chain of factories. Precondition before calling this function:
@@ -122,7 +124,7 @@ public:
 	 * or build a new consumer near the indicated position.
 	 * @returns number of factories built
 	 */
-	static int increase_industry_density( karte_t *welt, bool tell_me );
+	static int increase_industry_density( bool tell_me );
 
 private:
 	/**
@@ -131,14 +133,14 @@ private:
 	 * @param water true to search on water
 	 * @param cl allowed climates
 	 */
-	static bool ist_bauplatz(karte_t *welt, koord pos, koord groesse, bool water, bool is_fabrik, climate_bits cl);
+	static bool ist_bauplatz(koord pos, koord groesse, bool water, bool is_fabrik, climate_bits cl);
 
 	/**
 	 * Find a random site to place a factory.
 	 * @param radius Radius of the search circle around @p pos
 	 * @param groesse size of the building site
 	 */
-	static koord3d finde_zufallsbauplatz(karte_t *welt, koord3d pos, int radius, koord groesse, bool on_water, const haus_besch_t *besch, bool ignore_climates);
+	static koord3d finde_zufallsbauplatz(koord3d pos, int radius, koord groesse,bool on_water, const haus_besch_t *besch, bool ignore_climates);
 
 	/**
 	 * Checks if all factories in this factory tree can be rotated.

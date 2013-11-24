@@ -281,7 +281,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 		const koord town_road = find_place_for_hub( start_stadt );
 		// first: built street to harbour
 		if(town_road!=bushalt) {
-			wegbauer_t bauigel(welt, this);
+			wegbauer_t bauigel(this);
 			// no bridges => otherwise first tile might be bridge start ...
 			bauigel.route_fuer( wegbauer_t::strasse, wegbauer_t::weg_search( road_wt, 25, welt->get_timeline_year_month(), weg_t::type_flat ), tunnelbauer_t::find_tunnel(road_wt,road_vehicle->get_geschw(),welt->get_timeline_year_month()), NULL );
 			bauigel.set_keep_existing_faster_ways(true);
@@ -299,7 +299,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 		const koord town_road = find_place_for_hub( end_stadt );
 		// first: built street to harbour
 		if(town_road!=bushalt) {
-			wegbauer_t bauigel(welt, this);
+			wegbauer_t bauigel(this);
 			// no bridges => otherwise first tile might be bridge start ...
 			bauigel.route_fuer( wegbauer_t::strasse, wegbauer_t::weg_search( road_wt, 25, welt->get_timeline_year_month(), weg_t::type_flat ), tunnelbauer_t::find_tunnel(road_wt,road_vehicle->get_geschw(),welt->get_timeline_year_month()), NULL );
 			bauigel.set_keep_existing_faster_ways(true);
@@ -492,7 +492,7 @@ halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int r
 		}
 	}
 	// now taxiways
-	wegbauer_t bauigel(welt, this);
+	wegbauer_t bauigel(this);
 	// 3x3 layout, first we make the taxiway cross
 	koord center=pos+dx;
 	bauigel.route_fuer( wegbauer_t::luft, taxi_besch, NULL, NULL );

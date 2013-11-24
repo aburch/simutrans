@@ -34,6 +34,8 @@
 #include "../tpl/weighted_vector_tpl.h"
 #include "hausbauer.h"
 
+karte_ptr_t hausbauer_t::welt;
+
 /*
  * Die verschiedenen Gebäudegruppen sind in eigenen Listen gesammelt.
  */
@@ -228,7 +230,7 @@ bool hausbauer_t::register_besch(haus_besch_t *besch)
 
 
 // all these menus will need a waytype ...
-void hausbauer_t::fill_menu(werkzeug_waehler_t* wzw, haus_besch_t::utyp utyp, waytype_t wt, sint16 /*sound_ok*/, const karte_t* welt)
+void hausbauer_t::fill_menu(werkzeug_waehler_t* wzw, haus_besch_t::utyp utyp, waytype_t wt, sint16 /*sound_ok*/)
 {
 	// check if scenario forbids this
 	uint16 toolnr = 0;
@@ -271,7 +273,7 @@ void hausbauer_t::neue_karte()
 
 
 
-void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb )
+void hausbauer_t::remove( spieler_t *sp, gebaeude_t *gb )
 {
 	const haus_tile_besch_t *tile  = gb->get_tile();
 	const haus_besch_t *hb = tile->get_besch();
@@ -424,7 +426,7 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb )
 }
 
 
-gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int org_layout, const haus_besch_t* besch, void* param)
+gebaeude_t* hausbauer_t::baue(spieler_t* sp, koord3d pos, int org_layout, const haus_besch_t* besch, void* param)
 {
 	gebaeude_t* first_building = NULL;
 	koord k;
@@ -524,7 +526,7 @@ but tunnels or bridges may not have a besch during loading or the map yet!
 }
 
 
-gebaeude_t *hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int built_layout, const haus_besch_t *besch, void *param)
+gebaeude_t *hausbauer_t::neues_gebaeude(spieler_t *sp, koord3d pos, int built_layout, const haus_besch_t *besch, void *param)
 {
 	uint8 corner_layout = 6;	// assume single building (for more than 4 layouts)
 

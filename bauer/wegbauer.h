@@ -16,7 +16,7 @@
 class weg_besch_t;
 class bruecke_besch_t;
 class tunnel_besch_t;
-class karte_t;
+class karte_ptr_t;
 class spieler_t;
 class grund_t;
 class werkzeug_waehler_t;
@@ -28,6 +28,7 @@ class werkzeug_waehler_t;
  */
 class wegbauer_t
 {
+	static karte_ptr_t welt;
 public:
 	static const weg_besch_t *leitung_besch;
 
@@ -35,7 +36,7 @@ public:
 	static bool alle_wege_geladen();
 
 	// generates timeline message
-	static void neuer_monat(karte_t *welt);
+	static void neuer_monat();
 
 	/**
 	 * Finds a way with a given speed limit for a given waytype
@@ -55,7 +56,7 @@ public:
 	 * Fill menu with icons of given waytype
 	 * @author Hj. Malthaner
 	 */
-	static void fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const weg_t::system_type styp, sint16 ok_sound, karte_t *welt );
+	static void fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const weg_t::system_type styp, sint16 ok_sound);
 
 	enum bautyp_t {
 		strasse=road_wt,
@@ -131,7 +132,6 @@ private:
 
 	bool build_sidewalk;
 
-	karte_t *welt;
 	uint32 maximum;    // hoechste Suchtiefe
 
 	koord3d_vector_t route;
@@ -204,7 +204,7 @@ public:
 
 	void set_maximum(uint32 n) { maximum = n; }
 
-	wegbauer_t(karte_t *welt, spieler_t *spl);
+	wegbauer_t(spieler_t *spl);
 
 	void calc_straight_route(const koord3d start, const koord3d ziel);
 	void calc_route(const koord3d &start3d, const koord3d &ziel);

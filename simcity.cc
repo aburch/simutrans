@@ -957,7 +957,7 @@ stadt_t::~stadt_t()
 			}
 			else {
 				gb->set_stadt( NULL );
-				hausbauer_t::remove(welt,welt->get_spieler(1),gb);
+				hausbauer_t::remove(welt->get_spieler(1),gb);
 			}
 		}
 	}
@@ -2046,7 +2046,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 				if (besch->get_all_layouts() > 1) {
 					rotate = (simrand(20) & 2) + is_rotate;
 				}
-				hausbauer_t::baue( welt, besitzer_p, welt->lookup_kartenboden(best_pos)->get_pos(), rotate, besch );
+				hausbauer_t::baue( besitzer_p, welt->lookup_kartenboden(best_pos)->get_pos(), rotate, besch );
 				// tell the player, if not during initialization
 				if (!new_town) {
 					cbuffer_t buf;
@@ -2112,7 +2112,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 						}
 					}
 					// and then build it
-					const gebaeude_t* gb = hausbauer_t::baue(welt, besitzer_p, welt->lookup_kartenboden(best_pos + koord(1, 1))->get_pos(), 0, besch);
+					const gebaeude_t* gb = hausbauer_t::baue(besitzer_p, welt->lookup_kartenboden(best_pos + koord(1, 1))->get_pos(), 0, besch);
 					hausbauer_t::denkmal_gebaut(besch);
 					add_gebaeude_to_stadt(gb);
 					// tell the player, if not during initialization
@@ -2206,7 +2206,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 			// remove old townhall
 			if(  gb  ) {
 				DBG_MESSAGE("stadt_t::check_bau_rathaus()", "delete townhall at (%s)", pos_alt.get_str());
-				hausbauer_t::remove(welt, NULL, gb);
+				hausbauer_t::remove(NULL, gb);
 			}
 
 			// replace old space by normal houses level 0 (must be 1x1!)
@@ -2288,7 +2288,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 			dbg->error( "stadt_t::check_bau_rathaus", "no better postion found!" );
 			return;
 		}
-		gebaeude_t const* const new_gb = hausbauer_t::baue(welt, besitzer_p, welt->lookup_kartenboden(best_pos + offset)->get_pos(), layout, besch);
+		gebaeude_t const* const new_gb = hausbauer_t::baue(besitzer_p, welt->lookup_kartenboden(best_pos + offset)->get_pos(), layout, besch);
 		DBG_MESSAGE("new townhall", "use layout=%i", layout);
 		add_gebaeude_to_stadt(new_gb);
 		DBG_MESSAGE("stadt_t::check_bau_rathaus()", "add townhall (bev=%i, ptr=%p)", buildings.get_sum_weight(),welt->lookup_kartenboden(best_pos)->first_obj());
@@ -2306,7 +2306,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 		if (neugruendung || umziehen) {
 			// build the road in front of the townhall
 			if (road0!=road1) {
-				wegbauer_t bauigel(welt, NULL);
+				wegbauer_t bauigel(NULL);
 				bauigel.route_fuer(wegbauer_t::strasse, welt->get_city_road(), NULL, NULL);
 				bauigel.set_build_sidewalk(true);
 				bauigel.calc_straight_route(welt->lookup_kartenboden(best_pos + road0)->get_pos(), welt->lookup_kartenboden(best_pos + road1)->get_pos());
@@ -2319,7 +2319,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 		}
 		if (umziehen  &&  alte_str != koord::invalid) {
 			// Strasse vom ehemaligen Rathaus zum neuen verlegen.
-			wegbauer_t bauer(welt, NULL);
+			wegbauer_t bauer(NULL);
 			bauer.route_fuer(wegbauer_t::strasse | wegbauer_t::terraform_flag, welt->get_city_road());
 			bauer.calc_route(welt->lookup_kartenboden(alte_str)->get_pos(), welt->lookup_kartenboden(townhall_road)->get_pos());
 			bauer.baue();
@@ -2351,7 +2351,7 @@ void stadt_t::check_bau_factory(bool new_town)
 		for (uint8 i = 0; i < 8; i++) {
 			if (div==(1u<<i)) {
 				DBG_MESSAGE("stadt_t::check_bau_factory", "adding new industry at %i inhabitants.", get_einwohner());
-				fabrikbauer_t::increase_industry_density( welt, true );
+				fabrikbauer_t::increase_industry_density( true );
 			}
 		}
 	}
@@ -2548,7 +2548,7 @@ void stadt_t::build_city_building(const koord k)
 		}
 		// TO DO: fix building orientation here, to improve terraced building appearance.
 
-		const gebaeude_t* gb = hausbauer_t::baue(welt, NULL, pos, building_layout[streetdir], h);
+		const gebaeude_t* gb = hausbauer_t::baue(NULL, pos, building_layout[streetdir], h);
 		add_gebaeude_to_stadt(gb);
 	}
 }
@@ -2867,7 +2867,7 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 					}
 					else {
 						// check slopes
-						wegbauer_t bauer( welt, NULL );
+						wegbauer_t bauer( NULL );
 						bauer.route_fuer( wegbauer_t::strasse | wegbauer_t::terraform_flag, welt->get_city_road() );
 						if(  bauer.check_slope( bd, bd2 )  ) {
 							// allowed ...
@@ -2912,13 +2912,13 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 					return false;
 				}
 				const char *err = NULL;
-				koord3d end = brueckenbauer_t::finde_ende(welt, NULL, bd->get_pos(), zv, bridge, err, false);
+				koord3d end = brueckenbauer_t::finde_ende(NULL, bd->get_pos(), zv, bridge, err, false);
 				if(err  ||   koord_distance( k, end.get_2d())>3) {
 					// try to find shortest possible
-					end = brueckenbauer_t::finde_ende(welt, NULL, bd->get_pos(), zv, bridge, err, true);
+					end = brueckenbauer_t::finde_ende(NULL, bd->get_pos(), zv, bridge, err, true);
 				}
 				if(err==NULL  &&   koord_distance( k, end.get_2d())<=3) {
-					brueckenbauer_t::baue_bruecke(welt, NULL, bd->get_pos(), end, zv, bridge, welt->get_city_road());
+					brueckenbauer_t::baue_bruecke(NULL, bd->get_pos(), end, zv, bridge, welt->get_city_road());
 					// try to build one connecting piece of road
 					baue_strasse( (end+zv).get_2d(), NULL, false);
 					// try to build a house near the bridge end

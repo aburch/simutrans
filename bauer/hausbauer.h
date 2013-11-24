@@ -14,7 +14,7 @@
 #include "../tpl/vector_tpl.h"
 
 class gebaeude_t;
-class karte_t;
+class karte_ptr_t;
 class spieler_t;
 class werkzeug_waehler_t;
 
@@ -35,6 +35,7 @@ private:
 	static vector_tpl<const haus_besch_t*> denkmaeler;
 	static vector_tpl<const haus_besch_t*> ungebaute_denkmaeler;
 
+	static karte_ptr_t welt;
 public:
 	/**
 	 * Gebäude, die das Programm direkt kennen muß
@@ -71,7 +72,7 @@ public:
 	 * this is only needed for stations and depots => use waytype too!
 	 * @author prissi
 	 */
-	static void fill_menu(werkzeug_waehler_t* wzw, haus_besch_t::utyp, waytype_t wt, sint16 sound_ok, const karte_t* welt);
+	static void fill_menu(werkzeug_waehler_t* wzw, haus_besch_t::utyp, waytype_t wt, sint16 sound_ok);
 
 	/**
 	 * Gewerbegebäude passend zum Level liefern. Zur Zeit sind die Einträge
@@ -147,7 +148,7 @@ public:
 	/* use this to remove an arbitrary building
 	 * it will also take care of factories and foundations
 	 */
-	static void remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb );
+	static void remove( spieler_t *sp, gebaeude_t *gb );
 
 	/* Main function for all non-traffic buildings, including factories
 	 * building size can be larger than 1x1
@@ -156,13 +157,13 @@ public:
 	 *         part is not empty.
 	 * @author V. Meyer
 	 */
-	static gebaeude_t* baue(karte_t* welt, spieler_t* sp, koord3d pos, int layout, const haus_besch_t* besch, void* param = NULL);
+	static gebaeude_t* baue(spieler_t* sp, koord3d pos, int layout, const haus_besch_t* besch, void* param = NULL);
 
 	/* build all kind of stops and depots
 	 * The building size must be 1x1
 	 * may change the layout of neighbouring buildings, if layout>4 and station
 	 */
-	static gebaeude_t* neues_gebaeude(karte_t* welt, spieler_t* sp, koord3d pos, int layout, const haus_besch_t* besch, void* param = NULL);
+	static gebaeude_t* neues_gebaeude(spieler_t* sp, koord3d pos, int layout, const haus_besch_t* besch, void* param = NULL);
 
 	// currently only used for edit menu
 	static const vector_tpl<const haus_besch_t *> *get_list( haus_besch_t::utyp typ );

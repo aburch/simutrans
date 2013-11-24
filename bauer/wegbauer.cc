@@ -81,6 +81,8 @@
 // lookup also return route and take the better of the two
 #define REVERSE_CALC_ROUTE_TOO
 
+karte_ptr_t wegbauer_t::welt;
+
 const weg_besch_t *wegbauer_t::leitung_besch = NULL;
 
 static stringhashtable_tpl <const weg_besch_t *> alle_wegtypen;
@@ -244,7 +246,7 @@ const weg_besch_t * wegbauer_t::get_besch(const char * way_name, const uint16 ti
 
 
 // generates timeline message
-void wegbauer_t::neuer_monat(karte_t *welt)
+void wegbauer_t::neuer_monat()
 {
 	const uint16 current_month = welt->get_timeline_year_month();
 	if(current_month!=0) {
@@ -288,7 +290,7 @@ static bool compare_ways(const weg_besch_t* a, const weg_besch_t* b)
  * Fill menu with icons of given waytype, return number of added entries
  * @author Hj. Malthaner/prissi/dariok
  */
-void wegbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const weg_t::system_type styp, sint16 /*ok_sound*/, karte_t *welt)
+void wegbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const weg_t::system_type styp, sint16 /*ok_sound*/)
 {
 	// check if scenario forbids this
 	const waytype_t rwtyp = wtyp!=track_wt  || styp!=weg_t::type_tram  ? wtyp : tram_wt;
@@ -1097,7 +1099,7 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 		const grund_t* gr_end;
 		uint32 min_length = 1;
 		for (uint8 i = 0; i < 8 && min_length <= welt->get_settings().way_max_bridge_len; ++i) {
-			end = brueckenbauer_t::finde_ende( welt, sp, from->get_pos(), zv, bruecke_besch, error, true, min_length );
+			end = brueckenbauer_t::finde_ende( sp, from->get_pos(), zv, bruecke_besch, error, true, min_length );
 			gr_end = welt->lookup(end);
 			uint32 length = koord_distance(from->get_pos(), end);
 			if (gr_end && !error && !ziel.is_contained(end) && brueckenbauer_t::ist_ende_ok(sp, gr_end) && length <= welt->get_settings().way_max_bridge_len) {
@@ -1118,7 +1120,7 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 	if(  tunnel_besch  &&  ribi_typ(from->get_grund_hang()) == ribi_typ(zv)  ) {
 		// uphill hang ... may be tunnel?
 		const long cost_difference=besch->get_wartung()>0 ? (tunnel_besch->get_wartung()*4l+3l)/besch->get_wartung() : 16;
-		koord3d end = tunnelbauer_t::finde_ende( welt, sp, from->get_pos(), zv, besch->get_wtyp());
+		koord3d end = tunnelbauer_t::finde_ende( sp, from->get_pos(), zv, besch->get_wtyp());
 		if(  end != koord3d::invalid  &&  !ziel.is_contained(end)  ) {
 			uint32 length = koord_distance(from->get_pos(), end);
 			next_gr.append(next_gr_t(welt->lookup(end), length * cost_difference, build_straight | build_tunnel_bridge ));
@@ -1128,11 +1130,10 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 }
 
 
-wegbauer_t::wegbauer_t(karte_t* wl, spieler_t* spl) : next_gr(32)
+wegbauer_t::wegbauer_t(spieler_t* spl) : next_gr(32)
 {
 	n      = 0;
 	sp     = spl;
-	welt   = wl;
 	bautyp = strasse;   // kann mit route_fuer() gesetzt werden
 	maximum = 2000;// CA $ PER TILE
 
@@ -1853,11 +1854,11 @@ wegbauer_t::baue_tunnel_und_bruecken()
 
 			if(start->get_grund_hang()==0  ||  start->get_grund_hang()==hang_typ(zv*(-1))) {
 				// bridge here, since the route is saved backwards, we have to build it at the posterior end
-				brueckenbauer_t::baue( welt, sp, route[i+1].get_2d(), bruecke_besch);
+				brueckenbauer_t::baue( sp, route[i+1].get_2d(), bruecke_besch);
 			}
 			else {
 				// tunnel
-				tunnelbauer_t::baue( welt, sp, route[i].get_2d(), tunnel_besch, true );
+				tunnelbauer_t::baue( sp, route[i].get_2d(), tunnel_besch, true );
 			}
 			INT_CHECK( "wegbauer 1584" );
 		}
@@ -1883,14 +1884,14 @@ wegbauer_t::baue_tunnel_und_bruecken()
 						if( bruecke_besch ) {
 							wi->set_ribi(ribi_typ(h));
 							wi1->set_ribi(ribi_typ(hang_t::gegenueber(h)));
-							brueckenbauer_t::baue( welt, sp, route[i].get_2d(), bruecke_besch);
+							brueckenbauer_t::baue( sp, route[i].get_2d(), bruecke_besch);
 						}
 					}
 					else if( tunnel_besch ) {
 						// make a short tunnel
 						wi->set_ribi(ribi_typ(hang_t::gegenueber(h)));
 						wi1->set_ribi(ribi_typ(h));
-						tunnelbauer_t::baue( welt, sp, route[i].get_2d(), tunnel_besch, true );
+						tunnelbauer_t::baue( sp, route[i].get_2d(), tunnel_besch, true );
 					}
 					INT_CHECK( "wegbauer 1584" );
 				}

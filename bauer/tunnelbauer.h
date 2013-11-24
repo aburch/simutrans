@@ -12,7 +12,7 @@
 #include "../dataobj/koord.h"
 #include "../dataobj/koord3d.h"
 
-class karte_t;                 // Hajo: 22-Nov-01: Added forward declaration
+class karte_ptr_t;
 class spieler_t;               // Hajo: 22-Nov-01: Added forward declaration
 class tunnel_besch_t;
 class weg_besch_t;
@@ -28,13 +28,15 @@ class werkzeug_waehler_t;
  */
 class tunnelbauer_t {
 private:
-	static bool baue_tunnel(karte_t *welt, spieler_t *sp, koord3d pos, koord3d end, koord zv, const tunnel_besch_t *besch);
-	static void baue_einfahrt(karte_t *welt, spieler_t *sp, koord3d end, koord zv, const tunnel_besch_t *besch, const weg_besch_t *weg_besch, int &cost);
+	static karte_ptr_t welt;
+
+	static bool baue_tunnel(spieler_t *sp, koord3d pos, koord3d end, koord zv, const tunnel_besch_t *besch);
+	static void baue_einfahrt(spieler_t *sp, koord3d end, koord zv, const tunnel_besch_t *besch, const weg_besch_t *weg_besch, int &cost);
 
 	tunnelbauer_t() {} // private -> no instance please
 
 public:
-	static koord3d finde_ende(karte_t *welt, spieler_t *sp, koord3d pos, koord zv, waytype_t wegtyp, const char** msg=NULL);
+	static koord3d finde_ende(spieler_t *sp, koord3d pos, koord zv, waytype_t wegtyp, const char** msg=NULL);
 
 	static void register_besch(tunnel_besch_t *besch);
 
@@ -42,11 +44,11 @@ public:
 
 	static const tunnel_besch_t *find_tunnel(const waytype_t wtyp, const sint32 min_speed,const uint16 time);
 
-	static void fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, sint16 sound_ok, const karte_t *welt);
+	static void fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, sint16 sound_ok);
 
-	static const char *baue( karte_t *welt, spieler_t *sp, koord pos, const tunnel_besch_t *besch, bool full_tunnel  );
+	static const char *baue( spieler_t *sp, koord pos, const tunnel_besch_t *besch, bool full_tunnel  );
 
-	static const char *remove(karte_t *welt, spieler_t *sp, koord3d pos, waytype_t wegtyp);
+	static const char *remove(spieler_t *sp, koord3d pos, waytype_t wegtyp);
 };
 
 #endif

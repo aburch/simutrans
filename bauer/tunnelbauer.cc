@@ -37,6 +37,8 @@
 #include "../tpl/vector_tpl.h"
 
 
+karte_ptr_t tunnelbauer_t::welt;
+
 static stringhashtable_tpl<tunnel_besch_t *> tunnel_by_name;
 
 
@@ -109,7 +111,7 @@ static bool compare_tunnels(const tunnel_besch_t* a, const tunnel_besch_t* b)
  * Fill menu with icons of given waytype
  * @author Hj. Malthaner
  */
-void tunnelbauer_t::fill_menu(werkzeug_waehler_t* wzw, const waytype_t wtyp, sint16 /*sound_ok*/, const karte_t* welt)
+void tunnelbauer_t::fill_menu(werkzeug_waehler_t* wzw, const waytype_t wtyp, sint16 /*sound_ok*/)
 {
 	// check if scenario forbids this
 	if (!welt->get_scenario()->is_tool_allowed(welt->get_active_player(), WKZ_TUNNELBAU | GENERAL_TOOL, wtyp)) {
@@ -135,7 +137,7 @@ void tunnelbauer_t::fill_menu(werkzeug_waehler_t* wzw, const waytype_t wtyp, sin
 /* now construction stuff */
 
 
-koord3d tunnelbauer_t::finde_ende(karte_t *welt, spieler_t *sp, koord3d pos, koord zv, waytype_t wegtyp, const char** msg)
+koord3d tunnelbauer_t::finde_ende(spieler_t *sp, koord3d pos, koord zv, waytype_t wegtyp, const char** msg)
 {
 	const grund_t *gr;
 	leitung_t *lt;
@@ -223,7 +225,7 @@ koord3d tunnelbauer_t::finde_ende(karte_t *welt, spieler_t *sp, koord3d pos, koo
 }
 
 
-const char *tunnelbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, const tunnel_besch_t *besch, bool full_tunnel )
+const char *tunnelbauer_t::baue( spieler_t *sp, koord pos, const tunnel_besch_t *besch, bool full_tunnel )
 {
 	assert( besch );
 
@@ -274,7 +276,7 @@ const char *tunnelbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, const 
 	koord3d end = koord3d::invalid;
 	if(full_tunnel) {
 		const char *err = NULL;
-		end = finde_ende(welt, sp, gr->get_pos(), zv, wegtyp, &err);
+		end = finde_ende(sp, gr->get_pos(), zv, wegtyp, &err);
 		if (err) {
 			return err;
 		}
@@ -301,14 +303,14 @@ const char *tunnelbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, const 
 	}
 
 	// Begging and end founds we can build
-	if(!baue_tunnel(welt, sp, gr->get_pos(), end, zv, besch)) {
+	if(!baue_tunnel(sp, gr->get_pos(), end, zv, besch)) {
 		return "Ways not connected";
 	}
 	return NULL;
 }
 
 
-bool tunnelbauer_t::baue_tunnel(karte_t *welt, spieler_t *sp, koord3d start, koord3d end, koord zv, const tunnel_besch_t *besch)
+bool tunnelbauer_t::baue_tunnel(spieler_t *sp, koord3d start, koord3d end, koord zv, const tunnel_besch_t *besch)
 {
 	ribi_t::ribi ribi = 0;
 	weg_t *weg = NULL;
@@ -327,7 +329,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 		weg_besch = wegbauer_t::weg_search( wegtyp, besch->get_topspeed(), 0, weg_t::type_flat );
 	}
 
-	baue_einfahrt(welt, sp, pos, zv, besch, weg_besch, cost);
+	baue_einfahrt(sp, pos, zv, besch, weg_besch, cost);
 
 	ribi = ribi_typ(-zv);
 	// don't move on to next tile if only one tile long
@@ -371,7 +373,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 
 	// if end is above ground construct an exit
 	if(welt->lookup_kartenboden(end.get_2d())->get_pos().z==end.z) {
-		baue_einfahrt(welt, sp, pos, -zv, besch, weg_besch, cost);
+		baue_einfahrt(sp, pos, -zv, besch, weg_besch, cost);
 		// calc new back image for the ground
 		if (end!=start && grund_t::underground_mode) {
 			grund_t *gr = welt->lookup_kartenboden(pos.get_2d()-zv);
@@ -409,7 +411,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 }
 
 
-void tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, koord3d end, koord zv, const tunnel_besch_t *besch, const weg_besch_t *weg_besch, int &cost)
+void tunnelbauer_t::baue_einfahrt(spieler_t *sp, koord3d end, koord zv, const tunnel_besch_t *besch, const weg_besch_t *weg_besch, int &cost)
 {
 	grund_t *alter_boden = welt->lookup(end);
 	ribi_t::ribi ribi = 0;
@@ -481,7 +483,7 @@ void tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, koord3d end, koo
 		weg_t *way_outside = ground_outside->get_weg( besch->get_waytype() );
 		if( way_outside ) {
 			// use the check_owner routine of wegbauer_t (not spieler_t!), needs an instance
-			wegbauer_t bauigel(welt, sp);
+			wegbauer_t bauigel(sp);
 			bauigel.route_fuer( (wegbauer_t::bautyp_t)besch->get_waytype(), way_outside->get_besch());
 			long dummy;
 			if(bauigel.is_allowed_step(tunnel, ground_outside, &dummy)) {
@@ -504,7 +506,7 @@ void tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, koord3d end, koo
 }
 
 
-const char *tunnelbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d start, waytype_t wegtyp)
+const char *tunnelbauer_t::remove(spieler_t *sp, koord3d start, waytype_t wegtyp)
 {
 	marker_t& marker = marker_t::instance(welt->get_size().x, welt->get_size().y);
 	slist_tpl<koord3d>  end_list;

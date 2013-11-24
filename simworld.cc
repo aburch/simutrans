@@ -1026,7 +1026,7 @@ void karte_t::create_rivers( sint16 number )
 		for(  sint32 i=0;  i<256  &&  !valid_water_tiles.empty();  i++  ) {
 			koord const end = pick_any(valid_water_tiles);
 			valid_water_tiles.remove( end );
-			wegbauer_t riverbuilder(this, spieler[1]);
+			wegbauer_t riverbuilder(spieler[1]);
 			riverbuilder.route_fuer(wegbauer_t::river, river_besch);
 			sint16 dist = koord_distance(start,end);
 			riverbuilder.set_maximum( dist*50 );
@@ -1155,7 +1155,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 			besch = wegbauer_t::weg_search(road_wt,80,get_timeline_year_month(),weg_t::type_flat);
 		}
 
-		wegbauer_t bauigel (this, spieler[1] );
+		wegbauer_t bauigel (spieler[1] );
 		bauigel.route_fuer(wegbauer_t::strasse | wegbauer_t::terraform_flag, besch, tunnelbauer_t::find_tunnel(road_wt,15,get_timeline_year_month()), brueckenbauer_t::find_bridge(road_wt,15,get_timeline_year_month()) );
 		bauigel.set_keep_existing_ways(true);
 		bauigel.set_maximum(env_t::intercity_road_length);
@@ -1523,14 +1523,14 @@ DBG_DEBUG("karte_t::init()","built timeline");
 	nosave_warning = nosave = false;
 
 	dbg->important("Creating factories ...");
-	fabrikbauer_t::neue_karte(this);
+	fabrikbauer_t::neue_karte();
 
 	int consecutive_build_failures = 0;
 
 	loadingscreen_t ls( translator::translate("distributing factories"), 16 + settings.get_anzahl_staedte() * 4 + settings.get_factory_count(), true, true );
 
 	while(  fab_list.get_count() < (uint32)settings.get_factory_count()  ) {
-		if(  !fabrikbauer_t::increase_industry_density( this, false )  ) {
+		if(  !fabrikbauer_t::increase_industry_density( false )  ) {
 			if(  ++consecutive_build_failures > 3  ) {
 				// Industry chain building starts failing consecutively as map approaches full.
 				break;
@@ -1546,7 +1546,7 @@ DBG_DEBUG("karte_t::init()","built timeline");
 	finance_history_year[0][WORLD_FACTORIES] = finance_history_month[0][WORLD_FACTORIES] = fab_list.get_count();
 
 	// tourist attractions
-	fabrikbauer_t::verteile_tourist(this, settings.get_tourist_attractions());
+	fabrikbauer_t::verteile_tourist(settings.get_tourist_attractions());
 
 	dbg->important("Preparing startup ...");
 	if(zeiger == 0) {
@@ -2130,7 +2130,7 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	distribute_groundobjs_cities( sets->get_anzahl_staedte(), sets->get_mittlere_einwohnerzahl(), old_x, old_y );
 
 	// hausbauer_t::neue_karte(); <- this would reinit monuments! do not do this!
-	fabrikbauer_t::neue_karte( this );
+	fabrikbauer_t::neue_karte();
 	set_schedule_counter();
 
 	// Refresh the haltlist for the affected tiles / stations.
@@ -3451,7 +3451,7 @@ DBG_MESSAGE( "karte_t::rotate90()", "called" );
 	}
 
 	//  rotate map search array
-	fabrikbauer_t::neue_karte( this );
+	fabrikbauer_t::neue_karte();
 
 	// update minimap
 	if(reliefkarte_t::is_visible) {
@@ -3518,7 +3518,7 @@ bool karte_t::rem_fab(fabrik_t *fab)
 		delete fab;
 
 		// recalculate factory position map
-		fabrikbauer_t::neue_karte(this);
+		fabrikbauer_t::neue_karte();
 	}
 	return true;
 }
@@ -4118,7 +4118,7 @@ void karte_t::new_month()
 		INT_CHECK("simworld 1299");
 	}
 
-	wegbauer_t::neuer_monat(this);
+	wegbauer_t::neuer_monat();
 	INT_CHECK("simworld 1299");
 
 	recalc_average_speed();
@@ -5446,7 +5446,7 @@ void karte_t::load(loadsave_t *file)
 	zeiger = new zeiger_t(koord3d::invalid, NULL );
 
 	hausbauer_t::neue_karte();
-	fabrikbauer_t::neue_karte(this);
+	fabrikbauer_t::neue_karte();
 
 DBG_DEBUG("karte_t::laden", "init felder ok");
 

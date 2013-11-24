@@ -12,7 +12,7 @@
 
 class bruecke_besch_t;
 class grund_t;
-class karte_t;                 // Hajo: 22-Nov-01: Added forward declaration
+class karte_ptr_t;
 class spieler_t;               // Hajo: 22-Nov-01: Added forward declaration
 class weg_besch_t;
 class werkzeug_waehler_t;
@@ -28,6 +28,7 @@ private:
 
 	brueckenbauer_t() {} ///< private -> no instance please
 
+	static karte_ptr_t welt;
 
 public:
 	/**
@@ -36,7 +37,6 @@ public:
 	 * -#  If ai_bridge==false then looks for end location at a sloped tile.
 	 * -#  If ai_bridge==true returns the first location (taking min_length into account)
 	 *     for the bridge end (including flat tiles).
-	 * @param welt the current world
 	 * @param sp active player, needed to check scenario conditions
 	 * @param pos  the position of the start of the bridge
 	 * @param zv   desired direction of the bridge
@@ -46,7 +46,7 @@ public:
 	 * @param min_length the minimum length of the bridge.
 	 * @return the position of the other end of the bridge or koord3d::invalid if no possible end is found
 	 */
-	static koord3d finde_ende(karte_t *welt, spieler_t *sp, koord3d pos, const koord zv, const bruecke_besch_t *besch, const char *&error_msg, bool ai_bridge=false, uint32 min_length=0 );
+	static koord3d finde_ende(spieler_t *sp, koord3d pos, const koord zv, const bruecke_besch_t *besch, const char *&error_msg, bool ai_bridge=false, uint32 min_length=0 );
 
 	/**
 	 * Checks whether given tile @p gr is suitable for placing bridge ramp.
@@ -60,20 +60,18 @@ public:
 	/**
 	 * Build a bridge ramp.
 	 *
-	 * @param welt the current world
 	 * @param sp the player wanting to build the bridge
 	 * @param end the position of the ramp
 	 * @param zv direction the bridge will face
 	 * @param besch the bridge description.
 	 */
-	static void baue_auffahrt(karte_t *welt, spieler_t *sp, koord3d end, ribi_t::ribi ribi_neu, hang_t::typ weg_hang, const bruecke_besch_t *besch);
+	static void baue_auffahrt(spieler_t *sp, koord3d end, ribi_t::ribi ribi_neu, hang_t::typ weg_hang, const bruecke_besch_t *besch);
 
 	/**
 	 * Actually builds the bridge without checks.
 	 * Therefore checks should be done before in
 	 * brueckenbauer_t::baue().
 	 *
-	 * @param welt the current world.
 	 * @param sp the master builder of the bridge.
 	 * @param pos start position.
 	 * @param end end position
@@ -81,7 +79,7 @@ public:
 	 * @param besch bridge description.
 	 * @param weg_besch description of the way to be built on the bridge
 	 */
-	static void baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, koord3d end, koord zv, const bruecke_besch_t *besch, const weg_besch_t *weg_besch);
+	static void baue_bruecke(spieler_t *sp, koord3d pos, koord3d end, koord zv, const bruecke_besch_t *besch, const weg_besch_t *weg_besch);
 
 	/**
 	 * Registers a new bridge type and adds it to the list of build tools.
@@ -101,23 +99,21 @@ public:
 	 * Builds the bridge and performs all checks.
 	 * This is the main construction routine.
 	 *
-	 * @param welt the current world
 	 * @param sp The player wanting to build the bridge.
 	 * @param pos the start of the bridge.
 	 * @param besch Description of the bridge to build
 	 * @return NULL on success or error message otherwise
 	 */
-	static const char *baue( karte_t *welt, spieler_t *sp, koord pos, const bruecke_besch_t *besch);
+	static const char *baue( spieler_t *sp, koord pos, const bruecke_besch_t *besch);
 
 	/**
 	 * Removes a bridge
-	 * @param welt the current world
 	 * @param sp the demolisher and owner of the bridge
 	 * @param pos position anywhere on a bridge.
 	 * @param wegtyp way type of the bridge
 	 * @return An error message if the bridge could not be removed, NULL otherwise
 	 */
-	static const char *remove(karte_t *welt, spieler_t *sp, koord3d pos, waytype_t wegtyp);
+	static const char *remove(spieler_t *sp, koord3d pos, waytype_t wegtyp);
 
 	/**
 	 * Find a matching bridge.
@@ -134,7 +130,7 @@ public:
 	 * @param wtyp way type
 	 * @param welt the current world
 	 */
-	static void fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, sint16 sound_ok, const karte_t *welt);
+	static void fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, sint16 sound_ok);
 };
 
 #endif

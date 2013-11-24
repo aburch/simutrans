@@ -551,11 +551,11 @@ void spieler_t::ai_bankrupt()
 
 					waytype_t wt = gr->hat_wege() ? gr->get_weg_nr(0)->get_waytype() : powerline_wt;
 					if (gr->ist_bruecke()) {
-						brueckenbauer_t::remove( welt, this, pos, wt );
+						brueckenbauer_t::remove( this, pos, wt );
 						// fails if powerline bridge somehow connected to powerline bridge of another player
 					}
 					else {
-						tunnelbauer_t::remove( welt, this, pos, wt );
+						tunnelbauer_t::remove( this, pos, wt );
 					}
 					// maybe there are some objects left (station on bridge head etc)
 					gr = plan->get_boden_in_hoehe(pos.z);
@@ -596,7 +596,7 @@ void spieler_t::ai_bankrupt()
 								}
 								break;
 							case obj_t::gebaeude:
-								hausbauer_t::remove( welt, this, (gebaeude_t *)obj );
+								hausbauer_t::remove( this, (gebaeude_t *)obj );
 								break;
 							case obj_t::way:
 							{

@@ -739,7 +739,7 @@ void fabrik_t::baue(sint32 rotate, bool build_fields, bool force_initial_prodbas
 {
 	this->rotate = rotate;
 	pos_origin = welt->lookup_kartenboden(pos_origin.get_2d())->get_pos();
-	gebaeude_t *gb = hausbauer_t::baue(welt, besitzer_p, pos_origin, rotate, besch->get_haus(), this);
+	gebaeude_t *gb = hausbauer_t::baue(besitzer_p, pos_origin, rotate, besch->get_haus(), this);
 	pos = gb->get_pos();
 	pos_origin.z = pos.z;
 

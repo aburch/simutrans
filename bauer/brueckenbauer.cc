@@ -38,6 +38,8 @@
 #include "../tpl/stringhashtable_tpl.h"
 #include "../tpl/vector_tpl.h"
 
+karte_ptr_t brueckenbauer_t::welt;
+
 
 /// All bridges hashed by name
 static stringhashtable_tpl<const bruecke_besch_t *> bruecken_by_name;
@@ -102,7 +104,7 @@ static bool compare_bridges(const bruecke_besch_t* a, const bruecke_besch_t* b)
 }
 
 
-void brueckenbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, sint16 /*sound_ok*/, const karte_t *welt)
+void brueckenbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, sint16 /*sound_ok*/)
 {
 	// check if scenario forbids this
 	if (!welt->get_scenario()->is_tool_allowed(welt->get_active_player(), WKZ_BRUECKENBAU | GENERAL_TOOL, wtyp)) {
@@ -127,7 +129,7 @@ void brueckenbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, s
 }
 
 
-koord3d brueckenbauer_t::finde_ende(karte_t *welt, spieler_t *sp, koord3d pos, const koord zv, const bruecke_besch_t *besch, const char *&error_msg, bool ai_bridge, uint32 min_length )
+koord3d brueckenbauer_t::finde_ende(spieler_t *sp, koord3d pos, const koord zv, const bruecke_besch_t *besch, const char *&error_msg, bool ai_bridge, uint32 min_length )
 {
 	const grund_t *gr2 = welt->lookup_kartenboden( pos.get_2d() );
 
@@ -329,7 +331,7 @@ bool brueckenbauer_t::ist_ende_ok(spieler_t *sp, const grund_t *gr)
 }
 
 
-const char *brueckenbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, const bruecke_besch_t *besch)
+const char *brueckenbauer_t::baue( spieler_t *sp, koord pos, const bruecke_besch_t *besch)
 {
 	const grund_t *gr = welt->lookup_kartenboden(pos);
 	if(  !(gr  &&  besch)  ) {
@@ -402,7 +404,7 @@ const char *brueckenbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, cons
 	zv = koord(ribi_t::rueckwaerts(ribi));
 	// search for suitable bridge end tile
 	const char *msg;
-	koord3d end = finde_ende(welt, sp, gr->get_pos(), zv, besch, msg );
+	koord3d end = finde_ende(sp, gr->get_pos(), zv, besch, msg );
 
 	// found something?
 	if(msg!=NULL) {
@@ -428,16 +430,16 @@ DBG_MESSAGE("brueckenbauer_t::baue()", "end not ok");
 
 	// Start and end have been checked, we can start to build eventually
 	if(besch->get_waytype()==powerline_wt) {
-		baue_bruecke(welt, sp, gr->get_pos(), end, zv, besch, lt->get_besch() );
+		baue_bruecke(sp, gr->get_pos(), end, zv, besch, lt->get_besch() );
 	}
 	else {
-		baue_bruecke(welt, sp, gr->get_pos(), end, zv, besch, weg->get_besch() );
+		baue_bruecke(sp, gr->get_pos(), end, zv, besch, weg->get_besch() );
 	}
 	return NULL;
 }
 
 
-void brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, koord3d end, koord zv, const bruecke_besch_t *besch, const weg_besch_t *weg_besch)
+void brueckenbauer_t::baue_bruecke(spieler_t *sp, koord3d pos, koord3d end, koord zv, const bruecke_besch_t *besch, const weg_besch_t *weg_besch)
 {
 	ribi_t::ribi ribi = ribi_typ(zv);
 
@@ -448,7 +450,7 @@ void brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, ko
 	// get initial height of bridge from start tile, default to 1 unless double slope
 	const uint8 max_height = slope ? ((slope & 7) ? 1 : 2) : (besch->has_double_ramp()?2:1);
 
-	baue_auffahrt(welt, sp, pos, ribi, slope?0:hang_typ(zv)*max_height, besch);
+	baue_auffahrt(sp, pos, ribi, slope?0:hang_typ(zv)*max_height, besch);
 	if(besch->get_waytype() != powerline_wt) {
 		ribi = welt->lookup(pos)->get_weg_ribi_unmasked(besch->get_waytype());
 	}
@@ -509,7 +511,7 @@ void brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, ko
 	grund_t *gr=welt->lookup(end);
 	if(  need_auffahrt  ) {
 		// not ending at a bridge
-		baue_auffahrt(welt, sp, end, ribi_typ(-zv), gr->get_grund_hang()?0:hang_typ(-zv)*(pos.z-end.z), besch);
+		baue_auffahrt(sp, end, ribi_typ(-zv), gr->get_grund_hang()?0:hang_typ(-zv)*(pos.z-end.z), besch);
 	}
 	else {
 		// ending on a slope/elevated way
@@ -539,7 +541,7 @@ void brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, ko
 }
 
 
-void brueckenbauer_t::baue_auffahrt(karte_t* welt, spieler_t* sp, koord3d end, ribi_t::ribi ribi_neu, hang_t::typ weg_hang, const bruecke_besch_t* besch)
+void brueckenbauer_t::baue_auffahrt(spieler_t* sp, koord3d end, ribi_t::ribi ribi_neu, hang_t::typ weg_hang, const bruecke_besch_t* besch)
 {
 	grund_t *alter_boden = welt->lookup(end);
 	brueckenboden_t *bruecke;
@@ -585,7 +587,7 @@ void brueckenbauer_t::baue_auffahrt(karte_t* welt, spieler_t* sp, koord3d end, r
 }
 
 
-const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, waytype_t wegtyp)
+const char *brueckenbauer_t::remove(spieler_t *sp, koord3d pos, waytype_t wegtyp)
 {
 	marker_t& marker = marker_t::instance(welt->get_size().x, welt->get_size().y);
 	slist_tpl<koord3d> end_list;
