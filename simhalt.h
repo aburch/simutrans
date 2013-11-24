@@ -48,6 +48,7 @@ class cbuffer_t;
 class grund_t;
 class fabrik_t;
 class karte_t;
+class karte_ptr_t;
 class koord3d;
 class loadsave_t;
 class schedule_t;
@@ -165,12 +166,12 @@ public:
    	 * by default create a new halt if none found
 	 * Only used during loading.
 	 */
-	static halthandle_t get_halt_koord_index(karte_t *welt, koord k);
+	static halthandle_t get_halt_koord_index(koord k);
 
 	/*
 	 * this will only return something if this stop belongs to same player or is public, or is a dock (when on water)
 	 */
-	static halthandle_t get_halt(const karte_t *welt, const koord3d pos, const spieler_t *sp );
+	static halthandle_t get_halt(const koord3d pos, const spieler_t *sp );
 
 	static const slist_tpl<halthandle_t>& get_alle_haltestellen() { return alle_haltestellen; }
 
@@ -178,19 +179,19 @@ public:
 	 * Station factory method. Returns handles instead of pointers.
 	 * @author Hj. Malthaner
 	 */
-	static halthandle_t create(karte_t *welt, koord pos, spieler_t *sp);
+	static halthandle_t create(koord pos, spieler_t *sp);
 
 	/**
 	 * Station factory method. Returns handles instead of pointers.
 	 * @author Hj. Malthaner
 	 */
-	static halthandle_t create(karte_t *welt, loadsave_t *file);
+	static halthandle_t create(loadsave_t *file);
 
 	/*
 	* removes a ground tile from a station, deletes the building and, if last tile, also the halthandle
 	* @author prissi
 	*/
-	static bool remove(karte_t *welt, spieler_t *sp, koord3d pos);
+	static bool remove(spieler_t *sp, koord3d pos);
 
 	/**
 	 * Station destruction method.
@@ -202,7 +203,7 @@ public:
 	 * destroys all stations
 	 * @author Hj. Malthaner
 	 */
-	static void destroy_all(karte_t *);
+	static void destroy_all();
 
 	/**
 	 * Liste aller felder (Grund-Objekte) die zu dieser Haltestelle gehören
@@ -316,7 +317,7 @@ private:
 	slist_tpl<fabrik_t *> fab_list;
 
 	spieler_t *besitzer_p;
-	static karte_t *welt;
+	static karte_ptr_t welt;
 
 	/**
 	 * What is that for a station (for the image)
@@ -367,8 +368,8 @@ private:
 	uint8 sortierung;
 	bool resort_freight_info;
 
-	haltestelle_t(karte_t *welt, loadsave_t *file);
-	haltestelle_t(karte_t *welt, koord pos, spieler_t *sp);
+	haltestelle_t(loadsave_t *file);
+	haltestelle_t(koord pos, spieler_t *sp);
 	~haltestelle_t();
 
 public:
@@ -452,8 +453,6 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	void neuer_monat();
-
-	static karte_t* get_welt() { return welt; }
 
 private:
 	/* Node used during route search */

@@ -28,7 +28,7 @@ void convoy_scrollitem_t::set_text(char const* const t)
 		buf.printf("c%u,%s", cnv.get_id(), t );
 		werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
 		w->set_default_param( buf );
-		cnv->get_welt()->set_werkzeug( w, cnv->get_besitzer() );
+		world()->set_werkzeug( w, cnv->get_besitzer() );
 		// since init always returns false, it is safe to delete immediately
 		delete w;
 	}

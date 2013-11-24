@@ -18,7 +18,7 @@
 
 #include <string>
 
-class karte_t;
+class karte_ptr_t;
 class spieler_t;
 class rule_t;
 
@@ -98,7 +98,7 @@ public:
 	static uint32 get_cluster_factor() { return stadt_t::cluster_factor; }
 
 private:
-	static karte_t *welt;
+	static karte_ptr_t welt;
 	spieler_t *besitzer_p;
 	plainstring name;
 
@@ -178,9 +178,6 @@ public:
 	 */
 	sint64* get_city_history_year() { return *city_history_year; }
 	sint64* get_city_history_month() { return *city_history_month; }
-
-	// just needed by stadt_info.cc
-	static inline karte_t* get_welt() { return welt; }
 
 	uint32 stadtinfo_options;
 
@@ -448,7 +445,7 @@ public:
 	 * @see stadt_t::speichern()
 	 * @author Hj. Malthaner
 	 */
-	stadt_t(karte_t *welt, loadsave_t *file);
+	stadt_t(loadsave_t *file);
 
 	// closes window and that stuff
 	~stadt_t();
@@ -543,7 +540,7 @@ public:
 	 * @param old_x, old_y: Generate no cities in (0,0) - (old_x, old_y)
 	 * @author Gerd Wachsmuth
 	 */
-	static vector_tpl<koord> *random_place(const karte_t *wl, sint32 anzahl, sint16 old_x, sint16 old_y);
+	static vector_tpl<koord> *random_place(sint32 anzahl, sint16 old_x, sint16 old_y);
 	// geeigneten platz zur Stadtgruendung durch Zufall ermitteln
 
 	void zeige_info();

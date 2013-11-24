@@ -84,7 +84,7 @@ const uint8 reliefkarte_t::severity_color[MAX_SEVERITY_COLORS] =
 // helper function for line segment_t
 bool reliefkarte_t::line_segment_t::operator == (const line_segment_t & k) const
 {
-	return start == k.start  &&  end == k.end  &&  sp == k.sp  &&  fpl->similar( sp->get_welt(), k.fpl, sp );
+	return start == k.start  &&  end == k.end  &&  sp == k.sp  &&  fpl->similar( k.fpl, sp );
 }
 
 // Ordering based on first start then end coordinate
@@ -132,7 +132,7 @@ void reliefkarte_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoin
 
 		//cycle on stops
 		//try to read station's coordinates if there's a station at this schedule stop
-		halthandle_t station = haltestelle_t::get_halt( welt, cur.pos, cnv->get_besitzer() );
+		halthandle_t station = haltestelle_t::get_halt( cur.pos, cnv->get_besitzer() );
 		if(  station.is_bound()  ) {
 			stop_cache.append_unique( station );
 			temp_stop = station->get_basis_pos();

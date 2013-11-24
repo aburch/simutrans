@@ -61,7 +61,7 @@
 
 #include "vehicle/simpeople.h"
 
-karte_t *haltestelle_t::welt = NULL;
+karte_ptr_t haltestelle_t::welt;
 
 slist_tpl<halthandle_t> haltestelle_t::alle_haltestellen;
 
@@ -155,7 +155,7 @@ void haltestelle_t::end_load_game()
  * return an index to a halt; it is only used for old games
  * by default create a new halt if none found
  */
-halthandle_t haltestelle_t::get_halt_koord_index(karte_t *welt, koord k)
+halthandle_t haltestelle_t::get_halt_koord_index(koord k)
 {
 	if(!welt->is_within_limits(k)) {
 		return halthandle_t();
@@ -168,7 +168,7 @@ halthandle_t haltestelle_t::get_halt_koord_index(karte_t *welt, koord k)
 
 	if(  !h.is_bound()  ) {
 		// No halts found => create one
-		h = haltestelle_t::create( welt, k, NULL );
+		h = haltestelle_t::create(k, NULL );
 		all_koords->set( n,  h );
 	}
 	return h;
@@ -178,7 +178,7 @@ halthandle_t haltestelle_t::get_halt_koord_index(karte_t *welt, koord k)
 /* we allow only for a single stop per grund
  * this will only return something if this stop belongs to same player or is public, or is a dock (when on water)
  */
-halthandle_t haltestelle_t::get_halt(const karte_t *welt, const koord3d pos, const spieler_t *sp )
+halthandle_t haltestelle_t::get_halt(const koord3d pos, const spieler_t *sp )
 {
 	const grund_t *gr = welt->lookup(pos);
 	if(gr) {
@@ -231,9 +231,9 @@ koord3d haltestelle_t::get_basis_pos3d() const
  * Station factory method. Returns handles instead of pointers.
  * @author Hj. Malthaner
  */
-halthandle_t haltestelle_t::create(karte_t *welt, koord pos, spieler_t *sp)
+halthandle_t haltestelle_t::create(koord pos, spieler_t *sp)
 {
-	haltestelle_t * p = new haltestelle_t(welt, pos, sp);
+	haltestelle_t * p = new haltestelle_t(pos, sp);
 	return p->self;
 }
 
@@ -242,7 +242,7 @@ halthandle_t haltestelle_t::create(karte_t *welt, koord pos, spieler_t *sp)
  * removes a ground tile from a station
  * @author prissi
  */
-bool haltestelle_t::remove(karte_t *welt, spieler_t *sp, koord3d pos)
+bool haltestelle_t::remove(spieler_t *sp, koord3d pos)
 {
 	grund_t *bd = welt->lookup(pos);
 
@@ -298,9 +298,9 @@ DBG_DEBUG("haltestelle_t::remove()","destroy");
  * Station factory method. Returns handles instead of pointers.
  * @author Hj. Malthaner
  */
-halthandle_t haltestelle_t::create(karte_t *welt, loadsave_t *file)
+halthandle_t haltestelle_t::create(loadsave_t *file)
 {
-	haltestelle_t *p = new haltestelle_t(welt, file);
+	haltestelle_t *p = new haltestelle_t(file);
 	return p->self;
 }
 
@@ -321,9 +321,8 @@ void haltestelle_t::destroy(halthandle_t const halt)
  * werden! V. Meyer
  * @author Hj. Malthaner
  */
-void haltestelle_t::destroy_all(karte_t *welt)
+void haltestelle_t::destroy_all()
 {
-	haltestelle_t::welt = welt;
 	while (!alle_haltestellen.empty()) {
 		halthandle_t halt = alle_haltestellen.front();
 		destroy(halt);
@@ -336,11 +335,9 @@ void haltestelle_t::destroy_all(karte_t *welt)
 }
 
 
-haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
+haltestelle_t::haltestelle_t(loadsave_t* file)
 {
-	last_loading_step = wl->get_steps();
-
-	welt = wl;
+	last_loading_step = welt->get_steps();
 
 	waren = (vector_tpl<ware_t> **)calloc( warenbauer_t::get_max_catg_index(), sizeof(vector_tpl<ware_t> *) );
 	all_links = new link_t[ warenbauer_t::get_max_catg_index() ];
@@ -365,7 +362,7 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 }
 
 
-haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
+haltestelle_t::haltestelle_t(koord k, spieler_t* sp)
 {
 	self = halthandle_t(this);
 	assert( !alle_haltestellen.is_contained(self) );
@@ -373,8 +370,7 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 
 	markers[ self.get_id() ] = current_marker;
 
-	last_loading_step = wl->get_steps();
-	welt = wl;
+	last_loading_step = welt->get_steps();
 
 	this->init_pos = k;
 	besitzer_p = sp;
@@ -1117,7 +1113,7 @@ sint32 haltestelle_t::rebuild_connections()
 
 		// find the index from which to start processing
 		uint8 start_index = 0;
-		while(  start_index < fpl->get_count()  &&  get_halt( welt, fpl->eintrag[start_index].pos, owner ) != self  ) {
+		while(  start_index < fpl->get_count()  &&  get_halt( fpl->eintrag[start_index].pos, owner ) != self  ) {
 			++start_index;
 		}
 		++start_index;	// the next index after self halt; it's okay to be out-of-range
@@ -1143,7 +1139,7 @@ sint32 haltestelle_t::rebuild_connections()
 		uint16 aggregate_weight = WEIGHT_WAIT;
 		for(  uint8 j=0;  j<fpl->get_count();  ++j  ) {
 
-			halthandle_t current_halt = get_halt(welt, fpl->eintrag[(start_index+j)%fpl->get_count()].pos, owner );
+			halthandle_t current_halt = get_halt(fpl->eintrag[(start_index+j)%fpl->get_count()].pos, owner );
 			if(  !current_halt.is_bound()  ) {
 				// ignore way points
 				continue;
@@ -1866,7 +1862,7 @@ void haltestelle_t::hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp
 		for(  uint8 i=1;  i<count;  i++  ) {
 			const uint8 wrap_i = (i + fpl->get_aktuell()) % count;
 
-			const halthandle_t plan_halt = haltestelle_t::get_halt(welt, fpl->eintrag[wrap_i].pos, sp);
+			const halthandle_t plan_halt = haltestelle_t::get_halt(fpl->eintrag[wrap_i].pos, sp);
 			if(plan_halt == self) {
 				// we will come later here again ...
 				break;
@@ -2156,7 +2152,7 @@ void haltestelle_t::get_freight_info(cbuffer_t & buf)
 		for(unsigned i=0; i<warenbauer_t::get_max_catg_index(); i++) {
 			const vector_tpl<ware_t> * warray = waren[i];
 			if(warray) {
-				freight_list_sorter_t::sort_freight(*warray, buf, (freight_list_sorter_t::sort_mode_t)sortierung, NULL, "waiting", welt);
+				freight_list_sorter_t::sort_freight(*warray, buf, (freight_list_sorter_t::sort_mode_t)sortierung, NULL, "waiting");
 			}
 		}
 	}
@@ -2596,7 +2592,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 					file->rdwr_long(count);
 				}
 				FOR(vector_tpl<ware_t>, & ware, *warray) {
-					ware.rdwr(welt,file);
+					ware.rdwr(file);
 				}
 			}
 		}
@@ -2620,7 +2616,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			if(count>0) {
 				for(  uint32 i = 0;  i < count;  i++  ) {
 					// add to internal storage (use this function, since the old categories were different)
-					ware_t ware(welt,file);
+					ware_t ware(file);
 					if(  ware.menge>0  &&  welt->is_within_limits(ware.get_zielpos())  ) {
 						add_ware_to_halt(ware);
 						if(  file->get_version() <= 112000  ) {
@@ -2986,7 +2982,7 @@ bool haltestelle_t::add_grund(grund_t *gr)
 				// only add unknown lines
 				if(  !registered_lines.is_contained(j)  &&  j->count_convoys() > 0  ) {
 					FOR(  minivec_tpl<linieneintrag_t>, const& k, j->get_schedule()->eintrag  ) {
-						if(  get_halt(welt, k.pos, sp) == self  ) {
+						if(  get_halt(k.pos, sp) == self  ) {
 							registered_lines.append(j);
 							break;
 						}
@@ -3001,7 +2997,7 @@ bool haltestelle_t::add_grund(grund_t *gr)
 		if(  !cnv->get_line().is_bound()  &&  (public_halt  ||  cnv->get_besitzer()==get_besitzer())  &&  !registered_convoys.is_contained(cnv)  ) {
 			if(  const schedule_t *const fpl = cnv->get_schedule()  ) {
 				FOR(minivec_tpl<linieneintrag_t>, const& k, fpl->eintrag) {
-					if (get_halt(welt, k.pos, cnv->get_besitzer()) == self) {
+					if (get_halt(k.pos, cnv->get_besitzer()) == self) {
 						registered_convoys.append(cnv);
 						break;
 					}
@@ -3112,7 +3108,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 	for(  size_t j = registered_lines.get_count();  j-- != 0;  ) {
 		bool ok = false;
 		FOR(  minivec_tpl<linieneintrag_t>, const& k, registered_lines[j]->get_schedule()->eintrag  ) {
-			if(  get_halt(welt, k.pos, registered_lines[j]->get_besitzer()) == self  ) {
+			if(  get_halt(k.pos, registered_lines[j]->get_besitzer()) == self  ) {
 				ok = true;
 				break;
 			}
@@ -3128,7 +3124,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 	for(  size_t j = registered_convoys.get_count();  j-- != 0;  ) {
 		bool ok = false;
 		FOR(  minivec_tpl<linieneintrag_t>, const& k, registered_convoys[j]->get_schedule()->eintrag  ) {
-			if(  get_halt(welt, k.pos, registered_convoys[j]->get_besitzer()) == self  ) {
+			if(  get_halt(k.pos, registered_convoys[j]->get_besitzer()) == self  ) {
 				ok = true;
 				break;
 			}

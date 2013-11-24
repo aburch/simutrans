@@ -52,7 +52,6 @@ static void_t set_citygrowth(stadt_t *city, bool allow)
 {
 	static char param[16];
 	sprintf(param,"g%hi,%hi,%hi", city->get_pos().x, city->get_pos().y, allow );
-	karte_t *welt = city->get_welt();
 	werkzeug_t *wkz = werkzeug_t::simple_tool[WKZ_CHANGE_CITY_TOOL];
 	wkz->set_default_param( param );
 	wkz->flags |=  werkzeug_t::WFL_SCRIPT;

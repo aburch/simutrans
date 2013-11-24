@@ -61,7 +61,7 @@
 // since we use 32 bit per growth steps, we use this varible to take care of the remaining sub citicen growth
 #define CITYGROWTH_PER_CITICEN (0x0000000100000000ll)
 
-karte_t* stadt_t::welt = NULL; // one is enough ...
+karte_ptr_t stadt_t::welt; // one is enough ...
 
 
 /********************************* From here on cityrules stuff *****************************************/
@@ -980,7 +980,6 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 	pax_destinations_old(koord(PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE)),
 	pax_destinations_new(koord(PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE))
 {
-	welt = sp->get_welt();
 	assert(welt->is_within_limits(pos));
 
 	step_count = 0;
@@ -1002,8 +1001,6 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 	won = 0;
 
 	lo = ur = pos;
-
-	DBG_MESSAGE("stadt_t::stadt_t()", "Welt %p", welt);
 
 	/* get a unique cityname */
 	char                          const* n       = "simcity";
@@ -1054,12 +1051,11 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 }
 
 
-stadt_t::stadt_t(karte_t* wl, loadsave_t* file) :
+stadt_t::stadt_t(loadsave_t* file) :
 	buildings(16),
 	pax_destinations_old(koord(PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE)),
 	pax_destinations_new(koord(PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE))
 {
-	welt = wl;
 	step_count = 0;
 	next_step = 0;
 	step_interval = 1;
@@ -3008,25 +3004,25 @@ void stadt_t::baue()
 
 
 // find suitable places for cities
-vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl, sint16 old_x, sint16 old_y)
+vector_tpl<koord>* stadt_t::random_place(const sint32 anzahl, sint16 old_x, sint16 old_y)
 {
 	int cl = 0;
 	for (int i = 0; i < MAX_CLIMATES; i++) {
-		if (hausbauer_t::get_special(0, haus_besch_t::rathaus, wl->get_timeline_year_month(), false, (climate)i)) {
+		if (hausbauer_t::get_special(0, haus_besch_t::rathaus, welt->get_timeline_year_month(), false, (climate)i)) {
 			cl |= (1 << i);
 		}
 	}
 	DBG_DEBUG("karte_t::init()", "get random places in climates %x", cl);
 	// search at least places which are 5x5 squares large
-	slist_tpl<koord>* list = wl->find_squares( 5, 5, (climate_bits)cl, old_x, old_y);
+	slist_tpl<koord>* list = welt->find_squares( 5, 5, (climate_bits)cl, old_x, old_y);
 	DBG_DEBUG("karte_t::init()", "found %i places", list->get_count());
 	vector_tpl<koord>* result = new vector_tpl<koord>(anzahl);
 
 	// pre processed array: max 1 city from each square can be built
 	// each entry represents a cell of minimum_city_distance/2 length and width
-	const uint32 minimum_city_distance = wl->get_settings().get_minimum_city_distance();
-	const uint32 xmax = (2*wl->get_size().x)/minimum_city_distance+1;
-	const uint32 ymax = (2*wl->get_size().y)/minimum_city_distance+1;
+	const uint32 minimum_city_distance = welt->get_settings().get_minimum_city_distance();
+	const uint32 xmax = (2*welt->get_size().x)/minimum_city_distance+1;
+	const uint32 ymax = (2*welt->get_size().y)/minimum_city_distance+1;
 	array2d_tpl< vector_tpl<koord> > places(xmax, ymax);
 	while (!list->empty()) {
 		const koord k = list->remove_first();
@@ -3045,8 +3041,8 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl,
 	// post-processing array:
 	// each entry represents a cell of minimum_city_distance length and width
 	// to limit the search for neighboring cities
-	const uint32 xmax2 = wl->get_size().x/minimum_city_distance+1;
-	const uint32 ymax2 = wl->get_size().y/minimum_city_distance+1;
+	const uint32 xmax2 = welt->get_size().x/minimum_city_distance+1;
+	const uint32 ymax2 = welt->get_size().y/minimum_city_distance+1;
 	array2d_tpl< vector_tpl<koord> > result_places(xmax2, ymax2);
 
 	for (int i = 0; i < anzahl; i++) {

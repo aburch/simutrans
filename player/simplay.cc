@@ -64,7 +64,7 @@ static pthread_mutex_t laden_abschl_mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
 spieler_t::spieler_t(karte_t *wl, uint8 nr) :
-	simlinemgmt(wl)
+	simlinemgmt()
 {
 	finance = new finance_t(this, wl);
 	welt = wl;
@@ -727,7 +727,7 @@ void spieler_t::rdwr(loadsave_t *file)
 		// halt_count will be zero for newer savegames
 DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this ),halt_count);
 		for(int i=0; i<halt_count; i++) {
-			haltestelle_t::create( welt, file );
+			haltestelle_t::create( file );
 		}
 		// empty undo buffer
 		init_undo(road_wt,0);
@@ -752,7 +752,7 @@ DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this 
 
 	// linemanagement
 	if(file->get_version()>=88003) {
-		simlinemgmt.rdwr(welt,file,this);
+		simlinemgmt.rdwr(file,this);
 	}
 
 	if(file->get_version()>102002) {

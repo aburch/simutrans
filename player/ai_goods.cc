@@ -390,7 +390,7 @@ bool ai_goods_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 	}
 
 	// sea pos (and not on harbour ... )
-	halthandle_t halt = haltestelle_t::get_halt(welt,gr->get_pos(),this);
+	halthandle_t halt = haltestelle_t::get_halt(gr->get_pos(),this);
 	koord pos1 = platz1 - koord(gr->get_grund_hang())*h->get_groesse().y;
 	koord best_pos = pos1;
 	uint16 const cov = welt->get_settings().get_station_coverage();
@@ -1138,7 +1138,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 					if(!lines.empty()) {
 						linehandle_t line = lines.back();
 						schedule_t *fpl=line->get_schedule();
-						if(fpl->get_count()>1  &&  haltestelle_t::get_halt(welt,fpl->eintrag[0].pos,this)==start_halt) {
+						if(fpl->get_count()>1  &&  haltestelle_t::get_halt(fpl->eintrag[0].pos,this)==start_halt) {
 							while(line->count_convoys()>0) {
 								convoihandle_t cnv = line->get_convoy(0);
 								cnv->self_destruct();
@@ -1250,7 +1250,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 					// last vehicle on that connection (no line => railroad)
 					if(  !line.is_bound()  ||  line->count_convoys()==0  ) {
 						// check if a conncetion boat must be removed
-						halthandle_t start_halt = haltestelle_t::get_halt(welt,start_pos,this);
+						halthandle_t start_halt = haltestelle_t::get_halt(start_pos,this);
 						if(start_halt.is_bound()  &&  (start_halt->get_station_type()&haltestelle_t::dock)!=0) {
 							// delete all ships on this line
 							vector_tpl<linehandle_t> lines;
@@ -1258,7 +1258,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 							simlinemgmt.get_lines( simline_t::shipline, &lines );
 							FOR(vector_tpl<linehandle_t>, const line, lines) {
 								schedule_t *fpl=line->get_schedule();
-								if(fpl->get_count()>1  &&  haltestelle_t::get_halt(welt,fpl->eintrag[0].pos,this)==start_halt) {
+								if(fpl->get_count()>1  &&  haltestelle_t::get_halt(fpl->eintrag[0].pos,this)==start_halt) {
 									water_stop = koord( (start_pos.x+fpl->eintrag[0].pos.x)/2, (start_pos.y+fpl->eintrag[0].pos.y)/2 );
 									while(line->count_convoys()>0) {
 										convoihandle_t cnv = line->get_convoy(0);

@@ -147,7 +147,7 @@ public:
 	 * compare this fahrplan with another, ignoring order and exact positions and waypoints
 	 * @author prissi
 	 */
-	bool similar( karte_t *welt, const schedule_t *fpl, const spieler_t *sp );
+	bool similar( const schedule_t *fpl, const spieler_t *sp );
 
 	/**
 	 * calculates a return way for this schedule

@@ -15,12 +15,10 @@ class loadsave_t;
 class schedule_t;
 class spieler_t;
 class schedule_list_gui_t;
-class karte_t;
 
 class simlinemgmt_t
 {
 public:
-	simlinemgmt_t(karte_t* welt);
 	~simlinemgmt_t();
 
 	/*
@@ -44,7 +42,7 @@ public:
 	/*
 	 * load or save the linemanagement
 	 */
-	void rdwr(karte_t * welt, loadsave_t * file, spieler_t * sp);
+	void rdwr(loadsave_t * file, spieler_t * sp);
 
 	/*
 	 * sort the lines by name
@@ -91,8 +89,6 @@ public:
 
 	uint32 get_line_count() const { return all_managed_lines.get_count(); }
 
-	karte_t* get_welt() const { return welt; }
-
 	/**
 	 * Will open the line management window and offer information about the line
 	 * @author isidoro
@@ -101,8 +97,6 @@ public:
 
 private:
 	vector_tpl<linehandle_t> all_managed_lines;
-
-	static karte_t * welt;
 
 	linehandle_t line_with_id_zero;
 };

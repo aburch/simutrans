@@ -97,7 +97,7 @@ void fahrplan_gui_stats_t::highlight_schedule( schedule_t *markfpl, bool marking
 static void gimme_stop_name(cbuffer_t& buf, karte_t* welt, spieler_t const* const sp, linieneintrag_t const& entry)
 {
 	char const* what;
-	halthandle_t const halt = haltestelle_t::get_halt(welt, entry.pos, sp);
+	halthandle_t const halt = haltestelle_t::get_halt(entry.pos, sp);
 	if (halt.is_bound()) {
 		if (entry.ladegrad != 0) {
 			buf.printf("%d%% ", entry.ladegrad);
@@ -127,7 +127,7 @@ static void gimme_stop_name(cbuffer_t& buf, karte_t* welt, spieler_t const* cons
 void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t& buf, karte_t* welt, spieler_t const* const sp, linieneintrag_t const& entry, int const max_chars)
 {
 	const char *p;
-	halthandle_t halt = haltestelle_t::get_halt(welt, entry.pos, sp);
+	halthandle_t halt = haltestelle_t::get_halt(entry.pos, sp);
 	if(halt.is_bound()) {
 		p = halt->get_name();
 	}
@@ -416,7 +416,7 @@ void fahrplan_gui_t::update_selection()
 	if(  !fpl->empty()  ) {
 		fpl->set_aktuell( min(fpl->get_count()-1,fpl->get_aktuell()) );
 		const uint8 aktuell = fpl->get_aktuell();
-		if(  haltestelle_t::get_halt(welt, fpl->eintrag[aktuell].pos, sp).is_bound()  ) {
+		if(  haltestelle_t::get_halt(fpl->eintrag[aktuell].pos, sp).is_bound()  ) {
 			lb_load.set_color( COL_BLACK );
 			numimp_load.enable();
 			numimp_load.set_value( fpl->eintrag[aktuell].ladegrad );

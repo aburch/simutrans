@@ -20,14 +20,6 @@
 
 #include "player/simplay.h"
 
-karte_t *simlinemgmt_t::welt = NULL;
-
-
-simlinemgmt_t::simlinemgmt_t(karte_t* welt)
-{
-	this->welt = welt;
-}
-
 
 simlinemgmt_t::~simlinemgmt_t()
 {
@@ -71,12 +63,12 @@ void simlinemgmt_t::update_line(linehandle_t line)
 	// finally de/register all stops
 	line->renew_stops();
 	if(  count>0  ) {
-		welt->set_schedule_counter();
+		world()->set_schedule_counter();
 	}
 }
 
 
-void simlinemgmt_t::rdwr(karte_t * welt, loadsave_t *file, spieler_t *sp)
+void simlinemgmt_t::rdwr(loadsave_t *file, spieler_t *sp)
 {
 	xml_tag_t l( file, "simlinemgmt_t" );
 
@@ -120,7 +112,7 @@ DBG_MESSAGE("simlinemgmt_t::rdwr()","number of lines=%i",totalLines);
 			if(lt < simline_t::truckline  ||  lt > simline_t::narrowgaugeline) {
 					dbg->fatal( "simlinemgmt_t::rdwr()", "Cannot create default line!" );
 			}
-			simline_t *line = new simline_t(welt, sp, lt, file);
+			simline_t *line = new simline_t(sp, lt, file);
 			if (!line->get_handle().is_bound()) {
 				// line id was saved as zero ...
 				if (unbound_line) {
@@ -201,7 +193,7 @@ linehandle_t simlinemgmt_t::create_line(int ltype, spieler_t * sp)
 			dbg->fatal( "simlinemgmt_t::create_line()", "Cannot create default line!" );
 	}
 
-	simline_t * line = new simline_t(welt, sp, (simline_t::linetype)ltype);
+	simline_t * line = new simline_t(sp, (simline_t::linetype)ltype);
 
 	add_line( line->get_handle() );
 	sort_lines();

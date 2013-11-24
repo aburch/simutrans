@@ -9,7 +9,7 @@ template<class T> class slist_tpl;
 template<class T> class vector_tpl;
 class ware_t;
 class cbuffer_t;
-class karte_t;
+class karte_ptr_t;
 
 
 class freight_list_sorter_t
@@ -17,10 +17,10 @@ class freight_list_sorter_t
 public:
 	enum sort_mode_t { by_name=0, by_via=1, by_via_sum=2, by_amount=3};
 
-	static void sort_freight(vector_tpl<ware_t> const& warray, cbuffer_t& buf, sort_mode_t sort_mode, const slist_tpl<ware_t>* full_list, const char* what_doing, karte_t *world);
+	static void sort_freight(vector_tpl<ware_t> const& warray, cbuffer_t& buf, sort_mode_t sort_mode, const slist_tpl<ware_t>* full_list, const char* what_doing);
 
 private:
-	static karte_t *welt;
+	static karte_ptr_t welt;
 
 	static sort_mode_t sortby;
 

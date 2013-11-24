@@ -442,7 +442,7 @@ fabrik_t* fabrikbauer_t::baue_fabrik(karte_t* welt, koord3d* parent, const fabri
 		koord dim = besch->get_groesse(rotate);
 
 		// create water halt
-		halthandle_t halt = haltestelle_t::create(welt, pos.get_2d(), welt->get_spieler(1));
+		halthandle_t halt = haltestelle_t::create(pos.get_2d(), welt->get_spieler(1));
 		if(halt.is_bound()) {
 
 			// add all other tiles of the factory to the halt

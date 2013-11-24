@@ -75,7 +75,7 @@ bool ai_bauplatz_mit_strasse_sucher_t::ist_platz_ok(koord pos, sint16 b, sint16 
 halthandle_t ai_t::get_halt(const koord pos ) const
 {
 	if(  grund_t *gr = welt->lookup_kartenboden(pos)  ) {
-		return haltestelle_t::get_halt( welt, gr->get_pos(), this );
+		return haltestelle_t::get_halt( gr->get_pos(), this );
 	}
 	return halthandle_t();
 }

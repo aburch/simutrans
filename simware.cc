@@ -41,9 +41,9 @@ ware_t::ware_t(const ware_besch_t *wtyp) : ziel(), zwischenziel(), zielpos(-1, -
 	to_factory = 0;
 }
 
-ware_t::ware_t(karte_t *welt,loadsave_t *file)
+ware_t::ware_t(loadsave_t *file)
 {
-	rdwr(welt,file);
+	rdwr(file);
 }
 
 
@@ -54,7 +54,7 @@ void ware_t::set_besch(const ware_besch_t* type)
 
 
 
-void ware_t::rdwr(karte_t *welt,loadsave_t *file)
+void ware_t::rdwr(loadsave_t *file)
 {
 	sint32 amount = menge;
 	file->rdwr_long(amount);
@@ -125,10 +125,10 @@ void ware_t::rdwr(karte_t *welt,loadsave_t *file)
 		else {
 			koord ziel_koord;
 			ziel_koord.rdwr(file);
-			ziel = haltestelle_t::get_halt_koord_index(welt, ziel_koord);
+			ziel = haltestelle_t::get_halt_koord_index(ziel_koord);
 			koord zwischen_ziel_koord;
 			zwischen_ziel_koord.rdwr(file);
-			zwischenziel = haltestelle_t::get_halt_koord_index(welt, zwischen_ziel_koord);
+			zwischenziel = haltestelle_t::get_halt_koord_index(zwischen_ziel_koord);
 		}
 	}
 	zielpos.rdwr(file);
@@ -148,10 +148,10 @@ void ware_t::laden_abschliessen(karte_t *welt)
 		// since some halt was referred by with several koordinates
 		// this routine will correct it
 		if(ziel.is_bound()) {
-			ziel = haltestelle_t::get_halt_koord_index(welt, ziel->get_init_pos());
+			ziel = haltestelle_t::get_halt_koord_index(ziel->get_init_pos());
 		}
 		if(zwischenziel.is_bound()) {
-			zwischenziel = haltestelle_t::get_halt_koord_index(welt, zwischenziel->get_init_pos());
+			zwischenziel = haltestelle_t::get_halt_koord_index(zwischenziel->get_init_pos());
 		}
 	}
 	update_factory_target();

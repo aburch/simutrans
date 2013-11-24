@@ -873,7 +873,7 @@ void vehikel_t::remove_stale_freight()
 			if(  tmp.get_zwischenziel().is_bound()  ) {
 				// the original halt exists, but does we still go there?
 				FOR(minivec_tpl<linieneintrag_t>, const& i, cnv->get_schedule()->eintrag) {
-					if(  haltestelle_t::get_halt( welt, i.pos, cnv->get_besitzer()) == tmp.get_zwischenziel()  ) {
+					if(  haltestelle_t::get_halt( i.pos, cnv->get_besitzer()) == tmp.get_zwischenziel()  ) {
 						found = true;
 						break;
 					}
@@ -885,7 +885,7 @@ void vehikel_t::remove_stale_freight()
 				const int max_count = cnv->get_schedule()->eintrag.get_count();
 				for(  int i=0;  i<max_count;  i++  ) {
 					// try to unload on next stop
-					halthandle_t halt = haltestelle_t::get_halt( welt, cnv->get_schedule()->eintrag[ (i+offset)%max_count ].pos, cnv->get_besitzer() );
+					halthandle_t halt = haltestelle_t::get_halt( cnv->get_schedule()->eintrag[ (i+offset)%max_count ].pos, cnv->get_besitzer() );
 					if(  halt.is_bound()  ) {
 						if(  halt->is_enabled(tmp.get_index())  ) {
 							// ok, lets change here, since goods are accepted here
@@ -1559,17 +1559,17 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 			ware.set_ziel( halthandle_t() );
 			ware.set_zwischenziel( halthandle_t() );
 			ware.set_zielpos( get_pos().get_2d() );
-			ware.rdwr(welt,file);
+			ware.rdwr(file);
 		}
 		else {
 			FOR(slist_tpl<ware_t>, ware, fracht) {
-				ware.rdwr(welt,file);
+				ware.rdwr(file);
 			}
 		}
 	}
 	else {
 		for(int i=0; i<fracht_count; i++) {
-			ware_t ware(welt,file);
+			ware_t ware(file);
 			if(  (besch==NULL  ||  ware.menge>0)  &&  welt->is_within_limits(ware.get_zielpos())  ) {	// also add, of the besch is unknown to find matching replacement
 				fracht.insert(ware);
 				if(  file->get_version() <= 112000  ) {
@@ -1977,7 +1977,7 @@ bool automobil_t::choose_route( int &restart_speed, ribi_t::dir richtung, uint16
 {
 	route_t *rt = cnv->access_route();
 	// is our target occupied?
-	target_halt = haltestelle_t::get_halt( welt, rt->back(), get_besitzer() );
+	target_halt = haltestelle_t::get_halt( rt->back(), get_besitzer() );
 	if(  target_halt.is_bound()  ) {
 
 		// since convois can long than one tile, check is more difficult
@@ -2272,7 +2272,7 @@ void automobil_t::set_convoi(convoi_t *c)
 		if(target  &&  ist_erstes  &&  c->get_route()->empty()) {
 			// reinitialize the target halt
 			const route_t *rt = cnv->get_route();
-			target_halt = haltestelle_t::get_halt( welt, rt->back(), get_besitzer() );
+			target_halt = haltestelle_t::get_halt( rt->back(), get_besitzer() );
 			if(  target_halt.is_bound()  ) {
 				for(  uint32 i=0;  i<c->get_tile_length()  &&  i+1<rt->get_count();  i++  ) {
 					target_halt->reserve_position( welt->lookup( rt->position_bei(rt->get_count()-i-1) ), cnv->self );

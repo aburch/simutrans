@@ -514,7 +514,7 @@ DBG_MESSAGE("wkz_remover()", "bound=%i",halt.is_bound());
 		// halt and not a factory (oil rig etc.)
 		const spieler_t* owner = halt->get_besitzer();
 		if(  spieler_t::check_owner( owner, sp )  ) {
-			return haltestelle_t::remove(welt, sp, gr->get_pos());
+			return haltestelle_t::remove(sp, gr->get_pos());
 		}
 	}
 
@@ -3621,7 +3621,7 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", k.x,
 			return "Das Feld gehoert\neinem anderen Spieler\n";
 		}
 		// ok, really new stop on this tile then
-		halt = haltestelle_t::create(welt, k, sp);
+		halt = haltestelle_t::create(k, sp);
 	}
 	hausbauer_t::baue(welt, halt->get_besitzer(), bau_pos, layout, besch, &halt);
 	sint64 costs = -besch->get_price(welt);
@@ -3829,7 +3829,7 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 		if(  bd && bd->get_halt().is_bound()  ) {
 			return "Das Feld gehoert\neinem anderen Spieler\n";
 		}
-		halt = haltestelle_t::create(welt, k, sp);
+		halt = haltestelle_t::create(k, sp);
 	}
 	hausbauer_t::neues_gebaeude( welt, halt->get_besitzer(), bd->get_pos(), layout, besch, &halt);
 	halt->recalc_station_type();
@@ -5408,7 +5408,7 @@ void wkz_stop_moving_t::read_start_position(karte_t *welt, spieler_t *sp, const 
 		}
 	}
 	// .. and halt
-	last_halt = haltestelle_t::get_halt(welt,pos,sp);
+	last_halt = haltestelle_t::get_halt(pos,sp);
 }
 
 
@@ -5420,7 +5420,7 @@ uint8 wkz_stop_moving_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord
 		return 0;
 	}
 	// check halt ownership
-	halthandle_t h = haltestelle_t::get_halt(welt,pos,sp);
+	halthandle_t h = haltestelle_t::get_halt(pos,sp);
 	if(  h.is_bound()  &&  !spieler_t::check_owner( sp, h->get_besitzer() )  ) {
 		error = "Das Feld gehoert\neinem anderen Spieler\n";
 		return 0;
@@ -5468,7 +5468,7 @@ const char *wkz_stop_moving_t::do_work( karte_t *welt, spieler_t *sp, const koor
 
 	// second click
 	grund_t *bd = welt->lookup(pos);
-	halthandle_t h = haltestelle_t::get_halt(welt,pos,sp);
+	halthandle_t h = haltestelle_t::get_halt(pos,sp);
 
 	if (bd) {
 		const halthandle_t new_halt = h;
@@ -5531,7 +5531,7 @@ const char *wkz_stop_moving_t::do_work( karte_t *welt, spieler_t *sp, const koor
 					if(fpl  &&  fpl->ist_halt_erlaubt(bd)) {
 						bool updated = false;
 						FOR(minivec_tpl<linieneintrag_t>, & k, fpl->eintrag) {
-							if ((catch_all_halt && haltestelle_t::get_halt(welt, k.pos, cnv->get_besitzer()) == last_halt) ||
+							if ((catch_all_halt && haltestelle_t::get_halt( k.pos, cnv->get_besitzer()) == last_halt) ||
 									old_platform.is_contained(k.pos)) {
 								k.pos   = pos;
 								updated = true;
@@ -5567,7 +5567,7 @@ const char *wkz_stop_moving_t::do_work( karte_t *welt, spieler_t *sp, const koor
 					bool updated = false;
 					FOR(minivec_tpl<linieneintrag_t>, & k, fpl->eintrag) {
 						// ok!
-						if ((catch_all_halt && haltestelle_t::get_halt(welt, k.pos, line->get_besitzer()) == last_halt) ||
+						if ((catch_all_halt && haltestelle_t::get_halt( k.pos, line->get_besitzer()) == last_halt) ||
 								old_platform.is_contained(k.pos)) {
 							k.pos   = pos;
 							updated = true;

@@ -708,7 +708,7 @@ DBG_MESSAGE("karte_t::destroy()", "convois destroyed");
 
 	// alle haltestellen aufraeumen
 	old_progress += haltestelle_t::get_alle_haltestellen().get_count();
-	haltestelle_t::destroy_all(this);
+	haltestelle_t::destroy_all();
 DBG_MESSAGE("karte_t::destroy()", "stops destroyed");
 	ls.set_progress( old_progress );
 
@@ -1058,7 +1058,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing rivers");
 
 dbg->important("Creating cities ...");
 DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
-	vector_tpl<koord> *pos = stadt_t::random_place(this, new_anzahl_staedte, old_x, old_y);
+	vector_tpl<koord> *pos = stadt_t::random_place(new_anzahl_staedte, old_x, old_y);
 
 	if(  !pos->empty()  ) {
 		const sint32 old_anzahl_staedte = stadt.get_count();
@@ -5510,7 +5510,7 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 	stadt.clear();
 	stadt.resize(settings.get_anzahl_staedte());
 	for (int i = 0; i < settings.get_anzahl_staedte(); ++i) {
-		stadt_t *s = new stadt_t(this, file);
+		stadt_t *s = new stadt_t(file);
 		stadt.append( s, s->get_einwohner());
 	}
 
@@ -5617,7 +5617,7 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 	// @author hsiegeln
 	if (file->get_version() > 82003  &&  file->get_version()<88003) {
 		DBG_MESSAGE("karte_t::laden()", "load linemanagement");
-		get_spieler(0)->simlinemgmt.rdwr(this, file, get_spieler(0));
+		get_spieler(0)->simlinemgmt.rdwr(file, get_spieler(0));
 	}
 	// end load linemanagement
 
@@ -5631,7 +5631,7 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 		file->rdwr_long(halt_count);
 		DBG_MESSAGE("karte_t::laden()","%d halts loaded",halt_count);
 		for(int i=0; i<halt_count; i++) {
-			halthandle_t halt = haltestelle_t::create( this, file );
+			halthandle_t halt = haltestelle_t::create( file );
 			if(!halt->existiert_in_welt()) {
 				dbg->warning("karte_t::laden()", "could not restore stop near %i,%i", halt->get_init_pos().x, halt->get_init_pos().y );
 			}
@@ -5654,7 +5654,7 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 				break;
 			}
 		}
-		convoi_t *cnv = new convoi_t(this, file);
+		convoi_t *cnv = new convoi_t(file);
 		convoi_array.append(cnv->self);
 
 		if(cnv->in_depot()) {

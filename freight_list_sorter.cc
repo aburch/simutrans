@@ -15,7 +15,7 @@
 #include "utils/cbuffer_t.h"
 
 
-karte_t *freight_list_sorter_t::welt = NULL;
+karte_ptr_t freight_list_sorter_t::welt;
 freight_list_sorter_t::sort_mode_t freight_list_sorter_t::sortby=by_name;
 
 
@@ -109,9 +109,8 @@ void freight_list_sorter_t::add_ware_heading( cbuffer_t &buf, uint32 sum, uint32
 }
 
 
-void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuffer_t& buf, sort_mode_t sort_mode, const slist_tpl<ware_t>* full_list, const char* what_doing, karte_t *world)
+void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuffer_t& buf, sort_mode_t sort_mode, const slist_tpl<ware_t>* full_list, const char* what_doing)
 {
-	welt = world;
 	sortby = sort_mode;
 
 	// hsiegeln
