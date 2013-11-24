@@ -169,7 +169,7 @@ void gui_theme_t::init_size_from_bild( const bild_besch_t *pic, scr_size &k )
 void gui_theme_t::init_gui_from_images()
 {
 	// Calculate posbutton size
-	if(  skinverwaltung_t::posbutton == NULL  ) {
+	if(  skinverwaltung_t::divider == NULL  ) {
 		// usualy there should be a default theme which would provided missing images even for outdated themes
 		dbg->fatal( "gui_theme_t::init_gui_themes", "Wrong theme loaded" );
 	}
