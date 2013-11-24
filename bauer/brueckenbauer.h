@@ -55,7 +55,7 @@ public:
 	 * @param gr the ground to check.
 	 * @return true, if bridge ramp can be built here.
 	 */
-	static bool ist_ende_ok(spieler_t *sp, const grund_t *gr);
+	static bool ist_ende_ok(spieler_t *sp, const grund_t *gr, waytype_t wt );
 
 	/**
 	 * Build a bridge ramp.

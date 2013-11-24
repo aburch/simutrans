@@ -2480,7 +2480,7 @@ uint8 wkz_brueckenbau_t::is_valid_pos(  spieler_t *sp, const koord3d &pos, const
 
 	error = NULL;
 	grund_t *gr = welt->lookup(pos);
-	if (gr==NULL  || !brueckenbauer_t::ist_ende_ok(sp,gr) || !hang_t::ist_wegbar(gr->get_grund_hang()) ) {
+	if(  gr==NULL  || !brueckenbauer_t::ist_ende_ok(sp,gr,wt)  || !hang_t::ist_wegbar(gr->get_grund_hang()) ) {
 		return 0;
 	}
 

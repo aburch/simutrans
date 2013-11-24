@@ -1803,12 +1803,12 @@ bool grund_t::get_neighbour(grund_t *&to, waytype_t type, ribi_t::ribi ribi) con
 	// must be a single direction
 	assert( ribi_t::ist_einfach(ribi) );
 
-	if (type != invalid_wt   &&   (get_weg_ribi_unmasked(type) & ribi) == 0) {
+	if(  type != invalid_wt  &&   (get_weg_ribi_unmasked(type) & ribi) == 0  ) {
 		// no way on this tile in the given direction
 		return false;
 	}
 
-	const planquadrat_t * plan = welt->access(pos.get_2d() + koord(ribi) );
+	const planquadrat_t *plan = welt->access(pos.get_2d() + koord(ribi) );
 	if(!plan) {
 		return false;
 	}
