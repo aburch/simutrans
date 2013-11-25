@@ -529,7 +529,6 @@ void brueckenbauer_t::baue_bruecke(spieler_t *sp, koord3d pos, koord3d end, koor
 	if(  need_auffahrt  ) {
 		// not ending at a bridge
 		baue_auffahrt(sp, end, ribi_typ(-zv), gr->get_grund_hang()?0:hang_typ(-zv)*(pos.z-end.z), besch);
-//		connect_to( welt, sp, gr, ribi, besch->get_waytpe() );
 	}
 	else {
 		// ending on a slope/elevated way
@@ -556,12 +555,6 @@ void brueckenbauer_t::baue_bruecke(spieler_t *sp, koord3d pos, koord3d end, koor
 			lt->calc_neighbourhood();
 		}
 	}
-}
-
-
-void connect_to( karte_t *welt, spieler_t *sp, grund_t *end_gr, ribi_t::ribi add_dir, waytype_t wt )
-{
-//	grund_t *to;
 }
 
 
