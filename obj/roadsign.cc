@@ -103,16 +103,19 @@ roadsign_t::roadsign_t(spieler_t *sp, koord3d pos, ribi_t::ribi dir, const roads
 
 roadsign_t::~roadsign_t()
 {
-	if(  besch  &&  (besch->is_single_way()  ||  besch->is_signal_type())  ) {
+	if(  besch  ) {
 		const grund_t *gr = welt->lookup(get_pos());
 		if(gr) {
 			weg_t *weg = gr->get_weg(besch->get_wtyp()!=tram_wt ? besch->get_wtyp() : track_wt);
 			if(weg) {
-				// Weg wieder freigeben, wenn das Signal nicht mehr da ist.
-				weg->set_ribi_maske(ribi_t::keine);
+				if (besch->is_single_way()  ||  besch->is_signal_type()) {
+					// signal removed, remove direction mask
+					weg->set_ribi_maske(ribi_t::keine);
+				}
+				weg->clear_sign_flag();
 			}
 			else {
-				dbg->error("roadsign_t::~roadsign_t()","roadsign_t %p was deleted but ground was not a road!");
+				dbg->error("roadsign_t::~roadsign_t()","roadsign_t %p was deleted but ground has no way of type %d!", besch->get_wtyp() );
 			}
 		}
 	}

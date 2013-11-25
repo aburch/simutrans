@@ -563,14 +563,12 @@ void spieler_t::ai_bankrupt()
 						continue;
 					}
 				}
-				bool count_signs = false;
 				for (size_t i = gr->get_top(); i-- != 0;) {
 					obj_t *obj = gr->obj_bei(i);
 					if(obj->get_besitzer()==this) {
 						switch(obj->get_typ()) {
 							case obj_t::roadsign:
 							case obj_t::signal:
-								count_signs = true;
 							case obj_t::airdepot:
 							case obj_t::bahndepot:
 							case obj_t::monoraildepot:
@@ -625,12 +623,6 @@ void spieler_t::ai_bankrupt()
 							default:
 								obj->set_besitzer( welt->get_spieler(1) );
 						}
-					}
-				}
-				if (count_signs  &&  gr->hat_wege()) {
-					gr->get_weg_nr(0)->count_sign();
-					if (gr->has_two_ways()) {
-						gr->get_weg_nr(1)->count_sign();
 					}
 				}
 				// remove empty tiles (elevated ways)

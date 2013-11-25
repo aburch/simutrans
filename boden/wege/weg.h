@@ -308,6 +308,12 @@ public:
 	// this is needed during a change from crossing to tram track
 	void clear_crossing() { flags &= ~HAS_CROSSING; }
 
+	/**
+	 * Clear the has-sign flag when roadsign or signal got deleted.
+	 * As there is only one of signal or roadsign on the way we can safely clear both flags.
+	 */
+	void clear_sign_flag() { flags &= ~(HAS_SIGN | HAS_SIGNAL); }
+
 	inline void set_bild( image_id b ) { bild = b; }
 	image_id get_bild() const {return bild;}
 

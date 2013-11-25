@@ -1899,8 +1899,6 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 		ribi_t::ribi add=(weg->get_ribi_unmasked()&rem);
 		sint32 costs = 0;
 
-		bool signs_deleted = false;
-
 		for(  sint16 i=get_top();  i>=0;  i--  ) {
 			// we need to delete backwards, since we might miss things otherwise
 			if(  i>=get_top()  ) {
@@ -1917,14 +1915,12 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 				if (sign->get_besch()->get_wtyp() == wt && (sign->get_dir() & ~add) != 0) {
 					costs -= sign->get_besch()->get_preis();
 					delete sign;
-					signs_deleted = true;
 				}
 			} else if (signal_t* const signal = obj_cast<signal_t>(obj)) {
-				// singal: not on crossings => remove all
+				// signal: not on crossings => remove all
 				if (signal->get_besch()->get_wtyp() == wt) {
 					costs -= signal->get_besch()->get_preis();
 					delete signal;
-					signs_deleted = true;
 				}
 			} else if (wayobj_t* const wayobj = obj_cast<wayobj_t>(obj)) {
 				// wayobj: check dir
@@ -1992,9 +1988,6 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 DBG_MESSAGE("wkz_wayremover()","change remaining way to ribi %d",add);
 			// something will remain, we just change ribis
 			weg->set_ribi(add);
-			if (signs_deleted) {
-				weg->count_sign();
-			}
 			calc_bild();
 		}
 		// we have to pay?
