@@ -4336,6 +4336,11 @@ void wkz_roadsign_t::mark_tiles( spieler_t *sp, const koord3d &start, const koor
 			rs = gr->find<roadsign_t>();
 		}
 
+		if (rs  &&  rs->get_waytype() != besch->get_waytype()) {
+			// do not delete signs from other ways
+			continue;
+		}
+
 		// check owner .. other signals...
 		bool straight = (i == 0)  ||  (i == route.get_count()-1)  ||  ribi_t::ist_gerade(ribi_typ(route.position_bei(i-1), route.position_bei(i+1)));
 		next_signal += straight ? 2 : 1;
