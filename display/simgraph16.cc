@@ -2361,7 +2361,7 @@ void display_img_aligned( const unsigned n, scr_rect area, int align, const int 
 	if(  n < anz_images  ) {
 		scr_coord_val x,y;
 
-		// either the image is not touced or moved to middle or right of the rect
+		// align the image horizontally
 		x = area.x;
 		if(  align & ALIGN_CENTER_H  ) {
 			x -= images[n].x;
@@ -2371,7 +2371,7 @@ void display_img_aligned( const unsigned n, scr_rect area, int align, const int 
 			x = area.get_right() - images[n].x - images[n].w;
 		}
 
-		// either the image is not touced or moved to middle or bottom of the rect
+		// align the image vertically
 		y = area.y;
 		if(  align & ALIGN_CENTER_V  ) {
 			y -= images[n].y;
