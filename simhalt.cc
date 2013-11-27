@@ -711,12 +711,12 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 			// find prime that does not divide count
 			uint32 offset = 1;
 			for(uint8 i=0; i<lengthof(some_primes); i++) {
-				if (count % some_primes[i]==0) {
+				if (count % some_primes[i]!=0) {
 					offset = some_primes[i];
 					break;
 				}
 			}
-			// as count % offset == 0 we are guaranteed to test all street names
+			// as count % offset != 0 we are guaranteed to test all street names
 			for(uint32 i=0; i<count; i++) {
 				buf.clear();
 				if (cbuffer_t::check_format_strings("%s %s", street_names[idx])) {

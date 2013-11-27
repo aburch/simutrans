@@ -1015,12 +1015,12 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 	// find prime that does not divide count
 	uint32 offset = 1;
 	for(uint8 i=0; i<lengthof(some_primes); i++) {
-		if (count % some_primes[i]==0) {
+		if (count % some_primes[i]!=0) {
 			offset = some_primes[i];
 			break;
 		}
 	}
-	// as count % offset == 0 we are guaranteed to test all city names
+	// as count % offset != 0 we are guaranteed to test all city names
 	for(uint32 i=0; i<count; i++) {
 		char const* const cand = city_names[idx];
 		if (!name_used(staedte, cand)) {
