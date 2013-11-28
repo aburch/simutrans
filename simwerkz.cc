@@ -2480,7 +2480,7 @@ uint8 wkz_brueckenbau_t::is_valid_pos(  spieler_t *sp, const koord3d &pos, const
 
 	error = NULL;
 	grund_t *gr = welt->lookup(pos);
-	if(  gr==NULL  || !brueckenbauer_t::ist_ende_ok(sp,gr,wt)  || !hang_t::ist_wegbar(gr->get_grund_hang()) ) {
+	if(  gr==NULL  ||  !hang_t::ist_wegbar(gr->get_grund_hang())  ||  (  !is_first_click()  &&  !brueckenbauer_t::ist_ende_ok(sp,gr,wt,ribi_typ(pos-start))  )  ) {
 		return 0;
 	}
 
@@ -2488,7 +2488,7 @@ uint8 wkz_brueckenbau_t::is_valid_pos(  spieler_t *sp, const koord3d &pos, const
 		return 0;
 	}
 
-	if (is_first_click()) {
+	if(  is_first_click()  ) {
 		// first click
 		if (!gr->ist_karten_boden()) {
 			return 0;
@@ -2531,7 +2531,7 @@ uint8 wkz_brueckenbau_t::is_valid_pos(  spieler_t *sp, const koord3d &pos, const
 		}
 		// ribi from slope
 		rw |= ribi_typ(gr->get_grund_hang());
-		if (rw!=ribi_t::keine && !ribi_t::ist_einfach(rw)) {
+		if(  rw!=ribi_t::keine && !ribi_t::ist_einfach(rw)  ) {
 			return 0;
 		}
 		// determine possible directions

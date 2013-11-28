@@ -135,39 +135,62 @@ const char *check_tile( const grund_t *gr, const spieler_t *sp, waytype_t wt, ri
 	if(  gr->find<senke_t>()!=NULL  ||  gr->find<pumpe_t>()!=NULL  ) {
 		return "A bridge must start on a way!";
 	}
+
+	if(  !hang_t::ist_wegbar(gr->get_grund_hang())  ) {
+		return "Bruecke muss an\neinfachem\nHang beginnen!\n";
+	}
+
 	// we can build a ramp when there is one (or with tram two) way in our direction and no stations/depot etc.
 	if(  weg_t *w = gr->get_weg_nr(0)  ) {
-		// same waytype, same direction, no stop or depot or any other stuff */
-		if(  w->get_waytype() == wt  &&  (  (is_max_height  &&  !gr->ist_uebergang())  ||  w->get_ribi_unmasked() == check_ribi)  &&  !gr->is_halt()  &&  !gr->get_depot()  ) {
-			if(  !spieler_t::check_owner(w->get_besitzer(),sp)  ) {
-				// not our way
-				return "Das Feld gehoert\neinem anderen Spieler\n";
-			}
-			// ok too
-			return NULL;
+
+		if(  !gr->is_halt()  &&  !gr->get_depot()  &&  gr->get_leitung()  ) {
+			// something in the way
+			return "Tile not empty.";
 		}
+
+		if(  !spieler_t::check_owner(w->get_besitzer(),sp)  ) {
+			// not our way
+			return "Das Feld gehoert\neinem anderen Spieler\n";
+		}
+
+		// now check for direction
+		ribi_t::ribi ribi = w->get_ribi_unmasked();
 		if(  weg_t *w2 = gr->get_weg_nr(1)  ) {
 			if(  !spieler_t::check_owner(w2->get_besitzer(),sp)  ) {
 				// not our way
 				return "Das Feld gehoert\neinem anderen Spieler\n";
 			}
+			if(  !gr->ist_uebergang()  ) {
+				// If road and tram, we have to check both ribis.
+				ribi = gr->get_weg_nr(0)->get_ribi_unmasked() | gr->get_weg_nr(1)->get_ribi_unmasked();
+			}
+			else {
+				// else only the straight ones
+				ribi = gr->get_weg_ribi_unmasked(wt);
+			}
 			// same waytype, same direction, no stop or depot or any other stuff */
-			if(  w2->get_waytype() == wt  &&  ((is_max_height  &&  !gr->ist_uebergang())  ||  w2->get_ribi_unmasked() == check_ribi)  &&  !gr->is_halt()  &&  !gr->get_depot()  ) {
+			if(  w2->get_waytype() == wt  &&  ribi == check_ribi  ) {
 				// ok too
 				return NULL;
 			}
-			// two non-matching ways
-			return "A bridge must start on a way!";
 		}
-		else {
-			if(  wt == road_wt  &&  w->get_besch()->get_waytype() == tram_wt  ) {
+
+		if(  w->get_waytype() != wt  ) {
+			// now check for perpendicular and crossing
+			if(  (ribi_t::doppelt(ribi) ^ ribi_t::doppelt(check_ribi) ) == ribi_t::alle  &&  crossing_logic_t::get_crossing(wt, w->get_waytype(), 0, 0, 0)  ) {
 				return NULL;
 			}
-			/* we are not building crossing here => finish */
-
-			// one non-matching way
 			return "A bridge must start on a way!";
 		}
+
+		// same waytype, same direction, no stop or depot or any other stuff */
+		if(  w->get_waytype() == wt  &&  ribi == check_ribi  ) {
+			// ok too
+			return NULL;
+		}
+
+		// one two non-matching ways where I cannot built a crossing
+		return "A bridge must start on a way!";
 	}
 	else if(  wt == powerline_wt  &&  gr->get_leitung()  ) {
 		if(  spieler_t::check_owner(gr->get_leitung()->get_besitzer(),sp)  ) {
@@ -335,15 +358,13 @@ koord3d brueckenbauer_t::finde_ende(spieler_t *sp, koord3d pos, const koord zv, 
 }
 
 
-bool brueckenbauer_t::ist_ende_ok(spieler_t *sp, const grund_t *gr, waytype_t wt )
+bool brueckenbauer_t::ist_ende_ok(spieler_t *sp, const grund_t *gr, waytype_t wt, ribi_t::ribi r )
 {
+	// bridges can only start or end above ground
 	if(  gr->get_typ()!=grund_t::boden  &&  gr->get_typ()!=grund_t::monorailboden  ) {
 		return false;
 	}
-	if(  !hang_t::ist_wegbar( gr->get_grund_hang() )  ) {
-		return false;
-	}
-	const char *error_msg = check_tile( gr, sp, wt, 0, true );
+	const char *error_msg = check_tile( gr, sp, wt, r, true );
 	return (error_msg == NULL  ||  *error_msg == 0  );
 }
 
@@ -363,8 +384,8 @@ const char *brueckenbauer_t::baue( spieler_t *sp, koord pos, const bruecke_besch
 	const weg_t *weg = gr->get_weg(besch->get_waytype());
 	leitung_t *lt = gr->find<leitung_t>();
 
-	if(besch->get_waytype()==powerline_wt) {
-		if (gr->hat_wege()) {
+	if(  besch->get_waytype()==powerline_wt  ) {
+		if(  gr->hat_wege()  ) {
 			return "Tile not empty.";
 		}
 		if(lt) {
@@ -372,34 +393,21 @@ const char *brueckenbauer_t::baue( spieler_t *sp, koord pos, const bruecke_besch
 		}
 	}
 	else {
-		if (lt) {
+		if(  lt  ) {
 			return "Tile not empty.";
 		}
-		if(  gr->has_two_ways()  &&  !gr->ist_uebergang()  ) {
-			// If road and tram, we have to check both ribis.
-			ribi = gr->get_weg_nr(0)->get_ribi_unmasked() | gr->get_weg_nr(1)->get_ribi_unmasked();
-
-			if(  besch->get_waytype()  !=  road_wt  ) {
-				// only road bridges allowed here.
-				ribi = 0;
-			}
-		}
-		else if (weg) {
+		if(  weg  ) {
 			ribi = weg->get_ribi_unmasked();
 		}
 	}
 
-	if((!lt && !weg) || !ist_ende_ok(sp, gr,besch->get_waytype())) {
-		DBG_MESSAGE("brueckenbauer_t::baue()", "no way %x found",besch->get_waytype());
+	if(  (!lt  &&  !weg)  ||  !ist_ende_ok(sp, gr,besch->get_waytype(),ribi)  ) {
+		DBG_MESSAGE( "brueckenbauer_t::baue()", "no way %x found", besch->get_waytype() );
 		return "A bridge must start on a way!";
 	}
 
-	if(gr->kann_alle_obj_entfernen(sp)) {
+	if(  gr->kann_alle_obj_entfernen(sp)  ) {
 		return "Tile not empty.";
-	}
-
-	if(!hang_t::ist_wegbar(gr->get_grund_hang())) {
-		return "Bruecke muss an\neinfachem\nHang beginnen!\n";
 	}
 
 	if(gr->get_grund_hang() == hang_t::flach) {

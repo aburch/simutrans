@@ -1007,10 +1007,9 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 	weighted_vector_tpl<stadt_t*> const& staedte = welt->get_staedte();
 
 	const vector_tpl<char*>& city_names = translator::get_city_name_list();
-	// make sure we do only one random call regardless of how many names are available (to avoid desyncs in network games)
-	// random index
-	const uint32 count = city_names.get_count();
-	if(  count  ) {
+
+	// make sure we do only ONE random call regardless of how many names are available (to avoid desyncs in network games)
+	if(  const uint32 count = city_names.get_count()  ) {
 		uint32 idx = simrand( count );
 		static const uint32 some_primes[] = { 19, 31, 109, 199, 409, 571, 631, 829, 1489, 1999, 2341, 2971, 3529, 4621, 4789, 7039, 7669, 8779, 9721 };
 		// find prime that does not divide count
@@ -1032,7 +1031,7 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 		}
 	}
 	else {
-		/*to guarantee one random call*/
+		/* the one random call to avoid desyncs */
 		simrand(5);
 	}
 	DBG_MESSAGE("stadt_t::stadt_t()", "founding new city named '%s'", n);
