@@ -1010,24 +1010,30 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 	// make sure we do only one random call regardless of how many names are available (to avoid desyncs in network games)
 	// random index
 	const uint32 count = city_names.get_count();
-	uint32 idx = simrand(count ? count : 5 /*to guarantee one random call*/);
-	static const uint32 some_primes[] = { 19, 31, 109, 199, 409, 571, 631, 829, 1489, 1999, 2341, 2971, 3529, 4621, 4789, 7039, 7669, 8779, 9721 };
-	// find prime that does not divide count
-	uint32 offset = 1;
-	for(uint8 i=0; i<lengthof(some_primes); i++) {
-		if (count % some_primes[i]!=0) {
-			offset = some_primes[i];
-			break;
+	if(  count  ) {
+		uint32 idx = simrand( count );
+		static const uint32 some_primes[] = { 19, 31, 109, 199, 409, 571, 631, 829, 1489, 1999, 2341, 2971, 3529, 4621, 4789, 7039, 7669, 8779, 9721 };
+		// find prime that does not divide count
+		uint32 offset = 1;
+		for(  uint8 i=0;  i < lengthof(some_primes);  i++  ) {
+			if(  count % some_primes[i] != 0  ) {
+				offset = some_primes[i];
+				break;
+			}
+		}
+		// as count % offset != 0 we are guaranteed to test all city names
+		for(uint32 i=0; i<count; i++) {
+			char const* const cand = city_names[idx];
+			if(  !name_used(staedte, cand)  ) {
+				n = cand;
+				break;
+			}
+			idx = (idx+offset) % count;
 		}
 	}
-	// as count % offset != 0 we are guaranteed to test all city names
-	for(uint32 i=0; i<count; i++) {
-		char const* const cand = city_names[idx];
-		if (!name_used(staedte, cand)) {
-			n = cand;
-			break;
-		}
-		idx += offset;
+	else {
+		/*to guarantee one random call*/
+		simrand(5);
 	}
 	DBG_MESSAGE("stadt_t::stadt_t()", "founding new city named '%s'", n);
 	name = n;
