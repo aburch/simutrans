@@ -317,7 +317,7 @@ bool stadt_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 {
 	static char param[16];
 	if(  komp==&allow_growth  ) {
-		sprintf(param,"g%hi,%hi,%hi", stadt->get_pos().x, stadt->get_pos().y, !stadt->get_citygrowth() );
+		sprintf(param,"g%hi,%hi,%hi", stadt->get_pos().x, stadt->get_pos().y, (short)(!stadt->get_citygrowth()) );
 		werkzeug_t::simple_tool[WKZ_CHANGE_CITY_TOOL]->set_default_param( param );
 		welt->set_werkzeug( werkzeug_t::simple_tool[WKZ_CHANGE_CITY_TOOL], welt->get_spieler(1));
 		return true;
