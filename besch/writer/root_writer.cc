@@ -286,12 +286,20 @@ void root_writer_t::copy(const char* name, int argc, char* argv[])
 		name = find.complete(name, "pak").c_str();
 		outfp = fopen(name, "wb");
 	}
-
 	if (!outfp) {
 		dbg->fatal( "Merge", "Cannot open destination file %s", name);
 		exit(3);
 	}
-	printf("writing file %s\n", name);
+	fclose(outfp);
+	if (remove(name) != 0) {
+		dbg->warning("Merge", "Could not delete %s");
+	}
+	// create temporary file
+	std::string tmpfile_name = name;
+	tmpfile_name += ".tmp";
+	outfp = fopen(tmpfile_name.c_str(), "wb");
+
+	printf("writing to temporary file %s\n", tmpfile_name.c_str());
 	write_header(outfp);
 
 	long start = ftell(outfp);	// remember position for adding children
@@ -328,6 +336,10 @@ void root_writer_t::copy(const char* name, int argc, char* argv[])
 	this->write_obj_node_info_t(outfp, root);
 
 	fclose(outfp);
+
+	printf("renaming temporary file %s to %s\n", tmpfile_name.c_str(), name);
+
+	rename(tmpfile_name.c_str(), name);
 }
 
 

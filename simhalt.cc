@@ -703,31 +703,35 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 		// if there are street names, use them
 		if(  inside  ||  suburb  ) {
 			const vector_tpl<char*>& street_names( translator::get_street_name_list() );
-			// make sure we do only one random call regardless of how many names are available (to avoid desyncs in network games)
-			// random index
-			const uint32 count = street_names.get_count();
-			uint32 idx = simrand(count ? count : 5 /*to guarantee one random call*/);
-			static const uint32 some_primes[] = { 19, 31, 109, 199, 409, 571, 631, 829, 1489, 1999, 2341, 2971, 3529, 4621, 4789, 7039, 7669, 8779, 9721 };
-			// find prime that does not divide count
-			uint32 offset = 1;
-			for(uint8 i=0; i<lengthof(some_primes); i++) {
-				if (count % some_primes[i]!=0) {
-					offset = some_primes[i];
-					break;
-				}
-			}
-			// as count % offset != 0 we are guaranteed to test all street names
-			for(uint32 i=0; i<count; i++) {
-				buf.clear();
-				if (cbuffer_t::check_format_strings("%s %s", street_names[idx])) {
-					buf.printf( street_names[idx], city_name, stop );
-					if(  !all_names.get(buf).is_bound()  ) {
-						return strdup(buf);
+			// make sure we do only ONE random call regardless of how many names are available (to avoid desyncs in network games)
+			if(  const uint32 count = street_names.get_count()  ) {
+				uint32 idx = simrand( count );
+				static const uint32 some_primes[] = { 19, 31, 109, 199, 409, 571, 631, 829, 1489, 1999, 2341, 2971, 3529, 4621, 4789, 7039, 7669, 8779, 9721 };
+				// find prime that does not divide count
+				uint32 offset = 1;
+				for(uint8 i=0; i<lengthof(some_primes); i++) {
+					if (count % some_primes[i]!=0) {
+						offset = some_primes[i];
+						break;
 					}
 				}
-				idx += offset;
+				// as count % offset != 0 we are guaranteed to test all street names
+				for(uint32 i=0; i<count; i++) {
+					buf.clear();
+					if (cbuffer_t::check_format_strings("%s %s", street_names[idx])) {
+						buf.printf( street_names[idx], city_name, stop );
+						if(  !all_names.get(buf).is_bound()  ) {
+							return strdup(buf);
+						}
+					}
+					idx = (idx+offset) % count;
+				}
+				buf.clear();
 			}
-			buf.clear();
+			else {
+				/* the one random call to avoid desyncs */
+				simrand(5);
+			}
 		}
 
 		// still all names taken => then try the normal naming scheme ...
