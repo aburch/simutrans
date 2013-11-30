@@ -21,7 +21,7 @@ http://alleg.sourceforge.net/index.de.html
 
 To make life easier, you can follow the instructions to compile OpenTTD:
 http://wiki.openttd.org/Category:Compiling_OpenTTD
-A system set up for OpenTTD will also compile simutrans (execpt for
+A system set up for OpenTTD will also compile simutrans (except for
 bzlib2, see below sections).
 
 If you are on a MS Windows machine, download either MS VC Express or
