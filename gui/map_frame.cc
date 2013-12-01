@@ -440,7 +440,7 @@ bool map_frame_t::infowin_event(const event_t *ev)
 		is_cursor_hidden = false;
 		return true;
 	}
-	else if(  IS_RIGHTDRAG(ev)  &&  reliefkarte_t::get_karte()->getroffen(ev2.mx,ev2.my)  &&  reliefkarte_t::get_karte()->getroffen(ev2.cx,ev2.cy)  ) {
+	else if(  IS_RIGHTDRAG(ev)  &&  (reliefkarte_t::get_karte()->getroffen(ev2.mx,ev2.my)  ||  reliefkarte_t::get_karte()->getroffen(ev2.cx,ev2.cy))  ) {
 		int x = scrolly.get_scroll_x();
 		int y = scrolly.get_scroll_y();
 		const int scroll_direction = ( env_t::scroll_multi>0 ? 1 : -1 );
