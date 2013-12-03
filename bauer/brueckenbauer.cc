@@ -129,6 +129,15 @@ void brueckenbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, s
 }
 
 
+
+inline bool ribi_check( ribi_t::ribi ribi, ribi_t::ribi check_ribi )
+{
+	// either check for single (if nothing given) otherwise ensure exact match
+	return check_ribi ? ribi == check_ribi : ribi_t::ist_einfach( ribi );
+}
+
+
+// if check_ribi==0, then any single tile is ok
 const char *check_tile( const grund_t *gr, const spieler_t *sp, waytype_t wt, ribi_t::ribi check_ribi, bool is_max_height )
 {
 	// not overbuilt transformers
@@ -140,10 +149,15 @@ const char *check_tile( const grund_t *gr, const spieler_t *sp, waytype_t wt, ri
 		return "Bruecke muss an\neinfachem\nHang beginnen!\n";
 	}
 
+	if(  gr->is_halt()  ||  gr->get_depot()  ) {
+		// something in the way
+		return "Tile not empty.";
+	}
+
 	// we can build a ramp when there is one (or with tram two) way in our direction and no stations/depot etc.
 	if(  weg_t *w = gr->get_weg_nr(0)  ) {
 
-		if(  !gr->is_halt()  &&  !gr->get_depot()  &&  gr->get_leitung()  ) {
+		if(  gr->get_leitung()  ) {
 			// something in the way
 			return "Tile not empty.";
 		}
@@ -169,7 +183,7 @@ const char *check_tile( const grund_t *gr, const spieler_t *sp, waytype_t wt, ri
 				ribi = gr->get_weg_ribi_unmasked(wt);
 			}
 			// same waytype, same direction, no stop or depot or any other stuff */
-			if(  w2->get_waytype() == wt  &&  ribi == check_ribi  ) {
+			if(  w2->get_waytype() == wt  &&  ribi_check( ribi, check_ribi )  ) {
 				// ok too
 				return NULL;
 			}
@@ -184,7 +198,7 @@ const char *check_tile( const grund_t *gr, const spieler_t *sp, waytype_t wt, ri
 		}
 
 		// same waytype, same direction, no stop or depot or any other stuff */
-		if(  w->get_waytype() == wt  &&  ribi == check_ribi  ) {
+		if(  w->get_waytype() == wt  &&  ribi_check( ribi, check_ribi )  ) {
 			// ok too
 			return NULL;
 		}
@@ -192,10 +206,12 @@ const char *check_tile( const grund_t *gr, const spieler_t *sp, waytype_t wt, ri
 		// one two non-matching ways where I cannot built a crossing
 		return "A bridge must start on a way!";
 	}
-	else if(  wt == powerline_wt  &&  gr->get_leitung()  ) {
-		if(  spieler_t::check_owner(gr->get_leitung()->get_besitzer(),sp)  ) {
-			// matching powerline
-			return NULL;
+	else if(  wt == powerline_wt  ) {
+		if(  leitung_t *lt = gr->get_leitung()  ) {
+			if(  spieler_t::check_owner(lt->get_besitzer(),sp)  &&  ribi_check( lt->get_ribi(), check_ribi )  ) {
+				// matching powerline
+				return NULL;
+			}
 		}
 	}
 	// somethign here which we cannot remove => fail too
@@ -218,7 +234,7 @@ koord3d brueckenbauer_t::finde_ende(spieler_t *sp, koord3d pos, const koord zv, 
 	// double height -> height is 2
 	const hang_t::typ slope = gr2->get_grund_hang();
 	const sint8 start_height = gr2->get_hoehe() + hang_t::height(slope);
-	const sint8 min_height = start_height - (1+besch->has_double_ramp());
+	const sint8 min_height = start_height - (1+besch->has_double_ramp()) + (slope==0);
 	const sint8 max_height = start_height + (slope ? 0 : (1+besch->has_double_ramp()));
 
 	if(  hang_t::height(slope)==2  &&  !besch->has_double_start()  ) {
@@ -289,6 +305,10 @@ koord3d brueckenbauer_t::finde_ende(spieler_t *sp, koord3d pos, const koord zv, 
 						return gr2->get_pos();
 					}
 				}
+			}
+			else if(  gr2->get_typ() != grund_t::boden  ) {
+				// not through bridges
+				break;
 			}
 		}
 

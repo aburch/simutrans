@@ -2480,7 +2480,7 @@ uint8 wkz_brueckenbau_t::is_valid_pos(  spieler_t *sp, const koord3d &pos, const
 
 	error = NULL;
 	grund_t *gr = welt->lookup(pos);
-	if(  gr==NULL  ||  !hang_t::ist_wegbar(gr->get_grund_hang())  ||  (  !is_first_click()  &&  !brueckenbauer_t::ist_ende_ok(sp,gr,wt,ribi_typ(pos-start))  )  ) {
+	if(  gr==NULL  ||  !hang_t::ist_wegbar(gr->get_grund_hang())  ||  !brueckenbauer_t::ist_ende_ok( sp, gr, wt, (is_first_click() ? 0 : ribi_typ(pos-start)) )  ) {
 		return 0;
 	}
 
@@ -2490,9 +2490,6 @@ uint8 wkz_brueckenbau_t::is_valid_pos(  spieler_t *sp, const koord3d &pos, const
 
 	if(  is_first_click()  ) {
 		// first click
-		if (!gr->ist_karten_boden()) {
-			return 0;
-		}
 		ribi_t::ribi rw = ribi_t::keine;
 		if (wt==powerline_wt) {
 			if (gr->hat_wege()) {
