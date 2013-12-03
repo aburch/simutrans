@@ -59,6 +59,7 @@ planquadrat_t::~planquadrat_t()
 		while(ground_size>0) {
 			ground_size --;
 			delete data.some[ground_size];
+			data.some[ground_size] = 0;
 		}
 		delete [] data.some;
 	}

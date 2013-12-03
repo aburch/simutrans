@@ -505,6 +505,10 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 	const koord from_pos=from->get_pos().get_2d();
 	const koord to_pos=to->get_pos().get_2d();
 	const koord zv=to_pos-from_pos;
+	// these cannot be properly destructed
+	static monorailboden_t *to_dummy = new monorailboden_t(koord3d::invalid, hang_t::flach);
+	static monorailboden_t *from_dummy = new monorailboden_t(koord3d::invalid, hang_t::flach);
+
 
 	if(bautyp==luft  &&  (from->get_grund_hang()+to->get_grund_hang()!=0  ||  (from->hat_wege()  &&  from->hat_weg(air_wt)==0)  ||  (to->hat_wege()  &&  to->hat_weg(air_wt)==0))) {
 		// absolutely no slopes for runways, neither other ways
@@ -583,10 +587,9 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		}
 		else {
 			// simulate empty elevated tile
-			static monorailboden_t to_dummy(koord3d::invalid, hang_t::flach);
-			to_dummy.set_pos(pos);
-			to_dummy.set_grund_hang(to->get_grund_hang());
-			to = &to_dummy;
+			to_dummy->set_pos(pos);
+			to_dummy->set_grund_hang(to->get_grund_hang());
+			to = to_dummy;
 		}
 
 		pos = from->get_pos() + koord3d( 0, 0, env_t::pak_height_conversion_factor );
@@ -596,10 +599,9 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		}
 		else {
 			// simulate empty elevated tile
-			static monorailboden_t from_dummy(koord3d::invalid, hang_t::flach);
-			from_dummy.set_pos(pos);
-			from_dummy.set_grund_hang(from->get_grund_hang());
-			from = &from_dummy;
+			from_dummy->set_pos(pos);
+			from_dummy->set_grund_hang(from->get_grund_hang());
+			from = from_dummy;
 		}
 		// now 'from' and 'to' point to grounds at the right height
 	}
