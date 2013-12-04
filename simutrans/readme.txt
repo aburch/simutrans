@@ -27,7 +27,7 @@ config/simuconf.tab. Next is pak/config/simuconf.tab (or whatever
 pak-path your specified. Finally, simutrans/simuconf.tab in your home
 directory ("My Documents" under Windows resp. "~" under Unix).
 
-It is a textfile and can be edited with a text editor. Each entry has
+It is a text file and can be edited with a text editor. Each entry has
 a comment explaining what the entry is good for and what values are
 allowed for this entry.
 
@@ -36,7 +36,7 @@ cityrules.tab
 -------------
 
 cityrules.tab is either located pak/config/cityrules.tab or in
-simutrans/cityrules.tab in your user directory. It is a textfile and
+simutrans/cityrules.tab in your user directory. It is a text file and
 can be edited with a text editor.
 
 cityrules.tab contains the set of rules which determines the extension
@@ -166,14 +166,14 @@ simutrans -log 1
 This writes all messages which are output after the game switches to graphics
 mode to a file named "simu.log". This file might be helpful when reporting
 problems, you might consider to log a replay of the problem and attach the log file
-to your bug report at the simutrans forum. Pleasezip (compress) large log files before
+to your bug report at the simutrans forum. Please zip (compress) large log files before
 sending them. Don't forget your explanation of the problem is much more important
 than the log file when reporting problems.
 
 The -debug switch turns on additional debug messages. The recommended
 combination is "-log 1 -debug 3"
 
-Behind -debug you can give a debuglevel. 1 only errors [default], 2 logs also
+Behind -debug you can give a debug level. 1 only errors [default], 2 logs also
 warnings, 3 all messages and 4 will generate a division by zero on a fatal
 error to allow for a backtrace.
 
@@ -202,9 +202,9 @@ It is recommended to start server-games without addons with the pak
 set without modifications.
 
 If you want to announce your server, you need to supply a valid dns name
-or IPv4 or IPv6 [] number via the commandline option liek
+or IPv4 or IPv6 [] number via the commandline option like
 
-"-server_dns mysever.homunix.org:13355"
+"-server_dns myserver.homunix.org:13355"
 
 Similarly you can set server name via -server_name "Testserver". More server related
 settings can be specified in simuconf.tab.
