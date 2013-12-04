@@ -1122,7 +1122,7 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 	if(  tunnel_besch  &&  ribi_typ(from->get_grund_hang()) == ribi_typ(zv)  ) {
 		// uphill hang ... may be tunnel?
 		const long cost_difference=besch->get_wartung()>0 ? (tunnel_besch->get_wartung()*4l+3l)/besch->get_wartung() : 16;
-		koord3d end = tunnelbauer_t::finde_ende( sp, from->get_pos(), zv, besch->get_wtyp());
+		koord3d end = tunnelbauer_t::finde_ende( sp, from->get_pos(), zv, tunnel_besch);
 		if(  end != koord3d::invalid  &&  !ziel.is_contained(end)  ) {
 			uint32 length = koord_distance(from->get_pos(), end);
 			next_gr.append(next_gr_t(welt->lookup(end), length * cost_difference, build_straight | build_tunnel_bridge ));

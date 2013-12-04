@@ -137,10 +137,15 @@ void tunnelbauer_t::fill_menu(werkzeug_waehler_t* wzw, const waytype_t wtyp, sin
 /* now construction stuff */
 
 
-koord3d tunnelbauer_t::finde_ende(spieler_t *sp, koord3d pos, koord zv, waytype_t wegtyp, const char** msg)
+koord3d tunnelbauer_t::finde_ende(spieler_t *sp, koord3d pos, koord zv, const tunnel_besch_t *besch, bool full_tunnel, const char** msg)
 {
 	const grund_t *gr;
 	leitung_t *lt;
+	waytype_t wegtyp = besch->get_waytype();
+	// use the is_allowed_step routine of wegbauer_t, needs an instance
+	wegbauer_t bauigel(sp);
+	bauigel.route_fuer( wegbauer_t::tunnel_flag | (wegbauer_t::bautyp_t)wegtyp, wegbauer_t::weg_search( wegtyp, 1, 0, weg_t::type_flat ), besch);
+	long dummy;
 
 	while(true) {
 		pos = pos + zv;
@@ -161,8 +166,33 @@ koord3d tunnelbauer_t::finde_ende(spieler_t *sp, koord3d pos, koord zv, waytype_
 			return koord3d::invalid;
 		}
 
+		// next tile
 		gr = welt->lookup(pos);
+		if(  gr == NULL  ) {
+			// check for slope down ...
+			gr = welt->lookup(pos + koord3d(0,0,-1));
+			if(  gr  &&  gr->get_weg_hang() == hang_t::flach  ) {
+				// Don't care about _flat_ tunnels below.
+				gr = NULL;
+			}
+			if(  gr  &&  gr->get_vmove(ribi_typ(-zv))!=pos.z) {
+				// wrong slope
+				return koord3d::invalid;
+			}
+		}
+
 		if(gr) {
+			// if there is a tunnel try to connect
+			if(  gr->ist_tunnel() ) {
+				// fake tunnel tile
+				tunnelboden_t from(pos - zv, hang_t::flach);
+				if (bauigel.is_allowed_step(&from, gr, &dummy)) {
+					return pos;
+				}
+				else {
+					return koord3d::invalid;
+				}
+			}
 			const uint8 slope = gr->get_grund_hang();
 			const uint8 slope_height = env_t::pak_height_conversion_factor;
 			if(  gr->get_typ() != grund_t::boden  ||  slope != hang_typ(-zv) * slope_height  ||  gr->is_halt()  ||  ((wegtyp != powerline_wt) ? gr->get_leitung() != NULL : gr->hat_wege())  ) {
@@ -220,6 +250,10 @@ koord3d tunnelbauer_t::finde_ende(spieler_t *sp, koord3d pos, koord zv, waytype_
 			return koord3d::invalid;
 		}
 
+		// stop if we only want to check tile behind tunnel mouth
+		if (!full_tunnel) {
+			return pos;
+		}
 		// All free - keep looking
 	}
 }
@@ -272,21 +306,11 @@ const char *tunnelbauer_t::baue( spieler_t *sp, koord pos, const tunnel_besch_t 
 	}
 	zv = koord(slope);
 
-	// Search tunnel end
-	koord3d end = koord3d::invalid;
-	if(full_tunnel) {
-		const char *err = NULL;
-		end = finde_ende(sp, gr->get_pos(), zv, wegtyp, &err);
-		if (err) {
-			return err;
-		}
-	}
-	else {
-		end = gr->get_pos()+zv;
-		grund_t *gr_end = welt->lookup_kartenboden(pos+zv);
-		if (gr_end == NULL  ||  gr_end->get_hoehe()<=end.z) {
-			end = koord3d::invalid;
-		}
+	// Search tunnel end and check intermediate tiles
+	const char *err = NULL;
+	koord3d end = finde_ende(sp, gr->get_pos(), zv, besch, full_tunnel, &err);
+	if (err) {
+		return err;
 	}
 
 	if(!welt->is_within_limits(end.get_2d())) {
@@ -302,7 +326,7 @@ const char *tunnelbauer_t::baue( spieler_t *sp, koord pos, const tunnel_besch_t 
 		}
 	}
 
-	// Begging and end founds we can build
+	// Begin and end found, we can build
 	if(!baue_tunnel(sp, gr->get_pos(), end, zv, besch)) {
 		return "Ways not connected";
 	}
@@ -371,17 +395,30 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 		pos = pos + zv;
 	}
 
-	// if end is above ground construct an exit
-	if(welt->lookup_kartenboden(end.get_2d())->get_pos().z==end.z) {
-		baue_einfahrt(sp, pos, -zv, besch, weg_besch, cost);
-		// calc new back image for the ground
-		if (end!=start && grund_t::underground_mode) {
-			grund_t *gr = welt->lookup_kartenboden(pos.get_2d()-zv);
-			gr->calc_bild();
-			gr->set_flag(grund_t::dirty);
+	// if end is tunnel then connect
+	grund_t *gr_end = welt->lookup(pos);
+	if (gr_end) {
+		if (gr_end->ist_tunnel()) {
+			gr_end->weg_erweitern(besch->get_waytype(), ribi);
+		}
+		else if (gr_end->ist_karten_boden()) {
+			// if end is above ground construct an exit
+			baue_einfahrt(sp, pos, -zv, besch, weg_besch, cost);
+			gr_end = NULL; // invalid - replaced by tunnel ground
+			// calc new back image for the ground
+			if (end!=start && grund_t::underground_mode) {
+				grund_t *gr = welt->lookup_kartenboden(pos.get_2d()-zv);
+				gr->calc_bild();
+				gr->set_flag(grund_t::dirty);
+			}
+		}
+		else {
+			// good luck
+			assert(0);
 		}
 	}
 	else {
+		// construct end tunnel tile
 		tunnelboden_t *tunnel = new tunnelboden_t( pos, 0);
 		welt->access(pos.get_2d())->boden_hinzufuegen(tunnel);
 		if(wegtyp != powerline_wt) {

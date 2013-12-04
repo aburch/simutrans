@@ -36,7 +36,7 @@ private:
 	tunnelbauer_t() {} // private -> no instance please
 
 public:
-	static koord3d finde_ende(spieler_t *sp, koord3d pos, koord zv, waytype_t wegtyp, const char** msg=NULL);
+	static koord3d finde_ende(spieler_t *sp, koord3d pos, koord zv, const tunnel_besch_t *besch, bool full_tunnel=true, const char** msg=NULL);
 
 	static void register_besch(tunnel_besch_t *besch);
 
