@@ -1,6 +1,6 @@
 #include "api.h"
 
-/** @file api_desc.cc exports goods descriptors - *_besch_t. */
+/** @file api_obj_desc.cc exports goods descriptors - *_besch_t. */
 
 #include "api_obj_desc_base.h"
 #include "api_simple.h"
