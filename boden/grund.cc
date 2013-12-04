@@ -95,22 +95,24 @@ static inthashtable_tpl<uint32, char*> ground_texts;
 
 void grund_t::set_text(const char *text)
 {
+	if (text==NULL  &&  !get_flag(has_text)) {
+		// no text to delete
+		return;
+	}
 	const uint32 n = get_ground_text_key(pos,welt->get_size().y);
 	if(  text  ) {
 		char *new_text = strdup(text);
 		free(ground_texts.remove(n));
 		ground_texts.put(n, new_text);
 		set_flag(has_text);
-		set_flag(dirty);
-		welt->set_dirty();
 	}
 	else if(  get_flag(has_text)  ) {
 		char *txt=ground_texts.remove(n);
 		free(txt);
 		clear_flag(has_text);
-		set_flag(dirty);
-		welt->set_dirty();
 	}
+	set_flag(dirty);
+	welt->set_dirty();
 }
 
 
