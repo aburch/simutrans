@@ -3713,7 +3713,7 @@ void karte_t::sync_way_eyecandy_step(long delta_t)
 	}
 #else
 	static vector_tpl<sync_steppable *> sync_way_eyecandy_list_copy;
-	sync_way_eyecandy_list_copy.resize( (uint32) sync_way_eyecandy_list.get_count()*1.1 );
+	sync_way_eyecandy_list_copy.resize( (uint32) (sync_way_eyecandy_list.get_count()*1.1) );
 	FOR(vector_tpl<sync_steppable*>, const ss, sync_way_eyecandy_list) {
 		// if false, then remove
 		if(!ss->sync_step(delta_t)) {
@@ -4686,7 +4686,7 @@ uint8 karte_t::recalc_natural_slope( const koord k, sint8 &new_height ) const
 			}
 			switch(  natural_corners  ) {
 				case 1: {
-					corner_height[i] = median_height;
+					corner_height[i] = (sint8)median_height;
 					break;
 				}
 				case 2: {
