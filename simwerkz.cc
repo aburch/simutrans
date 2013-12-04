@@ -3314,7 +3314,11 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 					koord test_start = k-offset;
 
 					// find all surrounding tiles with a stop
-					// for following section of code arrays are arranged north = 0, east = 1, south = 2, west = 3
+					// for following section of code arrays are arranged such that
+					// 0 - facing north
+					// 1 - facing west
+					// 2 - facing south
+					// 3 - facing east
 					int neighbour_halts[4] = { 0, 0, 0, 0 };
 					int best_halts[4] = { 0, 0, 0, 0 };
 
