@@ -676,8 +676,10 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 			if(!ok) {
 				return false;
 			}
-			// check for end/start of bridge
-			if(to->get_weg_hang()!=to->get_grund_hang()  &&  (str==NULL  ||  !ribi_t::ist_gerade(ribi_typ(zv)|str->get_ribi_unmasked()))) {
+			// check for end/start of bridge or tunnel
+			// fail if no proper way exists, or the way's ribi are not 0 and are not matching the slope type
+			ribi_t::ribi test_ribi = (str ? str->get_ribi_unmasked() : 0) | ribi_typ(zv);
+			if(to->get_weg_hang()!=to->get_grund_hang()  &&  (str==NULL  ||  !(ribi_t::ist_gerade(test_ribi) || test_ribi==0 ))) {
 				return false;
 			}
 			// calculate costs
@@ -705,8 +707,10 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 			if(!ok) {
 				return false;
 			}
-			// check for end/start of bridge
-			if(to->get_weg_hang()!=to->get_grund_hang()  &&  (sch==NULL  ||  !ribi_t::ist_gerade(ribi_typ(zv)|sch->get_ribi_unmasked()))) {
+			// check for end/start of bridge or tunnel
+			// fail if no proper way exists, or the way's ribi are not 0 and are not matching the slope type
+			ribi_t::ribi test_ribi = (sch ? sch->get_ribi_unmasked() : 0) | ribi_typ(zv);
+			if(to->get_weg_hang()!=to->get_grund_hang()  &&  (sch==NULL  ||  !(ribi_t::ist_gerade(test_ribi) || test_ribi==0 ))) {
 				return false;
 			}
 			// calculate costs
