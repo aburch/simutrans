@@ -5103,12 +5103,12 @@ void display_flush_buffer()
 					}
 					else { // dirty block ends in word_x2
 						const uint32 tv = ~tile_dirty_old[word_x2];
-						x2 = MultiplyDeBruijnBitPosition[(((tv & -tv) * 0x077CB531U)) >> 27];
+						x2 = MultiplyDeBruijnBitPosition[(((tv & -(int)tv) * 0x077CB531U)) >> 27];
 						masks[word_x2-word_x1] = 0xFFFFFFFF >> (32 - x2);
 					}
 				}
 				else { // dirty block is all within one word - word_x1
-					x2 = MultiplyDeBruijnBitPosition[(((testval & -testval) * 0x077CB531U)) >> 27];
+					x2 = MultiplyDeBruijnBitPosition[(((testval & -(int)testval) * 0x077CB531U)) >> 27];
 					masks[0] = (0xFFFFFFFF << (32 - x2 + (x1 & 31))) >> (32 - x2);
 				}
 
