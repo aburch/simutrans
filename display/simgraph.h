@@ -152,6 +152,7 @@ int display_set_unicode(int use_unicode);
  */
 bool display_load_font(const char* fname);
 
+uint16 get_image_count();
 void register_image(struct bild_t*);
 
 // delete all images above a certain number ...

@@ -1248,6 +1248,12 @@ static void recode_img_src_target(KOORD_VAL h, PIXVAL *src, PIXVAL *target)
 }
 
 
+uint16 get_image_count()
+{
+	return anz_images;
+}
+
+
 /**
  * Handles the conversion of an image to the output color
  * @author prissi

@@ -1038,7 +1038,13 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 					}
 					// finally overlay any water transition
 					if(  water_corners  ) {
-						display_alpha( grund_besch_t::get_water_tile(slope), grund_besch_t::get_beach_tile( slope, water_corners ), ALPHA_BLUE, xpos, ypos, 0, 0, true, dirty CLIP_NUM_PAR );
+						if(  slope  ) {
+							display_alpha( grund_besch_t::get_water_tile(slope), grund_besch_t::get_beach_tile( slope, water_corners ), ALPHA_BLUE, xpos, ypos, 0, 0, true, dirty CLIP_NUM_PAR );
+						}
+						else {
+							// animate
+							display_alpha( grund_besch_t::sea->get_bild(0,wasser_t::stage), grund_besch_t::get_beach_tile( slope, water_corners ), ALPHA_BLUE, xpos, ypos, 0, 0, true, dirty|wasser_t::change_stage CLIP_NUM_PAR );
+						}
 					}
 				}
 

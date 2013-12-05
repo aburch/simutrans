@@ -419,6 +419,19 @@ const uint8 grund_besch_t::slopetable[80] =
 	0xFF,	0xFF,	0xFF,	0xFF,	0xFF,	0xFF,	0xFF,	0xFF,	0xFF,	0xFF
 };
 
+
+// since we only use valid slope (to gain some more image slots) we use this lookup table
+// zero slopes are invalid
+const uint16 doubleslope_to_imgnr[81] = {
+	 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15,
+	16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+	32, 33, 34, 35, 36, 37, 38, 39, 40,  0,  0, 41,  0,  0, 42, 43,
+	44, 45,  0, 46,  0,  0, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56,
+	57, 58, 59,  0,  0, 60,  0,  0, 61, 62, 63, 64,  0,  0, 65,  0,
+	0
+};
+
+
 // how many animation stages we got for waves
 uint16 grund_besch_t::water_animation_stages = 1;
 sint16 grund_besch_t::water_depth_levels = 0;
