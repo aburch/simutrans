@@ -82,7 +82,7 @@ int main(int argc, char* argv[])
 		if (img_size >= 16 && img_size < 32766) {
 			dbg->message( "Image size", "Now set to %dx%d", img_size, img_size );
 
-			image_writer_t::set_img_size(img_size);
+			obj_writer_t::set_img_size(img_size);
 
 			argv++, argc--;
 
@@ -147,7 +147,7 @@ int main(int argc, char* argv[])
 		"         Creates a ready to use pak file for Simutrans from the dat files\n"
 		"      MakeObj pak128 <pak file> <dat file(s)>\n"
 		"         Creates a special pak file for with 128x128 images\n"
-		"         Works with PAK16 up to PAK255 but only 32 to 192 are tested\n"
+		"         Works with PAK16 up to PAK32767 but only up to 255 are tested\n"
 		"      MakeObj LIST <pak file(s)>\n"
 		"         Lists the contents ot the given pak files\n"
 		"      MakeObj DUMP <pak file> <pak file(s)>\n"

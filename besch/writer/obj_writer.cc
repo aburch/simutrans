@@ -6,11 +6,14 @@
 #include "../../tpl/inthashtable_tpl.h"
 #include "obj_node.h"
 #include "obj_writer.h"
+#include "image_writer.h"
 #include "text_writer.h"
 #include "xref_writer.h"
 
 
 const char *obj_writer_t::last_name = "";
+
+int obj_writer_t::default_image_size = 64;
 
 
 void obj_writer_t::register_writer(bool main_obj)
@@ -38,6 +41,9 @@ void obj_writer_t::write(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 		printf("skipping unknown %s object %s\n", type, name);
 		return;
 	}
+	// now get the image size
+	image_writer_t::set_img_size(obj.get_int("cell_size",default_image_size));
+
 	last_name = name;
 	printf("      packing %s.%s\n", type, name);
 	writer->write_obj(fp, parent, obj);

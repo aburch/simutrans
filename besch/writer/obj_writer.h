@@ -19,6 +19,8 @@ private:
 	static stringhashtable_tpl<obj_writer_t*>* writer_by_name;
 	static inthashtable_tpl<obj_type, obj_writer_t*>* writer_by_type;
 
+	static int default_image_size;
+
 protected:
 	obj_writer_t() { /* Beware: Cannot register here! */ }
 
@@ -47,6 +49,8 @@ public:
 	virtual const char* get_type_name() const = 0;
 
 	static void write(FILE* fp, obj_node_t& parent, tabfileobj_t& obj);
+
+	static void set_img_size(int img_size) { obj_writer_t::default_image_size = img_size; }
 };
 
 #endif
