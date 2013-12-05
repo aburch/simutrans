@@ -12,7 +12,7 @@
 #define L_ADDON_WIDTH (150)
 
 pakselector_t::pakselector_t() :
-	savegame_frame_t( NULL, true, env_t::program_dir),
+	savegame_frame_t( NULL, true, env_t::program_dir, true ),
 	notice_label(&notice_buffer)
 {
 	// remove unnecessary buttons

@@ -26,7 +26,7 @@ bool load_relief_frame_t::item_action(const char *fullpath)
 }
 
 
-load_relief_frame_t::load_relief_frame_t(settings_t* const sets) : savegame_frame_t(NULL, false, "maps/")
+load_relief_frame_t::load_relief_frame_t(settings_t* const sets) : savegame_frame_t( NULL, false, "maps/", env_t::show_delete_buttons )
 {
 	static char extra_path[1024];
 

@@ -58,6 +58,7 @@ sint16 env_t::window_snap_distance = 8;
 scr_size env_t::iconsize( 32, 32 );
 uint8 env_t::chat_window_transparency = 75;
 bool env_t::hide_rail_return_ticket = true;
+bool env_t::show_delete_buttons = false;
 
 // only used internally => do not touch further
 bool env_t::quit_simutrans = false;
@@ -379,6 +380,9 @@ void env_t::rdwr(loadsave_t *file)
 	if(  file->get_version()>=112007  ) {
 		file->rdwr_bool( second_open_closes_win );
 		file->rdwr_bool( remember_window_positions );
+	}
+	if(  file->get_version()>=112008  ) {
+		file->rdwr_bool( show_delete_buttons );
 	}
 	// server settings are not saved, since the are server specific and could be different on different servers on the save computers
 }

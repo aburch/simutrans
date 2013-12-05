@@ -20,7 +20,7 @@
 std::string themeselector_t::undo = "";
 
 themeselector_t::themeselector_t() :
-	savegame_frame_t( ".tab" )//, false, NULL, false )
+	savegame_frame_t( ".tab", false, NULL, false )
 {
 	// remove unnecessary buttons
 	remove_komponente( &input );
