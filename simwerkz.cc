@@ -4324,11 +4324,12 @@ void wkz_roadsign_t::mark_tiles( spieler_t *sp, const koord3d &start, const koor
 		weg_t *weg = gr->get_weg(besch->get_wtyp());
 		ribi_t::ribi ribi=weg->get_ribi_unmasked(); // set full ribi when signal is on a crossing.
 		if(  single_ribi  &&  ribi_t::is_twoway(weg->get_ribi_unmasked()) ) {
+			// clear one direction bit to get single direction for signal
 			if(i < route.get_count()-1  ) {
-				ribi -= ribi_typ(route.position_bei(i), route.position_bei(i+1));
+				ribi &= ~ribi_typ(route.position_bei(i), route.position_bei(i+1));
 			}
 			else if(i>0) {
-				ribi -= ribi_typ(route.position_bei(i-1), route.position_bei(i));
+				ribi &= ~ribi_typ(route.position_bei(i-1), route.position_bei(i));
 			}
 		}
 
