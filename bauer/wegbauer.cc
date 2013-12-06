@@ -1577,11 +1577,30 @@ void wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d z
 			// check next tile
 			grund_t *bd_nach = welt->lookup(pos + diff);
 			if(  !bd_nach  ) {
-				// check for slope down ...
-				bd_nach = welt->lookup(pos + diff + koord3d(0,0,-1));
+				// check tiles one level above and below
+				bd_nach = welt->lookup( pos + koord3d(0, 0, -1) );
+				if(  env_t::pak_height_conversion_factor == 2  ) {
+					if (bd_nach == NULL) {
+						bd_nach = welt->lookup( pos + koord3d(0, 0, 1) );
+					}
+					// tile one level above/below should end on same level
+					if (bd_nach  &&  bd_nach->get_vmove(ribi_t::rueckwaerts(diff)) != pos.z) {
+						ok = false;
+					}
+				}
+				// check two levels below
+				if (bd_nach == NULL) {
+					bd_nach = welt->lookup( pos + koord3d(0, 0, -2) );
+					if(  bd_nach  &&  env_t::pak_height_conversion_factor == 2  ) {
+						// should not end at -1
+						if (bd_nach->get_vmove(ribi_t::rueckwaerts(diff)) == pos.z-1) {
+							ok = false;
+						}
+					}
+				}
 				if(  bd_nach  &&  bd_nach->get_weg_hang() == hang_t::flach  ) {
 					// Don't care about _flat_ tunnels below.
-					bd_nach= NULL;
+					bd_nach = NULL;
 				}
 			}
 			if(  bd_nach == NULL  ){

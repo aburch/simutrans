@@ -169,25 +169,45 @@ koord3d tunnelbauer_t::finde_ende(spieler_t *sp, koord3d pos, koord zv, const tu
 		// next tile
 		gr = welt->lookup(pos);
 		if(  gr == NULL  ) {
-			// check for slope down ...
-			gr = welt->lookup(pos + koord3d(0,0,-1));
+			// check tile below
+			gr = welt->lookup( pos + koord3d(0, 0, -1) );
+			// check tiles one level above and below
+			if(  env_t::pak_height_conversion_factor == 2  ) {
+				if (gr == NULL) {
+					gr = welt->lookup( pos + koord3d(0, 0, 1) );
+				}
+				// tile one level above/below should end on same level
+				if (gr  &&  gr->get_vmove(ribi_typ(-zv)) != pos.z) {
+					return koord3d::invalid;
+				}
+			}
+			// check two levels below
+			if (gr == NULL) {
+				gr = welt->lookup( pos + koord3d(0, 0, -2) );
+				if(  gr  &&  env_t::pak_height_conversion_factor == 2  ) {
+					// should not end at -1
+					if (gr->get_vmove(ribi_typ(-zv)) == pos.z-1) {
+						return koord3d::invalid;
+					}
+				}
+			}
 			if(  gr  &&  gr->get_weg_hang() == hang_t::flach  ) {
 				// Don't care about _flat_ tunnels below.
 				gr = NULL;
-			}
-			if(  gr  &&  gr->get_vmove(ribi_typ(-zv))!=pos.z) {
-				// wrong slope
-				return koord3d::invalid;
 			}
 		}
 
 		if(gr) {
 			// if there is a tunnel try to connect
 			if(  gr->ist_tunnel() ) {
+				if(  gr->get_vmove(ribi_typ(-zv))!=pos.z) {
+					// wrong slope
+					return koord3d::invalid;
+				}
 				// fake tunnel tile
 				tunnelboden_t from(pos - zv, hang_t::flach);
 				if (bauigel.is_allowed_step(&from, gr, &dummy)) {
-					return pos;
+					return gr->get_pos();
 				}
 				else {
 					return koord3d::invalid;
@@ -235,19 +255,6 @@ koord3d tunnelbauer_t::finde_ende(spieler_t *sp, koord3d pos, koord zv, const tu
 				}
 			}
 			return koord3d::invalid;  // Was im Weg (slope hillside or so)
-		}
-
-		if(  env_t::pak_height_conversion_factor == 2  ) {
-			// no grounds one above or below
-			if(  welt->lookup( pos + koord3d(0, 0, -1) )  ||  welt->lookup( pos + koord3d(0, 0, 1) )  ) {
-				return koord3d::invalid;
-			}
-			// tunnel slope underneath?
-			gr = welt->lookup( pos + koord3d(0, 0, -2) );
-		}
-
-		if(  gr  &&  gr->get_grund_hang() != hang_t::flach  ) {
-			return koord3d::invalid;
 		}
 
 		// stop if we only want to check tile behind tunnel mouth
@@ -368,8 +375,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 	}
 
 	// Now we build the invisible part
-	while(pos!=end) {
-		assert(pos.get_2d()!=end.get_2d());
+	while(pos.get_2d()!=end.get_2d()) {
 		tunnelboden_t *tunnel = new tunnelboden_t( pos, 0);
 		welt->access(pos.get_2d())->boden_hinzufuegen(tunnel);
 		if(wegtyp != powerline_wt) {
@@ -396,7 +402,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 	}
 
 	// if end is tunnel then connect
-	grund_t *gr_end = welt->lookup(pos);
+	grund_t *gr_end = welt->lookup(end);
 	if (gr_end) {
 		if (gr_end->ist_tunnel()) {
 			gr_end->weg_erweitern(besch->get_waytype(), ribi);
