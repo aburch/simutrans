@@ -1056,7 +1056,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 							break;
 						}
 						case 2: {
-							if(  hang_t::height(slope) > 1  ) {
+							if(  hang_t::max_diff(slope) > 1  ) {
 								display_alpha( grund_besch_t::get_snow_tile(slope), grund_besch_t::get_alpha_tile(slope), ALPHA_RED, xpos, ypos, 0, 0, true, dirty CLIP_NUM_PAR );
 							}
 							break;

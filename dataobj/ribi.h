@@ -71,9 +71,10 @@ public:
 	//static bool ist_gegenueber(typ x, typ y) { return ist_einfach(x) && ist_einfach(y) && x + y == 40; }	// unused at present need to extend to cope with double heights
 	static typ gegenueber(typ x) { return ist_einfach(x) ? (x & 7 ? (40 - x) : (80 - x * 2)) : flach; }
 	static typ rotate90(typ x) { return ( ( (x % 3) * 27 ) + ( ( x - (x % 3) ) / 3 ) ); }
-	static uint8 height(typ x) { return ((sint8)x!=0)+(flags[x]&1); }
 
-	static sint8 diff(typ high, typ low) { return min( min( corner1(high) - corner1(low), corner2(high)-corner2(low) ), min( corner3(high) - corner3(low), corner4(high) - corner4(low) ) ); }
+	static uint8 max_diff(typ x) { return ((sint8)x!=0)+(flags[x]&doppel); }
+	static sint8 min_diff(typ high, typ low) { return min( min( corner1(high) - corner1(low), corner2(high)-corner2(low) ), min( corner3(high) - corner3(low), corner4(high) - corner4(low) ) ); }
+
 	static const hang_t::typ hang_from_ribi[16];
 
 	//

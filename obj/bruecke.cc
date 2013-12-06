@@ -59,7 +59,7 @@ void bruecke_t::calc_bild()
 #endif
 			// if on a slope then start of bridge - take the upper value
 			const hang_t::typ slope = gr->get_grund_hang();
-			bool is_snow = welt->get_climate( get_pos().get_2d() ) == arctic_climate  ||  get_pos().z + hang_t::height(slope) >= welt->get_snowline();
+			bool is_snow = welt->get_climate( get_pos().get_2d() ) == arctic_climate  ||  get_pos().z + hang_t::max_diff(slope) >= welt->get_snowline();
 
 			// handle cases where old bridges don't have correct images
 			image_id display_image=besch->get_hintergrund( img, is_snow );
@@ -96,7 +96,7 @@ image_id bruecke_t::get_after_bild() const
 	grund_t *gr=welt->lookup(get_pos());
 	// if on a slope then start of bridge - take the upper value
 	const hang_t::typ slope = gr->get_grund_hang();
-	bool is_snow = welt->get_climate( get_pos().get_2d() ) == arctic_climate  ||  get_pos().z + hang_t::height(slope) >= welt->get_snowline();
+	bool is_snow = welt->get_climate( get_pos().get_2d() ) == arctic_climate  ||  get_pos().z + hang_t::max_diff(slope) >= welt->get_snowline();
 	// handle cases where old bridges don't have correct images
 	image_id display_image=besch->get_vordergrund( img, is_snow );
 	if(  display_image==IMG_LEER && besch->get_hintergrund( img, is_snow )==IMG_LEER  ) {

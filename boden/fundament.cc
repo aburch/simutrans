@@ -25,7 +25,7 @@ fundament_t::fundament_t(koord3d pos, hang_t::typ hang ) : grund_t(pos)
 	set_bild( IMG_LEER );
 	if(hang) {
 		pos = get_pos();
-		pos.z += hang_t::height(hang);
+		pos.z += hang_t::max_diff(hang);
 		set_pos( pos );
 	}
 	slope = (uint8)hang_t::flach;

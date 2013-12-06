@@ -326,7 +326,7 @@ void planquadrat_t::correct_water()
 {
 	grund_t *gr = get_kartenboden();
 	hang_t::typ slope = gr->get_grund_hang();
-	sint8 max_height = gr->get_hoehe() + hang_t::height( slope );
+	sint8 max_height = gr->get_hoehe() + hang_t::max_diff( slope );
 	koord k = gr->get_pos().get_2d();
 	sint8 water_hgt = welt->get_water_hgt(k);
 	if(  gr  &&  gr->get_typ() != grund_t::wasser  &&  max_height <= water_hgt  ) {

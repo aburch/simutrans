@@ -233,11 +233,11 @@ koord3d brueckenbauer_t::finde_ende(spieler_t *sp, koord3d pos, const koord zv, 
 	// single height -> height is 1
 	// double height -> height is 2
 	const hang_t::typ slope = gr2->get_grund_hang();
-	const sint8 start_height = gr2->get_hoehe() + hang_t::height(slope);
+	const sint8 start_height = gr2->get_hoehe() + hang_t::max_diff(slope);
 	const sint8 min_height = start_height - (1+besch->has_double_ramp()) + (slope==0);
 	const sint8 max_height = start_height + (slope ? 0 : (1+besch->has_double_ramp()));
 
-	if(  hang_t::height(slope)==2  &&  !besch->has_double_start()  ) {
+	if(  hang_t::max_diff(slope)==2  &&  !besch->has_double_start()  ) {
 		error_msg = "Cannot build on a double slope!";
 		return koord3d::invalid;
 	}
@@ -288,7 +288,7 @@ koord3d brueckenbauer_t::finde_ende(spieler_t *sp, koord3d pos, const koord zv, 
 		}
 
 		const hang_t::typ end_slope = gr->get_weg_hang();
-		const sint16 hang_height = gr->get_hoehe()+hang_t::height(end_slope);
+		const sint16 hang_height = gr->get_hoehe()+hang_t::max_diff(end_slope);
 
 		// first check for elevated ground exactly in our height
 		if(  grund_t *gr2 = welt->lookup( koord3d(pos.get_2d(),max_height) )  ) {
@@ -335,7 +335,7 @@ koord3d brueckenbauer_t::finde_ende(spieler_t *sp, koord3d pos, const koord zv, 
 			}
 			else if(  hang_height == max_height  ) {
 				// here is a slope that ends at the bridge height
-				if(  hang_t::height(end_slope)==2   &&   !besch->has_double_start()  ) {
+				if(  hang_t::max_diff(end_slope)==2   &&   !besch->has_double_start()  ) {
 					// cannot end on a double slope if we do not have the matching ramp
 					error_msg = "Cannot build on a double slope!";
 					return koord3d::invalid;
@@ -493,7 +493,7 @@ void brueckenbauer_t::baue_bruecke(spieler_t *sp, koord3d pos, koord3d end, koor
 	const hang_t::typ slope = welt->lookup_kartenboden( pos.get_2d() )->get_grund_hang();
 
 	// get initial height of bridge from start tile, default to 1 unless double slope
-	const uint8 max_height = slope ?  hang_t::height(slope) : (besch->has_double_ramp() ? 2 : 1);
+	const uint8 max_height = slope ?  hang_t::max_diff(slope) : (besch->has_double_ramp() ? 2 : 1);
 
 	baue_auffahrt( sp, pos, ribi, slope?0:hang_typ(zv)*max_height, besch );
 	if(  besch->get_waytype() != powerline_wt  ) {
@@ -517,7 +517,7 @@ void brueckenbauer_t::baue_bruecke(spieler_t *sp, koord3d pos, koord3d end, koor
 		}
 		grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
 		sint16 height = pos.z - gr->get_pos().z;
-		bruecke_t *br = new bruecke_t(bruecke->get_pos(), sp, besch, besch->get_simple(ribi,height-hang_t::height(gr->get_grund_hang())));
+		bruecke_t *br = new bruecke_t(bruecke->get_pos(), sp, besch, besch->get_simple(ribi,height-hang_t::max_diff(gr->get_grund_hang())));
 		bruecke->obj_add(br);
 		bruecke->calc_bild();
 		br->laden_abschliessen();
@@ -542,7 +542,7 @@ void brueckenbauer_t::baue_bruecke(spieler_t *sp, koord3d pos, koord3d end, koor
 	hang_t::typ end_slope = welt->lookup(end)->get_grund_hang();
 	sint8 end_slope_height = end.z;
 	if(  end_slope != hang_typ(zv) && end_slope != hang_typ(zv)*2  ) {
-		end_slope_height += hang_t::height(end_slope);
+		end_slope_height += hang_t::max_diff(end_slope);
 	}
 
 	// must determine end tile: on a slope => likely need auffahrt

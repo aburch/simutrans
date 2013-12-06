@@ -2306,7 +2306,7 @@ const char* karte_t::can_lower_plan_to(const spieler_t *sp, sint16 x, sint16 y, 
 	if(  !gr  &&  env_t::pak_height_conversion_factor == 2  ) {
 		gr = plan->get_boden_in_hoehe( h - 2 );
 	}
-	if(  gr  &&  h-gr->get_pos().z + hang_t::height( gr->get_weg_hang() ) < env_t::pak_height_conversion_factor  ) {
+	if(  gr  &&  h-gr->get_pos().z + hang_t::max_diff( gr->get_weg_hang() ) < env_t::pak_height_conversion_factor  ) {
 		return "";
 	}
 
@@ -3014,7 +3014,7 @@ bool karte_t::ebne_planquadrat(spieler_t *sp, koord k, sint8 hgt, bool keep_wate
 	const grund_t *gr = lookup_kartenboden(k);
 	const hang_t::typ slope = gr->get_grund_hang();
 	const sint8 old_hgt = make_underwater_hill  &&  gr->ist_wasser() ? min_hgt(k) : gr->get_hoehe();
-	const sint8 max_hgt = old_hgt + hang_t::height(slope);
+	const sint8 max_hgt = old_hgt + hang_t::max_diff(slope);
 	if(  max_hgt > hgt  ) {
 
 		terraformer_t digger(this);
@@ -4793,7 +4793,7 @@ bool karte_t::square_is_free(koord k, sint16 w, sint16 h, int *last_y, climate_b
 
 			// we can built, if: max height all the same, everything removable and no buildings there
 			hang_t::typ slope = gr->get_grund_hang();
-			sint8 max_height = gr->get_hoehe() + hang_t::height(slope);
+			sint8 max_height = gr->get_hoehe() + hang_t::max_diff(slope);
 			climate test_climate = get_climate(k_check);
 			if(  cl & (1 << water_climate)  &&  test_climate != water_climate  ) {
 				bool neighbour_water = false;
@@ -4808,7 +4808,7 @@ bool karte_t::square_is_free(koord k, sint16 w, sint16 h, int *last_y, climate_b
 			}
 			if(  platz_h != max_height  ||  !gr->ist_natur()  ||  gr->kann_alle_obj_entfernen(NULL) != NULL  ||
 			     (cl & (1 << test_climate)) == 0  ||  ( slope && (lookup( gr->get_pos()+koord3d(0,0,1) ) ||
-			     (hang_t::height(slope)==2 && lookup( gr->get_pos()+koord3d(0,0,2) )) ))  ) {
+			     (hang_t::max_diff(slope)==2 && lookup( gr->get_pos()+koord3d(0,0,2) )) ))  ) {
 				if(  last_y  ) {
 					*last_y = k_check.y;
 				}
