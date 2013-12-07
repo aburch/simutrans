@@ -137,8 +137,11 @@ inline bool ribi_check( ribi_t::ribi ribi, ribi_t::ribi check_ribi )
 }
 
 
-// if check_ribi==0, then any single tile is ok
-const char *check_tile( const grund_t *gr, const spieler_t *sp, waytype_t wt, ribi_t::ribi check_ribi, bool is_max_height )
+/**
+ * if check_ribi==0, then any single tile is ok
+ * @returns either (1) error_message (must  abort bridge here) (2) "" if it could end here or (3) NULL if it must end here
+ */
+const char *check_tile( const grund_t *gr, const spieler_t *sp, waytype_t wt, ribi_t::ribi check_ribi )
 {
 	// not overbuilt transformers
 	if(  gr->find<senke_t>()!=NULL  ||  gr->find<pumpe_t>()!=NULL  ) {
@@ -220,7 +223,7 @@ const char *check_tile( const grund_t *gr, const spieler_t *sp, waytype_t wt, ri
 			return err_msg;
 		}
 	}
-	return is_max_height ? NULL : "";	// either mus end here (and seems ok) or undecided
+	return "";	// could end here by must not end here
 }
 
 
@@ -318,22 +321,33 @@ koord3d brueckenbauer_t::finde_ende(spieler_t *sp, koord3d pos, const koord zv, 
 			if(  end_slope == hang_t::flach  ) {
 
 				/* now we have a flat tile below */
-				error_msg = check_tile( gr, sp, besch->get_waytype(), ribi_typ(zv), hang_height == max_height );
+				error_msg = check_tile( gr, sp, besch->get_waytype(), ribi_typ(zv) );
+
+				if(  hang_height <= max_height  &&  (  gr->has_two_ways()  ||  (  gr->get_weg_nr(0)  &&  gr->get_weg_nr(0)->get_waytype() != besch->get_waytype()  )  )  ) {
+					// no crossing here (since it will a slope ramp)
+					error_msg = "A bridge must start on a way!";
+				}
+
 				if(  !error_msg  ) {
 					// success
 					return gr->get_pos();
 				}
+
 				if(  *error_msg  ) {
-					// this is an real error
-					return koord3d::invalid;
+					// real error: next tile or stop when in the way
+					if(  hang_height >= max_height  ) {
+						// this is an real error
+						return koord3d::invalid;
+					}
 				}
-				// from here undecided
-				if(  hang_height == max_height  ||  (ai_bridge  ||  min_length)  ) {
+				// from here no real error (only "")
+				else if(  hang_height == max_height  ||  (ai_bridge  ||  min_length)  ) {
 					// in the way, or find shortest and empty => ok
 					return gr->get_pos();
 				}
 			}
 			else if(  hang_height == max_height  ) {
+
 				// here is a slope that ends at the bridge height
 				if(  hang_t::max_diff(end_slope)==2   &&   !besch->has_double_start()  ) {
 					// cannot end on a double slope if we do not have the matching ramp
@@ -344,7 +358,7 @@ koord3d brueckenbauer_t::finde_ende(spieler_t *sp, koord3d pos, const koord zv, 
 				// first check slope
 				if(  ribi_typ(end_slope) == ribi_typ(zv)  ) {
 					// slope matches
-					error_msg = check_tile( gr, sp, besch->get_waytype(), ribi_typ(zv), true );
+					error_msg = check_tile( gr, sp, besch->get_waytype(), ribi_typ(zv) );
 					if(  !error_msg  ) {
 						// success
 						return gr->get_pos();
@@ -384,7 +398,7 @@ bool brueckenbauer_t::ist_ende_ok(spieler_t *sp, const grund_t *gr, waytype_t wt
 	if(  gr->get_typ()!=grund_t::boden  &&  gr->get_typ()!=grund_t::monorailboden  ) {
 		return false;
 	}
-	const char *error_msg = check_tile( gr, sp, wt, r, true );
+	const char *error_msg = check_tile( gr, sp, wt, r );
 	return (error_msg == NULL  ||  *error_msg == 0  );
 }
 
