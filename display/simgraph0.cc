@@ -476,6 +476,11 @@ KOORD_VAL display_proportional_ellipse_rgb( scr_rect, const char *, int, PIXVAL,
 	return 0;
 }
 
+uint16 get_image_count()
+{
+	return 0;
+}
+
 #ifdef MULTI_THREAD
 void add_poly_clip(int, int, int, int, int, const sint8)
 {
