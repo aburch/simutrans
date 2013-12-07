@@ -72,6 +72,8 @@ public:
 	static typ gegenueber(typ x) { return ist_einfach(x) ? (x & 7 ? (40 - x) : (80 - x * 2)) : flach; }
 	static typ rotate90(typ x) { return ( ( (x % 3) * 27 ) + ( ( x - (x % 3) ) / 3 ) ); }
 
+	static bool is_all_up(typ x) { return (flags[x] & all_up)>0; }
+
 	static uint8 max_diff(typ x) { return ((sint8)x!=0)+(flags[x]&doppel); }
 	static sint8 min_diff(typ high, typ low) { return min( min( corner1(high) - corner1(low), corner2(high)-corner2(low) ), min( corner3(high) - corner3(low), corner4(high) - corner4(low) ) ); }
 
