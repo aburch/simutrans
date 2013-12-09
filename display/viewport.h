@@ -167,6 +167,14 @@ public:
 	void change_world_position( const koord3d& ij );
 
 	/**
+	 * Set center viewport position, placing a in-game koord3d under the desired screen position.
+	 * @param pos map position to consider.
+	 * @param off extra offset.
+	 * @param sc screen position "pos" should be under.
+	 */
+	void change_world_position(const koord3d& pos, const koord& off, scr_coord sc);
+
+	/**
 	 * Fine offset within the viewport tile.
 	 */
 	int get_x_off() const {return x_off;}

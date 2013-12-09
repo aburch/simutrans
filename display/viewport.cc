@@ -107,6 +107,37 @@ void viewport_t::change_world_position( const koord3d& new_ij )
 }
 
 
+void viewport_t::change_world_position(const koord3d& pos, const koord& off, scr_coord sc)
+{
+	// see get_viewport_coord and update_cached_values
+	koord scr_pos_2d = pos.get_2d() - view_ij_off;
+
+	const sint16 c2 = cached_img_size/2;
+	const sint16 c4 = cached_img_size/4;
+
+	// see get_screen_coord - do not twist your brain etc
+	// solve (-ijx + ijy)*(cached_img_size/2) + x_off = sc.x - xfix;
+	// note: xfix and yfix need 32-bit precision or will overflow
+	const sint32 xfix = (scr_pos_2d.x - scr_pos_2d.y)*(cached_img_size/2)
+		+ tile_raster_scale_x(off.x, cached_img_size);
+
+	// solve (-ijx - ijy)*(cached_img_size/4) + y_off = sc.y - yfix;
+	const sint32 yfix = (scr_pos_2d.x + scr_pos_2d.y)*(cached_img_size/4)
+		+ tile_raster_scale_y(off.y-pos.z*TILE_HEIGHT_STEP, cached_img_size)
+		+ ((cached_disp_width/cached_img_size)&1)*(cached_img_size/4);
+
+	// calculate center position
+	const sint16 new_ij_x = (-(c2*(sc.y - yfix ))/c4 - (sc.x - xfix) ) / (2*c2);
+	const sint16 new_ij_y = (-(c2*(sc.y - yfix ))/c4 + (sc.x - xfix) ) / (2*c2);
+
+	// set new offsets to solve equation
+	const sint16 new_x_off = sc.x - xfix - (-new_ij_x + new_ij_y) * c2;
+	const sint16 new_y_off = sc.y - yfix - (-new_ij_x - new_ij_y) * c4;
+
+	change_world_position(koord(new_ij_x, new_ij_y), new_x_off, new_y_off);
+}
+
+
 grund_t* viewport_t::get_ground_on_screen_coordinate(scr_coord screen_pos, sint32 &found_i, sint32 &found_j, const bool intersect_grid) const
 {
 	const int rw1 = cached_img_size;

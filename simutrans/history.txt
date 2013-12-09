@@ -1,3 +1,4 @@
+	CHG: zoom with mouse wheel zooms to the cursor position, not to the center of screen as it used to
 	CHG: system events management rearranged, simutrans should more responsive to user events, specially on low framerates
 	ADD: second_open_closes_win =1 in simuconf.tab will close open window instead top them on secod call/click
 	ADD: remember_window_positions=1 (default) will remeber last window positions

@@ -269,22 +269,41 @@ void interaction_t::interactive_event( const event_t &ev )
 
 	// mouse wheel scrolled -> rezoom
 	if (ev.ev_class == EVENT_CLICK) {
-		const sint16 org_raster_width = get_tile_raster_width();
+
+		// first, we need to check cursor is valid, won't zoom otherwise
+
+		const koord3d cursor_pos = world->get_zeiger()->get_pos();
+
+		if( cursor_pos == koord3d::invalid) {
+			//ignore event
+			return;
+		}
+
+		bool zoom_successful = false;
+
+		// store old screen position of centered tile
+		scr_coord s = viewport->get_screen_coord(cursor_pos, koord(0,0));
+
 		if(ev.ev_code==MOUSE_WHEELUP) {
 			if(win_change_zoom_factor(true)) {
-				world->set_dirty();
+				zoom_successful = true;
 			}
 		}
 		else if(ev.ev_code==MOUSE_WHEELDOWN) {
 			if(win_change_zoom_factor(false)) {
-				world->set_dirty();
+				zoom_successful = true;
 			}
 		}
-		const sint16 new_raster_width = get_tile_raster_width();
-		if (org_raster_width != new_raster_width) {
-			// scale the fine offsets for displaying
-			viewport->set_x_off( (viewport->get_x_off() * new_raster_width) / org_raster_width );
-			viewport->set_y_off( (viewport->get_y_off() * new_raster_width) / org_raster_width );
+
+		// zoom can fail if we are max zoomed in/out, so:
+		if (zoom_successful) {
+			// calculate offsets such that tile under cursor is still on the same screen position
+			viewport->change_world_position(cursor_pos, koord(0,0), s);
+
+			//and move cursor to the new position under the mouse
+ 			move_cursor(ev);
+
+			world->set_dirty();
 		}
 	}
 }
