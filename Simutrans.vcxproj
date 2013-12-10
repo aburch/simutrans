@@ -47,7 +47,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <PreBuildEvent>
-      <Command>cscript.exe revision.jse</Command>
+      <Command>cscript.exe //Nologo revision.jse</Command>
     </PreBuildEvent>
     <ClCompile>
       <Optimization>Disabled</Optimization>
