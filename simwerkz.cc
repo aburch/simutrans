@@ -1651,8 +1651,9 @@ const char *wkz_change_city_size_t::work( spieler_t *, koord3d pos )
  */
 const char *wkz_set_climate_t::get_tooltip(spieler_t const*) const
 {
-	sprintf( werkzeug_t::toolstr, translator::translate( "Set tile climate" ), translator::translate( grund_besch_t::get_climate_name_from_bit((climate)atoi(default_param)) ) );
-	return werkzeug_t::toolstr;
+	char temp[1024];
+	sprintf( temp, translator::translate( "Set tile climate" ), translator::translate( grund_besch_t::get_climate_name_from_bit((climate)atoi(default_param)) ) );
+	return tooltip_with_price( temp,  welt->get_settings().cst_alter_climate );
 }
 
 uint8 wkz_set_climate_t::is_valid_pos(spieler_t *, const koord3d &, const char *&, const koord3d &)
