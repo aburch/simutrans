@@ -170,7 +170,7 @@ void gui_theme_t::init_gui_from_images()
 {
 	// Calculate posbutton size
 	if(  skinverwaltung_t::divider == NULL  ) {
-		// usualy there should be a default theme which would provided missing images even for outdated themes
+		// usually there should be a default theme which would provided missing images even for outdated themes
 		dbg->fatal( "gui_theme_t::init_gui_themes", "Wrong theme loaded" );
 	}
 
@@ -243,6 +243,8 @@ void gui_theme_t::init_gui_from_images()
 		arrow_button_up_img[i] = skinverwaltung_t::scrollbar->get_bild_nr( SKIN_BUTTON_ARROW_UP+i );
 		arrow_button_down_img[i] = skinverwaltung_t::scrollbar->get_bild_nr( SKIN_BUTTON_ARROW_DOWN+i );
 	}
+	// now init this button dependent size here too
+	gui_edit_size = scr_size(92,max(LINESPACE+2, max(D_ARROW_LEFT_HEIGHT, D_ARROW_RIGHT_HEIGHT) ));
 
 	// init horizontal scrollbar buttons
 	for(  int i=0;  i<3;  i++  ) {
@@ -360,10 +362,9 @@ bool gui_theme_t::themes_init(const char *file_name)
 	gui_divider_size.h += gui_vspace*2;
 	gui_theme_t::gui_divider_size.h = contents.get_int("gui_divider_vsize",  gui_theme_t::gui_divider_size.h );
 
-	// those two will be anyway set whenever the buttons are reinitialized
-	// Max Kielland: This has been moved to button_t
 	gui_theme_t::gui_button_size.w = (uint32)contents.get_int("gui_button_width",  gui_theme_t::gui_button_size.w );
 	gui_theme_t::gui_button_size.h = (uint32)contents.get_int("gui_button_height", gui_theme_t::gui_button_size.h );
+	gui_theme_t::gui_edit_size.h = (uint32)contents.get_int("gui_edit_height", gui_theme_t::gui_edit_size.h );
 
 	gui_theme_t::button_color_text = (uint32)contents.get_color("gui_button_color_text", gui_theme_t::button_color_text );
 	gui_theme_t::button_color_disabled_text = (uint32)contents.get_color("gui_button_color_disabled_text", gui_theme_t::button_color_disabled_text );
