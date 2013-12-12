@@ -359,7 +359,7 @@ koord3d brueckenbauer_t::finde_ende(spieler_t *sp, koord3d pos, const koord zv, 
 				if(  ribi_typ(end_slope) == ribi_typ(zv)  ) {
 					// slope matches
 					error_msg = check_tile( gr, sp, besch->get_waytype(), ribi_typ(zv) );
-					if(  !error_msg  ) {
+					if(  !error_msg  ||  !*error_msg  ) {
 						// success
 						return gr->get_pos();
 					}
