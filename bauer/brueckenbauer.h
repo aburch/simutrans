@@ -73,13 +73,13 @@ public:
 	 * brueckenbauer_t::baue().
 	 *
 	 * @param sp the master builder of the bridge.
-	 * @param pos start position.
+	 * @param start start position.
 	 * @param end end position
 	 * @param zv direction the bridge will face
 	 * @param besch bridge description.
 	 * @param weg_besch description of the way to be built on the bridge
 	 */
-	static void baue_bruecke(spieler_t *sp, koord3d pos, koord3d end, koord zv, const bruecke_besch_t *besch, const weg_besch_t *weg_besch);
+	static void baue_bruecke(spieler_t *sp, const koord3d start, const koord3d end, koord zv, const bruecke_besch_t *besch, const weg_besch_t *weg_besch);
 
 	/**
 	 * Registers a new bridge type and adds it to the list of build tools.
