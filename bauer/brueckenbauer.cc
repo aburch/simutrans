@@ -825,11 +825,15 @@ const char *brueckenbauer_t::remove(spieler_t *sp, koord3d pos, waytype_t wegtyp
 			gr->remove_everything_from_way(sp,wegtyp,bridge_ribi);	// removes stop and signals correctly
 
 			// corrects the ways
-			weg=gr->get_weg(wegtyp);
-			if(weg) {
-				// may fail, if this was the last tile
-				weg->set_besch(weg->get_besch());
+			weg = gr->get_weg(wegtyp);
+			if(  weg  ) {
+				// needs checks, since this fails if it was the last tile
+				weg->set_besch( weg->get_besch() );
 				weg->set_ribi( ribi );
+				if(  hang_t::max_diff(gr->get_grund_hang())>=2  &&  !weg->get_besch()->has_double_slopes()  ) {
+					// remove the way totally, if is is on a double slope
+					gr->weg_entfernen( weg->get_waytype(), ribi_t::alle );
+				}
 			}
 		}
 
