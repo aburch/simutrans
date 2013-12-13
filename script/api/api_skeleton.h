@@ -14,7 +14,11 @@ struct {
 scenario;
 
 struct {
-	/// Name of savegame. The scenario starts with the world saved there.
+	/**
+	 * Name of savegame. The scenario starts with the world saved there.
+	 * If file == "<attach>" then do not load a saved, attach
+	 * the scenario to the running world instead.
+	 */
 	string file;
 }
 /// Information about game map/world.

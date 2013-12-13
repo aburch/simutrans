@@ -93,7 +93,9 @@ const char* scenario_t::init( const char *scenario_base, const char *scenario_na
 		dbg->warning("scenario_t::init", "error [%s] calling get_map_file", err);
 		return "No scenario map specified";
 	}
-	else {
+
+	// if savegame-string == "<attach>" then do not load a savegame, just attach to running game.
+	if ( strcmp(mapfile, "<attach>") ) {
 		// savegame location
 		buf.clear();
 		buf.printf("%s%s/%s", scenario_base, scenario_name_, mapfile.c_str());
@@ -101,12 +103,11 @@ const char* scenario_t::init( const char *scenario_base, const char *scenario_na
 			dbg->warning("scenario_t::init", "error loading savegame %s", err, (const char*)buf);
 			return "Could not load scenario map!";
 		}
+		// set savegame name
+		buf.clear();
+		buf.printf("%s.sve", scenario_name.c_str());
+		welt->get_settings().set_filename( strdup(buf) );
 	}
-
-	// set savegame name
-	buf.clear();
-	buf.printf("%s.sve", scenario_name.c_str());
-	welt->get_settings().set_filename( strdup(buf) );
 
 	// load translations
 	translator::load_files_from_folder( scenario_path.c_str(), "scenario" );
