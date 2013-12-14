@@ -2592,7 +2592,7 @@ void stadt_t::calc_growth()
 void stadt_t::step_grow_city(bool new_town)
 {
 	// Try harder to build if this is a new town
-	int num_tries = new_town ? 1000 : 30;
+	int num_tries = new_town ? 50 : 30;
 
 	// since we use internally a finer value ...
 	const int growth_step = (wachstum >> 4);
@@ -2603,8 +2603,8 @@ void stadt_t::step_grow_city(bool new_town)
 	for (int n = 0; n < growth_step; n++) {
 		bev ++; // Hajo: bevoelkerung wachsen lassen ("grow population" - Google)
 
-		for (int i = 0; i < 30 && bev * 2 > won + arb + 100; i++) {
-			baue(false);
+		for (int i = 0; i < num_tries && bev * 2 > won + arb + 100; i++) {
+			baue(new_town);
 		}
 
 		check_bau_spezial(new_town);
