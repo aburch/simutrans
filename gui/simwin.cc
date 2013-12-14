@@ -387,6 +387,17 @@ gui_frame_t *win_get_magic(ptrdiff_t magic)
 }
 
 
+// returns the window on this positions
+gui_frame_t *win_get_oncoord( const scr_coord pt )
+{
+	for(  int i=wins.get_count()-1;  i>=0;  i--  ) {
+		if(  wins[i].gui->getroffen( pt.x-wins[i].pos.x, pt.y-wins[i].pos.y )  ) {
+			return wins[i].gui;
+		}
+	}
+	return NULL;
+}
+
 
 /**
  * Returns top window
