@@ -1896,7 +1896,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 									is_preferred = false;
 								}
 							}
-
+							
 							// Thanks to cwlau9 for suggesting this formula (now heavily modified by Knightly and jamespetts)
 							// July 2009
 							if(!is_preferred)
@@ -1917,12 +1917,12 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 								{
 									how_much_slower /= preferred_travelling_minutes;
 								}
-								 // Passengers will always board slower convoy if its journey time is within an acceptable
+								 // Passengers/goods will always board slower convoy if its journey time is within an acceptable
 								 // tolerance of the fastest journey time. 
 								 // The acceptable tolerance is scaled depending on journey time of faster convoy.
 								 if (preferred_travelling_minutes <= 100 && how_much_slower < 160)
 								 {
-								  much_faster = false;
+									much_faster = false;
 								 }
 								 else if ((preferred_travelling_minutes > 100 && preferred_travelling_minutes <= 300) && (how_much_slower < 150))
 								 {
@@ -1949,7 +1949,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 									 much_faster = false;
 								 } 
                      
-								 // If passengers have been waiting a long time, they are more likely to board a slower convoy.
+								 // If passengers/goods have been waiting a long time, they are more likely to board a slower convoy.
 								 // But this is scaled so that a much slower convoy requires a much longer-than-expected wait.
 								 if (much_faster == true)
 								 {
@@ -1975,7 +1975,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 									}
 								 }
                      
-								 // Passengers continue to wait for faster convoy if...
+								 // Passengers/goods continue to wait for faster convoy if...
 								 if ((much_faster == true) && (waiting_too_long == false))
 								 {
 									 continue;
