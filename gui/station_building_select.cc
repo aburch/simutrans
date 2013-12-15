@@ -53,10 +53,10 @@ station_building_select_t::station_building_select_t(const haus_besch_t *besch) 
 		scr_coord(rw*2-x_diff,rw*2)
 	};
 	const scr_coord base_offsets[6]={
-		scr_coord(D_MARGIN_LEFT,D_MARGIN_TOP+LINESPACE),             // 1st image if layout < 2
-		scr_coord(width+D_MARGIN_LEFT+10,D_MARGIN_TOP+LINESPACE),	   // 2nd image if layout < 2
-		scr_coord(D_MARGIN_LEFT,height+D_BUTTON_HEIGHT+10),		   // 3rd image, 1st second row
-		scr_coord(width+D_MARGIN_LEFT+10,height+D_BUTTON_HEIGHT+10), // 4th image, 2nd second row
+		scr_coord(D_MARGIN_LEFT, D_MARGIN_TOP+LINESPACE),        // 1st image if layout < 2
+		base_offsets[0]+scr_coord(width+10, 0),                  // 2nd image if layout < 2
+		base_offsets[0]+scr_coord(0, height+D_BUTTON_HEIGHT+10), // 3rd image, 1st second row
+		base_offsets[2]+scr_coord(width+10, 0),                  // 4th image, 2nd second row
 		base_offsets[1],                                         // 2nd image if layout > 2
 		base_offsets[0],                                         // 1st image if layout > 2
 	};
@@ -109,7 +109,7 @@ station_building_select_t::station_building_select_t(const haus_besch_t *besch) 
 		actionbutton[i].add_listener(this);
 		add_komponente(&actionbutton[i]);
 	}
-	set_windowsize(scr_size(width*2+10+D_MARGIN_LEFT+D_MARGIN_RIGHT, (height+D_BUTTON_HEIGHT)*(row+1)+D_MARGIN_TOP+D_MARGIN_BOTTOM+D_TITLEBAR_HEIGHT+LINESPACE));
+	set_windowsize(scr_size(width*2+10+D_MARGINS_X, (height+D_BUTTON_HEIGHT)*(row+1)+(10*row)+D_MARGINS_Y+D_TITLEBAR_HEIGHT+LINESPACE));
 }
 
 
