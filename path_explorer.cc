@@ -703,7 +703,7 @@ void path_explorer_t::compartment_t::step()
 			minivec_tpl<uint16> journey_time_list(64);
 			minivec_tpl<bool> recurrence_list(64);		// an array indicating whether certain halts have been processed already
 
-			uint16 accumulated_journey_time;
+			uint32 accumulated_journey_time;
 			quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> *catg_connexions;
 			haltestelle_t::connexion *new_connexion;
 
