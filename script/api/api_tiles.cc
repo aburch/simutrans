@@ -181,12 +181,12 @@ void export_tiles(HSQUIRRELVM vm)
 	 * List to iterate through all objects on this tile.
 	 * @code
 	 * t= tile_x(47,11)
-	 * foreach(obj in t.objects) {
+	 * foreach(obj in t.get_objects()) {
 	 *    ...
 	 * }
 	 * @endcode
 	 */
-	tile_object_list_x objects;
+	tile_object_list_x get_objects();
 #endif
 
 	end_class(vm);
