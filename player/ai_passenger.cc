@@ -73,7 +73,7 @@ bool ai_passenger_t::set_active(bool new_state)
  */
 halthandle_t ai_passenger_t::get_our_hub( const stadt_t *s ) const
 {
-	FOR(slist_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {
+	FOR(vector_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {
 		if(  halt->get_besitzer()==(const spieler_t *)this  ) {
 			if(  halt->get_pax_enabled()  &&  (halt->get_station_type()&haltestelle_t::busstop)!=0  ) {
 				koord h=halt->get_basis_pos();

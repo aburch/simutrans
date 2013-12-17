@@ -63,7 +63,7 @@
 
 karte_ptr_t haltestelle_t::welt;
 
-slist_tpl<halthandle_t> haltestelle_t::alle_haltestellen;
+vector_tpl<halthandle_t> haltestelle_t::alle_haltestellen;
 
 stringhashtable_tpl<halthandle_t> haltestelle_t::all_names;
 
@@ -103,7 +103,7 @@ void haltestelle_t::step_all()
 		}
 	}
 
-	static slist_tpl<halthandle_t>::iterator iter( alle_haltestellen.begin() );
+	static vector_tpl<halthandle_t>::iterator iter( alle_haltestellen.begin() );
 	if (alle_haltestellen.empty()) {
 		return;
 	}
@@ -324,7 +324,7 @@ void haltestelle_t::destroy(halthandle_t const halt)
 void haltestelle_t::destroy_all()
 {
 	while (!alle_haltestellen.empty()) {
-		halthandle_t halt = alle_haltestellen.front();
+		halthandle_t halt = alle_haltestellen.back();
 		destroy(halt);
 	}
 	if (all_koords) {
@@ -1231,7 +1231,7 @@ void haltestelle_t::fill_connected_component(uint8 catg_idx, uint16 comp)
 void haltestelle_t::rebuild_connected_components()
 {
 	for(uint8 catg_idx = 0; catg_idx<warenbauer_t::get_max_catg_index(); catg_idx++) {
-		FOR(slist_tpl<halthandle_t>, halt, alle_haltestellen) {
+		FOR(vector_tpl<halthandle_t>, halt, alle_haltestellen) {
 			if (halt->all_links[catg_idx].catg_connected_component == UNDECIDED_CONNECTED_COMPONENT) {
 				// start recursion
 				halt->fill_connected_component(catg_idx, halt.get_id());

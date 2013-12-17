@@ -309,7 +309,7 @@ void halt_list_frame_t::display_list()
 
 	// create a unsorted station list
 	num_filtered_stops = 0;
-	FOR(slist_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {
+	FOR(vector_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {
 		if(  halt->get_besitzer() == m_sp  ) {
 			a[n++] = halt;
 			if (passes_filter(*halt)) {

@@ -3362,7 +3362,7 @@ DBG_MESSAGE( "karte_t::rotate90()", "called" );
 	zeiger->change_pos( koord3d::invalid );
 
 	// preprocessing, detach stops from factories to prevent crash
-	FOR(slist_tpl<halthandle_t>, const s, haltestelle_t::get_alle_haltestellen()) {
+	FOR(vector_tpl<halthandle_t>, const s, haltestelle_t::get_alle_haltestellen()) {
 		s->release_factory_links();
 	}
 
@@ -3415,7 +3415,7 @@ DBG_MESSAGE( "karte_t::rotate90()", "called" );
 		f->rotate90(cached_size.x);
 	}
 	// after rotation of factories, rotate everything that holds freight: stations and convoys
-	FOR(slist_tpl<halthandle_t>, const s, haltestelle_t::get_alle_haltestellen()) {
+	FOR(vector_tpl<halthandle_t>, const s, haltestelle_t::get_alle_haltestellen()) {
 		s->rotate90(cached_size.x);
 	}
 
@@ -4102,7 +4102,7 @@ void karte_t::new_month()
 	INT_CHECK("simworld 1289");
 
 //	DBG_MESSAGE("karte_t::neuer_monat()","halts");
-	FOR(slist_tpl<halthandle_t>, const s, haltestelle_t::get_alle_haltestellen()) {
+	FOR(vector_tpl<halthandle_t>, const s, haltestelle_t::get_alle_haltestellen()) {
 		s->neuer_monat();
 		INT_CHECK("simworld 1877");
 	}
@@ -5021,7 +5021,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved fabs");
 
 	sint32 haltcount=haltestelle_t::get_alle_haltestellen().get_count();
 	file->rdwr_long(haltcount);
-	FOR(slist_tpl<halthandle_t>, const s, haltestelle_t::get_alle_haltestellen()) {
+	FOR(vector_tpl<halthandle_t>, const s, haltestelle_t::get_alle_haltestellen()) {
 		s->rdwr(file);
 	}
 DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved stops");
@@ -5762,14 +5762,14 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 	ls.set_progress( (get_size().y*3)/2+256+get_size().y/3 );
 
 	// resolve dummy stops into real stops first ...
-	FOR(slist_tpl<halthandle_t>, const i, haltestelle_t::get_alle_haltestellen()) {
+	FOR(vector_tpl<halthandle_t>, const i, haltestelle_t::get_alle_haltestellen()) {
 		if (i->get_besitzer() && i->existiert_in_welt()) {
 			i->laden_abschliessen();
 		}
 	}
 
 	// ... before removing dummy stops
-	for(  slist_tpl<halthandle_t>::const_iterator i=haltestelle_t::get_alle_haltestellen().begin(); i!=haltestelle_t::get_alle_haltestellen().end();  ) {
+	for(  vector_tpl<halthandle_t>::const_iterator i=haltestelle_t::get_alle_haltestellen().begin(); i!=haltestelle_t::get_alle_haltestellen().end();  ) {
 		halthandle_t const h = *i;
 		++i;
 		if (!h->get_besitzer() || !h->existiert_in_welt()) {
@@ -5813,7 +5813,7 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 #if 0
 	// reroute goods for benchmarking
 	dt = dr_time();
-	FOR(slist_tpl<halthandle_t>, const i, haltestelle_t::get_alle_haltestellen()) {
+	FOR(vector_tpl<halthandle_t>, const i, haltestelle_t::get_alle_haltestellen()) {
 		sint16 dummy = 0x7FFF;
 		i->reroute_goods(dummy);
 	}

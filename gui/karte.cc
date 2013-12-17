@@ -1358,14 +1358,14 @@ void reliefkarte_t::draw(scr_coord pos)
 	// only fill cache if needed
 	if(  mode & MAP_MODE_HALT_FLAGS  &&  stop_cache.empty()  ) {
 		if(  mode&MAP_ORIGIN  ) {
-			FOR( const slist_tpl<halthandle_t>, halt, haltestelle_t::get_alle_haltestellen() ) {
+			FOR( const vector_tpl<halthandle_t>, halt, haltestelle_t::get_alle_haltestellen() ) {
 				if(  halt->get_pax_enabled()  ||  halt->get_post_enabled()  ) {
 					stop_cache.append( halt );
 				}
 			}
 		}
 		else if(  mode&MAP_TRANSFER  ) {
-			FOR( const slist_tpl<halthandle_t>, halt, haltestelle_t::get_alle_haltestellen() ) {
+			FOR( const vector_tpl<halthandle_t>, halt, haltestelle_t::get_alle_haltestellen() ) {
 				if(  halt->is_transfer(warenbauer_t::INDEX_PAS)  ||  halt->is_transfer(warenbauer_t::INDEX_MAIL)  ) {
 					stop_cache.append( halt );
 				}
@@ -1382,7 +1382,7 @@ void reliefkarte_t::draw(scr_coord pos)
 			}
 		}
 		else if(  mode&MAP_STATUS  ||  mode&MAP_SERVICE  ||  mode&MAP_WAITING  ||  mode&MAP_WAITCHANGE  ) {
-			FOR( const slist_tpl<halthandle_t>, halt, haltestelle_t::get_alle_haltestellen() ) {
+			FOR( const vector_tpl<halthandle_t>, halt, haltestelle_t::get_alle_haltestellen() ) {
 				stop_cache.append( halt );
 			}
 		}

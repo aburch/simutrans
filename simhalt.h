@@ -80,7 +80,7 @@ private:
 	 * deshalb verwaltet die Klasse eine Liste aller Haltestellen
 	 * @author Hj. Malthaner
 	 */
-	static slist_tpl<halthandle_t> alle_haltestellen;
+	static vector_tpl<halthandle_t> alle_haltestellen;
 
 	/**
 	 * finds a stop by its name
@@ -173,7 +173,7 @@ public:
 	 */
 	static halthandle_t get_halt(const koord3d pos, const spieler_t *sp );
 
-	static const slist_tpl<halthandle_t>& get_alle_haltestellen() { return alle_haltestellen; }
+	static const vector_tpl<halthandle_t>& get_alle_haltestellen() { return alle_haltestellen; }
 
 	/**
 	 * Station factory method. Returns handles instead of pointers.

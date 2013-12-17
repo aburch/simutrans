@@ -505,7 +505,7 @@ void spieler_t::ai_bankrupt()
 	// remove all stops
 	// first generate list of our stops
 	slist_tpl<halthandle_t> halt_list;
-	FOR(slist_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {
+	FOR(vector_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {
 		if(  halt->get_besitzer()==this  ) {
 			halt_list.append(halt);
 		}
@@ -517,7 +517,7 @@ void spieler_t::ai_bankrupt()
 	}
 
 	// transfer all ways in public stops belonging to me to no one
-	FOR(slist_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {
+	FOR(vector_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {
 		if(  halt->get_besitzer()==welt->get_spieler(1)  ) {
 			// only concerns public stops tiles
 			FOR(slist_tpl<haltestelle_t::tile_t>, const& i, halt->get_tiles()) {
