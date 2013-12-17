@@ -2161,7 +2161,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 
 		DBG_MESSAGE("check_bau_rathaus()", "bev=%d, new=%d name=%s", bev, neugruendung, name.c_str());
 
-		if(  bev!=0  ) {
+		if(  umziehen  ) {
 
 			const haus_besch_t* besch_alt = gb->get_tile()->get_besch();
 			if (besch_alt->get_level() == besch->get_level()) {
@@ -2182,7 +2182,6 @@ void stadt_t::check_bau_rathaus(bool new_town)
 					if (gb0  &&  gb0->ist_rathaus()  &&  gb0->get_tile()->get_besch()==besch_alt  &&  gb0->get_stadt()==this) {
 						old_layout = test_layout;
 						pos_alt = best_pos = gr->get_pos().get_2d() + koord(test_layout%3!=0 ? corner_offset.x : 0, test_layout&2 ? corner_offset.y : 0);
-						welt->lookup_kartenboden(pos_alt)->set_text("hier");
 						break;
 					}
 					corner_offset = koord(-corner_offset.y, corner_offset.x);
