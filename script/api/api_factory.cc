@@ -87,13 +87,7 @@ SQInteger world_get_factory_by_index(HSQUIRRELVM vm)
 {
 	uint32 index = param<uint32>::get(vm, -1);
 	fabrik_t *fab = welt->get_fab(index);
-	koord pos(koord::invalid);
-	if (fab) {
-		pos = fab->get_pos().get_2d();
-		// transform coordinates
-		welt->get_scenario()->koord_w2sq(pos);
-	}
-	return push_instance(vm, "factory_x",  pos.x, pos.y);
+	return param<fabrik_t*>::push(vm, fab);
 }
 
 
