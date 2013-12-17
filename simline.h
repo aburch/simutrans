@@ -15,7 +15,6 @@
 #include "utils/plainstring.h"
 
 #define MAX_MONTHS     12 // Max history
-#define MAX_NON_MONEY_TYPES 2 // number of non money types in line's financial statistic
 
 #define LINE_CAPACITY   0 // the amount of ware that could be transported, theoretically
 #define LINE_TRANSPORTED_GOODS 1 // the amount of ware that has been transported
