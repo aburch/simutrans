@@ -555,7 +555,6 @@ const char *tunnelbauer_t::remove(spieler_t *sp, koord3d start, waytype_t wegtyp
 	slist_tpl<koord3d>  end_list;
 	slist_tpl<koord3d>  part_list;
 	slist_tpl<koord3d>  tmp_list;
-	const char    *msg;
 	koord3d   pos = start;
 
 	// Erstmal das ganze Außmaß des Tunnels bestimmen und sehen,
@@ -583,7 +582,7 @@ const char *tunnelbauer_t::remove(spieler_t *sp, koord3d start, waytype_t wegtyp
 			part_list.insert(pos);
 		}
 		// Alle Tunnelteile auf Entfernbarkeit prüfen!
-		if(  const char *msg = from->kann_alle_obj_entfernen(sp)  ) {
+		if(  from->kann_alle_obj_entfernen(sp)  ) {
 			return "Der Tunnel ist nicht frei!\n";
 		}
 		if(  !remove_all  &&  ribi_t::is_threeway(from->get_weg_ribi_unmasked(delete_wegtyp))  ) {
