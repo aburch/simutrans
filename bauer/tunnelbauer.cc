@@ -549,7 +549,7 @@ void tunnelbauer_t::baue_einfahrt(spieler_t *sp, koord3d end, koord zv, const tu
 }
 
 
-const char *tunnelbauer_t::remove(spieler_t *sp, koord3d start, waytype_t wegtyp)
+const char *tunnelbauer_t::remove(spieler_t *sp, koord3d start, waytype_t wegtyp, bool remove_all )
 {
 	marker_t& marker = marker_t::instance(welt->get_size().x, welt->get_size().y);
 	slist_tpl<koord3d>  end_list;
@@ -561,7 +561,8 @@ const char *tunnelbauer_t::remove(spieler_t *sp, koord3d start, waytype_t wegtyp
 	// Erstmal das ganze Außmaß des Tunnels bestimmen und sehen,
 	// ob uns was im Weg ist.
 	tmp_list.insert(pos);
-	marker.mark(welt->lookup(pos));
+	grund_t *from = welt->lookup(pos);
+	marker.mark(from);
 	waytype_t delete_wegtyp = wegtyp==powerline_wt ? invalid_wt : wegtyp;
 
 	do {
@@ -582,10 +583,11 @@ const char *tunnelbauer_t::remove(spieler_t *sp, koord3d start, waytype_t wegtyp
 			part_list.insert(pos);
 		}
 		// Alle Tunnelteile auf Entfernbarkeit prüfen!
-		msg = from->kann_alle_obj_entfernen(sp);
-
-		if(msg != NULL) {
+		if(  const char *msg = from->kann_alle_obj_entfernen(sp)  ) {
 			return "Der Tunnel ist nicht frei!\n";
+		}
+		if(  !remove_all  &&  ribi_t::is_threeway(from->get_weg_ribi_unmasked(delete_wegtyp))  ) {
+			return "This tunnel branches. You can try Control+Click to remove.";
 		}
 		// Nachbarn raussuchen
 		for(int r = 0; r < 4; r++) {

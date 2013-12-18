@@ -402,7 +402,7 @@ DBG_MESSAGE("wkz_remover_intern()","at (%s)", pos.get_str());
 	}
 
 	// check if there is something to remove from here ...
-	if(gr->get_top()==0  ) {
+	if(  gr->get_top()==0  ) {
 		msg = "";
 		return false;
 	}
@@ -432,7 +432,7 @@ DBG_MESSAGE("wkz_remover_intern()","at (%s)", pos.get_str());
 
 	// pedestrians?
 	fussgaenger_t* fussgaenger = gr->find<fussgaenger_t>();
-	if (fussgaenger) {
+	if(fussgaenger) {
 		delete fussgaenger;
 		return true;
 	}
@@ -460,7 +460,7 @@ DBG_MESSAGE("wkz_remover_intern()","at (%s)", pos.get_str());
 		}
 		if(gr->ist_tunnel()  &&  gr->ist_karten_boden()) {
 			if (gr->find<tunnel_t>()->get_besch()->get_waytype()==powerline_wt) {
-				msg = tunnelbauer_t::remove(sp, gr->get_pos(), powerline_wt );
+				msg = tunnelbauer_t::remove(sp, gr->get_pos(), powerline_wt, is_ctrl_pressed() );
 				return msg == NULL;
 			}
 		}
@@ -547,7 +547,7 @@ DBG_MESSAGE("wkz_remover()",  "removing bridge from %d,%d,%d",gr->get_pos().x, g
 	// beginning/end of tunnel
 	if(gr->ist_tunnel()  &&  gr->ist_karten_boden()) {
 DBG_MESSAGE("wkz_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x, gr->get_pos().y, gr->get_pos().z);
-		msg = tunnelbauer_t::remove(sp, gr->get_pos(), gr->get_weg_nr(0)->get_waytype());
+		msg = tunnelbauer_t::remove(sp, gr->get_pos(), gr->get_weg_nr(0)->get_waytype(), is_ctrl_pressed());
 		return msg == NULL;
 	}
 

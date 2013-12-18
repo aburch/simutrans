@@ -48,7 +48,7 @@ public:
 
 	static const char *baue( spieler_t *sp, koord pos, const tunnel_besch_t *besch, bool full_tunnel  );
 
-	static const char *remove(spieler_t *sp, koord3d pos, waytype_t wegtyp);
+	static const char *remove(spieler_t *sp, koord3d pos, waytype_t wegtyp, bool all);
 };
 
 #endif
