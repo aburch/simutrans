@@ -96,23 +96,17 @@ bool gui_scrolled_list_t::action_triggered( gui_action_creator_t * /* comp */, v
 // set the scrollbar offset, so that the selected item is visible
 void gui_scrolled_list_t::show_selection(int s)
 {
-	if((unsigned)s<item_list.get_count()) {
+	if(  (unsigned)s<item_list.get_count()  ) {
 		selection = s;
 DBG_MESSAGE("gui_scrolled_list_t::show_selection()","sel=%d, offset=%d, size.h=%d",s,offset,size.h);
 		s *= LINESPACE;
-		if(s<offset  ||  (s+LINESPACE)>offset+size.h) {
+		if(  s<offset  ||  (s+LINESPACE)>offset+size.h  ) {
 			// outside range => reposition
 			sb.set_knob_offset( max(0,s-(size.h/2) ) );
 			offset = sb.get_knob_offset();
 		}
 	}
-	else {
-		selection = -1;
-	}
 }
-
-
-
 
 
 void gui_scrolled_list_t::clear_elements()
@@ -121,11 +115,8 @@ void gui_scrolled_list_t::clear_elements()
 		delete item_list[i];
 	}
 	item_list.clear();
-	/*
-	while(  !item_list.empty()  ) {
-		delete item_list.remove_first();
-	}
-	*/
+	selection = -1;
+	offset = 0;
 	adjust_scrollbar();
 }
 
@@ -172,6 +163,8 @@ void gui_scrolled_list_t::sort( int offset, void *sort_param )
 				}
 			}
 		}
+		else {
+		}
 	}
 }
 
@@ -217,21 +210,8 @@ void gui_scrolled_list_t::set_size(scr_size size)
 void gui_scrolled_list_t::adjust_scrollbar()
 {
 	sb.set_pos(scr_coord(size.w-D_SCROLLBAR_WIDTH,0));
-
-	// Max Kielland
-	// The scrollbar manages itself, just set the size...
-
-	//int vz = total_vertical_size();
-	// need scrollbar?
-	//if ( size.h-border < vz) {
-	//	sb.set_visible(true);
-		sb.set_size( scr_size( D_SCROLLBAR_WIDTH, (int)size.h + border - 1) );
-		//sb.set_knob(size.h-border, vz);
-		sb.set_knob( size.h - border, total_vertical_size() );
-	//}
-	//else {
-	//	sb.set_visible(false);
-	//}
+	sb.set_size( scr_size( D_SCROLLBAR_WIDTH, (int)size.h + border - 1) );
+	sb.set_knob( size.h - border, total_vertical_size() );
 }
 
 

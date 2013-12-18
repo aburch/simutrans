@@ -313,12 +313,12 @@ bool schedule_list_gui_t::infowin_event(const event_t *ev)
 
 bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t v )           // 28-Dec-01    Markus Weber    Added
 {
-	if (komp == &bt_change_line) {
-		if (line.is_bound()) {
+	if(komp == &bt_change_line) {
+		if(line.is_bound()) {
 			create_win( new line_management_gui_t(line, sp), w_info, (ptrdiff_t)line.get_rep() );
 		}
 	}
-	else if (komp == &bt_new_line) {
+	else if(komp == &bt_new_line) {
 		// create typed line
 		assert(  tabs.get_active_tab_index() > 0  &&  tabs.get_active_tab_index()<max_idx  );
 		// update line schedule via tool!
@@ -332,8 +332,8 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t 
 		delete w;
 		depot_t::update_all_win();
 	}
-	else if (komp == &bt_delete_line) {
-		if (line.is_bound()) {
+	else if(komp == &bt_delete_line) {
+		if(line.is_bound()) {
 			werkzeug_t *w = create_tool( WKZ_LINE_TOOL | SIMPLE_TOOL );
 			cbuffer_t buf;
 			buf.printf( "d,%i", line.get_id() );
@@ -344,7 +344,7 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t 
 			depot_t::update_all_win();
 		}
 	}
-	else if (komp == &bt_withdraw_line) {
+	else if(komp == &bt_withdraw_line) {
 		bt_withdraw_line.pressed ^= 1;
 		if (line.is_bound()) {
 			werkzeug_t *w = create_tool( WKZ_LINE_TOOL | SIMPLE_TOOL );
@@ -358,7 +358,12 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t 
 	}
 	else if (komp == &tabs) {
 		int const tab = tabs.get_active_tab_index();
+		uint8 old_selected_tab = selected_tab;
 		selected_tab = tabs_to_lineindex[tab];
+		if(  old_selected_tab == simline_t::line  &&  selected_line[0].is_bound()  &&  selected_line[0]->get_linetype() == selected_tab  ) {
+			// switching from general to same waytype tab while line is seletced => use current line instead
+			selected_line[selected_tab] = selected_line[0];
+		}
 		update_lineinfo( selected_line[selected_tab] );
 		build_line_list(tab);
 		if (tab>0) {
@@ -377,8 +382,7 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t 
 			update_lineinfo(linehandle_t());
 		}
 		selected_line[selected_tab] = line;
-		// brute force: just recalculate whole list on each click to keep it current
-//		build_line_list(tabs.get_active_tab_index());
+		selected_line[0] = line; // keep these the same in overview
 	}
 	else if (komp == &inp_filter) {
 		if(  strcmp(old_schedule_filter,schedule_filter)  ) {
