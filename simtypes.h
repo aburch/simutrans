@@ -133,6 +133,7 @@ typedef   signed int        sint32;
 #ifndef NO_UINT32_TYPES
 typedef unsigned int        uint32;
 #define UINT32_MAX_VALUE	UINT_MAX	
+#define SINT64_MAX_VALUE	LLONG_MAX
 #endif
 #else
 // BeOS: int!=long (even though both 32 bit)
@@ -141,6 +142,7 @@ typedef   signed long       sint32;
 #ifndef NO_UINT32_TYPES
 typedef unsigned long       uint32;
 #define UINT32_MAX_VALUE	ULONG_MAX	
+#define SINT64_MAX_VALUE	LLONG_MAX
 #endif
 #endif
 typedef   signed long long  sint64;
