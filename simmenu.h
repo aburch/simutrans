@@ -387,20 +387,16 @@ protected:
 
 /* toolbar are a new overclass */
 class toolbar_t : public werkzeug_t {
-public:
-	// size of icons
-	scr_size iconsize;
 private:
 	const char *helpfile;
 	werkzeug_waehler_t *wzw;
 	slist_tpl<werkzeug_t *>tools;
 public:
-	toolbar_t(uint16 const id, char const* const t, char const* const h, scr_size const size) : werkzeug_t(id)
+	toolbar_t(uint16 const id, char const* const t, char const* const h) : werkzeug_t(id)
 	{
 		default_param = t;
 		helpfile = h;
 		wzw = NULL;
-		iconsize = size;
 	}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate(default_param); }
 	werkzeug_waehler_t *get_werkzeug_waehler() const { return wzw; }

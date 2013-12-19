@@ -224,11 +224,11 @@ void modal_dialogue( gui_frame_t *gui, ptrdiff_t magic, karte_t *welt, bool (*qu
 				DBG_DEBUG4("zeige_banner", "calling win_poll_event");
 				win_poll_event(&ev);
 				// no toolbar events
-				if(  ev.my < werkzeug_t::toolbar_tool[0]->iconsize.h  ) {
-					ev.my = werkzeug_t::toolbar_tool[0]->iconsize.h;
+				if(  ev.my < env_t::iconsize.h  ) {
+					ev.my = env_t::iconsize.h;
 				}
-				if(  ev.cy < werkzeug_t::toolbar_tool[0]->iconsize.h  ) {
-					ev.cy = werkzeug_t::toolbar_tool[0]->iconsize.h;
+				if(  ev.cy < env_t::iconsize.h  ) {
+					ev.cy = env_t::iconsize.h;
 				}
 				if(  ev.ev_class == EVENT_KEYBOARD  &&  ev.ev_code == SIM_KEY_F1  ) {
 					if(  gui_frame_t *win = win_get_top()  ) {

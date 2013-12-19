@@ -21,9 +21,6 @@ class werkzeug_t;
 class werkzeug_waehler_t : public gui_frame_t
 {
 private:
-	scr_size icon;	// size of symbols here
-
-
 	struct tool_data_t {
 		tool_data_t(werkzeug_t* t=NULL) : tool(t), selected(false) {}
 		werkzeug_t* tool; ///< pointer to associated tool
@@ -65,7 +62,7 @@ private:
 	bool allow_break;
 
 public:
-	werkzeug_waehler_t(const char *titel, const char *helpfile, uint32 toolbar_id, scr_size size, bool allow_break=true );
+	werkzeug_waehler_t(const char *titel, const char *helpfile, uint32 toolbar_id, bool allow_break=true );
 
 	/**
 	 * Add a new tool with values and tooltip text.

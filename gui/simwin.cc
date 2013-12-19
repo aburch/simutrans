@@ -662,7 +662,7 @@ int create_win(int x, int y, gui_frame_t* const gui, wintype const wt, ptrdiff_t
 			}
 			else {
 				x = min(get_maus_x() - size.w/2, display_get_width()-size.w);
-				y = min(get_maus_y() - size.h-32, display_get_height()-size.h);
+				y = min(get_maus_y() - size.h-env_t::iconsize.h, display_get_height()-size.h);
 			}
 		}
 		if(x<0) {
@@ -991,7 +991,7 @@ void snap_check_win( const int win, scr_coord *r, const scr_coord from_pos, cons
 		if(  i==wins_count  ) {
 			// Allow snap to screen edge
 			other_pos.x = 0;
-			other_pos.y = werkzeug_t::toolbar_tool[0]->iconsize.h;
+			other_pos.y = env_t::iconsize.h;
 			other_size.x = display_get_width();
 			other_size.y = display_get_height()-16-other_pos.y; // 16 = bottom ticker height?
 			if(  show_ticker  ) {
@@ -1094,7 +1094,7 @@ void move_win(int win, event_t *ev)
 
 	// CLIP(wert,min,max)
 	to_pos.x = CLIP( to_pos.x, 8-to_size.x, display_get_width()-16 );
-	to_pos.y = CLIP( to_pos.y, werkzeug_t::toolbar_tool[0]->iconsize.h, display_get_height()-24 );
+	to_pos.y = CLIP( to_pos.y, env_t::iconsize.h, display_get_height()-24 );
 
 	// delta is actual window movement.
 	const scr_coord delta = to_pos - from_pos;
@@ -1227,9 +1227,9 @@ bool check_pos_win(event_t *ev)
 	}
 
 	// click in main menu?
-	if (!werkzeug_t::toolbar_tool.empty()                   &&
-			werkzeug_t::toolbar_tool[0]->get_werkzeug_waehler() &&
-			werkzeug_t::toolbar_tool[0]->iconsize.h > y         &&
+	if (!werkzeug_t::toolbar_tool.empty()  &&
+			werkzeug_t::toolbar_tool[0]->get_werkzeug_waehler()  &&
+			env_t::iconsize.h > y  &&
 			ev->ev_class != EVENT_KEYBOARD) {
 		event_t wev = *ev;
 		inside_event_handling = werkzeug_t::toolbar_tool[0];
@@ -1468,7 +1468,7 @@ void win_display_flush(double konto)
 {
 	const sint16 disp_width = display_get_width();
 	const sint16 disp_height = display_get_height();
-	const sint16 menu_height = werkzeug_t::toolbar_tool[0]->iconsize.h;
+	const sint16 menu_height = env_t::iconsize.h;
 
 	// display main menu
 	werkzeug_waehler_t *main_menu = werkzeug_t::toolbar_tool[0]->get_werkzeug_waehler();

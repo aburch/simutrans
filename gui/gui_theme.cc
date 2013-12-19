@@ -10,6 +10,7 @@
 
 #include "gui_theme.h"
 #include "../simskin.h"
+#include "../simmenu.h"
 #include "../simsys.h"
 #include "../dataobj/environment.h"
 #include "../dataobj/tabfile.h"
@@ -371,6 +372,8 @@ bool gui_theme_t::themes_init(const char *file_name)
 	koord dummy = contents.get_koord("gui_button_text_offset",  koord(gui_theme_t::gui_button_text_offset.x, gui_theme_t::gui_button_text_offset.y) );
 	gui_theme_t::gui_button_text_offset = scr_coord(dummy.x, dummy.y);
 
+	// default iconsize (square for now)
+	env_t::iconsize.h = env_t::iconsize.w = contents.get_int("icon_width",env_t::iconsize.w );
 
 	// maybe not the best place, rather use simwin for the static defines?
 	gui_theme_t::gui_color_text =          (COLOR_VAL)contents.get_color("gui_text_color",          SYSCOL_TEXT);
@@ -410,6 +413,8 @@ bool gui_theme_t::themes_init(const char *file_name)
 	env_t::toolbar_max_width =    contents.get_int("toolbar_max_width",          env_t::toolbar_max_width );
 	env_t::toolbar_max_height =   contents.get_int("toolbar_max_height",         env_t::toolbar_max_height );
 	env_t::cursor_overlay_color = contents.get_color("cursor_overlay_color",     env_t::cursor_overlay_color );
+
+	werkzeug_t::update_toolbars();
 
 	// parsing buttons still needs to be done after agreement what to load
 	return false; //hence we return false for now ...

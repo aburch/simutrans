@@ -711,7 +711,8 @@ signed short current_tile_raster_width = 0;
  * Hajo: Zoom factor
  */
 #define MAX_ZOOM_FACTOR (9)
-static uint32 zoom_factor = 3;
+#define ZOOM_NEUTRAL (3)
+static uint32 zoom_factor = ZOOM_NEUTRAL;
 static sint32 zoom_num[MAX_ZOOM_FACTOR+1] = { 2, 3, 4, 1, 3, 5, 1, 3, 1, 1 };
 static sint32 zoom_den[MAX_ZOOM_FACTOR+1] = { 1, 2, 3, 1, 4, 8, 2, 8, 4, 8 };
 
@@ -1373,7 +1374,7 @@ static void rezoom_img(const image_id n)
 		}
 
 		// just restore original size?
-		if(  tile_raster_width == base_tile_raster_width  ||  (images[n].recode_flags&FLAG_ZOOMABLE) == 0  ) {
+		if(  zoom_factor == ZOOM_NEUTRAL  ||  (images[n].recode_flags&FLAG_ZOOMABLE) == 0  ) {
 			// this we can do be a simple copy ...
 			images[n].x = images[n].base_x;
 			images[n].w = images[n].base_w;
@@ -1799,6 +1800,30 @@ static void rezoom_img(const image_id n)
 #endif
 	}
 }
+
+
+// force a certain size on a image (for rescaling tool images)
+void display_fit_img_to_width( const image_id n, sint16 new_w )
+{
+	if(  n < anz_images  &&  images[n].base_h > 0  &&  images[n].w != new_w  ) {
+		int old_zoom_factor = zoom_factor;
+		sint16 start_w = 32767;
+		for(  int i=0;  i<=MAX_ZOOM_FACTOR;  i++  ) {
+			int zoom_w = (images[n].base_w * zoom_num[i]) / zoom_den[i];
+			if(  start_w > new_w  &&  zoom_w <= new_w  ) {
+				uint8 old_zoom_flag = images[n].recode_flags & FLAG_ZOOMABLE;
+				images[n].recode_flags &= ~FLAG_ZOOMABLE;
+				images[n].recode_flags |= FLAG_REZOOM | FLAG_ZOOMABLE;
+				zoom_factor = i;
+				rezoom_img(n);
+				images[n].recode_flags |= old_zoom_flag;
+				zoom_factor = old_zoom_factor;
+				return;
+			}
+		}
+	}
+}
+
 
 
 /**

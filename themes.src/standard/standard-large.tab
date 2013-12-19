@@ -1,7 +1,7 @@
 # Default simutrans theme
 #
 # name of the theme (will be shown with file selector)
-name=Simutrans (standard size)
+name=Simutrans (large size)
 
 # show tooltips (default 1=show)
 show_tooltips = 1
@@ -27,11 +27,14 @@ tooltip_duration = 5000
 # -- pak128.japan
 #cursor_overlay_color = 149
 
-# size of tools
-icon_width = 32
-
 # in default theme white text
 gui_text_highlight= #FFFFFF
+
+# larger icons too
+icon_width = 48
+
+# use the larger Button height
+gui_button_height = 22
 
 ##################################window stuff##################################
 

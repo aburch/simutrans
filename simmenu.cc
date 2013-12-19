@@ -432,10 +432,10 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 	// now the toolbar tools
 	DBG_MESSAGE( "werkzeug_t::read_menu()", "Reading toolbars" );
 	// default size
-	env_t::iconsize = scr_size( contents.get_int("icon_width",32), contents.get_int("icon_height",32) );
+//	env_t::iconsize = scr_size( contents.get_int("icon_width",env_t::iconsize.w), contents.get_int("icon_height",env_t::iconsize.h) );
 	// first: add main menu
 	toolbar_tool.resize( skinverwaltung_t::werkzeuge_toolbars->get_bild_anzahl() );
-	toolbar_tool.append(new toolbar_t(TOOLBAR_TOOL, "", "", env_t::iconsize));
+	toolbar_tool.append(new toolbar_t(TOOLBAR_TOOL, "", ""));
 	// now for the rest
 	for(  uint16 i=0;  i<toolbar_tool.get_count();  i++  ) {
 		char id[256];
@@ -592,7 +592,7 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 					const char *title = c;
 					c += strcspn(c, ",");
 					if (*c != '\0') *c++ = '\0';
-					toolbar_t* const tb = new toolbar_t(toolbar_tool.get_count() | TOOLBAR_TOOL, title, c, env_t::iconsize);
+					toolbar_t* const tb = new toolbar_t(toolbar_tool.get_count() | TOOLBAR_TOOL, title, c);
 					toolbar_tool.append(tb);
 					addtool = tb;
 				}
@@ -732,7 +732,7 @@ void toolbar_t::update(spieler_t *sp)
 	const bool create = (wzw == NULL);
 	if(create) {
 		DBG_MESSAGE("toolbar_t::update()","create toolbar %s",default_param);
-		wzw = new werkzeug_waehler_t( default_param, helpfile, toolbar_tool.index_of(this), iconsize, this!=werkzeug_t::toolbar_tool[0] );
+		wzw = new werkzeug_waehler_t( default_param, helpfile, toolbar_tool.index_of(this), this!=werkzeug_t::toolbar_tool[0] );
 	}
 	else {
 		DBG_MESSAGE("toolbar_t::update()","update toolbar %s",default_param);
