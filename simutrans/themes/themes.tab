@@ -33,6 +33,9 @@ gui_text_highlight= #FFFFFF
 # Use the default height
 #gui_button_height = 22
 
+# larger icons too
+icon_width = 32
+
 # windows drop a little shadow (default off)
 # gui_drop_shadows = 1
 

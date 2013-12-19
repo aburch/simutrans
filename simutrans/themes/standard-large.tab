@@ -30,6 +30,9 @@ tooltip_duration = 5000
 # in default theme white text
 gui_text_highlight= #FFFFFF
 
+# larger icons too
+icon_width = 48
+
 # use the larger Button height
 gui_button_height = 22
 
