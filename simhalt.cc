@@ -1789,6 +1789,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 	{
 		uint32 accumulated_journey_time = 0;
 		halthandle_t previous_halt = self;
+		vector_tpl<int> goods_to_remove;
 
 		binary_heap_tpl<ware_t*> goods_to_check; 
 		for(uint32 i = 0; i < warray->get_count(); i++) 
@@ -1799,6 +1800,16 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 			if(tmp.menge > 0)
 			{
 				goods_to_check.insert(&tmp);
+			}
+			else
+			{
+				// There is no need any longer to have empty ware packets hanging around.
+				goods_to_remove.append(i);
+			}
+
+			ITERATE(goods_to_remove, n)
+			{
+				warray->remove_at(goods_to_remove[n]);
 			}
 		}
 		
@@ -1983,7 +1994,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 					else 
 					{
 						// leave an empty entry => joining will more often work
-						warray->remove(*next_to_load);
+						next_to_load->menge = 0;
 					}
 				
 					book(neu.menge, HALT_DEPARTED);
