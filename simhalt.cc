@@ -1114,19 +1114,9 @@ void haltestelle_t::step()
 					uint32 max_wait_tenths = max_wait_minutes * 10u;
 					halthandle_t h = haltestelle_t::get_halt(welt, tmp.get_zielpos(), besitzer_p);
 
-					// Passengers' maximum waiting times are proportionate to the length of the journey.
-					uint16 journey_time = 65535;
-					path_explorer_t::get_catg_path_between(tmp.get_besch()->get_catg_index(), tmp.get_origin(), tmp.get_ziel(), journey_time, h);
-					const uint32 thrice_journey = 3u * journey_time;
-					const uint32 min_tenths = max_wait_tenths / 12u;
-					if (tmp.is_passenger() && thrice_journey < max_wait_tenths) {
-						if (thrice_journey < min_tenths) {
-							max_wait_tenths = min_tenths;
-						}
-						else {
-							max_wait_tenths = thrice_journey;
-						}
-					}
+					// Passengers' maximum waiting times were formerly limited to thrice their estimated
+					// journey time, but this is no longer so from version 11.14 onwards.
+
 #ifdef DEBUG_SIMRAND_CALLS
 					if (talk && i == 2198)
 						dbg->message("haltestelle_t::step", "%u) check %u of %u minutes: %u %s to \"%s\"", 
