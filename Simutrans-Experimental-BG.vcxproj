@@ -284,6 +284,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="besch\fabrik_besch.cc" />
+    <ClCompile Include="besch\weg_besch.cc" />
     <ClCompile Include="clipboard_w32.cc" />
     <ClCompile Include="dataobj\gameinfo.cc" />
     <ClCompile Include="dataobj\livery_scheme.cc" />
@@ -318,6 +319,7 @@
     <ClCompile Include="bauer\brueckenbauer.cc" />
     <ClCompile Include="boden\brueckenboden.cc" />
     <ClCompile Include="besch\reader\building_reader.cc" />
+    <ClCompile Include="player\finance.cc" />
     <ClCompile Include="script\api\api_city.cc" />
     <ClCompile Include="script\api\api_const.cc" />
     <ClCompile Include="script\api\api_convoy.cc" />
@@ -325,10 +327,12 @@
     <ClCompile Include="script\api\api_goods_desc.cc" />
     <ClCompile Include="script\api\api_gui.cc" />
     <ClCompile Include="script\api\api_halt.cc" />
+    <ClCompile Include="script\api\api_map_objects.cc" />
     <ClCompile Include="script\api\api_player.cc" />
     <ClCompile Include="script\api\api_scenario.cc" />
     <ClCompile Include="script\api\api_schedule.cc" />
     <ClCompile Include="script\api\api_settings.cc" />
+    <ClCompile Include="script\api\api_simple.cc" />
     <ClCompile Include="script\api\api_tiles.cc" />
     <ClCompile Include="script\api\api_world.cc" />
     <ClCompile Include="script\api\export_besch.cc" />
@@ -619,9 +623,11 @@
     <ClInclude Include="player\ai.h" />
     <ClInclude Include="player\ai_goods.h" />
     <ClInclude Include="player\ai_passenger.h" />
+    <ClInclude Include="player\finance.h" />
     <ClInclude Include="script\api\api.h" />
     <ClInclude Include="script\api\api_base.h" />
     <ClInclude Include="script\api\api_doc.h" />
+    <ClInclude Include="script\api\api_simple.h" />
     <ClInclude Include="script\api\export_besch.h" />
     <ClInclude Include="script\api\get_next.h" />
     <ClInclude Include="script\api_class.h" />

@@ -915,6 +915,18 @@
     <ClCompile Include="script\api\api_schedule.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="script\api\api_simple.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="script\api\api_map_objects.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="player\finance.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="besch\weg_besch.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gui\components\action_listener.h">
@@ -2079,6 +2091,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="simunits.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="script\api\api_simple.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="player\finance.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
