@@ -969,6 +969,15 @@ private:
 	*/		 	
 	void step_passengers_and_mail(long delta_t);
 
+	inline uint64 calc_step_interval(const unsigned long weight, uint32 trips_per_month_hundredths)
+	{
+		// This represents the number of passenger trips resp. units/packets/bundles of mail posted per unit
+		// of population or mail demand per month, divided by 100. NOTE: This excludes return and onward journeys.
+		const uint64 trips_per_month = max(((uint64)weight * calc_adjusted_monthly_figure(trips_per_month_hundredths)) / 100u, 1);
+
+		return (uint64) ticks_per_world_month > trips_per_month ? (uint64) ticks_per_world_month / trips_per_month : 1;
+	}
+
 	void generate_passengers_or_mail(const ware_besch_t * wtyp);
 
 	destination find_destination(trip_type trip);

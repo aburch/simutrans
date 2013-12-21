@@ -4366,19 +4366,22 @@ void karte_t::step_passengers_and_mail(long delta_t)
 	next_step_passenger += delta_t;
 	next_step_mail += delta_t;
 
-	const uint32 passenger_origins_weight = passenger_origins.get_sum_weight();
-	const uint32 mail_weight = mail_origins_and_targets.get_sum_weight();
+	//const unsigned long passenger_origins_weight = passenger_origins.get_sum_weight();
+	//const unsigned long mail_weight = mail_origins_and_targets.get_sum_weight();
 
-	// These represent the number of passenger trips and units/packets/bundles of mail posted per unit
-	// of population or mail demand per month, divided by 100. NOTE: This excludes return and onward journeys.
-	const uint32 passenger_trips_per_month_hundredths = calc_adjusted_monthly_figure(settings.get_passenger_trips_per_month_hundredths()); 
-	const uint32 mail_packets_per_month_hundredths = calc_adjusted_monthly_figure(settings.get_mail_packets_per_month_hundredths());
+	//// These represent the number of passenger trips and units/packets/bundles of mail posted per unit
+	//// of population or mail demand per month, divided by 100. NOTE: This excludes return and onward journeys.
+	//const uint32 passenger_trips_per_month_hundredths = calc_adjusted_monthly_figure(settings.get_passenger_trips_per_month_hundredths()); 
+	//const uint32 mail_packets_per_month_hundredths = calc_adjusted_monthly_figure(settings.get_mail_packets_per_month_hundredths());
 
-	const uint32 passenger_trips_per_month = max((passenger_origins_weight * passenger_trips_per_month_hundredths) / 100u, 1u);
-	const uint32 mail_packets_per_month = max((mail_weight * mail_packets_per_month_hundredths) / 100u, 1u);
+	//const sint64 passenger_trips_per_month = max((passenger_origins_weight * passenger_trips_per_month_hundredths) / 100u, 1u);
+	//const sint64 mail_packets_per_month = max((mail_weight * mail_packets_per_month_hundredths) / 100u, 1u);
 
-	passenger_step_interval = ticks_per_world_month / passenger_trips_per_month;
-	mail_step_interval = ticks_per_world_month / mail_packets_per_month;
+	//passenger_step_interval = ticks_per_world_month > passenger_trips_per_month ? ticks_per_world_month / passenger_trips_per_month : 1;
+	//mail_step_interval = ticks_per_world_month > mail_packets_per_month ? ticks_per_world_month / mail_packets_per_month : 1;
+
+	passenger_step_interval = calc_step_interval(passenger_origins.get_sum_weight(), settings.get_passenger_trips_per_month_hundredths());
+	mail_step_interval = calc_step_interval(mail_origins_and_targets.get_sum_weight(), settings.get_mail_packets_per_month_hundredths());
 
 	while(passenger_step_interval <= next_step_passenger) 
 	{
