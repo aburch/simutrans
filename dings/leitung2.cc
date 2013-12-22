@@ -797,9 +797,15 @@ void senke_t::step(long delta_t)
 	if(city)
 	{
 		const vector_tpl<fabrik_t*>& city_factories = city->get_city_factories();
+		const fabrik_t* city_fab;
 		ITERATE(city_factories, i)
 		{
-			municipal_power_demand += city_factories[i]->get_power_demand();
+			city_fab = city_factories[i];
+			if(city_fab->get_besch()->is_electricity_producer())
+			{
+				continue;
+			}
+			municipal_power_demand += city_fab->get_power_demand();
 		}
 		// Add the demand for the population
 		municipal_power_demand += city->get_power_demand();
