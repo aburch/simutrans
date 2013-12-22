@@ -816,7 +816,7 @@ void senke_t::step(long delta_t)
 	uint32 load_proportion = 100;
 
 	bool supply_max = false;
-	if(city)
+	if(city && city->get_substations()->get_count() > 1)
 	{
 		// Check to see whether there are any *other* substations in the city that supply it with electricity,
 		// and divide the demand between them.
