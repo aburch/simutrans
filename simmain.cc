@@ -705,8 +705,15 @@ int simu_main(int argc, char** argv)
 	bool themes_ok = false;
 	if(  const char *themestr = gimme_arg(argc, argv, "-theme", 1)  ) {
 		chdir( env_t::user_dir );
+		chdir( "themes" );
 		themes_ok = gui_theme_t::themes_init(themestr);
+		if(  !themes_ok  ) {
+			chdir( env_t::program_dir );
+			chdir( "themes" );
+			themes_ok = gui_theme_t::themes_init(themestr);
+		}
 	}
+	// süecified themes not found => try default themes
 	if(  !themes_ok  ) {
 		chdir( env_t::program_dir );
 		chdir( "themes" );
