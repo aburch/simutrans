@@ -712,6 +712,9 @@ int simu_main(int argc, char** argv)
 		chdir( "themes" );
 		themes_ok = gui_theme_t::themes_init("themes.tab");
 	}
+	if(  !themes_ok  ) {
+		dbg->fatal( "simmain()", "No GUI themes found! Please re-install!" );
+	}
 	chdir( env_t::program_dir );
 
 	// likely only the program without graphics was downloaded

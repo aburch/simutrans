@@ -416,6 +416,5 @@ bool gui_theme_t::themes_init(const char *file_name)
 
 	werkzeug_t::update_toolbars();
 
-	// parsing buttons still needs to be done after agreement what to load
-	return false; //hence we return false for now ...
+	return true;
 }
