@@ -157,13 +157,12 @@ const char *check_tile( const grund_t *gr, const spieler_t *sp, waytype_t wt, ri
 		return "Tile not empty.";
 	}
 
+	if(  wt != powerline_wt  &&  gr->get_leitung()  ) {
+		return "Tile not empty.";
+	}
+
 	// we can build a ramp when there is one (or with tram two) way in our direction and no stations/depot etc.
 	if(  weg_t *w = gr->get_weg_nr(0)  ) {
-
-		if(  gr->get_leitung()  ) {
-			// something in the way
-			return "Tile not empty.";
-		}
 
 		if(  !spieler_t::check_owner(w->get_besitzer(),sp)  ) {
 			// not our way
@@ -216,6 +215,7 @@ const char *check_tile( const grund_t *gr, const spieler_t *sp, waytype_t wt, ri
 				// matching powerline
 				return NULL;
 			}
+			return "A bridge must start on a way!";
 		}
 	}
 	// somethign here which we cannot remove => fail too
@@ -277,6 +277,11 @@ koord3d brueckenbauer_t::finde_ende(spieler_t *sp, koord3d pos, const koord zv, 
 		if(  !gr  ) {
 			// end of map!
 			break;
+		}
+
+		if(  gr->get_hoehe() == max_height-1  &&  besch->get_waytype() != powerline_wt  &&  gr->get_leitung()  ) {
+			error_msg = "Tile not empty.";
+			return koord3d::invalid;
 		}
 
 		// check for height
