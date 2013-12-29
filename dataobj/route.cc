@@ -293,6 +293,20 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 	// some thing for the search
 	const waytype_t wegtyp = fahr->get_waytype();
 	const bool is_airplane = fahr->get_waytype()==air_wt;
+
+	/* On water we will try jump point search (jps):
+	 * - If going straight do not turn, only if near an obstacle.
+	 * - If going diagonally only proceed in the two directions defining the diagonal.
+	 * Ideally, no water tile is visited twice.
+	 * Needs postprocessing to eliminate unnecessary turns.
+	 *
+	 * Reference:
+	 *  Harabor D. and Grastien A. 2011. Online Graph Pruning for Pathfinding on Grid Maps.
+	 *  In Proceedings of the 25th National Conference on Artificial Intelligence (AAAI), San Francisco, USA.
+	 *  http://users.cecs.anu.edu.au/~dharabor/data/papers/harabor-grastien-aaai11.pdf
+	 */
+	const bool use_jps     = fahr->get_waytype()==water_wt;
+
 	grund_t *to;
 
 	bool ziel_erreicht=false;
@@ -320,6 +334,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 	tmp->dir = 0;
 	tmp->count = 0;
 	tmp->ribi_from = ribi_t::alle;
+	tmp->jps_ribi  = ribi_t::alle;
 
 	// nothing in lists
 	marker_t& marker = marker_t::instance(welt->get_size().x, welt->get_size().y);
@@ -362,9 +377,10 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 
 		uint32 topnode_g = !queue.empty() ? queue.front()->g : max_cost;
 
+		const ribi_t::ribi way_ribi =  fahr->get_ribi(gr);
 		// testing all four possible directions
 		// mask direction we came from
-		const ribi_t::ribi ribi =  fahr->get_ribi(gr)  &  ( ~ribi_t::rueckwaerts(tmp->ribi_from) );
+		const ribi_t::ribi ribi =  way_ribi  &  ( ~ribi_t::rueckwaerts(tmp->ribi_from) )  &  tmp->jps_ribi;
 
 		const ribi_t::ribi *next_ribi = get_next_dirs(gr->get_pos(), ziel);
 		for(int r=0; r<4; r++) {
@@ -429,6 +445,17 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 				k->dir = current_dir;
 				k->ribi_from = next_ribi[r];
 				k->count = tmp->count+1;
+				k->jps_ribi = ribi_t::alle;
+
+				if (use_jps  &&  to->ist_wasser()) {
+					// only check previous direction plus directions not available on this tile
+					// if going straight only check straight direction
+					// if going diagonally check both directions that generate this diagonal
+					if (tmp->parent!=NULL) {
+						k->jps_ribi = ~way_ribi | current_dir;
+					}
+				}
+
 
 				if(  new_g <= topnode_g  ) {
 					// do not put in queue if the new node is the best one
@@ -466,12 +493,120 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 			route[ tmp->count ] = tmp->gr->get_pos();
 			tmp = tmp->parent;
 		}
+		if (use_jps  &&  fahr->get_waytype()==water_wt) {
+			postprocess_water_route(welt);
+		}
 		ok = true;
 	}
 
 	RELEASE_NODE();
 
 	return ok;
+}
+
+
+/*
+ * Postprocess routes created by jump-point search.
+ * These routes never turn when going straight.
+ * So something like this can happen:
+ *
+ * >--+
+ *    +--+
+ *       +-->
+ * This method tries to eliminate extra turns to make routes look more like
+ *
+ * >----+
+ *      ++
+ *       +-->
+ */
+void route_t::postprocess_water_route(karte_t *welt)
+{
+	if (route.get_count() < 5) return;
+
+	// direction of last straight part (and last index of straight part)
+	ribi_t::ribi straight_ribi = ribi_typ(route[0], route[1]);
+	uint32 straight_end = 0;
+
+	// search for route parts:
+	// straight - diagonal - straight (same direction as first straight part) - diagonal
+	// phase 0       1           2 <- postprocess after next change to diagonal
+	uint8 phase = 0;
+	uint32 i = 1;
+	while( i < route.get_count()-1 )
+	{
+		ribi_t::ribi ribi = ribi_typ(route[i-1], route[i+1]);
+		if (ribi_t::ist_einfach(ribi)) {
+			if (ribi == straight_ribi) {
+				if (phase == 1) {
+					// third part starts
+					phase = 2;
+				}
+				else {
+					if (phase == 0) {
+						// still on first part
+						straight_end = i;
+					}
+				}
+			}
+			else {
+				// straight direction different than before - start anew
+				phase = 0;
+				straight_end = i;
+				straight_ribi = ribi;
+			}
+		}
+		else {
+			if (phase < 1) {
+				// second phase
+				phase = 1;
+			}
+			else if (phase == 2) {
+				// fourth phase
+				// postprocess here
+				bool ok = ribi_typ(route[straight_end], route[i+1]) ==  ribi;
+				// try to find straight route, which avoids one diagonal part
+				koord3d_vector_t post;
+				post.append( route[straight_end] );
+				koord3d &end = route[i];
+				for(uint32 j = straight_end; j < i  &&  ok; j++) {
+					ribi_t::ribi next = 0;
+					koord diff = (end - post.back()).get_2d();
+					if (abs(diff.x)>=abs(diff.y)) {
+						next = diff.x > 0 ? ribi_t::ost : ribi_t::west;
+						if (abs(diff.x)==abs(diff.y)  &&  next == straight_ribi) {
+							next = diff.y > 0 ? ribi_t::sued : ribi_t::nord;
+						}
+					}
+					else {
+						next = diff.y > 0 ? ribi_t::sued : ribi_t::nord;
+					}
+					koord3d pos = post.back() + koord(next);
+					ok = false;
+					if (grund_t *gr = welt->lookup(pos)) {
+						if (gr->ist_wasser()) {
+							ok = true;
+							post.append(pos);
+						}
+					}
+				}
+				// now substitute the new route part into the route
+				if (ok) {
+					for(uint32 j = straight_end; j < i  &&  ok; j++) {
+						route[j] = post[j-straight_end];
+					}
+					// start again with the first straight part
+					i = straight_end;
+				}
+				else {
+					// set second straight part to be the first
+					straight_end = i-1;
+				}
+				// start new search
+				phase = 0;
+			}
+		}
+		i++;
+	}
 }
 
 
