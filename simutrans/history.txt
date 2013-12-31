@@ -16,6 +16,7 @@
 	ADD: enforce loading time (time will be added per full vehciles, default 1s)
 	ADD: makeobj can now warn about unused entries (makeobj verbose pak... or makeobj debug pak...)
 	CHG: Stretchable themes now in trunk
+	CHG: use faster route search for ships (jump-point search)
 
 
 Release of 112.3: (r6520 on 17-May-2013):

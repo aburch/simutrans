@@ -213,6 +213,10 @@ void display_base_img(const unsigned, KOORD_VAL, KOORD_VAL, const signed char, c
 {
 }
 
+void display_fit_img_to_width( const image_id n, sint16 new_w )
+{
+}
+
 void display_img_stretch( const stretch_map_t &, scr_rect)
 {
 }
