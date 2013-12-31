@@ -132,6 +132,12 @@ public:
 			last_transfer == w.last_transfer;
 	}
 
+	bool operator <= (const ware_t &w)
+	{
+		// Used only for the binary heap
+		return arrival_time <= w.arrival_time;
+	}
+
 	int operator!=(const ware_t &w) { return !(*this == w); 	}
 
 	/**
