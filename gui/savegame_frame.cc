@@ -800,11 +800,11 @@ void savegame_frame_t::press_file_table_button(coordinates_t &cell)
 {
 	pressed_file_table_button = cell;
 	file_table_button_pressed = true;
-	for (coordinate_t i = file_table.get_size().w; i > 0; ) {
+	for (coordinate_t i = file_table.get_grid_size().get_x(); i > 0; ) {
 		--i;
 		((gui_file_table_column_t*)file_table.get_column(i))->set_pressed(i == cell.get_x());
 	}
-	for (coordinate_t i = file_table.get_size().h; i > 0; ) {
+	for (coordinate_t i = file_table.get_grid_size().get_y(); i > 0; ) {
 		--i;
 		((gui_file_table_row_t*)file_table.get_row(i))->set_pressed(i == cell.get_y());
 	}
@@ -813,11 +813,11 @@ void savegame_frame_t::press_file_table_button(coordinates_t &cell)
 void savegame_frame_t::release_file_table_button()
 {
 	file_table_button_pressed = false;
-	for (coordinate_t i = file_table.get_size().w; i > 0; ) {
+	for (coordinate_t i = file_table.get_grid_size().get_x(); i > 0; ) {
 		--i;
 		((gui_file_table_column_t*)file_table.get_column(i))->set_pressed(false);
 	}
-	for (coordinate_t i = file_table.get_size().h; i > 0; ) {
+	for (coordinate_t i = file_table.get_grid_size().get_y(); i > 0; ) {
 		--i;
 		((gui_file_table_row_t*)file_table.get_row(i))->set_pressed(false);
 	}

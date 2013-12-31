@@ -1079,7 +1079,7 @@ uint16 vehikel_t::load_freight(halthandle_t halt, bool overcrowd)
 	uint16 load_charge = total_freight;
 	if(halt.is_bound()) 
 	{
-		ok = load_freight(halt, overcrowd);
+		ok = load_freight_internal(halt, overcrowd);
 	}
 	sum_weight = get_fracht_gewicht() + besch->get_gewicht();
 	calc_bild();

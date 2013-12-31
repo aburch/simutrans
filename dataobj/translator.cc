@@ -195,7 +195,7 @@ vector_tpl<char *> translator::street_name_list;
 // fills a list from a file with the given prefix followed by a language code
 void translator::load_custom_list( int lang, vector_tpl<char *>&name_list, const char *fileprefix )
 {
-	FILE *file;
+	FILE *file = NULL;
 
 	// Clean up all names
 	FOR(vector_tpl<char*>, const i, name_list) {
