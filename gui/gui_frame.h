@@ -13,58 +13,19 @@
 #ifndef gui_gui_frame_h
 #define gui_gui_frame_h
 
-#include "../dataobj/koord.h"
-#include "../simgraph.h"
-#include "gui_container.h"
+#include "../display/scr_coord.h"
+#include "../display/simgraph.h"
 #include "../simcolor.h"
 #include "../dataobj/koord3d.h"
 #include "../dataobj/translator.h"
+#include "components/gui_container.h"
+#include "components/gui_button.h"
+
+#include "gui_theme.h"
 
 class loadsave_t;
+class karte_ptr_t;
 class spieler_t;
-
-
-/*
- * The following gives positioning aids for elements in dialogues
- * Only those, LINESPACE, and dimensions of elements itself must be
- * exclusively used to calculate positions in dialogues to have a
- * scalable interface
- */
-
-// default button width (may change with language and font)
-#define D_BUTTON_WIDTH (gui_frame_t::gui_button_width)
-#define D_BUTTON_HEIGHT (gui_frame_t::gui_button_height)
-
-// titlebar height
-#define D_TITLEBAR_HEIGHT (gui_frame_t::gui_titlebar_height)
-
-// dialog borders
-#define D_MARGIN_LEFT (gui_frame_t::gui_frame_left)
-#define D_MARGIN_TOP (gui_frame_t::gui_frame_top)
-#define D_MARGIN_RIGHT (gui_frame_t::gui_frame_right)
-#define D_MARGIN_BOTTOM (gui_frame_t::gui_frame_bottom)
-
-// space between two elements
-#define D_H_SPACE (gui_frame_t::gui_hspace)
-#define D_V_SPACE (gui_frame_t::gui_vspace)
-
-#define BUTTON1_X (D_MARGIN_LEFT)
-#define BUTTON2_X (D_MARGIN_LEFT+1*(D_BUTTON_WIDTH+D_H_SPACE))
-#define BUTTON3_X (D_MARGIN_LEFT+2*(D_BUTTON_WIDTH+D_H_SPACE))
-#define BUTTON4_X (D_MARGIN_LEFT+3*(D_BUTTON_WIDTH+D_H_SPACE))
-
-#define BUTTON_X(col) (D_MARGIN_LEFT+(col)*(D_BUTTON_WIDTH+D_H_SPACE))
-#define BUTTON_Y(row) ((row)*(D_BUTTON_HEIGHT+D_V_SPACE))
-
-// The width of a typical dialogue (either list/covoi/factory) and initial width when it makes sense
-#define D_DEFAULT_WIDTH (D_MARGIN_LEFT+4*D_BUTTON_WIDTH+3*D_H_SPACE+D_MARGIN_RIGHT)
-
-// dimensions of indicator bars (not yet a gui element ...)
-#define D_INDICATOR_WIDTH (gui_frame_t::gui_indicator_width)
-#define D_INDICATOR_HEIGHT (gui_frame_t::gui_indicator_height)
-
-
-
 
 /**
  * A Class for window with Component.
@@ -86,39 +47,18 @@ public:
 		no_resize = 0, vertical_resize = 1, horizonal_resize = 2, diagonal_resize = 3
 	};
 
-	// default button sizes
-	static KOORD_VAL gui_button_width;
-	static KOORD_VAL gui_button_height;
-
-	// titlebar height
-	static KOORD_VAL gui_titlebar_height;
-
-	// dialog borders
-	static KOORD_VAL gui_frame_left;
-	static KOORD_VAL gui_frame_top;
-	static KOORD_VAL gui_frame_right;
-	static KOORD_VAL gui_frame_bottom;
-
-	// space between two elements
-	static KOORD_VAL gui_hspace;
-	static KOORD_VAL gui_vspace;
-
-	// and the indicator box dimension
-	static KOORD_VAL gui_indicator_width;
-	static KOORD_VAL gui_indicator_height;
-
 private:
 	gui_container_t container;
 
-	const char * name;
-	koord groesse;
+	const char *name;
+	scr_size size;
 
 	/**
 	 * Min. size of the window
 	 * @author Markus Weber
 	 * @date   11-May-2002
 	 */
-	koord min_windowsize;
+	scr_size min_windowsize;
 
 	resize_modes resize_mode; // 25-may-02  markus weber added
 	const spieler_t *owner;
@@ -140,12 +80,13 @@ protected:
 	 * @author Markus Weber, Hj. Malthaner
 	 * @date   11-May-2002
 	 */
-	virtual void resize(const koord delta);
+	virtual void resize(const scr_coord delta);
 
 	void set_owner( const spieler_t *sp ) { owner = sp; }
 
 	void set_transparent( uint8 percent, COLOR_VAL col ) { opaque = percent==0; percent_transparent = percent; color_transparent = col; }
 
+	static karte_ptr_t welt;
 public:
 	/**
 	 * @param name, Window title
@@ -199,34 +140,37 @@ public:
 	 * @return gets the window sizes
 	 * @author Hj. Malthaner
 	 */
-	koord get_fenstergroesse() const { return groesse; }
+	scr_size get_windowsize() const { return size; }
 
 	/**
 	 * Sets the window sizes
 	 * @author Hj. Malthaner
 	 */
-	virtual void set_fenstergroesse(koord groesse);
+	virtual void set_windowsize(scr_size size);
 
 	/**
 	 * Set minimum size of the window
 	 * @author Markus Weber
 	 * @date   11-May-2002
 	 */
-	void set_min_windowsize(koord size) { min_windowsize = size; }
+	void set_min_windowsize(scr_size size) { min_windowsize = size; }
 
 	/**
 	 * Set minimum size of the window
 	 * @author Markus Weber
 	 * @date   11-May-2002
 	 */
-	koord get_min_windowsize() { return min_windowsize; }
+	scr_size get_min_windowsize() { return min_windowsize; }
 
 	/**
-	 * @return returns the usable width and height of the window
+	 * Max Kielland 2013: Client size auto calculation with title bar and margins.
+	 * @return the usable width and height of the window
 	 * @author Markus Weber
 	 * @date   11-May-2002
-	*/
-	koord get_client_windowsize() const {return groesse-koord(0,D_TITLEBAR_HEIGHT); }
+ 	*/
+	scr_size get_client_windowsize() const {
+		return size - scr_size(0, ( has_title()*D_TITLEBAR_HEIGHT ) );
+	}
 
 	/**
 	 * Set the window associated helptext
@@ -282,15 +226,15 @@ public:
 	 * @author Markus Weber
 	 * @date   25-May-2002
 	 */
-	resize_modes get_resizemode(void) { return resize_mode; }
+	resize_modes get_resizemode() { return resize_mode; }
 
 	/**
 	 * Returns true, if inside window area.
 	 */
 	virtual bool getroffen(int x, int y)
 	{
-		koord groesse = get_fenstergroesse();
-		return (  x>=0  &&  y>=0  &&  x<groesse.x  &&  y<groesse.y  );
+		scr_size size = get_windowsize();
+		return (  x>=0  &&  y>=0  &&  x<size.w  &&  y<size.h  );
 	}
 
 	/**
@@ -306,7 +250,7 @@ public:
 	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
-	virtual void zeichnen(koord pos, koord gr);
+	virtual void draw(scr_coord pos, scr_size size);
 
 	// called, when the map is rotated
 	virtual void map_rotate90( sint16 /*new_ysize*/ ) { }

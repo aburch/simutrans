@@ -9,14 +9,50 @@
  * @author Niels Roest, additions by Hj. Malthaner
  */
 
+#include <algorithm>
 #include <stdio.h>
 
 #include "gui_scrollbar.h"
 #include "gui_scrolled_list.h"
 
-#include "../../simgraph.h"
+#include "../../display/simgraph.h"
 #include "../../simcolor.h"
-#include "../../simwin.h"
+#include "../../besch/skin_besch.h"
+#include "../../simskin.h"
+#include "../../gui/simwin.h"
+
+
+// help for sorting
+bool  gui_scrolled_list_t::const_text_scrollitem_t::compare( scrollitem_t *a, scrollitem_t *b )
+{
+	return strcmp( ((const_text_scrollitem_t *)a)->get_text(), ((const_text_scrollitem_t *)b)->get_text() );
+}
+
+
+bool  gui_scrolled_list_t::const_text_scrollitem_t::sort( vector_tpl<scrollitem_t *>&v, int offset, void * ) const
+{
+	vector_tpl<scrollitem_t *>::iterator start = v.begin();
+	while(  offset-->0  ) {
+		++start;
+	}
+	std::sort( start, v.end(), const_text_scrollitem_t::compare );
+	return true;
+}
+
+
+// draws a single line of text
+scr_coord_val gui_scrolled_list_t::const_text_scrollitem_t::draw( scr_coord pos, scr_coord_val w, bool selected, bool focus )
+{
+	if(selected) {
+		// the selection is grey on color
+		display_fillbox_wh_clip( pos.x+3, pos.y-1, w-5, LINESPACE, COL_BLUE, true);
+		return display_proportional_clip( pos.x+7, pos.y, get_text(), ALIGN_LEFT, (focus ? COL_WHITE : MN_GREY3), true);
+	}
+	else {
+		// normal text
+		return display_proportional_clip( pos.x+7, pos.y, get_text(), ALIGN_LEFT, get_color(), true);
+	}
+}
 
 
 int gui_scrolled_list_t::total_vertical_size() const
@@ -31,15 +67,16 @@ gui_scrolled_list_t::gui_scrolled_list_t(enum type type) :
 {
 	this->type = type;
 	selection = -1; // nothing
-	groesse = koord(0,0);
-	pos = koord(0,0);
+	size = scr_size(0,0);
+	pos = scr_coord(0,0);
 	offset = 0;
 	border = 0;
-	if (type==select) {
-		border = 2;
+	if(  type==windowskin  ) {
+		border = 1;
 	}
-	else if (type==list) {
-		border = 4;
+	else {
+		assert(  type==listskin  );
+		border = 2;
 	}
 	sb.add_listener(this);
 	sb.set_knob_offset(0);
@@ -59,27 +96,27 @@ bool gui_scrolled_list_t::action_triggered( gui_action_creator_t * /* comp */, v
 // set the scrollbar offset, so that the selected item is visible
 void gui_scrolled_list_t::show_selection(int s)
 {
-	if((unsigned)s<item_list.get_count()) {
+	if(  (unsigned)s<item_list.get_count()  ) {
 		selection = s;
-DBG_MESSAGE("gui_scrolled_list_t::show_selection()","sel=%d, offset=%d, groesse.y=%d",s,offset,groesse.y);
+DBG_MESSAGE("gui_scrolled_list_t::show_selection()","sel=%d, offset=%d, size.h=%d",s,offset,size.h);
 		s *= LINESPACE;
-		if(s<offset  ||  (s+LINESPACE)>offset+groesse.y) {
+		if(  s<offset  ||  (s+LINESPACE)>offset+size.h  ) {
 			// outside range => reposition
-			sb.set_knob_offset( max(0,s-(groesse.y/2) ) );
+			sb.set_knob_offset( max(0,s-(size.h/2) ) );
 			offset = sb.get_knob_offset();
 		}
-	}
-	else {
-		selection = -1;
 	}
 }
 
 
 void gui_scrolled_list_t::clear_elements()
 {
-	while(  !item_list.empty()  ) {
-		delete item_list.remove_first();
+	for(  uint32 i=0;  i<item_list.get_count();  i++  ) {
+		delete item_list[i];
 	}
+	item_list.clear();
+	selection = -1;
+	offset = 0;
 	adjust_scrollbar();
 }
 
@@ -90,18 +127,60 @@ void gui_scrolled_list_t::append_element( scrollitem_t *item )
 	adjust_scrollbar();
 }
 
+
+void gui_scrolled_list_t::insert_element( scrollitem_t *item )
+{
+	item_list.insert_at( 0, item );
+	if(  selection >=0 ) {
+		selection ++;
+	}
+	adjust_scrollbar();
+}
+
+
+void gui_scrolled_list_t::sort( int offset, void *sort_param )
+{
+	if(  item_list.get_count() > 1  ) {
+		scrollitem_t *sel = NULL;
+		if(  selection>=offset  ) {
+			if(  selection >=0  &&  (uint32)selection < item_list.get_count()  ) {
+				sel = item_list[selection];
+			}
+			else {
+				selection = -1;
+			}
+		}
+		if (offset >=0  &&  (uint32)offset < item_list.get_count()) {
+			item_list[offset]->sort( item_list, offset, sort_param );
+		}
+		// now we may need to update the selection
+		if(  sel  ) {
+			for(  uint32 i=offset;  i<item_list.get_count();  i++  ) {
+				if(  item_list[i] == sel  ) {
+					selection = i;
+					show_selection(selection);
+					return;
+				}
+			}
+		}
+		else {
+		}
+	}
+}
+
+
 // minimum vertical size
 // no less than 3, must be room for scrollbuttons
 #define YMIN ((LINESPACE*3)+2)
 
 // sets size: if requested is too large, then the size is adjusted
 // use this only for variable sized lists
-koord gui_scrolled_list_t::request_groesse(koord request)
+scr_size gui_scrolled_list_t::request_size(scr_size request)
 {
-	koord groesse = get_groesse();
+	scr_size size = get_size();
 
-	groesse.x = request.x;
-	int y = request.y;
+	size.w = request.w;
+	int y = request.h;
 	int vz = total_vertical_size();
 
 	if (y > vz) {
@@ -112,17 +191,17 @@ koord gui_scrolled_list_t::request_groesse(koord request)
 		y = YMIN;
 	}
 
-	groesse.y = y + border;
+	size.h = y + border;
 
-	set_groesse( groesse );
+	set_size( size );
 
-	return groesse;
+	return size;
 }
 
 
-void gui_scrolled_list_t::set_groesse(koord groesse)
+void gui_scrolled_list_t::set_size(scr_size size)
 {
-	gui_komponente_t::set_groesse(groesse);
+	gui_komponente_t::set_size(size);
 	adjust_scrollbar();
 }
 
@@ -130,18 +209,9 @@ void gui_scrolled_list_t::set_groesse(koord groesse)
 /* resizes scrollbar */
 void gui_scrolled_list_t::adjust_scrollbar()
 {
-	sb.set_pos(koord(groesse.x-scrollbar_t::BAR_SIZE,0));
-
-	int vz = total_vertical_size();
-	// need scrollbar?
-	if ( groesse.y-border < vz) {
-		sb.set_visible(true);
-		sb.set_groesse(koord(scrollbar_t::BAR_SIZE, (int)groesse.y+border-1));
-		sb.set_knob(groesse.y-border, vz);
-	}
-	else {
-		sb.set_visible(false);
-	}
+	sb.set_pos(scr_coord(size.w-D_SCROLLBAR_WIDTH,0));
+	sb.set_size( scr_size( D_SCROLLBAR_WIDTH, (int)size.h + border - 1) );
+	sb.set_knob( size.h - border, total_vertical_size() );
 }
 
 
@@ -151,26 +221,20 @@ bool gui_scrolled_list_t::infowin_event(const event_t *ev)
 	const int y = ev->cy;
 
 	// size without scrollbar
-	const int w = groesse.x - scrollbar_t::BAR_SIZE+2;
-	const int h = groesse.y;
+	const int w = size.w - D_SCROLLBAR_WIDTH+2;
+	const int h = size.h;
 	if(x <= w) { // inside list
-		switch(type) {
-			case list:
-				break;
-			case select:
-				if(  IS_LEFTCLICK(ev)  &&  x>=(border/2) && x<(w-border/2) &&  y>=(border/2) && y<(h-border/2)) {
-					int new_selection = (y-(border/2)-2+offset);
-					if(new_selection>=0) {
-						new_selection/=LINESPACE;
-						if((unsigned)new_selection>=item_list.get_count()) {
-							new_selection = -1;
-						}
-						DBG_MESSAGE("gui_scrolled_list_t::infowin_event()","selected %i",selection);
-					}
-					selection = new_selection;
-					call_listeners((long)new_selection);
+		if(  IS_LEFTCLICK(ev)  &&  x>=(border/2) && x<(w-border/2) &&  y>=(border/2) && y<(h-border/2)) {
+			int new_selection = (y-(border/2)-2+offset);
+			if(new_selection>=0) {
+				new_selection/=LINESPACE;
+				if((unsigned)new_selection>=item_list.get_count()) {
+					new_selection = -1;
 				}
-				break;
+				DBG_MESSAGE("gui_scrolled_list_t::infowin_event()","selected %i",selection);
+			}
+			selection = new_selection;
+			call_listeners((long)new_selection);
 		}
 	}
 
@@ -193,36 +257,33 @@ bool gui_scrolled_list_t::infowin_event(const event_t *ev)
 }
 
 
-void gui_scrolled_list_t::zeichnen(koord pos)
+void gui_scrolled_list_t::draw(scr_coord pos)
 {
 	pos += this->pos;
 
-	const koord gr = get_groesse();
+	const scr_size size = get_size();
 
 	const int x = pos.x;
 	const int y = pos.y;
-	const int w = gr.x-scrollbar_t::BAR_SIZE;
-	const int h = gr.y;
+	const int w = size.w-D_SCROLLBAR_WIDTH;
+	const int h = size.h;
 
 	switch(type) {
-		case list:
+		case windowskin:
+			display_img_stretch( gui_theme_t::windowback, scr_rect( x, y, w, h ) );
 			break;
-		case select:
-			display_vline_wh(x, y+1, h-1, MN_GREY0, true);
-			display_fillbox_wh(x,y,w,1, MN_GREY0, true);
-			display_vline_wh(x+w-1, y+1, h-2, MN_GREY4, true);
-			display_fillbox_wh(x+1,y+h-1,w-1,1, MN_GREY4, true);
-			display_fillbox_wh(x+1,y+1,w-2,h-2, MN_GREY3, true);
+		case listskin:
+			display_img_stretch( gui_theme_t::listbox, scr_rect( x, y, w, h ) );
 			break;
 	}
 
-	display_fillbox_wh(x,y,w,h, MN_GREY3, true);
-	display_ddd_box(x,y-1,w,h+2, COL_BLACK, COL_WHITE, true);
-
 	PUSH_CLIP(x+1,y+1,w-2,h-2);
+
 	int ycum = y+2-offset; // y cumulative
 	int i=0;
-	for (slist_tpl<scrollitem_t*>::iterator iter = item_list.begin(), end = item_list.end(); iter != end;) {
+	const bool focus = win_get_focus()==this;
+	scr_coord_val max_w = 0;
+	for(  vector_tpl<scrollitem_t*>::iterator iter = item_list.begin();  iter != item_list.end();  ) {
 		scrollitem_t* const item = *iter;
 		if(  !item->is_valid()  ) {
 			iter = item_list.erase(iter);
@@ -235,23 +296,16 @@ void gui_scrolled_list_t::zeichnen(koord pos)
 			}
 		}
 		else {
-			if(i == selection) {
-				// the selection is grey on color
-				display_fillbox_wh_clip(x+3, ycum-1, w-5, LINESPACE, highlight_color, true);
-				display_proportional_clip(x+7, ycum, item->get_text(), ALIGN_LEFT, (win_get_focus()==this ? COL_WHITE : MN_GREY3), true);
+			scr_coord_val this_w = item->draw( scr_coord( x, ycum), w, i == selection, focus );
+			if(  this_w > max_w  ) {
+				max_w = this_w;
 			}
-			else {
-				// normal text
-				display_proportional_clip(x+7, ycum, item->get_text(), ALIGN_LEFT, item->get_color(), true);
-			}
-			ycum += LINESPACE;
+			ycum += item->get_h();
 			++iter;
 			i++;
 		}
 	}
 	POP_CLIP();
 
-	if (sb.is_visible()) {
-		sb.zeichnen(pos);
-	}
+	sb.draw(pos);
 }

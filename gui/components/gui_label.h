@@ -12,15 +12,17 @@
 
 #include "gui_komponente.h"
 #include "../../simcolor.h"
+#include "../gui_theme.h"
+#include "../../simskin.h"
 
 
 /**
- * Eine Label-Komponente
+ * The label component
  *
  * @author Hj. Malthaner
  * @date 04-Mar-01
  *
- * Added Aligment support
+ * Added Alignment support
  * @author: Volker Meyer
  * @date 25.05.03
  */
@@ -33,49 +35,52 @@ public:
 		right,
 		money
 	};
+
 private:
 	align_t align;
 
 	/**
-	 * Farbe des Labels
+	 * Color of the Labels
 	 * @author Hansjörg Malthaner
 	 */
 	COLOR_VAL color;
 
-	const char * text;	// only for direct acess of non-translateable things. Do not use!
+	const char * text;	// only for direct access of non-translatable things. Do not use!
 	const char * tooltip;
 
-public:
-	gui_label_t(const char* text=NULL, COLOR_VAL color=COL_BLACK, align_t align=left);
+protected:
+	using gui_komponente_t::init;
 
-	// one stop init
-	void init( const char* t, koord p, COLOR_VAL c=COL_BLACK, align_t a=left) {
-		set_pos( p );
-		set_text( t );
-		color = c;
-		align = a;
+public:
+	gui_label_t(const char* text=NULL, COLOR_VAL color=SYSCOL_STATIC_TEXT, align_t align=left);
+
+	void init( const char* text_par, scr_coord pos_par, COLOR_VAL color_par=SYSCOL_STATIC_TEXT, align_t align_par=left) {
+		set_pos  ( pos_par   );
+		set_text ( text_par  );
+		set_color( color_par );
+		set_align( align_par );
 	}
 
 	/**
 	 * Sets the text to display, after translating it.
 	 * @author Hansjörg Malthaner
 	 */
-	void set_text(const char *text);
+	void set_text(const char *text, bool autosize=true);
 
 	/**
 	 * Sets the text without translation.
 	 * @author Hansjörg Malthaner
 	 */
-	void set_text_pointer(const char *text);
+	void set_text_pointer(const char *text, bool autosize=true);
 
 	/**
-	 * returns the pointer (i.e. for freeing untranslater contents)
+	 * returns the pointer (i.e. for freeing untranslated contents)
 	 * @author Hansjörg Malthaner
 	 */
 	const char * get_text_pointer() const { return text; }
 
 	/**
-	 * returns the tooltip pointer (i.e. for freeing untranslater contents)
+	 * returns the tooltip pointer (i.e. for freeing untranslated contents)
 	 */
 	const char * get_tooltip_pointer() { return tooltip; }
 
@@ -83,7 +88,7 @@ public:
 	 * Draws the component.
 	 * @author Hj. Malthaner
 	 */
-	void zeichnen(koord offset);
+	void draw(scr_coord offset);
 
 	/**
 	 * Sets the colour of the label

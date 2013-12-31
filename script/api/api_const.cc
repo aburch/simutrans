@@ -3,14 +3,14 @@
 /** @file api_const.cc exports constants */
 
 #include "../api_param.h"
-#include "../../simdings.h"
+#include "../../simobj.h"
 #include "../../simmenu.h"
 
 using namespace script_api;
 
 #define begin_enum(name) sq_pushconsttable(vm);
 #define end_enum() sq_setconsttable(vm);
-#define enum_slot param<SQInteger>::create_slot
+#define enum_slot create_slot<SQInteger>
 
 void export_global_constants(HSQUIRRELVM vm)
 {
@@ -116,7 +116,7 @@ void export_global_constants(HSQUIRRELVM vm)
 	end_enum();
 
 	/**
-	 * Constants to different way types.
+	 * Constants for different way types.
 	 */
 	begin_enum("way_types");
 	/// catch all value: used to forbid tools for all waytypes
@@ -143,6 +143,19 @@ void export_global_constants(HSQUIRRELVM vm)
 	enum_slot(vm, "wt_invalid", invalid_wt);
 	end_enum();
 
+	/**
+	 * Constants for different system types of ways.
+	 * System type could take also other values than the ones defined here.
+	 */
+	begin_enum("way_system_types");
+	/// flat ways
+	enum_slot(vm, "st_flat", weg_t::type_flat);
+	/// elevated ways
+	enum_slot(vm, "st_elevated", weg_t::type_elevated);
+	/// tram tracks (here way type has to be wt_tram)
+	enum_slot(vm, "st_tram", weg_t::type_tram);
+	end_enum();
+
 	// players
 	begin_enum("");
 	/// constant to forbid/allow tools for all players (except public player)
@@ -154,77 +167,77 @@ void export_global_constants(HSQUIRRELVM vm)
 	 */
 	begin_enum("map_objects");
 	/// tree
-	enum_slot(vm, "mo_tree", ding_t::baum);
+	enum_slot(vm, "mo_tree", obj_t::baum);
 	/// pointer (bulldozers etc)
-	enum_slot(vm, "mo_pointer", ding_t::zeiger);
+	enum_slot(vm, "mo_pointer", obj_t::zeiger);
 	/// cloude and smoke
-	enum_slot(vm, "mo_cloud", ding_t::wolke);
+	enum_slot(vm, "mo_cloud", obj_t::wolke);
 	/// building (houses, halts, factories ...)
-	enum_slot(vm, "mo_building", ding_t::gebaeude);
+	enum_slot(vm, "mo_building", obj_t::gebaeude);
 	/// signal
-	enum_slot(vm, "mo_signal", ding_t::signal);
+	enum_slot(vm, "mo_signal", obj_t::signal);
 	/// bridge
-	enum_slot(vm, "mo_bridge", ding_t::bruecke);
+	enum_slot(vm, "mo_bridge", obj_t::bruecke);
 	/// tunnel
-	enum_slot(vm, "mo_tunnel", ding_t::tunnel);
+	enum_slot(vm, "mo_tunnel", obj_t::tunnel);
 	/// depot: rail
-	enum_slot(vm, "mo_depot_rail", ding_t::bahndepot);
+	enum_slot(vm, "mo_depot_rail", obj_t::bahndepot);
 	/// depot: road
-	enum_slot(vm, "mo_depot_road", ding_t::strassendepot);
+	enum_slot(vm, "mo_depot_road", obj_t::strassendepot);
 	/// depot: ship
-	enum_slot(vm, "mo_depot_water", ding_t::schiffdepot);
+	enum_slot(vm, "mo_depot_water", obj_t::schiffdepot);
 	/// powerline
-	enum_slot(vm, "mo_powerline", ding_t::leitung);
+	enum_slot(vm, "mo_powerline", obj_t::leitung);
 	/// transformer at powerplant
-	enum_slot(vm, "mo_transformer_s", ding_t::pumpe);
+	enum_slot(vm, "mo_transformer_s", obj_t::pumpe);
 	/// transformer at factory
-	enum_slot(vm, "mo_transformer_c", ding_t::senke);
+	enum_slot(vm, "mo_transformer_c", obj_t::senke);
 	/// road-sign
-	enum_slot(vm, "mo_roadsign", ding_t::roadsign);
+	enum_slot(vm, "mo_roadsign", obj_t::roadsign);
 	/// bridge pillar
-	enum_slot(vm, "mo_pillar", ding_t::pillar);
+	enum_slot(vm, "mo_pillar", obj_t::pillar);
 	/// depot: airplanes
-	enum_slot(vm, "mo_depot_air", ding_t::airdepot);
+	enum_slot(vm, "mo_depot_air", obj_t::airdepot);
 	/// depot: monorail
-	enum_slot(vm, "mo_depot_monorail", ding_t::monoraildepot);
+	enum_slot(vm, "mo_depot_monorail", obj_t::monoraildepot);
 	/// depot: tram
-	enum_slot(vm, "mo_depot_tram", ding_t::tramdepot);
+	enum_slot(vm, "mo_depot_tram", obj_t::tramdepot);
 	/// depot: maglev
-	enum_slot(vm, "mo_depot_maglev", ding_t::maglevdepot);
+	enum_slot(vm, "mo_depot_maglev", obj_t::maglevdepot);
 	/// way object (overhead wires)
-	enum_slot(vm, "mo_wayobj", ding_t::wayobj);
+	enum_slot(vm, "mo_wayobj", obj_t::wayobj);
 	/// way
-	enum_slot(vm, "mo_way", ding_t::way	);
+	enum_slot(vm, "mo_way", obj_t::way	);
 	/// text label
-	enum_slot(vm, "mo_label", ding_t::label);
+	enum_slot(vm, "mo_label", obj_t::label);
 	/// field
-	enum_slot(vm, "mo_field", ding_t::field);
+	enum_slot(vm, "mo_field", obj_t::field);
 	/// crossing
-	enum_slot(vm, "mo_crossing", ding_t::crossing);
+	enum_slot(vm, "mo_crossing", obj_t::crossing);
 	/// decorative objects (rocks, lakes ...)
-	enum_slot(vm, "mo_groundobj", ding_t::groundobj);
+	enum_slot(vm, "mo_groundobj", obj_t::groundobj);
 	/// depot: narrowgauge
-	enum_slot(vm, "mo_depot_narrowgauge", ding_t::narrowgaugedepot);
+	enum_slot(vm, "mo_depot_narrowgauge", obj_t::narrowgaugedepot);
 	/// pedestrian
-	enum_slot(vm, "mo_pedestrian", ding_t::fussgaenger);
+	enum_slot(vm, "mo_pedestrian", obj_t::fussgaenger);
 	/// city car - not player owned
-	enum_slot(vm, "mo_city_car", ding_t::verkehr);
+	enum_slot(vm, "mo_city_car", obj_t::verkehr);
 	/// road vehicle
-	enum_slot(vm, "mo_car", ding_t::automobil);
+	enum_slot(vm, "mo_car", obj_t::automobil);
 	/// rail vehicle
-	enum_slot(vm, "mo_train", ding_t::waggon);
+	enum_slot(vm, "mo_train", obj_t::waggon);
 	/// monorail vehicle
-	enum_slot(vm, "mo_monorail", ding_t::monorailwaggon);
+	enum_slot(vm, "mo_monorail", obj_t::monorailwaggon);
 	/// maglev vehicle
-	enum_slot(vm, "mo_maglev", ding_t::maglevwaggon);
+	enum_slot(vm, "mo_maglev", obj_t::maglevwaggon);
 	/// narrowgauge vehicle
-	enum_slot(vm, "mo_narrowgauge", ding_t::narrowgaugewaggon);
+	enum_slot(vm, "mo_narrowgauge", obj_t::narrowgaugewaggon);
 	/// ship
-	enum_slot(vm, "mo_ship", ding_t::schiff);
+	enum_slot(vm, "mo_ship", obj_t::schiff);
 	/// airplane
-	enum_slot(vm, "mo_airplane", ding_t::aircraft);
+	enum_slot(vm, "mo_airplane", obj_t::aircraft);
 	/// moving object (sheep ...)
-	enum_slot(vm, "mo_moving_object", ding_t::movingobj);
+	enum_slot(vm, "mo_moving_object", obj_t::movingobj);
 
 	end_enum();
 

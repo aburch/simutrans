@@ -2,23 +2,20 @@
 
 /** @file api_settings.cc exports game settings functions. */
 
+#include "api_simple.h"
 #include "../api_class.h"
 #include "../api_function.h"
-#include "../../dataobj/einstellungen.h"
+#include "../../dataobj/settings.h"
 #include "../../simmenu.h"
 #include "../../simworld.h"
 
 using namespace script_api;
 
-// see api_world.cc
-SQInteger push_time(HSQUIRRELVM vm, uint32 yearmonth);
 
-
-SQInteger get_start_time(HSQUIRRELVM vm)
+mytime_t get_start_time(settings_t* settings)
 {
-	settings_t* settings = param<settings_t*>::get(vm, 1);
 	uint32 yearmonth = 12*( max( settings->get_starting_year(),0) ) + max( settings->get_starting_month(),0);
-	return push_time(vm, yearmonth );
+	return yearmonth;
 }
 
 
@@ -70,9 +67,8 @@ void export_settings(HSQUIRRELVM vm)
 	/**
 	 * Returns starting time of the game.
 	 * @returns table { "year" = .., "month" = .. }
-	 * @typemask table()
 	 */
-	register_function(vm, get_start_time, "get_start_time", 1, ".");
+	register_local_method(vm, get_start_time, "get_start_time");
 
 	end_class(vm);
 }

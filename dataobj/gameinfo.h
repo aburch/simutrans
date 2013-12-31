@@ -5,7 +5,7 @@
 #include "../simtypes.h"
 #include "../simconst.h"
 #include "../tpl/array2d_tpl.h"
-#include "../utils/checksum.h"
+#include "../network/checksum.h"
 
 class karte_t;
 class loadsave_t;
@@ -14,7 +14,7 @@ class loadsave_t;
 class gameinfo_t
 {
 private:
-	sint32 groesse_x, groesse_y;
+	sint32 size_x, size_y;
 	array2d_tpl<uint8> map;
 
 	sint32 industries;
@@ -56,8 +56,8 @@ public:
 
 	void rdwr( loadsave_t *file );
 
-	sint32 get_groesse_x() const {return groesse_x;}
-	sint32 get_groesse_y() const {return groesse_y;}
+	sint32 get_size_x() const {return size_x;}
+	sint32 get_size_y() const {return size_y;}
 	const array2d_tpl<uint8> *get_map() const { return &map; }
 
 	sint32 get_industries() const {return industries;}

@@ -14,7 +14,7 @@
 
 class cbuffer_t;
 class crossing_t;
-class karte_t;
+class karte_ptr_t;
 class kreuzung_besch_t;
 class vehikel_basis_t;
 
@@ -27,9 +27,9 @@ class crossing_logic_t
 public:
 	enum crossing_state_t { CROSSING_INVALID=0, CROSSING_OPEN, CROSSING_REQUEST_CLOSE, CROSSING_CLOSED };
 protected:
-	static karte_t *welt;
+	static karte_ptr_t welt;
 
-	// the last vehikel, taht request a closing
+	// the last vehikel, that request a closing
 	const vehikel_basis_t *request_close;
 
 	crossing_state_t zustand;
@@ -47,7 +47,7 @@ public:
 	crossing_logic_t( const kreuzung_besch_t *besch );
 
 	/**
-	 * @return string (only used for debugg at the moment)
+	 * @return string (only used for debug at the moment)
 	 * @author prissi
 	 */
 	void info(cbuffer_t & buf, bool dummy = false) const;
@@ -90,7 +90,7 @@ public:
 
 	// returns a new or an existing crossing_logic_t object
 	// new, of no matching crossings are next to it
-	static void add( karte_t *welt, crossing_t *cr, crossing_logic_t::crossing_state_t zustand );
+	static void add( crossing_t *cr, crossing_logic_t::crossing_state_t zustand );
 
 	// remove logic from crossing(s)
 	void remove( crossing_t *cr );

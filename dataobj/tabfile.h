@@ -15,6 +15,15 @@
 class tabfileobj_t;
 class koord;
 
+class obj_info_t
+{
+public:
+	bool retrieved;
+	const char *str;
+	obj_info_t() { retrieved=false; str=0; }
+	obj_info_t(bool b, const char *s ) { retrieved=b; str=s; }
+};
+
 /*
  * This class can be used instead of FILE to read a game definition file,
  * usually with extension .tab in simutrans.
@@ -91,11 +100,16 @@ public:
  * @author V. Meyer
  */
 class tabfileobj_t {
-	stringhashtable_tpl<const char *> objinfo;
+	stringhashtable_tpl<obj_info_t> objinfo;
 
 public:
 	tabfileobj_t() { ; }
 	~tabfileobj_t() { clear(); }
+
+	/**
+	 * prints all unused options lines in the file which do not start with a character from exclude_start_chars
+	 */
+	void unused( const char *exclude_start_chars );
 
 	/*
 	 * add an key/value pair - should only be used be tabfile_t::read
@@ -118,7 +132,7 @@ public:
 	 *
 	 * @author V. Meyer
 	 */
-	const char *get(const char *key) const;
+	const char *get(const char *key);
 
 	/**
 	 * Get the string value for a key - key must be lowercase
@@ -135,6 +149,12 @@ public:
 	 * @author V. Meyer
 	 */
 	const koord &get_koord(const char *key, koord def);
+
+	/**
+	 * Get a color index or the next matching color when given a #AABBCC
+	 * @author prissi
+	 */
+	uint8 get_color(const char *key, uint8 def);
 
 	/**
 	 * Get an int

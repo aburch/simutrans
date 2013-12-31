@@ -9,6 +9,7 @@
 #include "convoihandle_t.h"
 #include "linehandle_t.h"
 #include "simtypes.h"
+#include "simconvoi.h"
 
 #include "tpl/minivec_tpl.h"
 #include "tpl/vector_tpl.h"
@@ -18,19 +19,24 @@
 #define MAX_MONTHS				12 // Max history
 #define MAX_NON_MONEY_TYPES		4 // number of non money types in line's financial statistic
 
-#define LINE_CAPACITY			0 // the amount of ware that could be transported, theoretically
-#define LINE_TRANSPORTED_GOODS	1 // the amount of ware that has been transported
-#define LINE_AVERAGE_SPEED		2 // The average speed of all convoys in the line
-#define LINE_COMFORT			3 // The average comfort rating of all vehicles on this line (weighted by numbers)
-#define LINE_REVENUE			4 // the income this line generated
-#define LINE_OPERATIONS         5 // the cost of operations this line generated
-#define LINE_PROFIT             6 // total profit of line
-#define LINE_CONVOIS			7 // number of convois for this line
-#define LINE_DISTANCE		    8 // distance converd by all convois
-#define LINE_REFUNDS			9 // Total refunds paid to passengers/goods owners desiring to use this line but kept waiting too long to do so.
-#define MAX_LINE_COST			10 // Total number of cost items
+							// Exp|Std|Description
+enum line_cost_t {
+	LINE_CAPACITY =	0,		//  0 | 0 | the amount of ware that could be transported, theoretically
+	LINE_TRANSPORTED_GOODS,	//  1 | 1 | the amount of ware that has been transported
+	LINE_AVERAGE_SPEED,		//  2 |   | average speed of all convoys in the line
+	LINE_COMFORT,			//  3 |   | the average comfort rating of all vehicles on this line (weighted by numbers)
+	LINE_REVENUE,			//  4 | 3 | the income this line generated
+	LINE_OPERATIONS,        //  5 | 4 | the cost of operations this line generated
+	LINE_PROFIT,            //  6 | 5 | total profit of line
+	LINE_CONVOIS,			//  7 | 2 | number of convois for this line
+	LINE_DISTANCE,		    //  8 | 6 | distance converd by all convois
+	LINE_REFUNDS,			//  9 |   | Total refunds paid to passengers/goods owners desiring to use this line but kept waiting too long to do so.
+//	LINE_MAXSPEED,			//    | 7 | maximum speed for bonus calculation of all convois
+//	LINE_WAYTOLL,			//    | 8 | way toll paid by vehicles of line
+	MAX_LINE_COST			// 10 | 9 | Total number of cost items
+};
 
-class karte_t;
+class karte_ptr_t;
 class loadsave_t;
 class spieler_t;
 class schedule_t;
@@ -50,7 +56,7 @@ protected:
 	bool withdraw;
 
 private:
-	static karte_t * welt;
+	static karte_ptr_t welt;
 	plainstring name;
 
 	/**
@@ -110,8 +116,8 @@ private:
 	bool is_alternating_circle_route;
 
 public:
-	simline_t(karte_t* welt, spieler_t *sp, linetype type);
-	simline_t(karte_t* welt, spieler_t *sp, linetype type, loadsave_t *file);
+	simline_t(spieler_t *sp, linetype type);
+	simline_t(spieler_t *sp, linetype type, loadsave_t *file);
 
 	~simline_t();
 
@@ -195,9 +201,9 @@ public:
 
 	sint64* get_finance_history() { return *financial_history; }
 
-	sint64 get_finance_history(int month, int cost_type) const { return financial_history[month][cost_type]; }
+	sint64 get_finance_history(int month, line_cost_t cost_type) const { return financial_history[month][cost_type]; }
 
-	void book(sint64 amount, int cost_type) 
+	void book(sint64 amount, line_cost_t cost_type) 
 	{
 		if(cost_type != LINE_AVERAGE_SPEED && cost_type != LINE_COMFORT)
 		{
@@ -213,7 +219,7 @@ public:
 		}
 	}
 
-	static uint8 convoi_to_line_catgory(uint8 convoi_cost_type);
+	static line_cost_t convoi_to_line_catgory(convoi_t::convoi_cost_t convoi_cost_type);
 
 	void new_month();
 

@@ -25,20 +25,20 @@ const weg_besch_t *schiene_t::default_schiene=NULL;
 bool schiene_t::show_reservations = false;
 
 
-schiene_t::schiene_t(karte_t *welt, waytype_t waytype) : weg_t (welt, waytype)
+schiene_t::schiene_t(waytype_t waytype) : weg_t (waytype)
 {
 	reserved = convoihandle_t();
 }
 
 
-schiene_t::schiene_t(karte_t *welt) : weg_t(welt, track_wt)
+schiene_t::schiene_t() : weg_t(track_wt)
 {
 	reserved = convoihandle_t();
 	set_besch(schiene_t::default_schiene);
 }
 
 
-schiene_t::schiene_t(karte_t *welt, loadsave_t *file) : weg_t(welt, track_wt)
+schiene_t::schiene_t(loadsave_t *file) : weg_t(track_wt)
 {
 	reserved = convoihandle_t();
 	rdwr(file);
@@ -92,10 +92,10 @@ bool schiene_t::reserve(convoihandle_t c, ribi_t::ribi dir)
 			mark_image_dirty( get_bild(), 0 );
 			mark_image_dirty( get_after_bild(), 0 );
 			set_images(image_switch, get_ribi_unmasked(), is_snow(), (dir==ribi_t::nordost  ||  dir==ribi_t::suedwest) );
-			set_flag( ding_t::dirty );
+			set_flag( obj_t::dirty );
 		}
 		if(schiene_t::show_reservations) {
-			set_flag( ding_t::dirty );
+			set_flag( obj_t::dirty );
 		}
 		return true;
 	}
@@ -115,7 +115,7 @@ bool schiene_t::unreserve(convoihandle_t c)
 	if(reserved.is_bound()  &&  reserved==c) {
 		reserved = convoihandle_t();
 		if(schiene_t::show_reservations) {
-			set_flag( ding_t::dirty );
+			set_flag( obj_t::dirty );
 		}
 		return true;
 	}
@@ -138,7 +138,7 @@ bool schiene_t::unreserve(vehikel_t *)
 //	if(!welt->lookup(get_pos())->suche_obj(v->get_typ())) {
 		reserved = convoihandle_t();
 		if(schiene_t::show_reservations) {
-			set_flag( ding_t::dirty );
+			set_flag( obj_t::dirty );
 		}
 		return true;
 //	}

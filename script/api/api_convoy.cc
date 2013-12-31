@@ -21,13 +21,13 @@ waytype_t get_convoy_wt(convoi_t* cnv)
 }
 
 
-vector_tpl<sint64> const& get_convoy_stat(convoi_t* cnv, sint32 INDEX)
+vector_tpl<sint64> const& get_convoy_stat(convoi_t* cnv, int INDEX)
 {
 	static vector_tpl<sint64> v;
 	v.clear();
 	if (cnv  &&  0<=INDEX  &&  INDEX<convoi_t::MAX_CONVOI_COST) {
 		for(uint16 i = 0; i < MAX_MONTHS; i++) {
-			v.append(cnv->get_stat_converted(i, INDEX));
+			v.append(cnv->get_stat_converted(i, (convoi_t::convoi_cost_t) INDEX));
 		}
 	}
 	return v;
@@ -139,6 +139,10 @@ void export_convoy(HSQUIRRELVM vm)
 	 * @returns array, index [0] corresponds to current month
 	 */
 	register_method_fv(vm, &get_convoy_stat, "get_traveled_distance",freevariable<sint32>(convoi_t::CONVOI_DISTANCE), true );
+	/**
+	 * @returns lifetime traveled distance of this convoy
+	 */
+	register_method(vm, &convoi_t::get_total_distance_traveled, "get_distance_traveled_total");
 
 	end_class(vm);
 }

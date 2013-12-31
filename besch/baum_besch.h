@@ -11,7 +11,7 @@
 #include "obj_besch_std_name.h"
 #include "bildliste2d_besch.h"
 
-#include "../utils/checksum.h"
+#include "../network/checksum.h"
 /*
  *  Autor:
  *      Volker Meyer

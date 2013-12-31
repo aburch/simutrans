@@ -73,7 +73,7 @@ protected:
 	 * It has to paint cell (x,y) at position offset. 
 	 * The default implementation calls zeichnen() of the component of cell (x,y), if there is one.
 	 */
-	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y);
+	virtual void paint_cell(const scr_coord &offset, coordinate_t x, coordinate_t y);
 
 	/**
 	 * remove_cell() is called in change_size(), before a cell is removed, e.g. during set_size().

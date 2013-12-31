@@ -12,14 +12,14 @@
 
 #include "../gui_frame.h"
 #include "gui_numberinput.h"
-#include "../../simwin.h"
-#include "../../simgraph.h"
+#include "../../gui/simwin.h"
+#include "../../display/simgraph.h"
 #include "../../macros.h"
 #include "../../dataobj/translator.h"
 
+#define ARROW_GAP (1)
 
 char gui_numberinput_t::tooltip[256];
-
 
 gui_numberinput_t::gui_numberinput_t() :
 	gui_komponente_t(true)
@@ -28,7 +28,7 @@ gui_numberinput_t::gui_numberinput_t() :
 	bt_left.add_listener(this );
 
 	textinp.set_alignment( ALIGN_RIGHT );
-	textinp.set_color( COL_WHITE );
+	textinp.set_color( SYSCOL_TEXT_HIGHLIGHT );
 	textinp.add_listener( this );
 
 	bt_right.set_typ(button_t::repeatarrowright );
@@ -40,17 +40,19 @@ gui_numberinput_t::gui_numberinput_t() :
 	set_increment_mode( 1 );
 	wrap_mode( true );
 	b_enabled = true;
+
+	set_size( scr_size( D_BUTTON_WIDTH, D_EDIT_HEIGHT ) );
 }
 
+void gui_numberinput_t::set_size(scr_size size_par) {
 
-void gui_numberinput_t::set_groesse(koord gr)
-{
-	bt_left.set_pos( koord(0, (gr.y - bt_left.get_groesse().y) / 2) );
-	textinp.set_pos( koord( bt_left.get_groesse().x + 2, 0) );
-	textinp.set_groesse( koord( gr.x - bt_left.get_groesse().x - bt_right.get_groesse().x - 6, gr.y) );
-	bt_right.set_pos( koord( gr.x - bt_right.get_groesse().x - 2, (gr.y - bt_right.get_groesse().y) / 2) );
+	gui_komponente_t::set_size(size_par);
 
-	gui_komponente_t::groesse = gr;
+	textinp.set_size( scr_size( size_par.w - bt_left.get_size().w - bt_right.get_size().w, size_par.h) );
+	bt_left.align_to(&textinp, ALIGN_CENTER_V);
+	textinp.align_to(&bt_left, ALIGN_EXTERIOR_H | ALIGN_LEFT);
+	bt_right.align_to(&textinp, ALIGN_CENTER_V | ALIGN_EXTERIOR_H | ALIGN_LEFT);
+
 }
 
 
@@ -67,7 +69,7 @@ void gui_numberinput_t::set_value(sint32 new_value)
 		sprintf(textbuffer, "%d", new_value);
 		textinp.set_text(textbuffer, 20);
 	}
-	textinp.set_color( value == new_value ? (b_enabled ? COL_WHITE : COL_GREY3) : COL_RED );
+	textinp.set_color( value == new_value ? (b_enabled ? SYSCOL_TEXT_HIGHLIGHT : COL_GREY3) : COL_RED );
 	value = new_value;
 }
 
@@ -321,16 +323,16 @@ bool gui_numberinput_t::infowin_event(const event_t *ev)
  * Draw the component
  * @author Dwachs
  */
-void gui_numberinput_t::zeichnen(koord offset)
+void gui_numberinput_t::draw(scr_coord offset)
 {
-	koord new_offset = pos+offset;
-	bt_left.zeichnen(new_offset);
+	scr_coord new_offset = pos+offset;
 
+	bt_left.draw(new_offset);
 	textinp.display_with_focus( new_offset, (win_get_focus()==this) );
-	bt_right.zeichnen(new_offset);
+	bt_right.draw(new_offset);
 
 	if(getroffen( get_maus_x()-offset.x, get_maus_y()-offset.y )) {
 		sprintf( tooltip, translator::translate("enter a value between %i and %i"), min_value, max_value );
-		win_set_tooltip(get_maus_x() + 16, new_offset.y + groesse.y + 12, tooltip, this);
+		win_set_tooltip(get_maus_x() + TOOLTIP_MOUSE_OFFSET_X, new_offset.y + size.h + TOOLTIP_MOUSE_OFFSET_Y, tooltip, this);
 	}
 }

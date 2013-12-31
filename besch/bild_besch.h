@@ -7,10 +7,10 @@
 #ifndef __BILD_BESCH_H
 #define __BILD_BESCH_H
 
-#include "../simgraph.h"
-#include "../simimg.h"
-#include "obj_besch.h"
+#include "../display/simgraph.h"
+#include "../display/simimg.h"
 
+#include "obj_besch.h"
 
 // number of special colors
 #define SPECIAL (31)
@@ -20,14 +20,14 @@
 
 
 struct bild_t {
-	uint32 len;
-	sint16 x;
-	sint16 y;
-	sint16 w;
-	sint16 h;
-	image_id bild_nr;	// Speichern wir erstmal als Dummy mit, wird von register_image() ersetzt
-	uint8 zoomable; // some image may not be zoomed i.e. icons
-	uint16 data[];
+	size_t len;       // length of data[] in PIXVAL units
+	scr_coord_val x;  // x offset of data[] image
+	scr_coord_val y;  // y offset of data[] image
+	scr_coord_val w;  // width of data[] image
+	scr_coord_val h;  // height of data[] image
+	image_id bild_nr; // set by register_image()
+	uint8 zoomable;   // some image may not be zoomed i.e. icons
+	PIXVAL data[];    // RLE encoded image data
 };
 
 /*
@@ -52,13 +52,16 @@ public:
 
 	image_id get_nummer() const { return pic.bild_nr; }
 
-	static bild_besch_t* create_single_pixel();
-
 	/* rotate_image_data - produces a (rotated) bild_besch
 	 * only rotates by 90 degrees or multiples thereof, and assumes a square image
 	 * Otherwise it will only succeed for angle=0;
 	 */
 	bild_besch_t* copy_rotate(const sint16 angle) const;
+
+	bild_besch_t* copy_flipvertical() const;
+	bild_besch_t* copy_fliphorizontal() const;
+
+	static bild_besch_t* create_single_pixel();
 
 	void register_image() { ::register_image(&pic); }
 

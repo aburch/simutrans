@@ -40,7 +40,7 @@ namespace ticker
 	/**
 	 * Ticker redraw
 	 */
-	void zeichnen();
+	void draw();
 
 	/**
 	 * Set true if ticker has to be redrawn

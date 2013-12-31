@@ -1,7 +1,43 @@
+var ForReading = 1;
+var ForWriting = 2;
+
 var fso   = new ActiveXObject("Scripting.FileSystemObject");
 var shell = new ActiveXObject("WScript.Shell");
-var outFile = fso.CreateTextFile("revision.h", true);
-var svnRevNum               = shell.Exec("svnversion");
-var rev                    = svnRevNum.StdOut.ReadAll();
-outFile.WriteLine( "#define REVISION   " + String(rev) );
-outFile.Close();
+
+var svnRevNum	= shell.Exec("svnversion");
+var rev			= svnRevNum.StdOut.ReadAll();
+var filename	= "revision.h";
+var file;
+var file_ts;
+
+// First, get the file, if it doesn't exist create it.
+if( ! fso.FileExists(filename) ) {
+	fso.CreateTextFile(filename);
+	file = fso.GetFile(filename);
+	file_ts = file.OpenAsTextStream(ForWriting,-2);
+	file_ts.WriteLine("#define REVISION   UNDEFINED");
+	file_ts.Close();
+}
+else {
+	file = fso.GetFile(filename);
+}
+
+// read it
+
+file_ts = file.OpenAsTextStream(ForReading,-2);
+current_line = file_ts.ReadLine() + "\r\n";
+file_ts.Close();
+
+new_line = "#define REVISION   " + String(rev);
+
+if (new_line != current_line) {
+
+	// It has changed, update the .h
+
+	WSH.Echo("Svn version updated! " + String(rev));
+
+	file_ts = file.OpenAsTextStream(ForWriting,-2);
+	file_ts.WriteLine(new_line);
+	file_ts.Close();
+
+}

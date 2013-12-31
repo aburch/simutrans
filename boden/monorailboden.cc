@@ -3,10 +3,11 @@
 #include "../simworld.h"
 
 #include "../dataobj/loadsave.h"
+#include "../dataobj/environment.h"
 #include "wege/weg.h"
 
 
-monorailboden_t::monorailboden_t(karte_t *welt, koord3d pos,hang_t::typ slope) : grund_t(welt, pos)
+monorailboden_t::monorailboden_t(koord3d pos,hang_t::typ slope) : grund_t(pos)
 {
 	this->slope = slope;
 }
@@ -21,7 +22,8 @@ void monorailboden_t::rdwr(loadsave_t *file)
 		if(file->get_version()>88005) {
 			uint8 sl;
 			file->rdwr_byte(sl);
-			slope = sl;
+			// convert slopes from old single height saved game
+			slope = (scorner1(sl) + scorner2(sl) * 3 + scorner3(sl) * 9 + scorner4(sl) * 27) * env_t::pak_height_conversion_factor;
 		}
 		else {
 			slope = grund_t::get_grund_hang();

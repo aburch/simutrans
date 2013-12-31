@@ -23,16 +23,14 @@
 
 #define INVALID_RDWR_ID (-1)
 
-// buffer size for read/write - bzip2 gains upto 8M for non-threaded, 1M for threaded. binary, zipped ok with 256K or smaller.
+// buffer size for read/write - bzip2 gains up to 8M for non-threaded, 1M for threaded. binary, zipped ok with 256K or smaller.
 #define LS_BUF_SIZE (1024*1024)
 
-#if MULTI_THREAD>1
-// enable barriers by this
-#define _XOPEN_SOURCE 600
-#include <pthread.h>
+#ifdef MULTI_THREAD
+#include "../utils/simthread.h"
 
 static pthread_t ls_thread;
-static pthread_barrier_t loadsave_barrier;
+static simthread_barrier_t loadsave_barrier;
 static pthread_mutex_t loadsave_mutex;
 
 // parameters passed starting a thread
@@ -50,7 +48,7 @@ void *loadsave_thread( void *ptr )
 	while(true) {
 		if(  lsp->loadsave_routine->is_saving()  ) {
 			// wait to sync with main thread before flushing the buffer
-			pthread_barrier_wait(&loadsave_barrier);
+			simthread_barrier_wait(&loadsave_barrier);
 
 			buf = (buf+1)&1;
 			if(  lsp->loadsave_routine->get_buf_pos(buf)==0  ) {
@@ -60,12 +58,17 @@ void *loadsave_thread( void *ptr )
 			lsp->loadsave_routine->flush_buffer(buf);
 		}
 		else {
-			if(  lsp->loadsave_routine->fill_buffer(buf) <= 0  ) {
+			int res = lsp->loadsave_routine->fill_buffer(buf);
+			if(  res != 0  ) {
+				// wait to sync with main thread before filling the next buffer
+				// in case of error wait once again
+				simthread_barrier_wait(&loadsave_barrier);
+			}
+			if(  res <= 0  ) {
 				// nothing read into buffer - exit
+				// in case of error leave, too
 				break;
 			}
-			// wait to sync with main thread before filling the next buffer
-			pthread_barrier_wait(&loadsave_barrier);
 
 			buf = (buf+1)&1;
 		}
@@ -112,10 +115,10 @@ void loadsave_t::set_buffered(bool enable)
 			buf_pos[0] = buf_pos[1] = 0;
 			buf_len[0] = buf_len[1] = 0;
 			ls_buf[0] = new char[LS_BUF_SIZE];
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			ls_buf[1] = new char[LS_BUF_SIZE]; // second buffer only when multithreaded
 
-			pthread_barrier_init(&loadsave_barrier, NULL, 2);
+			simthread_barrier_init(&loadsave_barrier, NULL, 2);
 			pthread_mutex_init(&loadsave_mutex, NULL);
 
 			pthread_attr_t attr;
@@ -133,20 +136,20 @@ void loadsave_t::set_buffered(bool enable)
 	else {
 		if(  buffered  ) {
 			if(  saving  &&  buf_pos[curr_buff]>0  ) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 				// first sync with thread causes buffer to be flushed
-				pthread_barrier_wait(&loadsave_barrier);
+				simthread_barrier_wait(&loadsave_barrier);
 				// second sync with empty buffer signals thread to exit
-				pthread_barrier_wait(&loadsave_barrier);
+				simthread_barrier_wait(&loadsave_barrier);
 #else
 				flush_buffer(curr_buff);
 #endif
 			}
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			pthread_join(ls_thread,NULL);
 
 			pthread_mutex_destroy(&loadsave_mutex);
-			pthread_barrier_destroy(&loadsave_barrier);
+			simthread_barrier_destroy(&loadsave_barrier);
 
 			delete [] ls_buf[1]; // second buffer only when multithreaded
 #endif
@@ -342,7 +345,7 @@ bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extensi
 	}
 	assert(start<end);
 	tstrncpy(this->pak_extension, start, lengthof(this->pak_extension));
-	// delete trailing path seperator
+	// delete trailing path separator
 	this->pak_extension[strlen(this->pak_extension)-1] = 0;
 
 	loadsave_t::combined_version combined_version = int_version(savegame_version, NULL, NULL );
@@ -437,11 +440,11 @@ bool loadsave_t::is_eof()
 	if(  is_bzip2()  ) {
 		if(  buffered  ) {
 			bool r;
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			pthread_mutex_lock(&loadsave_mutex);
 #endif
 			r = buf_pos[0]>=buf_len[0]  &&  buf_pos[1]>=buf_len[1]  &&  fd->bse!=BZ_OK;
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			pthread_mutex_unlock(&loadsave_mutex);
 #endif
 			return r;
@@ -454,11 +457,11 @@ bool loadsave_t::is_eof()
 	else {
 		if(  buffered  ) {
 			bool r;
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			pthread_mutex_lock(&loadsave_mutex);
 #endif
 			r = buf_pos[0]>=buf_len[0]  &&  buf_pos[1]>=buf_len[1]  &&  gzeof(fd->gzfp)!=0;
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			pthread_mutex_unlock(&loadsave_mutex);
 #endif
 			return r;
@@ -505,9 +508,9 @@ size_t loadsave_t::write(const void *buf, size_t len)
 				ls_buf[curr_buff][buf_pos[curr_buff]++] = ((const char*)buf)[i++];
 			}
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			// sync with thread to flush the buffer
-			pthread_barrier_wait(&loadsave_barrier);
+			simthread_barrier_wait(&loadsave_barrier);
 
 			// switch buffers
 			curr_buff = (curr_buff+1)&1;
@@ -551,14 +554,14 @@ void loadsave_t::flush_buffer(int buf_num)
 	else {
 		fwrite(ls_buf[buf_num], 1, buf_pos[buf_num], fd->fp);
 	}
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	pthread_mutex_lock(&loadsave_mutex);
 #endif
 	if(  is_bzip2()  ) {
 		fd->bse = bse;
 	}
 	buf_pos[buf_num] = 0;
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	pthread_mutex_unlock(&loadsave_mutex);
 #endif
 }
@@ -587,9 +590,9 @@ size_t loadsave_t::read(void *buf, size_t len)
 					((char*)buf)[i++] = ls_buf[curr_buff][buf_pos[curr_buff]++];
 				}
 			}
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			// sync with other thread to read more
-			pthread_barrier_wait(&loadsave_barrier);
+			simthread_barrier_wait(&loadsave_barrier);
 
 			// switch buffers
 			curr_buff = (curr_buff+1)&1;
@@ -599,6 +602,7 @@ size_t loadsave_t::read(void *buf, size_t len)
 #endif
 			// check if enough read
 			if(  len-i>buf_len[curr_buff]  ) {
+				dbg->fatal("loadsave_t::read","savegame corrupt, not enough data");
 				return 0;
 			}
 
@@ -631,23 +635,27 @@ int loadsave_t::fill_buffer(int buf_num)
 	if(  is_bzip2()  ) {
 		if(  bse==BZ_OK  ) {
 			r = BZ2_bzRead( &bse, fd->bzfp, ls_buf[buf_num], LS_BUF_SIZE);
+			if (  bse != BZ_OK  &&  bse != BZ_STREAM_END  ) {
+				r = -1; // an error occurred
+			}
 		}
 		else {
+			assert(bse == BZ_STREAM_END);
 			r = 0;
 		}
 	}
 	else {
 		r = gzread(fd->gzfp, ls_buf[buf_num], LS_BUF_SIZE);
 	}
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	pthread_mutex_lock(&loadsave_mutex);
 #endif
 	if(  is_bzip2()  ) {
 		fd->bse = bse;
 	}
 	buf_pos[buf_num] = 0;
-	buf_len[buf_num] = r;
-#if MULTI_THREAD>1
+	buf_len[buf_num] = r>=0 ? r : 0; // buf_len is unsigned, set to zero in case of error
+#ifdef MULTI_THREAD
 	pthread_mutex_unlock(&loadsave_mutex);
 #endif
 	return r;

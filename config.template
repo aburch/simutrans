@@ -7,6 +7,7 @@
 #BACKEND = gdi
 #BACKEND = opengl
 #BACKEND = sdl
+#BACKEND = sdl2
 #BACKEND = mixer_sdl
 #BACKEND = posix
 
@@ -32,12 +33,13 @@
 
 #WIN32_CONSOLE = 1 # adds a console for windows debugging
 
-#MULTI_THREAD = 4 # start this many threads for some tasks like updating, map rotation, ...
+#MULTI_THREAD = 1 # Enable multithreading
 
 # Define these as empty strings, if you don't have the respective config program
 #ALLEGRO_CONFIG = allegro-config
 #PNG_CONFIG     = pkg-config libpng
 #SDL_CONFIG     = sdl-config
+#SDL2_CONFIG    = sdl2-config
 
 #VERBOSE = 1
 

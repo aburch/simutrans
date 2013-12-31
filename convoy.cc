@@ -13,6 +13,8 @@
 #include "bauer/warenbauer.h"
 #include "vehicle/simvehikel.h"
 
+static karte_ptr_t welt;
+
 static const float32e8_t g_accel((uint32) 980665, (uint32) 100000); // gravitational acceleration
 
 //static const float32e8_t  _90_percent((uint32)  90, (uint32) 100);
@@ -536,7 +538,7 @@ float32e8_t potential_convoy_t::get_force_summary(const float32e8_t &speed /* in
 	{
 		force += vehicles[i]->get_effective_force_index(v);
 	}
-	return power_index_to_power(force, world.get_settings().get_global_power_factor_percent());
+	return power_index_to_power(force, welt->get_settings().get_global_power_factor_percent());
 }
 
 
@@ -548,7 +550,7 @@ float32e8_t potential_convoy_t::get_power_summary(const float32e8_t &speed /* in
 	{
 		power += vehicles[i]->get_effective_power_index(v);
 	}
-	return power_index_to_power(power, world.get_settings().get_global_power_factor_percent());
+	return power_index_to_power(power, welt->get_settings().get_global_power_factor_percent());
 }
 
 // Bernd Gabriel, Dec, 25 2009
@@ -648,7 +650,7 @@ float32e8_t existing_convoy_t::get_force_summary(const float32e8_t &speed /* in 
 	{
 		force += convoy.get_vehikel(i)->get_besch()->get_effective_force_index(v);
 	}
-	return power_index_to_power(force, convoy.get_welt()->get_settings().get_global_power_factor_percent());
+	return power_index_to_power(force, welt->get_settings().get_global_power_factor_percent());
 }
 
 
@@ -660,5 +662,5 @@ float32e8_t existing_convoy_t::get_power_summary(const float32e8_t &speed /* in 
 	{
 		power += convoy.get_vehikel(i)->get_besch()->get_effective_power_index(v);
 	}
-	return power_index_to_power(power, convoy.get_welt()->get_settings().get_global_power_factor_percent());
+	return power_index_to_power(power, welt->get_settings().get_global_power_factor_percent());
 }

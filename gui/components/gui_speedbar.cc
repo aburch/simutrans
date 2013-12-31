@@ -8,7 +8,7 @@
 #include <string.h>
 
 #include "gui_speedbar.h"
-#include "../../simgraph.h"
+#include "../../display/simgraph.h"
 #include "../../simcolor.h"
 #include "../../simtypes.h"
 
@@ -21,39 +21,39 @@ void gui_speedbar_t::set_base(sint32 base)
 
 void gui_speedbar_t::add_color_value(const sint32 *value, uint8 color)
 {
-    info_t  next =  { color, value, -1 };
-    values.insert(next);
+	info_t  next =  { color, value, -1 };
+	values.insert(next);
 }
 
 
-void gui_speedbar_t::zeichnen(koord offset)
+void gui_speedbar_t::draw(scr_coord offset)
 {
 	offset += pos;
 
 	if(vertical) {
-		sint32 from = groesse.y;
+		sint32 from = size.h;
 		FOR(slist_tpl<info_t>, const& i, values) {
-			sint32 const to = groesse.y - min(*i.value, base) * groesse.y / base;
+			sint32 const to = size.h - min(*i.value, base) * size.h / base;
 			if(to < from) {
-				display_fillbox_wh_clip(offset.x, offset.y + to, groesse.x, from - to, i.color, true);
+				display_fillbox_wh_clip(offset.x, offset.y + to, size.w, from - to, i.color, true);
 				from = to - 1;
 			}
 		}
 		if(from > 0) {
-			display_fillbox_wh_clip( offset.x, offset.y, groesse.x, from, MN_GREY0, true);
+			display_fillbox_wh_clip( offset.x, offset.y, size.w, from, MN_GREY0, true);
 		}
 	}
 	else {
 		sint32 from = 0;
 		FOR(slist_tpl<info_t>, const& i, values) {
-			sint32 const to = min(*i.value, base) * groesse.x / base;
+			sint32 const to = min(*i.value, base) * size.w / base;
 			if(to > from) {
-				display_fillbox_wh_clip(offset.x + from, offset.y, to - from, groesse.y, i.color, true);
+				display_fillbox_wh_clip(offset.x + from, offset.y, to - from, size.h, i.color, true);
 				from = to + 1;
 			}
 		}
-		if(from < groesse.x) {
-			display_fillbox_wh_clip(offset.x + from, offset.y, groesse.x - from, groesse.y, MN_GREY0, true);
+		if(from < size.w) {
+			display_fillbox_wh_clip(offset.x + from, offset.y, size.w - from, size.h, MN_GREY0, true);
 		}
 	}
 }

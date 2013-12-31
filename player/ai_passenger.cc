@@ -24,6 +24,7 @@
 
 #include "../dataobj/fahrplan.h"
 #include "../dataobj/loadsave.h"
+#include "../dataobj/marker.h"
 
 #include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"
@@ -73,7 +74,7 @@ bool ai_passenger_t::set_active(bool new_state)
  */
 halthandle_t ai_passenger_t::get_our_hub( const stadt_t *s ) const
 {
-	FOR(slist_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {
+	FOR(vector_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {
 		if(  halt->get_besitzer()==(const spieler_t *)this  ) {
 			if(  halt->get_pax_enabled()  &&  (halt->get_station_type()&haltestelle_t::busstop)!=0  ) {
 				koord h=halt->get_basis_pos();
@@ -101,9 +102,9 @@ koord ai_passenger_t::find_area_for_hub( const koord lo, const koord ru, const k
 			if(gr) {
 				// flat, solid
 				if(  gr->get_typ()==grund_t::boden  &&  gr->get_grund_hang()==hang_t::flach  ) {
-					const ding_t* thing = gr->obj_bei(0);
+					const obj_t* obj = gr->obj_bei(0);
 					int test_dist = shortest_distance( trypos, basis );
-					if (!thing || !thing->get_besitzer() || thing->get_besitzer() == sim::up_cast<spieler_t const*>(this)) {
+					if (!obj || !obj->get_besitzer() || obj->get_besitzer() == sim::up_cast<spieler_t const*>(this)) {
 						if(  gr->is_halt()  &&  check_owner( gr->get_halt()->get_besitzer(), this )  &&  gr->hat_weg(road_wt)  ) {
 							// ok, one halt belongs already to us ... (should not really happen!) but might be a public stop
 							return trypos;
@@ -159,7 +160,7 @@ koord ai_passenger_t::find_harbour_pos(karte_t* welt, const stadt_t *s )
 				if(  testdist<bestdist  ) {
 					grund_t *gr = welt->lookup_kartenboden(k);
 					hang_t::typ hang = gr->get_grund_hang();
-					if(gr->ist_natur()  &&  gr->get_hoehe()==welt->get_grundwasser()  &&  hang_t::ist_wegbar(hang)  &&  welt->ist_wasser(k-koord(hang),koord(hang)*4+koord(1,1))  ) {
+					if(  gr->ist_natur()  &&  gr->get_hoehe() == welt->get_water_hgt(k)  &&  hang_t::ist_wegbar(hang)  &&  welt->ist_wasser( k - koord(hang), koord(hang) * 4 + koord(1, 1) )  ) {
 						// can built busstop here?
 						koord bushalt = k+koord(hang);
 						gr = welt->lookup_kartenboden(bushalt);
@@ -271,10 +272,10 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 	{
 		// we use the free own vehikel_besch_t
 		vehikel_besch_t remover_besch( water_wt, 500, vehikel_besch_t::diesel );
-		vehikel_t* test_driver = vehikelbauer_t::baue( koord3d(start_harbour-start_dx,welt->get_grundwasser()), this, NULL, &remover_besch );
-		test_driver->set_flag( ding_t::not_on_map );
+		vehikel_t* test_driver = vehikelbauer_t::baue( koord3d( start_harbour - start_dx, welt->get_water_hgt( start_harbour - start_dx ) ), this, NULL, &remover_besch );
+		test_driver->set_flag( obj_t::not_on_map );
 		route_t verbindung;
-		bool connected = verbindung.calc_route(welt, koord3d(start_harbour-start_dx,welt->get_grundwasser()), koord3d(end_harbour-end_dx,welt->get_grundwasser()), test_driver, 0, 0, 0);
+		bool connected = verbindung.calc_route( welt, koord3d( start_harbour - start_dx, welt->get_water_hgt( start_harbour - start_dx ) ), koord3d( end_harbour - end_dx, welt->get_water_hgt( end_harbour - end_dx ) ), test_driver, 0, 0, 0 );
 		delete test_driver;
 		if(!connected) {
 			return false;
@@ -287,7 +288,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 		const koord town_road = find_place_for_hub( start_stadt );
 		// first: built street to harbour
 		if(town_road!=bushalt) {
-			wegbauer_t bauigel(welt, this);
+			wegbauer_t bauigel(this);
 			// no bridges => otherwise first tile might be bridge start ...
 			bauigel.route_fuer( wegbauer_t::strasse, wegbauer_t::weg_search( road_wt, road_vehicle->get_geschw(), road_vehicle->get_gewicht(), welt->get_timeline_year_month(), weg_t::type_flat ), tunnelbauer_t::find_tunnel(road_wt,road_vehicle->get_geschw(),welt->get_timeline_year_month()), NULL );
 			bauigel.set_keep_existing_faster_ways(true);
@@ -305,7 +306,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 		const koord town_road = find_place_for_hub( end_stadt );
 		// first: built street to harbour
 		if(town_road!=bushalt) {
-			wegbauer_t bauigel(welt, this);
+			wegbauer_t bauigel(this);
 			// no bridges => otherwise first tile might be bridge start ...
 			bauigel.route_fuer( wegbauer_t::strasse, wegbauer_t::weg_search( road_wt, road_vehicle->get_geschw(), road_vehicle->get_gewicht(), welt->get_timeline_year_month(), weg_t::type_flat ), tunnelbauer_t::find_tunnel(road_wt,road_vehicle->get_geschw(),welt->get_timeline_year_month()), NULL );
 			bauigel.set_keep_existing_faster_ways(true);
@@ -393,7 +394,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 	for (int y = pos1.y - cov; y <= pos1.y + cov; ++y) {
 		for (int x = pos1.x - cov; x <= pos1.x + cov; ++x) {
 			koord p(x,y);
-			const planquadrat_t *plan = welt->lookup(p);
+			const planquadrat_t *plan = welt->access(p);
 			if(plan) {
 				grund_t *gr = plan->get_kartenboden();
 				if(  gr->ist_wasser()  &&  !gr->get_halt().is_bound()  ) {
@@ -410,7 +411,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 	for (int y = pos1.y - cov; y <= pos1.y + cov; ++y) {
 		for (int x = pos1.x - cov; x <= pos1.x + cov; ++x) {
 			koord p(x,y);
-			const planquadrat_t *plan = welt->lookup(p);
+			const planquadrat_t *plan = welt->access(p);
 			if(plan) {
 				grund_t *gr = plan->get_kartenboden();
 				if(  gr->ist_wasser()  &&  !gr->get_halt().is_bound()  ) {
@@ -432,7 +433,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 	delete fpl;
 
 	// now create one ship
-	vehikel_t* v = vehikelbauer_t::baue( koord3d(start_pos,welt->get_grundwasser()), this, NULL, v_besch);
+	vehikel_t* v = vehikelbauer_t::baue( koord3d( start_pos, welt->get_water_hgt( start_pos ) ), this, NULL, v_besch );
 	convoi_t* cnv = new convoi_t(this);
 	cnv->set_name(v->get_besch()->get_name());
 	cnv->add_vehikel( v );
@@ -488,7 +489,7 @@ halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int r
 		return halthandle_t();
 	}
 	// ok, now we could built it => flatten the land
-	sint8 h = max( welt->get_grundwasser()+1, welt->lookup_kartenboden(pos)->get_hoehe() );
+	sint8 h = max( welt->get_water_hgt(pos) + 1, welt->lookup_kartenboden(pos)->get_hoehe() );
 	const koord dx( size.x/2, size.y/2 );
 	for(  sint16 i=0;  i!=size.y+dx.y;  i+=dx.y  ) {
 		for( sint16 j=0;  j!=size.x+dx.x;  j+=dx.x  ) {
@@ -498,7 +499,7 @@ halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int r
 		}
 	}
 	// now taxiways
-	wegbauer_t bauigel(welt, this);
+	wegbauer_t bauigel(this);
 	// 3x3 layout, first we make the taxiway cross
 	koord center=pos+dx;
 	bauigel.route_fuer( wegbauer_t::luft, taxi_besch, NULL, NULL );
@@ -836,10 +837,10 @@ void ai_passenger_t::walk_city(linehandle_t const line, grund_t* const start, in
 
 		// ok, if connected, not marked, and not owner by somebody else
 		grund_t *to;
-		if(  start->get_neighbour(to, road_wt, ribi_t::nsow[r] )  &&  !welt->ist_markiert(to)  &&  check_owner(to->obj_bei(0)->get_besitzer(),this)  ) {
+		if(  start->get_neighbour(to, road_wt, ribi_t::nsow[r] )  &&  !marker->is_marked(to)  &&  check_owner(to->obj_bei(0)->get_besitzer(),this)  ) {
 
 			// ok, here is a valid street tile
-			welt->markiere(to);
+			marker->mark(to);
 
 			// can built a station here
 			if(  ribi_t::ist_gerade(to->get_weg_ribi(road_wt))  ) {
@@ -850,7 +851,7 @@ void ai_passenger_t::walk_city(linehandle_t const line, grund_t* const start, in
 				uint16 const cov = welt->get_settings().get_station_coverage();
 				for (sint16 y = to->get_pos().y - cov; y <= to->get_pos().y + cov + 1; ++y) {
 					for (sint16 x = to->get_pos().x - cov; x <= to->get_pos().x + cov + 1; ++x) {
-						const planquadrat_t *pl = welt->lookup(koord(x,y));
+						const planquadrat_t *pl = welt->access(koord(x,y));
 						// check, if we have a passenger stop already here
 						if(pl  &&  pl->get_haltlist_count()>0) {
 							const nearby_halt_t *hl = pl->get_haltlist();
@@ -909,7 +910,7 @@ void ai_passenger_t::cover_city_with_bus_route(koord start_pos, int number_of_st
 	}
 
 	// nothing in lists
-	welt->unmarkiere_alle();
+	marker = &marker_t::instance(welt->get_size().x, welt->get_size().y);
 
 	// and init all stuff for recursion
 	grund_t *start = welt->lookup_kartenboden(start_pos);
@@ -936,6 +937,7 @@ void ai_passenger_t::cover_city_with_bus_route(koord start_pos, int number_of_st
 	else {
 		simlinemgmt.delete_line( line );
 	}
+	marker = NULL;
 }
 
 
@@ -1437,7 +1439,7 @@ void ai_passenger_t::rdwr(loadsave_t *file)
 		k3d.rdwr(file);
 		end_ausflugsziel = welt->lookup(k3d) ? welt->lookup(k3d)->find<gebaeude_t>() : NULL;
 		k3d.rdwr(file);
-		ziel = fabrik_t::get_fab( welt, k3d.get_2d() );
+		ziel = fabrik_t::get_fab(k3d.get_2d() );
 	}
 }
 

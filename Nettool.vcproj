@@ -184,7 +184,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\utils\memory_rw.cc"
+				RelativePath=".\network\memory_rw.cc"
 				>
 			</File>
 			<File
@@ -192,27 +192,27 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dataobj\network.cc"
+				RelativePath=".\network\network.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\dataobj\network_address.cc"
+				RelativePath=".\network\network_address.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\dataobj\network_cmd.cc"
+				RelativePath=".\network\network_cmd.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\dataobj\network_file_transfer.cc"
+				RelativePath=".\network\network_file_transfer.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\dataobj\network_packet.cc"
+				RelativePath=".\network\network_packet.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\dataobj\network_socket_list.cc"
+				RelativePath=".\network\network_socket_list.cc"
 				>
 			</File>
 			<File
@@ -246,7 +246,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\utils\memory_rw.h"
+				RelativePath=".\network\memory_rw.h"
 				>
 			</File>
 			<File
@@ -254,27 +254,27 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dataobj\network.h"
+				RelativePath=".\network\network.h"
 				>
 			</File>
 			<File
-				RelativePath=".\dataobj\network_address.h"
+				RelativePath=".\network\network_address.h"
 				>
 			</File>
 			<File
-				RelativePath=".\dataobj\network_cmd.h"
+				RelativePath=".\network\network_cmd.h"
 				>
 			</File>
 			<File
-				RelativePath=".\dataobj\network_file_transfer.h"
+				RelativePath=".\network\network_file_transfer.h"
 				>
 			</File>
 			<File
-				RelativePath=".\dataobj\network_packet.h"
+				RelativePath=".\network\network_packet.h"
 				>
 			</File>
 			<File
-				RelativePath=".\dataobj\network_socket_list.h"
+				RelativePath=".\network\network_socket_list.h"
 				>
 			</File>
 			<File

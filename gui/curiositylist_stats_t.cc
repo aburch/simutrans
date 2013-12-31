@@ -12,14 +12,15 @@
 
 #include "curiositylist_stats_t.h"
 
-#include "../simgraph.h"
+#include "../display/simgraph.h"
+#include "../display/viewport.h"
 #include "../simtypes.h"
 #include "../simcolor.h"
 #include "../simworld.h"
 #include "../simhalt.h"
 #include "../simskin.h"
 
-#include "../dings/gebaeude.h"
+#include "../obj/gebaeude.h"
 
 #include "../besch/haus_besch.h"
 #include "../besch/skin_besch.h"
@@ -32,8 +33,7 @@
 #include "gui_frame.h"
 
 
-curiositylist_stats_t::curiositylist_stats_t(karte_t* w, curiositylist::sort_mode_t sortby, bool sortreverse) :
-	welt(w)
+curiositylist_stats_t::curiositylist_stats_t(curiositylist::sort_mode_t sortby, bool sortreverse)
 {
 	get_unique_attractions(sortby,sortreverse);
 	recalc_size();
@@ -122,14 +122,14 @@ bool curiositylist_stats_t::infowin_event(const event_t * ev)
 
 	if (IS_LEFTRELEASE(ev)) {
 		if(  ev->cx>0  &&  ev->cx<15  ) {
-			welt->change_world_position(geb->get_pos());
+			welt->get_viewport()->change_world_position(geb->get_pos());
 		}
 		else {
 			geb->zeige_info();
 		}
 	}
 	else if (IS_RIGHTRELEASE(ev)) {
-		welt->change_world_position(geb->get_pos());
+		welt->get_viewport()->change_world_position(geb->get_pos());
 	}
 	return false;
 } // end of function curiositylist_stats_t::infowin_event(const event_t * ev)
@@ -137,8 +137,8 @@ bool curiositylist_stats_t::infowin_event(const event_t * ev)
 
 void curiositylist_stats_t::recalc_size()
 {
-	// show_scroll_x==false ->> groesse.x not important ->> no need to calc text pixel length
-	set_groesse( koord(210, attractions.get_count() * (LINESPACE+1) ) );
+	// show_scroll_x==false ->> size.w not important ->> no need to calc text pixel length
+	set_size( scr_size(210, attractions.get_count() * (LINESPACE+1) ) );
 }
 
 
@@ -146,7 +146,7 @@ void curiositylist_stats_t::recalc_size()
  * Draw the component
  * @author Hj. Malthaner
  */
-void curiositylist_stats_t::zeichnen(koord offset)
+void curiositylist_stats_t::draw(scr_coord offset)
 {
 	clip_dimension const cd = display_get_clip_wh();
 	const int start = cd.y-LINESPACE+1;
@@ -163,16 +163,20 @@ void curiositylist_stats_t::zeichnen(koord offset)
 
 	uint32 sel = line_selected;
 	FORX(vector_tpl<gebaeude_t*>, const geb, attractions, yoff += LINESPACE + 1) {
-		if (yoff >= end) break;
+		if (yoff >= end) {
+			break;
+		}
 
 		int xoff = offset.x+10;
 
 		// skip invisible lines
-		if (yoff < start) continue;
+		if (yoff < start) {
+			continue;
+		}
 
 		// goto button
-		image_id const img = sel-- != 0 ? button_t::arrow_right_normal : button_t::arrow_right_pushed;
-		display_color_img(img, xoff - 8, yoff, 0, false, true);
+		display_img_aligned( gui_theme_t::pos_button_img[ sel == 0 ], scr_rect( xoff-8, yoff, 14, LINESPACE ), ALIGN_CENTER_V | ALIGN_CENTER_H, true );
+		sel --;
 
 		buf.clear();
 
@@ -182,7 +186,7 @@ void curiositylist_stats_t::zeichnen(koord offset)
 		bool pax=false;
 		bool all_crowded=true;
 		bool some_crowded=false;
-		const planquadrat_t *plan = welt->lookup(geb->get_pos().get_2d());
+		const planquadrat_t *plan = welt->access(geb->get_pos().get_2d());
 		const nearby_halt_t *halt_list = plan->get_haltlist();
 		for(  unsigned h=0;  (post&pax)==0  &&  h<plan->get_haltlist_count();  h++ ) {
 			halthandle_t halt = halt_list[h].halt;

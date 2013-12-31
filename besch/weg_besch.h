@@ -12,8 +12,7 @@
 #include "skin_besch.h"
 #include "../dataobj/ribi.h"
 #include "../dataobj/way_constraints.h"
-#include "../utils/checksum.h"
-
+#include "../network/checksum.h"
 
 class werkzeug_t;
 class karte_t;
@@ -38,7 +37,7 @@ class karte_t;
  *
  * @author  Volker Meyer, Hj. Malthaner
  */
-class weg_besch_t : public obj_besch_std_name_t {
+class weg_besch_t : public obj_besch_transport_infrastructure_t {
 	friend class way_reader_t;
 
 public:
@@ -46,45 +45,14 @@ public:
 	// unused: enum { elevated=1, joined=7 /* only tram */, special=255 };
 
 private:
-	/**
-	 * Price per square
-	 * @author Hj. Malthaner
-	 */
-	sint32 price;
-	sint32 scaled_price;
-
-	/**
-	 * Maintenance cost per square/month
-	 * @author Hj. Malthaner
-	 */
-	sint32 maintenance;
-	sint32 scaled_maintenance;
-
-	/**
-	 * Max speed
-	 * @author Hj. Malthaner
-	 */
-	sint32 topspeed;
+	sint32 base_cost;
+	sint32 base_maintenance;
 
 	/**
 	 * Max weight
 	 * @author Hj. Malthaner
 	 */
 	uint32 max_axle_load;
-
-	/**
-	 * Introduction date
-	 * @author Hj. Malthaner
-	 */
-	uint16 intro_date;
-	uint16 obsolete_date;
-
-	/**
-	 * Way type: i.e. road or track
-	 * @see waytype_t
-	 * @author Hj. Malthaner
-	 */
-	uint8 wtyp;
 
 	/**
 	 * Way system type: i.e. for wtyp == track this
@@ -95,7 +63,7 @@ private:
 
 	/* true, if a tile with this way should be always drawn as a thing
 	*/
-	uint8 draw_as_ding;
+	uint8 draw_as_obj;
 
 	/* number of seasons (0 = none, 1 = no snow/snow)
 	*/
@@ -108,9 +76,6 @@ private:
 	// this is the defualt tools for building this way ...
 	// if true front_images lists exists as nodes
 	bool front_images;
-
-	// this is the default tool for building this way ...
-	werkzeug_t *builder;
 
 	/**
 	 * calculates index of image list for flat ways
@@ -137,37 +102,19 @@ private:
 		}
 	}
 public:
-	sint32 get_preis() const { return scaled_price; }
-
-	sint32 get_base_price() const { return price; }
-
-	sint32 get_wartung() const { return scaled_maintenance; }
-
-	sint32 get_base_maintenance() const { return  maintenance; }
+	inline sint32 get_base_price() const { return base_cost; }
+	inline sint32 get_base_maintenance() const { return base_maintenance; }
 
 	void set_scale(uint16 scale_factor) 
 	{
-		const sint32 scaled_price_preliminary =  set_scale_generic<sint32>(price, scale_factor);
-		const sint32 scaled_maintenance_preliminary =  set_scale_generic<sint32>(maintenance, scale_factor);
-		scaled_price = scaled_price_preliminary < 1 ? (price > 0 ? 1 : 0) : scaled_price_preliminary;
-		scaled_maintenance = (scaled_maintenance_preliminary < (maintenance > 0 ? 1 : 0) ? 1: scaled_maintenance_preliminary);
+		const sint32 scaled_price_preliminary =  set_scale_generic<sint32>(base_cost, scale_factor);
+		const sint32 scaled_maintenance_preliminary =  set_scale_generic<sint32>(base_maintenance, scale_factor);
+		cost = scaled_price_preliminary < 1 ? (base_cost > 0 ? 1 : 0) : scaled_price_preliminary;
+		maintenance = (scaled_maintenance_preliminary < (base_maintenance > 0 ? 1 : 0) ? 1: scaled_maintenance_preliminary);
 	}
-
-	/**
-	 * Determines max speed in km/h allowed on this way
-	 * @author Hj. Malthaner
-	 */
-	sint32 get_topspeed() const { return topspeed; }
 
 	//Returns maximum weight
 	uint32 get_max_axle_load() const { return max_axle_load < 999999 ? max_axle_load : 999; }
-
-	/**
-	 * get way type
-	 * @see waytype_t
-	 * @author Hj. Malthaner
-	 */
-	waytype_t get_wtyp() const { return (waytype_t)wtyp; }
 
 	/**
 	* @return waytype used in finance stats (needed to distinguish \
@@ -216,12 +163,6 @@ public:
 			return IMG_LEER;
 		}
 		int const n = image_list_base_index(season, front) + 1;
-#ifndef DOUBLE_GROUNDS
-		if(!hang_t::ist_einfach(hang)) {
-			return IMG_LEER;
-		}
-		return get_child<bildliste_besch_t>(n)->get_bild_nr(hang / 3 - 1);
-#else
 		int nr;
 		switch(hang) {
 			case 4:
@@ -236,11 +177,28 @@ public:
 			case 36:
 				nr = 3;
 				break;
+			case 8:
+				nr = 4;
+				break;
+			case 24:
+				nr = 5;
+				break;
+			case 56:
+				nr = 6;
+				break;
+			case 72:
+				nr = 7;
+				break;
 			default:
 				return IMG_LEER;
 		}
-		return get_child<bildliste_besch_t>(n)->get_bild_nr(nr);
-#endif
+		image_id hang_img = get_child<bildliste_besch_t>(n)->get_bild_nr(nr);
+		if(  nr > 3  &&  hang_img == IMG_LEER  &&  get_child<bildliste_besch_t>(n)->get_anzahl()<=4  ) {
+			// hack for old ways without double height images to use single slope images for both
+			nr -= 4;
+			hang_img = get_child<bildliste_besch_t>(n)->get_bild_nr(nr);
+		}
+		return hang_img;
 	}
 
 	image_id get_diagonal_bild_nr(ribi_t::ribi ribi, uint8 season, bool front = false) const
@@ -250,6 +208,11 @@ public:
 		}
 		int const n = image_list_base_index(season, front) + 2;
 		return get_child<bildliste_besch_t>(n)->get_bild_nr(ribi / 3 - 1);
+	}
+
+	bool has_double_slopes() const {
+		return get_child<bildliste_besch_t>(3)->get_anzahl() > 4
+		||     get_child<bildliste_besch_t>(image_list_base_index(false, true) + 1)->get_anzahl() > 4;
 	}
 
 	bool has_diagonal_bild() const {
@@ -262,20 +225,8 @@ public:
 		||     get_child<bildliste_besch_t>(image_list_base_index(false, true))->get_anzahl() > 16;
 	}
 
-	/**
-	* @return introduction year
-	* @author Hj. Malthaner
-	*/
-	uint16 get_intro_year_month() const { return intro_date; }
-
-	/**
-	* @return introduction month
-	* @author Hj. Malthaner
-	*/
-	uint16 get_retire_year_month() const { return obsolete_date; }
-
 	/* true, if this tile is to be drawn as a normal thing */
-	bool is_draw_as_ding() const { return draw_as_ding; }
+	bool is_draw_as_obj() const { return draw_as_obj; }
 
 	/**
 	* Skin: cursor (index 0) and icon (index 1)
@@ -343,14 +294,10 @@ public:
 
 	void calc_checksum(checksum_t *chk) const
 	{
-		chk->input(price);
-		chk->input(maintenance);
-		chk->input(topspeed);
+		obj_besch_transport_infrastructure_t::calc_checksum(chk);
 		chk->input(max_axle_load);
-		chk->input(intro_date);
-		chk->input(obsolete_date);
-		chk->input(wtyp);
 		chk->input(styp);
+		chk->input(has_double_slopes());
 
 		//Experimental values
 		chk->input(way_constraints.get_permissive());

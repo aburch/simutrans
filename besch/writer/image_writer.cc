@@ -1,17 +1,17 @@
-#include <string>
-#include <string.h>
 #include <stdlib.h>
-#include "../../utils/dr_rdpng.h"
-#include "../bild_besch.h"
-#include "obj_node.h"
-#include "root_writer.h"
-#include "obj_pak_exception.h"
-#include "image_writer.h"
-#include "../../macros.h"
-
 #include <stdio.h>
+#include <string.h>
+#include <string>
+#include "image_writer.h"
+#include "root_writer.h"
+#include "obj_node.h"
+#include "obj_pak_exception.h"
+#include "../bild_besch.h"
+#include "../../macros.h"
+#include "../../utils/dr_rdpng.h"
+#include "../../utils/simstring.h"
+#include "../../simdebug.h"
 
-using std::string;
 
 struct dimension
 {
@@ -24,13 +24,12 @@ struct dimension
 static int special_hist[SPECIAL];
 
 
-string image_writer_t::last_img_file;
+std::string image_writer_t::last_img_file;
 
 unsigned image_writer_t::width;
 unsigned image_writer_t::height;
 unsigned char* image_writer_t::block = NULL;
 int image_writer_t::img_size = 64;
-
 
 
 void image_writer_t::dump_special_histogramm()
@@ -113,40 +112,52 @@ uint16 *image_writer_t::encode_image(int x, int y, dimension* dim, int* len)
 
 	x += dim->xmin;
 	y += dim->ymin;
-	const int width = dim->xmax - dim->xmin + 1;
-	const int height = dim->ymax - dim->ymin + 1;
 
-	for (line = 0; line < height; line++) {
-		int row_px_count = 0;
-		uint32 pix = block_getpix(x, y + line);
-		uint16 count = 0;
+	const int img_width  = dim->xmax - dim->xmin + 1;
+	const int img_height = dim->ymax - dim->ymin + 1;
+
+	for(  line = 0;  line < img_height;  line++  ) {
+		int row_px_count = 0;	// index of the currently handled pixel
 		uint16 clear_colored_run_pair_count = 0;
 
-		do {
-			count = 0;
-			while (pix == SPECIAL_TRANSPARENT && row_px_count < width) {
-				count++;
-				row_px_count++;
-				pix = block_getpix(x + row_px_count, y + line);
-			}
+		uint32 pix = block_getpix( x + row_px_count, y + line );
+		row_px_count++;
 
+		do { // read one row
+			uint16 count = 0;
+
+			// read transparent pixels
+			while(  pix == SPECIAL_TRANSPARENT  ) {
+				count ++;
+				if (row_px_count >= img_width) { // end of line ?
+					break;
+				}
+				pix = block_getpix( x + row_px_count, y + line );
+				row_px_count++;
+			}
+			// write number of transparent pixels
 			*dest++ = endian(count);
 
+			// position to write number of colored pixels to
 			colored_run_counter = dest++;
 			count = 0;
 
-			while (pix != SPECIAL_TRANSPARENT && row_px_count < width) {
+			while(  pix != SPECIAL_TRANSPARENT  ) {
+				// write the colored pixel
 				*dest++ = pixrgb_to_pixval(pix);
 				count++;
+				if (row_px_count >= img_width) { // end of line ?
+					break;
+				}
+				pix = block_getpix( x + row_px_count, y + line );
 				row_px_count++;
-				pix = block_getpix(x + row_px_count, y + line);
 			}
 
 			/* Knightly:
 			 *		If it is not the first clear-colored-run pair and its colored run is empty
 			 *		--> it is superfluous and can be removed by rolling back the pointer
 			 */
-			if(  clear_colored_run_pair_count>0  &&  count==0  ) {
+			if(  clear_colored_run_pair_count > 0  &&  count == 0  ) {
 				dest -= 2;
 				// this only happens at the end of a line, so no need to increment clear_colored_run_pair_count
 			}
@@ -154,7 +165,7 @@ uint16 *image_writer_t::encode_image(int x, int y, dimension* dim, int* len)
 				*colored_run_counter = endian(count);
 				clear_colored_run_pair_count++;
 			}
-		} while (row_px_count < width);
+		} while(  row_px_count < img_width  );
 
 		*dest++ = 0;
 	}
@@ -184,32 +195,32 @@ bool image_writer_t::block_laden(const char* fname)
 /* the syntax for image the string is
  *   "-" empty image
  * [> ]imagefilename_without_extension[[[[.row].col],xoffset],yoffset]
- *  leading "> " maen an unzoomable image
- *  after the dots also spaces are allowed
+ *  leading "> " set teh flag for an unzoomable image
+ *  after the dots also spaces and comments are allowed
  */
-void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, string an_imagekey)
+void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, std::string an_imagekey, uint32 index)
 {
 	bild_t bild;
 	dimension dim;
 	uint16 *pixdata = NULL;
-	string imagekey;
 
 	MEMZERO(bild);
 
 	// Hajo: if first char is a '>' then this image is not zoomeable
-	if(  an_imagekey.size() > 2  &&  an_imagekey[0] == '>'  ) {
-		imagekey = an_imagekey.substr(2, std::string::npos);
+	if(  an_imagekey[0] == '>'  ) {
+		an_imagekey = an_imagekey.substr(1);
 		bild.zoomable = false;
 	}
 	else {
-		imagekey = an_imagekey;
 		bild.zoomable = true;
 	}
+	std::string imagekey = trim(an_imagekey);
 
 	if(  imagekey != "-"  &&  imagekey != ""  ) {
+
 		// divide key in filename and image number
 		int row = -1, col = -1;
-		string numkey;
+		std::string numkey;
 
 		int j = imagekey.rfind('/');
 		if(  j == -1  ) {
@@ -285,12 +296,13 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, string an_imagek
 		if (bild.h > 0) {
 			int len;
 			pixdata = encode_image(col, row, &dim, &len);
-			if (len>65535) {
-				printf("ERROR: packed image size (%i) exceeded 65535 bytes!\n",len);
-				abort();
-			}
 			bild.len = len;
 		}
+
+		dbg->debug( "", "image[%3u] =%-30s %-20s %5u %5u %5u %5u %5u %6u %4s", index, an_imagekey.c_str(), imagekey.c_str(), col, row, bild.x, bild.y, bild.w, bild.h, (bild.zoomable) ? "yes" : "no" );
+	}
+	else {
+		dbg->debug( "", "image[%3u] =%-30s %-20s %5u %5u %5u %5u %5u %6u %4s", index, an_imagekey.c_str(), imagekey.c_str(), 0, 0, bild.x, bild.y, bild.w, bild.h, (bild.zoomable) ? "yes" : "no" );
 	}
 
 #ifdef IMG_VERSION0
@@ -310,7 +322,7 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, string an_imagek
 	if (bild.len) {
 		// only called, if there is something to store
 		node.write_data_at(outfp, pixdata, 12, bild.len * sizeof(PIXVAL));
-		free(pixdata);
+		delete [] pixdata;
 	}
 #elif IMG_VERSION2
 	// version 1 or 2
@@ -328,7 +340,7 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, string an_imagek
 	if (bild.len) {
 		// only called, if there is something to store
 		node.write_data_at(outfp, pixdata, 10, bild.len * sizeof(PIXVAL));
-		free(pixdata);
+		delete [] pixdata;
 	}
 #else
 	// version 3
@@ -346,7 +358,7 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, string an_imagek
 	if (bild.len) {
 		// only called, if there is something to store
 		node.write_data_at(outfp, pixdata, 10, bild.len * sizeof(uint16));
-		free(pixdata);
+		delete [] pixdata;
 	}
 #endif
 

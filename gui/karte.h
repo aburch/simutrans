@@ -9,8 +9,7 @@
 #include "../tpl/vector_tpl.h"
 
 
-
-class karte_t;
+class karte_ptr_t;
 class fabrik_t;
 class grund_t;
 class stadt_t;
@@ -25,9 +24,8 @@ class loadsave_t;
 #define ALWAYS_LARGE 1
 
 /**
- * Diese Klasse dient zur Darstellung der Reliefkarte
- * (18.06.00 von simwin getrennt)
- * Als Singleton implementiert.
+ * This class is used to render the relief map.
+ * Implemented as singleton.
  *
  * @author Hj. Malthaner
  */
@@ -64,7 +62,7 @@ public:
 	};
 
 private:
-	static karte_t *welt;
+	static karte_ptr_t welt;
 
 	reliefkarte_t();
 
@@ -134,7 +132,7 @@ private:
 	static MAP_MODES last_mode;
 	static const uint8 severity_color[MAX_SEVERITY_COLORS];
 
-	inline void screen_to_karte(koord &) const;
+	koord screen_to_karte(const scr_coord&) const;
 
 	// for passenger destination display
 	const stadt_t *city;
@@ -143,15 +141,15 @@ private:
 	koord last_world_pos;
 
 	// current and new offset and size (to avoid drawing invisible parts)
-	koord cur_off, cur_size;
-	koord new_off, new_size;
+	scr_coord cur_off, new_off;
+	scr_size cur_size, new_size;
 
 	// true, if full redraw is needed
 	bool needs_redraw;
 
 	const fabrik_t* get_fab(koord pos, bool large_area) const;
 
-	const fabrik_t* draw_fab_connections(uint8 colour, koord pos) const;
+	const fabrik_t* draw_fab_connections(uint8 colour, scr_coord pos) const;
 
 	static sint32 max_cargo;
 	static sint32 max_passed;
@@ -164,7 +162,7 @@ private:
 	void set_citycar_speed_average();
 
 public:
-	void karte_to_screen(koord &) const;
+	scr_coord karte_to_screen(const koord &k) const;
 
 	static bool is_visible;
 
@@ -190,7 +188,7 @@ public:
 	*/
 	static uint8 calc_hoehe_farbe(const sint16 hoehe, const sint16 grundwasser);
 
-	// needed for town pasenger map
+	// needed for town passenger map
 	static uint8 calc_relief_farbe(const grund_t *gr);
 
 	// public, since the convoi updates need this
@@ -201,26 +199,24 @@ public:
 	static reliefkarte_t *get_karte();
 
 	// HACK! since we cannot get cleanly the current offset/size, we use this helper function
-	void set_xy_offset_size( koord off, koord size ) {
+	void set_xy_offset_size( scr_coord off, scr_size size ) {
 		new_off = off;
 		new_size = size;
 	}
 
-	koord get_offset() const { return cur_off; };
+	scr_coord get_offset() const { return cur_off; };
 
 	// update color with render mode (but few are ignored ... )
 	void calc_map_pixel(const koord k);
 
 	void calc_map();
 
-	// calculates the current size of the map (but do nopt change anything else)
-	void calc_map_groesse();
+	// calculates the current size of the map (but do not change anything else)
+	void calc_map_size();
 
 	virtual ~reliefkarte_t();
 
-	karte_t * get_welt() const {return welt;}
-
-	void set_welt(karte_t *welt);
+	void init();
 
 	void set_mode(MAP_MODES new_mode);
 
@@ -231,7 +227,7 @@ public:
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
-	void zeichnen(koord pos);
+	void draw(scr_coord pos);
 
 	void set_current_cnv( convoihandle_t c );
 

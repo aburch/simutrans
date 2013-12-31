@@ -28,14 +28,13 @@ void strasse_t::set_gehweg(bool janein)
 
 
 
-strasse_t::strasse_t(karte_t *welt, loadsave_t *file) : weg_t (welt, road_wt)
+strasse_t::strasse_t(loadsave_t *file) : weg_t(road_wt)
 {
 	rdwr(file);
 }
 
 
-
-strasse_t::strasse_t(karte_t *welt) : weg_t (welt, road_wt)
+strasse_t::strasse_t() : weg_t(road_wt)
 {
 	set_gehweg(false);
 	set_besch(default_strasse);

@@ -8,22 +8,20 @@
 
 
 /**
- * 3d Koordinaten
+ * 3D Coordinates
  */
 class koord3d : public koord
 {
 public:
-	//sint16 x;
-	//sint16 y;
 	sint8 z;
 
-	koord3d() : koord(0, 0), z(0) {}
+	inline koord3d() : koord(0, 0), z(0) {}
 
 	const char *get_str() const;
 	const char *get_fullstr() const;	// including brackets
 
-	koord3d(sint16 xp, sint16 yp, sint8 zp) : koord(xp, yp), z(zp) {}
-	koord3d(koord xyp, sint8 zp) : koord(xyp), z(zp) {}
+	inline koord3d(sint16 xp, sint16 yp, sint8 zp) : koord(xp, yp), z(zp) {}
+	inline koord3d(koord xyp, sint8 zp) : koord(xyp), z(zp) {}
 	koord3d(loadsave_t* file);
 
 	void rotate90( sint16 y_diff );
@@ -32,9 +30,9 @@ public:
 
 	static const koord3d invalid;
 
-	const koord& get_2d() const { return *this; }
+	inline const koord& get_2d() const { return *this; }
 
-	const koord3d& operator += (const koord3d& a)
+	inline const koord3d& operator += (const koord3d& a)
 	{
 		x += a.x;
 		y += a.y;
@@ -42,7 +40,7 @@ public:
 		return *this;
 	}
 
-	const koord3d& operator -= (koord3d& a)
+	inline const koord3d& operator -= (koord3d& a)
 	{
 		x -= a.x;
 		y -= a.y;
@@ -50,14 +48,14 @@ public:
 		return *this;
 	}
 
-	const koord3d& operator += (const koord& a)
+	inline const koord3d& operator += (const koord& a)
 	{
 		x += a.x;
 		y += a.y;
 		return *this;
 	}
 
-	const koord3d& operator -= (const koord& a)
+	inline const koord3d& operator -= (const koord& a)
 	{
 		x -= a.x;
 		y -= a.y;

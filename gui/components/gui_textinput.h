@@ -19,7 +19,7 @@
 #include "gui_action_creator.h"
 #include "gui_komponente.h"
 #include "../../simcolor.h"
-#include "../../simgraph.h"
+#include "../../display/simgraph.h"
 
 
 class gui_textinput_t :
@@ -58,7 +58,7 @@ protected:
 	  * offset for controlling horizontal text scroll
 	  * Dwachs: made private to check for mouse induced cursor moves
 	  */
-	KOORD_VAL scroll_offset;
+	scr_coord_val scroll_offset;
 
 	/**
 	 * text alignment
@@ -119,17 +119,17 @@ public:
 	 * Draw the component
 	 * @author Hj. Malthaner
 	 */
-	virtual void zeichnen(koord offset);
+	virtual void draw(scr_coord offset);
 
 	/**
 	 * Detect change of focus state and determine whether cursor should be displayed,
 	 * and call the function that performs the actual display
 	 * @author Knightly
 	 */
-	void display_with_focus(koord offset, bool has_focus);
+	void display_with_focus(scr_coord offset, bool has_focus);
 
 	// function that performs the actual display
-	virtual void display_with_cursor(koord offset, bool cursor_active, bool cursor_visible);
+	virtual void display_with_cursor(scr_coord offset, bool cursor_active, bool cursor_visible);
 
 	// to allow for right-aligned text
 	void set_alignment(uint8 _align){ align = _align;}
@@ -145,7 +145,7 @@ class gui_hidden_textinput_t : public gui_textinput_t
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	// function that performs the actual display; just draw with stars ...
-	virtual void display_with_cursor(koord offset, bool cursor_active, bool cursor_visible);
+	virtual void display_with_cursor(scr_coord offset, bool cursor_active, bool cursor_visible);
 };
 
 

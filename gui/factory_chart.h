@@ -21,7 +21,7 @@
 #include "components/gui_button.h"
 #include "components/gui_chart.h"
 #include "components/gui_tab_panel.h"
-#include "gui_container.h"
+#include "components/gui_container.h"
 
 
 class factory_chart_t : public gui_container_t, private action_listener_t
@@ -58,7 +58,7 @@ public:
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
-	virtual void zeichnen(koord pos);
+	virtual void draw(scr_coord pos);
 
 	void rdwr( loadsave_t *file );
 };

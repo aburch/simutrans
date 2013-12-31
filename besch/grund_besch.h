@@ -11,6 +11,7 @@
 #include "bildliste2d_besch.h"
 #include "../simtypes.h"
 #include "../dataobj/ribi.h"
+#include "../boden/grund.h"
 
 /*
  *  Autor:
@@ -44,18 +45,17 @@ public:
 	static const grund_besch_t *marker;
 	static const grund_besch_t *borders;
 	static const grund_besch_t *sea;	// different water depth
-	static const grund_besch_t *border;
 	static const grund_besch_t *ausserhalb;
 
 	static char const* get_climate_name_from_bit(climate n);
 
-#ifdef DOUBLE_GROUNDS
-    static const uint8 slopetable[80];
-    // returns the correct hang number for this slope
-    static inline int get_double_hang(hang_t::typ typ) {
+	static bool double_grounds;
+
+	static const uint8 slopetable[80];
+	// returns the correct hang number for this slope
+	static inline int get_double_hang(hang_t::typ typ) {
 		return slopetable[typ];
-    }
-#endif
+	}
 
 	// returns the pointer to an image structure
 	const bild_besch_t *get_bild_ptr(int typ, int stage=0) const
@@ -77,18 +77,40 @@ public:
 	}
 
 	// image for all ground tiles
-	static image_id get_ground_tile(hang_t::typ slope, sint16 height );
+	static image_id get_ground_tile(grund_t *gr);
+
+	static image_id get_water_tile(hang_t::typ slope);
+	static image_id get_climate_tile(climate cl, hang_t::typ slope);
+	static image_id get_snow_tile(hang_t::typ slope);
+	static image_id get_beach_tile(hang_t::typ slope, uint8 corners);
+	static image_id get_alpha_tile(hang_t::typ slope);
+	static image_id get_alpha_tile(hang_t::typ slope, uint8 corners);
 
 	static bool register_besch(const grund_besch_t *besch);
 
 	static bool alles_geladen();
 
-	/* this routine is called during the creation of a new map
-	 * it will recalculate all transitions according the given water level
-	 * and put the result in height_to_climate
+	/**
+	 * Generates ground texture images, transition maps, etc.
 	 */
-	static void calc_water_level(karte_t *welt, uint8 *height_to_climate);
+	static void init_ground_textures(karte_t *welt);
 
+	static image_id get_marker_image(hang_t::typ slope_in, bool background)
+	{
+		uint8 slope = double_grounds ? slope_in : slopetable[slope_in];
+		uint8 index = background ? (double_grounds ? (slope % 3) + 3 * ((uint8)(slope / 9)) + 27
+		                                           : ((slope & 1) + ((slope >> 1) & 6) + 8))
+		                         : (double_grounds ?  slope % 27
+		                                           : (slope & 7 ));
+		return marker->get_bild(index);
+	}
+
+	static image_id get_border_image(hang_t::typ slope_in)
+	{
+		uint8 slope = double_grounds ? slope_in : slopetable[slope_in];
+		uint8 index = double_grounds ? (slope % 3) + 3 * ((uint8)(slope / 9)) : (slope & 1) + ((slope >> 1) & 6);
+		return borders->get_bild(index);
+	}
 };
 
 #endif

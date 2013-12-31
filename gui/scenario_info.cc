@@ -4,22 +4,23 @@
  */
 #include "scenario_info.h"
 #include "../simworld.h"
+#include "../display/viewport.h"
 #include "../dataobj/scenario.h"
 #include "../dataobj/translator.h"
 
-void scenario_info_t::update_dynamic_texts(gui_flowtext_t &flow, dynamic_string &text, koord gr, bool init)
+void scenario_info_t::update_dynamic_texts(gui_flowtext_t &flow, dynamic_string &text, scr_size size, bool init)
 {
 	if (text.has_changed()  ||  init) {
 		flow.set_text( text );
 		text.clear_changed();
-		flow.set_groesse( gr );
-		flow.set_groesse( flow.get_text_size() );
+		flow.set_size( size );
+		flow.set_size( flow.get_text_size() );
 		set_dirty();
 	}
 }
 
 
-scenario_info_t::scenario_info_t(karte_t *welt_) :
+scenario_info_t::scenario_info_t() :
 	gui_frame_t( translator::translate("Scenario information") ),
 	scrolly_info(&info),
 	scrolly_goal(&goal),
@@ -29,7 +30,7 @@ scenario_info_t::scenario_info_t(karte_t *welt_) :
 	scrolly_debug(&debug_msg),
 	scrolly_error(&error)
 {
-	tabs.set_pos(koord(0,0));
+	tabs.set_pos(scr_coord(0,0));
 	tabs.add_tab(&scrolly_info, translator::translate("Scenario Info"));
 	tabs.add_tab(&scrolly_goal, translator::translate("Scenario Goal"));
 	tabs.add_tab(&scrolly_rule, translator::translate("Scenario Rules"));
@@ -38,7 +39,6 @@ scenario_info_t::scenario_info_t(karte_t *welt_) :
 	add_komponente(&tabs);
 	tabs.add_listener(this);
 
-	welt = welt_;
 	// fetch texts
 	update_scenario_texts(true);
 	// fetch possible error message
@@ -52,10 +52,10 @@ scenario_info_t::scenario_info_t(karte_t *welt_) :
 	tabs.add_tab(&scrolly_debug, translator::translate("Scenario Debug"));
 	debug_msg.set_text( welt->get_scenario()->get_forbidden_text() );
 
-	set_fenstergroesse(koord(300, D_TITLEBAR_HEIGHT + gui_tab_panel_t::HEADER_VSIZE+250));
-	set_min_windowsize(koord(40,  D_TITLEBAR_HEIGHT + gui_tab_panel_t::HEADER_VSIZE+10));
+	set_windowsize(scr_size(300, D_TITLEBAR_HEIGHT + TAB_HEADER_V_SIZE+250));
+	set_min_windowsize(scr_size(40,  D_TITLEBAR_HEIGHT + TAB_HEADER_V_SIZE+10));
 
-	koord pane_pos(D_MARGIN_LEFT, D_MARGIN_TOP);
+	scr_coord pane_pos(D_MARGIN_LEFT, D_MARGIN_TOP);
 	gui_flowtext_t *texts[] = { &info, &goal, &rule, &result, &about, &error, &debug_msg};
 	for(uint32 i=0; i<lengthof(texts); i++) {
 		texts[i]->set_pos(pane_pos);
@@ -68,7 +68,7 @@ scenario_info_t::scenario_info_t(karte_t *welt_) :
 	}
 
 	set_resizemode(diagonal_resize);
-	resize(koord(0,0));
+	resize(scr_coord(0,0));
 }
 
 
@@ -78,17 +78,17 @@ scenario_info_t::scenario_info_t(karte_t *welt_) :
  * @author Hj. Malthaner
  * @date   16-Oct-2003
  */
-void scenario_info_t::resize(const koord delta)
+void scenario_info_t::resize(const scr_coord delta)
 {
 	gui_frame_t::resize(delta);
-	koord groesse = get_fenstergroesse()-koord(0, D_TITLEBAR_HEIGHT);
-	tabs.set_groesse(groesse);
+	scr_size size = get_windowsize()-scr_size(0, D_TITLEBAR_HEIGHT);
+	tabs.set_size(size);
 
 	gui_flowtext_t *texts[] = { &info, &goal, &rule, &result, &about, &error, &debug_msg};
-	koord gr = get_client_windowsize() - info.get_pos() - koord(D_MARGIN_RIGHT + scrollbar_t::BAR_SIZE, D_MARGIN_BOTTOM + scrollbar_t::BAR_SIZE);
+	size = get_client_windowsize() - info.get_pos() - scr_size(D_MARGIN_RIGHT + D_SCROLLBAR_WIDTH, D_MARGIN_BOTTOM + D_SCROLLBAR_HEIGHT);
 	for(uint32 i=0; i<lengthof(texts); i++) {
-		texts[i]->set_groesse( gr );
-		texts[i]->set_groesse( texts[i]->get_text_size() );
+		texts[i]->set_size( size );
+		texts[i]->set_size( texts[i]->get_text_size() );
 	}
 }
 
@@ -99,7 +99,7 @@ void scenario_info_t::resize(const koord delta)
 void scenario_info_t::update_scenario_texts(bool init)
 {
 	scenario_t *scen = welt->get_scenario();
-	koord border_size = get_client_windowsize() - info.get_pos() - koord(D_MARGIN_RIGHT + scrollbar_t::BAR_SIZE, D_MARGIN_BOTTOM + scrollbar_t::BAR_SIZE);
+	scr_size border_size = get_client_windowsize() - info.get_pos() - scr_size(D_MARGIN_RIGHT + D_SCROLLBAR_WIDTH, D_MARGIN_BOTTOM + D_SCROLLBAR_HEIGHT);
 	if (init) {
 		scen->update_scenario_texts();
 	}
@@ -110,10 +110,10 @@ void scenario_info_t::update_scenario_texts(bool init)
 	update_dynamic_texts( result, scen->result_text, border_size, init);
 }
 
-void scenario_info_t::zeichnen(koord pos, koord gr)
+void scenario_info_t::draw(scr_coord pos, scr_size size)
 {
 	update_scenario_texts(false);
-	gui_frame_t::zeichnen(pos, gr);
+	gui_frame_t::draw(pos, size);
 }
 
 bool scenario_info_t::action_triggered( gui_action_creator_t *komp, value_t v)
@@ -133,7 +133,7 @@ bool scenario_info_t::action_triggered( gui_action_creator_t *komp, value_t v)
 					koord k(x,y);
 					welt->get_scenario()->koord_sq2w( k );
 					if (welt->is_within_limits(k)) {
-						welt->change_world_position( k  );
+						welt->get_viewport()->change_world_position( k  );
 					}
 				}
 			}
@@ -142,7 +142,7 @@ bool scenario_info_t::action_triggered( gui_action_creator_t *komp, value_t v)
 				for (uint i = 0; i<lengthof(shorts); i++) {
 					if (strcmp(link, shorts[i]) == 0) {
 						tabs.set_active_tab_index(i);
-						resize(koord(0,0));
+						resize(scr_coord(0,0));
 						set_dirty();
 						return true;
 					}
@@ -157,6 +157,6 @@ bool scenario_info_t::action_triggered( gui_action_creator_t *komp, value_t v)
 void scenario_info_t::open_result_tab()
 {
 	tabs.set_active_tab_index(3);
-	resize(koord(0,0));
+	resize(scr_coord(0,0));
 	set_dirty();
 }

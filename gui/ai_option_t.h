@@ -1,5 +1,5 @@
 /*
- * AI bahavior options from AI finance window
+ * AI behavior options from AI finance window
  * 2006 prissi
  */
 

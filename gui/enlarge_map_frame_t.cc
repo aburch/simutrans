@@ -14,25 +14,25 @@
 
 #include "../simdebug.h"
 #include "../simworld.h"
-#include "../simwin.h"
-#include "../simimg.h"
+#include "../gui/simwin.h"
+#include "../display/simimg.h"
 #include "../simtools.h"
 #include "../simintr.h"
 
-#include "../dataobj/einstellungen.h"
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
+#include "../dataobj/settings.h"
 #include "../dataobj/translator.h"
 
 // just for their structure size ...
 #include "../boden/wege/schiene.h"
-#include "../dings/baum.h"
+#include "../obj/baum.h"
 #include "../simcity.h"
 #include "../vehicle/simvehikel.h"
 #include "../player/simplay.h"
 
 #include "../simcolor.h"
 
-#include "../simgraph.h"
+#include "../display/simgraph.h"
 
 #include "../utils/simstring.h"
 
@@ -59,26 +59,25 @@ koord enlarge_map_frame_t::koord_from_rotation(settings_t const* const sets, sin
 }
 
 
-enlarge_map_frame_t::enlarge_map_frame_t(spieler_t *, karte_t *w) :
+enlarge_map_frame_t::enlarge_map_frame_t() :
 	gui_frame_t( translator::translate("enlarge map") ),
-	sets(new settings_t(w->get_settings())), // Make a copy.
-	memory(memory_str),
-	welt(w)
+	sets(new settings_t(welt->get_settings())), // Make a copy.
+	memory(memory_str)
 {
 	sets->set_groesse_x(welt->get_size().x);
 	sets->set_groesse_y(welt->get_size().y);
 	number_of_big_cities  = 0;
 	number_of_clusters = 0;
-	cluster_size = umgebung_t::cluster_size;
+	cluster_size = env_t::cluster_size;
 	
 	changed_number_of_towns = false;
 	int intTopOfButton = 24;
 
-	memory.set_pos( koord(10,intTopOfButton) );
+	memory.set_pos( scr_coord(10,intTopOfButton) );
 	add_komponente( &memory );
 
-	inp_x_size.set_pos(koord(LEFT_ARROW,intTopOfButton) );
-	inp_x_size.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
+	inp_x_size.set_pos(scr_coord(LEFT_ARROW,intTopOfButton) );
+	inp_x_size.set_size(scr_size(RIGHT_ARROW-LEFT_ARROW+10, 12));
 	inp_x_size.add_listener(this);
 	inp_x_size.set_value( sets->get_groesse_x() );
 	inp_x_size.set_limits( welt->get_size().x, min(32766,4194304/sets->get_groesse_y()) );
@@ -87,8 +86,8 @@ enlarge_map_frame_t::enlarge_map_frame_t(spieler_t *, karte_t *w) :
 	add_komponente( &inp_x_size );
 	intTopOfButton += 12;
 
-	inp_y_size.set_pos(koord(LEFT_ARROW,intTopOfButton) );
-	inp_y_size.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
+	inp_y_size.set_pos(scr_coord(LEFT_ARROW,intTopOfButton) );
+	inp_y_size.set_size(scr_size(RIGHT_ARROW-LEFT_ARROW+10, 12));
 	inp_y_size.add_listener(this);
 	inp_y_size.set_limits( welt->get_size().y, min(32766,4194304/sets->get_groesse_x()) );
 	inp_y_size.set_value( sets->get_groesse_y() );
@@ -98,40 +97,40 @@ enlarge_map_frame_t::enlarge_map_frame_t(spieler_t *, karte_t *w) :
 
 	// city stuff
 	intTopOfButton = 64+10;
-	inp_number_of_towns.set_pos(koord(RIGHT_COLUMN,intTopOfButton) );
-	inp_number_of_towns.set_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
+	inp_number_of_towns.set_pos(scr_coord(RIGHT_COLUMN,intTopOfButton) );
+	inp_number_of_towns.set_size(scr_size(RIGHT_COLUMN_WIDTH, 12));
 	inp_number_of_towns.add_listener(this);
 	inp_number_of_towns.set_limits(0,999);
 	inp_number_of_towns.set_value(0);
 	add_komponente( &inp_number_of_towns );
 	intTopOfButton += 12;
 
-	inp_number_of_big_cities.set_pos(koord(RIGHT_COLUMN,intTopOfButton) );
-	inp_number_of_big_cities.set_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
+	inp_number_of_big_cities.set_pos(scr_coord(RIGHT_COLUMN,intTopOfButton) );
+	inp_number_of_big_cities.set_size(scr_size(RIGHT_COLUMN_WIDTH, 12));
 	inp_number_of_big_cities.add_listener(this);
 	inp_number_of_big_cities.set_limits(0,0);
 	inp_number_of_big_cities.set_value(0);
 	add_komponente( &inp_number_of_big_cities );
 	intTopOfButton += 12;
 
-	inp_number_of_clusters.set_pos(koord(RIGHT_COLUMN,intTopOfButton) );
-	inp_number_of_clusters.set_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
+	inp_number_of_clusters.set_pos(scr_coord(RIGHT_COLUMN,intTopOfButton) );
+	inp_number_of_clusters.set_size(scr_size(RIGHT_COLUMN_WIDTH, 12));
 	inp_number_of_clusters.add_listener(this);
 	inp_number_of_clusters.set_limits(0,sets->get_anzahl_staedte()/3 );
 	inp_number_of_clusters.set_value(number_of_clusters);
 	add_komponente( &inp_number_of_clusters );
 	intTopOfButton += 12;
 
-	inp_cluster_size.set_pos(koord(RIGHT_COLUMN,intTopOfButton) );
-	inp_cluster_size.set_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
+	inp_cluster_size.set_pos(scr_coord(RIGHT_COLUMN,intTopOfButton) );
+	inp_cluster_size.set_size(scr_size(RIGHT_COLUMN_WIDTH, 12));
 	inp_cluster_size.add_listener(this);
 	inp_cluster_size.set_limits(1,9999);
 	inp_cluster_size.set_value(cluster_size);
 	add_komponente( &inp_cluster_size );
 	intTopOfButton += 12;
 
-	inp_town_size.set_pos(koord(RIGHT_COLUMN,intTopOfButton) );
-	inp_town_size.set_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
+	inp_town_size.set_pos(scr_coord(RIGHT_COLUMN,intTopOfButton) );
+	inp_town_size.set_size(scr_size(RIGHT_COLUMN_WIDTH, 12));
 	inp_town_size.add_listener(this);
 	inp_town_size.set_limits(0,999999);
 	inp_town_size.set_increment_mode(50);
@@ -141,11 +140,11 @@ enlarge_map_frame_t::enlarge_map_frame_t(spieler_t *, karte_t *w) :
 
 	// start game
 	intTopOfButton += 5;
-	start_button.init( button_t::roundbox, "enlarge map", koord(10, intTopOfButton), koord(240, 14) );
+	start_button.init( button_t::roundbox, "enlarge map", scr_coord(10, intTopOfButton), scr_size(240, 14) );
 	start_button.add_listener( this );
 	add_komponente( &start_button );
 
-	set_fenstergroesse( koord(260, intTopOfButton+14+8+16) );
+	set_windowsize( scr_size(260, intTopOfButton+14+8+16) );
 
 	update_preview();
 }
@@ -200,12 +199,12 @@ bool enlarge_map_frame_t::action_triggered( gui_action_creator_t *komp,value_t v
 	else if(komp==&start_button) {
 		// since soon those are invalid
 		intr_refresh_display( true );
-		//Quick and Ugly Hack: we don't want change main umgebung_t
-		uint32 saved_number_of_big_cities = umgebung_t::number_of_big_cities; umgebung_t::number_of_big_cities = number_of_big_cities;
-		uint32 saved_number_of_clusters  = umgebung_t::number_of_clusters; umgebung_t::number_of_clusters = number_of_clusters;
+		//Quick and Ugly Hack: we don't want change main env_t
+		uint32 saved_number_of_big_cities = env_t::number_of_big_cities; env_t::number_of_big_cities = number_of_big_cities;
+		uint32 saved_number_of_clusters  = env_t::number_of_clusters; env_t::number_of_clusters = number_of_clusters;
 		welt->enlarge_map(sets, NULL);
-		umgebung_t::number_of_big_cities = saved_number_of_big_cities;
-		umgebung_t::number_of_clusters = saved_number_of_clusters; 		
+		env_t::number_of_big_cities = saved_number_of_big_cities;
+		env_t::number_of_clusters = saved_number_of_clusters; 		
 	}
 	else {
 		return false;
@@ -214,7 +213,7 @@ bool enlarge_map_frame_t::action_triggered( gui_action_creator_t *komp,value_t v
 }
 
 
-void enlarge_map_frame_t::zeichnen(koord pos, koord gr)
+void enlarge_map_frame_t::draw(scr_coord pos, scr_size size)
 {
 	while (welt->get_settings().get_rotation() != sets->get_rotation()) {
 		// map was rotated while we are active ... => rotate too!
@@ -223,7 +222,7 @@ void enlarge_map_frame_t::zeichnen(koord pos, koord gr)
 		update_preview();
 	}
 
-	gui_frame_t::zeichnen(pos, gr);
+	gui_frame_t::draw(pos, size);
 
 	int x = pos.x+10;
 	int y = pos.y+4+16;

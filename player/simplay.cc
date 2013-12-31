@@ -22,8 +22,9 @@
 #include "../simsound.h"
 #include "../simticker.h"
 #include "../simwerkz.h"
-#include "../simwin.h"
+#include "../gui/simwin.h"
 #include "../simworld.h"
+#include "../display/viewport.h"
 
 #include "../bauer/brueckenbauer.h"
 #include "../bauer/hausbauer.h"
@@ -34,16 +35,16 @@
 
 #include "../boden/grund.h"
 
-#include "../dataobj/einstellungen.h"
+#include "../dataobj/settings.h"
 #include "../dataobj/scenario.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 
-#include "../dings/bruecke.h"
-#include "../dings/gebaeude.h"
-#include "../dings/leitung2.h"
-#include "../dings/tunnel.h"
+#include "../obj/bruecke.h"
+#include "../obj/gebaeude.h"
+#include "../obj/leitung2.h"
+#include "../obj/tunnel.h"
 
 #include "../gui/messagebox.h"
 
@@ -57,13 +58,13 @@
 
 karte_t *spieler_t::welt = NULL;
 
-#if MULTI_THREAD>1
-#include <pthread.h>
+#ifdef MULTI_THREAD
+#include "../utils/simthread.h"
 static pthread_mutex_t laden_abschl_mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
 spieler_t::spieler_t(karte_t *wl, uint8 nr) :
-	simlinemgmt(wl)
+	simlinemgmt()
 {
 	finance = new finance_t(this, wl);
 	welt = wl;
@@ -129,11 +130,11 @@ void spieler_t::book_construction_costs(spieler_t * const sp, const sint64 amoun
 sint32 spieler_t::add_maintenance(sint32 change, waytype_t const wt)
 {
 	int tmp = 0;
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		pthread_mutex_lock( &laden_abschl_mutex  );
 #endif
 	tmp = finance->book_maintenance(change, wt);
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		pthread_mutex_unlock( &laden_abschl_mutex  );
 #endif
 	return tmp;
@@ -143,7 +144,7 @@ sint32 spieler_t::add_maintenance(sint32 change, waytype_t const wt)
 void spieler_t::add_money_message(const sint64 amount, const koord pos)
 {
 	if(amount != 0  &&  player_nr != 1) {
-		if(  koord_distance(welt->get_world_position(),pos)<2*(uint32)(display_get_width()/get_tile_raster_width())+3  ) {
+		if(  koord_distance(welt->get_viewport()->get_world_position(),pos)<2*(uint32)(display_get_width()/get_tile_raster_width())+3  ) {
 			// only display, if near the screen ...
 			add_message(amount, pos);
 
@@ -228,7 +229,7 @@ bool spieler_t::can_afford(spieler_t* sp, sint64 price)
 /* returns the name of the player; "player -1" sits in front of the screen
  * @author prissi
  */
-const char* spieler_t::get_name(void) const
+const char* spieler_t::get_name() const
 {
 	return translator::translate(spieler_name_buf);
 }
@@ -270,16 +271,15 @@ void spieler_t::income_message_t::operator delete(void *p)
  */
 void spieler_t::display_messages()
 {
-	const sint16 raster = get_tile_raster_width();
-	const sint16 yoffset = welt->get_y_off()+((display_get_width()/raster)&1)*(raster/4);
+	const viewport_t *vp = welt->get_viewport();
 
 	FOR(slist_tpl<income_message_t*>, const m, messages) {
-		const koord ij = m->pos - welt->get_world_position()-welt->get_view_ij_offset();
-		const sint16 x = (ij.x-ij.y)*(raster/2) + welt->get_x_off();
-		const sint16 y = (ij.x+ij.y)*(raster/4) + (m->alter >> 4) - tile_raster_scale_y( welt->lookup_hgt(m->pos)*TILE_HEIGHT_STEP, raster) + yoffset;
-		display_shadow_proportional( x, y, PLAYER_FLAG|(kennfarbe1+3), COL_BLACK, m->str, true);
+
+		const scr_coord scr_pos = vp->get_screen_coord(koord3d(m->pos,welt->lookup_hgt(m->pos)),koord(0,m->alter >> 4));
+
+		display_shadow_proportional( scr_pos.x, scr_pos.y, PLAYER_FLAG|(kennfarbe1+3), COL_BLACK, m->str, true);
 		if(  m->pos.x < 3  ||  m->pos.y < 3  ) {
-			// very close to border => renew vackground
+			// very close to border => renew background
 			welt->set_background_dirty();
 		}
 	}
@@ -404,7 +404,7 @@ bool spieler_t::neuer_monat()
 		finance->increase_account_overdrawn();
 		if(!welt->get_settings().is_freeplay() && player_nr != 1 /* public player*/ ) {
 			if( welt->get_active_player_nr() == player_nr ) {
-				if(  account_balance < finance->get_hard_credit_limit() && welt->get_settings().bankruptcy_allowed() && !umgebung_t::networkmode )
+				if(  account_balance < finance->get_hard_credit_limit() && welt->get_settings().bankruptcy_allowed() && !env_t::networkmode )
 				{
 					destroy_all_win(true);
 					create_win( display_get_width()/2-128, 40, new news_img("Bankrott:\n\nDu bist bankrott.\n"), w_info, magic_none);
@@ -458,7 +458,7 @@ bool spieler_t::neuer_monat()
 		finance->set_account_overdrawn( 0 );
 	}
 
-	if(  umgebung_t::networkmode  &&  player_nr>1  &&  !automat  ) {
+	if(  env_t::networkmode  &&  player_nr>1  &&  !automat  ) {
 		// find out dummy companies (i.e. no vehicle running within x months)
 		if(  welt->get_settings().get_remove_dummy_player_months()  &&  player_age >= welt->get_settings().get_remove_dummy_player_months()  )  {
 			bool no_cnv = true;
@@ -477,13 +477,13 @@ bool spieler_t::neuer_monat()
 		}
 
 		// find out abandoned companies (no activity within x months)
-		if(  welt->get_settings().get_unprotect_abondoned_player_months()  &&  player_age >= welt->get_settings().get_unprotect_abondoned_player_months()  )  {
+		if(  welt->get_settings().get_unprotect_abandoned_player_months()  &&  player_age >= welt->get_settings().get_unprotect_abandoned_player_months()  )  {
 			bool abandoned = true;
-			const uint16 months = min( MAX_PLAYER_HISTORY_MONTHS,  welt->get_settings().get_unprotect_abondoned_player_months() );
+			const uint16 months = min( MAX_PLAYER_HISTORY_MONTHS,  welt->get_settings().get_unprotect_abandoned_player_months() );
 			for(  uint16 m = 0;  m < months  &&  abandoned;  m++  ) {
 				abandoned &= finance->get_history_veh_month(TT_ALL, m, ATV_NEW_VEHICLE)==0  &&  finance->get_history_veh_month(TT_ALL, m, ATV_CONSTRUCTION_COST)==0;
 			}
-			const uint16 years = min( MAX_PLAYER_HISTORY_YEARS, (welt->get_settings().get_unprotect_abondoned_player_months() - 1) / 12);
+			const uint16 years = min( MAX_PLAYER_HISTORY_YEARS, (welt->get_settings().get_unprotect_abandoned_player_months() - 1) / 12);
 			for(  uint16 y = 0;  y < years  &&  abandoned;  y++  ) {
 				abandoned &= finance->get_history_veh_year(TT_ALL, y, ATV_NEW_VEHICLE)==0  &&  finance->get_history_veh_year(TT_ALL, y, ATV_CONSTRUCTION_COST)==0;
 			}
@@ -592,7 +592,7 @@ void spieler_t::ai_bankrupt()
 	// remove all stops
 	// first generate list of our stops
 	slist_tpl<halthandle_t> halt_list;
-	FOR(slist_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {
+	FOR(vector_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {
 		if(  halt->get_besitzer()==this  ) {
 			halt_list.append(halt);
 		}
@@ -604,7 +604,7 @@ void spieler_t::ai_bankrupt()
 	}
 
 	// transfer all ways in public stops belonging to me to no one
-	FOR(slist_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {
+	FOR(vector_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {
 		if(  halt->get_besitzer()==welt->get_spieler(1)  ) {
 			// only concerns public stops tiles
 			FOR(slist_tpl<haltestelle_t::tile_t>, const& i, halt->get_tiles()) {
@@ -638,11 +638,11 @@ void spieler_t::ai_bankrupt()
 
 					waytype_t wt = gr->hat_wege() ? gr->get_weg_nr(0)->get_waytype() : powerline_wt;
 					if (gr->ist_bruecke()) {
-						brueckenbauer_t::remove( welt, this, pos, wt );
+						brueckenbauer_t::remove( this, pos, wt );
 						// fails if powerline bridge somehow connected to powerline bridge of another player
 					}
 					else {
-						tunnelbauer_t::remove( welt, this, pos, wt );
+						tunnelbauer_t::remove( this, pos, wt, true );
 					}
 					// maybe there are some objects left (station on bridge head etc)
 					gr = plan->get_boden_in_hoehe(pos.z);
@@ -650,44 +650,42 @@ void spieler_t::ai_bankrupt()
 						continue;
 					}
 				}
-				bool count_signs = false;
 				for (size_t i = gr->get_top(); i-- != 0;) {
-					ding_t *dt = gr->obj_bei(i);
-					if(dt->get_besitzer()==this) {
-						switch(dt->get_typ()) {
-							case ding_t::roadsign:
-							case ding_t::signal:
-								count_signs = true;
-							case ding_t::airdepot:
-							case ding_t::bahndepot:
-							case ding_t::monoraildepot:
-							case ding_t::tramdepot:
-							case ding_t::strassendepot:
-							case ding_t::schiffdepot:
-							case ding_t::senke:
-							case ding_t::pumpe:
-							case ding_t::wayobj:
-							case ding_t::label:
-								dt->entferne(this);
-								delete dt;
+					obj_t *obj = gr->obj_bei(i);
+					if(obj->get_besitzer()==this) {
+						switch(obj->get_typ()) {
+							case obj_t::roadsign:
+							case obj_t::signal:
+							case obj_t::airdepot:
+							case obj_t::bahndepot:
+							case obj_t::monoraildepot:
+							case obj_t::tramdepot:
+							case obj_t::strassendepot:
+							case obj_t::schiffdepot:
+							case obj_t::senke:
+							case obj_t::pumpe:
+							case obj_t::wayobj:
+							case obj_t::label:
+								obj->entferne(this);
+								delete obj;
 								break;
-							case ding_t::leitung:
+							case obj_t::leitung:
 								if(gr->ist_bruecke()) {
-									add_maintenance( -((leitung_t*)dt)->get_besch()->get_wartung(), powerline_wt );
+									add_maintenance( -((leitung_t*)obj)->get_besch()->get_wartung(), powerline_wt );
 									// do not remove powerline from bridges
-									dt->set_besitzer( welt->get_spieler(1) );
+									obj->set_besitzer( welt->get_spieler(1) );
 								}
 								else {
-									dt->entferne(this);
-									delete dt;
+									obj->entferne(this);
+									delete obj;
 								}
 								break;
-							case ding_t::gebaeude:
-								hausbauer_t::remove( welt, this, (gebaeude_t *)dt );
+							case obj_t::gebaeude:
+								hausbauer_t::remove( this, (gebaeude_t *)obj );
 								break;
-							case ding_t::way:
+							case obj_t::way:
 							{
-								weg_t *w=(weg_t *)dt;
+								weg_t *w=(weg_t *)obj;
 								if (gr->ist_bruecke()  ||  gr->ist_tunnel()) {
 									w->set_besitzer( NULL );
 								}
@@ -700,24 +698,18 @@ void spieler_t::ai_bankrupt()
 								}
 								break;
 							}
-							case ding_t::bruecke:
-								add_maintenance( -((bruecke_t*)dt)->get_besch()->get_wartung(), dt->get_waytype() );
-								dt->set_besitzer( NULL );
+							case obj_t::bruecke:
+								add_maintenance( -((bruecke_t*)obj)->get_besch()->get_wartung(), obj->get_waytype() );
+								obj->set_besitzer( NULL );
 								break;
-							case ding_t::tunnel:
-								add_maintenance( -((tunnel_t*)dt)->get_besch()->get_wartung(), ((tunnel_t*)dt)->get_besch()->get_finance_waytype() );
-								dt->set_besitzer( NULL );
+							case obj_t::tunnel:
+								add_maintenance( -((tunnel_t*)obj)->get_besch()->get_wartung(), ((tunnel_t*)obj)->get_besch()->get_finance_waytype() );
+								obj->set_besitzer( NULL );
 								break;
 
 							default:
-								dt->set_besitzer( welt->get_spieler(1) );
+								obj->set_besitzer( welt->get_spieler(1) );
 						}
-					}
-				}
-				if (count_signs  &&  gr->hat_wege()) {
-					gr->get_weg_nr(0)->count_sign();
-					if (gr->has_two_ways()) {
-						gr->get_weg_nr(1)->count_sign();
 					}
 				}
 				// remove empty tiles (elevated ways)
@@ -816,7 +808,7 @@ void spieler_t::rdwr(loadsave_t *file)
 		// halt_count will be zero for newer savegames
 DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this ),halt_count);
 		for(int i=0; i<halt_count; i++) {
-			haltestelle_t::create( welt, file );
+			haltestelle_t::create( file );
 		}
 		// empty undo buffer
 		init_undo(road_wt,0);
@@ -841,7 +833,7 @@ DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this 
 
 	// linemanagement
 	if(file->get_version()>=88003) {
-		simlinemgmt.rdwr(welt,file,this);
+		simlinemgmt.rdwr(file,this);
 	}
 
 	if(file->get_version()>102002 && file->get_experimental_version() != 7) {
@@ -891,6 +883,8 @@ void spieler_t::laden_abschliessen()
 	display_set_player_color_scheme( player_nr, kennfarbe1, kennfarbe2 );
 	// recalculate vehicle value
 	calc_assets();
+
+	finance->calc_finance_history();
 }
 
 
@@ -989,24 +983,24 @@ sint64 spieler_t::undo()
 			for( unsigned i=0;  i<gr->get_top();  i++  ) {
 				switch(gr->obj_bei(i)->get_typ()) {
 					// these are allowed
-					case ding_t::zeiger:
-					case ding_t::wolke:
-					case ding_t::leitung:
-					case ding_t::pillar:
-					case ding_t::way:
-					case ding_t::label:
-					case ding_t::crossing:
-					case ding_t::fussgaenger:
-					case ding_t::verkehr:
-					case ding_t::movingobj:
+					case obj_t::zeiger:
+					case obj_t::wolke:
+					case obj_t::leitung:
+					case obj_t::pillar:
+					case obj_t::way:
+					case obj_t::label:
+					case obj_t::crossing:
+					case obj_t::fussgaenger:
+					case obj_t::verkehr:
+					case obj_t::movingobj:
 						break;
 					// special case airplane
 					// they can be everywhere, so we allow for everythign but runway undo
-					case ding_t::aircraft: {
+					case obj_t::aircraft: {
 						if(undo_type!=air_wt) {
 							break;
 						}
-						const aircraft_t* aircraft = ding_cast<aircraft_t>(gr->obj_bei(i));
+						const aircraft_t* aircraft = obj_cast<aircraft_t>(gr->obj_bei(i));
 						// flying aircrafts are ok
 						if(!aircraft->is_on_ground()) {
 							break;

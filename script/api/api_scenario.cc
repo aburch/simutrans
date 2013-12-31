@@ -29,7 +29,7 @@ static plainstring integer_to_string(sint64 f)
 
 static plainstring money_to_string_intern(sint64 m)
 {
-	money_to_string(buf, m);
+	money_to_string(buf, m, false);
 	return buf;
 }
 

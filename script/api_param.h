@@ -4,7 +4,7 @@
 /** @file api_param.h templates for transfer of function call parameters */
 
 #include "../squirrel/squirrel.h"
-#include "../simdings.h"
+#include "../simobj.h"
 #include "../simtypes.h"
 #include "../halthandle_t.h"
 #include "../utils/cbuffer_t.h"
@@ -15,10 +15,10 @@ class fabrik_t;
 class gebaeude_t;
 class grund_t;
 class karte_t;
+class karte_ptr_t;
 class koord;
 class koord3d;
 struct linieneintrag_t;
-class obj_besch_std_name_t;
 class planquadrat_t;
 class plainstring;
 class scenario_t;
@@ -27,7 +27,6 @@ class settings_t;
 class spieler_t;
 class stadt_t;
 class ware_production_t;
-class ware_besch_t;
 class weg_t;
 
 /**
@@ -38,7 +37,10 @@ class weg_t;
  */
 namespace script_api {
 	/// pointer to the world
-	extern karte_t *welt;
+	extern karte_ptr_t welt;
+
+	// forward declaration
+	struct mytime_t;
 
 	/**
 	 * Cannot specialize templates by void, so use own void type
@@ -70,19 +72,73 @@ namespace script_api {
 
 		/// squirrel_type corresponding to the c++ type/class
 		static const char* squirrel_type() { return "any_x"; }
-
-		/**
-		 * Creates slot in table at top of the stack:
-		 * it has the same effect as 'table.name <- value'.
-		 * @pre there needs to be a table on the top of the stack
-		 * @param name name of the slot to be created
-		 * @param value value to be set
-		 * @returns positive value on success, negative on failure
-		 */
-#ifdef DOXYGEN
-		SQInteger create_slot(HSQUIRRELVM vm, const char* name, T value);
-#endif
 	};
+
+	/**
+	 * Create slots in table/class of the stack:
+	 * it has the same effect as 'table.name <- value'.
+	 * @pre there needs to be a table on the top of the stack
+	 * @tparam type of the new value
+	 * @param name name of the slot to be created
+	 * @param value value to be set
+	 * @param static_ true if this should be a static class member
+	 * @returns positive value on success, negative on failure
+	 */
+	template<class T>
+	SQInteger create_slot(HSQUIRRELVM vm, const char* name, T const& value, bool static_ = false)
+	{
+		sq_pushstring(vm, name, -1);
+		if (SQ_SUCCEEDED(param<T>::push(vm, value))) {
+			return sq_newslot(vm, -3, static_);
+		}
+		else {
+			sq_pop(vm, 1); /* pop name */
+			return SQ_ERROR;
+		}
+	}
+
+	/**
+	 * Sets value to existing variable in table, instance etc at index @p index.
+	 * @tparam type of the new value
+	 * @param name name of the slot to be created
+	 * @param value value to be set
+	 * @param index of table/instance/etc on the stack
+	 * @returns positive value on success, negative on failure
+	 */
+	template<class T>
+	SQInteger set_slot(HSQUIRRELVM vm, const char* name, T const& value, SQInteger index = -1)
+	{
+		sq_pushstring(vm, name, -1);
+		if (SQ_SUCCEEDED(param<T>::push(vm, value))) {
+			SQInteger new_index = index > 0 ? index : index-2;
+			return sq_set(vm, new_index);
+		}
+		else {
+			sq_pop(vm, 1); /* pop name */
+			return SQ_ERROR;
+		}
+	}
+
+	/**
+	 * Gets value to existing variable in table, instance etc at index @p index.
+	 * @tparam type of the new value
+	 * @param name name of the slot to be created
+	 * @param value will be set upon success
+	 * @param index of table/instance/etc on the stack
+	 * @returns positive value on success, negative on failure
+	 */
+	template<class T>
+	SQInteger get_slot(HSQUIRRELVM vm, const char* name, T& value, SQInteger index = -1)
+	{
+		sq_pushstring(vm, name, -1);
+		SQInteger new_index = index > 0 ? index : index-1;
+		if (SQ_SUCCEEDED(sq_get(vm, new_index))) {
+			value = param<T>::get(vm, -1);
+			sq_pop(vm, 1);
+			return SQ_OK;
+		}
+		return SQ_ERROR;
+	}
 
 	/**
 	 * partial specialization for 'const T*' types
@@ -211,25 +267,12 @@ namespace script_api {
 		return sqtype; \
 	}
 
-#define declare_create_slot(T)\
-	static SQInteger create_slot(HSQUIRRELVM vm, const char* name, T const& value){ \
-		sq_pushstring(vm, name, -1); \
-		if (SQ_SUCCEEDED(param<T>::push(vm, value))) { \
-			sq_newslot(vm, -3, false); \
-			return SQ_OK; \
-		} \
-		else { \
-			sq_pop(vm, 1); /* pop name */ \
-			return SQ_ERROR; \
-		} \
-	}
-
 	/// macro to declare specialized param template
 #define declare_specialized_param(T, mask, sqtype) \
 	template<> struct param<T> { \
 		static T get(HSQUIRRELVM vm, SQInteger index); \
 		static SQInteger push(HSQUIRRELVM vm, T const& v);\
-		declare_create_slot(T); \
+		static void* tag(); \
 		declare_types(mask, sqtype); \
 	};
 	/// macro to only define typemask for specialized param template
@@ -252,9 +295,9 @@ namespace script_api {
 	declare_specialized_param(uint64, "i", "integer");
 	declare_specialized_param(sint64, "i", "integer");
 	declare_specialized_param(waytype_t, "i", "way_types");
-	declare_specialized_param(ding_t::typ, "i", "map_objects");
+	declare_specialized_param(obj_t::typ, "i", "map_objects");
 
-	declare_specialized_param(double, "f", "float");
+	declare_specialized_param(double, "i|f", "float");
 
 	declare_specialized_param(const char*, ".", "string");
 	// no string typemask, as we call to_string
@@ -272,20 +315,17 @@ namespace script_api {
 	declare_specialized_param(karte_t*, ".", "world");
 	declare_specialized_param(planquadrat_t*, "t|x|y", "square_x");
 	declare_specialized_param(settings_t*, "t|x|y", "settings");
-	declare_specialized_param(schedule_t*, "t|x|y", "schedule_x");
+	declare_specialized_param(const schedule_t*, "t|x|y", "schedule_x");
 	declare_specialized_param(linieneintrag_t, "t|x|y", "schedule_entry_x");
+	declare_specialized_param(mytime_t, "i|t|x|y", "time_x");
 	declare_specialized_param(scenario_t*, "t|x|y", "");
 	declare_specialized_param(spieler_t*, "t|x|y", "player_x");
 	declare_specialized_param(stadt_t*, "t|x|y", "city_x");
-	declare_specialized_param(const obj_besch_std_name_t*, "t|x|y", "obj_desc_x"); // in api/export_besch.cc
-	declare_param_mask(obj_besch_std_name_t*, "t|x|y", "obj_desc_x");
-	declare_specialized_param(const ware_besch_t*, "t|x|y", "good_desc_x");
-	declare_param_mask(ware_besch_t*, "t|x|y", "good_desc_x");
 	declare_specialized_param(const ware_production_t*, "t|x|y", "factory_production_x");
 	declare_param_mask(ware_production_t*, "t|x|y", "factory_production_x");
 
-	// export of ding_t derived classes in api/map_objects.cc
-	declare_specialized_param(ding_t*, "t|x|y", "map_object_x");
+	// export of obj_t derived classes in api/map_objects.cc
+	declare_specialized_param(obj_t*, "t|x|y", "map_object_x");
 	declare_specialized_param(baum_t*, "t|x|y", "tree_x");
 	declare_specialized_param(gebaeude_t*, "t|x|y", "building_x");
 	declare_specialized_param(weg_t*, "t|x|y", "way_x");

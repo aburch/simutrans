@@ -73,6 +73,10 @@ function split_params(string)
 # beginning of class definition
 # begin_class("factory_x", "extend_get");
 /(begin|create)_.*class/ {
+	# ignore class name inside error messages as in 'dbg->error("create_class", "failed ..")'
+	if ( /dbg->(message|warning|error|fatal)/ ) {
+		next
+	}
 	# class with parent class
 	if ( /_class[^"]*"([^"]*)"[^"]*"([^"]*)".*/ ) {
 		match($0, /_class[^"]*"([^"]*)"[^"]*"([^"]*)".*/, data)
@@ -138,7 +142,7 @@ function split_params(string)
 
 # now the actual methods
 # first string enclosed by ".." is method name
-/register_function/  ||  /register_method/ {
+/register_function/  ||  /register_method/ ||  /register_local_method/{
 	match($0, /"([^"]*)"/, data)
 	method = data[1]
 	# check for param types

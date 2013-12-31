@@ -11,7 +11,7 @@
 
 #include "simconvoi.h"
 #include "vehicle/simvehikel.h"
-#include "simwin.h"
+#include "gui/simwin.h"
 #include "player/simplay.h"
 #include "player/finance.h"
 #include "simworld.h"
@@ -28,7 +28,7 @@
 #include "dataobj/translator.h"
 
 #include "bauer/hausbauer.h"
-#include "dings/gebaeude.h"
+#include "obj/gebaeude.h"
 
 #include "bauer/vehikelbauer.h"
 
@@ -45,9 +45,9 @@ static pthread_mutex_t add_to_world_list_mutex = PTHREAD_MUTEX_INITIALIZER;
 slist_tpl<depot_t *> depot_t::all_depots;
 
 #ifdef INLINE_DING_TYPE
-depot_t::depot_t(karte_t *welt, ding_t::typ type, loadsave_t *file) : gebaeude_t(welt, type)
+depot_t::depot_t(obj_t::typ type, loadsave_t *file) : gebaeude_t(type)
 #else
-depot_t::depot_t(karte_t *welt,loadsave_t *file) : gebaeude_t(welt)
+depot_t::depot_t(loadsave_t *file) : gebaeude_t()
 #endif
 {
 	rdwr(file);
@@ -63,11 +63,11 @@ depot_t::depot_t(karte_t *welt,loadsave_t *file) : gebaeude_t(welt)
 
 
 #ifdef INLINE_DING_TYPE
-depot_t::depot_t(karte_t *welt, ding_t::typ type, koord3d pos, spieler_t *sp, const haus_tile_besch_t *t) :
-    gebaeude_t(welt, type, pos, sp, t)
+depot_t::depot_t(obj_t::typ type, koord3d pos, spieler_t *sp, const haus_tile_besch_t *t) :
+    gebaeude_t(type, pos, sp, t)
 #else
-depot_t::depot_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_tile_besch_t *t) :
-    gebaeude_t(welt, pos, sp, t)
+depot_t::depot_t(koord3d pos, spieler_t *sp, const haus_tile_besch_t *t) :
+    gebaeude_t(pos, sp, t)
 #endif
 {
 	all_depots.append(this);
@@ -92,7 +92,7 @@ depot_t::~depot_t()
 
 
 // finds the next/previous depot relative to the current position
-depot_t *depot_t::find_depot( koord3d start, const ding_t::typ depot_type, const spieler_t *sp, bool forward)
+depot_t *depot_t::find_depot( koord3d start, const obj_t::typ depot_type, const spieler_t *sp, bool forward)
 {
 	depot_t *found = NULL;
 	koord3d found_pos = forward ? koord3d(welt->get_size().x+1,welt->get_size().y+1,welt->get_grundwasser()) : koord3d(-1,-1,-1);
@@ -564,8 +564,7 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 			}
 			if(power)
 			{
-				karte_t &world = *welt; 
-				potential_convoy_t convoy(world, vehicle_types);	
+				potential_convoy_t convoy(vehicle_types);	
 				const vehicle_summary_t &vsum = convoy.get_vehicle_summary();
 				const sint32 friction = convoy.get_current_friction();
 				const double rolling_resistance = convoy.get_resistance_summary().to_double();
@@ -685,7 +684,7 @@ void depot_t::rdwr_vehikel(slist_tpl<vehikel_t *> &list, loadsave_t *file)
 
 		DBG_MESSAGE("depot_t::vehikel_laden()","loading %d vehicles",count);
 		for(int i=0; i<count; i++) {
-			ding_t::typ typ = (ding_t::typ)file->rd_obj_id();
+			obj_t::typ typ = (obj_t::typ)file->rd_obj_id();
 
 			vehikel_t *v = NULL;
 			const bool first = false;
@@ -693,17 +692,17 @@ void depot_t::rdwr_vehikel(slist_tpl<vehikel_t *> &list, loadsave_t *file)
 
 			switch( typ ) {
 				case old_automobil:
-				case automobil: v = new automobil_t(welt, file, first, last);    break;
+				case automobil: v = new automobil_t(file, first, last);    break;
 				case old_waggon:
-				case waggon:    v = new waggon_t(welt, file, first, last);       break;
+				case waggon:    v = new waggon_t(file, first, last);       break;
 				case old_schiff:
-				case schiff:    v = new schiff_t(welt, file, first, last);       break;
+				case schiff:    v = new schiff_t(file, first, last);       break;
 				case old_aircraft:
-				case aircraft: v = new aircraft_t(welt,file, first, last);  break;
+				case aircraft: v = new aircraft_t(file, first, last);  break;
 				case old_monorailwaggon:
-				case monorailwaggon: v = new monorail_waggon_t(welt,file, first, last);  break;
-				case maglevwaggon:   v = new maglev_waggon_t(welt,file, first, last);  break;
-				case narrowgaugewaggon: v = new narrowgauge_waggon_t(welt,file, first, last);  break;
+				case monorailwaggon: v = new monorail_waggon_t(file, first, last);  break;
+				case maglevwaggon:   v = new maglev_waggon_t(file, first, last);  break;
+				case narrowgaugewaggon: v = new narrowgauge_waggon_t(file, first, last);  break;
 				default:
 					dbg->fatal("depot_t::vehikel_laden()","invalid vehicle type $%X", typ);
 			}

@@ -2,6 +2,7 @@
 #define cbuffer_t_h
 
 #include <stdarg.h>
+#include <stdlib.h>
 /**
  * A character buffer. Main operation is 'append'
  * @author Hj. Malthaner
@@ -18,19 +19,19 @@ private:
 	*/
 	unsigned int size;
 
-	char * buf;
+	char *buf;
 
 	/**
 	 * Implementation for copy constructor and copy assignment operator
 	 * @author Timothy Baldock <tb@entropy.me.uk>
 	 */
-	void copy (const cbuffer_t& cbx);
+	void copy( const cbuffer_t& cbx );
 
 	/**
 	 * Implementation for destructor and copy assignment operator
 	 * @author Timothy Baldock <tb@entropy.me.uk>
 	 */
-	void free ();
+	void free();
 
 public:
 	/**
@@ -49,7 +50,7 @@ public:
 	 * Copy constructor
 	 * @author Timothy Baldock <tb@entropy.me.uk>
 	 */
-	cbuffer_t (const cbuffer_t& cbx);
+	cbuffer_t(const cbuffer_t& cbx);
 
 	/**
 	 * Copy assignment operator
@@ -76,13 +77,13 @@ public:
 	 *  (e.g. it should be equivalent to the output of strlen())
 	 * @author Timothy Baldock <tb@entropy.me.uk>
 	 */
-	void append (const char* text, size_t maxchars);
+	void append(const char* text, size_t maxchars);
 
 	/**
 	 * Return contents of buffer
 	 * @author Timothy Baldock <tb@entropy.me.uk>
 	 */
-	const char* get_str () const;
+	const char* get_str() const;
 
 	/**
 	 * Appends a number. Buffer will be extended if it does not have enough capacity.

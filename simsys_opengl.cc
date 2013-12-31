@@ -27,7 +27,7 @@
 #include "simversion.h"
 #include "simsys.h"
 #include "simevent.h"
-#include "simgraph.h"
+#include "display/simgraph.h"
 #include "simdebug.h"
 
 static Uint8 hourglass_cursor[] = {
@@ -724,7 +724,7 @@ void dr_prepare_flush()
 /**
  * Clears screen and queues a new render.
  */
-void dr_flush(void)
+void dr_flush()
 {
 	if (pbo_able)
 		pbo_unmap();
@@ -906,7 +906,7 @@ int dr_screenshot(const char *filename, int x, int y, int w, int h)
  */
 
 
-static inline unsigned int ModifierKeys(void)
+static inline unsigned int ModifierKeys()
 {
 	SDLMod mod = SDL_GetModState();
 
@@ -964,16 +964,10 @@ static void internal_GetEvents(bool const wait)
 	switch (event.type) {
 		case SDL_VIDEORESIZE:
 			sys_event.type = SIM_SYSTEM;
-			sys_event.code = SIM_SYSTEM_RESIZE;
+			sys_event.code = SYSTEM_RESIZE;
 			sys_event.mx   = event.resize.w;
 			sys_event.my   = event.resize.h;
 			printf("expose: x=%i, y=%i\n", sys_event.mx, sys_event.my);
-			break;
-
-		case SDL_VIDEOEXPOSE:
-			// will be ignored ...
-			sys_event.type = SIM_SYSTEM;
-			sys_event.code = SIM_SYSTEM_UPDATE;
 			break;
 
 		case SDL_MOUSEBUTTONDOWN:
@@ -1106,7 +1100,7 @@ static void internal_GetEvents(bool const wait)
 
 		case SDL_QUIT:
 			sys_event.type = SIM_SYSTEM;
-			sys_event.code = SIM_SYSTEM_QUIT;
+			sys_event.code = SYSTEM_QUIT;
 			break;
 
 		default:
@@ -1117,13 +1111,13 @@ static void internal_GetEvents(bool const wait)
 }
 
 
-void GetEvents(void)
+void GetEvents()
 {
 	internal_GetEvents(true);
 }
 
 
-void GetEventsNoWait(void)
+void GetEventsNoWait()
 {
 	sys_event.type = SIM_NOEVENT;
 	sys_event.code = 0;
@@ -1144,7 +1138,7 @@ void ex_ord_update_mx_my()
 }
 
 
-unsigned long dr_time(void)
+unsigned long dr_time()
 {
 	return SDL_GetTicks();
 }

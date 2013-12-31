@@ -27,9 +27,6 @@
     <ClCompile Include="gui\banner.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="dings\baum.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="gui\baum_edit.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -40,9 +37,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="besch\reader\bridge_reader.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="dings\bruecke.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="besch\bruecke_besch.cc">
@@ -90,9 +84,6 @@
     <ClCompile Include="convoy.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="dings\crossing.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="dataobj\crossing_logic.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -109,12 +100,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="gui\depot_frame.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="dataobj\dingliste.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="dataobj\einstellungen.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="gui\enlarge_map_frame_t.cc">
@@ -147,12 +132,6 @@
     <ClCompile Include="gui\fahrplan_gui.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="dings\field.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="font.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="dataobj\freelist.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -160,9 +139,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="boden\fundament.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="dings\gebaeude.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="besch\reader\good_reader.cc">
@@ -178,9 +154,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="besch\reader\ground_reader.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="dings\groundobj.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="besch\reader\groundobj_reader.cc">
@@ -202,12 +175,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="gui\components\gui_component_table.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gui\gui_container.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gui\gui_convoiinfo.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="gui\components\gui_convoy_assembler.cc">
@@ -312,9 +279,6 @@
     <ClCompile Include="dataobj\koord3d.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="dings\label.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="gui\label_info.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -322,9 +286,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="gui\labellist_stats_t.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="dings\leitung2.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="gui\line_management_gui.cc">
@@ -349,9 +310,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="dataobj\marker.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="utils\memory_rw.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="gui\message_frame_t.cc">
@@ -381,15 +339,6 @@
     <ClCompile Include="boden\wege\narrowgauge.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="dataobj\network.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="dataobj\network_cmd.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="dataobj\network_packet.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="besch\reader\obj_reader.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -411,9 +360,6 @@
     <ClCompile Include="besch\reader\pedestrian_reader.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="dings\pillar.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="sucher\platzsucher.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -430,9 +376,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="dataobj\ribi.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="dings\roadsign.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="besch\reader\roadsign_reader.cc">
@@ -474,9 +417,6 @@
     <ClCompile Include="utils\sha1.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="dings\signal.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="gui\signal_spacing.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -495,16 +435,10 @@
     <ClCompile Include="simdepot.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="simdings.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="simevent.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="simfab.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="simgraph16.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="simhalt.cc">
@@ -567,16 +501,10 @@
     <ClCompile Include="vehicle\simverkehr.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="simview.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="simware.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="simwerkz.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="simwin.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="simworld.cc">
@@ -612,9 +540,6 @@
     <ClCompile Include="besch\reader\text_reader.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="gui\thing_info.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="gui\trafficlight_info.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -622,9 +547,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="besch\reader\tree_reader.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="dings\tunnel.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="besch\tunnel_besch.cc">
@@ -637,9 +559,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="boden\tunnelboden.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="dataobj\umgebung.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="unicode.cc">
@@ -675,9 +594,6 @@
     <ClCompile Include="besch\reader\way_reader.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="dings\wayobj.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="boden\wege\weg.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -693,34 +609,13 @@
     <ClCompile Include="sound\win32_sound.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="dings\wolke.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="besch\reader\xref_reader.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="dings\zeiger.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="clipboard_w32.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="gui\server_frame.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="dataobj\network_cmp_pakset.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="dataobj\network_file_transfer.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="dataobj\network_socket_list.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="dataobj\pakset_info.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="utils\checksum.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="gui\line_item.cc">
@@ -741,12 +636,6 @@
     <ClCompile Include="simsys_w32_png.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="dataobj\network_address.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="dataobj\network_cmd_ingame.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="gui\factory_chart.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -759,13 +648,7 @@
     <ClCompile Include="gui\privatesign_info.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="gui\components\gui_ding_view_t.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="gui\ai_option_t.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="dataobj\pwd_hash.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="gui\display_settings.cc">
@@ -805,9 +688,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="script\api\api_factory.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="script\api\api_goods_desc.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="script\api\api_halt.cc">
@@ -897,9 +777,6 @@
     <ClCompile Include="squirrel\sqstdlib\sqstdstring.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="dataobj\network_cmd_scenario.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="gui\convoy_item.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -927,6 +804,159 @@
     <ClCompile Include="besch\weg_besch.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="simobj.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="siminteraction.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\gui_theme.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\simwin.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\themeselector.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\obj_info.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="network\checksum.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="network\memory_rw.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="network\network.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="network\network_address.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="network\network_cmd.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="network\network_cmd_ingame.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="network\network_cmd_scenario.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="network\network_cmp_pakset.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="network\network_file_transfer.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="network\network_packet.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="network\network_socket_list.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="network\pakset_info.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="network\pwd_hash.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\components\gui_container.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\components\gui_convoiinfo.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\components\gui_image.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\components\gui_komponente.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\components\gui_map_preview.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\components\gui_obj_view_t.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="display\font.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="display\simgraph16.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="display\simview.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="display\viewport.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="obj\baum.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="obj\bruecke.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="obj\crossing.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="obj\field.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="obj\gebaeude.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="obj\groundobj.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="obj\label.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="obj\leitung2.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="obj\pillar.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="obj\roadsign.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="obj\signal.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="obj\tunnel.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="obj\wayobj.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="obj\wolke.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="obj\zeiger.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="besch\obj_besch_std_name.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dataobj\environment.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dataobj\objlist.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dataobj\records.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dataobj\settings.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="script\api\api_obj_desc.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="script\api\api_obj_desc_base.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gui\components\action_listener.h">
@@ -948,9 +978,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gui\banner.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dings\baum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="besch\baum_besch.h">
@@ -981,9 +1008,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="besch\writer\bridge_writer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dings\bruecke.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="besch\bruecke_besch.h">
@@ -1043,9 +1067,6 @@
     <ClInclude Include="convoy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="dings\crossing.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="dataobj\crossing_logic.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1073,9 +1094,6 @@
     <ClInclude Include="gui\depot_frame.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="dataobj\dingliste.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="utils\dr_rdgif.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1083,12 +1101,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="utils\dr_rdppm.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dings\dummy.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dataobj\einstellungen.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gui\enlarge_map_frame_t.h">
@@ -1130,13 +1142,7 @@
     <ClInclude Include="gui\fahrplan_gui.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="dings\field.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="tpl\fixed_list_tpl.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="font.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="dataobj\freelist.h">
@@ -1149,9 +1155,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="besch\fussgaenger_besch.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dings\gebaeude.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="besch\writer\get_climate.h">
@@ -1179,9 +1182,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="besch\writer\ground_writer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dings\groundobj.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="besch\groundobj_besch.h">
@@ -1212,12 +1212,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gui\components\gui_component_table.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gui\gui_container.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gui\gui_convoiinfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gui\components\gui_convoy_assembler.h">
@@ -1358,9 +1352,6 @@
     <ClInclude Include="besch\kreuzung_besch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="dings\label.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="gui\label_info.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1371,9 +1362,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="dings\lagerhaus.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dings\leitung2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gui\line_item.h">
@@ -1418,9 +1406,6 @@
     <ClInclude Include="dataobj\marker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="utils\memory_rw.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="gui\message_frame_t.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1452,15 +1437,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="boden\wege\narrowgauge.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dataobj\network.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dataobj\network_cmd.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dataobj\network_packet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="utils\notification.h">
@@ -1520,9 +1496,6 @@
     <ClInclude Include="besch\writer\pedestrian_writer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="dings\pillar.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="sucher\platzsucher.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1548,9 +1521,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="dataobj\ribi.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dings\roadsign.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="besch\roadsign_besch.h">
@@ -1604,9 +1574,6 @@
     <ClInclude Include="utils\sha1.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="dings\signal.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="gui\signal_spacing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1637,13 +1604,7 @@
     <ClInclude Include="simfab.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="simgraph.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="simhalt.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="simimg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="simintr.h">
@@ -1709,16 +1670,10 @@
     <ClInclude Include="simversion.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="simview.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="simware.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="simwerkz.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="simwin.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="simworld.h">
@@ -1808,9 +1763,6 @@
     <ClInclude Include="besch\writer\tree_writer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="dings\tunnel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="besch\tunnel_besch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1824,9 +1776,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="boden\tunnelboden.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dataobj\umgebung.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="unicode.h">
@@ -1877,9 +1826,6 @@
     <ClInclude Include="besch\writer\way_writer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="dings\wayobj.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="boden\wege\weg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1898,9 +1844,6 @@
     <ClInclude Include="gui\werkzeug_waehler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="dings\wolke.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="besch\xref_besch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1910,40 +1853,16 @@
     <ClInclude Include="besch\writer\xref_writer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="dings\zeiger.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="utils\float32e8_t.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="dataobj\gameinfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="dataobj\network_address.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dataobj\network_cmd_ingame.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dataobj\network_cmp_pakset.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dataobj\network_file_transfer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dataobj\network_socket_list.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dataobj\pwd_hash.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="gui\factory_chart.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="dataobj\livery_scheme.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dataobj\pakset_info.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gui\privatesign_info.h">
@@ -1953,9 +1872,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gui\components\gui_fixedwidth_textarea.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gui\components\gui_ding_view_t.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gui\ai_option_t.h">
@@ -2081,9 +1997,6 @@
     <ClInclude Include="squirrel\sqstdlib\sqstdstream.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="dataobj\network_cmd_scenario.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="gui\convoy_item.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -2097,6 +2010,159 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="player\finance.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simobj.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="siminteraction.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\gui_theme.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\simwin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\themeselector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\obj_info.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="network\pwd_hash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="network\checksum.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="network\memory_rw.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="network\network.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="network\network_address.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="network\network_cmd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="network\network_cmd_ingame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="network\network_cmd_scenario.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="network\network_cmp_pakset.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="network\network_file_transfer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="network\network_packet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="network\network_socket_list.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="network\pakset_info.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\components\gui_convoiinfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\components\gui_container.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\components\gui_komponente.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\components\gui_map_preview.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\components\gui_obj_view_t.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="display\font.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="display\scr_coord.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="display\simgraph.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="display\simimg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="display\simview.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="display\viewport.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="obj\zeiger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="obj\baum.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="obj\bruecke.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="obj\crossing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="obj\dummy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="obj\field.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="obj\gebaeude.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="obj\groundobj.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="obj\label.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="obj\leitung2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="obj\pillar.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="obj\roadsign.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="obj\signal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="obj\tunnel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="obj\wayobj.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="obj\wolke.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\environment.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\objlist.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\records.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\settings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="script\api\api_obj_desc_base.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

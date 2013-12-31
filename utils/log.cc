@@ -13,26 +13,28 @@
 #include <syslog.h>
 #endif //SYSLOG
 
+#define NO_LOG_EXTERNALS
+
 #include "log.h"
 #include "../simdebug.h"
 #include "../simsys.h"
 
 
 #ifdef MAKEOBJ
-#define debuglevel (3)
+//debuglevel is global variable
 #else
 #ifdef NETTOOL
 #define debuglevel (0)
 
 #else
-#define debuglevel (umgebung_t::verbose_debug)
+#define debuglevel (env_t::verbose_debug)
 
 // for display ...
 #include "../gui/messagebox.h"
-#include "../simgraph.h"
-#include "../simwin.h"
+#include "../display/simgraph.h"
+#include "../gui/simwin.h"
 
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 #endif
 #endif
 
@@ -263,19 +265,19 @@ void log_t::fatal(const char *who, const char *format, ...)
 	va_start(argptr, format);
 
 	static char formatbuffer[512];
-	sprintf( formatbuffer, "FATAL ERROR: %s - %s\nAborting program execution ...\n\nFor help with this error or to file a bug report please see the Simutrans forum:\nhttp://forum.simutrans.com\n", who, format );
+	sprintf( formatbuffer, "FATAL ERROR: %s - %s\nAborting program execution ...\n\nFor help with this error or to file a bug report please see the Simutrans forum at\nhttp://forum.simutrans.com\n", who, format );
 
 	static char buffer[8192];
 	int n = vsprintf( buffer, formatbuffer, argptr );
 
-	if (  log  ) {
+	if(  log  ) {
 		fputs( buffer, log );
 		if (  force_flush  ) {
 			fflush( log );
 		}
 	}
 
-	if (  tee  ) {
+	if(  tee  &&  log!=tee  ) {
 		fputs( buffer, tee );
 	}
 
@@ -291,23 +293,25 @@ void log_t::fatal(const char *who, const char *format, ...)
 
 	va_end(argptr);
 
-#if defined MAKEOBJ  ||  defined NETTOOL
+#if defined MAKEOBJ
+	exit(1);
+#elif defined NETTOOL
 	// no display available
 	puts( buffer );
 #else
 #  ifdef DEBUG
-	int old_level = umgebung_t::verbose_debug;
+	int old_level = env_t::verbose_debug;
 #  endif
-	umgebung_t::verbose_debug = 0;	// no more window concerning messages
+	env_t::verbose_debug = 0;	// no more window concerning messages
 	if(is_display_init()) {
 		// show notification
 		destroy_all_win( true );
 
 		strcpy( buffer+n+1, "PRESS ANY KEY\n" );
 		news_img* sel = new news_img(buffer,IMG_LEER);
-		sel->extend_window_with_component( NULL, koord(display_get_width()/2,120) );
+		sel->extend_window_with_component( NULL, scr_size(display_get_width()/2,120) );
 
-		koord xy( display_get_width()/2 - sel->get_fenstergroesse().x/2, display_get_height()/2 - sel->get_fenstergroesse().y/2 );
+		scr_coord xy( display_get_width()/2 - sel->get_windowsize().w/2, display_get_height()/2 - sel->get_windowsize().h/2 );
 		event_t ev;
 
 		create_win( xy.x, xy.y, sel, w_info, magic_none );
@@ -316,7 +320,7 @@ void log_t::fatal(const char *who, const char *format, ...)
 			// do not move, do not close it!
 			dr_sleep(50);
 			dr_prepare_flush();
-			sel->zeichnen( xy, sel->get_fenstergroesse() );
+			sel->draw( xy, sel->get_windowsize() );
 			dr_flush();
 			display_poll_event(&ev);
 			// main window resized
@@ -340,7 +344,6 @@ void log_t::fatal(const char *who, const char *format, ...)
 	}
 #endif
 #endif
-
 	abort();
 }
 
@@ -428,6 +431,8 @@ log_t::log_t( const char *logfilename, bool force_flush, bool log_debug, bool lo
 		if (  syslog  ) {
 			::syslog( LOG_NOTICE, greeting );
 		}
+#else
+		(void)syslogtag;
 #endif //SYSLOG
 	}
 }

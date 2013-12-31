@@ -2,7 +2,7 @@
 #include <string.h>
 #include "../../simcolor.h"
 #include "../../simevent.h"
-#include "../../simgraph.h"
+#include "../../display/simgraph.h"
 #include "../../dataobj/translator.h"
 #include "../../utils/simstring.h"
 
@@ -11,7 +11,7 @@
 gui_flowtext_t::gui_flowtext_t()
 {
 	title[0] = '\0';
-	last_offset = koord::invalid;
+	last_offset = scr_coord::invalid;
 	dirty = true;
 }
 
@@ -160,7 +160,7 @@ void gui_flowtext_t::set_text(const char *text)
 					i += skip;
 					if(  symbol == 0x3001  ||  symbol == 0x3002  ) {
 						att = ATT_NO_SPACE;
-						// CJK full stop, komma, space
+						// CJK full stop, comma, space
 						break;
 					}
 					// every CJK symbol could be used to break, so break after 10 characters
@@ -214,17 +214,17 @@ const char* gui_flowtext_t::get_title() const
 }
 
 
-koord gui_flowtext_t::get_preferred_size()
+scr_size gui_flowtext_t::get_preferred_size()
 {
-	return output(koord(0, 0), false);
+	return output(scr_size(0, 0), false);
 }
 
-koord gui_flowtext_t::get_text_size()
+scr_size gui_flowtext_t::get_text_size()
 {
-	return output(koord(0, 0), false, false);
+	return output(scr_size(0, 0), false, false);
 }
 
-void gui_flowtext_t::zeichnen(koord offset)
+void gui_flowtext_t::draw(scr_coord offset)
 {
 	offset += pos;
 	if(offset!=last_offset) {
@@ -235,9 +235,9 @@ void gui_flowtext_t::zeichnen(koord offset)
 }
 
 
-koord gui_flowtext_t::output(koord offset, bool doit, bool return_max_width)
+scr_size gui_flowtext_t::output(scr_coord offset, bool doit, bool return_max_width)
 {
-	const int width = groesse.x;
+	const int width = size.w;
 
 	slist_tpl<hyperlink_t>::iterator link = links.begin();
 
@@ -291,7 +291,7 @@ koord gui_flowtext_t::output(koord offset, bool doit, bool return_max_width)
 						display_proportional_clip(offset.x + xpos + 1, offset.y + ypos + 1, i.text.c_str(), 0, double_color, false);
 						extra_pixel |= 1;
 					}
-					KOORD_VAL width = display_proportional_clip(offset.x + xpos, offset.y + ypos, i.text.c_str(), 0, color, false);
+					scr_coord_val width = display_proportional_clip(offset.x + xpos, offset.y + ypos, i.text.c_str(), 0, color, false);
 					if(  link_it  ) {
 						display_fillbox_wh_clip( offset.x + last_link_x, ypos + offset.y + LINESPACE-1, (xpos+width)-last_link_x, 1, color, false);
 						last_link_x = xpos+width;
@@ -392,7 +392,7 @@ koord gui_flowtext_t::output(koord offset, bool doit, bool return_max_width)
 		mark_rect_dirty_wc( offset.x, offset.y, offset.x+max_width, offset.y+ypos+LINESPACE );
 		dirty = false;
 	}
-	return koord( return_max_width ? max_width : text_width, ypos + LINESPACE);
+	return scr_size( return_max_width ? max_width : text_width, ypos + LINESPACE);
 }
 
 
@@ -400,7 +400,7 @@ bool gui_flowtext_t::infowin_event(const event_t* ev)
 {
 	if (IS_LEFTCLICK(ev)) {
 		// scan links for hit
-		koord evpos = koord( ev->cx, ev->cy ) - get_pos();
+		scr_coord evpos = scr_coord( ev->cx, ev->cy ) - get_pos();
 		FOR(slist_tpl<hyperlink_t>, const& link, links) {
 			if(  link.tl.y+LINESPACE == link.br.y  ) {
 				if(  link.tl.x <= evpos.x  &&  evpos.x < link.br.x  &&  link.tl.y <= evpos.y  &&  evpos.y < link.br.y  ) {
@@ -410,7 +410,7 @@ bool gui_flowtext_t::infowin_event(const event_t* ev)
 			}
 			else {
 				//  multi lined box => more difficult
-				if(  link.tl.x <= evpos.x  &&  evpos.x < get_groesse().x  &&  link.tl.y <= evpos.y  &&  evpos.y < link.tl.y+LINESPACE  ) {
+				if(  link.tl.x <= evpos.x  &&  evpos.x < get_size().w  &&  link.tl.y <= evpos.y  &&  evpos.y < link.tl.y+LINESPACE  ) {
 					// in top line
 					call_listeners((void const*)link.param.c_str());
 					break;
@@ -420,7 +420,7 @@ bool gui_flowtext_t::infowin_event(const event_t* ev)
 					call_listeners((void const*)link.param.c_str());
 					break;
 				}
-				else if(  0 <= evpos.x  &&  evpos.x < get_groesse().x  &&  link.tl.y+LINESPACE <= evpos.y  &&  evpos.y < link.br.y-LINESPACE  ) {
+				else if(  0 <= evpos.x  &&  evpos.x < get_size().w  &&  link.tl.y+LINESPACE <= evpos.y  &&  evpos.y < link.br.y-LINESPACE  ) {
 					// line in between
 					call_listeners((void const*)link.param.c_str());
 					break;

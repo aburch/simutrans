@@ -1,0 +1,74 @@
+#
+# name of the theme (will be shown with file selector)
+name=Aero skin (standard size)
+
+
+# show tooltips (default 1=show)
+show_tooltips = 1
+
+# tooltip background color (+-1 around this index is used), taken from player-color table
+tooltip_background_color = 4
+
+# tooltip text color (240=black, 215=white)
+tooltip_text_color = 240
+
+# delay before showing tooltip in ms (default 500ms)
+tooltip_delay = 500
+
+# duration in ms during tooltip is visible (default 5000ms=5s)
+tooltip_duration = 5000
+
+# in default theme white text, but this is not visible with this theme
+gui_text_highlight = #76B4F3
+
+# Color of cursor overlay, which is blended over marked ground tiles
+# The available colors and their numbers can be found on
+#    http://simutrans-germany.com/wiki/wiki/tiki-index.php?page=en_FactoryDef#mapcolor
+# Suggested values (155 is the default)
+# -- pak64, pak.german, pak128
+#cursor_overlay_color = 155
+# -- pak128.japan
+#cursor_overlay_color = 149
+
+##################################window stuff##################################
+
+# when moving, you can use windows to snap onto each other seamlessly
+# if you do not like it, set the catch radius to zero
+window_snap_distance = 8
+
+# show the windows close etc. buttons on the right (like windows 98)
+window_buttons_right = 1
+
+# closes windows/toolbar when button clicked a second time (default off=0)
+second_open_closes_win = 0
+
+# restores window position when window is reopening
+# This will be saved, but will be discarded when screen is resized
+remember_window_positions = 1
+
+# there are three different ways to indicate an active window
+
+# first: draw a frame with titlebar color around active window
+#window_frame_active = 0
+
+# second: draw the title with a different brightness (0: dark ... 6: bright)
+front_window_bar_color = 1
+bottom_window_bar_color = 3
+
+# third (best together with 2nd):use different text color for bar
+# some colors are 215-white, 240-black 208-214- all shades of gray
+front_window_text_color = 215
+bottom_window_text_color = 209
+
+##################################size stuff##################################
+
+# maximum size of tool bars in tools (0 = no limit)
+# if more tools than allowed by height,
+# next and prev arrows for scrolling appears
+toolbar_max_width = 0
+toolbar_max_height = 0
+
+##################################pakstuff##################################
+
+# pak with the images for this theme
+themeimages=menu.aerotheme.pak

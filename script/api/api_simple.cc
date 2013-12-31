@@ -14,6 +14,45 @@ using namespace script_api;
 #define STATIC
 
 
+#ifdef DOXYGEN
+/**
+ * Struct to hold information about time as month-year.
+ * If used as argument to functions then only the value of @ref raw matters.
+ * If filled by an api-call the year and month will be set, too.
+ * Relation: raw = 12*month + year.
+ * @see world::get_time obj_desc_time_x
+ */
+class time_x { // begin_class("time_x")
+public:
+#ifdef SQAPI_DOC // document members
+	integer raw;   ///< raw integer value of date
+	integer year;  ///< year
+	integer month; ///< month in 0..11
+#endif
+}; // end_class
+#endif
+
+// pushes table = { raw = , year = , month = }
+SQInteger param<mytime_t>::push(HSQUIRRELVM vm, mytime_t const& v)
+{
+	sq_newtableex(vm, 3);
+	create_slot<uint32>(vm, "raw",   v.raw);
+	create_slot<uint32>(vm, "year",  v.raw/12);
+	create_slot<uint32>(vm, "month", v.raw%12);
+	return 1;
+}
+
+mytime_t param<mytime_t>::get(HSQUIRRELVM vm, SQInteger index)
+{
+	// 0 has special meaning of 'no-timeline'
+	SQInteger i=1;
+	if (!SQ_SUCCEEDED(sq_getinteger(vm, index, &i))) {
+		get_slot(vm, "raw", i, index);
+	}
+	return (uint16) (i >= 0 ? i : 1);
+}
+
+
 SQInteger script_api::push_ribi(HSQUIRRELVM vm, ribi_t::ribi ribi)
 {
 	welt->get_scenario()->ribi_w2sq(ribi);

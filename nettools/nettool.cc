@@ -16,10 +16,10 @@
 #include <termios.h>
 #endif
 
-#include "../dataobj/network.h"
-#include "../dataobj/network_cmd.h"
-#include "../dataobj/network_packet.h"
-#include "../dataobj/network_socket_list.h"
+#include "../network/network.h"
+#include "../network/network_cmd.h"
+#include "../network/network_packet.h"
+#include "../network/network_socket_list.h"
 #include "../simmem.h"
 #include "../simtypes.h"
 #include "../simversion.h"

@@ -10,7 +10,7 @@
 #include "obj_besch_std_name.h"
 #include "bildliste_besch.h"
 #include "../dataobj/ribi.h"
-#include "../utils/checksum.h"
+#include "../network/checksum.h"
 
 /*
  *  Autor:

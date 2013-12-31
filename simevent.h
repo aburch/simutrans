@@ -49,9 +49,9 @@
 #define NEXT_WINDOW                   1
 #define PREV_WINDOW                   2
 
-// Hajo: System event codes must match those from simsys.h !!!
 #define SYSTEM_QUIT                   1
 #define SYSTEM_RESIZE                 2
+#define SYSTEM_RELOAD_WINDOWS         3
 
 /* normal keys have range 0-255, special key follow above 255 */
 /* other would be better for true unicode support :( */
@@ -166,8 +166,11 @@ struct event_t {
 	 */
 	unsigned int ev_key_mod;
 
-	event_t() { }
-	event_t(unsigned int event_class) : ev_class(event_class) { }
+	event_t(unsigned int event_class = EVENT_NONE) : ev_class(event_class),
+		ev_code(0),
+		mx(0), my(0), cx(0), cy(0),
+		button_state(0), ev_key_mod(0)
+		{ }
 };
 
 #ifdef __cplusplus
@@ -197,7 +200,7 @@ void display_poll_event(event_t*);
 void display_get_event(event_t*);
 void change_drag_start(int x, int y);
 
-int event_get_last_control_shift(void);
+int event_get_last_control_shift();
 unsigned int last_meta_event_get_class();
 
 /**

@@ -9,7 +9,7 @@
 #include "dataobj/koord.h"
 #include "simdebug.h"
 #include "simticker.h"
-#include "simgraph.h"
+#include "display/simgraph.h"
 #include "simcolor.h"
 #include "tpl/slist_tpl.h"
 #include "utils/simstring.h"
@@ -103,7 +103,7 @@ koord ticker::get_welt_pos()
 }
 
 
-void ticker::zeichnen(void)
+void ticker::draw()
 {
 	if (!list.empty()) {
 		const int start_y=display_get_height()-TICKER_YPOS_BOTTOM;

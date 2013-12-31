@@ -15,7 +15,6 @@
 #include "components/action_listener.h"
 #include "../utils/cbuffer_t.h"
 
-class karte_t;
 
 /**
  * Menu for the player list
@@ -45,10 +44,8 @@ private:
 
 	button_t	freeplay;
 
-	static karte_t *welt;
-
 public:
-	ki_kontroll_t(karte_t *welt);
+	ki_kontroll_t();
 	~ki_kontroll_t();
 
 	/**
@@ -64,7 +61,7 @@ public:
 	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
-	void zeichnen(koord pos, koord gr);
+	void draw(scr_coord pos, scr_size size);
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 

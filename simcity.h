@@ -8,11 +8,10 @@
 #ifndef simcity_h
 #define simcity_h
 
-
 #include "dataobj/ribi.h"
 
-#include "simdings.h"
-#include "dings/gebaeude.h"
+#include "simobj.h"
+#include "obj/gebaeude.h"
 
 #include "tpl/vector_tpl.h"
 #include "tpl/weighted_vector_tpl.h"
@@ -26,7 +25,7 @@
 
 #include <string>
 
-class karte_t;
+class karte_ptr_t;
 class spieler_t;
 class fabrik_t;
 class rule_t;
@@ -68,8 +67,8 @@ enum city_cost {
 class private_car_destination_finder_t : public fahrer_t
 {
 private:
-	automobil_t *master;
 	karte_t* welt;
+	automobil_t *master;
 	stadt_t* origin_city;
 	const stadt_t* last_city;
 	uint32 last_tile_speed;
@@ -78,7 +77,7 @@ private:
 	uint16 meters_per_tile_x100;
 
 public:
-	private_car_destination_finder_t(karte_t *w, automobil_t* m, stadt_t* o);	
+	private_car_destination_finder_t(karte_t* w, automobil_t* m, stadt_t* o);	
 	
 	virtual waytype_t get_waytype() const { return road_wt; };
 	virtual bool ist_befahrbar( const grund_t* gr ) const;
@@ -150,7 +149,7 @@ public:
 	void set_private_car_trip(int passengers, stadt_t* destination_town);
 
 private:
-	static karte_t *welt;
+	static karte_ptr_t welt;
 	spieler_t *besitzer_p;
 	plainstring name;
 
@@ -205,7 +204,7 @@ private:
 	/* updates the city history
 	* @author prissi
 	*/
-	void roll_history(void);
+	void roll_history();
 
 	// This is needed to prevent double counting of incoming traffic.
 	sint32 incoming_private_cars;
@@ -355,7 +354,7 @@ private:
 	void bewerte_res_com_ind(const koord pos, int &ind, int &com, int &res);
 
 	/**
-	 * Build a city building at Planquadrat x,y
+	 * Build/renovates a city building at Planquadrat x,y
 	 */
 	void build_city_building(koord pos, bool new_town);
 	bool renovate_city_building(gebaeude_t *gb);
@@ -457,9 +456,9 @@ public:
 	sint32 get_einwohner() const {return ((buildings.get_sum_weight() * welt->get_settings().get_meters_per_tile()) / 31)+((2*bev-arb-won)>>1);}
 	//sint32 get_einwohner() const { return bev; }
 
-	sint32 get_city_population() const { return city_history_month[0][HIST_CITICENS]; }
-	sint32 get_city_jobs() const { return city_history_month[0][HIST_JOBS]; }
-	sint32 get_city_visitor_demand() const { return city_history_month[0][HIST_VISITOR_DEMAND]; }
+	sint32 get_city_population() const { return (sint32) city_history_month[0][HIST_CITICENS]; }
+	sint32 get_city_jobs() const { return (sint32) city_history_month[0][HIST_JOBS]; }
+	sint32 get_city_visitor_demand() const { return (sint32) city_history_month[0][HIST_VISITOR_DEMAND]; }
 
 	uint32 get_buildings()  const { return buildings.get_count(); }
 	sint32 get_unemployed() const { return bev - arb; }
@@ -521,7 +520,7 @@ public:
 	 * @see stadt_t::speichern()
 	 * @author Hj. Malthaner
 	 */
-	stadt_t(karte_t *welt, loadsave_t *file);
+	stadt_t(loadsave_t *file);
 
 	// closes window and that stuff
 	~stadt_t();
@@ -627,10 +626,11 @@ public:
 	 * @param old_x, old_y: Generate no cities in (0,0) - (old_x, old_y)
 	 * @author Gerd Wachsmuth
 	 */
-	static vector_tpl<koord> *random_place(const karte_t *wl, const vector_tpl<sint32> *sizes_list, sint16 old_x, sint16 old_y);
+
+	static vector_tpl<koord> *random_place(const karte_t *wl, const vector_tpl<uint32> *sizes_list, sint16 old_x, sint16 old_y);
 	// geeigneten platz zur Stadtgruendung durch Zufall ermitteln
 
-	void zeige_info(void);
+	void zeige_info();
 
 	void add_factory_arbeiterziel(fabrik_t *fab);
 
@@ -665,7 +665,6 @@ public:
 	void add_car(stadtauto_t* car);
 
 	slist_tpl<stadtauto_t *> * get_current_cars() { return &current_cars; }
-
 };
 
 #endif

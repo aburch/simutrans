@@ -15,7 +15,8 @@
 #include "../simsound.h"
 #include "../dataobj/translator.h"
 
-
+#define L_KNOB_SIZE (32)
+#define DIALOG_WIDTH (276)
 
 const char *sound_frame_t::make_song_name()
 {
@@ -33,106 +34,122 @@ const char *sound_frame_t::make_song_name()
 
 sound_frame_t::sound_frame_t()
   : gui_frame_t( translator::translate("Sound settings") ),
-    digi(scrollbar_t::horizontal),
-    midi(scrollbar_t::horizontal),
-    dlabel("Sound volume:"),
-    mlabel("Music volume:"),
-    curlabel(make_song_name()),
-    cplaying("Currently playing:")
+    sound_volume_scrollbar(scrollbar_t::horizontal),
+    music_volume_scrollbar(scrollbar_t::horizontal),
+    sound_volume_label("Sound volume:"),
+    music_volume_label("Music volume:"),
+    song_name_label(make_song_name()),
+    current_playing_label("Currently playing:")
 {
-	dlabel.set_pos(koord(10,10));
-	add_komponente(&dlabel);
 
-	digi.set_groesse(koord(255, 10));
-	digi.set_pos(koord(10, 22));
-	digi.set_knob(32, 255+32);
-	digi.set_knob_offset(sound_get_global_volume());
-	digi.set_scroll_discrete(false);
-	add_komponente(&digi);
-	digi.add_listener( this );
+	scr_coord cursor = scr_coord(D_MARGIN_LEFT,D_MARGIN_TOP);
 
-	digi_mute.init( button_t::square_state, "mute sound", koord(10,36) );
-	digi_mute.pressed = sound_get_mute();
-	add_komponente(&digi_mute);
-	digi_mute.add_listener( this );
+	// Sound volume label
+	sound_volume_label.set_pos(cursor);
+	add_komponente(&sound_volume_label);
+	cursor.y += LINESPACE + D_V_SPACE;
 
-	// now midi
-	mlabel.set_pos(koord(10,58));
-	add_komponente(&mlabel);
+	sound_volume_scrollbar.set_pos(cursor);
+	sound_volume_scrollbar.set_size(scr_size(DIALOG_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT, D_SCROLLBAR_HEIGHT));
+	sound_volume_scrollbar.set_knob(L_KNOB_SIZE, 255+L_KNOB_SIZE);
+	sound_volume_scrollbar.set_knob_offset(sound_get_global_volume());
+	sound_volume_scrollbar.set_scroll_discrete(false);
+	add_komponente(&sound_volume_scrollbar);
+	sound_volume_scrollbar.add_listener( this );
+	cursor.y += D_SCROLLBAR_HEIGHT + D_V_SPACE;
 
-	midi.set_groesse(koord(255, 10));
-	midi.set_pos(koord(10, 70));
-	midi.set_knob(32, 255+32);
-	midi.set_knob_offset(sound_get_midi_volume());
-	midi.set_scroll_discrete(false);
-	midi.add_listener( this );
-	add_komponente(&midi);
+	sound_mute_button.init( button_t::square_state, "mute sound", cursor ); // 1 = align with scrollbar background
+	sound_mute_button.pressed = sound_get_mute();
+	add_komponente(&sound_mute_button);
+	sound_mute_button.add_listener( this );
+	cursor.y += D_CHECKBOX_HEIGHT + D_V_SPACE*2;
 
-	midi_mute.init( button_t::square_state, "disable midi", koord(10,84) );
-	midi_mute.pressed = midi_get_mute();
-	midi_mute.add_listener( this );
-	add_komponente(&midi_mute);
+	// Music
+	music_volume_label.set_pos( cursor );
+	add_komponente(&music_volume_label);
+	cursor.y += LINESPACE + D_V_SPACE;
+
+	music_volume_scrollbar.set_pos( cursor );
+	music_volume_scrollbar.set_size(scr_size(DIALOG_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT, D_SCROLLBAR_HEIGHT));
+	music_volume_scrollbar.set_knob(L_KNOB_SIZE, 255+L_KNOB_SIZE);
+	music_volume_scrollbar.set_knob_offset(sound_get_midi_volume());
+	music_volume_scrollbar.set_scroll_discrete(false);
+	music_volume_scrollbar.add_listener( this );
+	add_komponente(&music_volume_scrollbar);
+	cursor.y += D_SCROLLBAR_HEIGHT + D_V_SPACE;
+
+	music_mute_button.init( button_t::square_state, "disable midi",cursor ); // 1 = align with scrollbar background
+	music_mute_button.pressed = midi_get_mute();
+	music_mute_button.add_listener( this );
+	add_komponente(&music_mute_button);
+	cursor.y += LINESPACE + D_V_SPACE*2;
 
 	// song selection
-	cplaying.set_pos(koord(10,106)); // "Currently Playing:"
-	add_komponente(&cplaying);
+	current_playing_label.set_pos( cursor ); // "Currently Playing:"
+	add_komponente(&current_playing_label);
+	cursor.y += LINESPACE + D_V_SPACE;
 
-	prevbtn.set_pos(koord(10,118));
-	prevbtn.set_typ(button_t::arrowleft);
-	prevbtn.add_listener(this);
-	add_komponente(&prevbtn);
+	previous_song_button.init(button_t::arrowleft, "", cursor );
+	//previous_song_button.set_typ(button_t::arrowleft);
+	previous_song_button.add_listener(this);
+	add_komponente(&previous_song_button);
+	cursor.x += previous_song_button.get_size().w + D_H_SPACE;
 
-	nextbtn.set_pos(koord(24,118));
-	nextbtn.set_typ(button_t::arrowright);
-	nextbtn.add_listener(this);
-	add_komponente(&nextbtn);
+	next_song_button.init(button_t::arrowright, "", cursor);
+	//next_song_button.set_typ(button_t::arrowright);
+	next_song_button.add_listener(this);
+	add_komponente(&next_song_button);
+	cursor.x += next_song_button.get_size().w + D_H_SPACE;
 
-	curlabel.set_pos(koord(42,118)); // "Jazz"
-	add_komponente(&curlabel);
+	song_name_label.set_pos(cursor); // "Jazz"
+	add_komponente(&song_name_label);
+	cursor.y += LINESPACE + D_V_SPACE;
+	cursor.x = D_MARGIN_LEFT;
 
-	shufflebtn.set_pos(koord(10,130));
-	shufflebtn.set_typ(button_t::square_state);
-	shufflebtn.set_text("shuffle midis");
-	shufflebtn.pressed = sound_get_shuffle_midi();
-	shufflebtn.add_listener(this);
-	add_komponente(&shufflebtn);
+	previous_song_button.align_to(&song_name_label,ALIGN_CENTER_V);
+	next_song_button.align_to(&song_name_label,ALIGN_CENTER_V);
 
-	set_fenstergroesse(koord(276, 164));
+	shuffle_song_button.init( button_t::square_state, "shuffle midis", cursor );
+	shuffle_song_button.pressed = sound_get_shuffle_midi();
+	shuffle_song_button.add_listener(this);
+	add_komponente(&shuffle_song_button);
+	cursor.y += LINESPACE;
+
+	set_windowsize(scr_size(DIALOG_WIDTH, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM));
 }
 
 
-
-bool
-sound_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
+bool sound_frame_t::action_triggered( gui_action_creator_t *komp, value_t p)
 {
-	if (komp == &nextbtn) {
+	if (komp == &next_song_button) {
 		midi_stop();
 		midi_next_track();
 		check_midi();
-		curlabel.set_text(make_song_name());
+		song_name_label.set_text(make_song_name());
 	}
-	else if (komp == &prevbtn) {
+	else if (komp == &previous_song_button) {
 		midi_stop();
 		midi_last_track();
 		check_midi();
-		curlabel.set_text(make_song_name());
+		song_name_label.set_text(make_song_name());
 	}
-	else if (komp == &shufflebtn) {
+	else if (komp == &shuffle_song_button) {
 		sound_set_shuffle_midi( !sound_get_shuffle_midi() );
-		shufflebtn.pressed = sound_get_shuffle_midi();
+		shuffle_song_button.pressed = sound_get_shuffle_midi();
 	}
-	else if (komp == &digi_mute) {
-		sound_set_mute( !digi_mute.pressed );
-		digi_mute.pressed = sound_get_mute();
+	else if (komp == &sound_mute_button) {
+		sound_set_mute( !sound_mute_button.pressed );
+		sound_mute_button.pressed = sound_get_mute();
 	}
-	else if (komp == &midi_mute) {
-		midi_set_mute( !midi_mute.pressed );
-		midi_mute.pressed = midi_get_mute();
+	else if (komp == &music_mute_button) {
+		midi_set_mute( !music_mute_button.pressed );
+		music_mute_button.pressed = midi_get_mute();
+		previous_song_button.enable(!music_mute_button.pressed);
 	}
-	else if (komp == &digi) {
+	else if (komp == &sound_volume_scrollbar) {
 		sound_set_global_volume(p.i);
 	}
-	else if (komp == &midi) {
+	else if (komp == &music_volume_scrollbar) {
 		sound_set_midi_volume(p.i);
 	}
 	return true;
@@ -145,9 +162,9 @@ sound_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
  * component is displayed.
  * @author Hj. Malthaner
  */
-void sound_frame_t::zeichnen(koord pos, koord gr)
+void sound_frame_t::draw(scr_coord pos, scr_size size)
 {
 	// update song name label
-	curlabel.set_text(make_song_name());
-	gui_frame_t::zeichnen(pos, gr);
+	song_name_label.set_text(make_song_name());
+	gui_frame_t::draw(pos, size);
 }

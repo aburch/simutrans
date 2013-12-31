@@ -11,7 +11,8 @@
 
 #include "factorylist_stats_t.h"
 
-#include "../simgraph.h"
+#include "../display/simgraph.h"
+#include "../display/viewport.h"
 #include "../simskin.h"
 #include "../simcolor.h"
 #include "../simfab.h"
@@ -27,8 +28,7 @@
 #include "../utils/simstring.h"
 
 
-factorylist_stats_t::factorylist_stats_t(karte_t* w, factorylist::sort_mode_t sortby, bool sortreverse) :
-	welt(w)
+factorylist_stats_t::factorylist_stats_t(factorylist::sort_mode_t sortby, bool sortreverse)
 {
 	sort(sortby,sortreverse);
 	recalc_size();
@@ -134,7 +134,7 @@ bool factorylist_stats_t::infowin_event(const event_t * ev)
 	if (IS_LEFTRELEASE(ev)) {
 		if(ev->cx>0  &&  ev->cx<15) {
 			const koord3d pos = fab->get_pos();
-			welt->change_world_position(pos);
+			welt->get_viewport()->change_world_position(pos);
 		}
 		else {
 			fab->zeige_info();
@@ -142,7 +142,7 @@ bool factorylist_stats_t::infowin_event(const event_t * ev)
 	}
 	else if (IS_RIGHTRELEASE(ev)) {
 		const koord3d pos = fab->get_pos();
-		welt->change_world_position(pos);
+		welt->get_viewport()->change_world_position(pos);
 	}
 	return false;
 } // end of function factorylist_stats_t::infowin_event(const event_t * ev)
@@ -150,8 +150,8 @@ bool factorylist_stats_t::infowin_event(const event_t * ev)
 
 void factorylist_stats_t::recalc_size()
 {
-	// show_scroll_x==false ->> groesse.x not important ->> no need to calc text pixel length
-	set_groesse( koord(210, welt->get_fab_list().get_count() * (LINESPACE+1) ) );
+	// show_scroll_x==false ->> size.w not important ->> no need to calc text pixel length
+	set_size( scr_size(210, welt->get_fab_list().get_count() * (LINESPACE+1) ) );
 }
 
 
@@ -159,7 +159,7 @@ void factorylist_stats_t::recalc_size()
  * Draw the component
  * @author Hj. Malthaner
  */
-void factorylist_stats_t::zeichnen(koord offset)
+void factorylist_stats_t::draw(scr_coord offset)
 {
 	clip_dimension const cd = display_get_clip_wh();
 	const int start = cd.y-LINESPACE-1;
@@ -226,8 +226,8 @@ void factorylist_stats_t::zeichnen(koord offset)
 			display_proportional_clip(xoff+D_INDICATOR_WIDTH+6+28,yoff,buf,ALIGN_LEFT,COL_BLACK,true);
 
 			// goto button
-			image_id const img = sel-- != 0 ? button_t::arrow_right_normal : button_t::arrow_right_pushed;
-			display_color_img(img, xoff-14, yoff, 0, false, true);
+			display_img_aligned( gui_theme_t::pos_button_img[ sel == 0 ], scr_rect( xoff-14, yoff, 14, LINESPACE ), ALIGN_CENTER_V | ALIGN_CENTER_H, true );
+			sel --;
 		}
 	}
 }
@@ -243,5 +243,5 @@ void factorylist_stats_t::sort(factorylist::sort_mode_t sb, bool sr)
 	{
 		fab_list.insert_ordered( welt->get_fab_list()[i], compare_factories(sortby, sortreverse) );
 	}
-	set_groesse(koord(210, welt->get_fab_list().get_count()*(LINESPACE+1)-10));
+	set_size(scr_size(210, welt->get_fab_list().get_count()*(LINESPACE+1)-10));
 }

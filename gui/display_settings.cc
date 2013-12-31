@@ -10,26 +10,26 @@
  * @author Hj. Malthaner
  */
 
-
 #include "display_settings.h"
 
 #include "../path_explorer.h"
 #include "../simhalt.h"
 #include "../simdebug.h"
 #include "../simworld.h"
-#include "../simimg.h"
+#include "../display/simimg.h"
 #include "../simintr.h"
 #include "../simcolor.h"
-#include "../dataobj/einstellungen.h"
-#include "../dataobj/umgebung.h"
+#include "../dataobj/settings.h"
+#include "../dataobj/environment.h"
 #include "../dataobj/translator.h"
-#include "../dings/baum.h"
-#include "../dings/zeiger.h"
-#include "../simgraph.h"
+#include "../obj/baum.h"
+#include "../obj/zeiger.h"
+#include "../display/simgraph.h"
 #include "../simmenu.h"
 #include "../player/simplay.h"
-
 #include "../utils/simstring.h"
+#include "themeselector.h"
+#include "simwin.h"
 
 // y coordinates
 #define GRID_MODE						(6)
@@ -81,48 +81,47 @@
 #define PATH_EXPLORE_STATUS				(PHASE_REROUTE_GOODS+13)
 
 
-#define BOTTOM							(PATH_EXPLORE_STATUS+30)
+#define L_DIALOG_HEIGHT					(PATH_EXPLORE_STATUS+30)
 
-// x coordinates
-#define RIGHT_WIDTH (220)
+// Local params
+#define L_DIALOG_WIDTH (220)
 
 
-color_gui_t::color_gui_t(karte_t *welt) :
+color_gui_t::color_gui_t() :
 gui_frame_t( translator::translate("Helligk. u. Farben") )
 {
-	this->welt = welt;
 
 	// underground slice
-	inp_underground_level.set_pos( koord(RIGHT_WIDTH-10-50, SLICE-1) );
-	inp_underground_level.set_groesse( koord( 50, D_BUTTON_HEIGHT-1 ) );
+	inp_underground_level.set_pos( scr_coord(L_DIALOG_WIDTH-10-50, SLICE-1) );
+	inp_underground_level.set_size( scr_size( 50, D_BUTTON_HEIGHT-1 ) );
 	inp_underground_level.set_value( grund_t::underground_mode==grund_t::ugm_level ? grund_t::underground_level : welt->get_zeiger()->get_pos().z);
 	inp_underground_level.set_limits(welt->get_grundwasser()-10, 32);
 	inp_underground_level.add_listener(this);
 
 	// brightness
-	brightness.set_pos( koord(RIGHT_WIDTH-10-40,BRIGHTNESS-1) );
-	brightness.set_groesse( koord( 40, D_BUTTON_HEIGHT-1 ) );
-	brightness.set_value( umgebung_t::daynight_level );
+	brightness.set_pos( scr_coord(L_DIALOG_WIDTH-10-40,BRIGHTNESS-1) );
+	brightness.set_size( scr_size( 40, D_BUTTON_HEIGHT-1 ) );
+	brightness.set_value( env_t::daynight_level );
 	brightness.set_limits( 0, 9 );
 	brightness.add_listener(this);
 
 	// scrollspeed
-	scrollspeed.set_pos( koord(RIGHT_WIDTH-10-40,SCROLL_SPEED-1) );
-	scrollspeed.set_groesse( koord( 40, D_BUTTON_HEIGHT-1 ) );
-	scrollspeed.set_value( abs(umgebung_t::scroll_multi) );
+	scrollspeed.set_pos( scr_coord(L_DIALOG_WIDTH-10-40,SCROLL_SPEED-1) );
+	scrollspeed.set_size( scr_size( 40, D_BUTTON_HEIGHT-1 ) );
+	scrollspeed.set_value( abs(env_t::scroll_multi) );
 	scrollspeed.set_limits( 1, 9 );
 	scrollspeed.add_listener(this);
 
 	// range to hide under mouse cursor
-	cursor_hide_range.set_pos( koord(RIGHT_WIDTH-10-45,CURSOR_HIDE_RANGE-1) );
-	cursor_hide_range.set_groesse( koord( 45, D_BUTTON_HEIGHT-1 ) );
-	cursor_hide_range.set_value(umgebung_t::cursor_hide_range);
+	cursor_hide_range.set_pos( scr_coord(L_DIALOG_WIDTH-10-45,CURSOR_HIDE_RANGE-1) );
+	cursor_hide_range.set_size( scr_size( 45, D_BUTTON_HEIGHT-1 ) );
+	cursor_hide_range.set_value(env_t::cursor_hide_range);
 	cursor_hide_range.set_limits( 0, 10 );
 	cursor_hide_range.add_listener(this);
 
 	// traffic density
-	traffic_density.set_pos( koord(RIGHT_WIDTH-10-45,DENS_TRAFFIC-1) );
-	traffic_density.set_groesse( koord( 45, D_BUTTON_HEIGHT-1 ) );
+	traffic_density.set_pos( scr_coord(L_DIALOG_WIDTH-10-45,DENS_TRAFFIC-1) );
+	traffic_density.set_size( scr_size( 45, D_BUTTON_HEIGHT-1 ) );
 	traffic_density.set_value(welt->get_settings().get_verkehr_level());
 	traffic_density.set_limits( 0, 16 );
 	traffic_density.add_listener(this);
@@ -131,42 +130,42 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 
 	// other settings
 	//6
-	buttons[++b].set_pos( koord(10,SCROLL_INVERS) );
+	buttons[++b].set_pos( scr_coord(10,SCROLL_INVERS) );
 	buttons[b].set_typ(button_t::square_state);
 	buttons[b].set_text("4LIGHT_CHOOSE");
-	buttons[b].pressed = umgebung_t::scroll_multi < 0;
+	buttons[b].pressed = env_t::scroll_multi < 0;
 	buttons[b].set_tooltip("The main game window can be scrolled by right-clicking and dragging the ground.");
 
 	//7
-	buttons[++b].set_pos( koord(10,STOP_WALKER) );
+	buttons[++b].set_pos( scr_coord(10,STOP_WALKER) );
 	buttons[b].set_typ(button_t::square_state);
 	buttons[b].set_text("5LIGHT_CHOOSE");
 	buttons[b].pressed =welt->get_settings().get_show_pax();
 	buttons[b].set_tooltip("Pedestrians will appear near stops whenver a passenger vehicle unloads there.");
 
 	//8
-	buttons[++b].set_pos( koord(10,CITY_WALKER) );
+	buttons[++b].set_pos( scr_coord(10,CITY_WALKER) );
 	buttons[b].set_typ(button_t::square_state);
 	buttons[b].set_text("6LIGHT_CHOOSE");
 	buttons[b].pressed =welt->get_settings().get_random_pedestrians();
 	buttons[b].set_tooltip("Pedestrians will appear randomly in towns.");
 
 	//9
-	buttons[++b].set_pos( koord(10,DAY_NIGHT) );
+	buttons[++b].set_pos( scr_coord(10,DAY_NIGHT) );
 	buttons[b].set_typ(button_t::square_state);
 	buttons[b].set_text("8WORLD_CHOOSE");
-	buttons[b].pressed = umgebung_t::night_shift;
+	buttons[b].pressed = env_t::night_shift;
 	buttons[b].set_tooltip("Whether the lighting in the main game window simulates a periodic transition between day and night.");
 
 	//10
-	buttons[++b].set_pos( koord(10,USE_TRANSPARENCY) );
+	buttons[++b].set_pos( scr_coord(10,USE_TRANSPARENCY) );
 	buttons[b].set_typ(button_t::square_state);
 	buttons[b].set_text("hide transparent");
-	buttons[b].pressed = umgebung_t::hide_with_transparency;
+	buttons[b].pressed = env_t::hide_with_transparency;
 	buttons[b].set_tooltip("All hidden items (such as trees and buildings) will appear as transparent.");
 
 	//11
-	buttons[++b].set_pos( koord(10,HIDE_TREES) );
+	buttons[++b].set_pos( scr_coord(10,HIDE_TREES) );
 	buttons[b].set_typ(button_t::square_state);
 	buttons[b].set_text("hide trees");
 	buttons[b].set_tooltip("Trees will be miniaturised or made transparent in the main game window.");
@@ -174,79 +173,79 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	// left right for hide messages
 
 	//12
-	buttons[++b].set_pos( koord(10,HIDE_CITY_HOUSES) );
+	buttons[++b].set_pos( scr_coord(10,HIDE_CITY_HOUSES) );
 	buttons[b].set_typ(button_t::arrowleft);
 	//13
-	buttons[++b].set_pos( koord(RIGHT_WIDTH-10-10-2,HIDE_CITY_HOUSES) );
+	buttons[++b].set_pos( scr_coord(L_DIALOG_WIDTH-10-10-2,HIDE_CITY_HOUSES) );
 	buttons[b].set_typ(button_t::arrowright);
 
 	//14
-	buttons[++b].set_pos( koord(10,USE_TRANSPARENCY_STATIONS) );
+	buttons[++b].set_pos( scr_coord(10,USE_TRANSPARENCY_STATIONS) );
 	buttons[b].set_typ(button_t::square_state);
 	buttons[b].set_text("transparent station coverage");
-	buttons[b].pressed = umgebung_t::use_transparency_station_coverage;
+	buttons[b].pressed = env_t::use_transparency_station_coverage;
 	buttons[b].set_tooltip("The display of the station coverage can either be a transparent rectangle or a series of boxes.");
 
 	//15
-	buttons[++b].set_pos( koord(10,SHOW_STATION_COVERAGE) );
+	buttons[++b].set_pos( scr_coord(10,SHOW_STATION_COVERAGE) );
 	buttons[b].set_typ(button_t::square_state);
 	buttons[b].set_text("show station coverage");
 	buttons[b].set_tooltip("Show from how far that passengers or goods will come to use your stops. Toggle with the v key.");
 
 	//16
-	buttons[++b].set_pos( koord(10,UNDERGROUND) );
+	buttons[++b].set_pos( scr_coord(10,UNDERGROUND) );
 	buttons[b].set_typ(button_t::square_state);
 	buttons[b].set_text("underground mode");
 	buttons[b].set_tooltip("See under the ground, to build tunnels and underground railways/metros. Toggle with SHIFT + U");
 
 	//17
-	buttons[++b].set_pos( koord(10,GRID_MODE) );
+	buttons[++b].set_pos( scr_coord(10,GRID_MODE) );
 	buttons[b].set_typ(button_t::square_state);
 	buttons[b].set_text("show grid");
 	buttons[b].set_tooltip("Shows the borderlines of each tile in the main game window. Can be useful for construction. Toggle with the # key.");
 
 	//18
-	buttons[++b].set_pos( koord(10,SHOW_STATION_SIGNS) );
+	buttons[++b].set_pos( scr_coord(10,SHOW_STATION_SIGNS) );
 	buttons[b].set_typ(button_t::arrowright);
 	//buttons[b].set_tooltip("show station names");
 /*	buttons[b].set_text("show station names");
-	buttons[b].pressed = umgebung_t::show_names&1;*/
+	buttons[b].pressed = env_t::show_names&1;*/
 	buttons[b].set_tooltip("Shows the names of the individual stations in the main game window.");
 
 	//19	
-	buttons[++b].set_pos( koord(10,SHOW_STATION_GOODS) );
+	buttons[++b].set_pos( scr_coord(10,SHOW_STATION_GOODS) );
 	buttons[b].set_typ(button_t::square_state);
 	buttons[b].set_text("show waiting bars");
-	buttons[b].pressed = umgebung_t::show_names&2;
+	buttons[b].pressed = env_t::show_names&2;
 	buttons[b].set_tooltip("Shows a bar graph representing the number of passengers/mail/goods waiting at stops.");
 
 	//20
-	buttons[++b].set_pos( koord(10,SLICE) );
+	buttons[++b].set_pos( scr_coord(10,SLICE) );
 	buttons[b].set_typ(button_t::square_state);
 	buttons[b].set_text("sliced underground mode");
 	buttons[b].set_tooltip("See under the ground, one layer at a time. Toggle with CTRL + U. Move up/down in layers with HOME and END.");
 
 	//21
-	buttons[++b].set_pos( koord(10, LEFT_TO_RIGHT_GRAPHS) );
+	buttons[++b].set_pos( scr_coord(10, LEFT_TO_RIGHT_GRAPHS) );
 	buttons[b].set_typ(button_t::square_state);
 	buttons[b].set_text("Inverse graphs");
-	buttons[b].pressed = !umgebung_t::left_to_right_graphs;
+	buttons[b].pressed = !env_t::left_to_right_graphs;
 	buttons[b].set_tooltip("Graphs right to left instead of left to right");
 
 
 	// left/right for convoi tooltips
-	buttons[0].set_pos( koord(10,CONVOI_TOOLTIPS) );
+	buttons[0].set_pos( scr_coord(10,CONVOI_TOOLTIPS) );
 	buttons[0].set_typ(button_t::arrowleft);
-	buttons[1].set_pos( koord(RIGHT_WIDTH-10-10-2,CONVOI_TOOLTIPS) );
+	buttons[1].set_pos( scr_coord(L_DIALOG_WIDTH-10-10-2,CONVOI_TOOLTIPS) );
 	buttons[1].set_typ(button_t::arrowright);
 
 	//Hide buildings and trees under mouse cursor
-	buttons[++b].set_pos( koord(10,HIDE_UNDER_CURSOR) );
+	buttons[++b].set_pos( scr_coord(10,HIDE_UNDER_CURSOR) );
 	buttons[b].set_typ( button_t::square_state );
 	buttons[b].set_text( "Smart hide objects" );
 	buttons[b].set_tooltip( "hide objects under cursor" );
 
-	buttons[++b].set_pos( koord(10,HIGHLITE_SCHEDULE) );
+	buttons[++b].set_pos( scr_coord(10,HIGHLITE_SCHEDULE) );
 	buttons[b].set_typ( button_t::square_state );
 	buttons[b].set_text( "Highlite schedule" );
 	buttons[b].set_tooltip( "Highlight the locations of stops on the current schedule" );
@@ -289,31 +288,51 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	// add_komponente( buttons+5 );
 
 	set_resizemode(gui_frame_t::horizonal_resize);
-	set_min_windowsize( koord(RIGHT_WIDTH, BOTTOM) );
-	set_fenstergroesse( koord(RIGHT_WIDTH, BOTTOM) );
+	set_min_windowsize( scr_size(L_DIALOG_WIDTH, L_DIALOG_HEIGHT) );
+	set_windowsize( scr_size(L_DIALOG_WIDTH, L_DIALOG_HEIGHT) );
 }
 
 
-void color_gui_t::set_fenstergroesse(koord groesse)
+void color_gui_t::set_windowsize(scr_size size)
 {
-	gui_frame_t::set_fenstergroesse(groesse);
-	const sint16 w = groesse.x;
-	inp_underground_level.set_pos( koord(w-10-50, SLICE-1) );
-	brightness.set_pos( koord(w-10-40,BRIGHTNESS-1) );
-	scrollspeed.set_pos( koord(w-10-40,SCROLL_SPEED-1) );
-	traffic_density.set_pos( koord(w-10-45,DENS_TRAFFIC-1) );
-	cursor_hide_range.set_pos( koord(w-10-45,CURSOR_HIDE_RANGE-1) );
-	buttons[1].set_pos( koord(w-10-10-2,CONVOI_TOOLTIPS) );
-	buttons[13].set_pos( koord(w-10-10-2,HIDE_CITY_HOUSES) );
+	scr_coord_val column;
+	scr_coord_val delta_w = size.w - D_MARGINS_X;
+
+	for(  int i=0;  i<COLORS_MAX_BUTTONS;  i++  ) {
+		if(  buttons[i].get_type() == button_t::square_state  ) {
+			// resize buttons too to fix text
+			buttons[i].set_size( scr_size(delta_w,buttons[i].get_size().h) );
+		}
+	}
+
+	gui_frame_t::set_windowsize(size);
+
+	column = size.w - D_MARGIN_RIGHT - inp_underground_level.get_size().w;
+	inp_underground_level.set_pos ( scr_coord( column, inp_underground_level.get_pos().y ) );
+	brightness.set_pos            ( scr_coord( column, brightness.get_pos().y            ) );
+	scrollspeed.set_pos           ( scr_coord( column, scrollspeed.get_pos().y           ) );
+	traffic_density.set_pos       ( scr_coord( column, traffic_density.get_pos().y       ) );
+	cursor_hide_range.set_pos     ( scr_coord( column, cursor_hide_range.get_pos().y     ) );
+
+	column = size.w - D_MARGIN_RIGHT - D_ARROW_RIGHT_WIDTH;
+	buttons[1].set_pos            ( scr_coord( column, buttons[1].get_pos().y            ) );
+	buttons[13].set_pos           ( scr_coord( column, buttons[13].get_pos().y           ) );
+
+	column = size.w - D_MARGINS_X;
+	divider1.set_width            ( column );
+	divider2.set_width            ( column );
+	divider3.set_width            ( column );
+	divider4.set_width            ( column );
+
 }
 
 
 bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 {
 	if(&brightness==komp) {
-		umgebung_t::daynight_level = (sint8)v.i;
+		env_t::daynight_level = (sint8)v.i;
 	} else if(&traffic_density==komp) {
-		if(  !umgebung_t::networkmode  ||  welt->get_active_player_nr()==1  ) {
+		if(  !env_t::networkmode  ||  welt->get_active_player_nr()==1  ) {
 			static char level[16];
 			sprintf(level, "%li", v.i);
 			werkzeug_t::simple_tool[WKZ_TRAFFIC_LEVEL&0xFFF]->set_default_param( level );
@@ -323,43 +342,43 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 			traffic_density.set_value(welt->get_settings().get_verkehr_level());
 		}
 	} else if(&scrollspeed==komp) {
-		umgebung_t::scroll_multi = (sint16)( buttons[6].pressed ? -v.i : v.i );
+		env_t::scroll_multi = (sint16)( buttons[6].pressed ? -v.i : v.i );
 	} else if (&cursor_hide_range==komp) {
-		umgebung_t::cursor_hide_range = cursor_hide_range.get_value();
+		env_t::cursor_hide_range = cursor_hide_range.get_value();
 	} else if((buttons+0)==komp) {
-		umgebung_t::show_vehicle_states = (umgebung_t::show_vehicle_states+2)%3;
+		env_t::show_vehicle_states = (env_t::show_vehicle_states+2)%3;
 	} else if((buttons+1)==komp) {
-		umgebung_t::show_vehicle_states = (umgebung_t::show_vehicle_states+1)%3;
+		env_t::show_vehicle_states = (env_t::show_vehicle_states+1)%3;
 	} else if((buttons+6)==komp) {
 		buttons[6].pressed ^= 1;
-		umgebung_t::scroll_multi = -umgebung_t::scroll_multi;
+		env_t::scroll_multi = -env_t::scroll_multi;
 	} else if((buttons+7)==komp) {
-		if(  !umgebung_t::networkmode  ||  welt->get_active_player_nr()==1  ) {
+		if(  !env_t::networkmode  ||  welt->get_active_player_nr()==1  ) {
 			welt->set_werkzeug( werkzeug_t::simple_tool[WKZ_TOOGLE_PAX&0xFFF], welt->get_active_player() );
 		}
 	} else if((buttons+8)==komp) {
-		if(  !umgebung_t::networkmode  ||  welt->get_active_player_nr()==1  ) {
+		if(  !env_t::networkmode  ||  welt->get_active_player_nr()==1  ) {
 			welt->set_werkzeug( werkzeug_t::simple_tool[WKZ_TOOGLE_PEDESTRIANS&0xFFF], welt->get_active_player() );
 		}
 	} else if((buttons+9)==komp) {
-		umgebung_t::night_shift = !umgebung_t::night_shift;
+		env_t::night_shift = !env_t::night_shift;
 		buttons[9].pressed ^= 1;
 	} else if((buttons+10)==komp) {
-		umgebung_t::hide_with_transparency = !umgebung_t::hide_with_transparency;
+		env_t::hide_with_transparency = !env_t::hide_with_transparency;
 		buttons[10].pressed ^= 1;
 		baum_t::recalc_outline_color();
 	} else if((buttons+11)==komp) {
-		umgebung_t::hide_trees = !umgebung_t::hide_trees;
+		env_t::hide_trees = !env_t::hide_trees;
 		baum_t::recalc_outline_color();
 	} else if((buttons+12)==komp) {
-		umgebung_t::hide_buildings = (umgebung_t::hide_buildings+2)%3;
+		env_t::hide_buildings = (env_t::hide_buildings+2)%3;
 	} else if((buttons+13)==komp) {
-		umgebung_t::hide_buildings = (umgebung_t::hide_buildings+1)%3;
+		env_t::hide_buildings = (env_t::hide_buildings+1)%3;
 	} else if((buttons+14)==komp) {
-		umgebung_t::use_transparency_station_coverage = !umgebung_t::use_transparency_station_coverage;
+		env_t::use_transparency_station_coverage = !env_t::use_transparency_station_coverage;
 		buttons[14].pressed ^= 1;
 	} else if((buttons+15)==komp) {
-		umgebung_t::station_coverage_show = umgebung_t::station_coverage_show==0 ? 0xFF : 0;
+		env_t::station_coverage_show = env_t::station_coverage_show==0 ? 0xFF : 0;
 	} else if((buttons+16)==komp) {
 		// see simwerkz.cc::wkz_show_underground_t::init
 		grund_t::set_underground_mode(buttons[16].pressed ? grund_t::ugm_none : grund_t::ugm_all, inp_underground_level.get_value());
@@ -367,24 +386,24 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		// calc new images
 		welt->update_map();
 		// renew toolbar
-		werkzeug_t::update_toolbars(welt);
+		werkzeug_t::update_toolbars();
 	} else if((buttons+17)==komp) {
 		grund_t::toggle_grid();
 	} else if((buttons+18)==komp) {
-		if(  umgebung_t::show_names&1  ) {
-			if(  (umgebung_t::show_names>>2) == 2  ) {
-				umgebung_t::show_names &= 2;
+		if(  env_t::show_names&1  ) {
+			if(  (env_t::show_names>>2) == 2  ) {
+				env_t::show_names &= 2;
 			}
 			else {
-				umgebung_t::show_names += 4;
+				env_t::show_names += 4;
 			}
 		}
 		else {
-			umgebung_t::show_names &= 2;
-			umgebung_t::show_names |= 1;
+			env_t::show_names &= 2;
+			env_t::show_names |= 1;
 		}
 	} else if((buttons+19)==komp) {
-		umgebung_t::show_names ^= 2;
+		env_t::show_names ^= 2;
 	} else if((buttons+20)==komp) {
 		// see simwerkz.cc::wkz_show_underground_t::init
 		grund_t::set_underground_mode(buttons[20].pressed ? grund_t::ugm_none : grund_t::ugm_level, inp_underground_level.get_value());
@@ -392,16 +411,16 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		// calc new images
 		welt->update_map();
 		// renew toolbar
-		werkzeug_t::update_toolbars(welt);
+		werkzeug_t::update_toolbars();
 	} else if((buttons+22)==komp) {
 		// see simwerkz.cc::wkz_hide_under_cursor_t::init
-		umgebung_t::hide_under_cursor = !umgebung_t::hide_under_cursor  &&  umgebung_t::cursor_hide_range>0;
-		buttons[22].pressed = umgebung_t::hide_under_cursor;
+		env_t::hide_under_cursor = !env_t::hide_under_cursor  &&  env_t::cursor_hide_range>0;
+		buttons[22].pressed = env_t::hide_under_cursor;
 		// renew toolbar
-		werkzeug_t::update_toolbars(welt);
+		werkzeug_t::update_toolbars();
 	} else if((buttons+23)==komp) {
-		umgebung_t::visualize_schedule = !umgebung_t::visualize_schedule;
-		buttons[23].pressed = umgebung_t::visualize_schedule;
+		env_t::visualize_schedule = !env_t::visualize_schedule;
+		buttons[23].pressed = env_t::visualize_schedule;
 	} else if (komp == &inp_underground_level) {
 		if(grund_t::underground_mode==grund_t::ugm_level) {
 			grund_t::underground_level = inp_underground_level.get_value();
@@ -409,8 +428,8 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 			welt->update_map();
 		}
 	} else if ((buttons+21)==komp) {
-		umgebung_t::left_to_right_graphs ^= 1;
-		buttons[21].pressed = !umgebung_t::left_to_right_graphs;
+		env_t::left_to_right_graphs ^= 1;
+		buttons[21].pressed = !env_t::left_to_right_graphs;
 	}
 
 	welt->set_dirty();
@@ -418,32 +437,32 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 }
 
 
-void color_gui_t::zeichnen(koord pos, koord gr)
+void color_gui_t::draw(scr_coord pos, scr_size size)
 {
 	const int x = pos.x;
-	const int y = pos.y+16;	// compensate for title bar
+	const int y = pos.y + D_TITLEBAR_HEIGHT; // compensate for title bar
 	char buf[128];
 
 	// can be changed also with keys ...
 	buttons[ 7].pressed = welt->get_settings().get_show_pax();
 	buttons[ 8].pressed = welt->get_settings().get_random_pedestrians();
-	buttons[11].pressed = umgebung_t::hide_trees;
-	buttons[21].pressed = umgebung_t::hide_under_cursor;
-	buttons[15].pressed = umgebung_t::station_coverage_show;
+	buttons[11].pressed = env_t::hide_trees;
+	buttons[21].pressed = env_t::hide_under_cursor;
+	buttons[15].pressed = env_t::station_coverage_show;
 	buttons[16].pressed = grund_t::underground_mode == grund_t::ugm_all;
 	buttons[17].pressed = grund_t::show_grid;
-	//buttons[18].pressed = umgebung_t::show_names&1;
-	buttons[19].pressed = (umgebung_t::show_names&2)!=0;
+	//buttons[18].pressed = env_t::show_names&1;
+	buttons[19].pressed = (env_t::show_names&2)!=0;
 	buttons[21].pressed = grund_t::underground_mode == grund_t::ugm_level;
-	buttons[23].pressed = umgebung_t::visualize_schedule;
+	buttons[23].pressed = env_t::visualize_schedule;
 
-	gui_frame_t::zeichnen(pos, gr);
+	gui_frame_t::draw(pos, size);
 
 	// draw the label type
-	if(  umgebung_t::show_names&1  ) {
+	if(  env_t::show_names&1  ) {
 		PLAYER_COLOR_VAL pc = welt->get_active_player() ? welt->get_active_player()->get_player_color1()+4 : COL_ORANGE;
 		const char *text = translator::translate("show station names");
-		switch( umgebung_t::show_names >> 2 ) {
+		switch( env_t::show_names >> 2 ) {
 			case 0:
 				display_ddd_proportional_clip( 16+x+buttons[18].get_pos().x, y+buttons[18].get_pos().y+(LINESPACE/2), proportional_string_width(text)+7, 0, pc, COL_BLACK, text, 1 );
 				break;
@@ -459,7 +478,7 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 	}
 
 	// separator
-	const sint16 w = this->get_fenstergroesse().x;
+	const sint16 w = this->get_windowsize().w;
 	display_ddd_box_clip(x+10, y+SEPERATE1+1, w-20, 0, MN_GREY0, MN_GREY4);
 	display_ddd_box_clip(x+10, y+SEPERATE2+1, w-20, 0, MN_GREY0, MN_GREY4);
 	display_ddd_box_clip(x+10, y+SEPERATE3+1, w-20, 0, MN_GREY0, MN_GREY4);
@@ -471,10 +490,10 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 
 	display_proportional_clip(x+10, y+DENS_TRAFFIC+1, translator::translate("6WORLD_CHOOSE"), ALIGN_LEFT, COL_BLACK, true);
 
-	const char *hhc = translator::translate( umgebung_t::hide_buildings==0 ? "no buildings hidden" : (umgebung_t::hide_buildings==1 ? "hide city building" : "hide all building") );
+	const char *hhc = translator::translate( env_t::hide_buildings==0 ? "no buildings hidden" : (env_t::hide_buildings==1 ? "hide city building" : "hide all building") );
 	display_proportional_clip(x+10+16, y+HIDE_CITY_HOUSES+1, hhc, ALIGN_LEFT, COL_BLACK, true);
 
-	const char *ctc = translator::translate( umgebung_t::show_vehicle_states==0 ? "convoi error tooltips" : (umgebung_t::show_vehicle_states==1 ? "convoi mouseover tooltips" : "all convoi tooltips") );
+	const char *ctc = translator::translate( env_t::show_vehicle_states==0 ? "convoi error tooltips" : (env_t::show_vehicle_states==1 ? "convoi mouseover tooltips" : "all convoi tooltips") );
 	display_proportional_clip(x+10+16, y+CONVOI_TOOLTIPS+1, ctc, ALIGN_LEFT, COL_BLACK, true);
 
 	int len=15+display_proportional_clip(x+10, y+FPS_DATA, translator::translate("Frame time:"), ALIGN_LEFT, COL_BLACK, true);
@@ -488,14 +507,14 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 	uint32 loops;
 	loops=welt->get_realFPS();
 	farbe = COL_WHITE;
-	uint32 target_fps = welt->is_fast_forward() ? 10 : umgebung_t::fps;
+	uint32 target_fps = welt->is_fast_forward() ? 10 : env_t::fps;
 	if(loops<(target_fps*3)/4) {
 		farbe = (loops<=target_fps/2) ? COL_RED : COL_YELLOW;
 	}
 	len = 15+display_proportional_clip(x+10, y+FRAME_DATA, translator::translate("FPS:"), ALIGN_LEFT, COL_BLACK, true);
 	sprintf(buf,"%d fps", loops );
 #ifdef DEBUG
-	if(  umgebung_t::simple_drawing  ) {
+	if(  env_t::simple_drawing  ) {
 		strcat( buf, "*" );
 	}
 #endif
@@ -545,5 +564,4 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 
 	len = 15+display_proportional_clip(x+10, y+PATH_EXPLORE_STATUS, translator::translate("Status:"), ALIGN_LEFT, text_colour, true);
 	display_proportional_clip(x+len, y+PATH_EXPLORE_STATUS, status_string, ALIGN_LEFT, figure_colour, true);
-
 }

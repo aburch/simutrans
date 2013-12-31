@@ -9,12 +9,12 @@
 #error "Only Windows has GDI!"
 #endif
 
+// windows Bibliotheken DirectDraw 5.x (must be defined before any includes!)
+#define UNICODE 1
+
 #include <stdio.h>
 #include <stdlib.h>
 
-// windows Bibliotheken DirectDraw 5.x
-// "Windows DirectDraw 5.x Libraries" (Babelfish)
-#define UNICODE 1
 // windows.h defines min and max macros which we don't want
 #define NOMINMAX 1
 #include <windows.h>
@@ -22,7 +22,7 @@
 #include <wingdi.h>
 #include <mmsystem.h>
 
-#include "simgraph.h"
+#include "display/simgraph.h"
 #include "simdebug.h"
 
 
@@ -43,10 +43,8 @@
 #include "simsys.h"
 #include "simevent.h"
 #include "simdebug.h"
-#include "./dataobj/umgebung.h"
+#include "./dataobj/environment.h"
 #include "macros.h"
-
-typedef unsigned short PIXVAL;
 
 static volatile HWND hwnd;
 static bool is_fullscreen = false;
@@ -522,7 +520,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 		case WM_SIZE: // resize client area
 			if(lParam!=0) {
 				sys_event.type = SIM_SYSTEM;
-				sys_event.code = SIM_SYSTEM_RESIZE;
+				sys_event.code = SYSTEM_RESIZE;
 
 				sys_event.mx = LOWORD(lParam) + 1;
 				if (sys_event.mx <= 0) {
@@ -607,14 +605,14 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 		case WM_CLOSE:
 			if (AllDibData != NULL) {
 				sys_event.type = SIM_SYSTEM;
-				sys_event.code = SIM_SYSTEM_QUIT;
+				sys_event.code = SYSTEM_QUIT;
 			}
 			break;
 
 		case WM_DESTROY:
 			if(  hwnd==this_hwnd  ||  AllDibData == NULL  ) {
 				sys_event.type = SIM_SYSTEM;
-				sys_event.code = SIM_SYSTEM_QUIT;
+				sys_event.code = SYSTEM_QUIT;
 				if(  AllDibData == NULL  ) {
 					PostQuitMessage(0);
 					hwnd = NULL;
@@ -675,7 +673,7 @@ void ex_ord_update_mx_my()
 
 
 
-unsigned long dr_time(void)
+unsigned long dr_time()
 {
 	return timeGetTime();
 }

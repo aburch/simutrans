@@ -22,8 +22,8 @@ struct nodelist_node_t
 	nodelist_node_t* next;
 };
 
-#if MULTI_THREAD>1
-#include <pthread.h>
+#ifdef MULTI_THREAD
+#include "../utils/simthread.h"
 static pthread_mutex_t freelist_mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
@@ -78,7 +78,7 @@ void *freelist_t::gimme_node(size_t size)
 	size = (size+3)>>2;
 	size <<= 2;
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	pthread_mutex_lock( &freelist_mutex );
 #endif
 
@@ -87,7 +87,7 @@ void *freelist_t::gimme_node(size_t size)
 	if(  size > MAX_LIST_INDEX  ) {
 		// too large: just use malloc anyway
 		tmp = (nodelist_node_t *)xmalloc(size);
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		pthread_mutex_unlock( &freelist_mutex );
 #endif
 #ifdef DEBUG_FREELIST
@@ -147,7 +147,7 @@ void *freelist_t::gimme_node(size_t size)
 	VALGRIND_MAKE_MEM_UNDEFINED(tmp, size);
 #endif // valgrind
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	pthread_mutex_unlock( &freelist_mutex );
 #endif
 
@@ -188,13 +188,13 @@ void freelist_t::putback_node( size_t size, void *p )
 	size = ((size+3)>>2);
 	size <<= 2;
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	pthread_mutex_lock( &freelist_mutex );
 #endif
 
 	if(  size > MAX_LIST_INDEX  ) {
 		free(p);
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		pthread_mutex_unlock( &freelist_mutex );
 #endif
 		return;
@@ -219,7 +219,7 @@ void freelist_t::putback_node( size_t size, void *p )
 	tmp->next = *list;
 	*list = tmp;
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	pthread_mutex_unlock( &freelist_mutex );
 #endif
 }

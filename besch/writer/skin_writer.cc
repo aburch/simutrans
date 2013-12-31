@@ -1,4 +1,5 @@
 #include <string>
+#include "../../simdebug.h"
 #include "../../dataobj/tabfile.h"
 #include "../skin_besch.h"
 #include "obj_node.h"
@@ -8,18 +9,22 @@
 
 using std::string;
 
+
 void skin_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
 	slist_tpl<string> keys;
 
-	for (int i = 0; ;i++) {
+	for(  int i = 0;  ;  i++  ) {
 		char buf[40];
 
 		sprintf(buf, "image[%d]", i);
 
 		string str = obj.get(buf);
-		if (str.empty()) {
+		if(  str.empty()  ) {
 			break;
+		}
+		if(  debuglevel > 2  ) {
+			printf("%10sImage[%3u] =%s\n", " ", i, str.c_str());
 		}
 		keys.append(str);
 	}

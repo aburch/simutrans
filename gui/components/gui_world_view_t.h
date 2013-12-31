@@ -13,32 +13,30 @@
 #include "../../dataobj/koord3d.h"
 #include "../../tpl/vector_tpl.h"
 
-class ding_t;
-class karte_t;
+class obj_t;
 
 
 /**
  * Displays a little piece of the world
- * @autor Hj. Malthaner
+ * @author Hj. Malthaner
  */
-class world_view_t : public gui_komponente_t
+class world_view_t : public gui_world_component_t
 {
 private:
 	vector_tpl<koord> offsets; /**< Offsets are stored. */
 	sint16            raster;  /**< For this rastersize. */
-	static karte_t*   welt;    /**< The world to display. */
 
 protected:
 	virtual koord3d get_location() = 0;
 
-	void internal_draw(koord offset, ding_t const *);
+	void internal_draw(scr_coord offset, obj_t const *);
 
-	void calc_offsets(koord size, sint16 dy_off);
+	void calc_offsets(scr_size size, sint16 dy_off);
 
 public:
-	world_view_t(karte_t*, koord size);
+	world_view_t(scr_size size);
 
-	world_view_t(karte_t* welt);
+	world_view_t();
 
 	virtual ~world_view_t() {}
 
@@ -49,7 +47,7 @@ public:
 	 * need to recalculate the list of offsets
 	 * @author prissi
 	 */
-	void set_groesse(koord groesse) OVERRIDE;
+	void set_size(scr_size size) OVERRIDE;
 };
 
 #endif

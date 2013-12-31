@@ -66,7 +66,7 @@ void dr_prepare_flush()
 {
 }
 
-void dr_flush(void)
+void dr_flush()
 {
 }
 
@@ -87,16 +87,16 @@ int dr_screenshot(const char *,int,int,int,int)
 	return -1;
 }
 
-static inline unsigned int ModifierKeys(void)
+static inline unsigned int ModifierKeys()
 {
 	return 0;
 }
 
-void GetEvents(void)
+void GetEvents()
 {
 }
 
-void GetEventsNoWait(void)
+void GetEventsNoWait()
 {
 }
 
@@ -110,7 +110,7 @@ void ex_ord_update_mx_my()
 
 static timeval first;
 
-unsigned long dr_time(void)
+unsigned long dr_time()
 {
 	timeval second;
 	gettimeofday(&second,NULL);

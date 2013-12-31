@@ -3,6 +3,8 @@
 
 #include "linieneintrag.h"
 
+#include "../halthandle_t.h"
+
 #include "../tpl/minivec_tpl.h"
 
 
@@ -52,7 +54,7 @@ public:
 	virtual waytype_t get_waytype() const = 0;
 
 	/**
-	* get current stop of fahrplan
+	* get current stop of the schedule (fahrplan)
 	* @author hsiegeln
 	*/
 	uint8 get_aktuell() const { return aktuell; }
@@ -77,7 +79,7 @@ private:
 
 public:
 	/**
-	 * set the current stop of the fahrplan
+	 * set the current stop of the schedule (fahrplan)
 	 * if new value is bigger than stops available, the max stop will be used
 	 * @author hsiegeln
 	 */
@@ -131,6 +133,16 @@ public:
 	schedule_t(loadsave_t*);
 
 	/**
+	 * returns a halthandle for the next halt in the schedule (or unbound)
+	 */
+	halthandle_t get_next_halt( spieler_t *sp, halthandle_t halt ) const;
+
+	/**
+	 * returns a halthandle for the previous halt in the schedule (or unbound)
+	 */
+	halthandle_t get_prev_halt( spieler_t *sp ) const;
+
+	/**
 	 * fügt eine koordinate an stelle aktuell in den Fahrplan ein
 	 * alle folgenden Koordinaten verschieben sich dadurch
 	 */
@@ -170,7 +182,7 @@ public:
 	 * compare this fahrplan with another, ignoring order and exact positions and waypoints
 	 * @author prissi
 	 */
-	bool similar( karte_t *welt, const schedule_t *fpl, const spieler_t *sp );
+	bool similar( const schedule_t *fpl, const spieler_t *sp );
 
 	/**
 	 * calculates a return way for this schedule

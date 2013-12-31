@@ -10,37 +10,41 @@
 #ifndef gui_image_h
 #define gui_image_h
 
-#include "../../simimg.h"
-#include "../../simgraph.h"
+#include "../../display/simimg.h"
+#include "../../display/simgraph.h"
 #include "gui_komponente.h"
+
 
 
 class gui_image_t : public gui_komponente_t
 {
-private:
-	image_id id;
-	uint16 player_nr;
+	public:
+		enum size_modes {
+			size_mode_normal, // Do not change size with image
+			size_mode_auto,   // Set size to image size
+			size_mode_stretch // Stretch image to control size (not implemented yet)
+		};
 
-public:
-	gui_image_t( const image_id i=IMG_LEER, const uint8 p=0 ) : player_nr(p) { set_image(i); }
+	private:
+		control_alignment_t alignment;
+		size_modes          size_mode;
+		image_id            id;
+		uint16              player_nr;
+		scr_coord           remove_offset;
+		bool                remove_enabled;
 
-    void set_image( const image_id i ) {
-		id = i;
-		if(  id!=IMG_LEER  ) {
-			KOORD_VAL x,y,w,h;
-			display_get_base_image_offset( id, &x, &y, &w, &h );
-			set_groesse( koord( x+w, y+h ) );
-		}
-		else {
-			set_groesse( koord(0,0) );
-		}
-	}
+	public:
+		gui_image_t( const image_id i=IMG_LEER, const uint8 p=0, control_alignment_t alignment_par = ALIGN_NONE, bool remove_offset = false );
+		void set_size( scr_size size_par ) OVERRIDE;
+		void set_image( const image_id i, bool remove_offsets = false );
 
-    /**
-     * Zeichnet die Komponente
-     * @author Hj. Malthaner
-     */
-    void zeichnen( koord offset ) { display_base_img( id, pos.x+offset.x, pos.y+offset.y, (sint8)player_nr, false, true ); }
+		void enable_offset_removal(bool remove_offsets) { set_image(id,remove_offsets); }
+
+		/**
+		 * Draw the component
+		 * @author Hj. Malthaner
+		 */
+		void draw( scr_coord offset );
 };
 
 #endif

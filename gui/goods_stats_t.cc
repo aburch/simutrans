@@ -14,7 +14,7 @@
 
 #include "goods_stats_t.h"
 
-#include "../simgraph.h"
+#include "../display/simgraph.h"
 #include "../simcolor.h"
 #include "../simworld.h"
 #include "../simconvoi.h"
@@ -28,14 +28,13 @@
 
 #include "../besch/ware_besch.h"
 #include "gui_frame.h"
+#include "../gui/components/gui_button.h"
 
 
-karte_t *goods_stats_t::welt = NULL;
 
-goods_stats_t::goods_stats_t( karte_t *wl )
+goods_stats_t::goods_stats_t()
 {
-	welt = wl;
-	set_groesse( koord(BUTTON4_X + D_BUTTON_WIDTH + 2, warenbauer_t::get_waren_anzahl() * (LINESPACE+1) ) );
+	set_size( scr_size(BUTTON4_X + D_BUTTON_WIDTH + 2, warenbauer_t::get_waren_anzahl() * (LINESPACE+1) ) );
 }
 
 
@@ -48,7 +47,7 @@ void goods_stats_t::update_goodslist( uint16 *g, int b, int l, uint32 d, uint8 c
 	catering_level = ct;
 	way_type = wt;
 	listed_goods = l;
-	set_groesse( koord(BUTTON4_X + D_BUTTON_WIDTH + 2, listed_goods * (LINESPACE+1) ) );
+	set_size( scr_size(BUTTON4_X + D_BUTTON_WIDTH + 2, listed_goods * (LINESPACE+1) ) );
 }
 
 
@@ -56,11 +55,12 @@ void goods_stats_t::update_goodslist( uint16 *g, int b, int l, uint32 d, uint8 c
  * Draw the component
  * @author Hj. Malthaner
  */
-void goods_stats_t::zeichnen(koord offset)
+void goods_stats_t::draw(scr_coord offset)
 {
-	int yoff = offset.y;
+	scr_coord_val yoff = offset.y;
 	char money_buf[256];
 	cbuffer_t buf;
+	offset.x += pos.x;
 
 	// Pre-111.1 in case current does not work.
 	/*for(  uint16 i=0;  i<warenbauer_t::get_waren_anzahl()-1u;  i++  )*/

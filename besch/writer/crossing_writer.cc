@@ -15,13 +15,15 @@
 
 using std::string;
 
-static void make_list(tabfileobj_t const& obj, slist_tpl<string>& list, char const* const key)
+static void make_list(tabfileobj_t &obj, slist_tpl<string>& list, char const* const key)
 {
 	for (int i = 0;; ++i) {
 		char buf[40];
 		sprintf(buf, "%s[%i]", key, i);
 		string str(obj.get(buf));
-		if (str.empty()) break;
+		if (str.empty()) {
+			break;
+		}
 		// We have this direction
 		list.append(str);
 	}
@@ -49,7 +51,8 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		if (sound_id == 0 && sound_str[0] == '0') {
 			sound_id = 0;
 			sound_str = "";
-		} else if (sound_id != 0) {
+		}
+		else if (sound_id != 0) {
 			// old style id
 			sound_str = "";
 		}
@@ -73,7 +76,7 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	uint8 wegtyp1 = get_waytype(obj.get("waytype[0]"));
 	uint8 wegtyp2 = get_waytype(obj.get("waytype[1]"));
 	if(wegtyp1==wegtyp2) {
-		fprintf( stderr, "*** FATAL ***:\nIdentical ways cannot cross (check waytypes)!\n");
+		dbg->fatal( "Crossing", "Identical ways (%s) cannot cross (check waytypes)!", obj.get("waytype[0]") );
 		exit(1);
 	}
 	node.write_uint8(fp, wegtyp1, 2);
@@ -82,13 +85,13 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	// Top speed of this way
 	uv16 = obj.get_int("speed[0]", 0);
 	if(uv16==0) {
-		fprintf( stderr, "*** FATAL ***:\nA maxspeed MUST be given for both ways!\n");
+		dbg->fatal( "Crossing", "A maxspeed MUST be given for both ways!");
 		exit(1);
 	}
 	node.write_uint16(fp, uv16, 4);
 	uv16 = obj.get_int("speed[1]", 0);
 	if(uv16==0) {
-		fprintf( stderr, "*** FATAL ***:\nA maxspeed MUST be given for both ways!\n");
+		dbg->fatal( "Crossing", "A maxspeed MUST be given for both ways!");
 		exit(1);
 	}
 	node.write_uint16(fp, uv16, 6);
@@ -135,7 +138,7 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	make_list(obj, openkeys_ew, "openimage[ew]");
 	// these must exists!
 	if (openkeys_ns.empty() || openkeys_ew.empty()) {
-		fprintf( stderr, "*** FATAL ***:\nMissing images (at least one openimage! (but %i and %i found)!)\n", openkeys_ns.get_count(), openkeys_ew.get_count());
+		dbg->fatal( "Crossing", "Missing images (at least one openimage! (but %i and %i found)!)", openkeys_ns.get_count(), openkeys_ew.get_count() );
 		exit(1);
 	}
 	write_list(fp, node, openkeys_ns);

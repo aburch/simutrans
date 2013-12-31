@@ -10,10 +10,11 @@
 #include "../simhalt.h"
 #include "../simskin.h"
 #include "../simcolor.h"
-#include "../simgraph.h"
+#include "../display/simgraph.h"
+#include "../display/viewport.h"
 #include "../player/simplay.h"
 #include "../simworld.h"
-#include "../simimg.h"
+#include "../display/simimg.h"
 
 #include "../dataobj/translator.h"
 
@@ -40,7 +41,7 @@ bool halt_list_stats_t::infowin_event(const event_t *ev)
 			return true;
 		}
 		if(IS_RIGHTRELEASE(ev)) {
-			halt->get_welt()->change_world_position(halt->get_basis_pos3d());
+			welt->get_viewport()->change_world_position(halt->get_basis_pos3d());
 			return true;
 		}
 	}
@@ -49,10 +50,10 @@ bool halt_list_stats_t::infowin_event(const event_t *ev)
 
 
 /**
- * Zeichnet die Komponente
+ * Draw the component
  * @author Markus Weber
  */
-void halt_list_stats_t::zeichnen(koord offset)
+void halt_list_stats_t::draw(scr_coord offset)
 {
 	clip_dimension clip = display_get_clip_wh();
 

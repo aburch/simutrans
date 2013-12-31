@@ -3,7 +3,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include "simtools.h"
-#include "dataobj/umgebung.h"
+#include "dataobj/environment.h"
 #ifdef DEBUG_SIMRAND_CALLS
 #include "simworld.h"
 #include "utils/cbuffer_t.h"
@@ -44,7 +44,7 @@ static void init_genrand(uint32 s)
 }
 
 /* generate N words at one time */
-static void MTgenerate(void)
+static void MTgenerate()
 {
 #ifdef DEBUG_SIMRAND_CALLS
 	karte_t::random_callers.append(strdup("*** REGEN ***"));
@@ -83,7 +83,7 @@ uint32 get_random_seed()
 
 
 /* generates a random number on [0,0xffffffff]-interval */
-uint32 simrand_plain(void)
+uint32 simrand_plain()
 {
 	uint32 y;
 
@@ -220,7 +220,7 @@ static sint32 map_w=0;
 
 void init_perlin_map( sint32 w, sint32 h )
 {
-	if(!umgebung_t::hilly)
+	if(!env_t::hilly)
 	{
 		/* this gives a very smooth world */
 		/*const double corners = ( int_noise(x-1, y-1)+int_noise(x+1, y-1)+
@@ -254,7 +254,7 @@ void init_perlin_map( sint32 w, sint32 h )
 		{
 			for(  sint32 x=0;  x<map_w;  x++ ) 
 			{
-				map[x+(y*map_w)] = ( int_noise(x-1, y) + int_noise(x+1, y) +
+				map[x+(y*map_w)] = (float)( int_noise(x-1, y) + int_noise(x+1, y) +
 								 int_noise(x, y-1) + int_noise(x, y+1) );
 			}
 		}
@@ -270,7 +270,7 @@ void exit_perlin_map()
 }
 
 
-#define map_noise(x,y) (map[(x)+1+((y)+1)*map_w])
+#define map_noise(x,y) (0+map[(x)+1+((y)+1)*map_w])
 
 
 static double smoothed_noise(const int x, const int y)

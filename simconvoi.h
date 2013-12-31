@@ -26,7 +26,7 @@
 
 #include "simconst.h"
 
-#include "simdings.h"
+#include "simobj.h"
 #include "convoy.h"
 
 /*
@@ -38,7 +38,7 @@
 
 class weg_t;
 class depot_t;
-class karte_t;
+class karte_ptr_t;
 class spieler_t;
 class vehikel_t;
 class vehikel_besch_t;
@@ -55,17 +55,19 @@ class replace_data_t;
 class convoi_t : public sync_steppable, public overtaker_t, public lazy_convoy_t
 {
 public:
-	enum {
-		CONVOI_CAPACITY =			0, // the amount of ware that could be transported, theoretically	
-		CONVOI_TRANSPORTED_GOODS =	1, // the amount of ware that has been transported
-		CONVOI_AVERAGE_SPEED =		2, // The average speed of the convoy per rolling month
-		CONVOI_COMFORT =			3, // The aggregate comfort rating of this convoy
-		CONVOI_REVENUE =			4, // the income this CONVOI generated
-		CONVOI_OPERATIONS =			5, // the cost of operations this CONVOI generated
-		CONVOI_PROFIT =				6, // total profit of this convoi
-		CONVOI_DISTANCE =			7, // total distance traveled this month
-		CONVOI_REFUNDS =			8, // The refunds passengers waiting for this convoy (only when not attached to a line) have received.
-		MAX_CONVOI_COST =			9
+	enum convoi_cost_t {			// Exp|Std|Description
+		CONVOI_CAPACITY = 0,		//  0 | 0 | the amount of ware that could be transported, theoretically	
+		CONVOI_TRANSPORTED_GOODS,	//  1 | 1 | the amount of ware that has been transported
+		CONVOI_AVERAGE_SPEED,		//  2 |   | the average speed of the convoy per rolling month
+		CONVOI_COMFORT,				//  3 |   | the aggregate comfort rating of this convoy
+		CONVOI_REVENUE,				//  4 | 2 | the income this CONVOI generated
+		CONVOI_OPERATIONS,			//  5 | 3 | the cost of operations this CONVOI generated
+		CONVOI_PROFIT,				//  6 | 4 | total profit of this convoi
+		CONVOI_DISTANCE,			//  7 | 5 | total distance traveled this month
+		CONVOI_REFUNDS,				//  8 |   | the refunds passengers waiting for this convoy (only when not attached to a line) have received.
+//		CONVOI_MAXSPEED,			//    | 6 | average max. possible speed
+//		CONVOI_WAYTOLL,				//    | 7 |
+		MAX_CONVOI_COST				//  9 | 8 |
 	};
 
 	/* Konstanten
@@ -317,8 +319,7 @@ private:
 	* Current map
 	* @author Hj. Malthaner
 	*/
-
-	static karte_t *welt;
+	static karte_ptr_t welt;
 
 	/**
 	* the convoi is being withdrawn from service
@@ -502,7 +503,7 @@ private:
 	* Each constructor must call this method first!
 	* @author Hj. Malthaner
 	*/
-	void init(karte_t *welt, spieler_t *sp);
+	void init(spieler_t *sp);
 
 	/**
 	* Berechne route von Start- zu Zielkoordinate
@@ -651,7 +652,7 @@ private:
 	 */
 	void unregister_stops();
 
-	uint32 move_to(karte_t const&, koord3d const& k, uint16 start_index);
+	uint32 move_to(koord3d const& k, uint16 start_index);
 
 	/**
 	* Advance the schedule cursor.
@@ -755,7 +756,7 @@ private:
 	route_infos_t route_infos;
 
 public:
-	ding_t::typ get_depot_type() const;
+	obj_t::typ get_depot_type() const;
 
 	/**
 	* Convoi haelt an Haltestelle und setzt quote fuer Fracht
@@ -831,6 +832,11 @@ public:
 	const sint64 & get_total_distance_traveled() const { return total_distance_traveled; }
 
 	/**
+	 * @return the total monthly fix cost for all vehicles in convoi
+	 */
+	sint32 get_fix_cost() const;
+
+	/**
 	 * returns the total running cost for all vehicles in convoi
 	 * @author hsiegeln
 	 */
@@ -856,7 +862,7 @@ public:
 	* Constructor for loading from file,
 	* @author Hj. Malthaner
 	*/
-	convoi_t(karte_t *welt, loadsave_t *file);
+	convoi_t(loadsave_t *file);
 
 	convoi_t(spieler_t* sp);
 
@@ -882,12 +888,6 @@ public:
 	* @author Hj. Malthaner, neroden
 	*/
 	void enter_depot(depot_t *dep);
-
-	/**
-	* @return Current map.
-	* @author Hj. Malthaner
-	*/
-	karte_t* get_welt() { return welt; }
 
 	/**
 	* Gibt Namen des Convois zurück.
@@ -1220,7 +1220,7 @@ public:
 	* is called from vehicle during un/load
 	* @author hsiegeln
 	*/
-	void book(sint64 amount, int cost_type);
+	void book(sint64 amount, convoi_cost_t cost_type);
 
 	/**
 	* return a pointer to the financial history
@@ -1232,8 +1232,8 @@ public:
 	* return a specified element from the financial history
 	* @author hsiegeln
 	*/
-	sint64 get_finance_history(int month, int cost_type) const { return financial_history[month][cost_type]; }
-	sint64 get_stat_converted(int month, int cost_type) const;
+	inline sint64 get_finance_history(int month, convoi_cost_t cost_type) const { return financial_history[month][cost_type]; }
+	sint64 get_stat_converted(int month, convoi_cost_t cost_type) const;
 
 	/**
 	* only purpose currently is to roll financial history
@@ -1312,6 +1312,9 @@ public:
 	bool has_no_cargo() const;
 
 	void must_recalc_data() { invalidate_adverse_summary(); }
+
+	// just a guess of the speed
+	uint32 get_average_kmh();
 
 	// Overtaking for convois
 	virtual bool can_overtake(overtaker_t *other_overtaker, sint32 other_speed, sint16 steps_other);

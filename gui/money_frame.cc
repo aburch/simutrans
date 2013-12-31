@@ -12,12 +12,12 @@
 
 #include "../simworld.h"
 #include "../simdebug.h"
-#include "../simgraph.h"
+#include "../display/simgraph.h"
 #include "../simcolor.h"
-#include "../simwin.h"
+#include "../gui/simwin.h"
 #include "../utils/simstring.h"
 #include "../dataobj/translator.h"
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 #include "../dataobj/scenario.h"
 #include "../dataobj/loadsave.h"
 
@@ -26,7 +26,7 @@
 #include "../bauer/hausbauer.h"
 
 
-// remebers last settings
+// remembers last settings
 static uint32 bFilterStates[MAX_PLAYER_COUNT];
 
 #define COST_BALANCE    10 // bank balance
@@ -175,7 +175,7 @@ void money_frame_t::update_label(gui_label_t &label, char *buf, int transport_ty
 		buf[strlen(buf)-4] = 0;	// remove comma
 	}
 
-	label.set_text(buf);
+	label.set_text(buf,false);
 	label.set_color(color);
 }
 
@@ -228,59 +228,61 @@ bool money_frame_t::is_chart_table_zero(int ttoption)
 
 money_frame_t::money_frame_t(spieler_t *sp)
   : gui_frame_t( translator::translate("Finanzen"), sp),
-		tylabel("This Year", COL_WHITE, gui_label_t::right),
-		lylabel("Last Year", COL_WHITE, gui_label_t::right),
-		conmoney(NULL, COL_WHITE, gui_label_t::money),
-		nvmoney(NULL, COL_WHITE, gui_label_t::money),
-		vrmoney(NULL, COL_WHITE, gui_label_t::money),
-		imoney(NULL, COL_WHITE, gui_label_t::money),
-		tmoney(NULL, COL_WHITE, gui_label_t::money),
-		mmoney(NULL, COL_WHITE, gui_label_t::money),
-		omoney(NULL, COL_WHITE, gui_label_t::money),
-		interest(NULL, COL_WHITE, gui_label_t::money),
-		old_conmoney(NULL, COL_WHITE, gui_label_t::money),
-		old_nvmoney(NULL, COL_WHITE, gui_label_t::money),
-		old_vrmoney(NULL, COL_WHITE, gui_label_t::money),
-		old_imoney(NULL, COL_WHITE, gui_label_t::money),
-		old_tmoney(NULL, COL_WHITE, gui_label_t::money),
-		old_mmoney(NULL, COL_WHITE, gui_label_t::money),
-		old_omoney(NULL, COL_WHITE, gui_label_t::money),
-		old_interest(NULL, COL_WHITE, gui_label_t::money),
-		tylabel2("This Year", COL_WHITE, gui_label_t::right),
-		cash_money(NULL, COL_WHITE, gui_label_t::money),
-		assets(NULL, COL_WHITE, gui_label_t::money),
-		net_wealth(NULL, COL_WHITE, gui_label_t::money),
-		margin(NULL, COL_WHITE, gui_label_t::money),
-		soft_credit_limit(NULL, COL_WHITE, gui_label_t::money),
-		hard_credit_limit(NULL, COL_WHITE, gui_label_t::money),
-		transport(NULL, COL_WHITE, gui_label_t::right),
-		old_transport(NULL, COL_WHITE, gui_label_t::right),
-		toll(NULL, COL_WHITE, gui_label_t::money),
-		old_toll(NULL, COL_WHITE, gui_label_t::money),
-		maintenance_label("Next Month:",COL_WHITE, gui_label_t::right),
-		maintenance_label2("Fixed Costs",COL_WHITE, gui_label_t::right),
-		maintenance_money(NULL, COL_RED, gui_label_t::money),
-		// vehicle_maintenance_money(NULL, COL_RED, gui_label_t::money),
+		interest(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
+		old_interest(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
+		cash_money(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
+		assets(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
+		net_wealth(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
+		margin(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
+		soft_credit_limit(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
+		hard_credit_limit(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
+		maintenance_label2("Fixed Costs", SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right),
+		tylabel("This Year", SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right),
+		lylabel("Last Year", SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right),
+		conmoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
+		nvmoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
+		vrmoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
+		imoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
+		tmoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
+		mmoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
+		omoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
+		old_conmoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
+		old_nvmoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
+		old_vrmoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
+		old_imoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
+		old_tmoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
+		old_mmoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
+		old_omoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
+		tylabel2("This Year", SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right),
+		//gtmoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
+		//vtmoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
+		//money(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
+		transport(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right),
+		old_transport(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right),
+		toll(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
+		old_toll(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
+		maintenance_label("This Month",SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right),
+		maintenance_money(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
 		warn("", COL_YELLOW, gui_label_t::left),
 		scenario("", COL_BLACK, gui_label_t::left),
 		transport_type_option(0),
-		headquarter_view(sp->get_welt(), koord3d::invalid, koord(BUTTONWIDTH, 64))
+		headquarter_view(koord3d::invalid, scr_size(120, 64))
 {
-	if(sp->get_welt()->get_spieler(0)!=sp) {
+	if(welt->get_spieler(0)!=sp) {
 		sprintf(money_frame_title,translator::translate("Finances of %s"),translator::translate(sp->get_name()) );
 		set_name(money_frame_title);
 	}
 
 	this->sp = sp;
 
-	const int top = 30;
-	const int left = 12;
+	const scr_coord_val top =  30;
+	const scr_coord_val left = 12;
 
 	// Button components are left-aligned, but number components aren't.
 	// Number components are aligned at the *decimal point*,
 	// which is 25 to the left of the *right* edge!
-	const sint16 tyl_x = left + BUTTONWIDTH + 100 - 25; // "this month" column numbers
-	const sint16 lyl_x = left + BUTTONWIDTH + 2 * 100 - 25; // "last month" column numbers
+	const scr_coord_val tyl_x = left + BUTTONWIDTH + 100 - 25; // "this month" column numbers
+	const scr_coord_val lyl_x = left + BUTTONWIDTH + 2 * 100 - 25; // "last month" column numbers
 
 	const sint16 c2_x = left + BUTTONWIDTH + 2 * 100 + 15; // center column left edge (fixed costs)
 	const sint16 c2_num_x = c2_x + 85 - 25; // center column number alignment
@@ -290,54 +292,106 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	const sint16 WINDOW_WIDTH = c3_num_x + 25 + 15;
 
 	// left column
-	tylabel.set_pos(koord(tyl_x+25,top-1*BUTTONSPACE));
-	lylabel.set_pos(koord(lyl_x+25,top-1*BUTTONSPACE));
+	tylabel.set_pos(scr_coord(tyl_x+25,top-1*BUTTONSPACE));
+	lylabel.set_pos(scr_coord(lyl_x+25,top-1*BUTTONSPACE));
 
-	imoney.set_pos(koord(tyl_x,top+0*BUTTONSPACE));  // revenue
-	old_imoney.set_pos(koord(lyl_x,top+0*BUTTONSPACE));
-	vrmoney.set_pos(koord(tyl_x,top+1*BUTTONSPACE)); // running costs
-	old_vrmoney.set_pos(koord(lyl_x,top+1*BUTTONSPACE));
-	mmoney.set_pos(koord(tyl_x,top+2*BUTTONSPACE)); // inf. maintenance
-	old_mmoney.set_pos(koord(lyl_x,top+2*BUTTONSPACE));
-	toll.set_pos(koord(tyl_x,top+3*BUTTONSPACE));
-	old_toll.set_pos(koord(lyl_x,top+3*BUTTONSPACE));
-	omoney.set_pos(koord(tyl_x,top+4*BUTTONSPACE)); // op. profit
-	old_omoney.set_pos(koord(lyl_x,top+4*BUTTONSPACE));
-	nvmoney.set_pos(koord(tyl_x,top+5*BUTTONSPACE)); // new vehicles
-	old_nvmoney.set_pos(koord(lyl_x,top+5*BUTTONSPACE));
-	conmoney.set_pos(koord(tyl_x,top+6*BUTTONSPACE)); // construction costs
-	old_conmoney.set_pos(koord(lyl_x,top+6*BUTTONSPACE));
-	interest.set_pos(koord(tyl_x,top+7*BUTTONSPACE)); // interest
-	old_interest.set_pos(koord(lyl_x,top+7*BUTTONSPACE));
-	tmoney.set_pos(koord(tyl_x,top+8*BUTTONSPACE));  // cash flow
-	old_tmoney.set_pos(koord(lyl_x,top+8*BUTTONSPACE));
-	transport.set_pos(koord(tyl_x+19, top+9*BUTTONSPACE)); // units transported
-	old_transport.set_pos(koord(lyl_x+19, top+9*BUTTONSPACE));
+	imoney.set_pos(scr_coord(tyl_x,top+0*BUTTONSPACE));  // revenue
+	old_imoney.set_pos(scr_coord(lyl_x,top+0*BUTTONSPACE));
+	vrmoney.set_pos(scr_coord(tyl_x,top+1*BUTTONSPACE)); // running costs
+	old_vrmoney.set_pos(scr_coord(lyl_x,top+1*BUTTONSPACE));
+	mmoney.set_pos(scr_coord(tyl_x,top+2*BUTTONSPACE)); // inf. maintenance
+	old_mmoney.set_pos(scr_coord(lyl_x,top+2*BUTTONSPACE));
+	toll.set_pos(scr_coord(tyl_x,top+3*BUTTONSPACE));
+	old_toll.set_pos(scr_coord(lyl_x,top+3*BUTTONSPACE));
+	omoney.set_pos(scr_coord(tyl_x,top+4*BUTTONSPACE)); // op. profit
+	old_omoney.set_pos(scr_coord(lyl_x,top+4*BUTTONSPACE));
+	nvmoney.set_pos(scr_coord(tyl_x,top+5*BUTTONSPACE)); // new vehicles
+	old_nvmoney.set_pos(scr_coord(lyl_x,top+5*BUTTONSPACE));
+	conmoney.set_pos(scr_coord(tyl_x,top+6*BUTTONSPACE)); // construction costs
+	old_conmoney.set_pos(scr_coord(lyl_x,top+6*BUTTONSPACE));
+	interest.set_pos(scr_coord(tyl_x,top+7*BUTTONSPACE)); // interest
+	old_interest.set_pos(scr_coord(lyl_x,top+7*BUTTONSPACE));
+	tmoney.set_pos(scr_coord(tyl_x,top+8*BUTTONSPACE));  // cash flow
+	old_tmoney.set_pos(scr_coord(lyl_x,top+8*BUTTONSPACE));
+	transport.set_pos(scr_coord(tyl_x+19, top+9*BUTTONSPACE)); // units transported
+	old_transport.set_pos(scr_coord(lyl_x+19, top+9*BUTTONSPACE));
 
 	// center column (above selector box)
-	maintenance_label.set_pos(koord(c2_num_x+25, top-1*BUTTONSPACE));
-	maintenance_label2.set_pos(koord(c2_num_x+25, top+0*BUTTONSPACE));
+	maintenance_label.set_pos(scr_coord(c2_num_x+25, top-1*BUTTONSPACE));
+	maintenance_label2.set_pos(scr_coord(c2_num_x+25, top+0*BUTTONSPACE));
 	// vehicle maintenance money should be the same height as running costs
-	// vehicle_maintenance_money.set_pos(koord(c2_num_x, top+1*BUTTONSPACE));
+	// vehicle_maintenance_money.set_pos(scr_coord(c2_num_x, top+1*BUTTONSPACE));
 	// maintenance money should be the same height as inf. maintenance (mmoney)
-	maintenance_money.set_pos(koord(c2_num_x, top+2*BUTTONSPACE));
+	maintenance_money.set_pos(scr_coord(c2_num_x, top+2*BUTTONSPACE));
 
 	// right column (lower)
-	tylabel2.set_pos(koord(c3_num_x+25, top+3*BUTTONSPACE-2));
-	cash_money.set_pos(koord(c3_num_x, top+4*BUTTONSPACE));
-	assets.set_pos(koord(c3_num_x, top+5*BUTTONSPACE));
-	net_wealth.set_pos(koord(c3_num_x, top+6*BUTTONSPACE));
-	soft_credit_limit.set_pos(koord(c3_num_x, top+7*BUTTONSPACE));
-	hard_credit_limit.set_pos(koord(c3_num_x, top+8*BUTTONSPACE));
-	margin.set_pos(koord(c3_num_x, top+9*BUTTONSPACE));
+	tylabel2.set_pos(scr_coord(c3_num_x+25, top+3*BUTTONSPACE-2));
+	cash_money.set_pos(scr_coord(c3_num_x, top+4*BUTTONSPACE));
+	assets.set_pos(scr_coord(c3_num_x, top+5*BUTTONSPACE));
+	net_wealth.set_pos(scr_coord(c3_num_x, top+6*BUTTONSPACE));
+	soft_credit_limit.set_pos(scr_coord(c3_num_x, top+7*BUTTONSPACE));
+	hard_credit_limit.set_pos(scr_coord(c3_num_x, top+8*BUTTONSPACE));
+	margin.set_pos(scr_coord(c3_num_x, top+9*BUTTONSPACE));
 
 
 	// Scenario and warning location
-	warn.set_pos(koord(c2_x, top+10*BUTTONSPACE));
+	warn.set_pos(scr_coord(c2_x, top+10*BUTTONSPACE));
 	if(sp->get_player_nr()!=1  &&  sp->get_welt()->get_scenario()->active()) {
-		scenario.set_pos( koord( 10,1 ) );
+		scenario.set_pos( scr_coord( 10,1 ) );
 		sp->get_welt()->get_scenario()->update_scenario_texts();
 		scenario.set_text( sp->get_welt()->get_scenario()->description_text );
+//=======
+//	const scr_coord_val tyl_x = left+140+55;
+//	const scr_coord_val lyl_x = left+240+55;
+//
+//	// left column
+//	tylabel.set_pos(scr_coord(left+120,top-1*BUTTONSPACE));
+//	tylabel.set_width(tyl_x-left-120+25);
+//	lylabel.align_to(&tylabel, ALIGN_LEFT | ALIGN_EXTERIOR_H | ALIGN_TOP);
+//	lylabel.set_width(lyl_x+25-lylabel.get_pos().x);
+//
+//	//transport.set_pos(scr_coord(tyl_x+19, top+0*BUTTONSPACE));
+//	transport.align_to(&tylabel,ALIGN_LEFT,scr_coord(0,top));
+//	transport.set_width(tylabel.get_size().w);
+//
+//	//old_transport.set_pos(scr_coord(lyl_x+19, top+0*BUTTONSPACE));
+//	old_transport.align_to(&lylabel,ALIGN_LEFT,scr_coord(0,top));
+//	old_transport.set_width(lylabel.get_size().w);
+//
+//	imoney.set_pos(scr_coord(tyl_x,top+1*BUTTONSPACE));
+//	old_imoney.set_pos(scr_coord(lyl_x,top+1*BUTTONSPACE));
+//	vrmoney.set_pos(scr_coord(tyl_x,top+2*BUTTONSPACE));
+//	old_vrmoney.set_pos(scr_coord(lyl_x,top+2*BUTTONSPACE));
+//	mmoney.set_pos(scr_coord(tyl_x,top+3*BUTTONSPACE));
+//	old_mmoney.set_pos(scr_coord(lyl_x,top+3*BUTTONSPACE));
+//	toll.set_pos(scr_coord(tyl_x,top+4*BUTTONSPACE));
+//	old_toll.set_pos(scr_coord(lyl_x,top+4*BUTTONSPACE));
+//	omoney.set_pos(scr_coord(tyl_x,top+5*BUTTONSPACE));
+//	old_omoney.set_pos(scr_coord(lyl_x,top+5*BUTTONSPACE));
+//	nvmoney.set_pos(scr_coord(tyl_x,top+6*BUTTONSPACE));
+//	old_nvmoney.set_pos(scr_coord(lyl_x,top+6*BUTTONSPACE));
+//	conmoney.set_pos(scr_coord(tyl_x,top+7*BUTTONSPACE));
+//	old_conmoney.set_pos(scr_coord(lyl_x,top+7*BUTTONSPACE));
+//	tmoney.set_pos(scr_coord(tyl_x,top+8*BUTTONSPACE));
+//	old_tmoney.set_pos(scr_coord(lyl_x,top+8*BUTTONSPACE));
+//
+//	// right column
+//	maintenance_label.set_pos(scr_coord(left+340+80-maintenance_label.get_size().w, top+2*BUTTONSPACE-2));
+//	maintenance_money.set_pos(scr_coord(left+340+55, top+3*BUTTONSPACE));
+//
+//	tylabel2.set_pos(scr_coord(left+140+80+335-tylabel2.get_size().w,top+4*BUTTONSPACE-2));
+//	gtmoney.set_pos(scr_coord(left+140+335+55, top+5*BUTTONSPACE));
+//	vtmoney.set_pos(scr_coord(left+140+335+55, top+6*BUTTONSPACE));
+//	margin.set_pos(scr_coord(left+140+335+55, top+7*BUTTONSPACE));
+//	money.set_pos(scr_coord(left+140+335+55, top+8*BUTTONSPACE));
+//
+//	// return money or else stuff ...
+//	warn.set_pos(scr_coord(left+335, top+9*BUTTONSPACE));
+//	if(sp->get_player_nr()!=1  &&  welt->get_scenario()->active()) {
+//		scenario.set_pos( scr_coord( 10,1 ) );
+//		welt->get_scenario()->update_scenario_texts();
+//		scenario.set_text( welt->get_scenario()->description_text );
+//>>>>>>> aburch/master
 		add_komponente(&scenario);
 	}
 
@@ -345,21 +399,21 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	const int HEIGHT_OF_CHART = 120;
 
 	//CHART YEAR
-	chart.set_pos(koord(104,TOP_OF_CHART));
-	chart.set_groesse(koord(457,HEIGHT_OF_CHART));
+	chart.set_pos(scr_coord(104,TOP_OF_CHART));
+	chart.set_size(scr_size(457,HEIGHT_OF_CHART));
 	chart.set_dimension(MAX_PLAYER_HISTORY_YEARS, 10000);
-	chart.set_seed(sp->get_welt()->get_last_year());
+	chart.set_seed(welt->get_last_year());
 	chart.set_background(MN_GREY1);
-	chart.set_ltr(umgebung_t::left_to_right_graphs);
+	chart.set_ltr(env_t::left_to_right_graphs);
 	//CHART YEAR END
 
 	//CHART MONTH
-	mchart.set_pos(koord(104,TOP_OF_CHART));
-	mchart.set_groesse(koord(457,HEIGHT_OF_CHART));
+	mchart.set_pos(scr_coord(104,TOP_OF_CHART));
+	mchart.set_size(scr_size(457,HEIGHT_OF_CHART));
 	mchart.set_dimension(MAX_PLAYER_HISTORY_MONTHS, 10000);
 	mchart.set_seed(0);
 	mchart.set_background(MN_GREY1);
-	mchart.set_ltr(umgebung_t::left_to_right_graphs);
+	mchart.set_ltr(env_t::left_to_right_graphs);
 	//CHART MONTH END
 
 	// add chart curves
@@ -373,8 +427,8 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	// tab (month/year)
 	year_month_tabs.add_tab( &year_dummy, translator::translate("Years"));
 	year_month_tabs.add_tab( &month_dummy, translator::translate("Months"));
-	year_month_tabs.set_pos(koord(0, LINESPACE-2));
-	year_month_tabs.set_groesse(koord(lyl_x+25, gui_tab_panel_t::HEADER_VSIZE));
+	year_month_tabs.set_pos(scr_coord(0, LINESPACE-2));
+	year_month_tabs.set_size(scr_size(lyl_x+25, TAB_HEADER_V_SIZE));
 	add_komponente(&year_month_tabs);
 
 	add_komponente(&conmoney);
@@ -428,14 +482,14 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	// Headquarters is at upper right
 	if(  sp->get_ai_id()!=spieler_t::HUMAN  ) {
 		// misuse headquarter button for AI configure
-		headquarter.init(button_t::box, "Configure AI", koord(c3_btn_x, 0), koord(BUTTONWIDTH, BUTTONSPACE));
+		headquarter.init(button_t::box, "Configure AI", scr_coord(c3_btn_x, 0), scr_size(BUTTONWIDTH, BUTTONSPACE));
 		headquarter.add_listener(this);
 		add_komponente(&headquarter);
 		headquarter.set_tooltip( "Configure AI setttings" );
 	}
-	else if(old_level > 0  ||  hausbauer_t::get_headquarter(0,sp->get_welt()->get_timeline_year_month())!=NULL) {
+	else if(old_level > 0  ||  hausbauer_t::get_headquarter(0,welt->get_timeline_year_month())!=NULL) {
 
-		headquarter.init(button_t::box, old_pos!=koord::invalid ? "upgrade HQ" : "build HQ", koord(c3_btn_x, 0), koord(BUTTONWIDTH, BUTTONSPACE));
+		headquarter.init(button_t::box, old_pos!=koord::invalid ? "upgrade HQ" : "build HQ", scr_coord(c3_btn_x, 0), scr_size(BUTTONWIDTH, BUTTONSPACE));
 		headquarter.add_listener(this);
 		add_komponente(&headquarter);
 		headquarter.set_tooltip( NULL );
@@ -452,23 +506,23 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	}
 
 	if(old_pos!=koord::invalid) {
-		headquarter_view.set_location( sp->get_welt()->lookup_kartenboden( sp->get_headquarter_pos() )->get_pos() );
+		headquarter_view.set_location( welt->lookup_kartenboden( sp->get_headquarter_pos() )->get_pos() );
 	}
-	headquarter_view.set_pos( koord(c3_btn_x, BUTTONSPACE) );
+	headquarter_view.set_pos( scr_coord(c3_btn_x, BUTTONSPACE) );
 	add_komponente(&headquarter_view);
 
 	// add filter buttons
 	for(int ibutton=0;  ibutton<COLUMN_TWO_START;  ibutton++) {
-		filterButtons[ibutton].init(button_t::box, cost_type_name[ibutton], koord(left, top+ibutton*BUTTONSPACE-2), koord(BUTTONWIDTH, BUTTONSPACE));
+		filterButtons[ibutton].init(button_t::box, cost_type_name[ibutton], scr_coord(left, top+ibutton*BUTTONSPACE-2), scr_size(BUTTONWIDTH, BUTTONSPACE));
 		filterButtons[ibutton].add_listener(this);
-		filterButtons[ibutton].background = cost_type_color[ibutton];
+		filterButtons[ibutton].background_color = cost_type_color[ibutton];
 		filterButtons[ibutton].set_tooltip(cost_tooltip[ibutton]);
 		add_komponente(filterButtons + ibutton);
 	}
 	for(int ibutton=COLUMN_TWO_START;  ibutton<MAX_PLAYER_COST_BUTTON;  ibutton++) {
-		filterButtons[ibutton].init(button_t::box, cost_type_name[ibutton], koord(c3_btn_x, top+(ibutton-6)*BUTTONSPACE-2), koord(BUTTONWIDTH, BUTTONSPACE));
+		filterButtons[ibutton].init(button_t::box, cost_type_name[ibutton], scr_coord(c3_btn_x, top+(ibutton-6)*BUTTONSPACE-2), scr_size(BUTTONWIDTH, BUTTONSPACE));
 		filterButtons[ibutton].add_listener(this);
-		filterButtons[ibutton].background = cost_type_color[ibutton];
+		filterButtons[ibutton].background_color = cost_type_color[ibutton];
 		filterButtons[ibutton].set_tooltip(cost_tooltip[ibutton]);
 		add_komponente(filterButtons + ibutton);
 	}
@@ -485,9 +539,9 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		}
 	}
 
-	transport_type_c.set_pos( koord(c2_x - 14, top + 3 * BUTTONSPACE) ); // below fixed costs
-	transport_type_c.set_groesse( koord( 85 + 14 + 14, D_BUTTON_HEIGHT) ); // width of column plus spacing
-	transport_type_c.set_max_size( koord( 85 + 14 + 14, 7*BUTTONSPACE ) );
+	transport_type_c.set_pos( scr_coord(c2_x - 14, top + 3 * BUTTONSPACE) ); // below fixed costs
+	transport_type_c.set_size( scr_size( 85 + 14 + 14, D_BUTTON_HEIGHT) ); // width of column plus spacing
+	transport_type_c.set_max_size( scr_size( 85 + 14 + 14, 7*BUTTONSPACE ) );
 	for(int i=0, count=0; i<TT_MAX; ++i) {
 		if (!is_chart_table_zero(i)) {
 			transport_type_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(transport_type_values[i]), COL_BLACK));
@@ -501,11 +555,11 @@ money_frame_t::money_frame_t(spieler_t *sp)
 
 	const int WINDOW_HEIGHT = TOP_OF_CHART + HEIGHT_OF_CHART + 10 + BUTTONSPACE * 2 ; // formerly 340
 	// The extra room below the chart is for (a) labels, (b) year label (BUTTONSPACE), (c) empty space
-	set_fenstergroesse(koord(WINDOW_WIDTH, WINDOW_HEIGHT));
+	set_windowsize(scr_size(WINDOW_WIDTH, WINDOW_HEIGHT));
 }
 
 
-void money_frame_t::zeichnen(koord pos, koord gr)
+void money_frame_t::draw(scr_coord pos, scr_size size)
 {
 	// Hajo: each label needs its own buffer
 	static char str_buf[35][256];
@@ -516,8 +570,8 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	chart.set_visible( year_month_tabs.get_active_tab_index()==0 );
 	mchart.set_visible( year_month_tabs.get_active_tab_index()==1 );
 
-	tylabel.set_text( year_month_tabs.get_active_tab_index() ? "This Month" : "This Year" );
-	lylabel.set_text( year_month_tabs.get_active_tab_index() ? "Last Month" : "Last Year" );
+	tylabel.set_text( year_month_tabs.get_active_tab_index() ? "This Month" : "This Year", false );
+	lylabel.set_text( year_month_tabs.get_active_tab_index() ? "Last Month" : "Last Year", false );
 
 	// update_label(gui_label_t &label, char *buf, int transport_type, uint8 type, int yearmonth)
 	update_label(conmoney, str_buf[0], transport_type_option, ATV_CONSTRUCTION_COST, 0);
@@ -571,9 +625,9 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	str_buf[19][strlen(str_buf[19])-1] = '%';	// remove cent sign
 
 	// warning/success messages
-	if(sp->get_player_nr()!=1  &&  sp->get_welt()->get_scenario()->active()) {
+	if(sp->get_player_nr()!=1  &&  welt->get_scenario()->active()) {
 		warn.set_color( COL_BLACK );
-		sint32 percent = sp->get_welt()->get_scenario()->get_completion(sp->get_player_nr());
+		sint32 percent = welt->get_scenario()->get_completion(sp->get_player_nr());
 		if (percent >= 0) {
 			sprintf( str_buf[15], translator::translate("Scenario complete: %i%%"), percent );
 		}
@@ -589,7 +643,7 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 		warn.set_color( MONEY_MINUS );
 		tstrncpy(str_buf[15], translator::translate("Credit limit exceeded"), lengthof(str_buf[15]) );
 	}
-	else if(sp->get_finance()->get_history_com_month(0, ATC_NETWEALTH)<0) {
+	else if(  sp->get_finance()->get_history_com_year(0, ATC_NETWEALTH)*10 < welt->get_settings().get_starting_money(welt->get_current_month()/12)  ){
 		warn.set_color( MONEY_MINUS );
 		tstrncpy(str_buf[15], translator::translate("Net wealth negative"), lengthof(str_buf[15]) );
 	}
@@ -603,8 +657,8 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	warn.set_text(str_buf[15]);
 
 	// scenario description
-	if(sp->get_player_nr()!=1  &&  sp->get_welt()->get_scenario()->active()) {
-		dynamic_string& desc = sp->get_welt()->get_scenario()->description_text;
+	if(sp->get_player_nr()!=1  &&  welt->get_scenario()->active()) {
+		dynamic_string& desc = welt->get_scenario()->description_text;
 		if (desc.has_changed()) {
 			scenario.set_text( desc );
 			desc.clear_changed();
@@ -617,7 +671,7 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 		headquarter.set_text( "Configure AI" );
 		headquarter.enable();
 	}
-	else if(sp!=sp->get_welt()->get_active_player()) {
+	else if(sp!=welt->get_active_player()) {
 		headquarter.set_tooltip( NULL );
 	}
 	else {
@@ -650,7 +704,7 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 		old_level = sp->get_headquarter_level();
 		old_pos = sp->get_headquarter_pos();
 		if(  old_pos!=koord::invalid  ) {
-			headquarter_view.set_location( sp->get_welt()->lookup_kartenboden(old_pos)->get_pos() );
+			headquarter_view.set_location( welt->lookup_kartenboden(old_pos)->get_pos() );
 			add_komponente(&headquarter_view);
 		}
 	}
@@ -669,9 +723,9 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	}
 
 	// Hajo: update chart seed
-	chart.set_seed(sp->get_welt()->get_last_year());
+	chart.set_seed(welt->get_last_year());
 
-	gui_frame_t::zeichnen(pos, gr);
+	gui_frame_t::draw(pos, size);
 }
 
 
@@ -682,7 +736,7 @@ bool money_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 			create_win( new ai_option_t(sp), w_info, magic_ai_options_t+sp->get_player_nr() );
 		}
 		else {
-			sp->get_welt()->set_werkzeug( werkzeug_t::general_tool[WKZ_HEADQUARTER], sp );
+			welt->set_werkzeug( werkzeug_t::general_tool[WKZ_HEADQUARTER], sp );
 		}
 		return true;
 	}
@@ -723,7 +777,7 @@ void money_frame_t::rdwr( loadsave_t *file )
 	bool monthly = mchart.is_visible();;
 	file->rdwr_bool( monthly );
 
-	// button state already cooledcted
+	// button state already collected
 	file->rdwr_long( bFilterStates[sp->get_player_nr()] );
 
 	if(  file->is_loading()  ) {

@@ -8,7 +8,7 @@
  * MIDI initialisation routine
  * false: leave midi alone
  */
-bool dr_init_midi(void);
+bool dr_init_midi();
 
 
 /**
@@ -37,7 +37,7 @@ void dr_play_midi(int key);
  * Stops playing MIDI file
  * @author Owen Rudge
  */
-void dr_stop_midi(void);
+void dr_stop_midi();
 
 
 /**
@@ -45,13 +45,13 @@ void dr_stop_midi(void);
  * @return -1 if current track has finished, 0 otherwise.
  * @author Owen Rudge
  */
-long dr_midi_pos(void);
+long dr_midi_pos();
 
 
 /**
  * Midi shutdown/cleanup
  * @author Owen Rudge
  */
-void dr_destroy_midi(void);
+void dr_destroy_midi();
 
 #endif

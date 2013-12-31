@@ -1,6 +1,7 @@
 #include "vehikel_besch.h"
 #include "xref_besch.h"
-#include "../utils/checksum.h"
+#include "../network/checksum.h"
+#include "../simworld.h"
 
 uint32 vehikel_besch_t::calc_running_cost(const karte_t *welt, uint32 base_cost) const
 {
@@ -82,7 +83,7 @@ float32e8_t vehikel_besch_t::get_power_force_ratio() const
 		case maglev_wt:
 		case tram_wt:
 		case narrowgauge_wt:
-			if (geschw && get_engine_type() == steam)
+			if (topspeed && get_engine_type() == steam)
 			{
 				/** This is a steam engine on tracks. Steam engines on tracks are constant force engines.
 				* The force is constant from 0 to about half of maximum speed. Above the power becomes nearly constant due 
@@ -90,20 +91,20 @@ float32e8_t vehikel_besch_t::get_power_force_ratio() const
 				* We assume, that the given power is meant for the half of the engines allowed maximum speed and get the constant force:
 				*/
 				// Steamers are constant force machines unless about half of maximum speed, when steam runs short.
-				return float32e8_t(geschw * 10, 36 * 2);
+				return float32e8_t(topspeed * 10, 36 * 2);
 			}
 			/* else fall through */
 
 		//case water_wt:
 			// Ships are constant force machines at all speeds, but the pak sets are balanced for constant power. 
-			//return float32e8_t(geschw * 10, 36);
+			//return float32e8_t(get_geschw() * 10, 36);
 
 		case air_wt: 
 			// Aircraft are constant force machines at all speeds, but the pak sets are balanced for constant power. 
 			// We recommend for simutrans experimental to set the tractive effort manually. The existing aircraft power values are very roughly estimated.
-			if (geschw)
+			if (topspeed)
 			{
-				return float32e8_t(geschw * 10, 36 * 2);
+				return float32e8_t(topspeed * 10, 36 * 2);
 			}
 			/* else fall through */
 
@@ -173,7 +174,7 @@ void vehikel_besch_t::loaded()
 	 */
 	if (g_power != 0 || g_force != 0)
 	{
-		uint32 speed = (uint32)geschw * kmh2ms + float32e8_t::half;
+		uint32 speed = (uint32)topspeed * kmh2ms + float32e8_t::half;
 		max_speed = speed;
 		geared_power = new uint32[speed+1];
 		geared_force = new uint32[speed+1];
@@ -235,18 +236,14 @@ uint16 vehikel_besch_t::get_obsolete_year_month(const karte_t *welt) const
 
 void vehikel_besch_t::calc_checksum(checksum_t *chk) const
 {
-	chk->input(base_price);
+	obj_besch_transport_related_t::calc_checksum(chk);
 	chk->input(zuladung);
-	chk->input(geschw);
 	chk->input(gewicht);
 	chk->input(axle_load);
 	chk->input(leistung);
 	chk->input(running_cost);
 	chk->input(base_fixed_cost);
-	chk->input(intro_date);
-	chk->input(obsolete_date);
 	chk->input(gear);
-	chk->input(typ);
 	chk->input(len);
 	chk->input(vorgaenger);
 	chk->input(nachfolger);

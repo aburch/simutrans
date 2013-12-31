@@ -19,7 +19,7 @@ class fahrer_t;
 class grund_t;
 
 /**
- * Routen, zB für Fahrzeuge
+ * Route, e.q. for vehicles
  *
  * @author Hj. Malthaner
  * @date 15.01.00
@@ -31,15 +31,13 @@ private:
 	enum overweight_type { not_overweight, cannot_route, slowly_only };
 
 	/**
-	 * Die eigentliche Routensuche
+	 * The actual route search
 	 * @author Hj. Malthaner
 	 */
 	bool intern_calc_route(karte_t *w, koord3d start, koord3d ziel, fahrer_t *fahr, const sint32 max_kmh, const uint32 max_cost, const uint32 axle_load, const uint32 convoy_weight, const sint32 tile_length);
 
 protected:
-	koord3d_vector_t route;           // Die Koordinaten fuer die Fahrtroute - "The coordinates for the route" (Google)
-
-private:
+	koord3d_vector_t route;           // The coordinates for the vehicle route
 
 	// Bernd Gabriel, Mar 10, 2010: weight limit info
 	uint32 max_axle_load;

@@ -9,15 +9,19 @@
 void imagelist_writer_t::write_obj(FILE* fp, obj_node_t& parent, const slist_tpl<std::string>& keys)
 {
 	obj_node_t node(this, 4, &parent);
-
 	unsigned int count = 0;
+
+	if(  !keys.empty() &&  debuglevel>2  ) {
+		dbg->debug("", "Source                                     image                X     Y     Off X Off Y Width Height Zoom\n");
+		dbg->debug("", "------------------------------------------ -------------------- ----- ----- ----- ----- ----- ------ ----\n");
+	}
+
 	FOR(slist_tpl<std::string>, const& s, keys) {
-		image_writer_t::instance()->write_obj(fp, node, s);
+		image_writer_t::instance()->write_obj(fp, node, s, count);
 		count ++;
 	}
 	if (count < keys.get_count()) {
-		printf("WARNING: Expected %i images, but found only %i (but might be still correct)!\n", keys.get_count(), count);
-		fflush(NULL);
+		dbg->warning( obj_writer_t::last_name, "Expected %i but found %i images (might be correct)!\n", keys.get_count(), count);
 	}
 
 	node.write_uint16(fp, count, 0);

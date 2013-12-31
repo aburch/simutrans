@@ -10,8 +10,8 @@
 #include "gui_component_table.h"
 #include "gui_label.h"
 #include "gui_button.h"
-#include "../../simgraph.h"
-#include "../../simwin.h"
+#include "../../display/simgraph.h"
+#include "../simwin.h"
 
 
 //// BG, 11.04.2010
@@ -30,7 +30,7 @@
 // BG, 22.03.2010
 coordinate_t gui_component_table_t::add_column(gui_table_column_t *column) {
 	coordinate_t x = gui_table_t::add_column(column);
-	coordinate_t h = get_size().get_y();
+	coordinate_t h = get_grid_size().get_y();
 	for (coordinate_t y = 0; y < h; y++) {
 		init_cell(x, y);
 	}
@@ -40,7 +40,7 @@ coordinate_t gui_component_table_t::add_column(gui_table_column_t *column) {
 // BG, 22.03.2010
 coordinate_t gui_component_table_t::add_row(gui_table_row_t *row) {
 	coordinate_t y = gui_table_t::add_row(row);
-	coordinate_t w = get_size().get_x();
+	coordinate_t w = get_grid_size().get_x();
 	for (coordinate_t x = 0; x < w; x++) {
 		init_cell(x, y);
 	}
@@ -114,7 +114,7 @@ bool gui_component_table_t::infowin_event(const event_t *ev)
 		gui_komponente_t *c = get_cell_component(table_event.cell.get_x(), table_event.cell.get_y());
 		if (c) {
 			event_t ev2 = *ev;
-			koord offset = c->get_pos() + table_event.offset;
+			scr_coord offset = c->get_pos() + table_event.offset;
 			translate_event(&ev2, -offset.x, -offset.y);
 			c->infowin_event(&ev2);
 		}
@@ -130,11 +130,11 @@ void gui_component_table_t::init_cell(coordinate_t /*x*/, coordinate_t /*y*/) {
 
 
 // BG, 18.03.2010
-void gui_component_table_t::paint_cell(const koord &offset, coordinate_t x, coordinate_t y) {
+void gui_component_table_t::paint_cell(const scr_coord &offset, coordinate_t x, coordinate_t y) {
 	gui_komponente_t *component = get_cell_component(x, y);
 	if (component)
 	{
-		component->zeichnen(offset);
+		component->draw(offset);
 	}
 }
 
@@ -154,7 +154,7 @@ void gui_component_table_t::remove_cell(coordinate_t x, coordinate_t y) {
 void gui_component_table_t::remove_column(coordinate_t x) 
 {
 	// remove cells
-	for (coordinate_t y = get_size().get_y(); y > 0; ) {
+	for (coordinate_t y = get_grid_size().get_y(); y > 0; ) {
 		remove_cell(x, --y);
 	}
 
@@ -169,7 +169,7 @@ void gui_component_table_t::remove_column(coordinate_t x)
 void gui_component_table_t::remove_row(coordinate_t y)
 {
 	// remove cells and change size of arrays
-	for (coordinate_t x = get_size().get_x(); x > 0; ) {
+	for (coordinate_t x = get_grid_size().get_x(); x > 0; ) {
 		remove_cell(--x, y);
 		if ((uint32) x < gui_cells.get_count()) {
 			gui_cells[x].remove(y);

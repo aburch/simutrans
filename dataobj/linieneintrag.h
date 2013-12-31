@@ -4,7 +4,7 @@
 #include "koord3d.h"
 
 /**
- * Ein Fahrplaneintrag.
+ * A schedule entry.
  * @author Hj. Malthaner
  */
 struct linieneintrag_t

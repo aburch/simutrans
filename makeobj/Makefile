@@ -119,13 +119,13 @@ SOLO_SOURCES += ../besch/writer/xref_writer.cc
 SOLO_SOURCES += ../utils/dr_rdpng.cc
 SHARED_SOURCES += ../besch/bild_besch.cc
 SHARED_SOURCES += ../dataobj/freelist.cc
-SHARED_SOURCES += ../dataobj/tabfile.cc
 SHARED_SOURCES += ../simdebug.cc
 SHARED_SOURCES += ../simmem.cc
 SHARED_SOURCES += ../utils/simstring.cc
 SHARED_SOURCES += ../utils/searchfolder.cc
 SHARED_SOURCES += ../utils/float32e8_t.cc
 VARIANT_SOURCES += ../simtools.cc
+VARIANT_SOURCES += ../dataobj/tabfile.cc
 VARIANT_SOURCES += ../utils/log.cc
 
 SOURCES ?= $(SOLO_SOURCES) $(SHARED_SOURCES) $(VARIANT_SOURCES)

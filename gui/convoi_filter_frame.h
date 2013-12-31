@@ -92,7 +92,7 @@ private:
 	slist_tpl<ware_item_t *>all_ware;
 	static slist_tpl<const ware_besch_t *>active_ware;
 
-	static koord filter_buttons_pos[FILTER_BUTTONS];
+	static scr_coord filter_buttons_pos[FILTER_BUTTONS];
 	static filter_flag_t filter_buttons_types[FILTER_BUTTONS];
 	static const char *filter_buttons_text[FILTER_BUTTONS];
 
@@ -136,7 +136,7 @@ public:
 	/**
 	 * resize window in response to a resize event
 	 */
-	void resize(const koord delta);
+	void resize(const scr_coord delta);
 
 	/**
 	 * Set the window associated helptext

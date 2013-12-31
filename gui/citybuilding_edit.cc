@@ -49,10 +49,10 @@ static bool compare_haus_besch(const haus_besch_t* a, const haus_besch_t* b)
 
 
 
-citybuilding_edit_frame_t::citybuilding_edit_frame_t(spieler_t* sp_, karte_t* welt) :
-	extend_edit_gui_t(translator::translate("citybuilding builder"), sp_, welt),
+citybuilding_edit_frame_t::citybuilding_edit_frame_t(spieler_t* sp_) :
+	extend_edit_gui_t(translator::translate("citybuilding builder"), sp_),
 	hauslist(16),
-	lb_rotation( rot_str, COL_WHITE, gui_label_t::right ),
+	lb_rotation( rot_str, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right ),
 	lb_rotation_info( translator::translate("Rotation"), COL_BLACK, gui_label_t::left )
 {
 	rot_str[0] = 0;
@@ -61,42 +61,44 @@ citybuilding_edit_frame_t::citybuilding_edit_frame_t(spieler_t* sp_, karte_t* we
 	haus_tool.cursor = werkzeug_t::general_tool[WKZ_BUILD_HAUS]->cursor;
 	haus_tool.id = werkzeug_t::general_tool[WKZ_BUILD_HAUS]->id;
 
-	bt_res.init( button_t::square_state, "residential house", koord(get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
+	bt_res.init( button_t::square_state, "residential house", scr_coord(get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
 	bt_res.add_listener(this);
 	bt_res.pressed = true;
 	add_komponente(&bt_res);
 	offset_of_comp += D_BUTTON_HEIGHT;
 
-	bt_com.init( button_t::square_state, "shops and stores", koord(get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
+	bt_com.init( button_t::square_state, "shops and stores", scr_coord(get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
 	bt_com.add_listener(this);
 	bt_com.pressed = true;
 	add_komponente(&bt_com);
 	offset_of_comp += D_BUTTON_HEIGHT;
 
-	bt_ind.init( button_t::square_state, "industrial building", koord(get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
+	bt_ind.init( button_t::square_state, "industrial building", scr_coord(get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
 	bt_ind.add_listener(this);
 	add_komponente(&bt_ind);
 	bt_com.pressed = true;
 	offset_of_comp += D_BUTTON_HEIGHT;
 
-	lb_rotation_info.set_pos( koord( get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
+	lb_rotation_info.set_pos( scr_coord( get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
 	add_komponente(&lb_rotation_info);
 
-	bt_left_rotate.init( button_t::repeatarrowleft, NULL, koord(get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2-16,	offset_of_comp-4 ) );
+	bt_left_rotate.init( button_t::repeatarrowleft, NULL, scr_coord(get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2-16,	offset_of_comp-4 ) );
 	bt_left_rotate.add_listener(this);
 	add_komponente(&bt_left_rotate);
 
-	bt_right_rotate.init( button_t::repeatarrowright, NULL, koord(get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2+50, offset_of_comp-4 ) );
+	bt_right_rotate.init( button_t::repeatarrowright, NULL, scr_coord(get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2+50, offset_of_comp-4 ) );
 	bt_right_rotate.add_listener(this);
 	add_komponente(&bt_right_rotate);
 
-	lb_rotation.set_pos( koord( get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2+44, offset_of_comp-4 ) );
+	//lb_rotation.set_pos( scr_coord( get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2+44, offset_of_comp-4 ) );
+	lb_rotation.set_width( bt_right_rotate.get_pos().x - bt_left_rotate.get_pos().x - bt_left_rotate.get_size().w );
+	lb_rotation.align_to(&bt_left_rotate, ALIGN_LEFT | ALIGN_EXTERIOR_H | ALIGN_CENTER_V);
 	add_komponente(&lb_rotation);
 	offset_of_comp += D_BUTTON_HEIGHT;
 
 	fill_list( is_show_trans_name );
 
-	resize(koord(0,0));
+	resize(scr_coord(0,0));
 }
 
 
@@ -176,7 +178,7 @@ bool citybuilding_edit_frame_t::action_triggered( gui_action_creator_t *komp,val
 		fill_list( is_show_trans_name );
 	}
 	else if(besch) {
-		if(  komp==&bt_left_rotate  &&  rotation!=255) {
+		if(  komp==&bt_left_rotate  &&  rotation!=254) {
 			if(rotation==0) {
 				rotation = 255;
 			}
@@ -234,9 +236,9 @@ void citybuilding_edit_frame_t::change_item_info(sint32 entry)
 			}
 
 			info_text.recalc_size();
-			cont.set_groesse( info_text.get_groesse() + koord(0, 20) );
+			cont.set_size( info_text.get_size() + scr_size(0, 20) );
 
-			// orientation (255=random)
+			// orientation (254=auto, 255=random)
 			if(besch->get_all_layouts()>1) {
 				rotation = 255; // no definition yet
 			}
@@ -249,6 +251,9 @@ void citybuilding_edit_frame_t::change_item_info(sint32 entry)
 		if(rotation == 255) {
 			tstrncpy(rot_str, translator::translate("random"), lengthof(rot_str));
 		}
+		else if(rotation == 254) {
+			tstrncpy(rot_str, translator::translate("auto"), lengthof(rot_str));
+		}
 		else {
 			sprintf( rot_str, "%i", rotation );
 		}
@@ -259,11 +264,11 @@ void citybuilding_edit_frame_t::change_item_info(sint32 entry)
 			img[i].set_image( IMG_LEER );
 		}
 
-		uint8 rot = (rotation==255) ? 0 : rotation;
+		uint8 rot = (rotation>253) ? 0 : rotation;
 		img[3].set_image( besch->get_tile(rot,0,0)->get_hintergrund(0,0,0) );
 
 		// the tools will be always updated, even though the data up there might be still current
-		sprintf( param_str, "%i%c%s", bt_climates.pressed, rotation==255 ? '#' : '0'+rotation, besch->get_name() );
+		sprintf( param_str, "%i%c%s", bt_climates.pressed, rotation>253 ? (rotation==254 ? 'A' : '#') : '0'+rotation, besch->get_name() );
 		haus_tool.set_default_param(param_str);
 		welt->set_werkzeug( &haus_tool, sp );
 	}

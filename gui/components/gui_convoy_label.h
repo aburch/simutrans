@@ -38,11 +38,11 @@ private:
 public:
 	gui_convoy_label_t(convoihandle_t cnv, bool show_number_of_convoys=false, bool show_max_speed=false);
 
-	koord get_image_size() const;
+	scr_size get_image_size() const;
 
-	koord get_size() const;
+	scr_size get_size() const;
 
-	virtual void zeichnen(koord offset);
+	virtual void draw(scr_coord offset);
 };
 
 //#endif

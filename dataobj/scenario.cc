@@ -10,15 +10,15 @@
 
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
-#include "../dataobj/umgebung.h"
-#include "../dataobj/network.h"
-#include "../dataobj/network_cmd_scenario.h"
+#include "../dataobj/environment.h"
+#include "../network/network.h"
+#include "../network/network_cmd_scenario.h"
 #include "../dataobj/fahrplan.h"
 
 #include "../utils/cbuffer_t.h"
 
 // error popup
-#include "../simwin.h"
+#include "../gui/simwin.h"
 #include "../gui/scenario_info.h"
 
 // scripting
@@ -52,6 +52,7 @@ scenario_t::scenario_t(karte_t *w) :
 	won = false;
 	lost = false;
 	rdwr_error = false;
+	need_toolbar_update = false;
 
 	cached_text_files.clear();
 }
@@ -92,7 +93,9 @@ const char* scenario_t::init( const char *scenario_base, const char *scenario_na
 		dbg->warning("scenario_t::init", "error [%s] calling get_map_file", err);
 		return "No scenario map specified";
 	}
-	else {
+
+	// if savegame-string == "<attach>" then do not load a savegame, just attach to running game.
+	if ( strcmp(mapfile, "<attach>") ) {
 		// savegame location
 		buf.clear();
 		buf.printf("%s%s/%s", scenario_base, scenario_name_, mapfile.c_str());
@@ -100,12 +103,11 @@ const char* scenario_t::init( const char *scenario_base, const char *scenario_na
 			dbg->warning("scenario_t::init", "error loading savegame %s", err, (const char*)buf);
 			return "Could not load scenario map!";
 		}
+		// set savegame name
+		buf.clear();
+		buf.printf("%s.sve", scenario_name.c_str());
+		welt->get_settings().set_filename( strdup(buf) );
 	}
-
-	// set savegame name
-	buf.clear();
-	buf.printf("%s.sve", scenario_name.c_str());
-	welt->get_settings().set_filename( strdup(buf) );
 
 	// load translations
 	translator::load_files_from_folder( scenario_path.c_str(), "scenario" );
@@ -139,13 +141,23 @@ bool scenario_t::load_script(const char* filename)
 	export_global_constants(script->get_vm());
 	// load scenario base definitions
 	char basefile[1024];
-	sprintf( basefile, "%sscript/scenario_base.nut", umgebung_t::program_dir );
+	sprintf( basefile, "%sscript/scenario_base.nut", env_t::program_dir );
 	const char* err = script->call_script(basefile);
 	if (err) { // should not happen ...
 		dbg->error("scenario_t::load_script", "error [%s] calling %s", err, basefile);
 		return false;
 	}
-	register_export_function(script->get_vm(), welt);
+
+	// register api functions
+	register_export_function(script->get_vm());
+	err = script->get_error();
+	if (err) {
+		dbg->error("scenario_t::load_script", "error [%s] calling register_export_function", err);
+		return false;
+	}
+
+	// init strings
+	dynamic_string::init();
 
 	// load scenario definition
 	err = script->call_script(filename);
@@ -333,19 +345,14 @@ void scenario_t::intern_forbid(forbidden_t *test, bool forbid)
 		changed = true;
 	}
 end:
-	if (changed) {
-		switch(type) {
-			case forbidden_t::forbid_tool:
-				werkzeug_t::update_toolbars(welt);
-				break;
-			default: ;
-		}
+	if (changed  &&  type==forbidden_t::forbid_tool) {
+		need_toolbar_update = true;
 	}
 }
 
 void scenario_t::call_forbid_tool(forbidden_t *test, bool forbid)
 {
-	if (umgebung_t::server) {
+	if (env_t::server) {
 		// send information over network
 		nwc_scenario_rules_t *nws = new nwc_scenario_rules_t(welt->get_sync_steps() + 1, welt->get_map_counter());
 		nws->rule = test;
@@ -426,10 +433,11 @@ void scenario_t::allow_way_tool_cube(uint8 player_nr, uint16 wkz_id, waytype_t w
 void scenario_t::clear_rules()
 {
 	clear_ptr_vector(forbidden_tools);
+	need_toolbar_update = true;
 }
 
 
-bool scenario_t::is_tool_allowed(spieler_t* sp, uint16 wkz_id, sint16 wt)
+bool scenario_t::is_tool_allowed(const spieler_t* sp, uint16 wkz_id, sint16 wt)
 {
 	if (what_scenario != SCRIPTED  &&  what_scenario != SCRIPTED_NETWORK) {
 		return true;
@@ -466,7 +474,7 @@ bool scenario_t::is_tool_allowed(spieler_t* sp, uint16 wkz_id, sint16 wt)
 	return true;
 }
 
-const char* scenario_t::is_work_allowed_here(spieler_t* sp, uint16 wkz_id, sint16 wt, koord3d pos)
+const char* scenario_t::is_work_allowed_here(const spieler_t* sp, uint16 wkz_id, sint16 wt, koord3d pos)
 {
 	if (what_scenario != SCRIPTED  &&  what_scenario != SCRIPTED_NETWORK) {
 		return NULL;
@@ -518,13 +526,13 @@ const char* scenario_t::is_work_allowed_here(spieler_t* sp, uint16 wkz_id, sint1
 }
 
 
-const char* scenario_t::is_schedule_allowed(spieler_t* sp, schedule_t* schedule)
+const char* scenario_t::is_schedule_allowed(const spieler_t* sp, const schedule_t* schedule)
 {
 	// sanity checks
 	if (schedule == NULL) {
 		return "";
 	}
-	if (schedule->empty()  ||  umgebung_t::server) {
+	if (schedule->empty()  ||  env_t::server) {
 		// empty schedule, networkgame: all allowed
 		return NULL;
 	}
@@ -552,7 +560,7 @@ void scenario_t::step()
 {
 	if (!script) {
 		// update texts at clients if info window open
-		if (umgebung_t::networkmode  &&  !umgebung_t::server  &&  win_get_magic(magic_scenario_info)) {
+		if (env_t::networkmode  &&  !env_t::server  &&  win_get_magic(magic_scenario_info)) {
 			update_scenario_texts();
 		}
 		return;
@@ -591,7 +599,7 @@ void scenario_t::step()
 	update_won_lost(new_won, new_lost);
 
 	// server sends the new state to the clients
-	if (umgebung_t::server  &&  (new_won | new_lost)) {
+	if (env_t::server  &&  (new_won | new_lost)) {
 		nwc_scenario_t *nwc = new nwc_scenario_t();
 		nwc->won = new_won;
 		nwc->lost = new_lost;
@@ -602,6 +610,12 @@ void scenario_t::step()
 	// update texts
 	if (win_get_magic(magic_scenario_info) ) {
 		update_scenario_texts();
+	}
+
+	// update toolbars if necessary
+	if (need_toolbar_update) {
+		werkzeug_t::update_toolbars();
+		need_toolbar_update = false;
 	}
 }
 
@@ -690,7 +704,7 @@ bool scenario_t::open_info_win() const
 	// pop up for the win
 	scenario_info_t *si = (scenario_info_t*)win_get_magic(magic_scenario_info);
 	if (si == NULL) {
-		si = new scenario_info_t(welt);
+		si = new scenario_info_t();
 		create_win(si, w_info, magic_scenario_info);
 	}
 	si->open_result_tab();
@@ -729,7 +743,7 @@ void scenario_t::rdwr(loadsave_t *file)
 			plainstring str;
 			file->rdwr_str(str);
 			dbg->warning("scenario_t::rdwr", "loaded persistent scenario data: %s", str.c_str());
-			if (umgebung_t::networkmode   &&  !umgebung_t::server) {
+			if (env_t::networkmode   &&  !env_t::server) {
 				// client playing network scenario game:
 				// script files are not available
 				what_scenario = SCRIPTED_NETWORK;
@@ -740,13 +754,13 @@ void scenario_t::rdwr(loadsave_t *file)
 				cbuffer_t script_filename;
 
 				// try addon directory first
-				scenario_path = ( std::string("addons/") + umgebung_t::objfilename + "scenario/" + scenario_name.c_str() + "/").c_str();
+				scenario_path = ( std::string("addons/") + env_t::objfilename + "scenario/" + scenario_name.c_str() + "/").c_str();
 				script_filename.printf("%sscenario.nut", scenario_path.c_str());
 				rdwr_error = !load_script(script_filename);
 
 				// failed, try scenario from pakset directory
 				if (rdwr_error) {
-					scenario_path = (umgebung_t::program_dir + umgebung_t::objfilename + "scenario/" + scenario_name.c_str() + "/").c_str();
+					scenario_path = (env_t::program_dir + env_t::objfilename + "scenario/" + scenario_name.c_str() + "/").c_str();
 					script_filename.clear();
 					script_filename.printf("%sscenario.nut", scenario_path.c_str());
 					rdwr_error = !load_script(script_filename);

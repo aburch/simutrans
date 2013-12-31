@@ -37,11 +37,12 @@ void root_writer_t::write(const char* filename, int argc, char* argv[])
 	if (file[file.size()-1] == '/') {
 		printf("writing invidual files to %s\n", filename);
 		separate = true;
-	} else {
+	}
+	else {
 		outfp = fopen(file.c_str(), "wb");
 
 		if (!outfp) {
-			fprintf( stderr, "ERROR: cannot create destination file %s\n", filename);
+			dbg->fatal( "Write pak", "Cannot create destination file %s", filename );
 			exit(3);
 		}
 		printf("writing file %s\n", filename);
@@ -80,7 +81,7 @@ void root_writer_t::write(const char* filename, int argc, char* argv[])
 
 						outfp = fopen(name.c_str(), "wb");
 						if (!outfp) {
-							fprintf( stderr, "ERROR: cannot create destination file %s\n", filename);
+							dbg->fatal( "Write pak", "Cannot create destination file %s", filename );
 							exit(3);
 						}
 						printf("   writing file %s\n", name.c_str());
@@ -89,6 +90,7 @@ void root_writer_t::write(const char* filename, int argc, char* argv[])
 						node = new obj_node_t(this, 0, NULL);
 					}
 					obj_writer_t::write(outfp, *node, obj);
+					obj.unused( "#;-/" );
 
 					if(separate) {
 						node->write(outfp);
@@ -98,7 +100,7 @@ void root_writer_t::write(const char* filename, int argc, char* argv[])
 				}
 			}
 			else {
-				printf("WARNING: cannot read %s\n", i);
+				dbg->warning( "Write pak", "Cannot read %s", i);
 			}
 		}
 	}
@@ -135,11 +137,13 @@ static bool skip_header(FILE* const f)
 		int const c = fgetc(f);
 
 		if (c == EOF) {
-			fprintf(stderr, "ERROR: reached end of file while skipping header\n");
+			dbg->error( "skip_header", "reached end of file while skipping header");
 			return false;
 		}
 
-		if (c == '\x1A') return true;
+		if (c == '\x1A') {
+			return true;
+		}
 	}
 }
 
@@ -170,7 +174,8 @@ void root_writer_t::dump(int argc, char* argv[])
 		// this is neccessary to avoid the hassle with "./*.pak" otherwise
 		if (strchr(argv[i], '*') == NULL) {
 			any = do_dump(argv[i]);
-		} else {
+		}
+		else {
 			searchfolder_t find;
 			find.search(argv[i], "pak");
 			FOR(searchfolder_t, const& i, find) {
@@ -179,7 +184,7 @@ void root_writer_t::dump(int argc, char* argv[])
 		}
 
 		if (!any) {
-			printf("WARNING: file or dir %s not found\n", argv[i]);
+			dbg->error( "root_writer_t::dump", "file or dir %s not found", argv[i] );
 		}
 	}
 }
@@ -194,8 +199,8 @@ bool root_writer_t::do_list(const char* open_file_name)
 
 			fread(&version, sizeof(version), 1, infp);
 			printf("Contents of file %s (pak version %d):\n", open_file_name, endian(version));
-			printf("type             name\n"
-					"---------------- ------------------------------\n");
+			printf("type              name                            nodes  size\n"
+			       "----------------  ------------------------------  -----  ----------\n");
 
 			obj_node_info_t node;
 			obj_node_t::read_node( infp, node );
@@ -206,8 +211,10 @@ bool root_writer_t::do_list(const char* open_file_name)
 			}
 		}
 		fclose(infp);
+		return true;
 	}
-	return true;
+
+	return false;
 }
 
 
@@ -219,18 +226,18 @@ void root_writer_t::list(int argc, char* argv[])
 
 		// this is neccessary to avoid the hassle with "./*.pak" otherwise
 		if (strchr(argv[i],'*') == NULL) {
-			do_list(argv[i]);
+			any = do_list(argv[i]);
 		}
 		else {
 			searchfolder_t find;
 			find.search(argv[i], "pak");
 			FOR(searchfolder_t, const& i, find) {
-				do_list(i);
+				any |= do_list(i);
 			}
 		}
 
 		if (!any) {
-			printf("WARNING: file or dir %s not found\n", argv[i]);
+			dbg->error( "root_writer_t::list", "file or dir %s not found", argv[i] );
 		}
 	}
 }
@@ -255,7 +262,7 @@ bool root_writer_t::do_copy(FILE* outfp, obj_node_info_t& root, const char* open
 				any = true;
 			}
 			else {
-				fprintf(stderr, "   WARNING: skipping file %s - version mismatch\n", open_file_name);
+				dbg->warning( "root_writer_t::do_copy", "skipping file %s - version mismatch (need same version to merge!)", open_file_name);
 			}
 		}
 		fclose(infp);
@@ -279,12 +286,20 @@ void root_writer_t::copy(const char* name, int argc, char* argv[])
 		name = find.complete(name, "pak").c_str();
 		outfp = fopen(name, "wb");
 	}
-
 	if (!outfp) {
-		fprintf( stderr, "ERROR: cannot open destination file %s\n", name);
+		dbg->fatal( "Merge", "Cannot open destination file %s", name);
 		exit(3);
 	}
-	printf("writing file %s\n", name);
+	fclose(outfp);
+	if (remove(name) != 0) {
+		dbg->warning("Merge", "Could not delete %s");
+	}
+	// create temporary file
+	std::string tmpfile_name = name;
+	tmpfile_name += ".tmp";
+	outfp = fopen(tmpfile_name.c_str(), "wb");
+
+	printf("writing to temporary file %s\n", tmpfile_name.c_str());
 	write_header(outfp);
 
 	long start = ftell(outfp);	// remember position for adding children
@@ -307,13 +322,13 @@ void root_writer_t::copy(const char* name, int argc, char* argv[])
 					any |= do_copy(outfp, root, i);
 				}
 				else {
-					printf("WARNING: skipping reading from output file\n");
+					dbg->warning( "Merge", "Skipping reading from output file");
 				}
 			}
 		}
 
 		if (!any) {
-			printf("WARNING: file or dir %s not found\n", argv[i]);
+			dbg->warning( "Merge", "file or dir %s not found\n", argv[i]);
 		}
 	}
 	fseek(outfp, start, SEEK_SET);
@@ -321,6 +336,10 @@ void root_writer_t::copy(const char* name, int argc, char* argv[])
 	this->write_obj_node_info_t(outfp, root);
 
 	fclose(outfp);
+
+	printf("renaming temporary file %s to %s\n", tmpfile_name.c_str(), name);
+
+	rename(tmpfile_name.c_str(), name);
 }
 
 
@@ -339,7 +358,7 @@ void root_writer_t::uncopy(const char* name)
 	}
 
 	if (!infp) {
-		fprintf( stderr, "ERROR: cannot open archieve file %s\n", name);
+		dbg->fatal( "Unmerge", "Cannot open archieve file %s\n", name);
 		exit(3);
 	}
 
@@ -352,7 +371,7 @@ void root_writer_t::uncopy(const char* name)
 			obj_node_info_t root;
 			obj_node_t::read_node( infp, root );
 			if (root.children == 1) {
-				fprintf( stderr, "  ERROR: %s is not an archieve (aborting)\n", name);
+				dbg->error( "Unmerge", "%s is not an archieve (aborting)", name);
 				fclose(infp);
 				exit(3);
 			}
@@ -404,13 +423,13 @@ void root_writer_t::uncopy(const char* name)
 					char random_name[16];
 					// we use the file position as unique name
 					sprintf( random_name, "p%li", ftell(infp) );
-					printf("  ERROR: %s has no name! (using %s) as default\n", writer.c_str(), (const char *)random_name );
+					dbg->warning( "Unmerge", "%s has no name! (using %s) as default", writer.c_str(), (const char *)random_name );
 					node_name = random_name;
 				}
 				string outfile = writer + "." + node_name + ".pak";
 				FILE* outfp = fopen(outfile.c_str(), "wb");
 				if (!outfp) {
-					fprintf( stderr, "  ERROR: could not open %s for writing (aborting)\n", outfile.c_str());
+					dbg->error( "Unmerge", "Could not open %s for writing (aborting)", outfile.c_str());
 					fclose(infp);
 					exit(3);
 				}
@@ -429,8 +448,9 @@ void root_writer_t::uncopy(const char* name)
 				copy_nodes(outfp, infp, root); // this advances also the input to the next position
 				fclose(outfp);
 			}
-		} else {
-			printf("   WARNING: skipping file %s - version mismatch\n", name);
+		}
+		else {
+			dbg->warning( "Unmerge", "Skipping file %s - version mismatch", name);
 		}
 	}
 	fclose(infp);

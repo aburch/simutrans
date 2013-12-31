@@ -8,7 +8,7 @@
 #include <stdio.h>
 
 #include "../../simworld.h"
-#include "../../simimg.h"
+#include "../../display/simimg.h"
 
 #include "../../besch/grund_besch.h"
 #include "../../besch/weg_besch.h"
@@ -21,14 +21,14 @@ const weg_besch_t *kanal_t::default_kanal=NULL;
 
 
 
-kanal_t::kanal_t(karte_t *welt, loadsave_t *file) :  weg_t(welt, water_wt)
+kanal_t::kanal_t(loadsave_t *file) :  weg_t(water_wt)
 {
 	rdwr(file);
 }
 
 
 
-kanal_t::kanal_t(karte_t *welt) : weg_t (welt, water_wt)
+kanal_t::kanal_t() : weg_t (water_wt)
 {
 	set_besch(default_kanal);
 }
