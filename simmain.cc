@@ -713,7 +713,7 @@ int simu_main(int argc, char** argv)
 			themes_ok = gui_theme_t::themes_init(themestr);
 		}
 	}
-	// süecified themes not found => try default themes
+	// specified themes not found => try default themes
 	if(  !themes_ok  ) {
 		chdir( env_t::program_dir );
 		chdir( "themes" );
