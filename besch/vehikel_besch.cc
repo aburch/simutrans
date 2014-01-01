@@ -230,7 +230,7 @@ uint16 vehikel_besch_t::get_obsolete_year_month(const karte_t *welt) const
 	}
 	else
 	{
-		return obsolete_date + (welt->get_settings().get_default_increase_maintenance_after_years((waytype_t)typ) * 12);
+		return obsolete_date + (welt->get_settings().get_default_increase_maintenance_after_years((waytype_t)wt) * 12);
 	}
 }
 

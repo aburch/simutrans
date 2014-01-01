@@ -273,7 +273,7 @@ void savegame_frame_t::fill_list( void )
 					add_section(path);
 					section_added = true;
 				}
-				add_file(fullname, name, get_info(fullname), not_cutting_extension);
+				add_file(fullname, name, /* get_info(fullname),*/ not_cutting_extension);
 			}
 			else{
 				// NOTE: we just free "fullname" memory when add_file is not called. That memory will be
@@ -829,7 +829,6 @@ void gui_file_table_button_column_t::paint_cell(const scr_coord& offset, coordin
 {
  	gui_file_table_row_t &file_row = (gui_file_table_row_t&)row;
 	scr_size size = scr_size(get_width(), row.get_height());
-	btn.set_size(size);
 	scr_coord mouse(get_maus_x() - offset.x, get_maus_y() - offset.y);
 	if (0 <= mouse.x && mouse.x < size.w && 0 <= mouse.y && mouse.y < size.h){ 
 		btn.set_typ(button_t::roundbox);
@@ -839,6 +838,8 @@ void gui_file_table_button_column_t::paint_cell(const scr_coord& offset, coordin
 		btn.set_typ(button_t::box);
 	}
 	btn.pressed = pressed && file_row.pressed;
+	// set size after type as type sets size to a default size as well.
+	btn.set_size(size);
 	btn.draw(offset);
 }
 

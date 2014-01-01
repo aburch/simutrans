@@ -140,10 +140,7 @@
  * @author Hj. Matthaner
  * this is speed * 1024 / 80 = speed * 64 / 5
  */
-#define kmh_to_speed(kmh) (((kmh) << 10) / VEHICLE_SPEED_FACTOR)
-//=======
-//#define kmh_to_speed(speed) (((speed) << 6) / 5)
-//>>>>>>> aburch/master
+#define kmh_to_speed(kmh) (((kmh) << 6) / VEHICLE_SPEED_FACTOR)
 
 // GEAR_FACTOR: a gear of 1.0 is stored as 64
 #define GEAR_FACTOR 64

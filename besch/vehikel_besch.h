@@ -114,13 +114,9 @@ private:
 	uint32 fixed_cost;			// Monthly cost @author: jamespetts, April 2009
 	uint32 base_fixed_cost;		// Monthly cost (without scale factor)
 
-	uint16 intro_date;			// introduction date
-	uint16 obsolete_date;		// phase out at
 	uint16 gear;				// engine gear (power multiplier), 64=100
 
-	sint8 typ;         			// see weg_t for allowed types
 	uint8 len;					// length (=8 is half a tile, the old default)
-
 	sint8 sound;
 
 	uint8 vorgaenger;			// all defined leading vehicles
@@ -177,7 +173,7 @@ private:
 							// Wikipedia, but is no use here).
 
 	float32e8_t air_resistance; // The "cf" value in physics calculations.
-	float32e8_t rolling_resistance; // The "fr" value in physics calculations.
+	float32e8_t rolling_resistance; // The "fr" value in physics calculations. 
 
 	// these values are not stored and therefore calculated in loaded():
 	// they are arrays having one element per speed in m/s:
@@ -761,7 +757,8 @@ public:
 
 			case air_wt:			return 100L; //1 when read
 
-			case road_wt:			
+			case road_wt:			return 15L; //0.15 when read
+
 			default:				return 15L; //0.15 when read
 		};
 	}  
@@ -781,8 +778,9 @@ public:
 			
 			case maglev_wt:			return 13L; //0.0013 when read
 
-			default:
 			case road_wt:			return 50L; //0.005 when read
+
+			default:				return 50L; //0.005 when read
 		};
 	}
 };

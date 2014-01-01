@@ -160,29 +160,29 @@ void pakselector_t::set_windowsize(scr_size size)
 	gui_frame_t::set_windowsize(size);
 	size = get_windowsize();
 
-	scr_coord_val y = 0;
-	FOR(slist_tpl<dir_entry_t>, const& i, entries) {
-		// resize all but delete button
+	//scr_coord_val y = 0;
+	//FOR(slist_tpl<dir_entry_t>, const& i, entries) {
+	//	// resize all but delete button
 
-		if (i.type == LI_HEADER && this->num_sections > 1) {
-			y += D_BUTTON_HEIGHT;
-			continue;
-		}
-		if (i.type == LI_HEADER && this->num_sections <= 1) {
-			continue;
-		}
+	//	if (i.type == LI_HEADER && this->num_sections > 1) {
+	//		y += D_BUTTON_HEIGHT;
+	//		continue;
+	//	}
+	//	if (i.type == LI_HEADER && this->num_sections <= 1) {
+	//		continue;
+	//	}
 
-		if (i.button->is_visible()) {
-			button_t* const button1 = i.del;
-			button1->set_pos(scr_coord(button1->get_pos().x, y));
-			button_t* const button2 = i.button;
-			button2->set_pos(scr_coord(button2->get_pos().x, y));
-			button2->set_size(scr_size(size.w/2-40, D_BUTTON_HEIGHT));
-			i.label->set_pos(scr_coord(size.w/2-40+30, y+2));
-			y += D_BUTTON_HEIGHT;
-		}
-	}
-
-	button_frame.set_size(scr_size(size.w,y));
+	//	if (i.button->is_visible()) {
+	//		button_t* const button1 = i.del;
+	//		button1->set_pos(scr_coord(button1->get_pos().x, y));
+	//		button_t* const button2 = i.button;
+	//		button2->set_pos(scr_coord(button2->get_pos().x, y));
+	//		button2->set_size(scr_size(size.w/2-40, D_BUTTON_HEIGHT));
+	//		i.label->set_pos(scr_coord(size.w/2-40+30, y+2));
+	//		y += D_BUTTON_HEIGHT;
+	//	}
+	//}
+	//
+	//button_frame.set_size(scr_size(size.w,y));
 	scrolly.set_size(scr_size(size.w,size.h-D_TITLEBAR_HEIGHT-30-3*LINESPACE-4-1));
 }
