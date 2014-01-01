@@ -974,6 +974,10 @@ uint16 vehikel_t::unload_freight(halthandle_t halt, sint64 & revenue_from_unload
 							}
 						}
 					}				
+					i = fracht.erase( i );
+				}
+				else {
+					++i;
 				}
 			}
 		}
