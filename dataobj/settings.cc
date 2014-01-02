@@ -1088,16 +1088,29 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_short(obsolete_running_cost_increase_percent);
 			file->rdwr_short(obsolete_running_cost_increase_phase_years);
 
-			if(file->get_experimental_version() >= 9 && file->get_experimental_version() < 12)
+			if(file->get_experimental_version() >= 9)
 			{
-				// Was formerly passenger distance ranges, now deprecated.
-				uint32 dummy;
-				file->rdwr_long(dummy);
-				file->rdwr_long(dummy);
-				file->rdwr_long(dummy);
-				file->rdwr_long(dummy);
-				file->rdwr_long(dummy);
-				file->rdwr_long(dummy);
+				if (file->get_experimental_version() < 12)
+				{
+					// Was formerly passenger distance ranges, now deprecated.
+					uint32 dummy = 0;
+					file->rdwr_long(dummy);
+					file->rdwr_long(dummy);
+					file->rdwr_long(dummy);
+					file->rdwr_long(dummy);
+					file->rdwr_long(dummy);
+					file->rdwr_long(dummy);
+				}
+			}
+			else
+			{
+				uint16 dummy = 0;
+				file->rdwr_short(dummy);
+				file->rdwr_short(dummy);
+				file->rdwr_short(dummy);
+				file->rdwr_short(dummy);
+				file->rdwr_short(dummy);
+				file->rdwr_short(dummy);
 			}
 
 			file->rdwr_byte(passenger_routing_packet_size);
