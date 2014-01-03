@@ -2297,10 +2297,12 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 				goods_to_remove.append(i);
 			}
 
-			ITERATE(goods_to_remove, n)
-			{
-				warray->remove_at(goods_to_remove[n]);
-			}
+		}
+
+		// remove from last to first as otherwise the indexes become invalid:
+		for(uint32 i = goods_to_remove.get_count(); i-- > 0; )
+		{
+			warray->remove_at(goods_to_remove[i]);
 		}
 		
 		halthandle_t next_transfer;
