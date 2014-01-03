@@ -276,24 +276,28 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	this->sp = sp;
 
 	const scr_coord_val top =  30;
-	const scr_coord_val left = 12;
+	const scr_coord_val left = D_MARGIN_LEFT;
 
 	// Button components are left-aligned, but number components aren't.
 	// Number components are aligned at the *decimal point*,
 	// which is 25 to the left of the *right* edge!
-	const scr_coord_val tyl_x = left + BUTTONWIDTH + 100 - 25; // "this month" column numbers
-	const scr_coord_val lyl_x = left + BUTTONWIDTH + 2 * 100 - 25; // "last month" column numbers
+	const scr_coord_val  c1_x = left + BUTTONWIDTH + D_H_SPACE - 25; // center column left edge (fixed costs)
+	const scr_coord_val tyl_x = c1_x + 1 * 100; // "this month" column numbers
+	const scr_coord_val lyl_x = c1_x + 2 * 100;	// "last month" column numbers
 
-	const sint16 c2_x = left + BUTTONWIDTH + 2 * 100 + 15; // center column left edge (fixed costs)
-	const sint16 c2_num_x = c2_x + 85 - 25; // center column number alignment
+	const scr_coord_val c2_x     = lyl_x + D_H_SPACE; // center column left edge (fixed costs)
+	const scr_coord_val c2_num_x = c2_x + 100; // center column number alignment
 
-	const sint16 c3_btn_x = c2_x + 85 + 15; // right column buttons
-	const sint16 c3_num_x = c3_btn_x + BUTTONWIDTH + 100 - 25; // numbers for right column of buttons
-	const sint16 WINDOW_WIDTH = c3_num_x + 25 + 15;
+	const scr_coord_val c3_btn_x = c2_num_x + 25 + D_H_SPACE; // right column buttons
+	const scr_coord_val c3_num_x = c3_btn_x + BUTTONWIDTH + 100 - 25; // numbers for right column of buttons
+	const scr_coord_val WINDOW_WIDTH = c3_num_x + 25 + D_MARGIN_RIGHT;
 
+	const scr_size lbl_size(BUTTONWIDTH, D_LABEL_HEIGHT);
 	// left column
-	tylabel.set_pos(scr_coord(tyl_x+25,top-1*BUTTONSPACE));
-	lylabel.set_pos(scr_coord(lyl_x+25,top-1*BUTTONSPACE));
+	tylabel.set_pos(scr_coord(c1_x,top-1*BUTTONSPACE));
+	tylabel.set_size(lbl_size);
+	lylabel.set_pos(scr_coord(c1_x+100,top-1*BUTTONSPACE));
+	lylabel.set_size(lbl_size);
 
 	imoney.set_pos(scr_coord(tyl_x,top+0*BUTTONSPACE));  // revenue
 	old_imoney.set_pos(scr_coord(lyl_x,top+0*BUTTONSPACE));
@@ -313,19 +317,23 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	old_interest.set_pos(scr_coord(lyl_x,top+7*BUTTONSPACE));
 	tmoney.set_pos(scr_coord(tyl_x,top+8*BUTTONSPACE));  // cash flow
 	old_tmoney.set_pos(scr_coord(lyl_x,top+8*BUTTONSPACE));
-	transport.set_pos(scr_coord(tyl_x+19, top+9*BUTTONSPACE)); // units transported
-	old_transport.set_pos(scr_coord(lyl_x+19, top+9*BUTTONSPACE));
+	transport.set_pos(scr_coord(c1_x, top+9*BUTTONSPACE)); // units transported
+	transport.set_size(lbl_size);
+	old_transport.set_pos(scr_coord(c1_x + 100, top+9*BUTTONSPACE));
+	old_transport.set_size(lbl_size);
 
 	// center column (above selector box)
-	maintenance_label.set_pos(scr_coord(c2_num_x+25, top-1*BUTTONSPACE));
-	maintenance_label2.set_pos(scr_coord(c2_num_x+25, top+0*BUTTONSPACE));
+	maintenance_label.set_pos(scr_coord(c2_x, top-1*BUTTONSPACE));
+	maintenance_label.set_size(lbl_size);
+	maintenance_label2.set_pos(scr_coord(c2_x, top+0*BUTTONSPACE));
+	maintenance_label2.set_size(lbl_size);
 	// vehicle maintenance money should be the same height as running costs
 	// vehicle_maintenance_money.set_pos(scr_coord(c2_num_x, top+1*BUTTONSPACE));
 	// maintenance money should be the same height as inf. maintenance (mmoney)
 	maintenance_money.set_pos(scr_coord(c2_num_x, top+2*BUTTONSPACE));
 
 	// right column (lower)
-	tylabel2.set_pos(scr_coord(c3_num_x+25, top+3*BUTTONSPACE-2));
+	tylabel2.set_pos(scr_coord(c3_btn_x, top+3*BUTTONSPACE-2));
 	cash_money.set_pos(scr_coord(c3_num_x, top+4*BUTTONSPACE));
 	assets.set_pos(scr_coord(c3_num_x, top+5*BUTTONSPACE));
 	net_wealth.set_pos(scr_coord(c3_num_x, top+6*BUTTONSPACE));
@@ -340,58 +348,6 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		scenario.set_pos( scr_coord( 10,1 ) );
 		sp->get_welt()->get_scenario()->update_scenario_texts();
 		scenario.set_text( sp->get_welt()->get_scenario()->description_text );
-//=======
-//	const scr_coord_val tyl_x = left+140+55;
-//	const scr_coord_val lyl_x = left+240+55;
-//
-//	// left column
-//	tylabel.set_pos(scr_coord(left+120,top-1*BUTTONSPACE));
-//	tylabel.set_width(tyl_x-left-120+25);
-//	lylabel.align_to(&tylabel, ALIGN_LEFT | ALIGN_EXTERIOR_H | ALIGN_TOP);
-//	lylabel.set_width(lyl_x+25-lylabel.get_pos().x);
-//
-//	//transport.set_pos(scr_coord(tyl_x+19, top+0*BUTTONSPACE));
-//	transport.align_to(&tylabel,ALIGN_LEFT,scr_coord(0,top));
-//	transport.set_width(tylabel.get_size().w);
-//
-//	//old_transport.set_pos(scr_coord(lyl_x+19, top+0*BUTTONSPACE));
-//	old_transport.align_to(&lylabel,ALIGN_LEFT,scr_coord(0,top));
-//	old_transport.set_width(lylabel.get_size().w);
-//
-//	imoney.set_pos(scr_coord(tyl_x,top+1*BUTTONSPACE));
-//	old_imoney.set_pos(scr_coord(lyl_x,top+1*BUTTONSPACE));
-//	vrmoney.set_pos(scr_coord(tyl_x,top+2*BUTTONSPACE));
-//	old_vrmoney.set_pos(scr_coord(lyl_x,top+2*BUTTONSPACE));
-//	mmoney.set_pos(scr_coord(tyl_x,top+3*BUTTONSPACE));
-//	old_mmoney.set_pos(scr_coord(lyl_x,top+3*BUTTONSPACE));
-//	toll.set_pos(scr_coord(tyl_x,top+4*BUTTONSPACE));
-//	old_toll.set_pos(scr_coord(lyl_x,top+4*BUTTONSPACE));
-//	omoney.set_pos(scr_coord(tyl_x,top+5*BUTTONSPACE));
-//	old_omoney.set_pos(scr_coord(lyl_x,top+5*BUTTONSPACE));
-//	nvmoney.set_pos(scr_coord(tyl_x,top+6*BUTTONSPACE));
-//	old_nvmoney.set_pos(scr_coord(lyl_x,top+6*BUTTONSPACE));
-//	conmoney.set_pos(scr_coord(tyl_x,top+7*BUTTONSPACE));
-//	old_conmoney.set_pos(scr_coord(lyl_x,top+7*BUTTONSPACE));
-//	tmoney.set_pos(scr_coord(tyl_x,top+8*BUTTONSPACE));
-//	old_tmoney.set_pos(scr_coord(lyl_x,top+8*BUTTONSPACE));
-//
-//	// right column
-//	maintenance_label.set_pos(scr_coord(left+340+80-maintenance_label.get_size().w, top+2*BUTTONSPACE-2));
-//	maintenance_money.set_pos(scr_coord(left+340+55, top+3*BUTTONSPACE));
-//
-//	tylabel2.set_pos(scr_coord(left+140+80+335-tylabel2.get_size().w,top+4*BUTTONSPACE-2));
-//	gtmoney.set_pos(scr_coord(left+140+335+55, top+5*BUTTONSPACE));
-//	vtmoney.set_pos(scr_coord(left+140+335+55, top+6*BUTTONSPACE));
-//	margin.set_pos(scr_coord(left+140+335+55, top+7*BUTTONSPACE));
-//	money.set_pos(scr_coord(left+140+335+55, top+8*BUTTONSPACE));
-//
-//	// return money or else stuff ...
-//	warn.set_pos(scr_coord(left+335, top+9*BUTTONSPACE));
-//	if(sp->get_player_nr()!=1  &&  welt->get_scenario()->active()) {
-//		scenario.set_pos( scr_coord( 10,1 ) );
-//		welt->get_scenario()->update_scenario_texts();
-//		scenario.set_text( welt->get_scenario()->description_text );
-//>>>>>>> aburch/master
 		add_komponente(&scenario);
 	}
 
@@ -539,9 +495,9 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		}
 	}
 
-	transport_type_c.set_pos( scr_coord(c2_x - 14, top + 3 * BUTTONSPACE) ); // below fixed costs
+	transport_type_c.set_pos( scr_coord(c2_x - 14 - D_H_SPACE, 0) ); // below fixed costs
 	transport_type_c.set_size( scr_size( 85 + 14 + 14, D_BUTTON_HEIGHT) ); // width of column plus spacing
-	transport_type_c.set_max_size( scr_size( 85 + 14 + 14, 7*BUTTONSPACE ) );
+	transport_type_c.set_max_size( scr_size( 85 + 14 + 14, TT_MAX * BUTTONSPACE ) );
 	for(int i=0, count=0; i<TT_MAX; ++i) {
 		if (!is_chart_table_zero(i)) {
 			transport_type_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(transport_type_values[i]), COL_BLACK));
