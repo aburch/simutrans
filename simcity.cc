@@ -1245,17 +1245,21 @@ void stadt_t::reset_city_borders()
 	koord new_lo = pos;
 	koord new_ur = pos;
 	koord const& thr = get_townhall_road();
-	if (new_lo.x > thr.x) {
-		new_lo.x = thr.x;
-	}
-	if (new_lo.y > thr.y) {
-		new_lo.y = thr.y;
-	}
-	if (new_ur.x < thr.x) {
-		new_ur.x = thr.x;
-	}
-	if (new_ur.y < thr.y) {
-		new_ur.y = thr.y;
+	// often thr is still (0,0) and corrupts this check.
+	if (thr.x && thr.y)
+	{
+		if (new_lo.x > thr.x) {
+			new_lo.x = thr.x;
+		}
+		if (new_lo.y > thr.y) {
+			new_lo.y = thr.y;
+		}
+		if (new_ur.x < thr.x) {
+			new_ur.x = thr.x;
+		}
+		if (new_ur.y < thr.y) {
+			new_ur.y = thr.y;
+		}
 	}
 
 	for (
