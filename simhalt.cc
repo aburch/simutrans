@@ -2277,37 +2277,22 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 
 	if(warray != NULL) 
 	{
-		uint32 accumulated_journey_time = 0;
-		halthandle_t previous_halt = self;
-		vector_tpl<int> goods_to_remove;
-
 		binary_heap_tpl<ware_t*> goods_to_check; 
-		for(uint32 i = 0; i < warray->get_count(); i++) 
+		for(vector_tpl<ware_t>::iterator i = warray->begin(); i != warray->end();) 
 		{
-			// Load first the goods/passengers/mail that have been waiting the longest.
-			// Do this by adding them all to a binary heap sorted by arrival time.
-			ware_t &tmp = (*warray)[i];
-			if(tmp.menge > 0)
-			{
-				goods_to_check.insert(&tmp);
-			}
-			else
+			if (i->menge == 0)
 			{
 				// There is no need any longer to have empty ware packets hanging around.
-				goods_to_remove.append(i);
+				i = warray->erase(i);
+				continue;
 			}
 
-		}
-
-		// remove from last to first as otherwise the indexes become invalid:
-		for(uint32 i = goods_to_remove.get_count(); i-- > 0; )
-		{
-			warray->remove_at(goods_to_remove[i]);
+			// Load first the goods/passengers/mail that have been waiting the longest.
+			// Do this by adding them all to a binary heap sorted by arrival time.
+			goods_to_check.insert(i++);
 		}
 		
-		halthandle_t next_transfer;
-
-		halthandle_t plan_halt;
+		halthandle_t previous_halt = self;
 
 		while(!goods_to_check.empty())
 		{
@@ -2318,33 +2303,15 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 
 			while(index != fpl->get_aktuell()) 
 			{
-				plan_halt = haltestelle_t::get_halt(fpl->eintrag[index].pos, sp);
-
-				next_transfer = next_to_load->get_zwischenziel();
+				halthandle_t plan_halt = haltestelle_t::get_halt(fpl->eintrag[index].pos, sp);
+				halthandle_t next_transfer = next_to_load->get_zwischenziel();
 
 				if(plan_halt.is_bound() && next_transfer == plan_halt && plan_halt->is_enabled(catg_index))
 				{
 					// Calculate the journey time for *this* convoy from here (if not already calculated)
-					uint16 journey_time = 0;
-
-					journey_time = cnv->get_average_journey_times_this_convoy_only()->get(id_pair(plan_halt.get_id(), previous_halt.get_id())).get_average();
-
-					if(journey_time == 0)
-					{
-						sint32 average_speed = cnv->get_finance_history(1, convoi_t::CONVOI_AVERAGE_SPEED) > 0 ? cnv->get_finance_history(1, convoi_t::CONVOI_AVERAGE_SPEED) * 100 : cnv->get_finance_history(0, convoi_t::CONVOI_AVERAGE_SPEED) * 100;
-						if(average_speed == 0)
-						{
-							// If the average speed is not initialised, take a guess to prevent perverse outcomes and possible deadlocks.
-							average_speed = speed_to_kmh(cnv->get_min_top_speed()) * 50;
-							average_speed = average_speed == 0 ? 1 : average_speed;
-						}
-						
-						accumulated_journey_time += ((shortest_distance(plan_halt->get_basis_pos(), previous_halt->get_basis_pos()) 
-														/ average_speed) *welt->get_settings().get_meters_per_tile() * 60);
-					}	
-
+					const uint16 journey_time = cnv->get_average_journey_times_this_convoy_only()->get(id_pair(plan_halt.get_id(), previous_halt.get_id())).get_average();
 					const uint16 speed_bonus = next_to_load->get_besch()->get_speed_bonus();
-					uint16 waiting_minutes = convoi_t::get_waiting_minutes(welt->get_zeit_ms() - next_to_load->arrival_time);
+					const uint16 waiting_minutes = convoi_t::get_waiting_minutes(welt->get_zeit_ms() - next_to_load->arrival_time);
 					// For goods that care about their speed, optimise loading for maximum speed of the journey.
 					if(speed_bonus > 0)
 					{												
