@@ -68,10 +68,13 @@ void cbuffer_t::free ()
 
 void cbuffer_t::append(const char * text)
 {
-	size_t const n = strlen( text );
-	extend( n );
-	memcpy( buf + size, text, n + 1);
-	size += n;
+	size_t const n = text ? strlen( text ) : 0;
+	if (n)
+	{
+		extend( n );
+		memcpy( buf + size, text, n + 1);
+		size += n;
+	}
 }
 
 void cbuffer_t::append(long n)
