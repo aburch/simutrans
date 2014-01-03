@@ -1132,11 +1132,16 @@ void karte_t::distribute_cities( settings_t const * const sets, sint16 old_x, si
 	// We can generate a Pareto deviate from a uniform deviate on range [0,1)
 	// by taking m_x/u where u is the uniform deviate.
 
-	// BG, 03.01.2014: avoid endless loop, if median_population > max_city_size or max_small_city_size, 
-	// as the population formula never results in values less than median_population / 2.
+	// BG, 03.01.2014: avoid endless loop, if sets->get_mittlere_einwohnerzahl() > 
+	// max_city_size or max_small_city_size, as the population formula never results 
+	// in values less than median_population / 2. Furthermore in old games 
+	// sets->get_mittlere_einwohnerzahl() is 0.
 
 	// size big cities
-	uint32 median_population = min(abs(sets->get_mittlere_einwohnerzahl()), max_city_size);
+	uint32 median_population = abs(sets->get_mittlere_einwohnerzahl());
+	if (!median_population || median_population > max_city_size) {
+		median_population = max_city_size;
+	}
 	while (city_population.get_count() < number_of_big_cities) {
 		// BG, 03.01.2014: avoid floating point calculation and excessive tries to find a random number.
 		uint32 rand = (simrand_plain() & 0x7ffffffful) + 1; // 1 <= rand <= 0x80000000ul
@@ -1147,7 +1152,10 @@ void karte_t::distribute_cities( settings_t const * const sets, sint16 old_x, si
 	}
 
 	// size small cities
-	median_population = min(abs(sets->get_mittlere_einwohnerzahl()), max_small_city_size);
+	median_population = abs(sets->get_mittlere_einwohnerzahl());
+	if (!median_population || median_population > max_small_city_size) {
+		median_population = max_small_city_size;
+	}
 	while (city_population.get_count() < city_population_target_count) {
 		// BG, 03.01.2014: avoid floating point calculation and excessive tries to find a random number.
 		uint32 rand = (simrand_plain() & 0x7ffffffful) + 1; // 1 <= rand <= 0x80000000ul
