@@ -3551,7 +3551,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		file->rdwr_str(s, lengthof(s));
 		while(*s) {
 			uint32 count;
-			if(  file->get_version() <= 112002  || file->get_experimental_version() <= 10 ) {
+			if(  file->get_version() <= 112002  || (file->get_experimental_version() > 0 && file->get_experimental_version() <= 10) ) {
 				// Older versions stored only 16-bit count values.
 				uint16 scount;
 				file->rdwr_short(scount);
