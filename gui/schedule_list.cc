@@ -308,7 +308,7 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t *sp_) :
 	set_min_windowsize(scr_size(488, 300));
 	set_resizemode(diagonal_resize);
 	resize(scr_coord(0,0));
-	resize(scr_coord(0,100));
+	resize(scr_coord(192,126)); // suitable for 4 buttons horizontally and 4 convoys vertically
 
 	build_line_list(index);
 }
