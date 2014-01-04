@@ -625,10 +625,6 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp, value_t p)
 					apply_line();
 					return true;
 				}
-				selection -= 4;
-			}
-			else { // skip separator
-				selection -= 3;
 			}
 
 			// access the selected element to get selected line
@@ -640,6 +636,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp, value_t p)
 				apply_line();
 				return true;
 			}
+			line_selector.set_focusable( false );
 		}
 		else {
 			return false;

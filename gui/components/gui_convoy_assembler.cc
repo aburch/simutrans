@@ -392,31 +392,42 @@ void gui_convoy_assembler_t::layout()
 	*/
 
 	sint16 y = 0;
-	sint16 column1_x = D_MARGIN_LEFT;
-	second_column_x = D_MARGIN_LEFT + (size.w - D_MARGIN_LEFT - D_MARGIN_RIGHT) / 2;
+	const scr_coord_val c1_x = D_MARGIN_LEFT;
+	const scr_size sp_size(size.w - D_MARGIN_LEFT - D_MARGIN_RIGHT, LINESPACE);
+	const scr_size lb_size((sp_size.w - D_V_SPACE) / 2, LINESPACE);
+	const scr_coord_val c2_x = c1_x + lb_size.w + D_V_SPACE;
 
 	/*
 	 * [CONVOI]
 	 */
 	convoi.set_grid(scr_coord(grid.x - grid_dx, grid.y));
 	convoi.set_placement(scr_coord(placement.x - placement_dx, placement.y));
-	convoi.set_pos(scr_coord((max(column1_x, size.w-get_convoy_image_width())/2), y));
+	convoi.set_pos(scr_coord((max(c1_x, size.w-get_convoy_image_width())/2), y));
 	convoi.set_size(scr_size(get_convoy_image_width(), get_convoy_image_height()));
 	y += get_convoy_image_height() + 1;
 
-	lb_convoi_count.set_pos(scr_coord(column1_x, y));
-	cont_convoi_capacity.set_pos(scr_coord(second_column_x, y));
+	lb_convoi_count.set_pos(scr_coord(c1_x, y));
+	lb_convoi_count.set_size(lb_size);
+	cont_convoi_capacity.set_pos(scr_coord(c2_x, y));
+	cont_convoi_capacity.set_size(lb_size);
 	y += LINESPACE + 1;
-	lb_convoi_cost.set_pos(scr_coord(column1_x, y));
-	lb_convoi_value.set_pos(scr_coord(second_column_x, y));
+	lb_convoi_cost.set_pos(scr_coord(c1_x, y));
+	lb_convoi_cost.set_size(lb_size);
+	lb_convoi_value.set_pos(scr_coord(c2_x, y));
+	lb_convoi_value.set_size(lb_size);
 	y += LINESPACE + 1;
-	lb_convoi_power.set_pos(scr_coord(column1_x, y));
-	lb_convoi_weight.set_pos(scr_coord(second_column_x, y));
+	lb_convoi_power.set_pos(scr_coord(c1_x, y));
+	lb_convoi_power.set_size(lb_size);
+	lb_convoi_weight.set_pos(scr_coord(c2_x, y));
+	lb_convoi_weight.set_size(lb_size);
 	y += LINESPACE + 1;
-	lb_convoi_brake_force.set_pos(scr_coord(column1_x, y));
-	lb_convoi_rolling_resistance.set_pos(scr_coord(second_column_x, y));
+	lb_convoi_brake_force.set_pos(scr_coord(c1_x, y));
+	lb_convoi_brake_force.set_size(lb_size);
+	lb_convoi_rolling_resistance.set_pos(scr_coord(c2_x, y));
+	lb_convoi_rolling_resistance.set_size(lb_size);
 	y += LINESPACE + 1;
-	lb_convoi_speed.set_pos(scr_coord(column1_x, y));
+	lb_convoi_speed.set_pos(scr_coord(c1_x, y));
+	lb_convoi_speed.set_size(sp_size);
 	y += LINESPACE + 2;
 
 	/*
@@ -425,8 +436,9 @@ void gui_convoy_assembler_t::layout()
 
 	y += convoy_tabs_skip + 2;
 
-	lb_traction_types.set_pos(scr_coord(column1_x, y));
-	lb_vehicle_count.set_pos(scr_coord(size.w - D_MARGIN_RIGHT, y));
+	lb_traction_types.set_pos(scr_coord(c1_x, y));
+	lb_vehicle_count.set_pos(scr_coord(c2_x, y));
+	lb_vehicle_count.set_size(lb_size);
 	
 	y += 7;
 
@@ -477,7 +489,7 @@ void gui_convoy_assembler_t::layout()
 	// left aligned column 1
 	// right aligned columns 2..4 
 
-	y += 4;
+	y += LINESPACE;
 
 	const scr_size column2_size(size.w / 5, D_BUTTON_HEIGHT);
 	const scr_size column3_size(126, D_BUTTON_HEIGHT);
@@ -488,7 +500,7 @@ void gui_convoy_assembler_t::layout()
 
 	// header row
 
-	lb_too_heavy_notice.set_pos(scr_coord(column1_x, y));
+	lb_too_heavy_notice.set_pos(scr_coord(c1_x, y));
 	lb_livery_selector.set_pos(scr_coord(column2_x, y));
 	lb_vehicle_filter.set_pos(scr_coord(column3_x, y));
 	lb_veh_action.set_pos(scr_coord(column4_x, y));
@@ -496,7 +508,7 @@ void gui_convoy_assembler_t::layout()
 
 	// 1st row
 
-	bt_show_all.set_pos(scr_coord(column1_x, y));
+	bt_show_all.set_pos(scr_coord(c1_x, y));
 	bt_show_all.pressed = show_all;
 	livery_selector.set_pos(scr_coord(column2_x, y));
 	livery_selector.set_size(column2_size);
@@ -513,7 +525,7 @@ void gui_convoy_assembler_t::layout()
 
 	// 2nd row 
 
-	bt_obsolete.set_pos(scr_coord(column1_x, y));
+	bt_obsolete.set_pos(scr_coord(c1_x, y));
 	bt_obsolete.pressed = show_retired_vehicles;
 	upgrade_selector.set_pos(scr_coord(column4_x, y));
 	upgrade_selector.set_size(column4_size);
