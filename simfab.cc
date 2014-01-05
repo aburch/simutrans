@@ -1407,7 +1407,10 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		gebaeude_t *gb = gr->find<gebaeude_t>();
 		
 		building = gb;
-		building->set_fab(this);
+		if (building)
+		{
+			building->set_fab(this);
+		}
 	}
 }
 
