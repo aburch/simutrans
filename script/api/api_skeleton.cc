@@ -2,6 +2,7 @@
 
 // It is in a C++ file to be processed by Doxygen filters to get function typemasks right
 
+#ifdef DOXYGEN
 
 /**
  * This function is called when the scenario starts. Do all the initializations here,
@@ -16,6 +17,20 @@ register_function("start");
  * @typemask void()
  */
 register_function("resume_game");
+
+/**
+ * Called at the beginning of a new month.
+ * Statistics of the last (complete) month is now in position [1] of any statistics array.
+ * @typemask void()
+ */
+register_function("new_month")
+
+/**
+ * Called at the beginning of a new year.
+ * Statistics of the last (complete) year is now in position [1] of any statistics array.
+ * @typemask void()
+ */
+register_function("new_year")
 
 /**
  * Text shown in the 'About' tab in the scenario info window.
@@ -142,3 +157,5 @@ register_function("is_work_allowed_here");
  * @typemask string(integer,schedule_x)
  */
 register_function("is_schedule_allowed");
+
+#endif

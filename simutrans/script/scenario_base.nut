@@ -111,6 +111,16 @@ function resume_game()
 }
 
 /**
+ * Happy New Month and Year!
+ */
+function new_month()
+{
+}
+function new_year()
+{
+}
+
+/**
  * load / save support
  * the persistent table will be written / restored during save / load
  * only plain data is saved: no classes / instances / functions, no cyclic references

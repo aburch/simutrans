@@ -4110,6 +4110,8 @@ void karte_t::new_month()
 	INT_CHECK("simworld 2522");
 	depot_t::neuer_monat();
 
+	scenario->new_month();
+
 	// now switch year to get the right year for all timeline stuff ...
 	if( last_month == 0 ) {
 		new_year();
@@ -4162,6 +4164,7 @@ DBG_MESSAGE("karte_t::new_year()","speedbonus for %d %i, %i, %i, %i, %i, %i, %i,
 		}
 	}
 
+	scenario->new_year();
 }
 
 

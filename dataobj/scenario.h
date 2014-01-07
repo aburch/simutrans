@@ -305,6 +305,16 @@ public:
 	 */
 	void step();
 
+	/**
+	 * Called upon month change: at 0:00 of the first day of the new month.
+	 */
+	void new_month();
+
+	/**
+	 * Called upon new year: at 0:00 January 1st.
+	 */
+	void new_year();
+
 	/// @{
 	/// @name Interface to forbid tools in-game
 	/**
