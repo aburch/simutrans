@@ -33,6 +33,16 @@ register_function("new_month")
 register_function("new_year")
 
 /**
+ * Called before starting the scenario.
+ * Should return filename of the savegame to be used for this scenario.
+ * If it returns "<attach>" the scenario is started with the currently running world.
+ * By default returns the string @ref map.file.
+ * @returns filename or "<attach>"
+ * @typemask string()
+ */
+register_function("get_map_file")
+
+/**
  * Text shown in the 'About' tab in the scenario info window.
  *
  * There is a default implementation, which returns concatenation
