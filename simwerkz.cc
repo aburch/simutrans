@@ -4137,19 +4137,26 @@ const char* wkz_roadsign_t::check_pos_intern(spieler_t *sp, koord3d pos)
 	// search for starting ground
 	grund_t *gr = wkz_intern_koord_to_weg_grund(sp, welt, pos, besch->get_wtyp());
 	if(gr) {
-		// get the sign direction
-		weg_t *weg = gr->get_weg( besch->get_wtyp()!=tram_wt ? besch->get_wtyp() : track_wt);
+
 		signal_t *s = gr->find<signal_t>();
 		if(s  &&  s->get_besch()!=besch) {
 			// only one sign per tile
 			return error;
 		}
+
 		if(besch->is_signal()  &&  gr->find<roadsign_t>())  {
 			// only one sign per tile
 			return error;
 		}
 
+		// get the sign direction
+		weg_t *weg = gr->get_weg( besch->get_wtyp()!=tram_wt ? besch->get_wtyp() : track_wt);
 		ribi_t::ribi dir = weg->get_ribi_unmasked();
+
+		// no signs on runways
+		if(  weg->get_waytype() == air_wt  &&  weg->get_besch()->get_styp() == weg_besch_t::runway  ) {
+			return error;
+		}
 
 		// no signals on switches
 		if(  ribi_t::is_threeway(dir)  &&  besch->is_signal_type()  ) {
