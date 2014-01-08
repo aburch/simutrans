@@ -302,8 +302,6 @@ namespace script_api {
 		// obtain index into wareproduction_t arrays
 		SQInteger i = -1;
 		if (SQ_SUCCEEDED(get_slot(vm, "index", i, index))) {
-			i = param<sint16>::get(vm, -1);
-			sq_pop(vm, 1);
 			if (i>=0) {
 				if ( (uint32)i<fab->get_eingang().get_count()) {
 					return &fab->get_eingang()[i];
