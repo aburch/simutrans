@@ -1023,41 +1023,51 @@ void nwc_tool_t::pre_execute()
 
 network_broadcast_world_command_t* nwc_tool_t::clone(karte_t *welt)
 {
-		if (map_counter != welt->get_map_counter()) {
-			// command from another world
-			// maybe sent before sync happened -> ignore
-			dbg->warning("nwc_tool_t::clone", "wanted to execute(%d) from another world", get_id());
-			return NULL; // indicate failure
-		}
-		// do not open dialog windows across network
-		if (wkz_id & DIALOGE_TOOL) {
-			return NULL; // indicate failure
-		}
-		// check for map editor tools - they need unlocked public player
-		switch( wkz_id ) {
-			case WKZ_CHANGE_CITY_SIZE | GENERAL_TOOL:
-			case WKZ_BUILD_HAUS | GENERAL_TOOL:
-			case WKZ_LAND_CHAIN | GENERAL_TOOL:
-			case WKZ_CITY_CHAIN | GENERAL_TOOL:
-			case WKZ_BUILD_FACTORY | GENERAL_TOOL:
-			case WKZ_LINK_FACTORY | GENERAL_TOOL:
-			case WKZ_ADD_CITYCAR | GENERAL_TOOL:
-			case WKZ_INCREASE_INDUSTRY | SIMPLE_TOOL:
-			case WKZ_STEP_YEAR | SIMPLE_TOOL:
-			case WKZ_FILL_TREES | SIMPLE_TOOL:
-				player_nr = 1;
-			default: ;
-		}
-		// scripts only run on server
-		if (socket_list_t::get_client_id(packet->get_sender()) != 0) {
-			// not sent by server, clear flag
-			flags &= ~werkzeug_t::WFL_SCRIPT;
-		}
-		// scripted calls do not need authentication check
-		bool const scripted_call = flags & werkzeug_t::WFL_SCRIPT;
+	if (map_counter != welt->get_map_counter()) {
+		// command from another world
+		// maybe sent before sync happened -> ignore
+		dbg->warning("nwc_tool_t::clone", "wanted to execute(%d) from another world", get_id());
+		return NULL; // indicate failure
+	}
+	// do not open dialog windows across network
+	if (wkz_id & DIALOGE_TOOL) {
+		return NULL; // indicate failure
+	}
 
+	// scripts only run on server
+	if (socket_list_t::get_client_id(packet->get_sender()) != 0) {
+		// not sent by server, clear flag
+		flags &= ~werkzeug_t::WFL_SCRIPT;
+	}
+	// scripted calls do not need authentication check
+	bool const scripted_call = flags & werkzeug_t::WFL_SCRIPT;
+
+	// check authentication and scenario rules
+	if (!scripted_call) {
+
+		scenario_t *scen = welt->get_scenario();
+		// check for map editor tools - they need unlocked public player
+		// scenario should check itself
+		if (!scen->is_scripted()) {
+			switch( wkz_id ) {
+				case WKZ_CHANGE_CITY_SIZE | GENERAL_TOOL:
+				case WKZ_BUILD_HAUS | GENERAL_TOOL:
+				case WKZ_LAND_CHAIN | GENERAL_TOOL:
+				case WKZ_CITY_CHAIN | GENERAL_TOOL:
+				case WKZ_BUILD_FACTORY | GENERAL_TOOL:
+				case WKZ_LINK_FACTORY | GENERAL_TOOL:
+				case WKZ_ADD_CITYCAR | GENERAL_TOOL:
+				case WKZ_INCREASE_INDUSTRY | SIMPLE_TOOL:
+				case WKZ_STEP_YEAR | SIMPLE_TOOL:
+				case WKZ_FILL_TREES | SIMPLE_TOOL:
+					player_nr = 1;
+				default: ;
+			}
+		}
+
+		// check whether player is authorized do this
 		socket_info_t const& info = socket_list_t::get_client(our_client_id);
-		if ( !scripted_call  &&  player_nr < PLAYER_UNOWNED  &&  !info.is_player_unlocked(player_nr) ) {
+		if ( player_nr < PLAYER_UNOWNED  &&  !info.is_player_unlocked(player_nr) ) {
 			if (wkz_id == (WKZ_ADD_MESSAGE_TOOL|SIMPLE_TOOL)) {
 				player_nr = PLAYER_UNOWNED;
 			}
@@ -1067,13 +1077,12 @@ network_broadcast_world_command_t* nwc_tool_t::clone(karte_t *welt)
 			}
 		}
 		// log that this client acted as this player
-		if ( !scripted_call  &&  player_nr < PLAYER_UNOWNED) {
+		if ( player_nr < PLAYER_UNOWNED) {
 			nwc_chg_player_t::company_active_clients[player_nr].append_unique( connection_info_t(info) );
 		}
 
 		// do scenario checks here, send error message back
-		scenario_t *scen = welt->get_scenario();
-		if ( !scripted_call  &&  scen->is_scripted() ) {
+		if ( scen->is_scripted() ) {
 			if (!scen->is_tool_allowed(welt->get_spieler(player_nr), wkz_id, wt)) {
 				dbg->warning("nwc_tool_t::clone", "wkz=%d  wt=%d tool not allowed", wkz_id, wt);
 				// TODO return error message ?
@@ -1092,6 +1101,7 @@ network_broadcast_world_command_t* nwc_tool_t::clone(karte_t *welt)
 				}
 			}
 		}
+	}
 
 #if 0
 #error "Pause does not reset nwc_join_t::pending_join_client properly. Disabled for now here and in simwerkz.h (wkz_pause_t)"
@@ -1117,12 +1127,12 @@ network_broadcast_world_command_t* nwc_tool_t::clone(karte_t *welt)
 			}
 		}
 #endif
-		// copy data, sets tool_client_id to sender client_id
-		nwc_tool_t *nwt = new nwc_tool_t(*this);
-		nwt->last_sync_step = welt->get_last_checklist_sync_step();
-		nwt->last_checklist = welt->get_last_checklist();
-		dbg->warning("nwc_tool_t::clone", "send sync_steps=%d  wkz=%d %s", nwt->get_sync_step(), wkz_id, init ? "init" : "work");
-		return nwt;
+	// copy data, sets tool_client_id to sender client_id
+	nwc_tool_t *nwt = new nwc_tool_t(*this);
+	nwt->last_sync_step = welt->get_last_checklist_sync_step();
+	nwt->last_checklist = welt->get_last_checklist();
+	dbg->warning("nwc_tool_t::clone", "send sync_steps=%d  wkz=%d %s", nwt->get_sync_step(), wkz_id, init ? "init" : "work");
+	return nwt;
 }
 
 
