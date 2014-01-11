@@ -2992,7 +2992,7 @@ convoi_t::reverse_order(bool rev)
 				// Check for double-headed tender locomotives
 				a += fahr[a]->get_besch()->get_nachfolger_count();
 			}
-			if(anz_vehikel > 1 && fahr[1]->get_besch()->get_leistung() == 0 && fahr[1]->get_besch()->get_nachfolger_count() == 1 && fahr[1]->get_besch()->get_nachfolger(0)->get_leistung() == 0 && fahr[1]->get_besch()->get_nachfolger(0)->get_preis() == 0)
+			if(anz_vehikel > 1 && fahr[1]->get_besch()->get_leistung() == 0 && fahr[1]->get_besch()->get_nachfolger_count() == 1 && fahr[1]->get_besch()->get_nachfolger(0) && fahr[1]->get_besch()->get_nachfolger(0)->get_leistung() == 0 && fahr[1]->get_besch()->get_nachfolger(0)->get_preis() == 0)
 			{
 				// Multiple tenders or Garretts with powered front units.
 				a ++;
