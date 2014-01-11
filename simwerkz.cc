@@ -2356,9 +2356,9 @@ const char *wkz_brueckenbau_t::do_work( spieler_t *sp, const koord3d &start, con
 	}
 }
 
-void wkz_brueckenbau_t::rdwr_custom_data(uint8 player_nr, memory_rw_t *packet)
+void wkz_brueckenbau_t::rdwr_custom_data(memory_rw_t *packet)
 {
-	two_click_werkzeug_t::rdwr_custom_data(player_nr, packet);
+	two_click_werkzeug_t::rdwr_custom_data(packet);
 	uint8 i = ribi;
 	packet->rdwr_byte(i);
 	ribi = (ribi_t::ribi)i;

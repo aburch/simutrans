@@ -847,7 +847,7 @@ bool two_click_werkzeug_t::init(spieler_t *)
 }
 
 
-void two_click_werkzeug_t::rdwr_custom_data(uint8, memory_rw_t *packet)
+void two_click_werkzeug_t::rdwr_custom_data(memory_rw_t *packet)
 {
 	packet->rdwr_bool(first_click_var);
 	sint16 posx = start.x; packet->rdwr_short(posx); start.x = posx;

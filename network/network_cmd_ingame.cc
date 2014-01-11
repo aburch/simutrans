@@ -946,7 +946,7 @@ nwc_tool_t::nwc_tool_t(spieler_t *sp, werkzeug_t *wkz, koord3d pos_, uint32 sync
 	// write custom data of wkz to our internal buffer
 	custom_data = new memory_rw_t(custom_data_buf, lengthof(custom_data_buf), true);
 	if (sp) {
-		wkz->rdwr_custom_data(sp->get_player_nr(), custom_data);
+		wkz->rdwr_custom_data(custom_data);
 	}
 }
 
@@ -1225,7 +1225,7 @@ void nwc_tool_t::do_command(karte_t *welt)
 
 		if(  wkz  ) {
 			// read custom data
-			wkz->rdwr_custom_data(player_nr, custom_data);
+			wkz->rdwr_custom_data(custom_data);
 			// set flags correctly
 			if (local) {
 				wkz->flags = flags | werkzeug_t::WFL_LOCAL;
