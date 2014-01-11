@@ -582,17 +582,16 @@ void grund_besch_t::init_ground_textures(karte_t *w)
 		all_rotations_beach[slope] = NULL;
 		all_rotations_slope[slope] = NULL;
 		doubleslope_to_imgnr[slope] = 255;
-		if(  hang_t::is_all_up(slope)  ) {
-			// no need to initilise illegal tiles
-			continue;
-		}
-		if(  !double_grounds  &&  hang_t::max_diff(slope)>1  ) {
+
+		if(  slope != 80  &&  (hang_t::is_all_up(slope)  ||  (!double_grounds  &&  hang_t::max_diff(slope)>1)  )  ) {
 			// no need to initialize unneeded slopes
+			// slope 80 is needed below
 			continue;
 		}
+
 		// now add this image
-		doubleslope_to_imgnr[slope] = slopeimgnr;
-		slopeimgnr ++;
+		doubleslope_to_imgnr[slope] = slopeimgnr++;
+
 		bild_besch_t *tmp_pic = NULL;
 		switch(  slope  ) {
 			case hang_t::nord: {
