@@ -349,6 +349,7 @@ public:
 	bool is_first_click() const;
 	void cleanup(bool delete_start_marker );
 
+	const koord3d& get_start_pos() const { return start; }
 private:
 
 	/*

@@ -1114,7 +1114,15 @@ network_broadcast_world_command_t* nwc_tool_t::clone(karte_t *welt)
 				return NULL;
 			}
 			if (!init) {
-				if (const char *err = scen->is_work_allowed_here(welt->get_spieler(player_nr), wkz_id, wt, pos) ) {
+				const char *err = scen->is_work_allowed_here(welt->get_spieler(player_nr), wkz_id, wt, pos);
+				if (err == NULL) {
+					if (two_click_werkzeug_t *two_cwkz = dynamic_cast<two_click_werkzeug_t*>(wkz)) {
+						if (!two_cwkz->is_first_click()) {
+							err = scen->is_work_allowed_here(welt->get_spieler(player_nr), wkz_id, wt, two_cwkz->get_start_pos());
+						}
+					}
+				}
+				if (err) {
 					nwc_tool_t *nwt = new nwc_tool_t(*this);
 					nwt->wkz_id = WKZ_ERR_MESSAGE_TOOL | GENERAL_TOOL;
 					nwt->default_param = err;
