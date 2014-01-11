@@ -778,7 +778,7 @@ public:
 			case track_wt:
 			case monorail_wt:		return 15L; //0.0015 when read
 
-			case tram_wt:			return 45L; //0.0045 when read						
+			case tram_wt:			return 60L; //0.006 when read						
 
 			case narrowgauge_wt:	return 17L; //0.0017 when read
 
