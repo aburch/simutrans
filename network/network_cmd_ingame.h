@@ -242,9 +242,6 @@ public:
 	virtual void rdwr();
 	virtual bool execute(karte_t *);
 
-	// prepare the command before it will be put in the command queue
-	virtual void pre_execute() { }
-
 	// clones the command to be broadcasted
 	// all validity checks must be done here
 	// it must return a new command
@@ -329,7 +326,6 @@ public:
 
 	virtual void rdwr();
 
-	virtual void pre_execute();
 	// clone performs authentication checks
 	virtual network_broadcast_world_command_t* clone(karte_t *);
 

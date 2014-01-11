@@ -808,7 +808,6 @@ void network_broadcast_world_command_t::rdwr()
 bool network_broadcast_world_command_t::execute(karte_t *welt)
 {
 	if (exec) {
-		pre_execute();
 		// append to command queue
 		return network_world_command_t::execute(welt);
 	}
@@ -1023,21 +1022,6 @@ void nwc_tool_t::init_tool()
 }
 
 
-void nwc_tool_t::pre_execute()
-{
-		if (custom_data->is_saving()) {
-			// create new memory_rw_t that is in reading mode to read wkz data
-			memory_rw_t *new_custom_data = new memory_rw_t(custom_data_buf, custom_data->get_current_index(), false);
-			delete custom_data;
-			custom_data = new_custom_data;
-			// (re)init tool
-			init_tool();
-		}
-		// append to command queue
-		dbg->message("nwc_tool_t::pre_execute", "append sync_step=%d wkz=%d %s", get_sync_step(), wkz_id, init ? "init" : "work");
-}
-
-
 network_broadcast_world_command_t* nwc_tool_t::clone(karte_t *welt)
 {
 	if (map_counter != welt->get_map_counter()) {
@@ -1177,6 +1161,10 @@ bool nwc_tool_t::ignore_old_events() const
 
 void nwc_tool_t::do_command(karte_t *welt)
 {
+	if (wkz == NULL) {
+		init_tool();
+	}
+
 	DBG_MESSAGE("nwc_tool_t::do_command", "steps %d wkz %d %s", get_sync_step(), wkz_id, init ? "init" : "work");
 		// commands are treated differently if they come from this client or not
 		bool local = tool_client_id == network_get_client_id();
@@ -1193,8 +1181,11 @@ void nwc_tool_t::do_command(karte_t *welt)
 			wkz->init(sp);
 		}
 
+		{
 			// read custom data (again, necessary for two_click_werkzeug_t)
-			wkz->rdwr_custom_data(custom_data);
+			memory_rw_t new_custom_data(custom_data_buf, custom_data.get_current_index(), false);
+			wkz->rdwr_custom_data(&new_custom_data);
+		}
 			// set flags correctly
 			if (local) {
 				wkz->flags = flags | werkzeug_t::WFL_LOCAL;
