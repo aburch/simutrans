@@ -2,12 +2,12 @@
 #define _NETWORK_CMD_INGAME_H_
 
 #include "network_cmd.h"
+#include "memory_rw.h"
 #include "../simworld.h"
 #include "../tpl/slist_tpl.h"
 #include "../utils/plainstring.h"
 #include "../dataobj/koord3d.h"
 
-class memory_rw_t;
 class connection_info_t;
 class packet_t;
 class spieler_t;
@@ -346,7 +346,7 @@ private:
 	bool init;
 
 	uint8 custom_data_buf[256];
-	memory_rw_t *custom_data;
+	memory_rw_t custom_data;
 
 	// tool that will be executed
 	werkzeug_t* wkz;

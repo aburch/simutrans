@@ -921,15 +921,16 @@ void nwc_chg_player_t::do_command(karte_t *welt)
 }
 
 
-nwc_tool_t::nwc_tool_t() : network_broadcast_world_command_t(NWC_TOOL, 0, 0)
+nwc_tool_t::nwc_tool_t() : network_broadcast_world_command_t(NWC_TOOL, 0, 0),
+	custom_data(custom_data_buf, lengthof(custom_data_buf), true)
 {
-	custom_data = new memory_rw_t(custom_data_buf, lengthof(custom_data_buf), true);
 	wkz = NULL;
 }
 
 
 nwc_tool_t::nwc_tool_t(spieler_t *sp, werkzeug_t *wkz_, koord3d pos_, uint32 sync_steps, uint32 map_counter, bool init_)
-: network_broadcast_world_command_t(NWC_TOOL, sync_steps, map_counter)
+	: network_broadcast_world_command_t(NWC_TOOL, sync_steps, map_counter),
+	custom_data(custom_data_buf, lengthof(custom_data_buf), true)
 {
 	pos = pos_;
 	player_nr = sp ? sp->get_player_nr() : -1;
@@ -942,16 +943,16 @@ nwc_tool_t::nwc_tool_t(spieler_t *sp, werkzeug_t *wkz_, koord3d pos_, uint32 syn
 	last_sync_step = spieler_t::get_welt()->get_last_checklist_sync_step();
 	last_checklist = spieler_t::get_welt()->get_last_checklist();
 	// write custom data of wkz_ to our internal buffer
-	custom_data = new memory_rw_t(custom_data_buf, lengthof(custom_data_buf), true);
 	if (sp) {
-		wkz_->rdwr_custom_data(custom_data);
+		wkz_->rdwr_custom_data(&custom_data);
 	}
 	wkz = NULL;
 }
 
 
 nwc_tool_t::nwc_tool_t(const nwc_tool_t &nwt)
-: network_broadcast_world_command_t(NWC_TOOL, nwt.get_sync_step(), nwt.get_map_counter())
+	: network_broadcast_world_command_t(NWC_TOOL, nwt.get_sync_step(), nwt.get_map_counter()),
+	custom_data(custom_data_buf, lengthof(custom_data_buf), true)
 {
 	pos = nwt.pos;
 	player_nr = nwt.player_nr;
@@ -962,17 +963,13 @@ nwc_tool_t::nwc_tool_t(const nwc_tool_t &nwt)
 	tool_client_id = nwt.our_client_id;
 	flags = nwt.flags;
 	// copy custom data of wkz to our internal buffer
-	custom_data = new memory_rw_t(custom_data_buf, lengthof(custom_data_buf), true);
-	if (nwt.custom_data) {
-		custom_data->append(*nwt.custom_data);
-	}
+	custom_data.append(nwt.custom_data);
 	wkz = NULL;
 }
 
 
 nwc_tool_t::~nwc_tool_t()
 {
-	delete custom_data;
 	delete wkz;
 }
 
@@ -995,11 +992,11 @@ void nwc_tool_t::rdwr()
 	// copy custom data of wkz to/from packet
 	if (packet->is_saving()) {
 		// write to packet
-		packet->append(*custom_data);
+		packet->append(custom_data);
 	}
 	else {
 		// read from packet
-		custom_data->append_tail(*packet);
+		custom_data.append_tail(*packet);
 	}
 
 	//if (packet->is_loading()) {
@@ -1012,13 +1009,12 @@ void nwc_tool_t::init_tool()
 {
 	delete wkz;
 	// create new memory_rw_t that is in reading mode to read wkz data
-	memory_rw_t *new_custom_data = new memory_rw_t(custom_data_buf, custom_data->get_current_index(), false);
+	memory_rw_t new_custom_data(custom_data_buf, custom_data.get_current_index(), false);
 
 	if ( (wkz = create_tool(wkz_id)) ) {
 		wkz->set_default_param(default_param);
-		wkz->rdwr_custom_data(new_custom_data);
+		wkz->rdwr_custom_data(&new_custom_data);
 	}
-	delete new_custom_data;
 }
 
 
