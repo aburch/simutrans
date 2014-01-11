@@ -1054,8 +1054,9 @@ network_broadcast_world_command_t* nwc_tool_t::clone(karte_t *welt)
 	}
 
 	// do not open dialog windows across network
-	if (wkz_id & DIALOGE_TOOL) {
-		return NULL; // indicate failure
+	if (  init  ?  wkz->is_init_network_save() :  wkz->is_work_network_save() ){
+		// no reason to send request over network
+		return NULL;
 	}
 
 	// scripts only run on server
