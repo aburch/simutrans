@@ -655,11 +655,17 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 						// This is actually maximum convoy weight: the name is odd because of the virtual method.
 						uint32 way_max_convoy_weight;
 						
+						// Trams need to check the weight of the underlying bridge.
+						
 						if(w->get_besch()->get_styp() == weg_t::type_tram)
 						{
-							// Trams need to check the weight of the underlying bridge.
 							const weg_t* underlying_bridge = welt->lookup(w->get_pos())->get_weg(road_wt);
-							way_max_convoy_weight = underlying_bridge->get_max_axle_load(); 
+							if(!underlying_bridge)
+							{
+								goto not_a_bridge;
+							}
+							way_max_convoy_weight = underlying_bridge->get_max_axle_load();
+
 						}
 						else
 						{
@@ -694,6 +700,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 					}
 					else
 					{
+						not_a_bridge:
 						bridge_tile_count = 0;
 						const uint32 way_max_axle_load = w->get_max_axle_load();
 						max_axle_load = min(max_axle_load, way_max_axle_load);

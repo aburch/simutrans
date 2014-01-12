@@ -923,6 +923,10 @@ uint16 vehikel_t::unload_freight(halthandle_t halt, sint64 & revenue_from_unload
 										for(uint8 i = 0; i < 16; i ++)
 										{
 											koord pos(origin_pos + origin_pos.second_neighbours[i]);
+											if(!welt->is_within_grid_limits(pos))
+											{
+												continue;
+											}
 											origin_city = welt->lookup(pos)->get_city();
 											if(origin_city)
 											{
@@ -3643,7 +3647,7 @@ bool waggon_t::is_weg_frei_longblock_signal( signal_t *sig, uint16 next_block, i
 	while(  fahrplan_index != cnv->get_schedule()->get_aktuell()  ) {
 		// now search
 		// search for route
-		success = target_rt.calc_route( welt, cur_pos, cnv->get_schedule()->eintrag[fahrplan_index].pos, this, get_convoi()->get_highest_axle_load(), speed_to_kmh(cnv->get_min_top_speed()), 8888 + cnv->get_tile_length() );
+		success = target_rt.calc_route(welt, cur_pos, cnv->get_schedule()->eintrag[fahrplan_index].pos, this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(), 8888 + cnv->get_tile_length(), 0xFFFFFFFF, cnv->get_weight_summary().weight / 1000);
 		if(  success  ) {
 			success = block_reserver( &target_rt, 1, next_next_signal, dummy, 0, true, false );
 			block_reserver( &target_rt, 1, dummy, dummy, 0, false, false );
@@ -3703,7 +3707,6 @@ bool waggon_t::is_weg_frei_choose_signal( signal_t *sig, const uint16 start_bloc
 			choose_ok = false;
 			break;
 		}
-		const koord3d TEST_pos = gr->get_pos();
 		if(gr->get_halt() == target->get_halt()) 
 		{
 			target_halt = gr->get_halt();
@@ -3962,7 +3965,7 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 			fpl->increment_index(&index, &reversed);
 			const koord3d next_ziel = fpl->eintrag[index].pos;
 
-			weg_frei = !target_rt.calc_route(welt, start_pos, next_ziel, this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(), welt->get_settings().get_max_route_steps());
+			weg_frei = !target_rt.calc_route(welt, start_pos, next_ziel, this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(), welt->get_settings().get_max_route_steps(), 0xFFFFFFFF, cnv->get_weight_summary().weight / 1000);
 			if(!weg_frei)
 			{
 				ribi_t::ribi old_dir = calc_richtung(route.position_bei(last_index - 1).get_2d(), route.position_bei(last_index).get_2d());

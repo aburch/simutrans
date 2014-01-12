@@ -703,7 +703,7 @@ void path_explorer_t::compartment_t::step()
 			minivec_tpl<uint16> journey_time_list(64);
 			minivec_tpl<bool> recurrence_list(64);		// an array indicating whether certain halts have been processed already
 
-			uint16 accumulated_journey_time;
+			uint32 accumulated_journey_time;
 			quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> *catg_connexions;
 			haltestelle_t::connexion *new_connexion;
 
@@ -1366,7 +1366,7 @@ void path_explorer_t::compartment_t::step()
 #endif
 
 			// temporary variables
-			uint16 combined_time;
+			uint32 combined_time;
 			uint32 target_member_index;
 			uint64 iterations_processed = 0;
 
@@ -1437,6 +1437,14 @@ void path_explorer_t::compartment_t::step()
 													 + working_matrix[via][target].aggregate_time ) 
 											< working_matrix[origin][target].aggregate_time			   )
 								{
+									if(combined_time > 65535)
+									{
+										// Prevent perverse results with integer overflows here.
+										// It will probably be necessary eventually to put all journey
+										// times into 32-bit, but the impact on memory consumption and
+										// performance of this step is unknown.
+										combined_time = 65534;
+									}
 									working_matrix[origin][target].aggregate_time = combined_time;
 									working_matrix[origin][target].next_transfer = working_matrix[origin][via].next_transfer;
 									transport_matrix[origin][target].first_transport = transport_matrix[origin][via].first_transport;

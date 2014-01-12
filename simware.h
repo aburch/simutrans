@@ -133,6 +133,12 @@ public:
 			last_transfer == w.last_transfer;
 	}
 
+	bool operator <= (const ware_t &w)
+	{
+		// Used only for the binary heap
+		return arrival_time <= w.arrival_time;
+	}
+
 	// Lighter version of operator == that only checks equality
 	// of metrics needed for merging.
 	// BG: 21.02.2012: check most varying data first. 

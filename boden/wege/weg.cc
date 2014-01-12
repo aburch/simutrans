@@ -450,6 +450,12 @@ bool weg_t::check_season( const long )
 	}
 
 	grund_t *from = welt->lookup(get_pos());
+
+	if(!from)
+	{
+		return true;
+	}
+
 	if(  from->ist_bruecke()  &&  from->obj_bei(0)==this  ) {
 		// first way on a bridge (bruecke_t will set the image)
 		return true;

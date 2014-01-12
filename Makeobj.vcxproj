@@ -81,8 +81,6 @@
     <ClCompile Include="besch\writer\building_writer.cc" />
     <ClCompile Include="besch\writer\citycar_writer.cc" />
     <ClCompile Include="besch\writer\crossing_writer.cc" />
-    <ClCompile Include="tpl\debug_helper.cc" />
-    <ClCompile Include="utils\dr_rdpng.c" />
     <ClCompile Include="besch\writer\factory_writer.cc" />
     <ClCompile Include="dataobj\freelist.cc" />
     <ClCompile Include="besch\writer\get_climate.cc" />
@@ -93,7 +91,7 @@
     <ClCompile Include="besch\writer\image_writer.cc" />
     <ClCompile Include="besch\writer\imagelist2d_writer.cc" />
     <ClCompile Include="besch\writer\imagelist_writer.cc" />
-    <ClCompile Include="utils\log.cc" />
+    <ClCompile Include="utils\dr_rdpng.cc" />
     <ClCompile Include="makeobj\makeobj.cc" />
     <ClCompile Include="besch\writer\obj_node.cc" />
     <ClCompile Include="besch\writer\obj_writer.cc" />
@@ -102,7 +100,6 @@
     <ClCompile Include="besch\writer\root_writer.cc" />
     <ClCompile Include="utils\searchfolder.cc" />
     <ClCompile Include="besch\writer\sim_writer.cc" />
-    <ClCompile Include="simdebug.cc" />
     <ClCompile Include="simmem.cc" />
     <ClCompile Include="utils\simstring.cc" />
     <ClCompile Include="simtools.cc" />

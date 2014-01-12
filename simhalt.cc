@@ -1114,19 +1114,9 @@ void haltestelle_t::step()
 					uint32 max_wait_tenths = max_wait_minutes * 10u;
 					halthandle_t h = haltestelle_t::get_halt(welt, tmp.get_zielpos(), besitzer_p);
 
-					// Passengers' maximum waiting times are proportionate to the length of the journey.
-					uint16 journey_time = 65535;
-					path_explorer_t::get_catg_path_between(tmp.get_besch()->get_catg_index(), tmp.get_origin(), tmp.get_ziel(), journey_time, h);
-					const uint32 thrice_journey = 3u * journey_time;
-					const uint32 min_tenths = max_wait_tenths / 12u;
-					if (tmp.is_passenger() && thrice_journey < max_wait_tenths) {
-						if (thrice_journey < min_tenths) {
-							max_wait_tenths = min_tenths;
-						}
-						else {
-							max_wait_tenths = thrice_journey;
-						}
-					}
+					// Passengers' maximum waiting times were formerly limited to thrice their estimated
+					// journey time, but this is no longer so from version 11.14 onwards.
+
 #ifdef DEBUG_SIMRAND_CALLS
 					if (talk && i == 2198)
 						dbg->message("haltestelle_t::step", "%u) check %u of %u minutes: %u %s to \"%s\"", 
@@ -1781,258 +1771,239 @@ bool haltestelle_t::recall_ware( ware_t& w, uint32 menge )
 // will load something compatible with wtyp into the car which schedule is fpl
 ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const schedule_t *fpl, const spieler_t *sp, convoi_t* cnv, bool overcrowded) //"hole from" (Google)
 {
-	// prissi: first iterate over the next stop, then over the ware
-	// might be a little slower, but ensures that passengers to nearest stop are served first
-	// this allows for separate high speed and normal service
 	const uint8 count = fpl->get_count();
-	vector_tpl<ware_t> *warray = waren[wtyp->get_catg_index()];
+	const uint8 catg_index = wtyp->get_catg_index();
+	vector_tpl<ware_t> *warray = waren[catg_index];
 
 	if(warray != NULL) 
 	{
-#ifdef DEBUG_SIMRAND_CALLS_BG
-		//if (!strcmp(get_name(), "Newton Abbot Railway Station"))
-		//{
-		//	dbg->message("haltestelle_t::hole_ab", "halt \"%s\", ware \"%s\": max %u", get_name(), wtyp->get_name(), warray->get_count());
-		//	for (int i = 0; i < warray->get_count(); ++i)
-		//	{
-		//		char buf[16];
-		//		ware_t &ware = (*warray)[i];
-		//		sprintf(buf, "% 8u)", i);
-		//		dbg->message(buf, "%u to \"%s\"", ware.menge, ware.get_ziel()->get_name());
-		//	}
-		//}
-#endif
 		uint32 accumulated_journey_time = 0;
 		halthandle_t previous_halt = self;
+		vector_tpl<int> goods_to_remove;
 
-		// uses fpl->increment_index to iterate over stops
-		uint8 index = fpl->get_aktuell();
-		bool reverse = cnv->get_reverse_schedule();
-		fpl->increment_index(&index, &reverse);
-
-		while (index != fpl->get_aktuell()) 
+		binary_heap_tpl<ware_t*> goods_to_check; 
+		for(uint32 i = 0; i < warray->get_count(); i++) 
 		{
-			const halthandle_t plan_halt = haltestelle_t::get_halt(welt, fpl->eintrag[index].pos, sp);
-			if(plan_halt == self) 
+			// Load first the goods/passengers/mail that have been waiting the longest.
+			// Do this by adding them all to a binary heap sorted by arrival time.
+			ware_t &tmp = (*warray)[i];
+			if(tmp.menge > 0)
 			{
-				// we will come later here again ...
-				break;
+				goods_to_check.insert(&tmp);
 			}
-			else if(plan_halt.is_bound() && warray->get_count() > 0) 
+			else
 			{
-				// Calculate the journey time for *this* convoy from here (if not already calculated)
-				uint16 journey_time = 0;
+				// There is no need any longer to have empty ware packets hanging around.
+				goods_to_remove.append(i);
+			}
+		}
 
-				journey_time = cnv->get_average_journey_times_this_convoy_only()->get(id_pair(plan_halt.get_id(), previous_halt.get_id())).get_average();
+		ITERATE(goods_to_remove, n)
+		{
+			warray->remove_at(goods_to_remove[n]);
+		}
+		
+		halthandle_t next_transfer;
 
-				if(journey_time == 0)
+		halthandle_t plan_halt;
+
+		while(!goods_to_check.empty())
+		{
+			ware_t* next_to_load = goods_to_check.pop();
+			uint8 index = fpl->get_aktuell();
+			bool reverse = cnv->get_reverse_schedule();
+			fpl->increment_index(&index, &reverse);
+
+			while(index != fpl->get_aktuell()) 
+			{
+				plan_halt = haltestelle_t::get_halt(welt, fpl->eintrag[index].pos, sp);
+
+				next_transfer = next_to_load->get_zwischenziel();
+
+				if(plan_halt.is_bound() && next_transfer == plan_halt && plan_halt->is_enabled(catg_index))
 				{
-					sint32 average_speed = cnv->get_finance_history(1, convoi_t::CONVOI_AVERAGE_SPEED) > 0 ? cnv->get_finance_history(1, convoi_t::CONVOI_AVERAGE_SPEED) * 100 : cnv->get_finance_history(0, convoi_t::CONVOI_AVERAGE_SPEED) * 100;
-					if(average_speed == 0)
+					// Calculate the journey time for *this* convoy from here (if not already calculated)
+					uint16 journey_time = 0;
+
+					journey_time = cnv->get_average_journey_times_this_convoy_only()->get(id_pair(plan_halt.get_id(), previous_halt.get_id())).get_average();
+
+					if(journey_time == 0)
 					{
-						// If the average speed is not initialised, take a guess to prevent perverse outcomes and possible deadlocks.
-						average_speed = speed_to_kmh(cnv->get_min_top_speed()) * 50;
-						average_speed = average_speed == 0 ? 1 : average_speed;
-					}
+						sint32 average_speed = cnv->get_finance_history(1, convoi_t::CONVOI_AVERAGE_SPEED) > 0 ? cnv->get_finance_history(1, convoi_t::CONVOI_AVERAGE_SPEED) * 100 : cnv->get_finance_history(0, convoi_t::CONVOI_AVERAGE_SPEED) * 100;
+						if(average_speed == 0)
+						{
+							// If the average speed is not initialised, take a guess to prevent perverse outcomes and possible deadlocks.
+							average_speed = speed_to_kmh(cnv->get_min_top_speed()) * 50;
+							average_speed = average_speed == 0 ? 1 : average_speed;
+						}
 						
-					accumulated_journey_time += ((shortest_distance(plan_halt->get_basis_pos(), previous_halt->get_basis_pos()) 
-													/ average_speed) *welt->get_settings().get_meters_per_tile() * 60);
-				}		
+						accumulated_journey_time += ((shortest_distance(plan_halt->get_basis_pos(), previous_halt->get_basis_pos()) 
+														/ average_speed) *welt->get_settings().get_meters_per_tile() * 60);
+					}	
+
+					const uint16 speed_bonus = next_to_load->get_besch()->get_speed_bonus();
+					uint16 waiting_minutes = convoi_t::get_waiting_minutes(welt->get_zeit_ms() - next_to_load->arrival_time);
+					// For goods that care about their speed, optimise loading for maximum speed of the journey.
+					if(speed_bonus > 0)
+					{												
+						// Try to ascertain whether it would be quicker to board this convoy, or wait for a faster one.
+							
+						bool is_preferred = true;
+						if(cnv->get_line().is_bound())
+						{
+							const linehandle_t best_line = get_preferred_line(next_transfer, catg_index);
+							if(best_line.is_bound() && best_line != cnv->get_line())
+							{
+								is_preferred = false;
+							}
+						}
+						else
+						{
+							const convoihandle_t best_convoy = get_preferred_convoy(next_transfer, catg_index);
+							if(best_convoy.is_bound() && best_convoy.get_rep() != cnv)
+							{
+								is_preferred = false;
+							}
+						}
+							
+						// Thanks to cwlau9 for suggesting this formula (now heavily modified by Knightly and jamespetts)
+						// July 2009
+						if(!is_preferred)
+						{
+							const connexion* next_connexion = connexions[catg_index]->get(next_transfer);
+							const uint16 average_waiting_minutes = next_connexion != NULL ? next_connexion->waiting_time : 15;
+							const uint16 preferred_travelling_minutes = next_connexion != NULL ? next_connexion->journey_time : 15;
+							// Minutes are recorded in tenths. One third max for this purpose.
+							//const uint16 max_minutes = base_max_minutes > preferred_travelling_minutes ? preferred_travelling_minutes : base_max_minutes;
+							//const sint16 preferred_advantage_minutes = accumulated_journey_time - preferred_travelling_minutes;
+
+							// New formula: Carl Baker, Feb 2012
 								
-				// The random offset will ensure that all goods have an equal chance to be loaded.
-#ifdef DEBUG_SIMRAND_CALLS
-				char buf[512];
-				sprintf(buf, "haltestelle_t::hole_ab halt \"%s\", ware \"%s\"", this->get_name(), wtyp->get_name());
-				uint32 offset = simrand(warray->get_count(), buf);
-#else
-				uint32 offset = simrand(warray->get_count(), "haltestelle_t::hole_ab");
-#endif
-
-				halthandle_t next_transfer;
-				uint8 catg_index;
-
-				for(uint32 i = 0;  i < warray->get_count();  i++) 
-				{
-					ware_t &tmp = (*warray)[ i+offset ];
-					next_transfer = tmp.get_zwischenziel();
-					catg_index = tmp.get_besch()->get_catg_index();
-
-					// prevent overflow (faster than division)
-					if(i + offset + 1 >= warray->get_count()) 
-					{
-						offset -= warray->get_count();
+							bool much_faster = true;
+							bool waiting_too_long = false;
+							int how_much_slower = journey_time * 100;
+							if (preferred_travelling_minutes > 1)
+							{
+								how_much_slower /= preferred_travelling_minutes;
+							}
+							// Passengers/goods will always board slower convoy if its journey time is within an acceptable
+							// tolerance of the fastest journey time. 
+							// The acceptable tolerance is scaled depending on journey time of faster convoy.
+							if (preferred_travelling_minutes <= 100 && how_much_slower < 160)
+							{
+							much_faster = false;
+							}
+							else if ((preferred_travelling_minutes > 100 && preferred_travelling_minutes <= 300) && (how_much_slower < 150))
+							{
+								much_faster = false;
+							}
+							else if ((preferred_travelling_minutes > 300 && preferred_travelling_minutes <= 600) && (how_much_slower < 140))
+							{
+								much_faster = false;
+							}
+							else if ((preferred_travelling_minutes > 600 && preferred_travelling_minutes <= 900) && (how_much_slower < 133))
+							{
+								much_faster = false;
+							}
+							else if ((preferred_travelling_minutes > 900 && preferred_travelling_minutes <= 1200) && (how_much_slower < 125))
+							{
+								much_faster = false;
+							}
+							else if ((preferred_travelling_minutes > 1200 && preferred_travelling_minutes <= 1800) && (how_much_slower < 122))
+							{
+								much_faster = false;
+							}
+							else if ((preferred_travelling_minutes > 1800) && (how_much_slower < 118))
+							{
+								much_faster = false;
+							} 
+                     
+							// If passengers/goods have been waiting a long time, they are more likely to board a slower convoy.
+							// But this is scaled so that a much slower convoy requires a much longer-than-expected wait.
+							if (much_faster == true)
+							{
+								if ((how_much_slower <= 125) && ( waiting_minutes >= (average_waiting_minutes * 3)))
+								{
+									waiting_too_long = true;
+								}
+								else if ((how_much_slower > 125 && how_much_slower <= 150) && ( waiting_minutes >= (average_waiting_minutes * 4)))
+								{
+									waiting_too_long = true;
+								}
+								else if ((how_much_slower > 150 && how_much_slower <= 200) && ( waiting_minutes >= (average_waiting_minutes * 5)))
+								{
+									waiting_too_long = true;
+								}
+								else if (how_much_slower > 200 && ( waiting_minutes >= (average_waiting_minutes * 6)))
+								{
+									waiting_too_long = true;
+								}
+								else 
+								{
+									waiting_too_long = false;
+								}
+							}
+                     
+							// Passengers/goods continue to wait for faster convoy if...
+							if ((much_faster == true) && (waiting_too_long == false))
+							{
+								fpl->increment_index(&index, &reverse);
+								continue;
+							} 
+						}
 					}
 
-					// skip empty entries
-					if(tmp.menge == 0) 
+					const uint32 time_till_departure = (cnv->go_on_ticks - welt->get_zeit_ms());
+					// Don't board a vehicle which is waiting for spacing until near its departure time
+					// Assures that passengers will board the first train to leave, not the first train to arrive
+					if ((fpl->get_current_eintrag().ladegrad > 0) && (fpl->get_spacing() > 0))
 					{
-						continue;
-					}					
-
-					// compatible car and right target stop?
-					if(next_transfer == plan_halt) 
-					{
-						const uint16 speed_bonus = tmp.get_besch()->get_speed_bonus();
-						uint16 waiting_minutes = convoi_t::get_waiting_minutes(welt->get_zeit_ms() - tmp.arrival_time);
-						// For goods that care about their speed, optimise loading for maximum speed of the journey.
-						if(speed_bonus > 0)
-						{												
-							// Try to ascertain whether it would be quicker to board this convoy, or wait for a faster one.
-							
-							bool is_preferred = true;
-							if(cnv->get_line().is_bound())
-							{
-								const linehandle_t best_line = get_preferred_line(next_transfer, catg_index);
-								if(best_line.is_bound() && best_line != cnv->get_line())
-								{
-									is_preferred = false;
-								}
-							}
-							else
-							{
-								const convoihandle_t best_convoy = get_preferred_convoy(next_transfer, catg_index);
-								if(best_convoy.is_bound() && best_convoy.get_rep() != cnv)
-								{
-									is_preferred = false;
-								}
-							}
-
-							// Thanks to cwlau9 for suggesting this formula (now heavily modified by Knightly and jamespetts)
-							// July 2009
-							if(!is_preferred)
-							{
-								const connexion* next_connexion = connexions[catg_index]->get(next_transfer);
-								const uint16 average_waiting_minutes = next_connexion != NULL ? next_connexion->waiting_time : 15;
-								const uint16 preferred_travelling_minutes = next_connexion != NULL ? next_connexion->journey_time : 15;
-								// Minutes are recorded in tenths. One third max for this purpose.
-								//const uint16 max_minutes = base_max_minutes > preferred_travelling_minutes ? preferred_travelling_minutes : base_max_minutes;
-								//const sint16 preferred_advantage_minutes = accumulated_journey_time - preferred_travelling_minutes;
-
-								// New formula: Carl Baker, Feb 2012
-								
-								bool much_faster = true;
-								bool waiting_too_long = false;
-								int how_much_slower = journey_time * 100;
-								if (preferred_travelling_minutes > 1)
-								{
-									how_much_slower /= preferred_travelling_minutes;
-								}
-								 // Passengers will always board slower convoy if its journey time is within an acceptable
-								 // tolerance of the fastest journey time. 
-								 // The acceptable tolerance is scaled depending on journey time of faster convoy.
-								 if (preferred_travelling_minutes <= 100 && how_much_slower < 160)
-								 {
-								  much_faster = false;
-								 }
-								 else if ((preferred_travelling_minutes > 100 && preferred_travelling_minutes <= 300) && (how_much_slower < 150))
-								 {
-									 much_faster = false;
-								 }
-								 else if ((preferred_travelling_minutes > 300 && preferred_travelling_minutes <= 600) && (how_much_slower < 140))
-								 {
-									 much_faster = false;
-								 }
-								 else if ((preferred_travelling_minutes > 600 && preferred_travelling_minutes <= 900) && (how_much_slower < 133))
-								 {
-									 much_faster = false;
-								 }
-								 else if ((preferred_travelling_minutes > 900 && preferred_travelling_minutes <= 1200) && (how_much_slower < 125))
-								 {
-									 much_faster = false;
-								 }
-								 else if ((preferred_travelling_minutes > 1200 && preferred_travelling_minutes <= 1800) && (how_much_slower < 122))
-								 {
-									 much_faster = false;
-								 }
-								 else if ((preferred_travelling_minutes > 1800) && (how_much_slower < 118))
-								 {
-									 much_faster = false;
-								 } 
-                     
-								 // If passengers have been waiting a long time, they are more likely to board a slower convoy.
-								 // But this is scaled so that a much slower convoy requires a much longer-than-expected wait.
-								 if (much_faster == true)
-								 {
-									if ((how_much_slower <= 125) && ( waiting_minutes >= (average_waiting_minutes * 3)))
-									{
-										waiting_too_long = true;
-									}
-									else if ((how_much_slower > 125 && how_much_slower <= 150) && ( waiting_minutes >= (average_waiting_minutes * 4)))
-									{
-										waiting_too_long = true;
-									}
-									else if ((how_much_slower > 150 && how_much_slower <= 200) && ( waiting_minutes >= (average_waiting_minutes * 5)))
-									{
-									 waiting_too_long = true;
-									}
-									else if (how_much_slower > 200 && ( waiting_minutes >= (average_waiting_minutes * 6)))
-									{
-									 waiting_too_long = true;
-									}
-									else 
-									{
-										waiting_too_long = false;
-									}
-								 }
-                     
-								 // Passengers continue to wait for faster convoy if...
-								 if ((much_faster == true) && (waiting_too_long == false))
-								 {
-									 continue;
-								 } 
-							}
-						}
-
-						const uint32 time_till_departure = (cnv->go_on_ticks - welt->get_zeit_ms());
-						// Don't board a vehicle which is waiting for spacing until near its departure time
-						// Assures that passengers will board the first train to leave, not the first train to arrive
-						if ((fpl->get_current_eintrag().ladegrad > 0) && (fpl->get_spacing() > 0))
+						if ((welt->ticks_to_tenths_of_minutes(time_till_departure)) > 100)
 						{
-							if ((welt->ticks_to_tenths_of_minutes(time_till_departure)) > 100)
-							{
-								continue;
-							}
-						}
-	
-						// Refuse to be overcrowded if alternative exists
-						connexion * const next_connexion = connexions[catg_index]->get(next_transfer);
-						if (next_connexion &&  overcrowded && next_connexion->alternative_seats )
-						{
+							fpl->increment_index(&index, &reverse);
 							continue;
 						}
-
-						// not too much?
-						ware_t neu(tmp);
-						if(  tmp.menge > maxi  ) 
-						{
-							// not all can be loaded
-							neu.menge = maxi;
-							tmp.menge -= maxi;
-						}
-						else 
-						{
-							// leave an empty entry => joining will more often work
-							tmp.menge = 0;
-						}
-				
-						book(neu.menge, HALT_DEPARTED);
-
-						resort_freight_info = true;
-
-						return neu;
 					}
-				}			
+	
+					// Refuse to be overcrowded if alternative exists
+					connexion * const next_connexion = connexions[catg_index]->get(next_transfer);
+					if (next_connexion &&  overcrowded && next_connexion->alternative_seats )
+					{
+						fpl->increment_index(&index, &reverse);
+						continue;
+					}
+
+					// not too much?
+					ware_t neu(*next_to_load);
+					if(  next_to_load->menge > maxi  ) 
+					{
+						// not all can be loaded
+						neu.menge = maxi;
+						next_to_load->menge -= maxi;
+					}
+					else 
+					{
+						// leave an empty entry => joining will more often work
+						next_to_load->menge = 0;
+					}
+				
+					book(neu.menge, HALT_DEPARTED);
+
+					resort_freight_info = true;
+
+					return neu;
+				}	
 				// nothing there to load
-			}
 
-			// if the schedule is mirrored and has reached its end, break
-			// as the convoi will be returning this way later.
-			if( fpl->is_mirrored() && (index==0 || index==(count-1)) )
-			{
-				break;
-			}
+				// if the schedule is mirrored and has reached its end, break
+				// as the convoy will be returning this way later.
+				if(fpl->is_mirrored() && (index == 0 || index == (count - 1)))
+				{
+					break;
+				}
 
-			fpl->increment_index(&index, &reverse);
+				fpl->increment_index(&index, &reverse);
+			}
 		}
 	}
 	// empty quantity of required type -> no effect
