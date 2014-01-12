@@ -2632,10 +2632,11 @@ void haltestelle_t::rdwr(loadsave_t *file)
 					ware_t ware(file);
 					if(  ware.menge>0  &&  welt->is_within_limits(ware.get_zielpos())  ) {
 						add_ware_to_halt(ware);
-						if(  file->get_version() <= 112000  ) {
+#ifdef CACHE_TRANSIT
+						if(  file->get_version() <= 112000  )
+#endif
 							// restore intransit information
 							fabrik_t::update_transit( &ware, true );
-						}
 					}
 					else if(  ware.menge>0  ) {
 						dbg->error( "haltestelle_t::rdwr()", "%i of %s to %s ignored!", ware.menge, ware.get_name(), ware.get_zielpos().get_str() );

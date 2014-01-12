@@ -54,6 +54,8 @@
 // Maximum number of threads
 #define MAX_THREADS (12)
 
+// cache goods transits (not recommended, will cause out of sync games to stay like that forever)
+//#define CACHE_TRANSIT
 
 /*********************** Useful things for debugging ... ********************/
 
