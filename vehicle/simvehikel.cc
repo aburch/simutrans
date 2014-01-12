@@ -923,6 +923,10 @@ uint16 vehikel_t::unload_freight(halthandle_t halt, sint64 & revenue_from_unload
 										for(uint8 i = 0; i < 16; i ++)
 										{
 											koord pos(origin_pos + origin_pos.second_neighbours[i]);
+											if(!welt->is_within_grid_limits(pos))
+											{
+												continue;
+											}
 											origin_city = welt->lookup(pos)->get_city();
 											if(origin_city)
 											{
