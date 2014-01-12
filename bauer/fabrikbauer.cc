@@ -429,14 +429,14 @@ fabrik_t* fabrikbauer_t::baue_fabrik(koord3d* parent, const fabrik_besch_t* info
 {
 	fabrik_t * fab = new fabrik_t(pos, spieler, info, initial_prod_base);
 
-	if(parent) {
-		fab->add_lieferziel(parent->get_2d());
-	}
-
 	// now build factory
 	fab->baue(rotate, true /*add fields*/, initial_prod_base != -1 /* force initial prodbase ? */);
 	welt->add_fab(fab);
 	add_factory_to_fab_map(welt, fab);
+
+	if(parent) {
+		fab->add_lieferziel(parent->get_2d());
+	}
 
 	// make all water station
 	if(info->get_platzierung() == fabrik_besch_t::Wasser) {

@@ -53,13 +53,13 @@ class ware_t;
 #define MAX_FAB_REF_LINE            (6)
 
 // statistics for goods
-#define MAX_FAB_GOODS_STAT          (4)
+#define MAX_FAB_GOODS_STAT          (5)
 // common to both input and output goods
 #define FAB_GOODS_STORAGE           (0)
 // input goods
 #define FAB_GOODS_RECEIVED          (1)
-#define FAB_GOODS_CONSUMED        (2)
-#define FAB_GOODS_TRANSIT                 (3)
+#define FAB_GOODS_CONSUMED          (2)
+#define FAB_GOODS_TRANSIT           (3)
 // output goods
 #define FAB_GOODS_DELIVERED         (1)
 #define FAB_GOODS_PRODUCED          (2)
@@ -93,8 +93,11 @@ private:
 	/// clears statistics, transit, and weighted_sum_storage
 	void init_stats();
 public:
-	ware_production_t() : type(NULL), menge(0), max(0), index_offset(0)
+	ware_production_t() : type(NULL), menge(0), max(0), index_offset(0), transit(0), max_transit(0)
 	{
+#ifdef TRANSIT_DISTANCE
+		count_suppliers = 0;
+#endif
 		init_stats();
 	}
 
@@ -125,6 +128,10 @@ public:
 	sint32 menge;	// in internal units shifted by precision_bits (see step)
 	sint32 max;
 	sint32 transit;
+	sint32 max_transit;	// current limit, depending of suppliers mean distance
+#ifdef TRANSIT_DISTANCE
+	sint32 count_suppliers;	// only needed for averaging
+#endif
 
 	uint32 index_offset; // used for haltlist and lieferziele searches in verteile_waren to produce round robin results
 };

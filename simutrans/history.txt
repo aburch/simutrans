@@ -17,6 +17,7 @@
 	ADD: makeobj can now warn about unused entries (makeobj verbose pak... or makeobj debug pak...)
 	CHG: Stretchable themes now in trunk
 	CHG: use faster route search for ships (jump-point search)
+	CHG: max in_transit now depends on the sum of all connected factories output storage times the in_transit percentage
 
 
 Release of 112.3: (r6520 on 17-May-2013):
