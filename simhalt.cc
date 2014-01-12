@@ -1798,11 +1798,11 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 				// There is no need any longer to have empty ware packets hanging around.
 				goods_to_remove.append(i);
 			}
+		}
 
-			ITERATE(goods_to_remove, n)
-			{
-				warray->remove_at(goods_to_remove[n]);
-			}
+		ITERATE(goods_to_remove, n)
+		{
+			warray->remove_at(goods_to_remove[n]);
 		}
 		
 		halthandle_t next_transfer;

@@ -27,12 +27,6 @@
     <ClCompile Include="besch\writer\crossing_writer.cc">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="tpl\debug_helper.cc">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="utils\dr_rdpng.c">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
     <ClCompile Include="besch\writer\factory_writer.cc">
       <Filter>Quelldateien</Filter>
     </ClCompile>
@@ -63,9 +57,6 @@
     <ClCompile Include="besch\writer\imagelist_writer.cc">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="utils\log.cc">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
     <ClCompile Include="makeobj\makeobj.cc">
       <Filter>Quelldateien</Filter>
     </ClCompile>
@@ -88,9 +79,6 @@
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="besch\writer\sim_writer.cc">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="simdebug.cc">
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="simmem.cc">
@@ -130,6 +118,9 @@
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="besch\writer\xref_writer.cc">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\dr_rdpng.cc">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>

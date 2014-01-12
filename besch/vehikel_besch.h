@@ -776,8 +776,9 @@ public:
 		switch(waytype)
 		{			
 			case track_wt:
-			case tram_wt:
 			case monorail_wt:		return 15L; //0.0015 when read
+
+			case tram_wt:			return 60L; //0.006 when read						
 
 			case narrowgauge_wt:	return 17L; //0.0017 when read
 
@@ -787,7 +788,7 @@ public:
 			case maglev_wt:			return 13L; //0.0013 when read
 
 			default:
-			case road_wt:			return 50L; //0.005 when read
+			case road_wt:			return 150L; //0.015 when read
 		};
 	}
 };
