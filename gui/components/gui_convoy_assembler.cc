@@ -364,6 +364,8 @@ bool  gui_convoy_assembler_t::show_retired_vehicles = false;
 
 bool  gui_convoy_assembler_t::show_all = false;
 
+class karte_ptr_t gui_convoy_assembler_t::welt;
+
 uint16 gui_convoy_assembler_t::livery_scheme_index = 0;
 
 int gui_convoy_assembler_t::selected_filter = VEHICLE_FILTER_RELEVANT;
