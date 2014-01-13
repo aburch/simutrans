@@ -792,7 +792,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 	int retry=25;	// and not more than 25 (happens mostly in towns)
 	while(  (lcount>lfound  ||  lcount==0)  &&  verbrauch>0  &&  retry>0  ) {
 
-		const fabrik_besch_t *hersteller = hersteller = pick_any_weighted( producer );
+		const fabrik_besch_t *hersteller = pick_any_weighted( producer );
 
 		int rotate = simrand(hersteller->get_haus()->get_all_layouts()-1);
 		koord3d parent_pos = our_fab->get_pos();
