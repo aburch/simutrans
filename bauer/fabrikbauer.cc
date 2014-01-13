@@ -121,8 +121,8 @@ public:
 		}
 		bool next_to_road = false;
 
-		for (sint16 x = -1; x < b; x++) {
-			for (sint16 y = -1;  y < h; y++) {
+		for (sint16 y = -1;  y < h; y++) {
+			for (sint16 x = -1; x < b; x++) {
 				koord k(pos + koord(x,y));
 				grund_t *gr = welt->lookup_kartenboden(k);
 				if (!gr) {
@@ -294,8 +294,8 @@ bool fabrikbauer_t::ist_bauplatz(koord pos, koord groesse, bool water, bool is_f
 {
 	// check for water (no shore in sight!)
 	if(water) {
-		for(int x=0;x<groesse.x;x++) {
-			for(int y=0;y<groesse.y;y++) {
+		for(int y=0;y<groesse.y;y++) {
+			for(int x=0;x<groesse.x;x++) {
 				const grund_t *gr=welt->lookup_kartenboden(pos+koord(x,y));
 				if(gr==NULL  ||  !gr->ist_wasser()  ||  gr->get_grund_hang()!=hang_t::flach) {
 					return false;
@@ -311,8 +311,8 @@ bool fabrikbauer_t::ist_bauplatz(koord pos, koord groesse, bool water, bool is_f
 	}
 	// check for existing factories
 	if (is_fabrik) {
-		for(int x=0;x<groesse.x;x++) {
-			for(int y=0;y<groesse.y;y++) {
+		for(int y=0;y<groesse.y;y++) {
+			for(int x=0;x<groesse.x;x++) {
 				if (is_factory_at(pos.x + x, pos.y + y)){
 					return false;
 				}
@@ -323,7 +323,7 @@ bool fabrikbauer_t::ist_bauplatz(koord pos, koord groesse, bool water, bool is_f
 }
 
 
-koord3d fabrikbauer_t::finde_zufallsbauplatz(const koord3d pos, const int radius, koord groesse, bool wasser, const haus_besch_t *besch, bool ignore_climates)
+koord3d fabrikbauer_t::finde_zufallsbauplatz(const koord3d p, const int radius, koord groesse, bool wasser, const haus_besch_t *besch, bool ignore_climates)
 {
 	bool is_fabrik = besch->get_utyp()==haus_besch_t::fabrik;
 
@@ -331,16 +331,32 @@ koord3d fabrikbauer_t::finde_zufallsbauplatz(const koord3d pos, const int radius
 		groesse += koord(6,6);
 	}
 
+	koord pos = p.get_2d();
+	if(  pos.x < radius  ) {
+		pos.x = radius;
+	}
+	else if(  pos.x + radius > welt->get_size().x  ) {
+		pos.x =  welt->get_size().x - radius - 1;
+	}
+	if(  pos.y < radius  ) {
+		pos.y = radius;
+	}
+	else if(  pos.y + radius > welt->get_size().y  ) {
+		pos.y =  welt->get_size().y - radius - 1;
+	}
+
 	climate_bits climates = !ignore_climates ? besch->get_allowed_climate_bits() : ALL_CLIMATES;
 
 	uint32 diam   = 2*radius + 1;
-	uint32 size   = diam * diam;
-	uint32 offset = diam*groesse.x*groesse.y + 1;
+	uint32 size   = (1+diam/groesse.x) * (1+diam/groesse.y);
 	uint32 index  = simrand(size);
 	koord k;
-	for(uint32 i = 0; i<size; i++, index+=offset) {
-		// as offset%size == 1, we are guaranteed that the iteration hits all tiles and does not repeat itself
-		k = koord( pos.x-radius + (index / diam), pos.y-radius + (index % diam));
+
+	// in order to stop on the first occurence, I have to iterate over all tile in a reporducable manner.
+	for(uint32 i = 0; i<size; i++, index = (9901*index+p.x+33) % size ) {
+
+		// we are guaranteed that the iteration hits all tiles and does not repeat itself
+		k = koord( pos.x - radius + (index % diam)*groesse.x, pos.y - radius + (index / diam)*groesse.x );
 
 		// check place
 		if(  fabrikbauer_t::ist_bauplatz(k, groesse, wasser, is_fabrik, climates)  ) {
@@ -350,15 +366,14 @@ koord3d fabrikbauer_t::finde_zufallsbauplatz(const koord3d pos, const int radius
 		// next search will be groesse.x rows down, groesse.y+1 columns left (groesse = size)
 	}
 	// nothing found
-	return koord3d(-1, -1, -1);
+	return koord3d::invalid;
 
 finish:
-	koord3d p = welt->lookup_kartenboden(k)->get_pos();
 	if(wasser) {
 		// take care of offset
-		p += koord3d(3, 3, 0);
+		return welt->lookup_kartenboden(k+koord(3, 3))->get_pos();
 	}
-	return p;
+	return welt->lookup_kartenboden(k)->get_pos();
 }
 
 

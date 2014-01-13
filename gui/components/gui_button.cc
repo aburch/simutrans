@@ -274,7 +274,7 @@ void button_t::draw(scr_coord offset)
 			}
 			break;
 
-		case roundbox: // button with round corners
+		case roundbox: // button with inside text
 			{
 				display_img_stretch( gui_theme_t::round_button_tiles[get_state_offset()], area );
 				if(  text  ) {
