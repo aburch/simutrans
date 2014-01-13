@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include "../simdebug.h"
+#include "../simconst.h"
 #include "ribi.h"
 #include "koord.h"
 #include "koord3d.h"
@@ -27,120 +28,249 @@ const ribi_t::ribi ribi_t::layout_to_ribi[4] = {
 };
 
 const int ribi_t::flags[16] = {
-	0,										// keine
-	einfach | gerade_ns,	// nord
-	einfach | gerade_ow,	// ost
-	kurve | twoway,				// nordost
-	einfach | gerade_ns,	// sued
-	gerade_ns | twoway,		// nordsued
-	kurve | twoway,				// suedost
-	threeway,							// nordsuedost
+	0,						// none
+	einfach | gerade_ns,	// north
+	einfach | gerade_ow,	// east
+	kurve | twoway,			// north-east
+	einfach | gerade_ns,	// south
+	gerade_ns | twoway,		// north-south
+	kurve | twoway,			// south-east
+	threeway,				// north-south-east
 	einfach | gerade_ow,	// west
-	kurve | twoway,				// nordwest
-	gerade_ow | twoway,		// ostwest
-	threeway,							// nordostwest
-	kurve | twoway,				// suedwest
-	threeway,							// nordsuedwest
-	threeway,							// suedostwest
-	threeway,							// alle
+	kurve | twoway,			// north-west
+	gerade_ow | twoway,		// east-west
+	threeway,				// north-east-west
+	kurve | twoway,			// south-west
+	threeway,				// north-south-west
+	threeway,				// south-east-west
+	threeway,				// all
 };
 
 const ribi_t::ribi ribi_t::rwr[16] = {
-	alle,			// keine
-	sued,			// nord
-	west,			// ost
-	suedwest,			// nordost
-	nord,			// sued
-	nordsued,			// nordsued
-	nordwest,			// suedost
-	west,			// nordsuedost
-	ost,			// west
-	suedost,			// nordwest
-	ostwest,			// ostwest
-	sued,			// nordostwest
-	nordost,			// suedwest
-	ost,			// nordsuedwest
-	nord,			// suedostwest
-	keine			// alle
+	alle,		// none
+	sued,		// north
+	west,		// east
+	suedwest,	// north-east
+	nord,		// south
+	nordsued,	// north-south
+	nordwest,	// south-east
+	west,		// north-south-east
+	ost,		// west
+	suedost,	// north-west
+	ostwest,	// east-west
+	sued,		// north-east-west
+	nordost,	// south-west
+	ost,		// north-south-west
+	nord,		// south-east-west
+	keine		// all
 };
 
 const ribi_t::ribi ribi_t::doppelr[16] = {
-	keine,			// keine
-	nordsued,			// nord
-	ostwest,			// ost
-	keine,			// nordost
-	nordsued,			// sued
-	nordsued,			// nordsued
-	keine,			// suedost
-	keine,			// nordsuedost
-	ostwest,			// west
-	keine,			// nordwest
-	ostwest,			// ostwest
-	keine,			// nordostwest
-	keine,			// suedwest
-	keine,			// nordsuedwest
-	keine,			// suedostwest
-	keine			// alle
+	keine,		// none
+	nordsued,	// north
+	ostwest,	// east
+	keine,		// north-east
+	nordsued,	// south
+	nordsued,	// north-south
+	keine,		// south-east
+	keine,		// north-south-east
+	ostwest,	// west
+	keine,		// north-west
+	ostwest,	// east-west
+	keine,		// north-east-west
+	keine,		// south-west
+	keine,		// north-south-west
+	keine,		// south-east-west
+	keine		// all
 };
 
 const ribi_t::ribi ribi_t::fwrd[16] = {
-	alle,			// keine
-	nordostwest,	// nord
-	nordsuedost,	// ost
-	nordost,			// nordost
-	suedostwest,	// sued
-	keine,				// nordsued
-	suedost,			// suedost
-	keine,				// nordsuedost
+	alle,			// none
+	nordostwest,	// north
+	nordsuedost,	// east
+	nordost,		// north-east
+	suedostwest,	// south
+	keine,			// north-south
+	suedost,		// south-east
+	keine,			// north-south-east
 	nordsuedwest,	// west
-	nordwest,			// nordwest
-	keine,				// ostwest
-	keine,				// nordostwest
-	suedwest,			// suedwest
-	keine,				// nordsuedwest
-	keine,				// suedostwest
-	keine			// alle
+	nordwest,		// north-west
+	keine,			// east-west
+	keine,			// north-east-west
+	suedwest,		// south-west
+	keine,			// north-south-west
+	keine,			// south-east-west
+	keine			// all
 };
 
-#ifndef DOUBLE_GROUNDS
 
-// single height hangs
-static const ribi_t::ribi from_hang[16] = {
-	ribi_t::keine,		// 0:flach
-	ribi_t::suedwest,	// 1:spitze SW
-	ribi_t::suedost,	// 2:spitze SO
-	ribi_t::sued,		// 3:nordhang
-	ribi_t::nordost,	// 4:spitze NO
-	ribi_t::alle,		// 5:spitzen SW+NO
-	ribi_t::ost,		// 6:westhang
-	ribi_t::suedost,	// 7:tal NW
-	ribi_t::nordwest,	// 8:spitze NW
-	ribi_t::west,		// 9:osthang
-	ribi_t::alle,		// 10:spitzen NW+SO
-	ribi_t::suedwest,	// 11:tal NO
-	ribi_t::nord,		// 12:suedhang
-	ribi_t::nordwest,	// 13:tal SO
-	ribi_t::nordost,	// 14:tal SW
-	ribi_t::keine		// 15:alles oben
+static const ribi_t::ribi from_hang[81] = {
+	ribi_t::keine, // ribi_t::none:flat
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::sued,  // 4:north single height slope
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::sued,  // 8:north double height slope
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::ost,   // 12:west single height slope
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::ost,   // 24:west double height slope
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::west,  // 28:east single height slope
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::nord,  // 36:south single height slope
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::west,  // 56:east double height slope
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::nord,  // 72:south double height slope
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine,
+	ribi_t::keine  // 80:all of the above
 };
 
-const int hang_t::flags[16] = {
-	wegbar_ns|wegbar_ow,	// 0:flach
-	0,				// 1:spitze SW
-	0,				// 2:spitze SO
-	wegbar_ns|einfach,		// 3:nordhang
-	0,				// 4:spitze NO
-	0,				// 5:spitzen SW+NO
-	wegbar_ow|einfach,		// 6:westhang
-	0,				// 7:tal NW
-	0,				// 8:spitze NW
-	wegbar_ow|einfach,		// 9:osthang
-	0,				// 10:spitzen NW+SO
-	0,				// 11:tal NO
-	wegbar_ns|einfach,		// 12:suedhang
-	0,				// 13:tal SO
-	0,				// 14:tal SW
-	wegbar_ns|wegbar_ow 	// 15:alles oben
+
+const int hang_t::flags[81] = {
+	wegbar_ns | wegbar_ow,	// slope 0 # flat	straight ns|ew
+	0,	// slope 1 # sw1
+	doppel,	// slope 2 # sw2
+	0,	// slope 3 # se1
+	wegbar_ns | einfach,	// slope 4 # se1,sw1	straight ns
+	doppel,	// slope 5 # se1,sw2
+	doppel,	// slope 6 # se2
+	doppel,	// slope 7 # se2,sw1
+	wegbar_ns | einfach | doppel,	// slope 8 # se2,sw2	straight ns2
+	0,	// slope 9 # ne1
+	0,	// slope 10 # ne1,sw1
+	doppel,	// slope 11 # ne1,sw2
+	wegbar_ow | einfach,	// slope 12 # ne1,se1	straight ew
+	0,	// slope 13 # ne1,se1,sw1
+	doppel,	// slope 14 # ne1,se1,sw2
+	doppel,	// slope 15 # ne1,se2
+	doppel,	// slope 16 # ne1,se2,sw1
+	doppel,	// slope 17 # ne1,se2,sw2
+	doppel,	// slope 18 # ne2
+	doppel,	// slope 19 # ne2,sw1
+	doppel,	// slope 20 # ne2,sw2
+	doppel,	// slope 21 # ne2,se1
+	doppel,	// slope 22 # ne2,se1,sw1
+	doppel,	// slope 23 # ne2,se1,sw2
+	wegbar_ow | einfach | doppel,	// slope 24 # ne2,se2	straight ew2
+	doppel,	// slope 25 # ne2,se2,sw1
+	doppel,	// slope 26 # ne2,se2,sw2
+	0,	// slope 27 # nw1
+	wegbar_ow | einfach,	// slope 28 # nw1,sw1	straight ew
+	doppel,	// slope 29 # nw1,sw2
+	0,	// slope 30 # nw1,se1
+	0,	// slope 31 # nw1,se1,sw1
+	doppel,	// slope 32 # nw1,se1,sw2
+	0,	// slope 33 # nw1,se2
+	0,	// slope 34 # nw1,se2,sw1
+	doppel,	// slope 35 # nw1,se2,sw2
+	wegbar_ns | einfach,	// slope 36 # nw1,ne1	straight ns
+	0,	// slope 37 # nw1,ne1,sw1
+	doppel,	// slope 38 # nw1,ne1,sw2
+	0,	// slope 39 # nw1,ne1,se1
+	wegbar_ns | wegbar_ow | all_up,	// slope 40 # nw1,ne1,se1,sw1	TODO	0 up 1
+	doppel | all_up,	// slope 41 # nw1,ne1,se1,sw2	TODO	1 up 1
+	doppel,	// slope 42 # nw1,ne1,se2
+	doppel | all_up,	// slope 43 # nw1,ne1,se2,sw1	TODO	3 up 1
+	wegbar_ns | einfach | doppel | all_up,	// slope 44 # nw1,ne1,se2,sw2	TODOns	4 up 1
+	doppel,	// slope 45 # nw1,ne2
+	doppel,	// slope 46 # nw1,ne2,sw1
+	doppel,	// slope 47 # nw1,ne2,sw2
+	doppel,	// slope 48 # nw1,ne2,se1
+	doppel | all_up,	// slope 49 # nw1,ne2,se1,sw1	TODO	9 up 1
+	doppel | all_up,	// slope 50 # nw1,ne2,se1,sw2	TODO	10 up 1
+	doppel,	// slope 51 # nw1,ne2,se2
+	wegbar_ow | einfach | doppel | all_up,	// slope 52 # nw1,ne2,se2,sw1	TODOew	12 up 1
+	doppel | all_up,	// slope 53 # nw1,ne2,se2,sw2	TODO	13 up 1
+	doppel,	// slope 54 # nw2
+	doppel,	// slope 55 # nw2,sw1
+	wegbar_ow | einfach | doppel,	// slope 56 # nw2,sw2	straight ew2
+	doppel,	// slope 57 # nw2,se1
+	doppel,	// slope 58 # nw2,se1,sw1
+	doppel,	// slope 59 # nw2,se1,sw2
+	doppel,	// slope 60 # nw2,se2
+	doppel,	// slope 61 # nw2,se2,sw1
+	doppel,	// slope 62 # nw2,se2,sw2
+	doppel,	// slope 63 # nw2,ne1
+	doppel,	// slope 64 # nw2,ne1,sw1
+	doppel,	// slope 65 # nw2,ne1,sw2
+	doppel,	// slope 66 # nw2,ne1,se1
+	doppel | all_up,	// slope 67 # nw2,ne1,se1,sw1	TODO	27 up 1
+	wegbar_ow | einfach | doppel | all_up,	// slope 68 # nw2,ne1,se1,sw2	TODOew	28 up 1
+	doppel,	// slope 69 # nw2,ne1,se2
+	doppel | all_up,	// slope 70 # nw2,ne1,se2,sw1	TODO	30 up 1
+	doppel | all_up,	// slope 71 # nw2,ne1,se2,sw2	TODO	31 up 1
+	wegbar_ns | einfach | doppel,	// slope 72 # nw2,ne2	straight ns2
+	doppel,	// slope 73 # nw2,ne2,sw1
+	doppel,	// slope 74 # nw2,ne2,sw2
+	doppel,	// slope 75 # nw2,ne2,se1
+	wegbar_ns | einfach | doppel | all_up,	// slope 76 # nw2,ne2,se1,sw1	TODOns	36 up 1
+	doppel | all_up,	// slope 77 # nw2,ne2,se1,sw2	TODO	37 up 1
+	doppel,	// slope 78 # nw2,ne2,se2
+	doppel | all_up,	// slope 79 # nw2,ne2,se2,sw1	TODO	39 up 1
+	wegbar_ns | wegbar_ow | all_up	// slope 80 # nw2,ne2,se2,sw2	TODO	0 up 2
 };
 
 
@@ -164,195 +294,23 @@ const hang_t::typ hang_t::hang_from_ribi[16] = {
 };
 
 
-#else
-//double height grounds
-static const ribi_t::ribi from_hang[81] = {
-	ribi_t::keine,	// ribi_t::keine:flach
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::sued,		// 4:nordhang
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::sued,		// 8: double height nord
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::ost,	// 12:westhang
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::ost,	// 24: double height west
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::west,	// 28:osthang
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::nord,		// 36:suedhang
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::west,	// 56:double osthang
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::nord,	// 72: double sued
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine,
-	ribi_t::keine		// 80:alles oben
-};
-
-const int hang_t::flags[81] = {
-	wegbar_ns|wegbar_ow,	// 0:flach
-	0,
-	0,
-	0,
-	wegbar_ns|einfach,		// 4:nordhang
-	0,
-	0,
-	0,
-	einfach,		// 8: double height nord
-	0,
-	0,
-	0,
-	wegbar_ow|einfach,	// 12:westhang
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	einfach,		// 24: double height west
-	0,
-	0,
-	0,
-	wegbar_ow|einfach,	// 28:osthang
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	wegbar_ns|einfach,		// 36:suedhang
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	einfach,	// 56:osthang
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	einfach,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	wegbar_ns|wegbar_ow 	// 80:alles oben
-};
-#endif
-
-
 const ribi_t::dir ribi_t::dirs[16] = {
-	dir_invalid,		// keine
-	dir_nord,			// nord
-	dir_ost,			// ost
-	dir_nordost,		// nordost
-	dir_sued,			// sued
-	dir_invalid,		// nordsued
-	dir_suedost,		// suedost
-	dir_invalid,		// nordsuedost
-	dir_west,			// west
-	dir_nordwest,		// nordwest
-	dir_invalid,		// ostwest
-	dir_invalid,		// nordostwest
-	dir_suedwest,		// suedwest
-	dir_invalid,		// nordsuedwest
-	dir_invalid,		// suedostwest
-	dir_invalid			// alle
+	dir_invalid,	// none
+	dir_nord,		// north
+	dir_ost,		// east
+	dir_nordost,	// north-east
+	dir_sued,		// south
+	dir_invalid,	// north-south
+	dir_suedost,	// south-east
+	dir_invalid,	// north-south-east
+	dir_west,		// west
+	dir_nordwest,	// north-west
+	dir_invalid,	// east-west
+	dir_invalid,	// north-east-west
+	dir_suedwest,	// south-west
+	dir_invalid,	// north-south-west
+	dir_invalid,	// south-east-west
+	dir_invalid		// all
 };
 
 
@@ -362,7 +320,7 @@ ribi_t::ribi ribi_typ(koord from, koord to)
 }
 
 
-ribi_t::ribi ribi_typ(hang_t::typ hang)   // nordhang -> sued, ... !
+ribi_t::ribi ribi_typ(hang_t::typ hang)   // north slope -> south, ... !
 {
 	return from_hang[hang];
 }
@@ -437,19 +395,19 @@ bool ribi_t::ist_exakt_orthogonal(ribi x, ribi y)
 hang_t::typ hang_typ(koord dir)
 {
 	if(dir.x == 0) {
-		if(dir.y < 0) {		    // Richtung nord -> suedhang
+		if(dir.y < 0) {		    // north direction -> south slope
 			return hang_t::sued;
 		}
 		if(dir.y > 0) {
-			return hang_t::nord;    // Richtung sued -> nordhang
+			return hang_t::nord;    // south direction -> north slope
 		}
 	}
 	if(dir.y == 0) {
 		if(dir.x < 0) {
-			return hang_t::ost;	    // Richtung west -> osthang
+			return hang_t::ost;	    // west direction -> east slope
 		}
 		if(dir.x > 0) {
-			return hang_t::west;    // Richtung ost -> westhang
+			return hang_t::west;    // east direction -> west slope
 		}
 	}
 	return hang_t::flach;	    // ???

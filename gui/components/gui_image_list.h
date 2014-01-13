@@ -4,7 +4,7 @@
 #include "gui_action_creator.h"
 #include "gui_komponente.h"
 #include "../../tpl/vector_tpl.h"
-#include "../../simimg.h"
+#include "../../display/simimg.h"
 #include "../../simcolor.h"
 
 #define EMPTY_IMAGE_BAR (255)
@@ -20,7 +20,7 @@
  * @author Volker Meyer
  * @date  09.06.2003
  *
- * Eine Komponenete die eine Liste von Bildern darstellt.
+ * A component that represents a list of images.
  * @author Hj. Malthaner
  */
 class gui_image_list_t :
@@ -52,8 +52,8 @@ public:
 private:
 	vector_tpl<image_data_t*> *images;
 
-	koord grid;
-	koord placement;
+	scr_coord grid;
+	scr_coord placement;
 
 	/**
 	 * Rows or columns?
@@ -63,7 +63,7 @@ private:
 	int use_rows;
 
 	/**
-	 * Kennfarbe für Bilder (Spielerfarbe).
+	 * Player number to obtain player color used to display the images.
 	 * @author Hj. Malthaner
 	 */
 	sint8 player_nr;
@@ -81,24 +81,24 @@ public:
 	 * @author Volker Meyer
 	 * @date  20.06.2003
 	 */
-	void set_grid(koord grid) { this->grid = grid; }
+	void set_grid(scr_coord grid) { this->grid = grid; }
 
 	/**
 	 * This set the offset for the images.
 	 * @author Volker Meyer
 	 * @date  20.06.2003
 	 */
-	void set_placement(koord placement) { this->placement = placement; }
+	void set_placement(scr_coord placement) { this->placement = placement; }
 
 	void set_player_nr(sint8 player_nr) { this->player_nr = player_nr; }
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**
-	 * Zeichnet die Bilder
+	 * Draw/record the picture
 	 * @author Hj. Malthaner
 	 */
-	virtual void zeichnen(koord offset);
+	virtual void draw(scr_coord offset);
 
 	/**
 	 * Looks for the image at given position.
@@ -107,7 +107,7 @@ public:
 	 * @author Volker Meyer
 	 * @date  07.06.2003
 	 */
-	int index_at(koord parent_pos, int xpos, int ypos) const;
+	int index_at(scr_coord parent_pos, int xpos, int ypos) const;
 
 	void recalc_size();
 };

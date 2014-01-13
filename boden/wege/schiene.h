@@ -30,7 +30,7 @@ protected:
 	*/
 	convoihandle_t reserved;
 
-	schiene_t(karte_t *welt, waytype_t waytype);
+	schiene_t(waytype_t waytype);
 public:
 	static const weg_besch_t *default_schiene;
 
@@ -40,8 +40,9 @@ public:
 	* File loading constructor.
 	* @author Hj. Malthaner
 	*/
-	schiene_t(karte_t *welt, loadsave_t *file);
-	schiene_t(karte_t *welt);
+	schiene_t(loadsave_t *file);
+
+	schiene_t();
 
 	//virtual waytype_t get_waytype() const {return track_wt;}
 
@@ -108,7 +109,7 @@ public:
 };
 
 
-template<> inline schiene_t* ding_cast<schiene_t>(ding_t* const d)
+template<> inline schiene_t* obj_cast<schiene_t>(obj_t* const d)
 {
 	return dynamic_cast<schiene_t*>(d);
 }

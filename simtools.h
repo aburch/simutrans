@@ -32,7 +32,7 @@ uint32 simrand_normal(const uint32 max, const char*);
 #endif
 
 /* generates a random number on [0,0xFFFFFFFFu]-interval */
-uint32 simrand_plain(void);
+uint32 simrand_plain();
 
 double perlin_noise_2D(const double x, const double y, const double persistence, const sint32 map_size = 512);
 

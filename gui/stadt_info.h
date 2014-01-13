@@ -9,7 +9,7 @@
 #define gui_stadt_info_h
 
 #include "../simcity.h"
-#include "../simwin.h"
+#include "../gui/simwin.h"
 
 #include "gui_frame.h"
 #include "components/gui_chart.h"
@@ -24,8 +24,7 @@ class stadt_t;
 template <class T> class sparse_tpl;
 
 /**
- * Dies stellt ein Fenster mit den Informationen
- * ueber eine Stadt dar.
+ * Presents a window with city information
  *
  * @author Hj. Malthaner
  */
@@ -36,8 +35,8 @@ private:
 
 	stadt_t *stadt;
 
-	koord minimaps_size; // size of minimaps
-	koord minimap2_offset; // position offset of second minimap
+	scr_size minimaps_size; // size of minimaps
+	scr_coord minimap2_offset; // position offset of second minimap
 
     button_t allow_growth;
 
@@ -72,7 +71,7 @@ public:
 
 	virtual bool is_weltpos();
 
-	void zeichnen(koord pos, koord gr);
+	void draw(scr_coord pos, scr_size size);
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
@@ -93,10 +92,10 @@ public:
 	/**
 	 * resize window in response to a resize event
 	 */
-	void resize(const koord delta);
+	void resize(const scr_coord delta);
 
-	// this contructor is only used during loading
-	stadt_info_t(karte_t *welt);
+	// this constructor is only used during loading
+	stadt_info_t();
 
 	void rdwr(loadsave_t *);
 

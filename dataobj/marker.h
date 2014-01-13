@@ -1,10 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
- *
- * Author: V. Meyer
  */
 #ifndef __MARKER_H
 #define __MARKER_H
@@ -13,30 +9,75 @@
 
 class grund_t;
 
+/**
+ * Class to mark tiles as visited during route search.
+ * Singleton.
+ */
 class marker_t {
-    // Hajo: added bit mask, because it allows a more efficient
-    // implementation (use & instead of %)
-    enum { bit_unit = (8 * sizeof(unsigned char)),
-           bit_mask = (8 * sizeof(unsigned char))-1 };
+	// Hajo: added bit mask, because it allows a more efficient
+	// implementation (use & instead of %)
+	enum { bit_unit = (8 * sizeof(unsigned char)),
+		bit_mask = (8 * sizeof(unsigned char))-1 };
 
-    unsigned char *bits;
-    int	bits_groesse;
+	/// bit-field to mark ground tiles
+	unsigned char *bits;
 
-    int cached_groesse;
+	/// length of field
+	int bits_groesse;
 
-    ptrhashtable_tpl <const grund_t *, bool> more;
+	/// bit-field is made for this x-size
+	int cached_groesse;
+
+	/// hashtable to mark non-ground tiles (bridges, tunnels)
+	ptrhashtable_tpl <const grund_t *, bool> more;
+
+	marker_t() : bits(NULL) { init(0, 0); }
+	~marker_t();
+
+	/**
+	 * Initializes marker. Set all tiles to not marked.
+	 * @param welt_groesse_x x-size of map
+	 * @param welt_groesse_y y-size of map
+	 */
+	void init(int welt_groesse_x,int welt_groesse_y);
+
+	/// the instance
+	static marker_t the_instance;
 public:
-    marker_t(int welt_groesse_x,int welt_groesse_y) : bits(NULL) { init(welt_groesse_x, welt_groesse_y); }
-    ~marker_t();
+	/**
+	 * Return handle to marker instance.
+	 * @param welt_groesse_x x-size of map
+	 * @param welt_groesse_y y-size of map
+	 * @returns handle to the singleton instance
+	 */
+	static marker_t& instance(int welt_groesse_x,int welt_groesse_y);
 
-    void init(int welt_groesse_x,int welt_groesse_y);
+	/**
+	 * Marks tile as visited.
+	 */
+	void mark(const grund_t *gr);
 
-    void markiere(const grund_t *gr);
-    void unmarkiere(const grund_t *gr);
-    bool ist_markiert(const grund_t *gr) const;
+	/**
+	 * Unmarks tile as visited.
+	 */
+	void unmark(const grund_t *gr);
 
-    void unmarkiere_alle();
+	/**
+	 * Checks if tile is visited.
+	 * @returns true if tile was already visited
+	 */
+	bool is_marked(const grund_t *gr) const;
 
+	/**
+	 * Checks if tile is visited. Marks tile as visited if not visited before.
+	 * @returns true if tile was already visited
+	 */
+	bool test_and_mark(const grund_t *gr);
+
+	/**
+	 * Marks all fields as not visited.
+	 */
+	void unmark_all();
 };
 
 #endif

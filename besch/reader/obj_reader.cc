@@ -3,7 +3,7 @@
 
 // for the progress bar
 #include "../../simcolor.h"
-#include "../../simimg.h"
+#include "../../display/simimg.h"
 #include "../../simsys.h"
 #include "../../simtypes.h"
 #include "../../simloadingscreen.h"
@@ -12,12 +12,9 @@
 #include "../grund_besch.h"	// for the error message!
 #include "../../simskin.h"
 
-// for init of button images
-#include "../../gui/components/gui_button.h"
-
 // normal stuff
 #include "../../dataobj/translator.h"
-#include "../../dataobj/umgebung.h"
+#include "../../dataobj/environment.h"
 
 #include "../../utils/searchfolder.h"
 #include "../../utils/simstring.h"
@@ -48,21 +45,6 @@ void obj_reader_t::register_reader()
 }
 
 
-bool obj_reader_t::init()
-{
-	// search for skins first
-	chdir( umgebung_t::program_dir );
-	load( "skin/", translator::translate("Loading skins ...") );
-	if(  umgebung_t::program_dir != umgebung_t::user_dir  ) {
-		chdir( umgebung_t::user_dir );
-		load( "skin/", translator::translate("Loading skins ...") );
-	}
-	chdir( umgebung_t::program_dir );
-	button_t::init_button_images();
-	return true;
-}
-
-
 bool obj_reader_t::laden_abschliessen()
 {
 	resolve_xrefs();
@@ -75,8 +57,6 @@ bool obj_reader_t::laden_abschliessen()
 			return false;
 		}
 	}
-
-	button_t::init_button_images();
 	return true;
 }
 

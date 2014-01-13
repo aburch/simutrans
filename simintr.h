@@ -56,3 +56,7 @@ void interrupt_check(const char* caller_info);
 	#endif
 #endif
 #endif
+
+
+// returns a time string in the desired format
+char const *tick_to_string( sint32 ticks, bool show_full );

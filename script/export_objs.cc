@@ -7,13 +7,9 @@
 
 #include "api/api.h"
 
-static karte_t *welt;
 
-void register_export_function(HSQUIRRELVM vm, karte_t *welt_)
+void register_export_function(HSQUIRRELVM vm)
 {
-	welt = welt_;
-	script_api::welt = welt_;
-
 	script_api::start_squirrel_type_logging();
 
 	sq_pushroottable(vm);

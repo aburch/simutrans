@@ -12,15 +12,15 @@
 #ifndef fabrikinfo_t_h
 #define fabrikinfo_t_h
 
-#include "../simwin.h"
+#include "../gui/simwin.h"
 
 #include "factory_chart.h"
 #include "components/action_listener.h"
 #include "components/gui_scrollpane.h"
 #include "components/gui_textarea.h"
 #include "components/gui_textinput.h"
-#include "components/gui_ding_view_t.h"
-#include "gui_container.h"
+#include "components/gui_obj_view_t.h"
+#include "components/gui_container.h"
 #include "../utils/cbuffer_t.h"
 
 class welt_t;
@@ -41,7 +41,7 @@ public:
 
 	gui_fabrik_info_t() {}
 
-	void zeichnen(koord offset);
+	void draw(scr_coord offset);
 };
 
 
@@ -53,7 +53,7 @@ class fabrik_info_t : public gui_frame_t, public action_listener_t
 {
  private:
 	fabrik_t *fab;
-	karte_t *welt;
+	karte_ptr_t welt;
 
 	cbuffer_t info_buf, prod_buf;
 
@@ -62,7 +62,7 @@ class fabrik_info_t : public gui_frame_t, public action_listener_t
 
 	button_t details_button;
 
-	ding_view_t view;
+	obj_view_t view;
 
 	char fabname[256];
 	gui_textinput_t input;
@@ -97,7 +97,7 @@ public:
 
 	virtual bool is_weltpos();
 
-	virtual void set_fenstergroesse(koord groesse);
+	virtual void set_windowsize(scr_size size);
 
 	/**
 	* Draw new component. The values to be passed refer to the window
@@ -105,7 +105,7 @@ public:
 	* component is displayed.
 	* @author Hj. Malthaner
 	*/
-	virtual void zeichnen(koord pos, koord gr);
+	virtual void draw(scr_coord pos, scr_size size);
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
@@ -113,7 +113,7 @@ public:
 	void map_rotate90( sint16 ) { update_info(); }
 
 	// this constructor is only used during loading
-	fabrik_info_t(karte_t *welt);
+	fabrik_info_t();
 
 	void rdwr( loadsave_t *file );
 

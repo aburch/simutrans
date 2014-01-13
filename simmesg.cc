@@ -11,13 +11,13 @@
 #include "simdebug.h"
 #include "simmesg.h"
 #include "simticker.h"
-#include "simgraph.h"
+#include "display/simgraph.h"
 #include "simcolor.h"
-#include "simwin.h"
+#include "gui/simwin.h"
 #include "simworld.h"
 
 #include "dataobj/loadsave.h"
-#include "dataobj/umgebung.h"
+#include "dataobj/environment.h"
 #include "player/simplay.h"
 #include "utils/simstring.h"
 #include "tpl/slist_tpl.h"
@@ -192,7 +192,7 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 		if (pos == koord::invalid) {
 			news = new news_img(p, bild, colorval);
 		} else {
-			news = new news_loc(welt, p, pos, colorval);
+			news = new news_loc(p, pos, colorval);
 		}
 		wintype w_t = art & win_flags ? w_info /* normal window */ : w_time_delete /* autoclose window */;
 
@@ -218,7 +218,7 @@ void message_t::rdwr( loadsave_t *file )
 {
 	uint16 msg_count;
 	if(  file->is_saving()  ) {
-		if(  umgebung_t::server  ) {
+		if(  env_t::server  ) {
 			// on server: do not save local messages
 			msg_count = 0;
 			FOR(slist_tpl<node*>, const i, list) {

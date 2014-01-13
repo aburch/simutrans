@@ -6,7 +6,7 @@
 #ifndef gui_tab_panel_h
 #define gui_tab_panel_h
 
-#include "../../simimg.h"
+#include "../../display/simimg.h"
 
 #include "../../besch/skin_besch.h"
 
@@ -37,11 +37,11 @@ private:
 	slist_tpl<tab> tabs;
 	int active_tab, offset_tab;
 
-	koord required_groesse;
+	scr_size required_size;
 	button_t left, right;
 
 public:
-	enum { HEADER_VSIZE = 18};
+	static scr_coord_val header_vsize;
 
 	gui_tab_panel_t();
 
@@ -70,14 +70,14 @@ public:
 	 * Draw tabs
 	 * @author Hj. Malthaner
 	 */
-	void zeichnen(koord offset);
+	void draw(scr_coord offset);
 
 	/**
 	 * Resizing must be propagated!
 	 * @author Volker Meyer
 	 * @date  18.06.2003
 	 */
-	void set_groesse(koord groesse) OVERRIDE;
+	void set_size(scr_size size) OVERRIDE;
 
 	/*
 	 * Remove all tabs.
@@ -108,7 +108,7 @@ public:
 	 * Used for auto-scrolling inside a scroll pane.
 	 * @author Knightly
 	 */
-	virtual koord get_focus_pos() { return pos + get_aktives_tab()->get_focus_pos(); }
+	virtual scr_coord get_focus_pos() { return pos + get_aktives_tab()->get_focus_pos(); }
 };
 
 #endif

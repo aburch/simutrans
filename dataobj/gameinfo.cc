@@ -7,11 +7,11 @@
  */
 
 #include "gameinfo.h"
-#include "network.h"
-#include "network_socket_list.h"
-#include "einstellungen.h"
+#include "../network/network.h"
+#include "../network/network_socket_list.h"
+#include "settings.h"
 #include "translator.h"
-#include "umgebung.h"
+#include "environment.h"
 #include "../simtools.h"
 #include "../simdebug.h"
 #include "../simworld.h"
@@ -22,7 +22,7 @@
 #include "../gui/karte.h"
 #include "../utils/simstring.h"
 #include "loadsave.h"
-#include "pakset_info.h"
+#include "../network/pakset_info.h"
 #include "../simversion.h"
 
 
@@ -35,8 +35,8 @@ gameinfo_t::gameinfo_t(karte_t *welt) :
 	file_name(""),
 	pak_name("")
 {
-	groesse_x = welt->get_size().x;
-	groesse_y = welt->get_size().y;
+	size_x = welt->get_size().x;
+	size_y = welt->get_size().y;
 
 	// create a minimap
 
@@ -99,7 +99,7 @@ gameinfo_t::gameinfo_t(karte_t *welt) :
 	}
 	else {
 		// construct from pak name
-		pak_name = umgebung_t::objfilename;
+		pak_name = env_t::objfilename;
 		pak_name.erase( pak_name.length()-1 );
 	}
 
@@ -126,8 +126,8 @@ void gameinfo_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t e( file, "gameinfo_t" );
 
-	file->rdwr_long( groesse_x );
-	file->rdwr_long( groesse_y );
+	file->rdwr_long( size_x );
+	file->rdwr_long( size_y );
 	for( int y=0;  y<MINIMAP_SIZE;  y++  ) {
 		for( int x=0;  x<MINIMAP_SIZE;  x++  ) {
 			file->rdwr_byte( map.at(x,y) );

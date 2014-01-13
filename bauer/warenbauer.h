@@ -14,8 +14,8 @@
 class ware_besch_t;
 
 /**
- * Factory-Klasse fuer Waren.
- * "Factory class for goods" (Google)
+ * Factory-Class for Goods.
+ *
  * @author Hj. Malthaner
  */
 class warenbauer_t
@@ -44,14 +44,11 @@ public:
 	static uint8 get_max_catg_index() { return max_catg_index; }
 
 	/**
-	* Sucht information zur ware 'name' und gibt die
-	* Beschreibung davon zurück. Gibt NULL zurück wenn die
-	* Ware nicht bekannt ist.
+	* Search the good 'name' information and return
+	* its description. Return NULL when the Good is
+	* unknown.
 	*
-	* Searches for information on software 'name' and gives
-	* the description of it back. Returns NULL if the product is not known.
-	*
-	* @param name der nicht-übersetzte Warenname
+	* @param name the non-translated good name
 	* @author Hj. Malthaner/V. Meyer
 	*/
 	static const ware_besch_t *get_info(const char* name);
@@ -62,10 +59,10 @@ public:
 
 	static uint16 get_waren_anzahl() { return waren.get_count(); }
 
-	// ware by catg
+	// good by catg
 	static const ware_besch_t *get_info_catg(const uint8 catg);
 
-	// ware by catg_index
+	// good by catg_index
 	static const ware_besch_t *get_info_catg_index(const uint8 catg_index);
 
 	/*

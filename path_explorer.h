@@ -8,7 +8,7 @@
 #ifndef path_explorer_h
 #define path_explorer_h
 
-#include "utils/memory_rw.h"
+#include "network/memory_rw.h"
 #include "simline.h"
 #include "simhalt.h"
 #include "simworld.h"

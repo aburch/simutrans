@@ -9,7 +9,7 @@
 #include "../obj_node_info.h"
 
 #include "../../simdebug.h"
-#include "../../dataobj/pakset_info.h"
+#include "../../network/pakset_info.h"
 
 
 void crossing_reader_t::register_obj(obj_besch_t *&data)
@@ -49,7 +49,7 @@ obj_besch_t * crossing_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->topspeed1 = 0;
 		besch->topspeed2 = 0;
 	}
-	else {
+	else if(  version==1  ||  version==2  ) {
 		besch->wegtyp1 = decode_uint8(p);
 		besch->wegtyp2 = decode_uint8(p);
 		besch->topspeed1 = decode_uint16(p);
@@ -66,23 +66,21 @@ obj_besch_t * crossing_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				wavname[i] = decode_sint8(p);
 			}
 			besch->sound = (sint8)sound_besch_t::get_sound_id(wavname);
-DBG_MESSAGE("crossing_reader_t::register_obj()","sound %s to %i",wavname,besch->sound);
 		}
 		else if(besch->sound>=0  &&  besch->sound<=MAX_OLD_SOUNDS) {
 			sint16 old_id = besch->sound;
 			besch->sound = (sint8)sound_besch_t::get_compatible_sound_id((sint8)old_id);
-DBG_MESSAGE("crossing_reader_t::register_obj()","old sound %i to %i",old_id,besch->sound);
 		}
 
-DBG_DEBUG("crossing_reader_t::read_node()","version=%i, w1=%d, speed1=%i, w2=%d, speed2=%d",v,besch->wegtyp1,besch->topspeed1,besch->wegtyp2,besch->topspeed2);
-	}
-	if (version >= 2 ) {
-		besch->intro_date = decode_uint16(p);
-		besch->obsolete_date = decode_uint16(p);
-	}
-	else {
 		besch->intro_date = 0;
 		besch->obsolete_date = 65535;
+		if (version >= 2 ) {
+			besch->intro_date = decode_uint16(p);
+			besch->obsolete_date = decode_uint16(p);
+		}
+	}
+	else {
+		dbg->fatal( "crossing_reader_t::read_node()","Invalid version %d", version);
 	}
 	return besch;
 }

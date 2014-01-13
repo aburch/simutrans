@@ -4,17 +4,18 @@
 #include <ctype.h>
 
 #include "../simdebug.h"
-#include "../simwin.h"
+#include "../gui/simwin.h"
 #include "../simtypes.h"
 #include "../simworld.h"
 #include "../simhalt.h"
-#include "../simimg.h"
+#include "../display/simimg.h"
 
 #include "../utils/cbuffer_t.h"
 #include "../gui/messagebox.h"
 #include "../besch/haus_besch.h"
 #include "../boden/grund.h"
-#include "../dings/gebaeude.h"
+#include "../obj/gebaeude.h"
+#include "../player/simplay.h"
 #include "../simdepot.h"
 #include "loadsave.h"
 
@@ -72,20 +73,54 @@ bool schedule_t::ist_halt_erlaubt(const grund_t *gr) const
 			ok = true;
 		}
 		else if(  my_waytype==tram_wt  ) {
-			// tram rails are track iternally
+			// tram rails are track internally
 			ok = gr->hat_weg(track_wt);
 		}
 	}
 
 	if(  ok  ) {
-		// ok, we can go here; but we must also check, that we are not entring a foreign depot
+		// ok, we can go here; but we must also check, that we are not entering a foreign depot
 		depot_t *dp = gr->get_depot();
-		ok &=  (dp==NULL  ||  dp->get_tile()->get_besch()->get_extra()==my_waytype);
+		ok &= (dp==NULL  ||  (int)dp->get_tile()->get_besch()->get_extra()==my_waytype);
 	}
 
 	return ok;
 }
 
+
+
+/* returns a valid halthandle if there is a next halt in the schedule;
+ * it may however not be allowed to load there, if the owner mismatches!
+ */
+halthandle_t schedule_t::get_next_halt( spieler_t *sp, halthandle_t halt ) const
+{
+	if(  eintrag.get_count()>1  ) {
+		for(  uint i=1;  i < eintrag.get_count();  i++  ) {
+			halthandle_t h = haltestelle_t::get_halt( eintrag[ (aktuell+i) % eintrag.get_count() ].pos, sp );
+			if(  h.is_bound()  &&  h != halt  ) {
+				return h;
+			}
+		}
+	}
+	return halthandle_t();
+}
+
+
+/* returns a valid halthandle if there is a previous halt in the schedule;
+ * it may however not be allowed to load there, if the owner mismatches!
+ */
+halthandle_t schedule_t::get_prev_halt( spieler_t *sp ) const
+{
+	if(  eintrag.get_count()>1  ) {
+		for(  uint i=1;  i < eintrag.get_count()-1u;  i++  ) {
+			halthandle_t h = haltestelle_t::get_halt( eintrag[ (aktuell+eintrag.get_count()-i) % eintrag.get_count() ].pos, sp );
+			if(  h.is_bound()  ) {
+				return h;
+			}
+		}
+	}
+	return halthandle_t();
+}
 
 
 bool schedule_t::insert(const grund_t* gr, uint16 ladegrad, uint8 waiting_time_shift, sint16 spacing_shift, bool show_failure)
@@ -125,7 +160,7 @@ bool schedule_t::insert(const grund_t* gr, uint16 ladegrad, uint8 waiting_time_s
 
 bool schedule_t::append(const grund_t* gr, uint16 ladegrad, uint8 waiting_time_shift, sint16 spacing_shift)
 {
-	// stored in minivec, so wie have to avoid adding too many
+	// stored in minivec, so we have to avoid adding too many
 	if(eintrag.get_count()>=254) {
 		create_win( new news_img("Maximum 254 stops\nin a schedule!\n"), w_time_delete, magic_none);
 		return false;
@@ -163,14 +198,14 @@ void schedule_t::cleanup()
 	// now we have to check all entries ...
 	for(  uint8 i=0;  i<eintrag.get_count();  i++  ) {
 		if(  eintrag[i].pos == lastpos  ) {
-			// ingore double entries just one after the other
+			// ignore double entries just one after the other
 			eintrag.remove_at(i);
 			if(  i<aktuell  ) {
 				aktuell --;
 			}
 			i--;
 		} else if(  eintrag[i].pos == koord3d::invalid  ) {
-			// ingore double entries just one after the other
+			// ignore double entries just one after the other
 			eintrag.remove_at(i);
 		}
 		else {
@@ -307,7 +342,7 @@ void schedule_t::rotate90( sint16 y_size )
 
 
 /*
- * compare this fahrplan with another, passed in fahrplan
+ * compare this schedule (fahrplan) with another, passed in fahrplan
  * @author hsiegeln
  */
 bool schedule_t::matches(karte_t *welt, const schedule_t *fpl)
@@ -434,10 +469,10 @@ public:
 
 
 /*
- * compare this fahrplan with another, ignoring order and exact positions and waypoints
+ * compare this schedule (fahrplan) with another, ignoring order and exact positions and waypoints
  * @author prissi
  */
-bool schedule_t::similar( karte_t *welt, const schedule_t *fpl, const spieler_t *sp )
+bool schedule_t::similar( const schedule_t *fpl, const spieler_t *sp )
 {
 	if(  fpl == NULL  ) {
 		return false;
@@ -455,7 +490,7 @@ bool schedule_t::similar( karte_t *welt, const schedule_t *fpl, const spieler_t 
 	vector_tpl<halthandle_t> halts;
 	for(  uint8 idx = 0;  idx < this->eintrag.get_count();  idx++  ) {
 		koord3d p = this->eintrag[idx].pos;
-		halthandle_t halt = haltestelle_t::get_halt( welt, p, sp );
+		halthandle_t halt = haltestelle_t::get_halt( p, sp );
 		if(  halt.is_bound()  ) {
 			halts.insert_unique_ordered( halt, HaltIdOrdering() );
 		}
@@ -463,7 +498,7 @@ bool schedule_t::similar( karte_t *welt, const schedule_t *fpl, const spieler_t 
 	vector_tpl<halthandle_t> other_halts;
 	for(  uint8 idx = 0;  idx < fpl->eintrag.get_count();  idx++  ) {
 		koord3d p = fpl->eintrag[idx].pos;
-		halthandle_t halt = haltestelle_t::get_halt( welt, p, sp );
+		halthandle_t halt = haltestelle_t::get_halt( p, sp );
 		if(  halt.is_bound()  ) {
 			other_halts.insert_unique_ordered( halt, HaltIdOrdering() );
 		}

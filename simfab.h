@@ -221,8 +221,8 @@ private:
 	// List of target cities
 	/*vector_tpl<stadt_t *> target_cities;*/
 
-	spieler_t *besitzer_p; //"possessive" (Google)
-	static karte_t *welt;
+	spieler_t *besitzer_p;		// player_t* owner_p
+	static karte_ptr_t welt;
 
 	const fabrik_besch_t *besch;
 
@@ -409,7 +409,7 @@ protected:
 	void delete_all_fields();
 
 public:
-	fabrik_t(karte_t *welt, loadsave_t *file);
+	fabrik_t(loadsave_t *file);
 	fabrik_t(koord3d pos, spieler_t* sp, const fabrik_besch_t* fabesch, sint32 initial_prod_base);
 	~fabrik_t();
 
@@ -446,7 +446,7 @@ public:
 		return value;
 	}
 
-	static fabrik_t * get_fab(const karte_t *welt, const koord &pos);
+	static fabrik_t * get_fab(const koord &pos);
 
 	/**
 	 * @return vehicle description object
@@ -600,7 +600,7 @@ public:
 	 * a zero-scheduled list of factory pointers returns
 	 * @author Hj. Malthaner
 	 */
-	static vector_tpl<fabrik_t *> & sind_da_welche(karte_t *welt, koord min, koord max);
+	static vector_tpl<fabrik_t *> & sind_da_welche(koord min, koord max);
 
 	/**
 	 * gibt true zurueck wenn sich ein fabrik im feld befindet
@@ -609,8 +609,8 @@ public:
 	 *
 	 * @author Hj. Malthaner
 	 */
-	static bool ist_da_eine(karte_t *welt, koord min, koord max);
-	static bool ist_bauplatz(karte_t *welt, koord pos, koord groesse, bool water, climate_bits cl);
+	//static bool ist_da_eine(karte_t *welt, koord min, koord max);
+	//static bool ist_bauplatz(karte_t *welt, koord pos, koord groesse, bool water, climate_bits cl);
 
 	// hier die methoden zum parametrisieren der Fabrik
 	// "here the methods to parameterize the factory"
@@ -657,7 +657,7 @@ public:
 	void set_base_production(sint32 p);
 
 	// TODO: Consider refctoring so as to avoid calling this method every step (although preliminary tests indicate that this does not seem to cause much slow-down compared to the previous method).
-	sint32 get_current_production() const { return (welt->calc_adjusted_monthly_figure(((sint64)prodbase * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_electric + prodfactor_pax + prodfactor_mail)))) >> 8l; }
+	sint32 get_current_production() const { return (sint32) (welt->calc_adjusted_monthly_figure(((sint64)prodbase * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_electric + prodfactor_pax + prodfactor_mail)))) >> 8l; }
 
 	/* prissi: returns the status of the current factory, as well as output */
 	enum { bad, medium, good, inactive, nothing };

@@ -26,10 +26,10 @@
 #include "tpl/slist_tpl.h"
 #include "tpl/koordhashtable_tpl.h"
 
-#include "dataobj/marker.h"
-#include "dataobj/einstellungen.h"
-#include "dataobj/pwd_hash.h"
+#include "dataobj/settings.h"
+#include "network/pwd_hash.h"
 #include "dataobj/loadsave.h"
+#include "dataobj/records.h"
 
 #include "simplan.h"
 
@@ -54,6 +54,7 @@ class zeiger_t;
 class grund_t;
 class planquadrat_t;
 class karte_ansicht_t;
+class interaction_t;
 class sync_steppable;
 class werkzeug_t;
 class scenario_t;
@@ -63,7 +64,7 @@ class tunnel_besch_t;
 class network_world_command_t;
 class ware_besch_t;
 class memory_rw_t;
-
+class viewport_t;
 
 struct checklist_t
 {
@@ -109,7 +110,7 @@ public:
 /**
  * Threaded function caller.
  */
-typedef void (karte_t::*xy_loop_func)(sint16, sint16, sint16, sint16);
+typedef void (karte_t::*xy_loop_func)(sint16, sint16, sint16, sint16 /*, sint32*/);
 
 
 /**
@@ -119,6 +120,11 @@ typedef void (karte_t::*xy_loop_func)(sint16, sint16, sint16, sint16);
  */
 class karte_t
 {
+	friend karte_t* world();  // to access the single instance
+	friend class karte_ptr_t; // to access the single instance
+
+	static karte_t* world; ///< static single instance
+
 public:
 
 #ifdef DEBUG_SIMRAND_CALLS
@@ -132,7 +138,13 @@ public:
 	 * @param amplitude in 0..160.0 top height of mountains, may not exceed 160.0!!!
 	 * @author Hj. Malthaner
 	 */
-	static sint32 perlin_hoehe(settings_t const*, koord pos, koord const size, const sint32 map_size);
+	static sint32 perlin_hoehe(settings_t const*, koord pos, koord const size, sint32 map_size_max);
+	sint32 perlin_hoehe(settings_t const*, koord pos, koord const size);
+
+	/**
+	 * Loops over tiles setting heights from perlin noise
+	 */
+	void perlin_hoehe_loop(sint16, sint16, sint16, sint16);
 
 	enum player_cost {
 		WORLD_CITICENS=0,		//!< total people
@@ -252,29 +264,15 @@ private:
 	uint8 loaded_rotation;
 
 	/**
-	 * @name Camera position
-	 *       This variables are related to the view camera position.
-	 * @{
+	 * The one and only camera looking at our world.
 	 */
-
-	sint16 x_off; //!< Fine scrolling x offset.
-	sint16 y_off; //!< Fine scrolling y offset.
-
-	koord ij_off; //!< Current view position.
-
-	koord view_ij_off; //!< This is the current offset for getting from tile to screen.
-
-	/**
-	 * @}
-	 */
+	viewport_t *viewport;
 
 	/**
 	 * @name Mouse pointer and cursor management
 	 * @author Hj. Malthaner
 	 * @{
 	 */
-	sint32 mi; //!< Mouse position, i coordinate.
-	sint32 mj; //!< Mouse position, j coordinate.
 
 	/**
 	 * @brief Map mouse cursor tool.
@@ -296,22 +294,16 @@ private:
 	uint32 sound_wait_time;
 
 	/**
-	 * If this is true, the map will not be scrolled on right-drag.
-	 * @author Hj. Malthaner
+	 * Gets an ambient sound id appropriate for the given tile.
+	 * Returns NO_SOUND if no appropriate sound is found.
 	 */
-	bool scroll_lock;
+	sint16 get_sound_id(grund_t *gr);
 
 	/**
 	 * If true, this map cannot be saved.
 	 */
 	bool nosave;
 	bool nosave_warning;
-
-	/*
-	 * The current convoi to follow.
-	 * @author prissi
-	 */
-	convoihandle_t follow_convoi;
 
 	/**
 	 * Water level height.
@@ -354,7 +346,7 @@ private:
 	 */
 	slist_tpl<sync_steppable *> sync_add_list;
 
-   /**
+	/**
 	 * These objects will be removed from the sync_list (but before next sync step, so they do not interfere!)
 	 */
 	slist_tpl<sync_steppable *> sync_remove_list;
@@ -369,7 +361,7 @@ private:
 	vector_tpl<sync_steppable *> sync_list;
 #endif
 
-   /**
+	/**
 	 * These objects will be added to the eyecandy sync_list (but before next sync step, so they do not interfere!)
 	 */
 	slist_tpl<sync_steppable *> sync_eyecandy_add_list;
@@ -441,42 +433,10 @@ private:
 	sint64 finance_history_month[MAX_WORLD_HISTORY_MONTHS][MAX_WORLD_COST];
 
 	/**
-	 * @name World record speed management
-	 *       These variables keep track of the fastest vehicles in game.
-	 * @{
+	 * World record speed manager.
+	 * Keeps track of the fastest vehicles in game.
 	 */
-	/**
-	 * Class representing a word speed record.
-	 */
-	class speed_record_t {
-	public:
-		convoihandle_t cnv;
-		sint32	speed;
-		koord	pos;
-		spieler_t *besitzer;
-		sint32 year_month;
-
-		speed_record_t() : cnv(), speed(0), pos(koord::invalid), besitzer(NULL), year_month(0) {}
-	};
-
-	/// World rail speed record
-	speed_record_t max_rail_speed;
-	/// World monorail speed record
-	speed_record_t max_monorail_speed;
-	/// World maglev speed record
-	speed_record_t max_maglev_speed;
-	/// World narrowgauge speed record
-	speed_record_t max_narrowgauge_speed;
-	/// World road speed record
-	speed_record_t max_road_speed;
-	/// World ship speed record
-	speed_record_t max_ship_speed;
-	/// World air speed record
-	speed_record_t max_air_speed;
-
-	/**
-	 * @}
-	 */
+	records_t *records;
 
 	/**
 	 * Attached view to this world.
@@ -484,8 +444,14 @@ private:
 	karte_ansicht_t *view;
 
 	/**
+	 * Event manager of this world.
+	 */
+	interaction_t *eventmanager;
+
+	/**
 	 * Checks whether the heights of the corners of the tile at (@p x, @p y) can be raised.
 	 * If the desired height of a corner is lower than its current height, this corner is ignored.
+	 * @param sp player who wants to lower
 	 * @param x coordinate
 	 * @param y coordinate
 	 * @param keep_water returns false if water tiles would be raised above water
@@ -493,10 +459,9 @@ private:
 	 * @param hse desired height of se-corner
 	 * @param hse desired height of ne-corner
 	 * @param hnw desired height of nw-corner
-	 * @param ctest which directions should be recursively checked (ribi_t style bitmap)
-	 * @returns whether raise_to operation can be performed
+	 * @returns NULL if raise_to operation can be performed, an error message otherwise
 	 */
-	bool can_raise_to(sint16 x, sint16 y, bool keep_water, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, uint8 ctest=15) const;
+	const char* can_raise_to(const spieler_t* sp, sint16 x, sint16 y, bool keep_water, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw) const;
 
 	/**
 	 * Raises heights of the corners of the tile at (@p x, @p y).
@@ -511,16 +476,16 @@ private:
 	/**
 	 * Checks whether the heights of the corners of the tile at (@p x, @p y) can be lowered.
 	 * If the desired height of a corner is higher than its current height, this corner is ignored.
+	 * @param sp player who wants to lower
 	 * @param x coordinate
 	 * @param y coordinate
 	 * @param hsw desired height of sw-corner
 	 * @param hse desired height of se-corner
 	 * @param hse desired height of ne-corner
 	 * @param hnw desired height of nw-corner
-	 * @param ctest which directions should be recursively checked (ribi_t style bitmap)
-	 * @returns whether lower_to operation can be performed
+	 * @returns NULL if lower_to operation can be performed, an error message otherwise
 	 */
-	bool can_lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, uint8 ctest=15) const;
+	const char* can_lower_to(const spieler_t* sp, sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw) const;
 
 	/**
 	 * Lowers heights of the corners of the tile at (@p x, @p y).
@@ -552,32 +517,6 @@ private:
 	void cleanup_karte( int xoff, int yoff );
 
 	/**
-	 * Processes a mouse event that's moving the camera.
-	 */
-	void move_view(event_t *ev);
-
-	/**
-	 * Processes a cursor movement event, related to the tool pointer in-map.
-	 * @see zeiger_t
-	 */
-	void move_cursor(const event_t *ev);
-
-	/**
-	 * Searches for the ground_t that intersects with the requested screen position.
-	 * @param screen_pos Screen coordinates to check for.
-	 * @param intersect_grid Special case for the lower/raise tool, will return a limit border tile if we are on the south/east border of screen.
-	 * @param found_i If we have a match, it will be set to the i coordinate of the found tile. Undefined otherwise.
-	 * @param found_j If we have a match, it will be set to the j coordinate of the found tile. Undefined otherwise.
-	 * @return the grund_t that's under the desired screen coordinate. NULL if we are outside map or we can't find it.
-	 */
-	grund_t* get_ground_on_screen_coordinate(const koord screen_pos, sint32 &found_i, sint32 &found_j, const bool intersect_grid=false) const;
-
-	/**
-	 * Processes a user event on the map, like a keyclick, or a mouse event.
-	 */
-	void interactive_event(event_t &ev);
-
-	/**
 	 * @name Map data structures
 	 *       This variables represent the simulated map.
 	 * @{
@@ -596,13 +535,14 @@ private:
 	sint8 *grid_hgts;
 
 	/**
-	 * @}
+	 * Array representing the height of water on each point of the grid.
+	 * @see cached_grid_size
 	 */
+	sint8 *water_hgts;
 
 	/**
-	 * ??
+	 * @}
 	 */
-	marker_t marker;
 
 	/**
 	 * @name Player management
@@ -740,7 +680,8 @@ private:
 	 */
 
 	/**
-	 * Current month 0..11
+	 * Current accumulated month number, counting January of year 0 as 0.
+	 * @note last_month + (last_year*12);
 	 */
 	sint32 current_month;
 
@@ -855,6 +796,16 @@ private:
 	void create_rivers(sint16 number);
 
 	/**
+	 * Will create lakes.
+	 */
+	void create_lakes( int xoff, int yoff );
+
+	/**
+	 * Will create beaches.
+	 */
+	void create_beaches( int xoff, int yoff );
+
+	/**
 	 * Distribute groundobjs and cities on the map but not
 	 * in the rectangle from (0,0) till (old_x, old_y).
 	 * It's now an extra function so we don't need the code twice.
@@ -896,7 +847,9 @@ private:
 	 */
 	uint32 server_last_announce_time;
 
-	void world_xy_loop(xy_loop_func func, bool sync_x_steps);
+	enum { SYNCX_FLAG = 0x01, GRIDS_FLAG = 0x02 };
+
+	void world_xy_loop(xy_loop_func func, uint8 flags);
 	static void *world_xy_loop_thread(void *);
 
 	/**
@@ -968,6 +921,15 @@ private:
 	* to be distributed to all destination buildings
 	*/		 	
 	void step_passengers_and_mail(long delta_t);
+
+	inline uint64 calc_step_interval(const unsigned long weight, uint32 trips_per_month_hundredths)
+	{
+		// This represents the number of passenger trips resp. units/packets/bundles of mail posted per unit
+		// of population or mail demand per month, divided by 100. NOTE: This excludes return and onward journeys.
+		const uint64 trips_per_month = max(((uint64)weight * calc_adjusted_monthly_figure(trips_per_month_hundredths)) / 100u, 1);
+
+		return (uint64) ticks_per_world_month > trips_per_month ? (uint64) ticks_per_world_month / trips_per_month : 1;
+	}
 
 	void generate_passengers_or_mail(const ware_besch_t * wtyp);
 
@@ -1114,69 +1076,19 @@ public:
 	karte_ansicht_t *get_view() const { return view; }
 
 	/**
+	 * Gets the world viewport.
+	 */
+	viewport_t *get_viewport() const { return viewport; }
+
+	/**
 	 * Sets the world view.
 	 */
 	void set_view(karte_ansicht_t *v) { view = v; }
 
 	/**
-	 * Viewpoint in tile coordinates.
-	 * @author Hj. Malthaner
+	 * Sets the world event manager.
 	 */
-	koord get_world_position() const { return ij_off; }
-
-	/**
-	 * Fine offset within the viewport tile.
-	 */
-	int get_x_off() const {return x_off;}
-
-	/**
-	 * Fine offset within the viewport tile.
-	 */
-	int get_y_off() const {return y_off;}
-
-	/**
-	 * Set center viewport position.
-	 * @author prissi
-	 */
-	void change_world_position( koord ij, sint16 x=0, sint16 y=0 );
-
-	/**
-	 * Set center viewport position, taking height into account
-	 */
-	void change_world_position( koord3d ij );
-
-	/**
-	 * Converts 3D coord to 2D actually used for main view.
-	 */
-	koord calculate_world_position( koord3d ) const;
-
-	/**
-	 * the koordinates between the screen and a tile may have several offset
-	 * this routine caches them
-	 */
-	void set_view_ij_offset( koord k ) { view_ij_off=k; }
-
-	/**
-	 * the koordinates between the screen and a tile may have several offset
-	 * this routine caches them
-	 */
-	koord get_view_ij_offset() const { return view_ij_off; }
-
-	/**
-	 * If this is true, the map will not be scrolled on right-drag.
-	 * @author Hj. Malthaner
-	 */
-	void set_scroll_lock(bool yesno);
-
-	/**
-	 * Function for following a convoi on the map give an unbound handle to unset.
-	 */
-	void set_follow_convoi(convoihandle_t cnv) { follow_convoi = cnv; }
-
-	/**
-	 * ??
-	 */
-	convoihandle_t get_follow_convoi() const { return follow_convoi; }
+	void set_eventmanager(interaction_t *em) { eventmanager = em; }
 
 	settings_t const& get_settings() const { return settings; }
 	settings_t&       get_settings()       { return settings; }
@@ -1190,7 +1102,7 @@ public:
 
 	/// speed record management
 	sint32 get_record_speed( waytype_t w ) const;
-	void notify_record( convoihandle_t cnv, sint32 max_speed, koord pos );
+	void notify_record( convoihandle_t cnv, sint32 max_speed, koord k );
 
 	/// time lapse mode ...
 	bool is_paused() const { return step_mode&PAUSE_FLAG; }
@@ -1315,6 +1227,35 @@ public:
 		}
 	}
 
+	/**
+	 * Scales value proportionally with month length.
+	 * Used to scale monthly maintenance costs and factory production.
+	 * @returns value << ( ticks_per_world_month_shift -18 )
+	 */
+	sint64 scale_with_month_length(sint64 value)
+	{
+		const int left_shift = ticks_per_world_month_shift - 18;
+		if (left_shift >= 0) {
+			return value << left_shift;
+		} else {
+			return value >> (-left_shift);
+		}
+	}
+	/**
+	 * Scales value inverse proportionally with month length.
+	 * Used to scale monthly maintenance costs and factory production.
+	 * @returns value << ( 18 - ticks_per_world_month_shift )
+	 */
+	sint64 inverse_scale_with_month_length(sint64 value)
+	{
+		const int left_shift = 18 - ticks_per_world_month_shift;
+		if (left_shift >= 0) {
+			return value << left_shift;
+		} else {
+			return value >> (-left_shift);
+		}
+	}
+
 	sint32 get_time_multiplier() const { return time_multiplier; }
 	void change_time_multiplier( sint32 delta );
 
@@ -1380,7 +1321,7 @@ public:
 	{
 		// Adjust for meters per tile
 		const sint32 base_meters_per_tile = (sint32)get_settings().get_base_meters_per_tile(); 
-		const sint32 base_bits_per_month = (sint32)get_settings().get_base_bits_per_month();
+		const uint32 base_bits_per_month = (sint32)get_settings().get_base_bits_per_month();
 		const sint32 adjustment_factor = base_meters_per_tile / (sint32)get_settings().get_meters_per_tile();
 		
 		// Adjust for bits per month
@@ -1598,7 +1539,7 @@ public:
 	uint8 get_season() const { return season; }
 
 	/**
-	 * Zeit seit Kartenerzeugung/dem letzen laden in ms
+	 * Time since map creation or the last load in ms.
 	 * @author Hj. Malthaner
 	 *
 	 * 	
@@ -1631,7 +1572,7 @@ public:
 	const weg_besch_t* get_city_road() const { return city_road; }
 
 	/**
-	 * Anzahl steps seit Kartenerzeugung
+	 * Number of steps elapsed since the map was generated.
 	 * @author Hj. Malthaner
 	 *
 	 * Number of steps since map production (Babelfish)
@@ -1647,7 +1588,7 @@ public:
 	uint32 get_schlaf_zeit() const { return idle_time; }
 
 	/**
-	 * Anzahl frames in der letzten Sekunde Realzeit
+	 * Number of frames displayed in the last real time second.
 	 * @author prissi
 	 *
 	 * Number of frames in the last second of real time (Babelfish)
@@ -1655,7 +1596,7 @@ public:
 	uint32 get_realFPS() const { return realFPS; }
 
 	/**
-	 * Anzahl Simulationsloops in der letzten Sekunde. Kann sehr ungenau sein!
+	 * Number of simulation loops in the last second. Can be very inaccurate!
 	 * @author Hj. Malthaner
 	 *
 	 * Number of simulation loops in the last second. Can be very inaccurate! (Babelfish)
@@ -1686,11 +1627,15 @@ public:
 	sint16 get_snowline() const { return snowline; }
 
 	/**
-	 * Returns the current climate for a given height,
-	 * @note Uses as private lookup table for speed.
-	 * @author prissi
+	 * Initializes the height_to_climate field from settings.
 	 */
-	climate get_climate(sint16 height) const
+	void init_height_to_climate();
+
+	/**
+	 * Returns the climate for a given height, ruled by world creation settings.
+	 * Used to determine climate when terraforming, loading old games, etc.
+	 */
+	climate get_climate_at_height(sint16 height) const
 	{
 		const sint16 h=height-grundwasser;
 		if(h<0) {
@@ -1700,6 +1645,53 @@ public:
 		}
 		return (climate)height_to_climate[h];
 	}
+
+	/**
+	 * returns the current climate for a given koordinate
+	 * @author Kieron Green
+	 */
+	inline climate get_climate(koord k) const {
+		const planquadrat_t *plan = access(k);
+		return plan ? plan->get_climate() : water_climate;
+	}
+
+	/**
+	 * sets the current climate for a given koordinate
+	 * @author Kieron Green
+	 */
+	inline void set_climate(koord k, climate cl, bool recalc) {
+		planquadrat_t *plan = access(k);
+		if(  plan  ) {
+			plan->set_climate(cl);
+			if(  recalc  ) {
+				recalc_transitions(k);
+				for(  int i = 0;  i < 8;  i++  ) {
+					recalc_transitions( k + koord::neighbours[i] );
+				}
+			}
+		}
+	}
+
+	void set_mouse_rest_time(uint32 new_val) { mouse_rest_time = new_val; };
+	void set_sound_wait_time(uint32 new_val) { sound_wait_time = new_val; };
+
+private:
+	/**
+	 * Dummy method, to generate compiler error if someone tries to call get_climate( int ),
+	 * as the int parameter will silently be cast to koord...
+	 */
+	climate get_climate(sint16) const;
+
+	/**
+	 * iterates over the map starting from k setting the water height
+	 * lakes are left where there is no drainage
+	 * @author Kieron Green
+	 */
+	void drain_tile(koord k, sint8 water_height);
+	bool can_flood_to_depth(koord k, sint8 new_water_height, sint8 *stage, sint8 *our_stage) const;
+
+public:
+	void flood_to_depth(sint8 new_water_height, sint8 *stage);
 
 	/**
 	 * Set a new tool as current: calls local_set_werkzeug or sends to server.
@@ -1728,19 +1720,6 @@ public:
 
 	/**
 	 * @return True if the specified coordinate is inside the world tiles(planquadrat_t) limits, false otherwise.
-	 * @param k (x,y) coordinate.
-	 * @note Inline because called very frequently!
-	 */
-	inline bool is_within_limits(koord k) const {
-		// prissi: since negative values will make the whole result negative, we can use bitwise or
-		// faster, since pentiums and other long pipeline processors do not like jumps
-		return (k.x|k.y|(cached_size.x-k.x)|(cached_size.y-k.y))>=0;
-		// this is only 67% of the above speed
-		//return k.x>=0 &&  k.y>=0  &&  cached_groesse_karte_x>=k.x  &&  cached_groesse_karte_y>=k.y;
-	}
-
-	/**
-	 * @return True if the specified coordinate is inside the world tiles(planquadrat_t) limits, false otherwise.
 	 * @param x X coordinate.
 	 * @param y Y coordinate.
 	 * @note Inline because called very frequently!
@@ -1753,16 +1732,11 @@ public:
 	}
 
 	/**
-	 * @return True if the specified coordinate is inside the world height grid limits, false otherwise.
+	 * @return True if the specified coordinate is inside the world tiles(planquadrat_t) limits, false otherwise.
 	 * @param k (x,y) coordinate.
 	 * @note Inline because called very frequently!
 	 */
-	inline bool is_within_grid_limits(const koord &k) const {
-	// prissi: since negative values will make the whole result negative, we can use bitwise or
-	// faster, since pentiums and other long pipeline processors do not like jumps
-		return (k.x|k.y|(cached_grid_size.x-k.x)|(cached_grid_size.y-k.y))>=0;
-//		return k.x>=0 &&  k.y>=0  &&  cached_groesse_gitter_x>=k.x  &&  cached_groesse_gitter_y>=k.y;
-	}
+	inline bool is_within_limits(koord k) const { return is_within_limits(k.x, k.y); }
 
 	/**
 	 * @return True if the specified coordinate is inside the world height grid limits, false otherwise.
@@ -1779,6 +1753,13 @@ public:
 
 	/**
 	 * @return True if the specified coordinate is inside the world height grid limits, false otherwise.
+	 * @param k (x,y) coordinate.
+	 * @note Inline because called very frequently!
+	 */
+	inline bool is_within_grid_limits(const koord &k) const { return is_within_grid_limits(k.x, k.y); }
+
+	/**
+	 * @return True if the specified coordinate is inside the world height grid limits, false otherwise.
 	 * @param x X coordinate.
 	 * @param y Y coordinate.
 	 * @note Inline because called very frequently!
@@ -1788,14 +1769,9 @@ public:
 	}
 
 	/**
-	 * @return Planquadrat an koordinate pos
-	 * @note Inline because called very frequently!
-	 * @author Hj. Malthaner
+	 * Returns the closest coordinate to outside_pos that is within the world
 	 */
-	inline const planquadrat_t *lookup(const koord &k) const
-	{
-		return is_within_limits(k.x, k.y) ? &plan[k.x+k.y*cached_grid_size.x] : 0;
-	}
+	koord get_closest_coordinate(koord outside_pos);
 
 	/**
 	 * @return grund an pos/hoehe
@@ -1804,7 +1780,7 @@ public:
 	 */
 	inline grund_t *lookup(const koord3d &pos) const
 	{
-		const planquadrat_t *plan = lookup(pos.get_2d());
+		const planquadrat_t *plan = access(pos.x, pos.y);
 		return plan ? plan->get_boden_in_hoehe(pos.z) : NULL;
 		//"boden in hoehe" = floor in height (Google)
 	}
@@ -1850,12 +1826,12 @@ public:
 		}
 
 		if ( ( pos.x == cached_grid_size.x )  &&  ( pos.y == cached_grid_size.y ) ) {
-			return lookup(koord(pos.x-1, pos.y-1))->get_kartenboden();
+			return access(koord(pos.x-1, pos.y-1))->get_kartenboden();
 		}
 		else if ( pos.x == cached_grid_size.x ) {
-			return lookup(koord(pos.x-1, pos.y))->get_kartenboden();
+			return access(koord(pos.x-1, pos.y))->get_kartenboden();
 		}
-		return lookup(koord(pos.x, pos.y-1))->get_kartenboden();
+		return access(koord(pos.x, pos.y-1))->get_kartenboden();
 	}
 
 	/**
@@ -1883,55 +1859,42 @@ public:
 		return (hang_t::corner_SE);
 	}
 
+
+private:
+	/**
+	 * @return grund at the bottom (where house will be build)
+	 * @note Inline because called very frequently! - nocheck for more speed
+	 */
+	inline grund_t *lookup_kartenboden_nocheck(const sint16 x, const sint16 y) const
+	{
+		return plan[x+y*cached_grid_size.x].get_kartenboden();
+	}
+
+	inline grund_t *lookup_kartenboden_nocheck(const koord &pos) const { return lookup_kartenboden_nocheck(pos.x, pos.y); }
+public:
 	/**
 	 * @return grund at the bottom (where house will be build)
 	 * @note Inline because called very frequently!
-	 * @author Hj. Malthaner
 	 */
-	inline grund_t *lookup_kartenboden(const koord &pos) const
+	inline grund_t *lookup_kartenboden(const sint16 x, const sint16 y) const
 	{
-		const planquadrat_t *plan = lookup(pos);
-		return plan ? plan->get_kartenboden() : NULL;
-		//kartenboden = map ground (Babelfish)
+		return is_within_limits(x, y) ? plan[x+y*cached_grid_size.x].get_kartenboden() : NULL;
 	}
+
+	inline grund_t *lookup_kartenboden(const koord &pos) const { return lookup_kartenboden(pos.x, pos.y); }
 
 	/**
 	 * @return The natural slope at a position.
 	 * @note Uses the corner height for the best slope.
 	 * @author prissi
 	 */
-	uint8	recalc_natural_slope( const koord pos, sint8 &new_height ) const;
+	uint8	recalc_natural_slope( const koord k, sint8 &new_height ) const;
 
 	/**
 	 * Returns the natural slope a a position using the grid.
 	 * @note No checking, and only using the grind for calculation.
 	 */
-	uint8	calc_natural_slope( const koord pos ) const;
-
-	/**
-	 * Wird vom Strassenbauer als Orientierungshilfe benutzt.
-	 * @author Hj. Malthaner
-	 */
-	inline void markiere(const grund_t* gr) { marker.markiere(gr); }
-
-	/**
-	 * Wird vom Strassenbauer zum Entfernen der Orientierungshilfen benutzt.
-	 * @author Hj. Malthaner
-	 */
-	inline void unmarkiere(const grund_t* gr) { marker.unmarkiere(gr); }
-
-	/**
-	 * Entfernt alle Markierungen.
-	 * @author Hj. Malthaner
-	 */
-	inline void unmarkiere_alle() { marker.unmarkiere_alle(); }
-
-	/**
-	 * Testet ob der Grund markiert ist.
-	 * @return Gibt true zurueck wenn der Untergrund markiert ist sonst false.
-	 * @author Hj. Malthaner
-	 */
-	inline bool ist_markiert(const grund_t* gr) const { return marker.ist_markiert(gr); }
+	uint8	calc_natural_slope( const koord k ) const;
 
 	// Getter/setter methods for maintaining the industry density
 	inline uint32 get_target_industry_density() const { return ((uint32)finance_history_month[0][WORLD_CITICENS] * (sint64)industry_density_proportion) / 1000000ll; }
@@ -1956,6 +1919,8 @@ public:
 
 	~karte_t();
 
+
+
 	/**
 	 * Returns an index to a halt at koord k
 	 * optionally limit to that owned by player sp
@@ -1965,18 +1930,24 @@ public:
 	halthandle_t get_halt_koord_index(koord k, spieler_t *sp=NULL, bool create_halt=true);
 
 	/**
+	 * File version used when loading (or current if generated)
+	 * @note Useful for laden_abschliessen
+	 */
+	uint32 load_version;
+
+	/**
 	 * Checks if the planquadrat at coordinate (x,y)
 	 * can be lowered at the specified height.
 	 * @author V. Meyer
 	 */
-	bool can_lower_plan_to(sint16 x, sint16 y, sint8 h) const;
+	const char* can_lower_plan_to(const spieler_t *sp, sint16 x, sint16 y, sint8 h) const;
 
 	/**
 	 * Checks if the planquadrat at coordinate (x,y)
 	 * can be raised at the specified height.
 	 * @author V. Meyer
 	 */
-	bool can_raise_plan_to(sint16 x, sint16 y, sint8 h) const;
+	const char* can_raise_plan_to(const spieler_t *sp, sint16 x, sint16 y, sint8 h) const;
 
 	/**
 	 * Checks if the whole planquadrat at coordinates (x,y) height can
@@ -1989,17 +1960,85 @@ public:
 	 * Increases the height of the grid coordinate (x, y) by one.
 	 * @param pos Grid coordinate.
 	 */
-	int grid_raise(koord pos);
+	int grid_raise(const spieler_t *sp, koord pos, const char*&err);
 
 	/**
 	 * Decreases the height of the grid coordinate (x, y) by one.
 	 * @param pos Grid coordinate.
 	 */
-	int grid_lower(koord pos);
+	int grid_lower(const spieler_t *sp, koord pos, const char*&err);
 
 	// mostly used by AI: Ask to flatten a tile
-	bool can_ebne_planquadrat(koord pos, sint8 hgt, bool keep_water=false, bool make_underwater_hill=false) const;
-	bool ebne_planquadrat(spieler_t *sp, koord pos, sint8 hgt, bool keep_water=false, bool make_underwater_hill=false);
+	bool can_ebne_planquadrat(spieler_t *sp, koord k, sint8 hgt, bool keep_water=false, bool make_underwater_hill=false);
+	bool ebne_planquadrat(spieler_t *sp, koord k, sint8 hgt, bool keep_water=false, bool make_underwater_hill=false, bool justcheck=false);
+
+	/**
+	 * Class to manage terraform operations.
+	 * Can be used for raise only or lower only operations, but not mixed.
+	 */
+	class terraformer_t {
+		/// Structure to save terraforming operations
+		struct node_t {
+			sint16 x;    ///< x-coordinate
+			sint16 y;    ///< y-coordinate
+			sint8  h[4]; ///< height of corners, order: sw se ne nw
+			uint8  changed;
+
+			node_t(sint16 x_, sint16 y_, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, uint8 c)
+			: x(x_), y(y_), changed(c) { h[0]=hsw; h[1]=hse; h[2]=hne; h[3]=hnw; }
+
+			node_t() : x(-1), y(-1), changed(0) {}
+
+			/// compares position
+			bool operator== (const node_t& a) const { return (a.x==x)  && (a.y==y); }
+
+			/// compares position
+			static bool comp(const node_t& a, const node_t& b);
+		};
+
+		vector_tpl<node_t> list; ///< list of affected tiles
+		uint8 actual_flag;       ///< internal flag to iterate through list
+		bool ready;              ///< internal flag to signal iteration ready
+		karte_t* welt;
+
+		void add_node(bool raise, sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw);
+	public:
+		terraformer_t(karte_t* w) { init(); welt = w; }
+
+		void init() { list.clear(); actual_flag = 1; ready = false; }
+
+		/**
+		 * Add tile to be raised.
+		 */
+		void add_raise_node(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw);
+
+		/**
+		 * Add tile to be lowered.
+		 */
+		void add_lower_node(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw);
+
+		/**
+		 * Generate list of all tiles that will be affected.
+		 */
+		void iterate(bool raise);
+
+		/// Check whether raise operation would succeed
+		const char* can_raise_all(const spieler_t *sp, bool keep_water=false) const;
+		/// Check whether lower operation would succeed
+		const char* can_lower_all(const spieler_t *sp) const;
+
+		/// Do the raise operations
+		int raise_all();
+		/// Do the lower operations
+		int lower_all();
+	};
+
+private:
+	/// Internal functions to be used with terraformer_t to propagate terrain changes to neighbouring tiles
+	void prepare_raise(terraformer_t& digger, sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw);
+	void prepare_lower(terraformer_t& digger, sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw);
+
+public:
 
 	// the convois are also handled each step => thus we keep track of them too
 	void add_convoi(convoihandle_t const &cnv);
@@ -2027,8 +2066,8 @@ public:
 	void remove_ausflugsziel(gebaeude_t *gb);
 	const weighted_vector_tpl<gebaeude_t*> &get_ausflugsziele() const {return ausflugsziele; }
 
-	void add_label(koord pos) { if (!labels.is_contained(pos)) labels.append(pos); }
-	void remove_label(koord pos) { labels.remove(pos); }
+	void add_label(koord k) { if (!labels.is_contained(k)) labels.append(k); }
+	void remove_label(koord k) { labels.remove(k); }
 	const slist_tpl<koord>& get_label_list() const { return labels; }
 
 	bool add_fab(fabrik_t *fab);
@@ -2045,11 +2084,11 @@ public:
 	const vector_tpl<const ware_besch_t*> &get_goods_list();
 
 	/**
-	 * Seaches and returns the closest city to the supplied coordinates.
+	 * Seaches and returns the closest city
+	 * but prefers even farther cities if within their city limits
 	 * @author Hj. Malthaner
 	 */
-
-	stadt_t * suche_naechste_stadt(koord pos) const;
+	stadt_t *suche_naechste_stadt(koord k) const;
 	
 	// Returns the city at the position given.
 	// Returns NULL if there is no city there.
@@ -2083,52 +2122,162 @@ public:
 	 */
 	void step();
 
+//private:
+	inline planquadrat_t *access_nocheck(int i, int j) const {
+		return &plan[i + j*cached_grid_size.x];
+	}
+
+	inline planquadrat_t *access_nocheck(koord k) const { return access_nocheck(k.x, k.y); }
+
+//public:
 	inline planquadrat_t *access(int i, int j) const {
 		return is_within_limits(i, j) ? &plan[i + j*cached_grid_size.x] : NULL;
 	}
 
-	inline planquadrat_t *access(koord k) const {
-		return is_within_limits(k) ? &plan[k.x + k.y*cached_grid_size.x] : NULL;
+	inline planquadrat_t *access(koord k) const { return access(k.x, k.y); }
+
+//private:
+	/**
+	 * @return Height at the grid point i, j - versions without checks for speed
+	 * @author Hj. Malthaner
+	 */
+	inline sint8 lookup_hgt_nocheck(sint16 x, sint16 y) const {
+		return grid_hgts[x + y*(cached_grid_size.x+1)];
 	}
 
+	inline sint8 lookup_hgt_nocheck(koord k) const { return lookup_hgt_nocheck(k.x, k.y); }
+
+//public:
 	/**
 	 * @return Height at the grid point i, j
 	 * @author Hj. Malthaner
 	 */
-	inline sint8 lookup_hgt(koord k) const {
-		return is_within_grid_limits(k.x, k.y) ? grid_hgts[k.x + k.y*(cached_grid_size.x+1)] : grundwasser;
+	inline sint8 lookup_hgt(sint16 x, sint16 y) const {
+		return is_within_grid_limits(x, y) ? grid_hgts[x + y*(cached_grid_size.x+1)] : grundwasser;
 	}
+
+	inline sint8 lookup_hgt(koord k) const { return lookup_hgt(k.x, k.y); }
 
 	/**
 	 * Sets grid height.
 	 * Never set grid_hgts manually, always use this method!
 	 * @author Hj. Malthaner
 	 */
-	void set_grid_hgt(koord k, sint8 hgt) { grid_hgts[k.x + k.y*(uint32)(cached_grid_size.x+1)] = hgt; }
+	void set_grid_hgt(sint16 x, sint16 y, sint8 hgt) { grid_hgts[x + y*(uint32)(cached_grid_size.x+1)] = hgt; }
 
+	inline void set_grid_hgt(koord k, sint8 hgt) { set_grid_hgt(k.x, k.y, hgt); }
+
+
+private:
+	/**
+	 * @return water height - versions without checks for speed
+	 * @author Kieron Green
+	 */
+	inline sint8 get_water_hgt_nocheck(sint16 x, sint16 y) const {
+		return water_hgts[x + y * (cached_grid_size.x)];
+	}
+
+	inline sint8 get_water_hgt_nocheck(koord k) const { return get_water_hgt_nocheck(k.x, k.y); }
+
+public:
+	/**
+	 * @return water height
+	 * @author Kieron Green
+	 */
+	inline sint8 get_water_hgt(sint16 x, sint16 y) const {
+		return is_within_limits( x, y ) ? water_hgts[x + y * (cached_grid_size.x)] : grundwasser;
+	}
+
+	inline sint8 get_water_hgt(koord k) const { return get_water_hgt(k.x, k.y); }
+
+
+	/**
+	 * Sets water height.
+	 * @author Kieron Green
+	 */
+	void set_water_hgt(sint16 x, sint16 y, sint8 hgt) { water_hgts[x + y * (cached_grid_size.x)] = (hgt); }
+
+	inline void set_water_hgt(koord k, sint8 hgt) {  set_water_hgt(k.x, k.y, hgt); }
+
+	/**
+	 * Fills array with corner heights of neighbours
+	 * @author Kieron Green
+	 */
+	void get_neighbour_heights(const koord k, sint8 neighbour_height[8][4]) const;
+
+	/**
+	 * Calculates appropriate climate for a tile
+	 * @author Kieron Green
+	 */
+	void calc_climate(koord k, bool recalc);
+
+	/**
+	 * Rotates climate and water transitions for a tile
+	 * @author Kieron Green
+	 */
+	void rotate_transitions(koord k);
+
+	/**
+	 * Recalculate climate and water transitions for a tile
+	 * @author Kieron Green
+	 */
+	void recalc_transitions(koord k);
+
+	/**
+	 * Loop recalculating transitions - suitable for multithreading
+	 * @author Kieron Green
+	 */
+	void recalc_transitions_loop(sint16, sint16, sint16, sint16);
+
+	/**
+	 * Loop creating grounds on all plans from height and water height - suitable for multithreading
+	 * @author Kieron Green
+	 */
+	void create_grounds_loop(sint16, sint16, sint16, sint16);
+
+	/**
+	 * Loop cleans grounds so that they have correct boden and slope - suitable for multithreading
+	 * @author Kieron Green
+	 */
+	void cleanup_grounds_loop(sint16, sint16, sint16, sint16);
+
+private:
+	/**
+	 * @return Minimum height of the planquadrats at i, j. - for speed no checks performed that coordinates are valid
+	 * @author Hj. Malthaner
+	 */
+	sint8 min_hgt_nocheck(koord k) const;
+
+	/**
+	 * @return Maximum height of the planquadrats at i, j. - for speed no checks performed that coordinates are valid
+	 * @author Hj. Malthaner
+	 */
+	sint8 max_hgt_nocheck(koord k) const;
+
+public:
 	/**
 	 * @return Minimum height of the planquadrats at i, j.
 	 * @author Hj. Malthaner
 	 */
-	sint8 min_hgt(koord pos) const;
+	sint8 min_hgt(koord k) const;
 
 	/**
 	 * @return Maximum height of the planquadrats at i, j.
 	 * @author Hj. Malthaner
 	 */
-	sint8 max_hgt(koord pos) const;
+	sint8 max_hgt(koord k) const;
 
 	/**
 	 * @return true, wenn Platz an Stelle pos mit Groesse dim Wasser ist
 	 * @author V. Meyer
 	 */
-	bool ist_wasser(koord pos, koord dim) const;
+	bool ist_wasser(koord k, koord dim) const;
 
 	/**
 	 * @return true, if square in place (i,j) with size w, h is constructible.
 	 * @author Hj. Malthaner
 	 */
-	bool square_is_free(koord pos, sint16 w, sint16 h, int *last_y, climate_bits cl) const;
+	bool square_is_free(koord k, sint16 w, sint16 h, int *last_y, climate_bits cl) const;
 
 	/**
 	 * @return A list of all buildable squares with size w, h.
@@ -2144,7 +2293,7 @@ public:
 	 * @param idx Index of the sound
 	 * @author Hj. Malthaner
 	 */
-	bool play_sound_area_clipped(koord pos, uint16 idx) const;
+	bool play_sound_area_clipped(koord k, uint16 idx) const;
 
 	void mute_sound( bool state ) { is_sound = !state; }
 
@@ -2286,6 +2435,57 @@ private:
 	void calc_generic_road_time_per_tile_city() { generic_road_time_per_tile_city = calc_generic_road_time_per_tile(city_road); }
 	void calc_generic_road_time_per_tile_intercity();
 	void calc_max_road_check_depth();
+
+	void process_network_commands(sint32* ms_difference);
+	void do_network_world_command(network_world_command_t *nwc);
+	uint32 get_next_command_step();
+};
+
+
+/**
+ * Returns pointer to single instance of the world.
+ */
+inline karte_t *world()
+{
+	return karte_t::world;
+}
+
+
+/**
+ * Class to access the pointer to the world.
+ * No need to initialize it.
+ */
+class karte_ptr_t
+{
+public:
+	/// dereference operator: karte_ptr_t can be used as it would be karte_t*
+	karte_t& operator*() {
+		assert( karte_t::world );
+		return *karte_t::world;
+	}
+	const karte_t& operator*() const {
+		assert( karte_t::world );
+		return *karte_t::world;
+	}
+
+	karte_ptr_t() {}
+	/// dereference operator: karte_ptr_t can be used as it would be karte_t*
+	karte_t* operator->() {
+		assert( karte_t::world );
+		return karte_t::world;
+	}
+	const karte_t* operator->() const {
+		assert( karte_t::world );
+		return karte_t::world;
+	}
+
+	/// cast to karte_t*
+	operator karte_t* () const { return karte_t::world; }
+private:
+	karte_ptr_t(const karte_ptr_t&);
+	karte_ptr_t& operator=(const karte_ptr_t&);
+	// no cast to bool please
+	operator bool () const;
 };
 
 #endif

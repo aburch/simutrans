@@ -11,24 +11,27 @@
 #include "../simworld.h"
 #include "load_relief_frame.h"
 #include "../dataobj/translator.h"
-#include "../dataobj/einstellungen.h"
-#include "../dataobj/umgebung.h"
+#include "../dataobj/settings.h"
+#include "../dataobj/environment.h"
 
 /**
- * Aktion, die nach Knopfdruck gestartet wird.
+ * Action, started on button pressing
  * @author Hansjörg Malthaner
  */
-void load_relief_frame_t::action(const char *fullpath)
+bool load_relief_frame_t::item_action(const char *fullpath)
 {
 	sets->heightfield = fullpath;
+
+	return false;
 }
 
 
-load_relief_frame_t::load_relief_frame_t(settings_t* const sets) : savegame_frame_t(NULL, false, "maps/")
+load_relief_frame_t::load_relief_frame_t(settings_t* const sets) : savegame_frame_t( NULL, false, "maps/", env_t::show_delete_buttons )
 {
 	static char extra_path[1024];
 
-	sprintf(extra_path,"%s%smaps/", umgebung_t::program_dir, umgebung_t::objfilename.c_str());
+	sprintf(extra_path,"%s%smaps/", env_t::program_dir, env_t::objfilename.c_str());
+	//sprintf(extra_path,"%smaps/", env_t::program_dir);
 
 	this->add_path(extra_path);
 

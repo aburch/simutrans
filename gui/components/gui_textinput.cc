@@ -15,11 +15,11 @@
 
 #include <string.h>
 
+#include "../gui_frame.h"
 #include "gui_textinput.h"
-#include "../../simwin.h"
+#include "../../gui/simwin.h"
 #include "../../simsys.h"
 #include "../../dataobj/translator.h"
-
 
 gui_textinput_t::gui_textinput_t() :
 	gui_komponente_t(true),
@@ -43,12 +43,13 @@ gui_textinput_t::gui_textinput_t() :
 size_t gui_textinput_t::calc_cursor_pos(const int x)
 {
 	size_t new_cursor_pos = 0;
-	if (  text  ) {
+	if(  text  ) {
+
 		const char* tmp_text = text;
 		uint8 byte_length = 0;
 		uint8 pixel_width = 0;
-		KOORD_VAL current_offset = 0;
-		const KOORD_VAL adjusted_offset = x - 1 + scroll_offset;
+		scr_coord_val current_offset = 0;
+		const scr_coord_val adjusted_offset = x - 1 + scroll_offset;
 		while(  get_next_char_with_metrics(tmp_text, byte_length, pixel_width)  &&  adjusted_offset>(current_offset+(pixel_width>>1))  ) {
 			current_offset += pixel_width;
 			new_cursor_pos += byte_length;
@@ -333,13 +334,19 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 		// acting on release causes unwanted recalculations of cursor position for long strings and (scroll_offset>0)
 		// moreover, only (click) or (release) event happened inside textinput, the other one could lie outside
 		// Knightly : use mouse *click* position; update both head and tail cursors
-		tail_cursor_pos = head_cursor_pos = calc_cursor_pos(ev->cx);
+		tail_cursor_pos = 0;
+		if(  text  ) {
+			tail_cursor_pos = head_cursor_pos = display_fit_proportional( text, ev->cx - 2 + scroll_offset );
+		}
 		cursor_reference_time = dr_time();	// update reference time for cursor blinking
 		return true;
 	}
 	else if(  IS_LEFTDRAG(ev)  ) {
 		// Knightly : use mouse *move* position; update head cursor only in order to enable text selection
-		head_cursor_pos = calc_cursor_pos(ev->mx);
+		head_cursor_pos = 0;
+		if(  text  ) {
+			head_cursor_pos = display_fit_proportional( text, ev->mx - 1 + scroll_offset );
+		}
 		cursor_reference_time = dr_time();	// update reference time for cursor blinking
 		return true;
 	}
@@ -382,7 +389,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
  * Draw the component
  * @author Hj. Malthaner
  */
-void gui_textinput_t::zeichnen(koord offset)
+void gui_textinput_t::draw(scr_coord offset)
 {
 	display_with_focus( offset, (win_get_focus()==this) );
 }
@@ -393,7 +400,7 @@ void gui_textinput_t::zeichnen(koord offset)
  * and call the function that performs the actual display
  * @author Knightly
  */
-void gui_textinput_t::display_with_focus(koord offset, bool has_focus)
+void gui_textinput_t::display_with_focus(scr_coord offset, bool has_focus)
 {
 	// check if focus state has changed
 	if(  focus_recieved!=has_focus  ) {
@@ -408,15 +415,16 @@ void gui_textinput_t::display_with_focus(koord offset, bool has_focus)
 }
 
 
-void gui_textinput_t::display_with_cursor(koord offset, bool cursor_active, bool cursor_visible)
+void gui_textinput_t::display_with_cursor(scr_coord offset, bool cursor_active, bool cursor_visible)
 {
-	display_fillbox_wh_clip(pos.x+offset.x+1, pos.y+offset.y+1,groesse.x-2, groesse.y-2, MN_GREY1, true);
-	display_ddd_box_clip(pos.x+offset.x, pos.y+offset.y,groesse.x, groesse.y,MN_GREY0, MN_GREY4);
+	display_img_stretch( gui_theme_t::editfield, scr_rect( pos+offset, size ) );
+//	display_fillbox_wh_clip(pos.x+offset.x+1, pos.y+offset.y+1,size.w-2, size.h-2, SYSCOL_WORKAREA, true);
+//	display_ddd_box_clip( pos.x + offset.x, pos.y + offset.y, size.w, size.h, SYSCOL_SHADOW, SYSCOL_HIGHLIGHT );
 
 	if(  text  ) {
 		// Knightly : recalculate scroll offset
 		const KOORD_VAL text_width = proportional_string_width(text);
-		const KOORD_VAL view_width = groesse.x - 3;
+		const KOORD_VAL view_width = size.w - 3;
 		const KOORD_VAL cursor_offset = cursor_active ? proportional_string_len_width(text, head_cursor_pos) : 0;
 		if(  text_width<=view_width  ) {
 			// case : text is shorter than displayable width of the text input
@@ -451,9 +459,9 @@ void gui_textinput_t::display_with_cursor(koord offset, bool cursor_active, bool
 		const clip_dimension old_clip = display_get_clip_wh();
 
 		const int text_clip_x = pos.x + offset.x + 1;
-		const int text_clip_w = groesse.x - 2;
+		const int text_clip_w = size.w - 2;
 		const int text_clip_y = pos.y + offset.y + 1;
-		const int text_clip_h = groesse.y - 2;
+		const int text_clip_h = size.h - 2;
 		// something to draw?
 		if (  text_clip_x>=old_clip.xx  ||  text_clip_x+text_clip_w<=old_clip.x  ||  text_clip_w<=0  ||
 			  text_clip_y>=old_clip.yy  ||  text_clip_y+text_clip_h<=old_clip.y  ||  text_clip_h<=0     ) {
@@ -464,22 +472,22 @@ void gui_textinput_t::display_with_cursor(koord offset, bool cursor_active, bool
 		display_set_clip_wh( clip_x, clip_y, min(old_clip.xx, text_clip_x+text_clip_w)-clip_x, min(old_clip.yy, text_clip_y+text_clip_h)-clip_y );
 
 		// display text
-		display_proportional_clip(pos.x+offset.x+2-scroll_offset, pos.y+offset.y+1+(groesse.y-LINESPACE)/2, text, ALIGN_LEFT, textcol, true);
+		display_proportional_clip(pos.x+offset.x+2-scroll_offset, pos.y+offset.y+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,size.h), text, ALIGN_LEFT, textcol, true);
 
 		if(  cursor_active  ) {
 			// Knightly : display selected text block with light grey text on charcoal bounding box
 			if(  head_cursor_pos!= tail_cursor_pos  ) {
 				const size_t start_pos = min(head_cursor_pos, tail_cursor_pos);
 				const size_t end_pos = ::max(head_cursor_pos, tail_cursor_pos);
-				const KOORD_VAL start_offset = proportional_string_len_width(text, start_pos);
-				const KOORD_VAL highlight_width = proportional_string_len_width(text+start_pos, end_pos-start_pos);
-				display_fillbox_wh_clip(pos.x+offset.x+2-scroll_offset+start_offset, pos.y+offset.y+1, highlight_width, 11, COL_GREY2, true);
-				display_text_proportional_len_clip(pos.x+offset.x+2-scroll_offset+start_offset, pos.y+offset.y+1+(groesse.y-LINESPACE)/2, text+start_pos, ALIGN_LEFT|DT_DIRTY|DT_CLIP, COL_GREY5, end_pos-start_pos);
+				const scr_coord_val start_offset = proportional_string_len_width(text, start_pos);
+				const scr_coord_val highlight_width = proportional_string_len_width(text+start_pos, end_pos-start_pos);
+				display_fillbox_wh_clip(pos.x+offset.x+2-scroll_offset+start_offset, pos.y+offset.y+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,size.h), highlight_width, 11, COL_GREY2, true);
+				display_text_proportional_len_clip(pos.x+offset.x+2-scroll_offset+start_offset, pos.y+offset.y+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,size.h), text+start_pos, ALIGN_LEFT|DT_CLIP, COL_GREY5, false, end_pos-start_pos);
 			}
 
 			// display blinking cursor
 			if(  cursor_visible  ) {
-				display_fillbox_wh_clip(pos.x+offset.x+1-scroll_offset+cursor_offset, pos.y+offset.y+1, 1, 11, COL_WHITE, true);
+				display_fillbox_wh_clip(pos.x+offset.x+1-scroll_offset+cursor_offset, pos.y+offset.y+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,size.h), 1, 11, COL_WHITE, true);
 			}
 		}
 
@@ -524,10 +532,10 @@ bool gui_hidden_textinput_t::infowin_event(const event_t *ev)
 
 
 
-void gui_hidden_textinput_t::display_with_cursor(koord const offset, bool, bool const cursor_visible)
+void gui_hidden_textinput_t::display_with_cursor(scr_coord const offset, bool, bool const cursor_visible)
 {
-	display_fillbox_wh_clip(pos.x+offset.x+1, pos.y+offset.y+1,groesse.x-2, groesse.y-2, MN_GREY1, true);
-	display_ddd_box_clip(pos.x+offset.x, pos.y+offset.y,groesse.x, groesse.y,MN_GREY0, MN_GREY4);
+	display_fillbox_wh_clip(pos.x+offset.x+1, pos.y+offset.y+1,size.w-2, size.h-2, MN_GREY1, true);
+	display_ddd_box_clip(pos.x+offset.x, pos.y+offset.y,size.w, size.h,MN_GREY0, MN_GREY4);
 
 	if(  text  ) {
 		// the text will be all asterisk, thus we draw them letter by letter
@@ -535,7 +543,7 @@ void gui_hidden_textinput_t::display_with_cursor(koord const offset, bool, bool 
 		// set clipping to be within textinput button
 		const clip_dimension old_clip = display_get_clip_wh();
 
-		int text_clip_x = pos.x+offset.x + 1, text_clip_w = groesse.x - 2;
+		int text_clip_x = pos.x+offset.x + 1, text_clip_w = size.w - 2;
 		// something to draw?
 		if (text_clip_x >= old_clip.xx || text_clip_x+text_clip_w <= old_clip.x || text_clip_w<=0) {
 				return;
@@ -553,7 +561,7 @@ void gui_hidden_textinput_t::display_with_cursor(koord const offset, bool, bool 
 			}
 			c = utf8_to_utf16((utf8 const*)text + text_pos, &text_pos);
 			if(c) {
-				xpos += display_proportional_clip( xpos, pos.y+offset.y+1+(groesse.y-LINESPACE)/2, "*", ALIGN_LEFT, textcol, true);
+				xpos += display_proportional_clip( xpos, pos.y+offset.y+1+(size.h-LINESPACE)/2, "*", ALIGN_LEFT, textcol, true);
 			}
 		}
 		while(  text_pos<max  &&  c  );

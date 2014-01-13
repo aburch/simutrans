@@ -28,7 +28,7 @@ yet conform 100% to this rules, but it should.
    get_ returns a value
    set_ will set a value
    is_ (ist_) will test a conditions
-  For new functions, the first (english) form should be used. Function names
+  For new functions, the first (English) form should be used. Function names
   should never start with uppercase letters.
 
 - Use const wherever possible
@@ -44,18 +44,18 @@ yet conform 100% to this rules, but it should.
      a class has several constructors
 
 - It is preferred to have class and member variables private and
-  public gib_/setze_ methods instead of public variables.
+  public get_/set_ methods instead of public variables.
   -> This allows adding actions to value changes and retrievals.
   -> Read the section about extern variables for more benefits of using
      getter/setter methods. There are strong advantages!
 
 - Avoid public member variables. Never use "protected" variables, rather
-  make the variable private and use public or proteted gib_xxx() and
+  make the variable private and use public or protected gib_xxx() and
   setze_xxx() methods.
   -> protected variables can be changed in subclasses. The super class
      doesn't see this changes and can't react to them. This is likely
      to produce errors and makes the code harder to maintain.
-  -> sometimes it's neccesary to bind actions to value assignments to
+  -> sometimes it's necessary to bind actions to value assignments to
      variables later on in development. Public variables don't support
      this change of protocol and impose much work on the programmer if
      such a change is needed later.
@@ -74,13 +74,13 @@ yet conform 100% to this rules, but it should.
      assignments
   -> using only one of getter/setter allows to make a variable read only or
      write only for other parts of the program. Read only is not the same as
-     constant, and can't be replaced with a const vaiable. Write only is
+     constant, and can't be replaced with a const variable. Write only is
      also not expressible with language features themselves.
 
 - References are preferred instead of pointers.
   -> References can be NULL and add safety and robustness to a program.
      Many problems with pointers don't occur when references are used.
-     Unfortunatley references can't be used alwys isntead of pointers.
+     Unfortunately references can't be used always instead of pointers.
   -> Don't complicate code. Use pointers if the use of references would
      complicate things.
   -> Also reference can hide the fact, that a variable is changed. Thus
@@ -88,7 +88,7 @@ yet conform 100% to this rules, but it should.
 
 - Avoid casts if possible.
   -> casts can lead to errors which are very hard to find, especially
-     if pointers to onects are casted.
+     if pointers to connect are casted.
   -> try to use dynamic_cast<type>(expression) if you need to cast
      (even though this eats performance)
 
@@ -126,14 +126,14 @@ yet conform 100% to this rules, but it should.
 - use the size defined type like sint8, sint16, sint32, sint64 and uint8,
   uint16, uint32 and image_id (for image numbers)
   Different compilers/platforms use different rules for values. If your code
-  depends on signedness, write this explicitely down.
+  depends on signedness, write this explicitly down.
   Note, that this errors don't show up on your platform/with your compiler
   but perhaps only on your teammates systems. Be very careful about this
   because you can't test for this problems in your own development environment.
   i.e. Linux/PPC treats chars as unsigned, whereas Linux/Intel treats chars
   as signed values!
   -> This rule tries to increase robustness of the code
-  There is one exections to this rule:
+  There is one exception to this rule:
   If you really ever need to cast a pointer to an int, cast it to "long". All
   C compiler will guarantee, that a pointer fits into a long.
 
@@ -151,7 +151,7 @@ yet conform 100% to this rules, but it should.
   modules or subclasses.
   -> Small interfaces enhance the readability and understandability of
      a class.
-  -> Small interfaces also enhance the reuseability.
+  -> Small interfaces also enhance the re-usability.
   -> Separating convenience from core methods helps to understand the
      structure of the design.
 
@@ -185,7 +185,7 @@ yet conform 100% to this rules, but it should.
 
 
   I know, many existing things in Simutrans are not commented in full detail,
-  but new things should be! Rather add coments on old parts than leave out
+  but new things should be! Rather add comments on old parts than leave out
   comments on new parts, if you want to have consistency.
 
 
@@ -221,7 +221,7 @@ Or K&R if you really like this more
 
 if(condition) {
  ...
-} esle {
+} else {
  ...
 }
 
@@ -246,6 +246,13 @@ Use spaces in parameters list. For example:
 
 call(x, y, count); instead of call(x,y,count);
 
+If a function accepts no parameters, on its delaration, and using C++ notation we'll use:
+
+int function()
+
+This C-style declaration is *not* conformant to our standards:
+
+int function(void)
 
 Also a space between type and pointer mark is preferred:
 use char *bla_t::get_text() instead char* bla_t::get_text()
@@ -304,7 +311,7 @@ Variable pre-/suffixes:
 Offsets to a base value:		xxx_off
 
 
-Method pre-/sufffixes:
+Method pre-/suffixes:
 
 Retrieving a member variable value:	[obsolete: gib_xxx()] use get_xxx()
 Setting a member variable value:        [obsolete: setze_xxx()] use set_xxx()
@@ -328,7 +335,7 @@ Initial version: November 2000
 
 MFC-coding styles:
 
-For being able to compile simutrans with MSVC v6.00, some additional rules
+For being able to compile Simutrans with MSVC v6.00, some additional rules
 are necessary: (these are more suggestions, since it does not compile with VC6.0)
 
 1.
@@ -349,7 +356,7 @@ to:
 	};
 
 Reason:
-	VC cannot compile the first. Both constructs archieve the same result.
+	VC cannot compile the first. Both constructs achieve the same result.
 
 
 2.

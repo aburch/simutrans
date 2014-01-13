@@ -12,7 +12,7 @@
 #include "../tpl/vector_tpl.h"
 // for error popups
 #include "../gui/help_frame.h"
-#include "../simwin.h"
+#include "../gui/simwin.h"
 #include "../utils/cbuffer_t.h"
 #include "../utils/plainstring.h"
 

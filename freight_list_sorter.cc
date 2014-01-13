@@ -18,9 +18,8 @@
 // Necessary for MinGW
 #include "malloc.h"
 
-
-karte_t *freight_list_sorter_t::welt = NULL;
-freight_list_sorter_t::sort_mode_t freight_list_sorter_t::sortby = by_name;
+karte_ptr_t freight_list_sorter_t::welt;
+freight_list_sorter_t::sort_mode_t freight_list_sorter_t::sortby=by_name;
 
 /**
  *  @return whether w1 is less than w2
@@ -92,8 +91,9 @@ bool freight_list_sorter_t::compare_ware(ware_t const& w1, ware_t const& w2)
 			halthandle_t const d2 = w2.get_ziel();
 			if(  d1.is_bound()  &&  d2.is_bound()  ) {
 				const fabrik_t *fab = NULL;
-				const char *const name1 = (fabrik_t::get_fab(welt, w1.get_zielpos()) && sortby != by_origin ? ( (fab=fabrik_t::get_fab(welt,w1.get_zielpos())) ? fab->get_name() : "Invalid Factory" ) : d1->get_name() );
-				const char *const name2 = (fabrik_t::get_fab(welt, w2.get_zielpos()) && sortby != by_origin ? ( (fab=fabrik_t::get_fab(welt,w2.get_zielpos())) ? fab->get_name() : "Invalid Factory" ) : d2->get_name() );
+				// TODO -oBG, 29.12.2013: optimize:
+				const char *const name1 = (fabrik_t::get_fab(w1.get_zielpos()) && sortby != by_origin ? ( (fab=fabrik_t::get_fab(w1.get_zielpos())) ? fab->get_name() : "Invalid Factory" ) : d1->get_name() );
+				const char *const name2 = (fabrik_t::get_fab(w2.get_zielpos()) && sortby != by_origin ? ( (fab=fabrik_t::get_fab(w2.get_zielpos())) ? fab->get_name() : "Invalid Factory" ) : d2->get_name() );
 				return strcmp(name1, name2) < 0;
 			}
 			if (d1.is_bound()) {
@@ -137,9 +137,8 @@ void freight_list_sorter_t::add_ware_heading(cbuffer_t &buf, uint32 sum, uint32 
 }
 
 
-void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuffer_t& buf, sort_mode_t sort_mode, const slist_tpl<ware_t>* full_list, const char* what_doing, karte_t *world)
+void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuffer_t& buf, sort_mode_t sort_mode, const slist_tpl<ware_t>* full_list, const char* what_doing)
 {
-	welt = world;
 	sortby = sort_mode;
 
 	// hsiegeln
@@ -287,10 +286,11 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 				buf.append(" < ");
 			}
 			// the target name is not correct for the via sort
+//<<<<<<< HEAD
 
 			if(sortby != by_via_sum && sortby != by_origin_amount) 
 			{
-				const fabrik_t *const factory = fabrik_t::get_fab(world, ware.get_zielpos());
+				const fabrik_t *const factory = fabrik_t::get_fab(ware.get_zielpos());
 				const grund_t* gr = welt->lookup_kartenboden(ware.get_zielpos());
 				const gebaeude_t* const gb = gr ? gr->find<gebaeude_t>() : NULL;
 				const char* description = translator::translate("Unknown destination");
@@ -299,6 +299,13 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 				{
 					gb->get_description(dbuf);
 					description = dbuf.get_str();
+//=======
+//			const bool is_factory_going = ( sortby!=by_via_sum  &&  ware.to_factory );	// exclude merged packets
+//			if(  sortby!=by_via_sum  ||  via_halt==halt  ) {
+//				if(  is_factory_going  ) {
+//					const fabrik_t *const factory = fabrik_t::get_fab( ware.get_zielpos() );
+//					buf.printf("%s <%i,%i>", (factory ? factory->get_name() : "Invalid Factory"), ware.get_zielpos().x, ware.get_zielpos().y);
+//>>>>>>> aburch/master
 				}
 				const stadt_t* city = welt->get_city(ware.get_zielpos());
 				const char* town_name;

@@ -12,7 +12,7 @@
 #include "../simtools.h"  // for simrand
 #include "../simtypes.h"
 
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 #include "../dataobj/tabfile.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/livery_scheme.h"
@@ -43,7 +43,7 @@ public:
 	}
 };
 
-// speed boni
+// speed bonus
 static vector_tpl<bonus_record_t>speedbonus[8];
 
 static sint32 default_speedbonus[8] =
@@ -127,9 +127,9 @@ sint32 vehikelbauer_t::get_speedbonus( sint32 monthyear, waytype_t wt )
 		// needs to do it the old way => iterate over all vehicles with this type ...
 		const int wtidx = GET_WAYTYPE_INDEX(wt);
 		if(  !typ_fahrzeuge[wtidx].empty()  ) {
-			FOR(slist_tpl<vehikel_besch_t *>, info, typ_fahrzeuge[GET_WAYTYPE_INDEX(wt)]) 
+			FOR(slist_tpl<vehikel_besch_t *>, info, typ_fahrzeuge[wtidx]) 
 			{
-				if(info->get_leistung()>0  &&  !info->is_future(monthyear)  &&  !info->is_retired(monthyear)) {
+				if(info->get_leistung()>0  &&  info->is_available(monthyear)) {
 					speed_sum += info->get_geschw();
 					num_averages ++;
 				}
@@ -245,7 +245,7 @@ vehikel_t* vehikelbauer_t::baue(koord3d k, spieler_t* sp, convoi_t* cnv, const v
 
 bool vehikelbauer_t::register_besch(vehikel_besch_t *besch)
 {
-	// register waytype liste
+	// register waytype list
 	const int idx = GET_WAYTYPE_INDEX( besch->get_waytype() );
 	vehikel_besch_t *old_besch = name_fahrzeuge.get( besch->get_name() );
 	if(  old_besch  ) {
@@ -339,29 +339,23 @@ slist_tpl<vehikel_besch_t*>& vehikelbauer_t::get_info(waytype_t typ)
 	return typ_fahrzeuge[GET_WAYTYPE_INDEX(typ)];
 }
 
-//slist_tpl<vehikel_besch_t*>* vehikelbauer_t::get_modifiable_info(waytype_t typ)
-//{
-//	return &typ_fahrzeuge[GET_WAYTYPE_INDEX(typ)];
-//}
-
-/* extended sreach for vehicles for KI *
- * checks also timeline and contraits
+/* extended search for vehicles for KI *
+ * checks also timeline and constraints
  * tries to get best with but adds a little random action
  * @author prissi
  */
 const vehikel_besch_t *vehikelbauer_t::vehikel_search( waytype_t wt, const uint16 month_now, const uint32 target_weight, const sint32 target_speed, const ware_besch_t * target_freight, bool include_electric, bool not_obsolete )
 {
-	const vehikel_besch_t *besch = NULL;
-	long besch_index=-100000;
-
-	if(  target_freight==NULL  &&  target_weight==0  )
+	if(  (target_freight!=NULL  ||  target_weight!=0)  &&  !typ_fahrzeuge[GET_WAYTYPE_INDEX(wt)].empty()  ) 
 	{
-		// no power, no freight => no vehikel to search
-		return NULL;
-	}
+		struct best_t {
+			uint32 power;
+			uint16 payload_per_maintenance;
+			long index;
+		} best, test;
+		best.index = -100000;
 
-	if(  !typ_fahrzeuge[GET_WAYTYPE_INDEX(wt)].empty()  ) 
-	{
+		const vehikel_besch_t *besch = NULL;
 		FOR(slist_tpl<vehikel_besch_t *>, const test_besch, typ_fahrzeuge[GET_WAYTYPE_INDEX(wt)]) 
 		{
 			// no constricts allow for rail vehicles concerning following engines
@@ -396,8 +390,7 @@ const vehikel_besch_t *vehikelbauer_t::vehikel_search( waytype_t wt, const uint1
 				continue;
 			}
 
-			const uint32 power = (test_besch->get_leistung()*test_besch->get_gear())/64;
-			const uint16 maintenance = test_besch->get_running_cost() > 0 ? test_besch->get_running_cost() : 1;
+			test.power = (test_besch->get_leistung() * test_besch->get_gear()) / 64;
 			if(target_freight) 
 			{
 				// this is either a railcar/trailer or a truck/boat/plane
@@ -406,67 +399,71 @@ const vehikel_besch_t *vehikelbauer_t::vehikel_search( waytype_t wt, const uint1
 					continue;
 				}
 
-					sint32 difference=0;	// smaller is better
-					// assign this vehicle, if we have none found one yet, or we found only a too week one
-				
-					if(  besch!=NULL  ) {
-						// it is cheaper to run? (this is most important)
-						difference += (besch->get_zuladung()*1000)/1+maintenance < (test_besch->get_zuladung()*1000)/1+maintenance ? -20 : 20;
-						if(  target_weight>0  ) {
-							// it is strongerer?
-							difference += (besch->get_leistung()*besch->get_gear())/64 < power ? -10 : 10;
-						}
-						// it is faster? (although we support only up to 120km/h for goods)
-						difference += (besch->get_geschw() < test_besch->get_geschw())? -10 : 10;
-						// it is cheaper? (not so important)
-						difference += (besch->get_preis() > test_besch->get_preis())? -5 : 5;
-						// add some malus for obsolete vehicles
-						if(test_besch->is_retired(month_now)) {
-							difference += 5;
-						}
-					}
-					// ok, final check
-					if(  besch==NULL  ||  difference<(int)simrand(25, "vehikelbauer_t::vehikel_search")    ) {
-						// then we want this vehicle!
-						besch = test_besch;
-						DBG_MESSAGE( "vehikelbauer_t::vehikel_search","Found car %s", besch ? besch->get_name() : "null");
-					}
+				test.index = -100000;
+				test.payload_per_maintenance = test_besch->get_zuladung() / max(test_besch->get_running_cost(), 1);
 
-				else {
-					// engine/tugboat/truck for trailer
-					if(  test_besch->get_zuladung()!=0  ||  !test_besch->can_follow(NULL)  ) {
-						continue;
+				sint32 difference=0;	// smaller is better
+				// assign this vehicle if we have not found one yet, or we only found one too weak
+				if(  besch!=NULL  ) {
+					// is it cheaper to run? (this is most important)
+					difference += best.payload_per_maintenance < test.payload_per_maintenance ? -20 : 20;
+					if(  target_weight>0  ) {
+						// is it strongerer?
+						difference += best.power < test.power ? -10 : 10;
 					}
-					// finally, we might be able to use this vehicle
-					sint32 speed = test_besch->get_geschw();
-					uint32 max_weight = power/( (speed*speed)/2500 + 1 );
+					// it is faster? (although we support only up to 120km/h for goods)
+					difference += (besch->get_geschw() < test_besch->get_geschw())? -10 : 10;
+					// it is cheaper? (not so important)
+					difference += (besch->get_preis() > test_besch->get_preis())? -5 : 5;
+					// add some malus for obsolete vehicles
+					if(test_besch->is_retired(month_now)) {
+						difference += 5;
+					}
+				}
+				// ok, final check
+				if(  besch==NULL  ||  difference<(int)simrand(25, "vehikelbauer_t::vehikel_search")    ) {
+					// then we want this vehicle!
+					besch = test_besch;
+					best = test;
+					DBG_MESSAGE( "vehikelbauer_t::vehikel_search","Found car %s", besch ? besch->get_name() : "null");
+				}
+			}
+			else {
+				// engine/tugboat/truck for trailer
+				if(  test_besch->get_zuladung()!=0  ||  !test_besch->can_follow(NULL)  ) {
+					continue;
+				}
+				// finally, we might be able to use this vehicle
+				sint32 speed = test_besch->get_geschw();
+				uint32 max_weight = test.power/( (speed*speed)/2500 + 1 );
 
-					// we found a useful engine
-					long current_index = (power*100)/1+maintenance + test_besch->get_geschw() - (sint16)test_besch->get_gewicht() - (sint32)(test_besch->get_preis()/25000);
-					// too slow?
-					if(speed < target_speed) {
-						current_index -= 250;
-					}
-					// too weak to to reach full speed?
-					if(  max_weight < target_weight+test_besch->get_gewicht()  ) {
-						current_index += max_weight - (sint32)(target_weight+test_besch->get_gewicht());
-					}
-					current_index += simrand(100, "vehikelbauer_t::vehikel_search");
-					if(  current_index > besch_index  ) {
-						// then we want this vehicle!
-						besch = test_besch;
-						besch_index = current_index;
-						DBG_MESSAGE( "vehikelbauer_t::vehikel_search","Found engine %s",besch->get_name());
-					}
+				// we found a useful engine
+				test.index = (test.power*100)/max(test_besch->get_running_cost(), 1) + test_besch->get_geschw() - (sint16)test_besch->get_gewicht() - (sint32)(test_besch->get_preis()/25000);
+				// too slow?
+				if(speed < target_speed) {
+					test.index -= 250;
+				}
+				// too weak to to reach full speed?
+				if(  max_weight < target_weight+test_besch->get_gewicht()  ) {
+					test.index += max_weight - (sint32)(target_weight+test_besch->get_gewicht());
+				}
+				test.index += simrand(100, "vehikelbauer_t::vehikel_search");
+				if(  test.index > best.index  ) {
+					// then we want this vehicle!
+					besch = test_besch;
+					best = test;
+					DBG_MESSAGE( "vehikelbauer_t::vehikel_search","Found engine %s",besch->get_name());
 				}
 			}
 		}
+		if (besch)
+		{
+			return besch;
+		}
 	}
 	// no vehicle found!
-	if(  besch==NULL  ) {
-		DBG_MESSAGE( "vehikelbauer_t::vehikel_search()","could not find a suitable vehicle! (speed %i, weight %i)",target_speed,target_weight);
-	}
-	return besch;
+	DBG_MESSAGE( "vehikelbauer_t::vehikel_search()","could not find a suitable vehicle! (speed %i, weight %i)",target_speed,target_weight);
+	return NULL;
 }
 
 
@@ -505,7 +502,7 @@ const vehikel_besch_t *vehikelbauer_t::get_best_matching( waytype_t wt, const ui
 				continue;
 			}
 
-			// check for wegetype/too new
+			// check for waytype too
 			if(test_besch->get_waytype()!=wt  ||  test_besch->is_future(month_now)  ) {
 				continue;
 			}

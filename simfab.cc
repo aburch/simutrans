@@ -15,7 +15,7 @@
 #include <string.h>
 
 #include "simdebug.h"
-#include "simimg.h"
+#include "display/simimg.h"
 #include "simcolor.h"
 #include "simskin.h"
 #include "boden/grund.h"
@@ -35,13 +35,13 @@
 #include "simmesg.h"
 #include "simintr.h"
 
-#include "dings/wolke.h"
-#include "dings/gebaeude.h"
-#include "dings/field.h"
-#include "dings/leitung2.h"
+#include "obj/wolke.h"
+#include "obj/gebaeude.h"
+#include "obj/field.h"
+#include "obj/leitung2.h"
 
-#include "dataobj/einstellungen.h"
-#include "dataobj/umgebung.h"
+#include "dataobj/settings.h"
+#include "dataobj/environment.h"
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
 
@@ -54,8 +54,8 @@
 
 #include "utils/cbuffer_t.h"
 
-#include "simwin.h"
-#include "simgraph.h"
+#include "gui/simwin.h"
+#include "display/simgraph.h"
 
 #if MULTI_THREAD>1
 #include <pthread.h>
@@ -68,7 +68,7 @@ static pthread_mutex_t add_to_world_list_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 static const int FAB_MAX_INPUT = 15000;
 
-karte_t *fabrik_t::welt = NULL;
+karte_ptr_t fabrik_t::welt;
 
 
 /**
@@ -252,7 +252,7 @@ void fabrik_t::update_transit( const ware_t& ware, bool add )
 {
 	if(  ware.index > warenbauer_t::INDEX_NONE  ) {
 		// only for freights
-		fabrik_t *fab = get_fab( welt, ware.get_zielpos() );
+		fabrik_t *fab = get_fab( ware.get_zielpos() );
 		if(  fab  ) {
 			fab->update_transit_intern( ware, add );
 		}
@@ -517,7 +517,7 @@ void fabrik_t::set_base_production(sint32 p)
 }
 
 
-fabrik_t *fabrik_t::get_fab(const karte_t *welt, const koord &pos)
+fabrik_t *fabrik_t::get_fab(const koord &pos)
 {
 	const grund_t *gr = welt->lookup_kartenboden(pos);
 	if(gr) {
@@ -529,12 +529,28 @@ fabrik_t *fabrik_t::get_fab(const karte_t *welt, const koord &pos)
 	return NULL;
 }
 
+
+//void fabrik_t::link_halt(halthandle_t halt)
+//{
+//	welt->access(pos.get_2d())->add_to_haltlist(halt);
+//}
+//
+//
+//void fabrik_t::unlink_halt(halthandle_t halt)
+//{
+//	planquadrat_t *plan=welt->access(pos.get_2d());
+//	if(plan) {
+//		plan->remove_from_haltlist(halt);
+//	}
+//}
+
+
 void fabrik_t::add_lieferziel(koord ziel)
 {
 	if(  !lieferziele.is_contained(ziel)  ) {
 		lieferziele.insert_ordered( ziel, RelativeDistanceOrdering(pos.get_2d()) );
 		// now tell factory too
-		fabrik_t * fab = fabrik_t::get_fab(welt, ziel);
+		fabrik_t * fab = fabrik_t::get_fab(ziel);
 		if (fab) {
 			fab->add_supplier(get_pos().get_2d());
 		}
@@ -598,10 +614,8 @@ fabrik_t::disconnect_supplier(koord pos) //Returns true if must be destroyed.
 }
 
 
-fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
+fabrik_t::fabrik_t(loadsave_t* file)
 {
-	welt = wl;
-
 	besitzer_p = NULL;
 	power = 0;
 	power_demand = 0;
@@ -609,6 +623,7 @@ fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
 	lieferziele_active_last_month = 0;
 	city = NULL;
 	building = NULL;
+	pos = koord3d::invalid;
 
 	rdwr(file);
 
@@ -621,11 +636,11 @@ fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
 	transformer_connected = NULL;
 
 	if(  besch == NULL  ) {
-		dbg->warning( "fabrik_t::fabrik_t()", "No pak-file for factory at (%s) - will not be built!", pos.get_str() );
+		dbg->warning( "fabrik_t::fabrik_t()", "No pak-file for factory at (%s) - will not be built!", pos_origin.get_str() );
 		return;
 	}
-	else if(  !welt->is_within_limits(pos.get_2d())  ) {
-		dbg->warning( "fabrik_t::fabrik_t()", "%s is not a valid position! (Will not be built!)", pos.get_str() );
+	else if(  !welt->is_within_limits(pos_origin.get_2d())  ) {
+		dbg->warning( "fabrik_t::fabrik_t()", "%s is not a valid position! (Will not be built!)", pos_origin.get_str() );
 		besch = NULL; // to get rid of this broken factory later...
 	}
 	else {
@@ -649,7 +664,6 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 	besch(fabesch),
 	pos(pos_)
 {
-	welt = spieler->get_welt();
 	pos.z = welt->max_hgt(pos.get_2d());
 	pos_origin = pos;
 	building = NULL;
@@ -822,7 +836,7 @@ void fabrik_t::delete_all_fields()
 			grund_t *gr = plan->get_kartenboden();
 			if (field_t* f = gr->find<field_t>()) {
 				delete f; // implicitly removes the field from fields
-				plan->boden_ersetzen( gr, new boden_t( welt, gr->get_pos(), hang_t::flach ) );
+				plan->boden_ersetzen( gr, new boden_t(gr->get_pos(), hang_t::flach ) );
 				plan->get_kartenboden()->calc_bild();
 				continue;
 			}
@@ -867,23 +881,23 @@ fabrik_t::~fabrik_t()
 		welt->get_message()->add_message(buf, pos.get_2d(), message_t::industry, COL_DARK_RED, skinverwaltung_t::neujahrsymbol->get_bild_nr(0));
 		for(sint32 i = number_of_customers - 1; i >= 0; i --)
 		{
-			fabrik_t* tmp = get_fab(welt, lieferziele[i]);
+			fabrik_t* tmp = get_fab(lieferziele[i]);
 			if(tmp && tmp->disconnect_supplier(pos.get_2d()))
 			{
 				// Orphaned, must be deleted.
 				gebaeude_t* gb = tmp->get_building();
-				hausbauer_t::remove(welt, welt->get_spieler(1), gb);
+				hausbauer_t::remove(welt->get_spieler(1), gb);
 			}
 		}
 
 		for(sint32 i = number_of_suppliers - 1; i >= 0; i --)
 		{
-			fabrik_t* tmp = get_fab(welt, suppliers[i]);
+			fabrik_t* tmp = get_fab(suppliers[i]);
 			if(tmp && tmp->disconnect_consumer(pos.get_2d()))
 			{
 				// Orphaned, must be deleted.
 				gebaeude_t* gb = tmp->get_building();
-				hausbauer_t::remove(welt, welt->get_spieler(1), gb);
+				hausbauer_t::remove(welt->get_spieler(1), gb);
 			}
 		}
 		if(transformer_connected)
@@ -900,7 +914,7 @@ void fabrik_t::baue(sint32 rotate, bool build_fields, bool force_initial_prodbas
 	pos_origin = welt->lookup_kartenboden(pos_origin.get_2d())->get_pos();
 	if(!building)
 	{
- 		building = hausbauer_t::baue(welt, besitzer_p, pos_origin, rotate, besch->get_haus(), this);
+ 		building = hausbauer_t::baue(besitzer_p, pos_origin, rotate, besch->get_haus(), this);
 	}
 	pos = building->get_pos();
 	pos_origin.z = pos.z;
@@ -913,9 +927,9 @@ void fabrik_t::baue(sint32 rotate, bool build_fields, bool force_initial_prodbas
 				grund_t *gr=welt->lookup_kartenboden(k);
 				if(  gr->ist_natur()  ) {
 					// first make foundation below
-					grund_t *gr2 = new fundament_t(welt, gr->get_pos(), gr->get_grund_hang());
+					grund_t *gr2 = new fundament_t(gr->get_pos(), gr->get_grund_hang());
 					welt->access(k)->boden_ersetzen(gr, gr2);
-					gr2->obj_add( new field_t( welt, gr2->get_pos(), besitzer_p, besch->get_field_group()->get_field_class( fields[i].field_class_index ), this ) );
+					gr2->obj_add( new field_t(gr2->get_pos(), besitzer_p, besch->get_field_group()->get_field_class( fields[i].field_class_index ), this ) );
 				}
 				else {
 					// there was already a building at this position => do not restore!
@@ -1008,9 +1022,9 @@ bool fabrik_t::add_random_field(uint16 probability)
 		new_field.field_class_index = pick_any_weighted(field_class_indices);
 		const field_class_besch_t *const field_class = fb->get_field_class( new_field.field_class_index );
 		fields.append(new_field);
-		grund_t *gr2 = new fundament_t(welt, gr->get_pos(), gr->get_grund_hang());
+		grund_t *gr2 = new fundament_t(gr->get_pos(), gr->get_grund_hang());
 		welt->access(k)->boden_ersetzen(gr, gr2);
-		gr2->obj_add( new field_t( welt, gr2->get_pos(), besitzer_p, field_class, this ) );
+		gr2->obj_add( new field_t(gr2->get_pos(), besitzer_p, field_class, this ) );
 		// Knightly : adjust production base and storage capacities
 		set_base_production( prodbase + field_class->get_field_production() );
 		if(lt) {
@@ -1035,39 +1049,39 @@ void fabrik_t::remove_field_at(koord pos)
 }
 
 
-bool fabrik_t::ist_bauplatz(karte_t *welt, koord pos, koord groesse,bool wasser,climate_bits cl)
-{
-	if(pos.x > 0 && pos.y > 0 &&
-		pos.x+groesse.x < welt->get_size().x && pos.y+groesse.y < welt->get_size().y &&
-		( wasser  ||  welt->square_is_free(pos, groesse.x, groesse.y, NULL, cl) )&&
-		!ist_da_eine(welt,pos-koord(5,5),pos+groesse+koord(3,3))) {
-
-		// check for water (no shore in sight!)
-		if(wasser) {
-			for(int y=0;y<groesse.y;y++) {
-				for(int x=0;x<groesse.x;x++) {
-					const grund_t *gr=welt->lookup_kartenboden(pos+koord(x,y));
-					if(!gr->ist_wasser()  ||  gr->get_grund_hang()!=hang_t::flach) {
-						return false;
-					}
-				}
-			}
-		}
-
-		return true;
-	}
-	return false;
-}
+//bool fabrik_t::ist_bauplatz(karte_t *welt, koord pos, koord groesse,bool wasser,climate_bits cl)
+//{
+//	if(pos.x > 0 && pos.y > 0 &&
+//		pos.x+groesse.x < welt->get_size().x && pos.y+groesse.y < welt->get_size().y &&
+//		( wasser  ||  welt->square_is_free(pos, groesse.x, groesse.y, NULL, cl) )&&
+//		!ist_da_eine(welt,pos-koord(5,5),pos+groesse+koord(3,3))) {
+//
+//		// check for water (no shore in sight!)
+//		if(wasser) {
+//			for(int y=0;y<groesse.y;y++) {
+//				for(int x=0;x<groesse.x;x++) {
+//					const grund_t *gr=welt->lookup_kartenboden(pos+koord(x,y));
+//					if(!gr->ist_wasser()  ||  gr->get_grund_hang()!=hang_t::flach) {
+//						return false;
+//					}
+//				}
+//			}
+//		}
+//
+//		return true;
+//	}
+//	return false;
+//}
 
 // "Are there any?" (Google Translate)
-vector_tpl<fabrik_t *> &fabrik_t::sind_da_welche(karte_t *welt, koord min_pos, koord max_pos)
+vector_tpl<fabrik_t *> &fabrik_t::sind_da_welche(koord min_pos, koord max_pos)
 {
 	static vector_tpl <fabrik_t*> fablist(16);
 	fablist.clear();
 
 	for(int y=min_pos.y; y<=max_pos.y; y++) {
 		for(int x=min_pos.x; x<=max_pos.x; x++) {
-			fabrik_t *fab=get_fab(welt,koord(x,y));
+			fabrik_t *fab=get_fab(koord(x,y));
 			if(fab) {
 				if (fablist.append_unique(fab)) {
 //DBG_MESSAGE("fabrik_t::sind_da_welche()","appended factory %s at (%i,%i)",gr->first_obj()->get_fabrik()->get_besch()->get_name(),x,y);
@@ -1076,19 +1090,6 @@ vector_tpl<fabrik_t *> &fabrik_t::sind_da_welche(karte_t *welt, koord min_pos, k
 		}
 	}
 	return fablist;
-}
-
-
-bool fabrik_t::ist_da_eine(karte_t *welt, koord min_pos, koord max_pos )
-{
-	for(int y=min_pos.y; y<=max_pos.y; y++) {
-		for(int x=min_pos.x; x<=max_pos.x; x++) {
-			if(get_fab(welt,koord(x,y))) {
-				return true;
-			}
-		}
-	}
-	return false;
 }
 
 
@@ -1406,7 +1407,10 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		gebaeude_t *gb = gr->find<gebaeude_t>();
 		
 		building = gb;
-		building->set_fab(this);
+		if (building)
+		{
+			building->set_fab(this);
+		}
 	}
 }
 
@@ -1426,7 +1430,7 @@ void fabrik_t::smoke() const
 		// to get same random order on different compilers
 		const sint8 offsetx =  ((rada->get_xy_off(rot).x+sim_async_rand(7)-3)*OBJECT_OFFSET_STEPS)/16;
 		const sint8 offsety =  ((rada->get_xy_off(rot).y+sim_async_rand(7)-3)*OBJECT_OFFSET_STEPS)/16;
-		wolke_t *smoke =  new wolke_t(welt, gr->get_pos(), offsetx, offsety, rada->get_bilder() );
+		wolke_t *smoke =  new wolke_t(gr->get_pos(), offsetx, offsety, rada->get_bilder() );
 		gr->obj_add(smoke);
 		welt->sync_way_eyecandy_add( smoke );
 	}
@@ -1852,7 +1856,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 		for(  uint32 n=0;  n<lieferziele.get_count();  n++  ) {
 			// prissi: this way, the halt that is tried first will change. As a result, if all destinations are empty, it will be spread evenly
 			const koord lieferziel = lieferziele[(n + ausgang[produkt].index_offset) % lieferziele.get_count()];
-			fabrik_t * ziel_fab = get_fab(welt, lieferziel);
+			fabrik_t * ziel_fab = get_fab(lieferziel);
 
 			if(  ziel_fab  ) {
 				const sint8 needed = ziel_fab->is_needed(ausgang[produkt].get_typ());
@@ -2456,7 +2460,7 @@ void fabrik_t::recalc_nearby_halts() {
 	bool any_distribution_target = false; // just for debugging
 	FOR(vector_tpl<koord>, const k, tile_list)
 	{
-		const planquadrat_t* plan = welt->lookup(k);
+		const planquadrat_t* plan = welt->access(k);
 		if(plan)
 		{
 			any_distribution_target=true;
@@ -2547,7 +2551,7 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 		buf.append(translator::translate("Abnehmer"));
 
 		FOR(vector_tpl<koord>, const& lieferziel, lieferziele) {
-			fabrik_t *fab = get_fab( welt, lieferziel );
+			fabrik_t *fab = get_fab( lieferziel );
 			if(fab) {
 				if(  is_active_lieferziel(lieferziel)  ) {
 					buf.printf("\n      %s (%d,%d)", translator::translate(fab->get_name()), lieferziel.x, lieferziel.y);
@@ -2567,7 +2571,7 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 		buf.append(translator::translate("Suppliers"));
 
 		FOR(vector_tpl<koord>, const& supplier, suppliers) {
-			if(  fabrik_t *src = get_fab( welt, supplier )  ) {
+			if(  fabrik_t *src = get_fab( supplier )  ) {
 				if(  src->is_active_lieferziel(get_pos().get_2d())  ) {
 					buf.printf("\n      %s (%d,%d)", translator::translate(src->get_name()), supplier.x, supplier.y);
 				}
@@ -2577,6 +2581,18 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 			}
 		}
 	}
+
+	//if (!target_cities.empty()) {
+	//	if(  has_previous  ) {
+	//		buf.append("\n\n");
+	//	}
+	//	has_previous = true;
+	//	buf.append( is_end_consumer() ? translator::translate("Customers live in:") : translator::translate("Arbeiter aus:") );
+
+	//	for(  uint32 c=0;  c<target_cities.get_count();  ++c  ) {
+	//		buf.append("\n");
+	//	}
+	//}
 
 	// Check *all* tiles for nearby stops... but don't update!
 	if ( !nearby_freight_halts.empty() )
@@ -2608,7 +2624,7 @@ void fabrik_t::laden_abschliessen()
 	}
 	else {
 		for(uint32 i=0; i<lieferziele.get_count(); i++) {
-			fabrik_t * fab2 = fabrik_t::get_fab(welt, lieferziele[i]);
+			fabrik_t * fab2 = fabrik_t::get_fab(lieferziele[i]);
 			if (fab2) {
 				fab2->add_supplier(pos.get_2d());
 				lieferziele[i] = fab2->get_pos().get_2d();
@@ -2751,7 +2767,7 @@ void fabrik_t::get_tile_list( vector_tpl<koord> &tile_list ) const
 	// Which tiles belong to the fab?
 	for( test.x = 0; test.x < size.x; test.x++ ) {
 		for( test.y = 0; test.y < size.y; test.y++ ) {
-			if( fabrik_t::get_fab( welt, pos_2d+test ) == this ) {
+			if( fabrik_t::get_fab( pos_2d+test ) == this ) {
 				tile_list.append( pos_2d+test );
 			}
 		}

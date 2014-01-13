@@ -11,7 +11,7 @@
 #include "tunnel_reader.h"
 
 #include "../../bauer/tunnelbauer.h"
-#include "../../dataobj/pakset_info.h"
+#include "../../network/pakset_info.h"
 
 
 void tunnel_reader_t::register_obj(obj_besch_t *&data)
@@ -35,17 +35,18 @@ void tunnel_reader_t::convert_old_tunnel(tunnel_besch_t *besch)
 {
 	// old style, need to convert
 	if(strcmp(besch->get_name(),"RoadTunnel")==0) {
-		besch->wegtyp = (uint8)road_wt;
+		besch->wt = (uint8)road_wt;
 		besch->topspeed = 120;
 	}
 	else {
-		besch->wegtyp = (uint8)track_wt;
+		besch->wt = (uint8)track_wt;
 		besch->topspeed = 280;
 	}
 	besch->maintenance = 500;
-	besch->preis = 200000;
+	besch->cost = 200000;
 	besch->intro_date = DEFAULT_INTRO_DATE*12;
 	besch->obsolete_date = DEFAULT_RETIRE_DATE*12;
+	besch->has_way = false;
 }
 
 
@@ -86,9 +87,9 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		if( version == 4 ) {
 			// versioned node, version 4 - broad portal support
 			besch->topspeed = decode_uint32(p);
-			besch->preis = decode_uint32(p);
+			besch->cost = decode_uint32(p);
 			besch->maintenance = decode_uint32(p);
-			besch->wegtyp = decode_uint8(p);
+			besch->wt = decode_uint8(p);
 			besch->intro_date = decode_uint16(p);
 			besch->obsolete_date = decode_uint16(p);
 			besch->number_seasons = decode_uint8(p);
@@ -112,9 +113,9 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		else if(version == 3) {
 			// versioned node, version 3 - underground way image support
 			besch->topspeed = decode_uint32(p);
-			besch->preis = decode_uint32(p);
+			besch->cost = decode_uint32(p);
 			besch->maintenance = decode_uint32(p);
-			besch->wegtyp = decode_uint8(p);
+			besch->wt = decode_uint8(p);
 			besch->intro_date = decode_uint16(p);
 			besch->obsolete_date = decode_uint16(p);
 			besch->number_seasons = decode_uint8(p);
@@ -137,9 +138,9 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		else if(version == 2) {
 			// versioned node, version 2 - snow image support
 			besch->topspeed = decode_uint32(p);
-			besch->preis = decode_uint32(p);
+			besch->cost = decode_uint32(p);
 			besch->maintenance = decode_uint32(p);
-			besch->wegtyp = decode_uint8(p);
+			besch->wt = decode_uint8(p);
 			besch->intro_date = decode_uint16(p);
 			besch->obsolete_date = decode_uint16(p);
 			besch->number_seasons = decode_uint8(p);
@@ -162,9 +163,9 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		else if(version == 1) {
 			// first versioned node, version 1
 			besch->topspeed = decode_uint32(p);
-			besch->preis = decode_uint32(p);
+			besch->cost = decode_uint32(p);
 			besch->maintenance = decode_uint32(p);
-			besch->wegtyp = decode_uint8(p);
+			besch->wt = decode_uint8(p);
 			besch->intro_date = decode_uint16(p);
 			besch->obsolete_date = decode_uint16(p);
 			besch->number_seasons = 0;
@@ -182,7 +183,7 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->set_way_constraints(way_constraints);
 		DBG_DEBUG("tunnel_reader_t::read_node()",
 		     "version=%d waytype=%d price=%d topspeed=%d, intro_year=%d, max_axle_load%d",
-			 version, besch->wegtyp, besch->preis, besch->topspeed, besch->intro_date/12, besch->max_axle_load);
+			 version, besch->wt, besch->cost, besch->topspeed, besch->intro_date/12, besch->max_axle_load);
 	}
 
 	return besch;

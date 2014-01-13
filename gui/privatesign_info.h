@@ -9,10 +9,10 @@
 #define privatesign_info_t_h
 
 #include "../simconst.h"
-#include "thing_info.h"
+#include "obj_info.h"
 #include "components/action_listener.h"
 #include "components/gui_button.h"
-#include "gui_container.h"
+#include "components/gui_container.h"
 
 class roadsign_t;
 
@@ -20,7 +20,7 @@ class roadsign_t;
  * Info window for factories
  * @author Hj. Malthaner
  */
-class privatesign_info_t : public ding_infowin_t, public action_listener_t
+class privatesign_info_t : public obj_infowin_t, public action_listener_t
 {
  private:
 	roadsign_t* sign;

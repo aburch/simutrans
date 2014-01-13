@@ -14,8 +14,9 @@
 
 #include "../simcity.h"
 #include "../simcolor.h"
-#include "../simgraph.h"
-#include "../simwin.h"
+#include "../display/simgraph.h"
+#include "../display/viewport.h"
+#include "../gui/simwin.h"
 #include "../simworld.h"
 
 #include "../besch/skin_besch.h"
@@ -29,8 +30,7 @@ static const char* total_bev_translation = NULL;
 char citylist_stats_t::total_bev_string[128];
 
 
-citylist_stats_t::citylist_stats_t(karte_t* w, citylist::sort_mode_t sortby, bool sortreverse) :
-	welt(w)
+citylist_stats_t::citylist_stats_t(citylist::sort_mode_t sortby, bool sortreverse)
 {
 	total_bev_translation = translator::translate("Total inhabitants:");
 	sort(sortby, sortreverse);
@@ -98,14 +98,14 @@ bool citylist_stats_t::infowin_event(const event_t * ev)
 	if (IS_LEFTRELEASE(ev) && ev->cy>0) {
 		if(ev->cx>0  &&  ev->cx<15) {
 			const koord pos = stadt->get_pos();
-			welt->change_world_position( koord3d(pos, welt->min_hgt(pos)) );
+			welt->get_viewport()->change_world_position( koord3d(pos, welt->min_hgt(pos)) );
 		}
 		else {
 			stadt->zeige_info();
 		}
 	} else if (IS_RIGHTRELEASE(ev) && ev->cy > 0) {
 		const koord pos = stadt->get_pos();
-		welt->change_world_position( koord3d(pos, welt->min_hgt(pos)) );
+		welt->get_viewport()->change_world_position( koord3d(pos, welt->min_hgt(pos)) );
 	}
 	return false;
 }
@@ -113,12 +113,12 @@ bool citylist_stats_t::infowin_event(const event_t * ev)
 
 void citylist_stats_t::recalc_size()
 {
-	// show_scroll_x==false ->> groesse.x not important ->> no need to calc text pixel length
-	set_groesse( koord(210, welt->get_staedte().get_count() * (LINESPACE+1) ) );
+	// show_scroll_x==false ->> size.w not important ->> no need to calc text pixel length
+	set_size( scr_size(210, welt->get_staedte().get_count() * (LINESPACE+1) ) );
 }
 
 
-void citylist_stats_t::zeichnen(koord offset)
+void citylist_stats_t::draw(scr_coord offset)
 {
 	cbuffer_t buf;
 
@@ -148,11 +148,10 @@ void citylist_stats_t::zeichnen(koord offset)
 			display_proportional_clip(offset.x + 4 + 10, offset.y, buf, ALIGN_LEFT, COL_BLACK, true);
 
 			// goto button
-			image_id const img = sel-- != 0 ? button_t::arrow_right_normal : button_t::arrow_right_pushed;
-			display_color_img(img, offset.x + 2, offset.y, 0, false, true);
+			display_img_aligned( gui_theme_t::pos_button_img[ sel == 0 ], scr_rect( offset.x, offset.y, 14, LINESPACE ), ALIGN_CENTER_V | ALIGN_CENTER_H, true );
 
 			if(  win_get_magic( (ptrdiff_t)stadt )  ) {
-				display_blend_wh( offset.x, offset.y, groesse.x, LINESPACE, COL_BLACK, 25 );
+				display_blend_wh( offset.x, offset.y, size.w, LINESPACE, COL_BLACK, 25 );
 			}
 		}
 		total_bev    += population;

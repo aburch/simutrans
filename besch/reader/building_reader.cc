@@ -6,7 +6,7 @@
 #include "../intro_dates.h"
 #include "../obj_node_info.h"
 #include "building_reader.h"
-#include "../../dataobj/pakset_info.h"
+#include "../../network/pakset_info.h"
 
 
 obj_besch_t * tile_reader_t::read_node(FILE *fp, obj_node_info_t &node)
@@ -530,6 +530,13 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	if(  version<=6  ) {
 		// only stops were allowed underground
 		besch->allow_underground = 255;
+	}
+
+	if(  version<=7  ) {
+		// capacity, maintenance and price were set from level
+		besch->capacity = besch->level * 32;
+		besch->maintenance = COST_MAGIC;
+		besch->price = COST_MAGIC;
 	}
 
 	if (besch->level == 65535) {

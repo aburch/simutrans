@@ -12,8 +12,18 @@ const skin_besch_t* skinverwaltung_t::werkzeuge_general  = NULL;
 const skin_besch_t* skinverwaltung_t::werkzeuge_simple   = NULL;
 const skin_besch_t* skinverwaltung_t::werkzeuge_dialoge  = NULL;
 const skin_besch_t* skinverwaltung_t::werkzeuge_toolbars = NULL;
+
 /* Window skin images are menus too! */
-const skin_besch_t* skinverwaltung_t::window_skin = NULL;
+const skin_besch_t* skinverwaltung_t::button = NULL;
+const skin_besch_t* skinverwaltung_t::round_button = NULL;
+const skin_besch_t* skinverwaltung_t::check_button = NULL;
+const skin_besch_t* skinverwaltung_t::posbutton = NULL;
+const skin_besch_t* skinverwaltung_t::back = NULL;
+const skin_besch_t* skinverwaltung_t::scrollbar = NULL;
+const skin_besch_t* skinverwaltung_t::divider = NULL;
+const skin_besch_t* skinverwaltung_t::editfield = NULL;
+const skin_besch_t* skinverwaltung_t::listbox = NULL;
+const skin_besch_t* skinverwaltung_t::gadget= NULL;
 
 // symbol images
 const skin_besch_t* skinverwaltung_t::biglogosymbol      = NULL;
@@ -73,7 +83,16 @@ static spezial_obj_tpl<skin_besch_t> misc_objekte[] = {
 
 static spezial_obj_tpl<skin_besch_t> menu_objekte[] = {
 	// new menu system
-	{ &skinverwaltung_t::window_skin,       "WindowSkin"   },
+	{ &skinverwaltung_t::button,            "Button"   },
+	{ &skinverwaltung_t::round_button,      "Roundbutton"  },
+	{ &skinverwaltung_t::check_button,      "Checkbutton"  },
+	{ &skinverwaltung_t::posbutton,         "Posbutton"    },
+	{ &skinverwaltung_t::scrollbar,         "Scrollbar"    },
+	{ &skinverwaltung_t::divider,           "Divider"      },
+	{ &skinverwaltung_t::editfield,         "Editfield"    },
+	{ &skinverwaltung_t::listbox,           "Listbox"      },
+	{ &skinverwaltung_t::back,              "Back"         },
+	{ &skinverwaltung_t::gadget,            "Gadget"       },
 	{ &skinverwaltung_t::werkzeuge_general, "GeneralTools" },
 	{ &skinverwaltung_t::werkzeuge_simple,  "SimpleTools"  },
 	{ &skinverwaltung_t::werkzeuge_dialoge, "DialogeTools" },

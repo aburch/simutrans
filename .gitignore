@@ -52,3 +52,6 @@ _UpgradeReport_Files*
 *.patch
 *.log
 /doxygen
+/libs
+*.lnk
+*.pak

@@ -9,8 +9,8 @@
 
 #include "../simdebug.h"
 #include "../simworld.h"
-#include "../simdings.h"
-#include "../simimg.h"
+#include "../simobj.h"
+#include "../display/simimg.h"
 #include "../player/simplay.h"
 #include "../simtools.h"
 #include "../simtypes.h"
@@ -25,9 +25,9 @@
 
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 
-#include "../dings/baum.h"
+#include "../obj/baum.h"
 
 #include "movingobj.h"
 
@@ -120,39 +120,41 @@ void movingobj_t::calc_bild()
 	// alter/2048 is the age of the tree
 	const groundobj_besch_t *besch=get_besch();
 	const uint8 seasons = besch->get_seasons()-1;
-	uint8 season=0;
+	uint8 season = 0;
 
-	// two possibilities
-	switch(seasons) {
-				// summer only
-		case 0: season = 0;
-				break;
-				// summer, snow
-		case 1: season = welt->get_snowline()<=get_pos().z;
-				break;
-				// summer, winter, snow
-		case 2: season = welt->get_snowline()<=get_pos().z ? 2 : welt->get_season()==1;
-				break;
-		default: if(welt->get_snowline()<=get_pos().z) {
-					season = seasons;
-				}
-				else {
-					// resolution 1/8th month (0..95)
-					season = (seasons * (welt->get_yearsteps() + 1) - 1) / 96;
-				}
-				break;
+	switch(  seasons  ) {
+		case 0: { // summer only
+			season = 0;
+			break;
+		}
+		case 1: { // summer, snow
+			season = welt->get_snowline() <= get_pos().z  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate;
+			break;
+		}
+		case 2: { // summer, winter, snow
+			season = welt->get_snowline() <= get_pos().z  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate ? 2 : welt->get_season() == 1;
+			break;
+		}
+		default: {
+			if(  welt->get_snowline() <= get_pos().z  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate  ) {
+				season = seasons;
+			}
+			else {
+				// resolution 1/8th month (0..95)
+				season = (seasons * (welt->get_yearsteps() + 1) - 1) / 96;
+			}
+			break;
+		}
 	}
 	set_bild( get_besch()->get_bild( season, ribi_t::get_dir(get_fahrtrichtung()) )->get_nummer() );
 }
 
 
-
-
-movingobj_t::movingobj_t(karte_t *welt, loadsave_t *file) : 
+movingobj_t::movingobj_t(loadsave_t *file) : 
 #ifdef INLINE_DING_TYPE
-    vehikel_basis_t(welt, movingobj)
+    vehikel_basis_t(movingobj)
 #else
-    vehikel_basis_t(welt)
+    vehikel_basis_t()
 #endif
 {
 	rdwr(file);
@@ -162,21 +164,21 @@ movingobj_t::movingobj_t(karte_t *welt, loadsave_t *file) :
 }
 
 
-
-movingobj_t::movingobj_t(karte_t *welt, koord3d pos, const groundobj_besch_t *b ) : 
+movingobj_t::movingobj_t(koord3d pos, const groundobj_besch_t *b ) : 
 #ifdef INLINE_DING_TYPE
-    vehikel_basis_t(welt, movingobj, pos)
+    vehikel_basis_t(movingobj, pos)
 #else
-    vehikel_basis_t(welt, pos)
+    vehikel_basis_t(pos)
 #endif
 {
 	movingobjtype = movingobj_typen.index_of(b);
 	weg_next = 0;
 	timetochange = 0;	// will do random direct change anyway during next step
-	fahrtrichtung = calc_set_richtung( koord(0,0), koord::west );
+	fahrtrichtung = calc_set_richtung( koord3d(0,0,0), koord3d(koord::west,0) );
 	calc_bild();
 	welt->sync_add( this );
 }
+
 
 movingobj_t::~movingobj_t()
 {
@@ -193,7 +195,6 @@ bool movingobj_t::check_season(long)
 	}
 	return true;
 }
-
 
 
 void movingobj_t::rdwr(loadsave_t *file)
@@ -241,13 +242,13 @@ void movingobj_t::rdwr(loadsave_t *file)
 
 
 /**
- * Öffnet ein neues Beobachtungsfenster für das Objekt.
+ * Open a new observation window for the object.
  * @author Hj. Malthaner
  */
 void movingobj_t::zeige_info()
 {
-	if(umgebung_t::tree_info) {
-		ding_t::zeige_info();
+	if(env_t::tree_info) {
+		obj_t::zeige_info();
 	}
 }
 
@@ -260,7 +261,7 @@ void movingobj_t::zeige_info()
  */
 void movingobj_t::info(cbuffer_t & buf, bool dummy) const
 {
-	ding_t::info(buf);
+	obj_t::info(buf);
 
 	buf.append(translator::translate(get_besch()->get_name()));
 	if (char const* const maker = get_besch()->get_copyright()) {
@@ -307,7 +308,7 @@ bool movingobj_t::ist_befahrbar( const grund_t *gr ) const
 	}
 
 	const groundobj_besch_t *besch = get_besch();
-	if( !besch->is_allowed_climate( welt->get_climate(gr->get_hoehe()) ) ) {
+	if( !besch->is_allowed_climate( welt->get_climate(gr->get_pos().get_2d()) ) ) {
 		// not an allowed climate zone!
 		return false;
 	}
@@ -408,7 +409,7 @@ grund_t* movingobj_t::hop()
 	}
 	else {
 		ribi_t::ribi old_dir = fahrtrichtung;
-		fahrtrichtung = calc_set_richtung( get_pos().get_2d(), pos_next_next );
+		fahrtrichtung = calc_set_richtung( get_pos(), koord3d(pos_next_next,0) );
 		if(old_dir!=fahrtrichtung) {
 			calc_bild();
 		}

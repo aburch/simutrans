@@ -9,12 +9,14 @@
  * 14.06.00 getrennt von simgrund.cc
  * Überarbeitet Januar 2001
  *
- * derived from simdings.h in 2007
+ * derived from simobj.h in 2007
  *
  * von Hj. Malthaner
  */
 
 #include <stdio.h>
+
+#include "../../tpl/slist_tpl.h"
 
 #include "weg.h"
 
@@ -29,27 +31,24 @@
 
 #include "../grund.h"
 #include "../../simworld.h"
-#include "../../simimg.h"
+#include "../../display/simimg.h"
 #include "../../simhalt.h"
-#include "../../simdings.h"
+#include "../../simobj.h"
 #include "../../player/simplay.h"
-#include "../../dings/roadsign.h"
-#include "../../dings/signal.h"
-#include "../../dings/crossing.h"
+#include "../../obj/wayobj.h"
+#include "../../obj/roadsign.h"
+#include "../../obj/signal.h"
+#include "../../obj/crossing.h"
+#include "../../obj/gebaeude.h" // for ::should_city_adopt_this
 #include "../../utils/cbuffer_t.h"
 #include "../../dataobj/translator.h"
 #include "../../dataobj/loadsave.h"
 #include "../../besch/weg_besch.h"
 #include "../../besch/roadsign_besch.h"
-
-#include "../../tpl/slist_tpl.h"
-#include "../../dings/wayobj.h"
-
-#include "../../dings/gebaeude.h" // for ::should_city_adopt_this
 #include "../../besch/haus_besch.h" // for ::should_city_adopt_this
 
-#if MULTI_THREAD>1
-#include <pthread.h>
+#ifdef MULTI_THREAD
+#include "../../utils/simthread.h"
 static pthread_mutex_t weg_calc_bild_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 #endif
 
@@ -77,25 +76,25 @@ weg_t* weg_t::alloc(waytype_t wt)
 	switch(wt) {
 		case tram_wt:
 		case track_wt:
-			weg = new schiene_t(welt);
+			weg = new schiene_t();
 			break;
 		case monorail_wt:
-			weg = new monorail_t(welt);
+			weg = new monorail_t();
 			break;
 		case maglev_wt:
-			weg = new maglev_t(welt);
+			weg = new maglev_t();
 			break;
 		case narrowgauge_wt:
-			weg = new narrowgauge_t(welt);
+			weg = new narrowgauge_t();
 			break;
 		case road_wt:
-			weg = new strasse_t(welt);
+			weg = new strasse_t();
 			break;
 		case water_wt:
-			weg = new kanal_t(welt);
+			weg = new kanal_t();
 			break;
 		case air_wt:
-			weg = new runway_t(welt);
+			weg = new runway_t();
 			break;
 		default:
 			// keep compiler happy; should never reach here anyway
@@ -278,7 +277,7 @@ void weg_t::rdwr(loadsave_t *file)
  */
 void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 {
-	ding_t::info(buf);
+	obj_t::info(buf);
 
 	buf.append(translator::translate("Max. speed:"));
 	buf.append(" ");
@@ -366,7 +365,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
  */
 void weg_t::rotate90()
 {
-	ding_t::rotate90();
+	obj_t::rotate90();
 	ribi = ribi_t::rotate90( ribi );
 	ribi_maske = ribi_t::rotate90( ribi_maske );
 }
@@ -396,16 +395,16 @@ void weg_t::count_sign()
 		}
 		// since way 0 is at least present here ...
 		for( ;  i<gr->get_top();  i++  ) {
-			ding_t *d=gr->obj_bei(i);
+			obj_t *obj=gr->obj_bei(i);
 			// sign for us?
-			if(  roadsign_t const* const sign = ding_cast<roadsign_t>(d)  ) {
+			if(  roadsign_t const* const sign = obj_cast<roadsign_t>(obj)  ) {
 				if(  sign->get_besch()->get_wtyp() == get_besch()->get_wtyp()  ) {
 					// here is a sign ...
 					flags |= HAS_SIGN;
 					return;
 				}
 			}
-			if(  signal_t const* const signal = ding_cast<signal_t>(d)  ) {
+			if(  signal_t const* const signal = obj_cast<signal_t>(obj)  ) {
 				if(  signal->get_besch()->get_wtyp() == get_besch()->get_wtyp()  ) {
 					// here is a signal ...
 					flags |= HAS_SIGNAL;
@@ -462,7 +461,7 @@ bool weg_t::check_season( const long )
 	}
 
 	// use snow image if above snowline and above ground
-	bool snow = (from->ist_karten_boden()  ||  !from->ist_tunnel())  &&  (get_pos().z >= welt->get_snowline());
+	bool snow = (from->ist_karten_boden()  ||  !from->ist_tunnel())  &&  (get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate);
 	bool old_snow = (flags&IS_SNOW)!=0;
 	if(  !(snow ^ old_snow)  ) {
 		// season is not changing ...
@@ -504,7 +503,7 @@ bool weg_t::check_season( const long )
 }
 
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 void weg_t::lock_mutex()
 {
 	pthread_mutex_lock( &weg_calc_bild_mutex );
@@ -520,11 +519,7 @@ void weg_t::unlock_mutex()
 
 void weg_t::calc_bild()
 {
-	if(!welt)
-	{
-		return;
-	}
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	pthread_mutex_lock( &weg_calc_bild_mutex );
 #endif
 	grund_t *from = welt->lookup(get_pos());
@@ -538,7 +533,7 @@ void weg_t::calc_bild()
 		if(  from==NULL  ) {
 			dbg->error( "weg_t::calc_bild()", "Own way at %s not found!", get_pos().get_str() );
 		}
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		pthread_mutex_unlock( &weg_calc_bild_mutex );
 #endif
 		return;	// otherwise crashing during enlargement
@@ -550,14 +545,14 @@ void weg_t::calc_bild()
 	}
 	else if(  from->ist_bruecke()  &&  from->obj_bei(0)==this  ) {
 		// first way on a bridge (bruecke_t will set the image)
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 		pthread_mutex_unlock( &weg_calc_bild_mutex );
 #endif
 		return;
 	}
 	else {
 		// use snow image if above snowline and above ground
-		bool snow = (from->ist_karten_boden()  ||  !from->ist_tunnel())  &&  (get_pos().z >= welt->get_snowline());
+		bool snow = (from->ist_karten_boden()  ||  !from->ist_tunnel())  &&  (get_pos().z >= welt->get_snowline() || welt->get_climate( get_pos().get_2d() ) == arctic_climate  );
 		flags &= ~IS_SNOW;
 		if(  snow  ) {
 			flags |= IS_SNOW;
@@ -586,8 +581,11 @@ void weg_t::calc_bild()
 					if(recursion == 0) {
 						recursion++;
 						for(int r = 0; r < 4; r++) {
-							if(from->get_neighbour(to, get_waytype(), ribi_t::nsow[r])) {
-								to->get_weg(get_waytype())->calc_bild();
+							if(  from->get_neighbour(to, get_waytype(), ribi_t::nsow[r])  ) {
+								// can fail on water tiles
+								if(  weg_t *w=to->get_weg(get_waytype())  )  {
+									w->calc_bild();
+								}
 							}
 						}
 						recursion--;
@@ -608,7 +606,7 @@ void weg_t::calc_bild()
 		mark_image_dirty(old_bild, from->get_weg_yoff());
 		mark_image_dirty(bild, from->get_weg_yoff());
 	}
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	pthread_mutex_unlock( &weg_calc_bild_mutex );
 #endif
 }
@@ -627,62 +625,22 @@ void weg_t::check_diagonal()
 
 	grund_t *from = welt->lookup(get_pos());
 	grund_t *to;
-	ribi_t::ribi r1 = ribi_t::keine, r2 = ribi_t::keine;
 
-	switch(ribi) {
+	ribi_t::ribi r1 = ribi_t::keine;
+	ribi_t::ribi r2 = ribi_t::keine;
 
-		case ribi_t::nordost:
-			if(  from->get_neighbour(to, get_waytype(), ribi_t::ost)  ) {
-				r1 = to->get_weg_ribi_unmasked(get_waytype());
-			}
-			if(  from->get_neighbour(to, get_waytype(), ribi_t::nord)  ) {
-				r2 = to->get_weg_ribi_unmasked(get_waytype());
-			}
-			diagonal =
-				(r1 == ribi_t::suedwest || r2 == ribi_t::suedwest) &&
-				r1 != ribi_t::nordwest &&
-				r2 != ribi_t::suedost;
-		break;
-
-		case ribi_t::suedost:
-			if(  from->get_neighbour(to, get_waytype(), ribi_t::ost)  ) {
-				r1 = to->get_weg_ribi_unmasked(get_waytype());
-			}
-			if(  from->get_neighbour(to, get_waytype(), ribi_t::sued)  ) {
-				r2 = to->get_weg_ribi_unmasked(get_waytype());
-			}
-			diagonal =
-				(r1 == ribi_t::nordwest || r2 == ribi_t::nordwest) &&
-				r1 != ribi_t::suedwest &&
-				r2 != ribi_t::nordost;
-		break;
-
-		case ribi_t::nordwest:
-			if(  from->get_neighbour(to, get_waytype(), ribi_t::west)  ) {
-				r1 = to->get_weg_ribi_unmasked(get_waytype());
-			}
-			if(  from->get_neighbour(to, get_waytype(), ribi_t::nord)  ) {
-				r2 = to->get_weg_ribi_unmasked(get_waytype());
-			}
-			diagonal =
-				(r1 == ribi_t::suedost || r2 == ribi_t::suedost) &&
-				r1 != ribi_t::nordost &&
-				r2 != ribi_t::suedwest;
-		break;
-
-		case ribi_t::suedwest:
-			if(  from->get_neighbour(to, get_waytype(), ribi_t::west)  ) {
-				r1 = to->get_weg_ribi_unmasked(get_waytype());
-			}
-			if(  from->get_neighbour(to, get_waytype(), ribi_t::sued)  ) {
-				r2 = to->get_weg_ribi_unmasked(get_waytype());
-			}
-			diagonal =
-				(r1 == ribi_t::nordost || r2 == ribi_t::nordost) &&
-				r1 != ribi_t::suedost &&
-				r2 != ribi_t::nordwest;
-		break;
+	// get the ribis of the ways that connect to us
+	// r1 will be 45 degree clockwise ribi (eg nordost->ost), r2 will be anticlockwise ribi (eg nordost->nord)
+	if(  from->get_neighbour(to, get_waytype(), ribi_t::rotate45(ribi))  ) {
+		r1 = to->get_weg_ribi_unmasked(get_waytype());
 	}
+
+	if(  from->get_neighbour(to, get_waytype(), ribi_t::rotate45l(ribi))  ) {
+		r2 = to->get_weg_ribi_unmasked(get_waytype());
+	}
+
+	// diagonal if r1 or r2 are our reverse and neither one is 90 degree rotation of us
+	diagonal = (r1 == ribi_t::rueckwaerts(ribi) || r2 == ribi_t::rueckwaerts(ribi)) && r1 != ribi_t::rotate90l(ribi) && r2 != ribi_t::rotate90(ribi);
 
 	if(  diagonal  ) {
 		flags |= IS_DIAGONAL;
@@ -731,7 +689,7 @@ const char *weg_t::ist_entfernbar(const spieler_t *sp, bool allow_public)
 	{
 		return NULL;
 	}
-	return ding_t::ist_entfernbar(sp);
+	return obj_t::ist_entfernbar(sp);
 }
 
 /**

@@ -24,13 +24,13 @@ class monorail_t : public schiene_t
 public:
 	static const weg_besch_t *default_monorail;
 
-	monorail_t(karte_t *welt) : schiene_t(welt, monorail_wt) { set_besch(default_monorail); }
+	monorail_t() : schiene_t(monorail_wt) { set_besch(default_monorail); }
 
 	/**
 	 * File loading constructor.
 	 * @author prissi
 	 */
-	monorail_t(karte_t *welt, loadsave_t *file);
+	monorail_t(loadsave_t *file);
 
 	//virtual waytype_t get_waytype() const {return monorail_wt;}
 

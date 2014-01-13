@@ -20,7 +20,7 @@ private:
 	settings_t* sets;
 
 protected:
-	virtual void action(const char *fullpath);
+	virtual bool item_action(const char *fullpath);
 	virtual const char *get_info(const char *fullpath);
 	virtual bool check_file(const char *fullpath, const char *suffix);
 

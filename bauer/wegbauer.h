@@ -18,7 +18,7 @@
 class weg_besch_t;
 class bruecke_besch_t;
 class tunnel_besch_t;
-class karte_t;
+class karte_ptr_t;
 class spieler_t;
 class grund_t;
 class werkzeug_waehler_t;
@@ -30,6 +30,7 @@ class werkzeug_waehler_t;
  */
 class wegbauer_t
 {
+	static karte_ptr_t welt;
 public:
 	static const weg_besch_t *leitung_besch;
 
@@ -37,7 +38,7 @@ public:
 	static bool alle_wege_geladen();
 
 	// generates timeline message
-	static void neuer_monat(karte_t *welt);
+	static void neuer_monat();
 
 	/**
 	 * Finds a way with a given speed limit for a given waytype
@@ -60,7 +61,7 @@ public:
 	 * Fill menu with icons of given waytype
 	 * @author Hj. Malthaner
 	 */
-	static void fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const weg_t::system_type styp, sint16 ok_sound, karte_t *welt );
+	static void fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const weg_t::system_type styp, sint16 ok_sound);
 
 	enum bautyp_t {
 		strasse=road_wt,
@@ -127,7 +128,7 @@ private:
 
 	/**
 	 * If a way is built on top of another way, should the type
-	 * of the former way be kept or replced (true == keep)
+	 * of the former way be kept or replaced (true == keep)
 	 * @author Hj. Malthaner
 	 */
 	bool keep_existing_ways;
@@ -141,7 +142,6 @@ private:
 
 	bool build_sidewalk;
 
-	karte_t *welt;
 	uint32 maximum;    // hoechste Suchtiefe
 
 	koord3d_vector_t route;
@@ -194,7 +194,7 @@ public:
 
 	/**
 	 * If a way is built on top of another way, should the type
-	 * of the former way be kept or replced (true == keep)
+	 * of the former way be kept or replaced (true == keep)
 	 * @author Hj. Malthaner
 	 */
 	void set_keep_existing_ways(bool yesno);
@@ -216,7 +216,7 @@ public:
 
 	void set_maximum(uint32 n) { maximum = n; }
 
-	wegbauer_t(karte_t *welt, spieler_t *spl);
+	wegbauer_t(spieler_t *spl);
 
 	void calc_straight_route(const koord3d start, const koord3d ziel);
 	void calc_route(const koord3d &start3d, const koord3d &ziel);
@@ -234,7 +234,7 @@ public:
 	// checks whether buildings on the tile allow to leave in direction dir
 	bool check_building( const grund_t *to, const koord dir ) const;
 	// allowed slope?
-	static bool check_slope( const grund_t *from, const grund_t *to );
+	bool check_slope( const grund_t *from, const grund_t *to );
 
 	bool check_terraforming( const grund_t *from, const grund_t *to, uint8* new_from_slope=NULL, uint8* new_to_slope=NULL);
 	void do_terraforming();

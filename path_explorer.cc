@@ -12,9 +12,9 @@
 #include "bauer/warenbauer.h"
 #include "besch/ware_besch.h"
 #include "simsys.h"
-#include "simgraph.h"
+#include "display/simgraph.h"
 #include "player/simplay.h"
-#include "dataobj/umgebung.h"
+#include "dataobj/environment.h"
 #include "dataobj/fahrplan.h"
 #include "simconvoi.h"
 #include "simloadingscreen.h"
@@ -532,7 +532,7 @@ void path_explorer_t::compartment_t::step()
 			start = dr_time();	// start timing
 #endif
 
-			slist_tpl<halthandle_t>::iterator halt_iter = haltestelle_t::get_alle_haltestellen().begin();
+			vector_tpl<halthandle_t>::const_iterator halt_iter = haltestelle_t::get_alle_haltestellen().begin();
 			all_halts_count = (uint16) haltestelle_t::get_alle_haltestellen().get_count();
 
 			// create all halts list
@@ -753,7 +753,7 @@ void path_explorer_t::compartment_t::step()
 
 				while (entry_count-- && index < current_schedule->get_count())
 				{
-					current_halt = haltestelle_t::get_halt(world, current_schedule->eintrag[index].pos, current_owner);
+					current_halt = haltestelle_t::get_halt(current_schedule->eintrag[index].pos, current_owner);
                
 					// Make sure that the halt found was built before refresh started and that it supports current goods category
 					if ( current_halt.is_bound() && current_halt->get_inauguration_time() < refresh_start_time && current_halt->is_enabled(ware_type) )
@@ -967,7 +967,7 @@ void path_explorer_t::compartment_t::step()
 					const uint32 projected_iterations = statistic_iteration * time_midpoint / statistic_duration;
 					if ( projected_iterations > 0 )
 					{
-						if ( umgebung_t::networkmode )
+						if ( env_t::networkmode )
 						{
 							const uint32 percentage = projected_iterations * 100 / local_rebuild_connexions;
 							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
@@ -1107,7 +1107,7 @@ void path_explorer_t::compartment_t::step()
 					const uint32 projected_iterations = statistic_iteration * time_midpoint / statistic_duration;
 					if ( projected_iterations > 0 )
 					{
-						if ( umgebung_t::networkmode )
+						if ( env_t::networkmode )
 						{
 							const uint32 percentage = projected_iterations * 100 / local_filter_eligible;
 							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
@@ -1303,7 +1303,7 @@ void path_explorer_t::compartment_t::step()
 					const uint32 projected_iterations = statistic_iteration * time_midpoint / statistic_duration;
 					if ( projected_iterations > 0 )
 					{
-						if ( umgebung_t::networkmode )
+						if ( env_t::networkmode )
 						{
 							const uint32 percentage = projected_iterations * 100 / local_fill_matrix;
 							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
@@ -1509,7 +1509,7 @@ void path_explorer_t::compartment_t::step()
 					const uint64 projected_iterations = static_cast<uint64>( statistic_iteration / statistic_duration ) * static_cast<uint64>( time_midpoint );
 					if ( projected_iterations > 0 )
 					{
-						if ( umgebung_t::networkmode )
+						if ( env_t::networkmode )
 						{
 							const uint32 percentage = static_cast<uint32>( projected_iterations * 100 / local_explore_paths );
 							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
@@ -1663,7 +1663,7 @@ void path_explorer_t::compartment_t::step()
 					const uint32 projected_iterations = statistic_iteration * time_midpoint / statistic_duration;
 					if ( projected_iterations > 0 )
 					{
-						if ( umgebung_t::networkmode )
+						if ( env_t::networkmode )
 						{
 							const uint32 percentage = projected_iterations * 100 / local_reroute_goods;
 							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )

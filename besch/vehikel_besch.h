@@ -3,7 +3,6 @@
  *
  * This file is part of the Simutrans project under the artistic licence.
  */
-
 #ifndef __VEHIKEL_BESCH_H
 #define __VEHIKEL_BESCH_H
 #include <cstring>
@@ -17,7 +16,6 @@
 #include "sound_besch.h"
 #include "../dataobj/ribi.h"
 #include "../dataobj/way_constraints.h"
-#include "../simworld.h"
 #include "../simtypes.h"
 #include "../utils/float32e8_t.h"
 #include "../simunits.h"
@@ -53,7 +51,7 @@ class checksum_t;
  *
  * @author Volker Meyer, Hj. Malthaner, kierongreen
  */
-class vehikel_besch_t : public obj_besch_std_name_t {
+class vehikel_besch_t : public obj_besch_transport_related_t {
     friend class vehicle_reader_t;
     friend class vehikelbauer_t;
 
@@ -102,13 +100,13 @@ public:
 
 
 private:
-	uint32 preis;				// Price
-	uint32 base_price;			// Price (without scale factor)
+//	uint32 preis;				// Price --> obj_besch_transport_related_t::cost
+//	uint32 base_price;			// Price (without scale factor)
 	uint32 upgrade_price;		// Price if this vehicle is bought as an upgrade, not a new vehicle.
 	uint32 base_upgrade_price;  // Upgrade price (without scale factor)
 	uint16 zuladung;			// Payload
 	uint16 overcrowded_capacity; // The capacity of a vehicle if overcrowded (usually expressed as the standing capacity).
-	uint16 geschw;				// Speed in km/h
+//	uint16 geschw;				// Speed in km/h --> obj_besch_transport_related_t::topspeed
 	uint32 gewicht;				// Weight in kg
 	uint16 axle_load;			// Axle load
 	uint32 leistung;			// Power in kW
@@ -116,11 +114,8 @@ private:
 	uint32 fixed_cost;			// Monthly cost @author: jamespetts, April 2009
 	uint32 base_fixed_cost;		// Monthly cost (without scale factor)
 
-	uint16 intro_date;			// introduction date
-	uint16 obsolete_date;		// phase out at
 	uint16 gear;				// engine gear (power multiplier), 64=100
 
-	sint8 typ;         			// see weg_t for allowed types
 	uint8 len;					// length (=8 is half a tile, the old default)
 	sint8 sound;
 
@@ -178,7 +173,7 @@ private:
 							// Wikipedia, but is no use here).
 
 	float32e8_t air_resistance; // The "cf" value in physics calculations.
-	float32e8_t rolling_resistance; // The "fr" value in physics calculations.
+	float32e8_t rolling_resistance; // The "fr" value in physics calculations. 
 
 	// these values are not stored and therefore calculated in loaded():
 	// they are arrays having one element per speed in m/s:
@@ -217,16 +212,15 @@ public:
 	// default vehicle (used for way seach and similar tasks)
 	// since it has no images and not even a name knot any calls to this will case a crash
 	vehikel_besch_t(uint8 wtyp, uint16 speed, engine_t engine) : geared_power(0), geared_force(0) {
-		freight_image_type = livery_image_type = preis = upgrade_price = zuladung = overcrowded_capacity = running_cost = intro_date = vorgaenger = nachfolger = catering_level = upgrades = 0;
+		freight_image_type = livery_image_type = cost = upgrade_price = zuladung = overcrowded_capacity = axle_load = running_cost = intro_date = vorgaenger = nachfolger = catering_level = upgrades = 0;
 		fixed_cost = DEFAULT_FIXED_VEHICLE_MAINTENANCE;
 		leistung = gewicht = comfort = 1;
 		gear = GEAR_FACTOR;
-		//geared_power = GEAR_FACTOR;
 		len = 8;
 		sound = -1;
-		typ = wtyp;
+		wt = wtyp;
 		engine_type = (uint8)engine;
-		geschw = speed;
+		topspeed = speed;
 		is_tilting = bidirectional = can_lead_from_rear = available_only_as_upgrade = false;
 		// These two lines are necessary for the building of way objects, so that they
 		// do not get stuck with constraints. 
@@ -235,7 +229,7 @@ public:
 		min_loading_time = max_loading_time = (uint32)seconds_to_ticks(30, 250); 
 		tractive_effort = 0;
 		brake_force = BRAKE_FORCE_UNKNOWN;
-		minimum_runway_length = 0;
+		minimum_runway_length = 3;
 	}
 
 	virtual ~vehikel_besch_t()
@@ -554,17 +548,14 @@ public:
 
 	bool can_follow_any() const { return nachfolger==0; }
 
-	waytype_t get_waytype() const { return static_cast<waytype_t>(typ); }
 	uint16 get_zuladung() const { return zuladung; }
-	uint32 get_preis() const { return preis; }
-	sint32 get_geschw() const { return geschw; }
 	uint32 get_gewicht() const { return gewicht; }
 	uint16 get_axle_load() const { return axle_load; }
 	uint16 get_running_cost() const { return running_cost; }
-	uint16 get_running_cost(const karte_t *welt) const; //Overloaded method - includes increase for obsolescence.
+	uint16 get_running_cost(const class karte_t *welt) const; //Overloaded method - includes increase for obsolescence.
 	uint32 get_fixed_cost() const { return fixed_cost; }
-	uint32 get_fixed_cost(karte_t *welt) const;  //Overloaded method - includes increase for obsolescence.
-	uint32 get_adjusted_monthly_fixed_cost(karte_t *welt) const; // includes increase for obsolescence and adjustment for monthly figures
+	uint32 get_fixed_cost(class karte_t *welt) const;  //Overloaded method - includes increase for obsolescence.
+	uint32 get_adjusted_monthly_fixed_cost(class karte_t *welt) const; // includes increase for obsolescence and adjustment for monthly figures
 	//uint16 get_maintenance() const { return fixed_cost; } /* New Standard - not implemented yet */
 	//uint32 get_leistung() const { return leistung; }
 	//uint16 get_betriebskosten() const { return running_cost; }
@@ -613,7 +604,7 @@ public:
 	}
 
 	// BG, 15.06.2009: the formula for obsolescence formerly implemented twice in get_running_cost() and get_fixed_cost()
-	uint32 calc_running_cost(const karte_t *welt, uint32 base_cost) const;	
+	uint32 calc_running_cost(const class karte_t *welt, uint32 base_cost) const;	
 
 	float32e8_t get_power_force_ratio() const;
 	uint32 calc_max_force(const uint32 power) const { 
@@ -649,7 +640,7 @@ public:
 	* @return time when the vehicle is obsolete
 	* @author: jamespetts
 	*/
-	uint16 get_obsolete_year_month(const karte_t *welt) const;
+	uint16 get_obsolete_year_month(const class karte_t *welt) const;
 
 	// true if future
 	bool is_future (const uint16 month_now) const
@@ -670,7 +661,7 @@ public:
 	* @ Returns true if the vehicle is obsolete
 	* @author: 
 	*/
-	bool is_obsolete (const uint16 month_now, const karte_t* welt) const
+	bool is_obsolete (const uint16 month_now, const class karte_t* welt) const
 	{
 		return month_now  &&  (get_obsolete_year_month(welt) <= month_now);
 	}
@@ -714,13 +705,13 @@ public:
 
 	void set_scale(uint16 scale_factor)
 	{ 
-		const uint32 scaled_price = (uint32) set_scale_generic<sint64>(base_price, scale_factor);
-		const uint32 scaled_upgrade_price = (uint32) set_scale_generic<sint64>(base_upgrade_price, scale_factor);
-		const uint32 scaled_maintenance = set_scale_generic<uint32>(base_fixed_cost, scale_factor);
+		obj_besch_transport_related_t::set_scale(scale_factor);
 
-		preis = (base_price == 0 ? 0 : (scaled_price >= 1 ? scaled_price : 1));
-		upgrade_price = (base_upgrade_price == 0 ? 0 : (scaled_upgrade_price >= 1 ? scaled_upgrade_price : 1));
-		fixed_cost = (uint32)(base_fixed_cost == 0 ? 0 :(scaled_maintenance >= 1 ? scaled_maintenance : 1));
+		upgrade_price = (uint32) set_scale_generic<sint64>(base_upgrade_price, scale_factor);
+		if (base_upgrade_price && !upgrade_price) upgrade_price = 1;
+
+		fixed_cost = set_scale_generic<uint32>(base_fixed_cost, scale_factor);
+		if (base_fixed_cost && ! fixed_cost) fixed_cost = 1;
 
 		if(max_loading_time_seconds != 65535)
 		{
@@ -766,7 +757,8 @@ public:
 
 			case air_wt:			return 100L; //1 when read
 
-			case road_wt:			
+			case road_wt:			return 15L; //0.15 when read
+
 			default:				return 15L; //0.15 when read
 		};
 	}  
@@ -792,5 +784,6 @@ public:
 		};
 	}
 };
+#define vehikel_besch_t_defined
 
 #endif

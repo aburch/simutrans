@@ -17,7 +17,7 @@
 
 #include "convoi_filter_frame.h"
 #include "gui_frame.h"
-#include "gui_container.h"
+#include "components/gui_container.h"
 #include "components/gui_scrollbar.h"
 #include "components/gui_speedbar.h"
 #include "components/gui_label.h"
@@ -106,7 +106,7 @@ public:
 	 * This method is called if the size of the window should be changed
 	 * @author Markus Weber
 	 */
-	void resize(const koord size_change);                       // 28-Dec-01        Markus Weber Added
+	void resize(const scr_coord size_change);                       // 28-Dec-01        Markus Weber Added
 
 	/**
 	 * Draw new component. The values to be passed refer to the window
@@ -114,7 +114,7 @@ public:
 	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
-	void zeichnen(koord pos, koord gr);
+	void draw(scr_coord pos, scr_size size);
 
 	/**
 	 * Set the window associated helptext

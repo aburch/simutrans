@@ -91,6 +91,7 @@ void tile_writer_t::write_obj(FILE* fp, obj_node_t& parent, int index, int seaso
 	node.write(fp);
 }
 
+
 // Subroutine for write_obj, to avoid duplicated code
 static uint32 get_cluster_data(tabfileobj_t& obj)
 {
@@ -248,13 +249,13 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12 +
 		obj.get_int("retire_month", 1) - 1;
 
-	// @author: Kieron Green (ideas from original experimental code by jamespetts)
+	// @author: Kieron Green (ideas from experimental code by jamespetts)
 	// capacity and price information.
 	// Stands in place of the "level" setting, but uses "level" data by default.
 
-	 // NOTE: Default for maintenance and price must be set when loading so use magic default here
-	 // also check for "station_xx" for backwards compatibility
-		
+	//NOTE: Default for maintenance and price must be set when loading so use magic default here
+	//also check for "station_xx" for experimental compatibility
+
 	sint32 capacity = obj.get_int("capacity", level * 32);
 	if(  capacity == level * 32  ) {
 		capacity = obj.get_int("station_capacity", level * 32);
@@ -377,11 +378,11 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 									fflush(NULL);
 #endif
 									break;
-								} else {
+								}
+								else {
 									// no higher front images
 									if (h > 0 && pos == 0) {
-										printf("WARNING: frontimage height MUST be one tile only!\n");
-										fflush(NULL);
+										dbg->error( obj_writer_t::last_name, "Frontimage height MUST be one tile only!");
 										break;
 									}
 								}
@@ -414,7 +415,6 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	version += 0x100;
 	
 	// Hajo: write version data
-
 	node.write_uint16(fp, version,									0);
 
 	// Hajo: write besch data
@@ -441,7 +441,6 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	node.write_uint16(fp, employment_capacity,						40);
 	node.write_uint16(fp, mail_demand_and_production_capacity,		42);
 	
-
 	// probably add some icons, if defined
 	slist_tpl<string> cursorkeys;
 

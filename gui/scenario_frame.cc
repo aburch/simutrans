@@ -11,21 +11,39 @@
 #include "scenario_info.h"
 #include "messagebox.h"
 
-#include "../simwin.h"
+#include "../gui/simwin.h"
 #include "../simworld.h"
 
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 #include "../dataobj/scenario.h"
 #include "../dataobj/translator.h"
 
 #include "../utils/cbuffer_t.h"
 
+scenario_frame_t::scenario_frame_t() : savegame_frame_t(NULL, true, NULL, false)
+{
+	static cbuffer_t pakset_scenario;
+	static cbuffer_t addons_scenario;
+
+	pakset_scenario.clear();
+	pakset_scenario.printf("%s%sscenario/", env_t::program_dir, env_t::objfilename.c_str());
+
+	addons_scenario.clear();
+	addons_scenario.printf("addons/%sscenario/", env_t::objfilename.c_str());
+
+	this->add_path(addons_scenario);
+	this->add_path(pakset_scenario);
+
+	set_name(translator::translate("Load scenario"));
+	set_focus(NULL);
+}
+
 
 /**
- * Aktion, die nach Knopfdruck gestartet wird.
+ * Action, started after button pressing.
  * @author Hansjörg Malthaner
  */
-void scenario_frame_t::action(const char *fullpath)
+bool scenario_frame_t::item_action(const char *fullpath)
 {
 	scenario_t *scn = new scenario_t(welt);
 	const char* err = scn->init(this->get_basename(fullpath).c_str(), this->get_filename(fullpath).c_str(), welt );
@@ -34,32 +52,14 @@ void scenario_frame_t::action(const char *fullpath)
 		welt->set_pause(false);
 		// open scenario info window
 		destroy_win(magic_scenario_info);
-		create_win(new scenario_info_t(welt), w_info, magic_scenario_info);
+		create_win(new scenario_info_t(), w_info, magic_scenario_info);
 	}
 	else {
 		create_win(new news_img(err), w_info, magic_none);
 		delete scn;
 	}
-}
 
-
-scenario_frame_t::scenario_frame_t(karte_t *welt) : savegame_frame_t(NULL, true, NULL, false)
-{
-	static cbuffer_t pakset_scenario;
-	static cbuffer_t addons_scenario;
-
-	pakset_scenario.clear();
-	pakset_scenario.printf("%s%sscenario/", umgebung_t::program_dir, umgebung_t::objfilename.c_str());
-
-	addons_scenario.clear();
-	addons_scenario.printf("addons/%sscenario/", umgebung_t::objfilename.c_str());
-
-	this->add_path(addons_scenario);
-	this->add_path(pakset_scenario);
-	this->welt = welt;
-
-	set_name(translator::translate("Load scenario"));
-	set_focus(NULL);
+	return true;
 }
 
 

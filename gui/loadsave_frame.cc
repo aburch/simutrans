@@ -20,7 +20,7 @@
 #include "../simversion.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 #include "../pathes.h"
 #include "../utils/simstring.h"
 
@@ -67,26 +67,36 @@ void sve_info_t::rdwr(loadsave_t *file)
 }
 
 
+
 /**
  * Action that's started with a button click
  * @author Hansjörg Malthaner
  */
-void loadsave_frame_t::action(const char *filename)
+bool loadsave_frame_t::item_action(const char *filename)
 {
 	if(do_load) {
 		welt->load(filename);
 	}
 	else {
-		welt->save( filename, loadsave_t::save_mode, umgebung_t::savegame_version_str, umgebung_t::savegame_ex_version_str, false );
+		welt->save( filename, loadsave_t::save_mode, env_t::savegame_version_str, env_t::savegame_ex_version_str, false );
 		welt->set_dirty();
 		welt->reset_timer();
 	}
+
+	return true;
 }
 
 
-loadsave_frame_t::loadsave_frame_t(karte_t *welt, bool do_load) : savegame_frame_t(".sve", false, "save/", false, true)
+
+bool loadsave_frame_t::ok_action(const char *filename)
 {
-	this->welt = welt;
+	return item_action(filename);
+}
+
+
+
+loadsave_frame_t::loadsave_frame_t(bool do_load) : savegame_frame_t(".sve", false, "save/", env_t::show_delete_buttons, true)
+{
 	this->do_load = do_load;
 	init(".sve", NULL);
 	if(do_load) {
@@ -150,7 +160,7 @@ void loadsave_frame_t::init(const char * /*suffix*/, const char * /*path*/ )
 	file_table.add_column(&pak_column);
 	file_table.add_column(&std_column);
 	file_table.add_column(&exp_column);
-	set_min_windowsize(get_fenstergroesse());
+	set_min_windowsize(get_windowsize());
 	set_resizemode(diagonal_resize);
 	//set_fenstergroesse(koord(640+36, get_fenstergroesse().y));
 }
@@ -193,7 +203,7 @@ gui_loadsave_table_row_t::gui_loadsave_table_row_t(const char *pathname, const c
 
 gui_file_table_pak_column_t::gui_file_table_pak_column_t() : gui_file_table_label_column_t(150) 
 {
-	strcpy(pak, umgebung_t::objfilename.c_str());
+	strcpy(pak, env_t::objfilename.c_str());
 	pak[strlen(pak) - 1] = 0;
 }
 
@@ -238,7 +248,7 @@ const char *gui_file_table_pak_column_t::get_text(const gui_table_row_t &row) co
 }
 
 
-void gui_file_table_pak_column_t::paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row) {
+void gui_file_table_pak_column_t::paint_cell(const scr_coord& offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row) {
 	lbl.set_text(get_text(row));
 	gui_file_table_label_column_t::paint_cell(offset, x, y, row);
 }
@@ -252,7 +262,7 @@ sint32 gui_file_table_std_column_t::get_int(const gui_table_row_t &row) const
 }
 
 
-void gui_file_table_std_column_t::paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row) {
+void gui_file_table_std_column_t::paint_cell(const scr_coord& offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row) {
 	uint32 v2 = (uint32) get_int(row);
 	uint32 v1 = v2 / 1000;
 	uint32 v0 = v1 / 1000;
@@ -273,7 +283,7 @@ sint32 gui_file_table_exp_column_t::get_int(const gui_table_row_t &row) const
 }
 
 
-void gui_file_table_exp_column_t::paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row) {
+void gui_file_table_exp_column_t::paint_cell(const scr_coord& offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row) {
 	uint32 v3 = get_int(row);
 	char date[64];
 	if (v3)

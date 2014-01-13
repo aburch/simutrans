@@ -32,8 +32,6 @@ class citylist_frame_t : public gui_frame_t, private action_listener_t
 	static const uint8 hist_type_color[karte_t::MAX_WORLD_COST];
 	static const uint8 hist_type_type[karte_t::MAX_WORLD_COST];
 
-	static karte_t *welt;
-
 	gui_label_t sort_label;
 
 	button_t	sortedby;
@@ -56,7 +54,7 @@ class citylist_frame_t : public gui_frame_t, private action_listener_t
 
  public:
 
-    citylist_frame_t(karte_t * welt);
+    citylist_frame_t();
 
    /**
      * Draw new component. The values to be passed refer to the window
@@ -64,13 +62,13 @@ class citylist_frame_t : public gui_frame_t, private action_listener_t
      * component is displayed.
      * @author Hj. Malthaner
      */
-    void zeichnen(koord pos, koord gr);
+    void draw(scr_coord pos, scr_size size);
 
     /**
      * resize window in response to a resize event
      * @author Hj. Malthaner
      */
-    void resize(const koord delta);
+    void resize(const scr_coord delta);
 
     /**
      * Set the window associated helptext

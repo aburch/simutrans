@@ -2,6 +2,7 @@
 
 /** @file api_world.cc exports world-map functions. */
 
+#include "api_simple.h"
 #include "../api_class.h"
 #include "../api_function.h"
 #include "../../simworld.h"
@@ -11,20 +12,11 @@ using namespace script_api;
 
 #define STATIC
 
-// pushes table = { year = , month = }
-SQInteger push_time(HSQUIRRELVM vm, uint32 yearmonth)
-{
-	sq_newtableex(vm, 2);
-	param<uint32>::create_slot(vm, "year",  yearmonth/12);
-	param<uint32>::create_slot(vm, "month", yearmonth%12);
-	return 1;
-}
 
 
-SQInteger world_get_time(HSQUIRRELVM vm)
+mytime_t world_get_time(karte_t*)
 {
-	sq_newtableex(vm, 2);
-	return push_time(vm, welt->get_current_month() );
+	return welt->get_current_month();
 }
 
 
@@ -104,11 +96,9 @@ void export_world(HSQUIRRELVM vm)
 	STATIC register_method(vm, &world_remove_player, "remove_player", true);
 
 	/**
-	 * Returns current in-game time.
-	 * @returns table { "year" = .., "month" = .. }
-	 * @typemask table()
+	 * @returns current in-game time.
 	 */
-	STATIC register_function(vm, world_get_time, "get_time", 1, ".");
+	STATIC register_local_method(vm, world_get_time, "get_time");
 	/**
 	 * Get monthly statistics of total number of citizens.
 	 * @returns array, index [0] corresponds to current month

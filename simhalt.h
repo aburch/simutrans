@@ -13,8 +13,8 @@
 #include "halthandle_t.h"
 #include "simware.h"
 
-#include "simdings.h"
-#include "simgraph.h"
+#include "simobj.h"
+#include "display/simgraph.h"
 #include "simtypes.h"
 #include "simconst.h"
 
@@ -23,6 +23,8 @@
 #include "besch/ware_besch.h"
 
 #include "dataobj/koord.h"
+
+#include "tpl/inthashtable_tpl.h"
 
 #include "tpl/slist_tpl.h"
 #include "tpl/vector_tpl.h"
@@ -51,6 +53,7 @@ class cbuffer_t;
 class grund_t;
 class fabrik_t;
 class karte_t;
+class karte_ptr_t;
 class koord3d;
 class loadsave_t;
 class schedule_t;
@@ -82,13 +85,20 @@ private:
 	 * deshalb verwaltet die Klasse eine Liste aller Haltestellen
 	 * @author Hj. Malthaner
 	 */
-	static slist_tpl<halthandle_t> alle_haltestellen;
+	static vector_tpl<halthandle_t> alle_haltestellen;
 
 	/**
 	 * finds a stop by its name
 	 * @author prissi
 	 */
 	static stringhashtable_tpl<halthandle_t> all_names;
+
+	/**
+	 * Finds a stop by coordinate.
+	 * only used during loading.
+	 * @author prissi
+	 */
+	static inthashtable_tpl<sint32,halthandle_t> *all_koords;
 
 	/*
 	 * struct holds new financial history for line
@@ -148,6 +158,8 @@ private:
 	uint16 transshipment_time;
 
 public:
+	const slist_tpl<convoihandle_t> &get_loading_convois() const { return loading_here; }
+
 	// add convoi to loading queue
 	void request_loading( convoihandle_t cnv );
 
@@ -172,33 +184,42 @@ public:
 	 *
 	 * @author Hj. Malthaner
 	 */
-	static int erzeuge_fussgaenger(karte_t *welt, const koord3d pos, int anzahl);
+	static int erzeuge_fussgaenger(const koord3d pos, int anzahl);
 
-	/* we allow only for a single stop per planquadrat
+	/**
+	 * Returns an index to a halt at koord k
+   	 * optionally limit to that owned by player sp
+   	 * by default create a new halt if none found
+	 * Only used during loading.
+	 */
+	static halthandle_t get_halt_koord_index(koord k);
+
+	/*
 	 * this will only return something if this stop belongs to same player or is public, or is a dock (when on water)
 	 */
-	static halthandle_t get_halt(const karte_t *welt, const koord3d pos, const spieler_t *sp );
-	static halthandle_t get_halt(const karte_t *welt, const koord pos, const spieler_t *sp );
+	static halthandle_t get_halt(const koord3d pos, const spieler_t *sp );
+	static halthandle_t get_halt(const koord pos, const spieler_t *sp );
 
-	static slist_tpl<halthandle_t>& get_alle_haltestellen() { return alle_haltestellen; }
-
-	/**
-	 * Station factory method. Returns handles instead of pointers.
-	 * @author Hj. Malthaner
-	 */
-	static halthandle_t create(karte_t *welt, koord pos, spieler_t *sp);
+//	static slist_tpl<halthandle_t>& get_alle_haltestellen() { return alle_haltestellen; }
+	static const vector_tpl<halthandle_t>& get_alle_haltestellen() { return alle_haltestellen; }
 
 	/**
 	 * Station factory method. Returns handles instead of pointers.
 	 * @author Hj. Malthaner
 	 */
-	static halthandle_t create(karte_t *welt, loadsave_t *file);
+	static halthandle_t create(koord pos, spieler_t *sp);
+
+	/**
+	 * Station factory method. Returns handles instead of pointers.
+	 * @author Hj. Malthaner
+	 */
+	static halthandle_t create(loadsave_t *file);
 
 	/*
 	* removes a ground tile from a station, deletes the building and, if last tile, also the halthandle
 	* @author prissi
 	*/
-	static bool remove(karte_t *welt, spieler_t *sp, koord3d pos);
+	static bool remove(spieler_t *sp, koord3d pos);
 
 	/**
 	 * Station destruction method.
@@ -210,7 +231,7 @@ public:
 	 * destroys all stations
 	 * @author Hj. Malthaner
 	 */
-	static void destroy_all(karte_t *);
+	static void destroy_all();
 
 	uint32 get_number_of_halts_within_walking_distance() const;
 
@@ -284,9 +305,12 @@ public:
 		/// directly reachable halt
 		halthandle_t halt;
 		/// best connection weight to reach this destination
-		uint16 weight;
-		connection_t() : weight(0) { }
-		connection_t(halthandle_t _halt, uint16 _weight=0) : halt(_halt), weight(_weight) { }
+		uint16 weight:15;
+		/// is halt a transfer halt
+		bool is_transfer:1;
+
+		connection_t() : weight(0), is_transfer(false) { }
+		connection_t(halthandle_t _halt, uint16 _weight=0) : halt(_halt), weight(_weight), is_transfer(false) { }
 
 		bool operator == (const connection_t &other) const { return halt == other.halt; }
 		bool operator != (const connection_t &other) const { return halt != other.halt; }
@@ -367,6 +391,7 @@ private:
 	/**
 	 * Helper method: This halt (and all its connected neighbors) belong
 	 * to the same component.
+	 * Also sets connection_t::is_transfer.
 	 * @param catg category of cargo network
 	 * @param comp number of component
 	 */
@@ -384,7 +409,7 @@ private:
 	slist_tpl<fabrik_t *> fab_list;
 
 	spieler_t *besitzer_p;
-	static karte_t *welt;
+	static karte_ptr_t welt;
 
 	/**
 	 * What is that for a station (for the image)
@@ -438,8 +463,8 @@ private:
 	uint8 sortierung;
 	bool resort_freight_info;
 
-	haltestelle_t(karte_t *welt, loadsave_t *file);
-	haltestelle_t(karte_t *welt, koord pos, spieler_t *sp);
+	haltestelle_t(loadsave_t *file);
+	haltestelle_t(koord pos, spieler_t *sp);
 	~haltestelle_t();
 		
 	// Record of waiting times. Takes a list of the last 16 waiting times per type of goods.
@@ -554,13 +579,86 @@ public:
 	 */
 	void neuer_monat();
 
-	static karte_t* get_welt() { return welt; }
+	static karte_ptr_t& get_welt() { return welt; }
 
 	// @author: jamespetts, although much is borrowed from suche_route
 	// Returns the journey time of the best possible route from this halt. Time == 65535 when there is no route.
 	uint16 find_route(ware_t &ware, const uint16 journey_time = 65535);
 	vector_tpl<halthandle_t>* build_destination_list(ware_t &ware);
 	uint16 find_route(vector_tpl<halthandle_t> *ziel_list, ware_t & ware, const uint16 journey_time = 65535, const koord destination_pos = koord::invalid);
+//=======
+//private:
+//	/* Node used during route search */
+//	struct route_node_t
+//	{
+//		halthandle_t halt;
+//		uint16       aggregate_weight;
+//
+//		route_node_t() : aggregate_weight(0) {}
+//		route_node_t(halthandle_t h, uint16 w) : halt(h), aggregate_weight(w) {}
+//
+//		// dereferencing to be used in binary_heap_tpl
+//		inline uint16 operator * () const { return aggregate_weight; }
+//	};
+//
+//	/* Extra data for route search */
+//	struct halt_data_t
+//	{
+//		// transfer halt:
+//		// in static function search_route():  previous transfer halt (to track back route)
+//		// in member function search_route_resumable(): first transfer halt to get there
+//		halthandle_t transfer;
+//		uint16 best_weight;
+//		uint16 depth:14;
+//		bool destination:1;
+//		bool overcrowded:1;
+//	};
+//
+//	// store the best weight so far for a halt, and indicate whether it is a destination
+//	static halt_data_t halt_data[65536];
+//
+//	// for efficient retrieval of the node with the smallest weight
+//	static binary_heap_tpl<route_node_t> open_list;
+//
+//	/**
+//	 * Markers used in route searching to avoid processing the same halt more than once
+//	 * @author Knightly
+//	 */
+//	static uint8 markers[65536];
+//	static uint8 current_marker;
+//
+//	/**
+//	 * Remember last route search start and catg to resume search
+//	 * @author dwachs
+//	 */
+//	static halthandle_t last_search_origin;
+//	static uint8        last_search_ware_catg_idx;
+//public:
+//	enum routing_result_flags { NO_ROUTE=0, ROUTE_OK=1, ROUTE_WALK=2, ROUTE_OVERCROWDED=8 };
+//
+//	/**
+//	 * Kann die Ware nicht zum Ziel geroutet werden (keine Route), dann werden
+//	 * Ziel und Zwischenziel auf koord::invalid gesetzt.
+//	 *
+//	 * @param ware die zu routende Ware
+//	 * @author Hj. Malthaner
+//	 *
+//	 * for reverse routing, also the next to last stop can be added, if next_to_ziel!=NULL
+//	 *
+//	 * if avoid_overcrowding is set, a valid route in only found when there is no overflowing stop in between
+//	 *
+//	 * @author prissi
+//	 */
+//	static int search_route( const halthandle_t *const start_halts, const uint16 start_halt_count, const bool no_routing_over_overcrowding, ware_t &ware, ware_t *const return_ware=NULL );
+//
+//	/**
+//	 * A separate version of route searching code for re-calculating routes
+//	 * Search is resumable, that is if called for the same halt and same goods category
+//	 * it reuses search history from last search
+//	 * It is faster than calling the above version on each packet, and is used for re-routing packets from the same halt.
+//	 */
+//	void search_route_resumable( ware_t &ware );
+//>>>>>>> aburch/master
 
 	bool get_pax_enabled()  const { return enables & PAX;  }
 	bool get_post_enabled() const { return enables & POST; }
@@ -688,7 +786,7 @@ public:
 	/* checks, if there is an unoccupied loading bay for this kind of thing
 	* @author prissi
 	*/
-	bool find_free_position(const waytype_t w ,convoihandle_t cnv,const ding_t::typ d) const;
+	bool find_free_position(const waytype_t w ,convoihandle_t cnv,const obj_t::typ d) const;
 
 	/* reserves a position (caution: railblocks work differently!
 	* @author prissi
@@ -751,6 +849,20 @@ public:
 	void rdwr(loadsave_t *file);
 
 	void laden_abschliessen(bool need_recheck_for_walking_distance);
+
+	/**
+	 * Called before savegame will be loaded.
+	 * Creates all_koords table.
+	 */
+	static void start_load_game();
+
+	/**
+	 * Called after loading of savegame almost finished,
+	 * i.e. after laden_abschliessen is finished.
+	 * Deletes all_koords table.
+	 */
+	static void end_load_game();
+
 
 	/*
 	 * called, if a line serves this stop

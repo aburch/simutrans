@@ -8,7 +8,7 @@
 #ifndef message_frame_h
 #define message_frame_h
 
-#include "../simwin.h"
+#include "../gui/simwin.h"
 
 #include "gui_frame.h"
 #include "components/gui_button.h"
@@ -19,7 +19,6 @@
 #include "message_stats_t.h"
 #include "components/action_listener.h"
 
-class karte_t;
 
 
 /**
@@ -35,11 +34,10 @@ private:
 	gui_tab_panel_t tabs;		// Knightly : tab panel for filtering messages
 	gui_textinput_t input;
 	button_t option_bt, send_bt;
-	static karte_t *welt;
 	vector_tpl<sint32> tab_categories;
 
 public:
-	message_frame_t(karte_t * welt);
+	message_frame_t();
 
 	/**
 	 * Set the window associated helptext
@@ -52,7 +50,7 @@ public:
 	* resize window in response to a resize event
 	* @author Hj. Malthaner
 	*/
-	void resize(const koord delta);
+	void resize(const scr_coord delta);
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 

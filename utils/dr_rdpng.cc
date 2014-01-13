@@ -1,4 +1,5 @@
 
+#include <string>
 #ifndef LOCAL
 #include <png.h>
 #else

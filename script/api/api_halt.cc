@@ -3,6 +3,8 @@
 /** @file api_halt.cc exports halt/station related functions. */
 
 #include "get_next.h"
+
+#include "api_obj_desc_base.h"
 #include "../api_class.h"
 #include "../api_function.h"
 #include "../../simhalt.h"
@@ -22,6 +24,21 @@ vector_tpl<sint64> const& get_halt_stat(halthandle_t halt, sint32 INDEX)
 }
 
 
+SQInteger world_get_next_halt(HSQUIRRELVM vm)
+{
+	return generic_get_next(vm, haltestelle_t::get_alle_haltestellen().get_count());
+}
+
+
+SQInteger world_get_halt_by_index(HSQUIRRELVM vm)
+{
+	sint32 index = param<sint32>::get(vm, -1);
+	const vector_tpl<halthandle_t>& list = haltestelle_t::get_alle_haltestellen();
+	halthandle_t halt = (0<=index  &&  (uint32)index<list.get_count()) ?  list[index] : halthandle_t();
+	return param<halthandle_t>::push(vm, halt);
+}
+
+
 // 0: not connected
 // 1: connected
 // -1: undecided
@@ -36,6 +53,29 @@ sint8 is_halt_connected(halthandle_t a, halthandle_t b, const ware_besch_t *besc
 
 void export_halt(HSQUIRRELVM vm)
 {
+	/**
+	 * Implements iterator to iterate through the list of all halts on the map.
+	 *
+	 * Usage:
+	 * @code
+	 * local list = halt_list_x()
+	 * foreach(halt in list) {
+	 *     ... // halt is an instance of the halt_x class
+	 * }
+	 * @endcode
+	 */
+	create_class(vm, "halt_list_x");
+	/**
+	 * Meta-method to be used in foreach loops. Do not call them directly.
+	 */
+	register_function(vm, world_get_next_halt,     "_nexti",  2, "x o|i");
+	/**
+	 * Meta-method to be used in foreach loops. Do not call them directly.
+	 * @typemask halt_x()
+	 */
+	register_function(vm, world_get_halt_by_index, "_get",    2, "xi");
+	end_class(vm);
+
 	/**
 	 * Class to access halts.
 	 */

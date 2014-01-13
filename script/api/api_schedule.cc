@@ -6,6 +6,7 @@
 #include "../api_function.h"
 #include "../../dataobj/fahrplan.h"
 #include "../../simhalt.h"
+#include "../../simworld.h"
 
 using namespace script_api;
 
@@ -15,7 +16,7 @@ halthandle_t get_halt_from_koord3d(koord3d pos, const spieler_t *sp )
 	if(  sp == NULL  ) {
 		return halthandle_t();
 	}
-	return haltestelle_t::get_halt(welt, pos, sp);
+	return haltestelle_t::get_halt(pos, sp);
 }
 
 

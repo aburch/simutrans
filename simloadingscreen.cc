@@ -11,10 +11,12 @@
 #include "besch/bild_besch.h"
 #include "besch/skin_besch.h"
 #include "simskin.h"
-#include "simgraph.h"
+#include "display/simgraph.h"
 #include "simevent.h"
-#include "dataobj/umgebung.h"
+#include "dataobj/environment.h"
 #include "simticker.h"
+#include "gui/simwin.h"
+#include "gui/gui_theme.h"
 #include "tpl/slist_tpl.h"
 
 
@@ -68,7 +70,7 @@ void loadingscreen_t::display()
 	const int quarter_width = width>>2;
 	const int half_height = display_get_height()>>1;
 
-	const int bar_len = (progress*(uint32)half_width)/max_progress;
+	const int bar_len = max_progress>0 ? (progress*(uint32)half_width)/max_progress : 0;
 
 	if(  bar_len != last_bar_len  ) {
 		last_bar_len = bar_len;
@@ -76,7 +78,7 @@ void loadingscreen_t::display()
 		dr_prepare_flush();
 
 		if(  info  ) {
-			display_proportional( half_width, half_height - 8 - LINESPACE - 4, info, ALIGN_MIDDLE, COL_WHITE, true );
+			display_proportional( half_width, half_height - 8 - LINESPACE - 4, info, ALIGN_CENTER_H, COL_WHITE, true );
 		}
 
 		// outline
@@ -87,10 +89,10 @@ void loadingscreen_t::display()
 		display_fillbox_wh( quarter_width, half_height - 7, half_width, 16, COL_GREY5, true);
 
 		// progress
-		display_fillbox_wh( quarter_width, half_height - 5, bar_len,  12, COL_NO_ROUTE, true );
+		display_fillbox_wh( quarter_width, half_height - 5, bar_len,  12, COL_BLUE, true );
 
 		if(  what  ) {
-			display_proportional( half_width, half_height-4, what, ALIGN_MIDDLE, COL_WHITE, false );
+			display_proportional( half_width, half_height-4, what, ALIGN_CENTER_H, SYSCOL_TEXT_HIGHLIGHT, false );
 		}
 
 		dr_flush();
@@ -114,11 +116,16 @@ void loadingscreen_t::set_progress( uint32 progress )
 			simgraph_resize( ev->mx, ev->my );
 			display_fillbox_wh( 0, 0, ev->mx, ev->my, COL_BLACK, true );
 			display_logo();
+			// queue the event anyway, so the viewport is correctly updated on world resume (screen will be resized again).
+			queued_events.append(ev);
 		}
 		else if(  ev->ev_code == SYSTEM_QUIT  ) {
-			umgebung_t::quit_simutrans = true;
+			env_t::quit_simutrans = true;
+			delete ev;
 		}
-		delete ev;
+		else {
+			delete ev;
+		}
 	}
 	else {
 		if(  ev->ev_class == EVENT_KEYBOARD  ) {
@@ -133,14 +140,15 @@ void loadingscreen_t::set_progress( uint32 progress )
 	display();
 
 	if (progress > max_progress) {
-    dbg->error("loadingscreen_t::set_progress", "too much progress: actual = %d max = %d", progress, max_progress);
-  } 
+		dbg->error("loadingscreen_t::set_progress", "too much progress: actual = %d max = %d", progress, max_progress);
+	}
 }
 
 
 loadingscreen_t::~loadingscreen_t()
 {
 	if(is_display_init()) {
+		win_redraw_world();
 		mark_screen_dirty();
 		ticker::set_redraw_all(true);
 	}

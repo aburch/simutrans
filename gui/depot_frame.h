@@ -123,7 +123,16 @@ private:
 	 */
 	bool has_min_sizer() const {return true;}
 
-	karte_t* get_welt() { return depot->get_welt(); }
+	// true if already stored here
+	bool is_contained(const vehikel_besch_t *info);
+
+	// add a single vehicle (helper function)
+	void add_to_vehicle_list(const vehikel_besch_t *info);
+
+	// for convoi image
+	void image_from_convoi_list(uint nr, bool to_end);
+
+	void image_from_storage_list(gui_image_list_t::image_data_t *bild_data);
 
 public:
 	// the next two are only needed for depot_t update notifications
@@ -136,7 +145,7 @@ public:
 	 * @author Volker Meyer
 	 * @date  18.06.2003
 	 */
-	void layout(koord *);
+	void layout(scr_size *);
 
 	/**
 	 * Update texts, image lists and buttons according to the current state.
@@ -153,7 +162,7 @@ public:
 	 * @author (Mathew Hounsell)
 	 * @date   11-Mar-2003
 	 */
-	void set_fenstergroesse(koord groesse);
+	void set_windowsize(scr_size size);
 
 	/**
 	 * Create and fill loks_vec and waggons_vec.
@@ -197,7 +206,7 @@ public:
 	 * Draw the Frame
 	 * @author Hansjörg Malthaner
 	 */
-	void zeichnen(koord pos, koord gr);
+	void draw(scr_coord pos, scr_size size);
 
 	// @author hsiegeln
 	void apply_line();

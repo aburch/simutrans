@@ -12,8 +12,8 @@ protected:
 	void calc_bild_internal();
 
 public:
-	brueckenboden_t(karte_t *welt, loadsave_t *file, koord pos ) : grund_t( welt, koord3d(pos,0) ) { rdwr(file); }
-	brueckenboden_t(karte_t *welt, koord3d pos, int grund_hang, int weg_hang);
+	brueckenboden_t(loadsave_t *file, koord pos ) : grund_t(koord3d(pos,0) ) { rdwr(file); }
+	brueckenboden_t(koord3d pos, int grund_hang, int weg_hang);
 
 	virtual void rdwr(loadsave_t *file);
 

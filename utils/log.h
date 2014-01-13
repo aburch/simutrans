@@ -13,6 +13,10 @@
 #include "../simtypes.h"
 
 
+#if defined(MAKEOBJ)
+extern int debuglevel;
+#endif
+
 /**
  * Logging facility
  * @author Hj. Malthaner

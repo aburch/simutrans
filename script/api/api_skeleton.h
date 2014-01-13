@@ -14,17 +14,43 @@ struct {
 scenario;
 
 struct {
-	/// Name of savegame. The scenario starts with the world saved there.
+	/**
+	 * Name of savegame. The scenario starts with the world saved there.
+	 * If file == "<attach>" then do not load a saved, attach
+	 * the scenario to the running world instead.
+	 */
 	string file;
 }
 /// Information about game map/world.
 map;
 
-/// @brief
-/// Persistent data should go into this table.
-/// @details
-/// Only this table is saved and reloaded with an savegame.
-/// Only plain data is saved: no classes / instances / functions, no cyclic references
+/**
+ * Only this table is saved and reloaded with an savegame.
+ * Only plain data is saved: no classes / functions, no cyclic references.
+ *
+ * Instances of classes can be saved if
+ * (1) the class implements the function _save that
+ * (2) returns something which can reconstruct the instance, i.e. an constructor call, embedded in a string.
+ * @code
+ *
+ * class my_class_with_save {
+ * 	foo = 0
+ *
+ * 	constructor(f)
+ *	{
+ *		foo = f;
+ * 	}
+ *	function _save()
+ * 	{
+ * 		return "my_class_with_save("+ foo + ")"
+ * 	}
+ * }
+ *
+ * @endcode
+ *
+ * @brief
+ * Persistent data should go into this table.
+ */
 table persistent;
 
 #endif

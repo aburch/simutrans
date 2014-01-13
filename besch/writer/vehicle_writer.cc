@@ -414,10 +414,8 @@ end:
 			{
 				sprintf(buf, "freightimage[%d][%s]", freight, dir_codes[i]);
 				str = obj.get(buf);
-				if(str.empty())
-				{
-					printf("*** FATAL ***:\nMissing freightimage[%d][%s]!\n", freight, dir_codes[i]);
-					fflush(NULL);
+				if (str.empty()) {
+					dbg->fatal( "Vehicle", "Missing freightimage[%d][%s]!", freight, dir_codes[i]);
 					exit(1);
 				}
 				printf("Appending freightimage[%d][%s]\n", freight, dir_codes[i]);
@@ -479,16 +477,14 @@ end:
 	// prissi: added more error checks
 	if (has_8_images && emptykeys.get_count() < 8 && liverykeys_empty.get_count() < 8) 
 	{
-		printf("*** FATAL ***:\nMissing images (must be either 4 or 8 directions (but %i found)!)\n", emptykeys.get_count() + liverykeys_empty.get_count());
-		//fprintf(stderr, "*** FATAL ***:\nMissing images (must be either 4 or 8 directions (but %i found)!)\n", emptykeys.get_count() + liverykeys_empty.get_count());
-		exit(0);
+		dbg->fatal( "Vehicle", "Missing images (must be either 4 or 8 directions (but %i found)!)\n", emptykeys.get_count() + liverykeys_empty.get_count());
+		exit(1);
 	}
 
 	if (!(freightkeys_old.empty() || liverykeys_freight_old.empty()) && (emptykeys.get_count() != freightkeys_old.get_count() || liverykeys_empty.get_count() != liverykeys_freight_old.get_count()))
 	{
-		printf("*** FATAL ***:\nMissing freigthimages (must be either 4 or 8 directions (but %i found)!)\n", freightkeys_old.get_count());
-		//fprintf(stderr, "*** FATAL ***:\nMissing freigthimages (must be either 4 or 8 directions (but %i found)!)\n", freightkeys_old.get_count());
-		exit(0);
+		dbg->fatal( "Vehicle", "Missing freigthimages (must be either 4 or 8 directions (but %i found)!)\n", freightkeys_old.get_count());
+		exit(1);
 	}
 
 	if(livery_max == 0)
@@ -637,16 +633,15 @@ end:
 				// check for superflous definitions
 				if(!str.empty())
 				{
-					printf("WARNING: More freightimagetype (%i) than freight_images (%i)!\n", i, freight_max);
+					dbg->warning( obj_writer_t::last_name, "More freightimagetype (%i) than freight_images (%i)!", i, freight_max);
 					fflush(NULL);
 				}
 				break;
 			}
 			if(str.empty())
 			{
-				printf("*** FATAL ***:\nMissing freightimagetype[%i] for %i freight_images!\n", i, freight_max + 1);
-				//fprintf(stderr, "*** FATAL ***:\nMissing freightimagetype[%i] for %i freight_images!\n", i, freight_max + 1);
-				exit(0);
+				dbg->fatal( obj_writer_t::last_name, "Missing freightimagetype[%i] for %i freight_images!", i, freight_max + 1);
+				exit(1);
 			}
 			xref_writer_t::instance()->write_obj(fp, node, obj_good, str.c_str(), false);
 		}
@@ -664,16 +659,15 @@ end:
 			// check for superflous definitions
 			if(!str.empty())
 			{
-				printf("WARNING: More livery types (%i) than liveries (%i)!\n", i, livery_max);
+				dbg->fatal( obj_writer_t::last_name, "More livery types (%i) than liveries (%i)!", i, livery_max);
 				fflush(NULL);
 			}
 			break;
 		}
 		if(str.empty())
 		{
-			printf("*** FATAL ***:\nMissing liverytype[%i] for %i liveries!\n", i, livery_max + 1);
-			//fprintf(stderr, "*** FATAL ***:\nMissing liverytype[%i] for %i liveries!\n", i, livery_max + 1);
-			exit(0);
+			dbg->fatal( obj_writer_t::last_name, "Missing liverytype[%i] for %i liveries!", i, livery_max + 1);
+			exit(1);
 		}
 		text_writer_t::instance()->write_obj(fp, node, str.c_str());
 	}

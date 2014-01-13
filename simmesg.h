@@ -3,7 +3,7 @@
 
 #include "simtypes.h"
 #include "simcolor.h"
-#include "simimg.h"
+#include "display/simimg.h"
 #include "dataobj/koord.h"
 #include "tpl/slist_tpl.h"
 

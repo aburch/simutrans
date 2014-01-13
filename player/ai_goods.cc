@@ -26,7 +26,7 @@
 #include "../dataobj/fahrplan.h"
 #include "../dataobj/loadsave.h"
 
-#include "../dings/wayobj.h"
+#include "../obj/wayobj.h"
 
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
@@ -142,7 +142,7 @@ bool ai_goods_t::get_factory_tree_lowest_missing( fabrik_t *fab )
 		}
 
 		FOR(vector_tpl<koord>, const& q, fab->get_suppliers()) {
-			fabrik_t* const qfab = fabrik_t::get_fab(welt, q);
+			fabrik_t* const qfab = fabrik_t::get_fab(q);
 			const fabrik_besch_t* const fb = qfab->get_besch();
 			for(  uint qq = 0;  qq < fb->get_produkte();  qq++  ) {
 				if(  fb->get_produkt(qq)->get_ware() == ware  &&
@@ -193,7 +193,7 @@ int ai_goods_t::get_factory_tree_missing_count( fabrik_t *fab )
 
 		bool complete = false;	// found at least one factory
 		FOR(vector_tpl<koord>, const& q, fab->get_suppliers()) {
-			fabrik_t* const qfab = fabrik_t::get_fab(welt, q);
+			fabrik_t* const qfab = fabrik_t::get_fab(q);
 			if(!qfab) {
 				dbg->error("fabrik_t::get_fab()","fab %s at %s does not find supplier at %s.", fab->get_name(), fab->get_pos().get_str(), q.get_str());
 				continue;
@@ -292,7 +292,7 @@ bool ai_goods_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length 
 				}
 			}
 			// Test which tiles are the best:
-			wegbauer_t bauigel(welt, this);
+			wegbauer_t bauigel(this);
 			bauigel.route_fuer( wegbauer_t::strasse, road_weg, tunnelbauer_t::find_tunnel(road_wt,road_weg->get_topspeed(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(road_wt,road_weg->get_topspeed(),welt->get_timeline_year_month()) );
 			// we won't destroy cities (and save the money)
 			bauigel.set_keep_existing_faster_ways(true);
@@ -390,7 +390,7 @@ bool ai_goods_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 	}
 
 	// sea pos (and not on harbour ... )
-	halthandle_t halt = haltestelle_t::get_halt(welt,gr->get_pos(),this);
+	halthandle_t halt = haltestelle_t::get_halt(gr->get_pos(),this);
 	koord pos1 = platz1 - koord(gr->get_grund_hang())*h->get_groesse().y;
 	koord best_pos = pos1;
 	uint16 const cov = welt->get_settings().get_station_coverage_factories();
@@ -398,7 +398,7 @@ bool ai_goods_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 		for (int x = pos1.x - cov; x <= pos1.x + cov; ++x) {
 			koord p(x,y);
 			grund_t *gr = welt->lookup_kartenboden(p);
-			if(  gr->ist_wasser()  &&  halt == haltestelle_t::get_halt( welt, gr->get_pos(), this )  &&  gr->get_depot()==NULL  ) {
+			if(  gr->ist_wasser()  &&  halt == haltestelle_t::get_halt( gr->get_pos(), this )  &&  gr->get_depot()==NULL  ) {
 				if(  shortest_distance(best_pos,platz2)<shortest_distance(p,platz2)  ) {
 					best_pos = p;
 				}
@@ -525,10 +525,10 @@ void ai_goods_t::create_rail_transport_vehikel(const koord platz1, const koord p
 		const way_obj_besch_t *e = wayobj_t::wayobj_search(track_wt,overheadlines_wt,welt->get_timeline_year_month());
 		wkz_wayobj_t wkz;
 		wkz.set_default_param(e->get_name());
-		wkz.init( welt, this );
-		wkz.work( welt, this, welt->lookup_kartenboden(platz1)->get_pos() );
-		wkz.work( welt, this, welt->lookup_kartenboden(platz2)->get_pos() );
-		wkz.exit( welt, this );
+		wkz.init( this );
+		wkz.work( this, welt->lookup_kartenboden(platz1)->get_pos() );
+		wkz.work( this, welt->lookup_kartenboden(platz2)->get_pos() );
+		wkz.exit( this );
 	}
 
 	koord3d start_pos = welt->lookup_kartenboden(pos1.get_2d() + (abs(size1.x)>abs(size1.y) ? koord(size1.x,0) : koord(0,size1.y)))->get_pos();
@@ -638,19 +638,19 @@ bool ai_goods_t::create_simple_rail_transport()
 	clean_marker(platz1,size1);
 	clean_marker(platz2,size2);
 
-	wegbauer_t bauigel(welt, this);
+	wegbauer_t bauigel(this);
 	bauigel.route_fuer( wegbauer_t::schiene|wegbauer_t::bot_flag, rail_weg, tunnelbauer_t::find_tunnel(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()) );
 	bauigel.set_keep_existing_ways(false);
 	// for stations
-	wegbauer_t bauigel1(welt, this);
+	wegbauer_t bauigel1(this);
 	bauigel1.route_fuer( wegbauer_t::schiene|wegbauer_t::bot_flag, rail_weg, tunnelbauer_t::find_tunnel(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()) );
 	bauigel1.set_keep_existing_ways(false);
-	wegbauer_t bauigel2(welt, this);
+	wegbauer_t bauigel2(this);
 	bauigel2.route_fuer( wegbauer_t::schiene|wegbauer_t::bot_flag, rail_weg, tunnelbauer_t::find_tunnel(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()) );
 	bauigel2.set_keep_existing_ways(false);
 
 	// first: make plain stations tiles as intended
-	sint8 z1 = max( welt->get_grundwasser()+1, welt->lookup_kartenboden(platz1)->get_hoehe() );
+	sint8 z1 = max( welt->get_water_hgt(platz1) + 1, welt->lookup_kartenboden(platz1)->get_hoehe() );
 	koord k = platz1;
 	koord diff1( sgn(size1.x), sgn(size1.y) );
 	koord perpend( sgn(size1.y), sgn(size1.x) );
@@ -662,7 +662,7 @@ bool ai_goods_t::create_simple_rail_transport()
 	}
 
 	// make the second ones flat ...
-	sint8 z2 = max( welt->get_grundwasser()+1, welt->lookup_kartenboden(platz2)->get_hoehe() );
+	sint8 z2 = max( welt->get_water_hgt(platz2) + 1, welt->lookup_kartenboden(platz2)->get_hoehe() );
 	k = platz2;
 	perpend = koord( sgn(size2.y), sgn(size2.x) );
 	koord diff2( sgn(size2.x), sgn(size2.y) );
@@ -693,7 +693,7 @@ bool ai_goods_t::create_simple_rail_transport()
 	bool build_no_tf = (bauigel.get_count() > 4)  &&  (bauigel.calc_costs() <= finance->get_netwealth());
 
 	// now try route with terraforming
-	wegbauer_t baumaulwurf(welt, this);
+	wegbauer_t baumaulwurf(this);
 	baumaulwurf.route_fuer( wegbauer_t::schiene|wegbauer_t::bot_flag|wegbauer_t::terraform_flag, rail_weg, tunnelbauer_t::find_tunnel(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()) );
 	baumaulwurf.set_keep_existing_ways(false);
 	baumaulwurf.calc_route( starttiles, endtiles );
@@ -1074,7 +1074,7 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 				int ships_needed = 1 + (prod*shortest_distance(harbour,start->get_pos().get_2d())) / (ship_vehicle->get_zuladung()*max(20,ship_vehicle->get_geschw()));
 				if(create_ship_transport_vehikel(start,ships_needed)) {
 					bool already_connected = false;
-					const planquadrat_t* pl = welt->lookup(harbour);
+					const planquadrat_t* pl = welt->access(harbour);
 					for(  uint8 i=0;  i<pl->get_boden_count();  i++  ) {
 						if(  pl->get_boden_bei(i)->get_halt()->get_fab_list().is_contained(ziel)  ) {
 							already_connected = true;
@@ -1137,10 +1137,10 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 					sprintf( param, "%i", track_wt );
 					wkz_wayremover_t wkz;
 					wkz.set_default_param(param);
-					wkz.init( welt, this );
-					wkz.work( welt, this, welt->lookup_kartenboden(platz1)->get_pos() );
-					wkz.work( welt, this, welt->lookup_kartenboden(platz2)->get_pos() );
-					wkz.exit( welt, this );
+					wkz.init( this );
+					wkz.work( this, welt->lookup_kartenboden(platz1)->get_pos() );
+					wkz.work( this, welt->lookup_kartenboden(platz2)->get_pos() );
+					wkz.exit( this );
 					if( (count_road != 255) && suche_platz1_platz2(start, ziel, 0) ) {
 						state = NR_BAUE_STRASSEN_ROUTE;
 					}
@@ -1196,7 +1196,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 					if(!lines.empty()) {
 						linehandle_t line = lines.back();
 						schedule_t *fpl=line->get_schedule();
-						if(fpl->get_count()>1  &&  haltestelle_t::get_halt(welt,fpl->eintrag[0].pos,this)==start_halt) {
+						if(fpl->get_count()>1  &&  haltestelle_t::get_halt(fpl->eintrag[0].pos,this)==start_halt) {
 							while(line->count_convoys()>0) {
 								convoihandle_t cnv = line->get_convoy(0);
 								cnv->self_destruct();
@@ -1308,7 +1308,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 					// last vehicle on that connection (no line => railroad)
 					if(  !line.is_bound()  ||  line->count_convoys()==0  ) {
 						// check if a conncetion boat must be removed
-						halthandle_t start_halt = haltestelle_t::get_halt(welt,start_pos,this);
+						halthandle_t start_halt = haltestelle_t::get_halt(start_pos,this);
 						if(start_halt.is_bound()  &&  (start_halt->get_station_type()&haltestelle_t::dock)!=0) {
 							// delete all ships on this line
 							vector_tpl<linehandle_t> lines;
@@ -1316,7 +1316,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 							simlinemgmt.get_lines( simline_t::shipline, &lines );
 							FOR(vector_tpl<linehandle_t>, const line, lines) {
 								schedule_t *fpl=line->get_schedule();
-								if(fpl->get_count()>1  &&  haltestelle_t::get_halt(welt,fpl->eintrag[0].pos,this)==start_halt) {
+								if(fpl->get_count()>1  &&  haltestelle_t::get_halt(fpl->eintrag[0].pos,this)==start_halt) {
 									water_stop = koord( (start_pos.x+fpl->eintrag[0].pos.x)/2, (start_pos.y+fpl->eintrag[0].pos.y)/2 );
 									while(line->count_convoys()>0) {
 										convoihandle_t cnv = line->get_convoy(0);
@@ -1338,10 +1338,10 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 						sprintf( param, "%i", track_wt );
 						wkz_wayremover_t wkz;
 						wkz.set_default_param(param);
-						wkz.init( welt, this );
-						wkz.work( welt, this, start_pos );
-						wkz.work( welt, this, end_pos );
-						wkz.exit( welt, this );
+						wkz.init( this );
+						wkz.work( this, start_pos );
+						wkz.work( this, end_pos );
+						wkz.exit( this );
 					}
 					else {
 						// last convoi => remove completely<
@@ -1352,17 +1352,17 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 							sprintf( param, "%i", wt );
 							wkz_wayremover_t wkz;
 							wkz.set_default_param(param);
-							wkz.init( welt, this );
-							wkz.work( welt, this, start_pos );
-							if(wkz.work( welt, this, end_pos )!=NULL) {
+							wkz.init( this );
+							wkz.work( this, start_pos );
+							if(wkz.work( this, end_pos )!=NULL) {
 								// cannot remove all => likely some other convois there too
 								// remove loading bays and road on start and end, if we cannot remove the whole way
-								wkz.work( welt, this, start_pos );
-								wkz.work( welt, this, start_pos );
-								wkz.work( welt, this, end_pos );
-								wkz.work( welt, this, end_pos );
+								wkz.work( this, start_pos );
+								wkz.work( this, start_pos );
+								wkz.work( this, end_pos );
+								wkz.work( this, end_pos );
 							}
-							wkz.exit( welt, this );
+							wkz.exit( this );
 						}
 					}
 					break;
@@ -1458,11 +1458,11 @@ void ai_goods_t::rdwr(loadsave_t *file)
 		// reinit current pointers
 		koord3d k3d;
 		k3d.rdwr(file);
-		root = fabrik_t::get_fab( welt, k3d.get_2d() );
+		root = fabrik_t::get_fab( k3d.get_2d() );
 		k3d.rdwr(file);
-		start = fabrik_t::get_fab( welt, k3d.get_2d() );
+		start = fabrik_t::get_fab( k3d.get_2d() );
 		k3d.rdwr(file);
-		ziel = fabrik_t::get_fab( welt, k3d.get_2d() );
+		ziel = fabrik_t::get_fab( k3d.get_2d() );
 		// freight?
 		const char *temp=NULL;
 		file->rdwr_str( temp );
@@ -1537,9 +1537,9 @@ void ai_goods_t::fabconnection_t::rdwr(loadsave_t *file)
 	}
 	else {
 		k3d.rdwr(file);
-		fab1 = fabrik_t::get_fab( welt, k3d.get_2d() );
+		fab1 = fabrik_t::get_fab( k3d.get_2d() );
 		k3d.rdwr(file);
-		fab2 = fabrik_t::get_fab( welt, k3d.get_2d() );
+		fab2 = fabrik_t::get_fab( k3d.get_2d() );
 		const char *temp=NULL;
 		file->rdwr_str( temp );
 		ware = warenbauer_t::get_info(temp);

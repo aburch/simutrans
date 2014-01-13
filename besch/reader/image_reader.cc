@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../../simgraph.h"
+#include "../../display/simgraph.h"
 #include "../../simdebug.h"
-#include "../../simimg.h"
+#include "../../display/simimg.h"
 
 #include "../bild_besch.h"
 #include "image_reader.h"

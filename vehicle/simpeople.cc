@@ -9,7 +9,7 @@
 
 #include "../simdebug.h"
 #include "../simworld.h"
-#include "../simimg.h"
+#include "../display/simimg.h"
 
 #include "../simtools.h"
 #include "../boden/grund.h"
@@ -26,8 +26,7 @@ stringhashtable_tpl<const fussgaenger_besch_t *> fussgaenger_t::table;
 
 static bool compare_fussgaenger_besch(const fussgaenger_besch_t* a, const fussgaenger_besch_t* b)
 {
-	/* Gleiches Level - wir führen eine künstliche, aber eindeutige Sortierung
-	 * über den Namen herbei. */
+	// sort pedestrian objects descriptors by their name
 	return strcmp(a->get_name(), b->get_name())<0;
 }
 
@@ -62,11 +61,11 @@ bool fussgaenger_t::alles_geladen()
 }
 
 
-fussgaenger_t::fussgaenger_t(karte_t *welt, loadsave_t *file)
+fussgaenger_t::fussgaenger_t(loadsave_t *file)
 #ifdef INLINE_DING_TYPE
- : verkehrsteilnehmer_t(welt, fussgaenger)
+ : verkehrsteilnehmer_t(fussgaenger)
 #else
- : verkehrsteilnehmer_t(welt)
+ : verkehrsteilnehmer_t()
 #endif
 {
 	rdwr(file);
@@ -76,11 +75,11 @@ fussgaenger_t::fussgaenger_t(karte_t *welt, loadsave_t *file)
 }
 
 
-fussgaenger_t::fussgaenger_t(karte_t* const welt, koord3d const pos) :
+fussgaenger_t::fussgaenger_t(grund_t *gr) :
 #ifdef INLINE_DING_TYPE
-verkehrsteilnehmer_t(welt, fussgaenger, pos, simrand(65535, "fussgaenger_t::fussgaenger_t (weg_next)")),
+	verkehrsteilnehmer_t(fussgaenger, gr, simrand(65535, "fussgaenger_t::fussgaenger_t (weg_next)")),
 #else
-	verkehrsteilnehmer_t(welt, pos, simrand(65535, "fussgaenger_t::fussgaenger_t (weg_next)")),
+	verkehrsteilnehmer_t(gr, simrand(65535, "fussgaenger_t::fussgaenger_t (weg_next)")),
 #endif
 	besch(pick_any_weighted(liste))
 {
@@ -125,7 +124,7 @@ void fussgaenger_t::rdwr(loadsave_t *file)
 		char s[256];
 		file->rdwr_str(s, lengthof(s));
 		besch = table.get(s);
-		// unknow pedestrian => create random new one
+		// unknown pedestrian => create random new one
 		if(besch == NULL  &&  !liste.empty()  ) {
 			besch = pick_any_weighted(liste);
 		}
@@ -138,14 +137,14 @@ void fussgaenger_t::rdwr(loadsave_t *file)
 
 
 
-// create anzahl pedestrains (if possible)
-void fussgaenger_t::erzeuge_fussgaenger_an(karte_t *welt, const koord3d k, int &anzahl)
+// create a number (anzahl) of pedestrians (if possible)
+void fussgaenger_t::erzeuge_fussgaenger_an(const koord3d k, int &anzahl)
 {
 	if (liste.empty()) {
 		return;
 	}
 
-	const grund_t* bd = welt->lookup(k);
+	grund_t* bd = welt->lookup(k);
 	if (bd) {
 		const weg_t* weg = bd->get_weg(road_wt);
 
@@ -153,8 +152,8 @@ void fussgaenger_t::erzeuge_fussgaenger_an(karte_t *welt, const koord3d k, int &
 		if (weg && ribi_t::is_twoway(weg->get_ribi_unmasked())) {
 			// we create maximal 4 pedestrians here for performance reasons
 			for (int i = 0; i < 4 && anzahl > 0; i++) {
-				fussgaenger_t* fg = new fussgaenger_t(welt, k);
-				bool ok = welt->lookup(k)->obj_add(fg) != 0;	// 256 limit reached
+				fussgaenger_t* fg = new fussgaenger_t(bd);
+				bool ok = bd->obj_add(fg) != 0;	// 256 limit reached
 				if (ok) {
 					if (i > 0) {
 						// walk a little
@@ -165,7 +164,9 @@ void fussgaenger_t::erzeuge_fussgaenger_an(karte_t *welt, const koord3d k, int &
 				}
 				else {
 					// delete it, if we could not put it on the map
-					fg->set_flag(ding_t::not_on_map);
+					fg->set_flag(obj_t::not_on_map);
+					// do not try to delete it from sync-list
+					fg->time_to_life = 0;
 					delete fg;
 					return; // it is pointless to try again
 				}
@@ -220,7 +221,7 @@ grund_t* fussgaenger_t::hop()
 
 	if (to) {
 		pos_next = to->get_pos();
-		fahrtrichtung = calc_set_richtung(get_pos().get_2d(), pos_next.get_2d());
+		fahrtrichtung = calc_set_richtung(get_pos(), pos_next);
 	}
 	else {
 		// turn around

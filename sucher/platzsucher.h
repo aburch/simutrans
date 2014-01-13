@@ -78,13 +78,15 @@ protected:
 	karte_t *welt;
 	sint16 b;
 	sint16 h;
+	sint16 max_radius;
 
 	virtual bool ist_platz_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const;
 
 	virtual bool ist_feld_ok(koord pos, koord d, climate_bits cl) const;
 
 	bool ist_randfeld(koord d) const;
-	platzsucher_t(karte_t *welt) { this->welt = welt; }
+
+	platzsucher_t(karte_t *welt, sint16 _max_radius = - 1) { this->welt = welt; max_radius = _max_radius; }
 	virtual ~platzsucher_t() {}
 public:
 	koord suche_platz(koord start, sint16 b, sint16 h, climate_bits cl, bool *r = NULL);

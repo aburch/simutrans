@@ -9,7 +9,7 @@
 #include "../simdebug.h"
 
 #include "../dataobj/tabfile.h"
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 
 #include "../macros.h"
 #include "../sound/sound.h"
@@ -60,8 +60,8 @@ void sound_besch_t::init()
 {
 	// ok, now init
 	sound_on = true;
-	sound_path = umgebung_t::program_dir;
-	sound_path= sound_path + umgebung_t::objfilename + "sound/";
+	sound_path = env_t::program_dir;
+	sound_path= sound_path + env_t::objfilename + "sound/";
 	// process sound.tab
 	tabfile_t soundconf;
 	if (soundconf.open((sound_path + "sound.tab").c_str())) {

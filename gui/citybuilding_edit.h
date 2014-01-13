@@ -38,7 +38,7 @@ private:
 	virtual void change_item_info( sint32 i );
 
 public:
-	citybuilding_edit_frame_t(spieler_t* sp,karte_t* welt);
+	citybuilding_edit_frame_t(spieler_t* sp);
 
 	/**
 	* in top-level windows the name is displayed in titlebar

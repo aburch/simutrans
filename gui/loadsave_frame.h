@@ -13,7 +13,6 @@
 #include "../tpl/stringhashtable_tpl.h"
 #include <string>
 
-class karte_t;
 class loadsave_t;
 
 class gui_file_table_pak_column_t : public gui_file_table_label_column_t
@@ -24,7 +23,7 @@ protected:
 public:
 	gui_file_table_pak_column_t();
 	virtual int compare_rows(const gui_table_row_t &row1, const gui_table_row_t &row2) const;
-	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row);
+	virtual void paint_cell(const scr_coord& offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row);
 };
 
 class gui_file_table_int_column_t : public gui_file_table_label_column_t
@@ -42,7 +41,7 @@ protected:
 	virtual sint32 get_int(const gui_table_row_t &row) const;
 public:
 	gui_file_table_std_column_t() : gui_file_table_int_column_t(65) {}
-	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row);
+	virtual void paint_cell(const scr_coord& offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row);
 };
 
 class gui_file_table_exp_column_t : public gui_file_table_int_column_t
@@ -51,7 +50,7 @@ protected:
 	virtual sint32 get_int(const gui_table_row_t &row) const;
 public:
 	gui_file_table_exp_column_t() : gui_file_table_int_column_t(35) {}
-	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row);
+	virtual void paint_cell(const scr_coord& offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row);
 };
 
 class sve_info_t {
@@ -69,7 +68,6 @@ public:
 class loadsave_frame_t : public savegame_frame_t
 {
 private:
-	karte_t *welt;
 	gui_file_table_delete_column_t delete_column;
 	gui_file_table_action_column_t action_column;
 	gui_file_table_time_column_t date_column;
@@ -87,7 +85,8 @@ protected:
 	 * Action that's started with a button click
 	 * @author Hansjörg Malthaner
 	 */
-	virtual void action(const char *filename);
+	virtual bool item_action (const char *filename);
+	virtual bool ok_action   (const char *fullpath);
 
 	// returns extra file info
 	virtual const char *get_info(const char *fname);
@@ -101,7 +100,7 @@ public:
 	*/
 	virtual const char *get_hilfe_datei() const;
 
-	loadsave_frame_t(karte_t *welt, bool do_load);
+	loadsave_frame_t(bool do_load);
 
 	/**
 	 * save hashtable to xml file

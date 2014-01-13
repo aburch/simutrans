@@ -33,7 +33,7 @@ class image_writer_t : public obj_writer_t {
 		virtual obj_type get_type() const { return obj_image; }
 		virtual const char* get_type_name() const { return "image"; }
 
-		void write_obj(FILE* fp, obj_node_t& parent, std::string imagekey);
+		void write_obj(FILE* fp, obj_node_t& parent, std::string imagekey, uint32 index);
 
 	private:
 		bool block_laden(const char* fname);

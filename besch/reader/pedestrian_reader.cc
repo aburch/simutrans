@@ -11,7 +11,7 @@
 #include "../obj_node_info.h"
 
 #include "pedestrian_reader.h"
-#include "../../dataobj/pakset_info.h"
+#include "../../network/pakset_info.h"
 
 /*
  *  Autor:

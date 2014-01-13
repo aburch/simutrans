@@ -1,6 +1,6 @@
 #include "ware_besch.h"
 #include "../simworld.h"
-#include "../dataobj/einstellungen.h"
+#include "../dataobj/settings.h"
 
 static const char * catg_names[32] = {
   "special freight",

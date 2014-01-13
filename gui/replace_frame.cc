@@ -8,7 +8,7 @@
 #include "replace_frame.h"
 
 #include "../simcolor.h"
-#include "../simwin.h"
+#include "simwin.h"
 #include "../simworld.h"
 #include "../player/simplay.h"
 #include "../player/finance.h"
@@ -20,6 +20,13 @@
 #include "../utils/cbuffer_t.h"
 #include "../vehicle/simvehikel.h"
 
+static bool _is_electrified(const karte_t* welt, const convoihandle_t& cnv)
+{
+	vehikel_t *veh = cnv->get_vehikel(0);
+	grund_t* gr = welt->lookup(veh->get_pos());
+	weg_t* way = gr->get_weg(veh->get_waytype());
+	return way ? way->is_electrified() : false;
+}
 
 replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	gui_frame_t(translator::translate("Replace"), cnv->get_besitzer()),
@@ -36,10 +43,10 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	lb_n_replace(NULL, COL_BLACK, gui_label_t::left),
 	lb_n_sell(NULL, COL_BLACK, gui_label_t::left),
 	lb_n_skip(NULL, COL_BLACK, gui_label_t::left),
-	convoy_assembler(cnv->get_welt(), cnv->get_vehikel(0)->get_besch()->get_waytype(),  cnv->get_besitzer()->get_player_nr(), 
-	cnv->get_welt()->lookup(cnv->get_vehikel(0)->get_pos())->get_weg(cnv->get_vehikel(0)->get_waytype()) == NULL ? 
-	false : cnv->get_welt()->lookup(cnv->get_vehikel(0)->get_pos())->get_weg(cnv->get_vehikel(0)	->get_waytype())->is_electrified() )
-
+	convoy_assembler(
+		cnv->get_vehikel(0)->get_besch()->get_waytype(),  
+		cnv->get_besitzer()->get_player_nr(), 
+		_is_electrified(welt, cnv))
 {	
 	const uint32 a_button_height = 14;
 	const uint32 margin = 6;
@@ -88,7 +95,7 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 
 	const vehikel_t *lead_vehicle = cnv->get_vehikel(0);
 	const waytype_t wt = lead_vehicle->get_waytype();
-	const weg_t *way = cnv->get_welt()->lookup(lead_vehicle->get_pos())->get_weg(wt);
+	const weg_t *way = welt->lookup(lead_vehicle->get_pos())->get_weg(wt);
 	const bool weg_electrified = way == NULL ? false : way->is_electrified();
 	convoy_assembler.set_electrified( weg_electrified );
 	convoy_assembler.set_convoy_tabs_skip(-2*LINESPACE+3*LINESPACE+2*margin+a_button_height);
@@ -167,10 +174,10 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 
 	rpl = cnv->get_replace() ? new replace_data_t(cnv->get_replace()) : new replace_data_t();
 
-	koord gr = koord(0,0);
+	scr_size gr(0,0);
 	layout(&gr);
 	update_data();
-	gui_frame_t::set_fenstergroesse(gr);
+	gui_frame_t::set_windowsize(gr);
 
 	// Hajo: Trigger layouting
 	set_resizemode(diagonal_resize);
@@ -195,7 +202,7 @@ void replace_frame_t::update_total_width(uint32 width)
 }
 
 
-void replace_frame_t::layout(koord *gr)
+void replace_frame_t::layout(scr_size *gr)
 {
 	const uint32 margin=6;
 	const uint32 a_button_width=96;
@@ -204,9 +211,9 @@ void replace_frame_t::layout(koord *gr)
 	/**
 	 * Let's calculate the space and min space
 	 */
-	koord fgr = (gr!=NULL)? *gr : get_fenstergroesse();
+	scr_size fgr = (gr!=NULL)? *gr : get_windowsize();
 	min_total_width=0;
-	total_width=fgr.x;
+	total_width=fgr.w;
 	total_height=margin;
 	min_total_height=total_height;
 
@@ -214,9 +221,9 @@ void replace_frame_t::layout(koord *gr)
 	update_total_width(400);
 
 	// Convoy label: name+image+specs
-	koord img_size=lb_convoy.get_size();
-	update_total_width(img_size.x);
-	update_total_height(img_size.y);
+	scr_size img_size=lb_convoy.get_size();
+	update_total_width(img_size.w);
+	update_total_height(img_size.h);
 
 	// Label to be replaced
 	update_total_height(LINESPACE);
@@ -227,89 +234,89 @@ void replace_frame_t::layout(koord *gr)
 
 	// Rest of the vertical space, if any, for convoy_assembler
 	update_total_width(convoy_assembler.get_convoy_image_width());
-	convoy_assembler.set_panel_rows(gr  &&  gr->y==0?-1:fgr.y-total_height);
+	convoy_assembler.set_panel_rows(gr  &&  gr->h==0?-1:fgr.h-total_height);
 	total_height+=convoy_assembler.get_height();
 	min_total_height+=convoy_assembler.get_min_height();
 
-	set_min_windowsize(koord(min_total_width, min_total_height));
-	if(fgr.x<0 || (uint32)fgr.x<total_width) {
-		gui_frame_t::set_fenstergroesse(koord(min_total_width, max(fgr.y,min_total_height) ));
+	set_min_windowsize(scr_size(min_total_width, min_total_height));
+	if(fgr.w<0 || (uint32)fgr.w<total_width) {
+		gui_frame_t::set_windowsize(scr_size(min_total_width, max(fgr.h,min_total_height) ));
 	}
-	if(gr  &&  gr->x==0) {
-		gr->x = total_width;
+	if(gr  &&  gr->w==0) {
+		gr->w = total_width;
 	}
-	if(gr  &&  gr->y==0) {
-		gr->y = total_height;
+	if(gr  &&  gr->h==0) {
+		gr->h = total_height;
 	}
 
 	/**
 	 * Now do the layout
 	 */
-	uint32 current_y=margin;
+	uint32 current_y = margin;
 	if (gr) {
-		fgr=*gr;
+		fgr = *gr;
 	} else {
-		fgr=koord(total_width,total_height);
+		fgr = scr_size(total_width,total_height);
 	}
 
-	lb_convoy.set_pos(koord(fgr.x/2,current_y));
-	current_y+=lb_convoy.get_size().y;
+	lb_convoy.set_pos(scr_coord(fgr.w/2,current_y));
+	current_y+=lb_convoy.get_size().h;
 
-	lb_to_be_replaced.set_pos(koord(fgr.x/2,current_y));
+	lb_to_be_replaced.set_pos(scr_coord(fgr.w/2,current_y));
 	current_y+=LINESPACE;
 
-	convoy_assembler.set_pos(koord(0,current_y));
-	convoy_assembler.set_groesse(koord(fgr.x,convoy_assembler.get_height()));
+	convoy_assembler.set_pos(scr_coord(0,current_y));
+	convoy_assembler.set_size(scr_size(fgr.w,convoy_assembler.get_height()));
 	convoy_assembler.layout();
 
 	uint32 buttons_y = current_y + convoy_assembler.get_convoy_height() - LINESPACE + 24;
-	uint32 buttons_width=(fgr.x-2*margin)/4;
-	bt_autostart.set_groesse(koord(buttons_width, a_D_BUTTON_HEIGHT));
-	bt_depot.set_groesse(koord(buttons_width, a_D_BUTTON_HEIGHT));
-	bt_mark.set_groesse(koord(buttons_width, a_D_BUTTON_HEIGHT));
-	bt_clear.set_groesse(koord(buttons_width, a_D_BUTTON_HEIGHT));
-	bt_autostart.set_pos(koord(margin,buttons_y));
-	bt_depot.set_pos(koord(margin+buttons_width,buttons_y));
-	bt_mark.set_pos(koord(margin+(buttons_width*2),buttons_y));
-	bt_clear.set_pos(koord(margin+(buttons_width*3),buttons_y));
+	uint32 buttons_width=(fgr.w-2*margin)/4;
+	bt_autostart.set_size(scr_size(buttons_width, a_D_BUTTON_HEIGHT));
+	bt_depot.set_size(scr_size(buttons_width, a_D_BUTTON_HEIGHT));
+	bt_mark.set_size(scr_size(buttons_width, a_D_BUTTON_HEIGHT));
+	bt_clear.set_size(scr_size(buttons_width, a_D_BUTTON_HEIGHT));
+	bt_autostart.set_pos(scr_coord(margin,buttons_y));
+	bt_depot.set_pos(scr_coord(margin+buttons_width,buttons_y));
+	bt_mark.set_pos(scr_coord(margin+(buttons_width*2),buttons_y));
+	bt_clear.set_pos(scr_coord(margin+(buttons_width*3),buttons_y));
 	
 	current_y=buttons_y+a_D_BUTTON_HEIGHT+margin;
-	lb_money.set_pos(koord(margin + (203 *2),current_y));
-	lb_replace_cycle.set_pos(koord(fgr.x-170,current_y));
-	lb_replace.set_pos(koord(fgr.x-166,current_y));
+	lb_money.set_pos(scr_coord(margin + (203 *2),current_y));
+	lb_replace_cycle.set_pos(scr_coord(fgr.w-170,current_y));
+	lb_replace.set_pos(scr_coord(fgr.w-166,current_y));
 
-	numinp[state_replace].set_pos( koord( fgr.x-110, current_y ) );
-	numinp[state_replace].set_groesse( koord( 50, a_D_BUTTON_HEIGHT ) );
-	lb_n_replace.set_pos( koord( fgr.x-50, current_y ) );
+	numinp[state_replace].set_pos(scr_coord( fgr.w-110, current_y ) );
+	numinp[state_replace].set_size(scr_size( 50, a_D_BUTTON_HEIGHT ) );
+	lb_n_replace.set_pos(scr_coord( fgr.w-50, current_y ) );
 
-	bt_replace_line.set_pos(koord(margin,current_y));
-	bt_retain_in_depot.set_pos(koord(margin + 162,current_y));
+	bt_replace_line.set_pos(scr_coord(margin,current_y));
+	bt_retain_in_depot.set_pos(scr_coord(margin + 162,current_y));
 	
 	current_y+=LINESPACE+2;
 
-	bt_allow_using_existing_vehicles.set_pos(koord(margin + (162 *2),current_y));
-	bt_replace_all.set_pos(koord(margin,current_y));
-	bt_use_home_depot.set_pos(koord(margin + 162,current_y));
-	numinp[state_sell].set_pos( koord( fgr.x-110, current_y ) );
-	numinp[state_sell].set_groesse( koord( 50, a_D_BUTTON_HEIGHT ) );
-	lb_n_sell.set_pos( koord( fgr.x-50, current_y ) );
-	lb_sell.set_pos(koord(fgr.x-166,current_y));
+	bt_allow_using_existing_vehicles.set_pos(scr_coord(margin + (162 *2),current_y));
+	bt_replace_all.set_pos(scr_coord(margin,current_y));
+	bt_use_home_depot.set_pos(scr_coord(margin + 162,current_y));
+	numinp[state_sell].set_pos(scr_coord( fgr.w-110, current_y ) );
+	numinp[state_sell].set_size(scr_size( 50, a_D_BUTTON_HEIGHT ) );
+	lb_n_sell.set_pos(scr_coord( fgr.w-50, current_y ) );
+	lb_sell.set_pos(scr_coord(fgr.w-166,current_y));
 	current_y+=LINESPACE+2;
-	lb_skip.set_pos(koord(fgr.x-166,current_y));
-	numinp[state_skip].set_pos( koord( fgr.x-110, current_y ) );
-	numinp[state_skip].set_groesse( koord( 50, a_D_BUTTON_HEIGHT ) );
-	lb_n_skip.set_pos( koord( fgr.x-50, current_y ) );
+	lb_skip.set_pos(scr_coord(fgr.w-166,current_y));
+	numinp[state_skip].set_pos(scr_coord( fgr.w-110, current_y ) );
+	numinp[state_skip].set_size(scr_size( 50, a_D_BUTTON_HEIGHT ) );
+	lb_n_skip.set_pos(scr_coord( fgr.w-50, current_y ) );
 
 	current_y+=LINESPACE+margin;
 }
 
 
-void replace_frame_t::set_fenstergroesse( koord gr )
+void replace_frame_t::set_windowsize( scr_size gr )
 {
-	koord g=gr;
+	scr_size g=gr;
 	layout(&g);
 	update_data();
-	gui_frame_t::set_fenstergroesse(gr);
+	gui_frame_t::set_windowsize(gr);
 }
 
 
@@ -351,7 +358,6 @@ void replace_frame_t::update_data()
 			}
 		}
 	} else if (replace_all) {
-		karte_t *welt=cnv->get_welt();
 		for (uint32 i=0; i<welt->convoys().get_count(); i++) {
 			convoihandle_t cnv_aux=welt->convoys()[i];
 			if (cnv_aux.is_bound() && cnv_aux->get_besitzer()==cnv->get_besitzer() && cnv->has_same_vehicles(cnv_aux)) 
@@ -416,7 +422,7 @@ bool replace_frame_t::replace_convoy(convoihandle_t cnv_rpl, bool mark)
 			break;
 		}
 
-		if(!cnv_rpl->get_welt()->get_active_player()->can_afford(0 - money))
+		if(!welt->get_active_player()->can_afford(0 - money))
 		{
 			const char *err = CREDIT_MESSAGE;
 			news_img *box = new news_img(err);
@@ -537,7 +543,6 @@ bool replace_frame_t::action_triggered( gui_action_creator_t *komp,value_t /*p*/
 			} 
 			else if (replace_all) 
 			{
-				karte_t *welt=cnv->get_welt();
 				bool first_success = false;
 				for (uint32 i=0; i<welt->convoys().get_count(); i++) 
 				{
@@ -594,9 +599,9 @@ bool replace_frame_t::infowin_event(const event_t *ev)
 }
 
 
-void replace_frame_t::zeichnen(koord pos, koord groesse)
+void replace_frame_t::draw(scr_coord pos, scr_size size)
 {
-	if (get_welt()->get_active_player() != cnv->get_besitzer()) {
+	if (welt->get_active_player() != cnv->get_besitzer()) {
 		destroy_win(this);
 		return;
 	}
@@ -621,7 +626,7 @@ void replace_frame_t::zeichnen(koord pos, koord groesse)
 	lb_sell.set_color(color);
 	lb_skip.set_color(color);
 
-	gui_frame_t::zeichnen(pos, groesse);
+	gui_frame_t::draw(pos, size);
 }
 
 sint64 replace_frame_t::calc_total_cost()

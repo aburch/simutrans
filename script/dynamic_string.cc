@@ -3,9 +3,9 @@
 
 #include "../simsys.h"
 #include "../simworld.h"
-#include "../dataobj/network.h"
-#include "../dataobj/network_cmd_scenario.h"
-#include "../dataobj/umgebung.h"
+#include "../network/network.h"
+#include "../network/network_cmd_scenario.h"
+#include "../dataobj/environment.h"
 #include "../player/simplay.h"
 #include "../tpl/plainstringhashtable_tpl.h"
 #include "../utils/cbuffer_t.h"
@@ -48,8 +48,8 @@ dynamic_string::~dynamic_string()
 
 void dynamic_string::init()
 {
-	while(cached_string_t *entry = cached_results.remove_first()) {
-		delete entry;
+	while(!cached_results.empty()) {
+		delete cached_results.remove_first();
 	}
 }
 
@@ -78,7 +78,7 @@ void dynamic_string::update(script_vm_t *script, spieler_t *sp, bool force_updat
 		}
 	}
 	else {
-		if (umgebung_t::networkmode  &&  !umgebung_t::server) {
+		if (env_t::networkmode  &&  !env_t::server) {
 			s = dynamic_string::fetch_result( function, script, this, force_update);
 			if ( s == NULL) {
 				s = "Waiting for server response...";
@@ -100,7 +100,7 @@ const char* dynamic_string::fetch_result(const char* function, script_vm_t *scri
 	bool const needs_update = entry == NULL  ||  force_update;
 
 	if (needs_update) {
-		if (script != NULL  ||  umgebung_t::server) {
+		if (script != NULL  ||  env_t::server) {
 			// directly call script if at server
 			if (script) {
 				plainstring str = call_script(function, script);

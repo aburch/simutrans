@@ -12,21 +12,20 @@
 #include "../simhalt.h"
 #include "../simworld.h"
 #include "../simmenu.h"
-#include "../simgraph.h"
+#include "../display/simgraph.h"
+#include "../display/viewport.h"
 
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
 
 #include "../boden/grund.h"
 
-#include "../dataobj/umgebung.h"
-
-#include "../dings/zeiger.h"
+#include "../obj/zeiger.h"
 
 #include "../dataobj/fahrplan.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 
 #include "../player/simplay.h"
 #include "../vehicle/simvehikel.h"
@@ -40,25 +39,23 @@
 #include "components/gui_button.h"
 #include "karte.h"
 
-char fahrplan_gui_t::no_line[128];	// contains the current translation of "<no line>"
-karte_t *fahrplan_gui_t::welt = NULL;
 
 
 // shows/deletes highlighting of tiles
 void fahrplan_gui_stats_t::highlight_schedule( schedule_t *markfpl, bool marking )
 {
-	marking &= umgebung_t::visualize_schedule;
+	marking &= env_t::visualize_schedule;
 	FOR(minivec_tpl<linieneintrag_t>, const& i, markfpl->eintrag) {
 		if (grund_t* const gr = welt->lookup(i.pos)) {
 			for(  uint idx=0;  idx<gr->get_top();  idx++  ) {
-				ding_t *d = gr->obj_bei(idx);
+				obj_t *obj = gr->obj_bei(idx);
 				if(  marking  ) {
-					if(  !d->is_moving()  ) {
-						d->set_flag( ding_t::highlight );
+					if(  !obj->is_moving()  ) {
+						obj->set_flag( obj_t::highlight );
 					}
 				}
 				else {
-					d->clear_flag( ding_t::highlight );
+					obj->clear_flag( obj_t::highlight );
 				}
 			}
 			gr->set_flag( grund_t::dirty );
@@ -86,20 +83,20 @@ void fahrplan_gui_stats_t::highlight_schedule( schedule_t *markfpl, bool marking
 		aktuell_mark->set_pos( markfpl->eintrag[markfpl->get_aktuell()].pos );
 		if(  grund_t *gr = welt->lookup(aktuell_mark->get_pos())  ) {
 			gr->obj_add( aktuell_mark );
-			aktuell_mark->set_flag( ding_t::dirty );
+			aktuell_mark->set_flag( obj_t::dirty );
 			gr->set_flag( grund_t::dirty );
 		}
 	}
-	aktuell_mark->clear_flag( ding_t::highlight );
+	aktuell_mark->clear_flag( obj_t::highlight );
 }
 
 
 /**
  * Append description of entry to buf.
  */
-void fahrplan_gui_t::gimme_stop_name(cbuffer_t & buf, karte_t *welt, const spieler_t *sp, const linieneintrag_t &entry, bool no_control_tower )
+void fahrplan_gui_t::gimme_stop_name(cbuffer_t & buf, const spieler_t *sp, const linieneintrag_t &entry, bool no_control_tower )
 {
-	halthandle_t halt = haltestelle_t::get_halt(welt, entry.pos, sp);
+	halthandle_t halt = haltestelle_t::get_halt(entry.pos, sp);
 	if(halt.is_bound()) 
 	{
 		char modified_name[320];
@@ -145,7 +142,7 @@ void fahrplan_gui_t::gimme_stop_name(cbuffer_t & buf, karte_t *welt, const spiel
 }
 
 
-void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t& buf, karte_t* const welt, spieler_t const* const sp, const schedule_t *fpl, int i, int max_chars)
+void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t& buf, spieler_t const* const sp, const schedule_t *fpl, int i, int max_chars)
 {
 	if(i<0  ||  fpl==NULL  ||  i>=fpl->get_count()) {
 		dbg->warning("void fahrplan_gui_t::gimme_short_stop_name()","tried to receive unused entry %i in schedule %p.",i,fpl);
@@ -153,7 +150,7 @@ void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t& buf, karte_t* const welt, 
 	}
 	const linieneintrag_t& entry = fpl->eintrag[i];
 	const char* p;
-	halthandle_t halt = haltestelle_t::get_halt(welt, entry.pos, sp);
+	halthandle_t halt = haltestelle_t::get_halt(entry.pos, sp);
 	if(halt.is_bound()) {
 		p = halt->get_name();
 	}
@@ -190,10 +187,9 @@ void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t& buf, karte_t* const welt, 
 
 
 zeiger_t *fahrplan_gui_stats_t::aktuell_mark = NULL;
-karte_t *fahrplan_gui_stats_t::welt = NULL;
 cbuffer_t fahrplan_gui_stats_t::buf;
 
-void fahrplan_gui_stats_t::zeichnen(koord offset)
+void fahrplan_gui_stats_t::draw(scr_coord offset)
 {
 	if(  !fpl  ) {
 		return;
@@ -202,57 +198,50 @@ void fahrplan_gui_stats_t::zeichnen(koord offset)
 	if(  fpl->empty()  ) {
 		buf.clear();
 		buf.append(translator::translate("Please click on the map to add\nwaypoints or stops to this\nschedule."));
-		sint16 const width = display_multiline_text(offset.x + 4, offset.y, buf, COL_WHITE);
-		set_groesse(koord(width + 4 + 16, 3 * LINESPACE));
+		sint16 const width = display_multiline_text(offset.x + 4, offset.y, buf, SYSCOL_TEXT_HIGHLIGHT );
+		set_size(scr_size(width + 4 + 16, 3 * LINESPACE));
 	}
 	else {
+		int    i     = 0;
 		size_t sel   = fpl->get_aktuell();
-		sint16 width = get_groesse().x - 16;
-
-		for (int i = 0; i < fpl->get_count(); i++) {
-			PLAYER_COLOR_VAL c;
-			image_id img;
-			int halt_y = offset.y + i * (LINESPACE + 1);
-			if( i == sel ) {
+		sint16 width = get_size().w - 16;
+		FORX(minivec_tpl<linieneintrag_t>, const& e, fpl->eintrag, (--sel, offset.y += LINESPACE + 1)) {
+			if (sel == 0) {
 				// highlight current entry (width is just wide enough, scrolly will do clipping)
-				c = COL_WHITE;
-				img = button_t::arrow_right_pushed;
-				display_fillbox_wh_clip( offset.x, halt_y - 1, 2048, LINESPACE+1, sp->get_player_color1()+1, false );
+				display_fillbox_wh_clip(offset.x, offset.y - 1, 2048, LINESPACE + 1, sp->get_player_color1() + 1, false);
 			}
-			else
-			{
-				c = COL_BLACK;
-				img = button_t::arrow_right_normal;
-			}
-
-			// the goto button (right arrow)
-			display_color_img(img, offset.x + 2, halt_y, 0, false, true);
 
 			buf.clear();
-			buf.printf( "%i) ", i+1 );
-			const grund_t* gr = welt->lookup(fpl->eintrag[i].pos);
-			bool no_control_tower = fpl->get_waytype() == air_wt && welt->lookup(fpl->eintrag[i].pos)->get_halt().is_bound() && gr->get_halt()->has_no_control_tower();
-			fahrplan_gui_t::gimme_stop_name(buf, welt, sp, fpl->eintrag[i], no_control_tower);
-
-			sint16 const w = display_proportional_clip(offset.x + 4 + 10, halt_y, buf, ALIGN_LEFT, c, true);
+			buf.printf("%i) ", ++i);
+			bool no_control_tower = fpl->get_waytype() == air_wt;
+			if (no_control_tower)
+			{
+				halthandle_t halt = welt->lookup(e.pos)->get_halt();
+				no_control_tower = halt.is_bound() && halt->has_no_control_tower();
+			}
+			fahrplan_gui_t::gimme_stop_name(buf, sp, e, no_control_tower);
+			PLAYER_COLOR_VAL const c = sel == 0 ? COL_WHITE : COL_BLACK;
+			sint16           const w = display_proportional_clip(offset.x + 4 + 10, offset.y, buf, ALIGN_LEFT, c, true);
 			if (width < w) {
 				width = w;
 			}
+
+			// the goto button (right arrow)
+			display_img_aligned( gui_theme_t::pos_button_img[ sel == 0 ], scr_rect( offset.x, offset.y, 14, LINESPACE ), ALIGN_CENTER_V | ALIGN_CENTER_H, true );
 		}
-		set_groesse(koord(width + 16, fpl->get_count() * (LINESPACE + 1)));
+		set_size(scr_size(width + 16, fpl->get_count() * (LINESPACE + 1)));
 		highlight_schedule(fpl, true);
 	}
 }
 
 
 
-fahrplan_gui_stats_t::fahrplan_gui_stats_t(karte_t* w, spieler_t *s)
+fahrplan_gui_stats_t::fahrplan_gui_stats_t(spieler_t *s)
 {
-	welt = w;
 	fpl = NULL;
 	sp = s;
 	if(  aktuell_mark==NULL  ) {
-		aktuell_mark = new zeiger_t( welt, koord3d::invalid, NULL );
+		aktuell_mark = new zeiger_t(koord3d::invalid, NULL );
 		aktuell_mark->set_bild( werkzeug_t::general_tool[WKZ_FAHRPLAN_ADD]->cursor );
 	}
 }
@@ -293,13 +282,12 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	lb_spacing("Spacing cnv/month, shift"),
 	lb_spacing_as_clock(NULL, COL_BLACK, gui_label_t::centered),
 	lb_spacing_shift_as_clock(NULL, COL_BLACK, gui_label_t::centered),
-	stats(sp_->get_welt(),sp_),
+	stats(sp_),
 	scrolly(&stats),
 	old_fpl(fpl_),
 	sp(sp_),
 	cnv(cnv_)
 {
-	welt = sp->get_welt();
 	old_fpl->eingabe_beginnen();
 	fpl = old_fpl->copy();
 	stats.set_fahrplan(fpl);
@@ -313,28 +301,26 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 		old_line = new_line = cnv_->get_line();
 	}
 	old_line_count = 0;
-	strcpy(no_line, translator::translate("<no line>"));
 
-	sint16 ypos = 0;
+	scr_coord_val ypos = 0;
 	if(  cnv.is_bound()  ) {
 		// things, only relevant to convois, like creating/selecting lines
-		lb_line.set_pos(koord(10, ypos+2));
-		add_komponente(&lb_line);
-
-		bt_promote_to_line.init(button_t::roundbox, "promote to line", koord( BUTTON3_X, ypos ), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT) );
+		bt_promote_to_line.init( button_t::roundbox, "promote to line", scr_coord( BUTTON3_X, ypos ) );
 		bt_promote_to_line.set_tooltip("Create a new line based on this schedule");
 		bt_promote_to_line.add_listener(this);
 		add_komponente(&bt_promote_to_line);
 
+		lb_line.align_to( &bt_promote_to_line, ALIGN_CENTER_V, scr_coord( D_MARGIN_LEFT, 0 ) );
+		add_komponente( &lb_line );
+
 		ypos += D_BUTTON_HEIGHT+1;
 
-		line_selector.set_pos(koord(2, ypos));
-		line_selector.set_groesse(koord(BUTTON4_X-2, D_BUTTON_HEIGHT));
-		line_selector.set_max_size(koord(BUTTON4_X-2, 13*LINESPACE+D_TITLEBAR_HEIGHT-1));
+		line_selector.set_pos(scr_coord(2, ypos));
+		line_selector.set_size(scr_size(BUTTON4_X-2, D_BUTTON_HEIGHT));
+		line_selector.set_max_size(scr_size(BUTTON4_X-2, 13*LINESPACE+D_TITLEBAR_HEIGHT-1));
 		line_selector.set_highlight_color(sp->get_player_color1() + 1);
 		line_selector.clear_elements();
 
-		sp->simlinemgmt.sort_lines();
 		init_line_selector();
 		line_selector.add_listener(this);
 		add_komponente(&line_selector);
@@ -343,18 +329,17 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	}
 
 	// loading level and return tickets
-	lb_load.set_pos( koord( 10, ypos+2 ) );
-	add_komponente(&lb_load);
+	scr_coord_val label_width = min( (D_BUTTON_WIDTH<<1) + D_H_SPACE, max( lb_load.get_size().w, lb_wait.get_size().w ) );
 
-	numimp_load.set_pos( koord( D_BUTTON_WIDTH*2-65, ypos ) );
-	numimp_load.set_groesse( koord( 60, D_BUTTON_HEIGHT ) );
+	numimp_load.set_pos( scr_coord( D_MARGIN_LEFT + label_width + D_H_SPACE, ypos ) );
+	numimp_load.set_width( 60 );
 	numimp_load.set_value( fpl->get_current_eintrag().ladegrad );
 	numimp_load.set_limits( 0, 400 );
 	numimp_load.set_increment_mode(10);
 	numimp_load.add_listener(this);
 	add_komponente(&numimp_load);
 
-	bt_bidirectional.init(button_t::square_automatic, "Alternate directions", koord( D_BUTTON_WIDTH*2, ypos ), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT) );
+	bt_bidirectional.init(button_t::square_automatic, "Alternate directions", scr_coord( D_BUTTON_WIDTH*2, ypos ), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT) );
 	bt_bidirectional.set_tooltip("When adding convoys to the line, every second convoy will follow it in the reverse direction.");
 	bt_bidirectional.pressed = fpl->is_bidirectional();
 	bt_bidirectional.add_listener(this);
@@ -363,13 +348,14 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	ypos += D_BUTTON_HEIGHT;
 
 	// waiting in parts per month
-	lb_wait.set_pos( koord( 10, ypos+2 ) );
+	lb_wait.set_pos( scr_coord( 10, ypos+2 ) );
 	add_komponente(&lb_wait);
 
-	bt_wait_prev.set_pos( koord( D_BUTTON_WIDTH*2-65, ypos+2 ) );
-	bt_wait_prev.set_typ(button_t::arrowleft);
-	bt_wait_prev.add_listener(this);
-	add_komponente(&bt_wait_prev);
+	lb_load.set_width( label_width );
+	lb_load.align_to( &numimp_load, ALIGN_CENTER_V, scr_coord( D_MARGIN_LEFT, 0 ) );
+	add_komponente( &lb_load );
+
+	ypos += numimp_load.get_size().h;
 
 	if(  fpl->get_current_eintrag().waiting_time_shift==0  ) {
 		strcpy( str_parts_month, translator::translate("off") );
@@ -383,35 +369,47 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	}
 
 	lb_waitlevel.set_text_pointer( str_parts_month );
-	lb_waitlevel.set_pos( koord( D_BUTTON_WIDTH*2-20, ypos+2 ) );
+	lb_waitlevel.set_size( numimp_load.get_size() - scr_size( D_ARROW_LEFT_WIDTH + D_ARROW_RIGHT_WIDTH , 0 ) );
+	lb_waitlevel.align_to( &numimp_load, ALIGN_EXTERIOR_V | ALIGN_TOP | ALIGN_LEFT, scr_coord( gui_theme_t::gui_arrow_left_size.w, 0 ) );
 	add_komponente(&lb_waitlevel);
 
-	bt_wait_next.set_pos( koord( D_BUTTON_WIDTH*2-17, ypos+2 ) );
-	bt_wait_next.set_typ(button_t::arrowright);
-	bt_wait_next.add_listener(this);
-	add_komponente(&bt_wait_next);
+	// waiting in parts per month
+	bt_wait_prev.set_typ( button_t::arrowleft );
+	bt_wait_prev.align_to( &lb_waitlevel, ALIGN_EXTERIOR_H | ALIGN_RIGHT | ALIGN_CENTER_V );
+	bt_wait_prev.add_listener(this);
+	add_komponente( &bt_wait_prev );
 
-	bt_mirror.init(button_t::square_automatic, "return ticket", koord( D_BUTTON_WIDTH*2, ypos ), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT) );
+	bt_wait_next.set_typ( button_t::arrowright );
+	bt_wait_next.align_to( &lb_waitlevel, ALIGN_EXTERIOR_H | ALIGN_LEFT | ALIGN_CENTER_V );
+	bt_wait_next.add_listener(this);
+	lb_waitlevel.set_width( bt_wait_next.get_pos().x-bt_wait_prev.get_pos().x-bt_wait_prev.get_size().w );
+	add_komponente( &bt_wait_next );
+
+	lb_wait.set_width( label_width );
+	lb_wait.align_to( &lb_waitlevel, ALIGN_CENTER_V, scr_coord( D_MARGIN_LEFT, 0 ) );
+	add_komponente( &lb_wait );
+
+	bt_mirror.init(button_t::square_automatic, "return ticket", scr_coord( D_BUTTON_WIDTH*2, ypos ), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT) );
 	bt_mirror.set_tooltip("Vehicles make a round trip between the schedule endpoints, visiting all stops in reverse after reaching the end.");
 	bt_mirror.pressed = fpl->is_mirrored();
 	bt_mirror.add_listener(this);
 	add_komponente(&bt_mirror);
 
-	ypos += D_BUTTON_HEIGHT;
+	ypos += lb_waitlevel.get_size().h;
 
 	lb_waitlevel_as_clock.set_text_pointer (str_parts_month_as_clock);
-	lb_waitlevel_as_clock.set_pos( koord( D_BUTTON_WIDTH*2-35, ypos+2 ) );
+	lb_waitlevel_as_clock.set_pos( scr_coord( D_BUTTON_WIDTH*2-35, ypos+2 ) );
 	add_komponente(&lb_waitlevel_as_clock);
 
 	ypos += D_BUTTON_HEIGHT;
 
 	// Spacing
 	if ( !cnv.is_bound() ) {
-		lb_spacing.set_pos( koord( 10, ypos+2 ) );
+		lb_spacing.set_pos( scr_coord( 10, ypos+2 ) );
 		add_komponente(&lb_spacing);
-		//numimp_spacing.set_pos( koord( D_BUTTON_WIDTH*2-65, ypos+2 ) );
-		numimp_spacing.set_pos( koord( D_BUTTON_WIDTH*2, ypos+2 ) );
-		numimp_spacing.set_groesse( koord( 60, D_BUTTON_HEIGHT ) );
+		//numimp_spacing.set_pos( scr_coord( D_BUTTON_WIDTH*2-65, ypos+2 ) );
+		numimp_spacing.set_pos( scr_coord( D_BUTTON_WIDTH*2, ypos+2 ) );
+		numimp_spacing.set_size( scr_size( 60, D_BUTTON_HEIGHT ) );
 		numimp_spacing.set_value( fpl->get_spacing() );
 		numimp_spacing.set_limits( 0, 999 );
 		numimp_spacing.set_increment_mode( 1 );
@@ -421,8 +419,8 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 		// Spacing shift
 		int spacing_shift_mode = welt->get_settings().get_spacing_shift_mode();
 		if ( spacing_shift_mode > settings_t::SPACING_SHIFT_DISABLED) {
-			numimp_spacing_shift.set_pos( koord( D_BUTTON_WIDTH*2 + 65, ypos+2 ) );
-			numimp_spacing_shift.set_groesse( koord( 60, D_BUTTON_HEIGHT ) );
+			numimp_spacing_shift.set_pos( scr_coord( D_BUTTON_WIDTH*2 + 65, ypos+2 ) );
+			numimp_spacing_shift.set_size( scr_size( 60, D_BUTTON_HEIGHT ) );
 			numimp_spacing_shift.set_value( fpl->get_current_eintrag().spacing_shift  );
 			numimp_spacing_shift.set_limits( 0,welt->get_settings().get_spacing_shift_divisor() );
 			numimp_spacing_shift.set_increment_mode( 1 );
@@ -434,19 +432,19 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 
 		if (spacing_shift_mode > settings_t::SPACING_SHIFT_PER_LINE) {
 			//Same spacing button
-			bt_same_spacing_shift.init(button_t::square_automatic, "Use same shift for all stops.", koord( 10 , ypos+2 ), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT) );
+			bt_same_spacing_shift.init(button_t::square_automatic, "Use same shift for all stops.", scr_coord( 10 , ypos+2 ), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT) );
 			bt_same_spacing_shift.set_tooltip("Use one spacing shift value for all stops in schedule.");
 			bt_same_spacing_shift.pressed = fpl->is_same_spacing_shift();
 			bt_same_spacing_shift.add_listener(this);
 			add_komponente(&bt_same_spacing_shift);
 		}
 
-		lb_spacing_as_clock.set_pos(koord( D_BUTTON_WIDTH*2 + 30 , ypos+2 ) );
+		lb_spacing_as_clock.set_pos(scr_coord( D_BUTTON_WIDTH*2 + 30 , ypos+2 ) );
 		lb_spacing_as_clock.set_text_pointer(str_spacing_as_clock);
 		add_komponente(&lb_spacing_as_clock);
 
 		if (spacing_shift_mode > settings_t::SPACING_SHIFT_PER_LINE) {
-			lb_spacing_shift_as_clock.set_pos(koord( D_BUTTON_WIDTH*2 + 95, ypos+2 ) );
+			lb_spacing_shift_as_clock.set_pos(scr_coord( D_BUTTON_WIDTH*2 + 95, ypos+2 ) );
 			lb_spacing_shift_as_clock.set_text_pointer(str_spacing_shift_as_clock);
 			add_komponente(&lb_spacing_shift_as_clock);
 		}
@@ -454,19 +452,19 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 		ypos += D_BUTTON_HEIGHT;
 	}
 
-	bt_add.init(button_t::roundbox_state, "Add Stop", koord(BUTTON1_X, ypos ), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT) );
+	bt_add.init(button_t::roundbox_state, "Add Stop", scr_coord(BUTTON1_X, ypos ), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT) );
 	bt_add.set_tooltip("Appends stops at the end of the schedule");
 	bt_add.add_listener(this);
 	bt_add.pressed = true;
 	add_komponente(&bt_add);
 
-	bt_insert.init(button_t::roundbox_state, "Ins Stop", koord(BUTTON2_X, ypos ), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT) );
+	bt_insert.init(button_t::roundbox_state, "Ins Stop", scr_coord(BUTTON2_X, ypos ), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT) );
 	bt_insert.set_tooltip("Insert stop before the current stop");
 	bt_insert.add_listener(this);
 	bt_insert.pressed = false;
 	add_komponente(&bt_insert);
 
-	bt_remove.init(button_t::roundbox_state, "Del Stop", koord(BUTTON3_X, ypos ), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT) );
+	bt_remove.init(button_t::roundbox_state, "Del Stop", scr_coord(BUTTON3_X, ypos ), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT) );
 	bt_remove.set_tooltip("Delete the current stop");
 	bt_remove.add_listener(this);
 	bt_remove.pressed = false;
@@ -474,7 +472,7 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 
 	ypos += D_BUTTON_HEIGHT+2;
 
-	scrolly.set_pos( koord( 0, ypos ) );
+	scrolly.set_pos( scr_coord( 0, ypos ) );
 	scrolly.set_show_scroll_x(true);
 	scrolly.set_scroll_amount_y(LINESPACE+1);
 	add_komponente(&scrolly);
@@ -482,11 +480,11 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	mode = adding;
 	update_selection();
 
-	set_fenstergroesse( koord(BUTTON4_X + 35, ypos+D_BUTTON_HEIGHT+(fpl->get_count()>0 ? min(15,fpl->get_count()) : 15)*(LINESPACE+1)+D_TITLEBAR_HEIGHT) );
-	set_min_windowsize( koord(BUTTON4_X + 35, ypos+D_BUTTON_HEIGHT+3*(LINESPACE+1)+D_TITLEBAR_HEIGHT) );
+	set_windowsize( scr_size(BUTTON4_X + 35, ypos+D_BUTTON_HEIGHT+(fpl->get_count()>0 ? min(15,fpl->get_count()) : 15)*(LINESPACE+1)+D_TITLEBAR_HEIGHT) );
+	set_min_windowsize( scr_size(BUTTON4_X + 35, ypos+D_BUTTON_HEIGHT+3*(LINESPACE+1)+D_TITLEBAR_HEIGHT) );
 
 	set_resizemode(diagonal_resize);
-	resize( koord(0,0) );
+	resize( scr_coord(0,0) );
 }
 
 
@@ -509,11 +507,11 @@ void fahrplan_gui_t::update_werkzeug(bool set)
 		//  .. or set them again
 		if(mode==adding) {
 			werkzeug_t::general_tool[WKZ_FAHRPLAN_ADD]->set_default_param((const char *)fpl);
-			sp->get_welt()->set_werkzeug( werkzeug_t::general_tool[WKZ_FAHRPLAN_ADD], sp );
+			welt->set_werkzeug( werkzeug_t::general_tool[WKZ_FAHRPLAN_ADD], sp );
 		}
 		else if(mode==inserting) {
 			werkzeug_t::general_tool[WKZ_FAHRPLAN_INS]->set_default_param((const char *)fpl);
-			sp->get_welt()->set_werkzeug( werkzeug_t::general_tool[WKZ_FAHRPLAN_INS], sp );
+			welt->set_werkzeug( werkzeug_t::general_tool[WKZ_FAHRPLAN_INS], sp );
 		}
 	}
 }
@@ -523,7 +521,6 @@ void fahrplan_gui_t::update_selection()
 {
 	bt_wait_prev.disable();
 	lb_wait.set_color( COL_GREY3 );
-//<<<<<<< HEAD
 	lb_spacing.set_color( COL_GREY3 );
 	lb_spacing_as_clock.set_color( COL_GREY3 );
 	sprintf(str_spacing_as_clock, "%s", translator::translate("off") );
@@ -531,17 +528,14 @@ void fahrplan_gui_t::update_selection()
 	lb_spacing_shift_as_clock.set_color( COL_GREY3 );
 	sprintf(str_spacing_shift_as_clock, "%s", translator::translate("off") );
 
-//	if (!fpl->empty()) {
-//=======
 	strcpy( str_parts_month, translator::translate("off") );
 	lb_waitlevel.set_color( COL_GREY3 );
 	bt_wait_next.disable();
 
 	if(  !fpl->empty()  ) {
-//>>>>>>> aburch/master
 		fpl->set_aktuell( min(fpl->get_count()-1,fpl->get_aktuell()) );
 		const uint8 aktuell = fpl->get_aktuell();
-		if(  haltestelle_t::get_halt(sp->get_welt(), fpl->eintrag[aktuell].pos, sp).is_bound()  ) {
+		if(  haltestelle_t::get_halt(fpl->eintrag[aktuell].pos, sp).is_bound()  ) {
 			lb_load.set_color( COL_BLACK );
 			numimp_load.enable();
 			numimp_load.set_value( fpl->eintrag[aktuell].ladegrad );
@@ -549,7 +543,6 @@ void fahrplan_gui_t::update_selection()
 			if(  fpl->eintrag[aktuell].ladegrad>0  ) {
 				bt_wait_prev.enable();
 				lb_wait.set_color( COL_BLACK );
-//<<<<<<< HEAD
 				lb_spacing.set_color( COL_BLACK );
 				if (fpl->get_spacing() ) {
 					lb_spacing_shift.set_color( COL_BLACK );
@@ -583,7 +576,7 @@ void fahrplan_gui_t::update_selection()
 }
 
 /**
- * Mouse click are hereby reported to its GUI-Components
+ * Mouse clicks are hereby reported to its GUI-Components
  */
 bool fahrplan_gui_t::infowin_event(const event_t *ev)
 {
@@ -599,9 +592,9 @@ bool fahrplan_gui_t::infowin_event(const event_t *ev)
 			if(  line >= 0 && line < fpl->get_count()  ) {
 				if(  IS_RIGHTCLICK(ev)  ||  ev->mx<16  ) {
 					// just center on it
-					sp->get_welt()->change_world_position( fpl->eintrag[line].pos );
+					welt->get_viewport()->change_world_position( fpl->eintrag[line].pos );
 				}
-				else if(  ev->mx<scrolly.get_groesse().x-11  ) {
+				else if(  ev->mx<scrolly.get_size().w-11  ) {
 					fpl->set_aktuell( line );
 					if(  mode == removing  ) {
 						stats.highlight_schedule( fpl, false );
@@ -730,8 +723,6 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 			}
 			update_selection();
 		}
-	/*} else if (komp == &bt_return) {
-		fpl->add_return_way();*/
 	}
 	else if (komp == &numimp_spacing) {
 		fpl->set_spacing(p.i);
@@ -764,10 +755,10 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 		}
 	} 
 	else if (komp == &line_selector) {
-		int selection = p.i;
+		uint32 selection = p.i - !new_line.is_bound();
 //DBG_MESSAGE("fahrplan_gui_t::action_triggered()","line selection=%i",selection);
-		if(  (uint32)(selection-1)<(uint32)line_selector.count_elements()  ) {
-			new_line = lines[selection - 1];
+		if(  line_scrollitem_t *li = dynamic_cast<line_scrollitem_t*>(line_selector.get_element(selection))  ) {
+			new_line = li->get_line();
 			stats.highlight_schedule( fpl, false );
 			fpl->copy_from( new_line->get_schedule() );
 			fpl->eingabe_beginnen();
@@ -785,19 +776,19 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 		buf.printf( "c,0,%i,%ld,", (int)fpl->get_type(), (long)old_fpl );
 		fpl->sprintf_schedule( buf );
 		w->set_default_param(buf);
-		sp->get_welt()->set_werkzeug( w, sp );
+		welt->set_werkzeug( w, sp );
 		// since init always returns false, it is safe to delete immediately
 		delete w;
 	}
 	// recheck lines
 	if(  cnv.is_bound()  ) {
 		// unequal to line => remove from line ...
-		if(  new_line.is_bound()  &&  !fpl->matches(sp->get_welt(),new_line->get_schedule())  ) {
+		if(  new_line.is_bound()  &&  !fpl->matches(welt,new_line->get_schedule())  ) {
 			new_line = linehandle_t();
 			line_selector.set_selection(0);
 		}
 		// only assign old line, when new_line is not equal
-		if(  !new_line.is_bound()  &&  old_line.is_bound()  &&   fpl->matches(sp->get_welt(),old_line->get_schedule())  ) {
+		if(  !new_line.is_bound()  &&  old_line.is_bound()  &&   fpl->matches(welt,old_line->get_schedule())  ) {
 			new_line = old_line;
 			init_line_selector();
 		}
@@ -809,41 +800,48 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 void fahrplan_gui_t::init_line_selector()
 {
 	line_selector.clear_elements();
-	line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( no_line, COL_BLACK ) );
 	int selection = 0;
-	sp->simlinemgmt.sort_lines();	// to take care of renaming ...
+	vector_tpl<linehandle_t> lines;
+
 	sp->simlinemgmt.get_lines(fpl->get_type(), &lines);
 
 	// keep assignment with identical schedules
-	if(  new_line.is_bound()  &&  !fpl->matches( sp->get_welt(), new_line->get_schedule() )  ) {
-		if(  old_line.is_bound()  &&  fpl->matches( sp->get_welt(), old_line->get_schedule() )  ) {
+	if(  new_line.is_bound()  &&  !fpl->matches( welt, new_line->get_schedule() )  ) {
+		if(  old_line.is_bound()  &&  fpl->matches( welt, old_line->get_schedule() )  ) {
 			new_line = old_line;
 		}
 		else {
 			new_line = linehandle_t();
 		}
 	}
+	if(  !new_line.is_bound()  ) {
+		selection = 0;
+		line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("<no line>"), COL_BLACK ) );
+	}
 
-	FOR(vector_tpl<linehandle_t>, const line, lines) {
+	FOR(  vector_tpl<linehandle_t>,  line,  lines  ) {
 		line_selector.append_element( new line_scrollitem_t(line) );
 		if(  !new_line.is_bound()  ) {
-			if(  fpl->matches( sp->get_welt(), line->get_schedule() )  ) {
-				selection = line_selector.count_elements() - 1;
+			if(  fpl->matches( welt, line->get_schedule() )  ) {
+				selection = line_selector.count_elements()-1;
 				new_line = line;
 			}
 		}
-		else if(  line==new_line  ) {
-			selection = line_selector.count_elements() - 1;
+		else if(  new_line == line  ) {
+			selection = line_selector.count_elements()-1;
 		}
 	}
+
 	line_selector.set_selection( selection );
+	line_scrollitem_t::sort_mode = line_scrollitem_t::SORT_BY_NAME;
+	line_selector.sort( 1, NULL );
 	old_line_count = sp->simlinemgmt.get_line_count();
 	last_schedule_count = fpl->get_count();
 }
 
 
 
-void fahrplan_gui_t::zeichnen(koord pos, koord gr)
+void fahrplan_gui_t::draw(scr_coord pos, scr_size size)
 {
 	if(  sp->simlinemgmt.get_line_count()!=old_line_count  ||  last_schedule_count!=fpl->get_count()  ) {
 		// lines added or deleted
@@ -860,7 +858,7 @@ void fahrplan_gui_t::zeichnen(koord pos, koord gr)
 
 	// always dirty, to cater for shortening of halt names and change of selections
 	set_dirty();
-	gui_frame_t::zeichnen(pos,gr);
+	gui_frame_t::draw(pos,size);
 }
 
 
@@ -870,14 +868,14 @@ void fahrplan_gui_t::zeichnen(koord pos, koord gr)
  * @author Hj. Malthaner
  * @date   16-Oct-2003
  */
-void fahrplan_gui_t::set_fenstergroesse(koord groesse)
+void fahrplan_gui_t::set_windowsize(scr_size size)
 {
-	gui_frame_t::set_fenstergroesse(groesse);
+	gui_frame_t::set_windowsize(size);
 
-	groesse = get_fenstergroesse()-koord(0,16+1);
-	scrolly.set_groesse(groesse-koord(0,scrolly.get_pos().y));
+	size = get_windowsize()-scr_size(0,16+1);
+	scrolly.set_size(size-scr_size(0,scrolly.get_pos().y));
 
-	line_selector.set_max_size(koord(BUTTON4_X-2, groesse.y-line_selector.get_pos().y -16-1));
+	line_selector.set_max_size(scr_size(BUTTON4_X-2, size.h-line_selector.get_pos().y -16-1));
 }
 
 
@@ -887,13 +885,13 @@ void fahrplan_gui_t::map_rotate90( sint16 y_size)
 }
 
 
-fahrplan_gui_t::fahrplan_gui_t(karte_t *welt):
+fahrplan_gui_t::fahrplan_gui_t():
 gui_frame_t( translator::translate("Fahrplan"), NULL),
 	lb_line("Serves Line:"),
 	lb_wait("month wait time"),
 	lb_waitlevel(NULL, COL_WHITE, gui_label_t::right),
 	lb_load("Full load"),
-	stats(welt,NULL),
+	stats(NULL),
 	scrolly(&stats),
 	fpl(NULL),
 	old_fpl(NULL),
@@ -901,7 +899,6 @@ gui_frame_t( translator::translate("Fahrplan"), NULL),
 	cnv()
 {
 	// just a dummy
-	this->welt = welt;
 }
 
 
@@ -911,8 +908,8 @@ void fahrplan_gui_t::rdwr(loadsave_t *file)
 	// lines are handled by line_management_gui_t
 
 	// window size
-	koord gr = get_fenstergroesse();
-	gr.rdwr( file );
+	scr_size size = get_windowsize();
+	size.rdwr( file );
 
 	// convoy data
 	if (file->get_version() <=112002) {
@@ -942,10 +939,10 @@ void fahrplan_gui_t::rdwr(loadsave_t *file)
 	if(  file->is_loading()  ) {
 		if(  cnv.is_bound() ) {
 			// now we can open the window ...
-			koord const& pos = win_get_pos(this);
+			scr_coord const& pos = win_get_pos(this);
 			fahrplan_gui_t *w = new fahrplan_gui_t( cnv->get_schedule(), cnv->get_besitzer(), cnv );
 			create_win(pos.x, pos.y, w, w_info, (ptrdiff_t)cnv->get_schedule());
-			w->set_fenstergroesse( gr );
+			w->set_windowsize( size );
 			w->fpl->copy_from( fpl );
 			cnv->get_schedule()->eingabe_abschliessen();
 			w->fpl->eingabe_abschliessen();

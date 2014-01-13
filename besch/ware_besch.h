@@ -10,11 +10,11 @@
 
 #include "obj_besch_std_name.h"
 #include "../simcolor.h"
-#include "../utils/checksum.h"
+#include "../network/checksum.h"
 #include "../tpl/vector_tpl.h"
 #include "../tpl/piecewise_linear_tpl.h"
 // Simworld is for adjusted speed bonus
-#include "../simworld.h"
+//#include "../simworld.h"
 
 class checksum_t;
 
@@ -203,7 +203,7 @@ public:
 	 *
 	 * Requires the world for stupid technical reasons.
 	 */
-	sint64 get_fare_with_comfort_catering_speedbonus(karte_t* world,
+	sint64 get_fare_with_comfort_catering_speedbonus(class karte_t* world,
 					uint8 comfort, uint8 catering_level, sint64 journey_tenths,
 					sint16 relative_speed_percentage, uint32 distance_meters, uint32 starting_distance = 0) const;
 

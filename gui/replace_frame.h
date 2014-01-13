@@ -87,8 +87,6 @@ private:
 	inline void start_replacing() {state=state_replace; replaced_so_far=0;}
 	uint8 get_present_state();
 
-	karte_t* get_welt() { return cnv->get_welt(); }
-
 	sint64 calc_total_cost();
 
 public:
@@ -96,7 +94,7 @@ public:
 	/**
 	 * Do the dynamic dialog layout
 	 */
-	void layout(koord *);
+	void layout(scr_size *size);
 	
 	/**
 	 * Update texts, image lists and buttons according to the current state.
@@ -112,7 +110,7 @@ public:
 	 * @author (Mathew Hounsell)
 	 * @date   11-Mar-2003
 	 */
-	void set_fenstergroesse(koord groesse);
+	void set_windowsize(scr_size groesse);
 
 	/**
 	 * Manche Fenster haben einen Hilfetext assoziiert.
@@ -127,7 +125,7 @@ public:
 	 * Zeichnet das Frame
 	 * @author Hansjörg Malthaner
 	 */
-	void zeichnen(koord pos, koord gr);
+	void draw(scr_coord pos, scr_size gr);
 
 	/**
 	 * This method is called if an action is triggered

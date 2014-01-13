@@ -167,6 +167,11 @@ function recursive_save(table, indent, table_stack)
 						table_stack.pop()
 				}
 				break
+			case "instance":
+				if ("_save" in val) {
+					str += val._save()
+					break
+				}
 			default:
 				str += "\"unknown\""
 		}
@@ -289,26 +294,29 @@ class ttextfile extends ttext {
 
 /////////////////////////////////////
 
+function _extend_get(index) {
+	if (index == "rawin"  ||  index == "rawget") {
+		throw null // invoke default delegate
+		return
+	}
+	local fname = "get_" + index
+	if (rawin(fname)) {
+		local func = rawget(fname)
+		if (typeof(func)=="function") {
+			return func.call(this)
+		}
+	}
+	throw null // invoke default delegate
+}
+
 /**
  * this class implements an extended get method:
  * everytime an index is not found it tries to call the method 'get_'+index
  */
 class extend_get {
 
-	function _get(index) {
-		if (index == "rawin"  ||  index == "rawget") {
-			throw null // invoke default delegate
-			return
-		}
-		local fname = "get_" + index
-		if (rawin(fname)) {
-			local func = rawget(fname)
-			if (typeof(func)=="function") {
-				return func.call(this)
-			}
-		}
-		throw null // invoke default delegate
-	}
+	_get = _extend_get
+
 }
 
 /**
@@ -393,6 +401,24 @@ class halt_x extends extend_get {
  * class that contains data to get access to a tile (grund_t)
  */
 class tile_x extends extend_get {
+	/// coordinates
+	x = -1
+	y = -1
+	z = -1
+
+	constructor(x_, y_, z_) {
+		x = x_
+		y = y_
+		z = z_
+	}
+
+	function get_objects()
+	{
+		return tile_object_list_x(x,y,z)
+	}
+}
+
+class tile_object_list_x {
 	/// coordinates
 	x = -1
 	y = -1
@@ -552,25 +578,29 @@ class dir {
 
 	static nsew = [1, 4, 2, 8]
 }
+
+class time_x {
+	raw = 1
+	year = 0
+	month = 1
+}
+
+class coord {
+	x = -1
+	y = -1
+}
+
+class coord3d extends coord {
+	z = -1
+}
+
 /**
  * The same metamethod magic as in the class extend_get.
- * Seems to be impossible to achieve for both tables and classes without code duplication.
  */
 table_with_extend_get <- {
-	function _get(index) {
-		if (index == "rawin"  ||  index == "rawget") {
-			throw null // invoke default delegate
-			return
-		}
-		local fname = "get_" + index
-		if (rawin(fname)) {
-			local func = rawget(fname)
-			if (typeof(func)=="function") {
-				return func.call(this)
-			}
-		}
-		throw null // invoke default delegate
-	}
+
+	_get = _extend_get
+
 }
 
 /**

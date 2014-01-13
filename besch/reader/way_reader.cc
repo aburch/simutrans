@@ -8,7 +8,7 @@
 
 #include "way_reader.h"
 #include "../obj_node_info.h"
-#include "../../dataobj/pakset_info.h"
+#include "../../network/pakset_info.h"
 
 
 void way_reader_t::register_obj(obj_besch_t *&data)
@@ -49,15 +49,15 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	if(node.size == 0) {
 		// old node, version 0, compatibility code
-		besch->price = 10000;
+		besch->cost = 10000;
 		besch->maintenance = 800;
 		besch->topspeed = 999;
 		besch->max_axle_load = 999;
 		besch->intro_date = DEFAULT_INTRO_DATE*12;
 		besch->obsolete_date = DEFAULT_RETIRE_DATE*12;
-		besch->wtyp = road_wt;
+		besch->wt = road_wt;
 		besch->styp = 0;
-		besch->draw_as_ding = false;
+		besch->draw_as_obj = false;
 		besch->number_seasons = 0;
 	}
 	else {
@@ -85,15 +85,15 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 		if(version==4  ||  version==5) {
 			// Versioned node, version 4+5
-			besch->price = decode_uint32(p);
+			besch->cost = decode_uint32(p);
 			besch->maintenance = decode_uint32(p);
 			besch->topspeed = decode_uint32(p);
 			besch->max_axle_load = decode_uint32(p);
 			besch->intro_date = decode_uint16(p);
 			besch->obsolete_date = decode_uint16(p);
-			besch->wtyp = decode_uint8(p);
+			besch->wt = decode_uint8(p);
 			besch->styp = decode_uint8(p);
-			besch->draw_as_ding = decode_uint8(p);
+			besch->draw_as_obj = decode_uint8(p);
 			besch->number_seasons = decode_sint8(p);
 			if(experimental)
 			{
@@ -111,42 +111,42 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		}
 		else if(version==3) {
 			// Versioned node, version 3
-			besch->price = decode_uint32(p);
+			besch->cost = decode_uint32(p);
 			besch->maintenance = decode_uint32(p);
 			besch->topspeed = decode_uint32(p);
 			besch->max_axle_load = decode_uint32(p);
 			besch->intro_date = decode_uint16(p);
 			besch->obsolete_date = decode_uint16(p);
-			besch->wtyp = decode_uint8(p);
+			besch->wt = decode_uint8(p);
 			besch->styp = decode_uint8(p);
-			besch->draw_as_ding = decode_uint8(p);
+			besch->draw_as_obj = decode_uint8(p);
 			besch->number_seasons = 0;
 		}
 		else if(version==2) {
 			// Versioned node, version 2
-			besch->price = decode_uint32(p);
+			besch->cost = decode_uint32(p);
 			besch->maintenance = decode_uint32(p);
 			besch->topspeed = decode_uint32(p);
 			besch->max_axle_load = decode_uint32(p);
 			besch->intro_date = decode_uint16(p);
 			besch->obsolete_date = decode_uint16(p);
-			besch->wtyp = decode_uint8(p);
+			besch->wt = decode_uint8(p);
 			besch->styp = decode_uint8(p);
-			besch->draw_as_ding = false;
+			besch->draw_as_obj = false;
 			besch->number_seasons = 0;
 		}
 		else if(version == 1) {
 			// Versioned node, version 1
-			besch->price = decode_uint32(p);
+			besch->cost = decode_uint32(p);
 			besch->maintenance = decode_uint32(p);
 			besch->topspeed = decode_uint32(p);
 			besch->max_axle_load = decode_uint32(p);
 			uint32 intro_date= decode_uint32(p);
 			besch->intro_date = (intro_date/16)*12 + (intro_date%16);
-			besch->wtyp = decode_uint8(p);
+			besch->wt = decode_uint8(p);
 			besch->styp = decode_uint8(p);
 			besch->obsolete_date = DEFAULT_RETIRE_DATE*12;
-			besch->draw_as_ding = false;
+			besch->draw_as_obj = false;
 			besch->number_seasons = 0;
 		}
 		else {
@@ -156,19 +156,19 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 
 	// some internal corrections to pay for previous confusion with two waytypes
-	if(besch->wtyp==tram_wt) {
+	if(besch->wt==tram_wt) {
 		besch->styp = 7;
-		besch->wtyp = track_wt;
+		besch->wt = track_wt;
 	}
-	else if(besch->styp==5  &&  besch->wtyp==track_wt) {
-		besch->wtyp = monorail_wt;
+	else if(besch->styp==5  &&  besch->wt==track_wt) {
+		besch->wt = monorail_wt;
 		besch->styp = 0;
 	}
-	else if(besch->wtyp==128) {
-		besch->wtyp = powerline_wt;
+	else if(besch->wt==128) {
+		besch->wt = powerline_wt;
 	}
 	
-	if(version<=2  &&  besch->wtyp==air_wt  &&  besch->topspeed>=250) {
+	if(version<=2  &&  besch->wt==air_wt  &&  besch->topspeed>=250) {
 		// runway!
 		besch->styp = 1;
 	}
@@ -181,11 +181,11 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		"wtype=%d styp=%d intro_year=%i way_constraints_permissive = %d "
 		"way_constraints_prohibitive = %d",
 		version,
-		besch->price,
+		besch->cost,
 		besch->maintenance,
 		besch->topspeed,
 		besch->max_axle_load,
-		besch->wtyp,
+		besch->wt,
 		besch->styp,
 		besch->intro_date/12,
 		besch->get_way_constraints().get_permissive(),

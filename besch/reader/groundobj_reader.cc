@@ -1,15 +1,15 @@
 #include <stdio.h>
 
 #include "../../simunits.h"
-#include "../../simdings.h"
+#include "../../simobj.h"
 #include "../../simdebug.h"
-#include "../../dings/groundobj.h"
+#include "../../obj/groundobj.h"
 #include "../../vehicle/movingobj.h"
 
 #include "../groundobj_besch.h"
 #include "../obj_node_info.h"
 #include "groundobj_reader.h"
-#include "../../dataobj/pakset_info.h"
+#include "../../network/pakset_info.h"
 
 
 void groundobj_reader_t::register_obj(obj_besch_t *&data)

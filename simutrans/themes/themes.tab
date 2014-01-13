@@ -1,4 +1,5 @@
-
+# Default simutrans theme
+#
 # name of the theme (will be shown with file selector)
 name=Simutrans (standard size)
 
@@ -27,7 +28,16 @@ tooltip_duration = 5000
 #cursor_overlay_color = 149
 
 # in default theme white text
-gui_text_highlite = #FFFFFF
+gui_text_highlight= #FFFFFF
+
+# Use the default height
+#gui_button_height = 22
+
+# larger icons too
+icon_width = 32
+
+# windows drop a little shadow (default off)
+# gui_drop_shadows = 1
 
 ##################################window stuff##################################
 
@@ -70,4 +80,4 @@ toolbar_max_height = 0
 ##################################pakstuff##################################
 
 # pak with the images for this theme
-themeimages=menu.standardtheme.pak
+themeimages=menu.standard.pak

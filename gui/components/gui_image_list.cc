@@ -6,18 +6,18 @@
 
 #include "../../simdebug.h"
 #include "gui_image_list.h"
-#include "../../simgraph.h"
+#include "../../display/simgraph.h"
 #include "../../simevent.h"
 #include "../../simcolor.h"
 
 
 gui_image_list_t::gui_image_list_t(vector_tpl<image_data_t*> *images) :
-    grid(16, 16),
-    placement(16, 16)
+	grid(16, 16),
+	placement(16, 16)
 {
-    this->images = images;
-    use_rows = true;
-    player_nr = 0;
+	this->images = images;
+	use_rows = true;
+	player_nr = 0;
 }
 
 
@@ -29,7 +29,7 @@ gui_image_list_t::gui_image_list_t(vector_tpl<image_data_t*> *images) :
  */
 bool gui_image_list_t::infowin_event(const event_t *ev)
 {
-	int sel_index = index_at(-pos, ev->mx, ev->my);
+	int sel_index = index_at(scr_coord(0,0)-pos, ev->mx, ev->my);
 	if(  sel_index != -1  &&  (IS_LEFTCLICK(ev)  ||  IS_LEFTDBLCLK(ev))  ) {
 		value_t p;
 		p.i = sel_index;
@@ -41,14 +41,14 @@ bool gui_image_list_t::infowin_event(const event_t *ev)
 
 
 
-int gui_image_list_t::index_at(koord parent_pos, int xpos, int ypos) const
+int gui_image_list_t::index_at(scr_coord parent_pos, int xpos, int ypos) const
 {
 	xpos -= parent_pos.x + pos.x + BORDER;
 	ypos -= parent_pos.y + pos.y + BORDER;
 
-	if(xpos>=0  &&  ypos>=0  &&  xpos<groesse.x-2*BORDER  &&  ypos < groesse.y-2*BORDER) {
-		const int rows = (groesse.y - 2 * BORDER) / grid.y;
-		const int columns = (groesse.x - 2 * BORDER) / grid.x;
+	if(xpos>=0  &&  ypos>=0  &&  xpos<size.w-2*BORDER  &&  ypos < size.h-2*BORDER) {
+		const int rows = (size.h - 2 * BORDER) / grid.y;
+		const int columns = (size.w - 2 * BORDER) / grid.x;
 
 		const int column = xpos / grid.x;
 		const int row = ypos / grid.y;
@@ -67,15 +67,15 @@ int gui_image_list_t::index_at(koord parent_pos, int xpos, int ypos) const
 
 
 
-void gui_image_list_t::zeichnen(koord parent_pos)
+void gui_image_list_t::draw(scr_coord parent_pos)
 {
-	const int rows = (groesse.y - 2 * BORDER) / grid.y;
-	const int columns = (groesse.x - 2 * BORDER) / grid.x;
+	const int rows = (size.h - 2 * BORDER) / grid.y;
+	const int columns = (size.w - 2 * BORDER) / grid.x;
 
 	// sel_index should come from infowin_event, but it is not sure?
 	int sel_index = index_at(parent_pos, get_maus_x(), get_maus_y());
 
-	// zeige verfügbare waggontypen
+	// Show available wagon types
 	int xmin = parent_pos.x + pos.x + BORDER;
 	int ymin = parent_pos.y + pos.y + BORDER;
 	int ymax = ymin + rows * grid.y;
@@ -86,8 +86,8 @@ void gui_image_list_t::zeichnen(koord parent_pos)
 	FOR(vector_tpl<image_data_t*>, const& iptr, *images) {
 		image_data_t const& idata = *iptr;
 		if(idata.count>=0) {
-			// display mark
 
+			// display mark
 			if(idata.lcolor!=EMPTY_IMAGE_BAR) {
 				display_fillbox_wh_clip( xpos + 1, ypos + grid.y - 5, grid.x/2 - 1, 4, idata.lcolor, true);
 			}
@@ -97,7 +97,16 @@ void gui_image_list_t::zeichnen(koord parent_pos)
 			if (sel_index-- == 0) {
 				display_ddd_box_clip(xpos, ypos, grid.x, grid.y, MN_GREY4, MN_GREY0);
 			}
-			display_base_img(idata.image, xpos + placement.x, ypos + placement.y, player_nr, false, true);
+
+			// Get image data
+			scr_coord_val x,y,w,h;
+			display_get_base_image_offset( idata.image, &x, &y, &w, &h );
+
+			// calculate image offsets
+			y = -y + (grid.y-h) - 6; // align to bottom mark
+			x = -x + 2;              // Add 2 pixel margin
+			//display_base_img(idata.image, xpos + placement.x, ypos + placement.y, player_nr, false, true);
+			display_base_img(idata.image, xpos + x, ypos + y, player_nr, false, true);
 
 			// If necessary, display a number:
 			if(idata.count > 0) {
@@ -137,10 +146,10 @@ void gui_image_list_t::zeichnen(koord parent_pos)
 
 void gui_image_list_t::recalc_size()
 {
-	const int columns = (groesse.x - 2 * BORDER) / grid.x;
+	const int columns = (size.w - 2 * BORDER) / grid.x;
 	int rows = (images->get_count() + columns-1) / columns;
 	if(rows== 0) {
 		rows = 1;
 	}
-	set_groesse(koord(groesse.x, rows * grid.y + 2*BORDER));
+	set_size(scr_size(size.w, rows * grid.y + 2*BORDER));
 }

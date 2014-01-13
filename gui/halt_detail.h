@@ -16,7 +16,7 @@
 
 #include "../halthandle_t.h"
 #include "../utils/cbuffer_t.h"
-#include "../simwin.h"
+#include "../gui/simwin.h"
 
 class spieler_t;
 
@@ -61,16 +61,16 @@ public:
 	 */
 	const char * get_hilfe_datei() const { return "station_details.txt"; }
 
-    // Set window size and adjust component sizes and/or positions accordingly
-    virtual void set_fenstergroesse(koord groesse);
+	// Set window size and adjust component sizes and/or positions accordingly
+	virtual void set_windowsize(scr_size size);
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	// only defined to update schedule, if changed
-	void zeichnen( koord pos, koord gr );
+	void draw( scr_coord pos, scr_size size );
 
 	// this constructor is only used during loading
-	halt_detail_t(karte_t *welt);
+	halt_detail_t();
 
 	void rdwr( loadsave_t *file );
 

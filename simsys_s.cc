@@ -24,8 +24,8 @@
 #include "simversion.h"
 #include "simsys.h"
 #include "simevent.h"
-#include "simgraph.h"
-#include "./dataobj/umgebung.h"
+#include "display/simgraph.h"
+#include "dataobj/environment.h"
 #include "simdebug.h"
 
 
@@ -98,12 +98,10 @@ static SDL_Cursor* arrow;
 static SDL_Cursor* hourglass;
 static SDL_Cursor* blank;
 
-#if MULTI_THREAD>1
-// enable barriers by this
-#define _XOPEN_SOURCE 600
-#include <pthread.h>
+#ifdef MULTI_THREAD
+#include "utils/simthread.h"
 
-static pthread_barrier_t redraw_barrier;
+static simthread_barrier_t redraw_barrier;
 static pthread_mutex_t redraw_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 // parameters passed starting a thread
@@ -117,7 +115,7 @@ static redraw_param_t redraw_param;
 void* redraw_thread( void* ptr )
 {
 	while(true) {
-		pthread_barrier_wait( &redraw_barrier );	// wait to start
+		simthread_barrier_wait( &redraw_barrier );	// wait to start
 		pthread_mutex_lock( &redraw_mutex );
 		display_flush_buffer();
 		if(  use_hw  ) {
@@ -194,9 +192,9 @@ resolution dr_query_screen_resolution()
 // open the window
 int dr_os_open(int w, int const h, int const fullscreen)
 {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	// init barrier
-	pthread_barrier_init( &redraw_barrier, NULL, 2);
+	simthread_barrier_init( &redraw_barrier, NULL, 2);
 
 	// Initialize and set thread detached attribute
 	pthread_attr_t attr;
@@ -269,7 +267,7 @@ int dr_os_open(int w, int const h, int const fullscreen)
 // shut down SDL
 void dr_os_close()
 {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	// make sure redraw thread is waiting before closing
 	pthread_mutex_lock( &redraw_mutex );
 #endif
@@ -284,7 +282,7 @@ void dr_os_close()
 // resizes screen
 int dr_textur_resize(unsigned short** const textur, int w, int const h)
 {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	pthread_mutex_lock( &redraw_mutex );
 #endif
 	if(  use_hw  ) {
@@ -317,7 +315,7 @@ int dr_textur_resize(unsigned short** const textur, int w, int const h)
 		fflush(NULL);
 	}
 	*textur = (unsigned short*)screen->pixels;
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	pthread_mutex_unlock( &redraw_mutex );
 #endif
 	return w;
@@ -346,18 +344,18 @@ unsigned int get_system_color(unsigned int r, unsigned int g, unsigned int b)
 
 void dr_prepare_flush()
 {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	pthread_mutex_lock( &redraw_mutex );
 #endif
 	return;
 }
 
 
-void dr_flush(void)
+void dr_flush()
 {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	pthread_mutex_unlock( &redraw_mutex );
-	pthread_barrier_wait( &redraw_barrier );	// start thread
+	simthread_barrier_wait( &redraw_barrier );	// start thread
 #else
 	display_flush_buffer();
 	if(  use_hw  ) {
@@ -396,7 +394,7 @@ void dr_textur(int xp, int yp, int w, int h)
 		if(  w*h > 0  )
 #endif
 		{
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			SDL_UpdateRect( screen, xp, yp, w, h );
 #else
 			if(  num_SDL_Rects < MAX_SDL_RECTS  ) {
@@ -447,7 +445,7 @@ int dr_screenshot(const char *filename, int x, int y, int w, int h)
  * Hier sind die Funktionen zur Messageverarbeitung
  */
 
-static inline unsigned int ModifierKeys(void)
+static inline unsigned int ModifierKeys()
 {
 	SDLMod mod = SDL_GetModState();
 
@@ -505,16 +503,10 @@ static void internal_GetEvents(bool const wait)
 	switch (event.type) {
 		case SDL_VIDEORESIZE:
 			sys_event.type = SIM_SYSTEM;
-			sys_event.code = SIM_SYSTEM_RESIZE;
+			sys_event.code = SYSTEM_RESIZE;
 			sys_event.mx   = event.resize.w;
 			sys_event.my   = event.resize.h;
 			printf("expose: x=%i, y=%i\n", sys_event.mx, sys_event.my);
-			break;
-
-		case SDL_VIDEOEXPOSE:
-			// will be ignored ...
-			sys_event.type = SIM_SYSTEM;
-			sys_event.code = SIM_SYSTEM_UPDATE;
 			break;
 
 		case SDL_MOUSEBUTTONDOWN:
@@ -652,7 +644,7 @@ static void internal_GetEvents(bool const wait)
 
 		case SDL_QUIT:
 			sys_event.type = SIM_SYSTEM;
-			sys_event.code = SIM_SYSTEM_QUIT;
+			sys_event.code = SYSTEM_QUIT;
 			break;
 
 		default:
@@ -663,13 +655,13 @@ static void internal_GetEvents(bool const wait)
 }
 
 
-void GetEvents(void)
+void GetEvents()
 {
 	internal_GetEvents(true);
 }
 
 
-void GetEventsNoWait(void)
+void GetEventsNoWait()
 {
 	sys_event.type = SIM_NOEVENT;
 	sys_event.code = 0;
@@ -690,7 +682,7 @@ void ex_ord_update_mx_my()
 }
 
 
-unsigned long dr_time(void)
+unsigned long dr_time()
 {
 	return SDL_GetTicks();
 }
@@ -709,6 +701,16 @@ int main()
    return WinMain(NULL,NULL,NULL,NULL);
 }
 #endif
+
+#ifdef _MSC_VER
+// Needed for MS Visual C++ with /SUBSYSTEM:CONSOLE to work , if /SUBSYSTEM:WINDOWS this function is compiled but unreachable
+#undef main
+int main()
+{
+   return WinMain(NULL,NULL,NULL,NULL);
+}
+#endif
+
 
 #ifdef _WIN32
 int CALLBACK WinMain(HINSTANCE, HINSTANCE, LPSTR, int)

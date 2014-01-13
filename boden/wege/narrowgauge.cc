@@ -6,8 +6,7 @@
 const weg_besch_t *narrowgauge_t::default_narrowgauge=NULL;
 
 
-
-narrowgauge_t::narrowgauge_t(karte_t *welt, loadsave_t *file) : schiene_t(welt, narrowgauge_wt)
+narrowgauge_t::narrowgauge_t(loadsave_t *file) : schiene_t(narrowgauge_wt)
 {
 	rdwr(file);
 }

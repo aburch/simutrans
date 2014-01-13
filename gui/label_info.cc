@@ -8,35 +8,33 @@
 #include "label_info.h"
 #include "../simworld.h"
 #include "../simcolor.h"
-#include "../simwin.h"
+#include "../gui/simwin.h"
 #include "../simmenu.h"
 #include "../besch/skin_besch.h"
 #include "../dataobj/translator.h"
-#include "../dings/label.h"
+#include "../obj/label.h"
 #include "../player/simplay.h"
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
 
 
 
-karte_t *label_info_t::welt = NULL;
 
 
 
-label_info_t::label_info_t(karte_t *welt, label_t* l) :
+label_info_t::label_info_t(label_t* l) :
 	gui_frame_t( translator::translate("Marker"), l->get_besitzer()),
 	player_name(""),
-	view(welt, l->get_pos(), koord( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width()*7)/8) ))
+	view(l->get_pos(), scr_size( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width()*7)/8) ))
 {
 
-	this->welt = welt;
 	this->sp = sp;
 	label = l;
 
 	const char *const p_name = label->get_besitzer()->get_name();
-	const int min_width = max(290, display_calc_proportional_string_len_width(p_name, strlen(p_name)) + view.get_groesse().x + 30);
+	const int min_width = max(290, display_calc_proportional_string_len_width(p_name, strlen(p_name)) + view.get_size().w + 30);
 
-	view.set_pos( koord(min_width - view.get_groesse().x - 10 , 21) );
+	view.set_pos( scr_coord(min_width - view.get_size().w - 10 , 21) );
 	add_komponente( &view );
 
 	grund_t *gr = welt->lookup(l->get_pos());
@@ -47,19 +45,19 @@ label_info_t::label_info_t(karte_t *welt, label_t* l) :
 		edit_name[0] = '\0';
 	}
 	// text input
-	input.set_pos(koord(10,4));
-	input.set_groesse(koord(min_width-20, 13));
+	input.set_pos(scr_coord(10,4));
+	input.set_size(scr_size(min_width-20, 13));
 	input.set_text(edit_name, lengthof(edit_name));
 	add_komponente(&input);
 	input.add_listener(this);
 
 	// text (player name)
-	player_name.set_pos(koord(10, 21));
+	player_name.set_pos(scr_coord(10, 21));
 	player_name.set_text(p_name);
 	add_komponente(&player_name);
 
 	set_focus(&input);
-	set_fenstergroesse(koord(min_width, view.get_groesse().y+47));
+	set_windowsize(scr_size(min_width, view.get_size().h+47));
 }
 
 
