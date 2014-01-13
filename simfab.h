@@ -53,7 +53,7 @@ class ware_t;
 #define MAX_FAB_REF_LINE            (6)
 
 // statistics for goods
-#define MAX_FAB_GOODS_STAT          (5)
+#define MAX_FAB_GOODS_STAT          (4)
 // common to both input and output goods
 #define FAB_GOODS_STORAGE           (0)
 // input goods
