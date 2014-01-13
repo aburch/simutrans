@@ -340,7 +340,7 @@ koord3d fabrikbauer_t::finde_zufallsbauplatz( koord pos, const int radius, koord
 	uint32 index  = simrand(size);
 	koord k;
 
-	max_iterations = min( size, max_iterations );
+	max_iterations = min( size/(groesse.x*groesse.y)+1, max_iterations );
 	const uint32 a = diam+1;
 	const uint32 c = 37; // very inlikely to have this as a factor in somewhere ...
 
@@ -947,7 +947,7 @@ next_ware_check:
 			// tell the player
 			if(tell_me) {
 				stadt_t *s = welt->suche_naechste_stadt( last_built_consumer->get_pos().get_2d() );
-				const char *stadt_name = s ? s->get_name() : "simcity";
+				const char *stadt_name = s ? s->get_name() : translator::translate("nowhere");
 				cbuffer_t buf;
 				buf.printf( translator::translate("Factory chain extended\nfor %s near\n%s built with\n%i factories."), translator::translate(last_built_consumer->get_name()), stadt_name, nr );
 				welt->get_message()->add_message(buf, last_built_consumer->get_pos().get_2d(), message_t::industry, CITY_KI, last_built_consumer->get_besch()->get_haus()->get_tile(0)->get_hintergrund(0, 0, 0));
@@ -988,12 +988,11 @@ next_ware_check:
 					// we cannot build this factory here
 					continue;
 				}
-				koord   testpos = in_city ? pick_any_weighted(welt->get_staedte())->get_pos() : koord::koord_random(welt->get_size().x, welt->get_size().y);
-				koord3d pos =  welt->lookup_kartenboden( testpos )->get_pos();
-				int     rotation=simrand(fab->get_haus()->get_all_layouts()-1);
+				koord3d pos;
+				int rotation = simrand( fab->get_haus()->get_all_layouts() );
 				if(!in_city) {
 					// find somewhere on the map
-					pos = finde_zufallsbauplatz( koord(welt->get_size().x/2,welt->get_size().y/2), welt->get_size_max()/2, fab->get_haus()->get_groesse(rotation),fab->get_platzierung()==fabrik_besch_t::Wasser,fab->get_haus(),ignore_climates,1000);
+					pos = finde_zufallsbauplatz( koord(welt->get_size().x/2,welt->get_size().y/2), welt->get_size_max()/2, fab->get_haus()->get_groesse(rotation),fab->get_platzierung()==fabrik_besch_t::Wasser,fab->get_haus(),ignore_climates,10000);
 				}
 				else {
 					// or within the city limit
@@ -1009,8 +1008,8 @@ next_ware_check:
 						reliefkarte_t::get_karte()->calc_map_size();
 						// tell the player
 						if(tell_me) {
-							stadt_t *s = welt->suche_naechste_stadt( pos.get_2d() );
-							const char *stadt_name = s ? s->get_name() : "simcity";
+							stadt_t *s = our_fab->get_target_cities()[0];
+							const char *stadt_name = s ? s->get_name() : translator::translate("nowhere");
 							cbuffer_t buf;
 							buf.printf( translator::translate("New factory chain\nfor %s near\n%s built with\n%i factories."), translator::translate(our_fab->get_name()), stadt_name, nr );
 							welt->get_message()->add_message(buf, pos.get_2d(), message_t::industry, CITY_KI, our_fab->get_besch()->get_haus()->get_tile(0)->get_hintergrund(0, 0, 0));
