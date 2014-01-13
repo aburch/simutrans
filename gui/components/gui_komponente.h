@@ -37,8 +37,8 @@ private:
 
 protected:
 	/**
-	 * Position der Komponente. Eintraege sind relativ zu links/oben der
-	 * umgebenden Komponente.
+	 * Position der Komponente. Eintraege sind relativ zu links/oben der umgebenden Komponente.
+	 * "Position of the component. Entries are relative to the left / above the surrounding component." (Google)
 	 * @author Hj. Malthaner
 	 */
 	koord pos;

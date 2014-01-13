@@ -1719,6 +1719,9 @@ void gui_convoy_assembler_t::update_tabs()
 
 void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 {
+	koord unmodified_pos = pos;
+	unmodified_pos.y += 25;
+
 	char buf[1024];
 	const koord size = depot_frame ? depot_frame->get_fenstergroesse() : replace_frame->get_fenstergroesse();
 	PUSH_CLIP(pos.x, pos.y, size.x-1, size.y-1);
@@ -1735,7 +1738,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 	const vehikel_besch_t *veh_type = NULL;
 	bool new_vehicle_length_sb_force_zero = false;
 	koord relpos = koord( 0, ((gui_scrollpane_t *)tabs.get_aktives_tab())->get_scroll_y() );
-	int sel_index = lst->index_at(pos + tabs.get_pos() - relpos, x, y - gui_tab_panel_t::HEADER_VSIZE);
+	int sel_index = lst->index_at(unmodified_pos + tabs.get_pos() - relpos, x, y - gui_tab_panel_t::HEADER_VSIZE);
 
 	if ((sel_index != -1) && (tabs.getroffen(x-pos.x,y-pos.y))) {
 		// cursor over a vehicle in the selection list
