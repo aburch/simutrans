@@ -9,6 +9,7 @@
 #define fabrikbauer_t_h
 
 #include "../tpl/stringhashtable_tpl.h"
+#include "../tpl/weighted_vector_tpl.h"
 #include "../dataobj/koord3d.h"
 
 class haus_besch_t;
@@ -57,7 +58,7 @@ private:
 	 * Finds a random producer producing @p ware.
 	 * @param timeline the current time (months)
 	 */
-	static const fabrik_besch_t * finde_hersteller(const ware_besch_t *ware, uint16 timeline);
+	static void finde_hersteller(weighted_vector_tpl<const fabrik_besch_t *> &producer, const ware_besch_t *ware, uint16 timeline );
 
 public:
 	/// Registers the factory description so the factory can be built in-game.
@@ -140,7 +141,7 @@ private:
 	 * @param radius Radius of the search circle around @p pos
 	 * @param groesse size of the building site
 	 */
-	static koord3d finde_zufallsbauplatz(koord3d pos, int radius, koord groesse,bool on_water, const haus_besch_t *besch, bool ignore_climates);
+	static koord3d finde_zufallsbauplatz(koord pos, int radius, koord groesse,bool on_water, const haus_besch_t *besch, bool ignore_climates, uint32 max_iterations);
 
 	/**
 	 * Checks if all factories in this factory tree can be rotated.
