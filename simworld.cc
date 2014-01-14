@@ -6285,15 +6285,13 @@ void karte_t::step_month( sint16 months )
 
 void karte_t::change_time_multiplier(sint32 delta)
 {
-	if(  !env_t::networkmode  ) {
-		time_multiplier += delta;
-		if(time_multiplier<=0) {
-			time_multiplier = 1;
-		}
-		if(step_mode!=NORMAL) {
-			step_mode = NORMAL;
-			reset_timer();
-		}
+	time_multiplier += delta;
+	if(time_multiplier<=0) {
+		time_multiplier = 1;
+	}
+	if(step_mode!=NORMAL) {
+		step_mode = NORMAL;
+		reset_timer();
 	}
 }
 
@@ -6438,6 +6436,7 @@ void karte_t::stop(bool exit_game)
 void karte_t::network_game_set_pause(bool pause_, uint32 syncsteps_)
 {
 	if (env_t::networkmode) {
+		time_multiplier = 16;	// reset to normal speed
 		sync_steps = syncsteps_;
 		steps = sync_steps / settings.get_frames_per_step();
 		network_frame_count = sync_steps % settings.get_frames_per_step();
@@ -6782,7 +6781,7 @@ bool karte_t::interactive(uint32 quit_month)
 						next_step_time += 5;
 						ms_difference += 5;
 					}
-					sync_step( fix_ratio_frame_time, true, true );
+					sync_step( (fix_ratio_frame_time*time_multiplier)/16, true, true );
 					if (++network_frame_count == settings.get_frames_per_step()) {
 						// ever fourth frame
 						set_random_mode( STEP_RANDOM );

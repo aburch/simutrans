@@ -694,8 +694,9 @@ public:
 		int faktor = atoi(default_param);
 		return faktor>0 ? translator::translate("Accelerate time") : translator::translate("Deccelerate time");
 	}
-	bool init( spieler_t * ) {
-		if(  !env_t::networkmode  ) {
+	bool init( spieler_t *sp ) {
+		if(  !env_t::networkmode  ||  sp->get_player_nr()==1  ) {
+			// in networkmode only for public player
 			welt->change_time_multiplier( atoi(default_param) );
 		}
 		return false;
