@@ -68,7 +68,6 @@ private:
 	uint16  zuladung;
 	uint16  loading_time;	// time per full loading/unloading
 	uint32  gewicht;
-	uint16  axle_load;
 	uint32  leistung;
 	uint16  running_cost;
 	uint16  fixed_cost;
@@ -238,7 +237,6 @@ public:
 	uint16 get_zuladung() const { return zuladung; }
 	uint16 get_loading_time() const { return loading_time; } // ms per full loading/unloading
 	uint32 get_gewicht() const { return gewicht; }
-	uint16 get_axle_load() const { return axle_load; }
 	uint32 get_leistung() const { return leistung; }
 	uint16 get_betriebskosten() const { return running_cost; }
 	uint16 get_maintenance() const { return fixed_cost; }

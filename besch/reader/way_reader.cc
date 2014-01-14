@@ -65,7 +65,21 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		const uint16 v = decode_uint16(p);
 		version = v & 0x7FFF;
 
-		if(version==4  ||  version==5) {
+		if(version==6) {
+			// version 6, now with axle load
+			besch->cost = decode_uint32(p);
+			besch->maintenance = decode_uint32(p);
+			besch->topspeed = decode_uint32(p);
+			besch->max_weight = decode_uint32(p);
+			besch->intro_date = decode_uint16(p);
+			besch->obsolete_date = decode_uint16(p);
+			besch->axle_load = decode_uint16(p);	// new
+			besch->wt = decode_uint8(p);
+			besch->styp = decode_uint8(p);
+			besch->draw_as_obj = decode_uint8(p);
+			besch->number_seasons = decode_sint8(p);
+		}
+		else if(version==4  ||  version==5) {
 			// Versioned node, version 4+5
 			besch->cost = decode_uint32(p);
 			besch->maintenance = decode_uint32(p);
@@ -135,17 +149,22 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	else if(besch->wt==128) {
 		besch->wt = powerline_wt;
 	}
+
 	if(version<=2  &&  besch->wt==air_wt  &&  besch->topspeed>=250) {
 		// runway!
 		besch->styp = 1;
+	}
+
+	if(  version < 6  ) {
+		besch->axle_load = 9999;
 	}
 
 	// front images from version 5 on
 	besch->front_images = version > 4;
 
   DBG_DEBUG("way_reader_t::read_node()",
-	     "version=%d cost=%d maintenance=%d topspeed=%d max_weight=%d "
-	     "wtype=%d styp=%d intro_year=%i",
+	     "version=%d, cost=%d, maintenance=%d, topspeed=%d, max_weight=%d, "
+	     "wtype=%d, styp=%d, intro_year=%i, axle_load=%d",
 	     version,
 	     besch->cost,
 	     besch->maintenance,
@@ -153,7 +172,8 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	     besch->max_weight,
 	     besch->wt,
 	     besch->styp,
-	     besch->intro_date/12);
+	     besch->intro_date/12,
+		 besch->axle_load);
 
   return besch;
 }

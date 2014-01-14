@@ -67,7 +67,20 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		const uint16 v = decode_uint16(p);
 		const int version = v & 0x8000 ? v & 0x7FFF : 0;
 
-		if( version == 4 ) {
+		if( version == 5 ) {
+			// versioned node, version 5 - axle load
+			besch->topspeed = decode_uint32(p);
+			besch->cost = decode_uint32(p);
+			besch->maintenance = decode_uint32(p);
+			besch->wt = decode_uint8(p);
+			besch->intro_date = decode_uint16(p);
+			besch->obsolete_date = decode_uint16(p);
+			besch->axle_load = decode_uint16(p);	// new
+			besch->number_seasons = decode_uint8(p);
+			besch->has_way = decode_uint8(p);
+			besch->broad_portals = decode_uint8(p);
+		}
+		else if( version == 4 ) {
 			// versioned node, version 4 - broad portal support
 			besch->topspeed = decode_uint32(p);
 			besch->cost = decode_uint32(p);
@@ -114,13 +127,18 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			besch->number_seasons = 0;
 			besch->has_way = 0;
 			besch->broad_portals = 0;
-		} else {
+		}
+		else {
 			dbg->fatal("tunnel_reader_t::read_node()","illegal version %d",version);
 		}
 
+		if(  version < 5  ) {
+			besch->axle_load = 9999;
+		}
+
 		DBG_DEBUG("tunnel_reader_t::read_node()",
-		     "version=%d waytype=%d price=%d topspeed=%d, intro_year=%d",
-		     version, besch->wt, besch->cost, besch->topspeed, besch->intro_date/12);
+		     "version=%d waytype=%d price=%d topspeed=%d, intro_year=%d, axle_load=%d",
+		     version, besch->wt, besch->cost, besch->topspeed, besch->intro_date/12, besch->axle_load);
 	}
 
 	return besch;

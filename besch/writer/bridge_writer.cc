@@ -90,7 +90,7 @@ void write_bridge_images(FILE* outfp, obj_node_t& node, tabfileobj_t& obj, int s
 
 void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	obj_node_t node(this, 22, &parent);
+	obj_node_t node(this, 23, &parent);
 
 	uint8  wegtyp        = get_waytype(obj.get("waytype"));
 	uint16 topspeed      = obj.get_int("topspeed", 999);
@@ -101,6 +101,7 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 	uint8  max_length    = obj.get_int("max_lenght",0); // max_lenght==0: unlimited
 	max_length    = obj.get_int("max_length",max_length); // with correct spelling
 	uint8  max_height    = obj.get_int("max_height",0); // max_height==0: unlimited
+	uint16 axle_load = obj.get_int("axle_load",    9999);
 
 	// prissi: timeline
 	uint16 intro_date = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
@@ -113,7 +114,7 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 
 	// Hajo: Version needs high bit set as trigger -> this is required
 	//       as marker because formerly nodes were unversionend
-	uint16 version = 0x8008;
+	uint16 version = 0x8009;
 	node.write_uint16(outfp, version,            0);
 	node.write_uint16(outfp, topspeed,           2);
 	node.write_uint32(outfp, preis,              4);
@@ -124,7 +125,8 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 	node.write_uint16(outfp, intro_date,        15);
 	node.write_uint16(outfp, obsolete_date,     17);
 	node.write_uint8 (outfp, pillar_asymmetric, 19);
-	node.write_uint8 (outfp, max_height,        20);
+	node.write_uint16(outfp, axle_load,         20);
+	node.write_uint8 (outfp, max_height,        22);
 
 	char keybuf[40];
 
