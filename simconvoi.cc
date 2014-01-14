@@ -4172,7 +4172,7 @@ void convoi_t::laden() //"load" (Babelfish)
 
 	const uint32 journey_distance = shortest_distance(pos, fahr[0]->last_stop_pos);
 
-	// last_stop_pos will be set to get_pos().get_2d() in hat_gehalten (called from inside halt->request_loading later
+	// last_stop_pos will be set to get_pos().get_2d() in hat_gehalten (called from inside halt->request_loading later)
 	// so code inside if will be executed once. At arrival time.
 	minivec_tpl<uint8> departure_entries_to_remove(fpl->get_count());
 	bool clear_departures = false;
