@@ -90,7 +90,7 @@ void write_bridge_images(FILE* outfp, obj_node_t& node, tabfileobj_t& obj, int s
 
 void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	obj_node_t node(this, 23, &parent);
+	obj_node_t node(this, 24, &parent);
 
 	uint8  wegtyp        = get_waytype(obj.get("waytype"));
 	uint16 topspeed      = obj.get_int("topspeed", 999);
@@ -132,22 +132,24 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 
 	string str = obj.get("backimage[ns][0]");
 	if (str.empty()) {
-		node.write_data_at(outfp, &number_seasons, 21, sizeof(uint8));
+		node.write_data_at(outfp, &number_seasons, 23, sizeof(uint8));
 		write_head(outfp, node, obj);
 		write_bridge_images( outfp, node, obj, -1 );
 
-	} else {
+	}
+	else {
 		while(number_seasons < 2) {
 			sprintf(keybuf, "backimage[ns][%d]", number_seasons+1);
 			string str = obj.get(keybuf);
 			if (!str.empty()) {
 				number_seasons++;
-			} else {
+			}
+			else {
 				break;
 			}
 		}
 
-		node.write_data_at(outfp, &number_seasons, 21, sizeof(uint8));
+		node.write_data_at(outfp, &number_seasons, 23, sizeof(uint8));
 		write_head(outfp, node, obj);
 
 		for(uint8 season = 0 ; season <= number_seasons ; season++) {

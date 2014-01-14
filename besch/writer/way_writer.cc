@@ -25,7 +25,7 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 	};
 	int ribi, hang;
 
-	obj_node_t node(this, 27, &parent);
+	obj_node_t node(this, 28, &parent);
 
 
 	// Hajo: Version needs high bit set as trigger -> this is required
@@ -48,7 +48,8 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 	// compatibility conversions
 	if (wtyp == track_wt && styp == 5) {
 		wtyp = monorail_wt;
-	} else if (wtyp == track_wt && styp == 7) {
+	}
+	else if (wtyp == track_wt && styp == 7) {
 		wtyp = tram_wt;
 	}
 
@@ -75,7 +76,7 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 	sprintf(buf, "image[%s][0]", ribi_codes[0]);
 	string str = obj.get(buf);
 	if (str.empty()) {
-		node.write_data_at(outfp, &number_seasons, 25, 1);
+		node.write_data_at(outfp, &number_seasons, 27, 1);
 		write_head(outfp, node, obj);
 
 		sprintf(buf, "image[%s]", ribi_codes[0]);
@@ -144,7 +145,7 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 			number_seasons++;
 		}
 
-		node.write_data_at(outfp, &number_seasons, 25, 1);
+		node.write_data_at(outfp, &number_seasons, 27, 1);
 		write_head(outfp, node, obj);
 
 		// has switch images for both directions?
