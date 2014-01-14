@@ -181,6 +181,10 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			besch->max_axle_load = 999;
 		}
 		besch->set_way_constraints(way_constraints);
+
+		besch->base_cost = besch->cost;
+		besch->base_maintenance = besch->maintenance;
+
 		DBG_DEBUG("tunnel_reader_t::read_node()",
 		     "version=%d waytype=%d price=%d topspeed=%d, intro_year=%d, max_axle_load%d",
 			 version, besch->wt, besch->cost, besch->topspeed, besch->intro_date/12, besch->max_axle_load);

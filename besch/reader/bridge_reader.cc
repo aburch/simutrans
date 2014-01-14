@@ -188,6 +188,9 @@ obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	// indicate for different copyright/name lookup
 	besch->offset = version<8 ? 0 : 2;
 
+	besch->base_cost = besch->cost;
+	besch->base_maintenance = besch->maintenance;
+
 	DBG_DEBUG("bridge_reader_t::read_node()",
 
 	"version=%d waytype=%d price=%d topspeed=%d,pillars=%i,max_length=%i,max_weight%d",
