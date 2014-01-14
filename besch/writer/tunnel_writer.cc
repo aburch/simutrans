@@ -20,6 +20,7 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	uint32 preis       = obj.get_int("cost",           0);
 	uint32 maintenance = obj.get_int("maintenance", 1000);
 	uint8 wegtyp       = get_waytype(obj.get("waytype"));
+	uint16 axle_load   = obj.get_int("axle_load",   9999);
 
 	// prissi: timeline
 	uint16 intro_date  = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
