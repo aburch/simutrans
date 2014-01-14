@@ -5393,22 +5393,21 @@ const char* wkz_depot_t::get_tooltip(const spieler_t *) const
 {
 	settings_t   const& settings = welt->get_settings();
 	haus_besch_t const& besch    = *hausbauer_t::find_tile(default_param, 0)->get_besch();
-	const uint16        level    =  besch.get_level();
-	char         const* tip;
+	char         const* tip      = translator::translate(besch.get_name());
 	sint64              price;
-
 	switch (besch.get_extra()) {
-	case road_wt:            price = settings.cst_depot_road * level; break;
-		case track_wt:       price = settings.cst_depot_rail * level; break;
-		case monorail_wt:    price = settings.cst_depot_rail * level; break;
-		case maglev_wt:      price = settings.cst_depot_rail * level; break;
-		case narrowgauge_wt: price = settings.cst_depot_rail * level; break;
-		case tram_wt:        price = settings.cst_depot_rail * level; break;
-		case water_wt:       price = settings.cst_depot_ship * level; break;
-		case air_wt:         price = settings.cst_depot_air  * level; break;
+		case road_wt:        price = settings.cst_depot_road; break;
+		case track_wt:       price = settings.cst_depot_rail; break;
+		case monorail_wt:    price = settings.cst_depot_rail; break;
+		case maglev_wt:      price = settings.cst_depot_rail; break;
+		case narrowgauge_wt: price = settings.cst_depot_rail; break;
+		case tram_wt:        price = settings.cst_depot_rail; break;
+		case water_wt:       price = settings.cst_depot_ship; break;
+		case air_wt:         price = settings.cst_depot_air; break;
 		default:             return 0;
 	}
-	return tooltip_with_price_maintenance(welt, tip, price, settings.maint_building * level);
+	const uint16 level =  besch.get_level();
+	return tooltip_with_price_maintenance(welt, tip, price * level, settings.maint_building * level);
 }
 
 waytype_t wkz_depot_t::get_waytype() const
