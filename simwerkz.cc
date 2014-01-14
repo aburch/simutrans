@@ -7868,7 +7868,7 @@ bool wkz_rename_t::init(spieler_t *sp)
 	return false;
 }
 
-bool wkz_recolour_t::init(karte_t* const welt, spieler_t *sp)
+bool wkz_recolour_t::init(spieler_t *sp)
 {
 	uint16 id = 0;
 
@@ -7919,7 +7919,7 @@ bool wkz_recolour_t::init(karte_t* const welt, spieler_t *sp)
 	return false;
 }
 
-bool wkz_access_t::init(karte_t* const welt, spieler_t *sp)
+bool wkz_access_t::init(spieler_t *sp)
 {
 	uint16 id_setting_player;
 	uint16 id_receiving_player;

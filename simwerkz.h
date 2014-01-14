@@ -1033,7 +1033,7 @@ public:
 class wkz_recolour_t : public werkzeug_t {
 public:
 	wkz_recolour_t() : werkzeug_t(WKZ_RECOLOUR_TOOL | SIMPLE_TOOL) {}
-	virtual bool init( karte_t *, spieler_t * );
+	virtual bool init(spieler_t *);
 	virtual bool is_init_network_save() const { return false; }
 };
 
@@ -1041,7 +1041,7 @@ public:
 class wkz_access_t : public werkzeug_t {
 public:
 	wkz_access_t() : werkzeug_t(WKZ_ACCESS_TOOL | SIMPLE_TOOL) {}
-	virtual bool init( karte_t *, spieler_t * );
+	virtual bool init(spieler_t *);
 	virtual bool is_init_network_save() const { return false; }
 };
 
