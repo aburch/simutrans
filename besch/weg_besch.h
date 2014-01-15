@@ -45,8 +45,6 @@ public:
 	// unused: enum { elevated=1, joined=7 /* only tram */, special=255 };
 
 private:
-	sint32 base_cost;
-	sint32 base_maintenance;
 
 	/**
 	 * Max weight
@@ -102,16 +100,6 @@ private:
 		}
 	}
 public:
-	inline sint32 get_base_price() const { return base_cost; }
-	inline sint32 get_base_maintenance() const { return base_maintenance; }
-
-	void set_scale(uint16 scale_factor) 
-	{
-		const sint32 scaled_price_preliminary =  set_scale_generic<sint32>(base_cost, scale_factor);
-		const sint32 scaled_maintenance_preliminary =  set_scale_generic<sint32>(base_maintenance, scale_factor);
-		cost = scaled_price_preliminary < 1 ? (base_cost > 0 ? 1 : 0) : scaled_price_preliminary;
-		maintenance = (scaled_maintenance_preliminary < (base_maintenance > 0 ? 1 : 0) ? 1: scaled_maintenance_preliminary);
-	}
 
 	//Returns maximum weight
 	uint32 get_max_axle_load() const { return max_axle_load < 999999 ? max_axle_load : 999; }

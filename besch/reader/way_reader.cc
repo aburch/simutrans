@@ -176,6 +176,9 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	// front images from version 5 on
 	besch->front_images = version > 4;
 
+	besch->base_cost = besch->cost;
+	besch->base_maintenance = besch->maintenance;
+
 	DBG_DEBUG("way_reader_t::read_node()",
 		"version=%d price=%d maintenance=%d topspeed=%d max_axle_load=%d "
 		"wtype=%d styp=%d intro_year=%i way_constraints_permissive = %d "
