@@ -3,10 +3,12 @@
 /** @file api_world.cc exports world-map functions. */
 
 #include "api_simple.h"
+#include "get_next.h"
 #include "../api_class.h"
 #include "../api_function.h"
 #include "../../simworld.h"
 #include "../../player/simplay.h"
+#include "../../obj/gebaeude.h"
 
 using namespace script_api;
 
@@ -52,6 +54,39 @@ bool world_remove_player(karte_t *welt, spieler_t *sp)
 	// now call - will not have immediate effect in network games
 	welt->call_change_player_tool(karte_t::delete_player, sp->get_player_nr(), 0, true /*scripted*/);
 	return true;
+}
+
+
+// returns index of attraction base tile with index > start
+uint32 get_next_attraction_base(uint32 start)
+{
+	const weighted_vector_tpl<gebaeude_t*>& attractions = welt->get_ausflugsziele();
+	for(uint32 i = start+1; i < attractions.get_count(); i++) {
+		gebaeude_t *gb = attractions[i];
+		if (gb != NULL  &&  gb->get_first_tile() == gb) {
+			return i;
+		}
+	}
+	return attractions.get_count();
+}
+
+
+SQInteger world_attraction_list_next(HSQUIRRELVM vm)
+{
+	return generic_get_next_f(vm, welt->get_ausflugsziele().get_count(), get_next_attraction_base);
+}
+
+
+gebaeude_t* world_attraction_list_get(uint32 index)
+{
+	const weighted_vector_tpl<gebaeude_t*>& attractions = welt->get_ausflugsziele();
+	return (index < attractions.get_count())  ?  attractions[index]  :  NULL;
+}
+
+
+SQInteger world_get_attraction_list(HSQUIRRELVM vm)
+{
+	return push_instance(vm, "attraction_list_x");
 }
 
 
@@ -228,6 +263,36 @@ void export_world(HSQUIRRELVM vm)
 	 * @see city_x::get_generated_mail city_x::get_transported_mail
 	 */
 	STATIC register_method_fv(vm, &get_world_stat, "get_year_transported_goods", freevariable2<bool,sint32>(false, karte_t::WORLD_TRANSPORTED_GOODS), true );
+
+	/**
+	 * Returns iterator through the list of attractions on the map.
+	 * @returns iterator class.
+	 */
+	STATIC register_function(vm, world_get_attraction_list, "get_attraction_list", 1, ".");
+
+	end_class(vm);
+
+	/**
+	 * Implements iterator to iterate through the list of all attractions on the map.
+	 *
+	 * Usage:
+	 * @code
+	 * local list = world.get_attraction_list()
+	 * // list is now of type attraction_list_x
+	 * foreach(att in list) {
+	 *     ... // att is an instance of the building_x class
+	 * }
+	 * @endcode
+	 */
+	create_class(vm, "attraction_list_x");
+	/**
+	 * Meta-method to be used in foreach loops to loop over all attractions on the map. Do not call it directly.
+	 */
+	register_function(vm, world_attraction_list_next,  "_nexti",  2, ". o|i");
+	/**
+	 * Meta-method to be used in foreach loops to loop over all attractions on the map. Do not call it directly.
+	 */
+	register_method(vm,   world_attraction_list_get,   "_get");
 
 	end_class(vm);
 }

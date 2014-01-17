@@ -4,6 +4,7 @@
  *
  * @section api-trunk Current trunk
  *
+ * - Added attraction_list_x, world::get_attraction_list
  * - Added ::new_month, ::new_year
  * - Added halt_list_x
  * - Added possibility to attach scenario to an already running game, set map.file to "<attach>".
