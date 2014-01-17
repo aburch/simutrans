@@ -275,7 +275,7 @@ void vehikel_basis_t::verlasse_feld()
 
 grund_t* vehikel_basis_t::betrete_feld()
 {
-	grund_t *gr=welt->lookup(get_pos());
+	grund_t *gr = welt->lookup(get_pos());
 	if(!gr) {
 		dbg->error("vehikel_basis_t::betrete_feld()","'%s' new position (%i,%i,%i)!",get_name(), get_pos().x, get_pos().y, get_pos().z );
 		gr = welt->lookup_kartenboden(get_pos().get_2d());
@@ -3127,6 +3127,21 @@ schiff_t::schiff_t(loadsave_t *file, bool is_first, bool is_last) : vehikel_t()
 			last_besch = besch;
 		}
 	}
+}
+
+
+grund_t* schiff_t::betrete_feld()
+{
+	grund_t *gr = vehikel_t::betrete_feld();
+
+	if(  weg_t *ch = gr->get_weg(water_wt)  ) {
+		// we are in a channel, so book statistics
+		ch->book(get_fracht_menge(), WAY_STAT_GOODS);
+		if (ist_erstes)  {
+			ch->book(1, WAY_STAT_CONVOIS);
+		}
+	}
+	return gr;
 }
 
 
