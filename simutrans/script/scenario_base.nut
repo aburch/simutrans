@@ -526,13 +526,6 @@ class map_object_x extends extend_get {
 	x = -1
 	y = -1
 	z = -1
-
-	// do not call this directly
-	constructor(x_, y_, z_) {
-		x = x_
-		y = y_
-		z = z_
-	}
 }
 
 class schedule_x {

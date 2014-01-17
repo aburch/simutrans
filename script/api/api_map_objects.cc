@@ -19,7 +19,7 @@ using namespace script_api;
 static uint8 obj_t_tag[256];
 
 /*
- * template struct to bind obj_t-type to obj_t classes
+ * template struct to bind obj_t::typ to obj_t classes
  */
 template<class D> struct bind_code;
 
@@ -73,8 +73,10 @@ template<class D> struct access_objs {
 
 };
 
-SQInteger exp_obj_pos_constructor(HSQUIRRELVM vm)
+
+SQInteger exp_obj_pos_constructor(HSQUIRRELVM vm) // parameters: sint16 x, sint16 y, sint8 z, obj_t::typ type
 {
+	// get coordinates
 	sint16 x = param<sint16>::get(vm, 2);
 	sint16 y = param<sint16>::get(vm, 3);
 	sint8  z = param<sint16>::get(vm, 4);
@@ -82,7 +84,17 @@ SQInteger exp_obj_pos_constructor(HSQUIRRELVM vm)
 	set_slot(vm, "x", x, 1);
 	set_slot(vm, "y", y, 1);
 	set_slot(vm, "z", z, 1);
-	return SQ_OK;
+	koord pos(x,y);
+	welt->get_scenario()->koord_sq2w(pos);
+	// find object and set instance up
+	if (grund_t *gr = welt->lookup(koord3d(pos, z))) {
+		if (obj_t *obj = gr->suche_obj( (obj_t::typ)param<uint8>::get(vm, 5) )) {
+			sq_setinstanceup(vm, -1, obj);
+			return SQ_OK;
+		}
+	}
+	sq_raise_error(vm, "No object of requested type on tile (or no tile at this position)");
+	return SQ_ERROR;
 }
 
 // we have to resolve instances of derived classes here...
@@ -158,8 +170,11 @@ void begin_obj_class(HSQUIRRELVM vm, const char* name, const char* base = NULL)
 		dbg->error( "begin_obj_class()", "Create class failed for %s. Base class %s missing. Please update simutrans (or just script/scenario_base.nut)!", name, base );
 		sq_raise_error(vm, "Create class failed for %s. Base class %s missing. Please update simutrans (or just script/scenario_base.nut)!", name, base);
 	}
+	uint8 objtype = bind_code<D>::objtype;
 	// store typetag to identify pointers
-	sq_settypetag(vm, -1, obj_t_tag + bind_code<D>::objtype);
+	sq_settypetag(vm, -1, obj_t_tag + objtype);
+	// export constructor
+	register_function_fv(vm, exp_obj_pos_constructor, "constructor", 4, "xiii", freevariable<uint8>( objtype ));
 	// now functions can be registered
 }
 
@@ -171,7 +186,18 @@ void export_map_objects(HSQUIRRELVM vm)
 	 * These classes cannot modify anything.
 	 */
 	begin_class(vm, "map_object_x", "extend_get,coord3d");
-	sq_settypetag(vm, -1, obj_t_tag + bind_code<obj_t>::objtype);
+	uint8 objtype = bind_code<obj_t>::objtype;
+	sq_settypetag(vm, -1, obj_t_tag + objtype);
+	/**
+	 * Constructor. Implemented by derived classes.
+	 * Fails if no object of precisely the requested type is on the tile.
+	 * Fails for map_object_x itself.
+	 * @param x
+	 * @param y
+	 * @param z
+	 * @typemask void(integer,integer,integer)
+	 */
+	register_function_fv(vm, exp_obj_pos_constructor, "constructor", 4, "xiii", freevariable<uint8>( objtype ));
 	/**
 	 * @returns owner of the object.
 	 */
@@ -204,8 +230,6 @@ void export_map_objects(HSQUIRRELVM vm)
 	 * Trees on the map.
 	 */
 	begin_obj_class<baum_t>(vm, "tree_x", "map_object_x");
-
-	register_function(vm, exp_obj_pos_constructor, "constructor", 4, "xiii");
 	/**
 	 * @returns age of tree in months.
 	 */
@@ -221,9 +245,6 @@ void export_map_objects(HSQUIRRELVM vm)
 	 * Buildings.
 	 */
 	begin_obj_class<gebaeude_t>(vm, "building_x", "map_object_x");
-
-	register_function(vm, exp_obj_pos_constructor, "constructor", 4, "xiii");
-
 	/**
 	 * @returns factory if building belongs to one, otherwise null
 	 */
@@ -258,6 +279,10 @@ void export_map_objects(HSQUIRRELVM vm)
 	 * @returns object descriptor.
 	 */
 	register_method(vm, &gebaeude_t::get_tile, "get_desc");
+	/**
+	 * @returns true if both building tiles are part of one (multi-tile) building
+	 */
+	register_method(vm, &gebaeude_t::is_same_building, "is_same_building");
 
 	end_class(vm);
 
@@ -265,9 +290,6 @@ void export_map_objects(HSQUIRRELVM vm)
 	 * Ways.
 	 */
 	begin_obj_class<weg_t>(vm, "way_x", "map_object_x");
-
-	register_function(vm, exp_obj_pos_constructor, "constructor", 4, "xiii");
-
 	/**
 	 * @return if this way has sidewalk - only meaningfull for roads
 	 */

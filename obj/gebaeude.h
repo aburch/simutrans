@@ -189,6 +189,11 @@ public:
 	 * @returns pointer to first tile of a multi-tile building.
 	 */
 	gebaeude_t* get_first_tile();
+
+	/**
+	 * @returns true if both building tiles are part of one (multi-tile) building.
+	 */
+	bool is_same_building(gebaeude_t* other);
 };
 
 

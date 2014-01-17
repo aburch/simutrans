@@ -194,7 +194,7 @@ void export_tiles(HSQUIRRELVM vm)
 	/**
 	 * Class that holds an iterator through the list of objects on a particular tile.
 	 *
-	 * For an example see tile_x::objects.
+	 * For an example see tile_x.
 	 */
 	begin_class(vm, "tile_object_list_x", "coord3d");
 	/**

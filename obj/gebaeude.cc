@@ -579,6 +579,13 @@ void gebaeude_t::zeige_info()
 }
 
 
+bool gebaeude_t::is_same_building(gebaeude_t* other)
+{
+	return (other != NULL)  &&  (get_tile()->get_besch() == other->get_tile()->get_besch())
+	       &&  (get_first_tile() == other->get_first_tile());
+}
+
+
 gebaeude_t* gebaeude_t::get_first_tile()
 {
 	const haus_besch_t* const haus_besch = tile->get_besch();
