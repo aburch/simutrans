@@ -2755,7 +2755,7 @@ int automobil_t::get_kosten(const grund_t *gr, const sint32 max_speed, koord fro
 	sint32 max_tile_speed = w->get_max_speed();
 
 	// add cost for going (with maximum speed, cost is 1)
-	int costs = (max_speed<=max_tile_speed) ? 1 : 4-(3*max_tile_speed)/max_speed;
+	int costs = (max_speed <= max_tile_speed) ? 10 : 40 - (30 * max_tile_speed) / max_speed;
 
 	// assume all traffic is not good ... (otherwise even smoke counts ... )
 	costs += (w->get_statistics(WAY_STAT_CONVOIS)  >  ( 2 << (welt->get_settings().get_bits_per_month()-16) )  );
@@ -2765,7 +2765,7 @@ int automobil_t::get_kosten(const grund_t *gr, const sint32 max_speed, koord fro
 		// Knightly : check if the slope is upwards, relative to the previous tile
 		from_pos -= gr->get_pos().get_2d();
 		if(  hang_t::is_sloping_upwards( gr->get_weg_hang(), from_pos.x, from_pos.y )  ) {
-			costs += 15;
+			costs += 150;
 		}
 	}
 
@@ -4415,7 +4415,19 @@ schiff_t::schiff_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last)
 	}
 }
 
+grund_t* schiff_t::betrete_feld()
+{
+	grund_t *gr = vehikel_t::betrete_feld();
 
+	if(  weg_t *ch = gr->get_weg(water_wt)  ) {
+		// we are in a channel, so book statistics
+		ch->book(get_fracht_menge(), WAY_STAT_GOODS);
+		if (ist_erstes)  {
+			ch->book(1, WAY_STAT_CONVOIS);
+		}
+	}
+	return gr;
+}
 
 bool schiff_t::ist_befahrbar(const grund_t *bd) const
 {
