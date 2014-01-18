@@ -75,21 +75,22 @@ namespace script_api {
 	};
 
 	/**
-	 * Create slots in table/class of the stack:
+	 * Create slots in table/class on the stack:
 	 * it has the same effect as 'table.name <- value'.
-	 * @pre there needs to be a table on the top of the stack
 	 * @tparam type of the new value
 	 * @param name name of the slot to be created
 	 * @param value value to be set
 	 * @param static_ true if this should be a static class member
+	 * @param index of table/instance/etc on the stack
 	 * @returns positive value on success, negative on failure
 	 */
 	template<class T>
-	SQInteger create_slot(HSQUIRRELVM vm, const char* name, T const& value, bool static_ = false)
+	SQInteger create_slot(HSQUIRRELVM vm, const char* name, T const& value, bool static_ = false, SQInteger index = -1)
 	{
 		sq_pushstring(vm, name, -1);
 		if (SQ_SUCCEEDED(param<T>::push(vm, value))) {
-			return sq_newslot(vm, -3, static_);
+			SQInteger new_index = index > 0 ? index : index-2;
+			return sq_newslot(vm, new_index, static_);
 		}
 		else {
 			sq_pop(vm, 1); /* pop name */
@@ -281,6 +282,16 @@ namespace script_api {
 	template<> struct param<T> { \
 		declare_types(mask, sqtype) \
 	};
+	/// macro to declare fake types, inherited from void_t,
+	/// for documentation purposes
+#define declare_fake_param(T, sqtype) \
+	class T { public: T(void_t) {};  operator void_t() const { return void_t();} };  \
+	template<> struct param<T> { \
+		static T get(HSQUIRRELVM vm, SQInteger index) { return param<void_t>::get(vm, index); } \
+		static SQInteger push(HSQUIRRELVM vm, T const& v) { return param<void_t>::push(vm, v); } \
+		declare_types(".", sqtype); \
+	};
+
 
 	declare_specialized_param(void_t, ".", "void");
 	// no typemask, as we call to_bool
