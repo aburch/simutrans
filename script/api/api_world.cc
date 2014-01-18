@@ -76,8 +76,11 @@ SQInteger world_attraction_list_next(HSQUIRRELVM vm)
 	return generic_get_next_f(vm, welt->get_ausflugsziele().get_count(), get_next_attraction_base);
 }
 
+namespace script_api {
+	declare_fake_param(attraction_list_t, "attraction_list_x");
+}
 
-gebaeude_t* world_attraction_list_get(uint32 index)
+gebaeude_t* world_attraction_list_get(attraction_list_t, uint32 index)
 {
 	const weighted_vector_tpl<gebaeude_t*>& attractions = welt->get_ausflugsziele();
 	return (index < attractions.get_count())  ?  attractions[index]  :  NULL;
@@ -292,7 +295,7 @@ void export_world(HSQUIRRELVM vm)
 	/**
 	 * Meta-method to be used in foreach loops to loop over all attractions on the map. Do not call it directly.
 	 */
-	register_method(vm,   world_attraction_list_get,   "_get");
+	register_method(vm,   world_attraction_list_get,   "_get", true);
 
 	end_class(vm);
 }
