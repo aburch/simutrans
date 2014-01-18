@@ -90,6 +90,7 @@ private:
 	gui_label_t
 		zoom_label,
 		zoom_value_label,
+		tile_scale_label,
 		min_label,
 		max_label;
 
