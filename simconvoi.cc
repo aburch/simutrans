@@ -749,16 +749,16 @@ void convoi_t::increment_odometer(uint32 steps)
 	// Increament the way distance: used for apportioning revenue by owner of ways.
 	// Use steps, as only relative distance is important here.
 	sint8 player;
-	waytype_t waytpe = fahr[0]->get_waytype();
+	waytype_t waytype = fahr[0]->get_waytype();
 	const grund_t* gr = welt->lookup(get_pos());
-	weg_t* way = gr ? gr->get_weg(waytpe) : NULL;
+	weg_t* way = gr ? gr->get_weg(waytype) : NULL;
 	if(way == NULL)
 	{
 		player = besitzer_p->get_player_nr();
 	}
 	else
 	{
-		if(waytpe == road_wt && way->get_player_nr() == 1 && welt->get_settings().get_toll_free_public_roads())
+		if(waytype == road_wt && way->get_player_nr() == 1 && welt->get_settings().get_toll_free_public_roads())
 		{
 			player = besitzer_p->get_player_nr();
 		}
@@ -4168,7 +4168,7 @@ void convoi_t::laden() //"load" (Babelfish)
 
 	const uint32 journey_distance = shortest_distance(fahr[0]->get_pos().get_2d(), fahr[0]->last_stop_pos.get_2d() );
 
-	// last_stop_pos will be set to get_pos().get_2d() in hat_gehalten (called from inside halt->request_loading later
+	// last_stop_pos will be set to get_pos().get_2d() in hat_gehalten (called from inside halt->request_loading later)
 	// so code inside if will be executed once. At arrival time.
 	minivec_tpl<uint8> departure_entries_to_remove(fpl->get_count());
 	bool clear_departures = false;

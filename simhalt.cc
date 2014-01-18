@@ -1820,6 +1820,12 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 			{
 				plan_halt = haltestelle_t::get_halt(welt, fpl->eintrag[index].pos, sp);
 
+				if(plan_halt == self)
+				{
+					// The convoy returns here later, so do not load goods/passengers just to go on a detour.
+					break;
+				}
+
 				next_transfer = next_to_load->get_zwischenziel();
 
 				if(plan_halt.is_bound() && next_transfer == plan_halt && plan_halt->is_enabled(catg_index))
