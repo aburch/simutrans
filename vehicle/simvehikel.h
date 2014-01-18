@@ -831,6 +831,8 @@ protected:
 
 	bool ist_befahrbar(const grund_t *bd) const;
 
+	grund_t* betrete_feld();
+
 public:
 	waytype_t get_waytype() const { return water_wt; }
 
