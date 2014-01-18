@@ -50,7 +50,7 @@ class gui_map_preview_t : public gui_komponente_t
 		 * @author Max Kielland, (Hj. Malthaner)
 		 */
 		virtual void draw(scr_coord offset) {
-			display_ddd_box_clip(pos.x + offset.x, pos.y + offset.y, size.w, size.w, MN_GREY0, MN_GREY4);
+			display_ddd_box_clip(pos.x + offset.x, pos.y + offset.y, size.w, size.h, MN_GREY0, MN_GREY4);
 
 			if(map_data) {
 				display_array_wh(pos.x + offset.x + 1, pos.y + offset.y + 1, map_size.w, map_size.h, map_data->to_array());
