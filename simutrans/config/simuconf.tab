@@ -281,11 +281,11 @@ tree_info = 1
 
 # Show infos also on bare ground?
 # (1=on, 0=off)
-ground_info = 0
+ground_info = 1
 
 # Show passenger level of townhalls?
 # (1=on, 0=off)
-townhall_info = 0
+townhall_info = 1
 
 # do not show the button to add an inverted schedule for rail based convois
 # (1=hide, 0=show anyway)
