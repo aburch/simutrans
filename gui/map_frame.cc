@@ -234,6 +234,7 @@ map_frame_t::map_frame_t() :
 	add_komponente(&scale_container);
 	scale_container.add_komponente(&min_label);
 	scale_container.add_komponente(&max_label);
+	scale_container.add_komponente(&tile_scale_label);
 
 	// map scrolly
 	scrolly.set_show_scroll_x(true);
@@ -602,8 +603,10 @@ void map_frame_t::resize(const scr_coord delta)
 	// resize scale
 	if(scale_visible) {
 		scale_container.set_pos(scr_coord(D_MARGIN_LEFT,offset_y));
-		scale_container.set_size(scr_size(client_width,LINESPACE));
+		scale_container.set_size(scr_size(client_width,LINESPACE + D_V_SPACE + D_LABEL_HEIGHT));
 		max_label.align_to(&scale_container,ALIGN_RIGHT,scr_coord(scale_container.get_pos().x,0));
+		tile_scale_label.set_pos(scr_coord(0, LINESPACE + D_V_SPACE));
+		tile_scale_label.set_width(client_width);
 		offset_y += scale_container.get_size().h + D_V_SPACE;
 	}
 
@@ -656,6 +659,21 @@ void map_frame_t::draw(scr_coord pos, scr_size size)
 	sprintf( buf, "%i:%i", zoom_in, zoom_out );
 	zoom_value_label.set_text_pointer(buf,false);
 
+	if(scale_visible) {
+		char scale_text[160] = "";
+		if(1000 % welt->get_settings().get_meters_per_tile() == 0)
+		{
+			// Can use integer
+			sprintf(scale_text, "%i %s %s", (uint16)(1000 / welt->get_settings().get_meters_per_tile()), translator::translate("tiles"), translator::translate("per 1 km"));
+		}
+		else
+		{
+			// Otherwise, must use float	
+			sprintf(scale_text, "%f %s %s", (1000.0 / welt->get_settings().get_meters_per_tile()), translator::translate("tiles"), translator::translate("per 1 km"));
+		}
+		tile_scale_label.set_text(scale_text, false);
+	}
+
 	// draw all child controls
 	gui_frame_t::draw(pos, size);
 
@@ -668,21 +686,6 @@ void map_frame_t::draw(scr_coord pos, scr_size size)
 		for(  int i=0;  i<MAX_SEVERITY_COLORS;  i++  ) {
 			display_fillbox_wh(bar_pos.x + min_label.get_size().w + D_H_SPACE + (i*bar_width), bar_pos.y+2,  bar_width+1, 7, reliefkarte_t::calc_severity_color(i,MAX_SEVERITY_COLORS), false);
 		}
-
-		display_proportional(bar_pos.x + 26, bar_pos.y, translator::translate("min"), ALIGN_RIGHT, COL_BLACK, false);
-		display_proportional(bar_pos.x + size.w - 26, bar_pos.y, translator::translate("max"), ALIGN_LEFT, COL_BLACK, false);
-		char scale_text[64] = "NULL";
-		if(1000 % welt->get_settings().get_meters_per_tile() == 0)
-		{
-			// Can use integer
-			sprintf(scale_text, "%i %s %s", (uint16)(1000 / welt->get_settings().get_meters_per_tile()), translator::translate("tiles"), translator::translate("per 1 km"));
-		}
-		else
-		{
-			// Otherwise, must use float	
-			sprintf(scale_text, "%f %s %s", (1000.0 / welt->get_settings().get_meters_per_tile()), translator::translate("tiles"), translator::translate("per 1 km"));
-		}
-		display_proportional(bar_pos.x + 4, bar_pos.y + 16, scale_text, ALIGN_LEFT, COL_BLACK, false);
 	}
 
 	// draw factory descriptions
