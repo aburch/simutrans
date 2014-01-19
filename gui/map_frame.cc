@@ -51,6 +51,7 @@ stringhashtable_tpl<const fabrik_besch_t *> map_frame_t::factory_list;
 // Hajo: we track our position onscreen
 scr_coord map_frame_t::screenpos;
 
+#define L_BUTTON_WIDTH (button_size.w)
 
 class legend_entry_t
 {
@@ -111,7 +112,8 @@ map_frame_t::map_frame_t() :
 	max_label("max")
 {
 	scr_coord cursor( D_MARGIN_LEFT,D_MARGIN_TOP );
-	scr_coord_val zoom_label_width = display_get_char_max_width("0123456789") * 4 + display_get_char_width(':');
+	const scr_coord_val zoom_label_width = display_get_char_max_width("0123456789") * 4 + display_get_char_width(':');
+	const scr_size button_size(max(D_BUTTON_WIDTH, 100), D_BUTTON_HEIGHT);
 
 	old_ij = koord::invalid;
 	is_dragging = false;
@@ -131,21 +133,21 @@ map_frame_t::map_frame_t() :
 
 	// first row of controls
 	// selections button
-	b_show_legend.init(button_t::roundbox_state, "Show legend", cursor);
+	b_show_legend.init(button_t::roundbox_state, "Show legend", cursor, button_size );
 	b_show_legend.set_tooltip("Shows buttons on special topics.");
 	b_show_legend.add_listener(this);
 	add_komponente(&b_show_legend);
-	cursor.x += D_BUTTON_WIDTH + D_H_SPACE;
+	cursor.x += L_BUTTON_WIDTH + D_H_SPACE;
 
 	// industry list button
-	b_show_directory.init(button_t::roundbox_state, "Show industry", cursor);
+	b_show_directory.init(button_t::roundbox_state, "Show industry", cursor, button_size);
 	b_show_directory.set_tooltip("Shows a listing with all industries on the map.");
 	b_show_directory.add_listener(this);
 	add_komponente(&b_show_directory);
-	cursor.x += D_BUTTON_WIDTH + D_H_SPACE;
+	cursor.x += L_BUTTON_WIDTH + D_H_SPACE;
 
 	// scale button
-	b_show_scale.init(button_t::roundbox_state, "Show map scale", cursor);
+	b_show_scale.init(button_t::roundbox_state, "Show map scale", cursor, button_size);
 	b_show_scale.set_tooltip("Shows the color code for several selections.");
 	b_show_scale.add_listener(this);
 	add_komponente(&b_show_scale);
@@ -207,7 +209,7 @@ map_frame_t::map_frame_t() :
 
 	// insert filter buttons in legend container
 	for (int index=0; index<MAP_MAX_BUTTONS; index++) {
-		filter_buttons[index].init( button_t::box_state, button_init[index].button_text);
+		filter_buttons[index].init( button_t::box_state, button_init[index].button_text, scr_coord(0,0), button_size);
 		filter_buttons[index].set_tooltip( button_init[index].tooltip_text );
 		filter_buttons[index].pressed = button_init[index].mode&env_t::default_mapmode;
 		filter_buttons[index].background_color = filter_buttons[index].pressed ? button_init[index].select_color : button_init[index].color;
@@ -302,26 +304,7 @@ void map_frame_t::show_hide_legend(const bool show)
 	filter_container.set_visible(show);
 	b_show_legend.pressed = show;
 	legend_visible = show;
-//<<<<<<< HEAD
-//
-//	b_overlay_networks.set_visible( show );
-//
-//	const int col = max( 1, min( (get_fenstergroesse().x-D_MARGIN_LEFT-D_MARGIN_RIGHT+D_H_SPACE)/(D_BUTTON_WIDTH+D_H_SPACE), MAP_MAX_BUTTONS ) );
-//	const int row = ((MAP_MAX_BUTTONS-1)/col)+1;
-//	const int offset_y = D_BUTTON_HEIGHT + (D_BUTTON_HEIGHT+2)*row + D_V_SPACE;
-//	const koord offset = show ? koord(0, offset_y) : koord(0, -offset_y);
-//
-//	for(  int type=0;  type<MAP_MAX_BUTTONS;  type++  ) {
-//		filter_buttons[type].set_visible(show);
-//	}
-//	scrolly.set_pos(scrolly.get_pos() + offset);
-//
-//	set_min_windowsize(get_min_windowsize() + offset);
-//	set_fenstergroesse(get_fenstergroesse() + offset);
-//	resize(koord(0,0));
-//=======
 	resize();
-//>>>>>>> aburch/master
 }
 
 
@@ -330,19 +313,7 @@ void map_frame_t::show_hide_scale(const bool show)
 	scale_container.set_visible(show);
 	b_show_scale.pressed = show;
 	scale_visible = show;
-//<<<<<<< HEAD
-//
-//	const sint16 offset_y = LINESPACE + LINESPACE + D_V_SPACE;
-//	const koord offset(0, show ? offset_y : -offset_y);
-//
-//	scrolly.set_pos(scrolly.get_pos() + offset);
-//
-//	set_min_windowsize(get_min_windowsize() + offset);
-//	set_fenstergroesse(get_fenstergroesse() + offset);
-//	resize(koord(0,0));
-//=======
 	resize();
-//>>>>>>> aburch/master
 }
 
 
@@ -564,21 +535,34 @@ void map_frame_t::resize(const scr_coord delta)
 
 	// resize legend
 	if(legend_visible) {
-		scr_coord_val button_y = b_overlay_networks.get_size().h+D_V_SPACE;
-		scr_coord pos;
-
-		// calculate number of columns and rows for buttons
-		const int col = max( 1, min( client_width/(D_BUTTON_WIDTH+D_H_SPACE), MAP_MAX_BUTTONS ) );
-		const int row = ((MAP_MAX_BUTTONS-1)/col)+1;
-
-		// set button pos
+		const scr_coord_val left = 0;
+		const scr_coord_val right = get_windowsize().w - D_MARGIN_RIGHT;
+		scr_coord cursor(left, b_overlay_networks.get_size().h + D_V_SPACE);
+		scr_size button_size;
 		for (int type=0; type<MAP_MAX_BUTTONS; type++) {
-			pos = scr_coord( (D_BUTTON_WIDTH+D_H_SPACE)*(type%col), button_y+(D_BUTTON_HEIGHT+D_V_SPACE)*((int)type/col) );
-			filter_buttons[type].set_pos( pos );
+			button_size = filter_buttons[type].get_size();
+			if (cursor.x + button_size.w > right)
+			{
+				// start a new line
+				cursor.x = left;
+				cursor.y += button_size.h + D_V_SPACE;
+			}
+			filter_buttons[type].set_pos( cursor );
 		}
+		filter_container.set_size(scr_size(client_width, cursor.y + button_size.h + D_V_SPACE));
+
+		//// calculate number of columns and rows for buttons
+		//const int col = max( 1, min( (client_width + D_H_SPACE) / button_offs, MAP_MAX_BUTTONS ) );
+		//const int row = ((MAP_MAX_BUTTONS-1)/col)+1;
+
+		//// set button pos
+		//for (int type=0; type<MAP_MAX_BUTTONS; type++) {
+		//	pos = scr_coord( button_offs*(type%col), button_y+(D_BUTTON_HEIGHT+D_V_SPACE)*((int)type/col) );
+		//	filter_buttons[type].set_pos( pos );
+		//}
 
 		// calculate client height and set height
-		filter_container.set_size(scr_size(client_width, (D_BUTTON_HEIGHT+D_V_SPACE)*(row+1) ));
+		//filter_container.set_size(scr_size(client_width, (D_BUTTON_HEIGHT+D_V_SPACE)*(row+1) ));
 		offset_y += filter_container.get_size().h + D_V_SPACE;
 	}
 

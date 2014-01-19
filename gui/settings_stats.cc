@@ -44,7 +44,9 @@ static char const* const version[] =
 	"0.112.1",
 	"0.112.2",
 	"0.112.3",
-	"0.112.5"
+	"0.112.5",
+	"0.112.6",
+	"0.112.7"
 };
 
 static const char *version_ex[] =

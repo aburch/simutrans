@@ -239,12 +239,13 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[1].set_pos( scr_coord(L_DIALOG_WIDTH-10-10-2,CONVOI_TOOLTIPS) );
 	buttons[1].set_typ(button_t::arrowright);
 
-	//Hide buildings and trees under mouse cursor
+	//22, Hide buildings and trees under mouse cursor
 	buttons[++b].set_pos( scr_coord(10,HIDE_UNDER_CURSOR) );
 	buttons[b].set_typ( button_t::square_state );
 	buttons[b].set_text( "Smart hide objects" );
 	buttons[b].set_tooltip( "hide objects under cursor" );
 
+	//23
 	buttons[++b].set_pos( scr_coord(10,HIGHLITE_SCHEDULE) );
 	buttons[b].set_typ( button_t::square_state );
 	buttons[b].set_text( "Highlite schedule" );
@@ -428,8 +429,8 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 			welt->update_map();
 		}
 	} else if ((buttons+21)==komp) {
-		env_t::left_to_right_graphs ^= 1;
-		buttons[21].pressed = !env_t::left_to_right_graphs;
+		env_t::left_to_right_graphs = !env_t::left_to_right_graphs;
+		buttons[21].pressed ^= 1;
 	}
 
 	welt->set_dirty();
@@ -447,13 +448,13 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 	buttons[ 7].pressed = welt->get_settings().get_show_pax();
 	buttons[ 8].pressed = welt->get_settings().get_random_pedestrians();
 	buttons[11].pressed = env_t::hide_trees;
-	buttons[21].pressed = env_t::hide_under_cursor;
+	buttons[22].pressed = env_t::hide_under_cursor;
 	buttons[15].pressed = env_t::station_coverage_show;
 	buttons[16].pressed = grund_t::underground_mode == grund_t::ugm_all;
 	buttons[17].pressed = grund_t::show_grid;
 	//buttons[18].pressed = env_t::show_names&1;
 	buttons[19].pressed = (env_t::show_names&2)!=0;
-	buttons[21].pressed = grund_t::underground_mode == grund_t::ugm_level;
+	buttons[20].pressed = grund_t::underground_mode == grund_t::ugm_level;
 	buttons[23].pressed = env_t::visualize_schedule;
 
 	gui_frame_t::draw(pos, size);
