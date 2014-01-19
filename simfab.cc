@@ -2868,6 +2868,14 @@ void fabrik_t::calc_max_intransit_percentages()
 	FOR(array_tpl<ware_production_t>, &w, eingang) 
 	{
 		const uint8 catg = w.get_typ()->get_catg();
+		if(base_max_intransit_percentage == 0)
+		{
+			// Zero is code for the feature being disabled, so do not attempt to modify this value.
+			max_intransit_percentages.put(catg, base_max_intransit_percentage);
+			index ++;
+			continue;
+		}
+
 		const uint16 lead_time = get_lead_time(w.get_typ());
 		if(lead_time == 65535)
 		{
