@@ -330,6 +330,7 @@ koord3d fabrikbauer_t::finde_zufallsbauplatz( koord pos, const int radius, koord
 {
 	bool is_fabrik = besch->get_utyp()==haus_besch_t::fabrik;
 	if(wasser) {
+		// to ensure at least 3x3 water around (maybe this should be the station catchment area+1?)
 		groesse += koord(6,6);
 	}
 
@@ -342,20 +343,19 @@ koord3d fabrikbauer_t::finde_zufallsbauplatz( koord pos, const int radius, koord
 
 	max_iterations = min( size/(groesse.x*groesse.y)+1, max_iterations );
 	const uint32 a = diam+1;
-	const uint32 c = 37; // very inlikely to have this as a factor in somewhere ...
+	const uint32 c = 37; // very unlikely to have this as a factor in somewhere ...
 
-	// in order to stop on the first occurence, I have to iterate over all tile in a reporducable manner.
+	// in order to stop on the first occurence, one has to iterate over all tiles in a reproducable but random enough manner
 	for(  uint32 i = 0;  i<max_iterations; i++,  index = (a*index+c) % size  ) {
 
-		// we are guaranteed that the iteration hits all tiles and does not repeat itself
+		// so it is guaranteed that the iteration hits all tiles and does not repeat itself
 		k = koord( pos.x - radius + (index % diam), pos.y - radius + (index / diam) );
 
-		// check place
+		// check place (it will actually check an grosse.x/y size rectangle, so we can iterate over less tiles)
 		if(  fabrikbauer_t::ist_bauplatz(k, groesse, wasser, is_fabrik, climates)  ) {
-			// we accept first hit
+			// then accept first hit
 			goto finish;
 		}
-		// next search will be groesse.x rows down, groesse.y+1 columns left (groesse = size)
 	}
 	// nothing found
 	return koord3d::invalid;
