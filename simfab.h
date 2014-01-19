@@ -14,6 +14,7 @@
 #include "tpl/slist_tpl.h"
 #include "tpl/vector_tpl.h"
 #include "tpl/array_tpl.h"
+#include "tpl/inthashtable_tpl.h"
 #include "besch/fabrik_besch.h"
 #include "halthandle_t.h"
 #include "simworld.h"
@@ -223,10 +224,14 @@ private:
 
 	const fabrik_besch_t *besch;
 
+protected:
+
 	/**
 	 * Freight halts within range
 	 */
 	vector_tpl<nearby_halt_t> nearby_freight_halts;
+
+private:
 	/**
 	 * Passenger halts within range
 	 */
@@ -261,6 +266,10 @@ private:
 
 	array_tpl<ware_production_t> eingang; ///< array for input/consumed goods
 	array_tpl<ware_production_t> ausgang; ///< array for output/produced goods
+
+	// The adjusted "max intransit percentage" for each type of input goods
+	// indexed against the catg of each "eingang" (the input goods).
+	inthashtable_tpl<uint8, uint16> max_intransit_percentages;
 
 	/**
 	 * Zeitakkumulator für Produktion
@@ -402,17 +411,12 @@ private:
 	// scales the amount of production based on the amount already in storage
 	uint32 scale_output_production(const uint32 product, uint32 menge) const;
 
-//	/**
-//	 * increase the amount for a time delta_t scaled to a fixed time PRODUCTION_DELTA_T
-//	 * @author Hj. Malthaner - original
-//	 */
-//	uint32 produktion(uint32 produkt, long delta_t) const;
-//>>>>>>> jamespetts/private-cars
-
 	// This is the city within whose city limits the factory is located.
 	// NULL if it is outside a city. This is re-checked monthly.
 	// @author: jamespetts
 	stadt_t* city;
+
+	bool has_calculated_intransit_percentages;
 
 protected:
 
@@ -712,6 +716,13 @@ public:
 	 * Returns a list of goods produced by this factory.
 	 */
 	slist_tpl<const ware_besch_t*> *get_produced_goods() const;
+
+	void calc_max_intransit_percentages();
+	// Average journey time to delivery goods of this type
+	uint32 get_lead_time (const ware_besch_t* wtype);
+	// Time to consume the full input store of these goods at full capacity
+	uint32 get_time_to_consume_stock(uint32 index);
+
 };
 
 #endif
