@@ -749,9 +749,11 @@ max_years_obsolete = 30
 # How much amount in transport is sent before further distribution stops
 # This is only enabled when "just_in_time" is enabled
 # The limit is given in percent of factory storage (0=off)
-# It should be not too low to allow big convoys fully loaded at more than one
-# factory (for medium sized maps 500 seems a reasonable number)
-maximum_intransit_percentage = 0
+#
+# This number is (as of Simutrans-Experimental 11.16) scaled to the ratio
+# of the time that it takes the industry to consume its stock to the average
+# lead time for new deliveries. Values of slightly over 100% are recommended.
+maximum_intransit_percentage = 110
 
 ################################# Display settings ################################
 
