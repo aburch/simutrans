@@ -2411,31 +2411,30 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 	if(congestion_density_factor < 32)
 	{
 		// Old method - congestion density factor
-		const uint16 city_size = (ur.x - lo.x) * (ur.y - lo.y);
-		uint16 cars_per_tile_thousandths = (city_history_month[1][HIST_CITYCARS] * 1000) / city_size;
-		const uint16 population_density = (city_history_month[1][HIST_CITICENS] * 10) / city_size;
+		const uint32 city_size = (ur.x - lo.x + 1) * (ur.y - lo.y + 1);
+		uint32 cars_per_tile_thousandths = (city_history_month[1][HIST_CITYCARS] * 1000) / city_size;
+		const uint32 population_density = (city_history_month[1][HIST_CITICENS] * 10) / city_size;
 		congestion_density_factor *= 100;
 			
-		uint16 cars_per_tile_base = 800;
+		uint32 cars_per_tile_base = 800;
 
-		welt->calc_adjusted_monthly_figure(cars_per_tile_thousandths);
-		welt->calc_adjusted_monthly_figure(cars_per_tile_base);
-		welt->calc_adjusted_monthly_figure(congestion_density_factor);
+		cars_per_tile_thousandths = welt->calc_adjusted_monthly_figure(cars_per_tile_thousandths);
+		cars_per_tile_base = welt->calc_adjusted_monthly_figure(cars_per_tile_base);
+		congestion_density_factor = welt->calc_adjusted_monthly_figure(congestion_density_factor);
 
-		if(congestion_density_factor == 0)
+		uint32 congestion = 0;
+		if(cars_per_tile_thousandths > cars_per_tile_base)
 		{
-			city_history_month[0][HIST_CONGESTION] = (cars_per_tile_thousandths - cars_per_tile_base) / 30;
-		}
-
-		else
-		{	
-			if(cars_per_tile_thousandths <= cars_per_tile_base)
+			if(congestion_density_factor == 0)
 			{
-				city_history_month[0][HIST_CONGESTION] = 0;
+				congestion = (cars_per_tile_thousandths -= cars_per_tile_base) / 30;
 			}
-
-			city_history_month[0][HIST_CONGESTION] = (((cars_per_tile_thousandths - cars_per_tile_base) / 45) * population_density) / congestion_density_factor;
+			else
+			{	
+				congestion = (((cars_per_tile_thousandths -= cars_per_tile_base) / 45) * population_density) / congestion_density_factor;
+			}
 		}
+		city_history_month[0][HIST_CONGESTION] = congestion;
 	}
 	
 	else // Congestion density factor > 32:  new system
