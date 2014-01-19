@@ -152,25 +152,23 @@ halt_info_t::halt_info_t(halthandle_t halt) :
 	add_komponente(&chart);
 	cursor.y += 100 + 20 + D_V_SPACE;
 
-	const scr_coord_val left = D_MARGIN_LEFT;
-	const scr_coord_val right = total_width - D_MARGIN_RIGHT;
+	floating_cursor_t auto_cursor(cursor, D_MARGIN_LEFT, total_width - D_MARGIN_RIGHT);
 	for (int cost = 0; cost<MAX_HALT_COST; cost++) {
 		chart.add_curve(cost_type_color[cost], halt->get_finance_history(), MAX_HALT_COST, index_of_haltinfo[cost], MAX_MONTHS, 0, false, true, 0);
-		if (cursor.x + button_size.w > right)
-		{
-			cursor.x = left;
-			cursor.y += button_size.h + D_V_SPACE;
-		}
-		filterButtons[cost].init(button_t::box_state, cost_type[cost], cursor, button_size);
+		filterButtons[cost].init(button_t::box_state, cost_type[cost], auto_cursor.next_pos(button_size), button_size);
 		filterButtons[cost].add_listener(this);
 		filterButtons[cost].background_color = cost_type_color[cost];
 		filterButtons[cost].set_visible(false);
 		filterButtons[cost].pressed = false;
 		filterButtons[cost].set_tooltip(cost_tooltip[cost]);
 		add_komponente(filterButtons + cost);
-		cursor.x += button_size.w + D_H_SPACE;
 	}
 	cursor = old_cursor;
+
+	sort_label.set_pos(cursor);
+	sort_label.set_width(client_width);
+	add_komponente(&sort_label);
+	cursor.y += D_LABEL_HEIGHT + D_V_SPACE;
 
 	// hsiegeln: added sort_button
 	sort_button.init(button_t::roundbox, sort_text[env_t::default_sortmode], cursor, button_size);
@@ -195,13 +193,8 @@ halt_info_t::halt_info_t(halthandle_t halt) :
 	button.set_tooltip("Open station/stop details");
 	button.add_listener(this);
 	add_komponente(&button);
-	cursor.x = left;
+	cursor.x = D_MARGIN_RIGHT;
 	cursor.y += button_size.h + D_V_SPACE;
-
-	sort_label.set_pos(cursor);
-	sort_label.set_width(client_width);
-	add_komponente(&sort_label);
-	cursor.y += D_LABEL_HEIGHT + D_V_SPACE;
 
 	scrolly.set_pos(scr_coord(D_MARGIN_LEFT, cursor.y));
 	scrolly.set_size(scr_size(client_width, 10 * D_LABEL_HEIGHT));
@@ -210,7 +203,7 @@ halt_info_t::halt_info_t(halthandle_t halt) :
 	cursor.y += scrolly.get_size().h;
 
 	set_windowsize(scr_size(total_width, cursor.y + D_MARGIN_BOTTOM));
-	set_min_windowsize(scr_size(total_width, cursor.y - 6 * D_LABEL_HEIGHT + D_MARGIN_BOTTOM));
+	set_min_windowsize(scr_size(total_width, cursor.y - 5 * D_LABEL_HEIGHT + D_MARGIN_BOTTOM));
 
 	set_resizemode(diagonal_resize);     // 31-May-02	markus weber	added
 	resize(scr_coord(0,0));
@@ -615,16 +608,24 @@ void halt_info_t::set_windowsize(scr_size size)
 
 	view.set_pos(scr_coord(D_MARGIN_LEFT + client_width - view.get_size().w, view.get_pos().y));
 
+	chart.set_width(client_width - chart.get_pos().x + D_MARGIN_LEFT);
+	floating_cursor_t auto_cursor(filterButtons[0].get_pos(), D_MARGIN_LEFT, D_MARGIN_LEFT + client_width);
+	for (int cost = 0; cost<MAX_HALT_COST; cost++) {
+		filterButtons[cost].set_pos(auto_cursor.next_pos(filterButtons[cost].get_size()));
+	}
+
 	scrolly.set_size(get_client_windowsize()-scrolly.get_pos());
 
-	const sint16 yoff = scrolly.get_pos().y - sort_label.get_size().h - D_V_SPACE;
-	const scr_coord delta(0, yoff - sort_label.get_pos().y);
+	// the buttons shall be placed above the "waiting" scroll area. Thus they will start at 
+	// scrolly.get_pos().y - <button height> - D_V_SPACE.
+	const scr_coord delta(0, scrolly.get_pos().y - sort_button.get_size().h - D_V_SPACE - sort_button.get_pos().y);
+
+	sort_label.set_pos(sort_label.get_pos() + delta );
+	sort_label.set_width(client_width);
 	sort_button.set_pos(sort_button.get_pos() + delta);
 	toggler_departures.set_pos(toggler_departures.get_pos() + delta);
 	toggler.set_pos(toggler.get_pos() + delta);
 	button.set_pos(button.get_pos() + delta);
-	sort_label.set_pos(sort_label.get_pos() + delta );
-	sort_label.set_width(client_width);
 }
 
 
