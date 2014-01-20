@@ -2905,7 +2905,7 @@ uint32 fabrik_t::get_lead_time(const ware_besch_t* wtype)
 
 	FOR(vector_tpl<koord>, const& supplier, suppliers)
 	{
-		const fabrik_t const *fab = get_fab(welt, supplier);
+		const fabrik_t *fab = get_fab(welt, supplier);
 		if(!fab)
 		{
 			continue;
