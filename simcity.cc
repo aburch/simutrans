@@ -1337,7 +1337,12 @@ void stadt_t::factory_entry_t::rdwr(loadsave_t *file)
 {
 	if(  file->get_version()>=110005  ) {
 		koord factory_pos;
-		if(  file->is_saving()  ) {
+		if(  file->is_saving()  ) 
+		{
+			if(!factory)
+			{
+				return;
+			}
 			factory_pos = factory->get_pos().get_2d();
 		}
 		factory_pos.rdwr( file );
