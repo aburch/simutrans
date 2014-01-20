@@ -2862,6 +2862,7 @@ slist_tpl<const ware_besch_t*> *fabrik_t::get_produced_goods() const
 
 void fabrik_t::calc_max_intransit_percentages()
 {
+	max_intransit_percentages.clear();
 	const uint16 base_max_intransit_percentage = welt->get_settings().get_factory_maximum_intransit_percentage();
 	
 	uint32 index = 0;
