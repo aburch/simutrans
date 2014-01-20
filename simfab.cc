@@ -577,6 +577,7 @@ void fabrik_t::set_base_production(sint32 p)
 	update_prodfactor_pax();
 	update_prodfactor_mail();
 	recalc_demands_at_target_cities();
+	calc_max_intransit_percentages();
 }
 
 
@@ -673,6 +674,9 @@ fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
 	city = NULL;
 
 	rdwr(file);
+	has_calculated_intransit_percentages = false;
+	// Cannot calculate intransit percentages here,
+	// as this can only be done when paths are available.
 
 	delta_sum = 0;
 	delta_menge = 0;
@@ -827,6 +831,9 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 
 	delta_slot = 0;
 	times_expanded = 0;
+
+	calc_max_intransit_percentages();
+	has_calculated_intransit_percentages = true;
 
 	update_scaled_electric_amount();
 	update_scaled_pax_demand();
@@ -1590,7 +1597,7 @@ sint8 fabrik_t::is_needed(const ware_besch_t *typ) const
 	FOR(array_tpl<ware_production_t>, const& i, eingang) {
 		if(  i.get_typ() == typ  ) {
 			// not needed (false) if overflowing or too much already sent
-			const bool transit_ok = welt->get_settings().get_factory_maximum_intransit_percentage() == 0 ? true : (i.transit * 100) < ((i.max >> fabrik_t::precision_bits) * welt->get_settings().get_factory_maximum_intransit_percentage());
+			const bool transit_ok = max_intransit_percentages.get(typ->get_catg())  == 0 ? true : (i.transit * 100) < ((i.max >> fabrik_t::precision_bits) * max_intransit_percentages.get(typ->get_catg()));
 			return (i.menge < i.max)  &&  transit_ok;
 		}
 	}
@@ -1608,6 +1615,14 @@ bool fabrik_t::is_active_lieferziel( koord k ) const
 
 void fabrik_t::step(long delta_t)
 {
+	if(!has_calculated_intransit_percentages)
+	{
+		// Can only do it here (once after loading) as paths
+		// are not available when loading, even in laden_a....
+		calc_max_intransit_percentages();
+		has_calculated_intransit_percentages = true;
+	}
+	
 	if(  delta_t==0  ) {
 		return;
 	}
@@ -1675,6 +1690,7 @@ void fabrik_t::step(long delta_t)
 						// power station => produce power
 						power += (uint32)( (((sint64)scaled_electric_amount * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_pax + prodfactor_mail)) >> DEFAULT_PRODUCTION_FACTOR_BITS) * eingang[index].menge / (v + 1) );
 					}
+					
 					delta_menge += eingang[index].menge;
 					eingang[index].book_stat(eingang[index].menge, FAB_GOODS_CONSUMED);
 					eingang[index].menge = 0;
@@ -2091,6 +2107,8 @@ void fabrik_t::neuer_monat()
 	city = c;
 
 	mark_connected_roads(false);
+	
+	calc_max_intransit_percentages();
 
 	// Check to see whether factory is obsolete.
 	// If it is, give it a chance of being closed down.
@@ -2840,4 +2858,123 @@ slist_tpl<const ware_besch_t*> *fabrik_t::get_produced_goods() const
 	}
 
 	return goods;
+}
+
+void fabrik_t::calc_max_intransit_percentages()
+{
+	max_intransit_percentages.clear();
+	const uint16 base_max_intransit_percentage = welt->get_settings().get_factory_maximum_intransit_percentage();
+	
+	uint32 index = 0;
+	FOR(array_tpl<ware_production_t>, &w, eingang) 
+	{
+		const uint8 catg = w.get_typ()->get_catg();
+		if(base_max_intransit_percentage == 0)
+		{
+			// Zero is code for the feature being disabled, so do not attempt to modify this value.
+			max_intransit_percentages.put(catg, base_max_intransit_percentage);
+			index ++;
+			continue;
+		}
+
+		const uint16 lead_time = get_lead_time(w.get_typ());
+		if(lead_time == 65535)
+		{
+			// No factories connected; use the default intransit percentage for now.
+			max_intransit_percentages.put(catg, base_max_intransit_percentage);
+			index ++;
+			continue;
+		}
+		const uint16 time_to_consume = get_time_to_consume_stock(index); 
+		const uint32 ratio = (lead_time * 1000 / time_to_consume);
+		const uint32 modified_max_intransit_percentage = (ratio * base_max_intransit_percentage) / 1000;
+		max_intransit_percentages.put(catg, (uint16)modified_max_intransit_percentage);
+		index ++;
+	}
+}
+
+uint32 fabrik_t::get_lead_time(const ware_besch_t* wtype)
+{
+	if(suppliers.empty())
+	{
+		return 65535;
+	}
+	
+	// Tenths of minutes.
+	uint32 tenths_of_minutes_total = 0;
+	uint32 connected_supplier_count = 0;
+
+	FOR(vector_tpl<koord>, const& supplier, suppliers)
+	{
+		const fabrik_t *fab = get_fab(welt, supplier);
+		if(!fab)
+		{
+			continue;
+		}
+		for (uint i = 0; i < fab->get_besch()->get_produkte(); i++) 
+		{
+			const fabrik_produkt_besch_t *product = fab->get_besch()->get_produkt(i);
+			if(product->get_ware() == wtype)
+			{
+				uint16 best_journey_time = 65535;
+				const uint32 transfer_journey_time_factor = ((uint32)welt->get_settings().get_meters_per_tile() * 6) * 10;
+
+				FOR(vector_tpl<nearby_halt_t>, const& nearby_halt, fab->nearby_freight_halts) 
+				{
+					// now search route
+					const uint32 transfer_time = ((uint32)nearby_halt.distance * transfer_journey_time_factor) / 100;
+					ware_t tmp;
+					tmp.set_besch(wtype);
+					tmp.set_zielpos(pos);
+					tmp.to_factory = 1;
+					tmp.set_origin(nearby_halt.halt);
+					const uint32 current_journey_time = (uint32)nearby_halt.halt->find_route(tmp, best_journey_time) + transfer_time;
+					if(current_journey_time < best_journey_time)
+					{
+						best_journey_time = current_journey_time;
+					}
+				}
+
+				if(best_journey_time < 65535)
+				{
+					connected_supplier_count ++;
+					tenths_of_minutes_total += best_journey_time;
+				}
+				break;
+			}
+		}
+		
+	}
+
+	return connected_supplier_count > 0 ? tenths_of_minutes_total / connected_supplier_count : 65535;
+}
+
+uint32 fabrik_t::get_time_to_consume_stock(uint32 index)
+{
+	// This should work in principle, but as things currently stand, 
+	// rounding errors result in monthly consumption that is too high
+	// in some cases (especially where the base production figure is low).
+	const uint32 vb = besch->get_lieferant(index)->get_verbrauch();
+	const sint32 base_production = get_current_production();
+	const sint32 consumed_per_month = (base_production * vb) >> 8;
+
+	const sint32 input_capacity = (eingang[index].max >> fabrik_t::precision_bits);
+
+	const sint64 tick_units = input_capacity * welt->ticks_per_world_month;
+
+	const sint32 ticks_to_consume = tick_units / consumed_per_month;
+	return welt->ticks_to_tenths_of_minutes(ticks_to_consume);
+
+	/*
+
+	100 ticks per month
+	20 units per month
+	60 minutes per month
+	600 10ths of a minute per month
+	storage of 40 units
+
+	40 units * 100 ticks = 4,000 tick units
+	4,000 tick units / 20 units per month = 200 ticks
+
+	*/
 }

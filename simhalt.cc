@@ -1513,9 +1513,10 @@ minivec_tpl<halthandle_t>* haltestelle_t::build_destination_list(ware_t &ware)
 	}
 
 	const planquadrat_t *const plan = welt->lookup(ware.get_zielpos());
+	const uint8 minivec_capacity = plan ? plan->get_haltlist_count() : 1;
 	fabrik_t* const fab = fabrik_t::get_fab(welt, ware.get_zielpos());
 
-	minivec_tpl<halthandle_t> *destination_halts_list = new minivec_tpl<halthandle_t>(plan->get_haltlist_count());
+	minivec_tpl<halthandle_t> *destination_halts_list = new minivec_tpl<halthandle_t>(minivec_capacity);
 	
 	if(fab)
 	{

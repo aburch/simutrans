@@ -774,6 +774,7 @@ public:
 
 	static uint32 get_rolling_default(sint8 waytype)
 	{
+		// See http://www.engineeringtoolbox.com/rolling-friction-resistance-d_1303.html
 		switch(waytype)
 		{			
 			case track_wt:
@@ -789,7 +790,7 @@ public:
 			case maglev_wt:			return 13L; //0.0013 when read
 
 			default:
-			case road_wt:			return 150L; //0.015 when read
+			case road_wt:			return 90L; //0.009 when read
 		};
 	}
 };
