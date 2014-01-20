@@ -271,66 +271,52 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 				}
 			}
 			// detail amount
-			buf.append("   ");
-			buf.append(ware.menge);
-			buf.append(" ");
-			buf.append(translator::translate(ware.get_besch()->get_mass()));
-			buf.append(" ");
-			buf.append(translator::translate(ware.get_besch()->get_name()));
-			if(sortby != by_origin_amount)
-			{
-				buf.append(" > ");
-			}
-			else
-			{
-				buf.append(" < ");
-			}
+			ware_besch_t const& desc = *ware.get_besch();
+			buf.printf("   %u%s %s %c ", ware.menge, translator::translate(desc.get_mass()), translator::translate(desc.get_name()), ">>>><<"[sortby]);
 			// the target name is not correct for the via sort
-//<<<<<<< HEAD
-
 			if(sortby != by_via_sum && sortby != by_origin_amount) 
 			{
-				const fabrik_t *const factory = fabrik_t::get_fab(ware.get_zielpos());
-				const grund_t* gr = welt->lookup_kartenboden(ware.get_zielpos());
+				koord zielpos = ware.get_zielpos();
+				const grund_t* gr = welt->lookup_kartenboden(zielpos);
 				const gebaeude_t* const gb = gr ? gr->find<gebaeude_t>() : NULL;
-				const char* description = translator::translate("Unknown destination");
+				const fabrik_t* const factory = gb ? gb->get_fabrik() : NULL;
+				const char* description;
 				cbuffer_t dbuf;
-				if(gb)
+				if (factory)
+					description = factory->get_name();
+				else if (gb)
 				{
 					gb->get_description(dbuf);
 					description = dbuf.get_str();
-//=======
-//			const bool is_factory_going = ( sortby!=by_via_sum  &&  ware.to_factory );	// exclude merged packets
-//			if(  sortby!=by_via_sum  ||  via_halt==halt  ) {
-//				if(  is_factory_going  ) {
-//					const fabrik_t *const factory = fabrik_t::get_fab( ware.get_zielpos() );
-//					buf.printf("%s <%i,%i>", (factory ? factory->get_name() : "Invalid Factory"), ware.get_zielpos().x, ware.get_zielpos().y);
-//>>>>>>> aburch/master
-				}
-				const stadt_t* city = welt->get_city(ware.get_zielpos());
-				const char* town_name;
-				if(city)
-				{
-					town_name = city->get_name();
-				}
-
-				const char* trip_type = (ware.is_commuting_trip ? translator::translate("commuting") : translator::translate("visiting"));
-
-				if(city && ware.is_passenger())
-				{
-					buf.printf("%s <%i, %i> (%s; %s)\n        ", (factory ? factory->get_name() : description), ware.get_zielpos().x, ware.get_zielpos().y, town_name, trip_type);
-				}
-				else if(ware.is_passenger())
-				{
-					buf.printf("%s <%i, %i> (%s)\n        ", (factory ? factory->get_name() : description), ware.get_zielpos().x, ware.get_zielpos().y, trip_type);
-				}
-				else if(city)
-				{
-					buf.printf("%s <%i, %i> (%s)\n        ", (factory ? factory->get_name() : description), ware.get_zielpos().x, ware.get_zielpos().y, town_name);
 				}
 				else
 				{
-					buf.printf("%s <%i, %i>\n        ", (factory ? factory->get_name() : description), ware.get_zielpos().x, ware.get_zielpos().y);
+					description = translator::translate("Unknown destination");
+				}
+				const stadt_t* city = welt->get_city(zielpos);
+				if (ware.is_passenger())
+				{
+					const char* trip_type = (ware.is_commuting_trip ? translator::translate("commuting") : translator::translate("visiting"));
+
+					if(city)
+					{
+						buf.printf("%s <%i, %i> (%s; %s)\n        ", description, zielpos.x, zielpos.y, city->get_name(), trip_type);
+					}
+					else 
+					{
+						buf.printf("%s <%i, %i> (%s)\n        ", description, zielpos.x, zielpos.y, trip_type);
+					}
+				}
+				else
+				{
+					if(city)
+					{
+						buf.printf("%s <%i, %i> (%s)\n        ", description, zielpos.x, zielpos.y, city->get_name());
+					}
+					else
+					{
+						buf.printf("%s <%i, %i>\n        ", description, zielpos.x, zielpos.y);
+					}
 				}
 			}
 

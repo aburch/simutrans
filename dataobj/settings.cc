@@ -54,9 +54,9 @@ settings_t::settings_t() :
 	 * @author prissi
 	 */
 	factory_count = 12;
-	tourist_attractions = 16;
+	tourist_attractions = 8;
 
-	anzahl_staedte = 16;
+	anzahl_staedte = 8;
 	mittlere_einwohnerzahl = 1600;
 
 	station_coverage_size = 3;
@@ -100,6 +100,7 @@ settings_t::settings_t() :
 	starting_year = 1930;
 	starting_month = 0;
 	bits_per_month = 20;
+	meters_per_tile = 1000;
 	base_meters_per_tile = 1000;
 	base_bits_per_month = 18;
 
@@ -463,8 +464,8 @@ settings_t::settings_t() :
 
 	city_threshold_size = 1000;
 	capital_threshold_size = 10000;
-	max_small_city_size = 25000;
-	max_city_size = 250000;
+	max_small_city_size = 1000;
+	max_city_size = 5000;
 
 	allow_making_public = true;
 
