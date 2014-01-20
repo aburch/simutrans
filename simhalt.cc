@@ -2286,10 +2286,12 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 				i = warray->erase(i);
 				continue;
 			}
-
-			// Load first the goods/passengers/mail that have been waiting the longest.
-			// Do this by adding them all to a binary heap sorted by arrival time.
-			goods_to_check.insert(i++);
+			else
+			{
+				// Load first the goods/passengers/mail that have been waiting the longest.
+				// Do this by adding them all to a binary heap sorted by arrival time.
+				goods_to_check.insert(i++);
+			}			
 		}
 		
 		halthandle_t previous_halt = self;
@@ -2305,6 +2307,12 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 			{
 				halthandle_t plan_halt = haltestelle_t::get_halt(fpl->eintrag[index].pos, sp);
 				halthandle_t next_transfer = next_to_load->get_zwischenziel();
+
+				if(plan_halt == self)
+				{
+					// The convoy returns here later, so do not load goods/passengers just to go on a detour.
+					break;
+				}
 
 				if(plan_halt.is_bound() && next_transfer == plan_halt && plan_halt->is_enabled(catg_index))
 				{

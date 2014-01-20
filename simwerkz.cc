@@ -2381,7 +2381,7 @@ const char* wkz_wegebau_t::get_tooltip(const spieler_t *) const
 	}
 	tooltip_with_price_maintenance(welt, besch->get_name(), -besch->get_base_price(), besch->get_base_maintenance());
 	size_t n= strlen(toolstr);
-	sprintf(toolstr+n, " / km, %dkm/h, %dt",
+	n += sprintf(toolstr+n, " / km, %dkm/h, %dt",
 		besch->get_topspeed(),
 		besch->get_max_axle_load());
 	bool any_prohibitive = false;

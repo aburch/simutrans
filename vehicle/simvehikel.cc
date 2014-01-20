@@ -2738,7 +2738,7 @@ int automobil_t::get_kosten(const grund_t *gr, const sint32 max_speed, koord fro
 	sint32 max_tile_speed = w->get_max_speed();
 
 	// add cost for going (with maximum speed, cost is 1)
-	int costs = (max_speed<=max_tile_speed) ? 1 : 4-(3*max_tile_speed)/max_speed;
+	int costs = (max_speed <= max_tile_speed) ? 10 : 40 - (30 * max_tile_speed) / max_speed;
 
 	// assume all traffic is not good ... (otherwise even smoke counts ... )
 	costs += (w->get_statistics(WAY_STAT_CONVOIS)  >  ( 2 << (welt->get_settings().get_bits_per_month()-16) )  );
@@ -2748,7 +2748,7 @@ int automobil_t::get_kosten(const grund_t *gr, const sint32 max_speed, koord fro
 		// Knightly : check if the slope is upwards, relative to the previous tile
 		from_pos -= gr->get_pos().get_2d();
 		if(  hang_t::is_sloping_upwards( gr->get_weg_hang(), from_pos.x, from_pos.y )  ) {
-			costs += 15;
+			costs += 150;
 		}
 	}
 
@@ -3496,20 +3496,20 @@ int waggon_t::get_kosten(const grund_t *gr, const sint32 max_speed, koord from_p
 	// first favor faster ways
 	const weg_t *w = gr->get_weg(get_waytype());
 	if(  w==NULL  ) {
-		// only occurs when deletion during way search
-		return 999;
+		// only occurs when deletion during waysearch
+		return 9999;
 	}
 
-	// add cost for going (with maximum speed, cost is 1)
+	// add cost for going (with maximum speed, cost is 10)
 	const sint32 max_tile_speed = w->get_max_speed();
-	int costs = (max_speed<=max_tile_speed) ? 1 : 4-(3*max_tile_speed)/max_speed;
+	int costs = (max_speed <= max_tile_speed) ? 10 : 40 - (30 * max_tile_speed) / max_speed;
 
 	// effect of slope
 	if(  gr->get_weg_hang()!=0  ) {
 		// Knightly : check if the slope is upwards, relative to the previous tile
 		from_pos -= gr->get_pos().get_2d();
 		if(  hang_t::is_sloping_upwards( gr->get_weg_hang(), from_pos.x, from_pos.y )  ) {
-			costs += 25;
+			costs += 250;
 		}
 	}
 
@@ -3518,7 +3518,7 @@ int waggon_t::get_kosten(const grund_t *gr, const sint32 max_speed, koord from_p
 	uint16 weight_limit = w->get_max_axle_load();
 	if(vehikel_t::get_sum_weight() > weight_limit && welt->get_settings().get_enforce_weight_limits() == 1 || welt->get_settings().get_enforce_weight_limits() == 3)
 	{
-		costs += 40;
+		costs += 400;
 	}
 
 	if(w->is_diagonal())
@@ -3629,7 +3629,7 @@ bool waggon_t::is_weg_frei_longblock_signal( signal_t *sig, uint16 next_block, i
 	while(  fahrplan_index != cnv->get_schedule()->get_aktuell()  ) {
 		// now search
 		// search for route
-		success = target_rt.calc_route( welt, cur_pos, cnv->get_schedule()->eintrag[fahrplan_index].pos, this, get_convoi()->get_highest_axle_load(), speed_to_kmh(cnv->get_min_top_speed()), 8888 + cnv->get_tile_length() );
+		success = target_rt.calc_route(welt, cur_pos, cnv->get_schedule()->eintrag[fahrplan_index].pos, this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(), 8888 + cnv->get_tile_length(), 0xFFFFFFFF, cnv->get_weight_summary().weight / 1000);
 		if(  success  ) {
 			success = block_reserver( &target_rt, 1, next_next_signal, dummy, 0, true, false );
 			block_reserver( &target_rt, 1, dummy, dummy, 0, false, false );
@@ -3692,7 +3692,6 @@ bool waggon_t::is_weg_frei_choose_signal( signal_t *sig, const uint16 start_bloc
 			choose_ok = false;
 			break;
 		}
-		const koord3d TEST_pos = gr->get_pos();
 		if(gr->get_halt() == target->get_halt()) 
 		{
 			target_halt = gr->get_halt();
@@ -3951,7 +3950,7 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 			fpl->increment_index(&index, &reversed);
 			const koord3d next_ziel = fpl->eintrag[index].pos;
 
-			weg_frei = !target_rt.calc_route(welt, start_pos, next_ziel, this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(), welt->get_settings().get_max_route_steps());
+			weg_frei = !target_rt.calc_route(welt, start_pos, next_ziel, this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(), welt->get_settings().get_max_route_steps(), 0xFFFFFFFF, cnv->get_weight_summary().weight / 1000);
 			if(!weg_frei)
 			{
 				ribi_t::ribi old_dir = calc_richtung(route.position_bei(last_index - 1).get_2d(), route.position_bei(last_index).get_2d());
@@ -4404,7 +4403,19 @@ schiff_t::schiff_t(loadsave_t *file, bool is_first, bool is_last) :
 	}
 }
 
+grund_t* schiff_t::betrete_feld()
+{
+	grund_t *gr = vehikel_t::betrete_feld();
 
+	if(  weg_t *ch = gr->get_weg(water_wt)  ) {
+		// we are in a channel, so book statistics
+		ch->book(get_fracht_menge(), WAY_STAT_GOODS);
+		if (ist_erstes)  {
+			ch->book(1, WAY_STAT_CONVOIS);
+		}
+	}
+	return gr;
+}
 
 bool schiff_t::ist_befahrbar(const grund_t *bd) const
 {

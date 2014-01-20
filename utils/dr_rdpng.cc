@@ -3,6 +3,7 @@
 #ifndef LOCAL
 #include <png.h>
 #else
+#include <string>
 #include "openttd/png.h"
 #endif
 #include <setjmp.h>
@@ -34,7 +35,6 @@ static void read_png(unsigned char** block, unsigned* width, unsigned* height, F
 		dbg->error( "while loading PNG", "Could not create read struct in %s.", filename_.c_str() );
 		exit(1);
 	}
-
 
 	info_ptr = png_create_info_struct(png_ptr);
 	if (info_ptr == NULL) {
@@ -144,7 +144,7 @@ bool load_block(unsigned char** block, unsigned* width, unsigned* height, const 
 	}
 }
 
-#ifndef _WIN32
+
 // output either a 32 or 16 or 15 bitmap
 int write_png( const char *file_name, unsigned char *data, int width, int height, int bit_depth )
 {
@@ -213,4 +213,3 @@ int write_png( const char *file_name, unsigned char *data, int width, int height
 	fclose( fp );
 	return 1;
 }
-#endif
