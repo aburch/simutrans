@@ -189,12 +189,14 @@ allow_underground_transformers = 1
 # with this switch on (default), overcrowded factories will not recieve goods any more
 just_in_time = 1
 
-# how much amount in transport is sent before further distribution stops
+# How much amount in transport is sent before further distribution stops
 # This is only enabled when "just_in_time" is enabled
 # The limit is given in percent of factory storage (0=off)
-# It should be not too low to allow big convois fully loaded at more than one
-# factory (for medium sized maps 500 seems a reasonable number)
-maximum_intransit_percentage = 0
+#
+# This number is (as of Simutrans-Experimental 11.16) scaled to the ratio
+# of the time that it takes the industry to consume its stock to the average
+# lead time for new deliveries. Values of slightly over 100% are recommended.
+maximum_intransit_percentage = 110
 
 # use beginner mode for new maps (can be switched anyway on the new map dialog)
 first_beginner = 0
@@ -207,7 +209,7 @@ factory_arrival_periods = 4
 # whether factory's pax/mail demands are enforced or not; default is on
 factory_enforce_demand = 1
 
-##################################display stuff#################################
+################################# Display settings ################################
 
 # if defined, the default tool will try to calculate straight ways (like OpenTTD)
 straight_way_without_control = 0
