@@ -1113,10 +1113,10 @@ void karte_t::distribute_cities( settings_t const * const sets, sint16 old_x, si
 {
 	uint32 new_anzahl_staedte = abs(sets->get_anzahl_staedte());
 
-	const uint32 number_of_big_cities = env_t::number_of_big_cities;
+//	const uint32 number_of_big_cities = env_t::number_of_big_cities;
 
 	const uint32 max_city_size = sets->get_max_city_size();
-	const uint32 max_small_city_size = sets->get_max_small_city_size();
+//	const uint32 max_small_city_size = sets->get_max_small_city_size();
 
 	dbg->important("Creating cities ...");
 	DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities sizes");
@@ -1124,46 +1124,52 @@ void karte_t::distribute_cities( settings_t const * const sets, sint16 old_x, si
 	const uint32 city_population_target_count = stadt.empty() ? new_anzahl_staedte : new_anzahl_staedte + stadt.get_count() + 1;
 
 	vector_tpl<uint32> city_population(city_population_target_count);
-
-	// Generate random sizes to fit a Pareto distribution: P(x) = x_m / x^2 dx.
-	// This ensures that Zipf's law is satisfied in a random fashion, and
-	// arises from the observation that city distribution is self-similar.
-	// The median of a Pareto distribution is twice the lower cut-off, x_m.
-	// We can generate a Pareto deviate from a uniform deviate on range [0,1)
-	// by taking m_x/u where u is the uniform deviate.
-
-	// BG, 03.01.2014: avoid endless loop, if sets->get_mittlere_einwohnerzahl() > 
-	// max_city_size or max_small_city_size, as the population formula never results 
-	// in values less than median_population / 2. Furthermore in old games 
-	// sets->get_mittlere_einwohnerzahl() is 0.
-
-	// size big cities
-	uint32 median_population = abs(sets->get_mittlere_einwohnerzahl());
-	if (!median_population || median_population > max_city_size) {
-		median_population = max_city_size;
-	}
-	while (city_population.get_count() < number_of_big_cities) {
-		// BG, 03.01.2014: avoid floating point calculation and excessive tries to find a random number.
-		uint32 rand = (simrand_plain() & 0x7ffffffful) + 1; // 1 <= rand <= 0x80000000ul
-		uint32 population = ((uint64)median_population * 0x40000000ull) / rand;
-		if (population > max_small_city_size && population <= max_city_size) {
+	if (city_population.get_count() < city_population_target_count)
+	{
+		const double inv_k = 1/1.0;
+		const double xm = max_city_size; 
+		const double log_ym = log((double)new_anzahl_staedte);
+		while (city_population.get_count() < city_population_target_count) {
+			const double z = (double)simrand_plain() / MAXUINT32;	// z in [0, 1]
+			const double log_y = log_ym * z;						
+			const double x = xm * exp( -log_y * inv_k);
+			uint32 population = (uint32) (x + 0.5);
 			city_population.insert_ordered( population, std::greater<sint32>() );
 		}
 	}
 
-	// size small cities
-	median_population = abs(sets->get_mittlere_einwohnerzahl());
-	if (!median_population || median_population > max_small_city_size) {
-		median_population = max_small_city_size;
-	}
-	while (city_population.get_count() < city_population_target_count) {
-		// BG, 03.01.2014: avoid floating point calculation and excessive tries to find a random number.
-		uint32 rand = (simrand_plain() & 0x7ffffffful) + 1; // 1 <= rand <= 0x80000000ul
-		uint32 population = ((uint64)median_population * 0x40000000ull) / rand;
-		if (population > 0 && population <= max_small_city_size) {
-			city_population.insert_ordered( population, std::greater<sint32>() );
-		}
-	}
+//	// BG, 03.01.2014: avoid endless loop, if sets->get_mittlere_einwohnerzahl() > 
+//	// max_city_size or max_small_city_size, as the population formula never results 
+//	// in values less than median_population / 2. Furthermore in old games 
+//	// sets->get_mittlere_einwohnerzahl() is 0.
+//
+//	// size big cities
+//	uint32 median_population = abs(sets->get_mittlere_einwohnerzahl());
+//	if (!median_population || median_population > max_city_size) {
+//		median_population = max_city_size;
+//	}
+//	while (city_population.get_count() < number_of_big_cities) {
+//		// BG, 03.01.2014: avoid floating point calculation and excessive tries to find a random number.
+//		uint32 rand = (simrand_plain() & 0x7ffffffful) + 1; // 1 <= rand <= 0x80000000ul
+//		uint32 population = ((uint64)median_population * 0x40000000ull) / rand;
+//		if (population > max_small_city_size && population <= max_city_size) {
+//			city_population.insert_ordered( population, std::greater<sint32>() );
+//		}
+//	}
+//
+//	// size small cities
+//	median_population = abs(sets->get_mittlere_einwohnerzahl());
+//	if (!median_population || median_population > max_small_city_size) {
+//		median_population = max_small_city_size;
+//	}
+//	while (city_population.get_count() < city_population_target_count) {
+//		// BG, 03.01.2014: avoid floating point calculation and excessive tries to find a random number.
+//		uint32 rand = (simrand_plain() & 0x7ffffffful) + 1; // 1 <= rand <= 0x80000000ul
+//		uint32 population = ((uint64)median_population * 0x40000000ull) / rand;
+//		if (population > 0 && population <= max_small_city_size) {
+//			city_population.insert_ordered( population, std::greater<sint32>() );
+//		}
+//	}
 
 #ifdef DEBUG
 	for (unsigned i =0; i< city_population_target_count; i++) 
