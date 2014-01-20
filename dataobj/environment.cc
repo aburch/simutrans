@@ -233,7 +233,7 @@ void env_t::init()
 	mute_midi = false;
 	shuffle_midi = true;
 
-	left_to_right_graphs = false;
+	left_to_right_graphs = true;
 
 	tooltip_delay = 500;
 	tooltip_duration = 5000;

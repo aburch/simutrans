@@ -12,7 +12,7 @@
 # simutrans/pakfilefolder/config/simuconf.tab
 # ~/simutrans/simuconf.tab (readed a second time, s.a.)
 #
-#################################program stuff##################################
+################################# Base settings ##################################
 #
 # This simuconf.tab will be read first => we set meaningful defaults here.
 #
@@ -38,8 +38,6 @@
 #pak_file_path = pak.japan/
 #pak_file_path = pak.winter/
 #pak_file_path = pak.ttd/
-#
-#################################program stuff##################################
 
 # maximum number of position tested during a way search
 # 100000 should be ok even for large maps with ships
@@ -49,7 +47,7 @@ max_route_steps = 1000000
 # size of catchment area of a station (default 2)
 # older game size was 3
 # savegames with another catch area will give strange results
-station_coverage = 2
+station_coverage = 16
 
 # Max number of steps in goods pathfinding
 # This should be equal or greater than the biggest group
@@ -99,7 +97,7 @@ way_tunnel=8
 way_max_bridge_len=15
 way_leaving_road=25
 
-###############################passenger stuff##############################
+############################### Passenger settings ##############################
 # also pak dependent
 
 # town growth multiplier factors (electricity is not used at the moment)
@@ -157,7 +155,7 @@ no_routing_over_overcrowded = 0
 # in beginner mode, all good prices are multiplied by a factor (default 1500=1.5)
 beginner_price_factor = 1500
 
-##################################factory stuff#################################
+################################## Industry settings #################################
 
 # when a city reaches 2^n times of this number
 # then a factory is extended, or a new factory chain is spawned
@@ -332,7 +330,6 @@ show_names = 3
 # Color of background default: COL_GREY2 (210)
 #background_color = 210
 
-##################################window stuff##################################
 # show the windows close etc. buttons on the right (like windows 98)
 #window_buttons_right = 0
 
@@ -369,14 +366,14 @@ tooltip_delay = 500
 # duration in ms during tooltip is visible (default 5000ms=5s)
 tooltip_duration = 5000
 
-###################################money stuff##################################
+# show graphs old style (right to left) or rather left to right (default)
+left_to_right_graphs  = 1
+
+################################### Finance settings ##################################
 #
 # These values are usually set in the pak files
 # You can adjust all the cost in the game, that are not inside some pak file
 #
-
-# show graphs old style (right to left, default) or rather left to right
-left_to_right_graphs  = 0
 
 # Starting money of the player. Given in Credit cents (1/100 Cr)
 #starting_money = 20000000
@@ -438,7 +435,7 @@ toll_waycost_percentage = 0
 #cost_transformer=2500
 #cost_maintain_transformer=20
 
-###################################other stuff##################################
+################################### Miscellaneous settings ##################################
 #
 # also pak dependent
 #
@@ -605,9 +602,9 @@ simple_drawing_tile_size = 4
 simple_drawing_fast_forward = 1
 
 # How much faster should the game proceed with fast forward (limited by your computer and size of the map)
-fast_forward = 50
+fast_forward = 100
 
-###################################network stuff##############################
+################################### Network settings ##############################
 #
 # Synchronized networking is always a trade off between fast respone and safe
 # connections. A more relaxed timing will cause delay of commands but is more
