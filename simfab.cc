@@ -2159,6 +2159,11 @@ void fabrik_t::rem_supplier(koord pos)
 	suppliers.remove(pos);
 
 	if(  welt->get_settings().get_factory_maximum_intransit_percentage()  ) {
+		// set to zero
+		FOR(  array_tpl<ware_production_t>,  &w,  eingang ) {
+			w.max_transit = 0;
+		}
+
 		// unfourtunately we have to bite the bullet and recalc the values from scratch ...
 		FOR( vector_tpl<koord>, ziel, suppliers ) {
 			if(  fabrik_t *fab = get_fab( ziel )  ) {
@@ -2177,6 +2182,7 @@ void fabrik_t::rem_supplier(koord pos)
 							sint32 max_storage = 1 + ( (w_out.max * welt->get_settings().get_factory_maximum_intransit_percentage() ) >> fabrik_t::precision_bits) / 100;
 							w.max_transit += max_storage;
 #endif
+							break;
 						}
 					}
 				}
