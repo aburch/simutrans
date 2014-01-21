@@ -279,19 +279,14 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 				koord zielpos = ware.get_zielpos();
 				const grund_t* gr = welt->lookup_kartenboden(zielpos);
 				const gebaeude_t* const gb = gr ? gr->find<gebaeude_t>() : NULL;
-				const fabrik_t* const factory = gb ? gb->get_fabrik() : NULL;
-				const char* description;
 				cbuffer_t dbuf;
-				if (factory)
-					description = factory->get_name();
-				else if (gb)
+				if (gb)
 				{
 					gb->get_description(dbuf);
-					description = dbuf.get_str();
 				}
 				else
 				{
-					description = translator::translate("Unknown destination");
+					dbuf.append(translator::translate("Unknown destination"));
 				}
 				const stadt_t* city = welt->get_city(zielpos);
 				if (ware.is_passenger())
@@ -300,22 +295,22 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 
 					if(city)
 					{
-						buf.printf("%s <%i, %i> (%s; %s)\n        ", description, zielpos.x, zielpos.y, city->get_name(), trip_type);
+						buf.printf("%s <%i, %i> (%s; %s)\n        ", dbuf.get_str(), zielpos.x, zielpos.y, city->get_name(), trip_type);
 					}
 					else 
 					{
-						buf.printf("%s <%i, %i> (%s)\n        ", description, zielpos.x, zielpos.y, trip_type);
+						buf.printf("%s <%i, %i> (%s)\n        ", dbuf.get_str(), zielpos.x, zielpos.y, trip_type);
 					}
 				}
 				else
 				{
 					if(city)
 					{
-						buf.printf("%s <%i, %i> (%s)\n        ", description, zielpos.x, zielpos.y, city->get_name());
+						buf.printf("%s <%i, %i> (%s)\n        ", dbuf.get_str(), zielpos.x, zielpos.y, city->get_name());
 					}
 					else
 					{
-						buf.printf("%s <%i, %i>\n        ", description, zielpos.x, zielpos.y);
+						buf.printf("%s <%i, %i>\n        ", dbuf.get_str(), zielpos.x, zielpos.y);
 					}
 				}
 			}
