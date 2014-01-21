@@ -781,16 +781,9 @@ gebaeude_t* gebaeude_t::get_first_tile()
 
 void gebaeude_t::get_description(cbuffer_t & buf) const
 {
-//<<<<<<< HEAD:dings/gebaeude.cc
-//	if(is_factory && ptr.fab != NULL) 
-//	{
-//		buf.append(ptr.fab->get_name());
-//=======
-	obj_t::info(buf);
-
-	if(is_factory  &&  ptr.fab != NULL) {
-		buf.append((char *)0);
-//>>>>>>> aburch/master:obj/gebaeude.cc
+	if(is_factory && ptr.fab != NULL) 
+	{
+		buf.append(ptr.fab->get_name());
 	}
 	else if(zeige_baugrube) 
 	{
