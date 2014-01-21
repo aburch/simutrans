@@ -439,6 +439,7 @@ void gui_convoy_assembler_t::layout()
 	y += convoy_tabs_skip + 2;
 
 	lb_traction_types.set_pos(scr_coord(c1_x, y));
+	lb_traction_types.set_size(lb_size);
 	lb_vehicle_count.set_pos(scr_coord(c2_x, y));
 	lb_vehicle_count.set_size(lb_size);
 	
