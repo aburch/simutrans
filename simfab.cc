@@ -134,6 +134,7 @@ void ware_production_t::rdwr(loadsave_t *file)
 {
 	if(  file->is_loading()  ) {
 		init_stats();
+		max_transit = 0;
 	}
 
 	if(  file->get_version()>112000  ) {
@@ -2070,25 +2071,6 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 
 void fabrik_t::laden_abschliessen()
 {
-	if (welt->get_settings().is_crossconnect_factories()) {
-		add_all_suppliers();
-	}
-	else {
-		for(uint32 i=0; i<lieferziele.get_count(); i++) {
-			fabrik_t * fab2 = fabrik_t::get_fab(lieferziele[i]);
-			if (fab2) {
-				fab2->add_supplier(pos.get_2d());
-				lieferziele[i] = fab2->get_pos().get_2d();
-			}
-			else {
-				// remove this ...
-				dbg->warning( "fabrik_t::laden_abschliessen()", "No factory at expected position %s!", lieferziele[i].get_str() );
-				lieferziele.remove_at(i);
-				i--;
-			}
-		}
-	}
-
 	// adjust production base to be at least as large as fields productivity
 	uint32 prodbase_adjust = 1;
 	const field_group_besch_t *fb = besch->get_field_group();
@@ -2100,8 +2082,30 @@ void fabrik_t::laden_abschliessen()
 			}
 		}
 	}
+
 	// set production, update all production related numbers
 	set_base_production( max(prodbase, prodbase_adjust) );
+
+	// now we have a valid storage limit
+	if (welt->get_settings().is_crossconnect_factories()) {
+		add_all_suppliers();
+	}
+	else {
+		// add as supplier to target(s)
+		for(uint32 i=0; i<lieferziele.get_count(); i++) {
+			fabrik_t * fab2 = fabrik_t::get_fab(lieferziele[i]);
+			if(fab2) {
+				fab2->add_supplier(pos.get_2d());
+				lieferziele[i] = fab2->get_pos().get_2d();
+			}
+			else {
+				// remove this ...
+				dbg->warning( "fabrik_t::laden_abschliessen()", "No factory at expected position %s!", lieferziele[i].get_str() );
+				lieferziele.remove_at(i);
+				i--;
+			}
+		}
+	}
 }
 
 
@@ -2196,6 +2200,8 @@ void fabrik_t::rem_supplier(koord pos)
 /** crossconnect everything possible */
 void fabrik_t::add_all_suppliers()
 {
+	lieferziele.clear();
+	suppliers.clear();
 	for(int i=0; i < besch->get_lieferanten(); i++) {
 		const fabrik_lieferant_besch_t *lieferant = besch->get_lieferant(i);
 		const ware_besch_t *ware = lieferant->get_ware();
