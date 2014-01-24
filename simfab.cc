@@ -2132,7 +2132,7 @@ void fabrik_t::add_supplier(koord ziel)
 {
 	if(  welt->get_settings().get_factory_maximum_intransit_percentage()  &&  !suppliers.is_contained(ziel)  ) {
 		if(  fabrik_t *fab = get_fab( ziel )  ) {
-			for(  int i=0;  i < fab->get_ausgang().get_count();  i++   ) {
+			for(  uint32 i=0;  i < fab->get_ausgang().get_count();  i++   ) {
 				const ware_production_t &w_out = fab->get_ausgang()[i];
 				// now update transit limits
 				FOR(  array_tpl<ware_production_t>,  &w,  eingang ) {
@@ -2171,7 +2171,7 @@ void fabrik_t::rem_supplier(koord pos)
 		// unfourtunately we have to bite the bullet and recalc the values from scratch ...
 		FOR( vector_tpl<koord>, ziel, suppliers ) {
 			if(  fabrik_t *fab = get_fab( ziel )  ) {
-				for(  int i=0;  i < fab->get_ausgang().get_count();  i++   ) {
+				for(  uint32 i=0;  i < fab->get_ausgang().get_count();  i++   ) {
 					const ware_production_t &w_out = fab->get_ausgang()[i];
 					// now update transit limits
 					FOR(  array_tpl<ware_production_t>,  &w,  eingang ) {
