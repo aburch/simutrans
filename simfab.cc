@@ -1540,6 +1540,18 @@ sint32 fabrik_t::liefere_an(const ware_besch_t *typ, sint32 menge)
 
 sint8 fabrik_t::is_needed(const ware_besch_t *typ) const
 {
+	/* NOTE for merging with the latest Standard nightlies:
+	* this code is changed in the latest Standard nightlies. The
+	* idea of the change appears to be to scale the effect
+	* of the intransit percentage to the output store of the
+	* producing industry. This is not necessary in Experimental,
+	* as the max_intransit percentage is in any event scaled
+	* based on the lead time and consumption rate. Therefore, the
+	* additional code from Standard for this feature should be
+	* removed/deleted on merging, and the below original code
+	* should remain. 
+	*/
+
 	FOR(array_tpl<ware_production_t>, const& i, eingang) {
 		if(  i.get_typ() == typ  ) {
 			// not needed (false) if overflowing or too much already sent
