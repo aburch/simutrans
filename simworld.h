@@ -1068,6 +1068,9 @@ public:
 	 */
 	uint32 get_zeit_ms() const { return ticks; }
 
+
+	uint32 get_next_month_ticks() const { return next_month_ticks; }
+
 	/**
 	 * Absolute month (count start year zero).
 	 * @author prissi

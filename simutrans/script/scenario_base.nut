@@ -588,6 +588,12 @@ class time_x {
 	month = 1
 }
 
+class time_ticks_x extends time_x {
+	ticks = 0
+	ticks_per_month = 0
+	next_month_ticks = 0
+}
+
 class coord {
 	x = -1
 	y = -1

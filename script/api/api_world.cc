@@ -16,9 +16,9 @@ using namespace script_api;
 
 
 
-mytime_t world_get_time(karte_t*)
+mytime_ticks_t world_get_time(karte_t*)
 {
-	return welt->get_current_month();
+	return mytime_ticks_t(welt->get_current_month(), welt->get_zeit_ms(), welt->scale_with_month_length(1<<18), welt->get_next_month_ticks());
 }
 
 

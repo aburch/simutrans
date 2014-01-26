@@ -184,7 +184,7 @@ BEGIN {
 	export_types["world::find_nearest_city"] = "city_x(coord)"
 	export_types["world::get_season"] = "integer()"
 	export_types["world::remove_player"] = "bool(player_x)"
-	export_types["world::get_time"] = "time_x()"
+	export_types["world::get_time"] = "time_ticks_x()"
 	export_types["world::get_citizens"] = "array<integer>()"
 	export_types["world::get_growth"] = "array<integer>()"
 	export_types["world::get_towns"] = "array<integer>()"

@@ -4,6 +4,7 @@
  *
  * @section api-trunk Current trunk
  *
+ * - Changed return type of world::get_time to time_ticks_x
  * - Added building_x::is_same_building.
  * - Added attraction_list_x, world::get_attraction_list
  * - Added ::new_month, ::new_year

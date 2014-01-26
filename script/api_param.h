@@ -41,6 +41,7 @@ namespace script_api {
 
 	// forward declaration
 	struct mytime_t;
+	struct mytime_ticks_t;
 
 	/**
 	 * Cannot specialize templates by void, so use own void type
@@ -329,6 +330,7 @@ namespace script_api {
 	declare_specialized_param(const schedule_t*, "t|x|y", "schedule_x");
 	declare_specialized_param(linieneintrag_t, "t|x|y", "schedule_entry_x");
 	declare_specialized_param(mytime_t, "i|t|x|y", "time_x");
+	declare_specialized_param(mytime_ticks_t, "i|t|x|y", "time_ticks_x");
 	declare_specialized_param(scenario_t*, "t|x|y", "");
 	declare_specialized_param(spieler_t*, "t|x|y", "player_x");
 	declare_specialized_param(stadt_t*, "t|x|y", "city_x");
