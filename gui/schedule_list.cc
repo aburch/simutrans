@@ -283,11 +283,8 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t *sp_) :
 	bt_delete_line.disable();
 	add_komponente(&bt_delete_line);
 
-//<<<<<<< HEAD
 //	bt_withdraw_line.init(button_t::roundbox_state, "Withdraw All", koord(11, 8 + SCL_HEIGHT+D_BUTTON_HEIGHT+D_BUTTON_HEIGHT), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
-//=======
 	bt_withdraw_line.init(button_t::roundbox_state, "Withdraw All", koord(LINE_NAME_COLUMN_WIDTH, 14+SCL_HEIGHT+D_BUTTON_HEIGHT+2), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
-//>>>>>>> v111.3
 	bt_withdraw_line.set_tooltip("Convoi is sold when all wagons are empty.");
 	bt_withdraw_line.set_visible(false);
 	bt_withdraw_line.add_listener(this);

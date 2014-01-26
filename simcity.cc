@@ -1287,8 +1287,22 @@ stadt_t::~stadt_t()
 
 	welt->remove_queued_city(this);
 
-	// Empty the list of city cars
-	current_cars.clear();
+	if(welt->get_is_shutting_down())
+	{
+		current_cars.clear();
+	}
+	else
+	{
+		while(!current_cars.empty())
+		{
+			// Delete all cars.
+			stadtauto_t* car = current_cars.remove_first();
+			car->set_list(NULL);
+			car->set_time_to_life(0);
+			// Deleting here, for some reason, caused untraceable crashes.
+			// So, instead, set time to life [sic] to 0 and let it delete itself.
+		}
+	}
 
 	// Remove references to this city from factories.
 	ITERATE(city_factories, i)
@@ -1344,13 +1358,10 @@ stadt_t::~stadt_t()
 		
 		if(!welt->get_is_shutting_down())
 		{
-			FOR(connexion_map, const& iter, connected_cities)
+			const weighted_vector_tpl<stadt_t*>& cities = welt->get_staedte();
+			FOR(weighted_vector_tpl<stadt_t*>, const i, cities)
 			{
-				if(iter.key == pos)
-				{
-					continue;
-				}
-				remove_connected_city(welt->get_city(iter.key));
+				i->remove_connected_city(this);
 			}
 		}
 	}
@@ -2424,7 +2435,7 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 		check_road_connexions = true;
 	}
 
-	if (!stadtauto_t::list_empty()) 
+	if(!stadtauto_t::list_empty()) 
 	{
 		// Spawn citycars
 		

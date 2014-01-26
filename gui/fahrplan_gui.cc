@@ -523,7 +523,6 @@ void fahrplan_gui_t::update_selection()
 {
 	bt_wait_prev.disable();
 	lb_wait.set_color( COL_GREY3 );
-//<<<<<<< HEAD
 	lb_spacing.set_color( COL_GREY3 );
 	lb_spacing_as_clock.set_color( COL_GREY3 );
 	sprintf(str_spacing_as_clock, "%s", translator::translate("off") );
@@ -532,13 +531,11 @@ void fahrplan_gui_t::update_selection()
 	sprintf(str_spacing_shift_as_clock, "%s", translator::translate("off") );
 
 //	if (!fpl->empty()) {
-//=======
 	strcpy( str_parts_month, translator::translate("off") );
 	lb_waitlevel.set_color( COL_GREY3 );
 	bt_wait_next.disable();
 
 	if(  !fpl->empty()  ) {
-//>>>>>>> aburch/master
 		fpl->set_aktuell( min(fpl->get_count()-1,fpl->get_aktuell()) );
 		const uint8 aktuell = fpl->get_aktuell();
 		if(  haltestelle_t::get_halt(sp->get_welt(), fpl->eintrag[aktuell].pos, sp).is_bound()  ) {
@@ -549,7 +546,6 @@ void fahrplan_gui_t::update_selection()
 			if(  fpl->eintrag[aktuell].ladegrad>0  ) {
 				bt_wait_prev.enable();
 				lb_wait.set_color( COL_BLACK );
-//<<<<<<< HEAD
 				lb_spacing.set_color( COL_BLACK );
 				if (fpl->get_spacing() ) {
 					lb_spacing_shift.set_color( COL_BLACK );
