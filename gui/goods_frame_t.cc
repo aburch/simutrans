@@ -95,7 +95,6 @@ goods_frame_t::goods_frame_t() :
 	int y=D_BUTTON_HEIGHT+4-D_TITLEBAR_HEIGHT;
 
 	speed_bonus[0] = 0;
-//<<<<<<< HEAD
 
 	change_speed_label.set_text(speed_bonus);
 	change_speed_label.set_pos(scr_coord(BUTTON4_X+5, y));
@@ -164,7 +163,7 @@ goods_frame_t::goods_frame_t() :
 	way_type.set_highlight_color(1);
 	
 	y=D_BUTTON_HEIGHT+6+5*LINESPACE + 25;
-//=======
+
 //	speed_down.init(button_t::repeatarrowleft, "", scr_coord(BUTTON4_X-20, y), scr_size(10,D_BUTTON_HEIGHT));
 //	speed_down.add_listener(this);
 //	add_komponente(&speed_down);
@@ -179,7 +178,7 @@ goods_frame_t::goods_frame_t() :
 //	speed_up.add_listener(this);
 //	add_komponente(&speed_up);
 //	y=D_BUTTON_HEIGHT+4+5*LINESPACE;
-//>>>>>>> aburch/master
+
 
 	filter_goods_toggle.init(button_t::square_state, "Show only used", scr_coord(BUTTON1_X, y));
 	filter_goods_toggle.set_tooltip(translator::translate("Only show goods which are currently handled by factories"));

@@ -1298,8 +1298,22 @@ stadt_t::~stadt_t()
 
 	welt->remove_queued_city(this);
 
-	// Empty the list of city cars
-	current_cars.clear();
+	if(welt->get_is_shutting_down())
+	{
+		current_cars.clear();
+	}
+	else
+	{
+		while(!current_cars.empty())
+		{
+			// Delete all cars.
+			stadtauto_t* car = current_cars.remove_first();
+			car->set_list(NULL);
+			car->set_time_to_life(0);
+			// Deleting here, for some reason, caused untraceable crashes.
+			// So, instead, set time to life [sic] to 0 and let it delete itself.
+		}
+	}
 
 	// Remove references to this city from factories.
 	ITERATE(city_factories, i)
@@ -1355,13 +1369,10 @@ stadt_t::~stadt_t()
 		
 		if(!welt->get_is_shutting_down())
 		{
-			FOR(connexion_map, const& iter, connected_cities)
+			const weighted_vector_tpl<stadt_t*>& cities = welt->get_staedte();
+			FOR(weighted_vector_tpl<stadt_t*>, const i, cities)
 			{
-				if(iter.key == pos)
-				{
-					continue;
-				}
-				remove_connected_city(welt->get_city(iter.key));
+				i->remove_connected_city(this);
 			}
 		}
 	}
@@ -2482,7 +2493,7 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 		check_road_connexions = true;
 	}
 
-	if (!stadtauto_t::list_empty()) 
+	if(!stadtauto_t::list_empty()) 
 	{
 		// Spawn citycars
 		
@@ -2596,8 +2607,7 @@ void stadt_t::calc_growth()
 
 	//sint64     const(& h)[MAX_CITY_HISTORY] = city_history_month[0];
 	settings_t const&  s           = welt->get_settings();
-//<<<<<<< HEAD
-//=======
+
 //	sint32     const   pas         = (sint32)( (h[HIST_PAS_TRANSPORTED]  * (s.get_passenger_multiplier() << 6)) / (h[HIST_PAS_GENERATED]  + 1) );
 //	sint32     const   mail        = (sint32)( (h[HIST_MAIL_TRANSPORTED] * (s.get_mail_multiplier()      << 6)) / (h[HIST_MAIL_GENERATED] + 1) );
 //	sint32     const   electricity = 0;
@@ -2606,7 +2616,6 @@ void stadt_t::calc_growth()
 //	// By construction, this is a percentage times 2^6.
 //	// We will divide it by 2^4=16 for traditional reasons, which means
 //	// it generates 2^2 (=4) or fewer people at 100%.
-//>>>>>>> aburch/master
 
 	const int electricity_multiplier = 20;
 	// const uint8 electricity_multiplier =welt->get_settings().get_electricity_multiplier();
@@ -2632,8 +2641,8 @@ void stadt_t::calc_growth()
 	// now give the growth for this step
 	sint32 growth_factor = weight_factor > 0 ? total_supply_percentage / weight_factor : 0;
 
-//<<<<<<< HEAD
-	//Congestion adversely impacts on growth. At 100% congestion, there will be no growth. 
+
+	// Congestion adversely impacts on growth. At 100% congestion, there will be no growth. 
 	if(city_history_month[0][HIST_CONGESTION] > 0)
 	{
 		const uint32 congestion_factor = city_history_month[0][HIST_CONGESTION];
@@ -2641,15 +2650,15 @@ void stadt_t::calc_growth()
 	}
 	
 	sint32 new_wachstum = growth_factor;
-//=======
+
 //	sint64 new_unsupplied_city_growth = growth_factor * (CITYGROWTH_PER_CITICEN / 16);
-//>>>>>>> aburch/master
+
 
 	// OK.  Now we must adjust for the steps per month.
 	// Cities were growing way too fast without this adjustment.
 	// The original value was based on 18 bit months.
-//<<<<<<< HEAD
-	// TO DO: implement a more realistic city growth algorithm (exponential not linear)
+
+	// TODO: implement a more realistic city growth algorithm (exponential not linear)
 	const sint64 tpm = welt->ticks_per_world_month;
 	const sint64 old_ticks_per_world_month = 1LL << 18;
 	if (tpm > old_ticks_per_world_month) {
@@ -2660,7 +2669,7 @@ void stadt_t::calc_growth()
 	}
 
 	wachstum += new_wachstum;
-//=======
+
 //	const sint64 tpm = welt->ticks_per_world_month;
 //	const sint64 old_ticks_per_world_month = (1ll << 18);
 //	if(  tpm > old_ticks_per_world_month  ) {
@@ -2672,12 +2681,11 @@ void stadt_t::calc_growth()
 //	// on may add another multiplier here for further slowdown/speed up
 //
 //	unsupplied_city_growth += new_unsupplied_city_growth;
-//>>>>>>> aburch/master
+
 }
 
 
 // does constructions ...
-//<<<<<<< HEAD
 void stadt_t::step_grow_city(bool new_town)
 {
 	// Try harder to build if this is a new town

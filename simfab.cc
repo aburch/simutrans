@@ -2450,7 +2450,7 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 			{
 				continue;
 			}
-			buf.printf("\n - %s %u/%i/%u%s, %u%%",
+			buf.printf("\n - %s %u/%i/%u %s, %u%%",
 				translator::translate(eingang[index].get_typ()->get_name()),
 				(sint32)(0.5+eingang[index].menge / (double)(1<<fabrik_t::precision_bits)),
 				eingang[index].transit,

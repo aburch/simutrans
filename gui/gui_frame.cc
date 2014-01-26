@@ -50,7 +50,7 @@ scr_coord floating_cursor_t::next_pos(const scr_size& size)
 	return curr;
 }
 
-//<<<<<<< HEAD
+
 //// default button sizes
 //KOORD_VAL gui_frame_t::gui_button_width = 92;
 //KOORD_VAL gui_frame_t::gui_button_height = 14;
@@ -72,9 +72,9 @@ scr_coord floating_cursor_t::next_pos(const scr_size& size)
 //KOORD_VAL gui_frame_t::gui_indicator_width = 20;
 //KOORD_VAL gui_frame_t::gui_indicator_height = 4;
 //
-//=======
+
 karte_ptr_t gui_frame_t::welt;
-//>>>>>>> aburch/master
+
 
 // Insert the container
 gui_frame_t::gui_frame_t(char const* const name, spieler_t const* const sp)

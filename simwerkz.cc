@@ -283,7 +283,6 @@ static grund_t *wkz_intern_koord_to_weg_grund(spieler_t *sp, karte_t *welt, koor
 /****************************************** now the actual tools **************************************/
 
 // werkzeuge
-//<<<<<<< HEAD
 //// "Tools" (Babelfish)
 //// returns grund at pos if visible else NULL
 //// if no grund at pos exists try kartenboden
@@ -300,9 +299,7 @@ static grund_t *wkz_intern_koord_to_weg_grund(spieler_t *sp, karte_t *welt, koor
 //}
 //
 //const char *wkz_abfrage_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
-//=======
 const char *wkz_abfrage_t::work( spieler_t *sp, koord3d pos )
-//>>>>>>> aburch/master
 {
 	grund_t *gr = welt->lookup(pos);
 	if(gr) {

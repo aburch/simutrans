@@ -439,10 +439,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 		{
 			ok = step < MAX_STEP;
 		}
-//<<<<<<< HEAD
-//=======
 //		ok = !route.empty();
-//>>>>>>> aburch/master
 	}
 
 	RELEASE_NODES(ni);
