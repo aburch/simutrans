@@ -4176,13 +4176,15 @@ void convoi_t::laden() //"load" (Babelfish)
 	// so code inside if will be executed once. At arrival time.
 	minivec_tpl<uint8> departure_entries_to_remove(fpl->get_count());
 	bool clear_departures = false;
-	if(journey_distance > 0)
+	if(journey_distance > 0 && last_stop_id != halt.get_id())
 	{
 		arrival_time = welt->get_zeit_ms();
 		sint64 journey_time = welt->ticks_to_tenths_of_minutes(arrival_time - departures->get(last_stop_id).departure_time);
 		if(journey_time <= 0)
 		{
 			// Necessary to prevent divisions by zero.
+			// This code should never be reached.
+			assert(false);
 			journey_time = 1;
 		}
 		const sint32 journey_distance_meters = journey_distance * welt->get_settings().get_meters_per_tile();
@@ -4245,9 +4247,9 @@ void convoi_t::laden() //"load" (Babelfish)
 				average_tpl<uint16> *average = average_journey_times->access(idp);
 				if(!average)
 				{
-					average_tpl<uint16> average;
-					average.add(journey_time);
-					average_journey_times->put(idp, average);
+					average_tpl<uint16> average_new;
+					average_new.add(journey_time);
+					average_journey_times->put(idp, average_new);
 				}
 				else
 				{
@@ -4255,8 +4257,14 @@ void convoi_t::laden() //"load" (Babelfish)
 					// (e.g. - D shaped timetables or multiple branching and re-joining)
 					// and apply a quick and somewhat dirty workaround.
 
-					
-					if(journey_time > average->get_average() * 2 || journey_time < average->get_average() / 2)
+					const uint16 average_journey_time = average->get_average();
+					if(average_journey_time == 0)
+					{
+						// Something has gone wrong for journey time to be zero: reset.
+						average->reset();
+						goto write_basic;
+					}
+					if(journey_time > average_journey_time * 2 || average_journey_time == 0 || journey_time < average_journey_time / 2)
 					{
 						// Anomaly detected - check to see whether this can be caused by odd timetabling.
 						// If not, then this must be caused by traffic fluctuations, and should remain.
@@ -4274,11 +4282,11 @@ void convoi_t::laden() //"load" (Babelfish)
 						if(this_stop_count >= 2)
 						{
 							// More than one entry - might be a timetable issue.
-							if(journey_time > average->get_average() * 2)
+							if(journey_time > average_journey_time * 2)
 							{
 								dbg->message("void convoi_t::laden()", "Possible timetable anomaly detected. Skipping inserting journey time (convoy).");
 							}
-							else if(journey_time < average->get_average() / 2)
+							else if(journey_time < average_journey_time / 2)
 							{
 								dbg->message("void convoi_t::laden()", "Possible timetable anomaly detected. Resetting average journey times (convoy).");	
 								average->reset();
@@ -4303,17 +4311,23 @@ write_basic:
 					average_tpl<uint16> *average = get_average_journey_times()->access(idp);
 					if(!average)
 					{
-						average_tpl<uint16> average;
-						average.add(journey_time);
-						get_average_journey_times()->put(idp, average);
+						average_tpl<uint16> average_new;
+						average_new.add(journey_time);
+						get_average_journey_times()->put(idp, average_new);
 					}
 					else
 					{
 						// Check for anomalies as might be created by exotic timetable arrangements 
 						// (e.g. - D shaped timetables or multiple branching and re-joining)
 						// and apply a quick and somewhat dirty workaround.
-	
-						if(journey_time > average->get_average() * 2 || journey_time < average->get_average() / 2)
+						const uint16 average_journey_time = average->get_average();
+						if(average_journey_time == 0)
+						{
+							// Something has gone wrong for journey time to be zero: reset.
+							average->reset();
+							goto write_basic_line;
+						}
+						if(journey_time > average_journey_time * 2 || average_journey_time == 0 || journey_time < average_journey_time / 2)
 						{
 							// Anomaly detected - check to see whether this can be caused by odd timetabling.
 							// If not, then this must be caused by traffic fluctuations, and should remain.
@@ -4331,11 +4345,11 @@ write_basic:
 							if(this_stop_count >= 2)
 							{
 								// More than one entry - might be a timetable issue.
-								if(journey_time > average->get_average() * 2)
+								if(journey_time > average_journey_time * 2)
 								{
 									dbg->message("void convoi_t::laden()", "Possible timetable anomaly detected. Skipping inserting journey time (line).");
 								}
-								else if(allow_resetting_line_average && journey_time < average->get_average() / 2)
+								else if(allow_resetting_line_average && journey_time < average_journey_time / 2)
 								{
 									dbg->message("void convoi_t::laden()", "Possible timetable anomaly detected. Resetting average journey times (line).");	
 									average->reset();
@@ -4476,7 +4490,7 @@ write_basic_line:
 			halt->request_loading(self);
 		}
 	}
-	if(journey_distance > 0)
+	if(journey_distance > 0 && last_stop_id != halt.get_id())
 	{
 		if(clear_departures)
 		{
