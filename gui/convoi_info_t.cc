@@ -229,21 +229,19 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 				line_bound = true;
 			}
 			button.enable();
-			go_home_button.pressed = route_search_in_progress;
-			details_button.pressed = win_get_magic( magic_convoi_detail+cnv.get_id() );
-			if (!cnv->get_schedule()->empty()) {
-				const grund_t* g = welt->lookup(cnv->get_schedule()->get_current_eintrag().pos);
-				if (g != NULL && g->get_depot()) {
-					go_home_button.disable();
-				}
-				else {
-					goto enable_home;
-				}
+
+			if(  route_search_in_progress  ) {
+				go_home_button.disable();
 			}
 			else {
-enable_home:
 				go_home_button.enable();
 			}
+
+			if(  grund_t* gr=welt->lookup(cnv->get_schedule()->get_current_eintrag().pos)  ) {
+				go_home_button.pressed = gr->get_depot() != NULL;
+			}
+			details_button.pressed = win_get_magic( magic_convoi_detail+cnv.get_id() );
+
 			no_load_button.pressed = cnv->get_no_load();
 			no_load_button.enable();
 		}
@@ -432,56 +430,85 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 		}
 
 		if(komp == &go_home_button  &&  !route_search_in_progress) {
-			// limit update to certain states that are considered to be save for fahrplan updates
+			// limit update to certain states that are considered to be safe for fahrplan updates
 			int state = cnv->get_state();
 			if(state==convoi_t::FAHRPLANEINGABE) {
 DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot change schedule ... ", state );
 				return true;
 			}
-			route_search_in_progress = true;
 
-			// iterate over all depots and try to find shortest route
-			route_t * shortest_route = new route_t();
-			route_t * route = new route_t();
-			koord3d home = koord3d(0,0,0);
-			FOR(slist_tpl<depot_t*>, const depot, depot_t::get_depot_list()) {
-				vehikel_t& v = *cnv->front();
-				if (depot->get_waytype() != v.get_besch()->get_waytype() ||
-						depot->get_besitzer() != cnv->get_besitzer()) {
-					continue;
-				}
-				koord3d pos = depot->get_pos();
-				if(!shortest_route->empty()    &&    koord_distance(pos.get_2d(),cnv->get_pos().get_2d())>=shortest_route->get_count()-1) {
-					// the current route is already shorter, no need to search further
-					continue;
-				}
-				if (v.calc_route(cnv->get_pos(), pos, 50, route)) { // do not care about speed
-					if(  route->get_count() < shortest_route->get_count()    ||    shortest_route->empty()  ) {
-						shortest_route->kopiere(route);
-						home = pos;
+			grund_t* gr = welt->lookup(cnv->get_schedule()->get_current_eintrag().pos);
+			const bool enable_gohome = gr && gr->get_depot() == NULL;
+
+			if(  enable_gohome  ) { // go to depot
+				route_search_in_progress = true;
+
+				// iterate over all depots and try to find shortest route
+				route_t * shortest_route = new route_t();
+				route_t * route = new route_t();
+				koord3d home = koord3d(0,0,0);
+				FOR(slist_tpl<depot_t*>, const depot, depot_t::get_depot_list()) {
+					vehikel_t& v = *cnv->front();
+					if (depot->get_waytype() != v.get_besch()->get_waytype() ||
+							depot->get_besitzer() != cnv->get_besitzer()) {
+						continue;
+					}
+					koord3d pos = depot->get_pos();
+					if(!shortest_route->empty()    &&    koord_distance(pos.get_2d(),cnv->get_pos().get_2d())>=shortest_route->get_count()-1) {
+						// the current route is already shorter, no need to search further
+						continue;
+					}
+					if (v.calc_route(cnv->get_pos(), pos, 50, route)) { // do not care about speed
+						if(  route->get_count() < shortest_route->get_count()    ||    shortest_route->empty()  ) {
+							shortest_route->kopiere(route);
+							home = pos;
+						}
 					}
 				}
-			}
-			delete route;
-			DBG_MESSAGE("shortest route has ", "%i hops", shortest_route->get_count()-1);
+				delete route;
+				DBG_MESSAGE("shortest route has ", "%i hops", shortest_route->get_count()-1);
 
-			// if route to a depot has been found, update the convoi's schedule
-			const char *txt;
-			if(!shortest_route->empty()) {
-				schedule_t *fpl = cnv->get_schedule()->copy();
-				fpl->insert(welt->lookup(home));
-				fpl->set_aktuell( (fpl->get_aktuell()+fpl->get_count()-1)%fpl->get_count() );
+				// if route to a depot has been found, update the convoi's schedule
+				const char *txt;
+				if(  !shortest_route->empty()  ) {
+					schedule_t *fpl = cnv->get_schedule()->copy();
+					fpl->insert(welt->lookup(home));
+					fpl->set_aktuell( (fpl->get_aktuell()+fpl->get_count()-1)%fpl->get_count() );
+					cbuffer_t buf;
+					fpl->sprintf_schedule( buf );
+					cnv->call_convoi_tool( 'g', buf );
+					txt = "Convoi has been sent\nto the nearest depot\nof appropriate type.\n";
+				}
+				else {
+					txt = "Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.";
+				}
+				delete shortest_route;
+				route_search_in_progress = false;
+				create_win( new news_img(txt), w_time_delete, magic_none);
+			}
+			else { // back to normal schedule
+				// if we are on a line, just restore the line
+				schedule_t* fpl;
+				if(  cnv->get_line().is_bound()  ) {
+					cnv->get_schedule()->advance();
+					koord3d target = cnv->get_schedule()->get_current_eintrag().pos;
+					fpl = cnv->get_line()->get_schedule()->copy();
+					for(  uint8 i=0;  i < fpl->get_count();  i++  ) {
+						if(  fpl->get_current_eintrag().pos == target  ) {
+							break;
+						}
+						fpl->advance();
+					}
+					// now we are on the line schedule on the next stop
+				}
+				else {
+					fpl = cnv->get_schedule()->copy();
+					fpl->remove(); // remove depot entry
+				}
 				cbuffer_t buf;
 				fpl->sprintf_schedule( buf );
 				cnv->call_convoi_tool( 'g', buf );
-				txt = "Convoi has been sent\nto the nearest depot\nof appropriate type.\n";
 			}
-			else {
-				txt = "Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.";
-			}
-			delete shortest_route;
-			route_search_in_progress = false;
-			create_win( new news_img(txt), w_time_delete, magic_none);
 		} // end go home button
 	}
 
