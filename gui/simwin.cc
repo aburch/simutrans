@@ -106,9 +106,10 @@ public:
 	uint8 wt;               // the flags for the window type
 	ptrdiff_t magic_number; // either magic number or this pointer (which is unique too)
 	gui_frame_t *gui;
-	bool closing;
+	uint16	gadget_state;	// which buttons to highlite
 	bool sticky;            // true if window is sticky
 	bool rollup;
+	bool dirty;
 
 	simwin_gadget_flags_t flags; // (Mathew Hounsell) See Above.
 
@@ -180,7 +181,7 @@ static int display_gadget_box(sint8 code,
 	}
 
 	if(pushed) {
-		display_fillbox_wh_clip(x+1, y+1, D_GADGET_WIDTH-2, D_GADGET_HEIGHT-2, (color & 0xF8) + max(7, (color&0x07)+2), false);
+		display_fillbox_wh_clip(x+1, y+1, D_GADGET_WIDTH-2, D_TITLEBAR_HEIGHT-2, (color & 0xF8) + max(7, (color&0x07)+2), false);
 	}
 
 	// Do we have a gadget image?
@@ -221,37 +222,37 @@ static int display_gadget_box(sint8 code,
 //-------------------------------------------------------------------------
 // (Mathew Hounsell) Created
 static int display_gadget_boxes(
-	simwin_gadget_flags_t const * const flags,
-	int const x, int const y,
-	int const color,
-	bool const close_pushed,
-	bool const sticky_pushed,
-	bool const goto_pushed
+	simwin_gadget_flags_t* flags,
+	int x, int y,
+	int color,
+	uint16 gadget_state,
+	bool sticky_pushed,
+	bool goto_pushed
 ) {
 	int width = 0;
 	const int k=(REVERSE_GADGETS?1:-1);
 
 	// Only the close and sticky gadget can be pushed.
 	if(  flags->close  ) {
-		width += k*display_gadget_box( SKIN_GADGET_CLOSE, x + width, y, color, close_pushed );
+		width += k*display_gadget_box( SKIN_GADGET_CLOSE, x + width, y, color, gadget_state & (1<<SKIN_GADGET_CLOSE) );
 	}
 	if(  flags->size  ) {
-		width += k*display_gadget_box( SKIN_GADGET_MINIMIZE, x + width, y, color, false );
+		width += k*display_gadget_box( SKIN_GADGET_MINIMIZE, x + width, y, color, gadget_state & (1<<SKIN_GADGET_MINIMIZE) );
 	}
 	if(  flags->help  ) {
-		width += k*display_gadget_box( SKIN_GADGET_HELP, x + width, y, color, false );
+		width += k*display_gadget_box( SKIN_GADGET_HELP, x + width, y, color, gadget_state & (1<<SKIN_GADGET_HELP) );
 	}
 	if(  flags->prev  ) {
-		width += k*display_gadget_box( SKIN_BUTTON_PREVIOUS, x + width, y, color, false );
+		width += k*display_gadget_box( SKIN_BUTTON_PREVIOUS, x + width, y, color, gadget_state & (1<<SKIN_BUTTON_PREVIOUS) );
 	}
 	if(  flags->next  ) {
-		width += k*display_gadget_box( SKIN_BUTTON_NEXT, x + width, y, color, false );
+		width += k*display_gadget_box( SKIN_BUTTON_NEXT, x + width, y, color, gadget_state & (1<<SKIN_BUTTON_NEXT) );
 	}
 	if(  flags->gotopos  ) {
 		width += k*display_gadget_box( SKIN_GADGET_GOTOPOS, x + width, y, color, goto_pushed );
 	}
 	if(  flags->sticky  ) {
-		width += k*display_gadget_box( sticky_pushed ? SKIN_GADGET_PINNED : SKIN_GADGET_NOTPINNED, x + width, y, color, sticky_pushed );
+		width += k*display_gadget_box( sticky_pushed ? SKIN_GADGET_PINNED : SKIN_GADGET_NOTPINNED, x + width, y, color, gadget_state & (1<<SKIN_GADGET_NOTPINNED) );
 	}
 
 	return abs( width );
@@ -324,7 +325,7 @@ static void win_draw_window_title(const scr_coord pos, const scr_size size,
 		const char * const text,
 		const PLAYER_COLOR_VAL text_farbe,
 		const koord3d welt_pos,
-		const bool closing,
+		const uint16 gadget_state,
 		const bool sticky,
 		const bool goto_pushed,
 		simwin_gadget_flags_t &flags )
@@ -337,7 +338,7 @@ static void win_draw_window_title(const scr_coord pos, const scr_size size,
 
 	// Draw the gadgets and then move left and draw text.
 	flags.gotopos = (welt_pos != koord3d::invalid);
-	int width = display_gadget_boxes( &flags, pos.x+(REVERSE_GADGETS?0:size.w-D_GADGET_WIDTH-4), pos.y, titel_farbe, closing, sticky, goto_pushed );
+	int width = display_gadget_boxes( &flags, pos.x+(REVERSE_GADGETS?0:size.w-D_GADGET_WIDTH-4), pos.y, titel_farbe, gadget_state, sticky, goto_pushed );
 	int titlewidth = display_proportional_clip( pos.x + (REVERSE_GADGETS?width+4:4), pos.y+(D_TITLEBAR_HEIGHT-LINEASCENT)/2, text, ALIGN_LEFT, text_farbe, false );
 	if(  flags.gotopos  ) {
 		display_proportional_clip( pos.x + (REVERSE_GADGETS?width+4:4)+titlewidth+8, pos.y+(D_TITLEBAR_HEIGHT-LINEASCENT)/2, welt_pos.get_2d().get_fullstr(), ALIGN_LEFT, text_farbe, false );
@@ -594,7 +595,7 @@ int create_win(int x, int y, gui_frame_t* const gui, wintype const wt, ptrdiff_t
 		if (!wins.empty()) {
 			// mark old dirty
 			const scr_size size = wins.back().gui->get_windowsize();
-			mark_rect_dirty_wc( wins.back().pos.x - 1, wins.back().pos.y - 1, wins.back().pos.x + size.w + 2, wins.back().pos.y + size.h + 2 ); // -1, +2 for env_t::window_frame_active
+			mark_rect_dirty_wc( wins.back().pos.x - 1, wins.back().pos.y - 1, wins.back().pos.x + size.w + 2, wins.back().pos.y + size.h + 2 + D_TITLEBAR_HEIGHT ); // -1, +2 for env_t::window_frame_active
 		}
 
 		wins.append( simwin_t() );
@@ -617,9 +618,10 @@ int create_win(int x, int y, gui_frame_t* const gui, wintype const wt, ptrdiff_t
 		win.wt    = wt & w_time_delete ? w_info : wt;
 		win.dauer = (wt&w_time_delete) ? MESG_WAIT : -1;
 		win.magic_number = magic;
-		win.closing = false;
+		win.gadget_state = 0;
 		win.rollup = false;
 		win.sticky = false;
+		win.dirty = true;
 
 		// Hajo: Notify window to be shown
 		assert(gui);
@@ -672,7 +674,7 @@ int create_win(int x, int y, gui_frame_t* const gui, wintype const wt, ptrdiff_t
 			y = menu_height;
 		}
 		win.pos = scr_coord(x,y);
-		mark_rect_dirty_wc( x, y, x+size.w, y+size.h );
+		win.dirty = true;
 		return wins.get_count();
 	}
 	else {
@@ -819,8 +821,7 @@ int top_win(int win, bool keep_state )
 
 	// mark old dirty
 	scr_size size = wins.back().gui->get_windowsize();
-	mark_rect_dirty_wc( wins.back().pos.x - 1, wins.back().pos.y - 1, wins.back().pos.x + size.w + 2, wins.back().pos.y + size.h + 2 ); // -1, +2 for env_t::window_frame_active
-//    mark_rect_dirty_wc( wins.back().pos.x, wins.back().pos.y, wins.back().pos.x+wins.back().gui->get_windowsize().x, wins.back().pos.y+D_TITLEBAR_HEIGHT );
+	wins.back().dirty = true;
 
 	simwin_t tmp = wins[win];
 	wins.remove_at(win);
@@ -876,13 +877,14 @@ void display_win(int win)
 				komp->get_name(),
 				text_color,
 				komp->get_weltpos(false),
-				wins[win].closing,
+				wins[win].gadget_state,
 				wins[win].sticky,
 				komp->is_weltpos(),
 				wins[win].flags );
-		if(  wins[win].gui->is_dirty()  ) {
-//			mark_rect_dirty_wc( wins[win].pos.x, wins[win].pos.y, wins[win].pos.x+size.w, wins[win].pos.y+D_TITLEBAR_HEIGHT );
-		}
+	}
+	if(  wins[win].dirty  ) {
+		mark_rect_dirty_wc( wins[win].pos.x, wins[win].pos.y, wins[win].pos.x+size.w+1, wins[win].pos.y+2 );
+		wins[win].dirty = false;
 	}
 	// mark top window, if requested
 	if(env_t::window_frame_active  &&  (unsigned)win==wins.get_count()-1) {
@@ -1102,7 +1104,7 @@ void move_win(int win, event_t *ev)
 	wins[win].pos += delta;
 	// need to mark all of old and new positions dirty. -1, +2 for env_t::window_frame_active
 	mark_rect_dirty_wc( from_pos.x - 1, from_pos.y - 1, from_pos.x + from_size.x + 2, from_pos.y + from_size.y + 2 );
-	mark_rect_dirty_wc( to_pos.x - 1, to_pos.y - 1, to_pos.x + to_size.x + 2, to_pos.y + to_size.y + 2 );
+	wins[win].dirty = true;
 	// set dirty flag to refill background
 	if(wl) {
 		wl->set_background_dirty();
@@ -1181,8 +1183,7 @@ void win_set_pos(gui_frame_t *gui, int x, int y)
 		if(  wins[i].gui == gui  ) {
 			wins[i].pos.x = x;
 			wins[i].pos.y = y;
-			const scr_size size = wins[i].gui->get_windowsize();
-			mark_rect_dirty_wc( x - 1, y - 1, x + size.w + 2, y + size.h + 2 ); // -1, +2 for env_t::window_frame_active
+			wins[i].dirty = true;
 			return;
 		}
 	}
@@ -1202,7 +1203,6 @@ bool check_pos_win(event_t *ev)
 
 	const int x = ev->ev_class==EVENT_MOVE ? ev->mx : ev->cx;
 	const int y = ev->ev_class==EVENT_MOVE ? ev->my : ev->cy;
-
 
 	// for the moment, no none events
 	if (ev->ev_class == EVENT_NONE) {
@@ -1302,6 +1302,7 @@ bool check_pos_win(event_t *ev)
 			if(  y<wins[i].pos.y+D_TITLEBAR_HEIGHT  &&  wins[i].flags.title  ) {
 				// no more moving
 				is_moving = -1;
+				wins[i].dirty = true;
 
 				// %HACK (Mathew Hounsell) So decode will know if gadget is needed.
 				wins[i].flags.help = ( wins[i].gui->get_hilfe_datei() != NULL );
@@ -1309,78 +1310,68 @@ bool check_pos_win(event_t *ev)
 				// Where Was It ?
 				sint8 code = decode_gadget_boxes( ( & wins[i].flags ), wins[i].pos.x + (REVERSE_GADGETS?0:wins[i].gui->get_windowsize().w-D_GADGET_WIDTH-4), x );
 
-				switch( code ) {
-					case SKIN_GADGET_CLOSE :
-						if (IS_LEFTCLICK(ev)) {
-							wins[i].closing = true;
-						}
-						else if  (IS_LEFTRELEASE(ev)) {
-							if (  ev->my>=wins[i].pos.y  &&  ev->my<wins[i].pos.y+D_GADGET_WIDTH  &&  decode_gadget_boxes( ( & wins[i].flags ), wins[i].pos.x + (REVERSE_GADGETS?0:wins[i].gui->get_windowsize().w-D_GADGET_WIDTH-4), ev->mx )==SKIN_GADGET_CLOSE) {
-								destroy_win(wins[i].gui);
-							}
-							else {
-								wins[i].closing = false;
-							}
-						}
-						break;
-					case SKIN_GADGET_MINIMIZE: // (Mathew Hounsell)
-						if (IS_LEFTCLICK(ev)) {
-							ev->ev_class = WINDOW_MAKE_MIN_SIZE;
-							ev->ev_code = 0;
-							wins[i].gui->infowin_event( ev );
-						}
-						break;
-					case SKIN_GADGET_HELP :
-						if (IS_LEFTCLICK(ev)) {
-							help_frame_t::open_help_on( wins[i].gui->get_hilfe_datei() );
-						}
-						break;
-					case SKIN_BUTTON_PREVIOUS:
-						if (IS_LEFTCLICK(ev)) {
-							ev->ev_class = WINDOW_CHOOSE_NEXT;
-							ev->ev_code = PREV_WINDOW;  // backward
-							wins[i].gui->infowin_event( ev );
-						}
-						break;
-					case SKIN_BUTTON_NEXT:
-						if (IS_LEFTCLICK(ev)) {
-							ev->ev_class = WINDOW_CHOOSE_NEXT;
-							ev->ev_code = NEXT_WINDOW;  // forward
-							wins[i].gui->infowin_event( ev );
-						}
-						break;
-					case SKIN_GADGET_GOTOPOS:
-						if (IS_LEFTCLICK(ev)) {
-							// change position on map (or follow)
-							koord3d k = wins[i].gui->get_weltpos(true);
-							if(  k!=koord3d::invalid  ) {
-								spieler_t::get_welt()->get_viewport()->change_world_position( k );
+				if(  code < SKIN_GADGET_COUNT  ) {
+					if(  IS_LEFTCLICK(ev)  ) {
+						wins[i].gadget_state |= (1 << code);
+					}
+					else if(  IS_LEFTRELEASE(ev)  ) {
+						wins[i].gadget_state &= ~(1 << code);
+						if(  ev->my >= wins[i].pos.y  &&  ev->my < wins[i].pos.y+D_TITLEBAR_HEIGHT  &&  decode_gadget_boxes( ( & wins[i].flags ), wins[i].pos.x + (REVERSE_GADGETS?0:wins[i].gui->get_windowsize().w-D_GADGET_WIDTH-4), ev->mx )==code  ) {
+							// do whatever needs to be done
+							switch(  code  ) {
+								case SKIN_GADGET_CLOSE :
+									destroy_win(wins[i].gui);
+									break;
+								case SKIN_GADGET_MINIMIZE: // (Mathew Hounsell)
+									ev->ev_class = WINDOW_MAKE_MIN_SIZE;
+									ev->ev_code = 0;
+									wins[i].gui->infowin_event( ev );
+									break;
+								case SKIN_GADGET_HELP :
+									help_frame_t::open_help_on( wins[i].gui->get_hilfe_datei() );
+									break;
+								case SKIN_BUTTON_PREVIOUS:
+									ev->ev_class = WINDOW_CHOOSE_NEXT;
+									ev->ev_code = PREV_WINDOW;  // backward
+									wins[i].gui->infowin_event( ev );
+									break;
+								case SKIN_BUTTON_NEXT:
+									ev->ev_class = WINDOW_CHOOSE_NEXT;
+									ev->ev_code = NEXT_WINDOW;  // forward
+									wins[i].gui->infowin_event( ev );
+									break;
+								case SKIN_GADGET_GOTOPOS:
+									{	// change position on map (or follow)
+										koord3d k = wins[i].gui->get_weltpos(true);
+										if(  k!=koord3d::invalid  ) {
+											spieler_t::get_welt()->get_viewport()->change_world_position( k );
+											wins[i].gadget_state |= (1 << code);
+										}
+									}
+									break;
+								case SKIN_GADGET_NOTPINNED:
+									wins[i].sticky = !wins[i].sticky;
+									break;
 							}
 						}
-						break;
-					case SKIN_GADGET_NOTPINNED:
-						if (IS_LEFTCLICK(ev)) {
-							wins[i].sticky = !wins[i].sticky;
-							// mark title bar dirty
-							mark_rect_dirty_wc( wins[i].pos.x, wins[i].pos.y, wins[i].pos.x + wins[i].gui->get_windowsize().w, wins[i].pos.y + D_TITLEBAR_HEIGHT );
+					}
+				}
+				else {
+					// Somewhere on the titlebar
+					if (IS_LEFTDRAG(ev)) {
+						i = top_win(i,false);
+						move_win(i, ev);
+						is_moving = i;
+					}
+					if(IS_RIGHTCLICK(ev)) {
+						wins[i].rollup ^= 1;
+						gui_frame_t *gui = wins[i].gui;
+						scr_size size = gui->get_windowsize();
+						mark_rect_dirty_wc( wins[i].pos.x, wins[i].pos.y, wins[i].pos.x+size.w, wins[i].pos.y+size.h );
+						if(  wins[i].rollup  ) {
+							wl->set_background_dirty();
 						}
-						break;
-					default : // Title
-						if (IS_LEFTDRAG(ev)) {
-							i = top_win(i,false);
-							move_win(i, ev);
-							is_moving = i;
-						}
-						if(IS_RIGHTCLICK(ev)) {
-							wins[i].rollup ^= 1;
-							gui_frame_t *gui = wins[i].gui;
-							scr_size size = gui->get_windowsize();
-							mark_rect_dirty_wc( wins[i].pos.x, wins[i].pos.y, wins[i].pos.x+size.w, wins[i].pos.y+size.h );
-							if(  wins[i].rollup  ) {
-								wl->set_background_dirty();
-							}
-						}
-
+					}
 				}
 
 				// It has been handled so stop checking.

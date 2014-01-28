@@ -107,6 +107,7 @@ bool gui_frame_t::infowin_event(const event_t *ev)
  */
 void gui_frame_t::resize(const scr_coord delta)
 {
+	dirty = true;
 	scr_size new_size = size + delta;
 
 	// resize window to the minimum size
@@ -131,19 +132,17 @@ void gui_frame_t::resize(const scr_coord delta)
  */
 void gui_frame_t::draw(scr_coord pos, scr_size size)
 {
-	// ok, resized, move or draw for the first time
-	if(dirty) {
-		mark_rect_dirty_wc(pos.x, pos.y, pos.x + size.w, pos.y + size.h);
-		dirty = false;
-	}
-
 	// draw background
 	if(  opaque  ) {
 		display_img_stretch( gui_theme_t::windowback, scr_rect( pos + scr_coord(0,D_TITLEBAR_HEIGHT), size - scr_size(0,D_TITLEBAR_HEIGHT) ) );
 	}
 	else {
 		display_blend_wh( pos.x+1, pos.y+D_TITLEBAR_HEIGHT, size.w-2, size.h-D_TITLEBAR_HEIGHT, color_transparent, percent_transparent );
+		if(  dirty  ) {
+			mark_rect_dirty_wc(pos.x, pos.y, pos.x + size.w, pos.y + size.h);
+		}
 	}
+	dirty = false;
 
 	PUSH_CLIP(pos.x+1, pos.y+D_TITLEBAR_HEIGHT, size.w-2, size.h-D_TITLEBAR_HEIGHT);
 	container.draw(pos);
