@@ -1540,10 +1540,23 @@ sint32 fabrik_t::liefere_an(const ware_besch_t *typ, sint32 menge)
 
 sint8 fabrik_t::is_needed(const ware_besch_t *typ) const
 {
+	/* NOTE for merging with the latest Standard nightlies:
+	* this code is changed in the latest Standard nightlies. The
+	* idea of the change appears to be to scale the effect
+	* of the intransit percentage to the output store of the
+	* producing industry. This is not necessary in Experimental,
+	* as the max_intransit percentage is in any event scaled
+	* based on the lead time and consumption rate. Therefore, the
+	* additional code from Standard for this feature should be
+	* removed/deleted on merging, and the below original code
+	* should remain. 
+	*/
+
 	FOR(array_tpl<ware_production_t>, const& i, eingang) {
 		if(  i.get_typ() == typ  ) {
 			// not needed (false) if overflowing or too much already sent
-			const bool transit_ok = max_intransit_percentages.get(typ->get_catg())  == 0 ? true : (i.transit * 100) < ((i.max >> fabrik_t::precision_bits) * max_intransit_percentages.get(typ->get_catg()));
+			const uint16 max_intransit_percentage = max_intransit_percentages.get(typ->get_catg());
+			const bool transit_ok = max_intransit_percentage == 0 ? true : (i.transit * 100) < ((i.max >> fabrik_t::precision_bits) * max_intransit_percentage);
 			return (i.menge < i.max)  &&  transit_ok;
 		}
 	}
@@ -2450,7 +2463,7 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 			{
 				continue;
 			}
-			buf.printf("\n - %s %u/%i/%u%s, %u%%",
+			buf.printf("\n - %s %u/%i/%u %s, %u%%",
 				translator::translate(eingang[index].get_typ()->get_name()),
 				(sint32)(0.5+eingang[index].menge / (double)(1<<fabrik_t::precision_bits)),
 				eingang[index].transit,

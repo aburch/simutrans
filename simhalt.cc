@@ -155,8 +155,6 @@ halthandle_t haltestelle_t::get_halt(const koord pos, const spieler_t *sp )
 	return halthandle_t();
 }
 
-//<<<<<<< HEAD
-//=======
 //	static vector_tpl<halthandle_t>::iterator iter( alle_haltestellen.begin() );
 //	if (alle_haltestellen.empty()) {
 //		return;
@@ -168,7 +166,6 @@ halthandle_t haltestelle_t::get_halt(const koord pos, const spieler_t *sp )
 //		reconnect_counter = schedule_counter;
 //		iter = alle_haltestellen.begin();
 //	}
-//>>>>>>> aburch/master
 
 static vector_tpl<convoihandle_t>stale_convois;
 static vector_tpl<linehandle_t>stale_lines;

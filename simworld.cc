@@ -7306,15 +7306,15 @@ void karte_t::load(loadsave_t *file)
 	}
 
 	grundwasser = (sint8)(settings.get_grundwasser());
-//<<<<<<< HEAD
+
 //
 //	DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
 //	grund_besch_t::calc_water_level( this, height_to_climate );
-//=======
+
 	DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
 
 	init_height_to_climate();
-//>>>>>>> aburch/master
+
 
 	// just an initialisation for the loading
 	season = (2+last_month/3)&3; // summer always zero
@@ -8447,6 +8447,16 @@ void karte_t::remove_player(uint8 player_nr)
 		if(  player_nr == 0  ) {
 			spieler[0] = new spieler_t( this, 0 );
 		}
+
+		// Reset all access rights
+		for(sint32 i = 0; i < MAX_PLAYER_COUNT; i++)
+		{
+			if(spieler[i] != NULL && i != player_nr)
+			{
+				spieler[i]->set_allow_access_to(player_nr, i == 1); // Public player (no. 1) allows access by default, others do not allow by default.
+			}
+		}
+
 		// if currently still active => reset to default human
 		if(  player_nr == active_player_nr  ) {
 			active_player_nr = 0;
