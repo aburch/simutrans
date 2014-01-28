@@ -20,6 +20,7 @@
 	CHG: max in_transit now depends on the sum of all connected factories output storage times the in_transit percentage
 	ADD: goods in transit are now recalculated whenever a game is reloaded
 	CHG: overcrowded message no longer for factories supplied by producer but only interchanges
+	CHG: Waypoints act no longer as signals
 
 
 Release of 112.3: (r6520 on 17-May-2013):

@@ -112,6 +112,8 @@ private:
 	*/
 	schedule_t *fpl;
 
+	koord3d fpl_target;
+
 	/**
 	* loading_level was ladegrad before. Actual percentage loaded for loadable vehicles (station length!).
 	* needed as int, since used by the gui
@@ -414,6 +416,9 @@ public:
 	const route_t* get_route() const { return &route; }
 	route_t* access_route() { return &route; }
 
+	const koord3d get_fpl_target() const { return fpl_target; }
+	void set_fpl_target( koord3d t ) { fpl_target = t; }
+
 	/**
 	* get line
 	* @author hsiegeln
@@ -431,6 +436,9 @@ public:
 
 	// updates a line schedule and tries to find the best next station to go
 	void check_pending_updates();
+
+	// true if this is a waypoint
+	bool is_waypoint( koord3d ) const;
 
 	/* changes the state of a convoi via werkzeug_t; mandatory for networkmode! *
 	 * for list of commands and parameter see werkzeug_t::wkz_change_convoi_t
