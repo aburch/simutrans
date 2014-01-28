@@ -393,7 +393,7 @@
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug (network)|Win32'">..\OpenTTD\win32\library;..\bzip\lib;$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug (network)|x64'">..\OpenTTD\win32\library;..\bzip\lib;$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug (command-line server)|Win32'">..\OpenTTD\win32\library;..\bzip\lib;$(LibraryPath)</LibraryPath>
-    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug (command-line server)|x64'">..\OpenTTD\win32\library;..\bzip\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug (command-line server)|x64'">..\OpenTTD\win64\library;..\bzip\lib\x64;$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\OpenTTD\win32\library;..\bzip\lib;$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\OpenTTD\win64\library;..\bzip\lib\x64;$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release (single threaded)|Win32'">..\OpenTTD\win32\library;..\bzip\lib;$(LibraryPath)</LibraryPath>
@@ -824,9 +824,10 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <AdditionalOptions>/F 4194304 %(AdditionalOptions)</AdditionalOptions>
+      <MinimalRebuild>true</MinimalRebuild>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;Strmiids.lib;Ws2_32.lib;shell32.lib;pthreadVCE2.lib</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;Strmiids.lib;Ws2_32.lib;shell32.lib;pthreadVC2.lib</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName)-debug.exe</OutputFile>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
@@ -835,7 +836,7 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
-      <AdditionalLibraryDirectories>..\OpenTTD\win32\library;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\OpenTTD\win64\library;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
