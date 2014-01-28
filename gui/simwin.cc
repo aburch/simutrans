@@ -106,7 +106,7 @@ public:
 	uint8 wt;               // the flags for the window type
 	ptrdiff_t magic_number; // either magic number or this pointer (which is unique too)
 	gui_frame_t *gui;
-	uint16	gadget_state;	// which buttons to highlite
+	uint16	gadget_state;	// which buttons to hilite
 	bool sticky;            // true if window is sticky
 	bool rollup;
 	bool dirty;
@@ -249,7 +249,7 @@ static int display_gadget_boxes(
 		width += k*display_gadget_box( SKIN_BUTTON_NEXT, x + width, y, color, gadget_state & (1<<SKIN_BUTTON_NEXT) );
 	}
 	if(  flags->gotopos  ) {
-		width += k*display_gadget_box( SKIN_GADGET_GOTOPOS, x + width, y, color, goto_pushed );
+		width += k*display_gadget_box( SKIN_GADGET_GOTOPOS, x + width, y, color, goto_pushed  ||  (gadget_state & (1<<SKIN_GADGET_GOTOPOS)) );
 	}
 	if(  flags->sticky  ) {
 		width += k*display_gadget_box( sticky_pushed ? SKIN_GADGET_PINNED : SKIN_GADGET_NOTPINNED, x + width, y, color, gadget_state & (1<<SKIN_GADGET_NOTPINNED) );
@@ -1345,7 +1345,6 @@ bool check_pos_win(event_t *ev)
 										koord3d k = wins[i].gui->get_weltpos(true);
 										if(  k!=koord3d::invalid  ) {
 											spieler_t::get_welt()->get_viewport()->change_world_position( k );
-											wins[i].gadget_state |= (1 << code);
 										}
 									}
 									break;

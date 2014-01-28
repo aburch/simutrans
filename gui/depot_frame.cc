@@ -276,6 +276,12 @@ koord3d depot_frame_t::get_weltpos(bool)
 }
 
 
+bool depot_frame_t::is_weltpos()
+{
+	return ( welt->get_viewport()->is_on_center( get_weltpos(false) ) );
+}
+
+
 void depot_frame_t::layout(scr_size *size)
 {
 	scr_coord placement;
