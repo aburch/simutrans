@@ -1809,21 +1809,24 @@ void vehikel_t::calc_drag_coefficient(const grund_t *gr) //,const int h_alt, con
 	// or a hill?
 	// Cumulative drag for hills: @author: jamespetts
 	const hang_t::typ hang = gr->get_weg_hang();
-	if(hang!=hang_t::flach) 
+	if(hang != hang_t::flach) 
 	{
 		// Bernd Gabriel, Nov, 30 2009: at least 1 partial direction must match for uphill (op '&'), but not the 
 		// complete direction. The hill might begin in a curve and then '==' accidently accelerates the vehicle.
+		const uint slope_height = (hang & 7) ? 1 : 2;
 		if(ribi_typ(hang) & fahrtrichtung)
 		{
-			//Uphill
-			//current_friction += 45;
-			current_friction = min(base_friction + 70, current_friction + 41);
+			// Uphill
+			const sint16 additional_base_friction = slope_height == 1 ? 40 : 80;
+			const sint16 additional_current_friction = slope_height == 1 ? 23 : 47;
+			current_friction = min(base_friction + additional_base_friction, current_friction + additional_current_friction);
 		}
 		else
 		{
-			//Downhill
-			//current_friction -= 45;
-			current_friction = max(base_friction - 42, current_friction - 24);
+			// Downhill
+			const sint16 subtractional_base_friction = slope_height == 1 ? 24 : 48;
+			const sint16 subtractional_current_friction = slope_height == 1 ? 14 : 28;
+			current_friction = max(base_friction - subtractional_base_friction, current_friction - subtractional_current_friction);
 		}
 	}
 	else
@@ -2744,11 +2747,14 @@ int automobil_t::get_kosten(const grund_t *gr, const sint32 max_speed, koord fro
 	costs += (w->get_statistics(WAY_STAT_CONVOIS)  >  ( 2 << (welt->get_settings().get_bits_per_month()-16) )  );
 
 	// effect of slope
-	if(  gr->get_weg_hang()!=0  ) {
+	hang_t::typ hang = gr->get_weg_hang();
+	if(hang)
+	{
 		// Knightly : check if the slope is upwards, relative to the previous tile
 		from_pos -= gr->get_pos().get_2d();
-		if(  hang_t::is_sloping_upwards( gr->get_weg_hang(), from_pos.x, from_pos.y )  ) {
-			costs += 150;
+		if(hang_t::is_sloping_upwards(hang, from_pos.x, from_pos.y ))
+		{
+			costs += (hang & 7) ? 75 : 150;
 		}
 	}
 
@@ -3505,11 +3511,14 @@ int waggon_t::get_kosten(const grund_t *gr, const sint32 max_speed, koord from_p
 	int costs = (max_speed <= max_tile_speed) ? 10 : 40 - (30 * max_tile_speed) / max_speed;
 
 	// effect of slope
-	if(  gr->get_weg_hang()!=0  ) {
+	hang_t::typ hang = gr->get_weg_hang();
+	if(hang)
+	{
 		// Knightly : check if the slope is upwards, relative to the previous tile
 		from_pos -= gr->get_pos().get_2d();
-		if(  hang_t::is_sloping_upwards( gr->get_weg_hang(), from_pos.x, from_pos.y )  ) {
-			costs += 250;
+		if(hang_t::is_sloping_upwards(hang, from_pos.x, from_pos.y))
+		{
+			costs += (hang & 7) ? 125 : 250;
 		}
 	}
 
