@@ -63,8 +63,8 @@ void zeiger_t::change_pos(koord3d k )
 			welt->set_background_dirty();
 			// this removes crap form large cursors overlapping into the nirvana
 		}
-		mark_image_dirty( get_bild(), get_yoff() );
-		mark_image_dirty( get_after_bild(), get_yoff() );
+		mark_image_dirty( get_bild(), 0 );
+		mark_image_dirty( get_after_bild(), 0 );
 		set_flag( obj_t::dirty );
 
 		obj_t::set_pos( k );
@@ -87,8 +87,8 @@ void zeiger_t::change_pos(koord3d k )
 void zeiger_t::set_bild( image_id b )
 {
 	// mark dirty
-	mark_image_dirty( bild, get_yoff() );
-	mark_image_dirty( b, get_yoff() );
+	mark_image_dirty( bild, 0 );
+	mark_image_dirty( b, 0 );
 	bild = b;
 }
 
@@ -96,8 +96,8 @@ void zeiger_t::set_bild( image_id b )
 void zeiger_t::set_after_bild( image_id b )
 {
 	// mark dirty
-	mark_image_dirty( after_bild, get_yoff() );
-	mark_image_dirty( b, get_yoff() );
+	mark_image_dirty( after_bild, 0 );
+	mark_image_dirty( b, 0 );
 	after_bild = b;
 }
 

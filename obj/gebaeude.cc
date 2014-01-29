@@ -249,15 +249,7 @@ void gebaeude_t::set_tile( const haus_tile_besch_t *new_tile, bool start_with_co
 
 	if(!zeige_baugrube  &&  tile!=NULL) {
 		// mark old tile dirty
-		sint16 ypos = 0;
-		for(  int i=0;  i<256;  i++  ) {
-			image_id bild = get_bild(i);
-			if(bild==IMG_LEER) {
-				break;
-			}
-			mark_image_dirty( bild, 0 );
-			ypos -= get_tile_raster_width();
-		}
+		mark_images_dirty();
 	}
 
 	zeige_baugrube = !new_tile->get_besch()->ist_ohne_grube()  &&  start_with_construction;
@@ -306,7 +298,7 @@ bool gebaeude_t::sync_step(long delta_t)
 		// still under construction?
 		if(welt->get_zeit_ms() - insta_zeit > 5000) {
 			set_flag(obj_t::dirty);
-			mark_image_dirty(get_bild(),0);
+			mark_image_dirty(get_bild(), 0);
 			zeige_baugrube = false;
 			if(tile->get_phasen()<=1) {
 				welt->sync_eyecandy_remove( this );
@@ -324,22 +316,15 @@ bool gebaeude_t::sync_step(long delta_t)
 				if(  tile->is_hintergrund_phases( snow )  ) {
 					// the background is animated
 					set_flag(obj_t::dirty);
-					// we must take care of the tiles above
-					for(int i=1;  ;  i++) {
-						image_id bild = get_bild(i);
-						if(bild==IMG_LEER) {
-							break;
-						}
-						mark_image_dirty(bild,-(i<<6));
-					}
+					mark_images_dirty();
 				}
 				else {
 					// try foreground
 					image_id bild = tile->get_vordergrund(count, snow);
-					mark_image_dirty(bild,0);
+					mark_image_dirty(bild, 0);
 					// next phase must be marked dirty too ...
 					bild = tile->get_vordergrund( count+1>=tile->get_phasen()?0:count+1, snow);
-					mark_image_dirty(bild,0);
+					mark_image_dirty(bild, 0);
 				}
 
 				anim_time %= tile->get_besch()->get_animation_time();
