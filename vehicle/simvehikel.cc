@@ -3792,7 +3792,7 @@ bool aircraft_t::ist_weg_frei( int & restart_speed, bool )
 		return false;
 	}
 
-	if(route_index<takeoff  &&  route_index>1  &&  takeoff<cnv->get_route()->get_count()-1) {
+	if(  route_index < takeoff  &&  route_index > 1  &&  takeoff<cnv->get_route()->get_count()-1  ) {
 		// check, if tile occupied by a plane on ground
 		if(  route_index > 1  ) {
 			for(  uint8 i = 1;  i<gr->get_top();  i++  ) {
@@ -3821,7 +3821,12 @@ bool aircraft_t::ist_weg_frei( int & restart_speed, bool )
 		return true;
 	}
 
-	if(route_index==takeoff  &&  state==taxiing) {
+	if(  state == taxiing  ) {
+		// enforce on ground for taxiing
+		flughoehe = 0;
+	}
+
+	if(  route_index == takeoff  &&  state == taxiing  ) {
 		// try to reserve the runway if not already done
 		if(route_index==2  &&  !block_reserver(takeoff,takeoff+100,true)) {
 			// runway blocked, wait at start of runway
@@ -4065,7 +4070,7 @@ uint8 aircraft_t::get_approach_ribi( koord3d start, koord3d ziel )
 grund_t *aircraft_t::hop()
 {
 	if(  !get_flag(obj_t::dirty)  ) {
-		mark_image_dirty( bild, -flughoehe-hoff-2 );
+		mark_image_dirty( bild, get_yoff()-flughoehe-hoff-2 );
 	}
 
 	sint32 new_speed_limit = SPEED_UNLIMITED;
