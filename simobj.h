@@ -344,11 +344,12 @@ public:
 #endif
 
 	/**
-	* when a vehicle moves or a cloud moves, it needs to mark the old spot as dirty (to copy to screen)
-	* sometimes they have an extra offset, this is the yoff parameter
+	* When a vehicle moves or a cloud moves, it needs to mark the old spot as dirty (to copy to screen).
+	* This routine already takes position, and offsets (x_off, y_off) into account.
+	* @param yoff extra y-offset, in most cases 0.
 	* @author prissi
 	*/
-	void mark_image_dirty(image_id bild,sint16 yoff) const;
+	void mark_image_dirty(image_id bild, sint16 yoff) const;
 
 	/**
 	 * Function for recalculating the image.
