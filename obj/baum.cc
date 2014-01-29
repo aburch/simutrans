@@ -429,7 +429,8 @@ uint16 baum_t::random_tree_for_climate_intern(climate cl)
 {
 	// now weight their distribution
 	weighted_vector_tpl<uint32> const& t = baum_typen_per_climate[cl];
-	return t.empty() ? 0xFFFF : pick_any_weighted(t);
+	assert(!t.empty());
+	return pick_any_weighted(t);
 }
 
 
@@ -457,7 +458,7 @@ baum_t::baum_t(koord3d pos) :
 	// generate aged trees
 	// might underflow
 	geburt = welt->get_current_month() - simrand(703, "baum_t::baum_t");
-	baumtype = (uint8)random_tree_for_climate_intern(welt->get_climate_at_height(pos.z));
+	baumtype = (uint8)random_tree_for_climate_intern( welt->get_climate(pos) );
 	season = 0;
 	calc_off( welt->lookup( get_pos())->get_grund_hang() );
 	calc_bild();

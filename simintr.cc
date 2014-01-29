@@ -144,7 +144,6 @@ void intr_enable()
 	enabled = true;
 }
 
-
 // returns a time string in the desired format
 char const *tick_to_string( sint32 ticks, bool show_full )
 {
@@ -239,9 +238,42 @@ char const *tick_to_string( sint32 ticks, bool show_full )
 		sint32 num_days = ( ticks * (env_t::show_month==env_t::DATE_FMT_MONTH? 3 : tage_per_month[month]) ) >> welt_modell->ticks_per_world_month_shift;
 		num_days -= ( (welt_modell->get_zeit_ms() % welt_modell->ticks_per_world_month) * (env_t::show_month==env_t::DATE_FMT_MONTH? 3 : tage_per_month[month]) ) >> welt_modell->ticks_per_world_month_shift;
 		char days[64];
-		days[0] = 0;
-		if(  num_days!=0  ) {
-			sprintf( days, "%+i ", num_days );
+		static struct lang_info_t
+		{
+			int language;
+			const char* day;
+			const char* days;
+			int max_strlen;
+
+			lang_info_t() : language(-1), day(NULL), days(NULL) {}
+
+			void update()
+			{
+				int lang = translator::get_language();
+				if (language != lang)
+				{
+					day = translator::translate("day");
+					days = translator::translate("days");
+					max_strlen = max(strlen(day), strlen(days));
+					language = lang;
+				}
+			}
+		} lang_info;
+
+		lang_info.update();
+
+		switch (num_days) {
+			case 0:
+				sprintf( days, "  %*s ", lang_info.max_strlen, "");
+				break;
+
+			case 1:
+				sprintf( days, "+1 %*s ", lang_info.max_strlen, lang_info.day);
+				break;
+
+			default:
+				sprintf( days, "%+i %*s ", num_days, lang_info.max_strlen, lang_info.days);
+				break;
 		}
 
 		// maybe round minutes
@@ -278,26 +310,16 @@ char const *tick_to_string( sint32 ticks, bool show_full )
 		stunden %= 24;
 
 		switch(env_t::show_month) {
-			case env_t::DATE_FMT_GERMAN:
-			case env_t::DATE_FMT_GERMAN_NO_SEASON:
-				sprintf(time, "%s%2d:%02dh", days, stunden, minuten);
-				break;
-
 			case env_t::DATE_FMT_US:
 			case env_t::DATE_FMT_US_NO_SEASON: {
 				uint32 hours_ = stunden % 12;
 				if (hours_ == 0) hours_ = 12;
-				sprintf(time, "%s%2d:%02d%s", days, hours_, minuten, stunden < 12 ? "am" : "pm");
+				sprintf(time, "%s% 2d:%02d%s", days, hours_, minuten, stunden < 12 ? "am" : "pm");
 				break;
 			}
 
-			case env_t::DATE_FMT_JAPANESE:
-			case env_t::DATE_FMT_JAPANESE_NO_SEASON:
-				sprintf(time, "%s%2d:%02dh", days, stunden, minuten);
-				break;
-
-			case env_t::DATE_FMT_MONTH:
-				sprintf(time, "%s%2d:%02dh", days, stunden, minuten);
+			default:
+				sprintf(time, "%s% 2d:%02dh", days, stunden, minuten);
 				break;
 		}
 	}
