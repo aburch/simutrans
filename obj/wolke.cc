@@ -38,8 +38,8 @@ wolke_t::wolke_t(koord3d pos, sint8 x_off, sint8 y_off, const skin_besch_t* besc
 	obj_no_info_t(pos)
 {
 	cloud_nr = all_clouds.index_of(besch);
-	base_y_off = clamp( (((sint16)y_off-8)*OBJECT_OFFSET_STEPS)/16, -128, 127 );
-	set_xoff( (x_off*OBJECT_OFFSET_STEPS)/16 );
+	base_y_off = clamp( (sint16)y_off - 8, -128, 127 );
+	set_xoff( x_off );
 	set_yoff( base_y_off );
 	insta_zeit = 0;
 }
@@ -51,7 +51,7 @@ wolke_t::~wolke_t()
 	mark_image_dirty( get_bild(), 0 );
 	if(  insta_zeit != 2499  ) {
 		if(  !welt->sync_way_eyecandy_remove( this )  ) {
-			dbg->error( "wolke_t::~wolke_t()", "wolke not in bthe correct sync list" );
+			dbg->error( "wolke_t::~wolke_t()", "wolke not in the correct sync list" );
 		}
 	}
 }
@@ -120,9 +120,12 @@ bool wolke_t::sync_step(long delta_t)
 // called during map rotation
 void wolke_t::rotate90()
 {
-	set_yoff( 0 );
+	// restore pure yoff
+	set_yoff( base_y_off + 8 );
 	obj_t::rotate90();
-	set_yoff( ((insta_zeit*OBJECT_OFFSET_STEPS) >> 12) + base_y_off );
+	// .. and recalc smoke offsets
+	base_y_off = clamp( (sint16)get_yoff()-8, -128, 127 );
+	set_yoff( base_y_off - ((insta_zeit*OBJECT_OFFSET_STEPS) >> 12) );
 }
 
 /***************************** just for compatibility, the old raucher and smoke clouds *********************************/
