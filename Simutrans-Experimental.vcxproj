@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug (command-line server)|Win32">
@@ -2088,7 +2088,6 @@
     <ClInclude Include="besch\xref_besch.h" />
     <ClInclude Include="besch\reader\xref_reader.h" />
     <ClInclude Include="besch\writer\xref_writer.h" />
-
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\Simutrans\simu-server.log" />

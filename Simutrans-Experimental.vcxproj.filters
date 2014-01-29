@@ -627,9 +627,6 @@
     <ClCompile Include="besch\fabrik_besch.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="utils\dbg_weightmap.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="utils\float32e8_t.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -645,13 +642,7 @@
     <ClCompile Include="simsys_w.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="utils\fetchopt.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="dataobj\livery_scheme.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="besch\reader\imagelist3d_reader.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="gui\privatesign_info.cc">
@@ -900,9 +891,6 @@
     <ClCompile Include="display\font.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="display\simgraph0.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="display\simgraph16.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -928,6 +916,45 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="network\memory_rw.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="besch\obj_besch_std_name.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dataobj\environment.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dataobj\records.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\components\gui_image.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\components\gui_komponente.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\components\gui_map_preview.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\gui_theme.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\obj_info.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\simwin.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\themeselector.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="script\api\api_obj_desc.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="script\api\api_obj_desc_base.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="siminteraction.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1253,12 +1280,6 @@
     <ClInclude Include="gui\help_frame.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tpl\HOT_queue2_tpl.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tpl\HOT_queue_tpl.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="besch\reader\image_reader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1541,9 +1562,6 @@
     <ClInclude Include="simhalt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="simimg.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="simintr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1793,9 +1811,6 @@
     <ClInclude Include="gui\server_frame.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="utils\dbg_weightmap.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="utils\float32e8_t.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1805,13 +1820,7 @@
     <ClInclude Include="dataobj\livery_scheme.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="besch\reader\imagelist3d_reader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="gui\privatesign_info.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\for.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gui\display_settings.h">
@@ -1820,13 +1829,7 @@
     <ClInclude Include="gui\ai_option_t.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="besch\bildliste3d_besch.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="gui\factory_chart.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gui\components\gui_action_creator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gui\components\gui_fixedwidth_textarea.h">
@@ -1835,25 +1838,10 @@
     <ClInclude Include="gui\components\gui_komponente.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="gui\components\gui_location_view_t.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="tpl\list_tpl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="utils\plainstring.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dataobj\pwd_hash.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="gui\replace_frame.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="simsys_w32_png.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="simwerkz-dialogs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gui\station_building_select.h">
@@ -1986,6 +1974,195 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="network\memory_rw.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\environment.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\records.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\components\gui_map_preview.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\convoy_item.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\gui_theme.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\obj_info.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\scenario_info.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\simwin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\themeselector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="script\api\api.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="script\api\api_base.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="script\api\api_doc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="script\api\api_obj_desc_base.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="script\api\api_simple.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="script\api\export_besch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="script\api\get_next.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="script\api_class.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="script\api_function.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="script\api_param.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="script\dynamic_string.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="script\export_objs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="script\script.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="siminteraction.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simloadingscreen.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="squirrel\sqstdaux.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="squirrel\sqstdblob.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="squirrel\sqstdio.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="squirrel\sqstdlib\sqstdblobimpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="squirrel\sqstdlib\sqstdstream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="squirrel\sqstdmath.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="squirrel\sqstdstring.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="squirrel\sqstdsystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="squirrel\squirrel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="squirrel\squirrel\sqarray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="squirrel\squirrel\sqclass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="squirrel\squirrel\sqclosure.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="squirrel\squirrel\sqcompiler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="squirrel\squirrel\sqfuncproto.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="squirrel\squirrel\sqfuncstate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="squirrel\squirrel\sqlexer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="squirrel\squirrel\sqobject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="squirrel\squirrel\sqopcodes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="squirrel\squirrel\sqpcheader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="squirrel\squirrel\sqstate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="squirrel\squirrel\sqstring.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="squirrel\squirrel\sqtable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="squirrel\squirrel\squserdata.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="squirrel\squirrel\squtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="squirrel\squirrel\sqvm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="squirrel\sq_extensions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\colors.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\cstring_t.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tpl\debug_helper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\csv.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\dr_rdgif.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\dr_rdppm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ifc\gui_action_creator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ifc\gui_fenster.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ifc\gui_komponente.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dings\lagerhaus.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\notification.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\sha1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simdings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
