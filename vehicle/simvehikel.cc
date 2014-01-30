@@ -4069,10 +4069,6 @@ uint8 aircraft_t::get_approach_ribi( koord3d start, koord3d ziel )
 
 grund_t *aircraft_t::hop()
 {
-	if(  !get_flag(obj_t::dirty)  ) {
-		mark_image_dirty( bild, get_yoff()-flughoehe-hoff-2 );
-	}
-
 	sint32 new_speed_limit = SPEED_UNLIMITED;
 	sint32 new_friction = 0;
 
