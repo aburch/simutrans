@@ -21,6 +21,7 @@
 	ADD: goods in transit are now recalculated whenever a game is reloaded
 	CHG: overcrowded message no longer for factories supplied by producer but only interchanges
 	CHG: Waypoints act no longer as signals
+	ADD: server_motd_filename for file with a greeting message in online games
 
 
 Release of 112.3: (r6520 on 17-May-2013):

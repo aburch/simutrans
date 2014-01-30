@@ -92,7 +92,8 @@ public:
 	static std::string server_pakurl;
 	/// Link to further information about server
 	static std::string server_infurl;
-
+	/// Text to be show on startup; can be formatted like helpfiles
+	static std::string server_motd_filename;
 	/// @} end of Information about server
 
 

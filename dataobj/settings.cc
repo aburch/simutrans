@@ -853,7 +853,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	env_t::server_announce_interval = contents.get_int("server_announce_interval", env_t::server_announce_interval );
 	if (env_t::server_announce_interval < 60) {
 		env_t::server_announce_interval = 60;
-	} else if (env_t::server_announce_interval > 86400) {
+	}
+	else if (env_t::server_announce_interval > 86400) {
 		env_t::server_announce_interval = 86400;
 	}
 	if(  *contents.get("server_dns")  ) {
@@ -879,6 +880,9 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	}
 	if(  *contents.get("nickname")  ) {
 		env_t::nickname = ltrim(contents.get("nickname"));
+	}
+	if(  *contents.get("server_motd_filename")  ) {
+		env_t::server_motd_filename = ltrim(contents.get("server_motd_filename"));
 	}
 
 	// listen directive is a comma separated list of IP addresses to listen on

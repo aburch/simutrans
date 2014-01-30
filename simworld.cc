@@ -17,6 +17,8 @@
 #include <string.h>
 #include <math.h>
 
+#include <sys/stat.h>
+
 #include "simcity.h"
 #include "simcolor.h"
 #include "simconvoi.h"
@@ -5098,6 +5100,30 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved messages");
 	// finally a possible scenario
 	scenario->rdwr( file );
 
+	if(  file->get_version() >= 112008  ) {
+		xml_tag_t t( file, "motd_t" );
+
+		chdir( env_t::user_dir );
+		// maybe show message about server
+DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "motd filename %s", env_t::server_motd_filename.c_str() );
+		if(  FILE *fmotd = fopen( env_t::server_motd_filename.c_str(), "r" )  ) {
+			struct stat st;
+			stat( env_t::server_motd_filename.c_str(), &st );
+			sint32 len = min( 32760, st.st_size+1 );
+			char *motd = (char *)malloc( len );
+			fread( motd, len-1, 1, fmotd );
+			fclose( fmotd );
+			motd[len] = 0;
+			file->rdwr_str( motd, len );
+			free( motd );
+		}
+		else {
+			// no message
+			char *motd = "";
+			file->rdwr_str( motd, 1 );
+		}
+	}
+
 	// save all open windows (upon request)
 	file->rdwr_byte( active_player_nr );
 	rdwr_all_win(file);
@@ -5206,7 +5232,8 @@ bool karte_t::load(const char *filename)
 			dbg->warning("karte_t::laden()", translator::translate("Kann Spielstand\nnicht laden.\n") );
 			create_win(new news_img("Kann Spielstand\nnicht laden.\n"), w_info, magic_none);
 		}
-	} else if(file.get_version() < 84006) {
+	}
+	else if(file.get_version() < 84006) {
 		// too old
 		dbg->warning("karte_t::laden()", translator::translate("WRONGSAVE") );
 		create_win(new news_img("WRONGSAVE"), w_info, magic_none);
@@ -5856,10 +5883,24 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 			}
 		}
 	}
+
 	// initialize lock info for local server player
 	// if call from sync command, lock info will be corrected there
 	if(  env_t::server) {
 		nwc_auth_player_t::init_player_lock_server(this);
+	}
+
+	// show message about server
+	if(  file->get_version() >= 112008  ) {
+		xml_tag_t t( file, "motd_t" );
+		char msg[32766];
+		file->rdwr_str( msg, 32766 );
+		if(  *msg  &&  !env_t::server  ) {
+			// if not empty ...
+			help_frame_t *win = new help_frame_t();
+			win->set_text( msg );
+			create_win(win, w_info, magic_motd);
+		}
 	}
 
 	if(  file->get_version()>=102004  ) {

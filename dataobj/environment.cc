@@ -36,6 +36,7 @@ std::string env_t::server_email;
 std::string env_t::server_pakurl;
 std::string env_t::server_infurl;
 std::string env_t::server_admin_pw;
+std::string env_t::server_motd_filename;
 vector_tpl<std::string> env_t::listen;
 
 long env_t::server_frames_ahead = 4;
