@@ -15,7 +15,7 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug (network)|x64'">
-    <LocalDebuggerCommandArguments>-log -debug 3 -server 13353 -lang en -load 173</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-log -debug 3 -server 13353 -lang en -load new-server-crash.sve</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>
