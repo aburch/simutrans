@@ -1137,9 +1137,15 @@ grund_t* vehikel_t::hop()
 	// route search through the waypoint is already complete
 //	if(  ist_erstes  &&  get_pos()==cnv->get_fpl_target()  ) { // ist_erstes turned off in vorfahren when reversing
 	if(  get_pos()==cnv->get_fpl_target()  ) {
-		cnv->get_schedule()->advance();
-		const koord3d ziel = cnv->get_schedule()->get_current_eintrag().pos;
-		cnv->set_fpl_target( cnv->is_waypoint(ziel) ? ziel : koord3d::invalid );
+		if(  route_index+1 >= cnv->get_route()->get_count()  ) {
+			// we end up here after loading a game or when a waypoint is reached which crosses next itself
+			cnv->set_fpl_target( koord3d::invalid );
+		}
+		else {
+			cnv->get_schedule()->advance();
+			const koord3d ziel = cnv->get_schedule()->get_current_eintrag().pos;
+			cnv->set_fpl_target( cnv->is_waypoint(ziel) ? ziel : koord3d::invalid );
+		}
 	}
 
 	// this is a required hack for aircrafts! Aircrafts can turn on a single square, and this confuses the previous calculation!
