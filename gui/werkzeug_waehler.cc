@@ -18,6 +18,7 @@
 #include "../utils/for.h"
 #include "werkzeug_waehler.h"
 #include "../gui/gui_frame.h"
+#include "../player/simplay.h"
 
 #define MIN_WIDTH (80)
 
@@ -190,7 +191,7 @@ void werkzeug_waehler_t::draw(scr_coord pos, scr_size)
 		else {
 			bool tool_dirty = dirty  ||  tools[i].tool->is_selected() ^ tools[i].selected;
 			display_fit_img_to_width( icon_img, env_t::iconsize.w );
-			display_color_img(icon_img, draw_pos.x, draw_pos.y, 0, false, tool_dirty);
+			display_color_img(icon_img, draw_pos.x, draw_pos.y, sp->get_player_nr(), false, tool_dirty);
 			tools[i].tool->draw_after( draw_pos, tool_dirty);
 			// store whether tool was selected
 			tools[i].selected = tools[i].tool->is_selected();
