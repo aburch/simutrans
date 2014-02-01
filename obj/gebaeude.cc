@@ -1298,11 +1298,11 @@ void gebaeude_t::laden_abschliessen()
 		if(  tile->get_besch()->is_connected_with_town()  ) {
 			stadt_t *our_city = (ptr.stadt==NULL) ? welt->suche_naechste_stadt( get_pos().get_2d() ) : ptr.stadt;
 			if(our_city) {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 				pthread_mutex_lock( &add_to_city_mutex );
 #endif
 				our_city->add_gebaeude_to_stadt(this, env_t::networkmode);
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 				pthread_mutex_unlock( &add_to_city_mutex );
 #endif
 			}

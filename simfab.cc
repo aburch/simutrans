@@ -57,7 +57,7 @@
 #include "gui/simwin.h"
 #include "display/simgraph.h"
 
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 #include <pthread.h>
 static pthread_mutex_t sync_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t add_to_world_list_mutex = PTHREAD_MUTEX_INITIALIZER;
