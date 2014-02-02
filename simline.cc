@@ -184,9 +184,10 @@ void simline_t::add_convoy(convoihandle_t cnv, bool from_loading)
 	}
 
 	// if the schedule is flagged as bidirectional, set the initial convoy direction
-	if( fpl->is_bidirectional() && !from_loading ) {
-		cnv->set_reverse_schedule(start_reversed);
+	if( fpl->is_bidirectional() && !from_loading ) 
+	{
 		start_reversed = !start_reversed;
+		cnv->set_reverse_schedule(start_reversed);
 	}
 	calc_is_alternating_circular_route();
 }
