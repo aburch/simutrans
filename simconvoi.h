@@ -48,6 +48,12 @@ class ware_t;
 class replace_data_t;
 
 /**
+* The table of point-to-point average journey times.
+* @author jamespetts
+*/
+typedef koordhashtable_tpl<id_pair, average_tpl<uint16> > journey_times_map;
+
+/**
  * Base class for all vehicle consists. Convoys can be referenced by handles, see halthandle_t.
  *
  * @author Hj. Malthaner
@@ -600,7 +606,7 @@ private:
 	 * Modified October 2011 to include accumulated distance.
 	 */
 	typedef inthashtable_tpl<uint16, departure_data_t> departure_map;
-	departure_map *departures;
+	departure_map departures;
 
 	// When we arrived at current stop
 	// @author Inkelyad
@@ -1090,13 +1096,8 @@ public:
 	void set_is_choosing(bool value) { is_choosing = value; }
 	bool get_is_choosing() const { return is_choosing; }
 
-	/**
-	* The table of point-to-point average journey times.
-	* @author jamespetts
-	*/
-	typedef koordhashtable_tpl<id_pair, average_tpl<uint16> > journey_times_map;
 private:
-		journey_times_map *average_journey_times;
+	journey_times_map average_journey_times;
 public:
 
 #if 0
@@ -1396,8 +1397,8 @@ public:
 	 */
 	void emergency_go_to_depot();
 
-	koordhashtable_tpl<id_pair, average_tpl<uint16> > * get_average_journey_times() const;
-	inline koordhashtable_tpl<id_pair, average_tpl<uint16> > * get_average_journey_times_this_convoy_only() const { return average_journey_times; }
+	journey_times_map& get_average_journey_times();
+	inline const journey_times_map& get_average_journey_times_this_convoy_only() const { return average_journey_times; }
 
 	/**
 	 * Clears the departure data.

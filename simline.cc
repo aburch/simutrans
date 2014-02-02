@@ -65,8 +65,8 @@ simline_t::simline_t(spieler_t* sp, linetype type)
 
 	is_alternating_circle_route = false;
 
-	average_journey_times = new koordhashtable_tpl<id_pair, average_tpl<uint16> >;
-	average_journey_times_reverse_circular = NULL;
+	//average_journey_times = new koordhashtable_tpl<id_pair, average_tpl<uint16> >;
+	//average_journey_times_reverse_circular = NULL;
 }
 
 
@@ -79,8 +79,8 @@ simline_t::simline_t(spieler_t* sp, linetype type, loadsave_t *file)
 	this->sp = sp;
 	withdraw = false;
 	create_schedule();
-	average_journey_times = new koordhashtable_tpl<id_pair, average_tpl<uint16> >;
-	average_journey_times_reverse_circular = NULL;
+	//average_journey_times = new koordhashtable_tpl<id_pair, average_tpl<uint16> >;
+	//average_journey_times_reverse_circular = NULL;
 	rdwr(file);
 
 	// now self has the right id but the this-pointer is not assigned to the quickstone handle yet
@@ -103,8 +103,8 @@ simline_t::~simline_t()
 	self.detach();
 	DBG_MESSAGE("simline_t::~simline_t()", "line %d (%p) destroyed", self.get_id(), this);
 
-	delete average_journey_times;
-	delete average_journey_times_reverse_circular;
+	//delete average_journey_times;
+	//delete average_journey_times_reverse_circular;
 }
 
 void simline_t::create_schedule()
@@ -355,10 +355,10 @@ void simline_t::rdwr(loadsave_t *file)
 	{
 		if(file->is_saving())
 		{
-			uint32 count = average_journey_times->get_count();
+			uint32 count = average_journey_times.get_count();
 			file->rdwr_long(count);
 
-			FOR(journey_times_map, const& iter, *average_journey_times)
+			FOR(journey_times_map, const& iter, average_journey_times)
 			{
 				id_pair idp = iter.key;
 				file->rdwr_short(idp.x);
@@ -373,7 +373,7 @@ void simline_t::rdwr(loadsave_t *file)
 		{
 			uint32 count = 0;
 			file->rdwr_long(count);
-			average_journey_times->clear();
+			average_journey_times.clear();
 			for(uint32 i = 0; i < count; i ++)
 			{
 				id_pair idp;
@@ -389,7 +389,7 @@ void simline_t::rdwr(loadsave_t *file)
 				average.count = count;
 				average.total = total;
 
-				average_journey_times->put(idp, average);
+				average_journey_times.put(idp, average);
 			}
 		}
 	}
@@ -400,10 +400,10 @@ void simline_t::rdwr(loadsave_t *file)
 		{
 			if(file->is_saving())
 			{
-				uint32 count = average_journey_times_reverse_circular->get_count();
+				uint32 count = average_journey_times_reverse_circular.get_count();
 				file->rdwr_long(count);
 
-				FOR(journey_times_map, const& iter, *average_journey_times_reverse_circular)
+				FOR(journey_times_map, const& iter, average_journey_times_reverse_circular)
 				{
 					id_pair idp = iter.key;
 					file->rdwr_short(idp.x);
@@ -418,14 +418,14 @@ void simline_t::rdwr(loadsave_t *file)
 			{
 				uint32 count = 0;
 				file->rdwr_long(count);
-				if(average_journey_times_reverse_circular)
-				{
-					average_journey_times_reverse_circular->clear();
-				}
-				else
-				{
-					average_journey_times_reverse_circular = new journey_times_map();
-				}
+				//if(average_journey_times_reverse_circular)
+				//{
+					average_journey_times_reverse_circular.clear();
+				//}
+				//else
+				//{
+				//	average_journey_times_reverse_circular = new journey_times_map();
+				//}
 				for(uint32 i = 0; i < count; i ++)
 				{
 					id_pair idp;
@@ -441,14 +441,15 @@ void simline_t::rdwr(loadsave_t *file)
 					average.count = count;
 					average.total = total;
 
-					average_journey_times_reverse_circular->put(idp, average);
+					average_journey_times_reverse_circular.put(idp, average);
 				}
 			}
 		}
 		else
 		{
-			delete average_journey_times_reverse_circular;
-			average_journey_times_reverse_circular = NULL;
+			//delete average_journey_times_reverse_circular;
+			//average_journey_times_reverse_circular = NULL;
+			average_journey_times_reverse_circular.clear();
 		}
 	}
 	else
@@ -728,7 +729,7 @@ void simline_t::propogate_livery_scheme()
 
 void simline_t::calc_is_alternating_circular_route()
 {
-	const bool old_is_alternating_circle_route = is_alternating_circle_route;
+	//const bool old_is_alternating_circle_route = is_alternating_circle_route;
 	is_alternating_circle_route = false;
 	const uint32 count = count_convoys();
 	if(count == 0)
@@ -748,14 +749,15 @@ void simline_t::calc_is_alternating_circular_route()
 		}
 	}
 	
-	if(old_is_alternating_circle_route == false && is_alternating_circle_route == true)
-	{
-		delete average_journey_times_reverse_circular;
-		average_journey_times_reverse_circular = new journey_times_map;
-	}
-	else if(is_alternating_circle_route == true && is_alternating_circle_route == false)
-	{
-		delete average_journey_times_reverse_circular;
-		average_journey_times_reverse_circular = NULL;
-	}
+	//if(old_is_alternating_circle_route == false && is_alternating_circle_route == true)
+	//{
+	//	delete average_journey_times_reverse_circular;
+	//	average_journey_times_reverse_circular = new journey_times_map;
+	//}
+	//else if(is_alternating_circle_route == true && is_alternating_circle_route == false)
+	//{
+	//	delete average_journey_times_reverse_circular;
+	//	average_journey_times_reverse_circular = NULL;
+	//}
+	average_journey_times_reverse_circular.clear();
 }

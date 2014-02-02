@@ -2314,7 +2314,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 				if(plan_halt.is_bound() && next_transfer == plan_halt && plan_halt->is_enabled(catg_index))
 				{
 					// Calculate the journey time for *this* convoy from here (if not already calculated)
-					const uint16 journey_time = cnv->get_average_journey_times_this_convoy_only()->get(id_pair(plan_halt.get_id(), previous_halt.get_id())).get_average();
+					const uint16 journey_time = cnv->get_average_journey_times_this_convoy_only().get(id_pair(plan_halt.get_id(), previous_halt.get_id())).get_average();
 					const uint16 speed_bonus = next_to_load->get_besch()->get_speed_bonus();
 					const uint16 waiting_minutes = convoi_t::get_waiting_minutes(welt->get_zeit_ms() - next_to_load->arrival_time);
 					// For goods that care about their speed, optimise loading for maximum speed of the journey.
