@@ -395,34 +395,55 @@ void halt_info_t::show_hide_departures( bool show )
 // a sophisticated guess of a convois arrival time, taking into account the braking too and the current convoi state
 uint32 halt_info_t::calc_ticks_until_arrival( convoihandle_t cnv )
 {
-	/* calculate the time needed:
-	 *   tiles << (8+12) / (kmh_to_speed(max_kmh) = ticks
-	 */
 	uint32 delta_t = 0;
-	sint32 delta_tiles = cnv->get_route()->get_count() - cnv->front()->get_route_index();
-	uint32 kmh_average = (cnv->get_average_kmh()*900 ) / 1024u;
 
-	// last braking tile
-	if(  delta_tiles > 1  &&  kmh_average > 25  ) {
-		delta_tiles --;
-		delta_t += 3276; // ( (1 << (8+12)) / kmh_to_speed(25) );
+	vehikel_t& front = *cnv->front();
+	const uint32 current_route_index = front.get_route_index(); // actually get_route_index() is current route index + 1!!!
+	const uint32 route_count = cnv->get_route()->get_count();
+	if (current_route_index < route_count)
+	{
+		convoi_t::route_infos_t& infos = cnv->get_route_infos();
+		sint32 cnv_speed_limit = cnv->get_min_top_speed();
+
+		//TODO BG, 01.02.2014: respect acceleration and braking.
+		double delta = 0.0;
+		for (uint32 i = max(1, current_route_index - 1); i < route_count; ++i)
+		{
+			convoi_t::route_info_t& prev_info = infos.get_element(i-1);
+			convoi_t::route_info_t& curr_info = infos.get_element(i);
+			delta += (double)(curr_info.steps_from_start - prev_info.steps_from_start) / min(cnv_speed_limit, curr_info.speed_limit);
+		}
+		delta_t = (uint32)(delta * (1 << YARDS_PER_VEHICLE_STEP_SHIFT) + 0.5);
 	}
-	// second last braking tile
-	if(  delta_tiles > 1  &&  kmh_average > 50  ) {
-		delta_tiles --;
-		delta_t += 1638; // ( (1 << (8+12)) / kmh_to_speed(50) );
-	}
-	// third last braking tile
-	if(  delta_tiles > 1  &&  kmh_average > 100  ) {
-		delta_tiles --;
-		delta_t += 819; // ( (1 << (8+12)) / kmh_to_speed(100) );
-	}
-	// waiting at signal?
-	if(  cnv->get_state() != convoi_t::DRIVING  ) {
-		// extra time for acceleration
-		delta_t += kmh_average * 25;
-	}
-	delta_t += ( ((sint64)delta_tiles << (8+12) ) / kmh_to_speed( kmh_average ) );
+	///* calculate the time needed:
+	// *   tiles << (8+12) / (kmh_to_speed(max_kmh) = ticks
+	// */
+	//uint32 delta_t = 0;
+	//sint32 delta_tiles = cnv->get_route()->get_count() - cnv->front()->get_route_index();
+	//uint32 kmh_average = (cnv->get_average_kmh()*900 ) / 1024u;
+
+	//// last braking tile
+	//if(  delta_tiles > 1  &&  kmh_average > 25  ) {
+	//	delta_tiles --;
+	//	delta_t += 3276; // ( (1 << (8+12)) / kmh_to_speed(25) );
+	//}
+	//// second last braking tile
+	//if(  delta_tiles > 1  &&  kmh_average > 50  ) {
+	//	delta_tiles --;
+	//	delta_t += 1638; // ( (1 << (8+12)) / kmh_to_speed(50) );
+	//}
+	//// third last braking tile
+	//if(  delta_tiles > 1  &&  kmh_average > 100  ) {
+	//	delta_tiles --;
+	//	delta_t += 819; // ( (1 << (8+12)) / kmh_to_speed(100) );
+	//}
+	//// waiting at signal?
+	//if(  cnv->get_state() != convoi_t::DRIVING  ) {
+	//	// extra time for acceleration
+	//	delta_t += kmh_average * 25;
+	//}
+	//delta_t += ( ((sint64)delta_tiles << (8+12) ) / kmh_to_speed( kmh_average ) );
+
 	return delta_t;
 }
 
@@ -472,19 +493,27 @@ void halt_info_t::update_departures()
 				sint32 delta_t = cur_ticks + calc_ticks_until_arrival( cnv );
 				if(  prev_halt.is_bound()  ) {
 					halt_info_t::dest_info_t prev( prev_halt, delta_t, cnv );
-					// smooth times a little
-					FOR( vector_tpl<dest_info_t>, &elem, old_origins ) {
-						if(  elem.cnv == cnv ) {
-							delta_t = ( delta_t + 3*elem.delta_ticks ) / 4;
-							prev.delta_ticks = delta_t;
-							break;
-						}
-					}
+					//// smooth times a little
+					//FOR( vector_tpl<dest_info_t>, &elem, old_origins ) {
+					//	if(  elem.cnv == cnv ) {
+					//		delta_t = ( delta_t + 3*elem.delta_ticks ) / 4;
+					//		prev.delta_ticks = delta_t;
+					//		break;
+					//	}
+					//}
 					origins.insert_ordered( prev, compare_hi );
 				}
 				halthandle_t next_halt = cnv->get_schedule()->get_next_halt(cnv->get_besitzer(),halt);
 				if(  next_halt.is_bound()  ) {
-					halt_info_t::dest_info_t next( next_halt, delta_t+2000, cnv );
+					uint16 total_capacity = 0;
+					for(uint8 i = 0; i < cnv->get_vehikel_anzahl(); i ++)
+					{
+						const vehikel_besch_t& besch = *cnv->get_vehikel(i)->get_besch();
+						total_capacity += besch.get_zuladung();
+						total_capacity += besch.get_overcrowded_capacity();
+					}
+
+					halt_info_t::dest_info_t next( next_halt, delta_t + cnv->calc_current_loading_time(total_capacity), cnv );
 					destinations.insert_ordered( next, compare_hi );
 				}
 			}
@@ -497,19 +526,27 @@ void halt_info_t::update_departures()
 			sint32 delta_t = cur_ticks + calc_ticks_until_arrival( cnv );
 			if(  prev_halt.is_bound()  ) {
 				halt_info_t::dest_info_t prev( prev_halt, delta_t, cnv );
-				// smooth times a little
-				FOR( vector_tpl<dest_info_t>, &elem, old_origins ) {
-					if(  elem.cnv == cnv ) {
-						delta_t = ( delta_t + 3*elem.delta_ticks ) / 4;
-						prev.delta_ticks = delta_t;
-						break;
-					}
-				}
+				//// smooth times a little
+				//FOR( vector_tpl<dest_info_t>, &elem, old_origins ) {
+				//	if(  elem.cnv == cnv ) {
+				//		delta_t = ( delta_t + 3*elem.delta_ticks ) / 4;
+				//		prev.delta_ticks = delta_t;
+				//		break;
+				//	}
+				//}
 				origins.insert_ordered( prev, compare_hi );
 			}
 			halthandle_t next_halt = cnv->get_schedule()->get_next_halt(cnv->get_besitzer(),halt);
 			if(  next_halt.is_bound()  ) {
-				halt_info_t::dest_info_t next( next_halt, delta_t+2000, cnv );
+				uint16 total_capacity = 0;
+				for(uint8 i = 0; i < cnv->get_vehikel_anzahl(); i ++)
+				{
+					const vehikel_besch_t& besch = *cnv->get_vehikel(i)->get_besch();
+					total_capacity += besch.get_zuladung();
+					total_capacity += besch.get_overcrowded_capacity();
+				}
+
+				halt_info_t::dest_info_t next( next_halt, delta_t + cnv->calc_current_loading_time(total_capacity), cnv );
 				destinations.insert_ordered( next, compare_hi );
 			}
 		}
@@ -523,7 +560,7 @@ void halt_info_t::update_departures()
 		joined_buf.append( translator::translate( "Departures to\n" ) );
 		FOR( vector_tpl<halt_info_t::dest_info_t>, hi, destinations ) {
 			if(  freight_list_sorter_t::by_via_sum != env_t::default_sortmode  ||  !exclude.is_contained( hi.halt )  ) {
-				joined_buf.printf( "  %s %s\n", tick_to_string( hi.delta_ticks, false ), hi.halt->get_name() );
+				joined_buf.printf( "  %s %s > %s\n", tick_to_string( hi.delta_ticks, false ), hi.cnv->get_name(), hi.halt->get_name() );
 				exclude.append( hi.halt );
 			}
 		}
@@ -535,7 +572,7 @@ void halt_info_t::update_departures()
 		joined_buf.append( translator::translate( "Arrivals from\n" ) );
 		FOR( vector_tpl<halt_info_t::dest_info_t>, hi, origins ) {
 			if(  freight_list_sorter_t::by_via_sum != env_t::default_sortmode  ||  !exclude.is_contained( hi.halt )  ) {
-				joined_buf.printf( "  %s %s\n", tick_to_string( hi.delta_ticks, false ), hi.halt->get_name() );
+				joined_buf.printf( "  %s %s < %s\n", tick_to_string( hi.delta_ticks, false ), hi.cnv->get_name(), hi.halt->get_name() );
 				exclude.append( hi.halt );
 			}
 		}

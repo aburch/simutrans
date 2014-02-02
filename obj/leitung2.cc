@@ -1056,17 +1056,17 @@ void senke_t::laden_abschliessen()
 	spieler_t::add_maintenance(get_besitzer(), -welt->get_settings().cst_maintain_transformer, powerline_wt);
 
 	check_industry_connexion();
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	pthread_mutex_lock( &senke_list_mutex );
 #endif
 	senke_list.insert( this );
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	pthread_mutex_unlock( &senke_list_mutex );
 	pthread_mutex_lock( &calc_bild_mutex );
 #endif
 	set_bild(skinverwaltung_t::senke->get_bild_nr(0));
 	is_crossing = false;
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	pthread_mutex_unlock( &calc_bild_mutex );
 #endif
 }

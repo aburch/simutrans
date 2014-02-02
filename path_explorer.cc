@@ -780,28 +780,28 @@ void path_explorer_t::compartment_t::step()
 					journey_time = 0;
 					const id_pair pair(halt_list[i].get_id(), halt_list[(i+1)%entry_count].get_id());
 					
-					if ( current_linkage.line.is_bound() && current_linkage.line->get_average_journey_times()->is_contained(pair) )
+					if ( current_linkage.line.is_bound() && current_linkage.line->get_average_journey_times().is_contained(pair) )
 					{
 						if(!halt_list[i].is_bound() || ! halt_list[(i+1)%entry_count].is_bound())
 						{
-							current_linkage.line->get_average_journey_times()->remove(pair);
+							current_linkage.line->get_average_journey_times().remove(pair);
 							continue;
 						}
 						else
 						{
-							journey_time = current_linkage.line->get_average_journey_times()->get(pair).get_average();
+							journey_time = current_linkage.line->get_average_journey_times().get(pair).get_average();
 						}
 					}
-					else if ( current_linkage.convoy.is_bound() && current_linkage.convoy->get_average_journey_times()->is_contained(pair) )
+					else if ( current_linkage.convoy.is_bound() && current_linkage.convoy->get_average_journey_times().is_contained(pair) )
 					{
 						if(!halt_list[i].is_bound() || ! halt_list[(i+1)%entry_count].is_bound())
 						{
-							current_linkage.convoy->get_average_journey_times()->remove(pair);
+							current_linkage.convoy->get_average_journey_times().remove(pair);
 							continue;
 						}
 						else
 						{
-							journey_time = current_linkage.convoy->get_average_journey_times()->get(pair).get_average();
+							journey_time = current_linkage.convoy->get_average_journey_times().get(pair).get_average();
 						}
 					}
 
@@ -859,17 +859,14 @@ void path_explorer_t::compartment_t::step()
 						accumulated_journey_time += journey_time_list[t];
 
 						// Check the journey times to the connexion
+						id_pair halt_pair(halt_list[h].get_id(), halt_list[t].get_id());
 						new_connexion = new haltestelle_t::connexion;
 						new_connexion->waiting_time = halt_list[h]->get_average_waiting_time(halt_list[t], catg);
 						new_connexion->transfer_time = catg != warenbauer_t::passagiere->get_catg_index() ? halt_list[h]->get_transshipment_time() : halt_list[h]->get_transfer_time();
 						if(current_linkage.line.is_bound())
 						{
-							average_tpl<uint16>* ave = current_linkage.line->get_average_journey_times()->access(id_pair(halt_list[h].get_id(), halt_list[t].get_id()));
-							average_tpl<uint16>* ave_rc = NULL;
-							if(current_linkage.line->get_average_journey_times_reverse_circular())
-							{
-								ave_rc = current_linkage.line->get_average_journey_times_reverse_circular()->access(id_pair(halt_list[h].get_id(), halt_list[t].get_id()));
-							}
+							average_tpl<uint16>* ave    = current_linkage.line->get_average_journey_times().access(halt_pair);
+							average_tpl<uint16>* ave_rc = current_linkage.line->get_average_journey_times_reverse_circular().access(halt_pair);
 							if(ave && ave->count > 0)
 							{
 								// Check whether this is a bidirectional circular route.
@@ -894,7 +891,7 @@ void path_explorer_t::compartment_t::step()
 						}
 						else if(current_linkage.convoy.is_bound())
 						{
-							average_tpl<uint16>* ave = current_linkage.convoy->get_average_journey_times()->access(id_pair(halt_list[h].get_id(), halt_list[t].get_id()));
+							average_tpl<uint16>* ave = current_linkage.convoy->get_average_journey_times().access(halt_pair);
 							if(ave && ave->count > 0)
 							{
 								new_connexion->journey_time = ave->get_average();
@@ -1009,7 +1006,7 @@ void path_explorer_t::compartment_t::step()
 			{
 				if(lines_to_reset[n].is_bound())
 				{
-					lines_to_reset[n]->get_average_journey_times()->clear();
+					lines_to_reset[n]->get_average_journey_times().clear();
 				}
 			}
 
@@ -1019,7 +1016,7 @@ void path_explorer_t::compartment_t::step()
 			{
 				if(convoys_to_reset[m].is_bound())
 				{
-					convoys_to_reset[m]->get_average_journey_times()->clear();
+					convoys_to_reset[m]->get_average_journey_times().clear();
 				}
 			}
 			convoys_to_reset.clear();
