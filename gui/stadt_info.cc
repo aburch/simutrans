@@ -177,7 +177,7 @@ stadt_info_t::~stadt_info_t()
 // returns position of depot on the map
 koord3d stadt_info_t::get_weltpos(bool)
 {
-	return welt->lookup_kartenboden( stadt->get_pos() )->get_pos();
+	return welt->lookup_kartenboden( stadt->get_center() )->get_pos();
 }
 
 

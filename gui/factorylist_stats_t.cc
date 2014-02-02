@@ -18,6 +18,7 @@
 #include "../simfab.h"
 #include "../simworld.h"
 #include "../simskin.h"
+#include "simwin.h"
 
 #include "gui_frame.h"
 #include "components/gui_button.h"
@@ -181,7 +182,7 @@ void factorylist_stats_t::draw(scr_coord offset)
 	const int end = cd.yy+LINESPACE+1;
 
 	static cbuffer_t buf;
-	int xoff = offset.x+16;
+	int xoff = offset.x+D_POS_BUTTON_WIDTH+D_H_SPACE;
 	int yoff = offset.y;
 
 	if(  fab_list.get_count()!=welt->get_fab_list().get_count()  ) {
@@ -241,8 +242,13 @@ void factorylist_stats_t::draw(scr_coord offset)
 			display_proportional_clip(xoff+D_INDICATOR_WIDTH+6+28,yoff,buf,ALIGN_LEFT,COL_BLACK,true);
 
 			// goto button
-			display_img_aligned( gui_theme_t::pos_button_img[ sel == 0 ], scr_rect( xoff-14, yoff, 14, LINESPACE ), ALIGN_CENTER_V | ALIGN_CENTER_H, true );
+			bool selected = sel==0  ||  welt->get_viewport()->is_on_center( fab->get_pos() );
+			display_img_aligned( gui_theme_t::pos_button_img[ selected ], scr_rect( offset.x, yoff, D_POS_BUTTON_WIDTH, LINESPACE ), ALIGN_CENTER_V | ALIGN_CENTER_H, true );
 			sel --;
+
+			if(  win_get_magic( (ptrdiff_t)fab )  ) {
+				display_blend_wh( xoff, yoff, size.w+D_INDICATOR_WIDTH, LINESPACE, COL_BLACK, 25 );
+			}
 		}
 	}
 }

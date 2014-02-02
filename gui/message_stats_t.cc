@@ -218,7 +218,14 @@ void message_stats_t::draw(scr_coord offset)
 		// goto information
 		if(  n.pos!=koord::invalid  ) {
 			// goto button
-			display_img_aligned( gui_theme_t::pos_button_img[ message_selected!=((y-offset.y)/(LINESPACE+1)) ], scr_rect( offset.x, y, 14, LINESPACE ), ALIGN_CENTER_V | ALIGN_CENTER_H, true );
+			bool selected =  message_selected==((y-offset.y)/(LINESPACE+1));
+			if(  !selected  ) {
+				// still on center?
+				if(  grund_t *gr = welt->lookup_kartenboden( n.pos )  ) {
+					selected = welt->get_viewport()->is_on_center( gr->get_pos() );
+				}
+			}
+			display_img_aligned( gui_theme_t::pos_button_img[ selected ], scr_rect( offset.x, y, 14, LINESPACE ), ALIGN_CENTER_V | ALIGN_CENTER_H, true );
 		}
 
 		// correct for player color

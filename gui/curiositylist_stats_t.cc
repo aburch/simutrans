@@ -31,6 +31,7 @@
 #include "../utils/cbuffer_t.h"
 
 #include "gui_frame.h"
+#include "simwin.h"
 
 
 curiositylist_stats_t::curiositylist_stats_t(curiositylist::sort_mode_t sortby, bool sortreverse)
@@ -175,7 +176,8 @@ void curiositylist_stats_t::draw(scr_coord offset)
 		}
 
 		// goto button
-		display_img_aligned( gui_theme_t::pos_button_img[ sel == 0 ], scr_rect( xoff-8, yoff, 14, LINESPACE ), ALIGN_CENTER_V | ALIGN_CENTER_H, true );
+		bool selected = sel==0  ||  welt->get_viewport()->is_on_center( geb->get_pos() );
+		display_img_aligned( gui_theme_t::pos_button_img[ selected ], scr_rect( xoff-8, yoff, 14, LINESPACE ), ALIGN_CENTER_V | ALIGN_CENTER_H, true );
 		sel --;
 
 		buf.clear();
@@ -249,6 +251,9 @@ void curiositylist_stats_t::draw(scr_coord offset)
 
 		if (geb->get_tile()->get_besch()->get_extra() != 0) {
 		    display_color_img(skinverwaltung_t::intown->get_bild_nr(0), xoff+D_INDICATOR_WIDTH+9, yoff, 0, false, false);
+		}
+		if(  win_get_magic( (ptrdiff_t)geb )  ) {
+			display_blend_wh( offset.x+D_POS_BUTTON_WIDTH+D_H_SPACE, yoff, size.w, LINESPACE, COL_BLACK, 25 );
 		}
 	}
 }

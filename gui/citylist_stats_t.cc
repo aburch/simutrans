@@ -86,26 +86,29 @@ bool citylist_stats_t::infowin_event(const event_t * ev)
 	const uint line = ev->cy / (LINESPACE + 1);
 
 	line_selected = 0xFFFFFFFFu;
-	if (line >= city_list.get_count()) {
+	if(  line >= city_list.get_count()  ) {
 		return false;
 	}
 
 	stadt_t* stadt = city_list[line];
-	if(  ev->button_state>0  &&  ev->cx>0  &&  ev->cx<15  ) {
+	if(  ev->button_state > 0  &&  ev->cx  >0  &&  ev->cx < 15  ) {
 		line_selected = line;
 	}
 
-	if (IS_LEFTRELEASE(ev) && ev->cy>0) {
-		if(ev->cx>0  &&  ev->cx<15) {
-			const koord pos = stadt->get_pos();
-			welt->get_viewport()->change_world_position( koord3d(pos, welt->min_hgt(pos)) );
+	if(  IS_LEFTRELEASE(ev)  &&  ev->cy > 0  ) {
+		if(  ev->cx > 0  &&  ev->cx < 15  ) {
+			if(  grund_t *gr = welt->lookup_kartenboden( stadt->get_center() )  ) {
+				welt->get_viewport()->change_world_position( gr->get_pos() );
+			}
 		}
 		else {
 			stadt->zeige_info();
 		}
-	} else if (IS_RIGHTRELEASE(ev) && ev->cy > 0) {
-		const koord pos = stadt->get_pos();
-		welt->get_viewport()->change_world_position( koord3d(pos, welt->min_hgt(pos)) );
+	}
+	else if(  IS_RIGHTRELEASE(ev)  &&  ev->cy > 0  ) {
+		if(  grund_t *gr = welt->lookup_kartenboden( stadt->get_center() )  ) {
+			welt->get_viewport()->change_world_position( gr->get_pos() );
+		}
 	}
 	return false;
 }
@@ -131,7 +134,7 @@ void citylist_stats_t::draw(scr_coord offset)
 		recalc_size();
 	}
 
-	uint32 sel = line_selected;
+	sint32 sel = line_selected;
 	clip_dimension cl = display_get_clip_wh();
 
 	FORX(vector_tpl<stadt_t*>, const stadt, city_list, offset.y += LINESPACE + 1) {
@@ -148,7 +151,15 @@ void citylist_stats_t::draw(scr_coord offset)
 			display_proportional_clip(offset.x + 4 + 10, offset.y, buf, ALIGN_LEFT, COL_BLACK, true);
 
 			// goto button
-			display_img_aligned( gui_theme_t::pos_button_img[ sel == 0 ], scr_rect( offset.x, offset.y, 14, LINESPACE ), ALIGN_CENTER_V | ALIGN_CENTER_H, true );
+			bool selected = sel==0;
+			if(  !selected  ) {
+				// still on center?
+				if(  grund_t *gr = welt->lookup_kartenboden( stadt->get_center() )  ) {
+					selected = welt->get_viewport()->is_on_center( gr->get_pos() );
+				}
+			}
+			display_img_aligned( gui_theme_t::pos_button_img[ selected ], scr_rect( offset.x, offset.y, 14, LINESPACE ), ALIGN_CENTER_V | ALIGN_CENTER_H, true );
+			sel --;
 
 			if(  win_get_magic( (ptrdiff_t)stadt )  ) {
 				display_blend_wh( offset.x, offset.y, size.w, LINESPACE, COL_BLACK, 25 );
