@@ -2460,8 +2460,12 @@ void wegbauer_t::baue_fluss()
 	}
 
 	// now build the river
+	grund_t *gr_first = NULL;
 	for(  uint32 i=start_n;  i<end_n;  i++  ) {
 		grund_t* gr = welt->lookup_kartenboden(route[i].get_2d());
+		if(  gr_first == NULL) {
+			gr_first = gr;
+		}
 		if(  gr->get_typ()!=grund_t::wasser  ) {
 			// get direction
 			ribi_t::ribi ribi = i<end_n-1 ? route.get_short_ribi(i) : ribi_typ(route[i-1].get_2d()-route[i].get_2d());
@@ -2473,6 +2477,7 @@ void wegbauer_t::baue_fluss()
 			}
 		}
 	}
+	gr_first->calc_bild(); // to calculate ribi of water tiles
 
 	// we will make rivers gradually larger by stepping up their width
 	if(  env_t::river_types>1  &&  start_n<get_count()) {
