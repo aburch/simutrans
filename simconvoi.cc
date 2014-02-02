@@ -4884,7 +4884,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 		// Only calculate the loading time once, on arriving at the stop:
 		// otherwise, the change in the vehicle's load will not be calculated
 		// correctly.
-		calc_current_loading_time(changed_loading_level);
+		current_loading_time = calc_current_loading_time(changed_loading_level);
 	}
 
 	if(accumulated_revenue) 
@@ -6454,12 +6454,11 @@ void convoi_t::clear_replace()
 	//return ((float)1 / (1 / (waiting_ticks / 4096.0) * 20) *welt->get_settings().get_distance_per_tile() * 60.0F);
 }
 
- void convoi_t::calc_current_loading_time(uint16 load_charge)
+ uint32 convoi_t::calc_current_loading_time(uint16 load_charge)
  {
 	if(longest_max_loading_time == longest_min_loading_time || load_charge == 0)
 	{
-		current_loading_time = longest_min_loading_time;
-		return;
+		return longest_min_loading_time;
 	}
 
 	uint16 total_capacity = 0;
@@ -6474,7 +6473,7 @@ void convoi_t::clear_replace()
 	total_capacity *= 2;
 	const sint32 percentage = (load_charge * 100) / total_capacity;
 	const sint32 difference = abs((((sint32)longest_max_loading_time - (sint32)longest_min_loading_time)) * percentage) / 100;
-	current_loading_time = difference + longest_min_loading_time;
+	return difference + longest_min_loading_time;
  }
 
  bool convoi_t::is_circular_route() const
