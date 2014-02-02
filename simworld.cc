@@ -5917,6 +5917,10 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 
 	file->set_buffered(false);
 	clear_random_mode(LOAD_RANDOM);
+
+	// loading finished, reset savegame version to current
+	load_version = loadsave_t::int_version( env_t::savegame_version_str, NULL, NULL );;
+
 	dbg->warning("karte_t::laden()","loaded savegame from %i/%i, next month=%i, ticks=%i (per month=1<<%i)",last_month,last_year,next_month_ticks,ticks,karte_t::ticks_per_world_month_shift);
 }
 
