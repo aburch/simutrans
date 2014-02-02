@@ -18,6 +18,8 @@
 #include "../utils/for.h"
 #include "werkzeug_waehler.h"
 
+#include "../player/simplay.h"
+
 #define MIN_WIDTH (80)
 
 
@@ -188,7 +190,7 @@ void werkzeug_waehler_t::zeichnen(koord pos, koord)
 		}
 		else {
 			bool tool_dirty = dirty  ||  tools[i].tool->is_selected(welt) ^ tools[i].selected;
-			display_color_img(icon_img, draw_pos.x, draw_pos.y, 0, false, tool_dirty);
+			display_color_img(icon_img, draw_pos.x, draw_pos.y, sp->get_player_nr(), false, tool_dirty);
 			tools[i].tool->draw_after( welt, draw_pos, tool_dirty);
 			// store whether tool was selected
 			tools[i].selected = tools[i].tool->is_selected(welt);
