@@ -641,6 +641,7 @@ void karte_t::destroy()
 DBG_MESSAGE("karte_t::destroy()", "destroying world");
 
 	is_shutting_down = true;
+	unassigned_cars.clear();
 
 	passenger_origins.clear();
 	commuter_targets.clear();
@@ -3816,16 +3817,25 @@ void karte_t::new_month()
 		playerwin->update_data();
 	}
 
-	stadtauto_t* car;
-	while(!unassigned_cars.empty() && (sint32)unassigned_cars.get_count() > outstanding_cars)
-	{
-		//Make sure that there are not too many cars on the roads. 
-		car = unassigned_cars.remove_first();
-		car->set_list(NULL);
-		/*sync_remove(car);
-		delete car;*/
-	}
-	car = NULL;
+	// This code is probably no longer necessary, as the private cars' time_to_life (sic)
+	// value is set based on its anticipated journey time, which should automatically
+	// ensure that the correct number of vehicles remain on the roads provided that the 
+	// correct number are generated in the first place. 
+
+	// Retain the commented out code for the time being just in case removing it is problematic.
+	// Otherwise, consider deleting the whole infrastructure associated with this code, inelcuding
+	// the unassigned cars list.
+
+	//stadtauto_t* car;
+	//while(!unassigned_cars.empty() && (sint32)unassigned_cars.get_count() > outstanding_cars)
+	//{
+	//	// Make sure that there are not too many cars on the roads. 
+	//	car = unassigned_cars.remove_first();
+	//	car->set_list(NULL);
+	//	/*sync_remove(car);
+	//	delete car;*/
+	//}
+	//car = NULL;
 
 	INT_CHECK("simworld 3175");
 
