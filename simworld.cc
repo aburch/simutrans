@@ -641,6 +641,7 @@ void karte_t::destroy()
 DBG_MESSAGE("karte_t::destroy()", "destroying world");
 
 	is_shutting_down = true;
+	unassigned_cars.clear();
 
 	uint32 max_display_progress = 256+stadt.get_count()*10 + haltestelle_t::get_alle_haltestellen().get_count() + convoi_array.get_count() + (cached_size.x*cached_size.y)*2;
 	uint32 old_progress = 0;
@@ -3828,7 +3829,7 @@ void karte_t::new_month()
 	stadtauto_t* car;
 	while(!unassigned_cars.empty() && (sint32)unassigned_cars.get_count() > outstanding_cars)
 	{
-		//Make sure that there are not too many cars on the roads. 
+		// Make sure that there are not too many cars on the roads. 
 		car = unassigned_cars.remove_first();
 		car->set_list(NULL);
 		/*sync_remove(car);
