@@ -14,7 +14,7 @@ using std::string;
 
 void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	obj_node_t node(this, 23, &parent);
+	obj_node_t node(this, 24, &parent);
 
 	sint32 topspeed    = obj.get_int("topspeed",     999);
 	uint32 preis       = obj.get_int("cost",           0);
@@ -68,7 +68,8 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	node.write_uint16(fp, obsolete_date, 17);
 	node.write_uint16(fp, axle_load,     19);
 	node.write_sint8(fp, number_seasons, 21);
-	node.write_sint8(fp, (number_portals==4), 22);
+	// has was (uint8) is here but filled later
+	node.write_sint8(fp, (number_portals==4), 23);
 
 	write_head(fp, node, obj);
 
@@ -106,10 +107,10 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	str = obj.get("way");
 	if (!str.empty()) {
 		xref_writer_t::instance()->write_obj(fp, node, obj_way, str.c_str(), false);
-		node.write_sint8(fp, 1, 20);
+		node.write_sint8(fp, 1, 22);
 	}
 	else {
-		node.write_sint8(fp, 0, 20);
+		node.write_sint8(fp, 0, 22);
 	}
 
 	cursorkeys.clear();

@@ -171,7 +171,7 @@ obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	// indicate for different copyright/name lookup
 	besch->offset = version<8 ? 0 : 2;
 
-	if(  version < 5  ) {
+	if(  version < 9  ) {
 		besch->axle_load = 9999;
 	}
 
