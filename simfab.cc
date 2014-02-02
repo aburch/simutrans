@@ -1702,8 +1702,8 @@ void fabrik_t::step(long delta_t)
 						delta_menge += p;
 						ausgang[product].menge += p;
 						ausgang[product].book_stat(p, FAB_GOODS_PRODUCED);
-						// if less than 3/4 filled we neary always consume power
-						currently_producing |= (ausgang[product].menge*4 < ausgang[product].max*3);
+						// Consume electricity if the industry is producing anything at all.
+						currently_producing = p > 0;
 					}
 					else {
 						ausgang[product].book_stat(ausgang[product].max - 1 - ausgang[product].menge, FAB_GOODS_PRODUCED);
