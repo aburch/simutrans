@@ -39,6 +39,11 @@
 #pak_file_path = pak.winter/
 #pak_file_path = pak.ttd/
 
+# For versions of Simutrans compiled to work in a multithreaded system (which will improve
+# certain aspects of performance on multiple core/processor machines), this is the number
+# of threads that will be used. Maximum: 12.
+threads = 6
+
 # maximum number of position tested during a way search
 # 100000 should be ok even for large maps with ships
 # 10000 is ok for everything else (consumes 16*x Bytes main memory, no further harm)
