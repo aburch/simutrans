@@ -2778,7 +2778,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 			amount += v->load_freight(halt);
 		}
 		if(  amount  ) {
-			time += (amount*v->get_besch()->get_loading_time())/v->get_fracht_max();
+			time += (amount*v->get_besch()->get_loading_time()) / max(v->get_fracht_max(), 1);
 			v->calc_bild();
 			changed_loading_level = true;
 		}
