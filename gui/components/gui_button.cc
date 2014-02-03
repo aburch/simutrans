@@ -22,6 +22,12 @@
 #include "../../besch/skin_besch.h"
 #include "../../utils/simstring.h"
 
+// the following are only needed for the posbutton ...
+#include "../../simworld.h"
+#include "../../player/simplay.h"
+#include "../../boden/grund.h"
+#include "../../display/viewport.h"
+
 #include "../gui_frame.h"
 
 #define STATE_MASK (127)
@@ -301,7 +307,16 @@ void button_t::draw(scr_coord offset)
 			break;
 
 		case posbutton:
-			display_img_aligned( gui_theme_t::pos_button_img[ get_state_offset() ], area, ALIGN_CENTER_V, true );
+			{
+				uint8 offset = get_state_offset();
+				if(  offset == 0  ) {
+					karte_t *welt = spieler_t::get_welt();
+					if(  grund_t *gr = welt->lookup_kartenboden(targetpos.x,targetpos.y)  ) {
+						offset = welt->get_viewport()->is_on_center( gr->get_pos() );
+					}
+				}
+				display_img_aligned( gui_theme_t::pos_button_img[ offset ], area, ALIGN_CENTER_V, true );
+			}
 			break;
 
 		case arrowleft:
