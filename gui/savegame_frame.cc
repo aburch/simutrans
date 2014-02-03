@@ -370,7 +370,7 @@ void savegame_frame_t::set_file_table_default_sort_order()
 
 void savegame_frame_t::add_file(const char *fullpath, const char *filename, const bool not_cutting_suffix ) 
 {
-	add_file(fullpath, filename, get_info(filename), not_cutting_suffix);
+	add_file(fullpath, filename, get_info(fullpath), not_cutting_suffix);
 }
 
 void savegame_frame_t::add_file(const char *fullpath, const char *filename, const char *pak, const bool no_cutting_suffix )

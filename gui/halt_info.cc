@@ -406,14 +406,12 @@ uint32 halt_info_t::calc_ticks_until_arrival( convoihandle_t cnv )
 		sint32 cnv_speed_limit = cnv->get_min_top_speed();
 
 		//TODO BG, 01.02.2014: respect acceleration and braking.
-		double delta = 0.0;
 		for (uint32 i = max(1, current_route_index - 1); i < route_count; ++i)
 		{
 			convoi_t::route_info_t& prev_info = infos.get_element(i-1);
 			convoi_t::route_info_t& curr_info = infos.get_element(i);
-			delta += (double)(curr_info.steps_from_start - prev_info.steps_from_start) / min(cnv_speed_limit, curr_info.speed_limit);
+			delta_t += ((curr_info.steps_from_start - prev_info.steps_from_start) << YARDS_PER_VEHICLE_STEP_SHIFT) / min(cnv_speed_limit, curr_info.speed_limit);
 		}
-		delta_t = (uint32)(delta * (1 << YARDS_PER_VEHICLE_STEP_SHIFT) + 0.5);
 	}
 	///* calculate the time needed:
 	// *   tiles << (8+12) / (kmh_to_speed(max_kmh) = ticks
