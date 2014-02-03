@@ -22,7 +22,7 @@ bool load_relief_frame_t::item_action(const char *fullpath)
 {
 	sets->heightfield = fullpath;
 
-	return false;
+	return true;
 }
 
 
