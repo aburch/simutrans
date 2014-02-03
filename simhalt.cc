@@ -2292,7 +2292,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 		}
 		
 		halthandle_t previous_halt = self;
-
+		halthandle_t cached_halts[256];
 		while(!goods_to_check.empty())
 		{
 			ware_t* next_to_load = goods_to_check.pop();
@@ -2302,8 +2302,9 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 
 			while(index != fpl->get_aktuell()) 
 			{
-				halthandle_t plan_halt = haltestelle_t::get_halt(fpl->eintrag[index].pos, sp);
-				halthandle_t next_transfer = next_to_load->get_zwischenziel();
+				halthandle_t& plan_halt = cached_halts[index];
+				if (!plan_halt.get_id())
+					plan_halt = haltestelle_t::get_halt(fpl->eintrag[index].pos, sp);
 
 				if(plan_halt == self)
 				{
@@ -2311,6 +2312,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 					break;
 				}
 
+				halthandle_t next_transfer = next_to_load->get_zwischenziel();
 				if(plan_halt.is_bound() && next_transfer == plan_halt && plan_halt->is_enabled(catg_index))
 				{
 					// Calculate the journey time for *this* convoy from here (if not already calculated)
