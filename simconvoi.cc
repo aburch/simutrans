@@ -835,7 +835,6 @@ void convoi_t::calc_acceleration(long delta_t)
 {
 	// existing_convoy_t is designed to become a part of convoi_t. 
 	// There it will help to minimize updating convoy summary data.
-	convoi_t &convoy = *this;
 	vehikel_t &front = *this->front();
 
 	const uint32 route_count = route.get_count(); // at least ziel will be there, even if calculating a route failed.
@@ -858,7 +857,7 @@ void convoi_t::calc_acceleration(long delta_t)
 	sint32 steps_til_limit;
 	sint32 steps_til_brake;
 #endif
-	const sint32 brake_steps = convoy.calc_min_braking_distance(welt->get_settings(), convoy.get_weight_summary(), akt_speed);
+	const sint32 brake_steps = calc_min_braking_distance(welt->get_settings(), get_weight_summary(), akt_speed);
 	// use get_route_infos() for the first time accessing route_infos to eventually initialize them.
 	const uint32 route_infos_count = get_route_infos().get_count();
 	if (route_infos_count > 0 && route_infos_count >= next_stop_index && next_stop_index > current_route_index)
@@ -871,7 +870,7 @@ void convoi_t::calc_acceleration(long delta_t)
 		const convoi_t::route_info_t &current_info = route_infos.get_element(i);
 		if (current_info.speed_limit != SPEED_UNLIMITED)
 		{
-			convoy.update_max_speed(speed_to_kmh(current_info.speed_limit));
+			update_max_speed(speed_to_kmh(current_info.speed_limit));
 		}
 		const convoi_t::route_info_t &limit_info = route_infos.get_element(next_stop_index - 1);
 		steps_til_limit = route_infos.calc_steps(current_info.steps_from_start, limit_info.steps_from_start);
@@ -903,7 +902,7 @@ void convoi_t::calc_acceleration(long delta_t)
 			if (limit_info.speed_limit < min_limit)
 			{
 				min_limit = limit_info.speed_limit;
-				const sint32 limit_steps = brake_steps - convoy.calc_min_braking_distance(welt->get_settings(), convoy.get_weight_summary(), limit_info.speed_limit);
+				const sint32 limit_steps = brake_steps - calc_min_braking_distance(welt->get_settings(), get_weight_summary(), limit_info.speed_limit);
 				const sint32 route_steps = route_infos.calc_steps(current_info.steps_from_start, steps_from_start);
 				const sint32 st = route_steps - limit_steps;
 
@@ -933,7 +932,7 @@ void convoi_t::calc_acceleration(long delta_t)
 	 * calculate movement in the next delta_t ticks.
 	 */
 	akt_speed_soll = get_min_top_speed();
-	convoy.calc_move(welt->get_settings(), delta_t, akt_speed_soll, next_speed_limit, steps_til_limit, steps_til_brake, akt_speed, sp_soll, v);
+	calc_move(welt->get_settings(), delta_t, akt_speed_soll, next_speed_limit, steps_til_limit, steps_til_brake, akt_speed, sp_soll, v);
 }
 
 void convoi_t::route_infos_t::set_holding_pattern_indexes(sint32 current_route_index, sint32 touchdown_route_index)
