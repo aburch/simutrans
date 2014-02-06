@@ -202,7 +202,7 @@ extern const float32e8_t steps2yards;
 //	return (sint32)(m2yards * x + float32e8_t::half);
 //}
 
-#define KMH_MIN 4
+#define KMH_MIN 1
 extern const sint32 SPEED_MIN; 
 extern const float32e8_t V_MIN;
 #endif //ndef NETTOOL
