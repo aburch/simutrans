@@ -26,8 +26,7 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 	};
 	int ribi, hang;
 
-	// Hajo: node size is 27 bytes
-	obj_node_t node(this, 28, &parent);
+	obj_node_t node(this, 36, &parent);
 
 
 	// Hajo: Version needs high bit set as trigger -> this is required
@@ -41,12 +40,15 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 	// Finally, this is the experimental version number. This is *added*
 	// to the standard version number, to be subtracted again when read.
 	// Start at 0x100 and increment in hundreds (hex).
-	version += 0x100;
+	// 0x200 - 12.x - added max. speeds for different gradients.
+	version += 0x200;
 
-	uint32 price       = obj.get_int("cost",        100);
-	uint32 maintenance = obj.get_int("maintenance", 100);
-	sint32 topspeed    = obj.get_int("topspeed",    999);
-	uint32 max_weight  = obj.get_int("max_weight",  999);
+	uint32 price				= obj.get_int("cost",					100);
+	uint32 maintenance			= obj.get_int("maintenance",			100);
+	sint32 topspeed				= obj.get_int("topspeed",				999);
+	sint32 topspeed_gradient_1  = obj.get_int("topspeed_gradient_1",    topspeed);
+	sint32 topspeed_gradient_2  = obj.get_int("topspeed_gradient_2",    topspeed_gradient_1);
+	uint32 max_weight			= obj.get_int("max_weight",				9999);
 
 	uint16 intro  = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
 	intro += obj.get_int("intro_month", 1) - 1;
@@ -112,6 +114,8 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 	node.write_uint8 (outfp, draw_as_ding,				24);
 	node.write_uint8(outfp, permissive_way_constraints,	26);
 	node.write_uint8(outfp, prohibitive_way_constraints,27);
+	node.write_sint32(outfp, topspeed_gradient_1,		28);
+	node.write_sint32(outfp, topspeed_gradient_2,		32);
 
 	static const char* const image_type[] = { "", "front" };
 

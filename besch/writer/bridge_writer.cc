@@ -91,18 +91,20 @@ void write_bridge_images(FILE* outfp, obj_node_t& node, tabfileobj_t& obj, int s
 
 void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	obj_node_t node(this, 28, &parent);
+	obj_node_t node(this, 32, &parent);
 
-	uint8  wegtyp        = get_waytype(obj.get("waytype"));
-	uint16 topspeed      = obj.get_int("topspeed", 999);
-	uint32 preis         = obj.get_int("cost", 0);
-	uint32 maintenance   = obj.get_int("maintenance", 1000);
-	uint8  pillars_every = obj.get_int("pillar_distance",0); // distance==0 is off
-	uint8  pillar_asymmetric = obj.get_int("pillar_asymmetric",0); // middle of tile
-	uint8  max_length    = obj.get_int("max_lenght",0); // max_lenght==0: unlimited
-	max_length    = obj.get_int("max_length",max_length); // with correct spelling
-	uint8  max_height    = obj.get_int("max_height",0); // max_height==0: unlimited
-	uint32 max_weight	 = obj.get_int("max_weight",999);
+	uint8  wegtyp					= get_waytype(obj.get("waytype"));
+	uint16 topspeed					= obj.get_int("topspeed", 999);
+	uint16 topspeed_gradient_1      = obj.get_int("topspeed_gradient_1", topspeed);
+	uint16 topspeed_gradient_2      = obj.get_int("topspeed_gradient_2", topspeed_gradient_1);
+	uint32 preis					= obj.get_int("cost", 0);
+	uint32 maintenance				= obj.get_int("maintenance", 1000);
+	uint8  pillars_every			= obj.get_int("pillar_distance",0); // distance==0 is off
+	uint8  pillar_asymmetric		= obj.get_int("pillar_asymmetric",0); // middle of tile
+	uint8  max_length				= obj.get_int("max_lenght",0); // max_lenght==0: unlimited
+	max_length						= obj.get_int("max_length",max_length); // with correct spelling
+	uint8  max_height				= obj.get_int("max_height",0); // max_height==0: unlimited
+	uint32 max_weight				= obj.get_int("max_weight",9999);
 
 	// prissi: timeline
 	uint16 intro_date = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
@@ -157,7 +159,7 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 	// Finally, this is the experimental version number. This is *added*
 	// to the standard version number, to be subtracted again when read.
 	// Start at 0x100 and increment in hundreds (hex).
-	version += 0x100;
+	version += 0x200;
 
 	node.write_uint16(outfp, version,					0);
 	node.write_uint16(outfp, topspeed,					2);
@@ -173,6 +175,8 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 	node.write_uint32(outfp, max_weight,				22);
 	node.write_uint8(outfp, permissive_way_constraints,	26);
 	node.write_uint8(outfp, prohibitive_way_constraints,27);
+	node.write_uint16(outfp, topspeed_gradient_1,		28);
+	node.write_uint16(outfp, topspeed_gradient_2,		30);
 
 	char keybuf[40];
 

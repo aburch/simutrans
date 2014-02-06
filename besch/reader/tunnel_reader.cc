@@ -96,15 +96,17 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			
 			if(experimental)
 			{
-				if(experimental_version == 0)
+				besch->max_axle_load =  decode_uint32(p);
+				way_constraints.set_permissive(decode_uint8(p));
+				way_constraints.set_prohibitive(decode_uint8(p));
+				if(experimental_version == 1)
 				{
-					besch->max_axle_load = decode_uint32(p);
-					way_constraints.set_permissive(decode_uint8(p));
-					way_constraints.set_prohibitive(decode_uint8(p));
+					besch->topspeed_gradient_1 = decode_uint16(p);
+					besch->topspeed_gradient_2 = decode_uint16(p);
 				}
-				else
+				if(experimental_version > 1)
 				{
-					dbg->fatal( "tunnel_reader_t::read_node()","Incompatible pak file version for Simutrans-E, number %i", experimental_version );
+					dbg->fatal( "tunnel_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version );
 				}
 			}
 			besch->has_way = decode_uint8(p);
@@ -122,15 +124,17 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			besch->has_way = decode_uint8(p);
 			if(experimental)
 			{
-				if(experimental_version == 0)
+				besch->max_axle_load =  decode_uint32(p);
+				way_constraints.set_permissive(decode_uint8(p));
+				way_constraints.set_prohibitive(decode_uint8(p));
+				if(experimental_version == 1)
 				{
-					besch->max_axle_load =  decode_uint32(p);
-					way_constraints.set_permissive(decode_uint8(p));
-					way_constraints.set_prohibitive(decode_uint8(p));
+					besch->topspeed_gradient_1 = decode_uint16(p);
+					besch->topspeed_gradient_2 = decode_uint16(p);
 				}
-				else
+				if(experimental_version > 1)
 				{
-					dbg->fatal( "tunnel_reader_t::read_node()","Incompatible pak file version for Simutrans-E, number %i", experimental_version );
+					dbg->fatal( "tunnel_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version );
 				}
 			}
 			besch->broad_portals = 0;
@@ -146,15 +150,17 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			besch->number_seasons = decode_uint8(p);
 			if(experimental)
 			{
-				if(experimental_version == 0)
+				besch->max_axle_load =  decode_uint32(p);
+				way_constraints.set_permissive(decode_uint8(p));
+				way_constraints.set_prohibitive(decode_uint8(p));
+				if(experimental_version == 1)
 				{
-					besch->max_axle_load =  decode_uint32(p);
-					way_constraints.set_permissive(decode_uint8(p));
-					way_constraints.set_prohibitive(decode_uint8(p));
+					besch->topspeed_gradient_1 = decode_uint16(p);
+					besch->topspeed_gradient_2 = decode_uint16(p);
 				}
-				else
+				if(experimental_version > 1)
 				{
-					dbg->fatal( "tunnel_reader_t::read_node()","Incompatible pak file version for Simutrans-E, number %i", experimental_version );
+					dbg->fatal( "tunnel_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version );
 				}
 			}
 			besch->has_way = 0;
@@ -179,6 +185,11 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		if(!experimental)
 		{
 			besch->max_axle_load = 999;
+		}
+		
+		if(experimental_version < 1 || !experimental)
+		{
+			besch->topspeed_gradient_1 = besch->topspeed_gradient_1 = besch->topspeed;
 		}
 		besch->set_way_constraints(way_constraints);
 

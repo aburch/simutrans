@@ -146,18 +146,35 @@ void weg_t::set_max_axle_load(uint32 w)
 void weg_t::set_besch(const weg_besch_t *b)
 {
 	besch = b;
-	if(hat_gehweg() &&  besch->get_wtyp() == road_wt  &&  besch->get_topspeed() > welt->get_city_road()->get_topspeed())
+
+	const grund_t* gr = welt->lookup_kartenboden(get_pos().get_2d());
+	const hang_t::typ hang = gr ? gr->get_weg_hang() : hang_t::flach;
+	if(hang != hang_t::flach) 
 	{
-		max_speed = welt->get_city_road()->get_topspeed();
+		const uint slope_height = (hang & 7) ? 1 : 2;
+		if(slope_height == 1)
+		{
+			max_speed = besch->get_topspeed_gradient_1();
+		}
+		else
+		{
+			max_speed = besch->get_topspeed_gradient_2();
+		}
 	}
-	else 
+	else
 	{
 		max_speed = besch->get_topspeed();
 	}
 
+	const sint32 city_road_topspeed = welt->get_city_road()->get_topspeed();
+
+	if(hat_gehweg() && besch->get_wtyp() == road_wt)
+	{
+		max_speed = min(max_speed, city_road_topspeed);
+	}
+
 	max_axle_load = besch->get_max_axle_load();
 	way_constraints = besch->get_way_constraints();
-	const grund_t* gr =  welt->lookup(get_pos());
 	if(gr)
 	{
 		const wayobj_t* wayobj = gr->get_wayobj(get_waytype());
@@ -166,7 +183,6 @@ void weg_t::set_besch(const weg_besch_t *b)
 			add_way_constraints(wayobj->get_besch()->get_way_constraints());
 		}
 	}
-
 }
 
 
@@ -778,3 +794,9 @@ bool weg_t::should_city_adopt_this(const spieler_t* sp)
 	// If we found a neighbouring building, we will adopt the road.
 	return has_neighbouring_building;
 }
+
+//void weg_t::set_max_speed(sint32 s)
+//{
+//	// For TESTing only 
+//	max_speed = s;
+//}

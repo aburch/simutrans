@@ -157,13 +157,15 @@ obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->number_seasons = decode_uint8(p);
 		if(experimental)
 		{
-			if(experimental_version == 0)
+			besch->max_weight = decode_uint32(p);
+			way_constraints.set_permissive(decode_uint8(p));
+			way_constraints.set_prohibitive(decode_uint8(p));
+			if(experimental_version == 1)
 			{
-				besch->max_weight = decode_uint32(p);
-				way_constraints.set_permissive(decode_uint8(p));
-				way_constraints.set_prohibitive(decode_uint8(p));
+				besch->topspeed_gradient_1 = decode_uint16(p);
+				besch->topspeed_gradient_2 = decode_uint16(p);
 			}
-			else
+			if(experimental_version > 1)
 			{
 				dbg->fatal( "bridge_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version );
 			}
@@ -180,6 +182,11 @@ obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 
 	besch->set_way_constraints(way_constraints);
+
+	if(experimental_version < 1 || !experimental)
+	{
+		besch->topspeed_gradient_1 = besch->topspeed_gradient_1 = besch->topspeed;
+	}
 
 	// pillars cannot be heigher than this to avoid drawing errors
 	if(besch->pillars_every>0  &&  besch->max_height==0) {

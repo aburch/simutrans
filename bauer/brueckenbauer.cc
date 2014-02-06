@@ -616,7 +616,24 @@ void brueckenbauer_t::baue_bruecke(spieler_t *sp, const koord3d start, const koo
 			weg_t * const weg = weg_t::alloc(besch->get_waytype());
 			weg->set_besch(weg_besch);
 			bruecke->neuen_weg_bauen(weg, ribi_t::doppelt(ribi), sp);
-			weg->set_max_speed( besch->get_topspeed() );
+			const grund_t* gr = welt->lookup(weg->get_pos());
+			const hang_t::typ hang = gr ? gr->get_weg_hang() :  hang_t::flach;
+			if(hang != hang_t::flach) 
+			{
+				const uint slope_height = (hang & 7) ? 1 : 2;
+				if(slope_height == 1)
+				{
+					weg->set_max_speed(besch->get_topspeed_gradient_1());
+				}
+				else
+				{
+					weg->set_max_speed(besch->get_topspeed_gradient_2());
+				}
+			}
+			else
+			{
+				weg->set_max_speed(besch->get_topspeed());
+			}
 			weg->set_max_axle_load( besch->get_max_weight() );
 			// Necessary to avoid the "default" way (which might have constraints) setting the constraints here.
 			weg->clear_way_constraints();
@@ -679,7 +696,23 @@ void brueckenbauer_t::baue_bruecke(spieler_t *sp, const koord3d start, const koo
 				// builds new way
 				weg_t * const weg = weg_t::alloc( besch->get_waytype() );
 				weg->set_besch( weg_besch );
-				weg->set_max_speed( besch->get_topspeed() );
+				const hang_t::typ hang = gr ? gr->get_weg_hang() :  hang_t::flach;
+				if(hang != hang_t::flach) 
+				{
+					const uint slope_height = (hang & 7) ? 1 : 2;
+					if(slope_height == 1)
+					{
+						weg->set_max_speed(besch->get_topspeed_gradient_1());
+					}
+					else
+					{
+						weg->set_max_speed(besch->get_topspeed_gradient_2());
+					}
+				}
+				else
+				{
+					weg->set_max_speed(besch->get_topspeed());
+				}
 				weg->set_max_axle_load( besch->get_max_weight() );
 				// Necessary to avoid the "default" way (which might have constraints) setting the constraints here.
 				weg->clear_way_constraints();
@@ -763,7 +796,24 @@ void brueckenbauer_t::baue_auffahrt(spieler_t* sp, koord3d end, ribi_t::ribi rib
 			weg = weg_t::alloc( besch->get_waytype() );
 			spieler_t::book_construction_costs(sp, -bruecke->neuen_weg_bauen( weg, ribi_neu, sp ), end.get_2d(), besch->get_waytype());
 		}
-		weg->set_max_speed( besch->get_topspeed() );
+		const grund_t* gr = welt->lookup(weg->get_pos());
+		const hang_t::typ hang = gr ? gr->get_weg_hang() : hang_t::flach;
+		if(hang != hang_t::flach) 
+		{
+			const uint slope_height = (hang & 7) ? 1 : 2;
+			if(slope_height == 1)
+			{
+				weg->set_max_speed(besch->get_topspeed_gradient_1());
+			}
+			else
+			{
+				weg->set_max_speed(besch->get_topspeed_gradient_2());
+			}
+		}
+		else
+		{
+			weg->set_max_speed(besch->get_topspeed());
+		}
 		weg->set_max_axle_load( besch->get_max_weight() );
 		// Necessary to avoid the "default" way (which might have constraints) setting the constraints here.
 		weg->clear_way_constraints();

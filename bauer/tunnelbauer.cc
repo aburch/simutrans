@@ -395,7 +395,24 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 		if(wegtyp != powerline_wt) {
 			weg = weg_t::alloc(besch->get_waytype());
 			weg->set_besch(weg_besch);
-			weg->set_max_speed(besch->get_topspeed());
+			const grund_t* gr = welt->lookup(pos);
+			const hang_t::typ hang = gr ? gr->get_weg_hang() : hang_t::flach;
+			if(hang != hang_t::flach) 
+			{
+				const uint slope_height = (hang & 7) ? 1 : 2;
+				if(slope_height == 1)
+				{
+					weg->set_max_speed(besch->get_topspeed_gradient_1());
+				}
+				else
+				{
+					weg->set_max_speed(besch->get_topspeed_gradient_2());
+				}
+			}
+			else
+			{
+				weg->set_max_speed(besch->get_topspeed());
+			}
 			weg->set_max_axle_load(besch->get_max_axle_load());
 			// Necessary to avoid the "default" way (which might have constraints) setting the constraints here.
 			weg->clear_way_constraints();
@@ -448,7 +465,24 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 		if(wegtyp != powerline_wt) {
 			weg = weg_t::alloc(besch->get_waytype());
 			weg->set_besch(weg_besch);
-			weg->set_max_speed(besch->get_topspeed());
+			const grund_t* gr = welt->lookup(pos);
+			const hang_t::typ hang = gr ? gr->get_weg_hang() : hang_t::flach;
+			if(hang != hang_t::flach) 
+			{
+				const uint slope_height = (hang & 7) ? 1 : 2;
+				if(slope_height == 1)
+				{
+					weg->set_max_speed(besch->get_topspeed_gradient_1());
+				}
+				else
+				{
+					weg->set_max_speed(besch->get_topspeed_gradient_2());
+				}
+			}
+			else
+			{
+				weg->set_max_speed(besch->get_topspeed());
+			}
 			weg->set_max_axle_load(besch->get_max_axle_load());
 			tunnel->neuen_weg_bauen(weg, ribi, sp);
 			// Necessary to avoid the "default" way (which might have constraints) setting the constraints here.
@@ -508,7 +542,24 @@ void tunnelbauer_t::baue_einfahrt(spieler_t *sp, koord3d end, koord zv, const tu
 			tunnel->neuen_weg_bauen( weg, ribi, sp );
 		}
 		spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype() );
-		weg->set_max_speed( besch->get_topspeed() );
+		const grund_t* gr = welt->lookup(weg->get_pos());
+		const hang_t::typ hang = gr ? gr->get_weg_hang() : hang_t::flach;
+		if(hang != hang_t::flach) 
+		{
+			const uint slope_height = (hang & 7) ? 1 : 2;
+			if(slope_height == 1)
+			{
+				weg->set_max_speed(besch->get_topspeed_gradient_1());
+			}
+			else
+			{
+				weg->set_max_speed(besch->get_topspeed_gradient_2());
+			}
+		}
+		else
+		{
+			weg->set_max_speed(besch->get_topspeed());
+		}
 		weg->set_max_axle_load( besch->get_max_axle_load() );
 		// Necessary to avoid the "default" way (which might have constraints) setting the constraints here.
 		weg->clear_way_constraints();

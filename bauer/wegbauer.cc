@@ -2169,7 +2169,23 @@ bool wegbauer_t::baue_tunnelboden()
 				weg->set_besch( wb );
 				tunnel->neuen_weg_bauen(weg, route.get_ribi(i), sp);
 				tunnel->obj_add(new tunnel_t(route[i], sp, tunnel_besch));
-				weg->set_max_speed(tunnel_besch->get_topspeed());
+				const hang_t::typ hang = gr ? gr->get_weg_hang() : hang_t::flach;
+				if(hang != hang_t::flach) 
+				{
+					const uint slope_height = (hang & 7) ? 1 : 2;
+					if(slope_height == 1)
+					{
+						weg->set_max_speed(tunnel_besch->get_topspeed_gradient_1());
+					}
+					else
+					{
+						weg->set_max_speed(tunnel_besch->get_topspeed_gradient_2());
+					}
+				}
+				else
+				{
+					weg->set_max_speed(tunnel_besch->get_topspeed());
+				}
 				weg->set_max_axle_load(tunnel_besch->get_max_axle_load());
 				weg->add_way_constraints(besch->get_way_constraints());
 				spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype());
@@ -2232,7 +2248,23 @@ bool wegbauer_t::baue_tunnelboden()
 				tunnel->set_besch(tunnel_besch);
 				weg_t *weg = gr->get_weg(tunnel_besch->get_waytype());
 				weg->set_besch(wb);
-				weg->set_max_speed(tunnel_besch->get_topspeed());
+				const hang_t::typ hang = gr->get_weg_hang();
+				if(hang != hang_t::flach) 
+				{
+					const uint slope_height = (hang & 7) ? 1 : 2;
+					if(slope_height == 1)
+					{
+						weg->set_max_speed(tunnel_besch->get_topspeed_gradient_1());
+					}
+					else
+					{
+						weg->set_max_speed(tunnel_besch->get_topspeed_gradient_2());
+					}
+				}
+				else
+				{
+					weg->set_max_speed(tunnel_besch->get_topspeed());
+				}
 				weg->set_max_axle_load(tunnel_besch->get_max_axle_load());
 				// respect max speed of catenary
 				wayobj_t const* const wo = gr->get_wayobj(tunnel_besch->get_waytype());
@@ -2468,6 +2500,7 @@ void wegbauer_t::baue_schiene()
 				const obj_t* obj = gr->obj_bei(0);
 				
 				weg_t* const sch = weg_t::alloc(besch->get_wtyp());
+				sch->set_pos(gr->get_pos());
 				sch->set_besch(besch);
 				const wayobj_t* wayobj = gr->get_wayobj(sch->get_waytype());
 				if(wayobj != NULL)

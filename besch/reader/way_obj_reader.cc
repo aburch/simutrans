@@ -92,6 +92,9 @@ obj_besch_t * way_obj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	besch->base_cost = besch->cost;
 	besch->base_maintenance = besch->maintenance;
+	// Way objects do not have a separate top speed for gradients,
+	// but still need this value to be set to avoid it being zero.
+	besch->topspeed_gradient_1 = besch->topspeed_gradient_2 = besch->topspeed;
 
   DBG_DEBUG("way_obj_reader_t::read_node()",
 	     "version=%d cost=%d maintenance=%d topspeed=%d wtype=%d styp=%d intro_year=%i",

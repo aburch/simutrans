@@ -184,7 +184,23 @@ void bruecke_t::laden_abschliessen()
 			weg = weg_t::alloc( besch->get_waytype() );
 			gr->neuen_weg_bauen( weg, 0, welt->get_spieler(1) );
 		}
-		weg->set_max_speed(besch->get_topspeed());
+		const hang_t::typ hang = gr->get_weg_hang();
+		if(hang != hang_t::flach) 
+		{
+			const uint slope_height = (hang & 7) ? 1 : 2;
+			if(slope_height == 1)
+			{
+				weg->set_max_speed(besch->get_topspeed_gradient_1());
+			}
+			else
+			{
+				weg->set_max_speed(besch->get_topspeed_gradient_2());
+			}
+		}
+		else
+		{
+			weg->set_max_speed(besch->get_topspeed());
+		}
 		// take ownership of way
 		spieler_t::add_maintenance( weg->get_besitzer(), -weg->get_besch()->get_wartung(), besch->get_finance_waytype());
 		weg->set_besitzer(sp);
@@ -218,7 +234,23 @@ void bruecke_t::entferne( spieler_t *sp2 )
 	if(gr) {
 		weg_t *weg = gr->get_weg( besch->get_waytype() );
 		if(weg) {
-			weg->set_max_speed( weg->get_besch()->get_topspeed() );
+			const hang_t::typ hang = gr ? gr->get_weg_hang() : hang_t::flach;
+			if(hang != hang_t::flach) 
+			{
+				const uint slope_height = (hang & 7) ? 1 : 2;
+				if(slope_height == 1)
+				{
+					weg->set_max_speed(besch->get_topspeed_gradient_1());
+				}
+				else
+				{
+					weg->set_max_speed(besch->get_topspeed_gradient_2());
+				}
+			}
+			else
+			{
+				weg->set_max_speed(besch->get_topspeed());
+			}
 			spieler_t::add_maintenance( sp,  weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype());
 			// reset offsets
 			weg->set_yoff(0);

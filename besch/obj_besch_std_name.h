@@ -73,15 +73,17 @@ protected:
 	sint32 base_maintenance;
 	sint32 base_cost;
 
-	sint32 maintenance;   ///< monthly cost for bits_per_month=18
-	sint32 cost;          ///< cost to build this thing [1/100 credits] per tile/object
-	uint8  wt;            ///< waytype of this thing
-	sint32 topspeed;      ///< maximum allowed speed in km/h
+	sint32 maintenance;			///< monthly cost for bits_per_month=18
+	sint32 cost;				///< cost to build this thing [1/100 credits] per tile/object
+	uint8  wt;					///< waytype of this thing
+	sint32 topspeed;			///< maximum allowed speed in km/h
+	sint32 topspeed_gradient_1; ///< maximum allowed speed in km/h for a half/single height gradient
+	sint32 topspeed_gradient_2; ///< maximum allowed speed in km/h for a single/double height gradient
 
 public:
 	obj_besch_transport_related_t() : obj_besch_timelined_t(),
 		base_maintenance(0), base_cost(0), 
-		maintenance(0), cost(0), wt(255), topspeed(0) {}
+		maintenance(0), cost(0), wt(255), topspeed(0), topspeed_gradient_1(0), topspeed_gradient_2(0) {}
 
 	inline sint32 get_base_maintenance() const { return base_maintenance; }
 	sint32 get_maintenance() const { return maintenance; }
@@ -95,6 +97,8 @@ public:
 	waytype_t get_wtyp() const { return get_waytype(); }
 
 	sint32 get_topspeed() const { return topspeed; }
+	sint32 get_topspeed_gradient_1() const { return topspeed_gradient_1; }
+	sint32 get_topspeed_gradient_2() const { return topspeed_gradient_2; }
 	sint32 get_geschw() const { return topspeed; }
 
 	void set_scale(uint16 scale_factor)

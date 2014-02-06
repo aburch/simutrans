@@ -92,18 +92,73 @@ wayobj_t::~wayobj_t()
 				weg->set_electrify(false);
 				// restore old speed limit and way constraints
 				weg->reset_way_constraints();
-				sint32 max_speed = weg->hat_gehweg() ? 50 : weg->get_besch()->get_topspeed();
-				if(gr->get_typ()==grund_t::tunnelboden) {
+				sint32 max_speed;
+				const hang_t::typ hang = gr ? gr->get_weg_hang() : hang_t::flach;
+				if(hang != hang_t::flach) 
+				{
+					const uint slope_height = (hang & 7) ? 1 : 2;
+					if(slope_height == 1)
+					{
+						max_speed = besch->get_topspeed_gradient_1();
+					}
+					else
+					{
+						max_speed = besch->get_topspeed_gradient_2();
+					}
+				}
+				else
+				{
+					max_speed = besch->get_topspeed();
+				}
+				if(weg->hat_gehweg())
+				{
+					max_speed = 50;
+				}
+				if(gr->get_typ()==grund_t::tunnelboden) 
+				{
 					tunnel_t *t = gr->find<tunnel_t>(1);
-					if(t) {
-						max_speed = t->get_besch()->get_topspeed();
+					if(t) 
+					{
+						if(hang != hang_t::flach) 
+						{
+							const uint slope_height = (hang & 7) ? 1 : 2;
+							if(slope_height == 1)
+							{
+								max_speed = t->get_besch()->get_topspeed_gradient_1();
+							}
+							else
+							{
+								max_speed = t->get_besch()->get_topspeed_gradient_2();
+							}
+						}
+						else
+						{
+							max_speed = t->get_besch()->get_topspeed();
+						}
 						weg->add_way_constraints(t->get_besch()->get_way_constraints());
 					}
 				}
-				if(gr->get_typ()==grund_t::brueckenboden) {
+				if(gr->get_typ()==grund_t::brueckenboden) 
+				{
 					bruecke_t *b = gr->find<bruecke_t>(1);
-					if(b) {
-						max_speed = b->get_besch()->get_topspeed();
+					if(b)
+					{
+						if(hang != hang_t::flach) 
+						{
+							const uint slope_height = (hang & 7) ? 1 : 2;
+							if(slope_height == 1)
+							{
+								max_speed = b->get_besch()->get_topspeed_gradient_1();
+							}
+							else
+							{
+								max_speed = b->get_besch()->get_topspeed_gradient_2();
+							}
+						}
+						else
+						{
+							max_speed = b->get_besch()->get_topspeed();
+						}
 						weg->add_way_constraints(b->get_besch()->get_way_constraints());
 					}
 				}
@@ -213,18 +268,37 @@ void wayobj_t::laden_abschliessen()
 	}
 
 	const waytype_t wt = (besch->get_wtyp()==tram_wt) ? track_wt : besch->get_wtyp();
-	weg_t *weg = welt->lookup(get_pos())->get_weg(wt);
+	const grund_t* gr = welt->lookup(get_pos());
+	weg_t *weg = gr->get_weg(wt);
 
 	// electrify a way if we are a catenary
-	if(besch->get_own_wtyp()==overheadlines_wt) 
+	if(besch->get_own_wtyp() == overheadlines_wt) 
 	{	
 		if(weg)
 		{
 			// Weg wieder freigeben, wenn das Signal nicht mehr da ist.
 			weg->set_electrify(true);
-			if(weg->get_max_speed()>besch->get_topspeed())
+			sint32 way_top_speed;
+			if(hang != hang_t::flach) 
 			{
-				weg->set_max_speed(besch->get_topspeed());
+				const uint slope_height = (hang & 7) ? 1 : 2;
+				if(slope_height == 1)
+				{
+					way_top_speed = besch->get_topspeed_gradient_1();
+				}
+				else
+				{
+					way_top_speed = besch->get_topspeed_gradient_2();
+				}
+			}
+			else
+			{
+				way_top_speed = besch->get_topspeed();
+			}
+
+			if(weg->get_max_speed() > way_top_speed)
+			{
+				weg->set_max_speed(way_top_speed);
 			}
 			// Add the way constraints together.
 			weg->add_way_constraints(besch->get_way_constraints());

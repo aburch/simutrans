@@ -76,9 +76,31 @@ void strasse_t::rdwr(loadsave_t *file)
 		if(old_max_speed>0) {
 			set_max_speed(old_max_speed);
 		}
-		if(besch->get_topspeed()> welt->get_city_road()->get_topspeed() && hat_gehweg())
+		const grund_t* gr = welt->lookup(get_pos());
+		const hang_t::typ hang = gr ? gr->get_weg_hang() : hang_t::flach;
+		if(hang != hang_t::flach) 
+ 		{
+
+			const uint slope_height = (hang & 7) ? 1 : 2;
+			if(slope_height == 1)
+			{
+				set_max_speed(besch->get_topspeed_gradient_1());
+			}
+			else
+			{
+				set_max_speed(besch->get_topspeed_gradient_2());
+			}
+		}
+		else
+ 		{
+ 			set_max_speed(besch->get_topspeed());
+ 		}
+ 
+		const sint32 city_road_topspeed = welt->get_city_road()->get_topspeed();
+
+		if(hat_gehweg() && besch->get_wtyp() == road_wt)
 		{
-			set_max_speed(welt->get_city_road()->get_topspeed());
+			set_max_speed(min(get_max_speed(), city_road_topspeed));
 		}
 	}
 }

@@ -169,7 +169,23 @@ void tunnel_t::laden_abschliessen()
 		// change maintenance
 		weg_t *weg = gr->get_weg(besch->get_waytype());
 		if(weg) {
-			weg->set_max_speed(besch->get_topspeed());
+			const hang_t::typ hang = gr ? gr->get_weg_hang() : hang_t::flach;
+			if(hang != hang_t::flach) 
+			{
+				const uint slope_height = (hang & 7) ? 1 : 2;
+				if(slope_height == 1)
+				{
+					weg->set_max_speed(besch->get_topspeed_gradient_1());
+				}
+				else
+				{
+					weg->set_max_speed(besch->get_topspeed_gradient_2());
+				}
+			}
+			else
+			{
+				weg->set_max_speed(besch->get_topspeed());
+			}
 			spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype());
 		}
 		leitung_t *lt = gr->get_leitung();
@@ -190,7 +206,23 @@ void tunnel_t::entferne( spieler_t *sp2 )
 	if(gr) {
 		weg_t *weg = gr->get_weg( besch->get_waytype() );
 		if(weg)	{
-			weg->set_max_speed( weg->get_besch()->get_topspeed() );
+			const hang_t::typ hang = gr ? gr->get_weg_hang() : hang_t::flach;
+			if(hang != hang_t::flach) 
+			{
+				const uint slope_height = (hang & 7) ? 1 : 2;
+				if(slope_height == 1)
+				{
+					weg->set_max_speed(besch->get_topspeed_gradient_1());
+				}
+				else
+				{
+					weg->set_max_speed(besch->get_topspeed_gradient_2());
+				}
+			}
+			else
+			{
+				weg->set_max_speed(besch->get_topspeed());
+			}
 			weg->set_max_axle_load( weg->get_besch()->get_max_axle_load() );
 			weg->add_way_constraints(besch->get_way_constraints());
 			spieler_t::add_maintenance( sp,  weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype());

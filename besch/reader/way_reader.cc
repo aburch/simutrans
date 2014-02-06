@@ -87,7 +87,7 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			// Versioned node, version 4+5
 			besch->cost = decode_uint32(p);
 			besch->maintenance = decode_uint32(p);
-			besch->topspeed = decode_uint32(p);
+			besch->topspeed = decode_sint32(p);
 			besch->max_axle_load = decode_uint32(p);
 			besch->intro_date = decode_uint16(p);
 			besch->obsolete_date = decode_uint16(p);
@@ -97,14 +97,16 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			besch->number_seasons = decode_sint8(p);
 			if(experimental)
 			{
-				if(experimental_version == 0)
+				way_constraints.set_permissive(decode_uint8(p));
+				way_constraints.set_prohibitive(decode_uint8(p));
+				if(experimental_version == 1)
 				{
-					way_constraints.set_permissive(decode_uint8(p));
-					way_constraints.set_prohibitive(decode_uint8(p));
+					besch->topspeed_gradient_1 = decode_sint32(p);
+					besch->topspeed_gradient_2 = decode_sint32(p);
 				}
-				else
+				if(experimental_version > 1)
 				{
-					dbg->fatal( "way_reader_t::read_node()","Incompatible pak file version for Simutrans-E, number %i", experimental_version );
+					dbg->fatal( "way_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version );
 				}
 			}
 
@@ -153,6 +155,10 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			dbg->fatal("way_reader_t::read_node()","Invalid version %d", version);
 		}
 		besch->set_way_constraints(way_constraints);
+		if(experimental_version < 1 || !experimental)
+		{
+			besch->topspeed_gradient_1 = besch->topspeed_gradient_1 = besch->topspeed;
+		}
 	}
 
 	// some internal corrections to pay for previous confusion with two waytypes

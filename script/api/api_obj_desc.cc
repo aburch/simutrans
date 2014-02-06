@@ -163,6 +163,8 @@ void export_goods_desc(HSQUIRRELVM vm)
 	 * @returns top speed: maximal possible or allowed speed, in km/h.
 	 */
 	register_method(vm, &obj_besch_transport_related_t::get_topspeed, "get_topspeed");
+	register_method(vm, &obj_besch_transport_related_t::get_topspeed_gradient_1, "get_topspeed_gradient_1");
+	register_method(vm, &obj_besch_transport_related_t::get_topspeed_gradient_2, "get_topspeed_gradient_2");
 
 	end_class(vm);
 
