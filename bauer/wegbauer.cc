@@ -558,6 +558,13 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 	static monorailboden_t to_dummy(koord3d::invalid, hang_t::flach);
 	static monorailboden_t from_dummy(koord3d::invalid, hang_t::flach);
 
+	const sint8 altitude = max(from->get_pos().z, to->get_pos().z) - welt->get_grundwasser();
+	const sint8 max_altitude = besch->get_max_altitude();
+	if(max_altitude > 0 && altitude > max_altitude)
+	{
+		// Too high
+		return false;
+	}
 
 	if(bautyp==luft  &&  (from->get_grund_hang()+to->get_grund_hang()!=0  ||  (from->hat_wege()  &&  from->hat_weg(air_wt)==0)  ||  (to->hat_wege()  &&  to->hat_weg(air_wt)==0))) {
 		// absolutely no slopes for runways, neither other ways

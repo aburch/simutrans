@@ -103,10 +103,12 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				{
 					besch->topspeed_gradient_1 = decode_sint32(p);
 					besch->topspeed_gradient_2 = decode_sint32(p);
+					besch->max_altitude = decode_sint8(p);
+					uint8 TEST = 1 + 1;
 				}
 				if(experimental_version > 1)
 				{
-					dbg->fatal( "way_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version );
+					dbg->fatal("way_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version);
 				}
 			}
 
@@ -158,6 +160,7 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		if(experimental_version < 1 || !experimental)
 		{
 			besch->topspeed_gradient_1 = besch->topspeed_gradient_1 = besch->topspeed;
+			besch->max_altitude = 0;
 		}
 	}
 

@@ -103,10 +103,11 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				{
 					besch->topspeed_gradient_1 = decode_uint16(p);
 					besch->topspeed_gradient_2 = decode_uint16(p);
+					besch->max_altitude = decode_uint8(p);
 				}
 				if(experimental_version > 1)
 				{
-					dbg->fatal( "tunnel_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version );
+					dbg->fatal("tunnel_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version);
 				}
 			}
 			besch->has_way = decode_uint8(p);
@@ -131,10 +132,11 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				{
 					besch->topspeed_gradient_1 = decode_uint16(p);
 					besch->topspeed_gradient_2 = decode_uint16(p);
+					besch->max_altitude = decode_uint8(p);
 				}
 				if(experimental_version > 1)
 				{
-					dbg->fatal( "tunnel_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version );
+					dbg->fatal("tunnel_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version);
 				}
 			}
 			besch->broad_portals = 0;
@@ -157,10 +159,11 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				{
 					besch->topspeed_gradient_1 = decode_uint16(p);
 					besch->topspeed_gradient_2 = decode_uint16(p);
+					besch->max_altitude = decode_sint8(p);
 				}
 				if(experimental_version > 1)
 				{
-					dbg->fatal( "tunnel_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version );
+					dbg->fatal("tunnel_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version);
 				}
 			}
 			besch->has_way = 0;
@@ -190,6 +193,7 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		if(experimental_version < 1 || !experimental)
 		{
 			besch->topspeed_gradient_1 = besch->topspeed_gradient_1 = besch->topspeed;
+			besch->max_altitude = 0;
 		}
 		besch->set_way_constraints(way_constraints);
 

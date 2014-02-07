@@ -91,7 +91,7 @@ void write_bridge_images(FILE* outfp, obj_node_t& node, tabfileobj_t& obj, int s
 
 void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	obj_node_t node(this, 32, &parent);
+	obj_node_t node(this, 33, &parent);
 
 	uint8  wegtyp					= get_waytype(obj.get("waytype"));
 	uint16 topspeed					= obj.get_int("topspeed", 999);
@@ -105,6 +105,7 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 	max_length						= obj.get_int("max_length",max_length); // with correct spelling
 	uint8  max_height				= obj.get_int("max_height",0); // max_height==0: unlimited
 	uint32 max_weight				= obj.get_int("max_weight",9999);
+	sint8 max_altitude				= obj.get_int("max_altitude", 0);
 
 	// prissi: timeline
 	uint16 intro_date = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
@@ -177,6 +178,7 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 	node.write_uint8(outfp, prohibitive_way_constraints,27);
 	node.write_uint16(outfp, topspeed_gradient_1,		28);
 	node.write_uint16(outfp, topspeed_gradient_2,		30);
+	node.write_sint8(outfp, max_altitude,				32);
 
 	char keybuf[40];
 
