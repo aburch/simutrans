@@ -62,7 +62,7 @@ register_function("get_about_text");
  * - \<h1\>, \<em\>, \<it\>, \<st\>: text between start and end tag will be colored. It's a matter of taste, of course.
  * - \<a href="..."\>: insert hyper link, text between start and end tag will be colored blue.
  *       - link to another tab of scenario info window: href="tabname", where tabname is one of: info, goal, rules, result, about
- *       - link to position on the map: href="(x,y)", click on link will jump to the map position
+ *       - link to position on the map: href="(x,y)" or href="(x,y,z)", click on link will jump to the map position
  *
  * @code
  * <h1>Here is an example.</h1>
