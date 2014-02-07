@@ -566,6 +566,12 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		return false;
 	}
 
+	if(bautyp == schiene_tram && !from->get_weg(road_wt) && !to->get_weg(road_wt))
+	{
+		// Trams can only be built on roads, or one tile off a road (to allow for depots and rail connexions).
+		return false;
+	}
+
 	if(bautyp==luft  &&  (from->get_grund_hang()+to->get_grund_hang()!=0  ||  (from->hat_wege()  &&  from->hat_weg(air_wt)==0)  ||  (to->hat_wege()  &&  to->hat_weg(air_wt)==0))) {
 		// absolutely no slopes for runways, neither other ways
 		return false;
