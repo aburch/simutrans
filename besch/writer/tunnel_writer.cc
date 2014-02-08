@@ -89,6 +89,7 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	node.write_uint8 (fp, wegtyp,						14);
 	node.write_uint16(fp, intro_date,					15);
 	node.write_uint16(fp, obsolete_date,				17);
+	// Seasons											19
 	node.write_uint32(fp, max_weight,					20);
 	node.write_uint8(fp, permissive_way_constraints,	24);
 	node.write_uint8(fp, prohibitive_way_constraints,	25);
@@ -96,6 +97,8 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	node.write_uint16(fp, topspeed_gradient_2,			28);
 	node.write_sint8(fp, max_altitude,					30);
 	node.write_uint8(fp, max_vehicles_on_tile,			31);
+	// Tunnel way										32
+	// Broad portals									33
 
 	sint8 number_seasons = 0;
 	uint8 number_portals = 1;

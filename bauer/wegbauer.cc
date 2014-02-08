@@ -2109,6 +2109,24 @@ sint64 wegbauer_t::calc_costs()
 					}
 				}
 			}
+
+			const sint64 forge_cost = 1000; // TODO: Use real value here. Needs to be scaled.
+			const koord3d pos = gr->get_pos();
+
+			if(route.get_count() > 1)
+			{
+				for(int n = 0; n < 8; n ++)
+				{
+					const koord kn = pos.neighbours[n] + pos;
+					const grund_t* gr_neighbour = welt->lookup_kartenboden(kn);
+					if(gr_neighbour && gr_neighbour->get_weg(besch->get_waytype()))
+					{
+						const ribi_t::ribi direction_bits_neighbour = gr_neighbour->get_weg(besch->get_waytype())->get_ribi();
+						const int TEST = 1 + 1;
+					}
+				}
+			}
+
 			// eventually we have to remove trees
 			for(  uint8 i=0;  i<gr->get_top();  i++  ) {
 				obj_t *obj = gr->obj_bei(i);
@@ -2156,14 +2174,16 @@ sint64 wegbauer_t::calc_costs()
 			}
 		}
 
-		if (!gr) {
+		if (!gr) 
+		{
 			gr = welt->lookup_kartenboden(koord(route[i].x, route[i].y));
 		}
+		
 		const obj_t* obj = gr->obj_bei(0);
 		if(obj != NULL  &&  obj->get_besitzer() == sp)
 		{
 			// We own this land. Ergo, building a way on it should be cheaper.
-			costs += welt->get_settings().cst_buy_land;
+			costs -= welt->get_settings().cst_buy_land;
 		}
 	}
 
