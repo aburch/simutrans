@@ -566,6 +566,13 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		return false;
 	}
 
+	const bool is_mothballed_waytype = besch->get_base_price() == 0 && besch->get_topspeed() == 0 && besch->get_base_maintenance() == 0;
+	if(is_mothballed_waytype && (!from->get_weg(besch->get_wtyp()) || !to->get_weg(besch->get_wtyp())))
+	{
+		// Mothballed way types can only be built over existing ways of the same type.
+		return false;
+	}
+
 	if(bautyp == schiene_tram && !from->get_weg(road_wt) && !to->get_weg(road_wt))
 	{
 		// Trams can only be built on roads, or one tile off a road (to allow for depots and rail connexions).
@@ -2018,6 +2025,13 @@ wegbauer_t::baue_tunnel_und_bruecken()
  */
 sint64 wegbauer_t::calc_costs()
 {
+	if(besch->get_base_cost() == 0 && besch->get_base_maintenance() == 0 && besch->get_topspeed() == 0)
+	{
+		// It is free to mothball a way. No other calculations are needed, as mothballed types
+		// can only be built as downgrades.
+		return 0ll;
+	}
+	
 	sint64 costs=0;
 	koord3d offset = koord3d( 0, 0, bautyp & elevated_flag ? env_t::pak_height_conversion_factor : 0 );
 
@@ -2494,6 +2508,11 @@ void wegbauer_t::baue_schiene()
 					// cost is the more expensive one, so downgrading is between removing and new buidling
 					cost -= max( weg->get_besch()->get_preis(), besch->get_preis() );
 					weg->set_besch(besch);
+					if(besch->get_base_cost() == 0 && besch->get_base_maintenance() == 0 && besch->get_topspeed() == 0)
+					{
+						// Free to downgrade to mothballed ways
+						cost = 0;
+					}
 					// respect max speed of catenary
 					wayobj_t const* const wo = gr->get_wayobj(besch->get_wtyp());
 					if (wo  &&  wo->get_besch()->get_topspeed() < weg->get_max_speed()) {

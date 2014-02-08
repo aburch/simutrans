@@ -105,7 +105,6 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 					besch->topspeed_gradient_2 = decode_uint16(p);
 					besch->max_altitude = decode_sint8(p);
 					besch->max_vehicles_on_tile = decode_uint8(p);
-					uint8 TEST = 1 + 1;
 				}
 				if(experimental_version > 1)
 				{
