@@ -26,7 +26,7 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 	};
 	int ribi, hang;
 
-	obj_node_t node(this, 37, &parent);
+	obj_node_t node(this, 38, &parent);
 
 
 	// Hajo: Version needs high bit set as trigger -> this is required
@@ -49,7 +49,8 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 	sint32 topspeed_gradient_1  = obj.get_int("topspeed_gradient_1",    topspeed);
 	sint32 topspeed_gradient_2  = obj.get_int("topspeed_gradient_2",    topspeed_gradient_1);
 	uint32 max_weight			= obj.get_int("max_weight",				9999);
-	sint8 max_altitude			= obj.get_int("max_altitude", 0);
+	sint8 max_altitude			= obj.get_int("max_altitude",			0);
+	uint8 max_vehicles_on_tile	= obj.get_int("max_vehicles_on_tile",	251);
 
 	uint16 intro  = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
 	intro += obj.get_int("intro_month", 1) - 1;
@@ -118,6 +119,7 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 	node.write_sint32(outfp, topspeed_gradient_1,		28);
 	node.write_sint32(outfp, topspeed_gradient_2,		32);
 	node.write_sint8(outfp, max_altitude,				36);
+	node.write_uint8(outfp, max_vehicles_on_tile,		37);
 
 	static const char* const image_type[] = { "", "front" };
 

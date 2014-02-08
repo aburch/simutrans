@@ -15,7 +15,7 @@ using std::string;
 
 void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	obj_node_t node(this, 33, &parent);
+	obj_node_t node(this, 34, &parent);
 
 	sint32 topspeed					= obj.get_int("topspeed",    999);
 	sint32 topspeed_gradient_1		= obj.get_int("topspeed_gradient_1",    topspeed);
@@ -25,6 +25,7 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	uint8 wegtyp					= get_waytype(obj.get("waytype"));
 	uint32 max_weight				= obj.get_int("max_weight",  9999);
 	sint8 max_altitude				= obj.get_int("max_altitude", 0);
+	uint8 max_vehicles_on_tile		= obj.get_int("max_vehicles_on_tile", 251);
 
 	// prissi: timeline
 	uint16 intro_date  = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
@@ -93,7 +94,8 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	node.write_uint8(fp, prohibitive_way_constraints,	25);
 	node.write_uint16(fp, topspeed_gradient_1,			26);
 	node.write_uint16(fp, topspeed_gradient_2,			28);
-	node.write_sint8(fp, max_altitude,					32);
+	node.write_sint8(fp, max_altitude,					30);
+	node.write_uint8(fp, max_vehicles_on_tile,			31);
 
 	sint8 number_seasons = 0;
 	uint8 number_portals = 1;
@@ -129,7 +131,7 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	if(!str.empty()) {
 		number_portals = 4;
 	}
-	node.write_sint8(fp, (number_portals==4), 27);
+	node.write_sint8(fp, (number_portals==4), 33);
 
 	write_head(fp, node, obj);
 
@@ -160,10 +162,10 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	str = obj.get("way");
 	if (!str.empty()) {
 		xref_writer_t::instance()->write_obj(fp, node, obj_way, str.c_str(), false);
-		node.write_sint8(fp, 1, 26);
+		node.write_sint8(fp, 1, 32);
 	}
 	else {
-		node.write_sint8(fp, 0, 26);
+		node.write_sint8(fp, 0, 32);
 	}
 
 	cursorkeys.clear();

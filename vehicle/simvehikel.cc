@@ -4491,18 +4491,25 @@ bool schiff_t::ist_weg_frei(int &restart_speed,bool)
 {
 	restart_speed = -1;
 
-	if(ist_erstes) {
-		const grund_t *gr = welt->lookup( pos_next );
-		if(gr==NULL) {
+	if(ist_erstes)
+	{
+		const grund_t *gr = welt->lookup(pos_next);
+		if(gr == NULL)
+		{
 			// way (weg) not existent (likely destroyed)
 			cnv->suche_neue_route();
 			return false;
 		}
-		if(  gr->get_top()>251  ) {
-			// too many ships already here ..
+
+		const weg_t *w = gr->get_weg(water_wt);
+
+		uint8 max_water_vehicles_on_tile = w ? w->get_besch()->get_max_vehicles_on_tile() : 251;
+		const uint8 water_vehicles_on_tile = gr->get_top();
+		if(water_vehicles_on_tile > max_water_vehicles_on_tile) 
+		{
+			// Too many water vehicles already here.
 			return false;
 		}
-		weg_t *w = gr->get_weg(water_wt);
 		if(w  &&  w->is_crossing()) {
 			// ok, here is a draw/turn-bridge ...
 			crossing_t* cr = gr->find<crossing_t>();

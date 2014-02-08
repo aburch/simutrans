@@ -165,6 +165,7 @@ obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				besch->topspeed_gradient_1 = decode_uint16(p);
 				besch->topspeed_gradient_2 = decode_uint16(p);
 				besch->max_altitude = decode_sint8(p);
+				besch->max_vehicles_on_tile = decode_uint8(p);
 			}
 			if(experimental_version > 1)
 			{
@@ -188,6 +189,7 @@ obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	{
 		besch->topspeed_gradient_1 = besch->topspeed_gradient_1 = besch->topspeed;
 		besch->max_altitude = 0;
+		besch->max_vehicles_on_tile = 251;
 	}
 
 	// pillars cannot be heigher than this to avoid drawing errors

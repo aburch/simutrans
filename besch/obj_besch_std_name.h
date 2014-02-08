@@ -79,7 +79,8 @@ protected:
 	sint32 topspeed;			///< maximum allowed speed in km/h
 	sint32 topspeed_gradient_1; ///< maximum allowed speed in km/h for a half/single height gradient
 	sint32 topspeed_gradient_2; ///< maximum allowed speed in km/h for a single/double height gradient
-	uint8 max_altitude;			///< Maximum height in tiles above sea level at which this way may be built
+	sint8 max_altitude;			///< Maximum height in tiles above sea level at which this way may be built
+	uint8 max_vehicles_on_tile;	///< Maximum number of vehicles permitted on the tile at once. Only used for waterways. Default: 251
 
 public:
 	obj_besch_transport_related_t() : obj_besch_timelined_t(),
@@ -101,7 +102,8 @@ public:
 	sint32 get_topspeed_gradient_1() const { return topspeed_gradient_1; }
 	sint32 get_topspeed_gradient_2() const { return topspeed_gradient_2; }
 	sint32 get_geschw() const { return topspeed; }
-	uint8 get_max_altitude() const { return max_altitude; }
+	sint8 get_max_altitude() const { return max_altitude; }
+	uint8 get_max_vehicles_on_tile() const { return max_vehicles_on_tile; }
 
 	void set_scale(uint16 scale_factor)
 	{

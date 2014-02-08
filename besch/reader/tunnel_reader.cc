@@ -96,14 +96,16 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			
 			if(experimental)
 			{
-				besch->max_axle_load =  decode_uint32(p);
+				besch->max_axle_load = decode_uint32(p);
 				way_constraints.set_permissive(decode_uint8(p));
 				way_constraints.set_prohibitive(decode_uint8(p));
 				if(experimental_version == 1)
 				{
 					besch->topspeed_gradient_1 = decode_uint16(p);
 					besch->topspeed_gradient_2 = decode_uint16(p);
-					besch->max_altitude = decode_uint8(p);
+					besch->max_altitude = decode_sint8(p);
+					besch->max_vehicles_on_tile = decode_uint8(p);
+					uint8 TEST = 1 + 1;
 				}
 				if(experimental_version > 1)
 				{
@@ -128,13 +130,7 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				besch->max_axle_load =  decode_uint32(p);
 				way_constraints.set_permissive(decode_uint8(p));
 				way_constraints.set_prohibitive(decode_uint8(p));
-				if(experimental_version == 1)
-				{
-					besch->topspeed_gradient_1 = decode_uint16(p);
-					besch->topspeed_gradient_2 = decode_uint16(p);
-					besch->max_altitude = decode_uint8(p);
-				}
-				if(experimental_version > 1)
+				if(experimental_version > 0)
 				{
 					dbg->fatal("tunnel_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version);
 				}
@@ -155,13 +151,7 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				besch->max_axle_load =  decode_uint32(p);
 				way_constraints.set_permissive(decode_uint8(p));
 				way_constraints.set_prohibitive(decode_uint8(p));
-				if(experimental_version == 1)
-				{
-					besch->topspeed_gradient_1 = decode_uint16(p);
-					besch->topspeed_gradient_2 = decode_uint16(p);
-					besch->max_altitude = decode_sint8(p);
-				}
-				if(experimental_version > 1)
+				if(experimental_version > 0)
 				{
 					dbg->fatal("tunnel_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version);
 				}
@@ -194,6 +184,7 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		{
 			besch->topspeed_gradient_1 = besch->topspeed_gradient_1 = besch->topspeed;
 			besch->max_altitude = 0;
+			besch->max_vehicles_on_tile = 251;
 		}
 		besch->set_way_constraints(way_constraints);
 
