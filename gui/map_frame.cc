@@ -536,7 +536,7 @@ void map_frame_t::resize(const scr_coord delta)
 	// resize legend
 	if(legend_visible) {
 		const scr_coord_val left = 0;
-		const scr_coord_val right = get_windowsize().w - D_MARGIN_RIGHT;
+		const scr_coord_val right = left + client_width;
 		scr_coord cursor(left, b_overlay_networks.get_size().h + D_V_SPACE);
 		scr_size button_size;
 		for (int type=0; type<MAP_MAX_BUTTONS; type++) {
