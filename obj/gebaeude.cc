@@ -895,7 +895,7 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 			buf.append("\n");
 			buf.append(translator::translate("Wert"));
 			buf.append(": ");
-			buf.append(-(welt->get_settings().cst_buy_land*(tile->get_besch()->get_level())/100) * 5);
+			buf.append(-(welt->get_land_value(get_pos())*(tile->get_besch()->get_level())/100) * 5);
 			buf.append("$\n");
 		}
 
@@ -1324,8 +1324,8 @@ void gebaeude_t::entferne(spieler_t *sp) // "Remove" (Google)
 
 	if(besch->get_utyp()<haus_besch_t::bahnhof) 
 	{
-		const sint64 bulldoze_cost =welt->get_settings().cst_multiply_remove_haus * (besch->get_level());
-		const sint64 purchase_cost =welt->get_settings().cst_buy_land * besch->get_level() * 5;
+		const sint64 bulldoze_cost = welt->get_settings().cst_multiply_remove_haus * (besch->get_level());
+		const sint64 purchase_cost = welt->get_land_value(get_pos()) * besch->get_level() * 5;
 		cost = sp != get_besitzer() ? bulldoze_cost + purchase_cost : bulldoze_cost;
 		spieler_t::book_construction_costs(sp, cost, get_pos().get_2d(), tile->get_besch()->get_finance_waytype());
 	}

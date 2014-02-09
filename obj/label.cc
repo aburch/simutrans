@@ -56,7 +56,7 @@ label_t::label_t(koord3d pos, spieler_t *sp, const char *text) :
 		if (text) {
 			gr->set_text(text);
 		}
-		spieler_t::book_construction_costs(sp, welt->get_settings().cst_buy_land, pos.get_2d(), ignore_wt);
+		spieler_t::book_construction_costs(sp, welt->get_land_value(pos), pos.get_2d(), ignore_wt);
 	}
 }
 

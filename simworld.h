@@ -2426,6 +2426,8 @@ public:
 	void remove_queued_city(stadt_t* stadt);
 	void add_queued_city(stadt_t* stadt);
 
+	sint64 get_land_value(koord3d k);
+
 #ifdef DEBUG_SIMRAND_CALLS
 	static vector_tpl<const char*> random_callers;
 #endif

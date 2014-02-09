@@ -9404,3 +9404,60 @@ void karte_t::privatecar_rdwr(loadsave_t *file)
 		}
 	}
 }
+
+sint64 karte_t::get_land_value (koord3d k)
+{
+	// TODO: Have this based on a much more sophisticated
+	// formula derived from local desirability, based on 
+	// transport success rates. 
+
+	// NOTE: settings.cst_buy_land is a *negative* number.
+	sint64 cost = settings.cst_buy_land;
+	const stadt_t* city = get_city(k.get_2d());
+	const grund_t* gr = lookup_kartenboden(k);
+	if(city)
+	{
+		if(city->get_city_population() >= settings.get_city_threshold_size())
+		{
+			cost *= 4;
+		}
+		else if(city->get_city_population() >= settings.get_capital_threshold_size())
+		{
+			cost *= 6;
+		}
+		else
+		{
+			cost *= 3;
+		}
+	}
+	else
+	{
+		if(k.z > get_grundwasser() + 10)
+		{
+			// Mountainous areas are cheaper
+			cost *= 70;
+			cost /= 100;
+		}
+	}
+
+	if(lookup_hgt(k) != k.z && gr)
+	{
+		// Elevated or underground way being built.
+		// Check for building and pay wayleaves if necessary.
+		const gebaeude_t* gb = obj_cast<gebaeude_t>(gr->first_obj());
+		if(gb)
+		{
+			cost -= (gb->get_tile()->get_besch()->get_level() * settings.cst_buy_land) / 5;
+		}
+		// Building other than on the surface of the land is cheaper in any event.
+		cost /= 2;
+	}
+
+	if(gr && gr->ist_wasser())
+	{
+		// Water is cheaper than land.
+		cost /= 4;
+	}
+
+	return cost;
+}

@@ -46,6 +46,7 @@
 #include "../tpl/inthashtable_tpl.h"
 
 #include "../utils/cbuffer_t.h"
+# include "../utils/simstring.h"
 
 #include "../vehicle/simpeople.h"
 
@@ -62,6 +63,7 @@
 #include "grund.h"
 #include "tunnelboden.h"
 #include "wasser.h"
+
 
 
 /**
@@ -643,6 +645,10 @@ void grund_t::info(cbuffer_t& buf, bool dummy) const
 	}
 
 	buf.printf("%s\n%s", translator::translate(get_name()), translator::translate(grund_besch_t::get_climate_name_from_bit(welt->get_climate(get_pos()))) );
+	buf.append("\n\n");
+	char price[64];
+	money_to_string(price, abs(welt->get_land_value(pos)));
+	buf.printf("%s: %s\n", translator::translate("Land value"), price);
 #if DEBUG >= 3
 	buf.printf("\nflags $%0X", flags );
 	buf.printf("\n\npos: (%s)",pos.get_str());

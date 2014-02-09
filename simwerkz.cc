@@ -648,7 +648,7 @@ DBG_MESSAGE("wkz_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x, 
 			{
 				// Experimental 8.0 and later - the bulldoze cost is *added* to the
 				// building cost, as we have to pay to buy it *then* pay to demolish it.
-				cost += welt->get_settings().cst_buy_land * haus_besch->get_level() * 5;
+				cost += welt->get_land_value(gr->get_pos()) * haus_besch->get_level() * 5;
 			}
 			if(  !spieler_t::can_afford(sp, -cost)  )
 			{
@@ -1543,7 +1543,7 @@ const char *wkz_marker_t::work( spieler_t *sp, koord3d pos )
 
 		if(thing == NULL  ||  thing->get_besitzer() == sp  ||  (spieler_t::check_owner(thing->get_besitzer(), sp)  &&  (thing->get_typ() != obj_t::gebaeude))) 
 		{
-			const sint64 cost = welt->get_settings().cst_buy_land;
+			const sint64 cost = welt->get_land_value(gr->get_pos());
 			if(! spieler_t::can_afford(sp, -cost) )
 			{
 				return CREDIT_MESSAGE;
@@ -1872,7 +1872,7 @@ const char *wkz_buy_house_t::work( spieler_t *sp, koord3d pos)
 				gebaeude_t *gb_part = gr->find<gebaeude_t>();
 				// there may be buildings with holes
 				if(  gb_part  &&  gb_part->get_tile()->get_besch()==hb  &&  spieler_t::check_owner(gb_part->get_besitzer(),sp)  ) {
-					const sint64 cost = welt->get_settings().cst_buy_land * hb->get_level() * 5; // Developed land is more valuable than undeveloped land.
+					const sint64 cost = welt->get_land_value(gr->get_pos()) * hb->get_level() * 5; // Developed land is more valuable than undeveloped land.
 					if(!spieler_t::can_afford(sp, -cost))
 					{
 						return CREDIT_MESSAGE;

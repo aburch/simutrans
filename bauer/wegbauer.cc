@@ -2074,7 +2074,8 @@ sint64 wegbauer_t::calc_costs()
 
 	for(uint32 i=0; i<get_count(); i++) {
 		sint32 old_speedlimit = -1;
-		sint32 replace_cost = 0;
+		sint64 replace_cost = 0;
+		bool upgrading = false;
 
 		const grund_t* gr = welt->lookup(route[i] + offset);
 		if( gr ) {
@@ -2094,7 +2095,8 @@ sint64 wegbauer_t::calc_costs()
 				}
 				else {
 					if (weg_t const* const weg = gr->get_weg(besch->get_wtyp())) {
-						replace_cost = weg->get_besch()->get_preis();
+						replace_cost = weg->get_besch()->get_preis() / 2;
+						upgrading = true;
 						if( weg->get_besch() == besch ) {
 							continue; // Nothing to pay on this tile.
 						}
@@ -2110,21 +2112,56 @@ sint64 wegbauer_t::calc_costs()
 				}
 			}
 
-			const sint64 forge_cost = 1000; // TODO: Use real value here. Needs to be scaled.
+			sint64 forge_cost = upgrading ? 0 : 1000ll; // TODO: Use real value here. Needs to be scaled.
 			const koord3d pos = gr->get_pos();
 
-			if(route.get_count() > 1)
+			if(!upgrading && route.get_count() > 1)
 			{
+				koord3d earlier;
+				koord3d later;
+				if(i < route.get_count() - 1)
+				{
+					earlier = route[i];
+					later = route[i + 1];
+				}
+				else
+				{
+					earlier = route[i - 1];
+					later = route[i];
+				}
+
+				const ribi_t::ribi our_direction_bits = ribi_typ(earlier, later);			
+
 				for(int n = 0; n < 8; n ++)
 				{
 					const koord kn = pos.neighbours[n] + pos;
+					if(kn == earlier || kn == later)
+					{
+						continue;
+					}
 					const grund_t* gr_neighbour = welt->lookup_kartenboden(kn);
 					if(gr_neighbour && gr_neighbour->get_weg(besch->get_waytype()))
 					{
-						const ribi_t::ribi direction_bits_neighbour = gr_neighbour->get_weg(besch->get_waytype())->get_ribi();
-						const int TEST = 1 + 1;
+						// This is a parallel way of the same type - reduce the forge cost.
+						forge_cost /= 3; //TODO: Have this customisable in simuconf.tab
 					}
 				}
+			}
+
+			single_cost += forge_cost;
+
+			if (!gr) 
+			{
+				gr = welt->lookup_kartenboden(koord(route[i].x, route[i].y));
+			}
+			const obj_t* obj = gr->obj_bei(0);
+			if(!upgrading && obj == NULL || obj->get_besitzer() != sp)
+			{
+				// Only add the cost of the land if the player does not
+				// already own this land.
+
+				// get_land_value returns a *negative* value.
+				single_cost -= welt->get_land_value(gr->get_pos());
 			}
 
 			// eventually we have to remove trees
@@ -2141,8 +2178,9 @@ sint64 wegbauer_t::calc_costs()
 				}
 			}
 		}
-		if(  !keep_existing_faster_ways  ||  old_speedlimit < new_speedlimit  ) {
-			costs += max(single_cost, replace_cost);
+		if(!keep_existing_faster_ways || old_speedlimit < new_speedlimit) 
+		{
+			costs += max(replace_cost, single_cost);
 		}
 
 		// last tile cannot be start of tunnel/bridge
@@ -2172,18 +2210,6 @@ sint64 wegbauer_t::calc_costs()
 					continue;
 				}
 			}
-		}
-
-		if (!gr) 
-		{
-			gr = welt->lookup_kartenboden(koord(route[i].x, route[i].y));
-		}
-		
-		const obj_t* obj = gr->obj_bei(0);
-		if(obj != NULL  &&  obj->get_besitzer() == sp)
-		{
-			// We own this land. Ergo, building a way on it should be cheaper.
-			costs -= welt->get_settings().cst_buy_land;
 		}
 	}
 
@@ -2447,7 +2473,7 @@ void wegbauer_t::baue_strasse()
 			if(obj != NULL && obj->get_besitzer() == sp) 
 			{
 				// We own this land. Ergo, building a way on it should be cheaper.
-				cost -= welt->get_settings().cst_buy_land;
+				cost -= welt->get_land_value(gr->get_pos());
 				cost = min(0, cost);
 			}
 
@@ -2565,7 +2591,7 @@ void wegbauer_t::baue_schiene()
 				if(obj != NULL  &&  obj->get_besitzer() == sp) 
 				{
 					// We own this land. Ergo, building a way on it should be cheaper.
-					cost -= welt->get_settings().cst_buy_land;
+					cost -= welt->get_land_value(gr->get_pos());
 					cost = min(0, cost);
 				}
 
