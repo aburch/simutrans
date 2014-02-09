@@ -42,5 +42,8 @@ note=Tooltip for visitor demand figure in the world chart
 -
 obj=program_text
 name=available
-note=Shown in the information windows for buildings to display the number of jobs available.-
-
+note=Shown in the information windows for buildings to display the number of jobs available.
+-
+obj=program_text
+name=Land value
+note=Shown in the dialogue box for ground tiles.

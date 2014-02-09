@@ -1734,18 +1734,55 @@ sint64 grund_t::remove_trees()
 }
 
 
-sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
+sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp, koord3d_vector_t *route)
 {
-	sint64 cost=0;
+	sint64 cost = 0;
 
 	// not already there?
 	const weg_t * alter_weg = get_weg(weg->get_waytype());
-	if(alter_weg==NULL) {
+	if(alter_weg == NULL) 
+	{
 		// ok, we are unique
+		// Calculate the forge cost
+		sint64 forge_cost = welt->get_settings().get_forge_cost(weg->get_waytype());
 
-		if((flags&has_way1)==0) {
+		if(route != NULL)
+		{
+			// No parallel way discounting for bridges and tunnels.
+			for(int n = 0; n < 8; n ++)
+			{
+				const koord kn = pos.neighbours[n] + pos;
+				const koord3d kn3d(kn, welt->lookup_hgt(kn));
+				if(route->is_contained(kn3d))
+				{
+					continue;
+				}
+				const grund_t* gr_neighbour = welt->lookup_kartenboden(kn);
+				if(gr_neighbour && gr_neighbour->get_weg(weg->get_besch()->get_waytype()))
+				{
+					// This is a parallel way of the same type - reduce the forge cost.
+					forge_cost *= welt->get_settings().get_parallel_ways_forge_cost_percentage(weg->get_waytype());
+					forge_cost /= 100ll;
+					break;
+				}
+			}
+		}
+		cost -= forge_cost;
+
+		if((flags&has_way1)==0) 
+		{
 			// new first way here, clear trees
-			cost += remove_trees();
+			cost -= remove_trees();
+
+			// Add the cost of buying the land, if appropriate.
+			if(obj_bei(0) == NULL || obj_bei(0)->get_besitzer() != sp) 
+			{
+				// Only add the cost of the land if the player does not
+				// already own this land.
+
+				// get_land_value returns a *negative* value.
+				cost += welt->get_land_value(pos);
+			}
 
 			// add
 			weg->set_ribi(ribi);
@@ -1753,7 +1790,8 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 			objlist.add( weg );
 			flags |= has_way1;
 		}
-		else {
+		else 
+		{
 			weg_t *other = (weg_t *)obj_bei(0);
 			// another way will be added
 			if(flags&has_way2) {

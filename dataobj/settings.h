@@ -617,6 +617,25 @@ public:
 	uint16 jobs_per_level;
 	uint16 mail_per_level;
 
+	// Forge cost for ways (array of way types)
+	sint64 forge_cost_road;
+	sint64 forge_cost_track;
+	sint64 forge_cost_water;
+	sint64 forge_cost_monorail;
+	sint64 forge_cost_maglev;
+	sint64 forge_cost_tram;
+	sint64 forge_cost_narrowgauge;
+	sint64 forge_cost_air;
+
+	uint16 parallel_ways_forge_cost_percentage_road;
+	uint16 parallel_ways_forge_cost_percentage_track;
+	uint16 parallel_ways_forge_cost_percentage_water;
+	uint16 parallel_ways_forge_cost_percentage_monorail;
+	uint16 parallel_ways_forge_cost_percentage_maglev;
+	uint16 parallel_ways_forge_cost_percentage_tram;
+	uint16 parallel_ways_forge_cost_percentage_narrowgauge;
+	uint16 parallel_ways_forge_cost_percentage_air;
+
 public:
 	/**
 	 * If map is read from a heightfield, this is the name of the heightfield.
@@ -1029,6 +1048,28 @@ public:
 
 	uint16 get_onward_trip_chance_percent() const { return onward_trip_chance_percent; }
 	uint16 get_commuting_trip_chance_percent() const { return commuting_trip_chance_percent; }
+
+	sint64 get_forge_cost_road() const { return forge_cost_road; }
+	sint64 get_forge_cost_track() const { return forge_cost_track; }
+	sint64 get_forge_cost_water() const { return forge_cost_water; }
+	sint64 get_forge_cost_monorail() const { return forge_cost_monorail; }
+	sint64 get_forge_cost_maglev() const { return forge_cost_maglev; }
+	sint64 get_forge_cost_tram() const { return forge_cost_tram; }
+	sint64 get_forge_cost_narrowgauge() const { return forge_cost_narrowgauge; }
+	sint64 get_forge_cost_air() const { return forge_cost_air; }
+
+	uint16 get_parallel_ways_forge_cost_percentage_road() const { return parallel_ways_forge_cost_percentage_road; }
+	uint16 get_parallel_ways_forge_cost_percentage_track() const { return parallel_ways_forge_cost_percentage_track; }
+	uint16 get_parallel_ways_forge_cost_percentage_water() const { return parallel_ways_forge_cost_percentage_water; }
+	uint16 get_parallel_ways_forge_cost_percentage_monorail() const { return parallel_ways_forge_cost_percentage_monorail; }
+	uint16 get_parallel_ways_forge_cost_percentage_maglev() const { return parallel_ways_forge_cost_percentage_maglev; }
+	uint16 get_parallel_ways_forge_cost_percentage_tram() const { return parallel_ways_forge_cost_percentage_tram; }
+	uint16 get_parallel_ways_forge_cost_percentage_narrowgauge() const { return parallel_ways_forge_cost_percentage_narrowgauge; }
+	uint16 get_parallel_ways_forge_cost_percentage_air() const { return parallel_ways_forge_cost_percentage_air; }
+
+	sint64 get_forge_cost(waytype_t wt) const;
+	sint64 get_parallel_ways_forge_cost_percentage(waytype_t wt) const;
+
 };
 
 #endif 

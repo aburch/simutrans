@@ -493,6 +493,25 @@ settings_t::settings_t() :
 	visitor_demand_per_level = 3;
 	jobs_per_level = 2;
 	mail_per_level = 1;
+	
+	// Forge cost for ways (array of way types)
+	forge_cost_road = 10000;
+	forge_cost_track = 20000;
+	forge_cost_water = 40000;
+	forge_cost_monorail = 20000;
+	forge_cost_maglev = 30000;
+	forge_cost_tram = 5000;
+	forge_cost_narrowgauge = 10000;
+	forge_cost_air = 25000;
+
+	parallel_ways_forge_cost_percentage_road = 50;
+	parallel_ways_forge_cost_percentage_track = 35;
+	parallel_ways_forge_cost_percentage_water = 75;
+	parallel_ways_forge_cost_percentage_monorail = 35;
+	parallel_ways_forge_cost_percentage_maglev = 40;
+	parallel_ways_forge_cost_percentage_tram = 85;
+	parallel_ways_forge_cost_percentage_narrowgauge = 35;
+	parallel_ways_forge_cost_percentage_air = 85;
 
 	passenger_trips_per_month_hundredths = 200;
 	mail_packets_per_month_hundredths = 10;
@@ -1508,6 +1527,24 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_short(commuting_trip_chance_percent);
 			file->rdwr_long(base_meters_per_tile);
 			file->rdwr_long(base_bits_per_month);
+
+			file->rdwr_longlong(forge_cost_road);
+			file->rdwr_longlong(forge_cost_track);
+			file->rdwr_longlong(forge_cost_water);
+			file->rdwr_longlong(forge_cost_monorail);
+			file->rdwr_longlong(forge_cost_maglev);
+			file->rdwr_longlong(forge_cost_tram);
+			file->rdwr_longlong(forge_cost_narrowgauge);
+			file->rdwr_longlong(forge_cost_air);
+
+			file->rdwr_short(parallel_ways_forge_cost_percentage_road);
+			file->rdwr_short(parallel_ways_forge_cost_percentage_track);
+			file->rdwr_short(parallel_ways_forge_cost_percentage_water);
+			file->rdwr_short(parallel_ways_forge_cost_percentage_monorail);
+			file->rdwr_short(parallel_ways_forge_cost_percentage_maglev);
+			file->rdwr_short(parallel_ways_forge_cost_percentage_tram);
+			file->rdwr_short(parallel_ways_forge_cost_percentage_narrowgauge);
+			file->rdwr_short(parallel_ways_forge_cost_percentage_air);
 		}
 		else
 		{
@@ -2324,6 +2361,24 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	onward_trip_chance_percent = contents.get_int("onward_trip_chance_percent", onward_trip_chance_percent);
 	commuting_trip_chance_percent = contents.get_int("commuting_trip_chance_percent", commuting_trip_chance_percent);
 
+	forge_cost_road = contents.get_int("forge_cost_road", forge_cost_road);
+	forge_cost_track = contents.get_int("forge_cost_track", forge_cost_track);
+	forge_cost_water = contents.get_int("forge_cost_water", forge_cost_water);
+	forge_cost_monorail = contents.get_int("forge_cost_monorail", forge_cost_monorail);
+	forge_cost_maglev = contents.get_int("forge_cost_maglev", forge_cost_maglev);
+	forge_cost_tram = contents.get_int("forge_cost_tram", forge_cost_tram);
+	forge_cost_narrowgauge = contents.get_int("forge_cost_narrowgauge", forge_cost_narrowgauge);
+	forge_cost_air = contents.get_int("forge_cost_road", forge_cost_air);
+	
+	parallel_ways_forge_cost_percentage_road = contents.get_int("parallel_ways_forge_cost_percentage_road", parallel_ways_forge_cost_percentage_road);
+	parallel_ways_forge_cost_percentage_track = contents.get_int("parallel_ways_forge_cost_percentage_track", parallel_ways_forge_cost_percentage_track);
+	parallel_ways_forge_cost_percentage_water = contents.get_int("parallel_ways_forge_cost_percentage_water", parallel_ways_forge_cost_percentage_water);
+	parallel_ways_forge_cost_percentage_monorail = contents.get_int("parallel_ways_forge_cost_percentage_monorail", parallel_ways_forge_cost_percentage_monorail);
+	parallel_ways_forge_cost_percentage_maglev = contents.get_int("parallel_ways_forge_cost_percentage_maglev", parallel_ways_forge_cost_percentage_maglev);
+	parallel_ways_forge_cost_percentage_tram = contents.get_int("parallel_ways_forge_cost_percentage_tram", parallel_ways_forge_cost_percentage_tram);
+	parallel_ways_forge_cost_percentage_narrowgauge = contents.get_int("parallel_ways_forge_cost_percentage_narrowgauge", parallel_ways_forge_cost_percentage_narrowgauge);
+	parallel_ways_forge_cost_percentage_air = contents.get_int("parallel_ways_forge_cost_percentage_air", parallel_ways_forge_cost_percentage_air);
+
 	// OK, this is a bit complex.  We are at risk of loading the same livery schemes repeatedly, which
 	// gives duplicate livery schemes and utter confusion.
 	// On the other hand, we are also at risk of wiping out our livery schemes with blank space.
@@ -2792,4 +2847,67 @@ void settings_t::cache_speedbonuses() {
 
 	// Do the work.
 	warenbauer_t::cache_speedbonuses(min_d, med_d, max_d, multiplier);
+}
+
+// Returns *scaled* values.
+sint64 settings_t::get_forge_cost(waytype_t wt) const
+{
+	switch(wt)
+	{
+	default:
+	case road_wt:
+		return (forge_cost_road * (sint64)meters_per_tile) / 1000ll;
+	
+	case track_wt:
+		return (forge_cost_track * (sint64)meters_per_tile) / 1000ll;
+
+	case water_wt:
+		return (forge_cost_water * (sint64)meters_per_tile) / 1000ll;
+
+	case monorail_wt:
+		return (forge_cost_monorail * (sint64)meters_per_tile) / 1000ll;
+
+	case maglev_wt:
+		return (forge_cost_maglev * (sint64)meters_per_tile) / 1000ll;
+
+	case tram_wt:
+		return (forge_cost_tram * (sint64)meters_per_tile) / 1000ll;
+
+	case narrowgauge_wt:
+		return (forge_cost_narrowgauge * (sint64)meters_per_tile) / 1000ll;
+
+	case air_wt:
+		return (forge_cost_air * (sint64)meters_per_tile) / 1000ll;
+	};
+}
+
+sint64 settings_t::get_parallel_ways_forge_cost_percentage(waytype_t wt) const
+{
+	switch(wt)
+	{
+	default:
+	case road_wt:
+		return parallel_ways_forge_cost_percentage_road;
+	
+	case track_wt:
+		return parallel_ways_forge_cost_percentage_track;
+
+	case water_wt:
+		return parallel_ways_forge_cost_percentage_water;
+
+	case monorail_wt:
+		return parallel_ways_forge_cost_percentage_monorail;
+
+	case maglev_wt:
+		return parallel_ways_forge_cost_percentage_maglev;
+
+	case tram_wt:
+		return parallel_ways_forge_cost_percentage_tram;
+
+	case narrowgauge_wt:
+		return parallel_ways_forge_cost_percentage_narrowgauge;
+
+	case air_wt:
+		return parallel_ways_forge_cost_percentage_air;
+	};
 }

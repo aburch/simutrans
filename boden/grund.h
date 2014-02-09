@@ -745,7 +745,7 @@ public:
 	 *
 	 * @author V. Meyer
 	 */
-	sint64 neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp);
+	sint64 neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp, koord3d_vector_t *route = NULL);
 
 	/**
 	 * Bauhilfsfunktion - die ribis eines vorhandenen weges werden erweitert

@@ -2035,16 +2035,14 @@ sint64 wegbauer_t::calc_costs()
 	sint64 costs=0;
 	koord3d offset = koord3d( 0, 0, bautyp & elevated_flag ? env_t::pak_height_conversion_factor : 0 );
 
-	sint32 single_cost;
+	sint32 single_cost = 0;
 	sint32 new_speedlimit;
 
 	if( bautyp&tunnel_flag ) {
 		assert( tunnel_besch );
-		single_cost = tunnel_besch->get_preis();
 		new_speedlimit = tunnel_besch->get_topspeed();
 	}
 	else {
-		single_cost = besch->get_preis();
 		new_speedlimit = besch->get_topspeed();
 	}
 
@@ -2086,8 +2084,10 @@ sint64 wegbauer_t::calc_costs()
 					continue; // Nothing to pay on this tile.
 				}
 				old_speedlimit = tunnel->get_besch()->get_topspeed();
+				single_cost = tunnel_besch->get_preis();
 			}
 			else {
+				single_cost = besch->get_preis();
 				if(  besch->get_wtyp() == powerline_wt  ) {
 					if( leitung_t *lt=gr->get_leitung() ) {
 						old_speedlimit = lt->get_besch()->get_topspeed();
@@ -2112,30 +2112,16 @@ sint64 wegbauer_t::calc_costs()
 				}
 			}
 
-			sint64 forge_cost = upgrading ? 0 : 1000ll; // TODO: Use real value here. Needs to be scaled.
+			sint64 forge_cost = upgrading ? 0 : welt->get_settings().get_forge_cost(besch->get_waytype());
 			const koord3d pos = gr->get_pos();
 
-			if(!upgrading && route.get_count() > 1)
+			if(!upgrading && !(bautyp & tunnel_flag) && !(bautyp & elevated_flag) && route.get_count() > 1)
 			{
-				koord3d earlier;
-				koord3d later;
-				if(i < route.get_count() - 1)
-				{
-					earlier = route[i];
-					later = route[i + 1];
-				}
-				else
-				{
-					earlier = route[i - 1];
-					later = route[i];
-				}
-
-				const ribi_t::ribi our_direction_bits = ribi_typ(earlier, later);			
-
 				for(int n = 0; n < 8; n ++)
 				{
 					const koord kn = pos.neighbours[n] + pos;
-					if(kn == earlier || kn == later)
+					const koord3d kn3d(kn, welt->lookup_hgt(kn));
+					if(route.is_contained(kn3d))
 					{
 						continue;
 					}
@@ -2143,7 +2129,9 @@ sint64 wegbauer_t::calc_costs()
 					if(gr_neighbour && gr_neighbour->get_weg(besch->get_waytype()))
 					{
 						// This is a parallel way of the same type - reduce the forge cost.
-						forge_cost /= 3; //TODO: Have this customisable in simuconf.tab
+						forge_cost *= welt->get_settings().get_parallel_ways_forge_cost_percentage(besch->get_waytype());
+						forge_cost /= 100ll;
+						break;
 					}
 				}
 			}
@@ -2468,14 +2456,7 @@ void wegbauer_t::baue_strasse()
 
 			str->set_besch(besch);
 			str->set_gehweg(build_sidewalk);
-			cost = -gr->neuen_weg_bauen(str, route.get_short_ribi(i), sp) - besch->get_preis();
-
-			if(obj != NULL && obj->get_besitzer() == sp) 
-			{
-				// We own this land. Ergo, building a way on it should be cheaper.
-				cost -= welt->get_land_value(gr->get_pos());
-				cost = min(0, cost);
-			}
+			cost = -gr->neuen_weg_bauen(str, route.get_short_ribi(i), sp, &route) - besch->get_preis();
 
 			// prissi: into UNDO-list, so we can remove it later
 			if(sp!=NULL) {
@@ -2585,15 +2566,7 @@ void wegbauer_t::baue_schiene()
 				{
 					sch->add_way_constraints(wayobj->get_besch()->get_way_constraints());
 				}
-
-				cost = -gr->neuen_weg_bauen(sch, ribi, sp)-besch->get_preis();
-
-				if(obj != NULL  &&  obj->get_besitzer() == sp) 
-				{
-					// We own this land. Ergo, building a way on it should be cheaper.
-					cost -= welt->get_land_value(gr->get_pos());
-					cost = min(0, cost);
-				}
+				cost = gr->neuen_weg_bauen(sch, ribi, sp, &route) - besch->get_preis();
 
 				// connect canals to sea
 				if(  besch->get_wtyp() == water_wt  ) {

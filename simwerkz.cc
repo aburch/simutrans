@@ -2376,7 +2376,7 @@ const char* wkz_wegebau_t::get_tooltip(const spieler_t *) const
 	{
 		return "";
 	}
-	tooltip_with_price_maintenance(welt, besch->get_name(), -besch->get_base_price(), besch->get_base_maintenance());
+	tooltip_with_price_maintenance(welt, besch->get_name(), (-besch->get_base_price() -welt->get_settings().get_forge_cost(besch->get_waytype())), besch->get_base_maintenance());
 	size_t n= strlen(toolstr);
 	n += sprintf(toolstr+n, " / km, %dkm/h, %dt",
 		besch->get_topspeed(),
