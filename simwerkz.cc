@@ -1557,6 +1557,10 @@ const char *wkz_add_city_t::work( spieler_t *sp, koord3d pos )
 
 				// always start with 1/10 citicens
 				stadt_t* stadt = new stadt_t(welt->get_spieler(1), k, citizens / 10);
+				if (stadt->get_buildings() == 0) {
+					delete stadt;
+					return "No suitable ground!";
+				}
 
 				welt->add_stadt(stadt);
 				stadt->laden_abschliessen();

@@ -1042,7 +1042,12 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 
 	unsupplied_city_growth = 0;
 	allow_citygrowth = true;
-	change_size( citizens, true );
+
+	// only build any houses if townhall is already there
+	// city should be deleted if it has no buildings
+	if (!buildings.empty()) {
+		change_size( citizens, true );
+	}
 
 	// fill with start citizen ...
 	sint64 bew = get_einwohner();
