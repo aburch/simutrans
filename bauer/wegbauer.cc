@@ -2604,10 +2604,9 @@ void wegbauer_t::baue_schiene()
 							sea->calc_bild();
 						}
 					}
-
+				}
 				// prissi: into UNDO-list, so we can remove it later
 				sp->add_undo( route[i] );
-				}
 			}
 
 			gr->calc_bild();
