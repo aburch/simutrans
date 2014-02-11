@@ -30,17 +30,40 @@ public:
 	integer month; ///< month in 0..11
 #endif
 }; // end_class
+
+/**
+ * Struct to get precise information about time.
+ * @see world::get_time
+ */
+class time_ticks_x : public time_x { // begin_class("time_ticks_x", "time_x")
+public:
+#ifdef SQAPI_DOC // document members
+	integer ticks;            ///< current time in ticks
+	integer ticks_per_month;  ///< length of one in-game month in ticks
+	integer next_month_ticks; ///< new month will start at this time
+#endif
+}; // end_class
 #endif
 
 // pushes table = { raw = , year = , month = }
 SQInteger param<mytime_t>::push(HSQUIRRELVM vm, mytime_t const& v)
 {
-	sq_newtableex(vm, 3);
+	sq_newtableex(vm, 6);
 	create_slot<uint32>(vm, "raw",   v.raw);
 	create_slot<uint32>(vm, "year",  v.raw/12);
 	create_slot<uint32>(vm, "month", v.raw%12);
 	return 1;
 }
+
+SQInteger param<mytime_ticks_t>::push(HSQUIRRELVM vm, mytime_ticks_t const& v)
+{
+	param<mytime_t>::push(vm, v);
+	create_slot<uint32>(vm, "ticks",            v.ticks);
+	create_slot<uint32>(vm, "ticks_per_month",  v.ticks_per_month);
+	create_slot<uint32>(vm, "next_month_ticks", v.next_month_ticks);
+	return 1;
+}
+
 
 mytime_t param<mytime_t>::get(HSQUIRRELVM vm, SQInteger index)
 {

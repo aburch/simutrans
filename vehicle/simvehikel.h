@@ -451,7 +451,7 @@ public:
 	// In Experimental this is mostly for entering stations etc.,
 	// as the new physics engine handles ways
 	sint32 get_speed_limit() const { return speed_limit; }
-	static sint32 speed_unlimited() {return (std::numeric_limits<sint32>::max)(); }
+	static inline sint32 speed_unlimited() {return (std::numeric_limits<sint32>::max)(); }
 
 	const slist_tpl<ware_t> & get_fracht() const { return fracht;}   // list of goods being transported
 
@@ -863,6 +863,9 @@ public:
  */
 class aircraft_t : public vehikel_t
 {
+public:
+	enum flight_state { taxiing=0, departing=1, flying=2, landing=3, looking_for_parking=4, circling=5, taxiing_to_halt=6  };
+
 private:
 	// just to mark dirty afterwards
 	sint16 old_x, old_y;
@@ -876,8 +879,6 @@ private:
 	//// only used for route search and approach vectors of get_ribi() (do not need saving)
 	//koord3d search_start;
 	//koord3d search_end;
-
-	enum flight_state { taxiing=0, departing=1, flying=2, landing=3, looking_for_parking=4, circling=5, taxiing_to_halt=6  };
 
 	flight_state state;	// functions needed for the search without destination from find_route
 
@@ -918,6 +919,10 @@ public:
 	aircraft_t(loadsave_t *file, bool is_first, bool is_last);
 	aircraft_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv); // start and schedule
 
+	// to shift the events around properly
+	void get_event_index( flight_state &state_, uint32 &takeoff_, uint32 &stopsearch_, uint32 &landing_ ) { state_ = state; takeoff_ = takeoff; stopsearch_ = suchen; landing_ = touchdown; }
+	void set_event_index( flight_state state_, uint32 takeoff_, uint32 stopsearch_, uint32 landing_ ) { state = state_; takeoff = takeoff_; suchen = stopsearch_; touchdown = landing_; }
+
 	// since we are drawing ourselves, we must mark ourselves dirty during deletion
 	virtual ~aircraft_t();
 
@@ -948,7 +953,7 @@ public:
 	typ get_typ() const { return aircraft; }
 #endif
 
-	schedule_t * erzeuge_neuen_fahrplan() const;
+	schedule_t *erzeuge_neuen_fahrplan() const;
 
 	void rdwr_from_convoi(loadsave_t *file);
 
@@ -981,7 +986,7 @@ public:
 
 	bool is_on_ground() const { return flughoehe==0  &&  !(state==circling  ||  state==flying); }
 
-	const char * ist_entfernbar(const spieler_t *sp);
+	const char *ist_entfernbar(const spieler_t *sp);
 
 	bool runway_too_short;
 

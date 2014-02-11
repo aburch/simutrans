@@ -1547,6 +1547,9 @@ public:
 	 */
 	sint64 get_zeit_ms() const { return ticks; }
 
+
+	uint32 get_next_month_ticks() const { return next_month_ticks; }
+
 	/**
 	 * Absolute month (count start year zero).
 	 * @author prissi
@@ -1933,7 +1936,7 @@ public:
 	 * File version used when loading (or current if generated)
 	 * @note Useful for laden_abschliessen
 	 */
-	uint32 load_version;
+	loadsave_t::combined_version load_version;
 
 	/**
 	 * Checks if the planquadrat at coordinate (x,y)

@@ -246,7 +246,7 @@ public:
 	void set_default_param(const char* str) { default_param = str; }
 
 	// transfer additional information in networkgames
-	virtual void rdwr_custom_data(uint8 /* player_nr */, memory_rw_t*) { }
+	virtual void rdwr_custom_data(memory_rw_t*) { }
 
 	// this will draw the tool with some indication, if active
 	virtual bool is_selected() const;
@@ -333,7 +333,7 @@ public:
 		MEMZERO(start_marker);
 	}
 
-	void rdwr_custom_data(uint8 player_nr, memory_rw_t*) OVERRIDE;
+	void rdwr_custom_data(memory_rw_t*) OVERRIDE;
 	bool init(spieler_t*) OVERRIDE;
 	bool exit(spieler_t* const sp) OVERRIDE { return init(sp); }
 
@@ -351,6 +351,7 @@ public:
 	bool is_first_click() const;
 	void cleanup(bool delete_start_marker );
 
+	const koord3d& get_start_pos() const { return start; }
 private:
 
 	/*

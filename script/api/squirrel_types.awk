@@ -114,6 +114,7 @@ BEGIN {
 	export_types["building_x::get_passenger_level"] = "integer()"
 	export_types["building_x::get_mail_level"] = "integer()"
 	export_types["building_x::get_desc"] = "building_desc_x()"
+	export_types["building_x::is_same_building"] = "bool(building_x)"
 	export_types["way_x::has_sidewalk"] = "bool()"
 	export_types["way_x::is_electrified"] = "bool()"
 	export_types["way_x::has_sign"] = "bool()"
@@ -183,7 +184,7 @@ BEGIN {
 	export_types["world::find_nearest_city"] = "city_x(coord)"
 	export_types["world::get_season"] = "integer()"
 	export_types["world::remove_player"] = "bool(player_x)"
-	export_types["world::get_time"] = "time_x()"
+	export_types["world::get_time"] = "time_ticks_x()"
 	export_types["world::get_citizens"] = "array<integer>()"
 	export_types["world::get_growth"] = "array<integer>()"
 	export_types["world::get_towns"] = "array<integer>()"
@@ -208,4 +209,5 @@ BEGIN {
 	export_types["world::get_year_generated_mail"] = "array<integer>()"
 	export_types["world::get_year_ratio_goods"] = "array<integer>()"
 	export_types["world::get_year_transported_goods"] = "array<integer>()"
+	export_types["attraction_list_x::_get"] = "building_x(integer)"
 }

@@ -75,6 +75,7 @@ protected:
 
 	sint32 maintenance;   ///< monthly cost for bits_per_month=18
 	sint32 cost;          ///< cost to build this thing [1/100 credits] per tile/object
+	uint16 axle_load;     ///< up to this load vehicle may pass (default 9999)
 	uint8  wt;            ///< waytype of this thing
 	sint32 topspeed;      ///< maximum allowed speed in km/h
 
@@ -104,6 +105,8 @@ public:
 		maintenance = set_scale_generic<sint32>(base_maintenance, scale_factor);
 		if (base_maintenance && !maintenance) maintenance = 1;
 	}
+
+	uint16 get_axle_load() const { return axle_load; }
 
 	void calc_checksum(checksum_t *chk) const;
 };

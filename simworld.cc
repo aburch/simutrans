@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <sys/stat.h>
 
 #include "path_explorer.h"
 
@@ -1217,8 +1218,12 @@ void karte_t::distribute_cities( settings_t const * const sets, sint16 old_x, si
 			for(  unsigned i=0;  i<new_anzahl_staedte;  i++  ) {
 				stadt_t* s = new stadt_t(spieler[1], (*pos)[i], 1 );
 				DBG_DEBUG("karte_t::distribute_groundobjs_cities()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_city_history_month())[HIST_CITICENS] );
-				add_stadt(s);
-				ls.set_progress( ++old_progress );
+				if (s->get_buildings() > 0) {
+					add_stadt(s);
+				}
+				else {
+					delete(s);
+				}
 			}
 
 			delete pos;
@@ -2433,7 +2438,7 @@ karte_t::karte_t() :
 	set_dirty();
 
 	// for new world just set load version to current savegame version
-	load_version = loadsave_t::int_version( env_t::savegame_version_str, NULL, NULL ).version;
+	load_version = loadsave_t::int_version( env_t::savegame_version_str, NULL, NULL );
 
 	// standard prices
 	warenbauer_t::set_multiplier( 1000, settings.get_meters_per_tile() );
@@ -4586,6 +4591,8 @@ void karte_t::new_month()
 		iter->neuer_monat();
 	}
 
+	scenario->new_month();
+
 	// now switch year to get the right year for all timeline stuff ...
 	if( last_month == 0 ) {
 		new_year();
@@ -4669,6 +4676,8 @@ DBG_MESSAGE("karte_t::new_year()","speedbonus for %d %i, %i, %i, %i, %i, %i, %i,
 			spieler[i]->neues_jahr();
 		}
 	}
+
+	scenario->new_year();
 }
 
 
@@ -6927,6 +6936,30 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved messages");
 		file->rdwr_long(next_step_mail);
 	}
 
+	if(  file->get_version() >= 112008  ) {
+		xml_tag_t t( file, "motd_t" );
+
+		chdir( env_t::user_dir );
+		// maybe show message about server
+DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "motd filename %s", env_t::server_motd_filename.c_str() );
+		if(  FILE *fmotd = fopen( env_t::server_motd_filename.c_str(), "r" )  ) {
+			struct stat st;
+			stat( env_t::server_motd_filename.c_str(), &st );
+			sint32 len = min( 32760, st.st_size+1 );
+			char *motd = (char *)malloc( len );
+			fread( motd, len-1, 1, fmotd );
+			fclose( fmotd );
+			motd[len] = 0;
+			file->rdwr_str( motd, len );
+			free( motd );
+		}
+		else {
+			// no message
+			char *motd = "";
+			file->rdwr_str( motd, 1 );
+		}
+	}
+
 	// MUST be at the end of the load/save routine.
 	// save all open windows (upon request)
 	file->rdwr_byte( active_player_nr );
@@ -7038,7 +7071,8 @@ bool karte_t::load(const char *filename)
 			dbg->warning("karte_t::laden()", translator::translate("Kann Spielstand\nnicht laden.\n") );
 			create_win(new news_img("Kann Spielstand\nnicht laden.\n"), w_info, magic_none);
 		}
-	} else if(file.get_version() < 84006) {
+	}
+	else if(file.get_version() < 84006) {
 		// too old
 		dbg->warning("karte_t::laden()", translator::translate("WRONGSAVE") );
 		create_win(new news_img("WRONGSAVE"), w_info, magic_none);
@@ -7187,7 +7221,7 @@ void karte_t::plans_laden_abschliessen( sint16 x_min, sint16 x_max, sint16 y_min
 						obj->laden_abschliessen();
 					}
 				}
-				if(  load_version<=111000  &&  gr->ist_natur()  ) {
+				if(  load_version.version <= 111000  &&  gr->ist_natur()  ) {
 					gr->sort_trees();
 				}
 				gr->calc_bild();
@@ -7284,7 +7318,8 @@ void karte_t::load(loadsave_t *file)
 	loaded_rotation = settings.get_rotation();
 
 	// some functions (laden_abschliessen) need to know what version was loaded
-	load_version = file->get_version();
+	load_version.version = file->get_version();
+	load_version.experimental_version = file->get_experimental_version();
 
 #ifndef DEBUG_SIMRAND_CALLS
 	if(  env_t::networkmode  ) {
@@ -7820,6 +7855,7 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 			}
 		}
 	}
+
 	// initialize lock info for local server player
 	// if call from sync command, lock info will be corrected there
 	if(  env_t::server) {
@@ -7910,6 +7946,19 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 		file->rdwr_long(next_step_mail);
 	}
 
+	// show message about server
+	if(  file->get_version() >= 112008  ) {
+		xml_tag_t t( file, "motd_t" );
+		char msg[32766];
+		file->rdwr_str( msg, 32766 );
+		if(  *msg  &&  !env_t::server  ) {
+			// if not empty ...
+			help_frame_t *win = new help_frame_t();
+			win->set_text( msg );
+			create_win(win, w_info, magic_motd);
+		}
+	}
+
 	// MUST be at the end of the load/save routine.
 	if(  file->get_version()>=102004  ) {
 		if(  env_t::restore_UI  ) {
@@ -7934,6 +7983,9 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 
 	file->set_buffered(false);
 	clear_random_mode(LOAD_RANDOM);
+
+	// loading finished, reset savegame version to current
+	load_version = loadsave_t::int_version( env_t::savegame_version_str, NULL, NULL );;
 
 	dbg->warning("karte_t::laden()","loaded savegame from %i/%i, next month=%i, ticks=%i (per month=1<<%i)",last_month,last_year,next_month_ticks,ticks,karte_t::ticks_per_world_month_shift);
 }
@@ -8372,15 +8424,13 @@ void karte_t::step_month( sint16 months )
 
 void karte_t::change_time_multiplier(sint32 delta)
 {
-	if(  !env_t::networkmode  ) {
-		time_multiplier += delta;
-		if(time_multiplier<=0) {
-			time_multiplier = 1;
-		}
-		if(step_mode!=NORMAL) {
-			step_mode = NORMAL;
-			reset_timer();
-		}
+	time_multiplier += delta;
+	if(time_multiplier<=0) {
+		time_multiplier = 1;
+	}
+	if(step_mode!=NORMAL) {
+		step_mode = NORMAL;
+		reset_timer();
 	}
 }
 
@@ -8535,6 +8585,7 @@ void karte_t::stop(bool exit_game)
 void karte_t::network_game_set_pause(bool pause_, uint32 syncsteps_)
 {
 	if (env_t::networkmode) {
+		time_multiplier = 16;	// reset to normal speed
 		sync_steps = syncsteps_;
 		steps = sync_steps / settings.get_frames_per_step();
 		network_frame_count = sync_steps % settings.get_frames_per_step();
@@ -8888,7 +8939,7 @@ bool karte_t::interactive(uint32 quit_month)
 						next_step_time += 5;
 						ms_difference += 5;
 					}
-					sync_step( fix_ratio_frame_time, true, true );
+					sync_step( (fix_ratio_frame_time*time_multiplier)/16, true, true );
 #ifdef DEBUG_SIMRAND_CALLS
 					station_check("karte_t::interactive FIX_RATIO after sync_step", this);
 #endif

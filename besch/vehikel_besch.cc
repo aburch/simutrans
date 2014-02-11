@@ -239,7 +239,6 @@ void vehikel_besch_t::calc_checksum(checksum_t *chk) const
 	obj_besch_transport_related_t::calc_checksum(chk);
 	chk->input(zuladung);
 	chk->input(gewicht);
-	chk->input(axle_load);
 	chk->input(leistung);
 	chk->input(running_cost);
 	chk->input(base_fixed_cost);

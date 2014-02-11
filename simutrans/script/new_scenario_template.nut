@@ -83,6 +83,20 @@ function resume_game()
 }
 
 /**
+ * Called at the beginning of a new month
+ */
+function new_month()
+{
+}
+
+/**
+ * Called at the beginning of a new year
+ */
+function new_year()
+{
+}
+
+/**
  * Table that contains data that will be saved in savegame
  * only plain data is saved: no classes / instances / functions, no cyclic references
  */
