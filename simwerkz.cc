@@ -698,11 +698,9 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 		if(  weg_t *weg = gr->get_weg_nr(0)  ) {
 			gr->remove_everything_from_way(sp, weg->get_waytype(), ribi_t::keine);
 		}
-		// delete tunnel here - if there is lonely tunnel without way
-		if(  gr->get_top()==1  ) {
-			tunnel_t *t = gr->find<tunnel_t>();
-			t->entferne(sp);
-			delete t;
+		// tunnel without way: delete anything else
+		if(  !gr->hat_wege()  ) {
+			gr->obj_loesche_alle(sp);
 		}
 	}
 
