@@ -1769,10 +1769,10 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 
 sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 {
-DBG_MESSAGE("grund_t::weg_entfernen()","this %p",this);
 	weg_t *weg = get_weg(wegtyp);
-DBG_MESSAGE("grund_t::weg_entfernen()","weg %p",weg);
 	if(weg!=NULL) {
+
+		weg->mark_image_dirty(get_bild(), 0);
 
 		if(ribi_rem) {
 			ribi_t::ribi ribi = weg->get_ribi();
