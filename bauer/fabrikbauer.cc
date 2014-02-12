@@ -259,7 +259,7 @@ int fabrikbauer_t::finde_anzahl_hersteller(const ware_besch_t *ware, uint16 time
 			}
 		}
 	}
-DBG_MESSAGE("fabrikbauer_t::finde_anzahl_hersteller()","%i producer for good '%s' fount.", anzahl, translator::translate(ware->get_name()));
+DBG_MESSAGE("fabrikbauer_t::finde_anzahl_hersteller()","%i producer for good '%s' found.", anzahl, translator::translate(ware->get_name()));
 	return anzahl;
 }
 
@@ -286,10 +286,10 @@ void fabrikbauer_t::finde_hersteller(weighted_vector_tpl<const fabrik_besch_t *>
 	}
 
 	// no producer installed?
-	if (producer.empty()) {
-		dbg->error("fabrikbauer_t::finde_hersteller()","no producer for good '%s' was found", translator::translate(ware->get_name()));
+	if(  producer.empty()  ) {
+		dbg->error("fabrikbauer_t::finde_hersteller()", "no producer for good '%s' was found.", translator::translate(ware->get_name()));
 	}
-	DBG_MESSAGE("fabrikbauer_t::finde_hersteller()","producer %i for good '%s' found.", producer.get_count() );
+	DBG_MESSAGE("fabrikbauer_t::finde_hersteller()", "%i producer for good '%s' found.", producer.get_count(), translator::translate(ware->get_name()) );
 }
 
 
