@@ -2368,7 +2368,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	forge_cost_maglev = contents.get_int("forge_cost_maglev", forge_cost_maglev);
 	forge_cost_tram = contents.get_int("forge_cost_tram", forge_cost_tram);
 	forge_cost_narrowgauge = contents.get_int("forge_cost_narrowgauge", forge_cost_narrowgauge);
-	forge_cost_air = contents.get_int("forge_cost_road", forge_cost_air);
+	forge_cost_air = contents.get_int("forge_cost_air", forge_cost_air);
 	
 	parallel_ways_forge_cost_percentage_road = contents.get_int("parallel_ways_forge_cost_percentage_road", parallel_ways_forge_cost_percentage_road);
 	parallel_ways_forge_cost_percentage_track = contents.get_int("parallel_ways_forge_cost_percentage_track", parallel_ways_forge_cost_percentage_track);
