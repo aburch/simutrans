@@ -52,7 +52,7 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->cost = 10000;
 		besch->maintenance = 800;
 		besch->topspeed = 999;
-		besch->max_axle_load = 999;
+		besch->axle_load = 9999;
 		besch->intro_date = DEFAULT_INTRO_DATE*12;
 		besch->obsolete_date = DEFAULT_RETIRE_DATE*12;
 		besch->wt = road_wt;
@@ -83,12 +83,41 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			experimental_version -=1;
 		}
 
-		if(version==4  ||  version==5) {
+		if(version==6) {
+			// version 6, now with axle load
+			besch->cost = decode_uint32(p);
+			besch->maintenance = decode_uint32(p);
+			besch->topspeed = decode_uint32(p);
+			besch->intro_date = decode_uint16(p);
+			besch->obsolete_date = decode_uint16(p);
+			besch->axle_load = decode_uint16(p);	// new
+			besch->wt = decode_uint8(p);
+			besch->styp = decode_uint8(p);
+			besch->draw_as_obj = decode_uint8(p);
+			besch->number_seasons = decode_sint8(p);
+			if(experimental)
+			{
+				way_constraints.set_permissive(decode_uint8(p));
+				way_constraints.set_prohibitive(decode_uint8(p));
+				if(experimental_version >= 1)
+				{
+					besch->topspeed_gradient_1 = decode_sint32(p);
+					besch->topspeed_gradient_2 = decode_sint32(p);
+					besch->max_altitude = decode_sint8(p);
+					besch->max_vehicles_on_tile = decode_uint8(p);
+				}
+				if(experimental_version > 1)
+				{
+					dbg->fatal( "way_reader_t::read_node()","Incompatible pak file version for Simutrans-E, number %i", experimental_version );
+				}
+			}
+		}
+		else if(version==4  ||  version==5) {
 			// Versioned node, version 4+5
 			besch->cost = decode_uint32(p);
 			besch->maintenance = decode_uint32(p);
 			besch->topspeed = decode_sint32(p);
-			besch->max_axle_load = decode_uint32(p);
+			besch->axle_load = decode_uint32(p);
 			besch->intro_date = decode_uint16(p);
 			besch->obsolete_date = decode_uint16(p);
 			besch->wt = decode_uint8(p);
@@ -118,7 +147,7 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			besch->cost = decode_uint32(p);
 			besch->maintenance = decode_uint32(p);
 			besch->topspeed = decode_uint32(p);
-			besch->max_axle_load = decode_uint32(p);
+			besch->axle_load = decode_uint32(p);
 			besch->intro_date = decode_uint16(p);
 			besch->obsolete_date = decode_uint16(p);
 			besch->wt = decode_uint8(p);
@@ -131,7 +160,7 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			besch->cost = decode_uint32(p);
 			besch->maintenance = decode_uint32(p);
 			besch->topspeed = decode_uint32(p);
-			besch->max_axle_load = decode_uint32(p);
+			besch->axle_load = decode_uint32(p);
 			besch->intro_date = decode_uint16(p);
 			besch->obsolete_date = decode_uint16(p);
 			besch->wt = decode_uint8(p);
@@ -144,7 +173,7 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			besch->cost = decode_uint32(p);
 			besch->maintenance = decode_uint32(p);
 			besch->topspeed = decode_uint32(p);
-			besch->max_axle_load = decode_uint32(p);
+			besch->axle_load = decode_uint32(p);
 			uint32 intro_date= decode_uint32(p);
 			besch->intro_date = (intro_date/16)*12 + (intro_date%16);
 			besch->wt = decode_uint8(p);
@@ -190,17 +219,17 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	besch->base_maintenance = besch->maintenance;
 
 	DBG_DEBUG("way_reader_t::read_node()",
-		"version=%d price=%d maintenance=%d topspeed=%d max_axle_load=%d "
-		"wtype=%d styp=%d intro_year=%i way_constraints_permissive = %d "
-		"way_constraints_prohibitive = %d",
+		"version=%d, price=%d, maintenance=%d, topspeed=%d, max_weight=%d, "
+		"wtype=%d, styp=%d, intro_year=%i, axle_load=%d, "
+		"way_constraints_permissive = %d, way_constraints_prohibitive = %d",
 		version,
 		besch->cost,
 		besch->maintenance,
 		besch->topspeed,
-		besch->max_axle_load,
 		besch->wt,
 		besch->styp,
 		besch->intro_date/12,
+		besch->axle_load,
 		besch->get_way_constraints().get_permissive(),
 		besch->get_way_constraints().get_prohibitive());
 

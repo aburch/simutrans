@@ -32,7 +32,7 @@ class tunnel_besch_t : public obj_besch_transport_infrastructure_t {
 
 private:
 	static int hang_indices[81];
-	uint32 max_axle_load; // maximum weight for vehicles. @author: jamespetts
+	//uint32 max_axle_load; // maximum weight for vehicles. @author: jamespetts
 
 
 	/* number of seasons (0 = none, 1 = no snow/snow)
@@ -80,7 +80,7 @@ public:
 
 	waytype_t get_finance_waytype() const;
 
-	uint32  get_max_axle_load() const { return max_axle_load; }
+	uint32  get_max_axle_load() const { return axle_load; }
 	
 	/* Way constraints: determines whether vehicles
 	 * can travel on this way. This method decodes

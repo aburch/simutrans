@@ -620,6 +620,21 @@ void scenario_t::step()
 }
 
 
+void scenario_t::new_month()
+{
+	if (script) {
+		script->call_function("new_month");
+	}
+}
+
+void scenario_t::new_year()
+{
+	if (script) {
+		script->call_function("new_year");
+	}
+}
+
+
 void scenario_t::update_won_lost(uint16 new_won, uint16 new_lost)
 {
 	// we are the champions

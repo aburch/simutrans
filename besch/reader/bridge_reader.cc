@@ -139,7 +139,8 @@ obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->obsolete_date = decode_uint16(p);
 		besch->number_seasons = decode_uint8(p);
 
-	} else if (version==7  ||  version==8) {
+	}
+	else if (version==7  ||  version==8) {
 
 		// Versioned node, version 7/8
 		// max_height, assymetric pillars
@@ -157,7 +158,7 @@ obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->number_seasons = decode_uint8(p);
 		if(experimental)
 		{
-			besch->max_weight = decode_uint32(p);
+			besch->max_weight = besch->axle_load = decode_uint32(p);
 			way_constraints.set_permissive(decode_uint8(p));
 			way_constraints.set_prohibitive(decode_uint8(p));
 			if(experimental_version == 1)
@@ -172,6 +173,39 @@ obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				dbg->fatal("bridge_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version);
 			}
 		}
+
+	}
+	else if (version==9) {
+
+		besch->topspeed = decode_uint16(p);
+		besch->cost = decode_uint32(p);
+		besch->maintenance = decode_uint32(p);
+		besch->wt = decode_uint8(p);
+		besch->pillars_every = decode_uint8(p);
+		besch->max_length = decode_uint8(p);
+		besch->intro_date = decode_uint16(p);
+		besch->obsolete_date = decode_uint16(p);
+		besch->pillars_asymmetric = (decode_uint8(p)!=0);
+		besch->max_height = decode_uint8(p);
+		besch->axle_load = decode_uint16(p);	// new
+		if(experimental)
+		{
+			besch->max_weight = decode_uint32(p); // DIFFERENT to axle load.
+			way_constraints.set_permissive(decode_uint8(p));
+			way_constraints.set_prohibitive(decode_uint8(p));
+			if(experimental_version == 1)
+			{
+				besch->topspeed_gradient_1 = decode_uint16(p);
+				besch->topspeed_gradient_2 = decode_uint16(p);
+				besch->max_altitude = decode_sint8(p);
+				besch->max_vehicles_on_tile = decode_uint8(p);
+			}
+			if(experimental_version > 1)
+			{
+				dbg->fatal("bridge_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version);
+			}
+		}
+		besch->number_seasons = decode_uint8(p);
 
 	}
 	else {
@@ -202,10 +236,13 @@ obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	besch->base_cost = besch->cost;
 	besch->base_maintenance = besch->maintenance;
 
-	DBG_DEBUG("bridge_reader_t::read_node()",
+	if(  version < 9  ) {
+		besch->axle_load = 9999;
+	}
 
-	"version=%d waytype=%d price=%d topspeed=%d,pillars=%i,max_length=%i,max_weight%d",
-	version, besch->wt, besch->cost, besch->topspeed,besch->pillars_every,besch->max_length,besch->max_weight);
+	DBG_DEBUG("bridge_reader_t::read_node()",
+		"version=%d, waytype=%d, price=%d, topspeed=%d, pillars=%i, max_length=%i, max_weight%d, axle_load=%i",
+		version, besch->wt, besch->cost, besch->topspeed,besch->pillars_every,besch->max_length,besch->max_weight,besch->axle_load);
 
   return besch;
 }

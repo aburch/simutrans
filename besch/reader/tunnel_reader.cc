@@ -84,7 +84,36 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			experimental_version -=1;
 		}
 
-		if( version == 4 ) {
+		if( version == 5 ) {
+			// versioned node, version 5 - axle load
+			besch->topspeed = decode_uint32(p);
+			besch->cost = decode_uint32(p);
+			besch->maintenance = decode_uint32(p);
+			besch->wt = decode_uint8(p);
+			besch->intro_date = decode_uint16(p);
+			besch->obsolete_date = decode_uint16(p);
+			besch->axle_load = decode_uint16(p);	// new
+			besch->number_seasons = decode_uint8(p);
+			besch->has_way = decode_uint8(p);
+			besch->broad_portals = decode_uint8(p);
+			if(experimental)
+			{
+				way_constraints.set_permissive(decode_uint8(p));
+				way_constraints.set_prohibitive(decode_uint8(p));
+				if(experimental_version == 1)
+				{
+					besch->topspeed_gradient_1 = decode_uint16(p);
+					besch->topspeed_gradient_2 = decode_uint16(p);
+					besch->max_altitude = decode_sint8(p);
+					besch->max_vehicles_on_tile = decode_uint8(p);
+				}
+				if(experimental_version > 1)
+				{
+					dbg->fatal("tunnel_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version);
+				}
+			}
+		}
+		else if( version == 4 ) {
 			// versioned node, version 4 - broad portal support
 			besch->topspeed = decode_uint32(p);
 			besch->cost = decode_uint32(p);
@@ -96,7 +125,7 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			
 			if(experimental)
 			{
-				besch->max_axle_load = decode_uint32(p);
+				besch->axle_load = decode_uint32(p);
 				way_constraints.set_permissive(decode_uint8(p));
 				way_constraints.set_prohibitive(decode_uint8(p));
 				if(experimental_version == 1)
@@ -126,7 +155,7 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			besch->has_way = decode_uint8(p);
 			if(experimental)
 			{
-				besch->max_axle_load =  decode_uint32(p);
+				besch->axle_load =  decode_uint32(p);
 				way_constraints.set_permissive(decode_uint8(p));
 				way_constraints.set_prohibitive(decode_uint8(p));
 				if(experimental_version > 0)
@@ -147,10 +176,13 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			besch->number_seasons = decode_uint8(p);
 			if(experimental)
 			{
-				besch->max_axle_load =  decode_uint32(p);
-				way_constraints.set_permissive(decode_uint8(p));
-				way_constraints.set_prohibitive(decode_uint8(p));
-				if(experimental_version > 0)
+				if(experimental_version == 0)
+				{
+					besch->axle_load =  decode_uint32(p);
+					way_constraints.set_permissive(decode_uint8(p));
+					way_constraints.set_prohibitive(decode_uint8(p));
+				}
+				else
 				{
 					dbg->fatal("tunnel_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version);
 				}
@@ -167,16 +199,16 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			besch->intro_date = decode_uint16(p);
 			besch->obsolete_date = decode_uint16(p);
 			besch->number_seasons = 0;
-			besch->max_axle_load = 999;
+			besch->axle_load = 999;
 			besch->has_way = 0;
 			besch->broad_portals = 0;
-		} else {
+		}
+		else {
 			dbg->fatal("tunnel_reader_t::read_node()","illegal version %d",version);
 		}
 
-		if(!experimental)
-		{
-			besch->max_axle_load = 999;
+		if( !experimental && version < 5  ) {
+			besch->axle_load = 9999;
 		}
 		
 		if(experimental_version < 1 || !experimental)
@@ -185,14 +217,14 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			besch->max_altitude = 0;
 			besch->max_vehicles_on_tile = 251;
 		}
+
 		besch->set_way_constraints(way_constraints);
 
 		besch->base_cost = besch->cost;
 		besch->base_maintenance = besch->maintenance;
-
 		DBG_DEBUG("tunnel_reader_t::read_node()",
-		     "version=%d waytype=%d price=%d topspeed=%d, intro_year=%d, max_axle_load%d",
-			 version, besch->wt, besch->cost, besch->topspeed, besch->intro_date/12, besch->max_axle_load);
+		     "version=%d waytype=%d price=%d topspeed=%d, intro_year=%d, axle_load=%d",
+		     version, besch->wt, besch->cost, besch->topspeed, besch->intro_date/12, besch->axle_load);
 	}
 
 	return besch;

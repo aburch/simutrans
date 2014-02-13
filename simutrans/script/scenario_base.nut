@@ -111,6 +111,16 @@ function resume_game()
 }
 
 /**
+ * Happy New Month and Year!
+ */
+function new_month()
+{
+}
+function new_year()
+{
+}
+
+/**
  * load / save support
  * the persistent table will be written / restored during save / load
  * only plain data is saved: no classes / instances / functions, no cyclic references
@@ -516,13 +526,6 @@ class map_object_x extends extend_get {
 	x = -1
 	y = -1
 	z = -1
-
-	// do not call this directly
-	constructor(x_, y_, z_) {
-		x = x_
-		y = y_
-		z = z_
-	}
 }
 
 class schedule_x {
@@ -583,6 +586,12 @@ class time_x {
 	raw = 1
 	year = 0
 	month = 1
+}
+
+class time_ticks_x extends time_x {
+	ticks = 0
+	ticks_per_month = 0
+	next_month_ticks = 0
 }
 
 class coord {

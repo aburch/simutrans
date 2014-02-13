@@ -72,10 +72,10 @@ class obj_besch_transport_related_t : public obj_besch_timelined_t {
 protected:
 	sint32 base_maintenance;
 	sint32 base_cost;
-
 	sint32 maintenance;			///< monthly cost for bits_per_month=18
 	sint32 cost;				///< cost to build this thing [1/100 credits] per tile/object
 	uint8  wt;					///< waytype of this thing
+	uint16 axle_load;			///< up to this load vehicle may pass (default 9999)
 	sint32 topspeed;			///< maximum allowed speed in km/h
 	sint32 topspeed_gradient_1; ///< maximum allowed speed in km/h for a half/single height gradient
 	sint32 topspeed_gradient_2; ///< maximum allowed speed in km/h for a single/double height gradient
@@ -104,6 +104,8 @@ public:
 	sint32 get_geschw() const { return topspeed; }
 	sint8 get_max_altitude() const { return max_altitude; }
 	uint8 get_max_vehicles_on_tile() const { return max_vehicles_on_tile; }
+
+	uint16 get_axle_load() const { return axle_load; }
 
 	void set_scale(uint16 scale_factor)
 	{

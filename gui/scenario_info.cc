@@ -127,13 +127,22 @@ bool scenario_info_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		if (link  && *link) {
 			if (link[0]=='(') {
 				// jump to coordinate
-				int x=-1, y=-1;
-				int n = sscanf(link, "(%i,%i)", &x, &y);
-				if (n==2) {
+				int x=-1, y=-1, z=-1;
+				// try 3d coordinates first
+				int n = sscanf(link, "(%i,%i,%i)", &x, &y, &z);
+				if (n < 3) { // now try 2d
+					n = sscanf(link, "(%i,%i)", &x, &y);
+				}
+				if (n >= 2) { // at least 2d coordinates supplied
 					koord k(x,y);
 					welt->get_scenario()->koord_sq2w( k );
 					if (welt->is_within_limits(k)) {
-						welt->get_viewport()->change_world_position( k  );
+						koord3d p(x,y,z);
+						if (n < 3) {
+							// take z coordinate from ground
+							p = welt->lookup_kartenboden(k)->get_pos();
+						}
+						welt->get_viewport()->change_world_position( p );
 					}
 				}
 			}

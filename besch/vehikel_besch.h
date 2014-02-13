@@ -100,15 +100,11 @@ public:
 
 
 private:
-//	uint32 preis;				// Price --> obj_besch_transport_related_t::cost
-//	uint32 base_price;			// Price (without scale factor)
 	uint32 upgrade_price;		// Price if this vehicle is bought as an upgrade, not a new vehicle.
 	uint32 base_upgrade_price;  // Upgrade price (without scale factor)
 	uint16 zuladung;			// Payload
 	uint16 overcrowded_capacity; // The capacity of a vehicle if overcrowded (usually expressed as the standing capacity).
-//	uint16 geschw;				// Speed in km/h --> obj_besch_transport_related_t::topspeed
 	uint32 gewicht;				// Weight in kg
-	uint16 axle_load;			// Axle load
 	uint32 leistung;			// Power in kW
 	uint16 running_cost;		// Per kilometre cost
 	uint32 fixed_cost;			// Monthly cost @author: jamespetts, April 2009
@@ -551,16 +547,11 @@ public:
 
 	uint16 get_zuladung() const { return zuladung; }
 	uint32 get_gewicht() const { return gewicht; }
-	uint16 get_axle_load() const { return axle_load; }
 	uint16 get_running_cost() const { return running_cost; }
 	uint16 get_running_cost(const class karte_t *welt) const; //Overloaded method - includes increase for obsolescence.
 	uint32 get_fixed_cost() const { return fixed_cost; }
 	uint32 get_fixed_cost(class karte_t *welt) const;  //Overloaded method - includes increase for obsolescence.
 	uint32 get_adjusted_monthly_fixed_cost(class karte_t *welt) const; // includes increase for obsolescence and adjustment for monthly figures
-	//uint16 get_maintenance() const { return fixed_cost; } /* New Standard - not implemented yet */
-	//uint32 get_leistung() const { return leistung; }
-	//uint16 get_betriebskosten() const { return running_cost; }
-	//uint16 get_maintenance() const { return fixed_cost; }
 	sint8 get_sound() const { return sound; }
 	bool is_bidirectional() const { return bidirectional; }
 	bool get_can_lead_from_rear() const { return can_lead_from_rear; }

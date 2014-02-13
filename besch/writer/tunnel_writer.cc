@@ -15,17 +15,29 @@ using std::string;
 
 void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	obj_node_t node(this, 34, &parent);
+	obj_node_t node(this, 32, &parent);
 
-	sint32 topspeed					= obj.get_int("topspeed",    999);
+	sint32 topspeed					= obj.get_int("topspeed",    1000);
 	sint32 topspeed_gradient_1		= obj.get_int("topspeed_gradient_1",    topspeed);
 	sint32 topspeed_gradient_2		= obj.get_int("topspeed_gradient_2",    topspeed_gradient_1);
 	uint32 preis					= obj.get_int("cost",          0);
 	uint32 maintenance				= obj.get_int("maintenance",1000);
 	uint8 wegtyp					= get_waytype(obj.get("waytype"));
-	uint32 max_weight				= obj.get_int("max_weight",  9999);
+	uint16 axle_load				= obj.get_int("axle_load",   9999);
 	sint8 max_altitude				= obj.get_int("max_altitude", 0);
 	uint8 max_vehicles_on_tile		= obj.get_int("max_vehicles_on_tile", 251);
+
+	// BG, 11.02.2014: max_weight was missused as axle_load 
+	// in experimetal before standard introduced axle_load. 
+	//
+	// Therefore set new standard axle_load with old experimental
+	// max_weight, if axle_load not specified, but max_weight.
+	if (axle_load == 9999)
+	{
+		uint32 max_weight  = obj.get_int("max_weight",   999);
+		if (max_weight != 999)
+			axle_load = max_weight;
+	}
 
 	// prissi: timeline
 	uint16 intro_date  = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
@@ -33,6 +45,33 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 
 	uint16 obsolete_date  = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12;
 	obsolete_date += obj.get_int("retire_month", 1) - 1;
+
+	// predefined string for directions
+	static const char* const indices[] = { "n", "s", "e", "w" };
+	static const char* const add[] = { "", "l", "r", "m" };
+	char buf[40];
+
+	// Check for seasons
+	sint8 number_seasons = 0;
+	sprintf(buf, "%simage[%s][1]", "front", indices[0]);
+	string str = obj.get(buf);
+	if(!str.empty()) {
+		// Snow images are present.
+		number_seasons = 1;
+	}
+
+	// Check for broad portals
+	uint8 number_portals = 1;
+	sprintf(buf, "%simage[%s%s][0]", "front", indices[0], add[1]);
+	str = obj.get(buf);
+	if (str.empty()) {
+		// Test short version
+		sprintf(buf, "%simage[%s%s]", "front", indices[0], add[1]);
+		str = obj.get(buf);
+	}
+	if(!str.empty()) {
+		number_portals = 4;
+	}
 
 	// Way constraints
 	// One byte for permissive, one byte for prohibitive.
@@ -71,7 +110,7 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	// version 2: snow images
 	// Version 3: pre-defined ways
 	// version 4: snow images + underground way image + broad portals
-	uint16 version = 0x8004;
+	uint16 version = 0x8005;
 
 	// This is the overlay flag for Simutrans-Experimental
 	// This sets the *second* highest bit to 1. 
@@ -89,8 +128,11 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	node.write_uint8 (fp, wegtyp,						14);
 	node.write_uint16(fp, intro_date,					15);
 	node.write_uint16(fp, obsolete_date,				17);
-	// Seasons											19
-	node.write_uint32(fp, max_weight,					20);
+	node.write_uint16(fp, axle_load,					19);
+	node.write_sint8(fp, number_seasons,				21);
+	// has was (uint8) is here but filled later
+	node.write_sint8(fp, (number_portals==4),			23);
+	// experimental 1 additions:
 	node.write_uint8(fp, permissive_way_constraints,	24);
 	node.write_uint8(fp, prohibitive_way_constraints,	25);
 	node.write_uint16(fp, topspeed_gradient_1,			26);
@@ -98,45 +140,16 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	node.write_sint8(fp, max_altitude,					30);
 	node.write_uint8(fp, max_vehicles_on_tile,			31);
 	// Tunnel way										32
-	// Broad portals									33
 
-	sint8 number_seasons = 0;
-	uint8 number_portals = 1;
+	write_head(fp, node, obj);
 
-	static const char* const indices[] = { "n", "s", "e", "w" };
-	static const char* const add[] = { "", "l", "r", "m" };
+	// and now the images
 	slist_tpl<string> backkeys;
 	slist_tpl<string> frontkeys;
 
 	slist_tpl<string> cursorkeys;
 	cursorkeys.append(string(obj.get("cursor")));
 	cursorkeys.append(string(obj.get("icon")));
-
-	char buf[40];
-
-	// Check for seasons
-	sprintf(buf, "%simage[%s][1]", "front", indices[0]);
-	string str = obj.get(buf);
-	if(!str.empty()) {
-		// Snow images are present.
-		number_seasons = 1;
-	}
-	node.write_sint8(fp, number_seasons, 19);
-
-	// Check for broad portals
-	sprintf(buf, "%simage[%s%s][0]", "front", indices[0], add[1]);
-	str = obj.get(buf);
-	if (str.empty()) {
-		// Test short version
-		sprintf(buf, "%simage[%s%s]", "front", indices[0], add[1]);
-		str = obj.get(buf);
-	}
-	if(!str.empty()) {
-		number_portals = 4;
-	}
-	node.write_sint8(fp, (number_portals==4), 33);
-
-	write_head(fp, node, obj);
 
 	for(  uint8 season = 0;  season <= number_seasons;  season++  ) {
 		for(  uint8 pos = 0;  pos < 2;  pos++  ) {

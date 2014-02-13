@@ -99,14 +99,13 @@ private:
 	// checks if possible / necessary
 	void rename_cnv();
 
-	static bool route_search_in_progress;
+	//static bool route_search_in_progress;
 
 	static const char *sort_text[SORT_MODES];
 
 	void show_hide_statistics( bool show );
 
 public:
-	//static bool route_search_in_progress;
 	convoi_info_t(convoihandle_t cnv);
 
 	virtual ~convoi_info_t();

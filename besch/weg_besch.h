@@ -43,14 +43,9 @@ class weg_besch_t : public obj_besch_transport_infrastructure_t {
 public:
 	// see also: weg_t::system_type
 	// unused: enum { elevated=1, joined=7 /* only tram */, special=255 };
+	enum { elevated=1, runway = 1, joined=7 /* only tram */, special=255 };
 
 private:
-
-	/**
-	 * Max weight
-	 * @author Hj. Malthaner
-	 */
-	uint32 max_axle_load;
 
 	/**
 	 * Way system type: i.e. for wtyp == track this
@@ -101,8 +96,8 @@ private:
 	}
 public:
 
-	//Returns maximum weight
-	uint32 get_max_axle_load() const { return max_axle_load < 999999 ? max_axle_load : 999; }
+	// Returns maximum axle load
+	uint32 get_max_axle_load() const { return axle_load < 999999 ? axle_load : 999; }
 
 	/**
 	* @return waytype used in finance stats (needed to distinguish \
@@ -283,7 +278,7 @@ public:
 	void calc_checksum(checksum_t *chk) const
 	{
 		obj_besch_transport_infrastructure_t::calc_checksum(chk);
-		chk->input(max_axle_load);
+		chk->input(axle_load);
 		chk->input(styp);
 		chk->input(has_double_slopes());
 

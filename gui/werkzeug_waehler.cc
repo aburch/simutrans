@@ -18,6 +18,7 @@
 #include "../utils/for.h"
 #include "werkzeug_waehler.h"
 #include "../gui/gui_frame.h"
+#include "../player/simplay.h"
 
 #include "../player/simplay.h"
 
