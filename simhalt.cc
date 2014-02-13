@@ -4053,7 +4053,7 @@ void haltestelle_t::recalc_status()
 			const uint32 ware_sum = get_ware_summe(wtyp);
 			total_sum += ware_sum;
 			if(ware_sum>max_ware) {
-				status_bits |= ware_sum > max_ware + 32 /*|| enables & CROWDED*/ ? 2 : 1; // for now report only serious overcrowding on transfer stops
+				status_bits |= ware_sum > max_ware + 32 || enables & CROWDED ? 2 : 1; 
 				overcrowded[wtyp->get_catg_index()/8] |= 1<<(wtyp->get_catg_index()%8);
 			}
 		}
