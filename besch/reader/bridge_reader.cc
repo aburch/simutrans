@@ -150,8 +150,8 @@ obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->intro_date = decode_uint16(p);
 		besch->obsolete_date = decode_uint16(p);
 		besch->pillars_asymmetric = (decode_uint8(p)!=0);
-		besch->max_height = decode_uint8(p);
 		besch->axle_load = decode_uint16(p);	// new
+		besch->max_height = decode_uint8(p);
 		besch->number_seasons = decode_uint8(p);
 
 	}
