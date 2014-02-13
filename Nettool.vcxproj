@@ -85,17 +85,17 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="dataobj\freelist.cc" />
-    <ClCompile Include="dataobj\pwd_hash.cc" />
+    <ClCompile Include="network\memory_rw.cc" />
+    <ClCompile Include="network\network.cc" />
+    <ClCompile Include="network\network_address.cc" />
+    <ClCompile Include="network\network_cmd.cc" />
+    <ClCompile Include="network\network_file_transfer.cc" />
+    <ClCompile Include="network\network_packet.cc" />
+    <ClCompile Include="network\network_socket_list.cc" />
+    <ClCompile Include="network\pwd_hash.cc" />
     <ClCompile Include="utils\fetchopt.cc" />
     <ClCompile Include="utils\log.cc" />
-    <ClCompile Include="utils\memory_rw.cc" />
     <ClCompile Include="nettools\nettool.cc" />
-    <ClCompile Include="dataobj\network.cc" />
-    <ClCompile Include="dataobj\network_address.cc" />
-    <ClCompile Include="dataobj\network_cmd.cc" />
-    <ClCompile Include="dataobj\network_file_transfer.cc" />
-    <ClCompile Include="dataobj\network_packet.cc" />
-    <ClCompile Include="dataobj\network_socket_list.cc" />
     <ClCompile Include="simdebug.cc" />
     <ClCompile Include="simmem.cc" />
     <ClCompile Include="utils\sha1.cc" />

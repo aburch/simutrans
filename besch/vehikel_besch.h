@@ -223,7 +223,9 @@ public:
 		// do not get stuck with constraints. 
 		way_constraints.set_permissive(0);
 		way_constraints.set_prohibitive(255);
+#ifndef NETTOOL
 		min_loading_time = max_loading_time = (uint32)seconds_to_ticks(30, 250); 
+#endif
 		tractive_effort = 0;
 		brake_force = BRAKE_FORCE_UNKNOWN;
 		minimum_runway_length = 3;
@@ -704,7 +706,7 @@ public:
 
 		fixed_cost = set_scale_generic<uint32>(base_fixed_cost, scale_factor);
 		if (base_fixed_cost && ! fixed_cost) fixed_cost = 1;
-
+#ifndef NETTOOL
 		if(max_loading_time_seconds != 65535)
 		{
 			max_loading_time = (uint32)seconds_to_ticks(max_loading_time_seconds, scale_factor);
@@ -713,6 +715,7 @@ public:
 		{
 			min_loading_time = (uint32)seconds_to_ticks(min_loading_time_seconds, scale_factor);
 		}
+#endif
 	}
 
 	/**

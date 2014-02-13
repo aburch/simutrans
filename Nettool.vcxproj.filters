@@ -24,28 +24,7 @@
     <ClCompile Include="utils\log.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="utils\memory_rw.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="nettools\nettool.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="dataobj\network.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="dataobj\network_address.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="dataobj\network_cmd.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="dataobj\network_file_transfer.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="dataobj\network_packet.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="dataobj\network_socket_list.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="simdebug.cc">
@@ -57,10 +36,31 @@
     <ClCompile Include="utils\simstring.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="dataobj\pwd_hash.cc">
+    <ClCompile Include="utils\sha1.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="utils\sha1.cc">
+    <ClCompile Include="network\network.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="network\network_cmd.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="network\network_file_transfer.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="network\network_packet.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="network\network_address.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="network\network_socket_list.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="network\pwd_hash.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="network\memory_rw.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

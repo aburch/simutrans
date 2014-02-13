@@ -1391,13 +1391,15 @@ public:
 
 	void set_akt_speed(sint32 akt_speed) { 
 		this->akt_speed = akt_speed; 
+#ifndef NETTOOL
 		if (akt_speed > 8)
 			v = speed_to_v(akt_speed/2); 
 		else
 			v = speed_to_v(akt_speed); 
+#endif
 	}
 
-	bool is_circular_route() const;
+bool is_circular_route() const;
 	
 	/** For going to a depot automatically
 	 *  when stuck - will teleport if necessary.

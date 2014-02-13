@@ -290,8 +290,14 @@ public:
 	/*
 	 * get continuous power in W
 	 */
-	virtual float32e8_t get_continuous_power() { 
+	virtual float32e8_t get_continuous_power() 
+	{ 
+#ifndef NETTOOL
 		return get_power_summary(get_vehicle_summary().max_speed * kmh2ms); 
+
+#else
+		return get_power_summary(get_vehicle_summary().max_speed);
+#endif
 	}
 
 	/**
