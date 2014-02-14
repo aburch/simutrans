@@ -784,6 +784,8 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 	sint16 corners[3] = {scale_z_step*(hgt + corner1(slope_this)),
 	                     scale_z_step*(hgt + corner4(slope_this)),
 	                     scale_z_step*(hgt + corner3(slope_this))};
+	sint16 corners_add[3] = {0,0,0}; // extra height of possible back-image
+
 	// now calculate back image
 	sint8 back_bild_nr=0;
 	bool is_building = get_typ()==grund_t::fundament;
@@ -860,29 +862,44 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 				is_building |= gr->get_typ()==grund_t::fundament;
 			}
 			// update corner heights
-			if (diff_from_ground_1 > 0) {
-				corners[i] += scale_z_step *  diff_from_ground_1;
+			if (diff_from_ground_1 > corner_a) {
+				corners_add[i] = max(corners_add[i], scale_z_step * (diff_from_ground_1-corner_a));
 			}
-			if (diff_from_ground_2 > 0) {
-				corners[i+1] += scale_z_step *  diff_from_ground_2;
+			if (diff_from_ground_2 > corner_b) {
+				corners_add[i+1] = max(corners_add[i+1], scale_z_step * (diff_from_ground_2 - corner_b));
 			}
 		}
 	}
 
+	for(int i=0; i<3; i++) {
+		corners[i] += corners_add[i];
+	}
 	// now test more tiles behind whether they are hidden by this tile
 	const koord  testdir[3] = { koord(-1,0), koord(-1,-1), koord(0,-1) };
+
 	for(int step = 0; step<5  &&  !get_flag(draw_as_obj); step ++) {
 		sint16 test[3] = {corners[0]+1, corners[1]+1, corners[2]+1};
-		for(int i=0; i<2; i++) {
+		for(int i=0; i<=2; i++) {
 			if(  const grund_t *gr=welt->lookup_kartenboden(k + testdir[i] - koord(1,1)*step)  ) {
 				sint16 h = gr->get_disp_height()*scale_z_step;
 				sint8 s = gr->get_disp_slope();
-				if (i>0) {
-					test[i-1] = min(test[i-1], h + corner3(s)*scale_z_step - step*scale_y_step );
+				// take backimage into account, take base-height of back image as corner heights
+				sint8 bb = abs(gr->back_bild_nr);
+				sint8 lh = 2, rh = 2; // height of start of back image
+				if (bb  &&  bb<=121) {
+					if (bb % 11) {
+						lh = min(corner1(s), corner4(s));
+					}
+					if (bb / 11) {
+						rh = min(corner3(s), corner4(s));
+					}
 				}
-				test[i] = min(test[i], h + min( corner2(s)*scale_z_step, corner4(s)*scale_z_step - scale_y_step) - step*scale_y_step );
-				if (i<1) {
-					test[i+1] = min(test[i+1], h + corner3(s)*scale_z_step - step*scale_y_step );
+				if (i>0) {
+					test[i-1] = min(test[i-1], h + min(corner1(s),lh)*scale_z_step + (2-i)*scale_y_step + step*scale_y_step );
+				}
+				test[i] = min(test[i], h + min( corner2(s)*scale_z_step, min(min(corner4(s),lh),rh)*scale_z_step + scale_y_step) + step*scale_y_step );
+				if (i<2) {
+					test[i+1] = min(test[i+1], h + min(corner3(s),rh)*scale_z_step + i*scale_y_step + step*scale_y_step);
 				}
 			}
 		}
@@ -890,7 +907,7 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 			// hiden something behind
 			set_flag(draw_as_obj);
 		}
-		else if (test[0] > corners[0]  &&  test[1] > corners[1]  &&  test[2] < corners[2]) {
+		else if (test[0] > corners[0]  &&  test[1] > corners[1]  &&  test[2] > corners[2]) {
 			// we cannot hide anything anymore
 			break;
 		}
@@ -995,6 +1012,11 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 			// show image if tile is visible
 			if (visible)  {
 				display_normal( get_bild(), xpos, ypos, 0, true, dirty CLIP_NUM_PAR );
+#ifdef SHOW_FORE_GRUND
+				if (get_flag(grund_t::draw_as_obj)) {
+					display_blend( get_bild(), xpos, ypos, 0, COL_RED | OUTLINE_FLAG |TRANSPARENT50_FLAG, true, dirty CLIP_NUM_PAR );
+				}
+#endif
 				//display climate transitions - only needed if below snowline (snow_transition>0)
 				//need to process whole tile for all heights anyway as water transitions are needed for all heights
 				const planquadrat_t * plan = welt->access( k );
@@ -1633,14 +1655,6 @@ void grund_t::display_overlay(const sint16 xpos, const sint16 ypos)
 			}
 		}
 	}
-
-#ifdef SHOW_FORE_GRUND
-	if(get_flag(grund_t::draw_as_obj)) {
-		const sint16 raster_tile_width = get_tile_raster_width();
-		display_fillbox_wh_clip( xpos+raster_tile_width/2, ypos+(raster_tile_width*3)/4, 16, 16, 0, dirty);
-	}
-#endif
-
 	clear_flag(grund_t::dirty);
 }
 
@@ -1802,10 +1816,10 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 
 sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 {
-DBG_MESSAGE("grund_t::weg_entfernen()","this %p",this);
 	weg_t *weg = get_weg(wegtyp);
-DBG_MESSAGE("grund_t::weg_entfernen()","weg %p",weg);
 	if(weg!=NULL) {
+
+		weg->mark_image_dirty(get_bild(), 0);
 
 		if(ribi_rem) {
 			ribi_t::ribi ribi = weg->get_ribi();
