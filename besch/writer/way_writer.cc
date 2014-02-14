@@ -71,7 +71,8 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 	}
 
 	// true to draw as foregrund and not much earlier (default)
-	uint8 draw_as_ding = (obj.get_int("draw_as_ding", 0) == 1);
+	uint8 draw_as_obj = (obj.get_int("draw_as_ding", 0) == 1);
+	draw_as_obj = (obj.get_int("draw_as_obj", draw_as_obj) == 1);
 	sint8 number_seasons = 0;
 
 	// Way constraints
@@ -116,13 +117,14 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 	node.write_uint16(outfp, axle_load,                 18);
 	node.write_uint8 (outfp, wtyp,						20);
 	node.write_uint8 (outfp, styp,						21);
-	node.write_uint8 (outfp, draw_as_ding,				22);
-	node.write_uint8(outfp, permissive_way_constraints,	23);
-	node.write_uint8(outfp, prohibitive_way_constraints,24);
-	node.write_sint32(outfp, topspeed_gradient_1,		25);
-	node.write_sint32(outfp, topspeed_gradient_2,		29);
-	node.write_sint8(outfp, max_altitude,				33);
-	node.write_uint8(outfp, max_vehicles_on_tile,		34);
+	node.write_uint8 (outfp, draw_as_obj,				22);
+	// Seasons											23
+	node.write_uint8(outfp, permissive_way_constraints,	24);
+	node.write_uint8(outfp, prohibitive_way_constraints,25);
+	node.write_sint32(outfp, topspeed_gradient_1,		26);
+	node.write_sint32(outfp, topspeed_gradient_2,		30);
+	node.write_sint8(outfp, max_altitude,				34);
+	node.write_uint8(outfp, max_vehicles_on_tile,		35);
 
 	static const char* const image_type[] = { "", "front" };
 
@@ -200,7 +202,7 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 			number_seasons++;
 		}
 
-		node.write_data_at(outfp, &number_seasons, 27, 1);
+		node.write_data_at(outfp, &number_seasons, 23, 1);
 		write_head(outfp, node, obj);
 
 		// has switch images for both directions?

@@ -139,7 +139,6 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	node.write_uint16(fp, topspeed_gradient_2,			28);
 	node.write_sint8(fp, max_altitude,					30);
 	node.write_uint8(fp, max_vehicles_on_tile,			31);
-	// Tunnel way										32
 
 	write_head(fp, node, obj);
 
@@ -178,10 +177,10 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	str = obj.get("way");
 	if (!str.empty()) {
 		xref_writer_t::instance()->write_obj(fp, node, obj_way, str.c_str(), false);
-		node.write_sint8(fp, 1, 32);
+		node.write_sint8(fp, 1, 22);
 	}
 	else {
-		node.write_sint8(fp, 0, 32);
+		node.write_sint8(fp, 0, 22);
 	}
 
 	cursorkeys.clear();

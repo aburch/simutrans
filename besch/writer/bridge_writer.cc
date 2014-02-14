@@ -204,7 +204,7 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 			}
 		}
 
-		node.write_data_at(outfp, &number_seasons, 23, sizeof(uint8));
+		node.write_data_at(outfp, &number_seasons, 35, sizeof(uint8));
 		write_head(outfp, node, obj);
 
 		for(uint8 season = 0 ; season <= number_seasons ; season++) {
