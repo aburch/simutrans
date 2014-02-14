@@ -8,6 +8,7 @@ BEGIN {
 	returns = "void"
 	indent = ""
 	within_apidoc = 0
+	mask = ""
 }
 
 # match beginning of SQAPI_DOC block
@@ -146,7 +147,6 @@ function split_params(string)
 	match($0, /"([^"]*)"/, data)
 	method = data[1]
 	# check for param types
-	use_mask = 0
 	if ( (within_class "::" method) in export_types) {
 		mask = export_types[(within_class "::" method)]
 	}
@@ -157,7 +157,6 @@ function split_params(string)
 		match(mask, " *(.*)\\((.*)\\)", data)
 		returns = data[1]
 		split_params(data[2])
-		use_mask = 1
 		for (t in ptypes) {
 			if (!(t in params)) {
 				params[t]=""

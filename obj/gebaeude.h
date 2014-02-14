@@ -322,6 +322,11 @@ public:
 
 	bool jobs_available() const;
 
+	/**
+	 * @returns true if both building tiles are part of one (multi-tile) building.
+	 */
+	bool is_same_building(gebaeude_t* other);
+
 private:
 	sint64 calc_available_jobs_by_time() const;
 

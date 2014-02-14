@@ -487,7 +487,7 @@ toll_waycost_percentage = 0
 # max length
 #river_max_length = 320
 
-################################# forest stuff #################################
+################################# Tree settings #################################
 #  please be careful in changing them, I spent lot of time finding optimals.
 #  those values have impact on no. of spawned trees -> memory consumption
 #
@@ -517,7 +517,7 @@ no_tree_climates = 130
 # the season change will be much smoother on small machines)
 #no_tree = 0
 
-###################################time stuff###################################
+################################### Time settings ###################################
 
 # Enforce vehicle introduction dates?
 # 0 = all vehicles available from start of the game
@@ -553,7 +553,7 @@ starting_month = 1
 #
 bits_per_month = 20
 
-#################################system stuff#################################
+################################# System settings #################################
 
 # compress savegames?
 # "binary" means uncompressed, "zipped" means compressed
@@ -579,6 +579,11 @@ autosave = 0
 
 # show full screen
 #fullscreen = 0
+
+# For versions of Simutrans compiled to work in a multithreaded system (which will improve
+# certain aspects of performance on multiple core/processor machines), this is the number
+# of threads that will be used. Maximum: 12.
+threads = 6
 
 # maximum size of tool bars (0 = no limit)
 # if more tools than allowed by height,
@@ -675,3 +680,6 @@ fast_forward = 100
 
 # Chat window transparency (0=off, 25, 50 75 are possible)
 chat_transparency = 75
+
+# Here you can add a message about your server (It will read this file on each joining anew)
+#server_motd_file =

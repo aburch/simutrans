@@ -280,6 +280,7 @@ private:
 	// Added by : Knightly
 	// Purpose  : To hold the original schedule before opening schedule window
 	schedule_t *old_fpl;
+	koord3d fpl_target;
 
 	/**
 	* loading_level was ladegrad before. Actual percentage loaded for loadable vehicles (station length!).
@@ -775,6 +776,9 @@ public:
 	bool calc_route(koord3d start, koord3d ziel, sint32 max_speed);
 	void update_route(uint32 index, const route_t &replacement); // replace route with replacement starting at index.
 
+	const koord3d get_fpl_target() const { return fpl_target; }
+	void set_fpl_target( koord3d t ) { fpl_target = t; }
+
 	/**
 	* get line
 	* @author hsiegeln
@@ -792,6 +796,9 @@ public:
 
 	// updates a line schedule and tries to find the best next station to go
 	void check_pending_updates();
+
+	// true if this is a waypoint
+	bool is_waypoint( koord3d ) const;
 
 	/* changes the state of a convoi via werkzeug_t; mandatory for networkmode! *
 	 * for list of commands and parameter see werkzeug_t::wkz_change_convoi_t
@@ -1072,7 +1079,7 @@ public:
 	* @author Hj. Malthaner
 	*/
 
-	spieler_t * get_besitzer() { return besitzer_p; }
+	spieler_t * get_besitzer() const { return besitzer_p; }
 
 	/**
 	* Opens an information window

@@ -100,7 +100,7 @@ void tunnel_besch_t::calc_checksum(checksum_t *chk) const
 	obj_besch_transport_infrastructure_t::calc_checksum(chk);
 
 	//Experimental settings
-	chk->input(max_axle_load);
+	//chk->input(max_axle_load);
 	chk->input(way_constraints.get_permissive());
 	chk->input(way_constraints.get_prohibitive());
 }

@@ -103,21 +103,6 @@ static const char * state_names[convoi_t::MAX_STATES] =
 	"ENTERING_DEPOT"
 };
 
-
-/**
- * Calculates speed of slowest vehicle in the given array
- * @author Hj. Matthaner
- */
-//static int calc_min_top_speed(const array_tpl<vehikel_t*>& fahr, uint8 anz_vehikel)
-//{
-//	int min_top_speed = SPEED_UNLIMITED;
-//	for(uint8 i=0; i<anz_vehikel; i++) {
-//		min_top_speed = min(min_top_speed, kmh_to_speed( fahr[i]->get_besch()->get_geschw() ) );
-//	}
-//	return min_top_speed;
-//}
-
-
 // Reset some values.  Used in init and replacing.
 void convoi_t::reset()
 {
@@ -161,6 +146,7 @@ void convoi_t::init(spieler_t *sp)
 
 	fpl = NULL;
 	replace = NULL;
+	fpl_target = koord3d::invalid;
 	line = linehandle_t();
 
 	anz_vehikel = 0;
@@ -317,6 +303,13 @@ void convoi_t::close_windows()
 	destroy_win( magic_replace+self.get_id() );
 }
 
+// waypoint: no stop, resp. for airplanes in air (i.e. no air strip below)
+bool convoi_t::is_waypoint( koord3d ziel ) const
+{
+	return  fahr[0]->get_waytype() == air_wt  ?  welt->lookup_kartenboden(ziel.get_2d())->get_weg(air_wt) == NULL : !haltestelle_t::get_halt(ziel,get_besitzer()).is_bound();
+}
+
+
 /**
  * unreserves the whole remaining route
  */
@@ -411,6 +404,13 @@ void convoi_t::laden_abschliessen()
 			// fahr[i]->laden_abschliessen();
 		}
 		return;
+	}
+	else {
+		// restore next schedule target for non-stop waypoint handling
+		const koord3d ziel = fpl->get_current_eintrag().pos;
+		if(  is_waypoint(ziel)  ) {
+			fpl_target = ziel;
+		}
 	}
 
 	bool realing_position = false;
@@ -835,7 +835,6 @@ void convoi_t::calc_acceleration(long delta_t)
 {
 	// existing_convoy_t is designed to become a part of convoi_t. 
 	// There it will help to minimize updating convoy summary data.
-	convoi_t &convoy = *this;
 	vehikel_t &front = *this->front();
 
 	const uint32 route_count = route.get_count(); // at least ziel will be there, even if calculating a route failed.
@@ -858,7 +857,7 @@ void convoi_t::calc_acceleration(long delta_t)
 	sint32 steps_til_limit;
 	sint32 steps_til_brake;
 #endif
-	const sint32 brake_steps = convoy.calc_min_braking_distance(welt->get_settings(), convoy.get_weight_summary(), akt_speed);
+	const sint32 brake_steps = calc_min_braking_distance(welt->get_settings(), get_weight_summary(), akt_speed);
 	// use get_route_infos() for the first time accessing route_infos to eventually initialize them.
 	const uint32 route_infos_count = get_route_infos().get_count();
 	if (route_infos_count > 0 && route_infos_count >= next_stop_index && next_stop_index > current_route_index)
@@ -869,9 +868,9 @@ void convoi_t::calc_acceleration(long delta_t)
 			i = 0;
 		}
 		const convoi_t::route_info_t &current_info = route_infos.get_element(i);
-		if (current_info.speed_limit != SPEED_UNLIMITED)
+		if (current_info.speed_limit != vehikel_t::speed_unlimited())
 		{
-			convoy.update_max_speed(speed_to_kmh(current_info.speed_limit));
+			update_max_speed(speed_to_kmh(current_info.speed_limit));
 		}
 		const convoi_t::route_info_t &limit_info = route_infos.get_element(next_stop_index - 1);
 		steps_til_limit = route_infos.calc_steps(current_info.steps_from_start, limit_info.steps_from_start);
@@ -903,7 +902,7 @@ void convoi_t::calc_acceleration(long delta_t)
 			if (limit_info.speed_limit < min_limit)
 			{
 				min_limit = limit_info.speed_limit;
-				const sint32 limit_steps = brake_steps - convoy.calc_min_braking_distance(welt->get_settings(), convoy.get_weight_summary(), limit_info.speed_limit);
+				const sint32 limit_steps = brake_steps - calc_min_braking_distance(welt->get_settings(), get_weight_summary(), limit_info.speed_limit);
 				const sint32 route_steps = route_infos.calc_steps(current_info.steps_from_start, steps_from_start);
 				const sint32 st = route_steps - limit_steps;
 
@@ -933,7 +932,7 @@ void convoi_t::calc_acceleration(long delta_t)
 	 * calculate movement in the next delta_t ticks.
 	 */
 	akt_speed_soll = get_min_top_speed();
-	convoy.calc_move(welt->get_settings(), delta_t, akt_speed_soll, next_speed_limit, steps_til_limit, steps_til_brake, akt_speed, sp_soll, v);
+	calc_move(welt->get_settings(), delta_t, akt_speed_soll, next_speed_limit, steps_til_limit, steps_til_brake, akt_speed, sp_soll, v);
 }
 
 void convoi_t::route_infos_t::set_holding_pattern_indexes(sint32 current_route_index, sint32 touchdown_route_index)
@@ -986,14 +985,14 @@ convoi_t::route_infos_t& convoi_t::get_route_infos()
 			convoi_t::route_info_t &this_info = route_infos.get_element(i);
 			const koord3d this_tile = route.position_bei(i);
 			const koord3d next_tile = route.position_bei(min(i + 1, route_count - 1));
-			this_info.speed_limit = SPEED_UNLIMITED;
+			this_info.speed_limit = vehikel_t::speed_unlimited();
 			this_info.steps_from_start = current_info.steps_from_start + front.get_tile_steps(current_tile.get_2d(), next_tile.get_2d(), this_info.direction);
 			const weg_t *this_weg = get_weg_on_grund(welt->lookup(this_tile), waytype);
 			if (i >= touchdown_index || i <= takeoff_index)
 			{
 				// not an aircraft (i <= takeoff_index == INVALID_INDEX == 65530u) or
 				// aircraft on ground (not between takeoff_index and touchdown_index): get speed limit
-				current_info.speed_limit = this_weg ? front.calc_speed_limit(this_weg, current_weg, &corner_data, this_info.direction, current_info.direction) : SPEED_UNLIMITED;
+				current_info.speed_limit = this_weg ? front.calc_speed_limit(this_weg, current_weg, &corner_data, this_info.direction, current_info.direction) : vehikel_t::speed_unlimited();
 			}
 			current_tile = this_tile;
 			current_weg = this_weg;
@@ -1240,10 +1239,104 @@ bool convoi_t::drive_to()
 			// wait 25s before next attempt
 			wait_lock = 25000;
 		}
-		else
-		{
-			vorfahren();
-			return true;
+//<<<<<<< HEAD
+//		else
+//		{
+//			vorfahren();
+//			return true;
+//=======
+		else {
+			bool route_ok = true;
+			const uint8 aktuell = fpl->get_aktuell();
+			if(  fahr[0]->get_waytype() != water_wt  ) {
+				aircraft_t *plane = dynamic_cast<aircraft_t *>(fahr[0]);
+				uint32 takeoff, search, landing;
+				aircraft_t::flight_state plane_state;
+				if(  plane  ) {
+					// due to the complex state system of aircrafts, we have to save index and state
+					plane->get_event_index( plane_state, takeoff, search, landing );
+				}
+
+				// set next schedule target position if next is a waypoint
+				if(  is_waypoint(ziel)  ) {
+					fpl_target = ziel;
+				}
+
+				// continue route search until the destination is a station
+				while(  is_waypoint(ziel)  ) {
+					start = ziel;
+					fpl->advance();
+					ziel = fpl->get_current_eintrag().pos;
+
+					if(  fpl->get_aktuell() == aktuell  ) {
+						// looped around without finding a halt => entire schedule is waypoints.
+						break;
+					}
+
+					route_t next_segment;
+					if(  !fahr[0]->calc_route( start, ziel, speed_to_kmh(get_min_top_speed()), &next_segment )  ) {
+						// do we still have a valid route to proceed => then go until there
+						if(  route.get_count()>1  ) {
+							break;
+						}
+						// we are stuck on our first routing attempt => give up
+						if(  state != NO_ROUTE  ) {
+							state = NO_ROUTE;
+							get_besitzer()->bescheid_vehikel_problem( self, ziel );
+						}
+						// wait 25s before next attempt
+						wait_lock = 25000;
+						route_ok = false;
+						break;
+					}
+					else {
+						bool looped = false;
+						if(  fahr[0]->get_waytype() != air_wt  ) {
+							 // check if the route circles back on itself (only check the first tile, should be enough)
+							looped = route.is_contained(next_segment.position_bei(1));
+	#if 0
+							// this will forbid an eight firure, which might be clever to avoid a problem of reserving one own track
+							for(  unsigned i = 1;  i<next_segment.get_count();  i++  ) {
+								if(  route.is_contained(next_segment.position_bei(i))  ) {
+									looped = true;
+									break;
+								}
+							}
+	#endif
+						}
+
+						if(  looped  ) {
+							// proceed upto the waypoint before the loop. Will pause there for a new route search.
+							fpl_target = koord3d::invalid;
+							break;
+						}
+						else {
+							uint32 count_offset = route.get_count()-1;
+							route.append( &next_segment);
+							if(  plane  ) {
+								// maybe we need to restore index
+								uint32 dummy2;
+								aircraft_t::flight_state dummy1;
+								plane->get_event_index( dummy1, dummy2, search, landing );
+								search += count_offset;
+								landing += count_offset;
+							}
+						}
+					}
+				}
+
+				if(  plane  ) {
+					// due to the complex state system of aircrafts, we have to restore index and state
+					plane->set_event_index( plane_state, takeoff, search, landing );
+				}
+			}
+
+			fpl->set_aktuell(aktuell);
+			if(  route_ok  ) {
+				vorfahren();
+				return true;
+			}
+//>>>>>>> aburch/master
 		}
 	}
 	return false;
@@ -1490,6 +1583,7 @@ end_loop:
 			if(fpl!=NULL  &&  fpl->ist_abgeschlossen()) {
 
 				set_schedule(fpl);
+				fpl_target = koord3d::invalid;
 
 				if(  fpl->empty()  ) 
 				{
@@ -1592,9 +1686,8 @@ end_loop:
 			else if (fpl->empty()) 
 			{
 				// no entries => no route ...
-			} 
-			else 
-			{
+			}
+			else {
 				// Hajo: now calculate a new route
 				drive_to();
 			}
@@ -2657,7 +2750,7 @@ void convoi_t::vorfahren()
 					cr->release_crossing(v);
 				}
 				// eventually unreserve this
-				if (schiene_t* const sch0 = obj_cast<schiene_t>(gr->get_weg(fahr[i]->get_waytype()))) {
+				if(  schiene_t* const sch0 = obj_cast<schiene_t>(gr->get_weg(fahr[i]->get_waytype()))  ) {
 					sch0->unreserve(v);
 				}
 			}
@@ -2950,6 +3043,12 @@ void convoi_t::vorfahren()
 			else {
 				break;
 			}
+		}
+	}
+	// and let airplane start on ground, if there is an airstrip
+	if(  fahr[0]->get_waytype()==air_wt  ) {
+		if(  welt->lookup_kartenboden( route.position_bei(0).get_2d() )->get_weg(air_wt)  ) {
+			fahr[0]->set_convoi(this);
 		}
 	}
 
@@ -4087,7 +4186,7 @@ void convoi_t::open_schedule_window( bool show )
 	// manipulation of schedule not allowd while:
 	// - just starting
 	// - a line update is pending
-	if(  (state==FAHRPLANEINGABE  ||  line_update_pending.is_bound())  &&  get_besitzer()==welt->get_active_player()  ) {
+	if(  (state==FAHRPLANEINGABE || state == LOADING ||  line_update_pending.is_bound())  &&  get_besitzer()==welt->get_active_player()  ) {
 		if (show) {
 			create_win( new news_img("Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!"), w_time_delete, magic_none );
 		}
@@ -4857,14 +4956,14 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 		// Load vehicles to their regular level.
 		for(int i = 0; i < number_loadable_vehicles ; i++)
 		{
-			const bool overcrowd = false;
+			static const bool overcrowd = false;
 			vehikel_t* v = fahr[i];
 			changed_loading_level += v->load_freight(halt, overcrowd);
 		}
 		// Finally, load vehicles to their overcrowded level.
 		for(int i = 0; i < number_loadable_vehicles ; i++)
 		{
-			const bool overcrowd = true;
+			static const bool overcrowd = true;
 			vehikel_t* v = fahr[i];
 			changed_loading_level += v->load_freight(halt, overcrowd);
 		}

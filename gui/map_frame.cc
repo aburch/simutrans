@@ -536,7 +536,7 @@ void map_frame_t::resize(const scr_coord delta)
 	// resize legend
 	if(legend_visible) {
 		const scr_coord_val left = 0;
-		const scr_coord_val right = get_windowsize().w - D_MARGIN_RIGHT;
+		const scr_coord_val right = left + client_width;
 		scr_coord cursor(left, b_overlay_networks.get_size().h + D_V_SPACE);
 		scr_size button_size;
 		for (int type=0; type<MAP_MAX_BUTTONS; type++) {
@@ -548,21 +548,9 @@ void map_frame_t::resize(const scr_coord delta)
 				cursor.y += button_size.h + D_V_SPACE;
 			}
 			filter_buttons[type].set_pos( cursor );
+			cursor.x += button_size.w + D_H_SPACE;
 		}
 		filter_container.set_size(scr_size(client_width, cursor.y + button_size.h + D_V_SPACE));
-
-		//// calculate number of columns and rows for buttons
-		//const int col = max( 1, min( (client_width + D_H_SPACE) / button_offs, MAP_MAX_BUTTONS ) );
-		//const int row = ((MAP_MAX_BUTTONS-1)/col)+1;
-
-		//// set button pos
-		//for (int type=0; type<MAP_MAX_BUTTONS; type++) {
-		//	pos = scr_coord( button_offs*(type%col), button_y+(D_BUTTON_HEIGHT+D_V_SPACE)*((int)type/col) );
-		//	filter_buttons[type].set_pos( pos );
-		//}
-
-		// calculate client height and set height
-		//filter_container.set_size(scr_size(client_width, (D_BUTTON_HEIGHT+D_V_SPACE)*(row+1) ));
 		offset_y += filter_container.get_size().h + D_V_SPACE;
 	}
 

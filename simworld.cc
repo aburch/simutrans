@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <sys/stat.h>
 
 #include "path_explorer.h"
 
@@ -720,6 +721,7 @@ void karte_t::destroy()
 DBG_MESSAGE("karte_t::destroy()", "destroying world");
 
 	is_shutting_down = true;
+	unassigned_cars.clear();
 
 	passenger_origins.clear();
 	commuter_targets.clear();
@@ -1216,8 +1218,12 @@ void karte_t::distribute_cities( settings_t const * const sets, sint16 old_x, si
 			for(  unsigned i=0;  i<new_anzahl_staedte;  i++  ) {
 				stadt_t* s = new stadt_t(spieler[1], (*pos)[i], 1 );
 				DBG_DEBUG("karte_t::distribute_groundobjs_cities()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_city_history_month())[HIST_CITICENS] );
-				add_stadt(s);
-				ls.set_progress( ++old_progress );
+				if (s->get_buildings() > 0) {
+					add_stadt(s);
+				}
+				else {
+					delete(s);
+				}
 			}
 
 			delete pos;
@@ -2432,7 +2438,7 @@ karte_t::karte_t() :
 	set_dirty();
 
 	// for new world just set load version to current savegame version
-	load_version = loadsave_t::int_version( env_t::savegame_version_str, NULL, NULL ).version;
+	load_version = loadsave_t::int_version( env_t::savegame_version_str, NULL, NULL );
 
 	// standard prices
 	warenbauer_t::set_multiplier( 1000, settings.get_meters_per_tile() );
@@ -4551,16 +4557,25 @@ void karte_t::new_month()
 		playerwin->update_data();
 	}
 
-	stadtauto_t* car;
-	while(!unassigned_cars.empty() && (sint32)unassigned_cars.get_count() > outstanding_cars)
-	{
-		//Make sure that there are not too many cars on the roads. 
-		car = unassigned_cars.remove_first();
-		car->set_list(NULL);
-		/*sync_remove(car);
-		delete car;*/
-	}
-	car = NULL;
+	// This code is probably no longer necessary, as the private cars' time_to_life (sic)
+	// value is set based on its anticipated journey time, which should automatically
+	// ensure that the correct number of vehicles remain on the roads provided that the 
+	// correct number are generated in the first place. 
+
+	// Retain the commented out code for the time being just in case removing it is problematic.
+	// Otherwise, consider deleting the whole infrastructure associated with this code, inelcuding
+	// the unassigned cars list.
+
+	//stadtauto_t* car;
+	//while(!unassigned_cars.empty() && (sint32)unassigned_cars.get_count() > outstanding_cars)
+	//{
+	//	// Make sure that there are not too many cars on the roads. 
+	//	car = unassigned_cars.remove_first();
+	//	car->set_list(NULL);
+	//	/*sync_remove(car);
+	//	delete car;*/
+	//}
+	//car = NULL;
 
 	INT_CHECK("simworld 3175");
 
@@ -4575,6 +4590,8 @@ void karte_t::new_month()
 	{
 		iter->neuer_monat();
 	}
+
+	scenario->new_month();
 
 	// now switch year to get the right year for all timeline stuff ...
 	if( last_month == 0 ) {
@@ -4659,6 +4676,8 @@ DBG_MESSAGE("karte_t::new_year()","speedbonus for %d %i, %i, %i, %i, %i, %i, %i,
 			spieler[i]->neues_jahr();
 		}
 	}
+
+	scenario->new_year();
 }
 
 
@@ -5083,6 +5102,65 @@ void karte_t::step_passengers_and_mail(long delta_t)
 	} 
 }
 
+sint32 karte_t::get_tiles_of_gebaeude(gebaeude_t* const gb, vector_tpl<const planquadrat_t*> &tile_list) const
+{
+	const haus_tile_besch_t* tile = gb->get_tile();
+	const haus_besch_t *hb = tile->get_besch();
+	const koord size = hb->get_groesse(tile->get_layout());
+	if(size == koord(1,1))
+	{
+		// A single tiled building - just add the single tile.
+		tile_list.append(access_nocheck(gb->get_pos()));
+	}
+	else
+	{
+		// A multi-tiled building: check all tiles. Any tile within the 
+		// coverage radius of a building connects the whole building.
+		koord3d k = gb->get_pos();
+		const koord start_pos = k - tile->get_offset();
+		const koord end_pos = k + size;
+		
+		for(k.y = start_pos.y; k.y < end_pos.y; k.y ++) 
+		{
+			for(k.x = start_pos.x; k.x < end_pos.x; k.x ++) 
+			{
+				grund_t *gr = lookup(k);
+				if(gr) 
+				{
+					/* This would fail for depots, but those are 1x1 buildings */
+					gebaeude_t *gb_part = gr->find<gebaeude_t>();
+					// There may be buildings with holes.
+					if(gb_part && gb_part->get_tile()->get_besch() == hb) 
+					{
+						tile_list.append(access_nocheck(k));
+					}
+				}
+			}
+		}
+	}
+	return size.x * size.y;
+}
+
+void karte_t::get_nearby_halts_of_tiles(const vector_tpl<const planquadrat_t*> &tile_list, const ware_besch_t * wtyp, vector_tpl<nearby_halt_t> &halts) const
+{
+	// Suitable start search (public transport)
+	FOR(vector_tpl<const planquadrat_t*>, const& current_tile, tile_list)
+	{
+		const nearby_halt_t* halt_list = current_tile->get_haltlist();
+		for(int h = current_tile->get_haltlist_count() - 1; h >= 0; h--) 
+		{
+			nearby_halt_t halt = halt_list[h];
+			if (halt.halt->is_enabled(wtyp)) 
+			{
+				// Previous versions excluded overcrowded halts here, but we need to know which
+				// overcrowded halt would have been the best start halt if it was not overcrowded,
+				// so do that below.
+				halts.append(halt);
+			}
+		}
+	}
+}
+
 void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 {
 	const city_cost history_type = (wtyp == warenbauer_t::passagiere) ? HIST_PAS_TRANSPORTED : HIST_MAIL_TRANSPORTED;
@@ -5124,63 +5202,17 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 		get_city(first_origin->get_pos())->set_generated_passengers(num_pax, history_type + 1);
 	}
 	
-	const haus_tile_besch_t* tile = first_origin->get_tile();
-	const haus_besch_t *hb = tile->get_besch();
-	koord3d origin_pos_3d = gb->get_pos();
-	koord origin_pos = origin_pos_3d.get_2d();
-	koord size = hb->get_groesse(tile->get_layout());
+	//const haus_tile_besch_t* tile = first_origin->get_tile();
+	//const haus_besch_t *hb = tile->get_besch();
+	//koord3d origin_pos_3d = gb->get_pos();
+	koord3d origin_pos = gb->get_pos();
+	//koord size = hb->get_groesse(tile->get_layout());
 	vector_tpl<const planquadrat_t*> tile_list;
-
-	if(size == koord(1,1))
-	{
-		// A single tiled building - just check the single tile.
-		tile_list.append(access_nocheck(origin_pos));
-	}
-	else
-	{
-		// A multi-tiled building: check all tiles. Any tile within the 
-		// coverage radius of a building connects the whole building.
-		const koord3d pos = first_origin->get_pos() - koord3d(tile->get_offset(), 0);
-		koord k;
-		grund_t* gr_this;
-	
-		for(k.y = 0; k.y < size.y; k.y ++) 
-		{
-			for(k.x = 0; k.x < size.x; k.x ++) 
-			{
-				koord3d k_3d = koord3d(k, 0) + pos;
-				grund_t *gr = lookup(k_3d);
-				if(gr) 
-				{
-					/* This would fail for depots, but those are 1x1 buildings */
-					gebaeude_t *gb_part = gr->find<gebaeude_t>();
-					// There may be buildings with holes.
-					if(gb_part && gb_part->get_tile()->get_besch() == hb) 
-					{
-						tile_list.append(access_nocheck(k_3d.get_2d()));
-					}
-				}
-			}
-		}
-	}
+	sint32 size = get_tiles_of_gebaeude(first_origin, tile_list);
 
 	// Suitable start search (public transport)
-	vector_tpl<nearby_halt_t> start_halts(tile_list[0]->get_haltlist_count() * size.x * size.y);
-	FOR(vector_tpl<const planquadrat_t*>, const& current_tile, tile_list)
-	{
-		const nearby_halt_t* halt_list = current_tile->get_haltlist();
-		for(int h = current_tile->get_haltlist_count() - 1; h >= 0; h--) 
-		{
-			nearby_halt_t halt = halt_list[h];
-			if (halt.halt->is_enabled(wtyp)) 
-			{
-				// Previous versions excluded overcrowded halts here, but we need to know which
-				// overcrowded halt would have been the best start halt if it was not overcrowded,
-				// so do that below.
-				start_halts.append(halt);
-			}
-		}
-	}
+	vector_tpl<nearby_halt_t> start_halts(tile_list[0]->get_haltlist_count() * size);
+	get_nearby_halts_of_tiles(tile_list, wtyp, start_halts);
 
 	INT_CHECK("simworld 4490");
 
@@ -5296,63 +5328,15 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 				// Regenerate the start halts information for this new onward trip.
 				// We cannot reuse "destination_list" as this is a list of halthandles,
 				// not nearby_halt_t objects.
+				// TODO BG, 15.02.2014: first build a nearby_destination_list and then a destination_list from it.
+				//  Should be faster than finding all nearby halts again.
 
-				origin_pos = destination_pos;
-				tile = gb->get_tile();
-				hb = tile->get_besch();	
-				size = hb->get_groesse(tile->get_layout());
 				tile_list.clear();
-				start_halts.clear();
-
-				if(size == koord(1,1))
-				{
-					// A single tiled building - just check the single tile.
-					tile_list.append(access_nocheck(origin_pos));
-				}
-				else
-				{
-					// A multi-tiled building: check all tiles. Any tile within the 
-					// coverage radius of a building connects the whole building.
-					const koord3d pos = first_origin->get_pos() - koord3d(tile->get_offset(), 0);
-					koord k;
-					grund_t* gr_this;
-	
-					for(k.y = 0; k.y < size.y; k.y ++) 
-					{
-						for(k.x = 0; k.x < size.x; k.x ++) 
-						{
-							koord3d k_3d = koord3d(k, 0) + pos;
-							grund_t *gr = lookup(k_3d);
-							if(gr) 
-							{
-								gebaeude_t *gb_part = gr->find<gebaeude_t>();
-								// There may be buildings with holes.
-								if(gb_part && gb_part->get_tile()->get_besch() == hb) 
-								{
-									tile_list.append(access_nocheck(k_3d.get_2d()));
-								}
-							}
-						}
-					}
-				}
+				get_tiles_of_gebaeude(gb, tile_list);
 
 				// Suitable start search (public transport)
 				start_halts.clear();
-				FOR(vector_tpl<const planquadrat_t*>, const& current_tile, tile_list)
-				{
-					const nearby_halt_t* halt_list = current_tile->get_haltlist();
-					for(int h = current_tile->get_haltlist_count() - 1; h >= 0; h--) 
-					{
-						nearby_halt_t halt = halt_list[h];
-						if (halt.halt->is_enabled(wtyp)) 
-						{
-							// Previous versions excluded overcrowded halts here, but we need to know which
-							// overcrowded halt would have been the best start halt if it was not overcrowded,
-							// so do that below.
-							start_halts.append(halt);
-						}
-					}
-				}
+				get_nearby_halts_of_tiles(tile_list, wtyp, start_halts);
 			}
 			
 			first_destination = find_destination(trip);
@@ -5460,49 +5444,20 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 				// (default: 1), they can take passengers within the wider square of the passenger radius. This is intended,
 				// and is as a result of using the below method for all destination types.
 
-				tile = current_destination.building->get_tile();
-				hb = tile->get_besch();
-				koord size = hb->get_groesse(tile->get_layout());
-				tile_list.clear();
+				//tile = current_destination.building->get_tile();
+				//hb = tile->get_besch();
+				//koord size = hb->get_groesse(tile->get_layout());
 
-				if(size == koord(1,1))
-				{
-					// A single tiled building - just check the single tile.
-					tile_list.append(access_nocheck(current_destination.location));
-				}
-				else
-				{
-					// A multi-tiled building: check all tiles. Any tile within the 
-					// coverage radius of a building connects the whole building.
-					const koord3d pos = current_destination.building->get_pos() - koord3d(tile->get_offset(), 0);
-					koord k;
-					grund_t* gr_this;
-	
-					for(k.y = 0; k.y < size.y; k.y ++) 
-					{
-						for(k.x = 0; k.x < size.x; k.x ++) 
-						{
-							koord3d k_3d = koord3d(k, 0) + pos;
-							grund_t *gr = lookup(k_3d);
-							if(gr) 
-							{
-								gebaeude_t *gb_part = gr->find<gebaeude_t>();
-								// There may be buildings with holes.
-								if(gb_part && gb_part->get_tile()->get_besch() == hb) 
-								{
-									tile_list.append(access_nocheck(k_3d.get_2d()));
-								}
-							}
-						}
-					}
-				}
+				tile_list.clear();
+				sint32 size = get_tiles_of_gebaeude(current_destination.building, tile_list);
 
 				if(tile_list.empty())
 				{
 					tile_list.append(access(current_destination.location));
 				}
 
-				vector_tpl<halthandle_t> destination_list(tile_list[0]->get_haltlist_count() * size.x * size.y);
+				vector_tpl<halthandle_t> destination_list(tile_list[0]->get_haltlist_count() * size);
+				
 				FOR(vector_tpl<const planquadrat_t*>, const& current_tile, tile_list)
 				{
 					const nearby_halt_t* halt_list = current_tile->get_haltlist();
@@ -5777,7 +5732,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 				// create pedestrians in the near area?
 				if (settings.get_random_pedestrians() && wtyp == warenbauer_t::passagiere) 
 				{
-					haltestelle_t::erzeuge_fussgaenger(origin_pos_3d, pax_left_to_do);
+					haltestelle_t::erzeuge_fussgaenger(origin_pos, pax_left_to_do);
 				}
 				// We cannot do this on arrival, as the ware packets do not remember their origin building.
 					
@@ -5837,7 +5792,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 
 				if(settings.get_random_pedestrians() && wtyp == warenbauer_t::passagiere) 
 				{
-					haltestelle_t::erzeuge_fussgaenger(origin_pos_3d, pax_left_to_do);
+					haltestelle_t::erzeuge_fussgaenger(origin_pos, pax_left_to_do);
 				}
 				
 				if(city && wtyp == warenbauer_t::passagiere)
@@ -6917,6 +6872,30 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved messages");
 		file->rdwr_long(next_step_mail);
 	}
 
+	if(  file->get_version() >= 112008  ) {
+		xml_tag_t t( file, "motd_t" );
+
+		chdir( env_t::user_dir );
+		// maybe show message about server
+DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "motd filename %s", env_t::server_motd_filename.c_str() );
+		if(  FILE *fmotd = fopen( env_t::server_motd_filename.c_str(), "r" )  ) {
+			struct stat st;
+			stat( env_t::server_motd_filename.c_str(), &st );
+			sint32 len = min( 32760, st.st_size+1 );
+			char *motd = (char *)malloc( len );
+			fread( motd, len-1, 1, fmotd );
+			fclose( fmotd );
+			motd[len] = 0;
+			file->rdwr_str( motd, len );
+			free( motd );
+		}
+		else {
+			// no message
+			char *motd = "";
+			file->rdwr_str( motd, 1 );
+		}
+	}
+
 	// MUST be at the end of the load/save routine.
 	// save all open windows (upon request)
 	file->rdwr_byte( active_player_nr );
@@ -7028,7 +7007,8 @@ bool karte_t::load(const char *filename)
 			dbg->warning("karte_t::laden()", translator::translate("Kann Spielstand\nnicht laden.\n") );
 			create_win(new news_img("Kann Spielstand\nnicht laden.\n"), w_info, magic_none);
 		}
-	} else if(file.get_version() < 84006) {
+	}
+	else if(file.get_version() < 84006) {
 		// too old
 		dbg->warning("karte_t::laden()", translator::translate("WRONGSAVE") );
 		create_win(new news_img("WRONGSAVE"), w_info, magic_none);
@@ -7177,7 +7157,7 @@ void karte_t::plans_laden_abschliessen( sint16 x_min, sint16 x_max, sint16 y_min
 						obj->laden_abschliessen();
 					}
 				}
-				if(  load_version<=111000  &&  gr->ist_natur()  ) {
+				if(  load_version.version <= 111000  &&  gr->ist_natur()  ) {
 					gr->sort_trees();
 				}
 				gr->calc_bild();
@@ -7274,7 +7254,8 @@ void karte_t::load(loadsave_t *file)
 	loaded_rotation = settings.get_rotation();
 
 	// some functions (laden_abschliessen) need to know what version was loaded
-	load_version = file->get_version();
+	load_version.version = file->get_version();
+	load_version.experimental_version = file->get_experimental_version();
 
 #ifndef DEBUG_SIMRAND_CALLS
 	if(  env_t::networkmode  ) {
@@ -7810,6 +7791,7 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 			}
 		}
 	}
+
 	// initialize lock info for local server player
 	// if call from sync command, lock info will be corrected there
 	if(  env_t::server) {
@@ -7900,6 +7882,19 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 		file->rdwr_long(next_step_mail);
 	}
 
+	// show message about server
+	if(  file->get_version() >= 112008  ) {
+		xml_tag_t t( file, "motd_t" );
+		char msg[32766];
+		file->rdwr_str( msg, 32766 );
+		if(  *msg  &&  !env_t::server  ) {
+			// if not empty ...
+			help_frame_t *win = new help_frame_t();
+			win->set_text( msg );
+			create_win(win, w_info, magic_motd);
+		}
+	}
+
 	// MUST be at the end of the load/save routine.
 	if(  file->get_version()>=102004  ) {
 		if(  env_t::restore_UI  ) {
@@ -7924,6 +7919,9 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 
 	file->set_buffered(false);
 	clear_random_mode(LOAD_RANDOM);
+
+	// loading finished, reset savegame version to current
+	load_version = loadsave_t::int_version( env_t::savegame_version_str, NULL, NULL );;
 
 	dbg->warning("karte_t::laden()","loaded savegame from %i/%i, next month=%i, ticks=%i (per month=1<<%i)",last_month,last_year,next_month_ticks,ticks,karte_t::ticks_per_world_month_shift);
 }
@@ -8362,15 +8360,13 @@ void karte_t::step_month( sint16 months )
 
 void karte_t::change_time_multiplier(sint32 delta)
 {
-	if(  !env_t::networkmode  ) {
-		time_multiplier += delta;
-		if(time_multiplier<=0) {
-			time_multiplier = 1;
-		}
-		if(step_mode!=NORMAL) {
-			step_mode = NORMAL;
-			reset_timer();
-		}
+	time_multiplier += delta;
+	if(time_multiplier<=0) {
+		time_multiplier = 1;
+	}
+	if(step_mode!=NORMAL) {
+		step_mode = NORMAL;
+		reset_timer();
 	}
 }
 
@@ -8525,6 +8521,7 @@ void karte_t::stop(bool exit_game)
 void karte_t::network_game_set_pause(bool pause_, uint32 syncsteps_)
 {
 	if (env_t::networkmode) {
+		time_multiplier = 16;	// reset to normal speed
 		sync_steps = syncsteps_;
 		steps = sync_steps / settings.get_frames_per_step();
 		network_frame_count = sync_steps % settings.get_frames_per_step();
@@ -8878,7 +8875,7 @@ bool karte_t::interactive(uint32 quit_month)
 						next_step_time += 5;
 						ms_difference += 5;
 					}
-					sync_step( fix_ratio_frame_time, true, true );
+					sync_step( (fix_ratio_frame_time*time_multiplier)/16, true, true );
 #ifdef DEBUG_SIMRAND_CALLS
 					station_check("karte_t::interactive FIX_RATIO after sync_step", this);
 #endif

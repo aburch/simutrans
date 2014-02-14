@@ -820,11 +820,9 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 			}
 			gr->remove_everything_from_way(sp, weg->get_waytype(), ribi_t::keine);
 		}
-		// delete tunnel here - if there is lonely tunnel without way
-		if(  gr->get_top()==1  ) {
-			tunnel_t *t = gr->find<tunnel_t>();
-			t->entferne(sp);
-			delete t;
+		// tunnel without way: delete anything else
+		if(  !gr->hat_wege()  ) {
+			gr->obj_loesche_alle(sp);
 		}
 	}
 
@@ -1821,6 +1819,10 @@ const char *wkz_add_city_t::work( spieler_t *sp, koord3d pos )
 
 				// always start with 1/10 citicens
 				stadt_t* stadt = new stadt_t(welt->get_spieler(1), k, citizens / 10);
+				if (stadt->get_buildings() == 0) {
+					delete stadt;
+					return "No suitable ground!";
+				}
 
 				welt->add_stadt(stadt);
 				stadt->laden_abschliessen();
@@ -2705,9 +2707,9 @@ const char *wkz_brueckenbau_t::do_work( spieler_t *sp, const koord3d &start, con
 	}
 }
 
-void wkz_brueckenbau_t::rdwr_custom_data(uint8 player_nr, memory_rw_t *packet)
+void wkz_brueckenbau_t::rdwr_custom_data(memory_rw_t *packet)
 {
-	two_click_werkzeug_t::rdwr_custom_data(player_nr, packet);
+	two_click_werkzeug_t::rdwr_custom_data(packet);
 	uint8 i = ribi;
 	packet->rdwr_byte(i);
 	ribi = (ribi_t::ribi)i;
@@ -4874,19 +4876,26 @@ const char* wkz_roadsign_t::check_pos_intern(spieler_t *sp, koord3d pos)
 	// search for starting ground
 	grund_t *gr = wkz_intern_koord_to_weg_grund(sp, welt, pos, besch->get_wtyp());
 	if(gr) {
-		// get the sign direction
-		weg_t *weg = gr->get_weg( besch->get_wtyp()!=tram_wt ? besch->get_wtyp() : track_wt);
+
 		signal_t *s = gr->find<signal_t>();
 		if(s  &&  s->get_besch()!=besch) {
 			// only one sign per tile
 			return error;
 		}
+
 		if(besch->is_signal()  &&  gr->find<roadsign_t>())  {
 			// only one sign per tile
 			return error;
 		}
 
+		// get the sign direction
+		weg_t *weg = gr->get_weg( besch->get_wtyp()!=tram_wt ? besch->get_wtyp() : track_wt);
 		ribi_t::ribi dir = weg->get_ribi_unmasked();
+
+		// no signs on runways
+		if(  weg->get_waytype() == air_wt  &&  weg->get_besch()->get_styp() == weg_besch_t::runway  ) {
+			return error;
+		}
 
 		// no signals on switches
 		if(  ribi_t::is_threeway(dir)  &&  besch->is_signal_type()  ) {

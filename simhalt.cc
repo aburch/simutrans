@@ -3608,10 +3608,11 @@ void haltestelle_t::rdwr(loadsave_t *file)
 						 * if an intermediate program version fails to compute it right.
 						 * So *always* compute it fresh.
 						 */ 
-						// if(  file->get_version() <= 112000  ) {
+#ifdef CACHE_TRANSIT
+						if(  file->get_version() <= 112000  )
+#endif
 							// restore intransit information
 							fabrik_t::update_transit( ware, true );
-						// }
 					}
 					else if(  ware.menge>0  ) 
 					{
@@ -4052,7 +4053,7 @@ void haltestelle_t::recalc_status()
 			const uint32 ware_sum = get_ware_summe(wtyp);
 			total_sum += ware_sum;
 			if(ware_sum>max_ware) {
-				status_bits |= ware_sum > max_ware + 32 || enables & CROWDED ? 2 : 1;
+				status_bits |= ware_sum > max_ware + 32 /*|| enables & CROWDED*/ ? 2 : 1; // for now report only serious overcrowding on transfer stops
 				overcrowded[wtyp->get_catg_index()/8] |= 1<<(wtyp->get_catg_index()%8);
 			}
 		}
