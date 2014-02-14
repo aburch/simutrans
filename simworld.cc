@@ -5102,6 +5102,65 @@ void karte_t::step_passengers_and_mail(long delta_t)
 	} 
 }
 
+sint32 karte_t::get_tiles_of_gebaeude(gebaeude_t* const gb, vector_tpl<const planquadrat_t*> &tile_list) const
+{
+	const haus_tile_besch_t* tile = gb->get_tile();
+	const haus_besch_t *hb = tile->get_besch();
+	const koord size = hb->get_groesse(tile->get_layout());
+	if(size == koord(1,1))
+	{
+		// A single tiled building - just add the single tile.
+		tile_list.append(access_nocheck(gb->get_pos()));
+	}
+	else
+	{
+		// A multi-tiled building: check all tiles. Any tile within the 
+		// coverage radius of a building connects the whole building.
+		koord3d k = gb->get_pos();
+		const koord start_pos = k - tile->get_offset();
+		const koord end_pos = k + size;
+		
+		for(k.y = start_pos.y; k.y < end_pos.y; k.y ++) 
+		{
+			for(k.x = start_pos.x; k.x < end_pos.x; k.x ++) 
+			{
+				grund_t *gr = lookup(k);
+				if(gr) 
+				{
+					/* This would fail for depots, but those are 1x1 buildings */
+					gebaeude_t *gb_part = gr->find<gebaeude_t>();
+					// There may be buildings with holes.
+					if(gb_part && gb_part->get_tile()->get_besch() == hb) 
+					{
+						tile_list.append(access_nocheck(k));
+					}
+				}
+			}
+		}
+	}
+	return size.x * size.y;
+}
+
+void karte_t::get_nearby_halts_of_tiles(const vector_tpl<const planquadrat_t*> &tile_list, const ware_besch_t * wtyp, vector_tpl<nearby_halt_t> &halts) const
+{
+	// Suitable start search (public transport)
+	FOR(vector_tpl<const planquadrat_t*>, const& current_tile, tile_list)
+	{
+		const nearby_halt_t* halt_list = current_tile->get_haltlist();
+		for(int h = current_tile->get_haltlist_count() - 1; h >= 0; h--) 
+		{
+			nearby_halt_t halt = halt_list[h];
+			if (halt.halt->is_enabled(wtyp)) 
+			{
+				// Previous versions excluded overcrowded halts here, but we need to know which
+				// overcrowded halt would have been the best start halt if it was not overcrowded,
+				// so do that below.
+				halts.append(halt);
+			}
+		}
+	}
+}
+
 void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 {
 	const city_cost history_type = (wtyp == warenbauer_t::passagiere) ? HIST_PAS_TRANSPORTED : HIST_MAIL_TRANSPORTED;
@@ -5143,63 +5202,17 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 		get_city(first_origin->get_pos())->set_generated_passengers(num_pax, history_type + 1);
 	}
 	
-	const haus_tile_besch_t* tile = first_origin->get_tile();
-	const haus_besch_t *hb = tile->get_besch();
-	koord3d origin_pos_3d = gb->get_pos();
-	koord origin_pos = origin_pos_3d.get_2d();
-	koord size = hb->get_groesse(tile->get_layout());
+	//const haus_tile_besch_t* tile = first_origin->get_tile();
+	//const haus_besch_t *hb = tile->get_besch();
+	//koord3d origin_pos_3d = gb->get_pos();
+	koord3d origin_pos = gb->get_pos();
+	//koord size = hb->get_groesse(tile->get_layout());
 	vector_tpl<const planquadrat_t*> tile_list;
-
-	if(size == koord(1,1))
-	{
-		// A single tiled building - just check the single tile.
-		tile_list.append(access_nocheck(origin_pos));
-	}
-	else
-	{
-		// A multi-tiled building: check all tiles. Any tile within the 
-		// coverage radius of a building connects the whole building.
-		const koord3d pos = first_origin->get_pos() - koord3d(tile->get_offset(), 0);
-		koord k;
-		grund_t* gr_this;
-	
-		for(k.y = 0; k.y < size.y; k.y ++) 
-		{
-			for(k.x = 0; k.x < size.x; k.x ++) 
-			{
-				koord3d k_3d = koord3d(k, 0) + pos;
-				grund_t *gr = lookup(k_3d);
-				if(gr) 
-				{
-					/* This would fail for depots, but those are 1x1 buildings */
-					gebaeude_t *gb_part = gr->find<gebaeude_t>();
-					// There may be buildings with holes.
-					if(gb_part && gb_part->get_tile()->get_besch() == hb) 
-					{
-						tile_list.append(access_nocheck(k_3d.get_2d()));
-					}
-				}
-			}
-		}
-	}
+	sint32 size = get_tiles_of_gebaeude(first_origin, tile_list);
 
 	// Suitable start search (public transport)
-	vector_tpl<nearby_halt_t> start_halts(tile_list[0]->get_haltlist_count() * size.x * size.y);
-	FOR(vector_tpl<const planquadrat_t*>, const& current_tile, tile_list)
-	{
-		const nearby_halt_t* halt_list = current_tile->get_haltlist();
-		for(int h = current_tile->get_haltlist_count() - 1; h >= 0; h--) 
-		{
-			nearby_halt_t halt = halt_list[h];
-			if (halt.halt->is_enabled(wtyp)) 
-			{
-				// Previous versions excluded overcrowded halts here, but we need to know which
-				// overcrowded halt would have been the best start halt if it was not overcrowded,
-				// so do that below.
-				start_halts.append(halt);
-			}
-		}
-	}
+	vector_tpl<nearby_halt_t> start_halts(tile_list[0]->get_haltlist_count() * size);
+	get_nearby_halts_of_tiles(tile_list, wtyp, start_halts);
 
 	INT_CHECK("simworld 4490");
 
@@ -5315,63 +5328,15 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 				// Regenerate the start halts information for this new onward trip.
 				// We cannot reuse "destination_list" as this is a list of halthandles,
 				// not nearby_halt_t objects.
+				// TODO BG, 15.02.2014: first build a nearby_destination_list and then a destination_list from it.
+				//  Should be faster than finding all nearby halts again.
 
-				origin_pos = destination_pos;
-				tile = gb->get_tile();
-				hb = tile->get_besch();	
-				size = hb->get_groesse(tile->get_layout());
 				tile_list.clear();
-				start_halts.clear();
-
-				if(size == koord(1,1))
-				{
-					// A single tiled building - just check the single tile.
-					tile_list.append(access_nocheck(origin_pos));
-				}
-				else
-				{
-					// A multi-tiled building: check all tiles. Any tile within the 
-					// coverage radius of a building connects the whole building.
-					const koord3d pos = first_origin->get_pos() - koord3d(tile->get_offset(), 0);
-					koord k;
-					grund_t* gr_this;
-	
-					for(k.y = 0; k.y < size.y; k.y ++) 
-					{
-						for(k.x = 0; k.x < size.x; k.x ++) 
-						{
-							koord3d k_3d = koord3d(k, 0) + pos;
-							grund_t *gr = lookup(k_3d);
-							if(gr) 
-							{
-								gebaeude_t *gb_part = gr->find<gebaeude_t>();
-								// There may be buildings with holes.
-								if(gb_part && gb_part->get_tile()->get_besch() == hb) 
-								{
-									tile_list.append(access_nocheck(k_3d.get_2d()));
-								}
-							}
-						}
-					}
-				}
+				get_tiles_of_gebaeude(gb, tile_list);
 
 				// Suitable start search (public transport)
 				start_halts.clear();
-				FOR(vector_tpl<const planquadrat_t*>, const& current_tile, tile_list)
-				{
-					const nearby_halt_t* halt_list = current_tile->get_haltlist();
-					for(int h = current_tile->get_haltlist_count() - 1; h >= 0; h--) 
-					{
-						nearby_halt_t halt = halt_list[h];
-						if (halt.halt->is_enabled(wtyp)) 
-						{
-							// Previous versions excluded overcrowded halts here, but we need to know which
-							// overcrowded halt would have been the best start halt if it was not overcrowded,
-							// so do that below.
-							start_halts.append(halt);
-						}
-					}
-				}
+				get_nearby_halts_of_tiles(tile_list, wtyp, start_halts);
 			}
 			
 			first_destination = find_destination(trip);
@@ -5479,49 +5444,20 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 				// (default: 1), they can take passengers within the wider square of the passenger radius. This is intended,
 				// and is as a result of using the below method for all destination types.
 
-				tile = current_destination.building->get_tile();
-				hb = tile->get_besch();
-				koord size = hb->get_groesse(tile->get_layout());
-				tile_list.clear();
+				//tile = current_destination.building->get_tile();
+				//hb = tile->get_besch();
+				//koord size = hb->get_groesse(tile->get_layout());
 
-				if(size == koord(1,1))
-				{
-					// A single tiled building - just check the single tile.
-					tile_list.append(access_nocheck(current_destination.location));
-				}
-				else
-				{
-					// A multi-tiled building: check all tiles. Any tile within the 
-					// coverage radius of a building connects the whole building.
-					const koord3d pos = current_destination.building->get_pos() - koord3d(tile->get_offset(), 0);
-					koord k;
-					grund_t* gr_this;
-	
-					for(k.y = 0; k.y < size.y; k.y ++) 
-					{
-						for(k.x = 0; k.x < size.x; k.x ++) 
-						{
-							koord3d k_3d = koord3d(k, 0) + pos;
-							grund_t *gr = lookup(k_3d);
-							if(gr) 
-							{
-								gebaeude_t *gb_part = gr->find<gebaeude_t>();
-								// There may be buildings with holes.
-								if(gb_part && gb_part->get_tile()->get_besch() == hb) 
-								{
-									tile_list.append(access_nocheck(k_3d.get_2d()));
-								}
-							}
-						}
-					}
-				}
+				tile_list.clear();
+				sint32 size = get_tiles_of_gebaeude(current_destination.building, tile_list);
 
 				if(tile_list.empty())
 				{
 					tile_list.append(access(current_destination.location));
 				}
 
-				vector_tpl<halthandle_t> destination_list(tile_list[0]->get_haltlist_count() * size.x * size.y);
+				vector_tpl<halthandle_t> destination_list(tile_list[0]->get_haltlist_count() * size);
+				
 				FOR(vector_tpl<const planquadrat_t*>, const& current_tile, tile_list)
 				{
 					const nearby_halt_t* halt_list = current_tile->get_haltlist();
@@ -5796,7 +5732,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 				// create pedestrians in the near area?
 				if (settings.get_random_pedestrians() && wtyp == warenbauer_t::passagiere) 
 				{
-					haltestelle_t::erzeuge_fussgaenger(origin_pos_3d, pax_left_to_do);
+					haltestelle_t::erzeuge_fussgaenger(origin_pos, pax_left_to_do);
 				}
 				// We cannot do this on arrival, as the ware packets do not remember their origin building.
 					
@@ -5856,7 +5792,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 
 				if(settings.get_random_pedestrians() && wtyp == warenbauer_t::passagiere) 
 				{
-					haltestelle_t::erzeuge_fussgaenger(origin_pos_3d, pax_left_to_do);
+					haltestelle_t::erzeuge_fussgaenger(origin_pos, pax_left_to_do);
 				}
 				
 				if(city && wtyp == warenbauer_t::passagiere)
