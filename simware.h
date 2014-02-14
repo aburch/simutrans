@@ -71,11 +71,11 @@ private:
 	void update_factory_target();
 
 public:
-	const halthandle_t &get_ziel() const { return ziel; }
+	inline const halthandle_t &get_ziel() const { return ziel; }
 	void set_ziel(const halthandle_t &ziel) { this->ziel = ziel; }
 
-	const halthandle_t &get_zwischenziel() const { return zwischenziel; }
-	halthandle_t &access_zwischenziel() { return zwischenziel; }
+	inline const halthandle_t &get_zwischenziel() const { return zwischenziel; }
+	inline halthandle_t &access_zwischenziel() { return zwischenziel; }
 	void set_zwischenziel(const halthandle_t &zwischenziel) { this->zwischenziel = zwischenziel; }
 
 	koord get_zielpos() const { return zielpos; }
@@ -94,18 +94,18 @@ public:
 	 * @author Hj. Malthaner
 	 * "There the non-translated names were back"
 	 */
-	const char *get_name() const { return get_besch()->get_name(); }
-	const char *get_mass() const { return get_besch()->get_mass(); }
-	uint8 get_catg() const { return get_besch()->get_catg(); }
-	uint8 get_index() const { return index; }
+	inline const char *get_name() const { return get_besch()->get_name(); }
+	inline const char *get_mass() const { return get_besch()->get_mass(); }
+	inline uint8 get_catg() const { return get_besch()->get_catg(); }
+	inline uint8 get_index() const { return index; }
 
 	//@author: jamespetts
-	halthandle_t get_origin() const { return origin; }
+	inline halthandle_t get_origin() const { return origin; }
 	void set_origin(halthandle_t value) { origin = value; }
-	halthandle_t get_last_transfer() const { return last_transfer; }
+	inline halthandle_t get_last_transfer() const { return last_transfer; }
 	void set_last_transfer(halthandle_t value) { last_transfer = value; }
 
-	const ware_besch_t* get_besch() const { return index_to_besch[index]; }
+	inline const ware_besch_t* get_besch() const { return index_to_besch[index]; }
 	void set_besch(const ware_besch_t* type);
 
 	void rdwr(loadsave_t *file);
@@ -113,9 +113,9 @@ public:
 	void laden_abschliessen(karte_t *welt);
 
 	// find out the category ...
-	bool is_passenger() const { return index == 0; }
-	bool is_mail() const { return index == 1; }
-	bool is_freight() const { return index > 2; }
+	inline bool is_passenger() const { return index == 0; }
+	inline bool is_mail() const { return index == 1; }
+	inline bool is_freight() const { return index > 2; }
 
 	// The time at which this packet arrived at the current station
 	// @author: jamespetts
