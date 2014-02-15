@@ -37,51 +37,60 @@
 karte_ptr_t hausbauer_t::welt;
 
 /*
- * Die verschiedenen Gebäudegruppen sind in eigenen Listen gesammelt.
+ * The different building groups are sorted into separate lists
  */
-static vector_tpl<const haus_besch_t*> wohnhaeuser;
-static vector_tpl<const haus_besch_t*> gewerbehaeuser;
-static vector_tpl<const haus_besch_t*> industriehaeuser;
+static vector_tpl<const haus_besch_t*> wohnhaeuser;        ///< residential buildings (res)
+static vector_tpl<const haus_besch_t*> gewerbehaeuser;     ///< commercial buildings  (com)
+static vector_tpl<const haus_besch_t*> industriehaeuser;   ///< industrial buildings  (ind)
+
 vector_tpl<const haus_besch_t *> hausbauer_t::sehenswuerdigkeiten_land;
 vector_tpl<const haus_besch_t *> hausbauer_t::sehenswuerdigkeiten_city;
 vector_tpl<const haus_besch_t *> hausbauer_t::rathaeuser;
 vector_tpl<const haus_besch_t *> hausbauer_t::denkmaeler;
 vector_tpl<const haus_besch_t *> hausbauer_t::ungebaute_denkmaeler;
 
-/*
- * Diese Tabelle ermöglicht das Auffinden einer Beschreibung durch ihren Namen
+/**
+ * List of all registered house descriptors.
+ * Allows searching for a besch by its name
  */
 static stringhashtable_tpl<const haus_besch_t*> besch_names;
 
-/*
- * Alle Gebäude, die die Anwendung direkt benötigt, kriegen feste IDs.
- * Außerdem müssen wir dafür sorgen, dass sie alle da sind.
- */
 const haus_besch_t *hausbauer_t::elevated_foundation_besch = NULL;
-
-// all buildings with rails or connected to stops
 vector_tpl<const haus_besch_t *> hausbauer_t::station_building;
-
-// all headquarters (sorted by hq-level)
 vector_tpl<const haus_besch_t *> hausbauer_t::headquarter;
 
+/// special objects directly needed by the program
 static spezial_obj_tpl<haus_besch_t> spezial_objekte[] = {
 	{ &hausbauer_t::elevated_foundation_besch,   "MonorailGround" },
 	{ NULL, NULL }
 };
 
 
+/**
+ * Compares house descriptors.
+ * Order of comparison:
+ *  -# by level
+ *  -# by name
+ * @return true if @p a < @p b
+ */
 static bool compare_haus_besch(const haus_besch_t* a, const haus_besch_t* b)
 {
 	int diff = a->get_level() - b->get_level();
 	if (diff == 0) {
-		/* Gleiches Level - wir führen eine künstliche, aber eindeutige Sortierung
-		 * über den Namen herbei. */
+		/* As a last resort, sort by name to avoid ambiguity */
 		diff = strcmp(a->get_name(), b->get_name());
 	}
 	return diff < 0;
 }
 
+
+/**
+ * Compares headquarters.
+ * Order of comparison:
+ *  -# by level
+ *  -# by name
+ * @return true if @p a < @p b
+ */
 static bool compare_hq_besch(const haus_besch_t* a, const haus_besch_t* b)
 {
 	// the headquarters level is in the extra-variable
@@ -90,14 +99,22 @@ static bool compare_hq_besch(const haus_besch_t* a, const haus_besch_t* b)
 		diff = a->get_level() - b->get_level();
 	}
 	if (diff == 0) {
-		/* Gleiches Level - wir führen eine künstliche, aber eindeutige Sortierung
-		 * über den Namen herbei. */
+		/* As a last resort, sort by name to avoid ambiguity */
 		diff = strcmp(a->get_name(), b->get_name());
 	}
 	return diff < 0;
 }
 
 
+/**
+ * Compares stations.
+ * Order of comparison:
+ *  -# by good category
+ *  -# by capacity
+ *  -# by level
+ *  -# by name
+ * @return true if @p a < @p b
+ */
 static bool compare_station_besch(const haus_besch_t* a, const haus_besch_t* b)
 {
 	int diff = a->get_enabled() - b->get_enabled();
@@ -108,8 +125,7 @@ static bool compare_station_besch(const haus_besch_t* a, const haus_besch_t* b)
 		diff = a->get_level() - b->get_level();
 	}
 	if(  diff == 0  ) {
-		/* Gleiches Level - wir führen eine künstliche, aber eindeutige Sortierung
-		 * über den Namen herbei. */
+		/* As a last resort, sort by name to avoid ambiguity */
 		diff = strcmp(a->get_name(), b->get_name());
 	}
 	return diff < 0;
@@ -120,6 +136,8 @@ bool hausbauer_t::alles_geladen()
 {
 	FOR(stringhashtable_tpl<haus_besch_t const*>, const& i, besch_names) {
 		haus_besch_t const* const besch = i.value;
+
+		// now insert the besch into the correct list.
 		switch(besch->get_typ()) {
 			case gebaeude_t::wohnung:
 				wohnhaeuser.insert_ordered(besch,compare_haus_besch);
@@ -166,6 +184,8 @@ bool hausbauer_t::alles_geladen()
 						elevated_foundation_besch = besch;
 						break;
 					}
+					/* no break */
+
 				default:
 					// obsolete object, usually such pak set will not load properly anyway (old objects should be caught before!)
 					dbg->error("hausbauer_t::alles_geladen()","unknown subtype %i of \"%s\" ignored",besch->get_utyp(),besch->get_name());
@@ -192,7 +212,8 @@ bool hausbauer_t::register_besch(haus_besch_t *besch)
 		delete old_besch->get_builder();
 		delete old_besch;
 	}
-	// probably need a tools, if it has a cursor
+
+	// probably needs a tool if it has a cursor
 	const skin_besch_t *sb = besch->get_cursor();
 	if(  sb  &&  sb->get_bild_nr(1)!=IMG_LEER) {
 		werkzeug_t *wkz;
@@ -216,8 +237,8 @@ bool hausbauer_t::register_besch(haus_besch_t *besch)
 	}
 	besch_names.put(besch->get_name(), besch);
 
-	/* supply the tiles with a pointer back to the matching description
-	 * this is needed, since each building is build of separate tiles,
+	/* Supply the tiles with a pointer back to the matching description.
+	 * This is necessary since each building consists of separate tiles,
 	 * even if it is part of the same description (haus_besch_t)
 	 */
 	const int max_index = besch->get_all_layouts()*besch->get_groesse().x*besch->get_groesse().y;
@@ -229,7 +250,6 @@ bool hausbauer_t::register_besch(haus_besch_t *besch)
 }
 
 
-// all these menus will need a waytype ...
 void hausbauer_t::fill_menu(werkzeug_waehler_t* wzw, haus_besch_t::utyp utyp, waytype_t wt, sint16 /*sound_ok*/)
 {
 	// check if scenario forbids this
@@ -243,14 +263,16 @@ void hausbauer_t::fill_menu(werkzeug_waehler_t* wzw, haus_besch_t::utyp utyp, wa
 		case haus_besch_t::generic_extension:
 			toolnr = WKZ_STATION | GENERAL_TOOL;
 			break;
-		default: ;
+		default:
+			break;
 	}
 	if(  toolnr > 0  &&  !welt->get_scenario()->is_tool_allowed(welt->get_active_player(), toolnr, wt)  ) {
 		return;
 	}
 
 	const uint16 time = welt->get_timeline_year_month();
-DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.get_count());
+	DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.get_count());
+
 	FOR(  vector_tpl<haus_besch_t const*>,  const besch,  station_building  ) {
 //		DBG_DEBUG("hausbauer_t::fill_menu()", "try to add %s (%p)", besch->get_name(), besch);
 		if(  besch->get_utyp()==utyp  &&  besch->get_builder()  &&  (utyp==haus_besch_t::firmensitz  ||  besch->get_extra()==(uint16)wt)  ) {
@@ -262,7 +284,6 @@ DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.get_count());
 }
 
 
-// new map => reset monument list to ensure every monument appears only once per map
 void hausbauer_t::neue_karte()
 {
 	ungebaute_denkmaeler.clear();
@@ -272,14 +293,13 @@ void hausbauer_t::neue_karte()
 }
 
 
-
 void hausbauer_t::remove( spieler_t *sp, gebaeude_t *gb )
 {
 	const haus_tile_besch_t *tile  = gb->get_tile();
 	const haus_besch_t *hb = tile->get_besch();
 	const uint8 layout = tile->get_layout();
 
-	// get startpos and size
+	// get start position and size
 	const koord3d pos = gb->get_pos() - koord3d( tile->get_offset(), 0 );
 	koord size = tile->get_besch()->get_groesse( layout );
 	koord k;
@@ -302,7 +322,7 @@ void hausbauer_t::remove( spieler_t *sp, gebaeude_t *gb )
 				if (gr) {
 					gebaeude_t *gb_part = gr->find<gebaeude_t>();
 					if(gb_part) {
-						// there may be buildings with holes, so we only remove our or the hole!
+						// there may be buildings with holes, so we only remove our building!
 						if(gb_part->get_tile()  ==  hb->get_tile(layout, k.x, k.y)) {
 							gb_part->set_fab( NULL );
 							planquadrat_t *plan = welt->access( k+pos.get_2d() );
@@ -361,17 +381,17 @@ void hausbauer_t::remove( spieler_t *sp, gebaeude_t *gb )
 				}
 			}
 		}
-		// end clean up transformers
+		// cleared transformers successfully, now remove factory.
 		welt->rem_fab(fab);
 	}
 
-	// delete just our house
+	// delete our house only
 	for(k.y = 0; k.y < size.y; k.y ++) {
 		for(k.x = 0; k.x < size.x; k.x ++) {
 			grund_t *gr = welt->lookup(koord3d(k,0)+pos);
 			if(gr) {
 				gebaeude_t *gb_part = gr->find<gebaeude_t>();
-				// there may be buildings with holes, so we only remove our!
+				// there may be buildings with holes, so we only remove our building!
 				if(  gb_part  &&  gb_part->get_tile()==hb->get_tile(layout, k.x, k.y)  ) {
 					// ok, now we can go on with deletion
 					gb_part->entferne( sp );
@@ -409,7 +429,7 @@ void hausbauer_t::remove( spieler_t *sp, gebaeude_t *gb )
 							welt->access(newk)->kartenboden_setzen( new boden_t( koord3d( newk, new_hgt ), new_slope ) );
 							welt->calc_climate( newk, true );
 						}
-						// there might be walls from foundations left => thus some tiles may needs to be redraw
+						// there might be walls from foundations left => thus some tiles may need to be redrawn
 						if(ground_recalc) {
 							if(grund_t *gr = welt->lookup_kartenboden(newk+koord::ost)) {
 								gr->calc_bild();
@@ -440,13 +460,14 @@ gebaeude_t* hausbauer_t::baue(spieler_t* sp, koord3d pos, int org_layout, const 
 		for(k.x = 0; k.x < dim.x; k.x ++) {
 //DBG_DEBUG("hausbauer_t::baue()","get_tile() at %i,%i",k.x,k.y);
 			const haus_tile_besch_t *tile = besch->get_tile(layout, k.x, k.y);
-			// here test for good tile
+
+			// skip empty tiles
 			if (tile == NULL || (
 						besch->get_utyp() != haus_besch_t::hafen &&
 						tile->get_hintergrund(0, 0, 0) == IMG_LEER &&
 						tile->get_vordergrund(0, 0)    == IMG_LEER
 					)) {
-						// may have a rotation, that is not recoverable
+						// may have a rotation that is not recoverable
 						DBG_MESSAGE("hausbauer_t::baue()","get_tile() empty at %i,%i",k.x,k.y);
 				continue;
 			}
@@ -463,12 +484,13 @@ gebaeude_t* hausbauer_t::baue(spieler_t* sp, koord3d pos, int org_layout, const 
 				// Hajo: after staring a new map, build fake old buildings
 				gb->add_alter(10000);
 			}
+
 			grund_t *gr = welt->lookup_kartenboden(pos.get_2d() + k);
 			if(gr->ist_wasser()) {
 				gr->obj_add(gb);
 			}
 			else if (besch->get_utyp() == haus_besch_t::hafen) {
-				// its a dock!
+				// it's a dock!
 				gr->obj_add(gb);
 			}
 			else {
@@ -479,18 +501,15 @@ gebaeude_t* hausbauer_t::baue(spieler_t* sp, koord3d pos, int org_layout, const 
 					if(lt) {
 						gr->obj_remove(lt);
 					}
-					gr->obj_loesche_alle(sp);	// alles weg außer vehikel ...
+					gr->obj_loesche_alle(sp);	// delete everything except vehicles
 				}
+
+				// build new foundation
 				needs_ground_recalc |= gr->get_grund_hang()!=hang_t::flach;
 				grund_t *gr2 = new fundament_t(gr->get_pos(), gr->get_grund_hang());
 				welt->access(gr->get_pos().get_2d())->boden_ersetzen(gr, gr2);
 				gr = gr2;
 //DBG_DEBUG("hausbauer_t::baue()","ground count now %i",gr->obj_count());
-#if 0
-The climate shoudl nto matter, as this is the same ground than before
-but tunnels or bridges may not have a besch during loading or the map yet!
-//				welt->calc_climate( gr->get_pos().get_2d(), true );
-#endif
 				gr->obj_add( gb );
 				if(lt) {
 					gr->obj_add( lt );
@@ -520,7 +539,7 @@ but tunnels or bridges may not have a besch during loading or the map yet!
 	}
 	// remove only once ...
 	if(besch->get_utyp()==haus_besch_t::denkmal) {
-		ungebaute_denkmaeler.remove( besch );
+		denkmal_gebaut(besch);
 	}
 	return first_building;
 }
@@ -539,6 +558,7 @@ gebaeude_t *hausbauer_t::neues_gebaeude(spieler_t *sp, koord3d pos, int built_la
 		sint8 offset = welt->lookup( pos )->get_weg_yoff()/TILE_HEIGHT_STEP;
 		koord3d checkpos = pos+koord3d( (layout & 1 ? koord::ost : koord::sued), offset);
 		grund_t * gr = welt->lookup( checkpos );
+
 		if(!gr) {
 			// check whether bridge end tile
 			grund_t * gr_tmp = welt->lookup( pos+koord3d( (layout & 1 ? koord::ost : koord::sued),offset - 1) );
@@ -546,6 +566,7 @@ gebaeude_t *hausbauer_t::neues_gebaeude(spieler_t *sp, koord3d pos, int built_la
 				gr = gr_tmp;
 			}
 		}
+
 		if(gr) {
 			gebaeude_t* gb = gr->find<gebaeude_t>();
 			if(gb==NULL) {
@@ -566,6 +587,7 @@ gebaeude_t *hausbauer_t::neues_gebaeude(spieler_t *sp, koord3d pos, int built_la
 				if(gb->get_tile()->get_besch()->get_all_layouts()>4) {
 					koord xy = gb->get_tile()->get_offset();
 					uint8 layoutbase = gb->get_tile()->get_layout();
+
 					if((layoutbase & 1) == (layout & 1)) {
 						layoutbase &= 0xb; // clear near bit on neighbour
 						gb->set_tile( gb->get_tile()->get_besch()->get_tile(layoutbase, xy.x, xy.y), false );
@@ -587,6 +609,7 @@ gebaeude_t *hausbauer_t::neues_gebaeude(spieler_t *sp, koord3d pos, int built_la
 			gebaeude_t* gb = gr->find<gebaeude_t>();
 			if(gb  &&  gb->get_tile()->get_besch()->get_utyp()>=8) {
 				corner_layout &= ~4; // clear far bit
+
 				if(gb->get_tile()->get_besch()->get_all_layouts()>4) {
 					koord xy = gb->get_tile()->get_offset();
 					uint8 layoutbase = gb->get_tile()->get_layout();
@@ -664,11 +687,12 @@ gebaeude_t *hausbauer_t::neues_gebaeude(spieler_t *sp, koord3d pos, int built_la
 	if(besch->ist_ausflugsziel()) {
 		welt->add_ausflugsziel( gb );
 	}
+
+	// update minimap
 	reliefkarte_t::get_karte()->calc_map_pixel(gb->get_pos().get_2d());
 
 	return gb;
 }
-
 
 
 const haus_tile_besch_t *hausbauer_t::find_tile(const char *name, int org_idx)
@@ -704,7 +728,8 @@ const haus_besch_t* hausbauer_t::get_random_station(const haus_besch_t::utyp uty
 
 	FOR(vector_tpl<haus_besch_t const*>, const besch, station_building) {
 		if(  besch->get_utyp()==utype  &&  besch->get_extra()==(uint32)wt  &&  (enables==0  ||  (besch->get_enabled()&enables)!=0)  ) {
-			if( !besch->can_be_built_aboveground()) {
+			// skip underground stations
+			if(  !besch->can_be_built_aboveground()  ) {
 				continue;
 			}
 			// ok, now check timeline
@@ -715,7 +740,6 @@ const haus_besch_t* hausbauer_t::get_random_station(const haus_besch_t::utyp uty
 	}
 	return stops.empty() ? 0 : pick_any_weighted(stops);
 }
-
 
 
 const haus_besch_t* hausbauer_t::get_special(uint32 bev, haus_besch_t::utyp utype, uint16 time, bool ignore_retire, climate cl)
@@ -756,10 +780,10 @@ const haus_besch_t* hausbauer_t::get_special(uint32 bev, haus_besch_t::utyp utyp
 
 
 /**
- * tries to find something that matches this entry
- * it will skip and jump, and will never return zero, if there is at least a single valid entry in the list
- * @author Nathanael Nerode (neroden) for clustering
- * @author Hj. Malthaner
+ * Tries to find a matching house besch from @p liste.
+ * This method will never return NULL if there is at least one valid entry in the list.
+ * @param level the minimum level of the house/station
+ * @param cl allowed climates
  */
 static const haus_besch_t* get_city_building_from_list(const vector_tpl<const haus_besch_t*>& liste, int level, uint16 time, climate cl, uint32 clusters )
 {
@@ -775,7 +799,7 @@ static const haus_besch_t* get_city_building_from_list(const vector_tpl<const ha
 		const int thislevel = besch->get_level();
 		if(thislevel>level) {
 			if (selections.empty()) {
-				// Nothing of the correct level.  Continue with search of next level.
+				// Nothing of the correct level. Continue with search on a higher level.
 				level = thislevel;
 			}
 			else {
@@ -837,6 +861,7 @@ const haus_besch_t* hausbauer_t::get_residential(int level, uint16 time, climate
 	return get_city_building_from_list(wohnhaeuser, level, time, cl, clusters);
 }
 
+
 const haus_besch_t* hausbauer_t::get_headquarter(int level, uint16 time)
 {
 	if(  level<0  ) {
@@ -851,7 +876,6 @@ const haus_besch_t* hausbauer_t::get_headquarter(int level, uint16 time)
 }
 
 
-// get a random object
 const haus_besch_t *hausbauer_t::waehle_aus_liste(vector_tpl<const haus_besch_t *> &liste, uint16 time, bool ignore_retire, climate cl)
 {
 	if (!liste.empty()) {
@@ -863,7 +887,7 @@ const haus_besch_t *hausbauer_t::waehle_aus_liste(vector_tpl<const haus_besch_t 
 				auswahl.append(besch, besch->get_chance());
 			}
 		}
-		// now look, what we have got ...
+		// now look what we have got ...
 		if(auswahl.get_sum_weight()==0) {
 			return NULL;
 		}
@@ -875,7 +899,6 @@ const haus_besch_t *hausbauer_t::waehle_aus_liste(vector_tpl<const haus_besch_t 
 	}
 	return NULL;
 }
-
 
 
 const vector_tpl<const haus_besch_t*>* hausbauer_t::get_list(const haus_besch_t::utyp typ)
@@ -890,7 +913,6 @@ const vector_tpl<const haus_besch_t*>* hausbauer_t::get_list(const haus_besch_t:
 		default:                            return NULL;
 	}
 }
-
 
 
 const vector_tpl<const haus_besch_t*>* hausbauer_t::get_citybuilding_list(const gebaeude_t::typ typ)
