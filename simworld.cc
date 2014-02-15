@@ -5124,8 +5124,8 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "motd filename %s", env_t::s
 		}
 		else {
 			// no message
-			char *motd = "";
-			file->rdwr_str( motd, 1 );
+			plainstring motd("");
+			file->rdwr_str( motd );
 		}
 	}
 
