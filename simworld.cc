@@ -8278,8 +8278,8 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "motd filename %s", env_t::server
 		}
 		else {
 			// no message
-			char *motd = "";
-			file->rdwr_str( motd, 1 );
+			plainstring motd("");
+			file->rdwr_str( motd );
 		}
 	}
 
