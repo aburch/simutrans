@@ -5202,11 +5202,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 		get_city(first_origin->get_pos())->set_generated_passengers(num_pax, history_type + 1);
 	}
 	
-	//const haus_tile_besch_t* tile = first_origin->get_tile();
-	//const haus_besch_t *hb = tile->get_besch();
-	//koord3d origin_pos_3d = gb->get_pos();
 	koord3d origin_pos = gb->get_pos();
-	//koord size = hb->get_groesse(tile->get_layout());
 	vector_tpl<const planquadrat_t*> tile_list;
 	sint32 size = get_tiles_of_gebaeude(first_origin, tile_list);
 
@@ -5394,7 +5390,6 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 				destination_pos = current_destination.location;
 				if(trip == commuting_trip)
 				{
-					grund_t* gr = lookup_kartenboden(destination_pos);
 					gebaeude_t* gb = current_destination.building;
 					if(!gb || !gb->jobs_available())
 					{
@@ -5403,8 +5398,11 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 							// This is the lowest priority route status.
 							route_status = destination_unavailable;
 						}
+						/**
+						 * As there are no jobs, this is not a destination for commuting
+						 */
 						if(n < destination_count - 1)
-						{const grund_t* gr = lookup_kartenboden(destination_pos);
+						{
 							current_destination = find_destination(trip);
 						}
 						continue;
@@ -5444,10 +5442,6 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 				// (default: 1), they can take passengers within the wider square of the passenger radius. This is intended,
 				// and is as a result of using the below method for all destination types.
 
-				//tile = current_destination.building->get_tile();
-				//hb = tile->get_besch();
-				//koord size = hb->get_groesse(tile->get_layout());
-
 				tile_list.clear();
 				sint32 size = get_tiles_of_gebaeude(current_destination.building, tile_list);
 
@@ -5478,7 +5472,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 				if(start_halts.get_count() == 1 && destination_list.get_count() == 1 && start_halts[0].halt == destination_list.get_element(0))
 				{
 					/** There is no public transport route, as the only stop
-						* for the origin is also the only stop for the desintation.
+						* for the origin is also the only stop for the destintation.
 						*/
 					start_halt = start_halts[0].halt;
 				}
@@ -5495,14 +5489,13 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 
 					uint32 best_start_halt = 0;
 					uint32 best_non_crowded_start_halt = 0;
-					uint32 current_journey_time;
 					uint32 best_journey_time_including_crowded_halts = 65535;
 
 					ITERATE(start_halts, i)
 					{
 						halthandle_t current_halt = start_halts[i].halt;
 				
-						current_journey_time = current_halt->find_route(&destination_list, pax, best_journey_time, destination_pos);
+						uint32 current_journey_time = current_halt->find_route(destination_list, pax, best_journey_time, destination_pos);
 					
 						// Add walking time from the origin to the origin stop. 
 						// Note that the walking time to the destination stop is already added by find_route.

@@ -584,81 +584,8 @@ public:
 	// @author: jamespetts, although much is borrowed from suche_route
 	// Returns the journey time of the best possible route from this halt. Time == 65535 when there is no route.
 	uint16 find_route(ware_t &ware, const uint16 journey_time = 65535);
-	vector_tpl<halthandle_t>* build_destination_list(ware_t &ware);
-	uint16 find_route(vector_tpl<halthandle_t> *ziel_list, ware_t & ware, const uint16 journey_time = 65535, const koord destination_pos = koord::invalid);
-//=======
-//private:
-//	/* Node used during route search */
-//	struct route_node_t
-//	{
-//		halthandle_t halt;
-//		uint16       aggregate_weight;
-//
-//		route_node_t() : aggregate_weight(0) {}
-//		route_node_t(halthandle_t h, uint16 w) : halt(h), aggregate_weight(w) {}
-//
-//		// dereferencing to be used in binary_heap_tpl
-//		inline uint16 operator * () const { return aggregate_weight; }
-//	};
-//
-//	/* Extra data for route search */
-//	struct halt_data_t
-//	{
-//		// transfer halt:
-//		// in static function search_route():  previous transfer halt (to track back route)
-//		// in member function search_route_resumable(): first transfer halt to get there
-//		halthandle_t transfer;
-//		uint16 best_weight;
-//		uint16 depth:14;
-//		bool destination:1;
-//		bool overcrowded:1;
-//	};
-//
-//	// store the best weight so far for a halt, and indicate whether it is a destination
-//	static halt_data_t halt_data[65536];
-//
-//	// for efficient retrieval of the node with the smallest weight
-//	static binary_heap_tpl<route_node_t> open_list;
-//
-//	/**
-//	 * Markers used in route searching to avoid processing the same halt more than once
-//	 * @author Knightly
-//	 */
-//	static uint8 markers[65536];
-//	static uint8 current_marker;
-//
-//	/**
-//	 * Remember last route search start and catg to resume search
-//	 * @author dwachs
-//	 */
-//	static halthandle_t last_search_origin;
-//	static uint8        last_search_ware_catg_idx;
-//public:
-//	enum routing_result_flags { NO_ROUTE=0, ROUTE_OK=1, ROUTE_WALK=2, ROUTE_OVERCROWDED=8 };
-//
-//	/**
-//	 * Kann die Ware nicht zum Ziel geroutet werden (keine Route), dann werden
-//	 * Ziel und Zwischenziel auf koord::invalid gesetzt.
-//	 *
-//	 * @param ware die zu routende Ware
-//	 * @author Hj. Malthaner
-//	 *
-//	 * for reverse routing, also the next to last stop can be added, if next_to_ziel!=NULL
-//	 *
-//	 * if avoid_overcrowding is set, a valid route in only found when there is no overflowing stop in between
-//	 *
-//	 * @author prissi
-//	 */
-//	static int search_route( const halthandle_t *const start_halts, const uint16 start_halt_count, const bool no_routing_over_overcrowding, ware_t &ware, ware_t *const return_ware=NULL );
-//
-//	/**
-//	 * A separate version of route searching code for re-calculating routes
-//	 * Search is resumable, that is if called for the same halt and same goods category
-//	 * it reuses search history from last search
-//	 * It is faster than calling the above version on each packet, and is used for re-routing packets from the same halt.
-//	 */
-//	void search_route_resumable( ware_t &ware );
-//>>>>>>> aburch/master
+	void get_destination_halts_of_ware(ware_t &ware, vector_tpl<halthandle_t>& destination_halts_list);
+	uint16 find_route(const vector_tpl<halthandle_t>& ziel_list, ware_t & ware, const uint16 journey_time = 65535, const koord destination_pos = koord::invalid);
 
 	bool get_pax_enabled()  const { return enables & PAX;  }
 	bool get_post_enabled() const { return enables & POST; }
