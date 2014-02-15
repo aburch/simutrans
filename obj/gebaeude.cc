@@ -1348,7 +1348,7 @@ void gebaeude_t::entferne(spieler_t *sp) // "Remove" (Google)
 		
 		// However, the land value is restored to the player who, by bulldozing, is relinquishing ownership of the land if there are not already ways on the land.
 		const sint64 land_value = welt->get_land_value(get_pos()) * besch->get_groesse().x * besch->get_groesse().y;
-		if(!welt->lookup(get_pos())->get_weg_nr(0))
+		if(welt->lookup(get_pos()) && !welt->lookup(get_pos())->get_weg_nr(0))
 		{
 			if(sp == get_besitzer())
 			{

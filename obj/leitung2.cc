@@ -191,7 +191,7 @@ leitung_t::~leitung_t()
 void leitung_t::entferne(spieler_t *sp) //"remove".
 {
 	sint64 land_value = welt->get_land_value(get_pos());
-	const weg_t* way = welt->lookup(get_pos())->get_weg_nr(0);
+	const weg_t* way = welt->lookup(get_pos()) ? welt->lookup(get_pos())->get_weg_nr(0) : NULL;
 	if(way)
 	{
 		// If this is a power line crossing a way, then this is not owned in any event.
