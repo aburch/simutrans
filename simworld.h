@@ -1548,7 +1548,7 @@ public:
 	sint64 get_zeit_ms() const { return ticks; }
 
 
-	uint32 get_next_month_ticks() const { return next_month_ticks; }
+	uint32 get_next_month_ticks() const { return (uint32) next_month_ticks; }
 
 	/**
 	 * Absolute month (count start year zero).
@@ -2442,6 +2442,9 @@ private:
 	void process_network_commands(sint32* ms_difference);
 	void do_network_world_command(network_world_command_t *nwc);
 	uint32 get_next_command_step();
+
+	sint32 get_tiles_of_gebaeude(gebaeude_t* const gb, vector_tpl<const planquadrat_t*> &tile_list) const;
+	void get_nearby_halts_of_tiles(const vector_tpl<const planquadrat_t*> &tile_list, const ware_besch_t * wtyp, vector_tpl<nearby_halt_t> &halts) const;
 };
 
 

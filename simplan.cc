@@ -714,19 +714,18 @@ void planquadrat_t::add_to_haltlist(halthandle_t halt)
 {
 	if(halt.is_bound()) 
 	{
-		unsigned insert_pos = 0;
 		// Quick and dirty way to our 2d co-ordinates 
-		const koord pos = get_kartenboden()->get_pos().get_2d();
-		uint8 distance;
+		const koord pos = get_kartenboden()->get_pos();
+		const koord halt_next_pos = halt->get_next_pos(pos);
+		const uint8 distance = (uint8)shortest_distance(halt_next_pos, pos);
 		if(halt_list_count > 0)
 		{
 			// Since only the first one gets all, we want the closest halt one to be first
 			halt_list_remove(halt);
-			const koord halt_next_pos = halt->get_next_pos(pos);
 			
-			for(insert_pos = 0; insert_pos < halt_list_count; insert_pos++)
+			for(unsigned insert_pos = 0; insert_pos < halt_list_count; insert_pos++)
 			{
-				distance = (uint8)shortest_distance(halt_next_pos, pos);
+				
 				if(shortest_distance(halt_list[insert_pos].halt->get_next_pos(pos), pos) > distance) 
 				{
 					halt_list_insert_at(halt, insert_pos, distance);
@@ -736,7 +735,7 @@ void planquadrat_t::add_to_haltlist(halthandle_t halt)
 			// not found
 		}
 		// first just or just append to the end ...
-		halt_list_insert_at(halt, halt_list_count, (uint8)shortest_distance(halt->get_next_pos(pos), pos));
+		halt_list_insert_at(halt, halt_list_count, distance);
 	}
 }
 
