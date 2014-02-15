@@ -425,6 +425,8 @@ DBG_MESSAGE("wkz_remover_intern()","at (%s)", pos.get_str());
 		msg = l->ist_entfernbar(sp);
 		if(msg==NULL) {
 			delete l;
+			// Refund the cost of land if the player is deleting the marker and therefore selling it.
+			spieler_t::book_construction_costs(l->get_besitzer(), -welt->get_land_value(gr->get_pos()), gr->get_pos());
 			return true;
 		}
 		else if(  gr->get_top()==1  ) {
@@ -644,11 +646,9 @@ DBG_MESSAGE("wkz_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x, 
 			// Not town hall -- normal building
 			// Check affordability for everyone
 			sint64 cost = welt->get_settings().cst_multiply_remove_haus * haus_besch->get_level();
-			if(  sp != gb->get_besitzer()  )
+			if(sp != gb->get_besitzer())
 			{
-				// Experimental 8.0 and later - the bulldoze cost is *added* to the
-				// building cost, as we have to pay to buy it *then* pay to demolish it.
-				cost += welt->get_land_value(gr->get_pos()) * haus_besch->get_level() * 5;
+				cost += haus_besch->get_level() * 5;
 			}
 			if(  !spieler_t::can_afford(sp, -cost)  )
 			{
@@ -808,8 +808,17 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 		}
 
 		wt = w->get_besch()->get_finance_waytype();
+		const sint64 land_refund_cost = welt->get_land_value(w->get_pos()); // Refund the land value to the player who owned the way, as by bulldozing, the player is selling the land.
 		sint64 cost_sum = gr->weg_entfernen(w->get_waytype(), true);
-		spieler_t::book_construction_costs(sp, -cost_sum, k, wt);
+		if(sp == w->get_besitzer())
+		{
+			cost_sum -= land_refund_cost;
+		}
+		else
+		{
+			spieler_t::book_construction_costs(sp, -cost_sum, k, wt);
+		}
+		spieler_t::book_construction_costs( w->get_besitzer(), -land_refund_cost, k, wt);
 	}
 	else {
 		// remove ways and tunnel
@@ -1671,7 +1680,7 @@ const char *wkz_transformer_t::check_pos( spieler_t *, koord3d pos )
 const char *wkz_transformer_t::work( spieler_t *sp, koord3d pos )
 {
 	DBG_MESSAGE("wkz_transformer_t()","called on %d,%d", pos.x, pos.y);
-	const sint64 cost = welt->get_settings().cst_transformer;
+	const sint64 cost = welt->get_settings().cst_transformer + welt->get_land_value(pos);
 	if(!spieler_t::can_afford(sp, -cost) )
 	{
 		return CREDIT_MESSAGE;
@@ -3951,7 +3960,10 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 		cost = -besch->get_price() * besch->get_b() * besch->get_h();
 	}
 
-	if(sp!=halt->get_besitzer() && halt->get_besitzer()==welt->get_spieler(1) && sp != welt->get_spieler(1))
+	// Must buy land to place buildings
+	cost += welt->get_land_value(pos) * besch->get_groesse(rotation).x * besch->get_groesse(rotation).y;
+
+	if(sp != halt->get_besitzer() && halt->get_besitzer()==welt->get_spieler(1) && sp != welt->get_spieler(1))
 	{
 		// public stops are expensive!
 		// (Except for the public player itself)
@@ -3966,8 +3978,8 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 	gebaeude_t* gb = hausbauer_t::baue(halt->get_besitzer(), pos-offsets, rotation, besch, &halt);
 	welt->add_building_to_world_list(gb);
 
-	// difficult to distinguish correctly most suitable waytype
-	spieler_t::book_construction_costs(sp,  cost, k, besch->get_finance_waytype());
+	// Difficult to distinguish correctly most suitable waytype
+	spieler_t::book_construction_costs(sp, cost, k, besch->get_finance_waytype());
 
 	halt->recalc_station_type();
 

@@ -1879,8 +1879,7 @@ sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 				}
 			}
 		}
-
-		sint32 costs = weg->get_besch()->get_preis();	// costs for removal are construction costs
+		sint32 costs = (weg->get_besch()->get_preis() / 2); // Costs for removal are half construction costs.
 		weg->entferne( NULL );
 		delete weg;
 
@@ -2088,6 +2087,11 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 		// remove all ways or just some?
 		if(add==ribi_t::keine) {
 			costs -= weg_entfernen(wt, true);
+			if(weg->get_besitzer() == sp)
+			{
+				// Need to sell the land on which the way is situated
+				costs =- welt->get_land_value(weg->get_pos());
+			}
 			if(flags&is_kartenboden) {
 				// remove ribis from sea tiles
 				if(  wt == water_wt  &&  pos.z == welt->get_water_hgt( here )  &&  slope != hang_t::flach  ) {

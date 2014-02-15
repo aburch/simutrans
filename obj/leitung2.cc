@@ -190,7 +190,22 @@ leitung_t::~leitung_t()
 
 void leitung_t::entferne(spieler_t *sp) //"remove".
 {
-	spieler_t::book_construction_costs(sp, -besch->get_preis()/2, get_pos().get_2d(), powerline_wt);
+	sint64 land_value = welt->get_land_value(get_pos());
+	const weg_t* way = welt->lookup(get_pos())->get_weg_nr(0);
+	if(way)
+	{
+		// If this is a power line crossing a way, then this is not owned in any event.
+		land_value = 0;
+	}
+	if(sp == get_besitzer())
+	{
+		spieler_t::book_construction_costs(sp, -besch->get_preis() / 2 - land_value, get_pos().get_2d(), powerline_wt);
+	}
+	else
+	{
+		spieler_t::book_construction_costs(sp, -besch->get_preis() / 2, get_pos().get_2d(), powerline_wt);
+		spieler_t::book_construction_costs(get_besitzer(), -land_value, get_pos().get_2d(), powerline_wt);
+	}
 	mark_image_dirty( bild, 0 );
 }
 

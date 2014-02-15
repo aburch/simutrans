@@ -887,6 +887,7 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 			buf.append("\n");
 			buf.append(translator::translate("Wert"));
 			buf.append(": ");
+			// The land value calculation below will need modifying if multi-tile city buildings are ever introduced.
 			buf.append(-(welt->get_land_value(get_pos())*(tile->get_besch()->get_level())/100) * 5);
 			buf.append("$\n");
 		}
@@ -1314,15 +1315,25 @@ void gebaeude_t::entferne(spieler_t *sp) // "Remove" (Google)
 	const haus_besch_t* besch = tile->get_besch();
 	sint64 cost = 0;
 
-	if(besch->get_utyp()<haus_besch_t::bahnhof) 
+	if(besch->get_utyp() < haus_besch_t::bahnhof) 
 	{
 		const sint64 bulldoze_cost = welt->get_settings().cst_multiply_remove_haus * (besch->get_level());
-		const sint64 purchase_cost = welt->get_land_value(get_pos()) * besch->get_level() * 5;
-		cost = sp != get_besitzer() ? bulldoze_cost + purchase_cost : bulldoze_cost;
+		// If the player does not own the building, the land is not bought by bulldozing, so do not add the purchase cost.
+		// (A player putting a marker on the tile will have to pay to buy the land again).
+		// If the player does already own the building, the player is refunded the empty tile cost, as bulldozing a tile with a building
+		// means that the player no longer owns the tile, and will have to pay again to purcahse it.
+		const sint64 land_value = welt->get_land_value(get_pos()) * besch->get_groesse().x * besch->get_groesse().y;
+		cost = sp != get_besitzer() ? bulldoze_cost : bulldoze_cost - land_value; // Land value is a *negative* number.
 		spieler_t::book_construction_costs(sp, cost, get_pos().get_2d(), tile->get_besch()->get_finance_waytype());
+		if(sp != get_besitzer())
+		{
+			spieler_t::book_construction_costs(get_besitzer(), land_value, get_pos().get_2d(), tile->get_besch()->get_finance_waytype());
+		}
 	}
 	else 
 	{
+		// Station buildings (not extension buildings, handled elsewhere) are built over existing ways, so no need to account for the land cost.
+
 		// tearing down halts is always single costs only
 		cost = besch->get_price();
 		// This check is necessary because the number of COST_MAGIC is used if no price is specified. 
@@ -1332,8 +1343,22 @@ void gebaeude_t::entferne(spieler_t *sp) // "Remove" (Google)
 			cost = welt->get_settings().cst_multiply_station * besch->get_level();
 		}
 		// Should be cheaper to bulldoze than build.
-		// Currently you recover "scrap money"
-		cost = - cost / 1.5F;
+		// Currently you recover "scrap money".
+		cost /= 2;
+		
+		// However, the land value is restored to the player who, by bulldozing, is relinquishing ownership of the land if there are not already ways on the land.
+		const sint64 land_value = welt->get_land_value(get_pos()) * besch->get_groesse().x * besch->get_groesse().y;
+		if(!welt->lookup(get_pos())->get_weg_nr(0))
+		{
+			if(sp == get_besitzer())
+			{
+				cost -= land_value;
+			}
+			else
+			{
+				spieler_t::book_construction_costs(get_besitzer(), -land_value, get_pos().get_2d(), tile->get_besch()->get_finance_waytype());
+			}
+		}
 		spieler_t::book_construction_costs(sp, cost, get_pos().get_2d(), tile->get_besch()->get_finance_waytype());
 	}
 

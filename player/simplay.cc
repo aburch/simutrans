@@ -1021,7 +1021,8 @@ sint64 spieler_t::undo()
 	FOR(vector_tpl<koord3d>, const& i, last_built) {
 		grund_t* const gr = welt->lookup(i);
 		if(  undo_type != powerline_wt  ) {
-			cost += gr->weg_entfernen(undo_type,true);
+			cost += gr->weg_entfernen(undo_type, true);
+			cost -= welt->get_land_value(gr->get_pos());
 		}
 		else {
 			leitung_t* lt = gr->get_leitung();
