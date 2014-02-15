@@ -117,7 +117,6 @@ const groundobj_besch_t *movingobj_t::random_movingobj_for_climate(climate cl)
 // recalculates only the seasonal image
 void movingobj_t::calc_bild()
 {
-	// alter/2048 is the age of the tree
 	const groundobj_besch_t *besch=get_besch();
 	const uint8 seasons = besch->get_seasons()-1;
 	uint8 season = 0;
