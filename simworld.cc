@@ -5090,6 +5090,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 			return;
 		}
 		generate_passengers_or_mail(warenbauer_t::passagiere);	
+		INT_CHECK("simworld 5093");
 	} 
 
 	while(mail_step_interval <= next_step_mail) 
@@ -5099,6 +5100,7 @@ void karte_t::step_passengers_and_mail(long delta_t)
 			return;
 		}
 		generate_passengers_or_mail(warenbauer_t::post);
+		INT_CHECK("simworld 5103");
 	} 
 }
 
@@ -5210,7 +5212,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 	vector_tpl<nearby_halt_t> start_halts(tile_list[0]->get_haltlist_count() * size);
 	get_nearby_halts_of_tiles(tile_list, wtyp, start_halts);
 
-	INT_CHECK("simworld 4490");
+	//INT_CHECK("simworld 4490");
 
 	// Check whether this batch of passengers has access to a private car each.
 	// Check run in batches to save computational effort.
@@ -5350,7 +5352,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 
 			// Do nothing if trip == mail_trip
 
-			INT_CHECK("simworld 4557");
+			//INT_CHECK("simworld 4557");
 
 			/**
 				* Quasi tolerance is necessary because mail can be delivered by hand. If it is delivered
@@ -5568,7 +5570,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 					}
 				}
 
-				INT_CHECK("simworld.cc 4774");
+				//INT_CHECK("simworld.cc 4774");
 			
 				if(has_private_car) 
 				{
@@ -5691,7 +5693,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 					}
 				}
 				
-				INT_CHECK("simworld 4897");
+				//INT_CHECK("simworld 4897");
 				if((route_status == no_route || route_status == too_slow || route_status == overcrowded || route_status == destination_unavailable) && n < destination_count - 1)
 				{
 					// Do not get a new destination if there is a good status,
