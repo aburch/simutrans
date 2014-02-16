@@ -353,11 +353,12 @@ uint32 convoi_t::move_to(koord3d const& k, uint16 const start_index)
 
 		steps_driven = -1;
 
-		if (grund_t const* const gr = welt->lookup(v.get_pos())) {
+		if (grund_t const* const gr = v.get_grund()) {
+			schiene_t* const rails = obj_cast<schiene_t>(v.get_weg());
 			v.mark_image_dirty(v.get_bild(), v.get_hoff());
 			v.verlasse_feld();
 			// maybe unreserve this
-			if(schiene_t* const rails = obj_cast<schiene_t>(gr->get_weg(v.get_waytype()))) 
+			if(rails) 
 			{
 				if(state != REVERSING)
 				{
@@ -745,12 +746,12 @@ void convoi_t::add_running_cost(sint64 cost, const weg_t *weg)
 
 void convoi_t::increment_odometer(uint32 steps)
 { 
-	// Increament the way distance: used for apportioning revenue by owner of ways.
+	// Increment the way distance: used for apportioning revenue by owner of ways.
 	// Use steps, as only relative distance is important here.
 	sint8 player;
 	waytype_t waytype = fahr[0]->get_waytype();
-	const grund_t* gr = welt->lookup(get_pos());
-	weg_t* way = gr ? gr->get_weg(waytype) : NULL;
+	//const grund_t* gr = fahr[0]->get_grund();
+	weg_t* way = fahr[0]->get_weg();
 	if(way == NULL)
 	{
 		player = besitzer_p->get_player_nr();
@@ -787,16 +788,31 @@ void convoi_t::increment_odometer(uint32 steps)
 	book( km, CONVOI_DISTANCE );
 	total_distance_traveled += km;
 	steps_since_last_odometer_increment -= km * steps_since_last_odometer_increment;
-	for(uint8 i= 0; i < anz_vehikel; i++) 
 	{
-		const grund_t *gr = welt->lookup(fahr[0]->get_pos());
-		if(gr)
+		koord3d pos = koord3d::invalid;
+		weg_t* weg = NULL;
+		sint32 running_cost = 0;
+		bool must_add = false;
+		for(uint8 i= 0; i < anz_vehikel; i++) 
 		{
-			add_running_cost(-fahr[i]->get_besch()->get_running_cost(welt), gr->get_weg(fahr[0]->get_waytype()));
+			const vehikel_t& v = *fahr[i];
+			if (v.get_pos() != pos)
+			{
+				if (must_add)
+				{
+					add_running_cost(running_cost, weg);
+				}
+				pos = v.get_pos();
+				//const grund_t* gr = welt->lookup(pos);
+				weg = v.get_weg();
+				running_cost = 0;
+			}
+			must_add = true;
+			running_cost -= v.get_besch()->get_running_cost(welt);
 		}
-		else
+		if (must_add)
 		{
-			add_running_cost(-fahr[i]->get_besch()->get_running_cost(welt), NULL);
+			add_running_cost(running_cost, weg);
 		}
 	}
 }

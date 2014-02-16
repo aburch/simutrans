@@ -77,14 +77,10 @@ void adverse_summary_t::add_vehicle(const vehikel_t &v)
 	const waytype_t waytype = v.get_waytype();
 	if (waytype != air_wt || ((const aircraft_t &)v).get_flyingheight() <= 0)
 	{
-		const grund_t *gr = v.get_welt()->lookup(v.get_pos());
-		if (gr)
+		weg_t *way = v.get_weg();
+		if (way)
 		{
-			weg_t *way = gr->get_weg(waytype);
-			if (way)
-			{
-				max_speed = min(max_speed, way->get_max_speed());
-			}
+			max_speed = min(max_speed, way->get_max_speed());
 		}
 	}
 

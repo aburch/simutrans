@@ -106,10 +106,9 @@ public:
 			// must be valid ground at this point!
 		    return data.one->get_hoehe() == z ? data.one : NULL;
 		}
-		for(  int i = ground_size;  --i >= 0; ) {
-			grund_t *gr = data.some[i];
-			if(  gr->get_hoehe() == z  ) {
-				return gr;
+		for( grund_t **gr = data.some, **end = data.some + ground_size;  gr != end; ++gr ) {
+			if(  (*gr)->get_hoehe() == z  ) {
+				return *gr;
 			}
 		}
 		return NULL;
