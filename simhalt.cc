@@ -565,8 +565,7 @@ haltestelle_t::~haltestelle_t()
 
 	// first: remove halt from all lists
 	int i=0;
-	while(alle_haltestellen.is_contained(self)) {
-		alle_haltestellen.remove(self);
+	while(alle_haltestellen.remove(self)) {
 		i++;
 	}
 	if (i != 1) {
@@ -605,7 +604,7 @@ haltestelle_t::~haltestelle_t()
 	koord lr(0,0);
 	while(  !tiles.empty()  ) {
 		koord pos = tiles.remove_first().grund->get_pos();
-		planquadrat_t *pl = welt->access(pos);
+		planquadrat_t *pl = welt->access_nocheck(pos);
 		assert(pl);
 		for( uint8 i=0;  i<pl->get_boden_count();  i++  ) {
 			pl->get_boden_bei(i)->set_halt( halthandle_t() );
@@ -625,7 +624,7 @@ haltestelle_t::~haltestelle_t()
 	lr.y = min(welt->get_size().y, lr.y + 1 + cov);
 	for(  int y=ul.y;  y<lr.y;  y++  ) {
 		for(  int x=ul.x;  x<lr.x;  x++  ) {
-			planquadrat_t *plan = welt->access(x,y);
+			planquadrat_t *plan = welt->access_nocheck(x,y);
 			if(plan->get_haltlist_count()>0) {
 				plan->remove_from_haltlist(self);
 			}
