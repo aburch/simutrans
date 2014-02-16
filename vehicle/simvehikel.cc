@@ -204,6 +204,8 @@ vehikel_basis_t::vehikel_basis_t():
 	dx = 0;
 	dy = 0;
 	hoff = 0;
+	gr = NULL;
+	weg = NULL;
 }
 
 
@@ -225,6 +227,8 @@ vehikel_basis_t::vehikel_basis_t(koord3d pos):
 	dx = 0;
 	dy = 0;
 	hoff = 0;
+	gr = NULL;
+	weg = NULL;
 }
 
 
@@ -253,7 +257,8 @@ void
 vehikel_basis_t::verlasse_feld() //"leave field" (Google)
 {
 	// first: release crossing
-	grund_t *gr = welt->lookup(get_pos());
+	//grund_t *gr = welt->lookup(get_pos());
+	weg = NULL;
 	if(  gr  &&  gr->ist_uebergang()  ) {
 		crossing_t *cr = gr->find<crossing_t>(2);
 		grund_t *gr2 = welt->lookup(pos_next);
@@ -277,6 +282,7 @@ vehikel_basis_t::verlasse_feld() //"leave field" (Google)
 				gr->obj_remove(this);
 				dbg->warning("vehikel_basis_t::verlasse_feld()","removed vehicle typ %i (%p) from %d %d",get_typ(), this, get_pos().x, get_pos().y);
 			}
+			gr = NULL;
 			return;
 		}
 
@@ -297,18 +303,20 @@ vehikel_basis_t::verlasse_feld() //"leave field" (Google)
 			dbg->error("vehikel_basis_t::verlasse_feld()","'%s' %p was not found on any map square!",get_name(), this);
 		}
 	}
+	gr = NULL;
 }
 
 
 grund_t* vehikel_basis_t::betrete_feld()
 {
-	grund_t *gr = welt->lookup(get_pos());
+	gr = welt->lookup(get_pos());
 	if(!gr) {
 		dbg->error("vehikel_basis_t::betrete_feld()","'%s' new position (%i,%i,%i)!",get_name(), get_pos().x, get_pos().y, get_pos().z );
 		gr = welt->lookup_kartenboden(get_pos().get_2d());
 		set_pos( gr->get_pos() );
 	}
 	gr->obj_add(this);
+	weg = gr->get_weg(get_waytype());
 	return gr;
 }
 

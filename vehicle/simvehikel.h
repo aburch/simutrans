@@ -49,6 +49,12 @@ class route_t;
  */
 class vehikel_basis_t : public obj_t
 {
+	// BG, 15.02.2014: gr and weg are cached in betrete_feld() and reset to NULL in verlasse_feld().
+	grund_t* gr;
+	weg_t* weg;
+public:
+	inline grund_t* get_grund() const { return gr; }
+	inline weg_t* get_weg() const { return weg; }
 protected:
 	// offsets for different directions
 	static sint8 dxdy[16];
