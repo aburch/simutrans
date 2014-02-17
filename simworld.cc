@@ -641,7 +641,6 @@ void karte_t::destroy()
 DBG_MESSAGE("karte_t::destroy()", "destroying world");
 
 	is_shutting_down = true;
-	unassigned_cars.clear();
 
 	uint32 max_display_progress = 256+stadt.get_count()*10 + haltestelle_t::get_alle_haltestellen().get_count() + convoi_array.get_count() + (cached_size.x*cached_size.y)*2;
 	uint32 old_progress = 0;
@@ -3779,7 +3778,6 @@ void karte_t::new_month()
 
 	//	DBG_MESSAGE("karte_t::neuer_monat()","cities");
 	stadt.update_weights(get_population);
-	sint32 outstanding_cars = 0;
 	FOR(weighted_vector_tpl<stadt_t*>, const s, stadt) 
 	{
 		if(recheck_road_connexions) 
@@ -3787,7 +3785,6 @@ void karte_t::new_month()
 			cities_awaiting_private_car_route_check.append_unique(s);
 		}
 		s->neuer_monat(recheck_road_connexions);
-		outstanding_cars += s->get_outstanding_cars();
 		//INT_CHECK("simworld 3117");
 		total_electric_demand += s->get_power_demand();
 	}
@@ -3825,26 +3822,6 @@ void karte_t::new_month()
 	if(  playerwin  ) {
 		playerwin->update_data();
 	}
-
-	// This code is probably no longer necessary, as the private cars' time_to_life (sic)
-	// value is set based on its anticipated journey time, which should automatically
-	// ensure that the correct number of vehicles remain on the roads provided that the 
-	// correct number are generated in the first place. 
-
-	// Retain the commented out code for the time being just in case removing it is problematic.
-	// Otherwise, consider deleting the whole infrastructure associated with this code, inelcuding
-	// the unassigned cars list.
-
-	//stadtauto_t* car;
-	//while(!unassigned_cars.empty() && (sint32)unassigned_cars.get_count() > outstanding_cars)
-	//{
-	//	// Make sure that there are not too many cars on the roads. 
-	//	car = unassigned_cars.remove_first();
-	//	car->set_list(NULL);
-	//	/*sync_remove(car);
-	//	delete car;*/
-	//}
-	//car = NULL;
 
 	INT_CHECK("simworld 3175");
 

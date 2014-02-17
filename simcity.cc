@@ -1565,23 +1565,6 @@ stadt_t::~stadt_t()
 
 	welt->remove_queued_city(this);
 
-	if(welt->get_is_shutting_down())
-	{
-		current_cars.clear();
-	}
-	else
-	{
-		while(!current_cars.empty())
-		{
-			// Delete all cars.
-			stadtauto_t* car = current_cars.remove_first();
-			car->set_list(NULL);
-			car->set_time_to_life(0);
-			// Deleting here, for some reason, caused untraceable crashes.
-			// So, instead, set time to life [sic] to 0 and let it delete itself.
-		}
-	}
-
 	// Remove references to this city from factories.
 	ITERATE(city_factories, i)
 	{
@@ -2762,77 +2745,7 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 	{
 		check_road_connexions = true;
 	}
-
-	//if(!stadtauto_t::list_empty()) 
-	//{
-	//	// Spawn citycars
-	//	
-	//	// Citycars now used as an accurate measure of actual traffic level, not just the number of cars generated
-	//	// graphically on the map. Thus, the "traffic level" setting no longer has an effect on the city cars graph,
-	//	// but still affects the number of actual cars generated. 
-	//	
-	//	// Divide by a factor because number of cars drawn on screen should be a fraction of actual traffic, or else
-	//	// everywhere will become completely clogged with traffic. Linear rather than logorithmic scaling so
-	//	// that the player can have a better idea visually of the amount of traffic.
-
-	//	sint32 old_number_of_cars = number_of_cars;
-	//	
-	//	// Subtract incoming trips and cars already generated to prevent double counting.
-	//	number_of_cars = ((city_history_month[1][HIST_CITYCARS] * traffic_level) / 1000) - (sint32)incoming_private_cars - (sint32)current_cars.get_count();
-	//	incoming_private_cars = 0;
-
-	//	while(!current_cars.empty() && number_of_cars < 0)
-	//	{
-	//		//Make sure that there are not too many cars on the roads. 
-	//		stadtauto_t* car = current_cars.remove_first();
-	//		car->set_list(NULL);
-	//		car->set_time_to_life(0);
-	//		// Deleting here, for some reason, caused untraceable crashes.
-	//		// So, instead, set time to life [sic] to 0 and let it delete itself.
-	//		number_of_cars++;
-	//	}
-	//	koord k;
-	//	koord pos = get_zufallspunkt();
-	//	int retry_count = 5;
-	//	while(old_number_of_cars > 0 && retry_count > 0)
-	//	{
-	//		for (k.y = pos.y - 3; k.y < pos.y + 3; k.y++) 
-	//		{
-	//			for (k.x = pos.x - 3; k.x < pos.x + 3; k.x++)
-	//			{
-	//				if(number_of_cars == 0)
-	//				{
-	//					return;
-	//				}
-
-	//				grund_t* gr = welt->lookup_kartenboden(k);
-	//				if (gr != NULL && gr->get_weg(road_wt) && ribi_t::is_twoway(gr->get_weg_ribi_unmasked(road_wt)) && gr->find<stadtauto_t>() == NULL)
-	//				{
-	//					slist_tpl<stadtauto_t*> *car_list = &current_cars;
-	//					stadtauto_t* vt = new stadtauto_t(welt, gr->get_pos(), koord::invalid, car_list);
-	//					gr->obj_add(vt);
-	//					welt->sync_add(vt);
-	//					current_cars.append(vt);
-	//					number_of_cars--;
-	//					old_number_of_cars--;
-	//				}
-	//			}
-	//		}
-	//		retry_count --;
-	//	}
-	//}//*/// Spawn city cars
 }
-
-sint32 stadt_t::get_outstanding_cars()
-{
-	return number_of_cars - current_cars.get_count();
-}
-
-void stadt_t::add_car(stadtauto_t* car)
-{
-	current_cars.append(car);
-}
-
 
 void stadt_t::calc_growth()
 {
@@ -5394,12 +5307,11 @@ void stadt_t::erzeuge_verkehrsteilnehmer(koord pos, uint16 journey_tenths_of_min
 					{
 						if (!stadtauto_t::list_empty()) 
 						{
-							stadtauto_t* vt = new stadtauto_t(welt, gr->get_pos(), target, &current_cars);
+							stadtauto_t* vt = new stadtauto_t(welt, gr->get_pos(), target);
 							const sint32 time_to_live = ((sint32)journey_tenths_of_minutes * 136584) / (sint32)welt->get_settings().get_meters_per_tile();
 							vt->set_time_to_life(time_to_live);
 							gr->obj_add(vt);
 							welt->sync_add(vt);
-							current_cars.append(vt);
 						}
 						goto outer_loop;
 					}
