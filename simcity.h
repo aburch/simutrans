@@ -450,7 +450,7 @@ private:
 	const gebaeude_t* get_citybuilding_at(const koord k) const;
 	int get_best_layout(const haus_besch_t* h, const koord & k) const;
 
-	void erzeuge_verkehrsteilnehmer(koord pos, uint16 journey_tenths_of_minutes, koord target);
+	void erzeuge_verkehrsteilnehmer(koord pos, uint16 journey_tenths_of_minutes, koord target, uint8 number_of_passengers);
 
 	/**
 	 * baut ein Stueck Strasse
@@ -504,6 +504,9 @@ private:
 	bool check_road_connexions;
 
 	inline void register_factory_passenger_generation(int* pax_left_to_do, const ware_besch_t *const wtyp, factory_set_t &target_factories, factory_entry_t* &factory_entry);
+
+	sint32 traffic_level;
+	void calc_traffic_level();
 
 public:
 	/**
