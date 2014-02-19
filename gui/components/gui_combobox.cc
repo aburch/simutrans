@@ -277,15 +277,13 @@ void gui_combobox_t::reset_selected_item_name()
 */
 void gui_combobox_t::close_box()
 {
-	// set unvisible before calling listeners
-	// to avoid that set_selection will call droplist.show_selection
-	droplist.set_visible(false);
 	if(finish) {
 		value_t p;
 		p.i = droplist.get_selection();
 		call_listeners(p);
 		finish = false;
 	}
+	droplist.set_visible(false);
 	set_size(scr_size(size.w, D_EDIT_HEIGHT));
 	first_call = true;
 }
