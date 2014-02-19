@@ -4943,10 +4943,16 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 		return;
 	}
 
+	if(arrival_time > welt->get_zeit_ms())
+	{
+		// This is a workaround for an odd bug the origin of which is as yet unclear.
+		go_on_ticks = WAIT_INFINITE;
+		arrival_time = welt->get_zeit_ms();
+	}
 	const uint32 reversing_time = fpl->get_current_eintrag().reverse ? calc_reverse_delay() : 0;
 	if(go_on_ticks == WAIT_INFINITE) 
 	{
-		const sint64 departure_time = (arrival_time + current_loading_time) - reversing_time;
+		const sint64 departure_time = (arrival_time + (sint64)current_loading_time) - (sint64)reversing_time;
 		if(haltestelle_t::get_halt(welt, get_pos(), get_besitzer()) != haltestelle_t::get_halt(welt, fpl->get_current_eintrag().pos, get_besitzer()))
 		{
 			// Sometimes, for some reason, the loading method is entered with the wrong schedule entry. Make sure that this does not cause
@@ -4960,20 +4966,20 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 		else 
 		{
 			sint64 go_on_ticks_spacing = WAIT_INFINITE;
-			if (line.is_bound() && fpl->get_spacing() && line->count_convoys()) 
+			if(line.is_bound() && fpl->get_spacing() && line->count_convoys()) 
 			{
 				// Spacing cnv/month
-				uint32 spacing = welt->ticks_per_world_month / fpl->get_spacing();
-				uint32 spacing_shift = fpl->get_current_eintrag().spacing_shift * welt->ticks_per_world_month / welt->get_settings().get_spacing_shift_divisor();
+				sint64 spacing = welt->ticks_per_world_month / (sint64)fpl->get_spacing();
+				sint64 spacing_shift = (sint64)fpl->get_current_eintrag().spacing_shift * welt->ticks_per_world_month / (sint64)welt->get_settings().get_spacing_shift_divisor();
 				sint64 wait_from_ticks = ((welt->get_zeit_ms() - spacing_shift) / spacing) * spacing + spacing_shift; // remember, it is integer division
-				int queue_pos = halt.is_bound() ? halt->get_queue_pos(self) : 1;
+				sint64 queue_pos = halt.is_bound() ? halt->get_queue_pos(self) : 1ll;
 				go_on_ticks_spacing = (wait_from_ticks + spacing * queue_pos) - reversing_time;
 			}
 			sint64 go_on_ticks_waiting = WAIT_INFINITE;
 			if(fpl->get_current_eintrag().waiting_time_shift > 0)
 			{
 				// Max. wait for load
-				go_on_ticks_waiting = welt->get_zeit_ms() + (welt->ticks_per_world_month >> (16 - fpl->get_current_eintrag().waiting_time_shift)) - reversing_time;
+				go_on_ticks_waiting = welt->get_zeit_ms() + (welt->ticks_per_world_month >> (16ll - (sint64)fpl->get_current_eintrag().waiting_time_shift)) - (sint64)reversing_time;
 			}
 			go_on_ticks = (std::min)(go_on_ticks_spacing, go_on_ticks_waiting);
 			go_on_ticks = (std::max)(departure_time, go_on_ticks);
