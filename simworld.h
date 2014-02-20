@@ -140,12 +140,6 @@ public:
 
 	bool get_is_shutting_down() const { return is_shutting_down; }
 
-	// City cars that are not assigned to a particular city are stored in this list.
-	// @author:jamespetts
-	slist_tpl<stadtauto_t *> unassigned_cars;
-	
-	void add_unassigned_car(stadtauto_t* car) { unassigned_cars.append(car); } 
-
 	enum { NORMAL=0, PAUSE_FLAG = 0x01, FAST_FORWARD=0x02, FIX_RATIO=0x04 };
 
 	/**

@@ -34,7 +34,7 @@ private:
 	 * Die eigentliche Routensuche
 	 * @author Hj. Malthaner
 	 */
-	bool intern_calc_route(karte_t *w, koord3d start, koord3d ziel, fahrer_t *fahr, const sint32 max_kmh, const uint32 max_cost, const uint32 axle_load, const uint32 convoy_weight, const sint32 tile_length);
+	bool intern_calc_route(karte_t *w, koord3d start, koord3d ziel, fahrer_t *fahr, const sint32 max_kmh, const sint64 max_cost, const uint32 axle_load, const uint32 convoy_weight, const sint32 tile_length);
 
 protected:
 	koord3d_vector_t route;           // Die Koordinaten fuer die Fahrtroute - "The coordinates for the route" (Google)
@@ -170,7 +170,7 @@ public:
 	 * berechnet eine route von start nach ziel.
 	 * @author Hj. Malthaner
 	 */
-	route_result_t calc_route(karte_t *welt, koord3d start, koord3d ziel, fahrer_t *fahr, const sint32 max_speed_kmh, const uint32 axle_load, sint32 max_tile_len, const uint32 max_cost=0xFFFFFFFF, const uint32 convoy_weight = 0);
+	route_result_t calc_route(karte_t *welt, koord3d start, koord3d ziel, fahrer_t *fahr, const sint32 max_speed_kmh, const uint32 axle_load, sint32 max_tile_len, const sint64 max_cost = SINT64_MAX_VALUE, const uint32 convoy_weight = 0);
 
 	/**
 	 * Lädt/speichert eine Route
