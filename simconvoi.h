@@ -74,7 +74,7 @@ public:
 	enum { max_vehicle=8, max_rail_vehicle = 64 };
 
 	enum states {INITIAL,
-		FAHRPLANEINGABE,
+		FAHRPLANEINGABE, // "Schedule enter" (Google)
 		ROUTING_1,
 		DUMMY4,
 		DUMMY5,

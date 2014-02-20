@@ -1491,11 +1491,11 @@ end_loop:
 
 		case FAHRPLANEINGABE:
 			// schedule window closed?
-			if(fpl!=NULL  &&  fpl->ist_abgeschlossen()) {
-
+			if(fpl != NULL && fpl->ist_abgeschlossen()) 
+			{
 				set_schedule(fpl);
 
-				if(  fpl->empty()  ) 
+				if(fpl->empty()) 
 				{
 					// no entry => no route ...
 					state = NO_ROUTE;
@@ -1504,55 +1504,78 @@ end_loop:
 					// Get out of this routine; object might be destroyed.
 					return;
 				}
-				else {
-					if(  fpl->get_current_eintrag().pos==get_pos()  ) {
+				else
+				{
+					// The schedule window might be closed whilst this vehicle is still loading.
+					// Do not allow the player to cheat by sending the vehicle on its way before it has finished.
+ 					bool can_go = true;
+					const uint32 reversing_time = fpl->get_current_eintrag().reverse ? calc_reverse_delay() : 0;
+ 					can_go = can_go || welt->get_zeit_ms() > go_on_ticks;
+ 					can_go = can_go && welt->get_zeit_ms() > arrival_time + ((sint64)current_loading_time - (sint64)reversing_time);
+ 					can_go = can_go || no_load;
+
+					if(fpl->get_current_eintrag().pos == get_pos()) 
+					{
 						// We are at the scheduled location
 						grund_t *gr = welt->lookup(fpl->get_current_eintrag().pos);
-						if(  gr  ) {
+						if(gr)
+						{
 							depot_t * this_depot = gr->get_depot();
 							// double-check for right depot type based on first vehicle
-							if (  this_depot &&  this_depot->is_suitable_for(fahr[0])  ) {
+							if(this_depot && this_depot->is_suitable_for(fahr[0])) 
+							{
 								// If it's a suitable depot, move into the depot
 								// This check must come before the station check, because for
 								// ships we may be in a depot and at a sea stop!
-								enter_depot( gr->get_depot() );
+								enter_depot(gr->get_depot());
 								break;
 							}
 						}
 					}
-					halthandle_t h = haltestelle_t::get_halt( welt, get_pos(), get_besitzer() );
-					if(  h.is_bound()  &&  h==haltestelle_t::get_halt( welt, fpl->get_current_eintrag().pos, get_besitzer() )  ) {
+					halthandle_t h = haltestelle_t::get_halt(welt, get_pos(), get_besitzer());
+					if(h.is_bound() && h==haltestelle_t::get_halt( welt, fpl->get_current_eintrag().pos, get_besitzer() ))
+					{
 						// We are at the station we are scheduled to be at
 						// (possibly a different platform)
-						if (route.get_count() > 0) {
+						if (route.get_count() > 0)
+						{
 							koord3d const& pos = route.back();
-							if (h == haltestelle_t::get_halt(welt, pos, get_besitzer())) {
+							if (h == haltestelle_t::get_halt(welt, pos, get_besitzer()))
+							{
 								// If this is also the station at the end of the current route
 								// (the correct platform)
-								if (get_pos() == pos) {
+								if(get_pos() == pos)
+								{
 									// And this is also the correct platform... then load.
 									state = LOADING;
 									break;
 								}
-								else {
+								else
+								{
 									// Right station, wrong platform
-									state = DRIVING;
+									can_go ? state = DRIVING : state = LOADING;
 									break;
 								}
 							}
 						}
-						else {
+						else
+						{
 							// We're at the scheduled station,
 							// but there is no programmed route.
-							if(  drive_to()  ) {
+							if(can_go && drive_to())
+							{
 								state = DRIVING;
 								break;
+							}
+							else if(!can_go)
+							{
+								state = LOADING;
 							}
 						}
 					}
 
 					// We aren't at our destination; start routing.
-					state = ROUTING_1;
+					can_go ? state = ROUTING_1 : state = LOADING;
 				}
 			}
 			break;
