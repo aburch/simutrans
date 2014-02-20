@@ -810,7 +810,9 @@ void path_explorer_t::compartment_t::step()
 						// Zero here means that there are no journey time data even if the hashtable entry exists.
 						// Fallback to convoy's general average speed if a point-to-point average is not available.
 						const uint32 distance = shortest_distance(halt_list[i]->get_basis_pos(), halt_list[(i+1)%entry_count]->get_basis_pos());
-						journey_time = world->travel_time_tenths_from_distance(distance, current_average_speed);
+						const uint32 journey_time_32 = world->travel_time_tenths_from_distance(distance, current_average_speed);
+						// TODO: Seriously consider using 32 bits here for all journey time data
+						journey_time = journey_time_32 > 65534 ? 65534 : journey_time_32;
 					}
 
 					// journey time from halt 0 to halt 1 is stored in journey_time_list[1]
