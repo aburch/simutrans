@@ -1514,15 +1514,14 @@ end_loop:
  					can_go = can_go && welt->get_zeit_ms() > arrival_time + ((sint64)current_loading_time - (sint64)reversing_time);
  					can_go = can_go || no_load;
 
-					if(fpl->get_current_eintrag().pos == get_pos()) 
+					grund_t *gr = welt->lookup(fpl->get_current_eintrag().pos);
+					depot_t * this_depot = NULL;
+					if(gr)
 					{
-						// We are at the scheduled location
-						grund_t *gr = welt->lookup(fpl->get_current_eintrag().pos);
-						if(gr)
+						this_depot = gr->get_depot();
+						if(this_depot && this_depot->is_suitable_for(fahr[0]))
 						{
-							depot_t * this_depot = gr->get_depot();
-							// double-check for right depot type based on first vehicle
-							if(this_depot && this_depot->is_suitable_for(fahr[0])) 
+							if(fpl->get_current_eintrag().pos == get_pos()) 
 							{
 								// If it's a suitable depot, move into the depot
 								// This check must come before the station check, because for
@@ -1530,10 +1529,17 @@ end_loop:
 								enter_depot(gr->get_depot());
 								break;
 							}
+							else
+							{
+								// The go to depot command has been set previously and has not been unset.
+								can_go = true;
+								wait_lock = (arrival_time + ((sint64)current_loading_time - (sint64)reversing_time)) - welt->get_zeit_ms();
+							}
 						}
 					}
+
 					halthandle_t h = haltestelle_t::get_halt(welt, get_pos(), get_besitzer());
-					if(h.is_bound() && h==haltestelle_t::get_halt( welt, fpl->get_current_eintrag().pos, get_besitzer() ))
+					if(h.is_bound() && h==haltestelle_t::get_halt(welt, fpl->get_current_eintrag().pos, get_besitzer()))
 					{
 						// We are at the station we are scheduled to be at
 						// (possibly a different platform)
