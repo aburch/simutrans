@@ -17,7 +17,7 @@
  */
 class script_vm_t {
 public:
-	script_vm_t();
+	script_vm_t(const char* include_path_);
 	~script_vm_t();
 
 	/**
@@ -125,6 +125,9 @@ private:
 
 	/// set error message, used in errorhandlers
 	void set_error(const char* error) { error_msg = error; }
+
+	/// path to files to #include
+	plainstring include_path;
 };
 
 #endif

@@ -149,6 +149,7 @@
     <ClCompile Include="script\api\api_factory.cc" />
     <ClCompile Include="script\api_function.cc" />
     <ClCompile Include="script\api\api_halt.cc" />
+    <ClCompile Include="script\api\api_include.cc" />
     <ClCompile Include="script\api_param.cc" />
     <ClCompile Include="script\api\api_player.cc" />
     <ClCompile Include="script\api\api_scenario.cc" />
