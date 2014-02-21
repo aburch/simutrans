@@ -6103,7 +6103,7 @@ const char *wkz_add_citycar_t::work( spieler_t *sp, koord3d pos )
 
 	if(  gr != NULL  &&  ribi_t::is_twoway(gr->get_weg_ribi_unmasked(road_wt))  &&  gr->find<stadtauto_t>() == NULL) {
 		// add citycar
-		stadtauto_t* vt = new stadtauto_t(gr, koord::invalid, &(welt->unassigned_cars));
+		stadtauto_t* vt = new stadtauto_t(gr, koord::invalid);
 		gr->obj_add(vt);
 		welt->sync_add(vt);
 		return NULL;
@@ -7968,14 +7968,28 @@ bool wkz_access_t::init(spieler_t *sp)
 					continue;
 				}
 				current_aktuell = fpl->get_aktuell();
-				waytype = fpl->get_waytype();
+				waytype = fpl->get_waytype(); 
 				for(uint8 n = 0; n < fpl->get_count(); n ++)
 				{
+					bool tram_stop_public = false;
 					pos = fpl->eintrag[n].pos;
 					const grund_t* gr = welt->lookup(pos);
-					halt = gr ?gr->get_halt() : halthandle_t();
-					halt_owner = halt.is_bound() ? halt->get_besitzer() : NULL;
-					if(halt_owner && receiving_player && halt_owner != receiving_player && !halt_owner->allows_access_to(receiving_player->get_player_nr()))
+					halt = gr ? gr->get_halt() : halthandle_t();
+					const weg_t *w = gr ? gr->get_weg(fpl->get_waytype()) : NULL;
+					if(halt.is_bound()) 
+					{
+						const grund_t* gr = welt->lookup(fpl->get_current_eintrag().pos);	
+						if(fpl->get_waytype() == tram_wt)
+						{	
+							const weg_t *street = gr ? gr->get_weg(road_wt) : NULL;
+							if(street && (street->get_besitzer() == receiving_player || street->get_besitzer() == NULL || street->get_besitzer()->allows_access_to(receiving_player->get_player_nr())))
+							{
+								tram_stop_public = true;
+							}
+						}
+					}
+					const spieler_t *way_owner = w ? w->get_besitzer() : NULL;
+					if((!halt.is_bound() || !halt->check_access(receiving_player)) && way_owner && !way_owner->allows_access_to(receiving_player->get_player_nr()) && !tram_stop_public)
 					{
 						// The player no longer allows access: remove the stop.
 						entries_to_remove.append(n);
@@ -8005,7 +8019,7 @@ bool wkz_access_t::init(spieler_t *sp)
 		for(uint32 i = 0; i < convoy_count; i ++)
 		{
 			cnv = welt->convoys()[i];
-			if(!cnv.is_bound() || cnv->get_line().is_bound())
+			if(!cnv.is_bound() || cnv->get_line().is_bound() || cnv->get_besitzer() != receiving_player)
 			{
 				// We dealt above with lines.
 				continue;
@@ -8016,18 +8030,33 @@ bool wkz_access_t::init(spieler_t *sp)
 				continue;
 			}
 			current_aktuell = fpl->get_aktuell();
-			waytype = fpl->get_waytype();
+			waytype = fpl->get_waytype(); 
 			for(uint8 n = 0; n < fpl->get_count(); n ++)
 			{
+				bool tram_stop_public = false;
 				pos = fpl->eintrag[n].pos;
 				const grund_t* gr = welt->lookup(pos);
 				halt = gr ? gr->get_halt() : halthandle_t();
-				halt_owner = halt.is_bound() ? halt->get_besitzer() : NULL;
-				if(halt_owner && receiving_player && halt_owner != receiving_player && !halt_owner->allows_access_to(receiving_player->get_player_nr()))
+				const weg_t *w = gr ? gr->get_weg(fpl->get_waytype()) : NULL;
+				if(halt.is_bound()) 
 				{
-					entries_to_remove.append(n);
-					// The player no longer allows access: remove the stop.
+					const grund_t* gr = welt->lookup(fpl->get_current_eintrag().pos);	
+					if(fpl->get_waytype() == tram_wt)
+					{	
+						const weg_t *street = gr ? gr->get_weg(road_wt) : NULL;
+						if(street && (street->get_besitzer() == receiving_player || street->get_besitzer() == NULL || street->get_besitzer()->allows_access_to(receiving_player->get_player_nr())))
+						{
+							tram_stop_public = true;
+						}
+					}
 				}
+				const spieler_t *way_owner = w ? w->get_besitzer() : NULL;
+				if((!halt.is_bound() || !halt->check_access(receiving_player)) && way_owner && !way_owner->allows_access_to(receiving_player->get_player_nr()) && !tram_stop_public)
+				{
+					// The player no longer allows access: remove the stop.
+					entries_to_remove.append(n);
+				}
+
 			}
 
 			ITERATE(entries_to_remove, j)
@@ -8042,12 +8071,12 @@ bool wkz_access_t::init(spieler_t *sp)
 				}
 			}
 
-			if(fpl->get_count() < 2)
+			if(!cnv->in_depot() && fpl->get_count() < 2)
 			{
 				// We need to make sure that convoys with fewer than two
 				// stops are not left stranded and blocking things.
 				cnv->emergency_go_to_depot();
-				// Note that this may destroy the convoi in extreme cases.
+				// Note that this may destroy the convoy in extreme cases.
 			}
 		}
 		

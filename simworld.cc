@@ -721,7 +721,6 @@ void karte_t::destroy()
 DBG_MESSAGE("karte_t::destroy()", "destroying world");
 
 	is_shutting_down = true;
-	unassigned_cars.clear();
 
 	passenger_origins.clear();
 	commuter_targets.clear();
@@ -4510,7 +4509,6 @@ void karte_t::new_month()
 
 	//	DBG_MESSAGE("karte_t::new_month()","cities");
 	stadt.update_weights(get_population);
-	sint32 outstanding_cars = 0;
 	FOR(weighted_vector_tpl<stadt_t*>, const s, stadt) 
 	{
 		if(recheck_road_connexions) 
@@ -4518,7 +4516,6 @@ void karte_t::new_month()
 			cities_awaiting_private_car_route_check.append_unique(s);
 		}
 		s->neuer_monat(recheck_road_connexions);
-		outstanding_cars += s->get_outstanding_cars();
 		//INT_CHECK("simworld 3117");
 		total_electric_demand += s->get_power_demand();
 	}
@@ -4556,26 +4553,6 @@ void karte_t::new_month()
 	if(  playerwin  ) {
 		playerwin->update_data();
 	}
-
-	// This code is probably no longer necessary, as the private cars' time_to_life (sic)
-	// value is set based on its anticipated journey time, which should automatically
-	// ensure that the correct number of vehicles remain on the roads provided that the 
-	// correct number are generated in the first place. 
-
-	// Retain the commented out code for the time being just in case removing it is problematic.
-	// Otherwise, consider deleting the whole infrastructure associated with this code, inelcuding
-	// the unassigned cars list.
-
-	//stadtauto_t* car;
-	//while(!unassigned_cars.empty() && (sint32)unassigned_cars.get_count() > outstanding_cars)
-	//{
-	//	// Make sure that there are not too many cars on the roads. 
-	//	car = unassigned_cars.remove_first();
-	//	car->set_list(NULL);
-	//	/*sync_remove(car);
-	//	delete car;*/
-	//}
-	//car = NULL;
 
 	INT_CHECK("simworld 3175");
 
@@ -5754,7 +5731,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 				city->set_private_car_trip(pax_left_to_do, destination_town);
 				city->merke_passagier_ziel(destination_pos, COL_TURQUOISE);
 #ifdef DESTINATION_CITYCARS
-				city->erzeuge_verkehrsteilnehmer(origin_pos, car_minutes, destination_pos);
+				city->erzeuge_verkehrsteilnehmer(origin_pos, car_minutes, destination_pos, pax_left_to_do);
 #endif
 				set_return_trip = true;
 				// We cannot do this on arrival, as the ware packets do not remember their origin building.
@@ -6010,7 +5987,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 
 #ifdef DESTINATION_CITYCARS
 						//citycars with destination
-						city->erzeuge_verkehrsteilnehmer(first_destination.location, car_minutes, origin_pos);
+						city->erzeuge_verkehrsteilnehmer(first_destination.location, car_minutes, origin_pos, pax_left_to_do);
 #endif
 
 						if(current_destination.type == factory)
