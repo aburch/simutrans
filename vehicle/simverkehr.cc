@@ -383,13 +383,10 @@ void stadtauto_t::built_timeline_liste(karte_t *welt)
 	}
 }
 
-
-
 bool stadtauto_t::list_empty()
 {
 	return liste_timeline.empty();
 }
-
 
 
 stadtauto_t::~stadtauto_t()
@@ -403,10 +400,6 @@ stadtauto_t::~stadtauto_t()
 	// just to be sure we are removed from this list!
 	if(time_to_life>0) {
 		welt->sync_remove(this);
-	}
-	if(current_list && !welt->get_is_shutting_down())
-	{
-		current_list->remove(this);
 	}
 	welt->buche( -1, karte_t::WORLD_CITYCARS );
 }
@@ -426,7 +419,7 @@ stadtauto_t::stadtauto_t(karte_t *welt, loadsave_t *file) :
 }
 
 
-stadtauto_t::stadtauto_t(karte_t* const welt, koord3d const pos, koord const target, slist_tpl<stadtauto_t*>* car_list) :
+stadtauto_t::stadtauto_t(karte_t* const welt, koord3d const pos, koord const target) :
 #ifdef INLINE_DING_TYPE
 	verkehrsteilnehmer_t(welt, ding_t::verkehr, pos, simrand(65535, "stadtauto_t::stadtauto_t (weg_next)")),
 #else
@@ -444,7 +437,6 @@ stadtauto_t::stadtauto_t(karte_t* const welt, koord3d const pos, koord const tar
 	(void)target;
 #endif
 	calc_bild();
-	current_list = car_list;
 	origin = pos.get_2d();
 }
 
@@ -579,18 +571,7 @@ void stadtauto_t::rdwr(loadsave_t *file)
 #endif
 
 		origin.rdwr(file);
-		const planquadrat_t* tile = welt->lookup(origin);
-		stadt_t* const city = tile ? tile->get_city() : NULL;
-		if(city)
-		{
-			city->add_car(this);
-			current_list = city->get_current_cars();
-		}
-		else
-		{
-			current_list = &welt->unassigned_cars;
-			welt->add_unassigned_car(this);
-		}
+		stadt_t* city = welt->get_city(origin);
 	}
 
 	else if(file->is_loading())
@@ -600,8 +581,6 @@ void stadtauto_t::rdwr(loadsave_t *file)
 		target = koord::invalid;
 #endif
 		origin = koord::invalid;
-		current_list = &welt->unassigned_cars;
-		welt->add_unassigned_car(this);
 	}
 
 	// do not start with zero speed!

@@ -146,7 +146,10 @@ void route_t::INIT_NODES(uint32 max_route_steps, const koord &world_size)
 
 	// may need very much memory => configurable
 	const uint32 max_world_step_size = world_size == koord::invalid ? max_route_steps :  world_size.x * world_size.y * 2;
-	MAX_STEP = min(max_route_steps, max_world_step_size); 
+	// NOTE: The default setting for this is "min" as below. Changed to "max" experimentally to help with ship wayfinding issues, 
+	// pending determination as to whether this is viable in performance terms (for 11.19, Feb. 2014).
+	//MAX_STEP = min(max_route_steps, max_world_step_size); 
+	MAX_STEP = max(max_route_steps, max_world_step_size); 
 	for (int i = 0; i < MAX_NODES_ARRAY; ++i)
 	{
 		_nodes[i] = new ANode[MAX_STEP + 4 + 2];
@@ -489,7 +492,7 @@ void route_t::concatenate_routes(route_t* tail_route)
 }
 
 
-bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d start, fahrer_t *fahr, const sint32 max_speed, const uint32 max_cost, const uint32 axle_load, const uint32 convoy_weight, const sint32 tile_length)
+bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d start, fahrer_t *fahr, const sint32 max_speed, const sint64 max_cost, const uint32 axle_load, const uint32 convoy_weight, const sint32 tile_length)
 {
 	bool ok = false;
 
@@ -734,7 +737,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 
 				// new values for cost g (without way it is either in the air or in water => no costs)
 				const int way_cost = fahr->get_kosten(to, max_speed, tmp->gr->get_pos().get_2d()) + (is_overweight == slowly_only ? 40 : 0);
-				uint32 new_g = tmp->g + (w ? way_cost : 1);
+				uint32 new_g = tmp->g + (w ? way_cost : 10);
 
 				// check for curves (usually, one would need the lastlast and the last;
 				// if not there, then we could just take the last
@@ -744,7 +747,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 					current_dir = ribi_typ(tmp->parent->gr->get_pos().get_2d(), to->get_pos().get_2d());
 					if(tmp->dir!=current_dir)
 					{
-						new_g += 3;
+						new_g += 30;
 						if(tmp->parent->dir!=tmp->dir  &&  tmp->parent->parent!=NULL) {
 							// discourage 90° turns
 							new_g += 10;
@@ -826,7 +829,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
  * corrected 12/2005 for station search
  * @author Hansjörg Malthaner, prissi
  */
-route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d ziel, const koord3d start, fahrer_t *fahr, const sint32 max_khm, const uint32 axle_load, sint32 max_len, const uint32 max_cost, const uint32 convoy_weight)
+route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d ziel, const koord3d start, fahrer_t *fahr, const sint32 max_khm, const uint32 axle_load, sint32 max_len, const sint64 max_cost, const uint32 convoy_weight)
 {
 	route.clear();
 
