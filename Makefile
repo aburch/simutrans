@@ -367,6 +367,7 @@ SOURCES += script/api/api_convoy.cc
 SOURCES += script/api/api_gui.cc
 SOURCES += script/api/api_factory.cc
 SOURCES += script/api/api_halt.cc
+SOURCES += script/api/api_include.cc
 SOURCES += script/api/api_map_objects.cc
 SOURCES += script/api/api_obj_desc.cc
 SOURCES += script/api/api_obj_desc_base.cc

@@ -135,7 +135,7 @@ const char* scenario_t::init( const char *scenario_base, const char *scenario_na
 
 bool scenario_t::load_script(const char* filename)
 {
-	script = new script_vm_t();
+	script = new script_vm_t(scenario_path.c_str());
 	// load global stuff
 	// constants must be known compile time
 	export_global_constants(script->get_vm());
