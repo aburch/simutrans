@@ -1255,12 +1255,6 @@ bool convoi_t::drive_to()
 			// wait 25s before next attempt
 			wait_lock = 25000;
 		}
-//<<<<<<< HEAD
-//		else
-//		{
-//			vorfahren();
-//			return true;
-//=======
 		else {
 			bool route_ok = true;
 			const uint8 aktuell = fpl->get_aktuell();
@@ -1596,12 +1590,12 @@ end_loop:
 
 		case FAHRPLANEINGABE:
 			// schedule window closed?
-			if(fpl!=NULL  &&  fpl->ist_abgeschlossen()) {
-
+			if(fpl != NULL && fpl->ist_abgeschlossen()) 
+			{
 				set_schedule(fpl);
 				fpl_target = koord3d::invalid;
 
-				if(  fpl->empty()  ) 
+				if(fpl->empty()) 
 				{
 					// no entry => no route ...
 					state = NO_ROUTE;
@@ -1610,55 +1604,84 @@ end_loop:
 					// Get out of this routine; object might be destroyed.
 					return;
 				}
-				else {
-					if(  fpl->get_current_eintrag().pos==get_pos()  ) {
-						// We are at the scheduled location
-						grund_t *gr = welt->lookup(fpl->get_current_eintrag().pos);
-						if(  gr  ) {
-							depot_t * this_depot = gr->get_depot();
-							// double-check for right depot type based on first vehicle
-							if (  this_depot &&  this_depot->is_suitable_for(fahr[0])  ) {
+				else
+				{
+					// The schedule window might be closed whilst this vehicle is still loading.
+					// Do not allow the player to cheat by sending the vehicle on its way before it has finished.
+ 					bool can_go = true;
+					const uint32 reversing_time = fpl->get_current_eintrag().reverse ? calc_reverse_delay() : 0;
+ 					can_go = can_go || welt->get_zeit_ms() > go_on_ticks;
+ 					can_go = can_go && welt->get_zeit_ms() > arrival_time + ((sint64)current_loading_time - (sint64)reversing_time);
+ 					can_go = can_go || no_load;
+
+					grund_t *gr = welt->lookup(fpl->get_current_eintrag().pos);
+					depot_t * this_depot = NULL;
+					if(gr)
+					{
+						this_depot = gr->get_depot();
+						if(this_depot && this_depot->is_suitable_for(fahr[0]))
+						{
+							if(fpl->get_current_eintrag().pos == get_pos()) 
+							{
 								// If it's a suitable depot, move into the depot
 								// This check must come before the station check, because for
 								// ships we may be in a depot and at a sea stop!
-								enter_depot( gr->get_depot() );
+								enter_depot(gr->get_depot());
 								break;
+							}
+							else
+							{
+								// The go to depot command has been set previously and has not been unset.
+								can_go = true;
+								wait_lock = (arrival_time + ((sint64)current_loading_time - (sint64)reversing_time)) - welt->get_zeit_ms();
 							}
 						}
 					}
-					halthandle_t h = haltestelle_t::get_halt( get_pos(), get_besitzer() );
-					if(  h.is_bound()  &&  h==haltestelle_t::get_halt( fpl->get_current_eintrag().pos, get_besitzer() )  ) {
+
+					halthandle_t h = haltestelle_t::get_halt(get_pos(), get_besitzer());
+					if(h.is_bound() && h == haltestelle_t::get_halt(fpl->get_current_eintrag().pos, get_besitzer()))
+					{
 						// We are at the station we are scheduled to be at
 						// (possibly a different platform)
-						if (route.get_count() > 0) {
+						if (route.get_count() > 0)
+						{
 							koord3d const& pos = route.back();
-							if (h == haltestelle_t::get_halt(pos, get_besitzer())) {
+							if (h == haltestelle_t::get_halt(pos, get_besitzer()))
+							{
 								// If this is also the station at the end of the current route
 								// (the correct platform)
-								if (get_pos() == pos) {
+								if(get_pos() == pos)
+								{
 									// And this is also the correct platform... then load.
 									state = LOADING;
 									break;
 								}
-								else {
+								else
+								{
 									// Right station, wrong platform
-									state = DRIVING;
+									can_go ? state = DRIVING : state = LOADING;
 									break;
 								}
 							}
 						}
-						else {
+						else
+						{
 							// We're at the scheduled station,
 							// but there is no programmed route.
-							if(  drive_to()  ) {
+							if(can_go && drive_to())
+							{
 								state = DRIVING;
 								break;
+							}
+							else if(!can_go)
+							{
+								state = LOADING;
 							}
 						}
 					}
 
 					// We aren't at our destination; start routing.
-					state = ROUTING_1;
+					can_go ? state = ROUTING_1 : state = LOADING;
 				}
 			}
 			break;
@@ -4202,7 +4225,7 @@ void convoi_t::open_schedule_window( bool show )
 	// manipulation of schedule not allowd while:
 	// - just starting
 	// - a line update is pending
-	if(  (state==FAHRPLANEINGABE || state == LOADING ||  line_update_pending.is_bound())  &&  get_besitzer()==welt->get_active_player()  ) {
+	if(  (state==FAHRPLANEINGABE  ||  line_update_pending.is_bound())  &&  get_besitzer()==welt->get_active_player()  ) {
 		if (show) {
 			create_win( new news_img("Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!"), w_time_delete, magic_none );
 		}
@@ -5066,10 +5089,16 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 		return;
 	}
 
+	if(arrival_time > welt->get_zeit_ms())
+	{
+		// This is a workaround for an odd bug the origin of which is as yet unclear.
+		go_on_ticks = WAIT_INFINITE;
+		arrival_time = welt->get_zeit_ms();
+	}
 	const uint32 reversing_time = fpl->get_current_eintrag().reverse ? calc_reverse_delay() : 0;
 	if(go_on_ticks == WAIT_INFINITE) 
 	{
-		const sint64 departure_time = (arrival_time + current_loading_time) - reversing_time;
+		const sint64 departure_time = (arrival_time + (sint64)current_loading_time) - (sint64)reversing_time;
 		if(haltestelle_t::get_halt(get_pos(), get_besitzer()) != haltestelle_t::get_halt(fpl->get_current_eintrag().pos, get_besitzer()))
 		{
 			// Sometimes, for some reason, the loading method is entered with the wrong schedule entry. Make sure that this does not cause
@@ -5083,20 +5112,20 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 		else 
 		{
 			sint64 go_on_ticks_spacing = WAIT_INFINITE;
-			if (line.is_bound() && fpl->get_spacing() && line->count_convoys()) 
+			if(line.is_bound() && fpl->get_spacing() && line->count_convoys()) 
 			{
 				// Spacing cnv/month
-				uint32 spacing = welt->ticks_per_world_month / fpl->get_spacing();
-				uint32 spacing_shift = fpl->get_current_eintrag().spacing_shift * welt->ticks_per_world_month / welt->get_settings().get_spacing_shift_divisor();
+				sint64 spacing = welt->ticks_per_world_month / (sint64)fpl->get_spacing();
+				sint64 spacing_shift = (sint64)fpl->get_current_eintrag().spacing_shift * welt->ticks_per_world_month / (sint64)welt->get_settings().get_spacing_shift_divisor();
 				sint64 wait_from_ticks = ((welt->get_zeit_ms() - spacing_shift) / spacing) * spacing + spacing_shift; // remember, it is integer division
-				int queue_pos = halt.is_bound() ? halt->get_queue_pos(self) : 1;
+				sint64 queue_pos = halt.is_bound() ? halt->get_queue_pos(self) : 1ll;
 				go_on_ticks_spacing = (wait_from_ticks + spacing * queue_pos) - reversing_time;
 			}
 			sint64 go_on_ticks_waiting = WAIT_INFINITE;
 			if(fpl->get_current_eintrag().waiting_time_shift > 0)
 			{
 				// Max. wait for load
-				go_on_ticks_waiting = welt->get_zeit_ms() + (welt->ticks_per_world_month >> (16 - fpl->get_current_eintrag().waiting_time_shift)) - reversing_time;
+				go_on_ticks_waiting = welt->get_zeit_ms() + (welt->ticks_per_world_month >> (16ll - (sint64)fpl->get_current_eintrag().waiting_time_shift)) - (sint64)reversing_time;
 			}
 			go_on_ticks = (std::min)(go_on_ticks_spacing, go_on_ticks_waiting);
 			go_on_ticks = (std::max)(departure_time, go_on_ticks);

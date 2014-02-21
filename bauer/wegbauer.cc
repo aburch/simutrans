@@ -885,7 +885,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		{
 			const weg_t *canal = to->get_weg(water_wt);
 			// if no way there: check for right ground type, otherwise check owner
-			ok = canal == NULL ? !fundament :  check_owner(canal->get_besitzer(), sp) || check_access(canal, sp);
+			ok = canal == NULL ? !fundament : check_owner(canal->get_besitzer(), sp) || check_access(canal, sp);
 			// calculate costs
 			if(ok) {
 				*costs = to->ist_wasser() ||  canal  ? s.way_count_straight : s.way_count_leaving_road; // prefer water very much
@@ -2506,6 +2506,7 @@ void wegbauer_t::baue_schiene()
 				if (weg->get_besch() == besch																	||
 						(besch->get_styp() == 0 && weg->get_besch()->get_styp() == 7 && gr->has_two_ways())     ||
 						keep_existing_ways                                                                      ||
+						(sp != NULL && weg->ist_entfernbar(sp) != NULL)											||
 						(keep_existing_faster_ways && !(besch->is_at_least_as_good_as(weg->get_besch())) )		||
 						(gr->get_typ() == grund_t::monorailboden && !(bautyp & elevated_flag)  &&  gr->get_weg_nr(0)->get_waytype()==besch->get_wtyp()))
 				{

@@ -1324,7 +1324,7 @@ vehikel_t::vehikel_t() :
 
 route_t::route_result_t vehikel_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route)
 {
-	return route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_highest_axle_load() : get_sum_weight(), 0, 4294967295U, cnv != NULL ? cnv->get_weight_summary().weight / 1000 : get_gesamtgewicht());
+	return route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_highest_axle_load() : get_sum_weight(), 0, SINT64_MAX_VALUE, cnv != NULL ? cnv->get_weight_summary().weight / 1000 : get_gesamtgewicht());
 }
 
 bool vehikel_t::reroute(const uint16 reroute_index, const koord3d &ziel, route_t* route)
@@ -2699,7 +2699,7 @@ route_t::route_result_t automobil_t::calc_route(koord3d start, koord3d ziel, sin
 	}
 	target_halt = halthandle_t();	// no block reserved
 	const uint32 routing_weight = cnv != NULL ? cnv->get_highest_axle_load() : get_sum_weight();
-	route_t::route_result_t r = route->calc_route(welt, start, ziel, this, max_speed, routing_weight, cnv->get_tile_length(), 4294967295U, cnv->get_weight_summary().weight / 1000 );
+	route_t::route_result_t r = route->calc_route(welt, start, ziel, this, max_speed, routing_weight, cnv->get_tile_length(), SINT64_MAX_VALUE, cnv->get_weight_summary().weight / 1000 );
 	if(  r == route_t::valid_route_halt_too_short  ) {
 		cbuffer_t buf;
 		buf.printf( translator::translate("Vehicle %s cannot choose because stop too short!"), cnv->get_name());
@@ -3439,7 +3439,7 @@ route_t::route_result_t waggon_t::calc_route(koord3d start, koord3d ziel, sint32
 	target_halt = halthandle_t();	// no block reserved
 	// use length > 8888 tiles to advance to the end of terminus stations
 	const sint16 tile_length = (cnv->get_schedule()->get_current_eintrag().reverse ? 8888 : 0) + cnv->get_tile_length();
-	route_t::route_result_t r = route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_highest_axle_load() : get_sum_weight(), tile_length, 4294967295U, cnv ? cnv->get_weight_summary().weight / 1000 : get_gesamtgewicht());
+	route_t::route_result_t r = route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_highest_axle_load() : get_sum_weight(), tile_length, SINT64_MAX_VALUE, cnv ? cnv->get_weight_summary().weight / 1000 : get_gesamtgewicht());
 	if(r == route_t::valid_route_halt_too_short)
 	{
 		cbuffer_t buf;
@@ -3667,7 +3667,7 @@ bool waggon_t::is_weg_frei_longblock_signal( signal_t *sig, uint16 next_block, i
 	while(  fahrplan_index != cnv->get_schedule()->get_aktuell()  ) {
 		// now search
 		// search for route
-		success = target_rt.calc_route(welt, cur_pos, cnv->get_schedule()->eintrag[fahrplan_index].pos, this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(), 8888 + cnv->get_tile_length(), 0xFFFFFFFF, cnv->get_weight_summary().weight / 1000);
+		success = target_rt.calc_route(welt, cur_pos, cnv->get_schedule()->eintrag[fahrplan_index].pos, this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(), 8888 + cnv->get_tile_length(), SINT64_MAX_VALUE, cnv->get_weight_summary().weight / 1000);
 		if(  success  ) {
 			success = block_reserver( &target_rt, 1, next_next_signal, dummy, 0, true, false );
 			block_reserver( &target_rt, 1, dummy, dummy, 0, false, false );
@@ -4002,7 +4002,7 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 			fpl->increment_index(&index, &reversed);
 			const koord3d next_ziel = fpl->eintrag[index].pos;
 
-			weg_frei = !target_rt.calc_route(welt, start_pos, next_ziel, this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(), welt->get_settings().get_max_route_steps(), 0xFFFFFFFF, cnv->get_weight_summary().weight / 1000);
+			weg_frei = !target_rt.calc_route(welt, start_pos, next_ziel, this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(), welt->get_settings().get_max_route_steps(), SINT64_MAX_VALUE, cnv->get_weight_summary().weight / 1000);
 			if(!weg_frei)
 			{
 				ribi_t::ribi old_dir = calc_richtung(route.position_bei(last_index - 1).get_2d(), route.position_bei(last_index).get_2d());

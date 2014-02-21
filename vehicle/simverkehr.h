@@ -103,8 +103,6 @@ class stadtauto_t : public verkehrsteilnehmer_t, public overtaker_t
 {
 private:
 	
-	slist_tpl<stadtauto_t*> * current_list;
-
 	koord origin;
 
 	const stadtauto_besch_t *besch;
@@ -141,7 +139,7 @@ public:
 	 * Creates citycar at position given by @p gr.
 	 * Does not add car to the tile!
 	 */
-	stadtauto_t(grund_t* gr, koord target, slist_tpl<stadtauto_t*>* car_list);
+	stadtauto_t(grund_t* gr, koord target);
 
 	virtual ~stadtauto_t();
 
@@ -190,10 +188,6 @@ public:
 
 	// Overtaking for city cars
 	virtual bool can_overtake(overtaker_t *other_overtaker, sint32 other_speed, sint16 steps_other);
-
-	// Sets the list in which the vehicle is referenced, so that
-	// it can be removed from the list when it is deleted. 
-	void set_list(slist_tpl<stadtauto_t*> *this_list) { current_list = this_list; }
 
 	void * operator new(size_t s);
 	void operator delete(void *p);

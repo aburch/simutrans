@@ -212,8 +212,6 @@ private:
 	//This is needed because outgoing cars are disregarded when calculating growth.
 	sint32 outgoing_private_cars;
 
-	slist_tpl<stadtauto_t *> current_cars;
-
 	// The factories that are *inside* the city limits.
 	// Needed for power consumption of such factories.
 	vector_tpl<fabrik_t *> city_factories;
@@ -250,8 +248,6 @@ public:
 	 */
 	sint64* get_city_history_year() { return *city_history_year; }
 	sint64* get_city_history_month() { return *city_history_month; }
-
-	sint32 get_outstanding_cars();
 
 	// just needed by stadt_info.cc
 	static inline karte_t* get_welt() { return welt; }
@@ -407,6 +403,9 @@ private:
 	void bewerte_haus(koord pos, sint32 rd, const rule_t &regel);
 
 	bool check_road_connexions;
+
+	sint32 traffic_level;
+	void calc_traffic_level();
 
 public:
 
@@ -570,7 +569,7 @@ public:
 	uint16 check_road_connexion_to(const fabrik_t* industry);
 	uint16 check_road_connexion_to(const gebaeude_t* attraction);
 
-	void erzeuge_verkehrsteilnehmer(koord pos, uint16 journey_tenths_of_minutes, koord target);
+	void erzeuge_verkehrsteilnehmer(koord pos, uint16 journey_tenths_of_minutes, koord target, uint8 number_of_passengers);
 
 private:
 	/**
@@ -658,13 +657,6 @@ public:
 	// @author: jamespetts
 	// September 2010
 	uint16 get_max_dimension();
-
-	/*@author: jamespetts
-	 * February 2011
-	 */
-	void add_car(stadtauto_t* car);
-
-	slist_tpl<stadtauto_t *> * get_current_cars() { return &current_cars; }
 };
 
 #endif

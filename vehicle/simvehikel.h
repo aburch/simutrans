@@ -53,8 +53,22 @@ class vehikel_basis_t : public obj_t
 	grund_t* gr;
 	weg_t* weg;
 public:
-	inline grund_t* get_grund() const { return gr; }
-	inline weg_t* get_weg() const { return weg; }
+	inline grund_t* get_grund() const 
+	{ 
+		if (!gr) 
+			return welt->lookup(get_pos());
+		return gr; 
+	}
+	inline weg_t* get_weg() const 
+	{ 
+		if (!weg)
+		{
+			grund_t* gr = get_grund();
+			if (gr)
+				return gr->get_weg(get_waytype());
+		}
+		return weg; 
+	}
 protected:
 	// offsets for different directions
 	static sint8 dxdy[16];
