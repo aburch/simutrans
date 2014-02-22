@@ -51,6 +51,19 @@ SQInteger halt_export_convoy_list(HSQUIRRELVM vm)
 }
 
 
+
+SQInteger halt_export_line_list(HSQUIRRELVM vm)
+{
+	halthandle_t halt = param<halthandle_t>::get(vm, 1);
+	if (halt.is_bound()) {
+		push_instance(vm, "line_list_x");
+		set_slot(vm, "halt_id", halt.get_id());
+		return 1;
+	}
+	return SQ_ERROR;
+}
+
+
 // 0: not connected
 // 1: connected
 // -1: undecided
@@ -169,6 +182,11 @@ void export_halt(HSQUIRRELVM vm)
 	 * @typemask convoy_list_x()
 	 */
 	register_function(vm, &halt_export_convoy_list, "get_convoy_list", 1, param<halthandle_t>::typemask());
+	/**
+	 * Exports list of lines that serve this halt.
+	 * @typemask line_list_x()
+	 */
+	register_function(vm, &halt_export_line_list, "get_line_list", 1, param<halthandle_t>::typemask());
 
 	end_class(vm);
 }

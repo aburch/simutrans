@@ -95,6 +95,8 @@ public:
 	 */
 	void show_lineinfo(spieler_t *sp, linehandle_t line);
 
+	vector_tpl<linehandle_t> const& get_line_list() const { return all_managed_lines; }
+
 private:
 	vector_tpl<linehandle_t> all_managed_lines;
 

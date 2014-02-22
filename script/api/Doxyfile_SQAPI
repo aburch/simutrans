@@ -16,6 +16,7 @@ INPUT                  = api_factory.cc \
 			 api_gui.cc \
 			 api_halt.cc \
 			 api_include.cc \
+			 api_line.cc \
 			 api_map_objects.cc \
 			 api_obj_desc.cc \
 			 api_player.cc \

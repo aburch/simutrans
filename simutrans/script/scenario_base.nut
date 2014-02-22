@@ -411,6 +411,27 @@ class halt_x extends extend_get {
 	}
 }
 
+
+/**
+ * class that contains data to get access to a line of convoys
+ */
+class line_x extends extend_get {
+	id = 0 /// linehandle_t
+
+	constructor(i_) {
+		id = i_
+	}
+}
+
+/**
+ * class to provide access to line lists
+ */
+class line_list_x {
+
+	halt_id = 0
+	player_id = 0
+}
+
 /**
  * class that contains data to get access to a tile (grund_t)
  */
@@ -461,12 +482,13 @@ class square_x extends extend_get {
 
 
 /**
- * class to provide access to the game's list of all convoys
+ * class to provide access to convoy lists
  */
 class convoy_list_x {
 
 	use_world = 0
 	halt_id = 0
+	line_id = 0
 }
 
 

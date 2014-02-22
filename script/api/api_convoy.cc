@@ -7,6 +7,7 @@
 #include "../api_function.h"
 #include "../../simconvoi.h"
 #include "../../simhalt.h"
+#include "../../simline.h"
 #include "../../simworld.h"
 #include "../../vehicle/simvehikel.h"
 
@@ -44,6 +45,13 @@ vector_tpl<convoihandle_t> const* generic_get_convoy_list(HSQUIRRELVM vm, SQInte
 		halt.set_id(id);
 		if (halt.is_bound()) {
 			return &halt->registered_convoys;
+		}
+	}
+	if (SQ_SUCCEEDED(get_slot(vm, "line_id", id, index))) {
+		linehandle_t line;
+		line.set_id(id);
+		if (line.is_bound()) {
+			return &line->get_convoys();
 		}
 	}
 	if (SQ_SUCCEEDED(get_slot(vm, "use_world", use_world, index))  &&  use_world) {
@@ -85,7 +93,7 @@ void export_convoy(HSQUIRRELVM vm)
 	 * }
 	 * @endcode
 	 *
-	 * @see world::get_convoy_list, halt_x::get_convoy_list
+	 * @see world::get_convoy_list, halt_x::get_convoy_list, line_x::get_convoy_list
 	 */
 	begin_class(vm, "convoy_list_x", 0);
 
@@ -137,12 +145,16 @@ void export_convoy(HSQUIRRELVM vm)
 	 */
 	register_method(vm, &get_convoy_wt, "get_waytype", true);
 	/**
+	 * Schedule of this convoy.
+	 */
+	register_method(vm, &convoi_t::get_schedule, "get_schedule");
+	/**
 	 * Get monthly statistics of capacity.
 	 * @returns array, index [0] corresponds to current month
 	 */
 	register_method_fv(vm, &get_convoy_stat, "get_capacity",          freevariable<sint32>(convoi_t::CONVOI_CAPACITY), true);
 	/**
-	 * Get monthly statistics of number of transported goods..
+	 * Get monthly statistics of number of transported goods.
 	 * @returns array, index [0] corresponds to current month
 	 */
 	register_method_fv(vm, &get_convoy_stat, "get_transported_goods", freevariable<sint32>(convoi_t::CONVOI_TRANSPORTED_GOODS), true );
@@ -165,7 +177,12 @@ void export_convoy(HSQUIRRELVM vm)
 	 * Get monthly statistics of traveled distance.
 	 * @returns array, index [0] corresponds to current month
 	 */
-	register_method_fv(vm, &get_convoy_stat, "get_traveled_distance",freevariable<sint32>(convoi_t::CONVOI_DISTANCE), true );
+	register_method_fv(vm, &get_convoy_stat, "get_traveled_distance", freevariable<sint32>(convoi_t::CONVOI_DISTANCE), true );
+	/**
+	 * Get monthly statistics of income/loss due to way tolls.
+	 * @returns array, index [0] corresponds to current month
+	 */
+	register_method_fv(vm, &get_convoy_stat, "get_way_tolls",         freevariable<sint32>(convoi_t::CONVOI_WAYTOLL), true );
 	/**
 	 * @returns lifetime traveled distance of this convoy
 	 */

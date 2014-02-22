@@ -11,6 +11,7 @@ void export_factory(HSQUIRRELVM vm);
 void export_goods_desc(HSQUIRRELVM vm);
 void export_gui(HSQUIRRELVM vm);
 void export_halt(HSQUIRRELVM vm);
+void export_line(HSQUIRRELVM vm);
 void export_map_objects(HSQUIRRELVM vm);
 void export_player(HSQUIRRELVM vm);
 void export_scenario(HSQUIRRELVM vm);

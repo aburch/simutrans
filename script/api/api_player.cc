@@ -63,6 +63,16 @@ bool player_active(spieler_t *sp)
 }
 
 
+SQInteger player_export_line_list(HSQUIRRELVM vm)
+{
+	if (spieler_t* sp = param<spieler_t*>::get(vm, 1)) {
+		push_instance(vm, "line_list_x");
+		set_slot(vm, "player_id", sp->get_player_nr());
+		return 1;
+	}
+	return SQ_ERROR;
+}
+
 void export_player(HSQUIRRELVM vm)
 {
 	/**
@@ -196,6 +206,11 @@ void export_player(HSQUIRRELVM vm)
 	 * Returns whether the player (still) exists in the game.
 	 */
 	register_method(vm, &player_active, "is_active", true);
+	/**
+	 * Exports list of lines of this player.
+	 * @typemask line_list_x()
+	 */
+	register_function(vm, &player_export_line_list, "get_line_list", 1, param<spieler_t*>::typemask());
 
 	end_class(vm);
 }

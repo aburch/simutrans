@@ -9,6 +9,7 @@
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
 #include "player/simplay.h"
+#include "player/finance.h" // convert_money
 #include "vehicle/simvehikel.h"
 #include "simconvoi.h"
 #include "convoihandle_t.h"
@@ -448,4 +449,20 @@ void simline_t::set_withdraw( bool yes_no )
 		line_managed_convoys[i]->set_no_load(yes_no);	// must be first, since set withdraw might destroy convoi if in depot!
 		line_managed_convoys[i]->set_withdraw(yes_no);
 	}
+}
+
+
+sint64 simline_t::get_stat_converted(int month, int cost_type) const
+{
+	sint64 value = financial_history[month][cost_type];
+	switch(cost_type) {
+		case LINE_REVENUE:
+		case LINE_OPERATIONS:
+		case LINE_PROFIT:
+		case LINE_WAYTOLL:
+			value = convert_money(value);
+			break;
+		default: ;
+	}
+	return value;
 }
