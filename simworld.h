@@ -124,7 +124,7 @@ public:
 		WORLD_TOWNS,			//!< number of all cities
 		WORLD_FACTORIES,		//!< number of all consuming only factories
 		WORLD_CONVOIS,			//!< total number of convois
-		WORLD_CITYCARS,			//!< number of citycars generated
+		WORLD_CITYCARS,			//!< number of passengers completing their journeys by private car
 		WORLD_PAS_RATIO,		//!< percentage of passengers that started successful
 		WORLD_PAS_GENERATED,	//!< total number generated
 		WORLD_MAIL_RATIO,		//!< percentage of mail that started successful
