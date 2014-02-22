@@ -379,7 +379,7 @@ bool SQVM::StartCall(SQClosure *closure,SQInteger target,SQInteger args,SQIntege
 		if (nargs < paramssize) {
 			const SQChar *src = type(func->_sourcename) == OT_STRING?_stringval(func->_sourcename):NULL;
 			const SQChar *name = type(func->_name) == OT_STRING?_stringval(func->_name):NULL;
-			Raise_Error(_SC("wrong number of parameters: %d vs %d provided in call to %s:%s"), nargs, paramssize, src, name);
+			Raise_Error(_SC("wrong number of parameters: %d provided (instead %d) in call to %s:%s"), nargs, paramssize, src, name);
 			return false;
 		}
 
@@ -407,7 +407,7 @@ bool SQVM::StartCall(SQClosure *closure,SQInteger target,SQInteger args,SQIntege
 		else {
 			const SQChar *src = type(func->_sourcename) == OT_STRING?_stringval(func->_sourcename):NULL;
 			const SQChar *name = type(func->_name) == OT_STRING?_stringval(func->_name):NULL;
-			Raise_Error(_SC("wrong number of parameters: %d vs %d provided in call to %s:%s"), nargs, paramssize, src, name);
+			Raise_Error(_SC("wrong number of parameters: %d provided (instead %d) in call to %s:%s"), nargs, paramssize, src, name);
 			return false;
 		}
 	}
@@ -1155,7 +1155,7 @@ bool SQVM::CallNative(SQNativeClosure *nclosure, SQInteger nargs, SQInteger newb
 		((nparamscheck < 0) && (nargs < (-nparamscheck)))))
 	{
 		const SQChar *src = type(nclosure->_name) == OT_STRING?_stringval(nclosure->_name):NULL;
-		Raise_Error(_SC("wrong number of parameters: %d vs %d provided in call to %s"), nargs, nparamscheck, src);
+		Raise_Error(_SC("wrong number of parameters: %d provided (instead %d) in call to %s"), nargs, nparamscheck, src);
 		return false;
 	}
 
