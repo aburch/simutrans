@@ -64,7 +64,8 @@ template<class D> struct access_objs {
 		sint16 x = pos.x;
 		sint16 y = pos.y;
 		sint8  z = obj->get_pos().z;
-		if (!SQ_SUCCEEDED(push_instance(vm, script_api::param<D*>::squirrel_type(), x, y, z))) {
+		assert(bind_code<D>::objtype == obj->get_typ()  ||  bind_code<D>::objtype == obj_t::obj);
+		if (!SQ_SUCCEEDED(push_instance(vm, script_api::param<D*>::squirrel_type(), x, y, z, obj->get_typ()))) {
 			return SQ_ERROR;
 		}
 		sq_setinstanceup(vm, -1, obj);
@@ -174,7 +175,7 @@ void begin_obj_class(HSQUIRRELVM vm, const char* name, const char* base = NULL)
 	// store typetag to identify pointers
 	sq_settypetag(vm, -1, obj_t_tag + objtype);
 	// export constructor
-	register_function_fv(vm, exp_obj_pos_constructor, "constructor", 4, "xiii", freevariable<uint8>( objtype ));
+	register_function(vm, exp_obj_pos_constructor, "constructor", 5, "xiiii");
 	// now functions can be registered
 }
 
@@ -197,7 +198,7 @@ void export_map_objects(HSQUIRRELVM vm)
 	 * @param z
 	 * @typemask void(integer,integer,integer)
 	 */
-	register_function_fv(vm, exp_obj_pos_constructor, "constructor", 4, "xiii", freevariable<uint8>( objtype ));
+	register_function(vm, exp_obj_pos_constructor, "constructor", 5, "xiiii");
 	/**
 	 * @returns owner of the object.
 	 */
