@@ -465,13 +465,8 @@ class square_x extends extend_get {
  */
 class convoy_list_x {
 
-	/// meta-method to be called in a foreach loop
-	function _nexti(prev_index) {
-	}
-
-	/// meta method to retrieve convoy by index in the global C++ array
-	function _get(index) {
-	}
+	use_world = 0
+	halt_id = 0
 }
 
 

@@ -4,6 +4,8 @@
  *
  * @section api-trunk Current trunk
  *
+ * - Deprecated get_convoy_list()
+ * - Added world::get_convoy_list, halt_x::get_convoy_list
  * - Added @ref scenario.api to manage backward compatibility of scripts with the changing api
  * - Added ::include
  * - Changed return type of world::get_time to time_ticks_x
