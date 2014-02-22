@@ -9,8 +9,18 @@ struct {
 	string author;
 	/// Version of script.
 	string version;
+	/**
+	 * Script requires this version of api.
+	 * Corresponds to release numbers (e.g. 112.3).
+	 * Set it to "*" to support nightly versions.
+	 * If this string is not set, the default "112.3" will be used.
+	 */
+	/// Required version of api.
+	string api;
 }
-/// Meta information about the scenario.
+/**
+ * Meta information about the scenario.
+ */
 scenario;
 
 struct {
@@ -21,7 +31,9 @@ struct {
 	 */
 	string file;
 }
-/// Information about game map/world.
+/**
+ * Information about game map/world.
+ */
 map;
 
 /**
