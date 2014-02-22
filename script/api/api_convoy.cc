@@ -6,6 +6,7 @@
 #include "../api_class.h"
 #include "../api_function.h"
 #include "../../simconvoi.h"
+#include "../../simhalt.h"
 #include "../../simworld.h"
 #include "../../vehicle/simvehikel.h"
 
@@ -34,43 +35,69 @@ vector_tpl<sint64> const& get_convoy_stat(convoi_t* cnv, sint32 INDEX)
 }
 
 
-SQInteger world_get_next_convoy(HSQUIRRELVM vm)
+vector_tpl<convoihandle_t> const* generic_get_convoy_list(HSQUIRRELVM vm, SQInteger index)
 {
-	return generic_get_next(vm, welt->convoys().get_count());
+	uint16 id;
+	bool use_world;
+	if (SQ_SUCCEEDED(get_slot(vm, "halt_id", id, index))) {
+		halthandle_t halt;
+		halt.set_id(id);
+		if (halt.is_bound()) {
+			return &halt->registered_convoys;
+		}
+	}
+	if (SQ_SUCCEEDED(get_slot(vm, "use_world", use_world, index))  &&  use_world) {
+		return &welt->convoys();
+	}
+	sq_raise_error(vm, "Invalid convoy list.");
+	return NULL;
 }
 
-
-SQInteger world_get_convoy_by_index(HSQUIRRELVM vm)
+SQInteger generic_get_next_convoy(HSQUIRRELVM vm)
 {
-	sint32 index = param<sint32>::get(vm, -1);
-	convoihandle_t cnv = (0<=index  &&  (uint32)index<welt->convoys().get_count()) ?  welt->convoys()[index] : convoihandle_t();
-	return push_instance(vm, "convoy_x",  cnv.is_bound() ? cnv.get_id() :  0);
+	vector_tpl<convoihandle_t> const* list = generic_get_convoy_list(vm, 1);
+	return list ? generic_get_next(vm, list->get_count()) : SQ_ERROR;
+}
+
+SQInteger generic_get_convoy_by_index(HSQUIRRELVM vm)
+{
+	vector_tpl<convoihandle_t> const* list = generic_get_convoy_list(vm, 1);
+	sint32 index = param<sint32>::get(vm, 2);
+	convoihandle_t cnv;
+	if (list) {
+		 cnv = (0<=index  &&  (uint32)index < list->get_count()) ?  (*list)[index] : convoihandle_t();
+		 return push_instance(vm, "convoy_x",  cnv.is_bound() ? cnv.get_id() :  0);
+	}
+	return SQ_ERROR;
 }
 
 
 void export_convoy(HSQUIRRELVM vm)
 {
 	/**
-	 * Implements iterator to iterate through the list of all convoys on the map.
+	 * Implements iterator to iterate through lists of convoys.
 	 *
 	 * Usage:
 	 * @code
-	 * local list = convoy_list_x()
+	 * local list = world.get_convoy_list_x()
 	 * foreach(cnv in list) {
 	 *     ... // cnv is an instance of the convoy_x class
 	 * }
 	 * @endcode
+	 *
+	 * @see world::get_convoy_list, halt_x::get_convoy_list
 	 */
 	begin_class(vm, "convoy_list_x", 0);
+
 	/**
 	 * Meta-method to be used in foreach loops. Do not call them directly.
 	 */
-	register_function(vm, world_get_next_convoy,     "_nexti",  2, "x o|i");
+	register_function(vm, generic_get_next_convoy,     "_nexti",  2, "x o|i");
 	/**
 	 * Meta-method to be used in foreach loops. Do not call them directly.
 	 * @typemask convoy_x()
 	 */
-	register_function(vm, world_get_convoy_by_index, "_get",    2, "xi");
+	register_function(vm, generic_get_convoy_by_index, "_get",    2, "xi");
 	end_class(vm);
 
 	/**

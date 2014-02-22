@@ -93,6 +93,14 @@ SQInteger world_get_attraction_list(HSQUIRRELVM vm)
 }
 
 
+SQInteger world_get_convoy_list(HSQUIRRELVM vm)
+{
+	push_instance(vm, "convoy_list_x");
+	set_slot<bool>(vm, "use_world", true);
+	return 1;
+}
+
+
 void export_world(HSQUIRRELVM vm)
 {
 	/**
@@ -270,8 +278,15 @@ void export_world(HSQUIRRELVM vm)
 	/**
 	 * Returns iterator through the list of attractions on the map.
 	 * @returns iterator class.
+	 * @typemask attraction_list_x()
 	 */
 	STATIC register_function(vm, world_get_attraction_list, "get_attraction_list", 1, ".");
+	/**
+	 * Returns list of convoys on the map.
+	 * @returns convoy list
+	 * @typemask convoy_list_x()
+	 */
+	STATIC register_function(vm, world_get_convoy_list, "get_convoy_list", 1, ".");
 
 	end_class(vm);
 

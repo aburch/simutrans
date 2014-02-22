@@ -29,5 +29,8 @@ function compat(version)
 
 function compat_112_3()
 {
-//	print("Compatibility mode for version 112.3 in effect")
+	print("Compatibility mode for version 112.3 in effect")
+
+	// convoy_list_x() deprecated, set default value to iterate through global list
+	convoy_list_x.use_world <- 1
 }
