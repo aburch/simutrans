@@ -109,6 +109,28 @@ const char* scenario_t::init( const char *scenario_base, const char *scenario_na
 		welt->get_settings().set_filename( strdup(buf) );
 	}
 
+	// check api version
+	plainstring api_version;
+	if ((err = script->call_function("get_api_version", api_version))) {
+		dbg->warning("scenario_t::init", "error [%s] calling get_api_version", err);
+		api_version = "112.3";
+	}
+	if (api_version != "*") {
+		// load scenario compatibility script
+		buf.clear();
+		buf.printf("%sscript/scenario_compat.nut", env_t::program_dir );
+		if ((err = script->call_script((const char*)buf) )) {
+			dbg->warning("scenario_t::init", "error [%s] calling scenario_compat.nut", err);
+		}
+		else {
+			plainstring dummy;
+			// call compatibility function
+			if ((err = script->call_function("compat", dummy, api_version) )) {
+				dbg->warning("scenario_t::init", "error [%s] calling compat", err);
+			}
+		}
+	}
+
 	// load translations
 	translator::load_files_from_folder( scenario_path.c_str(), "scenario" );
 	cached_text_files.clear();

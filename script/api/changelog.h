@@ -4,6 +4,7 @@
  *
  * @section api-trunk Current trunk
  *
+ * - Added @ref scenario.api to manage backward compatibility of scripts with the changing api
  * - Added ::include
  * - Changed return type of world::get_time to time_ticks_x
  * - Added building_x::is_same_building.

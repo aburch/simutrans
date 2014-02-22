@@ -79,6 +79,10 @@ function get_short_description(pl)
 {
 	return scenario.short_description;
 }
+function get_api_version()
+{
+	return ("api" in scenario) ? scenario.api : "112.3"
+}
 function get_about_text(pl)
 {
 	return "<em>Scenario:</em>  " +  scenario.short_description
