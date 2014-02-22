@@ -4,6 +4,7 @@
  *
  * @section api-trunk Current trunk
  *
+ * - Added line_x, line_list_x
  * - Deprecated get_convoy_list()
  * - Added world::get_convoy_list, halt_x::get_convoy_list
  * - Added @ref scenario.api to manage backward compatibility of scripts with the changing api

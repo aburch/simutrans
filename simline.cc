@@ -9,6 +9,7 @@
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
 #include "player/simplay.h"
+#include "player/finance.h" // convert_money
 #include "vehicle/simvehicle.h"
 #include "simconvoi.h"
 #include "convoihandle_t.h"
@@ -991,4 +992,19 @@ sint64 simline_t::calc_departures_scheduled()
 	}
 
 	return timed_departure_points_count * (sint64) schedule->get_spacing();
+}
+
+sint64 simline_t::get_stat_converted(int month, int cost_type) const
+{
+	sint64 value = financial_history[month][cost_type];
+	switch(cost_type) {
+		case LINE_REVENUE:
+		case LINE_OPERATIONS:
+		case LINE_PROFIT:
+		// case LINE_WAYTOLL:
+			value = convert_money(value);
+			break;
+		default: ;
+	}
+	return value;
 }
