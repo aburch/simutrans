@@ -137,10 +137,7 @@ void route_t::INIT_NODES(uint32 max_route_steps, const koord &world_size)
 
 	// may need very much memory => configurable
 	const uint32 max_world_step_size = world_size == koord::invalid ? max_route_steps :  world_size.x * world_size.y * 2;
-	// NOTE: The default setting for this is "min" as below. Changed to "max" experimentally to help with ship wayfinding issues, 
-	// pending determination as to whether this is viable in performance terms (for 11.19, Feb. 2014).
-	//MAX_STEP = min(max_route_steps, max_world_step_size); 
-	MAX_STEP = max(max_route_steps, max_world_step_size); 
+	MAX_STEP = min(max_route_steps, max_world_step_size); 
 	for (int i = 0; i < MAX_NODES_ARRAY; ++i)
 	{
 		_nodes[i] = new ANode[MAX_STEP + 4 + 2];

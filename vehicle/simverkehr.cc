@@ -394,7 +394,6 @@ stadtauto_t::~stadtauto_t()
 	if(time_to_life>0) {
 		welt->sync_remove(this);
 	}
-	welt->buche( -1, karte_t::WORLD_CITYCARS );
 }
 
 
