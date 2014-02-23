@@ -1137,7 +1137,7 @@ grund_t* vehikel_t::hop()
 	// route search through the waypoint is already complete
 //	if(  ist_erstes  &&  get_pos()==cnv->get_fpl_target()  ) { // ist_erstes turned off in vorfahren when reversing
 	if(  get_pos()==cnv->get_fpl_target()  ) {
-		if(  route_index+1 >= cnv->get_route()->get_count()  ) {
+		if(  route_index+1u >= cnv->get_route()->get_count()  ) {
 			// we end up here after loading a game or when a waypoint is reached which crosses next itself
 			cnv->set_fpl_target( koord3d::invalid );
 		}
