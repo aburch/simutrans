@@ -4519,6 +4519,11 @@ write_basic_line:
 			halt->request_loading(self);
 		}
 	}
+	else
+	{
+		// If there is no halt here, nothing will call request loading and the state can never be changed.
+		state = CAN_START;
+	}
 	if(journey_distance > 0 && last_stop_id != halt.get_id())
 	{
 		if(clear_departures)
