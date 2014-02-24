@@ -988,7 +988,7 @@ bool convoi_t::drive_to()
 							 // check if the route circles back on itself (only check the first tile, should be enough)
 							looped = route.is_contained(next_segment.position_bei(1));
 	#if 0
-							// this will forbid an eight firure, which might be clever to avoid a problem of reserving one own track
+							// this will forbid an eight figure, which might be clever to avoid a problem of reserving one own track
 							for(  unsigned i = 1;  i<next_segment.get_count();  i++  ) {
 								if(  route.is_contained(next_segment.position_bei(i))  ) {
 									looped = true;
@@ -2019,12 +2019,6 @@ void convoi_t::vorfahren()
 			else {
 				break;
 			}
-		}
-	}
-	// and let airplane start on ground, if there is an airstrip
-	if(  fahr[0]->get_waytype()==air_wt  ) {
-		if(  welt->lookup_kartenboden( route.position_bei(0).get_2d() )->get_weg(air_wt)  ) {
-			fahr[0]->set_convoi(this);
 		}
 	}
 
