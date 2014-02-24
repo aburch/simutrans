@@ -27,6 +27,7 @@
 #include "../dings/tunnel.h"
 #include "../dings/leitung2.h"
 #include "../dings/signal.h"
+#include "../dings/wayobj.h" // NOTE: Becomes "objects/" in 112.5-merge
 
 #include "../gui/messagebox.h"
 #include "../gui/werkzeug_waehler.h"
@@ -345,6 +346,8 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 	// Now we build the invisible part
 	while(pos!=end) {
 		assert(pos.get_2d()!=end.get_2d());
+		const grund_t* gr = welt->lookup(start);
+		const weg_t* old_way = gr ? gr->get_weg(wegtyp) : NULL;
 		tunnelboden_t *tunnel = new tunnelboden_t(welt, pos, 0);
 		welt->access(pos.get_2d())->boden_hinzufuegen(tunnel);
 		if(wegtyp != powerline_wt) {
@@ -355,6 +358,15 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 			// Necessary to avoid the "default" way (which might have constraints) setting the constraints here.
 			weg->clear_way_constraints();
 			weg->add_way_constraints(besch->get_way_constraints());
+			if(old_way)
+			{
+				weg->add_way_constraints(old_way->get_besch()->get_way_constraints());
+				const wayobj_t* way_object = gr->get_wayobj(wegtyp);
+				if(way_object)
+				{
+					weg->add_way_constraints(way_object->get_besch()->get_way_constraints());
+				}
+			}
 			tunnel->neuen_weg_bauen(weg, ribi_t::doppelt(ribi), sp);
 			spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype() );
 		}
@@ -385,6 +397,8 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 		}
 	}
 	else {
+		const grund_t* gr = welt->lookup(start);
+		const weg_t* old_way = gr ? gr->get_weg(wegtyp) : NULL;
 		tunnelboden_t *tunnel = new tunnelboden_t(welt, pos, 0);
 		welt->access(pos.get_2d())->boden_hinzufuegen(tunnel);
 		if(wegtyp != powerline_wt) {
@@ -396,6 +410,16 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 			// Necessary to avoid the "default" way (which might have constraints) setting the constraints here.
 			weg->clear_way_constraints();
 			weg->add_way_constraints(besch->get_way_constraints());
+			if(old_way)
+			{
+				weg->add_way_constraints(old_way->get_besch()->get_way_constraints());
+				const wayobj_t* way_object = gr->get_wayobj(wegtyp);
+				if(way_object)
+				{
+					weg->add_way_constraints(way_object->get_besch()->get_way_constraints());
+				}
+
+			}
 			spieler_t::add_maintenance( sp,  -weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype() );
 		}
 		else {
@@ -426,6 +450,9 @@ void tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, koord3d end, koo
 		ribi = alter_boden->get_weg_ribi_unmasked(besch->get_waytype()) | ribi_typ(zv);
 	}
 
+	const grund_t* gr = welt->lookup(end);
+	const weg_t* old_way = gr ? gr->get_weg(weg_besch->get_wtyp()) : NULL;
+	const wayobj_t* way_object = old_way ? way_object = gr->get_wayobj(besch->get_waytype()) : NULL;
 	tunnelboden_t *tunnel = new tunnelboden_t(welt, end, alter_boden->get_grund_hang());
 	tunnel->obj_add(new tunnel_t(welt, end, sp, besch));
 
@@ -455,6 +482,16 @@ void tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, koord3d end, koo
 		// Necessary to avoid the "default" way (which might have constraints) setting the constraints here.
 		weg->clear_way_constraints();
 		weg->add_way_constraints(besch->get_way_constraints());
+		if(old_way)
+		{
+			weg->add_way_constraints(old_way->get_besch()->get_way_constraints());
+				
+			if(way_object)
+			{
+				weg->add_way_constraints(way_object->get_besch()->get_way_constraints());
+			}
+
+		}
 	}
 	else {
 		leitung_t *lt = tunnel->get_leitung();
