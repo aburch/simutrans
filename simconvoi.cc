@@ -2915,8 +2915,7 @@ void convoi_t::vorfahren()
 					grund_t* vgr = gr;
 					schiene_t *w = gr ? (schiene_t *)vgr->get_weg(wt) : NULL;
 					if(w)
-					{
-						ribi_t::ribi direction_of_travel = fahr[0]->get_fahrtrichtung();
+					{					
 						// First, reserve under the entire train (which might be outside the station in part)
 						for(unsigned i = 0; i < anz_vehikel; i++) 
 						{
@@ -2931,24 +2930,28 @@ void convoi_t::vorfahren()
 							{
 								continue;
 							}
-							w->reserve(self, direction_of_travel); 
+							w->reserve(self, fahr[i]->get_fahrtrichtung()); 
 						}
 						
 						// Next, reserve the rest (if any) of the platform.
 						grund_t* to = gr;
 						if(to)
 						{
+							ribi_t::ribi direction_of_travel = fahr[0]->get_fahrtrichtung();
 							koord3d last_pos = gr->get_pos();
 							while(haltestelle_t::get_halt(welt, to->get_pos(), besitzer_p).is_bound())
 							{		
 								w = (schiene_t *)to->get_weg(wt);
-								if(!w)
+								if(!w || !ribi_t::ist_einfach(direction_of_travel))
 								{
-									continue;
+									// If direction_of_travel is not a proper single direction,
+									// odd tile reservations causing blockages can occur.
+									break;
 								}
 								w->reserve(self, direction_of_travel); 
 								last_pos = to->get_pos();
 								to->get_neighbour(to, wt, direction_of_travel);
+								direction_of_travel = vehikel_t::calc_richtung(last_pos, to->get_pos());
 								if(last_pos == to->get_pos())
 								{
 									// Prevent infinite loops.
