@@ -3638,6 +3638,7 @@ sint64 convoi_t::get_stat_converted(int month, int cost_type) const
 		case CONVOI_REVENUE:
 		case CONVOI_OPERATIONS:
 		case CONVOI_PROFIT:
+		case CONVOI_WAYTOLL:
 			value = convert_money(value);
 			break;
 		default: ;
