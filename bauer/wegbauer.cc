@@ -2663,8 +2663,8 @@ void way_builder_t::build_track()
 					// connect canals to sea
 					if(  desc->get_wtyp() == water_wt  ) {
 						for(  int j = 0;  j < 4;  j++  ) {
-							grund_t *sea = welt->lookup_kartenboden( route[i].get_2d() + koord::nsew[j] );
-							if(  sea  &&  sea->is_water()  ) {
+							grund_t *sea = NULL;
+							if (gr->get_neighbour(sea, invalid_wt, ribi_t::nsew[j])  &&  sea->is_water()  ) {
 								gr->weg_erweitern( water_wt, ribi_t::nsew[j] );
 								sea->calc_image();
 							}
