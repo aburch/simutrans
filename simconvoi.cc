@@ -350,7 +350,7 @@ void convoi_t::laden_abschliessen()
 	else {
 		// restore next schedule target for non-stop waypoint handling
 		const koord3d ziel = fpl->get_current_eintrag().pos;
-		if(  is_waypoint(ziel)  ) {
+		if(  anz_vehikel>0  &&  is_waypoint(ziel)  ) {
 			fpl_target = ziel;
 		}
 	}
