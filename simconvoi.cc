@@ -2754,7 +2754,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	// only load vehicles in station
 	// don't load when vehicle is being withdrawn
 	bool changed_loading_level = false;
-	uint32 time = 0;	// time for loading/unloading
+	uint32 time = 100;	// min time for loading/unloading
 	for(unsigned i=0; i<anz_vehikel; i++) {
 		vehikel_t* v = fahr[i];
 
@@ -2778,7 +2778,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 			amount += v->load_freight(halt);
 		}
 		if(  amount  ) {
-			time += (amount*v->get_besch()->get_loading_time()) / max(v->get_fracht_max(), 1);
+			time = max( time, (amount*v->get_besch()->get_loading_time()) / max(v->get_fracht_max(), 1) );
 			v->calc_bild();
 			changed_loading_level = true;
 		}
