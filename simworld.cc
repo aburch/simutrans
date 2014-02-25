@@ -1108,7 +1108,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 			game_start = max( game_start, wegbauer_t::get_earliest_way(road_wt)->get_intro_year_month() );
 
 			uint32 original_start_year = current_month;
-			uint32 original_industry_gorwth = settings.get_industry_increase_every();
+			uint32 original_industry_growth = settings.get_industry_increase_every();
 			settings.set_industry_increase_every( 0 );
 
 			for(  uint32 i=old_anzahl_staedte;  i<stadt.get_count();  i++  ) {
@@ -1149,7 +1149,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 			}
 
 			current_month = original_start_year;
-			settings.set_industry_increase_every( original_industry_gorwth );
+			settings.set_industry_increase_every( original_industry_growth );
 			msg->clear();
 		}
 		finance_history_year[0][WORLD_TOWNS] = finance_history_month[0][WORLD_TOWNS] = stadt.get_count();
