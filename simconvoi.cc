@@ -2754,7 +2754,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	// only load vehicles in station
 	// don't load when vehicle is being withdrawn
 	bool changed_loading_level = false;
-	uint32 time = 100;	// min time for loading/unloading
+	uint32 time = WTT_LOADING;	// min time for loading/unloading
 	for(unsigned i=0; i<anz_vehikel; i++) {
 		vehikel_t* v = fahr[i];
 
@@ -2835,7 +2835,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	INT_CHECK( "convoi_t::hat_gehalten" );
 
 	// at least wait the minimum time for loading
-	wait_lock = max( WTT_LOADING, time );
+	wait_lock = time;
 }
 
 
