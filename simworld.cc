@@ -1053,7 +1053,7 @@ void karte_t::distribute_cities(settings_t const * const sets, sint16 old_x, sin
 		game_start = max(game_start, way_builder_t::get_earliest_way(road_wt)->get_intro_year_month());
 
 		uint32 original_start_year = current_month;
-		uint32 original_industry_gorwth = settings.get_industry_increase_every();
+		uint32 original_industry_growth = settings.get_industry_increase_every();
 		settings.set_industry_increase_every(0);
 
 		for (uint32 i = old_city_count; i < stadt.get_count(); i++) {
@@ -1092,7 +1092,7 @@ void karte_t::distribute_cities(settings_t const * const sets, sint16 old_x, sin
 		}
 
 		current_month = original_start_year;
-		settings.set_industry_increase_every(original_industry_gorwth);
+		settings.set_industry_increase_every(original_industry_growth);
 		msg->clear();
 	}
 
