@@ -495,7 +495,7 @@ void convoi_t::finish_rd()
 	else {
 		// restore next schedule target for non-stop waypoint handling
 		const koord3d ziel = schedule->get_current_entry().pos;
-		if(  is_waypoint(ziel)  ) {
+		if(  vehicle_count>0  &&  is_waypoint(ziel)  ) {
 			schedule_target = ziel;
 		}
 	}
