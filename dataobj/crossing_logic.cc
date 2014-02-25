@@ -307,7 +307,7 @@ void crossing_logic_t::add( crossing_t *start_cr, crossing_state_t state )
 			break;
 		}
 		crossing_t *found_cr = gr->find<crossing_t>();
-		if(found_cr==NULL  ||  !have_crossings_same_wt(found_cr->get_desc(),start_cr->get_desc())) {
+		if(found_cr==NULL  ||  !have_crossings_same_wt(found_cr->get_desc(),start_cr->get_desc())  ||  start_cr->get_dir() != found_cr->get_dir()) {
 			break;
 		}
 		crossings.append( found_cr );
@@ -324,7 +324,7 @@ void crossing_logic_t::add( crossing_t *start_cr, crossing_state_t state )
 			break;
 		}
 		crossing_t *found_cr = gr->find<crossing_t>();
-		if(found_cr==NULL  ||  !have_crossings_same_wt(found_cr->get_desc(),start_cr->get_desc())) {
+		if(found_cr==NULL  ||  !have_crossings_same_wt(found_cr->get_desc(),start_cr->get_desc())  ||  start_cr->get_dir() != found_cr->get_dir()) {
 			break;
 		}
 		crossings.append( found_cr );
