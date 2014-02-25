@@ -444,9 +444,6 @@ void karte_t::perlin_hoehe_loop( sint16 x_min, sint16 x_max, sint16 y_min, sint1
 			koord k(x,y);
 			sint16 const h = perlin_hoehe(&settings, k, koord(0, 0));
 			set_grid_hgt( k, (sint8) h);
-			if(  is_within_limits(k)  &&  h > get_water_hgt(k)  ) {
-				set_water_hgt(k, groundwater-4);
-			}
 		}
 	}
 }
@@ -497,18 +494,17 @@ void karte_t::cleanup_grounds_loop( sint16 x_min, sint16 x_max, sint16 y_min, si
 			uint8 slope = calc_natural_slope(k);
 			sint8 height = min_hgt_nocheck(k);
 			sint8 water_hgt = get_water_hgt_nocheck(k);
-			if(  height == water_hgt - 1  ) {
-				if(  max_hgt_nocheck(k) == water_hgt + 1  ) {
-					const sint8 disp_hn_sw = max( height + corner_sw(slope), water_hgt );
-					const sint8 disp_hn_se = max( height + corner_se(slope), water_hgt );
-					const sint8 disp_hn_ne = max( height + corner_ne(slope), water_hgt );
-					const sint8 disp_hn_nw = max( height + corner_nw(slope), water_hgt );
-					height = get_water_hgt_nocheck(k);
-					slope = (disp_hn_sw - height) + ((disp_hn_se - height) * 3) + ((disp_hn_ne - height) * 9) + ((disp_hn_nw - height) * 27);
-				}
+
+			if(  height < water_hgt) {
+				const sint8 disp_hn_sw = max( height + corner_sw(slope), water_hgt );
+				const sint8 disp_hn_se = max( height + corner_se(slope), water_hgt );
+				const sint8 disp_hn_ne = max( height + corner_ne(slope), water_hgt );
+				const sint8 disp_hn_nw = max( height + corner_nw(slope), water_hgt );
+				height = water_hgt;
+				slope = (disp_hn_sw - height) + ((disp_hn_se - height) * 3) + ((disp_hn_ne - height) * 9) + ((disp_hn_nw - height) * 27);
 			}
 
-			gr->set_pos( koord3d( k, max( height, water_hgt ) ) );
+			gr->set_pos( koord3d( k, height) );
 			if(  gr->get_typ() != grund_t::wasser  &&  max_hgt_nocheck(k) <= water_hgt  ) {
 				// below water but ground => convert
 				pl->kartenboden_setzen( new wasser_t(gr->get_pos()) );
@@ -519,6 +515,10 @@ void karte_t::cleanup_grounds_loop( sint16 x_min, sint16 x_max, sint16 y_min, si
 			}
 			else {
 				gr->set_grund_hang( slope );
+			}
+
+			if(  max_hgt_nocheck(k) > water_hgt  ) {
+				set_water_hgt(k, groundwater-4);
 			}
 		}
 	}
@@ -2719,9 +2719,6 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 					koord k(x,y);
 					sint16 const h = perlin_hoehe(&settings, k, koord(old_x, old_y));
 					set_grid_hgt( k, (sint8) h);
-					if(  is_within_limits(k)  &&  h>get_water_hgt(k)  ) {
-						set_water_hgt(k, groundwater-4);
-					}
 				}
 				ls.set_progress( (y*16)/new_size_y );
 			}
