@@ -52,8 +52,9 @@ void wasser_t::calc_bild_internal()
 	// test tiles to north, south, east and west and add to ribi if water
 	ribi = ribi_t::keine;
 	for(  int i=0;  i<4;  i++  ) {
-		grund_t *gr_neighbour = welt->lookup_kartenboden(pos2d + koord::nsow[i]);
-		if (gr_neighbour  &&  (gr_neighbour->ist_wasser()  ||  gr_neighbour->hat_weg(water_wt))) {
+		grund_t *gr_neighbour = NULL;
+		if (get_neighbour(gr_neighbour, invalid_wt, ribi_t::nsow[i])
+		    &&  (gr_neighbour->ist_wasser()  ||  gr_neighbour->hat_weg(water_wt))) {
 			ribi |= ribi_t::nsow[i];
 		}
 	}

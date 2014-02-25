@@ -2320,8 +2320,8 @@ void wegbauer_t::baue_schiene()
 				// connect canals to sea
 				if(  besch->get_wtyp() == water_wt  ) {
 					for(  int j = 0;  j < 4;  j++  ) {
-						grund_t *sea = welt->lookup_kartenboden( route[i].get_2d() + koord::nsow[j] );
-						if(  sea  &&  sea->ist_wasser()  ) {
+						grund_t *sea = NULL;
+						if (gr->get_neighbour(sea, invalid_wt, ribi_t::nsow[j])  &&  sea->ist_wasser()  ) {
 							gr->weg_erweitern( water_wt, ribi_t::nsow[j] );
 							sea->calc_bild();
 						}
