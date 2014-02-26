@@ -80,7 +80,7 @@ userdir_overrides_savegame_settings = 0
 
 # The maximum number of position tested during a way search
 # Consumes 16*x Bytes main memory, where x is the "max_route_steps" value.
-max_route_steps = 2000000
+max_route_steps = 1500000
 
 # Size of the catchment area of a station/stop in tiles.
 # This is for city buildings (mail and passengers) only.

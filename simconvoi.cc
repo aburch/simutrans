@@ -1615,7 +1615,7 @@ end_loop:
 		case NO_ROUTE:
 			// stuck vehicles
 			no_route_retry_count ++;
-			if(no_route_retry_count >= 3)
+			if(no_route_retry_count >= 3 && fahr[0]->get_waytype() != water_wt && (!welt->lookup(get_pos())->ist_wasser()))
 			{
 				// If the convoy is stuck for too long, send it to a depot.
 				emergency_go_to_depot();
