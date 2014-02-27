@@ -553,7 +553,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 
 	tmp->parent = NULL;
 	tmp->gr = welt->lookup(start);
-	tmp->f = calc_distance(start,ziel);
+	tmp->f = calc_distance(start, ziel) * 10;
 	tmp->g = 0;
 	tmp->dir = 0;
 	tmp->count = 0;
@@ -569,14 +569,14 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 
 //DBG_MESSAGE("route_t::itern_calc_route()","calc route from %d,%d,%d to %d,%d,%d",ziel.x, ziel.y, ziel.z, start.x, start.y, start.z);
 	const uint8 enforce_weight_limits = welt->get_settings().get_enforce_weight_limits();
-	uint32 beat=1;
+	//uint32 beat=1;
 	int bridge_tile_count = 0;
 	do {
 		// Hajo: this is too expensive to be called each step
-		if((beat++ & 255) == 0) 
+		/*if((beat++ & 255) == 0) 
 		{
-			//INT_CHECK("route 161");
-		}
+			INT_CHECK("route 161");
+		}*/
 
 		if (new_top) {
 			// this is not in closed list, no check necessary
@@ -735,7 +735,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 				}
 
 				// new values for cost g (without way it is either in the air or in water => no costs)
-				const int way_cost = fahr->get_kosten(to, max_speed, tmp->gr->get_pos().get_2d()) + (is_overweight == slowly_only ? 40 : 0);
+				const int way_cost = fahr->get_kosten(to, max_speed, tmp->gr->get_pos().get_2d()) + (is_overweight == slowly_only ? 400 : 0);
 				uint32 new_g = tmp->g + (w ? way_cost : 10);
 
 				// check for curves (usually, one would need the lastlast and the last;
@@ -763,7 +763,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 					current_dir = ribi_typ( gr->get_pos().get_2d(), to->get_pos().get_2d() );
 				}
 
-				const uint32 new_f = new_g + calc_distance( to->get_pos(), ziel );
+				const uint32 new_f = new_g + (calc_distance( to->get_pos(), ziel ) * 10);
 
 				// add new
 				ANode* k = &nodes[step];
