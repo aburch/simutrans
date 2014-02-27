@@ -39,10 +39,9 @@
 #pak_file_path = pak.winter/
 #pak_file_path = pak.ttd/
 
-# maximum number of position tested during a way search
-# 100000 should be ok even for large maps with ships
-# 10000 is ok for everything else (consumes 16*x Bytes main memory, no further harm)
-max_route_steps = 1000000
+# The maximum number of position tested during a way search
+# Consumes 16*x Bytes main memory, where x is the "max_route_steps" value.
+max_route_steps = 1500000
 
 # size of catchment area of a station (default 2)
 # older game size was 3
