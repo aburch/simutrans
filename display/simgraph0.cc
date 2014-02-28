@@ -2,6 +2,7 @@
  * Copyright 2010 Simutrans contributors
  * Available under the Artistic License (see license.txt)
  */
+#if COLOUR_DEPTH == 0
 
 #include "../simconst.h"
 #include "../simsys.h"
@@ -509,4 +510,6 @@ void clear_all_poly_clip()
 void activate_ribi_clip(int)
 {
 }
+#endif
+
 #endif

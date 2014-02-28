@@ -282,14 +282,17 @@ DWORD WINAPI dr_flush_screen(LPVOID lpParam)
 
 void dr_prepare_flush()
 {
+#if COLOUR_DEPTH != 0
 #ifdef MULTI_THREAD
 	// now the thread is finished ...
 	EnterCriticalSection( &redraw_underway );
+#endif
 #endif
 }
 
 void dr_flush()
 {
+#if COLOUR_DEPTH != 0
 #ifdef MULTI_THREAD
 	// just let the thread do its work
 	LeaveCriticalSection( &redraw_underway );
@@ -300,6 +303,7 @@ void dr_flush()
 	display_flush_buffer();
 	ReleaseDC(hwnd, hdc);
 	hdc = NULL;
+#endif
 #endif
 }
 
