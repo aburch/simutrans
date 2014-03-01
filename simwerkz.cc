@@ -3651,7 +3651,7 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", k.x,
 }
 
 // build all types of stops but sea harbours
-const char *wkz_station_t::wkz_station_aux(spieler_t *sp, koord3d pos, const haus_besch_t *besch, waytype_t wegtype, sint64 cost, const char *type_name )
+const char *wkz_station_t::wkz_station_aux(spieler_t *sp, koord3d pos, const haus_besch_t *besch, waytype_t wegtype, const char *type_name )
 {
 	koord k = pos.get_2d();
 DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besch->get_name(), k.x, k.y, wegtype);
@@ -3800,21 +3800,21 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 	}
 
 	halthandle_t old_halt = bd->get_halt();
-	uint16 old_level = 0;
+	sint64 old_cost = 0;
 
 	halthandle_t halt;
 
 	if(  old_halt.is_bound()  ) {
 		gebaeude_t* gb = bd->find<gebaeude_t>();
 		const haus_besch_t *old_besch = gb->get_tile()->get_besch();
-		old_level = old_besch->get_level();
 		if(  old_besch == besch  ) {
 			// already has the same station
 			return NULL;
 		}
-		if(  old_besch->get_level() >= besch->get_level()  &&  !is_ctrl_pressed()  ) {
+		if(  old_besch->get_capacity() >= besch->get_capacity()  &&  !is_ctrl_pressed()  ) {
 			return "Upgrade must have\na higher level";
 		}
+		old_cost = old_besch->get_price(welt)*old_besch->get_b()*old_besch->get_h();
 		gb->entferne( NULL );
 		delete gb;
 		halt = old_halt;
@@ -3841,8 +3841,9 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 		free(name);
 	}
 
-	sint64 old_cost = old_level * cost;
-	cost *= besch->get_b()*besch->get_h();
+	// cost to build new station
+	sint64 cost = -besch->get_price(welt)*besch->get_b()*besch->get_h();
+	// discount for existing station
 	cost += old_cost/2;
 	if(  sp!=halt->get_besitzer() && sp != welt->get_spieler(1)  ) {
 		// public stops are expensive!
@@ -4077,23 +4078,22 @@ const char *wkz_station_t::work( spieler_t *sp, koord3d pos )
 			}
 			break;
 		case haus_besch_t::generic_stop: {
-			sint64 cost = -besch->get_price(welt);
 			switch(besch->get_extra()) {
 				case road_wt:
-					msg = wkz_station_t::wkz_station_aux(sp, pos, besch, road_wt, cost, "H");
+					msg = wkz_station_t::wkz_station_aux(sp, pos, besch, road_wt, "H");
 					break;
 				case track_wt:
 				case monorail_wt:
 				case maglev_wt:
 				case narrowgauge_wt:
 				case tram_wt:
-					msg = wkz_station_t::wkz_station_aux(sp, pos, besch, (waytype_t)besch->get_extra(), cost, "BF");
+					msg = wkz_station_t::wkz_station_aux(sp, pos, besch, (waytype_t)besch->get_extra(), "BF");
 					break;
 				case water_wt:
-					msg = wkz_station_t::wkz_station_aux(sp, pos, besch, water_wt, cost, "Dock");
+					msg = wkz_station_t::wkz_station_aux(sp, pos, besch, water_wt, "Dock");
 					break;
 				case air_wt:
-					msg = wkz_station_t::wkz_station_aux(sp, pos, besch, air_wt, cost, "Airport");
+					msg = wkz_station_t::wkz_station_aux(sp, pos, besch, air_wt, "Airport");
 					break;
 			}
 			break;
