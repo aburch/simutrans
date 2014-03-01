@@ -228,7 +228,7 @@ const vehicle_desc_t *vehicle_builder_t::get_info(const char *name)
 	return name_fahrzeuge.get(name);
 }
 
-slist_tpl<vehicle_desc_t*>& vehicle_builder_t::get_info(waytype_t typ)
+slist_tpl<vehicle_desc_t*> const & vehicle_builder_t::get_info(waytype_t typ)
 {
 	return typ_fahrzeuge[GET_WAYTYPE_INDEX(typ)];
 }

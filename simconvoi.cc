@@ -1533,7 +1533,7 @@ bool convoi_t::drive_to()
 		bool route_ok = true;
 		const uint8 current_stop = schedule->get_current_stop();
 		if(  front()->get_waytype() != water_wt  ) {
-			air_vehicle_t *plane = dynamic_cast<air_vehicle_t *>(front());
+			air_vehicle_t *const plane = dynamic_cast<air_vehicle_t *>(front());
 			uint32 takeoff = 0, search = 0, landing = 0;
 			air_vehicle_t::flight_state plane_state = air_vehicle_t::taxiing;
 			if(  plane  ) {
