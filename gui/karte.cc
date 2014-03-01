@@ -1599,7 +1599,14 @@ void reliefkarte_t::draw(scr_coord pos)
 
 	if(  mode & MAP_FACTORIES) {
 		FOR(  slist_tpl<fabrik_t*>,  const f,  welt->get_fab_list()  ) {
-			scr_coord fab_pos = karte_to_screen( f->get_pos().get_2d() );
+			// find top-left tile position
+			koord3d fab_tl_pos = f->get_pos();
+			if (grund_t *gr = welt->lookup(f->get_pos())) {
+				if (gebaeude_t* gb = gr->find<gebaeude_t>()) {
+					fab_tl_pos = gb->get_pos() - gb->get_tile()->get_offset();
+				}
+			}
+			scr_coord fab_pos = karte_to_screen( fab_tl_pos.get_2d() );
 			fab_pos = fab_pos + pos;
 			koord size = f->get_besch()->get_haus()->get_groesse(f->get_rotate());
 			sint16 x_size = max( 5, size.x*zoom_in );
