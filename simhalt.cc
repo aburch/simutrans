@@ -572,26 +572,35 @@ haltestelle_t::~haltestelle_t()
 		dbg->error("haltestelle_t::~haltestelle_t()", "handle %i found %i times in haltlist!", self.get_id(), i );
 	}
 
-
-	ITERATE(halts_within_walking_distance, n)
+	if(!welt->get_is_shutting_down())
 	{
-		halthandle_t walking_distance_halt = get_halt_within_walking_distance(n);
-		if ( walking_distance_halt.is_bound() )
+		ITERATE(halts_within_walking_distance, n)
 		{
-			walking_distance_halt->remove_halt_within_walking_distance(self);
-		}
-	}
-
-	// At every other stop which may have waiting times for going here, clean this stop out
-	// of that stop's waiting times list
-	FOR(vector_tpl<halthandle_t>, & current_halt, alle_haltestellen)
-	{
-		// If it's not bound, or waiting_times isn't initialized, this could crash
-		if(current_halt.is_bound() && current_halt->waiting_times)
-		{
-			for(int category = 0; category < warenbauer_t::get_max_catg_index(); category++)
+			halthandle_t walking_distance_halt = get_halt_within_walking_distance(n);
+			if ( walking_distance_halt.is_bound() )
 			{
-				current_halt->waiting_times[category].remove(self.get_id());
+				walking_distance_halt->remove_halt_within_walking_distance(self);
+			}
+		}
+
+		// At every other stop which may have waiting times for going here, clean this stop out
+		// of that stop's waiting times list
+		FOR(vector_tpl<halthandle_t>, & current_halt, alle_haltestellen)
+		{
+			// If it's not bound, or waiting_times isn't initialized, this could crash
+			if(current_halt.is_bound() && current_halt->waiting_times)
+			{
+				// If it's not bound, or waiting_times isn't initialized, this could crash
+				if(current_halt.is_bound() && current_halt->waiting_times)
+				{
+					for(int category = 0; category < warenbauer_t::get_max_catg_index(); category++)
+					{
+						for ( int category = 0; category < warenbauer_t::get_max_catg_index(); category++ )
+						{
+							current_halt->waiting_times[category].remove(self.get_id());
+						}
+					}
+				}
 			}
 		}
 	}
@@ -664,7 +673,10 @@ haltestelle_t::~haltestelle_t()
 	
 	for(uint8 i = 0; i < max_categories; i++)
 	{
-		reset_connexions(i);
+		if(!welt->get_is_shutting_down())
+		{
+			reset_connexions(i);
+		}
 		delete connexions[i];
 	}
 
@@ -674,15 +686,18 @@ haltestelle_t::~haltestelle_t()
 	delete[] non_identical_schedules;
 //	delete[] all_links;
 
-	// Update our list of factories.
-	verbinde_fabriken();
-
-	// Update nearby factories' lists of connected halts.
-	// Must be done AFTER updating the planquadrats,
-	// AND after updating our own list. 
-	FOR (vector_tpl<fabrik_t*>, fab, affected_fab_list)
+	if(!welt->get_is_shutting_down())
 	{
-		fab->recalc_nearby_halts();
+		// Update our list of factories.
+		verbinde_fabriken();
+
+		// Update nearby factories' lists of connected halts.
+		// Must be done AFTER updating the planquadrats,
+		// AND after updating our own list. 
+		FOR (vector_tpl<fabrik_t*>, fab, affected_fab_list)
+		{
+			fab->recalc_nearby_halts();
+		}
 	}
 }
 
