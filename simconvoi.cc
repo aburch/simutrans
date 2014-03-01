@@ -4273,7 +4273,14 @@ void convoi_t::laden() //"load" (Babelfish)
 				if(average_speed > speed_to_kmh(get_min_top_speed()))
 				{
 					// Anomaly detected: do not record any further times.
-					continue;
+					fpl->increment_index(&current_stop, &reverse);
+					grund_t* gr = welt->lookup(fpl->eintrag[current_stop].pos);
+					if(gr)
+					{
+						pair.x = gr->get_halt().get_id();
+						idp.x = pair.x;
+						continue;
+					}
 				}
 
 				average_tpl<uint16> *average = average_journey_times->access(idp);
