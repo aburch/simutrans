@@ -942,7 +942,7 @@ bool convoi_t::drive_to()
 			bool route_ok = true;
 			const uint8 aktuell = fpl->get_aktuell();
 			if(  fahr[0]->get_waytype() != water_wt  ) {
-				aircraft_t *plane = dynamic_cast<aircraft_t *>(fahr[0]);
+				aircraft_t *const plane = dynamic_cast<aircraft_t *>(fahr[0]);
 				uint32 takeoff, search, landing;
 				aircraft_t::flight_state plane_state;
 				if(  plane  ) {

@@ -123,7 +123,7 @@ void memory_rw_t::rdwr_longlong(sint64 &ll)
 void memory_rw_t::rdwr_str(char *&s)
 {
 	// string length
-	uint16 len;
+	uint16 len = 0;
 	if(is_saving()) {
 		len = s ? strlen(s) : 0;
 	}

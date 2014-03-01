@@ -280,7 +280,7 @@ const vehikel_besch_t *vehikelbauer_t::get_info(const char *name)
 }
 
 
-slist_tpl<vehikel_besch_t const*>& vehikelbauer_t::get_info(waytype_t const typ)
+slist_tpl<vehikel_besch_t const*> const & vehikelbauer_t::get_info(waytype_t const typ)
 {
 	return typ_fahrzeuge[GET_WAYTYPE_INDEX(typ)];
 }

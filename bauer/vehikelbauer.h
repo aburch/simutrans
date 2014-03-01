@@ -40,7 +40,7 @@ public:
 	static vehikel_t* baue(koord3d k, spieler_t* sp, convoi_t* cnv, const vehikel_besch_t* vb );
 
 	static const vehikel_besch_t * get_info(const char *name);
-	static slist_tpl<vehikel_besch_t const*>& get_info(waytype_t);
+	static slist_tpl<vehikel_besch_t const*> const& get_info(waytype_t);
 
 	/* extended search for vehicles for KI
 	* @author prissi
