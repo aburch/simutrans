@@ -3027,9 +3027,9 @@ uint32 fabrik_t::get_time_to_consume_stock(uint32 index)
 	// in some cases (especially where the base production figure is low).
 	const uint32 vb = besch->get_lieferant(index)->get_verbrauch();
 	const sint32 base_production = get_current_production();
-	const sint32 consumed_per_month = (base_production * vb) >> 8;
+	const sint32 consumed_per_month = max(((base_production * vb) >> 8), 1);
 
-	const sint32 input_capacity = (eingang[index].max >> fabrik_t::precision_bits);
+	const sint32 input_capacity = max((eingang[index].max >> fabrik_t::precision_bits), 1);
 
 	const sint64 tick_units = input_capacity * welt->ticks_per_world_month;
 
