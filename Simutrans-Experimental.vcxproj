@@ -1332,6 +1332,7 @@
     <ClCompile Include="dataobj\records.cc" />
     <ClCompile Include="dataobj\settings.cc" />
     <ClCompile Include="display\font.cc" />
+    <ClCompile Include="display\simgraph0.cc" />
     <ClCompile Include="display\simgraph16.cc" />
     <ClCompile Include="display\simview.cc" />
     <ClCompile Include="display\viewport.cc" />

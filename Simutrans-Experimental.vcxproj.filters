@@ -957,6 +957,9 @@
     <ClCompile Include="siminteraction.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="display\simgraph0.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gui\components\action_listener.h">
