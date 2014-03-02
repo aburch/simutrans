@@ -482,7 +482,7 @@ grund_t::~grund_t()
 	set_text(NULL);
 
 	objlist.loesche_alle(NULL,0);
-	if(flags&is_halt_flag) {
+	if(flags&is_halt_flag && !welt->get_is_shutting_down()) {
 		get_halt()->rem_grund(this);
 	}
 }
