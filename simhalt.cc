@@ -543,54 +543,68 @@ haltestelle_t::~haltestelle_t()
 
 	// free name
 	set_name(NULL);
-
-	// remove from ground and planquadrat haltlists
-	koord ul(32767,32767);
-	koord lr(0,0);
-	while(  !tiles.empty()  ) {
-		koord pos = tiles.remove_first().grund->get_pos().get_2d();
-		planquadrat_t *pl = welt->access(pos);
-		assert(pl);
-		pl->set_halt( halthandle_t() );
-		for( uint8 i=0;  i<pl->get_boden_count();  i++  ) {
-			pl->get_boden_bei(i)->set_halt( halthandle_t() );
-		}
-		// bounding box for adjustments
-		if(ul.x>pos.x ) ul.x = pos.x;
-		if(ul.y>pos.y ) ul.y = pos.y;
-		if(lr.x<pos.x ) lr.x = pos.x;
-		if(lr.y<pos.y ) lr.y = pos.y;
-	}
-
-	/* remove probably remaining halthandle at init_pos
-	 * (created during loadtime for stops without ground) */
-	planquadrat_t* pl = welt->access(init_pos);
-	if(pl  &&  pl->get_halt()==self) {
-		pl->set_halt( halthandle_t() );
-	}
-
-	// remove from all haltlists
-	uint16 const cov = welt->get_settings().get_station_coverage();
-	vector_tpl<fabrik_t*> affected_fab_list;
-	ul.x = max(0, ul.x - cov);
-	ul.y = max(0, ul.y - cov);
-	lr.x = min(welt->get_size().x, lr.x + 1 + cov);
-	lr.y = min(welt->get_size().y, lr.y + 1 + cov);
-	for(  int y=ul.y;  y<lr.y;  y++  ) {
-		for(  int x=ul.x;  x<lr.x;  x++  ) {
-			planquadrat_t *plan = welt->access(x,y);
-			if(plan->get_haltlist_count()>0) {
-				plan->remove_from_haltlist( welt, self );
+	
+	if(!welt->get_is_shutting_down())
+	{
+		// remove from ground and planquadrat haltlists
+		koord ul(32767,32767);
+		koord lr(0,0);
+		while(  !tiles.empty()  ) {
+			koord pos = tiles.remove_first().grund->get_pos().get_2d();
+			planquadrat_t *pl = welt->access(pos);
+			assert(pl);
+			pl->set_halt( halthandle_t() );
+			for( uint8 i=0;  i<pl->get_boden_count();  i++  ) {
+				pl->get_boden_bei(i)->set_halt( halthandle_t() );
 			}
-			const grund_t* gr = plan->get_kartenboden();
-			// If there's a factory here, add it to the working list
-			const gebaeude_t* gb = gr->find<gebaeude_t>();
-			if (gb) {
-				fabrik_t* fab = gb->get_fabrik();
-				if (fab && !affected_fab_list.is_contained(fab) ) {
-					affected_fab_list.append(fab);
+			// bounding box for adjustments
+			if(ul.x>pos.x ) ul.x = pos.x;
+			if(ul.y>pos.y ) ul.y = pos.y;
+			if(lr.x<pos.x ) lr.x = pos.x;
+			if(lr.y<pos.y ) lr.y = pos.y;
+		}
+
+		/* remove probably remaining halthandle at init_pos
+		 * (created during loadtime for stops without ground) */
+		planquadrat_t* pl = welt->access(init_pos);
+		if(pl  &&  pl->get_halt()==self) {
+			pl->set_halt( halthandle_t() );
+		}
+
+		// remove from all haltlists
+		uint16 const cov = welt->get_settings().get_station_coverage();
+		vector_tpl<fabrik_t*> affected_fab_list;
+		ul.x = max(0, ul.x - cov);
+		ul.y = max(0, ul.y - cov);
+		lr.x = min(welt->get_size().x, lr.x + 1 + cov);
+		lr.y = min(welt->get_size().y, lr.y + 1 + cov);
+		for(  int y=ul.y;  y<lr.y;  y++  ) {
+			for(  int x=ul.x;  x<lr.x;  x++  ) {
+				planquadrat_t *plan = welt->access(x,y);
+				if(plan->get_haltlist_count()>0) {
+					plan->remove_from_haltlist( welt, self );
+				}
+				const grund_t* gr = plan->get_kartenboden();
+				// If there's a factory here, add it to the working list
+				const gebaeude_t* gb = gr->find<gebaeude_t>();
+				if (gb) {
+					fabrik_t* fab = gb->get_fabrik();
+					if (fab && !affected_fab_list.is_contained(fab) ) {
+						affected_fab_list.append(fab);
+					}
 				}
 			}
+		}
+
+		// Update our list of factories.
+		verbinde_fabriken();
+
+		// Update nearby factories' lists of connected halts.
+		// Must be done AFTER updating the planquadrats,
+		// AND after updating our own list. 
+		FOR (vector_tpl<fabrik_t*>, fab, affected_fab_list)
+		{
+			fab->recalc_nearby_halts();
 		}
 	}
 
@@ -630,20 +644,6 @@ haltestelle_t::~haltestelle_t()
 
 	delete[] non_identical_schedules;
 //	delete[] all_links;
-
-	if(!welt->get_is_shutting_down())
-	{
-		// Update our list of factories.
-		verbinde_fabriken();
-
-		// Update nearby factories' lists of connected halts.
-		// Must be done AFTER updating the planquadrats,
-		// AND after updating our own list. 
-		FOR (vector_tpl<fabrik_t*>, fab, affected_fab_list)
-		{
-			fab->recalc_nearby_halts();
-		}
-	}
 }
 
 
