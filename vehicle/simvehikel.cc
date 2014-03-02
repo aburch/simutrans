@@ -1700,11 +1700,8 @@ const char *vehikel_t::ist_entfernbar(const spieler_t *)
 
 vehikel_t::~vehikel_t()
 {
-	grund_t *gr = welt->lookup(get_pos());
-	if(gr) {
-		// remove vehicle's marker from the relief map
-		reliefkarte_t::get_karte()->calc_map_pixel(get_pos().get_2d());
-	}
+	// remove vehicle's marker from the relief map
+	reliefkarte_t::get_karte()->calc_map_pixel(get_pos().get_2d());
 }
 
 
@@ -3079,7 +3076,7 @@ void waggon_t::verlasse_feld()
 				// tell next signal?
 				// and switch to red
 				if(sch0->has_signal()) {
-					signal_t* sig = welt->lookup(get_pos())->find<signal_t>();
+					signal_t* sig = gr->find<signal_t>();
 					if(sig) {
 						sig->set_zustand(roadsign_t::rot);
 					}
