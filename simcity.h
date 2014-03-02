@@ -255,7 +255,10 @@ private:
 	 */
 	void init_pax_destinations();
 
-	// recalcs city borders (after loading and deletion)
+	/**
+	 * Recalculates city borders (after loading and deletion).
+	 * @warning Do not call this during multithreaded loading!
+	 */
 	void recalc_city_size();
 
 	// calculates the growth rate for next growth_interval using all the different indicators
@@ -342,6 +345,10 @@ private:
 	void bewerte_strasse(koord pos, sint32 rd, const rule_t &regel);
 	void bewerte_haus(koord pos, sint32 rd, const rule_t &regel);
 
+	/**
+	 * Updates city limits: tile at @p pos belongs to city.
+	 * @warning Do not call this during multithreaded loading!
+	 */
 	void pruefe_grenzen(koord pos);
 
 public:
@@ -364,7 +371,10 @@ public:
 	// (called when removed by player, or by town)
 	void remove_gebaeude_from_stadt(gebaeude_t *gb);
 
-	// this function adds houses to the city house list. ordered for multithreaded loading
+	/**
+	 * This function adds houses to the city house list.
+	 * @param ordered true for multithreaded loading, will insert buidings ordered, will not update city limits
+	 */
 	void add_gebaeude_to_stadt(const gebaeude_t *gb, bool ordered=false);
 
 	// changes the weight; must be called if there is a new definition (tile) for that house
