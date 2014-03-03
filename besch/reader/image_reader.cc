@@ -128,7 +128,7 @@ adjust_image:
 		besch->pic.w = 1;
 	}
 	if(  besch->pic.len > 0  ) {
-		besch->pic.len = 1;
+		besch->pic.len = 4;
 	}
 	besch->pic.x = 0;
 	besch->pic.y = 0;
