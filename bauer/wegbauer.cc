@@ -2120,8 +2120,17 @@ sint64 wegbauer_t::calc_costs()
 				for(int n = 0; n < 8; n ++)
 				{
 					const koord kn = pos.neighbours[n] + pos;
+					if(!welt->is_within_grid_limits(kn))
+					{
+						continue;
+					}
 					const koord3d kn3d(kn, welt->lookup_hgt(kn));
-					if(route.is_contained(kn3d))
+					grund_t* to = welt->lookup(kn3d);
+					const weg_t* connecting_way = to ? to->get_weg(besch->get_waytype()) : NULL;
+					const ribi_t::ribi connecting_ribi = connecting_way ? connecting_way->get_ribi() : ribi_t::alle;
+					const ribi_t::ribi reverse_ribi = ribi_t::rueckwaerts(connecting_ribi);
+					const ribi_t::ribi ribi = route.get_short_ribi(i);
+					if(route.is_contained(kn3d) || connecting_ribi == ribi || reverse_ribi == ribi)
 					{
 						continue;
 					}

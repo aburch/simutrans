@@ -1766,6 +1766,10 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp, ko
 			for(int n = 0; n < 8; n ++)
 			{
 				const koord kn = pos.neighbours[n] + pos;
+				if(!welt->is_within_grid_limits(kn))
+				{
+					continue;
+				}
 				const koord3d kn3d(kn, welt->lookup_hgt(kn));
 				grund_t* to = welt->lookup(kn3d);
 				const weg_t* connecting_way = to ? to->get_weg(weg->get_waytype()) : NULL;
