@@ -152,6 +152,12 @@
 // anything greater than 2097151 will give us overflow in kmh_to_speed. 
 #define KMH_SPEED_UNLIMITED (300000)
 
+#ifdef UINT_MAX
+#define MAXUINT32 UINT_MAX
+#else
+#define MAXUINT32 4294967295
+#endif
+
 /**
  * Conversion between km/h and m/s
  */
