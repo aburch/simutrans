@@ -2203,7 +2203,7 @@ void stadt_t::change_size(sint32 delta_citizen, bool new_town)
 
 void stadt_t::step(long delta_t)
 {
-	settings_t const& s = welt->get_settings();
+	//settings_t const& s = welt->get_settings();
 
 	// is it time for the next step?
 	//next_step += delta_t;
@@ -3446,7 +3446,7 @@ static int interesting_neighbors_corners[] = {
 };
 
 // return layout
-static int building_layout[] = {0,0,1,4,2,0,5,1,3,7,1,0,6,3,2,0};
+//static int building_layout[] = {0,0,1,4,2,0,5,1,3,7,1,0,6,3,2,0};
 
 // This takes a layout (0,1,2,3,4,5,6,7)
 // and returns a "streetsdir" style bitfield indicating which ways that layout is facing

@@ -115,7 +115,7 @@ welt_gui_t::welt_gui_t(settings_t* const sets_par) :
 	//******************************************************************
 	// Component creation
 
-	const scr_coord_val L_CLIENT_WIDTH  = L_DIALOG_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT;
+	//const scr_coord_val L_CLIENT_WIDTH  = L_DIALOG_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT;
 	const scr_coord_val L_MAP_X         = L_DIALOG_WIDTH - L_MAP_PREVIEW_WIDTH - D_MARGIN_RIGHT;
 	const scr_coord_val L_LEFT_OF_MAP_W = L_MAP_X - D_H_SPACE - D_MARGIN_LEFT;
 

@@ -88,7 +88,7 @@ class gui_table_column_t : public gui_table_intercept_t
 public:
 	gui_table_column_t() : gui_table_intercept_t(NULL, 99, false) {}
 	gui_table_column_t(scr_coord_val width) : gui_table_intercept_t(NULL, width, false) {}
-	virtual int compare_rows(const gui_table_row_t &row1, const gui_table_row_t &row2) const { return sgn((long)&row1 - (long)&row2);  }
+	virtual int compare_rows(const gui_table_row_t &row1, const gui_table_row_t &row2) const { return sgn((uint64)&row1 - (uint64)&row2);  }
 	scr_coord_val get_width() const { return get_size(); }
 	void set_width(scr_coord_val value) { set_size(value); }
 };
@@ -105,7 +105,7 @@ class gui_table_row_t : public gui_table_intercept_t
 public:
 	gui_table_row_t() : gui_table_intercept_t(NULL, 14, false) {}
 	gui_table_row_t(scr_coord_val height) : gui_table_intercept_t(NULL, height, false) {}
-	virtual int compare_columns(const gui_table_column_t &column1, const gui_table_column_t &column2) const { return sgn((long)&column1 - (long)&column2); }
+	virtual int compare_columns(const gui_table_column_t &column1, const gui_table_column_t &column2) const { return sgn((uint64)&column1 - (uint64)&column2); }
 	scr_coord_val get_height() const { return get_size(); }
 	void set_height(scr_coord_val value) { set_size(value); }
 };
