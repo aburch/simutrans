@@ -124,7 +124,7 @@ halt_info_t::halt_info_t(halthandle_t halt) :
 	const scr_size button_size(max(D_BUTTON_WIDTH, 100), D_BUTTON_HEIGHT);
 	scr_coord cursor(D_MARGIN_LEFT, D_MARGIN_TOP);
 
-	const sint16 offset_below_viewport = 21 + view.get_size().h;
+	//const sint16 offset_below_viewport = 21 + view.get_size().h;
 	const sint16 client_width = 3*(L_BUTTON_WIDTH + D_H_SPACE) + max( L_BUTTON_WIDTH, view.get_size().w );
 	const sint16 total_width = D_MARGIN_LEFT + client_width + D_MARGIN_RIGHT;
 
@@ -179,6 +179,7 @@ halt_info_t::halt_info_t(halthandle_t halt) :
 
 	toggler_departures.init( button_t::roundbox_state, "Departure board", cursor, button_size);
 	toggler_departures.set_tooltip("Show/hide estimated arrival times");
+	toggler_departures.set_visible(false);
 	toggler_departures.add_listener( this );
 	add_komponente( &toggler_departures );
 	cursor.x += button_size.w + D_H_SPACE;
