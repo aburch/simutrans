@@ -716,7 +716,7 @@ int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR, int)
 	wc.hbrBackground = (HBRUSH) (COLOR_BACKGROUND + 1);
 	wc.lpszMenuName = NULL;
 
-	RegisterClass(&wc);
+	RegisterClassW(&wc);
 
 	GetWindowRect(GetDesktopWindow(), &MaxSize);
 

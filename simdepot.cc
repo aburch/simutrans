@@ -567,8 +567,8 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 				potential_convoy_t convoy(vehicle_types);	
 				const vehicle_summary_t &vsum = convoy.get_vehicle_summary();
 				const sint32 friction = convoy.get_current_friction();
-				const double rolling_resistance = convoy.get_resistance_summary().to_double();
-				const uint32 number_of_vehicles = vehicle_types.get_count();
+				//const double rolling_resistance = convoy.get_resistance_summary().to_double();
+				//const uint32 number_of_vehicles = vehicle_types.get_count();
 				const uint32 max_speed = convoy.calc_max_speed(weight_summary_t(vsum.weight, friction));
 				speed = max_speed;
 			}

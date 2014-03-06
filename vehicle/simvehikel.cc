@@ -1046,7 +1046,7 @@ bool vehikel_t::load_freight_internal(halthandle_t halt, bool overcrowd)
 				{
 					break;
 				}
-				ware_t &tmp = *iter_z;
+				//ware_t &tmp = *iter_z;
 			}
 
 			// if != 0 we could not join it to existing => load it
@@ -1574,8 +1574,6 @@ sint32 vehikel_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 #endif
 		sint16 direction_difference = 0;
 		const sint16 direction = get_direction_degrees(ribi_t::get_dir(current_direction));
-		const uint16 modified_route_index = min(route_index - 1, cnv->get_route()->get_count() - 1);
-		//const koord3d *previous_tile = cnv->get_route()->position_bei(modified_route_index);
 	
 		uint16 limit_adjustment_percentage = 100;
 		if(base_limit > max_corner_limit)
@@ -4622,7 +4620,7 @@ bool aircraft_t::ist_ziel(const grund_t *gr,const grund_t *)
 		{
 			// ok here is a runway
 			ribi_t::ribi ribi= w->get_ribi_unmasked();
-			int success = 1;
+			//int success = 1;
 			if(ribi_t::ist_einfach(ribi)  &&  (ribi&approach_dir)!=0)
 			{
 				// pointing in our direction

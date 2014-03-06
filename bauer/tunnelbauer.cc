@@ -362,7 +362,7 @@ bool tunnelbauer_t::baue_tunnel(spieler_t *sp, koord3d start, koord3d end, koord
 	weg_t *weg = NULL;
 	leitung_t *lt = NULL;
 	koord3d pos = start;
-	sint64 cost = 0, maint = 0;
+	sint64 cost = 0;
 	const weg_besch_t *weg_besch;
 	waytype_t wegtyp = besch->get_waytype();
 
