@@ -678,7 +678,7 @@ public:
 	sint32 get_anzahl_staedte() const {return anzahl_staedte;}
 
 	void set_mittlere_einwohnerzahl( sint32 n ) {mittlere_einwohnerzahl = n;}
-	sint32 get_mittlere_einwohnerzahl() const {return mittlere_einwohnerzahl;}
+	sint32 get_mittlere_einwohnerzahl() const {return mittlere_einwohnerzahl;} // Median town size
 
 	void set_verkehr_level(sint32 l) {verkehr_level=l;}
 	sint32 get_verkehr_level() const {return verkehr_level;}
