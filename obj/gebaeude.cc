@@ -1495,7 +1495,7 @@ uint16 gebaeude_t::get_jobs() const
 	{
 		return jobs;
 	}
-	else
+	else if(get_fabrik())
 	{
 		const uint16 base_pax_demand = (uint16)get_fabrik()->get_base_pax_demand();
 		if(base_pax_demand == 0)
@@ -1507,6 +1507,10 @@ uint16 gebaeude_t::get_jobs() const
 			return base_pax_demand;
 		}
 	}
+	else
+	{
+		return jobs;
+	}
 }
 
 uint16 gebaeude_t::get_adjusted_jobs() const
@@ -1515,7 +1519,7 @@ uint16 gebaeude_t::get_adjusted_jobs() const
 	{
 		return adjusted_jobs;
 	}
-	else
+	else if(get_fabrik())
 	{
 		const uint16 scaled_pax_demand = (uint16)get_fabrik()->get_scaled_pax_demand();
 		if(scaled_pax_demand == 0)
@@ -1527,6 +1531,10 @@ uint16 gebaeude_t::get_adjusted_jobs() const
 			return scaled_pax_demand;
 		}
 	}
+	else
+	{
+		return jobs;
+	}
 }
 
 uint16 gebaeude_t::get_mail_demand() const
@@ -1535,7 +1543,7 @@ uint16 gebaeude_t::get_mail_demand() const
 	{
 		return mail_demand;
 	}
-	else
+	else if(get_fabrik())
 	{
 		const uint16 base_mail_demand = (uint16)get_fabrik()->get_base_mail_demand();
 		if(base_mail_demand == 0)
@@ -1547,6 +1555,10 @@ uint16 gebaeude_t::get_mail_demand() const
 			return base_mail_demand;
 		}
 	}
+	else
+	{
+		return mail_demand;
+	}
 }
 
 uint16 gebaeude_t::get_adjusted_mail_demand() const
@@ -1555,7 +1567,7 @@ uint16 gebaeude_t::get_adjusted_mail_demand() const
 	{
 		return adjusted_mail_demand;
 	}
-	else
+	else if(get_fabrik())
 	{
 		const uint16 scaled_mail_demand = (uint16)get_fabrik()->get_scaled_mail_demand();
 		if(scaled_mail_demand == 0)
@@ -1566,6 +1578,10 @@ uint16 gebaeude_t::get_adjusted_mail_demand() const
 		{
 			return scaled_mail_demand;
 		}
+	}
+	else
+	{
+		return mail_demand;
 	}
 }
 
