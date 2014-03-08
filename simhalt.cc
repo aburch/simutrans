@@ -2373,7 +2373,7 @@ uint32 haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 	{
 		// yes, we have arrived!
 		gebaeude_t* gb_dest = gb;
-		if (fab) 
+		if(fab) 
 		{
 			// Packet is headed to a factory;
 			// the factory exists;
@@ -2394,21 +2394,22 @@ uint32 haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 			}
 		}
 
-		if (gb_dest)
+		if(gb_dest)
 		{
 			// Arrived!  Passengers & mail vanish mysteriously upon arrival.
 			// FIXME: walking time delay should be implemented right here!
-			if(ware.is_passenger())
+			if(ware.is_passenger()) 
 			{	
-				if(ware.is_commuting_trip)
+				// Do not add these to houses again on arrival: for houses, only departures should be recorded.
+				if(ware.is_commuting_trip && gb_dest->get_tile()->get_besch()->get_typ() != gebaeude_t::wohnung)
 				{
 					gb_dest->set_commute_trip(ware.menge);
 				}
-				else if (fab)
+				else if(fab)
 				{
 					gb_dest->add_passengers_succeeded_visiting(ware.menge);
 				}
-				else
+				else if(gb_dest->get_tile()->get_besch()->get_typ() != gebaeude_t::wohnung)
 				{
 					gb_dest->add_passengers_succeeded_commuting(ware.menge);
 				}

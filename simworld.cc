@@ -5679,20 +5679,20 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 				}
 				set_return_trip = true;
 				// create pedestrians in the near area?
-				if (settings.get_random_pedestrians() && wtyp == warenbauer_t::passagiere) 
+				if(settings.get_random_pedestrians() && wtyp == warenbauer_t::passagiere) 
 				{
 					haltestelle_t::erzeuge_fussgaenger(origin_pos, pax_left_to_do);
 				}
 				// We cannot do this on arrival, as the ware packets do not remember their origin building.
+				// However, as for the destination, this can be set when the passengers arrive.
 					
-				if(trip == commuting_trip && gb)
+				if(trip == commuting_trip && first_origin)
 				{
-					gb->add_passengers_succeeded_commuting(pax_left_to_do);
+					first_origin->add_passengers_succeeded_commuting(pax_left_to_do);
 				}
-				else if(trip == visiting_trip && gb)
+				else if(trip == visiting_trip && first_origin)
 				{
-					gb->add_passengers_succeeded_visiting(pax_left_to_do);
-					current_destination.building->add_passengers_succeeded_visiting(pax_left_to_do);
+					first_origin->add_passengers_succeeded_visiting(pax_left_to_do);
 				}
 				// Do nothing if trip == mail.
 				break;
@@ -5720,12 +5720,20 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 						// Only add commuting passengers at a factory.
 						current_destination.building->get_fabrik()->liefere_an(wtyp, pax_left_to_do);
 					}
-					current_destination.building->set_commute_trip(pax_left_to_do);
+					if(current_destination.building->get_tile()->get_besch()->get_typ() != gebaeude_t::wohnung)
+					{
+						// Houses do not record received passengers.
+						current_destination.building->set_commute_trip(pax_left_to_do);
+					}
 				}
 				else if(trip == visiting_trip)
 				{
-					gb->add_passengers_succeeded_visiting(pax_left_to_do);
-					current_destination.building->add_passengers_succeeded_visiting(pax_left_to_do);
+					first_origin->add_passengers_succeeded_visiting(pax_left_to_do);
+					if(current_destination.building->get_tile()->get_besch()->get_typ() != gebaeude_t::wohnung)
+					{
+						// Houses do not record received passengers.
+						current_destination.building->add_passengers_succeeded_visiting(pax_left_to_do);
+					}
 				}
 				// Do nothing if trip == mail.
 				break;
@@ -5760,13 +5768,20 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 						// Only add commuting passengers at a factory.
 						current_destination.building->get_fabrik()->liefere_an(wtyp, pax_left_to_do);
 					}
-
-					current_destination.building->set_commute_trip(pax_left_to_do);
+					if(current_destination.building->get_tile()->get_besch()->get_typ() != gebaeude_t::wohnung)
+					{
+						// Houses do not record received passengers.
+						current_destination.building->set_commute_trip(pax_left_to_do);
+					}
 				}
 				else if(trip == visiting_trip)
 				{
 					first_origin->add_passengers_succeeded_visiting(pax_left_to_do);
-					current_destination.building->add_passengers_succeeded_visiting(pax_left_to_do);
+					if(current_destination.building->get_tile()->get_besch()->get_typ() != gebaeude_t::wohnung)
+					{
+						// Houses do not record received passengers.
+						current_destination.building->add_passengers_succeeded_visiting(pax_left_to_do);
+					}
 				}
 				// Do nothing if trip == mail.
 				break;
