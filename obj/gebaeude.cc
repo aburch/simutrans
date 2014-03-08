@@ -1497,7 +1497,15 @@ uint16 gebaeude_t::get_jobs() const
 	}
 	else
 	{
-		return (uint16)get_fabrik()->get_base_pax_demand();
+		const uint16 base_pax_demand = (uint16)get_fabrik()->get_base_pax_demand();
+		if(base_pax_demand == 0)
+		{
+			return jobs;
+		}
+		else
+		{
+			return base_pax_demand;
+		}
 	}
 }
 
@@ -1509,7 +1517,15 @@ uint16 gebaeude_t::get_adjusted_jobs() const
 	}
 	else
 	{
-		return (uint16)get_fabrik()->get_scaled_pax_demand();
+		const uint16 scaled_pax_demand = (uint16)get_fabrik()->get_scaled_pax_demand();
+		if(scaled_pax_demand == 0)
+		{
+			return jobs;
+		}
+		else
+		{
+			return scaled_pax_demand;
+		}
 	}
 }
 
@@ -1521,7 +1537,15 @@ uint16 gebaeude_t::get_mail_demand() const
 	}
 	else
 	{
-		return (uint16)get_fabrik()->get_base_mail_demand();
+		const uint16 base_mail_demand = (uint16)get_fabrik()->get_base_mail_demand();
+		if(base_mail_demand == 0)
+		{
+			return mail_demand;
+		}
+		else
+		{
+			return base_mail_demand;
+		}
 	}
 }
 
@@ -1533,7 +1557,15 @@ uint16 gebaeude_t::get_adjusted_mail_demand() const
 	}
 	else
 	{
-		return (uint16)get_fabrik()->get_scaled_mail_demand();
+		const uint16 scaled_mail_demand = (uint16)get_fabrik()->get_scaled_mail_demand();
+		if(scaled_mail_demand == 0)
+		{
+			return mail_demand;
+		}
+		else
+		{
+			return scaled_mail_demand;
+		}
 	}
 }
 
