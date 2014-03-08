@@ -2053,11 +2053,24 @@ void fabrik_t::neuer_monat()
 	set_stat( prodfactor_mail, FAB_BOOST_MAIL );
 	set_stat( power, FAB_POWER );
 
-	// since target cities' population may be increased -> re-apportion pax/mail demand
-	//recalc_demands_at_target_cities();
-
 	// This needs to be re-checked regularly, as cities grow, occasionally shrink and can be deleted.
-	stadt_t* c = welt->get_city(pos.get_2d());
+	stadt_t* c = NULL;
+	vector_tpl<koord> tile_list;
+	get_tile_list(tile_list);
+	FOR(vector_tpl<koord>, const k, tile_list)
+	{
+		for(uint8 i = 0; i < 8; i ++)
+		{
+			// We need to check neighbouring tiles, since city borders can be very tightly drawn.
+			const koord city_pos(k + k.neighbours[i]);
+			c = welt->get_city(city_pos);
+			if(c)
+			{
+				break;
+			}
+		}
+	}
+	
 
 	if(c && !c->get_city_factories().is_contained(this))
 	{
