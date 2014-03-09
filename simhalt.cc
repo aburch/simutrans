@@ -2400,19 +2400,19 @@ uint32 haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 			// FIXME: walking time delay should be implemented right here!
 			if(ware.is_passenger()) 
 			{	
-				// Do not add these to houses again on arrival: for houses, only departures should be recorded.
-				if(ware.is_commuting_trip && gb_dest->get_tile()->get_besch()->get_typ() != gebaeude_t::wohnung)
+				if(ware.is_commuting_trip)
 				{
-					gb_dest->set_commute_trip(ware.menge);
-				}
-				else if(fab)
-				{
-					gb_dest->add_passengers_succeeded_visiting(ware.menge);
+					if(gb_dest->get_tile()->get_besch()->get_typ() != gebaeude_t::wohnung)
+					{
+						// Do not record the passengers coming back home again.
+						gb_dest->set_commute_trip(ware.menge);
+					}
 				}
 				else if(gb_dest->get_tile()->get_besch()->get_typ() != gebaeude_t::wohnung)
 				{
-					gb_dest->add_passengers_succeeded_commuting(ware.menge);
+					gb_dest->add_passengers_succeeded_visiting(ware.menge);
 				}
+
 				// Arriving passengers may create pedestrians
 				if(welt->get_settings().get_show_pax())
 				{
