@@ -281,14 +281,14 @@ public:
 	void add_passengers_generated_commuting(uint16 number) { passengers_generated_commuting += number; }
 	void add_passengers_succeeded_commuting(uint16 number) { passengers_succeeded_commuting += number; }
 
-	uint16 get_passenger_success_percent_this_year_commuting() const { return passengers_generated_commuting > 0 ? (passengers_succeeded_commuting * 100) / passengers_generated_commuting : 0; }
+	uint16 get_passenger_success_percent_this_year_commuting() const { return passengers_generated_commuting > 0 ? (passengers_succeeded_commuting * 100) / passengers_generated_commuting : 65535; }
 	uint16 get_passenger_success_percent_last_year_commuting() const { return passenger_success_percent_last_year_commuting; }
-	uint16 get_average_passenger_success_percent_commutingl() const { return (get_passenger_success_percent_this_year_commuting() + passenger_success_percent_last_year_commuting) / 2; }
+	uint16 get_average_passenger_success_percent_commuting() const { return (get_passenger_success_percent_this_year_commuting() + passenger_success_percent_last_year_commuting) / 2; }
 
 	void add_passengers_generated_visiting(uint16 number) { passengers_generated_visiting += number; }
 	void add_passengers_succeeded_visiting(uint16 number) { passengers_succeeded_visiting += number; }
 
-	uint16 get_passenger_success_percent_this_year_visiting() const { return passengers_generated_visiting > 0 ? (passengers_succeeded_visiting * 100) / passengers_generated_visiting : 0; }
+	uint16 get_passenger_success_percent_this_year_visiting() const { return passengers_generated_visiting > 0 ? (passengers_succeeded_visiting * 100) / passengers_generated_visiting : 65535; }
 	uint16 get_passenger_success_percent_last_year_visiting() const { return passenger_success_percent_last_year_visiting; }
 	uint16 get_average_passenger_success_percent_visiting() const { return (get_passenger_success_percent_this_year_visiting() + passenger_success_percent_last_year_visiting) / 2; }
 

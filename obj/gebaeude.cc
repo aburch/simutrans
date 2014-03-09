@@ -68,10 +68,10 @@ void gebaeude_t::init()
 	remove_ground = true;
 	passengers_generated_commuting = 0;
 	passengers_succeeded_commuting = 0;
-	passenger_success_percent_last_year_commuting = 0;
+	passenger_success_percent_last_year_commuting = 65535;
 	passengers_generated_visiting = 0;
 	passengers_succeeded_visiting = 0;
-	passenger_success_percent_last_year_visiting = 0;
+	passenger_success_percent_last_year_visiting = 65535;
 	available_jobs_by_time = -9223372036854775808ll;
 }
 
@@ -956,10 +956,37 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 		}
 		if(get_tile()->get_besch()->get_typ() == gebaeude_t::wohnung)
 		{
-			buf.printf("\n\n%s %i%%\n", translator::translate("Passenger success rate this year (local):"), get_passenger_success_percent_this_year_commuting());
-			buf.printf("%s %i%%\n", translator::translate("Passenger success rate last year (local):"), get_passenger_success_percent_last_year_commuting());
-			buf.printf("%s %i%%\n", translator::translate("Passenger success rate this year (non-local):"), get_passenger_success_percent_this_year_visiting());
-			buf.printf("%s %i%%\n", translator::translate("Passenger success rate last year (non-local):"), get_passenger_success_percent_last_year_visiting());
+			uint16 success_rate = get_passenger_success_percent_this_year_commuting();
+			buf.printf("\n\n%s", translator::translate("Passenger success rate this year (local):"));
+			if(success_rate < 65535)
+			{
+				buf.printf(" %i%%", success_rate);
+			}
+			buf.printf("\n");
+
+			success_rate = get_passenger_success_percent_last_year_commuting();
+			buf.printf(translator::translate("Passenger success rate last year (local):"));
+			if(success_rate < 65535)
+			{
+				buf.printf(" %i%%", success_rate);
+			}
+			buf.printf("\n");
+
+			buf.printf(translator::translate("Passenger success rate this year (non-local):"));
+			success_rate = get_passenger_success_percent_this_year_visiting();
+			if(success_rate < 65535)
+			{
+				buf.printf(" %i%%", success_rate);
+			}
+			buf.printf("\n");
+
+			success_rate = get_passenger_success_percent_last_year_visiting();
+			buf.printf(translator::translate("Passenger success rate last year (non-local):"));
+			if(success_rate < 65535)
+			{
+				buf.printf(" %i%%", success_rate);
+			}
+			buf.printf("\n");
 		}
 		else
 		{
