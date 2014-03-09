@@ -4,7 +4,7 @@
  * This file is part of the Simutrans project under the artistic license.
  */
 
-#ifndef WIN32
+#ifndef _MSC_VER
 #define SDL
 #endif
 
