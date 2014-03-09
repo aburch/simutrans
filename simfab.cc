@@ -2885,7 +2885,7 @@ void fabrik_t::calc_max_intransit_percentages()
 			index ++;
 			continue;
 		}
-		const uint16 time_to_consume = get_time_to_consume_stock(index); 
+		const uint16 time_to_consume = max(1, get_time_to_consume_stock(index)); 
 		const uint32 ratio = (lead_time * 1000 / time_to_consume);
 		const uint32 modified_max_intransit_percentage = (ratio * base_max_intransit_percentage) / 1000;
 		max_intransit_percentages.put(catg, (uint16)modified_max_intransit_percentage);
@@ -2962,7 +2962,7 @@ uint32 fabrik_t::get_time_to_consume_stock(uint32 index)
 
 	const sint64 tick_units = input_capacity * welt->ticks_per_world_month;
 
-	const sint32 ticks_to_consume = tick_units / consumed_per_month;
+	const sint32 ticks_to_consume = tick_units / max(1, consumed_per_month);
 	return welt->ticks_to_tenths_of_minutes(ticks_to_consume);
 
 	/*
