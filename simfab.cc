@@ -2962,7 +2962,7 @@ uint32 fabrik_t::get_time_to_consume_stock(uint32 index)
 
 	const sint64 tick_units = input_capacity * welt->ticks_per_world_month;
 
-	const sint32 ticks_to_consume = tick_units / consumed_per_month;
+	const sint32 ticks_to_consume = tick_units / max(1, consumed_per_month);
 	return welt->ticks_to_tenths_of_minutes(ticks_to_consume);
 
 	/*
