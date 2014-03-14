@@ -1774,8 +1774,7 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp, ko
 				grund_t* to = welt->lookup(kn3d);
 				const weg_t* connecting_way = to ? to->get_weg(weg->get_waytype()) : NULL;
 				const ribi_t::ribi connecting_ribi = connecting_way ? connecting_way->get_ribi() : ribi_t::alle;
-				const ribi_t::ribi reverse_ribi = ribi_t::rueckwaerts(connecting_ribi);
-				if(route->is_contained(kn3d) || connecting_ribi == ribi || reverse_ribi == ribi)
+				if(route->is_contained(kn3d) || (ribi_t::ist_einfach(ribi) && ribi_t::ist_einfach(connecting_ribi)))
 				{
 					continue;
 				}
