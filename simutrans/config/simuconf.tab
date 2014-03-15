@@ -96,7 +96,7 @@ way_tunnel=8
 way_max_bridge_len=15
 way_leaving_road=25
 
-############################### Passenger settings ##############################
+############################### Passenger and mail settings ##############################
 # also pak dependent
 
 # town growth multiplier factors (electricity is not used at the moment)
@@ -112,32 +112,6 @@ growthfactor_villages = 400
 growthfactor_cities = 200
 growthfactor_capitals = 100
 
-# passenger generation (default is 16) Smaller values means less passengers
-passenger_factor=16
-
-# amount of passengers that travel from/to factories or attractions
-# the remaining percentage is intercity and intracity travel
-factory_worker_percentage = 33
-tourist_percentage = 16
-
-# how much local destinations are prefrerred over time
-# 1 means almost local passengers/mail only, 10000 spreads them over the map
-# You can have up to ten entries, first is the year, next is the factor.
-# The increase between the year will increase first slow then fast towards
-# the final years
-locality_factor[0]=1835,1
-locality_factor[1]=2050,2500
-
-# A factory will be added as worker's destination to a town, if it has either
-# is within factory_worker_radius
-# or has less than factory_worker_minimum_towns next cities added
-# and has not more than factory_worker_maximum_towns added
-# The default settings connect to maximum four cities with 77 tiles radius; or at least to the closest one
-# Setting factory_worker_maximum_towns to zero will not connect factories to towns
-factory_worker_radius = 77
-factory_worker_minimum_towns = 1
-factory_worker_maximum_towns = 4
-
 # if enabled (default = 0 off) stops may have different capacities for passengers, mail, and  freight
 seperate_halt_capacities = 0
 
@@ -151,8 +125,33 @@ avoid_overcrowding = 0
 # do not create goods/passenger/mail when the only route is over an overcrowded stop
 no_routing_over_overcrowded = 0
 
-# in beginner mode, all good prices are multiplied by a factor (default 1500=1.5)
-beginner_price_factor = 1500
+# These settings determine the population, visitor demand, jobs and mail per "level" of building.
+# Each of these things can be set independently in the buildings' .dat files, but for older paksets
+# or paksets from Standard, only a "level" will be supplied, so these conversion factors are
+# important in those cases.
+population_per_level = 3
+visitor_demand_per_level = 3
+jobs_per_level = 2
+mail_per_level = 1
+
+# These settings determine the number of passenger trips that each person makes per game month
+# and the number of items of mail that each unit of mail demand produces per month, in 1/100ths.
+passenger_trips_per_month_hundredths = 200
+mail_packets_per_month_hundredths = 10
+
+# This setting determines the maximum number of onward trips that passengers may make on a journey.
+# The actual number of onward trips for any given packet of passengers is a random number of anywhere
+# between 1 and this figure. This is only applicable if passengers are in fact going to make an onward
+# trip, the chance of which is determined by a different setting (see below).
+max_onward_trips = 3
+
+# This figure determines how likely that it is that passengers will make any onward trips at all. It
+# is expressed in percentage terms.
+onward_trip_chance_percent = 25
+
+# This is the chance, in percentage, that any given passenger journey will be a commuting trip. Any
+# trip that is not a commuting trip is classed as a visiting trip.
+commuting_trip_chance_percent = 67
 
 ################################## Industry settings #################################
 
@@ -433,6 +432,9 @@ toll_waycost_percentage = 0
 #cost_multiply_remove_field=5000
 #cost_transformer=2500
 #cost_maintain_transformer=20
+
+# in beginner mode, all good prices are multiplied by a factor (default 1500=1.5)
+beginner_price_factor = 1500
 
 ################################### Miscellaneous settings ##################################
 #

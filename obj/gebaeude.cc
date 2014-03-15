@@ -868,13 +868,10 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 			buf.printf(translator::translate("Town: %s\n"), ptr.stadt->get_name());
 		}
 
-		const sint32 remaining_jobs_adjusted = check_remaining_available_jobs();
-		const sint32 deadjusted_remaining_jobs = (remaining_jobs_adjusted * get_jobs()) / (get_adjusted_jobs() > 0 ? get_adjusted_jobs() : 1); 
-
-		buf.printf("\n%s: %d\n", translator::translate("citicens"), get_population());
-		buf.printf("%s: %d\n", translator::translate("Visitor demand"), get_visitor_demand());
-		buf.printf("%s (%s): %d (%d)\n", translator::translate("Jobs"), translator::translate("available"), get_jobs(), deadjusted_remaining_jobs);
-		buf.printf("%s: %d\n", translator::translate("Mail demand/output"), get_mail_demand());
+		buf.printf("\n%s: %d\n", translator::translate("citicens"), get_adjusted_population());
+		buf.printf("%s: %d\n", translator::translate("Visitor demand"), get_adjusted_visitor_demand());
+		buf.printf("%s (%s): %d (%d)\n", translator::translate("Jobs"), translator::translate("available"), get_adjusted_jobs(), check_remaining_available_jobs());
+		buf.printf("%s: %d\n", translator::translate("Mail demand/output"), get_adjusted_mail_demand());
 
 		haus_besch_t const& h = *tile->get_besch();
 		buf.printf("%s%u", translator::translate("\nBauzeit von"), h.get_intro_year_month() / 12);
@@ -990,16 +987,17 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 		}
 		else
 		{
-			const sint32 deadjusted_passengers_succeeded_visiting = (passengers_succeeded_visiting * get_jobs()) / (get_adjusted_jobs() > 0 ? get_adjusted_jobs() : 1);
-			const sint32 deadjusted_passengers_succeeded_commuting = (passengers_succeeded_commuting * get_jobs()) / (get_adjusted_jobs() > 0 ? get_adjusted_jobs() : 1);
-			const sint32 deadjusted_passenger_success_percent_last_year_commuting = (passenger_success_percent_last_year_commuting * get_jobs()) / (get_adjusted_jobs() > 0 ? get_adjusted_jobs() : 1);
-			const sint32 deadjusted_passenger_success_percent_last_year_visiting = (passenger_success_percent_last_year_visiting * get_jobs()) / (get_adjusted_jobs() > 0 ? get_adjusted_jobs() : 1);
+			buf.printf("\n\n%s %i\n", translator::translate("Visitors this year:"), passengers_succeeded_visiting);
+			buf.printf("%s %i\n", translator::translate("Commuters this year:"), passengers_succeeded_commuting);
 
-			buf.printf("\n\n%s %i [%i]\n", translator::translate("Visitors this year:"), passengers_succeeded_visiting, deadjusted_passengers_succeeded_visiting);
-			buf.printf("%s %i [%i]\n", translator::translate("Commuters this year:"), passengers_succeeded_commuting, deadjusted_passengers_succeeded_commuting);
-
-			buf.printf("\n%s %i [%i]\n", translator::translate("Visitors last year:"), passenger_success_percent_last_year_commuting, deadjusted_passenger_success_percent_last_year_commuting);
-			buf.printf("%s %i [%i]\n", translator::translate("Commuters last year:"), passenger_success_percent_last_year_visiting, deadjusted_passenger_success_percent_last_year_visiting);
+			if(passenger_success_percent_last_year_commuting < 65535)
+			{
+				buf.printf("\n%s %i\n", translator::translate("Visitors last year:"), passenger_success_percent_last_year_commuting);
+			}
+			if(passenger_success_percent_last_year_visiting < 65535)
+			{
+				buf.printf("%s %i\n", translator::translate("Commuters last year:"), passenger_success_percent_last_year_visiting);
+			}
 		}
 	}
 }
@@ -1010,7 +1008,6 @@ void gebaeude_t::new_year()
 	{
 		passenger_success_percent_last_year_commuting = get_passenger_success_percent_this_year_commuting();
 		passenger_success_percent_last_year_visiting = get_passenger_success_percent_this_year_visiting(); 
-
 	}
 	else
 	{
@@ -1484,10 +1481,6 @@ void gebaeude_t::set_commute_trip(uint16 number)
 	add_passengers_succeeded_commuting(number);
 }
 
-uint16 gebaeude_t::get_population() const
-{
-	return get_haustyp() == wohnung ? people.population : 0;
-}
 
 uint16 gebaeude_t::get_adjusted_population() const
 {

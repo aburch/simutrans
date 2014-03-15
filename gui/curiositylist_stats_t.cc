@@ -245,7 +245,7 @@ void curiositylist_stats_t::draw(scr_coord offset)
 		}
 		*dst = '\0';
 		// now we have a short name ...
-		buf.printf("%s (%d)", short_name, geb->get_visitor_demand());
+		buf.printf("%s (%d)", short_name, geb->get_adjusted_visitor_demand());
 
 		display_proportional_clip(xoff+D_INDICATOR_WIDTH+10+9,yoff,buf,ALIGN_LEFT,COL_BLACK,true);
 

@@ -455,6 +455,15 @@ public:
 	sint32 get_einwohner() const {return ((buildings.get_sum_weight() * welt->get_settings().get_meters_per_tile()) / 31)+((2*bev-arb-won)>>1);}
 	//sint32 get_einwohner() const { return bev; }
 
+	// Not suitable for use in game computations because this is not network safe. For GUI only.
+	double get_land_area() const;
+
+	// Not suitable for use in game computations because this is not network safe. For GUI only.
+	uint32 get_population_density() const
+	{
+		return city_history_month[0][HIST_CITICENS] / get_land_area();
+	}
+
 	sint32 get_city_population() const { return (sint32) city_history_month[0][HIST_CITICENS]; }
 	sint32 get_city_jobs() const { return (sint32) city_history_month[0][HIST_JOBS]; }
 	sint32 get_city_visitor_demand() const { return (sint32) city_history_month[0][HIST_VISITOR_DEMAND]; }

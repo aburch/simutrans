@@ -1013,25 +1013,25 @@ void stadt_t::update_city_stats_with_building(gebaeude_t* building, bool remove)
 	}
 	if(remove)
 	{
-		city_history_month[0][HIST_CITICENS] -= building->get_population();
-		city_history_year[0][HIST_CITICENS]  -= building->get_population();
+		city_history_month[0][HIST_CITICENS] -= building->get_adjusted_population();
+		city_history_year[0][HIST_CITICENS]  -= building->get_adjusted_population();
 
-		city_history_month[0][HIST_JOBS] -= building->get_jobs();
-		city_history_year[0][HIST_JOBS]  -= building->get_jobs();
+		city_history_month[0][HIST_JOBS] -= building->get_adjusted_jobs();
+		city_history_year[0][HIST_JOBS]  -= building->get_adjusted_jobs();
 
-		city_history_month[0][HIST_VISITOR_DEMAND] -= building->get_visitor_demand();
-		city_history_year[0][HIST_VISITOR_DEMAND]  -= building->get_visitor_demand();
+		city_history_month[0][HIST_VISITOR_DEMAND] -= building->get_adjusted_visitor_demand();
+		city_history_year[0][HIST_VISITOR_DEMAND]  -= building->get_adjusted_visitor_demand();
 	}
 	else
 	{
-		city_history_month[0][HIST_CITICENS] += building->get_population();
-		city_history_year[0][HIST_CITICENS]  += building->get_population();
+		city_history_month[0][HIST_CITICENS] += building->get_adjusted_population();
+		city_history_year[0][HIST_CITICENS]  += building->get_adjusted_population();
 
-		city_history_month[0][HIST_JOBS] += building->get_jobs();
-		city_history_year[0][HIST_JOBS]  += building->get_jobs();
+		city_history_month[0][HIST_JOBS] += building->get_adjusted_jobs();
+		city_history_year[0][HIST_JOBS]  += building->get_adjusted_jobs();
 
-		city_history_month[0][HIST_VISITOR_DEMAND] += building->get_visitor_demand();
-		city_history_year[0][HIST_VISITOR_DEMAND]  += building->get_visitor_demand();
+		city_history_month[0][HIST_VISITOR_DEMAND] += building->get_adjusted_visitor_demand();
+		city_history_year[0][HIST_VISITOR_DEMAND]  += building->get_adjusted_visitor_demand();
 	}
 }
 
@@ -5058,4 +5058,16 @@ void stadt_t::remove_connected_industry(fabrik_t* fab)
 void stadt_t::remove_connected_attraction(gebaeude_t* attraction)
 {
 	connected_attractions.remove(attraction->get_pos().get_2d());
+}
+
+double stadt_t::get_land_area() const
+{
+	const uint16 x_dimension = ur.x - lo.x;
+	const uint16 y_dimension = ur.y - lo.y;
+	const uint16 meters_per_tile = welt->get_settings().get_meters_per_tile();
+	const uint16 x_dimension_meters = x_dimension * meters_per_tile;
+	const uint16 y_dimension_meters = y_dimension * meters_per_tile;
+	const uint32 area_square_meters = (uint32)x_dimension_meters * (uint32)y_dimension_meters;
+	const double area_square_km = (double)area_square_meters / 1000000.0;
+	return area_square_km;
 }

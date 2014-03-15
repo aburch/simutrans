@@ -307,16 +307,13 @@ void stadt_info_t::draw(scr_coord pos, scr_size size)
 	buf.clear();
 
 	buf.append( translator::translate("City size") );
-	buf.append( ": \n" );
-	buf.append( c->get_einwohner(), 0 );
-	buf.append( " (" );
-	buf.append( c->get_wachstum() / 10.0, 1 );
-	buf.append( ") \n" );
-	buf.printf( translator::translate("%d buildings\n"), c->get_buildings() );
+	buf.append(": " );
+	buf.printf("%.2f %s\n", c->get_land_area(), translator::translate("sq. km."));
+	buf.printf("%s:\n%d /%s\n", translator::translate("Population density"), c->get_population_density(), translator::translate("sq. km."));
 
 	const koord ul = c->get_linksoben();
 	const koord lr = c->get_rechtsunten();
-	buf.printf( "\n%d,%d - %d,%d\n\n", ul.x, ul.y, lr.x , lr.y);
+	buf.printf( "%d,%d - %d,%d\n\n", ul.x, ul.y, lr.x , lr.y);
 
 	buf.append( translator::translate("Unemployed") );
 	buf.append( ": " );

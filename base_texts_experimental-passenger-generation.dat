@@ -47,3 +47,13 @@ note=Shown in the information windows for buildings to display the number of job
 obj=program_text
 name=Land value
 note=Shown in the dialogue box for ground tiles.
+-
+obj=program_text
+name=sq. km.
+note=From the city window giving the units for the land area.
+-
+obj=program_text
+name=Population density
+note=From the city window showing the population density
+
+
