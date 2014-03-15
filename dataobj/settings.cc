@@ -103,6 +103,7 @@ settings_t::settings_t() :
 	meters_per_tile = 1000;
 	base_meters_per_tile = 1000;
 	base_bits_per_month = 18;
+	job_replenishment_per_hundredths_of_months = 100;
 
 	beginner_mode = false;
 	beginner_price_factor = 1500;
@@ -1527,6 +1528,7 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_short(commuting_trip_chance_percent);
 			file->rdwr_long(base_meters_per_tile);
 			file->rdwr_long(base_bits_per_month);
+			file->rdwr_long(job_replenishment_per_hundredths_of_months);
 
 			file->rdwr_longlong(forge_cost_road);
 			file->rdwr_longlong(forge_cost_track);
@@ -1618,6 +1620,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	base_meters_per_tile = contents.get_int("base_meters_per_tile", base_meters_per_tile);
 	base_bits_per_month = contents.get_int("base_bits_per_month", base_bits_per_month); 
+	job_replenishment_per_hundredths_of_months = contents.get_int("job_replenishment_per_hundredths_of_months", job_replenishment_per_hundredths_of_months);
 
 		// special day/night colors
 #if COLOUR_DEPTH != 0

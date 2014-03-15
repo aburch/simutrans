@@ -1617,13 +1617,14 @@ sint32 gebaeude_t::check_remaining_available_jobs() const
 	else
 	{*/
 		const uint32 total_jobs = get_adjusted_jobs();
-		if(available_jobs_by_time < welt->get_zeit_ms() - welt->ticks_per_world_month)
+		const sint64 replenishment_period = (welt->ticks_per_world_month * (sint64)welt->get_settings().get_job_replenishment_per_hundredths_of_months()) / 100ll;
+		if(available_jobs_by_time < welt->get_zeit_ms() - replenishment_period)
 		{
 			// Uninitialised or stale - all jobs available
 			return total_jobs;
 		}
 		const sint64 delta_t = welt->get_zeit_ms() - available_jobs_by_time;
-		const sint64 remaining_jobs = delta_t * total_jobs / welt->ticks_per_world_month;
+		const sint64 remaining_jobs = delta_t * total_jobs / replenishment_period;
 		return (sint32)remaining_jobs;
 	//}
 }

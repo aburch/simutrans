@@ -351,6 +351,7 @@ public:
 	
 	uint32 base_meters_per_tile;
 	uint32 base_bits_per_month;
+	uint32 job_replenishment_per_hundredths_of_months;
 
 	// We need it often(every vehikel_basis_t::fahre_basis call), so we cache it.
 	uint32 steps_per_km;
@@ -793,6 +794,7 @@ public:
 	
 	uint32 get_base_meters_per_tile() const { return base_meters_per_tile; }
 	uint32 get_base_bits_per_month() const { return base_bits_per_month; }
+	uint32 get_job_replenishment_per_hundredths_of_months() const { return job_replenishment_per_hundredths_of_months; }
 
 	uint8  get_tolerable_comfort_short() const { return tolerable_comfort_short; }
 	uint16 get_tolerable_comfort_short_minutes() const { return tolerable_comfort_short_minutes; }
