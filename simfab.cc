@@ -355,6 +355,17 @@ void fabrik_t::update_scaled_pax_demand()
 	{
 		// first, scaling based on current production base
 		const sint64 prod = besch->get_produktivitaet() > 0 ? besch->get_produktivitaet() : 1;
+		// Take into account fields
+		sint64 prod_adjust = prod;
+		const field_group_besch_t *fb = besch->get_field_group();
+		if(fb) {
+			for(uint32 i=0; i<fields.get_count(); i++) {
+				const field_class_besch_t *fc = fb->get_field_class( fields[i].field_class_index );
+				if (fc) {
+					prod_adjust += fc->get_field_production();
+				}
+			}
+		}
 		gebaeude_t* gb = get_building();
 
 		const uint16 employment_capacity = besch->get_haus()->get_employment_capacity();
@@ -364,7 +375,7 @@ void fabrik_t::update_scaled_pax_demand()
 		// Adjust by the job replenishment factor.
 		const sint64 adjusted_passenger_demand = (base_pax_demand * 100ll) / welt->get_settings().get_job_replenishment_per_hundredths_of_months();
 		// formula : base_pax_demand * (current_production_base / besch_production_base); (prod >> 1) is for rounding
-		const uint32 pax_demand = (uint32)( ( adjusted_passenger_demand * (sint64)prodbase + (prod >> 1) ) / prod );
+		const uint32 pax_demand = (uint32)( ( adjusted_passenger_demand * (sint64)prodbase + (prod_adjust >> 1) ) / prod_adjust );
 		// then, scaling based on month length
 		scaled_pax_demand = max(welt->calc_adjusted_monthly_figure(pax_demand), 1);
 
@@ -387,13 +398,24 @@ void fabrik_t::update_scaled_mail_demand()
 	{
 		// first, scaling based on current production base
 		const sint64 prod = besch->get_produktivitaet() > 0 ? besch->get_produktivitaet() : 1;
+		// Take into account fields
+		sint64 prod_adjust = prod;
+		const field_group_besch_t *fb = besch->get_field_group();
+		if(fb) {
+			for(uint32 i=0; i<fields.get_count(); i++) {
+				const field_class_besch_t *fc = fb->get_field_class( fields[i].field_class_index );
+				if (fc) {
+					prod_adjust += fc->get_field_production();
+				}
+			}
+		}
 		gebaeude_t* gb = get_building();
 		// formula : besch_mail_demand * (current_production_base / besch_production_base); (prod >> 1) is for rounding
 		const uint16 mail_capacity = besch->get_haus()->get_mail_demand_and_production_capacity();
 		const int mail_level = get_mail_level();
 
 		const sint64 base_mail_demand =  mail_capacity == 65535 ? mail_level : mail_capacity;
-		const uint32 mail_demand = (uint32)( ( base_mail_demand * (sint64)prodbase + (prod >> 1) ) / prod );
+		const uint32 mail_demand = (uint32)( ( base_mail_demand * (sint64)prodbase + (prod_adjust >> 1) ) / prod_adjust );
 		// then, scaling based on month length
 		scaled_mail_demand = max(welt->calc_adjusted_monthly_figure(mail_demand), 1);
 

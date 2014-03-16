@@ -153,6 +153,8 @@ mail_per_level = 1
 
 # These settings determine the number of passenger trips that each person makes per game month
 # and the number of items of mail that each unit of mail demand produces per month, in 1/100ths.
+# This does *not* include onward and return trips, however, and is *before* adjustment for the
+# meters per tile and bits per month scales.
 passenger_trips_per_month_hundredths = 200
 mail_packets_per_month_hundredths = 10
 
