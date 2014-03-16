@@ -451,8 +451,10 @@ fabrik_t* fabrikbauer_t::baue_fabrik(koord3d* parent, const fabrik_besch_t* info
 	welt->add_fab(fab);
 	add_factory_to_fab_map(welt, fab);
 
-	// And adjust local roads
+	// Update local roads
 	fab->mark_connected_roads(false);
+
+	// Add the factory to the world list
 	fab->add_to_world_list();
 
 	// Adjust the actual industry density

@@ -435,8 +435,8 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	node.write_uint16(fp, capacity,									26);
 	node.write_sint32(fp, maintenance,								28);
 	node.write_sint32(fp, price,									32);
-	node.write_uint8(fp, allow_underground,							36);
-	node.write_uint8(fp, is_control_tower,							37);
+	node.write_uint8 (fp, allow_underground,						36);
+	node.write_uint8 (fp, is_control_tower,							37);
 	node.write_uint16(fp, population_and_visitor_demand_capacity,	38);
 	node.write_uint16(fp, employment_capacity,						40);
 	node.write_uint16(fp, mail_demand_and_production_capacity,		42);

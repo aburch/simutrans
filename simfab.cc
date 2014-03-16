@@ -357,9 +357,14 @@ void fabrik_t::update_scaled_pax_demand()
 		const sint64 prod = besch->get_produktivitaet() > 0 ? besch->get_produktivitaet() : 1;
 		gebaeude_t* gb = get_building();
 
-		const sint64 base_pax_demand = (!gb || gb->get_tile()->get_besch()->get_employment_capacity() == 65535) ? (besch->get_pax_demand() == 65535 ? besch->get_pax_level() : besch->get_pax_demand()) : gb->get_jobs();
+		const uint16 employment_capacity = besch->get_haus()->get_employment_capacity();
+		const int passenger_level = get_passenger_level_jobs();
+
+		const sint64 base_pax_demand = employment_capacity == 65535 ? passenger_level : employment_capacity;
+		// Adjust by the job replenishment factor.
+		const sint64 adjusted_passenger_demand = (base_pax_demand * 100ll) / welt->get_settings().get_job_replenishment_per_hundredths_of_months();
 		// formula : base_pax_demand * (current_production_base / besch_production_base); (prod >> 1) is for rounding
-		const uint32 pax_demand = (uint32)( ( base_pax_demand * (sint64)prodbase + (prod >> 1) ) / prod );
+		const uint32 pax_demand = (uint32)( ( adjusted_passenger_demand * (sint64)prodbase + (prod >> 1) ) / prod );
 		// then, scaling based on month length
 		scaled_pax_demand = max(welt->calc_adjusted_monthly_figure(pax_demand), 1);
 
@@ -383,9 +388,11 @@ void fabrik_t::update_scaled_mail_demand()
 		// first, scaling based on current production base
 		const sint64 prod = besch->get_produktivitaet() > 0 ? besch->get_produktivitaet() : 1;
 		gebaeude_t* gb = get_building();
-
-		const sint64 base_mail_demand = (!gb || gb->get_tile()->get_besch()->get_mail_demand_and_production_capacity() == 65535) ? (besch->get_mail_demand() == 65535 ? (besch->get_pax_level() >> 2) : besch->get_mail_demand()) : gb->get_mail_demand();
 		// formula : besch_mail_demand * (current_production_base / besch_production_base); (prod >> 1) is for rounding
+		const uint16 mail_capacity = besch->get_haus()->get_mail_demand_and_production_capacity();
+		const int mail_level = get_mail_level();
+
+		const sint64 base_mail_demand =  mail_capacity == 65535 ? mail_level : mail_capacity;
 		const uint32 mail_demand = (uint32)( ( base_mail_demand * (sint64)prodbase + (prod >> 1) ) / prod );
 		// then, scaling based on month length
 		scaled_mail_demand = max(welt->calc_adjusted_monthly_figure(mail_demand), 1);
@@ -402,6 +409,41 @@ void fabrik_t::update_scaled_mail_demand()
 	}
 }
 
+int fabrik_t::get_passenger_level_jobs() const
+{ 
+	// This figure will be 65355 unless this is an older pakset.
+	const int base_passenger_level = besch->get_pax_level();
+	if(base_passenger_level != 65535)
+	{
+		return base_passenger_level;
+	}
+
+	return besch->get_haus()->get_level() * welt->get_settings().get_jobs_per_level();
+}
+
+int fabrik_t::get_passenger_level_visitors() const
+{ 
+	// This figure will be 65355 unless this is an older pakset.
+	const int base_passenger_level = besch->get_pax_level();
+	if(base_passenger_level != 65535)
+	{
+		return base_passenger_level;
+	}
+
+	return besch->get_haus()->get_level() * welt->get_settings().get_visitor_demand_per_level();
+}
+
+int fabrik_t::get_mail_level() const
+{ 
+	// This figure will be 65355 unless this is an older pakset.
+	const int base_mail_level = besch->get_pax_level();
+	if(base_mail_level != 65535)
+	{
+		return base_mail_level;
+	}
+
+	return besch->get_haus()->get_level() * welt->get_settings().get_mail_per_level();
+}
 
 void fabrik_t::update_prodfactor_pax()
 {
@@ -1511,6 +1553,7 @@ sint32 fabrik_t::liefere_an(const ware_besch_t *typ, sint32 menge)
 	if(  typ==warenbauer_t::passagiere  ) {
 		// book pax arrival and recalculate pax boost
 		book_stat(menge, FAB_PAX_ARRIVED);
+		building->set_commute_trip(menge);
 		arrival_stats_pax.book_arrival(menge);
 		update_prodfactor_pax();
 		return menge;

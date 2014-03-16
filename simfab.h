@@ -730,6 +730,9 @@ public:
 	// Time to consume the full input store of these goods at full capacity
 	uint32 get_time_to_consume_stock(uint32 index);
 
+	int get_passenger_level_jobs() const;
+	int get_passenger_level_visitors() const;
+	int get_mail_level() const;
 };
 
 #endif
