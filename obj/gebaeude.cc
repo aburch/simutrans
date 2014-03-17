@@ -992,11 +992,11 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 
 			if(passenger_success_percent_last_year_commuting < 65535)
 			{
-				buf.printf("\n%s %i\n", translator::translate("Visitors last year:"), passenger_success_percent_last_year_commuting);
+				buf.printf("\n%s %i\n", translator::translate("Visitors last year:"), passenger_success_percent_last_year_visiting);
 			}
 			if(passenger_success_percent_last_year_visiting < 65535)
 			{
-				buf.printf("%s %i\n", translator::translate("Commuters last year:"), passenger_success_percent_last_year_visiting);
+				buf.printf("%s %i\n", translator::translate("Commuters last year:"), passenger_success_percent_last_year_commuting);
 			}
 		}
 	}

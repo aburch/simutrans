@@ -373,15 +373,16 @@ void fabrik_t::update_scaled_pax_demand()
 
 		const sint64 base_pax_demand = employment_capacity == 65535 ? passenger_level : employment_capacity;
 		// Adjust by the job replenishment factor.
-		const sint64 adjusted_passenger_demand = (base_pax_demand * 100ll) / welt->get_settings().get_job_replenishment_per_hundredths_of_months();
+		
 		// formula : base_pax_demand * (current_production_base / besch_production_base); (prod >> 1) is for rounding
-		const uint32 pax_demand = (uint32)( ( adjusted_passenger_demand * (sint64)prodbase + (prod_adjust >> 1) ) / prod_adjust );
+		const uint32 pax_demand = (uint32)( ( base_pax_demand * (sint64)prodbase + (prod_adjust >> 1) ) / prod_adjust );
 		// then, scaling based on month length
 		scaled_pax_demand = max(welt->calc_adjusted_monthly_figure(pax_demand), 1);
 
 		// pax demand for fixed period length
-		// It is intended that pax_demand, not scaled_pax_demand be used here despite the method name.
-		arrival_stats_pax.set_scaled_demand( pax_demand );
+		// This formerly took "pax_demand" in spite of the function name; but this would make this inconsistent with
+		// the number of jobs shown on city buildings.
+		arrival_stats_pax.set_scaled_demand(scaled_pax_demand);
 
 		// Must update the world building list to take into account the new passenger demand (weighting)
 		if(gb)
@@ -420,8 +421,9 @@ void fabrik_t::update_scaled_mail_demand()
 		scaled_mail_demand = max(welt->calc_adjusted_monthly_figure(mail_demand), 1);
 
 		// mail demand for fixed period length
-		// It is intended that mail_demand, not scaled_mail_demand be used here despite the method name
-		arrival_stats_mail.set_scaled_demand( mail_demand );
+		// This formerly took "mail_demand" in spite of the function name; but this would make this inconsistent with
+		// the number of jobs shown on city buildings.
+		arrival_stats_mail.set_scaled_demand(scaled_mail_demand);
 
 		// Must update the world building list to take into account the new passenger demand (weighting)
 		if(gb)
@@ -2520,15 +2522,21 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 		buf.append(city->get_name());
 	}
 	buf.append("\n");
+	buf.printf("%s: %d\n", translator::translate("Visitor demand"), building->get_adjusted_visitor_demand());
+	buf.printf("%s %i\n", translator::translate("Visitors this year:"), building->get_passengers_succeeded_visiting());
+	if(building->get_passenger_success_percent_last_year_visiting() < 65535)
+	{
+		buf.printf("%s %i\n", translator::translate("Visitors last year:"), building->get_passenger_success_percent_last_year_visiting());
+	}
 
 	if (!ausgang.empty()) {
-		buf.append("\n\n");
+		buf.append("\n");
 		buf.append(translator::translate("Produktion"));
 
 		for (uint32 index = 0; index < ausgang.get_count(); index++) {
 			const ware_besch_t * type = ausgang[index].get_typ();
 
-			buf.printf( "\n - %s %u/%u%s",
+			buf.printf( "\n - %s %u/%u %s",
 				translator::translate(type->get_name()),
 				(sint32)(0.5+ausgang[index].menge / (double)(1<<fabrik_t::precision_bits)),
 				(sint32)(ausgang[index].max >> fabrik_t::precision_bits),
@@ -2558,7 +2566,7 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 			const uint16 max_intransit_percentage = max_intransit_percentages.get(eingang[index].get_typ()->get_catg());
 
 			if(  max_intransit_percentage  ) {
-				buf.printf("\n - %s %u/%i(%i)/%u%s, %u%%",
+				buf.printf("\n - %s %u/%i(%i)/%u %s, %u%%",
 					translator::translate(eingang[index].get_typ()->get_name()),
 					(sint32)(0.5+eingang[index].menge / (double)(1<<fabrik_t::precision_bits)),
 					eingang[index].transit,
@@ -2569,7 +2577,7 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 				);
 			}
 			else {
-				buf.printf("\n - %s %u/%i/%u%s, %u%%",
+				buf.printf("\n - %s %u/%i/%u %s, %u%%",
 					translator::translate(eingang[index].get_typ()->get_name()),
 					(sint32)(0.5+eingang[index].menge / (double)(1<<fabrik_t::precision_bits)),
 					eingang[index].transit,
