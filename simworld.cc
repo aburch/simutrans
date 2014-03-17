@@ -5855,7 +5855,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 
 				// Because passengers/mail now register as transported on delivery, these are needed 
 				// here to keep an accurate record of the proportion transported.
-				stadt_t* const destination_town = get_city(first_destination.location);
+				stadt_t* const destination_town = get_city(current_destination.location);
 				if(destination_town)
 				{
 					destination_town->set_generated_passengers(pax_left_to_do, history_type + 1);
