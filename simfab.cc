@@ -480,16 +480,20 @@ void fabrik_t::update_prodfactor_pax()
 										arrival_stats_pax.get_scaled_demand() * periods :
 										(arrival_stats_pax.get_scaled_demand() * periods * slots) >> SLOT_BITS ) );
 	const uint32 pax_arrived = arrival_stats_pax.get_aggregate_arrival();
+	// This is necessary because passenger demand is potentially spread over a number of months so as to make the jobs figure consistent
+	// with the population figure. 
+	// TODO:  Consider making this better integrated with the general system.
+	const uint32 adjusted_pax_demand = (pax_demand * 100) / welt->get_settings().get_job_replenishment_per_hundredths_of_months();
 	if(  pax_demand==0  ||  pax_arrived==0  ||  besch->get_pax_boost()==0  ) {
 		prodfactor_pax = 0;
 	}
-	else if(  pax_arrived>=pax_demand  ) {
+	else if(  pax_arrived>=adjusted_pax_demand  ) {
 		// maximum boost
 		prodfactor_pax = besch->get_pax_boost();
 	}
 	else {
 		// pro-rata boost : (pax_arrived / pax_demand) * besch_pax_boost; (pax_demand >> 1) is for rounding
-		prodfactor_pax = (sint32)( ( (sint64)pax_arrived * (sint64)(besch->get_pax_boost()) + (sint64)(pax_demand >> 1) ) / (sint64)pax_demand );
+		prodfactor_pax = (sint32)( ( (sint64)pax_arrived * (sint64)(besch->get_pax_boost()) + (sint64)(adjusted_pax_demand >> 1) ) / (sint64)adjusted_pax_demand );
 	}
 	set_stat(prodfactor_pax, FAB_BOOST_PAX);
 }
@@ -2727,18 +2731,6 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 			}
 		}
 	}
-
-	//if (!target_cities.empty()) {
-	//	if(  has_previous  ) {
-	//		buf.append("\n\n");
-	//	}
-	//	has_previous = true;
-	//	buf.append( is_end_consumer() ? translator::translate("Customers live in:") : translator::translate("Arbeiter aus:") );
-
-	//	for(  uint32 c=0;  c<target_cities.get_count();  ++c  ) {
-	//		buf.append("\n");
-	//	}
-	//}
 
 	// Check *all* tiles for nearby stops... but don't update!
 	if ( !nearby_freight_halts.empty() )
