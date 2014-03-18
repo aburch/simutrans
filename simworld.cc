@@ -5910,7 +5910,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 							ware_t return_pax(wtyp, ret_halt);
 							if(wtyp==warenbauer_t::post) 
 							{
-							// attractions/factory generate more mail than they recieve
+								// attractions/factory generate more mail than they recieve
 								return_pax.menge = pax_left_to_do * 3;
 							}
 							else 

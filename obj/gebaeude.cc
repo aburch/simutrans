@@ -157,6 +157,10 @@ gebaeude_t::gebaeude_t(koord3d pos, spieler_t *sp, const haus_tile_besch_t *t) :
 	{
 		people.visitor_demand = adjusted_people.visitor_demand = 0;
 	}
+	else if(tile->get_besch()->ist_fabrik() && tile->get_besch()->get_population_and_visitor_demand_capacity() == 65535)
+	{
+		adjusted_people.visitor_demand = 65535;
+	}
 	else
 	{
 		people.visitor_demand = tile->get_besch()->get_population_and_visitor_demand_capacity() == 65535 ? tile->get_besch()->get_level() * welt->get_settings().get_visitor_demand_per_level() : tile->get_besch()->get_population_and_visitor_demand_capacity();
@@ -403,6 +407,19 @@ void gebaeude_t::set_fab(fabrik_t *fb)
 		}
 		is_factory = true;
 		ptr.fab = fb;
+		if(adjusted_people.visitor_demand == 65535)
+		{
+			// We cannot set this until we know what sort of factory that this is.
+			// If it is not an end consumer, do not allow any visitor demand by default.
+			if(fb->is_end_consumer())
+			{
+				adjusted_people.visitor_demand = tile->get_besch()->get_level() * welt->get_settings().get_visitor_demand_per_level();
+			}
+			else
+			{
+				adjusted_people.visitor_demand = 0;
+			}
+		}
 	}
 	else if(is_factory) {
 		ptr.fab = NULL;
