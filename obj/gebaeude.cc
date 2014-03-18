@@ -413,11 +413,12 @@ void gebaeude_t::set_fab(fabrik_t *fb)
 			// If it is not an end consumer, do not allow any visitor demand by default.
 			if(fb->is_end_consumer())
 			{
-				adjusted_people.visitor_demand = tile->get_besch()->get_level() * welt->get_settings().get_visitor_demand_per_level();
+				people.visitor_demand = tile->get_besch()->get_level() * welt->get_settings().get_visitor_demand_per_level();
+				adjusted_people.visitor_demand = welt->calc_adjusted_monthly_figure(people.visitor_demand);
 			}
 			else
 			{
-				adjusted_people.visitor_demand = 0;
+				adjusted_people.visitor_demand = people.visitor_demand = 0;
 			}
 		}
 	}
