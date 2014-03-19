@@ -16,37 +16,36 @@
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
 				<configuration artifactExtension="exe" artifactName="binaries/simutrans-experimental-merge" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe" description="" id="cdt.managedbuild.toolchain.gnu.mingw.base.140205586" name="Default" parent="org.eclipse.cdt.build.core.emptycfg">
 					<folderInfo id="cdt.managedbuild.toolchain.gnu.mingw.base.140205586.2095959090" name="/" resourcePath="">
-						<toolChain id="cdt.managedbuild.toolchain.gnu.mingw.base.1916463106" name="cdt.managedbuild.toolchain.gnu.mingw.base" superClass="cdt.managedbuild.toolchain.gnu.mingw.base">
-							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.PE" id="cdt.managedbuild.target.gnu.platform.mingw.base.1608556182" name="Debug Platform" osList="win32" superClass="cdt.managedbuild.target.gnu.platform.mingw.base"/>
-							<builder buildPath="${workspace_loc:/simutrans-experimental-merge/Default}" enableAutoBuild="true" enableCleanBuild="true" enabledIncrementalBuild="true" id="cdt.managedbuild.tool.gnu.builder.mingw.base.1356272003" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="CDT Internal Builder" parallelBuildOn="true" parallelizationNumber="-1" superClass="cdt.managedbuild.tool.gnu.builder.mingw.base"/>
-							<tool id="cdt.managedbuild.tool.gnu.assembler.mingw.base.2025008466" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.mingw.base">
-								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.21370836" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
+						<toolChain id="cdt.managedbuild.toolchain.gnu.mingw.base.6107270" name="MinGW GCC" superClass="cdt.managedbuild.toolchain.gnu.mingw.base">
+							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.PE" id="cdt.managedbuild.target.gnu.platform.mingw.base.1956371291" name="Debug Platform" osList="win32" superClass="cdt.managedbuild.target.gnu.platform.mingw.base"/>
+							<builder autoBuildTarget="" buildPath="${workspace_loc:/simutrans-experimental-merge}/Default" cleanBuildTarget="" enableAutoBuild="true" enableCleanBuild="true" enabledIncrementalBuild="true" id="org.eclipse.cdt.build.core.internal.builder.1658343711" incrementalBuildTarget="" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="CDT Internal Builder" parallelBuildOn="true" parallelizationNumber="optimal" stopOnErr="false" superClass="org.eclipse.cdt.build.core.internal.builder"/>
+							<tool id="cdt.managedbuild.tool.gnu.assembler.mingw.base.730996042" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.mingw.base">
+								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.780363689" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
-							<tool id="cdt.managedbuild.tool.gnu.archiver.mingw.base.183939925" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.mingw.base"/>
-							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.mingw.base.899813471" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.mingw.base">
-								<option id="gnu.cpp.compiler.option.preprocessor.def.858242165" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
-									<listOptionValue builtIn="false" value="COLOUR_DEPTH=16"/>
-								</option>
-								<option id="gnu.cpp.compiler.option.include.paths.1009597126" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+							<tool id="cdt.managedbuild.tool.gnu.archiver.mingw.base.1209296337" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.mingw.base"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.mingw.base.863210541" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.mingw.base">
+								<option id="gnu.cpp.compiler.option.include.paths.74564906" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;C:\source\OpenTTD essentials\win32\include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;C:\source\bzip&quot;"/>
 								</option>
-								<option id="gnu.cpp.compiler.option.debugging.gprof.1018145052" name="Generate gprof information (-pg)" superClass="gnu.cpp.compiler.option.debugging.gprof" value="true" valueType="boolean"/>
-								<option id="gnu.cpp.compiler.option.debugging.level.787248958" name="Debug Level" superClass="gnu.cpp.compiler.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
-								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.238748306" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
-							</tool>
-							<tool id="cdt.managedbuild.tool.gnu.c.compiler.mingw.base.1350597866" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.mingw.base">
-								<option id="gnu.c.compiler.option.debugging.gprof.908658245" name="Generate gprof information (-pg)" superClass="gnu.c.compiler.option.debugging.gprof" value="true" valueType="boolean"/>
-								<option id="gnu.c.compiler.option.debugging.level.716283892" name="Debug Level" superClass="gnu.c.compiler.option.debugging.level" value="gnu.c.debugging.level.max" valueType="enumerated"/>
-								<option id="gnu.c.compiler.option.preprocessor.def.symbols.1380560193" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" valueType="definedSymbols">
+								<option id="gnu.cpp.compiler.option.preprocessor.def.2128894517" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="COLOUR_DEPTH=16"/>
+									<listOptionValue builtIn="false" value="_UNICODE"/>
+									<listOptionValue builtIn="false" value="UNICODE"/>
 								</option>
-								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1524574169" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1621775811" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
-							<tool id="cdt.managedbuild.tool.gnu.c.linker.mingw.base.811687226" name="MinGW C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.mingw.base"/>
-							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.mingw.base.682615796" name="MinGW C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.mingw.base">
-								<option id="gnu.cpp.link.option.debugging.gprof.828314218" name="Generate gprof information (-pg)" superClass="gnu.cpp.link.option.debugging.gprof" value="true" valueType="boolean"/>
-								<option id="gnu.cpp.link.option.libs.194104802" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
+							<tool id="cdt.managedbuild.tool.gnu.c.compiler.mingw.base.1817065798" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.mingw.base">
+								<option id="gnu.c.compiler.option.preprocessor.def.symbols.22253572" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="COLOUR_DEPTH=16"/>
+									<listOptionValue builtIn="false" value="_UNICODE"/>
+									<listOptionValue builtIn="false" value="UNICODE"/>
+								</option>
+								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1230016278" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.c.linker.mingw.base.1716253003" name="MinGW C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.mingw.base"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.mingw.base.458549354" name="MinGW C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.mingw.base">
+								<option id="gnu.cpp.link.option.libs.354871000" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="z"/>
 									<listOptionValue builtIn="false" value="bz2"/>
 									<listOptionValue builtIn="false" value="winmm"/>
@@ -60,7 +59,7 @@
 									<listOptionValue builtIn="false" value="Strmiids"/>
 									<listOptionValue builtIn="false" value="Ws2_32"/>
 								</option>
-								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.870720181" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
+								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.1769576442" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
 								</inputType>
@@ -68,7 +67,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="utils/omzet2.c|script/api/api_skeleton.cc|utils/dr_rdpng.cc|clipboard_internal.cc|nettools|music/sdl_midi.cc|music/no_midi.cc|music/allegro_midi.cc|simutrans|makeobj|text_pixel.c|simsys_s.cc|simsys_posix.cc|simsys_opengl.cc|simsys_d.cc|besch/writer|sound/sdl_sound.cc|sound/sdl_mixer_sound.cc|sound/no_sound.cc|sound/allegro_sound.cc" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="documentation|Default|OSX/getversion.cc|utils/dumb-log.cc|tpl/test_piecewise_linear_tpl.cc|simsys_s2.cc|display/text_pixel.c|utils/omzet2.c|script/api/api_skeleton.cc|utils/dr_rdpng.cc|clipboard_internal.cc|nettools|music/sdl_midi.cc|music/no_midi.cc|music/allegro_midi.cc|simutrans|makeobj|text_pixel.c|simsys_s.cc|simsys_posix.cc|simsys_opengl.cc|simsys_d.cc|besch/writer|sound/sdl_sound.cc|sound/sdl_mixer_sound.cc|sound/no_sound.cc|sound/allegro_sound.cc" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -78,10 +77,13 @@
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
 		<project id="simutrans-experimental-merge.null.134332347" name="simutrans-experimental-merge"/>
 	</storageModule>
-	<storageModule moduleId="refreshScope" versionNumber="1">
-		<resource resourceType="PROJECT" workspacePath="/simutrans-experimental-merge"/>
+	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="Default">
+			<resource resourceType="PROJECT" workspacePath="/simutrans-experimental-merge"/>
+		</configuration>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
+	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile"/>
 		<profile id="org.eclipse.cdt.make.core.GCCStandardMakePerFileProfile">
@@ -211,6 +213,19 @@
 				</scannerInfoProvider>
 			</profile>
 		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.mingw.base.140205586;cdt.managedbuild.toolchain.gnu.mingw.base.140205586.2095959090;cdt.managedbuild.tool.gnu.cpp.compiler.mingw.base.863210541;cdt.managedbuild.tool.gnu.cpp.compiler.input.1621775811">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile"/>
+			<profile id="org.eclipse.cdt.make.core.GCCStandardMakePerFileProfile">
+				<buildOutputProvider>
+					<openAction enabled="true" filePath=""/>
+					<parser enabled="true"/>
+				</buildOutputProvider>
+				<scannerInfoProvider id="makefileGenerator">
+					<runAction arguments="-f ${project_name}_scd.mk" command="make" useDefault="true"/>
+					<parser enabled="true"/>
+				</scannerInfoProvider>
+			</profile>
+		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.mingw.exe.release.1577186017;cdt.managedbuild.config.gnu.mingw.exe.release.1577186017.;cdt.managedbuild.tool.gnu.c.compiler.mingw.exe.release.1456726903;cdt.managedbuild.tool.gnu.c.compiler.input.2013656636">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
 			<profile id="org.eclipse.cdt.make.core.GCCStandardMakePerFileProfile">
@@ -237,19 +252,6 @@
 				</scannerInfoProvider>
 			</profile>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cygwin.exe.release.399676170;cdt.managedbuild.config.gnu.cygwin.exe.release.399676170.;cdt.managedbuild.tool.gnu.cpp.compiler.cygwin.exe.release.508891287;cdt.managedbuild.tool.gnu.cpp.compiler.input.cygwin.1793240926">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCWinManagedMakePerProjectProfileCPP"/>
-			<profile id="org.eclipse.cdt.make.core.GCCStandardMakePerFileProfile">
-				<buildOutputProvider>
-					<openAction enabled="true" filePath=""/>
-					<parser enabled="true"/>
-				</buildOutputProvider>
-				<scannerInfoProvider id="makefileGenerator">
-					<runAction arguments="-f ${project_name}_scd.mk" command="make" useDefault="true"/>
-					<parser enabled="true"/>
-				</scannerInfoProvider>
-			</profile>
-		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.mingw.exe.debug.1793968496;cdt.managedbuild.config.gnu.mingw.exe.debug.1793968496.;cdt.managedbuild.tool.gnu.c.compiler.mingw.exe.debug.1635138555;cdt.managedbuild.tool.gnu.c.compiler.input.780868492">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
 			<profile id="org.eclipse.cdt.make.core.GCCStandardMakePerFileProfile">
@@ -263,8 +265,34 @@
 				</scannerInfoProvider>
 			</profile>
 		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cygwin.exe.release.399676170;cdt.managedbuild.config.gnu.cygwin.exe.release.399676170.;cdt.managedbuild.tool.gnu.cpp.compiler.cygwin.exe.release.508891287;cdt.managedbuild.tool.gnu.cpp.compiler.input.cygwin.1793240926">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCWinManagedMakePerProjectProfileCPP"/>
+			<profile id="org.eclipse.cdt.make.core.GCCStandardMakePerFileProfile">
+				<buildOutputProvider>
+					<openAction enabled="true" filePath=""/>
+					<parser enabled="true"/>
+				</buildOutputProvider>
+				<scannerInfoProvider id="makefileGenerator">
+					<runAction arguments="-f ${project_name}_scd.mk" command="make" useDefault="true"/>
+					<parser enabled="true"/>
+				</scannerInfoProvider>
+			</profile>
+		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cygwin.exe.debug.1720518794;cdt.managedbuild.config.gnu.cygwin.exe.debug.1720518794.;cdt.managedbuild.tool.gnu.c.compiler.cygwin.exe.debug.781729744;cdt.managedbuild.tool.gnu.c.compiler.input.cygwin.474386718">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCWinManagedMakePerProjectProfileC"/>
+			<profile id="org.eclipse.cdt.make.core.GCCStandardMakePerFileProfile">
+				<buildOutputProvider>
+					<openAction enabled="true" filePath=""/>
+					<parser enabled="true"/>
+				</buildOutputProvider>
+				<scannerInfoProvider id="makefileGenerator">
+					<runAction arguments="-f ${project_name}_scd.mk" command="make" useDefault="true"/>
+					<parser enabled="true"/>
+				</scannerInfoProvider>
+			</profile>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.mingw.base.140205586;cdt.managedbuild.toolchain.gnu.mingw.base.140205586.2095959090;cdt.managedbuild.tool.gnu.c.compiler.mingw.base.1817065798;cdt.managedbuild.tool.gnu.c.compiler.input.1230016278">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile"/>
 			<profile id="org.eclipse.cdt.make.core.GCCStandardMakePerFileProfile">
 				<buildOutputProvider>
 					<openAction enabled="true" filePath=""/>
@@ -302,8 +330,8 @@
 				</scannerInfoProvider>
 			</profile>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cygwin.exe.debug.1413513013;cdt.managedbuild.config.gnu.cygwin.exe.debug.1413513013.;cdt.managedbuild.tool.gnu.cpp.compiler.cygwin.exe.debug.844701677;cdt.managedbuild.tool.gnu.cpp.compiler.input.cygwin.2093019788">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCWinManagedMakePerProjectProfileCPP"/>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.mingw.exe.debug.1789368077;cdt.managedbuild.config.gnu.mingw.exe.debug.1789368077.;cdt.managedbuild.tool.gnu.c.compiler.mingw.exe.debug.380190105;cdt.managedbuild.tool.gnu.c.compiler.input.1949838065">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
 			<profile id="org.eclipse.cdt.make.core.GCCStandardMakePerFileProfile">
 				<buildOutputProvider>
 					<openAction enabled="true" filePath=""/>
@@ -315,8 +343,8 @@
 				</scannerInfoProvider>
 			</profile>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.mingw.exe.debug.1789368077;cdt.managedbuild.config.gnu.mingw.exe.debug.1789368077.;cdt.managedbuild.tool.gnu.c.compiler.mingw.exe.debug.380190105;cdt.managedbuild.tool.gnu.c.compiler.input.1949838065">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cygwin.exe.debug.1413513013;cdt.managedbuild.config.gnu.cygwin.exe.debug.1413513013.;cdt.managedbuild.tool.gnu.cpp.compiler.cygwin.exe.debug.844701677;cdt.managedbuild.tool.gnu.cpp.compiler.input.cygwin.2093019788">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCWinManagedMakePerProjectProfileCPP"/>
 			<profile id="org.eclipse.cdt.make.core.GCCStandardMakePerFileProfile">
 				<buildOutputProvider>
 					<openAction enabled="true" filePath=""/>
