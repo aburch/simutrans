@@ -5487,7 +5487,12 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 					if(can_walk && walking_time < best_journey_time)
 					{
 						// If walking is faster than public transport, passengers will walk.
-						route_status = on_foot;
+						const grund_t* destination_gr = lookup_kartenboden(current_destination.location);
+						if(destination_gr && !destination_gr->ist_wasser())
+						{
+							// People cannot walk on water. This is relevant for fisheries and oil rigs in particular.
+							route_status = on_foot;
+						}
 					}
 
 					// Check first whether the best route is outside
