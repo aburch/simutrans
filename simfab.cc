@@ -893,16 +893,16 @@ void fabrik_t::mark_connected_roads(bool del)
 				continue;
 			}
 			strasse_t* str = (strasse_t*)gr->get_weg(road_wt);
-			gebaeude_t* gb = gr->find<gebaeude_t>();
+
 			if(str)
 			{
 				if(del)
 				{
-					str->connected_buildings.remove(gb);
+					str->connected_buildings.remove(building);
 				}
 				else
 				{
-					str->connected_buildings.append_unique(gb);
+					str->connected_buildings.append_unique(building);
 				}
 			}
 		}
