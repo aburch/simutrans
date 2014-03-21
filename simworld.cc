@@ -5149,14 +5149,11 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 
 	if(city)
 	{
+		// Mail is generated in non-city buildings such as attractions.
+		// That will be the only legitimate case in which this condition is not fulfilled.
 		city->set_generated_passengers(num_pax, history_type + 1);
 	}
-	else if(get_city(first_origin->get_pos()))
-	{
-		// If the passengers start from a non-city building, this must be an onward journey,
-		// so register the passengers as being created in the ultimate origin city.
-		get_city(first_origin->get_pos())->set_generated_passengers(num_pax, history_type + 1);
-	}
+	
 	
 	koord3d origin_pos = gb->get_pos();
 	vector_tpl<const planquadrat_t*> tile_list;
