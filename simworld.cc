@@ -5580,7 +5580,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 						// Congestion here is assumed to be on the percentage basis: i.e. the percentage of extra time that
 						// a journey takes owing to congestion. This is the measure used by the TomTom congestion index,
 						// compiled by the satellite navigation company of that name, which provides useful research data.
-						// See: http://www.tomtom.com/lib/doc/congestionindex/2012-0704-TomTom%20Congestion-index-2012Q1europe-mi.pdf
+						// See: http://www.tomtom.com/lib/doc/trafficindex/2013-0129-TomTom%20Congestion-Index-2012Q3europe-km.pdf
 							
 						//Average congestion of origin and destination towns.
 						uint16 congestion_total;
@@ -6091,6 +6091,8 @@ void karte_t::restore_history()
 		FOR(weighted_vector_tpl<stadt_t*>, const i, stadt) {
 			bev            += i->get_finance_history_month(m, HIST_CITICENS);
 			trans_pas      += i->get_finance_history_month(m, HIST_PAS_TRANSPORTED);
+			trans_pas      += i->get_finance_history_month(m, HIST_PAS_WALKED);
+			trans_pas      += i->get_finance_history_month(m, HIST_CITYCARS);
 			total_pas      += i->get_finance_history_month(m, HIST_PAS_GENERATED);
 			trans_mail     += i->get_finance_history_month(m, HIST_MAIL_TRANSPORTED);
 			total_mail     += i->get_finance_history_month(m, HIST_MAIL_GENERATED);
@@ -6135,6 +6137,8 @@ void karte_t::restore_history()
 		FOR(weighted_vector_tpl<stadt_t*>, const i, stadt) {
 			bev                 += i->get_finance_history_year(y, HIST_CITICENS);
 			trans_pas_year      += i->get_finance_history_year(y, HIST_PAS_TRANSPORTED);
+			trans_pas_year      += i->get_finance_history_year(y, HIST_PAS_WALKED);
+			trans_pas_year      += i->get_finance_history_year(y, HIST_CITYCARS);
 			total_pas_year      += i->get_finance_history_year(y, HIST_PAS_GENERATED);
 			trans_mail_year     += i->get_finance_history_year(y, HIST_MAIL_TRANSPORTED);
 			total_mail_year     += i->get_finance_history_year(y, HIST_MAIL_GENERATED);
@@ -6192,12 +6196,16 @@ void karte_t::update_history()
 		jobs						+= i->get_finance_history_month(0, HIST_JOBS);
 		visitor_demand				+= i->get_finance_history_month(0, HIST_VISITOR_DEMAND);
 		trans_pas					+= i->get_finance_history_month(0, HIST_PAS_TRANSPORTED);
+		trans_pas					+= i->get_finance_history_month(0, HIST_PAS_WALKED);
+		trans_pas					+= i->get_finance_history_month(0, HIST_CITYCARS);
 		total_pas					+= i->get_finance_history_month(0, HIST_PAS_GENERATED);
 		trans_mail					+= i->get_finance_history_month(0, HIST_MAIL_TRANSPORTED);
 		total_mail					+= i->get_finance_history_month(0, HIST_MAIL_GENERATED);
 		supplied_goods				+= i->get_finance_history_month(0, HIST_GOODS_RECIEVED);
 		total_goods					+= i->get_finance_history_month(0, HIST_GOODS_NEEDED);
 		trans_pas_year				+= i->get_finance_history_year( 0, HIST_PAS_TRANSPORTED);
+		trans_pas_year				+= i->get_finance_history_year( 0, HIST_PAS_WALKED);
+		trans_pas_year				+= i->get_finance_history_year( 0, HIST_CITYCARS);
 		total_pas_year				+= i->get_finance_history_year( 0, HIST_PAS_GENERATED);
 		trans_mail_year				+= i->get_finance_history_year( 0, HIST_MAIL_TRANSPORTED);
 		total_mail_year				+= i->get_finance_history_year( 0, HIST_MAIL_GENERATED);
