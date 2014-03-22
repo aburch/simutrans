@@ -5010,6 +5010,14 @@ void karte_t::step()
 	DBG_DEBUG4("karte_t::step", "end");
 }
 
+sint32 karte_t::calc_adjusted_step_interval(const unsigned long weight, uint32 trips_per_month_hundredths) const
+{
+	const uint32 median_packet_size = (uint32)(get_settings().get_passenger_routing_packet_size() + 1) / 2;	
+	const uint64 trips_per_month = max((((uint64)weight * calc_adjusted_monthly_figure(trips_per_month_hundredths)) / 100u) / median_packet_size, 1);
+		
+	return (sint32)((uint64)ticks_per_world_month > trips_per_month ? (uint64) ticks_per_world_month / trips_per_month : 1);
+}
+
 void karte_t::step_passengers_and_mail(long delta_t)
 {
 	if(delta_t > ticks_per_world_month) 
@@ -5034,8 +5042,8 @@ void karte_t::step_passengers_and_mail(long delta_t)
 	//passenger_step_interval = ticks_per_world_month > passenger_trips_per_month ? ticks_per_world_month / passenger_trips_per_month : 1;
 	//mail_step_interval = ticks_per_world_month > mail_packets_per_month ? ticks_per_world_month / mail_packets_per_month : 1;
 
-	passenger_step_interval = calc_step_interval(passenger_origins.get_sum_weight(), settings.get_passenger_trips_per_month_hundredths());
-	mail_step_interval = calc_step_interval(mail_origins_and_targets.get_sum_weight(), settings.get_mail_packets_per_month_hundredths());
+	//passenger_step_interval = calc_step_interval(passenger_origins.get_sum_weight(), settings.get_passenger_trips_per_month_hundredths());
+	//mail_step_interval = calc_step_interval(mail_origins_and_targets.get_sum_weight(), settings.get_mail_packets_per_month_hundredths());
 
 	while(passenger_step_interval <= next_step_passenger) 
 	{
@@ -5807,7 +5815,14 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 		
 				if(city && wtyp == warenbauer_t::passagiere)
 				{
-					city->merke_passagier_ziel(best_bad_destination, COL_LIGHT_PURPLE);
+					if(car_minutes > best_journey_time)
+					{
+						city->merke_passagier_ziel(best_bad_destination, COL_LIGHT_PURPLE);
+					}
+					else
+					{
+						city->merke_passagier_ziel(best_bad_destination, COL_DARK_PURPLE);
+					}
 				}
 
 				if(too_slow_already_set)
@@ -9193,10 +9208,18 @@ void karte_t::add_building_to_world_list(gebaeude_t *gb)
 		return;
 	}
 
-	passenger_origins.append(gb, gb->get_adjusted_population());
+	if(gb->get_adjusted_population() > 0)
+	{
+		passenger_origins.append(gb, gb->get_adjusted_population());
+		passenger_step_interval = calc_adjusted_step_interval(passenger_origins.get_sum_weight(), get_settings().get_passenger_trips_per_month_hundredths());
+	}	
 	commuter_targets.append(gb, gb->get_adjusted_jobs());
 	visitor_targets.append(gb, gb->get_adjusted_visitor_demand());
-	mail_origins_and_targets.append(gb, gb->get_adjusted_mail_demand());
+	if(gb->get_adjusted_mail_demand() > 0)
+	{
+		mail_origins_and_targets.append(gb, gb->get_adjusted_mail_demand());
+		mail_step_interval = calc_adjusted_step_interval(mail_origins_and_targets.get_sum_weight(), get_settings().get_mail_packets_per_month_hundredths());
+	}
 }
 
 void karte_t::remove_building_from_world_list(gebaeude_t *gb)
@@ -9206,6 +9229,9 @@ void karte_t::remove_building_from_world_list(gebaeude_t *gb)
 	commuter_targets.remove_all(gb);
 	visitor_targets.remove_all(gb);
 	mail_origins_and_targets.remove_all(gb);
+
+	passenger_step_interval = calc_adjusted_step_interval(passenger_origins.get_sum_weight(), get_settings().get_passenger_trips_per_month_hundredths());
+	mail_step_interval = calc_adjusted_step_interval(mail_origins_and_targets.get_sum_weight(), get_settings().get_mail_packets_per_month_hundredths());
 }
 
 void karte_t::update_weight_of_building_in_world_list(gebaeude_t *gb)
@@ -9221,6 +9247,7 @@ void karte_t::update_weight_of_building_in_world_list(gebaeude_t *gb)
 	if(passenger_origins.is_contained(gb))
 	{
 		passenger_origins.update_at(passenger_origins.index_of(gb), gb->get_adjusted_population());
+		passenger_step_interval = calc_adjusted_step_interval(passenger_origins.get_sum_weight(), get_settings().get_passenger_trips_per_month_hundredths());
 	}
 
 	if(commuter_targets.is_contained(gb))
@@ -9236,6 +9263,7 @@ void karte_t::update_weight_of_building_in_world_list(gebaeude_t *gb)
 	if(mail_origins_and_targets.is_contained(gb))
 	{
 		mail_origins_and_targets.update_at(mail_origins_and_targets.index_of(gb), gb->get_adjusted_mail_demand());
+		mail_step_interval = calc_adjusted_step_interval(mail_origins_and_targets.get_sum_weight(), get_settings().get_mail_packets_per_month_hundredths());
 	}
 }
 

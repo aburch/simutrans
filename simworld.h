@@ -916,7 +916,9 @@ private:
 	*/		 	
 	void step_passengers_and_mail(long delta_t);
 
-	inline uint64 calc_step_interval(const unsigned long weight, uint32 trips_per_month_hundredths)
+	sint32 calc_adjusted_step_interval(const unsigned long weight, uint32 trips_per_month_hundredths) const;
+
+	inline uint64 calc_step_interval(const unsigned long weight, uint32 trips_per_month_hundredths) const
 	{
 		// This represents the number of passenger trips resp. units/packets/bundles of mail posted per unit
 		// of population or mail demand per month, divided by 100. NOTE: This excludes return and onward journeys.
@@ -1311,7 +1313,7 @@ public:
 	// Consider what to do about things already calibrated to a different level. (Answer: they could probably
 	// do with recalibration anyway).
 
-	sint32 calc_adjusted_monthly_figure(sint32 nominal_monthly_figure) 
+	sint32 calc_adjusted_monthly_figure(sint32 nominal_monthly_figure) const
 	{
 		// Adjust for meters per tile
 		const sint32 base_meters_per_tile = (sint32)get_settings().get_base_meters_per_tile(); 
@@ -1331,7 +1333,7 @@ public:
 		}
 	}
 
-	sint64 calc_adjusted_monthly_figure(sint64 nominal_monthly_figure) 
+	sint64 calc_adjusted_monthly_figure(sint64 nominal_monthly_figure) const
 	{
 		// Adjust for meters per tile
 		const sint64 base_meters_per_tile = (sint64)get_settings().get_base_meters_per_tile(); 
@@ -1351,7 +1353,7 @@ public:
 		}
 	}
 
-	uint32 calc_adjusted_monthly_figure(uint32 nominal_monthly_figure)
+	uint32 calc_adjusted_monthly_figure(uint32 nominal_monthly_figure) const
 	{
 		// Adjust for meters per tile
 		const uint32 base_meters_per_tile = get_settings().get_base_meters_per_tile(); 
