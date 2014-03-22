@@ -329,6 +329,7 @@ class two_click_werkzeug_t : public werkzeug_t {
 public:
 	two_click_werkzeug_t(uint16 const id) : werkzeug_t(id) {
 		MEMZERO(start_marker);
+		first_click_var = true;
 	}
 
 	void rdwr_custom_data(memory_rw_t*) OVERRIDE;

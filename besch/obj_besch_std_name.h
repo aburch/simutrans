@@ -78,7 +78,7 @@ protected:
 
 public:
 	obj_besch_transport_related_t() : obj_besch_timelined_t(),
-		maintenance(0), cost(0), wt(255), topspeed(0) {}
+		maintenance(0), cost(0), axle_load(9999), wt(255), topspeed(0) {}
 
 	sint32 get_maintenance() const { return maintenance; }
 	sint32 get_wartung() const { return maintenance; }
