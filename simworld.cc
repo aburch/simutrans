@@ -5812,7 +5812,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 				}
 				else
 				{
-					city->merke_passagier_ziel(best_bad_destination, COL_DARK_PURPLE);
+					city->merke_passagier_ziel(best_bad_destination, COL_PURPLE);
 				}
 			}
 
