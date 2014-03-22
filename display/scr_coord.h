@@ -202,7 +202,7 @@ public:
 	scr_rect( const scr_coord& pt, scr_coord_val w, scr_coord_val h ) { set( pt.x, pt.y, w, h ); }
 	scr_rect( const scr_coord& pt, const scr_size& sz ) { set( pt.x, pt.y, sz.w, sz.h ); }
 	scr_rect( scr_coord_val x, scr_coord_val y, scr_coord_val w, scr_coord_val h ) { set( x, y, w, h ); }
-	scr_rect( scr_size size ) { w = size.w; h=size.h; }
+	scr_rect( scr_size size ) { w = size.w; h=size.h; x=0; y=0; }
 	scr_rect( const scr_coord& point1, const scr_coord& point2 ) { set( point1.x, point1.y, point2.x-point1.x, point2.y-point1.y ); }
 
 	// Type cast operators
