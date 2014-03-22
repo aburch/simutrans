@@ -5596,30 +5596,41 @@ sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportione
  */
 void convoi_t::hat_gehalten(halthandle_t halt)
 {
-	sint64 accumulated_revenue = 0;
-
-	// This holds the revenues as apportioned to different players by track
-	// Initialize it to the correct size and blank out all entries
-	// It will be added to by the load_cargo method for each vehicle
-	array_tpl<sint64> apportioned_revenues (MAX_PLAYER_COUNT, 0);
 
 	grund_t *gr = welt->lookup(front()->get_pos());
 
 	// now find out station length
-	int station_length=0;
+	uint16 vehicles_loading=0;
 	if(  gr->is_water()  ) {
 		// harbour has any size
-		station_length = 24*CARUNITS_PER_TILE;
+		vehicles_loading = vehicle_count;
 	}
 	else
 	{
 		// calculate real station length
+		// and numbers of vehicles that can be (un)loaded
 		koord zv = koord( ribi_t::backward(front()->get_direction()) );
 		koord3d pos = front()->get_pos();
 		// start on bridge?
 		pos.z += gr->get_weg_yoff() / TILE_HEIGHT_STEP;
-		while(  gr  &&  gr->get_halt() == halt  ) {
-			station_length += OBJECT_OFFSET_STEPS;
+		// difference between actual station length and vehicle lenghts
+		sint16 station_length = -vehicle[vehicles_loading]->get_desc()->get_length();
+		do {
+			// advance one station tile
+			station_length += CARUNITS_PER_TILE;
+
+			while(station_length >= 0) {
+				vehicles_loading++;
+				if (vehicles_loading < vehicle_count) {
+					station_length -= vehicle[vehicles_loading]->get_desc()->get_length();
+				}
+				else {
+					// all vehicles fit into station
+					goto station_tile_search_ready;
+				}
+			}
+
+			// search for next station tile
 			pos += zv;
 			gr = welt->lookup(pos);
 			if (gr == NULL)
@@ -5633,7 +5644,10 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 					break;
 				}
 			}
-		}
+
+		}  while(  gr  &&  gr->get_halt() == halt  );
+		// finished
+station_tile_search_ready: ;
 	}
 
 	last_stop_id = halt.get_id();
@@ -5645,7 +5659,6 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	const koord3d old_last_stop_pos = front()->last_stop_pos;
 
 	uint16 changed_loading_level = 0;
-	int number_loadable_vehicles = vehicle_count; // Will be shortened for short platform
 
 	// We only unload & load vehicles which are within the station.
 	// To fix: this creates undesired behavior for long trains, because the
@@ -5667,17 +5680,16 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 
 	// First, unload vehicles.
 
+	sint64 accumulated_revenue = 0;
+
+	// This holds the revenues as apportioned to different players by track
+	// Initialize it to the correct size and blank out all entries
+	// It will be added to by the load_cargo method for each vehicle
+	array_tpl<sint64> apportioned_revenues (MAX_PLAYER_COUNT, 0);
 	uint8 convoy_length = 0;
-	for(int i = 0; i < vehicle_count ; i++)
+	for(int i = 0; i < vehicles_loading ; i++)
 	{
 		vehicle_t* v = vehicle[i];
-
-		convoy_length += v->get_desc()->get_length();
-		if(convoy_length > station_length)
-		{
-			number_loadable_vehicles = i;
-			break;
-		}
 
 		// Reset last_stop_pos for all vehicles.
 		koord3d pos = v->get_pos();
@@ -5716,7 +5728,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	}
 	if(no_load)
 	{
-		for(int i = 0; i < number_loadable_vehicles ; i++)
+		for(int i = 0; i < vehicles_loading ; i++)
 		{
 			vehicle_t* v = vehicle[i];
 			// Do not load, but call load_cargo() to recalculate vehicle weight as there might be *un*loading happening.
@@ -5753,7 +5765,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 		{
 			const bool use_lower_classes = (j >= 1);
 			const bool overcrowd = (j == 2);
-			for(int i = 0; i < number_loadable_vehicles ; i++)
+			for(int i = 0; i < vehicles_loading ; i++)
 			{
 				vehicle_t* v = vehicle[i];
 				const uint8 catg_index = v->get_cargo_type()->get_catg_index();
