@@ -1512,7 +1512,7 @@ uint16 gebaeude_t::get_visitor_demand() const
 		return people.visitor_demand;
 	}
 
-	uint16 reduced_demand = people.population / 10;
+	uint16 reduced_demand = people.population / 20;
 	return reduced_demand > 0 ? reduced_demand : 1;
 }
 
@@ -1523,7 +1523,7 @@ uint16 gebaeude_t::get_adjusted_visitor_demand() const
 		return adjusted_people.visitor_demand;
 	}
 
-	uint16 reduced_demand = adjusted_people.population / 5;
+	uint16 reduced_demand = adjusted_people.population / 20;
 	return reduced_demand > 0 ? reduced_demand : 1;
 }
 
