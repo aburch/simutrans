@@ -5120,7 +5120,7 @@ void karte_t::get_nearby_halts_of_tiles(const vector_tpl<const planquadrat_t*> &
 void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 {
 	const city_cost history_type = (wtyp == warenbauer_t::passagiere) ? HIST_PAS_TRANSPORTED : HIST_MAIL_TRANSPORTED;
-	const uint8 max_packet_size = simrand(settings.get_passenger_routing_packet_size(), "void karte_t::step_passengers_and_mail(long delta_t) passenger packet size") + 1;
+	const uint32 max_packet_size = simrand((uint32)settings.get_passenger_routing_packet_size(), "void karte_t::step_passengers_and_mail(long delta_t) passenger packet size") + 1;
 
 	// Pick the building from which to generate passengers/mail
 	gebaeude_t* gb;
@@ -5142,10 +5142,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 	// We need this for recording statistics for onward journeys in the very original departure point.
 	gebaeude_t* const first_origin = gb;
 
-	const int num_pax =
-	(wtyp == warenbauer_t::passagiere) ?
-		(gb->get_adjusted_population()) :
-		(gb->get_adjusted_mail_demand()); 
+	const uint32 num_pax = max_packet_size * 2;
 
 	if(city)
 	{
@@ -5203,7 +5200,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 	uint16 tolerance;
 
 	// Find passenger destination
-	for(int pax_routed = 0, pax_left_to_do = 0; pax_routed < num_pax; pax_routed += pax_left_to_do) 
+	for(uint32 pax_routed = 0, pax_left_to_do = 0; pax_routed < num_pax; pax_routed += pax_left_to_do) 
 	{	
 		/* number of passengers that want to travel
 		* Hajo: for efficiency we try to route not every
@@ -5220,10 +5217,10 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 
 		route_status = initialising;
 
-		for(int trip_count = 0; trip_count < onward_trips && route_status != no_route && route_status != too_slow && route_status != overcrowded && route_status != destination_unavailable; trip_count ++)
+		for(uint32 trip_count = 0; trip_count < onward_trips && route_status != no_route && route_status != too_slow && route_status != overcrowded && route_status != destination_unavailable; trip_count ++)
 		{
 			// Permit onward journeys - but only for successful journeys
-			const int destination_count = simrand(max_destinations, "void stadt_t::step_passagiere() (number of destinations?)") + 1;
+			const uint32 destination_count = simrand(max_destinations, "void stadt_t::step_passagiere() (number of destinations?)") + 1;
 
 			// Split passengers between commuting trips and other trips.
 			if(trip_count == 0)
