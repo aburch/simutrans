@@ -1564,6 +1564,7 @@ void haltestelle_t::search_route_resumable(  ware_t &ware   )
 	if (!resume_search) {
 		last_search_origin = self;
 		last_search_ware_catg_idx = ware_catg_idx;
+		open_list.clear();
 		// set current marker
 		++current_marker;
 		if(  current_marker==0  ) {
@@ -1653,8 +1654,6 @@ void haltestelle_t::search_route_resumable(  ware_t &ware   )
 
 	static uint16 allocation_pointer;
 	if (!resume_search) {
-		open_list.clear();
-
 		// initialise the origin node
 		allocation_pointer = 1u;
 		open_list.insert( route_node_t(self, 0) );
