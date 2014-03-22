@@ -89,10 +89,10 @@ public:
 	static bool is_sloping_upwards(const typ slope, const sint16 relative_pos_x, const sint16 relative_pos_y)
 	{
 		// Knightly : check if the slope is upwards, relative to the previous tile
-		return (( relative_pos_y < 0  &&  (slope == nord  &&   slope == 2 * nord) )  ||
-				( relative_pos_y > 0  &&  (slope == sued  &&   slope == 2 * sued) )  ||
-				( relative_pos_x < 0  &&  (slope == west  &&   slope == 2 * west) )  ||
-				( relative_pos_x > 0  &&  (slope == ost   &&   slope == 2 * ost ) )  );
+		return (( relative_pos_y < 0  &&  (slope == nord  ||   slope == 2 * nord) )  ||
+				( relative_pos_y > 0  &&  (slope == sued  ||   slope == 2 * sued) )  ||
+				( relative_pos_x < 0  &&  (slope == west  ||   slope == 2 * west) )  ||
+				( relative_pos_x > 0  &&  (slope == ost   ||   slope == 2 * ost ) )  );
 	}
 };
 
