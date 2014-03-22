@@ -123,7 +123,6 @@ leitung_t::~leitung_t()
 		gr->obj_remove(this);
 		set_flag( obj_t::not_on_map );
 
-		powernet_t *new_net = NULL;
 		if(neighbours>1) {
 			// only reconnect if two connections ...
 			bool first = true;
@@ -131,7 +130,7 @@ leitung_t::~leitung_t()
 				if(conn[i]!=NULL) {
 					if(!first) {
 						// replace both nets
-						new_net = new powernet_t();
+						powernet_t *new_net = new powernet_t();
 						conn[i]->replace(new_net);
 					}
 					first = false;
