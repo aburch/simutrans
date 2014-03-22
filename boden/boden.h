@@ -19,8 +19,6 @@
 class boden_t : public grund_t
 {
 protected:
-	static bool show_grid;
-
 	virtual void calc_bild_internal();
 
 public:

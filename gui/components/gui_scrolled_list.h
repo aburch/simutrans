@@ -65,8 +65,6 @@ public:
 
 	// editable text
 	class var_text_scrollitem_t : public const_text_scrollitem_t {
-	protected:
-		COLOR_VAL color;
 	private:
 		plainstring text;
 
