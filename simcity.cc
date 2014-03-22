@@ -2391,7 +2391,7 @@ void stadt_t::calc_traffic_level()
 
 void stadt_t::neuer_monat(bool check) //"New month" (Google)
 {
-		swap<uint8>( pax_destinations_old, pax_destinations_new );
+	swap<uint8>( pax_destinations_old, pax_destinations_new );
 	pax_destinations_new.clear();
 	pax_destinations_new_change = 0;
 
@@ -2489,6 +2489,8 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 	{
 		check_road_connexions = true;
 	}
+
+	incoming_private_cars = 0;
 }
 
 void stadt_t::calc_growth()
