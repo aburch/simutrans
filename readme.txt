@@ -42,11 +42,11 @@ I recommend always to use the latest source, since it does not make any
 sense to work with buggy code.
 
 The address is:
-svn://tron.homeunix.org/simutrans
+svn://tron.yamagi.org/simutrans
 username is "anon"!
 
 A commandline would look like this:
-svn checkout svn://tron.homeunix.org/simutrans --username=anon
+svn checkout svn://tron.yamagi.org/simutrans --username=anon
 
 
 IMPORTANT:
