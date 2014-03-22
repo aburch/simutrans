@@ -493,9 +493,9 @@ void settings_experimental_revenue_stats_t::read(settings_t *sets)
 	READ_NUM_VALUE( sets->passenger_max_wait );
 	READ_NUM_VALUE( sets->min_wait_airport );
 
-	READ_NUM_VALUE_TENTHS( (sets->min_visiting_tolerance) );
+	READ_NUM_VALUE_TENTHS( (sets->min_commuting_tolerance) );
 	READ_NUM_VALUE_TENTHS( sets->range_commuting_tolerance);
-	READ_NUM_VALUE_TENTHS( sets->min_commuting_tolerance );
+	READ_NUM_VALUE_TENTHS( sets->min_visiting_tolerance );
 	READ_NUM_VALUE_TENTHS( sets->range_visiting_tolerance );
 	READ_NUM_VALUE( sets->tolerable_comfort_short_minutes );
 	READ_NUM_VALUE( sets->tolerable_comfort_short );
