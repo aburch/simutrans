@@ -2472,8 +2472,8 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 
 		// Second - get the number of car trips per hour
 		const sint64 seconds_per_month = welt->ticks_to_seconds(welt->ticks_per_world_month);
-		const sint64 trips_per_hour = (city_history_month[1][HIST_CITYCARS] * 3600l) / seconds_per_month;
-		//const sint64 trips_per_hour = ((city_history_month[1][HIST_CITYCARS] - incoming_private_cars) * 3600l) / seconds_per_month;
+		// Add incoming private cars as these are no longer tracked in the city history statistics to make them clearer.
+		const sint64 trips_per_hour = ((city_history_month[1][HIST_CITYCARS] + incoming_private_cars) * 3600l) / seconds_per_month;
 		
 		// Third - combine the information, multiplying by a ratio based on 
 		// congestion_density_factor == 141 is the ideal factor based on the 2012 TomTom congestion index for British cities

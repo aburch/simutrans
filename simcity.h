@@ -256,8 +256,10 @@ public:
 
 	void set_private_car_trips(uint16 number) 
 	{
-		city_history_month[0][HIST_CITYCARS] += number;
-		city_history_year[0][HIST_CITYCARS] += number;
+		// Do not add to the city's history here, as this 
+		// will distort the statistics in the city window
+		// for the number of people who have travelled by
+		// private car *from* the city.
 		incoming_private_cars += number;
 	}
 
