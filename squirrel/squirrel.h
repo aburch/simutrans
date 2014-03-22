@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2003-2012 Alberto Demichelis
+Copyright (c) 2003-2014 Alberto Demichelis
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -181,10 +181,10 @@ typedef char SQChar;
 #define _PRINT_INT_FMT _SC("%d")
 #endif
 
-#define SQUIRREL_VERSION	_SC("Squirrel 3.0.4 stable")
-#define SQUIRREL_COPYRIGHT	_SC("Copyright (C) 2003-2012 Alberto Demichelis")
+#define SQUIRREL_VERSION	_SC("Squirrel 3.0.5 stable")
+#define SQUIRREL_COPYRIGHT	_SC("Copyright (C) 2003-2014 Alberto Demichelis")
 #define SQUIRREL_AUTHOR		_SC("Alberto Demichelis")
-#define SQUIRREL_VERSION_NUMBER	304
+#define SQUIRREL_VERSION_NUMBER	305
 
 #define SQ_VMSTATE_IDLE			0
 #define SQ_VMSTATE_RUNNING		1
