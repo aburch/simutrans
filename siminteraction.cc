@@ -86,7 +86,7 @@ void interaction_t::move_cursor( const event_t &ev )
 					is_dragging = false;
 				}
 				else if(ev.ev_class==EVENT_DRAG) {
-					if(!is_dragging  &&  wkz->check_pos( world->get_active_player(), prev_pos )==NULL) {
+					if(!is_dragging  &&  prev_pos != koord3d::invalid  &&  wkz->check_pos( world->get_active_player(), prev_pos )==NULL) {
 						const char* err = world->get_scenario()->is_work_allowed_here(world->get_active_player(), wkz->get_id(), wkz->get_waytype(), prev_pos);
 						if (err == NULL) {
 							is_dragging = true;
