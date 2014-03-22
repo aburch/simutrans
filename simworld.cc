@@ -4380,6 +4380,8 @@ void karte_t::new_month()
 		}
 	}
 
+	finance_history_month[0][WORLD_CITYCARS] = 0;
+
 	current_month ++;
 	last_month ++;
 	if( last_month > 11 ) {
@@ -4630,6 +4632,8 @@ DBG_MESSAGE("karte_t::new_year()","speedbonus for %d %i, %i, %i, %i, %i, %i, %i,
 			spieler[i]->neues_jahr();
 		}
 	}
+
+	finance_history_year[0][WORLD_CITYCARS] = 0;
 
 	scenario->new_year();
 }
@@ -5236,7 +5240,8 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 			// from a commuting trip will not be doing so as another commuting trip. 
 			if(trip == commuting_trip)
 			{
-				trip = visiting_trip;
+				// For TESTing only
+				//trip = visiting_trip;
 			}
 
 			// Onward journey - set the initial point to the previous end point.

@@ -2795,14 +2795,15 @@ void stadt_t::set_private_car_trip(int passengers, stadt_t* destination_town)
 	}
 	else
 	{
-		//Inter-city trip
+		// Inter-city trip
 		city_history_year[0][HIST_CITYCARS] += passengers;
 		city_history_month[0][HIST_CITYCARS] += passengers;
 		
-		//Also add private car trips to the *destination*.
+		// Also add private car trips to the *destination*.
 		destination_town->set_private_car_trips(passengers);
 
-		//And mark the trip as outgoing for growth calculations
+		// And mark the trip as outgoing for growth calculations
+		// (Now deprecated)
 		outgoing_private_cars += passengers;
 	}
 	welt->buche(passengers, karte_t::WORLD_CITYCARS);
