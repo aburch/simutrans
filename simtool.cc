@@ -1337,7 +1337,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 			}
 
 			// now prevent being lowered below neighbouring water
-			sint8 water_table = (water_hgt >= (gr1->get_hoehe() + gr1->get_grund_hang() ? 1 : 0)) ? water_hgt : welt->get_groundwater() - 4;
+			sint8 water_table = (water_hgt >= (gr1->get_hoehe() + (gr1->get_grund_hang() ? 1 : 0))) ? water_hgt : welt->get_groundwater() - 4;
 			sint8 min_neighbour_height = gr1->get_hoehe();
 
 			for(  sint16 i = 0 ;  i < 8 ;  i++  ) {
