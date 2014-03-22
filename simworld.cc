@@ -5668,6 +5668,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 			if(tolerance < 65535)
 			{
 				tolerance -= best_journey_time;
+				quasi_tolerance -= best_journey_time;
 			}
 			pax.arrival_time = get_zeit_ms();
 			pax.set_origin(start_halt);
@@ -5701,6 +5702,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 			if(tolerance < 65535)
 			{
 				tolerance -= car_minutes;
+				quasi_tolerance -= car_minutes;
 			}
 					
 			destination_town = current_destination.type == town ? current_destination.building->get_stadt() : NULL;
@@ -5742,6 +5744,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 			if(tolerance < 65535)
 			{
 				tolerance -= walking_time;
+				quasi_tolerance -= walking_time;
 			}	
 
 			// Walking passengers are not marked as "happy", as the player has not made them happy.
