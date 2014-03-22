@@ -5616,20 +5616,19 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 		// calculate real station length
 		koord zv = koord( ribi_t::backward(front()->get_direction()) );
 		koord3d pos = front()->get_pos();
-		const grund_t *grund = welt->lookup(pos);
-		if(  grund->get_weg_yoff()==TILE_HEIGHT_STEP  )
+		if(  gr->get_weg_yoff()==TILE_HEIGHT_STEP  )
 		{
 			// start on bridge?
 			pos.z ++;
 		}
-		while(  grund  &&  grund->get_halt() == halt  ) {
+		while(  gr  &&  gr->get_halt() == halt  ) {
 			station_length += OBJECT_OFFSET_STEPS;
 			pos += zv;
-			grund = welt->lookup(pos);
-			if(  grund==NULL  )
+			gr = welt->lookup(pos);
+			if(  gr==NULL  )
 			{
-				grund = welt->lookup(pos-koord3d(0,0,1));
-				if(  grund &&  grund->get_weg_yoff()!=TILE_HEIGHT_STEP  )
+				gr = welt->lookup(pos-koord3d(0,0,1));
+				if(  gr &&  gr->get_weg_yoff()!=TILE_HEIGHT_STEP  )
 				{
 					// not end/start of bridge
 					break;
