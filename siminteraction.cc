@@ -333,16 +333,13 @@ bool interaction_t::process_event( event_t &ev )
 
 	// Handle map drag with right-click
 
-	bool cursor_hidden = false;
 	static bool left_drag = false;
 
 	if(IS_RIGHTCLICK(&ev)) {
 		display_show_pointer(false);
-		cursor_hidden = true;
 	}
 	else if(IS_RIGHTRELEASE(&ev)) {
 		display_show_pointer(true);
-		cursor_hidden = false;
 	}
 	else if(IS_RIGHTDRAG(&ev)) {
 		// unset following
@@ -354,25 +351,17 @@ bool interaction_t::process_event( event_t &ev )
 		 * => move the map */
 		if(  !left_drag  ) {
 			display_show_pointer(false);
-			cursor_hidden = true;
 			left_drag = true;
 		}
 		world->get_viewport()->set_follow_convoi( convoihandle_t() );
 		move_view(ev);
 		ev.ev_code = EVENT_NONE;
 	}
-	else {
-		if(cursor_hidden) {
-			display_show_pointer(true);
-			cursor_hidden = false;
-		}
-	}
 
 	if(  IS_LEFTRELEASE(&ev)  &&  left_drag  ) {
 		// show then mouse and swallow this event if we were dragging before
 		ev.ev_code = EVENT_NONE;
 		display_show_pointer(true);
-		cursor_hidden = false;
 		left_drag = false;
 	}
 
