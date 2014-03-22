@@ -1011,6 +1011,7 @@ void stadt_t::update_city_stats_with_building(gebaeude_t* building, bool remove)
 	{
 		return;
 	}
+
 	if(remove)
 	{
 		city_history_month[0][HIST_CITICENS] -= building->get_adjusted_population();

@@ -1529,98 +1529,23 @@ uint16 gebaeude_t::get_adjusted_visitor_demand() const
 
 uint16 gebaeude_t::get_jobs() const
 {
-	if(!is_factory)
-	{
-		return jobs;
-	}
-	else if(get_fabrik())
-	{
-		const uint16 base_pax_demand = (uint16)get_fabrik()->get_base_pax_demand();
-		if(base_pax_demand == 0)
-		{
-			return jobs;
-		}
-		else
-		{
-			return base_pax_demand;
-		}
-	}
-	else
-	{
-		return jobs;
-	}
+	return jobs;
 }
 
 uint16 gebaeude_t::get_adjusted_jobs() const
 {
-	if(!is_factory)
-	{
-		return adjusted_jobs;
-	}
-	else if(get_fabrik())
-	{
-		const uint16 scaled_pax_demand = (uint16)get_fabrik()->get_scaled_pax_demand();
-		if(scaled_pax_demand == 0)
-		{
-			return jobs;
-		}
-		else
-		{
-			return scaled_pax_demand;
-		}
-	}
-	else
-	{
-		return jobs;
-	}
+	
+	return adjusted_jobs;
 }
 
 uint16 gebaeude_t::get_mail_demand() const
 {
-	if(!is_factory)
-	{
-		return mail_demand;
-	}
-	else if(get_fabrik())
-	{
-		const uint16 base_mail_demand = (uint16)get_fabrik()->get_base_mail_demand();
-		if(base_mail_demand == 0)
-		{
-			return mail_demand;
-		}
-		else
-		{
-			return base_mail_demand;
-		}
-	}
-	else
-	{
-		return mail_demand;
-	}
+	return mail_demand;
 }
 
 uint16 gebaeude_t::get_adjusted_mail_demand() const
 {
-	if(!is_factory)
-	{
-		return adjusted_mail_demand;
-	}
-	else if(get_fabrik())
-	{
-		const uint16 scaled_mail_demand = (uint16)get_fabrik()->get_scaled_mail_demand();
-		if(scaled_mail_demand == 0)
-		{
-			return mail_demand;
-		}
-		else
-		{
-			return scaled_mail_demand;
-		}
-	}
-	else
-	{
-		return mail_demand;
-	}
+	return adjusted_mail_demand;
 }
 
 

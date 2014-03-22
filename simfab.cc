@@ -935,15 +935,16 @@ fabrik_t::~fabrik_t()
 	mark_connected_roads(true);
 	delete_all_fields();
 
-	if(city != NULL)
-	{
-		city->remove_city_factory(this);
-	}
-
 	welt->remove_building_from_world_list(get_building());
 
 	if(!welt->get_is_shutting_down())
 	{
+		if(city)
+		{
+			city->remove_city_factory(this);
+			city->update_city_stats_with_building(get_building(), true);
+		}
+		
 		if (besch != NULL)
 		{
 			welt->decrease_actual_industry_density(100 / besch->get_gewichtung());
