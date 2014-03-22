@@ -2059,7 +2059,6 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 		if(  has_previous  ) {
 			buf.append("\n\n");
 		}
-		has_previous = true;
 		buf.append(translator::translate("Connected stops"));
 
 		for(  uint i=0;  i<plan->get_haltlist_count();  i++  ) {

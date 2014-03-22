@@ -51,9 +51,8 @@ public:
  */
 class fabrik_info_t : public gui_frame_t, public action_listener_t
 {
- private:
+private:
 	fabrik_t *fab;
-	karte_ptr_t welt;
 
 	cbuffer_t info_buf, prod_buf;
 
