@@ -5240,8 +5240,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 			// from a commuting trip will not be doing so as another commuting trip. 
 			if(trip == commuting_trip)
 			{
-				// For TESTing only
-				//trip = visiting_trip;
+				trip = visiting_trip;
 			}
 
 			// Onward journey - set the initial point to the previous end point.
