@@ -5609,27 +5609,26 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	int station_length=0;
 	if(  gr->is_water()  ) {
 		// harbour has any size
-		station_length = 24*16;
+		station_length = 24*CARUNITS_PER_TILE;
 	}
 	else
 	{
 		// calculate real station length
 		koord zv = koord( ribi_t::backward(front()->get_direction()) );
 		koord3d pos = front()->get_pos();
-		if(  gr->get_weg_yoff()==TILE_HEIGHT_STEP  )
-		{
-			// start on bridge?
-			pos.z ++;
-		}
+		// start on bridge?
+		pos.z += gr->get_weg_yoff() / TILE_HEIGHT_STEP;
 		while(  gr  &&  gr->get_halt() == halt  ) {
 			station_length += OBJECT_OFFSET_STEPS;
 			pos += zv;
 			gr = welt->lookup(pos);
-			if(  gr==NULL  )
+			if (gr == NULL)
 			{
 				gr = welt->lookup(pos-koord3d(0,0,1));
-				if(  gr &&  gr->get_weg_yoff()!=TILE_HEIGHT_STEP  )
-				{
+				if (gr == NULL) {
+					gr = welt->lookup(pos-koord3d(0,0,2));
+				}
+				if (gr  &&  (pos.z != gr->get_hoehe() + gr->get_weg_yoff()/TILE_HEIGHT_STEP) ) {
 					// not end/start of bridge
 					break;
 				}
