@@ -308,7 +308,6 @@ uint32 vehikel_basis_t::fahre_basis(uint32 distance)
 	grund_t *gr = NULL; // if hopped, then this is new position
 
 	uint32 steps_target = steps_to_do + steps;
-	sint32 steps_done   = steps_to_do;
 
 	uint32 distance_travelled; // Return value
 
@@ -318,7 +317,7 @@ uint32 vehikel_basis_t::fahre_basis(uint32 distance)
 		// We'll be adding steps_next+1 for each hop, as if we
 		// started at the beginning of this tile, so for an accurate
 		// count of steps done we must subtract the location we started with.
-		steps_done = -steps;
+		sint32 steps_done = -steps;
 
 		// Hop as many times as possible.
 		while(  steps_target > steps_next  &&  hop_check()  ) {
@@ -2590,14 +2589,13 @@ bool waggon_t::is_weg_frei_longblock_signal( signal_t *sig, uint16 next_block, i
 	route_t target_rt;
 	koord3d cur_pos = cnv->get_route()->back();
 	uint16 dummy, next_next_signal;
-	bool success = true;
 	if(fahrplan_index >= cnv->get_schedule()->get_count()) {
 		fahrplan_index = 0;
 	}
 	while(  fahrplan_index != cnv->get_schedule()->get_aktuell()  ) {
 		// now search
 		// search for route
-		success = target_rt.calc_route( welt, cur_pos, cnv->get_schedule()->eintrag[fahrplan_index].pos, this, speed_to_kmh(cnv->get_min_top_speed()), 8888 /*cnv->get_tile_length()*/ );
+		bool success = target_rt.calc_route( welt, cur_pos, cnv->get_schedule()->eintrag[fahrplan_index].pos, this, speed_to_kmh(cnv->get_min_top_speed()), 8888 /*cnv->get_tile_length()*/ );
 		if(  success  ) {
 			success = block_reserver( &target_rt, 1, next_next_signal, dummy, 0, true, false );
 			block_reserver( &target_rt, 1, dummy, dummy, 0, false, false );
@@ -2794,10 +2792,11 @@ bool waggon_t::is_weg_frei_signal( uint16 next_block, int &restart_speed )
 
 	// action depend on the next signal
 	const roadsign_besch_t *sig_besch=sig->get_besch();
-	uint16 next_signal, next_crossing;
 
 	// simple signal: drive on, if next block is free
 	if(  !sig_besch->is_longblock_signal()  &&  !sig_besch->is_choose_sign()  &&  !sig_besch->is_pre_signal()  ) {
+
+		uint16 next_signal, next_crossing;
 		if(  block_reserver( cnv->get_route(), next_block+1, next_signal, next_crossing, 0, true, false )  ) {
 			sig->set_zustand(  roadsign_t::gruen );
 			cnv->set_next_stop_index( min( next_crossing, next_signal ) );
@@ -3710,7 +3709,6 @@ bool aircraft_t::block_reserver( uint32 start, uint32 end, bool reserve ) const
 {
 	bool start_now = false;
 	bool success = true;
-	uint32 i;
 
 	const route_t *route = cnv->get_route();
 	if(route->empty()) {
@@ -3764,7 +3762,7 @@ bool aircraft_t::block_reserver( uint32 start, uint32 end, bool reserve ) const
 
 	// un-reserve if not successful
 	if(!success  &&  reserve) {
-		for(  i=start;  i<end;  i++  ) {
+		for(  uint32 i=start;  i<end;  i++  ) {
 			grund_t *gr = welt->lookup(route->position_bei(i));
 			if (gr) {
 				runway_t* sch1 = (runway_t *)gr->get_weg(air_wt);

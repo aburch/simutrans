@@ -2587,9 +2587,9 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		k.rdwr( file );
 	}
 
-	const char *s;
 	init_pos = tiles.empty() ? koord::invalid : tiles.front().grund->get_pos().get_2d();
 	if(file->is_saving()) {
+		const char *s;
 		for(unsigned i=0; i<warenbauer_t::get_max_catg_index(); i++) {
 			vector_tpl<ware_t> *warray = waren[i];
 			if(warray) {
