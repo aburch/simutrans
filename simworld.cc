@@ -5814,9 +5814,14 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 				{
 					city->merke_passagier_ziel(best_bad_destination, COL_LIGHT_PURPLE);
 				}
-				else
+				else if(car_minutes < 65535)
 				{
 					city->merke_passagier_ziel(best_bad_destination, COL_PURPLE);
+				}
+				else
+				{
+					// This should not occur but occasionally does.
+					goto no_route;
 				}
 			}
 
@@ -5834,7 +5839,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 
 		case no_route:
 		case destination_unavailable:
-
+no_route:
 			if(city && wtyp == warenbauer_t::passagiere)
 			{
 				if(route_status == destination_unavailable)
