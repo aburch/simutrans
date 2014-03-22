@@ -8426,7 +8426,6 @@ DBG_MESSAGE("karte_t::load()","Savegame version is %d", file.get_version());
 					nwc_auth_player_t::init_player_lock_server(this);
 					pwdfile.close();
 				}
-				server_reload_pwd_hashes = false;
 			}
 		}
 		else if(  env_t::networkmode  ) {
