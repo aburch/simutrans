@@ -5313,12 +5313,13 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 		uint16 quasi_tolerance = tolerance;
 		if(wtyp == warenbauer_t::post)
 		{
+			// People will walk long distances with mail: it is not heavy.
 			quasi_tolerance = simrand_normal(range_visiting_tolerance, "karte_t::step_passengers_and_mail (quasi tolerance)") + min_visiting_tolerance;
 		}
 		else
 		{
-			// Passengers. People will walk long distances with mail: it is not heavy.
-			quasi_tolerance /= 2;
+			// Passengers. 
+			quasi_tolerance = max(quasi_tolerance / 2, min(tolerance, 300));
 		}
 
 		uint16 car_minutes = 65535;
