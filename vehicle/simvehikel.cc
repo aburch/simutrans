@@ -2970,7 +2970,6 @@ bool waggon_t::block_reserver(const route_t *route, uint16 start_index, uint16 &
 
 	// find next block segment en route
 	uint16 i=start_index;
-	uint16 skip_index=INVALID_INDEX;
 	next_signal_index=INVALID_INDEX;
 	next_crossing_index=INVALID_INDEX;
 	bool unreserve_now = false;
@@ -3040,10 +3039,8 @@ bool waggon_t::block_reserver(const route_t *route, uint16 start_index, uint16 &
 	if(!success) {
 		// free reservation
 		for ( int j=start_index; j<i; j++) {
-			if(i!=skip_index) {
-				schiene_t * sch1 = (schiene_t *)welt->lookup( route->position_bei(j))->get_weg(get_waytype());
-				sch1->unreserve(cnv->self);
-			}
+			schiene_t * sch1 = (schiene_t *)welt->lookup( route->position_bei(j))->get_weg(get_waytype());
+			sch1->unreserve(cnv->self);
 		}
 		cnv->set_next_reservation_index( start_index );
 		return false;
