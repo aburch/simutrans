@@ -2719,24 +2719,39 @@ void convoi_t::calc_gewinn()
  */
 void convoi_t::hat_gehalten(halthandle_t halt)
 {
-	sint64 gewinn = 0;
 	grund_t *gr=welt->lookup(fahr[0]->get_pos());
 
 	// now find out station length
-	int station_length=0;
+	uint16 vehicles_loading = 0;
 	if(  gr->ist_wasser()  ) {
 		// harbour has any size
-		station_length = 24*CARUNITS_PER_TILE;
+		vehicles_loading = anz_vehikel;
 	}
 	else {
 		// calculate real station length
+		// and numbers of vehicles that can be (un)loaded
 		koord zv = koord( ribi_t::rueckwaerts(fahr[0]->get_fahrtrichtung()) );
 		koord3d pos = fahr[0]->get_pos();
 		// start on bridge?
 		pos.z += gr->get_weg_yoff() / TILE_HEIGHT_STEP;
-
-		while(  gr  &&  gr->get_halt() == halt  ) {
+		// difference between actual station length and vehicle lenghts
+		sint16 station_length = -fahr[vehicles_loading]->get_besch()->get_length();
+		do {
+			// advance one station tile
 			station_length += CARUNITS_PER_TILE;
+
+			while(station_length >= 0) {
+				vehicles_loading++;
+				if (vehicles_loading < anz_vehikel) {
+					station_length -= fahr[vehicles_loading]->get_besch()->get_length();
+				}
+				else {
+					// all vehicles fit into station
+					goto station_tile_search_ready;
+				}
+			}
+
+			// search for next station tile
 			pos += zv;
 			gr = welt->lookup(pos);
 			if (gr == NULL) {
@@ -2749,20 +2764,19 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 					break;
 				}
 			}
-		}
+
+		}  while(  gr  &&  gr->get_halt() == halt  );
+		// finished
+station_tile_search_ready: ;
 	}
 
 	// only load vehicles in station
 	// don't load when vehicle is being withdrawn
 	bool changed_loading_level = false;
 	uint32 time = WTT_LOADING;	// min time for loading/unloading
-	for(unsigned i=0; i<anz_vehikel; i++) {
+	sint64 gewinn = 0;
+	for(unsigned i=0; i<vehicles_loading; i++) {
 		vehikel_t* v = fahr[i];
-
-		station_length -= v->get_besch()->get_length();
-		if(station_length<0) {
-			break;
-		}
 
 		// we need not to call this on the same position
 		if(  v->last_stop_pos != v->get_pos()  ) {
