@@ -3888,10 +3888,10 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		file->rdwr_byte(max_catg_count_file);
 	}
 
-	const char *s;
 	init_pos = tiles.empty() ? koord::invalid : tiles.front().grund->get_pos().get_2d();
 	if(file->is_saving())
 	{
+		const char *s;
 		for(unsigned i=0; i<max_catg_count_file; i++)
 		{
 			vector_tpl<ware_t> *warray = cargo[i];
