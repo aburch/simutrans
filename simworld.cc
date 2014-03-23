@@ -5984,14 +5984,29 @@ no_route:
 				if(car_minutes < 65535)
 				{
 					// Do not check tolerance, as they must come back!
-					if(destination_town)
+					if(wtyp == warenbauer_t::passagiere)
 					{
-						destination_town->set_private_car_trip(units_this_step, city);
+						if(destination_town)
+						{
+							destination_town->set_private_car_trip(units_this_step, city);
+						}
+						else
+						{
+							// Industry, attraction or local
+							city->set_private_car_trip(units_this_step, NULL);
+						}
 					}
 					else
 					{
-						// Industry, attraction or local
-						city->set_private_car_trip(units_this_step, NULL);
+						// Mail
+						if(destination_town)
+						{
+							destination_town->add_transported_mail(units_this_step);
+						}
+						else if(city)
+						{
+							city->add_transported_mail(units_this_step);
+						}
 					}
 
 #ifdef DESTINATION_CITYCARS
@@ -6030,6 +6045,18 @@ no_route:
 						// Local, attraction or industry.
 						city->merke_passagier_ziel(origin_pos, COL_DARK_YELLOW);
 						city->add_walking_passengers(units_this_step);
+					}
+				}
+				else
+				{
+					// Mail
+					if(destination_town)
+					{
+						destination_town->add_transported_mail(units_this_step);
+					}
+					else if(city)
+					{
+						city->add_transported_mail(units_this_step);
 					}
 				}
 				if(current_destination.type == factory && (trip == commuting_trip || trip == mail_trip))
