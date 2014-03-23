@@ -1391,8 +1391,6 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 	}
 
 	pax_destinations_new_change = 0;
-//	next_step = 0;
-//	step_interval = 1;
 	next_growth_step = 0;
 //	has_low_density = false;
 
@@ -1407,6 +1405,18 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 	won = 0;
 
 	lo = ur = pos;
+
+	// initialize history array
+	for (uint year = 0; year < MAX_CITY_HISTORY_YEARS; year++) {
+		for (uint hist_type = 0; hist_type < MAX_CITY_HISTORY; hist_type++) {
+			city_history_year[year][hist_type] = 0;
+		}
+	}
+	for (uint month = 0; month < MAX_CITY_HISTORY_YEARS; month++) {
+		for (uint hist_type = 0; hist_type < MAX_CITY_HISTORY; hist_type++) {
+			city_history_month[month][hist_type] = 0;
+		}
+	}
 
 	/* get a unique cityname */
 	char                          const* n       = "simcity";
@@ -1453,27 +1463,6 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 	// city should be deleted if it has no buildings
 	if (!buildings.empty()) {
 		change_size( citizens, true );
-	}
-
-	// fill with start citizen ...
-	sint64 bew = get_einwohner();
-	for (uint year = 0; year < MAX_CITY_HISTORY_YEARS; year++) {
-		city_history_year[year][HIST_CITICENS] = bew;
-	}
-	for (uint month = 0; month < MAX_CITY_HISTORY_MONTHS; month++) {
-		city_history_month[month][HIST_CITICENS] = bew;
-	}
-
-	// initialize history array
-	for (uint year = 0; year < MAX_CITY_HISTORY_YEARS; year++) {
-		for (uint hist_type = 0; hist_type < MAX_CITY_HISTORY; hist_type++) {
-			city_history_year[year][hist_type] = 0;
-		}
-	}
-	for (uint month = 0; month < MAX_CITY_HISTORY_YEARS; month++) {
-		for (uint hist_type = 0; hist_type < MAX_CITY_HISTORY; hist_type++) {
-			city_history_month[month][hist_type] = 0;
-		}
 	}
 
 	outgoing_private_cars = 0;
