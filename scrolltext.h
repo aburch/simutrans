@@ -129,6 +129,7 @@
 " Zeno","testing",
 " Yona-TYT","testing",
 " Andreas Wagner", "testing",
+" Daniel Schröder", "testing",
 "","",
 "","",
 "Game Design Assistance:","",
