@@ -5566,7 +5566,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 					// Convert to tenths, but only after multiplying to preserve accuracy.
 					// Use a uint32 intermediary to avoid overflow.
 					const uint32 car_mins = (time_per_tile * straight_line_distance) / 10;
-					car_minutes = car_mins > 0 ? car_mins : 1;
+					car_minutes = car_mins + 300; // Add three minutes to represent 1:30m parking time at each end.
 
 					// Now, adjust the timings for congestion (this is already taken into account if the route was
 					// calculated using the route finder; note that journeys inside cities are not calculated using
