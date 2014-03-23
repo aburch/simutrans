@@ -1007,7 +1007,7 @@ void stadt_t::add_gebaeude_to_stadt(gebaeude_t* gb, bool ordered)
 
 void stadt_t::update_city_stats_with_building(gebaeude_t* building, bool remove)
 {
-	if(!building)
+	if(!building || building != building->get_first_tile())
 	{
 		return;
 	}
@@ -3019,11 +3019,13 @@ void stadt_t::check_bau_spezial(bool new_town)
 				if (besch->get_all_layouts() > 1) {
 					rotate = (simrand(20, "void stadt_t::check_bau_spezial") & 2) + is_rotate;
 				}
-				hausbauer_t::baue( besitzer_p, welt->lookup_kartenboden(best_pos)->get_pos(), rotate, besch );
+				gebaeude_t* gb = hausbauer_t::baue(besitzer_p, welt->lookup_kartenboden(best_pos)->get_pos(), rotate, besch);
+				gb->get_first_tile()->set_stadt(this);
+				add_building_to_list(gb->get_first_tile());
 				// tell the player, if not during initialization
 				if (!new_town) {
 					cbuffer_t buf;
-					buf.printf( translator::translate("To attract more tourists\n%s built\na %s\nwith the aid of\n%i tax payers."), get_name(), make_single_line_string(translator::translate(besch->get_name()), 2), get_einwohner());
+					buf.printf( translator::translate("To attract more tourists\n%s built\na %s\nwith the aid of\n%i tax payers."), get_name(), make_single_line_string(translator::translate(besch->get_name()), 2), city_history_month[0][HIST_CITICENS]);
 					welt->get_message()->add_message(buf, best_pos + koord(1, 1), message_t::city, CITY_KI, besch->get_tile(0)->get_hintergrund(0, 0, 0));
 				}
 			}
