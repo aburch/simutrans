@@ -4633,6 +4633,11 @@ DBG_MESSAGE("karte_t::new_year()","speedbonus for %d %i, %i, %i, %i, %i, %i, %i,
 		}
 	}
 
+	for(weighted_vector_tpl<gebaeude_t *>::const_iterator a = ausflugsziele.begin(), end = ausflugsziele.end(); a != end; ++a)
+	{
+		(*a)->new_year();
+	}
+
 	finance_history_year[0][WORLD_CITYCARS] = 0;
 
 	scenario->new_year();
