@@ -2432,7 +2432,7 @@ void wegbauer_t::baue_strasse()
 				// spieler_t::add_maintenance(s, -weg->get_besch()->get_wartung());
 
 				// Cost of downgrading is the cost of the inferior way (was previously the higher of the two costs in 10.15 and earlier, from Standard).
-				cost -= besch->get_preis();
+				cost = besch->get_preis();
 
 				weg->set_besch(besch);
 				// respect max speed of catenary
@@ -2464,7 +2464,7 @@ void wegbauer_t::baue_strasse()
 
 			str->set_besch(besch);
 			str->set_gehweg(build_sidewalk);
-			cost = -gr->neuen_weg_bauen(str, route.get_short_ribi(i), sp, &route) - besch->get_preis();
+			cost = gr->neuen_weg_bauen(str, route.get_short_ribi(i), sp, &route) + besch->get_preis();
 
 			// prissi: into UNDO-list, so we can remove it later
 			if(sp!=NULL) {
