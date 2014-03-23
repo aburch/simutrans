@@ -5682,7 +5682,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 			{
 				first_origin->add_passengers_succeeded_visiting(units_this_step);
 			}
-			// Do nothing if trip == mail.
+			// Do nothing if trip == mail: mail statistics are added on arrival.
 			break;
 
 		case private_car:
@@ -5694,11 +5694,23 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 			}
 					
 			destination_town = current_destination.type == town ? current_destination.building->get_stadt() : NULL;
-			city->set_private_car_trip(units_this_step, destination_town);
-			city->merke_passagier_ziel(destination_pos, COL_TURQUOISE);
+			if(city)
+			{
 #ifdef DESTINATION_CITYCARS
-			city->erzeuge_verkehrsteilnehmer(origin_pos, car_minutes, destination_pos, units_this_step);
+				city->erzeuge_verkehrsteilnehmer(origin_pos, car_minutes, destination_pos, units_this_step);
 #endif
+				if(wtyp == warenbauer_t::passagiere)
+				{
+					city->set_private_car_trip(units_this_step, destination_town);
+					city->merke_passagier_ziel(destination_pos, COL_TURQUOISE);
+				}
+				else
+				{
+					// Mail
+					city->add_transported_mail(units_this_step);
+				}
+			}
+
 			set_return_trip = true;
 			// We cannot do this on arrival, as the ware packets do not remember their origin building.
 			if(trip == commuting_trip)
@@ -5724,7 +5736,6 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 					current_destination.building->add_passengers_succeeded_visiting(units_this_step);
 				}
 			}
-			// Do nothing if trip == mail.
 			break;
 
 		case on_foot:
@@ -5742,10 +5753,18 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 				haltestelle_t::erzeuge_fussgaenger(origin_pos, units_this_step);
 			}
 				
-			if(city && wtyp == warenbauer_t::passagiere)
+			if(city)
 			{
-				city->merke_passagier_ziel(destination_pos, COL_DARK_YELLOW);
-				city->add_walking_passengers(units_this_step);
+				if(wtyp == warenbauer_t::passagiere)
+				{
+					city->merke_passagier_ziel(destination_pos, COL_DARK_YELLOW);
+					city->add_walking_passengers(units_this_step);
+				}
+				else
+				{
+					// Mail
+					city->add_transported_mail(units_this_step);
+				}
 			}
 			set_return_trip = true;
 
