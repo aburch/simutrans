@@ -3857,7 +3857,6 @@ void karte_t::add_ausflugsziel(gebaeude_t *gb)
 {
 	assert(gb != NULL);
 	ausflugsziele.append(gb, gb->get_adjusted_visitor_demand());
-	add_building_to_world_list(gb);
 }
 
 
@@ -3865,7 +3864,11 @@ void karte_t::remove_ausflugsziel(gebaeude_t *gb)
 {
 	assert(gb != NULL);
 	ausflugsziele.remove(gb);
-	remove_building_from_world_list(gb);
+	stadt_t* city = get_city(gb->get_pos());
+	if(!city)
+	{
+		remove_building_from_world_list(gb);
+	}
 }
 
 

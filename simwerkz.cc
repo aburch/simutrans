@@ -5577,12 +5577,12 @@ const char *wkz_build_haus_t::work( spieler_t *sp, koord3d pos )
 		gebaeude_t *gb = hausbauer_t::baue(gb_sp, gr->get_pos(), rotation, besch);
 		if(gb) {
 			// building successful
-			if(  besch->get_utyp()!=haus_besch_t::attraction_land  &&  besch->get_utyp()!=haus_besch_t::attraction_city  ) {
-				stadt_t *city = welt->get_city( pos );
-				if(city) {
-					city->add_gebaeude_to_stadt(gb);
-					city->reset_city_borders();
-				}
+			// ought to be added to the city.
+			stadt_t *city = welt->get_city( pos );
+			welt->add_building_to_world_list(gb->get_first_tile());
+			if(city) {
+				city->add_gebaeude_to_stadt(gb->get_first_tile());
+				city->reset_city_borders();
 			}
 			spieler_t::book_construction_costs(sp, welt->get_settings().cst_multiply_remove_haus * besch->get_level() * size.x * size.y, k, gb->get_waytype());
 			return NULL;
