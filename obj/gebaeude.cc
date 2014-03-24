@@ -193,6 +193,16 @@ gebaeude_t::gebaeude_t(koord3d pos, spieler_t *sp, const haus_tile_besch_t *t) :
 	}
 
 	check_road_tiles(false);
+
+	// This sets the number of jobs per building at initialisation to zero. As time passes,
+	// more jobs become available. This is necessary because, if buildings are initialised
+	// with their maximum number of jobs, there will be too many jobs available by a factor
+	// of two. This is because, for any given time period in which the total population is
+	// equal to the total number of jobs available, X people will arrive and X job slots
+	// will be created. The sum total of this should be zero, but if buildings start with
+	// their maximum number of jobs, this ends up being the base line number, effectively
+	// doubling the number of available jobs.
+	available_jobs_by_time = welt->get_zeit_ms();
 }
 
 stadt_t* gebaeude_t::get_stadt() const
