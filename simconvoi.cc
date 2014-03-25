@@ -540,6 +540,9 @@ void convoi_t::rotate90( const sint16 y_size )
 	record_pos.rotate90( y_size );
 	home_depot.rotate90( y_size );
 	route.rotate90( y_size );
+	if(  fpl_target!=koord3d::invalid  ) {
+		fpl_target.rotate90( y_size );
+	}
 	if(fpl) {
 		fpl->rotate90( y_size );
 	}
