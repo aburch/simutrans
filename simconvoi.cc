@@ -720,6 +720,9 @@ void convoi_t::rotate90( const sint16 y_size )
 	home_depot.rotate90( y_size );
 	last_signal_pos.rotate90(y_size); 
 	route.rotate90( y_size );
+	if(  schedule_target!=koord3d::invalid  ) {
+		schedule_target.rotate90( y_size );
+	}
 	if(schedule) {
 		schedule->rotate90( y_size );
 	}
