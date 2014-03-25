@@ -71,7 +71,7 @@ ki_kontroll_t::ki_kontroll_t() :
 				add_komponente( player_active+i-2 );
 			}
 		}
-		cursor.x += D_CHECKBOX_HEIGHT + D_H_SPACE;
+		cursor.x += D_CHECKBOX_WIDTH + D_H_SPACE;
 
 		// Player select button (arrow)
 		player_change_to[i].init(button_t::arrowright_state, "", cursor);
@@ -152,7 +152,7 @@ ki_kontroll_t::ki_kontroll_t() :
 	}
 	freeplay.pressed = welt->get_settings().is_freeplay();
 	add_komponente( &freeplay );
-	cursor.y += D_CHECKBOX_HEIGHT;
+	cursor.y += max(D_CHECKBOX_HEIGHT, LINESPACE);
 
 	set_windowsize( scr_size( L_DIALOG_WIDTH, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM ) );
 	update_data();

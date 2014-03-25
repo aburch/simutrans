@@ -35,14 +35,12 @@
 
 #include "../utils/simstring.h"
 
-#define START_HEIGHT (28)
+#define L_DIALOG_WIDTH (260)
 
 #define LEFT_ARROW (110)
 #define RIGHT_ARROW (160)
 
-#define RIGHT_COLUMN (185)
-#define RIGHT_COLUMN_WIDTH (60)
-
+#define RIGHT_COLUMN (L_DIALOG_WIDTH-D_MARGIN_RIGHT-preview_size)
 
 
 koord enlarge_map_frame_t::koord_from_rotation(settings_t const* const sets, sint16 const x, sint16 const y, sint16 const w, sint16 const h)
@@ -67,23 +65,23 @@ enlarge_map_frame_t::enlarge_map_frame_t() :
 	sets->set_groesse_y(welt->get_size().y);
 
 	changed_number_of_towns = false;
-	int intTopOfButton = 24;
+	scr_coord cursor = scr_coord(D_MARGIN_LEFT, D_MARGIN_TOP);
 
-	memory.set_pos( scr_coord(10,intTopOfButton) );
+	memory.set_pos( scr_coord(cursor) );
 	add_komponente( &memory );
 
-	inp_x_size.set_pos(scr_coord(LEFT_ARROW,intTopOfButton) );
-	inp_x_size.set_size(scr_size(RIGHT_ARROW-LEFT_ARROW+10, 12));
+	inp_x_size.set_pos(scr_coord(LEFT_ARROW, cursor.y) );
+	inp_x_size.set_size(scr_size(RIGHT_ARROW-LEFT_ARROW+10, D_EDIT_HEIGHT));
 	inp_x_size.add_listener(this);
 	inp_x_size.set_value( sets->get_groesse_x() );
 	inp_x_size.set_limits( welt->get_size().x, min(32766,4194304/sets->get_groesse_y()) );
 	inp_x_size.set_increment_mode( sets->get_groesse_x()>=512 ? 128 : 64 );
 	inp_x_size.wrap_mode( false );
 	add_komponente( &inp_x_size );
-	intTopOfButton += 12;
+	cursor.y += max(D_EDIT_HEIGHT, LINESPACE) + D_V_SPACE;
 
-	inp_y_size.set_pos(scr_coord(LEFT_ARROW,intTopOfButton) );
-	inp_y_size.set_size(scr_size(RIGHT_ARROW-LEFT_ARROW+10, 12));
+	inp_y_size.set_pos(scr_coord(LEFT_ARROW, cursor.y) );
+	inp_y_size.set_size(scr_size(RIGHT_ARROW-LEFT_ARROW+10, D_EDIT_HEIGHT));
 	inp_y_size.add_listener(this);
 	inp_y_size.set_limits( welt->get_size().y, min(32766,4194304/sets->get_groesse_x()) );
 	inp_y_size.set_value( sets->get_groesse_y() );
@@ -92,31 +90,48 @@ enlarge_map_frame_t::enlarge_map_frame_t() :
 	add_komponente( &inp_y_size );
 
 	// city stuff
-	intTopOfButton = 64+10;
-	inp_number_of_towns.set_pos(scr_coord(RIGHT_COLUMN,intTopOfButton) );
-	inp_number_of_towns.set_size(scr_size(RIGHT_COLUMN_WIDTH, 12));
+	cursor.y = max(2*max(D_EDIT_HEIGHT, LINESPACE)+D_V_SPACE, preview_size+2)+D_MARGIN_TOP+D_V_SPACE;
+	inp_number_of_towns.set_pos(scr_coord(RIGHT_COLUMN, cursor.y) );
+	inp_number_of_towns.set_size(scr_size(preview_size, D_EDIT_HEIGHT));
 	inp_number_of_towns.add_listener(this);
 	inp_number_of_towns.set_limits(0,999);
 	inp_number_of_towns.set_value(abs(sets->get_anzahl_staedte()) );
 	add_komponente( &inp_number_of_towns );
-	intTopOfButton += 12;
 
-	inp_town_size.set_pos(scr_coord(RIGHT_COLUMN,intTopOfButton) );
-	inp_town_size.set_size(scr_size(RIGHT_COLUMN_WIDTH, 12));
+	// Number of towns label
+	cities_label.init("5WORLD_CHOOSE",cursor);
+	cities_label.set_width( RIGHT_COLUMN );
+	cities_label.align_to(&inp_number_of_towns, ALIGN_CENTER_V);
+	add_komponente( &cities_label );
+	cursor.y += max(D_EDIT_HEIGHT, LINESPACE) + D_V_SPACE;
+
+	inp_town_size.set_pos(scr_coord(RIGHT_COLUMN, cursor.y) );
+	inp_town_size.set_size(scr_size(preview_size, D_EDIT_HEIGHT));
 	inp_town_size.add_listener(this);
 	inp_town_size.set_limits(0,999999);
 	inp_town_size.set_increment_mode(50);
 	inp_town_size.set_value( sets->get_mittlere_einwohnerzahl() );
 	add_komponente( &inp_town_size );
-	intTopOfButton += 12+5;
+
+	// Town size label
+	median_label.init("Median Citizen per town",cursor);
+	median_label.set_width( RIGHT_COLUMN );
+	median_label.align_to(&inp_town_size, ALIGN_CENTER_V);
+	add_komponente( &median_label );
+	cursor.y += max(D_EDIT_HEIGHT, LINESPACE);
+
+	// Divider
+	divider_1.init(cursor, L_DIALOG_WIDTH-D_MARGINS_X);
+	add_komponente( &divider_1 );
+	cursor.y += D_DIVIDER_HEIGHT;
 
 	// start game
-	intTopOfButton += 5;
-	start_button.init( button_t::roundbox, "enlarge map", scr_coord(10, intTopOfButton), scr_size(240, 14) );
+	start_button.init( button_t::roundbox, "enlarge map", scr_coord(D_MARGIN_LEFT, cursor.y), scr_size(L_DIALOG_WIDTH-D_MARGINS_X, D_BUTTON_HEIGHT) );
 	start_button.add_listener( this );
 	add_komponente( &start_button );
+	cursor.y += D_BUTTON_HEIGHT;
 
-	set_windowsize( scr_size(260, intTopOfButton+14+8+16) );
+	set_windowsize( scr_size(L_DIALOG_WIDTH, cursor.y+D_TITLEBAR_HEIGHT+D_MARGIN_BOTTOM) );
 
 	update_preview();
 }
@@ -176,19 +191,11 @@ void enlarge_map_frame_t::draw(scr_coord pos, scr_size size)
 
 	gui_frame_t::draw(pos, size);
 
-	int x = pos.x+10;
-	int y = pos.y+4+16;
+	int x = pos.x+RIGHT_COLUMN;
+	int y = pos.y+D_TITLEBAR_HEIGHT+D_MARGIN_TOP;
 
-	display_ddd_box_clip(x+173, y, preview_size+2, preview_size+2, MN_GREY0,MN_GREY4);
-	display_array_wh(x+174, y+1, preview_size, preview_size, karte);
-
-	y = pos.y+64+10+16;
-	display_proportional_clip(x, y, translator::translate("5WORLD_CHOOSE"), ALIGN_LEFT, COL_BLACK, true);
-	y += 12;
-	display_proportional_clip(x, y, translator::translate("Median Citizen per town"), ALIGN_LEFT, COL_BLACK, true);
-	y += 12+5;
-
-	display_ddd_box_clip(x, y, 240, 0, MN_GREY0, MN_GREY4);
+	display_ddd_box_clip(x-2, y, preview_size+2, preview_size+2, MN_GREY0, MN_GREY4);
+	display_array_wh(x-1, y+1, preview_size, preview_size, karte);
 }
 
 

@@ -22,12 +22,14 @@
 #include "password_frame.h"
 #include "player_frame_t.h"
 
-#define DIALOG_WIDTH (360)
+#define L_DIALOG_WIDTH (360)
 
 
 password_frame_t::password_frame_t( spieler_t *sp ) :
 	gui_frame_t( translator::translate("Enter Password"), sp )
 {
+	scr_coord cursor = scr_coord(D_MARGIN_LEFT, D_MARGIN_TOP);
+
 	this->sp = sp;
 
 	if(  !sp->is_locked()  ||  (welt->get_active_player_nr()==1  &&  !welt->get_spieler(1)->is_locked())   ) {
@@ -35,31 +37,36 @@ password_frame_t::password_frame_t( spieler_t *sp ) :
 		tstrncpy( player_name_str, sp->get_name(), lengthof(player_name_str) );
 		player_name.set_text(player_name_str, lengthof(player_name_str));
 		player_name.add_listener(this);
-		player_name.set_pos(scr_coord(10,4));
-		player_name.set_size(scr_size(DIALOG_WIDTH-10-10, D_BUTTON_HEIGHT));
+		player_name.set_pos(cursor);
+		player_name.set_size(scr_size(L_DIALOG_WIDTH-D_MARGINS_X, D_EDIT_HEIGHT));
 		add_komponente(&player_name);
+		cursor.y += max(D_EDIT_HEIGHT, LINESPACE);
 	}
 	else {
 		const_player_name.set_text( sp->get_name() );
-		const_player_name.set_pos(scr_coord(10,4));
+		const_player_name.set_pos(scr_coord(D_MARGIN_LEFT, D_MARGIN_TOP));
 		add_komponente(&const_player_name);
+		cursor.y += LINESPACE;
 	}
+	cursor.y += D_V_SPACE;
 
-
-	fnlabel.set_pos (scr_coord(10,4+D_BUTTON_HEIGHT+6));
-	fnlabel.set_text( "Password" );
-	add_komponente(&fnlabel);
+	fnlabel.set_text( "Password" );	// so we have a width now
 
 	// Input box for password
 	ibuf[0] = 0;
 	password.set_text(ibuf, lengthof(ibuf) );
 	password.add_listener(this);
-	password.set_pos(scr_coord(75,4+D_BUTTON_HEIGHT+4));
-	password.set_size(scr_size(DIALOG_WIDTH-75-10, D_BUTTON_HEIGHT));
-	add_komponente(&password);
+	password.set_pos( scr_coord( cursor.x+fnlabel.get_size().w+D_H_SPACE, cursor.y ) );
+	password.set_size( scr_size( L_DIALOG_WIDTH-D_MARGIN_RIGHT-password.get_pos().x, D_EDIT_HEIGHT ) );
+	add_komponente( &password );
 	set_focus( &password );
 
-	set_windowsize(scr_size(DIALOG_WIDTH, 16+12+2*D_BUTTON_HEIGHT));
+	// and now we can align us too ...
+	fnlabel.align_to(&password, ALIGN_CENTER_V|ALIGN_EXTERIOR_H|ALIGN_RIGHT, scr_coord(D_H_SPACE,0) );
+	add_komponente(&fnlabel);
+
+	cursor.y += max(D_EDIT_HEIGHT, LINESPACE);
+	set_windowsize(scr_size(L_DIALOG_WIDTH, D_TITLEBAR_HEIGHT+cursor.y+D_MARGIN_BOTTOM));
 }
 
 
