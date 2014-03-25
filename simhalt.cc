@@ -1092,6 +1092,20 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 	return strdup("Unnamed");
 }
 
+class lines_loaded_compare_t
+{
+public:
+	linehandle_t line;
+	bool reversed;
+	uint8 aktuell;
+	uint8 fracht_index;
+
+	bool operator== (const lines_loaded_compare_t &x) const  { return (line == x.line  &&  reversed == x.reversed  &&  aktuell == x.aktuell   &&  fracht_index == x.fracht_index); }
+};
+
+vector_tpl<lines_loaded_compare_t> lines_loaded; // used to skip loading multiple convois on the same line during the same step
+
+
 // Add convoy to loading
 void haltestelle_t::request_loading(convoihandle_t cnv)
 {
@@ -1101,6 +1115,7 @@ void haltestelle_t::request_loading(convoihandle_t cnv)
 	if(last_loading_step != welt->get_steps()) 
 	{
 		last_loading_step = welt->get_steps();
+		lines_loaded.clear();
 
 		// now iterate over all convois
 		for(slist_tpl<convoihandle_t>::iterator i = loading_here.begin(), end = loading_here.end();  i != end;) 
@@ -1113,9 +1128,31 @@ void haltestelle_t::request_loading(convoihandle_t cnv)
 					&& c->get_state() == convoi_t::LOADING 
 					&& get_halt(c->get_schedule()->get_current_eintrag().pos, besitzer_p) == self)))
 			{
+				++i;
+				if(  c->get_line().is_bound()  ) {
+					bool skip_convoi = true;
+					lines_loaded_compare_t line_data;
+					line_data.line = c->get_line();
+					line_data.reversed = c->is_reversed();
+					line_data.aktuell = c->get_schedule()->get_aktuell();
+
+					for(  uint8 j = 0;  j < c->get_vehikel_anzahl();  j++  ) {
+						line_data.fracht_index = c->get_vehikel(j)->get_fracht_typ()->get_index();
+						if(  !lines_loaded.is_contained( line_data )  ) {
+							lines_loaded.append( line_data );
+							skip_convoi = false;
+						}
+					}
+
+					if(  skip_convoi  ) {
+						// already loaded for this destination and freight, skip.
+						continue;
+					}
+				}
+
+
 				// now we load into convoi
 				c->hat_gehalten(self);
-				++i;
 			}
 			else 
 			{
