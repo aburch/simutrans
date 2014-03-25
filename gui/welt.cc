@@ -147,7 +147,7 @@ welt_gui_t::welt_gui_t(settings_t* const sets_par) :
 	cursor.y += LINESPACE;
 
 	// Map X size edit
-	inp_x_size.init( sets->get_groesse_x(), 8, min(32000,min(32000,16777216/sets->get_groesse_y())), sets->get_groesse_x()>=512 ? 128 : 64, false );
+	inp_x_size.init( sets->get_groesse_x(), 8, 32766, sets->get_groesse_x()>=512 ? 128 : 64, false );
 	inp_x_size.set_pos( scr_coord(L_COLUMN1_X,cursor.y) );
 	inp_x_size.set_size(scr_size(edit_Width, D_EDIT_HEIGHT));
 	inp_x_size.add_listener(this);
@@ -155,7 +155,7 @@ welt_gui_t::welt_gui_t(settings_t* const sets_par) :
 	cursor.y += D_EDIT_HEIGHT;
 
 	// Map size Y edit
-	inp_y_size.init( sets->get_groesse_y(), 8, min(32000,16777216/sets->get_groesse_x()), sets->get_groesse_y()>=512 ? 128 : 64, false );
+	inp_y_size.init( sets->get_groesse_y(), 8, 32766, sets->get_groesse_y()>=512 ? 128 : 64, false );
 	inp_y_size.set_pos(scr_coord(L_COLUMN1_X,cursor.y) );
 	inp_y_size.set_size(scr_size(edit_Width, D_EDIT_HEIGHT));
 	inp_y_size.add_listener(this);
@@ -455,7 +455,7 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		if(  !loaded_heightfield  ) {
 			sets->set_groesse_x( v.i );
 			inp_x_size.set_increment_mode( v.i>=64 ? (v.i>=512 ? 128 : 64) : 8 );
-			inp_y_size.set_limits( 8, min(32000,16777216/sets->get_groesse_x()) );
+			inp_y_size.set_limits( 8, 32766 );
 			update_densities();
 		}
 		else {
@@ -466,7 +466,7 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		if(  !loaded_heightfield  ) {
 			sets->set_groesse_y( v.i );
 			inp_y_size.set_increment_mode( v.i>=64 ? (v.i>=512 ? 128 : 64) : 8 );
-			inp_x_size.set_limits( 8, min(32000,16777216/sets->get_groesse_y()) );
+			inp_x_size.set_limits( 8, 32766 );
 			update_densities();
 		}
 		else {
@@ -638,8 +638,8 @@ void welt_gui_t::draw(scr_coord pos, scr_size size)
 	// Calculate map memory
 	const uint sx = sets->get_groesse_x();
 	const uint sy = sets->get_groesse_y();
-	const long memory = (
-		sizeof(karte_t) +
+	const uint64 memory = (
+		(uint64)sizeof(karte_t) +
 		sizeof(spieler_t) * 8 +
 		sizeof(convoi_t) * 1000 +
 		(sizeof(schiene_t) + sizeof(vehikel_t)) * 10 * (sx + sy) +
@@ -647,11 +647,11 @@ void welt_gui_t::draw(scr_coord pos, scr_size size)
 		(
 			sizeof(grund_t) +
 			sizeof(planquadrat_t) +
-			sizeof(baum_t) * 2 +
-			sizeof(void*) * 4
-		) * sx * sy
-	) / (1024 * 1024);
-	buf.printf( translator::translate("Size (%d MB):"), memory );
+			sizeof(baum_t)*(1-sets->get_no_trees()) + /* only one since a lot will be water */
+			sizeof(void*)*2
+		) * (uint64)sx * (uint64)sy
+	) / (1024ll * 1024ll);
+	buf.printf( translator::translate("Size (%d MB):"), (uint32)memory );
 	size_label.set_text(buf);
 
 	// draw child controls

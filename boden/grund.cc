@@ -85,13 +85,12 @@ uint8 grund_t::underground_mode = ugm_none;
  * Table of ground texts
  * @author Hj. Malthaner
  */
-static inthashtable_tpl<uint32, char*> ground_texts;
+static inthashtable_tpl<uint64, char*> ground_texts;
 
-// since size_x*size_y < 0x1000000, we have just to shift the high bits
-#define get_ground_text_key(k,width) ( ((k).x*(width)+(k).y) + ((k).z << 25) )
+#define get_ground_text_key(k,width) ( (uint64)(k).x + ((uint64)(k).y << 16) + ((uint64)(k).z << 32) )
 
 // and the reverse operation
-#define get_ground_koord3d_key(key,width) koord3d( ((key&0x01ffffff))/(width), ((key)&0x01ffffff)%(width), ((key)>>25) | ( (key&0x80000000ul) ? 0x80 : 0x00 ) )
+#define get_ground_koord3d_key(key,width) koord3d( (key) & 0x00007FFF, ((key)>>16) & 0x00007fff, (key)>>32 )
 
 void grund_t::set_text(const char *text)
 {
@@ -99,7 +98,7 @@ void grund_t::set_text(const char *text)
 		// no text to delete
 		return;
 	}
-	const uint32 n = get_ground_text_key(pos,welt->get_size().y);
+	const uint64 n = get_ground_text_key(pos,welt->get_size().y);
 	if(  text  ) {
 		char *new_text = strdup(text);
 		free(ground_texts.remove(n));
@@ -528,7 +527,7 @@ void grund_t::rotate90()
 // after processing the last tile, we recalculate the hashes of the ground texts
 void grund_t::finish_rotate90()
 {
-	typedef inthashtable_tpl<uint32, char*> text_map;
+	typedef inthashtable_tpl<uint64, char*> text_map;
 	text_map ground_texts_rotating;
 	// first get the old hashes
 	FOR(text_map, iter, ground_texts) {
@@ -547,7 +546,7 @@ void grund_t::finish_rotate90()
 
 void grund_t::enlarge_map( sint16, sint16 new_size_y )
 {
-	typedef inthashtable_tpl<uint32, char*> text_map;
+	typedef inthashtable_tpl<uint64, char*> text_map;
 	text_map ground_texts_enlarged;
 	// we have recalculate the keys
 	FOR(text_map, iter, ground_texts) {

@@ -74,7 +74,7 @@ enlarge_map_frame_t::enlarge_map_frame_t() :
 	inp_x_size.set_size(scr_size(RIGHT_ARROW-LEFT_ARROW+10, D_EDIT_HEIGHT));
 	inp_x_size.add_listener(this);
 	inp_x_size.set_value( sets->get_groesse_x() );
-	inp_x_size.set_limits( welt->get_size().x, min(32766,4194304/sets->get_groesse_y()) );
+	inp_x_size.set_limits( welt->get_size().x, 32766 );
 	inp_x_size.set_increment_mode( sets->get_groesse_x()>=512 ? 128 : 64 );
 	inp_x_size.wrap_mode( false );
 	add_komponente( &inp_x_size );
@@ -83,7 +83,7 @@ enlarge_map_frame_t::enlarge_map_frame_t() :
 	inp_y_size.set_pos(scr_coord(LEFT_ARROW, cursor.y) );
 	inp_y_size.set_size(scr_size(RIGHT_ARROW-LEFT_ARROW+10, D_EDIT_HEIGHT));
 	inp_y_size.add_listener(this);
-	inp_y_size.set_limits( welt->get_size().y, min(32766,4194304/sets->get_groesse_x()) );
+	inp_y_size.set_limits( welt->get_size().y, 32766 );
 	inp_y_size.set_value( sets->get_groesse_y() );
 	inp_y_size.set_increment_mode( sets->get_groesse_y()>=512 ? 128 : 64 );
 	inp_y_size.wrap_mode( false );
