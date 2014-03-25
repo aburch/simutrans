@@ -80,7 +80,7 @@ enlarge_map_frame_t::enlarge_map_frame_t() :
 	inp_x_size.set_size(scr_size(RIGHT_ARROW-LEFT_ARROW+10, D_EDIT_HEIGHT));
 	inp_x_size.add_listener(this);
 	inp_x_size.set_value( sets->get_size_x() );
-	inp_x_size.set_limits( welt->get_size().x, min(welt_gui_t::max_map_dimension_fixed, welt_gui_t::max_map_dimension_numerator/sets->get_size_y()) );
+	inp_x_size.set_limits( welt->get_size().x, welt_gui_t::max_map_dimension_fixed );
 	inp_x_size.set_increment_mode( sets->get_size_x()>=512 ? 128 : 64 );
 	inp_x_size.wrap_mode( false );
 	add_component( &inp_x_size );
@@ -89,7 +89,7 @@ enlarge_map_frame_t::enlarge_map_frame_t() :
 	inp_y_size.set_pos(scr_coord(LEFT_ARROW, cursor.y) );
 	inp_y_size.set_size(scr_size(RIGHT_ARROW-LEFT_ARROW+10, D_EDIT_HEIGHT));
 	inp_y_size.add_listener(this);
-	inp_y_size.set_limits( welt->get_size().y, min(welt_gui_t::max_map_dimension_fixed, welt_gui_t::max_map_dimension_numerator /sets->get_size_x()) );
+	inp_y_size.set_limits( welt->get_size().y, welt_gui_t::max_map_dimension_fixed );
 	inp_y_size.set_value( sets->get_size_y() );
 	inp_y_size.set_increment_mode( sets->get_size_y()>=512 ? 128 : 64 );
 	inp_y_size.wrap_mode( false );
@@ -197,13 +197,11 @@ bool enlarge_map_frame_t::action_triggered( gui_action_creator_t *comp,value_t v
 	if(comp==&inp_x_size) {
 		sets->set_size_x( v.i );
 		inp_x_size.set_increment_mode( v.i>=64 ? (v.i>=512 ? 128 : 64) : 8 );
-		inp_y_size.set_limits( welt->get_size().y, min(welt_gui_t::max_map_dimension_fixed, welt_gui_t::max_map_dimension_numerator/sets->get_size_x()) );
 		update_preview();
 	}
 	else if(comp==&inp_y_size) {
 		sets->set_size_y( v.i );
 		inp_y_size.set_increment_mode( v.i>=64 ? (v.i>=512 ? 128 : 64) : 8 );
-		inp_x_size.set_limits( welt->get_size().x, min(welt_gui_t::max_map_dimension_fixed, welt_gui_t::max_map_dimension_numerator/sets->get_size_y()) );
 		update_preview();
 	}
 	else if(comp==&inp_number_of_towns) {
