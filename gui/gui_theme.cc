@@ -225,7 +225,7 @@ void gui_theme_t::init_gui_from_images()
 		windowback[j%3][j/3] = skinverwaltung_t::back->get_bild_nr( j );
 	}
 
-	// Divider (vspace will be added later on
+	// Divider (vspace will be added later on)
 	init_size_from_bild( skinverwaltung_t::divider->get_bild(1), gui_divider_size );
 	for(  int i=0;  i<3;  i++  ) {
 		divider[i][0] = skinverwaltung_t::divider->get_bild_nr( i );
@@ -277,7 +277,7 @@ void gui_theme_t::init_gui_from_images()
 		// Calculate H scrollbar size
 		init_size_from_bild( skinverwaltung_t::scrollbar->get_bild( SKIN_SCROLLBAR_H_BACKGROUND ), back );
 		init_size_from_bild( skinverwaltung_t::scrollbar->get_bild( SKIN_SCROLLBAR_H_KNOB_BODY ), front );
-		gui_scrollbar_size.w = max(front.h, back.h);
+		gui_scrollbar_size.h = max(front.h, back.h);
 
 		// calculate minimum width
 		init_size_from_bild( skinverwaltung_t::scrollbar->get_bild( SKIN_SCROLLBAR_H_KNOB_LEFT ), back );

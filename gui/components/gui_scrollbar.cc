@@ -78,8 +78,8 @@ void scrollbar_t::set_knob(sint32 new_visible_size, sint32 new_total_size)
 void scrollbar_t::reposition_buttons()
 {
 	const sint32 area = (type == vertical ?
-		size.h-gui_theme_t::gui_arrow_up_size.h-gui_theme_t::gui_arrow_down_size.h :
-		size.w-gui_theme_t::gui_arrow_left_size.w-gui_theme_t::gui_arrow_right_size.w);
+		size.h - D_ARROW_UP_HEIGHT - D_ARROW_DOWN_HEIGHT :
+		size.w - D_ARROW_LEFT_WIDTH - D_ARROW_RIGHT_WIDTH);
 		// area will be actual area knob can move in
 
 	knob_offset = clamp( knob_offset, 0, total_size-knob_size );
@@ -98,16 +98,16 @@ void scrollbar_t::reposition_buttons()
 	offset = clamp( offset, 0, area-length );
 
 	if(type == vertical) {
-		button_def[left_top_arrow_index].set_pos( scr_coord( (D_SCROLLBAR_WIDTH-gui_theme_t::gui_arrow_up_size.w)/2, 0) );
-		button_def[right_bottom_arrow_index].set_pos( scr_coord( (D_SCROLLBAR_WIDTH-gui_theme_t::gui_arrow_down_size.w)/2, size.h-gui_theme_t::gui_arrow_down_size.h) );
-		sliderarea.set( 0, gui_theme_t::gui_arrow_up_size.h, D_SCROLLBAR_WIDTH, area );
-		knobarea.set( 0, gui_theme_t::gui_arrow_up_size.h+offset, D_SCROLLBAR_WIDTH, length );
+		button_def[left_top_arrow_index].set_pos( scr_coord( (D_SCROLLBAR_WIDTH - D_ARROW_UP_WIDTH)/2, 0) );
+		button_def[right_bottom_arrow_index].set_pos( scr_coord( (D_SCROLLBAR_WIDTH - D_ARROW_DOWN_WIDTH)/2, size.h - D_ARROW_DOWN_HEIGHT) );
+		sliderarea.set( 0, D_ARROW_UP_HEIGHT, D_SCROLLBAR_WIDTH, area );
+		knobarea.set( 0, D_ARROW_UP_HEIGHT + offset, D_SCROLLBAR_WIDTH, length );
 	}
 	else { // horizontal
-		button_def[left_top_arrow_index].set_pos( scr_coord(0,(D_SCROLLBAR_HEIGHT-gui_theme_t::gui_arrow_left_size.h)/2) );
-		button_def[right_bottom_arrow_index].set_pos( scr_coord(size.w-gui_theme_t::gui_arrow_right_size.w,(D_SCROLLBAR_HEIGHT-gui_theme_t::gui_arrow_right_size.h)/2) );
-		sliderarea.set( gui_theme_t::gui_arrow_up_size.w, 0, area, D_SCROLLBAR_HEIGHT );
-		knobarea.set( gui_theme_t::gui_arrow_up_size.w+offset, 0, length, D_SCROLLBAR_HEIGHT );
+		button_def[left_top_arrow_index].set_pos( scr_coord(0,(D_SCROLLBAR_HEIGHT - D_ARROW_LEFT_HEIGHT)/2) );
+		button_def[right_bottom_arrow_index].set_pos( scr_coord(size.w - D_ARROW_RIGHT_WIDTH, (D_SCROLLBAR_HEIGHT - D_ARROW_RIGHT_HEIGHT)/2) );
+		sliderarea.set( D_ARROW_LEFT_WIDTH, 0, area, D_SCROLLBAR_HEIGHT );
+		knobarea.set( D_ARROW_LEFT_WIDTH + offset, 0, length, D_SCROLLBAR_HEIGHT );
 	}
 
 	full = knobarea.contains( sliderarea );
@@ -235,7 +235,7 @@ void scrollbar_t::draw(scr_coord pos_par)
 	button_def[left_top_arrow_index].draw(pos_par);
 	button_def[right_bottom_arrow_index].draw(pos_par);
 
-	// now backgroudn and slider
+	// now background and slider
 	if(  type == vertical  ) {
 		display_img_stretch( gui_theme_t::v_scroll_back_tiles, scr_rect( pos_par + sliderarea.get_pos(), sliderarea.get_size() ) );
 		display_img_stretch( gui_theme_t::v_scroll_knob_tiles, scr_rect( pos_par + knobarea.get_pos(), knobarea.get_size() ) );
