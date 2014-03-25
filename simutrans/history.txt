@@ -13,7 +13,7 @@
 	ADD: matching pak is loaded automatically when no -objects is given with -load on commandline
 	ADD: dragging map also with left mousebutton when the query tool is selected
 	ADD: display also fixed cost in convoi details and depot (if set)
-	ADD: enforce loading time (time will be added per full vehciles, default 1s)
+	ADD: enforce loading time (time will be long of all vehciles, default 1s)
 	ADD: makeobj can now warn about unused entries (makeobj verbose pak... or makeobj debug pak...)
 	CHG: Stretchable themes now in trunk
 	CHG: use faster route search for ships (jump-point search)
