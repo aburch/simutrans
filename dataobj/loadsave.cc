@@ -806,7 +806,7 @@ void loadsave_t::rdwr_bool(bool &i)
 			read( buffer, 5 );
 			buffer[5] = 0;
 			if(  strcmp("bool>",buffer)!=0  ) {
-				dbg->fatal( "loadsave_t::rdwr_str()","expected \"<bool>\", got \"<%s\"", buffer );
+				dbg->fatal( "loadsave_t::rdwr_bool()","expected \"<bool>\", got \"<%s\"", buffer );
 			}
 			read( buffer, 4 );
 			buffer[4] = 0;
@@ -815,7 +815,7 @@ void loadsave_t::rdwr_bool(bool &i)
 			read( buffer, 6 );
 			buffer[6] = 0;
 			if(  strcmp("/bool>",buffer)!=0  ) {
-				dbg->fatal( "loadsave_t::rdwr_str()","expected \"</bool>\", got \"<%s\"", buffer );
+				dbg->fatal( "loadsave_t::rdwr_bool()","expected \"</bool>\", got \"<%s\"", buffer );
 			}
 		}
 	}
@@ -839,7 +839,7 @@ void loadsave_t::rdwr_xml_number(sint64 &s, const char *typ)
 		read( buffer, len );
 		buffer[len] = 0;
 		if(  strcmp(typ,buffer)!=0  ) {
-			dbg->fatal( "loadsave_t::rdwr_str()","expected \"<%s>\", got \"<%s>\"", typ, buffer );
+			dbg->fatal( "loadsave_t::rdwr_xml_number()","expected \"<%s>\", got \"<%s>\"", typ, buffer );
 		}
 		while(  lsgetc()!='>'  )  ;
 		// read number;
@@ -882,7 +882,7 @@ void loadsave_t::rdwr_xml_number(sint64 &s, const char *typ)
 		read( buffer, len );
 		buffer[6] = 0;
 		if(  strcmp(typ,buffer)!=0  ) {
-			dbg->fatal( "loadsave_t::rdwr_str()","expected \"</%s>\", got \"</%s>\"", typ, buffer );
+			dbg->fatal( "loadsave_t::rdwr_xml_number()","expected \"</%s>\", got \"</%s>\"", typ, buffer );
 		}
 		while(  lsgetc()!='>'  )  ;
 	}
