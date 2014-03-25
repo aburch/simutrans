@@ -330,7 +330,6 @@ public:
 	bool is_same_building(gebaeude_t* other);
 
 private:
-	sint64 calc_available_jobs_by_time() const;
 
 	/**
 	* Returns the number of jobs left in this building this month.

@@ -403,6 +403,9 @@ private:
 	// The chance (in %) that any given packet of passengers will be making a commuting, rather than visiting, trip.
 	uint16 commuting_trip_chance_percent;
 
+	// This is used to store the adjusted value for the number of ticks that must elapse before a single job is replenished.
+	sint64 job_replenishment_ticks;
+
 public:
 	// @author: neroden
 	// Linear interpolation tables for various things
@@ -1050,6 +1053,10 @@ public:
 
 	uint16 get_onward_trip_chance_percent() const { return onward_trip_chance_percent; }
 	uint16 get_commuting_trip_chance_percent() const { return commuting_trip_chance_percent; }
+
+	// This is the number of ticks that must elapse before a single job is replenished.
+	sint64 get_job_replenishment_ticks() const { return job_replenishment_ticks; } 
+	void calc_job_replenishment_ticks();
 
 	sint64 get_forge_cost_road() const { return forge_cost_road; }
 	sint64 get_forge_cost_track() const { return forge_cost_track; }

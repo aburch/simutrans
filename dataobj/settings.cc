@@ -100,6 +100,7 @@ settings_t::settings_t() :
 	starting_year = 1930;
 	starting_month = 0;
 	bits_per_month = 20;
+	calc_job_replenishment_ticks();
 	meters_per_tile = 1000;
 	base_meters_per_tile = 1000;
 	base_bits_per_month = 18;
@@ -653,6 +654,7 @@ void settings_t::rdwr(loadsave_t *file)
 		}
 		else {
 			bits_per_month = 18;
+			calc_job_replenishment_ticks();
 		}
 
 		if(file->get_version()>=89003) {
@@ -1621,6 +1623,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	base_meters_per_tile = contents.get_int("base_meters_per_tile", base_meters_per_tile);
 	base_bits_per_month = contents.get_int("base_bits_per_month", base_bits_per_month); 
 	job_replenishment_per_hundredths_of_months = contents.get_int("job_replenishment_per_hundredths_of_months", job_replenishment_per_hundredths_of_months);
+	calc_job_replenishment_ticks();
 
 		// special day/night colors
 #if COLOUR_DEPTH != 0
@@ -2005,6 +2008,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	// time stuff
 	bits_per_month = contents.get_int("bits_per_month", bits_per_month );
+	calc_job_replenishment_ticks();
 	use_timeline = contents.get_int("use_timeline", use_timeline );
 	starting_year = contents.get_int("starting_year", starting_year );
 	starting_month = contents.get_int("starting_month", starting_month+1)-1;
@@ -2917,4 +2921,9 @@ sint64 settings_t::get_parallel_ways_forge_cost_percentage(waytype_t wt) const
 	case air_wt:
 		return parallel_ways_forge_cost_percentage_air;
 	};
+}
+
+void settings_t::calc_job_replenishment_ticks()
+{
+	job_replenishment_ticks = ((1LL << bits_per_month) * (sint64)get_job_replenishment_per_hundredths_of_months()) / 100ll;
 }

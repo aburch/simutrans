@@ -1492,19 +1492,11 @@ uint16 gebaeude_t::get_weight() const
 	return tile->get_besch()->get_level();
 }
 
-sint64 gebaeude_t::calc_available_jobs_by_time() const
-{
-	// This assumes that the number of jobs for shops/offices scales with the level. This might not be the best way of doing it (shops have more visitors per job
-	// than offices, for example), but to separate this would add great complexity, not least because of the conversion between "level" and actual jobs.
-	return welt->get_zeit_ms() - welt->ticks_per_world_month;
-}
-
 void gebaeude_t::set_commute_trip(uint16 number)
 {
 	// Record the number of arriving workers by encoding the earliest time at which new workers can arrive.
-	const sint64 total_jobs = (sint64)get_adjusted_jobs();
-	const sint64 job_ticks = ((sint64)number * welt->ticks_per_world_month) / (total_jobs < 1 ? 1 : total_jobs);
-	const sint64 new_jobs_by_time = calc_available_jobs_by_time();
+	const sint64 job_ticks = ((sint64)number * welt->get_settings().get_job_replenishment_ticks()) / ((sint64)adjusted_jobs < 1ll ? 1ll : (sint64)adjusted_jobs);
+	const sint64 new_jobs_by_time = welt->get_zeit_ms() - welt->get_settings().get_job_replenishment_ticks();
 	available_jobs_by_time = max(new_jobs_by_time + job_ticks, available_jobs_by_time + job_ticks);
 	add_passengers_succeeded_commuting(number);
 }
@@ -1544,7 +1536,6 @@ uint16 gebaeude_t::get_jobs() const
 
 uint16 gebaeude_t::get_adjusted_jobs() const
 {
-	
 	return adjusted_jobs;
 }
 
@@ -1569,15 +1560,13 @@ sint32 gebaeude_t::check_remaining_available_jobs() const
 	}
 	else
 	{*/
-		const uint32 total_jobs = get_adjusted_jobs();
-		const sint64 replenishment_period = (welt->ticks_per_world_month * (sint64)welt->get_settings().get_job_replenishment_per_hundredths_of_months()) / 100ll;
-		if(available_jobs_by_time < welt->get_zeit_ms() - replenishment_period)
+		if(available_jobs_by_time < welt->get_zeit_ms() - welt->get_settings().get_job_replenishment_ticks())
 		{
 			// Uninitialised or stale - all jobs available
-			return total_jobs;
+			return (sint64)adjusted_jobs;
 		}
 		const sint64 delta_t = welt->get_zeit_ms() - available_jobs_by_time;
-		const sint64 remaining_jobs = delta_t * total_jobs / replenishment_period;
+		const sint64 remaining_jobs = delta_t * (sint64)adjusted_jobs / welt->get_settings().get_job_replenishment_ticks();
 		return (sint32)remaining_jobs;
 	//}
 }

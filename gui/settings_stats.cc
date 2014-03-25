@@ -662,6 +662,8 @@ void settings_general_stats_t::read(settings_t* const sets)
 	READ_BOOL_VALUE( env_t::townhall_info );
 	READ_BOOL_VALUE( env_t::single_info );
 
+	sets->calc_job_replenishment_ticks();
+
 	const int selected_ex = savegame_ex.get_selection();
 	if (0 <= selected_ex  &&  selected_ex < lengthof(version_ex)) {
 		env_t::savegame_ex_version_str = version_ex[ selected_ex ];
