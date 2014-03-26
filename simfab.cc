@@ -3130,3 +3130,7 @@ uint32 fabrik_t::get_time_to_consume_stock(uint32 index)
 	*/
 }
 
+uint32 fabrik_t::get_monthly_pax_demand() const
+{
+	return (scaled_pax_demand * 100) / welt->get_settings().get_job_replenishment_per_hundredths_of_months();
+}

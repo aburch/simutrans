@@ -710,6 +710,7 @@ public:
 	 */
 	uint32 get_scaled_electric_amount() const { return scaled_electric_amount; }
 	uint32 get_scaled_pax_demand() const { return scaled_pax_demand; }
+	uint32 get_monthly_pax_demand() const;
 	uint32 get_scaled_mail_demand() const { return scaled_mail_demand; }
 
 	bool is_end_consumer() const { return (ausgang.empty() && !besch->is_electricity_producer()); }
