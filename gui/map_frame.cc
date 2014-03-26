@@ -23,6 +23,7 @@
 #include "../display/viewport.h"
 #include "../simcolor.h"
 #include "../bauer/fabrikbauer.h"
+#include "../bauer/warenbauer.h"
 #include "../dataobj/environment.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/koord.h"
@@ -30,6 +31,7 @@
 #include "../besch/fabrik_besch.h"
 #include "../simfab.h"
 #include "../simtools.h"
+#include "money_frame.h"
 
 static koord old_ij=koord::invalid;
 
@@ -81,9 +83,9 @@ map_button_t button_init[MAP_MAX_BUTTONS] = {
 	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "PaxDest", "Overlay passenger destinations when a town window is open", reliefkarte_t::MAP_PAX_DEST },
 	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "Tourists", "Highlite tourist attraction", reliefkarte_t::MAP_TOURIST },
 	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "Factories", "Highlite factories", reliefkarte_t::MAP_FACTORIES },
-	{ COL_LIGHT_YELLOW, COL_DARK_YELLOW,       "Passagiere", "Show passenger coverage/passenger network", reliefkarte_t::MAP_PASSENGER },
-	{ COL_LIGHT_YELLOW, COL_DARK_YELLOW,       "Post", "Show mail service coverage/mail network", reliefkarte_t::MAP_MAIL },
-	{ COL_LIGHT_YELLOW, COL_DARK_YELLOW,       "Fracht", "Show transported freight/freight network", reliefkarte_t::MAP_FREIGHT },
+	{ COL_LIGHT_YELLOW, COL_DARK_YELLOW,       "Passagiere", "Show passenger coverage", reliefkarte_t::MAP_PASSENGER },
+	{ COL_LIGHT_YELLOW, COL_DARK_YELLOW,       "Post", "Show mail service coverage", reliefkarte_t::MAP_MAIL },
+	{ COL_LIGHT_YELLOW, COL_DARK_YELLOW,       "Fracht", "Show transported freight", reliefkarte_t::MAP_FREIGHT },
 	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE, "Status", "Show capacity and if halt is overcrowded", reliefkarte_t::MAP_STATUS },
 	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE, "hl_btn_sort_waiting", "Show how many people/much is waiting at halts", reliefkarte_t::MAP_WAITING },
 	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE, "Queueing", "Show the change of waiting at halts", reliefkarte_t::MAP_WAITCHANGE },
@@ -99,6 +101,23 @@ map_button_t button_init[MAP_MAX_BUTTONS] = {
 	{ COL_WHITE,        COL_GREY5,       "Ownership", "Show the owenership of infrastructure", reliefkarte_t::MAP_OWNER }
 };
 
+#define MAP_TRANSPORT_TYPE_ITEMS (9)
+typedef struct {
+	const char * name;
+	simline_t::linetype line_type;
+} transport_type_item_t;
+
+transport_type_item_t transport_type_items[MAP_TRANSPORT_TYPE_ITEMS] = {
+	{"All", simline_t::line},
+	{"Maglev", simline_t::maglevline},
+	{"Monorail", simline_t::monorailline},
+	{"Train", simline_t::trainline},
+	{"Narrowgauge", simline_t::narrowgaugeline},
+	{"Tram", simline_t::tramline},
+	{"Truck", simline_t::truckline},
+	{"Ship", simline_t::shipline},
+	{"Air", simline_t::airline}
+};
 
 map_frame_t::map_frame_t() :
 	gui_frame_t( translator::translate("Reliefkarte") ),
@@ -123,6 +142,8 @@ map_frame_t::map_frame_t() :
 	const koord ij = welt->get_viewport()->get_world_position();
 	const scr_size win_size = size-s_size; // this is the visible area
 	karte->set_mode( (reliefkarte_t::MAP_MODES)env_t::default_mapmode );
+	//show all players by default
+	karte->player_showed_on_map = -1;
 	scrolly.set_scroll_position(  max(0,min(ij.x-win_size.w/2,size.w)), max(0, min(ij.y-win_size.h/2,size.h)) );
 	scrolly.set_scrollbar_mode(scrollbar_t::show_always);
 
@@ -201,6 +222,88 @@ map_frame_t::map_frame_t() :
 	b_overlay_networks.add_listener(this);
 	b_overlay_networks.pressed = (env_t::default_mapmode & reliefkarte_t::MAP_LINES)!=0;
 	filter_container.add_komponente( &b_overlay_networks );
+
+	// player combo for network overlay
+	viewed_player_c.set_pos( scr_coord(D_BUTTON_WIDTH + D_H_SPACE, 0) );
+	viewed_player_c.set_size( scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT) );
+	viewed_player_c.set_max_size(scr_size(116, 10 * D_BUTTON_HEIGHT));
+
+	viewed_player_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("All"), COL_BLACK));
+	viewable_players[ 0 ] = -1;
+	for(  int np = 0, count = 1;  np < MAX_PLAYER_COUNT;  np++  ) {
+		if(  welt->get_spieler( np )  &&  welt->get_spieler( np )->has_money_or_assets()) {
+			viewed_player_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t(welt->get_spieler( np )->get_name(), COL_BLACK));
+			viewable_players[ count++ ] = np;
+		}
+	}
+
+	viewed_player_c.set_selection(0);
+	reliefkarte_t::get_karte()->player_showed_on_map = -1;
+	viewed_player_c.set_focusable( false );
+	viewed_player_c.add_listener( this );
+	filter_container.add_komponente(&viewed_player_c);
+
+	// freight combo for network overlay
+	freight_type_c.set_pos( scr_coord(2*D_BUTTON_WIDTH+3*D_H_SPACE, 0) );
+	freight_type_c.set_size( scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT) );
+	freight_type_c.set_max_size( scr_size( 116, 5 * D_BUTTON_HEIGHT) );
+	{
+		int count = 0;
+		viewable_freight_types[count++] = NULL;
+		freight_type_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("All"), COL_BLACK) );
+		viewable_freight_types[count++] = warenbauer_t::passagiere;
+		freight_type_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Passagiere"), COL_BLACK) );
+		viewable_freight_types[count++] = warenbauer_t::post;
+		freight_type_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Post"), COL_BLACK) );
+		viewable_freight_types[count++] = warenbauer_t::nichts; // for all freight ...
+		freight_type_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Fracht"), COL_BLACK) );
+		for(  int i = 0;  i < warenbauer_t::get_max_catg_index();  i++  ) {
+			const ware_besch_t *freight_type = warenbauer_t::get_info_catg(i);
+			const int index = freight_type->get_catg_index();
+			if(  index == warenbauer_t::INDEX_NONE  ||  freight_type->get_catg()==0  ) {
+				continue;
+			}
+			freight_type_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(freight_type->get_catg_name()), COL_BLACK));
+			viewable_freight_types[count++] = freight_type;
+		}
+		for(  int i=0;  i < warenbauer_t::get_waren_anzahl();  i++  ) {
+			const ware_besch_t *ware = warenbauer_t::get_info(i);
+			if(  ware->get_catg() == 0  &&  ware->get_index() > 2  ) {
+				// Special freight: Each good is special
+				viewable_freight_types[count++] = ware;
+				freight_type_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate(ware->get_name()), COL_BLACK) );
+			}
+		}
+	}
+	freight_type_c.set_selection(0);
+	reliefkarte_t::get_karte()->freight_type_group_index_showed_on_map = NULL;
+	freight_type_c.set_focusable( false );
+	freight_type_c.add_listener( this );
+	filter_container.add_komponente(&freight_type_c);
+
+	// mode of transpost combo for network overlay
+	transport_type_c.set_pos(scr_coord(3 * (D_BUTTON_WIDTH + D_H_SPACE), 0));
+	transport_type_c.set_size( scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT) );
+	transport_type_c.set_max_size( scr_size( 116, 10 * D_BUTTON_HEIGHT) );
+
+	for (int i = 0; i < MAP_TRANSPORT_TYPE_ITEMS; i++) {
+		transport_type_c.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(transport_type_items[i].name), COL_BLACK));
+		viewable_transport_types[ i ] = transport_type_items[i].line_type;
+	}
+
+	transport_type_c.set_selection(0);
+	reliefkarte_t::get_karte()->transport_type_showed_on_map = simline_t::line;
+	transport_type_c.set_focusable( false );
+	transport_type_c.add_listener( this );
+	filter_container.add_komponente(&transport_type_c);
+
+	b_overlay_networks_load_factor.init(button_t::square_state, "Free Capacity");
+	b_overlay_networks_load_factor.set_pos(scr_coord(4*(D_BUTTON_WIDTH+D_H_SPACE), 0));
+	b_overlay_networks_load_factor.set_tooltip("Color according to transport capacity left");
+	b_overlay_networks_load_factor.add_listener(this);
+	b_overlay_networks_load_factor.pressed = 0;
+	reliefkarte_t::get_karte()->show_network_load_factor = 0;
+	filter_container.add_komponente( &b_overlay_networks_load_factor );
 
 	// insert filter buttons in legend container
 	for (int index=0; index<MAP_MAX_BUTTONS; index++) {
@@ -356,6 +459,23 @@ bool map_frame_t::action_triggered( gui_action_creator_t *komp, value_t)
 			env_t::default_mapmode &= ~reliefkarte_t::MAP_LINES;
 		}
 		reliefkarte_t::get_karte()->set_mode(  (reliefkarte_t::MAP_MODES)env_t::default_mapmode  );
+	}
+	else if (komp == &viewed_player_c) {
+		reliefkarte_t::get_karte()->player_showed_on_map = viewable_players[viewed_player_c.get_selection()];
+		reliefkarte_t::get_karte()->invalidate_map_lines_cache();
+	}
+	else if (komp == &transport_type_c) {
+		reliefkarte_t::get_karte()->transport_type_showed_on_map = viewable_transport_types[transport_type_c.get_selection()];
+		reliefkarte_t::get_karte()->invalidate_map_lines_cache();
+	}
+	else if (komp == &freight_type_c) {
+		reliefkarte_t::get_karte()->freight_type_group_index_showed_on_map = viewable_freight_types[freight_type_c.get_selection()];
+		reliefkarte_t::get_karte()->invalidate_map_lines_cache();
+	}
+	else if (komp == &b_overlay_networks_load_factor) {
+		reliefkarte_t::get_karte()->show_network_load_factor = !reliefkarte_t::get_karte()->show_network_load_factor;
+		b_overlay_networks_load_factor.pressed = !b_overlay_networks_load_factor.pressed;
+		reliefkarte_t::get_karte()->invalidate_map_lines_cache();
 	}
 	else {
 		for(  int i=0;  i<MAP_MAX_BUTTONS;  i++  ) {
@@ -540,6 +660,11 @@ void map_frame_t::resize(const scr_coord delta)
 		// calculate client height and set height
 		filter_container.set_size(scr_size(client_width, (D_BUTTON_HEIGHT+D_V_SPACE)*(row+1) ));
 		offset_y += filter_container.get_size().h + D_V_SPACE;
+
+		// resize combo boxes
+		viewed_player_c.set_max_size( scr_size(116, filter_container.get_size().h ) );
+		freight_type_c.set_max_size( scr_size(116, filter_container.get_size().h ) );
+		transport_type_c.set_max_size( scr_size(116, filter_container.get_size().h ) );
 	}
 
 	if(directory_visible) {
@@ -675,6 +800,7 @@ void map_frame_t::rdwr( loadsave_t *file )
 	else {
 		file->rdwr_long( env_t::default_mapmode );
 	}
+	file->rdwr_bool( b_overlay_networks_load_factor.pressed );
 
 	if(  file->is_loading()  ) {
 		scr_size savesize;
@@ -701,6 +827,14 @@ void map_frame_t::rdwr( loadsave_t *file )
 		b_filter_factory_list.set_visible( directory_visible );
 
 		b_overlay_networks.pressed = (env_t::default_mapmode & reliefkarte_t::MAP_LINES)!=0;
+		// restore selection
+		sint16 idx;
+		file->rdwr_short(idx);
+		viewed_player_c.set_selection(idx);
+		file->rdwr_short(idx);
+		transport_type_c.set_selection(idx);
+		file->rdwr_short(idx);
+		freight_type_c.set_selection(idx);
 	}
 	else {
 		scr_size size = get_windowsize();
@@ -709,5 +843,13 @@ void map_frame_t::rdwr( loadsave_t *file )
 		file->rdwr_long( xoff );
 		sint32 yoff = scrolly.get_scroll_y();
 		file->rdwr_long( yoff );
+		if(file->is_saving()) {
+			sint16 idx = viewed_player_c.get_selection();
+			file->rdwr_short(idx);
+			idx = transport_type_c.get_selection();
+			file->rdwr_short(idx);
+			idx = freight_type_c.get_selection();
+			file->rdwr_short(idx);
+		}
 	}
 }

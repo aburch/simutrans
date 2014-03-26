@@ -3,6 +3,7 @@
 
 #include "components/gui_komponente.h"
 #include "../halthandle_t.h"
+#include "../simline.h"
 #include "../convoihandle_t.h"
 #include "../dataobj/fahrplan.h"
 #include "../tpl/array2d_tpl.h"
@@ -16,6 +17,7 @@ class stadt_t;
 class spieler_t;
 class schedule_t;
 class loadsave_t;
+class ware_besch_t;
 
 
 #define MAX_SEVERITY_COLORS 10
@@ -157,6 +159,8 @@ private:
 	// the zoom factors
 	sint16 zoom_out, zoom_in;
 
+	bool is_matching_freight_catg(const minivec_tpl<uint8> &goods_catg_index);
+
 public:
 	scr_coord karte_to_screen(const koord &k) const;
 
@@ -164,6 +168,11 @@ public:
 
 	// 45 rotated map
 	bool isometric;
+	bool show_network_load_factor;
+
+	int player_showed_on_map;
+	int transport_type_showed_on_map;
+	const ware_besch_t *freight_type_group_index_showed_on_map;
 
 	/**
 	 * returns a color based on an amount (high amount/scale -> color shifts from green to red)
@@ -221,6 +230,8 @@ public:
 	// updates the map (if needed)
 	void neuer_monat();
 
+	void invalidate_map_lines_cache();
+
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	void draw(scr_coord pos);
@@ -242,6 +253,7 @@ public:
 	}
 
 	void rdwr(loadsave_t *file);
+
 };
 
 #endif

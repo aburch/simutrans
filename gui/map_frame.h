@@ -17,9 +17,12 @@
 #include "components/gui_scrollpane.h"
 #include "components/action_listener.h"
 #include "components/gui_button.h"
+#include "components/gui_combobox.h"
 #include "components/gui_label.h"
 #include "../besch/fabrik_besch.h"
 #include "../tpl/stringhashtable_tpl.h"
+#include "../player/simplay.h"
+#include "../simline.h"
 
 class karte_ptr_t;
 
@@ -69,29 +72,36 @@ private:
 	 */
 	bool zoomed;
 
-	gui_container_t
-		filter_container,
-		scale_container,
-		directory_container;
+	int viewable_players[MAX_PLAYER_COUNT+1];
+	simline_t::linetype viewable_transport_types[simline_t::MAX_LINE_TYPE];
 
-	gui_scrollpane_t
-		scrolly;
+	/**
+	 * FIXME: is there a smaller limit of good categories types?
+	 */
+	const ware_besch_t *viewable_freight_types[255];
 
-	button_t
-		filter_buttons[MAP_MAX_BUTTONS],
-		zoom_buttons[2],
-		b_rotate45,
-		b_show_legend,
-		b_show_scale,
-		b_show_directory,
-		b_overlay_networks,
-		b_filter_factory_list;
+	gui_container_t filter_container, scale_container, directory_container;
 
-	gui_label_t
-		zoom_label,
-		zoom_value_label,
-		min_label,
-		max_label;
+	gui_scrollpane_t scrolly;
+
+	button_t	filter_buttons[MAP_MAX_BUTTONS],
+				zoom_buttons[2],
+				b_rotate45,
+				b_show_legend,
+				b_show_scale,
+				b_show_directory,
+				b_overlay_networks,
+				b_overlay_networks_load_factor,
+				b_filter_factory_list;
+
+	gui_label_t zoom_label,
+				zoom_value_label,
+				min_label,
+				max_label;
+
+	gui_combobox_t	viewed_player_c,
+					transport_type_c,
+					freight_type_c;
 
 	void zoom(bool zoom_out);
 	void update_factory_legend();

@@ -1,6 +1,7 @@
 #include "../simevent.h"
 #include "../simcolor.h"
 #include "../simconvoi.h"
+#include "../vehicle/simvehikel.h"
 #include "../simworld.h"
 #include "../simdepot.h"
 #include "../simhalt.h"
@@ -111,12 +112,49 @@ void reliefkarte_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoin
 		return;
 	}
 	schedule_t *fpl = cnv->get_schedule();
+	if(  !show_network_load_factor  ) {
+		colore += 8;
+		if(  colore >= 208  ) {
+			colore = (colore % 8) + 1;
+			if(  colore == 7  ) {
+				colore = 0;
+			}
+		}
+	}
+	else {
+		//TODO: extract common part from with schedule_list_gui_t::display()
+		int capacity = 0, load = 0; // total capacity and load of line (=sum of all conv's cap/load)
 
-	colore += 8;
-	if(  colore >= 208  ) {
-		colore = (colore % 8) + 1;
-		if(  colore == 7  ) {
-			colore = 0;
+		if(cnv->get_line().is_bound()) {
+			for(  uint i = 0;  i < cnv->get_line()->count_convoys();  i++  ) {
+				convoihandle_t const cnv_in_line = cnv->get_line()->get_convoy(i);
+				// we do not want to count the capacity of depot convois
+				if(  !cnv_in_line->in_depot()  ) {
+					for(  unsigned j = 0;  j < cnv_in_line->get_vehikel_anzahl();  j++  ) {
+						capacity += cnv_in_line->get_vehikel(j)->get_fracht_max();
+						load += cnv_in_line->get_vehikel(j)->get_fracht_menge();
+					}
+				}
+			}
+		}
+		else {
+			// we do not want to count the capacity of depot convois
+			if(!cnv->in_depot()) {
+				for(unsigned j = 0; j < cnv->get_vehikel_anzahl(); j++) {
+					capacity += cnv->get_vehikel(j)->get_fracht_max();
+					load += cnv->get_vehikel(j)->get_fracht_menge();
+				}
+			}
+		}
+
+		// we check if cap is zero, since theoretically a
+		// conv can consist of only 1 vehicle, which has no cap (eg. locomotive)
+		// and we do not like to divide by zero, do we?
+		if(capacity > 0) {
+			colore = severity_color[MAX_SEVERITY_COLORS-load * MAX_SEVERITY_COLORS / capacity];
+		}
+		else {
+			colore = severity_color[MAX_SEVERITY_COLORS-1];
 		}
 	}
 
@@ -960,6 +998,7 @@ reliefkarte_t::reliefkarte_t()
 	cur_off = new_off = scr_coord(0,0);
 	cur_size = new_size = scr_size(0,0);
 	needs_redraw = true;
+	transport_type_showed_on_map = simline_t::line;
 }
 
 
@@ -1006,6 +1045,12 @@ void reliefkarte_t::set_mode(MAP_MODES new_mode)
 
 void reliefkarte_t::neuer_monat()
 {
+	needs_redraw = true;
+}
+
+void reliefkarte_t::invalidate_map_lines_cache()
+{
+	last_schedule_counter = welt->get_schedule_counter() - 1;
 	needs_redraw = true;
 }
 
@@ -1178,6 +1223,9 @@ void reliefkarte_t::draw(scr_coord pos)
 			colore = 0;
 
 			for(  int np = 0;  np < MAX_PLAYER_COUNT;  np++  ) {
+				if(  player_showed_on_map != -1  &&  player_showed_on_map != np  ) {
+					continue;
+				}
 				//cycle on players
 				if(  welt->get_spieler( np )  &&  welt->get_spieler( np )->simlinemgmt.get_line_count() > 0   ) {
 
@@ -1185,30 +1233,12 @@ void reliefkarte_t::draw(scr_coord pos)
 					for(  uint32 j = 0;  j < linee.get_count();  j++  ) {
 						//cycle on lines
 
-						// does this line has a matching freight
-						if(  mode & MAP_PASSENGER  ) {
-							if(  !linee[j]->get_goods_catg_index().is_contained( warenbauer_t::INDEX_PAS )  ) {
-								// no passengers
-								continue;
-							}
+						if(  transport_type_showed_on_map != simline_t::line  &&  linee[j]->get_linetype() != transport_type_showed_on_map  ) {
+							continue;
 						}
-						else if(  mode & MAP_MAIL  ) {
-							if(  !linee[j]->get_goods_catg_index().is_contained( warenbauer_t::INDEX_MAIL )  ) {
-								// no mail
-								continue;
-							}
-						}
-						else if(  mode & MAP_FREIGHT  ) {
-							uint8 i=0;
-							for(  ;  i < linee[j]->get_goods_catg_index().get_count();  i++  ) {
-								if(  linee[j]->get_goods_catg_index()[i] > warenbauer_t::INDEX_NONE  ) {
-									break;
-								}
-							}
-							if(  i >= linee[j]->get_goods_catg_index().get_count()  ) {
-								// not any freight here ...
-								continue;
-							}
+
+						if(  !is_matching_freight_catg( linee[j]->get_goods_catg_index() )  ) {
+							continue;
 						}
 
 						// ware matches; now find at least a running convoi on this line ...
@@ -1235,37 +1265,27 @@ void reliefkarte_t::draw(scr_coord pos)
 			}
 
 			// now add all unbound convois
+			spieler_t * required_vehicle_owner = NULL;
+			if (player_showed_on_map != -1) {
+				required_vehicle_owner = welt->get_spieler(player_showed_on_map);
+			}
 			FOR( vector_tpl<convoihandle_t>, cnv, welt->convoys() ) {
 				if(  !cnv.is_bound()  ||  cnv->get_line().is_bound()  ) {
 					// not there or already part of a line
 					continue;
 				}
+				if(  required_vehicle_owner!= NULL  &&  required_vehicle_owner != cnv->get_besitzer()  ) {
+					continue;
+				}
+				if(  transport_type_showed_on_map != simline_t::line  ) {
+					if(  transport_type_showed_on_map != simline_t::get_linetype(cnv->front()->get_waytype())  ) {
+						continue;
+					}
+				}
 				int state = cnv->get_state();
-				if( state != convoi_t::INITIAL  &&  state != convoi_t::ENTERING_DEPOT  &&  state != convoi_t::SELF_DESTRUCT  ) {
-					// does this line has a matching freight
-					if(  mode & MAP_PASSENGER  ) {
-						if(  !cnv->get_goods_catg_index().is_contained( warenbauer_t::INDEX_PAS )  ) {
-							// no passengers
-							continue;
-						}
-					}
-					else if(  mode & MAP_MAIL  ) {
-						if(  !cnv->get_goods_catg_index().is_contained( warenbauer_t::INDEX_MAIL )  ) {
-							// no mail
-							continue;
-						}
-					}
-					else if(  mode & MAP_FREIGHT  ) {
-						uint8 i=0;
-						for(  ;  i < cnv->get_goods_catg_index().get_count();  i++  ) {
-							if(  cnv->get_goods_catg_index()[i] > warenbauer_t::INDEX_NONE  ) {
-								break;
-							}
-						}
-						if(  i >= cnv->get_goods_catg_index().get_count()  ) {
-							// not any freight here ...
-							continue;
-						}
+				if(  state != convoi_t::INITIAL  &&  state != convoi_t::ENTERING_DEPOT  &&  state != convoi_t::SELF_DESTRUCT  ) {
+					if(  !is_matching_freight_catg(cnv->get_goods_catg_index())  ) {
+						continue;
 					}
 					add_to_schedule_cache( cnv, false );
 				}
@@ -1357,14 +1377,14 @@ void reliefkarte_t::draw(scr_coord pos)
 	halthandle_t display_station;
 	// only fill cache if needed
 	if(  mode & MAP_MODE_HALT_FLAGS  &&  stop_cache.empty()  ) {
-		if(  mode&MAP_ORIGIN  ) {
+		if(  mode & MAP_ORIGIN  ) {
 			FOR( const vector_tpl<halthandle_t>, halt, haltestelle_t::get_alle_haltestellen() ) {
 				if(  halt->get_pax_enabled()  ||  halt->get_post_enabled()  ) {
 					stop_cache.append( halt );
 				}
 			}
 		}
-		else if(  mode&MAP_TRANSFER  ) {
+		else if(  mode & MAP_TRANSFER  ) {
 			FOR( const vector_tpl<halthandle_t>, halt, haltestelle_t::get_alle_haltestellen() ) {
 				if(  halt->is_transfer(warenbauer_t::INDEX_PAS)  ||  halt->is_transfer(warenbauer_t::INDEX_MAIL)  ) {
 					stop_cache.append( halt );
@@ -1392,7 +1412,7 @@ void reliefkarte_t::draw(scr_coord pos)
 	sint32 new_max_waiting_change = 1;
 	FOR(  vector_tpl<halthandle_t>, station, stop_cache  ) {
 
-		if (!station.is_bound()) {
+		if(  !station.is_bound()  ) {
 			// maybe deleted in the meanwhile
 			continue;
 		}
@@ -1703,4 +1723,35 @@ void reliefkarte_t::rdwr(loadsave_t *file)
 {
 	file->rdwr_short(zoom_out);
 	file->rdwr_short(zoom_in);
+}
+
+
+bool reliefkarte_t::is_matching_freight_catg(const minivec_tpl<uint8> &goods_catg_index)
+{
+	// does this line/convoi has a matching freight
+	if(  freight_type_group_index_showed_on_map == warenbauer_t::passagiere  ) {
+		return goods_catg_index.is_contained(warenbauer_t::INDEX_PAS);
+	}
+	else if(  freight_type_group_index_showed_on_map == warenbauer_t::post  ) {
+		return goods_catg_index.is_contained(warenbauer_t::INDEX_MAIL);
+	}
+	else if(  freight_type_group_index_showed_on_map == warenbauer_t::nichts  ) {
+		// all freights but not pax or mail
+		for(  uint8 i = 0;  i < goods_catg_index.get_count();  i++  ) {
+			if(  goods_catg_index[i] > warenbauer_t::INDEX_NONE  ) {
+				return true;
+			}
+		}
+		return false;
+	}
+	else if(  freight_type_group_index_showed_on_map != NULL  ) {
+		for(  uint8 i = 0;  i < goods_catg_index.get_count();  i++  ) {
+			if(  goods_catg_index[i] == freight_type_group_index_showed_on_map->get_catg_index()  ) {
+				return true;
+			}
+		}
+		return false;
+	}
+	// NULL show all
+	return true;
 }

@@ -185,6 +185,7 @@ public:
 	void new_month();
 
 	linetype get_linetype() { return type; }
+	static linetype get_linetype( const waytype_t wt );
 
 	const minivec_tpl<uint8> &get_goods_catg_index() const { return goods_catg_index; }
 
