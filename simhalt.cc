@@ -1344,7 +1344,7 @@ void haltestelle_t::neuer_monat()
 	}
 
 	// If the waiting times have not been updated for too long, gradually re-set them; also increment the timing records.
-	for ( int category = 0; category < warenbauer_t::get_max_catg_index(); category++ )
+	for (int category = 0; category < warenbauer_t::get_max_catg_index(); category++)
 	{
 		FOR(waiting_time_map, & iter, waiting_times[category])
 		{
@@ -1688,10 +1688,14 @@ void haltestelle_t::get_destination_halts_of_ware(ware_t &ware, vector_tpl<halth
 
 	destination_halts_list.resize(plan->get_haltlist_count());
 	
-	if(fab)
+	const grund_t* gr = welt->lookup_kartenboden(ware.get_zielpos());
+	const gebaeude_t* gb = gr->find<gebaeude_t>();
+	const haus_besch_t *besch = gb ? gb->get_tile()->get_besch() : NULL;
+	const koord size = besch->get_groesse();
+
+	if(fab || size.x > 1 || size.y > 1)
 	{
-		// Check all tiles of the factory.
-		// We need to do this for attractions and city halls too, but we don't (legacy from Standard)
+		// Check all tiles of a multi-tiled building of any type.
 		vector_tpl<koord> tile_list;
 		fab->get_tile_list(tile_list);
 		FOR(vector_tpl<koord>, const k, tile_list)
@@ -1729,8 +1733,6 @@ void haltestelle_t::get_destination_halts_of_ware(ware_t &ware, vector_tpl<halth
 	{
 		// This simpler routine is available ONLY when the destination is
 		// a single-tile building.
-		// However, the correct behavior is currently not implemented for
-		// attractions and city halls.  (This is a BUG.)
 		const nearby_halt_t *haltlist = plan->get_haltlist();
 		for(uint16 h = 0; h < plan->get_haltlist_count(); h++) 
 		{
