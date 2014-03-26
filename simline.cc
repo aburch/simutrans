@@ -102,6 +102,21 @@ simline_t::~simline_t()
 	DBG_MESSAGE("simline_t::~simline_t()", "line %d (%p) destroyed", self.get_id(), this);
 }
 
+simline_t::linetype simline_t::get_linetype(const waytype_t wt)
+{
+	switch (wt) {
+		case road_wt: return simline_t::truckline;
+		case track_wt: return simline_t::trainline;
+		case water_wt: return simline_t::shipline;
+		case monorail_wt: return simline_t::monorailline;
+		case maglev_wt: return simline_t::maglevline;
+		case tram_wt: return simline_t::tramline;
+		case narrowgauge_wt: return simline_t::narrowgaugeline;
+		case air_wt: return simline_t::airline;
+		default: return simline_t::MAX_LINE_TYPE;
+	}
+}
+
 void simline_t::create_schedule()
 {
 	switch(type) {
