@@ -380,9 +380,9 @@ void fabrik_t::update_scaled_pax_demand()
 		scaled_pax_demand = max(welt->calc_adjusted_monthly_figure(pax_demand), 1);
 
 		// pax demand for fixed period length
-		// This formerly took "pax_demand" in spite of the function name; but this would make this inconsistent with
-		// the number of jobs shown on city buildings.
-		arrival_stats_pax.set_scaled_demand(scaled_pax_demand);
+		// Intentionally not the scaled value.
+		arrival_stats_pax.set_scaled_demand(pax_demand);
+		building->set_adjusted_jobs(scaled_pax_demand);
 
 		// Must update the world building list to take into account the new passenger demand (weighting)
 		if(gb)
@@ -421,9 +421,9 @@ void fabrik_t::update_scaled_mail_demand()
 		scaled_mail_demand = max(welt->calc_adjusted_monthly_figure(mail_demand), 1);
 
 		// mail demand for fixed period length
-		// This formerly took "mail_demand" in spite of the function name; but this would make this inconsistent with
-		// the number of jobs shown on city buildings.
-		arrival_stats_mail.set_scaled_demand(scaled_mail_demand);
+		// Intentionally not the scaled value.
+		arrival_stats_mail.set_scaled_demand(mail_demand);
+		building->set_adjusted_mail_demand(scaled_mail_demand);
 
 		// Must update the world building list to take into account the new passenger demand (weighting)
 		if(gb)
@@ -2529,6 +2529,7 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 	buf.append("\n");
 	buf.printf("%s: %d\n", translator::translate("Visitor demand"), building->get_adjusted_visitor_demand());
 	buf.printf("%s %i\n", translator::translate("Visitors this year:"), building->get_passengers_succeeded_visiting());
+	buf.printf("%s (%s): %d (%d)\n", translator::translate("Jobs"), translator::translate("available"), building->get_adjusted_jobs(), building->check_remaining_available_jobs());
 	if(building->get_passenger_success_percent_last_year_visiting() < 65535)
 	{
 		buf.printf("%s %i\n", translator::translate("Visitors last year:"), building->get_passenger_success_percent_last_year_visiting());

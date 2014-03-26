@@ -309,18 +309,19 @@ public:
 	*/
 	void set_commute_trip(uint16 number);
 
-
 	uint16 get_population() const;
 	uint16 get_adjusted_population() const;
 
 	uint16 get_visitor_demand() const;
 	uint16 get_adjusted_visitor_demand() const;
 
-	uint16 get_jobs() const;
-	uint16 get_adjusted_jobs() const;
+	inline uint16 get_jobs() const { return jobs; }
+	inline uint16 get_adjusted_jobs() const { return adjusted_jobs; }
+	inline void set_adjusted_jobs(uint16 new_jobs) { adjusted_jobs = new_jobs; }
 
-	uint16 get_mail_demand() const;
-	uint16 get_adjusted_mail_demand() const;
+	inline uint16 get_mail_demand() const { return mail_demand; }
+	inline uint16 get_adjusted_mail_demand() const { return adjusted_mail_demand; }
+	inline void set_adjusted_mail_demand(uint16 new_mail_demand) { adjusted_mail_demand = new_mail_demand; }
 
 	bool jobs_available() const;
 
@@ -328,8 +329,6 @@ public:
 	 * @returns true if both building tiles are part of one (multi-tile) building.
 	 */
 	bool is_same_building(gebaeude_t* other);
-
-private:
 
 	/**
 	* Returns the number of jobs left in this building this month.

@@ -1529,27 +1529,6 @@ uint16 gebaeude_t::get_adjusted_visitor_demand() const
 	return reduced_demand > 0 ? reduced_demand : 1;
 }
 
-uint16 gebaeude_t::get_jobs() const
-{
-	return jobs;
-}
-
-uint16 gebaeude_t::get_adjusted_jobs() const
-{
-	return adjusted_jobs;
-}
-
-uint16 gebaeude_t::get_mail_demand() const
-{
-	return mail_demand;
-}
-
-uint16 gebaeude_t::get_adjusted_mail_demand() const
-{
-	return adjusted_mail_demand;
-}
-
-
 sint32 gebaeude_t::check_remaining_available_jobs() const
 {
 	// Commenting out the "if(!jobs_available())" code will allow jobs to be shown as negative.
