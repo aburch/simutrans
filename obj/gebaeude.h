@@ -314,6 +314,7 @@ public:
 
 	uint16 get_visitor_demand() const;
 	uint16 get_adjusted_visitor_demand() const;
+	inline void set_adjusted_visitor_demand(uint16 new_visitor_demand) { adjusted_people.visitor_demand = new_visitor_demand; }
 
 	inline uint16 get_jobs() const { return jobs; }
 	inline uint16 get_adjusted_jobs() const { return adjusted_jobs; }

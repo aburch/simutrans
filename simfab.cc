@@ -366,29 +366,30 @@ void fabrik_t::update_scaled_pax_demand()
 				}
 			}
 		}
-		gebaeude_t* gb = get_building();
+		
 
 		const uint16 employment_capacity = besch->get_haus()->get_employment_capacity();
 		const int passenger_level = get_passenger_level_jobs();
 
-		const sint64 base_pax_demand = employment_capacity == 65535 ? passenger_level : employment_capacity;
-		// Adjust by the job replenishment factor.
+		const sint64 base_visitor_demand = building->get_adjusted_visitor_demand();
+		const sint64 base_worker_demand = employment_capacity == 65535 ? passenger_level : employment_capacity;
 		
 		// formula : base_pax_demand * (current_production_base / besch_production_base); (prod >> 1) is for rounding
-		const uint32 pax_demand = (uint32)( ( base_pax_demand * (sint64)prodbase + (prod_adjust >> 1) ) / prod_adjust );
+		const sint64 worker_demand = (base_worker_demand * (sint64)prodbase + (prod_adjust >> 1) ) / prod_adjust;
+		const uint32 visitor_demand = (uint32)((base_visitor_demand * (sint64)prodbase + (prod_adjust >> 1) ) / prod_adjust);
+
 		// then, scaling based on month length
-		scaled_pax_demand = max(welt->calc_adjusted_monthly_figure(pax_demand), 1);
+		scaled_pax_demand = max(welt->calc_adjusted_monthly_figure(worker_demand), 1);
 
 		// pax demand for fixed period length
 		// Intentionally not the scaled value.
-		arrival_stats_pax.set_scaled_demand(pax_demand);
+		arrival_stats_pax.set_scaled_demand(worker_demand);
+		
 		building->set_adjusted_jobs(scaled_pax_demand);
+		building->set_adjusted_visitor_demand(visitor_demand);
 
 		// Must update the world building list to take into account the new passenger demand (weighting)
-		if(gb)
-		{
-			welt->update_weight_of_building_in_world_list(gb);
-		}
+		welt->update_weight_of_building_in_world_list(building);
 	}
 }
 
@@ -410,7 +411,7 @@ void fabrik_t::update_scaled_mail_demand()
 				}
 			}
 		}
-		gebaeude_t* gb = get_building();
+
 		// formula : besch_mail_demand * (current_production_base / besch_production_base); (prod >> 1) is for rounding
 		const uint16 mail_capacity = besch->get_haus()->get_mail_demand_and_production_capacity();
 		const int mail_level = get_mail_level();
@@ -426,10 +427,7 @@ void fabrik_t::update_scaled_mail_demand()
 		building->set_adjusted_mail_demand(scaled_mail_demand);
 
 		// Must update the world building list to take into account the new passenger demand (weighting)
-		if(gb)
-		{
-			welt->update_weight_of_building_in_world_list(gb);
-		}
+		welt->update_weight_of_building_in_world_list(building);
 	}
 }
 
