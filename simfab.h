@@ -346,8 +346,10 @@ private:
 	 * Update scaled pax/mail demand
 	 * @author Knightly
 	 */
+public:
 	void update_scaled_pax_demand();
 	void update_scaled_mail_demand();
+private:
 
 	/**
 	 * Update production multipliers for pax and mail

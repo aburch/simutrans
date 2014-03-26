@@ -516,6 +516,10 @@ fabrik_t* fabrikbauer_t::baue_fabrik(koord3d* parent, const fabrik_besch_t* info
 		// Must recalc nearby halts after the halt is set up
 		fab->recalc_nearby_halts();
 	}
+	// This must be done here because the building is not valid on generation, so setting the building's
+	// jobs, population and mail figures based on the factory's cannot be done.
+	fab->update_scaled_pax_demand();
+	fab->update_scaled_mail_demand();
 	return fab;
 }
 

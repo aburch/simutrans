@@ -397,8 +397,6 @@ private:
 	 */
 	void fill_connected_component(uint8 catg, uint16 comp);
 
-//>>>>>>> aburch/master
-
 	// Array with different categries that contains all waiting goods at this stop
 	vector_tpl<ware_t> **waren;
 

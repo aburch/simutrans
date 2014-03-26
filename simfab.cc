@@ -366,12 +366,11 @@ void fabrik_t::update_scaled_pax_demand()
 				}
 			}
 		}
-		
-
+	
 		const uint16 employment_capacity = besch->get_haus()->get_employment_capacity();
 		const int passenger_level = get_passenger_level_jobs();
 
-		const sint64 base_visitor_demand = building->get_adjusted_visitor_demand();
+		const sint64 base_visitor_demand = building ? building->get_adjusted_visitor_demand() : besch->get_haus()->get_population_and_visitor_demand_capacity();
 		const sint64 base_worker_demand = employment_capacity == 65535 ? passenger_level : employment_capacity;
 		
 		// formula : base_pax_demand * (current_production_base / besch_production_base); (prod >> 1) is for rounding
@@ -380,16 +379,19 @@ void fabrik_t::update_scaled_pax_demand()
 
 		// then, scaling based on month length
 		scaled_pax_demand = max(welt->calc_adjusted_monthly_figure(worker_demand), 1);
+		const uint32 scaled_visitor_demand = max(welt->calc_adjusted_monthly_figure(visitor_demand), 1);
 
 		// pax demand for fixed period length
 		// Intentionally not the scaled value.
 		arrival_stats_pax.set_scaled_demand(worker_demand);
 		
-		building->set_adjusted_jobs(scaled_pax_demand);
-		building->set_adjusted_visitor_demand(visitor_demand);
-
-		// Must update the world building list to take into account the new passenger demand (weighting)
-		welt->update_weight_of_building_in_world_list(building);
+		if(building)
+		{
+			building->set_adjusted_jobs(scaled_pax_demand);
+			building->set_adjusted_visitor_demand(scaled_visitor_demand);
+			// Must update the world building list to take into account the new passenger demand (weighting)
+			welt->update_weight_of_building_in_world_list(building);
+		}
 	}
 }
 
@@ -424,10 +426,13 @@ void fabrik_t::update_scaled_mail_demand()
 		// mail demand for fixed period length
 		// Intentionally not the scaled value.
 		arrival_stats_mail.set_scaled_demand(mail_demand);
-		building->set_adjusted_mail_demand(scaled_mail_demand);
+		if(building)
+		{
+			building->set_adjusted_mail_demand(scaled_mail_demand);
 
-		// Must update the world building list to take into account the new passenger demand (weighting)
-		welt->update_weight_of_building_in_world_list(building);
+			// Must update the world building list to take into account the new passenger demand (weighting)
+			welt->update_weight_of_building_in_world_list(building);
+		}
 	}
 }
 

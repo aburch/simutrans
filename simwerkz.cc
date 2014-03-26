@@ -3976,6 +3976,12 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 	}
 
 	gebaeude_t* gb = hausbauer_t::baue(halt->get_besitzer(), pos-offsets, rotation, besch, &halt);
+	stadt_t* city = welt->get_city(pos-offsets);
+	if(city)
+	{
+		gb->set_stadt(city);
+		city->update_city_stats_with_building(gb, false);
+	}
 	welt->add_building_to_world_list(gb);
 
 	// Difficult to distinguish correctly most suitable waytype

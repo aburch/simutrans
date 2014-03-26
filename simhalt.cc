@@ -1691,13 +1691,29 @@ void haltestelle_t::get_destination_halts_of_ware(ware_t &ware, vector_tpl<halth
 	const grund_t* gr = welt->lookup_kartenboden(ware.get_zielpos());
 	const gebaeude_t* gb = gr->find<gebaeude_t>();
 	const haus_besch_t *besch = gb ? gb->get_tile()->get_besch() : NULL;
-	const koord size = besch->get_groesse();
+	const koord size = besch ? besch->get_groesse() : koord(1,1);
 
 	if(fab || size.x > 1 || size.y > 1)
 	{
 		// Check all tiles of a multi-tiled building of any type.
 		vector_tpl<koord> tile_list;
-		fab->get_tile_list(tile_list);
+		if(fab)
+		{
+			fab->get_tile_list(tile_list);
+		}
+		else
+		{
+			koord test;
+			// Must add tiles manually for buildings other than industries.
+			// This formula is based on the fabrik_t::get_tile_list function.
+			for(test.x = 0; test.x < size.x; test.x++) 
+			{
+				for(test.y = 0; test.y < size.y; test.y++) 
+				{
+					tile_list.append(ware.get_zielpos() + test);
+				}
+			}
+		}
 		FOR(vector_tpl<koord>, const k, tile_list)
 		{
 			const planquadrat_t* plan = welt->access(k);
@@ -1709,7 +1725,7 @@ void haltestelle_t::get_destination_halts_of_ware(ware_t &ware, vector_tpl<halth
 					const nearby_halt_t *haltlist = plan->get_haltlist();
 					for(int i = 0; i < haltlist_count; i++)
 					{
-						if(  haltlist[i].halt->is_enabled(warentyp) )
+						if(haltlist[i].halt->is_enabled(warentyp))
 						{
 							// OK, the halt accepts the ware type.
 							// If this is passengers or mail, accept it.
@@ -1718,7 +1734,7 @@ void haltestelle_t::get_destination_halts_of_ware(ware_t &ware, vector_tpl<halth
 							// that we may have halts too far away.  The halt will
 							// know whether it is linked to the factory.
 							if (!ware.is_freight()
-									|| ( fab && haltlist[i].halt->get_fab_list().is_contained(fab) )
+									|| (fab && haltlist[i].halt->get_fab_list().is_contained(fab))
 									)
 							{
 								destination_halts_list.append(haltlist[i].halt);
