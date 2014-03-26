@@ -610,21 +610,6 @@ fabrik_t *fabrik_t::get_fab(const koord &pos)
 }
 
 
-//void fabrik_t::link_halt(halthandle_t halt)
-//{
-//	welt->access(pos.get_2d())->add_to_haltlist(halt);
-//}
-//
-//
-//void fabrik_t::unlink_halt(halthandle_t halt)
-//{
-//	planquadrat_t *plan=welt->access(pos.get_2d());
-//	if(plan) {
-//		plan->remove_from_haltlist(halt);
-//	}
-//}
-
-
 void fabrik_t::add_lieferziel(koord ziel)
 {
 	if(  !lieferziele.is_contained(ziel)  ) {
@@ -1134,31 +1119,6 @@ void fabrik_t::remove_field_at(koord pos)
 	// Knightly : revert the field's effect on production base and storage capacities
 	set_base_production( prodbase - field_class->get_field_production() );
 }
-
-
-//bool fabrik_t::ist_bauplatz(karte_t *welt, koord pos, koord groesse,bool wasser,climate_bits cl)
-//{
-//	if(pos.x > 0 && pos.y > 0 &&
-//		pos.x+groesse.x < welt->get_size().x && pos.y+groesse.y < welt->get_size().y &&
-//		( wasser  ||  welt->square_is_free(pos, groesse.x, groesse.y, NULL, cl) )&&
-//		!ist_da_eine(welt,pos-koord(5,5),pos+groesse+koord(3,3))) {
-//
-//		// check for water (no shore in sight!)
-//		if(wasser) {
-//			for(int y=0;y<groesse.y;y++) {
-//				for(int x=0;x<groesse.x;x++) {
-//					const grund_t *gr=welt->lookup_kartenboden(pos+koord(x,y));
-//					if(!gr->ist_wasser()  ||  gr->get_grund_hang()!=hang_t::flach) {
-//						return false;
-//					}
-//				}
-//			}
-//		}
-//
-//		return true;
-//	}
-//	return false;
-//}
 
 // "Are there any?" (Google Translate)
 vector_tpl<fabrik_t *> &fabrik_t::sind_da_welche(koord min_pos, koord max_pos)
