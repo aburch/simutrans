@@ -15,6 +15,7 @@
 #include "player/simplay.h"
 #include "player/finance.h"
 #include "simworld.h"
+#include "simcity.h"
 #include "simdepot.h"
 #include "simline.h"
 #include "simlinemgmt.h"
@@ -58,7 +59,6 @@ depot_t::depot_t(loadsave_t *file) : gebaeude_t()
 	selected_filter = VEHICLE_FILTER_RELEVANT;
 	last_selected_line = linehandle_t();
 	command_pending = false;
-	add_to_world_list(true);
 }
 
 
@@ -85,8 +85,8 @@ depot_t::~depot_t()
 	const grund_t* gr = welt->lookup(get_pos());
 	if(gr)
 	{
-		gebaeude_t* gb = gr->find<gebaeude_t>();
-		welt->remove_building_from_world_list(gb);
+		welt->remove_building_from_world_list(this);
+		// No need to remove this from the city statistics here, as this will be done by the gebaeude_t parent object.
 	}
 }
 
@@ -807,6 +807,17 @@ void depot_t::neuer_monat()
 	{
 		get_besitzer()->book_vehicle_maintenance( -fixed_cost_costs, get_waytype() );
 	}
+
+	stadt_t* city = welt->get_city(get_pos());
+	if(city && get_stadt() == NULL)
+	{		
+		// The depot has joined a city by dint of growth.
+		set_stadt(city);
+		city->update_city_stats_with_building(this, false);
+	}
+	// Cannot check for city shrinkage without risking
+	// a crash when cities are deleted.
+
 	// since vehicles may have become obsolete
 	update_all_win();
 }
@@ -857,10 +868,11 @@ bool depot_t::is_suitable_for( const vehikel_t * test_vehicle, const uint8 tract
 
 void depot_t::add_to_world_list(bool lock)
 {
-	const grund_t* gr = welt->lookup(get_pos());
-	if(gr)
-	{
-		gebaeude_t* gb = (gebaeude_t*)this;
-		welt->add_building_to_world_list(gb);
+	welt->add_building_to_world_list(this);
+	stadt_t* city = welt->get_city(get_pos());
+	if(city)
+	{		
+		set_stadt(city);
+		city->update_city_stats_with_building(this, false);
 	}
 }

@@ -1951,6 +1951,17 @@ void stadt_t::rdwr(loadsave_t* file)
 	{
 		file->rdwr_long(wachstum);
 	}
+
+	// These are recalculated when the buildings are added to the city, so reset these to avoid
+	// doubling these figures for every load/save cycle.
+	city_history_month[0][HIST_CITICENS] = 0;
+	city_history_year[0][HIST_CITICENS] = 0;
+
+	city_history_month[0][HIST_JOBS] = 0;
+	city_history_year[0][HIST_JOBS] = 0;
+
+	city_history_month[0][HIST_VISITOR_DEMAND] = 0;
+	city_history_year[0][HIST_VISITOR_DEMAND] = 0;
 }
 
 
@@ -2005,9 +2016,6 @@ void stadt_t::laden_abschliessen()
 	//next_step = 0;
 	next_growth_step = 0;
 
-	// resolve target factories
-	/*target_factories_pax.resolve_factories();
-	target_factories_mail.resolve_factories();*/
 	if(check_road_connexions)
 	{
 		welt->add_queued_city(this);

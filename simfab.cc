@@ -417,7 +417,7 @@ void fabrik_t::update_scaled_mail_demand()
 		const int mail_level = get_mail_level();
 
 		const sint64 base_mail_demand =  mail_capacity == 65535 ? mail_level : mail_capacity;
-		const uint32 mail_demand = (uint32)( ( base_mail_demand * (sint64)prodbase + (prod_adjust >> 1) ) / prod_adjust );
+		const uint32 mail_demand = (uint32)((base_mail_demand * (sint64)prodbase + (prod_adjust >> 1) ) / prod_adjust);
 		// then, scaling based on month length
 		scaled_mail_demand = max(welt->calc_adjusted_monthly_figure(mail_demand), 1);
 

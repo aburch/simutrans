@@ -47,8 +47,6 @@ protected:
 
 	static slist_tpl<depot_t *> all_depots;
 
-	void add_to_world_list(bool lock = false);
-
 public:
 	// Last selected vehicle filter
 	int selected_filter;
@@ -256,6 +254,8 @@ public:
 
 	// Helper function
 	inline unsigned get_max_convoi_length() const { return get_max_convoy_length(get_wegtyp()); }
+
+	void add_to_world_list(bool lock = false);
 
 private:
 	linehandle_t last_selected_line;

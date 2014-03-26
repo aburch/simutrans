@@ -6966,7 +6966,7 @@ bool karte_t::load(const char *filename)
 	// clear hash table with missing paks (may cause some small memory loss though)
 	missing_pak_names.clear();
 
-	DBG_MESSAGE("karte_t::laden", "loading game from '%s'", filename);
+	DBG_MESSAGE("karte_t::load", "loading game from '%s'", filename);
 
 	// reloading same game? Remeber pos
 	const koord oldpos = settings.get_filename()[0]>0  &&  strncmp(filename,settings.get_filename(),strlen(settings.get_filename()))==0 ? viewport->get_world_position() : koord::invalid;
@@ -7001,7 +7001,7 @@ bool karte_t::load(const char *filename)
 				sprintf( fn, "server%d-network.sve", env_t::server );
 				if(  strcmp(filename, fn) != 0  ) {
 					// stay in networkmode, but disconnect clients
-					dbg->warning("karte_t::laden","disconnecting all clients");
+					dbg->warning("karte_t::load","disconnecting all clients");
 					network_reset_server();
 				}
 				else {
@@ -7016,7 +7016,7 @@ bool karte_t::load(const char *filename)
 				sprintf( fn, "client%i-network.sve", network_get_client_id() );
 				if(  strcmp(filename,fn)!=0  ) {
 					// no sync => finish network mode
-					dbg->warning("karte_t::laden","finished network mode");
+					dbg->warning("karte_t::load","finished network mode");
 					network_disconnect();
 					finish_loop = false; // do not trigger intro screen
 					// closing the socket will tell the server, I am away too
@@ -7029,21 +7029,21 @@ bool karte_t::load(const char *filename)
 	if(!file.rd_open(name)) {
 
 		if(  (sint32)file.get_version()==-1  ||  file.get_version()>loadsave_t::int_version(SAVEGAME_VER_NR, NULL, NULL).version  ) {
-			dbg->warning("karte_t::laden()", translator::translate("WRONGSAVE") );
+			dbg->warning("karte_t::load()", translator::translate("WRONGSAVE") );
 			create_win( new news_img("WRONGSAVE"), w_info, magic_none );
 		}
 		else {
-			dbg->warning("karte_t::laden()", translator::translate("Kann Spielstand\nnicht laden.\n") );
+			dbg->warning("karte_t::load()", translator::translate("Kann Spielstand\nnicht laden.\n") );
 			create_win(new news_img("Kann Spielstand\nnicht laden.\n"), w_info, magic_none);
 		}
 	}
 	else if(file.get_version() < 84006) {
 		// too old
-		dbg->warning("karte_t::laden()", translator::translate("WRONGSAVE") );
+		dbg->warning("karte_t::load()", translator::translate("WRONGSAVE") );
 		create_win(new news_img("WRONGSAVE"), w_info, magic_none);
 	}
 	else {
-DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
+DBG_MESSAGE("karte_t::load()","Savegame version is %d", file.get_version());
 
 		load(&file);
 
@@ -7201,7 +7201,7 @@ void karte_t::load(loadsave_t *file)
 	char buf[80];
 
 	intr_disable();
-	dbg->message("karte_t::laden()", "Prepare for loading" );
+	dbg->message("karte_t::load()", "Prepare for loading" );
 	for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
 		werkzeug[i] = werkzeug_t::general_tool[WKZ_ABFRAGE];
 	}
@@ -7234,7 +7234,7 @@ void karte_t::load(loadsave_t *file)
 	file->set_buffered(true);
 
 	// jetzt geht das laden los
-	dbg->warning("karte_t::laden", "Fileversion: %d", file->get_version());
+	dbg->warning("karte_t::load", "Fileversion: %d", file->get_version());
 	// makes a copy:
 	settings = env_t::default_settings;
 	settings.rdwr(file);
@@ -7298,7 +7298,7 @@ void karte_t::load(loadsave_t *file)
 		if (settings.get_allow_player_change() && env_t::default_settings.get_use_timeline() < 2) {
 			// not locked => eventually switch off timeline settings, if explicitly stated
 			settings.set_use_timeline(env_t::default_settings.get_use_timeline());
-			DBG_DEBUG("karte_t::laden", "timeline: reset to %i", env_t::default_settings.get_use_timeline() );
+			DBG_DEBUG("karte_t::load", "timeline: reset to %i", env_t::default_settings.get_use_timeline() );
 		}
 	}
 	if (settings.get_beginner_mode()) {
@@ -7318,10 +7318,10 @@ void karte_t::load(loadsave_t *file)
 	grundwasser = (sint8)(settings.get_grundwasser());
 
 //
-//	DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
+//	DBG_DEBUG("karte_t::load()","grundwasser %i",grundwasser);
 //	grund_besch_t::calc_water_level( this, height_to_climate );
 
-	DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
+	DBG_DEBUG("karte_t::load()","grundwasser %i",grundwasser);
 
 	init_height_to_climate();
 
@@ -7330,7 +7330,7 @@ void karte_t::load(loadsave_t *file)
 	season = (2+last_month/3)&3; // summer always zero
 	snowline = settings.get_winter_snowline() + grundwasser;
 
-	DBG_DEBUG("karte_t::laden", "settings loaded (groesse %i,%i) timeline=%i beginner=%i", settings.get_groesse_x(), settings.get_groesse_y(), settings.get_use_timeline(), settings.get_beginner_mode());
+	DBG_DEBUG("karte_t::load", "settings loaded (groesse %i,%i) timeline=%i beginner=%i", settings.get_groesse_x(), settings.get_groesse_y(), settings.get_use_timeline(), settings.get_beginner_mode());
 
 	// wird gecached, um den Pointerzugriff zu sparen, da
 	// die groesse _sehr_ oft referenziert wird
@@ -7355,7 +7355,7 @@ void karte_t::load(loadsave_t *file)
 	hausbauer_t::neue_karte();
 	fabrikbauer_t::neue_karte();
 
-	DBG_DEBUG("karte_t::laden", "init felder ok");
+	DBG_DEBUG("karte_t::load", "init felder ok");
 
 	if(file->get_experimental_version() <= 1)
 	{
@@ -7387,12 +7387,12 @@ void karte_t::load(loadsave_t *file)
 	sync_steps = 0;
 	step_mode = PAUSE_FLAG;
 
-DBG_MESSAGE("karte_t::laden()","savegame loading at tick count %i",ticks);
+DBG_MESSAGE("karte_t::load()","savegame loading at tick count %i",ticks);
 	recalc_average_speed();	// resets timeline
 	// recalc_average_speed may have opened message windows
 	destroy_all_win(true);
 
-DBG_MESSAGE("karte_t::laden()", "init player");
+DBG_MESSAGE("karte_t::load()", "init player");
 	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
 		if(  file->get_version()>=101000  ) {
 			// since we have different kind of AIs
@@ -7468,7 +7468,7 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 			}
 		}
 	}
-	DBG_DEBUG("karte_t::laden", "init %i cities", settings.get_anzahl_staedte());
+	DBG_DEBUG("karte_t::load", "init %i cities", settings.get_anzahl_staedte());
 	stadt.clear();
 	stadt.resize(settings.get_anzahl_staedte());
 	for (int i = 0; i < settings.get_anzahl_staedte(); ++i) {
@@ -7477,22 +7477,22 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 		stadt.append(s, population > 0 ? population : 1); // This has to be at least 1, or else the weighted vector will not add it. TODO: Remove this check once the population checking method is improved.
 	}
 
-	DBG_MESSAGE("karte_t::laden()","loading blocks");
+	DBG_MESSAGE("karte_t::load()","loading blocks");
 	old_blockmanager_t::rdwr(this, file);
 
-	DBG_MESSAGE("karte_t::laden()","loading tiles");
+	DBG_MESSAGE("karte_t::load()","loading tiles");
 	for (int y = 0; y < get_size().y; y++) {
 		for (int x = 0; x < get_size().x; x++) {
 			plan[x+y*cached_grid_size.x].rdwr(file, koord(x,y) );
 		}
 		if(file->is_eof()) {
-			dbg->fatal("karte_t::laden()","Savegame file mangled (too short)!");
+			dbg->fatal("karte_t::load()","Savegame file mangled (too short)!");
 		}
 		ls.set_progress( y/2 );
 	}
 
 	if(file->get_version()<99005) {
-		DBG_MESSAGE("karte_t::laden()","loading grid for older versions");
+		DBG_MESSAGE("karte_t::load()","loading grid for older versions");
 		for (int y = 0; y <= get_size().y; y++) {
 			for (int x = 0; x <= get_size().x; x++) {
 				sint32 hgt;
@@ -7504,14 +7504,14 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 	}
 	else if(  file->get_version()<=102001  )  {
 		// hgt now bytes
-		DBG_MESSAGE("karte_t::laden()","loading grid for older versions");
+		DBG_MESSAGE("karte_t::load()","loading grid for older versions");
 		for( sint32 i=0;  i<(get_size().y+1)*(sint32)(get_size().x+1);  i++  ) {
 			file->rdwr_byte(grid_hgts[i]);
 		}
 	}
 
 	if(file->get_version()<88009) {
-		DBG_MESSAGE("karte_t::laden()","loading slopes from older version");
+		DBG_MESSAGE("karte_t::load()","loading slopes from older version");
 		// Hajo: load slopes for older versions
 		// now part of the grund_t structure
 		for (int y = 0; y < get_size().y; y++) {
@@ -7553,13 +7553,13 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 	}
 
 	// Reliefkarte an neue welt anpassen
-	DBG_MESSAGE("karte_t::laden()", "init relief");
+	DBG_MESSAGE("karte_t::load()", "init relief");
 	win_set_world( this );
 	reliefkarte_t::get_karte()->init();
 
 	sint32 fabs;
 	file->rdwr_long(fabs);
-	DBG_MESSAGE("karte_t::laden()", "prepare for %i factories", fabs);
+	DBG_MESSAGE("karte_t::load()", "prepare for %i factories", fabs);
 
 	for(sint32 i = 0; i < fabs; i++) {
 		// liste in gleicher reihenfolge wie vor dem speichern wieder aufbauen
@@ -7568,7 +7568,7 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 			fab_list.append(fab);
 		}
 		else {
-			dbg->error("karte_t::laden()","Unknown fabrik skipped!");
+			dbg->error("karte_t::load()","Unknown fabrik skipped!");
 			delete fab;
 		}
 		if(i&7) {
@@ -7579,12 +7579,12 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 	// load linemanagement status (and lines)
 	// @author hsiegeln
 	if (file->get_version() > 82003  &&  file->get_version()<88003) {
-		DBG_MESSAGE("karte_t::laden()", "load linemanagement");
+		DBG_MESSAGE("karte_t::load()", "load linemanagement");
 		get_spieler(0)->simlinemgmt.rdwr(file, get_spieler(0));
 	}
 	// end load linemanagement
 
-	DBG_MESSAGE("karte_t::laden()", "load stops");
+	DBG_MESSAGE("karte_t::load()", "load stops");
 	// now load the stops
 	// (the players will be load later and overwrite some values,
 	//  like the total number of stops build (for the numbered station feature)
@@ -7592,18 +7592,18 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 	if(file->get_version()>=99008) {
 		sint32 halt_count;
 		file->rdwr_long(halt_count);
-		DBG_MESSAGE("karte_t::laden()","%d halts loaded",halt_count);
+		DBG_MESSAGE("karte_t::load()","%d halts loaded",halt_count);
 		for(int i=0; i<halt_count; i++) {
 			halthandle_t halt = haltestelle_t::create( file );
 			if(!halt->existiert_in_welt()) {
-				dbg->warning("karte_t::laden()", "could not restore stop near %i,%i", halt->get_init_pos().x, halt->get_init_pos().y );
+				dbg->warning("karte_t::load()", "could not restore stop near %i,%i", halt->get_init_pos().x, halt->get_init_pos().y );
 			}
 			ls.set_progress( get_size().y/2+128+(get_size().y*i)/(2*halt_count) );
 		}
-		DBG_MESSAGE("karte_t::laden()","%d halts loaded",halt_count);
+		DBG_MESSAGE("karte_t::load()","%d halts loaded",halt_count);
 	}
 
-	DBG_MESSAGE("karte_t::laden()", "load convois");
+	DBG_MESSAGE("karte_t::load()", "load convois");
 	uint16 convoi_nr = 65535;
 	uint16 max_convoi = 65535;
 	if(  file->get_version()>=101000  ) {
@@ -7628,7 +7628,7 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 				cnv->enter_depot(dep);
 			}
 			else {
-				dbg->error("karte_t::laden()", "no depot for convoi, blocks may now be wrongly reserved!");
+				dbg->error("karte_t::load()", "no depot for convoi, blocks may now be wrongly reserved!");
 				cnv->destroy();
 			}
 		}
@@ -7639,7 +7639,7 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 			ls.set_progress( get_size().y+(get_size().y*convoi_array.get_count())/(2*max_convoi)+128 );
 		}
 	}
-DBG_MESSAGE("karte_t::laden()", "%d convois/trains loaded", convoi_array.get_count());
+DBG_MESSAGE("karte_t::load()", "%d convois/trains loaded", convoi_array.get_count());
 
 	// jetzt koennen die spieler geladen werden
 	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
@@ -7652,7 +7652,7 @@ DBG_MESSAGE("karte_t::laden()", "%d convois/trains loaded", convoi_array.get_cou
 		}
 		ls.set_progress( (get_size().y*3)/2+128+8*i );
 	}
-DBG_MESSAGE("karte_t::laden()", "players loaded");
+DBG_MESSAGE("karte_t::load()", "players loaded");
 
 	// loading messages
 	if(  file->get_version()>=102005  ) {
@@ -7661,23 +7661,23 @@ DBG_MESSAGE("karte_t::laden()", "players loaded");
 	else if(  !env_t::networkmode  ) {
 		msg->clear();
 	}
-DBG_MESSAGE("karte_t::laden()", "messages loaded");
+DBG_MESSAGE("karte_t::load()", "messages loaded");
 
 	// nachdem die welt jetzt geladen ist koennen die Blockstrecken neu
 	// angelegt werden
 	old_blockmanager_t::laden_abschliessen(this);
-	DBG_MESSAGE("karte_t::laden()", "blocks loaded");
+	DBG_MESSAGE("karte_t::load()", "blocks loaded");
 
 	sint32 mi,mj;
 	file->rdwr_long(mi);
 	file->rdwr_long(mj);
-	DBG_MESSAGE("karte_t::laden()", "Setting view to %d,%d", mi,mj);
+	DBG_MESSAGE("karte_t::load()", "Setting view to %d,%d", mi,mj);
 	viewport->change_world_position( koord3d(mi,mj,0) );
 
 	// right season for recalculations
 	recalc_snowline();
 
-DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_count());
+DBG_MESSAGE("karte_t::load()", "%d ways loaded",weg_t::get_alle_wege().get_count());
 
 	ls.set_progress( (get_size().y*3)/2+256 );
 
@@ -7690,7 +7690,7 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 
 	ls.set_progress( (get_size().y*3)/2+256+get_size().y/8 );
 
-DBG_MESSAGE("karte_t::laden()", "laden_abschliesen for tiles finished" );
+DBG_MESSAGE("karte_t::load()", "laden_abschliesen for tiles finished" );
 
 	// must finish loading cities first before cleaning up factories
 	weighted_vector_tpl<stadt_t*> new_weighted_stadt(stadt.get_count() + 1);
@@ -7706,18 +7706,18 @@ DBG_MESSAGE("karte_t::laden()", "laden_abschliesen for tiles finished" );
 		INT_CHECK("simworld 1278");
 	}
 	swap(stadt, new_weighted_stadt);
-	DBG_MESSAGE("karte_t::laden()", "cities initialized");
+	DBG_MESSAGE("karte_t::load()", "cities initialized");
 
 	
 
 	ls.set_progress( (get_size().y*3)/2+256+get_size().y/4 );
 
-	DBG_MESSAGE("karte_t::laden()", "clean up factories");
+	DBG_MESSAGE("karte_t::load()", "clean up factories");
 	FOR(vector_tpl<fabrik_t*>, const f, fab_list) {
 		f->laden_abschliessen();
 	}
 
-DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
+DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 
 	ls.set_progress( (get_size().y*3)/2+256+get_size().y/3 );
 
@@ -7950,9 +7950,15 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 	clear_random_mode(LOAD_RANDOM);
 
 	// loading finished, reset savegame version to current
-	load_version = loadsave_t::int_version( env_t::savegame_version_str, NULL, NULL );;
+	load_version = loadsave_t::int_version( env_t::savegame_version_str, NULL, NULL );
 
-	dbg->warning("karte_t::laden()","loaded savegame from %i/%i, next month=%i, ticks=%i (per month=1<<%i)",last_month,last_year,next_month_ticks,ticks,karte_t::ticks_per_world_month_shift);
+	FOR(slist_tpl<depot_t *>, const dep, depot_t::get_depot_list())
+	{
+		// This must be done here, as the cities have not been initialised on loading.
+		dep->add_to_world_list();
+	}
+
+	dbg->warning("karte_t::load()","loaded savegame from %i/%i, next month=%i, ticks=%i (per month=1<<%i)",last_month,last_year,next_month_ticks,ticks,karte_t::ticks_per_world_month_shift);
 }
 
 
