@@ -1617,7 +1617,7 @@ void reliefkarte_t::draw(scr_coord pos)
 		}
 	}
 
-	if(  mode & MAP_FACTORIES) {
+	if(  mode & MAP_FACTORIES  ) {
 		FOR(  slist_tpl<fabrik_t*>,  const f,  welt->get_fab_list()  ) {
 			// find top-left tile position
 			koord3d fab_tl_pos = f->get_pos();
@@ -1752,6 +1752,22 @@ bool reliefkarte_t::is_matching_freight_catg(const minivec_tpl<uint8> &goods_cat
 		}
 		return false;
 	}
-	// NULL show all
+	// NULL show all but obey modes
+	if(  mode & MAP_PASSENGER  ) {
+		return goods_catg_index.is_contained(warenbauer_t::INDEX_PAS);
+	}
+	else if(  mode & MAP_MAIL  ) {
+		return goods_catg_index.is_contained(warenbauer_t::INDEX_MAIL);
+	}
+	else if(  mode & MAP_FREIGHT  ) {
+		// all freights but not pax or mail
+		for(  uint8 i = 0;  i < goods_catg_index.get_count();  i++  ) {
+			if(  goods_catg_index[i]>2  ) {
+				return true;
+			}
+		}
+		return false;
+	}
+	// all true
 	return true;
 }
