@@ -4572,7 +4572,7 @@ bool schiff_t::ist_weg_frei(int &restart_speed,bool)
 		const grund_t *gr = welt->lookup(pos_next);
 		if(gr == NULL)
 		{
-			// way (weg) not existent (likely destroyed)
+			// way (weg) not existent (probably destroyed)
 			cnv->suche_neue_route();
 			return false;
 		}
@@ -4580,11 +4580,38 @@ bool schiff_t::ist_weg_frei(int &restart_speed,bool)
 		const weg_t *w = gr->get_weg(water_wt);
 
 		uint8 max_water_vehicles_on_tile = w ? w->get_besch()->get_max_vehicles_on_tile() : 251;
-		const uint8 water_vehicles_on_tile = gr->get_top();
+		uint8 water_vehicles_on_tile = gr->get_top();
+
 		if(water_vehicles_on_tile > max_water_vehicles_on_tile) 
 		{
-			// Too many water vehicles already here.
-			return false;
+			int relevant_water_vehicles_on_tile = 0;
+			
+			if(max_water_vehicles_on_tile < 251 && water_vehicles_on_tile < 251)
+			{
+				for(size_t n = gr->get_top(); n-- != 0;)
+				{
+					const obj_t *obj = gr->obj_bei(n);
+					if(obj && obj->get_typ() == obj_t::schiff)
+					{
+						const vehikel_t* water_craft = (const vehikel_t*)obj;
+						if(water_craft->get_convoi()->get_state() == convoi_t::LOADING)
+						{
+							continue;
+						}
+						const bool has_inferior_loading_level = cnv->get_loading_level() < water_craft->get_convoi()->get_loading_level();
+						const bool has_inferior_id = water_craft->get_convoi()->self.get_id() <= get_convoi()->self.get_id();
+						if(has_inferior_loading_level || has_inferior_id)
+						{
+							relevant_water_vehicles_on_tile ++;
+						}
+					}
+				}
+			}
+			if(relevant_water_vehicles_on_tile > max_water_vehicles_on_tile) 
+			{
+				// Too many water vehicles already here.
+				return false;
+			}
 		}
 		if(w  &&  w->is_crossing()) {
 			// ok, here is a draw/turn-bridge ...
