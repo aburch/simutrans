@@ -232,7 +232,7 @@ map_frame_t::map_frame_t() :
 	viewable_players[ 0 ] = -1;
 	for(  int np = 0, count = 1;  np < MAX_PLAYER_COUNT;  np++  ) {
 		if(  welt->get_spieler( np )  &&  welt->get_spieler( np )->has_money_or_assets()) {
-			viewed_player_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t(welt->get_spieler( np )->get_name(), COL_BLACK));
+			viewed_player_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t(welt->get_spieler( np )->get_name(), welt->get_spieler( np )->get_player_color1()+4));
 			viewable_players[ count++ ] = np;
 		}
 	}
