@@ -5380,6 +5380,11 @@ void convoi_t::book(sint64 amount, convoi_cost_t cost_type)
 	else
 	{
 		// Average types
+		if(rolling_average_count[cost_type] == 65535)
+		{
+			rolling_average_count[cost_type] /= 2;
+			rolling_average[cost_type] /= 2;
+		}
 		rolling_average[cost_type] += (uint32)amount;
 		rolling_average_count[cost_type] ++;
 		const sint64 tmp = (sint64)rolling_average[cost_type] / (sint64)rolling_average_count[cost_type];
