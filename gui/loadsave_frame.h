@@ -58,15 +58,18 @@ public:
 	std::string pak;
 	sint64 mod_time;
 	sint32 file_size;
+	uint32 version;
+	uint32 experimental_version;
 	bool file_exists;
-	sve_info_t() : pak(""), mod_time(0), file_size(0), file_exists(false) {}
-	sve_info_t(const char *pak_, time_t mod_, long fs);
+	sve_info_t() : pak(""), mod_time(0), file_size(0), file_exists(false), version(0), experimental_version(0) {}
+	sve_info_t(const char *pak_, time_t mod_, long fs, uint32 version, uint32 experimental_version);
 	bool operator== (const sve_info_t &) const;
 	void rdwr(loadsave_t *file);
 };
 
 class loadsave_frame_t : public savegame_frame_t
 {
+	friend class gui_loadsave_table_row_t;
 private:
 	gui_file_table_delete_column_t delete_column;
 	gui_file_table_action_column_t action_column;

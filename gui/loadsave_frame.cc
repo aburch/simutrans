@@ -28,8 +28,12 @@
 
 class gui_loadsave_table_row_t : public gui_file_table_row_t
 {
+	sve_info_t* svei;
 public:
-	loadsave_t file;
+	//loadsave_t file;
+	const char* get_pak_extension() { return svei ? svei->pak.c_str() : ""; }
+	uint32 get_version() const { return svei ? svei->version : 0; }
+	uint32 get_experimental_version() const { return svei ? svei->experimental_version : 0; }
 
 	//gui_loadsave_table_row_t() : gui_file_table_row_t() {};
 	gui_loadsave_table_row_t(const char *pathname, const char *buttontext);
@@ -38,8 +42,8 @@ public:
 stringhashtable_tpl<sve_info_t *> loadsave_frame_t::cached_info;
 
 
-sve_info_t::sve_info_t(const char *pak_, time_t mod_, long fs)
-: pak(""), mod_time(mod_), file_size(fs)
+sve_info_t::sve_info_t(const char *pak_, time_t mod_, long fs, uint32 version, uint32 experimental_version)
+: pak(""), mod_time(mod_), file_size(fs), version(version), experimental_version(experimental_version)
 {
 	if(pak_) {
 		pak = pak_;
@@ -64,6 +68,11 @@ void sve_info_t::rdwr(loadsave_t *file)
 	free(const_cast<char *>(s));
 	file->rdwr_longlong(mod_time);
 	file->rdwr_long(file_size);
+	if (file->get_experimental_version() >= 12 )
+	{
+		file->rdwr_long(version);
+		file->rdwr_long(experimental_version);
+	}
 }
 
 
@@ -188,15 +197,36 @@ void loadsave_frame_t::set_file_table_default_sort_order()
 gui_loadsave_table_row_t::gui_loadsave_table_row_t(const char *pathname, const char *buttontext) : gui_file_table_row_t(pathname, buttontext)
 {
 	if (error.empty()) {
-		try {
-			file.rd_open(pathname);
-			file.close();
+		// check hash table
+		svei = loadsave_frame_t::cached_info.get(pathname);
+		if (svei   &&  svei->file_size == info.st_size  &&  svei->mod_time == info.st_mtime) {
+			// compare size and mtime
+			// if both are equal then most likely the files are the same
+			// no need to read the file for pak_extension
+			svei->file_exists = true;
 		}
-		catch (char *e) {
-			error = e;
-		}
-		catch (...) {
-			error = "failed reading header";
+		else {
+			// read pak_extension from file
+			loadsave_t test;
+			try {
+				test.rd_open(pathname);
+				test.close();
+			}
+			catch (char *e) {
+				error = e;
+			}
+			catch (...) {
+				error = "failed reading header";
+			}
+
+			// now insert in hash_table
+			svei = new sve_info_t(test.get_pak_extension(), info.st_mtime, info.st_size, test.get_version(), test.get_experimental_version() );
+			// copy filename
+			char *key = strdup(pathname);
+			sve_info_t *svei_old = loadsave_frame_t::cached_info.set(key, svei);
+			if (svei_old) {
+				delete svei_old;
+			}
 		}
 	}
 }
@@ -243,7 +273,7 @@ int gui_file_table_pak_column_t::compare_rows(const gui_table_row_t &row1, const
 const char *gui_file_table_pak_column_t::get_text(const gui_table_row_t &row) const
 {
  	gui_loadsave_table_row_t &file_row = (gui_loadsave_table_row_t&)row;
-	const char *pak = file_row.file.get_pak_extension();
+	const char *pak = file_row.get_pak_extension();
 	return strlen(pak) > 3 && (!STRNICMP(pak, "zip", 3) || !STRNICMP(pak, "xml", 3)) ? pak + 3 : pak;
 }
 
@@ -258,7 +288,7 @@ sint32 gui_file_table_std_column_t::get_int(const gui_table_row_t &row) const
 {
 	// file version 
  	gui_loadsave_table_row_t &file_row = (gui_loadsave_table_row_t&)row;
-	return (sint32) file_row.file.get_version();
+	return (sint32) file_row.get_version();
 }
 
 
@@ -279,7 +309,7 @@ sint32 gui_file_table_exp_column_t::get_int(const gui_table_row_t &row) const
 {
 	// file version 
  	gui_loadsave_table_row_t &file_row = (gui_loadsave_table_row_t&)row;
-	return (sint32) file_row.file.get_experimental_version();
+	return (sint32) file_row.get_experimental_version();
 }
 
 
@@ -302,51 +332,51 @@ const char *loadsave_frame_t::get_info(const char *fname)
 {
 	static char date[1024];
 	date[0] = 0;
-	const char *pak_extension = NULL;
-	// get file information
-	struct stat  sb;
-	if(stat(fname, &sb)!=0) {
-		// file not found?
-		return date;
-	}
-	// check hash table
-	sve_info_t *svei = cached_info.get(fname);
-	if (svei   &&  svei->file_size == sb.st_size  &&  svei->mod_time == sb.st_mtime) {
-		// compare size and mtime
-		// if both are equal then most likely the files are the same
-		// no need to read the file for pak_extension
-		pak_extension = svei->pak.c_str();
-		svei->file_exists = true;
-	}
-	else {
-		// read pak_extension from file
-		loadsave_t test;
-		test.rd_open(fname);
-		// add pak extension
-		pak_extension = test.get_pak_extension();
-
-		// now insert in hash_table
-		sve_info_t *svei_new = new sve_info_t(pak_extension, sb.st_mtime, sb.st_size );
-		// copy filename
-		char *key = strdup(fname);
-		sve_info_t *svei_old = cached_info.set(key, svei_new);
-		if (svei_old) {
-			delete svei_old;
-		}
-	}
-
-	// write everything in string
-	// add pak extension
-	size_t n = sprintf( date, "%s - ", pak_extension);
-
-	// add the time too
-	struct tm *tm = localtime(&sb.st_mtime);
-	if(tm) {
-		strftime(date+n, 18, "%Y-%m-%d %H:%M", tm);
-	}
-	else {
-		tstrncpy(date, "??.??.???? ??:??", lengthof(date));
-	}
+//	const char *pak_extension = NULL;
+//	// get file information
+//	struct stat  sb;
+//	if(stat(fname, &sb)!=0) {
+//		// file not found?
+//		return date;
+//	}
+//	// check hash table
+//	sve_info_t *svei = cached_info.get(fname);
+//	if (svei   &&  svei->file_size == sb.st_size  &&  svei->mod_time == sb.st_mtime) {
+//		// compare size and mtime
+//		// if both are equal then most likely the files are the same
+//		// no need to read the file for pak_extension
+//		pak_extension = svei->pak.c_str();
+//		svei->file_exists = true;
+//	}
+//	else {
+//		// read pak_extension from file
+//		loadsave_t test;
+//		test.rd_open(fname);
+//		// add pak extension
+//		pak_extension = test.get_pak_extension();
+//
+//		// now insert in hash_table
+//		sve_info_t *svei_new = new sve_info_t(pak_extension, sb.st_mtime, sb.st_size );
+//		// copy filename
+//		char *key = strdup(fname);
+//		sve_info_t *svei_old = cached_info.set(key, svei_new);
+//		if (svei_old) {
+//			delete svei_old;
+//		}
+//	}
+//
+//	// write everything in string
+//	// add pak extension
+//	size_t n = sprintf( date, "%s - ", pak_extension);
+//
+//	// add the time too
+//	struct tm *tm = localtime(&sb.st_mtime);
+//	if(tm) {
+//		strftime(date+n, 18, "%Y-%m-%d %H:%M", tm);
+//	}
+//	else {
+//		tstrncpy(date, "??.??.???? ??:??", lengthof(date));
+//	}
 	return date;
 }
 
