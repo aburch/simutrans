@@ -73,6 +73,13 @@ void sve_info_t::rdwr(loadsave_t *file)
 		file->rdwr_long(version);
 		file->rdwr_long(experimental_version);
 	}
+	else
+	{
+		if (file->is_loading())
+		{
+			version = experimental_version = 0;
+		}
+	}
 }
 
 
@@ -119,8 +126,8 @@ loadsave_frame_t::loadsave_frame_t(bool do_load) : savegame_frame_t(".sve", fals
 	// load cached entries
 	if (cached_info.empty()) {
 		loadsave_t file;
-		const char *cache_file = SAVE_PATH_X "_cached.xml";
-		if (file.rd_open(cache_file)) {
+		const char *cache_file = SAVE_PATH_X "_cached_exp.xml";
+		if (file.rd_open(cache_file) && file.get_experimental_version() == EX_VERSION_MAJOR) {
 			// ignore comment
 			const char *text=NULL;
 			file.rdwr_str(text);
@@ -385,7 +392,7 @@ loadsave_frame_t::~loadsave_frame_t()
 {
 	// save hashtable
 	loadsave_t file;
-	const char *cache_file = SAVE_PATH_X "_cached.xml";
+	const char *cache_file = SAVE_PATH_X "_cached_exp.xml";
 	if( file.wr_open(cache_file, loadsave_t::xml, "cache", SAVEGAME_VER_NR, EXPERIMENTAL_VER_NR) )
 	{
 		const char *text="Automatically generated file. Do not edit. An invalid file may crash the game. Deleting is allowed though.";
