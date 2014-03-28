@@ -53,7 +53,8 @@ void kanal_t::rdwr(loadsave_t *file)
 		file->rdwr_str(bname, lengthof(bname));
 
 		const weg_besch_t *besch = wegbauer_t::get_besch(bname);
-		int old_max_speed = get_max_speed();
+		const sint32 old_max_speed = get_max_speed();
+		const sint32 old_max_axle_load = get_max_axle_load();
 		if(besch==NULL) {
 			besch = wegbauer_t::get_besch(translator::compatibility_name(bname));
 			if(besch==NULL) {
@@ -65,6 +66,10 @@ void kanal_t::rdwr(loadsave_t *file)
 		set_besch(besch);
 		if(old_max_speed>0) {
 			set_max_speed(old_max_speed);
+		}
+		if(old_max_axle_load > 0)
+		{
+			set_max_axle_load(old_max_axle_load);
 		}
 	}
 }

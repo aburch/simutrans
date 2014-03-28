@@ -172,7 +172,7 @@ void weg_t::set_besch(const weg_besch_t *b)
 	{
 		max_speed = min(max_speed, city_road_topspeed);
 	}
-
+	
 	max_axle_load = besch->get_max_axle_load();
 	way_constraints = besch->get_way_constraints();
 	if(gr)
