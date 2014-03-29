@@ -22,6 +22,7 @@
 	CHG: overcrowded message no longer for factories supplied by producer but only interchanges
 	CHG: Waypoints act no longer as signals
 	ADD: server_motd_filename for file with a greeting message in online games
+	ADD: more option to select network overlay in minimap
 
 
 Release of 112.3: (r6520 on 17-May-2013):
