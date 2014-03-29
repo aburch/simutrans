@@ -1702,14 +1702,14 @@ const char *tool_transformer_t::work( player_t *player, koord3d pos )
 	// full underground mode: coordinate is on ground, adjust it to one level below ground
 	// not possible in network mode!
 	if (!env_t::networkmode  &&  grund_t::underground_mode == grund_t::ugm_all) {
-		pos = gr->get_pos() - koord3d(0,0,1);
+		pos = gr->get_pos() - koord3d( 0, 0, env_t::pak_height_conversion_factor );
 	}
 	// search for factory
 	// must be independent of network mode
 	if (gr->get_pos().z <= pos.z) {
 		fab = leitung_t::suche_fab_4(pos.get_2d());
 	}
-	else if (gr->get_pos().z == pos.z+1) {
+	else if (gr->get_pos().z == pos.z+env_t::pak_height_conversion_factor) {
 		fab = fabrik_t::get_fab(pos.get_2d());
 		underground = true;
 	}
@@ -1741,6 +1741,10 @@ const char *tool_transformer_t::work( player_t *player, koord3d pos )
 
 		if(welt->lookup(pos)) {
 			return NOTICE_TILE_FULL;
+		}
+
+		if(  env_t::pak_height_conversion_factor==2 && welt->lookup(pos + koord3d( 0, 0, 1 ))  ) {
+		        return NOTICE_TILE_FULL;
 		}
 
 		const tunnel_desc_t *tunnel_desc = tunnel_builder_t::get_tunnel_desc(powerline_wt, 0, 0);
