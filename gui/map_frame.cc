@@ -145,6 +145,7 @@ map_frame_t::map_frame_t() :
 	//show all players by default
 	karte->player_showed_on_map = -1;
 	scrolly.set_scroll_position(  max(0,min(ij.x-win_size.w/2,size.w)), max(0, min(ij.y-win_size.h/2,size.h)) );
+	scrolly.set_focusable( true );
 	scrolly.set_scrollbar_mode(scrollbar_t::show_always);
 
 	// first row of controls
@@ -239,7 +240,7 @@ map_frame_t::map_frame_t() :
 
 	viewed_player_c.set_selection(0);
 	reliefkarte_t::get_karte()->player_showed_on_map = -1;
-	viewed_player_c.set_focusable( false );
+	viewed_player_c.set_focusable( true );
 	viewed_player_c.add_listener( this );
 	filter_container.add_komponente(&viewed_player_c);
 
@@ -277,7 +278,7 @@ map_frame_t::map_frame_t() :
 	}
 	freight_type_c.set_selection(0);
 	reliefkarte_t::get_karte()->freight_type_group_index_showed_on_map = NULL;
-	freight_type_c.set_focusable( false );
+	freight_type_c.set_focusable( true );
 	freight_type_c.add_listener( this );
 	filter_container.add_komponente(&freight_type_c);
 
@@ -293,7 +294,7 @@ map_frame_t::map_frame_t() :
 
 	transport_type_c.set_selection(0);
 	reliefkarte_t::get_karte()->transport_type_showed_on_map = simline_t::line;
-	transport_type_c.set_focusable( false );
+	transport_type_c.set_focusable( true );
 	transport_type_c.add_listener( this );
 	filter_container.add_komponente(&transport_type_c);
 
@@ -537,7 +538,25 @@ bool map_frame_t::infowin_event(const event_t *ev)
 		}
 	}
 
-	if(  (IS_WHEELUP(ev) || IS_WHEELDOWN(ev))  ) {
+	// comboboxes shoudl loose their focus on close
+	gui_komponente_t *focus = win_get_focus();
+	if(  focus == &viewed_player_c  ) {
+		if(  !viewed_player_c.is_dropped()  ) {
+			set_focus( NULL );
+		}
+	}
+	else if(  focus == &transport_type_c  ) {
+		if(  !transport_type_c.is_dropped()  ) {
+			set_focus( NULL );
+		}
+	}
+	else if(  focus == &viewed_player_c  ) {
+		if(  !freight_type_c.is_dropped()  ) {
+			set_focus( NULL );
+		}
+	}
+
+	if(  (IS_WHEELUP(ev) || IS_WHEELDOWN(ev))  &&  get_focus() == NULL  ) {
 		// otherwise these would go to the vertical scroll bar
 		zoom(IS_WHEELUP(ev));
 		return true;
