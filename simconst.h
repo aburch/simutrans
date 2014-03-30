@@ -48,6 +48,10 @@
 // vector_tpl can be faster for sync_lists
 #define SYNC_VECTOR
 
+// stuff often deleted may be even faster, but order is lost
+#define SYNC_WAY_HASHTABLE
+// #define SYNC_WAY_LIST (slowest of all)
+
 // allow minspeed and private way signs on waterways (imho pointless)
 //#define ENABLE_WATERWAY_SIGNS
 

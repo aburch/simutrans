@@ -753,11 +753,11 @@ DBG_MESSAGE("karte_t::destroy()", "towns destroyed");
 	}
 
 	while(!sync_way_eyecandy_list.empty()) {
-#ifndef SYNC_VECTOR
+#if SYNC_WAY_LIST
+		delete sync_way_eyecandy_list.back();
+#else
 		sync_steppable *ss = sync_way_eyecandy_list.remove_first();
 		delete ss;
-#else
-		delete sync_way_eyecandy_list.back();
 #endif
 	}
 
@@ -3667,7 +3667,11 @@ bool karte_t::sync_way_eyecandy_add(sync_steppable *obj)
 		sync_way_eyecandy_add_list.insert( obj );
 	}
 	else {
+#ifdef SYNC_WAY_HASHTABLE
+		sync_way_eyecandy_list.put( obj, obj );
+#else
 		sync_way_eyecandy_list.append( obj );
+#endif
 	}
 	return true;
 }
@@ -3694,7 +3698,11 @@ void karte_t::sync_way_eyecandy_step(long delta_t)
 	// first add everything
 	while(  !sync_way_eyecandy_add_list.empty()  ) {
 		sync_steppable *obj = sync_way_eyecandy_add_list.remove_first();
+#ifdef SYNC_WAY_HASHTABLE
+		sync_way_eyecandy_list.put( obj, obj );
+#else
 		sync_way_eyecandy_list.append( obj );
+#endif
 	}
 	// now remove everything from last time
 	sync_way_eyecandy_running = false;
@@ -3703,12 +3711,24 @@ void karte_t::sync_way_eyecandy_step(long delta_t)
 	}
 	// now the actualy stepping
 	sync_way_eyecandy_running = true;
-#ifndef SYNC_VECTOR
+#ifdef SYNC_WAY_HASHTABLE
+	for(  ptrhashtable_tpl<sync_steppable*,sync_steppable*>::iterator iter = sync_way_eyecandy_list.begin();  iter != sync_way_eyecandy_list.end();  ) {
+		// if false, then remove
+		sync_steppable *ss = iter->key;
+		if(!ss->sync_step(delta_t)) {
+			iter = sync_way_eyecandy_list.erase(iter);
+			delete ss;
+		}
+		else {
+			++iter;
+		}
+	}
+#elif SYNC_WAY_LIST
 	for(  slist_tpl<sync_steppable*>::iterator i=sync_way_eyecandy_list.begin();  !i.end();  ) {
 		// if false, then remove
 		sync_steppable *ss = *i;
 		if(!ss->sync_step(delta_t)) {
-			i = sync_list.erase(i);
+			i = sync_way_eyecandy_list.erase(i);
 			delete ss;
 		}
 		else {

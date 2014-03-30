@@ -320,7 +320,9 @@ private:
 	/**
 	 * Sync list for eyecandy way objects (smoke).
 	 */
-#ifndef SYNC_VECTOR
+#ifdef SYNC_WAY_HASHTABLE
+	ptrhashtable_tpl<sync_steppable *,sync_steppable *> sync_way_eyecandy_list;
+#elif SYNC_WAY_LIST
 	slist_tpl<sync_steppable *> sync_way_eyecandy_list;
 #else
 	vector_tpl<sync_steppable *> sync_way_eyecandy_list;
