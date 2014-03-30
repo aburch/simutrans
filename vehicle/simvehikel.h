@@ -239,7 +239,7 @@ private:
 	 */
 	uint16 unload_freight(halthandle_t halt, sint64 & revenue_from_unloading, array_tpl<sint64> & apportioned_revenues );
 
-	bool load_freight(halthandle_t halt, bool overcrowd);
+	bool load_freight(halthandle_t halt, bool overcrowd, bool *full);
 
 	// @author: jamespetts
 	// uint16 local_bonus_supplement; 
@@ -542,9 +542,9 @@ public:
 	/**
 	* fahrzeug an haltestelle beladen
 	*/
-	uint16 beladen(halthandle_t halt) { return beladen(halt, false); }
+	uint16 beladen(halthandle_t halt) { bool dummy; (void)dummy; return beladen(halt, false, &dummy); }
 
-	uint16 beladen(halthandle_t halt, bool overcrowd);
+	uint16 beladen(halthandle_t halt, bool overcrowd, bool *full);
 
 	// sets or querey begin and end of convois
 	void set_erstes(bool janein) {ist_erstes = janein;} //janein = "yesno" (Google)
