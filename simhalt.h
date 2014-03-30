@@ -60,6 +60,15 @@ class schedule_t;
 class spieler_t;
 class ware_t;
 
+// elements of the lines_loaded vector
+struct lines_loaded_t
+{
+	linehandle_t line;
+	bool reversed;
+	uint8 aktuell;
+	uint8 catg_index;
+};
+
 // -------------------------- Haltestelle ----------------------------
 
 /**
@@ -99,6 +108,12 @@ private:
 	 * @author prissi
 	 */
 	static inthashtable_tpl<sint32,halthandle_t> *all_koords;
+	
+	/**
+	 * A list of lines and freight categories that have already been loaded with all available freight at the halt.
+	 * Reset each step.
+	 */
+	static vector_tpl<lines_loaded_t> lines_loaded;
 
 	/*
 	 * struct holds new financial history for line
@@ -202,6 +217,8 @@ public:
 
 //	static slist_tpl<halthandle_t>& get_alle_haltestellen() { return alle_haltestellen; }
 	static const vector_tpl<halthandle_t>& get_alle_haltestellen() { return alle_haltestellen; }
+
+	static vector_tpl<lines_loaded_t>& access_lines_loaded() { return lines_loaded; }
 
 	/**
 	 * Station factory method. Returns handles instead of pointers.
