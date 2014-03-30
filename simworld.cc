@@ -753,7 +753,7 @@ DBG_MESSAGE("karte_t::destroy()", "towns destroyed");
 	}
 
 	while(!sync_way_eyecandy_list.empty()) {
-#if SYNC_WAY_LIST
+#if !defined(SYNC_WAY_LIST)  &&  !defined(SYNC_WAY_HASHTABLE)
 		delete sync_way_eyecandy_list.back();
 #else
 		sync_steppable *ss = sync_way_eyecandy_list.remove_first();
