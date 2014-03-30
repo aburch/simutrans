@@ -4887,19 +4887,43 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	}
 	else // not "no_load"
 	{
-		// Load vehicles to their regular level.
-		for(int i = 0; i < number_loadable_vehicles ; i++)
-		{
-			const bool overcrowd = false;
-			vehikel_t* v = fahr[i];
-			changed_loading_level += v->beladen(halt, overcrowd);
+		bool skip_catg[255] = {false};
+
+		lines_loaded_t line_data;
+		line_data.line = get_line();
+		if(  line_data.line.is_bound()  ) {
+			line_data.reversed = is_reversed();
+			line_data.aktuell = get_schedule()->get_aktuell();
+
+			// flag all categories that have already had all available freight loaded onto convois on this line from this halt this step
+			FOR(vector_tpl<lines_loaded_t>, const& i, halt->access_lines_loaded()) {
+				if(  i.line == line_data.line  &&  i.reversed == line_data.reversed  &&  i.aktuell == line_data.aktuell  ) {
+					skip_catg[i.catg_index] = true;
+				}
 		}
-		// Finally, load vehicles to their overcrowded level.
-		for(int i = 0; i < number_loadable_vehicles ; i++)
-		{
-			const bool overcrowd = true;
-			vehikel_t* v = fahr[i];
-			changed_loading_level += v->beladen(halt, overcrowd);
+	}
+
+		// Load vehicles to their regular level. And then load vehicles to their overcrowded level.
+		// Modified by TurfIt, March 2014
+		for(  int j = 0;  j < 2;  j++  ) {
+			for(int i = 0; i < number_loadable_vehicles ; i++)
+			{
+				const bool overcrowd = (j == 1);
+				bool full = false;
+				vehikel_t* v = fahr[i];
+				const uint8 catg_index = v->get_fracht_typ()->get_catg_index();
+				if(  !skip_catg[catg_index]  ) {
+					changed_loading_level += v->beladen(halt, overcrowd, &full);
+					if(  !full  ) {
+						// not enough freight was available to fill vehicle ..> don't try to load this category again from this halt onto vehicles in convois on this line this step
+						skip_catg[catg_index] = true;
+						if(  line_data.line.is_bound()  ) {
+							line_data.catg_index = catg_index;
+							halt->access_lines_loaded().append( line_data );
+						}
+					}
+				}
+			}		
 		}
 	}
 

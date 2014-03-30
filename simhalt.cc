@@ -71,6 +71,8 @@ slist_tpl<halthandle_t> haltestelle_t::alle_haltestellen;
 
 stringhashtable_tpl<halthandle_t> haltestelle_t::all_names;
 
+vector_tpl<lines_loaded_t> haltestelle_t::lines_loaded;
+
 uint8 haltestelle_t::pedestrian_limit = 0;
 
 static const uint8 pedestrian_generate_max = 16;
@@ -1058,27 +1060,6 @@ void haltestelle_t::request_loading(convoihandle_t cnv)
 					&& get_halt(welt, c->get_schedule()->get_current_eintrag().pos, besitzer_p) == self)))
 			{
 				++i;
-				if(  c->get_line().is_bound()  ) {
-					bool skip_convoi = true;
-					lines_loaded_compare_t line_data;
-					line_data.line = c->get_line();
-					line_data.reversed = c->is_reversed();
-					line_data.aktuell = c->get_schedule()->get_aktuell();
-
-					for(  uint8 j = 0;  j < c->get_vehikel_anzahl();  j++  ) {
-						line_data.fracht_index = c->get_vehikel(j)->get_fracht_typ()->get_index();
-						if(  !lines_loaded.is_contained( line_data )  ) {
-							lines_loaded.append( line_data );
-							skip_convoi = false;
-						}
-					}
-
-					if(  skip_convoi  ) {
-						// already loaded for this destination and freight, skip.
-						continue;
-					}
-				}
-
 
 				// now we load into convoi
 				c->hat_gehalten(self);
