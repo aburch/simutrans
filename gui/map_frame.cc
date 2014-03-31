@@ -556,7 +556,11 @@ bool map_frame_t::infowin_event(const event_t *ev)
 		}
 	}
 
-	if(  (IS_WHEELUP(ev) || IS_WHEELDOWN(ev))  &&  get_focus() == NULL  ) {
+	if(  reliefkarte_t::get_karte()->getroffen(ev2.mx,ev2.my)  ) {
+		set_focus( reliefkarte_t::get_karte() );
+	}
+
+	if(  (IS_WHEELUP(ev) || IS_WHEELDOWN(ev))  &&  reliefkarte_t::get_karte()->getroffen(ev2.mx,ev2.my)  ) {
 		// otherwise these would go to the vertical scroll bar
 		zoom(IS_WHEELUP(ev));
 		return true;
