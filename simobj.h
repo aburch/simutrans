@@ -346,7 +346,7 @@ public:
 	/**
 	* When a vehicle moves or a cloud moves, it needs to mark the old spot as dirty (to copy to screen).
 	* This routine already takes position, and offsets (x_off, y_off) into account.
-	* @param yoff extra y-offset, in most cases 0.
+	* @param yoff extra y-offset, in most cases 0, in pixels.
 	* @author prissi
 	*/
 	void mark_image_dirty(image_id bild, sint16 yoff) const;

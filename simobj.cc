@@ -372,10 +372,11 @@ void obj_t::mark_image_dirty(image_id bild, sint16 yoff) const
 		}
 
 		viewport_t *vp = welt->get_viewport();
-		scr_coord scr_pos = vp->get_screen_coord(get_pos(), koord(xpos + get_xoff(), ypos + get_yoff() + yoff));
+		scr_coord scr_pos = vp->get_screen_coord(get_pos(), koord(get_xoff(), get_yoff()));
+		// xpos, ypos, yoff are already in pixel units, no scaling needed
 
 		// mark the region after the image as dirty
-		display_mark_img_dirty( bild, scr_pos.x, scr_pos.y );
+		display_mark_img_dirty( bild, scr_pos.x + xpos, scr_pos.y + ypos + yoff);
 
 		// too close to border => set dirty to be sure (smoke, skyscrapes, birds, or the like)
 		KOORD_VAL xbild, ybild, wbild, hbild;

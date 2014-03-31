@@ -301,7 +301,7 @@ uint32 vehikel_basis_t::fahre_basis(uint32 distance)
 	}
 	// ok, so moving ...
 	if(  !get_flag(obj_t::dirty)  ) {
-		mark_image_dirty( bild, hoff );
+		mark_image_dirty( bild, 0 );
 		set_flag( obj_t::dirty );
 	}
 
@@ -944,7 +944,7 @@ void vehikel_t::neue_fahrt(uint16 start_route_index, bool recalc)
 	if(welt->is_within_limits(get_pos().get_2d())) {
 		// mark the region after the image as dirty
 		// better not try to twist your brain to follow the re-transformation ...
-		mark_image_dirty( get_bild(), hoff );
+		mark_image_dirty( get_bild(), 0 );
 	}
 
 	route_t const& r = *cnv->get_route();
@@ -3961,7 +3961,10 @@ aircraft_t::aircraft_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp,
 aircraft_t::~aircraft_t()
 {
 	// mark aircraft (after_image) dirty, since we have no "real" image
-	mark_image_dirty( bild, -flughoehe-hoff-2 );
+	const int raster_width = get_current_tile_raster_width();
+	sint16 yoff = tile_raster_scale_y(-flughoehe-hoff-2, raster_width);
+
+	mark_image_dirty( bild, yoff);
 	mark_image_dirty( bild, 0 );
 }
 

@@ -289,14 +289,13 @@ uint32 convoi_t::move_to(koord3d const& k, uint16 const start_index)
 
 		steps_driven = -1;
 
-		if(  grund_t *gr = welt->lookup(v.get_pos())  ) {
-			v.mark_image_dirty(v.get_bild(), v.get_hoff());
+		if(  grund_t const* gr = welt->lookup(v.get_pos())  ) {
+			v.mark_image_dirty(v.get_bild(), 0);
 			v.verlasse_feld();
 			// maybe unreserve this
 			if(  schiene_t* const rails = obj_cast<schiene_t>(gr->get_weg(v.get_waytype()))  ) {
 				rails->unreserve(&v);
 			}
-			gr->set_flag(grund_t::dirty);
 		}
 
 		/* Set pos_prev to the starting point this way.  Otherwise it may be
