@@ -2201,16 +2201,8 @@ void stadt_t::change_size(sint32 delta_citizen, bool new_town)
 
 void stadt_t::step(long delta_t)
 {
-	//settings_t const& s = welt->get_settings();
-
 	// is it time for the next step?
-	//next_step += delta_t;
 	next_growth_step += delta_t;
-
-	//step_interval = (1 << 21U) / (buildings.get_count() * s.get_passenger_factor() + 1);
-	//if (step_interval < 1) {
-	//	step_interval = 1;
-	//}
 
 	while(stadt_t::city_growth_step < next_growth_step) {
 		calc_growth();
@@ -2494,12 +2486,10 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 void stadt_t::calc_growth()
 {
 	// now iterate over all factories to get the ratio of producing version nonproducing factories
-	// we use the incoming storage as a measure und we will only look for end consumers (power stations, markets)
-	const vector_tpl<fabrik_t*> factory_list = welt->get_fab_list();
+	// we use the incoming storage as a measure and we will only look for end consumers (power stations, markets)
 
-	ITERATE(factory_list, i)
+	FOR(const vector_tpl<fabrik_t*>, const& fab, welt->get_fab_list())
 	{
-		fabrik_t *const fab = factory_list[i];
 		if(fab && fab->get_city() == this && fab->get_lieferziele().empty() && !fab->get_suppliers().empty()) 
 		{
 			// consumer => check for it storage
