@@ -1288,7 +1288,7 @@ void karte_t::distribute_cities( settings_t const * const sets, sint16 old_x, si
 			besch = wegbauer_t::weg_search(road_wt,80,5,get_timeline_year_month(),weg_t::type_flat);
 		}
 
-		wegbauer_t bauigel (spieler[1] );
+		wegbauer_t bauigel (NULL);
 		bauigel.route_fuer(wegbauer_t::strasse | wegbauer_t::terraform_flag, besch, tunnelbauer_t::find_tunnel(road_wt,15,get_timeline_year_month()), brueckenbauer_t::find_bridge(road_wt,15,get_timeline_year_month()) );
 		bauigel.set_keep_existing_ways(true);
 		bauigel.set_maximum(env_t::intercity_road_length);
