@@ -49,6 +49,7 @@
 " Inkelyad", "developer",
 " Isidoro","developer (vehicle replacement)",
 " Hanczar","profiling, fixes",
+" TurfIt","patches",
 " Phil","patch",
 " S_N_C","patches",
 " Vonjo","patches",
