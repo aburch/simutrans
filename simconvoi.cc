@@ -431,7 +431,7 @@ uint32 convoi_t::move_to(uint16 const start_index)
 	for (unsigned i = 0; i != vehicle_count; ++i) {
 		vehicle_t& v = *vehicle[i];
 
-		if (  grund_t* gr = welt->lookup(v.get_pos())  ) {
+		if(  grund_t const* gr = welt->lookup(v.get_pos())  ) {
 			v.mark_image_dirty(v.get_image(), 0);
 			v.leave_tile();
 			// maybe unreserve this
@@ -444,7 +444,6 @@ uint32 convoi_t::move_to(uint16 const start_index)
 					rails->unreserve(&v);
 				}
 			}
-			gr->set_flag(grund_t::dirty);
 		}
 
 		// propagate new index to vehicle, will set all movement related variables, in particular pos
