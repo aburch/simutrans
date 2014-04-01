@@ -1802,7 +1802,6 @@ end_loop:
 		default:	/* keeps compiler silent*/
 			break;
 	}
-
 	// calculate new waiting time
 	switch( state ) {
 		// handled by routine

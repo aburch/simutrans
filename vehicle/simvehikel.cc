@@ -4563,7 +4563,7 @@ void schiff_t::calc_drag_coefficient(const grund_t *gr)
 }
 
 
-bool schiff_t::ist_weg_frei(int &restart_speed,bool)
+bool schiff_t::ist_weg_frei(int &restart_speed, bool)
 {
 	restart_speed = -1;
 
@@ -4577,42 +4577,13 @@ bool schiff_t::ist_weg_frei(int &restart_speed,bool)
 			return false;
 		}
 
-		const weg_t *w = gr->get_weg(water_wt);
-
-		uint8 max_water_vehicles_on_tile = w ? w->get_besch()->get_max_vehicles_on_tile() : 251;
-		uint8 water_vehicles_on_tile = gr->get_top();
-
-		if(water_vehicles_on_tile > max_water_vehicles_on_tile) 
+		if(!check_tile_occupancy(gr))
 		{
-			int relevant_water_vehicles_on_tile = 0;
-			
-			if(max_water_vehicles_on_tile < 251 && water_vehicles_on_tile < 251)
-			{
-				for(size_t n = gr->get_top(); n-- != 0;)
-				{
-					const obj_t *obj = gr->obj_bei(n);
-					if(obj && obj->get_typ() == obj_t::schiff)
-					{
-						const vehikel_t* water_craft = (const vehikel_t*)obj;
-						if(water_craft->get_convoi()->get_state() == convoi_t::LOADING)
-						{
-							continue;
-						}
-						const bool has_inferior_loading_level = cnv->get_loading_level() < water_craft->get_convoi()->get_loading_level();
-						const bool has_inferior_id = water_craft->get_convoi()->self.get_id() <= get_convoi()->self.get_id();
-						if(has_inferior_loading_level || has_inferior_id)
-						{
-							relevant_water_vehicles_on_tile ++;
-						}
-					}
-				}
-			}
-			if(relevant_water_vehicles_on_tile > max_water_vehicles_on_tile) 
-			{
-				// Too many water vehicles already here.
-				return false;
-			}
+			return false;
 		}
+
+		const weg_t *w = gr->get_weg(water_wt);
+		
 		if(w  &&  w->is_crossing()) {
 			// ok, here is a draw/turn-bridge ...
 			crossing_t* cr = gr->find<crossing_t>();
@@ -4625,7 +4596,48 @@ bool schiff_t::ist_weg_frei(int &restart_speed,bool)
 	return true;
 }
 
+bool schiff_t::check_tile_occupancy(const grund_t* gr)
+{
+	const weg_t *w = gr->get_weg(water_wt);
+	uint8 max_water_vehicles_on_tile = w ? w->get_besch()->get_max_vehicles_on_tile() : 251;
+	uint8 water_vehicles_on_tile = gr->get_top();
 
+	if(water_vehicles_on_tile > max_water_vehicles_on_tile) 
+	{
+		int relevant_water_vehicles_on_tile = 0;		
+		if(max_water_vehicles_on_tile < 251 && water_vehicles_on_tile < 251)
+		{
+			for(size_t n = gr->get_top(); n-- != 0;)
+			{
+				const obj_t *obj = gr->obj_bei(n);
+				if(obj && obj->get_typ() == obj_t::schiff)
+				{
+					const vehikel_t* water_craft = (const vehikel_t*)obj;
+					if(water_craft->get_convoi()->get_state() == convoi_t::LOADING)
+					{
+						continue;
+					}
+					const bool has_superior_loading_level = cnv->get_loading_level() > water_craft->get_convoi()->get_loading_level();
+					const bool has_inferior_id = water_craft->get_convoi()->self.get_id() < get_convoi()->self.get_id();
+					if(!has_superior_loading_level && has_inferior_id)
+					{
+						relevant_water_vehicles_on_tile ++;
+						if(relevant_water_vehicles_on_tile >= max_water_vehicles_on_tile) 
+						{
+							// Too many water vehicles already here.
+							return false;
+						}
+					}
+					else if(water_craft->get_convoi()->get_state() == convoi_t::DRIVING)
+					{
+						water_craft->get_convoi()->set_state(convoi_t::WAITING_FOR_CLEARANCE);
+					}
+				}
+			}
+		}
+	}
+	return true;
+}
 
 schedule_t * schiff_t::erzeuge_neuen_fahrplan() const
 {

@@ -858,6 +858,8 @@ public:
 
 	virtual bool ist_weg_frei(int &restart_speed, bool);
 
+	bool check_tile_occupancy(const grund_t* gr);
+
 	// returns true for the way search to an unknown target.
 	virtual bool ist_ziel(const grund_t *,const grund_t *) {return 0;}
 
