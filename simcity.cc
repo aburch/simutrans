@@ -2534,10 +2534,10 @@ void stadt_t::calc_growth()
 //	// We will divide it by 2^4=16 for traditional reasons, which means
 //	// it generates 2^2 (=4) or fewer people at 100%.
 
-	const int electricity_multiplier = 20;
-	// const uint8 electricity_multiplier =welt->get_settings().get_electricity_multiplier();
-	const int electricity_proportion = (get_electricity_consumption(welt->get_timeline_year_month()) * electricity_multiplier / 100);
-	const int mail_proportion = 100 - (s.get_passenger_multiplier() + electricity_proportion + s.get_goods_multiplier());
+	const sint32 electricity_multiplier = 20;
+	// const sint32 electricity_multiplier = welt->get_settings().get_electricity_multiplier();
+	const sint32 electricity_proportion = (get_electricity_consumption(welt->get_timeline_year_month()) * electricity_multiplier / 100);
+	const sint32 mail_proportion = 100 - (s.get_passenger_multiplier() + electricity_proportion + s.get_goods_multiplier());
 
 	const sint32 pas			= (sint32) ((city_history_month[0][HIST_PAS_TRANSPORTED] + city_history_month[0][HIST_PAS_WALKED] + (city_history_month[0][HIST_CITYCARS] - outgoing_private_cars)) * (s.get_passenger_multiplier()<<6)) / (city_history_month[0][HIST_PAS_GENERATED] + 1);
 	const sint32 mail			= (sint32) (city_history_month[0][HIST_MAIL_TRANSPORTED] * (mail_proportion)<<6) / (city_history_month[0][HIST_MAIL_GENERATED] + 1);
@@ -2546,7 +2546,7 @@ void stadt_t::calc_growth()
 
 	const sint32 total_supply_percentage = pas + mail + electricity + goods;
 
-	// smaller towns should growth slower to have villages for a longer time
+	// smaller towns should grow slower to have villages for a longer time
 	sint32 weight_factor = s.get_growthfactor_large();
 	if(  bev < (sint64)s.get_city_threshold_size()  ) {
 		weight_factor = s.get_growthfactor_small();
@@ -4019,7 +4019,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 							spieler_t *sp = weg->get_besitzer();
 							if (sp == NULL  ||  !gr->get_depot()) {
 								spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung(), road_wt);
-								weg->set_besitzer(NULL); // make public
+								weg->set_besitzer(NULL); // make unowned
 								weg->set_besch(welt->get_city_road());
 							}
 						}
@@ -4502,7 +4502,7 @@ void stadt_t::baue(bool new_town)
 	uint32 was_renovated=0;
 	uint32 try_nr = 0;
 	if (  !buildings.empty()  &&  simrand(100, "void stadt_t::baue") <= renovation_percentage  ) {
-		while (was_renovated < renovations_count && try_nr++ < renovations_try) { // trial an errors parameters
+		while (was_renovated < renovations_count && try_nr++ < renovations_try) { // trial and errors parameters
 			// try to find a non-player owned building
 			gebaeude_t* const gb = pick_any(buildings);
 			const uint32 dist(koord_distance(c, gb->get_pos()));

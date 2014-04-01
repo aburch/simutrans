@@ -81,7 +81,7 @@ max_hops = 2000
 # T. Kubes: I would say 8 for now, but this definitely should be difficulty
 # dependent setting.
 #
-max_transfers = 9
+max_transfers = 12
 
 # way builder internal weights (defaults)
 # a higher weight make it more unlikely
