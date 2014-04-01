@@ -139,8 +139,12 @@ uint32 simrand(const uint32 max, const char*)
 #endif
 }
 
-/* Generates a random number on [0,max-1] interval with a normal distribution*/
-/* See: http://forum.simutrans.com/index.php?topic=10953.0;all for details*/
+/** 
+ * Generates a random number on [0,max-1] interval with a normal distribution
+ * See: http://forum.simutrans.com/index.php?topic=10953.0;all for details
+ * Takes an exponent, but produces unreasonably low values with any number
+ * greater than 2.
+ */
 #ifdef DEBUG_SIMRAND_CALLS
 uint32 simrand_normal(const uint32 max, uint32 exponent, const char* caller)
 #else
@@ -148,28 +152,30 @@ uint32 simrand_normal(const uint32 max, uint32 exponent, const char*)
 #endif
 {
 #ifdef DEBUG_SIMRAND_CALLS
-	uint32 random_number = simrand(max, caller);
+	sint64 random_number = simrand(max, caller);
 #else
-	uint32 random_number = simrand(max, "simrand_normal");
+	uint64 random_number = simrand(max, "simrand_normal");
 #endif
+	assert(exponent <= 3); // Any higher number will produce integer overflows even with unsigned. 64-bit integers
 	if(exponent < 2)
 	{
 		// Exponents of 1 make this identical to the normal random number generator.
 		return random_number;
 	}
 
-	uint32 adj_max = max == 0 ? 1 : max;
+	uint64 adj_max = max == 0 ? 1 : max;
 
 	for(int i = 0; i < exponent - 1; i++)
 	{
 		random_number *= simrand(max, "simrand_normal");
 	}
+
 	for(int n = 0; n < exponent - 2; n ++)
 	{
 		adj_max *= adj_max;
 	}
 
-	return random_number / adj_max;
+	return (uint32)(random_number / adj_max);
 }
 
 
