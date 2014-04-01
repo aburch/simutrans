@@ -269,7 +269,7 @@ halthandle_t haltestelle_t::get_halt_koord_index(koord k)
 
 
 /* we allow only for a single stop per grund
- * this will only return something if this stop belongs to same player or is public, or is a dock (when on water)
+ * this will only return something if this stop is accessible by the player passed in the second parameter
  */
 halthandle_t haltestelle_t::get_halt(const koord3d pos, const spieler_t *sp )
 {
@@ -1577,7 +1577,7 @@ uint16 haltestelle_t::get_average_waiting_time(halthandle_t halt, uint8 category
 	if(wt->is_contained((halt.get_id())))
 	{
 		fixed_list_tpl<uint16, 32> times = waiting_times[category].get(halt.get_id()).times;
-		const uint16 count = times.get_count();
+		const uint32 count = times.get_count();
 		if(count > 0 && halt.is_bound())
 		{
 			uint32 total_times = 0;
@@ -1587,13 +1587,103 @@ uint16 haltestelle_t::get_average_waiting_time(halthandle_t halt, uint8 category
 			}
 			total_times /= count;
 			// Minimum waiting time of 2 minutes (i.e., 20 tenths of a minute)
-			// This simulates the overhead time needed to arrive at a stop, and 
+			// This simulates the overhead time needed to arrive at a stop and 
 			// board, etc. 
 			return total_times >= 20 ? (uint16)total_times : 20;
 		}
-		return 19;
+		return get_service_frequency(halt, category);
 	}
-	return 19;
+	return get_service_frequency(halt, category);
+}
+
+uint16 haltestelle_t::get_service_frequency(halthandle_t destination, uint8 category) const
+{
+	/*if(!is_connected(destination, category))
+	{
+		return 19;
+	}*/
+
+	uint16 service_frequency = 19;
+
+	for(uint32 i = 0; i < registered_lines.get_count(); i++) 
+	{
+		if(!registered_lines[i]->get_goods_catg_index().is_contained(category))
+		{
+			continue;
+		}
+		uint8 schedule_count = registered_lines[i]->get_schedule()->get_count();
+		uint32 timing = 0;
+		bool line_serves_destination = false;
+		for(uint8 n = 0; n < schedule_count; n++)
+		{
+			if(n < schedule_count - 1)
+			{
+				const uint16 average_time = registered_lines[i]->get_average_journey_times().get(id_pair(self.get_id(), destination.get_id())).get_average();
+				if(average_time != 0 && average_time != 65535)
+				{
+					timing += average_time;
+				}
+				else
+				{
+					// Fallback to convoy's general average speed if a point-to-point average is not available.
+					const uint32 distance = shortest_distance(get_basis_pos(), destination->get_basis_pos());
+					const uint32 recorded_average_speed = registered_lines[i]->get_finance_history(1, LINE_AVERAGE_SPEED);
+					const uint32 average_speed = recorded_average_speed > 0 ? recorded_average_speed : speed_to_kmh(registered_lines[i]->get_convoy(0)->get_min_top_speed()) >> 1;
+					const uint32 journey_time_32 = welt->travel_time_tenths_from_distance(distance, average_speed);
+					
+					// TODO: Seriously consider using 32 bits here for all journey time data
+					uint16 approximated_time = journey_time_32 > 65534 ? 65534 : journey_time_32;					
+					timing += approximated_time;
+				}
+			}
+			if(haltestelle_t::get_halt(registered_lines[i]->get_schedule()->eintrag[n].pos, besitzer_p) == destination)
+			{
+				// This line serves this destination.
+				line_serves_destination = true;
+			}
+		}
+		
+		if(!line_serves_destination)
+		{
+			continue;
+		}
+
+		// Divide the round trip time by the number of convoys in the line.
+		timing /= registered_lines[i]->count_convoys();
+
+		if(registered_lines[i]->get_schedule()->get_spacing() > 0)
+		{
+			// Check whether the spacing setting affects things.
+			sint64 spacing_ticks = welt->ticks_per_world_month / (sint64)registered_lines[i]->get_schedule()->get_spacing();
+			const uint32 spacing_time = welt->ticks_to_tenths_of_minutes(spacing_ticks);
+			timing = max(spacing_time, timing);
+		}
+
+		if(service_frequency == 19)
+		{
+			// This is the only time that this has been set so far, so compute for single line timing.
+			service_frequency = max(20, timing);
+		}
+		else
+		{
+			uint32 proportion = timing * 10 / service_frequency;
+			if(service_frequency < timing)
+			{
+				service_frequency = ((service_frequency * 10 / proportion) + service_frequency) / 2;
+			}
+			else if(proportion == 0)
+			{
+				// Where the timing is so much lower than the existing frequency that the proportion is zero,
+				// the infrequent service is probably insignificant in the timing so far.
+				service_frequency =  max(20, timing);
+			}
+			else
+			{
+				service_frequency = max(20, ((timing * 10 / proportion) + timing) / 2);
+			}
+		}
+	}
+	return service_frequency;
 }
 
 linehandle_t haltestelle_t::get_preferred_line(halthandle_t transfer, uint8 category) const
@@ -4368,17 +4458,17 @@ void haltestelle_t::calc_transfer_time()
 	if(capacity[0] > 0 && waiting > capacity[0])
 	{
 		const sint64 overcrowded_proporion_passengers = waiting * 10ll / capacity[0];
-		transfer_time = max(transfer_time, overcrowded_proporion_passengers);
-		transfer_time *= (2 * overcrowded_proporion_passengers);
-		transfer_time /= 10ll;
+		transfer_time = max(transfer_time, (uint16)overcrowded_proporion_passengers);
+		transfer_time *= (2 * (uint16)overcrowded_proporion_passengers);
+		transfer_time /= 10;
 	}
 
 	if(capacity[2] > 0 && waiting > capacity[2])
 	{
 		const sint64 overcrowded_proportion_goods = waiting * 10ll / capacity[2];
-		transshipment_time = max(transfer_time, overcrowded_proportion_goods);
-		transshipment_time *= (2 * overcrowded_proportion_goods);
-		transshipment_time /= 10ll;
+		transshipment_time = max(transfer_time, (uint16)overcrowded_proportion_goods);
+		transshipment_time *= (2 * (uint16)overcrowded_proportion_goods);
+		transshipment_time /= 10;
 	}
 
 	// For reference, with a transshipment speed of 1 km/h and a walking speed of 5 km/h,

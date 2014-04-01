@@ -955,6 +955,11 @@ public:
 	* Calculate the transfer and transshipment time values.
 	*/
 	void calc_transfer_time();
+
+	/**
+	* The average time in 10ths of minutes between convoys to this destination
+	*/
+	uint16 get_service_frequency(halthandle_t destination, uint8 category) const;
 };
 
 ENUM_BITSET(haltestelle_t::stationtyp)
