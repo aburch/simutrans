@@ -4361,6 +4361,26 @@ void haltestelle_t::calc_transfer_time()
 	const uint32 hauling_around = welt->walk_haulage_time_tenths_from_distance(length_around);
 	transshipment_time = min( hauling_around / 4, 65535 );
 
+	// Adjust for overcrowding - transfer time increases with a more crowded stop.
+	// TODO: Better separate waiting times for different types of goods.
+	const sint64 waiting = (financial_history[0][HALT_WAITING] + financial_history[0][HALT_WAITING]) / 2ll;
+
+	if(capacity[0] > 0 && waiting > capacity[0])
+	{
+		const sint64 overcrowded_proporion_passengers = waiting * 10ll / capacity[0];
+		transfer_time = max(transfer_time, overcrowded_proporion_passengers);
+		transfer_time *= (2 * overcrowded_proporion_passengers);
+		transfer_time /= 10ll;
+	}
+
+	if(capacity[2] > 0 && waiting > capacity[2])
+	{
+		const sint64 overcrowded_proportion_goods = waiting * 10ll / capacity[2];
+		transshipment_time = max(transfer_time, overcrowded_proportion_goods);
+		transshipment_time *= (2 * overcrowded_proportion_goods);
+		transshipment_time /= 10ll;
+	}
+
 	// For reference, with a transshipment speed of 1 km/h and a walking speed of 5 km/h,
 	// and 125 meters per tile, a 1x2 station has a 1:48 transfer penalty for freight
 	// and an 18 second transfer penalty for passengers.  A 1x6 station has
