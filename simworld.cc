@@ -5414,8 +5414,8 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 			if(start_halts.get_count() == 1 && destination_list.get_count() == 1 && start_halts[0].halt == destination_list.get_element(0))
 			{
 				/** There is no public transport route, as the only stop
-					* for the origin is also the only stop for the destintation.
-					*/
+				* for the origin is also the only stop for the destintation.
+				*/
 				start_halt = start_halts[0].halt;
 			}
 			else
@@ -5486,7 +5486,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 
 				if(best_journey_time_including_crowded_halts < tolerance && route_status != public_transport)
 				{ 
-					route_status = overcrowded; // An overcrowded halt takes precedence over a too slow where applicable.
+					route_status = overcrowded;
 					if(!overcrowded_already_set)
 					{
 						best_bad_destination = destination_pos;
@@ -5494,7 +5494,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 						overcrowded_already_set = true;
 					}
 				}
-				else if(route_status == public_transport && best_journey_time >= tolerance)
+				else if((route_status == public_transport || route_status == no_route) && best_journey_time_including_crowded_halts >= tolerance)
 				{
 					route_status = too_slow;
 				
@@ -5821,7 +5821,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 		
 			if(city && wtyp == warenbauer_t::passagiere)
 			{
-				if(car_minutes > best_journey_time)
+				if(car_minutes >= best_journey_time)
 				{
 					city->merke_passagier_ziel(best_bad_destination, COL_LIGHT_PURPLE);
 				}
