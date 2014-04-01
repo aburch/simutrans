@@ -142,17 +142,34 @@ uint32 simrand(const uint32 max, const char*)
 /* Generates a random number on [0,max-1] interval with a normal distribution*/
 /* See: http://forum.simutrans.com/index.php?topic=10953.0;all for details*/
 #ifdef DEBUG_SIMRAND_CALLS
-uint32 simrand_normal(const uint32 max, const char* caller)
+uint32 simrand_normal(const uint32 max, uint32 exponent, const char* caller)
 #else
-uint32 simrand_normal(const uint32 max, const char*)
+uint32 simrand_normal(const uint32 max, uint32 exponent, const char*)
 #endif
 {
-	const uint32 adj_max = max == 0 ? 1 : max;
 #ifdef DEBUG_SIMRAND_CALLS
-	return ((simrand(max, caller) * simrand(max, "simrand_normal")) / max);
+	uint32 random_number = simrand(max, caller);
 #else
-	return ((simrand(max, "simrand_normal") * simrand(max, "simrand_normal")) / adj_max);
+	uint32 random_number = simrand(max, "simrand_normal");
 #endif
+	if(exponent < 2)
+	{
+		// Exponents of 1 make this identical to the normal random number generator.
+		return random_number;
+	}
+
+	uint32 adj_max = max == 0 ? 1 : max;
+
+	for(int i = 0; i < exponent - 1; i++)
+	{
+		random_number *= simrand(max, "simrand_normal");
+	}
+	for(int n = 0; n < exponent - 2; n ++)
+	{
+		adj_max *= adj_max;
+	}
+
+	return random_number / adj_max;
 }
 
 

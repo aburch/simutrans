@@ -5222,9 +5222,9 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 				trip == mail_trip ? 
 				65535 : 
 					trip == commuting_trip ?
-					simrand_normal(range_commuting_tolerance, "karte_t::step_passengers_and_mail (commuting tolerance?)") + min_commuting_tolerance : 
+					simrand_normal(range_commuting_tolerance, 2, "karte_t::step_passengers_and_mail (commuting tolerance?)") + min_commuting_tolerance : 
 					/*trip == visiting_trip ? */
-					simrand_normal(range_visiting_tolerance, "karte_t::step_passengers_and_mail (visiting tolerance?)") + min_visiting_tolerance;
+					simrand_normal(range_visiting_tolerance, 3, "karte_t::step_passengers_and_mail (visiting tolerance?)") + min_visiting_tolerance;
 		}
 		else
 		{
@@ -5306,7 +5306,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 		if(wtyp == warenbauer_t::post)
 		{
 			// People will walk long distances with mail: it is not heavy.
-			quasi_tolerance = simrand_normal(range_visiting_tolerance, "karte_t::step_passengers_and_mail (quasi tolerance)") + min_visiting_tolerance;
+			quasi_tolerance = simrand_normal(range_visiting_tolerance, 3, "karte_t::step_passengers_and_mail (quasi tolerance)") + min_visiting_tolerance;
 		}
 		else
 		{

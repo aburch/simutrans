@@ -26,9 +26,9 @@ uint32 simrand(const uint32 max, const char*);
 
 /* Generates a random number on [0,max-1] interval with a normal distribution*/
 #ifdef DEBUG_SIMRAND_CALLS
-uint32 simrand_normal(const uint32 max, const char* caller);
+uint32 simrand_normal(const uint32 max, uint32 exponent, const char* caller);
 #else
-uint32 simrand_normal(const uint32 max, const char*);
+uint32 simrand_normal(const uint32 max, uint32 exponent, const char*);
 #endif
 
 /* generates a random number on [0,0xFFFFFFFFu]-interval */
