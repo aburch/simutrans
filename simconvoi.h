@@ -481,10 +481,6 @@ private:
 	*/
 	uint16 last_stop_id;
 
-	// things for the world record
-	sint32 max_record_speed; // current convois fastest speed ever
-	koord record_pos;
-
 	// needed for speed control/calculation
 	sint32 akt_speed;	        // current speed
 	sint32 akt_speed_soll;		// Target speed

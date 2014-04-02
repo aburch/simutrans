@@ -118,7 +118,6 @@ void convoi_t::reset()
 
 	jahresgewinn = 0;
 
-	max_record_speed = 0;
 	set_akt_speed(0);          // momentane Geschwindigkeit / current speed
 	sp_soll = 0;
 	//brake_speed_soll = 2147483647; // ==SPEED_UNLIMITED
@@ -177,7 +176,6 @@ void convoi_t::init(spieler_t *sp)
 	loading_limit = 0;
 	free_seats = 0;
 
-	max_record_speed = 0;
 	//brake_speed_soll = SPEED_UNLIMITED;
 	akt_speed_soll = 0;            // Sollgeschwindigkeit
 	set_akt_speed(0);                 // momentane Geschwindigkeit
@@ -614,7 +612,6 @@ void convoi_t::call_convoi_tool( const char function, const char *extra)
 void convoi_t::rotate90( const sint16 y_size )
 {
 	// last_stop_pos.rotate90( y_size );
-	record_pos.rotate90( y_size );
 	home_depot.rotate90( y_size );
 	route.rotate90( y_size );
 	if(fpl) {
@@ -1703,11 +1700,6 @@ end_loop:
 					// Hajo: now calculate a new route
 
 					drive_to();
-
-					// finally, was there a record last time?
-					if(max_record_speed>welt->get_record_speed(fahr[0]->get_waytype())) {
-						welt->notify_record(self, max_record_speed, record_pos);
-					}
 				}
 			}
 			break;
@@ -4343,6 +4335,11 @@ void convoi_t::laden() //"load" (Babelfish)
 		if(average_speed <= get_vehicle_summary().max_speed)
 		{
 			book(average_speed, CONVOI_AVERAGE_SPEED);
+			sint32 TEST_record = welt->get_record_speed(fahr[0]->get_waytype());
+			if(average_speed > welt->get_record_speed(fahr[0]->get_waytype())) 
+			{
+				welt->notify_record(self, average_speed, pos);
+			}
 
 			bool reverse = !reverse_schedule;
 			uint8 current_stop = fpl->get_aktuell();

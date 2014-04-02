@@ -53,28 +53,20 @@ void records_t::notify_record( convoihandle_t cnv, sint32 max_speed, koord k, ui
 	}
 
 	// avoid the case of two convois with identical max speed ...
-	if(cnv!=sr->cnv  &&  sr->speed+1==max_speed) {
+	if(cnv!=sr->cnv  &&  sr->speed==max_speed) {
 		return;
 	}
 
 	// really new/faster?
-	if(k!=sr->pos  ||  sr->speed+1<max_speed) {
-		// update it
+	if(sr->speed<max_speed) {
+
 		sr->cnv = cnv;
-		sr->speed = max_speed-1;
-		sr->year_month = current_month;
-		sr->pos = k;
-		sr->besitzer = NULL; // will be set, when accepted
-	}
-	else {
-		sr->cnv = cnv;
-		sr->speed = max_speed-1;
+		sr->speed = max_speed;
 		sr->pos = k;
 
-		// same convoi and same position
 		if(sr->besitzer==NULL  &&  current_month!=sr->year_month) {
 			// notify the world of this new record
-			sr->speed = max_speed-1;
+			sr->speed = max_speed;
 			sr->besitzer = cnv->get_besitzer();
 			const char* text;
 			switch (cnv->front()->get_waytype()) {
@@ -89,7 +81,7 @@ void records_t::notify_record( convoihandle_t cnv, sint32 max_speed, koord k, ui
 				case air_wt:      text = "New world record for planes: %.1f km/h by %s.";    break;
 			}
 			cbuffer_t buf;
-			buf.printf( translator::translate(text), speed_to_kmh(10*sr->speed)/10.0, sr->cnv->get_name() );
+			buf.printf(translator::translate(text), (float)sr->speed, sr->cnv->get_name());
 			msg->add_message( buf, sr->pos, message_t::new_vehicle, PLAYER_FLAG|sr->besitzer->get_player_nr() );
 		}
 	}
