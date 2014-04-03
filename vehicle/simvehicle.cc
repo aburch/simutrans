@@ -775,7 +775,6 @@ void vehicle_t::rotate90()
 {
 	vehicle_base_t::rotate90();
 	previous_direction = ribi_t::rotate90( previous_direction );
-	pos_prev.rotate90( welt->get_size().y-1 );
 	last_stop_pos.rotate90( welt->get_size().y-1 );
 }
 
@@ -812,18 +811,6 @@ void vehicle_t::set_convoi(convoi_t *c)
 		if(leading) {
 			route_t const& r = *cnv->get_route();
 			check_for_finish = r.empty() || route_index >= r.get_count() || get_pos() == r.at(route_index);
-		}
-		// some convois were saved with broken coordinates
-		if(  !welt->lookup(pos_prev)  ) {
-			if(  pos_prev!=koord3d::invalid  ) {
-				dbg->error("vehicle_t::set_convoi()","pos_prev is illegal of convoi %i at %s", cnv->self.get_id(), get_pos().get_str() );
-			}
-			if(  grund_t *gr = welt->lookup_kartenboden(pos_prev.get_2d())  ) {
-				pos_prev = gr->get_pos();
-			}
-			else {
-				pos_prev = get_pos();
-			}
 		}
 		if(  pos_next != koord3d::invalid  ) {
 			route_t const& r = *cnv->get_route();
@@ -1349,7 +1336,6 @@ void vehicle_t::initialise_journey(uint16 start_route_index, bool recalc)
 		else {
 			check_for_finish = true;
 		}
-		pos_prev = get_pos();
 		set_pos(r.at(start_route_index));
 
 		// recalc directions
@@ -1398,7 +1384,6 @@ vehicle_t::vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player) 
 
 	smoke = true;
 	direction = ribi_t::none;
-	pos_prev = koord3d::invalid;
 
 	current_friction = 4;
 	total_freight = 0;
@@ -1646,7 +1631,7 @@ void vehicle_t::hop(grund_t* gr)
 
 	leave_tile(); 
 
-	pos_prev = get_pos();
+	koord3d pos_prev = get_pos();
 	set_pos( pos_next );  // next field
 	if(route_index<cnv->get_route()->get_count()-1) {
 		route_index ++;
@@ -2591,7 +2576,10 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 			cnv = NULL;	// no reservation too
 		}
 	}
-	pos_prev.rdwr(file);
+	if(file->get_version()<=112008) {
+		koord3d pos_prev(koord3d::invalid);
+		pos_prev.rdwr(file);
+	}
 
 	if(file->get_version()<=99004) {
 		koord3d dummy;
