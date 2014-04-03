@@ -26,6 +26,8 @@ struct SQExpState {
   bool       donot_get;   /* signal not to deref the next value */
 };
 
+#define MAX_COMPILER_ERROR_LEN 256
+
 struct SQScope {
 	SQInteger outers;
 	SQInteger stacksize;
@@ -78,7 +80,7 @@ public:
 		_lineinfo = lineinfo;_raiseerror = raiseerror;
 		_scope.outers = 0;
 		_scope.stacksize = 0;
-		compilererror = NULL;
+		_compilererror[0] = NULL;
 	}
 	static void ThrowError(void *ud, const SQChar *s) {
 		SQCompiler *c = (SQCompiler *)ud;
@@ -86,12 +88,10 @@ public:
 	}
 	void Error(const SQChar *s, ...)
 	{
-		SQChar temp[256];
 		va_list vl;
 		va_start(vl, s);
-		scvsprintf(temp, s, vl);
+		scvsprintf(_compilererror, s, vl);
 		va_end(vl);
-		compilererror = temp;
 		longjmp(_errorjmp,1);
 	}
 	void Lex(){	_token = _lex.Lex();}
@@ -191,10 +191,10 @@ public:
 		}
 		else {
 			if(_raiseerror && _ss(_vm)->_compilererrorhandler) {
-				_ss(_vm)->_compilererrorhandler(_vm, compilererror, type(_sourcename) == OT_STRING?_stringval(_sourcename):_SC("unknown"),
+				_ss(_vm)->_compilererrorhandler(_vm, _compilererror, type(_sourcename) == OT_STRING?_stringval(_sourcename):_SC("unknown"),
 					_lex._currentline, _lex._currentcolumn);
 			}
-			_vm->_lasterror = SQString::Create(_ss(_vm), compilererror, -1);
+			_vm->_lasterror = SQString::Create(_ss(_vm), _compilererror, -1);
 			return false;
 		}
 		return true;
@@ -1521,7 +1521,7 @@ private:
 	SQInteger _debugop;
 	SQExpState   _es;
 	SQScope _scope;
-	SQChar *compilererror;
+	SQChar _compilererror[MAX_COMPILER_ERROR_LEN];
 	jmp_buf _errorjmp;
 	SQVM *_vm;
 };
