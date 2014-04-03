@@ -51,7 +51,7 @@ const uint32 bild_besch_t::rgbtab[SPECIAL] = {
 bild_besch_t* bild_besch_t::create_single_pixel()
 {
 	bild_besch_t* besch = new(4 * sizeof(PIXVAL)) bild_besch_t();
-	besch->pic.len = 1;
+	besch->pic.len = 4;
 	besch->pic.x = 0;
 	besch->pic.y = 0;
 	besch->pic.w = 1;
@@ -72,7 +72,8 @@ bild_besch_t* bild_besch_t::create_single_pixel()
 bild_besch_t *bild_besch_t::copy_rotate(const sint16 angle) const
 {
 #if COLOUR_DEPTH == 0
-	return const_cast<bild_besch_t *>(this);
+	(void)angle;
+	return create_single_pixel();
 #endif
 	assert(angle == 0 || (pic.w == pic.h && pic.x == 0 && pic.y == 0));
 
