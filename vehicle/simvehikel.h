@@ -231,12 +231,6 @@ protected:
 
 	convoi_t *cnv;		// != NULL if the vehicle is part of a Convoi
 
-	/**
-	* Previous position on our path
-	* @author Hj. Malthaner
-	*/
-	koord3d pos_prev;
-
 	bool ist_erstes:1;	// true, if vehicle is first vehicle of a convoi
 	bool ist_letztes:1;	// true, if vehicle is last vehicle of a convoi
 	bool rauchen:1;
@@ -276,7 +270,6 @@ public:
 
 	virtual bool calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route);
 	uint16 get_route_index() const {return route_index;}
-	const koord3d get_pos_prev() const {return pos_prev;}
 
 	/**
 	* Get the base image.
@@ -319,12 +312,6 @@ public:
 	void zeige_info();
 
 	void info(cbuffer_t & buf) const;
-
-	/**
-	* Determine travel direction
-	* @author Hj. Malthaner
-	*/
-	ribi_t::ribi richtung() const;
 
 	/* return friction constant: changes in hill and curves; may even negative downhill *
 	* @author prissi

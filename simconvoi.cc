@@ -1845,12 +1845,6 @@ bool convoi_t::can_go_alte_richtung()
 			if (route.front() != v->get_pos() && route.position_bei(1) != v->get_pos()) {
 				route.insert(v->get_pos());
 			}
-			// eventually we need to add also a previous position to this path
-			if(v->get_besch()->get_length()>8  &&  i+1<anz_vehikel) {
-				if (route.front() != v->get_pos_prev() && route.position_bei(1) != v->get_pos_prev()) {
-					route.insert(v->get_pos_prev());
-				}
-			}
 		}
 	}
 
@@ -1867,24 +1861,21 @@ bool convoi_t::can_go_alte_richtung()
 			if(route.position_bei(idx)==vehicle_start_pos) {
 				v->neue_fahrt(idx, false );
 				ok = true;
+
+				// check direction
+				uint8 richtung = v->get_fahrtrichtung();
+				uint8 neu_richtung = v->calc_richtung( route.position_bei(max(idx-1,0)).get_2d(), v->get_pos_next().get_2d());
+				// we need to move to this place ...
+				if(neu_richtung!=richtung  &&  (i!=0  ||  anz_vehikel==1  ||  ribi_t::ist_kurve(neu_richtung)) ) {
+					// 90 deg bend!
+					return false;
+				}
+
 				break;
 			}
 		}
 		// too short?!? (rather broken then!)
 		if(!ok) {
-			return false;
-		}
-	}
-
-	// on curves the vehicle may be already on the next tile but with a wrong direction
-	for(i=0; i<anz_vehikel; i++) {
-		vehikel_t* v = fahr[i];
-
-		uint8 richtung = v->get_fahrtrichtung();
-		uint8 neu_richtung = v->richtung();
-		// we need to move to this place ...
-		if(neu_richtung!=richtung  &&  (i!=0  ||  anz_vehikel==1  ||  ribi_t::ist_kurve(neu_richtung)) ) {
-			// 90 deg bend!
 			return false;
 		}
 	}
@@ -3527,8 +3518,8 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 	// Flat tiles, with no stops, no crossings, no signs, no change of road speed limit
 	// First phase: no traffic except me and my overtaken car in the dangerous zone
 	unsigned int route_index = fahr[0]->get_route_index()+1;
-	koord pos_prev = fahr[0]->get_pos_prev().get_2d();
 	koord3d pos = fahr[0]->get_pos();
+	koord pos_prev = (route_index > 2 ? route.position_bei(route_index-2) : pos).get_2d();
 	koord3d pos_next;
 
 	while( distance > 0 ) {

@@ -651,7 +651,6 @@ void vehikel_t::rotate90()
 {
 	vehikel_basis_t::rotate90();
 	alte_fahrtrichtung = ribi_t::rotate90( alte_fahrtrichtung );
-	pos_prev.rotate90( welt->get_size().y-1 );
 	last_stop_pos.rotate90( welt->get_size().y-1 );
 }
 
@@ -683,18 +682,6 @@ void vehikel_t::set_convoi(convoi_t *c)
 		if(ist_erstes) {
 			route_t const& r = *cnv->get_route();
 			check_for_finish = r.empty() || route_index >= r.get_count() || get_pos() == r.position_bei(route_index);
-		}
-		// some convois were saved with broken coordinates
-		if(  !welt->lookup(pos_prev)  ) {
-			if(  pos_prev!=koord3d::invalid  ) {
-				dbg->error("vehikel_t::set_convoi()","pos_prev is illegal of convoi %i at %s", cnv->self.get_id(), get_pos().get_str() );
-			}
-			if(  grund_t *gr = welt->lookup_kartenboden(pos_prev.get_2d())  ) {
-				pos_prev = gr->get_pos();
-			}
-			else {
-				pos_prev = get_pos();
-			}
 		}
 		if(  pos_next != koord3d::invalid  ) {
 			route_t const& r = *cnv->get_route();
@@ -957,7 +944,6 @@ void vehikel_t::neue_fahrt(uint16 start_route_index, bool recalc)
 	else {
 		// recalc directions
 		pos_next = r.position_bei(route_index);
-		pos_prev = get_pos();
 		set_pos(r.position_bei(start_route_index));
 
 		alte_fahrtrichtung = fahrtrichtung;
@@ -993,7 +979,6 @@ vehikel_t::vehikel_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp) :
 
 	rauchen = true;
 	fahrtrichtung = ribi_t::keine;
-	pos_prev = koord3d::invalid;
 
 	current_friction = 4;
 	total_freight = 0;
@@ -1120,7 +1105,7 @@ grund_t* vehikel_t::hop()
 {
 	verlasse_feld();
 
-	pos_prev = get_pos();
+	koord3d pos_prev = get_pos();
 	set_pos( pos_next );  // next field
 	if(route_index<cnv->get_route()->get_count()-1) {
 		route_index ++;
@@ -1393,18 +1378,6 @@ void vehikel_t::loesche_fracht()
 }
 
 
-/**
- * Determine travel direction
- * @author Hj. Malthaner
- */
-ribi_t::ribi vehikel_t::richtung() const
-{
-	ribi_t::ribi neu = calc_richtung(pos_prev.get_2d(), pos_next.get_2d());
-	// nothing => use old direct further on
-	return (neu == ribi_t::keine) ? fahrtrichtung : neu;
-}
-
-
 void vehikel_t::calc_bild()
 {
 	image_id old_bild=get_bild();
@@ -1540,7 +1513,10 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 			cnv = NULL;	// no reservation too
 		}
 	}
-	pos_prev.rdwr(file);
+	if(file->get_version()<=112008) {
+		koord3d pos_prev(koord3d::invalid);
+		pos_prev.rdwr(file);
+	}
 
 	if(file->get_version()<=99004) {
 		koord3d dummy;
