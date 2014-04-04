@@ -5216,15 +5216,23 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 		// Split passengers between commuting trips and other trips.
 		if(trip_count == 0)
 		{
-				// Set here because we deduct the previous journey time from the tolerance for onward trips.
-
-				tolerance = 
-				trip == mail_trip ? 
-				65535 : 
-					trip == commuting_trip ?
-					simrand_normal(range_commuting_tolerance, 2, "karte_t::step_passengers_and_mail (commuting tolerance?)") + min_commuting_tolerance : 
-					/*trip == visiting_trip ? */
-					simrand_normal(range_visiting_tolerance, 3, "karte_t::step_passengers_and_mail (visiting tolerance?)") + min_visiting_tolerance;
+			// Set here because we deduct the previous journey time from the tolerance for onward trips.
+			if(trip == mail_trip)
+			{
+				tolerance = 65535;
+			}
+			else if(trip == commuting_trip)
+			{
+				tolerance = (uint16)simrand_normal(range_commuting_tolerance, 2, "karte_t::step_passengers_and_mail (commuting tolerance?)") + min_commuting_tolerance;
+			}
+			else
+			{
+				const uint64 first = simrand_normal(range_visiting_tolerance, 3, "karte_t::step_passengers_and_mail (visiting tolerance?)");
+				const uint64 second = simrand_normal(range_visiting_tolerance, 3, "karte_t::step_passengers_and_mail (visiting tolerance?)");
+				const uint64 long_tolerance = (first * second) / range_visiting_tolerance;
+				tolerance = (uint16)long_tolerance + min_visiting_tolerance; 
+				//tolerance = (uint16)simrand_normal(range_visiting_tolerance, 3, "karte_t::step_passengers_and_mail (visiting tolerance?)") + min_visiting_tolerance;
+			}
 		}
 		else
 		{
@@ -5836,7 +5844,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 				}
 			}
 
-			if(too_slow_already_set)
+			if(too_slow_already_set && !start_halts.empty())
 			{
 				// This will be dud for a private car trip.
 				start_halt = start_halts[best_bad_start_halt].halt; 					
