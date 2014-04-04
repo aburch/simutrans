@@ -675,6 +675,12 @@ void convoi_t::add_running_cost( const weg_t *weg )
  */
 void convoi_t::calc_acceleration(long delta_t)
 {
+	if(  !recalc_data  &&  abs( akt_speed_soll-akt_speed) < 24  ) {
+		// very close to max speed => go with max speed and finish calculation here
+		akt_speed = akt_speed_soll;
+		return;
+	}
+
 	// Dwachs: only compute this if a vehicle in the convoi hopped
 	if(  recalc_data  ) {
 		// calculate total friction and lowest speed limit
@@ -712,23 +718,24 @@ void convoi_t::calc_acceleration(long delta_t)
 
 		recalc_data = false;
 	}
+
 	// Prissi: more pleasant and a little more "physical" model *
 
 	// try to simulate quadratic friction
 	if(sum_gesamtgewicht != 0) {
 		/*
-		 * The parameter consist of two parts (optimized for good looking):
-		 *  - every vehicle in a convoi has a the friction of its weight
-		 *  - the dynamic friction is calculated that way, that v^2*weight*frictionfactor = 200 kW
-		 * => heavier loaded and faster traveling => less power for acceleration is available!
-		 * since delta_t can have any value, we have to scale the step size by this value.
-		 * however, there is a quadratic friction term => if delta_t is too large the calculation may get weird results
-		 * @author prissi
-		 */
+			* The parameter consist of two parts (optimized for good looking):
+			*  - every vehicle in a convoi has a the friction of its weight
+			*  - the dynamic friction is calculated that way, that v^2*weight*frictionfactor = 200 kW
+			* => heavier loaded and faster traveling => less power for acceleration is available!
+			* since delta_t can have any value, we have to scale the step size by this value.
+			* however, there is a quadratic friction term => if delta_t is too large the calculation may get weird results
+			* @author prissi
+			*/
 
 		/* but for integer, we have to use the order below and calculate actually 64*deccel, like the sum_gear_und_leistung
-		 * since akt_speed=10/128 km/h and we want 64*200kW=(100km/h)^2*100t, we must multiply by (128*2)/100
-		 * But since the acceleration was too fast, we just deccelerate 4x more => >>6 instead >>8 */
+			* since akt_speed=10/128 km/h and we want 64*200kW=(100km/h)^2*100t, we must multiply by (128*2)/100
+			* But since the acceleration was too fast, we just deccelerate 4x more => >>6 instead >>8 */
 		//sint32 deccel = ( ( (akt_speed*sum_friction_weight)>>6 )*(akt_speed>>2) ) / 25 + (sum_gesamtgewicht*64);	// this order is needed to prevent overflows!
 		//sint32 deccel = (sint32)( ( (sint64)akt_speed * (sint64)sum_friction_weight * (sint64)akt_speed ) / (25ll*256ll) + sum_gesamtgewicht * 64ll) / 1000ll; // intermediate still overflows so sint64
 		sint32 deccel = (sint32)( ( (sint64)akt_speed * ( (sum_friction_weight * (sint64)akt_speed ) / 3125ll + 1ll) ) / 2048ll + (sum_gesamtgewicht * 64ll) / 1000ll);
