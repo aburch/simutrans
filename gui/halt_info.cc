@@ -173,7 +173,7 @@ halt_info_t::halt_info_t(halthandle_t halt) :
 	cursor.y += D_LABEL_HEIGHT + D_V_SPACE;
 
 	// hsiegeln: added sort_button
-	sort_button.init(button_t::roundbox, sort_text[env_t::default_sortmode], cursor, button_size);
+	sort_button.init(button_t::roundbox, sort_text[env_t::default_sortmode], cursor, scr_size(D_BUTTON_WIDTH*2, D_BUTTON_HEIGHT));
 	sort_button.set_tooltip("Sort waiting list by");
 	sort_button.add_listener(this);
 	add_komponente(&sort_button);

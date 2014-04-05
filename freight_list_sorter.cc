@@ -342,23 +342,23 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 					const char* trip_type = (ware.is_commuting_trip ? translator::translate("commuting") : translator::translate("visiting"));
 
 					if(city)
-					{
-						buf.printf("%s <%i, %i> (%s; %s)\n        ", dbuf.get_str(), zielpos.x, zielpos.y, city->get_name(), trip_type);
+					{ 
+						buf.printf("%s <%i, %i> (%s; %s)\n     ", dbuf.get_str(), zielpos.x, zielpos.y, city->get_name(), trip_type);
 					}
 					else 
 					{
-						buf.printf("%s <%i, %i> (%s)\n        ", dbuf.get_str(), zielpos.x, zielpos.y, trip_type);
+						buf.printf("%s <%i, %i> (%s)\n     ", dbuf.get_str(), zielpos.x, zielpos.y, trip_type);
 					}
 				}
 				else if(sortby == by_destination_detail)
 				{
 					if(city)
 					{
-						buf.printf("%s <%i, %i> (%s)\n        ", dbuf.get_str(), zielpos.x, zielpos.y, city->get_name());
+						buf.printf("%s <%i, %i> (%s)\n     ", dbuf.get_str(), zielpos.x, zielpos.y, city->get_name());
 					}
 					else
 					{
-						buf.printf("%s <%i, %i>\n        ", dbuf.get_str(), zielpos.x, zielpos.y);
+						buf.printf("%s <%i, %i>\n     ", dbuf.get_str(), zielpos.x, zielpos.y);
 					}
 				}
 			}
@@ -370,7 +370,14 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 				{
 					destination_name = halt->get_name();
 				}
-				buf.printf(destination_name);
+				if(sortby == by_destination_detail)
+				{
+					buf.printf(translator::translate(" via %s"), destination_name);
+				}
+				else
+				{
+					buf.printf(destination_name);
+				}
 			}
 
 			if(sortby == by_origin_amount)
