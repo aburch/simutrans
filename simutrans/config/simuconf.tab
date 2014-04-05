@@ -172,6 +172,36 @@ onward_trip_chance_percent = 25
 # trip that is not a commuting trip is classed as a visiting trip.
 commuting_trip_chance_percent = 67
 
+# The following settings determine the way in which individual packets of passengers decide
+# what their actual journey time tolerance is, within the above ranges. The options are:
+#
+# 0 - Even distribution
+# Every point between the minimum and maximum is equally likely to be selected
+#
+# 1 - Normal distribution (http://en.wikipedia.org/wiki/Normal_distribution)
+# Points nearer the middle of the range between minimum and maxiumum are more likely 
+# to be selected than points nearer the end of the ranges.
+#
+# 2 - Positively skewed normal distribution (squared) (http://en.wikipedia.org/wiki/Skewness)
+# Points nearer the a point in the range that is not the middle but is nearer to the lower
+# end of the range are more likely to be selected. The distance from the middle is the skew.
+#
+# 3 - Positively skewed normal distribution (cubed)
+# As with no. 2, but the degree of skewness (the extent to which the modal point in the range
+# is nearer the beginning than the end) is considerably greater.
+#
+# 4 - Positively skewed normal distribution (squared recursive)
+# As with nos. 2 and 3 with an even greater degree of skew.
+#
+# 5 - Positively skewed normal distribution (cubed recursive)
+# As with nos. 2, 3 and 4 with a still greater degree of skew.
+#
+# 6 and over - Positveily skewed normal distribution (cubed multiple recursive)
+# As with nos. 2, 3, 4, and 5 with an ever more extreme degree of skew. Use with caution.
+
+random_mode_commuting = 2
+random_mode_visiting = 2
+
 ################################## Industry settings #################################
 
 # when a city reaches 2^n times of this number

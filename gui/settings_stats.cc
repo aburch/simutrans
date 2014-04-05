@@ -377,6 +377,8 @@ void settings_experimental_revenue_stats_t::init( settings_t *sets )
 	INIT_NUM( "max_alternative_destinations_per_job_millionths", sets->get_max_alternative_destinations_per_job_millionths(), 0, 65534, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM("passenger_max_wait", sets->get_passenger_max_wait(), 0, 311040, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM("min_wait_airport", sets->get_min_wait_airport(), 0, 311040, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM("random_mode_commuting", sets->get_random_mode_commuting(), 0, 16, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM("random_mode_visiting", sets->get_random_mode_visiting(), 0, 16, gui_numberinput_t::AUTOLINEAR, false );
 	{
 		gui_component_table_t &tbl = new_table(scr_coord(0, ypos), 6, 4);
 		int row = 0;
@@ -492,6 +494,8 @@ void settings_experimental_revenue_stats_t::read(settings_t *sets)
 	READ_NUM_VALUE( sets->max_alternative_destinations_per_job_millionths );
 	READ_NUM_VALUE( sets->passenger_max_wait );
 	READ_NUM_VALUE( sets->min_wait_airport );
+	READ_NUM_VALUE( sets->random_mode_commuting );
+	READ_NUM_VALUE( sets->random_mode_visiting );
 
 	READ_NUM_VALUE_TENTHS( (sets->min_commuting_tolerance) );
 	READ_NUM_VALUE_TENTHS( sets->range_commuting_tolerance);

@@ -157,14 +157,22 @@ uint32 simrand_normal(const uint32 max, uint32 exponent, const char*)
 	uint64 random_number = simrand(max, "simrand_normal");
 #endif
 	
-	if(exponent < 2)
+	if(exponent == 0)
 	{
-		// Exponents of 1 make this identical to the normal random number generator.
+		// Non-normalised random number.
 		return random_number;
 	}
 
-	// Any higher number than 3 will produce integer overflows even with unsigned. 64-bit integers
-	// Interpret higher numbers as directives for recursion.
+	if(exponent == 1)
+	{
+		// Normalised but unskewed.
+		random_number += simrand(max, "simrand_normal unskewed");
+		random_number /= 2ll; // Averaging a larger numbers will create a stronger normal peak, but it will still be unskewed.
+		return (uint32)random_number;
+	}
+
+	// Any higher number than 3 would produce integer overflows even with unsigned. 64-bit integers
+	// if the model was followed. Interpret higher numbers as directives for recursion.
 
 	uint32 degrees_of_recursion = 0;
 	uint32 recursion_exponent = 0;
@@ -192,8 +200,12 @@ uint32 simrand_normal(const uint32 max, uint32 exponent, const char*)
 
 	uint64 adj_max = abs_max;
 
-	for(int n = 0; n < exponent - 2; n ++)
+	if(exponent >= 3)
 	{
+		// This was originally a for loop, but doing this more than once
+		// overflows even an unsigned 64-bit integer with largeish max values.
+		// A single squaring can fit in a 64-bit integers even with max values
+		// in the millions.
 		adj_max *= adj_max;
 	}
 

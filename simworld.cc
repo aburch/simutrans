@@ -5223,11 +5223,11 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 			}
 			else if(trip == commuting_trip)
 			{
-				tolerance = (uint16)simrand_normal(range_commuting_tolerance, 2, "karte_t::step_passengers_and_mail (commuting tolerance?)") + min_commuting_tolerance;
+				tolerance = (uint16)simrand_normal(range_commuting_tolerance, settings.get_random_mode_commuting(), "karte_t::step_passengers_and_mail (commuting tolerance?)") + min_commuting_tolerance;
 			}
 			else
 			{
-				tolerance = (uint16)simrand_normal(range_visiting_tolerance, 5, "karte_t::step_passengers_and_mail (visiting tolerance?)") + min_visiting_tolerance;
+				tolerance = (uint16)simrand_normal(range_visiting_tolerance, settings.get_random_mode_visiting(), "karte_t::step_passengers_and_mail (visiting tolerance?)") + min_visiting_tolerance;
 			}
 		}
 		else
@@ -5310,7 +5310,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 		if(wtyp == warenbauer_t::post)
 		{
 			// People will walk long distances with mail: it is not heavy.
-			quasi_tolerance = simrand_normal(range_visiting_tolerance, 3, "karte_t::step_passengers_and_mail (quasi tolerance)") + min_visiting_tolerance;
+			quasi_tolerance = simrand_normal(range_visiting_tolerance, settings.get_random_mode_visiting(), "karte_t::step_passengers_and_mail (quasi tolerance)") + min_visiting_tolerance;
 		}
 		else
 		{

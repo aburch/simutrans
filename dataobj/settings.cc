@@ -474,6 +474,8 @@ settings_t::settings_t() :
 	reroute_check_interval_steps = 8192;
 
 	walking_speed = 5;
+
+	random_mode_commuting = random_mode_visiting = 2;
 	
 	for(uint8 i = 0; i < 17; i ++)
 	{
@@ -1531,6 +1533,8 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_long(base_meters_per_tile);
 			file->rdwr_long(base_bits_per_month);
 			file->rdwr_long(job_replenishment_per_hundredths_of_months);
+			file->rdwr_long(random_mode_commuting);
+			file->rdwr_long(random_mode_visiting);
 
 			file->rdwr_longlong(forge_cost_road);
 			file->rdwr_longlong(forge_cost_track);
@@ -2317,6 +2321,9 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	reroute_check_interval_steps = contents.get_int("reroute_check_interval_steps", reroute_check_interval_steps);
 
 	walking_speed = contents.get_int("walking_speed", walking_speed);
+
+	random_mode_commuting = contents.get_int("random_mode_commuting", random_mode_commuting);
+	random_mode_visiting = contents.get_int("random_mode_visiting", random_mode_visiting);
 	
 	for(uint8 i = road_wt; i <= air_wt; i ++)
 	{

@@ -309,6 +309,16 @@ private:
 	 */
 	uint8 walking_speed;
 
+	/**
+	* These two settings define the random number generator
+	* mode for the journey time tolerances of commuting and
+	* visiting passengers respectively, i.e., whether the
+	* random numbers are normalised, and, if normalised, whether
+	* and how much they should be skewed
+	*/
+	uint32 random_mode_commuting;
+	uint32 random_mode_visiting;
+
 public:
 	//Cornering settings
 	//@author: jamespetts
@@ -1025,6 +1035,9 @@ public:
 	uint32 get_reroute_check_interval_steps() const { return reroute_check_interval_steps; }
 
 	uint8 get_walking_speed() const { return walking_speed; }
+
+	uint32 get_random_mode_commuting() const { return random_mode_commuting; }
+	uint32 get_random_mode_visiting() const { return random_mode_visiting; }
 
 #ifndef NETTOOL
 	float32e8_t get_simtime_factor() const { return simtime_factor; }
