@@ -265,7 +265,7 @@ sint32 convoy_t::calc_max_starting_weight(sint32 sin_alpha)
 #define DT_SLICE (DT_TIME_FACTOR * DT_SLICE_SECONDS)
 //static const float32e8_t fl_time_factor(DT_TIME_FACTOR, 1);
 //static const float32e8_t fl_time_divisor(1, DT_TIME_FACTOR);
-static const float32e8_t fl_slice_seconds(DT_SLICE_SECONDS, 1);
+static const float32e8_t fl_slice_seconds(DT_SLICE_SECONDS);
 static const float32e8_t fl_max_seconds_til_vsoll(1800);
 
 float32e8_t convoy_t::calc_min_braking_distance(const weight_summary_t &weight, const float32e8_t &v)

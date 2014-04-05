@@ -269,7 +269,8 @@ protected:
 	 */
 	inline float32e8_t power_index_to_power(const sint64 &power_index, sint32 power_factor)
 	{
-		return float32e8_t(power_index * (power_factor * 10), (sint64) GEAR_FACTOR);
+		static const float32e8_t factor = float32e8_t(10) / float32e8_t(GEAR_FACTOR);
+		return float32e8_t(power_index * power_factor) * factor;
 	}
 public:
 	/**

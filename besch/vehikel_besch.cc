@@ -75,6 +75,7 @@ float32e8_t vehikel_besch_t::get_power_force_ratio() const
 		return float32e8_t(leistung, (uint32) tractive_effort);
 	}
 
+	static const float32e8_t half_of_kmh_to_ms(10, 36 * 2);
 	switch (get_waytype())
 	{
 		case track_wt:
@@ -91,9 +92,9 @@ float32e8_t vehikel_besch_t::get_power_force_ratio() const
 				* We assume, that the given power is meant for the half of the engines allowed maximum speed and get the constant force:
 				*/
 				// Steamers are constant force machines unless about half of maximum speed, when steam runs short.
-				return float32e8_t(topspeed * 10, 36 * 2);
+				return topspeed * half_of_kmh_to_ms;
 			}
-			/* else fall through */
+			return float32e8_t::ten;
 
 		//case water_wt:
 			// Ships are constant force machines at all speeds, but the pak sets are balanced for constant power. 
@@ -104,9 +105,9 @@ float32e8_t vehikel_besch_t::get_power_force_ratio() const
 			// We recommend for simutrans experimental to set the tractive effort manually. The existing aircraft power values are very roughly estimated.
 			if (topspeed)
 			{
-				return float32e8_t(topspeed * 10, 36 * 2);
+				return topspeed * half_of_kmh_to_ms;
 			}
-			/* else fall through */
+			return float32e8_t::ten;
 
 		default:
 			/** Constant power characteristic, but we limit maximum force to a tenth of the power multiplied by gear.
@@ -118,9 +119,10 @@ float32e8_t vehikel_besch_t::get_power_force_ratio() const
 			* The german series 230(130 DR) was a universal engine with 2200 kW, 250 kN starting tractive effort and 140 km/h allowed top speed.
 			* The same engine with a freight gear (series 231 / 131 DR) and 2200 kW had 340 kN starting tractive effort and 100 km/h allowed top speed.
 			*
-			* In simutrans these engines can be simulated by setting the power to 2200, max speed to 140 resp. 100 and the gear to 1.136 resp. 1.545.
+			* In simutrans experimental these engines can be designed  by setting power to 2200, max speed to 140 resp. 100 and tractive effort to 250 resp. 340. 
+			* In simutrans standard		these engines can be simulated by setting power to 2200, max speed to 140 resp. 100 and gear to 1.136 resp. 1.545.
 			*/
-			return float32e8_t(10);
+			return float32e8_t::ten;
 	}
 }
 

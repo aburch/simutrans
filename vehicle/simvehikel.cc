@@ -1430,6 +1430,9 @@ grund_t* vehikel_t::betrete_feld()
 
 grund_t* vehikel_t::hop()
 {
+	//const grund_t *gr_prev = get_grund();
+	const weg_t * weg_prev = get_weg();
+
 	verlasse_feld(); //"Verlasse" = "leave" (Babelfish)
 
 	pos_prev = get_pos();
@@ -1469,19 +1472,22 @@ grund_t* vehikel_t::hop()
 		if(  pos_next!=get_pos()  ) {
 			fahrtrichtung = calc_set_richtung( pos_prev, pos_next );
 		}
-		else if(  (  check_for_finish  &&  welt->lookup(pos_next)  &&  ribi_t::ist_gerade(welt->lookup(pos_next)->get_weg_ribi_unmasked(get_waytype()))  )  ||  welt->lookup(pos_next)->is_halt()) 
+//		else if(  (  check_for_finish  &&  welt->lookup(pos_next)  &&  ribi_t::ist_gerade(welt->lookup(pos_next)->get_weg_ribi_unmasked(get_waytype()))  )  ||  welt->lookup(pos_next)->is_halt()) 
+		else 
 		{
-			// allow diagonal stops at waypoints on diagonal tracks but avoid them on halts and at straight tracks...
-			fahrtrichtung = calc_set_richtung( pos_prev, pos_next );
+			grund_t* gr_next = welt->lookup(pos_next);
+			if ( gr_next && ( ( check_for_finish && ribi_t::ist_gerade(gr_next->get_weg_ribi_unmasked(get_waytype())) ) || gr_next->is_halt()) )
+				// allow diagonal stops at waypoints on diagonal tracks but avoid them on halts and at straight tracks...
+				fahrtrichtung = calc_set_richtung( pos_prev, pos_next );
 		}
 	}
 	calc_bild(); //Calculate image
 
 	grund_t *gr = betrete_feld(); //"Enter field" (Google)
-	const weg_t *weg = gr != NULL ? gr->get_weg(get_waytype()) : NULL;
+	const weg_t *weg = get_weg();
 	if(  weg  )	{
-		const grund_t *gr_prev = welt->lookup(pos_prev);
-		const weg_t * weg_prev = gr_prev != NULL ? gr_prev->get_weg(get_waytype()) : NULL;
+		//const grund_t *gr_prev = welt->lookup(pos_prev);
+		//const weg_t * weg_prev = gr_prev != NULL ? gr_prev->get_weg(get_waytype()) : NULL;
 		speed_limit = calc_speed_limit(weg, weg_prev, &pre_corner_direction, fahrtrichtung, alte_fahrtrichtung);
 
 		// Weight limit needed for GUI flag
@@ -2405,7 +2411,7 @@ uint32 vehikel_t::calc_restwert() const
 	// Multiply by .997**number of months
 	// Make sure to use OUR version of pow().
 	float32e8_t age_in_months = welt->get_current_month() - get_insta_zeit();
-	float32e8_t base_of_exponent (997, 1000);
+	static const float32e8_t base_of_exponent(997, 1000);
 	value *= pow(base_of_exponent, age_in_months);
 
 	// Convert back to integer
@@ -4345,12 +4351,14 @@ bool waggon_t::block_reserver(route_t *route, uint16 start_index, uint16 &next_s
 /* beware: we must un-reserve rail blocks... */
 void waggon_t::verlasse_feld()
 {
+	grund_t *gr = get_grund();
+	schiene_t *sch0 = (schiene_t *) get_weg();
 	vehikel_t::verlasse_feld();
 	// fix counters
 	if(ist_letztes) {
-		grund_t *gr = welt->lookup( get_pos() );
+		//grund_t *gr = welt->lookup( get_pos() );
 		if(gr) {
-			schiene_t *sch0 = (schiene_t *) gr->get_weg(get_waytype());
+			//schiene_t *sch0 = (schiene_t *) gr->get_weg(get_waytype());
 			if(sch0) {
 				if(!cnv || cnv->get_state() != convoi_t::REVERSING)
 				{
@@ -4359,7 +4367,7 @@ void waggon_t::verlasse_feld()
 				// tell next signal?
 				// and switch to red
 				if(sch0->has_signal()) {
-					signal_t* sig = welt->lookup(get_pos())->find<signal_t>();
+					signal_t* sig = gr->find<signal_t>();
 					if(sig) {
 						sig->set_zustand(roadsign_t::rot);
 					}
@@ -4374,7 +4382,7 @@ grund_t* waggon_t::betrete_feld()
 {
 	grund_t *gr = vehikel_t::betrete_feld();
 
-	if(  schiene_t *sch0 = (schiene_t *) gr->get_weg(get_waytype())  ) {
+	if(  schiene_t *sch0 = (schiene_t *) get_weg()  ) {
 		// way statistics
 		const int cargo = get_fracht_menge();
 		sch0->book(cargo, WAY_STAT_GOODS);
