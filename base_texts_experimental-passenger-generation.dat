@@ -55,5 +55,9 @@ note=From the city window giving the units for the land area.
 obj=program_text
 name=Population density
 note=From the city window showing the population density
+-
+obj=program_text
+name=destination (detail)
+note=Shown in the convoy/stop window for the mode that shows detailed information about the destination of goods and passengers.
 
 

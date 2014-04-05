@@ -1675,7 +1675,6 @@
     <ClCompile Include="music\w32_midi.cc" />
     <ClCompile Include="besch\ware_besch.cc" />
     <ClCompile Include="bauer\warenbauer.cc" />
-    <ClCompile Include="dataobj\warenziel.cc" />
     <ClCompile Include="boden\wasser.cc" />
     <ClCompile Include="besch\reader\way_obj_reader.cc" />
     <ClCompile Include="besch\reader\way_reader.cc" />

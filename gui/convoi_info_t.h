@@ -42,7 +42,7 @@
 class convoi_info_t : public gui_frame_t, private action_listener_t
 {
 public:
-	enum sort_mode_t { by_destination = 0, by_via = 1, by_amount_via = 2, by_amount = 3, by_origin = 4, by_origin_sum = 5, SORT_MODES = 6 };
+	enum sort_mode_t { by_destination = 0, by_via = 1, by_amount_via = 2, by_amount = 3, by_origin = 4, by_origin_sum = 5, by_destination_detail = 6, SORT_MODES = 7 };
 
 private:
 

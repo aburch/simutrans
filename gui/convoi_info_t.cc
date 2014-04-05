@@ -116,7 +116,8 @@ const char *convoi_info_t::sort_text[SORT_MODES] =
 	"via Menge",
 	"Menge",
 	"origin (detail)",
-	"origin (amount)"
+	"origin (amount)",
+	"destination (detail)"
 };
 
 
@@ -222,9 +223,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 
 	add_komponente(&sort_label);
 
-	//const sint16 yoff = offset_below_viewport+46-D_BUTTON_HEIGHT-2;
-
-	sort_button.init(button_t::roundbox, sort_text[env_t::default_sortmode], dummy, D_BUTTON_SIZE);
+	sort_button.init(button_t::roundbox, sort_text[env_t::default_sortmode], dummy, scr_size(D_BUTTON_WIDTH*2, D_BUTTON_HEIGHT));
 	sort_button.set_tooltip("Sort by");
 	sort_button.add_listener(this);
 	add_komponente(&sort_button);

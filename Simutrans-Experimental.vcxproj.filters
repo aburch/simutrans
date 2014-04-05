@@ -582,9 +582,6 @@
     <ClCompile Include="bauer\warenbauer.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="dataobj\warenziel.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="boden\wasser.cc">
       <Filter>Source Files</Filter>
     </ClCompile>

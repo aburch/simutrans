@@ -46,7 +46,8 @@ static const char *sort_text[halt_info_t::SORT_MODES] = {
 	"via Menge",
 	"Menge",
 	"origin (detail)",
-	"origin (amount)"
+	"origin (amount)",
+	"destination (detail)"
 };
 
 static const char cost_type[MAX_HALT_COST][64] =
