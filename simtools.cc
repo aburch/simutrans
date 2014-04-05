@@ -156,26 +156,57 @@ uint32 simrand_normal(const uint32 max, uint32 exponent, const char*)
 #else
 	uint64 random_number = simrand(max, "simrand_normal");
 #endif
-	assert(exponent <= 3); // Any higher number will produce integer overflows even with unsigned. 64-bit integers
+	
 	if(exponent < 2)
 	{
 		// Exponents of 1 make this identical to the normal random number generator.
 		return random_number;
 	}
 
-	uint64 adj_max = max == 0 ? 1 : max;
+	// Any higher number than 3 will produce integer overflows even with unsigned. 64-bit integers
+	// Interpret higher numbers as directives for recursion.
+
+	uint32 degrees_of_recursion = 0;
+	uint32 recursion_exponent = 0;
+	if(exponent > 3)
+	{
+		degrees_of_recursion = exponent - 4;
+		if(degrees_of_recursion == 0)
+		{
+			recursion_exponent = 2;
+		}
+		else
+		{
+			recursion_exponent = 3;
+		}
+
+		exponent = 3;
+	}
+
+	const uint64 abs_max = max == 0 ? 1 : max;
 
 	for(int i = 0; i < exponent - 1; i++)
 	{
 		random_number *= simrand(max, "simrand_normal");
 	}
 
+	uint64 adj_max = abs_max;
+
 	for(int n = 0; n < exponent - 2; n ++)
 	{
 		adj_max *= adj_max;
 	}
 
-	return (uint32)(random_number / adj_max);
+	uint64 result = random_number / adj_max;
+
+	for(uint32 i = 0; i < degrees_of_recursion; i ++)
+	{
+		// The use of a recursion exponent of 3 or less prevents infinite loops here.
+		const uint64 second_result = simrand_normal(max, recursion_exponent, "simrand_normal_recursion");
+		result = (result * second_result) / abs_max;
+	}
+
+	return (uint32)result;
 }
 
 

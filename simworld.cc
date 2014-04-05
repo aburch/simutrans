@@ -5227,11 +5227,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 			}
 			else
 			{
-				const uint64 first = simrand_normal(range_visiting_tolerance, 3, "karte_t::step_passengers_and_mail (visiting tolerance?)");
-				const uint64 second = simrand_normal(range_visiting_tolerance, 3, "karte_t::step_passengers_and_mail (visiting tolerance?)");
-				const uint64 long_tolerance = (first * second) / range_visiting_tolerance;
-				tolerance = (uint16)long_tolerance + min_visiting_tolerance; 
-				//tolerance = (uint16)simrand_normal(range_visiting_tolerance, 3, "karte_t::step_passengers_and_mail (visiting tolerance?)") + min_visiting_tolerance;
+				tolerance = (uint16)simrand_normal(range_visiting_tolerance, 5, "karte_t::step_passengers_and_mail (visiting tolerance?)") + min_visiting_tolerance;
 			}
 		}
 		else
