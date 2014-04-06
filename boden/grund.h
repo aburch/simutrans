@@ -629,20 +629,17 @@ public:
 	* @author Hj. Malthaner
 	*/
 	weg_t *get_weg(waytype_t typ) const {
-		if (weg_t* const w = get_weg_nr(0)) {
-			const waytype_t wt = w->get_waytype();
-			if(wt == typ) {
+		if (flags & has_way1)
+		{
+			objlist_t::const_iterator i = objlist.begin();
+			weg_t* w = static_cast<weg_t *>(*i);
+			if (w->get_waytype() == typ)
 				return w;
-			}
-			else if (wt > typ) {
-				// ways are ordered wrt to waytype
-				return NULL;
-			}
-			// try second way (if exists)
-			if (weg_t* const w = get_weg_nr(1)) {
-				if(w->get_waytype()==typ) {
+			if (flags & has_way2)
+			{
+				w = static_cast<weg_t *>(*++i);
+				if (w->get_waytype() == typ)
 					return w;
-				}
 			}
 		}
 		return NULL;

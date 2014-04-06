@@ -66,6 +66,16 @@ public:
 		return (capacity<=1) ? obj.one : obj.some[n];
 	}
 
+	typedef obj_t*const* const_iterator;
+	inline const_iterator begin() const
+	{
+		return (capacity<=1) ? &obj.one : obj.some;
+	}
+	inline const_iterator end() const 
+	{
+		return ((capacity<=1) ? &obj.one : obj.some) + top;
+	}
+
 	// usually used only for copying by grund_t
 	obj_t *remove_last();
 
