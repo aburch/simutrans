@@ -17,12 +17,9 @@ static karte_ptr_t welt;
 
 static const float32e8_t g_accel((uint32) 980665, (uint32) 100000); // gravitational acceleration
 
-//static const float32e8_t  _90_percent((uint32)  90, (uint32) 100);
 static const float32e8_t _101_percent((uint32) 101, (uint32) 100);
 static const float32e8_t _110_percent((uint32) 110, (uint32) 100);
 
-//static const float32e8_t milli((uint32) 1, (uint32) 1000);
-//static const float32e8_t thousand((uint32) 1000, (uint32) 1);
 static const float32e8_t million((uint32) 1000000);
 
 const float32e8_t BR_AIR = float32e8_t(2, 1);
