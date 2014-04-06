@@ -1031,9 +1031,13 @@ public:
 	// @author: jamespetts, February 2010
 	void upgrade_vehicle(uint16 i, vehikel_t* v);
 
-	vehikel_t* front() const { return fahr[0]; }
+	vehikel_t* front() const { return *fahr.begin(); }
 
-	vehikel_t* back() const { return fahr[anz_vehikel - 1]; }
+	vehikel_t* back() const { return fahr.begin()[anz_vehikel - 1]; }
+
+	typedef array_tpl<vehikel_t*>::const_iterator const_iterator;
+	inline array_tpl<vehikel_t*>::const_iterator begin() const { return fahr.begin(); }
+	inline array_tpl<vehikel_t*>::const_iterator end() const { return fahr.begin() + anz_vehikel; }
 
 	/**
 	* Adds a vehicel at the start or end of the convoi.
