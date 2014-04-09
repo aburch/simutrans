@@ -179,7 +179,7 @@ commuting_trip_chance_percent = 67
 # Every point between the minimum and maximum is equally likely to be selected
 #
 # 1 - Normal distribution (http://en.wikipedia.org/wiki/Normal_distribution)
-# Points nearer the middle of the range between minimum and maxiumum are more likely 
+# Points nearer the middle of the range between minimum and maximum are more likely 
 # to be selected than points nearer the end of the ranges.
 #
 # 2 - Positively skewed normal distribution (squared) (http://en.wikipedia.org/wiki/Skewness)
@@ -196,7 +196,7 @@ commuting_trip_chance_percent = 67
 # 5 - Positively skewed normal distribution (cubed recursive)
 # As with nos. 2, 3 and 4 with a still greater degree of skew.
 #
-# 6 and over - Positveily skewed normal distribution (cubed multiple recursive)
+# 6 and over - Positively skewed normal distribution (cubed multiple recursive)
 # As with nos. 2, 3, 4, and 5 with an ever more extreme degree of skew. Use with caution.
 
 random_mode_commuting = 2

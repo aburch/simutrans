@@ -110,13 +110,9 @@ void fahrplan_gui_t::gimme_stop_name(cbuffer_t & buf, const spieler_t *sp, const
 		}
 		if (entry.ladegrad != 0)
 		{
-			buf.printf("%d%% %s (%s)", entry.ladegrad, modified_name, entry.pos.get_str() );
+			buf.printf("%d%% ", entry.ladegrad);
 		}
-		else {
-			buf.printf("%s (%s)",
-				modified_name,
-				entry.pos.get_str() );
-		}
+		buf.printf("%s (%s)", modified_name, entry.pos.get_str() );
 	}
 	else {
 		const grund_t* gr = welt->lookup(entry.pos);
@@ -136,8 +132,7 @@ void fahrplan_gui_t::gimme_stop_name(cbuffer_t & buf, const spieler_t *sp, const
 
 	if(entry.reverse)
 	{
-		buf.append(" ");
-		buf.append(translator::translate("[R]"));
+		buf.printf(" %s", translator::translate("[R]"));
 	}
 }
 
@@ -207,10 +202,33 @@ void fahrplan_gui_stats_t::draw(scr_coord offset)
 		sint16 width = get_size().w - D_MARGIN_LEFT - D_MARGIN_RIGHT;
 		offset.x += D_MARGIN_LEFT;
 		offset.y += D_V_SPACE;
-		FORX(minivec_tpl<linieneintrag_t>, const& e, fpl->eintrag, (--sel, offset.y += LINESPACE + 1)) {
-			if (sel == 0) {
+		koord last_stop_pos = fpl->eintrag[0].pos.get_2d();
+		double distance;
+		FOR(minivec_tpl<linieneintrag_t>, const& e, fpl->eintrag) 
+		{
+			if (sel == 0) 
+			{
 				// highlight current entry (width is just wide enough, scrolly will do clipping)
 				display_fillbox_wh_clip(offset.x, offset.y - 1, 2048, LINESPACE + 1, sp->get_player_color1() + 1, false);
+			}
+
+			if(last_stop_pos != e.pos.get_2d())
+			{
+				distance = (double)(shortest_distance(last_stop_pos, e.pos.get_2d()) * welt->get_settings().get_meters_per_tile()) / 1000.0;
+				buf.printf(" %.1f%s", distance, "km");
+				
+				PLAYER_COLOR_VAL const c = sel == 0 ? COL_WHITE : COL_BLACK;
+				sint16           const w = display_proportional_clip(offset.x + 4 + 10, offset.y, buf, ALIGN_LEFT, c, true);
+				if (width < w) 
+				{
+					width = w;
+				}
+
+				// the goto button (right arrow)
+				display_img_aligned(gui_theme_t::pos_button_img[ sel == 0 ], scr_rect( offset.x, offset.y, 14, LINESPACE ), ALIGN_CENTER_V | ALIGN_CENTER_H, true);
+				last_stop_pos = e.pos.get_2d();
+				--sel;
+				offset.y += LINESPACE + 1;
 			}
 
 			buf.clear();
@@ -221,16 +239,27 @@ void fahrplan_gui_stats_t::draw(scr_coord offset)
 				halthandle_t halt = welt->lookup(e.pos)->get_halt();
 				no_control_tower = halt.is_bound() && halt->has_no_control_tower();
 			}
-			fahrplan_gui_t::gimme_stop_name(buf, sp, e, no_control_tower);
-			PLAYER_COLOR_VAL const c = sel == 0 ? COL_WHITE : COL_BLACK;
-			sint16           const w = display_proportional_clip(offset.x + 4 + 10, offset.y, buf, ALIGN_LEFT, c, true);
-			if (width < w) {
-				width = w;
-			}
-
-			// the goto button (right arrow)
-			display_img_aligned( gui_theme_t::pos_button_img[ sel == 0 ], scr_rect( offset.x, offset.y, 14, LINESPACE ), ALIGN_CENTER_V | ALIGN_CENTER_H, true );
+			
+			fahrplan_gui_t::gimme_stop_name(buf, sp, e, no_control_tower);	
 		}
+
+		if (sel == 0) 
+		{
+			// highlight current entry (width is just wide enough, scrolly will do clipping)
+			display_fillbox_wh_clip(offset.x, offset.y - 1, 2048, LINESPACE + 1, sp->get_player_color1() + 1, false);
+		}
+		distance = (double)(shortest_distance(last_stop_pos, fpl->eintrag[0].pos.get_2d()) * welt->get_settings().get_meters_per_tile()) / 1000;
+		buf.printf(" %.1f%s", distance, "km");
+		PLAYER_COLOR_VAL c = sel == 0 ? COL_WHITE : COL_BLACK;
+		sint16           w = display_proportional_clip(offset.x + 4 + 10, offset.y, buf, ALIGN_LEFT, c, true);
+		if (width < w) 
+		{
+			width = w;
+		}
+
+		// the goto button (right arrow)
+		display_img_aligned(gui_theme_t::pos_button_img[ sel == 0 ], scr_rect( offset.x, offset.y, 14, LINESPACE ), ALIGN_CENTER_V | ALIGN_CENTER_H, true);
+
 		set_size(scr_size(width + 16, fpl->get_count() * (LINESPACE + 1)));
 		highlight_schedule(fpl, true);
 	}
