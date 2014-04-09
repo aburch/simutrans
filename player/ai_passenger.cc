@@ -430,7 +430,6 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 	convoi_t* cnv = new convoi_t(this);
 	cnv->set_name(v->get_besch()->get_name());
 	cnv->add_vehikel( v );
-	welt->sync_add( cnv );
 	cnv->set_line(line);
 	cnv->start();
 
@@ -742,7 +741,6 @@ bool ai_passenger_t::create_air_transport_vehikel(const stadt_t *start_stadt, co
 	convoi_t* cnv = new convoi_t(this);
 	cnv->set_name(v->get_besch()->get_name());
 	cnv->add_vehikel( v );
-	welt->sync_add( cnv );
 	cnv->set_line(line);
 	cnv->start();
 
@@ -794,7 +792,6 @@ DBG_MESSAGE("ai_passenger_t::create_bus_transport_vehikel()","bus at (%i,%i)",st
 		cnv->set_name(v->get_besch()->get_name());
 		cnv->add_vehikel( v );
 
-		welt->sync_add( cnv );
 		cnv->set_line(line);
 		cnv->start();
 	}
@@ -915,7 +912,6 @@ void ai_passenger_t::cover_city_with_bus_route(koord start_pos, int number_of_st
 		cnv->set_name(v->get_besch()->get_name());
 		cnv->add_vehikel( v );
 
-		welt->sync_add( cnv );
 		cnv->set_line(line);
 		cnv->start();
 	}
@@ -1316,7 +1312,6 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 									convoi_t* new_cnv = new convoi_t(this);
 									new_cnv->set_name( v->get_besch()->get_name() );
 									new_cnv->add_vehikel( v );
-									welt->sync_add( new_cnv );
 									new_cnv->set_line(line);
 									new_cnv->start();
 								}
@@ -1347,7 +1342,6 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 					convoi_t* new_cnv = new convoi_t(this);
 					new_cnv->set_name( v->get_besch()->get_name() );
 					new_cnv->add_vehikel( v );
-					welt->sync_add( new_cnv );
 					new_cnv->set_line( line );
 					// on waiting line, wait at alternating stations for load balancing
 					if(  line->get_schedule()->eintrag[1].ladegrad==90  &&  line->get_linetype()!=simline_t::truckline  &&  (line->count_convoys()&1)==0  ) {

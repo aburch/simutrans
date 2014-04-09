@@ -439,7 +439,6 @@ bool ai_goods_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 			cnv->add_vehikel( v );
 		}
 
-		welt->sync_add( cnv );
 		cnv->set_line(line);
 		cnv->start();
 	}
@@ -497,7 +496,6 @@ void ai_goods_t::create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 			cnv->set_name(v->get_besch()->get_name());
 			cnv->add_vehikel( v );
 
-			welt->sync_add( cnv );
 			cnv->set_line(line);
 			cnv->start();
 		}
@@ -558,7 +556,6 @@ void ai_goods_t::create_rail_transport_vehikel(const koord platz1, const koord p
 	fpl->eingabe_abschliessen();
 
 	cnv->set_schedule(fpl);
-	welt->sync_add( cnv );
 	cnv->start();
 }
 

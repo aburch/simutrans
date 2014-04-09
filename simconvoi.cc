@@ -1403,6 +1403,9 @@ void convoi_t::start()
 		assert(gr);
 		gr->obj_add( fahr[0] );
 
+		// put into sync list
+		welt->sync_add(this);
+
 		alte_richtung = ribi_t::keine;
 		no_load = false;
 
