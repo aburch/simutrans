@@ -2563,6 +2563,9 @@ void convoi_t::start()
 		assert(gr);
 		gr->obj_add( front() );
 
+		// put into sync list
+		welt->sync.add(this);
+
 		alte_direction = ribi_t::none;
 		no_load = false;
 		depot_when_empty = false;
