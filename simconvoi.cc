@@ -2948,8 +2948,11 @@ void convoi_t::vorfahren()
 									// odd tile reservations causing blockages can occur.
 									break;
 								}
-								w->reserve(self, direction_of_travel); 
-								last_pos = to->get_pos();
+								if(last_pos != to->get_pos())
+								{
+									w->reserve(self, direction_of_travel); 
+									last_pos = to->get_pos();
+								}
 								to->get_neighbour(to, wt, direction_of_travel);
 								direction_of_travel = vehikel_t::calc_richtung(last_pos, to->get_pos());
 								if(last_pos == to->get_pos())
