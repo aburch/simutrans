@@ -154,6 +154,7 @@ void gui_tab_panel_t::draw(scr_coord parent_pos)
 	}
 
 	int text_x = xpos+8;
+	int text_y = ypos + (TAB_HEADER_V_SIZE - LINESPACE)/2;
 
 	//display_fillbox_wh_clip(xpos, ypos+TAB_HEADER_V_SIZE-1, 4, 1, COL_WHITE, true);
 	display_fillbox_wh_clip(xpos, ypos+TAB_HEADER_V_SIZE-1, 4, 1, SYSCOL_HIGHLIGHT, true);
@@ -175,15 +176,15 @@ void gui_tab_panel_t::draw(scr_coord parent_pos)
 			const int width = text ? proportional_string_width( text ) : IMG_WIDTH;
 
 			if (i != active_tab) {
-				// None active tabs
+				// Non active tabs
+				display_fillbox_wh_clip(text_x-3, ypos+2, width+6, 1, SYSCOL_HIGHLIGHT, true);
 				display_fillbox_wh_clip(text_x-4, ypos+TAB_HEADER_V_SIZE-1, width+8, 1, SYSCOL_HIGHLIGHT, true);
-				display_fillbox_wh_clip(text_x-3, ypos+4, width+6, 1, SYSCOL_HIGHLIGHT, true);
 
-				display_vline_wh_clip(text_x-4, ypos+5, TAB_HEADER_V_SIZE-6, SYSCOL_HIGHLIGHT, true);
-				display_vline_wh_clip(text_x+width+3, ypos+5, TAB_HEADER_V_SIZE-6, SYSCOL_SHADOW, true);
+				display_vline_wh_clip(text_x-4, ypos+3, TAB_HEADER_V_SIZE-4, SYSCOL_HIGHLIGHT, true);
+				display_vline_wh_clip(text_x+width+3, ypos+3, TAB_HEADER_V_SIZE-4, SYSCOL_SHADOW, true);
 
 				if(text) {
-					display_proportional_clip(text_x, ypos+7, text, ALIGN_LEFT, SYSCOL_TEXT, true);
+					display_proportional_clip(text_x, text_y, text, ALIGN_LEFT, SYSCOL_TEXT, true);
 				}
 				else {
 					scr_coord_val const y = ypos   - iter.img->get_pic()->y + 10            - iter.img->get_pic()->h / 2;
@@ -193,13 +194,13 @@ void gui_tab_panel_t::draw(scr_coord parent_pos)
 			}
 			else {
 				// Active tab
-				display_fillbox_wh_clip(text_x-3, ypos+3, width+6, 1, SYSCOL_HIGHLIGHT, true);
+				display_fillbox_wh_clip(text_x-3, ypos, width+6, 1, SYSCOL_HIGHLIGHT, true);
 
-				display_vline_wh_clip(text_x-4, ypos+4, 13, SYSCOL_HIGHLIGHT, true);
-				display_vline_wh_clip(text_x+width+3, ypos+4, 13, SYSCOL_SHADOW, true);
+				display_vline_wh_clip(text_x-4, ypos+1, TAB_HEADER_V_SIZE-2, SYSCOL_HIGHLIGHT, true);
+				display_vline_wh_clip(text_x+width+3, ypos+1, TAB_HEADER_V_SIZE-2, SYSCOL_SHADOW, true);
 
 				if(text) {
-					display_proportional_clip(text_x, ypos+7, text, ALIGN_LEFT, SYSCOL_TEXT_HIGHLIGHT, true);
+					display_proportional_clip(text_x, text_y, text, ALIGN_LEFT, SYSCOL_TEXT_HIGHLIGHT, true);
 				}
 				else {
 					scr_coord_val const y = ypos   - iter.img->get_pic()->y + 10            - iter.img->get_pic()->h / 2;
