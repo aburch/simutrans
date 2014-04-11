@@ -87,10 +87,10 @@ uint8 grund_t::underground_mode = ugm_none;
  */
 static inthashtable_tpl<uint64, char*> ground_texts;
 
-#define get_ground_text_key(k,width) ( (uint64)(k).x + ((uint64)(k).y << 16) + ((uint64)(k).z << 32) )
+#define get_ground_text_key(k) ( (uint64)(k).x + ((uint64)(k).y << 16) + ((uint64)(k).z << 32) )
 
 // and the reverse operation
-#define get_ground_koord3d_key(key,width) koord3d( (key) & 0x00007FFF, ((key)>>16) & 0x00007fff, (key)>>32 )
+#define get_ground_koord3d_key(key) koord3d( (key) & 0x00007FFF, ((key)>>16) & 0x00007fff, (key)>>32 )
 
 void grund_t::set_text(const char *text)
 {
@@ -98,7 +98,7 @@ void grund_t::set_text(const char *text)
 		// no text to delete
 		return;
 	}
-	const uint64 n = get_ground_text_key(pos,welt->get_size().y);
+	const uint64 n = get_ground_text_key(pos);
 	if(  text  ) {
 		char *new_text = strdup(text);
 		free(ground_texts.remove(n));
@@ -119,7 +119,7 @@ const char *grund_t::get_text() const
 {
 	const char *result = 0;
 	if(  get_flag(has_text)  ) {
-		result = ground_texts.get( get_ground_text_key(pos,welt->get_size().y) );
+		result = ground_texts.get( get_ground_text_key(pos) );
 		if(result==NULL) {
 			return "undef";
 		}
@@ -531,9 +531,9 @@ void grund_t::finish_rotate90()
 	text_map ground_texts_rotating;
 	// first get the old hashes
 	FOR(text_map, iter, ground_texts) {
-		koord3d k = get_ground_koord3d_key( iter.key, welt->get_size().y );
+		koord3d k = get_ground_koord3d_key( iter.key );
 		k.rotate90( welt->get_size().y-1 );
-		ground_texts_rotating.put( get_ground_text_key(k,welt->get_size().x), iter.value );
+		ground_texts_rotating.put( get_ground_text_key(k), iter.value );
 	}
 	ground_texts.clear();
 	// then transfer all rotated texts
@@ -544,14 +544,14 @@ void grund_t::finish_rotate90()
 }
 
 
-void grund_t::enlarge_map( sint16, sint16 new_size_y )
+void grund_t::enlarge_map( sint16, sint16 /*new_size_y*/ )
 {
 	typedef inthashtable_tpl<uint64, char*> text_map;
 	text_map ground_texts_enlarged;
 	// we have recalculate the keys
 	FOR(text_map, iter, ground_texts) {
-		koord3d k = get_ground_koord3d_key( iter.key, welt->get_size().y );
-		ground_texts_enlarged.put( get_ground_text_key(k,new_size_y), iter.value );
+		koord3d k = get_ground_koord3d_key( iter.key );
+		ground_texts_enlarged.put( get_ground_text_key(k), iter.value );
 	}
 	ground_texts.clear();
 	// then transfer all texts back
