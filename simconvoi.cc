@@ -2948,8 +2948,11 @@ void convoi_t::vorfahren()
 									// odd tile reservations causing blockages can occur.
 									break;
 								}
-								w->reserve(self, direction_of_travel); 
-								last_pos = to->get_pos();
+								if(last_pos != to->get_pos())
+								{
+									w->reserve(self, direction_of_travel); 
+									last_pos = to->get_pos();
+								}
 								to->get_neighbour(to, wt, direction_of_travel);
 								direction_of_travel = vehikel_t::calc_richtung(last_pos, to->get_pos());
 								if(last_pos == to->get_pos())
@@ -4258,10 +4261,10 @@ void convoi_t::laden() //"load" (Babelfish)
 				if(!departures->is_contained(idp.x))
 				{
 					fpl->increment_index(&current_stop, &reverse);
-					grund_t* gr = welt->lookup(fpl->eintrag[current_stop].pos);
-					if(gr)
+					const halthandle_t scheduled_halt = haltestelle_t::get_halt(welt, fpl->eintrag[current_stop].pos, fahr[0]->get_besitzer());
+					if(scheduled_halt.is_bound())
 					{
-						pair.x = gr->get_halt().get_id();
+						pair.x = scheduled_halt.get_id();
 						idp.x = pair.x;
 						continue;
 					}
@@ -4274,10 +4277,10 @@ void convoi_t::laden() //"load" (Babelfish)
 				{
 					// Anomaly detected: do not record any further times.
 					fpl->increment_index(&current_stop, &reverse);
-					grund_t* gr = welt->lookup(fpl->eintrag[current_stop].pos);
-					if(gr)
+					const halthandle_t scheduled_halt = haltestelle_t::get_halt(welt, fpl->eintrag[current_stop].pos, fahr[0]->get_besitzer());
+					if(scheduled_halt.is_bound())
 					{
-						pair.x = gr->get_halt().get_id();
+						pair.x = scheduled_halt.get_id();
 						idp.x = pair.x;
 						continue;
 					}
@@ -4311,8 +4314,8 @@ void convoi_t::laden() //"load" (Babelfish)
 						uint32 this_stop_count = 0;
 						for(uint8 i = 0; i < fpl_count; i ++)
 						{
-							const grund_t* gr_2 = welt->lookup(fpl->eintrag[i].pos);
-							if(gr_2 && gr_2->get_halt().get_id() == idp.x)
+							const halthandle_t scheduled_halt = haltestelle_t::get_halt(welt, fpl->eintrag[current_stop].pos, fahr[0]->get_besitzer());
+							if(scheduled_halt.get_id() == idp.x)
 							{
 								this_stop_count ++;
 							}
@@ -4374,8 +4377,8 @@ write_basic:
 							uint32 this_stop_count = 0;
 							for(uint8 i = 0; i < fpl_count; i ++)
 							{
-								const grund_t* gr_2 = welt->lookup(fpl->eintrag[i].pos);
-								if(gr_2 && gr_2->get_halt().get_id() == idp.x)
+								const halthandle_t scheduled_halt = haltestelle_t::get_halt(welt, fpl->eintrag[current_stop].pos, fahr[0]->get_besitzer());
+								if(scheduled_halt.get_id() == idp.x)
 								{
 									this_stop_count ++;
 								}
@@ -4411,15 +4414,8 @@ write_basic_line:
 				}
 
 				fpl->increment_index(&current_stop, &reverse);
-				grund_t* gr = welt->lookup(fpl->eintrag[current_stop].pos);
-				if(gr)
-				{
-					pair.x = gr->get_halt().get_id();
-				}
-				else
-				{
-					pair.x = 0;
-				}
+				const halthandle_t scheduled_halt = haltestelle_t::get_halt(welt, fpl->eintrag[current_stop].pos, fahr[0]->get_besitzer());
+				pair.x = scheduled_halt.get_id();
 				idp.x = pair.x;
 			}
 			while(starting_stop != current_stop && idp.x != idp.y);
