@@ -37,13 +37,15 @@ private:
 	bool intern_calc_route(karte_t *w, koord3d start, koord3d ziel, fahrer_t *fahr, const sint32 max_kmh, const sint64 max_cost, const uint32 axle_load, const uint32 convoy_weight, const sint32 tile_length);
 
 protected:
-	koord3d_vector_t route;           // Die Koordinaten fuer die Fahrtroute - "The coordinates for the route" (Google)
+	koord3d_vector_t route;  // The coordinates for the vehicle route
 
 private:
 
 	// Bernd Gabriel, Mar 10, 2010: weight limit info
 	uint32 max_axle_load;
 	uint32 max_convoy_weight;
+
+	void postprocess_water_route(karte_t *welt);
 public:
 	typedef enum { no_route=0, valid_route=1, valid_route_halt_too_short=3 } route_result_t;
 
@@ -60,6 +62,7 @@ public:
 		uint8 dir;
 		uint8 ribi_from; /// we came from this direction
 		uint16 count;
+		uint8 jps_ribi;  /// extra ribi mask for jump-point search
 
 		inline bool operator <= (const ANode &k) const { return f==k.f ? g<=k.g : f<=k.f; }
 #if defined(tpl_sorted_heap_tpl_h)
