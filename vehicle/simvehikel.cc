@@ -4831,11 +4831,6 @@ aircraft_t::ist_befahrbar(const grund_t *bd) const
  */
 bool aircraft_t::find_route_to_stop_position()
 {
-	if(target_halt.is_bound()) {
-//DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","bound! (cnv %i)",cnv->self.get_id());
-		return true;	// already searched with success
-	}
-
 	// check for skipping circle
 	route_t *rt=cnv->access_route();
 
@@ -5477,9 +5472,9 @@ bool aircraft_t::ist_weg_frei( int & restart_speed, bool )
 		}
 	}
 
-	if(route_index==suchen  &&  state==landing  &&  !target_halt.is_bound()) {
+	if(route_index==suchen  &&  state==landing) {
 
-		// if we fail, we will wait in a step, much more simulation friendly
+		// we will wait in a step, much more simulation friendly
 		// and the route finder is not reentrant!
 		if(!cnv->is_waiting()) {
 			return false;
