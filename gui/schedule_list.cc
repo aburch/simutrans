@@ -208,7 +208,7 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t *sp_) :
 
 	// halt list
 	cont_haltestellen.set_size(scr_size(LINE_NAME_COLUMN_WIDTH, 28));
-	scrolly_haltestellen.set_pos(scr_coord(0, 7 + SCL_HEIGHT+2*D_BUTTON_HEIGHT+2));
+	scrolly_haltestellen.set_pos(scr_coord(0, 20 + SCL_HEIGHT+2*D_BUTTON_HEIGHT+2));
 	scrolly_haltestellen.set_show_scroll_x(true);
 	scrolly_haltestellen.set_scroll_amount_y(28);
 	scrolly_haltestellen.set_visible(false);
