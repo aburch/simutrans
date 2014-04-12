@@ -1195,7 +1195,9 @@ bool convoi_t::drive_to()
 		{
 			int count = 0;
 			const uint8 original_aktuell = fpl->get_aktuell();
-			while(!haltestelle_t::get_halt(ziel, besitzer_p).is_bound() && count < fpl->get_count())
+			const grund_t* gr = welt->lookup(ziel);
+			const depot_t* depot = gr ? gr->get_depot() : NULL;
+			while(count < fpl->get_count() && !haltestelle_t::get_halt(ziel, besitzer_p).is_bound() && !depot)
 			{
 				// The next stop is a waypoint - advance 
 				is_reversed() ? fpl->advance_reverse() : fpl->advance();
@@ -6003,9 +6005,13 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 				home_depot_valid = test_depot->is_suitable_for(get_vehikel(0), traction_types);
 			}
 		}
+		if((shortest_distance(get_pos(), get_home_depot()) * welt->get_settings().get_meters_per_tile()) / 100 > get_min_range())
+		{
+			home_depot_valid = false;
+		}
 		// The home depot seems OK, but what if we can't get there?
 		// Don't consider it a valid home depot if we already failed to get there.
-		if (home_depot_valid && state == NO_ROUTE) {
+		if (home_depot_valid && (state == NO_ROUTE || state == OUT_OF_RANGE)) {
 			if (fpl) {
 				const linieneintrag_t & current_entry = fpl->get_current_eintrag();
 				if ( current_entry.pos == get_home_depot() ) {
@@ -6048,7 +6054,10 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 			route.find_route(welt, get_vehikel(0)->get_pos(), &finder, speed_to_kmh(get_min_top_speed()), ribi_t::alle, get_highest_axle_load(), 0x7FFFFFFF);
 			if (!route.empty()) {
 				depot_pos = route.position_bei(route.get_count() - 1);
-				other_depot_found = true;
+				if((shortest_distance(get_pos(), depot_pos) * welt->get_settings().get_meters_per_tile()) / 100 <= get_min_range())
+				{
+					other_depot_found = true;
+				}
 			}
 		}
 	}
@@ -6060,7 +6069,10 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 		if(!route.empty()) 
 		{
 			depot_pos = route.position_bei(route.get_count() - 1);
-			home_depot_found = true;
+			if((shortest_distance(get_pos(), depot_pos) * welt->get_settings().get_meters_per_tile()) / 100 <= get_min_range())
+			{
+				home_depot_found = true;
+			}
 		}
 	}
 
