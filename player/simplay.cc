@@ -902,8 +902,8 @@ void spieler_t::rotate90( const sint16 y_size )
  */
 void spieler_t::bescheid_vehikel_problem(convoihandle_t cnv,const koord3d ziel)
 {
-	switch(cnv->get_state()) {
-
+	switch(cnv->get_state())
+	{
 		case convoi_t::NO_ROUTE:
 DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s can't find a route to (%i,%i)!", cnv->get_name(),ziel.x,ziel.y);
 			if(this==welt->get_active_player()) {
@@ -929,7 +929,22 @@ DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s stucked!", cnv->ge
 				welt->get_message()->add_message( (const char *)buf, cnv->get_pos().get_2d(), message_t::warnings, PLAYER_FLAG | player_nr, cnv->front()->get_basis_bild());
 			}
 			break;
-
+		
+		case convoi_t::OUT_OF_RANGE:
+			{
+				const uint16 distance = (shortest_distance(cnv->get_pos(), ziel) * welt->get_settings().get_meters_per_tile()) / 1000u;
+				const uint16 excess = distance - cnv->get_min_range();
+				DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s cannot travel %ikm to (%i,%i) because it would exceed its range of %i by %ikm", cnv->get_name(), distance, ziel.x, ziel.y, cnv->get_min_range(), excess);
+				if(this == welt->get_active_player())
+				{
+					cbuffer_t buf;
+					const halthandle_t destination_halt = haltestelle_t::get_halt(ziel, welt->get_active_player());
+					const char* name = destination_halt.is_bound() ? destination_halt->get_name() : translator::translate("unknown");
+					buf.printf( translator::translate("Vehicle %s cannot travel %ikm to %s because that would exceed its range of %ikm by %ikm"), cnv->get_name(), distance, name, cnv->get_min_range(), excess);
+					welt->get_message()->add_message( (const char *)buf, cnv->get_pos().get_2d(), message_t::warnings, PLAYER_FLAG | player_nr, cnv->front()->get_basis_bild());
+				}
+			}
+			break;
 		default:
 DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s, state %i!", cnv->get_name(), cnv->get_state());
 	}

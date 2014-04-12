@@ -1053,6 +1053,7 @@ bool convoi_t::sync_step(long delta_t)
 		case ROUTING_1:
 		case DUMMY4:
 		case DUMMY5:
+		case OUT_OF_RANGE:
 		case NO_ROUTE:
 		case CAN_START:
 		case CAN_START_ONE_MONTH:
@@ -1188,6 +1189,28 @@ bool convoi_t::drive_to()
 	{
 		koord3d start = fahr[0]->get_pos();
 		koord3d ziel = fpl->get_current_eintrag().pos;
+
+		// Check whether the next stop is within range.
+		if(min_range > 0)
+		{
+			int count = 0;
+			const uint8 original_aktuell = fpl->get_aktuell();
+			while(!haltestelle_t::get_halt(ziel, besitzer_p).is_bound() && count < fpl->get_count())
+			{
+				// The next stop is a waypoint - advance 
+				is_reversed() ? fpl->advance_reverse() : fpl->advance();
+				ziel = fpl->get_current_eintrag().pos;
+				count ++;
+			}
+			const uint16 distance = (shortest_distance(start, ziel) * welt->get_settings().get_meters_per_tile()) / 1000u;
+			fpl->set_aktuell(original_aktuell);
+			if(distance > min_range)
+			{
+				state = OUT_OF_RANGE;
+				get_besitzer()->bescheid_vehikel_problem(self, ziel);
+				return false;
+			}
+		}
 
 		// avoid stopping midhalt
 		if(  start==ziel  ) {
@@ -1704,6 +1727,7 @@ end_loop:
 			}
 			break;
 
+		case OUT_OF_RANGE:
 		case NO_ROUTE:
 			// stuck vehicles
 			no_route_retry_count ++;
@@ -1813,6 +1837,7 @@ end_loop:
 		// just waiting for action here
 		case INITIAL:
 		case FAHRPLANEINGABE:
+		case OUT_OF_RANGE:
 		case NO_ROUTE:
 			wait_lock = max( wait_lock, 25000 );
 			break;
@@ -1963,8 +1988,13 @@ void convoi_t::new_month()
 	}
 
 	// remind every new month again
-	if(  state==NO_ROUTE  ) {
-		get_besitzer()->bescheid_vehikel_problem( self, get_pos() );
+	if(state == NO_ROUTE)
+	{
+		get_besitzer()->bescheid_vehikel_problem(self, get_pos());
+	}
+	else if(state == OUT_OF_RANGE)
+	{
+		get_besitzer()->bescheid_vehikel_problem(self, fpl->get_current_eintrag().pos);
 	}
 	// check for traffic jam
 	if(state==WAITING_FOR_CLEARANCE) {
@@ -2295,6 +2325,7 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_
 	// der convoi hat jetzt ein neues ende
 	set_erstes_letztes();
 
+	calc_min_range();
 	highest_axle_load = calc_highest_axle_load();
 	longest_min_loading_time = calc_longest_min_loading_time();
 	longest_max_loading_time = calc_longest_max_loading_time();
@@ -2382,6 +2413,7 @@ DBG_MESSAGE("convoi_t::upgrade_vehicle()","at pos %i of %i totals.",i,max_vehicl
 	// der convoi hat jetzt ein neues ende
 	set_erstes_letztes();
 
+	calc_min_range();
 	highest_axle_load = calc_highest_axle_load();
 	longest_min_loading_time = calc_longest_min_loading_time();
 	longest_max_loading_time = calc_longest_max_loading_time();
@@ -2448,6 +2480,7 @@ vehikel_t *convoi_t::remove_vehikel_bei(uint16 i)
 		}
 	}
 
+	calc_min_range();
 	highest_axle_load = calc_highest_axle_load();
 	longest_min_loading_time = calc_longest_min_loading_time();
 	longest_max_loading_time = calc_longest_max_loading_time();
@@ -3802,6 +3835,7 @@ void convoi_t::rdwr(loadsave_t *file)
 	
 	if(file->is_loading())
 	{
+		calc_min_range();
 		highest_axle_load = calc_highest_axle_load();
 		longest_min_loading_time = calc_longest_min_loading_time();
 		longest_max_loading_time = calc_longest_max_loading_time();
@@ -6428,7 +6462,7 @@ uint32 convoi_t::calc_highest_axle_load()
 	uint32 heaviest = 0;
 	for(uint8 i = 0; i < anz_vehikel; i ++)
 	{
-		uint32 tmp = fahr[i]->get_besch()->get_axle_load();
+		const uint32 tmp = fahr[i]->get_besch()->get_axle_load();
 		if(tmp > heaviest)
 		{
 			heaviest = tmp;
@@ -6442,7 +6476,7 @@ uint32 convoi_t::calc_longest_min_loading_time()
 	uint32 longest = 0;
 	for(int i = 0; i < anz_vehikel; i ++)
 	{
-		uint32 tmp = fahr[i]->get_besch()->get_min_loading_time();
+		const uint32 tmp = fahr[i]->get_besch()->get_min_loading_time();
 		if(tmp > longest)
 		{
 			longest = tmp;
@@ -6456,13 +6490,31 @@ uint32 convoi_t::calc_longest_max_loading_time()
 	uint32 longest = 0;
 	for(int i = 0; i < anz_vehikel; i ++)
 	{
-		uint32 tmp = fahr[i]->get_besch()->get_max_loading_time();
+		const uint32 tmp = fahr[i]->get_besch()->get_max_loading_time();
 		if(tmp > longest)
 		{
 			longest = tmp;
 		}
 	}
 	return longest;
+}
+
+void convoi_t::calc_min_range()
+{
+	uint16 min = 0;
+	for(int i = 0; i < anz_vehikel; i ++)
+	{
+		const uint16 range = fahr[i]->get_besch()->get_range();
+		if(range > 0 && min == 0)
+		{
+			min = range;
+		}
+		else if(range > 0 && range < min)
+		{
+			min = range;
+		}
+	}
+	min_range = min;
 }
 
 // Bernd Gabriel, 18.06.2009: extracted from new_month()

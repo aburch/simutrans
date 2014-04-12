@@ -428,7 +428,7 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->freight_image_type = decode_uint8(p);
 		if(experimental)
 		{
-			if(experimental_version == 0)
+			if(experimental_version < 2)
 			{
 				// NOTE: Experimental version reset to 1 with incrementing of
 				// Standard version to 10.
@@ -459,6 +459,14 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				besch->rolling_resistance = float32e8_t((uint32) rolling_resistance_tenths_thousands, (uint32)10000);
 				besch->brake_force = decode_uint16(p);
 				besch->minimum_runway_length = decode_uint16(p);
+				if(experimental_version == 0)
+				{
+					besch->range = 0;
+				}
+				else
+				{
+					besch->range = decode_uint16(p);
+				}
 			}
 			else
 			{
@@ -578,6 +586,7 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->max_loading_time_seconds = 60;
 		besch->brake_force = BRAKE_FORCE_UNKNOWN;
 		besch->minimum_runway_length = 10;
+		besch->range = 0;
 	}
 	besch->set_way_constraints(way_constraints);
 
@@ -589,6 +598,7 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	// old weights were tons
 	if(version<10) {
 		besch->gewicht *= 1000;
+		besch->range = 0;
 	}
 
 	if(besch->sound==LOAD_SOUND) {

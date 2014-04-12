@@ -99,6 +99,7 @@ public:
 		LEAVING_DEPOT,
 		ENTERING_DEPOT,
 		REVERSING,
+		OUT_OF_RANGE,
 		MAX_STATES
 	};
 
@@ -593,6 +594,8 @@ private:
 	uint32 longest_min_loading_time;
 	uint32 longest_max_loading_time;
 	uint32 current_loading_time;
+
+	uint16 min_range;
 
 	/**
 	 * Time in ticks since this convoy last departed from
@@ -1334,6 +1337,9 @@ public:
 	//@author: jamespetts
 	uint32 calc_highest_axle_load();
 	inline uint32 get_highest_axle_load() const { return highest_axle_load; }
+
+	void calc_min_range();
+	inline uint16 get_min_range() const { return min_range; }
 	
 	//@author: jamespetts
 	uint32 calc_longest_min_loading_time();

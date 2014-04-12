@@ -59,5 +59,11 @@ note=From the city window showing the population density
 obj=program_text
 name=destination (detail)
 note=Shown in the convoy/stop window for the mode that shows detailed information about the destination of goods and passengers.
-
-
+-
+obj=program_text
+name=Range
+note=The text in the depot/replacer window showing the maximum number of kilometres between stops for this vehicle.
+-
+obj=program_text
+name=unlimited
+note=Shown in the depot/replace windows when the range is set to zero, indicating unlimited range.

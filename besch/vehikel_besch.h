@@ -193,6 +193,9 @@ private:
 	//@author: jamespetts; 28th of July 2012
 	uint16 minimum_runway_length;
 
+	// The maximum number of km between stops (not waypoints)
+	uint16 range;
+
 	// @author: Bernd Gabriel, Dec 12, 2009: called as last action in read_node()
 	void loaded();
 
@@ -229,6 +232,7 @@ public:
 		tractive_effort = 0;
 		brake_force = BRAKE_FORCE_UNKNOWN;
 		minimum_runway_length = 3;
+		range = 0;
 	}
 
 	virtual ~vehikel_besch_t()
@@ -617,6 +621,8 @@ public:
 	uint16 get_brake_force() const { return brake_force; }
 
 	uint16 get_minimum_runway_length() const { return minimum_runway_length; }
+
+	uint16 get_range() const { return range; }
 	
 	/**
 	* @return introduction year

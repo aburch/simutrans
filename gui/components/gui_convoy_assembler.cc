@@ -1981,6 +1981,18 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			n += sprintf(buf + n, "%s", translator::translate("This is a tilting vehicle\n"));
 		}
 
+		n += sprintf(buf + n, "%s: ", translator::translate("Range"));
+		if(veh_type->get_range() == 0)
+		{
+			n += sprintf(buf + n, translator::translate("unlimited"));
+		}
+		else
+		{
+			n += sprintf(buf + n, "%i km", veh_type->get_range());
+		}
+
+		n += sprintf(buf + n, "\n");
+
 		if(veh_type->get_waytype() == air_wt)
 		{
 			n += sprintf(buf + n, "%s: %i m \n", translator::translate("Minimum runway length"), veh_type->get_minimum_runway_length());
