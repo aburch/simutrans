@@ -2610,6 +2610,11 @@ void vehikel_t::display_after(int xpos, int ypos, bool is_gobal) const
 				tstrncpy( tooltip_text, translator::translate("clf_chk_noroute"), lengthof(tooltip_text) );
 				color = COL_RED;
 				break;
+
+			case convoi_t::OUT_OF_RANGE:
+				tstrncpy( tooltip_text, translator::translate("out of range"), lengthof(tooltip_text) );
+				color = COL_RED;
+				break;
 		}
 		if(is_overweight)
 		{

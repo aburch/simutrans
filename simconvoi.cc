@@ -5792,7 +5792,7 @@ COLOR_VAL convoi_t::get_status_color() const
 		// in depot/under assembly
 		return COL_WHITE;
 	}
-	else if (state == WAITING_FOR_CLEARANCE_ONE_MONTH || state == CAN_START_ONE_MONTH || get_state() == NO_ROUTE) {
+	else if (state == WAITING_FOR_CLEARANCE_ONE_MONTH || state == CAN_START_ONE_MONTH || get_state() == NO_ROUTE || get_state() == OUT_OF_RANGE) {
 		// stuck or no route
 		return COL_ORANGE;
 	}

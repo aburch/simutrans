@@ -67,3 +67,7 @@ note=The text in the depot/replacer window showing the maximum number of kilomet
 obj=program_text
 name=unlimited
 note=Shown in the depot/replace windows when the range is set to zero, indicating unlimited range.
+-
+obj=program_text
+name=out of range
+note=This is the tooltip text for a convoy whose next stop is out of range.
