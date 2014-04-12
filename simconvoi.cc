@@ -998,7 +998,7 @@ convoi_t::route_infos_t& convoi_t::get_route_infos()
 			convoi_t::route_info_t &this_info = route_infos.get_element(i);
 			const koord3d this_tile = route.position_bei(i);
 			const koord3d next_tile = route.position_bei(min(i + 1, route_count - 1));
-			this_info.speed_limit = vehikel_t::speed_unlimited();
+			this_info.speed_limit = welt->lookup_kartenboden(this_tile)->ist_wasser() ? vehikel_t::speed_unlimited() : kmh_to_speed(950); // Do not alow supersonic flight over land.
 			this_info.steps_from_start = current_info.steps_from_start + front.get_tile_steps(current_tile.get_2d(), next_tile.get_2d(), this_info.direction);
 			const weg_t *this_weg = get_weg_on_grund(welt->lookup(this_tile), waytype);
 			if (i >= touchdown_index || i <= takeoff_index)
