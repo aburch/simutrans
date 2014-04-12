@@ -152,7 +152,7 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 	tab_panel.set_pos( scr_coord(0, 0) );
 
 	// GUI components for goods input/output statistics
-	goods_chart.set_pos( scr_coord(10 + 80, 10) );
+	goods_chart.set_pos( scr_coord(10 + 80, D_TAB_HEADER_HEIGHT ) );
 	goods_chart.set_size( scr_size( CHART_WIDTH, CHART_HEIGHT ) );
 	goods_chart.set_dimension(12, 10000);
 	goods_chart.set_background(MN_GREY1);
@@ -275,7 +275,7 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 
 	add_komponente( &tab_panel );
 	const int max_rows = max( goods_label_row, button_pos[MAX_FAB_STAT-1].y+1 );
-	const scr_size size( 20+80+CHART_WIDTH+(input_count > 0 ? D_H_SPACE+D_BUTTON_WIDTH : 0 ), TAB_HEADER_V_SIZE+CHART_HEIGHT+20+max_rows*D_BUTTON_HEIGHT+(max_rows-1)*D_H_SPACE+16 );
+	const scr_size size( 20+80+CHART_WIDTH+(input_count > 0 ? D_H_SPACE+D_BUTTON_WIDTH : 0 ), D_TAB_HEADER_HEIGHT+CHART_HEIGHT+20+max_rows*D_BUTTON_HEIGHT+(max_rows-1)*D_H_SPACE+16 );
 	set_size( size );
 	tab_panel.set_size( size );
 

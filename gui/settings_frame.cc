@@ -60,8 +60,8 @@ settings_frame_t::settings_frame_t(settings_t* const s) :
 	tabs.add_tab(&scrolly_climates, translator::translate("Climate Control"));
 	add_komponente(&tabs);
 
-	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT+TAB_HEADER_V_SIZE+18*(D_BUTTON_HEIGHT/2)+2+1));
-	set_min_windowsize(scr_size(BUTTON3_X, D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT+TAB_HEADER_V_SIZE+6*(D_BUTTON_HEIGHT/2)+2+1));
+	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT+D_TAB_HEADER_HEIGHT+18*(D_BUTTON_HEIGHT/2)+2+1));
+	set_min_windowsize(scr_size(BUTTON3_X, D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT+D_TAB_HEADER_HEIGHT+6*(D_BUTTON_HEIGHT/2)+2+1));
 
 	set_resizemode(diagonal_resize);
 	resize(scr_coord(0,0));

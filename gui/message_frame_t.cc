@@ -94,8 +94,8 @@ message_frame_t::message_frame_t() :
 		set_focus( &input );
 	}
 
-	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT+TAB_HEADER_V_SIZE+2+16*(LINESPACE+1)+D_SCROLLBAR_HEIGHT));
-	set_min_windowsize(scr_size(BUTTON3_X, D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT+TAB_HEADER_V_SIZE+2+3*(LINESPACE+1)+D_SCROLLBAR_HEIGHT));
+	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT+D_TAB_HEADER_HEIGHT+2+16*(LINESPACE+1)+D_SCROLLBAR_HEIGHT));
+	set_min_windowsize(scr_size(BUTTON3_X, D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT+D_TAB_HEADER_HEIGHT+2+3*(LINESPACE+1)+D_SCROLLBAR_HEIGHT));
 
 	set_resizemode(diagonal_resize);
 	resize(scr_coord(0,0));

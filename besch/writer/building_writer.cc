@@ -122,50 +122,63 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	if (!STRICMP(type_name, "res")) {
 		extra_data = get_cluster_data(obj);
 		gtyp = gebaeude_t::wohnung;
-	} else if (!STRICMP(type_name, "com")) {
+	}
+	else if (!STRICMP(type_name, "com")) {
 		extra_data = get_cluster_data(obj);
 		gtyp = gebaeude_t::gewerbe;
-	} else if (!STRICMP(type_name, "ind")) {
+	}
+	else if (!STRICMP(type_name, "ind")) {
 		extra_data = get_cluster_data(obj);
 		gtyp = gebaeude_t::industrie;
-	} else if (!STRICMP(type_name, "cur")) {
+	}
+	else if (!STRICMP(type_name, "cur")) {
 		extra_data = obj.get_int("build_time", 0);
 		level      = obj.get_int("passengers",  level);
 		utype      = extra_data == 0 ? haus_besch_t::attraction_land : haus_besch_t::attraction_city;
-	} else if (!STRICMP(type_name, "mon")) {
+	}
+	else if (!STRICMP(type_name, "mon")) {
 		utype = haus_besch_t::denkmal;
 		level = obj.get_int("passengers",  level);
-	} else if (!STRICMP(type_name, "tow")) {
+	}
+	else if (!STRICMP(type_name, "tow")) {
 		level      = obj.get_int("passengers",  level);
 		extra_data = obj.get_int("build_time", 0);
 		utype = haus_besch_t::rathaus;
-	} else if (!STRICMP(type_name, "hq")) {
+	}
+	else if (!STRICMP(type_name, "hq")) {
 		level      = obj.get_int("passengers",  level);
 		extra_data = obj.get_int("hq_level", 0);
 		utype = haus_besch_t::firmensitz;
-	} else if (!STRICMP(type_name, "habour")  ||  !STRICMP(type_name, "harbour")) {
+	}
+	else if (!STRICMP(type_name, "habour")  ||  !STRICMP(type_name, "harbour")) {
 		utype      = haus_besch_t::hafen;
 		extra_data = water_wt;
-	} else if (!STRICMP(type_name, "fac")) {
+	}
+	else if (!STRICMP(type_name, "fac")) {
 		utype    = haus_besch_t::fabrik;
 		enables |= 4;
-	} else if (!STRICMP(type_name, "stop")) {
+	}
+	else if (!STRICMP(type_name, "stop")) {
 		utype      = haus_besch_t::generic_stop;
 		extra_data = get_waytype(obj.get("waytype"));
-	} else if (!STRICMP(type_name, "extension")) {
+	}
+	else if (!STRICMP(type_name, "extension")) {
 		utype = haus_besch_t::generic_extension;
 		const char *wt = obj.get("waytype");
 		if(wt  &&  *wt>' ') {
 			// not waytype => just a generic exten that fits all
 			extra_data = get_waytype(wt);
 		}
-	} else if (!STRICMP(type_name, "depot")) {
+	}
+	else if (!STRICMP(type_name, "depot")) {
 		utype      = haus_besch_t::depot;
 		extra_data = get_waytype(obj.get("waytype"));
-	} else if (!STRICMP(type_name, "any") || *type_name == '\0') {
+	}
+	else if (!STRICMP(type_name, "any") || *type_name == '\0') {
 		// for instance "MonorailGround"
 		utype = haus_besch_t::weitere;
-	} else if (
+	}
+	else if (
 		!STRICMP(type_name, "station")  ||
 		!STRICMP(type_name, "railstop")  ||
 		!STRICMP(type_name, "monorailstop")  ||
@@ -175,9 +188,11 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		!STRICMP(type_name, "wharf")
 	) {
 		dbg->fatal("building_writer_t::write_obj()","%s is obsolete type for %s; use stop/extension and waytype!", type_name, obj.get("name") );
-	} else if (!STRICMP(type_name, "hall")  ||  !STRICMP(type_name, "post")  ||  !STRICMP(type_name, "shed")  ) {
+	}
+	else if (!STRICMP(type_name, "hall")  ||  !STRICMP(type_name, "post")  ||  !STRICMP(type_name, "shed")  ) {
 		dbg->fatal("building_writer_t::write_obj()","%s is obsolete type for %s; use extension and waytype!", type_name, obj.get("name") );
-	} else {
+	}
+	else {
 		dbg->fatal( "building_writer_t::write_obj()","%s is obsolete type for %s", type_name, obj.get("name") );
 	}
 
@@ -237,8 +252,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 
 	uint8 allow_underground = obj.get_int("allow_underground", 2);
 
-	if(allow_underground > 2)
-	{
+	if(allow_underground > 2) {
 		// Prohibit illegal values here.
 		allow_underground = 2;
 	}

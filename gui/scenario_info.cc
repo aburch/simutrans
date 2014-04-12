@@ -52,8 +52,8 @@ scenario_info_t::scenario_info_t() :
 	tabs.add_tab(&scrolly_debug, translator::translate("Scenario Debug"));
 	debug_msg.set_text( welt->get_scenario()->get_forbidden_text() );
 
-	set_windowsize(scr_size(300, D_TITLEBAR_HEIGHT + TAB_HEADER_V_SIZE+250));
-	set_min_windowsize(scr_size(40,  D_TITLEBAR_HEIGHT + TAB_HEADER_V_SIZE+10));
+	set_windowsize(scr_size(300, D_TITLEBAR_HEIGHT + D_TAB_HEADER_HEIGHT+250));
+	set_min_windowsize(scr_size(40,  D_TITLEBAR_HEIGHT + D_TAB_HEADER_HEIGHT+10));
 
 	scr_coord pane_pos(D_MARGIN_LEFT, D_MARGIN_TOP);
 	gui_flowtext_t *texts[] = { &info, &goal, &rule, &result, &about, &error, &debug_msg};

@@ -59,10 +59,9 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	prod.recalc_size();
 	add_komponente( &prod );
 
-	const sint16 offset_below_viewport = D_MARGIN_TOP+D_BUTTON_HEIGHT+D_V_SPACE+ max( prod.get_size().h, view.get_size().h + 8 + D_V_SPACE );
+	const sint16 offset_below_viewport = D_MARGIN_TOP+D_BUTTON_HEIGHT+D_V_SPACE+ max( prod.get_size().h, view.get_size().h + 8 ) + D_V_SPACE;
 
-	chart.set_pos( scr_coord(0, offset_below_viewport - 5) );
-
+	chart.set_pos( scr_coord(0, offset_below_viewport) );
 	chart_button.init(button_t::roundbox_state, "Chart", scr_coord(BUTTON3_X,offset_below_viewport), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	chart_button.set_tooltip("Show/hide statistics");
 	chart_button.add_listener(this);

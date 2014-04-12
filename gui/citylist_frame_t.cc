@@ -127,8 +127,8 @@ citylist_frame_t::citylist_frame_t() :
 	add_komponente(&year_month_tabs);
 
 	const sint16 yb = 42+CHART_HEIGHT-D_BUTTON_HEIGHT*3-8;
-	chart.set_pos(scr_coord(60,8+TAB_HEADER_V_SIZE));
-	chart.set_size(scr_size(D_DEFAULT_WIDTH-60-8,yb-16-42-10-TAB_HEADER_V_SIZE));
+	chart.set_pos(scr_coord(60,8+D_TAB_HEADER_HEIGHT));
+	chart.set_size(scr_size(D_DEFAULT_WIDTH-60-8,yb-16-42-10-D_TAB_HEADER_HEIGHT));
 	chart.set_dimension(12, karte_t::MAX_WORLD_COST*MAX_WORLD_HISTORY_YEARS);
 	chart.set_visible(false);
 	chart.set_background(MN_GREY1);
@@ -136,8 +136,8 @@ citylist_frame_t::citylist_frame_t() :
 		chart.add_curve(hist_type_color[cost], welt->get_finance_history_year(), karte_t::MAX_WORLD_COST, cost, MAX_WORLD_HISTORY_YEARS, hist_type_type[cost], false, true, (cost==1) ? 1 : 0 );
 	}
 
-	mchart.set_pos(scr_coord(60,8+TAB_HEADER_V_SIZE));
-	mchart.set_size(scr_size(D_DEFAULT_WIDTH-60-8,yb-16-42-10-TAB_HEADER_V_SIZE));
+	mchart.set_pos(scr_coord(60,8+D_TAB_HEADER_HEIGHT));
+	mchart.set_size(scr_size(D_DEFAULT_WIDTH-60-8,yb-16-42-10-D_TAB_HEADER_HEIGHT));
 	mchart.set_dimension(12, karte_t::MAX_WORLD_COST*MAX_WORLD_HISTORY_MONTHS);
 	mchart.set_visible(false);
 	mchart.set_background(MN_GREY1);

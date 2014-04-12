@@ -318,7 +318,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	year_month_tabs.add_tab( &year_dummy, translator::translate("Years"));
 	year_month_tabs.add_tab( &month_dummy, translator::translate("Months"));
 	year_month_tabs.set_pos(scr_coord(0, LINESPACE-2));
-	year_month_tabs.set_size(scr_size(lyl_x+25, TAB_HEADER_V_SIZE));
+	year_month_tabs.set_size(scr_size(lyl_x+25, D_TAB_HEADER_HEIGHT));
 	add_komponente(&year_month_tabs);
 
 	add_komponente(&conmoney);

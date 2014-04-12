@@ -93,7 +93,7 @@ class bild_besch_t;
 #define D_TITLEBAR_HEIGHT      (gui_theme_t::gui_titlebar_height)
 #define D_DIVIDER_HEIGHT       (gui_theme_t::gui_divider_size.h)
 #define D_STATUSBAR_HEIGHT     (max(16,LINESPACE))                    // statusbar bottom of screen
-#define TAB_HEADER_V_SIZE      (gui_tab_panel_t::header_vsize)        // Tab page params (replace with real values from the skin images)
+#define D_TAB_HEADER_HEIGHT      (gui_tab_panel_t::header_vsize)        // Tab page params (replace with real values from the skin images)
 
 // Dialog borders
 #define D_MARGIN_LEFT          (gui_theme_t::gui_frame_left)
