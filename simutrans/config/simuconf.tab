@@ -233,12 +233,13 @@ unprotect_abandoned_player_months = 0
 # THIS WILL BE ONLY USED, WHEN THIS FILE IS IN THE pakxyz/config!
 #diagonal_multiplier = 724
 
+# new height for old slopes when old single height savegame loaded with double height pak (default 1=single height, 2=double height)
+# THIS WILL BE ONLY USED, WHEN THIS FILE IS IN THE pakxyz/config!
+#height_conversion_factor = 1
+
 # how height is a tile in z-direction (default 16, TTD 8)
 # THIS WILL BE ONLY USED, WHEN THIS FILE IS IN THE pakxyz/config!
 #tile_height = 16
-
-# new height for old slopes when old single height savegame loaded with double height pak (default 1=single height, 2=double height)
-#height_conversion_factor = 1
 
 # (=1) drive on the left side of the road
 drive_left = 0
@@ -412,6 +413,9 @@ toll_waycost_percentage = 0
 
 # Minimum distance of a city attraction to other special buildings
 #special_building_distance = 3
+
+# Minimum clearance under bridges is 1 or 2 levels? (default = conversion factor)
+#way_height_clearance = 1
 
 # Max. length of initial intercity road connections
 # If you want to speed up map creation, lower this value.

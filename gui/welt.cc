@@ -505,7 +505,7 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		// load relief
 		loaded_heightfield = false;
 		sets->heightfield = "";
-		sets->grundwasser = -2*env_t::pak_height_conversion_factor;
+		sets->grundwasser = -2;
 		create_win(new load_relief_frame_t(sets), w_info, magic_load_t);
 		knr = sets->get_karte_nummer();	// otherwise using cancel would not show the normal generated map again
 	}

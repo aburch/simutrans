@@ -172,7 +172,7 @@ koord3d tunnelbauer_t::finde_ende(spieler_t *sp, koord3d pos, koord zv, const tu
 			// check tile below
 			gr = welt->lookup( pos + koord3d(0, 0, -1) );
 			// check tiles one level above and below
-			if(  env_t::pak_height_conversion_factor == 2  ) {
+			if(  welt->get_settings().get_way_height_clearance()==2  ) {
 				if (gr == NULL) {
 					gr = welt->lookup( pos + koord3d(0, 0, 1) );
 				}
@@ -184,7 +184,7 @@ koord3d tunnelbauer_t::finde_ende(spieler_t *sp, koord3d pos, koord zv, const tu
 			// check two levels below
 			if (gr == NULL) {
 				gr = welt->lookup( pos + koord3d(0, 0, -2) );
-				if(  gr  &&  env_t::pak_height_conversion_factor == 2  ) {
+				if(  gr  &&  welt->get_settings().get_way_height_clearance()==2  ) {
 					// should not end at -1
 					if (gr->get_vmove(ribi_typ(-zv)) == pos.z-1) {
 						return koord3d::invalid;
@@ -214,7 +214,7 @@ koord3d tunnelbauer_t::finde_ende(spieler_t *sp, koord3d pos, koord zv, const tu
 				}
 			}
 			const uint8 slope = gr->get_grund_hang();
-			const uint8 slope_height = env_t::pak_height_conversion_factor;
+			const uint8 slope_height = welt->get_settings().get_way_height_clearance();
 			if(  gr->get_typ() != grund_t::boden  ||  slope != hang_typ(-zv) * slope_height  ||  gr->is_halt()  ||  ((wegtyp != powerline_wt) ? gr->get_leitung() != NULL : gr->hat_wege())  ) {
 				// must end on boden_t and correct slope and not on halts
 				// ways cannot end on powerlines, powerlines cannot end on ways
@@ -303,6 +303,8 @@ const char *tunnelbauer_t::baue( spieler_t *sp, koord pos, const tunnel_besch_t 
 		return "Tunnel muss an\neinfachem\nHang beginnen!\n";
 	}
 
+/************************************** FIX ME ***************************************************
+********************** THIS MUST BE RATHER A PROPERTY OF THE TUNNEL IN QUESTION ! ****************/
 	// for conversion factor 1, must be single height, for conversion factor 2, must be double
 	if(  (env_t::pak_height_conversion_factor == 1  &&  !(slope & 7))  ||  (env_t::pak_height_conversion_factor == 2  &&  (slope & 7))  ) {
 		return "Tunnel muss an\neinfachem\nHang beginnen!\n";

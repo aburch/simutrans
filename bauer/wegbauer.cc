@@ -509,7 +509,6 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 	static monorailboden_t to_dummy(koord3d::invalid, hang_t::flach);
 	static monorailboden_t from_dummy(koord3d::invalid, hang_t::flach);
 
-
 	if(bautyp==luft  &&  (from->get_grund_hang()+to->get_grund_hang()!=0  ||  (from->hat_wege()  &&  from->hat_weg(air_wt)==0)  ||  (to->hat_wege()  &&  to->hat_weg(air_wt)==0))) {
 		// absolutely no slopes for runways, neither other ways
 		return false;
@@ -567,9 +566,13 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 			// building above houses is expensive ... avoid it!
 			*costs += 4;
 		}
+		// absolutely nothing allowed here for set which want double clearance
+		if(  welt->get_settings().get_way_height_clearance()==2  &&  welt->lookup( to->get_pos()+koord3d(0,0,1) )  ) {
+			return false;
+		}
 		// up to now 'to' and 'from' referred to the ground one height step below the elevated way
 		// now get the grounds at the right height
-		koord3d pos = to->get_pos() + koord3d( 0, 0, env_t::pak_height_conversion_factor );
+		koord3d pos = to->get_pos() + koord3d( 0, 0, welt->get_settings().get_way_height_clearance() );
 		grund_t *to2 = welt->lookup(pos);
 		if(to2) {
 			if(to2->get_weg_nr(0)) {
@@ -606,15 +609,15 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		// now 'from' and 'to' point to grounds at the right height
 	}
 
-	if(  env_t::pak_height_conversion_factor == 2  ) {
+	if(  welt->get_settings().get_way_height_clearance()==2  ) {
 		// cannot build if conversion factor 2, we aren't powerline and way with maximum speed > 0 or powerline 1 tile below
 		grund_t *to2 = welt->lookup( to->get_pos() + koord3d(0, 0, -1) );
-		if(  to2 && (((bautyp&bautyp_mask)!=leitung && to2->get_weg_nr(0) && to2->get_weg_nr(0)->get_besch()->get_topspeed()>0) || to2->get_leitung())  ) {
+		if(  to2 && (((bautyp&bautyp_mask)!=leitung  &&  to2->get_weg_nr(0)  &&  to2->get_weg_nr(0)->get_besch()->get_topspeed()>0) || to2->get_leitung())  ) {
 			return false;
 		}
 		// tile above cannot have way unless we are a way (not powerline) with a maximum speed of 0, or be surface if we are underground
 		to2 = welt->lookup( to->get_pos() + koord3d(0, 0, 1) );
-		if(  to2  &&  ((to2->get_weg_nr(0) && (besch->get_topspeed()>0 || (bautyp&bautyp_mask)==leitung))  ||  (bautyp & tunnel_flag) != 0)  ) {
+		if(  to2  &&  ((to2->get_weg_nr(0)  &&  (besch->get_topspeed()>0  ||  (bautyp&bautyp_mask)==leitung))  ||  (bautyp & tunnel_flag) != 0)  ) {
 			return false;
 		}
 	}
@@ -1579,7 +1582,7 @@ void wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d z
 			if(  !bd_nach  ) {
 				// check tiles one level above and below
 				bd_nach = welt->lookup( pos + koord3d(0, 0, -1) );
-				if(  env_t::pak_height_conversion_factor == 2  ) {
+				if(  welt->get_settings().get_way_height_clearance()==2  ) {
 					if (bd_nach == NULL) {
 						bd_nach = welt->lookup( pos + koord3d(0, 0, 1) );
 					}
@@ -1591,7 +1594,7 @@ void wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d z
 				// check two levels below
 				if (bd_nach == NULL) {
 					bd_nach = welt->lookup( pos + koord3d(0, 0, -2) );
-					if(  bd_nach  &&  env_t::pak_height_conversion_factor == 2  ) {
+					if(  bd_nach  &&  welt->get_settings().get_way_height_clearance()==2  ) {
 						// should not end at -1
 						if (bd_nach->get_vmove(ribi_t::rueckwaerts(diff)) == pos.z-1) {
 							ok = false;
@@ -1933,7 +1936,7 @@ wegbauer_t::baue_tunnel_und_bruecken()
 sint64 wegbauer_t::calc_costs()
 {
 	sint64 costs=0;
-	koord3d offset = koord3d( 0, 0, bautyp & elevated_flag ? env_t::pak_height_conversion_factor : 0 );
+	koord3d offset = koord3d( 0, 0, bautyp & elevated_flag ? welt->get_settings().get_way_height_clearance() : 0 );
 
 	sint32 single_cost;
 	sint32 new_speedlimit;
@@ -2149,7 +2152,7 @@ void wegbauer_t::baue_elevated()
 		planquadrat_t* const plan = welt->access(i.get_2d());
 
 		grund_t* const gr0 = plan->get_boden_in_hoehe(i.z);
-		i.z += env_t::pak_height_conversion_factor;
+		i.z += welt->get_settings().get_way_height_clearance();
 		grund_t* const gr  = plan->get_boden_in_hoehe(i.z);
 
 		if(gr==NULL) {

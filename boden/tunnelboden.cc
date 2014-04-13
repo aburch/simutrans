@@ -55,8 +55,8 @@ void tunnelboden_t::calc_bild_internal()
 		}
 
 		if(  grund_t::underground_mode == grund_t::ugm_none  ) {
-			if(  (get_grund_hang() == hang_t::west * env_t::pak_height_conversion_factor  &&  abs(back_bild_nr) > 11)  ||  (get_grund_hang() == hang_t::nord * env_t::pak_height_conversion_factor  &&  get_back_bild(0) != IMG_LEER)  ) {
-				// must draw as obj, since there is a slope here nearby
+			if(  (ribi_typ(get_grund_hang()) == ribi_t::ost  &&  abs(back_bild_nr) > 11)  ||  (ribi_typ(get_grund_hang()) == ribi_t::sued  &&  get_back_bild(0) != IMG_LEER)  ) {
+				// on east or north slope: must draw as obj, since there is a slope here nearby
 				koord pos = get_pos().get_2d() + koord(get_grund_hang());
 				grund_t *gr = welt->lookup_kartenboden(pos);
 				gr->set_flag(grund_t::draw_as_obj);

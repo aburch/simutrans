@@ -386,7 +386,7 @@ bool karte_t::get_height_data_from_file( const char *filename, sint8 grundwasser
 					int G = fgetc(file);
 					int R = fgetc(file);
 					fgetc(file);	// dummy
-					h_table[i] = ((env_t::pak_height_conversion_factor*((R*2+G*3+B)/4 - 224)) & 0xFFF0)/16;
+					h_table[i] = (( ((R*2+G*3+B)/4 - 224)) & 0xFFF0)/16;
 				}
 				// now read the data
 				fseek( file, data_offset, SEEK_SET );
@@ -456,7 +456,7 @@ bool karte_t::get_height_data_from_file( const char *filename, sint8 grundwasser
 						int B = fgetc(file);
 						int G = fgetc(file);
 						int R = fgetc(file);
-						hfield[x+offset] = ((env_t::pak_height_conversion_factor*((R*2+G*3+B)/4 - 224)) & 0xFFF0)/16;
+						hfield[x+offset] = ((((R*2+G*3+B)/4 - 224)) & 0xFFF0)/16;
 					}
 					fseek( file, (4-((w*3)&3))&3, SEEK_CUR );	// skip superfluos bytes at the end of each scanline
 				}
@@ -519,7 +519,7 @@ bool karte_t::get_height_data_from_file( const char *filename, sint8 grundwasser
 					int R = fgetc(file);
 					int G = fgetc(file);
 					int B = fgetc(file);
-					hfield[x+(y*w)] =  ((env_t::pak_height_conversion_factor*((R*2+G*3+B)/4 - 224)) & 0xFFF0)/16;
+					hfield[x+(y*w)] =  ((((R*2+G*3+B)/4 - 224)) & 0xFFF0)/16;
 				}
 			}
 
@@ -2307,10 +2307,10 @@ const char* karte_t::can_lower_plan_to(const spieler_t *sp, sint16 x, sint16 y, 
 	if(  !gr  ) {
 		gr = plan->get_boden_in_hoehe( h - 2 );
 	}
-	if(  !gr  &&  env_t::pak_height_conversion_factor == 2  ) {
-		gr = plan->get_boden_in_hoehe( h - 2 );
+	if(  !gr  && settings.get_way_height_clearance()==2  ) {
+		gr = plan->get_boden_in_hoehe( h - 3 );
 	}
-	if(  gr  &&  h-gr->get_pos().z + hang_t::max_diff( gr->get_weg_hang() ) < env_t::pak_height_conversion_factor  ) {
+	if(  gr  &&  h-gr->get_pos().z + hang_t::max_diff( gr->get_weg_hang() ) < settings.get_way_height_clearance()  ) {
 		return "";
 	}
 

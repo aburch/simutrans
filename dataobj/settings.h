@@ -242,6 +242,9 @@ private:
 	// true, if this pak should be used with extensions (default)
 	bool with_private_paks;
 
+	/// what is the minimum clearance required under bridges
+	sint8 way_height_clearance;
+
 	// if true, you can buy obsolete stuff
 	bool allow_buying_obsolete_vehicles;
 	// vehicle value is decrease by this factor/1000 when a vehicle leaved the depot
@@ -548,6 +551,9 @@ public:
 
 	uint16 get_remove_dummy_player_months() const { return remove_dummy_player_months; }
 	uint16 get_unprotect_abandoned_player_months() const { return unprotect_abandoned_player_months; }
+
+	sint8 get_way_height_clearance() const { return way_height_clearance; }
+	void set_way_height_clearance( sint8 n ) { way_height_clearance = n; }
 };
 
 #endif

@@ -1173,11 +1173,11 @@ const char *wkz_setslope_t::wkz_set_slope_work( spieler_t *sp, koord3d pos, int 
 			if(  !gr2  ) {
 				gr2 = welt->lookup( new_pos + koord3d(0, 0, 2) );
 			}
-			if(  !gr2  &&  env_t::pak_height_conversion_factor  ==  2  &&  (gr1->hat_wege()  ||  gr1->get_leitung())  ) {
+			if(  !gr2  &&  welt->get_settings().get_way_height_clearance()==2  &&  (gr1->hat_wege()  ||  gr1->get_leitung())  ) {
 				gr2 = welt->lookup( new_pos + koord3d(0, 0, 3) );
 			}
 			// slope may alter amount of clearance required
-			if(  gr2  &&  gr2->get_pos().z - new_pos.z + hang_t::min_diff( gr2->get_weg_hang(), new_slope ) < env_t::pak_height_conversion_factor  ) {
+			if(  gr2  &&  gr2->get_pos().z - new_pos.z + hang_t::min_diff( gr2->get_weg_hang(), new_slope ) < welt->get_settings().get_way_height_clearance()  ) {
 				return "Tile not empty.";
 			}
 		}
@@ -1186,11 +1186,11 @@ const char *wkz_setslope_t::wkz_set_slope_work( spieler_t *sp, koord3d pos, int 
 			if(  !gr2  ) {
 				gr2 = welt->lookup( new_pos + koord3d(0, 0, -2) );
 			}
-			if(  !gr2  &&  env_t::pak_height_conversion_factor == 2  ) {
+			if(  !gr2  &&  welt->get_settings().get_way_height_clearance()==2  ) {
 				gr2 = welt->lookup( new_pos + koord3d(0, 0, -3) );
 			}
 			// slope may alter amount of clearance required
-			if(  gr2  &&  new_pos.z - gr2->get_pos().z + hang_t::min_diff( new_slope, gr2->get_weg_hang() ) < env_t::pak_height_conversion_factor  ) {
+			if(  gr2  &&  new_pos.z - gr2->get_pos().z + hang_t::min_diff( new_slope, gr2->get_weg_hang() ) < welt->get_settings().get_way_height_clearance()  ) {
 				return "Tile not empty.";
 			}
 		}
@@ -1452,14 +1452,14 @@ const char *wkz_transformer_t::work( spieler_t *sp, koord3d pos )
 	// full underground mode: coordinate is on ground, adjust it to one level below ground
 	// not possible in network mode!
 	if (!env_t::networkmode  &&  grund_t::underground_mode == grund_t::ugm_all) {
-		pos = gr->get_pos() - koord3d( 0, 0, env_t::pak_height_conversion_factor );
+		pos = gr->get_pos() - koord3d( 0, 0, welt->get_settings().get_way_height_clearance() );
 	}
 	// search for factory
 	// must be independent of network mode
 	if (gr->get_pos().z <= pos.z) {
 		fab = leitung_t::suche_fab_4(k);
 	}
-	else if (gr->get_pos().z == pos.z+env_t::pak_height_conversion_factor) {
+	else if(  gr->get_pos().z == pos.z+welt->get_settings().get_way_height_clearance()  ) {
 		fab = fabrik_t::get_fab( k);
 		underground = true;
 	}
@@ -1481,7 +1481,7 @@ const char *wkz_transformer_t::work( spieler_t *sp, koord3d pos )
 			return "Tile not empty.";
 		}
 
-		if(  env_t::pak_height_conversion_factor==2 && welt->lookup(pos + koord3d( 0, 0, 1 ))  ) {
+		if(  welt->get_settings().get_way_height_clearance()==2  &&  welt->lookup(pos + koord3d( 0, 0, 1 ))  ) {
 			return "Tile not empty.";
 		}
 
@@ -2186,7 +2186,7 @@ uint8 wkz_wegebau_t::is_valid_pos(  spieler_t *sp, const koord3d &pos, const cha
 		}
 		// elevated ways have to check tile above
 		if(  elevated  ) {
-			gr = welt->lookup( pos + koord3d( 0, 0, env_t::pak_height_conversion_factor ) );
+			gr = welt->lookup( pos + koord3d( 0, 0, welt->get_settings().get_way_height_clearance() ) );
 			if(  gr == NULL  ) {
 				return 2;
 			}
@@ -2269,7 +2269,7 @@ void wkz_wegebau_t::mark_tiles(  spieler_t *sp, const koord3d &start, const koor
 	wegbauer_t bauigel(sp);
 	calc_route( bauigel, start, end );
 
-	uint8 offset = (besch->get_styp() == 1  &&  besch->get_wtyp() != air_wt) ? env_t::pak_height_conversion_factor : 0;
+	uint8 offset = (besch->get_styp() == 1  &&  besch->get_wtyp() != air_wt) ? welt->get_settings().get_way_height_clearance() : 0;
 
 	if(  bauigel.get_count()>1  ) {
 		// Set tooltip first (no dummygrounds, if bauigel.calc_casts() is called).
@@ -2491,7 +2491,7 @@ uint8 wkz_brueckenbau_t::is_valid_pos(  spieler_t *sp, const koord3d &pos, const
 		return 0;
 	}
 
-	if(  welt->lookup( pos + koord3d(0, 0, 1))  ||  (env_t::pak_height_conversion_factor == 2  &&  welt->lookup( pos + koord3d(0, 0, 2) ))  ) {
+	if(  welt->lookup( pos + koord3d(0, 0, 1))  ||  (welt->get_settings().get_way_height_clearance()==2  &&  welt->lookup( pos + koord3d(0, 0, 2) ))  ) {
 		return 0;
 	}
 
@@ -2550,9 +2550,9 @@ uint8 wkz_brueckenbau_t::is_valid_pos(  spieler_t *sp, const koord3d &pos, const
 		// single height -> height is 1
 		// double height -> height is 2
 		const hang_t::typ slope = gr->get_grund_hang();
-		const uint8 max_height = slope ? ((slope & 7) ? 1 : 2) : env_t::pak_height_conversion_factor;
+		const uint8 max_height = slope ? ((slope & 7) ? 1 : 2) : welt->get_settings().get_way_height_clearance();
 		const hang_t::typ start_slope = welt->lookup(start)->get_grund_hang();
-		const uint8 start_max_height = start_slope ? ((start_slope & 7) ? 1 : 2) : env_t::pak_height_conversion_factor;
+		const uint8 start_max_height = start_slope ? ((start_slope & 7) ? 1 : 2) : welt->get_settings().get_way_height_clearance();
 		const uint8 height_difference = abs( start.z + start_max_height - pos.z - max_height );
 		if(  height_difference>1  &&  besch->get_hintergrund(bruecke_besch_t::N_Start2, 0) == IMG_LEER  ) {
 			return 0;

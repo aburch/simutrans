@@ -284,6 +284,11 @@ koord3d brueckenbauer_t::finde_ende(spieler_t *sp, koord3d pos, const koord zv, 
 			return koord3d::invalid;
 		}
 
+		if(  welt->get_settings().get_way_height_clearance() == 2  &&  gr->get_hoehe() == max_height-1  &&  gr->get_weg_nr(0)  ) {
+			error_msg = "Not enough clearance.";
+			return koord3d::invalid;
+		}
+
 		// check for height
 		if(  besch->get_max_height()  &&  max_height-gr->get_hoehe() > besch->get_max_height()  ) {
 			error_msg = "bridge is too high for its type!";

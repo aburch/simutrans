@@ -509,6 +509,7 @@ int simu_main(int argc, char** argv)
 	// only the specified pak conf should override this!
 	uint16 pak_diagonal_multiplier = env_t::default_settings.get_pak_diagonal_multiplier();
 	sint8 pak_tile_height = TILE_HEIGHT_STEP;
+	sint8 pak_height_conversion_factor = env_t::pak_height_conversion_factor;
 
 	// parsing config/simuconf.tab
 	printf("Reading low level config data ...\n");
@@ -844,10 +845,16 @@ int simu_main(int argc, char** argv)
 	if(  simuconf.open(obj_conf.c_str())  ) {
 		sint16 idummy;
 		string dummy;
+		env_t::default_settings.set_way_height_clearance( 0 );
 		dbg->important("parse_simuconf() at %s: ", obj_conf.c_str());
 		env_t::default_settings.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 		pak_diagonal_multiplier = env_t::default_settings.get_pak_diagonal_multiplier();
+		pak_height_conversion_factor = env_t::pak_height_conversion_factor;
 		pak_tile_height = TILE_HEIGHT_STEP;
+		if(  env_t::default_settings.get_way_height_clearance() == 0  ) {
+			// ok, set default as conversion factor
+			env_t::default_settings.set_way_height_clearance( pak_height_conversion_factor );
+		}
 		simuconf.close();
 	}
 	// and parse again the user settings
@@ -889,9 +896,10 @@ int simu_main(int argc, char** argv)
 		}
 	}
 
-	// now (re)set the correct length from the pak
+	// now (re)set the correct length and other pak set only settings
 	env_t::default_settings.set_pak_diagonal_multiplier( pak_diagonal_multiplier );
 	vehikel_basis_t::set_diagonal_multiplier( pak_diagonal_multiplier, pak_diagonal_multiplier );
+	env_t::pak_height_conversion_factor = pak_height_conversion_factor;
 	TILE_HEIGHT_STEP = pak_tile_height;
 
 	convoihandle_t::init( 1024 );

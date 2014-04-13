@@ -131,7 +131,7 @@ void bruecke_t::rdwr(loadsave_t *file)
 		}
 		guarded_free(const_cast<char *>(s));
 
-		if(  file->get_version() < 112007 && env_t::pak_height_conversion_factor==2  ) {
+		if(  file->get_version() < 112007  &&  env_t::pak_height_conversion_factor==2  ) {
 			switch(img) {
 				case bruecke_besch_t::OW_Segment: img = bruecke_besch_t::OW_Segment2; break;
 				case bruecke_besch_t::NS_Segment: img = bruecke_besch_t::NS_Segment2; break;
