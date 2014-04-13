@@ -487,7 +487,7 @@ void welt_gui_t::update_preview()
 
 		setsimrand( 0xFFFFFFFF, sets->get_karte_nummer() );
 
-		const sint32 max_size = max(map_size.w, map_size.h);
+		const sint32 max_size = max(sets->get_groesse_x(), sets->get_groesse_y());
 		const int mx = sets->get_groesse_x()/map_size.w;
 		const int my = sets->get_groesse_y()/map_size.h;
 		for(  int y=0;  y<map_size.h;  y++  ) {
