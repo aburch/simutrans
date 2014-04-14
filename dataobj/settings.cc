@@ -522,6 +522,8 @@ settings_t::settings_t() :
 	max_onward_trips = 3;
 	onward_trip_chance_percent = 25;
 	commuting_trip_chance_percent = 66;
+
+	max_diversion_tiles = 16;
 }
 
 void settings_t::set_default_climates()
@@ -1553,6 +1555,8 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_short(parallel_ways_forge_cost_percentage_tram);
 			file->rdwr_short(parallel_ways_forge_cost_percentage_narrowgauge);
 			file->rdwr_short(parallel_ways_forge_cost_percentage_air);
+
+			file->rdwr_long(max_diversion_tiles);
 		}
 		else
 		{
@@ -2396,6 +2400,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	parallel_ways_forge_cost_percentage_tram = contents.get_int("parallel_ways_forge_cost_percentage_tram", parallel_ways_forge_cost_percentage_tram);
 	parallel_ways_forge_cost_percentage_narrowgauge = contents.get_int("parallel_ways_forge_cost_percentage_narrowgauge", parallel_ways_forge_cost_percentage_narrowgauge);
 	parallel_ways_forge_cost_percentage_air = contents.get_int("parallel_ways_forge_cost_percentage_air", parallel_ways_forge_cost_percentage_air);
+
+	max_diversion_tiles = contents.get_int("max_diversion_tiles", max_diversion_tiles);
 
 	// OK, this is a bit complex.  We are at risk of loading the same livery schemes repeatedly, which
 	// gives duplicate livery schemes and utter confusion.

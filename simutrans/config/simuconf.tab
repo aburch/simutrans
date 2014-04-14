@@ -505,6 +505,13 @@ beginner_price_factor = 1500
 #
 #intercity_road_length = 200
 
+# This is the maximum number of tiles that a road, river or canal
+# that is a public right of way may be diverted for an existing
+# public right of way to be deleted. Diversion allows players to
+# change the course of public rights of way to accomodate, for
+# example, railways whilst protecting their integrity.
+max_diversion_tiles = 16
+
 # Type of intercity roads - must be available as PAK file.
 # Intercityroad with timeline: intercity_road[number]=name,intro-year,retire-year
 # .. number = 0..9 - up to ten different intercity_roads possible

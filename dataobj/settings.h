@@ -650,7 +650,8 @@ public:
 	uint16 parallel_ways_forge_cost_percentage_narrowgauge;
 	uint16 parallel_ways_forge_cost_percentage_air;
 
-public:
+	uint32 max_diversion_tiles;
+
 	/**
 	 * If map is read from a heightfield, this is the name of the heightfield.
 	 * Set to empty string in order to avoid loading.
@@ -658,7 +659,6 @@ public:
 	 */
 	std::string heightfield;
 
-public:
 	settings_t();
 
 	bool get_progdir_overrides_savegame_settings() {return progdir_overrides_savegame_settings;}
@@ -1092,6 +1092,7 @@ public:
 	sint64 get_forge_cost(waytype_t wt) const;
 	sint64 get_parallel_ways_forge_cost_percentage(waytype_t wt) const;
 
+	uint32 get_max_diversion_tiles() const { return max_diversion_tiles; }
 };
 
 #endif 

@@ -768,8 +768,6 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 			{
 				// It is necessary to do this to simulate the way not being there for testing purposes.
 				grund_t* way_gr = welt->lookup(w->get_pos());
-
-				const uint32 max_diversion_tiles = 8; // TODO: Set this from simuconf.tab
 				koord3d start = koord3d::invalid;
 				koord3d end;
 				vehikel_besch_t diversion_check_type(w->get_waytype(), kmh_to_speed(w->get_max_speed()), vehikel_besch_t::diesel);
@@ -787,13 +785,13 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 						diversion_checker->set_flag(obj_t::not_on_map);
 						diversion_checker->set_besitzer(welt->get_spieler(1));	
 						const uint32 bridge_weight = 0; // TODO: Set this properly.
-						if(diversionary_route.calc_route(welt, start, end, diversion_checker, w->get_max_speed(), w->get_max_axle_load(), 0, max_diversion_tiles * 100, bridge_weight))
+						if(diversionary_route.calc_route(welt, start, end, diversion_checker, w->get_max_speed(), w->get_max_axle_load(), 0, welt->get_settings().get_max_diversion_tiles() * 100, bridge_weight))
 						{
 							// Only increment this counter if the ways were already connected.
 							necessary_diversions ++;
 						}
-						const bool route_good = diversionary_route.calc_route(welt, start, end, diversion_checker, w->get_max_speed(), w->get_max_axle_load(), 0, max_diversion_tiles * 100, bridge_weight, w->get_pos());
-						if(route_good && (diversionary_route.get_count() < max_diversion_tiles))
+						const bool route_good = diversionary_route.calc_route(welt, start, end, diversion_checker, w->get_max_speed(), w->get_max_axle_load(), 0, welt->get_settings().get_max_diversion_tiles() * 100, bridge_weight, w->get_pos());
+						if(route_good && (diversionary_route.get_count() < welt->get_settings().get_max_diversion_tiles()))
 						{
 							successful_diversions ++;
 							diversionary_routes.append(diversionary_route);
