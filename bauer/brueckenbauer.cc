@@ -284,9 +284,14 @@ koord3d brueckenbauer_t::finde_ende(spieler_t *sp, koord3d pos, const koord zv, 
 			return koord3d::invalid;
 		}
 
-		if(  welt->get_settings().get_way_height_clearance() == 2  &&  gr->get_hoehe() == max_height-1  &&  gr->get_weg_nr(0)  ) {
-			error_msg = "Not enough clearance.";
-			return koord3d::invalid;
+		if(  welt->get_settings().get_way_height_clearance() == 2  &&  gr->get_hoehe() == max_height-1  )
+			if(  weg_t *w = gr->get_weg_nr(0)  ) {
+				// now check if this is not a fence or a river (max_speed == 0)
+				if(  w->get_max_speed() > 0  ) {
+					error_msg = "Not enough clearance.";
+					return koord3d::invalid;
+				}
+			}
 		}
 
 		// check for height
