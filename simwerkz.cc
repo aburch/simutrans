@@ -743,6 +743,83 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 				return false;
 			}
 		}
+
+		// If this is a public right of way being deleted by anyone other than the public service player,
+		// then it cannot be deleted unless there is a diversionary route within a specified number of tiles.
+		if(!sp->is_public_service() && w->is_public_right_of_way())
+		{
+			minivec_tpl<weg_t*> neighbouring_ways(2);
+			for(int n = 0; n < 8; n ++)
+			{
+				const koord k = pos.neighbours[n] + pos;
+				const grund_t* gr = welt->lookup_kartenboden(k);
+				if(!gr)
+				{
+					continue;
+				}
+				weg_t* neighbouring_way = gr->get_weg(w->get_waytype());
+				if(neighbouring_way)
+				{
+					neighbouring_ways.append(neighbouring_way);
+				}
+			}
+
+			if(neighbouring_ways.get_count() > 1)
+			{
+				// It is necessary to do this to simulate the way not being there for testing purposes.
+				grund_t* way_gr = welt->lookup(w->get_pos());
+
+				const uint32 max_diversion_tiles = 8; // TODO: Set this from simuconf.tab
+				koord3d start = koord3d::invalid;
+				koord3d end;
+				vehikel_besch_t diversion_check_type(w->get_waytype(), kmh_to_speed(w->get_max_speed()), vehikel_besch_t::diesel);
+				minivec_tpl<route_t> diversionary_routes;
+				uint32 successful_diversions = 0;
+				uint32 necessary_diversions = 0;
+				FOR(minivec_tpl<weg_t*>, const& way, neighbouring_ways)
+				{
+					end = start;
+					start = way->get_pos();
+					if(end != koord3d::invalid)
+					{
+						route_t diversionary_route;
+						vehikel_t *diversion_checker = vehikelbauer_t::baue(start, sp, NULL, &diversion_check_type);
+						diversion_checker->set_flag(obj_t::not_on_map);
+						diversion_checker->set_besitzer(welt->get_spieler(1));	
+						const uint32 bridge_weight = 0; // TODO: Set this properly.
+						if(diversionary_route.calc_route(welt, start, end, diversion_checker, w->get_max_speed(), w->get_max_axle_load(), 0, max_diversion_tiles * 100, bridge_weight))
+						{
+							// Only increment this counter if the ways were already connected.
+							necessary_diversions ++;
+						}
+						const bool route_good = diversionary_route.calc_route(welt, start, end, diversion_checker, w->get_max_speed(), w->get_max_axle_load(), 0, max_diversion_tiles * 100, bridge_weight, w->get_pos());
+						if(route_good && (diversionary_route.get_count() < max_diversion_tiles))
+						{
+							successful_diversions ++;
+							diversionary_routes.append(diversionary_route);
+						}
+						delete diversion_checker;
+					}
+				}
+
+				if(successful_diversions < necessary_diversions)
+				{
+					msg = "Cannot remove a public right of way without providing an adequate diversionary route";	
+					return false;
+				}
+
+				FOR(minivec_tpl<route_t>, const& diversionary_route, diversionary_routes)
+				{
+					for(int n = 0; n < diversionary_route.get_count(); n++)
+					{
+						// All diversionary routes must themselves be set as public rights of way.
+						weg_t* way = welt->lookup(diversionary_route.position_bei(n))->get_weg(w->get_waytype());
+						way->set_public_right_of_way();
+					}
+				}
+			}	
+		}
+	
 		if(w->get_waytype() == road_wt)
 		{
 			const koord pos = gr->get_pos().get_2d();
@@ -752,9 +829,7 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 				for(int n = 0; n < 8; n ++)
 				{
 					const koord k = pos.neighbours[n] + pos;
-					const sint8 height = welt->lookup_hgt(k);
-					const koord3d k3(k.x, k.y, height);
-					const grund_t* gr = welt->lookup(k3); 
+					const grund_t* gr = welt->lookup_kartenboden(k);
 					const gebaeude_t* gb = gr ? gr->find<gebaeude_t>() : NULL;
 					if(gb && gb->get_besitzer() == NULL)
 					{
@@ -763,11 +838,10 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 						for(int m = 0; m < 8; m ++)
 						{
 							const koord kx = k.neighbours[m] + k;
-							const sint8 heightx = welt->lookup_hgt(kx);
-							const koord3d k3x(kx.x, kx.y, heightx);
-							const grund_t* grx = welt->lookup(k3x); 
-							if (grx == gr) {
-								// The road being deleted does not count -- but others
+							const grund_t* grx = welt->lookup_kartenboden(kx);
+							if (grx == gr) 
+							{
+								// The road being deleted does not count - but others
 								// at different heights DO count.
 								continue;
 							}
@@ -779,11 +853,10 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 								for(int q = 0; q < 4; q ++)
 								{
 									const koord ky = kx.nsow[q] + kx; 
-									const sint8 heighty = welt->lookup_hgt(ky);
-									const koord3d k3y(ky.x, ky.y, heighty);
-									const grund_t* gry = welt->lookup(k3y); 
-									if (gry == gr) {
-										// The road being deleted does not count -- but others
+									const grund_t* gry = welt->lookup_kartenboden(ky);
+									if (gry == gr)
+									{
+										// The road being deleted does not count - but others
 										// at different heights DO count.
 										continue;
 									}

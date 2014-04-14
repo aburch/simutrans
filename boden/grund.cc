@@ -1864,7 +1864,6 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp, ko
 	return cost;
 }
 
-
 sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 {
 	weg_t *weg = get_weg(wegtyp);

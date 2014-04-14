@@ -138,12 +138,23 @@ private:
 	*/
 	void init_statistics();
 
-	/*Way constraints for, e.g., loading gauges, types of electrification, etc.
-	* @author: jamespetts*/
+	/*
+	 * Way constraints for, e.g., loading gauges, types of electrification, etc.
+	 * @author: jamespetts (modified by Bernd Gabriel)
+	 */
 	way_constraints_of_way_t way_constraints;
 
 	// BG, 24.02.2012 performance enhancement avoid virtual method call, use inlined get_waytype()
 	waytype_t waytype;
+
+	/*
+	* If this flag is true, players may not delete this way even if it is unowned unless they
+	* build a diversionary route. Makes the way usable by all players regardless of ownership
+	* and access settings. Permits upgrades but not downgrades, and prohibits private road signs.
+	* @author: jamespetts
+	*/
+	bool public_right_of_way:1; 
+
 protected:
 
 	enum image_type { image_flat, image_slope, image_diagonal, image_switch };
@@ -363,6 +374,10 @@ public:
 
 	// Should a city adopt this, if it is being built/upgrade by player sp?
 	bool should_city_adopt_this(const spieler_t* sp);
+
+	bool is_public_right_of_way() const { return public_right_of_way; }
+	void set_public_right_of_way() { public_right_of_way = true; }
+
 } GCC_PACKED;
 
 #endif

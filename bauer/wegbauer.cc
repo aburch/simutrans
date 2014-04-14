@@ -2408,7 +2408,7 @@ void wegbauer_t::baue_strasse()
 			// keep faster ways or if it is the same way ... (@author prissi)
 			if(  weg->get_besch()==besch  ||  keep_existing_ways
 				||  (  keep_existing_city_roads  &&  weg->hat_gehweg()  )
-				||  (  keep_existing_faster_ways  &&  ! ( besch->is_at_least_as_good_as(weg->get_besch()) )  )
+				||  (  ( keep_existing_faster_ways || (!sp->is_public_service() && weg->is_public_right_of_way())) &&  ! ( besch->is_at_least_as_good_as(weg->get_besch()) )  )
 				||  (  sp!=NULL  &&  weg->ist_entfernbar(sp)!=NULL  )
 				||  (  gr->get_typ()==grund_t::monorailboden && (bautyp&elevated_flag)==0  )
 				) {
@@ -2467,9 +2467,18 @@ void wegbauer_t::baue_strasse()
 			cost = gr->neuen_weg_bauen(str, route.get_short_ribi(i), sp, &route) + besch->get_preis();
 
 			// prissi: into UNDO-list, so we can remove it later
-			if(sp!=NULL) {
+			if(sp!=NULL) 
+			{
 				// intercity roads have no owner, so we must check for an owner
 				sp->add_undo( route[i] );
+			}
+			
+			if(sp == NULL || sp->is_public_service())
+			{
+				// If there is no owner here, this is an inter-city road built by the game on initiation;
+				// therefore, set it as a public right of way.
+				// Similarly, if this is owned by the public player, set it as a public right of way.
+				str->set_public_right_of_way();
 			}
 		}
 		gr->calc_bild();	// because it may be a crossing ...
@@ -2734,6 +2743,7 @@ void wegbauer_t::baue_fluss()
 				weg_t *sch=weg_t::alloc(water_wt);
 				sch->set_besch(besch);
 				gr->neuen_weg_bauen(sch, ribi, NULL);
+				sch->set_public_right_of_way();
 			}
 		}
 	}
@@ -2869,5 +2879,5 @@ uint32 wegbauer_t::calc_distance( const koord3d &pos, const koord3d &mini, const
 
 bool wegbauer_t::check_access(const weg_t* way, const spieler_t* sp) const
 {
-	return way && (way->get_besitzer() == NULL || way->get_besitzer() == sp || sp == NULL || way->get_besitzer()->allows_access_to(sp->get_player_nr()));
+	return way && (way->is_public_right_of_way() || way->get_besitzer() == NULL || way->get_besitzer() == sp || sp == NULL || way->get_besitzer()->allows_access_to(sp->get_player_nr()));
 }

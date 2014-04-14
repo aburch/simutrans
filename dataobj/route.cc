@@ -479,7 +479,7 @@ void route_t::concatenate_routes(route_t* tail_route)
 }
 
 
-bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d start, fahrer_t *fahr, const sint32 max_speed, const sint64 max_cost, const uint32 axle_load, const uint32 convoy_weight, const sint32 tile_length)
+bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d start, fahrer_t *fahr, const sint32 max_speed, const sint64 max_cost, const uint32 axle_load, const uint32 convoy_weight, const sint32 tile_length, koord3d avoid_tile)
 {
 	bool ok = false;
 
@@ -564,6 +564,9 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 
 	// nothing in lists
 	marker_t& marker = marker_t::instance(welt->get_size().x, welt->get_size().y);
+
+	const grund_t* avoid_ground = welt->lookup(avoid_tile);
+	marker.mark(avoid_ground);
 
 	// clear the queue (should be empty anyhow)
 	queue.clear();
@@ -949,7 +952,7 @@ void route_t::postprocess_water_route(karte_t *welt)
  * corrected 12/2005 for station search
  * @author Hansjörg Malthaner, prissi
  */
-route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d ziel, const koord3d start, fahrer_t *fahr, const sint32 max_khm, const uint32 axle_load, sint32 max_len, const sint64 max_cost, const uint32 convoy_weight)
+ route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d ziel, const koord3d start, fahrer_t *fahr, const sint32 max_khm, const uint32 axle_load, sint32 max_len, const sint64 max_cost, const uint32 convoy_weight, koord3d avoid_tile)
 {
 	route.clear();
 
@@ -959,7 +962,7 @@ route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d ziel, c
 	// profiling for routes ...
 	long ms=dr_time();
 #endif
-	bool ok = intern_calc_route(welt, start, ziel, fahr, max_khm, max_cost, axle_load, convoy_weight, max_len);
+	bool ok = intern_calc_route(welt, start, ziel, fahr, max_khm, max_cost, axle_load, convoy_weight, max_len, avoid_tile);
 #ifdef DEBUG_ROUTES
 	if(fahr->get_waytype()==water_wt) {DBG_DEBUG("route_t::calc_route()","route from %d,%d to %d,%d with %i steps in %u ms found.",start.x, start.y, ziel.x, ziel.y, route.get_count()-1, dr_time()-ms );}
 #endif

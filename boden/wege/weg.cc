@@ -215,6 +215,7 @@ void weg_t::init()
 	flags = 0;
 	bild = IMG_LEER;
 	after_bild = IMG_LEER;
+	public_right_of_way = false;
 }
 
 
@@ -284,6 +285,13 @@ void weg_t::rdwr(loadsave_t *file)
 		file->rdwr_short(wdummy16);
 		max_axle_load = wdummy16;
 	}
+
+	if(file->get_experimental_version() >= 12)
+	{
+		bool public_way = public_right_of_way; // This convolution is necessary because public_right_of_way is a bitfield. 
+		file->rdwr_bool(public_way);
+		public_right_of_way = public_way;
+	}
 }
 
 
@@ -294,7 +302,11 @@ void weg_t::rdwr(loadsave_t *file)
 void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 {
 	obj_t::info(buf);
-
+	if(public_right_of_way)
+	{
+		buf.append(translator::translate("Public right of way"));
+		buf.append("\n\n");
+	}
 	buf.append(translator::translate("Max. speed:"));
 	buf.append(" ");
 	buf.append(max_speed);

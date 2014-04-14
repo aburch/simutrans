@@ -2488,7 +2488,7 @@ bool vehikel_t::check_access(const weg_t* way) const
 	{
 		return true;
 	}
-	return way && (way->get_besitzer() == NULL || way->get_besitzer() == get_besitzer() || get_besitzer() == NULL || way->get_besitzer() == current_way->get_besitzer() || way->get_besitzer()->allows_access_to(get_besitzer()->get_player_nr()));
+	return way && (way->is_public_right_of_way() || way->get_besitzer() == NULL || way->get_besitzer() == get_besitzer() || get_besitzer() == NULL || way->get_besitzer() == current_way->get_besitzer() || way->get_besitzer()->allows_access_to(get_besitzer()->get_player_nr()));
 }
 
 
