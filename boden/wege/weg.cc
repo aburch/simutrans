@@ -288,9 +288,7 @@ void weg_t::rdwr(loadsave_t *file)
 
 	if(file->get_experimental_version() >= 12)
 	{
-		bool public_way = public_right_of_way; // This convolution is necessary because public_right_of_way is a bitfield. 
-		file->rdwr_bool(public_way);
-		public_right_of_way = public_way;
+		file->rdwr_bool(public_right_of_way);
 	}
 }
 

@@ -153,7 +153,7 @@ private:
 	* and access settings. Permits upgrades but not downgrades, and prohibits private road signs.
 	* @author: jamespetts
 	*/
-	bool public_right_of_way:1; 
+	bool public_right_of_way; 
 
 protected:
 
