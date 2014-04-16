@@ -69,6 +69,10 @@ private:
 	void build_line_list(int filter);
 
 public:
+	/// last selected line per tab
+	static linehandle_t selected_line[MAX_PLAYER_COUNT][simline_t::MAX_LINE_TYPE];
+
+
 	schedule_list_gui_t(spieler_t* sp);
 	~schedule_list_gui_t();
 	/**
