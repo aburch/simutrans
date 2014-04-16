@@ -111,10 +111,10 @@ static uint8 current_sort_mode = 0;
 
 /// selected tab per player
 static uint8 last_active_player = MAX_PLAYER_COUNT+1;
-static uint8 selected_tab = 0;
+static uint8 selected_tab[MAX_PLAYER_COUNT] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-/// selected line per tab
-static linehandle_t selected_line[simline_t::MAX_LINE_TYPE];
+/// selected line per tab (static)
+linehandle_t schedule_list_gui_t::selected_line[MAX_PLAYER_COUNT][simline_t::MAX_LINE_TYPE];
 
 schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	gui_frame_t( translator::translate("Line Management"), player_),
@@ -138,15 +138,6 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	scl.set_size(scr_size(LINE_NAME_COLUMN_WIDTH-11-4, SCL_HEIGHT-18));
 	scl.set_highlight_color(player->get_player_color1()+1);
 	scl.add_listener(this);
-
-	// reset selected tab / line if player changed
-	if (last_active_player != player->get_player_nr()) {
-		last_active_player = player->get_player_nr();
-		selected_tab = 0;
-		for(uint i=0; i<lengthof(selected_line); i++) {
-			selected_line[i] = linehandle_t();
-		}
-	}
 
 	// tab panel
 	tabs.set_pos(scr_coord(11,5));
@@ -304,16 +295,16 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 
 	// recover last selected line
 	int index = 0;
-	for(uint i=0; i<max_idx; i++) {
-		if (tabs_to_lineindex[i] == selected_tab) {
-			line = selected_line[ selected_tab ];
+	for(  uint i=0;  i<max_idx;  i++  ) {
+		if(  tabs_to_lineindex[i] == selected_tab[player->get_player_nr()]  ) {
+			line = selected_line[player->get_player_nr()][selected_tab[player->get_player_nr()]];
 			index = i;
 			break;
 		}
 	}
-	selected_tab = tabs_to_lineindex[index]; // reset if previous selected tab is not there anymore
+	selected_tab[player->get_player_nr()] = tabs_to_lineindex[index]; // reset if previous selected tab is not there anymore
 	tabs.set_active_tab_index(index);
-	if (index>0) {
+	if(index>0) {
 		bt_new_line.enable();
 	}
 	else {
@@ -441,13 +432,13 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 	}
 	else if (comp == &tabs) {
 		int const tab = tabs.get_active_tab_index();
-		uint8 old_selected_tab = selected_tab;
-		selected_tab = tabs_to_lineindex[tab];
-		if(  old_selected_tab == simline_t::line  &&  selected_line[0].is_bound()  &&  selected_line[0]->get_linetype() == selected_tab  ) {
+		uint8 old_selected_tab = selected_tab[player->get_player_nr()];
+		selected_tab[player->get_player_nr()] = tabs_to_lineindex[tab];
+		if(  old_selected_tab == simline_t::line  &&  selected_line[player->get_player_nr()][0].is_bound()  &&  selected_line[player->get_player_nr()][0]->get_linetype() == selected_tab[player->get_player_nr()]  ) {
 			// switching from general to same waytype tab while line is seletced => use current line instead
-			selected_line[selected_tab] = selected_line[0];
+			selected_line[player->get_player_nr()][selected_tab[player->get_player_nr()]] = selected_line[player->get_player_nr()][0];
 		}
-		update_lineinfo( selected_line[selected_tab] );
+		update_lineinfo( selected_line[player->get_player_nr()][selected_tab[player->get_player_nr()]] );
 		build_line_list(tab);
 		if (tab>0) {
 			bt_new_line.enable();
@@ -464,8 +455,8 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 			// no valid line
 			update_lineinfo(linehandle_t());
 		}
-		selected_line[selected_tab] = line;
-		selected_line[0] = line; // keep these the same in overview
+		selected_line[player->get_player_nr()][selected_tab[player->get_player_nr()]] = line;
+		selected_line[player->get_player_nr()][0] = line; // keep these the same in overview
 	}
 	else if (comp == &inp_filter) {
 		if(  strcmp(old_schedule_filter,schedule_filter)  ) {
