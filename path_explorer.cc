@@ -938,7 +938,7 @@ void path_explorer_t::compartment_t::step()
 
 				// iteration control
 				++iterations;
-				if ( use_limits && iterations == limit_rebuild_connexions)
+				if (use_limits && iterations == limit_rebuild_connexions)
 				{
 					break;
 				}
