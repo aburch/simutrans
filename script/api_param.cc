@@ -237,8 +237,14 @@ namespace script_api {
 	SQInteger param<koord>::push(HSQUIRRELVM vm, koord const& v)
 	{
 		koord k(v);
-		// transform coordinates
-		welt->get_scenario()->koord_w2sq(k);
+		if (k.x != -1  &&  k.y != -1) {
+			// transform coordinates
+			welt->get_scenario()->koord_w2sq(k);
+		}
+		else {
+			k = koord::invalid;
+		}
+
 		sq_newtable(vm);
 		create_slot<sint16>(vm, "x", k.x);
 		create_slot<sint16>(vm, "y", k.y);
