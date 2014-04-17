@@ -63,7 +63,7 @@ message_option_t::message_option_t() :
 		buttons[i*4+3].add_listener(this);
 		add_komponente( buttons+i*4+3 );
 	}
-	set_windowsize( scr_size(button_row+70, D_TITLEBAR_HEIGHT+D_MARGIN_TOP+(message_t::MAX_MESSAGE_TYPE-1)*(LINESPACE<<1) + D_MARGIN_BOTTOM ) );
+	set_windowsize( scr_size(button_row+70, D_TITLEBAR_HEIGHT+D_MARGIN_TOP+(2*message_t::MAX_MESSAGE_TYPE)*(LINESPACE) + D_MARGIN_BOTTOM ) );
 }
 
 
