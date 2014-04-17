@@ -552,7 +552,7 @@ void gebaeude_t::zeige_info()
 		create_win( new money_frame_t(get_besitzer()), w_info, magic_finances_t+get_besitzer()->get_player_nr() );
 	}
 	else if (ist_rathaus()) {
-		welt->suche_naechste_stadt(get_pos().get_2d())->zeige_info();
+		ptr.stadt->zeige_info();
 	}
 
 	if(!tile->get_besch()->ist_ohne_info()) {
