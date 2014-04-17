@@ -2743,24 +2743,6 @@ void convoi_t::vorfahren()
 						}
 						
 						reverse_delay = calc_reverse_delay();
-						
-						uint16 loading_time = current_loading_time;
-
-						const grund_t* gr = welt->lookup(get_pos());
-						if(gr && welt->get_zeit_ms() - arrival_time > reverse_delay && gr->is_halt())
-						{
-							// The reversing time must not be cumulative with the loading time, as 
-							// passengers can board trains etc. while they are changing direction.
-							// Only do this where the reversing point is a stop, not a waypoint.
-							if(reverse_delay <= loading_time)
-							{
-								loading_time -= reverse_delay;
-							}
-							else
-							{
-								loading_time = 0;
-							}
-						}
 
 						state = REVERSING;
 						if(fahr[0]->last_stop_pos == fahr[0]->get_pos().get_2d())
@@ -5025,7 +5007,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 		}
 		if(!loading_limit || loading_level >= loading_limit) 
 		{
-			go_on_ticks = max(departure_time, arrival_time);
+			go_on_ticks = (std::max)(departure_time, arrival_time);
 		} 
 		else 
 		{
