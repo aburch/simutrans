@@ -93,7 +93,6 @@ int current_sort_mode = 0;
 
 
 /// selected tab per player
-static uint8 last_active_player = MAX_PLAYER_COUNT+1;
 static uint8 selected_tab[MAX_PLAYER_COUNT] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 /// selected line per tab (static)
