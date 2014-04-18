@@ -4432,13 +4432,13 @@ grund_t* schiff_t::betrete_feld()
 
 bool schiff_t::ist_befahrbar(const grund_t *bd) const
 {
-	if(  bd->ist_wasser()  ) 
+	const weg_t *w = bd->get_weg(water_wt);	
+	if(bd->ist_wasser() || !w) 
 	{
 		// If there are permissive constraints, this vehicle cannot use the open water.
 		return besch->get_way_constraints().get_permissive() == 0;
 	}
 	// channel can have more stuff to check
-	const weg_t *w = bd->get_weg(water_wt);
 #if ENABLE_WATERWAY_SIGNS
 	if(  w  &&  w->has_sign()  ) {
 		const roadsign_t* rs = bd->find<roadsign_t>();
