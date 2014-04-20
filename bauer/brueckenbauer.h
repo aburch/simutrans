@@ -58,6 +58,14 @@ public:
 	static bool ist_ende_ok(spieler_t *sp, const grund_t *gr, waytype_t wt, ribi_t::ribi r );
 
 	/**
+	 * Checks if a bridge starts on @p gr
+	 *
+	 * @param gr the ground to check.
+	 * @return true, if bridge ends/starts here
+	 */
+	static bool is_start_of_bridge( const grund_t *gr );
+
+	/**
 	 * Build a bridge ramp.
 	 *
 	 * @param sp the player wanting to build the bridge
@@ -104,7 +112,7 @@ public:
 	 * @param besch Description of the bridge to build
 	 * @return NULL on success or error message otherwise
 	 */
-	static const char *baue( spieler_t *sp, koord pos, const bruecke_besch_t *besch);
+	static const char *baue( spieler_t *sp, const koord3d pos, const bruecke_besch_t *besch);
 
 	/**
 	 * Removes a bridge

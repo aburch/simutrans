@@ -537,7 +537,7 @@ DBG_MESSAGE("wkz_remover()", "bound=%i",halt.is_bound());
 DBG_MESSAGE("wkz_remover()", "check tunnel/bridge");
 
 	// beginning/end of bridge?
-	if(gr->ist_bruecke()  &&  gr->ist_karten_boden()) {
+	if(  brueckenbauer_t::is_start_of_bridge(gr)  ) {
 DBG_MESSAGE("wkz_remover()",  "removing bridge from %d,%d,%d",gr->get_pos().x, gr->get_pos().y, gr->get_pos().z);
 		bruecke_t* br = gr->find<bruecke_t>();
 		msg = brueckenbauer_t::remove(sp, gr->get_pos(), br->get_besch()->get_waytype());
@@ -2353,7 +2353,7 @@ const char *wkz_brueckenbau_t::do_work( spieler_t *sp, const koord3d &start, con
 {
 	const bruecke_besch_t *besch = brueckenbauer_t::get_besch(default_param);
 	if (end==koord3d::invalid) {
-		return brueckenbauer_t::baue( sp, start.get_2d(), besch );
+		return brueckenbauer_t::baue( sp, start, besch );
 	}
 	else {
 		const koord zv(ribi_typ(end-start));
@@ -2960,13 +2960,17 @@ const char *wkz_wayremover_t::do_work( spieler_t *sp, const koord3d &start, cons
 
 			if(gr->ist_bruecke()) {
 				if(gr->find<bruecke_t>()->get_besch()->get_waytype()==wt) {
-					if(gr->ist_karten_boden()) {
+					if(  brueckenbauer_t::is_start_of_bridge(gr)  ) {
 						const char *err = NULL;
 						err = brueckenbauer_t::remove(sp,verbindung.position_bei(i),wt);
 						if(err) {
 							return err;
 						}
 						gr = welt->lookup(verbindung.position_bei(i));
+						if(  !gr  ) {
+							// happens with bridges without ramps
+							continue;
+						}
 					}
 					else {
 						// do not remove asphalt from a bridge ...

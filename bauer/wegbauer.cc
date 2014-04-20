@@ -1882,7 +1882,7 @@ wegbauer_t::baue_tunnel_und_bruecken()
 
 			if(start->get_grund_hang()==0  ||  start->get_grund_hang()==hang_typ(zv*(-1))) {
 				// bridge here, since the route is saved backwards, we have to build it at the posterior end
-				brueckenbauer_t::baue( sp, route[i+1].get_2d(), bruecke_besch);
+				brueckenbauer_t::baue( sp, route[i+1], bruecke_besch);
 			}
 			else {
 				// tunnel
@@ -1912,7 +1912,7 @@ wegbauer_t::baue_tunnel_und_bruecken()
 						if( bruecke_besch ) {
 							wi->set_ribi(ribi_typ(h));
 							wi1->set_ribi(ribi_typ(hang_t::gegenueber(h)));
-							brueckenbauer_t::baue( sp, route[i].get_2d(), bruecke_besch);
+							brueckenbauer_t::baue( sp, route[i], bruecke_besch);
 						}
 					}
 					else if( tunnel_besch ) {
