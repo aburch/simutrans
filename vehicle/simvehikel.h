@@ -256,7 +256,7 @@ private:
 
 	sint32 calc_modified_speed_limit(koord3d position, ribi_t::ribi current_direction, bool is_corner);
 
-	bool load_freight_internal(halthandle_t halt, bool overcrowd);
+	bool load_freight_internal(halthandle_t halt, bool overcrowd, bool *full);
 
 	// @author: jamespetts
 	// uint16 local_bonus_supplement; 
@@ -572,8 +572,8 @@ public:
 	 * Load freight from halt
 	 * @return amount loaded
 	 */
-	inline uint16 load_freight(halthandle_t halt) { return load_freight(halt, false); }
-	uint16 load_freight(halthandle_t halt, bool overcrowd);
+	uint16 load_freight(halthandle_t halt)  { bool dummy; (void)dummy; return load_freight(halt, false, &dummy); }
+	uint16 load_freight(halthandle_t halt, bool overcrowd, bool *full);
 
 	/**
 	* Remove freight that no longer can reach it's destination

@@ -3049,8 +3049,11 @@ void convoi_t::vorfahren()
 									// odd tile reservations causing blockages can occur.
 									break;
 								}
-								w->reserve(self, direction_of_travel); 
-								last_pos = to->get_pos();
+								if(last_pos != to->get_pos())
+								{
+									w->reserve(self, direction_of_travel); 
+									last_pos = to->get_pos();
+								}
 								to->get_neighbour(to, wt, direction_of_travel);
 								direction_of_travel = vehikel_t::calc_richtung(last_pos, to->get_pos());
 								if(last_pos == to->get_pos())
@@ -4364,10 +4367,10 @@ void convoi_t::laden() //"load" (Babelfish)
 				if(!departures.is_contained(idp.x))
 				{
 					fpl->increment_index(&current_stop, &reverse);
-					grund_t* gr = welt->lookup(fpl->eintrag[current_stop].pos);
-					if(gr)
+					const halthandle_t scheduled_halt = haltestelle_t::get_halt(welt, fpl->eintrag[current_stop].pos, fahr[0]->get_besitzer());
+					if(scheduled_halt.is_bound())
 					{
-						pair.x = gr->get_halt().get_id();
+						pair.x = scheduled_halt.get_id();
 						idp.x = pair.x;
 						continue;
 					}
@@ -4380,10 +4383,10 @@ void convoi_t::laden() //"load" (Babelfish)
 				{
 					// Anomaly detected: do not record any further times.
 					fpl->increment_index(&current_stop, &reverse);
-					grund_t* gr = welt->lookup(fpl->eintrag[current_stop].pos);
-					if(gr)
+					const halthandle_t scheduled_halt = haltestelle_t::get_halt(welt, fpl->eintrag[current_stop].pos, fahr[0]->get_besitzer());
+					if(scheduled_halt.is_bound())
 					{
-						pair.x = gr->get_halt().get_id();
+						pair.x = scheduled_halt.get_id();
 						idp.x = pair.x;
 						continue;
 					}
@@ -4417,8 +4420,8 @@ void convoi_t::laden() //"load" (Babelfish)
 						uint32 this_stop_count = 0;
 						for(uint8 i = 0; i < fpl_count; i ++)
 						{
-							const grund_t* gr_2 = welt->lookup(fpl->eintrag[i].pos);
-							if(gr_2 && gr_2->get_halt().get_id() == idp.x)
+							const halthandle_t scheduled_halt = haltestelle_t::get_halt(welt, fpl->eintrag[current_stop].pos, fahr[0]->get_besitzer());
+							if(scheduled_halt.get_id() == idp.x)
 							{
 								this_stop_count ++;
 							}
@@ -4480,8 +4483,8 @@ write_basic:
 							uint32 this_stop_count = 0;
 							for(uint8 i = 0; i < fpl_count; i ++)
 							{
-								const grund_t* gr_2 = welt->lookup(fpl->eintrag[i].pos);
-								if(gr_2 && gr_2->get_halt().get_id() == idp.x)
+								const halthandle_t scheduled_halt = haltestelle_t::get_halt(welt, fpl->eintrag[current_stop].pos, fahr[0]->get_besitzer());
+								if(scheduled_halt.get_id() == idp.x)
 								{
 									this_stop_count ++;
 								}
@@ -4517,15 +4520,8 @@ write_basic_line:
 				}
 
 				fpl->increment_index(&current_stop, &reverse);
-				grund_t* gr = welt->lookup(fpl->eintrag[current_stop].pos);
-				if(gr)
-				{
-					pair.x = gr->get_halt().get_id();
-				}
-				else
-				{
-					pair.x = 0;
-				}
+				const halthandle_t scheduled_halt = haltestelle_t::get_halt(welt, fpl->eintrag[current_stop].pos, fahr[0]->get_besitzer());
+				pair.x = scheduled_halt.get_id();
 				idp.x = pair.x;
 			}
 			while(starting_stop != current_stop && idp.x != idp.y);
@@ -4996,19 +4992,43 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	}
 	else // not "no_load"
 	{
-		// Load vehicles to their regular level.
-		for(int i = 0; i < number_loadable_vehicles ; i++)
-		{
-			static const bool overcrowd = false;
-			vehikel_t* v = fahr[i];
-			changed_loading_level += v->load_freight(halt, overcrowd);
+		bool skip_catg[255] = {false};
+
+		lines_loaded_t line_data;
+		line_data.line = get_line();
+		if(  line_data.line.is_bound()  ) {
+			line_data.reversed = is_reversed();
+			line_data.aktuell = get_schedule()->get_aktuell();
+
+			// flag all categories that have already had all available freight loaded onto convois on this line from this halt this step
+			FOR(vector_tpl<lines_loaded_t>, const& i, halt->access_lines_loaded()) {
+				if(  i.line == line_data.line  &&  i.reversed == line_data.reversed  &&  i.aktuell == line_data.aktuell  ) {
+					skip_catg[i.catg_index] = true;
+				}
 		}
-		// Finally, load vehicles to their overcrowded level.
-		for(int i = 0; i < number_loadable_vehicles ; i++)
-		{
-			static const bool overcrowd = true;
-			vehikel_t* v = fahr[i];
-			changed_loading_level += v->load_freight(halt, overcrowd);
+	}
+
+		// Load vehicles to their regular level. And then load vehicles to their overcrowded level.
+		// Modified by TurfIt, March 2014
+		for(  int j = 0;  j < 2;  j++  ) {
+			for(int i = 0; i < number_loadable_vehicles ; i++)
+			{
+				const bool overcrowd = (j == 1);
+				bool full = false;
+				vehikel_t* v = fahr[i];
+				const uint8 catg_index = v->get_fracht_typ()->get_catg_index();
+				if(  !skip_catg[catg_index]  ) {
+					changed_loading_level += v->load_freight(halt, overcrowd, &full);
+					if(  !full  ) {
+						// not enough freight was available to fill vehicle ..> don't try to load this category again from this halt onto vehicles in convois on this line this step
+						skip_catg[catg_index] = true;
+						if(  line_data.line.is_bound()  ) {
+							line_data.catg_index = catg_index;
+							halt->access_lines_loaded().append( line_data );
+						}
+					}
+				}
+			}		
 		}
 	}
 

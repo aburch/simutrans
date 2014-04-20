@@ -1015,7 +1015,7 @@ uint16 vehikel_t::unload_freight(halthandle_t halt, sint64 & revenue_from_unload
  * @return amount loaded
  * @author Hj. Malthaner
  */
-bool vehikel_t::load_freight_internal(halthandle_t halt, bool overcrowd)
+bool vehikel_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *full)
 {
 	const bool ok = halt->gibt_ab(besch->get_ware());
 	if(ok) 
@@ -1035,7 +1035,7 @@ bool vehikel_t::load_freight_internal(halthandle_t halt, bool overcrowd)
 			if(ware.menge == 0) 
 			{
 				// now empty, but usually, we can get it here ...
-				return ok;
+				break;
 			}
 
 			uint16 count = 0;
@@ -1059,31 +1059,12 @@ bool vehikel_t::load_freight_internal(halthandle_t halt, bool overcrowd)
 
 			//INT_CHECK("simvehikel 876");
 		}
+		*full = (total_freight >= total_capacity);
 		DBG_DEBUG4("vehikel_t::load_freight", "total_freight %d of %d loaded.", total_freight, total_capacity);
 	}
 	return ok;
 }
 
-
-uint16 vehikel_t::load_freight(halthandle_t halt, bool overcrowd)
-{
-	bool ok = true;
-	uint16 load_charge = total_freight;
-	if(halt.is_bound()) 
-	{
-		ok = load_freight_internal(halt, overcrowd);
-	}
-	sum_weight = get_fracht_gewicht() + besch->get_gewicht();
-	calc_bild();
-	if(ok)
-	{
-		return total_freight - load_charge;
-	}
-	else
-	{
-		return 0;
-	}
-}
 
 
 /**
@@ -1972,6 +1953,25 @@ void vehikel_t::loesche_fracht()
 	sum_weight =  besch->get_gewicht();
 }
 
+uint16 vehikel_t::load_freight(halthandle_t halt, bool overcrowd, bool *full)
+{
+	bool ok = true;
+	uint16 load_charge = total_freight;
+	if(halt.is_bound()) 
+	{
+		ok = load_freight_internal(halt, overcrowd, full);
+	}
+	sum_weight = get_fracht_gewicht() + besch->get_gewicht();
+	calc_bild();
+	if(ok)
+	{
+		return total_freight - load_charge;
+	}
+	else
+	{
+		return 0;
+	}
+}
 
 /**
  * Determine travel direction
