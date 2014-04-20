@@ -3905,14 +3905,14 @@ void karte_t::sync_step(uint32 delta_t, bool sync, bool display )
 
 		// display new frame with water animation
 		intr_refresh_display( false );
-		update_frame_sleep_time(delta_t);
+		update_frame_sleep_time();
 	}
 	clear_random_mode( SYNC_STEP_RANDOM );
 }
 
 
 // does all the magic about frame timing
-void karte_t::update_frame_sleep_time(long /*delta*/)
+void karte_t::update_frame_sleep_time()
 {
 	// get average frame time
 	uint32 last_ms = dr_time();
