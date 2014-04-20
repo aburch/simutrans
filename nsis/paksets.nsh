@@ -71,12 +71,12 @@ SectionGroupEnd
 
 
 
-Section /o "pak.japan (64 size) for 112.0" pak64japan
-  AddSize 6780
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64.japan/112-0/simupak64.japan-112-0.zip"
-  StrCpy $archievename "simupak64.japan-112-0.zip"
+Section /o "pak.japan (64 size) for 120.0" pak64japan
+  AddSize 8225
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64.japan/120-0/simupak64.japan-120-0.zip"
+  StrCpy $archievename "simupak64.japan-120-0.zip"
   StrCpy $downloadname "pak.japan"
-  StrCpy $VersionString "pak64.japan 112.0 r986M"
+  StrCpy $VersionString "pak64.japan 120.0 r1439"
   Call DownloadInstallZip
 SectionEnd
 
