@@ -323,14 +323,14 @@ void convoi_t::laden_abschliessen()
 			if(gr  &&  gr->get_depot()) {
 				dbg->warning( "convoi_t::laden_abschliessen()","No schedule during loading convoi %i: State will be initial!", self.get_id() );
 				for( uint8 i=0;  i<anz_vehikel;  i++ ) {
-					fahr[i]->get_pos() = home_depot;
+					fahr[i]->set_pos(home_depot);
 				}
 				state = INITIAL;
 			}
 			else {
 				dbg->error( "convoi_t::laden_abschliessen()","No schedule during loading convoi %i: Convoi will be destroyed!", self.get_id() );
 				for( uint8 i=0;  i<anz_vehikel;  i++ ) {
-					fahr[i]->get_pos() = koord3d::invalid;
+					fahr[i]->set_pos(koord3d::invalid);
 				}
 				destroy();
 				return;
