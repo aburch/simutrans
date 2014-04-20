@@ -1412,7 +1412,7 @@ void stadt_t::change_size( sint64 delta_citizen, bool new_town)
 }
 
 
-void stadt_t::step(long delta_t)
+void stadt_t::step(uint32 delta_t)
 {
 	settings_t const& s = welt->get_settings();
 	// recalculate factory going ratios where necessary

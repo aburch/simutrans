@@ -603,7 +603,7 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 	// Update label buffers
 	hide_buildings_label.set_text( env_t::hide_buildings==0 ? "no buildings hidden" : (env_t::hide_buildings==1 ? "hide city building" : "hide all building") );
 	convoy_tooltip_label.set_text( env_t::show_vehicle_states==0 ? "convoi error tooltips" : (env_t::show_vehicle_states==1 ? "convoi mouseover tooltips" : "all convoi tooltips") );
-	sprintf(frame_time_buf," %ld ms", get_frame_time() );
+	sprintf(frame_time_buf," %d ms", get_frame_time() );
 	sprintf(idle_time_buf, " %d ms", welt->get_schlaf_zeit() );
 
 	// fps_label

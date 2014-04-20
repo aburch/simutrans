@@ -339,7 +339,7 @@ stadtauto_t::stadtauto_t(grund_t* gr, koord const target) :
 }
 
 
-bool stadtauto_t::sync_step(long delta_t)
+bool stadtauto_t::sync_step(uint32 delta_t)
 {
 	time_to_life -= delta_t;
 	if(  time_to_life<=0  ) {

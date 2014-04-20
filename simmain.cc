@@ -124,7 +124,7 @@ static void show_times(karte_t *welt, karte_ansicht_t *view)
 
 	image_id img = grund_besch_t::ausserhalb->get_bild(0,0);
 
- 	long ms = dr_time();
+	uint32 ms = dr_time();
 	for (i = 0;  i < 6000000;  i++) {
 #ifdef MULTI_THREAD
  		display_img( img, 50, 50, 1, 0);
@@ -217,7 +217,7 @@ void modal_dialogue( gui_frame_t *gui, ptrdiff_t magic, karte_t *welt, bool (*qu
 		welt->reset_timer();
 
 		long ms_pause = max( 25, 1000/env_t::fps );
-		uint32 last_step = dr_time()+ms_pause;
+		uint32 last_step = dr_time();
 		uint step_count = 5;
 		while(  win_is_open(gui)  &&  !env_t::quit_simutrans  &&  !quit()  ) {
 			do {
@@ -245,7 +245,7 @@ void modal_dialogue( gui_frame_t *gui, ptrdiff_t magic, karte_t *welt, bool (*qu
 					break;
 				}
 				dr_sleep(5);
-			} while(  dr_time()<last_step  );
+			} while(  dr_time() - last_step < ms_pause );
 			DBG_DEBUG4("zeige_banner", "calling welt->sync_step");
 			welt->sync_step( ms_pause, true, true );
 			DBG_DEBUG4("zeige_banner", "calling welt->step");

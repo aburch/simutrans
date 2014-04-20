@@ -128,7 +128,6 @@ static int num_SDL_Rects = 0;
 static SDL_Rect SDL_Rects[MAX_SDL_RECTS];
 #endif
 
-
 /*
  * Hier sind die Basisfunktionen zur Initialisierung der
  * Schnittstelle untergebracht
@@ -671,8 +670,7 @@ void ex_ord_update_mx_my()
 	SDL_PumpEvents();
 }
 
-
-unsigned long dr_time()
+uint32 dr_time()
 {
 	return SDL_GetTicks();
 }

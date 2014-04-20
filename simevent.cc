@@ -45,18 +45,18 @@ void change_drag_start(int x, int y)
 static void fill_event(event_t* const ev)
 {
 	// Knightly : variables for detecting double-clicks and triple-clicks
-	const  unsigned long interval = 400;
+	const  uint32        interval = 400;
 	static unsigned int  prev_ev_class = EVENT_NONE;
 	static unsigned int  prev_ev_code = 0;
-	static unsigned long prev_ev_time = 0;
+	static uint32        prev_ev_time = 0;
 	static unsigned char repeat_count = 0;	// number of consecutive sequences of click-release
 
 	// for autorepeat buttons we track button state, press time and a repeat time
 	// code by Niels Roest and Hj. Maltahner
 
 	static int  pressed_buttons = 0; // assume: at startup no button pressed (needed for some backends)
-	static unsigned long lb_time = 0;
-	static long repeat_time = 500;
+	static uint32 lb_time = 0;
+	static uint32 repeat_time = 500;
 
 	ev->ev_class = EVENT_NONE;
 
@@ -155,7 +155,7 @@ static void fill_event(event_t* const ev)
 	}
 
 	// Knightly : check for double-clicks and triple-clicks
-	const unsigned long curr_time = dr_time();
+	const uint32 curr_time = dr_time();
 	if(  ev->ev_class==EVENT_CLICK  ) {
 		if(  prev_ev_class==EVENT_RELEASE  &&  prev_ev_code==ev->ev_code  &&  curr_time-prev_ev_time<=interval  ) {
 			// case : a mouse click which forms an unbroken sequence with the previous clicks and releases
@@ -210,7 +210,7 @@ static void fill_event(event_t* const ev)
 		 * disabling the repeat feature for non-left buttons
 		 */
 		if (pressed_buttons == MOUSE_LEFTBUTTON) {
-			if (curr_time > lb_time + repeat_time) {
+			if (curr_time - lb_time > repeat_time) {
 				repeat_time = 100;
 				lb_time = curr_time;
 				ev->ev_class = EVENT_REPEAT;

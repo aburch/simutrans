@@ -445,7 +445,7 @@ void roadsign_t::calc_bild()
 
 
 // only used for traffic light: change the current state
-bool roadsign_t::sync_step(long /*delta_t*/)
+bool roadsign_t::sync_step(uint32 /*delta_t*/)
 {
 	if(  besch->is_private_way()  ) {
 		uint8 image = 1-(dir&1);

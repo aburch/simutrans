@@ -95,9 +95,9 @@ void wolke_t::rdwr(loadsave_t *file)
 
 
 
-bool wolke_t::sync_step(long delta_t)
+bool wolke_t::sync_step(uint32 delta_t)
 {
-	insta_zeit += (uint16)delta_t;
+	insta_zeit += delta_t;
 	if(insta_zeit>=2499) {
 		// delete wolke ...
 		insta_zeit = 2499;

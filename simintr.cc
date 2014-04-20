@@ -25,13 +25,13 @@ static karte_t *welt_modell = NULL;
 static karte_ansicht_t *welt_ansicht = NULL;
 
 
-static long last_time;
+static uint32 last_time;
 static bool enabled = false;
 
 #define FRAME_TIME_MULTI (16)
 
 // pause between two frames
-static long frame_time = 36*FRAME_TIME_MULTI;
+static uint32 frame_time = 36*FRAME_TIME_MULTI;
 
 
 bool reduce_frame_time()
@@ -59,12 +59,12 @@ bool increase_frame_time()
 	}
 }
 
-long get_frame_time()
+uint32 get_frame_time()
 {
 	return frame_time/FRAME_TIME_MULTI;
 }
 
-void set_frame_time(long time)
+void set_frame_time(uint32 time)
 {
 	frame_time = clamp( time, 10, 250 )*FRAME_TIME_MULTI;
 }
@@ -93,11 +93,11 @@ void interrupt_check(const char* caller_info)
 	if(enabled) {
 		static uint32 last_ms = 0;
 		if(  !welt_modell->is_fast_forward()  ||  welt_modell->get_zeit_ms() != last_ms  ) {
-			const long now = dr_time();
+			const uint32 now = dr_time();
 			if((now-last_time)*FRAME_TIME_MULTI < frame_time) {
 				return;
 			}
-			const long diff = ((now - last_time)*welt_modell->get_time_multiplier())/16;
+			const long diff = (( (sint32)now - (sint32)last_time)*welt_modell->get_time_multiplier())/16;
 			if(  diff>0  ) {
 				enabled = false;
 				last_time = now;
@@ -123,12 +123,12 @@ void intr_set(karte_t *welt, karte_ansicht_t *view)
  * currently only used by the pause tool. Use with care!
  * @author Hj. Malthaner
  */
-void intr_set_last_time(long time)
+void intr_set_last_time(uint32 time)
 {
 	last_time = time;
 }
 
-long intr_get_last_time()
+uint32 intr_get_last_time()
 {
 	return last_time;
 }

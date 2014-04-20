@@ -292,7 +292,7 @@ void gebaeude_t::set_tile( const haus_tile_besch_t *new_tile, bool start_with_co
  * Objekte entfernt werden sol
  * @author Hj. Malthaner
  */
-bool gebaeude_t::sync_step(long delta_t)
+bool gebaeude_t::sync_step(uint32 delta_t)
 {
 	if(zeige_baugrube) {
 		// still under construction?
@@ -308,7 +308,7 @@ bool gebaeude_t::sync_step(long delta_t)
 	}
 	else {
 		// normal animated building
-		anim_time += (uint16)delta_t;
+		anim_time += delta_t;
 		if(anim_time>tile->get_besch()->get_animation_time()) {
 			if(!zeige_baugrube)  {
 

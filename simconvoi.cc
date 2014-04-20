@@ -673,7 +673,7 @@ void convoi_t::add_running_cost( const weg_t *weg )
 /* Calculates (and sets) new akt_speed
  * needed for driving, entering and leaving a depot)
  */
-void convoi_t::calc_acceleration(long delta_t)
+void convoi_t::calc_acceleration(uint32 delta_t)
 {
 	if(  !recalc_data  &&  abs( akt_speed_soll-akt_speed) < 24  ) {
 		// very close to max speed => go with max speed and finish calculation here
@@ -794,7 +794,7 @@ int convoi_t::get_vehicle_at_length(uint16 length)
 
 
 // moves all vehicles of a convoi
-bool convoi_t::sync_step(long delta_t)
+bool convoi_t::sync_step(uint32 delta_t)
 {
 	// still have to wait before next action?
 	wait_lock -= delta_t;

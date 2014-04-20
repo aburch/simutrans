@@ -161,7 +161,7 @@ void fussgaenger_t::erzeuge_fussgaenger_an(const koord3d k, int &anzahl)
 }
 
 
-bool fussgaenger_t::sync_step(long delta_t)
+bool fussgaenger_t::sync_step(uint32 delta_t)
 {
 	time_to_life -= delta_t;
 

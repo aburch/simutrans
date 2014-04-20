@@ -100,7 +100,7 @@ public:
 	bool is_free_route(uint8 check_dir) const { return besch->is_choose_sign() &&  check_dir == dir; }
 
 	// changes the state of a traffic light
-	bool sync_step(long);
+	bool sync_step(uint32);
 
 	// change the phases of the traffic lights
 	uint8 get_ticks_ns() const { return ticks_ns; }

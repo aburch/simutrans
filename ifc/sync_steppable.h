@@ -1,6 +1,7 @@
 #ifndef sync_steppable_h
 #define sync_steppable_h
 
+#include "../simtypes.h"
 
 /**
  * All synchronously moving things must implement this interface.
@@ -16,7 +17,7 @@ public:
      * Objekte entfernt werden sol
      * @author Hj. Malthaner
      */
-    virtual bool sync_step(long delta_t) = 0;
+    virtual bool sync_step(uint32 delta_t) = 0;
 
     virtual ~sync_steppable() {}
 };

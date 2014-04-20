@@ -488,7 +488,7 @@ public:
 	void set_citygrowth_yesno( bool ng ) { allow_citygrowth = ng; }
 	bool get_citygrowth() const { return allow_citygrowth; }
 
-	void step(long delta_t);
+	void step(uint32 delta_t);
 
 	void neuer_monat( bool recalc_destinations );
 

@@ -1574,15 +1574,15 @@ public:
 
 	bool sync_add(sync_steppable *obj);
 	bool sync_remove(sync_steppable *obj);
-	void sync_step(long delta_t, bool sync, bool display );	// advance also the timer
+	void sync_step(uint32 delta_t, bool sync, bool display );	// advance also the timer
 
 	bool sync_eyecandy_add(sync_steppable *obj);
 	bool sync_eyecandy_remove(sync_steppable *obj);
-	void sync_eyecandy_step(long delta_t);	// all stuff, which does not need explicit order (factory smoke, buildings)
+	void sync_eyecandy_step(uint32 delta_t);	// all stuff, which does not need explicit order (factory smoke, buildings)
 
 	bool sync_way_eyecandy_add(sync_steppable *obj);
 	bool sync_way_eyecandy_remove(sync_steppable *obj);
-	void sync_way_eyecandy_step(long delta_t);	// currently one smoke from vehicles on ways
+	void sync_way_eyecandy_step(uint32 delta_t);	// currently one smoke from vehicles on ways
 
 
 	/**

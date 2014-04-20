@@ -110,7 +110,7 @@ void ex_ord_update_mx_my()
 
 static timeval first;
 
-unsigned long dr_time()
+uint32 dr_time()
 {
 	timeval second;
 	gettimeofday(&second,NULL);
@@ -119,7 +119,8 @@ unsigned long dr_time()
 		second.tv_usec += 1000000;
 		second.tv_sec--;
 	}
-	return (unsigned long)(second.tv_sec - first.tv_sec)*1000ul + (unsigned long)(unsigned long)(second.tv_usec - first.tv_usec)/1000ul;
+
+	return (second.tv_sec - first.tv_sec)*1000ul + (second.tv_usec - first.tv_usec)/1000ul;
 }
 
 void dr_sleep(uint32 msec)

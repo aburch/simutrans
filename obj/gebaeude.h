@@ -165,7 +165,7 @@ public:
 	 * @return true
 	 * @author Hj. Malthaner
 	 */
-	bool sync_step(long delta_t);
+	bool sync_step(uint32 delta_t);
 
 	/**
 	 * @return Den level (die Ausbaustufe) des Gebaudes

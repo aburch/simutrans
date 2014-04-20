@@ -29,7 +29,7 @@ public:
 	static void neue_karte();
 
 	/// Steps all powernets
-	static void step_all(long delta_t);
+	static void step_all(uint32 delta_t);
 
 private:
 	static slist_tpl<powernet_t *> powernet_list;
@@ -47,7 +47,7 @@ private:
 	uint64 this_demand;
 
 	/// Just transfers power demand and supply to current step
-	void step(long delta_t);
+	void step(uint32 delta_t);
 
 public:
 	powernet_t();

@@ -3625,7 +3625,7 @@ bool karte_t::sync_eyecandy_remove(sync_steppable *obj)	// entfernt alle dinge =
 }
 
 
-void karte_t::sync_eyecandy_step(long delta_t)
+void karte_t::sync_eyecandy_step(uint32 delta_t)
 {
 	sync_step_eyecandy_running = true;
 	// first add everything
@@ -3692,7 +3692,7 @@ bool karte_t::sync_way_eyecandy_remove(sync_steppable *obj)	// entfernt alle din
 }
 
 
-void karte_t::sync_way_eyecandy_step(long delta_t)
+void karte_t::sync_way_eyecandy_step(uint32 delta_t)
 {
 	sync_way_eyecandy_running = true;
 	// first add everything
@@ -3793,7 +3793,7 @@ bool karte_t::sync_remove(sync_steppable *obj)	// entfernt alle dinge == obj aus
  * only time consuming thing are done in step()
  * everything else is done here
  */
-void karte_t::sync_step(long delta_t, bool sync, bool display )
+void karte_t::sync_step(uint32 delta_t, bool sync, bool display )
 {
 	set_random_mode( SYNC_STEP_RANDOM );
 	if(sync) {
@@ -3918,8 +3918,9 @@ void karte_t::update_frame_sleep_time(long /*delta*/)
 	uint32 last_ms = dr_time();
 	last_frame_ms[last_frame_idx] = last_ms;
 	last_frame_idx = (last_frame_idx+1) % 32;
-	if(last_frame_ms[last_frame_idx]<last_ms) {
-		realFPS = (32000u) / (last_ms-last_frame_ms[last_frame_idx]);
+	sint32 ms_diff = (sint32)( last_ms - last_frame_ms[last_frame_idx] );
+	if(ms_diff > 0) {
+		realFPS = (32000u) / ms_diff;
 	}
 	else {
 		realFPS = env_t::fps;
@@ -4011,7 +4012,7 @@ void karte_t::update_frame_sleep_time(long /*delta*/)
 	}
 	else  { // here only with fyst forward ...
 		// try to get 10 fps or lower rate (if set)
-		sint32 frame_intervall = max( 100, 1000/env_t::fps );
+		uint32 frame_intervall = max( 100, 1000/env_t::fps );
 		if(get_frame_time()>frame_intervall) {
 			reduce_frame_time();
 		}
@@ -4302,10 +4303,10 @@ void karte_t::set_schedule_counter()
 void karte_t::step()
 {
 	DBG_DEBUG4("karte_t::step", "start step");
-	unsigned long time = dr_time();
+	uint32 time = dr_time();
 
 	// calculate delta_t before handling overflow in ticks
-	const long delta_t = (long)ticks-(long)last_step_ticks;
+	uint32 delta_t = ticks - last_step_ticks;
 
 	// first: check for new month
 	if(ticks > next_month_ticks) {
@@ -4329,7 +4330,7 @@ void karte_t::step()
 		 */
 
 		// needs plausibility check?!?
-		if(delta_t>10000  || delta_t<0) {
+		if(delta_t>10000) {
 			dbg->error( "karte_t::step()", "delta_t (%li) out of bounds!", delta_t );
 			last_step_ticks = ticks;
 			next_step_time = time+10;
@@ -5850,7 +5851,7 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 	}
 
 #ifdef DEBUG
-	long dt = dr_time();
+	uint32 dt = dr_time();
 #endif
 	// recalculate halt connections
 	haltestelle_t::reset_routing();
@@ -6246,7 +6247,7 @@ void karte_t::mark_area( const koord3d pos, const koord size, const bool mark ) 
 void karte_t::reset_timer()
 {
 	// Reset timers
-	long last_tick_sync = dr_time();
+	uint32 last_tick_sync = dr_time();
 	mouse_rest_time = last_tick_sync;
 	sound_wait_time = AMBIENT_SOUND_INTERVALL;
 	intr_set_last_time(last_tick_sync);
@@ -6286,8 +6287,7 @@ void karte_t::reset_timer()
 	else {
 		// make timer loop invalid
 		for( int i=0;  i<32;  i++ ) {
-			last_frame_ms[i] = 0x7FFFFFFFu;
-			last_step_nr[i] = 0xFFFFFFFFu;
+			last_frame_ms[i] = dr_time();
 		}
 		last_frame_idx = 0;
 		simloops = 60;
@@ -6317,7 +6317,7 @@ void karte_t::set_map_counter(uint32 new_map_counter)
 
 uint32 karte_t::generate_new_map_counter() const
 {
-	return (uint32)dr_time();
+	return dr_time();
 }
 
 
@@ -6522,8 +6522,9 @@ void karte_t::network_game_set_pause(bool pause_, uint32 syncsteps_)
 				/* make sure, the server is really that far ahead
 				 * Sleep() on windows often returns before!
 				 */
-				unsigned long const ms = dr_time() + (settings.get_server_frames_ahead() + (uint32)env_t::additional_client_frames_behind) * fix_ratio_frame_time;
-				while(  dr_time()<ms  ) {
+				uint32 now = dr_time();
+				uint32 ms = (settings.get_server_frames_ahead() + (uint32)env_t::additional_client_frames_behind) * fix_ratio_frame_time;
+				while(  dr_time() - now < ms  ) {
 					dr_sleep ( 10 );
 				}
 			}
@@ -6577,8 +6578,9 @@ static void encode_URI(cbuffer_t& buf, char const* const text)
 void karte_t::process_network_commands(sint32 *ms_difference)
 {
 	// did we receive a new command?
-	unsigned long ms = dr_time();
-	network_command_t *nwc = network_check_activity( this, next_step_time>ms ? min( next_step_time-ms, 5) : 0 );
+	uint32 ms = dr_time();
+	sint32 time_to_next_step = (sint32)next_step_time - (sint32)ms;
+	network_command_t *nwc = network_check_activity( this, time_to_next_step > 0 ? min( time_to_next_step, 5) : 0 );
 	if(  nwc==NULL  &&  !network_check_server_connection()  ) {
 		dbg->warning("karte_t::process_network_commands", "lost connection to server");
 		network_disconnect();
@@ -6593,7 +6595,7 @@ void karte_t::process_network_commands(sint32 *ms_difference)
 			nwc_check_t* nwcheck = (nwc_check_t*)nwc;
 			// are we on time?
 			*ms_difference = 0;
-			sint64 const difftime = (sint64)next_step_time - dr_time() + ((sint64)nwcheck->server_sync_step - sync_steps - settings.get_server_frames_ahead() - env_t::additional_client_frames_behind) * fix_ratio_frame_time;
+			sint64 const difftime = ( (sint32)next_step_time - (sint32)dr_time() ) + ((sint64)nwcheck->server_sync_step - sync_steps - settings.get_server_frames_ahead() - env_t::additional_client_frames_behind) * fix_ratio_frame_time;
 			if(  difftime<0  ) {
 				// running ahead
 				next_step_time += (uint32)(-difftime);
@@ -6779,7 +6781,7 @@ bool karte_t::interactive(uint32 quit_month)
 		if(  step_mode==NORMAL  ) {
 			DBG_DEBUG4("karte_t::interactive", "decide to play a sound");
 			last_interaction = dr_time();
-			if(  mouse_rest_time+sound_wait_time < last_interaction  ) {
+			if(  sound_wait_time < last_interaction - mouse_rest_time ) {
 				// we play an ambient sound, if enabled
 				grund_t *gr = lookup(zeiger->get_pos());
 				if(  gr  ) {
@@ -6809,7 +6811,7 @@ bool karte_t::interactive(uint32 quit_month)
 			// are quite responsive
 			DBG_DEBUG4("karte_t::interactive", "can I get some sleep?");
 			INT_CHECK( "karte_t::interactive()" );
-			const sint32 wait_time = (sint32)(next_step_time-dr_time());
+			const sint32 wait_time = (sint32)next_step_time - (sint32)dr_time();
 			if(wait_time>0) {
 				if(wait_time<10  ) {
 					dr_sleep( wait_time );
@@ -6823,8 +6825,8 @@ bool karte_t::interactive(uint32 quit_month)
 		}
 
 		// time for the next step?
-		uint32 time = dr_time(); // - (env_t::server ? 0 : 5000);
-		if(  next_step_time<=time  ) {
+		uint32 time = dr_time();
+		if(  (sint32)next_step_time - (sint32)time <= 0  ) {
 			if(  step_mode&PAUSE_FLAG  ) {
 				// only update display
 				sync_step( 0, false, true );
@@ -6890,7 +6892,7 @@ bool karte_t::interactive(uint32 quit_month)
 
 		// Interval-based server announcements
 		if (  env_t::server  &&  env_t::server_announce  &&  env_t::server_announce_interval > 0  &&
-			dr_time() >= server_last_announce_time + (uint32)env_t::server_announce_interval * 1000  ) {
+			dr_time() - server_last_announce_time >= (uint32)env_t::server_announce_interval * 1000  ) {
 			announce_server( 1 );
 		}
 

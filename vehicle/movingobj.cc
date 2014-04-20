@@ -277,7 +277,7 @@ void movingobj_t::entferne(spieler_t *sp)
 
 
 
-bool movingobj_t::sync_step(long delta_t)
+bool movingobj_t::sync_step(uint32 delta_t)
 {
 	weg_next += get_besch()->get_speed() * delta_t;
 	weg_next -= fahre_basis( weg_next );

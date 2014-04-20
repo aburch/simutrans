@@ -55,7 +55,7 @@ public:
 	movingobj_t(koord3d pos, const groundobj_besch_t *);
 	~movingobj_t();
 
-	bool sync_step(long delta_t);
+	bool sync_step(uint32 delta_t);
 
 	// prissi: always free
 	virtual bool ist_befahrbar(const grund_t *) const;

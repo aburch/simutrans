@@ -220,7 +220,7 @@ public:
 	 * Age messages (move them upwards)
 	 * @author Hj. Malthaner
 	 */
-	void age_messages(long delta_t);
+	void age_messages(uint32 delta_t);
 
 	/* Handles player colors ...
 	* @author prissi

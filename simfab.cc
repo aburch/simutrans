@@ -1338,7 +1338,7 @@ bool fabrik_t::is_active_lieferziel( koord k ) const
 
 
 
-void fabrik_t::step(long delta_t)
+void fabrik_t::step(uint32 delta_t)
 {
 	if(  delta_t==0  ) {
 		return;

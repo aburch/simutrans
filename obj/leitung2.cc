@@ -441,7 +441,7 @@ void pumpe_t::neue_karte()
 }
 
 
-void pumpe_t::step_all(long delta_t)
+void pumpe_t::step_all(uint32 delta_t)
 {
 	FOR(slist_tpl<pumpe_t*>, const p, pumpe_list) {
 		p->step(delta_t);
@@ -476,7 +476,7 @@ pumpe_t::~pumpe_t()
 }
 
 
-void pumpe_t::step(long delta_t)
+void pumpe_t::step(uint32 delta_t)
 {
 	if(fab==NULL) {
 		return;
@@ -567,7 +567,7 @@ void senke_t::neue_karte()
 }
 
 
-void senke_t::step_all(long delta_t)
+void senke_t::step_all(uint32 delta_t)
 {
 	FOR(slist_tpl<senke_t*>, const s, senke_list) {
 		s->step(delta_t);
@@ -615,7 +615,7 @@ senke_t::~senke_t()
 }
 
 
-void senke_t::step(long delta_t)
+void senke_t::step(uint32 delta_t)
 {
 	if(fab==NULL) {
 		return;
@@ -660,7 +660,7 @@ void senke_t::step(long delta_t)
 }
 
 
-bool senke_t::sync_step(long delta_t)
+bool senke_t::sync_step(uint32 delta_t)
 {
 	if(fab==NULL) {
 		return false;

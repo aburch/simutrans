@@ -28,7 +28,7 @@ public:
 	wolke_t(koord3d pos, sint8 xoff, sint8 yoff, const skin_besch_t *cloud );
 	~wolke_t();
 
-	bool sync_step(long delta_t);
+	bool sync_step(uint32 delta_t);
 
 	const char* get_name() const { return "Wolke"; }
 	typ get_typ() const { return sync_wolke; }
