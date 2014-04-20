@@ -4358,12 +4358,12 @@ void karte_t::step()
 			}
 		}
 		else if(simloops>8u*env_t::max_acceleration) {
-			if((long)idle_time<get_frame_time()-10) {
+			if(idle_time + 10u < get_frame_time()) {
 				idle_time ++;
 			}
 		}
 		// cap it ...
-		if( (long)idle_time>=get_frame_time()-10) {
+		if( idle_time + 10u >= get_frame_time()) {
 			idle_time = get_frame_time()-10;
 		}
 		next_step_time = time+idle_time;
