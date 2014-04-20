@@ -14,7 +14,7 @@ int debuglevel = 2;
 
 
 // Needed to avoid linking problems
-unsigned long dr_time(void)
+uint32 dr_time(void)
 {
 	return 0;
 }
