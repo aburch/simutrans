@@ -65,7 +65,7 @@
  * Waiting time for infinite loading (ms)
  * @author Hj- Malthaner
  */
-#define WAIT_INFINITE 0xFFFFFFFFu
+#define WAIT_INFINITE 0x7FFFFFFFu
 
 
 karte_ptr_t convoi_t::welt;
@@ -130,7 +130,7 @@ void convoi_t::init(spieler_t *sp)
 	has_obsolete = false;
 	no_load = false;
 	wait_lock = 0;
-	go_on_ticks = WAIT_INFINITE;
+	max_ticks_waiting = WAIT_INFINITE;
 
 	jahresgewinn = 0;
 	total_distance_traveled = 0;
@@ -893,6 +893,7 @@ bool convoi_t::sync_step(uint32 delta_t)
 
 		case LOADING:
 			// Hajo: loading is an async task, see laden()
+			max_ticks_waiting -= delta_t;
 			break;
 
 		case WAITING_FOR_CLEARANCE:
@@ -1486,7 +1487,11 @@ void convoi_t::ziel_erreicht()
 			akt_speed = 0;
 			halt->book(1, HALT_CONVOIS_ARRIVED);
 			state = LOADING;
-			go_on_ticks = WAIT_INFINITE;	// we will eventually wait from now on
+			// set maximum loading time
+			max_ticks_waiting = WAIT_INFINITE;
+			if(  fpl->get_current_eintrag().waiting_time_shift > 0  ) {
+				max_ticks_waiting = (welt->ticks_per_world_month >> (16-fpl->get_current_eintrag().waiting_time_shift));
+			}
 		}
 		else {
 			// Neither depot nor station: waypoint
@@ -2403,21 +2408,7 @@ void convoi_t::rdwr(loadsave_t *file)
 
 	// waiting time left ...
 	if(file->get_version()>=99017) {
-		if(file->is_saving()) {
-			if(go_on_ticks==WAIT_INFINITE) {
-				file->rdwr_long(go_on_ticks);
-			}
-			else {
-				uint32 diff_ticks = welt->get_zeit_ms()>go_on_ticks ? 0 : go_on_ticks-welt->get_zeit_ms();
-				file->rdwr_long(diff_ticks);
-			}
-		}
-		else {
-			file->rdwr_long(go_on_ticks);
-			if(go_on_ticks!=WAIT_INFINITE) {
-				go_on_ticks += welt->get_zeit_ms();
-			}
-		}
+		file->rdwr_long(max_ticks_waiting);
 	}
 
 	// since 99015, the last stop will be maintained by the vehikels themselves
@@ -2660,10 +2651,6 @@ void convoi_t::laden()
 		return;
 	}
 
-	if(  go_on_ticks == WAIT_INFINITE  &&  fpl->get_current_eintrag().waiting_time_shift > 0  ) {
-		go_on_ticks = welt->get_zeit_ms() + (welt->ticks_per_world_month >> (16-fpl->get_current_eintrag().waiting_time_shift));
-	}
-
 	// just wait a little longer if this is a non-bound halt
 	wait_lock = (WTT_LOADING*2)+(self.get_id())%1024;
 
@@ -2831,7 +2818,7 @@ station_tile_search_ready: ;
 	}
 
 	// loading is finished => maybe drive on
-	if(loading_level>=loading_limit  ||  no_load  ||  welt->get_zeit_ms()>go_on_ticks)  {
+	if(loading_level>=loading_limit  ||  no_load  ||  max_ticks_waiting < 0)  {
 
 		if(withdraw  &&  (loading_level==0  ||  goods_catg_index.empty())) {
 			// destroy when empty

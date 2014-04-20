@@ -263,10 +263,10 @@ private:
 	sint32 wait_lock;
 
 	/**
-	* time, when a convoi waiting for full load will drive on
-	* @author prissi
-	*/
-	uint32 go_on_ticks;
+	 * Maximal time in ticks (ms) the convoy has to wait during loading.
+	 * If it turns negative, the convoy will stop loading and drive on.
+	 */
+	sint32 max_ticks_waiting;
 
 	/**
 	* akkumulierter gewinn über ein jahr hinweg
