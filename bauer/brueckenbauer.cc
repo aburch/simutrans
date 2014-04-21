@@ -568,7 +568,7 @@ void brueckenbauer_t::baue_bruecke(spieler_t *sp, const koord3d start, const koo
 	// get initial height of bridge from start tile
 	uint8 add_height = 0;
 
-	if(  start_gr->ist_karten_boden() ) {
+	if(  start_gr->ist_karten_boden()  ) {
 		// needs a ramp to start on ground
 		add_height = slope ?  hang_t::max_diff(slope) : (1+besch->has_double_ramp());
 		baue_auffahrt( sp, start, ribi, slope?0:hang_typ(zv)*add_height, besch );
@@ -629,7 +629,7 @@ void brueckenbauer_t::baue_bruecke(spieler_t *sp, const koord3d start, const koo
 		}
 	}
 
-	grund_t *gr=welt->lookup(end);
+	grund_t *gr = welt->lookup(end);
 	if(  need_auffahrt  ) {
 		// not ending at a bridge
 		baue_auffahrt(sp, end, ribi_typ(-zv), gr->get_grund_hang()?0:hang_typ(-zv)*(pos.z-end.z), besch);
@@ -662,19 +662,27 @@ void brueckenbauer_t::baue_bruecke(spieler_t *sp, const koord3d start, const koo
 
 	// if start or end are single way, and next tile is not, try to connect
 	if(  besch->get_waytype() != powerline_wt  &&  sp  ) {
-		if(  grund_t *start_gr = welt->lookup(start)  ) {
-			ribi_t::ribi ribi = start_gr->get_weg_ribi_unmasked(besch->get_waytype());
-			if(  ribi_t::ist_einfach(ribi)  ) {
-				// only single tile under start => try to connect to next tile
-				koord3d next_to_start = koord3d( start.get_2d()-koord(ribi), start_gr->get_vmove( ribi_t::rueckwaerts(ribi) ) );
-				wegbauer_t bauigel(sp);
-				bauigel.set_keep_existing_ways(true);
-				bauigel.set_keep_city_roads(true);
-				bauigel.set_maximum(2);
-				bauigel.route_fuer( (wegbauer_t::bautyp_t)besch->get_waytype(), wegbauer_t::weg_search( besch->get_waytype(), besch->get_topspeed(), welt->get_timeline_year_month(), weg_t::type_flat ), NULL, NULL );
-				bauigel.calc_route( start, next_to_start );
-				if(  bauigel.get_count() > 1  ) {
-					bauigel.baue();
+		// we need to check start_gr again, because a ramp deletes the old ground
+		if(  start_gr = welt->lookup( start )  ) {
+			if(  !start_gr->ist_karten_boden()  ) {
+				// elevated way, just add ribi
+				start_gr->weg_erweitern( besch->get_waytype(), ribi_t::rueckwaerts( ribi ) );
+				start_gr->calc_bild();
+			}
+			else {
+				ribi_t::ribi start_ribi = start_gr->get_weg_ribi_unmasked( besch->get_waytype() );
+				if(  ribi_t::ist_einfach(start_ribi)  ) {
+					// only single tile under start => try to connect to next tile
+					koord3d next_to_start = koord3d( start.get_2d()-koord(start_ribi), start_gr->get_vmove( ribi_t::rueckwaerts(start_ribi) ) );
+					wegbauer_t bauigel(sp);
+					bauigel.set_keep_existing_ways(true);
+					bauigel.set_keep_city_roads(true);
+					bauigel.set_maximum(2);
+					bauigel.route_fuer( (wegbauer_t::bautyp_t)besch->get_waytype(), wegbauer_t::weg_search( besch->get_waytype(), besch->get_topspeed(), welt->get_timeline_year_month(), weg_t::type_flat ), NULL, NULL );
+					bauigel.calc_route( start, next_to_start );
+					if(  bauigel.get_count() > 1  ) {
+						bauigel.baue();
+					}
 				}
 			}
 		}
@@ -893,7 +901,7 @@ const char *brueckenbauer_t::remove(spieler_t *sp, koord3d pos, waytype_t wegtyp
 				weg->set_ribi( ribi );
 				if(  hang_t::max_diff(gr->get_grund_hang())>=2  &&  !weg->get_besch()->has_double_slopes()  ) {
 					// remove the way totally, if is is on a double slope
-					gr->weg_entfernen( weg->get_waytype(), ribi_t::alle );
+					gr->weg_entfernen( weg->get_waytype(), true );
 				}
 			}
 		}
