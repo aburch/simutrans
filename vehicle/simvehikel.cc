@@ -3692,7 +3692,7 @@ bool aircraft_t::block_reserver( uint32 start, uint32 end, bool reserve ) const
 
 		grund_t *gr = welt->lookup(route->position_bei(i));
 		runway_t * sch1 = gr ? (runway_t *)gr->get_weg(air_wt) : NULL;
-		if(sch1==NULL) {
+		if(  !sch1  ) {
 			if(reserve) {
 				if(!start_now) {
 					// touched down here
@@ -3709,18 +3709,18 @@ bool aircraft_t::block_reserver( uint32 start, uint32 end, bool reserve ) const
 			// we un-reserve also nonexistent tiles! (may happen during deletion)
 			if(reserve) {
 				start_now = true;
-				if(!sch1->reserve(cnv->self,ribi_t::keine)) {
+				if(  !sch1->reserve(cnv->self,ribi_t::keine)  ) {
 					// unsuccessful => must un-reserve all
 					success = false;
 					end = i;
 					break;
 				}
 				// end of runway?
-				if(i>start  &&  ribi_t::ist_einfach(sch1->get_ribi_unmasked())  ) {
+				if(  i > start  &&  (ribi_t::ist_einfach( sch1->get_ribi_unmasked() )  ||  sch1->get_besch()->get_styp() != weg_t::type_runway)   ) {
 					return true;
 				}
 			}
-			else if(!sch1->unreserve(cnv->self)) {
+			else if(  !sch1->unreserve(cnv->self)  ) {
 				if(start_now) {
 					// reached an reserved or free track => finished
 					return true;
@@ -3784,7 +3784,7 @@ bool aircraft_t::ist_weg_frei( int & restart_speed, bool )
 			return false;
 		}
 		// next tile a runway => then reserve
-		if(rw->get_besch()->get_styp()==1) {
+		if(rw->get_besch()->get_styp()==weg_t::type_runway) {
 			// try to reserve the runway
 			if(!block_reserver(takeoff,takeoff+100,true)) {
 				// runway already blocked ...
@@ -3798,6 +3798,14 @@ bool aircraft_t::ist_weg_frei( int & restart_speed, bool )
 	if(  state == taxiing  ) {
 		// enforce on ground for taxiing
 		flughoehe = 0;
+		// we may need to unreserve the runway after leaving it
+		if(  route_index >= touchdown  ) {
+			runway_t *rw = (runway_t *)gr->get_weg(air_wt);
+			// next tile a not runway => then unreserve
+			if(  rw == NULL  ||  rw->get_besch()->get_styp() != weg_t::type_runway  ||  gr->is_halt()  ) {
+				block_reserver( touchdown, suchen+1, false );
+			}
+		}
 	}
 
 	if(  route_index == takeoff  &&  state == taxiing  ) {
@@ -3853,7 +3861,6 @@ bool aircraft_t::ist_weg_frei( int & restart_speed, bool )
 		// nothing free here?
 		if(find_route_to_stop_position()) {
 			// stop reservation successful
-			block_reserver( touchdown, suchen+1, false );
 			state = taxiing;
 			return true;
 		}

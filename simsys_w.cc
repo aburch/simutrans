@@ -98,7 +98,7 @@ static void create_window(DWORD const ex_style, DWORD const style, int const x, 
 	AdjustWindowRectEx(&r, style, false, ex_style);
 	hwnd = CreateWindowExA(ex_style, "Simu", SIM_TITLE, style, x, y, r.right - r.left, r.bottom - r.top, 0, 0, hInstance, 0);
 	ShowWindow(hwnd, SW_SHOW);
-	SetTimer( hwnd, 0, 1111, NULL );
+	SetTimer( hwnd, 0, 1111, NULL );	// HACK: so windows thinks we are not dead when processing a timer every 1111 ms ...
 }
 
 
