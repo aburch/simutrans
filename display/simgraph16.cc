@@ -1807,15 +1807,14 @@ void display_fit_img_to_width( const image_id n, sint16 new_w )
 {
 	if(  n < anz_images  &&  images[n].base_h > 0  &&  images[n].w != new_w  ) {
 		int old_zoom_factor = zoom_factor;
-		sint16 start_w = 32767;
 		for(  int i=0;  i<=MAX_ZOOM_FACTOR;  i++  ) {
 			int zoom_w = (images[n].base_w * zoom_num[i]) / zoom_den[i];
-			if(  start_w > new_w  &&  zoom_w <= new_w  ) {
+			if(  zoom_w <= new_w  ) {
 				uint8 old_zoom_flag = images[n].recode_flags & FLAG_ZOOMABLE;
-				images[n].recode_flags &= ~FLAG_ZOOMABLE;
 				images[n].recode_flags |= FLAG_REZOOM | FLAG_ZOOMABLE;
 				zoom_factor = i;
 				rezoom_img(n);
+				images[n].recode_flags &= ~FLAG_ZOOMABLE;
 				images[n].recode_flags |= old_zoom_flag;
 				zoom_factor = old_zoom_factor;
 				return;
