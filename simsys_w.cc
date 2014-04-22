@@ -98,6 +98,7 @@ static void create_window(DWORD const ex_style, DWORD const style, int const x, 
 	AdjustWindowRectEx(&r, style, false, ex_style);
 	hwnd = CreateWindowExA(ex_style, "Simu", SIM_TITLE, style, x, y, r.right - r.left, r.bottom - r.top, 0, 0, hInstance, 0);
 	ShowWindow(hwnd, SW_SHOW);
+	SetTimer( hwnd, 0, 1111, NULL );
 }
 
 
@@ -397,6 +398,9 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 	static int last_mb = 0;	// last mouse button state
 	switch (msg) {
 
+		case WM_TIMER:	// dummy timer even to keep windows thinking we are still active
+			return 0;
+
 		case WM_ACTIVATE: // may check, if we have to restore color depth
 			if(is_fullscreen) {
 				// avoid double calls
@@ -629,7 +633,8 @@ static void internal_GetEvents(bool const wait)
 		GetMessage(&msg, NULL, 0, 0);
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
-	} while (wait && sys_event.type == SIM_NOEVENT);
+	} while(wait && sys_event.type == SIM_NOEVENT);
+
 }
 
 
