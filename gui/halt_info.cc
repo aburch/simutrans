@@ -131,7 +131,7 @@ halt_info_t::halt_info_t(halthandle_t halt) :
 
 	add_komponente(&sort_label);
 
-	const sint16 yoff = offset_below_viewport+D_BUTTON_HEIGHT+1-D_BUTTON_HEIGHT-2;
+	const sint16 yoff = offset_below_viewport + D_V_SPACE;
 
 	// hsiegeln: added sort_button
 	sort_button.init(button_t::roundbox, sort_text[env_t::default_sortmode],scr_coord(BUTTON1_X, yoff), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
@@ -154,7 +154,7 @@ halt_info_t::halt_info_t(halthandle_t halt) :
 	button.add_listener(this);
 	add_komponente(&button);
 
-	scrolly.set_pos(scr_coord(0, offset_below_viewport+D_BUTTON_HEIGHT+3));
+	scrolly.set_pos(scr_coord(D_MARGIN_LEFT, yoff + D_BUTTON_HEIGHT + D_V_SPACE ));
 	scrolly.set_show_scroll_x(true);
 	add_komponente(&scrolly);
 
@@ -563,12 +563,12 @@ void halt_info_t::set_windowsize(scr_size size)
 
 	scrolly.set_size(get_client_windowsize()-scrolly.get_pos());
 
-	const sint16 yoff = scrolly.get_pos().y-D_BUTTON_HEIGHT-3;
+	const sint16 yoff = scrolly.get_pos().y-D_BUTTON_HEIGHT-D_V_SPACE;
 	sort_button.set_pos(scr_coord(BUTTON1_X,yoff));
 	toggler_departures.set_pos(scr_coord(BUTTON2_X,yoff));
 	toggler.set_pos(scr_coord(BUTTON3_X,yoff));
 	button.set_pos(scr_coord(BUTTON4_X,yoff));
-	sort_label.set_pos(scr_coord(10,yoff-LINESPACE-1));
+	sort_label.set_pos(scr_coord(10,yoff-LINESPACE-D_V_SPACE));
 }
 
 
