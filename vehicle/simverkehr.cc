@@ -767,7 +767,7 @@ grund_t* stadtauto_t::betrete_feld()
 	}
 #endif /* DESTINATION_CITYCARS */
 	grund_t *gr = vehikel_basis_t::betrete_feld();
-	gr->get_weg(road_wt)->book(1, WAY_STAT_CONVOIS);
+	get_weg()->book(1, WAY_STAT_CONVOIS);
 	return gr;
 }
 
@@ -921,8 +921,7 @@ grund_t* stadtauto_t::hop()
 {
 	// Check whether this private car should pay a road toll.
 
-	const grund_t* gr = welt->lookup(get_pos());
-	weg_t* way = gr ? gr->get_weg(road_wt) : NULL;
+	const weg_t* way = get_weg();
 	const uint32 tiles_per_km = 1000 / welt->get_settings().get_meters_per_tile();
 	if(way && tiles_since_last_increment++ > tiles_per_km)
 	{
@@ -981,7 +980,7 @@ void stadtauto_t::calc_bild()
 
 void stadtauto_t::calc_current_speed(grund_t* gr)
 {
-	const weg_t * weg = gr ? gr->get_weg(road_wt) : NULL;
+	const weg_t * weg = get_weg();
 	sint32 max_speed = besch ? besch->get_geschw() : kmh_to_speed(90);
 	const sint32 speed_limit = weg ? kmh_to_speed(weg->get_max_speed()) : max_speed;
 	current_speed += max_speed>>2;

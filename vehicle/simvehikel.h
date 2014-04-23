@@ -63,9 +63,14 @@ public:
 	{ 
 		if (!weg)
 		{
-			grund_t* gr = get_grund();
-			if (gr)
-				return gr->get_weg(get_waytype());
+			// gr and weg are both initialized in betrete_feld(). If there is a gr but no weg, then e.g. for ships there IS no way.
+			if (!gr)
+			{
+				// get a local pointer only. Do not assign to instances gr that has to be done by betrete_feld() only.
+				grund_t* gr2 = get_grund();
+				if (gr2)
+					return gr2->get_weg(get_waytype());
+			}
 		}
 		return weg; 
 	}

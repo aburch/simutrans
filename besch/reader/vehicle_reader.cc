@@ -208,7 +208,7 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				besch->available_only_as_upgrade = decode_uint8(p);
 				besch->brake_force = BRAKE_FORCE_UNKNOWN;
 				besch->minimum_runway_length = 10;
-				besch->rolling_resistance = float32e8_t(vehikel_besch_t::get_rolling_default(besch->wt), 10000UL);
+				besch->rolling_resistance = vehikel_besch_t::get_rolling_default(besch->wt) / float32e8_t::tenthousand;
 				if(experimental_version == 1)
 				{
 					besch->base_fixed_cost = decode_uint16(p);
@@ -232,8 +232,8 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 				if(experimental_version >=4)
 				{
-					uint16 air_resistance_hundreds = decode_uint16(p);
-					besch->air_resistance = float32e8_t((uint32) air_resistance_hundreds, (uint32)100);
+					uint32 air_resistance_hundreds = decode_uint16(p);
+					besch->air_resistance = air_resistance_hundreds / float32e8_t::hundred;
 					besch->can_be_at_rear = (bool)decode_uint8(p);
 					besch->increase_maintenance_after_years = decode_uint16(p);
 					besch->increase_maintenance_by_percent = decode_uint16(p);
@@ -241,7 +241,7 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				}
 				else
 				{
-					besch->air_resistance = float32e8_t((uint32) vehikel_besch_t::get_air_default(besch->wt), (uint32)100);
+					besch->air_resistance = vehikel_besch_t::get_air_default(besch->wt) / float32e8_t::hundred;
 					besch->can_be_at_rear = true;
 					besch->increase_maintenance_after_years = 0;
 					besch->increase_maintenance_by_percent = 0;
@@ -342,8 +342,8 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 				if(experimental_version >= 4)
 				{
-					uint16 air_resistance_hundreds = decode_uint16(p);
-					besch->air_resistance = float32e8_t((uint32) air_resistance_hundreds, (uint32)100);
+					uint32 air_resistance_hundreds = decode_uint16(p);
+					besch->air_resistance = air_resistance_hundreds / float32e8_t::hundred;
 					besch->can_be_at_rear = (bool)decode_uint8(p);
 					besch->increase_maintenance_after_years = decode_uint16(p);
 					besch->increase_maintenance_by_percent = decode_uint16(p);
@@ -351,7 +351,7 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				}
 				else
 				{
-					besch->air_resistance = float32e8_t(vehikel_besch_t::get_air_default(besch->wt), 100UL);
+					besch->air_resistance = vehikel_besch_t::get_air_default(besch->wt) / float32e8_t::hundred;
 					besch->can_be_at_rear = true;
 					besch->increase_maintenance_after_years = 0;
 					besch->increase_maintenance_by_percent = 0;
@@ -377,14 +377,14 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				}
 				if(experimental_version >= 7)
 				{
-					uint16 rolling_resistance_tenths_thousands = decode_uint16(p);
-					besch->rolling_resistance = float32e8_t((uint32) rolling_resistance_tenths_thousands, (uint32)10000);
+					uint32 rolling_resistance_tenths_thousands = decode_uint16(p);
+					besch->rolling_resistance = rolling_resistance_tenths_thousands / float32e8_t::tenthousand;
 					besch->brake_force = decode_uint16(p);
 					besch->minimum_runway_length = decode_uint16(p);
 				}
 				else
 				{
-					besch->rolling_resistance = float32e8_t(vehikel_besch_t::get_rolling_default(besch->wt), 10000UL);
+					besch->rolling_resistance = vehikel_besch_t::get_rolling_default(besch->wt) / float32e8_t::tenthousand;
 					besch->brake_force = BRAKE_FORCE_UNKNOWN;
 					besch->minimum_runway_length = 10;
 				}
@@ -446,8 +446,8 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				besch->available_only_as_upgrade = decode_uint8(p);
 				besch->base_fixed_cost = decode_uint32(p);
 				besch->tractive_effort = decode_uint16(p);
-				uint16 air_resistance_hundreds = decode_uint16(p);
-				besch->air_resistance = float32e8_t((uint32) air_resistance_hundreds, (uint32)100);
+				uint32 air_resistance_hundreds = decode_uint16(p);
+				besch->air_resistance = air_resistance_hundreds / float32e8_t::hundred;
 				besch->can_be_at_rear = (bool)decode_uint8(p);
 				besch->increase_maintenance_after_years = decode_uint16(p);
 				besch->increase_maintenance_by_percent = decode_uint16(p);
@@ -455,8 +455,8 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				besch->livery_image_type = decode_uint8(p);
 				besch->min_loading_time_seconds = decode_uint16(p);
 				besch->max_loading_time_seconds = decode_uint16(p);
-				uint16 rolling_resistance_tenths_thousands = decode_uint16(p);
-				besch->rolling_resistance = float32e8_t((uint32) rolling_resistance_tenths_thousands, (uint32)10000);
+				uint32 rolling_resistance_tenths_thousands = decode_uint16(p);
+				besch->rolling_resistance = rolling_resistance_tenths_thousands / float32e8_t::tenthousand;
 				besch->brake_force = decode_uint16(p);
 				besch->minimum_runway_length = decode_uint16(p);
 				if(experimental_version == 0)
@@ -571,8 +571,8 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			break;
 		}
 
-		besch->air_resistance = float32e8_t(vehikel_besch_t::get_air_default(besch->wt), 100UL);
-		besch->rolling_resistance = float32e8_t(vehikel_besch_t::get_rolling_default(besch->wt), 10000UL);
+		besch->air_resistance = vehikel_besch_t::get_air_default(besch->wt) / float32e8_t::hundred;
+		besch->rolling_resistance = vehikel_besch_t::get_rolling_default(besch->wt) / float32e8_t::tenthousand;
 		besch->upgrades = 0;
 		besch->base_upgrade_price = besch->base_cost;
 		besch->available_only_as_upgrade = false;

@@ -516,6 +516,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 	 *  In Proceedings of the 25th National Conference on Artificial Intelligence (AAAI), San Francisco, USA.
 	 *  http://users.cecs.anu.edu.au/~dharabor/data/papers/harabor-grastien-aaai11.pdf
 	 */
+
 	const bool use_jps     = fahr->get_waytype()==water_wt;
 
 	bool ziel_erreicht=false;
@@ -943,8 +944,6 @@ void route_t::postprocess_water_route(karte_t *welt)
 		i++;
 	}
 }
-
-
 
 
 /* searches route, uses intern_calc_route() for distance between stations
