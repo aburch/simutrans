@@ -804,10 +804,42 @@ const char *brueckenbauer_t::remove(spieler_t *sp, koord3d pos, waytype_t wegtyp
 	} while (!tmp_list.empty());
 
 	// now delete the bridge
+	bool first = true;
 	while (!part_list.empty()) {
 		pos = part_list.remove_first();
 
 		grund_t *gr = welt->lookup(pos);
+
+		// the following code will check if this is the first of last tile, end then tries to remove the superflous ribis from it
+		if(  first  ||  end_list.empty()  ) {
+			// starts on slope or elevated way, or it consist only of the ramp
+			ribi_t::ribi bridge_ribi = gr->get_weg_ribi_unmasked( wegtyp );
+			for(  uint i = 0;  i < 4;  i++  ) {
+				if(  bridge_ribi & ribi_t::nsow[i]  ) {
+					grund_t *prev;
+					// if we have a ramp, then only check the higher end!
+					if(  gr->get_neighbour( prev, wegtyp, ribi_t::nsow[i])  &&  !prev->ist_bruecke()  &&  !end_list.is_contained(prev->get_pos())   ) {
+						if(  weg_t *w = prev->get_weg( wegtyp )  ) {
+							// now remove ribi (or full way)
+							w->set_ribi( (~ribi_t::rueckwaerts( ribi_t::nsow[i] )) & w->get_ribi_unmasked() );
+							if(  w->get_ribi_unmasked() == 0  ) {
+								// nowthing left => then remove completel
+								prev->remove_everything_from_way( sp, wegtyp, bridge_ribi );	// removes stop and signals correctly
+								prev->weg_entfernen( wegtyp, true );
+								if(  prev->get_typ() == grund_t::monorailboden  ) {
+									welt->access( prev->get_pos().get_2d() )->boden_entfernen( prev );
+									delete prev;
+								}
+							}
+							else {
+								w->calc_bild();
+							}
+						}
+					}
+				}
+			}
+		}
+		first = false;
 
 		// first: remove bridge
 		bruecke_t *br = gr->find<bruecke_t>();
@@ -836,44 +868,39 @@ const char *brueckenbauer_t::remove(spieler_t *sp, koord3d pos, waytype_t wegtyp
 		// refresh map
 		reliefkarte_t::get_karte()->calc_map_pixel(pos.get_2d());
 	}
-	// finally delete the bridge ends
-	bool first = true;
+
+	// finally delete the bridge ends (all are kartenboden)
 	while(  !end_list.empty()  ) {
 		pos = end_list.remove_first();
 
 		grund_t *gr = welt->lookup(pos);
 
-		// the following code will check if this is the first of last tile, end then tries to remove the superflous ribis from it
-		if(  (first  ||  end_list.empty()  )  &&  !gr->ist_karten_boden()  ||  first  &&  end_list.empty()  ) {
-			// starts on slope or elevated way, or it consist only of the ramp
-			ribi_t::ribi bridge_ribi = gr->get_weg_ribi_unmasked( wegtyp );
-			for(  uint i = 0;  i < 4;  i++  ) {
-				if(  bridge_ribi & ribi_t::nsow[i]  ) {
-					grund_t *prev;
-					// if we have a ramp, then only check the higher end!
-					if(  gr->get_neighbour( prev, wegtyp, ribi_t::nsow[i])  &&  (!gr->ist_karten_boden()  ||  prev->get_hoehe() > gr->get_hoehe())   ) {
-						if(  prev->get_weg( wegtyp )  &&  !prev->ist_bruecke()  ) {
-							// now remove ribi (or full way)
-							weg_t *w = prev->get_weg( wegtyp );
-							w->set_ribi( (~ribi_t::rueckwaerts( ribi_t::nsow[i] )) & w->get_ribi_unmasked() );
-							if(  w->get_ribi_unmasked() == 0  ) {
-								// nowthing left => then remove completel
-								prev->remove_everything_from_way( sp, wegtyp, bridge_ribi );	// removes stop and signals correctly
-								prev->weg_entfernen( wegtyp, true );
-								if(  prev->get_typ() == grund_t::monorailboden  ) {
-									welt->access( prev->get_pos().get_2d() )->boden_entfernen( prev );
-									delete prev;
-								}
+		// starts on slope or elevated way, or it consist only of the ramp
+		ribi_t::ribi bridge_ribi = gr->get_weg_ribi_unmasked( wegtyp );
+		for(  uint i = 0;  i < 4;  i++  ) {
+			if(  bridge_ribi & ribi_t::nsow[i]  ) {
+				grund_t *prev;
+				// if we have a ramp, then only check the higher end!
+				if(  gr->get_neighbour( prev, wegtyp, ribi_t::nsow[i])  &&  prev->get_hoehe() > gr->get_hoehe()  ) {
+					if(  weg_t *w = prev->get_weg( wegtyp )  ) {
+						// now remove ribi (or full way)
+						w->set_ribi( (~ribi_t::rueckwaerts( ribi_t::nsow[i] )) & w->get_ribi_unmasked() );
+						if(  w->get_ribi_unmasked() == 0  ) {
+							// nowthing left => then remove completel
+							prev->remove_everything_from_way( sp, wegtyp, bridge_ribi );	// removes stop and signals correctly
+							prev->weg_entfernen( wegtyp, true );
+							if(  prev->get_typ() == grund_t::monorailboden  ) {
+								welt->access( prev->get_pos().get_2d() )->boden_entfernen( prev );
+								delete prev;
 							}
-							else {
-								w->calc_bild();
-							}
+						}
+						else {
+							w->calc_bild();
 						}
 					}
 				}
 			}
 		}
-		first = false;
 
 		if(wegtyp==powerline_wt) {
 			while (obj_t* const br = gr->find<bruecke_t>()) {
