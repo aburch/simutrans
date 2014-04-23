@@ -2834,7 +2834,7 @@ void display_color_img(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, sint8 playe
 			activate_player_color( player_nr, daynight );
 
 			// color replacement needs the original data => sp points to non-cached data
-			const PIXVAL *sp = (tile_raster_width != base_tile_raster_width  &&  images[n].zoom_data != NULL) ? images[n].zoom_data : images[n].base_data;
+			const PIXVAL *sp = images[n].zoom_data != NULL ? images[n].zoom_data : images[n].base_data;
 
 			// clip top/bottom
 #ifdef MULTI_THREAD
