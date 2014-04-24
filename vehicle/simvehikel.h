@@ -574,7 +574,7 @@ public:
 	 * @return amount loaded
 	 */
 	uint16 load_freight(halthandle_t halt)  { bool dummy; (void)dummy; return load_freight(halt, false, &dummy, &dummy); }
-	uint16 load_freight(halthandle_t halt, bool overcrowd, bool *skip_convois, bool *full);
+	uint16 load_freight(halthandle_t halt, bool overcrowd, bool *skip_convois, bool *skip_vehikels);
 
 	/**
 	* Remove freight that no longer can reach it's destination
