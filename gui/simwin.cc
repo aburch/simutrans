@@ -821,6 +821,7 @@ int top_win(int win, bool keep_state )
 
 	// mark old dirty
 	scr_size size = wins.back().gui->get_windowsize();
+	mark_rect_dirty_wc( wins.back().pos.x - 1, wins.back().pos.y - 1, wins.back().pos.x + size.w + 2, wins.back().pos.y + size.h + 2 ); // -1, +2 for env_t::window_frame_active
 	wins.back().dirty = true;
 
 	simwin_t tmp = wins[win];
