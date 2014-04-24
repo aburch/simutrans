@@ -154,7 +154,7 @@ private:
 	 */
 	halthandle_t self;
 
-	/* 
+	/*
 	 * The time (in 10ths of seconds)
 	 * that it takes passengers to walk
 	 * through this stop from one
@@ -163,7 +163,7 @@ private:
 	 */
 	uint16 transfer_time;
 
-	/* 
+	/*
 	 * The time (in 10ths of seconds)
 	 * that it takes goods to be trans-shipped
 	 * inside this stop. This assumes a fixed
@@ -271,7 +271,7 @@ public:
 		grund_t*       grund;
 		convoihandle_t reservation;
 	};
-	
+
 	// Data on direct connexions from one station to the next.
 	// @author: jamespetts
 	struct connexion
@@ -280,8 +280,8 @@ public:
 		uint16 journey_time;
 		uint16 waiting_time;
 		uint16 transfer_time;
-		
-		// Convoy only used if line not used 
+
+		// Convoy only used if line not used
 		// (i.e., if the best route involves using a convoy without a line)
 		linehandle_t best_line;
 		convoihandle_t best_convoy;
@@ -294,7 +294,7 @@ public:
 		void* operator new(size_t size);
 		void operator delete(void *p);
 	};
-	bool do_alternative_seats_calculation; //for optimisations purpose 
+	bool do_alternative_seats_calculation; //for optimisations purpose
 
 	const slist_tpl<tile_t> &get_tiles() const { return tiles; };
 
@@ -481,13 +481,13 @@ private:
 	haltestelle_t(loadsave_t *file);
 	haltestelle_t(koord pos, spieler_t *sp);
 	~haltestelle_t();
-		
+
 	// Record of waiting times. Takes a list of the last 16 waiting times per type of goods.
-	// Getter method will need to average the waiting times. 
+	// Getter method will need to average the waiting times.
 	// @author: jamespetts
 
 	waiting_time_map * waiting_times;
-	
+
 
 	uint8 check_waiting;
 
@@ -689,7 +689,7 @@ public:
 	 */
 	uint32 get_ware_fuer_zielpos(const ware_besch_t *warentyp, const koord zielpos) const;
 
-	/** 
+	/**
 	* True if we accept/deliver this kind of good
 	*/
 	bool gibt_ab(const ware_besch_t *warentyp) const { return waren[warentyp->get_catg_index()] != NULL; }
@@ -700,18 +700,18 @@ public:
 	bool recall_ware( ware_t& w, uint32 menge );
 
 	/**
-	 * fetches goods from this halt
+	 * fetches goods from this halt. returns true if other convois on the same line should try loading these goods because this convoi is awaiting spacing, if not preferred, or is overcrowded
 	 * @param fracht goods will be put into this list, vehicle has to load it
 	 * @author Hj. Malthaner, dwachs
 	 */
-	ware_t hole_ab( const ware_besch_t *warentyp, uint32 menge, const schedule_t *fpl, const spieler_t *sp, convoi_t* cnv, bool overcrowd);
+	bool hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *warentyp, uint32 menge, const schedule_t *fpl, const spieler_t *sp, convoi_t* cnv, bool overcrowd);
 
 	/* liefert ware an. Falls die Ware zu wartender Ware dazugenommen
 	 * werden kann, kann ware_t gelöscht werden! D.h. man darf ware nach
 	 * aufruf dieser Methode nicht mehr referenzieren!
 	 *
-	 * Ware to deliver. If the goods to waiting to be taken product 
-	 * can be ware_t may be deleted! I.e. we must, after calling this 
+	 * Ware to deliver. If the goods to waiting to be taken product
+	 * can be ware_t may be deleted! I.e. we must, after calling this
 	 * method no longer refer! (Google)
 	 *
 	 * The second version is like the first, but will not recalculate the route
@@ -893,7 +893,7 @@ public:
 	// @author: jamespetts
 	uint16 get_average_waiting_time(halthandle_t halt, uint8 category) const;
 
-	void add_waiting_time(uint16 time, halthandle_t halt, uint8 category, bool do_not_reset_month = false);	
+	void add_waiting_time(uint16 time, halthandle_t halt, uint8 category, bool do_not_reset_month = false);
 
 	typedef quickstone_hashtable_tpl<haltestelle_t, connexion*>* connexions_map_single;
 	connexions_map_single get_connexions(uint8 c) { return connexions[c]; }
@@ -913,7 +913,7 @@ public:
 	// Purpose		: Create goods list of specified goods category if it is not already present
 	void prepare_goods_list(uint8 category)
 	{
-		if ( waren[category] == NULL ) 
+		if ( waren[category] == NULL )
 		{
 			// indicates that this can route those goods
 			waren[category] = new vector_tpl<ware_t>(0);
@@ -944,7 +944,7 @@ public:
 	* in 1/10ths of minutes.
 	*/
 	inline uint16 get_transfer_time() const { return transfer_time; }
-	
+
 	/**
 	* Get the time that it takes for goods to be transferred within this stop
 	* in 1/10ths of minutes.

@@ -91,7 +91,7 @@ static bool restart_halt_iterator = true;
 void haltestelle_t::step_all()
 {
 	const uint32 count = alle_haltestellen.get_count();
-	if (count) 
+	if (count)
 	{
 		const uint32 loops = min(count, 256);
 		static vector_tpl<halthandle_t>::iterator iter;
@@ -121,14 +121,14 @@ halthandle_t haltestelle_t::get_halt(const koord pos, const spieler_t *sp )
 			}
 		}
 		// no halt? => we do the water check
-		if(plan->get_kartenboden()->ist_wasser()) 
+		if(plan->get_kartenboden()->ist_wasser())
 		{
 			// may catch bus stops close to water ...
 			const uint8 cnt = plan->get_haltlist_count();
 			// first check for own stop
-			for(uint8 i = 0; i < cnt; i++)  
+			for(uint8 i = 0; i < cnt; i++)
 			{
-				if(plan->get_haltlist()[i].halt->get_besitzer() == sp) 
+				if(plan->get_haltlist()[i].halt->get_besitzer() == sp)
 				{
 					const uint8 distance_to_dock = plan->get_haltlist()[i].distance;
 					if(distance_to_dock <= 1)
@@ -140,9 +140,9 @@ halthandle_t haltestelle_t::get_halt(const koord pos, const spieler_t *sp )
 			// then for other stops to which access is allowed
 			// (This is second because it is preferable to dock at one's own
 			// port to avoid charges)
-			for(uint8 i = 0; i < cnt; i++) 
+			for(uint8 i = 0; i < cnt; i++)
 			{
-				if(plan->get_haltlist()[i].halt->check_access(sp)) 
+				if(plan->get_haltlist()[i].halt->check_access(sp))
 				{
 					const uint8 distance_to_dock = plan->get_haltlist()[i].distance;
 					if(distance_to_dock <= 1)
@@ -274,7 +274,7 @@ halthandle_t haltestelle_t::get_halt_koord_index(koord k)
 halthandle_t haltestelle_t::get_halt(const koord3d pos, const spieler_t *sp )
 {
 	const grund_t *gr = welt->lookup(pos);
-	if(gr) 
+	if(gr)
 	{
 		weg_t *w = gr->get_weg_nr(0);
 
@@ -284,20 +284,20 @@ halthandle_t haltestelle_t::get_halt(const koord3d pos, const spieler_t *sp )
 		}
 
 		// Stops on public roads, even those belonging to other players, should be able to be used by all players.
-		if(gr->get_halt().is_bound() && (gr->get_halt()->check_access(sp) || 
-			(w && spieler_t::check_owner(w->get_besitzer(), sp))) || 
+		if(gr->get_halt().is_bound() && (gr->get_halt()->check_access(sp) ||
+			(w && spieler_t::check_owner(w->get_besitzer(), sp))) ||
 			(w && (w->get_waytype() == road_wt || w->get_waytype() == tram_wt) && (w->get_besitzer() == NULL || w->get_besitzer()->get_player_nr() == 1)))
 		{
 			return gr->get_halt();
 		}
 		// no halt? => we do the water check
-		if(gr->ist_wasser()) 
+		if(gr->ist_wasser())
 		{
 			// may catch bus stops close to water ...
 			const planquadrat_t *plan = welt->access(pos.get_2d());
 			const uint8 cnt = plan->get_haltlist_count();
 			// first check for own stop
-			for(uint8 i = 0; i < cnt; i++) 
+			for(uint8 i = 0; i < cnt; i++)
 			{
 
 				halthandle_t halt = plan->get_haltlist()[i].halt;
@@ -310,11 +310,11 @@ halthandle_t haltestelle_t::get_halt(const koord3d pos, const spieler_t *sp )
 			// then for other stops to which access is allowed
 			// (This is second because it is preferable to dock at one's own
 			// port to avoid charges)
-			for(uint8 i = 0; i < cnt; i++) 
+			for(uint8 i = 0; i < cnt; i++)
 			{
 				halthandle_t halt = plan->get_haltlist()[i].halt;
 				const uint8 distance_to_dock = plan->get_haltlist()[i].distance;
-				if(halt->check_access(sp) && distance_to_dock <= 1 && halt->get_station_type() & dock) 
+				if(halt->check_access(sp) && distance_to_dock <= 1 && halt->get_station_type() & dock)
 				{
 					return halt;
 				}
@@ -380,7 +380,7 @@ DBG_MESSAGE("haltestelle_t::remove()","removing segment from %d,%d,%d", pos.x, p
 	if(  halt->rem_grund(bd)  ) {
 		// remove station building?
 		gebaeude_t* gb = bd->find<gebaeude_t>();
-		if(gb) 
+		if(gb)
 		{
 			DBG_MESSAGE("haltestelle_t::remove()",  "removing building" );
 			if(gb->get_tile()->get_besch()->get_is_control_tower())
@@ -494,7 +494,7 @@ haltestelle_t::haltestelle_t(loadsave_t* file)
 	// @author hsiegeln
 	sortierung = freight_list_sorter_t::by_name;
 	resort_freight_info = true;
-	
+
 	rdwr(file);
 
 	alle_haltestellen.append(self);
@@ -658,7 +658,7 @@ haltestelle_t::~haltestelle_t()
 
 		// Update nearby factories' lists of connected halts.
 		// Must be done AFTER updating the planquadrats,
-		// AND after updating our own list. 
+		// AND after updating our own list.
 		FOR (vector_tpl<fabrik_t*>, fab, affected_fab_list)
 		{
 			fab->recalc_nearby_halts();
@@ -686,7 +686,7 @@ haltestelle_t::~haltestelle_t()
 		}
 	}
 	free( waren );
-	
+
 	for(uint8 i = 0; i < max_categories; i++)
 	{
 		if(!welt->get_is_shutting_down())
@@ -718,7 +718,7 @@ void haltestelle_t::rotate90( const sint16 y_size )
 				if(ware.menge>0) {
 					ware.rotate90(y_size);
 				}
-				else 
+				else
 				{
 					// empty => remove
 					warray.remove_at(j);
@@ -1114,13 +1114,13 @@ void haltestelle_t::request_loading(convoihandle_t cnv)
 	if(  !loading_here.is_contained( cnv )  ) {
 		loading_here.append( cnv );
 	}
-	if(last_loading_step != welt->get_steps()) 
+	if(last_loading_step != welt->get_steps())
 	{
 		last_loading_step = welt->get_steps();
 		lines_loaded.clear();
 
 		// now iterate over all convois
-		for(slist_tpl<convoihandle_t>::iterator i = loading_here.begin(), end = loading_here.end();  i != end;) 
+		for(slist_tpl<convoihandle_t>::iterator i = loading_here.begin(), end = loading_here.end();  i != end;)
 		{
 			convoihandle_t const c = *i;
 			if (c.is_bound()
@@ -1135,7 +1135,7 @@ void haltestelle_t::request_loading(convoihandle_t cnv)
 				// now we load into convoi
 				c->hat_gehalten(self);
 			}
-			else 
+			else
 			{
 				i = loading_here.erase(i);
 			}
@@ -1214,14 +1214,14 @@ void haltestelle_t::step()
 
 #ifdef DEBUG_SIMRAND_CALLS
 					if (talk && i == 2198)
-						dbg->message("haltestelle_t::step", "%u) check %u of %u minutes: %u %s to \"%s\"", 
+						dbg->message("haltestelle_t::step", "%u) check %u of %u minutes: %u %s to \"%s\"",
 						i, waiting_tenths, max_wait_tenths, tmp.menge, tmp.get_besch()->get_name(), tmp.get_ziel()->get_name());
 #endif
 					if(waiting_tenths > max_wait_tenths)
 					{
 #ifdef DEBUG_SIMRAND_CALLS
 						if (talk)
-							dbg->message("haltestelle_t::step", "%u) discard after %u of %u minutes: %u %s to \"%s\"", 
+							dbg->message("haltestelle_t::step", "%u) discard after %u of %u minutes: %u %s to \"%s\"",
 							i, waiting_tenths, max_wait_tenths, tmp.menge, tmp.get_besch()->get_name(), tmp.get_ziel()->get_name());
 #endif
 
@@ -1237,15 +1237,15 @@ void haltestelle_t::step()
 						if(tmp.get_origin().is_bound() && get_besitzer()->get_finance()->get_account_balance() > 0)
 						{
 							// Cannot refund unless we know the origin.
-							// Also, ought not refund unless the player is solvent. 
-							// Players ought not be put out of business by refunds, as this makes gameplay too unpredictable, 
+							// Also, ought not refund unless the player is solvent.
+							// Players ought not be put out of business by refunds, as this makes gameplay too unpredictable,
 							// especially in online games, where joining one player's network to another might lead to a large
 							// influx of passengers which one of the networks cannot cope with.
 							const uint16 distance = shortest_distance(get_basis_pos(), tmp.get_origin()->get_basis_pos());
 							if(distance > 0) // No point in calculating refund if passengers/goods are discarded from their origin stop.
 							{
 								const uint32 distance_meters = (uint32) distance * welt->get_settings().get_meters_per_tile();
-								// Refund is approximation: 2x distance at standard rate with no adjustments. 
+								// Refund is approximation: 2x distance at standard rate with no adjustments.
 								const sint64 refund_amount = (tmp.menge * tmp.get_besch()->get_refund(distance_meters) + 2048ll) / 4096ll;
 
 								besitzer_p->book_revenue(-refund_amount, get_basis_pos(), ignore_wt, ATV_REVENUE_PASSENGER);
@@ -1384,11 +1384,11 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 		// world layout, remove all goods which destination was removed from the map
 		// prissi;
 		// also the empty entries of the array are cleared
-		for(int j = packet_count - 1; j  >= 0; j--) 
+		for(int j = packet_count - 1; j  >= 0; j--)
 		{
 			ware_t & ware = (*warray)[j];
 
-			if(ware.menge == 0) 
+			if(ware.menge == 0)
 			{
 				continue;
 			}
@@ -1406,7 +1406,7 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 			}
 
 			// check if this good can still reach its destination
-			
+
 			if(find_route(ware) == 65535)
 			{
 				// remove invalid destinations
@@ -1436,7 +1436,7 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 #endif
 
 		// delete, if nothing connects here
-		if (new_warray->empty()) 
+		if (new_warray->empty())
 		{
 			if(connexions[catg]->empty())
 			{
@@ -1716,7 +1716,7 @@ void haltestelle_t::reset_connexions(uint8 category)
 		return;
 	}
 
-	FOR(connexions_map, & iter, *connexions[category] ) 
+	FOR(connexions_map, & iter, *connexions[category] )
 	{
         delete iter.value;
 	}
@@ -1821,7 +1821,7 @@ void haltestelle_t::get_destination_halts_of_ware(ware_t &ware, vector_tpl<halth
 		// This simpler routine is available ONLY when the destination is
 		// a single-tile building.
 		const nearby_halt_t *haltlist = plan->get_haltlist();
-		for(uint16 h = 0; h < plan->get_haltlist_count(); h++) 
+		for(uint16 h = 0; h < plan->get_haltlist_count(); h++)
 		{
 			halthandle_t halt = haltlist[h].halt;
 			if(halt->is_enabled(warentyp))
@@ -1936,7 +1936,7 @@ uint16 haltestelle_t::find_route(ware_t &ware, const uint16 previous_journey_tim
 /**
  * Found route and station uncrowded
  * @author Hj. Malthaner
- * As of Simutrans-Experimental 7.2, 
+ * As of Simutrans-Experimental 7.2,
  * this method is called instead when
  * passengers *arrive* at their destination.
  */
@@ -1976,8 +1976,9 @@ void haltestelle_t::add_pax_no_route(int n)
 
 void haltestelle_t::liefere_an_fabrik(const ware_t& ware) const //"deliver to the factory" (Google)
 {
-	fabrik_t *const factory = fabrik_t::get_fab(ware.get_zielpos() );
-	if(  factory  ) {
+	fabrik_t *const factory = fabrik_t::get_fab(ware.get_zielpos());
+	if(factory)
+	{
 		factory->liefere_an(ware.get_besch(), ware.menge);
 	}
 }
@@ -2020,45 +2021,44 @@ bool haltestelle_t::recall_ware( ware_t& w, uint32 menge )
 
 
 // will load something compatible with wtyp into the car which schedule is fpl
-ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const schedule_t *fpl, const spieler_t *sp, convoi_t* cnv, bool overcrowded) //"hole from" (Google)
+bool haltestelle_t::hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp, uint32 maxi, const schedule_t *fpl, const spieler_t *sp, convoi_t* cnv, bool overcrowded) //"hole from" (Google)
 {
-	const uint8 count = fpl->get_count();
+	bool skipped = false;
 	const uint8 catg_index = wtyp->get_catg_index();
 	vector_tpl<ware_t> *warray = waren[catg_index];
-
-	if(warray != NULL) 
-	{
-		binary_heap_tpl<ware_t*> goods_to_check; 
-		for(vector_tpl<ware_t>::iterator i = warray->begin(); i != warray->end();) 
+	if(warray  &&  warray->get_count() > 0)
+	{		binary_heap_tpl<ware_t*> goods_to_check;
+		for(uint32 i = 0;  i < warray->get_count();  )
 		{
-			if (i->menge == 0)
+			// Load first the goods/passengers/mail that have been waiting the longest.
+			// Do this by adding them all to a binary heap sorted by arrival time.
+			ware_t* const ware = &(*warray)[i];
+			if(ware->menge > 0)
 			{
-				// There is no need any longer to have empty ware packets hanging around.
-				i = warray->erase(i);
-				continue;
+				i++;
+				goods_to_check.insert(ware);
 			}
-			else
-			{
-				// Load first the goods/passengers/mail that have been waiting the longest.
-				// Do this by adding them all to a binary heap sorted by arrival time.
-				goods_to_check.insert(i++);
-			}			
+			else {
+				// There is no need any longer to have empty ware packets hanging around.
+				warray->remove_at(i, false);
+			}
 		}
-		
-		halthandle_t previous_halt = self;
+
 		halthandle_t cached_halts[256];
 		while(!goods_to_check.empty())
 		{
-			ware_t* next_to_load = goods_to_check.pop();
+			ware_t* const next_to_load = goods_to_check.pop();
 			uint8 index = fpl->get_aktuell();
 			bool reverse = cnv->get_reverse_schedule();
-			fpl->increment_index(&index, &reverse);
 
-			while(index != fpl->get_aktuell()) 
+			fpl->increment_index(&index, &reverse);
+			while(index != fpl->get_aktuell())
 			{
 				halthandle_t& plan_halt = cached_halts[index];
-				if (!plan_halt.get_id())
+				if(plan_halt.is_null())
+				{
 					plan_halt = haltestelle_t::get_halt(fpl->eintrag[index].pos, sp);
+				}
 
 				if(plan_halt == self)
 				{
@@ -2066,18 +2066,14 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 					break;
 				}
 
-				halthandle_t next_transfer = next_to_load->get_zwischenziel();
+				const halthandle_t next_transfer = next_to_load->get_zwischenziel();
 				if(plan_halt.is_bound() && next_transfer == plan_halt && plan_halt->is_enabled(catg_index))
 				{
-					// Calculate the journey time for *this* convoy from here (if not already calculated)
-					const uint16 journey_time = cnv->get_average_journey_times_this_convoy_only().get(id_pair(plan_halt.get_id(), previous_halt.get_id())).get_average();
 					const uint16 speed_bonus = next_to_load->get_besch()->get_speed_bonus();
-					const uint16 waiting_minutes = convoi_t::get_waiting_minutes(welt->get_zeit_ms() - next_to_load->arrival_time);
 					// For goods that care about their speed, optimise loading for maximum speed of the journey.
 					if(speed_bonus > 0)
-					{												
+					{
 						// Try to ascertain whether it would be quicker to board this convoy, or wait for a faster one.
-							
 						bool is_preferred = true;
 						if(cnv->get_line().is_bound())
 						{
@@ -2095,33 +2091,34 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 								is_preferred = false;
 							}
 						}
-							
+
 						// Thanks to cwlau9 for suggesting this formula (now heavily modified by Knightly and jamespetts)
 						// July 2009
 						if(!is_preferred)
 						{
+							// Calculate the journey time for *this* convoy from here (if not already calculated)
+							const uint16 journey_time = cnv->get_average_journey_times_this_convoy_only().get(id_pair(plan_halt.get_id(), self.get_id())).get_average();
 							const connexion* next_connexion = connexions[catg_index]->get(next_transfer);
-							const uint16 average_waiting_minutes = next_connexion != NULL ? next_connexion->waiting_time : 15;
 							const uint16 preferred_travelling_minutes = next_connexion != NULL ? next_connexion->journey_time : 15;
 							// Minutes are recorded in tenths. One third max for this purpose.
 							//const uint16 max_minutes = base_max_minutes > preferred_travelling_minutes ? preferred_travelling_minutes : base_max_minutes;
 							//const sint16 preferred_advantage_minutes = accumulated_journey_time - preferred_travelling_minutes;
 
 							// New formula: Carl Baker, Feb 2012
-								
+
 							bool much_faster = true;
 							bool waiting_too_long = false;
-							int how_much_slower = journey_time * 100;
+							uint32 how_much_slower = journey_time * 100;
 							if (preferred_travelling_minutes > 1)
 							{
 								how_much_slower /= preferred_travelling_minutes;
 							}
 							// Passengers/goods will always board slower convoy if its journey time is within an acceptable
-							// tolerance of the fastest journey time. 
+							// tolerance of the fastest journey time.
 							// The acceptable tolerance is scaled depending on journey time of faster convoy.
 							if (preferred_travelling_minutes <= 100 && how_much_slower < 160)
 							{
-							much_faster = false;
+								much_faster = false;
 							}
 							else if ((preferred_travelling_minutes > 100 && preferred_travelling_minutes <= 300) && (how_much_slower < 150))
 							{
@@ -2146,12 +2143,14 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 							else if ((preferred_travelling_minutes > 1800) && (how_much_slower < 118))
 							{
 								much_faster = false;
-							} 
-                     
+							}
+
 							// If passengers/goods have been waiting a long time, they are more likely to board a slower convoy.
 							// But this is scaled so that a much slower convoy requires a much longer-than-expected wait.
 							if (much_faster == true)
 							{
+								const uint16 waiting_minutes = convoi_t::get_waiting_minutes(welt->get_zeit_ms() - next_to_load->arrival_time);
+								const uint16 average_waiting_minutes = next_connexion != NULL ? next_connexion->waiting_time : 15;
 								if ((how_much_slower <= 125) && ( waiting_minutes >= (average_waiting_minutes * 3)))
 								{
 									waiting_too_long = true;
@@ -2168,18 +2167,19 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 								{
 									waiting_too_long = true;
 								}
-								else 
+								else
 								{
 									waiting_too_long = false;
 								}
 							}
-                     
+
 							// Passengers/goods continue to wait for faster convoy if...
 							if ((much_faster == true) && (waiting_too_long == false))
 							{
 								fpl->increment_index(&index, &reverse);
+								skipped = true;
 								continue;
-							} 
+							}
 						}
 					}
 
@@ -2191,43 +2191,50 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 						if ((welt->ticks_to_tenths_of_minutes(time_till_departure)) > 100)
 						{
 							fpl->increment_index(&index, &reverse);
+							skipped = true;
 							continue;
 						}
 					}
-	
+
 					// Refuse to be overcrowded if alternative exists
 					connexion * const next_connexion = connexions[catg_index]->get(next_transfer);
-					if (next_connexion &&  overcrowded && next_connexion->alternative_seats )
+					if(next_connexion  &&  overcrowded  &&  next_connexion->alternative_seats)
 					{
 						fpl->increment_index(&index, &reverse);
+						skipped = true;
 						continue;
 					}
 
 					// not too much?
 					ware_t neu(*next_to_load);
-					if(  next_to_load->menge > maxi  ) 
+					if(next_to_load->menge > maxi)
 					{
 						// not all can be loaded
 						neu.menge = maxi;
 						next_to_load->menge -= maxi;
+						maxi = 0;
 					}
-					else 
+					else
 					{
-						// leave an empty entry => joining will more often work
-						next_to_load->menge = 0;
+						maxi -= next_to_load->menge;
+						next_to_load->menge = 0; // leave an empty entry => will be deleted next time for performance
 					}
-				
-					book(neu.menge, HALT_DEPARTED);
+					fracht.insert(neu);
 
+					book(neu.menge, HALT_DEPARTED);
 					resort_freight_info = true;
 
-					return neu;
-				}	
+					if(maxi == 0)
+					{
+						goods_to_check.clear();
+						break;
+					}
+				}
 				// nothing there to load
 
 				// if the schedule is mirrored and has reached its end, break
 				// as the convoy will be returning this way later.
-				if(fpl->is_mirrored() && (index == 0 || index == (count - 1)))
+				if(fpl->is_mirrored() && (index == 0 || index == (fpl->get_count() - 1)))
 				{
 					break;
 				}
@@ -2236,11 +2243,11 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 			}
 		}
 	}
-	// empty quantity of required type -> no effect
-	return ware_t (wtyp);
+	return skipped;
 }
 
-/** 
+
+/**
  * It will calculate number of free seats in all other (not cnv) convoys at stop
  * @author Inkelyad, adapted from hole_ab
  */
@@ -2288,12 +2295,12 @@ void haltestelle_t::update_alternative_seats(convoihandle_t cnv)
 				// we will come later here again ...
 				break;
 			}
-			if(plan_halt.is_bound() && plan_halt->get_pax_enabled()) 
+			if(plan_halt.is_bound() && plan_halt->get_pax_enabled())
 			{
 				connexion * const next_connexion = connexions[catg_index]->get(plan_halt);
 				if (next_connexion) {
 					next_connexion->alternative_seats += (*cnv_i)->get_free_seats();
-				}			
+				}
 			}
 
 			// if the schedule is mirrored and has reached its end, break
@@ -2323,7 +2330,7 @@ uint32 haltestelle_t::get_ware_summe(const ware_besch_t *wtyp) const
 
 
 uint32 haltestelle_t::get_ware_fuer_zielpos(const ware_besch_t *wtyp, const koord zielpos) const
-{ 
+{
 	const vector_tpl<ware_t> * warray = waren[wtyp->get_catg_index()];
 	if(warray!=NULL) {
 		FOR(vector_tpl<ware_t>, const& ware, *warray) {
@@ -2335,6 +2342,59 @@ uint32 haltestelle_t::get_ware_fuer_zielpos(const ware_besch_t *wtyp, const koor
 	return 0;
 }
 
+#ifdef CHECK_WARE_MERGE
+bool haltestelle_t::vereinige_waren(const ware_t &ware) //"unite were" (Google)
+{
+	// pruefen ob die ware mit bereits wartender ware vereinigt werden kann
+	// "examine whether the ware with software already waiting to be united" (Google)
+	vector_tpl<ware_t> * warray = waren[ware.get_besch()->get_catg_index()];
+	if(warray != NULL)
+	{
+		FOR(vector_tpl<ware_t>, & tmp, *warray)
+		{
+
+			/*
+			* OLD SYSTEM - did not take account of origins and timings when merging.
+			*
+			* // es wird auf basis von Haltestellen vereinigt
+			* // prissi: das ist aber ein Fehler für alle anderen Güter, daher Zielkoordinaten für alles, was kein passagier ist ...
+			*
+			* //it is based on uniting stops.
+			* //prissi: but that is a mistake for all other goods, therefore, target coordinates for everything that is not a passenger ...
+			* // (Google)
+			*
+			* if(ware.same_destination(tmp)) {
+			*/
+
+			// NEW SYSTEM
+			// Adds more checks.
+			// @author: jamespetts
+			if(ware.can_merge_with(tmp))
+			{
+				if(  ware.get_zwischenziel().is_bound()  &&  ware.get_zwischenziel()!=self  )
+				{
+					// update route if there is newer route
+					tmp.set_zwischenziel( ware.get_zwischenziel() );
+				}
+
+				// Merge waiting times.
+				if(ware.menge > 0)
+				{
+					//The waiting time for ware will always be zero.
+					tmp.arrival_time = welt->get_zeit_ms() - ((welt->get_zeit_ms() - tmp.arrival_time) * tmp.menge) / (tmp.menge + ware.menge);
+				}
+
+				tmp.menge += ware.menge;
+				resort_freight_info = true;
+				return true;
+			}
+		}
+	}
+	return false;
+}
+#endif
+
+
 // put the ware into the internal storage
 // take care of all allocation neccessary
 void haltestelle_t::add_ware_to_halt(ware_t ware, bool from_saved)
@@ -2343,13 +2403,13 @@ void haltestelle_t::add_ware_to_halt(ware_t ware, bool from_saved)
 	if(!from_saved)
 	{
 		ware.arrival_time = welt->get_zeit_ms();
-	}	
-	
+	}
+
 	ware.set_last_transfer(self);
 
 	// now we have to add the ware to the stop
 	vector_tpl<ware_t> * warray = waren[ware.get_besch()->get_catg_index()];
-	if(warray==NULL) 
+	if(warray==NULL)
 	{
 		// this type was not stored here before ...
 		warray = new vector_tpl<ware_t>(4);
@@ -2402,7 +2462,7 @@ uint32 haltestelle_t::starte_mit_route(ware_t ware)
 	}
 
 	// no valid next stops? Or we are the next stop?
-	if(ware.get_zwischenziel() == self) 
+	if(ware.get_zwischenziel() == self)
 	{
 		dbg->error("haltestelle_t::starte_mit_route()","route cannot contain us as first transfer stop => recalc route!");
 		if(find_route(ware) == 65535)
@@ -2473,7 +2533,7 @@ uint32 haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 	}
 
 	// no valid next stops?
-	if(!ware.get_ziel().is_bound() || !ware.get_zwischenziel().is_bound()) 
+	if(!ware.get_ziel().is_bound() || !ware.get_zwischenziel().is_bound())
 	{
 		// write a log entry and discard the goods
 		dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer a route to their destination!", ware.menge, translator::translate(ware.get_name()), get_name() );
@@ -2684,9 +2744,9 @@ void haltestelle_t::zeige_info()
 sint64 haltestelle_t::calc_maintenance() const
 {
 	sint64 maintenance = 0;
-	FOR(slist_tpl<tile_t>, const& i, tiles) 
+	FOR(slist_tpl<tile_t>, const& i, tiles)
 	{
-		if (gebaeude_t* const gb = i.grund->find<gebaeude_t>()) 
+		if (gebaeude_t* const gb = i.grund->find<gebaeude_t>())
 		{
 			const haus_besch_t* besch = gb->get_tile()->get_besch();
 			if(besch->get_base_maintenance() == COST_MAGIC)
@@ -2713,7 +2773,7 @@ bool haltestelle_t::make_public_and_join(spieler_t *sp)
 	slist_tpl<halthandle_t> joining;
 
 	// only something to do if not yet owner ...
-	if(besitzer_p != public_owner) 
+	if(besitzer_p != public_owner)
 	{
 		// First run through to see if we can afford this.
 		sint64 total_charge = 0;
@@ -2735,7 +2795,7 @@ bool haltestelle_t::make_public_and_join(spieler_t *sp)
 					// New method - get the specified factor.
 					costs = besch->get_maintenance();
 				}
-				
+
 				if(!compensate)
 				{
 					// Sixty months of maintenance is the payment to the public player for this
@@ -2756,7 +2816,7 @@ bool haltestelle_t::make_public_and_join(spieler_t *sp)
 		// Now run through to actually transfer ownership
 		// and recalculate maintenance; must do maintenance here, not above,
 		// in order to properly assign it by waytype
-		FOR(slist_tpl<tile_t>, const& i, tiles) 
+		FOR(slist_tpl<tile_t>, const& i, tiles)
 		{
 			grund_t* const gr = i.grund;
 			gebaeude_t* gb = gr->find<gebaeude_t>();
@@ -2782,7 +2842,7 @@ bool haltestelle_t::make_public_and_join(spieler_t *sp)
 				if(!compensate)
 				{
 					// Player is voluntarily turning this over to the public player:
-					// pay a fee for the public player for future maintenance. 
+					// pay a fee for the public player for future maintenance.
 					sint64 charge = welt->calc_adjusted_monthly_figure(costs * 60);
 					spieler_t::book_construction_costs(sp,         -charge, get_basis_pos(), gb->get_waytype());
 					spieler_t::book_construction_costs(public_owner, charge, koord::invalid, gb->get_waytype());
@@ -2861,7 +2921,7 @@ bool haltestelle_t::make_public_and_join(spieler_t *sp)
 						// New method - get the specified factor.
 						costs = gb->get_tile()->get_besch()->get_maintenance();
 					}
-					
+
 					spieler_t::add_maintenance( gb_sp, -costs, gb->get_waytype() );
 
 					spieler_t::book_construction_costs(gb_sp,         costs*60, gr->get_pos().get_2d(), gb->get_waytype());
@@ -2913,7 +2973,7 @@ void haltestelle_t::transfer_goods(halthandle_t halt)
 				halt->add_ware_to_halt(j);
 #ifdef DEBUG_SIMRAND_CALLS
 				if (talk)
-					dbg->message("haltestelle_t::transfer_goods", "%d transfer from station \"%s\"(warr cnt %d) to \"%s\"(warr cnt %d)", 
+					dbg->message("haltestelle_t::transfer_goods", "%d transfer from station \"%s\"(warr cnt %d) to \"%s\"(warr cnt %d)",
 					    j.menge, get_name(), get_warray(i)->get_count(), halt->get_name(), halt->get_warray(i)->get_count());
 #endif
 			}
@@ -3093,9 +3153,9 @@ void haltestelle_t::rdwr(loadsave_t *file)
 	loading = file->is_loading();
 #endif
 	// will restore halthandle_t after loading
-	if(file->get_version() > 110005) 
+	if(file->get_version() > 110005)
 	{
-		if(file->is_saving()) 
+		if(file->is_saving())
 		{
 			if(!self.is_bound())
 			{
@@ -3115,7 +3175,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			uint16 halt_id = self.is_bound() ? self.get_id() : 0;
 			file->rdwr_short(halt_id);
 		}
-		else 
+		else
 		{
 			uint16 halt_id;
 			file->rdwr_short(halt_id);
@@ -3130,9 +3190,9 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			}
 		}
 	}
-	else 
+	else
 	{
-		if (file->is_loading()) 
+		if (file->is_loading())
 		{
 			self = halthandle_t(this);
 		}
@@ -3193,13 +3253,13 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		k.rdwr( file );
 	}
 
-	// BG, 07-MAR-2010: the number of goods categories has to be read from the savegame, 
-	// as goods and categories can be added by the user and thus do not depend on file 
+	// BG, 07-MAR-2010: the number of goods categories has to be read from the savegame,
+	// as goods and categories can be added by the user and thus do not depend on file
 	// version and therefore not predicatable by simutrans.
-	
+
 	uint8 max_catg_count_game = warenbauer_t::get_max_catg_index();
 	uint8 max_catg_count_file = max_catg_count_game;
-	
+
 	if(file->get_experimental_version() >= 11)
 	{
 		// Version 11 and above - the maximum category count is saved with the game.
@@ -3208,14 +3268,14 @@ void haltestelle_t::rdwr(loadsave_t *file)
 
 	const char *s;
 	init_pos = tiles.empty() ? koord::invalid : tiles.front().grund->get_pos().get_2d();
-	if(file->is_saving()) 
+	if(file->is_saving())
 	{
-		for(unsigned i=0; i<max_catg_count_file; i++) 
+		for(unsigned i=0; i<max_catg_count_file; i++)
 		{
 			vector_tpl<ware_t> *warray = waren[i];
 			uint32 ware_count = 1;
 
-			if(warray) 
+			if(warray)
 			{
 				s = "y";	// needs to be non-empty
 				file->rdwr_str(s);
@@ -3231,7 +3291,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				{
 					// Experimental version 11 and above - very large/busy halts might
 					// have a count > 65535, so use the proper uint32 value.
-					
+
 					// In previous versions, the use of "short" lead to corrupted saved
 					// games when the value was larger than 32,767.
 
@@ -3239,7 +3299,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 					file->rdwr_long(count);
 					has_uint16_count = false;
 				}
-				FOR(vector_tpl<ware_t>, & ware, *warray) 
+				FOR(vector_tpl<ware_t>, & ware, *warray)
 				{
 					if(has_uint16_count && ware_count++ > 65535)
 					{
@@ -3275,7 +3335,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		}
 #endif
 	}
-	else 
+	else
 	{
 		// restoring all goods in the station
 		char s[256];
@@ -3308,7 +3368,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 							// restore intransit information
 							fabrik_t::update_transit( ware, true );
 					}
-					else if(  ware.menge>0  ) 
+					else if(  ware.menge>0  )
 					{
 						dbg->error( "haltestelle_t::rdwr()", "%i of %s to %s ignored!", ware.menge, ware.get_name(), ware.get_zielpos().get_str() );
 					}
@@ -3323,7 +3383,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			uint16 count;
 			file->rdwr_short(count);
 
-			for(int i=0; i<count; i++) 
+			for(int i=0; i<count; i++)
 			{
 				if(file->is_loading())
 				{
@@ -3335,7 +3395,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 					file->rdwr_str(dummy,256);
 				}
 			}
-			
+
 		}
 
 
@@ -3360,9 +3420,9 @@ void haltestelle_t::rdwr(loadsave_t *file)
 
 	if(file->get_experimental_version() >= 5)
 	{
-		for (int j = 0; j < 8 /*MAX_HALT_COST*/; j++) 
+		for (int j = 0; j < 8 /*MAX_HALT_COST*/; j++)
 		{
-			for (int k = MAX_MONTHS	- 1; k >= 0; k--) 
+			for (int k = MAX_MONTHS	- 1; k >= 0; k--)
 			{
 				file->rdwr_longlong(financial_history[k][j]);
 			}
@@ -3371,9 +3431,9 @@ void haltestelle_t::rdwr(loadsave_t *file)
 	else
 	{
 		// Earlier versions did not have pax_too_slow
-		for (int j = 0; j < 8 /*MAX_HALT_COST*/; j++) 
+		for (int j = 0; j < 8 /*MAX_HALT_COST*/; j++)
 		{
-			for (int k = MAX_MONTHS - 1; k >= 0; k--) 
+			for (int k = MAX_MONTHS - 1; k >= 0; k--)
 			{
 				if(j == 7)
 				{
@@ -3395,10 +3455,10 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				}
 			}
 		}
-		for (int k = MAX_MONTHS - 1; k >= 0; k--) 
+		for (int k = MAX_MONTHS - 1; k >= 0; k--)
 		{
 			if(file->is_loading())
-			{	
+			{
 				financial_history[k][HALT_TOO_SLOW] = 0;
 			}
 		}
@@ -3433,7 +3493,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 						}
 						save_koord.rdwr(file);
 					}
-					
+
 					uint8 waiting_time_count = iter.value.times.get_count();
 					file->rdwr_byte(waiting_time_count);
 					ITERATE(iter.value.times, i)
@@ -3602,22 +3662,32 @@ void haltestelle_t::laden_abschliessen(bool need_recheck_for_walking_distance)
 	stale_convois.clear();
 	stale_lines.clear();
 	// fix good destination coordinates
-	for(uint8 i = 0; i < warenbauer_t::get_max_catg_index(); i++) 
+	for(uint8 i = 0; i < warenbauer_t::get_max_catg_index(); i++)
 	{
-		if(waren[i]) 
+		if(waren[i])
 		{
 			vector_tpl<ware_t> * warray = waren[i];
-			FOR(vector_tpl<ware_t>, & j, *warray) {
+			FOR(vector_tpl<ware_t>, & j, *warray)
+			{
 				j.laden_abschliessen(welt);
 			}
 			// merge identical entries (should only happen with old games)
 			const uint32 count = warray->get_count();
-			for(uint32 j = 0; j < count; ++j) 
+			for(uint32 j = 0; j < count; ++j)
 			{
 				ware_t& warj = (*warray)[j];
-				if(warj.menge == 0) 
+				if(warj.menge == 0)
 				{
 					continue;
+				}
+				for(uint32 k = j + 1; k < count; ++k)
+				{
+					ware_t& wark = (*warray)[k];
+					if(wark.menge > 0 && warj.can_merge_with(wark))
+					{
+						warj.menge += wark.menge;
+						wark.menge = 0;
+					}
 				}
 			}
 		}
@@ -3669,13 +3739,13 @@ void haltestelle_t::laden_abschliessen(bool need_recheck_for_walking_distance)
 		}
 		all_names.set( current_name, self );
 	}
-	
+
 	if(need_recheck_for_walking_distance)
 	{
 		check_nearby_halts();
 	}
-	
-	recalc_status();	
+
+	recalc_status();
 }
 
 
@@ -3938,7 +4008,7 @@ bool haltestelle_t::add_grund(grund_t *gr)
 	uint8 const pl_min = public_halt ? 0                : get_besitzer()->get_player_nr();
 	uint8 const pl_max = public_halt ? MAX_PLAYER_COUNT : get_besitzer()->get_player_nr() + 1;
 	// iterate over all lines (public halt: all lines, other: only player's lines)
-	for(uint8 i = pl_min; i < pl_max; i++) 
+	for(uint8 i = pl_min; i < pl_max; i++)
 	{
 		if(spieler_t *sp = welt->get_spieler(i))
 		{
@@ -4332,10 +4402,10 @@ int haltestelle_t::get_queue_pos(convoihandle_t cnv) const
 		{
 			continue;
 		}
-		if((*i)->get_line() == line && 
+		if((*i)->get_line() == line &&
 			((*i)->get_schedule()->get_aktuell() == cnv->get_schedule()->get_aktuell()
 			|| ((*i)->get_state() == convoi_t::REVERSING
-			&& (*i)->get_reverse_schedule() ? 
+			&& (*i)->get_reverse_schedule() ?
 				(*i)->get_schedule()->get_aktuell() + 1 == cnv->get_schedule()->get_aktuell() :
 				(*i)->get_schedule()->get_aktuell() - 1 == cnv->get_schedule()->get_aktuell())))
 		{
@@ -4365,14 +4435,14 @@ void haltestelle_t::check_nearby_halts()
 	FOR(slist_tpl<tile_t>, const& iter, tiles)
 	{
 		planquadrat_t *plan = welt->access(iter.grund->get_pos().get_2d());
-		if(plan) 
+		if(plan)
 		{
 			const nearby_halt_t *const halt_list = plan->get_haltlist();
 
-			for (int h = plan->get_haltlist_count() - 1; h >= 0; h--) 
+			for (int h = plan->get_haltlist_count() - 1; h >= 0; h--)
 			{
 				halthandle_t halt = halt_list[h].halt;
-				if (halt->is_enabled(warenbauer_t::passagiere)) 
+				if (halt->is_enabled(warenbauer_t::passagiere))
 				{
 					add_halt_within_walking_distance(halt);
 					halt->add_halt_within_walking_distance(self);
@@ -4385,21 +4455,21 @@ void haltestelle_t::check_nearby_halts()
 }
 
 bool haltestelle_t::is_within_walking_distance_of(halthandle_t halt) const
-{ 
-	return welt->get_settings().get_allow_routing_on_foot() && halts_within_walking_distance.is_contained(halt); 
+{
+	return welt->get_settings().get_allow_routing_on_foot() && halts_within_walking_distance.is_contained(halt);
 }
 
 uint32 haltestelle_t::get_number_of_halts_within_walking_distance() const
 {
 	if(welt->get_settings().get_allow_routing_on_foot())
 	{
-		return halts_within_walking_distance.get_count(); 
+		return halts_within_walking_distance.get_count();
 	}
 	else
 	{
 		return 0;
 	}
-} 
+}
 
 bool haltestelle_t::check_access(const spieler_t* sp) const
 {
@@ -4486,7 +4556,7 @@ void haltestelle_t::add_waiting_time(uint16 time, halthandle_t halt, uint8 categ
 	if(halt.is_bound())
 	{
 		const waiting_time_map *wt = &waiting_times[category];
-		
+
 		if(!wt->is_contained(halt.get_id()))
 		{
 			fixed_list_tpl<uint16, 32> tmp;

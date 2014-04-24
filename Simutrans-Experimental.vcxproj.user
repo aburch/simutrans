@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <ShowAllFiles>false</ShowAllFiles>
@@ -6,8 +6,7 @@
     <DebuggerFlavor Condition="'$(Configuration)|$(Platform)'=='Debug (network)|Win32'">WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerCommandArguments Condition="'$(Configuration)|$(Platform)'=='Debug (command-line server)|Win32'">-log -debug 3 -server 13353 -lang en -objects Pak128.Britain-Ex-0.9.1 -load new-server-crash</LocalDebuggerCommandArguments>
     <DebuggerFlavor Condition="'$(Configuration)|$(Platform)'=='Debug (command-line server)|Win32'">WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    </LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">-nomidi</LocalDebuggerCommandArguments>
     <DebuggerFlavor Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug (command-line server)|x64'">
