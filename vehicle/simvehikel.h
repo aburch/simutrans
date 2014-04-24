@@ -171,7 +171,7 @@ public:
 	virtual image_id get_bild() const {return bild;}
 
 	sint8 get_hoff() const {return hoff;}
-	uint8 get_steps() const {return steps;} // number of steps pass on the current tile. 
+	uint8 get_steps() const {return steps;} // number of steps pass on the current tile.
 	uint8 get_steps_next() const {return steps_next;} // total number of steps to pass on the current tile - 1. Mostly VEHICLE_STEPS_PER_TILE - 1 for straight route or diagonal_vehicle_steps_per_tile - 1 for a diagonal route.
 
 	// to make smaller steps than the tile granularity, we have to calculate our offsets ourselves!
@@ -245,7 +245,7 @@ private:
 	* @author prissi
 	* BG, 18.10.2011: in tons in simutrans standard, in kg in simutrans experimental
 	*/
-	uint32 sum_weight; 
+	uint32 sum_weight;
 
 	bool hop_check();
 
@@ -255,11 +255,11 @@ private:
 	virtual void calc_drag_coefficient(const grund_t *gr);
 
 	sint32 calc_modified_speed_limit(koord3d position, ribi_t::ribi current_direction, bool is_corner);
-
-	bool load_freight_internal(halthandle_t halt, bool overcrowd, bool *full);
+	
+	bool load_freight_internal(halthandle_t halt, bool overcrowd, bool *skip_vehikels);
 
 	// @author: jamespetts
-	// uint16 local_bonus_supplement; 
+	// uint16 local_bonus_supplement;
 	// A supplementary bonus for local transportation,
 	// if needed, to compensate for not having the effect
 	// of the long-distance speed bonus.
@@ -519,7 +519,7 @@ public:
 
 	// Check for straightness of way.
 	//@author jamespetts
-	
+
 	enum direction_degrees {
 		North = 360,
 		Northeast = 45,
@@ -550,6 +550,7 @@ public:
 	*/
 	//sint64  calc_gewinn(koord start, koord end, convoi_t* cnv) const;
 
+
 	// sets or querey begin and end of convois
 	void set_erstes(bool janein) {ist_erstes = janein;} //janein = "yesno" (Google)
 	bool is_first() const {return ist_erstes;}
@@ -572,8 +573,8 @@ public:
 	 * Load freight from halt
 	 * @return amount loaded
 	 */
-	uint16 load_freight(halthandle_t halt)  { bool dummy; (void)dummy; return load_freight(halt, false, &dummy); }
-	uint16 load_freight(halthandle_t halt, bool overcrowd, bool *full);
+	uint16 load_freight(halthandle_t halt)  { bool dummy; (void)dummy; return load_freight(halt, false, &dummy, &dummy); }
+	uint16 load_freight(halthandle_t halt, bool overcrowd, bool *skip_convois, bool *full);
 
 	/**
 	* Remove freight that no longer can reach it's destination
@@ -913,18 +914,18 @@ private:
 
 	// BG, 07.08.2012: extracted from calc_route()
 	bool calc_route_internal(
-		karte_t *welt, 
-		const koord3d &start, 
-		const koord3d &ziel, 
-		sint32 max_speed, 
-		uint32 weight, 
+		karte_t *welt,
+		const koord3d &start,
+		const koord3d &ziel,
+		sint32 max_speed,
+		uint32 weight,
 		aircraft_t::flight_state &state,
-		sint16 &flughoehe, 
+		sint16 &flughoehe,
 		sint16 &target_height,
 		bool &runway_too_short,
-		uint32 &takeoff, 
+		uint32 &takeoff,
 		uint32 &touchdown,
-		uint32 &suchen, 
+		uint32 &suchen,
 		route_t &route);
 
 protected:
