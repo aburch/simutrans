@@ -131,6 +131,16 @@ public:
 			last_transfer == w.last_transfer;
 	}
 
+	bool can_merge_with(const ware_t &w)
+	{
+		return zwischenziel == w.zwischenziel &&
+		index  == w.index  &&
+		ziel  == w.ziel  &&
+		zielpos == w.zielpos &&
+		origin == w.origin && 
+		last_transfer == w.last_transfer;
+	}
+
 	bool operator <= (const ware_t &w)
 	{
 		// Used only for the binary heap
