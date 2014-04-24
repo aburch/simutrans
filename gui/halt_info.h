@@ -50,6 +50,7 @@ private:
 	button_t sort_button;     // @author hsiegeln
 	button_t filterButtons[MAX_HALT_COST];
 	button_t toggler, toggler_departures;
+	sint16 chart_total_size;
 
 	halthandle_t halt;
 	char edit_name[256];

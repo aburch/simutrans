@@ -132,10 +132,14 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	chart.set_dimension(12, 10000);
 	chart.set_visible(false);
 	chart.set_background(MN_GREY1);
+	const sint16 offset_below_chart = offset_below_viewport+D_BUTTON_HEIGHT+11 // chart position
+	                                  +88                                      // chart size
+	                                  +6+LINESPACE+D_V_SPACE;                  // chart x-axis labels plus space
+
 	for (int cost = 0; cost<convoi_t::MAX_CONVOI_COST; cost++) {
 		chart.add_curve( cost_type_color[cost], cnv->get_finance_history(), convoi_t::MAX_CONVOI_COST, cost, MAX_MONTHS, cost_type_money[cost], false, true, cost_type_money[cost]*2 );
 		filterButtons[cost].init(button_t::box_state, cost_type[cost],
-			scr_coord(BUTTON1_X+(D_BUTTON_WIDTH+D_H_SPACE)*(cost%4), view.get_size().h+164+(D_BUTTON_HEIGHT+2)*(cost/4)),
+						 scr_coord(BUTTON1_X+(D_BUTTON_WIDTH+D_H_SPACE)*(cost%4), offset_below_chart + (D_BUTTON_HEIGHT+D_V_SPACE)*(cost/4)),
 			scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 		filterButtons[cost].add_listener(this);
 		filterButtons[cost].background_color = cost_type_color[cost];
@@ -144,6 +148,8 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 		add_komponente(filterButtons + cost);
 	}
 	add_komponente(&chart);
+
+	chart_total_size = filterButtons[convoi_t::MAX_CONVOI_COST-1].get_pos().y + D_BUTTON_HEIGHT + D_V_SPACE - (chart.get_pos().y - 11);
 
 	add_komponente(&sort_label);
 
@@ -362,7 +368,7 @@ koord3d convoi_info_t::get_weltpos( bool set )
 void convoi_info_t::show_hide_statistics( bool show )
 {
 	toggler.pressed = show;
-	const scr_coord offset = show ? scr_coord(0, 155) : scr_coord(0, -155);
+	const scr_coord offset = show ? scr_coord(0, chart_total_size) : scr_coord(0, -chart_total_size);
 	set_min_windowsize(get_min_windowsize() + offset);
 	scrolly.set_pos(scrolly.get_pos() + offset);
 	chart.set_visible(show);

@@ -62,6 +62,8 @@ private:
 	button_t details_button;
 	button_t toggler;
 
+	sint16 chart_total_size;
+
 	button_t line_button;	// goto line ...
 	bool line_bound;
 
