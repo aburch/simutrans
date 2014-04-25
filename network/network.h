@@ -24,8 +24,8 @@
 #	define USE_IP4_ONLY
 #	define socklen_t int
 #else
-#	include <Windows.h>
-#	include <WinSock2.h>
+#	include <windows.h>
+#	include <winsock2.h>
 #	include <ws2tcpip.h>
 #endif
 #	ifndef IPV6_V6ONLY
