@@ -183,7 +183,7 @@ sint64 finance_t::get_maintenance_with_bits(transport_type tt) const
 
 
 /**
- * Simworld.cc will shut down and remove any player except #1 and #2 who
+ * Simworld.cc will shut down and remove any player except the public player who
  * satisfies these conditions
  */
 bool finance_t::is_bankrupted() const

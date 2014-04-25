@@ -2936,7 +2936,7 @@ void convoi_t::vorfahren()
 									last_pos = to->get_pos();
 								}
 								to->get_neighbour(to, wt, direction_of_travel);
-								direction_of_travel = vehikel_t::calc_richtung(last_pos, to->get_pos());
+								direction_of_travel = vehikel_t::calc_richtung(last_pos.get_2d(), to->get_pos().get_2d());
 								if(last_pos == to->get_pos())
 								{
 									// Prevent infinite loops.
