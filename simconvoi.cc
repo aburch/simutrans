@@ -996,7 +996,7 @@ convoi_t::route_infos_t& convoi_t::get_route_infos()
 			convoi_t::route_info_t &this_info = route_infos.get_element(i);
 			const koord3d this_tile = route.position_bei(i);
 			const koord3d next_tile = route.position_bei(min(i + 1, route_count - 1));
-			this_info.speed_limit = welt->lookup_kartenboden(this_tile)->ist_wasser() ? vehikel_t::speed_unlimited() : kmh_to_speed(950); // Do not alow supersonic flight over land.
+			this_info.speed_limit = welt->lookup_kartenboden(this_tile.get_2d())->ist_wasser() ? vehikel_t::speed_unlimited() : kmh_to_speed(950); // Do not alow supersonic flight over land.
 			this_info.steps_from_start = current_info.steps_from_start + front.get_tile_steps(current_tile.get_2d(), next_tile.get_2d(), this_info.direction);
 			const weg_t *this_weg = get_weg_on_grund(welt->lookup(this_tile), waytype);
 			if (i >= touchdown_index || i <= takeoff_index)
@@ -1202,7 +1202,7 @@ bool convoi_t::drive_to()
 				ziel = fpl->get_current_eintrag().pos;
 				count ++;
 			}
-			const uint16 distance = (shortest_distance(start, ziel) * welt->get_settings().get_meters_per_tile()) / 1000u;
+			const uint16 distance = (shortest_distance(start.get_2d(), ziel.get_2d()) * welt->get_settings().get_meters_per_tile()) / 1000u;
 			fpl->set_aktuell(original_aktuell);
 			if(distance > min_range)
 			{
@@ -5984,7 +5984,7 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 				home_depot_valid = test_depot->is_suitable_for(get_vehikel(0), traction_types);
 			}
 		}
-		if((shortest_distance(get_pos(), get_home_depot()) * welt->get_settings().get_meters_per_tile()) / 100 > get_min_range())
+		if((shortest_distance(get_pos().get_2d(), get_home_depot().get_2d()) * welt->get_settings().get_meters_per_tile()) / 100 > get_min_range())
 		{
 			home_depot_valid = false;
 		}
@@ -6033,7 +6033,7 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 			route.find_route(welt, get_vehikel(0)->get_pos(), &finder, speed_to_kmh(get_min_top_speed()), ribi_t::alle, get_highest_axle_load(), 0x7FFFFFFF);
 			if (!route.empty()) {
 				depot_pos = route.position_bei(route.get_count() - 1);
-				if((shortest_distance(get_pos(), depot_pos) * welt->get_settings().get_meters_per_tile()) / 100 <= get_min_range())
+				if((shortest_distance(get_pos().get_2d(), depot_pos.get_2d()) * welt->get_settings().get_meters_per_tile()) / 100 <= get_min_range())
 				{
 					other_depot_found = true;
 				}
@@ -6048,7 +6048,7 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 		if(!route.empty())
 		{
 			depot_pos = route.position_bei(route.get_count() - 1);
-			if((shortest_distance(get_pos(), depot_pos) * welt->get_settings().get_meters_per_tile()) / 100 <= get_min_range())
+			if((shortest_distance(get_pos().get_2d(), depot_pos.get_2d()) * welt->get_settings().get_meters_per_tile()) / 100 <= get_min_range())
 			{
 				home_depot_found = true;
 			}

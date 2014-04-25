@@ -808,7 +808,7 @@ void depot_t::neuer_monat()
 		get_besitzer()->book_vehicle_maintenance( -fixed_cost_costs, get_waytype() );
 	}
 
-	stadt_t* city = welt->get_city(get_pos());
+	stadt_t* city = welt->get_city(get_pos().get_2d());
 	if(city && get_stadt() == NULL)
 	{		
 		// The depot has joined a city by dint of growth.
@@ -869,7 +869,7 @@ bool depot_t::is_suitable_for( const vehikel_t * test_vehicle, const uint8 tract
 void depot_t::add_to_world_list(bool lock)
 {
 	welt->add_building_to_world_list(this);
-	stadt_t* city = welt->get_city(get_pos());
+	stadt_t* city = welt->get_city(get_pos().get_2d());
 	if(city)
 	{		
 		set_stadt(city);

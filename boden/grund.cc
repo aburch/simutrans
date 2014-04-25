@@ -644,7 +644,7 @@ void grund_t::info(cbuffer_t& buf, bool dummy) const
 		}
 	}
 
-	buf.printf("%s\n%s", translator::translate(get_name()), translator::translate(grund_besch_t::get_climate_name_from_bit(welt->get_climate(get_pos()))) );
+	buf.printf("%s\n%s", translator::translate(get_name()), translator::translate(grund_besch_t::get_climate_name_from_bit(welt->get_climate(get_pos().get_2d()))) );
 	buf.append("\n\n");
 	char price[64];
 	money_to_string(price, abs(welt->get_land_value(pos)));
@@ -1765,7 +1765,7 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp, ko
 			// No parallel way discounting for bridges and tunnels.
 			for(int n = 0; n < 8; n ++)
 			{
-				const koord kn = pos.neighbours[n] + pos;
+				const koord kn = pos.get_2d().neighbours[n] + pos.get_2d();
 				if(!welt->is_within_grid_limits(kn))
 				{
 					continue;

@@ -291,12 +291,12 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 				// system needs to be able to approximate the total travelling time from the straight
 				// line distance.
 				const koord3d k = gr->get_pos();
-				const stadt_t* destination_city = welt->access(k)->get_city();
-				stadt_t* origin_city = welt->access(start)->get_city();
-				if(destination_city && destination_city->get_townhall_road() == k)
+				const stadt_t* destination_city = welt->access(k.get_2d())->get_city();
+				stadt_t* origin_city = welt->access(start.get_2d())->get_city();
+				if(destination_city && destination_city->get_townhall_road() == k.get_2d())
 				{
 					// This is a city destination.
-					if(start.get_2d() == k)
+					if(start.get_2d() == k.get_2d())
 					{
 						// Very rare, but happens occasionally - two cities share a townhall road tile.
 						// Must treat specially in order to avoid a division by zero error
@@ -304,8 +304,8 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 					}
 					else
 					{
-						const uint16 straight_line_distance = shortest_distance(origin_city->get_townhall_road(), k);
-						origin_city->add_road_connexion(tmp->g / straight_line_distance, welt->access(k)->get_city());
+						const uint16 straight_line_distance = shortest_distance(origin_city->get_townhall_road(), k.get_2d());
+						origin_city->add_road_connexion(tmp->g / straight_line_distance, welt->access(k.get_2d())->get_city());
 					}
 				}
 				
@@ -322,7 +322,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 							continue;
 						}
 						
-						uint16 straight_line_distance = shortest_distance(origin_city->get_townhall_road(), k);
+						uint16 straight_line_distance = shortest_distance(origin_city->get_townhall_road(), k.get_2d());
 						uint16 journey_time_per_tile;
 						if(straight_line_distance == 0)
 						{
@@ -627,7 +627,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 			to = NULL;
 			if(is_airplane) 
 			{
-				const planquadrat_t *pl=welt->access(gr->get_pos()+koord(next_ribi[r]));
+				const planquadrat_t *pl=welt->access(gr->get_pos().get_2d()+koord(next_ribi[r]));
 				if(pl) 
 				{
 					to = pl->get_kartenboden();

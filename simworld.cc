@@ -3864,7 +3864,7 @@ void karte_t::remove_ausflugsziel(gebaeude_t *gb)
 {
 	assert(gb != NULL);
 	ausflugsziele.remove(gb);
-	stadt_t* city = get_city(gb->get_pos());
+	stadt_t* city = get_city(gb->get_pos().get_2d());
 	if(!city)
 	{
 		remove_building_from_world_list(gb);
@@ -5069,15 +5069,15 @@ sint32 karte_t::get_tiles_of_gebaeude(gebaeude_t* const gb, vector_tpl<const pla
 	if(size == koord(1,1))
 	{
 		// A single tiled building - just add the single tile.
-		tile_list.append(access_nocheck(gb->get_pos()));
+		tile_list.append(access_nocheck(gb->get_pos().get_2d()));
 	}
 	else
 	{
 		// A multi-tiled building: check all tiles. Any tile within the 
 		// coverage radius of a building connects the whole building.
 		koord3d k = gb->get_pos();
-		const koord start_pos = k - tile->get_offset();
-		const koord end_pos = k + size;
+		const koord start_pos = k.get_2d() - tile->get_offset();
+		const koord end_pos = k.get_2d() + size;
 		
 		for(k.y = start_pos.y; k.y < end_pos.y; k.y ++) 
 		{
@@ -5091,7 +5091,7 @@ sint32 karte_t::get_tiles_of_gebaeude(gebaeude_t* const gb, vector_tpl<const pla
 					// There may be buildings with holes.
 					if(gb_part && gb_part->get_tile()->get_besch() == hb) 
 					{
-						tile_list.append(access_nocheck(k));
+						tile_list.append(access_nocheck(k.get_2d()));
 					}
 				}
 			}
@@ -5360,7 +5360,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 				route_status = no_route;
 			}
 
-			const uint32 straight_line_distance = shortest_distance(origin_pos, destination_pos);
+			const uint32 straight_line_distance = shortest_distance(origin_pos.get_2d(), destination_pos);
 			// Careful -- use uint32 here to avoid overflow cutoff errors.
 			// This number may be very long.
 			walking_time = walking_time_tenths_from_distance(straight_line_distance);
@@ -5705,7 +5705,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 			if(city)
 			{
 #ifdef DESTINATION_CITYCARS
-				city->erzeuge_verkehrsteilnehmer(origin_pos, car_minutes, destination_pos, units_this_step);
+				city->erzeuge_verkehrsteilnehmer(origin_pos.get_2d(), car_minutes, destination_pos, units_this_step);
 #endif
 				if(wtyp == warenbauer_t::passagiere)
 				{
@@ -5955,7 +5955,7 @@ no_route:
 						ware_t return_pax(wtyp, ret_halt);
 						return_pax.menge = units_this_step;
 
-						return_pax.set_zielpos(origin_pos);
+						return_pax.set_zielpos(origin_pos.get_2d());
 						return_pax.set_ziel(start_halt);
 						return_pax.is_commuting_trip = trip == commuting_trip;
 						if(ret_halt->find_route(return_pax) != 65535)
@@ -6030,7 +6030,7 @@ no_route:
 
 #ifdef DESTINATION_CITYCARS
 					//citycars with destination
-					city->erzeuge_verkehrsteilnehmer(first_destination.location, car_minutes, origin_pos, units_this_step);
+					city->erzeuge_verkehrsteilnehmer(first_destination.location, car_minutes, origin_pos.get_2d(), units_this_step);
 #endif
 
 					if(current_destination.type == factory && (trip == commuting_trip || trip == mail_trip))
@@ -6046,7 +6046,7 @@ no_route:
 					}
 					if(city)
 					{
-						city->merke_passagier_ziel(origin_pos, COL_DARK_ORANGE);
+						city->merke_passagier_ziel(origin_pos.get_2d(), COL_DARK_ORANGE);
 					}
 				}
 			}
@@ -6062,7 +6062,7 @@ return_on_foot:
 					else if(city)
 					{
 						// Local, attraction or industry.
-						city->merke_passagier_ziel(origin_pos, COL_DARK_YELLOW);
+						city->merke_passagier_ziel(origin_pos.get_2d(), COL_DARK_YELLOW);
 						city->add_walking_passengers(units_this_step);
 					}
 				}
@@ -6125,7 +6125,7 @@ karte_t::destination karte_t::find_destination(trip_type trip)
 		return current_destination;
 	}
 
-	current_destination.location = gb->get_pos();
+	current_destination.location = gb->get_pos().get_2d();
 	current_destination.building = gb;
 
 	// Add the correct object type.
@@ -9453,7 +9453,7 @@ sint64 karte_t::get_land_value (koord3d k)
 	// NOTE: settings.cst_buy_land is a *negative* number.
 	sint64 cost = settings.cst_buy_land;
 	const stadt_t* city = get_city(k.get_2d());
-	const grund_t* gr = lookup_kartenboden(k);
+	const grund_t* gr = lookup_kartenboden(k.get_2d());
 	if(city)
 	{
 		if(city->get_city_population() >= settings.get_city_threshold_size())
@@ -9479,7 +9479,7 @@ sint64 karte_t::get_land_value (koord3d k)
 		}
 	}
 
-	if(lookup_hgt(k) != k.z && gr)
+	if(lookup_hgt(k.get_2d()) != k.z && gr)
 	{
 		// Elevated or underground way being built.
 		// Check for building and pay wayleaves if necessary.

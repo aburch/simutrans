@@ -449,7 +449,7 @@ bool spieler_t::neuer_monat()
 				}
 			}
 			
-			if(welt->get_active_player_nr() != player_nr || umgebung_t::networkmode)  // Not the active player or a multi-player game
+			if(welt->get_active_player_nr() != player_nr || env_t::networkmode)  // Not the active player or a multi-player game
 			{
 				// AI players play by the same rules as human players regarding bankruptcy.
 				if(  account_balance < finance->get_hard_credit_limit() && welt->get_settings().bankruptcy_allowed() )
@@ -937,7 +937,7 @@ DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s stucked!", cnv->ge
 		
 		case convoi_t::OUT_OF_RANGE:
 			{
-				const uint16 distance = (shortest_distance(cnv->get_pos(), ziel) * welt->get_settings().get_meters_per_tile()) / 1000u;
+				const uint16 distance = (shortest_distance(cnv->get_pos().get_2d(), ziel.get_2d()) * welt->get_settings().get_meters_per_tile()) / 1000u;
 				const uint16 excess = distance - cnv->get_min_range();
 				DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s cannot travel %ikm to (%i,%i) because it would exceed its range of %i by %ikm", cnv->get_name(), distance, ziel.x, ziel.y, cnv->get_min_range(), excess);
 				if(this == welt->get_active_player())

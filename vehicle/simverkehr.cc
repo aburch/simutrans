@@ -430,7 +430,7 @@ stadtauto_t::stadtauto_t(grund_t* gr, koord const target) :
 	(void)target;
 #endif
 	calc_bild();
-	origin = gr ? gr->get_pos() : koord3d::invalid;
+	origin = gr ? gr->get_pos().get_2d() : koord::invalid;
 }
 
 

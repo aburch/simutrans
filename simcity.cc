@@ -2743,7 +2743,7 @@ void stadt_t::add_road_connexion(uint16 journey_time_per_tile, const gebaeude_t*
 	connected_attractions.set(attraction_pos.get_2d(), journey_time_per_tile);
 
 	// Add all tiles of an attraction here.
-	if(!attraction->get_tile() || attraction_pos == koord::invalid)
+	if(!attraction->get_tile() || attraction_pos == koord3d::invalid)
 	{
 		return;
 	}
@@ -4961,7 +4961,7 @@ int private_car_destination_finder_t::get_kosten(const grund_t* gr, sint32 max_s
 	}
 
 	const uint32 max_tile_speed = w->get_max_speed(); // This returns speed in km/h.
-	const planquadrat_t* plan = welt->access_nocheck(gr->get_pos());
+	const planquadrat_t* plan = welt->access_nocheck(gr->get_pos().get_2d());
 	const stadt_t* city = plan->get_city();
 	const bool is_diagonal = w->is_diagonal();
 

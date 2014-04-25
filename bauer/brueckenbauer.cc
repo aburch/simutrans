@@ -314,14 +314,14 @@ koord3d brueckenbauer_t::finde_ende(spieler_t *sp, koord3d pos, const koord zv, 
 		}
 
 		// Check for non-length restricted bridges over deep water.
-		if(besch->get_max_length() == 0 && welt->lookup_hgt(pos) < welt->get_grundwasser())
+		if(besch->get_max_length() == 0 && welt->lookup_hgt(pos.get_2d()) < welt->get_grundwasser())
 		{
 			error_msg = "Bridge cannot be built over deep water\n";
 			return koord3d::invalid;
 		}
 
 		// gr: the earth's surface
-		const grund_t* gr = welt->lookup_kartenboden(pos);
+		const grund_t* gr = welt->lookup_kartenboden(pos.get_2d());
 		if(  !gr  ) {
 			// end of map!
 			error_msg = "Bridge is too long for this type!\n";

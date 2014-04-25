@@ -458,7 +458,7 @@ baum_t::baum_t(koord3d pos) :
 	// generate aged trees
 	// might underflow
 	geburt = welt->get_current_month() - simrand(703, "baum_t::baum_t");
-	baumtype = (uint8)random_tree_for_climate_intern( welt->get_climate(pos) );
+	baumtype = (uint8)random_tree_for_climate_intern( welt->get_climate(pos.get_2d()) );
 	season = 0;
 	calc_off( welt->lookup( get_pos())->get_grund_hang() );
 	calc_bild();

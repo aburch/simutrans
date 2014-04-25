@@ -2119,7 +2119,7 @@ sint64 wegbauer_t::calc_costs()
 			{
 				for(int n = 0; n < 8; n ++)
 				{
-					const koord kn = pos.neighbours[n] + pos;
+					const koord kn = pos.get_2d().neighbours[n] + pos.get_2d();
 					if(!welt->is_within_grid_limits(kn))
 					{
 						continue;

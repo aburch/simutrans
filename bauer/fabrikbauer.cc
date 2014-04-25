@@ -399,13 +399,13 @@ void fabrikbauer_t::verteile_tourist(int max_number)
 		}
 
 		int	rotation=simrand(attraction->get_all_layouts()-1, "void fabrikbauer_t::verteile_tourist");
-		pos = finde_zufallsbauplatz(pos, 20, attraction->get_groesse(rotation),false,attraction,false,0x0FFFFFFF);	// so far -> land only
+		pos = finde_zufallsbauplatz(pos.get_2d(), 20, attraction->get_groesse(rotation),false,attraction,false,0x0FFFFFFF);	// so far -> land only
 		if(welt->lookup(pos)) {
 			// Platz gefunden ...
 			gebaeude_t* gb = hausbauer_t::baue(welt->get_spieler(1), pos, rotation, attraction);
 			current_number ++;
 			retrys = max_number*4;
-			stadt_t* city = welt->get_city(gb->get_pos());
+			stadt_t* city = welt->get_city(gb->get_pos().get_2d());
 			if(city)
 			{
 				city->add_building_to_list(gb->get_first_tile()); 
