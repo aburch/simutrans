@@ -2875,7 +2875,7 @@ uint32 fabrik_t::get_lead_time(const ware_besch_t* wtype)
 					const uint32 transfer_time = ((uint32)nearby_halt.distance * transfer_journey_time_factor) / 100;
 					ware_t tmp;
 					tmp.set_besch(wtype);
-					tmp.set_zielpos(pos);
+					tmp.set_zielpos(pos.get_2d());
 					tmp.set_origin(nearby_halt.halt);
 					const uint32 current_journey_time = (uint32)nearby_halt.halt->find_route(tmp, best_journey_time) + transfer_time;
 					if(current_journey_time < best_journey_time)

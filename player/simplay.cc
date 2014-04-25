@@ -400,10 +400,13 @@ bool spieler_t::neuer_monat()
 	// Modified by jamespetts, February 2009
 	// Bankrott ?
 	sint64 account_balance = finance->get_account_balance();
-	if(  account_balance < 0  ) {
+	if(  account_balance < 0  )
+	{
 		finance->increase_account_overdrawn();
-		if(!welt->get_settings().is_freeplay() && player_nr != 1 /* public player*/ ) {
-			if( welt->get_active_player_nr() == player_nr ) {
+		if(!welt->get_settings().is_freeplay() && player_nr != 1 /* public player*/ )
+		{
+			if(welt->get_active_player_nr() == player_nr) 
+			{
 				if(  account_balance < finance->get_hard_credit_limit() && welt->get_settings().bankruptcy_allowed() && !umgebung_t::networkmode )
 				{
 					destroy_all_win(true);
@@ -445,10 +448,12 @@ bool spieler_t::neuer_monat()
 					welt->get_message()->add_message( buf, koord::invalid, warning_message_type, player_nr, IMG_LEER );
 				}
 			}
-			else  // Not the active player
+			
+			if(welt->get_active_player_nr() != player_nr || umgebung_t::networkmode)  // Not the active player or a multi-player game
 			{
 				// AI players play by the same rules as human players regarding bankruptcy.
-				if(  account_balance < finance->get_hard_credit_limit() && welt->get_settings().bankruptcy_allowed() ) {
+				if(  account_balance < finance->get_hard_credit_limit() && welt->get_settings().bankruptcy_allowed() )
+				{
 					ai_bankrupt();
 				}
 			}

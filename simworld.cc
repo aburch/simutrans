@@ -3793,7 +3793,7 @@ void karte_t::new_month()
 
 	// spieler
 	for(uint i=0; i<MAX_PLAYER_COUNT; i++) {
-		if( i>=2  &&  last_month == 0  &&  !settings.is_freeplay() ) {
+		if( last_month == 0  &&  !settings.is_freeplay() ) {
 			// remove all player (but first and second) who went bankrupt during last year
 			if(  spieler[i] != NULL  &&  spieler[i]->get_finance()->is_bankrupted()  )
 			{
