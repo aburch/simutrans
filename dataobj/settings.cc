@@ -445,7 +445,7 @@ void settings_t::rdwr(loadsave_t *file)
 				climate_borders[i] *= env_t::pak_height_conversion_factor;
 			}
 			winter_snowline *= env_t::pak_height_conversion_factor;
-			way_height_clearance = 2;
+			way_height_clearance = env_t::pak_height_conversion_factor;
 		}
 
 		// since vehicle will need realignment afterwards!
