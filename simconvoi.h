@@ -53,6 +53,46 @@ class replace_data_t;
 */
 typedef koordhashtable_tpl<id_pair, average_tpl<uint16> > journey_times_map;
 
+# define entry x
+# define reversed y
+
+struct departure_point_t
+{
+	sint16 entry;
+	sint16 reversed;
+
+	departure_point_t(uint8 e, bool rev)
+	{
+		entry = e;
+		reversed = rev;
+	}
+
+	departure_point_t()
+	{
+		entry = 0;
+		reversed = 0;
+	}
+
+};
+
+static inline bool operator == (const departure_point_t &a, const departure_point_t &b)
+{
+	// only this works with O3 optimisation!
+	return (a.entry - b.entry) == 0 && a.reversed == b.reversed;
+}
+
+static inline bool operator != (const departure_point_t &a, const departure_point_t &b)
+{
+	// only this works with O3 optimisation!
+	return (a.entry - b.entry) != 0 || a.reversed != b.reversed;
+}
+
+static inline bool operator == (const departure_point_t& a, int b)
+{
+	// For hashtable use.
+	return b == 0 && a == departure_point_t(0, true);
+}
+
 /**
  * Base class for all vehicle consists. Convoys can be referenced by handles, see halthandle_t.
  *
@@ -139,7 +179,7 @@ public:
 		departure_data_t()
 		{
 			departure_time = 0ll;
-			reset_distances();
+			init_distances();
 		}
 
 		/**
@@ -186,12 +226,10 @@ public:
 		}
 
 		/**
-		 * Method for resetting the value of the overall distance
-		 * Used in circular routes when the convoy reaches a
-		 * halt from which it has previously departed, to
-		 * prevent over-accumulation of distance.
+		 * Method for initialising the value of the overall 
+		 * distances to zero
 		 */
-		void reset_distances()
+		void init_distances()
 		{
 			for(int i = 0; i < MAX_PLAYER_COUNT + 1; i ++)
 			{
@@ -605,8 +643,22 @@ private:
 	 * "last_departure_time" member.
 	 * Modified October 2011 to include accumulated distance.
 	 */
-	typedef inthashtable_tpl<uint16, departure_data_t> departure_map;
+	typedef koordhashtable_tpl<departure_point_t, departure_data_t> departure_map;
 	departure_map departures;
+
+	/*
+	 * This is a table of the departures to each point in the schedule
+	 * whose times have already been booked. This makes sure that only
+	 * the shortest distance between each pair of points in a schedule
+	 * is used. For example, on a schedule A>B>C>D with reversing, this
+	 * system ensures that, when reaching C on the way back, the departure
+	 * from A, already registered at C on the way out, is not again
+	 * booked at C on the way back with the additional time since going
+	 * via D has elapsed. The key is the ID for the pair of stops, and  
+	 * the value is the last departure time booked between those stops.
+	 */
+	typedef koordhashtable_tpl<id_pair, sint64> departure_time_map;
+	departure_time_map departures_already_booked;
 
 	// When we arrived at current stop
 	// @author Inkelyad
@@ -1404,8 +1456,6 @@ public:
 			v = speed_to_v(akt_speed); 
 #endif
 	}
-
-bool is_circular_route() const;
 	
 	/** For going to a depot automatically
 	 *  when stuck - will teleport if necessary.

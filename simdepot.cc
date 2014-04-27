@@ -474,11 +474,6 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv, bool local_execution
 				}
 			}
 		}
-
-		if(new_cnv->get_line().is_bound())
-		{
-			new_cnv->get_line()->calc_is_alternating_circular_route();
-		}
 		
 		return new_cnv;
 	}
@@ -600,11 +595,6 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 
 			// remove from depot lists
 			remove_convoi( cnv );
-
-			if(cnv->get_line().is_bound())
-			{
-				cnv->get_line()->calc_is_alternating_circular_route();
-			}
 			return true;
 		}
 	}

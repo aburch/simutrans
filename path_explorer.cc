@@ -868,18 +868,8 @@ void path_explorer_t::compartment_t::step()
 						if(current_linkage.line.is_bound())
 						{
 							average_tpl<uint16>* ave    = current_linkage.line->get_average_journey_times().access(halt_pair);
-							average_tpl<uint16>* ave_rc = current_linkage.line->get_average_journey_times_reverse_circular().access(halt_pair);
 							if(ave && ave->count > 0)
 							{
-								// Check whether this is a bidirectional circular route.
-								// If it is, check whether the reverse direction gives a shorter journey time.
-								if(ave_rc && ave_rc->count > 0)
-								{
-									if(ave_rc->get_average() < ave->get_average())
-									{
-										ave = ave_rc;
-									}
-								}
 								new_connexion->journey_time = ave->get_average();
 								// Reset the data once they have been read once.
 								lines_to_reset.append(new_connexion->best_line);

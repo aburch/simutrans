@@ -109,9 +109,6 @@ private:
 	* @author jamespetts
 	*/
 	journey_times_map average_journey_times;
-	journey_times_map average_journey_times_reverse_circular;
-
-	bool is_alternating_circle_route;
 
 public:
 	simline_t(spieler_t *sp, linetype type);
@@ -255,11 +252,6 @@ public:
 	void propogate_livery_scheme();
 
 	inline journey_times_map& get_average_journey_times() { return average_journey_times; }
-	inline journey_times_map& get_average_journey_times_reverse_circular() { return average_journey_times_reverse_circular; }
-
-	void calc_is_alternating_circular_route();
-
-	bool get_is_alternating_circle_route() const { return is_alternating_circle_route; }
 };
 
 

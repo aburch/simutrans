@@ -218,7 +218,6 @@ private:
 	static linieneintrag_t dummy_eintrag;
 };
 
-
 /**
  * Eine Spezialisierung des Fahrplans die nur Stops auf Schienen
  * zul‰ﬂt.
@@ -357,6 +356,5 @@ public:
 
 	waytype_t get_waytype() const { return narrowgauge_wt; }
 };
-
 
 #endif
