@@ -1248,6 +1248,7 @@ bool convoi_t::drive_to()
 			if(state != NO_ROUTE)
 			{
 				state = NO_ROUTE;
+				no_route_retry_count = 0;
 				get_besitzer()->bescheid_vehikel_problem( self, ziel );
 			}
 			// wait 25s before next attempt
@@ -1713,7 +1714,10 @@ end_loop:
 
 		case NO_ROUTE:
 			// stuck vehicles
-			no_route_retry_count ++;
+			if(no_route_retry_count < 7)
+			{
+				no_route_retry_count++;
+			}
 			if(no_route_retry_count >= 3 && front()->get_waytype() != water_wt && (!welt->lookup(get_pos())->ist_wasser()))
 			{
 				// If the convoy is stuck for too long, send it to a depot.
@@ -1822,8 +1826,11 @@ end_loop:
 		// just waiting for action here
 		case INITIAL:
 		case FAHRPLANEINGABE:
-		case NO_ROUTE:
 			wait_lock = max( wait_lock, 25000 );
+			break;
+
+		case NO_ROUTE:
+			wait_lock =  max( wait_lock, no_route_retry_count * no_route_retry_count * (20000 + simrand(10000,"convoi_t::step()")));
 			break;
 
 		// action soon needed
@@ -3235,9 +3242,9 @@ void convoi_t::rdwr(loadsave_t *file)
 
 	file->rdwr_long(wait_lock);
 	// some versions may produce broken savegames apparently
-	if(wait_lock > 60000) {
-		dbg->warning("convoi_t::sync_prepre()","Convoi %d: wait lock out of bounds: wait_lock = %d, setting to 60000",self.get_id(), wait_lock);
-		wait_lock = 60000;
+	if(wait_lock > 1470000) { // max as set by NO_ROUTE
+		dbg->warning("convoi_t::sync_prepre()","Convoi %d: wait lock out of bounds: wait_lock = %d, setting to 1470000",self.get_id(), wait_lock);
+		wait_lock = 1470000;
 	}
 
 	bool dummy_bool=false;
@@ -4029,6 +4036,11 @@ void convoi_t::rdwr(loadsave_t *file)
 		if(file->get_version() >= 111000)
 		{
 			file->rdwr_byte(no_route_retry_count);
+			if(no_route_retry_count > 7)
+			{
+				dbg->warning("convoi_t::rdwr()","Convoi %d: no_route_retry_count out of bounds:  = %d, setting to 7",self.get_id(), no_route_retry_count);
+				no_route_retry_count = 7;
+			}
 		}
 	}
 
