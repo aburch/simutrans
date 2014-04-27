@@ -23,7 +23,6 @@
 #include "../boden/brueckenboden.h"
 #include "../boden/wege/strasse.h"
 
-#include "../gui/messagebox.h"
 #include "../gui/tool_selector.h"
 #include "../gui/karte.h"
 
