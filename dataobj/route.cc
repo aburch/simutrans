@@ -576,14 +576,14 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 
 //DBG_MESSAGE("route_t::itern_calc_route()","calc route from %d,%d,%d to %d,%d,%d",ziel.x, ziel.y, ziel.z, start.x, start.y, start.z);
 	const uint8 enforce_weight_limits = welt->get_settings().get_enforce_weight_limits();
-	//uint32 beat=1;
+	uint32 beat=1;
 	int bridge_tile_count = 0;
 	do {
 		// Hajo: this is too expensive to be called each step
-		/*if((beat++ & 255) == 0) 
+		if((beat++ & 1023) == 0)
 		{
 			INT_CHECK("route 161");
-		}*/
+		}
 
 		if (new_top) {
 			// this is not in closed list, no check necessary
@@ -954,7 +954,7 @@ void route_t::postprocess_water_route(karte_t *welt)
  route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d ziel, const koord3d start, fahrer_t *fahr, const sint32 max_khm, const uint32 axle_load, sint32 max_len, const sint64 max_cost, const uint32 convoy_weight, koord3d avoid_tile)
 {
 	route.clear();
-	const uint32 distance = shortest_distance(start.get_2d(), ziel.get_2d()) * 1000;
+	const uint32 distance = shortest_distance(start.get_2d(), ziel.get_2d()) * 600;
 	if(distance > welt->get_settings().get_max_route_steps())
 	{
 		// Do not actually try to calculate the route if it is doomed to failure.
@@ -963,7 +963,6 @@ void route_t::postprocess_water_route(karte_t *welt)
 		route.append(start); // just to be safe
 		return no_route;
 	}
-
 //	INT_CHECK("route 336");
 
 #ifdef DEBUG_ROUTES
