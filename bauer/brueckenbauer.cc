@@ -21,7 +21,6 @@
 #include "../boden/boden.h"
 #include "../boden/brueckenboden.h"
 
-#include "../gui/messagebox.h"
 #include "../gui/werkzeug_waehler.h"
 #include "../gui/karte.h"
 
@@ -663,7 +662,7 @@ void brueckenbauer_t::baue_bruecke(spieler_t *sp, const koord3d start, const koo
 	// if start or end are single way, and next tile is not, try to connect
 	if(  besch->get_waytype() != powerline_wt  &&  sp  ) {
 		// we need to check start_gr again, because a ramp deletes the old ground
-		if(  start_gr = welt->lookup( start )  ) {
+		if(  (start_gr = welt->lookup( start ))  ) {
 			if(  !start_gr->ist_karten_boden()  ) {
 				// elevated way, just add ribi
 				start_gr->weg_erweitern( besch->get_waytype(), ribi_t::rueckwaerts( ribi ) );
