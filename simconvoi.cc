@@ -4428,8 +4428,9 @@ void convoi_t::laden() //"load" (Babelfish)
 		sint32 average_speed = (journey_distance_meters * 3) / ((sint32)latest_journey_time * 5);
 
 		// For some odd reason, in some cases, laden() is called when the journey time is
-		// excessively low, resulting in perverse average speeds and journey times (at least
-		// it was before the system was updated - TODO: check whether this still recurs)
+		// excessively low, resulting in perverse average speeds and journey times.
+		// Testing shows that this still recurs even after the enhanced point to point
+		// system (April 2014).
 		if(average_speed <= get_vehicle_summary().max_speed)
 		{
 			book(average_speed, CONVOI_AVERAGE_SPEED);
