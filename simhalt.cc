@@ -1183,8 +1183,9 @@ void haltestelle_t::step()
 				// Check whether these goods/passengers are waiting to go to a factory that has been deleted.
 				const grund_t* gr = welt->lookup_kartenboden(tmp.get_zielpos());
 				const gebaeude_t* const gb = gr ? gr->find<gebaeude_t>() : NULL;
+				const depot_t* dep = gr->get_depot(); // Commuting passengers can be headed for a depot as a destination.
 				fabrik_t* const fab = gb ? gb->get_fabrik() : NULL;
-				if(!gb || tmp.is_freight() && !fab)
+				if((!gb && !dep) || tmp.is_freight() && !fab)
 				{
 					// The goods/passengers leave.  We must record the lower "in transit" count on factories.
 					fabrik_t::update_transit(tmp, false);
