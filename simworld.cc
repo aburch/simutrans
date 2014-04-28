@@ -5488,7 +5488,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 				// Check first whether the best route is outside
 				// the passengers' tolerance.
 
-				if(best_journey_time_including_crowded_halts < tolerance && route_status != public_transport)
+				if(best_journey_time_including_crowded_halts < tolerance && route_status != public_transport && walking_time > best_journey_time)
 				{ 
 					route_status = overcrowded;
 					if(!overcrowded_already_set)
