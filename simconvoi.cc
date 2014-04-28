@@ -4415,7 +4415,7 @@ void convoi_t::laden() //"load" (Babelfish)
 		bool rev = !reverse_schedule;
 		uint8 schedule_entry = fpl->get_aktuell();
 		fpl->increment_index(&schedule_entry, &rev); 
-		sint64 latest_journey_time = welt->ticks_to_tenths_of_minutes(arrival_time - departures.get(departure_point_t(schedule_entry, rev)).departure_time);
+		sint64 latest_journey_time = welt->ticks_to_tenths_of_minutes(arrival_time - departures.get(departure_point_t(schedule_entry, !rev)).departure_time);
 		if(latest_journey_time <= 0)
 		{
 			// Necessary to prevent divisions by zero.
