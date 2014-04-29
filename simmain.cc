@@ -781,6 +781,17 @@ int simu_main(int argc, char** argv)
 			themes_ok = gui_theme_t::themes_init(themestr);
 		}
 	}
+	// next try the last used theme
+	if(  !themes_ok  &&  env_t::default_theme.c_str()!=NULL  ) {
+		chdir( env_t::user_dir );
+		chdir( "themes" );
+		themes_ok = gui_theme_t::themes_init( env_t::default_theme );
+		if(  !themes_ok  ) {
+			chdir( env_t::program_dir );
+			chdir( "themes" );
+			themes_ok = gui_theme_t::themes_init( env_t::default_theme );
+		}
+	}
 	// specified themes not found => try default themes
 	if(  !themes_ok  ) {
 		chdir( env_t::program_dir );
@@ -856,7 +867,8 @@ int simu_main(int argc, char** argv)
 		if (fullscreen) {
 			disp_width  = res.w;
 			disp_height = res.h;
-		} else {
+		}
+		else {
 			disp_width  = min(704, res.w);
 			disp_height = min(560, res.h);
 		}
