@@ -497,6 +497,14 @@ private:
 	//			  When loading halts from save game, this is set to 0
 	unsigned long inauguration_time;
 
+	/**
+	* Arrival times of convoys bound for this stop, estimated based on 
+	* convoys' point to point timings, indexed by the convoy's ID
+	*/
+	typedef inthashtable_tpl<uint16, sint64> arrival_times_map;
+	arrival_times_map estimated_convoy_arrival_times;
+	arrival_times_map estimated_convoy_departure_times;
+
 public:
 #ifdef DEBUG_SIMRAND_CALLS
 	bool loading;
@@ -960,6 +968,9 @@ public:
 	* The average time in 10ths of minutes between convoys to this destination
 	*/
 	uint16 get_service_frequency(halthandle_t destination, uint8 category) const;
+
+	void set_estimated_arrival_time(uint16 convoy_id, sint64 time);
+	void set_estimated_departure_time(uint16 convoy_id, sint64 time);
 };
 
 ENUM_BITSET(haltestelle_t::stationtyp)

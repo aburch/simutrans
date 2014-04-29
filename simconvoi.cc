@@ -126,7 +126,7 @@ void convoi_t::reset()
 	longest_min_loading_time = 0;
 	longest_max_loading_time = 0;
 	current_loading_time = 0;
-	departures.clear();
+	clear_departures();
 	for(uint8 i = 0; i < MAX_CONVOI_COST; i ++)
 	{
 		rolling_average[i] = 0;
@@ -1108,8 +1108,7 @@ bool convoi_t::sync_step(long delta_t)
 				}
 			}
 
-			departures.clear();
-			departures_already_booked.clear();
+			clear_departures();
 
 			break;	// LEAVING_DEPOT
 
@@ -2069,8 +2068,7 @@ void convoi_t::enter_depot(depot_t *dep)
 	}
 
 	// Clear the departure table...
-	departures.clear();
-	departures_already_booked.clear();
+	clear_departures();
 
 	// Set the speed to zero...
 	set_akt_speed(0);
@@ -2614,7 +2612,7 @@ bool convoi_t::set_schedule(schedule_t * f)
 			register_stops();
 
 			// Also, clear the departures table, which may now be out of date.
-			departures.clear();
+			clear_departures();
 		}
 	}
 
@@ -3960,7 +3958,7 @@ void convoi_t::rdwr(loadsave_t *file)
 				file->rdwr_long(count);
 			}
 		}
-		else
+		else // Experimental version >= 12
 		{
 			departure_point_t departure_point;
 			sint64 departure_time;
@@ -3987,14 +3985,44 @@ void convoi_t::rdwr(loadsave_t *file)
 						}
 					}
 				}
+
+				
+				count = departures_already_booked.get_count();
+				file->rdwr_long(count);
+				uint16 x;
+				uint16 y;
+				FOR(departure_time_map, const& iter, departures_already_booked)
+				{
+					x = iter.key.x;
+					y = iter.key.y;
+					departure_time = iter.value;
+					file->rdwr_short(x);
+					file->rdwr_short(y);
+					file->rdwr_longlong(departure_time);
+				}
+
+				uint16 total;
+				uint16 ave_count;
+				count = journey_times_between_schedule_points.get_count();
+				file->rdwr_long(count);
+				FOR(timings_map, const& iter, journey_times_between_schedule_points)
+				{
+					departure_point = iter.key;
+					total = iter.value.total;
+					ave_count = iter.value.count;
+					file->rdwr_short(departure_point.entry);
+					file->rdwr_short(departure_point.reversed);
+					file->rdwr_short(total);
+					file->rdwr_short(ave_count);
+				}
 			}
 
 			else if(file->is_loading())
 			{
 				uint32 count = 0;
 				file->rdwr_long(count);
-				departures.clear();
-				for(uint i = 0; i < count; i ++)
+				clear_departures();
+				for(int i = 0; i < count; i ++)
 				{
 					file->rdwr_short(departure_point.entry);
 					file->rdwr_short(departure_point.reversed);
@@ -4014,6 +4042,35 @@ void convoi_t::rdwr(loadsave_t *file)
 					}
 					departures.put(departure_point, dep);
 				}
+
+				file->rdwr_long(count);
+				uint16 x;
+				uint16 y;
+				sint64 departure_time;
+				for(int i = 0; i < count; i ++)
+				{
+					file->rdwr_short(x);
+					file->rdwr_short(y);
+					file->rdwr_longlong(departure_time);
+
+					id_pair pair(x, y);
+					departures_already_booked.put(pair, departure_time);
+				}
+
+				file->rdwr_long(count);
+				uint16 total;
+				uint16 ave_count;
+				for(int i = 0; i < count; i ++)
+				{
+					file->rdwr_short(departure_point.entry);
+					file->rdwr_short(departure_point.reversed);
+					file->rdwr_short(total);
+					file->rdwr_short(ave_count);
+					average_tpl<uint16> ave;
+					ave.total = total;
+					ave.count = count;
+					journey_times_between_schedule_points.put(departure_point, ave);
+				}
 			}
 		}
 		const uint8 count = file->get_version() < 103000 ? CONVOI_DISTANCE : MAX_CONVOI_COST;
@@ -4025,7 +4082,7 @@ void convoi_t::rdwr(loadsave_t *file)
 	}
 	else if(file->is_loading())
 	{
-		departures.clear();
+		clear_departures();
 	}
 
 	if(file->get_experimental_version() >= 9 && file->get_version() >= 110006)
@@ -4415,6 +4472,7 @@ void convoi_t::laden() //"load" (Babelfish)
 		bool rev = !reverse_schedule;
 		uint8 schedule_entry = fpl->get_aktuell();
 		fpl->increment_index(&schedule_entry, &rev); 
+		departure_point_t this_departure(schedule_entry, !rev);
 		sint64 latest_journey_time = welt->ticks_to_tenths_of_minutes(arrival_time - departures.get(departure_point_t(schedule_entry, !rev)).departure_time);
 		if(latest_journey_time <= 0)
 		{
@@ -4422,6 +4480,19 @@ void convoi_t::laden() //"load" (Babelfish)
 			// This code should never be reached.
 			assert(false);
 			latest_journey_time = 1;
+		}
+
+		if(journey_times_between_schedule_points.is_contained(this_departure))
+		{
+			// The add_check_overflow_16 function should have the effect of slowly making older timings less and less significant
+			// to this figure.
+			journey_times_between_schedule_points.access(this_departure)->add_check_overflow_16((uint16)latest_journey_time);
+		}
+		else
+		{
+			average_tpl<uint16> ave;
+			ave.add((uint16)latest_journey_time);
+			journey_times_between_schedule_points.put(this_departure, ave);
 		}
 
 		const sint32 journey_distance_meters = journey_distance * welt->get_settings().get_meters_per_tile();
@@ -4529,29 +4600,6 @@ void convoi_t::laden() //"load" (Babelfish)
 		// If there is no halt here, nothing will call request loading and the state can never be changed.
 		state = CAN_START;
 	}
-	
-	//if(journey_distance > 0 && last_stop_id != halt.get_id())
-	//{
-	//	if(clear_departures)
-	//	{
-	//		// If this is the end of the schedule, the departure times need to be reset
-	//		// so as to avoid over-writing good journey time data with data comprising
-	//		// the time between the last departure on the previous run to the current
-	//		// stop, which will give excessively long times.
-	//		departures.clear();
-	//	}
-	//	else
-	//	{
-	//		// In many cases, simply clearing the list does not help, such as a
-	//		// Y shaped route. In such cases, halts must be pruned
-	//		// selectively.
-
-	//		ITERATE(departure_entries_to_remove, i)
-	//		{
-	//			departures.remove(departure_entries_to_remove[i]);
-	//		}
-	//	}
-
 
 	if(wait_lock == 0)
 	{
@@ -5076,10 +5124,10 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 			if(line.is_bound() && fpl->get_spacing() && line->count_convoys())
 			{
 				// Spacing cnv/month
-				sint64 spacing = welt->ticks_per_world_month / (sint64)fpl->get_spacing();
-				sint64 spacing_shift = (sint64)fpl->get_current_eintrag().spacing_shift * welt->ticks_per_world_month / (sint64)welt->get_settings().get_spacing_shift_divisor();
-				sint64 wait_from_ticks = ((welt->get_zeit_ms() - spacing_shift) / spacing) * spacing + spacing_shift; // remember, it is integer division
-				sint64 queue_pos = halt.is_bound() ? halt->get_queue_pos(self) : 1ll;
+				const sint64 spacing = welt->ticks_per_world_month / (sint64)fpl->get_spacing();
+				const sint64 spacing_shift = (sint64)fpl->get_current_eintrag().spacing_shift * welt->ticks_per_world_month / (sint64)welt->get_settings().get_spacing_shift_divisor();
+				const sint64 wait_from_ticks = ((welt->get_zeit_ms() - spacing_shift) / spacing) * spacing + spacing_shift; // remember, it is integer division
+				const sint64 queue_pos = halt.is_bound() ? halt->get_queue_pos(self) : 1ll;
 				go_on_ticks_spacing = (wait_from_ticks + spacing * queue_pos) - reversing_time;
 			}
 			sint64 go_on_ticks_waiting = WAIT_INFINITE;
@@ -6560,18 +6608,76 @@ void convoi_t::clear_replace()
 		// Only book a departure time if this convoy is at a station/stop.
 		departure_data_t dep;
 		dep.departure_time = time;
-		uint8 entry = fpl->get_aktuell();
-		bool rev = !reverse_schedule;
-		fpl->increment_index(&entry, &rev);
-		departure_point_t departure_point(entry, !rev);
+		uint8 schedule_entry = fpl->get_aktuell();
+		bool rev_rev = !reverse_schedule;
+		fpl->increment_index(&schedule_entry, &rev_rev);
+		departure_point_t departure_point(schedule_entry, !rev_rev);
 
 		departures.set(departure_point, dep);
+
+		// Estimate arrival times at the subsequent stops on the schedule.
+		bool rev = reverse_schedule;
+		const uint8 count = fpl->get_count();
+		sint64 real_journey_time = 0;
+		sint64 eta = welt->get_zeit_ms();
+		sint64 etd = eta;
+		const uint32 reverse_delay = calc_reverse_delay();
+		for(uint8 i = 0; i < count; i++)
+		{		
+			uint32 journey_time = (uint32)journey_times_between_schedule_points.get(departure_point).get_average();
+			if(journey_time == 0)
+			{
+				// Journey time uninitialised - use average or estimated average speed instead.
+				uint8 next_schedule_entry = schedule_entry;
+				fpl->increment_index(&next_schedule_entry, &rev);
+				const koord3d stop1_pos = fpl->eintrag[schedule_entry].pos;
+				const koord3d stop2_pos = fpl->eintrag[next_schedule_entry].pos;
+				const uint16 distance = shortest_distance(stop1_pos.get_2d(), stop2_pos.get_2d());
+				const uint32 current_average_speed = (uint32)(get_finance_history(1, convoi_t::CONVOI_AVERAGE_SPEED) > 0 ? 
+													  get_finance_history(1, convoi_t::CONVOI_AVERAGE_SPEED) : 
+													   (speed_to_kmh(get_min_top_speed()) >> 1));
+				journey_time = welt->travel_time_tenths_from_distance(distance, current_average_speed);
+			}
+
+			real_journey_time += welt->seconds_to_ticks(journey_time * 6);
+			eta += real_journey_time;
+			halt = haltestelle_t::get_halt(fpl->eintrag[schedule_entry].pos, besitzer_p);
+			
+			if(halt.is_bound())
+			{
+				halt->set_estimated_arrival_time(self.get_id(), eta);
+				if(fpl->eintrag[schedule_entry].ladegrad > 0 && fpl->get_spacing() > 0)
+				{				
+					// Add spacing time
+					const sint64 spacing = welt->ticks_per_world_month / (sint64)fpl->get_spacing();
+					const sint64 spacing_shift = (sint64)fpl->get_current_eintrag().spacing_shift * welt->ticks_per_world_month / (sint64)welt->get_settings().get_spacing_shift_divisor();
+					const sint64 wait_from_ticks = ((eta - spacing_shift) / spacing) * spacing + spacing_shift; // remember, it is integer division
+					const sint64 spaced_departure = wait_from_ticks + spacing - reverse_delay;
+					journey_time += (spaced_departure - eta);
+				}
+				real_journey_time += current_loading_time;
+			}
+			if(fpl->eintrag[schedule_entry].reverse)
+			{
+				// Add reversing time if this must reverse.
+				real_journey_time += reverse_delay;
+			}
+			etd += real_journey_time;
+			if(halt.is_bound())
+			{
+				halt->set_estimated_departure_time(self.get_id(), etd);
+			}
+			fpl->increment_index(&schedule_entry, &rev);
+			departure_point.entry = schedule_entry;
+			departure_point.reversed = rev;
+		}
 	}
 	else
 	{
 		dbg->warning("void convoi_t::book_departure_time(sint64 time)", "Cannot find last halt to set departure time");
 	}
  }
+
 
  uint16 convoi_t::get_waiting_minutes(uint32 waiting_ticks)
  {
@@ -6706,6 +6812,8 @@ journey_times_map& convoi_t::get_average_journey_times()
 void convoi_t::clear_departures()
 {
 	departures.clear();
+	departures_already_booked.clear();
+	journey_times_between_schedule_points.clear();
 }
 
 sint64 convoi_t::get_stat_converted(int month, convoi_cost_t cost_type) const

@@ -3644,6 +3644,63 @@ void haltestelle_t::rdwr(loadsave_t *file)
 	if(file->get_experimental_version() >= 12)
 	{
 		file->rdwr_byte(check_waiting);
+
+		// Load/save the estimated arrival and departure times.
+		uint16 convoy_id;
+		sint64 time;
+
+		if(file->is_saving())
+		{
+			// These should probably be the same, but there is no harm in a little redundancy just in case.
+			uint32 arrival_count = estimated_convoy_arrival_times.get_count();
+			uint32 departure_count = estimated_convoy_departure_times.get_count();
+
+			file->rdwr_long(arrival_count);
+			file->rdwr_long(departure_count);
+
+			FOR(arrival_times_map, const& iter, estimated_convoy_arrival_times)
+			{
+				convoy_id = iter.key;
+				time = iter.value;
+				file->rdwr_short(convoy_id);
+				file->rdwr_longlong(time);
+			}
+
+			FOR(arrival_times_map, const& iter, estimated_convoy_departure_times)
+			{
+				convoy_id = iter.key;
+				time = iter.value;
+				file->rdwr_short(convoy_id);
+				file->rdwr_longlong(time);
+			}
+			
+		}
+
+		if(file->is_loading())
+		{
+			estimated_convoy_arrival_times.clear();
+			estimated_convoy_departure_times.clear();
+
+			uint32 arrival_count;
+			uint32 departure_count;
+
+			file->rdwr_long(arrival_count);
+			file->rdwr_long(departure_count);
+
+			for(int i = 0; i < arrival_count; i++)
+			{
+				file->rdwr_short(convoy_id);
+				file->rdwr_longlong(time);
+				estimated_convoy_arrival_times.put(convoy_id, time);
+			}
+
+			for(int i = 0; i < departure_count; i++)
+			{
+				file->rdwr_short(convoy_id);
+				file->rdwr_longlong(time);
+				estimated_convoy_departure_times.put(convoy_id, time);
+			}
+		}
 	}
 
 	// So compute it fresh every time
@@ -4572,4 +4629,15 @@ void haltestelle_t::add_waiting_time(uint16 time, halthandle_t halt, uint8 categ
 			waiting_times[category].access(halt.get_id())->month = 0;
 		}
 	}
+}
+
+void haltestelle_t::set_estimated_arrival_time(uint16 convoy_id, sint64 time)
+{
+	estimated_convoy_arrival_times.set(convoy_id, time);
+}
+
+
+void haltestelle_t::set_estimated_departure_time(uint16 convoy_id, sint64 time)
+{
+	estimated_convoy_departure_times.set(convoy_id, time);
 }

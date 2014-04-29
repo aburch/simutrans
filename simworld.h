@@ -1391,6 +1391,19 @@ public:
 		 */
 		return get_settings().get_meters_per_tile() * ticks * 30L * 6L / (4096L * 1000L);
 	}
+	
+	/** 
+	* Reverse conversion of the above.
+	*/
+	inline sint64 seconds_to_ticks(uint32 seconds)
+	{
+		// S = a * T * c * d / (e * f)
+		// S / a = T * c * d / (e * f)
+		// S / a / c / d = T / (e * f)
+		// (S / a / c / d) * (e * f) = T
+
+		return (seconds * 4096L * 1000L) / get_settings().get_meters_per_tile() / 30L / 6L;
+	}
 
 	/**
 	* Adds a single tile of a building to the relevant world list for passenger 

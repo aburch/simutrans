@@ -660,6 +660,15 @@ private:
 	typedef koordhashtable_tpl<id_pair, sint64> departure_time_map;
 	departure_time_map departures_already_booked;
 
+	/**
+	* This records the journey time from each point in the schedule to the
+	* next point in the schedule. This is used for predicting when each
+	* convoy will arrive at each stop in its schedule by concatenating
+	* strings of these and adding the waiting time for each stop.
+	*/
+	typedef koordhashtable_tpl<departure_point_t, average_tpl<uint16> > timings_map;
+	timings_map journey_times_between_schedule_points;
+
 	// When we arrived at current stop
 	// @author Inkelyad
 	sint64 arrival_time;
