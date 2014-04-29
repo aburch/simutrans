@@ -6617,9 +6617,9 @@ void convoi_t::clear_replace()
 
 		// Estimate arrival times at the subsequent stops on the schedule.
 		bool rev = reverse_schedule;
-		const uint8 count = fpl->get_count();
+		const uint8 count = fpl->is_mirrored() ? fpl->get_count() * 2 : fpl->get_count();
 		sint64 real_journey_time = 0;
-		sint64 eta = welt->get_zeit_ms();
+		sint64 eta = time;
 		sint64 etd = eta;
 		const uint32 reverse_delay = calc_reverse_delay();
 		for(uint8 i = 0; i < count; i++)
