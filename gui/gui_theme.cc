@@ -295,14 +295,6 @@ void gui_theme_t::init_gui_from_images()
 }
 
 
-static std::string theme_name;
-
-const char *gui_theme_t::get_current_theme()
-{
-	return theme_name.c_str();
-}
-
-
 /**
  * Reads theme configuration data, still not final
  * @author prissi
@@ -331,7 +323,7 @@ bool gui_theme_t::themes_init(const char *file_name)
 	themesconf.read(contents);
 
 	// theme name to find out current theme
-	theme_name = contents.get( "name" );
+	std::string theme_name = contents.get( "name" );
 
 	// first get the images ( to be able to overload default sizes)
 	const std::string buttonpak = contents.get("themeimages");
@@ -415,6 +407,7 @@ bool gui_theme_t::themes_init(const char *file_name)
 	env_t::cursor_overlay_color = contents.get_color("cursor_overlay_color",     env_t::cursor_overlay_color );
 
 	werkzeug_t::update_toolbars();
+	env_t::default_theme = theme_name.c_str();
 
 	return true;
 }

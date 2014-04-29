@@ -282,9 +282,6 @@ public:
 	// init the skin dimensions form file
 	static void init_gui_from_images();
 
-	// returns the current theme name
-	static const char *get_current_theme();
-
 	/**
 	 * Reads theme configuration data, still not final
 	 * searches a theme.tab inside the specified folder

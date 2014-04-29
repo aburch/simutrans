@@ -17,6 +17,7 @@ sint16 env_t::simple_drawing_normal = 4;
 sint16 env_t::simple_drawing_default = 24;
 
 char env_t::program_dir[1024];
+plainstring env_t::default_theme;
 const char *env_t::user_dir = 0;
 const char *env_t::savegame_version_str = SAVEGAME_VER_NR;
 bool env_t::straight_way_without_control = false;
@@ -384,6 +385,9 @@ void env_t::rdwr(loadsave_t *file)
 	}
 	if(  file->get_version()>=112008  ) {
 		file->rdwr_bool( show_delete_buttons );
+	}
+	if(  file->get_version()>=120001  ) {
+		file->rdwr_str( default_theme );
 	}
 	// server settings are not saved, since the are server specific and could be different on different servers on the save computers
 }

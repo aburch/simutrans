@@ -35,6 +35,9 @@ public:
 	/// name of the directory to the pak-set
 	static std::string objfilename;
 
+	/// this the the preferred GUI theme at startup
+	static plainstring default_theme;
+
 	/**
 	 * @name Network-related settings
 	 */
