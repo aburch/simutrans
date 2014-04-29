@@ -230,7 +230,7 @@ int dr_os_open(int w, int const h, int const fullscreen)
 	else {
 		const SDL_VideoInfo* vi = SDL_GetVideoInfo();
 		char driver_name[128];
-		SDL_VideoDriverName( driver_name, 128);
+		SDL_VideoDriverName(driver_name, lengthof(driver_name));
 		fprintf(stderr, "SDL_driver=%s, hw_available=%i, video_mem=%i, blit_sw=%i, bpp=%i, bytes=%i\n", driver_name, vi->hw_available, vi->video_mem, vi->blit_sw, vi->vfmt->BitsPerPixel, vi->vfmt->BytesPerPixel );
 		fprintf(stderr, "Screen Flags: requested=%x, actual=%x\n", flags, screen->flags );
 	}
