@@ -6615,7 +6615,10 @@ void convoi_t::clear_replace()
 
 		departures.set(departure_point, dep);
 
-		// Estimate arrival times at the subsequent stops on the schedule.
+		// Set the departure time from the current location (which is no longer an estimate).
+		halt->set_estimated_departure_time(self.get_id(), time);
+
+		// Estimate arrival and departure times at and from the subsequent stops on the schedule.
 		bool rev = reverse_schedule;
 		const uint8 count = fpl->is_mirrored() ? fpl->get_count() * 2 : fpl->get_count();
 		sint64 real_journey_time = 0;
