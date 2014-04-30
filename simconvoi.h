@@ -263,10 +263,10 @@ private:
 	sint32 wait_lock;
 
 	/**
-	 * Maximal time in ticks (ms) the convoy has to wait during loading.
-	 * If it turns negative, the convoy will stop loading and drive on.
+	 * Time when convoi arrived at the current stop
+	 * Used to calculate when it should depart due to the 'month wait time'
 	 */
-	sint32 max_ticks_waiting;
+	uint32 arrived_time;
 
 	/**
 	* akkumulierter gewinn über ein jahr hinweg

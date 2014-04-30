@@ -61,12 +61,6 @@
  */
 #define WTT_LOADING 2000
 
-/*
- * Waiting time for infinite loading (ms)
- * @author Hj- Malthaner
- */
-#define WAIT_INFINITE 0x7FFFFFFFu
-
 
 karte_ptr_t convoi_t::welt;
 
@@ -130,7 +124,7 @@ void convoi_t::init(spieler_t *sp)
 	has_obsolete = false;
 	no_load = false;
 	wait_lock = 0;
-	max_ticks_waiting = WAIT_INFINITE;
+	arrived_time = 0;
 
 	jahresgewinn = 0;
 	total_distance_traveled = 0;
@@ -893,7 +887,6 @@ bool convoi_t::sync_step(uint32 delta_t)
 
 		case LOADING:
 			// Hajo: loading is an async task, see laden()
-			max_ticks_waiting -= delta_t;
 			break;
 
 		case WAITING_FOR_CLEARANCE:
@@ -1487,11 +1480,7 @@ void convoi_t::ziel_erreicht()
 			akt_speed = 0;
 			halt->book(1, HALT_CONVOIS_ARRIVED);
 			state = LOADING;
-			// set maximum loading time
-			max_ticks_waiting = WAIT_INFINITE;
-			if(  fpl->get_current_eintrag().waiting_time_shift > 0  ) {
-				max_ticks_waiting = (welt->ticks_per_world_month >> (16-fpl->get_current_eintrag().waiting_time_shift));
-			}
+			arrived_time = welt->get_zeit_ms();
 		}
 		else {
 			// Neither depot nor station: waypoint
@@ -2408,7 +2397,21 @@ void convoi_t::rdwr(loadsave_t *file)
 
 	// waiting time left ...
 	if(file->get_version()>=99017) {
-		file->rdwr_long(max_ticks_waiting);
+		if(file->is_saving()) {
+			if(  has_fpl  &&  fpl->get_current_eintrag().waiting_time_shift > 0  ) {
+				uint32 diff_ticks = arrived_time + (welt->ticks_per_world_month >> (16 - fpl->get_current_eintrag().waiting_time_shift)) - welt->get_zeit_ms();
+				file->rdwr_long(diff_ticks);
+			}
+			else {
+				uint32 diff_ticks = 0xFFFFFFFFu; // write old WAIT_INFINITE value for backwards compatibility
+				file->rdwr_long(diff_ticks);
+			}
+		}
+		else {
+			uint32 diff_ticks = 0;
+			file->rdwr_long(diff_ticks);
+			arrived_time = has_fpl ? welt->get_zeit_ms() - (welt->ticks_per_world_month >> (16 - fpl->get_current_eintrag().waiting_time_shift)) + diff_ticks : 0;
+		}
 	}
 
 	// since 99015, the last stop will be maintained by the vehikels themselves
@@ -2818,9 +2821,8 @@ station_tile_search_ready: ;
 	}
 
 	// loading is finished => maybe drive on
-	if(loading_level>=loading_limit  ||  no_load  ||  max_ticks_waiting < 0)  {
-
-		if(withdraw  &&  (loading_level==0  ||  goods_catg_index.empty())) {
+	if(  loading_level >= loading_limit  ||  no_load  ||  fpl->get_current_eintrag().waiting_time_shift > 0 ? welt->get_zeit_ms() - arrived_time > (welt->ticks_per_world_month >> (16 - fpl->get_current_eintrag().waiting_time_shift)) : false  ) {
+		if(  withdraw  &&  (loading_level == 0  ||  goods_catg_index.empty())  ) {
 			// destroy when empty
 			self_destruct();
 			return;
