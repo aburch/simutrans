@@ -18,16 +18,7 @@
 
 class gui_image_t : public gui_komponente_t
 {
-	public:
-		enum size_modes {
-			size_mode_normal, // Do not change size with image
-			size_mode_auto,   // Set size to image size
-			size_mode_stretch // Stretch image to control size (not implemented yet)
-		};
-
-	private:
 		control_alignment_t alignment;
-		size_modes          size_mode;
 		image_id            id;
 		uint16              player_nr;
 		scr_coord           remove_offset;

@@ -5,7 +5,6 @@ gui_image_t::gui_image_t( const image_id i, const uint8 p, control_alignment_t a
 : player_nr(p)
 {
 	alignment = alignment_par;
-	size_mode = size_mode_auto;
 	remove_enabled = remove_offset_enabled;
 	remove_offset  = scr_coord(0,0);
 	set_image(i,remove_offset_enabled);
@@ -24,9 +23,7 @@ void gui_image_t::set_size( scr_size size_par )
 			remove_offset = scr_coord(-x,-y);
 		}
 
-		if( size_mode  ==  size_mode_auto ) {
-			size_par = scr_size( x+w+remove_offset.x, y+h+remove_offset.y );
-		}
+		size_par = scr_size( x+w+remove_offset.x, y+h+remove_offset.y );
 	}
 
 	gui_komponente_t::set_size(size_par);
