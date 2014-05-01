@@ -15,7 +15,7 @@
  * Functions required by both Simutrans and Nettool
  */
 
-char const* network_receive_file(SOCKET const s, char const* const save_as, long const length)
+char const* network_receive_file( SOCKET const s, char const* const save_as, long const length, long const timeout )
 {
 	// ok, we have a socket to connect
 	remove(save_as);
@@ -32,6 +32,24 @@ char const* network_receive_file(SOCKET const s, char const* const save_as, long
 		sint32 length_read = 0;
 		if (FILE* const f = fopen(save_as, "wb")) {
 			while(length_read < length) {
+				if(  timeout > 0  ) {
+					/** 10s for 4096 bytes:
+					 * As long as you are not connected with less than 1200 Baud that should be fine
+					 * otherwise upgrade you acustic coppler to 56k ...
+					 */
+					fd_set fds;
+					FD_ZERO(&fds);
+					FD_SET(s,&fds);
+					struct timeval tv;	// 10 s timeout
+					tv.tv_sec = 10000 / 1000;
+					tv.tv_usec = (10000 % 1000) * 1000ul;
+					// can we read?
+					if(  select( FD_SETSIZE, &fds, NULL, NULL, &tv )!=1  ) {
+						dbg->warning("network_receive_file", "Timeout during transfer: %s", strerror(errno) );
+						break;
+					}
+				}
+				// ok, now here should be something new to read
 				int i = recv(s, rbuf, length_read + 4096 < length ? 4096 : length - length_read, 0);
 				if (i > 0) {
 					fwrite(rbuf, 1, i, f);
