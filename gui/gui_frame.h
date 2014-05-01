@@ -141,6 +141,7 @@ public:
 	 */
 	scr_size get_windowsize() const { return size; }
 
+protected:
 	/**
 	 * Sets the window sizes
 	 * @author Hj. Malthaner
@@ -154,8 +155,9 @@ public:
 	 */
 	void set_min_windowsize(scr_size size) { min_windowsize = size; }
 
+public:
 	/**
-	 * Set minimum size of the window
+	 * Get minimum size of the window
 	 * @author Markus Weber
 	 * @date   11-May-2002
 	 */
