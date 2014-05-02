@@ -261,6 +261,7 @@ SOURCES += freight_list_sorter.cc
 SOURCES += gui/ai_option_t.cc
 SOURCES += gui/banner.cc
 SOURCES += gui/baum_edit.cc
+SOURCES += gui/base_info.cc
 SOURCES += gui/citybuilding_edit.cc
 SOURCES += gui/citylist_frame_t.cc
 SOURCES += gui/citylist_stats_t.cc

@@ -2645,6 +2645,7 @@
     <ClCompile Include="player\ai_goods.cc" />
     <ClCompile Include="player\ai_passenger.cc" />
     <ClCompile Include="gui\banner.cc" />
+    <ClCompile Include="gui\base_info.cc" />
     <ClCompile Include="gui\baum_edit.cc" />
     <ClCompile Include="descriptor\image.cc" />
     <ClCompile Include="boden\boden.cc" />

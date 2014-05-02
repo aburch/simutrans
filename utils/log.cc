@@ -308,8 +308,7 @@ void log_t::fatal(const char *who, const char *format, ...)
 		destroy_all_win( true );
 
 		strcpy( buffer+n+1, "PRESS ANY KEY\n" );
-		news_img* sel = new news_img(buffer,IMG_EMPTY);
-		sel->extend_window_with_component( NULL, scr_size(display_get_width()/2,120) );
+		fatal_news* sel = new fatal_news(buffer);
 
 		scr_coord xy( display_get_width()/2 - sel->get_windowsize().w/2, display_get_height()/2 - sel->get_windowsize().h/2 );
 		event_t ev;
