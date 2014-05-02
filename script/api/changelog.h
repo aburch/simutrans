@@ -4,6 +4,8 @@
  *
  * @section api-trunk Current trunk
  *
+ * @section api-120-0 Release 120.0
+ *
  * - Added line_x, line_list_x
  * - Deprecated get_convoy_list()
  * - Added world::get_convoy_list, halt_x::get_convoy_list
