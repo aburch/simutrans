@@ -13,18 +13,20 @@
 
 
 
-gui_fixedwidth_textarea_t::gui_fixedwidth_textarea_t(cbuffer_t* buf_, const sint16 width, const scr_size reserved_area_)
+gui_fixedwidth_textarea_t::gui_fixedwidth_textarea_t(cbuffer_t* buf_, const sint16 width)
 {
 	buf = buf_;
 	set_width(width);
-	set_reserved_area(reserved_area_);
 }
 
 
 
 void gui_fixedwidth_textarea_t::recalc_size()
 {
-	calc_display_text(scr_coord::invalid, false);
+	scr_size newsize = calc_display_text(scr_coord::invalid, false);
+	if (newsize.h != size.h) {
+		gui_komponente_t::set_size( newsize );
+	}
 }
 
 
@@ -60,7 +62,7 @@ void gui_fixedwidth_textarea_t::set_size(scr_size size)
  * if draw is true, it will also draw the text
  * borrowed from ding_infowin_t::calc_draw_info() with adaptation
  */
-void gui_fixedwidth_textarea_t::calc_display_text(const scr_coord offset, const bool draw)
+scr_size gui_fixedwidth_textarea_t::calc_display_text(const scr_coord offset, const bool draw)
 {
 	const bool unicode = translator::get_lang()->utf_encoded;
 	scr_coord_val x=0, word_x=0, y = 0;
@@ -134,11 +136,8 @@ void gui_fixedwidth_textarea_t::calc_display_text(const scr_coord offset, const 
 	}
 
 	// reset component height where necessary
-	if(  y!=get_size().h  ) {
-		gui_komponente_t::set_size( scr_size(get_size().w, y) );
-	}
+	return scr_size(get_size().w, y);
 }
-
 
 
 void gui_fixedwidth_textarea_t::draw(scr_coord offset)

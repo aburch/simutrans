@@ -15,38 +15,23 @@
 #include "messagebox.h"
 
 
-
-news_window::news_window(const char* t, PLAYER_COLOR_VAL title_color) :
-	gui_frame_t( translator::translate("Meldung" ) ),
-	textarea(&buf, 160),
+news_window::news_window(const char* text, PLAYER_COLOR_VAL title_color) :
+	base_infowin_t( translator::translate("Meldung" ) ),
 	color(title_color)
 {
 	buf.clear();
-	buf.append(translator::translate(t));
-	textarea.set_pos( scr_coord(10, 10) );
-	add_komponente( &textarea );
+	buf.append(translator::translate(text));
+
+	// adjust positions, sizes, and window-size
+	recalc_size();
 }
 
 
-// Knightly :	set component boundary and windows size, position component and add it to the component list
-//				if component is NULL, the message box will contain only text
-void news_window::extend_window_with_component(gui_komponente_t *const component, const scr_size size, const scr_coord offset)
+fatal_news::fatal_news(const char* text) :
+	news_window(text, WIN_TITEL)
 {
-	if(  component  ) {
-		textarea.set_reserved_area( size + scr_size(10, 10) );
-		textarea.set_width(textarea.get_size().w + 10 + size.w);
-		textarea.recalc_size();
-		const sint16 width = textarea.get_size().w + 20;
-		const sint16 height = max( textarea.get_size().h, size.h ) + 36;
-		set_windowsize( scr_size(width, height) );
-		component->set_pos( scr_coord(width - size.w - 10 + offset.x, 10 + offset.y) );
-		add_komponente(component);
-	}
-	else {
-		textarea.set_width(textarea.get_size().w + 10 + size.w);
-		textarea.recalc_size();
-		set_windowsize( scr_size(textarea.get_size().w + 20, textarea.get_size().h + 36) );
-	}
+	textarea.set_width(display_get_width()/2);
+	recalc_size();
 }
 
 
@@ -68,19 +53,19 @@ news_img::news_img(const char* text, image_id id, PLAYER_COLOR_VAL color) :
 
 /**
  * just puts the image in top-right corner
- * only called from constructor
+ * only cembedded.d from constructor
  * @param id id of image
  */
 void news_img::init(image_id id)
 {
-	bild.set_image(id);
 	if(  id!=IMG_LEER  ) {
+		bild.set_image(id, true);
+
 		scr_coord_val xoff, yoff, xw, yw;
 		display_get_base_image_offset(id, &xoff, &yoff, &xw, &yw);
-		extend_window_with_component(&bild, scr_size(xw, yw), scr_coord(-xoff, -yoff));
-	}
-	else {
-		extend_window_with_component(NULL, scr_size(0, 0));
+		bild.set_size( scr_size(xw, yw) );
+
+		set_embedded(&bild);
 	}
 }
 
@@ -89,7 +74,7 @@ news_loc::news_loc(const char* text, koord k, PLAYER_COLOR_VAL color) :
 	news_window(text, color),
 	view(welt->lookup_kartenboden(k)->get_pos(), scr_size( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width()*7)/8) ))
 {
-	extend_window_with_component(&view, view.get_size());
+	set_embedded(&view);
 }
 
 

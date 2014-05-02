@@ -1,36 +1,40 @@
 #ifndef gui_messagebox_h
 #define gui_messagebox_h
 
-#include "gui_frame.h"
+#include "base_info.h"
 #include "components/gui_location_view_t.h"
 #include "components/gui_image.h"
-#include "components/gui_fixedwidth_textarea.h"
 #include "../simcolor.h"
-#include "../utils/cbuffer_t.h"
 
 /**
  * A class for Message/news window.
  * @author Hj. Malthaner
  */
-class news_window : public gui_frame_t
+class news_window : public base_infowin_t
 {
 public:
 	virtual PLAYER_COLOR_VAL get_titelcolor() const { return color; }
-
-	// Knightly : to extend the window with an extra component in the upper right corner
-	void extend_window_with_component(gui_komponente_t *const component, const scr_size size, const scr_coord offset = scr_coord(0,0));
 
 protected:
 	news_window(const char* text, PLAYER_COLOR_VAL color);
 
 private:
-	cbuffer_t buf;
-	gui_fixedwidth_textarea_t textarea;
 	PLAYER_COLOR_VAL color;
 };
 
+/**
+ * Displays fatal error message.
+ */
+class fatal_news : public news_window
+{
+public:
+	fatal_news(const char* text);
+};
 
-/* Shows a news window with an image */
+
+/**
+ * Shows a news window with an image
+ */
 class news_img : public news_window
 {
 public:
@@ -43,7 +47,9 @@ private:
 };
 
 
-/* Shows a news window with a view on some location */
+/**
+ * Shows a news window with a view on some location
+ */
 class news_loc : public news_window
 {
 public:
