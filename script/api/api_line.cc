@@ -83,7 +83,7 @@ void export_line(HSQUIRRELVM vm)
 	 *
 	 * Usage:
 	 * @code
-	 * local list = player_x(0).get_line_list_x()
+	 * local list = player_x(0).get_line_list()
 	 * foreach(line in list) {
 	 *     ... // line is an instance of the line_x class
 	 * }
