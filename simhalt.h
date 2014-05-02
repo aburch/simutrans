@@ -971,6 +971,9 @@ public:
 
 	void set_estimated_arrival_time(uint16 convoy_id, sint64 time);
 	void set_estimated_departure_time(uint16 convoy_id, sint64 time);
+
+	const arrival_times_map& get_estimated_convoy_arrival_times() { return estimated_convoy_arrival_times; }
+	const arrival_times_map& get_estimated_convoy_departure_times() { return estimated_convoy_departure_times; }
 };
 
 ENUM_BITSET(haltestelle_t::stationtyp)

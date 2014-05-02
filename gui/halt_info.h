@@ -79,8 +79,6 @@ private:
 	// if nothing changed, this is the next refresh to recalculate the content of the departure board
 	sint8 next_refresh;
 
-	uint32 calc_ticks_until_arrival( convoihandle_t cnv );
-
 	void update_departures();
 
 	void show_hide_departures( bool show );

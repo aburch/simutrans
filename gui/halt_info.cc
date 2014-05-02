@@ -125,8 +125,7 @@ halt_info_t::halt_info_t(halthandle_t halt) :
 	const scr_size button_size(max(D_BUTTON_WIDTH, 100), D_BUTTON_HEIGHT);
 	scr_coord cursor(D_MARGIN_LEFT, D_MARGIN_TOP);
 
-	// TODO: Fix the departure boards and re-enable this line
-	//const sint16 offset_below_viewport = 21 + view.get_size().h;
+	const sint16 offset_below_viewport = 21 + view.get_size().h;
 	const sint16 client_width = 3*(L_BUTTON_WIDTH + D_H_SPACE) + max( L_BUTTON_WIDTH, view.get_size().w );
 	const sint16 total_width = D_MARGIN_LEFT + client_width + D_MARGIN_RIGHT;
 
@@ -173,7 +172,7 @@ halt_info_t::halt_info_t(halthandle_t halt) :
 	cursor.y += D_LABEL_HEIGHT + D_V_SPACE;
 
 	// hsiegeln: added sort_button
-	sort_button.init(button_t::roundbox, sort_text[env_t::default_sortmode], cursor, scr_size(D_BUTTON_WIDTH*2, D_BUTTON_HEIGHT));
+	sort_button.init(button_t::roundbox, sort_text[env_t::default_sortmode], cursor, scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	sort_button.set_tooltip("Sort waiting list by");
 	sort_button.add_listener(this);
 	add_komponente(&sort_button);
@@ -181,7 +180,7 @@ halt_info_t::halt_info_t(halthandle_t halt) :
 
 	toggler_departures.init( button_t::roundbox_state, "Departure board", cursor, button_size);
 	toggler_departures.set_tooltip("Show/hide estimated arrival times");
-	toggler_departures.set_visible(false); // TODO: Fix the departure boards and remove this line
+	//toggler_departures.set_visible(false); // (This is for disabling the departures board)
 	toggler_departures.add_listener( this );
 	add_komponente( &toggler_departures );
 	cursor.x += button_size.w + D_H_SPACE;
@@ -394,61 +393,6 @@ void halt_info_t::show_hide_departures( bool show )
 	}
 }
 
-
-// a sophisticated guess of a convois arrival time, taking into account the braking too and the current convoi state
-uint32 halt_info_t::calc_ticks_until_arrival( convoihandle_t cnv )
-{
-	uint32 delta_t = 0;
-
-	vehikel_t& front = *cnv->front();
-	const uint32 current_route_index = front.get_route_index(); // actually get_route_index() is current route index + 1!!!
-	const uint32 route_count = cnv->get_route()->get_count();
-	if (current_route_index < route_count)
-	{
-		convoi_t::route_infos_t& infos = cnv->get_route_infos();
-		sint32 cnv_speed_limit = cnv->get_min_top_speed();
-
-		//TODO BG, 01.02.2014: respect acceleration and braking.
-		for (uint32 i = max(1, current_route_index - 1); i < route_count; ++i)
-		{
-			convoi_t::route_info_t& prev_info = infos.get_element(i-1);
-			convoi_t::route_info_t& curr_info = infos.get_element(i);
-			delta_t += ((curr_info.steps_from_start - prev_info.steps_from_start) << YARDS_PER_VEHICLE_STEP_SHIFT) / min(cnv_speed_limit, curr_info.speed_limit);
-		}
-	}
-	///* calculate the time needed:
-	// *   tiles << (8+12) / (kmh_to_speed(max_kmh) = ticks
-	// */
-	//uint32 delta_t = 0;
-	//sint32 delta_tiles = cnv->get_route()->get_count() - cnv->front()->get_route_index();
-	//uint32 kmh_average = (cnv->get_average_kmh()*900 ) / 1024u;
-
-	//// last braking tile
-	//if(  delta_tiles > 1  &&  kmh_average > 25  ) {
-	//	delta_tiles --;
-	//	delta_t += 3276; // ( (1 << (8+12)) / kmh_to_speed(25) );
-	//}
-	//// second last braking tile
-	//if(  delta_tiles > 1  &&  kmh_average > 50  ) {
-	//	delta_tiles --;
-	//	delta_t += 1638; // ( (1 << (8+12)) / kmh_to_speed(50) );
-	//}
-	//// third last braking tile
-	//if(  delta_tiles > 1  &&  kmh_average > 100  ) {
-	//	delta_tiles --;
-	//	delta_t += 819; // ( (1 << (8+12)) / kmh_to_speed(100) );
-	//}
-	//// waiting at signal?
-	//if(  cnv->get_state() != convoi_t::DRIVING  ) {
-	//	// extra time for acceleration
-	//	delta_t += kmh_average * 25;
-	//}
-	//delta_t += ( ((sint64)delta_tiles << (8+12) ) / kmh_to_speed( kmh_average ) );
-
-	return delta_t;
-}
-
-
 // refreshes the departure string
 void halt_info_t::update_departures()
 {
@@ -461,106 +405,58 @@ void halt_info_t::update_departures()
 	destinations.clear();
 	origins.clear();
 
-	const uint32 cur_ticks = welt->get_zeit_ms() % welt->ticks_per_world_month;
-	static uint32 last_ticks = 0;
+	const sint64 cur_ticks = welt->get_zeit_ms();
 
-	if(  last_ticks > cur_ticks  ) {
-		// new month has started => invalidate average buffer
-		old_origins.clear();
-	}
-	last_ticks = cur_ticks;
+	typedef inthashtable_tpl<uint16, sint64> const arrival_times_map; // Not clear why this has to be redefined here.
+	const arrival_times_map& arrival_times = halt->get_estimated_convoy_arrival_times();
+	const arrival_times_map& departure_times = halt->get_estimated_convoy_departure_times();
 
-	// iterate over all convoys stopping here
-	FOR(  slist_tpl<convoihandle_t>, cnv, halt->get_loading_convois() ) {
-		halthandle_t next_halt = cnv->get_schedule()->get_next_halt(cnv->get_besitzer(),halt);
-		if(  next_halt.is_bound()  ) {
-			halt_info_t::dest_info_t next( next_halt, 0, cnv );
-			destinations.append_unique( next );
-			if(  grund_t *gr = welt->lookup( cnv->get_vehikel(0)->last_stop_pos )  ) {
-				if(  gr->get_halt().is_bound()  &&  gr->get_halt() != halt  ) {
-					halt_info_t::dest_info_t prev( gr->get_halt(), 0, cnv );
-					origins.append_unique( prev );
-				}
-			}
+	convoihandle_t cnv;
+	sint32 delta_t;
+
+	FOR(arrival_times_map, const& iter, arrival_times)
+	{
+		cnv.set_id(iter.key);
+		if(!cnv.is_bound())
+		{
+			continue;
 		}
-	}
 
-	// now exactly the same for convoys en route; the only change is that we estimate their arrival time too
-	FOR(  vector_tpl<linehandle_t>, line, halt->registered_lines ) {
-		for(  uint j = 0;  j < line->count_convoys();  j++  ) {
-			convoihandle_t cnv = line->get_convoy(j);
-			if(  cnv.is_bound()  &&  ( cnv->get_state() == convoi_t::DRIVING  ||  cnv->is_waiting() )  &&  haltestelle_t::get_halt( cnv->get_schedule()->get_current_eintrag().pos, cnv->get_besitzer() ) == halt  ) {
-				halthandle_t prev_halt = haltestelle_t::get_halt( cnv->front()->last_stop_pos, cnv->get_besitzer() );
-				sint32 delta_t = cur_ticks + calc_ticks_until_arrival( cnv );
-				if(  prev_halt.is_bound()  ) {
-					halt_info_t::dest_info_t prev( prev_halt, delta_t, cnv );
-					//// smooth times a little
-					//FOR( vector_tpl<dest_info_t>, &elem, old_origins ) {
-					//	if(  elem.cnv == cnv ) {
-					//		delta_t = ( delta_t + 3*elem.delta_ticks ) / 4;
-					//		prev.delta_ticks = delta_t;
-					//		break;
-					//	}
-					//}
-					origins.insert_ordered( prev, compare_hi );
-				}
-				halthandle_t next_halt = cnv->get_schedule()->get_next_halt(cnv->get_besitzer(),halt);
-				if(  next_halt.is_bound()  ) {
-					uint16 total_capacity = 0;
-					for(uint8 i = 0; i < cnv->get_vehikel_anzahl(); i ++)
-					{
-						const vehikel_besch_t& besch = *cnv->get_vehikel(i)->get_besch();
-						total_capacity += besch.get_zuladung();
-						total_capacity += besch.get_overcrowded_capacity();
-					}
+		halthandle_t prev_halt = haltestelle_t::get_halt(cnv->front()->last_stop_pos, cnv->get_besitzer());
+		delta_t = iter.value - cur_ticks;
 
-					halt_info_t::dest_info_t next( next_halt, delta_t + cnv->calc_current_loading_time(total_capacity), cnv );
-					destinations.insert_ordered( next, compare_hi );
-				}
-			}
-		}
+		halt_info_t::dest_info_t prev(prev_halt, max(delta_t, 0l), cnv);
+
+		origins.insert_ordered(prev, compare_hi);
 	}
 
-	FOR( vector_tpl<convoihandle_t>, cnv, halt->registered_convoys ) {
-		if(  cnv.is_bound()  &&  ( cnv->get_state() == convoi_t::DRIVING  ||  cnv->is_waiting() )  &&  haltestelle_t::get_halt( cnv->get_schedule()->get_current_eintrag().pos, cnv->get_besitzer() ) == halt  ) {
-			halthandle_t prev_halt = haltestelle_t::get_halt( cnv->front()->last_stop_pos, cnv->get_besitzer() );
-			sint32 delta_t = cur_ticks + calc_ticks_until_arrival( cnv );
-			if(  prev_halt.is_bound()  ) {
-				halt_info_t::dest_info_t prev( prev_halt, delta_t, cnv );
-				//// smooth times a little
-				//FOR( vector_tpl<dest_info_t>, &elem, old_origins ) {
-				//	if(  elem.cnv == cnv ) {
-				//		delta_t = ( delta_t + 3*elem.delta_ticks ) / 4;
-				//		prev.delta_ticks = delta_t;
-				//		break;
-				//	}
-				//}
-				origins.insert_ordered( prev, compare_hi );
-			}
-			halthandle_t next_halt = cnv->get_schedule()->get_next_halt(cnv->get_besitzer(),halt);
-			if(  next_halt.is_bound()  ) {
-				uint16 total_capacity = 0;
-				for(uint8 i = 0; i < cnv->get_vehikel_anzahl(); i ++)
-				{
-					const vehikel_besch_t& besch = *cnv->get_vehikel(i)->get_besch();
-					total_capacity += besch.get_zuladung();
-					total_capacity += besch.get_overcrowded_capacity();
-				}
-
-				halt_info_t::dest_info_t next( next_halt, delta_t + cnv->calc_current_loading_time(total_capacity), cnv );
-				destinations.insert_ordered( next, compare_hi );
-			}
+	FOR(arrival_times_map, const& iter, departure_times)
+	{
+		cnv.set_id(iter.key);
+		if(!cnv.is_bound())
+		{
+			continue;
 		}
+
+		halthandle_t next_halt = cnv->get_schedule()->get_next_halt(cnv->get_besitzer(), halt);
+		delta_t = iter.value - cur_ticks;
+		
+		halt_info_t::dest_info_t next(next_halt, max(delta_t, 0l), cnv);
+
+		destinations.insert_ordered( next, compare_hi );
 	}
 
 	// now we build the string ...
 	joined_buf.clear();
 	slist_tpl<halthandle_t> exclude;
-	if(  destinations.get_count()>0  ) {
+	if(  destinations.get_count()>0  ) 
+	{
 		joined_buf.append( " " );
 		joined_buf.append( translator::translate( "Departures to\n" ) );
-		FOR( vector_tpl<halt_info_t::dest_info_t>, hi, destinations ) {
-			if(  freight_list_sorter_t::by_via_sum != env_t::default_sortmode  ||  !exclude.is_contained( hi.halt )  ) {
+		FOR( vector_tpl<halt_info_t::dest_info_t>, hi, destinations ) 
+		{
+			if(  freight_list_sorter_t::by_via_sum != env_t::default_sortmode  ||  !exclude.is_contained( hi.halt )  ) 
+			{
 				char timebuf[32];
 				welt->sprintf_ticks(timebuf, sizeof(timebuf), hi.delta_ticks );
 				joined_buf.printf( "  %s %s > %s\n", timebuf, hi.cnv->get_name(), hi.halt->get_name() );
@@ -571,10 +467,13 @@ void halt_info_t::update_departures()
 	}
 
 	exclude.clear();
-	if(  origins.get_count()>0  ) {
+	if(  origins.get_count()>0  ) 
+	{
 		joined_buf.append( translator::translate( "Arrivals from\n" ) );
-		FOR( vector_tpl<halt_info_t::dest_info_t>, hi, origins ) {
-			if(  freight_list_sorter_t::by_via_sum != env_t::default_sortmode  ||  !exclude.is_contained( hi.halt )  ) {
+		FOR( vector_tpl<halt_info_t::dest_info_t>, hi, origins ) 
+		{
+			if(  freight_list_sorter_t::by_via_sum != env_t::default_sortmode  ||  !exclude.is_contained( hi.halt )  )
+			{
 				char timebuf[32];
 				welt->sprintf_ticks(timebuf, sizeof(timebuf), hi.delta_ticks );
 				joined_buf.printf( "  %s %s < %s\n", timebuf, hi.cnv->get_name(), hi.halt->get_name() );
