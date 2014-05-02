@@ -526,6 +526,7 @@ bool map_frame_t::action_triggered( gui_action_creator_t *comp, value_t)
 void map_frame_t::zoom(bool magnify)
 {
 	if (reliefkarte_t::get_karte()->change_zoom_factor(magnify)) {
+		zoomed = true;
 		// recalc all the other data incl scrollbars
 		resize();
 	}
@@ -632,6 +633,7 @@ bool map_frame_t::infowin_event(const event_t *ev)
 	else if(  IS_RIGHTDBLCLK(ev)  ) {
 		// zoom to fit window
 		do { // first, zoom all the way in
+			zoomed = false;
 			zoom(true);
 		} while(  zoomed  );
 
