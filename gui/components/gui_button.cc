@@ -105,7 +105,9 @@ void button_t::set_typ(enum type t)
 
 		case posbutton:
 			set_no_translate( true );
-			// fallthrough
+			set_size( gui_theme_t::gui_pos_button_size );
+		break;
+
 		case arrowright:
 		case repeatarrowright:
 			set_size( gui_theme_t::gui_arrow_right_size );
@@ -315,26 +317,26 @@ void button_t::draw(scr_coord offset)
 						offset = welt->get_viewport()->is_on_center( gr->get_pos() );
 					}
 				}
-				display_img_aligned( gui_theme_t::pos_button_img[ offset ], area, ALIGN_CENTER_V, true );
+				display_img_aligned( gui_theme_t::pos_button_img[ offset ], area, ALIGN_CENTER_H|ALIGN_CENTER_V, true );
 			}
 			break;
 
 		case arrowleft:
 		case repeatarrowleft:
-			display_img_aligned( gui_theme_t::arrow_button_left_img[ get_state_offset() ], area, ALIGN_CENTER_V, true );
+			display_img_aligned( gui_theme_t::arrow_button_left_img[ get_state_offset() ], area, ALIGN_CENTER_H|ALIGN_CENTER_V, true );
 			break;
 
 		case arrowright:
 		case repeatarrowright:
-			display_img_aligned( gui_theme_t::arrow_button_right_img[ get_state_offset() ], area, ALIGN_CENTER_V, true );
+			display_img_aligned( gui_theme_t::arrow_button_right_img[ get_state_offset() ], area, ALIGN_CENTER_H|ALIGN_CENTER_V, true );
 			break;
 
 		case arrowup:
-			display_img_aligned( gui_theme_t::arrow_button_up_img[ get_state_offset() ], area, ALIGN_CENTER_H, true );
+			display_img_aligned( gui_theme_t::arrow_button_up_img[ get_state_offset() ], area, ALIGN_CENTER_H|ALIGN_CENTER_V, true );
 			break;
 
 		case arrowdown:
-			display_img_aligned( gui_theme_t::arrow_button_down_img[ get_state_offset() ], area, ALIGN_CENTER_H, true );
+			display_img_aligned( gui_theme_t::arrow_button_down_img[ get_state_offset() ], area, ALIGN_CENTER_H|ALIGN_CENTER_V, true );
 			break;
 	}
 

@@ -244,6 +244,13 @@ void gui_theme_t::init_gui_from_images()
 		arrow_button_up_img[i] = skinverwaltung_t::scrollbar->get_bild_nr( SKIN_BUTTON_ARROW_UP+i );
 		arrow_button_down_img[i] = skinverwaltung_t::scrollbar->get_bild_nr( SKIN_BUTTON_ARROW_DOWN+i );
 	}
+	if(  gui_theme_t::gui_arrow_right_size != gui_theme_t::gui_arrow_left_size  ) {
+		dbg->warning( "gui_theme_t::themes_init()", "Size of left and right arrows differ" );
+	}
+	if(  gui_theme_t::gui_arrow_up_size != gui_theme_t::gui_arrow_down_size  ) {
+		dbg->warning( "gui_theme_t::themes_init()", "Size of up and down arrows differ" );
+	}
+
 	// now init this button dependent size here too
 	gui_edit_size = scr_size(92,max(LINESPACE+2, max(D_ARROW_LEFT_HEIGHT, D_ARROW_RIGHT_HEIGHT) ));
 
@@ -358,6 +365,23 @@ bool gui_theme_t::themes_init(const char *file_name)
 	gui_theme_t::gui_button_size.w = (uint32)contents.get_int("gui_button_width",  gui_theme_t::gui_button_size.w );
 	gui_theme_t::gui_button_size.h = (uint32)contents.get_int("gui_button_height", gui_theme_t::gui_button_size.h );
 	gui_theme_t::gui_edit_size.h = (uint32)contents.get_int("gui_edit_height", gui_theme_t::gui_edit_size.h );
+
+	// since the arrows are used in scrollbars, the need similar sizes
+	gui_theme_t::gui_arrow_left_size.w = (uint32)contents.get_int("gui_horizontal_arrow_width",  gui_theme_t::gui_arrow_left_size.w );
+	gui_theme_t::gui_arrow_left_size.h = (uint32)contents.get_int("gui_horizontal_arrow_height", gui_theme_t::gui_arrow_left_size.h );
+	gui_theme_t::gui_arrow_right_size = gui_theme_t::gui_arrow_left_size;
+
+	gui_theme_t::gui_arrow_up_size.w = (uint32)contents.get_int("gui_vertical_arrow_width",  gui_theme_t::gui_arrow_up_size.w );
+	gui_theme_t::gui_arrow_up_size.h = (uint32)contents.get_int("gui_vertical_arrow_height", gui_theme_t::gui_arrow_up_size.h );
+	gui_theme_t::gui_arrow_down_size = gui_theme_t::gui_arrow_up_size;
+
+	// since scrollbar must have a certain size
+	gui_theme_t::gui_scrollbar_size.w = max( gui_min_scrollbar_size.w, (uint32)contents.get_int("gui_scrollbar_width",  gui_theme_t::gui_scrollbar_size.w ) );
+	gui_theme_t::gui_scrollbar_size.h = max( gui_min_scrollbar_size.h, (uint32)contents.get_int("gui_scrollbar_height", gui_theme_t::gui_scrollbar_size.h ) );
+
+	// in practice, posbutton min height beeter is LINESPACE
+	gui_theme_t::gui_pos_button_size.w = (uint32)contents.get_int("gui_posbutton_width",  gui_theme_t::gui_pos_button_size.w );
+	gui_theme_t::gui_pos_button_size.h = (uint32)contents.get_int("gui_posbutton_height", gui_theme_t::gui_pos_button_size.h );
 
 	gui_theme_t::button_color_text = (uint32)contents.get_color("gui_button_color_text", gui_theme_t::button_color_text );
 	gui_theme_t::button_color_disabled_text = (uint32)contents.get_color("gui_button_color_disabled_text", gui_theme_t::button_color_disabled_text );
