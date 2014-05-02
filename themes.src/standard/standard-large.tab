@@ -36,6 +36,17 @@ icon_width = 48
 # use the larger Button height
 gui_button_height = 22
 
+# arrows and scrollbars
+gui_horizontal_arrow_height = 22
+gui_horizontal_arrow_width = 22
+gui_vertical_arrow_height = 22
+gui_vertical_arrow_width = 22
+gui_scrollbar_width = 22
+gui_scrollbar_height = 22
+
+# and a matching edit field height
+gui_edit_height = 22
+
 ##################################window stuff##################################
 
 # when moving, you can use windows to snap onto each other seamlessly
