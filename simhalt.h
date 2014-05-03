@@ -337,6 +337,8 @@ public:
 	bool is_transfer(const uint8 catg) const { return non_identical_schedules[catg] > 1u; }
 //	bool is_transfer(const uint8 catg) const { return all_links[catg].is_transfer; }
 
+	typedef inthashtable_tpl<uint16, sint64> arrival_times_map;
+
 private:
 	slist_tpl<tile_t> tiles;
 
@@ -501,7 +503,6 @@ private:
 	* Arrival times of convoys bound for this stop, estimated based on 
 	* convoys' point to point timings, indexed by the convoy's ID
 	*/
-	typedef inthashtable_tpl<uint16, sint64> arrival_times_map;
 	arrival_times_map estimated_convoy_arrival_times;
 	arrival_times_map estimated_convoy_departure_times;
 
