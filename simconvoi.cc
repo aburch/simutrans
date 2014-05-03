@@ -2821,7 +2821,9 @@ station_tile_search_ready: ;
 	}
 
 	// loading is finished => maybe drive on
-	if(  loading_level >= loading_limit  ||  no_load  ||  fpl->get_current_eintrag().waiting_time_shift > 0 ? welt->get_zeit_ms() - arrived_time > (welt->ticks_per_world_month >> (16 - fpl->get_current_eintrag().waiting_time_shift)) : false  ) {
+	if(  loading_level >= loading_limit  ||  no_load
+		||  (fpl->get_current_eintrag().waiting_time_shift > 0  &&  welt->get_zeit_ms() - arrived_time > (welt->ticks_per_world_month >> (16 - fpl->get_current_eintrag().waiting_time_shift)) ) ) {
+
 		if(  withdraw  &&  (loading_level == 0  ||  goods_catg_index.empty())  ) {
 			// destroy when empty
 			self_destruct();
