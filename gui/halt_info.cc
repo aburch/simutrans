@@ -413,9 +413,15 @@ void halt_info_t::update_departures()
 
 	convoihandle_t cnv;
 	sint32 delta_t;
+	const uint32 max_listings = 12;
+	uint32 listing_count = 0;
 
 	FOR(arrival_times_map, const& iter, arrival_times)
 	{
+		if(listing_count++ > max_listings)
+		{
+			break;
+		}
 		cnv.set_id(iter.key);
 		if(!cnv.is_bound())
 		{
@@ -430,8 +436,14 @@ void halt_info_t::update_departures()
 		origins.insert_ordered(prev, compare_hi);
 	}
 
+	listing_count = 0;
+
 	FOR(arrival_times_map, const& iter, departure_times)
 	{
+		if(listing_count++ > max_listings)
+		{
+			break;
+		}
 		cnv.set_id(iter.key);
 		if(!cnv.is_bound())
 		{
@@ -459,7 +471,7 @@ void halt_info_t::update_departures()
 			//{
 				char timebuf[32];
 				welt->sprintf_ticks(timebuf, sizeof(timebuf), hi.delta_ticks );
-				joined_buf.printf( "  %s %s < %s\n", timebuf, hi.cnv->get_name(), hi.halt->get_name() );
+				joined_buf.printf( "  %s %s < %s\n", timebuf, hi.cnv->get_name(), hi.halt.is_bound() ? hi.halt->get_name() : "Unknown");
 				//exclude.append( hi.halt );
 			//}
 		}
@@ -477,7 +489,7 @@ void halt_info_t::update_departures()
 			//{
 				char timebuf[32];
 				welt->sprintf_ticks(timebuf, sizeof(timebuf), hi.delta_ticks );
-				joined_buf.printf( "  %s %s > %s\n", timebuf, hi.cnv->get_name(), hi.halt->get_name() );
+				joined_buf.printf( "  %s %s > %s\n", timebuf, hi.cnv->get_name(), hi.halt.is_bound() ? hi.halt->get_name() : "Unknown");
 				//exclude.append( hi.halt );
 			//}
 		}

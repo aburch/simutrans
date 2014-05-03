@@ -1111,7 +1111,9 @@ vector_tpl<lines_loaded_compare_t> lines_loaded; // used to skip loading multipl
 // Add convoy to loading
 void haltestelle_t::request_loading(convoihandle_t cnv)
 {
-	if(  !loading_here.is_contained( cnv )  ) {
+	if(  !loading_here.is_contained( cnv )  ) 
+	{
+		estimated_convoy_arrival_times.remove(cnv.get_id());
 		loading_here.append( cnv );
 	}
 	if(last_loading_step != welt->get_steps())
