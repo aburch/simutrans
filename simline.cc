@@ -731,7 +731,7 @@ void simline_t::calc_is_alternating_circular_route()
 	bool first_reverse_schedule = get_convoy(0)->get_reverse_schedule();
 	if((get_convoy(0)->is_circular_route() || get_convoy(count - 1)->is_circular_route()) && count > 1)
 	{
-		for(int i = 1; i < count; i ++)
+		for(uint32 i = 1; i < count; i ++)
 		{
 			if(get_convoy(i)->get_reverse_schedule() != first_reverse_schedule)
 			{

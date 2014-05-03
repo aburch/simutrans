@@ -7502,7 +7502,7 @@ bool wkz_access_t::init(karte_t* const welt, spieler_t *sp)
 		schedule_t* fpl;
 		koord3d pos;
 		waytype_t waytype;
-		spieler_t* halt_owner;
+
 		uint8 current_aktuell;
 		halthandle_t halt;
 		linehandle_t current_line;
