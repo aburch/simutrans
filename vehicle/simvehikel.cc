@@ -4481,7 +4481,7 @@ bool schiff_t::ist_weg_frei(int &restart_speed,bool)
 			cnv->suche_neue_route();
 			return false;
 		}
-		if(  gr->get_top()>251  ) {
+		if(  gr->get_top()>192  ) {
 			// too many ships already here ..
 			return false;
 		}

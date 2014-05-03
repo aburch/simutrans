@@ -534,8 +534,15 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 		}
 		else {
 			// since start may have been changed
-			uint16 start_index = max(2,fahr[anz_vehikel-1]->get_route_index())-2;
-			koord3d k0 = fahr[anz_vehikel-1]->get_pos();
+			const uint8 vehicle_count = anz_vehikel - 1;
+			uint16 last_route_index = fahr[vehicle_count]->get_route_index();
+			if(last_route_index > route.get_count() - 1 && vehicle_count > 0)
+			{
+				last_route_index = 0;
+				dbg->warning("convoi_t::laden_abschliessen()", "Convoy %i's route index is out of range: resetting to zero", self.get_id());
+			}
+			const uint16 start_index = max(2, last_route_index) - 2;
+			const koord3d k0 = fahr[anz_vehikel-1]->get_pos();
 
 			uint32 train_length = move_to(*welt, k0, start_index) + 1;
 			const koord3d last_start = fahr[0]->get_pos();
