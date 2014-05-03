@@ -252,7 +252,7 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 		// buffer update now only when needed by halt itself => dedicated buffer for this
 		int old_len = freight_info.len();
 		halt->get_freight_info(freight_info);
-		if(  toggler_departures.pressed  &&  next_refresh--<0  ) {
+		if(  toggler_departures.pressed  ) {
 			old_len = -1;
 		}
 		if(  old_len != freight_info.len()  ) {
@@ -448,42 +448,41 @@ void halt_info_t::update_departures()
 
 	// now we build the string ...
 	joined_buf.clear();
-	slist_tpl<halthandle_t> exclude;
-	if(  destinations.get_count()>0  ) 
-	{
-		joined_buf.append( " " );
-		joined_buf.append( translator::translate( "Departures to\n" ) );
-		FOR( vector_tpl<halt_info_t::dest_info_t>, hi, destinations ) 
-		{
-			if(  freight_list_sorter_t::by_via_sum != env_t::default_sortmode  ||  !exclude.is_contained( hi.halt )  ) 
-			{
-				char timebuf[32];
-				welt->sprintf_ticks(timebuf, sizeof(timebuf), hi.delta_ticks );
-				joined_buf.printf( "  %s %s > %s\n", timebuf, hi.cnv->get_name(), hi.halt->get_name() );
-				exclude.append( hi.halt );
-			}
-		}
-		joined_buf.append( "\n " );
-	}
-
-	exclude.clear();
+	//slist_tpl<halthandle_t> exclude;
 	if(  origins.get_count()>0  ) 
 	{
+		joined_buf.append( " " );
 		joined_buf.append( translator::translate( "Arrivals from\n" ) );
 		FOR( vector_tpl<halt_info_t::dest_info_t>, hi, origins ) 
 		{
-			if(  freight_list_sorter_t::by_via_sum != env_t::default_sortmode  ||  !exclude.is_contained( hi.halt )  )
-			{
+			//if(  freight_list_sorter_t::by_via_sum != env_t::default_sortmode  ||  !exclude.is_contained( hi.halt )  )
+			//{
 				char timebuf[32];
 				welt->sprintf_ticks(timebuf, sizeof(timebuf), hi.delta_ticks );
 				joined_buf.printf( "  %s %s < %s\n", timebuf, hi.cnv->get_name(), hi.halt->get_name() );
-				exclude.append( hi.halt );
-			}
+				//exclude.append( hi.halt );
+			//}
 		}
 		joined_buf.append( "\n" );
 	}
 
-	next_refresh = 5;
+	//exclude.clear();
+	if(  destinations.get_count()>0  ) 
+	{
+		
+		joined_buf.append( translator::translate( "Departures to\n" ) );
+		FOR( vector_tpl<halt_info_t::dest_info_t>, hi, destinations ) 
+		{
+			//if(  freight_list_sorter_t::by_via_sum != env_t::default_sortmode  ||  !exclude.is_contained( hi.halt )  ) 
+			//{
+				char timebuf[32];
+				welt->sprintf_ticks(timebuf, sizeof(timebuf), hi.delta_ticks );
+				joined_buf.printf( "  %s %s > %s\n", timebuf, hi.cnv->get_name(), hi.halt->get_name() );
+				//exclude.append( hi.halt );
+			//}
+		}
+		joined_buf.append( "\n " );
+	}
 }
 
 

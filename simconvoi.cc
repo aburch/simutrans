@@ -6621,14 +6621,16 @@ void convoi_t::clear_replace()
 		// Estimate arrival and departure times at and from the subsequent stops on the schedule.
 		bool rev = reverse_schedule;
 		const uint8 count = fpl->is_mirrored() ? fpl->get_count() * 2 : fpl->get_count();
-		sint64 real_journey_time = 0;
+		sint64 journey_time_ticks = 0;
 		sint64 eta = time;
 		sint64 etd = eta;
+		vector_tpl<uint16> halts_already_processed;
 		const uint32 reverse_delay = calc_reverse_delay();
+		fpl->increment_index(&schedule_entry, &rev);
 		for(uint8 i = 0; i < count; i++)
 		{		
-			uint32 journey_time = (uint32)journey_times_between_schedule_points.get(departure_point).get_average();
-			if(journey_time == 0)
+			uint32 journey_time_tenths_minutes = (uint32)journey_times_between_schedule_points.get(departure_point).get_average();
+			if(journey_time_tenths_minutes == 0)
 			{
 				// Journey time uninitialised - use average or estimated average speed instead.
 				uint8 next_schedule_entry = schedule_entry;
@@ -6639,14 +6641,15 @@ void convoi_t::clear_replace()
 				const uint32 current_average_speed = (uint32)(get_finance_history(1, convoi_t::CONVOI_AVERAGE_SPEED) > 0 ? 
 													  get_finance_history(1, convoi_t::CONVOI_AVERAGE_SPEED) : 
 													   (speed_to_kmh(get_min_top_speed()) >> 1));
-				journey_time = welt->travel_time_tenths_from_distance(distance, current_average_speed);
+				journey_time_tenths_minutes = welt->travel_time_tenths_from_distance(distance, current_average_speed);
 			}
 
-			real_journey_time += welt->seconds_to_ticks(journey_time * 6);
-			eta += real_journey_time;
+			journey_time_ticks = welt->seconds_to_ticks(journey_time_tenths_minutes * 6);
+			eta += journey_time_ticks;
+			etd += journey_time_ticks;
 			halt = haltestelle_t::get_halt(fpl->eintrag[schedule_entry].pos, besitzer_p);
 			
-			if(halt.is_bound())
+			if(halt.is_bound() && !halts_already_processed.is_contained(halt.get_id()))
 			{
 				halt->set_estimated_arrival_time(self.get_id(), eta);
 				if(fpl->eintrag[schedule_entry].ladegrad > 0 && fpl->get_spacing() > 0)
@@ -6656,19 +6659,27 @@ void convoi_t::clear_replace()
 					const sint64 spacing_shift = (sint64)fpl->get_current_eintrag().spacing_shift * welt->ticks_per_world_month / (sint64)welt->get_settings().get_spacing_shift_divisor();
 					const sint64 wait_from_ticks = ((eta - spacing_shift) / spacing) * spacing + spacing_shift; // remember, it is integer division
 					const sint64 spaced_departure = wait_from_ticks + spacing - reverse_delay;
-					journey_time += (spaced_departure - eta);
+					etd += (spaced_departure - eta);
 				}
-				real_journey_time += current_loading_time;
+				etd += current_loading_time;
 			}
 			if(fpl->eintrag[schedule_entry].reverse)
 			{
 				// Add reversing time if this must reverse.
-				real_journey_time += reverse_delay;
+				etd += reverse_delay;
 			}
-			etd += real_journey_time;
-			if(halt.is_bound())
+
+			/*const uint32 TEST_now = welt->ticks_to_tenths_of_minutes(time);
+			const uint32 TEST_journey_time = welt->ticks_to_tenths_of_minutes(journey_time_ticks);
+			const uint32 TEST_eta = welt->ticks_to_tenths_of_minutes(eta);
+			const uint32 TEST_etd = welt->ticks_to_tenths_of_minutes(etd);
+			const uint32 TEST_loading_time = welt->ticks_to_tenths_of_minutes(current_loading_time);
+			const char* TEST_halt_name = halt->get_name();*/
+
+			if(halt.is_bound() && !halts_already_processed.is_contained(halt.get_id()))
 			{
-				halt->set_estimated_departure_time(self.get_id(), etd);
+				halt->set_estimated_departure_time(self.get_id(), etd);	
+				halts_already_processed.append(halt.get_id());
 			}
 			fpl->increment_index(&schedule_entry, &rev);
 			departure_point.entry = schedule_entry;

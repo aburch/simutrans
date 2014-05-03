@@ -76,9 +76,6 @@ private:
 	vector_tpl<dest_info_t> origins;
 	cbuffer_t departure_buf;
 
-	// if nothing changed, this is the next refresh to recalculate the content of the departure board
-	sint8 next_refresh;
-
 	void update_departures();
 
 	void show_hide_departures( bool show );
