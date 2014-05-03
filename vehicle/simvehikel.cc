@@ -4609,14 +4609,15 @@ bool schiff_t::ist_weg_frei(int &restart_speed, bool)
 
 bool schiff_t::check_tile_occupancy(const grund_t* gr)
 {
+	const uint8 base_max_vehicles_on_tile = 128;
 	const weg_t *w = gr->get_weg(water_wt);
-	uint8 max_water_vehicles_on_tile = w ? w->get_besch()->get_max_vehicles_on_tile() : 251;
+	uint8 max_water_vehicles_on_tile = w ? w->get_besch()->get_max_vehicles_on_tile() : base_max_vehicles_on_tile;
 	uint8 water_vehicles_on_tile = gr->get_top();
 
 	if(water_vehicles_on_tile > max_water_vehicles_on_tile) 
 	{
 		int relevant_water_vehicles_on_tile = 0;		
-		if(max_water_vehicles_on_tile < 251 && water_vehicles_on_tile < 251)
+		if(max_water_vehicles_on_tile < base_max_vehicles_on_tile && water_vehicles_on_tile < base_max_vehicles_on_tile)
 		{
 			for(size_t n = gr->get_top(); n-- != 0;)
 			{
