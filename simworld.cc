@@ -1134,7 +1134,7 @@ void karte_t::distribute_cities( settings_t const * const sets, sint16 old_x, si
 	// We can generate a Pareto deviate from a uniform deviate on range [0,1)
 	// by taking m_x/u where u is the uniform deviate.
 
-	while (city_population.get_count() < city_population_target_count) {
+	while(city_population.get_count() < city_population_target_count) {
 		uint32 population;
 		do {
 			uint32 rand;
@@ -1149,8 +1149,9 @@ void karte_t::distribute_cities( settings_t const * const sets, sint16 old_x, si
 		city_population.insert_ordered( population, std::greater<sint32>() );
 	}
 
+
 #ifdef DEBUG
-	for (unsigned i =0; i< city_population_target_count; i++) 
+	for (sint32 i =0; i< city_population_target_count; i++) 
 	{
 		DBG_DEBUG("karte_t::distribute_groundobjs_cities()", "City rank %d -- %d", i, city_population[i]);
 	}

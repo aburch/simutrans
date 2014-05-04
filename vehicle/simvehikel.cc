@@ -4351,7 +4351,7 @@ bool waggon_t::block_reserver(route_t *route, uint16 start_index, uint16 &next_s
 	// free, in case of un-reserve or no success in reservation
 	if(!success) {
 		// free reservation
-		for ( int j=start_index; j<i; j++) {
+		for (uint32 j=start_index; j<i; j++) {
 			if(i!=skip_index) {
 				schiene_t * sch1 = (schiene_t *)welt->lookup( route->position_bei(j))->get_weg(get_waytype());
 				sch1->unreserve(cnv->self);
