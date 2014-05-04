@@ -2488,7 +2488,7 @@ void fabrik_t::recalc_nearby_halts() {
 					const nearby_halt_t new_nearby_halt = haltlist[i];
 					// However, it might be a duplicate.
 					bool duplicate = false;
-					for(int j=0; j < nearby_halts.get_count(); j++)
+					for(uint32 j=0; j < nearby_halts.get_count(); j++)
 					{
 						if (new_nearby_halt.halt == nearby_halts[j].halt) {
 							duplicate=true;

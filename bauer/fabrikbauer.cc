@@ -683,7 +683,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 		if(fab->vorrat_an(ware) > -1) {
 
 			// for sources (oil fields, forests ... ) prefer thoses with a smaller distance
-			const unsigned distance = koord_distance(fab->get_pos(),our_fab->get_pos());
+			const uint32 distance = koord_distance(fab->get_pos(),our_fab->get_pos());
 
 			if(  distance >= welt->get_settings().get_min_factory_spacing()  ) {
 				// Formerly a flat "6", but this was arbitrary
@@ -841,7 +841,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","failed to built lieferant %s aroun
 			i->demand -= 1;
 			const uint count = fab->get_besch()->get_produkte();
 			bool supplies_correct_goods = false;
-			for(int x = 0; x < count; x ++)
+			for(uint x = 0; x < count; x ++)
 			{
 				const fabrik_produkt_besch_t* test_prod = fab->get_besch()->get_produkt(x);
 				if(i->fab->get_produced_goods()->is_contained(test_prod->get_ware()))
@@ -913,7 +913,7 @@ int fabrikbauer_t::increase_industry_density( karte_t *welt, bool tell_me, bool 
 						continue;
 					}
 					sint32 available_for_consumption = 0;
-					for(int p = 0; p < supplier->get_besch()->get_produkte(); p ++)
+					for(uint p = 0; p < supplier->get_besch()->get_produkte(); p ++)
 					{
 						const fabrik_produkt_besch_t* consumer_type = supplier->get_besch()->get_produkt(p);
 						const ware_besch_t* wp = consumer_type->get_ware();
@@ -924,7 +924,7 @@ int fabrikbauer_t::increase_industry_density( karte_t *welt, bool tell_me, bool 
 							const sint32 total_output = supplier->get_base_production() * consumer_type->get_faktor();
 							sint32 used_output = 0;
 							vector_tpl<koord> competing_consumers = supplier->get_lieferziele();
-							for(int n = 0; n < competing_consumers.get_count(); n ++)
+							for(uint32 n = 0; n < competing_consumers.get_count(); n ++)
 							{
 								const fabrik_t* competing_consumer = fabrik_t::get_fab(welt, competing_consumers.get_element(n));
 								for(int x = 0; x < competing_consumer->get_besch()->get_lieferanten(); x ++)

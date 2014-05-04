@@ -204,7 +204,7 @@ vehikel_t* vehikelbauer_t::baue(koord3d k, spieler_t* sp, convoi_t* cnv, const v
 		else
 		{
 			bool found = false;
-			for(int j = 0; j < sp->get_welt()->get_settings().get_livery_schemes()->get_count(); j ++)
+			for(uint32 j = 0; j < sp->get_welt()->get_settings().get_livery_schemes()->get_count(); j ++)
 			{
 				const livery_scheme_t* const new_scheme = sp->get_welt()->get_settings().get_livery_scheme(j);
 				const char* new_livery = new_scheme->get_latest_available_livery(date, vb);
