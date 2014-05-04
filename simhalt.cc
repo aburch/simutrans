@@ -4579,3 +4579,36 @@ void haltestelle_t::clear_estimated_timings(uint16 convoy_id)
 	estimated_convoy_arrival_times.remove(convoy_id);
 	estimated_convoy_departure_times.remove(convoy_id);
 }
+
+void haltestelle_t::remove_line(linehandle_t line)
+{ 
+	registered_lines.remove(line); 
+	
+	if(registered_convoys.empty() && registered_lines.empty())
+	{
+		const uint8 max_categories = warenbauer_t::get_max_catg_index();
+		for(uint8 i = 0; i < max_categories; i++)
+		{
+			if(!welt->get_is_shutting_down())
+			{
+				connexions[i]->clear();
+			}
+		}
+	}
+}
+
+void haltestelle_t::remove_convoy(convoihandle_t convoy)
+{ 
+	registered_convoys.remove(convoy); 
+	if(registered_convoys.empty() && registered_lines.empty())
+	{
+		const uint8 max_categories = warenbauer_t::get_max_catg_index();
+		for(uint8 i = 0; i < max_categories; i++)
+		{
+			if(!welt->get_is_shutting_down())
+			{
+				connexions[i]->clear();
+			}
+		}
+	}
+}

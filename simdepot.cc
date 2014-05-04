@@ -20,6 +20,7 @@
 #include "simline.h"
 #include "simlinemgmt.h"
 #include "simmenu.h"
+#include "path_explorer.h"
 
 #include "gui/depot_frame.h"
 #include "gui/messagebox.h"
@@ -182,6 +183,17 @@ void depot_t::convoi_arrived(convoihandle_t acnv, bool fpl_adjust)
 			}
 		}
 	}
+
+	if(acnv->get_line().is_bound())
+	{
+		acnv->unset_line();
+		acnv->unregister_stops();
+	}
+	else
+	{
+		acnv->unregister_stops();
+	}
+	path_explorer_t::refresh_all_categories(true);
 
 	// Clean up the vehicles -- get rid of freight, etc.  Do even when loading, just in case.
 	for(unsigned i=0; i<acnv->get_vehikel_anzahl(); i++) {

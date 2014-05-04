@@ -825,7 +825,7 @@ public:
 	 * called, if a line removes this stop from it's schedule
 	 * @author hsiegeln
 	 */
-	void remove_line(linehandle_t line) { registered_lines.remove(line); }
+	void remove_line(linehandle_t line);
 
 	/*
 	 * list of line ids that serve this stop
@@ -843,7 +843,7 @@ public:
 	 * Unregister a lineless convoy
 	 * @author Knightly
 	 */
-	void remove_convoy(convoihandle_t convoy) { registered_convoys.remove(convoy); }
+	void remove_convoy(convoihandle_t convoy);
 
 	/**
 	 * A list of lineless convoys serving this stop

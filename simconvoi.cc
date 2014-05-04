@@ -1828,14 +1828,32 @@ end_loop:
 			break;
 	}
 	// calculate new waiting time
+	vector_tpl<linehandle_t> lines;
 	switch( state ) {
 		// handled by routine
 		case LOADING:
 			break;
 
 		// immediate action needed
-		case SELF_DESTRUCT:
 		case LEAVING_DEPOT:
+			get_besitzer()->simlinemgmt.get_lines(fpl->get_type(), &lines);	
+			FOR(vector_tpl<linehandle_t>, const l, lines)
+			{
+				if(fpl->matches(welt, l->get_schedule()))
+				{
+					// if a line is assigned, set line!
+					const uint32 needs_refresh = l->count_convoys();
+					set_line(l);
+					line->renew_stops();
+					break;
+				}
+			}
+			if(!line.is_bound())
+			{
+				register_stops();
+			}
+			// Fallthrough intended.
+		case SELF_DESTRUCT:
 		case ENTERING_DEPOT:
 		case DRIVING:
 		case DUMMY4:
@@ -5901,6 +5919,11 @@ bool convoi_t::go_to_depot(bool show_success, bool use_home_depot)
 		return false;
 	}
 
+	if (fpl)
+	{
+		old_fpl = fpl->copy();
+	}
+
 	// limit update to certain states that are considered to be safe for fahrplan updates
 	int state = get_state();
 	if(state==convoi_t::FAHRPLANEINGABE) {
@@ -5947,7 +5970,8 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 			use_home_depot = true;
 		}
 	}
-
+	
+	const uint32 range = (uint32)get_min_range();
 	bool home_depot_valid = false;
 	if (use_home_depot) {
 		// Check for a valid home depot.  It is quite easy to get savegames with
@@ -5960,7 +5984,7 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 				home_depot_valid = test_depot->is_suitable_for(get_vehikel(0), traction_types);
 			}
 		}
-		if((shortest_distance(get_pos().get_2d(), get_home_depot().get_2d()) * (uint32)welt->get_settings().get_meters_per_tile()) / 1000 > (uint32)get_min_range())
+		if(range == 0 || (shortest_distance(get_pos().get_2d(), get_home_depot().get_2d()) * (uint32)welt->get_settings().get_meters_per_tile()) / 1000 > range)
 		{
 			home_depot_valid = false;
 		}
@@ -6009,7 +6033,7 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 			route.find_route(welt, get_vehikel(0)->get_pos(), &finder, speed_to_kmh(get_min_top_speed()), ribi_t::alle, get_highest_axle_load(), 0x7FFFFFFF);
 			if (!route.empty()) {
 				depot_pos = route.position_bei(route.get_count() - 1);
-				if((shortest_distance(get_pos().get_2d(), depot_pos.get_2d()) * (uint32)welt->get_settings().get_meters_per_tile()) / 1000 <= (uint32)get_min_range())
+				if(range == 0 || (shortest_distance(get_pos().get_2d(), depot_pos.get_2d()) * (uint32)welt->get_settings().get_meters_per_tile()) / 1000 <= range)
 				{
 					other_depot_found = true;
 				}
@@ -6024,7 +6048,7 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 		if(!route.empty())
 		{
 			depot_pos = route.position_bei(route.get_count() - 1);
-			if((shortest_distance(get_pos().get_2d(), depot_pos.get_2d()) * (uint32)welt->get_settings().get_meters_per_tile()) / 1000 <= (uint32)get_min_range())
+			if(range == 0 || (shortest_distance(get_pos().get_2d(), depot_pos.get_2d()) * (uint32)welt->get_settings().get_meters_per_tile()) / 1000 <= range)
 			{
 				home_depot_found = true;
 			}
@@ -6044,13 +6068,14 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 				}
 			}
 		}
-		else {
-			// Work directly on the schedule (consider changing this to make a new copy)
-			bool schedule_insertion_succeeded = fpl->insert( welt->lookup(depot_pos) );
+		else 
+		{
+			schedule_t* f = fpl->copy();
+			bool schedule_insertion_succeeded = f->insert(welt->lookup(depot_pos));
 			// Insert will move the pointer past the inserted item; move back to it
-			fpl->advance_reverse();
+			f->advance_reverse();
 			// We still have to call set_schedule
-			bool schedule_setting_succeeded = set_schedule(fpl);
+			bool schedule_setting_succeeded = set_schedule(f);
 			transport_success = schedule_insertion_succeeded && schedule_setting_succeeded;
 		}
 	}

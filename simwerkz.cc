@@ -8155,7 +8155,7 @@ bool wkz_access_t::init(spieler_t *sp)
 				fpl->set_aktuell(current_aktuell);
 				fpl->cleanup();
 				if(halt.is_bound())
-				{
+				{				
 					halt->remove_convoy(cnv);
 				}
 			}
@@ -8167,9 +8167,10 @@ bool wkz_access_t::init(spieler_t *sp)
 				cnv->emergency_go_to_depot();
 				// Note that this may destroy the convoy in extreme cases.
 			}
-		}
-		
+		}		
+
 		path_explorer_t::refresh_all_categories(false);
+		cnv->clear_departures();
 	}
 
 	cbuffer_t message;

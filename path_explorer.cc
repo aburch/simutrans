@@ -538,7 +538,7 @@ void path_explorer_t::compartment_t::step()
 			// create all halts list
 			if (all_halts_count > 0)
 			{
-			all_halts_list = new halthandle_t[all_halts_count];
+				all_halts_list = new halthandle_t[all_halts_count];
 			}
 
 			const bool no_walking_connexions = !world->get_settings().get_allow_routing_on_foot() || catg!=warenbauer_t::passagiere->get_catg_index();
@@ -546,8 +546,8 @@ void path_explorer_t::compartment_t::step()
 			// Save the halt list in an array first to prevent the list from being modified across steps, causing bugs
 			for (uint16 i = 0; i < all_halts_count; ++i)
 			{
-			all_halts_list[i] = *halt_iter;
-			++halt_iter;
+				all_halts_list[i] = *halt_iter;
+				++halt_iter;
 
 				// create an empty connexion hash table if the current halt does not already have one
 				if ( connexion_list[ all_halts_list[i].get_id() ].connexion_table == NULL )
@@ -625,8 +625,8 @@ void path_explorer_t::compartment_t::step()
 			for (vector_tpl<convoihandle_t>::const_iterator i = world->convoys().begin(), end = world->convoys().end(); i != end; i++) 
 			{
 				current_convoy = *i;
-				// only consider lineless convoys which support this compartment's goods catetory
-				if ( !current_convoy->get_line().is_bound() && current_convoy->get_goods_catg_index().is_contained(catg) )
+				// only consider lineless convoys which support this compartment's goods catetory which are not in the depot
+				if (!current_convoy->in_depot() && !current_convoy->get_line().is_bound() && current_convoy->get_goods_catg_index().is_contained(catg) )
 				{
 					temp_linkage.convoy = current_convoy;
 					linkages->append(temp_linkage);
@@ -651,7 +651,7 @@ void path_explorer_t::compartment_t::step()
 				{
 					current_line = *j;
 					// only consider lines which support this compartment's goods category
-					if ( current_line->get_goods_catg_index().is_contained(catg) )
+					if ( current_line->get_goods_catg_index().is_contained(catg) && current_line->count_convoys() > 0)
 					{
 						temp_linkage.line = current_line;
 						linkages->append(temp_linkage);

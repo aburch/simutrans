@@ -578,13 +578,6 @@ private:
 	int get_vehicle_at_length(uint16);
 
 	/**
-	* calculate income for last hop
-	* only used for entering depot or recalculating routes when a schedule window is opened
-	* @author Hj. Malthaner
-	*/
-	//void calc_gewinn();
-
-	/**
 	* Recalculates loading level and limit.
 	* While driving loading_limit will be set to 0.
 	* @author Volker Meyer
@@ -712,12 +705,6 @@ private:
 	 * @author Knightly
 	 */
 	void register_stops();
-
-	/**
-	 * Unregister the convoy from the stops in the schedule
-	 * @author Knightly
-	 */
-	void unregister_stops();
 
 	uint32 move_to(koord3d const& k, uint16 start_index);
 
@@ -1134,6 +1121,12 @@ public:
 	* @author Hj. Malthaner
 	*/
 	schedule_t * create_schedule();
+
+	/**
+	 * Unregister the convoy from the stops in the schedule
+	 * @author Knightly
+	 */
+	void unregister_stops();
 
 	// remove wrong freight when schedule changes etc.
 	void check_freight();
