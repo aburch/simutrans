@@ -4573,3 +4573,9 @@ void haltestelle_t::set_estimated_departure_time(uint16 convoy_id, sint64 time)
 {
 	estimated_convoy_departure_times.set(convoy_id, time);
 }
+
+void haltestelle_t::clear_estimated_timings(uint16 convoy_id)
+{
+	estimated_convoy_arrival_times.remove(convoy_id);
+	estimated_convoy_departure_times.remove(convoy_id);
+}

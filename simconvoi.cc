@@ -138,12 +138,12 @@ void convoi_t::init(spieler_t *sp)
 {
 	besitzer_p = sp;
 
-	reset();
-
 	fpl = NULL;
 	replace = NULL;
 	fpl_target = koord3d::invalid;
 	line = linehandle_t();
+
+	reset();
 
 	anz_vehikel = 0;
 	steps_driven = -1;
@@ -257,6 +257,8 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 
 	welt->sync_remove( this );
 	welt->rem_convoi( self );
+
+	clear_estimated_times();
 
 	// Knightly : if lineless convoy -> unregister from stops
 	if(  !line.is_bound()  ) {
@@ -6838,6 +6840,7 @@ void convoi_t::clear_departures()
 	departures.clear();
 	departures_already_booked.clear();
 	journey_times_between_schedule_points.clear();
+	clear_estimated_times();
 }
 
 sint64 convoi_t::get_stat_converted(int month, convoi_cost_t cost_type) const
@@ -6967,3 +6970,25 @@ float32e8_t convoi_t::get_power_summary(const float32e8_t &speed /* in m/s */)
 	return power_index_to_power(power, welt->get_settings().get_global_power_factor_percent());
 }
 // BG, 31.12.2012: end of virtual methods of lazy_convoy_t
+
+void convoi_t::clear_estimated_times()
+{
+	if(!fpl)
+	{
+		return;
+	}
+	halthandle_t halt;
+	uint8 entry = fpl->get_aktuell();
+	bool rev = reverse_schedule;
+	for(int i = 0; i < fpl->get_count(); i++)
+	{		
+		halt = haltestelle_t::get_halt(fpl->eintrag[entry].pos, besitzer_p);
+		
+		if(halt.is_bound())
+		{
+			halt->clear_estimated_timings(self.get_id());
+		}
+
+		fpl->increment_index(&entry, &rev);
+	}
+}

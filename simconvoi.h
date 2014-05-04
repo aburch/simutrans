@@ -1480,6 +1480,8 @@ public:
 	 * its shcedule.
 	 */
 	void clear_departures();
+
+	void clear_estimated_times();
 };
 
 #endif

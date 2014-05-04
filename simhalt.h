@@ -973,6 +973,12 @@ public:
 	void set_estimated_arrival_time(uint16 convoy_id, sint64 time);
 	void set_estimated_departure_time(uint16 convoy_id, sint64 time);
 
+	/** 
+	* Removes a convoy from the time estimates.
+	* Used when deleting a convoy.
+	*/
+	void clear_estimated_timings(uint16 convoy_id);
+
 	const arrival_times_map& get_estimated_convoy_arrival_times() { return estimated_convoy_arrival_times; }
 	const arrival_times_map& get_estimated_convoy_departure_times() { return estimated_convoy_departure_times; }
 };
