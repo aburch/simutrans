@@ -145,6 +145,7 @@ DBG_MESSAGE("obj_reader_t::load()", "reading from '%s'", name.c_str());
 				ls.set_progress(n);
 			}
 		}
+		ls.set_progress(max);
 
 		return find.begin()!=find.end();
 	}

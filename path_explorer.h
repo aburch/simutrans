@@ -331,7 +331,7 @@ private:
 		static const uint8 phase_reroute_goods = 6;
 
 		// absolute time limits
-		static const uint32 time_midpoint = 32;
+		static const uint32 time_midpoint = 24;
 		static const uint32 time_deviation = 2;
 		static const uint32 time_lower_limit = time_midpoint - time_deviation;
 		static const uint32 time_upper_limit = time_midpoint + time_deviation;

@@ -70,7 +70,7 @@ void loadingscreen_t::display()
 	const int quarter_width = width>>2;
 	const int half_height = display_get_height()>>1;
 
-	const int bar_len = max_progress>0 ? (progress*(uint32)half_width)/max_progress : 0;
+	const int bar_len = max_progress>0 ? ((double)progress*(double)half_width)/(double)max_progress : 0;
 
 	if(  bar_len != last_bar_len  ) {
 		last_bar_len = bar_len;

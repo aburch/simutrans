@@ -1125,7 +1125,7 @@ void karte_t::distribute_cities( settings_t const * const sets, sint16 old_x, si
 	const uint32 city_population_target_count = stadt.empty() ? new_anzahl_staedte : new_anzahl_staedte + stadt.get_count() + 1;
 
 	vector_tpl<uint32> city_population(city_population_target_count);
-	if (city_population.get_count() < city_population_target_count)
+	if(city_population.get_count() < city_population_target_count)
 	{
 		const double inv_k = 1/1.0;
 		const double xm = max_city_size; 
@@ -1172,8 +1172,9 @@ void karte_t::distribute_cities( settings_t const * const sets, sint16 old_x, si
 //		}
 //	}
 
+
 #ifdef DEBUG
-	for (unsigned i =0; i< city_population_target_count; i++) 
+	for (sint32 i =0; i< city_population_target_count; i++) 
 	{
 		DBG_DEBUG("karte_t::distribute_groundobjs_cities()", "City rank %d -- %d", i, city_population[i]);
 	}
