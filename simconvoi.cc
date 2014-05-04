@@ -5960,7 +5960,7 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 				home_depot_valid = test_depot->is_suitable_for(get_vehikel(0), traction_types);
 			}
 		}
-		if((shortest_distance(get_pos().get_2d(), get_home_depot().get_2d()) * welt->get_settings().get_meters_per_tile()) / 100 > get_min_range())
+		if((shortest_distance(get_pos().get_2d(), get_home_depot().get_2d()) * (uint32)welt->get_settings().get_meters_per_tile()) / 1000 > (uint32)get_min_range())
 		{
 			home_depot_valid = false;
 		}
@@ -6009,7 +6009,7 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 			route.find_route(welt, get_vehikel(0)->get_pos(), &finder, speed_to_kmh(get_min_top_speed()), ribi_t::alle, get_highest_axle_load(), 0x7FFFFFFF);
 			if (!route.empty()) {
 				depot_pos = route.position_bei(route.get_count() - 1);
-				if((shortest_distance(get_pos().get_2d(), depot_pos.get_2d()) * welt->get_settings().get_meters_per_tile()) / 100 <= get_min_range())
+				if((shortest_distance(get_pos().get_2d(), depot_pos.get_2d()) * (uint32)welt->get_settings().get_meters_per_tile()) / 1000 <= (uint32)get_min_range())
 				{
 					other_depot_found = true;
 				}
@@ -6024,7 +6024,7 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 		if(!route.empty())
 		{
 			depot_pos = route.position_bei(route.get_count() - 1);
-			if((shortest_distance(get_pos().get_2d(), depot_pos.get_2d()) * welt->get_settings().get_meters_per_tile()) / 100 <= get_min_range())
+			if((shortest_distance(get_pos().get_2d(), depot_pos.get_2d()) * (uint32)welt->get_settings().get_meters_per_tile()) / 1000 <= (uint32)get_min_range())
 			{
 				home_depot_found = true;
 			}
