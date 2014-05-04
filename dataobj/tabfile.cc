@@ -85,28 +85,47 @@ void tabfileobj_t::clear()
 	objinfo.clear();
 }
 
-const koord &tabfileobj_t::get_koord(const char *key, koord def)
+
+// private helps to get x y value pairs needed for koord etc.
+bool tabfileobj_t::get_x_y( const char *key, sint16 &x, sint16 &y )
 {
-	static koord ret;
 	const char *value = get_string(key,NULL);
 	const char *tmp;
 
-	ret = def;
-
 	if(!value) {
-		return ret;
+		return false;
 	}
 	// 2. Determine value
 	for(tmp = value; *tmp != ','; tmp++) {
 		if(!*tmp) {
-			return ret;
+			return false;
 		}
 	}
-	ret.x = atoi(value);
-	ret.y = atoi(tmp + 1);
+	x = atoi(value);
+	y = atoi(tmp + 1);
+	return true;
+}
+
+const koord &tabfileobj_t::get_koord(const char *key, koord def)
+{
+	static koord ret = def;
+	get_x_y( key, ret.x, ret.y );
 	return ret;
 }
 
+const scr_coord &tabfileobj_t::get_scr_coord(const char *key, scr_coord def)
+{
+	static scr_coord ret = def;
+	get_x_y( key, ret.x, ret.y );
+	return ret;
+}
+
+const scr_size &tabfileobj_t::get_scr_size(const char *key, scr_size def)
+{
+	static scr_size ret = def;
+	get_x_y( key, ret.w, ret.h );
+	return ret;
+}
 
 #ifdef MAKEOBJ
 // returns next matching color to an rgb

@@ -14,6 +14,8 @@
 
 class tabfileobj_t;
 class koord;
+class scr_coord;
+class scr_size;
 
 class obj_info_t
 {
@@ -43,6 +45,7 @@ public:
  * @author V. Meyer
  */
 class tabfile_t {
+private:
 	FILE *file;
 
 	/**
@@ -100,7 +103,10 @@ public:
  * @author V. Meyer
  */
 class tabfileobj_t {
+private:
 	stringhashtable_tpl<obj_info_t> objinfo;
+
+	bool get_x_y( const char *key, sint16 &x, sint16 &y );
 
 public:
 	tabfileobj_t() { ; }
@@ -149,6 +155,8 @@ public:
 	 * @author V. Meyer
 	 */
 	const koord &get_koord(const char *key, koord def);
+	const scr_coord &get_scr_coord(const char *key, scr_coord def);
+	const scr_size &get_scr_size(const char *key, scr_size def);
 
 	/**
 	 * Get a color index or the next matching color when given a #AABBCC

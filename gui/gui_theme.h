@@ -222,7 +222,8 @@ public:
 	/// @{
 	static scr_size gui_divider_size;
 	static scr_size gui_button_size;
-	static scr_coord gui_button_text_offset;	// extra offset for the text (in case of asymmetric or buttons with color on the left)
+	static scr_size gui_color_button_text_offset; // extra offset for the text (in case of asymmetric or buttons with color on the left)
+	static scr_size gui_button_text_offset;       // extra offset for the text (in case of asymmetric or buttons with checkmark on the left)
 	static scr_size gui_color_button_size;
 	static scr_size gui_checkbox_size;
 	static scr_size gui_pos_button_size;
@@ -245,8 +246,6 @@ public:
 	static KOORD_VAL gui_frame_bottom;
 	static KOORD_VAL gui_hspace;
 	static KOORD_VAL gui_vspace;
-
-	static scr_coord_val gui_color_button_text_offset;
 	/// @}
 
 	// those are the 3x3 images which are used for stretching

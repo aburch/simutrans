@@ -44,8 +44,9 @@ COLOR_VAL gui_theme_t::button_color_focus;
  * are overridden by the PAK file if a new image is defined.
  */
 scr_size gui_theme_t::gui_button_size;
-scr_coord gui_theme_t::gui_button_text_offset;
+scr_size gui_theme_t::gui_button_text_offset;
 scr_size gui_theme_t::gui_color_button_size;
+scr_size gui_theme_t::gui_color_button_text_offset;
 scr_size gui_theme_t::gui_divider_size;
 scr_size gui_theme_t::gui_checkbox_size;
 scr_size gui_theme_t::gui_pos_button_size;
@@ -68,8 +69,6 @@ KOORD_VAL gui_theme_t::gui_frame_right;
 KOORD_VAL gui_theme_t::gui_frame_bottom;
 KOORD_VAL gui_theme_t::gui_hspace;
 KOORD_VAL gui_theme_t::gui_vspace;
-
-scr_coord_val gui_theme_t::gui_color_button_text_offset;
 
 /* those are the 3x3 images which are used for stretching
  * also 1x3 and 3x1 subsets are possible
@@ -124,7 +123,8 @@ void gui_theme_t::init_gui_defaults()
 
 	gui_button_size        = scr_size(92,14);
 	gui_color_button_size  = scr_size(92,16);
-	gui_button_text_offset = scr_coord(0,0);
+	gui_button_text_offset = scr_size(0,0);
+	gui_color_button_text_offset = scr_size(0,0);
 	gui_divider_size       = scr_size(92,2+D_V_SPACE*2);
 	gui_checkbox_size      = scr_size(10,10);
 	gui_pos_button_size    = scr_size(14,LINESPACE);
@@ -140,7 +140,6 @@ void gui_theme_t::init_gui_defaults()
 	gui_indicator_size     = scr_size(20,4);
 	gui_focus_offset       = scr_coord(1,1);
 
-	gui_color_button_text_offset = 0;
 	gui_titlebar_height  = 16;
 	gui_frame_left       = 10;
 	gui_frame_top        = 10;
@@ -385,8 +384,8 @@ bool gui_theme_t::themes_init(const char *file_name)
 
 	gui_theme_t::button_color_text = (uint32)contents.get_color("gui_button_color_text", gui_theme_t::button_color_text );
 	gui_theme_t::button_color_disabled_text = (uint32)contents.get_color("gui_button_color_disabled_text", gui_theme_t::button_color_disabled_text );
-	koord dummy = contents.get_koord("gui_button_text_offset",  koord(gui_theme_t::gui_button_text_offset.x, gui_theme_t::gui_button_text_offset.y) );
-	gui_theme_t::gui_button_text_offset = scr_coord(dummy.x, dummy.y);
+	gui_theme_t::gui_color_button_text_offset = contents.get_scr_size("gui_color_button_text_offset", gui_theme_t::gui_color_button_text_offset );
+	gui_theme_t::gui_button_text_offset = contents.get_scr_size("gui_button_text_offset", gui_theme_t::gui_button_text_offset );
 
 	// default iconsize (square for now)
 	env_t::iconsize.h = env_t::iconsize.w = contents.get_int("icon_width",env_t::iconsize.w );
@@ -402,8 +401,7 @@ bool gui_theme_t::themes_init(const char *file_name)
 	gui_theme_t::gui_color_button_text =   (COLOR_VAL)contents.get_color("gui_button_text_color",   SYSCOL_BUTTON_TEXT);
 
 	// those two may be rather an own control later on?
-	dummy = contents.get_koord("gui_indicator_size",  koord(gui_theme_t::gui_indicator_size.w, gui_theme_t::gui_indicator_size.h) );
-	gui_theme_t::gui_indicator_size = scr_size(dummy.x, dummy.y);
+	gui_theme_t::gui_indicator_size = contents.get_scr_size("gui_indicator_size",  gui_theme_t::gui_indicator_size );
 
 	gui_tab_panel_t::header_vsize = (uint32)contents.get_int("gui_tab_header_vsize", gui_tab_panel_t::header_vsize );
 
