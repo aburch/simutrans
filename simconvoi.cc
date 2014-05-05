@@ -2888,14 +2888,9 @@ void convoi_t::vorfahren()
 
 					default:
 
-						if(reversed)
-						{
-							reversable = front()->get_besch()->get_can_lead_from_rear() || (anz_vehikel == 1 && front()->get_besch()->is_bidirectional());
-						}
-						else
-						{
-							reversable = back()->get_besch()->get_can_lead_from_rear() || (anz_vehikel == 1 && front()->get_besch()->is_bidirectional());
-						}
+						const bool reverse_as_unit = reversed ? front()->get_besch()->get_can_lead_from_rear() : back()->get_besch()->get_can_lead_from_rear();
+
+						reversable = reverse_as_unit || (anz_vehikel == 1 && front()->get_besch()->is_bidirectional());
 
 						reverse_delay = calc_reverse_delay();
 
@@ -2905,6 +2900,7 @@ void convoi_t::vorfahren()
 							// The convoy does not depart until it has reversed.
 							book_departure_time(welt->get_zeit_ms() + reverse_delay);
 						}
+						
 						reverse_order(reversable);
 				}
 			}
@@ -3224,7 +3220,7 @@ convoi_t::reverse_order(bool rev)
 	reversed = !reversed;
 	for(const_iterator i = begin(); i != end(); ++i)
 	{
-		(*i)->set_reversed(true);
+		(*i)->set_reversed(reversed);
 	}
 }
 
