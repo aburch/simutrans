@@ -384,10 +384,8 @@ void haltestelle_t::destroy_all()
 		halthandle_t halt = alle_haltestellen.back();
 		destroy(halt);
 	}
-	if (all_koords) {
-		delete all_koords;
-		all_koords = NULL;
-	}
+	delete all_koords;
+	all_koords = NULL;
 	//status_step = 0;
 }
 
@@ -5122,9 +5120,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 	// re-add name
 	if (station_name_to_transfer != NULL  &&  !tiles.empty()) {
 		label_t *lb = tiles.front().grund->find<label_t>();
-		if(lb) {
-			delete lb;
-		}
+		delete lb;
 		set_name( station_name_to_transfer );
 	}
 

@@ -16,15 +16,11 @@ bool connection_info_t::operator==(const connection_info_t& other) const
 
 void socket_info_t::reset()
 {
-	if (packet) {
-		delete packet;
-		packet = NULL;
-	}
+	delete packet;
+	packet = NULL;
 	while(!send_queue.empty()) {
 		packet_t *p = send_queue.remove_first();
-		if (p) {
-			delete p;
-		}
+		delete p;
 	}
 	if (socket != INVALID_SOCKET) {
 		network_close_socket(socket);
