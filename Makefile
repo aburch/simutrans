@@ -32,24 +32,21 @@ ifeq ($(OSTYPE),haiku)
   LIBS += -lnetwork -lbe -llocale
 endif
 
-ifeq ($(OSTYPE),cygwin)
-  SOURCES += simsys_w32_png.cc
-  CFLAGS += -I/usr/include/mingw -mwin32 -DNOMINMAX=1
-  LDFLAGS += -mno-cygwin
-  LIBS   += -lgdi32 -lwinmm -lwsock32
-endif
-
-ifeq ($(OSTYPE),mingw)
-  SOURCES += simsys_w32_png.cc
-  CFLAGS  += -DPNG_STATIC -DZLIB_STATIC -DNOMINMAX=1
-  ifeq ($(BACKEND),gdi)
-    LIBS += -lunicows
-  endif
-  LDFLAGS += -static-libgcc -static-libstdc++
-  LIBS += -lmingw32 -lgdi32 -lwinmm -lwsock32
-endif
-
 ifneq ($(findstring $(OSTYPE), cygwin mingw),)
+  ifeq ($(OSTYPE),cygwin)
+    CFLAGS  += -I/usr/include/mingw -mwin32
+    LDFLAGS += -mno-cygwin
+  else ifeq ($(OSTYPE),mingw)
+    CFLAGS  += -DPNG_STATIC -DZLIB_STATIC
+    ifeq ($(BACKEND),gdi)
+      LIBS += -lunicows
+    endif
+    LDFLAGS += -static-libgcc -static-libstdc++
+    LIBS    += -lmingw32
+  endif
+  SOURCES += simsys_w32_png.cc
+  CFLAGS  += -DNOMINMAX=1
+  LIBS    += -lgdi32 -lwinmm -lwsock32
   # Disable the console on Windows unless WIN32_CONSOLE is set or graphics are disabled
   ifneq ($(WIN32_CONSOLE),)
     LDFLAGS += -mconsole
