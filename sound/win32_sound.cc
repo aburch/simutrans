@@ -4,9 +4,6 @@
  * This file is part of the Simutrans project under the artistic license.
  */
 
-// define before all includes!
-#define UNICODE 1
-
 #include <stdio.h>
 
 #include <windows.h>
