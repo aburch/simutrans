@@ -292,7 +292,7 @@ void checklist_t::rdwr(memory_rw_t *buffer)
 
 int checklist_t::print(char *buffer, const char *entity) const
 {
-	return sprintf(buffer, "%s=[rand=%u halt=%u line=%u cnvy=%u processing=%B current_compartment=&u paths_available=%B refresh_completed=%B refresh_requested=%B current_phase=%u phase_couner=%u iterations=%u] ", 
+	return sprintf(buffer, "%s=[rand=%u halt=%u line=%u cnvy=%u processing=%b current_compartment=%u paths_available=%b refresh_completed=%b refresh_requested=%b current_phase=%u phase_couner=%u iterations=%u] ", 
 		entity, random_seed, halt_entry, line_entry, convoy_entry, processing, current_compartment, paths_available, refresh_completed, refresh_requested, current_phase, phase_counter, iterations);
 }
 
