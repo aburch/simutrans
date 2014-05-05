@@ -595,10 +595,10 @@ int simu_main(int argc, char** argv)
 #ifdef SYSLOG
 	bool cli_syslog_enabled = (gimme_arg( argc, argv, "-syslog", 0 ) != NULL);
 	const char* cli_syslog_tag = gimme_arg( argc, argv, "-tag", 1 );
-#else //SYSLOG
+#else
 	bool cli_syslog_enabled = false;
 	const char* cli_syslog_tag = NULL;
-#endif //SYSLOG
+#endif
 
 	env_t::verbose_debug = 0;
 	if(  gimme_arg(argc, argv, "-debug", 0) != NULL  ) {

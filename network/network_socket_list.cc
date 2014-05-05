@@ -232,7 +232,7 @@ void socket_list_t::add_server( SOCKET sock )
 			list[i]->nickname = "Server#0";
 			env_t::nickname = list[i]->nickname.c_str();
 		}
-#endif //NETTOOL
+#endif
 	}
 
 	network_set_socket_nodelay( sock );
@@ -247,9 +247,9 @@ bool socket_list_t::remove_client( SOCKET sock )
 
 #ifdef NETTOOL
 			if (list[j]->state == socket_info_t::playing) {
-#else //NETTOOL
+#else
 			if (env_t::server  &&  list[j]->state == socket_info_t::playing) {
-#endif //NETTOOL
+#endif
 				change_state(j, socket_info_t::has_left);
 			}
 			else {

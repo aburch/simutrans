@@ -89,4 +89,4 @@ public:
 
 };
 
-#endif //_SQTABLE_H_
+#endif
