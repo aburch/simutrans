@@ -2542,7 +2542,7 @@ Release of 86.04
 11-Jun-2005 (prissi)
 	FIX: Jumping trains with no route/wrong depot fixed.
 	FIX: rotation for townhalls.
-	CHANGE: add schedule will be resetted after closing a window.
+	CHANGE: add schedule will be reset after closing a window.
 	ADD: Window resize of main window.
 	ADD: Input conversion for non-latin languages. CHRxx (xx is hex between 80 and FF) will be translated from tab-file. Missing entry will give default.
 	FIX: check when building docks

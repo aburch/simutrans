@@ -52,7 +52,7 @@ void gui_komponente_t::align_to( gui_komponente_t* component_par, control_alignm
 				new_pos.y = target_pos.y - new_size.h - offset_par.y;
 				break;
 
-			// if one of the alignments is NONE but offseted,
+			// if one of the alignments is NONE but offset,
 			// use offset as absolute position.
 			case ALIGN_NONE:
 				if (offset_par.y != 0) {
@@ -88,7 +88,7 @@ void gui_komponente_t::align_to( gui_komponente_t* component_par, control_alignm
 				new_pos.x = target_pos.x - new_size.w - offset_par.x;
 				break;
 
-			// if one of the alignments is NONE but offseted,
+			// if one of the alignments is NONE but offset,
 			// use offset as absolute position.
 			case ALIGN_NONE:
 				if (offset_par.x) {

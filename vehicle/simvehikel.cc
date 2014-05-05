@@ -1453,7 +1453,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 			file->rdwr_byte(steps);
 			file->rdwr_byte(steps_next);
 			if(steps_next==old_diagonal_vehicle_steps_per_tile - 1  &&  file->is_loading()) {
-				// reset diagonal length (convoi will be reseted anyway, if game diagonal is different)
+				// reset diagonal length (convoi will be reset anyway, if game diagonal is different)
 				steps_next = diagonal_vehicle_steps_per_tile - 1;
 			}
 		}
