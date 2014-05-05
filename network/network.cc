@@ -45,9 +45,7 @@ void clear_command_queue()
 {
 	while(!received_command_queue.empty()) {
 		network_command_t *nwc = received_command_queue.remove_first();
-		if (nwc) {
-			delete nwc;
-		}
+		delete nwc;
 	}
 }
 

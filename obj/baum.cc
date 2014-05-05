@@ -263,9 +263,7 @@ bool baum_t::alles_geladen()
 	}
 	baum_typen.append( NULL );
 
-	if (baum_typen_per_climate) {
-		delete [] baum_typen_per_climate;
-	}
+	delete [] baum_typen_per_climate;
 	baum_typen_per_climate = new weighted_vector_tpl<uint32>[MAX_CLIMATES];
 
 	// clear cache

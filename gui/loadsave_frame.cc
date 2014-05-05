@@ -169,9 +169,7 @@ const char *loadsave_frame_t::get_info(const char *fname)
 		// copy filename
 		char *key = strdup(fname);
 		sve_info_t *svei_old = cached_info.set(key, svei_new);
-		if (svei_old) {
-			delete svei_old;
-		}
+		delete svei_old;
 	}
 
 	// write everything in string

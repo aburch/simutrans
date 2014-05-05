@@ -767,32 +767,24 @@ DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
 	// dinge aufraeumen
 	cached_grid_size.x = cached_grid_size.y = 1;
 	cached_size.x = cached_size.y = 0;
-	if(plan) {
-		delete [] plan;
-		plan = NULL;
-	}
+	delete [] plan;
+	plan = NULL;
 	DBG_MESSAGE("karte_t::destroy()", "planquadrat destroyed");
 
 	old_progress += (cached_size.x*cached_size.y)/2;
 	ls.set_progress( old_progress );
 
 	// gitter aufraeumen
-	if(grid_hgts) {
-		delete [] grid_hgts;
-		grid_hgts = NULL;
-	}
+	delete [] grid_hgts;
+	grid_hgts = NULL;
 
-	if(  water_hgts  ) {
-		delete [] water_hgts;
-		water_hgts = NULL;
-	}
+	delete [] water_hgts;
+	water_hgts = NULL;
 
 	// spieler aufraeumen
 	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
-		if(spieler[i]) {
-			delete spieler[i];
-			spieler[i] = NULL;
-		}
+		delete spieler[i];
+		spieler[i] = NULL;
 	}
 DBG_MESSAGE("karte_t::destroy()", "player destroyed");
 
@@ -1383,9 +1375,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 	}
 	else {
 		// could not generate any town
-		if(pos) {
-			delete pos;
-		}
+		delete pos;
 		settings.set_anzahl_staedte( stadt.get_count() ); // new number of towns (if we did not find enough positions)
 	}
 

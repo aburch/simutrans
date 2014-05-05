@@ -128,18 +128,12 @@ savegame_frame_t::~savegame_frame_t()
 		}
 		if(i.label) {
 			char *tooltip = const_cast<char*>(i.label->get_tooltip_pointer());
-			if (tooltip) {
-				delete [] tooltip;
-			}
+			delete [] tooltip;
 			delete [] const_cast<char*>(i.label->get_text_pointer());
 			delete i.label;
 		}
-		if(i.del) {
-			delete i.del;
-		}
-		if(i.info) {
-			delete [] i.info;
-		}
+		delete i.del;
+		delete [] i.info;
 	}
 
 	this->paths.clear();

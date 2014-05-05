@@ -289,9 +289,7 @@ void ai_t::clean_marker( koord place, koord size )
 		for(  pos.x=place.x;  pos.x<=place.x+size.x;  pos.x++  ) {
 			grund_t *gr = welt->lookup_kartenboden(pos);
 			zeiger_t *z = gr->find<zeiger_t>();
-			if(z) {
-				delete z;
-			}
+			delete z;
 		}
 	}
 }

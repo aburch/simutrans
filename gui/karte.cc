@@ -1004,9 +1004,7 @@ reliefkarte_t::reliefkarte_t()
 
 reliefkarte_t::~reliefkarte_t()
 {
-	if(relief != NULL) {
-		delete relief;
-	}
+	delete relief;
 }
 
 
@@ -1021,10 +1019,8 @@ reliefkarte_t *reliefkarte_t::get_karte()
 
 void reliefkarte_t::init()
 {
-	if(relief) {
-		delete relief;
-		relief = NULL;
-	}
+	delete relief;
+	relief = NULL;
 	needs_redraw = true;
 	is_visible = false;
 

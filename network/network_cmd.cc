@@ -31,9 +31,7 @@ network_command_t::network_command_t()
 bool network_command_t::receive(packet_t *p)
 {
 	ready = true;
-	if(  packet  ) {
-		delete packet;
-	}
+	delete packet;
 	packet = p;
 	id = p->get_id();
 	rdwr();
@@ -42,10 +40,8 @@ bool network_command_t::receive(packet_t *p)
 
 network_command_t::~network_command_t()
 {
-	if (packet) {
-		delete packet;
-		packet = NULL;
-	}
+	delete packet;
+	packet = NULL;
 }
 
 void network_command_t::rdwr()
@@ -110,15 +106,9 @@ void nwc_auth_player_t::rdwr()
 
 nwc_service_t::~nwc_service_t()
 {
-	if (socket_info) {
-		delete socket_info;
-	}
-	if (address_list) {
-		delete address_list;
-	}
-	if (text) {
-		free(text);
-	}
+	delete socket_info;
+	delete address_list;
+	free(text);
 }
 
 extern address_list_t blacklist;

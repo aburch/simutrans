@@ -20,9 +20,7 @@ void marker_t::init(int welt_groesse_x,int welt_groesse_y)
 
 	if(  bits_groesse != new_bits_groesse  ) {
 		bits_groesse = new_bits_groesse;
-		if(bits) {
-			delete [] bits;
-		}
+		delete [] bits;
 		if(bits_groesse) {
 			bits = new unsigned char[bits_groesse];
 		}

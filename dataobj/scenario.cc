@@ -60,9 +60,7 @@ scenario_t::scenario_t(karte_t *w) :
 
 scenario_t::~scenario_t()
 {
-	if (script) {
-		delete script;
-	}
+	delete script;
 	clear_ptr_vector(forbidden_tools);
 	cached_text_files.clear();
 }
