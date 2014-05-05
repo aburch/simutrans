@@ -86,8 +86,8 @@ struct checklist_t
 	uint32 iterations;
 
 	checklist_t() : random_seed(0), halt_entry(0), line_entry(0), convoy_entry(0), processing(false), current_compartment(0), paths_available(false), refresh_completed(false), refresh_requested(false), current_phase(0), phase_counter(0), iterations(0) { }
-	checklist_t(uint32 _random_seed, uint16 _halt_entry, uint16 _line_entry, uint16 _convoy_entry, bool processing, uint8 current_compartment, bool paths_available, bool refresh_completed, bool refresh_requested, uint8 current_phase, uint16 phase_counter, uint32 iterations)
-		: random_seed(_random_seed), halt_entry(_halt_entry), line_entry(_line_entry), convoy_entry(_convoy_entry) { }
+	checklist_t(uint32 _random_seed, uint16 _halt_entry, uint16 _line_entry, uint16 _convoy_entry, bool _processing, uint8 _current_compartment, bool _paths_available, bool _refresh_completed, bool _refresh_requested, uint8 _current_phase, uint16 _phase_counter, uint32 _iterations)
+		: random_seed(_random_seed), halt_entry(_halt_entry), line_entry(_line_entry), convoy_entry(_convoy_entry), processing(_processing), current_compartment(_current_compartment), paths_available(_paths_available), refresh_completed(_refresh_completed), refresh_requested(_refresh_requested), current_phase(_current_phase), phase_counter(_phase_counter), iterations(_iterations) { }
 
 	bool operator == (const checklist_t &other) const
 	{
