@@ -4338,11 +4338,11 @@ void convoi_t::laden() //"load" (Babelfish)
 							// More than one entry - might be a timetable issue.
 							if(journey_time > average_journey_time * 2)
 							{
-								dbg->message("void convoi_t::laden()", "Possible timetable anomaly detected. Skipping inserting journey time (convoy).");
+								//dbg->message("void convoi_t::laden()", "Possible timetable anomaly detected. Skipping inserting journey time (convoy).");
 							}
 							else if(journey_time < average_journey_time / 2)
 							{
-								dbg->message("void convoi_t::laden()", "Possible timetable anomaly detected. Resetting average journey times (convoy).");
+								//dbg->message("void convoi_t::laden()", "Possible timetable anomaly detected. Resetting average journey times (convoy).");
 								average->reset();
 								allow_resetting_line_average = true;
 								goto write_basic;
@@ -4401,11 +4401,11 @@ write_basic:
 								// More than one entry - might be a timetable issue.
 								if(journey_time > average_journey_time * 2)
 								{
-									dbg->message("void convoi_t::laden()", "Possible timetable anomaly detected. Skipping inserting journey time (line).");
+									//dbg->message("void convoi_t::laden()", "Possible timetable anomaly detected. Skipping inserting journey time (line).");
 								}
 								else if(allow_resetting_line_average && journey_time < average_journey_time / 2)
 								{
-									dbg->message("void convoi_t::laden()", "Possible timetable anomaly detected. Resetting average journey times (line).");
+									//dbg->message("void convoi_t::laden()", "Possible timetable anomaly detected. Resetting average journey times (line).");
 									average->reset();
 									goto write_basic_line;
 								}
