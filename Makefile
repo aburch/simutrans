@@ -32,10 +32,6 @@ ifeq ($(OSTYPE),haiku)
   LIBS += -lnetwork -lbe -llocale
 endif
 
-ifeq ($(OSTYPE),mac)
-  CCFLAGS += -Os -fast
-endif
-
 ifeq ($(OSTYPE),cygwin)
   SOURCES += simsys_w32_png.cc
   CFLAGS += -I/usr/include/mingw -mwin32 -DNOMINMAX=1
