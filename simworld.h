@@ -96,7 +96,7 @@ struct checklist_t
 			line_entry == other.line_entry && 
 			convoy_entry == other.convoy_entry &&
 			processing == other.processing &&
-			current_compartment && other.current_compartment &&
+			current_compartment == other.current_compartment &&
 			paths_available == other.paths_available &&
 			refresh_completed == other.refresh_completed &&
 			refresh_requested == other.refresh_requested &&
