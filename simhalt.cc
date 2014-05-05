@@ -2239,11 +2239,10 @@ uint32 haltestelle_t::starte_mit_route(ware_t ware)
 	// no valid next stops? Or we are the next stop?
 	if(ware.get_zwischenziel() == self)
 	{
-		dbg->error("haltestelle_t::starte_mit_route()","route cannot contain us as first transfer stop => recalc route!");
+		// Route cannot contain self as first transfer.
 		if(find_route(ware) == 65535)
 		{
 			// no route found?
-			dbg->error("haltestelle_t::starte_mit_route()","no route found!");
 			return ware.menge;
 		}
 	}
@@ -2315,7 +2314,7 @@ uint32 haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 		// Check for an excessively long number of walking steps.  If we have one, complain and fail.
 		//
 		// This was the 4th consecutive attempt to walk between stations.  Fail.
-		dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s has walked too many times", ware.menge, translator::translate(ware.get_name()), get_name() );
+		//dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s has walked too many times", ware.menge, translator::translate(ware.get_name()), get_name() );
 		return ware.menge;
 	}
 
