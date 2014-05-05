@@ -5,8 +5,6 @@
  */
 
 #include <stdio.h>
-// windows.h includes min and max macros which we don't want
-#define NOMINMAX 1
 #include <windows.h>
 #include <mmsystem.h>
 
