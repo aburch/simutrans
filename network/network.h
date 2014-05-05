@@ -6,8 +6,6 @@
 #ifdef _WIN32
 // must be include before all simutrans stuff!
 
-#define NOMINMAX 1
-
 // So that windows.h won't include all kinds of things
 #define WIN32_LEAN_AND_MEAN
 

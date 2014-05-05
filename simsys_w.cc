@@ -14,8 +14,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// windows.h defines min and max macros which we don't want
-#define NOMINMAX 1
 #include <windows.h>
 #include <winreg.h>
 #include <wingdi.h>
