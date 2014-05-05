@@ -177,7 +177,6 @@ public:
 			if(  id!=0  ) {
 				dbg->fatal("quickstone<T>::quickstone_tpl(T*,uint16)","wants to assign null pointer to non-null index");
 			}
-			assert(id==0);
 			// all NULL pointers are mapped to entry 0
 			entry = 0;
 		}
