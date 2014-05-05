@@ -5292,7 +5292,7 @@ void karte_t::step()
 /*
 		if(  next_month_ticks > next_month_ticks+karte_t::ticks_per_world_month  ) {
 			// avoid overflow here ...
-			dbg->warning( "karte_t::step()", "Ticks were overflowing => resetted" );
+			dbg->warning("karte_t::step()", "Ticks were overflowing => reset");
 			ticks %= karte_t::ticks_per_world_month;
 			next_month_ticks %= karte_t::ticks_per_world_month;
 		}
