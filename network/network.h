@@ -11,23 +11,9 @@
 // So that windows.h won't include all kinds of things
 #define WIN32_LEAN_AND_MEAN
 
-// first: we must find out version number
-#ifndef WINVER
-#	define _WINSOCKAPI_
-#	include <windows.h>
-#	undef _WINSOCKAPI_
-#endif
-
-// then we know which winsock version to use
-#if WINVER < 0x0500
-#	include <winsock.h>
-#	define USE_IP4_ONLY
-#	define socklen_t int
-#else
 #	include <windows.h>
 #	include <winsock2.h>
 #	include <ws2tcpip.h>
-#endif
 #	ifndef IPV6_V6ONLY
 #		define IPV6_V6ONLY (27)
 #	endif
