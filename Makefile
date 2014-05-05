@@ -37,7 +37,7 @@ else ifneq ($(findstring $(OSTYPE), cygwin mingw),)
     LIBS    += -lmingw32
   endif
   SOURCES += simsys_w32_png.cc
-  CFLAGS  += -DNOMINMAX -DWINVER=_WIN32_WINNT_WINXP
+  CFLAGS  += -DNOMINMAX -DWIN32_LEAN_AND_MEAN -DWINVER=_WIN32_WINNT_WINXP
   LIBS    += -lgdi32 -lwinmm -lws2_32
   # Disable the console on Windows unless WIN32_CONSOLE is set or graphics are disabled
   ifneq ($(WIN32_CONSOLE),)

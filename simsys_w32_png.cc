@@ -10,6 +10,7 @@
 
 // windows Bibliotheken DirectDraw 5.x
 #include <windows.h>
+#include <basetyps.h>
 
 // structures, since we use the C-interface
 struct ImageCodecInfo
