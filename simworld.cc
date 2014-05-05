@@ -278,16 +278,22 @@ void checklist_t::rdwr(memory_rw_t *buffer)
 	buffer->rdwr_short(convoy_entry);
 	if(umgebung_t::networkmode)
 	{
-		buffer->rdwr_long(industry_density_proportion);
-		buffer->rdwr_long(actual_industry_density);
-		buffer->rdwr_long(traffic);
+		buffer->rdwr_bool(processing);
+		buffer->rdwr_byte(current_compartment);
+		buffer->rdwr_bool(paths_available);
+		buffer->rdwr_bool(refresh_completed);
+		buffer->rdwr_bool(refresh_requested);
+		buffer->rdwr_byte(current_phase);
+		buffer->rdwr_short(phase_counter);
+		buffer->rdwr_long(iterations);
 	}
 }
 
 
 int checklist_t::print(char *buffer, const char *entity) const
 {
-	return sprintf(buffer, "%s=[rand=%u halt=%u line=%u cnvy=%u ind_dns_prop=%u act_ind_dens=%u traffic=%u] ", entity, random_seed, halt_entry, line_entry, convoy_entry, industry_density_proportion, actual_industry_density, traffic);
+	return sprintf(buffer, "%s=[rand=%u halt=%u line=%u cnvy=%u processing=%B current_compartment=&u paths_available=%B refresh_completed=%B refresh_requested=%B current_phase=%u phase_couner=%u iterations=%u] ", 
+		entity, random_seed, halt_entry, line_entry, convoy_entry, processing, current_compartment, paths_available, refresh_completed, refresh_requested, current_phase, phase_counter, iterations);
 }
 
 
@@ -7305,7 +7311,18 @@ bool karte_t::interactive(uint32 quit_month)
 						network_frame_count = 0;
 					}
 					sync_steps = steps * settings.get_frames_per_step() + network_frame_count;
-					LCHKLST(sync_steps) = checklist_t(get_random_seed(), halthandle_t::get_next_check(), linehandle_t::get_next_check(), convoihandle_t::get_next_check(), industry_density_proportion, actual_industry_density,finance_history_year[0][WORLD_CITYCARS] );
+					LCHKLST(sync_steps) = checklist_t(get_random_seed(),
+						halthandle_t::get_next_check(), 
+						linehandle_t::get_next_check(), 
+						convoihandle_t::get_next_check(), 
+						path_explorer_t::is_processing(), 
+						path_explorer_t::get_current_compartment(), 
+						path_explorer_t::get_paths_available(), 
+						path_explorer_t::get_refresh_completed(), 
+						path_explorer_t::get_refresh_requested(), 
+						path_explorer_t::get_current_phase(), 
+						path_explorer_t::get_phase_counter(), 
+						path_explorer_t::get_iterations());
 
 #ifdef DEBUG_SIMRAND_CALLS
 					char buf[256];

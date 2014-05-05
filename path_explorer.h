@@ -355,9 +355,14 @@ private:
 		void step();
 		void reset(const bool reset_finished_set);
 
-		bool are_paths_available() { return paths_available; }
-		bool is_refresh_completed() { return refresh_completed; }
-		bool is_refresh_requested() { return refresh_requested; }
+		bool are_paths_available() const { return paths_available; }
+		bool is_refresh_completed() const { return refresh_completed; }
+		bool is_refresh_requested() const { return refresh_requested; }
+
+		// Note that these are only used for the client/server synchronisation checklist for diagnostic purposes.
+		uint8 get_current_phase() const { return current_phase; }
+		uint16 get_phase_counter() const { return phase_counter; }
+		uint32 get_iterations() const { return iterations; }
 
 		void set_category(uint8 category);
 		void set_refresh() { refresh_requested = true; }
@@ -365,8 +370,8 @@ private:
 		bool get_path_between(const halthandle_t origin_halt, const halthandle_t target_halt,
 							  uint16 &aggregate_time, halthandle_t &next_transfer);
 
-		const char *get_category_name() { return ( catg_name ? catg_name : "" ); }
-		const char *get_current_phase_name() { return phase_name[current_phase]; }
+		const char *get_category_name() const { return ( catg_name ? catg_name : "" ); }
+		const char *get_current_phase_name() const { return phase_name[current_phase]; }
 
 		static void initialise_connexion_list();
 
@@ -455,7 +460,15 @@ public:
 	static bool is_processing() { return processing; }
 	static const char *get_current_category_name() { return goods_compartment[current_compartment].get_category_name(); }
 	static const char *get_current_phase_name() { return goods_compartment[current_compartment].get_current_phase_name(); }
-
+	
+	// Note that these are only used for the client/server synchronisation checklist for diagnostic purposes.
+	static uint8 get_current_compartment() { return current_compartment; }
+	static bool get_paths_available() { return goods_compartment[current_compartment].are_paths_available(); }
+	static bool get_refresh_completed() { return goods_compartment[current_compartment].is_refresh_completed(); }
+	static bool get_refresh_requested() { return goods_compartment[current_compartment].is_refresh_requested(); }
+	static uint8 get_current_phase() { return goods_compartment[current_compartment].get_current_phase(); }
+	static uint16 get_phase_counter() { return goods_compartment[current_compartment].get_phase_counter(); }
+	static uint32 get_iterations() { return goods_compartment[current_compartment].get_iterations(); }
 };
 
 #endif

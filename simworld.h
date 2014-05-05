@@ -71,17 +71,39 @@ struct checklist_t
 	uint16 halt_entry;
 	uint16 line_entry;
 	uint16 convoy_entry;
-	uint32 industry_density_proportion;
-	uint32 actual_industry_density;
-	uint32 traffic;
 
-	checklist_t() : random_seed(0), halt_entry(0), line_entry(0), convoy_entry(0), industry_density_proportion(0), actual_industry_density(0), traffic(0) { }
-	checklist_t(uint32 _random_seed, uint16 _halt_entry, uint16 _line_entry, uint16 _convoy_entry, uint32 _industry_denisty_proportion, uint32 _actual_industry_density, uint32 _traffic)
-		: random_seed(_random_seed), halt_entry(_halt_entry), line_entry(_line_entry), convoy_entry(_convoy_entry), industry_density_proportion(_industry_denisty_proportion), actual_industry_density(_actual_industry_density), traffic(_traffic) { }
+	// Path explorer values
+	bool processing;
+	uint8 current_compartment;
+
+	// For the current compartment 
+	// (No sensible way of doing it for every possible compartment)
+	bool paths_available;
+	bool refresh_completed;
+	bool refresh_requested;
+	uint8 current_phase;
+	uint16 phase_counter;
+	uint32 iterations;
+
+	checklist_t() : random_seed(0), halt_entry(0), line_entry(0), convoy_entry(0), processing(false), current_compartment(0), paths_available(false), refresh_completed(false), refresh_requested(false), current_phase(0), phase_counter(0), iterations(0) { }
+	checklist_t(uint32 _random_seed, uint16 _halt_entry, uint16 _line_entry, uint16 _convoy_entry, bool processing, uint8 current_compartment, bool paths_available, bool refresh_completed, bool refresh_requested, uint8 current_phase, uint16 phase_counter, uint32 iterations)
+		: random_seed(_random_seed), halt_entry(_halt_entry), line_entry(_line_entry), convoy_entry(_convoy_entry) { }
 
 	bool operator == (const checklist_t &other) const
 	{
-		return ( random_seed==other.random_seed && halt_entry==other.halt_entry && line_entry==other.line_entry && convoy_entry==other.convoy_entry && industry_density_proportion == other.industry_density_proportion && actual_industry_density == other.actual_industry_density);
+		return (random_seed == other.random_seed && 
+			halt_entry == other.halt_entry && 
+			line_entry == other.line_entry && 
+			convoy_entry == other.convoy_entry &&
+			processing == other.processing &&
+			current_compartment && other.current_compartment &&
+			paths_available == other.paths_available &&
+			refresh_completed == other.refresh_completed &&
+			refresh_requested == other.refresh_requested &&
+			current_phase == other.current_phase &&
+			phase_counter == other.phase_counter &&
+			iterations == other.iterations
+			);
 	}
 	bool operator != (const checklist_t &other) const { return !( (*this)==other ); }
 
