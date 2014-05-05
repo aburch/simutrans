@@ -40,7 +40,6 @@ ifeq ($(OSTYPE),cygwin)
 endif
 
 ifeq ($(OSTYPE),mingw)
-  CC ?= gcc
   SOURCES += simsys_w32_png.cc
   CFLAGS  += -DPNG_STATIC -DZLIB_STATIC -DNOMINMAX=1
   ifeq ($(BACKEND),gdi)
