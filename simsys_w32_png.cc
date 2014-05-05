@@ -3,6 +3,7 @@
 #include "simsys_w32_png.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #ifndef _WIN32
 #error "Only Windows has GDI+!"
