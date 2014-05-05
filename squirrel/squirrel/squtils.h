@@ -113,4 +113,4 @@ private:
 	SQUnsignedInteger _allocated;
 };
 
-#endif //_SQUTILS_H_
+#endif

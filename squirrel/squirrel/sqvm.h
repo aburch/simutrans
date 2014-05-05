@@ -212,4 +212,4 @@ inline SQObjectPtr &stack_get(HSQUIRRELVM v,SQInteger idx){return ((idx>=0)?(v->
 	v->ci->_closure.Null(); \
 	v->ci = css?&v->_callsstack[css-1]:NULL;	\
 }
-#endif //_SQVM_H_
+#endif

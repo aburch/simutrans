@@ -105,4 +105,4 @@ private:
 	bool _owns;
 };
 
-#endif //_SQSTD_BLOBIMPL_H_
+#endif

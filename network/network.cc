@@ -88,7 +88,7 @@ static bool network_initialize()
 			dbg->warning("NetworkInitialize()","failed loading windows socket library with %i", err);
 			return false;
 		}
-#endif /* _WIN32 */
+#endif
 	}
 	network_active = true;
 	return true;
@@ -138,7 +138,7 @@ SOCKET network_open_address(char const* cp, char const*& err)
 		}
 	}
 	if(!ok) {
-#else // _WIN32
+#else
 	/* inet_anon does not work on BeOS; but since gethostbyname() can
 	 * do this job on all other systems too, we use it only:
 	 * instead of if(inet_aton(cp,&server_name.sin_addr)==0) { // Bad address
@@ -149,7 +149,7 @@ SOCKET network_open_address(char const* cp, char const*& err)
 		server_name.sin_addr = *(struct in_addr *)theHost->h_addr_list[0];
 	}
 	else {// Bad address
-#endif // _WIN32
+#endif
 		sprintf( err_str, "Bad address %s", cp );
 		RET_ERR_STR;
 	}
@@ -166,7 +166,7 @@ SOCKET network_open_address(char const* cp, char const*& err)
 		RET_ERR_STR;
 	}
 
-#else // USE_IP4_ONLY
+#else
 
 	// Address format e.g.: "128.0.0.1:13353" or "[::1]:80"
 	char address[1024];
@@ -325,7 +325,7 @@ SOCKET network_open_address(char const* cp, char const*& err)
 		sprintf( err_str, "Could not connect to %s", cp );
 		RET_ERR_STR;
 	}
-#endif // USE_IP4_ONLY
+#endif
 	return my_client_socket;
 }
 
@@ -369,7 +369,7 @@ bool network_init_server( int port )
 
 	socket_list_t::add_server( my );
 
-#else // USE_IP4_ONLY
+#else
 
 #ifdef NETTOOL
 	// Nettool doesn't have env, so fake it
@@ -467,7 +467,7 @@ bool network_init_server( int port )
 		printf("Server started, added %d server sockets\n", socket_list_t::get_server_sockets());
 	}
 
-#endif // USE_IP4_ONLY
+#endif
 
 	network_server_port = port;
 	client_id = 0;

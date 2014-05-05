@@ -351,4 +351,4 @@ const SQChar *IdType2Name(SQObjectType type);
 
 
 
-#endif //_SQOBJECT_H_
+#endif

@@ -28,4 +28,4 @@ public:
 
 
 
-#endif //_SQSTRING_H_
+#endif

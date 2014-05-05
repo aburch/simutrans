@@ -503,4 +503,4 @@ SQUIRREL_API void sq_setnativedebughook(HSQUIRRELVM v,SQDEBUGHOOK hook);
 } /*extern "C"*/
 #endif
 
-#endif /*_SQUIRREL_H_*/
+#endif

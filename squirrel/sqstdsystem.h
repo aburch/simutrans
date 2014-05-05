@@ -12,4 +12,4 @@ SQUIRREL_API SQInteger sqstd_register_systemlib(HSQUIRRELVM v);
 } /*extern "C"*/
 #endif
 
-#endif /* _SQSTD_SYSTEMLIB_H_ */
+#endif

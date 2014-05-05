@@ -16,4 +16,4 @@ SQUIRREL_API SQRESULT sqstd_register_bloblib(HSQUIRRELVM v);
 } /*extern "C"*/
 #endif
 
-#endif /*_SQSTDBLOB_H_*/
+#endif

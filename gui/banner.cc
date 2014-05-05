@@ -49,8 +49,8 @@
 		#define L_DEBUG_TEXT " (debug)"
 	#else
 		#define L_DEBUG_TEXT
-	#endif // debug
-#endif // optimized
+	#endif
+#endif
 
 // colors
 #define COL_PT (5)

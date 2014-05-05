@@ -621,7 +621,7 @@ int fabrikbauer_t::baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, 
 		 */
 #if 0
 		k = finde_zufallsbauplatz(welt, welt->lookup(city->get_pos())->get_boden()->get_pos(), 3, land_bau.dim).get_2d();
-#endif /* 0 */
+#endif
 
 		/* C:
 		 * A building site, as near as possible to the city hall.
@@ -630,7 +630,7 @@ int fabrikbauer_t::baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, 
 		 */
 #if 0
 		k = bauplatz_sucher_t(welt).suche_platz(city->get_pos(), land_bau.dim.x, land_bau.dim.y, info->get_haus()->get_allowed_climate_bits(), &is_rotate);
-#endif /* 0 */
+#endif
 
 		if(k != koord::invalid) {
 			*pos = welt->lookup_kartenboden(k)->get_pos();

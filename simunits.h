@@ -131,4 +131,4 @@
  */
 // Done in simworld.h: speed_to_tiles_per_month
 
-#endif /* simunits.h */
+#endif

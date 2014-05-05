@@ -159,4 +159,4 @@ public:
 	SQObjectPtr _values[1];
 };
 
-#endif //_SQCLASS_H_
+#endif

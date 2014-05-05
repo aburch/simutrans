@@ -190,4 +190,4 @@ public:
 
 
 
-#endif //_SQCLOSURE_H_
+#endif

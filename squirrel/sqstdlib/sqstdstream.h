@@ -15,4 +15,4 @@ SQInteger _stream_flush(HSQUIRRELVM v);
 
 #define _DECL_STREAM_FUNC(name,nparams,typecheck) {_SC(#name),_stream_##name,nparams,typecheck}
 SQRESULT declare_stream(HSQUIRRELVM v,const SQChar* name,SQUserPointer typetag,const SQChar* reg_name,SQRegFunction *methods,SQRegFunction *globals);
-#endif /*_SQSTD_STREAM_H_*/
+#endif

@@ -87,4 +87,4 @@ private:
 };
 
 
-#endif //_SQFUNCSTATE_H_
+#endif

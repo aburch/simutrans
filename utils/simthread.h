@@ -48,8 +48,8 @@ int simthread_barrier_init(simthread_barrier_t *barrier, const simthread_barrier
 int simthread_barrier_destroy(simthread_barrier_t *barrier);
 int simthread_barrier_wait(simthread_barrier_t *barrier);
 
-#endif // _USE_POSIX_BARRIERS
+#endif
 
-#endif // MULTI_THREAD
+#endif
 
 #endif

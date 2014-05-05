@@ -12,4 +12,4 @@ SQUIRREL_API SQRESULT sqstd_register_mathlib(HSQUIRRELVM v);
 } /*extern "C"*/
 #endif
 
-#endif /*_SQSTD_MATH_H_*/
+#endif
