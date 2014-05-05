@@ -19,30 +19,21 @@ ifeq ($(findstring $(OSTYPE), $(OSTYPES)),)
 endif
 
 ifeq ($(OSTYPE),amiga)
-  STD_LIBS ?= -lz -lbz2 -lunix -lSDL_mixer -lsmpeg -lvorbisfile -lvorbis -logg
+  STD_LIBS ?= -lunix -lSDL_mixer -lsmpeg -lvorbisfile -lvorbis -logg
   CFLAGS += -mcrt=newlib -DUSE_C -DBIG_ENDIAN -gstabs+
   LDFLAGS += -Bstatic -non_shared
 endif
 
 ifeq ($(OSTYPE),beos)
-  LIBS += -lz -lnet -lbz2
+  LIBS += -lnet
 endif
 
 ifeq ($(OSTYPE),haiku)
-  LIBS += -lz -lnetwork -lbz2 -lbe -llocale
-endif
-
-ifeq ($(OSTYPE),freebsd)
-  LIBS += -lz -lbz2
+  LIBS += -lnetwork -lbe -llocale
 endif
 
 ifeq ($(OSTYPE),mac)
   CCFLAGS += -Os -fast
-  LIBS    += -lz -lbz2
-endif
-
-ifeq ($(OSTYPE),linux)
-  LIBS += -lz -lbz2
 endif
 
 ifeq ($(OSTYPE),cygwin)
@@ -50,7 +41,7 @@ ifeq ($(OSTYPE),cygwin)
   CFLAGS += -I/usr/include/mingw -mwin32 -DNOMINMAX=1
   CCFLAGS += -I/usr/include/mingw -mwin32 -DNOMINMAX=1
   LDFLAGS += -mno-cygwin
-  LIBS   += -lgdi32 -lwinmm -lwsock32 -lz -lbz2
+  LIBS   += -lgdi32 -lwinmm -lwsock32
 endif
 
 ifeq ($(OSTYPE),mingw)
@@ -61,7 +52,7 @@ ifeq ($(OSTYPE),mingw)
     LIBS += -lunicows
   endif
   LDFLAGS += -static-libgcc -static-libstdc++
-  LIBS += -lmingw32 -lgdi32 -lwinmm -lwsock32 -lz -lbz2
+  LIBS += -lmingw32 -lgdi32 -lwinmm -lwsock32
 endif
 
 ifneq ($(findstring $(OSTYPE), cygwin mingw),)
@@ -80,6 +71,8 @@ ifeq ($(OSTYPE),mingw)
 else
   SOURCES += clipboard_internal.cc
 endif
+
+LIBS += -lbz2 -lz
 
 ALLEGRO_CONFIG ?= allegro-config
 SDL_CONFIG     ?= sdl-config
