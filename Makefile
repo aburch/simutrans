@@ -22,17 +22,9 @@ ifeq ($(OSTYPE),amiga)
   STD_LIBS ?= -lunix -lSDL_mixer -lsmpeg -lvorbisfile -lvorbis -logg
   CFLAGS += -mcrt=newlib -DUSE_C -DBIG_ENDIAN -gstabs+
   LDFLAGS += -Bstatic -non_shared
-endif
-
-ifeq ($(OSTYPE),beos)
+else ifeq ($(OSTYPE),beos)
   LIBS += -lnet
-endif
-
-ifeq ($(OSTYPE),haiku)
-  LIBS += -lnetwork -lbe -llocale
-endif
-
-ifneq ($(findstring $(OSTYPE), cygwin mingw),)
+else ifneq ($(findstring $(OSTYPE), cygwin mingw),)
   ifeq ($(OSTYPE),cygwin)
     CFLAGS  += -I/usr/include/mingw -mwin32
     LDFLAGS += -mno-cygwin
@@ -55,6 +47,8 @@ ifneq ($(findstring $(OSTYPE), cygwin mingw),)
   else
     LDFLAGS += -mwindows
   endif
+else ifeq ($(OSTYPE),haiku)
+  LIBS += -lnetwork -lbe -llocale
 endif
 
 ifeq ($(OSTYPE),mingw)
