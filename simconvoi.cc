@@ -3009,19 +3009,30 @@ convoi_t::reverse_order(bool rev)
 	{
 		if(!fahr[anz_vehikel - 1]->get_besch()->is_bidirectional())
 		{
-			//Do not change the order at all if the last vehicle is not bidirectional
+			// Do not change the order at all if the last vehicle is not bidirectional
 			return;
 		}
 
 		a++;
 		if(fahr[0]->get_besch()->get_leistung() > 0)
 		{
-			// If this is a locomotive, check for tenders.
-			a += fahr[0]->get_besch()->get_nachfolger_count();
-			if(anz_vehikel > a && fahr[a]->get_besch()->get_leistung() > 0)
+			// If this is a locomotive, check for tenders/pair units.
+			if(front()->get_besch()->get_nachfolger_count() > 0 && fahr[1]->get_besch()->get_vorgaenger_count() > 0)
 			{
-				// Check for double-headed tender locomotives
-				a += fahr[a]->get_besch()->get_nachfolger_count();
+				a ++;
+			}
+
+			// Check for double-headed (and triple headed, etc.) tender locomotives
+			uint8 first = a;
+			uint8 second = a + 1;
+			while(anz_vehikel > second && (fahr[first]->get_besch()->get_leistung() > 0 || fahr[second]->get_besch()->get_leistung() > 0))
+			{
+				if(fahr[first]->get_besch()->get_nachfolger_count() > 0 && fahr[second]->get_besch()->get_vorgaenger_count() > 0)
+				{
+					a ++;
+				}
+				first++;
+				second++;
 			}
 			if(anz_vehikel > 1 && fahr[1]->get_besch()->get_leistung() == 0 && fahr[1]->get_besch()->get_nachfolger_count() == 1 && fahr[1]->get_besch()->get_nachfolger(0) && fahr[1]->get_besch()->get_nachfolger(0)->get_leistung() == 0 && fahr[1]->get_besch()->get_nachfolger(0)->get_preis() == 0)
 			{
@@ -3030,7 +3041,7 @@ convoi_t::reverse_order(bool rev)
 			}
 		}
 
-		//Check whether this is a Garrett type vehicle
+		// Check whether this is a Garrett type vehicle (with unpowered front units).
 		if(fahr[0]->get_besch()->get_leistung() == 0 && fahr[0]->get_besch()->get_zuladung() == 0)
 		{
 			// Possible Garrett
@@ -3042,7 +3053,7 @@ convoi_t::reverse_order(bool rev)
 			}
 		}
 
-		//Check for a goods train with a brake van
+		// Check for a goods train with a brake van
 		if((fahr[anz_vehikel - 2]->get_besch()->get_ware()->get_catg_index() > 1)
 			&& 	fahr[anz_vehikel - 2]->get_besch()->get_can_be_at_rear() == false)
 		{
