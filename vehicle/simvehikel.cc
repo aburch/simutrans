@@ -257,7 +257,9 @@ void
 vehikel_basis_t::verlasse_feld() //"leave field" (Google)
 {
 	// first: release crossing
-	grund_t *gr = welt->lookup(get_pos()); // This line had been commented out, but could lead to vehicles failing to release crossings.
+	// This needs to be refreshed here even though this value is cached:
+	// otherwise, it can sometimes be incorrect, which could lead to vehicles failing to release crossings.
+	gr = welt->lookup(get_pos()); 
 	weg = NULL;
 	if(  gr  &&  gr->ist_uebergang()  ) {
 		crossing_t *cr = gr->find<crossing_t>(2);
