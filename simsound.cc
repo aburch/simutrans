@@ -263,7 +263,7 @@ bool midi_get_mute()
 void check_midi()
 {
 	// Check for next sound
-	if(  new_midi == true  ||  (  !midi_get_mute()  &&  dr_midi_pos() < 0  )  ) {
+	if (new_midi || (!midi_get_mute() && dr_midi_pos() < 0)) {
 		if(  env_t::shuffle_midi  &&  max_midi > 1  ) {
 
 			// shuffle songs (must not use simrand()!)
