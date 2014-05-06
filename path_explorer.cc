@@ -1404,7 +1404,7 @@ void path_explorer_t::compartment_t::step()
 					}
 
 					// should take into account the iterations above
-					iterations += (uint32)working_halt_count + ( inbound_connections->get_total_member_count() << 1 );
+					iterations_processed += (uint32)working_halt_count + ( inbound_connections->get_total_member_count() << 1 );
 				}
 
 				// for each origin cluster
