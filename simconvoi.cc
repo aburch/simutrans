@@ -4584,15 +4584,18 @@ sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportione
 	// If the origin has been deleted since the packet departed, then the best that we can do is guess by
 	// trebling the distance to the last stop.
 	uint32 max_distance;
-	if (ware.get_last_transfer().is_bound()) {
+	if (ware.get_last_transfer().is_bound())
+	{
 		max_distance = shortest_distance(ware.get_last_transfer()->get_basis_pos(), fahr[0]->get_pos().get_2d()) * 2;
 	}
-	else {
+	else
+	{
 		max_distance = shortest_distance(last_stop_pos.get_2d(), fahr[0]->get_pos().get_2d()) * 3;
 	}
 	const departure_data_t dep = departures->get(ware.get_last_transfer().get_id());
 	uint32 travel_distance = dep.get_overall_distance();
-	if (travel_distance == 0) {
+	if (travel_distance == 0)
+	{
 		// Something went wrong, make a wild guess
 		travel_distance = max_distance / 2;
 	}
@@ -4607,20 +4610,25 @@ sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportione
 	sint64 journey_tenths = 0;
 	sint64 average_speed;
 	bool valid_journey_time = false;
+	
 	if(ware.get_last_transfer().is_bound())
 	{
 		const planquadrat_t* plan = welt->lookup(fahr[0]->get_pos().get_2d());
-		if (plan) {
+		if (plan)
+		{
 			id_pair my_ordered_pair = id_pair(ware.get_last_transfer().get_id(), plan->get_halt().get_id());
 			journey_tenths = get_average_journey_times()->get(my_ordered_pair).get_average();
-			if (journey_tenths != 0) {
+			if(journey_tenths != 0)
+			{
 				// No unreasonably short journeys...
 				average_speed = kmh_from_meters_and_tenths(travel_distance_meters, journey_tenths);
 				if(average_speed > speed_to_kmh(get_min_top_speed()))
 				{
-					dbg->warning("sint64 convoi_t::calc_revenue", "Average speed (%i) for %s exceeded maximum speed (%i); falling back to overall average", average_speed, get_name(), speed_to_kmh(get_min_top_speed()));
+					// TODO: Re-enable this for 12.x when the point to point average timings should work better.
+					//dbg->warning("sint64 convoi_t::calc_revenue", "Average speed (%i) for %s exceeded maximum speed (%i); falling back to overall average", average_speed, get_name(), speed_to_kmh(get_min_top_speed()));
 				}
-				else {
+				else 
+				{
 					// We seem to have a believable speed...
 					if(average_speed == 0)
 					{
