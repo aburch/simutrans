@@ -155,14 +155,11 @@ void ware_production_t::rdwr(loadsave_t *file)
 		file->rdwr_longlong( weighted_sum_storage );
 	}
 
-
-#ifndef CACHE_TRANSIT
 	if(  file->is_loading()  ) {
 		// recalc transit always on load
 		transit = 0;
 		statistics[0][FAB_GOODS_TRANSIT] = 0;
 	}
-#endif
 }
 
 
