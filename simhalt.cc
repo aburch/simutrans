@@ -3978,14 +3978,12 @@ void haltestelle_t::rdwr(loadsave_t *file)
 					ware_t ware(file);
 					if( ware.get_desc() && ware.menge>0 && welt->is_within_limits(ware.get_zielpos()) ) {
 						add_ware_to_halt(ware, true);
-#ifndef CACHE_TRANSIT
 						/*
 						 * It's very easy for in-transit information to get corrupted,
 						 * if an intermediate program version fails to compute it right.
 						 * So *always* compute it fresh.
 						 */
-							fabrik_t::update_transit( ware, true );
-#endif
+						fabrik_t::update_transit( ware, true );
 					}
 					else if(  ware.menge>0  )
 					{

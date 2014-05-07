@@ -194,12 +194,10 @@ void ware_production_t::rdwr(loadsave_t *file)
 		}
 	}
 
-#ifndef CACHE_TRANSIT
 	if(  file->is_loading()  ) {
 		// recalc transit always on load
 		set_stat(0, FAB_GOODS_TRANSIT);
 	}
-#endif
 }
 
 
