@@ -108,21 +108,24 @@ bool tabfileobj_t::get_x_y( const char *key, sint16 &x, sint16 &y )
 
 const koord &tabfileobj_t::get_koord(const char *key, koord def)
 {
-	static koord ret = def;
+	static koord ret;
+	ret = def;
 	get_x_y( key, ret.x, ret.y );
 	return ret;
 }
 
 const scr_coord &tabfileobj_t::get_scr_coord(const char *key, scr_coord def)
 {
-	static scr_coord ret = def;
+	static scr_coord ret;
+	ret = def;
 	get_x_y( key, ret.x, ret.y );
 	return ret;
 }
 
 const scr_size &tabfileobj_t::get_scr_size(const char *key, scr_size def)
 {
-	static scr_size ret = def;
+	static scr_size ret;
+	ret = def;
 	get_x_y( key, ret.w, ret.h );
 	return ret;
 }
