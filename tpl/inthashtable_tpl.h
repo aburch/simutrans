@@ -7,27 +7,44 @@
 
 #include "hashtable_tpl.h"
 
+/**
+ * Define type for differences of integers.
+ * Default is int.
+ * Obvious specializations for 64bit integers.
+ */
+template<class inttype> struct int_diff_type {
+	typedef int diff_type;
+};
+template<> struct int_diff_type<sint64> {
+	typedef sint64 diff_type;
+};
+template<> struct int_diff_type<uint64> {
+	typedef sint64 diff_type;
+};
 
-/*
+
+/**
  * Define the key characteristica for hashing integer types
  */
 template<class key_t>
 class inthash_tpl {
 public:
-    static uint32 hash(const key_t key)
-    {
+	typedef typename int_diff_type<key_t>::diff_type diff_type;
+
+	static uint32 hash(const key_t key)
+	{
 		return (uint32)key;
-    }
+	}
 
 	static void dump(const key_t key)
-    {
+	{
 		printf("%d", (int)key);
-    }
+	}
 
-	static int comp(key_t key1, key_t key2)
-    {
-		return (int)key1 - (int)key2;
-    }
+	static diff_type comp(key_t key1, key_t key2)
+	{
+		return key1 - key2;
+	}
 };
 
 
