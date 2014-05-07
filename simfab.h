@@ -81,7 +81,6 @@ sint64 convert_goods(sint64 value);
 sint64 convert_power(sint64 value);
 sint64 convert_boost(sint64 value);
 
-// to prepare for 64 precision ...
 class ware_production_t
 {
 private:
@@ -93,7 +92,7 @@ private:
 	/// clears statistics, transit, and weighted_sum_storage
 	void init_stats();
 public:
-	ware_production_t() : type(NULL), menge(0), max(0), transit(0), max_transit(0), index_offset(0)
+	ware_production_t() : type(NULL), menge(0), max(0)/*, transit(statistics[0][FAB_GOODS_TRANSIT])*/, max_transit(0), index_offset(0)
 	{
 #ifdef TRANSIT_DISTANCE
 		count_suppliers = 0;
@@ -127,12 +126,13 @@ public:
 
 	sint32 menge;	// in internal units shifted by precision_bits (see step)
 	sint32 max;
-	sint32 transit;
-	sint32 max_transit;	// current limit, depending of suppliers mean distance
+	/// Cargo currently in transit from/to this slot. Equivalent to statistics[0][FAB_GOODS_TRANSIT].
+	sint32 get_in_transit() const { return statistics[0][FAB_GOODS_TRANSIT]; }
+	/// Current limit on cargo in transit, depending on suppliers mean distance.
+	sint32 max_transit;
 #ifdef TRANSIT_DISTANCE
 	sint32 count_suppliers;	// only needed for averaging
 #endif
-
 	uint32 index_offset; // used for haltlist and lieferziele searches in verteile_waren to produce round robin results
 };
 
