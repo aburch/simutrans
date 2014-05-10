@@ -16,6 +16,8 @@ template<class key_t>
 class koordhash_tpl 
 {
 public:
+	typedef int diff_type;
+
     static uint32 hash(const key_t key)
     {
 		return (uint32)key.y << 16 | key.x;
@@ -31,10 +33,10 @@ public:
 		printf("%d, %d", key.x, key.y);
     }
 
-	static int comp(key_t key1, key_t key2)
+	static diff_type comp(key_t key1, key_t key2)
     {
-		int d = (int) key1.y - (int) key2.y;
-		if (!d)	d = (int) key1.x - (int) key2.x;
+		diff_type d = key1.y - key2.y;
+		if (!d)	d = key1.x - key2.x;
 		return d;
     }
 };
