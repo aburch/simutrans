@@ -415,7 +415,7 @@ void convoi_t::laden_abschliessen()
 
 	bool realing_position = false;
 	if(  anz_vehikel>0  ) {
-DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", state_names[state], next_stop_index );
+		DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", state_names[state], next_stop_index );
 
 	const uint32 max_route_index = get_route() ? get_route()->get_count() - 1 : 0;
 
@@ -471,7 +471,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", sta
 							}
 							step_pos += ribi_t::ist_kurve(v->get_fahrtrichtung()) ? diagonal_vehicle_steps_per_tile : VEHICLE_STEPS_PER_TILE;
 						}
-						dbg->message("convoi_t::laden_abschliessen()", "v: pos(%s) steps(%d) len=%d ribi=%d prev (%s) step(%d)", v->get_pos().get_str(), v->get_steps(), v->get_besch()->get_length()*16, v->get_fahrtrichtung(),  drive_pos.get_2d().get_str(), step_pos);
+						DBG_MESSAGE("convoi_t::laden_abschliessen()", "v: pos(%s) steps(%d) len=%d ribi=%d prev (%s) step(%d)", v->get_pos().get_str(), v->get_steps(), v->get_besch()->get_length()*16, v->get_fahrtrichtung(),  drive_pos.get_2d().get_str(), step_pos);
 						if(  abs( v->get_steps() - step_pos )>15  ) {
 							// not where it should be => realing
 							realing_position = true;
@@ -524,7 +524,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 	// put convoi agian right on track?
 	if(realing_position  &&  anz_vehikel>1) {
 		// display just a warning
-		dbg->warning("convoi_t::laden_abschliessen()","cnv %i is currently too long.",self.get_id());
+		DBG_MESSAGE("convoi_t::laden_abschliessen()","cnv %i is currently too long.",self.get_id());
 
 		if (route.empty()) {
 			// realigning needs a route
