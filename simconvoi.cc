@@ -6628,7 +6628,7 @@ void convoi_t::emergency_go_to_depot()
 	}
 }
 
-koordhashtable_tpl<id_pair, average_tpl<uint16> > * convoi_t::get_average_journey_times() const
+koordhashtable_tpl<id_pair, average_tpl<uint16> > * convoi_t::get_average_journey_times()
 {
 	if(line.is_bound())
 	{

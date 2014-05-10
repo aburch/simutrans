@@ -708,9 +708,6 @@ void path_explorer_t::compartment_t::step()
 			quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> *catg_connexions;
 			haltestelle_t::connexion *new_connexion;
 
-			vector_tpl<convoihandle_t> convoys_to_reset;
-			vector_tpl<linehandle_t> lines_to_reset;
-
 			start = dr_time();	// start timing
 
 			// for each schedule of line / lineless convoy
@@ -790,7 +787,7 @@ void path_explorer_t::compartment_t::step()
 						}
 						else
 						{
-							journey_time = current_linkage.line->get_average_journey_times()->get(pair).get_average();
+							journey_time = current_linkage.line->get_average_journey_times()->access(pair)->reduce();
 						}
 					}
 					else if ( current_linkage.convoy.is_bound() && current_linkage.convoy->get_average_journey_times()->is_contained(pair) )
@@ -802,7 +799,7 @@ void path_explorer_t::compartment_t::step()
 						}
 						else
 						{
-							journey_time = current_linkage.convoy->get_average_journey_times()->get(pair).get_average();
+							journey_time = current_linkage.convoy->get_average_journey_times()->access(pair)->reduce();
 						}
 					}
 
@@ -879,15 +876,12 @@ void path_explorer_t::compartment_t::step()
 								// If it is, check whether the reverse direction gives a shorter journey time.
 								if(ave_rc && ave_rc->count > 0)
 								{
-									if(ave_rc->get_average() < ave->get_average())
+									if(ave_rc->reduce() < ave->reduce())
 									{
 										ave = ave_rc;
 									}
 								}
-								new_connexion->journey_time = ave->get_average();
-								// Reset the data once they have been read once.
-								lines_to_reset.append(new_connexion->best_line);
-								convoys_to_reset.append(new_connexion->best_convoy);
+								new_connexion->journey_time = ave->reduce();
 							}
 							else
 							{
@@ -900,9 +894,7 @@ void path_explorer_t::compartment_t::step()
 							average_tpl<uint16>* ave = current_linkage.convoy->get_average_journey_times()->access(id_pair(halt_list[h].get_id(), halt_list[t].get_id()));
 							if(ave && ave->count > 0)
 							{
-								new_connexion->journey_time = ave->get_average();
-								// Reset the data once they have been read once.
-								convoys_to_reset.append(new_connexion->best_convoy);
+								new_connexion->journey_time = ave->reduce();
 							}
 							else
 							{
@@ -1007,25 +999,6 @@ void path_explorer_t::compartment_t::step()
 			}
 
 			iterations = 0;	// reset iteration counter
-
-			ITERATE(lines_to_reset, n)
-			{
-				if(lines_to_reset[n].is_bound())
-				{
-					lines_to_reset[n]->get_average_journey_times()->clear();
-				}
-			}
-
-			lines_to_reset.clear();
-
-			ITERATE(convoys_to_reset, m)
-			{
-				if(convoys_to_reset[m].is_bound())
-				{
-					convoys_to_reset[m]->get_average_journey_times()->clear();
-				}
-			}
-			convoys_to_reset.clear();
 
 #ifndef DEBUG_EXPLORER_SPEED
 			return;
