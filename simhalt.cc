@@ -2344,6 +2344,7 @@ uint32 haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 		// the factory exists;
 		// and the factory is considered linked to this halt.
 		// FIXME: this should be delayed by transshipment time / walking time.
+		// TODO: When the factory's input storage is full, have these pile up at the stop until it has space again.
 		liefere_an_fabrik(ware);
 		if(ware.get_besch() == warenbauer_t::passagiere)
 		{

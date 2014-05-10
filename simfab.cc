@@ -1598,7 +1598,12 @@ sint8 fabrik_t::is_needed(const ware_besch_t *typ) const
 		if(  i.get_typ() == typ  ) {
 			// not needed (false) if overflowing or too much already sent
 			const bool transit_ok = max_intransit_percentages.get(typ->get_catg())  == 0 ? true : (i.transit * 100) < ((i.max >> fabrik_t::precision_bits) * max_intransit_percentages.get(typ->get_catg()));
-			return (i.menge < i.max)  &&  transit_ok;
+			//return (i.menge < i.max)  &&  transit_ok;
+			// The previous system resulted in fluctuating supply levels when the time to consume was less than the lead time. 
+			// This does not properly respect the input storage size (although account of this is taken in the time to consume calculations),
+			// but consideration can be given to accounting for this elsewhere (for example, by not loading the freight from the stop to the 
+			// factory until it has storage space, although this would probably not have any actual game-play consequences). 
+			return transit_ok; 
 		}
 	}
 	return -1;  // not needed here
