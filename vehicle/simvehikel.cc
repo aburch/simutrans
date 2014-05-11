@@ -309,7 +309,7 @@ grund_t* vehikel_basis_t::betrete_feld()
 	}
 	if(!gr->obj_add(this))
 	{
-		dbg->error("vehikel_basis_t::betrete_feld()","'%s failed to be added to the object list", ,get_name());
+		dbg->error("vehikel_basis_t::betrete_feld()","'%s failed to be added to the object list", get_name());
 	}
 	return gr;
 }
