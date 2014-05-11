@@ -3164,7 +3164,9 @@ void convoi_t::rdwr(loadsave_t *file)
 
 	file->rdwr_long(wait_lock);
 	// some versions may produce broken savegames apparently
-	if(wait_lock > 1470000) { // max as set by NO_ROUTE
+	if(wait_lock > 1470000 && file->get_experimental_version() < 11)
+	{ 
+		// max as was set by NO_ROUTE in former times. This code is deprecated now as the wait_lock can be higher with the convoy spacing feature.
 		dbg->warning("convoi_t::sync_prepre()","Convoi %d: wait lock out of bounds: wait_lock = %d, setting to 1470000",self.get_id(), wait_lock);
 		wait_lock = 1470000;
 	}
