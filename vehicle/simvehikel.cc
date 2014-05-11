@@ -307,7 +307,10 @@ grund_t* vehikel_basis_t::betrete_feld()
 		gr = welt->lookup_kartenboden(get_pos().get_2d());
 		set_pos( gr->get_pos() );
 	}
-	gr->obj_add(this);
+	if(!gr->obj_add(this))
+	{
+		dbg->error("vehikel_basis_t::betrete_feld()","'%s failed to be added to the object list", ,get_name());
+	}
 	return gr;
 }
 
