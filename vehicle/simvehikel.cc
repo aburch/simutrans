@@ -4486,7 +4486,10 @@ bool schiff_t::ist_weg_frei(int &restart_speed,bool)
 		}
 		if(  gr->get_top()>192  ) {
 			// too many ships already here ..
-			dbg->warning("bool schiff_t::ist_weg_frei", "Too many ships on a tile");
+			if(gr->get_top() > 251)
+			{
+				dbg->warning("bool schiff_t::ist_weg_frei", "Too many ships (%i) on a tile", gr->get_top());
+			}
 			return false;
 		}
 		weg_t *w = gr->get_weg(water_wt);
