@@ -5969,6 +5969,7 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 	else if (!transport_success)
 	{
 		txt = "Depot found but could not be inserted in schedule.  This is a bug!";
+		dbg->warning("convoi_t::go_to_depot()", "Depot found but could not be inserted in schedule for convoy %s", get_name());
 		success = false;
 	}
 	if ( (!success || show_success) && get_besitzer() == welt->get_active_player())
