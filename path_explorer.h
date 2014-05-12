@@ -267,6 +267,7 @@ private:
 		// phase counters
 		uint16 phase_counter;
 		uint32 iterations;
+		uint32 total_iterations; // for desync debug only
 
 		// phase counters for path searching
 		uint16 via_index;
@@ -362,7 +363,10 @@ private:
 		// Note that these are only used for the client/server synchronisation checklist for diagnostic purposes.
 		uint8 get_current_phase() const { return current_phase; }
 		uint16 get_phase_counter() const { return phase_counter; }
-		uint32 get_iterations() const { return iterations; }
+		uint16 get_working_halt_count() const { return working_halt_count; }
+		uint16 get_all_halt_count() const { return all_halts_count; }
+		uint16 get_transfer_count() const { return transfer_count; }
+		uint32 get_total_iterations() { const uint32 ti = total_iterations; total_iterations = 0; return ti; }
 
 		void set_category(uint8 category);
 		void set_refresh() { refresh_requested = true; }
@@ -463,12 +467,16 @@ public:
 	
 	// Note that these are only used for the client/server synchronisation checklist for diagnostic purposes.
 	static uint8 get_current_compartment() { return current_compartment; }
-	static bool get_paths_available() { return goods_compartment[current_compartment].are_paths_available(); }
-	static bool get_refresh_completed() { return goods_compartment[current_compartment].is_refresh_completed(); }
-	static bool get_refresh_requested() { return goods_compartment[current_compartment].is_refresh_requested(); }
-	static uint8 get_current_phase() { return goods_compartment[current_compartment].get_current_phase(); }
-	static uint16 get_phase_counter() { return goods_compartment[current_compartment].get_phase_counter(); }
-	static uint32 get_iterations() { return goods_compartment[current_compartment].get_iterations(); }
+	static uint8 get_max_categories() { return max_categories; }
+	static bool get_paths_available(uint8 i) { return goods_compartment[i].are_paths_available(); }
+	static bool get_refresh_completed(uint8 i) { return goods_compartment[i].is_refresh_completed(); }
+	static bool get_refresh_requested(uint8 i) { return goods_compartment[i].is_refresh_requested(); }
+	static uint8 get_current_phase(uint8 i) { return goods_compartment[i].get_current_phase(); }
+	static uint16 get_phase_counter(uint8 i) { return goods_compartment[i].get_phase_counter(); }
+	static uint16 get_working_halt_count(uint8 i) { return goods_compartment[i].get_working_halt_count(); }
+	static uint16 get_all_halt_count(uint8 i) { return goods_compartment[i].get_all_halt_count(); }
+	static uint16 get_transfer_count(uint8 i) { return goods_compartment[i].get_transfer_count(); }
+	static uint32 get_total_iterations(uint8 i) { return goods_compartment[i].get_total_iterations(); }
 };
 
 #endif

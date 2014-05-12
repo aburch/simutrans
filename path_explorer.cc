@@ -265,6 +265,7 @@ path_explorer_t::compartment_t::compartment_t()
 
 	phase_counter = 0;
 	iterations = 0;
+	total_iterations = 0;
 
 	via_index = 0;
 	origin_cluster_index = 0;
@@ -462,6 +463,7 @@ void path_explorer_t::compartment_t::reset(const bool reset_finished_set)
 
 	phase_counter = 0;
 	iterations = 0;
+	total_iterations = 0;
 
 	via_index = 0;
 	origin_cluster_index = 0;
@@ -934,6 +936,7 @@ void path_explorer_t::compartment_t::step()
 
 				// iteration control
 				++iterations;
+				++total_iterations;
 				if ( use_limits && iterations == limit_rebuild_connexions)
 				{
 					break;
@@ -1055,6 +1058,7 @@ void path_explorer_t::compartment_t::step()
 				
 				// iteration control
 				++iterations;
+				++total_iterations;
 				if ( use_limits && iterations == limit_filter_eligible )
 				{
 					break;
@@ -1252,6 +1256,7 @@ void path_explorer_t::compartment_t::step()
 				
 				// iteration control
 				++iterations;
+				++total_iterations;
 				if ( use_limits && iterations == limit_fill_matrix )
 				{
 					break;
@@ -1378,6 +1383,7 @@ void path_explorer_t::compartment_t::step()
 
 					// should take into account the iterations above
 					iterations_processed += (uint32)working_halt_count + ( inbound_connections->get_total_member_count() << 1 );
+					total_iterations += (uint32)working_halt_count + ( inbound_connections->get_total_member_count() << 1 );
 				}
 
 				// for each origin cluster
@@ -1432,6 +1438,7 @@ void path_explorer_t::compartment_t::step()
 
 							// iteration control
 							iterations_processed += target_halt_list.get_count();
+							total_iterations += target_halt_list.get_count();
 							if ( use_limits && iterations_processed >= limit_explore_paths )
 							{
 								goto loop_termination;
@@ -1578,6 +1585,8 @@ void path_explorer_t::compartment_t::step()
 				paths_available = true;
 			}
 			
+			iterations = 0;	// reset iteration counter // desync debug
+
 			return;
 		}
 
@@ -1607,6 +1616,7 @@ void path_explorer_t::compartment_t::step()
 				{
 					// only halts with relevant goods packets are counted
 					++iterations;
+					++total_iterations;
 				}
 
 				++phase_counter;

@@ -270,30 +270,87 @@ void karte_t::world_xy_loop(xy_loop_func function, bool sync_x_steps)
 }
 
 
+checklist_t::checklist_t(uint32 _random_seed, uint16 _halt_entry, uint16 _line_entry, uint16 _convoy_entry, bool _processing, uint8 _current_compartment, uint32 _r0, uint32 _r1, uint32 _r2, uint32 _r3, uint32 _r4, uint32 _r5, uint32 _r6, uint32 _r7, uint32 _r8, uint32 _r9, uint32 _r10, uint32 _r11)
+	: random_seed(_random_seed), halt_entry(_halt_entry), line_entry(_line_entry), convoy_entry(_convoy_entry), processing(_processing), current_compartment(_current_compartment)
+{
+	rand[0] = _r0;
+	rand[1] = _r1;
+	rand[2] = _r2;
+	rand[3] = _r3;
+	rand[4] = _r4;
+	rand[5] = _r5;
+	rand[6] = _r6;
+	rand[7] = _r7;
+	rand[8] = _r8;
+	rand[9] = _r9;
+	rand[10] = _r10;
+	rand[11] = _r11;
+
+	uint8 i = 0;
+	while(  i < path_explorer_t::get_max_categories()  &&  i < 10  ) {
+		paths_available[i] = path_explorer_t::get_paths_available(i);
+		refresh_completed[i] = path_explorer_t::get_refresh_completed(i);
+		refresh_requested[i] = path_explorer_t::get_refresh_requested(i);
+		current_phase[i] = path_explorer_t::get_current_phase(i);
+		phase_counter[i] = path_explorer_t::get_phase_counter(i);
+		working_halt_count[i] = path_explorer_t::get_working_halt_count(i);
+		all_halt_count[i] = path_explorer_t::get_all_halt_count(i);
+		transfer_count[i] = path_explorer_t::get_transfer_count(i);
+		total_iterations[i] = path_explorer_t::get_total_iterations(i);
+		i++;
+	}
+	while(  i++ < 10  ) {
+		paths_available[i] = refresh_completed[i] = refresh_requested[i] = false;
+		current_phase[i] = 0;
+		phase_counter[i] = working_halt_count[i] = all_halt_count[i] = transfer_count[i] = 0;
+		total_iterations[i] = 0;
+	}
+}
+
+
 void checklist_t::rdwr(memory_rw_t *buffer)
 {
 	buffer->rdwr_long(random_seed);
 	buffer->rdwr_short(halt_entry);
 	buffer->rdwr_short(line_entry);
 	buffer->rdwr_short(convoy_entry);
-	if(umgebung_t::networkmode)
-	{
+
+	// desync debug
+	for(  uint8 i = 0;  i < 12;  i++  ) {
+		buffer->rdwr_long(rand[i]);
+	}
 		buffer->rdwr_bool(processing);
 		buffer->rdwr_byte(current_compartment);
-		buffer->rdwr_bool(paths_available);
-		buffer->rdwr_bool(refresh_completed);
-		buffer->rdwr_bool(refresh_requested);
-		buffer->rdwr_byte(current_phase);
-		buffer->rdwr_short(phase_counter);
-		buffer->rdwr_long(iterations);
+	for(  uint8 i = 0;  i < 10;  i++  ) {
+		buffer->rdwr_bool(paths_available[i]);
+		buffer->rdwr_bool(refresh_completed[i]);
+		buffer->rdwr_bool(refresh_requested[i]);
+		buffer->rdwr_byte(current_phase[i]);
+		buffer->rdwr_short(phase_counter[i]);
+		buffer->rdwr_short(working_halt_count[i]);
+		buffer->rdwr_short(all_halt_count[i]);
+		buffer->rdwr_short(transfer_count[i]);
+		buffer->rdwr_long(total_iterations[i]);
 	}
 }
 
 
 int checklist_t::print(char *buffer, const char *entity) const
 {
-	return sprintf(buffer, "%s=[rand=%u halt=%u line=%u cnvy=%u processing=%d current_compartment=%u paths_available=%d refresh_completed=%d refresh_requested=%d current_phase=%u phase_couner=%u iterations=%u] ", 
-		entity, random_seed, halt_entry, line_entry, convoy_entry, processing, current_compartment, paths_available, refresh_completed, refresh_requested, current_phase, phase_counter, iterations);
+	return sprintf(buffer, "%s=[rand=%u halt=%u line=%u cnvy=%u rands=%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u proc=%d curr_cmpt=%u pa=%d,%d,%d,%d,%d,%d,%d,%d,%d,%d rc=%d,%d,%d,%d,%d,%d,%d,%d,%d,%d rr=%d,%d,%d,%d,%d,%d,%d,%d,%d,%d curr_ph=%u,%u,%u,%u,%u,%u,%u,%u,%u,%u ph_c=%u,%u,%u,%u,%u,%u,%u,%u,%u,%u whc=%u,%u,%u,%u,%u,%u,%u,%u,%u,%u ahc=%u,%u,%u,%u,%u,%u,%u,%u,%u,%u tc=%u,%u,%u,%u,%u,%u,%u,%u,%u,%u tot_iter=%u,%u,%u,%u,%u,%u,%u,%u,%u,%u] ",
+		entity, random_seed, halt_entry, line_entry, convoy_entry,
+		rand[0], rand[1], rand[2], rand[3], rand[4], rand[5], rand[6], rand[7], rand[8], rand[9], rand[10], rand[11],
+		processing, current_compartment,
+		paths_available[0], paths_available[1], paths_available[2], paths_available[3], paths_available[4], paths_available[5], paths_available[6], paths_available[7], paths_available[8], paths_available[9],
+		refresh_completed[0], refresh_completed[1], refresh_completed[2], refresh_completed[3], refresh_completed[4], refresh_completed[5], refresh_completed[6], refresh_completed[7], refresh_completed[8], refresh_completed[9],
+		refresh_requested[0], refresh_requested[1], refresh_requested[2], refresh_requested[3], refresh_requested[4], refresh_requested[5], refresh_requested[6], refresh_requested[7], refresh_requested[8], refresh_requested[9],
+		current_phase[0], current_phase[1], current_phase[2], current_phase[3], current_phase[4], current_phase[5], current_phase[6], current_phase[7], current_phase[8], current_phase[9],
+		phase_counter[0], phase_counter[1], phase_counter[2], phase_counter[3], phase_counter[4], phase_counter[5], phase_counter[6], phase_counter[7], phase_counter[8], phase_counter[9],
+		working_halt_count[0], working_halt_count[1], working_halt_count[2], working_halt_count[3], working_halt_count[4], working_halt_count[5], working_halt_count[6], working_halt_count[7], working_halt_count[8], working_halt_count[9],
+		all_halt_count[0], all_halt_count[1], all_halt_count[2], all_halt_count[3], all_halt_count[4], all_halt_count[5], all_halt_count[6], all_halt_count[7], all_halt_count[8], all_halt_count[9],
+		transfer_count[0], transfer_count[1], transfer_count[2], transfer_count[3], transfer_count[4], transfer_count[5], transfer_count[6], transfer_count[7], transfer_count[8], transfer_count[9],
+		total_iterations[0], total_iterations[1], total_iterations[2], total_iterations[3], total_iterations[4], total_iterations[5], total_iterations[6], total_iterations[7], total_iterations[8], total_iterations[9]
+	);
 }
 
 
@@ -4110,6 +4167,7 @@ void karte_t::notify_record( convoihandle_t cnv, sint32 max_speed, koord pos )
 
 void karte_t::step()
 {
+rands[0] = get_random_seed();
 	DBG_DEBUG4("karte_t::step", "start step");
 	unsigned long time = dr_time();
 
@@ -4136,6 +4194,7 @@ void karte_t::step()
 		DBG_DEBUG4("karte_t::step", "calling neuer_monat");
 		new_month();
 	}
+rands[1] = get_random_seed();
 
 	DBG_DEBUG4("karte_t::step", "time calculations");
 	if(  step_mode==NORMAL  ) {
@@ -4210,12 +4269,14 @@ void karte_t::step()
 			tile_counter = 0;
 		}
 	}
+rands[2] = get_random_seed();
 
 	// to make sure the tick counter will be updated
 	INT_CHECK("karte_t::step 1");
 
 	// Knightly : calling global path explorer
 	path_explorer_t::step();
+rands[3] = get_random_seed();
 	INT_CHECK("karte_t::step 2");
 	
 	DBG_DEBUG4("karte_t::step 4", "step %d convois", convoi_array.get_count());
@@ -4227,6 +4288,7 @@ void karte_t::step()
 			INT_CHECK("karte_t::step 5");
 		}
 	}
+rands[4] = get_random_seed();
 
 	if(cities_awaiting_private_car_route_check.get_count() > 0 && (steps % 12) == 0)
 	{
@@ -4234,6 +4296,7 @@ void karte_t::step()
 		city->check_all_private_car_routes();
 		city->set_check_road_connexions(false);
 	}
+rands[5] = get_random_seed();
 
 
 	// now step all towns (to generate passengers)
@@ -4243,6 +4306,7 @@ void karte_t::step()
 		i->step(delta_t);
 		bev += i->get_finance_history_month(0, HIST_CITICENS);
 	}
+rands[6] = get_random_seed();
 
 	// the inhabitants stuff
 	finance_history_month[0][WORLD_CITICENS] = bev;
@@ -4251,6 +4315,7 @@ void karte_t::step()
 	FOR(vector_tpl<fabrik_t*>, const f, fab_list) {
 		f->step(delta_t);
 	}
+rands[7] = get_random_seed();
 
 	finance_history_year[0][WORLD_FACTORIES] = finance_history_month[0][WORLD_FACTORIES] = fab_list.get_count();
 
@@ -4259,6 +4324,7 @@ void karte_t::step()
 	pumpe_t::step_all( delta_t );
 	senke_t::step_all( delta_t );
 	powernet_t::step_all( delta_t );
+rands[8] = get_random_seed();
 
 	DBG_DEBUG4("karte_t::step", "step players");
 	// then step all players
@@ -4267,9 +4333,11 @@ void karte_t::step()
 			spieler[i]->step();
 		}
 	}
+rands[9] = get_random_seed();
 
 	DBG_DEBUG4("karte_t::step", "step halts");
 	haltestelle_t::step_all();
+rands[10] = get_random_seed();
 
 	// Re-check paths if the time has come. 
 	// Long months means that it might be necessary to do
@@ -4340,6 +4408,7 @@ void karte_t::step()
 		get_scenario()->step();
 	}
 	DBG_DEBUG4("karte_t::step", "end");
+rands[11] = get_random_seed();
 }
 
 
@@ -6952,6 +7021,9 @@ bool karte_t::interactive(uint32 quit_month)
 		for(  int i=0;  i<LAST_CHECKLISTS_COUNT;  ++i  ) {
 			last_checklists[i] = checklist_t();
 		}
+		for(  int i = 0;  i < 12  ;  i++  ) {
+			rands[i] = 0;
+		}
 	}
 	uint32 next_command_step = 0xFFFFFFFFu;
 	sint32 ms_difference = 0;
@@ -7135,7 +7207,7 @@ bool karte_t::interactive(uint32 quit_month)
 						// out of sync => drop client (but we can only compare if nwt->last_sync_step is not too old)
 						else if(  is_checklist_available(nwt->last_sync_step)  &&  LCHKLST(nwt->last_sync_step)!=nwt->last_checklist  ) {
 							// lost synchronisation -> server kicks client out actively
-							char buf[1024];
+							char buf[2048];
 							const int offset = LCHKLST(nwt->last_sync_step).print(buf, "server");
 							nwt->last_checklist.print(buf + offset, "initiator");
 							dbg->warning("karte_t::interactive", "kicking client due to checklist mismatch : sync_step=%u %s", nwt->last_sync_step, buf);
@@ -7214,7 +7286,7 @@ bool karte_t::interactive(uint32 quit_month)
 					// this was the random number at the previous sync step on the server
 					const checklist_t &server_checklist = nwcheck->server_checklist;
 					const uint32 server_sync_step = nwcheck->server_sync_step;
-					char buf[1024];
+					char buf[2048];
 					const int offset = server_checklist.print(buf, "server");
 					LCHKLST(server_sync_step).print(buf + offset, "client");
 					dbg->warning("karte_t::interactive", "sync_step=%u  %s", server_sync_step, buf);
@@ -7234,7 +7306,7 @@ bool karte_t::interactive(uint32 quit_month)
 						nwc_tool_t *nwt = dynamic_cast<nwc_tool_t *>(nwc);
 						if(  is_checklist_available(nwt->last_sync_step)  &&  LCHKLST(nwt->last_sync_step)!=nwt->last_checklist  ) {
 							// lost synchronisation ...
-							char buf[1024];
+							char buf[2048];
 							const int offset = nwt->last_checklist.print(buf, "server");
 							LCHKLST(nwt->last_sync_step).print(buf + offset, "executor");
 							dbg->warning("karte_t::interactive", "skipping command due to checklist mismatch : sync_step=%u %s", nwt->last_sync_step, buf);
@@ -7311,21 +7383,13 @@ bool karte_t::interactive(uint32 quit_month)
 						network_frame_count = 0;
 					}
 					sync_steps = steps * settings.get_frames_per_step() + network_frame_count;
-					LCHKLST(sync_steps) = checklist_t(get_random_seed(),
-						halthandle_t::get_next_check(), 
-						linehandle_t::get_next_check(), 
-						convoihandle_t::get_next_check(), 
-						path_explorer_t::is_processing(), 
-						path_explorer_t::get_current_compartment(), 
-						path_explorer_t::get_paths_available(), 
-						path_explorer_t::get_refresh_completed(), 
-						path_explorer_t::get_refresh_requested(), 
-						path_explorer_t::get_current_phase(), 
-						path_explorer_t::get_phase_counter(), 
-						path_explorer_t::get_iterations());
+					LCHKLST(sync_steps) = checklist_t(get_random_seed(), halthandle_t::get_next_check(), linehandle_t::get_next_check(), convoihandle_t::get_next_check(),
+						rands[0], rands[1], rands[2], rands[3], rands[4], rands[5], rands[6], rands[7], rands[8], rands[9], rands[10], rands[11],
+						path_explorer_t::is_processing(), path_explorer_t::get_current_compartment()
+					);
 
 #ifdef DEBUG_SIMRAND_CALLS
-					char buf[1024];
+					char buf[2048];
 					LCHKLST(sync_steps).print(buf, "chklist");
 					dbg->warning("karte_t::interactive", "sync_step=%u  %s", sync_steps, buf);
 #endif
