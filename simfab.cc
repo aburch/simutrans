@@ -1599,8 +1599,7 @@ sint8 fabrik_t::is_needed(const ware_besch_t *typ) const
 	FOR(array_tpl<ware_production_t>, const& i, eingang) {
 		if(  i.get_typ() == typ  ) {
 			// not needed (false) if overflowing or too much already sent
-			const bool transit_ok = max_intransit_percentages.get(typ->get_catg())  == 0 ? true : ((i.transit + i.menge) * 200) < ((i.max >> fabrik_t::precision_bits) * max_intransit_percentages.get(typ->get_catg()));
-			return transit_ok; 
+			return max_intransit_percentages.get(typ->get_catg()) == 0 ? (i.menge < i.max) : ((i.transit + i.menge) * 200) < ((i.max >> fabrik_t::precision_bits) * max_intransit_percentages.get(typ->get_catg()));
 		}
 	}
 	return -1;  // not needed here
