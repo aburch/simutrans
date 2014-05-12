@@ -1626,7 +1626,7 @@ uint16 haltestelle_t::find_route(minivec_tpl<halthandle_t> *destination_halts_li
 		uint16 test_time;
 		halthandle_t test_transfer;
 		path_explorer_t::get_catg_path_between(ware_catg, self, (*destination_halts_list)[i], test_time, test_transfer);
-
+		
 		if(! (*destination_halts_list)[i].is_bound() ) {
 			// This halt has been deleted recently.  Don't go there.
 			continue;

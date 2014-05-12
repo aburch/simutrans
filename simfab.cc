@@ -57,6 +57,8 @@
 #include "simwin.h"
 #include "simgraph.h"
 
+#include "path_explorer.h"
+
 // Fabrik_t
 
 
@@ -674,9 +676,6 @@ fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
 	city = NULL;
 
 	rdwr(file);
-	has_calculated_intransit_percentages = false;
-	// Cannot calculate intransit percentages here,
-	// as this can only be done when paths are available.
 
 	delta_sum = 0;
 	delta_menge = 0;
@@ -833,7 +832,6 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 	times_expanded = 0;
 
 	calc_max_intransit_percentages();
-	has_calculated_intransit_percentages = true;
 
 	update_scaled_electric_amount();
 	update_scaled_pax_demand();
@@ -1473,6 +1471,10 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 			}
 		}
 	}
+
+	has_calculated_intransit_percentages = false;
+	// Cannot calculate intransit percentages here,
+	// as this can only be done when paths are available.
 }
 
 
@@ -1620,7 +1622,6 @@ void fabrik_t::step(long delta_t)
 		// Can only do it here (once after loading) as paths
 		// are not available when loading, even in laden_a....
 		calc_max_intransit_percentages();
-		has_calculated_intransit_percentages = true;
 	}
 	
 	if(  delta_t==0  ) {
@@ -2863,6 +2864,13 @@ slist_tpl<const ware_besch_t*> *fabrik_t::get_produced_goods() const
 void fabrik_t::calc_max_intransit_percentages()
 {
 	max_intransit_percentages.clear();
+	if(!path_explorer_t::get_paths_available())
+	{
+		has_calculated_intransit_percentages = false;
+		return;
+	}
+
+	has_calculated_intransit_percentages = true;
 	const uint16 base_max_intransit_percentage = welt->get_settings().get_factory_maximum_intransit_percentage();
 	
 	uint32 index = 0;
