@@ -1598,8 +1598,8 @@ sint8 fabrik_t::is_needed(const ware_besch_t *typ) const
 {
 	FOR(array_tpl<ware_production_t>, const& i, eingang) {
 		if(  i.get_typ() == typ  ) {
-			// not needed (false) if overflowing or too much already sent
-			return max_intransit_percentages.get(typ->get_catg()) == 0 ? (i.menge < i.max) : ((i.transit + i.menge) * 200) < ((i.max >> fabrik_t::precision_bits) * max_intransit_percentages.get(typ->get_catg()));
+			// not needed (false) if overflowing or too much already sent			
+			return max_intransit_percentages.get(typ->get_catg()) == 0 ? (i.menge < i.max) : ((i.transit + (i.menge >> fabrik_t::precision_bits)) * 200) < ((i.max >> fabrik_t::precision_bits) * (sint32)max_intransit_percentages.get(typ->get_catg()));
 		}
 	}
 	return -1;  // not needed here
@@ -2908,8 +2908,7 @@ uint32 fabrik_t::get_lead_time(const ware_besch_t* wtype)
 	}
 	
 	// Tenths of minutes.
-	uint32 tenths_of_minutes_total = 0;
-	uint32 connected_supplier_count = 0;
+	uint32 longest_lead_time = 65535;
 
 	FOR(vector_tpl<koord>, const& supplier, suppliers)
 	{
@@ -2942,10 +2941,9 @@ uint32 fabrik_t::get_lead_time(const ware_besch_t* wtype)
 					}
 				}
 
-				if(best_journey_time < 65535)
+				if(best_journey_time < 65535 && (best_journey_time > longest_lead_time || longest_lead_time == 65535))
 				{
-					connected_supplier_count ++;
-					tenths_of_minutes_total += best_journey_time;
+					longest_lead_time = best_journey_time;
 				}
 				break;
 			}
@@ -2953,7 +2951,7 @@ uint32 fabrik_t::get_lead_time(const ware_besch_t* wtype)
 		
 	}
 
-	return connected_supplier_count > 0 ? tenths_of_minutes_total / connected_supplier_count : 65535;
+	return longest_lead_time;
 }
 
 uint32 fabrik_t::get_time_to_consume_stock(uint32 index)
