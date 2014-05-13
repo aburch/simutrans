@@ -7384,8 +7384,8 @@ bool karte_t::interactive(uint32 quit_month)
 					}
 					sync_steps = steps * settings.get_frames_per_step() + network_frame_count;
 					LCHKLST(sync_steps) = checklist_t(get_random_seed(), halthandle_t::get_next_check(), linehandle_t::get_next_check(), convoihandle_t::get_next_check(),
-						rands[0], rands[1], rands[2], rands[3], rands[4], rands[5], rands[6], rands[7], rands[8], rands[9], rands[10], rands[11],
-						path_explorer_t::is_processing(), path_explorer_t::get_current_compartment()
+						path_explorer_t::is_processing(), path_explorer_t::get_current_compartment(),
+						rands[0], rands[1], rands[2], rands[3], rands[4], rands[5], rands[6], rands[7], rands[8], rands[9], rands[10], rands[11]
 					);
 
 #ifdef DEBUG_SIMRAND_CALLS
