@@ -438,8 +438,6 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 
 	alle_haltestellen.append(self);
 
-	check_waiting = 0;
-
 	// Added by : Knightly
 	inauguration_time = 0;
 }
@@ -3410,6 +3408,10 @@ void haltestelle_t::rdwr(loadsave_t *file)
 	if(file->get_experimental_version() >= 12 || (file->get_version() >= 112007 && file->get_experimental_version() >= 11))
 	{
 		file->rdwr_byte(check_waiting);
+	}
+	else
+	{
+		check_waiting = 0;
 	}
 
 	// So compute it fresh every time
