@@ -299,7 +299,7 @@ checklist_t::checklist_t(uint32 _random_seed, uint16 _halt_entry, uint16 _line_e
 		total_iterations[i] = path_explorer_t::get_total_iterations(i);
 		i++;
 	}
-	while(  i++ < 10  ) {
+	for(  ; i < 10;  i++  ) {
 		paths_available[i] = refresh_completed[i] = refresh_requested[i] = false;
 		current_phase[i] = 0;
 		phase_counter[i] = working_halt_count[i] = all_halt_count[i] = transfer_count[i] = 0;
