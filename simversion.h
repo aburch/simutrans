@@ -18,7 +18,7 @@
 // Beware: SAVEGAME minor is often ahead of version minor when there were patches.
 // ==> These have no direct connection at all!
 #define SIM_SAVE_MINOR      3
-#define SIM_SERVER_MINOR    6
+#define SIM_SERVER_MINOR    7
 
 #define EX_VERSION_MAJOR	11
 #define EX_VERSION_MINOR	31

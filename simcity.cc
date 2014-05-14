@@ -954,6 +954,12 @@ void stadt_t::cityrules_rdwr(loadsave_t *file)
 		file->rdwr_long(bridge_success_percentage);
 	}
 
+	if(file->get_experimental_version() >= 12 || (file->get_version() >= 112007 && file->get_experimental_version() >= 11))
+	{
+		file->rdwr_long(renovations_try);
+		file->rdwr_long(renovations_count);
+	}
+
 	file->rdwr_short(ind_start_score);
 	file->rdwr_short(ind_neighbour_score[0]);
 	file->rdwr_short(ind_neighbour_score[1]);
