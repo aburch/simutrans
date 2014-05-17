@@ -176,6 +176,11 @@ private:
 	// this counter indicates which building will be processed next
 	uint32 step_count;
 
+public: //DESYNC DEBUG
+	uint32 get_step_count()  const { return step_count; }
+
+private:
+
 	/**
 	 * step so every house is asked once per month, 
 	 * assuming 21 bits per month and a passenger factor of 8
@@ -646,6 +651,7 @@ public:
 	bool get_citygrowth() const { return allow_citygrowth; }
 
 	void step(long delta_t);
+	void step2(long delta_t);
 
 	void neuer_monat(bool check);
 
@@ -798,7 +804,6 @@ public:
 	// @author: jamespetts
 	// September 2010
 	uint16 get_max_dimension();
-
 };
 
 #endif

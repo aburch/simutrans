@@ -2451,7 +2451,10 @@ void stadt_t::step(long delta_t)
 		step_grow_city();
 		next_growth_step -= stadt_t::city_growth_step;
 	}
+}
 
+void stadt_t::step2(long delta_t)
+{
 	// create passenger rate proportional to town size
 	while(step_interval < next_step) {
 		step_passagiere();

@@ -64,19 +64,28 @@ class network_world_command_t;
 class ware_besch_t;
 class memory_rw_t;
 
+#define CHK_RANDS 24
 
 struct checklist_t
 {
+	uint32 ss;
+	uint32 st;
+	uint8 nfc;
 	uint32 random_seed;
 	uint16 halt_entry;
 	uint16 line_entry;
 	uint16 convoy_entry;
 
 
-	uint32 rand[12];
+	uint32 rand[CHK_RANDS];
 	// Path explorer values
 	bool processing;
 	uint8 current_compartment;
+	uint32 limit_rebuild;
+	uint32 limit_filter;
+	uint32 limit_fill;
+	uint32 limit_explore; // 64 trunc to 32
+	uint32 limit_reroute;
 
 	// For the current compartment 
 	// (No sensible way of doing it for every possible compartment) --(just do for first 10)
@@ -90,10 +99,10 @@ struct checklist_t
 	uint16 transfer_count[10];
 	uint32 total_iterations[10];
 
-	checklist_t(uint32 _random_seed, uint16 _halt_entry, uint16 _line_entry, uint16 _convoy_entry, bool _processing, uint8 _current_compartment, uint32 _r0, uint32 _r1, uint32 _r2, uint32 _r3, uint32 _r4, uint32 _r5, uint32 _r6, uint32 _r7, uint32 _r8, uint32 _r9, uint32 _r10, uint32 _r11);
-	checklist_t() : random_seed(0), halt_entry(0), line_entry(0), convoy_entry(0), processing(false), current_compartment(0)
+	checklist_t(uint32 _ss, uint32 _st, uint8 _nfc, uint32 _random_seed, uint16 _halt_entry, uint16 _line_entry, uint16 _convoy_entry, bool _processing, uint8 _current_compartment, uint32 _limit_rebuild, uint32 _limit_filter, uint32 _limit_fill, uint32 _limit_explore, uint32 _limit_reroute, uint32 *_rands);
+	checklist_t() : ss(0), st(0), nfc(0), random_seed(0), halt_entry(0), line_entry(0), convoy_entry(0), processing(false), current_compartment(0), limit_rebuild(0), limit_filter(0), limit_fill(0), limit_explore(0), limit_reroute(0)
 	{
-		for(  uint8 i = 0;  i < 12;  i++  ) {
+		for(  uint8 i = 0;  i < CHK_RANDS;  i++  ) {
 			rand[i] = 0;
 		}
 		for(  uint8 i = 0;  i < 10;  i++  ) {
@@ -107,29 +116,36 @@ struct checklist_t
 	bool operator == (const checklist_t &other) const
 	{
 		bool compartments_equal = true;
-		for(  uint8 i = 0;  i < 12;  i++ ) {
-			compartments_equal &= rand[i] == other.rand[i];
+		for(  uint8 i = 0;  i < CHK_RANDS  &&  compartments_equal;  i++  ) {
+			compartments_equal = compartments_equal  &&  rand[i] == other.rand[i];
 		}
-		for(  uint8 i = 0;  i < 10;  i++ ) {
-			compartments_equal &= paths_available[i] == other.paths_available[i];
-			compartments_equal &= refresh_completed[i] == other.refresh_completed[i];
-			compartments_equal &= refresh_requested[i] == other.refresh_requested[i];
-			compartments_equal &= current_phase[i] == other.current_phase[i];
-			compartments_equal &= phase_counter[i] == other.phase_counter[i];
-			compartments_equal &= working_halt_count[i] == other.working_halt_count[i];
-			compartments_equal &= all_halt_count[i] == other.all_halt_count[i];
-			compartments_equal &= transfer_count[i] == other.transfer_count[i];
-			compartments_equal &= total_iterations[i] == other.total_iterations[i];
-			compartments_equal &= rand[i] == other.rand[i];
+		for(  uint8 i = 0;  i < 10  &&  compartments_equal;  i++  ) {
+			compartments_equal = compartments_equal  &&  paths_available[i] == other.paths_available[i];
+			compartments_equal = compartments_equal  &&  refresh_completed[i] == other.refresh_completed[i];
+			compartments_equal = compartments_equal  &&  refresh_requested[i] == other.refresh_requested[i];
+			compartments_equal = compartments_equal  &&  current_phase[i] == other.current_phase[i];
+			compartments_equal = compartments_equal  &&  phase_counter[i] == other.phase_counter[i];
+			compartments_equal = compartments_equal  &&  working_halt_count[i] == other.working_halt_count[i];
+			compartments_equal = compartments_equal  &&  all_halt_count[i] == other.all_halt_count[i];
+			compartments_equal = compartments_equal  &&  transfer_count[i] == other.transfer_count[i];
+			compartments_equal = compartments_equal  &&  total_iterations[i] == other.total_iterations[i];
 		}
 
-		return (random_seed == other.random_seed && 
+		return ( compartments_equal &&
+			ss == other.ss &&
+			st == other.st &&
+			nfc == other.nfc &&
+			random_seed == other.random_seed &&
 			halt_entry == other.halt_entry && 
 			line_entry == other.line_entry && 
 			convoy_entry == other.convoy_entry &&
 			processing == other.processing &&
 			current_compartment == other.current_compartment &&
-			compartments_equal
+			limit_explore == other.limit_explore &&
+			limit_filter == other.limit_filter &&
+			limit_fill == other.limit_fill &&
+			limit_rebuild == other.limit_rebuild &&
+			limit_reroute == other.limit_reroute
 			);
 	}
 	bool operator != (const checklist_t &other) const { return !( (*this)==other ); }
@@ -695,7 +711,7 @@ private:
 	/// @note variable used in interactive()
 	checklist_t last_checklists[LAST_CHECKLISTS_COUNT];
 #define LCHKLST(x) (last_checklists[(x) % LAST_CHECKLISTS_COUNT])
-	uint32 rands[12];
+	uint32 rands[CHK_RANDS];
 
 
 	/// @note variable used in interactive()

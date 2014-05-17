@@ -270,21 +270,12 @@ void karte_t::world_xy_loop(xy_loop_func function, bool sync_x_steps)
 }
 
 
-checklist_t::checklist_t(uint32 _random_seed, uint16 _halt_entry, uint16 _line_entry, uint16 _convoy_entry, bool _processing, uint8 _current_compartment, uint32 _r0, uint32 _r1, uint32 _r2, uint32 _r3, uint32 _r4, uint32 _r5, uint32 _r6, uint32 _r7, uint32 _r8, uint32 _r9, uint32 _r10, uint32 _r11)
-	: random_seed(_random_seed), halt_entry(_halt_entry), line_entry(_line_entry), convoy_entry(_convoy_entry), processing(_processing), current_compartment(_current_compartment)
+checklist_t::checklist_t(uint32 _ss, uint32 _st, uint8 _nfc, uint32 _random_seed, uint16 _halt_entry, uint16 _line_entry, uint16 _convoy_entry, bool _processing, uint8 _current_compartment, uint32 _limit_rebuild, uint32 _limit_filter, uint32 _limit_fill, uint32 _limit_explore, uint32 _limit_reroute, uint32 *_rands)
+	: ss(_ss), st(_st), nfc(_nfc), random_seed(_random_seed), halt_entry(_halt_entry), line_entry(_line_entry), convoy_entry(_convoy_entry), processing(_processing), current_compartment(_current_compartment), limit_rebuild(_limit_rebuild), limit_filter(_limit_filter), limit_fill(_limit_fill), limit_explore(_limit_explore), limit_reroute(_limit_reroute)
 {
-	rand[0] = _r0;
-	rand[1] = _r1;
-	rand[2] = _r2;
-	rand[3] = _r3;
-	rand[4] = _r4;
-	rand[5] = _r5;
-	rand[6] = _r6;
-	rand[7] = _r7;
-	rand[8] = _r8;
-	rand[9] = _r9;
-	rand[10] = _r10;
-	rand[11] = _r11;
+	for(  uint8 i = 0;  i < CHK_RANDS; i++  ) {
+		rand[i]	 = _rands[i];
+	}
 
 	uint8 i = 0;
 	while(  i < path_explorer_t::get_max_categories()  &&  i < 10  ) {
@@ -310,13 +301,22 @@ checklist_t::checklist_t(uint32 _random_seed, uint16 _halt_entry, uint16 _line_e
 
 void checklist_t::rdwr(memory_rw_t *buffer)
 {
+	buffer->rdwr_long(ss);
+	buffer->rdwr_long(st);
+	buffer->rdwr_byte(nfc);
 	buffer->rdwr_long(random_seed);
 	buffer->rdwr_short(halt_entry);
 	buffer->rdwr_short(line_entry);
 	buffer->rdwr_short(convoy_entry);
 
 	// desync debug
-	for(  uint8 i = 0;  i < 12;  i++  ) {
+	buffer->rdwr_long(limit_rebuild);
+	buffer->rdwr_long(limit_filter);
+	buffer->rdwr_long(limit_fill);
+	buffer->rdwr_long(limit_explore);
+	buffer->rdwr_long(limit_reroute);
+
+	for(  uint8 i = 0;  i < CHK_RANDS;  i++  ) {
 		buffer->rdwr_long(rand[i]);
 	}
 		buffer->rdwr_bool(processing);
@@ -337,10 +337,12 @@ void checklist_t::rdwr(memory_rw_t *buffer)
 
 int checklist_t::print(char *buffer, const char *entity) const
 {
-	return sprintf(buffer, "%s=[rand=%u halt=%u line=%u cnvy=%u rands=%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u proc=%d curr_cmpt=%u pa=%d,%d,%d,%d,%d,%d,%d,%d,%d,%d rc=%d,%d,%d,%d,%d,%d,%d,%d,%d,%d rr=%d,%d,%d,%d,%d,%d,%d,%d,%d,%d curr_ph=%u,%u,%u,%u,%u,%u,%u,%u,%u,%u ph_c=%u,%u,%u,%u,%u,%u,%u,%u,%u,%u whc=%u,%u,%u,%u,%u,%u,%u,%u,%u,%u ahc=%u,%u,%u,%u,%u,%u,%u,%u,%u,%u tc=%u,%u,%u,%u,%u,%u,%u,%u,%u,%u tot_iter=%u,%u,%u,%u,%u,%u,%u,%u,%u,%u] ",
-		entity, random_seed, halt_entry, line_entry, convoy_entry,
-		rand[0], rand[1], rand[2], rand[3], rand[4], rand[5], rand[6], rand[7], rand[8], rand[9], rand[10], rand[11],
+	return sprintf(buffer, "%s=[ss=%u st=%u nfc=%u rand=%u halt=%u line=%u cnvy=%u ssr=%u,%u,%u,%u,%u,%u,%u,%u str=%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u proc=%d curr_cmpt=%u lim=%u,%u,%u,%u,%u pa=%d,%d,%d,%d,%d,%d,%d,%d,%d,%d rc=%d,%d,%d,%d,%d,%d,%d,%d,%d,%d rr=%d,%d,%d,%d,%d,%d,%d,%d,%d,%d curr_ph=%u,%u,%u,%u,%u,%u,%u,%u,%u,%u ph_c=%u,%u,%u,%u,%u,%u,%u,%u,%u,%u whc=%u,%u,%u,%u,%u,%u,%u,%u,%u,%u ahc=%u,%u,%u,%u,%u,%u,%u,%u,%u,%u tc=%u,%u,%u,%u,%u,%u,%u,%u,%u,%u tot_iter=%u,%u,%u,%u,%u,%u,%u,%u,%u,%u] ",
+		entity, ss, st, nfc, random_seed, halt_entry, line_entry, convoy_entry,
+		rand[0], rand[1], rand[2], rand[3], rand[4], rand[5], rand[6], rand[7], rand[8],
+		rand[9], rand[10], rand[11], rand[12], rand[13], rand[14], rand[15], rand[16], rand[17], rand[18], rand[19], rand[20], rand[21], rand[22], rand[23],
 		processing, current_compartment,
+		limit_rebuild, limit_filter, limit_fill, limit_explore, limit_reroute,
 		paths_available[0], paths_available[1], paths_available[2], paths_available[3], paths_available[4], paths_available[5], paths_available[6], paths_available[7], paths_available[8], paths_available[9],
 		refresh_completed[0], refresh_completed[1], refresh_completed[2], refresh_completed[3], refresh_completed[4], refresh_completed[5], refresh_completed[6], refresh_completed[7], refresh_completed[8], refresh_completed[9],
 		refresh_requested[0], refresh_requested[1], refresh_requested[2], refresh_requested[3], refresh_requested[4], refresh_requested[5], refresh_requested[6], refresh_requested[7], refresh_requested[8], refresh_requested[9],
@@ -3481,6 +3483,7 @@ bool karte_t::sync_remove(sync_steppable *obj)	// entfernt alle dinge == obj aus
  */
 void karte_t::sync_step(long delta_t, bool sync, bool display )
 {
+rands[0] = get_random_seed();
 	set_random_mode( SYNC_STEP_RANDOM );
 	haltestelle_t::pedestrian_limit = 0;
 	if(sync) {
@@ -3500,11 +3503,13 @@ void karte_t::sync_step(long delta_t, bool sync, bool display )
 		 * => they are now in a hastable!
 		 */
 		sync_eyecandy_step( delta_t );
+rands[1] = get_random_seed();
 
 		/* pedestrians do not require exact sync and are added/removed frequently
 		 * => they are now in a hastable!
 		 */
 		sync_way_eyecandy_step( delta_t );
+rands[2] = get_random_seed();
 
 		clear_random_mode( INTERACTIVE_RANDOM );
 
@@ -3564,6 +3569,7 @@ void karte_t::sync_step(long delta_t, bool sync, bool display )
 
 		sync_step_running = false;
 	}
+rands[3] = get_random_seed();
 
 	if(display) {
 		// only omitted in fast forward mode for the magic steps
@@ -3594,6 +3600,7 @@ void karte_t::sync_step(long delta_t, bool sync, bool display )
 		update_frame_sleep_time(delta_t);
 	}
 	clear_random_mode( SYNC_STEP_RANDOM );
+rands[4] = get_random_seed();
 }
 
 
@@ -4167,7 +4174,7 @@ void karte_t::notify_record( convoihandle_t cnv, sint32 max_speed, koord pos )
 
 void karte_t::step()
 {
-rands[0] = get_random_seed();
+rands[8] = get_random_seed();
 	DBG_DEBUG4("karte_t::step", "start step");
 	unsigned long time = dr_time();
 
@@ -4194,7 +4201,7 @@ rands[0] = get_random_seed();
 		DBG_DEBUG4("karte_t::step", "calling neuer_monat");
 		new_month();
 	}
-rands[1] = get_random_seed();
+rands[9] = get_random_seed();
 
 	DBG_DEBUG4("karte_t::step", "time calculations");
 	if(  step_mode==NORMAL  ) {
@@ -4269,14 +4276,14 @@ rands[1] = get_random_seed();
 			tile_counter = 0;
 		}
 	}
-rands[2] = get_random_seed();
+rands[10] = get_random_seed();
 
 	// to make sure the tick counter will be updated
 	INT_CHECK("karte_t::step 1");
 
 	// Knightly : calling global path explorer
 	path_explorer_t::step();
-rands[3] = get_random_seed();
+rands[11] = get_random_seed();
 	INT_CHECK("karte_t::step 2");
 	
 	DBG_DEBUG4("karte_t::step 4", "step %d convois", convoi_array.get_count());
@@ -4288,7 +4295,7 @@ rands[3] = get_random_seed();
 			INT_CHECK("karte_t::step 5");
 		}
 	}
-rands[4] = get_random_seed();
+rands[12] = get_random_seed();
 
 	if(cities_awaiting_private_car_route_check.get_count() > 0 && (steps % 12) == 0)
 	{
@@ -4296,7 +4303,7 @@ rands[4] = get_random_seed();
 		city->check_all_private_car_routes();
 		city->set_check_road_connexions(false);
 	}
-rands[5] = get_random_seed();
+rands[13] = get_random_seed();
 
 
 	// now step all towns (to generate passengers)
@@ -4304,9 +4311,17 @@ rands[5] = get_random_seed();
 	sint64 bev=0;
 	FOR(weighted_vector_tpl<stadt_t*>, const i, stadt) {
 		i->step(delta_t);
+	}
+rands[14] = get_random_seed();
+rands[23] = 0;
+	FOR(weighted_vector_tpl<stadt_t*>, const i, stadt) {
+		i->step2(delta_t);
+rands[23] += i->get_step_count();
 		bev += i->get_finance_history_month(0, HIST_CITICENS);
 	}
-rands[6] = get_random_seed();
+rands[15] = get_random_seed();
+
+
 
 	// the inhabitants stuff
 	finance_history_month[0][WORLD_CITICENS] = bev;
@@ -4315,7 +4330,7 @@ rands[6] = get_random_seed();
 	FOR(vector_tpl<fabrik_t*>, const f, fab_list) {
 		f->step(delta_t);
 	}
-rands[7] = get_random_seed();
+rands[16] = get_random_seed();
 
 	finance_history_year[0][WORLD_FACTORIES] = finance_history_month[0][WORLD_FACTORIES] = fab_list.get_count();
 
@@ -4324,7 +4339,7 @@ rands[7] = get_random_seed();
 	pumpe_t::step_all( delta_t );
 	senke_t::step_all( delta_t );
 	powernet_t::step_all( delta_t );
-rands[8] = get_random_seed();
+rands[17] = get_random_seed();
 
 	DBG_DEBUG4("karte_t::step", "step players");
 	// then step all players
@@ -4333,11 +4348,11 @@ rands[8] = get_random_seed();
 			spieler[i]->step();
 		}
 	}
-rands[9] = get_random_seed();
+rands[18] = get_random_seed();
 
 	DBG_DEBUG4("karte_t::step", "step halts");
 	haltestelle_t::step_all();
-rands[10] = get_random_seed();
+rands[19] = get_random_seed();
 
 	// Re-check paths if the time has come. 
 	// Long months means that it might be necessary to do
@@ -4408,7 +4423,7 @@ rands[10] = get_random_seed();
 		get_scenario()->step();
 	}
 	DBG_DEBUG4("karte_t::step", "end");
-rands[11] = get_random_seed();
+rands[20] = get_random_seed();
 }
 
 
@@ -5586,6 +5601,16 @@ void karte_t::load(loadsave_t *file)
 	}
 
 	loaded_rotation = settings.get_rotation();
+
+	if(  umgebung_t::networkmode  ) {
+		// clear the checklist history
+		for(  int i=0;  i<LAST_CHECKLISTS_COUNT;  ++i  ) {
+			last_checklists[i] = checklist_t();
+		}
+		for(  int i = 0;  i < CHK_RANDS  ;  i++  ) {
+			rands[i] = 0;
+		}
+	}
 
 #ifndef DEBUG_SIMRAND_CALLS
 	if(  umgebung_t::networkmode  ) {
@@ -7021,9 +7046,6 @@ bool karte_t::interactive(uint32 quit_month)
 		for(  int i=0;  i<LAST_CHECKLISTS_COUNT;  ++i  ) {
 			last_checklists[i] = checklist_t();
 		}
-		for(  int i = 0;  i < 12  ;  i++  ) {
-			rands[i] = 0;
-		}
 	}
 	uint32 next_command_step = 0xFFFFFFFFu;
 	sint32 ms_difference = 0;
@@ -7290,6 +7312,9 @@ bool karte_t::interactive(uint32 quit_month)
 					const int offset = server_checklist.print(buf, "server");
 					LCHKLST(server_sync_step).print(buf + offset, "client");
 					dbg->warning("karte_t::interactive", "sync_step=%u  %s", server_sync_step, buf);
+					if(  !is_checklist_available(server_sync_step)  ) {
+						dbg->error("karte_t::interactive", "checklist not available: %u", server_sync_step)					;
+					}
 					if( LCHKLST(server_sync_step)!=server_checklist  ) {
 						dbg->warning("karte_t::interactive", "disconnecting due to checklist mismatch" );
 						printf("Desync due to checklist mismatch\nsync_step=%u  %s", server_sync_step, buf);
@@ -7383,9 +7408,9 @@ bool karte_t::interactive(uint32 quit_month)
 						network_frame_count = 0;
 					}
 					sync_steps = steps * settings.get_frames_per_step() + network_frame_count;
-					LCHKLST(sync_steps) = checklist_t(get_random_seed(), halthandle_t::get_next_check(), linehandle_t::get_next_check(), convoihandle_t::get_next_check(),
-						path_explorer_t::is_processing(), path_explorer_t::get_current_compartment(),
-						rands[0], rands[1], rands[2], rands[3], rands[4], rands[5], rands[6], rands[7], rands[8], rands[9], rands[10], rands[11]
+					LCHKLST(sync_steps) = checklist_t(sync_steps, (uint32)steps, network_frame_count, get_random_seed(), halthandle_t::get_next_check(), linehandle_t::get_next_check(), convoihandle_t::get_next_check(),
+						path_explorer_t::is_processing(), path_explorer_t::get_current_compartment(), path_explorer_t::get_limit_rebuild_connexions(), path_explorer_t::get_limit_filter_eligible(), path_explorer_t::get_limit_fill_matrix(), (uint32)path_explorer_t::get_limit_explore_paths(), path_explorer_t::get_limit_reroute_goods(),
+						rands
 					);
 
 #ifdef DEBUG_SIMRAND_CALLS

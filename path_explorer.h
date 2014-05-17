@@ -316,11 +316,11 @@ private:
 		static bool local_limits_changed;
 
 		// default iteration limits
-		static const uint32 default_rebuild_connexions = 4096;
-		static const uint32 default_filter_eligible = 4096;
-		static const uint32 default_fill_matrix = 4096;
-		static const uint64 default_explore_paths = 1048576;
-		static const uint32 default_reroute_goods = 4096;
+		static const uint32 default_rebuild_connexions  = 0x0400;
+		static const uint32 default_filter_eligible = 0x00018000;
+		static const uint32 default_fill_matrix     = 0x00010000;
+		static const uint64 default_explore_paths   = 0x01000000;
+		static const uint32 default_reroute_goods       = 0x0100;
 
 		// phase indices
 		static const uint8 phase_check_flag = 0;
