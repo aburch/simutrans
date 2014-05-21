@@ -4313,6 +4313,8 @@ rands[21] = 0;
 rands[22] = 0;
 	FOR(weighted_vector_tpl<stadt_t*>, const i, stadt) {
 		i->step(delta_t);
+		rands[21] += i->get_einwohner();
+		rands[22] += i->get_buildings();
 	}
 rands[14] = get_random_seed();
 rands[23] = 0;
