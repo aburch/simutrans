@@ -4309,6 +4309,8 @@ rands[13] = get_random_seed();
 	// now step all towns (to generate passengers)
 	DBG_DEBUG4("karte_t::step 6", "step cities");
 	sint64 bev=0;
+rands[21] = 0;
+rands[22] = 0;
 	FOR(weighted_vector_tpl<stadt_t*>, const i, stadt) {
 		i->step(delta_t);
 	}

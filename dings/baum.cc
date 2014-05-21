@@ -203,6 +203,7 @@ uint32 baum_t::create_forest(karte_t *welt, koord new_center, koord wh )
 			const sint32 x_tree_pos = (j-(wh.x>>1));
 			const sint32 y_tree_pos = (i-(wh.y>>1));
 
+			// This is NOT network safe for different platforms/compilers. 
 			const uint64 distance = 1 + ((uint64) sqrt( ((double)x_tree_pos*x_tree_pos*(wh.y*wh.y) + (double)y_tree_pos*y_tree_pos*(wh.x*wh.x))));
 			const uint32 tree_probability = (uint32)( ( 8 * (uint32)((wh.x*wh.x)+(wh.y*wh.y)) ) / distance );
 
