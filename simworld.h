@@ -522,7 +522,7 @@ private:
 	 * @param ctest which directions should be recursively checked (ribi_t style bitmap)
 	 * @returns whether raise_to operation can be performed
 	 */
-	bool can_raise_to(sint16 x, sint16 y, bool keep_water, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, uint8 ctest=15) const;
+	bool can_raise_to(sint16 x, sint16 y, bool keep_water, bool allow_deep_water, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, uint8 ctest=15) const;
 
 	/**
 	 * Raises heights of the corners of the tile at (@p x, @p y).
@@ -1866,7 +1866,7 @@ public:
 	 * Increases the height of the grid coordinate (x, y) by one.
 	 * @param pos Grid coordinate.
 	 */
-	int grid_raise(koord pos);
+	int grid_raise(koord pos, bool allow_deep_water);
 
 	/**
 	 * Decreases the height of the grid coordinate (x, y) by one.

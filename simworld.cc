@@ -2278,7 +2278,7 @@ static int raise_frame_counter = 0;
  * new heights for each corner given
  * only test corners in ctest to avoid infinite loops
  */
-bool karte_t::can_raise_to(sint16 x, sint16 y, bool keep_water, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, uint8 ctest) const
+bool karte_t::can_raise_to(sint16 x, sint16 y, bool keep_water, bool allow_deep_water, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, uint8 ctest) const
 {
 	bool ok = false;
 	if(is_within_limits(x,y)) {
@@ -2291,8 +2291,14 @@ bool karte_t::can_raise_to(sint16 x, sint16 y, bool keep_water, sint8 hsw, sint8
 		const sint8 h0_nw = corner4(ctest) ? (gr->ist_wasser() ? min(grundwasser, lookup_hgt(koord(x,y)))     : h0 + corner4(gr->get_grund_hang()) ) : hnw+1;
 
 		const sint8 max_hgt = max(max(hsw,hse),max(hne,hnw));
+		const sint8 min_hgt = min(min(hsw,hse),min(hne,hnw));
 
 		if (gr->ist_wasser()  &&  keep_water  &&  max_hgt > grundwasser) {
+			return false;
+		}
+
+		if(min_hgt < grundwasser && !allow_deep_water) 
+		{
 			return false;
 		}
 
@@ -2304,39 +2310,39 @@ bool karte_t::can_raise_to(sint16 x, sint16 y, bool keep_water, sint8 hsw, sint8
 		ok = can_raise_plan_to( x, y, max_hgt);
 		// sw
 		if (ok && h0_sw < hsw) {
-			ok = can_raise_to( x-1, y+1, keep_water, hsw-1, hsw-1, hsw, hsw-1, 11);
+			ok = can_raise_to( x-1, y+1, keep_water, allow_deep_water, hsw-1, hsw-1, hsw, hsw-1, 11);
 		}
 		// s
 		if (ok && (h0_se < hse || h0_sw < hsw) && ((ctest&3)==3)) {
 			const sint8 hs = max(hse, hsw) -1;
-			ok = can_raise_to(x,y+1, keep_water, hs, hs, hse, hsw, 3);
+			ok = can_raise_to(x,y+1, keep_water, allow_deep_water, hs, hs, hse, hsw, 3);
 		}
 		// se
 		if (ok && h0_se < hse) {
-			ok = can_raise_to(x+1,y+1, keep_water, hse-1, hse-1, hse-1, hse, 7);
+			ok = can_raise_to(x+1,y+1, keep_water, allow_deep_water, hse-1, hse-1, hse-1, hse, 7);
 		}
 		// e
 		if (ok && (h0_se < hse || h0_ne < hne) && ((ctest&6)==6)) {
 			const sint8 he = max(hse, hne) -1;
-			ok = can_raise_to(x+1,y, keep_water, hse, he, he, hne, 6);
+			ok = can_raise_to(x+1,y, keep_water, allow_deep_water, hse, he, he, hne, 6);
 		}
 		// ne
 		if (ok && h0_ne < hne) {
-			ok = can_raise_to(x+1,y-1, keep_water, hne, hne-1, hne-1, hne-1, 14);
+			ok = can_raise_to(x+1,y-1, keep_water, allow_deep_water, hne, hne-1, hne-1, hne-1, 14);
 		}
 		// n
 		if (ok && (h0_nw < hnw || h0_ne < hne) && ((ctest&12)==12)) {
 			const sint8 hn = max(hnw, hne) -1;
-			ok = can_raise_to(x,y-1, keep_water, hnw, hne, hn, hn, 12);
+			ok = can_raise_to(x,y-1, keep_water, allow_deep_water, hnw, hne, hn, hn, 12);
 		}
 		// nw
 		if (ok && h0_nw < hnw) {
-			ok = can_raise_to(x-1,y-1, keep_water, hnw-1, hnw, hnw-1, hnw-1, 13);
+			ok = can_raise_to(x-1,y-1, keep_water, allow_deep_water, hnw-1, hnw, hnw-1, hnw-1, 13);
 		}
 		// w
 		if (ok && (h0_nw < hnw || h0_sw < hsw) && ((ctest&9)==9)) {
 			const sint8 hw = max(hnw, hsw) -1;
-			ok = can_raise_to(x-1,y, keep_water, hw, hsw, hnw, hw, 9);
+			ok = can_raise_to(x-1,y, keep_water, allow_deep_water, hw, hsw, hnw, hw, 9);
 		}
 	}
 	else {
@@ -2469,7 +2475,7 @@ void karte_t::raise_grid_to(sint16 x, sint16 y, sint8 h)
 }
 
 
-int karte_t::grid_raise(koord pos)
+int karte_t::grid_raise(koord pos, bool allow_deep_water)
 {
 	int n = 0;
 
@@ -2487,7 +2493,7 @@ int karte_t::grid_raise(koord pos)
 		const sint8 hne = hgt + corner3(corner_to_raise);
 		const sint8 hnw = hgt + corner4(corner_to_raise);
 
-		if (can_raise_to(x, y, false, hsw, hse, hne, hnw)) {
+		if (can_raise_to(x, y, false, allow_deep_water, hsw, hse, hne, hnw)) {
 			n = raise_to(x, y, hsw, hse, hne, hnw);
 			// force world full redraw, or background could be dirty.
 			set_dirty();
@@ -2726,7 +2732,7 @@ bool karte_t::can_ebne_planquadrat(koord pos, sint8 hgt, bool keep_water, bool m
 		return can_lower_to(pos.x, pos.y, hgt, hgt, hgt, hgt);
 	}
 	else {
-		return can_raise_to(pos.x, pos.y, keep_water, hgt, hgt, hgt, hgt);
+		return can_raise_to(pos.x, pos.y, keep_water, true, hgt, hgt, hgt, hgt);
 	}
 }
 
@@ -2745,7 +2751,7 @@ bool karte_t::ebne_planquadrat(spieler_t *sp, koord pos, sint8 hgt, bool keep_wa
 		}
 	}
 	else {
-		if(  can_raise_to(pos.x, pos.y, keep_water, hgt, hgt, hgt, hgt)  ) {
+		if(  can_raise_to(pos.x, pos.y, keep_water, true, hgt, hgt, hgt, hgt)  ) {
 			n = raise_to(pos.x, pos.y, hgt, hgt, hgt, hgt);
 			ok = true;
 		}

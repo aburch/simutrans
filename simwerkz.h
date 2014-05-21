@@ -66,7 +66,7 @@ protected:
 	bool is_dragging;
 	sint16 drag_height;
 
-	bool drag(karte_t *welt, koord pos, sint16 h, int &n);
+	bool drag(karte_t *welt, koord pos, sint16 h, int &n, bool allow_deep_water);
 	virtual sint16 get_drag_height(karte_t *welt, koord pos) = 0;
 	bool check_dragging();
 public:
