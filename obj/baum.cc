@@ -7,7 +7,6 @@
 
 #include <string>
 #include <stdio.h>
-#include <math.h>
 
 #include "../simdebug.h"
 #include "../simworld.h"
@@ -193,7 +192,7 @@ uint32 baum_t::create_forest(koord new_center, koord wh )
 			const sint32 x_tree_pos = (j-(wh.x>>1));
 			const sint32 y_tree_pos = (i-(wh.y>>1));
 
-			const uint64 distance = 1 + ((uint64) sqrt( ((double)x_tree_pos*x_tree_pos*(wh.y*wh.y) + (double)y_tree_pos*y_tree_pos*(wh.x*wh.x))));
+			const uint64 distance = 1 + sqrt_i64( ((uint64)x_tree_pos*x_tree_pos*(wh.y*wh.y) + (uint64)y_tree_pos*y_tree_pos*(wh.x*wh.x)));
 			const uint32 tree_probability = (uint32)( ( 8 * (uint32)((wh.x*wh.x)+(wh.y*wh.y)) ) / distance );
 
 			if (tree_probability < 38) {

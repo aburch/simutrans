@@ -89,5 +89,6 @@ uint32 log2( uint32 i );
 
 // compute integer sqrt
 uint32 sqrt_i32(uint32 num);
+uint64 sqrt_i64(uint64 num);
 
 #endif

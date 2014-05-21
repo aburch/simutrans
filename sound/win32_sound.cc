@@ -83,8 +83,9 @@ void dr_play_sample(int sample_number, int volume)
 		UINT flags = SND_MEMORY | SND_ASYNC | SND_NODEFAULT;
 		// Terminate the current sound, if not already the requested one.
 		static int last_sample_nr = -1;
-		if (last_sample_nr == sample_number)
+		if(  last_sample_nr == sample_number  ) {
 			flags |= SND_NOSTOP;
+		}
 		last_sample_nr = sample_number;
 		sndPlaySound(static_cast<TCHAR const*>(samples[sample_number]), flags);
 	}
