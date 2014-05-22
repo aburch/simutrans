@@ -5,6 +5,7 @@
  * (see licence.txt)
  */
 
+#include <math.h>
 #include <string>
 #include <stdio.h>
 
