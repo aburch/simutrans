@@ -1161,6 +1161,12 @@ void haltestelle_t::step()
 							add_pax_unhappy(tmp.menge);
 						}
 
+						if(tmp.is_freight())
+						{
+							// Make sure to adjust the destination factory's in-transit figure.
+							fabrik_t::update_transit(tmp, false);
+						}
+
 						// Experimental 7.2 - if they are discarded, a refund is due.
 
 						if(tmp.get_origin().is_bound() && get_besitzer()->get_finance()->get_account_balance() > 0)
