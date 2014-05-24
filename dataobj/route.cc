@@ -262,6 +262,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 	tmp->gr = g;
 	tmp->count = 0;
 	tmp->g = 0;
+	tmp->f = 0;
 
 	// start in open
 	queue.insert(tmp);
@@ -407,6 +408,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 				k->gr = to;
 				k->count = tmp->count + 1;
 				k->g = tmp->g + fahr->get_kosten(to, max_khm, gr->get_pos().get_2d());
+				k->f = 0;
 				// insert here
 				queue.insert(k);
 			}

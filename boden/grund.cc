@@ -398,8 +398,13 @@ grund_t::~grund_t()
 	set_text(NULL);
 
 	dinge.loesche_alle(NULL,0);
-	if(flags&is_halt_flag) {
-		get_halt()->rem_grund(this);
+	if(flags&is_halt_flag)
+	{
+		halthandle_t halt = get_halt();
+		if(halt.is_bound())
+		{
+			get_halt()->rem_grund(this);
+		}
 	}
 }
 

@@ -218,6 +218,10 @@ public:
 		{
 			return 0;
 		}
+		if(count == 1)
+		{
+			return total;
+		}
 		return total / count;
 	}
 
@@ -226,6 +230,19 @@ public:
 		total = 0;
 		count = 0;
 	}		
+
+	/**
+	* This compresses all values to give new numbers added
+	* after this method is called greater weight in the
+	* calculations than existing values, without erasing the
+	* current average. Returns the current average.
+	*/
+	inline T reduce()
+	{
+		total = get_average();
+		count = 1;
+		return total; 
+	}
 };
 
 struct id_pair

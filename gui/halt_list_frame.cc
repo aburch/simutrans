@@ -131,6 +131,7 @@ static bool passes_filter_type(haltestelle_t const& s)
 	return false;
 }
 
+typedef quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> connexions_map_single_remote;
 
 static bool passes_filter_special(haltestelle_t & s)
 {
@@ -143,11 +144,24 @@ static bool passes_filter_special(haltestelle_t & s)
 		}
 	}
 
-	if (halt_list_frame_t::get_filter(halt_list_frame_t::ohneverb_filter)) {
-		for (uint8 i = 0; i < warenbauer_t::get_max_catg_index(); ++i){
-			if (!s.get_connexions(i)->empty()) return false; //only display stations with NO connexion
+	if(halt_list_frame_t::get_filter(halt_list_frame_t::ohneverb_filter))
+	{
+		bool walking_connexion_only = true; // Walking connexion or no connexion at all.
+		for(uint8 i = 0; i < warenbauer_t::get_max_catg_index(); ++i)
+		{
+			if(!s.get_connexions(i)->empty()) 
+			{
+				// There might be a walking connexion here - do not count a walking connexion.
+				FOR(connexions_map_single_remote, &c, *s.get_connexions(i) )
+				{
+					if(c.value->best_line.is_bound() || c.value->best_convoy.is_bound())
+					{
+						walking_connexion_only = false;
+					}
+				}
+			}
 		}
-		return true;
+		return walking_connexion_only; //only display stations with NO connexion (other than a walking connexion)
 	}
 
 	return false;

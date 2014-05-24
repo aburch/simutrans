@@ -657,7 +657,6 @@ public:
 	// @author: jamespetts
 	// September 2010
 	uint16 get_max_dimension();
-
 };
 
 #endif

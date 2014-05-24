@@ -9,12 +9,14 @@
 #include <stdlib.h>
 
 /*
- * Define the key characteristics for hashing pointers. For hashing the
+ * Define the key characteristica for hashing pointers. For hashing the
  * direct value is used.
  */
 template<class key_t>
 class ptrhash_tpl {
 public:
+	typedef ptrdiff_t diff_type;
+
 	static uint32 hash(const key_t key)
 	{
 		return (uint32)(size_t)key;
@@ -25,9 +27,9 @@ public:
 		printf("%p", (void *)key);
 	}
 
-	static long comp(key_t key1, key_t key2)
+	static diff_type comp(key_t key1, key_t key2)
 	{
-		return (long)((size_t)key1 - (size_t)key2);
+		return key1 - key2;
 	}
 };
 

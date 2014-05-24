@@ -567,6 +567,7 @@ public:
 	 * 0 wenn Produktionsstopp,
 	 * -1 wenn Ware nicht verarbeitet wird
 	 */
+
 	sint8 is_needed(const ware_besch_t *) const;
 
 	sint32 liefere_an(const ware_besch_t *, sint32 menge);
